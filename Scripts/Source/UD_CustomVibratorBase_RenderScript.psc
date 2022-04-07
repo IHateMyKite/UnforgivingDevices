@@ -132,7 +132,7 @@ string Function getVibDetails(string str = "")
 			str += "Rem. duration: " + "INF" + " s\n"
 		endif
 		str += "Arousal rate: " + UDmain.FormatString(getVibArousalRate(),2) + " A/s\n"
-		str += "Orgasm rate: " + UDmain.FormatString(_appliedOrgasmRate,2) + " O/s\n"
+		str += "Orgasm rate: " + UDmain.FormatString(_appliedOrgasmRate,2) + " Op/s\n"
 		str += "Current vib mode: "
 		if _currentEdgingMode == 0
 			str += "Normal\n"

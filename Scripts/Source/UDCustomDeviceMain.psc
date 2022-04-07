@@ -1533,7 +1533,7 @@ Function showActorDetails(Actor akActor)
 	loc_orgStr += "Orgasm capacity: " + Round(getActorOrgasmCapacity(akActor)) + "\n"
 	loc_orgStr += "Orgasm resistence: " + UDmain.FormatString(getActorOrgasmResist(akActor),1) + "\n"
 	loc_orgStr += "Orgasm progress: " + UDmain.formatString(getOrgasmProgressPerc(akActor) * 100,2) + " %\n"
-	loc_orgStr += "Orgasm rate: " + UDmain.formatString(getActorAfterMultOrgasmRate(akActor),2) + " - " + UDmain.formatString(getActorAfterMultAntiOrgasmRate(akActor),2) + " O/s\n"
+	loc_orgStr += "Orgasm rate: " + UDmain.formatString(getActorAfterMultOrgasmRate(akActor),2) + " - " + UDmain.formatString(getActorAfterMultAntiOrgasmRate(akActor),2) + " Op/s\n"
 	loc_orgStr += "Orgasm mult: " + Round(getActorOrgasmRateMultiplier(akActor)*100.0) + " %\n"
 	loc_orgStr += "Orgasm resisting: " + Round(getActorOrgasmResistMultiplier(akActor)*100.0) + " %\n"
 

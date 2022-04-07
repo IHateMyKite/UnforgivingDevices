@@ -4110,11 +4110,11 @@ string Function getModifiers(string str = "")
 	endif
 	
 	if hasModifier("MAH")
-		str += "!Random manifest! (" + getModifierIntParam("MAH",0) +" %)\n"
+		str += "Random manifest (" + getModifierIntParam("MAH",0) +" %)\n"
 	endif
 	
 	if hasModifier("MAO")
-		str += "!Orgasm manifest! (" + getModifierIntParam("MAO",0) +" %)\n"
+		str += "Orgasm manifest (" + getModifierIntParam("MAO",0) +" %)\n"
 	endif
 	
 	if UD_OnDestroyItemList
