@@ -2986,12 +2986,26 @@ Function CritLoopOrgasmResist(Int iChance,Float fDifficulty)
 		endif	
 		if loc_sendCrit
 			crit = True
-			selected_crit_meter = loc_meter
 			if (loc_meter == "S")
-				UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartStaminaBlinking")
+				if UD_CritEffect == 2 || UD_CritEffect == 1
+					UDlibs.GreenCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
+				endif
+				if UD_CritEffect == 2 || UD_CritEffect == 0
+					UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartStaminaBlinking")
+				endif
 			elseif (loc_meter == "M")
-				UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartMagickaBlinking")
+				if UD_CritEffect == 2 || UD_CritEffect == 1
+					UDlibs.BlueCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
+				endif
+				if UD_CritEffect == 2 || UD_CritEffect == 0
+					UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartMagickaBlinking")
+				endif
+			elseif (loc_meter == "R")
+				if UD_CritEffect == 2 || UD_CritEffect == 1
+					UDlibs.RedCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
+				endif
 			endif
+			
 			Utility.wait(fDifficulty)
 			crit = False
 			loc_meter = "none"
