@@ -751,18 +751,20 @@ Function ActorOrgasmPatched(actor akActor,int iDuration, int iDecreaseArousalBy 
 	sslBaseExpression expression = UDCDmain.UDEM.getExpression("UDOrgasm")
 	ApplyExpressionPatched(akActor, expression, 100,false,80)
 	
+	bool sneakfix = akActor.IsSneaking() || akActor.IsInFaction(UDCDmain.MinigameFaction) || akActor.IsInFaction(UDCDmain.OrgasmFaction)
+
 	if UDCDmain.actorInMinigame(akActor)
 		UDCDmain.enableActor(akActor)
 		UDCDMain.getMinigameDevice(akActor).stopMinigameAndWait()
 	endif
 	
-	if akActor.IsInCombat()  || akActor.IsSneaking()
+	if akActor.IsInCombat() || akActor.IsSneaking()
 		if UDCDmain.ActorIsPlayer(akActor)
 			UDCDmain.Print("You managed to not loss control over your body from orgasm!",2)
 		endif
 		akActor.damageAv("Stamina",50.0)
 		akActor.damageAv("Magicka",50.0)
-		if UDCDmain.actorInMinigame(akActor)
+		if UDCDmain.actorInMinigame(akActor) || sneakfix
 			EndThirdPersonAnimation(akActor, new Bool[2],true)
 		endif
 		Utility.wait(iDuration)
