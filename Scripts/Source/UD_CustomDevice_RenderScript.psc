@@ -3438,13 +3438,13 @@ Function minigame()
 		debug.notification("[Debug] Durability reduced: "+ UDmain.formatString(durability_onstart - current_device_health,3) + "\n")
 	endif
 	
-	if !UDCDmain.isOrgasming(Wearer)
+	; if !UDCDmain.isOrgasming(Wearer) ;removed as per paired struggle sneaking orgasm fix
 		libs.EndThirdPersonAnimation(Wearer, cameraState, true) ;ends struggle animation
-	endif
+	; endif
 	if hasHelper()
-		if !UDCDmain.isOrgasming(_minigameHelper)
+		; if !UDCDmain.isOrgasming(_minigameHelper) ;removed as per paired struggle sneaking orgasm fix
 			libs.EndThirdPersonAnimation(_minigameHelper, cameraState, true) ;ends struggle animation
-		endif
+		; endif
 	endif
 	
 	(libs as zadlibs_UDPatch).ResetExpressionPatched(getWearer(), loc_expression,15)
