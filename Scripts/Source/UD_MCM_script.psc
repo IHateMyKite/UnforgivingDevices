@@ -1235,10 +1235,17 @@ Function CustomBondagePageInfo(int option)
 		SetInfoText("How many skill points are acquired for second of struggling.\nDefault: 35")
 	elseif option == UD_GagPhonemModifier_S
 		SetInfoText("Change how much is mouth opened when gagged. Is disabled for panel gags, as it cause clipping.\nDefault: 0")
+	elseif option == UD_AutoCrit_T
+		SetInfoText("Toggle auto crit. Auto crit will crit instead of user. Use this if you don't like crits or you can't crit for some other reason.\nDefault: OFF")
+	elseif option == UD_AutoCritChance_S
+		SetInfoText("Chance that auto crit will result in sucessfull crit.\nDefault: 80%")
+	elseif option == UD_CritEffect_M
+		SetInfoText("Effect used to indicate that crit is happening.\n[HUD] HUD will blink when crit is happening\n[Body shader] Actor body will have shader applied for short time\n[HUD + Body shader] Both of the previous effects combined\nDefault: [HUD + Body shader]")
 	elseif option == UD_CooldownMultiplier_S
 		SetInfoText("Change how big the devices cooldowns are. The bigger the value the bigger they will be.\nExamle: 200% makes all devices cooldown two times bigger.\nDefault: 100%")
 	Endif
 EndFunction
+
 Function CustomOrgasmPageInfo(int option)
 	if(option == UD_OrgasmUpdateTime_S)
 		SetInfoText("Update time for orgasm checking (how fast is orgasm widget updated). Is only used for player.\n Default: 0.2s")
@@ -1254,6 +1261,7 @@ Function CustomOrgasmPageInfo(int option)
 		SetInfoText("Duration of random horny animation\nDefault: 6 s")
 	Endif
 EndFunction
+
 Function AbadanPageInfo(int option)
 	;dear mother of god
 	if (option == dmg_heal_T)
@@ -1400,11 +1408,13 @@ Function SaveToJSON(string strFile)
 	JsonUtil.SetIntValue(strFile, "ActionKey_Keycode", UDCDmain.ActionKey_Keycode)
 	JsonUtil.SetIntValue(strFile, "NPCMenu_Keycode", UDCDmain.NPCMenu_Keycode)
 	
+	
 	JsonUtil.SetIntValue(strFile, "UseDDdifficulty", UDCDmain.UD_UseDDdifficulty as Int)
 	JsonUtil.SetIntValue(strFile, "UseWidget", UDCDmain.UD_UseWidget as Int)
 	JsonUtil.SetIntValue(strFile, "GagPhonemModifier", UDCDmain.UD_GagPhonemModifier)
 	JsonUtil.SetIntValue(strFile, "StruggleDifficulty", UDCDmain.UD_StruggleDifficulty)
 	JsonUtil.SetFloatValue(strFile, "BaseDeviceSkillIncrease", UDCDmain.UD_BaseDeviceSkillIncrease)
+	JsonUtil.SetFloatValue(strFile, "DeviceUpdateTime", UDCDmain.UD_UpdateTime)
 	
 	JsonUtil.SetIntValue(strFile, "AutoCrit", UDCDmain.UD_AutoCrit as Int)
 	JsonUtil.SetIntValue(strFile, "AutoCritChance", UDCDmain.UD_AutoCritChance)
@@ -1430,7 +1440,10 @@ Function SaveToJSON(string strFile)
 	;OTHER
 	JsonUtil.SetIntValue(strFile, "UseHoods", UDIM.UD_UseHoods as Int)
 	JsonUtil.SetIntValue(strFile, "StartThirdpersonAnimation_Switch", libs.UD_StartThirdpersonAnimation_Switch as Int)
-	
+	JsonUtil.SetFloatValue(strFile, "PatchMult", UDCDmain.UDPatcher.UD_PatchMult)
+	JsonUtil.SetIntValue(strFile, "SwimmingDifficulty", UDSS.UD_hardcore_swimming_difficulty)
+	JsonUtil.SetIntValue(strFile, "WidgetPosX", widget.PositionX)
+	JsonUtil.SetIntValue(strFile, "WidgetPosY", widget.PositionY)
 	
 	JsonUtil.Save(strFile, true)
 EndFunction
@@ -1463,8 +1476,14 @@ Function LoadFromJSON(string strFile)
 	UDCDmain.UD_GagPhonemModifier = JsonUtil.GetIntValue(strFile, "GagPhonemModifier", UDCDmain.UD_GagPhonemModifier)
 	UDCDmain.UD_StruggleDifficulty = JsonUtil.GetIntValue(strFile, "StruggleDifficulty", UDCDmain.UD_StruggleDifficulty)
 	UDCDmain.UD_BaseDeviceSkillIncrease = JsonUtil.GetFloatValue(strFile, "BaseDeviceSkillIncrease", UDCDmain.UD_BaseDeviceSkillIncrease)
+	UDCDmain.UD_UpdateTime = JsonUtil.GetFloatValue(strFile, "DeviceUpdateTime", UDCDmain.UD_UpdateTime)
 	
 	UDCDmain.UD_AutoCrit = JsonUtil.GetIntValue(strFile, "AutoCrit", UDCDmain.UD_AutoCrit as Int)
+	if UDCDmain.UD_AutoCrit
+		UD_autocrit_flag = OPTION_FLAG_NONE
+	else
+		UD_autocrit_flag = OPTION_FLAG_DISABLED
+	endif
 	UDCDmain.UD_AutoCritChance = JsonUtil.GetIntValue(strFile, "AutoCritChance", UDCDmain.UD_AutoCritChance)
 	UDCDmain.UD_VibrationMultiplier = JsonUtil.GetFloatValue(strFile, "VibrationMultiplier", UDCDmain.UD_VibrationMultiplier)
 	UDCDmain.UD_ArousalMultiplier = JsonUtil.GetFloatValue(strFile, "ArousalMultiplier", UDCDmain.UD_ArousalMultiplier)
@@ -1488,6 +1507,12 @@ Function LoadFromJSON(string strFile)
 	;Other
 	UDIM.UD_UseHoods = JsonUtil.GetIntValue(strFile, "UseHoods", UDIM.UD_UseHoods as Int)
 	libs.UD_StartThirdpersonAnimation_Switch = JsonUtil.GetIntValue(strFile, "StartThirdpersonAnimation_Switch", libs.UD_StartThirdpersonAnimation_Switch as Int)
+	UDCDmain.UDPatcher.UD_PatchMult = JsonUtil.GetFloatValue(strFile, "PatchMult", UDCDmain.UDPatcher.UD_PatchMult)
+	UDSS.UD_hardcore_swimming_difficulty = JsonUtil.GetIntValue(strFile, "SwimmingDifficulty", UDSS.UD_hardcore_swimming_difficulty)
+	widget.PositionX = JsonUtil.GetIntValue(strFile, "WidgetPosX", widget.PositionX)
+	widget.PositionY = JsonUtil.GetIntValue(strFile, "WidgetPosY", widget.PositionY)
+	UDCDmain.widget2.PositionX = widget.PositionX
+	UDCDmain.widget2.PositionY = widget.PositionY
 EndFunction
 
 Function ResetToDefaults()
@@ -1528,8 +1553,14 @@ Function ResetToDefaults()
 	UDCDmain.UD_GagPhonemModifier = 50
 	UDCDmain.UD_StruggleDifficulty = 1
 	UDCDmain.UD_BaseDeviceSkillIncrease = 35.0
+	UDCDmain.UD_UpdateTime = 5.0
 	
 	UDCDmain.UD_AutoCrit = false
+	if UDCDmain.UD_AutoCrit
+		UD_autocrit_flag = OPTION_FLAG_NONE
+	else
+		UD_autocrit_flag = OPTION_FLAG_DISABLED
+	endif
 	UDCDmain.UD_AutoCritChance = 80
 	UDCDmain.UD_VibrationMultiplier = 0.1
 	UDCDmain.UD_ArousalMultiplier = 0.025
@@ -1552,6 +1583,12 @@ Function ResetToDefaults()
 	;Other
 	UDIM.UD_UseHoods = true
 	libs.UD_StartThirdpersonAnimation_Switch = true
+	UDCDmain.UDPatcher.UD_PatchMult = 1.0
+	UDSS.UD_hardcore_swimming_difficulty = 1
+	widget.PositionX = 2
+	widget.PositionY = 0
+	UDCDmain.widget2.PositionX = widget.PositionX
+	UDCDmain.widget2.PositionY = widget.PositionY
 EndFunction
 
 Function SetAutoLoad(bool bValue)

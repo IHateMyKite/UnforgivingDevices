@@ -411,7 +411,6 @@ EndFunction
 
 int Function EquipFilterPlug(actor akActor, bool silent=false)
 	; FTM optimization
-	UDCDMain.Log("EquipFilterPlug for" + getName() + "("+akActor+","+silent+")")
 	if silent && akActor != libs.PlayerRef
 		return 0
 	EndIf	
@@ -574,10 +573,14 @@ EndFunction
 
 ;COPIED FROM zadequipscript
 ;reason is to make it possible to edit some values which were not editable before
-Event LockDevice(Actor akActor)		
-	libs.Log("OnEquipped("+akActor.GetLeveledActorBase().GetName()+": "+deviceInventory.GetName()+")")		
+Event LockDevice(Actor akActor)	
+	if UDCDMain.TraceAllowed()
+		libs.Log("OnEquipped("+akActor.GetLeveledActorBase().GetName()+": "+deviceInventory.GetName()+")")		
+	endif
 	if akActor == libs.PlayerRef
-		libs.log("Checking for active unequip operation for " + zad_DeviousDevice)
+		if UDCDmain.TraceAllowed()		
+			libs.log("Checking for active unequip operation for " + zad_DeviousDevice)
+		endif
 		int counter = 10 ; half second intervals, so 5 secs max
 		while (StorageUtil.GetIntValue(akActor, "zad_RemovalOperation" + zad_DeviousDevice) == 1) && counter > 0
 			libs.log("Device Swap detected. Waiting for removal operation to complete.")
@@ -585,50 +588,67 @@ Event LockDevice(Actor akActor)
 			counter -= 1
 			Utility.WaitMenuMode(0.5)
 		EndWhile
-		libs.log("No active unequip operation running for " + zad_DeviousDevice + ". Proceeding")
-	EndIf	
+		if UDCDmain.TraceAllowed()		
+			libs.log("No active unequip operation running for " + zad_DeviousDevice + ". Proceeding")
+		endif
+	EndIf
+	
 	if akActor.GetItemCount(deviceRendered) > 0
-		libs.Log("OnEquipped aborted - item is already worn.")		
+		if UDCDmain.TraceAllowed()		
+			libs.Log("OnEquipped aborted - item is already worn.")		
+		endif
 		; no need to process if the item is already worn
 		return
 	EndIf
+	
 	if akActor.GetItemCount(deviceRendered) == 0 && akActor.WornHasKeyword(zad_DeviousDevice) && CheckConflict(akActor)
-		libs.Log("Wearing conflicting device type:" + zad_DeviousDevice)		
+		if UDCDmain.TraceAllowed()		
+			libs.Log("Wearing conflicting device type:" + zad_DeviousDevice)		
+		endif
 		akActor.UnequipItem(deviceInventory, false, true)		
 		return
 	EndIf	
+	
 	bool silently = ShouldEquipSilently(akActor)
 	; check for device conflicts
 	If !silently && (IsEquipDeviceConflict(akActor) || IsEquipRequiredDeviceConflict(akActor))			
 		akActor.UnequipItem(deviceInventory, false, true)		
 		return
     EndIf	
+	
 	If !silently && akActor == libs.playerref; && !akActor.WornHasKeyword(zad_DeviousDevice) && akActor.GetItemCount(deviceRendered) == 0
 		if EquipDeviceMenu(akActor)
 			akActor.UnequipItem(deviceInventory, false, true)
 			return
 		endif
 	EndIf	
+	
 	int filter = OnEquippedFilter(akActor, silent=silently)
 	if filter >= 1
 		if filter == 2
 			akActor.UnequipItem(deviceInventory, false, true)
 		EndIf		
 		return
-	EndIf		
+	EndIf
+	
 	if akActor == libs.PlayerRef ; Store equipped devices for faster generic calls.
 		StoreEquippedDevice(akActor)
 		StorageUtil.SetIntValue(akActor, "zad_Equipped" + libs.LookupDeviceType(zad_DeviousDevice) + "_LockJammedStatus", 0)
 		StorageUtil.UnSetIntValue(akActor, "zad_UntightenToken" + deviceInventory)
 		StorageUtil.UnSetIntValue(akActor, "zad_TightenToken" + deviceInventory)
 	EndIf
+	
 	OnEquippedPre(akActor, silent=silently)
+	
 	libs.SendDeviceEquippedEvent(deviceName, akActor)
-	libs.SendDeviceEquippedEventVerbose(deviceInventory, zad_DeviousDevice, akActor)	
+	libs.SendDeviceEquippedEventVerbose(deviceInventory, zad_DeviousDevice, akActor)
+	
 	if !akActor.IsEquipped(DeviceInventory)
 		akActor.EquipItem(DeviceInventory, false, true)	
 	EndIf	
+	
 	akActor.EquipItem(DeviceRendered, true, true)
+	
 	if akActor == libs.PlayerRef && !akActor.IsOnMount() && UI.IsMenuOpen("InventoryMenu")
 		; make it visible for the player in case the menu is open
 		akActor.QueueNiNodeUpdate()
@@ -639,7 +659,14 @@ Event LockDevice(Actor akActor)
 	if akActor != libs.PlayerRef && (deviceRendered.HasKeyword(libs.zad_DeviousHeavyBondage) || deviceRendered.HasKeyword(libs.zad_DeviousHobbleSkirt))
 		libs.RepopulateNpcs()
 	EndIf	
+	
 	OnEquippedPost(akActor)
+	
+	ResetLockShield()
+	If TimedUnlock
+		SetLockTimer()
+	EndIf
+	
 	if akActor != libs.PlayerRef && akActor.GetActorBase().IsUnique() && (deviceRendered.HasKeyword(libs.zad_DeviousSuit) || deviceRendered.HasKeyword(libs.zad_DeviousHeavyBondage))
 		; We change the outfit only for unique actors because SetOutfit() seems to operate on the ActorBASE and not the actor, so changing a non-unique actors's gear would change it for ALL instances of this actor.
         Outfit originalOutfit = akActor.GetActorBase().GetOutfit()
@@ -648,7 +675,7 @@ Event LockDevice(Actor akActor)
         EndIf
 		akActor.SetOutfit(libs.zadEmptyOutfit, false)
 	endIf
-	UDCDmain.Log("Checking CanApplyBoundEffect = " + CanApplyBoundEffect(akActor))
+	
 	if CanApplyBoundEffect(akActor) 
 		libs.StartBoundEffects(akActor)	
 	endif
