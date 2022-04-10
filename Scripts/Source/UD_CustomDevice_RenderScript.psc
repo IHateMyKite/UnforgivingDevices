@@ -4347,7 +4347,7 @@ Function lockpickDevice()
 			UDCDmain.startLockpickMinigame()
 			
 			float loc_elapsedTime = 0.0
-			while (!UDCDmain.LockpickMinigameOver && UI.isMenuOpen("Lockpicking Menu")) && loc_elapsedTime <= 5.0
+			while (!UDCDmain.LockpickMinigameOver && UI.isMenuOpen("Lockpicking Menu")) && loc_elapsedTime < 25.0
 				Utility.WaitMenuMode(0.1)
 				loc_elapsedTime += 0.1
 			endwhile
