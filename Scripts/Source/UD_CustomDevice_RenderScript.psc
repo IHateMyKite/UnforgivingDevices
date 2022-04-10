@@ -4352,8 +4352,8 @@ Function lockpickDevice()
 				loc_elapsedTime += 0.1
 			endwhile
 		
-			UDCDmain.DeleteLockPickContainer()
-			result = UDCDmain.lockpickMinigameResult
+			result = UDCDmain.lockpickMinigameResult 	;first we fetch lockpicking result
+			UDCDmain.DeleteLockPickContainer()			;then we remove the container so IsLocked is not called on None
 			
 			if loc_elapsedTime >= 25.0
 				UDCDmain.Print("You lost the focus and broke the lockpick!")
