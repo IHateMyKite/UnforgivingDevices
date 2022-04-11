@@ -1721,14 +1721,14 @@ Event OnMenuClose(String MenuName)
 		
 		if remainingLockpicks > 0
 			if !_LockPickContainer.IsLocked()
-				LockpickMinigameResult = 1 ;player exited minigame
-			elseif  remainingLockpicks == usedLockpicks
-				LockpickMinigameResult = 0 ;player succesfully finished minigame
+				LockpickMinigameResult = 1 ;player succesfully finished minigame
+			elseif remainingLockpicks == usedLockpicks
+				LockpickMinigameResult = 0 ;player exited minigame before trying to pick the lock
 			else
 				LockpickMinigameResult = 2 ;player aborted mnigame after breaking at least one lockpick
 			endif
 		else
-			LockpickMinigameResult = 2 ;player tried to lockpick the device but failed (lockpick breaks)
+			LockpickMinigameResult = 2 ;player tried to lockpick the device but failed (all lockpicks broke)
 		endif
 		if TraceAllowed()		
 			Log("[UD]: Lockpick minigame closed, lockpicks returned: " + (lockpicknum - usedLockpicks) + " ; Result: " + LockpickMinigameResult,1)
