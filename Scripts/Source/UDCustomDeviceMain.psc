@@ -1709,6 +1709,9 @@ Function startLockpickMinigame()
 		Log("Lockpick minigame opened, lockpicks before: "+lockpicknum+" ;lockpicks taken: " + (lockpicknum - usedLockpicks) + " ;Lockpicks to use: "+ usedLockpicks,1)
 	endif
 	RegisterForMenu("Lockpicking Menu")
+	if UDmain.ConsoleUtilInstalled
+		ConsoleUtil.ExecuteCommand("ToggleDetection")
+	endif
 	_LockPickContainer.activate(Game.getPlayer())
 EndFunction
 
@@ -1717,6 +1720,9 @@ bool Property LockpickMinigameOver = false auto
 int Property LockpickMinigameResult = 0 auto
 Event OnMenuClose(String MenuName)
 	if MenuName == "Lockpicking Menu"
+		if UDmain.ConsoleUtilInstalled
+			ConsoleUtil.ExecuteCommand("ToggleDetection")
+		endif
 		int remainingLockpicks = Game.getPlayer().GetItemCount(Lockpick)
 		
 		if remainingLockpicks > 0
@@ -1731,7 +1737,7 @@ Event OnMenuClose(String MenuName)
 			LockpickMinigameResult = 2 ;player tried to lockpick the device but failed (all lockpicks broke)
 		endif
 		if TraceAllowed()		
-			Log("[UD]: Lockpick minigame closed, lockpicks returned: " + (lockpicknum - usedLockpicks) + " ; Result: " + LockpickMinigameResult,1)
+			Log("Lockpick minigame closed, lockpicks returned: " + (lockpicknum - usedLockpicks) + " ; Result: " + LockpickMinigameResult,1)
 		endif
 		Game.getPlayer().AddItem(Lockpick, lockpicknum - usedLockpicks, True)
 		UnregisterForAllMenus()
@@ -3436,67 +3442,23 @@ bool _debugSwitch = false
 Function DebugFunction(Actor akActor)
 	;UDmain.UDRRM.LockRandomRestrain(akActor,false,iPrefSwitch = 0xffff)
 	;DisableActor(akActor)
-	
-	
-	Print("Starting locking generic")
-	float loc_startTime = Utility.GetCurrentRealTime()
-	int loc_devices = UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0x43ff)
-	float loc_endTime = Utility.GetCurrentRealTime()
-	Print("End locking generic. Time: " + (loc_endTime-loc_startTime)/loc_devices)
-	Utility.wait(2.0)
-	Print("Starting locking vibrators")
-	loc_startTime = Utility.GetCurrentRealTime()
-	UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0x3C00)
-	loc_endTime = Utility.GetCurrentRealTime()
-	Print("End locking vibrators. Time: " + (loc_endTime-loc_startTime)/loc_devices)
-	
-	
-	
-	
-	;EnableActor(akActor)
-	;libs.LockDevice(akActor,UDmain.ItemManager.libsx2.zadx_elbowshackles_Inventory)
-	;libs.LockDevice(akActor,UDmain.ItemManager.libsx.zadx_StraitJacketLeatherWhiteInventory)
 	;/
-	string str = ""
-	str += "0\n"
-	str += "1\n"
-	str += "2\n"
-	str += "3\n"
-	str += "4\n"
-	str += "5\n"
-	str += "6\n"
-	str += "7\n"
-	str += "8\n"
-	str += "9\n"
-	str += "10\n"
-	str += "11\n"
-	str += "12\n"
-	str += "13\n" ;14
-	;str += "<PAGE>" ;15
-	str += "14\n" 
-	str += "15\n"
-	ShowMessageBox(str)
-	;debug.messagebox(str)
+	if !_debugSwitch
+		Print("Undetactable ON")
+		if UDmain.ConsoleUtilInstalled
+			ConsoleUtil.ExecuteCommand("ToggleDetection")
+		endif
+		_debugSwitch = true
+	else
+		Print("Undetactable OFF")
+		if UDmain.ConsoleUtilInstalled
+			ConsoleUtil.ExecuteCommand("ToggleDetection")
+		endif
+		_debugSwitch = false
+	endif
 	/;
-	;sslBaseExpression loc_expression = UDEM.getExpression("UDAroused");libs.SexLab.GetExpressionByName("UDAroused");
-	;sslBaseExpression loc_expression2 = UDEM.getExpression("UDOrgasm");
-	;TestExpression(akActor,loc_expression)
-	;TestExpression(akActor,loc_expression2)
-	
-	;Print("Disabling actor")
-	;DisableActor(akActor)
-	;Utility.wait(5.0)
-	;EnableActor(akActor)
-	;Print("PlayThirdPersonAnimation")
-	;Utility.wait(2.0)
-	;libs.PlayThirdPersonAnimation(akActor, "ZapArmbHorny02", 10)
-	
-	;Print("StartThirdPersonAnimation")
-	;Utility.wait(2.0)
-	;bool[] loc_camerastate = libs.StartThirdPersonAnimation(akActor, "ZapArmbHorny02")
-	;Utility.wait(10.0)
-	;libs.EndThirdPersonAnimation(akActor,loc_camerastate)
-	;Print("StopThirdPersonAnimation")
+	UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0x43ff)
+	UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0x3C00)
 EndFunction
 
 float _startTime = 0.0

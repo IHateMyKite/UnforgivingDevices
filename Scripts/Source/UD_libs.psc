@@ -113,6 +113,7 @@ Keyword Property PatchNoModes_KW auto
 Spell Property MinigameDisableSpell auto
 Spell Property OrgasmExhaustionSpell auto
 Spell Property StruggleExhaustionSpell auto
+
 ;Spell Property BreathingDebuffSpell auto
 Spell Property TelekinesisSpell auto
 Spell Property AphrodisiacsSpell auto
@@ -121,6 +122,7 @@ Spell Property NPCRegisterSpell auto
 Spell Property GreenCrit auto
 Spell Property BlueCrit auto
 Spell Property RedCrit auto
+
 
 ;ME keywords
 Keyword Property OrgasmExhaustionEffect_KW auto

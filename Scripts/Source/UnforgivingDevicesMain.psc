@@ -47,6 +47,7 @@ EndProperty
 
 bool Property ZaZAnimationPackInstalled = false auto
 bool Property OSLArousedInstalled = false auto
+bool Property ConsoleUtilInstalled = false auto
 
 float Property UD_LowPerformanceTime = 1.0 Auto
 float Property UD_HightPerformanceTime = 0.25 Auto
@@ -110,10 +111,22 @@ Event OnInit()
 		OSLArousedInstalled = true
 		Log("OSLAroused detected!")
 	endif
+		
+	if ConsoleUtil.GetVersion()
+		ConsoleUtilInstalled = true
+		Log("ConsoleUtil detected!")
+	endif
+		
 	if TraceAllowed()	
 		Log("UnforgivingDevicesMain initialized",0)
 	endif
 	debug.notification("Unforgiving devices ready!")
+	
+	Utility.wait(5.0)
+	
+	if !ConsoleUtilInstalled
+		debug.messagebox("--!ERROR!--\nUD can't detect ConsoleUtil. Without this mode, some features of Unforgiving Devices will not work as intended. Please be warned.")
+	endif
 EndEvent
 
 bool Function ModInstalled(string sModFileName)

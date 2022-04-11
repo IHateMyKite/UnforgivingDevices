@@ -4347,14 +4347,14 @@ Function lockpickDevice()
 			UDCDmain.startLockpickMinigame()
 			
 			float loc_elapsedTime = 0.0
-			while (!UDCDmain.LockpickMinigameOver && UI.isMenuOpen("Lockpicking Menu")) && loc_elapsedTime < 25.0
+			while (!UDCDmain.LockpickMinigameOver && UI.isMenuOpen("Lockpicking Menu")); && loc_elapsedTime < 25.0
 				Utility.WaitMenuMode(0.1)
 				loc_elapsedTime += 0.1
 			endwhile
 		
 			result = UDCDmain.lockpickMinigameResult 	;first we fetch lockpicking result
 			UDCDmain.DeleteLockPickContainer()			;then we remove the container so IsLocked is not called on None
-			
+			;/
 			if loc_elapsedTime >= 25.0
 				UDCDmain.Print("You lost the focus and broke the lockpick!")
 				result = 2
@@ -4363,7 +4363,7 @@ Function lockpickDevice()
 					UDCDmain.UDmain.closeLockpickMenu()
 				endif
 			endif
-			
+			/;
 			if hasHelper()
 				if WearerIsPlayer()
 					int lockpicks = getWearer().getItemCount(UDCDmain.Lockpick)
@@ -4389,8 +4389,9 @@ Function lockpickDevice()
 				Wearer.RemoveItem(UDCDmain.Lockpick, 1, True)
 			endif
 		endif
-		
-		UDCDmain.UDmain.Log("[UD]: Lockpick minigame result for " + getWearerName() + ": " + result,2)
+		if UDCDmain.TraceAllowed()
+			UDCDmain.UDmain.Log("Lockpick minigame result for " + getWearerName() + ": " + result,2)
+		endif
 		if result == 0
 				stopMinigame()
 				lockpickGame_on = False
