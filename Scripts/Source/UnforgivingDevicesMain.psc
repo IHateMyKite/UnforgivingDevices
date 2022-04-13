@@ -58,6 +58,9 @@ zadConfig Property DDconfig auto
 
 Spell OrgasmExhaustionSpell
 bool Property Ready = False auto
+
+String[] Property UD_OfficialPatches auto
+
 Event OnInit()
 	RegisterForModEvent("UD_VibEvent","EventVib")
 	UD_hightPerformance = UD_hightPerformance
@@ -116,7 +119,7 @@ Event OnInit()
 		ConsoleUtilInstalled = true
 		Log("ConsoleUtil detected!")
 	endif
-		
+	
 	if TraceAllowed()	
 		Log("UnforgivingDevicesMain initialized",0)
 	endif
@@ -124,13 +127,32 @@ Event OnInit()
 	
 	Utility.wait(5.0)
 	
+	CheckPatchesOrder()
+	
 	if !ConsoleUtilInstalled
 		debug.messagebox("--!ERROR!--\nUD can't detect ConsoleUtil. Without this mode, some features of Unforgiving Devices will not work as intended. Please be warned.")
 	endif
 EndEvent
 
+
+Function CheckPatchesOrder()
+	int loc_it = 0
+	while loc_it < UD_OfficialPatches.length
+		if ModInstalled(UD_OfficialPatches[loc_it])
+			if !ModInstalledAfterUD(UD_OfficialPatches[loc_it])
+				debug.messagebox("--!ERROR!--\nUD detected that patch "+ UD_OfficialPatches[loc_it] +" is loaded after UD. Patch always needs to be loaded after main mod or it will not work!!!")
+			endif
+		endif
+		loc_it += 1
+	endwhile
+EndFunction
+
 bool Function ModInstalled(string sModFileName)
 	return (Game.GetModByName(sModFileName) < 255)
+EndFunction
+
+bool Function ModInstalledAfterUD(string sModFileName)
+	return (Game.GetModByName(sModFileName) > Game.GetModByName("UnforgivingDevices.esp"))
 EndFunction
 
 int Function getDDescapeDifficulty()

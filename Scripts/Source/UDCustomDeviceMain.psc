@@ -3341,9 +3341,11 @@ EndFunction
 ;fixes
 ;will add update fixes here too
 Function OnGameReset()
+	Utility.waitMenuMode(1.5)
 	if TraceAllowed()	
 		Log("OnGameReset() called!",1)
 	endif
+	UDmain.CheckPatchesOrder()
 	_activateDevicePackage = none
 	_startVibFunctionPackage = none
 	registerAllEvents()
