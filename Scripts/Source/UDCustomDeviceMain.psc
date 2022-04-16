@@ -5,6 +5,10 @@ UnforgivingDevicesMain Property UDmain auto
 UD_libs Property UDlibs auto
 zadlibs Property libs auto
 
+;UI menus
+UITextEntryMenu Property TextMenu auto
+UIListMenu Property ListMenu auto
+
 ;keys
 Int Property Stamina_meter_Keycode 	= 32 	auto
 int property StruggleKey_Keycode 	= 52 	auto
@@ -237,14 +241,16 @@ Function resetCondVar()
 	currentDeviceMenu_allowSpecialMenu = False
 EndFunction
 
-Function disableStruggleCondVar(bool bUselessStruggle = false)
+Function disableStruggleCondVar(bool bDisableLock = true, bool bUselessStruggle = false)
 	currentDeviceMenu_allowstruggling = false
 	currentDeviceMenu_allowUselessStruggling = bUselessStruggle	
 	currentDeviceMenu_allowcutting = false
-	currentDeviceMenu_allowkey = false
-	currentDeviceMenu_allowLockMenu = False
-	currentDeviceMenu_allowlockpick = false
-	currentDeviceMenu_allowlockrepair = false
+	if bDisableLock
+		currentDeviceMenu_allowkey = false
+		currentDeviceMenu_allowLockMenu = False
+		currentDeviceMenu_allowlockpick = false
+		currentDeviceMenu_allowlockrepair = false
+	endif
 	currentDeviceMenu_allowTighten = false
 	currentDeviceMenu_allowRepair = false
 EndFunction
@@ -436,6 +442,10 @@ UD_CustomDevice_RenderScript _oCurrentPlayerMinigameDevice = none
 
 Function setCurrentMinigameDevice(UD_CustomDevice_RenderScript oref)
 	_oCurrentPlayerMinigameDevice = oref
+EndFunction
+
+Function resetCurrentMinigameDevice()
+	_oCurrentPlayerMinigameDevice = none
 EndFunction
 
 int Function getNumberOfRegisteredDevices(Actor akActor)
@@ -756,7 +766,7 @@ string[] Function GetStruggleAnimations(Actor akActor,Armor renDevice)
 			temp[3] = "DDRegElbStruggle04"
 			temp[4] = "DDRegElbStruggle05"
 		elseif renDevice.hasKeyword(libs.zad_DeviousStraitJacket)
-			loc_animNum = 9
+			loc_animNum = 6
 			if UDmain.ZaZAnimationPackInstalled
 				loc_animNum += 6
 			endif
@@ -766,9 +776,6 @@ string[] Function GetStruggleAnimations(Actor akActor,Armor renDevice)
 			temp[2] = "DDRegElbStruggle03"
 			temp[3] = "DDRegElbStruggle04"
 			temp[4] = "DDRegElbStruggle05"
-			;temp[5] = "DDElbowTie_struggleone"
-			;temp[6] = "DDElbowTie_struggletwo"
-			;temp[7] = "DDElbowTie_strugglethree"
 			temp[5] = "DDRegbbyokeStruggle01"
 			if UDmain.ZaZAnimationPackInstalled
 				temp[6] = "ZapArmbStruggle01"
@@ -1811,9 +1818,9 @@ EndFunction
 ;returns array of all device containing keyword in their render device
 ;mod = 0 => AND 	(device need all provided keyword)
 ;mod = 1 => OR 	(device need one provided keyword)
-UD_CustomDevice_RenderScript[] Function getAllActivableDevicesByKeyword(Actor akActor,keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)
+UD_CustomDevice_RenderScript[] Function getAllActivableDevicesByKeyword(Actor akActor,bool bCheckCondition,keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)
 	if isRegistered(akActor)
-		return UDCD_NPCM.getNPCSlotByActor(akActor).getAllActivableDevicesByKeyword(kw1,kw2,kw3,mod)
+		return UDCD_NPCM.getNPCSlotByActor(akActor).getAllActivableDevicesByKeyword(bCheckCondition,kw1,kw2,kw3,mod)
 	else
 		return MakeNewDeviceSlots();getAllActivableDevicesByKw(akActor,kw1,kw2,kw3,mod)
 	endif
@@ -2019,9 +2026,9 @@ EndFunction
 ;returns number of all device containing keyword in their render device
 ;mod = 0 => AND 	(device need all provided keyword)
 ;mod = 1 => OR 	(device need one provided keyword)
-int Function getNumberOfActivableDevicesWithKeyword(Actor akActor,keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)
+int Function getNumberOfActivableDevicesWithKeyword(Actor akActor,bool bCheckCondition, keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)
 	if isRegistered(akActor)
-		return UDCD_NPCM.getNPCSlotByActor(akActor).getNumberOfActivableDevicesWithKeyword(kw1,kw2,kw3,mod)
+		return UDCD_NPCM.getNPCSlotByActor(akActor).getNumberOfActivableDevicesWithKeyword(bCheckCondition,kw1,kw2,kw3,mod)
 	else
 		return 0;getAllActivableDevicesNumByKw(akActor,kw1,kw2,kw3,mod)
 	endif
@@ -2992,6 +2999,7 @@ Function CritLoopOrgasmResist(Int iChance,Float fDifficulty)
 		endif	
 		if loc_sendCrit
 			crit = True
+			selected_crit_meter = loc_meter
 			if (loc_meter == "S")
 				if UD_CritEffect == 2 || UD_CritEffect == 1
 					UDlibs.GreenCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
@@ -3015,6 +3023,7 @@ Function CritLoopOrgasmResist(Int iChance,Float fDifficulty)
 			Utility.wait(fDifficulty)
 			crit = False
 			loc_meter = "none"
+			selected_crit_meter = "none"
 			loc_sendCrit = false
 		endif
 		Utility.wait(1.0)
@@ -3345,6 +3354,7 @@ Function OnGameReset()
 	if TraceAllowed()	
 		Log("OnGameReset() called!",1)
 	endif
+	UDmain.Config.LoadConfigPages()
 	UDmain.CheckPatchesOrder()
 	_activateDevicePackage = none
 	_startVibFunctionPackage = none
@@ -3441,6 +3451,7 @@ Bool Function TraceAllowed()
 EndFunction
 
 bool _debugSwitch = false
+
 Function DebugFunction(Actor akActor)
 	;UDmain.UDRRM.LockRandomRestrain(akActor,false,iPrefSwitch = 0xffff)
 	;DisableActor(akActor)
@@ -3459,8 +3470,36 @@ Function DebugFunction(Actor akActor)
 		_debugSwitch = false
 	endif
 	/;
+	;string[] loc_list = new String[5]
+	;loc_list[0] = "1"
+	;loc_list[1] = "2"
+	;loc_list[2] = "3"
+	;loc_list[3] = "dggd"
+	;loc_list[4] = "8"
+	;int loc_res = GetUserListInput(loc_list)
+	;Print(loc_res)
 	UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0x43ff)
 	UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0x3C00)
+EndFunction
+
+string Function GetUserTextInput()
+	TextMenu.ResetMenu()
+	TextMenu.OpenMenu()
+	TextMenu.BlockUntilClosed()
+	return TextMenu.GetResultString()
+EndFunction
+
+Int Function GetUserListInput(string[] arrList)
+	ListMenu.ResetMenu()
+	;ListMenu.SetPropertyStringA("appendEntries", arrList)
+	int loc_i = 0
+	while loc_i < arrList.length
+		ListMenu.AddEntryItem(arrList[loc_i])
+		loc_i+=1
+	endwhile
+	ListMenu.OpenMenu()
+	ListMenu.BlockUntilClosed()
+	return ListMenu.GetResultInt()
 EndFunction
 
 float _startTime = 0.0

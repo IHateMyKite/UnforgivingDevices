@@ -89,20 +89,25 @@ Int Function FlagSwitchOr(int iFlag1,Int iFlag2)
 EndFunction
 
 
+Function LoadConfigPages()
+	pages = new String[8]
+	pages[0] = "General"
+	pages[1] = "Custom devices"
+	pages[2] = "Custom orgasm"
+	pages[3] = "Patcher"
+	pages[4] = "DD Patch"
+	pages[5] = "Abadon Plug"
+	pages[6] = "Debug panel"
+	pages[7] = "Other"
+EndFunction
+
 bool Property Ready = False Auto
 Event OnConfigInit()
 	if UDCDmain.TraceAllowed()	
 		UDCDmain.Log("MCM init started")
 	endif
-	pages = new String[7]
-	pages[0] = "General"
-	pages[1] = "Custom devices"
-	pages[2] = "Custom orgasm"
-	pages[3] = "DD Patch"
-	pages[4] = "Abadon Plug"
-	pages[5] = "Debug panel"
-	pages[6] = "Other"
-	
+
+	LoadConfigPages()
 	registered_devices_T = new Int[25]
 	NPCSlots_T = new Int[11];Utility.CreateIntArray(UDCD_NPCM.getNumSlots());new Int[6]
 	
@@ -193,6 +198,8 @@ Event OnPageReset(string page)
 		resetCustomBondagePage()
 	elseif (page == "Custom orgasm")
 		resetCustomOrgasmPage()
+	elseif 	(page == "Patcher")
+		resetPatcherPage()
 	elseif (page == "DD patch")
 		resetDDPatchPage()
 	elseif (page == "Debug panel")
@@ -328,7 +335,8 @@ Event resetCustomBondagePage()
 	UD_StruggleDifficulty_M = AddMenuOption("Escape difficulty:", difficultyList[UDCDmain.UD_StruggleDifficulty],UD_LockMenu_flag)
 	UD_UseDDdifficulty_T = addToggleOption("Use DD difficulty:", UDCDmain.UD_UseDDdifficulty,UD_LockMenu_flag)	
 	
-	UD_PatchMult_S = addSliderOption("Patch mult: ",Math.floor(UDCDmain.UDPatcher.UD_PatchMult * 100 + 0.5), "{0} %",UD_LockMenu_flag)
+	addEmptyOption()
+	;UD_PatchMult_S = addSliderOption("Patch mult: ",Math.floor(UDCDmain.UDPatcher.UD_PatchMult * 100 + 0.5), "{0} %",UD_LockMenu_flag)
 	UD_CritEffect_M = AddMenuOption("Crit effect:", criteffectList[UDCDmain.UD_CritEffect])
 	;addEmptyOption()
 	
@@ -388,6 +396,34 @@ Event resetCustomOrgasmPage()
 	
 	AddTextOption("Orgasm rate:", UDCDmain.getActorOrgasmRate(Game.getPlayer()) + " OP/s",OPTION_FLAG_DISABLED)
 	AddTextOption("Orgasm forcing:", UDCDmain.getActorOrgasmForcing(Game.getPlayer()) + " %",OPTION_FLAG_DISABLED)
+EndEvent
+
+
+Int UD_MAOChanceMod_S
+int UD_MAOMod_S
+Int UD_MAHChanceMod_S
+int UD_MAHMod_S
+Event resetPatcherPage()
+	UpdateLockMenuFlag()
+	setCursorFillMode(LEFT_TO_RIGHT)
+	
+	AddHeaderOption("Main values")
+	addEmptyOption()
+		
+	UD_PatchMult_S = addSliderOption("Patcher multiplier: ",UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult * 100), "{0} %",UD_LockMenu_flag)
+	addEmptyOption()
+	
+	addEmptyOption()
+	addEmptyOption()
+	
+	AddHeaderOption("Modifiers")
+	addEmptyOption()
+	
+	UD_MAOChanceMod_S = addSliderOption("Orgasm manifest chance multiplier: ",UDCDmain.UDPatcher.UD_MAOChanceMod, "{0} %",UD_LockMenu_flag)
+	UD_MAOMod_S = addSliderOption("Orgasm manifest multiplier: ",UDCDmain.UDPatcher.UD_MAOMod, "{0} %",UD_LockMenu_flag)
+	
+	UD_MAHChanceMod_S = addSliderOption("Hour manifest chance multiplier: ",UDCDmain.UDPatcher.UD_MAHChanceMod, "{0} %",UD_LockMenu_flag)
+	UD_MAHMod_S = addSliderOption("Hour manifest multiplier: ",UDCDmain.UDPatcher.UD_MAHMod, "{0} %",UD_LockMenu_flag)
 EndEvent
 
 int UD_StartThirdpersonAnimation_Switch_T
@@ -748,6 +784,7 @@ event OnOptionSliderOpen(int option)
 	OnOptionSliderOpenGeneral(option)
 	OnOptionSliderOpenCustomBondage(option)
 	OnOptionSliderOpenCustomOrgasm(option)
+	OnOptionSliderOpenPatcher(option)
 	OnOptionSliderOpenAbadon(option)
 	OnOptionSliderOpenDebug(option)
 endEvent
@@ -844,6 +881,30 @@ Function OnOptionSliderOpenCustomOrgasm(int option)
 	endIf
 EndFunction
 
+Function OnOptionSliderOpenPatcher(int option)
+	if (option == UD_MAOChanceMod_S)
+		SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_MAOChanceMod)
+		SetSliderDialogDefaultValue(100.0)
+		SetSliderDialogRange(0.0, 500.0)
+		SetSliderDialogInterval(5.0)
+	elseif (option == UD_MAOMod_S)
+		SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_MAOMod)
+		SetSliderDialogDefaultValue(100.0)
+		SetSliderDialogRange(0.0, 200.0)
+		SetSliderDialogInterval(5.0)
+	elseif (option == UD_MAHChanceMod_S)
+		SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_MAHChanceMod)
+		SetSliderDialogDefaultValue(100.0)
+		SetSliderDialogRange(0.0, 500.0)
+		SetSliderDialogInterval(5.0)
+	elseif (option == UD_MAHMod_S)
+		SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_MAHMod)
+		SetSliderDialogDefaultValue(100.0)
+		SetSliderDialogRange(0.0, 200.0)
+		SetSliderDialogInterval(5.0)
+	endif
+EndFunction
+
 Function OnOptionSliderOpenAbadon(int option)
 		if (option == max_difficulty_S)
 			SetSliderDialogStartValue(AbadonQuest.max_difficulty)
@@ -898,6 +959,7 @@ event OnOptionSliderAccept(int option, float value)
 	OnOptionSliderAcceptGeneral(option,value)
 	OnOptionSliderAcceptCustomBondage(option, value)
 	OnOptionSliderAcceptCustomOrgasm(option, value)
+	OnOptionSliderAcceptPatcher(option, value)
 	OnOptionSliderAcceptAbadon(option, value)
 	OnOptionSliderAcceptDebug(option,value)
 endEvent
@@ -960,6 +1022,23 @@ Function OnOptionSliderAcceptCustomOrgasm(int option, float value)
 		UDCDmain.UD_ArousalMultiplier = value
 		SetSliderOptionValue(UD_ArousalMultiplier_S, UDCDmain.UD_ArousalMultiplier, "{3}")
 	endIf
+EndFunction
+
+Function OnOptionSliderAcceptPatcher(int option, float value)
+	int loc_value = UDCDmain.Round(value)
+	if (option == UD_MAOChanceMod_S)
+		UDCDmain.UDPatcher.UD_MAOChanceMod = loc_value
+		SetSliderOptionValue(UD_MAOChanceMod_S, UDCDmain.UDPatcher.UD_MAOChanceMod, "{0} %")
+	elseif (option == UD_MAOMod_S)
+		UDCDmain.UDPatcher.UD_MAOMod = loc_value
+		SetSliderOptionValue(UD_MAOMod_S, UDCDmain.UDPatcher.UD_MAOMod, "{0} %")
+	elseif (option == UD_MAHChanceMod_S)
+		UDCDmain.UDPatcher.UD_MAHChanceMod = loc_value
+		SetSliderOptionValue(UD_MAHChanceMod_S, UDCDmain.UDPatcher.UD_MAHChanceMod, "{0} %")
+	elseif (option == UD_MAHMod_S)
+		UDCDmain.UDPatcher.UD_MAHMod = loc_value
+		SetSliderOptionValue(UD_MAHMod_S, UDCDmain.UDPatcher.UD_MAHMod, "{0} %")
+	endif
 EndFunction
 
 Function OnOptionSliderAcceptAbadon(int option, float value)
@@ -1180,6 +1259,7 @@ Event OnOptionHighlight(int option)
 	AbadanPageInfo(option)
 	CustomBondagePageInfo(option)
 	CustomOrgasmPageInfo(option)
+	PatcherPageInfo(option)
 	DebugPageInfo(option)
 EndEvent
 
@@ -1209,7 +1289,7 @@ EndFunction
 Function CustomBondagePageInfo(int option)
 	if(option == UD_CHB_Stamina_meter_Keycode_K)
 		SetInfoText("Key to crit device while struggling when stamina bar blinks")
-	elseif option ==UD_UseWidget_T
+	elseif option == UD_UseWidget_T
 		SetInfoText("Shows widget in minigame that shows current relevant value. Not all minigames will show widget because they may not use them.")
 	elseif(option == UD_CHB_Magicka_meter_Keycode_K)
 		SetInfoText("Key to crit device while struggling when magicka bar blinks")
@@ -1227,8 +1307,7 @@ Function CustomBondagePageInfo(int option)
 		SetInfoText("Change widget X position\nDefault: Right")
 	elseif option == UD_WidgetPosY_M
 		SetInfoText("Change widget Y position\nDefault: Down")
-	elseif option == UD_PatchMult_S
-		SetInfoText("Sets patching multiplier. The more this value the harder will be patched devices.\nDefault: 100%")
+
 	elseif option == UD_LockpickMinigameNum_S
 		SetInfoText("Change number of lockpicks player can use in lockpick minigame.\nDefault: 2")
 	elseif option == UD_BaseDeviceSkillIncrease_S
@@ -1258,8 +1337,26 @@ Function CustomOrgasmPageInfo(int option)
 	elseif option == UD_HornyAnimation_T
 		SetInfoText("Toogle if random horny animation can play while orgasm rate is bigger then 0\nDefault: YES")
 	elseif option == UD_HornyAnimationDuration_S
-		SetInfoText("Duration of random horny animation\nDefault: 6 s")
+		SetInfoText("Duration of random horny animation\nDefault: 5 s")
+	elseif option == UD_VibrationMultiplier_S
+		SetInfoText("Constant for calculating Orgasm rate from Vibration strength. Example: If this value is 0.1 and vibrator strength is 100, resulting Orgasm rate is 10\nDefault: 0.1 s")
+	elseif option == UD_VibrationMultiplier_S
+		SetInfoText("Constant for calculating Arousal rate from Vibration strength. Example: If this value is 0.025 and vibrator strength is 100, resulting Arousal rate is 2.5\nDefault: 0.025 s")
 	Endif
+EndFunction
+
+Function PatcherPageInfo(int option)
+	if  option == UD_PatchMult_S
+		SetInfoText("Sets patching multiplier. The more this value the harder will be patched devices.\nDefault: 100%")
+	elseif option == UD_MAOChanceMod_S
+		SetInfoText("Sets MAO chance multiplier. Bigger the value, the more likely will patched device have MAO modifier\nExample: If patcher have set value of 8% of adding this modifier to device and this value will be 50%, result chance is 4%.\nDefault: 100%")
+	elseif option == UD_MAHChanceMod_S
+		SetInfoText("Sets MAH chance multiplier. Bigger the value, the more likely will patched device have MAH modifier\nExample: If patcher have set value of 8% of adding this modifier to device and this value will be 50%, result chance is 4%.\nDefault: 100%")
+	elseif option == UD_MAOMod_S
+		SetInfoText("Sets Orgasm manifest (MAO) multiplier. Bigger the value, the more likely will device manifest when actor orgasms.\nExample: If device have manifest 50% and this value will be 50%, result chance is 25%.\nDefault: 100%")
+	elseif option == UD_MAHMod_S
+		SetInfoText("Sets Hour manifest (MAH) multiplier. Bigger the value, the more likely will device manifest every hour.\nExample: If device have manifest 50% and this value will be 50%, result chance is 25%.\nDefault: 100%")
+	endif
 EndFunction
 
 Function AbadanPageInfo(int option)
@@ -1437,6 +1534,12 @@ Function SaveToJSON(string strFile)
 	JsonUtil.SetIntValue(strFile, "AbadonForceSetPref", AbadonQuest.final_finisher_pref as Int)
 	JsonUtil.SetIntValue(strFile, "AbadonUseAnalVariant", AbadonQuest.UseAnalVariant as Int)
 	
+	;PATCHER
+	JsonUtil.SetIntValue(strFile, "MAOChanceMod", UDCDmain.UDPatcher.UD_MAOChanceMod)
+	JsonUtil.SetIntValue(strFile, "MAOMod", UDCDmain.UDPatcher.UD_MAOMod)
+	JsonUtil.SetIntValue(strFile, "MAHChanceMod", UDCDmain.UDPatcher.UD_MAHChanceMod)
+	JsonUtil.SetIntValue(strFile, "MAHMod", UDCDmain.UDPatcher.UD_MAHMod)
+	
 	;OTHER
 	JsonUtil.SetIntValue(strFile, "UseHoods", UDIM.UD_UseHoods as Int)
 	JsonUtil.SetIntValue(strFile, "StartThirdpersonAnimation_Switch", libs.UD_StartThirdpersonAnimation_Switch as Int)
@@ -1503,6 +1606,12 @@ Function LoadFromJSON(string strFile)
 	AbadonQuest.final_finisher_set = JsonUtil.GetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
 	AbadonQuest.final_finisher_pref = JsonUtil.GetIntValue(strFile, "AbadonForceSetPref", AbadonQuest.final_finisher_pref as Int)
 	AbadonQuest.UseAnalVariant = JsonUtil.GetIntValue(strFile, "AbadonUseAnalVariant", AbadonQuest.UseAnalVariant as Int)
+	
+	;PATCHER
+	UDCDmain.UDPatcher.UD_MAOChanceMod = JsonUtil.GetIntValue(strFile, "MAOChanceMod", UDCDmain.UDPatcher.UD_MAOChanceMod)
+	UDCDmain.UDPatcher.UD_MAOMod = JsonUtil.GetIntValue(strFile, "MAOMod", UDCDmain.UDPatcher.UD_MAOMod)
+	UDCDmain.UDPatcher.UD_MAHChanceMod = JsonUtil.GetIntValue(strFile, "MAHChanceMod", UDCDmain.UDPatcher.UD_MAHChanceMod)
+	UDCDmain.UDPatcher.UD_MAHMod = JsonUtil.GetIntValue(strFile, "MAHMod", UDCDmain.UDPatcher.UD_MAHMod)
 	
 	;Other
 	UDIM.UD_UseHoods = JsonUtil.GetIntValue(strFile, "UseHoods", UDIM.UD_UseHoods as Int)
@@ -1579,6 +1688,12 @@ Function ResetToDefaults()
 	AbadonQuest.final_finisher_set = true
 	AbadonQuest.final_finisher_pref = 0
 	AbadonQuest.UseAnalVariant = false
+	
+	;PATCHER
+	UDCDmain.UDPatcher.UD_MAOChanceMod = 100
+	UDCDmain.UDPatcher.UD_MAOMod = 100
+	UDCDmain.UDPatcher.UD_MAHChanceMod = 100
+	UDCDmain.UDPatcher.UD_MAHMod = 100
 	
 	;Other
 	UDIM.UD_UseHoods = true

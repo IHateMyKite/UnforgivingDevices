@@ -18,19 +18,21 @@ bool Function canBeActivated()
 	return false
 	/;
 	if getWearer().wornhaskeyword(libs.zad_DeviousPiercingsNipple) && getRelativeElapsedCooldownTime() >= 0.1
-		if UDCDmain.getVibratorNum(getWearer())
+		int loc_num = UDCDmain.getNumberOfActivableDevicesWithKeyword(getWearer(),true,libs.zad_DeviousPiercingsNipple)
+		if loc_num > 0
 			return true
 		endif
+		return false
 	else
 		return false
 	endif
 EndFunction
 
 Function activateDevice()
-	int loc_num = UDCDmain.getNumberOfDevicesWithKeyword(getWearer(),libs.zad_DeviousPiercingsNipple)
+	int loc_num = UDCDmain.getNumberOfActivableDevicesWithKeyword(getWearer(),true,libs.zad_DeviousPiercingsNipple)
 	if loc_num > 0
-		UD_CustomDevice_RenderScript[] loc_piercings_arr = UDCDmain.getAllDevicesByKeyword(getWearer(),libs.zad_DeviousPiercingsNipple)
-		UD_CustomDevice_RenderScript loc_piercings = loc_piercings_arr[Utility.randomInt(0,loc_num - 1)]
+		UD_CustomDevice_RenderScript[] loc_piercings_arr = UDCDmain.getAllActivableDevicesByKeyword(getWearer(),true,libs.zad_DeviousPiercingsNipple)
+		UD_CustomDevice_RenderScript loc_piercings = loc_piercings_arr[Utility.randomInt(0,loc_piercings_arr.length - 1)]
 
 		if (loc_piercings as UD_CustomVibratorBase_RenderScript)
 			UD_CustomVibratorBase_RenderScript loc_vibrator = loc_piercings as UD_CustomVibratorBase_RenderScript
@@ -53,5 +55,6 @@ Function activateDevice()
 				loc_piercings.activateDevice()
 			endif
 		endif
+
 	endif
 EndFunction

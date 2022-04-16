@@ -1026,7 +1026,7 @@ bool Function addModifier(string modifier,string param = "")
 EndFunction
 
 bool Function removeModifier(string modifier)
-	if !hasModifier(modifier)
+	if hasModifier(modifier)
 		UD_Modifiers = PapyrusUtil.RemoveString(UD_Modifiers, getModifier(modifier))
 		return true
 	else
@@ -1049,6 +1049,14 @@ bool Function hasModifier(string modifier)
 		endif
 	endwhile
 	return false
+EndFunction
+
+String Function GetModifierHeader(String rawModifier)
+	if StringUtil.find(rawModifier,";") != -1
+		return StringUtil.Substring(rawModifier, 0, StringUtil.find(rawModifier,";"))
+	else	
+		return rawModifier
+	endif
 EndFunction
 
 String[] Function getModifierAllParam(string modifier)
@@ -1301,29 +1309,31 @@ Function removeDevice(actor akActor)
 		StorageUtil.UnSetFloatValue(akActor, "zad.StoredExposureRate")
 	endif
 	
+	if hasModifier("LootGold")
+		if UDCDmain.TraceAllowed()
+		UDCDmain.Log("Gold added: " + getModifierIntParam("LootGold"),1)
+		endif
+		int goldNumMin = getModifierIntParam("LootGold")
+		if getModifierParamNum("LootGold") > 1
+			int goldNumMax = getModifierIntParam("LootGold",1)
+			if goldNumMax < goldNumMin
+				goldNumMax = goldNumMin
+			endif
+			int randomNum = Utility.randomInt(goldNumMin,goldNumMax)
+			if randomNum > 0
+				akActor.addItem(UDlibs.Gold,randomNum)	
+			endif				
+		else
+			akActor.addItem(UDlibs.Gold,goldNumMin)
+		endif
+	endif
+	
 	if hasModifier("DOR")
 		if UD_OnDestroyItemList; && hasModifier("LootList")
 			if UDCDmain.TraceAllowed()
 				UDCDmain.Log("Items from LIL " + UD_OnDestroyItemList + " added to actor " + akActor,3)
 			endif
 			akActor.addItem(UD_OnDestroyItemList)
-		endif
-		
-		if hasModifier("LootGold")
-			UDCDmain.UDmain.Log("[UD]: Gold added: " + getModifierIntParam("LootGold"),1)
-			int goldNumMin = getModifierIntParam("LootGold")
-			if getModifierParamNum("LootGold") > 1
-				int goldNumMax = getModifierIntParam("LootGold",1)
-				if goldNumMax < goldNumMin
-					goldNumMax = goldNumMin
-				endif
-				int randomNum = Utility.randomInt(goldNumMin,goldNumMax)
-				if randomNum > 0
-					akActor.addItem(UDlibs.Gold,randomNum)	
-				endif				
-			else
-				akActor.addItem(UDlibs.Gold,goldNumMin)
-			endif
 		endif
 	endif
 	
@@ -1375,7 +1385,7 @@ Function UpdateHour(float mult)
 	if OnUpdateHourPre()
 		if OnUpdateHourPost()
 			if hasModifier("MAH")
-				int loc_chance = getModifierIntParam("MAH",0)
+				int loc_chance = UDCDmain.Round(getModifierIntParam("MAH",0)*(UDCDmain.UDPatcher.UD_MAHMod/100.0))
 				int loc_number = getModifierIntParam("MAH",1)
 				Form[] loc_array
 				if Utility.randomInt() < loc_chance
@@ -3465,6 +3475,9 @@ Function MinigameVarReset()
 	minigame_on = False
 		
 	if Wearer
+		if WearerIsPlayer()
+			UDCDmain.resetCurrentMinigameDevice()
+		endif
 		Wearer.RemoveFromFaction(UDCDmain.MinigameFaction)
 		StorageUtil.UnSetFormValue(Wearer, "UD_currentMinigameDevice")
 	endif
@@ -4347,14 +4360,14 @@ Function lockpickDevice()
 			UDCDmain.startLockpickMinigame()
 			
 			float loc_elapsedTime = 0.0
-			while (!UDCDmain.LockpickMinigameOver && UI.isMenuOpen("Lockpicking Menu")); && loc_elapsedTime < 25.0
+			while (!UDCDmain.LockpickMinigameOver) && loc_elapsedTime < 25.0
 				Utility.WaitMenuMode(0.1)
 				loc_elapsedTime += 0.1
 			endwhile
 		
 			result = UDCDmain.lockpickMinigameResult 	;first we fetch lockpicking result
 			UDCDmain.DeleteLockPickContainer()			;then we remove the container so IsLocked is not called on None
-			;/
+			
 			if loc_elapsedTime >= 25.0
 				UDCDmain.Print("You lost the focus and broke the lockpick!")
 				result = 2
@@ -4363,7 +4376,7 @@ Function lockpickDevice()
 					UDCDmain.UDmain.closeLockpickMenu()
 				endif
 			endif
-			/;
+			
 			if hasHelper()
 				if WearerIsPlayer()
 					int lockpicks = getWearer().getItemCount(UDCDmain.Lockpick)
@@ -4555,7 +4568,7 @@ Function activateDevice()
 EndFunction
 
 bool Function isNotShareActive()
-	return UD_ActiveEffectName != "Share" && UD_ActiveEffectName != "none" 
+	return UD_ActiveEffectName != "Share" && UD_ActiveEffectName != "none" && UD_ActiveEffectName != ""
 EndFunction
 
 bool Function canBeActivated()
@@ -4596,7 +4609,7 @@ EndFunction
 
 Function OnOrgasmPost(bool sexlab = false)
 	if hasModifier("MAO")
-		int loc_chance = getModifierIntParam("MAO",0)
+		int loc_chance = UDCDmain.Round(getModifierIntParam("MAO",0)*(UDCDmain.UDPatcher.UD_MAOMod/100.0))
 		int loc_number = getModifierIntParam("MAO",1)
 		Form[] loc_array
 		if Utility.randomInt() < loc_chance
@@ -4785,14 +4798,12 @@ Function onSpecialButtonPressed()
 EndFunction
 
 bool Function onWeaponHitPre(Weapon source)
-	return True
+	return true;UDCDmain.isSharp(source)
 EndFunction
 
 Function onWeaponHitPost(Weapon source)
-	if UDCDmain.isSharp(source)
-		if !isUnlocked
-			decreaseDurabilityAndCheckUnlock(source.getBaseDamage()*0.1*(1.0 - UD_WeaponHitResist),2.0)
-		endif
+	if !isUnlocked
+		decreaseDurabilityAndCheckUnlock(source.getBaseDamage()*0.08*(1.0 - UD_WeaponHitResist),2.0)
 	endif
 EndFunction
 

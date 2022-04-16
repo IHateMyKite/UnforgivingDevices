@@ -27,7 +27,7 @@ Function onDeviceMenuInitPost(bool[] aControlFilter)
 	if canBeStruggled()
 		UDCDmain.currentDeviceMenu_allowstruggling = True
 	else
-		UDCDMain.disableStruggleCondVar()
+		UDCDMain.disableStruggleCondVar(false)
 	endif
 EndFunction
 
@@ -37,7 +37,7 @@ Function onDeviceMenuInitPostWH(bool[] aControlFilter)
 	if canBeStruggled()
 		UDCDmain.currentDeviceMenu_allowstruggling = True
 	else
-		UDCDMain.disableStruggleCondVar()
+		UDCDMain.disableStruggleCondVar(false)
 	endif
 EndFunction
 

@@ -18,27 +18,29 @@ bool Function canBeActivated()
 	return false
 	/;
 	if getWearer().wornhaskeyword(libs.zad_deviousPlug) && getRelativeElapsedCooldownTime() >= 0.25
-		if UDCDmain.getVibratorNum(getWearer())
+		int loc_num = UDCDmain.getNumberOfActivableDevicesWithKeyword(getWearer(),false,libs.zad_deviousPlug)
+		if loc_num > 0
 			return true
 		endif
+		return false
 	else
 		return false
 	endif
 EndFunction
 
 Function activateDevice()
-	int loc_num = UDCDmain.getNumberOfDevicesWithKeyword(getWearer(),libs.zad_deviousPlug)
+	int loc_num = UDCDmain.getNumberOfActivableDevicesWithKeyword(getWearer(),false,libs.zad_deviousPlug)
 	if loc_num > 0
-		UD_CustomDevice_RenderScript[] loc_plugs_arr = UDCDmain.getAllDevicesByKeyword(getWearer(),libs.zad_deviousPlug)
-		UD_CustomDevice_RenderScript loc_plug = loc_plugs_arr[Utility.randomInt(0,loc_num - 1)]
-		if WearerIsPLayer()
-			debug.notification(getDeviceName() + " activates your plug!")
-		elseif WearerIsFollower()
-			debug.notification(getWearerName() + "s "+ getDeviceName() +" activates their plug!")
-		endif
+		UD_CustomDevice_RenderScript[] loc_plugs_arr = UDCDmain.getAllActivableDevicesByKeyword(getWearer(),false,libs.zad_deviousPlug)
+		UD_CustomDevice_RenderScript loc_plug = loc_plugs_arr[Utility.randomInt(0,loc_plugs_arr.length - 1)]
+
 		if (loc_plug as UD_CustomVibratorBase_RenderScript)
 			UD_CustomVibratorBase_RenderScript loc_vibrator = loc_plug as UD_CustomVibratorBase_RenderScript
-			
+			if WearerIsPLayer()
+				debug.notification(getDeviceName() + " activates "+ loc_plug.getDeviceName() +"!")
+			elseif WearerIsFollower()
+				debug.notification(getWearerName() + "s "+ getDeviceName() +" activates their "+loc_plug.getDeviceName()+"!")
+			endif
 			if loc_vibrator.canVibrate()
 				if !loc_vibrator.isVibrating()
 					loc_vibrator.ForceModDuration(1.5)

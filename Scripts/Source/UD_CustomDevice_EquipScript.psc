@@ -115,7 +115,10 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 						return
 					elseif target != Game.getPlayer() && !target.getItemCount(deviceRendered)
 						;lock device
-						debug.notification(giver.getActorBase().getName() + " locked " + deviceInventory.getName() + " on " + target.getActorBase().getName())
+						;debug.notification(giver.getActorBase().getName() + " locked " + deviceInventory.getName() + " on " + target.getActorBase().getName())
+						;if GetLockDeviceType(target) == -1
+						;	StorageUtil.SetIntValue(target,"UD_LockDeviceType"+deviceInventory,2)
+						;endif
 						libs.LockDevice(target, deviceInventory, force = false)
 						return
 					else
@@ -219,6 +222,10 @@ Event OnEquipped(Actor akActor)
 		UDCDmain = Game.getFormFromFile(0x0015E73C,"UnforgivingDevices.esp") as UDCustomDeviceMain
 	endif
 	
+	;if GetLockDeviceType(akActor) == -1
+	;	StorageUtil.SetIntValue(akActor,"UD_LockDeviceType"+deviceInventory,1)
+	;endif
+	
 	if !zad_DeviceMsg
 		zad_DeviceMsg =	UDCDmain.DefaultEquipDeviceMessage
 	endif
@@ -260,6 +267,10 @@ Event OnUnequipped(Actor akActor)
 
 	parent.OnUnequipped(akActor)
 EndEvent
+
+Int Function GetLockDeviceType(Actor akActor)
+	return StorageUtil.GetIntValue(akActor,"UD_LockDeviceType"+deviceInventory,-1)
+EndFunction
 
 ;device menu that pops up when Wearer click on this device in inventory
 Function DeviceMenu(Int msgChoice = 0)
@@ -428,7 +439,7 @@ int Function EquipFilterPlug(actor akActor, bool silent=false)
 		if !silent
 			return 2
 		Else
-			return 1
+			return 0
 		EndIf
 	Endif
 	return 0
@@ -609,20 +620,29 @@ Event LockDevice(Actor akActor)
 		return
 	EndIf	
 	
+	;int loc_lockDeviceType = GetLockDeviceType(akActor)
+	;StorageUtil.UnsetIntValue(akActor,"UD_LockDeviceType"+deviceInventory)
+	
 	bool silently = ShouldEquipSilently(akActor)
+	
 	; check for device conflicts
 	If !silently && (IsEquipDeviceConflict(akActor) || IsEquipRequiredDeviceConflict(akActor))			
 		akActor.UnequipItem(deviceInventory, false, true)		
 		return
     EndIf	
 	
-	If !silently && akActor == libs.playerref; && !akActor.WornHasKeyword(zad_DeviousDevice) && akActor.GetItemCount(deviceRendered) == 0
-		if EquipDeviceMenu(akActor)
-			akActor.UnequipItem(deviceInventory, false, true)
-			return
+	If !silently; && loc_lockDeviceType > 0; && !akActor.WornHasKeyword(zad_DeviousDevice) && akActor.GetItemCount(deviceRendered) == 0
+		if akActor == Game.getPlayer();loc_lockDeviceType == 1
+			if EquipDeviceMenu(akActor)
+				akActor.UnequipItem(deviceInventory, false, true)
+				return
+			endif
+		;elseif loc_lockDeviceType == 2
+			;NPC menu, TODO
 		endif
 	EndIf	
 	
+	;filter
 	int filter = OnEquippedFilter(akActor, silent=silently)
 	if filter >= 1
 		if filter == 2

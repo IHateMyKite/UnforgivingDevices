@@ -523,10 +523,39 @@ Function showDebugMenu(int slot_id)
 			elseif res == 5 ;activate
 				UD_equipedCustomDevices[slot_id].activateDevice()
 				return
-			elseif res == 6 ;info
-				debug.messagebox(UD_equipedCustomDevices[slot_id].getInfoString())
-			elseif res == 7 ;debug info
-				debug.messagebox(UD_equipedCustomDevices[slot_id].getDebugString())
+			elseif res == 6 ;Add modifier
+				string[] loc_ModifierList = new String[8]
+				loc_ModifierList[0] = "Regen"
+				loc_ModifierList[1] = "Sentient"
+				loc_ModifierList[2] = "Loose"
+				loc_ModifierList[3] = "MAO"
+				loc_ModifierList[4] = "MAH"
+				loc_ModifierList[5] = "_HEAL"
+				loc_ModifierList[6] = "LootGold"
+				loc_ModifierList[7] = "DOR"
+				int loc_res1 = UDCDMain.GetUserListInput(loc_ModifierList)
+				if loc_res1 > 0
+					String loc_modName = loc_ModifierList[loc_res1]
+					String loc_param = UDCDMain.GetUserTextInput()
+					
+					if !UD_equipedCustomDevices[slot_id].addModifier(loc_modName,loc_param)
+						UDCDmain.Print("Error! Can't add " + loc_modName)
+					endif
+				endif
+				;UD_equipedCustomDevices[slot_id].addModifier()
+				;debug.messagebox(UD_equipedCustomDevices[slot_id].getInfoString())
+			elseif res == 7 ;Remove modifier
+				if UD_equipedCustomDevices[slot_id].UD_Modifiers.length > 0
+					int loc_res = UDCDMain.GetUserListInput(UD_equipedCustomDevices[slot_id].UD_Modifiers)
+					if loc_res > 0
+						string loc_modRaw = UD_equipedCustomDevices[slot_id].UD_Modifiers[loc_res]
+						string loc_modHead = UD_equipedCustomDevices[slot_id].GetModifierHeader(loc_modRaw)
+						if !UD_equipedCustomDevices[slot_id].removeModifier(loc_modHead)
+							UDCDmain.Print("Error! Can't remove " + loc_modRaw)
+						endif
+					endif
+				endif
+				;debug.messagebox(UD_equipedCustomDevices[slot_id].getDebugString())
 			else
 				return
 			endif
@@ -670,7 +699,7 @@ EndFunction
 ;returns array of all device containing keyword in their render device
 ;mod = 0 => AND 	(device need all provided keyword)
 ;mod = 1 => OR 		(device need one provided keyword)
-UD_CustomDevice_RenderScript[] Function getAllActivableDevicesByKeyword(keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)
+UD_CustomDevice_RenderScript[] Function getAllActivableDevicesByKeyword(bool bCheckCondition, keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)
 	if !kw2
 		kw2 = kw1
 	endif
@@ -686,14 +715,14 @@ UD_CustomDevice_RenderScript[] Function getAllActivableDevicesByKeyword(keyword 
 	while UD_equipedCustomDevices[i]
 		if mod == 0
 			if UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw1) && UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw2) && UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw3)
-				if UD_equipedCustomDevices[i].canBeActivated() && UD_equipedCustomDevices[i].isNotShareActive()
+				if (UD_equipedCustomDevices[i].canBeActivated() || !bCheckCondition)  && UD_equipedCustomDevices[i].isNotShareActive()
 					res[found_devices] = UD_equipedCustomDevices[i]
 					found_devices += 1
 				endif
 			endif
 		elseif mod == 1
 			if UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw1) || UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw2) || UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw3)
-				if UD_equipedCustomDevices[i].canBeActivated() && UD_equipedCustomDevices[i].isNotShareActive()
+				if (UD_equipedCustomDevices[i].canBeActivated() || !bCheckCondition) && UD_equipedCustomDevices[i].isNotShareActive()
 					res[found_devices] = UD_equipedCustomDevices[i]
 					found_devices += 1
 				endif
@@ -737,7 +766,7 @@ EndFunction
 ;returns number of all device containing keyword in their render device
 ;mod = 0 => AND 	(device need all provided keyword)
 ;mod = 1 => OR 	(device need one provided keyword)
-int Function getNumberOfActivableDevicesWithKeyword(keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)
+int Function getNumberOfActivableDevicesWithKeyword(bool bCheckCondition, keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)
 	if !kw2
 		kw2 = kw1
 	endif
@@ -752,13 +781,13 @@ int Function getNumberOfActivableDevicesWithKeyword(keyword kw1,keyword kw2 = no
 	while UD_equipedCustomDevices[i]
 		if mod == 0
 			if UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw1) && UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw2) && UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw3)
-				if UD_equipedCustomDevices[i].canBeActivated() && UD_equipedCustomDevices[i].isNotShareActive()
+				if (UD_equipedCustomDevices[i].canBeActivated() || !bCheckCondition) && UD_equipedCustomDevices[i].isNotShareActive()
 					found_devices += 1
 				endif
 			endif
 		elseif mod == 1
 			if UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw1) || UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw2) || UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw3)
-				if UD_equipedCustomDevices[i].canBeActivated() && UD_equipedCustomDevices[i].isNotShareActive()
+				if (UD_equipedCustomDevices[i].canBeActivated() || !bCheckCondition) && UD_equipedCustomDevices[i].isNotShareActive()
 					found_devices += 1
 				endif
 			endif

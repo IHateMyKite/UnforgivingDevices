@@ -43,21 +43,15 @@ bool Function isMutexed(Actor akActor,Armor invDevice)
 EndFunction
 
 Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force = false)
-	
 	while LOCKDEVICE_MUTEX
 		Utility.waitMenuMode(0.15)
 	endwhile
+	
 	LOCKDEVICE_MUTEX = True
 	if UDCDmain.TraceAllowed()	
 		UDCDmain.Log("LockDevicePatched called, proccesing!")
 	endif
-	;debug.StartScriptProfiling("zadlibs_UDPatch")
-	;debug.StartScriptProfiling("UD_CustomDevice_EquipScript")
-	;debug.StartScriptProfiling("UD_CustomDevice_RenderScript")
-	;debug.StartScriptProfiling("UD_CustomDevices_NPCSlotsManager")
-	;debug.StartScriptProfiling("UD_CustomDevice_NPCSlot")
-	;debug.StartScriptProfiling("UDCustomDeviceMain")
-	;Debug.StartStackProfiling()
+	
 	bool loc_res = false
 	if deviceInventory.hasKeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
 		;Debug.StartStackProfiling()
@@ -68,8 +62,11 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
 		UD_GlobalDeviceMutex_RenderScript = false
 		UD_GlobalDeviceMutex_InventoryScript_Failed = false
 		zad_AlwaysSilent.addForm(akActor)
-		;StorageUtil.SetIntValue(akActor,"UD_BlockEQDeviceMenu",1)
-		;zad_AlwaysSilent.RemoveForm(akActor)
+		
+		;if StorageUtil.GetIntValue(akActor,"UD_LockDeviceType"+deviceInventory,-1) == -1
+		;	StorageUtil.SetIntValue(akActor,"UD_LockDeviceType"+deviceInventory,0)
+		;endif
+		
 		UD_GlobalDeviceMutex_Device = deviceInventory
 		UD_GlobalDeviceMutex_Actor = akActor
 		loc_res = parent.LockDevice(akActor,deviceInventory,force)
@@ -86,11 +83,12 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
 		UD_GlobalDeviceMutex_Device = none
 		UD_GlobalDeviceMutex_Actor = none
 		zad_AlwaysSilent.RemoveAddedForm(akActor)
-		;StorageUtil.UnSetIntValue(akActor,"UD_BlockEQDeviceMenu")
+		
+		
 		if UDCDmain.TraceAllowed()		
 			UDCDmain.Log("LockDevice("+deviceInventory.getName()+") (patched) called, operation completed")
 		endif
-		;Debug.StopStackProfiling()
+
 	else
 		if UDCDmain.TraceAllowed()		
 			UDCDmain.Log("LockDevice("+deviceInventory.getName()+") (patched) called, device is NOT UD -> skipping mutex")
@@ -98,13 +96,7 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
 		Utility.waitMenuMode(0.25) ;wait little time, so DCL work properly
 		loc_res = parent.LockDevice(akActor,deviceInventory,force)
 	endif
-	;Debug.StopStackProfiling()
-	;debug.StopScriptProfiling("zadlibs_UDPatch")
-	;debug.StopScriptProfiling("UD_CustomDevice_EquipScript")
-	;debug.StopScriptProfiling("UD_CustomDevice_RenderScript")
-	;debug.StopScriptProfiling("UD_CustomDevices_NPCSlotsManager")
-	;debug.StopScriptProfiling("UD_CustomDevice_NPCSlot")
-	;debug.StopScriptProfiling("UDCustomDeviceMain")
+
 	LOCKDEVICE_MUTEX = False
 	return loc_res
 EndFunction

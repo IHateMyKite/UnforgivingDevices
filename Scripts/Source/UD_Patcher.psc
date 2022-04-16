@@ -8,10 +8,15 @@ UD_libs Property UDlibs auto
 Float Property UD_PatchMult = 1.0 auto
 bool Property UD_PatcherMutex = false auto
 
-bool _AutoPatchDurability = True
-bool _AutoPatchLockpicking = True
-bool _AutoPatchCutting = True
-bool _AutoPatchLockAcces = True
+;MCM options
+Float Property UD_ManifestMod = 1.0 auto
+
+
+;modifiers switches
+Int Property UD_MAOChanceMod = 100 auto
+int Property UD_MAOMod = 100 auto
+Int Property UD_MAHChanceMod = 100 auto
+int Property UD_MAHMod = 100 auto
 
 Bool Property Ready = False auto
 Event OnInit()
@@ -493,7 +498,6 @@ Function patchGeneric(UD_CustomDevice_RenderScript device)
 			device.UD_durability_damage_base = Utility.randomFloat(0.25,1.0) ;so mittens are always escapable
 		endif
 		checkLooseModifier(device,100,0.25, 1.0)
-		;_AutoPatchDurability = False
 		loc_control = Math.LogicalAnd(loc_control,0x0E)
 	endif
 	
@@ -519,7 +523,7 @@ Function patchPiercing(UD_CustomPiercing_RenderScript device)
 		device.UD_Locks = 2
 		device.UD_OrgasmMult  = Utility.randomFloat(0.3,0.8)*UDCDmain.fRange(UD_PatchMult,1.0,5.0)
 		device.UD_ArousalMult = Utility.randomFloat(1.5,2.0)*UDCDmain.fRange(UD_PatchMult,1.0,3.0)
-		checkMAHModifier(device,35,10,15,1,3)
+		checkMAHModifier(device,45,3,8,1,3)
 	elseif device.UD_DeviceKeyword == libs.zad_DeviousPiercingsVaginal
 		device.UD_Locks = 1
 		device.UD_OrgasmMult  = Utility.randomFloat(1.5,2.5)*UDCDmain.fRange(UD_PatchMult,0.8,3.0)
@@ -572,13 +576,13 @@ Function checkLooseModifier(UD_CustomDevice_RenderScript device,int chance,float
 EndFunction
 
 Function checkMAHModifier(UD_CustomDevice_RenderScript device,int chance,int rand_start_c = 0,int rand_end_c = 100,int rand_start_d = 1,int rand_end_d = 1)
-	if Utility.randomInt() <= chance && DeviceCanHaveModes(device)
+	if Utility.randomInt() <= UDCDmain.Round(chance*UD_MAHChanceMod/100) && DeviceCanHaveModes(device)
 		device.addModifier("MAH",Utility.randomInt(rand_start_c,rand_end_c) + "," + Utility.randomInt(rand_start_d,rand_end_d))
 	endif
 EndFunction
 
 Function checkMAOModifier(UD_CustomDevice_RenderScript device,int chance,int rand_start_c = 0,int rand_end_c = 100,int rand_start_d = 1,int rand_end_d = 1)
-	if Utility.randomInt() <= chance && DeviceCanHaveModes(device)
+	if Utility.randomInt() <= UDCDmain.Round(chance*UD_MAOChanceMod/100) && DeviceCanHaveModes(device)
 		device.addModifier("MAO",Utility.randomInt(rand_start_c,rand_end_c) + "," + Utility.randomInt(rand_start_d,rand_end_d))
 	endif
 EndFunction
@@ -601,6 +605,14 @@ Function patchFinish(UD_CustomDevice_RenderScript device,int argControlVar = 0x0
 	endif
 	
 	device.UD_WeaponHitResist = device.UD_ResistPhysical
+	int loc_random = Utility.randomInt(0,100)
+	if loc_random > 75
+		if loc_random < 90
+			device.UD_WeaponHitResist = device.UD_WeaponHitResist + 0.25
+		else
+			device.UD_WeaponHitResist = device.UD_WeaponHitResist - 0.25
+		endif
+	endif
 	device.UD_SpellHitResist = device.UD_ResistMagicka
 EndFunction
 
