@@ -534,7 +534,7 @@ Function showDebugMenu(int slot_id)
 				loc_ModifierList[6] = "LootGold"
 				loc_ModifierList[7] = "DOR"
 				int loc_res1 = UDCDMain.GetUserListInput(loc_ModifierList)
-				if loc_res1 > 0
+				if loc_res1 >= 0
 					String loc_modName = loc_ModifierList[loc_res1]
 					String loc_param = UDCDMain.GetUserTextInput()
 					
@@ -547,7 +547,7 @@ Function showDebugMenu(int slot_id)
 			elseif res == 7 ;Remove modifier
 				if UD_equipedCustomDevices[slot_id].UD_Modifiers.length > 0
 					int loc_res = UDCDMain.GetUserListInput(UD_equipedCustomDevices[slot_id].UD_Modifiers)
-					if loc_res > 0
+					if loc_res >= 0
 						string loc_modRaw = UD_equipedCustomDevices[slot_id].UD_Modifiers[loc_res]
 						string loc_modHead = UD_equipedCustomDevices[slot_id].GetModifierHeader(loc_modRaw)
 						if !UD_equipedCustomDevices[slot_id].removeModifier(loc_modHead)

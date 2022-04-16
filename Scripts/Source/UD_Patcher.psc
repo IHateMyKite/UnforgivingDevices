@@ -577,13 +577,13 @@ EndFunction
 
 Function checkMAHModifier(UD_CustomDevice_RenderScript device,int chance,int rand_start_c = 0,int rand_end_c = 100,int rand_start_d = 1,int rand_end_d = 1)
 	if Utility.randomInt() <= UDCDmain.Round(chance*UD_MAHChanceMod/100) && DeviceCanHaveModes(device)
-		device.addModifier("MAH",Utility.randomInt(rand_start_c,rand_end_c) + "," + Utility.randomInt(rand_start_d,rand_end_d))
+		device.addModifier("MAH",UDCDmain.Round(Utility.randomInt(rand_start_c,rand_end_c)*UD_MAHMod/100) + "," + Utility.randomInt(rand_start_d,rand_end_d))
 	endif
 EndFunction
 
 Function checkMAOModifier(UD_CustomDevice_RenderScript device,int chance,int rand_start_c = 0,int rand_end_c = 100,int rand_start_d = 1,int rand_end_d = 1)
 	if Utility.randomInt() <= UDCDmain.Round(chance*UD_MAOChanceMod/100) && DeviceCanHaveModes(device)
-		device.addModifier("MAO",Utility.randomInt(rand_start_c,rand_end_c) + "," + Utility.randomInt(rand_start_d,rand_end_d))
+		device.addModifier("MAO",UDCDmain.Round(Utility.randomInt(rand_start_c,rand_end_c)*UD_MAOMod/100) + "," + Utility.randomInt(rand_start_d,rand_end_d))
 	endif
 EndFunction
 
