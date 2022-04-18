@@ -19,7 +19,6 @@ Function startDeviceManipulation()
 	if loc_time >= 60.0
 		UDCDmain.Error("startDeviceManipulation timeout!!!")
 	endif
-	
 EndFunction
 
 Function endDeviceManipulation()
@@ -38,6 +37,65 @@ Event OnPlayerLoadGame()
 	;UDCDmain.registerAllEvents()
 EndEvent
 
+UD_CustomDevice_RenderScript Function GetUserSelectedDevice()
+	String[] loc_devicesString = getSlotsStringA()
+	loc_devicesString = PapyrusUtil.PushString(loc_devicesString,"--BACK--")
+	int loc_deviceIndx = UDCDmain.GetUserListInput(loc_devicesString)
+	
+	if loc_deviceIndx != (loc_devicesString.length - 1) && loc_deviceIndx >= 0
+		UD_CustomDevice_RenderScript loc_device = UD_equipedCustomDevices[loc_deviceIndx]
+		ReorderSlots(loc_device)
+		return loc_device
+	else
+		return none
+	endif
+EndFunction
+
+String[] Function getSlotsStringA()
+	String[] loc_res
+	int i = 0
+	while UD_equipedCustomDevices[i]
+		loc_res = PapyrusUtil.PushString(loc_res,UD_equipedCustomDevices[i].getDeviceName())
+		i+=1
+	endwhile
+	return loc_res
+EndFunction
+
+Function ReorderSlots(UD_CustomDevice_RenderScript firstDevice)
+	startDeviceManipulation()
+	int loc_reorderIndx = GetDeviceSlotIndx(firstDevice)
+	int i = loc_reorderIndx 
+	while i < UD_equipedCustomDevices.length
+		if UD_equipedCustomDevices[i] && ((i + 1) != UD_equipedCustomDevices.length)
+			UD_equipedCustomDevices[i] = UD_equipedCustomDevices[i + 1]
+		endif
+		i+=1
+	endwhile
+	
+	;push back
+	i = UD_equipedCustomDevices.length - 1
+	while i
+		if !UD_equipedCustomDevices[i] && UD_equipedCustomDevices[i - 1]
+			UD_equipedCustomDevices[i] = UD_equipedCustomDevices[i - 1]
+			UD_equipedCustomDevices[i - 1] = none
+		endif
+		i-=1
+	endwhile
+	
+	UD_equipedCustomDevices[0] = firstDevice
+	endDeviceManipulation()
+EndFunction
+
+int Function GetDeviceSlotIndx(UD_CustomDevice_RenderScript device)
+	int i = 0
+	while UD_equipedCustomDevices[i]
+		if UD_equipedCustomDevices[i] == device
+			return i
+		endif
+		i+=1
+	endwhile
+EndFunction
+
 Function SetSlotTo(Actor akActor)
 	if UDCDmain.TraceAllowed()	
 		UDCDmain.Log("SetSlotTo("+UDCDmain.getActorName(akActor)+") for " + self)
@@ -45,19 +103,11 @@ Function SetSlotTo(Actor akActor)
 	if akActor != Game.GetPlayer()
 		ForceRefTo(akActor)
 	endif
-	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("SetSlotTo("+UDCDmain.getActorName(akActor)+") for " + self + ", setScriptState")
-	endif
-	;setScriptState(StorageUtil.GetIntValue(akActor, "UD_ScriptState", 1),False)
-	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("SetSlotTo("+UDCDmain.getActorName(akActor)+") for " + self + ", addToFaction")
-	endif
 	akActor.addToFaction(UDCDmain.RegisteredNPCFaction)
-	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("SetSlotTo("+UDCDmain.getActorName(akActor)+") for " + self + ", sendOrgasmCheckLoop")
-	endif
-	UDCDmain.sendOrgasmCheckLoop(akActor)
-	UDCDmain.StartArousalCheckLoop(akActor)
+
+	UDCDmain.CheckOrgasmCheck(akActor)
+	UDCDmain.CheckArousalCheck(akActor)
+	
 	if akActor != Game.GetPlayer()
 		regainDevices()
 	endif

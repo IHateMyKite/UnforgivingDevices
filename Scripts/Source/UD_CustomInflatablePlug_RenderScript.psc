@@ -414,7 +414,7 @@ Function activateDevice()
 	bool loc_canVibrate = canVibrate() && !isVibrating()
 	if loc_canInflate
 		if WearerIsPlayer()
-			debug.notification("Your "+getPlugType()+" plug suddenly inflate itself!")
+			debug.notification("Your "+ getDeviceName()+" suddenly inflate itself!")
 		elseif WearerIsFollower()
 			debug.notification(getWearerName() + "s "+ getDeviceName() + " suddenly inflate itself!")		
 		endif
@@ -441,7 +441,7 @@ Function onUpdatePost(float timePassed)
 		deflateprogress += timePassed*UD_DeflateRate*Utility.randomFloat(0.75,1.25)*UDCDmain.getStruggleDifficultyModifier()
 		if deflateprogress > UD_PumpDifficulty
 			if WearerIsPlayer()
-				debug.notification("You feel that your inflatable "+getPlugType()+" plug lost some of its pressure")
+				debug.notification("You feel that your "+getDeviceName()+" lost some of its pressure")
 			elseif WearerIsFollower()
 				debug.notification(getWearerName() + "s "+ getDeviceName() + " lost some of its pressure")	
 			endif

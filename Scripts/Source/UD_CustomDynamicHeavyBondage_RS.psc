@@ -118,7 +118,7 @@ EndFunction
 
 Function OnMinigameTick()
 	if _untieMinigameOn
-		_untieProgress = fRange(_untieProgress + 1.0*UDCDmain.getStruggleDifficultyModifier()*UDmain.UD_baseUpdateTime*getMinigameMult(1),0.0,100.0)
+		_untieProgress = fRange(_untieProgress + 1.0*UDCDmain.getStruggleDifficultyModifier()*UDmain.UD_baseUpdateTime*getMinigameMult(1),0.0,UD_UntieDifficulty)
 		if _untieProgress >= UD_UntieDifficulty
 			stopMinigame()
 			untie()
@@ -130,7 +130,7 @@ EndFunction
 
 bool Function OnCritDevicePre()
 	if _untieMinigameOn
-		_untieProgress = fRange(_untieProgress + 8.0*UDCDmain.getStruggleDifficultyModifier()*getMinigameMult(1),0.0,100.0)
+		_untieProgress = fRange(_untieProgress + 8.0*UDCDmain.getStruggleDifficultyModifier()*getMinigameMult(1),0.0,UD_UntieDifficulty)
 		if _untieProgress >= UD_UntieDifficulty
 			stopMinigame()
 			untie()
@@ -144,7 +144,7 @@ EndFunction
 
 Function OnCritFailure()
 	if _untieMinigameOn
-		_untieProgress =  fRange(_untieProgress - UD_UntieDifficulty*0.15,0.0,100.0)
+		_untieProgress =  fRange(_untieProgress - UD_UntieDifficulty*0.15,0.0,UD_UntieDifficulty)
 	endif
 	parent.OnCritFailure()
 EndFunction
@@ -169,6 +169,10 @@ Function activateDevice()
 		UDCDmain.Print(getWearerName() + "s " + getDeviceName() + " is tying them!")	
 	endif
 	TieUp()
+EndFunction
+
+Bool Function IsTiedUp()
+	return _tied
 EndFunction
 
 Function TieUp()

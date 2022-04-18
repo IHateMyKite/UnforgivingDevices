@@ -109,11 +109,16 @@ Keyword Property CustomHeavyBondage auto
 Keyword Property PatchedDevice auto
 Keyword Property PatchedInventoryDevice auto
 Keyword Property PatchNoModes_KW auto
+Keyword Property HardcoreDisable_KW auto
+Keyword Property OrgasmCheck_KW auto
+Keyword Property ArousalCheck_KW auto
 ;spells
 Spell Property MinigameDisableSpell auto
+Spell Property HardcoreDisableSpell auto
 Spell Property OrgasmExhaustionSpell auto
 Spell Property StruggleExhaustionSpell auto
-
+Spell Property OrgasmCheckSpell auto
+Spell Property ArousalCheckSpell auto
 ;Spell Property BreathingDebuffSpell auto
 Spell Property TelekinesisSpell auto
 Spell Property AphrodisiacsSpell auto

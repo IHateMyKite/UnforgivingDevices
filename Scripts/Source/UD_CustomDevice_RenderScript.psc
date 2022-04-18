@@ -1246,6 +1246,7 @@ Function Init(Actor akActor)
 		endif
 	endif
 	
+	
 	if deviceRendered.hasKeyword(libs.zad_DeviousBelt) || deviceRendered.hasKeyword(libs.zad_DeviousBra)
 		libs.Aroused.SetActorExposureRate(akActor, libs.GetModifiedRate(akActor))	
 	endif
@@ -1255,6 +1256,8 @@ Function Init(Actor akActor)
 	
 	safeCheck()
 	;safeCheckAnimations()
+	
+	UDCDmain.CheckHardcoreDisabler(getWearer())
 	
 	InitPost()
 	

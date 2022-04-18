@@ -311,6 +311,7 @@ int UD_BaseDeviceSkillIncrease_S
 int UD_CooldownMultiplier_S
 string[] criteffectList
 int UD_CritEffect_M
+int UD_HardcoreMode_T
 Event resetCustomBondagePage()
 	UpdateLockMenuFlag()
 	setCursorFillMode(LEFT_TO_RIGHT)
@@ -335,7 +336,8 @@ Event resetCustomBondagePage()
 	UD_StruggleDifficulty_M = AddMenuOption("Escape difficulty:", difficultyList[UDCDmain.UD_StruggleDifficulty],UD_LockMenu_flag)
 	UD_UseDDdifficulty_T = addToggleOption("Use DD difficulty:", UDCDmain.UD_UseDDdifficulty,UD_LockMenu_flag)	
 	
-	addEmptyOption()
+	;addEmptyOption()
+	UD_HardcoreMode_T = addToggleOption("Hardcore mode:", UDCDmain.UD_HardcoreMode)
 	;UD_PatchMult_S = addSliderOption("Patch mult: ",Math.floor(UDCDmain.UDPatcher.UD_PatchMult * 100 + 0.5), "{0} %",UD_LockMenu_flag)
 	UD_CritEffect_M = AddMenuOption("Crit effect:", criteffectList[UDCDmain.UD_CritEffect])
 	;addEmptyOption()
@@ -629,11 +631,9 @@ Function OptionCustomBondage(int option)
 	elseif(option == UD_UseDDdifficulty_T)
 		UDCDmain.UD_UseDDdifficulty = !UDCDmain.UD_UseDDdifficulty
 		SetToggleOptionValue(UD_UseDDdifficulty_T, UDCDmain.UD_UseDDdifficulty)
-		forcePageReset()
 	elseif(option == UD_UseWidget_T)
 		UDCDmain.UD_UseWidget = !UDCDmain.UD_UseWidget
 		SetToggleOptionValue(UD_UseWidget_T, UDCDmain.UD_UseWidget)
-		forcePageReset()
 	elseif option == UD_AutoCrit_T	
 		UDCDmain.UD_AutoCrit = !UDCDmain.UD_AutoCrit
 		if UDCDmain.UD_AutoCrit
@@ -644,6 +644,10 @@ Function OptionCustomBondage(int option)
 		
 		SetToggleOptionValue(UD_AutoCrit_T, UDCDmain.UD_AutoCrit)
 		forcePageReset()
+	elseif option == UD_HardcoreMode_T
+		UDCDmain.UD_HardcoreMode = !UDCDmain.UD_HardcoreMode
+		UDCDmain.RegisterForSingleUpdate(0.01)
+		SetToggleOptionValue(UD_HardcoreMode_T, UDCDmain.UD_HardcoreMode)
 	endif
 EndFunction
 
@@ -1307,7 +1311,6 @@ Function CustomBondagePageInfo(int option)
 		SetInfoText("Change widget X position\nDefault: Right")
 	elseif option == UD_WidgetPosY_M
 		SetInfoText("Change widget Y position\nDefault: Down")
-
 	elseif option == UD_LockpickMinigameNum_S
 		SetInfoText("Change number of lockpicks player can use in lockpick minigame.\nDefault: 2")
 	elseif option == UD_BaseDeviceSkillIncrease_S
@@ -1322,6 +1325,8 @@ Function CustomBondagePageInfo(int option)
 		SetInfoText("Effect used to indicate that crit is happening.\n[HUD] HUD will blink when crit is happening\n[Body shader] Actor body will have shader applied for short time\n[HUD + Body shader] Both of the previous effects combined\nDefault: [HUD + Body shader]")
 	elseif option == UD_CooldownMultiplier_S
 		SetInfoText("Change how big the devices cooldowns are. The bigger the value the bigger they will be.\nExamle: 200% makes all devices cooldown two times bigger.\nDefault: 100%")
+	elseif option == UD_HardcoreMode_T
+		SetInfoText("Hardcore mode disables most game features when players hands are tied up, to empathize the helpless feeling\n*Disables Inventory, Magick Menu and Fast travel (Map still works)\nTween menu is disabled, pressing it will open list of devices\nStats and Map can only be opened with key\nDefault: OFF")
 	Endif
 EndFunction
 
@@ -1505,7 +1510,6 @@ Function SaveToJSON(string strFile)
 	JsonUtil.SetIntValue(strFile, "ActionKey_Keycode", UDCDmain.ActionKey_Keycode)
 	JsonUtil.SetIntValue(strFile, "NPCMenu_Keycode", UDCDmain.NPCMenu_Keycode)
 	
-	
 	JsonUtil.SetIntValue(strFile, "UseDDdifficulty", UDCDmain.UD_UseDDdifficulty as Int)
 	JsonUtil.SetIntValue(strFile, "UseWidget", UDCDmain.UD_UseWidget as Int)
 	JsonUtil.SetIntValue(strFile, "GagPhonemModifier", UDCDmain.UD_GagPhonemModifier)
@@ -1528,6 +1532,7 @@ Function SaveToJSON(string strFile)
 	JsonUtil.SetFloatValue(strFile, "CooldownMultiplier", UDCDmain.UD_CooldownMultiplier)
 	
 	JsonUtil.SetIntValue(strFile, "CritEffect", UDCDmain.UD_CritEffect)
+	JsonUtil.SetIntValue(strFile, "HardcoreMode", UDCDmain.UD_HardcoreMode as Int)
 	
 	;ABADON
 	JsonUtil.SetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
@@ -1601,6 +1606,7 @@ Function LoadFromJSON(string strFile)
 	UDCDmain.UD_CooldownMultiplier = JsonUtil.GetFloatValue(strFile, "CooldownMultiplier", UDCDmain.UD_CooldownMultiplier)
 	
 	UDCDmain.UD_CritEffect = JsonUtil.GetIntValue(strFile, "CritEffect", UDCDmain.UD_CritEffect)
+	UDCDmain.UD_HardcoreMode = JsonUtil.GetIntValue(strFile, "HardcoreMode", UDCDmain.UD_HardcoreMode as Int)
 	
 	;ABADON
 	AbadonQuest.final_finisher_set = JsonUtil.GetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
@@ -1683,6 +1689,7 @@ Function ResetToDefaults()
 	UDCDmain.UD_HornyAnimationDuration = 5
 	UDCDmain.UD_CooldownMultiplier = 1.0
 	UDCDmain.UD_CritEffect = 2
+	UDCDmain.UD_HardcoreMode = false
 	
 	;ABADON
 	AbadonQuest.final_finisher_set = true

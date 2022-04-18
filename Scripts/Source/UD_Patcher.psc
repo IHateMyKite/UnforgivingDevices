@@ -62,7 +62,6 @@ string[] Function GetHeavyBondageAnimation_Armbinder(bool hobble = false)
 	return temp
 EndFunction
 
-
 Function safeCheckAnimations(UD_CustomDevice_RenderScript device,bool force = false)
 	if !device.UD_struggleAnimations || force
 		string[] temp 
@@ -260,7 +259,7 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
 	device.UD_ResistPhysical = Utility.randomFloat(-0.1,0.7)
 	device.UD_ResistMagicka = Utility.randomFloat(-0.5,0.75)
 	device.UD_base_stat_drain = Utility.randomFloat(8.0,10.0)
-	device.UD_StruggleCritDuration = Utility.randomFloat(0.62,0.9)
+	device.UD_StruggleCritDuration = Utility.randomFloat(0.75,0.9)
 	device.UD_StruggleCritChance = Utility.randomInt(8,15)
 	device.UD_StruggleCritMul = Utility.randomFloat(4.0,8.0)
 	device.UD_LockpickDifficulty = 25*Utility.randomInt(1,3)
@@ -676,7 +675,7 @@ Function patchDefaultValues(UD_CustomDevice_RenderScript device)
 	device.UD_durability_damage_base = Utility.randomFloat(0.8,1.6)/UD_PatchMult
 	device.UD_ResistPhysical = Utility.randomFloat(-0.5,0.9)
 	device.UD_ResistMagicka = Utility.randomFloat(-0.9,1.0)
-	device.UD_StruggleCritDuration = 0.8
+	device.UD_StruggleCritDuration = 0.9
 	device.UD_StruggleCritChance = Utility.randomInt(15,30)
 	device.UD_StruggleCritMul = Utility.randomFloat(2.0,6.0)
 	device.UD_Cooldown = UDCDmain.UDmain.Round(Utility.randomInt(100,240)/(UDCDmain.fRange(UD_PatchMult,0.5,5.0)))

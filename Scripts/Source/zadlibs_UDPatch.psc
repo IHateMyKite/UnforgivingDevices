@@ -49,14 +49,14 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
 	
 	LOCKDEVICE_MUTEX = True
 	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("LockDevicePatched called, proccesing!")
+		UDCDmain.Log("LockDevicePatched("+UDCDMain.getActorName(akActor)+","+deviceInventory.getName()+") called, proccesing!")
 	endif
 	
 	bool loc_res = false
 	if deviceInventory.hasKeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
 		;Debug.StartStackProfiling()
 		if UDCDmain.TraceAllowed()		
-			UDCDmain.Log("LockDevice("+deviceInventory.getName()+") (patched) called, device is UD -> using mutex")
+			UDCDmain.Log("LockDevicePatched("+UDCDMain.getActorName(akActor)+","+deviceInventory.getName()+") (patched) called, device is UD -> using mutex")
 		endif
 		UD_GlobalDeviceMutex_inventoryScript = false
 		UD_GlobalDeviceMutex_RenderScript = false
@@ -77,7 +77,7 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
 		endwhile
 		
 		if loc_time >= 5.0
-			UDCDmain.Error("lockDevice("+UDCDmain.getActorName(akActor)+","+deviceInventory.getName()+") timeout!!!")
+			UDCDmain.Error("LockDevicePatched("+UDCDmain.getActorName(akActor)+","+deviceInventory.getName()+") timeout!!!")
 		endif
 		
 		UD_GlobalDeviceMutex_Device = none
@@ -86,17 +86,20 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
 		
 		
 		if UDCDmain.TraceAllowed()		
-			UDCDmain.Log("LockDevice("+deviceInventory.getName()+") (patched) called, operation completed")
+			UDCDmain.Log("LockDevicePatched("+UDCDMain.getActorName(akActor)+","+deviceInventory.getName()+") (patched) called, operation completed")
 		endif
 
 	else
 		if UDCDmain.TraceAllowed()		
-			UDCDmain.Log("LockDevice("+deviceInventory.getName()+") (patched) called, device is NOT UD -> skipping mutex")
+			UDCDmain.Log("LockDevicePatched("+UDCDMain.getActorName(akActor)+","+deviceInventory.getName()+") (patched) called, device is NOT UD -> skipping mutex")
 		endif
-		Utility.waitMenuMode(0.25) ;wait little time, so DCL work properly
+		
 		loc_res = parent.LockDevice(akActor,deviceInventory,force)
+		Utility.waitMenuMode(1.5) ;wait little time, so DCL work properly
 	endif
-
+	if UDCDmain.TraceAllowed()		
+		UDCDmain.Log("LockDevicePatched("+UDCDMain.getActorName(akActor)+","+deviceInventory.getName()+") (patched) ended")
+	endif
 	LOCKDEVICE_MUTEX = False
 	return loc_res
 EndFunction

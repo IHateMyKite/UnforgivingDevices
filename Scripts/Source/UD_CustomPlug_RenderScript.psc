@@ -97,7 +97,6 @@ float Function getAccesibility()
 			loc_res = 0.0
 		endif
 	endif
-	UDCDMain.Log("getAccesibility for" + getDeviceHeader() + " = " + loc_res)
 	
 	return fRange(loc_res,0.0,1.0)
 EndFunction

@@ -9,6 +9,8 @@ zadlibs Property libs auto
 UITextEntryMenu Property TextMenu auto
 UIListMenu Property ListMenu auto
 
+bool Property UD_HardcoreMode = true auto
+
 ;keys
 Int Property Stamina_meter_Keycode 	= 32 	auto
 int property StruggleKey_Keycode 	= 52 	auto
@@ -286,16 +288,25 @@ Function EnableActor(Actor akActor,bool bBussy = false)
 	endif
 	akActor.DispelSpell(UDlibs.MinigameDisableSpell)
 	
+	;/
 	if akActor == Game.getPlayer()
 		Game.EnablePlayerControls(abMovement = False)
 		Game.SetPlayerAiDriven(False)
 	else
 		akActor.SetDontMove(False)
 	endif
-	
+	/;
 	if bBussy
 		;StorageUtil.UnSetIntValue(akActor,"UD_Bussy")
 		akActor.RemoveFromFaction(BussyFaction)
+	endif
+EndFunction
+
+Function CheckHardcoreDisabler(Actor akActor)
+	if UD_HardcoreMode && ActorIsPlayer(akActor)
+		if akActor.wornhaskeyword(libs.zad_deviousHeavyBondage) && !akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW)
+			UDlibs.HardcoreDisableSpell.cast(akActor)
+		endif
 	endif
 EndFunction
 
@@ -335,6 +346,7 @@ EndFunction
 Function AddInvisibleArmbinder(Actor akActor)
 	if !akActor.getItemCount(UDlibs.InvisibleArmbinder)
 		akActor.EquipItem(UDlibs.InvisibleArmbinder,false,true)
+		CheckHardcoreDisabler(akActor)
 		libs.StartBoundEffects(akActor)
 	endif
 EndFunction
@@ -1004,14 +1016,6 @@ Function startScript(UD_CustomDevice_RenderScript oref)
 	elseif isRegistered(oref.getWearer())
 		registerDevice(oref)
 	endif
-	
-	;if !StorageUtil.GetIntValue(oref.getWearer(), "UD_OrgasmCheck",0)
-	;	sendOrgasmCheckLoop(oref.getWearer())
-	;endif
-	
-	;if !getScriptState(oref.getWearer())
-	;	setScriptState(oref.getWearer(),1)
-	;endif
 EndFunction
 
 Function endScript(UD_CustomDevice_RenderScript oref)
@@ -1290,6 +1294,7 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
 	if (selected_crit_meter == "S")
 		if UD_CritEffect == 2 || UD_CritEffect == 1
 			UDlibs.GreenCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
+			Utility.wait(0.1)
 		endif
 		if UD_CritEffect == 2 || UD_CritEffect == 0
 			UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartStaminaBlinking")
@@ -1297,6 +1302,7 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
 	elseif (selected_crit_meter == "M")
 		if UD_CritEffect == 2 || UD_CritEffect == 1
 			UDlibs.BlueCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
+			Utility.wait(0.1)
 		endif
 		if UD_CritEffect == 2 || UD_CritEffect == 0
 			UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartMagickaBlinking")
@@ -1304,6 +1310,7 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
 	elseif (selected_crit_meter == "R")
 		if UD_CritEffect == 2 || UD_CritEffect == 1
 			UDlibs.RedCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
+			Utility.wait(0.1)
 		endif
 	endif
 	;UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.FlashShoutMeter")
@@ -1421,14 +1428,24 @@ Event OnKeyDown(Int KeyCode)
 			endif
 		else ;when player is not bussy
 			if KeyCode == StruggleKey_Keycode
-				if lastOpenedDevice
-					lastOpenedDevice.deviceMenu(new Bool[30])
-				elseif libs.playerRef.wornhaskeyword(libs.zad_deviousheavybondage)
-					if !lastOpenedDevice
-						lastOpenedDevice = getHeavyBondageDevice(Game.getPlayer())
+				;/
+				if UD_HardcoreMode
+					if libs.playerRef.wornhaskeyword(libs.zad_deviousheavybondage)
+						UDCD_NPCM.getPlayerSlot().GetUserSelectedDevice().deviceMenu(new Bool[30])
+					elseif lastOpenedDevice
+						lastOpenedDevice.deviceMenu(new Bool[30])
 					endif
-					lastOpenedDevice.deviceMenu(new Bool[30])
-				endif
+				else
+				/;
+					if lastOpenedDevice
+						lastOpenedDevice.deviceMenu(new Bool[30])
+					elseif libs.playerRef.wornhaskeyword(libs.zad_deviousheavybondage)
+						if !lastOpenedDevice
+							lastOpenedDevice = getHeavyBondageDevice(Game.getPlayer())
+						endif
+						lastOpenedDevice.deviceMenu(new Bool[30])
+					endif
+				;endif
 			elseif KeyCode == PlayerMenu_KeyCode
 				PlayerMenu()
 			elseif KeyCode == NPCMenu_Keycode
@@ -1561,9 +1578,9 @@ Function showActorDetails(Actor akActor)
 	if UDmain.DebugMod
 		string loc_debugStr = "--DEBUG DETAILS--\n"
 		loc_debugStr += "Registered: " + akActor.isInFaction(RegisteredNPCFaction) + "\n"
-		loc_debugStr += "Orgasm Loop: " + akActor.isInFaction(OrgasmCheckLoopFaction) + "\n"
-		loc_debugStr += "Arousal Loop: " + akActor.isInFaction(ArousalCheckLoopFaction) + "\n"
-		
+		loc_debugStr += "Orgasm Chack: " + akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW) + "\n"
+		loc_debugStr += "Arousal Chack: " + akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW) + "\n"
+		loc_debugStr += "Hardcore Disable: " + akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW) + "\n"
 		ShowMessageBox(loc_debugStr)
 	endif
 EndFunction
@@ -2322,26 +2339,16 @@ Function CritLoop(Form fActor)
 	endif
 EndFunction
 
-Function sendOrgasmCheckLoop(Actor akActor)
-	if TraceAllowed()	
-		Log("sendOrgasmCheckLoop("+getActorName(akActor)+") called")
+Function CheckOrgasmCheck(Actor akActor)
+	if !akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
+		UDlibs.OrgasmCheckSpell.cast(akActor);sendOrgasmCheckLoop(akActor)
 	endif
-	if !akActor
-		Error("None passed to sendOrgasmCheckLoop!!!")
+EndFunction
+
+Function CheckArousalCheck(Actor akActor)
+	if !akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
+		UDlibs.ArousalCheckSpell.cast(akActor);sendOrgasmCheckLoop(akActor)
 	endif
-	if akActor.isInFaction(OrgasmCheckLoopFaction)
-		return
-	endif
-	akActor.AddToFaction(OrgasmCheckLoopFaction)
-	
-	int handle = ModEvent.Create("UD_OrgasmCheckLoop")
-	if (handle)
-		if TraceAllowed()		
-			Log("sendOrgasmCheckLoop("+getActorName(akActor)+"), sending event")
-		endif
-        ModEvent.PushForm(handle,akActor)
-        ModEvent.Send(handle)
-    endif
 EndFunction
 
 Int Function UpdateArousal(Actor akActor ,float arousal)
@@ -2411,22 +2418,22 @@ Function ArousalCheckLoop(Form fActor)
 
 		Int loc_arousal = Round(loc_arousalRate*loc_updateTime)
 		if TraceAllowed()	
-			Log("ArousalCheckLoop("+getActorName(akActor)+") increasing arousal by: "+loc_arousal)
+			Log("ArousalCheckLoop("+getActorName(akActor)+") increasing arousal by: "+loc_arousal,3)
 		endif
 		if akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmExhaustionEffect_KW)
 			loc_arousal = Round(loc_arousal * 0.5)
 		endif
-		if TraceAllowed()	
-			Log("ArousalCheckLoop("+getActorName(akActor)+") Arousal before: "+getActorArousal(akActor))
-		endif
+		;if TraceAllowed()	
+		;	Log("ArousalCheckLoop("+getActorName(akActor)+") Arousal before: "+getActorArousal(akActor))
+		;endif
 		if loc_arousal > 0
 			akActor.SetFactionRank(ArousalCheckLoopFaction,UpdateArousal(akActor ,loc_arousal))
 		else
 			akActor.SetFactionRank(ArousalCheckLoopFaction,getActorArousal(akActor))
 		endif
-		if TraceAllowed()	
-			Log("ArousalCheckLoop("+getActorName(akActor)+") Arousal after: "+akActor.GetFactionRank(ArousalCheckLoopFaction))
-		endif
+		;if TraceAllowed()	
+		;	Log("ArousalCheckLoop("+getActorName(akActor)+") Arousal after: "+akActor.GetFactionRank(ArousalCheckLoopFaction))
+		;endif
 		Utility.wait(loc_updateTime)
 	endwhile
 	akActor.RemoveFromFaction(ArousalCheckLoopFaction)
@@ -3003,6 +3010,7 @@ Function CritLoopOrgasmResist(Int iChance,Float fDifficulty)
 			if (loc_meter == "S")
 				if UD_CritEffect == 2 || UD_CritEffect == 1
 					UDlibs.GreenCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
+					Utility.wait(0.1)
 				endif
 				if UD_CritEffect == 2 || UD_CritEffect == 0
 					UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartStaminaBlinking")
@@ -3010,6 +3018,7 @@ Function CritLoopOrgasmResist(Int iChance,Float fDifficulty)
 			elseif (loc_meter == "M")
 				if UD_CritEffect == 2 || UD_CritEffect == 1
 					UDlibs.BlueCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
+					Utility.wait(0.1)
 				endif
 				if UD_CritEffect == 2 || UD_CritEffect == 0
 					UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartMagickaBlinking")
@@ -3017,6 +3026,7 @@ Function CritLoopOrgasmResist(Int iChance,Float fDifficulty)
 			elseif (loc_meter == "R")
 				if UD_CritEffect == 2 || UD_CritEffect == 1
 					UDlibs.RedCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
+					Utility.wait(0.1)
 				endif
 			endif
 			
@@ -3350,7 +3360,8 @@ EndFunction
 ;fixes
 ;will add update fixes here too
 Function OnGameReset()
-	Utility.waitMenuMode(1.5)
+	RegisterForSingleUpdate(2*UD_UpdateTime)
+	Utility.waitMenuMode(5.0)
 	if TraceAllowed()	
 		Log("OnGameReset() called!",1)
 	endif
@@ -3359,6 +3370,7 @@ Function OnGameReset()
 	_activateDevicePackage = none
 	_startVibFunctionPackage = none
 	registerAllEvents()
+	CheckHardcoreDisabler(Game.getPlayer())
 EndFunction
 
 Function ShowMessageBox(string strText)

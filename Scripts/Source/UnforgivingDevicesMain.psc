@@ -293,7 +293,10 @@ EndEvent
 int Property LogLevel = 0 auto
 Function Log(String msg, int level = 1)
 	if (iRange(level,1,3) <= LogLevel) || DebugMod
-		debug.trace("[UD," + level + "]: " + msg)
+		debug.trace("[UD," + level + ",T="+Utility.GetCurrentRealTime()+"]: " + msg)
+		if ConsoleUtilInstalled ;print to console
+			ConsoleUtil.PrintMessage("[UD," + level + ",T="+Utility.GetCurrentRealTime()+"]: " + msg)
+		endif
 	endif
 EndFunction
 

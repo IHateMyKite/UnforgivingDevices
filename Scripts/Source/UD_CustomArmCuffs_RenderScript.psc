@@ -25,3 +25,11 @@ EndFunction
 Function OnUntied()
 	UDCDmain.RemoveInvisibleArmbinder(GetWearer())
 EndFunction
+
+float Function getAccesibility()
+	if IsTiedUp()
+		return 1.0
+	else
+		return parent.getAccesibility()
+	endif
+EndFunction

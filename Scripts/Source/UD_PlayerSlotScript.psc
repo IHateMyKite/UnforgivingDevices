@@ -15,3 +15,10 @@ Event OnInit()
 		UDCDMain.Log("PlayerSlot ready!")
 	endif
 EndEvent
+
+Function update(float fTimePassed)
+	if UDCDmain.UD_HardcoreMode
+		UDCDmain.CheckHardcoreDisabler(Game.GetPlayer())
+	endif
+	parent.update(fTimePassed)
+EndFunction
