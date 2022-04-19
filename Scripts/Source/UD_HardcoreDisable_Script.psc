@@ -7,6 +7,12 @@ MagicEffect _MagickEffect = none
 int _MapKeyCode
 int _StatsKeyCode
 int _TweenMenuKeyCode
+
+bool _MenuKeyPressed = false
+bool _MenuOpen = false
+int loc_tick = 0
+bool loc_GameMenuOpen = false
+
 Event OnEffectStart(Actor akTarget, Actor akCaster)
 	_target = akTarget
 	if UDCDmain.TraceAllowed()	
@@ -25,10 +31,11 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 	RegisterForKey(_MapKeyCode)
 	RegisterForKey(_StatsKeyCode)
 	RegisterForKey(_TweenMenuKeyCode)
+			
 	registerForSingleUpdate(0.1)
 EndEvent
 
-int loc_tick = 0
+
 Event OnUpdate()
 	if !_target.wornhaskeyword(UDCDmain.libs.zad_DeviousHeavyBondage) || !UDCDmain.UD_HardcoreMode
 		_target.DispelSpell(UDCDmain.UDlibs.HardcoreDisableSpell)
@@ -48,6 +55,16 @@ Event OnUpdate()
 			endif
 		endif
 		
+		if !loc_GameMenuOpen
+			if UDCDmain.IsMenuOpen()
+				loc_GameMenuOpen = true
+			endif
+		else
+			if !UDCDmain.IsMenuOpen()
+				loc_GameMenuOpen = false
+			endif
+		endif
+		
 		if _target.hasMagicEffect(_MagickEffect)
 			if !(loc_tick % 40)
 				if !MenuIsOpen()
@@ -63,7 +80,7 @@ Event OnUpdate()
 				RegisterForKey(_StatsKeyCode)
 			endif
 			loc_tick += 1
-			registerForSingleUpdate(0.25)
+			registerForSingleUpdate(0.75)
 		endif
 	endif
 EndEvent
@@ -104,17 +121,18 @@ Event OnKeyDown(Int KeyCode)
 		Game.EnablePlayerControls(abMovement = False,abFighting = false,abCamSwitch = false,abLooking = false, abSneaking = false, abMenu = true, abActivate = false, abJournalTabs = false)
 		Input.TapKey(_StatsKeyCode)
 	elseif KeyCode == _TweenMenuKeyCode
-		UnRegisterForKey(_TweenMenuKeyCode)
-		UD_CustomDevice_RenderScript loc_device = UDCDmain.UDCD_NPCM.getPlayerSlot().GetUserSelectedDevice()
-		if loc_device
-			loc_device.deviceMenu(new Bool[30])
+		if !loc_GameMenuOpen
+			UnRegisterForKey(_TweenMenuKeyCode)
+			UD_CustomDevice_RenderScript loc_device = UDCDmain.UDCD_NPCM.getPlayerSlot().GetUserSelectedDevice()
+			if loc_device
+				loc_device.deviceMenu(new Bool[30])
+			endif
+			RegisterForKey(_TweenMenuKeyCode)
 		endif
-		RegisterForKey(_TweenMenuKeyCode)
 	endif
 EndEvent
 
-bool _MenuKeyPressed = false
-bool _MenuOpen = false
+
 Event OnMenuOpen(String MenuName)
 	if UDCDmain.TraceAllowed()
 		UDCDmain.Log("UD_HardcoreDisable_Script - OnMenuOpen for " + MenuName)

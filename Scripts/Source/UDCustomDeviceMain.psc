@@ -150,6 +150,8 @@ Event OnInit()
 		Log("UDEM ready!",0)
 	endif
 	
+	InitMenuArr()
+	
 	registerEvents()
 	
 	registerForSingleUpdate(1.0)
@@ -185,6 +187,49 @@ Function LoadConfig()
 	endif
 EndFunction
 
+
+String[] _Menus
+Function InitMenuArr()
+	if !_Menus
+		_Menus = new String[21]
+		_Menus[0] = "Journal Menu"
+		_Menus[1] = "Book Menu"
+		_Menus[2] = "Console"
+		_Menus[3] = "ContainerMenu"
+		_Menus[4] = "Crafting Menu"
+		_Menus[5] = "Dialogue Menu"
+		
+		_Menus[6] = "FavoritesMenu"
+		_Menus[7] = "GiftMenu"
+		_Menus[8] = "Main Menu"
+		_Menus[9] = "Loading Menu"
+		_Menus[10] = "Lockpicking Menu"
+		_Menus[11] = "MagicMenu"
+		_Menus[12] = "MapMenu"
+		_Menus[13] = "MessageBoxMenu"
+	
+		_Menus[14] = "RaceSex Menu"
+		_Menus[15] = "Sleep/Wait Menu"
+		_Menus[16] = "StatsMenu"
+		_Menus[17] = "Tutorial Menu"
+		_Menus[18] = "TweenMenu"
+		
+		_Menus[19] = "InventoryMenu"
+		_Menus[20] = "BarterMenu"
+	endif
+EndFunction
+
+Bool Function isMenuOpen()
+	int i = _Menus.length
+	while i
+		i -= 1
+		if UI.IsMenuOpen(_Menus[i])
+			return true
+		endif
+		
+	endwhile
+	return false
+EndFunction
 
 Function Log(String msg, int level = 1)
 	UDmain.Log(msg,level)
@@ -3365,6 +3410,7 @@ Function OnGameReset()
 	if TraceAllowed()	
 		Log("OnGameReset() called!",1)
 	endif
+	InitMenuArr()
 	UDmain.Config.LoadConfigPages()
 	UDmain.CheckPatchesOrder()
 	_activateDevicePackage = none

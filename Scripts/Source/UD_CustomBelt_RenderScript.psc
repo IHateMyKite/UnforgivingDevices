@@ -32,7 +32,7 @@ Function activateDevice()
 	int loc_num = UDCDmain.getNumberOfActivableDevicesWithKeyword(getWearer(),false,libs.zad_deviousPlug)
 	if loc_num > 0
 		UD_CustomDevice_RenderScript[] loc_plugs_arr = UDCDmain.getAllActivableDevicesByKeyword(getWearer(),false,libs.zad_deviousPlug)
-		UD_CustomDevice_RenderScript loc_plug = loc_plugs_arr[Utility.randomInt(0,loc_plugs_arr.length - 1)]
+		UD_CustomDevice_RenderScript loc_plug = loc_plugs_arr[Utility.randomInt(0,loc_num - 1)]
 
 		if (loc_plug as UD_CustomVibratorBase_RenderScript)
 			UD_CustomVibratorBase_RenderScript loc_vibrator = loc_plug as UD_CustomVibratorBase_RenderScript
