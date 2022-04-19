@@ -1735,12 +1735,20 @@ EndFunction
 
 Int Function ActorBelted(Actor akActor)
 	int loc_res = 0
-	if akActor.WornHasKeyword(libs.zad_deviousBelt)
-		loc_res = 1
-	endif
-	if akActor.WornHasKeyword(libs.zad_permitAnal) && loc_res == 1
-		loc_res = 2
-	endif
+	If akActor.WornHasKeyword(libs.zad_DeviousBelt)											;rewritten per issue: https://github.com/IHateMyKite/UnforgivingDevices/issues/17
+		Armor loc_belt = libs.GetWornRenderedDeviceByKeyword(akActor, libs.zad_DeviousBelt)		;this function is painstakingly slow on cluttered inventories.
+		if !loc_belt.HasKeyword(libs.zad_PermitAnal)
+			loc_res = 1 ;Actor has belt which doesn't permit anal 
+		else
+			loc_res = 2 ;Actor has belt which permits anal 
+		EndIf
+	EndIf
+	; if akActor.WornHasKeyword(libs.zad_deviousBelt)
+	; 	loc_res = 1
+	; endif
+	; if akActor.WornHasKeyword(libs.zad_permitAnal) && loc_res == 1
+	; 	loc_res = 2
+	; endif
 	return loc_res
 EndFunction
 
