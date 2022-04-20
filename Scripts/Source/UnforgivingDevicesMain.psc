@@ -383,6 +383,12 @@ bool Function ActorIsPlayer(Actor akActor)
 EndFunction
 
 bool Function ActorIsFollower(Actor akActor)
+	;added check for followers that are not marked as followers by normal means, to make loc_res == 4 from UDCustomDeviceMain.NPCMenu() work on them as well
+	;yes yes, some of the followers don't have FollowerFaction assigned, DCL uses similar check for those.
+	string acName = akActor.GetDisplayName()
+	if acName == "Serana" || acName == "Inigo" || acName == "Sofia" || acName == "Vilja"
+		return true
+	endif
 	return akActor.isInFaction(UDCDmain.FollowerFaction)
 EndFunction
 
