@@ -3103,14 +3103,22 @@ String[] Function SelectStruggleArray(Actor akActor)
 EndFunction
 
 bool Function minigamePostcheck()
-	if !checkMinAV()
-		if WearerIsPlayer()
+	if !checkMinAV() ;check wearer AVs
+		if WearerIsPlayer() ;message related to player wearer
 			debug.notification("You are too exhausted. Try later, after you regain your strength.")
-		else
+		else ;message related to NPC wearer
 			debug.notification(getWearerName()+" is too exhausted!")
 		endif
 		return false
+	elseif hasHelper() && !checkMinAVHelper()
+		if HelperIsPlayer() ;message related to player helper
+			debug.notification("You are too exhausted and can't help "+getWearerName()+".")	
+		else ;message related to NPC helper
+			debug.notification(getHelperName()+" is too exhausted and unable to help you.")
+		endif
+		return false
 	endif
+	
 	return true
 EndFunction
 
