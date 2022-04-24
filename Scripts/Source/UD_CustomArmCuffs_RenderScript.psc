@@ -33,3 +33,11 @@ float Function getAccesibility()
 		return parent.getAccesibility()
 	endif
 EndFunction
+
+bool Function OnCooldownActivatePre()
+	if isSentient()
+		return parent.OnCooldownActivatePre()
+	else
+		return false
+	endif
+EndFunction

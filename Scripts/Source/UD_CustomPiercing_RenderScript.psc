@@ -25,7 +25,7 @@ Function onDeviceMenuInitPost(Bool[] aControlFilter)
 	parent.onDeviceMenuInitPost(aControlFilter)
 	
 	if (isPiercing(True,False) && wearerHaveBra()) || (isPiercing(False,True) && wearerHaveBelt())
-		UDCDMain.disableStruggleCondVar()
+		UDCDMain.disableStruggleCondVar(true)
 	endif
 EndFunction
 
@@ -33,7 +33,7 @@ Function onDeviceMenuInitPostWH(Bool[] aControlFilter)
 	parent.onDeviceMenuInitPostWH(aControlFilter)
 	
 	if (isPiercing(True,False) && wearerHaveBra()) || (isPiercing(False,True) && wearerHaveBelt())
-		UDCDMain.disableStruggleCondVar()
+		UDCDMain.disableStruggleCondVar(true)
 	endif
 EndFunction
 

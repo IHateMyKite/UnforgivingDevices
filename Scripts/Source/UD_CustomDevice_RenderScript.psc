@@ -3175,13 +3175,11 @@ Function minigame()
 	minigame_on = True
 	force_stop_minigame = False
 	
-	
 	UDCDmain.DisableActor(Wearer,true)
 	if hasHelper()
 		UDCDmain.DisableActor(getHelper(),true)
 		;UDCDmain.setScriptState(_minigameHelper,4)
 	endif
-	
 	
 	if UDCDmain.TraceAllowed()
 		UDCDmain.Log("Minigame started for: " + deviceInventory.getName())	
@@ -3205,7 +3203,7 @@ Function minigame()
 		_sStruggleAnim = struggleArray[Utility.RandomInt(0,  struggleArray.length - 1)]
 	else
 		if wearer.wornhaskeyword(UDlibs.InvisibleHBKW)
-			struggleArray = UDCDmain.UDPatcher.GetHeavyBondageAnimation_Armbinder(!WearerFreeLegs())
+			struggleArray = UDCDmain.GetHeavyBondageAnimation_Armbinder(!WearerFreeLegs())
 		else
 			struggleArray = UDCDmain.getHeavyBondageDevice(Wearer).SelectStruggleArray(Wearer)
 		endif
@@ -3218,7 +3216,7 @@ Function minigame()
 		else
 			String[] struggleArrayHelper
 			if _minigameHelper.wornhaskeyword(UDlibs.InvisibleHBKW)
-				struggleArray = UDCDmain.UDPatcher.GetHeavyBondageAnimation_Armbinder(!WearerFreeLegs())
+				struggleArray = UDCDmain.GetHeavyBondageAnimation_Armbinder(!WearerFreeLegs())
 			else
 				struggleArray  = UDCDmain.getHeavyBondageDevice(_minigameHelper).SelectStruggleArray(_minigameHelper)
 			endif
@@ -3227,10 +3225,14 @@ Function minigame()
 	endif
 	
 	;starts random struggle animation
-	cameraState = libs.StartThirdPersonAnimation(Wearer, _sStruggleAnim,true)
+	if _sStruggleAnim != "none"
+		cameraState = libs.StartThirdPersonAnimation(Wearer, _sStruggleAnim,true)
+	endif
 	
 	if hasHelper()
-		libs.StartThirdPersonAnimation(_minigameHelper, _sStruggleAnimHelper,true)
+		if _sStruggleAnimHelper != "none"
+			libs.StartThirdPersonAnimation(_minigameHelper, _sStruggleAnimHelper,true)
+		endif
 	endif
 	
 	Game.EnablePlayerControls(abMovement = true)

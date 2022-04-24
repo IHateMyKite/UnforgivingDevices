@@ -88,6 +88,13 @@ Int Function FlagSwitchOr(int iFlag1,Int iFlag2)
 	return OPTION_FLAG_NONE
 EndFunction
 
+int Function FlahSwitch(bool bVal)
+	if bVal == true 
+		return OPTION_FLAG_NONE
+	else
+		return OPTION_FLAG_DISABLED
+	endif
+EndFunction
 
 Function LoadConfigPages()
 	pages = new String[8]
@@ -572,12 +579,30 @@ Function resetOtherPage()
 	UpdateLockMenuFlag()
 	setCursorFillMode(LEFT_TO_RIGHT)
 	
-	AddHeaderOption("Other")
+	AddHeaderOption("Config")
 	addEmptyOption()
+	
 	UD_Export_T =  AddTextOption("Save settings", "-PRESS-")
 	UD_Import_T = AddTextOption("Load settings", "-PRESS-")
+	
 	UD_Default_T = AddTextOption("!Reset to default!", "-PRESS-")
 	UD_AutoLoad_T = AddToggleOption("Auto load", UDmain.UD_AutoLoad)
+	
+	addEmptyOption()
+	addEmptyOption()
+	
+	AddHeaderOption("Optional mods")
+	addEmptyOption()
+	
+	AddTextOption("Zaz animation pack installed: ",UDmain.ZaZAnimationPackInstalled,FlahSwitch(UDmain.ZaZAnimationPackInstalled))
+	addEmptyOption()
+	
+	AddTextOption("ConsoleUtil installed: ",UDmain.ConsoleUtilInstalled,FlahSwitch(UDmain.ConsoleUtilInstalled))
+	addEmptyOption()
+	
+	AddTextOption("SlaveTats installed: ",UDmain.SlaveTatsInstalled,FlahSwitch(UDmain.SlaveTatsInstalled))
+	addEmptyOption()
+	
 EndFunction
 
 event OnOptionSelect(int option)

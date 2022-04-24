@@ -503,7 +503,7 @@ Function patchGeneric(UD_CustomDevice_RenderScript device)
 	If device as UD_CustomDynamicHeavyBondage_RS
 		(device as UD_CustomDynamicHeavyBondage_RS).UD_UntieDifficulty = Utility.randomFloat(75.0,125.0)
 		device.UD_Locks = Utility.randomInt(1,3)*2
-		checkLooseModifier(device,100,0.5, 0.9)
+		;checkLooseModifier(device,100,0.5, 0.9)
 		device.UD_Cooldown = UDCDmain.Round(Utility.randomInt(160,240)/UDCDmain.fRange(UD_PatchMult,0.5,2.0))
 	EndIf
 	

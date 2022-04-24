@@ -23,14 +23,12 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 	
 	_MapKeyCode = Input.GetMappedKey("Quick Map")
 	_StatsKeyCode = Input.GetMappedKey("Quick Stats")
-	_TweenMenuKeyCode = Input.GetMappedKey("Tween Menu")
 	
 	Game.DisablePlayerControls(abMovement = False,abFighting = false,abCamSwitch = false,abLooking = false, abSneaking = false, abMenu = true, abActivate = false, abJournalTabs = false)
 	Game.EnableFastTravel(false)
 	
 	RegisterForKey(_MapKeyCode)
 	RegisterForKey(_StatsKeyCode)
-	RegisterForKey(_TweenMenuKeyCode)
 			
 	registerForSingleUpdate(0.1)
 EndEvent
@@ -70,7 +68,6 @@ Event OnUpdate()
 				if !MenuIsOpen()
 					CheckMapKey()
 					CheckStatsKey()
-					CheckTweenMenuKey()
 				endif
 			endif
 			if !_MenuOpen && _MenuKeyPressed && !(loc_tick % 10)
@@ -89,9 +86,6 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
 	if UDCDmain.TraceAllowed()	
 		UDCDmain.Log("Minigame disabler OnEffectFinish() for " + _target,1)
 	endif
-	UnRegisterForKey(_MapKeyCode)
-	UnRegisterForKey(_StatsKeyCode)
-	UnRegisterForKey(_TweenMenuKeyCode)
 	if !_target.HasMagicEffectWithKeyword(UDCDmain.UDlibs.MinigameDisableEffect_KW)
 		if _target == Game.getPlayer()
 			Game.EnablePlayerControls()
@@ -107,7 +101,6 @@ Event OnKeyDown(Int KeyCode)
 	If KeyCode == _MapKeyCode
 		_MenuKeyPressed = true
 		UnRegisterForKey(_MapKeyCode)
-		UnRegisterForKey(_TweenMenuKeyCode)
 		RegisterForMenu("MapMenu")
 		Game.EnablePlayerControls(abMovement = False,abFighting = false,abCamSwitch = false,abLooking = false, abSneaking = false, abMenu = true, abActivate = false, abJournalTabs = false)
 		Utility.waitMenuMode(0.1)
@@ -115,20 +108,10 @@ Event OnKeyDown(Int KeyCode)
 	elseif KeyCode == _StatsKeyCode
 		_MenuKeyPressed = true
 		UnRegisterForKey(_StatsKeyCode)
-		UnRegisterForKey(_TweenMenuKeyCode)
 		RegisterForMenu("StatsMenu")
 		Utility.waitMenuMode(0.1)
 		Game.EnablePlayerControls(abMovement = False,abFighting = false,abCamSwitch = false,abLooking = false, abSneaking = false, abMenu = true, abActivate = false, abJournalTabs = false)
 		Input.TapKey(_StatsKeyCode)
-	elseif KeyCode == _TweenMenuKeyCode
-		if !loc_GameMenuOpen
-			UnRegisterForKey(_TweenMenuKeyCode)
-			UD_CustomDevice_RenderScript loc_device = UDCDmain.UDCD_NPCM.getPlayerSlot().GetUserSelectedDevice()
-			if loc_device
-				loc_device.deviceMenu(new Bool[30])
-			endif
-			RegisterForKey(_TweenMenuKeyCode)
-		endif
 	endif
 EndEvent
 
@@ -186,18 +169,6 @@ Function CheckStatsKey()
 		RegisterForKey(_StatsKeyCode)
 		if UDCDmain.TraceAllowed()
 			UDCDmain.Log("UD_HardcoreDisable_Script - Remaping keycode for Quick Map menu")
-		endif
-	endif
-EndFunction
-
-Function CheckTweenMenuKey()
-	int TweenMenu = Input.GetMappedKey("Tween Menu")
-	if TweenMenu != _TweenMenuKeyCode
-		UnRegisterForKey(_TweenMenuKeyCode)
-		_TweenMenuKeyCode = TweenMenu
-		RegisterForKey(_TweenMenuKeyCode)
-		if UDCDmain.TraceAllowed()
-			UDCDmain.Log("UD_HardcoreDisable_Script - Remaping keycode for Tween Menu")
 		endif
 	endif
 EndFunction

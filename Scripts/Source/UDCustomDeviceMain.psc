@@ -333,14 +333,18 @@ Function EnableActor(Actor akActor,bool bBussy = false)
 	endif
 	akActor.DispelSpell(UDlibs.MinigameDisableSpell)
 	
-	;/
+	
 	if akActor == Game.getPlayer()
-		Game.EnablePlayerControls(abMovement = False)
+		if !akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW)
+			Game.EnablePlayerControls(abMovement = False)
+		else
+			Game.EnablePlayerControls(abMovement = False,abMenu = false)
+		endif
 		Game.SetPlayerAiDriven(False)
 	else
 		akActor.SetDontMove(False)
 	endif
-	/;
+	
 	if bBussy
 		;StorageUtil.UnSetIntValue(akActor,"UD_Bussy")
 		akActor.RemoveFromFaction(BussyFaction)
@@ -877,6 +881,10 @@ string[] Function GetStruggleAnimations(Actor akActor,Armor renDevice)
 			temp[0] = "DDElbowTie_struggleone"
 			temp[1] = "DDElbowTie_struggletwo"
 			temp[2] = "DDElbowTie_strugglethree"
+		elseif renDevice.hasKeyword(libs.zad_DeviousPetSuit)
+			temp = new string[1]
+			temp[0] = "none"
+			return temp
 		elseif renDevice.hasKeyword(libs.zad_deviousGag)
 			temp = new string[1]
 			temp[0] = "ft_struggle_gag_1"
@@ -958,6 +966,10 @@ string[] Function GetStruggleAnimations(Actor akActor,Armor renDevice)
 			temp[0] = "DDElbowTie_struggleone"
 			temp[1] = "DDElbowTie_struggletwo"
 			temp[2] = "DDElbowTie_strugglethree"
+		elseif renDevice.hasKeyword(libs.zad_DeviousPetSuit)
+			temp = new string[1]
+			temp[0] = "none"
+			return temp
 		elseif renDevice.hasKeyword(libs.zad_deviousGag)
 			temp = new string[1]
 			temp[0] = "ft_struggle_gag_1"
@@ -1339,7 +1351,7 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
 	if (selected_crit_meter == "S")
 		if UD_CritEffect == 2 || UD_CritEffect == 1
 			UDlibs.GreenCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
-			Utility.wait(0.1)
+			Utility.wait(0.3)
 		endif
 		if UD_CritEffect == 2 || UD_CritEffect == 0
 			UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartStaminaBlinking")
@@ -1347,7 +1359,7 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
 	elseif (selected_crit_meter == "M")
 		if UD_CritEffect == 2 || UD_CritEffect == 1
 			UDlibs.BlueCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
-			Utility.wait(0.1)
+			Utility.wait(0.3)
 		endif
 		if UD_CritEffect == 2 || UD_CritEffect == 0
 			UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartMagickaBlinking")
@@ -1355,7 +1367,7 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
 	elseif (selected_crit_meter == "R")
 		if UD_CritEffect == 2 || UD_CritEffect == 1
 			UDlibs.RedCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
-			Utility.wait(0.1)
+			Utility.wait(0.3)
 		endif
 	endif
 	;UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.FlashShoutMeter")
@@ -1472,26 +1484,7 @@ Event OnKeyDown(Int KeyCode)
 				return
 			endif
 		else ;when player is not bussy
-			if KeyCode == StruggleKey_Keycode
-				;/
-				if UD_HardcoreMode
-					if libs.playerRef.wornhaskeyword(libs.zad_deviousheavybondage)
-						UDCD_NPCM.getPlayerSlot().GetUserSelectedDevice().deviceMenu(new Bool[30])
-					elseif lastOpenedDevice
-						lastOpenedDevice.deviceMenu(new Bool[30])
-					endif
-				else
-				/;
-					if lastOpenedDevice
-						lastOpenedDevice.deviceMenu(new Bool[30])
-					elseif libs.playerRef.wornhaskeyword(libs.zad_deviousheavybondage)
-						if !lastOpenedDevice
-							lastOpenedDevice = getHeavyBondageDevice(Game.getPlayer())
-						endif
-						lastOpenedDevice.deviceMenu(new Bool[30])
-					endif
-				;endif
-			elseif KeyCode == PlayerMenu_KeyCode
+if KeyCode == PlayerMenu_KeyCode
 				PlayerMenu()
 			elseif KeyCode == NPCMenu_Keycode
 				ObjectReference loc_ref = Game.GetCurrentCrosshairRef()
@@ -1505,7 +1498,23 @@ Event OnKeyDown(Int KeyCode)
 EndEvent
 
 Event OnKeyUp(Int KeyCode, Float HoldTime)
-	if KeyCode == SpecialKey_Keycode
+	if KeyCode == StruggleKey_Keycode
+		if HoldTime < 0.4
+			if lastOpenedDevice
+				lastOpenedDevice.deviceMenu(new Bool[30])
+			elseif libs.playerRef.wornhaskeyword(libs.zad_deviousheavybondage)
+				if !lastOpenedDevice
+					lastOpenedDevice = getHeavyBondageDevice(Game.getPlayer())
+				endif
+				lastOpenedDevice.deviceMenu(new Bool[30])
+			endif
+		else
+			UD_CustomDevice_RenderScript loc_device = UDCD_NPCM.getPlayerSlot().GetUserSelectedDevice()
+			if loc_device
+				loc_device.deviceMenu(new Bool[30])
+			endif
+		endif
+	elseif KeyCode == SpecialKey_Keycode
 		if _PlayerOrgasmResist_MinigameOn
 			_specialButtonOn = false
 		endif
@@ -1539,8 +1548,6 @@ Function NPCMenu(Actor akActor)
 		akActor.UpdateWeight(0)
 	elseif loc_res == 3
 		DebugFunction(akActor)
-		;UDmain.UDAbadonQuest.AbadonEquipSuit(akActor,0)
-		;UDmain.UDRRM.LockAnyRandomRestrain(akActor,iNumber = 20)
 	elseif loc_res == 4
 		akActor.openInventory(True)
 	elseif loc_res == 5
@@ -1912,9 +1919,15 @@ UD_CustomDevice_RenderScript Property _transferedDevice = none auto
 bool _transfereMutex = false
 UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armor deviceRendered)
 	if akActor.getItemCount(deviceRendered) <= 0
+		Error("getDeviceScriptByRender() - Actor doesn't have render device!")
 		return none
 	endif
 
+	if !deviceRendered
+		Error("getDeviceScriptByRender() - deviceRendered = None!!")
+		return none
+	endif
+	
 	UD_CustomDevice_RenderScript result = none
 	while _transfereMutex
 		Utility.waitMenuMode(0.1)
@@ -3063,7 +3076,7 @@ Function CritLoopOrgasmResist(Int iChance,Float fDifficulty)
 			if (loc_meter == "S")
 				if UD_CritEffect == 2 || UD_CritEffect == 1
 					UDlibs.GreenCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
-					Utility.wait(0.1)
+					Utility.wait(0.3)
 				endif
 				if UD_CritEffect == 2 || UD_CritEffect == 0
 					UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartStaminaBlinking")
@@ -3071,7 +3084,7 @@ Function CritLoopOrgasmResist(Int iChance,Float fDifficulty)
 			elseif (loc_meter == "M")
 				if UD_CritEffect == 2 || UD_CritEffect == 1
 					UDlibs.BlueCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
-					Utility.wait(0.1)
+					Utility.wait(0.3)
 				endif
 				if UD_CritEffect == 2 || UD_CritEffect == 0
 					UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartMagickaBlinking")
@@ -3079,7 +3092,7 @@ Function CritLoopOrgasmResist(Int iChance,Float fDifficulty)
 			elseif (loc_meter == "R")
 				if UD_CritEffect == 2 || UD_CritEffect == 1
 					UDlibs.RedCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
-					Utility.wait(0.1)
+					Utility.wait(0.3)
 				endif
 			endif
 			
@@ -3419,6 +3432,7 @@ Function OnGameReset()
 		Log("OnGameReset() called!",1)
 	endif
 	InitMenuArr()
+	UDmain.CheckOptionalMods()
 	UDmain.Config.LoadConfigPages()
 	UDmain.CheckPatchesOrder()
 	_activateDevicePackage = none
@@ -3426,6 +3440,55 @@ Function OnGameReset()
 	registerAllEvents()
 	CheckHardcoreDisabler(Game.getPlayer())
 EndFunction
+
+Function ApplyTears(Actor akActor)
+	if UDmain.ZaZAnimationPackInstalled && UDmain.ZAZBS && UDmain.SlaveTatsInstalled
+		if !akActor.HasMagicEffectWithKeyword(UDlibs.ZAZTears_KW)
+			SlaveTats.simple_add_tattoo(akActor, "Tears", "Tears 3", 0, true, true)
+		endif
+	endif
+EndFUnction
+
+
+Function RemoveTears(Actor akActor)
+	if UDmain.ZaZAnimationPackInstalled && UDmain.ZAZBS && UDmain.SlaveTatsInstalled
+		if !akActor.HasMagicEffectWithKeyword(UDlibs.ZAZTears_KW)
+			SlaveTats.simple_Remove_tattoo(akActor, "Tears", "Tears 3", true, true)
+		endif
+	endif
+EndFUnction
+
+Function ApplyDroll(Actor akActor)
+	if UDmain.ZaZAnimationPackInstalled && UDmain.ZAZBS && UDmain.SlaveTatsInstalled
+		SlaveTats.simple_add_tattoo(akActor, "Drool", "Drool 2", 0, true, true)
+	endif
+EndFUnction
+
+Function RemoveDroll(Actor akActor)
+	if UDmain.ZaZAnimationPackInstalled && UDmain.ZAZBS && UDmain.SlaveTatsInstalled
+		SlaveTats.simple_Remove_tattoo(akActor, "Drool", "Drool 2", true, true)
+	endif
+EndFUnction
+
+bool Function ApplyTearsEffect(Actor akActor)
+	if UDmain.ZaZAnimationPackInstalled && UDmain.ZAZBS && UDmain.SlaveTatsInstalled
+		if !akActor.HasMagicEffectWithKeyword(UDlibs.ZAZTears_KW)
+			UDlibs.ZAZTearsSpell.cast(akActor)
+			return true
+		endif
+	endif
+	return false
+EndFUnction
+
+bool Function ApplyDroolEffect(Actor akActor) ;works only for player
+	if UDmain.ZaZAnimationPackInstalled && UDmain.ZAZBS && UDmain.SlaveTatsInstalled
+		if !akActor.HasMagicEffectWithKeyword(UDlibs.ZAZDrool_KW)
+			UDlibs.ZAZDroolSpell.cast(akActor)
+			return true
+		endif
+	endif
+	return false
+EndFUnction
 
 Function ShowMessageBox(string strText)
 	String[] loc_lines = StringUtil.split(strText,"\n")
@@ -3544,6 +3607,14 @@ Function DebugFunction(Actor akActor)
 	;loc_list[4] = "8"
 	;int loc_res = GetUserListInput(loc_list)
 	;Print(loc_res)
+	
+	UDlibs.GreenCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
+	Utility.wait(1.5)
+	UDlibs.BlueCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
+	Utility.wait(1.5)
+	UDlibs.RedCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
+	ApplyTearsEffect(akActor)
+	ApplyDroolEffect(akActor)
 	UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0x43ff)
 	UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0x3C00)
 EndFunction

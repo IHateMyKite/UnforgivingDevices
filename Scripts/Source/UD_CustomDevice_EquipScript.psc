@@ -165,17 +165,17 @@ Function OnRemoveDevice(actor akActor)
 	endif
 	;StorageUtil.UnSetIntValue(akActor,"zad_Equipped" + deviceInventory)
 	;StorageUtil.UnSetIntValue(akActor,"zad_Equipped" + deviceRendered)
+	UD_CustomDevice_RenderScript device
 	if UDCDmain.UDCD_NPCM.isRegistered(akActor)
-		UD_CustomDevice_RenderScript device = UDCDmain.getFirstDeviceByKeyword(akActor,zad_DeviousDevice)
-		if device
-			device.removeDevice(akActor)
-		else
-			UDCDmain.getDeviceScriptByRender(akActor,deviceRendered).removeDevice(akActor)
-		endif
+		device = UDCDmain.getFirstDeviceByKeyword(akActor,zad_DeviousDevice)
 	else
-		UDCDmain.getDeviceScriptByRender(akActor,deviceRendered).removeDevice(akActor)
+		device = UDCDmain.getDeviceScriptByRender(akActor,deviceRendered)
 	endif
 	
+	if device
+		device.removeDevice(akActor)
+	endif
+			
 	UDCDmain.UpdateInvisibleArmbinder(akActor)
 	UDCDmain.UpdateInvisibleHobble(akActor)
 	
@@ -187,7 +187,9 @@ Function OnRemoveDevice(actor akActor)
 		EndIf
 	endif
 	if  deviceRendered.hasKeyword(libs.zad_DeviousGagPanel)
-		libs.Log("Panel Gag: Resetting faction rank.")
+		if UDCDmain.TraceAllowed()
+			libs.Log("Panel Gag: Resetting faction rank.")
+		endif
 		if akActor.GetFactionRank(UDCDmain.zadGagPanelFaction) == 0
 			akActor.RemoveItem(zad_GagPanelPlug, 1)
 		EndIf
@@ -397,7 +399,9 @@ Function EquipPreGag(actor akActor, bool silent=false)
 EndFunction
 
 Function EquipPrePanelGag(actor akActor, bool silent=false)
-	libs.Log("Panel Gag: Setting faction rank.")
+	if UDCDmain.TraceAllowed()
+		libs.Log("Panel Gag: Setting faction rank.")
+	endif
 	akActor.AddToFaction(UDCDmain.zadGagPanelFaction)
 	akActor.SetFactionRank(UDCDmain.zadGagPanelFaction, 1)
 EndFunction
@@ -472,7 +476,9 @@ int Function EquipFilterHarness(actor akActor, bool silent=false)
 	EndIf
 	if ! akActor.IsEquipped(deviceRendered)
 		if akActor!=libs.PlayerRef && ShouldEquipSilently(akActor)
-			libs.Log("Avoiding FTM duplication bug (Harness).")
+			if UDCDmain.TraceAllowed()
+				libs.Log("Avoiding FTM duplication bug (Harness).")
+			endif
 			return 0
 		EndIf
 		if akActor.WornHasKeyword(libs.zad_DeviousCorset)
@@ -499,7 +505,9 @@ int Function EquipFilterPiercingV(actor akActor, bool silent=false)
 	EndIf
 	if !akActor.IsEquipped(deviceRendered)
 		if akActor!=libs.PlayerRef && ShouldEquipSilently(akActor)
-			libs.Log("Avoiding FTM duplication bug (Vaginal Piercings).")
+			if UDCDmain.TraceAllowed()
+				libs.Log("Avoiding FTM duplication bug (Vaginal Piercings).")
+			endif
 			return 0
 		EndIf
 		if akActor.WornHasKeyword(libs.zad_DeviousHarness)
@@ -562,7 +570,9 @@ int Function EquipFilterStraitjacket(actor akActor, bool silent=false)
 	EndIf
 	if !akActor.IsEquipped(deviceRendered)
 		if akActor != libs.PlayerRef && ShouldEquipSilently(akActor)
-			libs.Log("Avoiding FTM duplication bug (Straitjakcet).")
+			if UDCDmain.TraceAllowed()
+				libs.Log("Avoiding FTM duplication bug (Straitjakcet).")
+			endif
 			return 0
 		EndIf
 		if akActor.WornHasKeyword(libs.zad_deviousSuit)

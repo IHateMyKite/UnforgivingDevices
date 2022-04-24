@@ -117,6 +117,12 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
 	if UDCDmain.TraceAllowed()
 		debug.trace("zad (patched): UnlockDevice("+akActor+","+deviceInventory+","+deviceRendered+","+zad_DeviousDevice+","+destroyDevice+","+genericonly+")")
 	endif
+	
+	if !deviceInventory
+		UDCDmain.Error("None passed to UnlockDevice as deviceInventory. Aborting!")
+		return false
+	endif
+	
 	if deviceInventory.hasKeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
 		;UD_CustomDevice_NPCSlot slot = UDCDmain.UDCD_NPCM.getNPCSlotByActor(akActor)
 		;if slot.deviceAlreadyRegistered(deviceInventory)
@@ -401,7 +407,9 @@ String Function AnimSwitchKeyword(actor akActor, string idleName)
 				ElseIf akActor.WornHasKeyword(zad_DeviousCuffsFront)
 					return "ft_orgasm_hobbled_frontcuffs_1"
 				ElseIf akActor.WornHasKeyword(zad_DeviousElbowTie)				
-					return "DDElbowTie_orgasm"				
+					return "DDElbowTie_orgasm"	
+				elseif akActor.WornHasKeyword(zad_DeviousPetSuit)
+					return "none"					
 				Elseif akActor.WornHasKeyword(zad_DeviousHeavyBondage)	
 					int random = Utility.randomInt(1,5)
 					if random == 1
@@ -475,7 +483,9 @@ String Function AnimSwitchKeyword(actor akActor, string idleName)
 				ElseIf akActor.WornHasKeyword(zad_DeviousCuffsFront)
 					return "ft_orgasm_frontcuffs_1"
 				ElseIf akActor.WornHasKeyword(zad_DeviousElbowTie)				
-					return "DDElbowTie_orgasm"				
+					return "DDElbowTie_orgasm"	
+				elseif akActor.WornHasKeyword(zad_DeviousPetSuit)
+					return "none"						
 				Elseif akActor.WornHasKeyword(zad_DeviousHeavyBondage)	
 					int random = Utility.randomInt(1,8)
 					if UDCDmain.UDmain.ZaZAnimationPackInstalled
@@ -582,6 +592,8 @@ Function ShockActorPatched(actor akActor,int iArousalUpdate = 25,float fHealth =
 		int loc_arousalUpdate = UDCDmain.iRange(Utility.randomInt(UDCDmain.Round(0.75*iArousalUpdate),UDCDmain.Round(0.5*iArousalUpdate)),-100,100)
 		Aroused.UpdateActorExposure(akActor, loc_arousalUpdate)
 	endif
+	
+
 EndFunction
 
 ;copied with added trace check and block check
@@ -599,7 +611,15 @@ bool[] Function StartThirdPersonAnimation(actor akActor, string animation, bool 
 				Log("Actor already in animating faction.")
 			endif
 			return new bool[2]
-		EndIf	
+		EndIf
+
+		if animation == "none"
+			if UDCDmain.TraceAllowed()
+				UDCDmain.Log("StartThirdPersonAnimation - Called animation is None, aborting")
+			endif
+			return new bool[2]
+		endif
+		
 		;[UD EDIT]: Removed permitRestrictive as its no longer usefull
 		if !IsValidActor(akActor); || (akActor.WornHasKeyword(zad_DeviousArmBinder) && !permitRestrictive)
 			if UDCDmain.TraceAllowed()		
@@ -731,7 +751,15 @@ Function ActorOrgasmPatched(actor akActor,int iDuration, int iDecreaseArousalBy 
 		elseif loc_forcing < 0.75
 			UDCDmain.Print("You are cumming!",2)
 		else
-			UDCDmain.Print("You are forced to orgasm!",2)
+			if Utility.randomInt(1,99) < 10
+				if UDCDmain.ApplyTearsEffect(akActor)
+					UDCDmain.Print("Tears run down your cheeks as you are forced to orgasm!",2)
+				else
+					UDCDmain.Print("You are forced to orgasm!",2)
+				endif
+			else
+				UDCDmain.Print("You are forced to orgasm!",2)
+			endif
 		endif
 	elseif UDCDmain.ActorIsFollower(akActor)
 		if loc_forcing <= 0.25
@@ -739,13 +767,22 @@ Function ActorOrgasmPatched(actor akActor,int iDuration, int iDecreaseArousalBy 
 		elseif loc_forcing < 0.75
 			UDCDmain.Print(UDCDmain.getActorName(akActor) + " is cumming!",3)
 		else
+			if Utility.randomInt(1,99) < 10
+				if UDCDmain.ApplyTearsEffect(akActor)
+					UDCDmain.Print("Tears run down " + UDCDmain.getActorName(akActor) + "s cheeks as they are forced to orgasm!",3)
+				else
+					UDCDmain.Print(UDCDmain.getActorName(akActor) + " is forced to orgasm!",3)
+				endif
+			else
+				UDCDmain.Print(UDCDmain.getActorName(akActor) + " is forced to orgasm!",3)
+			endif
 			UDCDmain.Print(UDCDmain.getActorName(akActor) + " is forced to orgasm!",3)
 		endif
 	endif
 	
 	sslBaseExpression expression = UDCDmain.UDEM.getExpression("UDOrgasm")
 	ApplyExpressionPatched(akActor, expression, 100,false,80)
-	
+		
 	if UDCDmain.actorInMinigame(akActor)
 		UDCDmain.enableActor(akActor)
 		UDCDMain.getMinigameDevice(akActor).stopMinigameAndWait()
@@ -1075,4 +1112,51 @@ Armor Function GetRenderedDevice(armor device)
 		endif
 	endif
 	return parent.GetRenderedDevice(device)
+EndFunction
+
+Function UpdateControls()
+	if UDCDmain.TraceAllowed()
+		UDCDMain.log("UpdateControls() Patched")
+	endif
+	; Centralized control management function.
+	bool movement = true
+	bool fighting = true
+	bool sneaking = true
+	bool menu = true
+	;check hardcore mode
+	
+	if Game.getPlayer().HasMagicEffectWithKeyword(UDCDmain.UDlibs.HardcoreDisable_KW)
+		menu = false
+	else
+		menu = true
+	endif
+	
+	bool activate = true
+	int cameraState = Game.GetCameraState()
+	if playerRef.WornHasKeyword(zad_DeviousBlindfold) && (config.BlindfoldMode == 1 || config.BlindfoldMode == 0) && (cameraState == 8 || cameraState == 9)
+		movement = false
+		sneaking = false
+	EndIf
+	
+	if Game.getPlayer().HasMagicEffectWithKeyword(UDCDmain.UDlibs.MinigameDisableEffect_KW)
+		movement = true
+		menu = false
+	endif
+	
+	if IsBound(playerRef)
+		If playerRef.WornHasKeyword(zad_BoundCombatDisableKick)
+			fighting = false			
+		Else
+			fighting = config.UseBoundCombat			
+		Endif	
+	EndIf
+	if playerRef.WornHasKeyword(zad_DeviousPetSuit)
+		sneaking = false
+	EndIf	
+	if playerRef.WornHasKeyword(zad_DeviousPonyGear)
+		sneaking = false
+	EndIf	
+	
+	Game.DisablePlayerControls(abMovement = !movement, abFighting = !fighting, abSneaking = !sneaking, abMenu = !menu, abActivate = !activate)	
+	Game.EnablePlayerControls(abMovement = movement, abFighting = fighting, abSneaking = sneaking, abMenu = menu, abActivate = activate)	
 EndFunction

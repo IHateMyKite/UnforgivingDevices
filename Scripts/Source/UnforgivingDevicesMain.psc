@@ -45,9 +45,7 @@ bool Property UD_hightPerformance
 	EndFunction
 EndProperty
 
-bool Property ZaZAnimationPackInstalled = false auto
-bool Property OSLArousedInstalled = false auto
-bool Property ConsoleUtilInstalled = false auto
+
 
 float Property UD_LowPerformanceTime = 1.0 Auto
 float Property UD_HightPerformanceTime = 0.25 Auto
@@ -105,20 +103,7 @@ Event OnInit()
 		UD_baseUpdateTime = UD_LowPerformanceTime
 	endif
 	
-	If ModInstalled("ZaZAnimationPack.esm")
-		ZaZAnimationPackInstalled = True
-		Log("Zaz animation pack detected!")
-	EndIf
-	
-	if ModInstalled("OSLAroused.esp")
-		OSLArousedInstalled = true
-		Log("OSLAroused detected!")
-	endif
-		
-	if ConsoleUtil.GetVersion()
-		ConsoleUtilInstalled = true
-		Log("ConsoleUtil detected!")
-	endif
+	CheckOptionalMods()
 	
 	if TraceAllowed()	
 		Log("UnforgivingDevicesMain initialized",0)
@@ -128,11 +113,51 @@ Event OnInit()
 	Utility.wait(5.0)
 	
 	CheckPatchesOrder()
-	
-	if !ConsoleUtilInstalled
-		debug.messagebox("--!ERROR!--\nUD can't detect ConsoleUtil. Without this mode, some features of Unforgiving Devices will not work as intended. Please be warned.")
-	endif
 EndEvent
+
+bool Property ZaZAnimationPackInstalled = false auto
+zbfBondageShell Property ZAZBS auto
+
+bool Property OSLArousedInstalled = false auto
+bool Property ConsoleUtilInstalled = false auto
+
+bool Property SlaveTatsInstalled = false auto
+
+
+Function CheckOptionalMods()
+	If ModInstalled("ZaZAnimationPack.esm")
+		ZaZAnimationPackInstalled = True
+		if !ZAZBS
+			ZAZBS = Game.GetFormFromFile(0x0137E6,"ZaZAnimationPack.esm") as zbfBondageShell
+		endif
+		Log("Zaz animation pack detected!")
+	else
+		ZaZAnimationPackInstalled = False
+		ZAZBS = none
+	endif
+	
+	if ModInstalled("OSLAroused.esp")
+		OSLArousedInstalled = True
+		Log("OSLAroused detected!")
+	else
+		OSLArousedInstalled = false
+	endif
+		
+	if ModInstalled("SlaveTats.esp")
+		SlaveTatsInstalled = True
+		Log("SlaveTats detected!")
+	else
+		SlaveTatsInstalled = false
+	endif	
+		
+	if ConsoleUtil.GetVersion()
+		ConsoleUtilInstalled = True
+		Log("ConsoleUtil detected!")
+	else
+		debug.messagebox("--!ERROR!--\nUD can't detect ConsoleUtil. Without this mode, some features of Unforgiving Devices will not work as intended. Please be warned.")
+		ConsoleUtilInstalled = False
+	endif
+EndFUnction
 
 
 Function CheckPatchesOrder()

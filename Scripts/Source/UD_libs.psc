@@ -112,6 +112,8 @@ Keyword Property PatchNoModes_KW auto
 Keyword Property HardcoreDisable_KW auto
 Keyword Property OrgasmCheck_KW auto
 Keyword Property ArousalCheck_KW auto
+
+
 ;spells
 Spell Property MinigameDisableSpell auto
 Spell Property HardcoreDisableSpell auto
@@ -123,6 +125,7 @@ Spell Property ArousalCheckSpell auto
 Spell Property TelekinesisSpell auto
 Spell Property AphrodisiacsSpell auto
 Spell Property NPCRegisterSpell auto
+
 ;crits
 Spell Property GreenCrit auto
 Spell Property BlueCrit auto
@@ -144,3 +147,10 @@ ObjectReference Property TheFridge Auto
 
 ;formlists
 FormList Property GiftMenuFilter auto
+
+;Optional mods
+Keyword Property ZAZTears_KW auto
+Spell Property ZAZTearsSpell auto
+
+Keyword Property ZAZDrool_KW auto
+Spell Property ZAZDroolSpell auto
