@@ -30,8 +30,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 				endif
 			endif
 			if UDCDmain.ActorIsPlayer(akTarget)
-				debug.notification("while changing shape to RARE bondage restrain!") 	;text with more than 60 symbols is unreadable because of font resize
-				debug.notification("Black goo covers your body and tie your hands")		;split in 2 and ordered according queue-likeness of Skyrim messages flow
+				UDCDmain.ShowMessageBox("Black goo covers your body and tie your hands while changing shape to RARE bondage restraint!")
 			endif
 		else
 			if !akTarget.wornhaskeyword(libs.zad_deviousSuit)
@@ -56,8 +55,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 				endif
 			endif
 			if UDCDmain.ActorIsPlayer(akTarget)
-				debug.notification("while changing shape to bondage restrain!")			;text with more than 60 symbols is unreadable because of font resize
-				debug.notification("Black goo covers your body and tie your hands")		;split in 2 and ordered according queue-likeness of Skyrim messages flow
+				UDCDmain.ShowMessageBox("Black goo covers your body and tie your hands while changing shape to bondage restraint!")
 			endif
 		endif
 		
