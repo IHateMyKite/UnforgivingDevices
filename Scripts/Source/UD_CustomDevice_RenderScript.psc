@@ -3137,7 +3137,7 @@ bool Function minigamePrecheck()
 			if HelperIsPlayer()
 				debug.notification("You are already doing something")
 			elseif HelperIsFollower()
-				debug.notification(getWearerName() + " is already doing something")
+				debug.notification(getHelperName() + " is already doing something")
 			endif
 			return false
 		endif
