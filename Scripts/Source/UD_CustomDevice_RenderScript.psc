@@ -1692,7 +1692,7 @@ EndFunction
 
 Function updateCondition(bool decrease = True)
 	if decrease
-		while (_total_durability_drain >= 100) && !_isUnlocked
+		while (_total_durability_drain >= 100) && !_isUnlocked && UD_condition < 4
 			_total_durability_drain -= 100
 			UD_condition += 1
 			if WearerIsPlayer()
