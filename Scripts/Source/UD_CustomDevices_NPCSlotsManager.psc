@@ -297,8 +297,9 @@ Function update(float fTimePassed)
 	int index = UD_Slots
 	while index
 		index -= 1
-		if (GetNthAlias(index) as UD_CustomDevice_NPCSlot).isScriptRunning() && (GetNthAlias(index) as UD_CustomDevice_NPCSlot).isUsed()
-			(GetNthAlias(index) as UD_CustomDevice_NPCSlot).update(fTimePassed)
+		UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
+		if loc_slot.isScriptRunning() && loc_slot.isUsed() && loc_slot.canUpdate()
+			loc_slot.update(fTimePassed)
 		endif
 	endwhile
 EndFunction
@@ -307,8 +308,9 @@ Function updateHour(float fMult)
 	int index = UD_Slots
 	while index
 		index -= 1
-		if (GetNthAlias(index) as UD_CustomDevice_NPCSlot).isScriptRunning() && (GetNthAlias(index) as UD_CustomDevice_NPCSlot).isUsed()
-			(GetNthAlias(index) as UD_CustomDevice_NPCSlot).updateHour(fMult)
+		UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
+		if loc_slot.isScriptRunning() && loc_slot.isUsed() && loc_slot.canUpdate()
+			loc_slot.updateHour(fMult)
 		endif
 	endwhile
 EndFunction

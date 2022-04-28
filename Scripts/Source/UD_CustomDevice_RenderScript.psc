@@ -344,28 +344,6 @@ bool Property pauseMinigame Hidden
 		return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,6))
 	EndFunction
 endproperty
-bool Property UD_allow_struggle_orgasm Hidden ;if player can orgasm while struggling
-	Function set(bool bVal)
-		startBitMapMutexCheck()
-		_deviceControlBitMap_1 = codeBit(_deviceControlBitMap_1,bVal as Int,1,7)
-		endBitMapMutexCheck()
-	EndFunction
-	
-	bool Function get()
-		return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,7))
-	EndFunction
-endproperty
-bool Property UD_allow_struggle_orgasm_helper Hidden ;if helper can orgasm while struggling
-	Function set(bool bVal)
-		startBitMapMutexCheck()
-		_deviceControlBitMap_1 = codeBit(_deviceControlBitMap_1,bVal as Int,1,8)
-		endBitMapMutexCheck()
-	EndFunction
-	
-	bool Function get()
-		return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,8))
-	EndFunction
-endproperty
 bool Property UD_drain_stats Hidden ;if player will loose stats while struggling
 	Function set(bool bVal)
 		startBitMapMutexCheck()
@@ -938,6 +916,10 @@ bool Function WearerIsFollower()
 	return false
 EndFunction
 
+bool Function PlayerInMinigame()
+	return WearerIsPlayer() || HelperIsPlayer()
+EndFunction
+
 bool Function hasHelper()
 	if _minigameHelper
 		return True
@@ -1165,14 +1147,13 @@ EndFunction
 Function Init(Actor akActor)
 	if !akActor
 		if UDCDmain.TraceAllowed()
-			UDCDmain.Log("!Aborting Init called for because actor is none!!")
+			UDCDmain.Log("!Aborting Init called for "+getDeviceName()+" because actor is none!!")
 		endif
 	endif
 
 	libSafeCheck()
 	Wearer = akActor
 	
-	;Debug.StartStackProfiling()
 	if isUnlocked 
 		UDCDmain.Log("!Aborting Init("+ UDCDmain.getActorName(akActor) +") called for " + DeviceInventory.getName() + " because device is already unlocked!!")
 		if (libs as zadlibs_UDPatch).isMutexed(akActor,deviceInventory)
@@ -1208,7 +1189,6 @@ Function Init(Actor akActor)
 	
 	;MUTEX START
 	;mutex check because some mods equips items too fast at once, making it possible to have equipped 2 of the same item
-	;Utility.WaitMenuMode(Utility.randomFloat(0.05,0.15)) ;random wait time so devices are not checked at once
 	if UDCDmain.isRegistered(getWearer())
 		StartInitMutex()
 	endif
@@ -1225,18 +1205,11 @@ Function Init(Actor akActor)
 		EndInitMutex()
 	endif
 	;MUTEX END	
-	;Debug.StopStackProfiling()
-	
 	if deviceRendered.hasKeyword(UDlibs.PatchedDevice) ;patched device
 		if UDCDmain.TraceAllowed()		
 			UDCDmain.Log("Patching device " + deviceInventory.getName(),2)
 		endif
-		;while UDCDmain.UDPatcher.UD_PatcherMutex
-		;	Utility.waitMenuMode(0.1)
-		;endwhile
-		;UDCDmain.UDPatcher.UD_PatcherMutex = true
 		patchDevice()
-		;UDCDmain.UDPatcher.UD_PatcherMutex = false
 	else
 		if UD_WeaponHitResist == 5.23
 			UD_WeaponHitResist = UD_ResistPhysical
@@ -1255,23 +1228,19 @@ Function Init(Actor akActor)
 	current_device_health = device_health ;repairs device to max durability on equip
 	
 	safeCheck()
-	;safeCheckAnimations()
 	
 	UDCDmain.CheckHardcoreDisabler(getWearer())
 	
 	InitPost()
-	
-	;StorageUtil.SetIntValue(deviceRendered,"UD_Locked",1)
-	
+
 	if UD_Cooldown > 0
 		_currentRndCooldown = Round(UD_Cooldown*Utility.randomFloat(0.75,1.25)*UDCDmain.UD_CooldownMultiplier)
 	endif
 	
 	Ready = True
 	if UDCDmain.TraceAllowed()
-		UDCDmain.Log(DeviceInventory.getName() + " registered for " + getWearerName(),1)
+		UDCDmain.Log(DeviceInventory.getName() + " fully locked on " + getWearerName(),1)
 	endif
-	;UDCDmain.Log(getWearerName() + " has " + getDeviceName() + " equiped? " + getWearer().IsEquipped(deviceRendered))
 	InitPostPost()
 EndFunction
 
@@ -1283,7 +1252,7 @@ Function removeDevice(actor akActor)
 	_removeDeviceCalled = True
 	
 	if UDCDmain.TraceAllowed()
-		UDCDmain.Log("removeDevice() called for " + DeviceInventory.getName(),1)
+		UDCDmain.Log("removeDevice() called for " + getDeviceHeader(),1)
 	endif
 	
 	OnRemovePre()
@@ -1292,54 +1261,52 @@ Function removeDevice(actor akActor)
 		UDCDmain.endScript(self)
 	endif
 	
-	if !_isUnlocked
-		current_device_health = 0.0
-		_isUnlocked = True
-		UDCDmain.updateLastOpenedDeviceOnRemove(self)
-		StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
-		if wearer.isinfaction(UDCDmain.minigamefaction)
-			wearer.removefromfaction(UDCDmain.minigamefaction)
-			StorageUtil.UnSetFormValue(Wearer, "UD_currentMinigameDevice")
+	if !akActor.isDead()
+		if !_isUnlocked
+			current_device_health = 0.0
+			_isUnlocked = True
+			UDCDmain.updateLastOpenedDeviceOnRemove(self)
+			StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
+			if wearer.isinfaction(UDCDmain.minigamefaction)
+				wearer.removefromfaction(UDCDmain.minigamefaction)
+				StorageUtil.UnSetFormValue(Wearer, "UD_currentMinigameDevice")
+			endif
 		endif
 	endif
-	
-	
-	;StorageUtil.UnSetFormValue(Wearer, getDeviceName())
-	;StorageUtil.UnSetIntValue(Wearer,"UD_Locked")
-	
 	if deviceRendered.hasKeyword(libs.zad_DeviousBelt) || deviceRendered.hasKeyword(libs.zad_DeviousBra)
 		libs.Aroused.SetActorExposureRate(akActor, libs.GetOriginalRate(akActor))
 		StorageUtil.UnSetFloatValue(akActor, "zad.StoredExposureRate")
 	endif
 	
-	if hasModifier("LootGold")
-		if UDCDmain.TraceAllowed()
-		UDCDmain.Log("Gold added: " + getModifierIntParam("LootGold"),1)
-		endif
-		int goldNumMin = getModifierIntParam("LootGold")
-		if getModifierParamNum("LootGold") > 1
-			int goldNumMax = getModifierIntParam("LootGold",1)
-			if goldNumMax < goldNumMin
-				goldNumMax = goldNumMin
-			endif
-			int randomNum = Utility.randomInt(goldNumMin,goldNumMax)
-			if randomNum > 0
-				akActor.addItem(UDlibs.Gold,randomNum)	
-			endif				
-		else
-			akActor.addItem(UDlibs.Gold,goldNumMin)
-		endif
-	endif
-	
-	if hasModifier("DOR")
-		if UD_OnDestroyItemList; && hasModifier("LootList")
+	if zad_DestroyOnRemove || !akActor.isDead()
+		if hasModifier("LootGold")
 			if UDCDmain.TraceAllowed()
-				UDCDmain.Log("Items from LIL " + UD_OnDestroyItemList + " added to actor " + akActor,3)
+			UDCDmain.Log("Gold added: " + getModifierIntParam("LootGold"),1)
 			endif
-			akActor.addItem(UD_OnDestroyItemList)
+			int goldNumMin = getModifierIntParam("LootGold")
+			if getModifierParamNum("LootGold") > 1
+				int goldNumMax = getModifierIntParam("LootGold",1)
+				if goldNumMax < goldNumMin
+					goldNumMax = goldNumMin
+				endif
+				int randomNum = Utility.randomInt(goldNumMin,goldNumMax)
+				if randomNum > 0
+					akActor.addItem(UDlibs.Gold,randomNum)	
+				endif				
+			else
+				akActor.addItem(UDlibs.Gold,goldNumMin)
+			endif
+		endif
+		
+		if hasModifier("DOR")
+			if UD_OnDestroyItemList; && hasModifier("LootList")
+				if UDCDmain.TraceAllowed()
+					UDCDmain.Log("Items from LIL " + UD_OnDestroyItemList + " added to actor " + akActor,3)
+				endif
+				akActor.addItem(UD_OnDestroyItemList)
+			endif
 		endif
 	endif
-	
 	StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
 	
 	onRemoveDevicePost(akActor)
@@ -1387,7 +1354,7 @@ EndFunction
 Function UpdateHour(float mult)
 	if OnUpdateHourPre()
 		if OnUpdateHourPost()
-			if hasModifier("MAH")
+			if libs.isValidActor(GetWearer()) && hasModifier("MAH")
 				int loc_chance = UDCDmain.Round(getModifierIntParam("MAH",0)*(UDCDmain.UDPatcher.UD_MAHMod/100.0))
 				int loc_number = getModifierIntParam("MAH",1)
 				Form[] loc_array
@@ -1760,18 +1727,22 @@ Function mendDevice(float mult = 1.0,float timePassed,bool silent = false)
 EndFunction
 
 Function refillDurability(float arg_fValue)
-	current_device_health += arg_fValue
-	if (current_device_health > device_health)
-		_total_durability_drain -= 5*(current_device_health - device_health)
-		current_device_health = device_health
-		updateCondition(False)
+	if current_device_health > 0.0
+		current_device_health += arg_fValue
+		if (current_device_health > device_health)
+			_total_durability_drain -= 5*(current_device_health - device_health)
+			current_device_health = device_health
+			updateCondition(False)
+		endif
 	endif
 EndFunction
 
 Function refillCuttingProgress(float arg_fValue)
-	UD_CuttingProgress -= arg_fValue
-	if UD_CuttingProgress < 0.0
-		UD_CuttingProgress = 0.0
+	if current_device_health > 0.0
+		UD_CuttingProgress -= arg_fValue
+		if UD_CuttingProgress < 0.0
+			UD_CuttingProgress = 0.0
+		endif
 	endif
 EndFunction
 bool Function isPlug()
@@ -1826,6 +1797,14 @@ EndFunction
 
 bool Function canBeStruggled()
 	if UD_durability_damage_base > 0.0 && getAccesibility() > 0.0
+		return True
+	else
+		return false
+	endif
+EndFunction
+
+bool Function isEscapable()
+	if UD_durability_damage_base > 0.0 || (UD_Locks > 0 && UD_LockpickDifficulty < 255)
 		return True
 	else
 		return false
@@ -2407,7 +2386,6 @@ bool Function lockpickMinigame()
 	resetMinigameValues()
 	
 	UD_minigame_stamina_drain = UD_base_stat_drain
-	UD_allow_struggle_orgasm = False	
 	UD_damage_device = False
 	UD_minigame_canCrit = False
 	UD_minigame_critRegen = false
@@ -2439,7 +2417,6 @@ bool Function repairLocksMinigame()
 	resetMinigameValues()
 	
 	UD_minigame_stamina_drain = UD_base_stat_drain*1.25
-	UD_allow_struggle_orgasm = False	
 	UD_damage_device = False
 	UD_minigame_canCrit = False
 	;UD_NeedLockReach = True
@@ -2520,7 +2497,6 @@ bool Function keyMinigame()
 
 	UD_damage_device = False
 	UD_minigame_stamina_drain = UD_base_stat_drain
-	UD_allow_struggle_orgasm = False	
 	UD_minigame_canCrit = False
 	UD_applyExhastionEffect = False
 	UD_minigame_critRegen = false
@@ -2670,7 +2646,6 @@ bool Function lockpickMinigameWH(Actor akHelper)
 	
 	UD_minigame_stamina_drain = UD_base_stat_drain
 	UD_minigame_stamina_drain_helper = UD_base_stat_drain*0.8
-	UD_allow_struggle_orgasm = False	
 	UD_damage_device = False
 	UD_minigame_canCrit = False
 	UD_minigame_critRegen = false
@@ -2717,7 +2692,6 @@ bool Function repairLocksMinigameWH(Actor akHelper)
 	
 	UD_minigame_stamina_drain = UD_base_stat_drain*1.25
 	UD_minigame_stamina_drain_helper = UD_base_stat_drain
-	UD_allow_struggle_orgasm = False	
 	UD_damage_device = False
 	UD_minigame_canCrit = False
 	
@@ -2818,7 +2792,6 @@ bool Function keyMinigameWH(Actor akHelper)
 	UD_damage_device = False
 	UD_minigame_stamina_drain = UD_base_stat_drain
 	UD_minigame_stamina_drain_helper = UD_base_stat_drain
-	UD_allow_struggle_orgasm = False	
 	UD_minigame_canCrit = False
 	UD_applyExhastionEffect = True
 	UD_applyExhastionEffectHelper = True
@@ -2876,8 +2849,6 @@ Function resetMinigameValues()
 	UD_minigame_magicka_drain = 0
 	UD_minigame_magicka_drain_helper = 0
 	_condition_mult_add = 0.0
-	UD_allow_struggle_orgasm = True
-	UD_allow_struggle_orgasm_helper = True
 	UD_damage_device = True
 	UD_drain_stats = True
 	UD_drain_stats_helper = True
@@ -3145,23 +3116,43 @@ bool Function minigamePrecheck()
 
 	if (libs.isAnimating(Wearer))
 		if WearerIsPlayer()
-			debug.notification("You are already doing something")
+			UDCDmain.Print("You are already doing something",1)
 		elseif WearerIsFollower()
-			debug.notification(getWearerName() + " is already doing something")
+			UDCDmain.Print(getWearerName() + " is already doing something",1)
 		endif
 		return false
 	endif
 	
 	if hasHelper()
 		if (libs.isAnimating(_minigameHelper))
-			debug.notification(getWearerName() + " is already doing something")
+			UDCDmain.Print(getWearerName() + " is already doing something",1)
 			return false
 		endif
 	endif
 	
+	if !libs.isValidActor(GetWearer())
+		if WearerIsPlayer()
+			UDCDmain.Print("You are already doing something",1)
+		elseif WearerIsFollower()
+			UDCDmain.Print(getWearerName() + " is already doing something",1)
+		endif
+		return false
+	endif
+	
+	if hasHelper()
+		if !libs.isValidActor(GetHelper())
+			if HelperIsPlayer()
+				UDCDmain.Print("You are already doing something",1)
+			elseif HelperIsFollower()
+				UDCDmain.Print(getHelperName() + " is already doing something",1)
+			endif
+		endif
+		return false
+	endif
+	
 	if _AVCheckLoop_On || _CritLoop_On
 		if WearerIsPlayer() || WearerIsFollower()
-			debug.notification("Slow down!")
+			UDCDmain.Print("Slow down!",1)
 		endif
 		return false
 	endif
@@ -3172,10 +3163,10 @@ EndFunction
 
 ;!!!--------------------MINIGAME LOOP------------------------!!!
 Function minigame()
-	
 	if UDmain.DebugMod
 		showDebugMinigameInfo()
 	endif
+	
 	if WearerIsPlayer() || HelperIsPlayer()
 		UDCDmain.UDmain.closeMenu()
 	endif
@@ -3183,26 +3174,15 @@ Function minigame()
 	minigame_on = True
 	force_stop_minigame = False
 	
-	UDCDmain.DisableActor(Wearer,true)
-	if hasHelper()
-		UDCDmain.DisableActor(getHelper(),true)
-		;UDCDmain.setScriptState(_minigameHelper,4)
-	endif
+	UDCDMain.UDPP.Send_MinigameStarter(getWearer(),self)
 	
 	if UDCDmain.TraceAllowed()
 		UDCDmain.Log("Minigame started for: " + deviceInventory.getName())	
 	endif
 	
-	StorageUtil.SetFormValue(Wearer, "UD_currentMinigameDevice", deviceRendered)
-	
-	if WearerIsPlayer() || HelperIsPlayer()
-		UDCDmain.setCurrentMinigameDevice(self)
-	endif
-	
 	;apply expression
-	sslBaseExpression loc_expression = UDCDmain.UDEM.getExpression("UDStruggleMinigame_Angry")
-	(libs as zadlibs_UDPatch).ApplyExpressionPatched(getWearer(), loc_expression, 100,false,15)
-	
+	;sslBaseExpression loc_expression = UDCDmain.UDEM.getExpression("UDStruggleMinigame_Angry")
+	;(libs as zadlibs_UDPatch).ApplyExpressionPatched(getWearer(), loc_expression, 100,false,15)
 	
 	;struggle animations array
 	String[] struggleArray
@@ -3224,9 +3204,9 @@ Function minigame()
 		else
 			String[] struggleArrayHelper
 			if _minigameHelper.wornhaskeyword(UDlibs.InvisibleHBKW)
-				struggleArray = UDCDmain.GetHeavyBondageAnimation_Armbinder(!WearerFreeLegs())
+				struggleArrayHelper = UDCDmain.GetHeavyBondageAnimation_Armbinder(!WearerFreeLegs())
 			else
-				struggleArray  = UDCDmain.getHeavyBondageDevice(_minigameHelper).SelectStruggleArray(_minigameHelper)
+				struggleArrayHelper  = UDCDmain.getHeavyBondageDevice(_minigameHelper).SelectStruggleArray(_minigameHelper)
 			endif
 			_sStruggleAnimHelper = struggleArrayHelper[Utility.RandomInt(0,  struggleArrayHelper.length - 1)]			
 		endif
@@ -3243,15 +3223,19 @@ Function minigame()
 		endif
 	endif
 	
-	Game.EnablePlayerControls(abMovement = true)
+	if PlayerInMinigame()
+		Game.EnablePlayerControls(abMovement = true)
+	endif
 	
 	Wearer.AddToFaction(UDCDmain.MinigameFaction)
 	
 	if hasHelper()
 		_minigameHelper.AddToFaction(UDCDmain.MinigameFaction)
 	endif
-						
+			
+	UDCDMain.UDPP.Send_Minigameparalel(getWearer(),self)		
 	;disable regen of all stats
+	;/
 	float staminaRate = Wearer.getBaseAV("StaminaRate")
 	float HealRate = Wearer.getBaseAV("HealRate")
 	float magickaRate = Wearer.getBaseAV("MagickaRate")
@@ -3272,13 +3256,17 @@ Function minigame()
 		_minigameHelper.setAV("HealRate", HealRateHelper*UD_RegenMagHelper_Health)
 		_minigameHelper.setAV("MagickaRate", magickaRateHelper*UD_RegenMagHelper_Magicka)			
 	endif
+	/;
+	;UDCDmain.FinishRecordTime("AV",true) ;<=============================================================
 
 	;shows bars
+	;/
 	if canShowHUD()
 		showHUDbars()
 	endif 
-
-	if UD_useWidget && UDCDmain.UD_UseWidget && (WearerIsPlayer() || HelperIsPlayer())
+	/;
+	
+	if UD_useWidget && UDCDmain.UD_UseWidget && PlayerInMinigame()
 		showWidget()
 	endif
 
@@ -3291,27 +3279,33 @@ Function minigame()
 	int tick_s = 0
 	
 	float fCurrentUpdateTime = UDmain.UD_baseUpdateTime
-	if !WearerIsPlayer() && !HelperIsPlayer()
+	if !PlayerInMinigame()
 		fCurrentUpdateTime = 1.0
 	endif
 
 	;drain Wearer and Helper stats
-	;_AVOK = True
 	pauseMinigame = True
 
-	if WearerIsPlayer() || HelperIsPlayer()
+	;UDCDmain.FinishRecordTime("Debug",true) ;<=============================================================
+
+	if PlayerInMinigame()
 		UDCDmain.MinigameKeysRegister()
 	endif
 	
+	;/
 	if UD_minigame_canCrit || _customMinigameCritChance
 		UDCDmain.sendMinigameCritUpdateLoop(Wearer)
 	endif
+	/;
 	
-	;bool loc_appliedOrgasmRate = false
+	;/
 	float loc_currentOrgasmRate = getStruggleOrgasmRate()
 	float loc_currentArousalRate= getArousalRate()
 	UDCDmain.UpdateOrgasmRate(getWearer(), loc_currentOrgasmRate,0.25)
 	UDCDmain.UpdateArousalRate(getWearer(),loc_currentArousalRate)
+	/;
+
+	;UDCDmain.FinishRecordTime("Loops+Orgasm",true) ;<=============================================================
 
 	OnMinigameStart()
 	
@@ -3382,14 +3376,6 @@ Function minigame()
 				OnMinigameTick1()
 				if !(tick_s % 3) ;once per 3 second
 					advanceSkill(3.0)
-					;show hud
-
-					;UDCDmain.UpdateArousalAndOrgasmSimple(getWearer(),getArousalRate()*3)
-					;libs.UpdateExposure(getWearer(),getArousalRate()*3, skipMultiplier=true)
-					;if StorageUtil.getIntValue(getWearer(),"UD_ForceStopMinigame",0)
-					;	StorageUtil.UnSetIntValue(getWearer(),"UD_ForceStopMinigame")
-					;	stopMinigame()
-					;endif
 					OnMinigameTick3()
 				endif
 			endif
@@ -3402,7 +3388,7 @@ Function minigame()
 		tick_b += 1
 	endwhile
 	
-	if WearerIsPlayer() || HelperIsPlayer()
+	if PlayerInMinigame()
 		UDCDmain.MinigameKeysUnRegister()
 	endif	
 	
@@ -3413,6 +3399,7 @@ Function minigame()
 	endif
 
 	;returns wearer regen
+	;/
 	Wearer.setAV("StaminaRate", staminaRate)
 	Wearer.setAV("HealRate", healRate)
 	Wearer.setAV("MagickaRate", magickaRate)
@@ -3421,10 +3408,11 @@ Function minigame()
 		_minigameHelper.setAV("HealRate", HealRateHelper)
 		_minigameHelper.setAV("MagickaRate", magickaRateHelper)			
 	endif	
-		
+	
 	UDCDmain.RemoveOrgasmRate(getWearer(), loc_currentOrgasmRate,0.25)		
 	UDCDmain.UpdateArousalRate(getWearer(),-1*loc_currentArousalRate)	
-		
+	/;
+	
 	;checks if Wearer succesfully escaped device
 	if isUnlocked; && !force_stop_minigame
 		if struggleGame_on
@@ -3454,23 +3442,21 @@ Function minigame()
 	MinigameVarReset()
 
 	;adds struggle debuff if player doesn't struggle slowly
-	addStruggleExhaustion()
+	;addStruggleExhaustion()
 	
 	;debug message
 	if UDmain.DebugMod && UD_damage_device && durability_onstart != current_device_health && WearerIsPlayer()
 		debug.notification("[Debug] Durability reduced: "+ UDmain.formatString(durability_onstart - current_device_health,3) + "\n")
 	endif
 	
-	; if !UDCDmain.isOrgasming(Wearer) ;removed as per paired struggle sneaking orgasm fix
-		libs.EndThirdPersonAnimation(Wearer, cameraState, true) ;ends struggle animation
-	; endif
+
+	libs.EndThirdPersonAnimation(Wearer, cameraState, true) ;ends struggle animation
+	
 	if hasHelper()
-		; if !UDCDmain.isOrgasming(_minigameHelper) ;removed as per paired struggle sneaking orgasm fix
-			libs.EndThirdPersonAnimation(_minigameHelper, cameraState, true) ;ends struggle animation
-		; endif
+		libs.EndThirdPersonAnimation(_minigameHelper, cameraState, true) ;ends struggle animation
 	endif
 	
-	(libs as zadlibs_UDPatch).ResetExpressionPatched(getWearer(), loc_expression,15)
+	;(libs as zadlibs_UDPatch).ResetExpressionPatched(getWearer(), loc_expression,15)
 	
 	UDCDmain.EnableActor(Wearer,true)
 	if hasHelper()
@@ -3931,38 +3917,6 @@ int Function getArousalRate()
 	return res
 EndFunction
 
-;returns if this device can cause wearer to orgasm while struggling
-bool Function canStruggleOrgasm()
-	if (Wearer.wornhaskeyword(libs.zad_DeviousPlugVaginal))
-		return True
-	elseif Wearer.wornhaskeyword(libs.zad_DeviousPlugAnal)
-		return True
-	else
-		return False
-	endif
-EndFunction
-
-;chance of struggling orgasm happening
-int Function struggleOrgasmChance()
-	int res = 0
-	if (Wearer.wornhaskeyword(libs.zad_DeviousPlugVaginal))
-		res += 3
-	endif
-	if Wearer.wornhaskeyword(libs.zad_DeviousPlugAnal)
-		res += 2
-	endif
-	if (Wearer.wornhaskeyword(libs.zad_kw_InflatablePlugVaginal))
-		res += 2*libs.zadInflatablePlugStateVaginal.GetValueInt()
-	endif
-	if (Wearer.wornhaskeyword(libs.zad_kw_InflatablePlugAnal))
-		res += libs.zadInflatablePlugStateAnal.GetValueInt()
-	endif
-	if (res > 0 && Wearer.wornhaskeyword(libs.zad_DeviousBlindfold))
-		res += 2
-	endif
-	return res
-EndFunction
-
 float Function getStruggleOrgasmRate()
 	float res = 0
 	if (Wearer.wornhaskeyword(libs.zad_DeviousPlugVaginal))
@@ -4213,7 +4167,6 @@ Function showDebugMinigameInfo()
 	if UD_RegenMagHelper_Stamina || UD_RegenMagHelper_Health || UD_RegenMagHelper_Magicka
 		res += "Wearer regen: S = " + Round(UD_RegenMagHelper_Stamina*100) + " %;H = " + Round(UD_RegenMagHelper_Health*100) + " %;M = " + Round(UD_RegenMagHelper_Magicka*100) + " %\n"
 	endif
-	res += "Wearer orgasm: " + UD_allow_struggle_orgasm + "\n"
 	if UD_applyExhastionEffect
 		res += "Exhastion mult: " + Round(_exhaustion_mult*100) + " %\n"
 	else
@@ -4242,9 +4195,6 @@ string Function getDebugString()
 	updateDifficulty()
 	string res = ""
 	res += "- " + deviceInventory.GetName() + " -\n"
-	if (canStruggleOrgasm())
-		res += "Struggle Arousal Rate: "+ getArousalRate() +"/s\n"
-	endif
 	if UD_Locks 
 		res += "Lock acces: "+ (Round(UD_LockAccessDifficulty)) + "/" + (100 - Round(getLockAccesChance())) + " %\n"
 	endif
@@ -4611,50 +4561,51 @@ Function OnMinigameOrgasm(bool sexlab = false)
 	if UDCDmain.TraceAllowed()	
 		UDCDmain.Log("Orgasm in struggle loop detected",3)
 	endif
-	
-	;stopMinigame()
-	
 EndFunction
 
 Function OnMinigameOrgasmPost()
-
 EndFunction
 
 Function OnOrgasmPost(bool sexlab = false)
-	if hasModifier("MAO")
-		int loc_chance = UDCDmain.Round(getModifierIntParam("MAO",0)*(UDCDmain.UDPatcher.UD_MAOMod/100.0))
-		int loc_number = getModifierIntParam("MAO",1)
-		Form[] loc_array
-		if Utility.randomInt() < loc_chance
-			while loc_number
-				loc_number -= 1
-				Armor loc_device = UDmain.UDRRM.LockRandomRestrain(getWearer())
-				if loc_device
-					loc_array = PapyrusUtil.PushForm(loc_array,loc_device)
-				else
-					loc_number = 0 ;end, because no more devices can be locked
-				endif
-			endwhile
-		endif
-		if loc_array
-			if loc_array.length > 0
-				if WearerIsPlayer()
-					string loc_str = getDeviceName() + " suddenly starts to emit black smoke, which envelop your body and forms its shape in to bondage restraint!\n"
-					loc_str += "Devices locked: \n"
-					
-					int i = 0
-					while i < loc_array.length
-						loc_str += (loc_array[i] as Armor).getName() + "\n"
-						i+= 1
+	if libs.isValidActor(GetWearer())
+		if libs.isValidActor(GetWearer()) && hasModifier("MAO")
+			int loc_chance = UDCDmain.Round(getModifierIntParam("MAO",0)*(UDCDmain.UDPatcher.UD_MAOMod/100.0))
+			int loc_number = getModifierIntParam("MAO",1)
+			Form[] loc_array
+			if Utility.randomInt() < loc_chance
+				while loc_number
+					while UDCDmain.InSelabAnimation(getWearer()) || UDCDmain.InZadAnimation(getWearer())
+						Utility.wait(1.0)
 					endwhile
-					
-					UDCDmain.ShowMessageBox(loc_str)
-				elseif WearerIsFollower()
-					UDCDmain.Print(getWearerName() + "s "+ getDeviceName() +" suddenly locks them in bondage restraint!",1)
+					loc_number -= 1
+					Armor loc_device = UDmain.UDRRM.LockRandomRestrain(getWearer())
+					if loc_device
+						loc_array = PapyrusUtil.PushForm(loc_array,loc_device)
+					else
+						loc_number = 0 ;end, because no more devices can be locked
+					endif
+				endwhile
+			endif
+			if loc_array
+				if loc_array.length > 0
+					if WearerIsPlayer()
+						string loc_str = getDeviceName() + " suddenly starts to emit black smoke, which envelop your body and forms its shape in to bondage restraint!\n"
+						loc_str += "Devices locked: \n"
+						
+						int i = 0
+						while i < loc_array.length
+							loc_str += (loc_array[i] as Armor).getName() + "\n"
+							i+= 1
+						endwhile
+						
+						UDCDmain.ShowMessageBox(loc_str)
+					elseif WearerIsFollower()
+						UDCDmain.Print(getWearerName() + "s "+ getDeviceName() +" suddenly locks them in bondage restraint!",1)
+					endif
 				endif
 			endif
-		endif
-	endif	
+		endif	
+	endif
 EndFunction
 
 bool Function OnEdgePre()
@@ -4815,7 +4766,7 @@ bool Function onWeaponHitPre(Weapon source)
 EndFunction
 
 Function onWeaponHitPost(Weapon source)
-	if !isUnlocked
+	if !isUnlocked && isEscapable()
 		decreaseDurabilityAndCheckUnlock(source.getBaseDamage()*0.08*(1.0 - UD_WeaponHitResist),2.0)
 	endif
 EndFunction

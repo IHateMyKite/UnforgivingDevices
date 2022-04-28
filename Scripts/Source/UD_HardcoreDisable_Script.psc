@@ -47,7 +47,7 @@ Event OnUpdate()
 				if !_MenuKeyPressed; && !MenuIsOpen()
 					Game.DisablePlayerControls(abMovement = False,abFighting = false,abCamSwitch = false,abLooking = false, abSneaking = false, abMenu = true, abActivate = false, abJournalTabs = false)
 				endif
-				if !(loc_tick % 8)
+				if !(loc_tick % 10)
 					Game.EnableFastTravel(false)
 				endif
 			endif
@@ -64,13 +64,13 @@ Event OnUpdate()
 		endif
 		
 		if _target.hasMagicEffect(_MagickEffect)
-			if !(loc_tick % 40)
+			if !(loc_tick % 5)
 				if !MenuIsOpen()
 					CheckMapKey()
 					CheckStatsKey()
 				endif
 			endif
-			if !_MenuOpen && _MenuKeyPressed && !(loc_tick % 10)
+			if !_MenuOpen && _MenuKeyPressed && !(loc_tick % 6)
 				_MenuOpen = false
 				_MenuKeyPressed = false
 				RegisterForKey(_MapKeyCode)
@@ -86,12 +86,12 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
 	if UDCDmain.TraceAllowed()	
 		UDCDmain.Log("Minigame disabler OnEffectFinish() for " + _target,1)
 	endif
-	if !_target.HasMagicEffectWithKeyword(UDCDmain.UDlibs.MinigameDisableEffect_KW)
+	;if !_target.HasMagicEffectWithKeyword(UDCDmain.UDlibs.MinigameDisableEffect_KW)
 		if _target == Game.getPlayer()
 			Game.EnablePlayerControls()
 			Game.EnableFastTravel(true)
 		endif
-	endif
+	;endif
 EndEvent
 
 Event OnKeyDown(Int KeyCode)

@@ -135,6 +135,10 @@ bool Function isScriptRunning()
 	endif
 EndFunction
 
+bool Function canUpdate()
+	return !getActor().isDead() && !getActor().getCurrentScene()
+EndFunction
+
 int Function getNumberOfRegisteredDevices()
 	return _iUsedSlots
 EndFunction

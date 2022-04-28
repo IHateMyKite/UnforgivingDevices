@@ -124,6 +124,24 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 					else
 						return
 					endif
+				else
+					
+					if UDCDmain.TraceAllowed()						
+						UDCDmain.Log("Transfering device" + deviceInventory.getName() + " on "+ giver.getActorBase().getName() +" to:  " + target.getActorBase().getName(),1)
+					endif
+					UD_CustomDevice_RenderScript device = getUDScript(giver)
+					if device
+						if UDCDmain.TraceAllowed()						
+							UDCDmain.Log("Removing device from dead actor :" + deviceInventory.getName() + " on "+ giver.getActorBase().getName() +" to:  " + target.getActorBase().getName(),1)
+						endif
+						device.removeDevice(giver)
+						if DestroyOnRemove
+							target.removeItem(deviceInventory,1,True)
+							giver.removeItem(deviceRendered,1,True)
+						endif
+						return
+					endif
+					
 				endif
 			endif
 		endif
@@ -137,18 +155,24 @@ Function openWHMenu(Actor akTarget,Actor akSource)
 		UDCDmain.Log(" NPC menu opened for " + deviceInventory.getName() + " (" + akTarget.getActorBase().getName() + ") by " + akSource.getActorBase().getName(),1)
 	endif
 	bool[] aControl = new Bool[30]
-	if UDCDmain.UDCD_NPCM.isRegistered(akTarget)
-		UD_CustomDevice_RenderScript device = UDCDmain.getDeviceByInventory(akTarget,deviceInventory)
-		if device
-			UDCDmain.getDeviceByInventory(akTarget,deviceInventory).DeviceMenuWH(akSource,aControl)
-		else
-			UDCDmain.getDeviceScriptByRender(akTarget,deviceRendered).DeviceMenuWH(akSource,aControl)
-		endif
-	else
-		UDCDmain.getDeviceScriptByRender(akTarget,deviceRendered).DeviceMenuWH(akSource,aControl)
+	UD_CustomDevice_RenderScript device = getUDScript(akTarget)
+	if device
+		device.DeviceMenuWH(akSource,aControl)
 	endif
 EndFunction
 
+UD_CustomDevice_RenderScript Function getUDScript(Actor akActor)
+	if UDCDmain.UDCD_NPCM.isRegistered(akActor)
+		UD_CustomDevice_RenderScript device = UDCDmain.getDeviceByInventory(akActor,deviceInventory)
+		if device
+			return UDCDmain.getDeviceByInventory(akActor,deviceInventory)
+		else
+			return UDCDmain.getDeviceScriptByRender(akActor,deviceRendered)
+		endif
+	else
+		return UDCDmain.getDeviceScriptByRender(akActor,deviceRendered)
+	endif
+EndFunction
 
 bool _locked = false
 Function OnEquippedPost(actor akActor)
@@ -175,30 +199,32 @@ Function OnRemoveDevice(actor akActor)
 	if device
 		device.removeDevice(akActor)
 	endif
-			
-	UDCDmain.UpdateInvisibleArmbinder(akActor)
-	UDCDmain.UpdateInvisibleHobble(akActor)
 	
-	if deviceRendered.hasKeyword(libs.zad_DeviousGag)
-		libs.RemoveGagEffect(akActor)
-		if !libs.IsAnimating(akActor)
-			akActor.ClearExpressionOverride()
-			ResetPhonemeModifier(akActor)
-		EndIf
-	endif
-	if  deviceRendered.hasKeyword(libs.zad_DeviousGagPanel)
-		if UDCDmain.TraceAllowed()
-			libs.Log("Panel Gag: Resetting faction rank.")
+	if !akActor.isDead()
+		UDCDmain.UpdateInvisibleArmbinder(akActor)
+		UDCDmain.UpdateInvisibleHobble(akActor)
+		
+		if deviceRendered.hasKeyword(libs.zad_DeviousGag)
+			libs.RemoveGagEffect(akActor)
+			if !libs.IsAnimating(akActor)
+				akActor.ClearExpressionOverride()
+				ResetPhonemeModifier(akActor)
+			EndIf
 		endif
-		if akActor.GetFactionRank(UDCDmain.zadGagPanelFaction) == 0
-			akActor.RemoveItem(zad_GagPanelPlug, 1)
-		EndIf
-		akActor.SetFactionRank(UDCDmain.zadGagPanelFaction, 0)
-		akActor.RemoveFromFaction(UDCDmain.zadGagPanelFaction)
-	endif
-	zadlibs_UDPatch libs_p = (libs as zadlibs_UDPatch)
-	if akActor == libs_p.UD_GlobalDeviceMutex_Unlock_Actor && libs_p.UD_GlobalDeviceMutex_Unlock_Device == deviceInventory
-		libs_p.UD_GlobalDeviceMutex_Unlock_InventoryScript = true
+		if  deviceRendered.hasKeyword(libs.zad_DeviousGagPanel)
+			if UDCDmain.TraceAllowed()
+				libs.Log("Panel Gag: Resetting faction rank.")
+			endif
+			if akActor.GetFactionRank(UDCDmain.zadGagPanelFaction) == 0
+				akActor.RemoveItem(zad_GagPanelPlug, 1)
+			EndIf
+			akActor.SetFactionRank(UDCDmain.zadGagPanelFaction, 0)
+			akActor.RemoveFromFaction(UDCDmain.zadGagPanelFaction)
+		endif
+		zadlibs_UDPatch libs_p = (libs as zadlibs_UDPatch)
+		if akActor == libs_p.UD_GlobalDeviceMutex_Unlock_Actor && libs_p.UD_GlobalDeviceMutex_Unlock_Device == deviceInventory
+			libs_p.UD_GlobalDeviceMutex_Unlock_InventoryScript = true
+		endif
 	endif
 EndFunction
 

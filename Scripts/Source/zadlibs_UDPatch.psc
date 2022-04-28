@@ -20,6 +20,11 @@ Actor Property UD_GlobalDeviceMutex_Unlock_Actor = none auto
 bool LOCKDEVICE_MUTEX = False
 
 
+Function ResetMutex()
+	LOCKDEVICE_MUTEX = false
+	UNLOCK_MUTEX = false
+EndFunction
+
 bool Property UD_StartThirdPersonAnimation_Switch = true auto
 
 Function LockDevice_Paralel(actor akActor, armor deviceInventory, bool force = false)
@@ -146,6 +151,7 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
 				UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed = false
 				UD_GlobalDeviceMutex_Unlock_Device = deviceInventory
 				UD_GlobalDeviceMutex_Unlock_Actor = akActor
+				
 				if akActor.getItemCount(loc_renDevice)
 					StorageUtil.SetIntValue(akActor, "zad_RemovalToken" + deviceInventory, 1)
 					StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0x110)
@@ -581,6 +587,10 @@ Function ShockActorPatched(actor akActor,int iArousalUpdate = 25,float fHealth =
 	EndIf
 	ShockEffect.RemoteCast(akActor, akActor, akActor)
 	
+	if Utility.randomInt(1,99) < 40
+		UDCDmain.ApplyTearsEffect(akActor)
+	endif
+	
 	float loc_health = UDCDmain.fRange(fHealth,0.0,1000.0)
 	
 	if loc_health
@@ -788,14 +798,20 @@ Function ActorOrgasmPatched(actor akActor,int iDuration, int iDecreaseArousalBy 
 		UDCDMain.getMinigameDevice(akActor).stopMinigameAndWait()
 	endif
 	
+	
+	
 	if akActor.IsInCombat()  || akActor.IsSneaking()
 		if UDCDmain.ActorIsPlayer(akActor)
 			UDCDmain.Print("You managed to not loss control over your body from orgasm!",2)
 		endif
 		akActor.damageAv("Stamina",50.0)
 		akActor.damageAv("Magicka",50.0)
-		if UDCDmain.actorInMinigame(akActor)
-			EndThirdPersonAnimation(akActor, new Bool[2],true)
+		Utility.wait(iDuration)
+	elseif akActor.GetCurrentScene()
+		Utility.wait(iDuration)
+	elseif akActor.IsInFaction(Sexlab.AnimatingFaction)
+		if UDCDmain.TraceAllowed()	
+			UDCDmain.Log("ActorOrgasmPatched - sexlab animation detected - not playing animation for " + UDCDmain.GetActorName(akActor),2)
 		endif
 		Utility.wait(iDuration)
 	else

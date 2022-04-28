@@ -2,6 +2,7 @@ Scriptname UDCustomDeviceMain extends Quest  conditional
 
 Spell Property SwimPenaltySpell auto
 UnforgivingDevicesMain Property UDmain auto
+UD_ParalelProcess Property UDPP auto
 UD_libs Property UDlibs auto
 zadlibs Property libs auto
 
@@ -349,6 +350,14 @@ Function EnableActor(Actor akActor,bool bBussy = false)
 		;StorageUtil.UnSetIntValue(akActor,"UD_Bussy")
 		akActor.RemoveFromFaction(BussyFaction)
 	endif
+EndFunction
+
+bool Function InSelabAnimation(Actor akActor)
+	return akActor.IsInFaction(libs.Sexlab.AnimatingFaction)
+EndFunction
+
+bool Function InZadAnimation(Actor akActor)
+	return akActor.IsInFaction(libs.zadAnimatingFaction)
 EndFunction
 
 Function CheckHardcoreDisabler(Actor akActor)
@@ -844,7 +853,7 @@ string[] Function GetStruggleAnimations(Actor akActor,Armor renDevice)
 				temp[8] = "ZapArmbStruggle05"
 				temp[9] = "ZapArmbStruggle07"
 				temp[10] = "ZapArmbStruggle08"
-				temp[12] = "ZapArmbStruggle10"
+				temp[11] = "ZapArmbStruggle10"
 			endif
 		elseif renDevice.hasKeyword(libs.zad_DeviousCuffsFront)
 			temp = new string[2]
@@ -1484,13 +1493,15 @@ Event OnKeyDown(Int KeyCode)
 				return
 			endif
 		else ;when player is not bussy
-if KeyCode == PlayerMenu_KeyCode
-				PlayerMenu()
-			elseif KeyCode == NPCMenu_Keycode
-				ObjectReference loc_ref = Game.GetCurrentCrosshairRef()
-				if loc_ref as Actor
-					Actor loc_actor = loc_ref as Actor
-					NPCMenu(loc_actor)
+			if !IsMenuOpen()
+				if KeyCode == PlayerMenu_KeyCode
+					PlayerMenu()
+				elseif KeyCode == NPCMenu_Keycode
+					ObjectReference loc_ref = Game.GetCurrentCrosshairRef()
+					if loc_ref as Actor
+						Actor loc_actor = loc_ref as Actor
+						NPCMenu(loc_actor)
+					endif
 				endif
 			endif
 		endif
@@ -1499,19 +1510,21 @@ EndEvent
 
 Event OnKeyUp(Int KeyCode, Float HoldTime)
 	if KeyCode == StruggleKey_Keycode
-		if HoldTime < 0.4
-			if lastOpenedDevice
-				lastOpenedDevice.deviceMenu(new Bool[30])
-			elseif libs.playerRef.wornhaskeyword(libs.zad_deviousheavybondage)
-				if !lastOpenedDevice
-					lastOpenedDevice = getHeavyBondageDevice(Game.getPlayer())
+		if !IsMenuOpen() && !actorInMinigame(Game.GetPlayer())
+			if HoldTime < 0.4
+				if lastOpenedDevice
+					lastOpenedDevice.deviceMenu(new Bool[30])
+				elseif libs.playerRef.wornhaskeyword(libs.zad_deviousheavybondage)
+					if !lastOpenedDevice
+						lastOpenedDevice = getHeavyBondageDevice(Game.getPlayer())
+					endif
+					lastOpenedDevice.deviceMenu(new Bool[30])
 				endif
-				lastOpenedDevice.deviceMenu(new Bool[30])
-			endif
-		else
-			UD_CustomDevice_RenderScript loc_device = UDCD_NPCM.getPlayerSlot().GetUserSelectedDevice()
-			if loc_device
-				loc_device.deviceMenu(new Bool[30])
+			else
+				UD_CustomDevice_RenderScript loc_device = UDCD_NPCM.getPlayerSlot().GetUserSelectedDevice()
+				if loc_device
+					loc_device.deviceMenu(new Bool[30])
+				endif
 			endif
 		endif
 	elseif KeyCode == SpecialKey_Keycode
@@ -1633,7 +1646,27 @@ Function showActorDetails(Actor akActor)
 		loc_debugStr += "Orgasm Chack: " + akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW) + "\n"
 		loc_debugStr += "Arousal Chack: " + akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW) + "\n"
 		loc_debugStr += "Hardcore Disable: " + akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW) + "\n"
+		loc_debugStr += "Animating: " + libs.IsAnimating(akActor) + "\n"
+		loc_debugStr += "Animation block: " + akActor.isInFaction(BlockAnimationFaction) + "\n"
+		loc_debugStr += "Epression level: " + akActor.GetFactionRank(BlockExpressionFaction) +"\n"
+		loc_debugStr += "Valid: " + libs.IsValidActor(akActor) +"\n"
 		ShowMessageBox(loc_debugStr)
+		
+		if !libs.IsValidActor(akActor)
+			loc_debugStr = "--DEBUG VALID DETAILS--\n"
+			loc_debugStr += "Is3DLoaded: " + akActor.Is3DLoaded() +"\n"
+			loc_debugStr += "IsDead: " + akActor.IsDead() +"\n"
+			loc_debugStr += "IsDisabled: " + akActor.IsDisabled() +"\n"
+			loc_debugStr += "CurrentScene: " + akActor.GetCurrentScene() +"\n"
+			if akActor.GetCurrentScene() != none 
+				loc_debugStr += "CurrentScene-Playing: " + akActor.GetCurrentScene().IsPlaying() +"\n"
+				loc_debugStr += "CurrentScene-Quest: " + akActor.GetCurrentScene().GetOwningQuest() +"\n"
+			endif
+			
+			
+			ShowMessageBox(loc_debugStr)
+		endif
+		
 	endif
 EndFunction
 
@@ -1918,11 +1951,12 @@ EndFunction
 UD_CustomDevice_RenderScript Property _transferedDevice = none auto
 bool _transfereMutex = false
 UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armor deviceRendered)
+	
 	if akActor.getItemCount(deviceRendered) <= 0
 		Error("getDeviceScriptByRender() - Actor doesn't have render device!")
 		return none
 	endif
-
+	
 	if !deviceRendered
 		Error("getDeviceScriptByRender() - deviceRendered = None!!")
 		return none
@@ -1950,10 +1984,8 @@ UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armo
 		loc_time += 0.05
 	endwhile
 	
-	if loc_time > 2.0 && !_transferedDevice
-		if TraceAllowed()		
-			Log("getDeviceScriptByRender timeout for " + deviceRendered + "("+getActorName(akActor)+")")
-		endif
+	if loc_time > 2.0 && !_transferedDevice		
+		Error("getDeviceScriptByRender timeout for " + deviceRendered + "("+getActorName(akActor)+")")
 	endif
 	
 	result = _transferedDevice
@@ -3426,6 +3458,7 @@ EndFunction
 ;fixes
 ;will add update fixes here too
 Function OnGameReset()
+	(libs as zadlibs_UDPatch).ResetMutex()
 	RegisterForSingleUpdate(2*UD_UpdateTime)
 	Utility.waitMenuMode(5.0)
 	if TraceAllowed()	
@@ -3438,6 +3471,7 @@ Function OnGameReset()
 	_activateDevicePackage = none
 	_startVibFunctionPackage = none
 	registerAllEvents()
+	UDPP.RegisterEvents()
 	CheckHardcoreDisabler(Game.getPlayer())
 EndFunction
 
