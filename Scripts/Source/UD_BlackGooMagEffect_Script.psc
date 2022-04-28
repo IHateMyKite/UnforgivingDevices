@@ -30,7 +30,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 				endif
 			endif
 			if UDCDmain.ActorIsPlayer(akTarget)
-				debug.notification("Black goo covers your body and tie your hands while changing shape to RARE bondage restrain!")
+				UDCDmain.ShowMessageBox("Black goo covers your body and tie your hands while changing shape to RARE bondage restraint!")
 			endif
 		else
 			if !akTarget.wornhaskeyword(libs.zad_deviousSuit)
@@ -55,7 +55,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 				endif
 			endif
 			if UDCDmain.ActorIsPlayer(akTarget)
-				debug.notification("Black goo covers your body and tie your hands while changing shape to bondage restrain!")
+				UDCDmain.ShowMessageBox("Black goo covers your body and tie your hands while changing shape to bondage restraint!")
 			endif
 		endif
 		

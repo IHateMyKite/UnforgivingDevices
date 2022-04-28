@@ -1692,7 +1692,7 @@ EndFunction
 
 Function updateCondition(bool decrease = True)
 	if decrease
-		while (_total_durability_drain >= 100)
+		while (_total_durability_drain >= 100) && !_isUnlocked && UD_condition < 4
 			_total_durability_drain -= 100
 			UD_condition += 1
 			if WearerIsPlayer()
@@ -1702,7 +1702,7 @@ Function updateCondition(bool decrease = True)
 			endif
 		endwhile
 	else
-		if (_total_durability_drain < 0)
+		if (_total_durability_drain < 0) && !_isUnlocked
 			_total_durability_drain = 0
 			if UD_condition > 0 
 				UD_condition -= 1
@@ -3137,7 +3137,7 @@ bool Function minigamePrecheck()
 			if HelperIsPlayer()
 				debug.notification("You are already doing something")
 			elseif HelperIsFollower()
-				debug.notification(getWearerName() + " is already doing something")
+				debug.notification(getHelperName() + " is already doing something")
 			endif
 			return false
 		endif
