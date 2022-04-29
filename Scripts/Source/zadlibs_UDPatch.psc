@@ -111,12 +111,19 @@ EndFunction
 
 ;modified version of UnlockDevice from zadlibs. This version makes use of registered devices from UD, making unequip procces for NPC safer and faster
 bool UNLOCK_MUTEX = False
-Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRendered = none, keyword zad_DeviousDevice = none, bool destroyDevice = false, bool genericonly = false)
+Function CheckUnlockMutex()
 	while UNLOCK_MUTEX
 		Utility.waitMenuMode(0.05)
 	endwhile
-	
 	UNLOCK_MUTEX = True
+EndFunction
+Function RemoveUnlockMutex()
+	UNLOCK_MUTEX = False
+EndFunction
+Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRendered = none, keyword zad_DeviousDevice = none, bool destroyDevice = false, bool genericonly = false)
+	if !akActor.isDead()
+		CheckUnlockMutex()
+	endif
 	
 	bool loc_res = False
 	if UDCDmain.TraceAllowed()
@@ -125,6 +132,9 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
 	
 	if !deviceInventory
 		UDCDmain.Error("None passed to UnlockDevice as deviceInventory. Aborting!")
+		if !akActor.isDead()
+			RemoveUnlockMutex()
+		endif
 		return false
 	endif
 	
@@ -147,10 +157,12 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
 					endif
 				endif
 				
-				UD_GlobalDeviceMutex_Unlock_InventoryScript = false
-				UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed = false
-				UD_GlobalDeviceMutex_Unlock_Device = deviceInventory
-				UD_GlobalDeviceMutex_Unlock_Actor = akActor
+				if !akActor.isDead()
+					UD_GlobalDeviceMutex_Unlock_InventoryScript = false
+					UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed = false
+					UD_GlobalDeviceMutex_Unlock_Device = deviceInventory
+					UD_GlobalDeviceMutex_Unlock_Actor = akActor
+				endif
 				
 				if akActor.getItemCount(loc_renDevice)
 					StorageUtil.SetIntValue(akActor, "zad_RemovalToken" + deviceInventory, 1)
@@ -159,21 +171,22 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
 					UDCDmain.EventContainer_ObjRef.removeItem(deviceInventory,1,True,akActor)				
 				EndIf    
 
-				float loc_time = 0.0
-				while  loc_time <= 3.0 && (!UD_GlobalDeviceMutex_Unlock_InventoryScript) && !UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed
-					Utility.waitMenuMode(0.05)
-					loc_time += 0.05
-				endwhile
-				
-				if loc_time >= 3.0
-					UDCDmain.Error("unlockDevice("+UDCDmain.getActorName(akActor)+","+deviceInventory.getName()+") timeout!!!")
+				if !akActor.isDead()
+					float loc_time = 0.0
+					while  loc_time <= 3.0 && (!UD_GlobalDeviceMutex_Unlock_InventoryScript) && !UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed
+						Utility.waitMenuMode(0.05)
+						loc_time += 0.05
+					endwhile
+					
+					if loc_time >= 3.0
+						UDCDmain.Error("unlockDevice("+UDCDmain.getActorName(akActor)+","+deviceInventory.getName()+") timeout!!!")
+					endif
+					
+					UD_GlobalDeviceMutex_Unlock_InventoryScript = false
+					UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed = false
+					UD_GlobalDeviceMutex_Unlock_Device = none
+					UD_GlobalDeviceMutex_Unlock_Actor = none
 				endif
-				
-				UD_GlobalDeviceMutex_Unlock_InventoryScript = false
-				UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed = false
-				UD_GlobalDeviceMutex_Unlock_Device = none
-				UD_GlobalDeviceMutex_Unlock_Actor = none
-
 				
 				if destroyDevice
 					akActor.RemoveItem(deviceInventory, 1, true)
@@ -190,18 +203,17 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
 	if UDCDmain.TraceAllowed()		
 		UDCDmain.Log("UnlockDevice("+deviceInventory.getName()+") (patched) finished: "+loc_res)
 	endif
-	UNLOCK_MUTEX = False
+	if !akActor.isDead()
+		RemoveUnlockMutex()
+	endif
 	return loc_res
 EndFunction
 
 ;modified version of RemoveQuestDevice from zadlibs. This version makes use of registered devices from UD,making unequip procces for NPC safer and faster
 Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRendered, keyword zad_DeviousDevice, keyword RemovalToken, bool destroyDevice=false, bool skipMutex=false)
-	while UNLOCK_MUTEX
-		Utility.waitMenuMode(0.05)
-	endwhile
-	
-	UNLOCK_MUTEX = True
-	
+	if !akActor.isDead()
+		CheckUnlockMutex()
+	endif
 	if deviceInventory.hasKeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
 		;UD_CustomDevice_NPCSlot slot = UDCDmain.UDCD_NPCM.getNPCSlotByActor(akActor)
 		;if slot.deviceAlreadyRegistered(deviceInventory)
@@ -223,29 +235,32 @@ Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRen
 				questItemRemovalAuthorizationToken = RemovalToken	
 				StorageUtil.SetIntValue(akActor, "zad_RemovalToken" + deviceInventory, 1)
 				StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0x110)
-				UD_GlobalDeviceMutex_Unlock_InventoryScript = false
-				UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed = false
-				UD_GlobalDeviceMutex_Unlock_Device = deviceInventory
-				UD_GlobalDeviceMutex_Unlock_Actor = akActor
+				if !akActor.isDead()
+					UD_GlobalDeviceMutex_Unlock_InventoryScript = false
+					UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed = false
+					UD_GlobalDeviceMutex_Unlock_Device = deviceInventory
+					UD_GlobalDeviceMutex_Unlock_Actor = akActor
+				endif
 				
 				akActor.removeItem(deviceInventory,1,True,UDCDmain.EventContainer_ObjRef)	
 				UDCDmain.EventContainer_ObjRef.removeItem(deviceInventory,1,True,akActor)	
 				
-				float loc_time = 0.0
-				while  loc_time <= 3.0 && (!UD_GlobalDeviceMutex_Unlock_InventoryScript) && !UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed
-					Utility.waitMenuMode(0.05)
-					loc_time += 0.05
-				endwhile
-				
-				if loc_time >= 3.0
-					UDCDmain.Error("RemoveQuestDevice("+UDCDmain.getActorName(akActor)+","+deviceInventory.getName()+") timeout!!!")
+				if !akActor.isDead()
+					float loc_time = 0.0
+					while  loc_time <= 3.0 && (!UD_GlobalDeviceMutex_Unlock_InventoryScript) && !UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed
+						Utility.waitMenuMode(0.05)
+						loc_time += 0.05
+					endwhile
+					
+					if loc_time >= 3.0
+						UDCDmain.Error("RemoveQuestDevice("+UDCDmain.getActorName(akActor)+","+deviceInventory.getName()+") timeout!!!")
+					endif
+					
+					UD_GlobalDeviceMutex_Unlock_InventoryScript = false
+					UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed = false
+					UD_GlobalDeviceMutex_Unlock_Device = none
+					UD_GlobalDeviceMutex_Unlock_Actor = none
 				endif
-				
-				UD_GlobalDeviceMutex_Unlock_InventoryScript = false
-				UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed = false
-				UD_GlobalDeviceMutex_Unlock_Device = none
-				UD_GlobalDeviceMutex_Unlock_Actor = none
-				
 				if destroyDevice
 					akActor.RemoveItem(deviceInventory, 1, true)
 				EndIf
@@ -256,8 +271,9 @@ Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRen
 	else
 		parent.RemoveQuestDevice(akActor, deviceInventory, deviceRendered, zad_DeviousDevice, RemovalToken, destroyDevice, skipMutex) ;actor not registered
 	endif
-	
-	UNLOCK_MUTEX = False
+	if !akActor.isDead()
+		RemoveUnlockMutex()
+	endif
 EndFunction
 
 

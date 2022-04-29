@@ -237,7 +237,7 @@ Function Log(String msg, int level = 1)
 EndFunction
 
 Function Error(String msg)
-	UDmain.Log("(!ERROR!)" + msg,0)
+	UDmain.Error(msg)
 EndFunction
 
 Function Print(String strMsg, int iLevel = 1,bool bLog = false)

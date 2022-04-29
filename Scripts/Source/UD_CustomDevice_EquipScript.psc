@@ -203,28 +203,29 @@ Function OnRemoveDevice(actor akActor)
 	if !akActor.isDead()
 		UDCDmain.UpdateInvisibleArmbinder(akActor)
 		UDCDmain.UpdateInvisibleHobble(akActor)
-		
-		if deviceRendered.hasKeyword(libs.zad_DeviousGag)
-			libs.RemoveGagEffect(akActor)
-			if !libs.IsAnimating(akActor)
-				akActor.ClearExpressionOverride()
-				ResetPhonemeModifier(akActor)
-			EndIf
+	endif	
+	if deviceRendered.hasKeyword(libs.zad_DeviousGag)
+		libs.RemoveGagEffect(akActor)
+		if !libs.IsAnimating(akActor)
+			akActor.ClearExpressionOverride()
+			ResetPhonemeModifier(akActor)
+		EndIf
+	endif
+	if  deviceRendered.hasKeyword(libs.zad_DeviousGagPanel)
+		if UDCDmain.TraceAllowed()
+			libs.Log("Panel Gag: Resetting faction rank.")
 		endif
-		if  deviceRendered.hasKeyword(libs.zad_DeviousGagPanel)
-			if UDCDmain.TraceAllowed()
-				libs.Log("Panel Gag: Resetting faction rank.")
-			endif
-			if akActor.GetFactionRank(UDCDmain.zadGagPanelFaction) == 0
-				akActor.RemoveItem(zad_GagPanelPlug, 1)
-			EndIf
-			akActor.SetFactionRank(UDCDmain.zadGagPanelFaction, 0)
-			akActor.RemoveFromFaction(UDCDmain.zadGagPanelFaction)
-		endif
-		zadlibs_UDPatch libs_p = (libs as zadlibs_UDPatch)
-		if akActor == libs_p.UD_GlobalDeviceMutex_Unlock_Actor && libs_p.UD_GlobalDeviceMutex_Unlock_Device == deviceInventory
-			libs_p.UD_GlobalDeviceMutex_Unlock_InventoryScript = true
-		endif
+		if akActor.GetFactionRank(UDCDmain.zadGagPanelFaction) == 0
+			akActor.RemoveItem(zad_GagPanelPlug, 1)
+		EndIf
+		akActor.SetFactionRank(UDCDmain.zadGagPanelFaction, 0)
+		akActor.RemoveFromFaction(UDCDmain.zadGagPanelFaction)
+	endif
+	
+	
+	zadlibs_UDPatch libs_p = (libs as zadlibs_UDPatch)
+	if akActor == libs_p.UD_GlobalDeviceMutex_Unlock_Actor && libs_p.UD_GlobalDeviceMutex_Unlock_Device == deviceInventory
+		libs_p.UD_GlobalDeviceMutex_Unlock_InventoryScript = true
 	endif
 EndFunction
 

@@ -149,7 +149,13 @@ Function CheckOptionalMods()
 	else
 		SlaveTatsInstalled = false
 	endif	
-		
+	
+	if ModInstalled("UIExtensions.esp")
+		Log("UIExtensions detected!")
+	else
+		debug.messagebox("--!ERROR!--\nUD can't detect UIExtensions. Without this mode, some features of Unforgiving Devices will not work as intended. Please be warned.")
+	endif
+	
 	if ConsoleUtil.GetVersion()
 		ConsoleUtilInstalled = True
 		Log("ConsoleUtil detected!")
@@ -332,6 +338,13 @@ Function Print(String msg,int iLevel = 1,bool bLog = false)
 		if bLog && TraceAllowed(); || DebugMod	
 			Log("Print -> " + msg)
 		endif
+	endif
+EndFunction
+
+Function Error(String msg)
+	debug.trace("[UD,!ERROR!,T="+Utility.GetCurrentRealTime()+"]: " + msg)
+	if ConsoleUtilInstalled ;print to console
+		ConsoleUtil.PrintMessage("[UD,!ERROR!,T="+Utility.GetCurrentRealTime()+"]: " + msg)
 	endif
 EndFunction
 
