@@ -337,9 +337,9 @@ Function EnableActor(Actor akActor,bool bBussy = false)
 	
 	if akActor == Game.getPlayer()
 		if !akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW)
-			Game.EnablePlayerControls(abMovement = False)
+			Game.EnablePlayerControls()
 		else
-			Game.EnablePlayerControls(abMovement = False,abMenu = false)
+			Game.EnablePlayerControls(abMenu = false)
 		endif
 		Game.SetPlayerAiDriven(False)
 	else
