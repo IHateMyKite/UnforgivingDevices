@@ -3146,8 +3146,8 @@ bool Function minigamePrecheck()
 			elseif HelperIsFollower()
 				UDCDmain.Print(getHelperName() + " is already doing something",1)
 			endif
+			return false
 		endif
-		return false
 	endif
 	
 	if _AVCheckLoop_On || _CritLoop_On
