@@ -3596,47 +3596,60 @@ endFunction
 ; Spell Property slaDesireSpell auto
 
 Float Function getArousalSkillMult(Actor akActor)
-	int i = 0
-	spell slaDesireSpell = none
-	form slaDesireForm = none
-	slaDesireForm = GetMeMyForm(formNumber=0x00038059, pluginName="SexLabAroused.esm")
-
-	if slaDesireForm == none
-		slaDesireForm = GetMeMyForm(formNumber=0x00000809, pluginName="OSLAroused.esp")
-		if slaDesireForm != none
-			Log("OSL is installed, proceed: "+slaDesireForm.GetName(),3)
-		endif
-	elseif slaDesireForm != none
-		Log("Regular SLA is installed, proceed: "+slaDesireForm.GetName(),3)
-	endIf
+	; int i = 0
+	; int loc_effects = slaDesireSpell.GetNumEffects()
 	
-	if slaDesireForm == none	;failsave
-		Error("Failed to declare slaDesireForm, aborting getArousalSkillMult().")
-		return 1.0
+	; while i < loc_effects
+	; 	if akActor.HasMagicEffect(slaDesireSpell.GetNthEffectMagicEffect(i))
+	; 		if i == 0
+	; 			return 0.8
+	; 		elseif i == 1
+	; 			return 0.9
+	; 		elseif i == 2
+	; 			return 0.95
+	; 		elseif i == 3
+	; 			return 1.05
+	; 		elseif i == 4
+	; 			return 0.6
+	; 		elseif i == 5
+	; 			return 0.2
+	; 		endif
+	; 	endif
+	; 	i += 1
+	; endwhile
+	int OSL = Game.GetModByName("OSLAroused.esp")
+	bool OSLSwitch = false
+    if ((OSL != 255) && (OSL != 0)) ; 255 = not found, 0 = no skse
+		OSLSwitch = true
 	endif
 
-	slaDesireSpell = slaDesireForm as Spell
-	int loc_effects = slaDesireSpell.GetNumEffects()
-	
-	while i < loc_effects
-		if akActor.HasMagicEffect(slaDesireSpell.GetNthEffectMagicEffect(i))
-			; Log("Has magic effect pass, selecting modifier.",3)
-			if i == 0
-				return 0.8
-			elseif i == 1
-				return 0.9
-			elseif i == 2
-				return 0.95
-			elseif i == 3
-				return 1.05
-			elseif i == 4
-				return 0.6
-			elseif i == 5
-				return 0.2
-			endif
+	if !OSLSwitch
+		if akActor.HasPerk(GetMeMyForm(formNumber=0x0007E074, pluginName="SexLabAroused.esm") as Perk) 
+			return 1.05
+		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x0003FC35, pluginName="SexLabAroused.esm") as Perk) 
+			return 0.95
+		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x0003FC34, pluginName="SexLabAroused.esm") as Perk) 
+			return 0.9
+		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x00038057, pluginName="SexLabAroused.esm") as Perk) 
+			return 0.8
+		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x0007F09C, pluginName="SexLabAroused.esm") as Perk) 
+			return 0.6
+		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x0007E072, pluginName="SexLabAroused.esm") as Perk) 
+			return 0.2
 		endif
-		i += 1
-	endwhile
+	else
+		if akActor.HasPerk(GetMeMyForm(formNumber=0x0000080D, pluginName="OSLAroused.esp") as Perk)
+			return 0.95
+		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x00000813, pluginName="OSLAroused.esp") as Perk) 
+			return 0.9
+		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x00000814, pluginName="OSLAroused.esp") as Perk) 
+			return 0.8
+		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x00000815, pluginName="OSLAroused.esp") as Perk) 
+			return 0.6
+		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x00000816, pluginName="OSLAroused.esp") as Perk) 
+			return 0.2
+		endif
+	endif
 	return 1.0
 EndFunction
 
