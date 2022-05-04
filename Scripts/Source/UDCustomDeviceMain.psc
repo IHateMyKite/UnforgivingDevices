@@ -3568,14 +3568,59 @@ Function ShowMessageBox(string strText)
 	endwhile
 EndFunction
 
-Spell Property slaDesireSpell auto
+; thanks to Subhuman#6830 for ESPFE form check, compatible with LE
+; Notes given by him:
+; 1) it breaks the compile-time dependency.   GetformFromFile requires you to have the plugin you're getting a form for in order to compile, this does not
+; 2) less papyrus spam, if the plugin isn't found it prints a single line debug.trace instead 4-5 lines of errors
+; 3) related to 1, it doesn't verify you didn't screw up.   If you're trying to cast a package as a quest, for example, GetFormFromFile will throw a compiler error because it can't be done.  This will not.  You have to verify your own work. 
+form function GetMeMyForm(int formNumber, string pluginName) ;fornumber format is 0xFULLFORMID, for example 0x00000007. Even for ESPFE format, ignoring 0xFE
+    int theLO = Game.GetModByName(pluginName)
+    if ((theLO == 255) || (theLO == 0)) ; 255 = not found, 0 = no skse
+        Log(pluginName + " not loaded or SKSE not found", 1)
+        return none
+    elseIf (theLO > 255) ; > 255 = ESL
+        ; the first FIVE hex digits in an ESL are its address, so a formNumber exceeding 0xFFF or below 0x800 is invalid
+        if ((Math.LogicalAnd(0xFFFFF000, formNumber) != 0) || (Math.LogicalAnd(0x00000800, formNumber) == 0))
+            Log("Plugin " + pluginName + " has FormIDs outside the range\nallocated for ESL plugins!: " + formNumber)
+            Log("ESL-flagged plugin " + pluginName + " contains invalid FormIDs: " + formNumber, 2)
+            return none
+        endIf
+        ; getmodbyname reports an ESL as 256 higher than the game indexes it internally
+        theLO -= 256
+        return Game.GetFormEx(Math.LogicalOr(Math.LogicalOr(0xFE000000, Math.LeftShift(theLO, 12)), formNumber))
+    else    ; regular ESL-free plugin
+        return Game.GetFormEx(Math.LogicalOr(Math.LeftShift(theLO, 24), formNumber))
+    endIf
+endFunction
+
+; Spell Property slaDesireSpell auto
 
 Float Function getArousalSkillMult(Actor akActor)
 	int i = 0
+	spell slaDesireSpell = none
+	form slaDesireForm = none
+	slaDesireForm = GetMeMyForm(formNumber=0x00038059, pluginName="SexLabAroused.esm")
+
+	if slaDesireForm == none
+		slaDesireForm = GetMeMyForm(formNumber=0x00000809, pluginName="OSLAroused.esp")
+		if slaDesireForm != none
+			Log("OSL is installed, proceed: "+slaDesireForm.GetName(),1)
+		endif
+	elseif slaDesireForm != none
+		Log("Regular SLA is installed, proceed: "+slaDesireForm.GetName(),1)
+	endIf
+	
+	if slaDesireForm == none	;failsave
+		Log("Failed to declare slaDesireForm, aborting getArousalSkillMult().",1)
+		return 1.0
+	endif
+
+	slaDesireSpell = slaDesireForm as Spell
 	int loc_effects = slaDesireSpell.GetNumEffects()
 	
 	while i < loc_effects
 		if akActor.HasMagicEffect(slaDesireSpell.GetNthEffectMagicEffect(i))
+			Log("Has magic effect pass, selecting modifier.",1)
 			if i == 0
 				return 0.8
 			elseif i == 1
