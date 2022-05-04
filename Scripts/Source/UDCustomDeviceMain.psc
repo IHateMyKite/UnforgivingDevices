@@ -3604,14 +3604,14 @@ Float Function getArousalSkillMult(Actor akActor)
 	if slaDesireForm == none
 		slaDesireForm = GetMeMyForm(formNumber=0x00000809, pluginName="OSLAroused.esp")
 		if slaDesireForm != none
-			Log("OSL is installed, proceed: "+slaDesireForm.GetName(),1)
+			Log("OSL is installed, proceed: "+slaDesireForm.GetName(),3)
 		endif
 	elseif slaDesireForm != none
-		Log("Regular SLA is installed, proceed: "+slaDesireForm.GetName(),1)
+		Log("Regular SLA is installed, proceed: "+slaDesireForm.GetName(),3)
 	endIf
 	
 	if slaDesireForm == none	;failsave
-		Log("Failed to declare slaDesireForm, aborting getArousalSkillMult().",1)
+		Error("Failed to declare slaDesireForm, aborting getArousalSkillMult().")
 		return 1.0
 	endif
 
@@ -3620,7 +3620,7 @@ Float Function getArousalSkillMult(Actor akActor)
 	
 	while i < loc_effects
 		if akActor.HasMagicEffect(slaDesireSpell.GetNthEffectMagicEffect(i))
-			Log("Has magic effect pass, selecting modifier.",1)
+			; Log("Has magic effect pass, selecting modifier.",3)
 			if i == 0
 				return 0.8
 			elseif i == 1
