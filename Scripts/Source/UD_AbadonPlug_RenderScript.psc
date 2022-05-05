@@ -53,6 +53,7 @@ Function InitPost()
 EndFunction
 
 Function onRemoveDevicePost(Actor akActor)
+	parent.onRemoveDevicePost(akActor)
 	if (AbadonQuest.GetCurrentStageID() > 0) && !AbadonQuest.isCompleted() && getWearer() == AbadonQuestScript.UD_AbadonVictim
 		if (AbadonQuest.GetCurrentStageID() == 20)
 			AbadonQuest.SetObjectiveCompleted(30)

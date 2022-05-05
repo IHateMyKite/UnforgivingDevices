@@ -125,23 +125,23 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 						return
 					endif
 				else
-					
-					if UDCDmain.TraceAllowed()						
-						UDCDmain.Log("Transfering device" + deviceInventory.getName() + " on "+ giver.getActorBase().getName() +" to:  " + target.getActorBase().getName(),1)
-					endif
-					UD_CustomDevice_RenderScript device = getUDScript(giver)
-					if device
+					if giver.getItemCount(deviceRendered)
 						if UDCDmain.TraceAllowed()						
-							UDCDmain.Log("Removing device from dead actor :" + deviceInventory.getName() + " on "+ giver.getActorBase().getName() +" to:  " + target.getActorBase().getName(),1)
+							UDCDmain.Log("Transfering device" + deviceInventory.getName() + " on "+ giver.getActorBase().getName() +" to:  " + target.getActorBase().getName(),1)
 						endif
-						device.removeDevice(giver)
-						if DestroyOnRemove
-							target.removeItem(deviceInventory,1,True)
-							giver.removeItem(deviceRendered,1,True)
+						UD_CustomDevice_RenderScript device = getUDScript(giver)
+						if device
+							if UDCDmain.TraceAllowed()						
+								UDCDmain.Log("Removing device from dead actor :" + deviceInventory.getName() + " on "+ giver.getActorBase().getName() +" to:  " + target.getActorBase().getName(),1)
+							endif
+							device.removeDevice(giver)
+							if DestroyOnRemove
+								target.removeItem(deviceInventory,1,True)
+								giver.removeItem(deviceRendered,1,True)
+							endif
+							return
 						endif
-						return
 					endif
-					
 				endif
 			endif
 		endif

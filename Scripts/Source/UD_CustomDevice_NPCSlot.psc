@@ -211,6 +211,10 @@ Function fix()
 		
 		_DeviceManipMutex = false
 		
+		UDCDmain.CheckArousalCheck(getActor())
+		UDCDmain.CheckOrgasmCheck(getActor())
+		UDCDmain.Print("[UD] loops checked!")
+		
 		UDCDmain.Print("[UD] General fixes done!")
 	elseif loc_res == 1 ;reset orgasm var
 		StorageUtil.UnsetFloatValue(getActor(), "UD_OrgasmRate")
@@ -219,6 +223,7 @@ Function fix()
 		StorageUtil.UnsetFloatValue(getActor(), "UD_OrgasmRateMultiplier")
 		StorageUtil.UnsetFloatValue(getActor(), "UD_ArousalRate")
 		UDCDmain.Print("[UD] Orgasm variables reseted!")
+
 	else
 	
 	endif

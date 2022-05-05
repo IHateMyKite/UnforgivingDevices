@@ -82,12 +82,6 @@ Function Receive_MinigameStarter(Form fActor)
 	Actor akHelper = loc_device.getHelper()
 	_MinigameStarter_Received = true
 	
-	;process
-	UDCDmain.DisableActor(akActor,true)
-	if akHelper
-		UDCDmain.DisableActor(akHelper,true)
-	endif
-	
 	StorageUtil.SetFormValue(akActor, "UD_currentMinigameDevice", loc_device.deviceRendered)
 	
 	if loc_device.PlayerInMinigame()
@@ -136,7 +130,11 @@ Function Receive_MinigameParalel(Form fActor)
 	_MinigameParalel_Received = true
 	
 	;process
-
+	;start disable
+	UDCDMain.StartMinigameDisable(akActor)
+	if akHelper
+		UDCDMain.StartMinigameDisable(akHelper)
+	endif
 	
 	;disable regen of all stats
 	float staminaRate = akActor.getBaseAV("StaminaRate")
@@ -182,8 +180,17 @@ Function Receive_MinigameParalel(Form fActor)
 	UDCDmain.UpdateArousalRate(akActor,loc_currentArousalRate)
 	
 	;pause thred untill minigame end
+	int loc_tick = 0
 	while UDCDmain.ActorInMinigame(akActor)
-		Utility.waitMenuMode(0.15)
+		Utility.waitMenuMode(0.25)
+		loc_tick += 1
+		;update disable if it gets somehow removed
+		if !(loc_tick % 4)
+			UDCDMain.UpdateMinigameDisable(akActor)
+			if akHelper
+				UDCDMain.UpdateMinigameDisable(akHelper)
+			endif
+		endif
 	endwhile
 	
 	UDCDmain.RemoveOrgasmRate(akActor, loc_currentOrgasmRate,0.25)		
@@ -206,6 +213,11 @@ Function Receive_MinigameParalel(Form fActor)
 		(UDCDmain.libs as zadlibs_UDPatch).ResetExpressionPatched(akHelper, loc_expression,15)
 	endif
 	
+	;remove disable
+	UDCDMain.EndMinigameDisable(akActor)
+	if akHelper
+		UDCDMain.EndMinigameDisable(akHelper)
+	endif
 EndFunction
 
 ;========================

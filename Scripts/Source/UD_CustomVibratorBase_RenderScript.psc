@@ -118,9 +118,6 @@ string Function getVibDetails(string str = "")
 	str += "Vib duration: " + UD_VibDuration + "\n"
 	str += "Vib mode: " + getEdgingModeString(UD_EdgingMode) + "\n"
 	str += "Shocking: " + UD_Shocking + "\n"
-	if UD_Chaos
-		
-	endif
 	str += "Status --> "
 	if isVibrating() && !isPaused()
 		str += "ON\n"
@@ -423,9 +420,8 @@ Function pauseVibFor(int iTime)
 		setOrgasmRate(getVibOrgasmRate(),1.0)
 		setArousalRate(getVibArousalRate())
 		StartVibSound()
-		_paused = false
 	endif
-	
+	_paused = false
 EndFunction
 
 float Function getVibOrgasmRate(float mult = 1.0)
@@ -433,12 +429,16 @@ float Function getVibOrgasmRate(float mult = 1.0)
 EndFunction
 
 Function UpdateOrgasmRate(float fOrgasmRate,float fOrgasmForcing)
-	removeOrgasmRate()
-	setOrgasmRate(fOrgasmRate,fOrgasmForcing)
+	if isVibrating()
+		removeOrgasmRate()
+		if isVibrating()
+			setOrgasmRate(fOrgasmRate,fOrgasmForcing)
+		endif
+	endif
 EndFunction
 
 Function setOrgasmRate(float fOrgasmRate,float fOrgasmForcing)
-	if fOrgasmRate != _appliedOrgasmRate || fOrgasmForcing != _appliedForcing 
+	if (fOrgasmRate != _appliedOrgasmRate || fOrgasmForcing != _appliedForcing) && isVibrating()
 		_appliedOrgasmRate = fOrgasmRate
 		_appliedForcing = fOrgasmForcing
 		UDCDmain.UpdateOrgasmRate(getWearer(),_appliedOrgasmRate,_appliedForcing)
@@ -668,9 +668,9 @@ Function ProccesVibEdge()
 	endif
 EndFunction
 
-Function onRemoveDevicePost(Actor akActor)
+Function onRemoveDevicePre(Actor akActor)
 	stopVibrating()
-	parent.onRemoveDevicePost(akActor)
+	parent.onRemoveDevicePre(akActor)
 EndFunction
 
 ;vibrator can't be currently vibrating, needs to be able to vibrate AND at least 25% of the cooldown have to pass 

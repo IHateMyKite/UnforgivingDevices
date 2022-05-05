@@ -154,3 +154,6 @@ Spell Property ZAZTearsSpell auto
 
 Keyword Property ZAZDrool_KW auto
 Spell Property ZAZDroolSpell auto
+
+;DEBUG
+Spell Property DEBUGMagickEffect auto

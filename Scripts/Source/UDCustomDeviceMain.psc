@@ -320,21 +320,19 @@ Function DisableActor(Actor akActor,bool bBussy = false)
 	if TraceAllowed()	
 		Log("DisableActor("+getActorName(akActor) + ")",1)
 	endif
-	if bBussy
-		akActor.addToFaction(BussyFaction)
-	endif
-	if !akActor.HasMagicEffectWithKeyword(UDlibs.MinigameDisableEffect_KW)
-		UDlibs.MinigameDisableSpell.cast(akActor)
-	endif
+	StartMinigameDisable(akActor)
+	;if !akActor.HasMagicEffectWithKeyword(UDlibs.MinigameDisableEffect_KW)
+	;	UDlibs.MinigameDisableSpell.cast(akActor)
+	;endif
 EndFunction
 
 Function EnableActor(Actor akActor,bool bBussy = false)
 	if TraceAllowed()	
 		Log("EnableActor("+getActorName(akActor)+")",1)
 	endif
-	akActor.DispelSpell(UDlibs.MinigameDisableSpell)
-	
-	
+	;akActor.DispelSpell(UDlibs.MinigameDisableSpell)
+	EndMinigameDisable(akActor)
+	;/
 	if akActor == Game.getPlayer()
 		if !akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW)
 			Game.EnablePlayerControls()
@@ -345,10 +343,46 @@ Function EnableActor(Actor akActor,bool bBussy = false)
 	else
 		akActor.SetDontMove(False)
 	endif
-	
-	if bBussy
-		;StorageUtil.UnSetIntValue(akActor,"UD_Bussy")
-		akActor.RemoveFromFaction(BussyFaction)
+	/;
+EndFunction
+
+Function StartMinigameDisable(Actor akActor)
+	akActor.AddToFaction(BussyFaction)
+
+	if akActor == Game.getPlayer()
+		if !akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW)
+			Game.EnablePlayerControls(abMovement = False)
+		endif
+		Game.DisablePlayerControls(abMovement = False)
+		Game.SetPlayerAiDriven(True)
+	else
+		akActor.SetDontMove(True)	
+	endif
+EndFunction
+
+Function UpdateMinigameDisable(Actor akActor)
+	if akActor.IsInFaction(BussyFaction)
+		if akActor == Game.getPlayer()
+			if !akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW)
+				Game.EnablePlayerControls(abMovement = False)
+			endif
+			Game.DisablePlayerControls(abMovement = False)
+			Game.SetPlayerAiDriven(True)
+		else
+			akActor.SetDontMove(True)	
+		endif
+	endif
+EndFunction
+
+Function EndMinigameDisable(Actor akActor)
+	akActor.RemoveFromFaction(BussyFaction)
+	if akActor == Game.getPlayer()
+		if !akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW)
+			Game.EnablePlayerControls(abMovement = False)
+		endif
+		Game.SetPlayerAiDriven(False)
+	else
+		akActor.SetDontMove(False)
 	endif
 EndFunction
 
@@ -1510,8 +1544,8 @@ EndEvent
 
 Event OnKeyUp(Int KeyCode, Float HoldTime)
 	if KeyCode == StruggleKey_Keycode
-		if !IsMenuOpen() && !actorInMinigame(Game.GetPlayer())
-			if HoldTime < 0.4
+		if  !actorInMinigame(Game.GetPlayer()) && !Utility.IsInMenuMode();!IsMenuOpen()
+			if HoldTime < 0.2
 				if lastOpenedDevice
 					lastOpenedDevice.deviceMenu(new Bool[30])
 				elseif libs.playerRef.wornhaskeyword(libs.zad_deviousheavybondage)
@@ -1643,8 +1677,8 @@ Function showActorDetails(Actor akActor)
 	if UDmain.DebugMod
 		string loc_debugStr = "--DEBUG DETAILS--\n"
 		loc_debugStr += "Registered: " + akActor.isInFaction(RegisteredNPCFaction) + "\n"
-		loc_debugStr += "Orgasm Chack: " + akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW) + "\n"
-		loc_debugStr += "Arousal Chack: " + akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW) + "\n"
+		loc_debugStr += "Orgasm Chack: " + akActor.IsInFaction(OrgasmCheckLoopFaction) + "\n"
+		loc_debugStr += "Arousal Chack: " + akActor.isInFaction(ArousalCheckLoopFaction) + "\n"
 		loc_debugStr += "Hardcore Disable: " + akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW) + "\n"
 		loc_debugStr += "Animating: " + libs.IsAnimating(akActor) + "\n"
 		loc_debugStr += "Animation block: " + akActor.isInFaction(BlockAnimationFaction) + "\n"
@@ -1951,7 +1985,6 @@ EndFunction
 UD_CustomDevice_RenderScript Property _transferedDevice = none auto
 bool _transfereMutex = false
 UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armor deviceRendered)
-	
 	if akActor.getItemCount(deviceRendered) <= 0
 		Error("getDeviceScriptByRender() - Actor doesn't have render device!")
 		return none
@@ -2438,15 +2471,42 @@ Function CritLoop(Form fActor)
 EndFunction
 
 Function CheckOrgasmCheck(Actor akActor)
-	if !akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
-		UDlibs.OrgasmCheckSpell.cast(akActor);sendOrgasmCheckLoop(akActor)
+	if akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
+		akActor.dispelSpell(UDlibs.OrgasmCheckSpell)
+		;wait for effect to end
+		while akActor.IsInFaction(OrgasmCheckLoopFaction)
+			Utility.waitmenumode(0.5)
+		endwhile
+		StartOrgasmCheckLoop(akActor)
+		Utility.waitMenuMode(1.0)
+	else
+		if !akActor.isInFaction(OrgasmCheckLoopFaction)
+			StartOrgasmCheckLoop(akActor)
+		endif
 	endif
+	;if !akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
+	;	UDlibs.OrgasmCheckSpell.cast(akActor);sendOrgasmCheckLoop(akActor)
+	;endif
 EndFunction
 
 Function CheckArousalCheck(Actor akActor)
-	if !akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
-		UDlibs.ArousalCheckSpell.cast(akActor);sendOrgasmCheckLoop(akActor)
+	if akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
+		akActor.dispelSpell(UDlibs.ArousalCheckSpell)
+		;wait for effect to end
+		while akActor.IsInFaction(ArousalCheckLoopFaction)
+			Utility.waitmenumode(0.5)
+		endwhile
+		
+		StartArousalCheckLoop(akActor)
+		Utility.waitMenuMode(1.0)
+	else
+		if !akActor.isInFaction(ArousalCheckLoopFaction)
+			StartArousalCheckLoop(akActor)
+		endif
 	endif
+	;if !akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
+	;	UDlibs.ArousalCheckSpell.cast(akActor);sendOrgasmCheckLoop(akActor)
+	;endif
 EndFunction
 
 Int Function UpdateArousal(Actor akActor ,float arousal)
@@ -2521,17 +2581,11 @@ Function ArousalCheckLoop(Form fActor)
 		if akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmExhaustionEffect_KW)
 			loc_arousal = Round(loc_arousal * 0.5)
 		endif
-		;if TraceAllowed()	
-		;	Log("ArousalCheckLoop("+getActorName(akActor)+") Arousal before: "+getActorArousal(akActor))
-		;endif
 		if loc_arousal > 0
 			akActor.SetFactionRank(ArousalCheckLoopFaction,UpdateArousal(akActor ,loc_arousal))
 		else
 			akActor.SetFactionRank(ArousalCheckLoopFaction,getActorArousal(akActor))
 		endif
-		;if TraceAllowed()	
-		;	Log("ArousalCheckLoop("+getActorName(akActor)+") Arousal after: "+akActor.GetFactionRank(ArousalCheckLoopFaction))
-		;endif
 		Utility.wait(loc_updateTime)
 	endwhile
 	akActor.RemoveFromFaction(ArousalCheckLoopFaction)
@@ -2752,6 +2806,28 @@ int Property UD_HornyAnimationDuration = 5 auto
 
 Actor Property UD_StopActorOrgasmCheckLoop = none auto
 
+Function StartOrgasmCheckLoop(Actor akActor)
+	if TraceAllowed()	
+		Log("sendOrgasmCheckLoop("+getActorName(akActor)+") called")
+	endif
+	if !akActor
+		Error("None passed to sendOrgasmCheckLoop!!!")
+	endif
+	if akActor.isInFaction(OrgasmCheckLoopFaction)
+		return
+	endif
+	akActor.AddToFaction(OrgasmCheckLoopFaction)
+	
+	int handle = ModEvent.Create("UD_OrgasmCheckLoop")
+	if (handle)
+		if TraceAllowed()		
+			Log("sendOrgasmCheckLoop("+getActorName(akActor)+"), sending event")
+		endif
+        ModEvent.PushForm(handle,akActor)
+        ModEvent.Send(handle)
+    endif
+EndFunction
+
 Function OrgasmCheckLoop(Form fActor)
 	Actor akActor = fActor as Actor
 	if TraceAllowed()	
@@ -2811,12 +2887,6 @@ Function OrgasmCheckLoop(Form fActor)
 				loc_orgasmProgress -= 3*loc_orgasmRateAnti
 			endif
 		endif
-		
-		
-		;if loc_orgasmProgress/loc_orgasmCapacity > 0.85 ;edging thresdhold at 85%
-			
-			
-		;endif
 		
 		if loc_widgetShown && !loc_orgasmResisting
 			widget2.SetPercent(loc_orgasmProgress/loc_orgasmCapacity)
@@ -2898,9 +2968,6 @@ Function OrgasmCheckLoop(Form fActor)
 				endif
 			endif
 			if !actorInMinigame(akActor)
-				;bool loc_cond = false
-				;loc_cond = loc_cond || ((loc_orgasmRate < loc_orgasmResistMultiplier*loc_orgasmResistence) && loc_orgasmRate >= loc_orgasmResistMultiplier*loc_orgasmResistence*0.5)
-				;loc_cond = loc_cond || ((loc_orgasmProgress/loc_orgasmCapacity < 0.5) && loc_orgasmRate > loc_orgasmResistMultiplier*loc_orgasmResistence)
 				if (loc_orgasmRate > 0.5*loc_orgasmResistMultiplier*loc_orgasmResistence) && !loc_orgasmResisting && !akActor.IsInCombat() ;orgasm progress is increasing
 					if (loc_hornyAnimTimer == 0) && !libs.IsAnimating(akActor) && UD_HornyAnimation ;start horny animation for UD_HornyAnimationDuration
 						if Utility.RandomInt() <= (Math.ceiling(100/fRange(loc_orgasmProgress,15.0,100.0))) 
@@ -2977,7 +3044,6 @@ Function OrgasmCheckLoop(Form fActor)
 	StorageUtil.UnsetFloatValue(akActor, "UD_OrgasmProgress")
 
 	;end mutex
-	;StorageUtil.UnSetIntValue(akActor, "UD_OrgasmCheck")
 	akActor.RemoveFromFaction(OrgasmCheckLoopFaction)
 	if UD_StopActorOrgasmCheckLoop == akActor
 		UD_StopActorOrgasmCheckLoop = none
@@ -3643,14 +3709,31 @@ Function DebugFunction(Actor akActor)
 	;Print(loc_res)
 	
 	UDlibs.GreenCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
-	Utility.wait(1.5)
+	Utility.wait(1.0)
 	UDlibs.BlueCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
-	Utility.wait(1.5)
+	Utility.wait(1.0)
 	UDlibs.RedCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
 	ApplyTearsEffect(akActor)
 	ApplyDroolEffect(akActor)
 	UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0x43ff)
 	UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0x3C00)
+	
+	;/
+	int loc_value = 0
+	int loc_maxvalue = 100
+	float loc_updatetime = 0.1
+	StartRecordTime()
+	
+	while loc_value < loc_maxvalue
+		Utility.waitMenuMode(0.1)
+		loc_value += 1
+	endwhile
+	
+	float loc_time = FinishRecordTime("Wait loop - Time")
+	Log("Wait loop - Load = " + (loc_time/(loc_maxvalue*loc_updatetime)))
+	
+	UDlibs.DEBUGMagickEffect.cast(akActor)
+	/;
 EndFunction
 
 string Function GetUserTextInput()

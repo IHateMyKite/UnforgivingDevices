@@ -1255,7 +1255,7 @@ Function removeDevice(actor akActor)
 		UDCDmain.Log("removeDevice() called for " + getDeviceHeader(),1)
 	endif
 	
-	OnRemovePre()
+	OnRemoveDevicePre(akActor)
 	
 	if UDCDmain.UDCD_NPCM.isRegistered(akActor)
 		UDCDmain.endScript(self)
@@ -4749,7 +4749,7 @@ EndFunction
 Function InitPostPost()
 EndFunction
 
-Function OnRemovePre()
+Function OnRemoveDevicePre(Actor akActor)
 EndFunction
 
 Function onRemoveDevicePost(Actor akActor)
