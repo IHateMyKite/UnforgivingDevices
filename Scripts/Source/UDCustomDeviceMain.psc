@@ -29,6 +29,7 @@ int Property UD_GagPhonemModifier = 50 auto
 
 int OSLLoadOrderRelative = 0
 int SLALoadOrder = 0
+perk[] DesirePerks
 
 UD_Patcher Property UDPatcher auto
 ;UD_BreathplayScript Property BreathplayScript auto
@@ -3476,6 +3477,10 @@ Function OnGameReset()
 	registerAllEvents()
 	UDPP.RegisterEvents()
 	CheckHardcoreDisabler(Game.getPlayer())
+	SetArousalPerks()
+EndFunction
+
+Function SetArousalPerks()
 	if UDMain.OSLArousedInstalled
 		OSLLoadOrderRelative = Game.GetModByName("OSLAroused.esp")
 		SLALoadOrder = 0
@@ -3488,7 +3493,23 @@ Function OnGameReset()
 		SLALoadOrder = Game.GetModByName("SexLabAroused.esm")
 		log("Assuming SLA load order: "+SLALoadOrder,3)
 	endif
-EndFunction
+	if !UDmain.OSLArousedInstalled
+		DesirePerks = new perk[6]
+		DesirePerks[0] = SLAPerkFastFetch(formNumber=0x0003FC35) as Perk
+		DesirePerks[1] = SLAPerkFastFetch(formNumber=0x00038057) as Perk
+		DesirePerks[2] = SLAPerkFastFetch(formNumber=0x0007F09C) as Perk
+		DesirePerks[3] = SLAPerkFastFetch(formNumber=0x0003FC34) as Perk
+		DesirePerks[4] = SLAPerkFastFetch(formNumber=0x0007E072) as Perk
+		DesirePerks[5] = SLAPerkFastFetch(formNumber=0x0007E074) as Perk
+	else
+		DesirePerks = new perk[5]
+		DesirePerks[0] = SLAPerkFastFetch(formNumber=0x0000080D, OSL = true) as Perk
+		DesirePerks[1] = SLAPerkFastFetch(formNumber=0x00000814, OSL = true) as Perk
+		DesirePerks[2] = SLAPerkFastFetch(formNumber=0x00000815, OSL = true) as Perk
+		DesirePerks[3] = SLAPerkFastFetch(formNumber=0x00000813, OSL = true) as Perk
+		DesirePerks[4] = SLAPerkFastFetch(formNumber=0x00000816, OSL = true) as Perk
+	endif
+endfunction
 
 Function ApplyTears(Actor akActor)
 	if UDmain.ZaZAnimationPackInstalled && UDmain.ZAZBS && UDmain.SlaveTatsInstalled
@@ -3651,31 +3672,29 @@ Float Function getArousalSkillMult(Actor akActor)
 	; endif
 
 	if !UDmain.OSLArousedInstalled
-		; log("Searching perk", 3)
-		if akActor.HasPerk(SLAPerkFastFetch(formNumber=0x0003FC35) as Perk) 
+		if akActor.HasPerk(DesirePerks[0]) 
 			return 0.95
-		elseif akActor.HasPerk(SLAPerkFastFetch(formNumber=0x0007F09C) as Perk) 
-			return 0.6
-		elseif akActor.HasPerk(SLAPerkFastFetch(formNumber=0x0003FC34) as Perk) 
-			return 0.9
-		elseif akActor.HasPerk(SLAPerkFastFetch(formNumber=0x00038057) as Perk) 
+		elseif akActor.HasPerk(DesirePerks[1]) 
 			return 0.8
-		elseif akActor.HasPerk(SLAPerkFastFetch(formNumber=0x0007E074) as Perk) 
-			return 1.05
-		elseif akActor.HasPerk(SLAPerkFastFetch(formNumber=0x0007E072) as Perk) 
+		elseif akActor.HasPerk(DesirePerks[2]) 
+			return 0.6
+		elseif akActor.HasPerk(DesirePerks[3]) 
+			return 0.9
+		elseif akActor.HasPerk(DesirePerks[4]) 
 			return 0.2
+		elseif akActor.HasPerk(DesirePerks[5]) 
+			return 1.05
 		endif
 	else
-		; log("Searching perk", 3)
-		if akActor.HasPerk(SLAPerkFastFetch(formNumber=0x0000080D, OSL = true) as Perk)
+		if akActor.HasPerk(DesirePerks[0])
 			return 0.95
-		elseif akActor.HasPerk(SLAPerkFastFetch(formNumber=0x00000814, OSL = true) as Perk) 
+		elseif akActor.HasPerk(DesirePerks[1]) 
 			return 0.8
-		elseif akActor.HasPerk(SLAPerkFastFetch(formNumber=0x00000815, OSL = true) as Perk) 
+		elseif akActor.HasPerk(DesirePerks[2]) 
 			return 0.6
-		elseif akActor.HasPerk(SLAPerkFastFetch(formNumber=0x00000813, OSL = true) as Perk) 
+		elseif akActor.HasPerk(DesirePerks[3]) 
 			return 0.9
-		elseif akActor.HasPerk(SLAPerkFastFetch(formNumber=0x00000816, OSL = true) as Perk) 
+		elseif akActor.HasPerk(DesirePerks[4]) 
 			return 0.2
 		endif
 	endif
