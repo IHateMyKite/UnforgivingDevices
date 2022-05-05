@@ -179,7 +179,7 @@ Function CheckPatchesOrder()
 EndFunction
 
 bool Function ModInstalled(string sModFileName)
-	return (Game.GetModByName(sModFileName) < 255)
+	return (Game.GetModByName(sModFileName) != 255) && (Game.GetModByName(sModFileName) != 0) ; 255 = not found, 0 = no skse
 EndFunction
 
 bool Function ModInstalledAfterUD(string sModFileName)

@@ -27,6 +27,9 @@ bool Property UD_UseWidget 			= True auto
 
 int Property UD_GagPhonemModifier = 50 auto
 
+int OSLLoadOrderRelative = 0
+int SLALoadOrder = 0
+
 UD_Patcher Property UDPatcher auto
 ;UD_BreathplayScript Property BreathplayScript auto
 UD_DialogueMain Property UDDmain auto
@@ -3473,6 +3476,18 @@ Function OnGameReset()
 	registerAllEvents()
 	UDPP.RegisterEvents()
 	CheckHardcoreDisabler(Game.getPlayer())
+	if UDMain.OSLArousedInstalled
+		OSLLoadOrderRelative = Game.GetModByName("OSLAroused.esp")
+		SLALoadOrder = 0
+		If (OSLLoadOrderRelative > 255)
+        	OSLLoadOrderRelative -= 256
+		endif
+		log("Assuming OSL load order: "+OSLLoadOrderRelative,3)
+	else
+		OSLLoadOrderRelative = 0
+		SLALoadOrder = Game.GetModByName("SexLabAroused.esm")
+		log("Assuming SLA load order: "+SLALoadOrder,3)
+	endif
 EndFunction
 
 Function ApplyTears(Actor akActor)
@@ -3593,6 +3608,17 @@ form function GetMeMyForm(int formNumber, string pluginName) ;fornumber format i
     endIf
 endFunction
 
+; gets Lover's Desire perks faster than calling GetMeMyForm every time, based on predefined load order ids on game load
+form Function SLAPerkFastFetch(int formNumber, bool OSL = false)
+	if !OSL
+		; log("Fetched perk " + (Game.GetFormEx(Math.LogicalOr(Math.LeftShift(SLALoadOrder, 24), formNumber))).getName(), 3)
+		return Game.GetFormEx(Math.LogicalOr(Math.LeftShift(SLALoadOrder, 24), formNumber))
+	else
+		; log("Fetched perk " + (Game.GetFormEx(Math.LogicalOr(Math.LogicalOr(0xFE000000, Math.LeftShift(OSLLoadOrderRelative, 12)), formNumber))).getName(), 3)
+		return Game.GetFormEx(Math.LogicalOr(Math.LogicalOr(0xFE000000, Math.LeftShift(OSLLoadOrderRelative, 12)), formNumber))
+	endif
+endFunction
+
 ; Spell Property slaDesireSpell auto
 
 Float Function getArousalSkillMult(Actor akActor)
@@ -3617,36 +3643,39 @@ Float Function getArousalSkillMult(Actor akActor)
 	; 	endif
 	; 	i += 1
 	; endwhile
-	int OSL = Game.GetModByName("OSLAroused.esp")
-	bool OSLSwitch = false
-    if ((OSL != 255) && (OSL != 0)) ; 255 = not found, 0 = no skse
-		OSLSwitch = true
-	endif
 
-	if !OSLSwitch	
-		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x0003FC35, pluginName="SexLabAroused.esm") as Perk) 
+	; int OSL = Game.GetModByName("OSLAroused.esp")
+	; bool OSLSwitch = false
+    ; if ((OSL != 255) && (OSL != 0)) ; 255 = not found, 0 = no skse
+	; 	OSLSwitch = true
+	; endif
+
+	if !UDmain.OSLArousedInstalled
+		; log("Searching perk", 3)
+		if akActor.HasPerk(SLAPerkFastFetch(formNumber=0x0003FC35) as Perk) 
 			return 0.95
-		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x0007F09C, pluginName="SexLabAroused.esm") as Perk) 
+		elseif akActor.HasPerk(SLAPerkFastFetch(formNumber=0x0007F09C) as Perk) 
 			return 0.6
-		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x0003FC34, pluginName="SexLabAroused.esm") as Perk) 
+		elseif akActor.HasPerk(SLAPerkFastFetch(formNumber=0x0003FC34) as Perk) 
 			return 0.9
-		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x00038057, pluginName="SexLabAroused.esm") as Perk) 
+		elseif akActor.HasPerk(SLAPerkFastFetch(formNumber=0x00038057) as Perk) 
 			return 0.8
-		if akActor.HasPerk(GetMeMyForm(formNumber=0x0007E074, pluginName="SexLabAroused.esm") as Perk) 
+		elseif akActor.HasPerk(SLAPerkFastFetch(formNumber=0x0007E074) as Perk) 
 			return 1.05
-		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x0007E072, pluginName="SexLabAroused.esm") as Perk) 
+		elseif akActor.HasPerk(SLAPerkFastFetch(formNumber=0x0007E072) as Perk) 
 			return 0.2
 		endif
 	else
-		if akActor.HasPerk(GetMeMyForm(formNumber=0x0000080D, pluginName="OSLAroused.esp") as Perk)
+		; log("Searching perk", 3)
+		if akActor.HasPerk(SLAPerkFastFetch(formNumber=0x0000080D, OSL = true) as Perk)
 			return 0.95
-		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x00000814, pluginName="OSLAroused.esp") as Perk) 
+		elseif akActor.HasPerk(SLAPerkFastFetch(formNumber=0x00000814, OSL = true) as Perk) 
 			return 0.8
-		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x00000815, pluginName="OSLAroused.esp") as Perk) 
+		elseif akActor.HasPerk(SLAPerkFastFetch(formNumber=0x00000815, OSL = true) as Perk) 
 			return 0.6
-		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x00000813, pluginName="OSLAroused.esp") as Perk) 
+		elseif akActor.HasPerk(SLAPerkFastFetch(formNumber=0x00000813, OSL = true) as Perk) 
 			return 0.9
-		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x00000816, pluginName="OSLAroused.esp") as Perk) 
+		elseif akActor.HasPerk(SLAPerkFastFetch(formNumber=0x00000816, OSL = true) as Perk) 
 			return 0.2
 		endif
 	endif
