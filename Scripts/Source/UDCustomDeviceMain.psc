@@ -3483,13 +3483,11 @@ EndFunction
 Function SetArousalPerks()
 	if UDMain.OSLArousedInstalled
 		OSLLoadOrderRelative = Game.GetModByName("OSLAroused.esp")
-		SLALoadOrder = 0
 		If (OSLLoadOrderRelative > 255)
         	OSLLoadOrderRelative -= 256
 		endif
 		log("Assuming OSL load order: "+OSLLoadOrderRelative,3)
 	else
-		OSLLoadOrderRelative = 0
 		SLALoadOrder = Game.GetModByName("SexLabAroused.esm")
 		log("Assuming SLA load order: "+SLALoadOrder,3)
 	endif
