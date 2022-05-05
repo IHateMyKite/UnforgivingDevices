@@ -3640,12 +3640,12 @@ Float Function getArousalSkillMult(Actor akActor)
 	else
 		if akActor.HasPerk(GetMeMyForm(formNumber=0x0000080D, pluginName="OSLAroused.esp") as Perk)
 			return 0.95
+		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x00000814, pluginName="OSLAroused.esp") as Perk) 
+			return 0.8
 		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x00000815, pluginName="OSLAroused.esp") as Perk) 
 			return 0.6
 		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x00000813, pluginName="OSLAroused.esp") as Perk) 
 			return 0.9
-		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x00000814, pluginName="OSLAroused.esp") as Perk) 
-			return 0.8
 		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x00000816, pluginName="OSLAroused.esp") as Perk) 
 			return 0.2
 		endif
