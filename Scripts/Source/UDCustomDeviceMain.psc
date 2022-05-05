@@ -3623,29 +3623,29 @@ Float Function getArousalSkillMult(Actor akActor)
 		OSLSwitch = true
 	endif
 
-	if !OSLSwitch
-		if akActor.HasPerk(GetMeMyForm(formNumber=0x0007E074, pluginName="SexLabAroused.esm") as Perk) 
-			return 1.05
+	if !OSLSwitch	
 		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x0003FC35, pluginName="SexLabAroused.esm") as Perk) 
 			return 0.95
+		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x0007F09C, pluginName="SexLabAroused.esm") as Perk) 
+			return 0.6
 		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x0003FC34, pluginName="SexLabAroused.esm") as Perk) 
 			return 0.9
 		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x00038057, pluginName="SexLabAroused.esm") as Perk) 
 			return 0.8
-		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x0007F09C, pluginName="SexLabAroused.esm") as Perk) 
-			return 0.6
+		if akActor.HasPerk(GetMeMyForm(formNumber=0x0007E074, pluginName="SexLabAroused.esm") as Perk) 
+			return 1.05
 		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x0007E072, pluginName="SexLabAroused.esm") as Perk) 
 			return 0.2
 		endif
 	else
 		if akActor.HasPerk(GetMeMyForm(formNumber=0x0000080D, pluginName="OSLAroused.esp") as Perk)
 			return 0.95
+		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x00000815, pluginName="OSLAroused.esp") as Perk) 
+			return 0.6
 		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x00000813, pluginName="OSLAroused.esp") as Perk) 
 			return 0.9
 		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x00000814, pluginName="OSLAroused.esp") as Perk) 
 			return 0.8
-		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x00000815, pluginName="OSLAroused.esp") as Perk) 
-			return 0.6
 		elseif akActor.HasPerk(GetMeMyForm(formNumber=0x00000816, pluginName="OSLAroused.esp") as Perk) 
 			return 0.2
 		endif
