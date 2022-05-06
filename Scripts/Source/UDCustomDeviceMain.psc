@@ -27,6 +27,10 @@ bool Property UD_UseWidget 			= True auto
 
 int Property UD_GagPhonemModifier = 50 auto
 
+int OSLLoadOrderRelative = 0
+int SLALoadOrder = 0
+perk[] DesirePerks
+
 UD_Patcher Property UDPatcher auto
 ;UD_BreathplayScript Property BreathplayScript auto
 UD_DialogueMain Property UDDmain auto
@@ -3539,7 +3543,37 @@ Function OnGameReset()
 	registerAllEvents()
 	UDPP.RegisterEvents()
 	CheckHardcoreDisabler(Game.getPlayer())
+	SetArousalPerks()
 EndFunction
+
+Function SetArousalPerks()
+	if UDMain.OSLArousedInstalled
+		OSLLoadOrderRelative = Game.GetModByName("OSLAroused.esp")
+		If (OSLLoadOrderRelative > 255)
+        	OSLLoadOrderRelative -= 256
+		endif
+		log("Assuming OSL load order: "+OSLLoadOrderRelative,3)
+	else
+		SLALoadOrder = Game.GetModByName("SexLabAroused.esm")
+		log("Assuming SLA load order: "+SLALoadOrder,3)
+	endif
+	if !UDmain.OSLArousedInstalled
+		DesirePerks = new perk[6]
+		DesirePerks[0] = SLAPerkFastFetch(formNumber=0x0003FC35) as Perk
+		DesirePerks[1] = SLAPerkFastFetch(formNumber=0x00038057) as Perk
+		DesirePerks[2] = SLAPerkFastFetch(formNumber=0x0007F09C) as Perk
+		DesirePerks[3] = SLAPerkFastFetch(formNumber=0x0003FC34) as Perk
+		DesirePerks[4] = SLAPerkFastFetch(formNumber=0x0007E072) as Perk
+		DesirePerks[5] = SLAPerkFastFetch(formNumber=0x0007E074) as Perk
+	else
+		DesirePerks = new perk[5]
+		DesirePerks[0] = SLAPerkFastFetch(formNumber=0x0000080D, OSL = true) as Perk
+		DesirePerks[1] = SLAPerkFastFetch(formNumber=0x00000814, OSL = true) as Perk
+		DesirePerks[2] = SLAPerkFastFetch(formNumber=0x00000815, OSL = true) as Perk
+		DesirePerks[3] = SLAPerkFastFetch(formNumber=0x00000813, OSL = true) as Perk
+		DesirePerks[4] = SLAPerkFastFetch(formNumber=0x00000816, OSL = true) as Perk
+	endif
+endfunction
 
 Function ApplyTears(Actor akActor)
 	if UDmain.ZaZAnimationPackInstalled && UDmain.ZAZBS && UDmain.SlaveTatsInstalled
@@ -3634,30 +3668,100 @@ Function ShowMessageBox(string strText)
 	endwhile
 EndFunction
 
-Spell Property slaDesireSpell auto
+; thanks to Subhuman#6830 for ESPFE form check, compatible with LE
+; Notes given by him:
+; 1) it breaks the compile-time dependency.   GetformFromFile requires you to have the plugin you're getting a form for in order to compile, this does not
+; 2) less papyrus spam, if the plugin isn't found it prints a single line debug.trace instead 4-5 lines of errors
+; 3) related to 1, it doesn't verify you didn't screw up.   If you're trying to cast a package as a quest, for example, GetFormFromFile will throw a compiler error because it can't be done.  This will not.  You have to verify your own work. 
+form function GetMeMyForm(int formNumber, string pluginName) ;fornumber format is 0xFULLFORMID, for example 0x00000007. Even for ESPFE format, ignoring 0xFE
+    int theLO = Game.GetModByName(pluginName)
+    if ((theLO == 255) || (theLO == 0)) ; 255 = not found, 0 = no skse
+        Log(pluginName + " not loaded or SKSE not found", 1)
+        return none
+    elseIf (theLO > 255) ; > 255 = ESL
+        ; the first FIVE hex digits in an ESL are its address, so a formNumber exceeding 0xFFF or below 0x800 is invalid
+        if ((Math.LogicalAnd(0xFFFFF000, formNumber) != 0) || (Math.LogicalAnd(0x00000800, formNumber) == 0))
+            Log("Plugin " + pluginName + " has FormIDs outside the range\nallocated for ESL plugins!: " + formNumber)
+            Log("ESL-flagged plugin " + pluginName + " contains invalid FormIDs: " + formNumber, 2)
+            return none
+        endIf
+        ; getmodbyname reports an ESL as 256 higher than the game indexes it internally
+        theLO -= 256
+        return Game.GetFormEx(Math.LogicalOr(Math.LogicalOr(0xFE000000, Math.LeftShift(theLO, 12)), formNumber))
+    else    ; regular ESL-free plugin
+        return Game.GetFormEx(Math.LogicalOr(Math.LeftShift(theLO, 24), formNumber))
+    endIf
+endFunction
+
+; gets Lover's Desire perks faster than calling GetMeMyForm every time, based on predefined load order ids on game load
+form Function SLAPerkFastFetch(int formNumber, bool OSL = false)
+	if !OSL
+		; log("Fetched perk " + (Game.GetFormEx(Math.LogicalOr(Math.LeftShift(SLALoadOrder, 24), formNumber))).getName(), 3)
+		return Game.GetFormEx(Math.LogicalOr(Math.LeftShift(SLALoadOrder, 24), formNumber))
+	else
+		; log("Fetched perk " + (Game.GetFormEx(Math.LogicalOr(Math.LogicalOr(0xFE000000, Math.LeftShift(OSLLoadOrderRelative, 12)), formNumber))).getName(), 3)
+		return Game.GetFormEx(Math.LogicalOr(Math.LogicalOr(0xFE000000, Math.LeftShift(OSLLoadOrderRelative, 12)), formNumber))
+	endif
+endFunction
+
+; Spell Property slaDesireSpell auto
 
 Float Function getArousalSkillMult(Actor akActor)
-	int i = 0
-	int loc_effects = slaDesireSpell.GetNumEffects()
+	; int i = 0
+	; int loc_effects = slaDesireSpell.GetNumEffects()
 	
-	while i < loc_effects
-		if akActor.HasMagicEffect(slaDesireSpell.GetNthEffectMagicEffect(i))
-			if i == 0
-				return 0.8
-			elseif i == 1
-				return 0.9
-			elseif i == 2
-				return 0.95
-			elseif i == 3
-				return 1.05
-			elseif i == 4
-				return 0.6
-			elseif i == 5
-				return 0.2
-			endif
+	; while i < loc_effects
+	; 	if akActor.HasMagicEffect(slaDesireSpell.GetNthEffectMagicEffect(i))
+	; 		if i == 0
+	; 			return 0.8
+	; 		elseif i == 1
+	; 			return 0.9
+	; 		elseif i == 2
+	; 			return 0.95
+	; 		elseif i == 3
+	; 			return 1.05
+	; 		elseif i == 4
+	; 			return 0.6
+	; 		elseif i == 5
+	; 			return 0.2
+	; 		endif
+	; 	endif
+	; 	i += 1
+	; endwhile
+
+	; int OSL = Game.GetModByName("OSLAroused.esp")
+	; bool OSLSwitch = false
+    ; if ((OSL != 255) && (OSL != 0)) ; 255 = not found, 0 = no skse
+	; 	OSLSwitch = true
+	; endif
+
+	if !UDmain.OSLArousedInstalled
+		if akActor.HasPerk(DesirePerks[0]) 
+			return 0.95
+		elseif akActor.HasPerk(DesirePerks[1]) 
+			return 0.8
+		elseif akActor.HasPerk(DesirePerks[2]) 
+			return 0.6
+		elseif akActor.HasPerk(DesirePerks[3]) 
+			return 0.9
+		elseif akActor.HasPerk(DesirePerks[4]) 
+			return 0.2
+		elseif akActor.HasPerk(DesirePerks[5]) 
+			return 1.05
 		endif
-		i += 1
-	endwhile
+	else
+		if akActor.HasPerk(DesirePerks[0])
+			return 0.95
+		elseif akActor.HasPerk(DesirePerks[1]) 
+			return 0.8
+		elseif akActor.HasPerk(DesirePerks[2]) 
+			return 0.6
+		elseif akActor.HasPerk(DesirePerks[3]) 
+			return 0.9
+		elseif akActor.HasPerk(DesirePerks[4]) 
+			return 0.2
+		endif
+	endif
 	return 1.0
 EndFunction
 
