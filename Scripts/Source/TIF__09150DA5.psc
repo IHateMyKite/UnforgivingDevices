@@ -6,7 +6,7 @@ Scriptname TIF__09150DA5 Extends TopicInfo Hidden
 Function Fragment_0(ObjectReference akSpeakerRef)
 Actor akSpeaker = akSpeakerRef as Actor
 ;BEGIN CODE
-UDCDmain.UDCD_NPCM.getPlayerSlot().getHeavyBondageDevice().deviceMenuNPC(akSpeaker)
+UDCDmain.UDCD_NPCM.getPlayerSlot().getHeavyBondageDevice().DeviceMenuWH(akSpeaker,new bool[30])
 ;END CODE
 EndFunction
 ;END FRAGMENT
