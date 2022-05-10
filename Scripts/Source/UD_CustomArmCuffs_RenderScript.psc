@@ -10,10 +10,6 @@ string Function addInfoString(string str = "")
 	return parent.addInfoString(str)
 EndFunction
 
-bool Function proccesSpecialMenu(int msgChoice)
-	return parent.proccesSpecialMenu(msgChoice)
-EndFunction
-
 bool Function canBeActivated()
 	return WearerFreeHands() && getRelativeElapsedCooldownTime() >= 0.75
 EndFunction
@@ -40,4 +36,12 @@ bool Function OnCooldownActivatePre()
 	else
 		return false
 	endif
+EndFunction
+
+;OVERRIDES because of engine bug which calls one function multiple times
+bool Function proccesSpecialMenu(int msgChoice)
+	return parent.proccesSpecialMenu(msgChoice)
+EndFunction
+bool Function proccesSpecialMenuWH(Actor akSource,int msgChoice)
+	return parent.proccesSpecialMenuWH(akSource,msgChoice)
 EndFunction

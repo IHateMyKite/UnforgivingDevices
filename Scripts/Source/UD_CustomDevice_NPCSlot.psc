@@ -530,6 +530,9 @@ EndFunction
 
 Event OnHit(ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked)
 	if isScriptRunning()
+		if UDCDMain.TraceAllowed()
+			UDCDmain.Log("OnHit("+akAggressor+","+akSource+","+akProjectile+") on " + getSlotedNPCName())
+		endif
 		if akSource
 			if akSource as Weapon
 				OnWeaponHit(akSource as Weapon)

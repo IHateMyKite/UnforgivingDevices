@@ -87,6 +87,9 @@ Function Receive_MinigameStarter(Form fActor)
 	if loc_device.PlayerInMinigame()
 		UDCDmain.setCurrentMinigameDevice(loc_device)
 	endif
+	
+	loc_device.OnMinigameStart()
+	
 EndFunction
 
 ;paralel

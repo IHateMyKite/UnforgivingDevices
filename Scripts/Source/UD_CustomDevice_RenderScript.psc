@@ -670,8 +670,6 @@ float Property UD_RegenMagHelper_Magicka Hidden
 EndProperty
 
 
-
-
 ;custom crits
 int Property _customMinigameCritChance Hidden
 	Function set(int iVal)
@@ -966,7 +964,11 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 EndEvent
 
 string Function getDeviceHeader()
-	return (getDeviceName() + "("+getWearerName()+")")
+	if hasHelper()
+		return (getDeviceName() + "(W="+getWearerName()+",H="+getHelperName()+")")
+	else
+		return (getDeviceName() + "("+getWearerName()+")")
+	endif
 EndFunction
 String Function getDeviceName()
 	return deviceInventory.getName()
@@ -1472,6 +1474,8 @@ int Function getLockLevel()
 EndFunction
 
 ;returns lock acces chance
+;100 = 100% chance of reaching lock
+;0 = 0% chance of reaching lock
 int Function getLockAccesChance(bool useTelekinesis = true)
 	int res = Round(UD_LockAccessDifficulty)
 	if res < 100
@@ -1490,6 +1494,7 @@ int Function getLockAccesChance(bool useTelekinesis = true)
 	if wearer.hasspell(UDlibs.TelekinesisSpell) && useTelekinesis
 		res -= 10
 	endif
+	
 	if hasHelper()
 		if _minigameHelper.hasspell(UDlibs.TelekinesisSpell) && useTelekinesis
 			res -= 10
@@ -1501,6 +1506,7 @@ int Function getLockAccesChance(bool useTelekinesis = true)
 			res -= 25
 		endif
 	endif
+	
 	
 	if res < 0
 		res = 0
@@ -1834,8 +1840,10 @@ bool Function wearerFreeHands(bool checkGrasp = false,bool ignoreHeavyBondageTar
 	endif
 	return res
 EndFunction
-
 bool Function helperFreeHands(bool checkGrasp = false,bool ignoreHeavyBondage = false)
+	if !hasHelper()
+		return true
+	endif
 	bool res = !_minigameHelper.wornhaskeyword(libs.zad_deviousHeavyBondage) || ignoreHeavyBondage 
 		
 	if checkGrasp
@@ -1845,27 +1853,24 @@ bool Function helperFreeHands(bool checkGrasp = false,bool ignoreHeavyBondage = 
 	endif
 	return res
 EndFunction
-
 bool Function WearerHaveMittens()
 	return wearer.wornhaskeyword(libs.zad_DeviousBondageMittens)
 EndFunction
-
 bool Function HelperHaveMittens()
 	if hasHelper()
 		return _minigameHelper.wornhaskeyword(libs.zad_DeviousBondageMittens)
+	else
+		return false
 	endif
 EndFunction
 bool Function wearerFreeLegs()
 	bool res = !Wearer.wornhaskeyword(libs.zad_deviousHobbleSkirt)
 	return res
 EndFunction
-
 bool Function helperFreeLegs()
 	bool res = !getHelper().wornhaskeyword(libs.zad_deviousHobbleSkirt)
 	return res
 EndFunction
-
-
 
 bool Function canShowHUD()
 	bool res = False
@@ -1903,7 +1908,7 @@ Function filterControl(bool[] aControlFilter)
 	UDCDmain.currentDeviceMenu_allowlockpick = UDCDmain.currentDeviceMenu_allowlockpick && !aControlFilter[4]
 	UDCDmain.currentDeviceMenu_allowlockrepair = UDCDmain.currentDeviceMenu_allowlockrepair && !aControlFilter[5]
 	UDCDmain.currentDeviceMenu_allowTighten = UDCDmain.currentDeviceMenu_allowTighten && !aControlFilter[6]
-	UDCDmain.currentDeviceMenu_allowRepair = UDCDmain.currentDeviceMenu_allowTighten &&	!aControlFilter[7]
+	UDCDmain.currentDeviceMenu_allowRepair = UDCDmain.currentDeviceMenu_allowRepair &&	!aControlFilter[7]
 	
 	UDCDmain.currentDeviceMenu_switch1 = UDCDmain.currentDeviceMenu_switch1  &&	!aControlFilter[8]
 	UDCDmain.currentDeviceMenu_switch2 = UDCDmain.currentDeviceMenu_switch2  &&	!aControlFilter[9]
@@ -1920,15 +1925,11 @@ Function filterControl(bool[] aControlFilter)
 	
 EndFunction
 
-Function deviceMenuInit(bool[] aControl = none)
+Function deviceMenuInit(bool[] aControl)
 	;updates difficulty
 	updateDifficulty()
 	setHelper(none)
 	UDCDmain.resetCondVar()
-
-	if !aControl
-		aControl = new Bool[18]
-	endif
 
 	;normal struggle
 	if canBeStruggled() && (isLoose() || WearerFreeHands())
@@ -1937,46 +1938,45 @@ Function deviceMenuInit(bool[] aControl = none)
 		UDCDmain.currentDeviceMenu_allowUselessStruggling = True
 	endif
 	
-	;key unlock
-	if zad_deviceKey && UD_CurrentLocks != UD_JammedLocks
-		if wearer.getItemCount(zad_deviceKey) > 0 && (getLockAccesChance() > 0)
-			UDCDmain.currentDeviceMenu_allowkey = True
+	if (getLockAccesChance() > 0)
+		;key unlock
+		if zad_deviceKey && UD_CurrentLocks != UD_JammedLocks
+			if wearer.getItemCount(zad_deviceKey) > 0
+				UDCDmain.currentDeviceMenu_allowkey = True
+			endif
+		endif
+		
+		;lockpicking
+		if UD_CurrentLocks != UD_JammedLocks
+			if UD_LockpickDifficulty < 255 && wearer.getItemCount(UDCDmain.Lockpick) > 0
+				UDCDmain.currentDeviceMenu_allowlockpick = True
+			endif
+		endif
+		
+		;lock repair
+		if UD_JammedLocks > 0
+			UDCDmain.currentDeviceMenu_allowlockrepair = True
 		endif
 	endif
-	
-	;lockpicking
-	if UD_CurrentLocks != UD_JammedLocks
-		if UD_LockpickDifficulty < 255 && wearer.getItemCount(UDCDmain.Lockpick) > 0 && getLockAccesChance() > 0
-			UDCDmain.currentDeviceMenu_allowlockpick = True
-		endif
-	endif
-	
-	;lock repair
-	if getLockAccesChance() > 0 && UD_JammedLocks > 0
-		UDCDmain.currentDeviceMenu_allowlockrepair = True
-	endif
-	
-	if (!UDCDmain.currentDeviceMenu_allowkey && !UDCDmain.currentDeviceMenu_allowlockpick && !UDCDmain.currentDeviceMenu_allowlockrepair)
-		aControl[17] = True
-	endif
-	
 	;cutting
 	if canBeCutted() && (isLoose() || WearerFreeHands()) ;&& UD_durability_damage_base > 0.0
 		UDCDmain.currentDeviceMenu_allowcutting = True
 	endif
 	
-	if UD_Locks > 0 && (zad_deviceKey || UD_LockpickDifficulty < 255)
-		UDCDmain.currentDeviceMenu_allowLockMenu = True
+	if (UDCDmain.currentDeviceMenu_allowkey || UDCDmain.currentDeviceMenu_allowlockpick || UDCDmain.currentDeviceMenu_allowlockrepair)
+		UDCDmain.currentDeviceMenu_allowLockMenu = true
 	endif
 	
-	filterControl(aControl)
+	
 	
 	;sets last opened device
 	if WearerIsPlayer()
 		UDCDmain.setLastOpenedDevice(self)
 	endif
+	
 	;override function
 	onDeviceMenuInitPost(aControl)
+	filterControl(aControl)
 	UDCdmain.CheckAndDisableSpecialMenu()
 EndFunction
 
@@ -2003,7 +2003,7 @@ EndFunction
 ;	17 = lockmenu
 Function DeviceMenu(bool[] aControl)
 	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("DeviceMenu() called for: " + deviceRendered,2)
+		UDCDmain.Log(getDeviceHeader()+" DeviceMenu() called , aControl = "+aControl,2)
 	endif
 	bool _break = False
 	while !_break
@@ -2047,7 +2047,9 @@ EndFunction
 
 bool Function specialMenu(bool[] aControl)
 	if UD_SpecialMenuInteraction
-		return proccesSpecialMenu(UD_SpecialMenuInteraction.show())
+		int  loc_res  = UD_SpecialMenuInteraction.show()
+		bool loc_res2 = proccesSpecialMenu(loc_res)
+		return loc_res2
 	else
 		return False
 	endif
@@ -2060,7 +2062,6 @@ EndFunction
 Function deviceMenuInitWH(Actor akSource,bool[] aControl)
 	;updates difficulty
 	setHelper(akSource)
-	
 	updateDifficulty()
 	UDCDmain.resetCondVar()
 
@@ -2087,10 +2088,6 @@ Function deviceMenuInitWH(Actor akSource,bool[] aControl)
 	if (getLockAccesChance() > 0 || HelperFreeHands(True)) && UD_JammedLocks > 0
 		UDCDmain.currentDeviceMenu_allowlockrepair = True
 	endif
-
-	if (!UDCDmain.currentDeviceMenu_allowkey && !UDCDmain.currentDeviceMenu_allowlockpick && !UDCDmain.currentDeviceMenu_allowlockrepair)
-		aControl[17] = True
-	endif
 	
 	;cutting
 	if canBeCutted(); && wearerFreeHands() ;&& UD_durability_damage_base > 0.0
@@ -2105,8 +2102,8 @@ Function deviceMenuInitWH(Actor akSource,bool[] aControl)
 		UDCDmain.currentDeviceMenu_allowRepair = True
 	endif
 	
-	if UD_Locks > 0 && (zad_deviceKey || UD_LockpickDifficulty < 255)
-		UDCDmain.currentDeviceMenu_allowLockMenu = True
+	if (UDCDmain.currentDeviceMenu_allowkey || UDCDmain.currentDeviceMenu_allowlockpick || UDCDmain.currentDeviceMenu_allowlockrepair)
+		UDCDmain.currentDeviceMenu_allowLockMenu = true
 	endif
 	
 	if WearerIsFollower() && !WearerIsPlayer()
@@ -2118,10 +2115,9 @@ Function deviceMenuInitWH(Actor akSource,bool[] aControl)
 		;UDCDmain.currentDeviceMenu_allowstruggling = False
 	endif
 	
-	filterControl(aControl)
-	
 	;override function
 	onDeviceMenuInitPostWH(aControl)
+	filterControl(aControl)
 	UDCdmain.CheckAndDisableSpecialMenu()
 EndFunction
 
@@ -2146,8 +2142,10 @@ EndFunction
 ;	16 = special menu
 ;	17 = lockmenu
 Function DeviceMenuWH(Actor akSource,bool[] aControl)
-	UDCDmain.UDmain.Log("[UD]: DeviceMenuWH() called for: " + deviceRendered,2)
-	
+	if UDCDmain.TraceAllowed()
+		UDCDmain.Log(getDeviceHeader() + " DeviceMenuWH() called, aControl = "+aControl,2)
+	endif
+	setHelper(akSource)
 	bool _break = False
 	while !_break
 		deviceMenuInitWH(akSource,aControl)
@@ -2179,6 +2177,7 @@ Function DeviceMenuWH(Actor akSource,bool[] aControl)
 		
 		DeviceMenuExtWH(msgChoice)
 	endwhile
+	setHelper(none)
 EndFunction
 
 bool Function lockMenuWH(Actor akSource,bool[] aControl)
@@ -2196,7 +2195,9 @@ EndFunction
 
 bool Function specialMenuWH(Actor akSource,bool[] aControl)
 	if UD_SpecialMenuInteractionWH
-		return proccesSpecialMenuWH(akSource,UD_SpecialMenuInteractionWH.show())
+		int  loc_res  = UD_SpecialMenuInteractionWH.show()
+		bool loc_res2 = proccesSpecialMenuWH(akSource,loc_res)
+		return loc_res2
 	else
 		return False
 	endif
@@ -2627,7 +2628,7 @@ bool Function struggleMinigameWH(Actor akHelper)
 		struggleGame_on = True
 		minigame()
 		struggleGame_on = False
-		setHelper(none)
+		
 		return true
 	else
 		return false
@@ -2636,7 +2637,7 @@ bool Function struggleMinigameWH(Actor akHelper)
 EndFunction
 
 bool Function lockpickMinigameWH(Actor akHelper)
-	setHelper(akHelper)
+	
 	
 	if !minigamePrecheck()
 		return false
@@ -3307,7 +3308,7 @@ Function minigame()
 
 	;UDCDmain.FinishRecordTime("Loops+Orgasm",true) ;<=============================================================
 
-	OnMinigameStart()
+	
 	
 	pauseMinigame = False
 	
@@ -4004,17 +4005,18 @@ string Function getInfoString()
 	else
 		if areLocksJammed()
 			temp += "!Jammed!"
-		elseif getLockAccesChance() >= 100 || Wearer.wornhaskeyword(libs.zad_DeviousBondageMittens)
-			temp += "Unreachable"
 		else
-			if getLockAccesChance() > 50
+			int loc_acceschance = getLockAccesChance()
+			if loc_acceschance > 50
 				temp += "Easy to reach"
-			elseif getLockAccesChance() > 35
+			elseif loc_acceschance > 35
 				temp += "Reachable"
-			elseif getLockAccesChance() > 15
+			elseif loc_acceschance > 15
 				temp += "Hard to reach"
-			else
+			elseif loc_acceschance > 0
 				temp += "Very hard to reach"
+			else
+				temp += "Unreachable"
 			endif
 		endif
 		
@@ -4483,7 +4485,7 @@ EndFunction
 ;function called when wearer is hit by source weapon
 Function weaponHit(Weapon source)
 	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("Device " + DeviceInventory.getName() + " hit by "+source+" event received",3)
+		UDCDmain.Log(getDeviceHeader()+ " hit by "+source.getName()+"(" +source+ ") event received, damage: " + source.getBaseDamage(),3)
 	endif
 	if onWeaponHitPre(source)
 		onWeaponHitPost(source)
@@ -4645,6 +4647,12 @@ Function OnMinigameStart()
 EndFunction
 
 Function OnMinigameEnd()
+	if hasHelper()
+		;1 hour cooldown
+		Int loc_lvl = UDCDMain.addHelperXP(GetHelper(), UDCDmain.UD_MinigameHelpXPBase)
+		StorageUtil.SetFloatValue(getHelper(),"UDNPCCD:"+getWearer(),Utility.GetCurrentGameTime() + (iRange(UDCDMain.UD_MinigameHelpCd - UDCDmain.Round((loc_lvl - 1)*0.05*UDCDMain.UD_MinigameHelpCd),10,600))/(60.0*24.0))
+	endif
+	
 	if isSentient() && getRelativeDurability() > 0.0
 		if Utility.randomInt() > 75 && WearerIsPlayer()
 			startSentientDialogue(0)
@@ -4674,7 +4682,7 @@ Function OnCritFailure()
 EndFunction
 
 float Function getAccesibility()
-	if !isHeavyBondage() && !WearerFreeHands()
+	if !isHeavyBondage() && (!WearerFreeHands() && !HelperFreeHands())
 		if isLoose()
 			return getLooseMod()
 		else
@@ -4682,7 +4690,7 @@ float Function getAccesibility()
 		endif
 	endif
 	
-	if WearerHaveMittens() && !isMittens() && !isHeavyBondage()
+	if (WearerHaveMittens() && HelperHaveMittens()) && !isMittens() && !isHeavyBondage()
 		return 0.5
 	endif
 	return 1.0
@@ -4767,7 +4775,11 @@ EndFunction
 
 Function onWeaponHitPost(Weapon source)
 	if !isUnlocked && isEscapable()
-		decreaseDurabilityAndCheckUnlock(source.getBaseDamage()*0.08*(1.0 - UD_WeaponHitResist),2.0)
+		float loc_damage = 0.0
+		if !source.getBaseDamage()
+			loc_damage = 5.0
+		endif
+		decreaseDurabilityAndCheckUnlock(loc_damage*0.08*(1.0 - UD_WeaponHitResist),2.0)
 	endif
 EndFunction
 

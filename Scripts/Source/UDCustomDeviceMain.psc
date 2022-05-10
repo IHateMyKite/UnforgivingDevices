@@ -41,6 +41,8 @@ float Property UD_BaseDeviceSkillIncrease = 35.0 auto
 float Property UD_CooldownMultiplier = 1.0 auto
 Bool Property UD_AutoCrit = False auto
 Int Property UD_AutoCritChance = 80 auto
+Int Property UD_MinigameHelpCd = 45 auto
+Int Property UD_MinigameHelpXPBase = 35 auto
 
 ;changes how much is strength converted to orgasm rate, 
 ;example: if UD_VibrationMultiplier = 0.1 and vibration strength will be 100, orgasm rate will be 100*0.1 = 10 O/s 
@@ -1538,7 +1540,9 @@ Event OnKeyDown(Int KeyCode)
 					ObjectReference loc_ref = Game.GetCurrentCrosshairRef()
 					if loc_ref as Actor
 						Actor loc_actor = loc_ref as Actor
-						NPCMenu(loc_actor)
+						if !loc_actor.isDead()
+							NPCMenu(loc_actor)
+						endif
 					endif
 				endif
 			endif
@@ -1595,13 +1599,18 @@ Function NPCMenu(Actor akActor)
 		UDCD_NPCM.RegisterNPC(akActor,true)
 	elseif loc_res == 1
 		UDCD_NPCM.UnregisterNPC(akActor,true)
-	elseif loc_res == 2
-		akActor.UpdateWeight(0)
-	elseif loc_res == 3
-		DebugFunction(akActor)
+	elseif loc_res == 2 ;Acces devices
+		HelpNPC(akActor,Game.getPlayer(),ActorIsFollower(akActor))
+	elseif loc_res == 3 ; get help
+		HelpNPC(Game.getPlayer(),akActor,false)
 	elseif loc_res == 4
-		akActor.openInventory(True)
+		UndressArmor(akActor)
+		akActor.UpdateWeight(0)
 	elseif loc_res == 5
+		DebugFunction(akActor)
+	elseif loc_res == 6
+		akActor.openInventory(True)
+	elseif loc_res == 7
 		if !StorageUtil.GetIntValue(akActor,"UDNPCMenu_SetDontMove",0)
 			StorageUtil.SetIntValue(akActor,"UDNPCMenu_SetDontMove",1)
 			akActor.setDontMove(true)
@@ -1609,11 +1618,73 @@ Function NPCMenu(Actor akActor)
 			StorageUtil.UnSetIntValue(akActor,"UDNPCMenu_SetDontMove")
 			akActor.setDontMove(false)
 		endif
-	elseif loc_res == 6
+	elseif loc_res == 8
 		showActorDetails(akActor)
 	else
 		return
 	endif
+EndFunction
+
+Function HelpNPC(Actor akVictim,Actor akHelper,bool bAllowCommand)
+	UD_CustomDevice_NPCSlot loc_slot = UDCD_NPCM.getNPCSlotByActor(akVictim)
+	if loc_slot
+		UD_CustomDevice_RenderScript loc_device = loc_slot.GetUserSelectedDevice()
+		if loc_device
+			OpenHelpDeviceMenu(loc_device,akHelper,bAllowCommand)
+		endif
+	endif
+EndFunction
+
+Function OpenHelpDeviceMenu(UD_CustomDevice_RenderScript device,Actor akHelper,bool bAllowCommand,bool bIgnoreCooldown = false)
+	if device && akHelper
+		bool[] loc_arrcontrol = new bool[30]
+		if !bIgnoreCooldown
+			float loc_currenttime = Utility.GetCurrentGameTime()
+			float loc_cooldowntime = StorageUtil.GetFloatValue(akHelper,"UDNPCCD:"+device.getWearer(),loc_currenttime)
+			
+			if loc_cooldowntime > loc_currenttime
+				Print("On cooldown! (" + UDmain.Round(((loc_cooldowntime - loc_currenttime)*24*60))+" min)")
+				int i = 18
+				while i 
+					i -= 1
+					loc_arrcontrol[i] = true
+				endwhile
+			endif
+		endif
+		
+		loc_arrcontrol[6] = true
+		loc_arrcontrol[7] = true
+		loc_arrcontrol[14] = !bAllowCommand
+		loc_arrcontrol[15] = false
+		device.deviceMenuWH(akHelper,loc_arrcontrol)
+	endif
+EndFunction
+
+;returns updated lvl
+int Function addHelperXP(Actor akHelper, int iXP)
+	int loc_currentXP = StorageUtil.GetIntValue(akHelper,"UDNPCXP",0)
+	int loc_currentLVL = GetHelperLVL(akHelper)
+	int loc_nextXP = loc_currentXP + iXP
+	int loc_nextLVL = loc_currentLVL
+	while loc_nextXP >= loc_nextLVL*100
+		loc_nextXP -= loc_nextLVL*100
+		loc_nextLVL += 1
+	endwhile
+	StorageUtil.SetIntValue(akHelper,"UDNPCXP",loc_nextXP)
+	if loc_nextLVL != loc_currentLVL
+		StorageUtil.SetIntValue(akHelper,"UDNPCLVL",loc_nextLVL)
+	endif
+	return loc_nextLVL
+EndFunction
+
+int Function GetHelperLVL(Actor akHelper)
+	return StorageUtil.GetIntValue(akHelper,"UDNPCLVL",1)
+EndFunction
+
+float Function GetHelperLVLProgress(Actor akHelper)
+	int loc_currentXP = StorageUtil.GetIntValue(akHelper,"UDNPCXP",0)
+	int loc_currentLVL = StorageUtil.GetIntValue(akHelper,"UDNPCLVL",1)
+	return loc_currentXP/(100.0*(loc_currentLVL))
 EndFunction
 
 Function PlayerMenu()
@@ -1621,11 +1692,37 @@ Function PlayerMenu()
 	if loc_playerMenuRes == 0
 		FocusOrgasmResistMinigame(Game.getPlayer())
 	elseif loc_playerMenuRes == 1
-		showActorDetails(Game.getPlayer())
+		UndressArmor(Game.getPlayer())
 	elseif loc_playerMenuRes == 2
+		showActorDetails(Game.getPlayer())
+	elseif loc_playerMenuRes == 3
 		DebugFunction(Game.getPlayer())
 	else
 		return
+	endif
+EndFunction
+
+Function UndressArmor(Actor akActor)
+	Form[] loc_armors
+	String[] loc_armorsnames
+	int loc_mask = 0x00000001
+	while loc_mask != 0x00004000
+		Form loc_armor = akActor.GetWornForm(loc_mask)
+		if loc_armor
+			if !loc_armor.haskeyword(libs.zad_Lockable) && !loc_armor.HasKeyWordString("SexLabNoStrip")
+				loc_armors = PapyrusUtil.PushForm(loc_armors,loc_armor)
+				loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,loc_armor.getName())
+			endif
+		endif
+		loc_mask = Math.LeftShift(loc_mask,1)
+	endwhile
+	loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--ALL--")
+	loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--BACK--")
+	int loc_res = GetUserListInput(loc_armorsnames)
+	if loc_res == (loc_armorsnames.length - 2)
+		libs.strip(akActor,false)
+	elseif loc_res < (loc_armorsnames.length - 2) && loc_res >= 0
+		akActor.unequipItem(loc_armors[loc_res], abSilent = true)
 	endif
 EndFunction
 
@@ -1638,6 +1735,7 @@ Function showActorDetails(Actor akActor)
 	loc_res += "MP: " + UDmain.formatString(akActor.getAV("Magicka"),1) + "/" + UDmain.formatString(UDmain.getMaxActorValue(akActor,"Magicka"),1) + " ( "+ Round(UDmain.getCurrentActorValuePerc(akActor,"Magicka")*100) +" %)" +"\n"
 	loc_res += "SP: " + UDmain.formatString(akActor.getAV("Stamina"),1) + "/" +  UDmain.formatString(UDmain.getMaxActorValue(akActor,"Stamina"),1) + " ("+ Round(UDmain.getCurrentActorValuePerc(akActor,"Stamina")*100) +" %)" +"\n"
 	
+
 	
 	loc_res += "Agility skill: " + Round(getActorAgilitySkills(akActor)) + "\n"
 	loc_res += "Strenth skill: " + Round(getActorStrengthSkills(akActor)) + "\n"
@@ -1668,6 +1766,13 @@ Function showActorDetails(Actor akActor)
 	if Game.UsingGamepad()
 		Utility.waitMenuMode(0.75)
 	endif
+	
+	ShowHelperDetails(akActor)
+	
+	if Game.UsingGamepad()
+		Utility.waitMenuMode(0.75)
+	endif
+	
 	Weapon loc_sharpestWeapon = getSharpestWeapon(akActor)
 	if loc_sharpestWeapon
 		string loc_cuttStr = ""
@@ -1706,6 +1811,13 @@ Function showActorDetails(Actor akActor)
 		endif
 		
 	endif
+EndFunction
+
+Function ShowHelperDetails(Actor akActor)
+	string loc_res = ""
+	loc_res += "--Helper details--\n"
+	loc_res += "Helper LVL: " + GetHelperLVL(akActor) +"("+UDmain.Round(GetHelperLVLProgress(akActor)*100)+"%)" + "\n"
+	ShowMessageBox(loc_res)
 EndFunction
 
 ;///////////////////////////////////////
@@ -2579,9 +2691,6 @@ Function ArousalCheckLoop(Form fActor)
 		Float loc_arousalRate = getArousalRate(akActor)
 
 		Int loc_arousal = Round(loc_arousalRate*loc_updateTime)
-		if TraceAllowed()	
-			Log("ArousalCheckLoop("+getActorName(akActor)+") increasing arousal by: "+loc_arousal,3)
-		endif
 		if akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmExhaustionEffect_KW)
 			loc_arousal = Round(loc_arousal * 0.5)
 		endif
@@ -3432,16 +3541,12 @@ EndFunction
 
 UD_CustomVibratorBase_RenderScript _startVibFunctionPackage = none
 bool Function startVibFunction(UD_CustomVibratorBase_RenderScript udCustomVibrator,bool bBlocking = false)
-	if !udCustomVibrator
-		if TraceAllowed()		
-			Log("startVibFunction() - ERROR: Can't turn none plug!!",1)
-		endif
+	if !udCustomVibrator	
+		Error("startVibFunction() - Can't turn none plug!!")
 		return false
 	endif
-	if !udCustomVibrator.canVibrate()
-		if TraceAllowed()		
-			Log("startVibFunction() - " + udCustomVibrator.getDeviceName() + " can't vibrate!",3)
-		endif
+	if !udCustomVibrator.canVibrate()		
+		Error("startVibFunction() - " + udCustomVibrator.getDeviceHeader() + " can't vibrate!")
 		return false
 	endif
 	
@@ -3450,7 +3555,7 @@ bool Function startVibFunction(UD_CustomVibratorBase_RenderScript udCustomVibrat
 	endwhile
 	_startVibFunctionPackage = udCustomVibrator
 	if TraceAllowed()	
-		Log("startVibFunction() - Sending " + _startVibFunctionPackage.getDeviceName(),3)
+		Log("startVibFunction() - Sending " + udCustomVibrator.getDeviceHeader(),3)
 	endif
 	int handle = ModEvent.Create("UD_StartVibFunction")
 	if (handle)
@@ -3458,14 +3563,19 @@ bool Function startVibFunction(UD_CustomVibratorBase_RenderScript udCustomVibrat
 		return true
     else
 		if TraceAllowed()		
-			Log("startVibFunction() - !!Sending of " + _startVibFunctionPackage.getDeviceName() + " failed!!",1)
+			Log("startVibFunction() - !!Sending of " + _startVibFunctionPackage.getDeviceHeader() + " failed!!",1)
 		endif
 		_startVibFunctionPackage = none
 		return false
 	endif
-	while _startVibFunctionPackage && bBlocking
+	float loc_elapsedtime = 0.0
+	while _startVibFunctionPackage && bBlocking && loc_elapsedtime <= 2.0
 		Utility.waitMenuMode(0.1) ;wait untill vib starts
+		loc_elapsedtime += 0.1
 	endwhile
+	if loc_elapsedtime >= 2.0
+		Error("startVibFunction() - "+udCustomVibrator.getDeviceHeader()+"Timeout")
+	endif
 EndFunction
 
 ;always delete after use!!!

@@ -91,7 +91,7 @@ bool Function UntieMinigame()
 	setMinigameWearerVar(True,UD_base_stat_drain)
 	setMinigameEffectVar(True,True,0.5)
 	setMinigameWidgetVar(True,False,0xFFA200,0xFFA200)
-	setMinigameMinStats(0.3)
+	setMinigameMinStats(0.8)
 	
 	float mult = 1.0
 	

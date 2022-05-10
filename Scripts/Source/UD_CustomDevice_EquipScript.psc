@@ -154,11 +154,14 @@ Function openWHMenu(Actor akTarget,Actor akSource)
 	if UDCDmain.TraceAllowed()	
 		UDCDmain.Log(" NPC menu opened for " + deviceInventory.getName() + " (" + akTarget.getActorBase().getName() + ") by " + akSource.getActorBase().getName(),1)
 	endif
+	;/
 	bool[] aControl = new Bool[30]
 	UD_CustomDevice_RenderScript device = getUDScript(akTarget)
 	if device
 		device.DeviceMenuWH(akSource,aControl)
 	endif
+	/;
+	UDCDMain.OpenHelpDeviceMenu(getUDScript(akTarget),akSource,UDCDmain.ActorIsFollower(akSource))
 EndFunction
 
 UD_CustomDevice_RenderScript Function getUDScript(Actor akActor)

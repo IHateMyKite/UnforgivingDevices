@@ -10,10 +10,6 @@ string Function addInfoString(string str = "")
 	return parent.addInfoString(str)
 EndFunction
 
-bool Function proccesSpecialMenu(int msgChoice)
-	return parent.proccesSpecialMenu(msgChoice)
-EndFunction
-
 bool Function canBeActivated()
 	return WearerFreeLegs() && getRelativeElapsedCooldownTime() >= 0.4
 EndFunction
@@ -24,4 +20,13 @@ EndFunction
 
 Function OnUntied()
 	UDCDmain.RemoveInvisibleHobble(GetWearer())
+EndFunction
+
+;OVERRIDES because of engine bug which calls one function multiple times
+
+bool Function proccesSpecialMenu(int msgChoice)
+	return parent.proccesSpecialMenu(msgChoice)
+EndFunction
+bool Function proccesSpecialMenuWH(Actor akSource,int msgChoice)
+	return parent.proccesSpecialMenuWH(akSource,msgChoice)
 EndFunction

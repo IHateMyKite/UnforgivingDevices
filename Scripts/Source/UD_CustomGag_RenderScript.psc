@@ -15,7 +15,7 @@ EndFunction
 float Function getAccesibility()
 	float loc_res = parent.getAccesibility()
 	
-	if getWearer().wornhaskeyword(libs.zad_DeviousHood)
+	if getWearer().wornhaskeyword(libs.zad_DeviousHood) && !deviceRendered.haskeyword(libs.zad_DeviousHood)
 		loc_res *= 0.35
 	endif
 	
