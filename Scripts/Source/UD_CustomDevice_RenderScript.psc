@@ -950,7 +950,10 @@ EndEvent
 ;pc frier 3000
 Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldContainer)
 	if (akNewContainer as Actor) && !akOldContainer && !isUnlocked
-		Init(akNewContainer as Actor)
+		Actor loc_actor = akNewContainer as Actor
+		if !loc_actor.isDead()
+			Init(loc_actor)
+		endif
 	endif
 	
 	if UDmain		
@@ -1173,20 +1176,18 @@ Function Init(Actor akActor)
 	endif
 	
 	updateValuesFromInventoryScript()
-	
-	if !akActor.isEquipped(deviceInventory);StorageUtil.GetIntValue(akActor,"zad_Equipped" + deviceInventory,0)
-		UDCDmain.Log("!Aborting Init("+ UDCDmain.getActorName(akActor) +") called for " + DeviceInventory.getName() + " because inventory device is unequipped!!")
-		if (libs as zadlibs_UDPatch).isMutexed(akActor,deviceInventory)
-			(libs as zadlibs_UDPatch).UD_GlobalDeviceMutex_RenderScript = true
+	if UDCDmain.ActorIsPlayer(akActor)
+		if !akActor.isEquipped(deviceInventory);StorageUtil.GetIntValue(akActor,"zad_Equipped" + deviceInventory,0)
+			UDCDmain.Log("!Aborting Init("+ UDCDmain.getActorName(akActor) +") called for " + DeviceInventory.getName() + " because inventory device is unequipped!!")
+			if (libs as zadlibs_UDPatch).isMutexed(akActor,deviceInventory)
+				(libs as zadlibs_UDPatch).UD_GlobalDeviceMutex_RenderScript = true
+			endif
+			akActor.removeItem(deviceRendered,1)
+			return 
 		endif
-		akActor.removeItem(deviceRendered,1)
-		return 
 	endif
 	if UDCDmain.TraceAllowed()
 		UDCDmain.Log("Init(called for " + getDeviceHeader(),1)
-	endif
-	if UDCDmain.TraceAllowed()
-		UDCDmain.Log(getDeviceHeader() + " equiped? RD=" + getWearer().IsEquipped(deviceRendered)+",ID="+getWearer().IsEquipped(deviceInventory))
 	endif
 	
 	;MUTEX START
@@ -1194,9 +1195,11 @@ Function Init(Actor akActor)
 	if UDCDmain.isRegistered(getWearer())
 		StartInitMutex()
 	endif
+	
 	if UDCDmain.TraceAllowed()
 		UDCDmain.Log("Registering device: " + getDeviceHeader(),1)
 	endif
+	
 	UDCDmain.startScript(self)
 	
 	if (libs as zadlibs_UDPatch).isMutexed(akActor,deviceInventory)
@@ -2145,7 +2148,7 @@ Function DeviceMenuWH(Actor akSource,bool[] aControl)
 	if UDCDmain.TraceAllowed()
 		UDCDmain.Log(getDeviceHeader() + " DeviceMenuWH() called, aControl = "+aControl,2)
 	endif
-	setHelper(akSource)
+
 	bool _break = False
 	while !_break
 		deviceMenuInitWH(akSource,aControl)
@@ -2166,7 +2169,6 @@ Function DeviceMenuWH(Actor akSource,bool[] aControl)
 			_break = repairDevice(akSource)
 		elseif msgChoice == 6	;command
 			aControl = new Bool[30]
-			aControl[15] = True
 			DeviceMenu(aControl)
 			_break = True
 		elseif msgChoice == 7 	;details
@@ -3025,6 +3027,9 @@ EndFunction
 ;stops minigame
 Function stopMinigame()
 	if UDCDmain.ActorInMinigame(getWearer())
+		force_stop_minigame = True
+		pauseMinigame = False
+	else
 		force_stop_minigame = True
 		pauseMinigame = False
 	endif
@@ -4649,8 +4654,9 @@ EndFunction
 Function OnMinigameEnd()
 	if hasHelper()
 		;1 hour cooldown
-		Int loc_lvl = UDCDMain.addHelperXP(GetHelper(), UDCDmain.UD_MinigameHelpXPBase)
-		StorageUtil.SetFloatValue(getHelper(),"UDNPCCD:"+getWearer(),Utility.GetCurrentGameTime() + (iRange(UDCDMain.UD_MinigameHelpCd - UDCDmain.Round((loc_lvl - 1)*0.05*UDCDMain.UD_MinigameHelpCd),10,600))/(60.0*24.0))
+		UDCDMain.ResetHelperCD(GetHelper(),GetWearer(),UDCDmain.UD_MinigameHelpXPBase)
+		;Int loc_lvl = UDCDMain.addHelperXP(GetHelper(), UDCDmain.UD_MinigameHelpXPBase)
+		;StorageUtil.SetFloatValue(getHelper(),"UDNPCCD:"+getWearer(),Utility.GetCurrentGameTime() + (iRange(UDCDMain.UD_MinigameHelpCd - UDCDmain.Round((loc_lvl - 1)*0.05*UDCDMain.UD_MinigameHelpCd),10,600))/(60.0*24.0))
 	endif
 	
 	if isSentient() && getRelativeDurability() > 0.0

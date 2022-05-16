@@ -125,9 +125,9 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 						return
 					endif
 				else
-					if giver.getItemCount(deviceRendered)
+					if giver.getItemCount(deviceRendered) && DestroyOnRemove
 						if UDCDmain.TraceAllowed()						
-							UDCDmain.Log("Transfering device" + deviceInventory.getName() + " on "+ giver.getActorBase().getName() +" to:  " + target.getActorBase().getName(),1)
+							UDCDmain.Log("Removing DestroyOnRemove device" + deviceInventory.getName() + " on "+ giver.getActorBase().getName(),1)
 						endif
 						UD_CustomDevice_RenderScript device = getUDScript(giver)
 						if device

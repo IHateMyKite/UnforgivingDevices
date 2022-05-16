@@ -22,6 +22,14 @@ Function OnUntied()
 	UDCDmain.RemoveInvisibleHobble(GetWearer())
 EndFunction
 
+bool Function OnCooldownActivatePre()
+	if isSentient()
+		return parent.OnCooldownActivatePre()
+	else
+		return false
+	endif
+EndFunction
+
 ;OVERRIDES because of engine bug which calls one function multiple times
 
 bool Function proccesSpecialMenu(int msgChoice)

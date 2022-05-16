@@ -178,9 +178,17 @@ Function randomEquipHandRestrain()
 		if relativeStrength() < 0.4
 			loc_formlist = UDmain.UDRRM.UD_AbadonDeviceList_HeavyBondageWeak
 		elseif relativeStrength() < 0.8
-			loc_formlist = UDmain.UDRRM.UD_AbadonDeviceList_HeavyBondage
+			if Utility.randomInt(1,99) > 25
+				loc_formlist = UDmain.UDRRM.UD_AbadonDeviceList_HeavyBondage
+			else
+				loc_formlist = UDmain.UDRRM.UD_AbadonDeviceList_HeavyBondageWeak
+			endif
 		else
-			loc_formlist = UDmain.UDRRM.UD_AbadonDeviceList_HeavyBondageHard
+			if Utility.randomInt(1,99) > 75
+				loc_formlist = UDmain.UDRRM.UD_AbadonDeviceList_HeavyBondageHard
+			else
+				loc_formlist = UDmain.UDRRM.UD_AbadonDeviceList_HeavyBondage
+			endif
 		endif
 		
 		if loc_haveSuit
@@ -261,7 +269,9 @@ Function abadonorgasm(float mult = 1.0)
 	
 	if orgasm_cout % 2 && getRelativeDurability() < 1.0
 		if WearerIsPlayer()
-			UDCDmain.Print("You feel that your orgasm is making Abadon Plug to regain it strength!")
+			UDCDmain.Print("You feel that your orgasm is making Abadon Plug to regain its strength!")
+		elseif WearerIsFollower() && GetWearer().Is3DLoaded()
+			UDCDmain.Print(getWearerName()+"s orgasm is making Abadon Plug to regain its strength!")
 		endif
 		mendDevice(1.0,1.0/24.0,True)
 	endif
@@ -283,6 +293,7 @@ Function abadonorgasm(float mult = 1.0)
 		endif
 		if finisher_current_orgasms >= finisher_goal_orgasms
 			stopVibrating()
+			finisher_current_orgasms = 0
 			finisherOn = false
 		endif
 	endif
@@ -435,6 +446,8 @@ string Function addInfoString(string str = "")
 	str = parent.addInfoString(str)
 	str += "(AP) Strenght: " + UDmain.formatString(abadonPlugDiff,1) + " (~"+Math.floor(relativeStrength()*100.0)+" %)" + "\n"
 	str += "(AP) Hunger: "+ Math.floor(100.0 - plug_hunger) + " %\n"
+	str += "(AP) Orgasms feeded: "+ orgasm_cout +"\n"
+	str += "(AP) Finisher?: "+ finisherOn +"\n"
 	return str
 EndFunction
 
@@ -454,12 +467,16 @@ EndFunction
 
 float Function getCritDamage()
 	int loc_difficulty = AbadonQuestScript.overaldifficulty
+	float loc_helperincrease = 0
+	if GetHelper()
+		loc_helperincrease = 15.0
+	endif
 	if loc_difficulty == 0
-		return 35.0
+		return 35.0 + loc_helperincrease
 	elseif loc_difficulty == 1
-		return 25.0
+		return 25.0 + loc_helperincrease
 	elseif loc_difficulty == 2
-		return 15.0
+		return 15.0 + loc_helperincrease
 	endif
 EndFunction
 

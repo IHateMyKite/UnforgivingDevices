@@ -76,9 +76,9 @@ EndFunction
 float Function getAccesibility()
 	float loc_res = 1.0;parent.getAccesibility()
 	
-	if getWearer().wornhaskeyword(libs.zad_DeviousHeavyBondage)
+	if !wearerFreeHands() && (!HasHelper() || !HelperFreeHands())
 		loc_res *= 0.25
-	elseif getWearer().wornhaskeyword(libs.zad_DeviousBondageMittens)
+	elseif !wearerFreeHands(true) && (!HasHelper() || !HelperFreeHands(true))
 		loc_res *= 0.5
 	endif
 	

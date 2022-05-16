@@ -232,17 +232,21 @@ Function activateDevice()
 EndFunction
 
 Function StopVibSound()
-	Sound.StopInstance(_vsID)
+	if getWearer().is3DLoaded()
+		Sound.StopInstance(_vsID)
+	endif
 	_vsID = -1
 EndFunction
 
 Function StartVibSound()
-	if _vsID == -1
-		_vsID = getVibrationSound().Play(getWearer())
-		if WearerIsPlayer()
-			Sound.SetInstanceVolume(_vsID, libs.Config.VolumeVibrator)
-		else
-			Sound.SetInstanceVolume(_vsID, libs.Config.VolumeVibrator * 0.5)
+	if getWearer().is3DLoaded()
+		if _vsID == -1
+			_vsID = getVibrationSound().Play(getWearer())
+			if WearerIsPlayer()
+				Sound.SetInstanceVolume(_vsID, libs.Config.VolumeVibrator)
+			else
+				Sound.SetInstanceVolume(_vsID, libs.Config.VolumeVibrator * 0.5)
+			endif
 		endif
 	endif
 EndFunction

@@ -42,6 +42,7 @@ float Property UD_CooldownMultiplier = 1.0 auto
 Bool Property UD_AutoCrit = False auto
 Int Property UD_AutoCritChance = 80 auto
 Int Property UD_MinigameHelpCd = 45 auto
+Float Property UD_MinigameHelpCD_PerLVL = 15.0 auto ;CD % decrease per Helper LVL
 Int Property UD_MinigameHelpXPBase = 35 auto
 
 ;changes how much is strength converted to orgasm rate, 
@@ -362,7 +363,8 @@ Function StartMinigameDisable(Actor akActor)
 		Game.DisablePlayerControls(abMovement = False)
 		Game.SetPlayerAiDriven(True)
 	else
-		akActor.SetDontMove(True)	
+		akActor.SetDontMove(True)
+		akActor.SheatheWeapon()
 	endif
 EndFunction
 
@@ -375,7 +377,7 @@ Function UpdateMinigameDisable(Actor akActor)
 			Game.DisablePlayerControls(abMovement = False)
 			Game.SetPlayerAiDriven(True)
 		else
-			akActor.SetDontMove(True)	
+			akActor.SetDontMove(True)
 		endif
 	endif
 EndFunction
@@ -1660,6 +1662,29 @@ Function OpenHelpDeviceMenu(UD_CustomDevice_RenderScript device,Actor akHelper,b
 	endif
 EndFunction
 
+
+float Function CalculateHelperCD(Actor akActor,Int iLevel = 0)
+	if iLevel <= 0
+		iLevel = GetHelperLVL(akActor)
+	endif
+	float loc_res = UD_MinigameHelpCd - Round((iLevel - 1)*(UD_MinigameHelpCD_PerLVL/100.0)*UD_MinigameHelpCd)
+	loc_res = fRange(loc_res,5.0,600.0) ;crop the value
+	loc_res = loc_res/(60.0*24.0) ;convert to days
+	return loc_res
+EndFunction
+
+int Function ResetHelperCD(Actor akHelper,Actor akHelped,Int iXP = 0)
+	Int loc_lvl = 1
+	if iXP > 0
+		loc_lvl = addHelperXP(akHelper, iXP)
+	else
+		loc_lvl = GetHelperLVL(akHelper)
+	endif
+	StorageUtil.SetFloatValue(akHelper,"UDNPCCD:"+akHelped,Utility.GetCurrentGameTime() + CalculateHelperCD(akHelper,loc_lvl))
+	return loc_lvl
+EndFunction
+
+
 ;returns updated lvl
 int Function addHelperXP(Actor akHelper, int iXP)
 	int loc_currentXP = StorageUtil.GetIntValue(akHelper,"UDNPCXP",0)
@@ -1817,6 +1842,7 @@ Function ShowHelperDetails(Actor akActor)
 	string loc_res = ""
 	loc_res += "--Helper details--\n"
 	loc_res += "Helper LVL: " + GetHelperLVL(akActor) +"("+UDmain.Round(GetHelperLVLProgress(akActor)*100)+"%)" + "\n"
+	loc_res += "Cooldown: " + Round(CalculateHelperCD(akActor)*24*60) + " min\n"
 	ShowMessageBox(loc_res)
 EndFunction
 
@@ -2128,12 +2154,12 @@ UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armo
 	TransfereContainer_ObjRef.removeItem(deviceRendered,1,True,akActor)
 	akActor.equipItem(deviceRendered,True,True)
 	float loc_time = 0.0
-	while !_transferedDevice && loc_time < 2.0
+	while !_transferedDevice && loc_time < 3.0
 		Utility.waitMenuMode(0.05)
 		loc_time += 0.05
 	endwhile
 	
-	if loc_time > 2.0 && !_transferedDevice		
+	if loc_time >= 3.0 && !_transferedDevice		
 		Error("getDeviceScriptByRender timeout for " + deviceRendered + "("+getActorName(akActor)+")")
 	endif
 	
