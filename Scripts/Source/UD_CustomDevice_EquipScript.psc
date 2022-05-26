@@ -485,15 +485,21 @@ int Function EquipFilterCorset(actor akActor, bool silent=false)
 	endif
 	if !akActor.IsEquipped(deviceRendered)
 		if akActor.WornHasKeyword(libs.zad_DeviousHarness) && deviceRendered.HasKeyword(libs.zad_DeviousCorset)
-			MultipleItemFailMessage("Harness")
+			if !silent
+				MultipleItemFailMessage("Harness")
+			endif
 			return 2
 		Endif
 		if akActor.WornHasKeyword(libs.zad_DeviousCorset) && deviceRendered.HasKeyword(libs.zad_DeviousCorset)
-			MultipleItemFailMessage("Corset")
+			if !silent
+				MultipleItemFailMessage("Corset")
+			endif
 			return 2
 		Endif
 		if akActor.WornHasKeyword(libs.zad_DeviousBelt) && deviceRendered.HasKeyword(libs.zad_DeviousBelt)
-			MultipleItemFailMessage("Belt")
+			if !silent
+				MultipleItemFailMessage("Belt")
+			endif
 			return 2
 		Endif
 	Endif
@@ -504,25 +510,31 @@ int Function EquipFilterHarness(actor akActor, bool silent=false)
 	if akActor == none
 		akActor == libs.PlayerRef
 	EndIf
-	if ! akActor.IsEquipped(deviceRendered)
-		if akActor!=libs.PlayerRef && ShouldEquipSilently(akActor)
+	if !akActor.IsEquipped(deviceRendered)
+		if akActor != libs.PlayerRef && ShouldEquipSilently(akActor)
 			if UDCDmain.TraceAllowed()
 				libs.Log("Avoiding FTM duplication bug (Harness).")
 			endif
 			return 0
 		EndIf
 		if akActor.WornHasKeyword(libs.zad_DeviousCorset)
-			MultipleItemFailMessage("Corset")
+			if !silent
+				MultipleItemFailMessage("Corset")
+			endif
 			return 2
 		Endif
 		; make sure collar harnesses don't do on if the target is already wearing one.
 		if akActor.WornHasKeyword(libs.zad_DeviousCollar) && deviceRendered.HasKeyword(libs.zad_DeviousCollar)
-			MultipleItemFailMessage("Collar")
+			if !silent
+				MultipleItemFailMessage("Collar")
+			endif
 			return 2
 		Endif
 		; make sure belt harnesses don't do on if the target is already wearing one.
 		if akActor.WornHasKeyword(libs.zad_DeviousBelt) && deviceRendered.HasKeyword(libs.zad_DeviousBelt)
-			MultipleItemFailMessage("Belt")
+			if !silent
+				MultipleItemFailMessage("Belt")
+			endif
 			return 2
 		Endif
 	Endif

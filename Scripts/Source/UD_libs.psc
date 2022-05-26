@@ -95,6 +95,10 @@ Armor Property InvisibleHobble auto
 Keyword Property InvisibleHBKW auto
 Keyword Property InvisibleHobbleKW auto
 
+;Other armors
+Armor Property OrgasmResistCirclet auto
+
+
 ;other
 Ingredient Property BlackGoo auto
 Ingredient Property AncientSeed auto

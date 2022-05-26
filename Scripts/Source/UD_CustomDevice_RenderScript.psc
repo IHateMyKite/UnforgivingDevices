@@ -3102,9 +3102,9 @@ EndFunction
 bool Function minigamePrecheck()
 	if UDCDmain.actorInMinigame(getWearer())
 		if WearerIsPlayer()
-			debug.notification("You are already doing something")
+			UDCDmain.Print("You are already doing something")
 		elseif WearerIsFollower()
-			debug.notification(getWearerName() + " is already doing something")
+			UDCDmain.Print(getWearerName() + " is already doing something")
 		endif
 		return false
 	endif
@@ -3112,9 +3112,9 @@ bool Function minigamePrecheck()
 	if hasHelper()
 		if UDCDmain.actorInMinigame(getHelper())
 			if HelperIsPlayer()
-				debug.notification("You are already doing something")
+				UDCDmain.Print("You are already doing something")
 			elseif HelperIsFollower()
-				debug.notification(getHelperName() + " is already doing something")
+				UDCDmain.Print(getHelperName() + " is already doing something")
 			endif
 			return false
 		endif
@@ -3167,7 +3167,10 @@ bool Function minigamePrecheck()
 	return true
 EndFunction
 
+;===============================================================
 ;!!!--------------------MINIGAME LOOP------------------------!!!
+;===============================================================
+
 Function minigame()
 	if UDmain.DebugMod
 		showDebugMinigameInfo()
@@ -4382,9 +4385,9 @@ Function lockpickDevice()
 			if UD_CurrentLocks - UD_JammedLocks > 0
 				UD_CurrentLocks -= 1
 				if WearerIsPlayer()
-					debug.notification("You succesfully unlocked one of the locks!")
+					UDCDmain.Print("You succesfully unlocked one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining",2)
 				elseif WearerIsFollower()
-					debug.notification(getWearerName() + " unlocked one of the locks!")
+					UDCDmain.Print(getWearerName() + " unlocked one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining",3)
 				endif
 				onLockUnlocked(True)
 			endif
@@ -4402,9 +4405,9 @@ Function lockpickDevice()
 		elseif result == 2 ;failure
 			if Utility.randomInt() <= zad_JammLockChance*UDCDmain.CalculateKeyModifier() && !libs.Config.DisableLockJam
 				if WearerIsPlayer()
-					debug.notification("Your lockpick jammed the lock!")
+					UDCDmain.Print("Your lockpick jammed the lock!",1)
 				elseif WearerIsFollower()
-					debug.notification(getWearerName() + "s lock gets jammed!")
+					UDCDmain.Print(getWearerName() + "s lock gets jammed!",3)
 				endif
 				
 				UD_JammedLocks += 1
@@ -4432,9 +4435,9 @@ EndFunction
 Function keyUnlockDevice()
 	if UD_CurrentLocks > 0 
 		if WearerIsPlayer()
-			debug.notification("You managed to unlock one of the locks!")
+			UDCDMain.Print("You managed to unlock one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining")
 		elseif WearerIsFollower()
-			debug.notification(getWearerName() + " managed to unlock one of the locks!")
+			debug.notification(getWearerName() + " managed to unlock one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining")
 		endif
 		
 		UD_CurrentLocks -= 1

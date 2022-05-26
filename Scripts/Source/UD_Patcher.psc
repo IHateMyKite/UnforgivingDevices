@@ -374,8 +374,6 @@ Function patchBlindfold(UD_CustomBlindfold_RenderScript device)
 
 	endif
 	
-	checkSentientModifier(device,15,1.0)
-	
 	checkLooseModifier(device,75,0.2,0.5)
 	
 	patchFinish(device)
@@ -391,7 +389,6 @@ Function patchGag(UD_CustomGag_RenderScript device)
 				
 	endif
 	
-	checkSentientModifier(device,10,1.0)
 	
 	checkLooseModifier(device,30,0.05, 0.15)
 	
@@ -463,7 +460,6 @@ EndFunction
 Function patchHood(UD_CustomHood_RenderScript device)
 	patchDefaultValues(device)
 	;patchStart(device)
-	checkSentientModifier(device,20,1.0)
 	checkLooseModifier(device,100,0.05, 0.4)
 	patchFinish(device)
 EndFunction
@@ -475,7 +471,7 @@ Function patchBra(UD_CustomBra_RenderScript device)
 	device.UD_LockpickDifficulty = 25*Utility.randomInt(1,3)
 	device.UD_LockAccessDifficulty = Utility.randomFloat(70.0,90.0)
 	device.UD_durability_damage_base *= 0.5
-	checkSentientModifier(device,25,1.3)
+	checkSentientModifier(device,50,1.3)
 	patchFinish(device)
 EndFunction
 
@@ -508,7 +504,6 @@ Function patchGeneric(UD_CustomDevice_RenderScript device)
 	EndIf
 	
 	checkLooseModifier(device,50,0.15, 0.4)
-	checkSentientModifier(device,10,1.0)
 	
 	patchFinish(device,loc_control)
 EndFunction
@@ -694,5 +689,6 @@ Function patchDefaultValues(UD_CustomDevice_RenderScript device)
 		;device.addModifier("Loose",1.0)
 	endif
 	
+	checkSentientModifier(device,15,1.0)
 	checkHealModifier(device,10)
 EndFunction

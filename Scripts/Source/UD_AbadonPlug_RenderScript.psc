@@ -204,7 +204,7 @@ Function randomEquipHandRestrain()
 		Armor loc_renderDevice = UDCDmain.GetRenderDevice(device)
 		if WearerIsPlayer()
 			if loc_renderDevice.hasKeyword(libs.zad_DeviousArmbinder)
-				UDCDmain.showMessageBox("Suddenly, Abadon plug starts to emit black smoke. Before you could react, smoke forces your hands helplessly behind your back and manifests into armbinder.")
+				debug.messagebox("Suddenly, Abadon plug starts to emit black smoke. Before you could react, smoke forces your hands helplessly behind your back and manifests into armbinder.")
 			elseif loc_renderDevice.hasKeyword(libs.zad_DeviousStraitjacket)
 				debug.messagebox("Suddenly, Abadon plug starts to emit black smoke. Before you could react, smoke forces your hands forcefully together and manifests into straitjacket.")
 			elseif loc_renderDevice.hasKeyword(libs.zad_DeviousArmbinderElbow)
@@ -353,7 +353,7 @@ EndFunction
 ;float _littleFinisherUpdateTimePassed = 0.0
 Function onUpdatePost(float timePassed)
 	updateVibrationParam()
-	addStrength(UDCDmain.getArousal(GetWearer())*0.001*(1 + AbadonQuestScript.overaldifficulty)*(24.0*timePassed))
+	addStrength(UDCDmain.UDOM.getArousal(GetWearer())*0.001*(1 + AbadonQuestScript.overaldifficulty)*(24.0*timePassed))
 	plug_hunger -= 0.25*timePassed*24*60
 	;_littleFinisherUpdateTimePassed += timePassed
 	if (plug_hunger < 0.0)
@@ -482,10 +482,10 @@ EndFunction
 
 Function OnCritFailure()
 	parent.OnCritFailure()
-	float loc_arousal = 10 + UDCDmain.getArousal(GetWearer())
-	UDCDmain.UpdateArousalRate(getWearer(),loc_arousal)
+	float loc_arousal = 10 + UDCDmain.UDOM.getArousal(GetWearer())
+	UDCDmain.UDOM.UpdateArousalRate(getWearer(),loc_arousal)
 	Utility.wait(3.5)
-	UDCDmain.UpdateArousalRate(getWearer(),-1*loc_arousal)
+	UDCDmain.UDOM.UpdateArousalRate(getWearer(),-1*loc_arousal)
 	;UDCDmain.sendArousalSetEvent(getWearer(),10 + UDCDmain.getArousal(GetWearer()))
 EndFunction
 

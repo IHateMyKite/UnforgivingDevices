@@ -1,5 +1,6 @@
 Scriptname UD_ArousalCheckScript_AME extends activemagiceffect 
 
+;/
 UDCustomDeviceMain Property UDCDmain auto
 zadlibs Property libs auto
 
@@ -63,3 +64,4 @@ EndEvent
 bool Function IsRunning()
 	return akActor.hasMagicEffect(_MagickEffect)
 EndFunction
+/;

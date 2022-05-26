@@ -105,8 +105,8 @@ Function SetSlotTo(Actor akActor)
 	endif
 	akActor.addToFaction(UDCDmain.RegisteredNPCFaction)
 
-	UDCDmain.CheckOrgasmCheck(akActor)
-	UDCDmain.CheckArousalCheck(akActor)
+	UDCDmain.UDOM.CheckOrgasmCheck(akActor)
+	UDCDmain.UDOM.CheckArousalCheck(akActor)
 	
 	if akActor != Game.GetPlayer()
 		regainDevices()
@@ -211,8 +211,8 @@ Function fix()
 		
 		_DeviceManipMutex = false
 		
-		UDCDmain.CheckArousalCheck(getActor())
-		UDCDmain.CheckOrgasmCheck(getActor())
+		UDCDmain.UDOM.CheckArousalCheck(getActor())
+		UDCDmain.UDOM.CheckOrgasmCheck(getActor())
 		UDCDmain.Print("[UD] loops checked!")
 		
 		UDCDmain.Print("[UD] General fixes done!")
@@ -223,9 +223,14 @@ Function fix()
 		StorageUtil.UnsetFloatValue(getActor(), "UD_OrgasmRateMultiplier")
 		StorageUtil.UnsetFloatValue(getActor(), "UD_ArousalRate")
 		UDCDmain.Print("[UD] Orgasm variables reseted!")
+		
 
-	else
-	
+	elseif loc_res == 2
+		getActor().removeFromFaction(UDCDmain.UDOM.ArousalCheckLoopFaction)
+		UDCDmain.UDOM.StartArousalCheckLoop(getActor())
+		
+		getActor().removeFromFaction(UDCDmain.UDOM.OrgasmCheckLoopFaction)
+		UDCDmain.UDOM.StartOrgasmCheckLoop(getActor())
 	endif
 	
 EndFunction

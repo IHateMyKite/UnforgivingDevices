@@ -348,13 +348,13 @@ Function InflateAnalPlug(actor akActor, int amount = 1)
 		LastInflationAdjustmentAnal = Utility.GetCurrentGameTime()
 	EndiF
 	
-	UDCDmain.UpdateArousal(akActor,20)
-	UDCDmain.UpdateOrgasmRate(akActor,20.0*currentVal,0.5)
+	UDCDmain.UDOM.UpdateArousal(akActor,20)
+	UDCDmain.UDOM.UpdateOrgasmRate(akActor,20.0*currentVal,0.5)
 	;UDCDmain.UpdateActorOrgasmProgress(akActor,15.0*currentVal,bUpdateWidget = true)
 	;SendInflationEvent(akActor, False, True, currentval)
 	
 	Utility.wait(2.0)
-	UDCDmain.removeOrgasmRate(akActor,20.0*currentVal,0.5)
+	UDCDmain.UDOM.removeOrgasmRate(akActor,20.0*currentVal,0.5)
 EndFunction
 
 ;copied and modified libs InflateAnalPlug function to make it show correct msg for npcs
@@ -378,17 +378,17 @@ Function InflateVaginalPlug(actor akActor, int amount = 1)
 		LastInflationAdjustmentVaginal = Utility.GetCurrentGameTime()
 	EndIf
 	
-	UDCDmain.UpdateArousal(akActor,30)
-	UDCDmain.UpdateOrgasmRate(akActor,20.0*currentVal,0.5)
+	UDCDmain.UDOM.UpdateArousal(akActor,30)
+	UDCDmain.UDOM.UpdateOrgasmRate(akActor,20.0*currentVal,0.5)
 	;UDCDmain.UpdateActorOrgasmProgress(akActor,15.0*currentVal,bUpdateWidget = true)
 	SendInflationEvent(akActor, True, True, currentval)
 	
 	Utility.wait(2.0)
-	UDCDmain.removeOrgasmRate(akActor,20.0*currentVal,0.5)
+	UDCDmain.UDOM.removeOrgasmRate(akActor,20.0*currentVal,0.5)
 EndFunction
 
 String Function AnimSwitchKeyword(actor akActor, string idleName)
-	if UDCDmain.UD_OrgasmAnimation != 0
+	if UDCDmain.UDOM.UD_OrgasmAnimation != 0
 		If idleName == "Orgasm"
 			;hobbled animations
 			if akActor.WornHasKeyword(zad_DeviousHobbleSkirt)
@@ -757,7 +757,7 @@ EndFunction
 
 Function ActorOrgasmPatched(actor akActor,int iDuration, int iDecreaseArousalBy = 75, bool bForceAnimation = false)
 	;StorageUtil.SetIntValue(akActor,"zad_orgasms", StorageUtil.GetIntValue(akActor,"zad_orgasms",0) + 1)
-	UDCDmain.addOrgasmToActor(akActor)
+	UDCDmain.UDOM.addOrgasmToActor(akActor)
 	
 	if UDCDmain.TraceAllowed()	
 		UDCDmain.Log("ActorOrgasmPatched called for " + UDCDmain.GetActorName(akActor),1)
@@ -777,10 +777,11 @@ Function ActorOrgasmPatched(actor akActor,int iDuration, int iDecreaseArousalBy 
 	if loc_is3Dloaded
 		int sID = OrgasmSound.Play(akActor)
 		Sound.SetInstanceVolume(sid, Config.VolumeOrgasm)
-		UpdateExposure(akActor,-1*iDecreaseArousalBy)
-		Aroused.UpdateActorOrgasmDate(akActor)
 	endif
 	
+	UpdateExposure(akActor,-1*iDecreaseArousalBy)
+	Aroused.UpdateActorOrgasmDate(akActor)
+		
 	float loc_forcing = StorageUtil.getFloatValue(akActor, "UD_OrgasmForcing",0.0)
 	if UDCDmain.ActorIsPlayer(akActor)
 		if loc_forcing <= 0.25
@@ -818,9 +819,10 @@ Function ActorOrgasmPatched(actor akActor,int iDuration, int iDecreaseArousalBy 
 	endif
 	sslBaseExpression expression = none
 	
+	bool loc_expressionapplied = false
 	if loc_is3Dloaded
 		expression = UDCDmain.UDEM.getExpression("UDOrgasm")
-		ApplyExpressionPatched(akActor, expression, 100,false,80)
+		loc_expressionapplied = ApplyExpressionPatched(akActor, expression, 100,false,80)
 	endif
 	
 	if UDCDmain.actorInMinigame(akActor)
@@ -852,10 +854,10 @@ Function ActorOrgasmPatched(actor akActor,int iDuration, int iDecreaseArousalBy 
 			Utility.wait(iDuration)
 		EndIf
 	endif
-	if loc_is3Dloaded
+	if loc_expressionapplied
 		ResetExpressionPatched(akActor, expression,80)
 	endif
-	UDCDmain.RemoveOrgasmFromActor(akActor)
+	UDCDmain.UDOM.RemoveOrgasmFromActor(akActor)
 EndFunction
 
 bool _UpdateExposure_Mutex = false
@@ -903,7 +905,12 @@ bool Function CheckExpressionBlock(Actor akActor,int iPriority, int iMode = 0)
 
 	if iPriority >= akActor.GetFactionRank(UDCDmain.BlockExpressionFaction)
 		if iMode == 1 ;set blocking priority
-			akActor.SetFactionRank(UDCDmain.BlockExpressionFaction,iPriority)
+			if iPriority > akActor.GetFactionRank(UDCDmain.BlockExpressionFaction)
+				akActor.SetFactionRank(UDCDmain.BlockExpressionFaction,iPriority)
+				return true
+			else
+				return false
+			endif
 		elseif iMode == 2 ;reset blocking priority
 			akActor.SetFactionRank(UDCDmain.BlockExpressionFaction,0)
 		endif
@@ -989,7 +996,7 @@ Function SetExpression(Actor akActor, sslBaseExpression expression, int strength
 	endif
 EndFunction
 
-Function ResetExpressionPatched(actor akActor, sslBaseExpression expression,int iPriority = 0)
+bool Function ResetExpressionPatched(actor akActor, sslBaseExpression expression,int iPriority = 0)
 	if akActor.Is3DLoaded()
 		if UDCDmain.TraceAllowed()	
 			UDCDmain.Log("Expression " + expression + " reset for " + UDCDmain.getActorName(akActor))
@@ -1005,7 +1012,7 @@ Function ResetExpressionPatched(actor akActor, sslBaseExpression expression,int 
 				UDCDmain.Log("(Patched) Expression " + expression + " is blocked for " + UDCDmain.getActorName(akActor))
 			endif
 			_ExpressionManip_Mutex = false
-			return
+			return false
 		endif
 		if !akActor.WornHasKeyword(zad_DeviousGag)
 			;MfgConsoleFunc.ResetPhonemeModifier(akActor) ;reset all
@@ -1025,6 +1032,9 @@ Function ResetExpressionPatched(actor akActor, sslBaseExpression expression,int 
 		akActor.SetFactionRank(UDCDmain.BlockExpressionFaction,0)
 		
 		_ExpressionManip_Mutex = false
+		return true
+	else
+		return false
 	endif
 EndFunction
 

@@ -1,20 +1,19 @@
 Scriptname UD_ReduceOrgasmResistence_AME extends activemagiceffect  
 
-UDCustomDeviceMain Property UDCDmain auto
+UD_OrgasmManager Property UDOM auto
 Actor _target = none
 
 float _appliedValue = 0.0
 Event OnEffectStart(Actor akTarget, Actor akCaster)
 	_target = akTarget
-	_appliedValue = UDCDmain.fRange(GetMagnitude()/100.0,0.01,0.99)
-	UDCDmain.UpdateOrgasmResistMultiplier(_target,-1.0*_appliedValue)
-	UDCDmain.UpdateOrgasmRateMultiplier(_target,_appliedValue*0.5)
-	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("UD_ReduceOrgasmResistence_AME applied to " + UDCDmain.getActorName(_target) + ", duration: " + getDuration() + ",mag: " + getMagnitude())
-	endif
+	_appliedValue = UDOM.fRange(GetMagnitude()/100.0,0.01,10.0)
+	UDOM.UpdateOrgasmResistMultiplier(_target,-1.0*_appliedValue)
+	UDOM.UpdateOrgasmRateMultiplier(_target,_appliedValue*0.5)
+	UDOM.UpdateArousalRate(_target,5.0)
 EndEvent
 
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
-	UDCDmain.RemoveOrgasmResistMultiplier(_target,-1.0*_appliedValue)
-	UDCDmain.RemoveOrgasmRateMultiplier(_target,_appliedValue*0.5)
+	UDOM.RemoveOrgasmResistMultiplier(_target,-1.0*_appliedValue)
+	UDOM.RemoveOrgasmRateMultiplier(_target,_appliedValue*0.5)
+	UDOM.UpdateArousalRate(_target,-5.0)
 EndEvent

@@ -234,7 +234,7 @@ Function addOrgasmExhaustion(Actor akActor)
 	else
 		OrgasmExhaustionSpell.SetNthEffectDuration(0,UD_OrgasmExhaustionDuration)
 	endif
-	
+		
 	OrgasmExhaustionSpell.cast(akActor)
 	
 	if TraceAllowed()	

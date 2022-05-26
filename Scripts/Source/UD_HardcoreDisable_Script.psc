@@ -33,8 +33,9 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 	registerForSingleUpdate(0.1)
 EndEvent
 
-
+bool loc_precessing = false
 Event OnUpdate()
+	loc_precessing = true
 	if !_target.wornhaskeyword(UDCDmain.libs.zad_DeviousHeavyBondage) || !UDCDmain.UD_HardcoreMode
 		_target.DispelSpell(UDCDmain.UDlibs.HardcoreDisableSpell)
 	elseif _target.hasMagicEffect(_MagickEffect)
@@ -80,18 +81,23 @@ Event OnUpdate()
 			registerForSingleUpdate(0.75)
 		endif
 	endif
+	loc_precessing = false
 EndEvent
 
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
 	if UDCDmain.TraceAllowed()	
 		UDCDmain.Log("Minigame disabler OnEffectFinish() for " + _target,1)
 	endif
-	;if !_target.HasMagicEffectWithKeyword(UDCDmain.UDlibs.MinigameDisableEffect_KW)
-		if _target == Game.getPlayer()
-			Game.EnablePlayerControls()
-			Game.EnableFastTravel(true)
-		endif
-	;endif
+	;wait for onUpdate function to finish if it started
+	while loc_precessing
+		Utility.waitMenuMode(0.01)
+	endwhile
+
+	if _target == Game.getPlayer()
+		Game.EnablePlayerControls()
+		Game.EnableFastTravel(true)
+	endif
+
 EndEvent
 
 Event OnKeyDown(Int KeyCode)
