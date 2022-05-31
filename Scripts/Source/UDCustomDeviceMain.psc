@@ -5,6 +5,11 @@ UnforgivingDevicesMain Property UDmain auto
 UD_ParalelProcess Property UDPP auto
 UD_libs Property UDlibs auto
 zadlibs Property libs auto
+zadlibs_UDPatch Property libsp
+	zadlibs_UDPatch Function get()
+		return libs as zadlibs_UDPatch
+	EndFunction
+EndProperty
 UD_Patcher Property UDPatcher auto
 UD_DialogueMain Property UDDmain auto
 UD_CustomDevices_NPCSlotsManager Property UDCD_NPCM auto
@@ -1197,48 +1202,6 @@ Function SetExpression(Form kActor,int iStrength,int openMouth)
 	sslBaseExpression loc_expression = _SendExpression
 	_SendExpression = none
 	(libs as zadlibs_UDPatch).SetExpression(akActor,loc_expression,iStrength,openMouth)
-EndFunction
-
-
-;call devices function orgasm() when player have DD orgasm
-Event OnOrgasm(string eventName, string strArg, float numArg, Form sender)
-	UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByActorName(strArg)
-	if slot
-		slot.orgasm()
-	endif
-EndEvent
-
-;call devices function orgasm() when player have sexlab orgasm
-Event OnSexlabOrgasmStart(int tid, bool HasPlayer)   
-	if HasPlayer
-		UDCD_NPCM.getPlayerSlot().orgasm()
-	endif
-EndEvent 
-
-Function OnSexlabSepOrgasmStart(Form kActor, Int iThread)
-	Actor akActor = kActor as Actor
-	UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByActor(akActor)
-	if slot
-		slot.orgasm()
-	endif
-EndFunction
-
-;call devices function edge() when player get edged
-Function OnEdge(string eventName, string strArg, float numArg, Form sender)
-	if strArg != Game.getPlayer().getActorBase().getName()
-		int random = Utility.randomInt(1,3)
-		if random == 1
-			debug.notification(strArg + " gets denied just before reaching the orgasm!")
-		elseif random == 2
-			debug.notification(strArg + " screams as they are edged just before climax!")
-		elseif random == 3
-			debug.notification(strArg + " is edged!")
-		endif
-	endif
-	UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByActorName(strArg)
-	if slot
-		slot.edge()
-	endif
 EndFunction
 
 ;replece slot with new device
@@ -2697,6 +2660,9 @@ bool Function ActorIsFollower(Actor akActor)
 EndFunction
 string Function getActorName(Actor akActor)
 	return UDmain.getActorName(akActor)
+EndFunction
+string Function MakeDeviceHeader(Actor akActor,Armor invDevice)
+	return (invDevice.GetName() + "("+GetActorName(akActor) + ")")
 EndFunction
 Int Function ToUnsig(Int iValue)
 	if iValue < 0

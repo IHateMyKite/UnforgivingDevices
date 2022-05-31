@@ -114,11 +114,6 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 						StorageUtil.UnSetIntValue(target, "UD_ignoreEvent" + deviceInventory)
 						return
 					elseif target != Game.getPlayer() && !target.getItemCount(deviceRendered)
-						;lock device
-						;debug.notification(giver.getActorBase().getName() + " locked " + deviceInventory.getName() + " on " + target.getActorBase().getName())
-						;if GetLockDeviceType(target) == -1
-						;	StorageUtil.SetIntValue(target,"UD_LockDeviceType"+deviceInventory,2)
-						;endif
 						libs.LockDevice(target, deviceInventory, force = false)
 						return
 					else
@@ -154,13 +149,6 @@ Function openWHMenu(Actor akTarget,Actor akSource)
 	if UDCDmain.TraceAllowed()	
 		UDCDmain.Log(" NPC menu opened for " + deviceInventory.getName() + " (" + akTarget.getActorBase().getName() + ") by " + akSource.getActorBase().getName(),1)
 	endif
-	;/
-	bool[] aControl = new Bool[30]
-	UD_CustomDevice_RenderScript device = getUDScript(akTarget)
-	if device
-		device.DeviceMenuWH(akSource,aControl)
-	endif
-	/;
 	UDCDMain.OpenHelpDeviceMenu(getUDScript(akTarget),akSource,UDCDmain.ActorIsFollower(akSource))
 EndFunction
 
@@ -179,10 +167,6 @@ EndFunction
 
 bool _locked = false
 Function OnEquippedPost(actor akActor)
-	;if deviceRendered.hasKeyword(libs.zad_DeviousGag)
-	;	libs.ApplyGagEffect(akActor)
-	;endif
-
 	parent.OnEquippedPost(akActor)
 EndFunction
 
@@ -190,8 +174,6 @@ Function OnRemoveDevice(actor akActor)
 	if UDCDmain.TraceAllowed()	
 		UDCDmain.Log("OnRemoveDevice called for " + deviceInventory.getName() + " on " + akActor.getLeveledActorBase().getName(),3)
 	endif
-	;StorageUtil.UnSetIntValue(akActor,"zad_Equipped" + deviceInventory)
-	;StorageUtil.UnSetIntValue(akActor,"zad_Equipped" + deviceRendered)
 	UD_CustomDevice_RenderScript device
 	if UDCDmain.UDCD_NPCM.isRegistered(akActor)
 		device = UDCDmain.getFirstDeviceByKeyword(akActor,zad_DeviousDevice)
@@ -215,9 +197,6 @@ Function OnRemoveDevice(actor akActor)
 		EndIf
 	endif
 	if  deviceRendered.hasKeyword(libs.zad_DeviousGagPanel)
-		if UDCDmain.TraceAllowed()
-			libs.Log("Panel Gag: Resetting faction rank.")
-		endif
 		if akActor.GetFactionRank(UDCDmain.zadGagPanelFaction) == 0
 			akActor.RemoveItem(zad_GagPanelPlug, 1)
 		EndIf
@@ -235,11 +214,11 @@ EndFunction
 Event OnEquipped(Actor akActor)	
 	;Debug.StartStackProfiling()
 	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log(" OnEquipped called for " + deviceInventory.getName() + " on " + akActor.getLeveledActorBase().getName(),3)
+		UDCDmain.Log("OnEquipped("+UDCDmain.MakeDeviceHeader(akActor,deviceInventory)+") - called",3)
 	endif
 	if Math.LogicalAnd(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x010)
 		if UDCDmain.TraceAllowed()		
-			UDCDmain.Log("OnEquipped aborted for " + deviceInventory.getName() + " on " + akActor.getActorBase().getName(),3)
+			UDCDmain.Log("OnEquipped("+UDCDmain.MakeDeviceHeader(akActor,deviceInventory)+") -  aborted because of filter",3)
 		endif
 		if Math.LogicalAnd(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x030)
 			StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalAnd(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0xF0F))
@@ -254,15 +233,10 @@ Event OnEquipped(Actor akActor)
 		UDCDmain = Game.getFormFromFile(0x0015E73C,"UnforgivingDevices.esp") as UDCustomDeviceMain
 	endif
 	
-	;if GetLockDeviceType(akActor) == -1
-	;	StorageUtil.SetIntValue(akActor,"UD_LockDeviceType"+deviceInventory,1)
-	;endif
-	
 	if !zad_DeviceMsg
 		zad_DeviceMsg =	UDCDmain.DefaultEquipDeviceMessage
 	endif
 
-	;parent.OnEquipped(akActor)
 	LockDevice(akActor)
 	
 	if (libs as zadlibs_UDPatch).isMutexed(akActor,deviceInventory)
@@ -272,24 +246,23 @@ Event OnEquipped(Actor akActor)
 			(libs as zadlibs_UDPatch).UD_GlobalDeviceMutex_InventoryScript = true
 		endif
 	endif
-	;Debug.StopStackProfiling()
 EndEvent
 
 Event OnUnequipped(Actor akActor)
 	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log(" OnUnequipped called for " + deviceInventory.getName() + " on " + akActor.getLeveledActorBase().getName(),3)
+		UDCDmain.Log(" OnUnequipped("+UDCDmain.MakeDeviceHeader(akActor,deviceInventory)+") - called",3)
 	endif
 
 	if UI.IsMenuOpen("ContainerMenu") && akActor == Game.getPlayer()
 		if UDCDmain.TraceAllowed()		
-			UDCDmain.Log(" OnUnequipped aborted for " + deviceInventory.getName() + " on " + akActor.getActorBase().getName(),3)
+			UDCDmain.Log("OnUnequipped("+UDCDmain.MakeDeviceHeader(akActor,deviceInventory)+") - aborted because of opened menu",3)
 		endif
 		return
 	endif
 
 	if Math.LogicalAnd(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x100)
 		if UDCDmain.TraceAllowed()		
-			UDCDmain.Log("[UD]: OnUnequipped aborted for " + deviceInventory.getName() + " on " + akActor.getActorBase().getName(),3)
+			UDCDmain.Log("OnUnequipped("+UDCDmain.MakeDeviceHeader(akActor,deviceInventory)+") - aborted because of filter",3)
 		endif
 		if Math.LogicalAnd(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300)
 			StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalAnd(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x0FF))
@@ -307,7 +280,7 @@ EndFunction
 ;device menu that pops up when Wearer click on this device in inventory
 Function DeviceMenu(Int msgChoice = 0)
 	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("DeviceMenu() called for: "+ deviceInventory.getName() + " (" + self + ")",1)
+		UDCDmain.Log("DeviceMenu("+UDCDmain.MakeDeviceHeader(Game.getPlayer(),deviceInventory)+")",1)
 	endif
 	
 	if !deviceRendered.haskeyword(UDCDmain.UDlibs.UnforgivingDevice)

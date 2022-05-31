@@ -3,25 +3,25 @@ Scriptname UD_RandomRestraintManager extends Quest
 UDCustomDeviceMain Property UDCDmain auto
 zadlibs Property libs auto
 
-Formlist Property UD_RandomDeviceList_Collar auto 			;1
-Formlist Property UD_RandomDeviceList_ArmCuffs auto 		;2
-Formlist Property UD_RandomDeviceList_Belt auto 			;3
-Formlist Property UD_RandomDeviceList_Blindfold auto		;4
+Formlist Property UD_RandomDeviceList_Collar auto 			;0
+Formlist Property UD_RandomDeviceList_ArmCuffs auto 		;1
+Formlist Property UD_RandomDeviceList_Belt auto 			;2
+Formlist Property UD_RandomDeviceList_Blindfold auto		;3
 
-Formlist Property UD_RandomDeviceList_Bra auto 				;5
-Formlist Property UD_RandomDeviceList_Boots auto 			;6
-Formlist Property UD_RandomDeviceList_Gag auto 				;7
-Formlist Property UD_RandomDeviceList_HeavyBondage auto 	;8
+Formlist Property UD_RandomDeviceList_Bra auto 				;4
+Formlist Property UD_RandomDeviceList_Boots auto 			;5
+Formlist Property UD_RandomDeviceList_Gag auto 				;6
+Formlist Property UD_RandomDeviceList_HeavyBondage auto 	;7
 
-Formlist Property UD_RandomDeviceList_LegCuffs auto 		;9
-FormList Property UD_RandomDeviceList_Suit auto				;10
-FormList Property UD_RandomDeviceList_PlugVaginal auto		;11
-FormList Property UD_RandomDeviceList_PlugAnal auto			;12
+Formlist Property UD_RandomDeviceList_LegCuffs auto 		;8
+FormList Property UD_RandomDeviceList_Suit auto				;9
+FormList Property UD_RandomDeviceList_PlugVaginal auto		;10
+FormList Property UD_RandomDeviceList_PlugAnal auto			;11
 
-FormList Property UD_RandomDeviceList_PiercingVag auto		;13
-FormList Property UD_RandomDeviceList_PiercingNipple auto	;14
-FormList Property UD_RandomDeviceList_Gloves auto 			;15
-Formlist Property UD_RandomDeviceList_Hood auto				;16
+FormList Property UD_RandomDeviceList_PiercingVag auto		;12
+FormList Property UD_RandomDeviceList_PiercingNipple auto	;13
+FormList Property UD_RandomDeviceList_Gloves auto 			;14
+Formlist Property UD_RandomDeviceList_Hood auto				;15
 
 ;unimplemented
 Formlist Property UD_RandomDeviceList_HeavyBondageWeak auto
@@ -30,6 +30,11 @@ Formlist Property UD_RandomDeviceList_HeavyBondageHard auto
 Formlist Property UD_AbadonDeviceList_HeavyBondageWeak auto
 Formlist Property UD_AbadonDeviceList_HeavyBondage auto
 Formlist Property UD_AbadonDeviceList_HeavyBondageHard auto
+
+
+zadDeviceLists Property zadDL auto
+
+int Property UD_RandomDevice_GlobalFilter = 0xFFFFFFFF auto
 
 
 Function StartMutex()
@@ -46,26 +51,27 @@ Function EndMutex()
 EndFunction
 bool _mutex = false
 
-;DO NOT MODIFIE
+;DO NOT MODIFI
 
-;1b = zad_DeviousCollar
-;2b = zad_DeviousArmCuffs
-;3b = zad_DeviousBelt
-;4b = zad_DeviousBlindfold
+;0b = zad_DeviousCollar
+;1b = zad_DeviousArmCuffs
+;2b = zad_DeviousBelt
+;3b = zad_DeviousBlindfold
 
-;5b = zad_DeviousBra
-;6b = zad_DeviousBoots
-;7b = zad_DeviousGag
-;8b = zad_DeviousHeavyBondage
+;4b = zad_DeviousBra
+;5b = zad_DeviousBoots
+;6b = zad_DeviousGag
+;7b = zad_DeviousHeavyBondage
 
-;9b = zad_DeviousLegCuffs
-;10b= zad_DeviousSuit
-;13b= zad_DeviousPlugVaginal
-;14b= zad_DeviousPlugAnal
+;8b = zad_DeviousLegCuffs
+;9b= zad_DeviousSuit
+;10b= zad_DeviousPlugVaginal
+;11b= zad_DeviousPlugAnal
 
-;15b= zad_DeviousPiercingsVaginal
-;16b= zad_DeviousPiercingsNipple
-;17b= zad_DeviousGloves
+;12b= zad_DeviousPiercingsVaginal
+;13b= zad_DeviousPiercingsNipple
+;14b= zad_DeviousGloves
+;15b= zad_DeviousHood
 
 FormList Property UD_CheckKeywords auto
 FormList Property SuitableKeywords auto
@@ -148,11 +154,60 @@ Armor Function getRandomDeviceByKeyword(Actor akActor,Keyword kwKeyword)
 	return res
 EndFunction
 
+Armor Function getRandomDeviceByKeyword_LL(Actor akActor,Keyword kwKeyword)
+	Armor res = none
+	if kwKeyword == libs.zad_DeviousCollar 
+		res = getRandomFormFromLeveledlist(zadDL.zad_dev_collars) ;getRandomFormFromFormlist(UD_RandomDeviceList_Collar)
+	elseif kwKeyword == libs.zad_DeviousArmCuffs
+		res = getRandomFormFromLeveledlist(zadDL.zad_dev_armcuffs);getRandomFormFromFormlist(UD_RandomDeviceList_ArmCuffs)
+	elseif kwKeyword == libs.zad_DeviousLegCuffs
+		res = getRandomFormFromLeveledlist(zadDL.zad_dev_legcuffs);getRandomFormFromFormlist(UD_RandomDeviceList_LegCuffs)
+	elseif kwKeyword == libs.zad_DeviousGag
+		res = getRandomFormFromLeveledlist(zadDL.zad_dev_gags);getRandomFormFromFormlist(UD_RandomDeviceList_Gag)
+	elseif kwKeyword == libs.zad_DeviousBoots
+		res = getRandomFormFromLeveledlist(zadDL.zad_dev_boots);getRandomFormFromFormlist(UD_RandomDeviceList_Boots)
+	elseif kwKeyword == libs.zad_DeviousBlindfold
+		res = getRandomFormFromLeveledlist(zadDL.zad_dev_blindfolds);getRandomFormFromFormlist(UD_RandomDeviceList_Blindfold)
+	elseif kwKeyword == libs.zad_DeviousBra
+		res = getRandomFormFromLeveledlist(zadDL.zad_dev_chastitybras);getRandomFormFromFormlist(UD_RandomDeviceList_Bra)
+	elseif kwKeyword == libs.zad_DeviousBelt
+		res = getRandomFormFromLeveledlist(zadDL.zad_dev_chastitybelts);getRandomFormFromFormlist(UD_RandomDeviceList_Belt)
+	elseif kwKeyword == libs.zad_DeviousHeavyBondage
+		if akActor.wornhaskeyword(libs.zad_DeviousSuit)
+			res = getRandomFormFromLeveledlist(zadDL.zad_dev_heavyrestraints);getRandomFormFromFormlist(UD_RandomDeviceList_HeavyBondage)
+		else
+			if Utility.randomInt(0,1)
+				res = getRandomFormFromLeveledlist(zadDL.zad_dev_heavyrestraints);getRandomFormFromFormlist(UD_RandomDeviceList_HeavyBondage)
+			else
+				res = getRandomFormFromLeveledlist(zadDL.zad_dev_suits_straitjackets);getRandomFormFromFormlist(UD_RandomDeviceList_HeavyBondage_Suit)
+			endif
+		endif
+	elseif kwKeyword == libs.zad_DeviousSuit
+		if !akActor.wornhaskeyword(libs.zad_DeviousSuit)
+			res = getRandomFormFromLeveledlist(zadDL.zad_dev_suits_catsuits);getRandomFormFromFormlist(UD_RandomDeviceList_Suit)
+		endif
+	elseif kwKeyword == libs.zad_DeviousPlugVaginal
+		res = getRandomFormFromLeveledlist(zadDL.zad_dev_plugs_vaginal);getRandomFormFromFormlist(UD_RandomDeviceList_PlugVaginal)
+	elseif kwKeyword == libs.zad_DeviousPlugAnal
+		res = getRandomFormFromLeveledlist(zadDL.zad_dev_plugs_anal);getRandomFormFromFormlist(UD_RandomDeviceList_PlugAnal)
+	elseif kwKeyword == libs.zad_DeviousPiercingsVaginal
+		res = getRandomFormFromLeveledlist(zadDL.zad_dev_piercings_vaginal);getRandomFormFromFormlist(UD_RandomDeviceList_PiercingVag)
+	elseif kwKeyword == libs.zad_DeviousPiercingsNipple
+		res = getRandomFormFromLeveledlist(zadDL.zad_dev_piercings_nipple);getRandomFormFromFormlist(UD_RandomDeviceList_PiercingNipple)
+	elseif kwKeyword == libs.zad_DeviousGloves
+		res = getRandomFormFromLeveledlist(zadDL.zad_dev_gloves);getRandomFormFromFormlist(UD_RandomDeviceList_Gloves)
+	elseif kwKeyword == libs.zad_DeviousHood
+		res = getRandomFormFromLeveledlist(zadDL.zad_dev_hoods);getRandomFormFromFormlist(UD_RandomDeviceList_Hood)
+	endif
+	return res
+EndFunction
+
 ;PC frier 8000
 Armor Function getRandomSuitableRestrain(Actor akActor,Int iPrefSwitch = 0xffffffff)
 	if UDCDmain.TraceAllowed()	
 		UDCDmain.Log("getRandomSuitableRestrain called for " + UDCDmain.GetActorName(akActor),3)
 	endif
+	iPrefSwitch = Math.LogicalAnd(iPrefSwitch,UD_RandomDevice_GlobalFilter)
 	Armor res = none
 	Keyword selected_keyword = getRandomSuitableKeyword(akActor,iPrefSwitch)
 	if !selected_keyword
@@ -180,7 +235,7 @@ Armor Function LockRandomRestrain(Actor akActor,Bool force = false,Int iPrefSwit
 	if UDCDmain.TraceAllowed()	
 		UDCDmain.Log("LockRandomRestrain called for " + UDCDmain.GetActorName(akActor))
 	endif
-	
+	iPrefSwitch = Math.LogicalAnd(iPrefSwitch,UD_RandomDevice_GlobalFilter)
 	Armor device = none
 	Keyword selected_keyword = getRandomSuitableKeyword(akActor,iPrefSwitch)
 	if !selected_keyword
@@ -211,6 +266,7 @@ int Function LockAllSuitableRestrains(Actor akActor,Bool force = false,Int iPref
 	if UDCDmain.TraceAllowed()	
 		UDCDmain.Log("LockAllSuitableRestrains called for " + akActor.getActorBase().getName(),2)
 	endif
+	iPrefSwitch = Math.LogicalAnd(iPrefSwitch,UD_RandomDevice_GlobalFilter)
 	Form[] loc_keywords = getAllSuitableKeywords(akActor,iPrefSwitch)
 	if !loc_keywords
 		if UDCDmain.TraceAllowed()		
@@ -254,6 +310,34 @@ EndFunction
 Form Function getRandomFormFromFormlist(Formlist list)
 	int iter = Utility.randomInt(0,list.GetSize() - 1)
 	return list.getAt(iter)
+EndFunction
+
+Armor Function getRandomFormFromLeveledlist(LeveledItem argList)
+	if !argList ;wrong leveledlist, exit
+		UDCDmain.Error("getRandomFormFromLeveledlist(), argList = none!")
+		return none
+	endif
+	LeveledItem loc_list = argList
+	while True
+		if UDCDmain.TraceAllowed()
+			UDCDmain.Log("getRandomFormFromLeveledlist(), Proccesing " + loc_list)
+		endif
+		int loc_size = loc_list.GetNumForms()
+		if loc_size > 0
+			int loc_iter = Utility.randomInt(0,loc_size - 1)
+			Form loc_selectedForm = loc_list.GetNthForm(loc_iter)
+			if loc_selectedForm as Armor
+				return loc_selectedForm as Armor
+			elseif loc_selectedForm as LeveledItem
+				loc_list = loc_selectedForm as LeveledItem
+			else
+				;wrong form found, exit
+				return none
+			endif
+		else
+			return none ;empty leveledlist, exit
+		endif
+	endwhile
 EndFunction
 
 ;VEEEEEEEEEEEEEEEEEEEEEEEEEEEEERY SLOW
@@ -342,7 +426,7 @@ Keyword Function getRandomSuitableKeyword(Actor akActor,int iPrefSwitch = 0xffff
 	StartMutex()
 	int i = 0
 	SuitableKeywords.Revert()
-	
+	iPrefSwitch = Math.LogicalAnd(iPrefSwitch,UD_RandomDevice_GlobalFilter)
 	while i < UD_CheckKeywords.getSize()
 		if !akActor.wornhaskeyword(UD_CheckKeywords.getAt(i) as Keyword) && additionCheck(akActor,i) && Math.LogicalAnd(iPrefSwitch,Math.LeftShift(0x01,i))
 			SuitableKeywords.AddForm(UD_CheckKeywords.getAt(i))
@@ -363,7 +447,7 @@ Form[] Function getAllSuitableKeywords(Actor akActor,int iPrefSwitch = 0xfffffff
 	StartMutex()
 	int i = 0
 	SuitableKeywords.Revert()
-	
+	iPrefSwitch = Math.LogicalAnd(iPrefSwitch,UD_RandomDevice_GlobalFilter)
 	while i < UD_CheckKeywords.getSize()
 		if !akActor.wornhaskeyword(UD_CheckKeywords.getAt(i) as Keyword) && additionCheck(akActor,i) && Math.LogicalAnd(iPrefSwitch,Math.LeftShift(0x01,i))
 			SuitableKeywords.AddForm(UD_CheckKeywords.getAt(i))

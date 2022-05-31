@@ -1,10 +1,11 @@
 Scriptname UD_OrgasmManager extends Quest conditional
 
-UDCustomDeviceMain 		Property UDCDmain 	auto
-UnforgivingDevicesMain 	Property UDmain 	auto
-UD_libs 				Property UDlibs 	auto
-zadlibs 				Property libs 		auto
-UD_ExpressionManager 	Property UDEM 		auto
+UDCustomDeviceMain 					Property UDCDmain 	auto
+UnforgivingDevicesMain 				Property UDmain 	auto
+UD_libs 							Property UDlibs 	auto
+zadlibs 							Property libs 		auto
+UD_ExpressionManager 				Property UDEM 		auto
+UD_CustomDevices_NPCSlotsManager 	Property UDCD_NPCM auto
 
 float 	Property UD_OrgasmResistence 		= 3.5 	auto ;orgasm rate required for actor to be able to orgasm, lower the value, the faster will orgasm rate increase stop
 int 	Property UD_OrgasmArousalThreshold 	= 95 	auto ;arousal required for actor to be able to orgasm
@@ -478,6 +479,8 @@ Function OrgasmCheckLoop(Form fActor)
 	bool loc_expressionApplied 			= false;ActorHaveExpressionApplied(akActor)
 	float loc_orgasmCapacity			= getActorOrgasmCapacity(akActor)
 	float loc_orgasmResistence			= getActorOrgasmResist(akActor)
+	zadlibs_UDPatch libs_p 				= (libs as zadlibs_UDPatch)
+	
 	
 	bool loc_enoughArousal = false
 	while !OrgasmLoopBreak(akActor,loc_OrgasmCheckLoop_ver) 
@@ -552,12 +555,15 @@ Function OrgasmCheckLoop(Form fActor)
 			;expression
 			if loc_orgasmRate >= loc_orgasmResistence*0.75 && (!loc_expressionApplied || loc_expressionUpdateTimer > 3) 
 				;init expression
-				loc_expressionApplied = (libs as zadlibs_UDPatch).ApplyExpressionPatched(akActor, expression, iRange(UDmain.Round(loc_orgasmProgress),25,100),false,10)
-				if loc_expressionApplied
+				libs_p.ApplyExpressionPatched(akActor, expression, iRange(UDmain.Round(loc_orgasmProgress),25,100),false,10)
+				loc_expressionApplied = true
+				;loc_expressionApplied = true
+				;if loc_expressionApplied
 					loc_expressionUpdateTimer = 0
-				endif
+				;endif
 			elseif loc_orgasmRate < loc_orgasmResistence*0.75 && loc_expressionApplied
-				loc_expressionApplied = !(libs as zadlibs_UDPatch).ResetExpressionPatched(akActor, expression,10)
+				libs_p.ResetExpressionPatched(akActor, expression,10)
+				loc_expressionApplied = false
 			endif
 			
 			;can play horny animation ?
@@ -584,9 +590,11 @@ Function OrgasmCheckLoop(Form fActor)
 							loc_cameraState = libs.StartThirdPersonAnimation(akActor, libs.AnimSwitchKeyword(akActor, "Horny01"), permitRestrictive=true)
 							loc_hornyAnimTimer += UD_HornyAnimationDuration
 							if !loc_expressionApplied
-								(libs as zadlibs_UDPatch).ApplyExpressionPatched(akActor, expression, iRange(UDmain.Round(loc_orgasmProgress),75,100),false,10)
+								libs_p.ApplyExpressionPatched(akActor, expression, iRange(UDmain.Round(loc_orgasmProgress),75,100),false,10)
 								loc_expressionApplied = true
-								loc_expressionUpdateTimer = 0
+								;if loc_expressionApplied
+									loc_expressionUpdateTimer = 0
+								;endif
 							endif
 						endif
 					EndIf
@@ -670,7 +678,7 @@ EndFunction
 
 Function startOrgasm(Actor akActor,int duration,bool blocking = true)
 	if TraceAllowed()	
-		Log("startOrgasm() for " + getActorName(akActor) + ", duration = " + duration + ",blocking = " + blocking)
+		Log("startOrgasm() for " + getActorName(akActor) + ", duration = " + duration + ",blocking = " + blocking,1)
 	endif
 	int loc_orgasms = 0
 	if blocking
@@ -700,6 +708,31 @@ EndFunction
 ;=======================================
 ;ORGASM
 ;=======================================
+
+;call devices function orgasm() when player have DD orgasm
+Event OnOrgasm(string eventName, string strArg, float numArg, Form sender)
+	UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByActorName(strArg)
+	if slot
+		slot.orgasm()
+	endif
+EndEvent
+
+;call devices function orgasm() when player have sexlab orgasm
+Event OnSexlabOrgasmStart(int tid, bool HasPlayer)   
+	if HasPlayer
+		UDCD_NPCM.getPlayerSlot().orgasm()
+	endif
+EndEvent 
+
+Function OnSexlabSepOrgasmStart(Form kActor, Int iThread)
+	Actor akActor = kActor as Actor
+	UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByActor(akActor)
+	if slot
+		slot.orgasm()
+	endif
+EndFunction
+
+
 
 bool Function isOrgasming(Actor akActor)
 	return akActor.isInFaction(OrgasmFaction)
@@ -952,6 +985,9 @@ Function FocusOrgasmResistMinigame(Actor akActor)
 	endif
 	
 	float loc_baseDrain = 5.0
+	if akActor.wornhaskeyword(libs.zad_deviousheavybondage)
+		loc_baseDrain += 1.0
+	endif
 	float loc_currentOrgasmRate = getActorOrgasmRate(akActor)
 	bool loc_cycleON = true
 	int loc_tick = 0
@@ -1045,6 +1081,25 @@ Function FocusOrgasmResistMinigame(Actor akActor)
 	MinigameKeysUnregister()
 	UDCDMain.widget2.SetColors(0xE727F5, 0xF775FF,0xFF00BC)
 	akActor.RemoveFromFaction(OrgasmResistFaction)
+EndFunction
+
+;UNUSED
+;call devices function edge() when player get edged
+Function OnEdge(string eventName, string strArg, float numArg, Form sender)
+	if strArg != Game.getPlayer().getActorBase().getName()
+		int random = Utility.randomInt(1,3)
+		if random == 1
+			debug.notification(strArg + " gets denied just before reaching the orgasm!")
+		elseif random == 2
+			debug.notification(strArg + " screams as they are edged just before climax!")
+		elseif random == 3
+			debug.notification(strArg + " is edged!")
+		endif
+	endif
+	UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByActorName(strArg)
+	if slot
+		slot.edge()
+	endif
 EndFunction
 
 ;wrappers

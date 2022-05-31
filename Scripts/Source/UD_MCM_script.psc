@@ -259,6 +259,7 @@ Function resetAbadonPage()
 		endif
 endfunction
 
+int UD_RandomFilter_S
 int UD_useHoods_T
 int UD_LoggingLevel_S
 int UD_NPCSupport_T
@@ -282,7 +283,8 @@ Event resetGeneralPage()
 	UD_LoggingLevel_S = addSliderOption("Logging level",UDmain.LogLevel, "{0}")
 	UD_NPCSupport_T = addToggleOption("NPC Auto Scan",UDmain.AllowNPCSupport)
 	
-	
+	UD_RandomFilter_S = addSliderOption("Random filter:",UDmain.UDRRM.UD_RandomDevice_GlobalFilter,"{0}",UD_LockMenu_flag)
+	addEmptyOption()
 	
 	;if (!UDmain.hasAnyUD() || !UDmain.lockMCM)
 		lockmenu_T = addToggleOption("Lock menus",UDmain.lockMCM,UD_LockMenu_flag)
@@ -333,7 +335,7 @@ Event resetCustomBondagePage()
 	UD_UseWidget_T = addToggleOption("Use widget:", UDCDmain.UD_UseWidget)	
 	
 	UD_UpdateTime_S = addSliderOption("Update time: ",UDCDmain.UD_UpdateTime, "{0} s")
-	UD_CooldownMultiplier_S = addSliderOption("Cooldown multiplier: ",UDCDMain.Round(UDCDmain.UD_CooldownMultiplier*100), "{0} %")
+	UD_CooldownMultiplier_S = addSliderOption("Cooldown multiplier: ",UDCDMain.Round(UDCDmain.UD_CooldownMultiplier*100), "{0} %",UD_LockMenu_flag)
 	;addEmptyOption()
 	
 	UD_WidgetPosX_M = AddMenuOption("Widget pos X:", widgetXList[widget.PositionX])
@@ -412,6 +414,17 @@ Int UD_MAOChanceMod_S
 int UD_MAOMod_S
 Int UD_MAHChanceMod_S
 int UD_MAHMod_S
+int UD_EscapeModifier_S
+;multipliers
+int UD_PatchMult_HeavyBondage_S
+int UD_PatchMult_Gag_S
+int UD_PatchMult_Blindfold_S
+int UD_PatchMult_ChastityBra_S
+int UD_PatchMult_ChastityBelt_S
+int UD_PatchMult_Plug_S
+int UD_PatchMult_Piercing_S
+int UD_PatchMult_Hood_S
+int UD_PatchMult_Generic_S
 Event resetPatcherPage()
 	UpdateLockMenuFlag()
 	setCursorFillMode(LEFT_TO_RIGHT)
@@ -420,12 +433,13 @@ Event resetPatcherPage()
 	addEmptyOption()
 		
 	UD_PatchMult_S = addSliderOption("Patcher multiplier: ",UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult * 100), "{0} %",UD_LockMenu_flag)
+	UD_EscapeModifier_S = addSliderOption("Dificulty: ",UDCDmain.UDPatcher.UD_EscapeModifier, "{0}",UD_LockMenu_flag)
 	addEmptyOption()
 	
 	addEmptyOption()
 	addEmptyOption()
 	
-	AddHeaderOption("Modifiers")
+	AddHeaderOption("Manifest Modifiers")
 	addEmptyOption()
 	
 	UD_MAOChanceMod_S = addSliderOption("Orgasm manifest chance multiplier: ",UDCDmain.UDPatcher.UD_MAOChanceMod, "{0} %",UD_LockMenu_flag)
@@ -433,6 +447,26 @@ Event resetPatcherPage()
 	
 	UD_MAHChanceMod_S = addSliderOption("Hour manifest chance multiplier: ",UDCDmain.UDPatcher.UD_MAHChanceMod, "{0} %",UD_LockMenu_flag)
 	UD_MAHMod_S = addSliderOption("Hour manifest multiplier: ",UDCDmain.UDPatcher.UD_MAHMod, "{0} %",UD_LockMenu_flag)
+	
+	;/
+	AddHeaderOption("Device Modifiers")
+	addEmptyOption()
+	
+	UD_PatchMult_HeavyBondage_S = addSliderOption("Heavy bondage",UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_HeavyBondage * 100), "{0} %",UD_LockMenu_flag)
+	UD_PatchMult_Blindfold_S = addSliderOption("Blindfold",UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_Blindfold * 100), "{0} %",UD_LockMenu_flag)
+	
+	UD_PatchMult_Gag_S = addSliderOption("Gag",UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_Gag * 100), "{0} %",UD_LockMenu_flag)
+	UD_PatchMult_Hood_S = addSliderOption("Hood",UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_Hood * 100), "{0} %",UD_LockMenu_flag)
+	
+	UD_PatchMult_ChastityBelt_S = addSliderOption("Chastity belt",UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_ChastityBelt * 100), "{0} %",UD_LockMenu_flag)
+	UD_PatchMult_ChastityBra_S = addSliderOption("Chastity bra",UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_ChastityBra * 100), "{0} %",UD_LockMenu_flag)
+	
+	UD_PatchMult_Plug_S = addSliderOption("Plug",UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_Plug * 100), "{0} %",UD_LockMenu_flag)
+	UD_PatchMult_Piercing_S = addSliderOption("Piercing",UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_Piercing * 100), "{0} %",UD_LockMenu_flag)
+	
+	UD_PatchMult_Generic_S = addSliderOption("Generic",UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_Generic * 100), "{0} %",UD_LockMenu_flag)
+	addEmptyOption()
+	/;
 EndEvent
 
 int UD_StartThirdpersonAnimation_Switch_T
@@ -833,7 +867,12 @@ Function OnOptionSliderOpenGeneral(int option)
 		SetSliderDialogStartValue(UDmain.LogLevel)
 		SetSliderDialogDefaultValue(1.0)
 		SetSliderDialogRange(0.0, 3.0)
-		SetSliderDialogInterval(1.0)			
+		SetSliderDialogInterval(1.0)	
+	elseif option == UD_RandomFilter_S
+		SetSliderDialogStartValue(UDmain.UDRRM.UD_RandomDevice_GlobalFilter)
+		SetSliderDialogDefaultValue(1.0)
+		SetSliderDialogRange(-1.0, 0xFFFF as Float)
+		SetSliderDialogInterval(1.0)
 	endIf
 EndFunction
 
@@ -848,11 +887,7 @@ Function OnOptionSliderOpenCustomBondage(int option)
 		SetSliderDialogDefaultValue(100.0)
 		SetSliderDialogRange(25.0, 500.0)
 		SetSliderDialogInterval(5.0)
-	elseif (option == UD_PatchMult_S)
-		SetSliderDialogStartValue(Math.floor(UDCDmain.UDPatcher.UD_PatchMult * 100 + 0.5))
-		SetSliderDialogDefaultValue(100.0)
-		SetSliderDialogRange(10.0,300.0)
-		SetSliderDialogInterval(10.0)
+
 	elseif (option == UD_LockpickMinigameNum_S)
 		SetSliderDialogStartValue(UDCDmain.UD_LockpicksPerMinigame)
 		SetSliderDialogDefaultValue(2.0)
@@ -931,6 +966,61 @@ Function OnOptionSliderOpenPatcher(int option)
 		SetSliderDialogDefaultValue(100.0)
 		SetSliderDialogRange(0.0, 200.0)
 		SetSliderDialogInterval(5.0)
+	elseif (option == UD_PatchMult_S)
+		SetSliderDialogStartValue(UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult * 100))
+		SetSliderDialogDefaultValue(100.0)
+		SetSliderDialogRange(10.0,300.0)
+		SetSliderDialogInterval(10.0)
+	elseif (option == UD_EscapeModifier_S)
+		SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_EscapeModifier)
+		SetSliderDialogDefaultValue(10.0)
+		SetSliderDialogRange(5.0,30.0)
+		SetSliderDialogInterval(5.0)
+	elseif (option == UD_PatchMult_HeavyBondage_S)
+		SetSliderDialogStartValue(UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_HeavyBondage * 100))
+		SetSliderDialogDefaultValue(100.0)
+		SetSliderDialogRange(30.0,300.0)
+		SetSliderDialogInterval(10.0)
+	elseif (option == UD_PatchMult_Blindfold_S)
+		SetSliderDialogStartValue(UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_Blindfold * 100))
+		SetSliderDialogDefaultValue(100.0)
+		SetSliderDialogRange(30.0,300.0)
+		SetSliderDialogInterval(10.0)
+	elseif (option == UD_PatchMult_Gag_S)
+		SetSliderDialogStartValue(UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_Gag * 100))
+		SetSliderDialogDefaultValue(100.0)
+		SetSliderDialogRange(30.0,300.0)
+		SetSliderDialogInterval(10.0)
+	elseif (option == UD_PatchMult_Hood_S)
+		SetSliderDialogStartValue(UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_Hood * 100))
+		SetSliderDialogDefaultValue(100.0)
+		SetSliderDialogRange(30.0,300.0)
+		SetSliderDialogInterval(10.0)
+	elseif (option == UD_PatchMult_ChastityBelt_S)
+		SetSliderDialogStartValue(UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_ChastityBelt * 100))
+		SetSliderDialogDefaultValue(100.0)
+		SetSliderDialogRange(30.0,300.0)
+		SetSliderDialogInterval(10.0)
+	elseif (option == UD_PatchMult_ChastityBra_S)
+		SetSliderDialogStartValue(UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_ChastityBra * 100))
+		SetSliderDialogDefaultValue(100.0)
+		SetSliderDialogRange(30.0,300.0)
+		SetSliderDialogInterval(10.0)
+	elseif (option == UD_PatchMult_Plug_S)
+		SetSliderDialogStartValue(UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_Plug * 100))
+		SetSliderDialogDefaultValue(100.0)
+		SetSliderDialogRange(30.0,300.0)
+		SetSliderDialogInterval(10.0)
+	elseif (option == UD_PatchMult_Piercing_S)
+		SetSliderDialogStartValue(UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_Piercing * 100))
+		SetSliderDialogDefaultValue(100.0)
+		SetSliderDialogRange(30.0,300.0)
+		SetSliderDialogInterval(10.0)
+	elseif (option == UD_PatchMult_Generic_S)
+		SetSliderDialogStartValue(UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_Generic * 100))
+		SetSliderDialogDefaultValue(100.0)
+		SetSliderDialogRange(30.0,300.0)
+		SetSliderDialogInterval(10.0)
 	endif
 EndFunction
 
@@ -1003,6 +1093,9 @@ Function OnOptionSliderAcceptGeneral(int option, float value)
 	elseif (option == UD_LoggingLevel_S)
 		UDmain.LogLevel = UDmain.round(value)
 		SetSliderOptionValue(UD_LoggingLevel_S, UDmain.LogLevel, "{0}")
+	elseif option == UD_RandomFilter_S
+		UDmain.UDRRM.UD_RandomDevice_GlobalFilter =  UDmain.round(value)
+		SetSliderOptionValue(UD_RandomFilter_S, UDmain.UDRRM.UD_RandomDevice_GlobalFilter, "{0}")
 	endIf
 EndFunction
 
@@ -1013,9 +1106,6 @@ Function OnOptionSliderAcceptCustomBondage(int option, float value)
 	elseif option == UD_CooldownMultiplier_S
 		UDCDmain.UD_CooldownMultiplier = value/100
 		SetSliderOptionValue(UD_CooldownMultiplier_S, UDCDmain.Round(UDCDmain.UD_CooldownMultiplier*100), "{0} %")
-	elseif (option == UD_PatchMult_S)
-		UDCDmain.UDPatcher.UD_PatchMult = value/100.0
-		SetSliderOptionValue(UD_PatchMult_S, Math.floor(UDCDmain.UDPatcher.UD_PatchMult * 100 + 0.5), "{0} %")
 	elseif (option == UD_LockpickMinigameNum_S)
 		UDCDmain.UD_LockpicksPerMinigame = Math.floor(value + 0.5)
 		SetSliderOptionValue(UD_LockpickMinigameNum_S, UDCDmain.UD_LockpicksPerMinigame, "{0}")
@@ -1067,6 +1157,39 @@ Function OnOptionSliderAcceptPatcher(int option, float value)
 	elseif (option == UD_MAHMod_S)
 		UDCDmain.UDPatcher.UD_MAHMod = loc_value
 		SetSliderOptionValue(UD_MAHMod_S, UDCDmain.UDPatcher.UD_MAHMod, "{0} %")
+	elseif (option == UD_PatchMult_S)
+		UDCDmain.UDPatcher.UD_PatchMult = value/100.0
+		SetSliderOptionValue(UD_PatchMult_S, UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult * 100), "{0} %")
+	elseif (option == UD_EscapeModifier_S)
+		UDCDmain.UDPatcher.UD_EscapeModifier = UDCDmain.Round(value)
+		SetSliderOptionValue(UD_EscapeModifier_S, UDCDmain.UDPatcher.UD_EscapeModifier, "{0}")
+	elseif (option == UD_PatchMult_HeavyBondage_S)
+		UDCDmain.UDPatcher.UD_PatchMult_HeavyBondage = value/100.0
+		SetSliderOptionValue(UD_PatchMult_HeavyBondage_S, UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_HeavyBondage * 100), "{0} %")
+	elseif (option == UD_PatchMult_Blindfold_S)
+		UDCDmain.UDPatcher.UD_PatchMult_Blindfold = value/100.0
+		SetSliderOptionValue(UD_PatchMult_Blindfold_S, UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_Blindfold * 100), "{0} %")
+	elseif (option == UD_PatchMult_Gag_S)
+		UDCDmain.UDPatcher.UD_PatchMult_Gag = value/100.0
+		SetSliderOptionValue(UD_PatchMult_Gag_S, UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_Gag * 100), "{0} %")
+	elseif (option == UD_PatchMult_Hood_S)
+		UDCDmain.UDPatcher.UD_PatchMult_Hood = value/100.0
+		SetSliderOptionValue(UD_PatchMult_Hood_S, UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_Hood * 100), "{0} %")
+	elseif (option == UD_PatchMult_ChastityBelt_S)
+		UDCDmain.UDPatcher.UD_PatchMult_ChastityBelt = value/100.0
+		SetSliderOptionValue(UD_PatchMult_ChastityBelt_S, UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_ChastityBelt * 100), "{0} %")
+	elseif (option == UD_PatchMult_ChastityBra_S)
+		UDCDmain.UDPatcher.UD_PatchMult_ChastityBra = value/100.0
+		SetSliderOptionValue(UD_PatchMult_ChastityBra_S, UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_ChastityBra * 100), "{0} %")
+	elseif (option == UD_PatchMult_Plug_S)
+		UDCDmain.UDPatcher.UD_PatchMult_Plug = value/100.0
+		SetSliderOptionValue(UD_PatchMult_Plug_S, UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_Plug * 100), "{0} %")
+	elseif (option == UD_PatchMult_Piercing_S)
+		UDCDmain.UDPatcher.UD_PatchMult_Piercing = value/100.0
+		SetSliderOptionValue(UD_PatchMult_Piercing_S, UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_Piercing * 100), "{0} %")
+	elseif (option == UD_PatchMult_Generic_S)
+		UDCDmain.UDPatcher.UD_PatchMult_Generic = value/100.0
+		SetSliderOptionValue(UD_PatchMult_Generic_S, UDCDmain.Round(UDCDmain.UDPatcher.UD_PatchMult_Generic * 100), "{0} %")
 	endif
 EndFunction
 
@@ -1282,7 +1405,6 @@ event OnOptionKeyMapChange(int option, int keyCode, string conflictControl, stri
 	endIf	
 endEvent
 
-
 Event OnOptionHighlight(int option)
 	GeneralPageInfo(option)
 	AbadanPageInfo(option)
@@ -1313,6 +1435,8 @@ Function GeneralPageInfo(int option)
 		SetInfoText("Toogle debug mod. Debug mod shows more information for devices from this mod.")
 	elseif (option == UD_NPCSupport_T)
 		SetInfoText("Toogle automatic scaning")
+	elseif option == UD_RandomFilter_S
+		SetInfoText("Set random restrain filter. This is bitcoded value. For more info check LL or GitHub")
 	Endif
 EndFunction
 Function CustomBondagePageInfo(int option)
@@ -1574,9 +1698,12 @@ Function SaveToJSON(string strFile)
 	JsonUtil.SetIntValue(strFile, "UseHoods", UDIM.UD_UseHoods as Int)
 	JsonUtil.SetIntValue(strFile, "StartThirdpersonAnimation_Switch", libs.UD_StartThirdpersonAnimation_Switch as Int)
 	JsonUtil.SetFloatValue(strFile, "PatchMult", UDCDmain.UDPatcher.UD_PatchMult)
+	JsonUtil.SetIntValue(strFile, "EscapeModifier", UDCDmain.UDPatcher.UD_EscapeModifier)
 	JsonUtil.SetIntValue(strFile, "SwimmingDifficulty", UDSS.UD_hardcore_swimming_difficulty)
 	JsonUtil.SetIntValue(strFile, "WidgetPosX", widget.PositionX)
 	JsonUtil.SetIntValue(strFile, "WidgetPosY", widget.PositionY)
+	JsonUtil.SetIntValue(strFile, "RandomFiler", UDmain.UDRRM.UD_RandomDevice_GlobalFilter)
+	
 	
 	JsonUtil.Save(strFile, true)
 EndFunction
@@ -1648,11 +1775,13 @@ Function LoadFromJSON(string strFile)
 	UDIM.UD_UseHoods = JsonUtil.GetIntValue(strFile, "UseHoods", UDIM.UD_UseHoods as Int)
 	libs.UD_StartThirdpersonAnimation_Switch = JsonUtil.GetIntValue(strFile, "StartThirdpersonAnimation_Switch", libs.UD_StartThirdpersonAnimation_Switch as Int)
 	UDCDmain.UDPatcher.UD_PatchMult = JsonUtil.GetFloatValue(strFile, "PatchMult", UDCDmain.UDPatcher.UD_PatchMult)
+	UDCDmain.UDPatcher.UD_EscapeModifier = JsonUtil.GetIntValue(strFile, "EscapeModifier", UDCDmain.UDPatcher.UD_EscapeModifier)
 	UDSS.UD_hardcore_swimming_difficulty = JsonUtil.GetIntValue(strFile, "SwimmingDifficulty", UDSS.UD_hardcore_swimming_difficulty)
 	widget.PositionX = JsonUtil.GetIntValue(strFile, "WidgetPosX", widget.PositionX)
 	widget.PositionY = JsonUtil.GetIntValue(strFile, "WidgetPosY", widget.PositionY)
 	UDCDmain.widget2.PositionX = widget.PositionX
 	UDCDmain.widget2.PositionY = widget.PositionY
+	UDmain.UDRRM.UD_RandomDevice_GlobalFilter =  JsonUtil.GetIntValue(strFile, "RandomFiler", UDmain.UDRRM.UD_RandomDevice_GlobalFilter)
 EndFunction
 
 Function ResetToDefaults()
@@ -1731,11 +1860,13 @@ Function ResetToDefaults()
 	UDIM.UD_UseHoods = true
 	libs.UD_StartThirdpersonAnimation_Switch = true
 	UDCDmain.UDPatcher.UD_PatchMult = 1.0
+	UDCDmain.UDPatcher.UD_EscapeModifier = 10
 	UDSS.UD_hardcore_swimming_difficulty = 1
 	widget.PositionX = 2
 	widget.PositionY = 0
 	UDCDmain.widget2.PositionX = widget.PositionX
 	UDCDmain.widget2.PositionY = widget.PositionY
+	UDmain.UDRRM.UD_RandomDevice_GlobalFilter = 0xFFFFFFFF ;32b
 EndFunction
 
 Function SetAutoLoad(bool bValue)

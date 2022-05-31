@@ -33,7 +33,7 @@ EndFunction
 
 Bool Function LockDevice(actor akActor, armor deviceInventory, bool force = false)
 	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("LockDevice called")
+		UDCDmain.Log("LockDevice("+UDCDmain.MakeDeviceHeader(akActor,deviceInventory)+")",3)
 	endif
 	if UDCDmain.UDmain.UD_zadlibs_ParalelProccesing
 		LockDevice_Paralel(akActor, deviceInventory, force)
@@ -48,20 +48,26 @@ bool Function isMutexed(Actor akActor,Armor invDevice)
 EndFunction
 
 Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force = false)
+	if !deviceInventory
+		UDCDMain.Error("LockDevicePatched("+UDCDmain.MakeDeviceHeader(akActor,deviceInventory)+") - none passed as deviceInventory")
+	endif
+	if !akActor
+		UDCDMain.Error("LockDevicePatched("+UDCDmain.MakeDeviceHeader(akActor,deviceInventory)+") - none passed as akActor")
+	endif
+	
 	while LOCKDEVICE_MUTEX
-		Utility.waitMenuMode(0.15)
+		Utility.waitMenuMode(0.05)
 	endwhile
 	
 	LOCKDEVICE_MUTEX = True
 	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("LockDevicePatched("+UDCDMain.getActorName(akActor)+","+deviceInventory.getName()+") called, proccesing!")
+		UDCDmain.Log("LockDevicePatched(UDP)("+UDCDmain.MakeDeviceHeader(akActor,deviceInventory)+") - called!",1)
 	endif
 	
 	bool loc_res = false
 	if deviceInventory.hasKeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
-		;Debug.StartStackProfiling()
 		if UDCDmain.TraceAllowed()		
-			UDCDmain.Log("LockDevicePatched("+UDCDMain.getActorName(akActor)+","+deviceInventory.getName()+") (patched) called, device is UD -> using mutex")
+			UDCDmain.Log("LockDevicePatched(UDP)("+UDCDmain.MakeDeviceHeader(akActor,deviceInventory)+") - device is UD -> using mutex",1)
 		endif
 		
 		bool loc_registered = UDCDMain.isRegistered(akActor)
@@ -96,7 +102,7 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
 		zad_AlwaysSilent.RemoveAddedForm(akActor)
 		
 		if UDCDmain.TraceAllowed()		
-			UDCDmain.Log("LockDevicePatched("+UDCDMain.getActorName(akActor)+","+deviceInventory.getName()+") (patched) called, operation completed")
+			UDCDmain.Log("LockDevicePatched(UDP)("+UDCDmain.MakeDeviceHeader(akActor,deviceInventory)+") - operation completed",1)
 		endif
 
 	else
@@ -108,7 +114,7 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
 		Utility.waitMenuMode(1.5) ;wait little time, so DCL work properly
 	endif
 	if UDCDmain.TraceAllowed()		
-		UDCDmain.Log("LockDevicePatched("+UDCDMain.getActorName(akActor)+","+deviceInventory.getName()+") (patched) ended")
+		UDCDmain.Log("LockDevicePatched(UDP)("+UDCDmain.MakeDeviceHeader(akActor,deviceInventory)+") - ended",3)
 	endif
 	LOCKDEVICE_MUTEX = False
 	return loc_res
@@ -137,7 +143,7 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
 	
 	bool loc_res = False
 	if UDCDmain.TraceAllowed()
-		debug.trace("zad (patched): UnlockDevice("+akActor+","+deviceInventory+","+deviceRendered+","+zad_DeviousDevice+","+destroyDevice+","+genericonly+")")
+		UDCDmain.Log("UnlockDevice(UDP)("+akActor+","+deviceInventory+","+deviceRendered+","+zad_DeviousDevice+","+destroyDevice+","+genericonly+")",1)
 	endif
 	
 	if !deviceInventory
@@ -149,9 +155,11 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
 	endif
 	
 	if deviceInventory.hasKeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
-		Log("UnlockDevice(patched) called for " + akActor.GetLeveledActorBase().GetName() + ": "+ deviceInventory.GetName() + ")")
+		if UDCDmain.TraceAllowed()
+			UDCDmain.Log("UnlockDevice(UDP) called for " + UDCDmain.MakeDeviceHeader(akActor,deviceInventory),2)
+		endif
 		If (genericonly && deviceInventory.HasKeyWord(zad_BlockGeneric)) || deviceInventory.HasKeyWord(zad_QuestItem)
-			Log("UnlockDevice(Patched) aborted because " + deviceInventory.GetName() + " is not a generic item.")
+			UDCDmain.Error("UnlockDevice(UDP) aborted because " + UDCDmain.MakeDeviceHeader(akActor,deviceInventory) + " is not a generic item.")
 			loc_res = false
 		else				
 			Armor loc_renDevice = none
@@ -207,7 +215,7 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
 		loc_res = parent.UnlockDevice(akActor, deviceInventory, deviceRendered, zad_DeviousDevice, destroyDevice, genericonly) ;actor not registered
 	endif
 	if UDCDmain.TraceAllowed()		
-		UDCDmain.Log("UnlockDevice("+deviceInventory.getName()+") (patched) finished: "+loc_res)
+		UDCDmain.Log("UnlockDevice("+deviceInventory.getName()+") (patched) finished: "+loc_res,1)
 	endif
 	if !loc_actordead
 		RemoveUnlockMutex()
@@ -222,18 +230,20 @@ Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRen
 		CheckUnlockMutex()
 	endif
 	if deviceInventory.hasKeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
-		Log("RemoveQuestDevice(patched) called for " + deviceInventory.GetName())
+		if UDCDMain.TraceAllowed()
+			UDCDMain.Log("RemoveQuestDevice(patched)("+UDCDMain.getActorName(akActor)+") called for " + deviceInventory.GetName(),1)
+		endif
 		bool end = false
 		if !akActor.IsEquipped(deviceInventory) && !akActor.IsEquipped(deviceRendered) && !end
-			Warn("RemoveQuestDevice(patched) called for " + deviceInventory +", but this device is not currently worn.")
+			UDCDmain.Error("RemoveQuestDevice(patched)("+UDCDMain.getActorName(akActor)+") called for " + deviceInventory +", but this device is not currently worn.")
 			end = True
 		EndIf	
 		If !deviceInventory.HasKeyword(zad_QuestItem) &&  !deviceRendered.HasKeyword(zad_QuestItem) && !end
-			Log("RemoveQuestDevice(patched) aborted for " + deviceInventory.GetName() + " because it's not a quest item.")
+			UDCDmain.Error("RemoveQuestDevice(patched)("+UDCDMain.getActorName(akActor)+") aborted for " + deviceInventory.GetName() + " because it's not a quest item.")
 			end = True
 		EndIf
 		If (!RemovalToken || zadStandardKeywords.HasForm(RemovalToken) || !(deviceInventory.HasKeyword(RemovalToken) || deviceRendered.HasKeyword(RemovalToken))) && !end
-			Log("RemoveQuestDevice(patched) called for " + deviceInventory.GetName() + " with invalid removal token. Aborted.")
+			UDCDmain.Error("RemoveQuestDevice(patched)("+UDCDMain.getActorName(akActor)+") called for " + deviceInventory.GetName() + " with invalid removal token. Aborted.")
 			end = True
 		EndIf	
 		if !end 			
@@ -342,7 +352,9 @@ Function InflateAnalPlug(actor akActor, int amount = 1)
 			if currentVal > 5
 				currentVal = 5
 			EndIf
-			log("Setting anal plug inflation to " + (currentVal))
+			if UDCDmain.TraceAllowed()
+				UDCDMain.Log("Setting anal plug inflation to " + (currentVal),1)
+			endif
 			zadInflatablePlugStateAnal.SetValueInt(currentVal)
 		EndIf	
 		LastInflationAdjustmentAnal = Utility.GetCurrentGameTime()
@@ -372,7 +384,9 @@ Function InflateVaginalPlug(actor akActor, int amount = 1)
 			if currentVal > 5
 				currentVal = 5
 			EndIf
-			log("Setting vaginal plug inflation to " + (currentVal))
+			if UDCDmain.TraceAllowed()
+				UDCDMain.Log("Setting vaginal plug inflation to " + (currentVal),1)
+			endif
 			zadInflatablePlugStateVaginal.SetValueInt(currentVal)
 		EndIf	
 		LastInflationAdjustmentVaginal = Utility.GetCurrentGameTime()
@@ -545,18 +559,18 @@ EndFunction
 ; Stop vibration event on actor.
 Function StopVibrating(actor akActor)
 	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("zad StopVibrating(): " + akActor)
+		UDCDmain.Log("StopVibrating(): " + akActor)
 	endif
 	if akActor.WornHasKeyword(UDCDmain.UDlibs.UnforgivingDevice) && UDCDmain.isRegistered(akActor)
 		if UDCDmain.TraceAllowed()		
-			UDCDmain.Log("zad StopVibrating() - using patched version: " + akActor)
+			UDCDmain.Log("StopVibrating("+UDCDmain.GetActorName(akActor)+") - using patched version: " + akActor)
 		endif
 		UDCDmain.StopAllVibrators(akActor)
 		akActor.SetFactionRank(zadVibratorFaction, 0)
 		akActor.RemoveFromFaction(zadVibratorFaction)
 	else
 		if UDCDmain.TraceAllowed()		
-			UDCDmain.Log("zad StopVibrating() - using default version: " + akActor)
+			UDCDmain.Log("StopVibrating("+UDCDmain.GetActorName(akActor)+") - using default version: " + akActor)
 		endif
 		parent.StopVibrating(akActor)
 	endif
@@ -564,7 +578,7 @@ EndFunction
 
 int Function VibrateEffect(actor akActor, int vibStrength, int duration, bool teaseOnly=false, bool silent = false)
 	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("zad VibrateEffect(): " + akActor + ", " + vibStrength + ", " + duration)
+		UDCDmain.Log("VibrateEffect(): " + akActor + ", " + vibStrength + ", " + duration)
 	endif
 	if akActor.WornHasKeyword(UDCDmain.UDlibs.UnforgivingDevice) && UDCDmain.isRegistered(akActor)
 		int loc_vibNum = UDCDmain.getOffVibratorNum(akActor)
@@ -572,7 +586,7 @@ int Function VibrateEffect(actor akActor, int vibStrength, int duration, bool te
 			UD_CustomDevice_RenderScript[] loc_usableVibrators = UDCDmain.getOffVibrators(akActor)
 			UD_CustomVibratorBase_RenderScript loc_selectedVib = loc_usableVibrators[Utility.randomInt(0,loc_vibNum - 1)] as UD_CustomVibratorBase_RenderScript
 			if UDCDmain.TraceAllowed()			
-				UDCDmain.Log("zad VibrateEffect() - selected vib:" + loc_selectedVib)
+				UDCDmain.Log("VibrateEffect("+UDCDmain.GetActorName(akActor)+") - selected vib:" + loc_selectedVib,1)
 			endif
 
 			loc_selectedVib.forceStrength(vibStrength*20)
@@ -652,9 +666,7 @@ bool[] Function StartThirdPersonAnimation(actor akActor, string animation, bool 
 		EndIf
 
 		if animation == "none"
-			if UDCDmain.TraceAllowed()
-				UDCDmain.Log("StartThirdPersonAnimation - Called animation is None, aborting")
-			endif
+			UDCDmain.Error("StartThirdPersonAnimation - Called animation is None, aborting")
 			return new bool[2]
 		endif
 		
@@ -692,13 +704,11 @@ Function EndThirdPersonAnimation(actor akActor, bool[] cameraState, bool permitR
 			return
 		endif
 		if UDCDmain.TraceAllowed()	
-			Log("EndThirdPersonAnimation("+akActor.GetLeveledActorBase().GetName()+","+cameraState+")")
+			UDCDMain.Log("EndThirdPersonAnimation("+UDCDMain.GetActorName(akActor)+","+cameraState+")",1)
 		endif
 		SetAnimating(akActor, false)
 		if (!akActor.Is3DLoaded() ||  akActor.IsDead() || akActor.IsDisabled())
-			if UDCDmain.TraceAllowed()	
-				Log("Actor is not loaded (Or is otherwise invalid). Aborting.")
-			endif
+			UDCDMain.Error("EndThirdPersonAnimation("+UDCDMain.GetActorName(akActor)+") - Actor is not loaded (Or is otherwise invalid). Aborting.")
 			return
 		EndIf
 		Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
@@ -765,7 +775,7 @@ Function ActorOrgasmPatched(actor akActor,int iDuration, int iDecreaseArousalBy 
 	
 	SendModEvent("DeviceActorOrgasm", akActor.GetLeveledActorBase().GetName())
 	
-	bool loc_is3Dloaded = akActor.Is3DLoaded()
+	bool loc_is3Dloaded = akActor.Is3DLoaded() || UDCDMain.ActorIsPlayer(akActor)
 	
 	
 	if !UDCDmain.isRegistered(akActor)
@@ -789,7 +799,7 @@ Function ActorOrgasmPatched(actor akActor,int iDuration, int iDecreaseArousalBy 
 		elseif loc_forcing < 0.75
 			UDCDmain.Print("You are cumming!",2)
 		else
-			if Utility.randomInt(1,99) < 10
+			if Utility.randomInt() < 10
 				if UDCDmain.ApplyTearsEffect(akActor)
 					UDCDmain.Print("Tears run down your cheeks as you are forced to orgasm!",2)
 				else
@@ -805,7 +815,7 @@ Function ActorOrgasmPatched(actor akActor,int iDuration, int iDecreaseArousalBy 
 		elseif loc_forcing < 0.75
 			UDCDmain.Print(UDCDmain.getActorName(akActor) + " is cumming!",3)
 		else
-			if Utility.randomInt(1,99) < 10
+			if Utility.randomInt() < 10
 				if UDCDmain.ApplyTearsEffect(akActor)
 					UDCDmain.Print("Tears run down " + UDCDmain.getActorName(akActor) + "s cheeks as they are forced to orgasm!",3)
 				else
@@ -923,21 +933,17 @@ EndFunction
 
 bool _ExpressionManip_Mutex = false
 bool Function ApplyExpressionPatched(Actor akActor, sslBaseExpression expression, int strength, bool openMouth=false,int iPriority = 0)
-	if !IsValidActor(akActor)
-		if UDCDmain.TraceAllowed()		
-			Log("ApplyExpressionPatched(): Actor is not loaded (Or is otherwise invalid). Aborting.")
-		endif
+	if !IsValidActor(akActor)	
+		UDCDMain.Error("ApplyExpressionPatched(): Actor is not loaded (Or is otherwise invalid). Aborting.")
 		return false
 	EndIf
-	if !expression
-		if UDCDmain.TraceAllowed()		
-			Log("ApplyExpressionPatched(): Expression is none.")
-		endif
+	if !expression	
+		UDCDMain.Error("ApplyExpressionPatched(): Expression is none.")
 		return false
 	EndIf
 	
 	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("(Patched) Expression " + expression + " applied for " + UDCDmain.getActorName(akActor) +", strength: " + strength + ",mouth?: " + openMouth)
+		UDCDmain.Log("(Patched) Expression " + expression + " applied for " + UDCDmain.getActorName(akActor) +", strength: " + strength + ",mouth?: " + openMouth,2)
 	endif
 	
 	while _ExpressionManip_Mutex
@@ -947,32 +953,14 @@ bool Function ApplyExpressionPatched(Actor akActor, sslBaseExpression expression
 	
 	if !CheckExpressionBlock(akActor,iPriority,1)
 		if UDCDmain.TraceAllowed()		
-			UDCDmain.Log("(Patched) Expression " + expression + " is blocked for " + UDCDmain.getActorName(akActor) +", strength: " + strength + ",mouth?: " + openMouth)
+			UDCDmain.Log("(Patched) Expression " + expression + " is blocked for " + UDCDmain.getActorName(akActor) +", strength: " + strength + ",mouth?: " + openMouth,2)
 		endif
 		_ExpressionManip_Mutex = false
 		return false
 	endif
 	
 	UDCDmain.SendSetExpressionEvent(akActor, expression, strength, openMouth)
-	;SetExpression(akActor, expression, strength, openMouth)
-	;/
-	;StorageUtil.SetIntValue(akActor,"zad_expressionApplied",1)
-	int gender = (akActor.GetBaseObject() as ActorBase).GetSex()
-	bool hasGag = akActor.WornHasKeyword(zad_DeviousGag)
-	
-	float[] loc_expression = expression.GenderPhase(expression.CalcPhase(Strength, Gender), Gender)
-	float[] loc_appliedExpression = GetCurrentMFG(akActor) 
 
-	if hasGag
-		loc_expression = ApplyGagEffectToPreset(akActor,loc_expression)
-	elseif openMouth
-		loc_expression[expression.Phoneme + 0] = 0.75
-	endif
-	
-	if loc_expression != loc_appliedExpression
-		ApplyPresetFloats_NOMC(akActor, loc_expression)
-	endif
-	/;
 	_ExpressionManip_Mutex = false
 	return true
 EndFunction
@@ -997,62 +985,56 @@ Function SetExpression(Actor akActor, sslBaseExpression expression, int strength
 EndFunction
 
 bool Function ResetExpressionPatched(actor akActor, sslBaseExpression expression,int iPriority = 0)
-	if akActor.Is3DLoaded()
-		if UDCDmain.TraceAllowed()	
-			UDCDmain.Log("Expression " + expression + " reset for " + UDCDmain.getActorName(akActor))
+	if UDCDmain.TraceAllowed()	
+		UDCDmain.Log("Expression " + expression + " reset for " + UDCDmain.getActorName(akActor),2)
+	endif
+	
+	while _ExpressionManip_Mutex
+		Utility.waitMenuMode(0.01)
+	endwhile
+	
+	_ExpressionManip_Mutex = true
+	if !CheckExpressionBlock(akActor,iPriority,0)
+		if UDCDmain.TraceAllowed()		
+			UDCDmain.Log("(Patched) Expression " + expression + " is blocked for " + UDCDmain.getActorName(akActor),3)
 		endif
-		
-		while _ExpressionManip_Mutex
-			Utility.waitMenuMode(0.1)
-		endwhile
-		
-		_ExpressionManip_Mutex = true
-		if !CheckExpressionBlock(akActor,iPriority,0)
-			if UDCDmain.TraceAllowed()		
-				UDCDmain.Log("(Patched) Expression " + expression + " is blocked for " + UDCDmain.getActorName(akActor))
-			endif
-			_ExpressionManip_Mutex = false
-			return false
-		endif
-		if !akActor.WornHasKeyword(zad_DeviousGag)
-			;MfgConsoleFunc.ResetPhonemeModifier(akActor) ;reset all
-			MfgConsoleFunc.SetPhonemeModifier(akActor, -1, 0, 0)
-			akActor.ClearExpressionOverride()
-		else
-			;reset only expression without phonems
-			float[] loc_appliedExpression = GetCurrentMFG(akActor)
-			int loc_i = 16
-			while loc_i < 30
-				loc_appliedExpression[loc_i] = 0
-				loc_i += 1
-			endWhile
-			ApplyPresetFloats_NOMC(akActor, loc_appliedExpression)
-			akActor.ClearExpressionOverride()
-		endif
-		akActor.SetFactionRank(UDCDmain.BlockExpressionFaction,0)
-		
 		_ExpressionManip_Mutex = false
-		return true
-	else
 		return false
 	endif
+	
+	if !akActor.WornHasKeyword(zad_DeviousGag)
+		MfgConsoleFunc.SetPhonemeModifier(akActor, -1, 0, 0)
+		akActor.ClearExpressionOverride()
+	else
+		;reset only expression without phonems
+		float[] loc_appliedExpression = GetCurrentMFG(akActor)
+		int loc_i = 16
+		while loc_i < 30
+			loc_appliedExpression[loc_i] = 0
+			loc_i += 1
+		endWhile
+		ApplyPresetFloats_NOMC(akActor, loc_appliedExpression)
+		akActor.ClearExpressionOverride()
+	endif
+	akActor.SetFactionRank(UDCDmain.BlockExpressionFaction,0)
+	
+	_ExpressionManip_Mutex = false
+	return true
 EndFunction
 
 Function ApplyExpression(Actor akActor, sslBaseExpression expression, int strength, bool openMouth=false)
-	if akActor.Is3DLoaded()
+	if akActor.Is3DLoaded() || akActor == Game.getPlayer()
 		ApplyExpressionPatched(akActor, expression, strength, openMouth,0)
 	endif
 	;parent.ApplyExpression(akActor,expression,strength,openMouth)
 EndFunction
 
 Function ResetExpression(actor akActor, sslBaseExpression expression)
-	if akActor.Is3DLoaded()
-		ResetExpressionPatched(akActor, expression,0)
-	endif
+	ResetExpressionPatched(akActor, expression,0)
 EndFunction
 
 Function ApplyGagEffect(actor akActor)	
-	if akActor.Is3DLoaded()
+	if akActor.Is3DLoaded() || akActor == Game.getPlayer()
 		while _ExpressionManip_Mutex
 			Utility.waitMenuMode(0.1)
 		endwhile
@@ -1170,7 +1152,7 @@ Armor Function GetRenderedDevice(armor device)
 		Armor loc_res = StorageUtil.GetFormValue(device, "UD_RenderDevice", none) as Armor
 		if loc_res
 			if UDCDmain.TraceAllowed()		
-				UDCDmain.Log("GetRenderedDevice(patched)("+device.getName()+")called, returning " + loc_res)
+				UDCDmain.Log("GetRenderedDevice(patched)("+device.getName()+")called, returning " + loc_res,2)
 			endif
 			return loc_res
 		endif
@@ -1180,8 +1162,14 @@ EndFunction
 
 Function UpdateControls()
 	if UDCDmain.TraceAllowed()
-		UDCDMain.log("UpdateControls() Patched")
+		UDCDMain.Log("UpdateControls(UDP)()",2)
 	endif
+	
+	if UDCDMain.ActorInMinigame(Game.getPlayer())
+		UDCDMain.Log("UpdateControls(UDP)() - Player in minigame -> exiting",1)
+		return
+	endif
+	
 	; Centralized control management function.
 	bool movement = true
 	bool fighting = true

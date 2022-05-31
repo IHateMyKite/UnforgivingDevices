@@ -15,6 +15,11 @@ Event OnInit()
 	Ready = True
 EndEvent
 
+Function Update()
+	PunisherArmbinder = main.UDCDMain.GetMeMyForm(0x15B53D,"UnforgivingDevices.esp") as Armor
+	PunisherPiercing = main.UDCDMain.GetMeMyForm(0x15B538,"UnforgivingDevices.esp") as Armor
+EndFunction
+
 ;plug
 Armor Property AbadonPlug auto
 Armor Property AbadonPlugAnal auto
@@ -34,6 +39,7 @@ Armor Property AbadonStraitjacketEboniteOpen auto
 Armor Property AbadonArmbinderWhite auto
 Armor Property AbadonArmbinderRope auto
 Armor Property AbadonYoke auto
+
 
 Armor Property AbadonWeakArmbinder auto
 Armor Property AbadonWeakStraitjacket auto
@@ -88,6 +94,8 @@ Armor Property CustomArmbinder auto
 Armor Property MageBinder auto
 Armor Property RogueBinder auto
 Armor Property AbadonBlueArmbinder auto
+Armor Property PunisherArmbinder auto
+Armor Property PunisherPiercing auto
 
 ;INVISIBLE RESTRAINS
 Armor Property InvisibleArmbinder auto

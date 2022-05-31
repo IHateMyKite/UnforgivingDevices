@@ -81,7 +81,7 @@ Function Receive_MinigameStarter(Form fActor)
 	Actor akActor = fActor as Actor
 	Actor akHelper = loc_device.getHelper()
 	_MinigameStarter_Received = true
-	
+	loc_device._MinigameParProc_1 = true
 	StorageUtil.SetFormValue(akActor, "UD_currentMinigameDevice", loc_device.deviceRendered)
 	
 	if loc_device.PlayerInMinigame()
@@ -89,7 +89,7 @@ Function Receive_MinigameStarter(Form fActor)
 	endif
 	
 	loc_device.OnMinigameStart()
-	
+	loc_device._MinigameParProc_1 = false
 EndFunction
 
 ;paralel
@@ -131,7 +131,7 @@ Function Receive_MinigameParalel(Form fActor)
 	Actor akActor = fActor as Actor
 	Actor akHelper = loc_device.getHelper()
 	_MinigameParalel_Received = true
-	
+	loc_device._MinigameParProc_2 = true
 	;process
 	;start disable
 	UDCDMain.StartMinigameDisable(akActor)
@@ -184,8 +184,8 @@ Function Receive_MinigameParalel(Form fActor)
 	
 	;pause thred untill minigame end
 	int loc_tick = 0
-	while UDCDmain.ActorInMinigame(akActor)
-		Utility.waitMenuMode(0.25)
+	while UDCDmain.ActorInMinigame(akActor) && loc_device._MinigameMainLoop_ON
+		Utility.waitMenuMode(0.1)
 		loc_tick += 1
 		;update disable if it gets somehow removed
 		if !(loc_tick % 4)
@@ -221,6 +221,7 @@ Function Receive_MinigameParalel(Form fActor)
 	if akHelper
 		UDCDMain.EndMinigameDisable(akHelper)
 	endif
+	loc_device._MinigameParProc_2 = false
 EndFunction
 
 ;========================

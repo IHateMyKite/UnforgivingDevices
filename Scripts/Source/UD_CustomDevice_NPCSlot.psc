@@ -223,14 +223,13 @@ Function fix()
 		StorageUtil.UnsetFloatValue(getActor(), "UD_OrgasmRateMultiplier")
 		StorageUtil.UnsetFloatValue(getActor(), "UD_ArousalRate")
 		UDCDmain.Print("[UD] Orgasm variables reseted!")
+	elseif loc_res == 2 ;reset expression
+		;getActor().removeFromFaction(UDCDmain.UDOM.ArousalCheckLoopFaction)
+		;UDCDmain.UDOM.StartArousalCheckLoop(getActor())
 		
-
-	elseif loc_res == 2
-		getActor().removeFromFaction(UDCDmain.UDOM.ArousalCheckLoopFaction)
-		UDCDmain.UDOM.StartArousalCheckLoop(getActor())
-		
-		getActor().removeFromFaction(UDCDmain.UDOM.OrgasmCheckLoopFaction)
-		UDCDmain.UDOM.StartOrgasmCheckLoop(getActor())
+		;getActor().removeFromFaction(UDCDmain.UDOM.OrgasmCheckLoopFaction)
+		;UDCDmain.UDOM.StartOrgasmCheckLoop(getActor())
+		UDCDmain.libsp.ResetExpressionPatched(getActor(),none,100)
 	endif
 	
 EndFunction

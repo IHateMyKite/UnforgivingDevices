@@ -522,13 +522,7 @@ EndFunction
 Function activateDevice()
 	resetCooldown()
 	if nextDeviceManifest < Utility.GetCurrentGameTime()
-		if equipRandomRestrain()
-			if WearerIsPlayer()
-				debug.messagebox("Abadon plug suddenly manifests bondage device and locks it on your body!")
-			elseif WearerIsFollower()
-				UDCDmain.Print(getWearerName() + "s "+ getDeviceName() +" suddenly manifests bondage device!")
-			endif
-		endif
+		equipRandomRestrain()
 	else
 		parent.activateDevice() ;start vib
 	endif
