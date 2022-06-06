@@ -8,7 +8,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 	libs = UDCDmain.libs
 	UDlibs = UDCDmain.UDlibs
 	UDlibs.Update()
-	libs.LockDevice(akTarget,UDlibs.PunisherArmbinder)
-	libs.LockDevice(akTarget,UDlibs.PunisherPiercing)
+	libs.LockDevice(akTarget,UDlibs.PunisherArmbinder,true)
+	libs.LockDevice(akTarget,UDlibs.PunisherPiercing,true)
 	UDCDmain.EnableActor(akTarget)
 EndEvent

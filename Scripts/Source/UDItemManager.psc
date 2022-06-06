@@ -334,13 +334,15 @@ Function equipAbadonFinisherSuit(Actor target)
 		libs.UnlockDeviceByKeyword(target,libs.zad_DeviousSuit)
 	endif
 	
-	libs.SwapDevices(target,UDlibs.AbadonCursedStraitjacket,libs.zad_DeviousHeavyBondage) ;TFuck
+	; libs.SwapDevices(target,UDlibs.AbadonCursedStraitjacket,libs.zad_DeviousHeavyBondage) ;TFuck
+	libs.LockDevice(target,UDlibs.AbadonCursedStraitjacket,true)
 
 	if target.wornHasKeyword(libs.zad_DeviousCorset)
 		libs.UnlockDeviceByKeyword(target,libs.zad_DeviousCorset)
 	endif
 	
-	libs.SwapDevices(target,UDlibs.AbadonBra,libs.zad_DeviousBra)
+	; libs.SwapDevices(target,UDlibs.AbadonBra,libs.zad_DeviousBra)
+	libs.LockDevice(target,UDlibs.AbadonBra,true)
 	
 	if !target.wornHasKeyword(libs.zad_DeviousPlugAnal)
 		libs.LockDevice(target,UDlibs.CursedInflatablePlugAnal)
