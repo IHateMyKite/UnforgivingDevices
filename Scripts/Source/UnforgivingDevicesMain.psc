@@ -125,8 +125,12 @@ Event OnInit()
 	Print("$UDREADY")
 	
 	Utility.wait(5.0)
-	
+	RegisterForSingleUpdate(0.1)
 	CheckPatchesOrder()
+EndEvent
+
+Event OnUpdate()
+	Update()
 EndEvent
 
 Function Update()
@@ -502,6 +506,7 @@ Function OnGameReload()
 	
 	;update all scripts
 	Update()
+	;RegisterForSingleUpdate(0.1)
 	
 	UDlibs.Update()
 	
