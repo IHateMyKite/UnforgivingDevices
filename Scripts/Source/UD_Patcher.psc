@@ -605,7 +605,7 @@ Function patchFinish(UD_CustomDevice_RenderScript device,int argControlVar = 0x0
 	endif
 	
 	if device.UD_Locks
-		checkLCheapModifier(device,75,5,30)
+		checkLCheapModifier(device,50,5,30)
 	endif
 	
 	if device.deviceRendered.hasKeyword(libs.zad_EffectLively)
