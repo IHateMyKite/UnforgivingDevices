@@ -1,6 +1,14 @@
 scriptname UD_ExpressionManager extends Quest
 
+import MfgConsoleFunc
+import sslBaseExpression
+
 UDCustomDeviceMain Property UDCDmain auto
+zadlibs_UDPatch Property libsp
+	zadlibs_UDPatch Function get()
+		return UDCDmain.libsp
+	EndFunction
+EndProperty
 
 bool Property Ready = false auto
 
@@ -9,9 +17,14 @@ Event OnInit()
 	RegisterExpression("UDAroused")
 	RegisterExpression("UDOrgasm")
 	RegisterExpression("UDStruggleMinigame_Angry")
-	UDCDmain.Print("[UD]: Expressions ready!")
+	UDCDmain.Log("Expressions ready!")
 	Ready = true
 EndEvent
+
+Function Update()
+	UnregisterForAllModEvents()
+	RegisterForModEvent("UD_ApplyUDExpression","ApplyUDExpression_r")
+EndFunction
 
 Function RegisterExpression(string sJsonName)
 	if UDCDmain.TraceAllowed()	
@@ -44,8 +57,665 @@ sslBaseExpression Function getExpression(string sExpressionName)
 			return loc_expressionSlot
 		endif
 	endwhile
-	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("!!Expression " + sExpressionName + " not found!")
+	UDCDmain.Error("Expression " + sExpressionName + " not found!")
+	return none
+EndFunction
+
+float[] Function CreateEmptyExpression()
+	return new float[32]
+EndFunction
+
+float[] Function CreatePhonems()
+	return new float[16]
+EndFunction
+
+float[] Function GetCurrentExpression(Actor akActor)
+	return GetCurrentMFG(akActor) 
+EndFunction
+
+
+;/====PHONEMS====
+	https://www.creationkit.com/index.php?title=ModifyFaceGen
+    0: Aah
+    1: BigAah
+    2: BMP
+    3: ChJSh
+    4: DST
+    5: Eee
+    6: Eh
+    7: FV
+    8: I
+    9: K
+    10: N
+    11: Oh
+    12: OohQ
+    13: R
+    14: Th
+    15: W
+/;
+Function SetExpressionPhonems(float[] expression,float[] phonems)
+	if expression.length != 32
+		UDCDmain.Error("SetExpressionModifiers - expression can only have length 32!")
+		return
+	endif
+	if phonems.length != 16
+		UDCDmain.Error("SetExpressionModifiers - phonems can only have length 16!")
+		return
+	endif
+	int loc_i = 0
+	while loc_i < 16
+		expression[loc_i] = UDCDmain.fRange(phonems[loc_i],0.0,1.0)
+		loc_i += 1
+	endWhile
+EndFunction
+Function ResetExpressionPhonems(float[] expression)
+	if expression.length != 32
+		UDCDmain.Error("SetExpressionModifiers - expression can only have length 32!")
+		return
+	endif
+	int loc_i = 0
+	while loc_i < 16
+		expression[loc_i] = 0.0
+		loc_i += 1
+	endWhile
+EndFunction
+
+;/====MODIFIERS====
+	https://www.creationkit.com/index.php?title=ModifyFaceGen
+	0: BlinkLeft
+	1: BlinkRight
+	2: BrowDownLeft
+	3: BrowDownRight
+	4: BrowInLeft
+	5: BrowInRight
+	6: BrowUpLeft
+	7: BrowUpRight
+	8: LookDown
+	9: LookLeft
+	10: LookRight
+	11: LookUp
+	12: SquintLeft
+	13: SquintRight
+/;
+Function SetExpressionModifiers(float[] expression,float[] modifiers)
+	if expression.length != 32
+		UDCDmain.Error("SetExpressionModifiers - expression can only have length 32!")
+		return
+	endif
+	if modifiers.length != 14
+		UDCDmain.Error("SetExpressionModifiers - modifiers can only have length 14!")
+		return
+	endif
+	int loc_i = 16
+	int loc_x = 0
+	while loc_i < 30
+		expression[loc_i] = UDCDmain.fRange(modifiers[loc_x],0.0,1.0)
+		loc_i += 1
+		loc_x += 1
+	endWhile
+EndFunction
+
+float[] Function ApplyStrentghToExpression(float[] expression,int strength)
+	if expression.length != 32
+		UDCDmain.Error("SetExpressionModifiers - expression can only have length 32!")
+		return CreateEmptyExpression()
+	endif
+	float[] loc_expression = CreateEmptyExpression()
+	int loc_strength = UDCDmain.iRange(strength,0,100)
+	int loc_i = 0
+	while loc_i < 30
+		loc_expression[loc_i] = expression[loc_i]*(loc_strength/100.0) 
+		loc_i += 1
+	endWhile
+	loc_expression[30] = expression[loc_i]
+	loc_expression[31] = expression[loc_i]*(loc_strength/100.0) 
+	return loc_expression
+EndFunction
+
+;/====EXPRESSION====
+	https://www.creationkit.com/index.php?title=ModifyFaceGen
+    0: Dialogue Anger
+    1: Dialogue Fear
+    2: Dialogue Happy
+    3: Dialogue Sad
+    4: Dialogue Surprise
+    5: Dialogue Puzzled
+    6: Dialogue Disgusted
+    7: Mood Neutral
+    8: Mood Anger
+    9: Mood Fear
+    10: Mood Happy
+    11: Mood Sad
+    12: Mood Surprise
+    13: Mood Puzzled
+    14: Mood Disgusted
+    15: Combat Anger
+    16: Combat Shout 
+/;
+
+Function SetExpressionExpression(float[] expression,int expression_type,int expression_strength)
+	if expression.length != 32
+		UDCDmain.Error("SetExpressionModifiers - expression can only have length 32!")
+		return
+	endif
+	expression[30] = UDCDmain.iRange(expression_type,0,16)
+	expression[31] = UDCDmain.fRange(expression_strength,0.0,1.0)
+EndFunction
+
+;total random, will look stupid, but its good for debuging
+Float[] Function CreateRandomExpression(bool bExport = false)
+	float[] loc_expression = CreateEmptyExpression()
+	string loc_strres = ""
+	int loc_i = 0
+	while loc_i < loc_expression.length - 2
+		loc_expression[loc_i] = Utility.randomFloat(0.0,0.3)*Utility.randomInt(0,1)
+		loc_strres += "loc_expression["+loc_i+"] = "+loc_expression[loc_i] + "\n"
+		loc_i += 1
+	endwhile
+	loc_expression[loc_expression.length - 2] = Utility.randomInt(0,16)
+	loc_strres += "loc_expression["+(loc_expression.length - 2)+"] = "+loc_expression[loc_expression.length - 2] + "\n"
+	loc_expression[loc_expression.length - 1] = Utility.randomFloat(0.0,1.0)
+	loc_strres += "loc_expression["+(loc_expression.length - 1)+"] = "+loc_expression[loc_expression.length - 1] + "\n"
+	if bExport
+		if !MiscUtil.WriteToFile("data/UDRandomExpressions.txt", loc_strres, append = true)
+			
+		;else
+			UDCDmain.Print("ERROR: Cant find UDRandomExpressions.txt")
+		endif
+	endif
+	return loc_expression
+EndFunction
+
+;check expression blocking with priority
+;mode 1 = sets blocking if priority is met
+;mode 2 = resets blocking if priority is met
+bool Function CheckExpressionBlock(Actor akActor,int iPriority, int iMode = 0)
+	if !akActor.isInFaction(UDCDmain.BlockExpressionFaction)
+		if iMode == 1
+			akActor.AddToFaction(UDCDmain.BlockExpressionFaction)
+			akActor.SetFactionRank(UDCDmain.BlockExpressionFaction,iPriority)
+		endif
+		return true
+	endif
+
+	if iPriority >= akActor.GetFactionRank(UDCDmain.BlockExpressionFaction)
+		if iMode == 1 ;set blocking priority
+			if iPriority >= akActor.GetFactionRank(UDCDmain.BlockExpressionFaction)
+				akActor.SetFactionRank(UDCDmain.BlockExpressionFaction,iPriority)
+				return true
+			else
+				return false
+			endif
+		elseif iMode == 2 ;reset blocking priority
+			akActor.SetFactionRank(UDCDmain.BlockExpressionFaction,0)
+		endif
+		return true
+	else
+		return false
 	endif
 EndFunction
 
+bool _ExpressionManip_Mutex = false
+bool Function ApplyExpression(Actor akActor, sslBaseExpression expression, int strength, bool openMouth=false,int iPriority = 0)
+	if !libsp.IsValidActor(akActor)	
+		UDCDMain.Error("ApplyExpressionPatched(): Actor is not loaded (Or is otherwise invalid). Aborting.")
+		return false
+	EndIf
+	if !expression	
+		UDCDMain.Error("ApplyExpressionPatched(): Expression is none.")
+		return false
+	EndIf
+	
+	if UDCDmain.TraceAllowed()	
+		UDCDmain.Log("(Patched) Expression " + expression + " applied for " + UDCDmain.getActorName(akActor) +", strength: " + strength + ",mouth?: " + openMouth,2)
+	endif
+	
+	while _ExpressionManip_Mutex
+		Utility.waitMenuMode(0.1)
+	endwhile
+	_ExpressionManip_Mutex = true
+	
+	if !CheckExpressionBlock(akActor,iPriority,1)
+		if UDCDmain.TraceAllowed()		
+			UDCDmain.Log("(Patched) Expression " + expression + " is blocked for " + UDCDmain.getActorName(akActor) +", strength: " + strength + ",mouth?: " + openMouth,2)
+		endif
+		_ExpressionManip_Mutex = false
+		return false
+	endif
+	
+	;UDCDmain.SendSetExpressionEvent(akActor, expression, strength, openMouth)
+	
+	SetExpression(akActor,expression,strength,openMouth)
+	
+	_ExpressionManip_Mutex = false
+	return true
+EndFunction
+
+bool Function ApplyExpressionRaw(Actor akActor, float[] expression, int strength, bool openMouth=false,int iPriority = 0)
+	if !libsp.IsValidActor(akActor)	
+		UDCDMain.Error("ApplyExpressionRaw(): Actor is not loaded (Or is otherwise invalid). Aborting.")
+		return false
+	EndIf
+	if !expression
+		UDCDMain.Error("ApplyExpressionRaw(): Expression is none.")
+		return false
+	EndIf
+	if expression.length != 32
+		UDCDMain.Error("ApplyExpressionRaw(): Expression is not size 32!")
+		return false
+	EndIf
+	if UDCDmain.TraceAllowed()	
+		UDCDmain.Log("ApplyExpressionRaw (" + expression + ") applied for " + UDCDmain.getActorName(akActor) +", strength: " + strength + ",mouth?: " + openMouth,2)
+	endif
+	
+	while _ExpressionManip_Mutex
+		Utility.waitMenuMode(0.1)
+	endwhile
+	_ExpressionManip_Mutex = true
+	
+	if !CheckExpressionBlock(akActor,iPriority,1)
+		if UDCDmain.TraceAllowed()		
+			UDCDmain.Log("ApplyExpressionRaw (" + expression + ") is blocked for " + UDCDmain.getActorName(akActor) +", strength: " + strength + ",mouth?: " + openMouth,2)
+		endif
+		_ExpressionManip_Mutex = false
+		return false
+	endif
+	
+	;UDCDmain.SendSetExpressionEvent(akActor, expression, strength, openMouth)
+	
+	SetExpressionRaw(akActor,expression,strength,openMouth)
+	
+	_ExpressionManip_Mutex = false
+	return true
+EndFunction
+
+Function ApplyUDExpression_p(Actor akActor,string strExpressionName,int iStrength,bool bOpenMouth,int iPriority)
+	int handle = ModEvent.Create("UD_ApplyUDExpression")
+	if (handle)
+        ModEvent.PushForm(handle,akActor)
+		ModEvent.PushString(handle,strExpressionName)
+		ModEvent.PushInt(handle,iStrength)
+		ModEvent.PushInt(handle,bOpenMouth as Int)
+		ModEvent.PushInt(handle,iPriority)
+        ModEvent.Send(handle)
+    endif
+EndFunction
+
+Function ApplyUDExpression(Actor akActor,string strExpressionName,int iStrength,bool bOpenMouth,int iPriority)
+	ApplyUDExpression_r(akActor,strExpressionName,iStrength,bOpenMouth as Int,iPriority)
+EndFunction
+
+Function ApplyUDExpression_r(Form fActor,string strExpressionName,int iStrength,int bOpenMouth,int iPriority)
+	Actor akActor = fActor as Actor
+	sslBaseExpression loc_expression = getExpression(strExpressionName)
+	if loc_expression
+		ApplyExpression(akActor, loc_expression, iStrength, bOpenMouth,iPriority)
+	else
+		UDCDmain.Error("Can't find expression " + strExpressionName + " !")
+	endif
+EndFunction
+
+Function SetExpression(Actor akActor, sslBaseExpression expression, int strength, bool openMouth=false)
+	;StorageUtil.SetIntValue(akActor,"zad_expressionApplied",1)
+	int gender = (akActor.GetBaseObject() as ActorBase).GetSex()
+	bool hasGag = akActor.WornHasKeyword(libsp.zad_DeviousGag)
+	
+	float[] loc_expression = expression.GenderPhase(expression.CalcPhase(Strength, Gender), Gender)
+	float[] loc_appliedExpression = GetCurrentMFG(akActor) 
+
+	if hasGag
+		loc_expression = ApplyGagEffectToPreset(akActor,loc_expression)
+	elseif openMouth
+		loc_expression[expression.Phoneme + 0] = 0.75
+	endif
+	
+	if loc_expression != loc_appliedExpression
+		ApplyPresetFloats_NOMC(akActor, loc_expression)
+	endif
+EndFunction
+
+Function SetExpressionRaw(Actor akActor, float[]  expression, int strength, bool openMouth=false)
+	int gender = (akActor.GetBaseObject() as ActorBase).GetSex()
+	bool hasGag = akActor.WornHasKeyword(libsp.zad_DeviousGag)
+	
+	float[] loc_expression = ApplyStrentghToExpression(expression,strength)
+	float[] loc_appliedExpression = GetCurrentMFG(akActor) 
+
+	if hasGag
+		loc_expression = ApplyGagEffectToPreset(akActor,loc_expression)
+	elseif openMouth
+		loc_expression[0] = 0.75
+	endif
+	
+	if loc_expression != loc_appliedExpression
+		ApplyPresetFloats_NOMC(akActor, loc_expression)
+	endif
+EndFunction
+
+bool Function ResetExpression(actor akActor, sslBaseExpression expression,int iPriority = 0)
+	if UDCDmain.TraceAllowed()	
+		UDCDmain.Log("Expression " + expression + " reset for " + UDCDmain.getActorName(akActor),2)
+	endif
+	
+	while _ExpressionManip_Mutex
+		Utility.waitMenuMode(0.01)
+	endwhile
+	
+	_ExpressionManip_Mutex = true
+	if !CheckExpressionBlock(akActor,iPriority,0)
+		if UDCDmain.TraceAllowed()		
+			UDCDmain.Log("(Patched) Expression " + expression + " is blocked for " + UDCDmain.getActorName(akActor),3)
+		endif
+		_ExpressionManip_Mutex = false
+		return false
+	endif
+	
+	if !akActor.WornHasKeyword(libsp.zad_DeviousGag)
+		MfgConsoleFunc.SetPhonemeModifier(akActor, -1, 0, 0)
+		akActor.ClearExpressionOverride()
+	else
+		;reset only expression without phonems
+		float[] loc_appliedExpression = GetCurrentMFG(akActor)
+		int loc_i = 16
+		while loc_i < 30
+			loc_appliedExpression[loc_i] = 0
+			loc_i += 1
+		endWhile
+		ApplyPresetFloats_NOMC(akActor, loc_appliedExpression)
+		akActor.ClearExpressionOverride()
+	endif
+	akActor.SetFactionRank(UDCDmain.BlockExpressionFaction,0)
+	
+	_ExpressionManip_Mutex = false
+	return true
+EndFunction
+
+bool Function ResetExpressionRaw(actor akActor, int iPriority = 0)
+	if UDCDmain.TraceAllowed()	
+		UDCDmain.Log("ResetExpressionRaw - Expression reset for " + UDCDmain.getActorName(akActor),2)
+	endif
+	
+	while _ExpressionManip_Mutex
+		Utility.waitMenuMode(0.01)
+	endwhile
+	
+	_ExpressionManip_Mutex = true
+	if !CheckExpressionBlock(akActor,iPriority,0)
+		if UDCDmain.TraceAllowed()		
+			UDCDmain.Log("ResetExpressionRaw - Expression is blocked for " + UDCDmain.getActorName(akActor),3)
+		endif
+		_ExpressionManip_Mutex = false
+		return false
+	endif
+	
+	if !akActor.WornHasKeyword(libsp.zad_DeviousGag)
+		MfgConsoleFunc.SetPhonemeModifier(akActor, -1, 0, 0)
+		akActor.ClearExpressionOverride()
+	else
+		;reset only expression without phonems
+		float[] loc_appliedExpression = GetCurrentMFG(akActor)
+		int loc_i = 16
+		while loc_i < 30
+			loc_appliedExpression[loc_i] = 0
+			loc_i += 1
+		endWhile
+		ApplyPresetFloats_NOMC(akActor, loc_appliedExpression)
+		akActor.ClearExpressionOverride()
+	endif
+	akActor.SetFactionRank(UDCDmain.BlockExpressionFaction,0)
+	
+	_ExpressionManip_Mutex = false
+	return true
+EndFunction
+
+Function ApplyGagEffect(actor akActor)	
+	if akActor.Is3DLoaded() || akActor == Game.getPlayer()
+		while _ExpressionManip_Mutex
+			Utility.waitMenuMode(0.1)
+		endwhile
+		_ExpressionManip_Mutex = true
+		float[] loc_appliedExpression = GetCurrentMFG(akActor)
+		float[] loc_expression = ApplyGagEffectToPreset(akActor,loc_appliedExpression)
+
+		if loc_expression != loc_appliedExpression
+			ApplyPresetFloats_NOMC(akActor, loc_expression)
+		endif
+		_ExpressionManip_Mutex = false
+	endif
+EndFunction
+
+Function RemoveGagEffect(actor akActor)
+	if UDCDmain.TraceAllowed()	
+		UDCDmain.Log("RemoveGagEffect called",2)
+	endif
+	while _ExpressionManip_Mutex
+		Utility.waitMenuMode(0.1)
+	endwhile
+	_ExpressionManip_Mutex = true
+	If akActor.WornHasKeyword(libsp.zad_GagCustomExpression)
+		libsp.SendGagEffectEvent(akActor, false)
+		_ExpressionManip_Mutex = false
+		Return
+	EndIf
+	;reset only expression without phonems
+	float[] loc_appliedExpression = GetCurrentMFG(akActor)
+	int loc_i = 0
+	while loc_i < 16
+		loc_appliedExpression[loc_i] = 0.0
+		loc_i += 1
+	endWhile
+	ApplyPresetFloats_NOMC(akActor, loc_appliedExpression)
+	_ExpressionManip_Mutex = false
+EndFunction
+
+float[] Function ApplyGagEffectToPreset(Actor akActor,Float[] preset)
+	float[] loc_preset = Utility.CreateFloatArray(preset.length)
+	
+	int i = preset.length
+	while i
+		i -= 1
+		loc_preset[i] = preset[i]
+	endwhile
+	
+	ResetExpressionPhonems(loc_preset)
+	
+	; apply this affect to actual gags only, not hoods that also share this keyword.
+	If akActor.WornHasKeyword(libsp.zad_GagCustomExpression)
+		libsp.SendGagEffectEvent(akActor, false)
+	elseIf akActor.WornHasKeyword(libsp.zad_GagNoOpenMouth)
+		;close mouth, reset phonems
+		return loc_preset
+	elseIf akActor.WornHasKeyword(libsp.zad_DeviousGagLarge)
+		loc_preset[0] = 1.0
+		loc_preset[1] = 1.0
+		loc_preset[11] = 0.30
+
+		loc_preset[16 + 4] = 1.00
+		loc_preset[16 + 5] = 1.00
+		loc_preset[16 + 6] = 1.00
+		loc_preset[16 + 7] = 1.00	
+	else
+		if !akActor.wornhaskeyword(libsp.zad_DeviousGagPanel)
+			loc_preset[0 + 0] = (UDCDmain.UD_GagPhonemModifier as float)/100.0
+		else
+			loc_preset[0 + 0] = 0 ;panel is clipping when this value is > 0
+		endif
+		loc_preset[0 + 1] = 1.0
+		loc_preset[0 + 11] = 0.70		
+	EndIf
+	return loc_preset
+EndFunction
+
+;COPIED FROM sslBaseExpression because it will otherwise not work for SE because of MouthOpen check 
+function ApplyPresetFloats_NOMC(Actor ActorRef, float[] Preset) global 
+	int i
+	; Set Phoneme
+	int p
+	while p <= 15
+		MfgConsoleFunc.SetPhonemeModifier(ActorRef, 0, p, (Preset[i] * 100.0) as int)
+		i += 1
+		p += 1
+	endWhile
+	; Set Modifers
+	int m
+	while m <= 13
+		MfgConsoleFunc.SetPhonemeModifier(ActorRef, 1, m, (Preset[i] * 100.0) as int)
+		i += 1
+		m += 1
+	endWhile
+	; Set expression
+	ActorRef.SetExpressionOverride(Preset[30] as int, (Preset[31] * 100.0) as int)
+endFunction
+
+;prebuild expressions
+
+Float[] Function GetPrebuildExpression_Happy1()
+	float[] loc_res = CreateEmptyExpression()
+	loc_res[ 0] = 0.0
+	loc_res[ 1] = 0.0
+	loc_res[ 2] = 0.0
+	loc_res[ 3] = 0.0
+	loc_res[ 4] = 0.0
+	loc_res[ 5] = 0.079
+	loc_res[ 6] = 0.284
+	loc_res[ 7] = 0.237
+	loc_res[ 8] = 0.055
+	loc_res[ 9] = 0.0
+	loc_res[10] = 0.0
+	loc_res[11] = 0.192
+	loc_res[12] = 0.0
+	loc_res[13] = 0.03
+	loc_res[14] = 0.115
+	loc_res[15] = 0.0
+	loc_res[16] = 0.197
+	loc_res[17] = 0.0
+	loc_res[18] = 0.0
+	loc_res[19] = 0.0
+	loc_res[20] = 0.104
+	loc_res[21] = 0.0
+	loc_res[22] = 0.212
+	loc_res[23] = 0.078
+	loc_res[24] = 0.129
+	loc_res[25] = 0.0
+	loc_res[26] = 0.0
+	loc_res[27] = 0.108
+	loc_res[28] = 0.0
+	loc_res[29] = 0.0
+	loc_res[30] = 10.0
+	loc_res[31] = 0.729
+	return loc_res
+EndFunction
+
+Float[] Function GetPrebuildExpression_Concetrated1()
+	float[] loc_res = CreateEmptyExpression()
+	loc_res[ 0] = 0.0
+	loc_res[ 1] = 0.0
+	loc_res[ 2] = 0.12
+	loc_res[ 3] = 0.24
+	loc_res[ 4] = 0.0
+	loc_res[ 5] = 0.0
+	loc_res[ 6] = 0.0
+	loc_res[ 7] = 0.08
+	loc_res[ 8] = 0.08
+	loc_res[ 9] = 0.14
+	loc_res[10] = 0.0
+	loc_res[11] = 0.0
+	loc_res[12] = 0.0
+	loc_res[13] = 0.0
+	loc_res[14] = 0.08
+	loc_res[15] = 0.0
+	loc_res[16] = 0.0
+	loc_res[17] = 0.19
+	loc_res[18] = 0.18
+	loc_res[19] = 0.29
+	loc_res[20] = 0.0
+	loc_res[21] = 0.06
+	loc_res[22] = 0.19
+	loc_res[23] = 0.0
+	loc_res[24] = 0.0
+	loc_res[25] = 0.27
+	loc_res[26] = 0.26
+	loc_res[27] = 0.29
+	loc_res[28] = 0.0
+	loc_res[29] = 0.01
+	loc_res[30] = 4
+	loc_res[31] = 0.59
+		
+	return loc_res
+EndFunction
+
+Float[] Function GetPrebuildExpression_Angry1()
+	float[] loc_res = CreateEmptyExpression()
+	loc_res[ 0] = 0.0
+	loc_res[ 1] = 0.174
+	loc_res[ 2] = 0.0
+	loc_res[ 3] = 0.122
+	loc_res[ 4] = 0.08
+	loc_res[ 5] = 0.0
+	loc_res[ 6] = 0.281
+	loc_res[ 7] = 0.0
+	loc_res[ 8] = 0.053
+	loc_res[ 9] = 0.004
+	loc_res[10] = 0.145
+	loc_res[11] = 0.073
+	loc_res[12] = 0.0
+	loc_res[13] = 0.0
+	loc_res[14] = 0.277
+	loc_res[15] = 0.0
+	loc_res[16] = 0.0
+	loc_res[17] = 0.217
+	loc_res[18] = 0.0
+	loc_res[19] = 0.144
+	loc_res[20] = 0.245
+	loc_res[21] = 0.23
+	loc_res[22] = 0.0
+	loc_res[23] = 0.0
+	loc_res[24] = 0.269
+	loc_res[25] = 0.067
+	loc_res[26] = 0.0
+	loc_res[27] = 0.186
+	loc_res[28] = 0.247
+	loc_res[29] = 0.103
+	loc_res[30] = 14
+	loc_res[31] = 0.757
+		
+	return loc_res
+EndFunction
+
+Float[] Function GetPrebuildExpression_Tired1()
+	float[] loc_res = CreateEmptyExpression()
+	loc_res[ 0] = 0.151
+	loc_res[ 1] = 0.246
+	loc_res[ 2] = 0.181
+	loc_res[ 3] = 0.226
+	loc_res[ 4] = 0.0
+	loc_res[ 5] = 0.0
+	loc_res[ 6] = 0.0
+	loc_res[ 7] = 0.06
+	loc_res[ 8] = 0.216
+	loc_res[ 9] = 0.0
+	loc_res[10] = 0.098
+	loc_res[11] = 0.0
+	loc_res[12] = 0.122
+	loc_res[13] = 0.17
+	loc_res[14] = 0.094
+	loc_res[15] = 0.071
+	loc_res[16] = 0.0
+	loc_res[17] = 0.143
+	loc_res[18] = 0.0
+	loc_res[19] = 0.0
+	loc_res[20] = 0.0
+	loc_res[21] = 0.0
+	loc_res[22] = 0.213
+	loc_res[23] = 0.187
+	loc_res[24] = 0.0
+	loc_res[25] = 0.092
+	loc_res[26] = 0.205
+	loc_res[27] = 0.0
+	loc_res[28] = 0.274
+	loc_res[29] = 0.0
+	loc_res[30] = 3
+	loc_res[31] = 0.641
+		
+	return loc_res
+EndFunction

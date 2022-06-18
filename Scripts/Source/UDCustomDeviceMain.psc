@@ -10,6 +10,16 @@ zadlibs_UDPatch Property libsp
 		return libs as zadlibs_UDPatch
 	EndFunction
 EndProperty
+zadxlibs Property libsx
+	zadxlibs Function get()
+		return UDmain.libsx
+	EndFunction
+EndProperty
+zadxlibs2 Property libsx2
+	zadxlibs2 Function get()
+		return UDmain.libsx2
+	EndFunction
+EndProperty
 UD_Patcher Property UDPatcher auto
 UD_DialogueMain Property UDDmain auto
 UD_CustomDevices_NPCSlotsManager Property UDCD_NPCM auto
@@ -50,7 +60,7 @@ Int Property UD_AutoCritChance = 80 auto
 Int Property UD_MinigameHelpCd = 45 auto
 Float Property UD_MinigameHelpCD_PerLVL = 15.0 auto ;CD % decrease per Helper LVL
 Int Property UD_MinigameHelpXPBase = 35 auto
-
+Float Property UD_MutexTimeOutTime = 1.0 auto
 ;changes how much is strength converted to orgasm rate, 
 ;example: if UD_VibrationMultiplier = 0.1 and vibration strength will be 100, orgasm rate will be 100*0.1 = 10 O/s 
 float 	Property UD_VibrationMultiplier 	= 0.10	auto 
@@ -118,6 +128,7 @@ ObjectReference Property TransfereContainer_ObjRef auto
 ReferenceAlias Property MessageActor1 auto
 ReferenceAlias Property MessageActor2 auto
 ReferenceAlias Property MessageDevice auto
+UD_MutexScript Property MutexSlot auto
 
 int Property UD_SlotsNum = 20 AutoReadOnly
 ;UD_CustomDevice_RenderScript[] Property UD_equipedCustomDevices auto
@@ -155,7 +166,7 @@ Event OnInit()
 	if TraceAllowed()	
 		Log("UDEM ready!",0)
 	endif
-	
+
 	InitMenuArr()
 	
 	registerEvents()
@@ -313,7 +324,7 @@ EndFunction
 
 Function DisableActor(Actor akActor,bool bBussy = false)
 	if TraceAllowed()	
-		Log("DisableActor("+getActorName(akActor) + ")",1)
+		Log("DisableActor("+getActorName(akActor) + ")",2)
 	endif
 	StartMinigameDisable(akActor)
 	;if !akActor.HasMagicEffectWithKeyword(UDlibs.MinigameDisableEffect_KW)
@@ -321,9 +332,16 @@ Function DisableActor(Actor akActor,bool bBussy = false)
 	;endif
 EndFunction
 
+Function UpdateDisabledActor(Actor akActor,bool bBussy = false)
+	if TraceAllowed()	
+		Log("UpdateDisabledActor("+getActorName(akActor) + ")",2)
+	endif
+	UpdateMinigameDisable(akActor)
+EndFunction
+
 Function EnableActor(Actor akActor,bool bBussy = false)
 	if TraceAllowed()	
-		Log("EnableActor("+getActorName(akActor)+")",1)
+		Log("EnableActor("+getActorName(akActor)+")",2)
 	endif
 	;akActor.DispelSpell(UDlibs.MinigameDisableSpell)
 	EndMinigameDisable(akActor)
@@ -611,6 +629,10 @@ EndFunction
 
 int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool sort = True)
 	return UDCD_NPCM.getNPCSlotByActor(oref.getWearer()).unregisterDevice(oref,i,sort)
+EndFunction
+
+int Function unregisterDeviceByInv(Actor akActor,Armor invDevice,int i = 0,bool sort = True)
+	return UDCD_NPCM.getNPCSlotByActor(akActor).unregisterDeviceByInv(invDevice,i,sort)
 EndFunction
 
 int Function getCopiesOfDevice(UD_CustomDevice_RenderScript oref)
@@ -1088,7 +1110,7 @@ EndFunction
 
 Event StartBoundEffectsParalel(Form kTarget)
 	Actor akActor = kTarget as Actor
-	(libs as zadlibs_UDPatch).StartBoundEffectsPatched(akActor)
+	libsp.StartBoundEffectsPatched(akActor)
 EndEvent
 
 float Function getMendDifficultyModifier()
@@ -1201,7 +1223,7 @@ Function SetExpression(Form kActor,int iStrength,int openMouth)
 	Actor akActor = kActor as Actor
 	sslBaseExpression loc_expression = _SendExpression
 	_SendExpression = none
-	(libs as zadlibs_UDPatch).SetExpression(akActor,loc_expression,iStrength,openMouth)
+	UDEM.SetExpression(akActor,loc_expression,iStrength,openMouth)
 EndFunction
 
 ;replece slot with new device
@@ -1235,20 +1257,24 @@ Event onUpdate()
 		LastUpdateTime_Hour = Utility.GetCurrentGameTime()
 		loc_init = true
 	endif
-	float timePassed = Utility.GetCurrentGameTime() - LastUpdateTime
-	UDCD_NPCM.update(timePassed)
-	LastUpdateTime = Utility.GetCurrentGameTime()
+	if !UDmain.UD_DisableUpdate
+		float timePassed = Utility.GetCurrentGameTime() - LastUpdateTime
+		UDCD_NPCM.update(timePassed)
+		LastUpdateTime = Utility.GetCurrentGameTime()
+	endif
 	RegisterForSingleUpdate(UD_UpdateTime)
 EndEvent
 
 float LastUpdateTime_Hour = 0.0 ;last time the update happened in days
 Event OnUpdateGameTime()
-	Utility.waitMenuMode(Utility.randomFloat(2.0,4.0))
-	float currentgametime = Utility.GetCurrentGameTime()
-	float mult = 24.0*(currentgametime - LastUpdateTime_Hour) ;multiplier for how much more then 1 hour have passed, ex: for 2.5 hours passed without update, the mult will be 2.5
-	int i = 0	
-	UDCD_NPCM.updateHour(mult)
-	LastUpdateTime_Hour = Utility.GetCurrentGameTime()
+	if !UDmain.UD_DisableUpdate
+		Utility.waitMenuMode(Utility.randomFloat(2.0,4.0))
+		float currentgametime = Utility.GetCurrentGameTime()
+		float mult = 24.0*(currentgametime - LastUpdateTime_Hour) ;multiplier for how much more then 1 hour have passed, ex: for 2.5 hours passed without update, the mult will be 2.5
+		int i = 0	
+		UDCD_NPCM.updateHour(mult)
+		LastUpdateTime_Hour = Utility.GetCurrentGameTime()
+	endif
 	registerForSingleUpdateGameTime(1.0)
 endEvent
 
@@ -1657,6 +1683,26 @@ Function UndressArmor(Actor akActor)
 	endif
 EndFunction
 
+;function made as replacemant for akActor.isEquipped, because that function doesn't work for NPCs
+bool Function CheckRenderDeviceEquipped(Actor akActor, Armor rendDevice)
+	if !akActor
+		return false
+	endif
+	int loc_mask = 0x00000001
+	while loc_mask < 0x80000000
+		if Math.LogicalAnd(loc_mask,rendDevice.GetSlotMask())
+			Form loc_armor = akActor.GetWornForm(loc_mask)
+			if loc_armor ;check if there is anything in slot
+				if (loc_armor as Armor) == rendDevice
+					return true ;render device is equipped
+				endif
+			endif
+		endif
+		loc_mask = Math.LeftShift(loc_mask,1)
+	endwhile
+	return false ;device is not equipped
+EndFunction
+
 Function showActorDetails(Actor akActor)
 	string loc_res = ""
 	loc_res += "--BASE DETAILS--\n"
@@ -1665,8 +1711,6 @@ Function showActorDetails(Actor akActor)
 	loc_res += "HP: " + UDmain.formatString(akActor.getAV("Health"),1) + "/" +  UDmain.formatString(UDmain.getMaxActorValue(akActor,"Health"),1) + " ("+ Round(UDmain.getCurrentActorValuePerc(akActor,"Health")*100) +" %)" +"\n"
 	loc_res += "MP: " + UDmain.formatString(akActor.getAV("Magicka"),1) + "/" + UDmain.formatString(UDmain.getMaxActorValue(akActor,"Magicka"),1) + " ( "+ Round(UDmain.getCurrentActorValuePerc(akActor,"Magicka")*100) +" %)" +"\n"
 	loc_res += "SP: " + UDmain.formatString(akActor.getAV("Stamina"),1) + "/" +  UDmain.formatString(UDmain.getMaxActorValue(akActor,"Stamina"),1) + " ("+ Round(UDmain.getCurrentActorValuePerc(akActor,"Stamina")*100) +" %)" +"\n"
-	
-
 	
 	loc_res += "Agility skill: " + Round(getActorAgilitySkills(akActor)) + "\n"
 	loc_res += "Strenth skill: " + Round(getActorStrengthSkills(akActor)) + "\n"
@@ -1717,8 +1761,10 @@ Function showActorDetails(Actor akActor)
 	if UDmain.DebugMod
 		string loc_debugStr = "--DEBUG DETAILS--\n"
 		loc_debugStr += "Registered: " + akActor.isInFaction(RegisteredNPCFaction) + "\n"
-		loc_debugStr += "Orgasm Chack: " + akActor.IsInFaction(UDOM.OrgasmCheckLoopFaction) + "\n"
-		loc_debugStr += "Arousal Chack: " + akActor.isInFaction(UDOM.ArousalCheckLoopFaction) + "\n"
+		loc_debugStr += "Orgasm Check: " + akActor.IsInFaction(UDOM.OrgasmCheckLoopFaction) + "\n"
+		loc_debugStr += "Arousal Check: " + akActor.isInFaction(UDOM.ArousalCheckLoopFaction) + "\n"
+		loc_debugStr += "Orgasm Check Spell: " + akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW) + "\n"
+		loc_debugStr += "Arousal Check Spell: " + akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW) + "\n"
 		loc_debugStr += "Hardcore Disable: " + akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW) + "\n"
 		loc_debugStr += "Animating: " + libs.IsAnimating(akActor) + "\n"
 		loc_debugStr += "Animation block: " + akActor.isInFaction(BlockAnimationFaction) + "\n"
@@ -1813,8 +1859,23 @@ float Function getActorCuttingSkillsPerc(Actor akActor)
 	return loc_result
 EndFunction
 
+float Function getActorSmithingSkills(Actor akActor)
+	float loc_result = 0.0
+	loc_result += akActor.GetActorValue("Smithing")
+	
+	return loc_result
+EndFunction
+
+float Function getActorSmithingSkillsPerc(Actor akActor)
+	float loc_result = 0.0
+	loc_result += akActor.GetActorValue("Smithing")/100.0
+	
+	return loc_result
+EndFunction
+
 ;calculates multiplier for cutting minigame
 ;value is decided by weapon with sharp wapon with most dmg
+;is much faster if NPC is registered, otherwise it will need to search whole inventory
 Float Function getActorCuttingWeaponMultiplier(Actor akActor)
 	float loc_res = 1.0 ;100%
 	
@@ -1828,27 +1889,37 @@ Float Function getActorCuttingWeaponMultiplier(Actor akActor)
 EndFunction
 
 Weapon Function getSharpestWeapon(Actor akActor)
-	int loc_i = akActor.GetNumItems()
-	
 	Weapon loc_bestWeapon = none
-	
-	while loc_i
-		loc_i -= 1
-		Weapon loc_weapon = akActor.GetNthForm(loc_i) as Weapon
-		if loc_weapon
-			if isSharp(loc_weapon)
-				if !loc_bestWeapon
-					loc_bestWeapon = loc_weapon
-				elseif (loc_weapon.getBaseDamage() > loc_bestWeapon.GetBaseDamage())
-					loc_bestWeapon = loc_weapon
+	if isRegistered(akActor)
+		UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(akActor)
+		loc_bestWeapon = loc_slot.getBestWeapon()
+	else
+		int loc_i = akActor.GetNumItems()
+		while loc_i
+			loc_i -= 1
+			Weapon loc_weapon = akActor.GetNthForm(loc_i) as Weapon
+			if loc_weapon
+				if isSharp(loc_weapon)
+					if !loc_bestWeapon
+						loc_bestWeapon = loc_weapon
+					elseif (loc_weapon.getBaseDamage() > loc_bestWeapon.GetBaseDamage())
+						loc_bestWeapon = loc_weapon
+					endif
 				endif
 			endif
-		endif
-	endwhile
+		endwhile
+	endif
 	return loc_bestWeapon
 EndFunction
 
 bool Function isSharp(Weapon wWeapon)
+	bool 	loc_cond = false
+	int		loc_type = wWeapon.GetWeaponType()
+	loc_cond = loc_cond || (loc_type > 0 && loc_type < 4) ;swords, daggers, war axes
+	loc_cond = loc_cond || (loc_type == 5) ;great swords
+	loc_cond = loc_cond || (loc_type == 6) ;battleaxes and warhammes
+	return loc_cond
+	;/
 	int loc_i = UDlibs.SharpWeaponsKeywords.length
 	
 	while loc_i
@@ -1858,6 +1929,7 @@ bool Function isSharp(Weapon wWeapon)
 		endif
 	endwhile
 	return false
+	/;
 EndFunction
 
 Int Function ActorBelted(Actor akActor)
@@ -2048,9 +2120,14 @@ UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armo
 		return none
 	endif
 	
+	if !akActor
+		Error("getDeviceScriptByRender() - akActor = None!!")
+		return none
+	endif
+	
 	UD_CustomDevice_RenderScript result = none
 	while _transfereMutex
-		Utility.waitMenuMode(0.1)
+		Utility.waitMenuMode(0.05)
 	endwhile
 	
 	_transfereMutex = True
@@ -2065,12 +2142,23 @@ UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armo
 	TransfereContainer_ObjRef.removeItem(deviceRendered,1,True,akActor)
 	akActor.equipItem(deviceRendered,True,True)
 	float loc_time = 0.0
-	while !_transferedDevice && loc_time < 3.0
+	bool loc_isplayer = ActorIsPlayer(akActor)
+
+	while !_transferedDevice && loc_time <= 4.0
+		;/
+		if !loc_isplayer ;events for NPCs doesn't work while in menu
+			if loc_time >= 3.8
+				if Utility.IsInMenuMode()
+					loc_time = 0.0
+				endif
+			endif
+		endif
+		/;
 		Utility.waitMenuMode(0.05)
 		loc_time += 0.05
 	endwhile
 	
-	if loc_time >= 3.0 && !_transferedDevice		
+	if loc_time >= 4.0 && !_transferedDevice		
 		Error("getDeviceScriptByRender timeout for " + deviceRendered + "("+getActorName(akActor)+")")
 	endif
 	
@@ -2078,7 +2166,9 @@ UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armo
 	_transferedDevice = none
 	_transfereMutex = False
 	if akActor != libs.playerRef
-		akActor.UpdateWeight(0)
+		if deviceRendered.haskeyword(libs.zad_deviousheavybondage)
+			akActor.UpdateWeight(0)
+		endif
 	endif
 	return result
 EndFunction
@@ -2679,34 +2769,21 @@ EndFunction
 Function Print(String strMsg, int iLevel = 1,bool bLog = false)
 	UDmain.Print(strMsg,iLevel,bLog)
 EndFunction
-
+Function CLog(String strMsg)
+	UDmain.CLog(strMsg)
+EndFunction
 ;fixes
 ;will add update fixes here too
 Function OnGameReset()
-	(libs as zadlibs_UDPatch).ResetMutex()
 	RegisterForSingleUpdate(2*UD_UpdateTime)
-	Utility.waitMenuMode(5.0)
-	if TraceAllowed()	
-		Log("OnGameReset() called!",1)
-	endif
 	InitMenuArr()
-	UDmain.CheckOptionalMods()
-	UDmain.Config.LoadConfigPages()
-	UDmain.CheckPatchesOrder()
 	_activateDevicePackage = none
 	_startVibFunctionPackage = none
 	registerAllEvents()
 	UDPP.RegisterEvents()
-	
-	UDOM.RegisterModEvents()
-	
 	CheckHardcoreDisabler(Game.getPlayer())
 	SetArousalPerks()
-	
-	UDOM.ValidateLoops()
-	
 	UDCD_NPCM.CheckOrgasmManagerLoops()
-	
 EndFunction
 
 Function SetArousalPerks()
@@ -2738,6 +2815,7 @@ Function SetArousalPerks()
 	endif
 endfunction
 
+;/
 Function ApplyTears(Actor akActor)
 	if UDmain.ZaZAnimationPackInstalled && UDmain.ZAZBS && UDmain.SlaveTatsInstalled
 		if !akActor.HasMagicEffectWithKeyword(UDlibs.ZAZTears_KW)
@@ -2766,9 +2844,9 @@ Function RemoveDroll(Actor akActor)
 		SlaveTats.simple_Remove_tattoo(akActor, "Drool", "Drool 2", true, true)
 	endif
 EndFUnction
-
+/;
 bool Function ApplyTearsEffect(Actor akActor)
-	if UDmain.ZaZAnimationPackInstalled && UDmain.ZAZBS && UDmain.SlaveTatsInstalled
+	if UDmain.ZaZAnimationPackInstalled && UDmain.SlaveTatsInstalled
 		if !akActor.HasMagicEffectWithKeyword(UDlibs.ZAZTears_KW)
 			UDlibs.ZAZTearsSpell.cast(akActor)
 			return true
@@ -2778,7 +2856,7 @@ bool Function ApplyTearsEffect(Actor akActor)
 EndFUnction
 
 bool Function ApplyDroolEffect(Actor akActor) ;works only for player
-	if UDmain.ZaZAnimationPackInstalled && UDmain.ZAZBS && UDmain.SlaveTatsInstalled
+	if UDmain.ZaZAnimationPackInstalled && UDmain.SlaveTatsInstalled
 		if !akActor.HasMagicEffectWithKeyword(UDlibs.ZAZDrool_KW)
 			UDlibs.ZAZDroolSpell.cast(akActor)
 			return true
@@ -2932,12 +3010,10 @@ Function TestExpression(Actor akActor,sslBaseExpression sslExpression,bool bMout
 	libs.resetExpression(akActor,none)
 	
 	if sslExpression
-		(libs as zadlibs_UDPatch).ApplyExpressionPatched(akActor,sslExpression,50,bMouth,100)
-		;(libs).ApplyExpression(akActor,sslExpression,100,bMouth)
+		UDEM.ApplyExpression(akActor,sslExpression,50,bMouth,100)
 		Print(sslExpression.Name + " applied!")
 		Utility.wait(iTime)
-		(libs as zadlibs_UDPatch).ResetExpressionPatched(akActor, none,100)
-		;libs.resetExpression(akActor,none)
+		UDEM.ResetExpression(akActor, none,100)
 		Print(sslExpression.Name + " removed!")
 	endif
 EndFunction
@@ -2948,8 +3024,18 @@ EndFunction
 
 bool _debugSwitch = false
 
+;function used for mod development
 Function DebugFunction(Actor akActor)
 	;UDmain.UDRRM.LockRandomRestrain(akActor,false,iPrefSwitch = 0xffff)
+	;UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0xffff)
+	
+	;libs.LockDevice(akActor,libsx.zadx_gag_facemask_biz_transparent_Inventory)
+	;libs.LockDevice(akActor,libsx.zadx_catsuit_gasmask_tube_black_Inventory)
+		
+	UDEM.ApplyExpressionRaw(akActor,UDEM.CreateRandomExpression(true), strength = 100, openMouth=false, iPriority = 0)
+	
+	
+	
 	;DisableActor(akActor)
 	;/
 	if !_debugSwitch
@@ -2975,6 +3061,7 @@ Function DebugFunction(Actor akActor)
 	;int loc_res = GetUserListInput(loc_list)
 	;Print(loc_res)
 	
+	;/
 	UDlibs.GreenCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
 	Utility.wait(1.0)
 	UDlibs.BlueCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
@@ -2984,7 +3071,16 @@ Function DebugFunction(Actor akActor)
 	ApplyDroolEffect(akActor)
 	UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0x43ff)
 	UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0x3C00)
-	
+	/;
+	;/
+	float loc_startTime = Utility.GetCurrentRealTime()
+	Debug.StartScriptProfiling("UD_OrgasmManager")
+	UDOM.ActorOrgasm(Game.getPlayer(),5,50,3,true)
+	Debug.StopScriptProfiling("UD_OrgasmManager")
+	float loc_res = Utility.GetCurrentRealTime() - loc_startTime
+	debug.notification("[UD]: ElapsedTime for ActorOrgasm = " + loc_res)
+	debug.trace("[UD]: ElapsedTime for ActorOrgasm = " + loc_res)
+	/;
 	;/
 	int loc_value = 0
 	int loc_maxvalue = 100
@@ -3037,6 +3133,10 @@ float Function FinishRecordTime(string strObject = "",bool bReset = false,bool b
 	endif
 	if bPrint
 		debug.notification("ElapsedTime for "+ strObject + " = " + loc_res)
+	endif
+	
+	if bLog || bPrint
+		CLog("ElapsedTime for "+ strObject + " = " + loc_res)
 	endif
 	
 	if bReset

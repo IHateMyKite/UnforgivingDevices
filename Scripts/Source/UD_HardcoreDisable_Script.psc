@@ -19,6 +19,12 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 		UDCDmain.Log("hardcore disabler started for " + _target +"!",2)
 	endif
 	_MagickEffect = GetBaseObject()
+	
+	
+	while UI.IsMenuOpen("Dialogue Menu")
+		Utility.waitMenuMode(0.01) ;wait for player to end dialogue before applying effect
+	endwhile
+	
 	UDCDmain.UDmain.closeMenu()
 	
 	_MapKeyCode = Input.GetMappedKey("Quick Map")

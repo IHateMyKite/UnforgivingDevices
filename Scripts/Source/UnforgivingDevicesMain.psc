@@ -18,11 +18,18 @@ UD_MCM_script Property config  Auto
 UDItemManager Property ItemManager auto
 UD_RandomRestraintManager Property UDRRM auto
 UD_LeveledList_Patcher Property UDLLP auto
+UD_OrgasmManager Property UDOM auto
+UD_ExpressionManager Property UDEM auto
+UD_ParalelProcess Property UDPP auto
+UD_CustomDevices_NPCSlotsManager Property UDNPCM auto
+UD_MutexManagerScript Property UDMM auto
 
 bool property lockMCM = false auto
 bool property udequiped auto
 bool property DebugMod = False auto conditional
 bool Property AllowNPCSupport = False auto
+
+bool Property UD_DisableUpdate = false auto hidden conditional
 
 ;zadlibs patch control
 bool Property UD_zadlibs_ParalelProccesing = false auto
@@ -93,6 +100,13 @@ Event OnInit()
 	if TraceAllowed()	
 		Log("UDLLP ready!",0)
 	endif
+
+	While !UDOM.ready
+		Utility.WaitMenuMode(0.1)
+	endwhile
+	if TraceAllowed()	
+		Log("UDOM ready!",0)
+	endif
 	
 	OrgasmExhaustionSpell = UDlibs.OrgasmExhaustionSpell
 	OrgasmExhaustionSpell.SetNthEffectDuration(0, UD_OrgasmExhaustionDuration)
@@ -115,8 +129,41 @@ Event OnInit()
 	CheckPatchesOrder()
 EndEvent
 
+Function Update()
+	if !UDOM
+		Error("UDOM not loaded! Loading...")
+		UDOM = UDCDMain.GetMeMyForm(0x15B532,"UnforgivingDevices.esp") as UD_OrgasmManager
+		Error("UDOM set to "+UDOM)
+	endif
+	
+	if !UDEM
+		Error("UDEM not loaded! Loading...")
+		UDEM = UDCDMain.GetMeMyForm(0x156417,"UnforgivingDevices.esp") as UD_ExpressionManager
+		Error("UDEM set to "+UDEM)
+	endif
+
+	if !UDPP
+		Error("UDPP not loaded! Loading...")
+		UDPP = (self as Quest) as UD_ParalelProcess
+		Error("UDPP set to "+UDPP)
+	endif
+	
+	if !UDNPCM
+		Error("UDNPCM not loaded! Loading...")
+		UDNPCM = UDCDMain.GetMeMyForm(0x14E7EB,"UnforgivingDevices.esp") as UD_CustomDevices_NPCSlotsManager
+		Error("UDNPCM set to "+UDNPCM)
+	endif
+	
+	if !UDMM
+		Error("UDMM not loaded! Loading...")
+		UDMM = UDCDMain.GetMeMyForm(0x15B555,"UnforgivingDevices.esp") as UD_MutexManagerScript
+		Error("UDMM set to "+UDMM)
+	endif
+	
+EndFunction
+
 bool Property ZaZAnimationPackInstalled = false auto
-zbfBondageShell Property ZAZBS auto
+;zbfBondageShell Property ZAZBS auto
 
 bool Property OSLArousedInstalled = false auto
 bool Property ConsoleUtilInstalled = false auto
@@ -127,44 +174,49 @@ bool Property SlaveTatsInstalled = false auto
 Function CheckOptionalMods()
 	If ModInstalled("ZaZAnimationPack.esm")
 		ZaZAnimationPackInstalled = True
-		if !ZAZBS
-			ZAZBS = Game.GetFormFromFile(0x0137E6,"ZaZAnimationPack.esm") as zbfBondageShell
+		if TraceAllowed()
+			Log("Zaz animation pack detected!")
 		endif
-		Log("Zaz animation pack detected!")
 	else
 		ZaZAnimationPackInstalled = False
-		ZAZBS = none
 	endif
 	
 	if ModInstalled("OSLAroused.esp")
 		OSLArousedInstalled = True
-		Log("OSLAroused detected!")
+		if TraceAllowed()
+			Log("OSLAroused detected!")
+		endif
 	else
 		OSLArousedInstalled = false
 	endif
 		
 	if ModInstalled("SlaveTats.esp")
 		SlaveTatsInstalled = True
-		Log("SlaveTats detected!")
+		if TraceAllowed()
+			Log("SlaveTats detected!")
+		endif
 	else
 		SlaveTatsInstalled = false
 	endif	
 	
 	if ModInstalled("UIExtensions.esp")
-		Log("UIExtensions detected!")
+		if TraceAllowed()
+			Log("UIExtensions detected!")
+		endif
 	else
 		debug.messagebox("--!ERROR!--\nUD can't detect UIExtensions. Without this mode, some features of Unforgiving Devices will not work as intended. Please be warned.")
 	endif
 	
 	if ConsoleUtil.GetVersion()
 		ConsoleUtilInstalled = True
-		Log("ConsoleUtil detected!")
+		if TraceAllowed()
+			Log("ConsoleUtil detected!")
+		endif
 	else
 		debug.messagebox("--!ERROR!--\nUD can't detect ConsoleUtil. Without this mode, some features of Unforgiving Devices will not work as intended. Please be warned.")
 		ConsoleUtilInstalled = False
 	endif
 EndFUnction
-
 
 Function CheckPatchesOrder()
 	int loc_it = 0
@@ -331,6 +383,12 @@ Function Log(String msg, int level = 1)
 	endif
 EndFunction
 
+Function CLog(String msg)
+	if ConsoleUtilInstalled ;print to console
+		ConsoleUtil.PrintMessage("[UD] " + msg)
+	endif
+EndFunction
+
 int Property PrintLevel = 3 auto
 Function Print(String msg,int iLevel = 1,bool bLog = false)
 	if (iRange(iLevel,1,3) <= PrintLevel)
@@ -413,6 +471,9 @@ int Function iRange(int iValue,int iMin,int iMax)
 EndFunction
 
 string Function GetActorName(Actor akActor)
+	if !akActor
+		return "ERROR:NONE"
+	endif
 	return akActor.getActorBase().getName()
 EndFunction
 
@@ -432,4 +493,51 @@ EndFunction
 
 bool Function TraceAllowed()
 	return (LogLevel > 0)
+EndFunction
+
+Function OnGameReload()
+	(libs as zadlibs_UDPatch).ResetMutex()
+	
+	Utility.waitMenuMode(5.0)
+	
+	;update all scripts
+	Update()
+	
+	UDlibs.Update()
+	
+	if TraceAllowed()	
+		Log("OnGameReload() called!",1)
+	endif
+	
+	UDCDmain.OnGameReset()
+	Config.LoadConfigPages()
+	CheckOptionalMods()
+	CheckPatchesOrder()
+	
+	UDPP.Update()
+	
+	UDOM.Update()
+	
+	UDEM.Update()
+	
+	UDNPCM.GameUpdate()
+EndFunction
+
+;convert int to bit map
+string Function IntToBit(int argInt)
+	string 	loc_res = 	""
+	int 	loc_i 	=	32
+	while loc_i ;32 bit number
+		loc_i -= 1
+		if Math.LogicalAnd(argInt,Math.LeftShift(0x00000001,loc_i))
+			loc_res += "1"
+		else
+			loc_res += "0"
+		endif
+		
+		if !(loc_i % 4) && loc_i
+			loc_res += " " ;add space for better readability
+		endif
+	endwhile
+	return loc_res
 EndFunction

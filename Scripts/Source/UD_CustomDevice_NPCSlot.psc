@@ -1,10 +1,18 @@
 Scriptname UD_CustomDevice_NPCSlot  extends ReferenceAlias
 
 UDCustomDeviceMain Property UDCDmain auto
-UD_CustomDevice_RenderScript[] Property UD_equipedCustomDevices auto
+UnforgivingDevicesMain Property UDmain 
+	UnforgivingDevicesMain Function get()
+		return UDCDmain.UDmain
+	EndFunction	
+EndProperty
+UD_CustomDevice_RenderScript[] Property UD_equipedCustomDevices auto hidden
+
 int _iUsedSlots = 0
 int _iScriptState = 0
-bool Property Ready = False auto
+bool Property Ready = False auto hidden
+
+Weapon Property BestWeapon = none auto hidden
 
 bool _DeviceManipMutex = false
 
@@ -155,8 +163,10 @@ Function unregisterSlot()
 	self.Clear()
 EndFunction
 
-Function sortSlots()
-	startDeviceManipulation()
+Function sortSlots(bool mutex = true)
+	if mutex
+		startDeviceManipulation()
+	endif
 	int i = 0
 	while i < UD_equipedCustomDevices.length - 1
 		if UD_equipedCustomDevices[i] == none && UD_equipedCustomDevices[i + 1]
@@ -172,7 +182,9 @@ Function sortSlots()
 		
 		i+=1
 	endwhile
-	endDeviceManipulation()
+	if mutex
+		endDeviceManipulation()
+	endif
 EndFunction
 
 ;removes bullshit
@@ -190,12 +202,11 @@ Function fix()
 		removeCopies()
 		removeUnusedDevices()
 		removeLostRenderDevices()
-		;resetScriptState()
+
 		UDCDmain.EnableActor(getActor(),true)
-		;Game.EnablePlayerControls()
+
 		getActor().removeFromFaction(UDCDmain.MinigameFaction)
 		getActor().removeFromFaction(UDCDmain.BlockExpressionFaction)
-		UDCDmain.libs.ResetExpression(getActor(), none)
 		
 		if getActor() == Game.getPlayer()
 			Game.EnablePlayerControls()
@@ -229,12 +240,16 @@ Function fix()
 		
 		;getActor().removeFromFaction(UDCDmain.UDOM.OrgasmCheckLoopFaction)
 		;UDCDmain.UDOM.StartOrgasmCheckLoop(getActor())
-		UDCDmain.libsp.ResetExpressionPatched(getActor(),none,100)
+		UDCDMain.UDEM.ResetExpression(getActor(),none,100)
 	endif
 	
 EndFunction
 
 Function removeLostRenderDevices()
+	;if !isPlayer()
+	;	UDCDmain.Print("removeLostRenderDevices doesn't work for NPCs. Skipping!",1)
+	;endif
+	
 	startDeviceManipulation()
 	if UDCDmain.TraceAllowed()	
 		UDCDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+")")
@@ -260,12 +275,13 @@ Function removeLostRenderDevices()
 				if UDCDmain.TraceAllowed()				
 					UDCDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+"): Proccesing device " + loc_InvDevice.getName())
 				endif
-				bool loc_cond = !_currentSlotedActor.isEquipped(loc_InvDevice)
+				bool loc_cond = !UDCDmain.CheckRenderDeviceEquipped(_currentSlotedActor,loc_RenDevice) ;this doesm't work for NPC -> skip this check
 				if UDCDmain.TraceAllowed()				
 					UDCDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+"): " + loc_InvDevice.getName() + ", cond: " + loc_cond)
 				endif
 				if  loc_cond
 					loc_toRemove = PapyrusUtil.PushForm(loc_toRemove, ArmorDevice)
+					UDCDmain.Print("Lost device found: " + loc_InvDevice.getName() + " removed!")
 				endif
 			endif
 		endif
@@ -275,9 +291,10 @@ Function removeLostRenderDevices()
 	
 	while loc_toRemoveNum
 		loc_toRemoveNum -= 1
-		_currentSlotedActor.unequipItem(loc_toRemove[loc_toRemoveNum])
-		_currentSlotedActor.removeItem(loc_toRemove[loc_toRemoveNum],1)
-		UDCDmain.Print(loc_toRemove[loc_toRemoveNum] + " removed!")
+		if deviceAlreadyRegisteredRender(loc_toRemove[loc_toRemoveNum] as Armor)
+			unregisterDeviceByRend(loc_toRemove[loc_toRemoveNum] as Armor,0,true,false) ;no mutex
+		endif
+		_currentSlotedActor.removeItem(loc_toRemove[loc_toRemoveNum],1,true)
 	endwhile
 	endDeviceManipulation()
 EndFunction
@@ -302,8 +319,10 @@ bool Function registerDevice(UD_CustomDevice_RenderScript oref)
 	return false
 EndFunction
 
-int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool sort = True)
-	startDeviceManipulation()
+int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool sort = True,bool mutex = true)
+	if mutex
+		startDeviceManipulation()
+	endif
 	int res = 0
 	while UD_equipedCustomDevices[i]
 		if UD_equipedCustomDevices[i] == oref
@@ -313,23 +332,51 @@ int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool s
 		endif
 		i+=1
 	endwhile
-	
-	endDeviceManipulation()
-	
+	if mutex
+		endDeviceManipulation()
+	endif
 	;if isScriptRunning() && _iUsedSlots == 0
 		;resetScriptState()
 	;	return res
 	;endif	
 	
 	if isScriptRunning() && sort
-		sortSlots()
+		sortSlots(mutex)
 	endif
 	
 	return res
 EndFunction
 
-int Function unregisterAllDevices(int i = 0)
-	startDeviceManipulation()
+int Function unregisterDeviceByInv(Armor invDevice,int i = 0,bool sort = True,bool mutex = true)
+
+	int res = 0
+	UD_CustomDevice_RenderScript loc_device = getDeviceByInventory(invDevice)
+	
+	if !loc_device
+		UDCDmain.Error("unregisterDeviceByInv("+getSlotedNPCName()+","+invDevice.getName()+") failed!! No registered device found")
+		return res
+	endif
+	
+	return unregisterDevice(loc_device,i,sort,mutex)
+EndFunction
+
+int Function unregisterDeviceByRend(Armor rendDevice,int i = 0,bool sort = True,bool mutex = true)
+
+	int res = 0
+	UD_CustomDevice_RenderScript loc_device = getDeviceByRender(rendDevice)
+	
+	if !loc_device
+		UDCDmain.Error("unregisterDeviceByRend("+getSlotedNPCName()+","+rendDevice+") failed!! No registered device found")
+		return res
+	endif
+	
+	return unregisterDevice(loc_device,i,sort,mutex)
+EndFunction
+
+int Function unregisterAllDevices(int i = 0,bool mutex = true)
+	if mutex
+		startDeviceManipulation()
+	endif
 	int res = 0
 	while UD_equipedCustomDevices[i]
 		UD_equipedCustomDevices[i] = none
@@ -337,7 +384,9 @@ int Function unregisterAllDevices(int i = 0)
 		res += 1
 		i += 1
 	endwhile
-	endDeviceManipulation()
+	if mutex
+		endDeviceManipulation()
+	endif
 	return res
 EndFunction
 
@@ -590,7 +639,7 @@ Function showDebugMenu(int slot_id)
 				UD_equipedCustomDevices[slot_id].activateDevice()
 				return
 			elseif res == 6 ;Add modifier
-				string[] loc_ModifierList = new String[8]
+				string[] loc_ModifierList = new String[9]
 				loc_ModifierList[0] = "Regen"
 				loc_ModifierList[1] = "Sentient"
 				loc_ModifierList[2] = "Loose"
@@ -599,6 +648,7 @@ Function showDebugMenu(int slot_id)
 				loc_ModifierList[5] = "_HEAL"
 				loc_ModifierList[6] = "LootGold"
 				loc_ModifierList[7] = "DOR"
+				loc_ModifierList[8] = "_L_CHEAP"
 				int loc_res1 = UDCDMain.GetUserListInput(loc_ModifierList)
 				if loc_res1 >= 0
 					String loc_modName = loc_ModifierList[loc_res1]
@@ -654,6 +704,18 @@ UD_CustomDevice_RenderScript Function getDeviceByInventory(Armor deviceInventory
 	int i = 0
 	while UD_equipedCustomDevices[i]
 		if UD_equipedCustomDevices[i].deviceInventory == deviceInventory
+			return UD_equipedCustomDevices[i]
+		endif
+		i+=1
+	endwhile
+	return none
+EndFunction
+
+;returns first device which have connected corresponding Render Device
+UD_CustomDevice_RenderScript Function getDeviceByRender(Armor deviceRendered)
+	int i = 0
+	while UD_equipedCustomDevices[i]
+		if UD_equipedCustomDevices[i].deviceRendered == deviceRendered
 			return UD_equipedCustomDevices[i]
 		endif
 		i+=1
@@ -898,7 +960,7 @@ Function TurnOffAllVibrators()
 	endif
 	int i = 0
 	while UD_equipedCustomDevices[i]
-		if UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript
+		if UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript && !(UD_equipedCustomDevices[i] as UD_ControlablePlug_RenderScript)
 			if (UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript).isVibrating()
 				if UDCDmain.TraceAllowed()				
 					UDCDmain.Log("Stoping " + UD_equipedCustomDevices[i].getDeviceName() + " on " + getSlotedNPCName())
@@ -1135,4 +1197,116 @@ Function regainDevices()
 		endif
 	endwhile
 	_regainMutex = False
+EndFunction
+
+
+Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer)
+	if akBaseItem as Weapon
+		Weapon loc_weapon = akBaseItem as Weapon
+		if UDCDmain.isSharp(loc_weapon)
+			if !BestWeapon
+				BestWeapon = loc_weapon
+			elseif BestWeapon.getBaseDamage() < loc_weapon.GetBaseDamage()
+				BestWeapon = loc_weapon
+			endif
+		endif
+	endIf
+endEvent
+
+Event OnItemRemoved(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer)
+	if akBaseItem as Weapon
+		Weapon loc_weapon = akBaseItem as Weapon
+		if loc_weapon == BestWeapon
+			if getActor().getItemCount(BestWeapon) == 0
+				BestWeapon = UDCDmain.getSharpestWeapon(getActor()) ;find the next best weapon
+			endif
+		endif
+	endIf
+endEvent
+
+Weapon Function GetBestWeapon()
+	if BestWeapon
+		return BestWeapon
+	else
+		int loc_i = getActor().GetNumItems()
+		while loc_i
+			loc_i -= 1
+			Weapon loc_weapon = getActor().GetNthForm(loc_i) as Weapon
+			if loc_weapon
+				if UDCDmain.isSharp(loc_weapon)
+					if !BestWeapon
+						BestWeapon = loc_weapon
+					elseif (loc_weapon.getBaseDamage() > BestWeapon.GetBaseDamage())
+						BestWeapon = loc_weapon
+					endif
+				endif
+			endif
+		endwhile
+		return BestWeapon
+	endif
+EndFunction
+
+
+;MUTEX
+
+bool Property UD_GlobalDeviceMutex_InventoryScript = false auto hidden
+bool Property UD_GlobalDeviceMutex_InventoryScript_Failed = false auto hidden
+bool Property UD_GlobalDeviceMutex_RenderScript = false auto hidden
+bool Property UD_GlobalDeviceMutex_RenderScript_Failed = false auto hidden
+Armor Property UD_GlobalDeviceMutex_Device = none auto hidden
+Armor Property UD_GlobalDeviceMutex_Device_Rend = none auto hidden
+
+Function ResetMutex(Armor invDevice)
+	UD_GlobalDeviceMutex_inventoryScript = false
+	UD_GlobalDeviceMutex_InventoryScript_Failed = false
+	UD_GlobalDeviceMutex_Device = invDevice
+EndFunction
+
+;function made as replacemant for akActor.isEquipped, because that function doesn't work for NPCs
+bool Function CheckRenderDeviceEquipped(Armor rendDevice)
+	if !isUsed()
+		return false
+	endif
+	
+	int loc_mask = 0x00000001
+	while loc_mask != 0x80000000
+		Form loc_armor = getActor().GetWornForm(loc_mask)
+		if loc_armor ;check if there is anything in slot
+			if (loc_armor as Armor) == rendDevice
+				return true ;render device is equipped
+			endif
+		endif
+		loc_mask = Math.LeftShift(loc_mask,1)
+	endwhile
+	return false ;device is not equipped
+EndFunction
+
+Bool _LOCKDEVICE_MUTEX = false
+Function StartLockMutex()
+	while _LOCKDEVICE_MUTEX
+		Utility.waitMenuMode(0.05)
+	endwhile
+	_LOCKDEVICE_MUTEX = true
+EndFunction
+
+Function EndLockMutex()
+	_LOCKDEVICE_MUTEX = false
+EndFunction
+
+Bool Function IsMutexed(Armor invDevice)
+	return UD_GlobalDeviceMutex_Device == invDevice
+EndFunction
+
+Function ProccesLockMutex()
+	float loc_time = 0.0
+	while loc_time <= 25.0 && (!UD_GlobalDeviceMutex_InventoryScript)
+		Utility.waitMenuMode(0.05)
+		loc_time += 0.05
+	endwhile
+	
+	if UD_GlobalDeviceMutex_InventoryScript_Failed || loc_time >= 25.0
+		UDCDmain.Error("LockDevicePatched("+GetSlotedNPCName()+","+UD_GlobalDeviceMutex_Device.getName()+") failed!!! ID Fail? " + UD_GlobalDeviceMutex_InventoryScript_Failed)
+	endif
+	
+	UD_GlobalDeviceMutex_Device = none
 EndFunction

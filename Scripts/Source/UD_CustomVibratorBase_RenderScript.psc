@@ -551,7 +551,8 @@ Function vibrate(float fDurationMult = 1.0)
 	setArousalRate(getVibArousalRate())
 
 	; Main Loop
-	While (_currentVibRemainingDuration != 0)
+	;lasts untill times runs out or device is removed (normally stopVibration is called, but its possible for device to be manually which doesn't stop this loop)
+	While (_currentVibRemainingDuration != 0) && isDeviceValid()
 		;vibrate sound
 		if isVibrating() && !_paused
 			if (_currentVibRemainingDuration % 2) == 0 ; Make noise

@@ -34,7 +34,7 @@ Formlist Property UD_AbadonDeviceList_HeavyBondageHard auto
 
 zadDeviceLists Property zadDL auto
 
-int Property UD_RandomDevice_GlobalFilter = 0xFFFFFFFF auto
+int Property UD_RandomDevice_GlobalFilter = 0x0000FFFF auto
 
 
 Function StartMutex()

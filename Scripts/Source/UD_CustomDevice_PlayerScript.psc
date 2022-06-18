@@ -1,10 +1,8 @@
 Scriptname UD_CustomDevice_PlayerScript extends ReferenceAlias  
 
-zadlibs Property libs auto
-UD_libs Property UDlibs auto 
-UDCustomDeviceMain Property UDCDmain auto
+UnforgivingDevicesMain Property UDmain auto
 
 Event OnPlayerLoadGame()
-	UDCDmain.OnGameReset()
+	UDmain.OnGameReload()
 EndEvent
 

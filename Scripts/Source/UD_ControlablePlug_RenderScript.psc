@@ -194,9 +194,9 @@ Function OnUpdatePost(float timePassed)
 		if minutes_updated >= 15.0
 			int loc_newStrength = Utility.randomInt(25,100)
 			if WearerIsPlayer()
-				debug.notification("Your " + getDeviceName() + " changes its vibration strength!")
+				UDCDmain.Print("Your " + getDeviceName() + " changes its vibration strength!",2)
 			elseif WearerIsFollower()
-				debug.notification(getWearerName() + "s " + getDeviceName() + " changes its vibration strength!")
+				UDCDmain.Print(getWearerName() + "s " + getDeviceName() + " changes its vibration strength!",2)
 			endif
 			forceStrength(loc_newStrength)
 			minutes_updated = 0.0

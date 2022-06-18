@@ -1,6 +1,11 @@
 Scriptname UD_CustomDevices_NPCSlotsManager extends Quest  
 
 UDCustomDeviceMain Property UDCDmain auto
+UnforgivingDevicesMain Property UDmain 
+	UnforgivingDevicesMain Function get()
+		return UDCDmain.UDmain
+	EndFunction	
+EndProperty
 Quest Property UDCD_NPCF auto ;finder
 zadlibs Property libs auto
 Bool Property Ready = False auto
@@ -28,26 +33,38 @@ Event OnInit()
 EndEvent
 
 
+Function GameUpdate()
+	CheckOrgasmLoops()
+EndFunction
+
+Function CheckOrgasmLoops()
+	int index = UD_Slots ;all aliases, excluding player
+	while index
+		index -= 1
+		UD_CustomDevice_NPCSlot loc_slot = (UDCD_NPCF.GetNthAlias(index) as UD_CustomDevice_NPCSlot)
+		if loc_slot
+			if loc_slot.isUsed()
+				UDOM.CheckArousalCheck(loc_slot.getActor())
+				UDOM.CheckOrgasmCheck(loc_slot.getActor())
+			endif
+		endif
+	endwhile
+EndFunction
+
 Bool _PlayerSlotReady = false
-Float Property UD_SlotUpdatTime = 4.0 auto
+Float Property UD_SlotUpdatTime = 6.0 auto
 Event OnUpdate()
 	if !_PlayerSlotReady
 		_PlayerSlotReady = True
 		initPlayerSlot()
 	endif
-	
-	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("UD_CustomDevices_NPCSlotsManager: !!!Updating!!!",3)
+	if !UDmain.UD_DisableUpdate
+		if UDCDmain.UDmain.AllowNPCSupport
+			scanSlots()
+		endif
 	endif
-	if UDCDmain.UDmain.AllowNPCSupport
-		scanSlots()
-	else
-		;getPlayerSlot().regainDevices()
-	endif
-	;CheckSlots()
 	RegisterForSingleUpdate(UD_SlotUpdatTime)
 EndEvent
-
 
 ;bool _updating = false
 bool Function scanSlots(bool debugMsg = False)

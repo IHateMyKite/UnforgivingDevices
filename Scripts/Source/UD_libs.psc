@@ -16,8 +16,25 @@ Event OnInit()
 EndEvent
 
 Function Update()
-	PunisherArmbinder = main.UDCDMain.GetMeMyForm(0x15B53D,"UnforgivingDevices.esp") as Armor
-	PunisherPiercing = main.UDCDMain.GetMeMyForm(0x15B538,"UnforgivingDevices.esp") as Armor
+	if !PunisherArmbinder
+		PunisherArmbinder = main.UDCDMain.GetMeMyForm(0x15B53D,"UnforgivingDevices.esp") as Armor
+	endif
+	
+	if !PunisherPiercing
+		PunisherPiercing = main.UDCDMain.GetMeMyForm(0x15B538,"UnforgivingDevices.esp") as Armor
+	endif
+
+	if !PreventCombat_KW
+		main.Error("PreventCombat_KW not detected. Loading...")
+		PreventCombat_KW = main.UDCDMain.GetMeMyForm(0x15B551,"UnforgivingDevices.esp") as Keyword
+		main.Error("PreventCombat_KW loaded")
+	endif
+
+	if !PreventCombatSpell
+		main.Error("PreventCombatSpell not detected. Loading...")
+		PreventCombatSpell = main.UDCDMain.GetMeMyForm(0x15B553,"UnforgivingDevices.esp") as Spell
+		main.Error("PreventCombatSpell loaded")
+	endif
 EndFunction
 
 ;plug
@@ -124,7 +141,7 @@ Keyword Property PatchNoModes_KW auto
 Keyword Property HardcoreDisable_KW auto
 Keyword Property OrgasmCheck_KW auto
 Keyword Property ArousalCheck_KW auto
-
+Keyword Property PreventCombat_KW auto
 
 ;spells
 Spell Property MinigameDisableSpell auto
@@ -137,6 +154,7 @@ Spell Property ArousalCheckSpell auto
 Spell Property TelekinesisSpell auto
 Spell Property AphrodisiacsSpell auto
 Spell Property NPCRegisterSpell auto
+Spell Property PreventCombatSpell auto
 
 ;crits
 Spell Property GreenCrit auto

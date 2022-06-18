@@ -2,7 +2,16 @@ Scriptname UD_CustomDevice_EquipScript extends zadequipscript
 import MfgConsoleFunc
 
 UDCustomDeviceMain Property UDCDmain auto
-
+zadlibs_UDPatch Property libsp
+	zadlibs_UDPatch Function get()
+		return UDCDmain.libsp
+	EndFunction
+endproperty
+UD_MutexManagerScript Property UDMM
+	UD_MutexManagerScript Function get()
+		return UDCDmain.UDmain.UDMM
+	EndFunction
+endproperty
 ;properties from original scripts to not cause issues with patching
 ;zadGagScript
 Message Property callForHelpMsg Auto
@@ -120,22 +129,31 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 						return
 					endif
 				else
-					if giver.getItemCount(deviceRendered) && DestroyOnRemove
+					if giver.getItemCount(deviceRendered); && DestroyOnRemove
 						if UDCDmain.TraceAllowed()						
-							UDCDmain.Log("Removing DestroyOnRemove device" + deviceInventory.getName() + " on "+ giver.getActorBase().getName(),1)
+							UDCDmain.Log("Removing device from dead actor " + deviceInventory.getName() + " on "+ giver.getActorBase().getName(),1)
 						endif
 						UD_CustomDevice_RenderScript device = getUDScript(giver)
 						if device
-							if UDCDmain.TraceAllowed()						
-								UDCDmain.Log("Removing device from dead actor :" + deviceInventory.getName() + " on "+ giver.getActorBase().getName() +" to:  " + target.getActorBase().getName(),1)
-							endif
+							;if UDCDmain.TraceAllowed()						
+							;	UDCDmain.Log("Removing device from dead actor  :" + deviceInventory.getName() + " on "+ giver.getActorBase().getName() +" to:  " + target.getActorBase().getName(),1)
+							;endif
 							device.removeDevice(giver)
 							if DestroyOnRemove
 								target.removeItem(deviceInventory,1,True)
-								giver.removeItem(deviceRendered,1,True)
 							endif
+							giver.removeItem(deviceRendered,1,True)
 							return
 						endif
+					else
+						if UDCDmain.TraceAllowed()						
+							UDCDmain.Log("Removing ID device" + deviceInventory.getName() + " on "+ giver.getActorBase().getName(),1)
+						endif
+						;do nothing, no need to make thinks complicated
+						if DestroyOnRemove
+							target.removeItem(deviceInventory,1,True)
+						endif
+						return
 					endif
 				endif
 			endif
@@ -174,13 +192,8 @@ Function OnRemoveDevice(actor akActor)
 	if UDCDmain.TraceAllowed()	
 		UDCDmain.Log("OnRemoveDevice called for " + deviceInventory.getName() + " on " + akActor.getLeveledActorBase().getName(),3)
 	endif
-	UD_CustomDevice_RenderScript device
-	if UDCDmain.UDCD_NPCM.isRegistered(akActor)
-		device = UDCDmain.getFirstDeviceByKeyword(akActor,zad_DeviousDevice)
-	else
-		device = UDCDmain.getDeviceScriptByRender(akActor,deviceRendered)
-	endif
 	
+	UD_CustomDevice_RenderScript device = getUDScript(akActor)
 	if device
 		device.removeDevice(akActor)
 	endif
@@ -205,7 +218,7 @@ Function OnRemoveDevice(actor akActor)
 	endif
 	
 	
-	zadlibs_UDPatch libs_p = (libs as zadlibs_UDPatch)
+	zadlibs_UDPatch libs_p = libsp
 	if akActor == libs_p.UD_GlobalDeviceMutex_Unlock_Actor && libs_p.UD_GlobalDeviceMutex_Unlock_Device == deviceInventory
 		libs_p.UD_GlobalDeviceMutex_Unlock_InventoryScript = true
 	endif
@@ -223,12 +236,8 @@ Event OnEquipped(Actor akActor)
 		if Math.LogicalAnd(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x030)
 			StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalAnd(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0xF0F))
 		endif
-		if (libs as zadlibs_UDPatch).isMutexed(akActor,deviceInventory)
-			(libs as zadlibs_UDPatch).UD_GlobalDeviceMutex_InventoryScript_Failed = true
-		endif
 		return
 	endif
-	
 	if !UDCDmain
 		UDCDmain = Game.getFormFromFile(0x0015E73C,"UnforgivingDevices.esp") as UDCustomDeviceMain
 	endif
@@ -236,21 +245,14 @@ Event OnEquipped(Actor akActor)
 	if !zad_DeviceMsg
 		zad_DeviceMsg =	UDCDmain.DefaultEquipDeviceMessage
 	endif
-
+	
 	LockDevice(akActor)
 	
-	if (libs as zadlibs_UDPatch).isMutexed(akActor,deviceInventory)
-		if !_locked
-			(libs as zadlibs_UDPatch).UD_GlobalDeviceMutex_InventoryScript_Failed = true
-		else
-			(libs as zadlibs_UDPatch).UD_GlobalDeviceMutex_InventoryScript = true
-		endif
-	endif
 EndEvent
 
 Event OnUnequipped(Actor akActor)
 	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log(" OnUnequipped("+UDCDmain.MakeDeviceHeader(akActor,deviceInventory)+") - called",3)
+		UDCDmain.Log("OnUnequipped("+UDCDmain.MakeDeviceHeader(akActor,deviceInventory)+") - called",3)
 	endif
 
 	if UI.IsMenuOpen("ContainerMenu") && akActor == Game.getPlayer()
@@ -629,52 +631,157 @@ Event LockDevice(Actor akActor)
 		endif
 	EndIf
 	
+	UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
+	UD_MutexScript loc_mutex = none 
+	bool _actorselfbound = false
+	if loc_slot
+		if !loc_slot.isMutexed(deviceInventory)
+			_actorselfbound = true
+			loc_slot.StartLockMutex()
+			loc_slot.ResetMutex(deviceInventory)
+		endif
+	else
+		if !UDMM.IsDeviceMutexed(akActor,deviceInventory)
+			_actorselfbound = true
+			loc_mutex = UDMM.WaitForFreeAndSet(akActor,deviceInventory)
+		else
+			loc_mutex = UDMM.GetMutexSlot(akActor)
+		endif
+	endif
+	
+	bool prelock_fail = false
 	if akActor.GetItemCount(deviceRendered) > 0
 		if UDCDmain.TraceAllowed()		
 			libs.Log("OnEquipped aborted - item is already worn.")		
 		endif
 		; no need to process if the item is already worn
-		return
+		prelock_fail = true
 	EndIf
 	
-	if akActor.GetItemCount(deviceRendered) == 0 && akActor.WornHasKeyword(zad_DeviousDevice) && CheckConflict(akActor)
-		if UDCDmain.TraceAllowed()		
-			libs.Log("Wearing conflicting device type:" + zad_DeviousDevice)		
-		endif
-		akActor.UnequipItem(deviceInventory, false, true)		
-		return
-	EndIf	
-	
+
+	if !prelock_fail
+		if akActor.GetItemCount(deviceRendered) == 0 && akActor.WornHasKeyword(zad_DeviousDevice) && CheckConflict(akActor)
+			if UDCDmain.TraceAllowed()		
+				libs.Log("Wearing conflicting device type:" + zad_DeviousDevice)		
+			endif
+			akActor.UnequipItem(deviceInventory, false, true)	
+			prelock_fail = true
+		EndIf	
+	endif
+
+
 	;int loc_lockDeviceType = GetLockDeviceType(akActor)
 	;StorageUtil.UnsetIntValue(akActor,"UD_LockDeviceType"+deviceInventory)
 	
 	bool silently = ShouldEquipSilently(akActor)
 	
 	; check for device conflicts
-	If !silently && (IsEquipDeviceConflict(akActor) || IsEquipRequiredDeviceConflict(akActor))			
-		akActor.UnequipItem(deviceInventory, false, true)		
-		return
-    EndIf	
+	if !prelock_fail
+		If !silently && (IsEquipDeviceConflict(akActor) || IsEquipRequiredDeviceConflict(akActor))			
+			akActor.UnequipItem(deviceInventory, false, true)	
+			prelock_fail = true
+		EndIf
+	endif	
 	
-	If !silently; && loc_lockDeviceType > 0; && !akActor.WornHasKeyword(zad_DeviousDevice) && akActor.GetItemCount(deviceRendered) == 0
+	If !silently && !prelock_fail; && loc_lockDeviceType > 0; && !akActor.WornHasKeyword(zad_DeviousDevice) && akActor.GetItemCount(deviceRendered) == 0
 		if akActor == Game.getPlayer();loc_lockDeviceType == 1
 			if EquipDeviceMenu(akActor)
 				akActor.UnequipItem(deviceInventory, false, true)
-				return
+				prelock_fail = true
 			endif
 		;elseif loc_lockDeviceType == 2
 			;NPC menu, TODO
 		endif
 	EndIf	
-	
 	;filter
 	int filter = OnEquippedFilter(akActor, silent=silently)
-	if filter >= 1
-		if filter == 2
-			akActor.UnequipItem(deviceInventory, false, true)
-		EndIf		
+	if !prelock_fail
+		if filter >= 1
+			if filter == 2
+				akActor.UnequipItem(deviceInventory, false, true)
+			EndIf	
+			prelock_fail = true
+		EndIf
+	endif
+	
+	
+	if prelock_fail
+		if loc_slot
+			if loc_slot.isMutexed(deviceInventory)
+				loc_slot.UD_GlobalDeviceMutex_InventoryScript_Failed = true
+				loc_slot.UD_GlobalDeviceMutex_InventoryScript = true
+			endif
+		elseif loc_mutex
+			loc_mutex.UD_GlobalDeviceMutex_InventoryScript_Failed = true
+			loc_mutex.UD_GlobalDeviceMutex_InventoryScript = true
+		endif
+		
+		if _actorselfbound
+			if loc_slot
+				if loc_slot.isMutexed(deviceInventory)
+					loc_slot.EndLockMutex()
+				endif
+			elseif loc_mutex
+				loc_mutex.ResetMutex()
+			endif
+			_actorselfbound = false
+		endif
 		return
-	EndIf
+	endif
+	
+	OnEquippedPre(akActor, silent=silently)
+	
+	if akActor == libs.PlayerRef ;doesn't work for NPCs, get todded
+		if !akActor.IsEquipped(DeviceInventory)
+			akActor.EquipItem(DeviceInventory, false, true)	
+		EndIf
+	endif
+	
+	akActor.EquipItem(DeviceRendered, true, true)
+	
+	float loc_time = 0.0
+	while loc_time <= 1.0 && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
+		Utility.waitMenuMode(0.01)
+		loc_time += 0.01
+	endwhile
+	
+	if loc_time >= 1.0
+		;render device lock failed, abort
+		_locked = false
+		StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
+		akActor.UnequipItem(deviceInventory, false, true)
+		akActor.removeItem(DeviceRendered,1,true)
+		UDCDMain.Error("LockDevice("+getDeviceName()+","+UDCDmain.GetActorName(akActor)+") failed. Render device is not equipped - timeout")
+	endif
+	
+	if loc_slot
+		if loc_slot.isMutexed(deviceInventory)
+			if !_locked
+				loc_slot.UD_GlobalDeviceMutex_InventoryScript_Failed = true
+			endif
+			loc_slot.UD_GlobalDeviceMutex_InventoryScript = true
+		endif
+	elseif loc_mutex
+		if !_locked
+			loc_mutex.UD_GlobalDeviceMutex_InventoryScript_Failed = true
+		endif
+		loc_mutex.UD_GlobalDeviceMutex_InventoryScript = true
+	endif
+	
+	if _actorselfbound
+		if loc_slot
+			if loc_slot.isMutexed(deviceInventory)
+				loc_slot.EndLockMutex()
+			endif
+		elseif loc_mutex
+			loc_mutex.ResetMutex()
+		endif
+		_actorselfbound = false
+	endif
+
+	if !_locked
+		return
+	endif
 	
 	if akActor == libs.PlayerRef ; Store equipped devices for faster generic calls.
 		StoreEquippedDevice(akActor)
@@ -683,16 +790,8 @@ Event LockDevice(Actor akActor)
 		StorageUtil.UnSetIntValue(akActor, "zad_TightenToken" + deviceInventory)
 	EndIf
 	
-	OnEquippedPre(akActor, silent=silently)
-	
 	libs.SendDeviceEquippedEvent(deviceName, akActor)
 	libs.SendDeviceEquippedEventVerbose(deviceInventory, zad_DeviousDevice, akActor)
-	
-	if !akActor.IsEquipped(DeviceInventory)
-		akActor.EquipItem(DeviceInventory, false, true)	
-	EndIf	
-	
-	akActor.EquipItem(DeviceRendered, true, true)
 	
 	if akActor == libs.PlayerRef && !akActor.IsOnMount() && UI.IsMenuOpen("InventoryMenu")
 		; make it visible for the player in case the menu is open
@@ -797,4 +896,8 @@ Function ShowDetails(Actor akActor)
 	loc_msg += "-" + getDeviceName() + "-\n"
 	loc_msg += "Type: " + libs.LookupDeviceType(zad_DeviousDevice) + "\n"
 	UDCDmain.ShowMessageBox(loc_msg)
+EndFunction
+
+bool Function ShouldEquipSilently(actor akActor)
+	return parent.ShouldEquipSilently(akActor) || (!UDCDmain.ActorIsFollower(akActor) && !UDCDmain.ActorIsPlayer(akActor))
 EndFunction

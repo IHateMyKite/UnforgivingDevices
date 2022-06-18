@@ -338,7 +338,7 @@ Function deflatePlug(int decrease)
 		libs.DeflateVaginalPlug(getWearer(), decrease)
 	EndIf
 	
-	_inflateLevel -= 1
+	_inflateLevel -= decrease
 	if _inflateLevel < 0
 		_inflateLevel = 0
 	endif

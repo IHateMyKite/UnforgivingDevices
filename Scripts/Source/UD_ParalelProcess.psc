@@ -3,6 +3,17 @@ Scriptname UD_ParalelProcess extends Quest
 UDCustomDeviceMain Property UDCDmain auto
 UnforgivingDevicesMain Property UDmain auto
 
+zadlibs_UDPatch Property libsp
+	zadlibs_UDPatch Function get()
+		return UDmain.libs as zadlibs_UDPatch
+	EndFunction
+EndProperty
+UD_ExpressionManager Property UDEM
+	UD_ExpressionManager Function get()
+		return UDmain.UDEM
+	EndFunction
+EndProperty
+
 Bool Property Ready auto
 
 Event OnInit()
@@ -15,30 +26,36 @@ Event OnInit()
 	Ready = True
 EndEvent
 
+Function Update()
+	UnregisterForAllModEvents()
+	RegisterEvents()
+EndFunction
+
 ;==============================
 ;           REGISTER
 ;==============================
 Function RegisterEvents()
 	RegisterForModEvent("UDMinigameStarter", "Receive_MinigameStarter")
 	RegisterForModEvent("UDMinigameParalel", "Receive_MinigameParalel")
+	RegisterForModEvent("UDOrgasmParalel", "Receive_Orgasm")
 EndFunction
 
 ;==============================
 ;           MINIGAME
 ;==============================
 ;vars
-bool _MinigameMutex = false
+bool _MinigameStarterMutex = false
 
 ;mutex
-Function Start_MinigameMutex()
-	while _MinigameMutex
+Function Start_MinigameStarterMutex()
+	while _MinigameStarterMutex
 		Utility.waitMenuMode(0.05)
 	endwhile
-	_MinigameMutex = true
+	_MinigameStarterMutex = true
 EndFunction
 
-Function End_MinigameMutex()
-	_MinigameMutex = false
+Function End_MinigameStarterMutex()
+	_MinigameStarterMutex = false
 EndFunction
 
 ;starter
@@ -50,7 +67,7 @@ Function Send_MinigameStarter(Actor akActor,UD_CustomDevice_RenderScript udDevic
 		UDCDmain.Error("Send_MinigameStarter wrong arg received!")
 	endif
 	
-	Start_MinigameMutex()
+	Start_MinigameStarterMutex()
 	_MinigameStarter_Received = false
 	
 	;send event
@@ -62,25 +79,27 @@ Function Send_MinigameStarter(Actor akActor,UD_CustomDevice_RenderScript udDevic
 		
 		;block
 		float loc_TimeOut = 0.0
-		while !_MinigameStarter_Received && loc_TimeOut <= 1.0
+		while !_MinigameStarter_Received && loc_TimeOut <= 2.0
 			loc_TimeOut += 0.05
 			Utility.waitMenuMode(0.05)
 		endwhile
 		_MinigameStarter_Received = false
 		
-		if loc_TimeOut >= 1.0
+		if loc_TimeOut >= 2.0
 			UDCDmain.Error("Send_MinigameStarter timeout!")
 		endif
 	else
 		UDCDmain.Error("Send_MinigameStarter error!")
 	endif
-	End_MinigameMutex()
+	End_MinigameStarterMutex()
 EndFunction
 Function Receive_MinigameStarter(Form fActor)
 	UD_CustomDevice_RenderScript loc_device = Send_MinigameStarter_Package_device
+	_MinigameStarter_Received = true
+	
 	Actor akActor = fActor as Actor
 	Actor akHelper = loc_device.getHelper()
-	_MinigameStarter_Received = true
+	
 	loc_device._MinigameParProc_1 = true
 	StorageUtil.SetFormValue(akActor, "UD_currentMinigameDevice", loc_device.deviceRendered)
 	
@@ -93,6 +112,20 @@ Function Receive_MinigameStarter(Form fActor)
 EndFunction
 
 ;paralel
+;vars
+bool _MinigameParalelMutex = false
+
+;mutex
+Function Start_MinigameParalelMutex()
+	while _MinigameParalelMutex
+		Utility.waitMenuMode(0.05)
+	endwhile
+	_MinigameParalelMutex = true
+EndFunction
+
+Function End_MinigameParalelMutex()
+	_MinigameParalelMutex = false
+EndFunction
 bool _MinigameParalel_Received = false
 UD_CustomDevice_RenderScript Send_MinigameParalel_Package_device
 Function Send_MinigameParalel(Actor akActor,UD_CustomDevice_RenderScript udDevice)
@@ -100,7 +133,7 @@ Function Send_MinigameParalel(Actor akActor,UD_CustomDevice_RenderScript udDevic
 		UDCDmain.Error("Send_MinigameParalel wrong arg received!")
 	endif
 	
-	Start_MinigameMutex()
+	Start_MinigameParalelMutex()
 	_MinigameParalel_Received = false
 	
 	;send event
@@ -112,25 +145,27 @@ Function Send_MinigameParalel(Actor akActor,UD_CustomDevice_RenderScript udDevic
 		
 		;block
 		float loc_TimeOut = 0.0
-		while !_MinigameParalel_Received && loc_TimeOut <= 1.0
+		while !_MinigameParalel_Received && loc_TimeOut <= 2.0
 			loc_TimeOut += 0.05
 			Utility.waitMenuMode(0.05)
 		endwhile
 		_MinigameParalel_Received = false
 		
-		if loc_TimeOut >= 1.0
+		if loc_TimeOut >= 2.0
 			UDCDmain.Error("Send_MinigameParalel timeout!")
 		endif
 	else
 		UDCDmain.Error("Send_MinigameParalel error!")
 	endif
-	End_MinigameMutex()
+	End_MinigameParalelMutex()
 EndFunction
 Function Receive_MinigameParalel(Form fActor)
 	UD_CustomDevice_RenderScript loc_device = Send_MinigameStarter_Package_device
+	_MinigameParalel_Received = true
+	
 	Actor akActor = fActor as Actor
 	Actor akHelper = loc_device.getHelper()
-	_MinigameParalel_Received = true
+	
 	loc_device._MinigameParProc_2 = true
 	;process
 	;start disable
@@ -171,10 +206,26 @@ Function Receive_MinigameParalel(Form fActor)
 	endif
 	
 	;apply expression
-	sslBaseExpression loc_expression = UDCDmain.UDEM.getExpression("UDStruggleMinigame_Angry")
-	(UDCDmain.libs as zadlibs_UDPatch).ApplyExpressionPatched(akActor, loc_expression, 100,false,15)
+	;/
+	if Utility.randomInt(0,1)
+		sslBaseExpression loc_expression = UDCDmain.UDEM.getExpression("UDStruggleMinigame_Angry")
+		UDCDmain.UDEM.ApplyExpression(akActor, loc_expression, 100,false,15)
+		if loc_device.hasHelper()
+			UDCDmain.UDEM.ApplyExpression(akHelper, loc_expression, 100,false,15)
+		endif
+	else
+		UDCDmain.UDEM.ApplyExpressionRaw(akActor, UDEM.CreateRandomExpression(), 100,false,15)
+		if loc_device.hasHelper()
+			UDCDmain.UDEM.ApplyExpressionRaw(akHelper, UDEM.CreateRandomExpression(), 100,false,15)
+		endif
+	endif
+	/;
+
+	float[] loc_expression = loc_device.GetCurrentMinigameExpression()
+	
+	UDCDmain.UDEM.ApplyExpressionRaw(akActor, loc_expression, 100,false,15)
 	if loc_device.hasHelper()
-		(UDCDmain.libs as zadlibs_UDPatch).ApplyExpressionPatched(akHelper, loc_expression, 100,false,15)
+		UDCDmain.UDEM.ApplyExpressionRaw(akHelper, loc_expression, 100,false,15)
 	endif
 	
 	float loc_currentOrgasmRate = loc_device.getStruggleOrgasmRate()
@@ -211,9 +262,9 @@ Function Receive_MinigameParalel(Form fActor)
 	
 	loc_device.addStruggleExhaustion()
 	
-	(UDCDmain.libs as zadlibs_UDPatch).ResetExpressionPatched(akActor, loc_expression,15)
+	UDCDmain.UDEM.ResetExpressionRaw(akActor,15)
 	if akHelper
-		(UDCDmain.libs as zadlibs_UDPatch).ResetExpressionPatched(akHelper, loc_expression,15)
+		UDCDmain.UDEM.ResetExpressionRaw(akHelper,15)
 	endif
 	
 	;remove disable
@@ -222,6 +273,101 @@ Function Receive_MinigameParalel(Form fActor)
 		UDCDMain.EndMinigameDisable(akHelper)
 	endif
 	loc_device._MinigameParProc_2 = false
+EndFunction
+
+;==============================
+;           ORGASM
+;==============================
+
+;vars
+bool _OrgasmMutex = false
+
+;mutex
+Function Start_OrgasmMutex()
+	while _OrgasmMutex
+		Utility.waitMenuMode(0.05)
+	endwhile
+	_OrgasmMutex = true
+EndFunction
+
+Function End_OrgasmMutex()
+	_OrgasmMutex = false
+EndFunction
+
+;starter
+bool _OrgasmStarter_Received = false
+
+Function Send_Orgasm(Actor akActor,int iDuration,int iDecreaseArousalBy,bool bForceAnimation,bool bWairForReceive = false)
+	if !akActor
+		UDCDmain.Error("Send_Orgasm wrong arg received!")
+	endif
+	
+	if bWairForReceive
+		Start_OrgasmMutex()
+		_OrgasmStarter_Received = false
+	endif
+	
+	;send event
+	int handle = ModEvent.Create("UDOrgasmParalel")
+	if (handle)
+		ModEvent.PushForm(handle, akActor)
+		ModEvent.PushInt(handle, iDuration)
+		ModEvent.PushInt(handle, iDecreaseArousalBy)
+		ModEvent.PushInt(handle, bForceAnimation as int)
+		ModEvent.PushInt(handle, bWairForReceive as int)
+        ModEvent.Send(handle)
+		
+		;block
+		if bWairForReceive
+			float loc_TimeOut = 0.0
+			while !_OrgasmStarter_Received && loc_TimeOut <= 1.0
+				loc_TimeOut += 0.05
+				Utility.waitMenuMode(0.05)
+			endwhile
+			
+			_OrgasmStarter_Received = false
+			
+			if loc_TimeOut >= 1.0
+				UDCDmain.Error("Send_Orgasm timeout!")
+			endif
+		endif
+	else
+		UDCDmain.Error("Send_Orgasm error!")
+	endif
+	if bWairForReceive
+		End_OrgasmMutex()
+	endif
+EndFunction
+Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int bForceAnimation,int bWairForReceive)
+	Actor akActor = fActor as Actor
+	if bWairForReceive
+		_OrgasmStarter_Received = true
+	endif
+	if UDCDmain.TraceAllowed()
+		UDCDmain.Log("Receive_Orgasm received for " + fActor)
+	endif
+	
+	bool loc_is3Dloaded = akActor.Is3DLoaded() || UDCDMain.ActorIsPlayer(akActor)
+	
+	if loc_is3Dloaded
+		if !UDCDmain.isRegistered(akActor) && UDmain.UD_OrgasmExhaustion
+			UDmain.addOrgasmExhaustion(akActor)
+		endif
+	endif
+	
+	if loc_is3Dloaded
+		int sID = libsp.OrgasmSound.Play(akActor)
+		Sound.SetInstanceVolume(sid, libsp.Config.VolumeOrgasm)
+	endif
+	
+	libsp.UpdateExposure(akActor,-1*iDecreaseArousalBy)
+	libsp.Aroused.UpdateActorOrgasmDate(akActor)
+	
+	if loc_is3Dloaded
+		UDCDmain.UDEM.ApplyUDExpression_p(akActor, "UDOrgasm", 100,false,80)
+	endif
+	
+	SendModEvent("DeviceActorOrgasm", akActor.GetLeveledActorBase().GetName())
 EndFunction
 
 ;========================
