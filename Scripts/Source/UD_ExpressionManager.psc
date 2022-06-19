@@ -571,6 +571,7 @@ endFunction
 
 Float[] Function GetPrebuildExpression_Happy1()
 	float[] loc_res = CreateEmptyExpression()
+	;phonems
 	loc_res[ 0] = 0.0
 	loc_res[ 1] = 0.0
 	loc_res[ 2] = 0.0
@@ -586,8 +587,9 @@ Float[] Function GetPrebuildExpression_Happy1()
 	loc_res[12] = 0.0
 	loc_res[13] = 0.03
 	loc_res[14] = 0.115
+	;modifiers
 	loc_res[15] = 0.0
-	loc_res[16] = 0.197
+	loc_res[16] = 0.0
 	loc_res[17] = 0.0
 	loc_res[18] = 0.0
 	loc_res[19] = 0.0
@@ -601,6 +603,7 @@ Float[] Function GetPrebuildExpression_Happy1()
 	loc_res[27] = 0.108
 	loc_res[28] = 0.0
 	loc_res[29] = 0.0
+	;expression
 	loc_res[30] = 10.0
 	loc_res[31] = 0.729
 	return loc_res
@@ -608,6 +611,7 @@ EndFunction
 
 Float[] Function GetPrebuildExpression_Concetrated1()
 	float[] loc_res = CreateEmptyExpression()
+	;phonems
 	loc_res[ 0] = 0.0
 	loc_res[ 1] = 0.0
 	loc_res[ 2] = 0.12
@@ -624,8 +628,9 @@ Float[] Function GetPrebuildExpression_Concetrated1()
 	loc_res[13] = 0.0
 	loc_res[14] = 0.08
 	loc_res[15] = 0.0
+	;modifiers
 	loc_res[16] = 0.0
-	loc_res[17] = 0.19
+	loc_res[17] = 0.0
 	loc_res[18] = 0.18
 	loc_res[19] = 0.29
 	loc_res[20] = 0.0
@@ -638,6 +643,7 @@ Float[] Function GetPrebuildExpression_Concetrated1()
 	loc_res[27] = 0.29
 	loc_res[28] = 0.0
 	loc_res[29] = 0.01
+	;expression
 	loc_res[30] = 4
 	loc_res[31] = 0.59
 		
@@ -646,6 +652,7 @@ EndFunction
 
 Float[] Function GetPrebuildExpression_Angry1()
 	float[] loc_res = CreateEmptyExpression()
+	;phonems
 	loc_res[ 0] = 0.0
 	loc_res[ 1] = 0.174
 	loc_res[ 2] = 0.0
@@ -662,8 +669,9 @@ Float[] Function GetPrebuildExpression_Angry1()
 	loc_res[13] = 0.0
 	loc_res[14] = 0.277
 	loc_res[15] = 0.0
+	;modifiers
 	loc_res[16] = 0.0
-	loc_res[17] = 0.217
+	loc_res[17] = 0.0
 	loc_res[18] = 0.0
 	loc_res[19] = 0.144
 	loc_res[20] = 0.245
@@ -676,6 +684,7 @@ Float[] Function GetPrebuildExpression_Angry1()
 	loc_res[27] = 0.186
 	loc_res[28] = 0.247
 	loc_res[29] = 0.103
+	;expression
 	loc_res[30] = 14
 	loc_res[31] = 0.757
 		
@@ -684,6 +693,7 @@ EndFunction
 
 Float[] Function GetPrebuildExpression_Tired1()
 	float[] loc_res = CreateEmptyExpression()
+	;phonems
 	loc_res[ 0] = 0.151
 	loc_res[ 1] = 0.246
 	loc_res[ 2] = 0.181
@@ -700,8 +710,9 @@ Float[] Function GetPrebuildExpression_Tired1()
 	loc_res[13] = 0.17
 	loc_res[14] = 0.094
 	loc_res[15] = 0.071
+	;modifiers
 	loc_res[16] = 0.0
-	loc_res[17] = 0.143
+	loc_res[17] = 0.0
 	loc_res[18] = 0.0
 	loc_res[19] = 0.0
 	loc_res[20] = 0.0
@@ -714,6 +725,7 @@ Float[] Function GetPrebuildExpression_Tired1()
 	loc_res[27] = 0.0
 	loc_res[28] = 0.274
 	loc_res[29] = 0.0
+	;expression
 	loc_res[30] = 3
 	loc_res[31] = 0.641
 		

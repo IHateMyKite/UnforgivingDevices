@@ -1524,10 +1524,13 @@ Function SetMessageAlias(Actor akActor1,Actor akActor2 = none,zadequipscript arD
 EndFunction
 
 Bool Property UD_CurrentNPCMenuIsFollower = False auto conditional
-
+Bool Property UD_CurrentNPCMenuIsRegistered = False auto conditional
+Bool Property UD_CurrentNPCMenuTargetIsHelpless = False auto conditional
 Function NPCMenu(Actor akActor)
 	SetMessageAlias(akActor)
 	UD_CurrentNPCMenuIsFollower = ActorIsFollower(akActor)
+	UD_CurrentNPCMenuIsRegistered = isRegistered(akActor)
+	UD_CurrentNPCMenuTargetIsHelpless = !actorFreeHands(akActor) && actorFreeHands(Game.getPlayer())
 	int loc_res = NPCDebugMenuMsg.show()
 	if loc_res == 0
 		UDCD_NPCM.RegisterNPC(akActor,true)
@@ -1688,13 +1691,20 @@ bool Function CheckRenderDeviceEquipped(Actor akActor, Armor rendDevice)
 	if !akActor
 		return false
 	endif
+	
 	int loc_mask = 0x00000001
+	int loc_devicemask = rendDevice.GetSlotMask()
 	while loc_mask < 0x80000000
-		if Math.LogicalAnd(loc_mask,rendDevice.GetSlotMask())
+		if loc_mask > loc_devicemask
+			return false
+		endif
+		if Math.LogicalAnd(loc_mask,loc_devicemask)
 			Form loc_armor = akActor.GetWornForm(loc_mask)
 			if loc_armor ;check if there is anything in slot
 				if (loc_armor as Armor) == rendDevice
 					return true ;render device is equipped
+				else
+					return false ;;render device is unequipped
 				endif
 			endif
 		endif

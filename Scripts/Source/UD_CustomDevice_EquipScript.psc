@@ -245,7 +245,6 @@ Event OnEquipped(Actor akActor)
 	if !zad_DeviceMsg
 		zad_DeviceMsg =	UDCDmain.DefaultEquipDeviceMessage
 	endif
-	
 	LockDevice(akActor)
 	
 EndEvent
@@ -302,7 +301,7 @@ Function OnEquippedPre(actor akActor, bool silent=false)
 	;StorageUtil.setIntValue(akActor,"zad_Equipped" + deviceRendered,1)
 	StorageUtil.setFormValue(deviceInventory	,"UD_RenderDevice"		,deviceRendered)
 	StorageUtil.setFormValue(deviceRendered		,"UD_InventoryDevice"	,deviceInventory)
-	_locked = true
+	
 	if zad_DeviousDevice == libs.zad_DeviousPlug || zad_DeviousDevice == libs.zad_DeviousPlugAnal || zad_DeviousDevice == libs.zad_DeviousPlugVaginal
 		EquipPrePlug(akActor,silent)
 	elseif zad_DeviousDevice == libs.zad_DeviousHarness
@@ -641,9 +640,11 @@ Event LockDevice(Actor akActor)
 			loc_slot.ResetMutex(deviceInventory)
 		endif
 	else
+		Utility.waitMenuMode(Utility.randomFloat(0.05,0.15)) ;make thread to wait random time, because in some cases bunch of devices can be equipped at once (like when they are par of outfit)
 		if !UDMM.IsDeviceMutexed(akActor,deviceInventory)
 			_actorselfbound = true
-			loc_mutex = UDMM.WaitForFreeAndSet(akActor,deviceInventory)
+			;loc_mutex = UDMM.WaitForFreeAndSet(akActor,deviceInventory)
+			;unregistered npcs will be not mutexed, no reason for that
 		else
 			loc_mutex = UDMM.GetMutexSlot(akActor)
 		endif
@@ -660,10 +661,9 @@ Event LockDevice(Actor akActor)
 	
 
 	if !prelock_fail
-		if akActor.GetItemCount(deviceRendered) == 0 && akActor.WornHasKeyword(zad_DeviousDevice) && CheckConflict(akActor)
-			if UDCDmain.TraceAllowed()		
-				libs.Log("Wearing conflicting device type:" + zad_DeviousDevice)		
-			endif
+		if akActor.GetItemCount(deviceRendered) == 0 && akActor.WornHasKeyword(zad_DeviousDevice) && CheckConflict(akActor)	
+			UDCDMain.Error("LockDevice("+UDCDmain.MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device type:" + zad_DeviousDevice)		
+			StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
 			akActor.UnequipItem(deviceInventory, false, true)	
 			prelock_fail = true
 		EndIf	
@@ -677,7 +677,9 @@ Event LockDevice(Actor akActor)
 	
 	; check for device conflicts
 	if !prelock_fail
-		If !silently && (IsEquipDeviceConflict(akActor) || IsEquipRequiredDeviceConflict(akActor))			
+		If !silently && (IsEquipDeviceConflict(akActor) || IsEquipRequiredDeviceConflict(akActor))	
+			UDCDMain.Error("LockDevice("+UDCDmain.MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device")
+			StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
 			akActor.UnequipItem(deviceInventory, false, true)	
 			prelock_fail = true
 		EndIf
@@ -686,6 +688,7 @@ Event LockDevice(Actor akActor)
 	If !silently && !prelock_fail; && loc_lockDeviceType > 0; && !akActor.WornHasKeyword(zad_DeviousDevice) && akActor.GetItemCount(deviceRendered) == 0
 		if akActor == Game.getPlayer();loc_lockDeviceType == 1
 			if EquipDeviceMenu(akActor)
+				StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
 				akActor.UnequipItem(deviceInventory, false, true)
 				prelock_fail = true
 			endif
@@ -698,8 +701,10 @@ Event LockDevice(Actor akActor)
 	if !prelock_fail
 		if filter >= 1
 			if filter == 2
+				StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
 				akActor.UnequipItem(deviceInventory, false, true)
-			EndIf	
+			EndIf
+			UDCDMain.Error("LockDevice("+UDCDmain.MakeDeviceHeader(akActor,deviceInventory) + ") - Equip Filter activated : " + filter)
 			prelock_fail = true
 		EndIf
 	endif
@@ -728,15 +733,12 @@ Event LockDevice(Actor akActor)
 		endif
 		return
 	endif
-	
-	OnEquippedPre(akActor, silent=silently)
-	
+	_locked = true
 	if akActor == libs.PlayerRef ;doesn't work for NPCs, get todded
 		if !akActor.IsEquipped(DeviceInventory)
 			akActor.EquipItem(DeviceInventory, false, true)	
 		EndIf
 	endif
-	
 	akActor.EquipItem(DeviceRendered, true, true)
 	
 	float loc_time = 0.0
@@ -744,7 +746,6 @@ Event LockDevice(Actor akActor)
 		Utility.waitMenuMode(0.01)
 		loc_time += 0.01
 	endwhile
-	
 	if loc_time >= 1.0
 		;render device lock failed, abort
 		_locked = false
@@ -753,7 +754,6 @@ Event LockDevice(Actor akActor)
 		akActor.removeItem(DeviceRendered,1,true)
 		UDCDMain.Error("LockDevice("+getDeviceName()+","+UDCDmain.GetActorName(akActor)+") failed. Render device is not equipped - timeout")
 	endif
-	
 	if loc_slot
 		if loc_slot.isMutexed(deviceInventory)
 			if !_locked
@@ -778,10 +778,12 @@ Event LockDevice(Actor akActor)
 		endif
 		_actorselfbound = false
 	endif
-
+	
 	if !_locked
 		return
 	endif
+	
+	OnEquippedPre(akActor, silent=silently)
 	
 	if akActor == libs.PlayerRef ; Store equipped devices for faster generic calls.
 		StoreEquippedDevice(akActor)

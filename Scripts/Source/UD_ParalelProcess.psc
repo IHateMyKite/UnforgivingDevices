@@ -238,11 +238,18 @@ Function Receive_MinigameParalel(Form fActor)
 	while UDCDmain.ActorInMinigame(akActor) && loc_device._MinigameMainLoop_ON
 		Utility.waitMenuMode(0.1)
 		loc_tick += 1
-		;update disable if it gets somehow removed
-		if !(loc_tick % 4)
+		;update disable if it gets somehow removed every 0.4s
+		if !(loc_tick % 4) && loc_tick
 			UDCDMain.UpdateMinigameDisable(akActor)
 			if akHelper
 				UDCDMain.UpdateMinigameDisable(akHelper)
+			endif
+		endif
+		;set expression every 1 second
+		if !(loc_tick % 10) && loc_tick
+			UDCDmain.UDEM.ApplyExpressionRaw(akActor, loc_expression, 100,false,15)
+			if loc_device.hasHelper()
+				UDCDmain.UDEM.ApplyExpressionRaw(akHelper, loc_expression, 100,false,15)
 			endif
 		endif
 	endwhile

@@ -68,15 +68,14 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
 	endif
 	
 	;bool loc_usemutex = UDCDmain.isRegistered(akActor) ;only allow for registered npcs for now
-	
 	UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
-	UD_MutexScript loc_mutex = none 
+	UD_MutexScript loc_mutex = none
+	
 	if loc_slot
 		loc_slot.StartLockMutex()
 	else
 		loc_mutex = UDMM.WaitForFreeAndSet(akActor,deviceInventory)
 	endif
-	
 	bool loc_res = false
 	if deviceInventory.hasKeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
 		if UDCDmain.TraceAllowed()	
@@ -96,7 +95,6 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
 		endif
 
 		zad_AlwaysSilent.addForm(akActor)
-		
 		loc_res = parent.LockDevice(akActor,deviceInventory,force)
 		
 		if loc_slot
@@ -740,18 +738,13 @@ bool Function PlayThirdPersonAnimationBlocking(actor akActor, string animation, 
 	if akActor.isInFaction(UDCDmain.BlockAnimationFaction)
 		return false
 	endif
-	;UDCDmain.FinishRecordTime(strObject = "Faction check",bReset = true, bLog = true,bPrint = true)
 	
 	if isAnimating(akActor)
 		EndThirdPersonAnimation(akActor, new bool[2], true)
 	endif
 	
-	;UDCDmain.FinishRecordTime(strObject = "isAnimating",bReset = true, bLog = true,bPrint = true)
-	
 	bool[] loc_cameraState = StartThirdPersonAnimation(akActor, animation,permitRestrictive)
 	akActor.AddToFaction(UDCDmain.BlockAnimationFaction)
-	
-	;UDCDmain.FinishRecordTime(strObject = "StartThirdPersonAnimation",bReset = true, bLog = true,bPrint = true)
 	
 	Utility.wait(duration)
 

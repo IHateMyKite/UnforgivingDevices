@@ -13,26 +13,30 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 	_target = akTarget 
 	_MagickEffect = GetBaseObject()
 	_expression = UDEM.GetPrebuildExpression_Tired1()
-	UDEM.ApplyExpressionRaw(_target, _expression, 30,false,30)
+	UDEM.ApplyExpressionRaw(_target, _expression, 30,false,10)
 	if _target == Game.getPlayer()
 		registerForSingleUpdate(0.1)
 		;Game.SetInChargen(false, true, false)
 	endif
 EndEvent
 
+bool _finish = false
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
+	_finish = true
 	if _target == Game.getPlayer()
 		Game.SetInChargen(false, false, false)
 	endif
-	UDEM.ResetExpressionRaw(_target,30)
+	if !_target.hasMagicEffect(_MagickEffect)
+		UDEM.ResetExpressionRaw(_target,10)
+	endif
 EndEvent
 
 Event OnUpdate()
-	if _target.hasMagicEffect(_MagickEffect)
+	if !_finish
 		if _target == Game.getPlayer()
 			Game.SetInChargen(false, true, false)
 		endif
-		UDEM.ApplyExpressionRaw(_target, _expression, 30,false,30)
-		registerForSingleUpdate(3.0)
+		UDEM.ApplyExpressionRaw(_target, _expression, 30,false,10)
+		registerForSingleUpdate(1.0)
 	endif
 EndEvent
