@@ -232,17 +232,21 @@ Function activateDevice()
 EndFunction
 
 Function StopVibSound()
-	Sound.StopInstance(_vsID)
+	if getWearer().is3DLoaded()
+		Sound.StopInstance(_vsID)
+	endif
 	_vsID = -1
 EndFunction
 
 Function StartVibSound()
-	if _vsID == -1
-		_vsID = getVibrationSound().Play(getWearer())
-		if WearerIsPlayer()
-			Sound.SetInstanceVolume(_vsID, libs.Config.VolumeVibrator)
-		else
-			Sound.SetInstanceVolume(_vsID, libs.Config.VolumeVibrator * 0.5)
+	if getWearer().is3DLoaded()
+		if _vsID == -1
+			_vsID = getVibrationSound().Play(getWearer())
+			if WearerIsPlayer()
+				Sound.SetInstanceVolume(_vsID, libs.Config.VolumeVibrator)
+			else
+				Sound.SetInstanceVolume(_vsID, libs.Config.VolumeVibrator * 0.5)
+			endif
 		endif
 	endif
 EndFunction
@@ -324,7 +328,6 @@ Function ForceModStrength(float fModifier)
 			UpdateVibSound()
 			UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
 		endif
-		
 	endif
 EndFunction
 
@@ -441,7 +444,7 @@ Function setOrgasmRate(float fOrgasmRate,float fOrgasmForcing)
 	if (fOrgasmRate != _appliedOrgasmRate || fOrgasmForcing != _appliedForcing) && isVibrating()
 		_appliedOrgasmRate = fOrgasmRate
 		_appliedForcing = fOrgasmForcing
-		UDCDmain.UpdateOrgasmRate(getWearer(),_appliedOrgasmRate,_appliedForcing)
+		UDCDmain.UDOM.UpdateOrgasmRate(getWearer(),_appliedOrgasmRate,_appliedForcing)
 	endif
 EndFunction
 
@@ -453,7 +456,7 @@ Function removeOrgasmRate()
 		float loc_appliedForcing    = _appliedForcing
 		_appliedForcing = 0.0
 		
-		UDCDmain.removeOrgasmRate(getWearer(),loc_appliedOrgasmRate,loc_appliedForcing)
+		UDCDmain.UDOM.removeOrgasmRate(getWearer(),loc_appliedOrgasmRate,loc_appliedForcing)
 	endif
 EndFunction
 
@@ -465,7 +468,7 @@ EndFunction
 Function setArousalRate(float fArousalRate)
 	if fArousalRate != _appliedArousalRate 
 		_appliedArousalRate = fArousalRate
-		UDCDmain.UpdateArousalRate(getWearer() ,fArousalRate)
+		UDCDmain.UDOM.UpdateArousalRate(getWearer() ,fArousalRate)
 	endif
 EndFunction
 
@@ -473,7 +476,7 @@ Function removeArousalRate()
 	if _appliedArousalRate != 0
 		float loc_appliedArousalRate = _appliedArousalRate
 		_appliedArousalRate = 0
-		UDCDmain.UpdateArousalRate(getWearer() ,-1*loc_appliedArousalRate)
+		UDCDmain.UDOM.UpdateArousalRate(getWearer() ,-1*loc_appliedArousalRate)
 	endif
 EndFunction
 
@@ -500,13 +503,12 @@ Function vibrate(float fDurationMult = 1.0)
 	
 	OnVibrationStart()	
 	
-	;auto set variables from properties
-	if _forceStrength < 0
-		_currentVibStrength = UD_VibStrength
-		if UD_Chaos
-			_currentVibStrength = Utility.randomInt(15,100)
-		endif
-	else
+	
+	if UD_Chaos ;chaos plug, ignore forced strength
+		_currentVibStrength = Utility.randomInt(15,100)
+	elseif _forceStrength < 0
+		_currentVibStrength = UD_VibStrength ;auto set variables from properties
+	else ;use forced strength
 		_currentVibStrength = _forceStrength
 	endif
 	
@@ -640,11 +642,11 @@ Function ProccesVibEdge()
 /;
 	if isVibrating() && !_paused
 		if _currentEdgingMode == 1
-			if UDCDmain.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
+			if UDCDmain.UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
 				if WearerIsPlayer()
 					UDCDmain.Print(getDeviceName() + " suddenly stops vibrating!",3)
 				endif
-				while UDCDmain.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold*0.95
+				while UDCDmain.UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold*0.95
 					pauseVibFor(10)
 					Utility.wait(0.25)
 				endwhile
@@ -653,7 +655,7 @@ Function ProccesVibEdge()
 				endif
 			endif
 		elseif _currentEdgingMode == 2
-			if UDCDmain.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
+			if UDCDmain.UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
 				if Utility.randomInt() < iRange(_currentVibStrength,40,80)
 					if WearerIsPlayer()
 						UDCDmain.Print(getDeviceName() + " suddenly stops vibrating!",3)

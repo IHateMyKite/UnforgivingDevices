@@ -20,6 +20,11 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
 		UDCDmain.Log("Minigame disabler OnEffectFinish() for " + _target,1)
 	endif
 	
+	;wait for onUpdate function to finish if it started
+	while loc_precessing
+		Utility.waitMenuMode(0.01)
+	endwhile
+	
 	if _target == Game.getPlayer()
 		if !_target.HasMagicEffectWithKeyword(UDCDmain.UDlibs.HardcoreDisable_KW)
 			Game.EnablePlayerControls(abMovement = False)
@@ -30,12 +35,14 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
 	endif
 EndEvent
 
+bool loc_precessing = false
 Event OnUpdate()
-	if _target.hasMagicEffect(_MagickEffect)
+	loc_precessing = true
+	if _target.hasMagicEffect(_MagickEffect) && !_finished
 		if UDCDmain.TraceAllowed()		
 			UDCDmain.Log("Minigame disabler updated for " + _target,1)
 		endif
-		if _target.hasMagicEffect(_MagickEffect)
+		if _target.hasMagicEffect(_MagickEffect)  && !_finished
 			if _target == Game.getPlayer()
 				if !_target.HasMagicEffectWithKeyword(UDCDmain.UDlibs.HardcoreDisable_KW)
 					Game.EnablePlayerControls(abMovement = False)
@@ -46,8 +53,9 @@ Event OnUpdate()
 				_target.SetDontMove(True)	
 			endif
 		endif
-		if _target.hasMagicEffect(_MagickEffect)
+		if _target.hasMagicEffect(_MagickEffect)  && !_finished
 			registerForSingleUpdate(2.0)
 		endif
 	endif
+	loc_precessing = false
 EndEvent

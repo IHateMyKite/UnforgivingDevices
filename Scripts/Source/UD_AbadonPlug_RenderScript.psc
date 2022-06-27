@@ -178,9 +178,17 @@ Function randomEquipHandRestrain()
 		if relativeStrength() < 0.4
 			loc_formlist = UDmain.UDRRM.UD_AbadonDeviceList_HeavyBondageWeak
 		elseif relativeStrength() < 0.8
-			loc_formlist = UDmain.UDRRM.UD_AbadonDeviceList_HeavyBondage
+			if Utility.randomInt(1,99) > 25
+				loc_formlist = UDmain.UDRRM.UD_AbadonDeviceList_HeavyBondage
+			else
+				loc_formlist = UDmain.UDRRM.UD_AbadonDeviceList_HeavyBondageWeak
+			endif
 		else
-			loc_formlist = UDmain.UDRRM.UD_AbadonDeviceList_HeavyBondageHard
+			if Utility.randomInt(1,99) > 75
+				loc_formlist = UDmain.UDRRM.UD_AbadonDeviceList_HeavyBondageHard
+			else
+				loc_formlist = UDmain.UDRRM.UD_AbadonDeviceList_HeavyBondage
+			endif
 		endif
 		
 		if loc_haveSuit
@@ -196,7 +204,7 @@ Function randomEquipHandRestrain()
 		Armor loc_renderDevice = UDCDmain.GetRenderDevice(device)
 		if WearerIsPlayer()
 			if loc_renderDevice.hasKeyword(libs.zad_DeviousArmbinder)
-				UDCDmain.showMessageBox("Suddenly, Abadon plug starts to emit black smoke. Before you could react, smoke forces your hands helplessly behind your back and manifests into armbinder.")
+				debug.messagebox("Suddenly, Abadon plug starts to emit black smoke. Before you could react, smoke forces your hands helplessly behind your back and manifests into armbinder.")
 			elseif loc_renderDevice.hasKeyword(libs.zad_DeviousStraitjacket)
 				debug.messagebox("Suddenly, Abadon plug starts to emit black smoke. Before you could react, smoke forces your hands forcefully together and manifests into straitjacket.")
 			elseif loc_renderDevice.hasKeyword(libs.zad_DeviousArmbinderElbow)
@@ -261,7 +269,9 @@ Function abadonorgasm(float mult = 1.0)
 	
 	if orgasm_cout % 2 && getRelativeDurability() < 1.0
 		if WearerIsPlayer()
-			UDCDmain.Print("You feel that your orgasm is making Abadon Plug to regain it strength!")
+			UDCDmain.Print("You feel that your orgasm is making Abadon Plug to regain its strength!")
+		elseif WearerIsFollower() && GetWearer().Is3DLoaded()
+			UDCDmain.Print(getWearerName()+"s orgasm is making Abadon Plug to regain its strength!")
 		endif
 		mendDevice(1.0,1.0/24.0,True)
 	endif
@@ -283,6 +293,7 @@ Function abadonorgasm(float mult = 1.0)
 		endif
 		if finisher_current_orgasms >= finisher_goal_orgasms
 			stopVibrating()
+			finisher_current_orgasms = 0
 			finisherOn = false
 		endif
 	endif
@@ -342,7 +353,7 @@ EndFunction
 ;float _littleFinisherUpdateTimePassed = 0.0
 Function onUpdatePost(float timePassed)
 	updateVibrationParam()
-	addStrength(UDCDmain.getArousal(GetWearer())*0.001*(1 + AbadonQuestScript.overaldifficulty)*(24.0*timePassed))
+	addStrength(UDCDmain.UDOM.getArousal(GetWearer())*0.001*(1 + AbadonQuestScript.overaldifficulty)*(24.0*timePassed))
 	plug_hunger -= 0.25*timePassed*24*60
 	;_littleFinisherUpdateTimePassed += timePassed
 	if (plug_hunger < 0.0)
@@ -435,6 +446,8 @@ string Function addInfoString(string str = "")
 	str = parent.addInfoString(str)
 	str += "(AP) Strenght: " + UDmain.formatString(abadonPlugDiff,1) + " (~"+Math.floor(relativeStrength()*100.0)+" %)" + "\n"
 	str += "(AP) Hunger: "+ Math.floor(100.0 - plug_hunger) + " %\n"
+	str += "(AP) Orgasms feeded: "+ orgasm_cout +"\n"
+	str += "(AP) Finisher?: "+ finisherOn +"\n"
 	return str
 EndFunction
 
@@ -454,21 +467,25 @@ EndFunction
 
 float Function getCritDamage()
 	int loc_difficulty = AbadonQuestScript.overaldifficulty
+	float loc_helperincrease = 0
+	if GetHelper()
+		loc_helperincrease = 15.0
+	endif
 	if loc_difficulty == 0
-		return 35.0
+		return 35.0 + loc_helperincrease
 	elseif loc_difficulty == 1
-		return 25.0
+		return 25.0 + loc_helperincrease
 	elseif loc_difficulty == 2
-		return 15.0
+		return 15.0 + loc_helperincrease
 	endif
 EndFunction
 
 Function OnCritFailure()
 	parent.OnCritFailure()
-	float loc_arousal = 10 + UDCDmain.getArousal(GetWearer())
-	UDCDmain.UpdateArousalRate(getWearer(),loc_arousal)
+	float loc_arousal = 10 + UDCDmain.UDOM.getArousal(GetWearer())
+	UDCDmain.UDOM.UpdateArousalRate(getWearer(),loc_arousal)
 	Utility.wait(3.5)
-	UDCDmain.UpdateArousalRate(getWearer(),-1*loc_arousal)
+	UDCDmain.UDOM.UpdateArousalRate(getWearer(),-1*loc_arousal)
 	;UDCDmain.sendArousalSetEvent(getWearer(),10 + UDCDmain.getArousal(GetWearer()))
 EndFunction
 
@@ -505,13 +522,7 @@ EndFunction
 Function activateDevice()
 	resetCooldown()
 	if nextDeviceManifest < Utility.GetCurrentGameTime()
-		if equipRandomRestrain()
-			if WearerIsPlayer()
-				debug.messagebox("Abadon plug suddenly manifests bondage device and locks it on your body!")
-			elseif WearerIsFollower()
-				UDCDmain.Print(getWearerName() + "s "+ getDeviceName() +" suddenly manifests bondage device!")
-			endif
-		endif
+		equipRandomRestrain()
 	else
 		parent.activateDevice() ;start vib
 	endif

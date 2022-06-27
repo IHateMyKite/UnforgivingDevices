@@ -178,6 +178,9 @@ EndFunction
 Function TieUp()
 	if !_tied
 		_tied = true
+		if isMinigameOn()
+			StopMinigame()
+		endif
 		resetCooldown()
 		OnTiedUp()
 	endif

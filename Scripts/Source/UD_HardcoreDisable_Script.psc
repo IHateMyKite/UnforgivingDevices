@@ -16,7 +16,7 @@ bool loc_GameMenuOpen = false
 Event OnEffectStart(Actor akTarget, Actor akCaster)
 	_target = akTarget
 	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("hardcore disabler started for " + _target +"!",3)
+		UDCDmain.Log("hardcore disabler started for " + _target +"!",2)
 	endif
 	_MagickEffect = GetBaseObject()
 	UDCDmain.UDmain.closeMenu()
@@ -33,13 +33,14 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 	registerForSingleUpdate(0.1)
 EndEvent
 
-
+bool loc_precessing = false
 Event OnUpdate()
+	loc_precessing = true
 	if !_target.wornhaskeyword(UDCDmain.libs.zad_DeviousHeavyBondage) || !UDCDmain.UD_HardcoreMode
 		_target.DispelSpell(UDCDmain.UDlibs.HardcoreDisableSpell)
 	elseif _target.hasMagicEffect(_MagickEffect)
 		if UDCDmain.TraceAllowed()		
-			UDCDmain.Log("UD_HardcoreDisable_Script - Hardcore disabler updated for " + _target,1)
+			UDCDmain.Log("UD_HardcoreDisable_Script - Hardcore disabler updated for " + _target,3)
 		endif
 		
 		if _target.hasMagicEffect(_MagickEffect) && !_target.HasMagicEffectWithKeyword(UDCDmain.UDlibs.MinigameDisableEffect_KW)
@@ -80,23 +81,28 @@ Event OnUpdate()
 			registerForSingleUpdate(0.75)
 		endif
 	endif
+	loc_precessing = false
 EndEvent
 
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
 	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("Minigame disabler OnEffectFinish() for " + _target,1)
+		UDCDmain.Log("Minigame disabler OnEffectFinish() for " + _target,2)
 	endif
-	;if !_target.HasMagicEffectWithKeyword(UDCDmain.UDlibs.MinigameDisableEffect_KW)
-		if _target == Game.getPlayer()
-			Game.EnablePlayerControls()
-			Game.EnableFastTravel(true)
-		endif
-	;endif
+	;wait for onUpdate function to finish if it started
+	while loc_precessing
+		Utility.waitMenuMode(0.01)
+	endwhile
+
+	if _target == Game.getPlayer()
+		Game.EnablePlayerControls()
+		Game.EnableFastTravel(true)
+	endif
+
 EndEvent
 
 Event OnKeyDown(Int KeyCode)
 	if UDCDmain.TraceAllowed()
-		UDCDmain.Log("UD_HardcoreDisable_Script - OnKeyDown for " + KeyCode)
+		UDCDmain.Log("UD_HardcoreDisable_Script - OnKeyDown for " + KeyCode,3)
 	endif
 	If KeyCode == _MapKeyCode
 		_MenuKeyPressed = true
@@ -118,7 +124,7 @@ EndEvent
 
 Event OnMenuOpen(String MenuName)
 	if UDCDmain.TraceAllowed()
-		UDCDmain.Log("UD_HardcoreDisable_Script - OnMenuOpen for " + MenuName)
+		UDCDmain.Log("UD_HardcoreDisable_Script - OnMenuOpen for " + MenuName,3)
 	endif
 	If MenuName == "MapMenu"
 		_MenuOpen = true
@@ -129,7 +135,7 @@ EndEvent
 
 Event OnMenuClose(String MenuName)
 	if UDCDmain.TraceAllowed()
-		UDCDmain.Log("UD_HardcoreDisable_Script - OnMenuClose for " + MenuName)
+		UDCDmain.Log("UD_HardcoreDisable_Script - OnMenuClose for " + MenuName,3)
 	endif
 	If MenuName == "MapMenu"
 		Game.DisablePlayerControls(abMovement = False,abFighting = false,abCamSwitch = false,abLooking = false, abSneaking = false, abMenu = true, abActivate = false, abJournalTabs = false)
@@ -156,7 +162,7 @@ Function CheckMapKey()
 		_MapKeyCode = MapKeyCode
 		RegisterForKey(_MapKeyCode)
 		if UDCDmain.TraceAllowed()
-			UDCDmain.Log("UD_HardcoreDisable_Script - Remaping keycode for map menu")
+			UDCDmain.Log("UD_HardcoreDisable_Script - Remaping keycode for map menu",1)
 		endif
 	endif
 EndFunction
@@ -168,7 +174,7 @@ Function CheckStatsKey()
 		_StatsKeyCode = StatsMenu
 		RegisterForKey(_StatsKeyCode)
 		if UDCDmain.TraceAllowed()
-			UDCDmain.Log("UD_HardcoreDisable_Script - Remaping keycode for Quick Map menu")
+			UDCDmain.Log("UD_HardcoreDisable_Script - Remaping keycode for Quick Map menu",1)
 		endif
 	endif
 EndFunction

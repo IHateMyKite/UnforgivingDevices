@@ -11,7 +11,7 @@ string Function addInfoString(string str = "")
 EndFunction
 
 bool Function canBeActivated()
-	return WearerFreeHands() && getRelativeElapsedCooldownTime() >= 0.75
+	return WearerFreeHands() && getRelativeElapsedCooldownTime() >= 0.5
 EndFunction
 
 Function OnTiedUp()

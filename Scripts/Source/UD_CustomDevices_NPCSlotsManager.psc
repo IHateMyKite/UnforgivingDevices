@@ -4,6 +4,7 @@ UDCustomDeviceMain Property UDCDmain auto
 Quest Property UDCD_NPCF auto ;finder
 zadlibs Property libs auto
 Bool Property Ready = False auto
+UD_OrgasmManager Property UDOM auto
 
 Message Property UD_FixMenu_MSG auto
 
@@ -21,26 +22,6 @@ Event OnInit()
 			UDCDMain.Log("NPCslot["+ index +"] ready!")
 		endif
 	endwhile
-	
-	
-
-	
-	;initPlayerSlot()
-	;/
-	
-	while !UDCDmain.EventsReady 
-		Utility.waitMenuMode(0.1)
-	endwhile
-	
-	RegisterForModEvent("UD_InitPlayerSlot","InitPlayerSlot")
-	
-	int handle = ModEvent.Create("UD_InitPlayerSlot")
-	if (handle)
-        ModEvent.Send(handle)
-    endif
-
-	UnRegisterForModEvent("UD_InitPlayerSlot")
-	/;
 	
 	registerForSingleUpdate(10.0)
 	Ready = True
@@ -66,6 +47,7 @@ Event OnUpdate()
 	;CheckSlots()
 	RegisterForSingleUpdate(UD_SlotUpdatTime)
 EndEvent
+
 
 ;bool _updating = false
 bool Function scanSlots(bool debugMsg = False)
@@ -122,8 +104,8 @@ EndFunction
 
 Function initPlayerSlot()
 	getPlayerSlot().ForceRefTo(Game.GetPlayer())
-	UDCDmain.CheckOrgasmCheck(Game.GetPlayer())
-	UDCDmain.CheckArousalCheck(Game.getPlayer())
+	UDCDmain.UDOM.CheckOrgasmCheck(Game.GetPlayer())
+	UDCDmain.UDOM.CheckArousalCheck(Game.getPlayer())
 	if UDCDmain.TraceAllowed()	
 		UDCDMain.Log("PlayerSlot ready!")
 	endif
@@ -357,3 +339,18 @@ bool Function unregisterNPC(Actor akActor,bool bDebugMsg = false)
 	return False
 EndFunction
 
+Function CheckOrgasmManagerLoops()
+	int index = UD_Slots
+	while index
+		index -= 1
+		UD_CustomDevice_NPCSlot slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
+		if slot.isUsed()
+			if !slot.getActor().IsInFaction(UDOM.OrgasmCheckLoopFaction)
+				UDOM.StartOrgasmCheckLoop(slot.getActor())
+			endif
+			if !slot.getActor().IsInFaction(UDOM.ArousalCheckLoopFaction)
+				UDOM.StartArousalCheckLoop(slot.getActor())
+			endif
+		endif
+	endwhile	
+EndFunction

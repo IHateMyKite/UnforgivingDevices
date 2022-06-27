@@ -172,10 +172,10 @@ float Property UD_StruggleCritDuration = 1.0 auto ;crit time, the lover the more
 
 Message Property UD_MessageDeviceInteraction auto ;messagebox that is shown when player click on device in inventory
 Message Property UD_MessageDeviceInteractionWH auto ;messagebox that is shown when player click on device in NPC inventory
-Message Property UD_SpecialMenuInteraction auto
-Message Property UD_SpecialMenuInteractionWH auto
+Message Property UD_SpecialMenuInteraction auto ;messagebox that is shown when player select Special from device menu
+Message Property UD_SpecialMenuInteractionWH auto ;messagebox that is shown when player select Special from device menu when helping/getting help
 
-LeveledItem Property UD_OnDestroyItemList auto ;items received when device is unlocked
+LeveledItem Property UD_OnDestroyItemList auto ;items received when device is unlocked (only when device have DestroyOnRemove)
 
 int Property UD_StruggleCritChance ;chance of random crit happening once per second of struggling, range 0-100
 	Function set(int iVal)
@@ -210,6 +210,7 @@ int Property UD_Locks ;number of locks, range 0-31
 		return decodeBit(_deviceControlBitMap_6,5,15)
 	EndFunction
 EndProperty
+
 ;Device cooldown, in minutes. Device will activate itself on after this time (if it can)
 ;zero or negative value will disable this feature
 int	Property UD_Cooldown = 0 auto 
@@ -219,8 +220,8 @@ string Property UD_ActiveEffectName = "Share" auto ;name of active effect
 string Property UD_DeviceType = "Generic" auto ;name of active effect
 
 string[] Property UD_Modifiers auto ;modifiers
-string[] Property UD_struggleAnimations auto
-string[] Property UD_struggleAnimationsHobl auto
+string[] Property UD_struggleAnimations auto ;array of all struggle animations
+string[] Property UD_struggleAnimationsHobl auto ;array of all struggle animations which player when actor have tied legs
 
 ;------------local variables-------------------
 Actor Wearer = none ;current device wearer reference
@@ -228,7 +229,7 @@ float device_health = 100.0 ;default max device durability, for now always 100
 float current_device_health = 0.0 ;current device durability, if this reaches 0, player will escape restrain
 float _total_durability_drain = 0.0 ;how much durability was reduced, aka condition
 float _durability_damage_mod ;durability dmg after applied difficulty, dont change this! Use updateDifficulty() if you want to update it
-float _updateTimePassed = 0.0
+float _updateTimePassed = 0.0 ;time passed from last update in days
 ;---------------------------------------PRIVATE VARS----------------------------------------
 
 int Property UD_CurrentLocks Hidden ;how many locked locks remain, max is 31
@@ -875,6 +876,7 @@ String Function getWearerName()
 	return Wearer.getActorBase().getName()
 EndFunction
 
+;sets current helper
 Function setHelper(Actor akActor)
 	_minigameHelper = akActor
 EndFunction
@@ -884,6 +886,7 @@ Actor Function getHelper()
 	return _minigameHelper
 EndFunction
 
+;returns current device helper name (only when Device Menu WH is open or in minigame with helper)
 String Function getHelperName()
 	if _minigameHelper
 		return UDCDmain.getActorName(_minigameHelper)
@@ -892,14 +895,15 @@ String Function getHelperName()
 	endif
 EndFunction
 
+;returns if wearer/helper is registered in register
 bool Function WearerIsRegistered()
 	return UDCDmain.isRegistered(getWearer())
 EndFunction 
-
 bool Function HelperIsRegistered()
 	return UDCDmain.isRegistered(getHelper())
 EndFunction 
 
+;returns true if device wearer is player
 bool Function WearerIsPlayer()
 	If UDCDmain.ActorIsPlayer(getWearer())
 		return true
@@ -907,6 +911,7 @@ bool Function WearerIsPlayer()
 	return false
 EndFunction
 
+;returns true if device wearer is current follower
 bool Function WearerIsFollower()
 	If UDCDmain.ActorIsFollower(getWearer())
 		return true
@@ -914,10 +919,12 @@ bool Function WearerIsFollower()
 	return false
 EndFunction
 
+;returns true if player is taking part in minigame (either as wearer or helper)
 bool Function PlayerInMinigame()
 	return WearerIsPlayer() || HelperIsPlayer()
 EndFunction
 
+;returns true if device currently have helper
 bool Function hasHelper()
 	if _minigameHelper
 		return True
@@ -925,6 +932,7 @@ bool Function hasHelper()
 	return False
 EndFunction
 
+;returns true if current device helper is player
 bool Function HelperIsPlayer()
 	If UDCDmain.ActorIsPlayer(getHelper())
 		return true
@@ -932,6 +940,7 @@ bool Function HelperIsPlayer()
 	return false
 EndFunction
 
+;returns true if current device helper is player follower
 bool Function HelperIsFollower()
 	If UDCDmain.ActorIsFollower(getHelper())
 		return true
@@ -939,30 +948,37 @@ bool Function HelperIsFollower()
 	return false
 EndFunction
 
+;returns true if device is fully initialized (this is done before device is locked)
+;only used for benchmark, don't use
 bool Function isReady()
 	return Ready
 EndFunction
 
-Event onInit()
+Event OnInit()
 	current_device_health = device_health
 EndEvent
 
-;pc frier 3000
+;OnContainerChanged is very important event. It is used to determinate if render device have been equipped (OnEquipped only works for player)
+;it is also used for retrieving device (this) script
 Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldContainer)
 	if (akNewContainer as Actor) && !akOldContainer && !isUnlocked
-		Init(akNewContainer as Actor)
+		Actor loc_actor = akNewContainer as Actor
+		if !loc_actor.isDead()
+			Init(loc_actor)
+		endif
 	endif
 	
 	if UDmain		
 		if (akOldContainer == UDCDmain.TransfereContainer_ObjRef)
 			if UDCDmain.TraceAllowed()			
-				UDCDmain.Log("Device " + getDeviceHeader() + " transfered to transfer container!")
+				UDCDmain.Log("Device " + getDeviceHeader() + " transfered to transfer container!",2)
 			endif
 			UDCDmain._transferedDevice = self
 		endif
 	endif
 EndEvent
 
+;returns device header in format -> $DeviceName ($WearerName)
 string Function getDeviceHeader()
 	if hasHelper()
 		return (getDeviceName() + "(W="+getWearerName()+",H="+getHelperName()+")")
@@ -970,14 +986,23 @@ string Function getDeviceHeader()
 		return (getDeviceName() + "("+getWearerName()+")")
 	endif
 EndFunction
+
+;returns device name
 String Function getDeviceName()
 	return deviceInventory.getName()
 EndFunction
 
+;returns inventory device script, SCRIPT NEED TO BE ALWAYS DELEATED AFTER USING WITH script.delete() !!!
 UD_CustomDevice_EquipScript Function getInventoryScript()
 	return (UDCDmain.TransfereContainer_ObjRef.placeatme(deviceInventory,1) as UD_CustomDevice_EquipScript)
 EndFunction
 
+;updates some values from invetory script
+;	-device key
+;	-key break chance
+;	-If device is destroyed on remove
+;	-jamm lock chance
+;	-!!!device rendered!!!
 Function updateValuesFromInventoryScript()
 	UD_CustomDevice_EquipScript temp = getInventoryScript()
 	
@@ -993,7 +1018,6 @@ Function updateValuesFromInventoryScript()
 	if zad_DestroyOnRemove && !hasModifier("DOR")
 		addModifier("DOR")
 	endif
-	
 EndFunction
 
 bool Function addModifier(string modifier,string param = "")
@@ -1096,19 +1120,52 @@ bool Function modifierHaveParams(string modifier)
 EndFunction
 
 int Function getModifierParamNum(string modifier)
-	return getModifierAllParam(modifier).length
+	string[] loc_params = getModifierAllParam(modifier)
+	if !loc_params
+		UDCDMain.Error(getDeviceHeader() + " -> getModifierParamNum -> "+ modifier +" have no parameters!")
+		return 0
+	else
+		return getModifierAllParam(modifier).length
+	endif
 EndFunction
 
-Int Function getModifierIntParam(string modifier,int index = 0)
-	return getModifierAllParam(modifier)[index] as Int
+Int Function getModifierIntParam(string modifier,int index = 0,int default_value = 0)
+	string[] loc_params = getModifierAllParam(modifier)
+	if (index - 1) > loc_params.length	
+		UDCDMain.Error(getDeviceHeader() + " -> getModifierIntParam -> Wrong index passed for "+ modifier +"!")
+		return default_value
+	elseif loc_params.length == 0
+		UDCDMain.Error(getDeviceHeader() + " -> getModifierIntParam -> modifier "+modifier+" have no parameters!")
+		return default_value
+	else
+		return loc_params[index] as Int
+	endif
 EndFunction
 
-Float Function getModifierFloatParam(string modifier,int index = 0)
-	return getModifierAllParam(modifier)[index] as Float
+Float Function getModifierFloatParam(string modifier,int index = 0,float default_value = 0.0)
+	string[] loc_params = getModifierAllParam(modifier)
+	if (index - 1) > loc_params.length	
+		UDCDMain.Error(getDeviceHeader() + " -> getModifierFloatParam -> Wrong index passed for "+ modifier +"!")
+		return default_value
+	elseif loc_params.length == 0
+		UDCDMain.Error(getDeviceHeader() + " -> getModifierFloatParam -> modifier "+modifier+" have no parameters!")
+		return default_value
+	else
+		return loc_params[index] as Float
+	endif
 EndFunction
 
-String Function getModifierParam(string modifier,int index = 0)
-	return getModifierAllParam(modifier)[index]
+String Function getModifierParam(string modifier,int index = 0,string default_value = "ERROR")
+	string[] loc_params = getModifierAllParam(modifier)
+	if (index - 1) > loc_params.length	
+		UDCDMain.Error(getDeviceHeader() + " -> getModifierParam -> Wrong index passed for "+ modifier +"!")
+		return default_value
+	elseif loc_params.length == 0
+		UDCDMain.Error(getDeviceHeader() + " -> getModifierParam -> modifier "+modifier+" have no parameters!")
+		return default_value
+	else
+		return loc_params[index]
+	endif
 EndFunction
 
 Function setModifierIntParam(string modifier,int value,int index = 0)
@@ -1126,7 +1183,6 @@ EndFunction
 float Function getDurabilityDmgMod()
 	return _durability_damage_mod
 EndFunction
-
 
 Function StartInitMutex()
 	While UDCDmain.UD_EquipMutex
@@ -1147,17 +1203,16 @@ EndFunction
 
 ;post equip function
 Function Init(Actor akActor)
+	libSafeCheck()
+
 	if !akActor
-		if UDCDmain.TraceAllowed()
-			UDCDmain.Log("!Aborting Init called for "+getDeviceName()+" because actor is none!!")
-		endif
+		UDCDmain.Error("!Aborting Init called for "+getDeviceName()+" because actor is none!!")
 	endif
 
-	libSafeCheck()
 	Wearer = akActor
 	
 	if isUnlocked 
-		UDCDmain.Log("!Aborting Init("+ UDCDmain.getActorName(akActor) +") called for " + DeviceInventory.getName() + " because device is already unlocked!!")
+		UDCDmain.Error("!Aborting Init("+ UDCDmain.getActorName(akActor) +") called for " + DeviceInventory.getName() + " because device is already unlocked!!")
 		if (libs as zadlibs_UDPatch).isMutexed(akActor,deviceInventory)
 			(libs as zadlibs_UDPatch).UD_GlobalDeviceMutex_RenderScript = true
 		endif
@@ -1172,21 +1227,24 @@ Function Init(Actor akActor)
 		return
 	endif
 	
-	updateValuesFromInventoryScript()
+	;update now if deviceRendered isn't filled yet, otherwise update on end
+	;deviceRendered should be filled to make the init faster
+	if !deviceRendered
+		updateValuesFromInventoryScript()
+	endif
 	
-	if !akActor.isEquipped(deviceInventory);StorageUtil.GetIntValue(akActor,"zad_Equipped" + deviceInventory,0)
-		UDCDmain.Log("!Aborting Init("+ UDCDmain.getActorName(akActor) +") called for " + DeviceInventory.getName() + " because inventory device is unequipped!!")
-		if (libs as zadlibs_UDPatch).isMutexed(akActor,deviceInventory)
-			(libs as zadlibs_UDPatch).UD_GlobalDeviceMutex_RenderScript = true
+	if UDCDmain.ActorIsPlayer(akActor)
+		if !akActor.isEquipped(deviceInventory);StorageUtil.GetIntValue(akActor,"zad_Equipped" + deviceInventory,0)
+			UDCDmain.Error("!Aborting Init("+ UDCDmain.getActorName(akActor) +") called for " + DeviceInventory.getName() + " because inventory device is unequipped!!")
+			if (libs as zadlibs_UDPatch).isMutexed(akActor,deviceInventory)
+				(libs as zadlibs_UDPatch).UD_GlobalDeviceMutex_RenderScript = true
+			endif
+			akActor.removeItem(deviceRendered,1,True)
+			return 
 		endif
-		akActor.removeItem(deviceRendered,1)
-		return 
 	endif
 	if UDCDmain.TraceAllowed()
 		UDCDmain.Log("Init(called for " + getDeviceHeader(),1)
-	endif
-	if UDCDmain.TraceAllowed()
-		UDCDmain.Log(getDeviceHeader() + " equiped? RD=" + getWearer().IsEquipped(deviceRendered)+",ID="+getWearer().IsEquipped(deviceInventory))
 	endif
 	
 	;MUTEX START
@@ -1194,9 +1252,11 @@ Function Init(Actor akActor)
 	if UDCDmain.isRegistered(getWearer())
 		StartInitMutex()
 	endif
+	
 	if UDCDmain.TraceAllowed()
 		UDCDmain.Log("Registering device: " + getDeviceHeader(),1)
 	endif
+	
 	UDCDmain.startScript(self)
 	
 	if (libs as zadlibs_UDPatch).isMutexed(akActor,deviceInventory)
@@ -1207,6 +1267,11 @@ Function Init(Actor akActor)
 		EndInitMutex()
 	endif
 	;MUTEX END	
+	
+	if deviceRendered
+		updateValuesFromInventoryScript()
+	endif
+	
 	if deviceRendered.hasKeyword(UDlibs.PatchedDevice) ;patched device
 		if UDCDmain.TraceAllowed()		
 			UDCDmain.Log("Patching device " + deviceInventory.getName(),2)
@@ -1358,7 +1423,7 @@ Function UpdateHour(float mult)
 		if OnUpdateHourPost()
 			if libs.isValidActor(GetWearer()) && hasModifier("MAH")
 				int loc_chance = UDCDmain.Round(getModifierIntParam("MAH",0)*(UDCDmain.UDPatcher.UD_MAHMod/100.0))
-				int loc_number = getModifierIntParam("MAH",1)
+				int loc_number = getModifierIntParam("MAH",1,1)
 				Form[] loc_array
 				if Utility.randomInt() < loc_chance
 					while loc_number
@@ -1399,6 +1464,7 @@ Function libSafeCheck()
 		Quest UDquest = Game.getFormFromFile(0x00005901,"UnforgivingDevices.esp") as Quest
 		UDmain = UDquest as UnforgivingDevicesMain 
 	endif
+	libs = UDmain.libs
 EndFunction
 
 ;check if all properties are set
@@ -1967,8 +2033,6 @@ Function deviceMenuInit(bool[] aControl)
 		UDCDmain.currentDeviceMenu_allowLockMenu = true
 	endif
 	
-	
-	
 	;sets last opened device
 	if WearerIsPlayer()
 		UDCDmain.setLastOpenedDevice(self)
@@ -2145,7 +2209,7 @@ Function DeviceMenuWH(Actor akSource,bool[] aControl)
 	if UDCDmain.TraceAllowed()
 		UDCDmain.Log(getDeviceHeader() + " DeviceMenuWH() called, aControl = "+aControl,2)
 	endif
-	setHelper(akSource)
+
 	bool _break = False
 	while !_break
 		deviceMenuInitWH(akSource,aControl)
@@ -2166,7 +2230,6 @@ Function DeviceMenuWH(Actor akSource,bool[] aControl)
 			_break = repairDevice(akSource)
 		elseif msgChoice == 6	;command
 			aControl = new Bool[30]
-			aControl[15] = True
 			DeviceMenu(aControl)
 			_break = True
 		elseif msgChoice == 7 	;details
@@ -3027,6 +3090,9 @@ Function stopMinigame()
 	if UDCDmain.ActorInMinigame(getWearer())
 		force_stop_minigame = True
 		pauseMinigame = False
+	else
+		force_stop_minigame = True
+		pauseMinigame = False
 	endif
 EndFunction
 
@@ -3097,9 +3163,9 @@ EndFunction
 bool Function minigamePrecheck()
 	if UDCDmain.actorInMinigame(getWearer())
 		if WearerIsPlayer()
-			debug.notification("You are already doing something")
+			UDCDmain.Print("You are already doing something")
 		elseif WearerIsFollower()
-			debug.notification(getWearerName() + " is already doing something")
+			UDCDmain.Print(getWearerName() + " is already doing something")
 		endif
 		return false
 	endif
@@ -3107,9 +3173,9 @@ bool Function minigamePrecheck()
 	if hasHelper()
 		if UDCDmain.actorInMinigame(getHelper())
 			if HelperIsPlayer()
-				debug.notification("You are already doing something")
+				UDCDmain.Print("You are already doing something")
 			elseif HelperIsFollower()
-				debug.notification(getHelperName() + " is already doing something")
+				UDCDmain.Print(getHelperName() + " is already doing something")
 			endif
 			return false
 		endif
@@ -3162,7 +3228,14 @@ bool Function minigamePrecheck()
 	return true
 EndFunction
 
+;===============================================================
 ;!!!--------------------MINIGAME LOOP------------------------!!!
+;===============================================================
+
+
+bool Property _MinigameParProc_1 = false auto hidden
+bool Property _MinigameParProc_2 = false auto hidden
+bool Property _MinigameMainLoop_ON = false auto hidden
 Function minigame()
 	if UDmain.DebugMod
 		showDebugMinigameInfo()
@@ -3233,39 +3306,9 @@ Function minigame()
 	if hasHelper()
 		_minigameHelper.AddToFaction(UDCDmain.MinigameFaction)
 	endif
-			
-	UDCDMain.UDPP.Send_Minigameparalel(getWearer(),self)		
-	;disable regen of all stats
-	;/
-	float staminaRate = Wearer.getBaseAV("StaminaRate")
-	float HealRate = Wearer.getBaseAV("HealRate")
-	float magickaRate = Wearer.getBaseAV("MagickaRate")
-	float staminaRateHelper = 0.0
-	float HealRateHelper = 0.0
-	float magickaRateHelper = 0.0
 	
-	Wearer.setAV("StaminaRate", staminaRate*UD_RegenMag_Stamina)
-	Wearer.setAV("HealRate", HealRate*UD_RegenMag_Health)
-	Wearer.setAV("MagickaRate", magickaRate*UD_RegenMag_Magicka)
-
-	if hasHelper()
-		staminaRateHelper = _minigameHelper.getBaseAV("StaminaRate")
-		HealRateHelper = _minigameHelper.getBaseAV("HealRate")
-		magickaRateHelper = _minigameHelper.getBaseAV("MagickaRate")
-
-		_minigameHelper.setAV("StaminaRate", staminaRateHelper*UD_RegenMagHelper_Stamina)
-		_minigameHelper.setAV("HealRate", HealRateHelper*UD_RegenMagHelper_Health)
-		_minigameHelper.setAV("MagickaRate", magickaRateHelper*UD_RegenMagHelper_Magicka)			
-	endif
-	/;
-	;UDCDmain.FinishRecordTime("AV",true) ;<=============================================================
-
-	;shows bars
-	;/
-	if canShowHUD()
-		showHUDbars()
-	endif 
-	/;
+	_MinigameMainLoop_ON = true	
+	UDCDMain.UDPP.Send_MinigameParalel(getWearer(),self)		
 	
 	if UD_useWidget && UDCDmain.UD_UseWidget && PlayerInMinigame()
 		showWidget()
@@ -3287,30 +3330,12 @@ Function minigame()
 	;drain Wearer and Helper stats
 	pauseMinigame = True
 
-	;UDCDmain.FinishRecordTime("Debug",true) ;<=============================================================
-
 	if PlayerInMinigame()
 		UDCDmain.MinigameKeysRegister()
 	endif
 	
-	;/
-	if UD_minigame_canCrit || _customMinigameCritChance
-		UDCDmain.sendMinigameCritUpdateLoop(Wearer)
-	endif
-	/;
-	
-	;/
-	float loc_currentOrgasmRate = getStruggleOrgasmRate()
-	float loc_currentArousalRate= getArousalRate()
-	UDCDmain.UpdateOrgasmRate(getWearer(), loc_currentOrgasmRate,0.25)
-	UDCDmain.UpdateArousalRate(getWearer(),loc_currentArousalRate)
-	/;
-
-	;UDCDmain.FinishRecordTime("Loops+Orgasm",true) ;<=============================================================
-
-	
-	
 	pauseMinigame = False
+	
 	
 	while current_device_health > 0.0 && !force_stop_minigame && UDCDmain.actorInMinigame(getWearer())
 		;pause minigame, pause minigame need to be changed from other thread or infinite loop happens
@@ -3322,7 +3347,7 @@ Function minigame()
 			force_stop_minigame = true
 		endif
 		
-		if !ProccesAV(fCurrentUpdateTime)
+		if !force_stop_minigame && !ProccesAV(fCurrentUpdateTime)
 			StopMinigame()
 		endif
 		
@@ -3344,12 +3369,13 @@ Function minigame()
 		endif
 		
 		;update widget
-		if UDCDmain.UD_UseWidget && UD_UseWidget && (WearerIsPlayer() || HelperIsPlayer())
-			updateWidget()
+		if !force_stop_minigame
+			if UDCDmain.UD_UseWidget && UD_UseWidget && (WearerIsPlayer() || HelperIsPlayer())
+				updateWidget()
+			endif
 		endif
-		
 		;--one second timer--
-		if (tick_b*fCurrentUpdateTime > 1.0) && !force_stop_minigame && current_device_health > 0.0;once per second	
+		if (tick_b*fCurrentUpdateTime > 1.0) && !force_stop_minigame && current_device_health > 0.0 ;once per second	
 			if canShowHUD()
 				showHUDbars(False)
 			endif 		
@@ -3389,6 +3415,8 @@ Function minigame()
 		tick_b += 1
 	endwhile
 	
+	_MinigameMainLoop_ON = false
+	
 	if PlayerInMinigame()
 		UDCDmain.MinigameKeysUnRegister()
 	endif	
@@ -3398,52 +3426,28 @@ Function minigame()
 	if WearerIsPlayer() || HelperIsPlayer()
 		hideWidget()
 	endif
-
-	;returns wearer regen
-	;/
-	Wearer.setAV("StaminaRate", staminaRate)
-	Wearer.setAV("HealRate", healRate)
-	Wearer.setAV("MagickaRate", magickaRate)
-	if hasHelper()
-		_minigameHelper.setAV("StaminaRate", staminaRateHelper)
-		_minigameHelper.setAV("HealRate", HealRateHelper)
-		_minigameHelper.setAV("MagickaRate", magickaRateHelper)			
-	endif	
-	
-	UDCDmain.RemoveOrgasmRate(getWearer(), loc_currentOrgasmRate,0.25)		
-	UDCDmain.UpdateArousalRate(getWearer(),-1*loc_currentArousalRate)	
-	/;
 	
 	;checks if Wearer succesfully escaped device
 	if isUnlocked; && !force_stop_minigame
-		if struggleGame_on
-			if WearerIsPlayer()
-				debug.notification("You have succesfully struggled out of " + deviceInventory.GetName() + "!")
-			else
-				debug.notification(getWearerName()+" succesfully struggled out of " + deviceInventory.GetName() + "!")
-			endif
+		if WearerIsPlayer()
+			UDCDmain.Print("You have succesfully escaped out of " + deviceInventory.GetName() + "!",2)
+		else
+			UDCDmain.Print(getWearerName()+" succesfully escaped out of " + deviceInventory.GetName() + "!",2)
 		endif
-		;unlockRestrain()
-		;advanceSkill(10.0)
 	else
 		libs.pant(Wearer)
 		if !force_stop_minigame
 			if WearerIsPlayer() || HelperIsPlayer()
 				if hasHelper()
-					debug.notification("Both of you are too exhausted to continue struggling")
+					UDCDmain.Print("Both of you are too exhausted to continue struggling",1)
 				else
-					debug.notification("You are too exhausted to continue struggling")
+					UDCDmain.Print("You are too exhausted to continue struggling",1)
 				endif
 			elseif WearerIsFollower()
-				debug.notification(getWearerName()+" is too exhausted to continue struggling")
+				UDCDmain.Print(getWearerName()+" is too exhausted to continue struggling",1)
 			endif
 		endif
 	endif
-	
-	MinigameVarReset()
-
-	;adds struggle debuff if player doesn't struggle slowly
-	;addStruggleExhaustion()
 	
 	;debug message
 	if UDmain.DebugMod && UD_damage_device && durability_onstart != current_device_health && WearerIsPlayer()
@@ -3457,7 +3461,6 @@ Function minigame()
 		libs.EndThirdPersonAnimation(_minigameHelper, cameraState, true) ;ends struggle animation
 	endif
 	
-	;(libs as zadlibs_UDPatch).ResetExpressionPatched(getWearer(), loc_expression,15)
 	
 	UDCDmain.EnableActor(Wearer,true)
 	if hasHelper()
@@ -3467,6 +3470,18 @@ Function minigame()
 	if UDCDmain.TraceAllowed()	
 		UDCDmain.Log("Minigame ended for: "+ deviceInventory.getName(),1)
 	endif
+	
+	;wait for paralled threads to end
+	float loc_time = 0.0
+	while (_MinigameParProc_1 || _MinigameParProc_2) && loc_time <= 1.5
+		Utility.waitMenuMode(0.01)
+		loc_time += 0.01
+	endwhile
+	if loc_time >= 1.5
+		UDCDMain.Error("Minigame paralel thread timeout!")
+	endif
+	
+	MinigameVarReset()
 	
 	OnMinigameEnd()
 EndFunction
@@ -3488,15 +3503,32 @@ Function MinigameVarReset()
 EndFunction
 
 Function advanceSkill(float fMult)
+	if !WearerIsPlayer() && !HelperIsPlayer()
+		return
+	endif
+	
+	int loc_type 	= 0
+	float loc_mult 	= 1.0
+	
+	if HasHelper()
+		loc_type = _struggleGame_Subtype_NPC
+	else
+		loc_type = _struggleGame_Subtype
+	endif
+	
 	if WearerIsPlayer()
-		if struggleGame_on
-			if _struggleGame_Subtype == 0
-				Game.AdvanceSkill("Pickpocket", 	(0.5*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/8.1)/UDCDmain.getArousalSkillMult(getWearer()));getWearer().GetActorValue("PickpocketMod"))
-			elseif _struggleGame_Subtype == 1 
-				Game.AdvanceSkill("TwoHanded", 		(1*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/5.35)/UDCDmain.getArousalSkillMult(getWearer()));getWearer().GetActorValue("TwoHandedMod"))
-			elseif _struggleGame_Subtype == 2
-				Game.AdvanceSkill("Destruction", 	(1*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/1.35)/UDCDmain.getArousalSkillMult(getWearer()));getWearer().GetActorValue("DestructionMod"))
-			endif
+		loc_mult = 1.0
+	else
+		loc_mult = 0.75
+	endif
+	
+	if struggleGame_on
+		if loc_type == 0
+			Game.AdvanceSkill("Pickpocket", 	loc_mult*(0.5*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/8.1)/UDCDmain.getArousalSkillMult(getWearer()))
+		elseif loc_type == 1 
+			Game.AdvanceSkill("TwoHanded", 		loc_mult*(1*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/5.35)/UDCDmain.getArousalSkillMult(getWearer()))
+		elseif loc_type == 2
+			Game.AdvanceSkill("Destruction", 	loc_mult*(1*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/1.35)/UDCDmain.getArousalSkillMult(getWearer()))
 		endif
 	endif
 EndFunction
@@ -4377,9 +4409,9 @@ Function lockpickDevice()
 			if UD_CurrentLocks - UD_JammedLocks > 0
 				UD_CurrentLocks -= 1
 				if WearerIsPlayer()
-					debug.notification("You succesfully unlocked one of the locks!")
+					UDCDmain.Print("You succesfully unlocked one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining",2)
 				elseif WearerIsFollower()
-					debug.notification(getWearerName() + " unlocked one of the locks!")
+					UDCDmain.Print(getWearerName() + " unlocked one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining",3)
 				endif
 				onLockUnlocked(True)
 			endif
@@ -4397,9 +4429,9 @@ Function lockpickDevice()
 		elseif result == 2 ;failure
 			if Utility.randomInt() <= zad_JammLockChance*UDCDmain.CalculateKeyModifier() && !libs.Config.DisableLockJam
 				if WearerIsPlayer()
-					debug.notification("Your lockpick jammed the lock!")
+					UDCDmain.Print("Your lockpick jammed the lock!",1)
 				elseif WearerIsFollower()
-					debug.notification(getWearerName() + "s lock gets jammed!")
+					UDCDmain.Print(getWearerName() + "s lock gets jammed!",3)
 				endif
 				
 				UD_JammedLocks += 1
@@ -4427,9 +4459,9 @@ EndFunction
 Function keyUnlockDevice()
 	if UD_CurrentLocks > 0 
 		if WearerIsPlayer()
-			debug.notification("You managed to unlock one of the locks!")
+			UDCDMain.Print("You managed to unlock one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining")
 		elseif WearerIsFollower()
-			debug.notification(getWearerName() + " managed to unlock one of the locks!")
+			debug.notification(getWearerName() + " managed to unlock one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining")
 		endif
 		
 		UD_CurrentLocks -= 1
@@ -4570,14 +4602,18 @@ EndFunction
 
 Function OnOrgasmPost(bool sexlab = false)
 	if libs.isValidActor(GetWearer())
-		if libs.isValidActor(GetWearer()) && hasModifier("MAO")
+		if hasModifier("MAO")
 			int loc_chance = UDCDmain.Round(getModifierIntParam("MAO",0)*(UDCDmain.UDPatcher.UD_MAOMod/100.0))
-			int loc_number = getModifierIntParam("MAO",1)
+			int loc_randomnum = Utility.randomInt(1,99)
+			int loc_number = getModifierIntParam("MAO",1,1)
+			if UDCDMain.TraceAllowed()
+				UDCDMain.Log(getDeviceHeader()+"MAO found, proccesing. C="+loc_chance+">"+loc_randomnum+",N="+loc_number,1)
+			endif
 			Form[] loc_array
-			if Utility.randomInt() < loc_chance
+			if loc_randomnum < loc_chance
 				while loc_number
-					while UDCDmain.InSelabAnimation(getWearer()) || UDCDmain.InZadAnimation(getWearer())
-						Utility.wait(1.0)
+					while UDCDmain.UDOM.isOrgasming(GetWearer());UDCDmain.InSelabAnimation(getWearer()) || UDCDmain.InZadAnimation(getWearer())
+						Utility.wait(0.1)
 					endwhile
 					loc_number -= 1
 					Armor loc_device = UDmain.UDRRM.LockRandomRestrain(getWearer())
@@ -4591,8 +4627,9 @@ Function OnOrgasmPost(bool sexlab = false)
 			if loc_array
 				if loc_array.length > 0
 					if WearerIsPlayer()
-						string loc_str = getDeviceName() + " suddenly starts to emit black smoke, which envelop your body and forms its shape in to bondage restraint!\n"
-						loc_str += "Devices locked: \n"
+						debug.messagebox(getDeviceName() + " suddenly starts to emit black smoke, which envelop your body and forms its shape in to bondage restraint!")
+						
+						string loc_str = "Devices locked: \n"
 						
 						int i = 0
 						while i < loc_array.length
@@ -4649,8 +4686,9 @@ EndFunction
 Function OnMinigameEnd()
 	if hasHelper()
 		;1 hour cooldown
-		Int loc_lvl = UDCDMain.addHelperXP(GetHelper(), UDCDmain.UD_MinigameHelpXPBase)
-		StorageUtil.SetFloatValue(getHelper(),"UDNPCCD:"+getWearer(),Utility.GetCurrentGameTime() + (iRange(UDCDMain.UD_MinigameHelpCd - UDCDmain.Round((loc_lvl - 1)*0.05*UDCDMain.UD_MinigameHelpCd),10,600))/(60.0*24.0))
+		UDCDMain.ResetHelperCD(GetHelper(),GetWearer(),UDCDmain.UD_MinigameHelpXPBase)
+		;Int loc_lvl = UDCDMain.addHelperXP(GetHelper(), UDCDmain.UD_MinigameHelpXPBase)
+		;StorageUtil.SetFloatValue(getHelper(),"UDNPCCD:"+getWearer(),Utility.GetCurrentGameTime() + (iRange(UDCDMain.UD_MinigameHelpCd - UDCDmain.Round((loc_lvl - 1)*0.05*UDCDMain.UD_MinigameHelpCd),10,600))/(60.0*24.0))
 	endif
 	
 	if isSentient() && getRelativeDurability() > 0.0
@@ -4753,7 +4791,7 @@ Function InitPost()
 EndFunction
 
 ;this function shoul be called last, don't call this for parents
-;use this only in case of using some kind of long function (line vibrate() function or something similiar, which could delate the initiation of device)
+;use this only in case of using some kind of long function (like vibrate() function or something similiar, which could delate the initiation of device)
 Function InitPostPost()
 EndFunction
 

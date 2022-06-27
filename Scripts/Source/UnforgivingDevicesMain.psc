@@ -108,7 +108,7 @@ Event OnInit()
 	if TraceAllowed()	
 		Log("UnforgivingDevicesMain initialized",0)
 	endif
-	debug.notification("Unforgiving devices ready!")
+	Print("$UDREADY")
 	
 	Utility.wait(5.0)
 	
@@ -234,7 +234,7 @@ Function addOrgasmExhaustion(Actor akActor)
 	else
 		OrgasmExhaustionSpell.SetNthEffectDuration(0,UD_OrgasmExhaustionDuration)
 	endif
-	
+		
 	OrgasmExhaustionSpell.cast(akActor)
 	
 	if TraceAllowed()	
