@@ -148,22 +148,49 @@ function equiprandomrestraint(Actor akActor) ;TODO
 	endwhile
 endfunction
 
-;bypass is a chance of selecting restricted/unconvenient device such as breastbound yoke. Will simply send "allowvariations" as true when IsKeywordedDevice is called
-;adaptive makes mod scan character for current devices and suggest colour and style, ignoring the input
+;bypass is a chance in int equivalent of selecting restricted/unconvenient device such as breastbound yoke. Will simply send "allowvariations" as true when IsKeywordedDevice is called
+;adaptive makes mod scan character for current devices and suggest colour and style
 ;fallback - in case device was not chosen due to some limits will try to equip universal devices such as plugs and belts, those that suit to any outfit.
-Armor Function GetRandomDevice(Actor akActor, int rstyle, int rcolor, int rmaterial, int bypass = 0, bool adaptive = false, bool fallback = true)
-	if adaptive
-		int[] valuestor = new int[3]
-		valuestor = AnalyzeActor(akActor)
-		rstyle = valuestor[0]
-		rcolor = valuestor[1]
-		rmaterial = valuestor[2]
-	endif
+Armor Function GetRandomDevice(Actor akActor, int rstyle = -1, int rcolor = -1, int rmaterial = -1, int bypass = 0, bool adaptive = false, bool fallback = true)
+	; randomize if it is either adaptive device or nosystematic plug based on quantity of missing slots
+	; in future can use weight system but I don't care abt it for now
+	; all empty slots minus plug/pierce specific slots
 
+	
+	if ;plug
+
+	else ;restraint - by keyword so we can fallback
+		if adaptive
+			int[] valuestor = new int[3]
+			valuestor = AnalyzeActor(akActor, rstyle, rcolor, rmaterial)
+			if rstyle == -1
+				rstyle = valuestor[0]
+			endif
+			if rcolor == -1
+				rcolor = valuestor[1]
+			endif
+			if rmaterial == -1
+				rmaterial = valuestor[2]
+			endif
+			;cases of fallback: metal<-heretical catsuit=latex<->ebonite
+			;belts and bras are always metal
+			;yoke is % possible fallback for HB ignoring everything
+			;cuffs/collar/boots can % possible fallback to be metal
+
+			;followup when getting values, follow device tree, analyze missing slots, get device from LL for that slot
+			;also literally parse values for every category
+		else
+
+		
+		;scan for empty slots, pick random device for 1 random slot (non plug), output log
+		endif
+	endif
+	return armorPUTHERESOMETHING
 EndFunction
 
-int[] Function AnalyzeActor(Actor akActor)
+int[] Function AnalyzeActor(Actor akActor, int passedstyle = -1, int passedcolor = -1, int passedmaterial = -1)
 	
+	int regulardevicesscore = 0
 	int metalscore = 0; metal - padded steel iron
 	int restrscore = 0; restrictive - restrictive
 	int ropescore = 0
@@ -180,10 +207,12 @@ int[] Function AnalyzeActor(Actor akActor)
 	int transparentscore = 0	;TODO? I mean I can't care less about transparent since they are so glitchy
 	int unimetalscore = 0
 	int nocolorscore = 0
-	;didn't implement rusty and iron hereticals but should do TODO
+	int ironscore = 0
+	int rustyscore = 0
 
-	int ebonitescore = 0
 	int leatherscore = 0
+	int ebonitescore = 0
+	
 	
 
 	while from 0 to equippeditems ;TODO implement loop here, and also if condition to drop all loop if no devices worn and goto fallback directly
@@ -196,12 +225,24 @@ int[] Function AnalyzeActor(Actor akActor)
 		int colourfound = 0
 
 		; ######################## Selecting style
-		if stylefound == 0
+		if stylefound == 0	;heretical + its color/material/whatever, hard to tell
 			stylefound = hereticalscore
 			hereticalscore += formscan(nam,"HR_") as int
 			stylefound -= hereticalscore
+			if stylefound > 0
+				if colourfound == 0
+					colourfound = rustyscore
+					colourfound += formscan(nam,"rusty") as int
+					colourfound -= rustyscore
+				endif
+				if colourfound == 0
+					ironscore += 1
+					materialfound += 1
+					colourfound += 1
+				endif
+			endif
 		endif
-		if stylefound == 0
+		if stylefound == 0 ;nonheretical metal + color
 			stylefound = metalscore
 			metalscore += formscan(nam,"metal") as int
 			metalscore += formscan(nam,"steel") as int
@@ -209,14 +250,14 @@ int[] Function AnalyzeActor(Actor akActor)
 			stylefound -= metalscore
 			if stylefound > 0
 				if colourfound == 0
-					colourfound = 
-					 += formscan(nam,"silver") as int
-					colourfound -= 
+					colourfound = silverscore
+					colourfound += formscan(nam,"silver") as int
+					colourfound -= silverscore
 				endif
 				if colourfound == 0
-					colourfound = 
-					 += formscan(nam,"gold") as int
-					colourfound -= 
+					colourfound = goldscore
+					colourfound += formscan(nam,"gold") as int
+					colourfound -= goldscore
 				endif
 				if colourfound == 0
 					unimetalscore += 1
@@ -225,17 +266,17 @@ int[] Function AnalyzeActor(Actor akActor)
 				endif
 			endif
 		endif
-		if stylefound == 0
+		if stylefound == 0 ;restrictive anything, color is systematic to check in different condition block
 			stylefound = restrscore
 			restrscore += formscan(nam,"restrictive") as int
 			stylefound -= restrscore
 		endif
-		if stylefound == 0
+		if stylefound == 0 ;rope anything, color is systematic to check in different condition block
 			stylefound = ropescore
 			ropescore += formscan(nam,"rope") as int
 			stylefound -= ropescore
 		endif
-		if stylefound == 0
+		if stylefound == 0 ;catsuit anything, sets material to ebonite, color is systematic to check in different condition block
 			stylefound = catsuitscore
 			catsuitscore += formscan(nam,"catsuit") as int
 			stylefound -= catsuitscore
@@ -285,14 +326,15 @@ int[] Function AnalyzeActor(Actor akActor)
 		endif
 	endwhile
 
-	int[] styles = new int[5]
-	styles[0] = metalscore
+	int[] styles = new int[6]
+	styles[0] = regulardevicesscore
 	styles[1] = restrscore
-	styles[2] = ropescore
+	styles[2] = metalscore
 	styles[3] = catsuitscore
-	styles[4] = hereticalscore
+	styles[4] = ropescore
+	styles[5] = hereticalscore	
 
-	int[] colors = new int[10]
+	int[] colors = new int[12]
 	colors[0] = blackscore
 	colors[1] = redscore
 	colors[2] = whitescore
@@ -303,11 +345,13 @@ int[] Function AnalyzeActor(Actor akActor)
 	colors[7] = goldscore
 	colors[8] = transparentscore	;TODO? I mean I can't care less about transparent since they are so glitchy
 	colors[9] = nocolorscore
-	;didn't implement rusty and iron hereticals but should do TODO
+	colors[10] = rustyscore
+	colors[11] = ironscore
 
 	int[] mats = new int[2]
-	mats[0] = ebonitescore
-	mats[1] = leatherscore
+	mats[0] = leatherscore
+	mats[1] = ebonitescore
+	
 
 	int i = 0
 	bool continue = true
@@ -332,7 +376,7 @@ int[] Function AnalyzeActor(Actor akActor)
 	EndWhile
 	;cleaning anomalous data to figure out baseline, 24% floored
 	;and selecting style in the same loop
-	int values[] = new int[3] ;do we pass values as global "int"s tho?
+	int values[] = new int[6] ;do we pass values as global "int"s tho? index 3,4 and 5 are reserved for 'recommended' types according to passed parameters, if any, 1-3 act as fallback in that case
 	int stylesdamp = Floor(stylestotal*0.24)
 	int colorsdamp = Floor(colorstotal*0.24)
 	int matsdamp = Floor(matstotal*0.24)
@@ -345,29 +389,41 @@ int[] Function AnalyzeActor(Actor akActor)
 	While continue
 		continue = false
 		if (i < styles.Length)
+			UDCDmain.Log("styles["+i+"] = "+styles[i]+"and reduced by "+stylesdamp,3)
 			styles[i] -= stylesdamp
 			continue = true
 			if !values[0]
 				if Math.RandomInt(0, stylestotal) < styles[i]		
-					values[0] = styles[i] ;randomized check passed, assigning type
+					values[0] = i ;randomized check passed, assigning type
+					UDCDmain.Log(i+" has been selected for styles",3)
+				else
+					stylestotal -= styles[i]
 				endif		
 			endif
 		Endif
 		if (i < colors.Length)
+			UDCDmain.Log("colors["+i+"] = "+colors[i]+"and reduced by "+colorsdamp,3)
 			colors[i] -= colorsdamp
 			continue = true
 			if !values[1]
 				if Math.RandomInt(0, colorstotal) < colors[i]		
-					values[1] = colors[i] ;randomized check passed, assigning type
-				endif		
+					values[1] = i ;randomized check passed, assigning type
+					UDCDmain.Log(i+" has been selected for colors",3)
+				else
+					colorstotal -= colors[i]
+				endif			
 			endif
 		Endif
 		if (i < mats.Length)
+			UDCDmain.Log("mats["+i+"] = "+mats[i]+"and reduced by "+matsdamp,3)
 			mats[i] -= matsdamp
 			continue = true
 			if !values[2]
 				if Math.RandomInt(0, matstotal) < mats[i]		
-					values[2] = mats[i] ;randomized check passed, assigning type
+					values[2] = i ;randomized check passed, assigning type
+					UDCDmain.Log(i+" has been selected for mats",3)
+				else
+					matstotal -= mats[i]
 				endif		
 			endif
 		Endif
@@ -377,13 +433,16 @@ int[] Function AnalyzeActor(Actor akActor)
 	;fallback - possible to replace it with MCM configured valus for player tastes. Assuming default types for now
 
 	if !values[0]
-
+		values[1] = 0
+		UDCDmain.Log("Style fallback!",3)
 	endif
 	if !values[1]
-
+		values[1] = 0
+		UDCDmain.Log("Color fallback!",3)
 	endif
 	if !values[2]
-
+		values[2] = Math.RandomInt(0,1)
+		UDCDmain.Log("Material fallback!",3)
 	endif
 
 	return values[]
