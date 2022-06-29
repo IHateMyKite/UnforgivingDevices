@@ -1,5 +1,7 @@
 Scriptname UD_CustomVibratorBase_RenderScript extends UD_CustomDevice_RenderScript  
 
+import UnforgivingDevicesMain
+
 ;Properties
 int 	property 	UD_VibDuration 		= 60 	auto ;duration of vibrations. -1 will make the vibrator vib forever (or until stopVibrating() is called)
 float 	property 	UD_ArousalMult 		= 1.0	auto ;arousal multiplier, multiplies arousal which is adde while vib is on
@@ -74,7 +76,6 @@ Function InitPost()
 			UD_EdgingMode = 0
 		endif
 	endif
-
 EndFunction
 
 Function safeCheck()
@@ -128,8 +129,8 @@ string Function getVibDetails(string str = "")
 		else
 			str += "Rem. duration: " + "INF" + " s\n"
 		endif
-		str += "Arousal rate: " + UDmain.FormatString(getVibArousalRate(),2) + " A/s\n"
-		str += "Orgasm rate: " + UDmain.FormatString(_appliedOrgasmRate,2) + " Op/s\n"
+		str += "Arousal rate: " + FormatString(getVibArousalRate(),2) + " A/s\n"
+		str += "Orgasm rate: " + FormatString(_appliedOrgasmRate,2) + " Op/s\n"
 		str += "Current vib mode: "
 		if _currentEdgingMode == 0
 			str += "Normal\n"
@@ -151,11 +152,11 @@ Function processDetails()
 	UDCDmain.currentDeviceMenu_switch1 = isVibrating() || canVibrate()
 	int res = UDCDmain.VibDetailsMessage.show()	
 	if res == 0 
-		UDCDmain.ShowMessageBox(getInfoString())
+		ShowMessageBox(getInfoString())
 	elseif res == 1
-		UDCDmain.ShowMessageBox(getVibDetails())
+		ShowMessageBox(getVibDetails())
 	elseif res == 2
-		UDCDmain.ShowMessageBox(getModifiers())
+		ShowMessageBox(getModifiers())
 	elseif res == 3
 		UDCDmain.showActorDetails(GetWearer())
 	elseif res == 4
@@ -177,7 +178,7 @@ EndFunction
 Function onDeviceMenuInitPostWH(bool[] aControlFilter)
 	parent.onDeviceMenuInitPostWH(aControlFilter)
 	;UDCDmain.currentDeviceMenu_allowcutting = false
-	if canVibrate() && (WearerFreeHands() || HelperFreeHands()) && (WearerIsPlayer() || HelperIsPlayer())
+	if canVibrate() && (WearerFreeHands() || HelperFreeHands()); && (WearerIsPlayer() || HelperIsPlayer())
 		UDCDmain.currentDeviceMenu_switch1 = True
 		UDCDmain.currentDeviceMenu_allowSpecialMenu = True
 	endif
@@ -225,7 +226,6 @@ bool Function proccesSpecialMenuWH(Actor akSource,int msgChoice)
 	return res
 EndFunction
 
-
 Function activateDevice()
 	resetCooldown()
 	vibrate()
@@ -265,11 +265,11 @@ int Function getCurrentZadVibStrenth()
 EndFunction
 
 int Function getDefaultZadVibStrenth()
-	return UDmain.Round(UD_VibStrength*0.05)
+	return Round(UD_VibStrength*0.05)
 EndFunction
 
 int Function getDefaultZadVibStrenthKey()
-	return UDmain.Round(UD_VibStrength*0.05)
+	return Round(UD_VibStrength*0.05)
 EndFunction
 
 bool Function canVibrate()
@@ -312,7 +312,9 @@ EndFunction
 Function ForceStrength(int iStrenth)
 	_forceStrength = iStrenth
 	if isVibrating()
+		StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", -1*_currentVibStrength)
 		_currentVibStrength = _forceStrength
+		StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", _currentVibStrength)
 		if !isPaused()
 			UpdateVibSound()
 			UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
@@ -321,9 +323,11 @@ Function ForceStrength(int iStrenth)
 EndFunction
 
 Function ForceModStrength(float fModifier)
-	_forceStrength = UDCDmain.Round(UD_VibStrength*fModifier)
+	_forceStrength = Round(UD_VibStrength*fModifier)
 	if isVibrating()
+		StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", -1*_currentVibStrength)
 		_currentVibStrength = _forceStrength
+		StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", _currentVibStrength)
 		if !isPaused()
 			UpdateVibSound()
 			UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
@@ -342,7 +346,7 @@ EndFunction
 
 Function ForceModDuration(float fModifier)
 	if fModifier >= 0.1
-		_forceDuration = UDCDmain.Round(UD_VibDuration*fModifier)
+		_forceDuration = Round(UD_VibDuration*fModifier)
 		if isVibrating()
 			_currentVibRemainingDuration = _forceDuration
 		endif
@@ -366,10 +370,12 @@ EndFUnction
 
 Function addVibStrength(int iValue = 1)
 	if isVibrating()
+		StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", -1*_currentVibStrength)
 		_currentVibStrength += iValue
 		if _currentVibStrength > 100
 			_currentVibStrength = 100
 		endif
+		StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", _currentVibStrength)
 		if !isPaused()
 			UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
 			UpdateVibSound()
@@ -379,10 +385,12 @@ EndFunction
 
 Function removeVibStrength(int iValue = 1)
 	if isVibrating()
+		StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", -1*_currentVibStrength)
 		_currentVibStrength -= iValue
 		if _currentVibStrength < 0
 			_currentVibStrength = 0
 		endif
+		StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", _currentVibStrength)
 		if !isPaused() && isVibrating()
 			UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
 			UpdateVibSound()
@@ -396,11 +404,7 @@ Function forceEdgingMode(int iMode)
 EndFunction
 
 float Function getVibArousalRate(float mult = 1.0)
-	;if getWearer().HasMagicEffectWithKeyword(UDCDmain.UDlibs.OrgasmExhaustionEffect_KW)
-	;	return _currentVibStrength * mult * UDCDmain.UD_ArousalMultiplier* 0.75 * UD_ArousalMult
-	;else
-		return _currentVibStrength * UDCDmain.UD_ArousalMultiplier * UD_ArousalMult
-	;endif
+	return _currentVibStrength * UDCDmain.UD_ArousalMultiplier * UD_ArousalMult
 EndFunction
 
 Function pauseVibFor(int iTime)
@@ -503,7 +507,6 @@ Function vibrate(float fDurationMult = 1.0)
 	
 	OnVibrationStart()	
 	
-	
 	if UD_Chaos ;chaos plug, ignore forced strength
 		_currentVibStrength = Utility.randomInt(15,100)
 	elseif _forceStrength < 0
@@ -513,7 +516,7 @@ Function vibrate(float fDurationMult = 1.0)
 	endif
 	
 	if _forceDuration == 0
-		_currentVibRemainingDuration = UDmain.Round(UD_VibDuration*fDurationMult)
+		_currentVibRemainingDuration = Round(UD_VibDuration*fDurationMult)
 	else
 		_currentVibRemainingDuration = _forceDuration
 	endif
@@ -536,12 +539,24 @@ Function vibrate(float fDurationMult = 1.0)
 		UDCDmain.Log("Vibrate called for " + getDeviceName() + " on " + getWearerName() + ", duration: " + _currentVibRemainingDuration + ", strength: " + _currentVibStrength + ", edging: " + _currentEdgingMode)
 	endif
 	
-	UDCDmain.SendModEvent("DeviceVibrateEffectStart", getWearerName(), getCurrentZadVibStrenth())
+	;/
+	if !GetWearer().IsInFaction(UDCDmain.VibrationFaction)
+		GetWearer().AddToFaction(UDCDmain.VibrationFaction)
+		GetWearer().SetFactionRank(UDCDmain.VibrationFaction,1)
+	else
+		GetWearer().ModFactionRank(UDCDmain.VibrationFaction,1)
+	endif
+	/;
+	StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib", 1)
+	StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", _currentVibStrength)
 	
+	
+	UDCDmain.SendModEvent("DeviceVibrateEffectStart", getWearerName(), getCurrentZadVibStrenth())
+		
 	if WearerIsPlayer()
-		UDCDmain.Print(getDeviceName() + " starts vibrating "+ UDmain.getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",3)
-	elseif WearerIsFollower()
-		UDCDmain.Print(getWearerName() + "s " + getDeviceName() + " starts vibrating "+ UDmain.getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",3)
+		UDCDmain.Print(getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",3)
+	elseif UDCDmain.AllowNPCMessage(GetWearer())
+		UDCDmain.Print(getWearerName() + "s " + getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",3)
 	endif
 
 	; Initialize Sounds
@@ -556,7 +571,7 @@ Function vibrate(float fDurationMult = 1.0)
 		;vibrate sound
 		if isVibrating() && !_paused
 			if (_currentVibRemainingDuration % 2) == 0 ; Make noise
-				getWearer().CreateDetectionEvent(getWearer(), 50 + UDmain.Round(UD_VibStrength/2.0))
+				getWearer().CreateDetectionEvent(getWearer(), 50 + Round(UD_VibStrength/2.0))
 			EndIf
 		endif
 		
@@ -592,10 +607,15 @@ Function vibrate(float fDurationMult = 1.0)
 	if !_paused
 		if WearerIsPlayer()
 			UDCDmain.Print(getDeviceName() + " stops vibrating.",3)
-		elseif WearerIsFollower()
+		elseif UDCDmain.AllowNPCMessage(GetWearer())
 			UDCDmain.Print(getWearerName() + "s " + getDeviceName() + " stops vibrating.",3)
 		endif
 	endif
+	
+	;GetWearer().ModFactionRank(UDCDmain.VibrationFaction,-1)
+	StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib", -1)
+	StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", -1*_currentVibStrength)
+	
 	UDCDmain.SendModEvent("DeviceVibrateEffectStop", getWearerName(), getCurrentZadVibStrenth())
 	;libs.UpdateArousalTimeRate(getWearer(), _currentVibStrength)
 	;libs.Aroused.GetActorArousal(getWearer())
@@ -609,38 +629,6 @@ Function vibrate(float fDurationMult = 1.0)
 EndFunction
 
 Function ProccesVibEdge()
-;/
-	if _currentEdgingMode == 1
-		if UDCDmain.getActorOrgasmProgress(getWearer()) > UD_EdgingThreshold
-			if WearerIsPlayer()
-				debug.notification(getDeviceName() + " suddenly stops vibrating!")
-			endif
-			if UD_Shocking
-				ShockWearer(50,10)
-			endif
-			while UDCDmain.getActorOrgasmProgress(getWearer()) > UD_EdgingThreshold*0.95
-				pauseVibFor(10.0)
-				Utility.wait(0.25)
-			endwhile
-			if WearerIsPlayer()
-				debug.notification(getDeviceName() + " has come back to life, arousing you once again")
-			endif
-		endif
-	elseif _currentEdgingMode == 2
-		if Utility.randomInt() > 95
-			if WearerIsPlayer()
-				debug.notification(getDeviceName() + " suddenly stops vibrating!")
-			endif
-			if UD_Shocking
-				ShockWearer(25,10)
-			endif
-			pauseVibFor(Utility.randomFloat(25.0,35.0))
-			if WearerIsPlayer()
-				debug.notification(getDeviceName() + " has come back to life, arousing you once again")
-			endif
-		endif
-	endif
-/;
 	if isVibrating() && !_paused
 		if _currentEdgingMode == 1
 			if UDCDmain.UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
@@ -685,13 +673,144 @@ bool Function canBeActivated()
 	endif
 EndFunction
 
-;OVERRIDE
-
+;======================================================================
+;Place new override functions here, do not forget to check override functions in parent if its not base script (UD_CustomDevice_RenderScript)
+;Function OnVibStart(int blablabla)
+;EndFunction
+;======================================================================
 Function OnVibrationStart()
-
 EndFunction
-
 Function OnVibrationEnd()
-
 EndFunction
 
+;============================================================================================================================
+;unused override function, theese are from base script. Extending different script means you also have to add their overrride functions                                                
+;theese function should be on every object instance, as not having them may cause multiple function calls to default class
+;more about reason here https://www.creationkit.com/index.php?title=Function_Reference, and Notes on using Parent section
+;============================================================================================================================
+Function patchDevice() ;called on init. Should call patcher. Can also be dirrectly modified but should still use Patcher MCM variables
+	parent.patchDevice()
+EndFunction
+bool Function OnMendPre(float mult) ;called on device mend (regain durability)
+	return parent.OnMendPre(mult)
+EndFunction
+Function OnMendPost(float mult) ;called on device mend (regain durability). Only called if OnMendPre returns true
+	parent.OnMendPost(mult)
+EndFunction
+bool Function OnCritDevicePre() ;called on minigame crit
+	return parent.OnCritDevicePre()
+EndFunction
+Function OnCritDevicePost() ;called on minigame crit. Is only called if OnCritDevicePre returns true 
+	parent.OnCritDevicePost()
+EndFunction
+bool Function OnOrgasmPre(bool sexlab = false) ;called on wearer orgasm. Is only called if wearer is registered
+	return parent.OnOrgasmPre(sexlab)
+EndFunction
+Function OnMinigameOrgasm(bool sexlab = false) ;called on wearer orgasm while in minigame. Is only called if wearer is registered
+	parent.OnMinigameOrgasm(sexlab)
+EndFunction
+Function OnMinigameOrgasmPost() ;called on wearer orgasm while in minigame. Is only called after OnMinigameOrgasm. Is only called if wearer is registered
+	parent.OnMinigameOrgasmPost()
+EndFunction
+Function OnOrgasmPost(bool sexlab = false) ;called on wearer orgasm. Is only called if OnOrgasmPre returns true. Is only called if wearer is registered
+	parent.OnOrgasmPost(sexlab)
+EndFunction
+Function OnMinigameStart() ;called when minigame start
+	parent.OnMinigameStart()
+EndFunction
+Function OnMinigameEnd() ;called when minigame end
+	parent.OnMinigameEnd()
+EndFunction
+Function OnMinigameTick() ;called every on every tick of minigame. Uses MCM performance setting
+	parent.OnMinigameTick()
+EndFunction
+Function OnMinigameTick1() ;called every 1s of minigame
+	parent.OnMinigameTick1()
+EndFunction
+Function OnMinigameTick3() ;called every 3s of minigame
+	parent.OnMinigameTick3()
+EndFunction
+Function OnCritFailure() ;called on crit failure (wrong key pressed)
+	parent.OnCritFailure()
+EndFunction
+float Function getAccesibility() ;return accesibility of device in range 0.0 - 1.0
+	return parent.getAccesibility()
+EndFunction
+Function OnDeviceCutted() ;called when device is cutted
+	parent.OnDeviceCutted()
+EndFunction
+Function OnDeviceLockpicked() ;called when device is lockpicked
+	parent.OnDeviceLockpicked()
+EndFunction
+Function OnLockReached() ;called when device lock is reached
+	parent.OnLockReached()
+EndFunction
+Function OnLockJammed() ;called when device lock is jammed
+	parent.OnLockJammed()
+EndFunction
+Function OnDeviceUnlockedWithKey() ;called when device is unlocked with key
+	parent.OnDeviceUnlockedWithKey()
+EndFunction
+Function OnUpdatePre(float timePassed) ;called on update. Is only called if wearer is registered
+	parent.OnUpdatePre(timePassed)
+EndFunction
+Function OnUpdatePost(float timePassed) ;called on update. Is only called if wearer is registered
+	parent.OnUpdatePost(timePassed)
+EndFunction
+bool Function OnCooldownActivatePre()
+	return parent.OnCooldownActivatePre()
+EndFunction
+Function OnCooldownActivatePost()
+	parent.OnCooldownActivatePost()
+EndFunction
+Function DeviceMenuExt(int msgChoice)
+	parent.DeviceMenuExt(msgChoice)
+EndFunction
+Function DeviceMenuExtWH(int msgChoice)
+	parent.DeviceMenuExtWH(msgChoice)
+EndFunction
+bool Function OnUpdateHourPre()
+	return parent.OnUpdateHourPre()
+EndFunction
+bool Function OnUpdateHourPost()
+	return parent.OnUpdateHourPost()
+EndFunction
+Function onRemoveDevicePost(Actor akActor)
+	parent.onRemoveDevicePost(akActor)
+EndFunction
+Function onLockUnlocked(bool lockpick = false)
+	parent.onLockUnlocked(lockpick)
+EndFunction
+Function onSpecialButtonPressed(float fMult)
+	parent.onSpecialButtonPressed(fMult)
+EndFunction
+Function onSpecialButtonReleased(Float fHoldTime)
+	parent.onSpecialButtonReleased(fHoldTime)
+EndFunction
+bool Function onWeaponHitPre(Weapon source)
+	return parent.onWeaponHitPre(source)
+EndFunction
+Function onWeaponHitPost(Weapon source)
+	parent.onWeaponHitPost(source)
+EndFunction
+bool Function onSpellHitPre(Spell source)
+	return parent.onSpellHitPre(source)
+EndFunction
+Function onSpellHitPost(Spell source)
+	parent.onSpellHitPost(source)
+EndFunction
+string Function addInfoString(string str = "")
+	return parent.addInfoString(str)
+EndFunction
+Function updateWidget(bool force = false)
+	parent.updateWidget(force)
+EndFunction
+Function updateWidgetColor()
+	parent.updateWidgetColor()
+EndFunction
+int Function getArousalRate()
+	return parent.getArousalRate()
+EndFunction
+float Function getStruggleOrgasmRate()
+	return parent.getStruggleOrgasmRate()
+EndFunction

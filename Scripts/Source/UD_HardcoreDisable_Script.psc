@@ -1,5 +1,7 @@
 Scriptname UD_HardcoreDisable_Script extends activemagiceffect  
 
+import UnforgivingDevicesMain
+
 Actor _target = none
 UDCustomDeviceMain Property UDCDmain auto
 MagicEffect _MagickEffect = none
@@ -25,7 +27,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 		Utility.waitMenuMode(0.01) ;wait for player to end dialogue before applying effect
 	endwhile
 	
-	UDCDmain.UDmain.closeMenu()
+	closeMenu()
 	
 	_MapKeyCode = Input.GetMappedKey("Quick Map")
 	_StatsKeyCode = Input.GetMappedKey("Quick Stats")
@@ -45,10 +47,6 @@ Event OnUpdate()
 	if !_target.wornhaskeyword(UDCDmain.libs.zad_DeviousHeavyBondage) || !UDCDmain.UD_HardcoreMode
 		_target.DispelSpell(UDCDmain.UDlibs.HardcoreDisableSpell)
 	elseif _target.hasMagicEffect(_MagickEffect)
-		if UDCDmain.TraceAllowed()		
-			UDCDmain.Log("UD_HardcoreDisable_Script - Hardcore disabler updated for " + _target,3)
-		endif
-		
 		if _target.hasMagicEffect(_MagickEffect) && !_target.HasMagicEffectWithKeyword(UDCDmain.UDlibs.MinigameDisableEffect_KW)
 			if _target == Game.getPlayer()
 				if !_MenuKeyPressed; && !MenuIsOpen()

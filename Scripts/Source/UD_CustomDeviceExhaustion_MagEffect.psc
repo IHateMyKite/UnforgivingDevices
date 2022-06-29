@@ -13,7 +13,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 	_target = akTarget 
 	_MagickEffect = GetBaseObject()
 	_expression = UDEM.GetPrebuildExpression_Tired1()
-	UDEM.ApplyExpressionRaw(_target, _expression, 30,false,10)
+	UDEM.ApplyExpressionRaw(_target, _expression, 30,false,5)
 	if _target == Game.getPlayer()
 		registerForSingleUpdate(0.1)
 		;Game.SetInChargen(false, true, false)
@@ -36,7 +36,7 @@ Event OnUpdate()
 		if _target == Game.getPlayer()
 			Game.SetInChargen(false, true, false)
 		endif
-		UDEM.ApplyExpressionRaw(_target, _expression, 30,false,10)
+		UDEM.ApplyExpressionRaw(_target, _expression, 30,false,5)
 		registerForSingleUpdate(1.0)
 	endif
 EndEvent

@@ -1,5 +1,7 @@
 Scriptname UD_CustomInflatablePlug_RenderScript extends UD_CustomPlug_RenderScript  
 
+import UnforgivingDevicesMain
+
 float Property UD_PumpDifficulty = 50.0 auto
 float Property UD_DeflateRate = 200.0 auto
 int _inflateLevel = 0 ;for npcs
@@ -102,39 +104,6 @@ bool Function proccesSpecialMenuWH(Actor akSource,int msgChoice)
 	return res
 EndFunction
 
-;/
-Function DeviceMenuExt(Int msgChoice)
-	if msgChoice == 5
-		if wearerFreeHands(True)
-			inflate()
-		else
-			inflateMinigame()
-		endif
-	elseif msgChoice == 6
-		if wearerFreeHands(True) && canDeflate() 
-			deflate()
-		else
-			deflateMinigame()
-		endif	
-	endif
-EndFunction
-
-Function DeviceMenuExtWH(Int msgChoice)
-	if msgChoice == 5
-		if wearerFreeHands(True) || helperFreeHands(True)
-			inflate()
-		else
-			inflateMinigame()
-		endif
-	elseif msgChoice == 6
-		if (wearerFreeHands(True) || helperFreeHands(True)) && canDeflate() 
-			deflate()
-		else
-			deflateMinigame()
-		endif	
-	endif
-EndFunction
-/;
 string Function addInfoString(string str = "")
 	;string res = str
 	str += "Inflate level: " + getPlugInflateLevel() + "\n"
@@ -329,6 +298,7 @@ Function inflatePlug(int increase)
 		_inflateLevel = 5
 	endif
 	deflateprogress = 0.0
+	OnInflated()
 EndFunction
 
 Function deflatePlug(int decrease)
@@ -343,6 +313,7 @@ Function deflatePlug(int decrease)
 		_inflateLevel = 0
 	endif
 	deflateprogress = 0.0
+	OnDeflated()
 EndFunction
 
 Function patchDevice()
@@ -472,4 +443,119 @@ bool Function canBeActivated()
 	else
 		return false
 	endif
+EndFunction
+;======================================================================
+;Place new override functions here, do not forget to check override functions in parent if its not base script (UD_CustomDevice_RenderScript)
+;======================================================================
+Function OnInflated()
+EndFunction
+Function OnDeflated()
+EndFunction
+
+;============================================================================================================================
+;unused override function, theese are from base script. Extending different script means you also have to add their overrride functions                                                
+;theese function should be on every object instance, as not having them may cause multiple function calls to default class
+;more about reason here https://www.creationkit.com/index.php?title=Function_Reference, and Notes on using Parent section
+;============================================================================================================================
+bool Function OnMendPre(float mult) ;called on device mend (regain durability)
+	return parent.OnMendPre(mult)
+EndFunction
+Function OnMendPost(float mult) ;called on device mend (regain durability). Only called if OnMendPre returns true
+	parent.OnMendPost(mult)
+EndFunction
+Function OnCritDevicePost() ;called on minigame crit. Is only called if OnCritDevicePre returns true 
+	parent.OnCritDevicePost()
+EndFunction
+bool Function OnOrgasmPre(bool sexlab = false) ;called on wearer orgasm. Is only called if wearer is registered
+	return parent.OnOrgasmPre(sexlab)
+EndFunction
+Function OnMinigameOrgasm(bool sexlab = false) ;called on wearer orgasm while in minigame. Is only called if wearer is registered
+	parent.OnMinigameOrgasm(sexlab)
+EndFunction
+Function OnMinigameOrgasmPost() ;called on wearer orgasm while in minigame. Is only called after OnMinigameOrgasm. Is only called if wearer is registered
+	parent.OnMinigameOrgasmPost()
+EndFunction
+Function OnOrgasmPost(bool sexlab = false) ;called on wearer orgasm. Is only called if OnOrgasmPre returns true. Is only called if wearer is registered
+	parent.OnOrgasmPost(sexlab)
+EndFunction
+Function OnMinigameTick1() ;called every 1s of minigame
+	parent.OnMinigameTick1()
+EndFunction
+Function OnMinigameTick3() ;called every 3s of minigame
+	parent.OnMinigameTick3()
+EndFunction
+Function OnDeviceCutted() ;called when device is cutted
+	parent.OnDeviceCutted()
+EndFunction
+Function OnDeviceLockpicked() ;called when device is lockpicked
+	parent.OnDeviceLockpicked()
+EndFunction
+Function OnLockReached() ;called when device lock is reached
+	parent.OnLockReached()
+EndFunction
+Function OnLockJammed() ;called when device lock is jammed
+	parent.OnLockJammed()
+EndFunction
+Function OnDeviceUnlockedWithKey() ;called when device is unlocked with key
+	parent.OnDeviceUnlockedWithKey()
+EndFunction
+Function OnUpdatePre(float timePassed) ;called on update. Is only called if wearer is registered
+	parent.OnUpdatePre(timePassed)
+EndFunction
+bool Function OnCooldownActivatePre()
+	return parent.OnCooldownActivatePre()
+EndFunction
+Function OnCooldownActivatePost()
+	parent.OnCooldownActivatePost()
+EndFunction
+Function DeviceMenuExt(int msgChoice)
+	parent.DeviceMenuExt(msgChoice)
+EndFunction
+Function DeviceMenuExtWH(int msgChoice)
+	parent.DeviceMenuExtWH(msgChoice)
+EndFunction
+bool Function OnUpdateHourPre()
+	return parent.OnUpdateHourPre()
+EndFunction
+bool Function OnUpdateHourPost()
+	return parent.OnUpdateHourPost()
+EndFunction
+Function InitPostPost()
+	parent.InitPostPost()
+EndFunction
+Function OnRemoveDevicePre(Actor akActor)
+	parent.OnRemoveDevicePre(akActor)
+EndFunction
+Function onRemoveDevicePost(Actor akActor)
+	parent.onRemoveDevicePost(akActor)
+EndFunction
+Function onLockUnlocked(bool lockpick = false)
+	parent.onLockUnlocked(lockpick)
+EndFunction
+Function onSpecialButtonPressed(float fMult)
+	parent.onSpecialButtonPressed(fMult)
+EndFunction
+Function onSpecialButtonReleased(Float fHoldTime)
+	parent.onSpecialButtonReleased(fHoldTime)
+EndFunction
+bool Function onWeaponHitPre(Weapon source)
+	return parent.onWeaponHitPre(source)
+EndFunction
+Function onWeaponHitPost(Weapon source)
+	parent.onWeaponHitPost(source)
+EndFunction
+bool Function onSpellHitPre(Spell source)
+	return parent.onSpellHitPre(source)
+EndFunction
+Function onSpellHitPost(Spell source)
+	parent.onSpellHitPost(source)
+EndFunction
+Function updateWidgetColor()
+	parent.updateWidgetColor()
+EndFunction
+int Function getArousalRate()
+	return parent.getArousalRate()
+EndFunction
+float Function getStruggleOrgasmRate()
+	return parent.getStruggleOrgasmRate()
 EndFunction

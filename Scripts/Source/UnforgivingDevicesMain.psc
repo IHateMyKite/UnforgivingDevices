@@ -5,6 +5,13 @@ zadlibs property libs auto
 zadxlibs property libsx auto
 zadxlibs2 property libsx2 auto
 
+;patched zadlibs
+zadlibs_UDPatch property libsp
+	zadlibs_UDPatch Function get()
+		return libs as zadlibs_UDPatch
+	EndFunction
+EndProperty
+
 bool Property UD_OrgasmExhaustion = True auto
 float Property UD_OrgasmExhaustionMagnitude = 0.0 auto
 int Property UD_OrgasmExhaustionDuration = 50 auto
@@ -23,6 +30,7 @@ UD_ExpressionManager Property UDEM auto
 UD_ParalelProcess Property UDPP auto
 UD_CustomDevices_NPCSlotsManager Property UDNPCM auto
 UD_MutexManagerScript Property UDMM auto
+UD_ModifierManager_Script Property UDMOM auto
 
 bool property lockMCM = false auto
 bool property udequiped auto
@@ -51,8 +59,6 @@ bool Property UD_hightPerformance
 		return _UD_hightPerformance
 	EndFunction
 EndProperty
-
-
 
 float Property UD_LowPerformanceTime = 1.0 Auto
 float Property UD_HightPerformanceTime = 0.25 Auto
@@ -174,7 +180,6 @@ bool Property ConsoleUtilInstalled = false auto
 
 bool Property SlaveTatsInstalled = false auto
 
-
 Function CheckOptionalMods()
 	If ModInstalled("ZaZAnimationPack.esm")
 		ZaZAnimationPackInstalled = True
@@ -234,33 +239,12 @@ Function CheckPatchesOrder()
 	endwhile
 EndFunction
 
-bool Function ModInstalled(string sModFileName)
-	return (Game.GetModByName(sModFileName) != 255) && (Game.GetModByName(sModFileName) != 0) ; 255 = not found, 0 = no skse
-EndFunction
-
-bool Function ModInstalledAfterUD(string sModFileName)
-	return (Game.GetModByName(sModFileName) > Game.GetModByName("UnforgivingDevices.esp"))
-EndFunction
-
 int Function getDDescapeDifficulty()
 	if UDCDmain.UD_UseDDdifficulty
 		return (8 - DDconfig.EscapeDifficulty)
 	else
 		return 4
 	endif
-EndFunction
-
-;https://www.creationkit.com/index.php?title=GetActorValuePercentage_-_Actor
-float Function getMaxActorValue(Actor akActor,string akValue, float perc_part = 1.0)
-	return (akActor.GetActorValue(akValue)/akActor.GetActorValuePercentage(akValue))*perc_part
-EndFunction
-
-float Function getCurrentActorValuePerc(Actor akActor,string akValue)
-	return akActor.GetActorValuePercentage(akValue)
-EndFunction
-
-float Function getCurrentActorValuePercCustom(Actor akActor,string akValue,float fBase)
-	return akActor.GetActorValue(akValue)/fBase
 EndFunction
 
 bool Player_edge_var = False
@@ -272,6 +256,7 @@ EndFunction
 bool _orgasmExhaustionMutex = false
 
 Function addOrgasmExhaustion(Actor akActor)
+	;/
 	while _orgasmExhaustionMutex
 		Utility.waitMenuMode(0.1)
 	endwhile
@@ -290,13 +275,13 @@ Function addOrgasmExhaustion(Actor akActor)
 	else
 		OrgasmExhaustionSpell.SetNthEffectDuration(0,UD_OrgasmExhaustionDuration)
 	endif
-		
+	/;
 	OrgasmExhaustionSpell.cast(akActor)
 	
 	if TraceAllowed()	
-		Log("Orgasm exhaustion debuff applied to "+ getActorName(akActor) +", duration: " + UD_OrgasmExhaustionDuration + ", magnitude: " + UD_OrgasmExhaustionMagnitude,1)
+		Log("Orgasm exhaustion debuff applied to "+ getActorName(akActor),1)
 	endif
-	_orgasmExhaustionMutex = false
+	;_orgasmExhaustionMutex = false
 EndFunction
 
 bool function hasAnyUD()
@@ -305,61 +290,6 @@ endfunction
 
 Function updateEquipedUD()
 	udequiped = Game.getPlayer().wornhaskeyword(UDlibs.UnforgivingDevice)
-EndFunction
-
-string Function formatString(string str,int floatPoints)
-	int float_point =  StringUtil.find(str,".")
-	if (float_point == -1)
-		return str
-	endif
-	if (floatPoints + float_point + 1 > StringUtil.getLength(str))
-		return str
-	else
-		return StringUtil.Substring(str, 0, float_point + floatPoints + 1)
-	endif
-EndFunction
-
-float Function checkLimit(float value,float limit)
-	if value > limit
-		return limit
-	else
-		return value
-	endif
-EndFunction
-
-int Function Round(float value)
-	return Math.floor(value + 0.5)
-EndFunction
-
-Function closeMenu()
-	;https://www.reddit.com/r/skyrimmods/comments/elg97s/function_to_close_objects_container_menu/
-	UI.InvokeString("ContainerMenu", "_global.skse.CloseMenu", "ContainerMenu")
-	UI.InvokeString("Dialogue Menu", "_global.skse.CloseMenu", "Dialogue Menu")
-	UI.InvokeString("InventoryMenu", "_global.skse.CloseMenu", "InventoryMenu")
-	UI.InvokeString("TweenMenu", "_global.skse.CloseMenu", "TweenMenu")
-	UI.InvokeString("GiftMenu", "_global.skse.CloseMenu", "GiftMenu")
-EndFunction
-
-Function closeLockpickMenu()
-	UI.InvokeString("Lockpicking Menu", "_global.skse.CloseMenu", "Lockpicking Menu")
-EndFunction
-
-string Function getPlugsVibrationStrengthString(int strenght)
-	if strenght >= 5
-		return "Extremely Strong"
-	endif
-	if strenght == 4
-		return "Very Strong"
-	endif
-	if strenght == 3
-		return "Strong"
-	endif
-	if strenght == 2
-		return "Weak"
-	endif
-	if strenght <= 1
-		return "Very weak"
-	endif
 EndFunction
 
 ;vib function queue
@@ -375,7 +305,6 @@ EndFunction
 Event EventVib(Form fActor, int strenght, int duration, bool edge)
 	libs.VibrateEffect(fActor as Actor, strenght, duration, edge)
 EndEvent
-
 
 int Property LogLevel = 0 auto
 Function Log(String msg, int level = 1)
@@ -410,81 +339,6 @@ Function Error(String msg)
 	endif
 EndFunction
 
-int Function codeBit(int iCodedMap,int iValue,int iSize,int iIndex)
-	if iIndex + iSize > 32
-		return 0xFFFFFFFF ;returns error value
-	endif
-	int loc_clear_mask = 0x00000001 ;mask used to clear bits which will be set
-	;sets not shifted bit mask loc_clear_mask
-	int loc_help_bit = 0x02
-	while iSize > 1
-		iSize -= 1
-		loc_clear_mask = Math.LogicalOr(loc_clear_mask,loc_help_bit)
-		loc_help_bit = Math.LeftShift(loc_help_bit,1)
-	endwhile
-	iValue = Math.LogicalAnd(loc_clear_mask,iValue)
-	loc_clear_mask = Math.LogicalXor(Math.LeftShift(loc_clear_mask,iIndex),0xFFFFFFFF) ;shift and negate
-	int loc_clear_map = Math.LogicalAnd(iCodedMap,loc_clear_mask) ;clear maps bits with mask
-	return Math.LogicalOr(loc_clear_map,Math.LeftShift(iValue,iIndex)) ;sets bits
-	
-endfunction
-
-int Function decodeBit(int iCodedMap,int iSize,int iIndex)
-	if iIndex + iSize > 32
-		return 0xFFFFFFFF ;returns error value
-	endif
-	
-	;sets not shifted bit mask
-	int loc_clear_mask = 0x00000001 ;mask used to clear all not wanted bits
-	
-	;sets not shifted bit mask loc_clear_mask
-	int loc_help_bit = 0x02
-	while iSize > 1
-		iSize -= 1
-		loc_clear_mask = Math.LogicalOr(loc_clear_mask,loc_help_bit)
-		loc_help_bit = Math.LeftShift(loc_help_bit,1)
-	endwhile	
-	
-	loc_clear_mask = Math.LeftShift(loc_clear_mask,iIndex) ;shift to index position
-	
-	int loc_res = 0x00000000 ;return value, default is int
-	loc_res = Math.LogicalAnd(iCodedMap,loc_clear_mask) ;clear maps bits with mask
-	loc_res = Math.RightShift(loc_res,iIndex) ;shift to right, so value is correct
-	return loc_res
-EndFunction
-
-
-float Function fRange(float fValue,float fMin,float fMax)
-	if fValue > fMax
-		return fMax
-	endif
-	if fValue < fMin
-		return fMin
-	endif
-	return fValue
-EndFunction
-
-int Function iRange(int iValue,int iMin,int iMax)
-	if iValue > iMax
-		return iMax
-	endif
-	if iValue < iMin
-		return iMin
-	endif
-	return iValue
-EndFunction
-
-string Function GetActorName(Actor akActor)
-	if !akActor
-		return "ERROR:NONE"
-	endif
-	return akActor.getActorBase().getName()
-EndFunction
-
-bool Function ActorIsPlayer(Actor akActor)
-	return akActor == Game.getPlayer()
-EndFunction
-
 bool Function ActorIsFollower(Actor akActor)
 	;added check for followers that are not marked as followers by normal means, to make loc_res == 4 from UDCustomDeviceMain.NPCMenu() work on them as well
 	;yes yes, some of the followers don't have FollowerFaction assigned, DCL uses similar check for those.
@@ -493,6 +347,24 @@ bool Function ActorIsFollower(Actor akActor)
 		return true
 	endif
 	return akActor.isInFaction(UDCDmain.FollowerFaction)
+EndFunction
+
+bool Function ActorIsValidForUD(Actor akActor)
+	ActorBase loc_actorbase = akActor.GetLeveledActorBase()
+	Race loc_race = loc_actorbase.getRace()
+	bool loc_cond = true
+	loc_cond = loc_cond && (loc_race.isPlayable() || loc_race.haskeyword(UDlibs.ActorTypeNPC))
+	loc_cond = loc_cond && !loc_race.IsChildRace()
+	return loc_cond
+EndFunction
+
+int Property UD_HearingRange = 4000 auto
+bool Function ActorInCloseRange(Actor akActor)
+	if ActorIsPlayer(akActor)
+		return true
+	endif
+	float loc_distance = CalcDistance(Game.GetPlayer(),akActor)
+	return (loc_distance >= 0 && loc_distance < UD_HearingRange)
 EndFunction
 
 bool Function TraceAllowed()
@@ -528,8 +400,12 @@ Function OnGameReload()
 	UDNPCM.GameUpdate()
 EndFunction
 
+;=======================================================================
+;							GLOBAL FUNCTIONS
+;========================================================================
+
 ;convert int to bit map
-string Function IntToBit(int argInt)
+string Function IntToBit(int argInt) global
 	string 	loc_res = 	""
 	int 	loc_i 	=	32
 	while loc_i ;32 bit number
@@ -545,4 +421,226 @@ string Function IntToBit(int argInt)
 		endif
 	endwhile
 	return loc_res
+EndFunction
+
+float Function CalcDistance(ObjectReference obj1,ObjectReference obj2) global
+	if obj1 == obj2
+		return 0.0
+	endif
+	if obj1.GetParentCell() == obj2.GetParentCell()
+		float dX = obj1.X - obj2.X
+		float dY = obj1.Y - obj2.Y
+		float dZ = obj1.Z - obj2.Z
+		return Math.Sqrt(Math.Pow(dX,2) + Math.Pow(dY,2) + Math.Pow(dZ,2))
+	else
+		return -1.0
+	endif
+EndFunction
+
+bool Function ActorIsPlayer(Actor akActor) global
+	return akActor == Game.getPlayer()
+EndFunction
+
+string Function GetActorName(Actor akActor) global
+	if !akActor
+		return "ERROR:NONE"
+	endif
+	ActorBase loc_actorbase = akActor.GetLeveledActorBase()
+	string loc_res = loc_actorbase.getName()
+	if loc_res == "" ;actor have no name
+		if loc_actorbase.GetSex() == 0
+			loc_res = "Unnamed man"
+		elseif loc_actorbase.GetSex() == 1
+			loc_res = "Unnamed woman"
+		else
+			loc_res = "Unnamed person"
+		endif
+	endif
+	return loc_res
+EndFunction
+
+int Function codeBit(int iCodedMap,int iValue,int iSize,int iIndex) global
+	if iIndex + iSize > 32
+		return 0xFFFFFFFF ;returns error value
+	endif
+	int loc_clear_mask = 0x00000001 ;mask used to clear bits which will be set
+	;sets not shifted bit mask loc_clear_mask
+	int loc_help_bit = 0x02
+	while iSize > 1
+		iSize -= 1
+		loc_clear_mask = Math.LogicalOr(loc_clear_mask,loc_help_bit)
+		loc_help_bit = Math.LeftShift(loc_help_bit,1)
+	endwhile
+	iValue = Math.LogicalAnd(loc_clear_mask,iValue)
+	loc_clear_mask = Math.LogicalXor(Math.LeftShift(loc_clear_mask,iIndex),0xFFFFFFFF) ;shift and negate
+	int loc_clear_map = Math.LogicalAnd(iCodedMap,loc_clear_mask) ;clear maps bits with mask
+	return Math.LogicalOr(loc_clear_map,Math.LeftShift(iValue,iIndex)) ;sets bits
+	
+endfunction
+
+int Function decodeBit(int iCodedMap,int iSize,int iIndex) global
+	if iIndex + iSize > 32
+		return 0xFFFFFFFF ;returns error value
+	endif
+	
+	;sets not shifted bit mask
+	int loc_clear_mask = 0x00000001 ;mask used to clear all not wanted bits
+	
+	;sets not shifted bit mask loc_clear_mask
+	int loc_help_bit = 0x02
+	while iSize > 1
+		iSize -= 1
+		loc_clear_mask = Math.LogicalOr(loc_clear_mask,loc_help_bit)
+		loc_help_bit = Math.LeftShift(loc_help_bit,1)
+	endwhile	
+	
+	loc_clear_mask = Math.LeftShift(loc_clear_mask,iIndex) ;shift to index position
+	
+	int loc_res = 0x00000000 ;return value, default is int
+	loc_res = Math.LogicalAnd(iCodedMap,loc_clear_mask) ;clear maps bits with mask
+	loc_res = Math.RightShift(loc_res,iIndex) ;shift to right, so value is correct
+	return loc_res
+EndFunction
+
+float Function fRange(float fValue,float fMin,float fMax) global
+	if fValue > fMax
+		return fMax
+	endif
+	if fValue < fMin
+		return fMin
+	endif
+	return fValue
+EndFunction
+
+int Function iRange(int iValue,int iMin,int iMax) global
+	if iValue > iMax
+		return iMax
+	endif
+	if iValue < iMin
+		return iMin
+	endif
+	return iValue
+EndFunction
+
+string Function formatString(string str,int floatPoints) global
+	int float_point =  StringUtil.find(str,".")
+	if (float_point == -1)
+		return str
+	endif
+	if (floatPoints + float_point + 1 > StringUtil.getLength(str))
+		return str
+	else
+		return StringUtil.Substring(str, 0, float_point + floatPoints + 1)
+	endif
+EndFunction
+
+float Function checkLimit(float value,float limit) global
+	if value > limit
+		return limit
+	else
+		return value
+	endif
+EndFunction
+
+int Function Round(float value) global
+	return Math.floor(value + 0.5)
+EndFunction
+
+Function closeMenu() global
+	;https://www.reddit.com/r/skyrimmods/comments/elg97s/function_to_close_objects_container_menu/
+	UI.InvokeString("ContainerMenu", "_global.skse.CloseMenu", "ContainerMenu")
+	UI.InvokeString("Dialogue Menu", "_global.skse.CloseMenu", "Dialogue Menu")
+	UI.InvokeString("InventoryMenu", "_global.skse.CloseMenu", "InventoryMenu")
+	UI.InvokeString("TweenMenu", "_global.skse.CloseMenu", "TweenMenu")
+	UI.InvokeString("GiftMenu", "_global.skse.CloseMenu", "GiftMenu")
+EndFunction
+
+Function closeLockpickMenu() global
+	UI.InvokeString("Lockpicking Menu", "_global.skse.CloseMenu", "Lockpicking Menu")
+EndFunction
+
+string Function getPlugsVibrationStrengthString(int strenght) global
+	if strenght >= 5
+		return "Extremely Strong"
+	endif
+	if strenght == 4
+		return "Very Strong"
+	endif
+	if strenght == 3
+		return "Strong"
+	endif
+	if strenght == 2
+		return "Weak"
+	endif
+	if strenght <= 1
+		return "Very weak"
+	endif
+EndFunction
+
+;https://www.creationkit.com/index.php?title=GetActorValuePercentage_-_Actor
+float Function getMaxActorValue(Actor akActor,string akValue, float perc_part = 1.0) global
+	return (akActor.GetActorValue(akValue)/akActor.GetActorValuePercentage(akValue))*perc_part
+EndFunction
+
+float Function getCurrentActorValuePerc(Actor akActor,string akValue) global
+	return akActor.GetActorValuePercentage(akValue)
+EndFunction
+
+float Function getCurrentActorValuePercCustom(Actor akActor,string akValue,float fBase) global
+	return akActor.GetActorValue(akValue)/fBase
+EndFunction
+
+bool Function ModInstalled(string sModFileName) global
+	return (Game.GetModByName(sModFileName) != 255) && (Game.GetModByName(sModFileName) != 0) ; 255 = not found, 0 = no skse
+EndFunction
+
+bool Function ModInstalledAfterUD(string sModFileName) global
+	return (Game.GetModByName(sModFileName) > Game.GetModByName("UnforgivingDevices.esp"))
+EndFunction
+
+string Function MakeDeviceHeader(Actor akActor,Armor invDevice) global
+	if !invDevice || !akActor
+		return "ERROR: PASSED NONE"
+	endif
+	return (invDevice.GetName() + "("+GetActorName(akActor) + ")")
+EndFunction
+
+Int Function ToUnsig(Int iValue) global
+	if iValue < 0
+		return 0
+	endif
+	return iValue
+EndFunction
+
+Function ShowMessageBox(string strText) global
+	String[] loc_lines = StringUtil.split(strText,"\n")
+	int loc_linesNum = loc_lines.length
+	
+	int loc_lineLimit = 12
+	
+	int loc_boxesNum = Math.Ceiling((loc_linesNum as float)/(loc_lineLimit as float))
+	int loc_iterLine = 0
+	int loc_iterBox = 0
+	
+	
+	while loc_iterBox < (loc_boxesNum)
+		string loc_messagebox = ""
+		
+		while loc_iterLine < iRange((loc_linesNum - loc_lineLimit*loc_iterBox),0,loc_lineLimit)
+			loc_messagebox += (loc_lines[loc_iterLine + (loc_lineLimit)*loc_iterBox] + "\n")
+			loc_iterLine += 1
+		endwhile
+		
+		loc_iterBox += 1
+		
+		if loc_boxesNum > 1
+			loc_messagebox += "===PAGE " + (loc_iterBox) + "/" + (loc_boxesNum) + "===\n"
+		endif
+		loc_iterLine = 0
+		debug.messagebox(loc_messagebox)
+		
+		if Game.UsingGamepad()
+			Utility.waitMenuMode(0.75)
+		endif
+	endwhile
 EndFunction

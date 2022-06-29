@@ -1,6 +1,6 @@
 Scriptname UD_CustomPlug_RenderScript extends UD_CustomVibratorBase_RenderScript  
 
-;float Property UD_PlugAccesibility = 1.0 auto ;do not change
+import UnforgivingDevicesMain
 
 Function InitPost()
 	parent.InitPost()
@@ -24,9 +24,7 @@ EndFunction
 Function onDeviceMenuInitPost(bool[] aControlFilter)
 	parent.onDeviceMenuInitPost(aControlFilter)
 	;UDCDmain.currentDeviceMenu_allowcutting = false
-	if canBeStruggled()
-		UDCDmain.currentDeviceMenu_allowstruggling = True
-	else
+	if !UDCDmain.currentDeviceMenu_allowstruggling ;canBeStruggled()
 		UDCDMain.disableStruggleCondVar(false)
 	endif
 EndFunction
@@ -34,9 +32,7 @@ EndFunction
 Function onDeviceMenuInitPostWH(bool[] aControlFilter)
 	parent.onDeviceMenuInitPostWH(aControlFilter)
 	;UDCDmain.currentDeviceMenu_allowcutting = false
-	if canBeStruggled()
-		UDCDmain.currentDeviceMenu_allowstruggling = True
-	else
+	if !UDCDmain.currentDeviceMenu_allowstruggling;canBeStruggled()
 		UDCDMain.disableStruggleCondVar(false)
 	endif
 EndFunction
@@ -69,16 +65,14 @@ bool Function struggleMinigameWH(Actor akSource)
 	return true
 EndFunction
 
-string Function addInfoString(string str = "")
-	return parent.addInfoString(str)
-EndFunction
-
 float Function getAccesibility()
 	float loc_res = 1.0;parent.getAccesibility()
+	int loc_beltstate = UDCDmain.ActorBelted(getWearer()) 
+	bool loc_hashelper = HasHelper()
 	
-	if !wearerFreeHands() && (!HasHelper() || !HelperFreeHands())
+	if !wearerFreeHands() && (!loc_hashelper || !HelperFreeHands())
 		loc_res *= 0.25
-	elseif !wearerFreeHands(true) && (!HasHelper() || !HelperFreeHands(true))
+	elseif !wearerFreeHands(true) && (!loc_hashelper || !HelperFreeHands(true))
 		loc_res *= 0.5
 	endif
 	
@@ -90,21 +84,16 @@ float Function getAccesibility()
 		loc_res *= 0.9
 	endif
 	
-	if UDCDmain.ActorBelted(getWearer()) > 0 ;belted
-		if UDCDmain.ActorBelted(getWearer()) == 1 ;all holes belted
+	if loc_beltstate > 0 ;belted
+		if loc_beltstate == 1 ;all holes belted
 			loc_res = 0.0
-		elseif (UDCDmain.ActorBelted(getWearer()) == 2 && getPlugType() == 0) ;anal hole not belted but plug is vaginal
+		elseif loc_beltstate == 2 && getPlugType() == 0 ;anal hole not belted but plug is vaginal
 			loc_res = 0.0
 		endif
 	endif
 	
 	return fRange(loc_res,0.0,1.0)
 EndFunction
-
-Function updateDifficulty()
-	parent.updateDifficulty()
-EndFunction
-
 
 ;returns plug type
 ;0 -> Vaginal plug
@@ -169,24 +158,13 @@ Function updateWidget(bool force = false)
 	endif
 EndFunction
 
-Function onSpecialButtonPressed()
+Function onSpecialButtonPressed(float fMult)
 	if forceOutPlugMinigame_on
-		decreaseDurabilityAndCheckUnlock(getDurabilityDmgMod()*0.3,0.0)
+		decreaseDurabilityAndCheckUnlock(fMult*getDurabilityDmgMod()*0.3,0.0)
 	else
-		parent.onSpecialButtonPressed()
+		parent.onSpecialButtonPressed(fMult)
 	endif
 EndFunction
-
-;/
-bool Function OnCritDevicePre()
-	if forceOutPlugMinigame_on
-		decreaseDurabilityAndCheck(getDurabilityDmgMod()*UD_PlugAccesibility*UD_StruggleCritMul,0.0)
-		return True
-	else
-		return parent.OnCritDevicePre()
-	endif
-EndFunction
-/;
 
 Function OnCritDevicePost()
 	if forceOutPlugMinigame_on
@@ -204,10 +182,144 @@ bool Function Details_CanShowHitResist()
 	return false
 EndFunction 
 
-;OVERRIDES because of engine bug which calls one function multiple times
+;======================================================================
+;Place new override functions here, do not forget to check override functions in parent if its not base script (UD_CustomDevice_RenderScript)
+;======================================================================
+Function OnVibrationStart()
+	parent.OnVibrationStart()
+EndFunction
+Function OnVibrationEnd()
+	parent.OnVibrationStart()
+EndFunction
+
+;============================================================================================================================
+;unused override function, theese are from base script. Extending different script means you also have to add their overrride functions                                                
+;theese function should be on every object instance, as not having them may cause multiple function calls to default class
+;more about reason here https://www.creationkit.com/index.php?title=Function_Reference, and Notes on using Parent section
+;============================================================================================================================
+Function activateDevice() ;Device custom activate effect. You need to create it yourself. Don't forget to remove parent.activateDevice() if you don't want parent effect
+	parent.activateDevice()
+EndFunction
+bool Function canBeActivated() ;Switch. Used to determinate if device can be currently activated
+	return parent.canBeActivated()
+EndFunction
+bool Function OnMendPre(float mult) ;called on device mend (regain durability)
+	return parent.OnMendPre(mult)
+EndFunction
+Function OnMendPost(float mult) ;called on device mend (regain durability). Only called if OnMendPre returns true
+	parent.OnMendPost(mult)
+EndFunction
+bool Function OnCritDevicePre() ;called on minigame crit
+	return parent.OnCritDevicePre()
+EndFunction
+bool Function OnOrgasmPre(bool sexlab = false) ;called on wearer orgasm. Is only called if wearer is registered
+	return parent.OnOrgasmPre(sexlab)
+EndFunction
+Function OnMinigameOrgasm(bool sexlab = false) ;called on wearer orgasm while in minigame. Is only called if wearer is registered
+	parent.OnMinigameOrgasm(sexlab)
+EndFunction
+Function OnMinigameOrgasmPost() ;called on wearer orgasm while in minigame. Is only called after OnMinigameOrgasm. Is only called if wearer is registered
+	parent.OnMinigameOrgasmPost()
+EndFunction
+Function OnOrgasmPost(bool sexlab = false) ;called on wearer orgasm. Is only called if OnOrgasmPre returns true. Is only called if wearer is registered
+	parent.OnOrgasmPost(sexlab)
+EndFunction
+Function OnMinigameStart() ;called when minigame start
+	parent.OnMinigameStart()
+EndFunction
+Function OnMinigameEnd() ;called when minigame end
+	parent.OnMinigameEnd()
+EndFunction
+Function OnMinigameTick() ;called every on every tick of minigame. Uses MCM performance setting
+	parent.OnMinigameTick()
+EndFunction
+Function OnMinigameTick1() ;called every 1s of minigame
+	parent.OnMinigameTick1()
+EndFunction
+Function OnMinigameTick3() ;called every 3s of minigame
+	parent.OnMinigameTick3()
+EndFunction
+Function OnCritFailure() ;called on crit failure (wrong key pressed)
+	parent.OnCritFailure()
+EndFunction
+Function OnDeviceCutted() ;called when device is cutted
+	parent.OnDeviceCutted()
+EndFunction
+Function OnDeviceLockpicked() ;called when device is lockpicked
+	parent.OnDeviceLockpicked()
+EndFunction
+Function OnLockReached() ;called when device lock is reached
+	parent.OnLockReached()
+EndFunction
+Function OnLockJammed() ;called when device lock is jammed
+	parent.OnLockJammed()
+EndFunction
+Function OnDeviceUnlockedWithKey() ;called when device is unlocked with key
+	parent.OnDeviceUnlockedWithKey()
+EndFunction
+Function OnUpdatePre(float timePassed) ;called on update. Is only called if wearer is registered
+	parent.OnUpdatePre(timePassed)
+EndFunction
+Function OnUpdatePost(float timePassed) ;called on update. Is only called if wearer is registered
+	parent.OnUpdatePost(timePassed)
+EndFunction
+bool Function OnCooldownActivatePre()
+	return parent.OnCooldownActivatePre()
+EndFunction
+Function OnCooldownActivatePost()
+	parent.OnCooldownActivatePost()
+EndFunction
+Function DeviceMenuExt(int msgChoice)
+	parent.DeviceMenuExt(msgChoice)
+EndFunction
+Function DeviceMenuExtWH(int msgChoice)
+	parent.DeviceMenuExtWH(msgChoice)
+EndFunction
+bool Function OnUpdateHourPre()
+	return parent.OnUpdateHourPre()
+EndFunction
+bool Function OnUpdateHourPost()
+	return parent.OnUpdateHourPost()
+EndFunction
+Function InitPostPost()
+	parent.InitPostPost()
+EndFunction
+Function OnRemoveDevicePre(Actor akActor)
+	parent.OnRemoveDevicePre(akActor)
+EndFunction
+Function onRemoveDevicePost(Actor akActor)
+	parent.onRemoveDevicePost(akActor)
+EndFunction
+Function onLockUnlocked(bool lockpick = false)
+	parent.onLockUnlocked(lockpick)
+EndFunction
+Function onSpecialButtonReleased(Float fHoldTime)
+	parent.onSpecialButtonReleased(fHoldTime)
+EndFunction
+bool Function onWeaponHitPre(Weapon source)
+	return parent.onWeaponHitPre(source)
+EndFunction
+Function onWeaponHitPost(Weapon source)
+	parent.onWeaponHitPost(source)
+EndFunction
+bool Function onSpellHitPre(Spell source)
+	return parent.onSpellHitPre(source)
+EndFunction
+Function onSpellHitPost(Spell source)
+	parent.onSpellHitPost(source)
+EndFunction
+string Function addInfoString(string str = "")
+	return parent.addInfoString(str)
+EndFunction
+Function updateWidgetColor()
+	parent.updateWidgetColor()
+EndFunction
 bool Function proccesSpecialMenu(int msgChoice)
 	return parent.proccesSpecialMenu(msgChoice)
 EndFunction
 bool Function proccesSpecialMenuWH(Actor akSource,int msgChoice)
 	return parent.proccesSpecialMenuWH(akSource,msgChoice)
+EndFunction
+float Function getStruggleOrgasmRate()
+	return parent.getStruggleOrgasmRate()
 EndFunction

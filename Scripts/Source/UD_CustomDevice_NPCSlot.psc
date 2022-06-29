@@ -1,5 +1,7 @@
 Scriptname UD_CustomDevice_NPCSlot  extends ReferenceAlias
 
+import UnforgivingDevicesMain
+
 UDCustomDeviceMain Property UDCDmain auto
 UnforgivingDevicesMain Property UDmain 
 	UnforgivingDevicesMain Function get()
@@ -13,6 +15,17 @@ int _iScriptState = 0
 bool Property Ready = False auto hidden
 
 Weapon Property BestWeapon = none auto hidden
+
+float Property AgilitySkill 	= 0.0 auto hidden
+float Property StrengthSkill 	= 0.0 auto hidden
+float Property MagickSkill 		= 0.0 auto hidden
+float Property CuttingSkill 	= 0.0 auto hidden
+float Property SmithingSkill 	= 0.0 auto hidden
+
+;update other variables
+Function UpdateSlot()
+	UpdateSkills()
+EndFunction
 
 bool _DeviceManipMutex = false
 
@@ -106,7 +119,7 @@ EndFunction
 
 Function SetSlotTo(Actor akActor)
 	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("SetSlotTo("+UDCDmain.getActorName(akActor)+") for " + self)
+		UDCDmain.Log("SetSlotTo("+getActorName(akActor)+") for " + self)
 	endif
 	if akActor != Game.GetPlayer()
 		ForceRefTo(akActor)
@@ -115,6 +128,8 @@ Function SetSlotTo(Actor akActor)
 
 	UDCDmain.UDOM.CheckOrgasmCheck(akActor)
 	UDCDmain.UDOM.CheckArousalCheck(akActor)
+	
+	UpdateSlot()
 	
 	if akActor != Game.GetPlayer()
 		regainDevices()
@@ -144,7 +159,15 @@ bool Function isScriptRunning()
 EndFunction
 
 bool Function canUpdate()
-	return !getActor().isDead() && !getActor().getCurrentScene()
+	return !IsDead() && !getActor().getCurrentScene()
+EndFunction
+
+bool Function IsDead()
+	if isUsed()
+		return getActor().isDead() && !isPlayer()
+	else
+		return false
+	endif
 EndFunction
 
 int Function getNumberOfRegisteredDevices()
@@ -161,6 +184,7 @@ Function unregisterSlot()
 	StorageUtil.UnSetIntValue(getActor(), "UD_ManualRegister")
 	_iScriptState = 0
 	self.Clear()
+	
 EndFunction
 
 Function sortSlots(bool mutex = true)
@@ -233,6 +257,8 @@ Function fix()
 		StorageUtil.UnsetFloatValue(getActor(), "UD_OrgasmResistMultiplier")
 		StorageUtil.UnsetFloatValue(getActor(), "UD_OrgasmRateMultiplier")
 		StorageUtil.UnsetFloatValue(getActor(), "UD_ArousalRate")
+		StorageUtil.UnsetFloatValue(getActor(), "UD_ArousalRateM")
+		StorageUtil.UnsetFloatValue(getActor(), "UD_OrgasmExhaustion")
 		UDCDmain.Print("[UD] Orgasm variables reseted!")
 	elseif loc_res == 2 ;reset expression
 		;getActor().removeFromFaction(UDCDmain.UDOM.ArousalCheckLoopFaction)
@@ -240,7 +266,7 @@ Function fix()
 		
 		;getActor().removeFromFaction(UDCDmain.UDOM.OrgasmCheckLoopFaction)
 		;UDCDmain.UDOM.StartOrgasmCheckLoop(getActor())
-		UDCDMain.UDEM.ResetExpression(getActor(),none,100)
+		UDCDMain.UDEM.ResetExpressionRaw(getActor(),100)
 	endif
 	
 EndFunction
@@ -541,6 +567,7 @@ Function orgasm()
 	while UD_equipedCustomDevices[i]
 		if UD_equipedCustomDevices[i].isReady()
 			UD_equipedCustomDevices[i].orgasm()
+			UDmain.UDMOM.Procces_UpdateModifiers_Orgasm(UD_equipedCustomDevices[i])
 		endif
 		i+=1
 	endwhile
@@ -787,6 +814,24 @@ UD_CustomDevice_RenderScript Function getLastDeviceByKeyword(keyword kw1,keyword
 				return UD_equipedCustomDevices[i]
 			endif
 		endif
+	endwhile
+	return none
+EndFunction
+
+;returs first device by keywords
+;mod = 0 => AND 	(device need all provided keyword)
+;mod = 1 => OR 	(device need one provided keyword)
+UD_CustomDevice_RenderScript Function getDeviceByKeyword(keyword akKeyword)
+	if !akKeyword
+		UDCDmain.Error(getSlotedNPCName() + " slot - getDeviceByKeyword - keyword = none")
+		return none
+	endif
+	int i = 0
+	while UD_equipedCustomDevices[i]
+		if UD_equipedCustomDevices[i].UD_DeviceKeyword == (akKeyword)
+			return UD_equipedCustomDevices[i]
+		endif
+		i+=1
 	endwhile
 	return none
 EndFunction
@@ -1123,7 +1168,7 @@ bool Function isPlayer()
 EndFunction
 
 bool Function isUsed()
-	if getActorReference()
+	if getActor()
 		return true
 	else
 		return false
@@ -1246,6 +1291,13 @@ Weapon Function GetBestWeapon()
 	endif
 EndFunction
 
+Function UpdateSkills()
+	AgilitySkill = UDCDmain.getActorAgilitySkills(getActor())
+	StrengthSkill = UDCDmain.getActorStrengthSkills(getActor())
+	MagickSkill = UDCDmain.getActorMagickSkills(getActor())
+	CuttingSkill = UDCDmain.getActorCuttingSkills(getActor())
+	SmithingSkill = UDCDmain.getActorSmithingSkills(getActor())
+EndFunction
 
 ;MUTEX
 

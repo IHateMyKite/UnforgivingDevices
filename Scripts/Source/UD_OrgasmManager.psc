@@ -1,5 +1,7 @@
 Scriptname UD_OrgasmManager extends Quest conditional
 
+import UnforgivingDevicesMain
+
 UDCustomDeviceMain 					Property UDCDmain 	auto
 UnforgivingDevicesMain 				Property UDmain 	auto
 UD_libs 							Property UDlibs 	auto
@@ -32,6 +34,20 @@ int Property UD_ArousalCheckLoop_ver 	=  3 	autoreadonly
 bool 	_crit 					= false
 bool 	_specialButtonOn 		= false
 string 	_crit_meter				= "Error"
+
+
+;DOCUMANTATION - StorageUtil interfaces
+;/
+	Orgasm rate 			- Key="UD_OrgasmRate"				, Type=Float	, def_value=	  0.0
+	Orgasm forcing 			- Key="UD_OrgasmForcing"			, Type=Float	, def_value=	  0.0
+	Orgasm Rate Multiplier 	- Key="UD_OrgasmRateMultiplier"		, Type=Float	, def_value=	  1.0
+	Orgasm progress 		- Key="UD_OrgasmProgress"			, Type=Float	, def_value=	  0.0
+	Orgasm capacity 		- Key="UD_OrgasmCapacity"			, Type=Float	, def_value=	100.0
+	Orgasm resistance 		- Key="UD_OrgasmResist"				, Type=Float	, def_value=	MCM setting (def. 3.5)
+	Orgasm resistance mult.	- Key="UD_OrgasmResistMultiplier"	, Type=Float	, def_value=	  1.0
+/;
+
+
 bool Property Ready auto conditional
 Event OnInit()
 	RegisterModEvents()
@@ -84,13 +100,13 @@ Function ResetAL(Actor akActor)
 EndFunction
 
 Function CheckOrgasmCheck(Actor akActor)
-	if !akActor.isInFaction(OrgasmCheckLoopFaction)
+	if !akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
 		StartOrgasmCheckLoop(akActor)
 	endif
 EndFunction
 
 Function CheckArousalCheck(Actor akActor)
-	if !akActor.isInFaction(ArousalCheckLoopFaction)
+	if !akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
 		StartArousalCheckLoop(akActor)
 	endif
 EndFunction
@@ -124,6 +140,26 @@ Float Function getArousalRate(Actor akActor)
 	return StorageUtil.getFloatValue(akActor, "UD_ArousalRate",0.0)
 EndFunction
 
+Float Function getArousalRateM(Actor akActor)
+	return getArousalRate(akActor)*getArousalRateMultiplier(akActor)
+EndFunction
+
+bool _ArousalRateMultManip_Mutex = false
+Float Function UpdateArousalRateMultiplier(Actor akActor ,float fArousalRateM)
+	while _ArousalRateMultManip_Mutex
+		Utility.waitMenuMode(0.05)
+	endwhile
+	_ArousalRateMultManip_Mutex = true
+	float loc_newArousalRateM = StorageUtil.getFloatValue(akActor, "UD_ArousalRateM",1.0) + fArousalRateM
+	StorageUtil.setFloatValue(akActor, "UD_ArousalRateM",loc_newArousalRateM)
+	_ArousalRateMultManip_Mutex = false
+	return loc_newArousalRateM
+EndFunction
+
+Float Function getArousalRateMultiplier(Actor akActor)
+	return fRange(StorageUtil.getFloatValue(akActor, "UD_ArousalRateM",1.0),0.0,100.0)
+EndFunction
+
 Function StartArousalCheckLoop(Actor akActor)
 	if !akActor
 		Error("None passed to StartArousalCheckLoop!!!")
@@ -133,10 +169,10 @@ Function StartArousalCheckLoop(Actor akActor)
 		Log("StartArousalCheckLoop("+getActorName(akActor)+") called")
 	endif
 	
-	if akActor.isInFaction(ArousalCheckLoopFaction)
+	if akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
 		return
 	endif
-	akActor.AddToFaction(ArousalCheckLoopFaction)
+	
 	
 	UDlibs.ArousalCheckSpell.cast(akActor)
 	return
@@ -227,7 +263,7 @@ Function removeOrgasmRate(Actor akActor ,float orgasmRate,float orgasmForcing)
 	_OrgasmRateManip_Mutex = false
 EndFunction
 float Function getActorOrgasmRate(Actor akActor)
-	return UDmain.fRange(StorageUtil.getFloatValue(akActor, "UD_OrgasmRate",0.0),0.0,1000.0)
+	return fRange(StorageUtil.getFloatValue(akActor, "UD_OrgasmRate",0.0),0.0,1000.0)
 EndFunction
 float Function getActorAfterMultOrgasmRate(Actor akActor)
 	return getActorOrgasmRate(akActor)*getActorOrgasmRateMultiplier(akActor)
@@ -247,7 +283,7 @@ EndFunction
 bool _OrgasmRateMultManip_Mutex = false
 Function UpdateOrgasmRateMultiplier(Actor akActor ,float orgasmRateMultiplier)
 	while _OrgasmRateMultManip_Mutex
-		Utility.waitMenuMode(0.1)
+		Utility.waitMenuMode(0.05)
 	endwhile
 	_OrgasmRateMultManip_Mutex = true
 	float loc_newOrgasmRateMult = StorageUtil.getFloatValue(akActor, "UD_OrgasmRateMultiplier",1.0) + orgasmRateMultiplier
@@ -257,7 +293,7 @@ EndFunction
 
 Function removeOrgasmRateMultiplier(Actor akActor ,float orgasmRateMultiplier)
 	while _OrgasmRateMultManip_Mutex
-		Utility.waitMenuMode(0.1)
+		Utility.waitMenuMode(0.05)
 	endwhile
 	_OrgasmRateMultManip_Mutex = true
 	StorageUtil.setFloatValue(akActor, "UD_OrgasmRateMultiplier",StorageUtil.getFloatValue(akActor, "UD_OrgasmRateMultiplier",1.0) - orgasmRateMultiplier)
@@ -273,7 +309,7 @@ EndFunction
 bool _OrgasmResistManip_Mutex = false
 Function UpdateOrgasmResist(Actor akActor ,float orgasmRateMultiplier)
 	while _OrgasmResistManip_Mutex
-		Utility.waitMenuMode(0.1)
+		Utility.waitMenuMode(0.05)
 	endwhile
 	_OrgasmResistManip_Mutex = true
 	StorageUtil.setFloatValue(akActor, "UD_OrgasmResist",fRange(StorageUtil.getFloatValue(akActor, "UD_OrgasmResist",UD_OrgasmResistence) + orgasmRateMultiplier,0.0,100.0))
@@ -281,7 +317,7 @@ Function UpdateOrgasmResist(Actor akActor ,float orgasmRateMultiplier)
 EndFunction
 Function setActorOrgasmResist(Actor akActor,float fValue)
 	while _OrgasmResistManip_Mutex
-		Utility.waitMenuMode(0.1)
+		Utility.waitMenuMode(0.05)
 	endwhile
 	_OrgasmResistManip_Mutex = true
 	StorageUtil.SetFloatValue(akActor, "UD_OrgasmResist",fRange(fValue,0.0,100.0))
@@ -290,7 +326,9 @@ EndFunction
 float Function getActorOrgasmResist(Actor akActor)
 	return fRange(StorageUtil.getFloatValue(akActor, "UD_OrgasmResist",UD_OrgasmResistence),0.0,1000.0)
 EndFunction
-
+float Function getActorOrgasmResistM(Actor akActor)
+	return getActorOrgasmResist(akActor)*getActorOrgasmResistMultiplier(akActor)
+EndFunction
 ;=======================================
 ;	   ORGASM RESISTENCE MULTIPLIER
 ;=======================================
@@ -407,12 +445,12 @@ EndFunction
 
 Function StartOrgasmCheckLoop(Actor akActor)
 	if TraceAllowed()	
-		Log("sendOrgasmCheckLoop("+getActorName(akActor)+") called")
+		Log("StartOrgasmCheckLoop("+getActorName(akActor)+") called")
 	endif
 	if !akActor
 		Error("None passed to sendOrgasmCheckLoop!!!")
 	endif
-	if akActor.isInFaction(OrgasmCheckLoopFaction)
+	if akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
 		return
 	endif
 	
@@ -572,7 +610,7 @@ Function OrgasmCheckLoop(Form fActor)
 			;expression
 			if loc_orgasmRate >= loc_orgasmResistence*0.75 && (!loc_expressionApplied || loc_expressionUpdateTimer > 3) 
 				;init expression
-				UDEM.ApplyExpression(akActor, expression, iRange(UDmain.Round(loc_orgasmProgress),25,100),false,10)
+				UDEM.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Horny1(), iRange(Round(loc_orgasmProgress),25,100),false,10)
 				loc_expressionApplied = true
 				;loc_expressionApplied = true
 				;if loc_expressionApplied
@@ -600,14 +638,14 @@ Function OrgasmCheckLoop(Form fActor)
 				endif
 			endif
 			if !UDCDMain.actorInMinigame(akActor)
-				if (loc_orgasmRate > 0.5*loc_orgasmResistMultiplier*loc_orgasmResistence) && !loc_orgasmResisting && !akActor.IsInCombat() ;orgasm progress is increasing
+				if (loc_orgasmRate > 0.5*loc_orgasmResistMultiplier*loc_orgasmResistence) && !loc_orgasmResisting && (!akActor.IsInCombat() || ActorIsPlayer(akActor));orgasm progress is increasing
 					if (loc_hornyAnimTimer == 0) && !libs.IsAnimating(akActor) && UD_HornyAnimation ;start horny animation for UD_HornyAnimationDuration
 						if Utility.RandomInt() <= (Math.ceiling(100/fRange(loc_orgasmProgress,15.0,100.0))) 
 							; Select animation
 							loc_cameraState = libs.StartThirdPersonAnimation(akActor, libs.AnimSwitchKeyword(akActor, "Horny01"), permitRestrictive=true)
 							loc_hornyAnimTimer += UD_HornyAnimationDuration
 							if !loc_expressionApplied
-								UDEM.ApplyExpression(akActor, expression, iRange(UDmain.Round(loc_orgasmProgress),75,100),false,10)
+								UDEM.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Horny1(), iRange(Round(loc_orgasmProgress),75,100),false,10)
 								loc_expressionApplied = true
 								;if loc_expressionApplied
 									loc_expressionUpdateTimer = 0
@@ -795,52 +833,78 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 75,in
 	Int loc_orgasms = getOrgasmingCount(akActor)
 	
 	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("ActorOrgasmPatched called for " + UDCDmain.GetActorName(akActor),1)
+		UDCDmain.Log("ActorOrgasmPatched called for " + GetActorName(akActor),1)
 	endif
-	
+	int loc_orgexh = GetOrgasmExhaustion(akActor) + 1
 	UDmain.UDPP.Send_Orgasm(akActor,iDuration,iDecreaseArousalBy,bForceAnimation,bWairForReceive = false)
-	
-	bool loc_is3Dloaded = akActor.Is3DLoaded() || UDCDMain.ActorIsPlayer(akActor)
+	bool loc_isplayer = ActorIsPlayer(akActor)
+	bool loc_isfollower = false
+	if !loc_isplayer
+		loc_isfollower = ActorIsFollower(akActor)
+	endif
+	bool loc_is3Dloaded = akActor.Is3DLoaded() || loc_isplayer
 	
 	;call stopMinigame so it get stoped before all other shit gets processed
 	if UDCDmain.actorInMinigame(akActor) 
 		UDCDMain.getMinigameDevice(akActor).stopMinigame()
 	endif
-
+	bool loc_close = UDmain.ActorInCloseRange(akActor)
+	bool loc_cond = loc_is3Dloaded && loc_close
+	
 	;float loc_forcing = StorageUtil.getFloatValue(akActor, "UD_OrgasmForcing",0.0)
-	if UDCDmain.ActorIsPlayer(akActor)
-		if iForce == 0
+	bool loc_applytears = false
+	if iForce == 0
+		if loc_isplayer
 			UDCDmain.Print("You have brought yourself to orgasm",2)
-		elseif iForce == 1
+		elseif loc_cond
+			UDCDmain.Print(getActorName(akActor) + " have brought themself to orgasm",3)
+		endif
+	elseif iForce == 1
+		if loc_isplayer
 			UDCDmain.Print("You are cumming!",2)
-		elseif iForce > 1
-			if Utility.randomInt() < 10*(Math.pow(loc_orgasms,2))
-				if UDCDmain.ApplyTearsEffect(akActor)
-					UDCDmain.Print("Tears run down your cheeks as you are forced to orgasm!",2)
-				else
-					UDCDmain.Print("You are forced to orgasm!",2)
-				endif
-			else
+		elseif loc_cond
+			UDCDmain.Print(getActorName(akActor) + " is cumming!",3)
+		endif
+	elseif iForce > 1
+		if loc_orgexh >= 6
+			loc_applytears = true
+			if loc_isplayer
+				UDCDmain.Print("You are loosing your mind")
+			elseif loc_cond
+				UDCDmain.Print(getActorName(akActor) + " mind is breaking because of orgasms")
+			endif
+		elseif loc_orgexh >= 4
+			loc_applytears = true
+			if loc_isplayer
+				UDCDmain.Print("Toys are making you orgasm nonstop")
+			elseif loc_cond
+				UDCDmain.Print(getActorName(akActor) + " toys are making them orgasm nonstop",3)
+			endif
+		elseif loc_orgexh >= 3
+			loc_applytears = true
+			if loc_isplayer
+				UDCDmain.Print("Constants orgasms barely let you catch a breath")
+			elseif loc_cond
+				UDCDmain.Print(getActorName(akActor) + " can barely catch a breath from orgasms",3)
+			endif
+		elseif Utility.randomInt(1,99) < 15 
+			loc_applytears = true
+			if loc_isplayer
+				UDCDmain.Print("Tears run down your cheeks as you are forced to orgasm",2)
+			elseif loc_cond
+				UDCDmain.Print("Tears run down " + getActorName(akActor) + "s cheeks as they are forced to orgasm",3)
+			endif
+		else
+			if loc_isplayer
 				UDCDmain.Print("You are forced to orgasm!",2)
+			elseif loc_cond
+				UDCDmain.Print(getActorName(akActor) + " is forced to orgasm!",3)
 			endif
 		endif
-	elseif UDCDmain.ActorIsFollower(akActor) && loc_is3Dloaded
-		if iForce == 0
-			UDCDmain.Print(UDCDmain.getActorName(akActor) + " have brought themself to orgasm",3)
-		elseif iForce == 1
-			UDCDmain.Print(UDCDmain.getActorName(akActor) + " is cumming!",3)
-		elseif iForce > 1
-			if Utility.randomInt() < 10*(Math.pow(loc_orgasms,2))
-				if UDCDmain.ApplyTearsEffect(akActor)
-					UDCDmain.Print("Tears run down " + UDCDmain.getActorName(akActor) + "s cheeks as they are forced to orgasm!",3)
-				else
-					UDCDmain.Print(UDCDmain.getActorName(akActor) + " is forced to orgasm!",3)
-				endif
-			else
-				UDCDmain.Print(UDCDmain.getActorName(akActor) + " is forced to orgasm!",3)
-			endif
-			UDCDmain.Print(UDCDmain.getActorName(akActor) + " is forced to orgasm!",3)
-		endif
+	endif
+
+	if loc_applytears
+		UDCDmain.ApplyTearsEffect(akActor)
 	endif
 
 	;wait for minigame to end
@@ -848,8 +912,8 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 75,in
 		Utility.waitMenuMode(0.01)
 	endwhile
 	
-	if akActor.IsInCombat()  || akActor.IsSneaking() || !loc_is3Dloaded
-		if UDCDmain.ActorIsPlayer(akActor)
+	if ((akActor.IsInCombat() || akActor.IsSneaking()) && (loc_isplayer || loc_isfollower)) || !loc_cond
+		if ActorIsPlayer(akActor)
 			UDCDmain.Print("You managed to not loss control over your body from orgasm!",2)
 		endif
 		akActor.damageAv("Stamina",50.0)
@@ -859,7 +923,7 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 75,in
 		Utility.wait(iDuration)
 	elseif akActor.IsInFaction(libsp.Sexlab.AnimatingFaction)
 		if UDCDmain.TraceAllowed()	
-			UDCDmain.Log("ActorOrgasmPatched - sexlab animation detected - not playing animation for " + UDCDmain.GetActorName(akActor),2)
+			UDCDmain.Log("ActorOrgasmPatched - sexlab animation detected - not playing animation for " + GetActorName(akActor),2)
 		endif
 		Utility.wait(iDuration)
 	else
@@ -874,9 +938,7 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 75,in
 		EndIf
 	endif
 	
-	if loc_is3Dloaded
-		UDEM.ResetExpression(akActor, none,80)
-	endif
+
 	RemoveOrgasmFromActor(akActor)
 EndFunction
 
@@ -1056,7 +1118,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
 	if !akActor.isInFaction(OrgasmCheckLoopFaction)
 		Error("Can't start FocusOrgasmResistMinigame without orgasm check loop!")
 	endif
-	if UDmain.getCurrentActorValuePerc(akActor,"Stamina") < 0.75; || UDmain.getCurrentActorValuePerc(akActor,"Magicka") < 0.65
+	if getCurrentActorValuePerc(akActor,"Stamina") < 0.75; || UDmain.getCurrentActorValuePerc(akActor,"Magicka") < 0.65
 		if ActorIsPlayer(akActor)
 			Print("You are too exhausted!")
 		endif
@@ -1070,7 +1132,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
 	endif
 	
 	if !(getActorAfterMultOrgasmRate(akActor) > 0)
-		if UDmain.ActorIsPlayer(akActor)
+		if ActorIsPlayer(akActor)
 		endif
 		return
 	endif
@@ -1086,7 +1148,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
 	UDCDMain.sendHUDUpdateEvent(true,true,true,true)
 	
 	MinigameKeysRegister()
-	
+	UDCDMain.toggleWidget2(true)
 	if ActorIsPlayer(akActor)
 		_PlayerOrgasmResist_MinigameOn = true
 		sendOrgasmResistCritUpdateLoop(15,0.8)
@@ -1094,7 +1156,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
 	
 	float loc_baseDrain = 5.0
 	if akActor.wornhaskeyword(libs.zad_deviousheavybondage)
-		loc_baseDrain += 1.0
+		loc_baseDrain += 2.5
 	endif
 	float loc_currentOrgasmRate = getActorOrgasmRate(akActor)
 	bool loc_cycleON = true
@@ -1151,6 +1213,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
 				endif
 			endif
 			loc_tick = 0
+			UDCDmain.sendHUDUpdateEvent(true,true,true,true)
 		endif
 		
 		if loc_cycleON
@@ -1178,17 +1241,17 @@ Function FocusOrgasmResistMinigame(Actor akActor)
 		_PlayerOrgasmResist_MinigameOn = false
 	endif
 	
-	UDlibs.StruggleExhaustionSpell.SetNthEffectMagnitude(0, 40)
-	UDlibs.StruggleExhaustionSpell.SetNthEffectDuration(0, 15)
-	Utility.wait(0.5)
-	UDlibs.StruggleExhaustionSpell.cast(akActor)
-	
 	libs.EndThirdPersonAnimation(akActor, loc_cameraState, permitRestrictive=true)
 	akActor.RemoveFromFaction(UDCDmain.MinigameFaction)
 	UDCDMain.EnableActor(akActor,true)
 	MinigameKeysUnregister()
 	UDCDMain.widget2.SetColors(0xE727F5, 0xF775FF,0xFF00BC)
 	akActor.RemoveFromFaction(OrgasmResistFaction)
+	
+	UDlibs.StruggleExhaustionSpell.SetNthEffectMagnitude(0, 40)
+	UDlibs.StruggleExhaustionSpell.SetNthEffectDuration(0, 15)
+	Utility.wait(0.5)
+	UDlibs.StruggleExhaustionSpell.cast(akActor)
 EndFunction
 
 ;UNUSED
@@ -1210,25 +1273,37 @@ Function OnEdge(string eventName, string strArg, float numArg, Form sender)
 	endif
 EndFunction
 
+int Function GetOrgasmExhaustion(Actor akActor)
+	return StorageUtil.getIntValue(akActor,"UD_OrgasmExhaustionNum")
+EndFunction
+
 ;wrappers
+;/
 float Function fRange(float fValue,float fMin,float fMax) ;interface for UDmain
 	return UDmain.fRange(fValue,fMin,fMax)
 EndFunction
 int Function iRange(int iValue,int iMin,int iMax) ;interface for UDmain
 	return UDmain.iRange(iValue,iMin,iMax)
 EndFunction
+
 int Function Round(float fValue)
 	return UDmain.Round(fValue)
 EndFunction
+
 bool Function ActorIsPlayer(Actor akActor)
 	return UDmain.ActorIsPlayer(akActor)
 EndFunction
-bool Function ActorIsFollower(Actor akActor)
-	return UDmain.ActorIsFollower(akActor)
-EndFunction
+
+
 string Function getActorName(Actor akActor)
 	return UDmain.getActorName(akActor)
 EndFunction
+/;
+
+bool Function ActorIsFollower(Actor akActor)
+	return UDmain.ActorIsFollower(akActor)
+EndFunction
+
 Function Log(String msg, int level = 1)
 	UDmain.Log(msg,level)
 EndFunction

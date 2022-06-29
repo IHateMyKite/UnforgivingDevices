@@ -9,12 +9,15 @@ LeveledItem Property UD_LIL_AncientSeed auto
 LeveledItem Property UD_LIL_BlackGoo auto
 LeveledItem Property UD_LIL_DragonNuts auto
 LeveledItem Property UD_LIL_Jewelry auto
+LeveledItem Property UD_LIL_EnchCirclet auto
 
 ;LISTS to patch
 LeveledItem Property UD_LIL_DraugrNormal auto
 LeveledItem Property UD_LIL_Wolf auto
 LeveledItem Property UD_LIL_Dragon auto
 LeveledItem Property UD_LIL_MerchantEnchJewel auto
+
+LeveledItem Property LIL_AllEnchCirclet auto
 
 Event OnInit()
 	Utility.wait(Utility.randomFloat(1.0,3.0))
@@ -32,6 +35,6 @@ Function Process()
 	;UD_LIL_Dragon
 	UD_LIL_Dragon.addForm(UD_LIL_DragonNuts,1,1)
 	
-	UD_LIL_MerchantEnchJewel.addForm(UD_LIL_Jewelry,1,1)
-	
+	;UD_LIL_MerchantEnchJewel.addForm(UD_LIL_Jewelry,1,1)
+	LIL_AllEnchCirclet.AddForm(UD_LIL_EnchCirclet,1,1)
 EndFunction

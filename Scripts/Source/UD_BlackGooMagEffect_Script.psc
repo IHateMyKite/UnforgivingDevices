@@ -1,5 +1,7 @@
 Scriptname UD_BlackGooMagEffect_Script extends activemagiceffect  
 
+import UnforgivingDevicesMain
+
 ;Int Property rare_device_chance = 25 auto
 UD_AbadonQuest_script Property AbadonQuest auto
 UD_libs Property UDlibs auto
@@ -29,8 +31,8 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 					libs.LockDevice(akTarget,UDlibs.RogueBinder)
 				endif
 			endif
-			if UDCDmain.ActorIsPlayer(akTarget)
-				UDCDmain.ShowMessageBox("Black goo covers your body and tie your hands while changing shape to RARE bondage restraint!")
+			if ActorIsPlayer(akTarget)
+				ShowMessageBox("Black goo covers your body and tie your hands while changing shape to RARE bondage restraint!")
 			endif
 		else
 			if !akTarget.wornhaskeyword(libs.zad_deviousSuit)
@@ -54,8 +56,8 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 					libs.LockDevice(akTarget,UDlibs.AbadonWeakYoke)
 				endif
 			endif
-			if UDCDmain.ActorIsPlayer(akTarget)
-				UDCDmain.ShowMessageBox("Black goo covers your body and tie your hands while changing shape to bondage restraint!")
+			if ActorIsPlayer(akTarget)
+				ShowMessageBox("Black goo covers your body and tie your hands while changing shape to bondage restraint!")
 			endif
 		endif
 		

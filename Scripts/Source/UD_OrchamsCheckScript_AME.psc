@@ -1,5 +1,6 @@
 Scriptname UD_OrchamsCheckScript_AME extends activemagiceffect 
 
+import UnforgivingDevicesMain
 
 UDCustomDeviceMain Property UDCDmain auto
 UD_OrgasmManager Property UDOM 
@@ -10,6 +11,11 @@ EndProperty
 UD_ExpressionManager Property UDEM 
 	UD_ExpressionManager Function get()
 		return UDCDmain.UDEM
+	EndFunction
+EndProperty
+UnforgivingDevicesMain Property UDmain 
+	UnforgivingDevicesMain Function get()
+		return UDCDmain.UDmain
 	EndFunction
 EndProperty
 zadlibs Property libs auto
@@ -33,28 +39,31 @@ int loc_tick 						= 1
 int loc_tickS						= 0
 int loc_expressionUpdateTimer 		= 0
 bool loc_orgasmResisting 			= false
+bool loc_orgasmResisting2 			= false
 bool loc_expressionApplied 			= false
 float loc_orgasmCapacity			= 100.0
 float loc_orgasmResistence			= 2.5	
-bool loc_enoughArousal 				= false
 float loc_orgasmProgress 			= 0.0
 float loc_orgasmProgress2			= 0.0
 int loc_hornyAnimTimer 				= 0
 bool[] loc_cameraState
 int loc_msID 						= -1
 sslBaseExpression expression
+float[] loc_expression
 
 Event OnEffectStart(Actor akTarget, Actor akCaster)
 	akActor = akTarget
-	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("UD_OrchamsCheckScript_AME started for " + UDCDmain.GetActorName(akActor) +"!",2)
-	endif
-	_MagickEffect = GetBaseObject()
 	akActor.AddToFaction(UDOM.OrgasmCheckLoopFaction)
-	expression = UDEM.getExpression("UDAroused");libs.SexLab.GetExpressionByName("UDAroused");
-
-	if UDCDmain.ActorIsPlayer(akActor)
+	if UDCDmain.TraceAllowed()	
+		UDCDmain.Log("UD_OrchamsCheckScript_AME started for " + GetActorName(akActor) +"!",2)
+	endif
+	UDmain.CLog("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") started")
+	_MagickEffect = GetBaseObject()
+	loc_expression = UDEM.GetPrebuildExpression_Horny1()
+	if ActorIsPlayer(akActor)
 		loc_currentUpdateTime = UDOM.UD_OrgasmUpdateTime
+	else
+		loc_currentUpdateTime = 1.0
 	endif
 	
 	;init local variables
@@ -71,10 +80,10 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 	loc_tickS						= 0
 	loc_expressionUpdateTimer 		= 0
 	loc_orgasmResisting 			= akActor.isInFaction(UDOM.OrgasmResistFaction)
+	loc_orgasmResisting2			= false
 	loc_expressionApplied 			= false;ActorHaveExpressionApplied(akActor)
 	loc_orgasmCapacity				= UDOM.getActorOrgasmCapacity(akActor)
 	loc_orgasmResistence			= UDOM.getActorOrgasmResist(akActor)
-	loc_enoughArousal 				= false
 	loc_orgasmProgress 				= 0.0
 	loc_orgasmProgress2				= 0.0
 	loc_hornyAnimTimer 				= 0
@@ -105,7 +114,7 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
 	endif
 	
 	;reset expression
-	UDEM.ResetExpression(akActor, expression)
+	UDEM.ResetExpressionRaw(akActor, 10)
 	
 	StorageUtil.UnsetFloatValue(akActor, "UD_OrgasmProgress")
 
@@ -116,17 +125,32 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
 	endif
 EndEvent
 
+Function Update()
+	loc_expression = UDEM.GetPrebuildExpression_Horny1()
+EndFunction
+
 Event OnUpdate()
 	if IsRunning()
+		
 		if UDOM.OrgasmLoopBreak(akActor, UDOM.UD_OrgasmCheckLoop_ver) ;!UDCDmain.isRegistered(akActor) && !akActor.isDead()
 			akActor.DispelSpell(UDCDmain.UDlibs.OrgasmCheckSpell)
 		else
+			
 			loc_orgasmProgress2 = loc_orgasmProgress
 			
 			loc_orgasmResisting = akActor.isInFaction(UDOM.OrgasmResistFaction);StorageUtil.GetIntValue(akActor,"UD_OrgasmResisting",0)
 			if loc_orgasmResisting
+				loc_orgasmResisting2 = true
 				loc_orgasmProgress = UDOM.getActorOrgasmProgress(akActor)
 			else
+				if loc_orgasmResisting2
+					loc_orgasmResisting2 = false
+					loc_arousal 				= UDOM.getArousal(akActor)
+					loc_orgasmRate 				= UDOM.getActorOrgasmRate(akActor)
+					loc_orgasmRateMultiplier	= UDOM.getActorOrgasmRateMultiplier(akActor)
+					loc_orgasmResistMultiplier 	= UDOM.getActorOrgasmResistMultiplier(akActor)
+					UDOM.SetActorOrgasmProgress(akActor,loc_orgasmProgress)
+				endif
 				loc_orgasmProgress += loc_orgasmRate*loc_orgasmRateMultiplier*loc_currentUpdateTime
 			endif
 			
@@ -147,7 +171,7 @@ Event OnUpdate()
 			;check orgasm
 			if loc_orgasmProgress > 0.99*loc_orgasmCapacity
 				if UDCDmain.TraceAllowed()			
-					UDCDmain.Log("Starting orgasm for " + getActorName())
+					UDCDmain.Log("Starting orgasm for " + getActorName(akActor))
 				endif
 				if loc_orgasmResisting
 					akActor.RemoveFromFaction(UDOM.OrgasmResistFaction)
@@ -177,7 +201,7 @@ Event OnUpdate()
 			
 			if loc_tick * loc_currentUpdateTime >= 1.0
 				loc_orgasmRate2 = loc_orgasmRate
-				if ActorIsPlayer()
+				if ActorIsPlayer(akActor)
 					loc_currentUpdateTime = UDOM.UD_OrgasmUpdateTime
 				endif
 				
@@ -191,6 +215,7 @@ Event OnUpdate()
 					loc_orgasmResistence 		= UDOM.getActorOrgasmResist(akActor)
 				else
 					loc_forcing 				= UDOM.getActorOrgasmForcing(akActor)
+					Update()
 				endif
 				
 				if !loc_orgasmResisting
@@ -204,22 +229,20 @@ Event OnUpdate()
 				;expression
 				if loc_orgasmRate >= loc_orgasmResistence*0.75 && (!loc_expressionApplied || loc_expressionUpdateTimer > 3) 
 					;init expression
-					UDEM.ApplyExpression(akActor, expression, iRange(Round(loc_orgasmProgress),25,100),false,10)
+					UDEM.ApplyExpressionRaw(akActor, loc_expression, iRange(Round(loc_orgasmProgress),75,100),false,10)
 					loc_expressionApplied = true
 					loc_expressionUpdateTimer = 0
 				elseif loc_orgasmRate < loc_orgasmResistence*0.75 && loc_expressionApplied
-					UDEM.ResetExpression(akActor, expression,10)
+					UDEM.ResetExpressionRaw(akActor,10)
 					loc_expressionApplied = false
 				endif
 				
 				;can play horny animation ?
 				if (loc_orgasmRate > 0.5*loc_orgasmResistMultiplier*loc_orgasmResistence) 
-					if loc_enoughArousal
-						;start moaning sound again
-						if loc_msID == -1
-							loc_msID = libs.MoanSound.Play(akActor)
-							Sound.SetInstanceVolume(loc_msID, libs.GetMoanVolume(akActor))
-						endif
+					;start moaning sound again
+					if loc_msID == -1
+						loc_msID = libs.MoanSound.Play(akActor)
+						Sound.SetInstanceVolume(loc_msID, libs.GetMoanVolume(akActor))
 					endif
 				else
 					;disable moaning sound when orgasm rate is too low
@@ -236,7 +259,7 @@ Event OnUpdate()
 								loc_cameraState = libs.StartThirdPersonAnimation(akActor, libs.AnimSwitchKeyword(akActor, "Horny01"), permitRestrictive=true)
 								loc_hornyAnimTimer += UDOM.UD_HornyAnimationDuration
 								if !loc_expressionApplied
-									UDEM.ApplyExpression(akActor, expression, iRange(Round(loc_orgasmProgress),75,100),false,10)
+									UDEM.ApplyExpressionRaw(akActor, loc_expression, iRange(Round(loc_orgasmProgress),75,100),false,10)
 									loc_expressionApplied = true
 									loc_expressionUpdateTimer = 0
 								endif
@@ -257,7 +280,7 @@ Event OnUpdate()
 					endif
 				endif
 				
-				if UDOM.UD_UseOrgasmWidget && ActorIsPlayer()
+				if UDOM.UD_UseOrgasmWidget && ActorIsPlayer(akActor)
 					if (loc_widgetShown && loc_orgasmProgress < 2.5) ;|| (loc_widgetShown)
 						UDCDMain.toggleWidget2(false)
 						loc_widgetShown = false
@@ -274,20 +297,16 @@ Event OnUpdate()
 				
 				loc_expressionUpdateTimer += 1
 			endif
-			if loc_widgetShown
-				Utility.wait(loc_currentUpdateTime)
-			else
-				Utility.wait(1.0)
-			endif
 			
 			loc_tick += 1
 			
 			if IsRunning()
-				if loc_widgetShown
-					registerForSingleUpdate(loc_currentUpdateTime)
+				if ActorIsPlayer(akActor)
+					loc_currentUpdateTime = UDOM.UD_OrgasmUpdateTime
 				else
-					registerForSingleUpdate(1.0)
+					loc_currentUpdateTime = 1.0
 				endif
+				registerForSingleUpdate(loc_currentUpdateTime)
 			endif
 		endif
 	endif
@@ -298,23 +317,8 @@ bool Function IsRunning()
 EndFunction
 
 ;wrappers
-float Function fRange(float fValue,float fMin,float fMax) ;interface for UDmain
-	return UDCDmain.fRange(fValue,fMin,fMax)
-EndFunction
-int Function iRange(int iValue,int iMin,int iMax) ;interface for UDmain
-	return UDCDmain.iRange(iValue,iMin,iMax)
-EndFunction
-int Function Round(float fValue)
-	return UDCDmain.Round(fValue)
-EndFunction
-bool Function ActorIsPlayer()
-	return UDCDmain.ActorIsPlayer(akActor)
-EndFunction
 bool Function ActorIsFollower()
 	return UDCDmain.ActorIsFollower(akActor)
-EndFunction
-string Function getActorName()
-	return UDCDmain.getActorName(akActor)
 EndFunction
 Function Log(String msg, int level = 1)
 	UDCDmain.Log(msg,level)

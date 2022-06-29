@@ -1,5 +1,7 @@
 Scriptname UD_CustomDevices_NPCSlotsManager extends Quest  
 
+import UnforgivingDevicesMain
+
 UDCustomDeviceMain Property UDCDmain auto
 UnforgivingDevicesMain Property UDmain 
 	UnforgivingDevicesMain Function get()
@@ -38,12 +40,12 @@ Function GameUpdate()
 EndFunction
 
 Function CheckOrgasmLoops()
-	int index = UD_Slots ;all aliases, excluding player
+	int index = UD_Slots ;all aliases
 	while index
 		index -= 1
-		UD_CustomDevice_NPCSlot loc_slot = (UDCD_NPCF.GetNthAlias(index) as UD_CustomDevice_NPCSlot)
+		UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
 		if loc_slot
-			if loc_slot.isUsed()
+			if loc_slot.isUsed() && !loc_slot.isDead()
 				UDOM.CheckArousalCheck(loc_slot.getActor())
 				UDOM.CheckOrgasmCheck(loc_slot.getActor())
 			endif
@@ -63,8 +65,27 @@ Event OnUpdate()
 			scanSlots()
 		endif
 	endif
+	
+	removeDeadNPCs()
+	CheckOrgasmLoops()
+	
+	UpdateSlots() ;update slots, this only update variables, not devices
+	
 	RegisterForSingleUpdate(UD_SlotUpdatTime)
 EndEvent
+
+Function UpdateSlots()
+	int index = UD_Slots ;all aliases
+	while index
+		index -= 1
+		UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
+		if loc_slot.isUsed()
+			if !loc_slot.isDead()
+				loc_slot.UpdateSlot()
+			endif
+		endif
+	endwhile
+EndFunction
 
 ;bool _updating = false
 bool Function scanSlots(bool debugMsg = False)
@@ -132,10 +153,10 @@ Function removeDeadNPCs()
 	int index = UD_Slots - 1 ;all aliases, excluding player
 	while index
 		index -= 1
-		ReferenceAlias loc_refal = (GetNthAlias(index) as ReferenceAlias)
-		if loc_refal.getActorReference()
-			if loc_refal.getActorReference().isDead()
-				(loc_refal as UD_CustomDevice_NPCSlot).unregisterSlot()
+		UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
+		if loc_slot.isUsed()
+			if loc_slot.isDead()
+				unregisterNPC(loc_slot.getActor(),true)
 			endif
 		endif
 	endwhile
@@ -347,9 +368,9 @@ bool Function unregisterNPC(Actor akActor,bool bDebugMsg = false)
 			(GetNthAlias(index) as UD_CustomDevice_NPCSlot).unregisterSlot()
 			StorageUtil.UnSetIntValue(loc_slotedNPC, "UD_blockSlotUpdate")
 			akActor.RemoveFromFaction(UDCDmain.RegisteredNPCFaction)
-				if bDebugMsg || UDCDmain.UDmain.DebugMod
-					debug.notification("[UD]: NPC slot ["+ index +"] = " + UDCDmain.getActorName(loc_slotedNPC) + " =>  unregistered!")
-				endif
+			if bDebugMsg || UDCDmain.UDmain.DebugMod
+				debug.notification("[UD]: NPC slot ["+ index +"] = " + getActorName(loc_slotedNPC) + " =>  unregistered!")
+			endif
 			return True
 		endif
 	endwhile

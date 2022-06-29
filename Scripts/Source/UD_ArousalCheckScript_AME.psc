@@ -1,5 +1,6 @@
 Scriptname UD_ArousalCheckScript_AME extends activemagiceffect 
 
+import UnforgivingDevicesMain
 
 UDCustomDeviceMain Property UDCDmain auto
 zadlibs Property libs auto
@@ -23,11 +24,11 @@ float loc_updateTime = 1.0
 Event OnEffectStart(Actor akTarget, Actor akCaster)
 	_MagickEffect = GetBaseObject()
 	akActor = akTarget
-	
+	akActor.AddToFaction(UDOM.ArousalCheckLoopFaction)
 	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("ArousalCheckLoop("+UDCDmain.getActorName(akActor)+") started")
+		UDCDmain.Log("ArousalCheckLoop("+getActorName(akActor)+") started")
 	endif
-	
+	UDCDmain.CLog("ArousalCheckLoop("+getActorName(akActor)+") started")
 	registerForSingleUpdate(0.1)
 EndEvent
 
@@ -39,12 +40,12 @@ Event OnUpdate()
 		if UDOM.ArousalLoopBreak(akActor,UDOM.UD_ArousalCheckLoop_ver)
 			akActor.DispelSpell(UDCDmain.UDlibs.ArousalCheckSpell)
 		else
-			loc_arousalRate = UDOM.getArousalRate(akActor)
-			loc_arousal = UDCDmain.Round(loc_arousalRate*loc_updateTime)
+			loc_arousalRate = UDOM.getArousalRateM(akActor)
+			loc_arousal = Round(loc_arousalRate*loc_updateTime)
 						
-			if akActor.HasMagicEffectWithKeyword(UDCDmain.UDlibs.OrgasmExhaustionEffect_KW)
-				loc_arousal = UDCDmain.Round(loc_arousal * 0.5)
-			endif
+			;if akActor.HasMagicEffectWithKeyword(UDCDmain.UDlibs.OrgasmExhaustionEffect_KW)
+			;	loc_arousal = Round(loc_arousal * 0.5)
+			;endif
 			
 			if loc_arousal > 0
 				akActor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.UpdateArousal(akActor ,loc_arousal))

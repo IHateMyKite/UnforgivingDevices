@@ -1,5 +1,7 @@
 Scriptname UD_RandomRestraintManager extends Quest  
 
+import UnforgivingDevicesMain
+
 UDCustomDeviceMain Property UDCDmain auto
 zadlibs Property libs auto
 
@@ -205,7 +207,7 @@ EndFunction
 ;PC frier 8000
 Armor Function getRandomSuitableRestrain(Actor akActor,Int iPrefSwitch = 0xffffffff)
 	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("getRandomSuitableRestrain called for " + UDCDmain.GetActorName(akActor),3)
+		UDCDmain.Log("getRandomSuitableRestrain called for " + GetActorName(akActor),3)
 	endif
 	iPrefSwitch = Math.LogicalAnd(iPrefSwitch,UD_RandomDevice_GlobalFilter)
 	Armor res = none
@@ -233,7 +235,7 @@ EndFunction
 
 Armor Function LockRandomRestrain(Actor akActor,Bool force = false,Int iPrefSwitch = 0xffffffff)
 	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("LockRandomRestrain called for " + UDCDmain.GetActorName(akActor))
+		UDCDmain.Log("LockRandomRestrain called for " + GetActorName(akActor))
 	endif
 	iPrefSwitch = Math.LogicalAnd(iPrefSwitch,UD_RandomDevice_GlobalFilter)
 	Armor device = none

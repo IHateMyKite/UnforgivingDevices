@@ -1,6 +1,8 @@
 Scriptname UD_Patcher extends Quest  
 {Patches devices and safecheck animations}
 
+import UnforgivingDevicesMain
+
 zadlibs Property libs auto
 UDCustomDeviceMain Property UDCDmain auto
 UD_libs Property UDlibs auto
@@ -284,8 +286,8 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
 	int loc_control = 0x0F
 	
 	if device.deviceRendered.hasKeyword(libs.zad_DeviousArmbinder)
-		device.UD_durability_damage_base = UDCDmain.fRange(Utility.randomFloat(0.7,1.0)/loc_currentmult,0.05,100.0)
-		device.UD_CutChance = UDCDmain.fRange(Utility.randomFloat(5.0,10.0)/loc_currentmult,1.0,50.0)
+		device.UD_durability_damage_base = fRange(Utility.randomFloat(0.7,1.0)/loc_currentmult,0.05,100.0)
+		device.UD_CutChance = fRange(Utility.randomFloat(5.0,10.0)/loc_currentmult,1.0,50.0)
 		;device.UD_Locks = UDCDmain.Round(2*loc_currentmult)
 		if isSteel(device)
 			;device.UD_Locks = UDCDmain.Round(6*loc_currentmult)
@@ -295,8 +297,8 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
 			;loc_control = Math.LogicalAnd(loc_control,0x03)
 		endif
 	elseif device.deviceRendered.hasKeyword(libs.zad_DeviousArmbinderElbow)
-		device.UD_durability_damage_base = UDCDmain.fRange(Utility.randomFloat(0.65,0.8)/loc_currentmult,0.05,100.0)
-		device.UD_CutChance = UDCDmain.fRange(Utility.randomFloat(3.0,8.0)/loc_currentmult,1.0,50.0)
+		device.UD_durability_damage_base = fRange(Utility.randomFloat(0.65,0.8)/loc_currentmult,0.05,100.0)
+		device.UD_CutChance = fRange(Utility.randomFloat(3.0,8.0)/loc_currentmult,1.0,50.0)
 		;device.UD_Locks = UDCDmain.Round(2*loc_currentmult)
 		if isSteel(device)
 			;device.UD_Locks = UDCDmain.Round(6*loc_currentmult)
@@ -306,8 +308,8 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
 			;loc_control = Math.LogicalAnd(loc_control,0x03)
 		endif		
 	elseif device.deviceRendered.hasKeyword(libs.zad_DeviousStraitJacket)
-		device.UD_durability_damage_base = UDCDmain.fRange(Utility.randomFloat(0.7,0.9)/loc_currentmult,0.05,100.0)
-		device.UD_CutChance = UDCDmain.fRange(Utility.randomFloat(2.0,8.0)/loc_currentmult,1.0,50.0)
+		device.UD_durability_damage_base = fRange(Utility.randomFloat(0.7,0.9)/loc_currentmult,0.05,100.0)
+		device.UD_CutChance = fRange(Utility.randomFloat(2.0,8.0)/loc_currentmult,1.0,50.0)
 		;device.UD_Locks = UDCDmain.Round(6*loc_currentmult)
 		sentientModChance = 75
 		if isSteel(device)
@@ -318,13 +320,13 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
 			;loc_control = Math.LogicalAnd(loc_control,0x03)
 		endif
 	elseif device.deviceRendered.hasKeyword(libs.zad_DeviousCuffsFront)
-		device.UD_durability_damage_base = UDCDmain.fRange(Utility.randomFloat(0.3,0.8)/loc_currentmult,0.05,100.0)
+		device.UD_durability_damage_base = fRange(Utility.randomFloat(0.3,0.8)/loc_currentmult,0.05,100.0)
 		;device.UD_Locks = UDCDmain.Round(6*loc_currentmult)
-		device.UD_LockAccessDifficulty = UDCDmain.iRange(UDCDmain.Round(Utility.randomInt(70,80)*loc_currentmult),0,95)
+		device.UD_LockAccessDifficulty = iRange(Round(Utility.randomInt(70,80)*loc_currentmult),0,95)
 	elseif device.deviceRendered.hasKeyword(libs.zad_DeviousYoke) || device.deviceRendered.hasKeyword(libs.zad_DeviousYokeBB)
-		device.UD_durability_damage_base = UDCDmain.fRange(Utility.randomFloat(0.1,0.25)/loc_currentmult,0.05,100.0)
+		device.UD_durability_damage_base = fRange(Utility.randomFloat(0.1,0.25)/loc_currentmult,0.05,100.0)
 		;device.UD_Locks =  UDCDmain.Round(4*loc_currentmult)
-		device.UD_LockAccessDifficulty = UDCDmain.iRange(UDCDmain.Round(Utility.randomInt(75,90)*loc_currentmult),0,95)
+		device.UD_LockAccessDifficulty = iRange(Round(Utility.randomInt(75,90)*loc_currentmult),0,95)
 	elseif device.deviceRendered.hasKeyword(libs.zad_DeviousElbowTie)
 		device.UD_durability_damage_base = Utility.randomFloat(0.05,0.1)
 		;device.UD_Locks = UDCDmain.Round(1*loc_currentmult)
@@ -332,16 +334,16 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
 		device.UD_StruggleCritChance = Utility.randomInt(3,5)
 		device.UD_StruggleCritMul = Utility.randomFloat(150.0,255.0)
 	elseif device.deviceRendered.hasKeyword(libs.zad_DeviousPetSuit)
-		device.UD_durability_damage_base = UDCDmain.fRange(Utility.randomFloat(0.9,1.4)/loc_currentmult,0.05,100.0)
+		device.UD_durability_damage_base = fRange(Utility.randomFloat(0.9,1.4)/loc_currentmult,0.05,100.0)
 		;device.UD_Locks = UDCDmain.Round(4*loc_currentmult)
-		device.UD_LockAccessDifficulty = UDCDmain.iRange(UDCDmain.Round(Utility.randomInt(60,80)*loc_currentmult),0,95)
-		device.UD_CutChance = UDCDmain.fRange(Utility.randomFloat(2.0,5.0)/loc_currentmult,1.0,50.0)
+		device.UD_LockAccessDifficulty = iRange(Round(Utility.randomInt(60,80)*loc_currentmult),0,95)
+		device.UD_CutChance = fRange(Utility.randomFloat(2.0,5.0)/loc_currentmult,1.0,50.0)
 		sentientModChance = 75
 	endif
 	
 	;materials
 	if (StringUtil.find(device.deviceInventory.getName(),"High Security") != -1 || StringUtil.find(device.deviceInventory.getName(),"Secure") != -1)
-		device.UD_durability_damage_base = UDCDmain.fRange(device.UD_durability_damage_base/4.0,0.05,100.0)
+		device.UD_durability_damage_base = fRange(device.UD_durability_damage_base/4.0,0.05,100.0)
 		device.UD_StruggleCritDuration = 0.5
 		device.UD_Locks = UD_MinLocks
 		device.UD_LockpickDifficulty = 100
@@ -353,12 +355,12 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
 		device.UD_ResistMagicka = Utility.randomFloat(-0.3,1.0)
 	endif
 	
-	checkSentientModifier(device,UDCDmain.Round(sentientModChance*loc_currentmult),3.0)
+	checkSentientModifier(device,Round(sentientModChance*loc_currentmult),3.0)
 
 	if isEbonite(device)
-		checkMendingModifier(device,UDCDmain.Round(55*loc_currentmult),1.25)
+		checkMendingModifier(device,Round(55*loc_currentmult),1.25)
 	else
-		checkMendingModifier(device,UDCDmain.Round(35*loc_currentmult),0.8)
+		checkMendingModifier(device,Round(35*loc_currentmult),0.8)
 	endif
 	
 	patchFinish(device,loc_control,loc_currentmult)
@@ -404,7 +406,7 @@ Function patchBelt(UD_CustomBelt_RenderScript device)
 	patchDefaultValues(device,loc_currentmult)
 	
 	CheckLocks(device)
-	device.UD_Cooldown = UDCDmain.Round(Utility.randomInt(140,200)/UDCDmain.fRange(loc_currentmult,0.5,2.0))
+	device.UD_Cooldown = Round(Utility.randomInt(140,200)/fRange(loc_currentmult,0.5,2.0))
 	;materials
 	if isEbonite(device)
 		device.UD_ResistPhysical = Utility.randomFloat(-0.25,0.7)
@@ -418,7 +420,7 @@ Function patchBelt(UD_CustomBelt_RenderScript device)
 		device.UD_Locks = 0
 	endif
 				
-	checkSentientModifier(device,UDCDmain.Round(70*loc_currentmult),1.25)
+	checkSentientModifier(device,Round(70*loc_currentmult),1.25)
 	
 	patchFinish(device,0x0F,loc_currentmult)
 EndFunction
@@ -429,10 +431,10 @@ Function patchPlug(UD_CustomPlug_RenderScript device)
 	
 	device.UD_Locks = 0
 	device.UD_durability_damage_base = Utility.randomFloat(10.0,20.0)/loc_currentmult
-	device.UD_VibDuration = Math.Floor(Utility.randomInt(45,80)*UDCDmain.fRange(loc_currentmult,0.5,5.0))
-	device.UD_OrgasmMult  = Utility.randomFloat(0.75,1.5)*UDCDmain.fRange(loc_currentmult,0.7,1.0)
-	device.UD_ArousalMult = Utility.randomFloat(0.5,1.5)*UDCDmain.fRange(loc_currentmult,1.0,5.0)
-	device.UD_Cooldown = UDCDmain.UDmain.Round(Utility.randomInt(120,240)/UDCDmain.fRange(loc_currentmult,0.5,2.0))
+	device.UD_VibDuration = Math.Floor(Utility.randomInt(45,80)*fRange(loc_currentmult,0.5,5.0))
+	device.UD_OrgasmMult  = Utility.randomFloat(0.75,1.5)*fRange(loc_currentmult,0.7,1.0)
+	device.UD_ArousalMult = Utility.randomFloat(0.5,1.5)*fRange(loc_currentmult,1.0,5.0)
+	device.UD_Cooldown = Round(Utility.randomInt(120,240)/fRange(loc_currentmult,0.5,2.0))
 	
 	int loc_control = 0x0F
 		
@@ -443,7 +445,7 @@ Function patchPlug(UD_CustomPlug_RenderScript device)
 		(device as UD_CustomInflatablePlug_RenderScript).UD_DeflateRate = Utility.randomInt(150,250)
 	elseif device as UD_ControlablePlug_RenderScript
 		device.UD_VibDuration = Utility.randomInt(450,750)
-		device.UD_Cooldown = UDCDmain.UDmain.Round(Utility.randomInt(300,420)/UDCDmain.fRange(loc_currentmult,0.5,2.0))
+		device.UD_Cooldown = Round(Utility.randomInt(300,420)/fRange(loc_currentmult,0.5,2.0))
 	else
 		
 	endif
@@ -492,7 +494,7 @@ Function patchGeneric(UD_CustomDevice_RenderScript device)
 	if device as UD_CustomMittens_RenderScript
 		;CheckLocks(device,true,50)
 		if !device.UD_durability_damage_base
-			device.UD_durability_damage_base = UDCDmain.fRange(Utility.randomFloat(0.25,1.0)/loc_currentmult,0.05,100.0) ;so mittens are always escapable
+			device.UD_durability_damage_base = fRange(Utility.randomFloat(0.25,1.0)/loc_currentmult,0.05,100.0) ;so mittens are always escapable
 		endif
 		checkLooseModifier(device,100,0.25, 1.0)
 		loc_control = Math.LogicalAnd(loc_control,0x0E)
@@ -502,7 +504,7 @@ Function patchGeneric(UD_CustomDevice_RenderScript device)
 		(device as UD_CustomDynamicHeavyBondage_RS).UD_UntieDifficulty = Utility.randomFloat(75.0,125.0)/loc_currentmult
 		;CheckLocks(device,true,50)
 		;checkLooseModifier(device,100,0.5, 0.9)
-		device.UD_Cooldown = UDCDmain.Round(Utility.randomInt(160,240)/UDCDmain.fRange(loc_currentmult,0.5,2.0))
+		device.UD_Cooldown = Round(Utility.randomInt(160,240)/fRange(loc_currentmult,0.5,2.0))
 	EndIf
 	
 	checkLooseModifier(device,50,0.15, 0.4)
@@ -514,17 +516,17 @@ Function patchPiercing(UD_CustomPiercing_RenderScript device)
 	Float loc_currentmult = UD_PatchMult_Piercing*UD_PatchMult
 	patchDefaultValues(device,loc_currentmult)
 	;patchStart(device)
-	device.UD_VibDuration = UDCDmain.UDmain.Round(Utility.randomInt(40,75)*UDCDmain.fRange(loc_currentmult,0.3,5.0))
-	device.UD_Cooldown = UDCDmain.UDmain.Round(Utility.randomInt(45,90)/UDCDmain.fRange(loc_currentmult,0.5,2.0))
+	device.UD_VibDuration = Round(Utility.randomInt(40,75)*fRange(loc_currentmult,0.3,5.0))
+	device.UD_Cooldown = Round(Utility.randomInt(45,90)/fRange(loc_currentmult,0.5,2.0))
 	if device.UD_DeviceKeyword == libs.zad_deviousPiercingsNipple
 		;device.UD_Locks = 2
 		CheckLocks(device,true)
-		device.UD_OrgasmMult  = Utility.randomFloat(0.3,0.8)*UDCDmain.fRange(loc_currentmult,1.0,5.0)
-		device.UD_ArousalMult = Utility.randomFloat(1.5,2.0)*UDCDmain.fRange(loc_currentmult,1.0,3.0)
+		device.UD_OrgasmMult  = Utility.randomFloat(0.3,0.8)*fRange(loc_currentmult,1.0,5.0)
+		device.UD_ArousalMult = Utility.randomFloat(1.5,2.0)*fRange(loc_currentmult,1.0,3.0)
 		checkMAHModifier(device,45,3,8,1,3)
 	elseif device.UD_DeviceKeyword == libs.zad_DeviousPiercingsVaginal
 		;device.UD_Locks = 1
-		device.UD_OrgasmMult  = Utility.randomFloat(1.5,2.5)*UDCDmain.fRange(loc_currentmult,0.8,3.0)
+		device.UD_OrgasmMult  = Utility.randomFloat(1.5,2.5)*fRange(loc_currentmult,0.8,3.0)
 		checkMAOModifier(device,15,5,15)
 	endif
 
@@ -563,25 +565,25 @@ EndFunction
 
 Function checkMendingModifier(UD_CustomDevice_RenderScript device,int chance,float modifier)
 	if Utility.randomInt(1,99) < chance && DeviceCanHaveModes(device)
-		device.addModifier("Regen",UDCDmain.UDmain.formatString(120*modifier*Utility.randomFloat(0.5,2.0),1))
+		device.addModifier("Regen",formatString(120*modifier*Utility.randomFloat(0.5,2.0),1))
 	endif
 EndFunction
 
 Function checkLooseModifier(UD_CustomDevice_RenderScript device,int chance,float rand_start = 0.0,float rand_end = 1.0)
 	if Utility.randomInt(1,99) < chance; && DeviceCanHaveModes(device)
-		device.addModifier("Loose",UDCDmain.UDmain.formatString(Utility.randomFloat(rand_start,rand_end),2))
+		device.addModifier("Loose",formatString(Utility.randomFloat(rand_start,rand_end),2))
 	endif
 EndFunction
 
 Function checkMAHModifier(UD_CustomDevice_RenderScript device,int chance,int rand_start_c = 0,int rand_end_c = 100,int rand_start_d = 1,int rand_end_d = 1)
-	if Utility.randomInt(1,99) < UDCDmain.Round(chance*UD_MAHChanceMod/100) && DeviceCanHaveModes(device)
-		device.addModifier("MAH",UDCDmain.Round(Utility.randomInt(rand_start_c,rand_end_c)*UD_MAHMod/100) + "," + Utility.randomInt(rand_start_d,rand_end_d))
+	if Utility.randomInt(1,99) < Round(chance*UD_MAHChanceMod/100) && DeviceCanHaveModes(device)
+		device.addModifier("MAH",Round(Utility.randomInt(rand_start_c,rand_end_c)*UD_MAHMod/100) + "," + Utility.randomInt(rand_start_d,rand_end_d))
 	endif
 EndFunction
 
 Function checkMAOModifier(UD_CustomDevice_RenderScript device,int chance,int rand_start_c = 0,int rand_end_c = 100,int rand_start_d = 1,int rand_end_d = 1)
-	if Utility.randomInt(1,99) < UDCDmain.Round(chance*UD_MAOChanceMod/100) && DeviceCanHaveModes(device)
-		device.addModifier("MAO",UDCDmain.Round(Utility.randomInt(rand_start_c,rand_end_c)*UD_MAOMod/100) + "," + Utility.randomInt(rand_start_d,rand_end_d))
+	if Utility.randomInt(1,99) < Round(chance*UD_MAOChanceMod/100) && DeviceCanHaveModes(device)
+		device.addModifier("MAO",Round(Utility.randomInt(rand_start_c,rand_end_c)*UD_MAOMod/100) + "," + Utility.randomInt(rand_start_d,rand_end_d))
 	endif
 EndFunction
 
@@ -609,11 +611,11 @@ Function patchFinish(UD_CustomDevice_RenderScript device,int argControlVar = 0x0
 	endif
 	
 	if device.deviceRendered.hasKeyword(libs.zad_EffectLively)
-		device.UD_Cooldown = UDCDmain.Round(device.UD_Cooldown*0.85)
+		device.UD_Cooldown = Round(device.UD_Cooldown*0.85)
 	endif
 	
 	if device.deviceRendered.hasKeyword(libs.zad_EffectVeryLively)
-		device.UD_Cooldown = UDCDmain.Round(device.UD_Cooldown*0.6)
+		device.UD_Cooldown = Round(device.UD_Cooldown*0.6)
 	endif
 	
 	device.UD_WeaponHitResist = device.UD_ResistPhysical
@@ -626,6 +628,11 @@ Function patchFinish(UD_CustomDevice_RenderScript device,int argControlVar = 0x0
 		endif
 	endif
 	device.UD_SpellHitResist = device.UD_ResistMagicka
+	
+	int loc_level = device.GetWearer().GetLevel()
+	device.UD_Level = Round(Utility.randomFloat(fRange(loc_level*0.75,1.0,100.0),fRange(loc_level*1.25,1.0,100.0)))
+	
+	
 EndFunction
 
 
@@ -638,7 +645,7 @@ Function checkInventoryScript(UD_CustomDevice_RenderScript device,int argControl
 	UD_CustomDevice_EquipScript inventoryScript = device.getInventoryScript()
 	
 	if Math.LogicalAnd(argControlVar,0x01)
-		device.UD_durability_damage_base = (inventoryScript.BaseEscapeChance/UD_EscapeModifier)/UDCDmain.fRange(fMult,0.25,3.0)
+		device.UD_durability_damage_base = (inventoryScript.BaseEscapeChance/UD_EscapeModifier)/fRange(fMult,0.25,3.0)
 	else
 		;if !inventoryScript.BaseEscapeChance
 		;	device.UD_durability_damage_base = 0.0 ;inescapable device
@@ -650,7 +657,7 @@ Function checkInventoryScript(UD_CustomDevice_RenderScript device,int argControl
 	endif
 	
 	if Math.LogicalAnd(argControlVar,0x02)
-		device.UD_CutChance = 0.75*inventoryScript.CutDeviceEscapeChance/UDCDmain.fRange(fMult,0.5,3.0)
+		device.UD_CutChance = 0.75*inventoryScript.CutDeviceEscapeChance/fRange(fMult,0.5,3.0)
 	endif
 	
 	if Math.LogicalAnd(argControlVar,0x04)
@@ -741,18 +748,18 @@ Function patchDefaultValues(UD_CustomDevice_RenderScript device,Float fMult)
 	device.UD_LockpickDifficulty = 25*Utility.randomInt(1,3)
 	device.UD_LockAccessDifficulty = Utility.randomFloat(40.0,70.0) + 20*(fMult - 1.0)
 	device.UD_base_stat_drain = Utility.randomFloat(7.0,13.0)
-	device.UD_durability_damage_base = UDCDmain.fRange(Utility.randomFloat(0.7,1.3)/fMult,0.05,100.0)
+	device.UD_durability_damage_base = fRange(Utility.randomFloat(0.7,1.3)/fMult,0.05,100.0)
 	device.UD_ResistPhysical = Utility.randomFloat(-0.5,0.9)
 	device.UD_ResistMagicka = Utility.randomFloat(-0.9,1.0)
-	device.UD_StruggleCritDuration = UDCDMain.fRange(0.9/fMult,0.6,1.1)
+	device.UD_StruggleCritDuration = fRange(0.9/fMult,0.6,1.1)
 	device.UD_StruggleCritChance = Utility.randomInt(15,30)
 	device.UD_StruggleCritMul = Utility.randomFloat(2.0,6.0)
-	device.UD_Cooldown = UDCDmain.UDmain.Round(Utility.randomInt(100,240)/(UDCDmain.fRange(fMult,0.5,5.0)))
+	device.UD_Cooldown = Round(Utility.randomInt(100,240)/(fRange(fMult,0.5,5.0)))
 	if isEbonite(device)
-		checkMendingModifier(device,UDCDmain.Round(50*fMult),1.25*fMult)
+		checkMendingModifier(device,Round(50*fMult),1.25*fMult)
 		checkHealModifier(device,20)
 	else
-		checkMendingModifier(device,UDCDmain.Round(25*fMult),0.8*fMult)
+		checkMendingModifier(device,Round(25*fMult),0.8*fMult)
 	endif
 	
 	if !device.isHeavyBondage()
@@ -763,6 +770,6 @@ Function patchDefaultValues(UD_CustomDevice_RenderScript device,Float fMult)
 		;device.addModifier("Loose",1.0)
 	endif
 	
-	checkSentientModifier(device,UDCDmain.Round(15*fMult),1.0)
+	checkSentientModifier(device,Round(15*fMult),1.0)
 	checkHealModifier(device,10)
 EndFunction

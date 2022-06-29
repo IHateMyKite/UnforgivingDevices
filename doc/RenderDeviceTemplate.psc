@@ -1,34 +1,16 @@
-Scriptname UD_CustomLegCuffs_RenderScript extends UD_CustomDynamicHeavyBondage_RS
+Scriptname ;/DEVICE SCRIPT NAME/; extends ;/PARENT SCRIPT NAME/;  
 
 Function InitPost()
 	parent.InitPost()
-	UD_DeviceType = "Leg cuffs"
-	UD_ActiveEffectName = "Tie up - Legs"
+	UD_DeviceType = "Device type"
+	UD_ActiveEffectName = "Active effect name"
 EndFunction
 
-string Function addInfoString(string str = "")
-	return parent.addInfoString(str)
-EndFunction
-
-bool Function canBeActivated()
-	return UDCDMain.UD_AllowLegTie && WearerFreeLegs() && getRelativeElapsedCooldownTime() >= 0.4
-EndFunction
-
-Function OnTiedUp()
-	UDCDmain.AddInvisibleHobble(GetWearer())
-EndFunction
-
-Function OnUntied()
-	UDCDmain.RemoveInvisibleHobble(GetWearer())
-EndFunction
-
-bool Function OnCooldownActivatePre()
-	if UDCDMain.UD_AllowLegTie && isSentient()
-		return parent.OnCooldownActivatePre()
-	else
-		return false
-	endif
-EndFunction
+;======================================================================
+;Place new override functions here, do not forget to check override functions in parent if its not base script (UD_CustomDevice_RenderScript)
+;Function OnVibStart(int blablabla)
+;EndFunction
+;======================================================================
 
 ;============================================================================================================================
 ;unused override function, theese are from base script. Extending different script means you also have to add their overrride functions                                                
@@ -38,11 +20,14 @@ EndFunction
 Function safeCheck() ;called on init. Should be used to check if some properties are not filled, and fill them
 	parent.safeCheck()
 EndFunction
-Function patchDevice() ;called on init. Should call patcher. Can also be directly modified but should still use Patcher MCM variables
+Function patchDevice() ;called on init. Should call patcher. Can also be dirrectly modified but should still use Patcher MCM variables
 	parent.patchDevice()
 EndFunction
 Function activateDevice() ;Device custom activate effect. You need to create it yourself. Don't forget to remove parent.activateDevice() if you don't want parent effect
 	parent.activateDevice()
+EndFunction
+bool Function canBeActivated() ;Switch. Used to determinate if device can be currently activated
+	return parent.canBeActivated()
 EndFunction
 bool Function OnMendPre(float mult) ;called on device mend (regain durability)
 	return parent.OnMendPre(mult)
@@ -110,6 +95,9 @@ EndFunction
 Function OnUpdatePost(float timePassed) ;called on update. Is only called if wearer is registered
 	parent.OnUpdatePost(timePassed)
 EndFunction
+bool Function OnCooldownActivatePre()
+	return parent.OnCooldownActivatePre()
+EndFunction
 Function OnCooldownActivatePost()
 	parent.OnCooldownActivatePost()
 EndFunction
@@ -143,8 +131,8 @@ EndFunction
 Function onLockUnlocked(bool lockpick = false)
 	parent.onLockUnlocked(lockpick)
 EndFunction
-Function onSpecialButtonPressed(float fMult)
-	parent.onSpecialButtonPressed(fMult)
+Function onSpecialButtonPressed()
+	parent.onSpecialButtonPressed()
 EndFunction
 Function onSpecialButtonReleased(Float fHoldTime)
 	parent.onSpecialButtonReleased(fHoldTime)
@@ -160,6 +148,9 @@ bool Function onSpellHitPre(Spell source)
 EndFunction
 Function onSpellHitPost(Spell source)
 	parent.onSpellHitPost(source)
+EndFunction
+string Function addInfoString(string str = "")
+	return parent.addInfoString(str)
 EndFunction
 Function updateWidget(bool force = false)
 	parent.updateWidget(force)
@@ -178,4 +169,7 @@ int Function getArousalRate()
 EndFunction
 float Function getStruggleOrgasmRate()
 	return parent.getStruggleOrgasmRate()
+EndFunction
+Float[] Function GetCurrentMinigameExpression()
+	return GetCurrentMinigameExpression()
 EndFunction

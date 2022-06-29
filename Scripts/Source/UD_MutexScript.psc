@@ -1,5 +1,7 @@
 Scriptname UD_MutexScript extends ReferenceAlias
 
+import UnforgivingDevicesMain
+
 UDCustomDeviceMain Property UDCDmain auto
 
 bool 	Property UD_GlobalDeviceMutex_InventoryScript 			= false 		auto hidden
@@ -37,16 +39,16 @@ EndFunction
 
 Function EvaluateMutex()
 	float loc_time = 0.0
-	while loc_time <= 15.0 && (!UD_GlobalDeviceMutex_InventoryScript)
+	while loc_time <= 25.0 && (!UD_GlobalDeviceMutex_InventoryScript)
 		Utility.wait(0.05)
 		loc_time += 0.05
 	endwhile
 	
 	if UD_GlobalDeviceMutex_InventoryScript_Failed
-		UDCDmain.Error("EvaluateMutex("+UDCDmain.getActorName(GetActorRef())+","+UD_GlobalDeviceMutex_Device.getName()+") failed!!!")
+		UDCDmain.Error("EvaluateMutex("+getActorName(GetActorRef())+","+UD_GlobalDeviceMutex_Device.getName()+") failed!!!")
 	endif
-	if loc_time >= 15.0
-		UDCDmain.Error("EvaluateMutex("+UDCDmain.getActorName(GetActorRef())+","+UD_GlobalDeviceMutex_Device.getName()+") timeout!!!")
+	if loc_time >= 25.0
+		UDCDmain.Error("EvaluateMutex("+getActorName(GetActorRef())+","+UD_GlobalDeviceMutex_Device.getName()+") timeout!!!")
 	endif
 	
 	UD_GlobalDeviceMutex_Device = none

@@ -3,6 +3,7 @@ Scriptname UD_AbadonPlug_RenderScript extends UD_CustomPlug_RenderScript
 Quest Property AbadonQuest auto
 UD_AbadonQuest_script AbadonQuestScript
 
+import UnforgivingDevicesMain
 
 ;const values
 float diffuptimehours = 4.0 ;hours
@@ -27,6 +28,9 @@ bool max_diff_finisher = False
 float nextDeviceManifest = 0.0
 float plug_hunger = 0.0
 
+
+bool belt_used = false
+
 float Function relativeStrength()
 	return abadonPlugDiff/AbadonQuestScript.max_difficulty
 EndFunction
@@ -49,21 +53,6 @@ Function InitPost()
 	if ((AbadonQuest).GetCurrentStageID() == 0) && WearerIsPlayer()
 		(AbadonQuest).setStage(20)
 		(AbadonQuest).SetObjectiveDisplayed(30)
-	endif
-EndFunction
-
-Function onRemoveDevicePost(Actor akActor)
-	parent.onRemoveDevicePost(akActor)
-	if (AbadonQuest.GetCurrentStageID() > 0) && !AbadonQuest.isCompleted() && getWearer() == AbadonQuestScript.UD_AbadonVictim
-		if (AbadonQuest.GetCurrentStageID() == 20)
-			AbadonQuest.SetObjectiveCompleted(30)
-		elseif (AbadonQuest.GetCurrentStageID() == 30)
-			AbadonQuest.SetObjectiveCompleted(40)
-		endif
-		AbadonQuest.completeQuest()
-	endif
-	if AbadonQuestScript.final_finisher_set
-		AbadonQuestScript.AbadonEquipSuit(getWearer(),AbadonQuestScript.final_finisher_pref)
 	endif
 EndFunction
 
@@ -110,7 +99,6 @@ Function forceOutAbadonPlugMinigameWH(Actor akHelper)
 	setHelper(none)
 EndFunction
 
-
 Float Function getButtonPressDamage()
 	int loc_difficulty = AbadonQuestScript.overaldifficulty
 	if loc_difficulty == 0
@@ -119,14 +107,6 @@ Float Function getButtonPressDamage()
 		return 0.25
 	elseif loc_difficulty == 2
 		return 0.05
-	endif
-EndFunction
-
-Function onSpecialButtonPressed()
-	if _forceOutAbadonPlugMinigame_on
-		decreaseDurabilityAndCheckUnlock(getButtonPressDamage()*getAccesibility(),0.0)
-	else
-		parent.onSpecialButtonPressed()
 	endif
 EndFunction
 
@@ -146,25 +126,6 @@ EndFunction
 
 float Function getRelativeHunger()
 	return (1.0 - plug_hunger/100.0)
-EndFunction
-
-Function Vibrate(float mult = 1.0)
-	if !isVibrating()
-		updateVibrationParam()
-		parent.vibrate(mult)
-		plug_hunger += 5
-		if plug_hunger > 100.0
-			plug_hunger = 100.0
-		endif
-		if plug_hunger < 0
-			plug_hunger = 0.0
-		endif
-	endif
-EndFunction
-
-Function OnMinigameEnd()
-	BeltCheck()
-	parent.OnMinigameEnd()
 EndFunction
 
 Function randomEquipHandRestrain()
@@ -276,7 +237,6 @@ Function abadonorgasm(float mult = 1.0)
 		mendDevice(1.0,1.0/24.0,True)
 	endif
 	
-	
 	if finisherOn
 		finisher_current_orgasms += 1
 		if WearerIsPlayer()
@@ -319,29 +279,6 @@ Function OnOrgasmPost(bool sexlab = false)
 	endif
 EndFunction
 
-Function OnEdgePost()
-	parent.OnEdgePost()
-	addStrength(diff_gain_edge*(0.5*(1 + AbadonQuestScript.overaldifficulty)))
-	plug_hunger -= 3.0 ;decrease plugs hunger
-	if (plug_hunger < 0.0)
-		plug_hunger = 0.0
-	endif 
-	if (AbadonQuestScript.dmg_heal)
-		float hp_dmg = (AbadonQuestScript.overaldifficulty+1)*2.5 + Math.floor(orgasm_cout/5.0)*(AbadonQuestScript.overaldifficulty+1)
-		if (getWearer().getAV("Health") > (1.0 + hp_dmg) || AbadonQuestScript.hardcore )
-			getWearer().DamageAV("Health", hp_dmg)
-		else
-			getWearer().ForceActorValue("Health", 5.0)
-		endif
-	endif
-	if (AbadonQuestScript.dmg_magica)
-		getWearer().DamageAV("Magicka", (AbadonQuestScript.overaldifficulty+1)*2.5 + relativeStrength()*15)
-	endif
-	if (AbadonQuestScript.dmg_stamina)
-		getWearer().DamageAV("Stamina", (AbadonQuestScript.overaldifficulty+1)*2.5 + relativeStrength()*15)
-	endif
-EndFunction
-
 int Function getOrgasmCout()
 	return orgasm_cout
 EndFunction
@@ -351,6 +288,202 @@ Function onUpdatePre(float timePassed)
 EndFunction
 
 ;float _littleFinisherUpdateTimePassed = 0.0
+
+
+Function updateVibrationParam()
+	if !isVibrating()
+		if plug_hunger < 30
+			UD_Shocking = False
+			UD_VibStrength = iRange(Round(35 + relativeStrength()*65),35,100)
+			UD_VibDuration = iRange(Math.ceiling(30.0 + 80.0*relativeStrength() + 30.0*getRelativeHunger()),30,120)
+			UD_EdgingMode  = 0
+		elseif plug_hunger < 50
+			UD_Shocking = True
+			UD_VibStrength = iRange(Round(10 + relativeStrength()*50),10,60)
+			UD_VibDuration = iRange(Math.ceiling(15.0 + 30.0*relativeStrength() + 15.0*getRelativeHunger()),45,90)
+			UD_EdgingMode  = 2
+		else
+			UD_VibStrength = iRange(Round(relativeStrength()*40),0,40)
+			UD_Shocking = True
+			UD_EdgingMode  = 1
+			UD_VibDuration = 60
+		endif
+		UD_Cooldown = 30 + Round(relativeStrength()*100)
+	endif
+EndFunction
+
+int finisher_current_orgasms = 0
+int finisher_goal_orgasms = 0
+Function finisher(actor akActor,int orgasms = 5)
+	if(!finisherOn);mutex check
+		finisherOn = True
+		
+		if UDCDmain.TraceAllowed()		
+			UDCDmain.Log(getWearerName() + " finisher() called for " + orgasms + " orgasms")
+		endif
+		
+		if !max_diff_finisher
+			randomEquipHandRestrain()
+		endif
+		
+		;NEW
+		msg1 = False
+		msg2 = False
+		msg3 = False
+		finisher_goal_orgasms = orgasms
+		finisher_current_orgasms = 0
+		
+		libs.SexlabMoan(akActor,100)
+		
+		stopVibratingAndWait()
+		
+		forceStrength(100)
+		forceDuration(-1)
+		forceEdgingMode(0)
+		UDCDmain.startVibFunction(self)
+	EndIf
+EndFunction
+
+;/
+float last_time_masturbate = 0.0
+Function masturbate()
+	if (Utility.GetCurrentGameTime() - last_time_masturbate) > (AbadonQuestScript.masturbate_cd/24.0)
+		Actor[] Positions = new Actor[1]
+		Positions[0] = getWearer()
+		libs.SexLab.StartSex(Positions, libs.SexLab.GetAnimationsByTag(1, "Solo", "F", true),none,CenterOn = none, AllowBed = true, Hook = "UD") ;it just works
+		last_time_masturbate = Utility.GetCurrentGameTime()
+	else
+		debug.messagebox("You are too weak from last time.\nYou can masturbate again in "+ UDmain.formatString((AbadonQuestScript.masturbate_cd/24.0 - (Utility.GetCurrentGameTime() - last_time_masturbate))*24,1) + " hours")
+	endif
+EndFunction
+/;
+
+float Function getCritDamage()
+	int loc_difficulty = AbadonQuestScript.overaldifficulty
+	float loc_helperincrease = 0
+	if GetHelper()
+		loc_helperincrease = 15.0
+	endif
+	if loc_difficulty == 0
+		return 35.0 + loc_helperincrease
+	elseif loc_difficulty == 1
+		return 25.0 + loc_helperincrease
+	elseif loc_difficulty == 2
+		return 15.0 + loc_helperincrease
+	endif
+EndFunction
+
+Function BeltCheck()
+	if !belt_used && (getDurability() < getMaxDurability()*0.5) && !wearerHaveBelt()
+		belt_used = True
+		stopMinigame()
+		if WearerIsPlayer()
+			UDCDmain.Print("Plug have locked you in chastity belt!")
+		endif
+		libs.lockdevice(getWearer(),UDlibs.AbadonBelt)
+	endif
+EndFunction
+
+;======================================================================
+;								OVERRIDES
+;======================================================================
+Function OnVibrationStart()
+	updateVibrationParam()
+EndFunction
+
+Function OnVibrationEnd()
+	plug_hunger += 5
+	if plug_hunger > 100.0
+		plug_hunger = 100.0
+	endif
+	if plug_hunger < 0
+		plug_hunger = 0.0
+	endif
+EndFunction
+
+Function OnMinigameEnd()
+	BeltCheck()
+	parent.OnMinigameEnd()
+EndFunction
+
+Function OnMinigameTick1()
+	BeltCheck()
+EndFunction
+
+Function activateDevice()
+	resetCooldown()
+	if nextDeviceManifest < Utility.GetCurrentGameTime()
+		equipRandomRestrain()
+	else
+		parent.activateDevice() ;start vib
+	endif
+EndFunction
+
+Function updateWidget(bool force = false)
+	if _forceOutAbadonPlugMinigame_on
+		setWidgetVal(getRelativeDurability(),force)	
+	else
+		parent.updateWidget(force)
+	endif
+EndFunction
+
+Function onRemoveDevicePost(Actor akActor)
+	parent.onRemoveDevicePost(akActor)
+	if (AbadonQuest.GetCurrentStageID() > 0) && !AbadonQuest.isCompleted() && getWearer() == AbadonQuestScript.UD_AbadonVictim
+		if (AbadonQuest.GetCurrentStageID() == 20)
+			AbadonQuest.SetObjectiveCompleted(30)
+		elseif (AbadonQuest.GetCurrentStageID() == 30)
+			AbadonQuest.SetObjectiveCompleted(40)
+		endif
+		AbadonQuest.completeQuest()
+	endif
+	if AbadonQuestScript.final_finisher_set
+		AbadonQuestScript.AbadonEquipSuit(getWearer(),AbadonQuestScript.final_finisher_pref)
+	endif
+EndFunction
+
+Function onSpecialButtonPressed(float fMult)
+	if _forceOutAbadonPlugMinigame_on
+		decreaseDurabilityAndCheckUnlock(getButtonPressDamage()*getAccesibility(),0.0)
+	else
+		parent.onSpecialButtonPressed(fMult)
+	endif
+EndFunction
+
+Function OnCritFailure()
+	parent.OnCritFailure()
+	float loc_arousal = 10 + UDCDmain.UDOM.getArousal(GetWearer())
+	UDCDmain.UDOM.UpdateArousalRate(getWearer(),loc_arousal)
+	Utility.wait(3.5)
+	UDCDmain.UDOM.UpdateArousalRate(getWearer(),-1*loc_arousal)
+EndFunction
+
+Function OnCritDevicePost()
+	if _forceOutAbadonPlugMinigame_on
+		decreaseDurabilityAndCheckUnlock(getCritDamage()*getAccesibility(),0.0)
+		stopMinigame()
+		if !isUnlocked
+			BeltCheck()
+			if !getWearer().wornhaskeyword(libs.zad_deviousHeavyBondage)
+				;if Utility.randomInt() < iRange(Round(relativeStrength()*100),25 + AbadonQuestScript.overaldifficulty*12,75) ;50% - 100% chance of getting tied
+					randomEquipHandRestrain()
+				;endif
+			endif
+		endif
+	else
+		parent.OnCritDevicePost()
+	endif
+EndFunction
+
+string Function addInfoString(string str = "")
+	str = parent.addInfoString(str)
+	str += "(AP) Strenght: " + formatString(abadonPlugDiff,1) + " (~"+Math.floor(relativeStrength()*100.0)+" %)" + "\n"
+	str += "(AP) Hunger: "+ Math.floor(100.0 - plug_hunger) + " %\n"
+	str += "(AP) Orgasms feeded: "+ orgasm_cout +"\n"
+	str += "(AP) Finisher?: "+ finisherOn +"\n"
+	return str
+EndFunction
+
 Function onUpdatePost(float timePassed)
 	updateVibrationParam()
 	addStrength(UDCDmain.UDOM.getArousal(GetWearer())*0.001*(1 + AbadonQuestScript.overaldifficulty)*(24.0*timePassed))
@@ -388,165 +521,13 @@ Function onUpdatePost(float timePassed)
 	parent.OnUpdatePost(timePassed)
 EndFunction
 
-Function updateVibrationParam()
-	if !isVibrating()
-		if plug_hunger < 30
-			UD_Shocking = False
-			UD_VibStrength = iRange(UDmain.Round(35 + relativeStrength()*65),35,100)
-			UD_VibDuration = iRange(Math.ceiling(30.0 + 80.0*relativeStrength() + 30.0*getRelativeHunger()),30,120)
-			UD_EdgingMode  = 0
-		elseif plug_hunger < 50
-			UD_Shocking = True
-			UD_VibStrength = iRange(UDmain.Round(10 + relativeStrength()*50),10,60)
-			UD_VibDuration = iRange(Math.ceiling(15.0 + 30.0*relativeStrength() + 15.0*getRelativeHunger()),45,90)
-			UD_EdgingMode  = 2
-		else
-			UD_VibStrength = iRange(UDmain.Round(relativeStrength()*40),0,40)
-			UD_Shocking = True
-			UD_EdgingMode  = 1
-			UD_VibDuration = 60
-		endif
-		UD_Cooldown = 30 + UDmain.Round(relativeStrength()*100)
+bool Function canBeStruggled(float afAccesibility = -1.0)
+	if afAccesibility < 0.0
+		afAccesibility = getAccesibility()
 	endif
-EndFunction
-
-int finisher_current_orgasms = 0
-int finisher_goal_orgasms = 0
-Function finisher(actor akActor,int orgasms = 5)
-	if(!finisherOn);mutex check
-		finisherOn = True
-		
-		if UDCDmain.TraceAllowed()		
-			UDCDmain.Log(getWearerName() + " finisher() called for " + orgasms + " orgasms")
-		endif
-		
-		if !max_diff_finisher
-			randomEquipHandRestrain()
-		endif
-		
-		;NEW
-		msg1 = False
-		msg2 = False
-		msg3 = False
-		finisher_goal_orgasms = orgasms
-		finisher_current_orgasms = 0
-		
-		libs.SexlabMoan(akActor,100)
-		
-		stopVibratingAndWait()
-		
-		forceStrength(100)
-		forceDuration(-1)
-		forceEdgingMode(0)
-		UDCDmain.startVibFunction(self)
-	EndIf
-EndFunction
-
-string Function addInfoString(string str = "")
-	str = parent.addInfoString(str)
-	str += "(AP) Strenght: " + UDmain.formatString(abadonPlugDiff,1) + " (~"+Math.floor(relativeStrength()*100.0)+" %)" + "\n"
-	str += "(AP) Hunger: "+ Math.floor(100.0 - plug_hunger) + " %\n"
-	str += "(AP) Orgasms feeded: "+ orgasm_cout +"\n"
-	str += "(AP) Finisher?: "+ finisherOn +"\n"
-	return str
-EndFunction
-
-;/
-float last_time_masturbate = 0.0
-Function masturbate()
-	if (Utility.GetCurrentGameTime() - last_time_masturbate) > (AbadonQuestScript.masturbate_cd/24.0)
-		Actor[] Positions = new Actor[1]
-		Positions[0] = getWearer()
-		libs.SexLab.StartSex(Positions, libs.SexLab.GetAnimationsByTag(1, "Solo", "F", true),none,CenterOn = none, AllowBed = true, Hook = "UD") ;it just works
-		last_time_masturbate = Utility.GetCurrentGameTime()
+	if afAccesibility > 0.0
+		return True
 	else
-		debug.messagebox("You are too weak from last time.\nYou can masturbate again in "+ UDmain.formatString((AbadonQuestScript.masturbate_cd/24.0 - (Utility.GetCurrentGameTime() - last_time_masturbate))*24,1) + " hours")
+		return false
 	endif
-EndFunction
-/;
-
-float Function getCritDamage()
-	int loc_difficulty = AbadonQuestScript.overaldifficulty
-	float loc_helperincrease = 0
-	if GetHelper()
-		loc_helperincrease = 15.0
-	endif
-	if loc_difficulty == 0
-		return 35.0 + loc_helperincrease
-	elseif loc_difficulty == 1
-		return 25.0 + loc_helperincrease
-	elseif loc_difficulty == 2
-		return 15.0 + loc_helperincrease
-	endif
-EndFunction
-
-Function OnCritFailure()
-	parent.OnCritFailure()
-	float loc_arousal = 10 + UDCDmain.UDOM.getArousal(GetWearer())
-	UDCDmain.UDOM.UpdateArousalRate(getWearer(),loc_arousal)
-	Utility.wait(3.5)
-	UDCDmain.UDOM.UpdateArousalRate(getWearer(),-1*loc_arousal)
-	;UDCDmain.sendArousalSetEvent(getWearer(),10 + UDCDmain.getArousal(GetWearer()))
-EndFunction
-
-Function OnCritDevicePost()
-	if _forceOutAbadonPlugMinigame_on
-		decreaseDurabilityAndCheckUnlock(getCritDamage()*getAccesibility(),0.0)
-		stopMinigame()
-		if !isUnlocked
-			BeltCheck()
-			if !getWearer().wornhaskeyword(libs.zad_deviousHeavyBondage)
-				;if Utility.randomInt() < iRange(Round(relativeStrength()*100),25 + AbadonQuestScript.overaldifficulty*12,75) ;50% - 100% chance of getting tied
-					randomEquipHandRestrain()
-				;endif
-			endif
-		endif
-	else
-		parent.OnCritDevicePost()
-	endif
-EndFunction
-
-bool belt_used = false
-Function OnMinigameTick1()
-	BeltCheck()
-EndFunction
-
-Function updateWidget(bool force = false)
-	if _forceOutAbadonPlugMinigame_on
-		setWidgetVal(getRelativeDurability(),force)	
-	else
-		parent.updateWidget(force)
-	endif
-EndFunction
-
-Function activateDevice()
-	resetCooldown()
-	if nextDeviceManifest < Utility.GetCurrentGameTime()
-		equipRandomRestrain()
-	else
-		parent.activateDevice() ;start vib
-	endif
-EndFunction
-
-Function updateHour(float mult)
-
-EndFunction
-
-Function BeltCheck()
-	if !belt_used && (getDurability() < getMaxDurability()*0.5) && !wearerHaveBelt()
-		belt_used = True
-		stopMinigame()
-		if WearerIsPlayer()
-			UDCDmain.Print("Plug have locked you in chastity belt!")
-		endif
-		libs.lockdevice(getWearer(),UDlibs.AbadonBelt)
-	endif
-EndFunction
-
-;OVERRIDES because of engine bug which calls one function multiple times
-bool Function proccesSpecialMenu(int msgChoice)
-	return parent.proccesSpecialMenu(msgChoice)
-EndFunction
-bool Function proccesSpecialMenuWH(Actor akSource,int msgChoice)
-	return parent.proccesSpecialMenuWH(akSource,msgChoice)
 EndFunction

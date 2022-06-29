@@ -1,5 +1,7 @@
 Scriptname UD_ControlablePlug_RenderScript extends UD_CustomPlug_RenderScript  
 
+import UnforgivingDevicesMain
+
 float Property UD_DischargeRate = 1.0 auto
 
 bool turned_on = false
@@ -155,7 +157,7 @@ EndFunction
 
 bool Function OnCritDevicePre()
 	if turnOffPlugMinigame_on
-		int loc_duration = UDmain.Round(30*UDCDmain.getStruggleDifficultyModifier()*getMinigameMult(1))
+		int loc_duration = Round(30*UDCDmain.getStruggleDifficultyModifier()*getMinigameMult(1))
 		if getWearer().getItemCount(UDCDmain.UDlibs.EmptySoulgem_Common)
 			getWearer().removeItem(UDCDmain.UDlibs.EmptySoulgem_Common,1)
 			getWearer().addItem(UDCDmain.UDlibs.FilledSoulgem_Common,1,true)
@@ -173,7 +175,7 @@ bool Function OnCritDevicePre()
 		
 		if isVibrating()
 			if Utility.randomInt() < 25 ;25% chance
-				removeVibStrength(UDCDmain.Round(10*UD_DischargeRate))
+				removeVibStrength(Round(10*UD_DischargeRate))
 				debug.notification("You notice that the " + getDeviceName() + " vibrates weaker then before")
 			endif
 		endif
@@ -205,10 +207,6 @@ Function OnUpdatePost(float timePassed)
 	parent.OnUpdatePost(timePassed)
 EndFunction
 
-Function updateHour(float mult)
-	parent.updateHour(mult)
-EndFunction
-
 int Function getArousalRate()
 	return parent.getArousalRate() + 5
 EndFunction
@@ -221,26 +219,26 @@ Function activateDevice()
 	resetCooldown()
 	if !isVibrating()
 		if WearerIsPlayer()
-			debug.notification("Your "+ getDeviceName() +" suddenly turn itself on!")
-		elseif WearerIsFollower()
-			debug.notification(getWearerName() + "s "+ getDeviceName() +" suddenly turn itself on!")
+			UDmain.Print("Your "+ getDeviceName() +" suddenly turn itself on!",1)
+		elseif UDmain.ActorInCloseRange(getWearer())
+			UDmain.Print(getWearerName() + "s "+ getDeviceName() +" suddenly turn itself on!",2)
 		endif
 		turnOnPlug(3,0)
 	elseif isVibrating()
 		if getCurrentVibStrenth() < 100
 			if WearerIsPlayer()
-				debug.notification("Your controlable "+getPlugType()+" plug suddenly starts to vibrate stronger!")
-			elseif WearerIsFollower()			
-				debug.notification(getWearerName() + "s "+getDeviceName()+" suddenly starts to vibrate stronger!")
+				UDmain.Print("Your controlable "+getPlugType()+" plug suddenly starts to vibrate stronger!",2)
+			elseif UDmain.ActorInCloseRange(getWearer())			
+				UDmain.Print(getWearerName() + "s "+getDeviceName()+" suddenly starts to vibrate stronger!",3)
 			endif
 			addVibStrength(10)
 		endif
 		if Utility.randomInt() < 50
 			addVibDuration(300)
 			if WearerIsPlayer()
-				debug.notification("Your controlable "+getPlugType()+" plug regain some of its charge!")
-			elseif WearerIsFollower()			
-				debug.notification(getWearerName() + "s "+getDeviceName()+" regain some of its charge!")
+				UDmain.Print("Your controlable "+getPlugType()+" plug regain some of its charge!",2)
+			elseif UDmain.ActorInCloseRange(getWearer())			
+				UDmain.Print(getWearerName() + "s "+getDeviceName()+" regain some of its charge!",3)
 			endif
 		endif
 	endif
@@ -276,4 +274,121 @@ Function OnVibrationEnd()
 	else
 		parent.OnVibrationEnd()
 	endif
+EndFunction
+
+;============================================================================================================================
+;unused override function, theese are from base script. Extending different script means you also have to add their overrride functions                                                
+;theese function should be on every object instance, as not having them may cause multiple function calls to default class
+;more about reason here https://www.creationkit.com/index.php?title=Function_Reference, and Notes on using Parent section
+;============================================================================================================================
+Function patchDevice() ;called on init. Should call patcher. Can also be dirrectly modified but should still use Patcher MCM variables
+	parent.patchDevice()
+EndFunction
+bool Function canBeActivated() ;Switch. Used to determinate if device can be currently activated
+	return parent.canBeActivated()
+EndFunction
+bool Function OnMendPre(float mult) ;called on device mend (regain durability)
+	return parent.OnMendPre(mult)
+EndFunction
+Function OnMendPost(float mult) ;called on device mend (regain durability). Only called if OnMendPre returns true
+	parent.OnMendPost(mult)
+EndFunction
+Function OnCritDevicePost() ;called on minigame crit. Is only called if OnCritDevicePre returns true 
+	parent.OnCritDevicePost()
+EndFunction
+bool Function OnOrgasmPre(bool sexlab = false) ;called on wearer orgasm. Is only called if wearer is registered
+	return parent.OnOrgasmPre(sexlab)
+EndFunction
+Function OnMinigameOrgasm(bool sexlab = false) ;called on wearer orgasm while in minigame. Is only called if wearer is registered
+	parent.OnMinigameOrgasm(sexlab)
+EndFunction
+Function OnMinigameOrgasmPost() ;called on wearer orgasm while in minigame. Is only called after OnMinigameOrgasm. Is only called if wearer is registered
+	parent.OnMinigameOrgasmPost()
+EndFunction
+Function OnOrgasmPost(bool sexlab = false) ;called on wearer orgasm. Is only called if OnOrgasmPre returns true. Is only called if wearer is registered
+	parent.OnOrgasmPost(sexlab)
+EndFunction
+Function OnMinigameStart() ;called when minigame start
+	parent.OnMinigameStart()
+EndFunction
+Function OnMinigameEnd() ;called when minigame end
+	parent.OnMinigameEnd()
+EndFunction
+Function OnMinigameTick() ;called every on every tick of minigame. Uses MCM performance setting
+	parent.OnMinigameTick()
+EndFunction
+Function OnMinigameTick1() ;called every 1s of minigame
+	parent.OnMinigameTick1()
+EndFunction
+Function OnMinigameTick3() ;called every 3s of minigame
+	parent.OnMinigameTick3()
+EndFunction
+float Function getAccesibility() ;return accesibility of device in range 0.0 - 1.0
+	return parent.getAccesibility()
+EndFunction
+Function OnDeviceCutted() ;called when device is cutted
+	parent.OnDeviceCutted()
+EndFunction
+Function OnDeviceLockpicked() ;called when device is lockpicked
+	parent.OnDeviceLockpicked()
+EndFunction
+Function OnLockReached() ;called when device lock is reached
+	parent.OnLockReached()
+EndFunction
+Function OnLockJammed() ;called when device lock is jammed
+	parent.OnLockJammed()
+EndFunction
+Function OnDeviceUnlockedWithKey() ;called when device is unlocked with key
+	parent.OnDeviceUnlockedWithKey()
+EndFunction
+Function OnUpdatePre(float timePassed) ;called on update. Is only called if wearer is registered
+	parent.OnUpdatePre(timePassed)
+EndFunction
+bool Function OnCooldownActivatePre()
+	return parent.OnCooldownActivatePre()
+EndFunction
+Function OnCooldownActivatePost()
+	parent.OnCooldownActivatePost()
+EndFunction
+Function DeviceMenuExt(int msgChoice)
+	parent.DeviceMenuExt(msgChoice)
+EndFunction
+Function DeviceMenuExtWH(int msgChoice)
+	parent.DeviceMenuExtWH(msgChoice)
+EndFunction
+bool Function OnUpdateHourPre()
+	return parent.OnUpdateHourPre()
+EndFunction
+bool Function OnUpdateHourPost()
+	return parent.OnUpdateHourPost()
+EndFunction
+Function InitPostPost()
+	parent.InitPostPost()
+EndFunction
+Function OnRemoveDevicePre(Actor akActor)
+	parent.OnRemoveDevicePre(akActor)
+EndFunction
+Function onRemoveDevicePost(Actor akActor)
+	parent.onRemoveDevicePost(akActor)
+EndFunction
+Function onLockUnlocked(bool lockpick = false)
+	parent.onLockUnlocked(lockpick)
+EndFunction
+Function onSpecialButtonPressed(float fMult)
+	parent.onSpecialButtonPressed(fMult)
+EndFunction
+Function onSpecialButtonReleased(Float fHoldTime)
+	parent.onSpecialButtonReleased(fHoldTime)
+EndFunction
+bool Function onWeaponHitPre(Weapon source)
+	return parent.onWeaponHitPre(source)
+EndFunction
+Function onWeaponHitPost(Weapon source)
+	parent.onWeaponHitPost(source)
+EndFunction
+bool Function onSpellHitPre(Spell source)
+	return parent.onSpellHitPre(source)
+EndFunction
+Function onSpellHitPost(Spell source)
+	parent.onSpellHitPost(source)
 EndFunction
