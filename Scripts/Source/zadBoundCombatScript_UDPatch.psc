@@ -5,8 +5,12 @@ import UnforgivingDevicesMain
 ;is not used by parent script, no sin here
 Function OnInit()
 	Utility.waitMenuMode(2.0) ;wait few moments, so computer doesn't explode
-	Maintenance_ABC()
+	RegisterForSingleUpdate(1.0)
 EndFunction
+
+Event OnUpdate()
+	Maintenance_ABC()
+EndEvent
 
 Function EvaluateAA(actor akActor)
 	if StorageUtil.GetIntValue(akActor,"DDStartBoundEffectQue",0)

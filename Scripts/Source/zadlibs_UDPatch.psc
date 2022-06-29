@@ -739,7 +739,7 @@ bool[] Function StartThirdPersonAnimation(actor akActor, string animation, bool 
 			UDCDmain.Error("StartThirdPersonAnimation - Called animation is None, aborting")
 			return new bool[2]
 		endif
-
+		
 		bool[] ret = new bool[2]
 		if akActor.IsWeaponDrawn()
 			akActor.SheatheWeapon()
@@ -751,6 +751,11 @@ bool[] Function StartThirdPersonAnimation(actor akActor, string animation, bool 
 			EndWhile
 			ret[1] = true
 		EndIf	
+		Armor loc_shield = UDCDmain.GetShield(akActor)
+		if loc_shield
+			akActor.unequipItem(loc_shield,true,true)
+			StorageUtil.SetFormValue(akActor,"UD_UnequippedShield",loc_shield)
+		endif
 		;[UD EDIT]: Removed camera check as I think it's useless
 		if akActor == Game.getPlayer()
 			DisableControls()
@@ -779,6 +784,10 @@ Function EndThirdPersonAnimation(actor akActor, bool[] cameraState, bool permitR
 			UDCDMain.Error("EndThirdPersonAnimation("+GetActorName(akActor)+") - Actor is not loaded (Or is otherwise invalid). Aborting.")
 			return
 		EndIf
+		Armor loc_shield = StorageUtil.GetFormValue(akActor,"UD_UnequippedShield",none) as Armor
+		if loc_shield
+			akActor.equipItem(loc_shield,false,true)
+		endif
 		Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
 		if akActor == Game.GetPlayer()
 			UpdateControls()

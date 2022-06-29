@@ -221,3 +221,4 @@ Spell Property DEBUGMagickEffect auto
 
 ;skyrim keywords
 Keyword Property ActorTypeNPC auto
+Keyword Property ArmorShield auto

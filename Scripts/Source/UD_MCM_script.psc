@@ -296,9 +296,11 @@ Event resetGeneralPage()
 		lockmenu_T = addToggleOption("Lock menus",UDmain.lockMCM,UD_LockMenu_flag)
 		UD_useHoods_T = addToggleOption("Use hoods",UDIM.UD_useHoods,UD_LockMenu_flag)
 		UD_OrgasmExhaustion_T = addToggleOption("Orgasm exhaustion",UDmain.UD_OrgasmExhaustion,UD_LockMenu_flag)
+		;/
 		addEmptyOption()
 		UD_OrgasmExhaustionMagnitude_S = addSliderOption("Orgasm exhaustion magnitude",UDmain.UD_OrgasmExhaustionMagnitude, "{0} %",FlagSwitchOr(UD_OrgasmExhaustion_flag,UD_LockMenu_flag))
 		UD_OrgasmExhaustionDuration_S = addSliderOption("Orgasm exhaustion duration",UDmain.UD_OrgasmExhaustionDuration, "{0} s",FlagSwitchOr(UD_OrgasmExhaustion_flag,UD_LockMenu_flag))
+		/;
 	;else
 	;	AddHeaderOption("Menu locked")
 	;endif

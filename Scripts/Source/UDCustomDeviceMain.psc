@@ -1756,6 +1756,19 @@ bool Function CheckRenderDeviceEquipped(Actor akActor, Armor rendDevice)
 	return false ;device is not equipped
 EndFunction
 
+Armor Function GetShield(Actor akActor)
+	if akActor.wornhaskeyword(UDlibs.ArmorShield)
+		Armor loc_shield = akActor.GetWornForm(0x00000200) as Armor
+		if loc_shield.isShield()
+			return loc_shield 
+		else
+			return none
+		endif
+	else
+		return none
+	endif
+EndFunction
+
 ;function made as replacemant for akActor.isEquipped, because that function doesn't work for NPCs
 int Function CheckRenderDeviceConflict(Actor akActor, Armor rendDevice)
 	if !akActor
