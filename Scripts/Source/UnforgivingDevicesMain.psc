@@ -169,7 +169,6 @@ Function Update()
 		UDMM = UDCDMain.GetMeMyForm(0x15B555,"UnforgivingDevices.esp") as UD_MutexManagerScript
 		Error("UDMM set to "+UDMM)
 	endif
-	
 EndFunction
 
 bool Property ZaZAnimationPackInstalled = false auto
@@ -320,6 +319,11 @@ Function CLog(String msg)
 	if ConsoleUtilInstalled ;print to console
 		ConsoleUtil.PrintMessage("[UD] " + msg)
 	endif
+EndFunction
+
+;only use for debugging
+Function DCLog(String msg) global
+	ConsoleUtil.PrintMessage("[UD] " + msg)
 EndFunction
 
 int Property PrintLevel = 3 auto

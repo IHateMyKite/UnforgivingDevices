@@ -1,5 +1,13 @@
 Scriptname zadBoundCombatScript_UDPatch Extends zadBoundCombatScript Hidden
 
+import UnforgivingDevicesMain
+
+;is not used by parent script, no sin here
+Function OnInit()
+	Utility.waitMenuMode(2.0) ;wait few moments, so computer doesn't explode
+	Maintenance_ABC()
+EndFunction
+
 Function EvaluateAA(actor akActor)
 	if StorageUtil.GetIntValue(akActor,"DDStartBoundEffectQue",0)
 		return

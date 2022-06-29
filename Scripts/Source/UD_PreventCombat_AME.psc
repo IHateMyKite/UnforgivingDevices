@@ -19,7 +19,6 @@ EndProperty
 Actor _target = none
 Event OnEffectStart(Actor akTarget, Actor akCaster)
 	_target = akTarget
-	;_aggression = StorageUtil.GetIntValue(GetWearer(),"UD_Aggression",0)
 	Evaluate()
 	registerforsingleupdate(5.0)
 EndEvent
@@ -40,7 +39,6 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
 	;reset prevent combat
 	;actor will be calmed untill their hands are free
 	_finished = true
-	;_target.setAV("aggression",_aggression)
 	if _target.wornhaskeyword(libsp.zad_deviousheavybondage)
 		_target.removespell(UDlibs.PreventCombatSpell)
 		_target.addspell(UDlibs.PreventCombatSpell)
