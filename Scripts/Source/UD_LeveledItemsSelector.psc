@@ -2,6 +2,7 @@ Scriptname UD_LeveledItemsSelector extends Quest
 
 import PO3_SKSEFunctions
 
+;These numbers are equal to Leveled Items list indexes in respective subtable, only change them so they match plugin structure.
 ;################# COLOR
 int black = 0
 int red = 1
@@ -14,6 +15,7 @@ int metalgold = 2
 int metalHRiron = 0
 int metalHRrusty = 1
 int nocolor = 4
+int transparentscore = -1 ;unimplemented
 
 ;################# STYLE
 int regular = 0
@@ -94,7 +96,7 @@ Event OnKeyDown(Int KeyCode)
 endEvent
 
 int function selectrandomstyle() ;TODO
-	return Utility.RandomInt(0,4)
+	; return Utility.RandomInt(0,4)
 endfunction
 
 int function selectrandomColor(int rstyle) ;TODO
@@ -126,43 +128,64 @@ int function selectrandommaterial(int rstyle) ;TODO
 endfunction
 
 function equiprandomrestraint(Actor akActor) ;TODO
-	int rstyle = 0; selectrandomstyle()
-	int rmaterial = 0; selectrandommaterial()
-	int rcolor = 0; selectrandomColor(rstyle)
-	LeveledItem LL = ud_alldevices.GetNthForm(rstyle) as LeveledItem
-	int mat = selectrandommaterial(rstyle)
-	if mat >= 0 ;check only those leveled lists which actually have material defined
-		LL = LL.GetNthForm(rmaterial) as LeveledItem
-	endif
-	LL = LL.GetNthForm(rcolor) as LeveledItem ;metal does not really have a color but a subject for a change, i.e. iron/rusty or steel/silver/gold
-	int n = LL.GetNumForms()
-	Form frm
-	while n > 0
-		n -= 1
-		frm = LL.GetNthForm(n)
-		If (frm As Armor) != None ;sanity check
-			if IsKeywordedDevice(frm, libs.zad_DeviousArmbinder)
-				libs.LockDevice(akActor, frm As Armor)
+	; int rstyle = 0; selectrandomstyle()
+	; int rmaterial = 0; selectrandommaterial()
+	; int rcolor = 0; selectrandomColor(rstyle)
+	; LeveledItem LL = ud_alldevices.GetNthForm(rstyle) as LeveledItem
+	; int mat = selectrandommaterial(rstyle)
+	; if mat >= 0 ;check only those leveled lists which actually have material defined
+	; 	LL = LL.GetNthForm(rmaterial) as LeveledItem
+	; endif
+	; LL = LL.GetNthForm(rcolor) as LeveledItem ;metal does not really have a color but a subject for a change, i.e. iron/rusty or steel/silver/gold
+	; int n = LL.GetNumForms()
+	; Form frm
+	; while n > 0
+	; 	n -= 1
+	; 	frm = LL.GetNthForm(n)
+	; 	If (frm As Armor) != None ;sanity check
+	; 		if IsKeywordedDevice(frm, libs.zad_DeviousArmbinder)
+	; 			libs.LockDevice(akActor, frm As Armor)
+	; 		endif
+	; 	endif
+	; endwhile
+endfunction
+
+int Function GetPlugProbability(Actor akActor)
+	int plugsmissing
+	int nonplugsmissing
+	int k = ud_KeywordsFormlist.GetSize()
+	While k > 0	
+		k -= 1
+		keyword kw = ud_KeywordsFormlist.GetAt(k) As Keyword
+		if (kw != libs.zad_DeviousPlugVaginal && kw != libs.zad_DeviousPlugAnal && kw != libs.zad_DeviousPiercingsVaginal && kw != libs.zad_DeviousPiercingsNipple)
+			if !akActor.WornHasKeyword(kw)
+				plugsmissing += 1
+			endif
+		else
+			if !akActor.WornHasKeyword(kw)
+				nonplugsmissing += 1
 			endif
 		endif
 	endwhile
-endfunction
+	return plugsmissing / (nonplugsmissing + plugsmissing)
+EndFinction
 
 ;bypass is a chance in int equivalent of selecting restricted/unconvenient device such as breastbound yoke. Will simply send "allowvariations" as true when IsKeywordedDevice is called
 ;adaptive makes mod scan character for current devices and suggest colour and style
 ;fallback - in case device was not chosen due to some limits will try to equip universal devices such as plugs and belts, those that suit to any outfit.
-Armor Function GetRandomDevice(Actor akActor, int rstyle = -1, int rcolor = -1, int rmaterial = -1, int bypass = 0, bool adaptive = false, bool fallback = true)
+Armor Function GetRandomFittingDevice(Actor akActor, int rstyle = -1, int rcolor = -1, int rmaterial = -1, int bypass = 0, bool adaptive = false, bool fallback = true)
 	; randomize if it is either adaptive device or nosystematic plug based on quantity of missing slots
 	; in future can use weight system but I don't care abt it for now
 	; all empty slots minus plug/pierce specific slots
 
 	
-	if ;plug
+
+	if Utility.RandomInt(0,100) < GetPlugProbability(akActor) * 100 ;plug
 
 	else ;restraint - by keyword so we can fallback
 		if adaptive
 			int[] valuestor = new int[3]
-			valuestor = AnalyzeActor(akActor, rstyle, rcolor, rmaterial)
+			; valuestor = AnalyzeActor(akActor, rstyle, rcolor, rmaterial)
 			if rstyle == -1
 				rstyle = valuestor[0]
 			endif
@@ -188,170 +211,186 @@ Armor Function GetRandomDevice(Actor akActor, int rstyle = -1, int rcolor = -1, 
 	return armorPUTHERESOMETHING
 EndFunction
 
-int[] Function AnalyzeActor(Actor akActor, int passedstyle = -1, int passedcolor = -1, int passedmaterial = -1)
+int Function CheckMatch(form name, string match1, string match2, string match3)
+	int temp = 0
+	If match1
+		temp += formscan(name, match1) as int
+	endif
+	If match2
+		temp += formscan(name, match2) as int
+	endif
+	If match3
+		temp += formscan(name, match3) as int
+	endif
+	if temp > 0
+		return 1
+	endif
+	return 0
+EndFunction
+
+;returns index array pointing to 3 dimensional array subtable, dimensions are Style - Material - Color, or something like ud_alldevices[][][]
+;flaw - the most basic and common black leather devices would the hardest to get with this function
+int[] Function AnalyzeActor(Actor akActor);, int passedstyle = -1, int passedcolor = -1, int passedmaterial = -1)
 	
 	int regulardevicesscore = 0
 	int metalscore = 0; metal - padded steel iron
 	int restrscore = 0; restrictive - restrictive
 	int ropescore = 0
 	int catsuitscore = 0
-	int hereticalscore = 0
-
+	
 	int blackscore = 0
 	int redscore = 0
 	int whitescore = 0
-	int lgreyscore = 0
 	int dredscore = 0
+	int lgreyscore = 0
+	int metalnormscore = 0
 	int silverscore = 0
 	int goldscore = 0
 	int transparentscore = 0	;TODO? I mean I can't care less about transparent since they are so glitchy
-	int unimetalscore = 0
-	int nocolorscore = 0
+	int nocolorscore = 0		;both ropes and metal
 	int ironscore = 0
 	int rustyscore = 0
 
 	int leatherscore = 0
 	int ebonitescore = 0
-	
-	
+	int hereticalscore = 0
+	int unimetalscore = 0
 
-	while from 0 to equippeditems ;TODO implement loop here, and also if condition to drop all loop if no devices worn and goto fallback directly
-	;also implement condition to ignore plugs and piercings
+	int k = ud_KeywordsFormlist.GetSize()
 	
-		string nam = GetFormEditorID(kForm)
+	While k > 0	
+		k -= 1
+		keyword kw = ud_KeywordsFormlist.GetAt(k) As Keyword
+		if akActor.WornHasKeyword(kw)
+			if (kw != libs.zad_DeviousPlugVaginal && kw != libs.zad_DeviousPlugAnal && kw != libs.zad_DeviousPiercingsVaginal && kw != libs.zad_DeviousPiercingsNipple)
 
-		int stylefound = 0
-		int materialfound = 0
-		int colourfound = 0
+				string nam = GetFormEditorID(GetWornRenderedDeviceByKeyword(akActor, kw))
+				int stylefound = 0 ; 0 stands for "Not found", impromptu 'Continue' implementation
+				int materialfound = 0
+				int colourfound = 0
+				
+				if materialfound == 0 ;heretical is an exception, bypass style selection
+					materialfound = CheckMatch(nam,"HR_")
+					hereticalscore += materialfound
+					if materialfound == 1
+						stylefound += 1
+						colourfound += 1
+						metalscore += 1
+						hereticalscore += 1
+						if CheckMatch(nam,"rusty")
+							rustyscore += 1
+						else
+							ironscore += 1
+						endif
+					endif
+				endif
 
-		; ######################## Selecting style
-		if stylefound == 0	;heretical + its color/material/whatever, hard to tell
-			stylefound = hereticalscore
-			hereticalscore += formscan(nam,"HR_") as int
-			stylefound -= hereticalscore
-			if stylefound > 0
+				; ######################## Selecting style
+				if stylefound == 0 ;heretical is an exception, bypass style selection
+					stylefound = CheckMatch(nam,"metal","steel","iron")
+					hereticalscore += stylefound
+					if stylefound == 1
+						metalscore += 1
+						materialfound += 1
+						unimetalscore += 1
+						colourfound += 1
+						if CheckMatch(nam,"silver")
+							silverscore += 1
+						elseif CheckMatch(nam,"gold")
+							goldscore += 1
+						Else
+							metalnormscore += 1
+						endif
+					endif
+				endif
+				if stylefound == 0 ;restrictive anything, color is systematic to check in different condition block
+					stylefound = CheckMatch(nam,"restrictive")
+					restrscore += stylefound
+				endif
+				if stylefound == 0 ;rope anything, color is systematic to check in different condition block
+					stylefound = CheckMatch(nam,"rope")
+					ropescore += stylefound
+				endif
+				if stylefound == 0 ;catsuit anything, sets material to ebonite, color is systematic to check in different condition block
+					stylefound = CheckMatch(nam,"catsuit")
+					catsuitscore += stylefound
+					if stylefound > 0
+						materialfound += 1
+						ebonitescore += 1
+					endif
+				endif
+
+				; ######################## Selecting colour
 				if colourfound == 0
-					colourfound = rustyscore
-					colourfound += formscan(nam,"rusty") as int
-					colourfound -= rustyscore
+					colourfound = CheckMatch(nam,"red","RD")
+					redscore += colourfound
 				endif
 				if colourfound == 0
-					ironscore += 1
-					materialfound += 1
+					colourfound = CheckMatch(nam,"white","WT")
+					whitescore += colourfound
+				endif
+				if colourfound == 0
+					colourfound = CheckMatch(nam,"lgrey")
+					lgreyscore += colourfound
+				endif
+				if colourfound == 0
+					colourfound = CheckMatch(nam,"dred")
+					dredscore += colourfound
+				endif
+				if colourfound == 0 && CheckMatch(nam,"rope")
+					stylefound += 1
 					colourfound += 1
-				endif
-			endif
-		endif
-		if stylefound == 0 ;nonheretical metal + color
-			stylefound = metalscore
-			metalscore += formscan(nam,"metal") as int
-			metalscore += formscan(nam,"steel") as int
-			metalscore += formscan(nam,"iron") as int
-			stylefound -= metalscore
-			if stylefound > 0
-				if colourfound == 0
-					colourfound = silverscore
-					colourfound += formscan(nam,"silver") as int
-					colourfound -= silverscore
-				endif
-				if colourfound == 0
-					colourfound = goldscore
-					colourfound += formscan(nam,"gold") as int
-					colourfound -= goldscore
-				endif
-				if colourfound == 0
-					unimetalscore += 1
-					materialfound += 1
+					ropescore += 1
+					nocolorscore += 1
+				elseif colourfound == 0 && CheckMatch(nam,"rope") != 1
 					colourfound += 1
+					blackscore += 1
+				endif
+			
+				; ######################## Selecting material (weird order, I know, but it is only logical)
+				if materialfound == 0
+					;don't want to make the function analyze 5 IFs so... better sum up 2 of each with different args
+					materialfound = CheckMatch(nam,"latex","ebonite","Ebrest") || CheckMatch(nam,"WTE","RDE") ;although WTE and RDE are mostly colors, E at end stands for ebonite. Ebrest stands for Ebonite restrictive.
+					ebonitescore += materialfound
+				endif
+				if materialfound == 0
+					materialfound = CheckMatch(nam,"Leather","RDL","WTL") ;same as above, L at end stands for leather
+					leatherscore += materialfound
+				endif
+				if materialfound == 0 ;none above found, assuming item is leather
+					materialfound = 1
+					leatherscore += materialfound
 				endif
 			endif
-		endif
-		if stylefound == 0 ;restrictive anything, color is systematic to check in different condition block
-			stylefound = restrscore
-			restrscore += formscan(nam,"restrictive") as int
-			stylefound -= restrscore
-		endif
-		if stylefound == 0 ;rope anything, color is systematic to check in different condition block
-			stylefound = ropescore
-			ropescore += formscan(nam,"rope") as int
-			stylefound -= ropescore
-		endif
-		if stylefound == 0 ;catsuit anything, sets material to ebonite, color is systematic to check in different condition block
-			stylefound = catsuitscore
-			catsuitscore += formscan(nam,"catsuit") as int
-			stylefound -= catsuitscore
-			if stylefound > 0
-				materialfound += 1
-				ebonitescore += 1
-			endif
-		endif
-		; ######################## Selecting colour
-		if colourfound == 0
-			colourfound = redscore
-			redscore += formscan(nam,"red") as int
-			redscore += formscan(nam,"RD") as int
-			colourfound -= redscore
-		endif
-		if colourfound == 0
-			colourfound = whitescore
-			whitescore += formscan(nam,"white") as int
-			whitescore += formscan(nam,"WT") as int
-			colourfound -= whitescore
-		endif
-		if colourfound == 0
-			colourfound = lgreyscore
-			lgreyscore += formscan(nam,"lgrey") as int
-			colourfound -= lgreyscore
-		endif
-		if colourfound == 0
-			colourfound = dredscore
-			dredscore += formscan(nam,"dred") as int
-			colourfound -= dredscore
-		endif
-		if colourfound == 0 && formscan(nam,"rope")
-			nocolorscore += 1
-			materialfound += 1
-		elseif colourfound == 0 && !formscan(nam,"rope")
-			blackscore += 1
-		endif
-	
-		if materialfound == 0	;TODO conditions are not set
-			latex ebonite WTE RDE Ebrest
-		endif
-		if materialfound == 0
-			Leather RDL WTL
-		endif
-		if materialfound == 0
-		
 		endif
 	endwhile
 
-	int[] styles = new int[6]
+	int[] styles = new int[5]
 	styles[0] = regulardevicesscore
 	styles[1] = restrscore
 	styles[2] = metalscore
 	styles[3] = catsuitscore
 	styles[4] = ropescore
-	styles[5] = hereticalscore	
 
-	int[] colors = new int[12]
+	int[] colors = new int[11]
 	colors[0] = blackscore
 	colors[1] = redscore
 	colors[2] = whitescore
 	colors[3] = dredscore
 	colors[4] = lgreyscore
-	colors[5] = unimetalscore
+	colors[5] = metalnormscore
 	colors[6] = silverscore
 	colors[7] = goldscore
-	colors[8] = transparentscore	;TODO? I mean I can't care less about transparent since they are so glitchy
-	colors[9] = nocolorscore
-	colors[10] = rustyscore
-	colors[11] = ironscore
+	colors[8] = ironscore
+	colors[9] = rustyscore
+	colors[10] = nocolorscore
+	; colors[8] = transparentscore	;TODO? I mean I can't care less about transparent since they are so glitchy
 
-	int[] mats = new int[2]
+	int[] mats = new int[4]
 	mats[0] = leatherscore
 	mats[1] = ebonitescore
-	
+	mats[2] = unimetalscore
+	mats[3] = hereticalscore	
 
 	int i = 0
 	bool continue = true
@@ -376,7 +415,8 @@ int[] Function AnalyzeActor(Actor akActor, int passedstyle = -1, int passedcolor
 	EndWhile
 	;cleaning anomalous data to figure out baseline, 24% floored
 	;and selecting style in the same loop
-	int values[] = new int[6] ;do we pass values as global "int"s tho? index 3,4 and 5 are reserved for 'recommended' types according to passed parameters, if any, 1-3 act as fallback in that case
+	int values[] = new int[3] ;do we pass values as global "int"s tho? index 3,4 and 5 are reserved for 'recommended' types according to passed parameters, if any, 1-3 act as fallback in that case
+	values = [0,0,0]
 	int stylesdamp = Floor(stylestotal*0.24)
 	int colorsdamp = Floor(colorstotal*0.24)
 	int matsdamp = Floor(matstotal*0.24)
@@ -388,64 +428,63 @@ int[] Function AnalyzeActor(Actor akActor, int passedstyle = -1, int passedcolor
 	i = 0
 	While continue
 		continue = false
-		if (i < styles.Length)
-			UDCDmain.Log("styles["+i+"] = "+styles[i]+"and reduced by "+stylesdamp,3)
+		if (i < styles.Length) && !values[0]
+			UDCDmain.Log("styles["+i+"] was "+styles[i]+" and reduced by "+stylesdamp,3)
 			styles[i] -= stylesdamp
 			continue = true
-			if !values[0]
-				if Math.RandomInt(0, stylestotal) < styles[i]		
-					values[0] = i ;randomized check passed, assigning type
-					UDCDmain.Log(i+" has been selected for styles",3)
-				else
-					stylestotal -= styles[i]
-				endif		
-			endif
+			; if !values[0]
+			if Math.RandomInt(0, stylestotal) < styles[i]
+				values[0] = i
+				UDCDmain.Log(values[0]+" has been selected for styles",3)
+			else
+				stylestotal -= styles[i]
+			endif		
+			; endif
 		Endif
-		if (i < colors.Length)
-			UDCDmain.Log("colors["+i+"] = "+colors[i]+"and reduced by "+colorsdamp,3)
-			colors[i] -= colorsdamp
-			continue = true
-			if !values[1]
-				if Math.RandomInt(0, colorstotal) < colors[i]		
-					values[1] = i ;randomized check passed, assigning type
-					UDCDmain.Log(i+" has been selected for colors",3)
-				else
-					colorstotal -= colors[i]
-				endif			
-			endif
-		Endif
-		if (i < mats.Length)
-			UDCDmain.Log("mats["+i+"] = "+mats[i]+"and reduced by "+matsdamp,3)
+		if (i < mats.Length) && !values[1]
+			UDCDmain.Log("mats["+i+"] was "+mats[i]+" and reduced by "+matsdamp,3)
 			mats[i] -= matsdamp
 			continue = true
-			if !values[2]
-				if Math.RandomInt(0, matstotal) < mats[i]		
-					values[2] = i ;randomized check passed, assigning type
-					UDCDmain.Log(i+" has been selected for mats",3)
-				else
-					matstotal -= mats[i]
-				endif		
+			; if !values[1]
+			if Math.RandomInt(0, matstotal) < mats[i]		
+				values[1] = i
+			else
+				matstotal -= mats[i]
+			endif		
+			if values[1]
+				if i > 1
+					values[1] -= 2
+				endif
+				UDCDmain.Log(values[1]+" has been selected for mats",3)
 			endif
+			; endif
+		Endif
+		if (i < colors.Length)  && !values[2]
+			UDCDmain.Log("colors["+i+"] was "+colors[i]+" and reduced by "+colorsdamp,3)
+			colors[i] -= colorsdamp
+			continue = true
+			; if !values[2]
+			if Math.RandomInt(0, colorstotal) < colors[i]		
+				values[2] = i
+			else
+				colorstotal -= colors[i]
+			endif
+			if values[2]
+				if i == 10
+					values[2] == 4
+				ElseIf i > 7
+					values[2] -= 8
+				ElseIf i > 4
+					values[2] -= 5
+				endif
+				UDCDmain.Log(values[2]+" has been selected for colors",3)
+			endif
+			; endif
 		Endif
 		i += 1
 	EndWhile
 
-	;fallback - possible to replace it with MCM configured valus for player tastes. Assuming default types for now
-
-	if !values[0]
-		values[1] = 0
-		UDCDmain.Log("Style fallback!",3)
-	endif
-	if !values[1]
-		values[1] = 0
-		UDCDmain.Log("Color fallback!",3)
-	endif
-	if !values[2]
-		values[2] = Math.RandomInt(0,1)
-		UDCDmain.Log("Material fallback!",3)
-	endif
-
-	return values[]
+	return values[] ;return index array pointing to 3 dimensional array subtable, dimensions are Style - Material - Color, or something like ud_alldevices[][][]
 EndFunction
 
 ; optional string is used as exception/inclusion rule, for example elbowhook -exclude "collar"
@@ -635,19 +674,19 @@ bool function formscan(string FormName, string str = "")
 endfunction
 
 ;return device keyword by index from formlist
-keyword Function GetKeywordByIndex(int index)
-	return ud_KeywordsFormlist.GetAt(index) as keyword
-endfunction
+; keyword Function GetKeywordByIndex(int index)
+; 	return ud_KeywordsFormlist.GetAt(index) as keyword
+; endfunction
 
 ;returns random device from specific Leveled List by keyword
-armor Function PickRandomDeviceFromLL(LeveledItem sLL, keyword kwd)
+armor Function PickDeviceFromList(LeveledItem sLL, keyword kwd)
 	form[] frmarr = new Form[10]
 	int n = sLL.GetNumForms()
 	int k = 0 ;counter, bypasses lack of native dynamic array implementation
 	int i = 0
 	while i < n
 		form frm = sLL.GetNthForm(i)
-		if IsKeywordedDevice(frm, kwd, true) ;allowed variations for testing, change
+		if IsKeywordedDevice(frm, kwd, true) ;allowed additional variations for testing, change TODO
 			frmarr[k] = frm
 			k += 1
 			UDCDM.log("Device is valid: "+GetFormEditorID(frm),3)
@@ -762,7 +801,7 @@ Function ListPossibleDevices(LeveledItem sLL, bool loop = false)
 	; 		listMenu.OpenMenu()
 	; 		selection = ListMenu.GetResultInt()
 	; 		if selection >= 0
-	; 			libs.LockDevice(Game.GetPlayer(), PickRandomDeviceFromLL(sLL, storedkwds[selection]))
+	; 			libs.LockDevice(Game.GetPlayer(), PickDeviceFromList(sLL, storedkwds[selection]))
 	; 		endif
 	; 	EndWhile
 	; else
@@ -780,7 +819,7 @@ Function ListPossibleDevices(LeveledItem sLL, bool loop = false)
 	; 	listMenu.OpenMenu()
 	; 	selection = ListMenu.GetResultInt()
 	; 	if selection >= 0
-	; 		libs.LockDevice(Game.GetPlayer(), PickRandomDeviceFromLL(sLL, storedkwds[selection]))
+	; 		libs.LockDevice(Game.GetPlayer(), PickDeviceFromList(sLL, storedkwds[selection]))
 	; 	endif
 	; endif
 	if loop
@@ -794,7 +833,7 @@ Function ListPossibleDevices(LeveledItem sLL, bool loop = false)
 			listMenu.OpenMenu()
 			selection = ListMenu.GetResultInt()
 			if selection >= 0
-				armor arm = PickRandomDeviceFromLL(sLL, ud_KeywordsFormlist.GetAt(selection) as keyword)
+				armor arm = PickDeviceFromList(sLL, ud_KeywordsFormlist.GetAt(selection) as keyword)
 				if arm != none
 					libs.LockDevice(Game.GetPlayer(), arm)
 				else
@@ -813,7 +852,7 @@ Function ListPossibleDevices(LeveledItem sLL, bool loop = false)
 			listMenu.OpenMenu()
 			selection = ListMenu.GetResultInt()
 			if selection >= 0
-				armor arm = PickRandomDeviceFromLL(sLL, ud_KeywordsFormlist.GetAt(selection) as keyword)
+				armor arm = PickDeviceFromList(sLL, ud_KeywordsFormlist.GetAt(selection) as keyword)
 				if arm != none
 					libs.LockDevice(Game.GetPlayer(), arm)
 					selection = -1
