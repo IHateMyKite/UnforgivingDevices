@@ -223,12 +223,6 @@ Function OnRemoveDevice(actor akActor)
 		akActor.SetFactionRank(UDCDmain.zadGagPanelFaction, 0)
 		akActor.RemoveFromFaction(UDCDmain.zadGagPanelFaction)
 	endif
-	
-	
-	zadlibs_UDPatch libs_p = libsp
-	if akActor == libs_p.UD_GlobalDeviceMutex_Unlock_Actor && libs_p.UD_GlobalDeviceMutex_Unlock_Device == deviceInventory
-		libs_p.UD_GlobalDeviceMutex_Unlock_InventoryScript = true
-	endif
 EndFunction
 
 ;this is only called if game is unpaused (in case of NPC) or if actor is player (work all time)
@@ -643,10 +637,10 @@ Event LockDevice(Actor akActor)
 	UD_MutexScript loc_mutex = none 
 	bool _actorselfbound = false
 	if loc_slot
-		if !loc_slot.isMutexed(deviceInventory)
+		if !loc_slot.isLockMutexed(deviceInventory)
 			_actorselfbound = true
 			loc_slot.StartLockMutex()
-			loc_slot.ResetMutex(deviceInventory)
+			loc_slot.ResetMutex_Lock(deviceInventory)
 		endif
 	else
 		Utility.waitMenuMode(Utility.randomFloat(0.05,0.15)) ;make thread to wait random time, because in some cases bunch of devices can be equipped at once (like when they are par of outfit)
@@ -667,18 +661,18 @@ Event LockDevice(Actor akActor)
 	
 	bool prelock_fail = false
 	if akActor.GetItemCount(deviceRendered) > 0
-		;if UDCDmain.TraceAllowed()		
-		;	libs.Log("OnEquipped aborted - item is already worn.")		
-		;endif
-		;UDCDMain.Error("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - item is already worn")		
-		; no need to process if the item is already worn
+		if UDCDmain.TraceAllowed()		
+			UDCdmain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - item "+ deviceRendered +" is already in invetory.")		
+		endif
 		prelock_fail = true
 	EndIf
 	
 
 	if !prelock_fail
 		if akActor.GetItemCount(deviceRendered) == 0 && akActor.WornHasKeyword(zad_DeviousDevice) && CheckConflict(akActor)	
-			UDCDMain.Error("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device type:" + zad_DeviousDevice)		
+			if UDCDMain.TraceAllowed()
+				UDCDMain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device type:" + zad_DeviousDevice,1)
+			endif			
 			StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
 			akActor.UnequipItem(deviceInventory, false, true)	
 			prelock_fail = true
@@ -694,7 +688,9 @@ Event LockDevice(Actor akActor)
 	; check for device conflicts
 	if !prelock_fail
 		If !silently && (IsEquipDeviceConflict(akActor) || IsEquipRequiredDeviceConflict(akActor))	
-			UDCDMain.Error("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device")
+			if UDCDMain.TraceAllowed()
+				UDCDMain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device, aborting",1)
+			endif
 			StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
 			akActor.UnequipItem(deviceInventory, false, true)	
 			prelock_fail = true
@@ -721,7 +717,9 @@ Event LockDevice(Actor akActor)
 				StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
 				akActor.UnequipItem(deviceInventory, false, true)
 			EndIf
-			UDCDMain.Error("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Equip Filter activated : " + filter)
+			if UDCDMain.TraceAllowed()
+				UDCDMain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Equip Filter activated : " + filter,1)
+			endif
 			prelock_fail = true
 		EndIf
 	endif
@@ -729,7 +727,7 @@ Event LockDevice(Actor akActor)
 	
 	if prelock_fail
 		if loc_slot
-			if loc_slot.isMutexed(deviceInventory)
+			if loc_slot.isLockMutexed(deviceInventory)
 				loc_slot.UD_GlobalDeviceMutex_InventoryScript_Failed = true
 				loc_slot.UD_GlobalDeviceMutex_InventoryScript = true
 			endif
@@ -740,11 +738,11 @@ Event LockDevice(Actor akActor)
 		
 		if _actorselfbound
 			if loc_slot
-				if loc_slot.isMutexed(deviceInventory)
+				if loc_slot.isLockMutexed(deviceInventory)
 					loc_slot.EndLockMutex()
 				endif
 			elseif loc_mutex
-				loc_mutex.ResetMutex()
+				loc_mutex.ResetLockMutex()
 			endif
 			_actorselfbound = false
 		endif
@@ -788,7 +786,7 @@ Event LockDevice(Actor akActor)
 		
 	endif
 	if loc_slot
-		if loc_slot.isMutexed(deviceInventory)
+		if loc_slot.isLockMutexed(deviceInventory)
 			if !_locked
 				loc_slot.UD_GlobalDeviceMutex_InventoryScript_Failed = true
 			endif
@@ -803,11 +801,11 @@ Event LockDevice(Actor akActor)
 	
 	if _actorselfbound
 		if loc_slot
-			if loc_slot.isMutexed(deviceInventory)
+			if loc_slot.isLockMutexed(deviceInventory)
 				loc_slot.EndLockMutex()
 			endif
 		elseif loc_mutex
-			loc_mutex.ResetMutex()
+			loc_mutex.ResetLockMutex()
 		endif
 		_actorselfbound = false
 	endif
@@ -862,11 +860,9 @@ Function unlockDevice(Actor akActor)
 	bool loc_failure = false
 	StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,0x111)
 	if !akActor.getItemCount(deviceRendered)
+		loc_failure = true
 		if ActorIsPlayer(akActor)
-			loc_failure = true
 			akActor.unequipItem(deviceInventory, 1, true)
-		else
-			return ;fuck npcs
 		endif
 	endif
 	
@@ -880,6 +876,20 @@ Function unlockDevice(Actor akActor)
 			loc_failure = true
 		endif
 	endif
+	
+	UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
+	UD_MutexScript loc_mutex = none 
+	if loc_slot
+		loc_slot.UD_GlobalDeviceUnlockMutex_InventoryScript_Failed 	= loc_failure
+		loc_slot.UD_GlobalDeviceUnlockMutex_InventoryScript 		= True
+	else
+		loc_mutex = UDMM.GetMutexSlot(akActor)
+		if loc_mutex
+			loc_mutex.UD_GlobalDeviceUnlockMutex_InventoryScript_Failed = loc_failure
+			loc_mutex.UD_GlobalDeviceUnlockMutex_InventoryScript 		= True
+		endif
+	endif
+	
 	if !loc_failure
 		OnRemoveDevice(akActor)
 		
@@ -900,13 +910,7 @@ Function unlockDevice(Actor akActor)
 			StorageUtil.UnSetFormValue(akActor.GetActorBase(), "zad_OriginalOutfit")
 		endIf
 	endif
-	if loc_failure
-		if akActor == libsp.UD_GlobalDeviceMutex_Unlock_Actor && libsp.UD_GlobalDeviceMutex_Unlock_Device == deviceInventory
-			libsp.UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed = true
-			libsp.UD_GlobalDeviceMutex_Unlock_InventoryScript = true
-		endif
-		UDCDMain.Error("UnlockDevice("+getActorName(akActor)+") - Failure")
-	endif
+	
 	StorageUtil.UnSetIntValue(akActor, "UD_ignoreEvent" + deviceInventory)
 EndFunction
 

@@ -5,7 +5,7 @@ import UnforgivingDevicesMain
 ;is not used by parent script, no sin here
 Function OnInit()
 	Utility.waitMenuMode(2.0) ;wait few moments, so computer doesn't explode
-	RegisterForSingleUpdate(1.0)
+	RegisterForSingleUpdate(10.0)
 EndFunction
 
 Event OnUpdate()

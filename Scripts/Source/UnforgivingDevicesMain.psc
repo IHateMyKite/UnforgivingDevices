@@ -11,6 +11,11 @@ zadlibs_UDPatch property libsp
 		return libs as zadlibs_UDPatch
 	EndFunction
 EndProperty
+zadBQ00 property zadbq
+	zadBQ00 Function get()
+		return (libs as Quest) as zadBQ00
+	EndFunction
+EndProperty
 
 bool Property UD_OrgasmExhaustion = True auto
 float Property UD_OrgasmExhaustionMagnitude = 0.0 auto
@@ -72,10 +77,23 @@ bool Property Ready = False auto
 
 String[] Property UD_OfficialPatches auto
 
+bool Function UDReady()
+	return Ready
+EndFunction
+
 Event OnInit()
-	RegisterForModEvent("UD_VibEvent","EventVib")
-	UD_hightPerformance = UD_hightPerformance
-	
+	Utility.waitmenumode(3.0)
+	Print("Installing Unforgiving Devices...")
+	if zadbq.modVersion
+		;DD is already installed when UD is installed
+		;UD will not correctly replace DD script when they are already set update
+		;because of that UD is incompatible with already ongoing DD moded game
+		string loc_msg = "!!!!ERROR!!!!\n"
+		loc_msg += "Unforgiving Devices detected that it was installed on already ongoing game. "
+		loc_msg += "Without starting fresh game, UD will not be able to use mutexes which are needed for safety run of the mod. "
+		loc_msg += "\n\n!Please, consider starting new game for best experience.!"
+		debug.messagebox(loc_msg)
+	endif
 	While !UDlibs.ready
 		Utility.waitMenuMode(0.25)
 	EndWhile
@@ -114,6 +132,8 @@ Event OnInit()
 		Log("UDOM ready!",0)
 	endif
 	
+	UD_hightPerformance = UD_hightPerformance
+	
 	OrgasmExhaustionSpell = UDlibs.OrgasmExhaustionSpell
 	OrgasmExhaustionSpell.SetNthEffectDuration(0, UD_OrgasmExhaustionDuration)
 
@@ -131,6 +151,7 @@ Event OnInit()
 	Print("$UDREADY")
 	
 	Utility.wait(5.0)
+	RegisterForModEvent("UD_VibEvent","EventVib")
 	RegisterForSingleUpdate(0.1)
 	CheckPatchesOrder()
 EndEvent
@@ -376,32 +397,34 @@ bool Function TraceAllowed()
 EndFunction
 
 Function OnGameReload()
-	(libs as zadlibs_UDPatch).ResetMutex()
-	
-	Utility.waitMenuMode(5.0)
-	
-	;update all scripts
-	Update()
-	;RegisterForSingleUpdate(0.1)
-	
-	UDlibs.Update()
-	
-	if TraceAllowed()	
-		Log("OnGameReload() called!",1)
+	if Ready
+		(libs as zadlibs_UDPatch).ResetMutex()
+		
+		Utility.waitMenuMode(5.0)
+		
+		;update all scripts
+		Update()
+		;RegisterForSingleUpdate(0.1)
+		
+		UDlibs.Update()
+		
+		if TraceAllowed()	
+			Log("OnGameReload() called!",1)
+		endif
+		
+		UDCDmain.OnGameReset()
+		Config.LoadConfigPages()
+		CheckOptionalMods()
+		CheckPatchesOrder()
+		
+		UDPP.Update()
+		
+		UDOM.Update()
+		
+		UDEM.Update()
+		
+		UDNPCM.GameUpdate()
 	endif
-	
-	UDCDmain.OnGameReset()
-	Config.LoadConfigPages()
-	CheckOptionalMods()
-	CheckPatchesOrder()
-	
-	UDPP.Update()
-	
-	UDOM.Update()
-	
-	UDEM.Update()
-	
-	UDNPCM.GameUpdate()
 EndFunction
 
 ;=======================================================================
@@ -603,10 +626,16 @@ bool Function ModInstalledAfterUD(string sModFileName) global
 EndFunction
 
 string Function MakeDeviceHeader(Actor akActor,Armor invDevice) global
-	if !invDevice || !akActor
-		return "ERROR: PASSED NONE"
+	string loc_actorname = "NONE_ACTOR"
+	string loc_devicename = "NONE_DEVICE"
+	if akActor
+		loc_actorname = GetActorName(akActor)
 	endif
-	return (invDevice.GetName() + "("+GetActorName(akActor) + ")")
+	if invDevice
+		loc_devicename = invDevice.GetName()
+	endif
+	
+	return (loc_devicename + "("+ loc_actorname + ")")
 EndFunction
 
 Int Function ToUnsig(Int iValue) global

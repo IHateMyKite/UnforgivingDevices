@@ -57,9 +57,11 @@ EndFunction
 
 float _LastUpdateTime = 0.0
 Event OnUpdate()
-	float loc_timePassed = Utility.GetCurrentGameTime() - _LastUpdateTime
-	UpdateModifiers(loc_timePassed)
-	_LastUpdateTime = Utility.GetCurrentGameTime()
+	if UDmain.ready
+		float loc_timePassed = Utility.GetCurrentGameTime() - _LastUpdateTime
+		UpdateModifiers(loc_timePassed)
+		_LastUpdateTime = Utility.GetCurrentGameTime()
+	endif
 	RegisterForSingleUpdate(5.0)
 EndEvent
 

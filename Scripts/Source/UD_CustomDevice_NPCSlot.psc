@@ -1299,19 +1299,26 @@ Function UpdateSkills()
 	SmithingSkill = UDCDmain.getActorSmithingSkills(getActor())
 EndFunction
 
-;MUTEX
+;LOCK MUTEX
+bool 	Property UD_GlobalDeviceMutex_InventoryScript 				= false auto hidden
+bool 	Property UD_GlobalDeviceMutex_InventoryScript_Failed 		= false auto hidden
+Armor 	Property UD_GlobalDeviceMutex_Device 						= none 	auto hidden
 
-bool Property UD_GlobalDeviceMutex_InventoryScript = false auto hidden
-bool Property UD_GlobalDeviceMutex_InventoryScript_Failed = false auto hidden
-bool Property UD_GlobalDeviceMutex_RenderScript = false auto hidden
-bool Property UD_GlobalDeviceMutex_RenderScript_Failed = false auto hidden
-Armor Property UD_GlobalDeviceMutex_Device = none auto hidden
-Armor Property UD_GlobalDeviceMutex_Device_Rend = none auto hidden
+;UNLOCK MUTEX
+bool 	Property UD_GlobalDeviceUnlockMutex_InventoryScript 		= false auto hidden
+bool 	Property UD_GlobalDeviceUnlockMutex_InventoryScript_Failed 	= false auto hidden
+Armor 	Property UD_GlobalDeviceUnlockMutex_Device 					= none 	auto hidden
 
-Function ResetMutex(Armor invDevice)
-	UD_GlobalDeviceMutex_inventoryScript = false
-	UD_GlobalDeviceMutex_InventoryScript_Failed = false
-	UD_GlobalDeviceMutex_Device = invDevice
+Function ResetMutex_Lock(Armor invDevice)
+	UD_GlobalDeviceMutex_inventoryScript 				= false
+	UD_GlobalDeviceMutex_InventoryScript_Failed 		= false
+	UD_GlobalDeviceMutex_Device 						= invDevice
+EndFunction
+
+Function ResetMutex_Unlock(Armor invDevice)
+	UD_GlobalDeviceUnlockMutex_InventoryScript 			= false
+	UD_GlobalDeviceUnlockMutex_InventoryScript_Failed 	= false
+	UD_GlobalDeviceUnlockMutex_Device 					= invDevice
 EndFunction
 
 ;function made as replacemant for akActor.isEquipped, because that function doesn't work for NPCs
@@ -1335,7 +1342,7 @@ EndFunction
 
 Bool _LOCKDEVICE_MUTEX = false
 Function StartLockMutex()
-	while _LOCKDEVICE_MUTEX
+	while _LOCKDEVICE_MUTEX; || _UNLOCKDEVICE_MUTEX
 		Utility.waitMenuMode(0.05)
 	endwhile
 	_LOCKDEVICE_MUTEX = true
@@ -1345,20 +1352,50 @@ Function EndLockMutex()
 	_LOCKDEVICE_MUTEX = false
 EndFunction
 
-Bool Function IsMutexed(Armor invDevice)
+Bool Function IsLockMutexed(Armor invDevice)
 	return UD_GlobalDeviceMutex_Device == invDevice
+EndFunction
+
+Bool _UNLOCKDEVICE_MUTEX = false
+Function StartUnLockMutex()
+	while _UNLOCKDEVICE_MUTEX; || _LOCKDEVICE_MUTEX
+		Utility.waitMenuMode(0.05)
+	endwhile
+	_UNLOCKDEVICE_MUTEX = true
+EndFunction
+
+Function EndUnLockMutex()
+	_UNLOCKDEVICE_MUTEX = false
+EndFunction
+
+Bool Function IsUnlockMutexed(Armor invDevice)
+	return UD_GlobalDeviceUnlockMutex_Device == invDevice
 EndFunction
 
 Function ProccesLockMutex()
 	float loc_time = 0.0
-	while loc_time <= 25.0 && (!UD_GlobalDeviceMutex_InventoryScript)
+	while loc_time <= UDCDmain.UD_LockUnlockMutexTimeOutTime && (!UD_GlobalDeviceMutex_InventoryScript)
 		Utility.waitMenuMode(0.05)
 		loc_time += 0.05
 	endwhile
 	
-	if UD_GlobalDeviceMutex_InventoryScript_Failed || loc_time >= 25.0
+	if UD_GlobalDeviceMutex_InventoryScript_Failed || loc_time >= UDCDmain.UD_LockUnlockMutexTimeOutTime
 		UDCDmain.Error("LockDevicePatched("+GetSlotedNPCName()+","+UD_GlobalDeviceMutex_Device.getName()+") failed!!! ID Fail? " + UD_GlobalDeviceMutex_InventoryScript_Failed)
 	endif
 	
 	UD_GlobalDeviceMutex_Device = none
+EndFunction
+
+Function ProccesUnlockMutex()
+	float loc_time = 0.0
+	while loc_time <= UDCDmain.UD_LockUnlockMutexTimeOutTime && (!UD_GlobalDeviceUnlockMutex_InventoryScript)
+		Utility.waitMenuMode(0.05)
+		loc_time += 0.05
+	endwhile
+	
+	if UD_GlobalDeviceUnlockMutex_InventoryScript_Failed || loc_time >= UDCDmain.UD_LockUnlockMutexTimeOutTime
+		UDCDmain.Error("LockDevicePatched("+GetSlotedNPCName()+","+UD_GlobalDeviceUnlockMutex_Device.getName()+") failed!!! ID Fail? " + UD_GlobalDeviceUnlockMutex_InventoryScript_Failed)
+	endif
+	
+	UD_GlobalDeviceUnlockMutex_Device = none
 EndFunction

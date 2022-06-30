@@ -56,21 +56,22 @@ EndFunction
 Bool _PlayerSlotReady = false
 Float Property UD_SlotUpdatTime = 6.0 auto
 Event OnUpdate()
-	if !_PlayerSlotReady
-		_PlayerSlotReady = True
-		initPlayerSlot()
-	endif
-	if !UDmain.UD_DisableUpdate
-		if UDCDmain.UDmain.AllowNPCSupport
-			scanSlots()
+	if UDmain.UDReady()
+		if !_PlayerSlotReady
+			_PlayerSlotReady = True
+			initPlayerSlot()
 		endif
+		if !UDmain.UD_DisableUpdate
+			if UDCDmain.UDmain.AllowNPCSupport
+				scanSlots()
+			endif
+		endif
+		
+		removeDeadNPCs()
+		CheckOrgasmLoops()
+		
+		UpdateSlots() ;update slots, this only update variables, not devices
 	endif
-	
-	removeDeadNPCs()
-	CheckOrgasmLoops()
-	
-	UpdateSlots() ;update slots, this only update variables, not devices
-	
 	RegisterForSingleUpdate(UD_SlotUpdatTime)
 EndEvent
 

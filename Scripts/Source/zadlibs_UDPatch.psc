@@ -22,6 +22,15 @@ bool Property UD_StartThirdPersonAnimation_Switch = true auto
 ;modified function from libs, function will end only after the device is fully equipped
 bool LOCKDEVICE_MUTEX = False
 
+bool _installing = false
+Function OnInit()
+	_installing = true
+	while !UDCDMain.Ready
+		Utility.waitMenuMode(5.0)
+	endwhile
+	_installing = false
+EndFunction
+
 Function ResetMutex()
 	LOCKDEVICE_MUTEX = false
 	UNLOCK_MUTEX = false
@@ -72,8 +81,11 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
 		return false
 	endif
 	
-	if !UDCDmain.UDmain.ActorIsValidForUD(akActor)					
-		UDCDmain.Error("LockDevicePatched - " + akActor + " is not valid actor!")
+	if !UDCDmain.UDmain.ActorIsValidForUD(akActor)		
+		if UDCDmain.TraceAllowed()
+			UDCDmain.Log("LockDevicePatched - " + akActor + " is not valid actor!",1)
+		endif
+		return false
 	endif
 	
 	;bool loc_usemutex = UDCDmain.isRegistered(akActor) ;only allow for registered npcs for now
@@ -83,11 +95,11 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
 	if loc_slot
 		loc_slot.StartLockMutex()
 	else
-		loc_mutex = UDMM.WaitForFreeAndSet(akActor,deviceInventory)
+		loc_mutex = UDMM.WaitForFreeAndSet_Lock(akActor,deviceInventory)
 	endif
 	bool loc_res = false
 	if deviceInventory.hasKeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
-		if UDCDmain.TraceAllowed()	
+		if UDCDmain.TraceAllowed()
 			if loc_slot
 				UDCDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - NPC slot: " + loc_slot,1)
 			elseif loc_mutex	
@@ -98,7 +110,7 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
 		endif
 		
 		if loc_slot
-			loc_slot.ResetMutex(deviceInventory)
+			loc_slot.ResetMutex_Lock(deviceInventory)
 		elseif loc_mutex
 			;ResetLockMutex(akActor,deviceInventory)
 		endif
@@ -109,7 +121,7 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
 		if loc_slot
 			loc_slot.ProccesLockMutex()
 		elseif loc_mutex
-			loc_mutex.EvaluateMutex()
+			loc_mutex.EvaluateLockMutex()
 		endif
 
 		zad_AlwaysSilent.RemoveAddedForm(akActor)
@@ -154,7 +166,7 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
 	if loc_slot
 		loc_slot.EndLockMutex()
 	elseif loc_mutex
-		loc_mutex.ResetMutex()
+		loc_mutex.ResetLockMutex()
 	endif
 
 	return loc_res
@@ -174,24 +186,31 @@ EndFunction
 Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRendered = none, keyword zad_DeviousDevice = none, bool destroyDevice = false, bool genericonly = false)
 	if !akActor
 		UDCDmain.Error("UnlockDevice called for none actor!")
+		return false
 	endif
-		
-	bool loc_actordead = akActor.isDead()
-	if !loc_actordead
-		CheckUnlockMutex()
-	endif
-	
-	bool loc_res = False
-	if UDCDmain.TraceAllowed()
-		UDCDmain.Log("UnlockDevice(UDP)("+akActor+","+deviceInventory+","+deviceRendered+","+zad_DeviousDevice+","+destroyDevice+","+genericonly+")",1)
-	endif
-	
 	if !deviceInventory
 		UDCDmain.Error("None passed to UnlockDevice as deviceInventory. Aborting!")
-		if !loc_actordead
-			RemoveUnlockMutex()
-		endif
 		return false
+	endif
+	
+	UD_CustomDevice_NPCSlot loc_slot 	= none ;NPC slot for registered NPC
+	UD_MutexScript 			loc_mutex 	= none ;mutex used for non registered NPC
+	
+	bool 					loc_res 	= False ;return value
+	
+	;start mutex if actor is not dead
+	bool loc_actordead = akActor.isDead()
+	if !loc_actordead
+		loc_slot = UDCDmain.getNPCSlot(akActor)
+		if loc_slot
+			loc_slot.StartUnlockMutex()
+		else
+			loc_mutex = UDMM.WaitForFreeAndSet_Unlock(akActor,deviceInventory)
+		endif
+	endif
+	
+	if UDCDmain.TraceAllowed()
+		UDCDmain.Log("UnlockDevice(UDP)("+akActor+","+deviceInventory+","+deviceRendered+","+zad_DeviousDevice+","+destroyDevice+","+genericonly+")",1)
 	endif
 	
 	if deviceInventory.hasKeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
@@ -203,6 +222,8 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
 			loc_res = false
 		else				
 			Armor loc_renDevice = none
+			
+			;get render device, this is important as function will not work without RD
 			if deviceRendered
 				loc_renDevice = deviceRendered
 			else
@@ -211,54 +232,62 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
 					loc_renDevice = GetRenderedDevice(deviceInventory)
 				endif
 			endif
+			
+			;check if actor actually have render device. Without RD, unlock function will not work
 			if akActor.getItemCount(loc_renDevice)
-				bool loc_registered = true;UDCDmain.IsRegistered(akActor)
-				
-				if !loc_actordead && loc_registered
-					UD_GlobalDeviceMutex_Unlock_InventoryScript = false
-					UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed = false
-					UD_GlobalDeviceMutex_Unlock_Device = deviceInventory
-					UD_GlobalDeviceMutex_Unlock_Actor = akActor
+				if loc_slot
+					loc_slot.ResetMutex_UnLock(deviceInventory) ;init slot mutex
+				elseif loc_mutex
+					;is already set by WaitForFreeAndSet_Unlock
 				endif
 				
-				;StorageUtil.SetIntValue(akActor, "zad_RemovalToken" + deviceInventory, 1)
+				if UDCDmain.TraceAllowed()	
+					if loc_slot
+						UDCDmain.Log("UnlockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - NPC slot: " + loc_slot,1)
+					elseif loc_mutex	
+						UDCDmain.Log("UnlockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - mutex: " + loc_mutex,1)
+					else
+						UDCDmain.Log("UnlockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - no mutex",1)
+					endif
+				endif
+				
+				;ignore ID events to prevent unwanted behavier
 				StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0x110)
+				
+				;send and receive device from event container, so inside unlock function can be called
 				akActor.removeItem(deviceInventory,1,True,UDCDmain.EventContainer_ObjRef)	
 				UDCDmain.EventContainer_ObjRef.removeItem(deviceInventory,1,True,akActor)				  
 
-				if !loc_actordead && loc_registered
-					float loc_time = 0.0
-					while  loc_time <= 15.0 && (!UD_GlobalDeviceMutex_Unlock_InventoryScript) && !UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed
-						Utility.waitMenuMode(0.05)
-						loc_time += 0.05
-					endwhile
-					
-					if loc_time >= 15.0
-						UDCDmain.Error("unlockDevice("+getActorName(akActor)+","+deviceInventory.getName()+") timeout!!!")
-					endif
-					
-					UD_GlobalDeviceMutex_Unlock_InventoryScript = false
-					UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed = false
-					UD_GlobalDeviceMutex_Unlock_Device = none
-					UD_GlobalDeviceMutex_Unlock_Actor = none
+				;procces mutex untill device is unlocked
+				if loc_slot
+					loc_slot.ProccesUnLockMutex()
+				elseif loc_mutex
+					loc_mutex.EvaluateUnLockMutex()
 				endif
 				
+				;remove inventiory device if its detroy on remove
 				if destroyDevice
 					akActor.RemoveItem(deviceInventory, 1, true)
-				EndIf	
-				loc_res = true
+				EndIf
+				
+				loc_res = true 		;succes
 			else
-				loc_res = false	
+				loc_res = false	 	;failure
 			endif
 		endif			
 	else
+		;use default DD unlock function
 		loc_res = parent.UnlockDevice(akActor, deviceInventory, deviceRendered, zad_DeviousDevice, destroyDevice, genericonly) ;actor not registered
 	endif
 	if UDCDmain.TraceAllowed()		
 		UDCDmain.Log("UnlockDevice("+deviceInventory.getName()+") (patched) finished: "+loc_res,1)
 	endif
-	if !loc_actordead
-		RemoveUnlockMutex()
+	
+	;end mutex
+	if loc_slot
+		loc_slot.EndUnLockMutex()
+	elseif loc_mutex
+		loc_mutex.ResetUnLockMutex()
 	endif
 	return loc_res
 EndFunction
@@ -367,15 +396,28 @@ EndFunction
 
 ;updated version to make it work for straightjackets
 Armor Function GetWornRenderedDeviceByKeyword(Actor akActor, Keyword kw)
+	if UDCDmain.TraceAllowed()
+		UDCDmain.Log("GetWornRenderedDeviceByKeyword("+akActor+","+kw+")",3)
+	endif
 	Int slotID = GetSlotMaskForDeviceType(kw)
 	if slotID == -1
 		return None
 	EndIf
-	
+
 	if (kw == zad_deviousHeavyBondage) && akActor.wornHasKeyword(zad_DeviousStraitJacket)
 		slotID = Armor.GetMaskForSlot(32)
 	endif
-	Armor renderDevice = akActor.GetWornForm(slotID) As Armor 
+	
+	if UDCDmain.TraceAllowed()
+		UDCDmain.Log("GetWornRenderedDeviceByKeyword("+akActor+","+kw+") - GetSlotMaskForDeviceType = " + slotID,3)
+	endif
+	
+	Armor renderDevice = akActor.GetWornForm(slotID) As Armor
+	
+	if UDCDmain.TraceAllowed()
+		UDCDmain.Log("GetWornRenderedDeviceByKeyword("+akActor+","+kw+") - renderDevice = " + renderDevice,3)
+	endif
+	
 	if renderDevice && renderDevice.HasKeyWord(zad_Lockable)
 		return renderDevice
 	EndIf
@@ -907,6 +949,9 @@ Armor Function GetRenderedDevice(armor device)
 EndFunction
 
 Function UpdateControls()
+	if _installing
+		return
+	endif
 	if UDCDmain.TraceAllowed()
 		UDCDMain.Log("UpdateControls(UDP)()",3)
 	endif

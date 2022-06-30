@@ -631,8 +631,6 @@ Function patchFinish(UD_CustomDevice_RenderScript device,int argControlVar = 0x0
 	
 	int loc_level = device.GetWearer().GetLevel()
 	device.UD_Level = Round(Utility.randomFloat(fRange(loc_level*0.75,1.0,100.0),fRange(loc_level*1.25,1.0,100.0)))
-	
-	
 EndFunction
 
 

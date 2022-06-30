@@ -63,6 +63,7 @@ Int Property UD_MinigameHelpCd = 45 auto
 Float Property UD_MinigameHelpCD_PerLVL = 15.0 auto ;CD % decrease per Helper LVL
 Int Property UD_MinigameHelpXPBase = 35 auto
 Float Property UD_MutexTimeOutTime = 1.0 auto
+Float Property UD_LockUnlockMutexTimeOutTime = 15.0 auto
 bool Property UD_AllowArmTie = true auto
 bool Property UD_AllowLegTie = true auto
 
@@ -159,7 +160,6 @@ Bool Property Ready = False auto
 Bool Property EventsReady = false auto
 
 Event OnInit()
-	Utility.waitMenuMode(6.0)
 	While !UDPatcher.ready
 		Utility.WaitMenuMode(0.1)
 	EndWhile
@@ -179,11 +179,9 @@ Event OnInit()
 		Log("UDEM ready!",0)
 	endif
 
-	InitMenuArr()
-	
 	registerEvents()
 	
-	registerForSingleUpdate(1.0)
+	registerForSingleUpdate(5.0)
 	RegisterForSingleUpdateGameTime(1.0)
 	if TraceAllowed()	
 		Log("UDCustomDeviceMain ready!",0)
@@ -1159,7 +1157,7 @@ Function endScript(UD_CustomDevice_RenderScript oref)
 		Log("UDCustomDeviceMain endScript() called for " + oref.DeviceInventory.getName(),1)
 	endif
 	updateLastOpenedDeviceOnRemove(oref)
-	if oref.getWearer() == Game.getPlayer() || isRegistered(oref.getWearer())
+	if isRegistered(oref.getWearer())
 		;StorageUtil.SetIntValue(oref.getWearer(), "UD_blockSlotUpdate",1)
 		unregisterDevice(oref)
 		;StorageUtil.UnsetIntValue(oref.getWearer(), "UD_blockSlotUpdate")
@@ -1273,6 +1271,7 @@ bool loc_init = false
 ;update the devices once per UD_UpdateTime
 Event onUpdate()
 	if !loc_init
+		InitMenuArr()
 		LoadConfig()
 		RegisterGlobalKeys()
 		if UDmain.DebugMod

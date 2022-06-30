@@ -1534,23 +1534,11 @@ Function removeDevice(actor akActor)
 	if _removeDeviceCalled
 		return
 	endif
-	
 	_removeDeviceCalled = True
-	
-	if UDCDmain.TraceAllowed()
-		UDCDmain.Log("removeDevice() called for " + getDeviceHeader(),1)
-	endif
-	
-	OnRemoveDevicePre(akActor)
-	
-	if UDCDmain.UDCD_NPCM.isRegistered(akActor)
-		UDCDmain.endScript(self)
-	endif
-	
 	if !akActor.isDead()
 		if !_isUnlocked
-			current_device_health = 0.0
 			_isUnlocked = True
+			current_device_health = 0.0
 			UDCDmain.updateLastOpenedDeviceOnRemove(self)
 			StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
 			if wearer.isinfaction(UDCDmain.minigamefaction)
@@ -1559,6 +1547,17 @@ Function removeDevice(actor akActor)
 			endif
 		endif
 	endif
+	
+	if UDCDmain.TraceAllowed()
+		UDCDmain.Log("removeDevice() called for " + getDeviceHeader(),1)
+	endif
+	
+	OnRemoveDevicePre(akActor)
+	
+	if UDCDmain.isRegistered(akActor)
+		UDCDmain.endScript(self)
+	endif
+	
 	if deviceRendered.hasKeyword(libs.zad_DeviousBelt) || deviceRendered.hasKeyword(libs.zad_DeviousBra)
 		libs.Aroused.SetActorExposureRate(akActor, libs.GetOriginalRate(akActor))
 		StorageUtil.UnSetFloatValue(akActor, "zad.StoredExposureRate")
@@ -3956,11 +3955,16 @@ EndFunction
 Function unlockRestrain(bool forceDestroy = false,bool waitForRemove = True)
 	if _isUnlocked
 		if UDCDmain.TraceAllowed()		
-			UDCDmain.Log("unlockRestrain(): Device " + getDeviceHeader() + "is already unlocked! Aborting ",1)
+			UDCDmain.Log("unlockRestrain()"+getDeviceHeader()+": Device is already unlocked! Aborting ",1)
 		endif
 		return
 	endif
 	_isUnlocked = True
+	if _removeDeviceCalled
+		if UDCDmain.TraceAllowed()	
+			UDCDmain.Log("removeDevice("+getDeviceHeader()+"): Device is already removed! Aborting",1)
+		endif
+	endif
 
 	if UDCDmain.TraceAllowed()	
 		UDCDmain.Log("unlockRestrain() called for " + self,1)
