@@ -115,6 +115,7 @@ int Function GetDeviceSlotIndx(UD_CustomDevice_RenderScript device)
 		endif
 		i+=1
 	endwhile
+	return -1
 EndFunction
 
 Function SetSlotTo(Actor akActor)
@@ -328,6 +329,10 @@ EndFunction
 bool Function registerDevice(UD_CustomDevice_RenderScript oref)
 	if UDCDmain.TraceAllowed()	
 		UDCDmain.Log("Starting slot device register for " + oref.getDeviceHeader() )
+	endif
+	if GetDeviceSlotIndx(oref) > 0
+		UDmain.Error("registerDevice("+oref.getDeviceHeader()+") is already registered")
+		return false
 	endif
 	startDeviceManipulation()
 	int size = UD_equipedCustomDevices.length

@@ -28,6 +28,7 @@ MagicEffect _MagickEffect = none
 float loc_currentUpdateTime 		= 1.0
 bool loc_widgetShown 				= false
 bool loc_forceStop 					= false
+bool loc_actorinminigame			= false
 float loc_forcing					= 0.0
 float loc_orgasmRate 				= 0.0
 float loc_orgasmRate2 				= 0.0
@@ -45,6 +46,8 @@ float loc_orgasmCapacity			= 100.0
 float loc_orgasmResistence			= 2.5	
 float loc_orgasmProgress 			= 0.0
 float loc_orgasmProgress2			= 0.0
+float loc_orgasmProgress_p			= 0.0
+int	loc_orgasms						= 0
 int loc_hornyAnimTimer 				= 0
 bool[] loc_cameraState
 int loc_msID 						= -1
@@ -86,9 +89,11 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 	loc_orgasmResistence			= UDOM.getActorOrgasmResist(akActor)
 	loc_orgasmProgress 				= 0.0
 	loc_orgasmProgress2				= 0.0
+	loc_orgasmProgress_p			= loc_orgasmProgress/loc_orgasmCapacity
 	loc_hornyAnimTimer 				= 0
 	loc_msID 						= -1
-	
+	loc_orgasms						= 0
+	loc_actorinminigame				= UDCDMain.actorInMinigame(akActor)
 	registerForSingleUpdate(0.1)
 EndEvent
 
@@ -126,16 +131,17 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
 EndEvent
 
 Function Update()
-	loc_expression = UDEM.GetPrebuildExpression_Horny1()
+	if !loc_expression
+		loc_expression = UDEM.GetPrebuildExpression_Horny1()
+	endif
 EndFunction
 
 Event OnUpdate()
 	if IsRunning()
-		
 		if UDOM.OrgasmLoopBreak(akActor, UDOM.UD_OrgasmCheckLoop_ver) ;!UDCDmain.isRegistered(akActor) && !akActor.isDead()
 			akActor.DispelSpell(UDCDmain.UDlibs.OrgasmCheckSpell)
 		else
-			
+			Update()
 			loc_orgasmProgress2 = loc_orgasmProgress
 			
 			loc_orgasmResisting = akActor.isInFaction(UDOM.OrgasmResistFaction);StorageUtil.GetIntValue(akActor,"UD_OrgasmResisting",0)
@@ -149,6 +155,8 @@ Event OnUpdate()
 					loc_orgasmRate 				= UDOM.getActorOrgasmRate(akActor)
 					loc_orgasmRateMultiplier	= UDOM.getActorOrgasmRateMultiplier(akActor)
 					loc_orgasmResistMultiplier 	= UDOM.getActorOrgasmResistMultiplier(akActor)
+					loc_orgasms					= UDOM.getOrgasmingCount(akActor)
+					loc_actorinminigame			= UDCDMain.actorInMinigame(akActor)
 					UDOM.SetActorOrgasmProgress(akActor,loc_orgasmProgress)
 				endif
 				loc_orgasmProgress += loc_orgasmRate*loc_orgasmRateMultiplier*loc_currentUpdateTime
@@ -164,12 +172,14 @@ Event OnUpdate()
 				endif
 			endif
 			
+			loc_orgasmProgress_p = fRange(loc_orgasmProgress/loc_orgasmCapacity,0.0,1.0) ;update relative orgasm progress
+			
 			if loc_widgetShown && !loc_orgasmResisting
-				UDCDMain.widget2.SetPercent(loc_orgasmProgress/loc_orgasmCapacity)
+				UDCDMain.widget2.SetPercent(loc_orgasmProgress_p)
 			endif
 
 			;check orgasm
-			if loc_orgasmProgress > 0.99*loc_orgasmCapacity
+			if loc_orgasmProgress_p > 0.99
 				if UDCDmain.TraceAllowed()			
 					UDCDmain.Log("Starting orgasm for " + getActorName(akActor))
 				endif
@@ -215,7 +225,6 @@ Event OnUpdate()
 					loc_orgasmResistence 		= UDOM.getActorOrgasmResist(akActor)
 				else
 					loc_forcing 				= UDOM.getActorOrgasmForcing(akActor)
-					Update()
 				endif
 				
 				if !loc_orgasmResisting
@@ -223,6 +232,8 @@ Event OnUpdate()
 					loc_orgasmRate 				= UDOM.getActorOrgasmRate(akActor)
 					loc_orgasmRateMultiplier	= UDOM.getActorOrgasmRateMultiplier(akActor)
 					loc_orgasmResistMultiplier 	= UDOM.getActorOrgasmResistMultiplier(akActor)
+					loc_orgasms					= UDOM.getOrgasmingCount(akActor)
+					loc_actorinminigame			= UDCDMain.actorInMinigame(akActor)
 					UDOM.SetActorOrgasmProgress(akActor,loc_orgasmProgress)
 				endif
 
@@ -239,10 +250,10 @@ Event OnUpdate()
 				
 				;can play horny animation ?
 				if (loc_orgasmRate > 0.5*loc_orgasmResistMultiplier*loc_orgasmResistence) 
-					;start moaning sound again
-					if loc_msID == -1
+					;start moaning sound again. Not play when actor orgasms
+					if loc_msID == -1 && !loc_orgasms && !loc_actorinminigame
 						loc_msID = libs.MoanSound.Play(akActor)
-						Sound.SetInstanceVolume(loc_msID, libs.GetMoanVolume(akActor))
+						Sound.SetInstanceVolume(loc_msID, fRange(loc_orgasmProgress_p*2.0,0.75,1.0)*libs.GetMoanVolume(akActor,loc_arousal))
 					endif
 				else
 					;disable moaning sound when orgasm rate is too low
@@ -251,7 +262,7 @@ Event OnUpdate()
 						loc_msID = -1
 					endif
 				endif
-				if !UDCDMain.actorInMinigame(akActor)
+				if !loc_actorinminigame
 					if (loc_orgasmRate > 0.5*loc_orgasmResistMultiplier*loc_orgasmResistence) && !loc_orgasmResisting && !akActor.IsInCombat() ;orgasm progress is increasing
 						if (loc_hornyAnimTimer == 0) && !libs.IsAnimating(akActor) && UDOM.UD_HornyAnimation ;start horny animation for UD_HornyAnimationDuration
 							if Utility.RandomInt() <= (Math.ceiling(100/fRange(loc_orgasmProgress,15.0,100.0))) 
@@ -285,7 +296,7 @@ Event OnUpdate()
 						UDCDMain.toggleWidget2(false)
 						loc_widgetShown = false
 					elseif !loc_widgetShown && loc_orgasmProgress >= 2.5
-						UDCDMain.widget2.SetPercent(loc_orgasmProgress/loc_orgasmCapacity,true)
+						UDCDMain.widget2.SetPercent(loc_orgasmProgress_p,true)
 						UDCDMain.toggleWidget2(true)
 						loc_widgetShown = true
 					endif

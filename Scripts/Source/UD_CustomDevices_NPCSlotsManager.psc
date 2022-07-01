@@ -56,11 +56,13 @@ EndFunction
 Bool _PlayerSlotReady = false
 Float Property UD_SlotUpdatTime = 6.0 auto
 Event OnUpdate()
+	;init player slot
+	if !_PlayerSlotReady
+		_PlayerSlotReady = True
+		initPlayerSlot()
+	endif
+	
 	if UDmain.UDReady()
-		if !_PlayerSlotReady
-			_PlayerSlotReady = True
-			initPlayerSlot()
-		endif
 		if !UDmain.UD_DisableUpdate
 			if UDCDmain.UDmain.AllowNPCSupport
 				scanSlots()

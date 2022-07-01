@@ -140,7 +140,7 @@ Int Property UD_Level
 		return _level
 	EndFunction
 	Function set(int aiValue)
-		_level = iRange(aiValue,1,100)
+		_level = iRange(aiValue,1,1000)
 	EndFunction	
 EndProperty
 
@@ -284,8 +284,8 @@ int Property UD_LockpickDifficulty ;1 = Novice, 25 = Apprentice, 50 = Adept,75 =
 	
 	int Function get()
 		int loc_difficutly = decodeBit(_deviceControlBitMap_6,8,7)
-		if loc_difficutly < 255
-			loc_difficutly = iRange(loc_difficutly + 2*(UD_Level - 1),1,254)
+		if loc_difficutly <= 100
+			loc_difficutly = iRange(loc_difficutly + (UD_Level - 1),1,100)
 		endif
 		return loc_difficutly
 	EndFunction
@@ -1153,7 +1153,7 @@ EndEvent
 ;OnContainerChanged is very important event. It is used to determinate if render device have been equipped (OnEquipped only works for player)
 ;it is also used for retrieving device (this) script
 Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldContainer)
-	if (akNewContainer as Actor) && !akOldContainer && !isUnlocked
+	if (akNewContainer as Actor) && !akOldContainer && !isUnlocked && !Ready
 		Actor loc_actor = akNewContainer as Actor
 		if !loc_actor.isDead()
 			Init(loc_actor)
@@ -1426,6 +1426,7 @@ Function Init(Actor akActor)
 		UDCDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because no inventory device is present!")
 		return
 	endif
+
 	;if UDmain.DebugMod
 	;	Debug_LogBitMaps()
 	;endif
@@ -1434,7 +1435,13 @@ Function Init(Actor akActor)
 	if !deviceRendered || !UD_DeviceKeyword
 		updateValuesFromInventoryScript()
 	endif
-	
+		
+	if akActor.getItemCount(deviceRendered) > 1
+		UDCDmain.Error("!Aborting Init("+ getDeviceHeader() + " because device is already present!")
+		akActor.removeItem(deviceRendered,akActor.getItemCount(deviceRendered) - 1,true)
+		return
+	endif
+		
 	float loc_time = 0.0
 	bool loc_isplayer = Game.GetPlayer() == akActor
 	while loc_time <= 1.0 && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
@@ -1458,6 +1465,11 @@ Function Init(Actor akActor)
 	;MUTEX START
 	;mutex check because some mods equips items too fast at once, making it possible to have equipped 2 of the same item
 	if loc_slot
+		if loc_slot.getDeviceByRender(deviceRendered)
+			UDCDmain.Error("!Aborting Init("+ getDeviceHeader() +") because device is already registered!")
+			akActor.removeItem(deviceRendered,akActor.getItemCount(deviceRendered) - 1,true)
+			return
+		endif
 		StartInitMutex()
 	endif
 	
@@ -1517,13 +1529,13 @@ Function Init(Actor akActor)
 		resetCooldown()
 	endif
 	
-	Ready = True
-	
 	if UDCDmain.TraceAllowed()
 		UDCDmain.Log(DeviceInventory.getName() + " fully locked on " + getWearerName(),1)
 	endif
 	
 	InitPostPost()
+	
+	Ready = True
 	
 	if UDCDmain.isRegistered(getWearer())
 		Update(1/24/60) ;1 minute update
@@ -1739,16 +1751,16 @@ int Function getLockLevel()
 	if !UD_LockpickDifficulty
 		return 5
 	endif
-	if UD_LockpickDifficulty < 25
+	if UD_LockpickDifficulty == 1
 		return 0 ;Novice
-	elseif UD_LockpickDifficulty >= 25 && UD_LockpickDifficulty < 50
+	elseif UD_LockpickDifficulty <= 25
 		return 1 ;Apprentice
-	elseif UD_LockpickDifficulty >= 50 && UD_LockpickDifficulty < 75
+	elseif UD_LockpickDifficulty <= 50
 		return 2 ;Adept
-	elseif UD_LockpickDifficulty >= 75 && UD_LockpickDifficulty < 100
+	elseif UD_LockpickDifficulty <= 75
 		return 3 ;Expert
-	elseif UD_LockpickDifficulty >= 100 && UD_LockpickDifficulty < 255
-		return 4 ;Expert
+	elseif UD_LockpickDifficulty <= 100
+		return 4 ;master
 	else
 		return 5
 	endif
@@ -1884,7 +1896,7 @@ float Function getCondition()
 EndFunction
 
 float Function getRelativeCondition()
-	return (100.0 - _total_durability_drain)/100.0
+	return (UD_Health - _total_durability_drain)/UD_Health
 EndFunction
 
 bool Function isSentient()
@@ -4258,17 +4270,20 @@ string Function getInfoString()
 		temp += "Locks Difficulty: "
 		int loc_lockdiff = getLockLevel()
 		if loc_lockdiff == 0
-			temp += "Novice\n"
+			temp += "Novice"
 		elseif loc_lockdiff == 1
-			temp += "Apprentice\n"
+			temp += "Apprentice"
 		elseif loc_lockdiff == 2
-			temp += "Adept\n"
+			temp += "Adept"
 		elseif loc_lockdiff == 3
-			temp += "Expert\n"
+			temp += "Expert"
 		elseif loc_lockdiff == 4
-			temp += "Master\n"
+			temp += "Master"
 		else
-			temp += "Requires key\n"
+			temp += "Requires key"
+		endif
+		if loc_lockdiff < 5
+			temp += " ("+UD_LockpickDifficulty+")\n"
 		endif
 		
 		temp += "Key: "

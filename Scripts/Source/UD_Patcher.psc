@@ -268,7 +268,7 @@ EndFunction
 Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
 	Float loc_currentmult = UD_PatchMult_HeavyBondage*UD_PatchMult
 	;device.UD_LockpickDifficulty = 25
-	CheckLocks(device)
+	CheckLocks(device,true,50)
 	device.UD_LockAccessDifficulty = 100.0
 	device.UD_CutChance = 0.0
 
@@ -369,7 +369,7 @@ EndFunction
 Function patchBlindfold(UD_CustomBlindfold_RenderScript device)
 	Float loc_currentmult = UD_PatchMult_Blindfold*UD_PatchMult
 	patchDefaultValues(device,loc_currentmult)
-	CheckLocks(device,false,65)
+	CheckLocks(device,false,40)
 	;materials
 	if StringUtil.find(device.deviceInventory.getName(),"Extreme") != -1 || (StringUtil.find(device.deviceInventory.getName(),"High Security") != -1 || StringUtil.find(device.deviceInventory.getName(),"Secure") != -1)
 		device.UD_Locks = UD_MinLocks
@@ -386,7 +386,6 @@ Function patchGag(UD_CustomGag_RenderScript device)
 	Float loc_currentmult = UD_PatchMult_Gag*UD_PatchMult
 	patchDefaultValues(device,loc_currentmult)
 	
-	;CheckLocks(device,false,50)
 	if StringUtil.find(device.deviceInventory.getName(),"Extreme") != -1 || (StringUtil.find(device.deviceInventory.getName(),"High Security") != -1 || StringUtil.find(device.deviceInventory.getName(),"Secure") != -1)
 		device.UD_Locks = UD_MinLocks
 	endif
@@ -485,7 +484,7 @@ Function patchGeneric(UD_CustomDevice_RenderScript device)
 	Float loc_currentmult = UD_PatchMult_Generic*UD_PatchMult
 
 	patchDefaultValues(device,loc_currentmult)
-	CheckLocks(device,true,70)
+	CheckLocks(device,true,50)
 	If device as UD_CustomGloves_RenderScript || device as UD_CustomBoots_RenderScript
 		;CheckLocks(device,true,50)
 	EndIf
@@ -603,7 +602,7 @@ Function patchFinish(UD_CustomDevice_RenderScript device,int argControlVar = 0x0
 	checkInventoryScript(device,argControlVar,fMult)
 	
 	if device.UD_durability_damage_base || device.UD_Locks
-		CheckCutting(device,40)
+		CheckCutting(device,35)
 	endif
 	
 	if device.UD_Locks
@@ -622,9 +621,9 @@ Function patchFinish(UD_CustomDevice_RenderScript device,int argControlVar = 0x0
 	int loc_random = Utility.randomInt(0,100)
 	if loc_random > 75
 		if loc_random < 90
-			device.UD_WeaponHitResist = device.UD_WeaponHitResist + 0.25
+			device.UD_WeaponHitResist = device.UD_WeaponHitResist + Utility.randomFloat(0.25,0.75)
 		else
-			device.UD_WeaponHitResist = device.UD_WeaponHitResist - 0.25
+			device.UD_WeaponHitResist = device.UD_WeaponHitResist - Utility.randomFloat(0.25,0.75)
 		endif
 	endif
 	device.UD_SpellHitResist = device.UD_ResistMagicka
@@ -662,13 +661,13 @@ Function checkInventoryScript(UD_CustomDevice_RenderScript device,int argControl
 		if inventoryScript.LockPickEscapeChance >= 50.0
 			device.UD_LockpickDifficulty = 1 ;Novic
 		elseif inventoryScript.LockPickEscapeChance >= 20.0
-			device.UD_LockpickDifficulty = 25 ;Apprentice
+			device.UD_LockpickDifficulty = Utility.randomInt(2,20) ;Apprentice
 		elseif inventoryScript.LockPickEscapeChance >= 12.0
-			device.UD_LockpickDifficulty = 50 ;Adept
+			device.UD_LockpickDifficulty = Utility.randomInt(26,45) ;Adept
 		elseif inventoryScript.LockPickEscapeChance >= 7.0
-			device.UD_LockpickDifficulty = 75 ;Expert
+			device.UD_LockpickDifficulty = Utility.randomInt(51,70) ;Expert
 		elseif inventoryScript.LockPickEscapeChance > 0.0
-			device.UD_LockpickDifficulty = 100	;Master
+			device.UD_LockpickDifficulty = Utility.randomInt(76,100);Master
 		else 
 			device.UD_LockpickDifficulty = 255 ;Requires Key
 		endif
@@ -742,7 +741,7 @@ EndFunction
 
 Function patchDefaultValues(UD_CustomDevice_RenderScript device,Float fMult)
 	CheckLocks(device,false,40)
-	CheckCutting(device,40)
+	CheckCutting(device,35)
 	device.UD_LockpickDifficulty = 25*Utility.randomInt(1,3)
 	device.UD_LockAccessDifficulty = Utility.randomFloat(40.0,70.0) + 20*(fMult - 1.0)
 	device.UD_base_stat_drain = Utility.randomFloat(7.0,13.0)

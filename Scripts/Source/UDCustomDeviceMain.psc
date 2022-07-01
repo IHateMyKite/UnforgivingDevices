@@ -1805,11 +1805,25 @@ Function showActorDetails(Actor akActor)
 	loc_res += "MP: " + formatString(akActor.getAV("Magicka"),1) + "/" + formatString(getMaxActorValue(akActor,"Magicka"),1) + " ( "+ Round(getCurrentActorValuePerc(akActor,"Magicka")*100) +" %)" +"\n"
 	loc_res += "SP: " + formatString(akActor.getAV("Stamina"),1) + "/" +  formatString(getMaxActorValue(akActor,"Stamina"),1) + " ("+ Round(getCurrentActorValuePerc(akActor,"Stamina")*100) +" %)" +"\n"
 	
-	loc_res += "Agility skill: " + Round(getAgilitySkill(akActor)) + "\n"
-	loc_res += "Strength skill: " + Round(getStrengthSkill(akActor)) + "\n"
-	loc_res += "Magicka skill: " + Round(getMagickSkill(akActor)) + "\n"
-	loc_res += "Cutting skill: " + Round(getCuttingSkill(akActor)) + "\n"
-	
+	if IsRegistered(akActor)
+		UD_CustomDevice_NPCSlot loc_slot = GetNPCSlot(akActor)
+		if loc_slot
+			loc_res += "Agility skill: " + Round(loc_slot.AgilitySkill) + "\n"
+			loc_res += "Strength skill: " + Round(loc_slot.StrengthSkill) + "\n"
+			loc_res += "Magicka skill: " + Round(loc_slot.MagickSkill) + "\n"
+			loc_res += "Cutting skill: " + Round(loc_slot.CuttingSkill) + "\n"
+		else
+			loc_res += "Agility skill: " + Round(getAgilitySkill(akActor)) + "\n"
+			loc_res += "Strength skill: " + Round(getStrengthSkill(akActor)) + "\n"
+			loc_res += "Magicka skill: " + Round(getMagickSkill(akActor)) + "\n"
+			loc_res += "Cutting skill: " + Round(getCuttingSkill(akActor)) + "\n"
+		endif
+	else
+		loc_res += "Agility skill: " + Round(getAgilitySkill(akActor)) + "\n"
+		loc_res += "Strength skill: " + Round(getStrengthSkill(akActor)) + "\n"
+		loc_res += "Magicka skill: " + Round(getMagickSkill(akActor)) + "\n"
+		loc_res += "Cutting skill: " + Round(getCuttingSkill(akActor)) + "\n"
+	endif
 	;if getCurrentZadAnimation(akActor) != "none"
 	;	loc_res += "Animation: " + getCurrentZadAnimation(akActor) + "\n"
 	;endif

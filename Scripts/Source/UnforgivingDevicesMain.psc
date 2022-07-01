@@ -149,7 +149,6 @@ Event OnInit()
 		Log("UnforgivingDevicesMain initialized",0)
 	endif
 	Print("$UDREADY")
-	
 	Utility.wait(5.0)
 	RegisterForModEvent("UD_VibEvent","EventVib")
 	RegisterForSingleUpdate(0.1)
@@ -189,6 +188,10 @@ Function Update()
 		Error("UDMM not loaded! Loading...")
 		UDMM = UDCDMain.GetMeMyForm(0x15B555,"UnforgivingDevices.esp") as UD_MutexManagerScript
 		Error("UDMM set to "+UDMM)
+	endif
+	if !Ready
+		Ready = true
+		CLog("Detected that UD is not ready. Changing state to ready.")
 	endif
 EndFunction
 
@@ -397,34 +400,35 @@ bool Function TraceAllowed()
 EndFunction
 
 Function OnGameReload()
-	if Ready
-		(libs as zadlibs_UDPatch).ResetMutex()
-		
-		Utility.waitMenuMode(5.0)
-		
-		;update all scripts
-		Update()
-		;RegisterForSingleUpdate(0.1)
-		
-		UDlibs.Update()
-		
-		if TraceAllowed()	
-			Log("OnGameReload() called!",1)
-		endif
-		
-		UDCDmain.OnGameReset()
-		Config.LoadConfigPages()
-		CheckOptionalMods()
-		CheckPatchesOrder()
-		
-		UDPP.Update()
-		
-		UDOM.Update()
-		
-		UDEM.Update()
-		
-		UDNPCM.GameUpdate()
+	if !Ready
+		Utility.waitMenuMode(2.5)
 	endif
+	
+	Utility.waitMenuMode(2.5)
+		
+	CLog("OnGameReload() called! - Updating Unforgiving Devices...")
+	
+	;update all scripts
+	Update()
+	;RegisterForSingleUpdate(0.1)
+	
+	UDlibs.Update()
+	
+
+	
+	UDCDmain.OnGameReset()
+	Config.LoadConfigPages()
+	CheckOptionalMods()
+	CheckPatchesOrder()
+	
+	UDPP.Update()
+	
+	UDOM.Update()
+	
+	UDEM.Update()
+	
+	UDNPCM.GameUpdate()
+	CLog("Unforgiving Devices updated.")
 EndFunction
 
 ;=======================================================================
