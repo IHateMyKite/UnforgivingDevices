@@ -827,8 +827,8 @@ Function EndThirdPersonAnimation(actor akActor, bool[] cameraState, bool permitR
 			return
 		EndIf
 		Form loc_shield = StorageUtil.GetFormValue(akActor,"UD_UnequippedShield",none)
-		StorageUtil.UnsetFormValue(akActor,"UD_UnequippedShield")
 		if loc_shield
+			StorageUtil.UnsetFormValue(akActor,"UD_UnequippedShield")
 			akActor.equipItem(loc_shield,false,true)
 		endif
 		Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
