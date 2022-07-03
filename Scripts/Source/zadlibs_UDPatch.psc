@@ -793,7 +793,7 @@ bool[] Function StartThirdPersonAnimation(actor akActor, string animation, bool 
 			EndWhile
 			ret[1] = true
 		EndIf	
-		Armor loc_shield = UDCDmain.GetShield(akActor)
+		Form loc_shield = UDCDmain.GetShield(akActor)
 		if loc_shield
 			akActor.unequipItem(loc_shield,true,true)
 			StorageUtil.SetFormValue(akActor,"UD_UnequippedShield",loc_shield)
@@ -826,8 +826,9 @@ Function EndThirdPersonAnimation(actor akActor, bool[] cameraState, bool permitR
 			UDCDMain.Error("EndThirdPersonAnimation("+GetActorName(akActor)+") - Actor is not loaded (Or is otherwise invalid). Aborting.")
 			return
 		EndIf
-		Armor loc_shield = StorageUtil.GetFormValue(akActor,"UD_UnequippedShield",none) as Armor
+		Form loc_shield = StorageUtil.GetFormValue(akActor,"UD_UnequippedShield",none)
 		if loc_shield
+			StorageUtil.UnsetFormValue(akActor,"UD_UnequippedShield")
 			akActor.equipItem(loc_shield,false,true)
 		endif
 		Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")

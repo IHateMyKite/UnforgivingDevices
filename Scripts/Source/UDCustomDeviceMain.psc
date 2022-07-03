@@ -1755,14 +1755,10 @@ bool Function CheckRenderDeviceEquipped(Actor akActor, Armor rendDevice)
 	return false ;device is not equipped
 EndFunction
 
-Armor Function GetShield(Actor akActor)
-	if akActor.wornhaskeyword(UDlibs.ArmorShield)
-		Armor loc_shield = akActor.GetWornForm(0x00000200) as Armor
-		if loc_shield.isShield()
-			return loc_shield 
-		else
-			return none
-		endif
+Form Function GetShield(Actor akActor)
+	Form loc_shield = akActor.GetEquippedObject(0)
+	if loc_shield && (loc_shield.GetType() == 26 || loc_shield.GetType() == 31)
+		return loc_shield
 	else
 		return none
 	endif
