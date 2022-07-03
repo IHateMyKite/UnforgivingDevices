@@ -487,7 +487,14 @@ Event resetPatcherPage()
 	
 EndEvent
 
+zadBoundCombatScript_UDPatch Property AAScript
+	zadBoundCombatScript_UDPatch Function get()
+		return libs.BoundCombat as zadBoundCombatScript_UDPatch
+	EndFunction
+EndProperty
+
 int UD_StartThirdpersonAnimation_Switch_T
+int UD_DAR_T
 Event resetDDPatchPage()
 	UpdateLockMenuFlag()
 	setCursorFillMode(LEFT_TO_RIGHT)
@@ -499,6 +506,10 @@ Event resetDDPatchPage()
 	UD_GagPhonemModifier_S = addSliderOption("Gag phonem mod: ",UDCDmain.UD_GagPhonemModifier, "{0}")
 	
 	UD_StartThirdpersonAnimation_Switch_T = addToggleOption("Animation patch", libs.UD_StartThirdPersonAnimation_Switch)
+	
+	if AAScript
+		UD_DAR_T = addToggleOption("DAR patch", AAScript.UD_DAR)
+	endif
 	addEmptyOption()
 EndEvent
 
@@ -755,6 +766,9 @@ Function OptionDDPatch(int option)
 	if(option == UD_StartThirdpersonAnimation_Switch_T)
 		libs.UD_StartThirdpersonAnimation_Switch = !libs.UD_StartThirdpersonAnimation_Switch
 		SetToggleOptionValue(UD_StartThirdpersonAnimation_Switch_T, libs.UD_StartThirdpersonAnimation_Switch)
+	elseif option == UD_DAR_T
+		AAScript.UD_DAR = !AAScript.UD_DAR
+		SetToggleOptionValue(UD_DAR_T, AAScript.UD_DAR)
 	endif
 EndFunction
 
@@ -1785,7 +1799,7 @@ Function SaveToJSON(string strFile)
 	JsonUtil.SetIntValue(strFile, "WidgetPosX", widget.PositionX)
 	JsonUtil.SetIntValue(strFile, "WidgetPosY", widget.PositionY)
 	JsonUtil.SetIntValue(strFile, "RandomFiler", UDmain.UDRRM.UD_RandomDevice_GlobalFilter)
-	
+	JsonUtil.SetIntValue(strFile, "DAR", AAScript.UD_DAR as Int)
 	
 	JsonUtil.Save(strFile, true)
 EndFunction
@@ -1877,6 +1891,7 @@ Function LoadFromJSON(string strFile)
 	UDCDmain.widget2.PositionX = widget.PositionX
 	UDCDmain.widget2.PositionY = widget.PositionY
 	UDmain.UDRRM.UD_RandomDevice_GlobalFilter =  JsonUtil.GetIntValue(strFile, "RandomFiler", UDmain.UDRRM.UD_RandomDevice_GlobalFilter)
+	AAScript.UD_DAR =  JsonUtil.GetIntValue(strFile, "DAR", AAScript.UD_DAR as Int)
 EndFunction
 
 Function ResetToDefaults()
@@ -1976,6 +1991,7 @@ Function ResetToDefaults()
 	UDCDmain.widget2.PositionX = widget.PositionX
 	UDCDmain.widget2.PositionY = widget.PositionY
 	UDmain.UDRRM.UD_RandomDevice_GlobalFilter = 0x0000FFFF ;16b
+	AAScript.UD_DAR =  false
 EndFunction
 
 Function SetAutoLoad(bool bValue)

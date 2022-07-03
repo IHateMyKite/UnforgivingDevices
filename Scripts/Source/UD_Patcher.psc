@@ -661,13 +661,13 @@ Function checkInventoryScript(UD_CustomDevice_RenderScript device,int argControl
 		if inventoryScript.LockPickEscapeChance >= 50.0
 			device.UD_LockpickDifficulty = 1 ;Novic
 		elseif inventoryScript.LockPickEscapeChance >= 20.0
-			device.UD_LockpickDifficulty = Utility.randomInt(2,20) ;Apprentice
+			device.UD_LockpickDifficulty = Utility.randomInt(2,10) ;Apprentice
 		elseif inventoryScript.LockPickEscapeChance >= 12.0
-			device.UD_LockpickDifficulty = Utility.randomInt(26,45) ;Adept
+			device.UD_LockpickDifficulty = Utility.randomInt(26,35) ;Adept
 		elseif inventoryScript.LockPickEscapeChance >= 7.0
-			device.UD_LockpickDifficulty = Utility.randomInt(51,70) ;Expert
+			device.UD_LockpickDifficulty = Utility.randomInt(51,60) ;Expert
 		elseif inventoryScript.LockPickEscapeChance > 0.0
-			device.UD_LockpickDifficulty = Utility.randomInt(76,100);Master
+			device.UD_LockpickDifficulty = Utility.randomInt(76,80);Master
 		else 
 			device.UD_LockpickDifficulty = 255 ;Requires Key
 		endif

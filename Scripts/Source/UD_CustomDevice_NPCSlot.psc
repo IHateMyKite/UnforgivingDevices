@@ -1304,6 +1304,12 @@ Function UpdateSkills()
 	SmithingSkill = UDCDmain.getActorSmithingSkills(getActor())
 EndFunction
 
+;===============================================================================
+;===============================================================================
+;									MUTEX
+;===============================================================================
+;===============================================================================
+
 ;LOCK MUTEX
 bool 	Property UD_GlobalDeviceMutex_InventoryScript 				= false auto hidden
 bool 	Property UD_GlobalDeviceMutex_InventoryScript_Failed 		= false auto hidden
@@ -1314,6 +1320,8 @@ bool 	Property UD_GlobalDeviceUnlockMutex_InventoryScript 		= false auto hidden
 bool 	Property UD_GlobalDeviceUnlockMutex_InventoryScript_Failed 	= false auto hidden
 Armor 	Property UD_GlobalDeviceUnlockMutex_Device 					= none 	auto hidden
 
+Keyword Property UD_UnlockToken										= none 	auto hidden	
+
 Function ResetMutex_Lock(Armor invDevice)
 	UD_GlobalDeviceMutex_inventoryScript 				= false
 	UD_GlobalDeviceMutex_InventoryScript_Failed 		= false
@@ -1323,6 +1331,7 @@ EndFunction
 Function ResetMutex_Unlock(Armor invDevice)
 	UD_GlobalDeviceUnlockMutex_InventoryScript 			= false
 	UD_GlobalDeviceUnlockMutex_InventoryScript_Failed 	= false
+	UD_UnlockToken										= none
 	UD_GlobalDeviceUnlockMutex_Device 					= invDevice
 EndFunction
 

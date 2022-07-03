@@ -1,7 +1,11 @@
 Scriptname UD_AbadonPlug_RenderScript extends UD_CustomPlug_RenderScript  
 
 Quest Property AbadonQuest auto
-UD_AbadonQuest_script AbadonQuestScript
+UD_AbadonQuest_script Property AbadonQuestScript hidden
+	UD_AbadonQuest_script Function get()
+		return (AbadonQuest as UD_AbadonQuest_script)
+	EndFunction
+EndProperty
 
 import UnforgivingDevicesMain
 
@@ -38,10 +42,9 @@ EndFunction
 Function InitPost()
 	parent.InitPost()
 	nextDeviceManifest = Utility.GetCurrentGameTime() + 3.0/24.0 ;1 hour from equip
-	AbadonQuestScript = AbadonQuest as UD_AbadonQuest_script
 	UD_ActiveEffectName = "Plug-Abadon"
 	UD_DeviceType = "Abadon Plug"
-	
+
 	updateVibrationParam()
 	
 	if AbadonQuestScript.final_finisher_set
@@ -50,9 +53,20 @@ Function InitPost()
 			UDCDmain.Print("Abadon plug has locked you in various bondage items to prevent you from removing it")
 		endif
 	endif
-	if ((AbadonQuest).GetCurrentStageID() == 0) && WearerIsPlayer()
-		(AbadonQuest).setStage(20)
-		(AbadonQuest).SetObjectiveDisplayed(30)
+	
+	if AbadonQuest.GetStage() == 0
+		if !AbadonQuestScript.UD_AbadonVictim
+			if WearerIsPlayer() || WearerIsFollower()
+				AbadonQuestScript.UD_AbadonVictim = getWearer()
+				if WearerIsPlayer()
+					(AbadonQuest).setStage(20)
+					(AbadonQuest).SetObjectiveDisplayed(30)
+				else
+					(AbadonQuest).setStage(21)
+					(AbadonQuest).SetObjectiveDisplayed(31)
+				endif
+			endif
+		endif
 	endif
 EndFunction
 
@@ -287,9 +301,6 @@ Function onUpdatePre(float timePassed)
 	setModifierIntParam("LootGold",10 +  Math.floor(20.0*getTotalStrenght()*(0.5*(1 + AbadonQuestScript.overaldifficulty))))
 EndFunction
 
-;float _littleFinisherUpdateTimePassed = 0.0
-
-
 Function updateVibrationParam()
 	if !isVibrating()
 		if plug_hunger < 30
@@ -429,16 +440,26 @@ EndFunction
 
 Function onRemoveDevicePost(Actor akActor)
 	parent.onRemoveDevicePost(akActor)
-	if (AbadonQuest.GetCurrentStageID() > 0) && !AbadonQuest.isCompleted() && getWearer() == AbadonQuestScript.UD_AbadonVictim
-		if (AbadonQuest.GetCurrentStageID() == 20)
-			AbadonQuest.SetObjectiveCompleted(30)
-		elseif (AbadonQuest.GetCurrentStageID() == 30)
-			AbadonQuest.SetObjectiveCompleted(40)
+	if AbadonQuestScript.UD_AbadonVictim == getWearer()
+		if WearerIsPlayer()
+			if (AbadonQuest.GetCurrentStageID() == 20)
+				AbadonQuest.SetObjectiveCompleted(30)
+			elseif (AbadonQuest.GetCurrentStageID() == 30)
+				AbadonQuest.SetObjectiveCompleted(40)
+			endif
+		else
+			if (AbadonQuest.GetCurrentStageID() == 21)
+				AbadonQuest.SetObjectiveCompleted(31)
+			elseif (AbadonQuest.GetCurrentStageID() == 31)
+				AbadonQuest.SetObjectiveCompleted(41)
+			endif
 		endif
 		AbadonQuest.completeQuest()
 	endif
-	if AbadonQuestScript.final_finisher_set
-		AbadonQuestScript.AbadonEquipSuit(getWearer(),AbadonQuestScript.final_finisher_pref)
+	if !GetWearer().isDead()
+		if AbadonQuestScript.final_finisher_set
+			AbadonQuestScript.AbadonEquipSuit(getWearer(),AbadonQuestScript.final_finisher_pref)
+		endif
 	endif
 EndFunction
 
@@ -499,15 +520,21 @@ Function onUpdatePost(float timePassed)
 			max_diff_finisher = True
 			if WearerIsPlayer()
 				UDCDmain.Print("Abadon plug have reached its full strenght!")
-				
-				AbadonQuestScript.SetStage(30)
-				AbadonQuestScript.SetObjectiveFailed(30)
-				AbadonQuestScript.SetObjectiveDisplayed(40)
+				if AbadonQuestScript.UD_AbadonVictim == getWearer()
+					AbadonQuestScript.SetStage(30)
+					AbadonQuestScript.SetObjectiveFailed(30)
+					AbadonQuestScript.SetObjectiveDisplayed(40)
+				endif
 				string tmp = "Despite your best effort to remove the plug in time, you ultimately faild. Abadon plug have finaly reached it full strength. It manifested and locked extremly sturdy straitjacket suit on your body that barely alow you to move your arms."
 				tmp += "You immidiatly tried to struggle free, but that only maked plugs inside you start vibrating furiously. You pant in pleasure as first of many orgasm that is awayting you starts to build up."
 				tmp += "With realization of how bad situation you get yourself in to, you let last scream just before gag manifested over your mouth. Tears run down your cheeks as you uselessly try to resist comming orgasm."
 				debug.messagebox(tmp)
 			else
+				if AbadonQuestScript.UD_AbadonVictim == getWearer()
+					AbadonQuestScript.SetStage(31)
+					AbadonQuestScript.SetObjectiveFailed(31)
+					AbadonQuestScript.SetObjectiveDisplayed(41)
+				endif
 				UDCDmain.Print(getWearerName() + " " + getDeviceName() + " have reached its full potential!")
 			endif
 			UDmain.ItemManager.equipAbadonFinisherSuit(getWearer())

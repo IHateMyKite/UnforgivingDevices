@@ -1437,6 +1437,7 @@ bool _SpeacialButtonMutex = false
 int _SpecialButton_Bonus = 0 ;how much times was special button pressed while it was proccessing
 bool _specialButtonOn = false
 Event OnKeyDown(Int KeyCode)
+	bool _crit = crit ;help variable to reduce lag
 	if _SpeacialButtonMutex
 		if KeyCode == SpecialKey_Keycode
 			_SpecialButton_Bonus += 1
@@ -1444,11 +1445,10 @@ Event OnKeyDown(Int KeyCode)
 		endif
 	endif
 	if !Utility.IsInMenuMode() ;only if player is not in menu
-		bool _crit = crit ;help variable to reduce lag
 		if TraceAllowed()		
 			Log("OnKeyDown(), Keycode: " + KeyCode,3)
 		endif
-		if actorInMinigame(Game.GetPlayer())
+		if _oCurrentPlayerMinigameDevice || actorInMinigame(Game.GetPlayer())
 			if KeyCode == SpecialKey_Keycode
 				_specialButtonOn = true
 				if _oCurrentPlayerMinigameDevice
@@ -1463,27 +1463,27 @@ Event OnKeyDown(Int KeyCode)
 			
 			if (_crit) && !UD_AutoCrit
 				if selected_crit_meter == "S" && KeyCode == Stamina_meter_Keycode
+					crit = False
+					_crit = False
 					if TraceAllowed()					
 						Log("Crit detected for Stamina bar! Keycode: " + KeyCode)
 					endif
-					crit = False
-					_crit = False
 					_oCurrentPlayerMinigameDevice.critDevice()
 					return
 				elseif selected_crit_meter == "M" && KeyCode == Magicka_meter_Keycode
+					crit = False
+					_crit = False
 					if TraceAllowed()					
 						Log("Crit detected for Magicka bar! Keycode: " + KeyCode)
 					endif
-					crit = False
-					_crit = False
 					_oCurrentPlayerMinigameDevice.critDevice()
 					return
 				elseif KeyCode == Magicka_meter_Keycode || KeyCode == Stamina_meter_Keycode
+					crit = False
+					_crit = False
 					if TraceAllowed()					
 						Log("Crit failure detected! Keycode: " + KeyCode)
 					endif
-					crit = False
-					_crit = False
 					_oCurrentPlayerMinigameDevice.critFailure()
 				elseif KeyCode == ActionKey_Keycode
 					if TraceAllowed()					
@@ -1710,8 +1710,10 @@ Function UndressArmor(Actor akActor)
 		Form loc_armor = akActor.GetWornForm(loc_mask)
 		if loc_armor
 			if !loc_armor.haskeyword(libs.zad_Lockable) && !loc_armor.HasKeyWordString("SexLabNoStrip")
-				loc_armors = PapyrusUtil.PushForm(loc_armors,loc_armor)
-				loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,loc_armor.getName())
+				if !loc_armors || !PapyrusUtil.CountForm(loc_armors,loc_armor)
+					loc_armors = PapyrusUtil.PushForm(loc_armors,loc_armor)
+					loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,loc_armor.getName())
+				endif
 			endif
 		endif
 		loc_mask = Math.LeftShift(loc_mask,1)
@@ -1724,6 +1726,27 @@ Function UndressArmor(Actor akActor)
 	elseif loc_res < (loc_armorsnames.length - 2) && loc_res >= 0
 		akActor.unequipItem(loc_armors[loc_res], abSilent = true)
 	endif
+EndFunction
+
+Function UndressAllArmor(Actor akActor)
+	Form[] loc_armors
+	int loc_mask = 0x00000001
+	while loc_mask != 0x00004000
+		Form loc_armor = akActor.GetWornForm(loc_mask)
+		if loc_armor
+			if !loc_armor.haskeyword(libs.zad_Lockable) && !loc_armor.HasKeyWordString("SexLabNoStrip")
+				if !loc_armors || !PapyrusUtil.CountForm(loc_armors,loc_armor)
+					loc_armors = PapyrusUtil.PushForm(loc_armors,loc_armor)
+				endif
+			endif
+		endif
+		loc_mask = Math.LeftShift(loc_mask,1)
+	endwhile
+	int loc_armornum = loc_armors.length
+	while loc_armornum
+		loc_armornum -= 1
+		akActor.unequipItem(loc_armors[loc_armornum], abSilent = true)
+	endwhile
 EndFunction
 
 ;function made as replacemant for akActor.isEquipped, because that function doesn't work for NPCs
@@ -3019,31 +3042,6 @@ bool Function ApplyDroolEffect(Actor akActor) ;works only for player
 	endif
 	return false
 EndFUnction
-
-; thanks to Subhuman#6830 for ESPFE form check, compatible with LE
-; Notes given by him:
-; 1) it breaks the compile-time dependency.   GetformFromFile requires you to have the plugin you're getting a form for in order to compile, this does not
-; 2) less papyrus spam, if the plugin isn't found it prints a single line debug.trace instead 4-5 lines of errors
-; 3) related to 1, it doesn't verify you didn't screw up.   If you're trying to cast a package as a quest, for example, GetFormFromFile will throw a compiler error because it can't be done.  This will not.  You have to verify your own work. 
-form function GetMeMyForm(int formNumber, string pluginName) ;fornumber format is 0xFULLFORMID, for example 0x00000007. Even for ESPFE format, ignoring 0xFE
-    int theLO = Game.GetModByName(pluginName)
-    if ((theLO == 255) || (theLO == 0)) ; 255 = not found, 0 = no skse
-        Log(pluginName + " not loaded or SKSE not found", 1)
-        return none
-    elseIf (theLO > 255) ; > 255 = ESL
-        ; the first FIVE hex digits in an ESL are its address, so a formNumber exceeding 0xFFF or below 0x800 is invalid
-        if ((Math.LogicalAnd(0xFFFFF000, formNumber) != 0) || (Math.LogicalAnd(0x00000800, formNumber) == 0))
-            Log("Plugin " + pluginName + " has FormIDs outside the range\nallocated for ESL plugins!: " + formNumber)
-            Log("ESL-flagged plugin " + pluginName + " contains invalid FormIDs: " + formNumber, 2)
-            return none
-        endIf
-        ; getmodbyname reports an ESL as 256 higher than the game indexes it internally
-        theLO -= 256
-        return Game.GetFormEx(Math.LogicalOr(Math.LogicalOr(0xFE000000, Math.LeftShift(theLO, 12)), formNumber))
-    else    ; regular ESL-free plugin
-        return Game.GetFormEx(Math.LogicalOr(Math.LeftShift(theLO, 24), formNumber))
-    endIf
-endFunction
 
 ; gets Lover's Desire perks faster than calling GetMeMyForm every time, based on predefined load order ids on game load
 form Function SLAPerkFastFetch(int formNumber, bool OSL = false)

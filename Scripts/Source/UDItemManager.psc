@@ -1,5 +1,7 @@
 Scriptname UDItemManager extends Quest  
 
+import UnforgivingDevicesMain
+
 UD_libs Property UDlibs auto
 UDCustomDeviceMain Property UDCDmain auto
 bool Property UD_useHoods = True auto
@@ -218,17 +220,26 @@ Function equipAbadonSimpleSuit(Actor target)
 		endif
 		
 		if (!target.WornhasKeyword(libs.zad_DeviousGag))
-			int loc_rand = Utility.randomInt(1,2)
+			int loc_rand = 1;Utility.randomInt(1,2)
+			if ActorIsPlayer(target) ;panel gag is only for player, as its buggy for NPCs
+				loc_rand = Utility.randomInt(1,2)
+			endif
 			if loc_rand == 1
-				libs.LockDevice(target,UDlibs.AbadonPanelGag)
-			else 
 				libs.LockDevice(target,UDlibs.AbadonRingGag)
+			else 
+				libs.LockDevice(target,UDlibs.AbadonPanelGag)
 			endif
 		endif
-
+		
+		if Utility.randomInt(0,1)
+			libs.LockDevice(target,UDlibs.AbadonArmbinderEbonite)
+		else
+			libs.LockDevice(target,UDlibs.AbadonStraitjacketEboniteOpen)
+		endif
+		
 		if (!target.WornhasKeyword(libs.zad_DeviousCollar))
 			if (!target.WornhasKeyword(libs.zad_DeviousBelt))
-				if (!target.WornhasKeyword(libs.zad_DeviousCorset))
+				if !target.WornhasKeyword(libs.zad_DeviousCorset) && !target.WornhasKeyword(libs.zad_DeviousStraitJacket)
 					libs.LockDevice(target,UDlibs.AbadonHarness)
 				else
 					libs.LockDevice(target,UDlibs.AbadonBelt)
@@ -238,13 +249,7 @@ Function equipAbadonSimpleSuit(Actor target)
 			endif
 		endif
 
-		if Utility.randomInt(0,1)
-			libs.LockDevice(target,UDlibs.AbadonArmbinderEbonite)
-		else
-			libs.LockDevice(target,UDlibs.AbadonStraitjacketEboniteOpen)
-		endif
-		
-		
+
 		
 	elseif loc_subVar == 1 ;white
 		if (!target.WornhasKeyword(libs.zad_DeviousBlindfold))
@@ -271,14 +276,14 @@ Function equipAbadonYokeSuit(Actor target)
 	endif
 		
 	if (!target.WornhasKeyword(libs.zad_DeviousBoots))
-		;int loc_random = Utility.randomInt(1,3)
-		;if loc_random == 1
+		int loc_random = Utility.randomInt(1,3)
+		if loc_random == 1
 			libs.LockDevice(target,libsx.zadx_SlaveHighHeelsInventory)
-		;elseif loc_random == 2
-		;	libs.LockDevice(target,libsx.zadx_HR_IronBalletBootsInventory)
-		;elseif loc_random == 3
-		;	libs.LockDevice(target,libsx.EbonitePonyBoots)
-		;endif
+		elseif loc_random == 2
+			libs.LockDevice(target,libsx.zadx_HR_IronBalletBootsInventory)
+		elseif loc_random == 3
+			libs.LockDevice(target,UDlibs.AbadonRestrictiveBoots)
+		endif
 	endif
 
 	if (!target.WornhasKeyword(libs.zad_DeviousHood) && UD_useHoods)
@@ -290,13 +295,18 @@ Function equipAbadonYokeSuit(Actor target)
 	else
 		
 		if (!target.WornhasKeyword(libs.zad_DeviousGag))
-			int loc_rand = Utility.randomInt(1,3)
-			if loc_rand == 1
-				libs.LockDevice(target,UDlibs.AbadonPanelGag)
-			elseif loc_rand == 2
-				libs.LockDevice(target,UDlibs.AbadonBallGag)
+			int loc_rand;Utility.randomInt(1,2)
+			if ActorIsPlayer(target) ;panel gag is only for player, as its buggy for NPCs
+				loc_rand = Utility.randomInt(1,3)
 			else
+				loc_rand = Utility.randomInt(1,2)
+			endif
+			if loc_rand == 1
+				libs.LockDevice(target,UDlibs.AbadonBallGag)
+			elseif loc_rand == 2
 				libs.LockDevice(target,UDlibs.AbadonRingGag)
+			else
+				libs.LockDevice(target,UDlibs.AbadonPanelGag)
 			endif
 		endif
 	endif

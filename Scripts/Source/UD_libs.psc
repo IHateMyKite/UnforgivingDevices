@@ -1,5 +1,7 @@
 Scriptname UD_libs extends Quest  
 
+import UnforgivingDevicesMain
+
 UnforgivingDevicesMain Property main auto
 
 ;zadlibs slots
@@ -42,28 +44,28 @@ EndEvent
 
 Function Update()
 	if !PunisherArmbinder
-		PunisherArmbinder = main.UDCDMain.GetMeMyForm(0x15B53D,"UnforgivingDevices.esp") as Armor
+		PunisherArmbinder = GetMeMyForm(0x15B53D,"UnforgivingDevices.esp") as Armor
 	endif
 	
 	if !PunisherPiercing
-		PunisherPiercing = main.UDCDMain.GetMeMyForm(0x15B538,"UnforgivingDevices.esp") as Armor
+		PunisherPiercing = GetMeMyForm(0x15B538,"UnforgivingDevices.esp") as Armor
 	endif
 
 	if !PreventCombat_KW
 		main.Error("PreventCombat_KW not detected. Loading...")
-		PreventCombat_KW = main.UDCDMain.GetMeMyForm(0x15B551,"UnforgivingDevices.esp") as Keyword
+		PreventCombat_KW = GetMeMyForm(0x15B551,"UnforgivingDevices.esp") as Keyword
 		main.Error("PreventCombat_KW loaded")
 	endif
 
 	if !PreventCombatSpell
 		main.Error("PreventCombatSpell not detected. Loading...")
-		PreventCombatSpell = main.UDCDMain.GetMeMyForm(0x15B553,"UnforgivingDevices.esp") as Spell
+		PreventCombatSpell = GetMeMyForm(0x15B553,"UnforgivingDevices.esp") as Spell
 		main.Error("PreventCombatSpell loaded")
 	endif
 	
 	if !ActorTypeNPC
 		main.Error("ActorTypeNPC not detected. Loading...")
-		ActorTypeNPC = main.UDCDMain.GetMeMyForm(0x013794,"Skyrim.esm") as Keyword
+		ActorTypeNPC = GetMeMyForm(0x013794,"Skyrim.esm") as Keyword
 		main.Error("ActorTypeNPC loaded " + ActorTypeNPC)
 	endif
 EndFunction

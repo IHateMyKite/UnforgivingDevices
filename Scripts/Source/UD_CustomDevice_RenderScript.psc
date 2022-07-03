@@ -284,8 +284,8 @@ int Property UD_LockpickDifficulty ;1 = Novice, 25 = Apprentice, 50 = Adept,75 =
 	
 	int Function get()
 		int loc_difficutly = decodeBit(_deviceControlBitMap_6,8,7)
-		if loc_difficutly <= 100
-			loc_difficutly = iRange(loc_difficutly + (UD_Level - 1),1,100)
+		if loc_difficutly < 100
+			loc_difficutly = iRange(loc_difficutly + Round(0.5*(UD_Level - 1)),1,100) ;increase lockpick difficulty by 0.5/level
 		endif
 		return loc_difficutly
 	EndFunction
@@ -1186,7 +1186,14 @@ EndFunction
 
 ;returns inventory device script, SCRIPT NEED TO BE ALWAYS DELEATED AFTER USING WITH script.delete() !!!
 UD_CustomDevice_EquipScript Function getInventoryScript()
-	return (UDCDmain.TransfereContainer_ObjRef.placeatme(deviceInventory,1) as UD_CustomDevice_EquipScript)
+	ObjectReference loc_ref = UDCDmain.TransfereContainer_ObjRef.placeatme(deviceInventory,1)
+	if loc_ref as UD_CustomDevice_EquipScript
+		return (loc_ref as UD_CustomDevice_EquipScript)
+	else
+		UDmain.Error("getInventoryScript(" + getDeviceHeader() + ") - ID have no UD_CustomDevice_EquipScript script! Ref: " + loc_ref)
+		loc_ref.delete()
+		return none
+	endif
 EndFunction
 
 bool Function isDeviceValid()
@@ -1207,16 +1214,16 @@ EndFunction
 ;	-!!!device rendered!!!
 Function updateValuesFromInventoryScript()
 	UD_CustomDevice_EquipScript temp = getInventoryScript()
-	
-	zad_deviceKey = temp.deviceKey
-	zad_KeyBreakChance = temp.KeyBreakChance
-	zad_DestroyOnRemove = temp.DestroyOnRemove
-	zad_DestroyKey = temp.DestroyKey
-	zad_JammLockChance = temp.LockJamChance
-	UD_DeviceKeyword = temp.zad_deviousDevice
-	DeviceRendered = temp.DeviceRendered
-	temp.delete()
-	
+	if temp
+		zad_deviceKey = temp.deviceKey
+		zad_KeyBreakChance = temp.KeyBreakChance
+		zad_DestroyOnRemove = temp.DestroyOnRemove
+		zad_DestroyKey = temp.DestroyKey
+		zad_JammLockChance = temp.LockJamChance
+		UD_DeviceKeyword = temp.zad_deviousDevice
+		DeviceRendered = temp.DeviceRendered
+		temp.delete()
+	endif
 	if zad_DestroyOnRemove && !hasModifier("DOR")
 		addModifier("DOR")
 	endif
@@ -2658,7 +2665,7 @@ bool Function lockpickMinigame()
 	UD_RegenMag_Health = 0.5
 	UD_RegenMag_Magicka = 0.5
 	_customMinigameCritChance = getLockAccesChance(false)
-	_customMinigameCritDuration = 0.75 - getLockLevel()*0.025
+	_customMinigameCritDuration = 0.8 - getLockLevel()*0.02
 	
 	_minMinigameStatSP = 0.8
 	;UDCDmain.setLockPickContainer(UD_LockpickDifficulty,Wearer)
@@ -2689,7 +2696,7 @@ bool Function repairLocksMinigame()
 	UD_WidgetColor2 = -1
 
 	_customMinigameCritChance = 5 + (4 - getLockLevel())*5
-	_customMinigameCritDuration = 0.75 - getLockLevel()*0.025
+	_customMinigameCritDuration = 0.8 - getLockLevel()*0.02
 	UD_MinigameMult1 = getAccesibility() + UDCDMain.getActorSmithingSkillsPerc(getWearer())*0.5
 	if wearerFreeHands()
 		UD_MinigameMult1 += 0.5
@@ -2996,7 +3003,7 @@ bool Function repairLocksMinigameWH(Actor akHelper)
 	UD_RegenMag_Health = 0.5
 	UD_RegenMagHelper_Magicka = 0.75
 	UD_RegenMagHelper_Health = 0.75
-	_customMinigameCritDuration = 0.75 - getLockLevel()*0.01	
+	_customMinigameCritDuration = 0.85 - getLockLevel()*0.015	
 	_minMinigameStatSP = 0.8
 	if minigamePostcheck()
 		repairLocksMinigame_on = True
@@ -3844,7 +3851,7 @@ Function critDevice()
 				Wearer.restoreAV("Magicka", UD_minigame_magicka_drain*1.25)
 			endif
 		endif
-		if UD_minigame_critRegen_helper && _minigameHelper
+		if _minigameHelper && UD_minigame_critRegen_helper
 			if (UD_minigame_stamina_drain_helper > 0.0)
 				_minigameHelper.restoreAV("Stamina", UD_minigame_stamina_drain_helper*1.25)
 			endif
@@ -4280,7 +4287,7 @@ string Function getInfoString()
 		elseif loc_lockdiff == 4
 			temp += "Master"
 		else
-			temp += "Requires key"
+			temp += "Requires key\n"
 		endif
 		if loc_lockdiff < 5
 			temp += " ("+UD_LockpickDifficulty+")\n"

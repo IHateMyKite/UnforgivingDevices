@@ -5,10 +5,14 @@ import sslBaseExpression
 import UnforgivingDevicesMain
 
 UDCustomDeviceMain Property UDCDmain auto
-
+UnforgivingDevicesMain Property UDmain
+	UnforgivingDevicesMain Function get()
+		return UDCDMain.UDmain
+	EndFunction
+EndProperty
 UD_MutexManagerScript Property UDMM
 	UD_MutexManagerScript Function get()
-		return UDCDMain.UDmain.UDMM
+		return UDmain.UDMM
 	EndFunction
 EndProperty
 
@@ -73,18 +77,15 @@ bool Property DD_UseMutex = true auto
 
 Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force = false)
 	if !deviceInventory
-		UDCDMain.Error("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - none passed as deviceInventory")
+		UDmain.Error("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - none passed as deviceInventory")
 		return false
 	endif
 	if !akActor
-		UDCDMain.Error("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - none passed as akActor")
+		UDmain.Error("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - none passed as akActor")
 		return false
 	endif
-	
-	if !UDCDmain.UDmain.ActorIsValidForUD(akActor)		
-		if UDCDmain.TraceAllowed()
-			UDCDmain.Log("LockDevicePatched - " + akActor + " is not valid actor!",1)
-		endif
+	if !UDmain.ActorIsValidForUD(akActor)		
+		UDmain.Warning("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") is not valid actor or dead! Aborting")
 		return false
 	endif
 	
@@ -101,11 +102,11 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
 	if deviceInventory.hasKeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
 		if UDCDmain.TraceAllowed()
 			if loc_slot
-				UDCDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - NPC slot: " + loc_slot,1)
+				UDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - NPC slot: " + loc_slot,1)
 			elseif loc_mutex	
-				UDCDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - mutex: " + loc_mutex,1)
+				UDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - mutex: " + loc_mutex,1)
 			else
-				UDCDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - no mutex",1)
+				UDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - no mutex",1)
 			endif
 		endif
 		
@@ -294,67 +295,98 @@ EndFunction
 
 ;modified version of RemoveQuestDevice from zadlibs. This version makes use of registered devices from UD,making unequip procces for NPC safer and faster
 Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRendered, keyword zad_DeviousDevice, keyword RemovalToken, bool destroyDevice=false, bool skipMutex=false)
+	if UDCDMain.TraceAllowed()
+		UDCDMain.Log("RemoveQuestDevice(UDP)("+getActorName(akActor)+") called for " + deviceInventory.GetName(),1)
+	endif
+	;if !akActor.IsEquipped(deviceInventory) && !akActor.IsEquipped(deviceRendered) && !end
+	;	UDCDmain.Error("RemoveQuestDevice(patched)("+getActorName(akActor)+") called for " + deviceInventory +", but this device is not currently worn.")
+	;	end = True
+	;EndIf	
+	
+	If !deviceInventory.HasKeyword(zad_QuestItem) && !deviceRendered.HasKeyword(zad_QuestItem)
+		UDCDmain.Error("RemoveQuestDevice("+getActorName(akActor)+") aborted for " + deviceInventory.GetName() + " because it's not a quest item.")
+		return
+	EndIf
+	
+	If (!RemovalToken || zadStandardKeywords.HasForm(RemovalToken) || !(deviceInventory.HasKeyword(RemovalToken) || deviceRendered.HasKeyword(RemovalToken)))
+		UDCDmain.Error("RemoveQuestDevice("+getActorName(akActor)+") called for " + deviceInventory.GetName() + " with invalid removal token. Aborted.")
+		return
+	EndIf	
+
+	UD_CustomDevice_NPCSlot loc_slot 	= none ;NPC slot for registered NPC
+	UD_MutexScript 			loc_mutex 	= none ;mutex used for non registered NPC
+	
+	;start mutex if actor is not dead
 	bool loc_actordead = akActor.isDead()
 	if !loc_actordead
-		CheckUnlockMutex()
-	endif
-	if deviceInventory.hasKeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
-		if UDCDMain.TraceAllowed()
-			UDCDMain.Log("RemoveQuestDevice(patched)("+getActorName(akActor)+") called for " + deviceInventory.GetName(),1)
+		loc_slot = UDCDmain.getNPCSlot(akActor)
+		if loc_slot
+			loc_slot.StartUnlockMutex()
+		else
+			loc_mutex = UDMM.WaitForFreeAndSet_Unlock(akActor,deviceInventory)
 		endif
-		bool end = false
-		if !akActor.IsEquipped(deviceInventory) && !akActor.IsEquipped(deviceRendered) && !end
-			UDCDmain.Error("RemoveQuestDevice(patched)("+getActorName(akActor)+") called for " + deviceInventory +", but this device is not currently worn.")
-			end = True
-		EndIf	
-		If !deviceInventory.HasKeyword(zad_QuestItem) &&  !deviceRendered.HasKeyword(zad_QuestItem) && !end
-			UDCDmain.Error("RemoveQuestDevice(patched)("+getActorName(akActor)+") aborted for " + deviceInventory.GetName() + " because it's not a quest item.")
-			end = True
-		EndIf
-		If (!RemovalToken || zadStandardKeywords.HasForm(RemovalToken) || !(deviceInventory.HasKeyword(RemovalToken) || deviceRendered.HasKeyword(RemovalToken))) && !end
-			UDCDmain.Error("RemoveQuestDevice(patched)("+getActorName(akActor)+") called for " + deviceInventory.GetName() + " with invalid removal token. Aborted.")
-			end = True
-		EndIf	
-		if !end 			
-			questItemRemovalAuthorizationToken = RemovalToken	
-			StorageUtil.SetIntValue(akActor, "zad_RemovalToken" + deviceInventory, 1)
-			StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0x110)
-			bool loc_registered = true;UDCDmain.IsRegistered(akActor)
-			if !loc_actordead && loc_registered
-				UD_GlobalDeviceMutex_Unlock_InventoryScript = false
-				UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed = false
-				UD_GlobalDeviceMutex_Unlock_Device = deviceInventory
-				UD_GlobalDeviceMutex_Unlock_Actor = akActor
+	endif
+	
+	if deviceInventory.hasKeyword(UDCDmain.UDlibs.PatchedInventoryDevice)	
+		Armor loc_renDevice = none
+		
+		;get render device, this is important as function will not work without RD
+		if deviceRendered
+			loc_renDevice = deviceRendered
+		else
+			loc_renDevice = UDCDmain.getStoredRenderDevice(deviceInventory)
+			if loc_renDevice
+				loc_renDevice = GetRenderedDevice(deviceInventory)
 			endif
+		endif
+	
+		if akActor.getItemCount(loc_renDevice)
+			;questItemRemovalAuthorizationToken = RemovalToken
+			
+			if loc_slot
+				loc_slot.ResetMutex_UnLock(deviceInventory) ;init slot mutex
+				loc_slot.UD_UnlockToken 	= RemovalToken
+			elseif loc_mutex
+				loc_mutex.UD_UnlockToken 	= RemovalToken
+				;is already set by WaitForFreeAndSet_Unlock
+			endif
+			
+			if UDCDmain.TraceAllowed()	
+				if loc_slot
+					UDCDmain.Log("RemoveQuestDevice("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - NPC slot: " + loc_slot,1)
+				elseif loc_mutex	
+					UDCDmain.Log("RemoveQuestDevice("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - mutex: " + loc_mutex,1)
+				else
+					UDCDmain.Log("RemoveQuestDevice("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - no mutex",1)
+				endif
+			endif
+			
+			StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0x110)
 			
 			akActor.removeItem(deviceInventory,1,True,UDCDmain.EventContainer_ObjRef)	
 			UDCDmain.EventContainer_ObjRef.removeItem(deviceInventory,1,True,akActor)	
 			
-			if !loc_actordead && loc_registered
-				float loc_time = 0.0
-				while  loc_time <= 15.0 && !UD_GlobalDeviceMutex_Unlock_InventoryScript && !UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed
-					Utility.waitMenuMode(0.05)
-					loc_time += 0.05
-				endwhile
-				
-				if loc_time >= 15.0
-					UDCDmain.Error("RemoveQuestDevice("+getActorName(akActor)+","+deviceInventory.getName()+") timeout!!!")
-				endif
-				
-				UD_GlobalDeviceMutex_Unlock_InventoryScript = false
-				UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed = false
-				UD_GlobalDeviceMutex_Unlock_Device = none
-				UD_GlobalDeviceMutex_Unlock_Actor = none
+			;procces mutex untill device is unlocked
+			if loc_slot
+				loc_slot.ProccesUnLockMutex()
+			elseif loc_mutex
+				loc_mutex.EvaluateUnLockMutex()
 			endif
+			
 			if destroyDevice
 				akActor.RemoveItem(deviceInventory, 1, true)
 			EndIf
-		endif			
+		else	
+				
+		endif		
 	else
 		parent.RemoveQuestDevice(akActor, deviceInventory, deviceRendered, zad_DeviousDevice, RemovalToken, destroyDevice, skipMutex) ;actor not registered
 	endif
-	if !loc_actordead
-		RemoveUnlockMutex()
+	;end mutex
+	if loc_slot
+		loc_slot.EndUnLockMutex()
+	elseif loc_mutex
+		loc_mutex.ResetUnLockMutex()
 	endif
 EndFunction
 
@@ -829,6 +861,7 @@ Function EndThirdPersonAnimation(actor akActor, bool[] cameraState, bool permitR
 		Armor loc_shield = StorageUtil.GetFormValue(akActor,"UD_UnequippedShield",none) as Armor
 		if loc_shield
 			akActor.equipItem(loc_shield,false,true)
+			StorageUtil.UnSetFormValue(akActor,"UD_UnequippedShield")
 		endif
 		Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
 		if akActor == Game.GetPlayer()

@@ -162,13 +162,13 @@ EndEvent
 Function Update()
 	if !UDOM
 		Error("UDOM not loaded! Loading...")
-		UDOM = UDCDMain.GetMeMyForm(0x15B532,"UnforgivingDevices.esp") as UD_OrgasmManager
+		UDOM = GetMeMyForm(0x15B532,"UnforgivingDevices.esp") as UD_OrgasmManager
 		Error("UDOM set to "+UDOM)
 	endif
 	
 	if !UDEM
 		Error("UDEM not loaded! Loading...")
-		UDEM = UDCDMain.GetMeMyForm(0x156417,"UnforgivingDevices.esp") as UD_ExpressionManager
+		UDEM = GetMeMyForm(0x156417,"UnforgivingDevices.esp") as UD_ExpressionManager
 		Error("UDEM set to "+UDEM)
 	endif
 
@@ -180,13 +180,13 @@ Function Update()
 	
 	if !UDNPCM
 		Error("UDNPCM not loaded! Loading...")
-		UDNPCM = UDCDMain.GetMeMyForm(0x14E7EB,"UnforgivingDevices.esp") as UD_CustomDevices_NPCSlotsManager
+		UDNPCM = GetMeMyForm(0x14E7EB,"UnforgivingDevices.esp") as UD_CustomDevices_NPCSlotsManager
 		Error("UDNPCM set to "+UDNPCM)
 	endif
 	
 	if !UDMM
 		Error("UDMM not loaded! Loading...")
-		UDMM = UDCDMain.GetMeMyForm(0x15B555,"UnforgivingDevices.esp") as UD_MutexManagerScript
+		UDMM = GetMeMyForm(0x15B555,"UnforgivingDevices.esp") as UD_MutexManagerScript
 		Error("UDMM set to "+UDMM)
 	endif
 	if !Ready
@@ -341,13 +341,13 @@ EndFunction
 
 Function CLog(String msg)
 	if ConsoleUtilInstalled ;print to console
-		ConsoleUtil.PrintMessage("[UD] " + msg)
+		ConsoleUtil.PrintMessage("[UD,INFO,T="+Utility.GetCurrentRealTime()+"]: " + msg)
 	endif
 EndFunction
 
 ;only use for debugging
 Function DCLog(String msg) global
-	ConsoleUtil.PrintMessage("[UD] " + msg)
+	ConsoleUtil.PrintMessage("[UD,DEBUG,T="+Utility.GetCurrentRealTime()+"]: " + msg)
 EndFunction
 
 int Property PrintLevel = 3 auto
@@ -367,6 +367,41 @@ Function Error(String msg)
 	endif
 EndFunction
 
+;global error function. Ignore safety in sake of usebality
+Function GError(String msg) global
+	string loc_msg = "[UD,!ERROR!,T="+Utility.GetCurrentRealTime()+"]: " + msg
+	debug.trace(loc_msg)
+	ConsoleUtil.PrintMessage(loc_msg)
+EndFunction
+
+Function Warning(String msg)
+	string loc_msg = "[UD,WARNING,T="+Utility.GetCurrentRealTime()+"]: " + msg
+	debug.trace(loc_msg)
+	if ConsoleUtilInstalled ;print to console
+		ConsoleUtil.PrintMessage(loc_msg)
+	endif
+EndFunction
+
+Function GWarning(String msg) global
+	string loc_msg = "[UD,WARNING,T="+Utility.GetCurrentRealTime()+"]: " + msg
+	debug.trace(loc_msg)
+	ConsoleUtil.PrintMessage(loc_msg)
+EndFunction
+
+Function Info(String msg)
+	string loc_msg = "[UD,INFO,T="+Utility.GetCurrentRealTime()+"]: " + msg
+	debug.trace(loc_msg)
+	if ConsoleUtilInstalled ;print to console
+		ConsoleUtil.PrintMessage(loc_msg)
+	endif
+EndFunction
+
+Function GInfo(String msg) global
+	string loc_msg = "[UD,INFO,T="+Utility.GetCurrentRealTime()+"]: " + msg
+	debug.trace(loc_msg)
+	ConsoleUtil.PrintMessage(loc_msg)
+EndFunction
+
 bool Function ActorIsFollower(Actor akActor)
 	;added check for followers that are not marked as followers by normal means, to make loc_res == 4 from UDCustomDeviceMain.NPCMenu() work on them as well
 	;yes yes, some of the followers don't have FollowerFaction assigned, DCL uses similar check for those.
@@ -381,8 +416,9 @@ bool Function ActorIsValidForUD(Actor akActor)
 	ActorBase loc_actorbase = akActor.GetLeveledActorBase()
 	Race loc_race = loc_actorbase.getRace()
 	bool loc_cond = true
-	loc_cond = loc_cond && (loc_race.isPlayable() || loc_race.haskeyword(UDlibs.ActorTypeNPC))
-	loc_cond = loc_cond && !loc_race.IsChildRace()
+	loc_cond = loc_cond && (loc_race.isPlayable() || loc_race.haskeyword(UDlibs.ActorTypeNPC)) ;check that race is playable or NPC
+	loc_cond = loc_cond && !loc_race.IsChildRace()	;check that actor is not child
+	loc_cond = loc_cond && !akActor.isDead() 		;check that actor is not dead
 	return loc_cond
 EndFunction
 
@@ -681,3 +717,28 @@ Function ShowMessageBox(string strText) global
 		endif
 	endwhile
 EndFunction
+
+; thanks to Subhuman#6830 for ESPFE form check, compatible with LE
+; Notes given by him:
+; 1) it breaks the compile-time dependency.   GetformFromFile requires you to have the plugin you're getting a form for in order to compile, this does not
+; 2) less papyrus spam, if the plugin isn't found it prints a single line debug.trace instead 4-5 lines of errors
+; 3) related to 1, it doesn't verify you didn't screw up.   If you're trying to cast a package as a quest, for example, GetFormFromFile will throw a compiler error because it can't be done.  This will not.  You have to verify your own work. 
+form function GetMeMyForm(int formNumber, string pluginName) global;fornumber format is 0xFULLFORMID, for example 0x00000007. Even for ESPFE format, ignoring 0xFE
+    int theLO = Game.GetModByName(pluginName)
+    if ((theLO == 255) || (theLO == 0)) ; 255 = not found, 0 = no skse
+        GError(pluginName + " not loaded or SKSE not found")
+        return none
+    elseIf (theLO > 255) ; > 255 = ESL
+        ; the first FIVE hex digits in an ESL are its address, so a formNumber exceeding 0xFFF or below 0x800 is invalid
+        if ((Math.LogicalAnd(0xFFFFF000, formNumber) != 0) || (Math.LogicalAnd(0x00000800, formNumber) == 0))
+            GError("Plugin " + pluginName + " has FormIDs outside the range\nallocated for ESL plugins!: " + formNumber)
+            GError("ESL-flagged plugin " + pluginName + " contains invalid FormIDs: " + formNumber)
+            return none
+        endIf
+        ; getmodbyname reports an ESL as 256 higher than the game indexes it internally
+        theLO -= 256
+        return Game.GetFormEx(Math.LogicalOr(Math.LogicalOr(0xFE000000, Math.LeftShift(theLO, 12)), formNumber))
+    else    ; regular ESL-free plugin
+        return Game.GetFormEx(Math.LogicalOr(Math.LeftShift(theLO, 24), formNumber))
+    endIf
+endFunction

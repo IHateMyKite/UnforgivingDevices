@@ -9,11 +9,18 @@ zadlibs_UDPatch Property libsp
 		return UDCDmain.libsp
 	EndFunction
 endproperty
-UD_MutexManagerScript Property UDMM
-	UD_MutexManagerScript Function get()
-		return UDCDmain.UDmain.UDMM
+UnforgivingDevicesMain Property UDmain
+	UnforgivingDevicesMain Function get()
+		return UDCDmain.UDmain
 	EndFunction
 endproperty
+UD_MutexManagerScript Property UDMM
+	UD_MutexManagerScript Function get()
+		return UDmain.UDMM
+	EndFunction
+endproperty
+
+
 ;properties from original scripts to not cause issues with patching
 ;zadGagScript
 Message Property callForHelpMsg Auto
@@ -249,7 +256,6 @@ Event OnEquipped(Actor akActor)
 		zad_DeviceMsg =	UDCDmain.DefaultEquipDeviceMessage
 	endif
 	LockDevice(akActor)
-	
 EndEvent
 
 Event OnUnequipped(Actor akActor)
@@ -615,23 +621,8 @@ EndFunction
 ;reason is to make it possible to edit some values which were not editable before
 Event LockDevice(Actor akActor)	
 	if UDCDMain.TraceAllowed()
-		libs.Log("OnEquipped("+akActor.GetLeveledActorBase().GetName()+": "+deviceInventory.GetName()+")")		
+		UDmain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory)+") called")		
 	endif
-	if akActor == libs.PlayerRef
-		if UDCDmain.TraceAllowed()		
-			libs.log("Checking for active unequip operation for " + zad_DeviousDevice)
-		endif
-		int counter = 10 ; half second intervals, so 5 secs max
-		while (StorageUtil.GetIntValue(akActor, "zad_RemovalOperation" + zad_DeviousDevice) == 1) && counter > 0
-			libs.log("Device Swap detected. Waiting for removal operation to complete.")
-			; this looks to be a device swap, let's wait a bit
-			counter -= 1
-			Utility.WaitMenuMode(0.5)
-		EndWhile
-		if UDCDmain.TraceAllowed()		
-			libs.log("No active unequip operation running for " + zad_DeviousDevice + ". Proceeding")
-		endif
-	EndIf
 	
 	UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
 	UD_MutexScript loc_mutex = none 
@@ -660,19 +651,15 @@ Event LockDevice(Actor akActor)
 	endif
 	
 	bool prelock_fail = false
-	if akActor.GetItemCount(deviceRendered) > 0
-		if UDCDmain.TraceAllowed()		
-			UDCdmain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - item "+ deviceRendered +" is already in invetory.")		
-		endif
+	if akActor.GetItemCount(deviceRendered) > 0	
+		UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - item "+ deviceRendered +" is already in invetory. Aborting")		
 		prelock_fail = true
 	EndIf
 	
 
 	if !prelock_fail
 		if akActor.GetItemCount(deviceRendered) == 0 && akActor.WornHasKeyword(zad_DeviousDevice) && CheckConflict(akActor)	
-			if UDCDMain.TraceAllowed()
-				UDCDMain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device type:" + zad_DeviousDevice,1)
-			endif			
+			UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device type:" + zad_DeviousDevice)		
 			StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
 			akActor.UnequipItem(deviceInventory, false, true)	
 			prelock_fail = true
@@ -688,9 +675,7 @@ Event LockDevice(Actor akActor)
 	; check for device conflicts
 	if !prelock_fail
 		If !silently && (IsEquipDeviceConflict(akActor) || IsEquipRequiredDeviceConflict(akActor))	
-			if UDCDMain.TraceAllowed()
-				UDCDMain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device, aborting",1)
-			endif
+			UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device, aborting")
 			StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
 			akActor.UnequipItem(deviceInventory, false, true)	
 			prelock_fail = true
@@ -777,14 +762,14 @@ Event LockDevice(Actor akActor)
 			akActor.RemoveItem(deviceInventory,1,true)
 		endif
 		akActor.removeItem(DeviceRendered,1,true)
-		UDCDMain.Error("LockDevice("+getDeviceName()+","+GetActorName(akActor)+") failed. Render device is not equipped - conflict")
+		UDmain.Warning("LockDevice("+getDeviceName()+","+GetActorName(akActor)+") failed. Render device is not equipped - conflict")
 		if ActorIsPlayer(akActor)
 			UDCDmain.Print(getDeviceName() + " can't be equipped because of device conflict")
 		elseif UDCDmain.UDmain.ActorInCloseRange(akActor)
 			UDCDmain.Print(MakeDeviceHeader(akActor,deviceInventory) + " can't be equipped because of device conflict")
 		endif
-		
 	endif
+		
 	if loc_slot
 		if loc_slot.isLockMutexed(deviceInventory)
 			if !_locked
@@ -866,6 +851,45 @@ Function unlockDevice(Actor akActor)
 		endif
 	endif
 	
+	UD_CustomDevice_NPCSlot loc_slot 	= none
+	UD_MutexScript 			loc_mutex 	= none 
+	
+	if !loc_failure
+		loc_slot = UDCDmain.getNPCSlot(akActor)
+		if loc_slot
+			loc_slot.UD_GlobalDeviceUnlockMutex_InventoryScript_Failed 	= loc_failure
+			loc_slot.UD_GlobalDeviceUnlockMutex_InventoryScript 		= True
+		else
+			loc_mutex = UDMM.GetMutexSlot(akActor)
+			if loc_mutex
+				loc_mutex.UD_GlobalDeviceUnlockMutex_InventoryScript_Failed = loc_failure
+				loc_mutex.UD_GlobalDeviceUnlockMutex_InventoryScript 		= True
+			endif
+		endif
+	endif
+	
+	if !loc_failure
+		;process quest device
+		If DeviceRendered.HasKeyword(Libs.Zad_QuestItem) || DeviceInventory.HasKeyword(Libs.Zad_QuestItem)	
+			Keyword loc_unlocktoken = none
+			if loc_slot
+				loc_unlocktoken = loc_slot.UD_UnlockToken
+			elseif loc_mutex
+				loc_unlocktoken = loc_mutex.UD_UnlockToken 
+			endif
+			bool loc_cond = false
+			loc_cond = loc_cond || loc_unlocktoken == None
+			loc_cond = loc_cond || libs.zadStandardKeywords.HasForm(loc_unlocktoken)
+			loc_cond = loc_cond || (!DeviceRendered.HasKeyword(loc_unlocktoken) && !DeviceInventory.HasKeyword(loc_unlocktoken))
+			if loc_cond
+				UDmain.Error("UnlockDevice(" +MakeDeviceHeader(akActor,deviceInventory) + ") - Caught and prevented unauthorized removal attempt of quest device!")
+				loc_failure = true
+			else
+				UDmain.Info("UnlockDevice(" +MakeDeviceHeader(akActor,deviceInventory) + ") - Correct token received -> unlocking quest device")
+			endif
+		endif
+	endif
+	
 	if !loc_failure
 		akActor.unequipItem(deviceInventory, 1, true)
 		UD_CustomDevice_RenderScript device = getUDScript(akActor)
@@ -876,9 +900,7 @@ Function unlockDevice(Actor akActor)
 			loc_failure = true
 		endif
 	endif
-	
-	UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
-	UD_MutexScript loc_mutex = none 
+
 	if loc_slot
 		loc_slot.UD_GlobalDeviceUnlockMutex_InventoryScript_Failed 	= loc_failure
 		loc_slot.UD_GlobalDeviceUnlockMutex_InventoryScript 		= True
@@ -983,6 +1005,14 @@ Function ShowDetails(Actor akActor)
 	string loc_msg = ""
 	loc_msg += "-" + getDeviceName() + "-\n"
 	loc_msg += "Type: " + libs.LookupDeviceType(zad_DeviousDevice) + "\n"
+	if deviceInventory.hasKeyword(UDmain.UDlibs.PatchedInventoryDevice) && deviceRendered.hasKeyword(UDmain.UDlibs.PatchedDevice)
+		loc_msg += "--Patched device--\n"
+		loc_msg += "Struggle Escape chance: "	+ Round(BaseEscapeChance) 		+" %\n"
+		loc_msg += "Cut escape chance: "		+ Round(CutDeviceEscapeChance) 	+" %\n"
+		loc_msg += "Lockpick escape chance: "	+ Round(LockPickEscapeChance) 	+" %\n"
+		loc_msg += "Lock Access difficulty: "	+ Round(LockAccessDifficulty) 	+" %\n"
+		loc_msg += "Key: "	+ deviceKey.getName() 	+"\n"
+	endif
 	ShowMessageBox(loc_msg)
 EndFunction
 
