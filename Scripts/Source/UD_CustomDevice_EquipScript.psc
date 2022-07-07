@@ -137,6 +137,13 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 							UDCDmain.Log("OnContainerChanged - Locking device " + deviceInventory.getName() + " to "+ target.getActorBase().getName(),1)
 						endif
 						if UDCDmain.UDmain.ActorIsValidForUD(target)
+							if ActorIsPlayer(giver)
+								if !EquipDeviceMenu(target)
+									UDmain.Print("You put and lock " + getDeviceName() + " on " + GetActorName(target))
+								else
+									return
+								endif
+							endif
 							LockDevice(target)	
 						else					
 							UDCDmain.Error("OnContainerChanged - " + target + " is not valid actor!")
@@ -702,9 +709,7 @@ Event LockDevice(Actor akActor)
 				StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
 				akActor.UnequipItem(deviceInventory, false, true)
 			EndIf
-			if UDCDMain.TraceAllowed()
-				UDCDMain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Equip Filter activated : " + filter,1)
-			endif
+			UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Equip Filter activated : " + filter)
 			prelock_fail = true
 		EndIf
 	endif
@@ -856,15 +861,8 @@ Function unlockDevice(Actor akActor)
 	
 	if !loc_failure
 		loc_slot = UDCDmain.getNPCSlot(akActor)
-		if loc_slot
-			loc_slot.UD_GlobalDeviceUnlockMutex_InventoryScript_Failed 	= loc_failure
-			loc_slot.UD_GlobalDeviceUnlockMutex_InventoryScript 		= True
-		else
+		if !loc_slot
 			loc_mutex = UDMM.GetMutexSlot(akActor)
-			if loc_mutex
-				loc_mutex.UD_GlobalDeviceUnlockMutex_InventoryScript_Failed = loc_failure
-				loc_mutex.UD_GlobalDeviceUnlockMutex_InventoryScript 		= True
-			endif
 		endif
 	endif
 	
@@ -893,11 +891,9 @@ Function unlockDevice(Actor akActor)
 	if !loc_failure
 		akActor.unequipItem(deviceInventory, 1, true)
 		UD_CustomDevice_RenderScript device = getUDScript(akActor)
-		akActor.RemoveItem(deviceRendered, 1, true)
+		akActor.RemoveItem(deviceRendered, akActor.getItemCount(deviceRendered), true)
 		if device
 			device.removeDevice(akActor)
-		else
-			loc_failure = true
 		endif
 	endif
 

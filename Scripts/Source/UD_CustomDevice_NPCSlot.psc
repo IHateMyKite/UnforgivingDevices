@@ -8,6 +8,11 @@ UnforgivingDevicesMain Property UDmain
 		return UDCDmain.UDmain
 	EndFunction	
 EndProperty
+UD_CustomDevices_NPCSlotsmanager Property UDNPCM hidden
+	UD_CustomDevices_NPCSlotsmanager Function get()
+		return GetOwningQuest() as UD_CustomDevices_NPCSlotsmanager
+	EndFunction
+EndProperty
 UD_CustomDevice_RenderScript[] Property UD_equipedCustomDevices auto hidden
 
 int _iUsedSlots = 0
@@ -125,6 +130,9 @@ Function SetSlotTo(Actor akActor)
 	if akActor != Game.GetPlayer()
 		ForceRefTo(akActor)
 	endif
+	
+	UDNPCM.UD_SlotsValidation = Math.logicalOr(UDNPCM.UD_SlotsValidation,Math.LeftShift(0x1,GetID()))
+	
 	akActor.addToFaction(UDCDmain.RegisteredNPCFaction)
 
 	UDCDmain.UDOM.CheckOrgasmCheck(akActor)
@@ -185,6 +193,8 @@ Function unregisterSlot()
 	StorageUtil.UnSetIntValue(getActor(), "UD_ManualRegister")
 	_iScriptState = 0
 	self.Clear()
+	
+	UDNPCM.UD_SlotsValidation = Math.logicalAnd(UDNPCM.UD_SlotsValidation,Math.LogicalNot(Math.LeftShift(0x1,GetID())))
 	
 EndFunction
 
@@ -302,13 +312,24 @@ Function removeLostRenderDevices()
 				if UDCDmain.TraceAllowed()				
 					UDCDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+"): Proccesing device " + loc_InvDevice.getName())
 				endif
-				bool loc_cond = !UDCDmain.CheckRenderDeviceEquipped(_currentSlotedActor,loc_RenDevice) ;this doesm't work for NPC -> skip this check
+				bool loc_cond = !UDCDmain.CheckRenderDeviceEquipped(_currentSlotedActor,loc_RenDevice)
 				if UDCDmain.TraceAllowed()				
 					UDCDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+"): " + loc_InvDevice.getName() + ", cond: " + loc_cond)
 				endif
 				if  loc_cond
 					loc_toRemove = PapyrusUtil.PushForm(loc_toRemove, ArmorDevice)
 					UDCDmain.Print("Lost device found: " + loc_InvDevice.getName() + " removed!")
+				else
+					if !getDeviceByRender(loc_RenDevice)
+						UDCDmain.Print("Found unregistred device "+loc_InvDevice.getName()+" , registering")
+						UD_CustomDevice_RenderScript loc_device = UDCDmain.getDeviceScriptByRender(GetActor(),loc_RenDevice)
+						if loc_device
+							RegisterDevice(loc_device,false)
+							UDCDmain.Print(loc_device.getDeviceHeader() + " registered")
+						else
+							UDCDmain.Print("Can't get device. Aborting.")
+						endif
+					endif
 				endif
 			endif
 		endif
@@ -326,7 +347,7 @@ Function removeLostRenderDevices()
 	endDeviceManipulation()
 EndFunction
 
-bool Function registerDevice(UD_CustomDevice_RenderScript oref)
+bool Function registerDevice(UD_CustomDevice_RenderScript oref,bool mutex = true)
 	if UDCDmain.TraceAllowed()	
 		UDCDmain.Log("Starting slot device register for " + oref.getDeviceHeader() )
 	endif
@@ -334,19 +355,25 @@ bool Function registerDevice(UD_CustomDevice_RenderScript oref)
 		UDmain.Error("registerDevice("+oref.getDeviceHeader()+") is already registered")
 		return false
 	endif
+	if mutex
 	startDeviceManipulation()
+	endif
 	int size = UD_equipedCustomDevices.length
 	int i = 0
 	while i < size
 		if !UD_equipedCustomDevices[i]
 			UD_equipedCustomDevices[i] = oref
 			_iUsedSlots+=1
-			endDeviceManipulation()
+			if mutex
+				endDeviceManipulation()
+			endif
 			return true
 		endif
 		i+=1
 	endwhile
-	endDeviceManipulation()
+	if mutex
+		endDeviceManipulation()
+	endif
 	return false
 EndFunction
 

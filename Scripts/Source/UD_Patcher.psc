@@ -390,12 +390,13 @@ Function patchGag(UD_CustomGag_RenderScript device)
 		device.UD_Locks = UD_MinLocks
 	endif
 	
-	
 	checkLooseModifier(device,30,0.05, 0.15)
 	
 	if device as UD_CustomPanelGag_RenderScript
 		(device as UD_CustomPanelGag_RenderScript).UD_RemovePlugDifficulty = Utility.randomInt(50,100)*loc_currentmult
 	endif
+
+	CheckLocks(device,false,40)
 
 	patchFinish(device,0x0F,loc_currentmult)
 EndFunction
@@ -404,7 +405,7 @@ Function patchBelt(UD_CustomBelt_RenderScript device)
 	Float loc_currentmult = UD_PatchMult_ChastityBelt*UD_PatchMult
 	patchDefaultValues(device,loc_currentmult)
 	
-	CheckLocks(device)
+	CheckLocks(device,false,50)
 	device.UD_Cooldown = Round(Utility.randomInt(140,200)/fRange(loc_currentmult,0.5,2.0))
 	;materials
 	if isEbonite(device)
@@ -464,6 +465,7 @@ Function patchHood(UD_CustomHood_RenderScript device)
 	Float loc_currentmult = UD_PatchMult_Hood*UD_PatchMult
 	patchDefaultValues(device,loc_currentmult)
 	checkLooseModifier(device,100,0.05, 0.4)
+	CheckLocks(device,false,50)
 	patchFinish(device,0x0F,loc_currentmult)
 EndFunction
 
@@ -472,7 +474,7 @@ Function patchBra(UD_CustomBra_RenderScript device)
 	patchDefaultValues(device,loc_currentmult)
 	
 	device.UD_durability_damage_base *= 0.5
-	CheckLocks(device)
+	CheckLocks(device,false,35)
 	;device.UD_LockpickDifficulty = 25*Utility.randomInt(1,3)
 	device.UD_LockAccessDifficulty = Utility.randomFloat(70.0,90.0)
 	
@@ -485,13 +487,9 @@ Function patchGeneric(UD_CustomDevice_RenderScript device)
 
 	patchDefaultValues(device,loc_currentmult)
 	CheckLocks(device,true,50)
-	If device as UD_CustomGloves_RenderScript || device as UD_CustomBoots_RenderScript
-		;CheckLocks(device,true,50)
-	EndIf
 
 	int loc_control = 0x0F
 	if device as UD_CustomMittens_RenderScript
-		;CheckLocks(device,true,50)
 		if !device.UD_durability_damage_base
 			device.UD_durability_damage_base = fRange(Utility.randomFloat(0.25,1.0)/loc_currentmult,0.05,100.0) ;so mittens are always escapable
 		endif
@@ -501,8 +499,6 @@ Function patchGeneric(UD_CustomDevice_RenderScript device)
 	
 	If device as UD_CustomDynamicHeavyBondage_RS
 		(device as UD_CustomDynamicHeavyBondage_RS).UD_UntieDifficulty = Utility.randomFloat(75.0,125.0)/loc_currentmult
-		;CheckLocks(device,true,50)
-		;checkLooseModifier(device,100,0.5, 0.9)
 		device.UD_Cooldown = Round(Utility.randomInt(160,240)/fRange(loc_currentmult,0.5,2.0))
 	EndIf
 	
@@ -518,13 +514,12 @@ Function patchPiercing(UD_CustomPiercing_RenderScript device)
 	device.UD_VibDuration = Round(Utility.randomInt(40,75)*fRange(loc_currentmult,0.3,5.0))
 	device.UD_Cooldown = Round(Utility.randomInt(45,90)/fRange(loc_currentmult,0.5,2.0))
 	if device.UD_DeviceKeyword == libs.zad_deviousPiercingsNipple
-		;device.UD_Locks = 2
 		CheckLocks(device,true)
 		device.UD_OrgasmMult  = Utility.randomFloat(0.3,0.8)*fRange(loc_currentmult,1.0,5.0)
 		device.UD_ArousalMult = Utility.randomFloat(1.5,2.0)*fRange(loc_currentmult,1.0,3.0)
 		checkMAHModifier(device,45,3,8,1,3)
 	elseif device.UD_DeviceKeyword == libs.zad_DeviousPiercingsVaginal
-		;device.UD_Locks = 1
+		CheckLocks(device,false)
 		device.UD_OrgasmMult  = Utility.randomFloat(1.5,2.5)*fRange(loc_currentmult,0.8,3.0)
 		checkMAOModifier(device,15,5,15)
 	endif
@@ -601,12 +596,12 @@ EndFunction
 Function patchFinish(UD_CustomDevice_RenderScript device,int argControlVar = 0x0F,Float fMult = 1.0)
 	checkInventoryScript(device,argControlVar,fMult)
 	
-	if device.UD_durability_damage_base || device.UD_Locks
+	if device.UD_CutChance && (device.UD_durability_damage_base || device.UD_Locks)
 		CheckCutting(device,35)
 	endif
 	
 	if device.UD_Locks
-		checkLCheapModifier(device,50,5,30)
+		checkLCheapModifier(device,40,5,30)
 	endif
 	
 	if device.deviceRendered.hasKeyword(libs.zad_EffectLively)
@@ -734,14 +729,14 @@ EndFunction
 
 Function CheckCutting(UD_CustomDevice_RenderScript device,int iChanceNone = 0)
 	;device is uncuttable
-	if Utility.randomInt(0,99) < iChanceNone
+	if Utility.randomInt(1,99) < iChanceNone
 		device.UD_CutChance = 0
 	endif
 EndFunction
 
 Function patchDefaultValues(UD_CustomDevice_RenderScript device,Float fMult)
-	CheckLocks(device,false,40)
-	CheckCutting(device,35)
+	;CheckLocks(device,false,40)
+	;CheckCutting(device,35)
 	device.UD_LockpickDifficulty = 25*Utility.randomInt(1,3)
 	device.UD_LockAccessDifficulty = Utility.randomFloat(40.0,70.0) + 20*(fMult - 1.0)
 	device.UD_base_stat_drain = Utility.randomFloat(7.0,13.0)

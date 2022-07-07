@@ -7,17 +7,17 @@ UnforgivingDevicesMain Property UDmain auto
 UD_ParalelProcess Property UDPP auto
 UD_libs Property UDlibs auto
 zadlibs Property libs auto
-zadlibs_UDPatch Property libsp
+zadlibs_UDPatch Property libsp hidden
 	zadlibs_UDPatch Function get()
 		return libs as zadlibs_UDPatch
 	EndFunction
 EndProperty
-zadxlibs Property libsx
+zadxlibs Property libsx hidden
 	zadxlibs Function get()
 		return UDmain.libsx
 	EndFunction
 EndProperty
-zadxlibs2 Property libsx2
+zadxlibs2 Property libsx2 hidden
 	zadxlibs2 Function get()
 		return UDmain.libsx2
 	EndFunction
@@ -32,45 +32,44 @@ UD_OrgasmManager Property UDOM auto
 UITextEntryMenu Property TextMenu auto
 UIListMenu Property ListMenu auto
 
-bool Property UD_HardcoreMode = true auto
+bool Property UD_HardcoreMode = true auto hidden
 
 ;keys
-Int Property Stamina_meter_Keycode 	= 32 	auto
-int property StruggleKey_Keycode 	= 52 	auto
-Int Property Magicka_meter_Keycode 	= 30 	auto
-Int Property SpecialKey_Keycode 	= 31 	auto
-Int Property PlayerMenu_KeyCode 	= 40 	auto
-int property ActionKey_Keycode 		= 18 	auto
+Int Property Stamina_meter_Keycode 	= 32 	auto hidden
+int property StruggleKey_Keycode 	= 52 	auto hidden
+Int Property Magicka_meter_Keycode 	= 30 	auto hidden
+Int Property SpecialKey_Keycode 	= 31 	auto hidden
+Int Property PlayerMenu_KeyCode 	= 40 	auto hidden
+int property ActionKey_Keycode 		= 18 	auto hidden
 
-int Property NPCMenu_Keycode	= 39	auto
+int Property NPCMenu_Keycode		= 39	auto hidden
 
-bool Property UD_UseDDdifficulty 	= True auto
-bool Property UD_UseWidget 			= True auto
+bool Property UD_UseDDdifficulty 	= True  auto hidden
+bool Property UD_UseWidget 			= True  auto hidden
 
-int Property UD_GagPhonemModifier = 50 auto
+int Property UD_GagPhonemModifier 	= 50 	auto hidden
 
 int OSLLoadOrderRelative = 0
 int SLALoadOrder = 0
 perk[] DesirePerks
 
-
-Int Property UD_StruggleDifficulty = 1 auto
-float Property UD_BaseDeviceSkillIncrease = 35.0 auto
-float Property UD_CooldownMultiplier = 1.0 auto
-Bool Property UD_AutoCrit = False auto
-Int Property UD_AutoCritChance = 80 auto
+Int Property UD_StruggleDifficulty = 1 auto hidden
+float Property UD_BaseDeviceSkillIncrease = 35.0 auto hidden
+float Property UD_CooldownMultiplier = 1.0 auto hidden
+Bool Property UD_AutoCrit = False auto hidden
+Int Property UD_AutoCritChance = 80 auto hidden
 Int Property UD_MinigameHelpCd = 45 auto
-Float Property UD_MinigameHelpCD_PerLVL = 15.0 auto ;CD % decrease per Helper LVL
+Float Property UD_MinigameHelpCD_PerLVL = 15.0 auto;CD % decrease per Helper LVL
 Int Property UD_MinigameHelpXPBase = 35 auto
 Float Property UD_MutexTimeOutTime = 1.0 auto
-Float Property UD_LockUnlockMutexTimeOutTime = 15.0 auto
-bool Property UD_AllowArmTie = true auto
-bool Property UD_AllowLegTie = true auto
+Float Property UD_LockUnlockMutexTimeOutTime = 15.0 auto hidden
+bool Property UD_AllowArmTie = true auto hidden
+bool Property UD_AllowLegTie = true auto hidden
 
 ;changes how much is strength converted to orgasm rate, 
 ;example: if UD_VibrationMultiplier = 0.1 and vibration strength will be 100, orgasm rate will be 100*0.1 = 10 O/s 
-float 	Property UD_VibrationMultiplier 	= 0.10	auto 
-float 	Property UD_ArousalMultiplier 	    = 0.05	auto 
+float 	Property UD_VibrationMultiplier 	= 0.10	auto hidden
+float 	Property UD_ArousalMultiplier 	    = 0.05	auto hidden
 
 UD_PlayerSlotScript Property UD_PlayerSlot auto
 
@@ -93,8 +92,8 @@ FormList Property UD_MagickPerks auto
 
 MiscObject Property zad_GagPanelPlug Auto
 
-float Property UD_StruggleExhaustionMagnitude = 60.0 auto ;magnitude of exhaustion, 50.0 will reduce player stats regen modifier by 50%. This cant make regen negative
-int Property UD_StruggleExhaustionDuration = 10 auto ;How long will debuff last
+float 	Property UD_StruggleExhaustionMagnitude = 60.0 	auto hidden;magnitude of exhaustion, 50.0 will reduce player stats regen modifier by 50%. This cant make regen negative
+int 	Property UD_StruggleExhaustionDuration 	= 10 	auto hidden;How long will debuff last
 
 ;messages
 Message Property DebugMessage auto
@@ -143,21 +142,21 @@ ReferenceAlias Property MessageActor2 auto
 ReferenceAlias Property MessageDevice auto
 UD_MutexScript Property MutexSlot auto
 
-int Property UD_SlotsNum = 20 AutoReadOnly
+;int Property UD_SlotsNum = 20 AutoReadOnly
 ;UD_CustomDevice_RenderScript[] Property UD_equipedCustomDevices auto
-MiscObject Property Lockpick auto
-Int Property UD_LockpicksPerMinigame = 2 auto
+MiscObject 	Property Lockpick auto
+Int			Property UD_LockpicksPerMinigame = 2 auto hidden
 
 Formlist Property UD_QuestKeywords auto
-
+FormList Property UD_HeavyBondageKeywords auto
 ;Spell Property TelekinesisSpell auto
 
 UDCustomHeavyBondageWidget1 Property widget1 auto
 UD_WidgetBase Property widget2 auto
 
-Bool Property UD_EquipMutex = False auto
-Bool Property Ready = False auto
-Bool Property EventsReady = false auto
+Bool Property UD_EquipMutex = False auto hidden
+Bool Property Ready = False auto hidden
+Bool Property EventsReady = false auto hidden
 
 Event OnInit()
 	While !UDPatcher.ready
@@ -189,6 +188,104 @@ Event OnInit()
 	ready = True
 EndEvent
 
+bool Property ZAZAnimationsInstalled = false auto hidden
+Function Update()
+
+	RegisterForSingleUpdate(2*UD_UpdateTime)
+	
+	InitMenuArr()
+	
+	_activateDevicePackage = none
+	
+	_startVibFunctionPackage = none
+	
+	registerAllEvents()
+	
+	UDPP.RegisterEvents()
+	
+	CheckHardcoreDisabler(Game.getPlayer())
+	
+	SetArousalPerks()
+	
+	UDCD_NPCM.CheckOrgasmManagerLoops()
+	if !ZAZAnimationsInstalled && UDmain.ZaZAnimationPackInstalled
+		GInfo("Zaz animations not installed, installing...")
+		;add armbinder animations
+		UD_StruggleAnimation_Armbinder 		= PapyrusUtil.PushString(UD_StruggleAnimation_Armbinder		,"ZapArmbStruggle01")
+		UD_StruggleAnimation_Armbinder 		= PapyrusUtil.PushString(UD_StruggleAnimation_Armbinder		,"ZapArmbStruggle03")
+		UD_StruggleAnimation_Armbinder 		= PapyrusUtil.PushString(UD_StruggleAnimation_Armbinder		,"ZapArmbStruggle05")
+		UD_StruggleAnimation_Armbinder 		= PapyrusUtil.PushString(UD_StruggleAnimation_Armbinder		,"ZapArmbStruggle07")
+		UD_StruggleAnimation_Armbinder 		= PapyrusUtil.PushString(UD_StruggleAnimation_Armbinder		,"ZapArmbStruggle08")
+		UD_StruggleAnimation_Armbinder 		= PapyrusUtil.PushString(UD_StruggleAnimation_Armbinder		,"ZapArmbStruggle10")
+		UD_StruggleAnimation_Armbinder_HB 	= PapyrusUtil.PushString(UD_StruggleAnimation_Armbinder_HB	,"ZapArmbStruggle02")
+		UD_StruggleAnimation_Armbinder_HB 	= PapyrusUtil.PushString(UD_StruggleAnimation_Armbinder_HB	,"ZapArmbStruggle06")
+		UD_StruggleAnimation_Armbinder_HB 	= PapyrusUtil.PushString(UD_StruggleAnimation_Armbinder_HB	,"ZapArmbStruggle09")
+
+		;straitjacket
+		UD_StruggleAnimation_StraitJacket 		= PapyrusUtil.PushString(UD_StruggleAnimation_StraitJacket		,"ZapArmbStruggle01")
+		UD_StruggleAnimation_StraitJacket 		= PapyrusUtil.PushString(UD_StruggleAnimation_StraitJacket		,"ZapArmbStruggle03")
+		UD_StruggleAnimation_StraitJacket 		= PapyrusUtil.PushString(UD_StruggleAnimation_StraitJacket		,"ZapArmbStruggle05")
+		UD_StruggleAnimation_StraitJacket 		= PapyrusUtil.PushString(UD_StruggleAnimation_StraitJacket		,"ZapArmbStruggle07")
+		UD_StruggleAnimation_StraitJacket 		= PapyrusUtil.PushString(UD_StruggleAnimation_StraitJacket		,"ZapArmbStruggle08")
+		UD_StruggleAnimation_StraitJacket 		= PapyrusUtil.PushString(UD_StruggleAnimation_StraitJacket		,"ZapArmbStruggle10")
+		UD_StruggleAnimation_StraitJacket_HB 	= PapyrusUtil.PushString(UD_StruggleAnimation_StraitJacket_HB	,"ZapArmbStruggle02")
+		UD_StruggleAnimation_StraitJacket_HB 	= PapyrusUtil.PushString(UD_StruggleAnimation_StraitJacket_HB	,"ZapArmbStruggle06")
+		UD_StruggleAnimation_StraitJacket_HB 	= PapyrusUtil.PushString(UD_StruggleAnimation_StraitJacket_HB	,"ZapArmbStruggle09")
+		
+		;yoke
+		UD_StruggleAnimation_Yoke 		= PapyrusUtil.PushString(UD_StruggleAnimation_Yoke		,"ZapYokeStruggle01")
+		UD_StruggleAnimation_Yoke 		= PapyrusUtil.PushString(UD_StruggleAnimation_Yoke		,"ZapYokeStruggle03")
+		UD_StruggleAnimation_Yoke 		= PapyrusUtil.PushString(UD_StruggleAnimation_Yoke		,"ZapYokeStruggle05")
+		UD_StruggleAnimation_Yoke 		= PapyrusUtil.PushString(UD_StruggleAnimation_Yoke		,"ZapYokeStruggle07")
+		UD_StruggleAnimation_Yoke 		= PapyrusUtil.PushString(UD_StruggleAnimation_Yoke		,"ZapYokeStruggle08")
+		UD_StruggleAnimation_Yoke 		= PapyrusUtil.PushString(UD_StruggleAnimation_Yoke		,"ZapYokeStruggle10")
+		UD_StruggleAnimation_Yoke_HB 	= PapyrusUtil.PushString(UD_StruggleAnimation_Yoke_HB	,"ZapYokeStruggle02")
+		UD_StruggleAnimation_Yoke_HB 	= PapyrusUtil.PushString(UD_StruggleAnimation_Yoke_HB	,"ZapYokeStruggle06")
+		UD_StruggleAnimation_Yoke_HB 	= PapyrusUtil.PushString(UD_StruggleAnimation_Yoke_HB	,"ZapYokeStruggle09")
+
+		GInfo("Zaz animations installed")
+		ZAZAnimationsInstalled = true
+	endif
+	
+	if ZAZAnimationsInstalled && !UDmain.ZaZAnimationPackInstalled
+		GInfo("Zaz animations installed but mod is not installed, uninstalling...")
+		;remove armbinder animations
+		UD_StruggleAnimation_Armbinder 			= PapyrusUtil.RemoveString(UD_StruggleAnimation_Armbinder			,"ZapArmbStruggle01")
+		UD_StruggleAnimation_Armbinder 			= PapyrusUtil.RemoveString(UD_StruggleAnimation_Armbinder			,"ZapArmbStruggle03")
+		UD_StruggleAnimation_Armbinder 			= PapyrusUtil.RemoveString(UD_StruggleAnimation_Armbinder			,"ZapArmbStruggle05")
+		UD_StruggleAnimation_Armbinder 			= PapyrusUtil.RemoveString(UD_StruggleAnimation_Armbinder			,"ZapArmbStruggle07")
+		UD_StruggleAnimation_Armbinder 			= PapyrusUtil.RemoveString(UD_StruggleAnimation_Armbinder			,"ZapArmbStruggle08")
+		UD_StruggleAnimation_Armbinder 			= PapyrusUtil.RemoveString(UD_StruggleAnimation_Armbinder			,"ZapArmbStruggle10")
+		UD_StruggleAnimation_Armbinder_HB 		= PapyrusUtil.RemoveString(UD_StruggleAnimation_Armbinder_HB		,"ZapArmbStruggle02")
+		UD_StruggleAnimation_Armbinder_HB 		= PapyrusUtil.RemoveString(UD_StruggleAnimation_Armbinder_HB		,"ZapArmbStruggle06")
+		UD_StruggleAnimation_Armbinder_HB 		= PapyrusUtil.RemoveString(UD_StruggleAnimation_Armbinder_HB		,"ZapArmbStruggle09")
+
+		;straitjacket
+		UD_StruggleAnimation_StraitJacket 		= PapyrusUtil.RemoveString(UD_StruggleAnimation_StraitJacket		,"ZapArmbStruggle01")
+		UD_StruggleAnimation_StraitJacket 		= PapyrusUtil.RemoveString(UD_StruggleAnimation_StraitJacket		,"ZapArmbStruggle03")
+		UD_StruggleAnimation_StraitJacket 		= PapyrusUtil.RemoveString(UD_StruggleAnimation_StraitJacket		,"ZapArmbStruggle05")
+		UD_StruggleAnimation_StraitJacket 		= PapyrusUtil.RemoveString(UD_StruggleAnimation_StraitJacket		,"ZapArmbStruggle07")
+		UD_StruggleAnimation_StraitJacket 		= PapyrusUtil.RemoveString(UD_StruggleAnimation_StraitJacket		,"ZapArmbStruggle08")
+		UD_StruggleAnimation_StraitJacket 		= PapyrusUtil.RemoveString(UD_StruggleAnimation_StraitJacket		,"ZapArmbStruggle10")
+		UD_StruggleAnimation_StraitJacket_HB 	= PapyrusUtil.RemoveString(UD_StruggleAnimation_StraitJacket_HB		,"ZapArmbStruggle02")
+		UD_StruggleAnimation_StraitJacket_HB 	= PapyrusUtil.RemoveString(UD_StruggleAnimation_StraitJacket_HB		,"ZapArmbStruggle06")
+		UD_StruggleAnimation_StraitJacket_HB 	= PapyrusUtil.RemoveString(UD_StruggleAnimation_StraitJacket_HB		,"ZapArmbStruggle09")
+		
+		;yoke
+		UD_StruggleAnimation_Yoke 				= PapyrusUtil.RemoveString(UD_StruggleAnimation_Yoke				,"ZapYokeStruggle01")
+		UD_StruggleAnimation_Yoke 				= PapyrusUtil.RemoveString(UD_StruggleAnimation_Yoke				,"ZapYokeStruggle03")
+		UD_StruggleAnimation_Yoke 				= PapyrusUtil.RemoveString(UD_StruggleAnimation_Yoke				,"ZapYokeStruggle05")
+		UD_StruggleAnimation_Yoke 				= PapyrusUtil.RemoveString(UD_StruggleAnimation_Yoke				,"ZapYokeStruggle07")
+		UD_StruggleAnimation_Yoke 				= PapyrusUtil.RemoveString(UD_StruggleAnimation_Yoke				,"ZapYokeStruggle08")
+		UD_StruggleAnimation_Yoke 				= PapyrusUtil.RemoveString(UD_StruggleAnimation_Yoke				,"ZapYokeStruggle10")
+		UD_StruggleAnimation_Yoke_HB 			= PapyrusUtil.RemoveString(UD_StruggleAnimation_Yoke_HB				,"ZapYokeStruggle02")
+		UD_StruggleAnimation_Yoke_HB 			= PapyrusUtil.RemoveString(UD_StruggleAnimation_Yoke_HB				,"ZapYokeStruggle06")
+		UD_StruggleAnimation_Yoke_HB 			= PapyrusUtil.RemoveString(UD_StruggleAnimation_Yoke_HB				,"ZapYokeStruggle09")
+		GInfo("Zaz animations uninstalled")
+		ZAZAnimationsInstalled = false
+	endif
+EndFunction
+
 UD_CustomDevice_RenderScript[] Function MakeNewDeviceSlots()
 	return new UD_CustomDevice_RenderScript[25]
 EndFunction
@@ -213,7 +310,6 @@ Function LoadConfig()
 		Log("Config loaded!")
 	endif
 EndFunction
-
 
 String[] _Menus
 Function InitMenuArr()
@@ -258,30 +354,28 @@ Bool Function isMenuOpen()
 	return false
 EndFunction
 
-
-
 ;dedicated switches to hide options from menu
-bool Property currentDeviceMenu_allowStruggling = false auto conditional
-bool Property currentDeviceMenu_allowUselessStruggling = false auto conditional
-bool Property currentDeviceMenu_allowLockpick = false auto conditional
-bool Property currentDeviceMenu_allowKey = false auto conditional
-bool Property currentDeviceMenu_allowCutting = false auto conditional
-bool Property currentDeviceMenu_allowLockRepair = false auto conditional
-bool Property currentDeviceMenu_allowTighten = false auto conditional
-bool Property currentDeviceMenu_allowRepair = false auto conditional
+bool Property currentDeviceMenu_allowStruggling = false auto conditional hidden
+bool Property currentDeviceMenu_allowUselessStruggling = false auto conditional hidden
+bool Property currentDeviceMenu_allowLockpick = false auto conditional hidden
+bool Property currentDeviceMenu_allowKey = false auto conditional hidden
+bool Property currentDeviceMenu_allowCutting = false auto conditional hidden
+bool Property currentDeviceMenu_allowLockRepair = false auto conditional hidden
+bool Property currentDeviceMenu_allowTighten = false auto conditional hidden
+bool Property currentDeviceMenu_allowRepair = false auto conditional hidden
 
 ;switches for special menu, allows only six buttons
-bool Property currentDeviceMenu_switch1 = false auto conditional
-bool Property currentDeviceMenu_switch2 = false auto conditional
-bool Property currentDeviceMenu_switch3 = false auto conditional
-bool Property currentDeviceMenu_switch4 = false auto conditional
-bool Property currentDeviceMenu_switch5 = false auto conditional
-bool Property currentDeviceMenu_switch6 = false auto conditional
+bool Property currentDeviceMenu_switch1 = false auto conditional hidden
+bool Property currentDeviceMenu_switch2 = false auto conditional hidden
+bool Property currentDeviceMenu_switch3 = false auto conditional hidden
+bool Property currentDeviceMenu_switch4 = false auto conditional hidden
+bool Property currentDeviceMenu_switch5 = false auto conditional hidden
+bool Property currentDeviceMenu_switch6 = false auto conditional hidden
 
-bool Property currentDeviceMenu_allowCommand = false auto conditional
-bool Property currentDeviceMenu_allowDetails = false auto conditional
-bool Property currentDeviceMenu_allowLockMenu = false auto conditional
-bool Property currentDeviceMenu_allowSpecialMenu = false auto conditional
+bool Property currentDeviceMenu_allowCommand = false auto conditional hidden
+bool Property currentDeviceMenu_allowDetails = false auto conditional hidden
+bool Property currentDeviceMenu_allowLockMenu = false auto conditional hidden
+bool Property currentDeviceMenu_allowSpecialMenu = false auto conditional hidden
 Function resetCondVar()
 	currentDeviceMenu_allowstruggling = false
 	currentDeviceMenu_allowUselessStruggling = false	
@@ -532,8 +626,8 @@ Function UpdateInvisibleHobble(Actor akActor)
 	endif
 EndFunction
 
-bool Property WHMenuOpened = false auto
-int Property GiftMenuMode = 0 auto
+bool Property WHMenuOpened = false auto hidden
+int Property GiftMenuMode = 0 auto hidden
 Function openNPCLockMenu(Actor akTarget)
 	GiftMenuMode = 1
 	;StorageUtil.SetIntValue(akTarget, "UD_blockZad" + deviceInventory, 1)
@@ -564,7 +658,7 @@ Function openNPCHelpMenu(Actor akTarget)
 EndFunction
 
 
-UD_CustomDevice_RenderScript Property lastOpenedDevice = none auto
+UD_CustomDevice_RenderScript Property lastOpenedDevice = none auto hidden
 UD_CustomDevice_RenderScript _oCurrentPlayerMinigameDevice = none
 ;UD_CustomDevice_RenderScript _oCurrentPlayerHelpedDevice = none
 
@@ -618,7 +712,12 @@ Function sortSlots(Actor akActor)
 EndFunction
 
 bool Function registerDevice(UD_CustomDevice_RenderScript oref)
-	return getNPCSlot(oref.getWearer()).registerDevice(oref)
+	UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(oref.getWearer())
+	if loc_slot
+		return loc_slot.registerDevice(oref)
+	else
+		Error("registerDevice("+oref.getDeviceHeader()+") - can't find slot for actor " + oref.getWearerName())
+	endif
 EndFunction
 
 bool Function deviceAlreadyRegistered(Actor akActor, Armor deviceInventory)
@@ -644,7 +743,12 @@ int Function numberOfUnusedDevices(Actor akActor)
 EndFunction
 
 int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool sort = True)
-	return getNPCSlot(oref.getWearer()).unregisterDevice(oref,i,sort)
+	UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(oref.getWearer())
+	if loc_slot
+		return loc_slot.unregisterDevice(oref,i,sort)
+	else
+		Error("unregisterDevice("+oref.getDeviceHeader()+") - can't find slot for actor " + oref.getWearerName())
+	endif
 EndFunction
 
 int Function unregisterDeviceByInv(Actor akActor,Armor invDevice,int i = 0,bool sort = True)
@@ -667,422 +771,223 @@ int Function debugSize(Actor akActor)
 	return getNPCSlot(akActor).debugSize()
 EndFunction
 
-string[] Function GetHeavyBondageAnimation_Armbinder(bool hobble = false)
-	string[] temp
-	int loc_animNum = 0
-	if !hobble
-		loc_animNum = 5
-		if UDmain.ZaZAnimationPackInstalled
-			loc_animNum += 6
-		endif
-		temp = Utility.CreateStringArray(loc_animNum)
-		temp[0] = "DDRegArmbStruggle01"
-		temp[1] = "DDRegArmbStruggle02"
-		temp[2] = "DDRegArmbStruggle03"
-		temp[3] = "DDRegArmbStruggle04"
-		temp[4] = "DDRegArmbStruggle05"
-		if UDmain.ZaZAnimationPackInstalled
-			temp[5] = "ZapArmbStruggle01"
-			temp[6] = "ZapArmbStruggle03"
-			temp[7] = "ZapArmbStruggle05"
-			temp[8] = "ZapArmbStruggle07"
-			temp[9] = "ZapArmbStruggle08"
-			temp[10] = "ZapArmbStruggle10"
-		endif
-	else
-		loc_animNum = 2
-		if UDmain.ZaZAnimationPackInstalled
-			loc_animNum += 3
-		endif
-		temp = Utility.CreateStringArray(loc_animNum)
-		temp[0] = "DDHobArmbStruggle01"
-		temp[1] = "DDHobArmbStruggle02"
-		if UDmain.ZaZAnimationPackInstalled
-			temp[2] = "ZapArmbStruggle02"
-			temp[3] = "ZapArmbStruggle06"
-			temp[4] = "ZapArmbStruggle09"
-		endif
-	endif
-	return temp
-EndFunction
+;animations arrays for faster acces
+;normal animations without hobble skirt
+String[] Property UD_StruggleAnimation_Armbinder 		auto
+String[] Property UD_StruggleAnimation_Elbowbinder 		auto
+String[] Property UD_StruggleAnimation_StraitJacket		auto
+String[] Property UD_StruggleAnimation_CuffsFront		auto
+String[] Property UD_StruggleAnimation_Yoke 			auto
+String[] Property UD_StruggleAnimation_YokeBB 			auto
+String[] Property UD_StruggleAnimation_ElbowTie 		auto
+;String[] Property UD_StruggleAnimation_PetSuit			auto !TODO
+String[] Property UD_StruggleAnimation_Gag 				auto
+String[] Property UD_StruggleAnimation_Boots 			auto ;also leg cuffs
+String[] Property UD_StruggleAnimation_ArmCuffs 		auto ;also gloves and mittens
+String[] Property UD_StruggleAnimation_Collar 			auto
+String[] Property UD_StruggleAnimation_Blindfold 		auto ;also includes hood
+String[] Property UD_StruggleAnimation_Suit 			auto
+String[] Property UD_StruggleAnimation_Belt 			auto
+String[] Property UD_StruggleAnimation_Plug 			auto
+String[] Property UD_StruggleAnimation_Default 			auto
+;animations with hobble skirt
+String[] Property UD_StruggleAnimation_Armbinder_HB 	auto
+String[] Property UD_StruggleAnimation_Elbowbinder_HB 	auto
+String[] Property UD_StruggleAnimation_StraitJacket_HB	auto
+String[] Property UD_StruggleAnimation_CuffsFront_HB	auto
+String[] Property UD_StruggleAnimation_Yoke_HB			auto
+String[] Property UD_StruggleAnimation_YokeBB_HB 		auto
+String[] Property UD_StruggleAnimation_ElbowTie_HB 		auto
+;String[] Property UD_StruggleAnimation_PetSuit_HB		auto !TODO
+String[] Property UD_StruggleAnimation_Gag_HB 			auto
+String[] Property UD_StruggleAnimation_Boots_HB 		auto ;also leg cuffs
+String[] Property UD_StruggleAnimation_ArmCuffs_HB 		auto ;also gloves and mittens
+String[] Property UD_StruggleAnimation_Collar_HB 		auto
+String[] Property UD_StruggleAnimation_Blindfold_HB 	auto ;also includes hood
+String[] Property UD_StruggleAnimation_Suit_HB 			auto
+String[] Property UD_StruggleAnimation_Belt_HB 			auto
+String[] Property UD_StruggleAnimation_Plug_HB 			auto
+String[] Property UD_StruggleAnimation_Default_HB 		auto
 
-string[] Function GetStruggleAnimationsByKW(Keyword kwKeyword,bool bHobble = false)
-	if !bHobble
-		string[] temp 
-		int loc_animNum = 0
-		if kwKeyword == libs.zad_DeviousArmbinder
-			temp = GetHeavyBondageAnimation_Armbinder(false)
-		elseif kwKeyword==libs.zad_DeviousArmbinderElbow
-			temp = new string[5]
-			temp[0] = "DDRegElbStruggle01"
-			temp[1] = "DDRegElbStruggle02"
-			temp[2] = "DDRegElbStruggle03"
-			temp[3] = "DDRegElbStruggle04"
-			temp[4] = "DDRegElbStruggle05"
-		elseif kwKeyword==libs.zad_DeviousStraitJacket
-			loc_animNum = 6
-			if UDmain.ZaZAnimationPackInstalled
-				loc_animNum += 6
-			endif
-			temp = Utility.CreateStringArray(loc_animNum)
-			temp[0] = "DDRegElbStruggle01"
-			temp[1] = "DDRegElbStruggle02"
-			temp[2] = "DDRegElbStruggle03"
-			temp[3] = "DDRegElbStruggle04"
-			temp[4] = "DDRegElbStruggle05"
-			temp[5] = "DDRegbbyokeStruggle01"
-			if UDmain.ZaZAnimationPackInstalled
-				temp[6] = "ZapArmbStruggle01"
-				temp[7] = "ZapArmbStruggle03"
-				temp[8] = "ZapArmbStruggle05"
-				temp[9] = "ZapArmbStruggle07"
-				temp[10] = "ZapArmbStruggle08"
-				temp[11] = "ZapArmbStruggle10"
-			endif
-		elseif kwKeyword==libs.zad_DeviousCuffsFront
-			temp = new string[2]
-			temp[0] = "DDRegcuffsfrontStruggle02"
-			temp[1] = "DDRegcuffsfrontStruggle03"
-		elseif kwKeyword==libs.zad_DeviousYoke
-			loc_animNum = 5
-			if UDmain.ZaZAnimationPackInstalled
-				loc_animNum += 6
-			endif
-			temp = Utility.CreateStringArray(loc_animNum)
-			temp[0] = "DDRegYokeStruggle01"
-			temp[1] = "DDRegYokeStruggle02"
-			temp[2] = "DDRegYokeStruggle03"
-			temp[3] = "DDRegYokeStruggle04"
-			temp[4] = "DDRegYokeStruggle05"
-			if UDmain.ZaZAnimationPackInstalled
-				temp[5] = "ZapYokeStruggle01"
-				temp[6] = "ZapYokeStruggle03"
-				temp[7] = "ZapYokeStruggle05"
-				temp[8] = "ZapYokeStruggle07"
-				temp[9] = "ZapYokeStruggle08"
-				temp[10] = "ZapYokeStruggle10"
-			endif
-		elseif kwKeyword==libs.zad_DeviousYokeBB
-			temp = new string[5]
-			temp[0] = "DDRegbbyokeStruggle01"
-			temp[1] = "DDRegbbyokeStruggle02"
-			temp[2] = "DDRegbbyokeStruggle03"
-			temp[3] = "DDRegbbyokeStruggle04"
-			temp[4] = "DDRegbbyokeStruggle05"
-		elseif kwKeyword==libs.zad_DeviousElbowTie
-			temp = new string[3]
-			temp[0] = "DDElbowTie_struggleone"
-			temp[1] = "DDElbowTie_struggletwo"
-			temp[2] = "DDElbowTie_strugglethree"
-		elseif kwKeyword==libs.zad_deviousGag
-			temp = new string[1]
-			temp[0] = "ft_struggle_gag_1"
-		elseif kwKeyword==libs.zad_DeviousLegCuffs || kwKeyword==libs.zad_DeviousBoots
-			temp = new string[1]
-			temp[0] = "ft_struggle_boots_1"
-		elseif kwKeyword==libs.zad_DeviousArmCuffs || kwKeyword==libs.zad_DeviousGloves || kwKeyword==libs.zad_DeviousBondageMittens
-			temp = new string[1]
-			temp[0] = "ft_struggle_gloves_1"
-		elseif kwKeyword==libs.zad_DeviousCollar
-			temp = new string[1]
-			temp[0] = "ft_struggle_head_1"
-		elseif kwKeyword==libs.zad_DeviousBlindfold || kwKeyword==libs.zad_DeviousHood
-			temp = new string[1]
-			temp[0] = "ft_struggle_blindfold_1"
-		elseif kwKeyword==libs.zad_DeviousSuit
-			temp = new string[2]
-			temp[0] = "ft_struggle_boots_1"
-			temp[1] = "ft_struggle_gloves_1"
-			;temp[2] = "ft_struggle_gag_1"
-		elseif kwKeyword==libs.zad_DeviousBelt
-			temp = new string[2]
-			temp[0] = "DDChastityBeltStruggle01"
-			temp[1] = "DDChastityBeltStruggle02"
-		elseif kwKeyword==libs.zad_DeviousPlug
-			temp = new string[2]
-			temp[0] = "DDZazHornyA"
-			temp[1] = "DDZazHornyD"
-		else	
-			temp = new string[1] ;default for other devices
-			temp[0] = "ft_struggle_gag_1"
-		endif
-		return temp
+string[] Function GetHeavyBondageAnimation_Armbinder(bool hobble = false)
+	if !hobble
+		return UD_StruggleAnimation_Armbinder
 	else
-		string[] temp
-		int loc_animNum = 0
-		if kwKeyword==libs.zad_DeviousArmbinder
-			temp = GetHeavyBondageAnimation_Armbinder(true)
-		elseif kwKeyword==libs.zad_DeviousArmbinderElbow
-			temp = new string[2]
-			temp[0] = "DDHobElbStruggle01"
-			temp[1] = "DDHobElbStruggle02"
-		elseif kwKeyword==libs.zad_DeviousStraitJacket
-			loc_animNum = 2
-			if UDmain.ZaZAnimationPackInstalled
-				loc_animNum += 3
-			endif
-			temp = Utility.CreateStringArray(loc_animNum)
-			temp[0] = "DDHobArmbStruggle01"
-			temp[1] = "DDHobArmbStruggle02"
-			if UDmain.ZaZAnimationPackInstalled
-				temp[2] = "ZapArmbStruggle02"
-				temp[3] = "ZapArmbStruggle06"
-				temp[4] = "ZapArmbStruggle09"
-			endif
-		elseif kwKeyword==libs.zad_DeviousCuffsFront
-			temp = new string[2]
-			temp[0] = "DDHobCuffsFrontStruggle01"
-			temp[1] = "DDHobCuffsFrontStruggle02"
-		elseif kwKeyword==libs.zad_DeviousYoke
-			loc_animNum = 2
-			if UDmain.ZaZAnimationPackInstalled
-				loc_animNum += 3
-			endif
-			temp = Utility.CreateStringArray(loc_animNum)
-			temp[0] = "DDHobYokeStruggle01"
-			temp[1] = "DDHobYokeStruggle02"
-			if UDmain.ZaZAnimationPackInstalled
-				temp[2] = "ZapYokeStruggle02"
-				temp[3] = "ZapYokeStruggle06"
-				temp[4] = "ZapYokeStruggle09"
-			endif
-		elseif kwKeyword==libs.zad_DeviousYokeBB
-			temp = new string[2]
-			temp[0] = "DDHobBBYokeStruggle01"
-			temp[1] = "DDHobBBYokeStruggle02"
-		elseif kwKeyword==libs.zad_DeviousElbowTie
-			temp = new string[3]
-			temp[0] = "DDElbowTie_struggleone"
-			temp[1] = "DDElbowTie_struggletwo"
-			temp[2] = "DDElbowTie_strugglethree"
-		elseif kwKeyword==libs.zad_deviousGag
-			temp = new string[1]
-			temp[0] = "ft_struggle_gag_1"
-		elseif kwKeyword==libs.zad_DeviousLegCuffs || kwKeyword==libs.zad_DeviousBoots
-			temp = new string[1]
-			temp[0] = "ft_struggle_boots_1"
-		elseif kwKeyword==libs.zad_DeviousArmCuffs || kwKeyword==libs.zad_DeviousGloves || kwKeyword==libs.zad_DeviousBondageMittens
-			temp = new string[1]
-			temp[0] = "ft_struggle_gloves_1"
-		elseif kwKeyword==libs.zad_DeviousCollar
-			temp = new string[1]
-			temp[0] = "ft_struggle_head_1"
-		elseif kwKeyword==libs.zad_DeviousBlindfold || kwKeyword==libs.zad_DeviousHood
-			temp = new string[1]
-			temp[0] = "ft_struggle_blindfold_1"
-		elseif kwKeyword==libs.zad_DeviousSuit
-			temp = new string[2]
-			temp[0] = "ft_struggle_boots_1"
-			temp[1] = "ft_struggle_gloves_1"
-		elseif kwKeyword==libs.zad_DeviousBelt
-			temp = new string[2]
-			temp[0] = "DDChastityBeltStruggle01"
-			temp[1] = "DDChastityBeltStruggle02"
-		elseif kwKeyword==libs.zad_DeviousPlug
-			temp = new string[2]
-			temp[0] = "DDZazHornyA"
-			temp[1] = "DDZazHornyD"
-		else	
-			temp = new string[1] ;default for other devices
-			temp[0] = "ft_struggle_gag_1"
-		endif
-		return temp
+		return UD_StruggleAnimation_Armbinder_HB
 	endif
 EndFunction
 
 string[] Function GetStruggleAnimations(Actor akActor,Armor renDevice)
 	if !akActor.wornHasKeyword(libs.zad_DeviousHobbleSkirt)
-		string[] temp 
-		int loc_animNum = 0
-		if renDevice.hasKeyword(libs.zad_DeviousArmbinder)
-			temp = GetHeavyBondageAnimation_Armbinder(false)
-		elseif renDevice.hasKeyword(libs.zad_DeviousArmbinderElbow)
-			temp = new string[5]
-			temp[0] = "DDRegElbStruggle01"
-			temp[1] = "DDRegElbStruggle02"
-			temp[2] = "DDRegElbStruggle03"
-			temp[3] = "DDRegElbStruggle04"
-			temp[4] = "DDRegElbStruggle05"
-		elseif renDevice.hasKeyword(libs.zad_DeviousStraitJacket)
-			loc_animNum = 6
-			if UDmain.ZaZAnimationPackInstalled
-				loc_animNum += 6
+		if renDevice.hasKeyword(libs.zad_deviousheavybondage)
+			if renDevice.hasKeyword(libs.zad_DeviousArmbinder)
+				return UD_StruggleAnimation_Armbinder
+			elseif renDevice.hasKeyword(libs.zad_DeviousArmbinderElbow)
+				return UD_StruggleAnimation_Elbowbinder
+			elseif renDevice.hasKeyword(libs.zad_DeviousStraitJacket)
+				return UD_StruggleAnimation_StraitJacket
+			elseif renDevice.hasKeyword(libs.zad_DeviousCuffsFront)
+				return UD_StruggleAnimation_CuffsFront
+			elseif renDevice.hasKeyword(libs.zad_DeviousYoke)
+				return UD_StruggleAnimation_Yoke
+			elseif renDevice.hasKeyword(libs.zad_DeviousYokeBB)
+				return UD_StruggleAnimation_YokeBB
+			elseif renDevice.hasKeyword(libs.zad_DeviousElbowTie)
+				return UD_StruggleAnimation_ElbowTie
+			elseif renDevice.hasKeyword(libs.zad_DeviousPetSuit)
+				string[] temp = new string[1]
+				temp[0] = "none"
+				return temp
+			else
+				return UD_StruggleAnimation_Default
 			endif
-			temp = Utility.CreateStringArray(loc_animNum)
-			temp[0] = "DDRegElbStruggle01"
-			temp[1] = "DDRegElbStruggle02"
-			temp[2] = "DDRegElbStruggle03"
-			temp[3] = "DDRegElbStruggle04"
-			temp[4] = "DDRegElbStruggle05"
-			temp[5] = "DDRegbbyokeStruggle01"
-			if UDmain.ZaZAnimationPackInstalled
-				temp[6] = "ZapArmbStruggle01"
-				temp[7] = "ZapArmbStruggle03"
-				temp[8] = "ZapArmbStruggle05"
-				temp[9] = "ZapArmbStruggle07"
-				temp[10] = "ZapArmbStruggle08"
-				temp[11] = "ZapArmbStruggle10"
+		else
+			if renDevice.hasKeyword(libs.zad_deviousGag)
+				return UD_StruggleAnimation_Gag
+			elseif renDevice.hasKeyword(libs.zad_DeviousLegCuffs) || renDevice.hasKeyword(libs.zad_DeviousBoots)
+				return UD_StruggleAnimation_Boots
+			elseif renDevice.hasKeyword(libs.zad_DeviousArmCuffs) || renDevice.hasKeyword(libs.zad_DeviousGloves) || renDevice.hasKeyword(libs.zad_DeviousBondageMittens)
+				return UD_StruggleAnimation_ArmCuffs
+			elseif renDevice.hasKeyword(libs.zad_DeviousCollar)
+				return UD_StruggleAnimation_Collar
+			elseif renDevice.hasKeyword(libs.zad_DeviousBlindfold) || renDevice.hasKeyword(libs.zad_DeviousHood)
+				return UD_StruggleAnimation_Blindfold
+			elseif renDevice.hasKeyword(libs.zad_DeviousSuit)
+				return UD_StruggleAnimation_Suit
+			elseif renDevice.hasKeyword(libs.zad_DeviousBelt)
+				return UD_StruggleAnimation_Belt
+			elseif renDevice.hasKeyword(libs.zad_DeviousPlug)
+				return UD_StruggleAnimation_Plug
+			else	
+				return UD_StruggleAnimation_Default
 			endif
-		elseif renDevice.hasKeyword(libs.zad_DeviousCuffsFront)
-			temp = new string[2]
-			temp[0] = "DDRegcuffsfrontStruggle02"
-			temp[1] = "DDRegcuffsfrontStruggle03"
-		elseif renDevice.hasKeyword(libs.zad_DeviousYoke)
-			loc_animNum = 5
-			if UDmain.ZaZAnimationPackInstalled
-				loc_animNum += 6
-			endif
-			temp = Utility.CreateStringArray(loc_animNum)
-			temp[0] = "DDRegYokeStruggle01"
-			temp[1] = "DDRegYokeStruggle02"
-			temp[2] = "DDRegYokeStruggle03"
-			temp[3] = "DDRegYokeStruggle04"
-			temp[4] = "DDRegYokeStruggle05"
-			if UDmain.ZaZAnimationPackInstalled
-				temp[5] = "ZapYokeStruggle01"
-				temp[6] = "ZapYokeStruggle03"
-				temp[7] = "ZapYokeStruggle05"
-				temp[8] = "ZapYokeStruggle07"
-				temp[9] = "ZapYokeStruggle08"
-				temp[10] = "ZapYokeStruggle10"
-			endif
-		elseif renDevice.hasKeyword(libs.zad_DeviousYokeBB)
-			temp = new string[5]
-			temp[0] = "DDRegbbyokeStruggle01"
-			temp[1] = "DDRegbbyokeStruggle02"
-			temp[2] = "DDRegbbyokeStruggle03"
-			temp[3] = "DDRegbbyokeStruggle04"
-			temp[4] = "DDRegbbyokeStruggle05"
-		elseif renDevice.hasKeyword(libs.zad_DeviousElbowTie)
-			temp = new string[3]
-			temp[0] = "DDElbowTie_struggleone"
-			temp[1] = "DDElbowTie_struggletwo"
-			temp[2] = "DDElbowTie_strugglethree"
-		elseif renDevice.hasKeyword(libs.zad_DeviousPetSuit)
-			temp = new string[1]
-			temp[0] = "none"
-			return temp
-		elseif renDevice.hasKeyword(libs.zad_deviousGag)
-			temp = new string[1]
-			temp[0] = "ft_struggle_gag_1"
-		elseif renDevice.hasKeyword(libs.zad_DeviousLegCuffs) || renDevice.hasKeyword(libs.zad_DeviousBoots)
-			temp = new string[1]
-			temp[0] = "ft_struggle_boots_1"
-		elseif renDevice.hasKeyword(libs.zad_DeviousArmCuffs) || renDevice.hasKeyword(libs.zad_DeviousGloves) || renDevice.hasKeyword(libs.zad_DeviousBondageMittens)
-			temp = new string[1]
-			temp[0] = "ft_struggle_gloves_1"
-		elseif renDevice.hasKeyword(libs.zad_DeviousCollar)
-			temp = new string[1]
-			temp[0] = "ft_struggle_head_1"
-		elseif renDevice.hasKeyword(libs.zad_DeviousBlindfold) || renDevice.hasKeyword(libs.zad_DeviousHood)
-			temp = new string[1]
-			temp[0] = "ft_struggle_blindfold_1"
-		elseif renDevice.hasKeyword(libs.zad_DeviousSuit)
-			temp = new string[2]
-			temp[0] = "ft_struggle_boots_1"
-			temp[1] = "ft_struggle_gloves_1"
-			;temp[2] = "ft_struggle_gag_1"
-		elseif renDevice.hasKeyword(libs.zad_DeviousBelt)
-			temp = new string[2]
-			temp[0] = "DDChastityBeltStruggle01"
-			temp[1] = "DDChastityBeltStruggle02"
-		elseif renDevice.hasKeyword(libs.zad_DeviousPlug)
-			temp = new string[2]
-			temp[0] = "DDZazHornyA"
-			temp[1] = "DDZazHornyD"
-		else	
-			temp = new string[1] ;default for other devices
-			temp[0] = "ft_struggle_gag_1"
 		endif
-		return temp
 	else
-		string[] temp
-		int loc_animNum = 0
-		if renDevice.hasKeyword(libs.zad_DeviousArmbinder)
-			temp = GetHeavyBondageAnimation_Armbinder(true)
-		elseif renDevice.hasKeyword(libs.zad_DeviousArmbinderElbow)
-			temp = new string[2]
-			temp[0] = "DDHobElbStruggle01"
-			temp[1] = "DDHobElbStruggle02"
-		elseif renDevice.hasKeyword(libs.zad_DeviousStraitJacket)
-			loc_animNum = 2
-			if UDmain.ZaZAnimationPackInstalled
-				loc_animNum += 3
+		if renDevice.hasKeyword(libs.zad_deviousheavybondage)
+			if renDevice.hasKeyword(libs.zad_DeviousArmbinder)
+				return UD_StruggleAnimation_Armbinder_HB
+			elseif renDevice.hasKeyword(libs.zad_DeviousArmbinderElbow)
+				return UD_StruggleAnimation_Elbowbinder_HB
+			elseif renDevice.hasKeyword(libs.zad_DeviousStraitJacket)
+				return UD_StruggleAnimation_StraitJacket_HB
+			elseif renDevice.hasKeyword(libs.zad_DeviousCuffsFront)
+				return UD_StruggleAnimation_CuffsFront_HB
+			elseif renDevice.hasKeyword(libs.zad_DeviousYoke)
+				return UD_StruggleAnimation_Yoke_HB
+			elseif renDevice.hasKeyword(libs.zad_DeviousYokeBB)
+				return UD_StruggleAnimation_YokeBB_HB
+			elseif renDevice.hasKeyword(libs.zad_DeviousElbowTie)
+				return UD_StruggleAnimation_ElbowTie_HB
+			elseif renDevice.hasKeyword(libs.zad_DeviousPetSuit)
+				string[] temp = new string[1]
+				temp[0] = "none"
+				return temp
+			else
+				return UD_StruggleAnimation_Default_HB
 			endif
-			temp = Utility.CreateStringArray(loc_animNum)
-			temp[0] = "DDHobArmbStruggle01"
-			temp[1] = "DDHobArmbStruggle02"
-			if UDmain.ZaZAnimationPackInstalled
-				temp[2] = "ZapArmbStruggle02"
-				temp[3] = "ZapArmbStruggle06"
-				temp[4] = "ZapArmbStruggle09"
+		else
+			if renDevice.hasKeyword(libs.zad_deviousGag)
+				return UD_StruggleAnimation_Gag_HB
+			elseif renDevice.hasKeyword(libs.zad_DeviousLegCuffs) || renDevice.hasKeyword(libs.zad_DeviousBoots)
+				return UD_StruggleAnimation_Boots_HB
+			elseif renDevice.hasKeyword(libs.zad_DeviousArmCuffs) || renDevice.hasKeyword(libs.zad_DeviousGloves) || renDevice.hasKeyword(libs.zad_DeviousBondageMittens)
+				return UD_StruggleAnimation_ArmCuffs_HB
+			elseif renDevice.hasKeyword(libs.zad_DeviousCollar)
+				return UD_StruggleAnimation_Collar_HB
+			elseif renDevice.hasKeyword(libs.zad_DeviousBlindfold) || renDevice.hasKeyword(libs.zad_DeviousHood)
+				return UD_StruggleAnimation_Blindfold_HB
+			elseif renDevice.hasKeyword(libs.zad_DeviousSuit)
+				return UD_StruggleAnimation_Suit_HB
+			elseif renDevice.hasKeyword(libs.zad_DeviousBelt)
+				return UD_StruggleAnimation_Belt_HB
+			elseif renDevice.hasKeyword(libs.zad_DeviousPlug)
+				return UD_StruggleAnimation_Plug_HB
+			else	
+				return UD_StruggleAnimation_Default_HB
 			endif
-		elseif renDevice.hasKeyword(libs.zad_DeviousCuffsFront)
-			temp = new string[2]
-			temp[0] = "DDHobCuffsFrontStruggle01"
-			temp[1] = "DDHobCuffsFrontStruggle02"
-		elseif renDevice.hasKeyword(libs.zad_DeviousYoke)
-			loc_animNum = 2
-			if UDmain.ZaZAnimationPackInstalled
-				loc_animNum += 3
-			endif
-			temp = Utility.CreateStringArray(loc_animNum)
-			temp[0] = "DDHobYokeStruggle01"
-			temp[1] = "DDHobYokeStruggle02"
-			if UDmain.ZaZAnimationPackInstalled
-				temp[2] = "ZapYokeStruggle02"
-				temp[3] = "ZapYokeStruggle06"
-				temp[4] = "ZapYokeStruggle09"
-			endif
-		elseif renDevice.hasKeyword(libs.zad_DeviousYokeBB)
-			temp = new string[2]
-			temp[0] = "DDHobBBYokeStruggle01"
-			temp[1] = "DDHobBBYokeStruggle02"
-		elseif renDevice.hasKeyword(libs.zad_DeviousElbowTie)
-			temp = new string[3]
-			temp[0] = "DDElbowTie_struggleone"
-			temp[1] = "DDElbowTie_struggletwo"
-			temp[2] = "DDElbowTie_strugglethree"
-		elseif renDevice.hasKeyword(libs.zad_DeviousPetSuit)
-			temp = new string[1]
-			temp[0] = "none"
-			return temp
-		elseif renDevice.hasKeyword(libs.zad_deviousGag)
-			temp = new string[1]
-			temp[0] = "ft_struggle_gag_1"
-		elseif renDevice.hasKeyword(libs.zad_DeviousLegCuffs) || renDevice.hasKeyword(libs.zad_DeviousBoots)
-			temp = new string[1]
-			temp[0] = "ft_struggle_boots_1"
-		elseif renDevice.hasKeyword(libs.zad_DeviousArmCuffs) || renDevice.hasKeyword(libs.zad_DeviousGloves) || renDevice.hasKeyword(libs.zad_DeviousBondageMittens)
-			temp = new string[1]
-			temp[0] = "ft_struggle_gloves_1"
-		elseif renDevice.hasKeyword(libs.zad_DeviousCollar)
-			temp = new string[1]
-			temp[0] = "ft_struggle_head_1"
-		elseif renDevice.hasKeyword(libs.zad_DeviousBlindfold) || renDevice.hasKeyword(libs.zad_DeviousHood)
-			temp = new string[1]
-			temp[0] = "ft_struggle_blindfold_1"
-		elseif renDevice.hasKeyword(libs.zad_DeviousSuit)
-			temp = new string[2]
-			temp[0] = "ft_struggle_boots_1"
-			temp[1] = "ft_struggle_gloves_1"
-		elseif renDevice.hasKeyword(libs.zad_DeviousBelt)
-			temp = new string[2]
-			temp[0] = "DDChastityBeltStruggle01"
-			temp[1] = "DDChastityBeltStruggle02"
-		elseif renDevice.hasKeyword(libs.zad_DeviousPlug)
-			temp = new string[2]
-			temp[0] = "DDZazHornyA"
-			temp[1] = "DDZazHornyD"
-		else	
-			temp = new string[1] ;default for other devices
-			temp[0] = "ft_struggle_gag_1"
 		endif
-		return temp
 	endif
 EndFunction
 
-
+string[] Function GetStruggleAnimationsByKeyword(Actor akActor,Keyword akKeyword,bool abHobble = false)
+	if !abHobble
+		if akKeyword == libs.zad_DeviousArmbinder
+			return UD_StruggleAnimation_Armbinder
+		elseif akKeyword == libs.zad_DeviousArmbinderElbow
+			return UD_StruggleAnimation_Elbowbinder
+		elseif akKeyword == libs.zad_DeviousStraitJacket
+			return UD_StruggleAnimation_StraitJacket
+		elseif akKeyword == libs.zad_DeviousCuffsFront
+			return UD_StruggleAnimation_CuffsFront
+		elseif akKeyword == libs.zad_DeviousYoke
+			return UD_StruggleAnimation_Yoke
+		elseif akKeyword == libs.zad_DeviousYokeBB
+			return UD_StruggleAnimation_YokeBB
+		elseif akKeyword == libs.zad_DeviousElbowTie
+			return UD_StruggleAnimation_ElbowTie
+		elseif akKeyword == libs.zad_DeviousPetSuit
+			string[] temp = new string[1]
+			temp[0] = "none"
+			return temp
+		elseif akKeyword == libs.zad_deviousGag
+			return UD_StruggleAnimation_Gag
+		elseif akKeyword == libs.zad_DeviousLegCuffs || akKeyword == libs.zad_DeviousBoots
+			return UD_StruggleAnimation_Boots
+		elseif akKeyword == libs.zad_DeviousArmCuffs || akKeyword == libs.zad_DeviousGloves || akKeyword == libs.zad_DeviousBondageMittens
+			return UD_StruggleAnimation_ArmCuffs
+		elseif akKeyword == libs.zad_DeviousCollar
+			return UD_StruggleAnimation_Collar
+		elseif akKeyword == libs.zad_DeviousBlindfold || akKeyword == libs.zad_DeviousHood
+			return UD_StruggleAnimation_Blindfold
+		elseif akKeyword == libs.zad_DeviousSuit
+			return UD_StruggleAnimation_Suit
+		elseif akKeyword == libs.zad_DeviousBelt
+			return UD_StruggleAnimation_Belt
+		elseif akKeyword == libs.zad_DeviousPlug
+			return UD_StruggleAnimation_Plug
+		else	
+			return UD_StruggleAnimation_Default
+		endif
+	else
+		if akKeyword == libs.zad_DeviousArmbinder
+			return UD_StruggleAnimation_Armbinder_HB
+		elseif akKeyword == libs.zad_DeviousArmbinderElbow
+			return UD_StruggleAnimation_Elbowbinder_HB
+		elseif akKeyword == libs.zad_DeviousStraitJacket
+			return UD_StruggleAnimation_StraitJacket_HB
+		elseif akKeyword == libs.zad_DeviousCuffsFront
+			return UD_StruggleAnimation_CuffsFront_HB
+		elseif akKeyword == libs.zad_DeviousYoke
+			return UD_StruggleAnimation_Yoke_HB
+		elseif akKeyword == libs.zad_DeviousYokeBB
+			return UD_StruggleAnimation_YokeBB_HB
+		elseif akKeyword == libs.zad_DeviousElbowTie
+			return UD_StruggleAnimation_ElbowTie_HB
+		elseif akKeyword == libs.zad_DeviousPetSuit
+			string[] temp = new string[1]
+			temp[0] = "none"
+			return temp
+		elseif akKeyword == libs.zad_deviousGag
+			return UD_StruggleAnimation_Gag_HB
+		elseif akKeyword == libs.zad_DeviousLegCuffs || akKeyword == libs.zad_DeviousBoots
+			return UD_StruggleAnimation_Boots_HB
+		elseif akKeyword == libs.zad_DeviousArmCuffs || akKeyword == libs.zad_DeviousGloves || akKeyword == libs.zad_DeviousBondageMittens
+			return UD_StruggleAnimation_ArmCuffs_HB
+		elseif akKeyword == libs.zad_DeviousCollar
+			return UD_StruggleAnimation_Collar_HB
+		elseif akKeyword == libs.zad_DeviousBlindfold || akKeyword == libs.zad_DeviousHood
+			return UD_StruggleAnimation_Blindfold_HB
+		elseif akKeyword == libs.zad_DeviousSuit
+			return UD_StruggleAnimation_Suit_HB
+		elseif akKeyword == libs.zad_DeviousBelt
+			return UD_StruggleAnimation_Belt_HB
+		elseif akKeyword == libs.zad_DeviousPlug
+			return UD_StruggleAnimation_Plug_HB
+		else	
+			return UD_StruggleAnimation_Default_HB
+		endif
+	endif
+EndFunction
 
 Function LockDeviceParalel(actor akActor, armor deviceInventory, bool force = false)
 	int handle = ModEvent.Create("UD_LockDeviceParalel")
@@ -1349,7 +1254,7 @@ EndFunction
 
 bool crit = false
 string selected_crit_meter =  "Error"
-Int Property UD_CritEffect = 2 auto
+Int Property UD_CritEffect = 2 auto hidden
 Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string strArg, float difficulty)
 	string meter
 	if Utility.randomInt(1,100) <= chance
@@ -1444,7 +1349,8 @@ Event OnKeyDown(Int KeyCode)
 			return ;too much thread, remove new ones
 		endif
 	endif
-	if !Utility.IsInMenuMode() ;only if player is not in menu
+	bool loc_menuopen = Utility.IsInMenuMode()
+	if !loc_menuopen ;only if player is not in menu
 		if TraceAllowed()		
 			Log("OnKeyDown(), Keycode: " + KeyCode,3)
 		endif
@@ -1506,18 +1412,8 @@ Event OnKeyDown(Int KeyCode)
 				return
 			endif
 		else ;when player is not bussy
-			if !IsMenuOpen()
-				if KeyCode == PlayerMenu_KeyCode
-					PlayerMenu()
-				elseif KeyCode == NPCMenu_Keycode
-					ObjectReference loc_ref = Game.GetCurrentCrosshairRef()
-					if loc_ref as Actor
-						Actor loc_actor = loc_ref as Actor
-						if !loc_actor.isDead() && UDmain.ActorIsValidForUD(loc_actor)
-							NPCMenu(loc_actor)
-						endif
-					endif
-				endif
+			if KeyCode == PlayerMenu_KeyCode
+				PlayerMenu()
 			endif
 		endif
 	endif
@@ -1548,6 +1444,25 @@ Event OnKeyUp(Int KeyCode, Float HoldTime)
 			_oCurrentPlayerMinigameDevice.SpecialButtonReleased(HoldTime)
 		endif
 		return
+	elseif KeyCode == NPCMenu_Keycode
+		ObjectReference loc_ref = Game.GetCurrentCrosshairRef()
+		if loc_ref as Actor
+			Actor loc_actor = loc_ref as Actor
+			if !loc_actor.isDead() && UDmain.ActorIsValidForUD(loc_actor)
+				if HoldTime <= 0.2
+					NPCMenu(loc_actor)
+				else
+					bool loc_actorisregistered = isRegistered(loc_actor)
+					if loc_actorisregistered
+						bool loc_actorisfollower = ActorIsFollower(loc_actor)
+						bool loc_actorishelpless = (!actorFreeHands(loc_actor) || loc_actor.getAV("paralysis") || loc_actor.GetSleepState() == 3) && actorFreeHands(Game.getPlayer())
+						if loc_actorisfollower || loc_actorishelpless
+							HelpNPC(loc_actor,Game.getPlayer(),loc_actorisfollower)
+						endif
+					endif
+				endif
+			endif
+		endif
 	endif
 EndEvent
 
@@ -1563,9 +1478,9 @@ Function SetMessageAlias(Actor akActor1,Actor akActor2 = none,zadequipscript arD
 	endif
 EndFunction
 
-Bool Property UD_CurrentNPCMenuIsFollower = False auto conditional
-Bool Property UD_CurrentNPCMenuIsRegistered = False auto conditional
-Bool Property UD_CurrentNPCMenuTargetIsHelpless = False auto conditional
+Bool Property UD_CurrentNPCMenuIsFollower = False auto conditional hidden
+Bool Property UD_CurrentNPCMenuIsRegistered = False auto conditional hidden
+Bool Property UD_CurrentNPCMenuTargetIsHelpless = False auto conditional hidden
 Function NPCMenu(Actor akActor)
 	SetMessageAlias(akActor)
 	UD_CurrentNPCMenuIsFollower = ActorIsFollower(akActor)
@@ -2188,8 +2103,8 @@ Function startLockpickMinigame()
 EndFunction
 
 ;detect when the lockpick minigame ends
-bool Property LockpickMinigameOver = false auto
-int Property LockpickMinigameResult = 0 auto
+bool Property LockpickMinigameOver = false auto hidden
+int Property LockpickMinigameResult = 0 auto hidden
 Event OnMenuClose(String MenuName)
 	if MenuName == "Lockpicking Menu"
 		if UDmain.ConsoleUtilInstalled
@@ -2217,12 +2132,38 @@ Event OnMenuClose(String MenuName)
 	endif
 EndEvent
 
+Keyword Function GetHeavyBondageKeyword(Armor akDevice)
+	int loc_kwnum = UD_HeavyBondageKeywords.getSize()
+	while loc_kwnum
+		loc_kwnum -= 1
+		Keyword loc_kw = UD_HeavyBondageKeywords.GetAt(loc_kwnum) as Keyword
+		if akDevice.haskeyword(loc_kw)
+			return loc_kw
+		endif
+	endwhile
+	return none
+EndFunction
+
 ;returns first device which have connected corresponding Inventory Device
 UD_CustomDevice_RenderScript Function getDeviceByInventory(Actor akActor, Armor deviceInventory)
 	if isRegistered(akActor)
 		return getNPCSlot(akActor).getDeviceByInventory(deviceInventory)
 	else
 		return getDeviceScriptByRender(akActor,StorageUtil.GetFormValue(akActor, "UD_RenderDevice" + deviceInventory, none) as Armor)
+	endif
+EndFunction
+
+;returns first device which have connected corresponding Render Device
+UD_CustomDevice_RenderScript Function getDeviceByRender(Actor akActor, Armor deviceRendered)
+	if isRegistered(akActor)
+		UD_CustomDevice_RenderScript loc_device = getNPCSlot(akActor).getDeviceByRender(deviceRendered)
+		if loc_device
+			return loc_device
+		else
+			return getDeviceScriptByRender(akActor,deviceRendered)
+		endif
+	else
+		return getDeviceScriptByRender(akActor,deviceRendered)
 	endif
 EndFunction
 
@@ -2242,6 +2183,9 @@ EndFunction
 
 ;returns current device that have minigame on (return none if no minigame is on)
 UD_CustomDevice_RenderScript Function getMinigameDevice(Actor akActor)
+	if _oCurrentPlayerMinigameDevice.getWearer() == akActor || _oCurrentPlayerMinigameDevice.getHelper() == akActor
+		return _oCurrentPlayerMinigameDevice
+	endif
 	if isRegistered(akActor)
 		return getNPCSlot(akActor).getMinigameDevice()
 	else
@@ -2330,7 +2274,7 @@ Armor Function getEquippedRender(Actor akActor,keyword akKeyword)
 	endif
 EndFunction
 
-UD_CustomDevice_RenderScript Property _transferedDevice = none auto
+UD_CustomDevice_RenderScript Property _transferedDevice = none auto hidden
 bool _transfereMutex = false
 UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armor deviceRendered)
 	if !deviceRendered
@@ -2367,15 +2311,6 @@ UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armo
 	bool loc_isplayer = ActorIsPlayer(akActor)
 
 	while !_transferedDevice && loc_time <= 4.0
-		;/
-		if !loc_isplayer ;events for NPCs doesn't work while in menu
-			if loc_time >= 3.8
-				if Utility.IsInMenuMode()
-					loc_time = 0.0
-				endif
-			endif
-		endif
-		/;
 		Utility.waitMenuMode(0.05)
 		loc_time += 0.05
 	endwhile
@@ -2606,7 +2541,6 @@ Function deleteLastUsedSlot(Actor akActor)
 	endif
 EndFunction
 
-
 ;toggle widget
 Function toggleWidget(bool val)
 	if val
@@ -2784,52 +2718,6 @@ Function sendMinigameActorValUpdateLoop(Actor akActor, UD_CustomDevice_RenderScr
 	
 EndFunction
 
-Function AVCheckLoop(Form fActor,Float fUpdateTime)
-	if !akActor
-		Error("None passed to sendMinigameCritUpdateLoop!!!")
-	endif
-	Actor akActor = fActor as Actor
-	UD_CustomDevice_RenderScript device = _AVCheckLoop_Package
-	_AVCheckLoop_Package = none
-	if device
-		device.checkAVLoop(fUpdateTime)
-	endif
-EndFunction
-
-Function AVCheckLoopHelper(Form fActor,Float fUpdateTime)
-	if !akActor
-		Error("None passed to sendMinigameCritUpdateLoop!!!")
-	endif
-	Actor akActor = fActor as Actor
-	UD_CustomDevice_RenderScript device = _AVCheckLoop_Package
-	_AVCheckLoop_Package = none
-	if device
-		device.checkAVLoopHelper(fUpdateTime)
-	endif
-EndFunction
-
-Function sendMinigameCritUpdateLoop(Actor akActor)
-	if !akActor
-		Error("None passed to sendMinigameCritUpdateLoop!!!")
-	endif
-	int handle = ModEvent.Create("UD_CritUpdateLoopStart")
-	if (handle)
-        ModEvent.PushForm(handle,akActor)
-        ModEvent.Send(handle)
-    endif
-EndFunction
-
-Function CritLoop(Form fActor)
-	Actor akActor = fActor as Actor
-	UD_CustomDevice_RenderScript device = getMinigameDevice(akActor)
-	if device
-		device.startCritLoop()
-	else
-		Error("Can't start crit loop because " + getActorName(akActor) + " have no minigame device")
-	endif
-EndFunction
-
-
 string Function getCurrentZadAnimation(Actor akActor)
 	return StorageUtil.getStringValue(akActor,"zad_animation","none")
 EndFunction
@@ -2976,19 +2864,6 @@ Function Print(String strMsg, int iLevel = 1,bool bLog = false)
 EndFunction
 Function CLog(String strMsg)
 	UDmain.CLog(strMsg)
-EndFunction
-;fixes
-;will add update fixes here too
-Function OnGameReset()
-	RegisterForSingleUpdate(2*UD_UpdateTime)
-	InitMenuArr()
-	_activateDevicePackage = none
-	_startVibFunctionPackage = none
-	registerAllEvents()
-	UDPP.RegisterEvents()
-	CheckHardcoreDisabler(Game.getPlayer())
-	SetArousalPerks()
-	UDCD_NPCM.CheckOrgasmManagerLoops()
 EndFunction
 
 Function SetArousalPerks()
@@ -3248,16 +3123,14 @@ EndFunction
 float Function FinishRecordTime(string strObject = "",bool bReset = false,bool bLog = true,bool bPrint = true)
 	float loc_res = Utility.GetCurrentRealTime() - _startTime
 	
+	CLog("ElapsedTime for "+ strObject + " = " + loc_res)
+	
 	if bLog
 		debug.trace("[UD]: ElapsedTime for "+ strObject + " = " + loc_res)
 		;Log("Elapsed time for " + strObject + " = " + loc_res + " s",1)
 	endif
 	if bPrint
 		debug.notification("ElapsedTime for "+ strObject + " = " + loc_res)
-	endif
-	
-	if bLog || bPrint
-		CLog("ElapsedTime for "+ strObject + " = " + loc_res)
 	endif
 	
 	if bReset

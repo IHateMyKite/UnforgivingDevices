@@ -15,7 +15,11 @@ UD_MutexManagerScript Property UDMM
 		return UDmain.UDMM
 	EndFunction
 EndProperty
-
+UD_Libs Property UDlibs
+	UD_Libs Function get()
+		return UDmain.UDlibs
+	EndFunction
+EndProperty
 bool Property UD_GlobalDeviceMutex_Unlock_InventoryScript = false auto
 bool Property UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed = false auto
 ;bool Property UD_GlobalDeviceMutex_Unlock_RenderScript = false auto
@@ -82,6 +86,10 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
 	endif
 	if !akActor
 		UDmain.Error("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - none passed as akActor")
+		return false
+	endif
+	if !deviceInventory.haskeyword(zad_inventoryDevice)
+		UDmain.Warning("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - passed armor is not devious device. Aborting!")
 		return false
 	endif
 	if !UDmain.ActorIsValidForUD(akActor)		
@@ -193,6 +201,16 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
 		UDCDmain.Error("None passed to UnlockDevice as deviceInventory. Aborting!")
 		return false
 	endif
+	if !deviceInventory.haskeyword(zad_inventoryDevice)
+		UDmain.Warning("UnlockDevice("+MakeDeviceHeader(akActor,deviceInventory)+") - passed deviceInventory is not devious device. Aborting!")
+		return false
+	endif
+	if deviceRendered
+		if !deviceRendered.haskeyword(zad_lockable) && !deviceRendered.haskeyword(zad_DeviousPlug)
+			UDmain.Warning("UnlockDevice("+MakeDeviceHeader(akActor,deviceInventory)+") - passed deviceRendered("+deviceRendered+") is not devious device. Aborting!")
+			return false
+		endif
+	endif
 	
 	UD_CustomDevice_NPCSlot loc_slot 	= none ;NPC slot for registered NPC
 	UD_MutexScript 			loc_mutex 	= none ;mutex used for non registered NPC
@@ -211,15 +229,15 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
 	endif
 	
 	if UDCDmain.TraceAllowed()
-		UDCDmain.Log("UnlockDevice(UDP)("+akActor+","+deviceInventory+","+deviceRendered+","+zad_DeviousDevice+","+destroyDevice+","+genericonly+")",1)
+		UDCDmain.Log("UnlockDevice("+akActor+","+deviceInventory+","+deviceRendered+","+zad_DeviousDevice+","+destroyDevice+","+genericonly+")",1)
 	endif
 	
 	if deviceInventory.hasKeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
 		if UDCDmain.TraceAllowed()
-			UDCDmain.Log("UnlockDevice(UDP) called for " + MakeDeviceHeader(akActor,deviceInventory),2)
+			UDCDmain.Log("UnlockDevice("+MakeDeviceHeader(akActor,deviceInventory)+") called",2)
 		endif
 		If (genericonly && deviceInventory.HasKeyWord(zad_BlockGeneric)) || deviceInventory.HasKeyWord(zad_QuestItem)
-			UDCDmain.Error("UnlockDevice(UDP) aborted because " + MakeDeviceHeader(akActor,deviceInventory) + " is not a generic item.")
+			UDCDmain.Error("UnlockDevice("+MakeDeviceHeader(akActor,deviceInventory)+") aborted because device is not a generic item.")
 			loc_res = false
 		else				
 			Armor loc_renDevice = none
@@ -295,24 +313,29 @@ EndFunction
 
 ;modified version of RemoveQuestDevice from zadlibs. This version makes use of registered devices from UD,making unequip procces for NPC safer and faster
 Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRendered, keyword zad_DeviousDevice, keyword RemovalToken, bool destroyDevice=false, bool skipMutex=false)
-	if UDCDMain.TraceAllowed()
-		UDCDMain.Log("RemoveQuestDevice(UDP)("+getActorName(akActor)+") called for " + deviceInventory.GetName(),1)
-	endif
-	;if !akActor.IsEquipped(deviceInventory) && !akActor.IsEquipped(deviceRendered) && !end
-	;	UDCDmain.Error("RemoveQuestDevice(patched)("+getActorName(akActor)+") called for " + deviceInventory +", but this device is not currently worn.")
-	;	end = True
-	;EndIf	
-	
 	If !deviceInventory.HasKeyword(zad_QuestItem) && !deviceRendered.HasKeyword(zad_QuestItem)
 		UDCDmain.Error("RemoveQuestDevice("+getActorName(akActor)+") aborted for " + deviceInventory.GetName() + " because it's not a quest item.")
 		return
 	EndIf
-	
 	If (!RemovalToken || zadStandardKeywords.HasForm(RemovalToken) || !(deviceInventory.HasKeyword(RemovalToken) || deviceRendered.HasKeyword(RemovalToken)))
 		UDCDmain.Error("RemoveQuestDevice("+getActorName(akActor)+") called for " + deviceInventory.GetName() + " with invalid removal token. Aborted.")
 		return
 	EndIf	
-
+	if !deviceInventory.haskeyword(zad_inventoryDevice)
+		UDmain.Warning("UnlockDevice("+MakeDeviceHeader(akActor,deviceInventory)+") - passed deviceInventory is not devious device. Aborting!")
+		return
+	endif
+	if deviceRendered
+		if !deviceRendered.haskeyword(zad_lockable) && !deviceRendered.haskeyword(zad_DeviousPlug)
+			UDmain.Warning("UnlockDevice("+MakeDeviceHeader(akActor,deviceInventory)+") - passed deviceRendered("+deviceRendered+") is not devious device. Aborting!")
+			return
+		endif
+	endif
+	
+	if UDCDMain.TraceAllowed()
+		UDCDMain.Log("RemoveQuestDevice("+getActorName(akActor)+") called for " + deviceInventory.GetName(),1)
+	endif
+	
 	UD_CustomDevice_NPCSlot loc_slot 	= none ;NPC slot for registered NPC
 	UD_MutexScript 			loc_mutex 	= none ;mutex used for non registered NPC
 	
@@ -664,21 +687,9 @@ String Function AnimSwitchKeyword(actor akActor, string idleName)
 					endif
 				ElseIf akActor.WornHasKeyword(zad_DeviousArmbinderElbow)
 					int random = Utility.randomInt(1,8)
-					if random == 1
-						return "ft_horny_elbowbinder_1"
-					elseif random == 2
-						return "ft_horny_elbowbinder_2"
-					elseif random == 3
-						return "ft_horny_elbowbinder_3"
-					elseif random == 4
-						return "ft_horny_elbowbinder_4"
-					elseif random == 5
-						return "ft_horny_elbowbinder_5"
-					elseif random == 6
-						return "ft_horny_elbowbinder_6"
-					elseif random == 7
-						return "ft_horny_elbowbinder_7"
-					elseif random == 8
+					if random < 8
+						return ("ft_horny_elbowbinder_" + random)
+					else
 						return "ft_orgasm_elbowbinder_1"
 					endif
 				ElseIf akActor.WornHasKeyword(zad_DeviousYokeBB)
@@ -691,12 +702,12 @@ String Function AnimSwitchKeyword(actor akActor, string idleName)
 					return "none"						
 				Elseif akActor.WornHasKeyword(zad_DeviousHeavyBondage)	
 					int random = 0
-					if UDCDmain.UDmain.ZaZAnimationPackInstalled
+					if UDmain.ZaZAnimationPackInstalled
 						random = Utility.randomInt(1,11)
 					else
 						random = Utility.randomInt(1,8)
 					endif
-					if random < 7
+					if random < 8
 						return ("ft_horny_elbowbinder_" + random)
 					elseif random == 8
 						return "ft_orgasm_elbowbinder_1"
@@ -815,6 +826,7 @@ bool[] Function StartThirdPersonAnimation(actor akActor, string animation, bool 
 		endif
 		
 		bool[] ret = new bool[2]
+		
 		if akActor.IsWeaponDrawn()
 			akActor.SheatheWeapon()
 			; Wait for users with flourish sheathe animations.
@@ -825,6 +837,7 @@ bool[] Function StartThirdPersonAnimation(actor akActor, string animation, bool 
 			EndWhile
 			ret[1] = true
 		EndIf	
+		
 		Form loc_shield = UDCDmain.GetShield(akActor)
 		if loc_shield
 			akActor.unequipItem(loc_shield,true,true)
@@ -842,6 +855,43 @@ bool[] Function StartThirdPersonAnimation(actor akActor, string animation, bool 
 	else
 		return parent.StartThirdPersonAnimation(akActor, animation, true)
 	endif
+EndFunction
+
+;reduced startanimation function
+;doesn't disable actor movement and doesn't check if actor is valid
+;doesn't check camera state
+bool Function FastStartThirdPersonAnimation(actor akActor, string animation)
+	;if akActor.isInFaction(UDCDmain.BlockAnimationFaction)
+	;	return false
+	;endif
+
+	if animation == "none"
+		UDCDmain.Error("StartThirdPersonAnimation - Called animation is None, aborting")
+		return false
+	endif
+	
+	SetAnimating(akActor, true)	;immidiatly set faction to prevent other animation from starting
+	
+	if akActor.IsWeaponDrawn()
+		akActor.SheatheWeapon()
+		; Wait for users with flourish sheathe animations.
+		int timeout=0
+		while akActor.IsWeaponDrawn() && timeout <= 35 ;  Wait 3.5 seconds at most before giving up and proceeding.
+			Utility.Wait(0.1)
+			timeout += 1
+		EndWhile
+	EndIf	
+	
+	;unequip shield
+	Form loc_shield = UDCDmain.GetShield(akActor)
+	if loc_shield
+		akActor.unequipItem(loc_shield,true,true)
+		StorageUtil.SetFormValue(akActor,"UD_UnequippedShield",loc_shield)
+	endif
+	
+	Debug.SendAnimationEvent(akActor, animation)
+	
+	return true
 EndFunction
 
 ;copied with added trace check and block check
@@ -1106,4 +1156,42 @@ Function RepopulateNpcs()
 		Warn("Not repopulating NPC slots: Quest is changing state.")
 	EndIf
 	repopulateMutex=false
+EndFunction
+
+Bool Function JamLock(actor akActor, keyword zad_DeviousDevice)
+	If akActor != playerRef || !akActor.WornHasKeyword(zad_DeviousDevice)
+		return False
+	Endif
+	
+	Armor loc_renderdevice = GetWornRenderedDeviceByKeyword(akActor,zad_DeviousDevice)
+	if loc_renderdevice
+		if loc_renderdevice.HasKeyword(UDlibs.UnforgivingDevice)
+			UD_CustomDevice_RenderScript loc_device = UDCDmain.getDeviceByRender(akActor, loc_renderdevice)
+			loc_device.UD_JammedLocks = loc_device.UD_CurrentLocks
+		endif
+		StorageUtil.SetIntValue(akActor, "zad_Equipped" + LookupDeviceType(zad_DeviousDevice) + "_LockJammedStatus", 1)
+		return True
+	else
+		UDmain.Error("JamLock("+GetActorName(akActor)+","+zad_DeviousDevice+") - Error getting device!")
+		return false
+	endif
+EndFunction
+
+Bool Function UnJamLock(actor akActor, keyword zad_DeviousDevice)
+	If akActor != playerRef || !akActor.WornHasKeyword(zad_DeviousDevice)
+		return False
+	Endif
+	
+	Armor loc_renderdevice = GetWornRenderedDeviceByKeyword(akActor,zad_DeviousDevice)
+	if loc_renderdevice
+		if loc_renderdevice.HasKeyword(UDlibs.UnforgivingDevice)
+			UD_CustomDevice_RenderScript loc_device = UDCDmain.getDeviceByRender(akActor, loc_renderdevice)
+			loc_device.UD_JammedLocks = 0
+		endif
+		StorageUtil.SetIntValue(akActor, "zad_Equipped" + LookupDeviceType(zad_DeviousDevice) + "_LockJammedStatus", 0)
+		return True
+	else
+		UDmain.Error("UnJamLock("+GetActorName(akActor)+","+zad_DeviousDevice+") - Error getting device!")
+		return false
+	endif
 EndFunction

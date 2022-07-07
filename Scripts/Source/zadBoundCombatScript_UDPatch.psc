@@ -14,44 +14,48 @@ Event OnUpdate()
 	Maintenance_ABC()
 EndEvent
 
-Function EvaluateAA(actor akActor)
-	if !UD_DAR
-		if StorageUtil.GetIntValue(akActor,"DDStartBoundEffectQue",0)
-			return
-		endif
-		StorageUtil.SetIntValue(akActor,"DDStartBoundEffectQue",1)
-		
-		bool loc_paralysis = false
-		while akActor.getAV("Paralysis")
-			loc_paralysis = true
-			Utility.wait(1.0) ;wait for actors paralysis to worn out first, because it can cause issue if idle is set when paralysed
-		endwhile
-		
-		if loc_paralysis
-			Utility.wait(8.0)
-		endif
-		
-		parent.EvaluateAA(akActor)
-		StorageUtil.UnSetIntValue(akActor,"DDStartBoundEffectQue")
-	else
-		DCLog("EvaluateAA(" + akActor + ")")
-		
-		libs.UpdateControls()
+Function Update()
+	if UD_DAR && !libs.isAnimating(Game.GetPlayer())
+		;DCLog("Forcing IdleForceDefaultState to player")
+		;EvaluateAA(Game.GetPlayer())
+	endif
+EndFunction
 
+Function EvaluateAA(actor akActor)
+	if StorageUtil.GetIntValue(akActor,"DDStartBoundEffectQue",0)
+		return
+	endif
+	StorageUtil.SetIntValue(akActor,"DDStartBoundEffectQue",1)
+	
+	bool loc_paralysis = false
+	while akActor.getAV("Paralysis")
+		loc_paralysis = true
+		Utility.wait(1.0) ;wait for actors paralysis to worn out first, because it can cause issue if idle is set when paralysed
+	endwhile
+	
+	if loc_paralysis
+		Utility.wait(8.0)
+	endif
+	
+	if !UD_DAR
+		parent.EvaluateAA(akActor)
+	else
+		Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
+		libs.UpdateControls()
 		If !HasCompatibleDevice(akActor)
-			ClearAA(akActor)
-			ResetExternalAA(akActor)
+			;ClearAA(akActor)
+			;ResetExternalAA(akActor)
 			RemoveBCPerks(akActor)
 		Else
 			ApplyBCPerks(akActor)
-			int animState = GetSecondaryAAState(akActor)
-			int animSet = SelectAnimationSet(akActor)
-			Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
-			if animState != 1 && animState != 2 && animSet != 6
-				akActor.SetAnimationVariableInt("FNIS_abc_h2h_LocomotionPose", animSet + 1)
-			endIf
+			;int animState = GetSecondaryAAState(akActor)
+			;Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
+			;if animState != 1 && animState != 2
+			;	akActor.SetAnimationVariableInt("FNIS_abc_h2h_LocomotionPose", 1)
+			;endIf
 		endif
 	endif
+	StorageUtil.UnSetIntValue(akActor,"DDStartBoundEffectQue")
 EndFunction
 
 Int Function SelectAnimationSet(actor akActor)

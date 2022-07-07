@@ -16,7 +16,11 @@ zadBQ00 property zadbq
 		return (libs as Quest) as zadBQ00
 	EndFunction
 EndProperty
-
+zadBoundCombatScript_UDPatch Property BoundCombat Hidden
+	zadBoundCombatScript_UDPatch Function get()
+		return libs.BoundCombat as zadBoundCombatScript_UDPatch
+	EndFunction
+EndProperty
 bool Property UD_OrgasmExhaustion = True auto
 float Property UD_OrgasmExhaustionMagnitude = 0.0 auto
 int Property UD_OrgasmExhaustionDuration = 50 auto
@@ -76,6 +80,8 @@ Spell OrgasmExhaustionSpell
 bool Property Ready = False auto
 
 String[] Property UD_OfficialPatches auto
+
+
 
 bool Function UDReady()
 	return Ready
@@ -193,6 +199,9 @@ Function Update()
 		Ready = true
 		CLog("Detected that UD is not ready. Changing state to ready.")
 	endif
+	
+	CheckOptionalMods()
+	
 EndFunction
 
 bool Property ZaZAnimationPackInstalled = false auto
@@ -446,15 +455,15 @@ Function OnGameReload()
 	
 	;update all scripts
 	Update()
-	;RegisterForSingleUpdate(0.1)
+	
+	BoundCombat.Update()
 	
 	UDlibs.Update()
 	
+	UDCDMain.Update()
 
-	
-	UDCDmain.OnGameReset()
 	Config.LoadConfigPages()
-	CheckOptionalMods()
+	
 	CheckPatchesOrder()
 	
 	UDPP.Update()
@@ -464,6 +473,7 @@ Function OnGameReload()
 	UDEM.Update()
 	
 	UDNPCM.GameUpdate()
+	
 	CLog("Unforgiving Devices updated.")
 EndFunction
 
@@ -614,12 +624,14 @@ int Function Round(float value) global
 EndFunction
 
 Function closeMenu() global
-	;https://www.reddit.com/r/skyrimmods/comments/elg97s/function_to_close_objects_container_menu/
-	UI.InvokeString("ContainerMenu", "_global.skse.CloseMenu", "ContainerMenu")
-	UI.InvokeString("Dialogue Menu", "_global.skse.CloseMenu", "Dialogue Menu")
-	UI.InvokeString("InventoryMenu", "_global.skse.CloseMenu", "InventoryMenu")
-	UI.InvokeString("TweenMenu", "_global.skse.CloseMenu", "TweenMenu")
-	UI.InvokeString("GiftMenu", "_global.skse.CloseMenu", "GiftMenu")
+	if Utility.IsInMenuMode()
+		;https://www.reddit.com/r/skyrimmods/comments/elg97s/function_to_close_objects_container_menu/
+		UI.InvokeString("ContainerMenu", "_global.skse.CloseMenu", "ContainerMenu")
+		UI.InvokeString("Dialogue Menu", "_global.skse.CloseMenu", "Dialogue Menu")
+		UI.InvokeString("InventoryMenu", "_global.skse.CloseMenu", "InventoryMenu")
+		UI.InvokeString("TweenMenu", "_global.skse.CloseMenu", "TweenMenu")
+		UI.InvokeString("GiftMenu", "_global.skse.CloseMenu", "GiftMenu")
+	endif
 EndFunction
 
 Function closeLockpickMenu() global

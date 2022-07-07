@@ -3,7 +3,7 @@ Scriptname UD_CustomDevices_NPCSlotsManager extends Quest
 import UnforgivingDevicesMain
 
 UDCustomDeviceMain Property UDCDmain auto
-UnforgivingDevicesMain Property UDmain 
+UnforgivingDevicesMain Property UDmain hidden
 	UnforgivingDevicesMain Function get()
 		return UDCDmain.UDmain
 	EndFunction	
@@ -17,6 +17,8 @@ Message Property UD_FixMenu_MSG auto
 
 Int Property UD_Slots = 10 auto
 
+Int Property UD_SlotsValidation = 0x00000000 auto hidden
+
 Event OnInit()
 	UD_Slots = GetNumAliases()
 	int index = UD_Slots
@@ -29,7 +31,6 @@ Event OnInit()
 			UDCDMain.Log("NPCslot["+ index +"] ready!")
 		endif
 	endwhile
-	
 	registerForSingleUpdate(10.0)
 	Ready = True
 EndEvent
