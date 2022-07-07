@@ -2771,7 +2771,7 @@ bool Function keyMinigame()
 	UD_RegenMag_Health = 0.5
 	UD_RegenMag_Magicka = 0.5
 	_customMinigameCritChance = getLockAccesChance(false)
-	_customMinigameCritDuration = 0.85 - getLockLevel()*0.05
+	_customMinigameCritDuration = 0.85 - getLockLevel()*0.025
 	_minMinigameStatSP = 0.6
 
 	if minigamePostcheck()
@@ -3459,7 +3459,7 @@ Function minigame()
 	endif
 	
 	bool loc_WearerIsPlayer = WearerIsPlayer()
-	bool loc_HelperIsPlayer = WearerIsPlayer()
+	bool loc_HelperIsPlayer = HelperIsPlayer()
 	bool loc_PlayerInMinigame = loc_WearerIsPlayer || loc_HelperIsPlayer
 	
 	if loc_PlayerInMinigame
@@ -3641,6 +3641,7 @@ Function minigame()
 	if !UDOM.isOrgasming(Wearer)
 		libs.EndThirdPersonAnimation(Wearer, cameraState, true) ;ends struggle animation
 	endif
+	
 	if hasHelper()
 		if !UDOM.isOrgasming(_minigameHelper)
 			libs.EndThirdPersonAnimation(_minigameHelper, cameraState, true) ;ends struggle animation

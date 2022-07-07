@@ -109,11 +109,6 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 				UDCDmain.Log(" Device regained! Starting unlock operatios!",1)
 			endif
 			unlockDevice(giver)
-			;StorageUtil.SetIntValue(giver, "UD_ignoreEvent" + deviceInventory, 0x311)
-			;giver.UnequipItemEx(deviceInventory, 0, false)
-			;Utility.waitmenumode(0.1)
-			;parent.OnUnequipped(giver)
-			;StorageUtil.UnSetIntValue(giver, "UD_ignoreEvent" + deviceInventory)
 			return
 		endif
 		
