@@ -113,6 +113,34 @@ string Function addInfoString(string str = "")
 	return parent.addInfoString(str)
 EndFunction
 
+bool Function struggleMinigame(int type = -1)
+	if isSentient() || !WearerFreeHands(True) || getPlugInflateLevel() > 0
+		forceOutPlugMinigame()
+	else
+		unlockRestrain()
+		if WearerIsPlayer()
+			debug.notification("You succefully forced out " + deviceInventory.getName())
+		elseif WearerIsFollower()
+			debug.notification(getWearerName() + "s "+ getDeviceName() +" got removed!")
+		endif
+	endif
+	return true
+EndFunction
+
+bool Function struggleMinigameWH(Actor akSource)
+	if isSentient() || !WearerFreeHands(True) || getPlugInflateLevel() > 0
+		forceOutPlugMinigameWH(akSource)
+	else
+		unlockRestrain()
+		if WearerIsPlayer()
+			debug.notification("With help of "+ getHelperName() +", you succefully forced out " + deviceInventory.getName() + " !")
+		elseif WearerIsFollower()
+			debug.notification(getWearerName() + "s "+ getDeviceName() +" got removed!")
+		endif
+	endif
+	return true
+EndFunction
+
 float Function getAccesibility()
 	float loc_res = parent.getAccesibility()
 	if loc_res > 0.0
