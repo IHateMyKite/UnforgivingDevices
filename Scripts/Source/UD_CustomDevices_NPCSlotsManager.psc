@@ -146,8 +146,8 @@ EndFunction
 
 Function initPlayerSlot()
 	getPlayerSlot().ForceRefTo(Game.GetPlayer())
-	UDCDmain.UDOM.CheckOrgasmCheck(Game.GetPlayer())
-	UDCDmain.UDOM.CheckArousalCheck(Game.getPlayer())
+	UDOM.CheckOrgasmCheck(Game.GetPlayer())
+	UDOM.CheckArousalCheck(Game.getPlayer())
 	if UDCDmain.TraceAllowed()	
 		UDCDMain.Log("PlayerSlot ready!")
 	endif

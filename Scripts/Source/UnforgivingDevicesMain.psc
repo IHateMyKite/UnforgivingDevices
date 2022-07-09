@@ -4,6 +4,7 @@ Scriptname UnforgivingDevicesMain extends Quest  conditional
 zadlibs property libs auto 
 zadxlibs property libsx auto
 zadxlibs2 property libsx2 auto
+Quest Property UD_UtilityQuest auto
 
 ;patched zadlibs
 zadlibs_UDPatch property libsp
@@ -40,6 +41,11 @@ UD_ParalelProcess Property UDPP auto
 UD_CustomDevices_NPCSlotsManager Property UDNPCM auto
 UD_MutexManagerScript Property UDMM auto
 UD_ModifierManager_Script Property UDMOM auto
+UD_MenuChecker Property UDMC 
+	UD_MenuChecker Function get()
+		return UD_UtilityQuest as UD_MenuChecker
+	EndFunction
+EndProperty
 
 bool property lockMCM = false auto
 bool property udequiped auto
@@ -69,19 +75,25 @@ bool Property UD_hightPerformance
 	EndFunction
 EndProperty
 
-float Property UD_LowPerformanceTime = 1.0 Auto
-float Property UD_HightPerformanceTime = 0.25 Auto
+float Property UD_LowPerformanceTime = 1.0 autoreadonly
+float Property UD_HightPerformanceTime = 0.25 autoreadonly
 
 float Property UD_baseUpdateTime auto
 
 zadConfig Property DDconfig auto 
 
 Spell OrgasmExhaustionSpell
-bool Property Ready = False auto
+bool Property Ready = False auto hidden
 
 String[] Property UD_OfficialPatches auto
 
+int Property UD_InfoLevel = 1 auto hidden
 
+bool Property ZaZAnimationPackInstalled = false auto
+;zbfBondageShell Property ZAZBS auto
+bool Property OSLArousedInstalled = false auto
+bool Property ConsoleUtilInstalled = false auto
+bool Property SlaveTatsInstalled = false auto
 
 bool Function UDReady()
 	return Ready
@@ -161,6 +173,40 @@ Event OnInit()
 	CheckPatchesOrder()
 EndEvent
 
+
+Function OnGameReload()
+	if !Ready
+		Utility.waitMenuMode(2.5)
+	endif
+	
+	Utility.waitMenuMode(2.5)
+		
+	CLog("OnGameReload() called! - Updating Unforgiving Devices...")
+	
+	;update all scripts
+	Update()
+	
+	UDMC.Update()
+	
+	BoundCombat.Update()
+	
+	UDlibs.Update()
+	
+	UDCDMain.Update()
+
+	Config.Update()
+	
+	UDPP.Update()
+	
+	UDOM.Update()
+	
+	UDEM.Update()
+	
+	UDNPCM.GameUpdate()
+	
+	CLog("Unforgiving Devices updated.")
+EndFunction
+
 Event OnUpdate()
 	Update()
 EndEvent
@@ -201,16 +247,10 @@ Function Update()
 	endif
 	
 	CheckOptionalMods()
-	
+	CheckPatchesOrder()
 EndFunction
 
-bool Property ZaZAnimationPackInstalled = false auto
-;zbfBondageShell Property ZAZBS auto
 
-bool Property OSLArousedInstalled = false auto
-bool Property ConsoleUtilInstalled = false auto
-
-bool Property SlaveTatsInstalled = false auto
 
 Function CheckOptionalMods()
 	If ModInstalled("ZaZAnimationPack.esm")
@@ -279,41 +319,12 @@ int Function getDDescapeDifficulty()
 	endif
 EndFunction
 
-bool Player_edge_var = False
-;returns True for 3s after player edge
-bool Function playerEdge()
-	return Player_edge_var
-EndFunction
-
-bool _orgasmExhaustionMutex = false
-
 Function addOrgasmExhaustion(Actor akActor)
-	;/
-	while _orgasmExhaustionMutex
-		Utility.waitMenuMode(0.1)
-	endwhile
-	
-	_orgasmExhaustionMutex = true
-	
-	if (akActor.HasMagicEffect(OrgasmExhaustionSpell.GetNthEffectMagicEffect(0)))
-		akActor.DispelSpell(OrgasmExhaustionSpell)
-		OrgasmExhaustionSpell.SetNthEffectMagnitude(0, UD_OrgasmExhaustionMagnitude + 15)
-	else
-		OrgasmExhaustionSpell.SetNthEffectMagnitude(0, UD_OrgasmExhaustionMagnitude)
-	endif
-	
-	if (akActor.HasMagicEffectWithKeyword(UDlibs.AphrodisiacsEffect_KW))
-		OrgasmExhaustionSpell.SetNthEffectDuration(0,Round(UD_OrgasmExhaustionDuration/2.0))
-	else
-		OrgasmExhaustionSpell.SetNthEffectDuration(0,UD_OrgasmExhaustionDuration)
-	endif
-	/;
 	OrgasmExhaustionSpell.cast(akActor)
 	
 	if TraceAllowed()	
 		Log("Orgasm exhaustion debuff applied to "+ getActorName(akActor),1)
 	endif
-	;_orgasmExhaustionMutex = false
 EndFunction
 
 bool function hasAnyUD()
@@ -444,38 +455,6 @@ bool Function TraceAllowed()
 	return (LogLevel > 0)
 EndFunction
 
-Function OnGameReload()
-	if !Ready
-		Utility.waitMenuMode(2.5)
-	endif
-	
-	Utility.waitMenuMode(2.5)
-		
-	CLog("OnGameReload() called! - Updating Unforgiving Devices...")
-	
-	;update all scripts
-	Update()
-	
-	BoundCombat.Update()
-	
-	UDlibs.Update()
-	
-	UDCDMain.Update()
-
-	Config.LoadConfigPages()
-	
-	CheckPatchesOrder()
-	
-	UDPP.Update()
-	
-	UDOM.Update()
-	
-	UDEM.Update()
-	
-	UDNPCM.GameUpdate()
-	
-	CLog("Unforgiving Devices updated.")
-EndFunction
 
 ;=======================================================================
 ;							GLOBAL FUNCTIONS
@@ -536,7 +515,7 @@ string Function GetActorName(Actor akActor) global
 	return loc_res
 EndFunction
 
-int Function codeBit(int iCodedMap,int iValue,int iSize,int iIndex) global
+int Function codeBit_old(int iCodedMap,int iValue,int iSize,int iIndex) global
 	if iIndex + iSize > 32
 		return 0xFFFFFFFF ;returns error value
 	endif
@@ -552,10 +531,21 @@ int Function codeBit(int iCodedMap,int iValue,int iSize,int iIndex) global
 	loc_clear_mask = Math.LogicalXor(Math.LeftShift(loc_clear_mask,iIndex),0xFFFFFFFF) ;shift and negate
 	int loc_clear_map = Math.LogicalAnd(iCodedMap,loc_clear_mask) ;clear maps bits with mask
 	return Math.LogicalOr(loc_clear_map,Math.LeftShift(iValue,iIndex)) ;sets bits
-	
 endfunction
 
-int Function decodeBit(int iCodedMap,int iSize,int iIndex) global
+int Function codeBit(int iCodedMap,int iValue,int iSize,int iIndex) global
+	if iIndex + iSize > 32
+		return 0xFFFFFFFF ;returns error value
+	endif
+	;sets not shifted bit mask loc_clear_mask
+	int loc_clear_mask = (Math.LeftShift(0x1,iSize) - 1) 					;mask used to clear bits which will be set
+	iValue = Math.LeftShift(Math.LogicalAnd(iValue,loc_clear_mask),iIndex)	;clear value from bigger bits
+	loc_clear_mask = Math.LogicalNot(Math.LeftShift(loc_clear_mask,iIndex)) ;shift and negate
+	iCodedMap = Math.LogicalAnd(iCodedMap,loc_clear_mask) 					;clear maps bits with mask
+	return Math.LogicalOr(iCodedMap,iValue) 								;sets bits
+endfunction
+
+int Function decodeBit_old(int iCodedMap,int iSize,int iIndex) global
 	if iIndex + iSize > 32
 		return 0xFFFFFFFF ;returns error value
 	endif
@@ -577,6 +567,16 @@ int Function decodeBit(int iCodedMap,int iSize,int iIndex) global
 	loc_res = Math.LogicalAnd(iCodedMap,loc_clear_mask) ;clear maps bits with mask
 	loc_res = Math.RightShift(loc_res,iIndex) ;shift to right, so value is correct
 	return loc_res
+EndFunction
+
+int Function decodeBit(int iCodedMap,int iSize,int iIndex) global
+	if iIndex + iSize > 32
+		return 0xFFFFFFFF ;returns error value
+	endif
+	;sets not shifted bit mask
+	iCodedMap = Math.RightShift(iCodedMap,iIndex) ;shift to right, so value is correct
+	iCodedMap = Math.LogicalAnd(iCodedMap,(Math.LeftShift(0x1,iSize) - 1)) ;clear maps bits with mask
+	return iCodedMap
 EndFunction
 
 float Function fRange(float fValue,float fMin,float fMax) global
@@ -754,3 +754,18 @@ form function GetMeMyForm(int formNumber, string pluginName) global;fornumber fo
         return Game.GetFormEx(Math.LogicalOr(Math.LeftShift(theLO, 24), formNumber))
     endIf
 endFunction
+
+;very fast function for checking if menu is open
+;have little lag because it works by checking events
+Bool Function IsMenuOpen()
+	return UDMC.UD_MenuOpened
+EndFunction
+Bool Function IsMenuOpenID(int aiID)
+	return UDMC.isMenuOpen(iRange(aiID,0,UDMC.UD_MenuListID.length))
+EndFunction
+Bool Function IsContainerMenuOpen()
+	return UDMC.IsMenuOpen(0)
+EndFunction
+Bool Function IsLockpickingMenuOpen()
+	return UDMC.IsMenuOpen(1)
+EndFunction

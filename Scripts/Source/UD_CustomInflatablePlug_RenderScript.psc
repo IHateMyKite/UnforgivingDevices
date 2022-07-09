@@ -373,6 +373,7 @@ Function OnMinigameEnd()
 	if deflateMinigame_on && deflateprogress >= UD_PumpDifficulty
 		deflate()
 	endif
+	parent.OnMinigameEnd()
 EndFunction
 
 Function OnCritFailure()
@@ -418,20 +419,9 @@ Function activateDevice()
 			debug.notification(getWearerName() + "s "+ getDeviceName() + " suddenly inflate itself!")		
 		endif
 		inflatePlug(1)
-		hours_updated = 0.0
 	endif
 	if loc_canVibrate
 		vibrate()
-	endif
-EndFunction
-
-float hours_updated = 0.0
-Function updateHour(float mult)
-	parent.updateHour(mult)
-	hours_updated += mult
-	
-	if Utility.randomInt() < 35 && isSentient() && hours_updated >= 2.5
-		UDCDmain.activateDevice(self)
 	endif
 EndFunction
 
@@ -447,12 +437,7 @@ Function onUpdatePost(float timePassed)
 			deflate(True)
 		endif
 	endif	
-EndFunction
-
-Function OnMinigameStart()
-	if !inflateMinigame_on
-		parent.OnMinigameStart()
-	endif
+	parent.onUpdatePost(timePassed)
 EndFunction
 
 Function updateWidget(bool force = false)

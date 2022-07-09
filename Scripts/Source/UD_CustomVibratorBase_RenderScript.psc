@@ -309,9 +309,25 @@ Function stopVibratingAndWait()
 	endif
 EndFunction
 
+bool _forceMutex
+
+Function StartForceMutex()
+	while _forceMutex
+		Utility.waitMenuMode(0.1)
+	endwhile
+	_forceMutex = true
+EndFunction
+Function StopForceMutex()
+	_forceMutex = false
+	if !isVibrating()
+		StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", -1*_currentVibStrength)
+	endif
+EndFunction
+
 Function ForceStrength(int iStrenth)
 	_forceStrength = iStrenth
 	if isVibrating()
+		StartForceMutex()
 		StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", -1*_currentVibStrength)
 		_currentVibStrength = _forceStrength
 		StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", _currentVibStrength)
@@ -319,12 +335,14 @@ Function ForceStrength(int iStrenth)
 			UpdateVibSound()
 			UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
 		endif
+		StopForceMutex()
 	endif
 EndFunction
 
 Function ForceModStrength(float fModifier)
 	_forceStrength = Round(UD_VibStrength*fModifier)
 	if isVibrating()
+		StartForceMutex()
 		StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", -1*_currentVibStrength)
 		_currentVibStrength = _forceStrength
 		StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", _currentVibStrength)
@@ -332,6 +350,7 @@ Function ForceModStrength(float fModifier)
 			UpdateVibSound()
 			UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
 		endif
+		StopForceMutex()
 	endif
 EndFunction
 
@@ -339,7 +358,7 @@ Function ForceDuration(int iDuration)
 	if iDuration != 0
 		_forceDuration = iDuration
 		if isVibrating()
-			_currentVibRemainingDuration = _forceDuration
+			_currentVibRemainingDuration += _forceDuration
 		endif
 	endif
 EndFunction
@@ -348,7 +367,7 @@ Function ForceModDuration(float fModifier)
 	if fModifier >= 0.1
 		_forceDuration = Round(UD_VibDuration*fModifier)
 		if isVibrating()
-			_currentVibRemainingDuration = _forceDuration
+			_currentVibRemainingDuration += _forceDuration
 		endif
 	endif
 EndFunction
@@ -370,6 +389,7 @@ EndFUnction
 
 Function addVibStrength(int iValue = 1)
 	if isVibrating()
+		StartForceMutex()
 		StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", -1*_currentVibStrength)
 		_currentVibStrength += iValue
 		if _currentVibStrength > 100
@@ -380,11 +400,13 @@ Function addVibStrength(int iValue = 1)
 			UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
 			UpdateVibSound()
 		endif
+		StopForceMutex()
 	endif
 EndFunction
 
 Function removeVibStrength(int iValue = 1)
 	if isVibrating()
+		StartForceMutex()
 		StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", -1*_currentVibStrength)
 		_currentVibStrength -= iValue
 		if _currentVibStrength < 0
@@ -395,6 +417,7 @@ Function removeVibStrength(int iValue = 1)
 			UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
 			UpdateVibSound()
 		endif
+		StopForceMutex()
 	endif
 EndFUnction
 

@@ -70,43 +70,28 @@ EndFunction
 Function Update()
 	UnregisterForAllModEvents()
 	RegisterModEvents()
-		
-	;if !Game.getPlayer().HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
-	;	StartOrgasmCheckLoop(Game.getPlayer())
-	;endif
-EndFunction
-
-Function ResetOL(Actor akActor)
-	while UD_StopActorOrgasmCheckLoop ;wait untill other operation finish
-		Utility.waitMenuMode(0.01) 
-	endwhile
-	UD_StopActorOrgasmCheckLoop = akActor
-	while UD_StopActorOrgasmCheckLoop ;wait for the loop to end
-		Utility.waitMenuMode(0.01)
-	endwhile
-	StartOrgasmCheckLoop(akActor) ;start new OL
-	UDCDMain.Print("[UD] OL reseted for " + GetActorName(akActor))
-EndFunction
-Function ResetAL(Actor akActor)
-	while UD_StopActorArousalCheckLoop ;wait untill other operation finish
-		Utility.waitMenuMode(0.01) 
-	endwhile
-	UD_StopActorArousalCheckLoop = akActor
-	while UD_StopActorArousalCheckLoop ;wait for the loop to end
-		Utility.waitMenuMode(0.01)
-	endwhile
-	StartArousalCheckLoop(akActor) ;start new AL
-	UDCDMain.Print("[UD] AL reseted for " + GetActorName(akActor))
 EndFunction
 
 Function CheckOrgasmCheck(Actor akActor)
 	if !akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
+		GInfo("Starting again Orgasm check loop for " + getActorName(akActor))
+		StartOrgasmCheckLoop(akActor)
+	endif
+	if !akActor.hasSpell(UDlibs.OrgasmCheckAbilitySpell) && akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
+		GInfo("Updating Orgasm check loop for " + getActorName(akActor))
+		akActor.DispelSpell(UDlibs.OrgasmCheckSpell)
 		StartOrgasmCheckLoop(akActor)
 	endif
 EndFunction
 
 Function CheckArousalCheck(Actor akActor)
 	if !akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
+		GInfo("Starting again Arousal check loop for " + getActorName(akActor))
+		StartArousalCheckLoop(akActor)
+	endif
+	if !akActor.hasSpell(UDlibs.ArousalCheckAbilitySpell) && akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
+		GInfo("Updating Arousal check loop for " + getActorName(akActor))
+		akActor.DispelSpell(UDlibs.ArousalCheckSpell)
 		StartArousalCheckLoop(akActor)
 	endif
 EndFunction
@@ -173,66 +158,17 @@ Function StartArousalCheckLoop(Actor akActor)
 		return
 	endif
 	
-	
-	UDlibs.ArousalCheckSpell.cast(akActor)
-	return
-	
-	int handle = ModEvent.Create("UD_ArousalCheckLoop")
-	if (handle)
-		if TraceAllowed()		
-			Log("StartArousalCheckLoop("+getActorName(akActor)+"), sending event")
-		endif
-        ModEvent.PushForm(handle,akActor)
-        ModEvent.Send(handle)
-    endif
+	akActor.AddSpell(UDlibs.ArousalCheckAbilitySpell,false)
+	;UDlibs.ArousalCheckSpell.cast(akActor)
 EndFunction
 
 bool Function ArousalLoopBreak(Actor akActor,Int iVersion)
 	bool loc_cond = false
 	loc_cond = loc_cond || !UDCDMain.isRegistered(akActor)
-	loc_cond = loc_cond || (UD_StopActorArousalCheckLoop == akActor)
+	;loc_cond = loc_cond || (UD_StopActorArousalCheckLoop == akActor)
 	;loc_cond = loc_cond || akActor.isDead()
-	loc_cond = loc_cond || (iVersion < UD_ArousalCheckLoop_ver)
+	;loc_cond = loc_cond || (iVersion < UD_ArousalCheckLoop_ver)
 	return loc_cond
-EndFunction
-
-;int _ArousalCheckLoop_ver = 0
-
-Function ArousalCheckLoop(Form fActor)
-	Actor akActor = fActor as Actor
-	if TraceAllowed()	
-		Log("ArousalCheckLoop("+getActorName(akActor)+") started")
-	endif
-	Int loc_ArousalCheckLoop_ver = UD_ArousalCheckLoop_ver
-	float loc_updateTime = 3.0
-	while !ArousalLoopBreak(akActor,loc_ArousalCheckLoop_ver)
-		Float loc_arousalRate = getArousalRate(akActor)
-
-		Int loc_arousal = Round(loc_arousalRate*loc_updateTime)
-		if akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmExhaustionEffect_KW)
-			loc_arousal = Round(loc_arousal * 0.5)
-		endif
-		if loc_arousal > 0
-			akActor.SetFactionRank(ArousalCheckLoopFaction,UpdateArousal(akActor ,loc_arousal))
-		else
-			akActor.SetFactionRank(ArousalCheckLoopFaction,getActorArousal(akActor))
-		endif
-		Utility.wait(loc_updateTime)
-	endwhile
-	akActor.RemoveFromFaction(ArousalCheckLoopFaction)
-
-	if TraceAllowed()	
-		Log("ArousalCheckLoop("+getActorName(akActor)+") ended")
-	endif
-	
-	if UD_StopActorArousalCheckLoop == akActor
-		UD_StopActorArousalCheckLoop = none
-	endif
-	
-	if (loc_ArousalCheckLoop_ver < UD_ArousalCheckLoop_ver)
-		UDCDmain.Print("Outdated AL found on " + GetActorName(akActor) + ". Reseting!")
-		StartArousalCheckLoop(akActor)
-	endif
 EndFunction
 
 int Function getActorArousal(Actor akActor)
@@ -454,15 +390,16 @@ Function StartOrgasmCheckLoop(Actor akActor)
 		return
 	endif
 	
-	UDlibs.OrgasmCheckSpell.cast(akActor)
+	;UDlibs.OrgasmCheckSpell.cast(akActor)
+	akActor.AddSpell(UDlibs.OrgasmCheckAbilitySpell,false)
 EndFunction
 
 bool Function OrgasmLoopBreak(Actor akActor, int iVersion)
 	bool loc_cond = false
-	loc_cond = loc_cond || (UD_StopActorOrgasmCheckLoop == akActor)
+	;loc_cond = loc_cond || (UD_StopActorOrgasmCheckLoop == akActor)
 	loc_cond = loc_cond || !UDCDmain.isRegistered(akActor)
 	;loc_cond = loc_cond || akActor.isDead()
-	loc_cond = loc_cond || (iVersion < UD_OrgasmCheckLoop_ver) || UD_OrgasmCheckLoop_ver < 0
+	;loc_cond = loc_cond || (iVersion < UD_OrgasmCheckLoop_ver) || UD_OrgasmCheckLoop_ver < 0
 	return loc_cond
 EndFunction
 

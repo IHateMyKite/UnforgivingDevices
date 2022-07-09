@@ -26,18 +26,19 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 	akActor = akTarget
 	akActor.AddToFaction(UDOM.ArousalCheckLoopFaction)
 	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("ArousalCheckLoop("+getActorName(akActor)+") started")
+		UDCDmain.Log("UD_ArousalCheckScript_AME("+getActorName(akActor)+") - OnEffectStart()")
 	endif
-	UDCDmain.CLog("ArousalCheckLoop("+getActorName(akActor)+") started")
 	registerForSingleUpdate(0.1)
 EndEvent
 
 
-Float loc_arousalRate
-Int loc_arousal ;how much is arousal increased/decreased
+Float 	loc_arousalRate
+Int 	loc_arousal ;how much is arousal increased/decreased
+
 Event OnUpdate()
 	if IsRunning()
 		if UDOM.ArousalLoopBreak(akActor,UDOM.UD_ArousalCheckLoop_ver)
+			GInfo("UD_ArousalCheckScript_AME("+GetActorName(akActor)+") - ArousalLoopBreak -> dispeling")
 			akActor.DispelSpell(UDCDmain.UDlibs.ArousalCheckSpell)
 		else
 			loc_arousalRate = UDOM.getArousalRateM(akActor)
@@ -63,7 +64,7 @@ EndEvent
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
 	_finished = true
 	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("UD_OrchamsCheckScript_AME - OnEffectFinish() for " + akActor,1)
+		UDCDmain.Log("UD_ArousalCheckScript_AME("+getActorName(akActor)+") - OnEffectFinish()",1)
 	endif
 	akActor.RemoveFromFaction(UDOM.ArousalCheckLoopFaction)
 EndEvent

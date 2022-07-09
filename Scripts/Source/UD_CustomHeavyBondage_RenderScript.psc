@@ -6,6 +6,7 @@ Function InitPost()
 	UD_DeviceType = "Hand restrain"
 	if !WearerIsPlayer(); && !WearerIsFollower()
 		GetWearer().AddSpell(UDlibs.PreventCombatSpell,false)
+		libs.strip(getWearer(),false)
 	endif
 EndFunction
 

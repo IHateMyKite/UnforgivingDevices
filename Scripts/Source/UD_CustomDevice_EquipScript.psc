@@ -112,7 +112,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 			return
 		endif
 		
-		if UI.IsMenuOpen("ContainerMenu")	
+		if UDmain.IsContainerMenuOpen()
 			if target && giver
 				if !target.isDead() && !giver.isDead()
 					if giver.getItemCount(deviceRendered)
@@ -131,7 +131,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 						if UDCDmain.TraceAllowed()						
 							UDCDmain.Log("OnContainerChanged - Locking device " + deviceInventory.getName() + " to "+ target.getActorBase().getName(),1)
 						endif
-						if UDCDmain.UDmain.ActorIsValidForUD(target)
+						if UDmain.ActorIsValidForUD(target)
 							if ActorIsPlayer(giver)
 								if !EquipDeviceMenu(target)
 									UDmain.Print("You put and lock " + getDeviceName() + " on " + GetActorName(target))
@@ -143,7 +143,6 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 						else					
 							UDCDmain.Error("OnContainerChanged - " + target + " is not valid actor!")
 						endif
-						;libs.LockDevice(target, deviceInventory, force = false)
 						return
 					else
 						return
@@ -155,9 +154,6 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 						endif
 						UD_CustomDevice_RenderScript device = getUDScript(giver)
 						if device
-							;if UDCDmain.TraceAllowed()						
-							;	UDCDmain.Log("Removing device from dead actor  :" + deviceInventory.getName() + " on "+ giver.getActorBase().getName() +" to:  " + target.getActorBase().getName(),1)
-							;endif
 							device.removeDevice(giver)
 							if DestroyOnRemove
 								target.removeItem(deviceInventory,1,True)
@@ -265,7 +261,7 @@ Event OnUnequipped(Actor akActor)
 		UDCDmain.Log("OnUnequipped("+MakeDeviceHeader(akActor,deviceInventory)+") - called",3)
 	endif
 
-	if UI.IsMenuOpen("ContainerMenu") && akActor == Game.getPlayer()
+	if UDmain.IsContainerMenuOpen() && akActor == Game.getPlayer()
 		if UDCDmain.TraceAllowed()		
 			UDCDmain.Log("OnUnequipped("+MakeDeviceHeader(akActor,deviceInventory)+") - aborted because of opened menu",3)
 		endif
@@ -284,10 +280,6 @@ Event OnUnequipped(Actor akActor)
 
 	parent.OnUnequipped(akActor)
 EndEvent
-
-Int Function GetLockDeviceType(Actor akActor)
-	return StorageUtil.GetIntValue(akActor,"UD_LockDeviceType"+deviceInventory,-1)
-EndFunction
 
 ;device menu that pops up when Wearer click on this device in inventory
 Function DeviceMenu(Int msgChoice = 0)
@@ -667,10 +659,6 @@ Event LockDevice(Actor akActor)
 			prelock_fail = true
 		EndIf	
 	endif
-
-
-	;int loc_lockDeviceType = GetLockDeviceType(akActor)
-	;StorageUtil.UnsetIntValue(akActor,"UD_LockDeviceType"+deviceInventory)
 	
 	bool silently = ShouldEquipSilently(akActor)
 	
@@ -748,7 +736,6 @@ Event LockDevice(Actor akActor)
 	akActor.EquipItem(DeviceRendered, true, true)
 	
 	float loc_time = 0.0
-	;bool loc_isplayer = Game.GetPlayer() == akActor
 	while loc_time <= 1.0 && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
 		Utility.waitMenuMode(0.01)
 		loc_time += 0.01
@@ -809,14 +796,14 @@ Event LockDevice(Actor akActor)
 	libs.SendDeviceEquippedEvent(deviceName, akActor)
 	libs.SendDeviceEquippedEventVerbose(deviceInventory, zad_DeviousDevice, akActor)
 	
-	if akActor == libs.PlayerRef && !akActor.IsOnMount() && UI.IsMenuOpen("InventoryMenu")
+	if ActorIsPlayer(akActor) && !akActor.IsOnMount() && UDmain.IsMenuOpen()
 		; make it visible for the player in case the menu is open
 		akActor.QueueNiNodeUpdate()
-	elseif akActor != libs.PlayerRef && !akActor.IsOnMount() && deviceRendered.HasKeyword(libs.zad_DeviousHeavyBondage)
+	elseif !ActorIsPlayer(akActor) && !akActor.IsOnMount() && deviceRendered.HasKeyword(libs.zad_DeviousHeavyBondage)
 		; prevent a bug with straitjackets and elbowbinders not hiding NPC hands when equipping these items.		
 		akActor.UpdateWeight(0)		
 	EndIf	
-	if akActor != libs.PlayerRef && (deviceRendered.HasKeyword(libs.zad_DeviousHeavyBondage) || deviceRendered.HasKeyword(libs.zad_DeviousHobbleSkirt))
+	if !ActorIsPlayer(akActor) && (deviceRendered.HasKeyword(libs.zad_DeviousHeavyBondage) || deviceRendered.HasKeyword(libs.zad_DeviousHobbleSkirt))
 		libs.RepopulateNpcs()
 	EndIf	
 	
@@ -826,18 +813,17 @@ Event LockDevice(Actor akActor)
 	If TimedUnlock
 		SetLockTimer()
 	EndIf
-	
-	if akActor != libs.PlayerRef && akActor.GetActorBase().IsUnique() && (deviceRendered.HasKeyword(libs.zad_DeviousSuit) || deviceRendered.HasKeyword(libs.zad_DeviousHeavyBondage))
+	if !ActorIsPlayer(akActor) && akActor.GetActorBase().IsUnique() && (deviceRendered.HasKeyword(libs.zad_DeviousSuit) || deviceRendered.HasKeyword(libs.zad_DeviousHeavyBondage))
 		; We change the outfit only for unique actors because SetOutfit() seems to operate on the ActorBASE and not the actor, so changing a non-unique actors's gear would change it for ALL instances of this actor.
-        Outfit originalOutfit = akActor.GetActorBase().GetOutfit()
-        If originalOutfit && originalOutfit != libs.zadEmptyOutfit
-            StorageUtil.SetFormValue(akActor.GetActorBase(), "zad_OriginalOutfit", originalOutfit)
-        EndIf
+		Outfit originalOutfit = akActor.GetActorBase().GetOutfit()
+		If originalOutfit != libs.zadEmptyOutfit
+			StorageUtil.SetFormValue(akActor.GetActorBase(), "zad_OriginalOutfit", originalOutfit)
+		EndIf
 		akActor.SetOutfit(libs.zadEmptyOutfit, false)
 	endIf
 	
 	if CanApplyBoundEffect(akActor) 
-		libs.StartBoundEffects(akActor)	
+		libs.StartBoundEffects(akActor)
 	endif
 EndEvent
 

@@ -4,11 +4,16 @@ import UnforgivingDevicesMain
 
 Actor _target = none
 UDCustomDeviceMain Property UDCDmain auto
+UnforgivingDevicesMain Property UDmain
+	UnforgivingDevicesMain Function get()
+		return UDCDmain.UDmain
+	EndFunction
+EndProperty
 MagicEffect _MagickEffect = none
 
 int _MapKeyCode
 int _StatsKeyCode
-int _TweenMenuKeyCode
+int _TweenMenuKeyCode = -1
 
 bool _MenuKeyPressed = false
 bool _MenuOpen = false
@@ -31,15 +36,24 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 	
 	_MapKeyCode = Input.GetMappedKey("Quick Map")
 	_StatsKeyCode = Input.GetMappedKey("Quick Stats")
+	_TweenMenuKeyCode = Input.GetMappedKey("Tween menu")
 	
 	Game.DisablePlayerControls(abMovement = False,abFighting = false,abCamSwitch = false,abLooking = false, abSneaking = false, abMenu = true, abActivate = false, abJournalTabs = false)
 	Game.EnableFastTravel(false)
 	
 	RegisterForKey(_MapKeyCode)
 	RegisterForKey(_StatsKeyCode)
-			
+	RegisterForKey(_TweenMenuKeyCode)
+	
 	registerForSingleUpdate(0.1)
 EndEvent
+
+Function Update()
+	if _TweenMenuKeyCode == -1
+		_TweenMenuKeyCode = Input.GetMappedKey("Tween menu")
+		RegisterForKey(_TweenMenuKeyCode)
+	endif
+EndFunction
 
 bool loc_precessing = false
 Event OnUpdate()
@@ -58,21 +72,26 @@ Event OnUpdate()
 			endif
 		endif
 		
+		Update()
+		
+		;/
 		if !loc_GameMenuOpen
-			if UDCDmain.IsMenuOpen()
+			if UDmain.IsMenuOpen()
 				loc_GameMenuOpen = true
 			endif
 		else
-			if !UDCDmain.IsMenuOpen()
+			if !UDmain.IsMenuOpen()
 				loc_GameMenuOpen = false
 			endif
 		endif
+		/;
 		
 		if _target.hasMagicEffect(_MagickEffect)
 			if !(loc_tick % 5)
-				if !MenuIsOpen()
+				if !UDmain.isMenuOpen()
 					CheckMapKey()
 					CheckStatsKey()
+					CheckTweenKey()
 				endif
 			endif
 			if !_MenuOpen && _MenuKeyPressed && !(loc_tick % 6)
@@ -80,6 +99,7 @@ Event OnUpdate()
 				_MenuKeyPressed = false
 				RegisterForKey(_MapKeyCode)
 				RegisterForKey(_StatsKeyCode)
+				RegisterForKey(_TweenMenuKeyCode)
 			endif
 			loc_tick += 1
 			registerForSingleUpdate(0.75)
@@ -101,27 +121,30 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
 		Game.EnablePlayerControls()
 		Game.EnableFastTravel(true)
 	endif
-
 EndEvent
 
 Event OnKeyDown(Int KeyCode)
-	if UDCDmain.TraceAllowed()
-		UDCDmain.Log("UD_HardcoreDisable_Script - OnKeyDown for " + KeyCode,3)
-	endif
-	If KeyCode == _MapKeyCode
-		_MenuKeyPressed = true
-		UnRegisterForKey(_MapKeyCode)
-		RegisterForMenu("MapMenu")
-		Game.EnablePlayerControls(abMovement = False,abFighting = false,abCamSwitch = false,abLooking = false, abSneaking = false, abMenu = true, abActivate = false, abJournalTabs = false)
-		Utility.waitMenuMode(0.1)
-		Input.TapKey(_MapKeyCode)
-	elseif KeyCode == _StatsKeyCode
-		_MenuKeyPressed = true
-		UnRegisterForKey(_StatsKeyCode)
-		RegisterForMenu("StatsMenu")
-		Utility.waitMenuMode(0.1)
-		Game.EnablePlayerControls(abMovement = False,abFighting = false,abCamSwitch = false,abLooking = false, abSneaking = false, abMenu = true, abActivate = false, abJournalTabs = false)
-		Input.TapKey(_StatsKeyCode)
+	if !UDMain.IsMenuOpen()
+		if UDCDmain.TraceAllowed()
+			UDCDmain.Log("UD_HardcoreDisable_Script - OnKeyDown for " + KeyCode,3)
+		endif
+		If KeyCode == _MapKeyCode
+			_MenuKeyPressed = true
+			UnRegisterForKey(_MapKeyCode)
+			RegisterForMenu("MapMenu")
+			Game.EnablePlayerControls(abMovement = False,abFighting = false,abCamSwitch = false,abLooking = false, abSneaking = false, abMenu = true, abActivate = false, abJournalTabs = false)
+			Utility.waitMenuMode(0.1)
+			Input.TapKey(_MapKeyCode)
+		elseif KeyCode == _StatsKeyCode
+			_MenuKeyPressed = true
+			UnRegisterForKey(_StatsKeyCode)
+			RegisterForMenu("StatsMenu")
+			Utility.waitMenuMode(0.1)
+			Game.EnablePlayerControls(abMovement = False,abFighting = false,abCamSwitch = false,abLooking = false, abSneaking = false, abMenu = true, abActivate = false, abJournalTabs = false)
+			Input.TapKey(_StatsKeyCode)
+		elseif KeyCode == _TweenMenuKeyCode
+			UDCDmain.getHeavyBondageDevice(Game.getPlayer()).deviceMenu(new Bool[30])
+		endif
 	endif
 EndEvent
 
@@ -179,6 +202,18 @@ Function CheckStatsKey()
 		RegisterForKey(_StatsKeyCode)
 		if UDCDmain.TraceAllowed()
 			UDCDmain.Log("UD_HardcoreDisable_Script - Remaping keycode for Quick Map menu",1)
+		endif
+	endif
+EndFunction
+
+Function CheckTweenKey()
+	int TweenMenu = Input.GetMappedKey("Tween menu")
+	if TweenMenu != _TweenMenuKeyCode
+		UnRegisterForKey(_TweenMenuKeyCode)
+		_TweenMenuKeyCode = TweenMenu
+		RegisterForKey(_TweenMenuKeyCode)
+		if UDCDmain.TraceAllowed()
+			UDCDmain.Log("UD_HardcoreDisable_Script - Remaping keycode for Tween menu",1)
 		endif
 	endif
 EndFunction

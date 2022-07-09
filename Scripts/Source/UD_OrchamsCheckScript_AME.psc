@@ -57,10 +57,9 @@ float[] loc_expression
 Event OnEffectStart(Actor akTarget, Actor akCaster)
 	akActor = akTarget
 	akActor.AddToFaction(UDOM.OrgasmCheckLoopFaction)
-	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("UD_OrchamsCheckScript_AME started for " + GetActorName(akActor) +"!",2)
+	if UDCDmain.TraceAllowed() && ActorIsPlayer(akActor)
+		UDCDmain.Log("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - OnEffectStart()",2)
 	endif
-	UDmain.CLog("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") started")
 	_MagickEffect = GetBaseObject()
 	loc_expression = UDEM.GetPrebuildExpression_Horny1()
 	if ActorIsPlayer(akActor)
@@ -87,7 +86,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 	loc_expressionApplied 			= false;ActorHaveExpressionApplied(akActor)
 	loc_orgasmCapacity				= UDOM.getActorOrgasmCapacity(akActor)
 	loc_orgasmResistence			= UDOM.getActorOrgasmResist(akActor)
-	loc_orgasmProgress 				= 0.0
+	loc_orgasmProgress 				= StorageUtil.GetFloatValue(akActor, "UD_OrgasmProgress",0.0)
 	loc_orgasmProgress2				= 0.0
 	loc_orgasmProgress_p			= loc_orgasmProgress/loc_orgasmCapacity
 	loc_hornyAnimTimer 				= 0
@@ -99,8 +98,8 @@ EndEvent
 
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
 	_finished = true
-	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("UD_OrchamsCheckScript_AME - OnEffectFinish() for " + akActor,1)
+	if UDCDmain.TraceAllowed() && ActorIsPlayer(akActor)
+		UDCDmain.Log("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - OnEffectFinish()",1)
 	endif
 	;stop moan sound
 	if loc_msID != -1
@@ -121,13 +120,10 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
 	;reset expression
 	UDEM.ResetExpressionRaw(akActor, 10)
 	
-	StorageUtil.UnsetFloatValue(akActor, "UD_OrgasmProgress")
+	;StorageUtil.UnsetFloatValue(akActor, "UD_OrgasmProgress")
 
 	;end mutex
 	akActor.RemoveFromFaction(UDOM.OrgasmCheckLoopFaction)
-	if UDOM.UD_StopActorOrgasmCheckLoop == akActor
-		UDOM.UD_StopActorOrgasmCheckLoop = none
-	endif
 EndEvent
 
 Function Update()
@@ -139,6 +135,7 @@ EndFunction
 Event OnUpdate()
 	if IsRunning()
 		if UDOM.OrgasmLoopBreak(akActor, UDOM.UD_OrgasmCheckLoop_ver) ;!UDCDmain.isRegistered(akActor) && !akActor.isDead()
+			GInfo("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - OrgasmLoopBreak -> dispeling")
 			akActor.DispelSpell(UDCDmain.UDlibs.OrgasmCheckSpell)
 		else
 			Update()
@@ -326,6 +323,7 @@ EndEvent
 bool Function IsRunning()
 	return akActor.hasMagicEffect(_MagickEffect)
 EndFunction
+
 
 ;wrappers
 bool Function ActorIsFollower()

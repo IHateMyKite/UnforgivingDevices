@@ -896,7 +896,6 @@ float Property _customMinigameCritMult Hidden
 	EndFunction
 EndProperty
 
-;float _CuttingProgress = 0.0
 float Property _CuttingProgress Hidden ;cutting progress, 0-100, step 0.025
 	Function set(float fVal)
 		startBitMapMutexCheck3()
@@ -908,7 +907,6 @@ float Property _CuttingProgress Hidden ;cutting progress, 0-100, step 0.025
 		return decodeBit(_deviceControlBitMap_13,12,0)/40.0
 	EndFunction
 EndProperty
-;float _RepairProgress = 0.0
 float Property _RepairProgress Hidden ;lock repair progress, 0-100, step 0.025
 	Function set(float fVal)
 		startBitMapMutexCheck3()
@@ -1851,8 +1849,6 @@ Function setWidgetColor(int val,int val2 = -1,int flash_col = -1)
 	UDCDmain.widget1.SetColors(UD_WidgetColor, UD_WidgetColor2,flash_col)
 EndFunction
 
-
-
 Function showWidget()
 	updateWidget(true)
 	updateWidgetColor()
@@ -2212,7 +2208,6 @@ Function filterControl(bool[] aControlFilter)
 	
 	UDCDmain.currentDeviceMenu_allowSpecialMenu = UDCDmain.currentDeviceMenu_allowSpecialMenu && !aControlFilter[16]
 	UDCDmain.currentDeviceMenu_allowLockMenu = UDCDmain.currentDeviceMenu_allowLockMenu && !aControlFilter[17]
-	
 EndFunction
 
 Function deviceMenuInit(bool[] aControl)
@@ -2343,8 +2338,6 @@ bool Function specialMenu(bool[] aControl)
 		return False
 	endif
 EndFunction
-
-
 
 Function deviceMenuInitWH(Actor akSource,bool[] aControl)
 	
@@ -3071,8 +3064,8 @@ bool Function keyMinigameWH(Actor akHelper)
 	UD_minigame_stamina_drain = UD_base_stat_drain
 	UD_minigame_stamina_drain_helper = UD_base_stat_drain
 	UD_minigame_canCrit = False
-	UD_applyExhastionEffect = True
-	UD_applyExhastionEffectHelper = True
+	UD_applyExhastionEffect = false
+	UD_applyExhastionEffectHelper = false
 	UD_minigame_critRegen = false
 	UD_minigame_critRegen_helper = false
 	UD_RegenMag_Magicka = 0.5
@@ -3464,6 +3457,7 @@ Function minigame()
 	
 	if loc_PlayerInMinigame
 		closeMenu()
+		UDCDmain.GoToState("Minigame")
 	endif
 	
 	minigame_on = True
@@ -3567,7 +3561,7 @@ Function minigame()
 				decreaseDurabilityAndCheckUnlock((_durability_damage_mod + UD_durability_damage_add)*fCurrentUpdateTime*UD_DamageMult,1.0 + _condition_mult_add)
 			endif
 			;update widget
-			if UDCDmain.UD_UseWidget && UD_UseWidget && loc_PlayerInMinigame
+			if UDCDmain.UD_UseWidget && UD_UseWidget && loc_PlayerInMinigame && !cuttingGame_on
 				updateWidget()
 			endif
 		endif
@@ -3608,6 +3602,7 @@ Function minigame()
 	addStruggleExhaustion()
 	
 	if loc_PlayerInMinigame
+		UDCDmain.GoToState("")
 		UDCDmain.MinigameKeysUnRegister()
 	endif	
 	
@@ -3738,46 +3733,6 @@ Function drainStats(float fMod)
 	endif
 EndFunction
 
-;/
-Function startCritLoop()
-	Utility.waitMenuMode(1.0)
-	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("startCritLoop() called for " + getDeviceHeader(),1)
-	endif
-	_critLoop_On = true
-	while minigame_on && !force_stop_minigame;UDCDmain.ActorInMinigame(getWearer());_AVOK && current_device_health > 0.0 && !force_stop_minigame
-		while pauseMinigame
-			Utility.wait(0.01)
-		endwhile
-		
-		if force_stop_minigame
-			_critLoop_On = false
-			return
-		endif
-		
-		if UD_minigame_canCrit
-			string critType = "random"
-			if !WearerIsPlayer() && !HelperIsPlayer()
-				critType = "NPC"
-			elseif UDCDmain.UD_AutoCrit
-				critType = "Auto"
-			endif
-			UDCDmain.StruggleCritCheck(self,UD_StruggleCritChance,critType,UD_StruggleCritDuration)
-		elseif _customMinigameCritChance
-			string critType = "random"
-			if !WearerIsPlayer() && !HelperIsPlayer()
-				critType = "NPC"
-			elseif UDCDmain.UD_AutoCrit
-				critType = "Auto"
-			endif
-			UDCDmain.StruggleCritCheck(self,_customMinigameCritChance,critType,_customMinigameCritDuration)			
-		endif
-		Utility.wait(1.0)
-	EndWhile
-	_critLoop_On = false
-EndFunction
-/;
-
 ;function called when player fails crit (pressed wrong button)
 Function critFailure()
 	if (UD_minigame_stamina_drain > 0.0)
@@ -3873,6 +3828,8 @@ Function critDevice()
 		advanceSkill(4.0)
 		
 		OnCritDevicePost()
+		
+		updateWidget()
 	endif
 EndFunction
 
@@ -3880,6 +3837,9 @@ EndFunction
 Function SpecialButtonPressed(float fMult = 1.0)
 	if cuttingGame_on
 		cutDevice(fMult*UD_CutChance/12.5)
+		if UD_useWidget && UDCDmain.UD_useWidget
+			updateWidget()
+		endif
 	elseif keyGame_on || lockpickGame_on || repairLocksMinigame_on
 		if !_usingTelekinesis
 			_usingTelekinesis = true
@@ -3899,9 +3859,7 @@ Function SpecialButtonPressed(float fMult = 1.0)
 			endif
 		endif
 	endif
-	if UD_useWidget && UDCDmain.UD_useWidget
-		;updateWidget()
-	endif
+
 	onSpecialButtonPressed(fMult)
 EndFunction
 
@@ -4456,6 +4414,7 @@ Function addStruggleExhaustion()
 		UDlibs.StruggleExhaustionSpell.cast(Wearer)
 	endif
 	if _minigameHelper && UD_applyExhastionEffectHelper
+		UDCDmain.ResetHelperCD(_minigameHelper,Wearer,UDCDmain.UD_MinigameHelpXPBase)
 		UDlibs.StruggleExhaustionSpell.SetNthEffectMagnitude(0, UDCDmain.UD_StruggleExhaustionMagnitude*Utility.randomFloat(0.75,1.25))
 		UDlibs.StruggleExhaustionSpell.SetNthEffectDuration(0, Round(UDCDmain.UD_StruggleExhaustionDuration*_exhaustion_mult_helper*Utility.randomFloat(0.75,1.25)))
 		UDlibs.StruggleExhaustionSpell.cast(_minigameHelper)
@@ -4496,17 +4455,21 @@ Function repairLock(float progress_add = 1.0)
 	_RepairProgress += progress_add*UDCDmain.getStruggleDifficultyModifier()
 	if _RepairProgress >= getLockDurability()
 		if WearerIsPlayer()
-			debug.notification("You managed to repair one of the locks!")
+			UDCDmain.Print("You managed to repair one of the locks!")
+		elseif UDCDmain.AllowNPCMessage(GetWearer())
+			UDCDmain.Print(GetWearerName() + " managed to repair one of the "+ getDeviceName() +" locks!")
 		endif
 
 		UD_JammedLocks -= 1
 		if UD_JammedLocks == 0
 			libs.UnJamLock(Wearer,UD_DeviceKeyword)
+			repairLocksMinigame_on = False
+			stopMinigame()
 		endif
 		;updateCondition()
 		_RepairProgress = 0.0
-		stopMinigame()
-		repairLocksMinigame_on = False
+		;stopMinigame()
+		;repairLocksMinigame_on = False
 	endif
 EndFunction
 
@@ -4514,7 +4477,7 @@ EndFunction
 Function lockpickDevice()
 	if lockpickGame_on && (UD_CurrentLocks - UD_JammedLocks > 0)
 		int result = 0
-		if WearerIsPlayer() || HelperIsPlayer()
+		if PlayerInMinigame()
 			int helperGivedLockpicks = 0
 			if hasHelper()
 				;always transfere lockpicks to player
@@ -4550,7 +4513,7 @@ Function lockpickDevice()
 			UDCDmain.DeleteLockPickContainer()			;then we remove the container so IsLocked is not called on None
 			
 			if loc_elapsedTime >= loc_maxtime
-				if UI.isMenuOpen("Lockpicking Menu")
+				if UDmain.IsLockpickingMenuOpen()
 					closeLockpickMenu()
 				endif
 				UDCDmain.Print("You lost the focus and broke the lockpick!")
@@ -4576,7 +4539,7 @@ Function lockpickDevice()
 				endif
 			endif
 		else
-			if Utility.randomInt(1,100) >= getLockLevel()*25
+			if Utility.randomInt(1,99) >= getLockLevel()*15
 				result = 1
 			else
 				result = 2
@@ -4615,7 +4578,7 @@ Function lockpickDevice()
 				if WearerIsPlayer()
 					UDCDmain.Print("Your lockpick jammed the lock!",1)
 				elseif UDCDmain.AllowNPCMessage(getWearer())
-					UDCDmain.Print(getWearerName() + "s lock gets jammed!",3)
+					UDCDmain.Print(getWearerName() + "s "+getDeviceName()+" lock gets jammed!",3)
 				endif
 				
 				UD_JammedLocks += 1
@@ -4716,7 +4679,7 @@ function checkSentient(float mult = 1.0)
 		if Utility.randomInt() > 75 && WearerIsPlayer()
 			startSentientDialogue(1)
 		endif
-		if Round(getModifierFloatParam("Sentient")*mult) > Utility.randomInt(1,100)
+		if Round(getModifierFloatParam("Sentient")*mult) > Utility.randomInt(1,99)
 			if UDCDmain.TraceAllowed()			
 				UDCDmain.Log("Sentient device activation of : " + getDeviceHeader())
 			endif
@@ -4858,9 +4821,7 @@ EndFunction
 Function OnMinigameEnd()
 	if hasHelper()
 		;1 hour cooldown
-		UDCDMain.ResetHelperCD(GetHelper(),GetWearer(),UDCDmain.UD_MinigameHelpXPBase)
-		;Int loc_lvl = UDCDMain.addHelperXP(GetHelper(), UDCDmain.UD_MinigameHelpXPBase)
-		;StorageUtil.SetFloatValue(getHelper(),"UDNPCCD:"+getWearer(),Utility.GetCurrentGameTime() + (iRange(UDCDMain.UD_MinigameHelpCd - UDCDmain.Round((loc_lvl - 1)*0.05*UDCDMain.UD_MinigameHelpCd),10,600))/(60.0*24.0))
+		;UDCDMain.ResetHelperCD(GetHelper(),GetWearer(),UDCDmain.UD_MinigameHelpXPBase)
 	endif
 	
 	if isSentient() && getRelativeDurability() > 0.0

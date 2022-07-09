@@ -13,6 +13,11 @@ UD_CustomDevices_NPCSlotsmanager Property UDNPCM hidden
 		return GetOwningQuest() as UD_CustomDevices_NPCSlotsmanager
 	EndFunction
 EndProperty
+zadlibs_UDPatch Property libs hidden
+	zadlibs_UDPatch Function get()
+		return UDmain.libsp
+	EndFunction
+EndProperty
 UD_CustomDevice_RenderScript[] Property UD_equipedCustomDevices auto hidden
 
 int _iUsedSlots = 0
@@ -269,14 +274,11 @@ Function fix()
 		StorageUtil.UnsetFloatValue(getActor(), "UD_OrgasmRateMultiplier")
 		StorageUtil.UnsetFloatValue(getActor(), "UD_ArousalRate")
 		StorageUtil.UnsetFloatValue(getActor(), "UD_ArousalRateM")
-		StorageUtil.UnsetFloatValue(getActor(), "UD_OrgasmExhaustion")
+		StorageUtil.UnsetIntValue(getActor(), "UD_OrgasmExhaustion")
+		StorageUtil.UnsetIntValue(getActor(), "UD_ActiveVib_Strength")
+		StorageUtil.UnsetIntValue(getActor(), "UD_ActiveVib")
 		UDCDmain.Print("[UD] Orgasm variables reseted!")
 	elseif loc_res == 2 ;reset expression
-		;getActor().removeFromFaction(UDCDmain.UDOM.ArousalCheckLoopFaction)
-		;UDCDmain.UDOM.StartArousalCheckLoop(getActor())
-		
-		;getActor().removeFromFaction(UDCDmain.UDOM.OrgasmCheckLoopFaction)
-		;UDCDmain.UDOM.StartOrgasmCheckLoop(getActor())
 		UDCDMain.UDEM.ResetExpressionRaw(getActor(),100)
 	endif
 	

@@ -119,7 +119,7 @@ Function forceOutPlugMinigame()
 	resetMinigameValues()
 	
 	setMinigameOffensiveVar(False,0.0,0.0,True)
-	setMinigameWearerVar(True,UD_base_stat_drain)
+	setMinigameWearerVar(True,UD_base_stat_drain + getMaxActorValue(getWearer(),"Stamina",0.05))
 	setMinigameEffectVar(True,True,1.25)
 	setMinigameWidgetVar(True)
 	setMinigameMinStats(0.8)
@@ -136,8 +136,8 @@ Function forceOutPlugMinigameWH(Actor akHelper)
 	setHelper(akHelper)
 	setMinigameOffensiveVar(False,0.0,0.0,True)
 	setMinigameDmgMult(getAccesibility()*2.0)
-	setMinigameWearerVar(True,UD_base_stat_drain)
-	setMinigameHelperVar(True,UD_base_stat_drain*0.25)
+	setMinigameWearerVar(True,UD_base_stat_drain 		+ getMaxActorValue(getWearer(),"Stamina",0.025))
+	setMinigameHelperVar(True,UD_base_stat_drain*0.25 	+ getMaxActorValue(getWearer(),"Stamina",0.025))
 	setMinigameEffectVar(True,True,1.25)
 	setMinigameEffectHelperVar(False,False)
 	setMinigameWidgetVar(True)
@@ -181,6 +181,13 @@ EndFunction
 bool Function Details_CanShowHitResist()
 	return false
 EndFunction 
+
+Function OnMinigameTick1() ;called every 1s of minigame
+	if forceOutPlugMinigame_on && !PlayerInMinigame()
+		decreaseDurabilityAndCheckUnlock(1.0*getDurabilityDmgMod()*0.3,0.0)
+	endif
+	parent.OnMinigameTick1()
+EndFunction
 
 ;======================================================================
 ;Place new override functions here, do not forget to check override functions in parent if its not base script (UD_CustomDevice_RenderScript)
@@ -230,11 +237,8 @@ EndFunction
 Function OnMinigameEnd() ;called when minigame end
 	parent.OnMinigameEnd()
 EndFunction
-Function OnMinigameTick() ;called every on every tick of minigame. Uses MCM performance setting
+Function OnMinigameTick() ;called on every tick of minigame. Uses MCM performance setting
 	parent.OnMinigameTick()
-EndFunction
-Function OnMinigameTick1() ;called every 1s of minigame
-	parent.OnMinigameTick1()
 EndFunction
 Function OnMinigameTick3() ;called every 3s of minigame
 	parent.OnMinigameTick3()

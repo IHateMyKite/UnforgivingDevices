@@ -861,10 +861,6 @@ EndFunction
 ;doesn't disable actor movement and doesn't check if actor is valid
 ;doesn't check camera state
 bool Function FastStartThirdPersonAnimation(actor akActor, string animation)
-	;if akActor.isInFaction(UDCDmain.BlockAnimationFaction)
-	;	return false
-	;endif
-
 	if animation == "none"
 		UDCDmain.Error("StartThirdPersonAnimation - Called animation is None, aborting")
 		return false

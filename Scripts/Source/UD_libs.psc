@@ -182,7 +182,9 @@ Spell Property HardcoreDisableSpell auto
 Spell Property OrgasmExhaustionSpell auto
 Spell Property StruggleExhaustionSpell auto
 Spell Property OrgasmCheckSpell auto
+Spell Property OrgasmCheckAbilitySpell auto
 Spell Property ArousalCheckSpell auto
+Spell Property ArousalCheckAbilitySpell auto
 ;Spell Property BreathingDebuffSpell auto
 Spell Property TelekinesisSpell auto
 Spell Property AphrodisiacsSpell auto

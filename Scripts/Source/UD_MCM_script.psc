@@ -115,7 +115,32 @@ Event OnConfigInit()
 	if UDCDmain.TraceAllowed()	
 		UDCDmain.Log("MCM init started")
 	endif
+	
+	Update()
+	
+	setAbadonPreset(1)
+	
+	device_flag = OPTION_FLAG_NONE
+	UD_autocrit_flag = OPTION_FLAG_DISABLED
+	fix_flag = OPTION_FLAG_NONE
+	UD_Horny_f = OPTION_FLAG_NONE
+	if AbadonQuest.final_finisher_set
+		abadon_flag_2 = OPTION_FLAG_NONE
+	else
+		abadon_flag_2 = OPTION_FLAG_DISABLED
+	endif
+	
+	UD_LockMenu_flag = OPTION_FLAG_NONE
+	
+	actorIndex = 10
+	
+	if UDCDmain.TraceAllowed()	
+		UDCDmain.Log("MCM ready")
+	endif
+	Ready = True
+EndEvent
 
+Function Update()
 	LoadConfigPages()
 	registered_devices_T = new Int[25]
 	NPCSlots_T = new Int[11];Utility.CreateIntArray(UDCD_NPCM.getNumSlots());new Int[6]
@@ -150,6 +175,11 @@ Event OnConfigInit()
 	criteffectList[1] = "Body shader"
 	criteffectList[2] = "HUD + Body shader"
 	
+	UD_InfoLevel_AS = new string[3]
+	UD_InfoLevel_AS[0] = "Reduced"
+	UD_InfoLevel_AS[1] = "Default"
+	UD_InfoLevel_AS[2] = "Enhanced"
+	
 	final_finisher_pref_list = new string[7]
 	final_finisher_pref_list[0] = "Random"
 	final_finisher_pref_list[1] = "Rope"
@@ -158,39 +188,11 @@ Event OnConfigInit()
 	final_finisher_pref_list[4] = "Restrictive"
 	final_finisher_pref_list[5] = "Simple"
 	final_finisher_pref_list[6] = "Yoke"
-	setAbadonPreset(1)
-	device_flag = OPTION_FLAG_NONE
-	UD_autocrit_flag = OPTION_FLAG_DISABLED
-	fix_flag = OPTION_FLAG_NONE
-	UD_Horny_f = OPTION_FLAG_NONE
-	if AbadonQuest.final_finisher_set
-		abadon_flag_2 = OPTION_FLAG_NONE
-	else
-		abadon_flag_2 = OPTION_FLAG_DISABLED
-	endif
-	
-	UD_LockMenu_flag = OPTION_FLAG_NONE
 	
 	libs = UDCDmain.libs as zadlibs_UDPatch
-	
-	actorIndex = 10
-	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("MCM ready")
-	endif
-	Ready = True
-EndEvent
+EndFunction
 
 Event onConfigClose()
-;/
-	if selected_device >= 0
-		;UI.InvokeString("Main Menu", "_global.skse.CloseMenu", "Main Menu")
-		;UI.InvokeString("Loading Menu", "_global.skse.CloseMenu", "Loading Menu")
-		;https://forums.nexusmods.com/index.php?/topic/4795300-starting-quests-from-mcm-quest-script-best-method/
-		UI.Invoke("Journal Menu", "_root.QuestJournalFader.Menu_mc.ConfigPanelClose")
-		UI.Invoke("Journal Menu", "_root.QuestJournalFader.Menu_mc.CloseMenu")
-		UDCDmain.showDebugMenu(selected_device)
-	endif
-	/;
 EndEvent
 
 Event onConfigOpen()
@@ -268,6 +270,8 @@ int UD_NPCSupport_T
 int UD_PlayerMenu_K
 int UD_NPCMenu_K
 int UD_HearingRange_S
+int UD_InfoLevel_M
+string[] UD_InfoLevel_AS
 Event resetGeneralPage()
 	UpdateLockMenuFlag()
 	setCursorFillMode(LEFT_TO_RIGHT)
@@ -289,21 +293,14 @@ Event resetGeneralPage()
 	;UD_RandomFilter_T = addSliderOption("Random filter:",Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFF),"{0}",UD_LockMenu_flag)
 	UD_RandomFilter_T = AddInputOption("Random filter", Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFF), UD_LockMenu_flag)
 	UD_HearingRange_S = addSliderOption("Message range:",UDmain.UD_HearingRange,"{0}")
+
+	lockmenu_T = addToggleOption("Lock menus",UDmain.lockMCM,UD_LockMenu_flag)
+	UD_useHoods_T = addToggleOption("Use hoods",UDIM.UD_useHoods,UD_LockMenu_flag)
 	
-	;addEmptyOption()
+	UD_InfoLevel_M = AddMenuOption("info level", UD_InfoLevel_AS[UDmain.UD_InfoLevel])
+	addEmptyOption()
 	
-	;if (!UDmain.hasAnyUD() || !UDmain.lockMCM)
-		lockmenu_T = addToggleOption("Lock menus",UDmain.lockMCM,UD_LockMenu_flag)
-		UD_useHoods_T = addToggleOption("Use hoods",UDIM.UD_useHoods,UD_LockMenu_flag)
-		UD_OrgasmExhaustion_T = addToggleOption("Orgasm exhaustion",UDmain.UD_OrgasmExhaustion,UD_LockMenu_flag)
-		;/
-		addEmptyOption()
-		UD_OrgasmExhaustionMagnitude_S = addSliderOption("Orgasm exhaustion magnitude",UDmain.UD_OrgasmExhaustionMagnitude, "{0} %",FlagSwitchOr(UD_OrgasmExhaustion_flag,UD_LockMenu_flag))
-		UD_OrgasmExhaustionDuration_S = addSliderOption("Orgasm exhaustion duration",UDmain.UD_OrgasmExhaustionDuration, "{0} s",FlagSwitchOr(UD_OrgasmExhaustion_flag,UD_LockMenu_flag))
-		/;
-	;else
-	;	AddHeaderOption("Menu locked")
-	;endif
+	UD_OrgasmExhaustion_T = addToggleOption("Orgasm exhaustion",UDmain.UD_OrgasmExhaustion,UD_LockMenu_flag)
 EndEvent
 
 int UD_Swimming_flag
@@ -1298,10 +1295,19 @@ Function OnOptionSliderAcceptDebug(int option,float value)
 EndFunction
 
 event OnOptionMenuOpen(int option)
+	OnOptionMenuOpenDefault(option)
 	OnOptionMenuOpenCustomBondage(option)
 	OnOptionMenuOpenCustomOrgasm(option)
 	OnOptionMenuOpenAbadon(option)
 endEvent
+
+Function OnOptionMenuOpenDefault(int option)
+	if (option == UD_InfoLevel_M)
+		SetMenuDialogOptions(UD_InfoLevel_AS)
+		SetMenuDialogStartIndex(UDmain.UD_InfoLevel)
+		SetMenuDialogDefaultIndex(1)
+	endif
+EndFUnction
 
 Function OnOptionMenuOpenAbadon(int option)
 	if (option == difficulty_M)
@@ -1352,10 +1358,19 @@ Function OnOptionMenuOpenCustomOrgasm(int option)
 EndFunction
 
 event OnOptionMenuAccept(int option, int index)
+	OnOptionMenuAcceptDefault(option,index)
 	OnOptionMenuAcceptCustomBondage(option,index)
 	OnOptionMenuAcceptCustomOrgasm(option,index)
 	OnOptionMenuAcceptAbadon(option, index)
 endEvent
+
+Function OnOptionMenuAcceptDefault(int option, int index)
+	if (option == UD_InfoLevel_M)
+		UDmain.UD_InfoLevel = index
+		SetMenuOptionValue(UD_InfoLevel_M, UD_InfoLevel_AS[UDmain.UD_InfoLevel])
+		forcePageReset()
+	endif
+EndFUnction
 
 Function OnOptionMenuAcceptAbadon(int option, int index)
 	if (option == difficulty_M)
@@ -1732,6 +1747,7 @@ Function SaveToJSON(string strFile)
 	JsonUtil.SetIntValue(strFile, "AutoLoad", UDmain.UD_AutoLoad as int)
 	JsonUtil.SetIntValue(strFile, "LogLevel", UDmain.LogLevel as int)
 	JsonUtil.SetIntValue(strFile, "HearingRange", UDmain.UD_HearingRange)
+	JsonUtil.SetIntValue(strFile, "InfoLevel", UDmain.UD_InfoLevel)
 
 	;UDCDmain
 	JsonUtil.SetIntValue(strFile, "Stamina_meter_Keycode", UDCDmain.Stamina_meter_Keycode)
@@ -1816,6 +1832,7 @@ Function LoadFromJSON(string strFile)
 	UDmain.UD_AutoLoad = JsonUtil.GetIntValue(strFile, "AutoLoad", UDmain.UD_AutoLoad as int)
 	UDmain.LogLevel = JsonUtil.GetIntValue(strFile, "LogLevel", UDmain.LogLevel as int)
 	UDmain.UD_HearingRange = JsonUtil.GetIntValue(strFile, "HearingRange", UDmain.UD_HearingRange)
+	UDmain.UD_InfoLevel = JsonUtil.GetIntValue(strFile, "InfoLevel", UDmain.UD_InfoLevel)
 	
 	;UDCDmain
 	UDCDmain.UnregisterGlobalKeys()
@@ -1906,7 +1923,7 @@ Function ResetToDefaults()
 	UDmain.UD_AutoLoad = false
 	UDmain.LogLevel = 0
 	UDmain.UD_HearingRange = 4000
-	
+	UDmain.UD_InfoLevel = 1
 	;UDCDmain
 	UDCDmain.UnregisterGlobalKeys()
 	if !Game.UsingGamepad()
