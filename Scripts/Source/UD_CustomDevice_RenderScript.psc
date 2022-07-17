@@ -2216,9 +2216,10 @@ Function deviceMenuInit(bool[] aControl)
 	setHelper(none)
 	UDCDmain.resetCondVar()
 
-	bool loc_isloose = isLoose()
-	bool loc_freehands = WearerFreeHands()
-	float loc_accesibility = getAccesibility()
+	bool 	loc_isloose 		= isLoose()
+	bool 	loc_freehands 		= WearerFreeHands()
+	float 	loc_accesibility 	= getAccesibility()
+	
 	;normal struggle
 	if canBeStruggled(loc_accesibility); && (loc_isloose || loc_freehands)
 		UDCDmain.currentDeviceMenu_allowstruggling = True
@@ -2241,12 +2242,12 @@ Function deviceMenuInit(bool[] aControl)
 			endif
 		endif
 		;lock repair
-		if UD_JammedLocks > 0 && loc_accesibility > 0
+		if UD_JammedLocks && loc_accesibility > 0
 			UDCDmain.currentDeviceMenu_allowlockrepair = True
 		endif
 	endif
 	;cutting
-	if canBeCutted() && loc_accesibility;&& (loc_isloose || loc_freehands) ;&& UD_durability_damage_base > 0.0
+	if canBeCutted() && loc_accesibility
 		UDCDmain.currentDeviceMenu_allowcutting = True
 	endif
 	
@@ -2342,19 +2343,21 @@ EndFunction
 Function deviceMenuInitWH(Actor akSource,bool[] aControl)
 	
 	;updates difficulty
+	
 	setHelper(akSource)
 	updateDifficulty()
 	UDCDmain.resetCondVar()
 	
-	bool loc_freehands_helper = WearerFreeHands(true)
-	float loc_accesibility = getAccesibility()
-	int loc_lockacces = getLockAccesChance()
-
+	bool 	loc_freehands_helper 	= WearerFreeHands(true)
+	float 	loc_accesibility 		= getAccesibility()
+	int 	loc_lockacces 			= getLockAccesChance()
+	
+	
 	;help struggle
 	if canBeStruggled(loc_accesibility)
 		UDCDmain.currentDeviceMenu_allowstruggling = True
 	endif
-		
+
 	if (UD_CurrentLocks != UD_JammedLocks) && (loc_lockacces || loc_freehands_helper)
 		;key unlock
 		if zad_deviceKey 
@@ -2370,7 +2373,7 @@ Function deviceMenuInitWH(Actor akSource,bool[] aControl)
 			endif
 		endif
 	endif
-	
+
 	;lock repair
 	if (loc_accesibility || loc_freehands_helper) && UD_JammedLocks
 		UDCDmain.currentDeviceMenu_allowlockrepair = True
@@ -2437,9 +2440,7 @@ Function DeviceMenuWH(Actor akSource,bool[] aControl)
 	
 	bool _break = False
 	while !_break
-		
 		deviceMenuInitWH(akSource,aControl)
-		
 		Int msgChoice = UD_MessageDeviceInteractionWH.Show()
 
 		if msgChoice == 0		;help struggle
@@ -3668,8 +3669,6 @@ Function minigame()
 EndFunction
 
 Function MinigameVarReset()
-	minigame_on = False
-		
 	if Wearer
 		Wearer.RemoveFromFaction(UDCDmain.MinigameFaction)
 		;StorageUtil.UnSetFormValue(Wearer, "UD_currentMinigameDevice")
@@ -3683,6 +3682,7 @@ Function MinigameVarReset()
 		UDCDmain.resetCurrentMinigameDevice()
 	endif
 	
+	minigame_on = False
 EndFunction
 
 ;https://en.uesp.net/wiki/Skyrim:Leveling

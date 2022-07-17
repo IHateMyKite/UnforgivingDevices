@@ -263,17 +263,15 @@ Function deflate(bool silent = False)
 	if !silent
 		if hasHelper()
 			if WearerIsPlayer()
-				debug.notification(getHelperName() + " helped you to deflate yours " + getDeviceName() + "!")
-			elseif WearerIsFollower() && HelperIsPlayer()
-				debug.notification("You helped to deflate " + getWearerName() + "s " + getDeviceName() + "!")
-			elseif WearerIsFollower()
-				debug.notification(getHelperName() + " helped to deflate " + getWearerName() + "s " + getDeviceName() + "!")
+				UDmain.Print(getHelperName() + " helped you to deflate yours " + getDeviceName() + "!",1)
+			elseif PlayerInMinigame()
+				UDmain.Print("You helped to deflate " + getWearerName() + "s " + getDeviceName() + "!",1)
 			endif			
 		else
 			if WearerIsPlayer()
-				debug.notification("You succesfully deflated yours "+getPlugType()+" plug!")
-			elseif WearerIsFollower()
-				debug.notification(getWearerName() + "s " + getDeviceName()+ " deflated!")
+				UDmain.Print("You succesfully deflated yours "+getPlugType()+" plug!",1)
+			elseif PlayerInMinigame()
+				UDmain.Print(getWearerName() + "s " + getDeviceName()+ " deflated!",1)
 			endif
 		endif
 	endif
@@ -290,14 +288,14 @@ bool Function canDeflate()
 		if WearerIsPlayer()
 			debug.MessageBox("Plug is already deflated")
 		elseif WearerIsFollower()
-			debug.notification(getWearerName() + "s "+ getDeviceName() + " is already deflated")
+			UDmain.Print(getWearerName() + "s "+ getDeviceName() + " is already deflated",1)
 		endif
 		return False
 	endif
 	if WearerIsPlayer()
 		debug.MessageBox("Plug is too big to be deflated at the moment!")
 	elseif WearerIsFollower()
-		debug.notification(getWearerName() + "s "+ getDeviceName() + " is too big to be deflated at the moment!")
+		UDmain.Print(getWearerName() + "s "+ getDeviceName() + " is too big to be deflated at the moment!",1)
 	endif
 	return False
 EndFunction
@@ -394,12 +392,12 @@ EndFunction
 bool Function OnCritDevicePre()
 	if inflateMinigame_on
 		inflateprogress += Utility.randomFloat(20.2,30.0)*UDCDmain.getStruggleDifficultyModifier()*getMinigameMult(1)
-		if inflateprogress > UD_PumpDifficulty
+		if inflateprogress >= UD_PumpDifficulty
 			stopMinigame()
 		endif	
 	elseif deflateMinigame_on
 		deflateprogress += Utility.randomFloat(15.5,25.0)*UDCDmain.getStruggleDifficultyModifier()*getMinigameMult(1)
-		if deflateprogress > UD_PumpDifficulty
+		if deflateprogress >= UD_PumpDifficulty
 			stopMinigame()
 		endif
 	else
@@ -414,9 +412,9 @@ Function activateDevice()
 	bool loc_canVibrate = canVibrate() && !isVibrating()
 	if loc_canInflate
 		if WearerIsPlayer()
-			debug.notification("Your "+ getDeviceName()+" suddenly inflate itself!")
+			UDmain.Print("Your "+ getDeviceName()+" suddenly inflate itself!",1)
 		elseif WearerIsFollower()
-			debug.notification(getWearerName() + "s "+ getDeviceName() + " suddenly inflate itself!")		
+			UDmain.Print(getWearerName() + "s "+ getDeviceName() + " suddenly inflate itself!",3)		
 		endif
 		inflatePlug(1)
 	endif
@@ -430,9 +428,9 @@ Function onUpdatePost(float timePassed)
 		deflateprogress += timePassed*UD_DeflateRate*Utility.randomFloat(0.75,1.25)*UDCDmain.getStruggleDifficultyModifier()
 		if deflateprogress > UD_PumpDifficulty
 			if WearerIsPlayer()
-				debug.notification("You feel that your "+getDeviceName()+" lost some of its pressure")
+				UDmain.Print("You feel that your "+getDeviceName()+" lost some of its pressure",2)
 			elseif WearerIsFollower()
-				debug.notification(getWearerName() + "s "+ getDeviceName() + " lost some of its pressure")	
+				UDmain.Print(getWearerName() + "s "+ getDeviceName() + " lost some of its pressure",3)	
 			endif
 			deflate(True)
 		endif

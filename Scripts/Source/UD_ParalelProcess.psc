@@ -355,7 +355,16 @@ Function Receive_MinigameCritloop(Form fActor)
 	Send_MinigameCritLoop_Package_device 	= none
 	_MinigameCritLoop_Received 				= true
 	Actor akActor 							= fActor as Actor
+	
 	loc_device._MinigameParProc_3 			= true
+	
+	string critType = "random"
+	if !loc_device.PlayerInMinigame()
+		critType = "NPC"
+	elseif UDCDmain.UD_AutoCrit
+		critType = "Auto"
+	endif
+	
 	Utility.Wait(0.75)
 	;process
 	int loc_tick = 0
@@ -365,20 +374,8 @@ Function Receive_MinigameCritloop(Form fActor)
 			;check crit every 1 s
 			if !(loc_tick % 4) && loc_tick
 				if loc_device.UD_minigame_canCrit
-					string critType = "random"
-					if !loc_device.WearerIsPlayer() && !loc_device.HelperIsPlayer()
-						critType = "NPC"
-					elseif UDCDmain.UD_AutoCrit
-						critType = "Auto"
-					endif
 					UDCDmain.StruggleCritCheck(loc_device,loc_device.UD_StruggleCritChance,critType,loc_device.UD_StruggleCritDuration)
 				elseif loc_device._customMinigameCritChance
-					string critType = "random"
-					if !loc_device.WearerIsPlayer() && !loc_device.HelperIsPlayer()
-						critType = "NPC"
-					elseif UDCDmain.UD_AutoCrit
-						critType = "Auto"
-					endif
 					UDCDmain.StruggleCritCheck(loc_device,loc_device._customMinigameCritChance,critType,loc_device._customMinigameCritDuration)			
 				endif
 			endif

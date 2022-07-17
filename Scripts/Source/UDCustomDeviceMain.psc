@@ -1239,37 +1239,37 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
 			endif
 			return	
 		endif
-	endif	
+	
+		selected_crit_meter = meter
+		crit = True
 		
-	crit = True
-	selected_crit_meter = meter
-	
-	if (selected_crit_meter == "S")
-		if UD_CritEffect == 2 || UD_CritEffect == 1
-			UDlibs.GreenCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
-			Utility.wait(0.3)
+		if (selected_crit_meter == "S")
+			if UD_CritEffect == 2 || UD_CritEffect == 1
+				UDlibs.GreenCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
+				Utility.wait(0.3)
+			endif
+			if UD_CritEffect == 2 || UD_CritEffect == 0
+				UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartStaminaBlinking")
+			endif
+		elseif (selected_crit_meter == "M")
+			if UD_CritEffect == 2 || UD_CritEffect == 1
+				UDlibs.BlueCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
+				Utility.wait(0.3)
+			endif
+			if UD_CritEffect == 2 || UD_CritEffect == 0
+				UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartMagickaBlinking")
+			endif
+		elseif (selected_crit_meter == "R")
+			if UD_CritEffect == 2 || UD_CritEffect == 1
+				UDlibs.RedCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
+				Utility.wait(0.3)
+			endif
 		endif
-		if UD_CritEffect == 2 || UD_CritEffect == 0
-			UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartStaminaBlinking")
-		endif
-	elseif (selected_crit_meter == "M")
-		if UD_CritEffect == 2 || UD_CritEffect == 1
-			UDlibs.BlueCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
-			Utility.wait(0.3)
-		endif
-		if UD_CritEffect == 2 || UD_CritEffect == 0
-			UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartMagickaBlinking")
-		endif
-	elseif (selected_crit_meter == "R")
-		if UD_CritEffect == 2 || UD_CritEffect == 1
-			UDlibs.RedCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
-			Utility.wait(0.3)
-		endif
-	endif
-	;UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.FlashShoutMeter")
-	
-	Utility.wait(difficulty)
-	crit = False
+		;UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.FlashShoutMeter")
+		
+		Utility.wait(difficulty)
+		crit = False
+	endif	
 EndEvent
 
 bool Function registeredKeyPressed(Int KeyCode)
@@ -3135,6 +3135,30 @@ float Function FinishRecordTime(string strObject = "",bool bReset = false,bool b
 	
 	if bReset
 		StartRecordTime()
+	endif
+	return loc_res
+EndFunction
+
+float _startTime2 = 0.0
+Function StartRecordTime2()
+	_startTime2 = Utility.GetCurrentRealTime()
+EndFunction
+
+float Function FinishRecordTime2(string strObject = "",bool bReset = false,bool bLog = true,bool bPrint = true)
+	float loc_res = Utility.GetCurrentRealTime() - _startTime2
+	
+	CLog("ElapsedTime for "+ strObject + " = " + loc_res)
+	
+	if bLog
+		debug.trace("[UD]: ElapsedTime for "+ strObject + " = " + loc_res)
+		;Log("Elapsed time for " + strObject + " = " + loc_res + " s",1)
+	endif
+	if bPrint
+		debug.notification("ElapsedTime for "+ strObject + " = " + loc_res)
+	endif
+	
+	if bReset
+		StartRecordTime2()
 	endif
 	return loc_res
 EndFunction

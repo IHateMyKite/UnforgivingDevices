@@ -18,7 +18,9 @@ zadlibs_UDPatch Property libs hidden
 		return UDmain.libsp
 	EndFunction
 EndProperty
+
 UD_CustomDevice_RenderScript[] Property UD_equipedCustomDevices auto hidden
+Form[] Property UD_BodySlots auto hidden
 
 int _iUsedSlots = 0
 int _iScriptState = 0
@@ -35,6 +37,29 @@ float Property SmithingSkill 	= 0.0 auto hidden
 ;update other variables
 Function UpdateSlot()
 	UpdateSkills()
+	UpdateBodySlots()
+EndFunction
+
+Function UpdateBodySlots()
+	if !UD_BodySlots
+		UD_BodySlots = new Form[32]
+		GInfo("UD_BodySlots not init for " + getSlotedNPCName() + ", creating array")
+	endif
+	
+	int loc_i = 0
+	Actor loc_actor = GetActor()
+	while loc_i < 32
+		UD_BodySlots[loc_i] = loc_actor.GetWornForm(Math.LeftShift(0x1,loc_i))
+		loc_i += 1
+	endwhile
+EndFunction
+
+Form Function getSlotForm(int aiSlot)
+	if UD_BodySlots
+		return UD_BodySlots[aiSlot]
+	else
+		return none
+	endif
 EndFunction
 
 bool _DeviceManipMutex = false
@@ -280,8 +305,21 @@ Function fix()
 		UDCDmain.Print("[UD] Orgasm variables reseted!")
 	elseif loc_res == 2 ;reset expression
 		UDCDMain.UDEM.ResetExpressionRaw(getActor(),100)
+	elseif loc_res == 3 ;unequip slot
+		if UD_BodySlots
+			int loc_i = 0
+			string[] loc_list
+			while loc_i < 32
+				loc_list = PapyrusUtil.PushString(loc_list,UD_BodySlots[loc_i].getName() + " ( " +UD_BodySlots[loc_i] + " )")
+				loc_i += 1
+			endwhile
+			loc_list = PapyrusUtil.PushString(loc_list,"-BACK-")
+			int loc_slot = UDCDMain.GetUserListInput(loc_list)
+			if loc_slot >= 0 && loc_slot < 32
+				getActor().unequipItem(UD_BodySlots[loc_slot])
+			endif
+		endif
 	endif
-	
 EndFunction
 
 Function removeLostRenderDevices()

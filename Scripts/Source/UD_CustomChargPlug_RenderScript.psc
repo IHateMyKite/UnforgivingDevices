@@ -50,6 +50,8 @@ EndFunction
 
 Function OnOrgasmPost(bool sexlab = false)
 	parent.OnOrgasmPost(sexlab)
+	stopVibrating() ;stop vibrating to prevent soft lock
+	resetCooldown()
 	if sexlab
 		UpdateCharge(UD_ChargePerOrgasm*0.6)
 	else
