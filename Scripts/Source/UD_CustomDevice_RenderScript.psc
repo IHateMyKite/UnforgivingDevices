@@ -1135,18 +1135,12 @@ EndFunction
 
 ;returns true if device wearer is player
 bool Function WearerIsPlayer()
-	If ActorIsPlayer(getWearer())
-		return true
-	EndIf
-	return false
+	return UDmain.ActorIsPlayer(getWearer())
 EndFunction
 
 ;returns true if device wearer is current follower
 bool Function WearerIsFollower()
-	If UDCDmain.ActorIsFollower(getWearer())
-		return true
-	EndIf
-	return false
+	return UDmain.ActorIsFollower(getWearer())
 EndFunction
 
 ;returns true if player is taking part in minigame (either as wearer or helper)
@@ -1156,25 +1150,22 @@ EndFunction
 
 ;returns true if device currently have helper
 bool Function hasHelper()
-	if _minigameHelper
-		return True
-	endif
-	return False
+	return _minigameHelper
 EndFunction
 
 ;returns true if current device helper is player
 bool Function HelperIsPlayer()
-	If ActorIsPlayer(getHelper())
-		return true
-	EndIf
+	if _minigameHelper
+		return UDmain.ActorIsPlayer(_minigameHelper)
+	endif
 	return false
 EndFunction
 
 ;returns true if current device helper is player follower
 bool Function HelperIsFollower()
-	If UDCDmain.ActorIsFollower(getHelper())
-		return true
-	EndIf
+	if _minigameHelper
+		return UDCDmain.ActorIsFollower(_minigameHelper)
+	endif
 	return false
 EndFunction
 
@@ -1488,7 +1479,7 @@ Function Init(Actor akActor)
 	endif
 		
 	float loc_time = 0.0
-	bool loc_isplayer = Game.GetPlayer() == akActor
+	bool loc_isplayer = (akActor == UDmain.Player)
 	while loc_time <= 1.0 && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
 		if loc_isplayer
 			Utility.waitMenuMode(0.01)
@@ -3837,9 +3828,6 @@ EndFunction
 Function SpecialButtonPressed(float fMult = 1.0)
 	if cuttingGame_on
 		cutDevice(fMult*UD_CutChance/12.5)
-		if UD_useWidget && UDCDmain.UD_useWidget
-			updateWidget()
-		endif
 	elseif keyGame_on || lockpickGame_on || repairLocksMinigame_on
 		if !_usingTelekinesis
 			_usingTelekinesis = true
@@ -3861,6 +3849,10 @@ Function SpecialButtonPressed(float fMult = 1.0)
 	endif
 
 	onSpecialButtonPressed(fMult)
+	
+	if UDCDmain.UD_useWidget && UD_UseWidget
+		updateWidget()
+	endif
 EndFunction
 
 ;function called when player release special button

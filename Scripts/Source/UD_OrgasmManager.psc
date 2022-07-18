@@ -18,7 +18,7 @@ int 	Property UD_OrgasmDuration 			= 20 	auto
 bool 	Property UD_HornyAnimation 			= true 	auto
 int 	Property UD_HornyAnimationDuration 	= 5 	auto
 
-Actor Property UD_StopActorOrgasmCheckLoop = none auto
+Actor Property UD_StopActorOrgasmCheckLoop 	= none auto
 Actor Property UD_StopActorArousalCheckLoop = none auto
 
 Faction Property OrgasmFaction 				auto
@@ -519,7 +519,7 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 75,in
 	
 	UDmain.UDPP.Send_Orgasm(akActor,iDuration,iDecreaseArousalBy,iForce,bForceAnimation,bWairForReceive = false)
 	
-	bool loc_isplayer = ActorIsPlayer(akActor)
+	bool loc_isplayer = UDmain.ActorIsPlayer(akActor)
 	bool loc_isfollower = false
 	if !loc_isplayer
 		loc_isfollower = ActorIsFollower(akActor)
@@ -535,7 +535,7 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 75,in
 	if loc_actorinminigame
 		PlayOrgasmAnimation(akActor,iDuration)
 	elseif ((akActor.IsInCombat() || akActor.IsSneaking()) && (loc_isplayer || loc_isfollower)) || !loc_cond
-		if ActorIsPlayer(akActor)
+		if UDmain.ActorIsPlayer(akActor)
 			UDCDmain.Print("You managed to not loss control over your body from orgasm!",2)
 		endif
 		akActor.damageAv("Stamina",50.0)
@@ -654,7 +654,7 @@ Function CritLoopOrgasmResist(Int iChance,Float fDifficulty)
 			_crit_meter = loc_meter
 			if (loc_meter == "S")
 				if UDCDmain.UD_CritEffect == 2 || UDCDmain.UD_CritEffect == 1
-					UDlibs.GreenCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
+					UDlibs.GreenCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player)
 					Utility.wait(0.3)
 				endif
 				if UDCDmain.UD_CritEffect == 2 || UDCDmain.UD_CritEffect == 0
@@ -662,7 +662,7 @@ Function CritLoopOrgasmResist(Int iChance,Float fDifficulty)
 				endif
 			elseif (loc_meter == "M")
 				if UDCDmain.UD_CritEffect == 2 || UDCDmain.UD_CritEffect == 1
-					UDlibs.BlueCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
+					UDlibs.BlueCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player)
 					Utility.wait(0.3)
 				endif
 				if UDCDmain.UD_CritEffect == 2 || UDCDmain.UD_CritEffect == 0
@@ -670,7 +670,7 @@ Function CritLoopOrgasmResist(Int iChance,Float fDifficulty)
 				endif
 			elseif (loc_meter == "R")
 				if UDCDmain.UD_CritEffect == 2 || UDCDmain.UD_CritEffect == 1
-					UDlibs.RedCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
+					UDlibs.RedCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player)
 					Utility.wait(0.3)
 				endif
 			endif
@@ -689,16 +689,16 @@ Function OnCritSuccesOrgasmResist()
 	if TraceAllowed()	
 		Log("OnCritSuccesOrgasmResist() callled!")
 	endif
-	Game.getPlayer().restoreAV("Stamina", 15)
-	UpdateActorOrgasmProgress(Game.getPlayer(),-10,true)
+	UDmain.Player.restoreAV("Stamina", 15)
+	UpdateActorOrgasmProgress(UDmain.Player,-10,true)
 EndFunction
 
 Function OnCritFailureOrgasmResist()
 	if TraceAllowed()	
 		Log("OnCritFailureOrgasmResist() callled!")
 	endif
-	;Game.getPlayer().damageAV("Stamina", 25)
-	UpdateActorOrgasmProgress(Game.getPlayer(),getActorOrgasmRate(Game.getPlayer())*2,true)
+	;UDmain.Player.damageAV("Stamina", 25)
+	UpdateActorOrgasmProgress(UDmain.Player,getActorOrgasmRate(UDmain.Player)*2,true)
 EndFunction
 
 
@@ -725,7 +725,7 @@ Event MinigameKeysUnregister()
 EndEvent
 
 Event OnKeyDown(Int KeyCode)
-	if !Utility.IsInMenuMode() ;only if player is not in menu
+	if !UDmain.IsMenuOpen() ;only if player is not in menu
 		bool loc_crit = _crit ;help variable to reduce lag
 		if _PlayerOrgasmResist_MinigameOn
 			if KeyCode == UDCDmain.SpecialKey_Keycode
@@ -748,13 +748,13 @@ Event OnKeyDown(Int KeyCode)
 					loc_crit = False
 					OnCritFailureOrgasmResist()
 				elseif KeyCode == UDCDmain.ActionKey_Keycode
-					Game.GetPlayer().removeFromFaction(OrgasmResistFaction)
+					UDmain.Player.removeFromFaction(OrgasmResistFaction)
 					_crit = false
 					return 
 				endif
 			endif
 			if KeyCode == UDCDmain.ActionKey_Keycode
-				Game.GetPlayer().removeFromFaction(OrgasmResistFaction)
+				UDmain.Player.removeFromFaction(OrgasmResistFaction)
 				_crit = false
 				return
 			elseif (KeyCode == UDCDmain.Stamina_meter_Keycode || KeyCode == UDCDmain.Magicka_meter_Keycode) && !UDCDmain.UD_AutoCrit
@@ -784,20 +784,20 @@ Function FocusOrgasmResistMinigame(Actor akActor)
 		Error("Can't start FocusOrgasmResistMinigame without orgasm check loop!")
 	endif
 	if getCurrentActorValuePerc(akActor,"Stamina") < 0.75; || UDmain.getCurrentActorValuePerc(akActor,"Magicka") < 0.65
-		if ActorIsPlayer(akActor)
+		if UDmain.ActorIsPlayer(akActor)
 			Print("You are too exhausted!")
 		endif
 		return
 	endif
 	if UDCDMain.actorInMinigame(akActor) || libs.isAnimating(akActor)
-		if akActor == Game.getPlayer()
+		if akActor == UDmain.Player
 			Print("You are already bussy!")
 		endif
 		return
 	endif
 	
 	if !(getActorAfterMultOrgasmRate(akActor) > 0)
-		if ActorIsPlayer(akActor)
+		if UDmain.ActorIsPlayer(akActor)
 		endif
 		return
 	endif
@@ -814,7 +814,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
 	
 	MinigameKeysRegister()
 	UDCDMain.toggleWidget2(true)
-	if ActorIsPlayer(akActor)
+	if UDmain.ActorIsPlayer(akActor)
 		_PlayerOrgasmResist_MinigameOn = true
 		sendOrgasmResistCritUpdateLoop(15,0.8)
 	endif
@@ -902,7 +902,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
 	endwhile
 	
 	akActor.setAV("StaminaRate", loc_staminaRate)
-	if ActorIsPlayer(akActor)
+	if UDmain.ActorIsPlayer(akActor)
 		_PlayerOrgasmResist_MinigameOn = false
 	endif
 	
@@ -922,7 +922,7 @@ EndFunction
 ;UNUSED
 ;call devices function edge() when player get edged
 Function OnEdge(string eventName, string strArg, float numArg, Form sender)
-	if strArg != Game.getPlayer().getActorBase().getName()
+	if strArg != UDmain.Player.getActorBase().getName()
 		int random = Utility.randomInt(1,3)
 		if random == 1
 			debug.notification(strArg + " gets denied just before reaching the orgasm!")

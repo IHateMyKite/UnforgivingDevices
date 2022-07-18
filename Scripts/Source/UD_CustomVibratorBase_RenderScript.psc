@@ -208,9 +208,9 @@ EndFunction
 bool Function proccesSpecialMenuWH(Actor akSource,int msgChoice)
 	bool res = parent.proccesSpecialMenuWH(akSource,msgChoice)
 	if msgChoice == 0
-		Int loc_res = UDCDmain.ShowSoulgemMessage(Game.getPlayer())
+		Int loc_res = UDCDmain.ShowSoulgemMessage(UDmain.Player)
 		if loc_res >= 0
-			if UDCDmain.ChangeSoulgemState(Game.getPlayer(),loc_res)
+			if UDCDmain.ChangeSoulgemState(UDmain.Player,loc_res)
 				if !isVibrating()
 					ForceModDuration(0.75 + (loc_res)*0.25)
 					ForceModStrength(0.75 + (loc_res)*0.25)

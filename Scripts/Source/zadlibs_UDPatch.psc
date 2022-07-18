@@ -769,7 +769,7 @@ EndFunction
 
 Function ShockActorPatched(actor akActor,int iArousalUpdate = 25,float fHealth = 0.0, bool bCanKill = false)
 	bool loc_loaded = akActor.Is3DLoaded()
-	if ActorIsPlayer(akActor)
+	if UDmain.ActorIsPlayer(akActor)
 		NotifyPlayer("You squirms uncomfortably as electricity runs through your body!")
 	Elseif UDCDmain.ActorIsFollower(akActor) && loc_loaded
 		NotifyNPC(akActor.GetLeveledActorBase().GetName()+" squirms uncomfortably as electricity runs through her.")
@@ -844,7 +844,7 @@ bool[] Function StartThirdPersonAnimation(actor akActor, string animation, bool 
 			StorageUtil.SetFormValue(akActor,"UD_UnequippedShield",loc_shield)
 		endif
 		;[UD EDIT]: Removed camera check as I think it's useless
-		if akActor == Game.getPlayer()
+		if UDmain.ActorIsPlayer(akActor)
 			DisableControls()
 		Else
 			akActor.SetDontMove(true)
@@ -911,7 +911,7 @@ Function EndThirdPersonAnimation(actor akActor, bool[] cameraState, bool permitR
 			StorageUtil.UnSetFormValue(akActor,"UD_UnequippedShield")
 		endif
 		Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
-		if akActor == Game.GetPlayer()
+		if UDmain.ActorIsPlayer(akActor)
 			UpdateControls()
 		Else
 			akActor.SetDontMove(false)
@@ -989,7 +989,7 @@ Function UpdateExposure(actor akRef, float val, bool skipMultiplier=false)
 EndFunction
 
 Function ApplyExpression(Actor akActor, sslBaseExpression expression, int strength, bool openMouth=false)
-	if akActor.Is3DLoaded() || akActor == Game.getPlayer()
+	if akActor.Is3DLoaded() || UDmain.ActorIsPlayer(akActor)
 		UDCDmain.UDEM.ApplyExpression(akActor, expression, strength, openMouth,0)
 	endif
 EndFunction
@@ -1043,7 +1043,7 @@ Function UpdateControls()
 	bool menu = true
 	;check hardcore mode
 	
-	if Game.getPlayer().HasMagicEffectWithKeyword(UDCDmain.UDlibs.HardcoreDisable_KW)
+	if UDmain.Player.HasMagicEffectWithKeyword(UDCDmain.UDlibs.HardcoreDisable_KW)
 		menu = false
 	else
 		menu = true
@@ -1056,7 +1056,7 @@ Function UpdateControls()
 		sneaking = false
 	EndIf
 	
-	if UDCDmain.ActorInMinigame(Game.getPlayer())
+	if UDCDmain.PlayerInMinigame()
 		movement = true
 		menu = false
 	endif

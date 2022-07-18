@@ -272,6 +272,7 @@ int UD_NPCMenu_K
 int UD_HearingRange_S
 int UD_InfoLevel_M
 string[] UD_InfoLevel_AS
+int UD_WarningAllowed_T
 Event resetGeneralPage()
 	UpdateLockMenuFlag()
 	setCursorFillMode(LEFT_TO_RIGHT)
@@ -290,15 +291,15 @@ Event resetGeneralPage()
 	UD_LoggingLevel_S = addSliderOption("Logging level",UDmain.LogLevel, "{0}")
 	UD_NPCSupport_T = addToggleOption("NPC Auto Scan",UDmain.AllowNPCSupport)
 	
-	;UD_RandomFilter_T = addSliderOption("Random filter:",Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFF),"{0}",UD_LockMenu_flag)
 	UD_RandomFilter_T = AddInputOption("Random filter", Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFF), UD_LockMenu_flag)
 	UD_HearingRange_S = addSliderOption("Message range:",UDmain.UD_HearingRange,"{0}")
 
 	lockmenu_T = addToggleOption("Lock menus",UDmain.lockMCM,UD_LockMenu_flag)
 	UD_useHoods_T = addToggleOption("Use hoods",UDIM.UD_useHoods,UD_LockMenu_flag)
 	
-	UD_InfoLevel_M = AddMenuOption("info level", UD_InfoLevel_AS[UDmain.UD_InfoLevel])
-	addEmptyOption()
+	UD_InfoLevel_M 		= AddMenuOption("Info level", UD_InfoLevel_AS[UDmain.UD_InfoLevel])
+	UD_WarningAllowed_T = addToggleOption("Warnings allowed",UDmain.UD_WarningAllowed)
+	;addEmptyOption()
 	
 	UD_OrgasmExhaustion_T = addToggleOption("Orgasm exhaustion",UDmain.UD_OrgasmExhaustion,UD_LockMenu_flag)
 EndEvent
@@ -411,12 +412,6 @@ Event resetCustomOrgasmPage()
 		
 	UD_VibrationMultiplier_S = addSliderOption("Vib. multiplier: ",UDCDmain.UD_VibrationMultiplier, "{3}",UD_LockMenu_flag)
 	UD_ArousalMultiplier_S = addSliderOption("Arousal multiplier: ",UDCDmain.UD_ArousalMultiplier, "{3}",UD_LockMenu_flag)
-		
-	addEmptyOption()
-	addEmptyOption()
-	
-	AddTextOption("Orgasm rate:", UDCDmain.UDOM.getActorOrgasmRate(Game.getPlayer()) + " OP/s",OPTION_FLAG_DISABLED)
-	AddTextOption("Orgasm forcing:", UDCDmain.UDOM.getActorOrgasmForcing(Game.getPlayer()) + " %",OPTION_FLAG_DISABLED)
 EndEvent
 
 
@@ -700,6 +695,9 @@ Function OptionSelectGeneral(int option)
 	elseif option == UD_NPCSupport_T
 		UDmain.AllowNPCSupport = !UDmain.AllowNPCSupport
 		SetToggleOptionValue(UD_NPCSupport_T, UDmain.AllowNPCSupport)	
+	elseif option == UD_WarningAllowed_T
+		UDmain.UD_WarningAllowed = !UDmain.UD_WarningAllowed
+		SetToggleOptionValue(UD_WarningAllowed_T, UDmain.UD_WarningAllowed)	
 	endif
 EndFunction
 
@@ -1748,6 +1746,8 @@ Function SaveToJSON(string strFile)
 	JsonUtil.SetIntValue(strFile, "LogLevel", UDmain.LogLevel as int)
 	JsonUtil.SetIntValue(strFile, "HearingRange", UDmain.UD_HearingRange)
 	JsonUtil.SetIntValue(strFile, "InfoLevel", UDmain.UD_InfoLevel)
+	JsonUtil.SetIntValue(strFile, "WarningAllowed", UDmain.UD_WarningAllowed as Int)
+	
 
 	;UDCDmain
 	JsonUtil.SetIntValue(strFile, "Stamina_meter_Keycode", UDCDmain.Stamina_meter_Keycode)
@@ -1833,7 +1833,8 @@ Function LoadFromJSON(string strFile)
 	UDmain.LogLevel = JsonUtil.GetIntValue(strFile, "LogLevel", UDmain.LogLevel as int)
 	UDmain.UD_HearingRange = JsonUtil.GetIntValue(strFile, "HearingRange", UDmain.UD_HearingRange)
 	UDmain.UD_InfoLevel = JsonUtil.GetIntValue(strFile, "InfoLevel", UDmain.UD_InfoLevel)
-	
+	UDmain.UD_WarningAllowed = JsonUtil.GetIntValue(strFile, "WarningAllowed", UDmain.UD_WarningAllowed as Int)
+
 	;UDCDmain
 	UDCDmain.UnregisterGlobalKeys()
 	UDCDmain.Stamina_meter_Keycode = JsonUtil.GetIntValue(strFile, "Stamina_meter_Keycode", UDCDmain.Stamina_meter_Keycode)
@@ -1924,6 +1925,7 @@ Function ResetToDefaults()
 	UDmain.LogLevel = 0
 	UDmain.UD_HearingRange = 4000
 	UDmain.UD_InfoLevel = 1
+	UDmain.UD_WarningAllowed = false
 	;UDCDmain
 	UDCDmain.UnregisterGlobalKeys()
 	if !Game.UsingGamepad()

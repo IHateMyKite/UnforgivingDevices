@@ -87,10 +87,7 @@ Event OnInit()
 EndEvent
 
 Event OnPlayerLoadGame()
-	;if GetName() == "NPCSlot_Player"
-	;	ForceRefIfEmpty(Game.getPlayer())
-	;endif
-	;UDCDmain.registerAllEvents()
+
 EndEvent
 
 UD_CustomDevice_RenderScript Function GetUserSelectedDevice()
@@ -157,7 +154,7 @@ Function SetSlotTo(Actor akActor)
 	if UDCDmain.TraceAllowed()	
 		UDCDmain.Log("SetSlotTo("+getActorName(akActor)+") for " + self)
 	endif
-	if akActor != Game.GetPlayer()
+	if !UDmain.ActorIsPlayer(akActor)
 		ForceRefTo(akActor)
 	endif
 	
@@ -170,7 +167,7 @@ Function SetSlotTo(Actor akActor)
 	
 	UpdateSlot()
 	
-	if akActor != Game.GetPlayer()
+	if !UDmain.ActorIsPlayer(akActor)
 		regainDevices()
 	endif
 EndFunction
@@ -182,7 +179,7 @@ Function Init()
 EndFunction
 
 bool Function isInPlayerCell()
-	if Game.getPlayer().getParentCell() == getActor().getParentCell()
+	if UDmain.Player.getParentCell() == getActor().getParentCell()
 		return true
 	else
 		return false
@@ -273,7 +270,7 @@ Function fix()
 		getActor().removeFromFaction(UDCDmain.MinigameFaction)
 		getActor().removeFromFaction(UDCDmain.BlockExpressionFaction)
 		
-		if getActor() == Game.getPlayer()
+		if UDmain.ActorIsPlayer(getActor())
 			Game.EnablePlayerControls()
 			Game.SetPlayerAiDriven(False)
 		else
@@ -1232,11 +1229,7 @@ bool Function hasFreeHands(bool checkGrasp = false)
 EndFunction
 
 bool Function isPlayer()
-	if (getActorReference()) == Game.getPlayer()
-		return true
-	else
-		return false
-	endif
+	return UDmain.ActorIsPlayer(GetActor())
 EndFunction
 
 bool Function isUsed()

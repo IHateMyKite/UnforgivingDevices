@@ -57,12 +57,12 @@ float[] loc_expression
 Event OnEffectStart(Actor akTarget, Actor akCaster)
 	akActor = akTarget
 	akActor.AddToFaction(UDOM.OrgasmCheckLoopFaction)
-	if UDCDmain.TraceAllowed() && ActorIsPlayer(akActor)
+	if UDCDmain.TraceAllowed() && UDmain.ActorIsPlayer(akActor)
 		UDCDmain.Log("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - OnEffectStart()",2)
 	endif
 	_MagickEffect = GetBaseObject()
 	loc_expression = UDEM.GetPrebuildExpression_Horny1()
-	if ActorIsPlayer(akActor)
+	if UDmain.ActorIsPlayer(akActor)
 		loc_currentUpdateTime = UDOM.UD_OrgasmUpdateTime
 	else
 		loc_currentUpdateTime = 1.0
@@ -98,7 +98,7 @@ EndEvent
 
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
 	_finished = true
-	if UDCDmain.TraceAllowed() && ActorIsPlayer(akActor)
+	if UDCDmain.TraceAllowed() && UDmain.ActorIsPlayer(akActor)
 		UDCDmain.Log("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - OnEffectFinish()",1)
 	endif
 	;stop moan sound
@@ -208,7 +208,7 @@ Event OnUpdate()
 			
 			if loc_tick * loc_currentUpdateTime >= 1.0
 				loc_orgasmRate2 = loc_orgasmRate
-				if ActorIsPlayer(akActor)
+				if UDmain.ActorIsPlayer(akActor)
 					loc_currentUpdateTime = UDOM.UD_OrgasmUpdateTime
 				endif
 				
@@ -288,7 +288,7 @@ Event OnUpdate()
 					endif
 				endif
 				
-				if UDOM.UD_UseOrgasmWidget && ActorIsPlayer(akActor)
+				if UDOM.UD_UseOrgasmWidget && UDmain.ActorIsPlayer(akActor)
 					if (loc_widgetShown && loc_orgasmProgress < 2.5) ;|| (loc_widgetShown)
 						UDCDMain.toggleWidget2(false)
 						loc_widgetShown = false
@@ -309,7 +309,7 @@ Event OnUpdate()
 			loc_tick += 1
 			
 			if IsRunning()
-				if ActorIsPlayer(akActor)
+				if UDmain.ActorIsPlayer(akActor)
 					loc_currentUpdateTime = UDOM.UD_OrgasmUpdateTime
 				else
 					loc_currentUpdateTime = 1.0

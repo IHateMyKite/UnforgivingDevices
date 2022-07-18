@@ -230,7 +230,7 @@ Function equipAbadonSimpleSuit(Actor target)
 		
 		if (!target.WornhasKeyword(libs.zad_DeviousGag))
 			int loc_rand = 1;Utility.randomInt(1,2)
-			if ActorIsPlayer(target) ;panel gag is only for player, as its buggy for NPCs
+			if GActorIsPlayer(target) ;panel gag is only for player, as its buggy for NPCs
 				loc_rand = Utility.randomInt(1,2)
 			endif
 			if loc_rand == 1
@@ -301,7 +301,7 @@ Function equipAbadonYokeSuit(Actor target)
 		
 		if (!target.WornhasKeyword(libs.zad_DeviousGag))
 			int loc_rand;Utility.randomInt(1,2)
-			if ActorIsPlayer(target) ;panel gag is only for player, as its buggy for NPCs
+			if GActorIsPlayer(target) ;panel gag is only for player, as its buggy for NPCs
 				loc_rand = Utility.randomInt(1,3)
 			else
 				loc_rand = Utility.randomInt(1,2)

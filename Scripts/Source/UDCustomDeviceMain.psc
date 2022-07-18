@@ -201,7 +201,7 @@ Function Update()
 	
 	UDPP.RegisterEvents()
 	
-	CheckHardcoreDisabler(Game.getPlayer())
+	CheckHardcoreDisabler(UDmain.Player)
 	
 	SetArousalPerks()
 	
@@ -403,24 +403,12 @@ Function EnableActor(Actor akActor,bool bBussy = false)
 	endif
 	;akActor.DispelSpell(UDlibs.MinigameDisableSpell)
 	EndMinigameDisable(akActor)
-	;/
-	if akActor == Game.getPlayer()
-		if !akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW)
-			Game.EnablePlayerControls()
-		else
-			Game.EnablePlayerControls(abMenu = false)
-		endif
-		Game.SetPlayerAiDriven(False)
-	else
-		akActor.SetDontMove(False)
-	endif
-	/;
 EndFunction
 
 Function StartMinigameDisable(Actor akActor)
 	akActor.AddToFaction(BussyFaction)
 
-	if akActor == Game.getPlayer()
+	if UDmain.ActorIsPlayer(akActor)
 		if !akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW)
 			Game.EnablePlayerControls(abMovement = False)
 		endif
@@ -434,7 +422,7 @@ EndFunction
 
 Function UpdateMinigameDisable(Actor akActor)
 	if akActor.IsInFaction(BussyFaction)
-		if akActor == Game.getPlayer()
+		if UDmain.ActorIsPlayer(akActor)
 			if !akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW)
 				Game.EnablePlayerControls(abMovement = False)
 			endif
@@ -448,7 +436,7 @@ EndFunction
 
 Function EndMinigameDisable(Actor akActor)
 	akActor.RemoveFromFaction(BussyFaction)
-	if akActor == Game.getPlayer()
+	if UDmain.ActorIsPlayer(akActor)
 		if !akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW)
 			Game.EnablePlayerControls(abMovement = False)
 		endif
@@ -467,7 +455,7 @@ bool Function InZadAnimation(Actor akActor)
 EndFunction
 
 Function CheckHardcoreDisabler(Actor akActor)
-	if UD_HardcoreMode && ActorIsPlayer(akActor)
+	if UD_HardcoreMode && UDmain.ActorIsPlayer(akActor)
 		if akActor.wornhaskeyword(libs.zad_deviousHeavyBondage) && !akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW)
 			UDlibs.HardcoreDisableSpell.cast(akActor)
 		endif
@@ -479,6 +467,10 @@ bool Function actorInMinigame(Actor akActor)
 		return false
 	endif
 	return akActor.IsInFaction(MinigameFaction)
+EndFunction
+
+bool Function PlayerInMinigame()
+	return UDmain.Player.IsInFaction(MinigameFaction)
 EndFunction
 
 Function StopMinigame(Actor akActor)
@@ -584,37 +576,24 @@ bool Property WHMenuOpened = false auto hidden
 int Property GiftMenuMode = 0 auto hidden
 Function openNPCLockMenu(Actor akTarget)
 	GiftMenuMode = 1
-	;StorageUtil.SetIntValue(akTarget, "UD_blockZad" + deviceInventory, 1)
-	;StorageUtil.SetIntValue(Game.getPlayer(), "UD_blockZad" + deviceInventory, 1)
 	akTarget.ShowGiftMenu(True, UDlibs.GiftMenuFilter,True,False)
-	;StorageUtil.UnSetIntValue(akTarget, "UD_blockZad" + deviceInventory)
-	;StorageUtil.UnSetIntValue(Game.getPlayer(), "UD_blockZad" + deviceInventory)
 EndFunction
 
 
 Function openPlayerHelpMenu(Actor akHelper)
 	GiftMenuMode = 2
-	;StorageUtil.SetIntValue(akHelper, "UD_blockZad" + deviceInventory, 1)
-	;StorageUtil.SetIntValue(Game.getPlayer(), "UD_blockZad" + deviceInventory, 1)
 	akHelper.ShowGiftMenu(True, UDlibs.GiftMenuFilter,True,False)
-	;StorageUtil.UnSetIntValue(akHelper, "UD_blockZad" + deviceInventory)
-	;StorageUtil.UnSetIntValue(Game.getPlayer(), "UD_blockZad" + deviceInventory)
 EndFunction
 
 
 Function openNPCHelpMenu(Actor akTarget)
 	GiftMenuMode = 3
-	;StorageUtil.SetIntValue(akTarget, "UD_blockZad" + deviceInventory, 1)
-	;StorageUtil.SetIntValue(Game.getPlayer(), "UD_blockZad" + deviceInventory, 1)
 	akTarget.ShowGiftMenu(False, UDlibs.GiftMenuFilter,True,False)
-	;StorageUtil.UnSetIntValue(akTarget, "UD_blockZad" + deviceInventory)
-	;StorageUtil.UnSetIntValue(Game.getPlayer(), "UD_blockZad" + deviceInventory)
 EndFunction
 
 
 UD_CustomDevice_RenderScript Property lastOpenedDevice = none auto hidden
 UD_CustomDevice_RenderScript _oCurrentPlayerMinigameDevice = none
-;UD_CustomDevice_RenderScript _oCurrentPlayerHelpedDevice = none
 
 Function setCurrentMinigameDevice(UD_CustomDevice_RenderScript oref)
 	_oCurrentPlayerMinigameDevice = oref
@@ -630,14 +609,14 @@ EndFunction
 
 ;returns number of devices that can be activated
 bool Function isRegistered(Actor akActor)
-	if ActorIsPlayer(akActor)
+	if UDmain.ActorIsPlayer(akActor)
 		return true
 	endif
 	return akActor.isInFaction(RegisteredNPCFaction);UDCD_NPCM.isRegistered(akActor)
 EndFunction
 
 UD_CustomDevice_NPCSlot Function getNPCSlot(Actor akActor)
-	if ActorIsPlayer(akActor)
+	if UDmain.ActorIsPlayer(akActor)
 		return UD_PlayerSlot ;faster acces
 	endif
 	if isRegistered(akActor)
@@ -999,12 +978,12 @@ float Function getMendDifficultyModifier()
 	
 	return res
 EndFunction
-bool started = false
+
 Function startScript(UD_CustomDevice_RenderScript oref)
 	if TraceAllowed()	
 		Log("UDCustomDeviceMain startScript() called for " + oref.getDeviceHeader(),1)
 	endif
-	if oref.getWearer() == Game.getPlayer() 
+	if oref.WearerIsPlayer()
 		registerDevice(oref)
 	elseif isRegistered(oref.getWearer())
 		registerDevice(oref)
@@ -1133,7 +1112,7 @@ Event onUpdate()
 		LoadConfig()
 		RegisterGlobalKeys()
 		if UDmain.DebugMod
-			Game.getPlayer().addItem(UDlibs.AbadonPlug,1)
+			UDmain.Player.addItem(UDlibs.AbadonPlug,1)
 		endif
 		LastUpdateTime = Utility.GetCurrentGameTime()
 		LastUpdateTime_Hour = Utility.GetCurrentGameTime()
@@ -1230,7 +1209,7 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
 			return	
 		elseif strArg == "NPC"
 			if Utility.randomInt() > 30 ;npc reacted
-				float randomResponceTime = Utility.randomFloat(0.4,0.85) ;random reaction time
+				float randomResponceTime = Utility.randomFloat(0.4,0.95) ;random reaction time
 				if randomResponceTime <= difficulty
 					device.critDevice() ;succes
 				else
@@ -1245,7 +1224,7 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
 		
 		if (selected_crit_meter == "S")
 			if UD_CritEffect == 2 || UD_CritEffect == 1
-				UDlibs.GreenCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
+				UDlibs.GreenCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player)
 				Utility.wait(0.3)
 			endif
 			if UD_CritEffect == 2 || UD_CritEffect == 0
@@ -1253,7 +1232,7 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
 			endif
 		elseif (selected_crit_meter == "M")
 			if UD_CritEffect == 2 || UD_CritEffect == 1
-				UDlibs.BlueCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
+				UDlibs.BlueCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player)
 				Utility.wait(0.3)
 			endif
 			if UD_CritEffect == 2 || UD_CritEffect == 0
@@ -1261,11 +1240,10 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
 			endif
 		elseif (selected_crit_meter == "R")
 			if UD_CritEffect == 2 || UD_CritEffect == 1
-				UDlibs.RedCrit.RemoteCast(Game.GetPlayer(),Game.GetPlayer(),Game.GetPlayer())
+				UDlibs.RedCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player)
 				Utility.wait(0.3)
 			endif
 		endif
-		;UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.FlashShoutMeter")
 		
 		Utility.wait(difficulty)
 		crit = False
@@ -1296,32 +1274,26 @@ int _SpecialButton_Bonus = 0 ;how much times was special button pressed while it
 bool _specialButtonOn = false
 State Minigame
 	Event OnKeyDown(Int KeyCode)
-		bool _crit = crit ;help variable to reduce lag
+		;help variables to reduce lag
+		bool 	_crit 					= crit 
+		string 	_selected_crit_meter 	= selected_crit_meter
+		
+		;/
 		if _SpeacialButtonMutex
 			if KeyCode == SpecialKey_Keycode
 				_SpecialButton_Bonus += 1
 				return ;too much thread, remove new ones
 			endif
 		endif
+		/;
 		bool loc_menuopen = UDmain.IsMenuOpen()
 		if !loc_menuopen ;only if player is not in menu
 			if TraceAllowed()		
 				Log("OnKeyDown(), Keycode: " + KeyCode,3)
 			endif
 			if _oCurrentPlayerMinigameDevice
-				if KeyCode == SpecialKey_Keycode
-					_specialButtonOn = true
-					if _oCurrentPlayerMinigameDevice
-						_SpeacialButtonMutex = true
-						int loc_mult = 1 + _SpecialButton_Bonus
-						_SpecialButton_Bonus = 0
-						_oCurrentPlayerMinigameDevice.SpecialButtonPressed(loc_mult)
-						_SpeacialButtonMutex = false
-					endif
-					return
-				endif
 				if (_crit) && !UD_AutoCrit
-					if selected_crit_meter == "S" && KeyCode == Stamina_meter_Keycode
+					if _selected_crit_meter == "S" && KeyCode == Stamina_meter_Keycode
 						crit = False
 						_crit = False
 						if TraceAllowed()					
@@ -1329,7 +1301,7 @@ State Minigame
 						endif
 						_oCurrentPlayerMinigameDevice.critDevice()
 						return
-					elseif selected_crit_meter == "M" && KeyCode == Magicka_meter_Keycode
+					elseif _selected_crit_meter == "M" && KeyCode == Magicka_meter_Keycode
 						crit = False
 						_crit = False
 						if TraceAllowed()					
@@ -1353,6 +1325,17 @@ State Minigame
 						crit = false
 						return 
 					endif
+				endif
+				if KeyCode == SpecialKey_Keycode
+					_specialButtonOn = true
+					if _oCurrentPlayerMinigameDevice
+						;_SpeacialButtonMutex = true
+						int loc_mult = 1 ;+ _SpecialButton_Bonus
+						;_SpecialButton_Bonus = 0
+						_oCurrentPlayerMinigameDevice.SpecialButtonPressed(loc_mult)
+						;_SpeacialButtonMutex = false
+					endif
+					return
 				endif
 				if KeyCode == ActionKey_Keycode
 					if _oCurrentPlayerMinigameDevice
@@ -1400,7 +1383,7 @@ Event OnKeyUp(Int KeyCode, Float HoldTime)
 					lastOpenedDevice.deviceMenu(new Bool[30])
 				elseif libs.playerRef.wornhaskeyword(libs.zad_deviousheavybondage)
 					if !lastOpenedDevice
-						lastOpenedDevice = getHeavyBondageDevice(Game.getPlayer())
+						lastOpenedDevice = getHeavyBondageDevice(UDmain.Player)
 					endif
 					lastOpenedDevice.deviceMenu(new Bool[30])
 				endif
@@ -1421,9 +1404,9 @@ Event OnKeyUp(Int KeyCode, Float HoldTime)
 						bool loc_actorisregistered = isRegistered(loc_actor)
 						if loc_actorisregistered
 							bool loc_actorisfollower = ActorIsFollower(loc_actor)
-							bool loc_actorishelpless = (!actorFreeHands(loc_actor) || loc_actor.getAV("paralysis") || loc_actor.GetSleepState() == 3) && actorFreeHands(Game.getPlayer())
+							bool loc_actorishelpless = (!actorFreeHands(loc_actor) || loc_actor.getAV("paralysis") || loc_actor.GetSleepState() == 3) && actorFreeHands(UDmain.Player)
 							if loc_actorisfollower || loc_actorishelpless
-								HelpNPC(loc_actor,Game.getPlayer(),loc_actorisfollower)
+								HelpNPC(loc_actor,UDmain.Player,loc_actorisfollower)
 							endif
 						endif
 					endif
@@ -1452,16 +1435,16 @@ Function NPCMenu(Actor akActor)
 	SetMessageAlias(akActor)
 	UD_CurrentNPCMenuIsFollower = ActorIsFollower(akActor)
 	UD_CurrentNPCMenuIsRegistered = isRegistered(akActor)
-	UD_CurrentNPCMenuTargetIsHelpless = (!actorFreeHands(akActor) || akActor.getAV("paralysis") || akActor.GetSleepState() == 3) && actorFreeHands(Game.getPlayer())
+	UD_CurrentNPCMenuTargetIsHelpless = (!actorFreeHands(akActor) || akActor.getAV("paralysis") || akActor.GetSleepState() == 3) && actorFreeHands(UDmain.Player)
 	int loc_res = NPCDebugMenuMsg.show()
 	if loc_res == 0
 		UDCD_NPCM.RegisterNPC(akActor,true)
 	elseif loc_res == 1
 		UDCD_NPCM.UnregisterNPC(akActor,true)
 	elseif loc_res == 2 ;Acces devices
-		HelpNPC(akActor,Game.getPlayer(),ActorIsFollower(akActor))
+		HelpNPC(akActor,UDmain.Player,ActorIsFollower(akActor))
 	elseif loc_res == 3 ; get help
-		HelpNPC(Game.getPlayer(),akActor,false)
+		HelpNPC(UDmain.Player,akActor,false)
 	elseif loc_res == 4
 		UndressArmor(akActor)
 		akActor.UpdateWeight(0)
@@ -1585,13 +1568,13 @@ EndFunction
 Function PlayerMenu()
 	int loc_playerMenuRes = PlayerMenuMsg.show()
 	if loc_playerMenuRes == 0
-		UDOM.FocusOrgasmResistMinigame(Game.getPlayer())
+		UDOM.FocusOrgasmResistMinigame(UDmain.Player)
 	elseif loc_playerMenuRes == 1
-		UndressArmor(Game.getPlayer())
+		UndressArmor(UDmain.Player)
 	elseif loc_playerMenuRes == 2
-		showActorDetails(Game.getPlayer())
+		showActorDetails(UDmain.Player)
 	elseif loc_playerMenuRes == 3
-		DebugFunction(Game.getPlayer())
+		DebugFunction(UDmain.Player)
 	else
 		return
 	endif
@@ -1649,7 +1632,7 @@ bool Function CheckRenderDeviceEquipped(Actor akActor, Armor rendDevice)
 	if !akActor
 		return false
 	endif
-	if ActorIsPlayer(akActor)
+	if UDmain.ActorIsPlayer(akActor)
 		return akActor.isEquipped(rendDevice) ;works fine for player, use this as its faster
 	endif
 	int loc_mask = 0x00000001
@@ -1878,8 +1861,8 @@ string Function GetHelperDetails(Actor akActor)
 	loc_res += "Helper LVL: " + GetHelperLVL(akActor) +"("+Round(GetHelperLVLProgress(akActor)*100)+"%)" + "\n"
 	loc_res += "Base Cooldown: " + Round(CalculateHelperCD(akActor)*24*60) + " min\n"
 	float loc_currenttime = Utility.GetCurrentGameTime()
-	float loc_cooldowntimeHP = StorageUtil.GetFloatValue(akActor,"UDNPCCD:"+Game.getPlayer(),loc_currenttime)
-	float loc_cooldowntimePH = StorageUtil.GetFloatValue(Game.getPlayer(),"UDNPCCD:"+akActor,loc_currenttime)
+	float loc_cooldowntimeHP = StorageUtil.GetFloatValue(akActor,"UDNPCCD:"+UDmain.Player,loc_currenttime)
+	float loc_cooldowntimePH = StorageUtil.GetFloatValue(UDmain.Player,"UDNPCCD:"+akActor,loc_currenttime)
 	loc_res += "Avaible in (H->P): " + ToUnsig(Round(((loc_cooldowntimeHP - loc_currenttime)*24*60))) + " min\n"
 	loc_res += "Avaible in (P->H): " + ToUnsig(Round(((loc_cooldowntimePH - loc_currenttime)*24*60))) + " min\n"
 	return loc_res
@@ -2122,14 +2105,14 @@ Function startLockpickMinigame()
 	;setScriptState(_oCurrentPlayerMinigameDevice.getWearer(),3)
 	LockpickMinigameOver = false
 	
-	lockpicknum = Game.getPlayer().GetItemCount(Lockpick)
+	lockpicknum = UDmain.Player.GetItemCount(Lockpick)
 	
 	if lockpicknum >= UD_LockpicksPerMinigame
 		usedLockpicks = UD_LockpicksPerMinigame
 	else
 		usedLockpicks = lockpicknum
 	endif
-	Game.getPlayer().RemoveItem(Lockpick, lockpicknum - usedLockpicks, True)
+	UDmain.Player.RemoveItem(Lockpick, lockpicknum - usedLockpicks, True)
 	if TraceAllowed()	
 		Log("Lockpick minigame opened, lockpicks before: "+lockpicknum+" ;lockpicks taken: " + (lockpicknum - usedLockpicks) + " ;Lockpicks to use: "+ usedLockpicks,1)
 	endif
@@ -2137,7 +2120,7 @@ Function startLockpickMinigame()
 	if UDmain.ConsoleUtilInstalled
 		ConsoleUtil.ExecuteCommand("ToggleDetection")
 	endif
-	_LockPickContainer.activate(Game.getPlayer())
+	_LockPickContainer.activate(UDmain.Player)
 EndFunction
 
 ;detect when the lockpick minigame ends
@@ -2148,7 +2131,7 @@ Event OnMenuClose(String MenuName)
 		if UDmain.ConsoleUtilInstalled
 			ConsoleUtil.ExecuteCommand("ToggleDetection")
 		endif
-		int remainingLockpicks = Game.getPlayer().GetItemCount(Lockpick)
+		int remainingLockpicks = UDmain.Player.GetItemCount(Lockpick)
 		
 		if remainingLockpicks > 0
 			if !_LockPickContainer.IsLocked()
@@ -2164,7 +2147,7 @@ Event OnMenuClose(String MenuName)
 		if TraceAllowed()		
 			Log("Lockpick minigame closed, lockpicks returned: " + (lockpicknum - usedLockpicks) + " ; Result: " + LockpickMinigameResult,1)
 		endif
-		Game.getPlayer().AddItem(Lockpick, lockpicknum - usedLockpicks, True)
+		UDmain.Player.AddItem(Lockpick, lockpicknum - usedLockpicks, True)
 		UnregisterForAllMenus()
 		LockpickMinigameOver = True
 	endif
@@ -2346,7 +2329,7 @@ UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armo
 	TransfereContainer_ObjRef.removeItem(deviceRendered,1,True,akActor)
 	akActor.equipItem(deviceRendered,True,True)
 	float loc_time = 0.0
-	bool loc_isplayer = ActorIsPlayer(akActor)
+	bool loc_isplayer = UDmain.ActorIsPlayer(akActor)
 
 	while !_transferedDevice && loc_time <= 4.0
 		Utility.waitMenuMode(0.05)
@@ -2784,20 +2767,20 @@ Function updateHUDBars(int flashCall,int stamina,int health,int magicka)
 	
 	if stamina
 	;if (WearerIsPlayer() || HelperIsPlayer()) && (UD_minigame_stamina_drain != 0.0 || UD_minigame_stamina_drain_helper != 0)
-		Game.getPlayer().damageAV("Stamina",  0.1)
-		Game.getPlayer().restoreAV("Stamina",  0.1)
+		UDmain.Player.damageAV("Stamina",  0.1)
+		UDmain.Player.restoreAV("Stamina",  0.1)
 	endif
 	
 	if health
 	;if (WearerIsPlayer() || HelperIsPlayer()) && (UD_minigame_heal_drain != 0.0 || UD_minigame_heal_drain_helper != 0.0)
-		Game.getPlayer().damageAV("Health",  0.1)
-		Game.getPlayer().restoreAV("Health",  0.1)
+		UDmain.Player.damageAV("Health",  0.1)
+		UDmain.Player.restoreAV("Health",  0.1)
 	endif
 	
 	if magicka
 	;if (WearerIsPlayer() || HelperIsPlayer()) &&  (UD_minigame_magicka_drain != 0.0 || UD_minigame_magicka_drain_helper != 0)
-		Game.getPlayer().damageAV("Magicka",  0.1)
-		Game.getPlayer().restoreAV("Magicka",  0.1)
+		UDmain.Player.damageAV("Magicka",  0.1)
+		UDmain.Player.restoreAV("Magicka",  0.1)
 	endif
 EndFunction
 

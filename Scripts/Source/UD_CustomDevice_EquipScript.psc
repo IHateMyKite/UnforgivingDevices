@@ -127,12 +127,12 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 						StorageUtil.UnSetIntValue(giver, "UD_ignoreEvent" + deviceInventory)
 						StorageUtil.UnSetIntValue(target, "UD_ignoreEvent" + deviceInventory)
 						return
-					elseif target != Game.getPlayer() && !target.getItemCount(deviceRendered)
+					elseif !UDmain.ActorIsPlayer(target) && !target.getItemCount(deviceRendered)
 						if UDCDmain.TraceAllowed()						
 							UDCDmain.Log("OnContainerChanged - Locking device " + deviceInventory.getName() + " to "+ target.getActorBase().getName(),1)
 						endif
 						if UDmain.ActorIsValidForUD(target)
-							if ActorIsPlayer(giver)
+							if UDmain.ActorIsPlayer(giver)
 								if !EquipDeviceMenu(target)
 									UDmain.Print("You put and lock " + getDeviceName() + " on " + GetActorName(target))
 								else
@@ -261,7 +261,7 @@ Event OnUnequipped(Actor akActor)
 		UDCDmain.Log("OnUnequipped("+MakeDeviceHeader(akActor,deviceInventory)+") - called",3)
 	endif
 
-	if UDmain.IsContainerMenuOpen() && akActor == Game.getPlayer()
+	if UDmain.IsContainerMenuOpen() && UDmain.ActorIsPlayer(akActor)
 		if UDCDmain.TraceAllowed()		
 			UDCDmain.Log("OnUnequipped("+MakeDeviceHeader(akActor,deviceInventory)+") - aborted because of opened menu",3)
 		endif
@@ -284,18 +284,18 @@ EndEvent
 ;device menu that pops up when Wearer click on this device in inventory
 Function DeviceMenu(Int msgChoice = 0)
 	if UDCDmain.TraceAllowed()	
-		UDCDmain.Log("DeviceMenu("+MakeDeviceHeader(Game.getPlayer(),deviceInventory)+")",1)
+		UDCDmain.Log("DeviceMenu("+MakeDeviceHeader(UDmain.Player,deviceInventory)+")",1)
 	endif
 	
 	if !deviceRendered.haskeyword(UDCDmain.UDlibs.UnforgivingDevice)
 		parent.deviceMenu() ;not patched device
 		return
 	endif
-	UD_CustomDevice_RenderScript device = UDCDmain.getDeviceByInventory(Game.getPlayer(),deviceInventory)
+	UD_CustomDevice_RenderScript device = UDCDmain.getDeviceByInventory(UDmain.Player,deviceInventory)
 	if device
-		UDCDmain.getDeviceByInventory(Game.getPlayer(),deviceInventory).DeviceMenu(new Bool[30])
+		UDCDmain.getDeviceByInventory(UDmain.Player,deviceInventory).DeviceMenu(new Bool[30])
 	else
-		UDCDmain.getDeviceScriptByRender(Game.getPlayer(),deviceRendered).DeviceMenu(new Bool[30])
+		UDCDmain.getDeviceScriptByRender(UDmain.Player,deviceRendered).DeviceMenu(new Bool[30])
 	endif
 EndFunction
 
@@ -646,14 +646,18 @@ Event LockDevice(Actor akActor)
 	
 	bool prelock_fail = false
 	if akActor.GetItemCount(deviceRendered) > 0	
-		UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - item "+ deviceRendered +" is already in invetory. Aborting")		
+		if UDmain.UD_WarningAllowed
+			UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - item "+ deviceRendered +" is already in invetory. Aborting")		
+		endif
 		prelock_fail = true
 	EndIf
 	
 
 	if !prelock_fail
 		if akActor.GetItemCount(deviceRendered) == 0 && akActor.WornHasKeyword(zad_DeviousDevice) && CheckConflict(akActor)	
-			UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device type:" + zad_DeviousDevice)		
+			if UDmain.UD_WarningAllowed
+				UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device type:" + zad_DeviousDevice)		
+			endif
 			StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
 			akActor.UnequipItem(deviceInventory, false, true)	
 			prelock_fail = true
@@ -665,7 +669,9 @@ Event LockDevice(Actor akActor)
 	; check for device conflicts
 	if !prelock_fail
 		If !silently && (IsEquipDeviceConflict(akActor) || IsEquipRequiredDeviceConflict(akActor))	
-			UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device, aborting")
+			if UDmain.UD_WarningAllowed
+				UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device, aborting")
+			endif
 			StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
 			akActor.UnequipItem(deviceInventory, false, true)	
 			prelock_fail = true
@@ -673,7 +679,7 @@ Event LockDevice(Actor akActor)
 	endif	
 	
 	If !silently && !prelock_fail; && loc_lockDeviceType > 0; && !akActor.WornHasKeyword(zad_DeviousDevice) && akActor.GetItemCount(deviceRendered) == 0
-		if akActor == Game.getPlayer();loc_lockDeviceType == 1
+		if UDmain.ActorIsPlayer(akActor);loc_lockDeviceType == 1
 			if EquipDeviceMenu(akActor)
 				StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
 				akActor.UnequipItem(deviceInventory, false, true)
@@ -692,7 +698,9 @@ Event LockDevice(Actor akActor)
 				StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
 				akActor.UnequipItem(deviceInventory, false, true)
 			EndIf
-			UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Equip Filter activated : " + filter)
+			if UDmain.UD_WarningAllowed
+				UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Equip Filter activated : " + filter)
+			endif
 			prelock_fail = true
 		EndIf
 	endif
@@ -749,8 +757,8 @@ Event LockDevice(Actor akActor)
 			akActor.RemoveItem(deviceInventory,1,true)
 		endif
 		akActor.removeItem(DeviceRendered,1,true)
-		UDmain.Warning("LockDevice("+getDeviceName()+","+GetActorName(akActor)+") failed. Render device is not equipped - conflict")
-		if ActorIsPlayer(akActor)
+		UDmain.Error("LockDevice("+getDeviceName()+","+GetActorName(akActor)+") failed. Render device is not equipped - conflict")
+		if UDmain.ActorIsPlayer(akActor)
 			UDCDmain.Print(getDeviceName() + " can't be equipped because of device conflict")
 		elseif UDCDmain.UDmain.ActorInCloseRange(akActor)
 			UDCDmain.Print(MakeDeviceHeader(akActor,deviceInventory) + " can't be equipped because of device conflict")
@@ -796,14 +804,14 @@ Event LockDevice(Actor akActor)
 	libs.SendDeviceEquippedEvent(deviceName, akActor)
 	libs.SendDeviceEquippedEventVerbose(deviceInventory, zad_DeviousDevice, akActor)
 	
-	if ActorIsPlayer(akActor) && !akActor.IsOnMount() && UDmain.IsMenuOpen()
+	if UDmain.ActorIsPlayer(akActor) && !akActor.IsOnMount() && UDmain.IsMenuOpen()
 		; make it visible for the player in case the menu is open
 		akActor.QueueNiNodeUpdate()
-	elseif !ActorIsPlayer(akActor) && !akActor.IsOnMount() && deviceRendered.HasKeyword(libs.zad_DeviousHeavyBondage)
+	elseif !UDmain.ActorIsPlayer(akActor) && !akActor.IsOnMount() && deviceRendered.HasKeyword(libs.zad_DeviousHeavyBondage)
 		; prevent a bug with straitjackets and elbowbinders not hiding NPC hands when equipping these items.		
 		akActor.UpdateWeight(0)		
 	EndIf	
-	if !ActorIsPlayer(akActor) && (deviceRendered.HasKeyword(libs.zad_DeviousHeavyBondage) || deviceRendered.HasKeyword(libs.zad_DeviousHobbleSkirt))
+	if !UDmain.ActorIsPlayer(akActor) && (deviceRendered.HasKeyword(libs.zad_DeviousHeavyBondage) || deviceRendered.HasKeyword(libs.zad_DeviousHobbleSkirt))
 		libs.RepopulateNpcs()
 	EndIf	
 	
@@ -813,7 +821,7 @@ Event LockDevice(Actor akActor)
 	If TimedUnlock
 		SetLockTimer()
 	EndIf
-	if !ActorIsPlayer(akActor) && akActor.GetActorBase().IsUnique() && (deviceRendered.HasKeyword(libs.zad_DeviousSuit) || deviceRendered.HasKeyword(libs.zad_DeviousHeavyBondage))
+	if !UDmain.ActorIsPlayer(akActor) && akActor.GetActorBase().IsUnique() && (deviceRendered.HasKeyword(libs.zad_DeviousSuit) || deviceRendered.HasKeyword(libs.zad_DeviousHeavyBondage))
 		; We change the outfit only for unique actors because SetOutfit() seems to operate on the ActorBASE and not the actor, so changing a non-unique actors's gear would change it for ALL instances of this actor.
 		Outfit originalOutfit = akActor.GetActorBase().GetOutfit()
 		If originalOutfit != libs.zadEmptyOutfit
@@ -832,7 +840,7 @@ Function unlockDevice(Actor akActor)
 	StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,0x111)
 	if !akActor.getItemCount(deviceRendered)
 		loc_failure = true
-		if ActorIsPlayer(akActor)
+		if UDmain.ActorIsPlayer(akActor)
 			akActor.unequipItem(deviceInventory, 1, true)
 		endif
 	endif
@@ -994,5 +1002,5 @@ Function ShowDetails(Actor akActor)
 EndFunction
 
 bool Function ShouldEquipSilently(actor akActor)
-	return parent.ShouldEquipSilently(akActor) || (!UDCDmain.ActorIsFollower(akActor) && !ActorIsPlayer(akActor))
+	return parent.ShouldEquipSilently(akActor) || (!UDCDmain.ActorIsFollower(akActor) && !UDmain.ActorIsPlayer(akActor))
 EndFunction

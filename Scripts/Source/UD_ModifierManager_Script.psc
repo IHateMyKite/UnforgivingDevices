@@ -230,7 +230,7 @@ int Function ManifestDevices(Actor akActor,string strSource ,int iChance,int iNu
 	endif
 	if loc_array
 		if loc_array.length > 0
-			if actorisplayer(akActor)
+			if UDmain.ActorIsPlayer(akActor)
 				UDCDmain.Print(strSource + " suddenly locks you in bondage restraint!",1)
 				;/
 				string loc_str = "Devices locked: \n"

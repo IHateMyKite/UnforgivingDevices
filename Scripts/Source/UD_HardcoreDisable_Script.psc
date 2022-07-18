@@ -62,7 +62,7 @@ Event OnUpdate()
 		_target.DispelSpell(UDCDmain.UDlibs.HardcoreDisableSpell)
 	elseif _target.hasMagicEffect(_MagickEffect)
 		if _target.hasMagicEffect(_MagickEffect) && !_target.HasMagicEffectWithKeyword(UDCDmain.UDlibs.MinigameDisableEffect_KW)
-			if _target == Game.getPlayer()
+			if UDmain.ActorIsPlayer(_target)
 				if !_MenuKeyPressed; && !MenuIsOpen()
 					Game.DisablePlayerControls(abMovement = False,abFighting = false,abCamSwitch = false,abLooking = false, abSneaking = false, abMenu = true, abActivate = false, abJournalTabs = false)
 				endif
@@ -117,7 +117,7 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
 		Utility.waitMenuMode(0.01)
 	endwhile
 
-	if _target == Game.getPlayer()
+	if UDmain.ActorIsPlayer(akTarget)
 		Game.EnablePlayerControls()
 		Game.EnableFastTravel(true)
 	endif
@@ -143,7 +143,7 @@ Event OnKeyDown(Int KeyCode)
 			Game.EnablePlayerControls(abMovement = False,abFighting = false,abCamSwitch = false,abLooking = false, abSneaking = false, abMenu = true, abActivate = false, abJournalTabs = false)
 			Input.TapKey(_StatsKeyCode)
 		elseif KeyCode == _TweenMenuKeyCode
-			UDCDmain.getHeavyBondageDevice(Game.getPlayer()).deviceMenu(new Bool[30])
+			UDCDmain.getHeavyBondageDevice(UDmain.Player).deviceMenu(new Bool[30])
 		endif
 	endif
 EndEvent

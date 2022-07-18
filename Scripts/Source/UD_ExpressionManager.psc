@@ -68,6 +68,11 @@ Only exception is expression[30] whre it needs whole number in range 0-16
 
 
 UDCustomDeviceMain Property UDCDmain auto
+UnforgivingDevicesMain Property UDmain
+	UnforgivingDevicesMain Function get()
+		return UDCDmain.UDmain
+	EndFunction
+EndProperty
 zadlibs_UDPatch Property libsp
 	zadlibs_UDPatch Function get()
 		return UDCDmain.libsp
@@ -545,7 +550,7 @@ bool Function ResetExpressionRaw(actor akActor, int iPriority = 0)
 EndFunction
 
 Function ApplyGagEffect(actor akActor)	
-	if akActor.Is3DLoaded() || akActor == Game.getPlayer()
+	if akActor.Is3DLoaded() || UDmain.ActorIsPlayer(akActor)
 		while _ExpressionManip_Mutex
 			Utility.waitMenuMode(0.1)
 		endwhile

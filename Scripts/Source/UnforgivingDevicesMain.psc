@@ -6,6 +6,8 @@ zadxlibs property libsx auto
 zadxlibs2 property libsx2 auto
 Quest Property UD_UtilityQuest auto
 
+Actor Property Player auto hidden
+
 ;patched zadlibs
 zadlibs_UDPatch property libsp
 	zadlibs_UDPatch Function get()
@@ -47,12 +49,11 @@ UD_MenuChecker Property UDMC
 	EndFunction
 EndProperty
 
-bool property lockMCM = false auto
-bool property udequiped auto
-bool property DebugMod = False auto conditional
-bool Property AllowNPCSupport = False auto
-
-bool Property UD_DisableUpdate = false auto hidden conditional
+bool property lockMCM 				= False 	auto hidden
+bool property DebugMod 				= False 	auto hidden conditional
+bool Property AllowNPCSupport 		= False 	auto
+Bool Property UD_WarningAllowed 	= False		auto hidden
+bool Property UD_DisableUpdate 		= False 	auto hidden conditional
 
 ;zadlibs patch control
 bool Property UD_zadlibs_ParalelProccesing = false auto
@@ -161,6 +162,8 @@ Event OnInit()
 		UD_baseUpdateTime = UD_LowPerformanceTime
 	endif
 	
+	Player = Game.GetPlayer()
+	
 	CheckOptionalMods()
 	
 	if TraceAllowed()	
@@ -212,6 +215,11 @@ Event OnUpdate()
 EndEvent
 
 Function Update()
+	if !Player
+		CLog("Detected that Player ref is not ready. Setting variable")
+		Player = Game.GetPlayer()
+	endif
+	
 	if !UDOM
 		Error("UDOM not loaded! Loading...")
 		UDOM = GetMeMyForm(0x15B532,"UnforgivingDevices.esp") as UD_OrgasmManager
@@ -328,12 +336,8 @@ Function addOrgasmExhaustion(Actor akActor)
 EndFunction
 
 bool function hasAnyUD()
-	return Game.getPlayer().wornhaskeyword(libs.zad_Lockable)
+	return Player.wornhaskeyword(libs.zad_Lockable)
 endfunction
-
-Function updateEquipedUD()
-	udequiped = Game.getPlayer().wornhaskeyword(UDlibs.UnforgivingDevice)
-EndFunction
 
 ;vib function queue
 Function startVibEffect(Actor akActor,int strength,int duration,bool edge)
@@ -447,13 +451,14 @@ bool Function ActorInCloseRange(Actor akActor)
 	if ActorIsPlayer(akActor)
 		return true
 	endif
-	float loc_distance = CalcDistance(Game.GetPlayer(),akActor)
+	float loc_distance = CalcDistance(Player,akActor)
 	return (loc_distance >= 0 && loc_distance < UD_HearingRange)
 EndFunction
 
 bool Function TraceAllowed()
 	return (LogLevel > 0)
 EndFunction
+
 
 
 ;=======================================================================
@@ -493,8 +498,12 @@ float Function CalcDistance(ObjectReference obj1,ObjectReference obj2) global
 	endif
 EndFunction
 
-bool Function ActorIsPlayer(Actor akActor) global
+bool Function GActorIsPlayer(Actor akActor) global
 	return akActor == Game.getPlayer()
+EndFunction
+
+bool Function ActorIsPlayer(Actor akActor)
+	return akActor == Player
 EndFunction
 
 string Function GetActorName(Actor akActor) global

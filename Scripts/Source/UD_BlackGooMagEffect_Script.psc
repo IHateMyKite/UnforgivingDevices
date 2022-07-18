@@ -31,7 +31,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 					libs.LockDevice(akTarget,UDlibs.RogueBinder)
 				endif
 			endif
-			if ActorIsPlayer(akTarget)
+			if GActorIsPlayer(akTarget)
 				ShowMessageBox("Black goo covers your body and tie your hands while changing shape to RARE bondage restraint!")
 			endif
 		else
@@ -56,7 +56,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 					libs.LockDevice(akTarget,UDlibs.AbadonWeakYoke)
 				endif
 			endif
-			if ActorIsPlayer(akTarget)
+			if GActorIsPlayer(akTarget)
 				ShowMessageBox("Black goo covers your body and tie your hands while changing shape to bondage restraint!")
 			endif
 		endif

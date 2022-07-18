@@ -137,7 +137,7 @@ Function resetNPCFSlots()
 EndFunction
 
 bool Function isInPlayerCell(Actor akActor)
-	if Game.getPlayer().getParentCell() == akActor.getParentCell()
+	if UDmain.Player.getParentCell() == akActor.getParentCell()
 		return true
 	else
 		return false
@@ -145,9 +145,9 @@ bool Function isInPlayerCell(Actor akActor)
 EndFunction
 
 Function initPlayerSlot()
-	getPlayerSlot().ForceRefTo(Game.GetPlayer())
-	UDOM.CheckOrgasmCheck(Game.GetPlayer())
-	UDOM.CheckArousalCheck(Game.getPlayer())
+	getPlayerSlot().ForceRefTo(UDmain.Player)
+	UDOM.CheckOrgasmCheck(UDmain.Player)
+	UDOM.CheckArousalCheck(UDmain.Player)
 	if UDCDmain.TraceAllowed()	
 		UDCDMain.Log("PlayerSlot ready!")
 	endif
@@ -248,7 +248,7 @@ Function regainDeviceSlots(Form akActor, int slotID,String sSlotedActorName)
 EndFunction
 
 UD_CustomDevice_NPCSlot Function getNPCSlotByActor(Actor akActor)
-	if akActor == Game.getPlayer()
+	if akActor == UDmain.Player
 		return getPlayerSlot()
 	endif
 	int index = UD_Slots
@@ -270,22 +270,7 @@ int Function getNumSlots()
 EndFunction
 
 bool Function isRegistered(Actor akActor)
-	;if akActor == Game.getPlayer()
-	;	return True
-	;endif
 	return akActor.isInFaction(UDCDmain.RegisteredNPCFaction)
-	;/
-	int index = UD_Slots
-	;debug.trace("Alias num: " + index)
-	while index
-		index -= 1
-		;debug.trace("Comparing: " + (GetNthAlias(index) as ReferenceAlias).GetActorReference() + " == " + akActor)
-		if (GetNthAlias(index) as ReferenceAlias).GetActorReference() == akActor
-			return True
-		endif
-	endwhile
-	return False
-	/;
 EndFunction
 
 UD_CustomDevice_NPCSlot Function getNPCSlotByName(string sName)
@@ -293,7 +278,7 @@ UD_CustomDevice_NPCSlot Function getNPCSlotByName(string sName)
 EndFunction
 
 UD_CustomDevice_NPCSlot Function getNPCSlotByActorName(string sName)
-	if sName == Game.getPlayer().getLeveledActorBase().getName()
+	if sName == UDmain.Player.getLeveledActorBase().getName()
 		return getPlayerSlot()
 	endif
 	int index = UD_Slots
