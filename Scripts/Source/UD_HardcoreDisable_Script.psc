@@ -22,7 +22,7 @@ bool loc_GameMenuOpen = false
 
 Event OnEffectStart(Actor akTarget, Actor akCaster)
 	_target = akTarget
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("hardcore disabler started for " + _target +"!",2)
 	endif
 	_MagickEffect = GetBaseObject()
@@ -109,7 +109,7 @@ Event OnUpdate()
 EndEvent
 
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("Minigame disabler OnEffectFinish() for " + _target,2)
 	endif
 	;wait for onUpdate function to finish if it started
@@ -125,7 +125,7 @@ EndEvent
 
 Event OnKeyDown(Int KeyCode)
 	if !UDMain.IsMenuOpen()
-		if UDCDmain.TraceAllowed()
+		if UDmain.TraceAllowed()
 			UDCDmain.Log("UD_HardcoreDisable_Script - OnKeyDown for " + KeyCode,3)
 		endif
 		If KeyCode == _MapKeyCode
@@ -150,7 +150,7 @@ EndEvent
 
 
 Event OnMenuOpen(String MenuName)
-	if UDCDmain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDCDmain.Log("UD_HardcoreDisable_Script - OnMenuOpen for " + MenuName,3)
 	endif
 	If MenuName == "MapMenu"
@@ -161,7 +161,7 @@ Event OnMenuOpen(String MenuName)
 EndEvent
 
 Event OnMenuClose(String MenuName)
-	if UDCDmain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDCDmain.Log("UD_HardcoreDisable_Script - OnMenuClose for " + MenuName,3)
 	endif
 	If MenuName == "MapMenu"
@@ -188,7 +188,7 @@ Function CheckMapKey()
 		UnRegisterForKey(_MapKeyCode)
 		_MapKeyCode = MapKeyCode
 		RegisterForKey(_MapKeyCode)
-		if UDCDmain.TraceAllowed()
+		if UDmain.TraceAllowed()
 			UDCDmain.Log("UD_HardcoreDisable_Script - Remaping keycode for map menu",1)
 		endif
 	endif
@@ -200,7 +200,7 @@ Function CheckStatsKey()
 		UnRegisterForKey(_StatsKeyCode)
 		_StatsKeyCode = StatsMenu
 		RegisterForKey(_StatsKeyCode)
-		if UDCDmain.TraceAllowed()
+		if UDmain.TraceAllowed()
 			UDCDmain.Log("UD_HardcoreDisable_Script - Remaping keycode for Quick Map menu",1)
 		endif
 	endif
@@ -212,7 +212,7 @@ Function CheckTweenKey()
 		UnRegisterForKey(_TweenMenuKeyCode)
 		_TweenMenuKeyCode = TweenMenu
 		RegisterForKey(_TweenMenuKeyCode)
-		if UDCDmain.TraceAllowed()
+		if UDmain.TraceAllowed()
 			UDCDmain.Log("UD_HardcoreDisable_Script - Remaping keycode for Tween menu",1)
 		endif
 	endif

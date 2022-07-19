@@ -87,7 +87,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 	endif
 	if UDCDmain
 		if target && giver
-			if UDCDmain.TraceAllowed()			
+			if UDmain.TraceAllowed()			
 				UDCDmain.Log(" Device " + deviceInventory.getName() + " moved from " + giver.getActorBase().getName() + " to " + target.getActorBase().getName(),3)
 			endif
 		endif
@@ -98,14 +98,14 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 		endif
 		
 		if akNewContainer == UDCDmain.EventContainer_ObjRef && giver
-			if UDCDmain.TraceAllowed()			
+			if UDmain.TraceAllowed()			
 				UDCDmain.Log(" Device " + deviceInventory.getName() + " send to Event Container! Waiting for device to return to inventory!",3)
 			endif
 			while !deviceReturned
 				Utility.WaitMenuMode(0.05)
 			endwhile
 			deviceReturned = False
-			if UDCDmain.TraceAllowed()			
+			if UDmain.TraceAllowed()			
 				UDCDmain.Log(" Device regained! Starting unlock operatios!",1)
 			endif
 			unlockDevice(giver)
@@ -116,7 +116,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 			if target && giver
 				if !target.isDead() && !giver.isDead()
 					if giver.getItemCount(deviceRendered)
-						if UDCDmain.TraceAllowed()						
+						if UDmain.TraceAllowed()						
 							UDCDmain.Log(" Opening device menu for " + deviceInventory.getName() + " on "+ giver.getActorBase().getName() +" , helper:  " + target.getActorBase().getName(),1)
 						endif
 						StorageUtil.SetIntValue(giver, "UD_ignoreEvent" + deviceInventory, 0x111)
@@ -128,7 +128,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 						StorageUtil.UnSetIntValue(target, "UD_ignoreEvent" + deviceInventory)
 						return
 					elseif !UDmain.ActorIsPlayer(target) && !target.getItemCount(deviceRendered)
-						if UDCDmain.TraceAllowed()						
+						if UDmain.TraceAllowed()						
 							UDCDmain.Log("OnContainerChanged - Locking device " + deviceInventory.getName() + " to "+ target.getActorBase().getName(),1)
 						endif
 						if UDmain.ActorIsValidForUD(target)
@@ -149,7 +149,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 					endif
 				else
 					if giver.getItemCount(deviceRendered); && DestroyOnRemove
-						if UDCDmain.TraceAllowed()						
+						if UDmain.TraceAllowed()						
 							UDCDmain.Log("Removing device from dead actor " + deviceInventory.getName() + " on "+ giver.getActorBase().getName(),1)
 						endif
 						UD_CustomDevice_RenderScript device = getUDScript(giver)
@@ -162,7 +162,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 							return
 						endif
 					else
-						if UDCDmain.TraceAllowed()						
+						if UDmain.TraceAllowed()						
 							UDCDmain.Log("Removing ID device" + deviceInventory.getName() + " on "+ giver.getActorBase().getName(),1)
 						endif
 						;do nothing, no need to make thinks complicated
@@ -180,7 +180,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 EndEvent
 
 Function openWHMenu(Actor akTarget,Actor akSource)
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log(" NPC menu opened for " + deviceInventory.getName() + " (" + akTarget.getActorBase().getName() + ") by " + akSource.getActorBase().getName(),1)
 	endif
 	UDCDMain.OpenHelpDeviceMenu(getUDScript(akTarget),akSource,UDCDmain.ActorIsFollower(akSource))
@@ -205,7 +205,7 @@ Function OnEquippedPost(actor akActor)
 EndFunction
 
 Function OnRemoveDevice(actor akActor)
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("OnRemoveDevice called for " + deviceInventory.getName() + " on " + akActor.getLeveledActorBase().getName(),3)
 	endif
 		
@@ -234,11 +234,11 @@ EndFunction
 ;if NPC, game needs to ba unpaused first. Bause of that adding bunch of devices at once on the NPC will make them blocked untill player exit container menu
 Event OnEquipped(Actor akActor)	
 	;Debug.StartStackProfiling()
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("OnEquipped("+MakeDeviceHeader(akActor,deviceInventory)+") - called",3)
 	endif
 	if Math.LogicalAnd(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x010)
-		if UDCDmain.TraceAllowed()		
+		if UDmain.TraceAllowed()		
 			UDCDmain.Log("OnEquipped("+MakeDeviceHeader(akActor,deviceInventory)+") -  aborted because of filter",3)
 		endif
 		if Math.LogicalAnd(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x030)
@@ -257,19 +257,19 @@ Event OnEquipped(Actor akActor)
 EndEvent
 
 Event OnUnequipped(Actor akActor)
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("OnUnequipped("+MakeDeviceHeader(akActor,deviceInventory)+") - called",3)
 	endif
 
 	if UDmain.IsContainerMenuOpen() && UDmain.ActorIsPlayer(akActor)
-		if UDCDmain.TraceAllowed()		
+		if UDmain.TraceAllowed()		
 			UDCDmain.Log("OnUnequipped("+MakeDeviceHeader(akActor,deviceInventory)+") - aborted because of opened menu",3)
 		endif
 		return
 	endif
 
 	if Math.LogicalAnd(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x100)
-		if UDCDmain.TraceAllowed()		
+		if UDmain.TraceAllowed()		
 			UDCDmain.Log("OnUnequipped("+MakeDeviceHeader(akActor,deviceInventory)+") - aborted because of filter",3)
 		endif
 		if Math.LogicalAnd(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300)
@@ -283,7 +283,7 @@ EndEvent
 
 ;device menu that pops up when Wearer click on this device in inventory
 Function DeviceMenu(Int msgChoice = 0)
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("DeviceMenu("+MakeDeviceHeader(UDmain.Player,deviceInventory)+")",1)
 	endif
 	
@@ -406,7 +406,7 @@ Function EquipPreGag(actor akActor, bool silent=false)
 EndFunction
 
 Function EquipPrePanelGag(actor akActor, bool silent=false)
-	if UDCDmain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		libs.Log("Panel Gag: Setting faction rank.")
 	endif
 	akActor.AddToFaction(UDCDmain.zadGagPanelFaction)
@@ -489,7 +489,7 @@ int Function EquipFilterHarness(actor akActor, bool silent=false)
 	EndIf
 	if !akActor.IsEquipped(deviceRendered)
 		if akActor != libs.PlayerRef && ShouldEquipSilently(akActor)
-			if UDCDmain.TraceAllowed()
+			if UDmain.TraceAllowed()
 				libs.Log("Avoiding FTM duplication bug (Harness).")
 			endif
 			return 0
@@ -524,7 +524,7 @@ int Function EquipFilterPiercingV(actor akActor, bool silent=false)
 	EndIf
 	if !akActor.IsEquipped(deviceRendered)
 		if akActor!=libs.PlayerRef && ShouldEquipSilently(akActor)
-			if UDCDmain.TraceAllowed()
+			if UDmain.TraceAllowed()
 				libs.Log("Avoiding FTM duplication bug (Vaginal Piercings).")
 			endif
 			return 0
@@ -589,7 +589,7 @@ int Function EquipFilterStraitjacket(actor akActor, bool silent=false)
 	EndIf
 	if !akActor.IsEquipped(deviceRendered)
 		if akActor != libs.PlayerRef && ShouldEquipSilently(akActor)
-			if UDCDmain.TraceAllowed()
+			if UDmain.TraceAllowed()
 				libs.Log("Avoiding FTM duplication bug (Straitjakcet).")
 			endif
 			return 0
@@ -614,7 +614,7 @@ EndFunction
 ;COPIED FROM zadequipscript
 ;reason is to make it possible to edit some values which were not editable before
 Event LockDevice(Actor akActor)	
-	if UDCDMain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDmain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory)+") called")		
 	endif
 	
@@ -631,14 +631,14 @@ Event LockDevice(Actor akActor)
 		Utility.waitMenuMode(Utility.randomFloat(0.05,0.15)) ;make thread to wait random time, because in some cases bunch of devices can be equipped at once (like when they are par of outfit)
 		if !UDMM.IsDeviceMutexed(akActor,deviceInventory)
 			_actorselfbound = true
-			if UDCDmain.TraceAllowed()		
+			if UDmain.TraceAllowed()		
 				UDCDMain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") : Not using mutex on " + akActor)
 			endif
 			;loc_mutex = UDMM.WaitForFreeAndSet(akActor,deviceInventory)
 			;unregistered npcs will be not mutexed, no reason for that
 		else
 			loc_mutex = UDMM.GetMutexSlot(akActor)
-			if UDCDmain.TraceAllowed()		
+			if UDmain.TraceAllowed()		
 				UDCDMain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") : Found mutex for NPC - " + loc_mutex)
 			endif
 		endif

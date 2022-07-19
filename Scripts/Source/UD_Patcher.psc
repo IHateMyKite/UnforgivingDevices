@@ -36,7 +36,7 @@ Bool Property Ready = False auto
 Event OnInit()
 	Ready = True
 EndEvent
-
+;/
 string[] Function GetHeavyBondageAnimation_Armbinder(bool hobble = false)
 	string[] temp
 	int loc_animNum = 0
@@ -264,7 +264,7 @@ Function safeCheckAnimations(UD_CustomDevice_RenderScript device,bool force = fa
 		device.UD_struggleAnimationsHobl = temp
 	endif
 EndFunction
-
+/;
 Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
 	Float loc_currentmult = UD_PatchMult_HeavyBondage*UD_PatchMult
 	;device.UD_LockpickDifficulty = 25

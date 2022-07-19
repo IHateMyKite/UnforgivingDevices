@@ -37,7 +37,7 @@ Actor Property UD_AbadonVictim auto
 Event onInit()
 	registerForSingleUpdate(120.0)
 		
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("Abadon quest initiated")
 	endif
 EndEvent

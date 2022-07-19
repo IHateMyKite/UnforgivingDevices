@@ -27,7 +27,11 @@ UD_DialogueMain Property UDDmain auto
 UD_CustomDevices_NPCSlotsManager Property UDCD_NPCM auto
 UD_ExpressionManager Property UDEM auto
 UD_OrgasmManager Property UDOM auto 
-
+UD_UserInputScript Property UDUI hidden
+	UD_UserInputScript Function get()
+		return UDmain.UDUI
+	EndFunction
+EndProperty
 ;UI menus
 UITextEntryMenu Property TextMenu auto
 UIListMenu Property ListMenu auto
@@ -162,19 +166,19 @@ Event OnInit()
 	While !UDPatcher.ready
 		Utility.WaitMenuMode(0.1)
 	EndWhile
-	if TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		Log("UDPatcher ready!",0)	
 	endif
 	While !UDCD_NPCM.ready
 		Utility.WaitMenuMode(0.1)
 	EndWhile
-	if TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		Log("UDCD_NPCM ready!",0)
 	endif
 	While !UDEM.ready
 		Utility.WaitMenuMode(0.1)
 	endwhile
-	if TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		Log("UDEM ready!",0)
 	endif
 
@@ -182,7 +186,7 @@ Event OnInit()
 	
 	registerForSingleUpdate(5.0)
 	RegisterForSingleUpdateGameTime(1.0)
-	if TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		Log("UDCustomDeviceMain ready!",0)
 	endif
 	ready = True
@@ -197,6 +201,7 @@ Function Update()
 	
 	_startVibFunctionPackage = none
 	
+	ResetUI()
 	registerAllEvents()
 	
 	UDPP.RegisterEvents()
@@ -303,7 +308,7 @@ Function LoadConfig()
 	if UDmain.config.getAutoLoad()
 		UDmain.config.LoadFromJSON(UDmain.config.File)
 	endif
-	if TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		Log("Config loaded!")
 	endif
 EndFunction
@@ -381,7 +386,7 @@ Function CheckAndDisableSpecialMenu()
 EndFunction
 
 Function DisableActor(Actor akActor,bool bBussy = false)
-	if TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		Log("DisableActor("+getActorName(akActor) + ")",2)
 	endif
 	StartMinigameDisable(akActor)
@@ -391,14 +396,14 @@ Function DisableActor(Actor akActor,bool bBussy = false)
 EndFunction
 
 Function UpdateDisabledActor(Actor akActor,bool bBussy = false)
-	if TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		Log("UpdateDisabledActor("+getActorName(akActor) + ")",2)
 	endif
 	UpdateMinigameDisable(akActor)
 EndFunction
 
 Function EnableActor(Actor akActor,bool bBussy = false)
-	if TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		Log("EnableActor("+getActorName(akActor)+")",2)
 	endif
 	;akActor.DispelSpell(UDlibs.MinigameDisableSpell)
@@ -591,16 +596,15 @@ Function openNPCHelpMenu(Actor akTarget)
 	akTarget.ShowGiftMenu(False, UDlibs.GiftMenuFilter,True,False)
 EndFunction
 
-
-UD_CustomDevice_RenderScript Property lastOpenedDevice = none auto hidden
-UD_CustomDevice_RenderScript _oCurrentPlayerMinigameDevice = none
+;UD_CustomDevice_RenderScript Property lastOpenedDevice 				= none auto hidden
+UD_CustomDevice_RenderScript Property CurrentPlayerMinigameDevice 	= none auto hidden
 
 Function setCurrentMinigameDevice(UD_CustomDevice_RenderScript oref)
-	_oCurrentPlayerMinigameDevice = oref
+	CurrentPlayerMinigameDevice = oref
 EndFunction
 
 Function resetCurrentMinigameDevice()
-	_oCurrentPlayerMinigameDevice = none
+	CurrentPlayerMinigameDevice = none
 EndFunction
 
 int Function getNumberOfRegisteredDevices(Actor akActor)
@@ -980,7 +984,7 @@ float Function getMendDifficultyModifier()
 EndFunction
 
 Function startScript(UD_CustomDevice_RenderScript oref)
-	if TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		Log("UDCustomDeviceMain startScript() called for " + oref.getDeviceHeader(),1)
 	endif
 	if oref.WearerIsPlayer()
@@ -991,7 +995,7 @@ Function startScript(UD_CustomDevice_RenderScript oref)
 EndFunction
 
 Function endScript(UD_CustomDevice_RenderScript oref)
-	if TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		Log("UDCustomDeviceMain endScript() called for " + oref.DeviceInventory.getName(),1)
 	endif
 	updateLastOpenedDeviceOnRemove(oref)
@@ -1005,27 +1009,15 @@ Function endScript(UD_CustomDevice_RenderScript oref)
 EndFunction
 
 Function RegisterGlobalKeys()
-	if TraceAllowed()	
-		Log("RegisterGlobalKeys")
-	endif
-	RegisterForKey(StruggleKey_Keycode)
-	RegisterForKey(PlayerMenu_KeyCode)
-	RegisterForKey(ActionKey_Keycode)
-	RegisterForKey(NPCMenu_Keycode)
+	UDUI.RegisterGlobalKeys()
 EndFunction
 
 Function UnregisterGlobalKeys()
-	if TraceAllowed()	
-		Log("UnregisterGlobalKeys")
-	endif
-	UnRegisterForKey(StruggleKey_Keycode)
-	UnRegisterForKey(PlayerMenu_KeyCode)
-	UnRegisterForKey(ActionKey_Keycode)
-	UnRegisterForKey(NPCMenu_Keycode)
+	UDUI.UnregisterGlobalKeys()
 EndFunction
 
 Function registerAllEvents()
-	if TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		Log("registerAllEvents")
 	endif
 	registerEvents()
@@ -1033,7 +1025,7 @@ Function registerAllEvents()
 EndFunction
 
 Function registerEvents()
-	if TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		Log("registerEvents")
 	endif
 	RegisterForModEvent("UD_ActivateDevice","OnActivateDevice")
@@ -1142,50 +1134,32 @@ endEvent
 ;-------------------------------------------------------------------------------------
 ;-------------------------------------------------------------------------------------
 
+
 Event keyUnregister(string eventName = "none", string strArg = "", float numArg = 0.0, Form sender = none)
-	if TraceAllowed()	
-		Log("UDCustomHeavyBondageMain OnKeyUnregister called",1)
-	endif
+	UDUI.keyUnregister()
+	ResetUI()
+EndEvent
+
+Event ResetUI()
 	UnregisterForAllKeys()
 EndEvent
 
 Event MinigameKeysRegister()
-	if TraceAllowed()	
-		Log("UDCustomDevicemain MinigameKeysRegister called",1)
-	endif
-	RegisterForKey(Stamina_meter_Keycode)
-	RegisterForKey(SpecialKey_Keycode)
-	RegisterForKey(Magicka_meter_Keycode)
-	_specialButtonOn = false
+	UDUI.MinigameKeysRegister()
+	UDUI.GoToState("Minigame")
 EndEvent
 
 Event MinigameKeysUnregister()
-	if TraceAllowed()	
-		Log("UDCustomDevicemain MinigameKeysUnregister called",1)
-	endif
-	if !KeyIsUsedGlobaly(Stamina_meter_Keycode)
-		UnregisterForKey(Stamina_meter_Keycode)
-	endif
-	if !KeyIsUsedGlobaly(SpecialKey_Keycode)
-		UnregisterForKey(SpecialKey_Keycode)
-	endif
-	if !KeyIsUsedGlobaly(Magicka_meter_Keycode)
-		UnregisterForKey(Magicka_meter_Keycode)
-	endif
-	_specialButtonOn = false
+	UDUI.MinigameKeysUnregister()
+	UDUI.GoToState("")
 EndEvent
 
 bool Function KeyIsUsedGlobaly(int keyCode)
-	bool loc_res = false
-	loc_res = loc_res || (keyCode == StruggleKey_Keycode)
-	loc_res = loc_res || (keyCode == PlayerMenu_KeyCode)
-	loc_res = loc_res || (keyCode == NPCMenu_Keycode)
-	loc_res = loc_res || (keyCode == ActionKey_Keycode)
-	return loc_res
+	return UDUI.KeyIsUsedGlobaly(keyCode)
 EndFunction
 
-bool crit = false
-string selected_crit_meter =  "Error"
+bool Property crit = false auto hidden
+string Property selected_crit_meter =  "Error" auto hidden
 Int Property UD_CritEffect = 2 auto hidden
 Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string strArg, float difficulty)
 	string meter
@@ -1218,7 +1192,7 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
 			endif
 			return	
 		endif
-	
+		
 		selected_crit_meter = meter
 		crit = True
 		
@@ -1260,161 +1234,14 @@ bool Function registeredKeyPressed(Int KeyCode)
 endFunction
 
 Function updateLastOpenedDeviceOnRemove(UD_CustomDevice_RenderScript removed_device)
-	if lastOpenedDevice == removed_device
-		lastOpenedDevice = none
+	if UDUI.lastOpenedDevice == removed_device
+		UDUI.lastOpenedDevice = none
 	endif
 EndFunction
 
 Function setLastOpenedDevice(UD_CustomDevice_RenderScript device)
-	lastOpenedDevice = device
+	UDUI.lastOpenedDevice = device
 EndFunction
-
-bool _SpeacialButtonMutex = false
-int _SpecialButton_Bonus = 0 ;how much times was special button pressed while it was proccessing
-bool _specialButtonOn = false
-State Minigame
-	Event OnKeyDown(Int KeyCode)
-		;help variables to reduce lag
-		bool 	_crit 					= crit 
-		string 	_selected_crit_meter 	= selected_crit_meter
-		
-		;/
-		if _SpeacialButtonMutex
-			if KeyCode == SpecialKey_Keycode
-				_SpecialButton_Bonus += 1
-				return ;too much thread, remove new ones
-			endif
-		endif
-		/;
-		bool loc_menuopen = UDmain.IsMenuOpen()
-		if !loc_menuopen ;only if player is not in menu
-			if TraceAllowed()		
-				Log("OnKeyDown(), Keycode: " + KeyCode,3)
-			endif
-			if _oCurrentPlayerMinigameDevice
-				if (_crit) && !UD_AutoCrit
-					if _selected_crit_meter == "S" && KeyCode == Stamina_meter_Keycode
-						crit = False
-						_crit = False
-						if TraceAllowed()					
-							Log("Crit detected for Stamina bar! Keycode: " + KeyCode)
-						endif
-						_oCurrentPlayerMinigameDevice.critDevice()
-						return
-					elseif _selected_crit_meter == "M" && KeyCode == Magicka_meter_Keycode
-						crit = False
-						_crit = False
-						if TraceAllowed()					
-							Log("Crit detected for Magicka bar! Keycode: " + KeyCode)
-						endif
-						_oCurrentPlayerMinigameDevice.critDevice()
-						return
-					elseif KeyCode == Magicka_meter_Keycode || KeyCode == Stamina_meter_Keycode
-						crit = False
-						_crit = False
-						if TraceAllowed()					
-							Log("Crit failure detected! Keycode: " + KeyCode)
-						endif
-						_oCurrentPlayerMinigameDevice.critFailure()
-						return
-					elseif KeyCode == ActionKey_Keycode
-						if TraceAllowed()					
-							Log("ActionKey_Keycode pressed! Keycode: " + KeyCode)
-						endif
-						_oCurrentPlayerMinigameDevice.stopMinigame()
-						crit = false
-						return 
-					endif
-				endif
-				if KeyCode == SpecialKey_Keycode
-					_specialButtonOn = true
-					if _oCurrentPlayerMinigameDevice
-						;_SpeacialButtonMutex = true
-						int loc_mult = 1 ;+ _SpecialButton_Bonus
-						;_SpecialButton_Bonus = 0
-						_oCurrentPlayerMinigameDevice.SpecialButtonPressed(loc_mult)
-						;_SpeacialButtonMutex = false
-					endif
-					return
-				endif
-				if KeyCode == ActionKey_Keycode
-					if _oCurrentPlayerMinigameDevice
-						_oCurrentPlayerMinigameDevice.stopMinigame()
-					endif
-					return
-				elseif (KeyCode == Stamina_meter_Keycode || KeyCode == Magicka_meter_Keycode) && !UD_AutoCrit
-					crit = False
-					_crit = False
-					_oCurrentPlayerMinigameDevice.critFailure()
-					return
-				endif
-			endif
-		endif
-	EndEvent
-
-	Event OnKeyUp(Int KeyCode, Float HoldTime)
-		if KeyCode == SpecialKey_Keycode
-			_specialButtonOn = false
-			if _oCurrentPlayerMinigameDevice
-				_oCurrentPlayerMinigameDevice.SpecialButtonReleased(HoldTime)
-			endif
-			return
-		endif
-	EndEvent
-EndState
-
-;bool _SpeacialButtonMutex = false
-;int _SpecialButton_Bonus = 0 ;how much times was special button pressed while it was proccessing
-;bool _specialButtonOn = false
-Event OnKeyDown(Int KeyCode)
-	bool loc_menuopen = UDmain.IsMenuOpen()
-	if !loc_menuopen ;only if player is not in menu
-		if KeyCode == PlayerMenu_KeyCode
-			PlayerMenu()
-		endif
-	endif
-EndEvent
-
-Event OnKeyUp(Int KeyCode, Float HoldTime)
-	if !UDmain.IsMenuOpen()
-		if KeyCode == StruggleKey_Keycode
-			if HoldTime < 0.2
-				if lastOpenedDevice
-					lastOpenedDevice.deviceMenu(new Bool[30])
-				elseif libs.playerRef.wornhaskeyword(libs.zad_deviousheavybondage)
-					if !lastOpenedDevice
-						lastOpenedDevice = getHeavyBondageDevice(UDmain.Player)
-					endif
-					lastOpenedDevice.deviceMenu(new Bool[30])
-				endif
-			else
-				UD_CustomDevice_RenderScript loc_device = UDCD_NPCM.getPlayerSlot().GetUserSelectedDevice()
-				if loc_device
-					loc_device.deviceMenu(new Bool[30])
-				endif
-			endif
-		elseif KeyCode == NPCMenu_Keycode
-			ObjectReference loc_ref = Game.GetCurrentCrosshairRef()
-			if loc_ref as Actor
-				Actor loc_actor = loc_ref as Actor
-				if !loc_actor.isDead() && UDmain.ActorIsValidForUD(loc_actor)
-					if HoldTime <= 0.2
-						NPCMenu(loc_actor)
-					else
-						bool loc_actorisregistered = isRegistered(loc_actor)
-						if loc_actorisregistered
-							bool loc_actorisfollower = ActorIsFollower(loc_actor)
-							bool loc_actorishelpless = (!actorFreeHands(loc_actor) || loc_actor.getAV("paralysis") || loc_actor.GetSleepState() == 3) && actorFreeHands(UDmain.Player)
-							if loc_actorisfollower || loc_actorishelpless
-								HelpNPC(loc_actor,UDmain.Player,loc_actorisfollower)
-							endif
-						endif
-					endif
-				endif
-			endif
-		endif
-	endif
-EndEvent
 
 Function SetMessageAlias(Actor akActor1,Actor akActor2 = none,zadequipscript arDevice = none)
 	if akActor1
@@ -2102,7 +1929,7 @@ EndFunction
 
 ;starts vannila lockpick minigame
 Function startLockpickMinigame()
-	;setScriptState(_oCurrentPlayerMinigameDevice.getWearer(),3)
+	;setScriptState(CurrentPlayerMinigameDevice.getWearer(),3)
 	LockpickMinigameOver = false
 	
 	lockpicknum = UDmain.Player.GetItemCount(Lockpick)
@@ -2113,7 +1940,7 @@ Function startLockpickMinigame()
 		usedLockpicks = lockpicknum
 	endif
 	UDmain.Player.RemoveItem(Lockpick, lockpicknum - usedLockpicks, True)
-	if TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		Log("Lockpick minigame opened, lockpicks before: "+lockpicknum+" ;lockpicks taken: " + (lockpicknum - usedLockpicks) + " ;Lockpicks to use: "+ usedLockpicks,1)
 	endif
 	RegisterForMenu("Lockpicking Menu")
@@ -2144,7 +1971,7 @@ Event OnMenuClose(String MenuName)
 		else
 			LockpickMinigameResult = 2 ;player tried to lockpick the device but failed (all lockpicks broke)
 		endif
-		if TraceAllowed()		
+		if UDmain.TraceAllowed()		
 			Log("Lockpick minigame closed, lockpicks returned: " + (lockpicknum - usedLockpicks) + " ; Result: " + LockpickMinigameResult,1)
 		endif
 		UDmain.Player.AddItem(Lockpick, lockpicknum - usedLockpicks, True)
@@ -2204,8 +2031,8 @@ EndFunction
 
 ;returns current device that have minigame on (return none if no minigame is on)
 UD_CustomDevice_RenderScript Function getMinigameDevice(Actor akActor)
-	if _oCurrentPlayerMinigameDevice.getWearer() == akActor || _oCurrentPlayerMinigameDevice.getHelper() == akActor
-		return _oCurrentPlayerMinigameDevice
+	if CurrentPlayerMinigameDevice.getWearer() == akActor || CurrentPlayerMinigameDevice.getHelper() == akActor
+		return CurrentPlayerMinigameDevice
 	endif
 	if isRegistered(akActor)
 		return getNPCSlot(akActor).getMinigameDevice()
@@ -2319,7 +2146,7 @@ UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armo
 	
 	_transfereMutex = True
 	
-	if TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		Log("getDeviceScriptByRender called for " + deviceRendered + "("+getActorName(akActor)+")")
 	endif
 	
@@ -2431,7 +2258,7 @@ UD_CustomDevice_RenderScript[] Function getAllDeviceScriptsByKw(Actor akActor,ke
 			endwhile
 			
 			if loc_time > 1.0 && !_transferedDevice
-				if TraceAllowed()				
+				if UDmain.TraceAllowed()				
 					Error("getDeviceScriptByRender timeout for " + loc_renDevice + "("+getActorName(akActor)+")")
 				endif
 			endif
@@ -2659,7 +2486,7 @@ EndFunction
 UD_CustomDevice_RenderScript _activateDevicePackage = none
 bool Function activateDevice(UD_CustomDevice_RenderScript udCustomDevice)
 	if !udCustomDevice.canBeActivated() ;can't be activated, return
-		if TraceAllowed()		
+		if UDmain.TraceAllowed()		
 			Log("activateDevice() - " + udCustomDevice.getDeviceName() + " can't be activated",3)
 		endif
 		return false
@@ -2684,7 +2511,7 @@ bool Function activateDevice(UD_CustomDevice_RenderScript udCustomDevice)
 		Utility.waitMenuMode(0.15)
 	endwhile
 	_activateDevicePackage = udCustomDevice
-	if TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		Log("activateDevice() - Sending " + udCustomDevice.getDeviceName(),3)
 	endif
 	int handle = ModEvent.Create("UD_ActivateDevice")
@@ -2692,7 +2519,7 @@ bool Function activateDevice(UD_CustomDevice_RenderScript udCustomDevice)
         ModEvent.Send(handle)
 		return true
     else
-		if TraceAllowed()		
+		if UDmain.TraceAllowed()		
 			Log("activateDevice() - !!Sending of " + udCustomDevice.getDeviceName() + " failed!!",1)
 		endif
 		_activateDevicePackage = none
@@ -2703,7 +2530,7 @@ EndFunction
 Function OnActivateDevice()
 	UD_CustomDevice_RenderScript loc_fetchedPackage = _activateDevicePackage
 	_activateDevicePackage = none ;free package
-	if TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		Log("activateDevice() - Received " + loc_fetchedPackage.getDeviceName(),3)
 	endif
 	loc_fetchedPackage.activateDevice()
@@ -2799,7 +2626,7 @@ bool Function startVibFunction(UD_CustomVibratorBase_RenderScript udCustomVibrat
 		Utility.waitMenuMode(0.1)
 	endwhile
 	_startVibFunctionPackage = udCustomVibrator
-	if TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		Log("startVibFunction() - Sending " + udCustomVibrator.getDeviceHeader(),3)
 	endif
 	int handle = ModEvent.Create("UD_StartVibFunction")
@@ -2807,7 +2634,7 @@ bool Function startVibFunction(UD_CustomVibratorBase_RenderScript udCustomVibrat
         ModEvent.Send(handle)
 		return true
     else
-		if TraceAllowed()		
+		if UDmain.TraceAllowed()		
 			Log("startVibFunction() - !!Sending of " + _startVibFunctionPackage.getDeviceHeader() + " failed!!",1)
 		endif
 		_startVibFunctionPackage = none
@@ -2862,7 +2689,7 @@ EndFunction
 
 Function FetchAndStartVibFunction()
 	UD_CustomVibratorBase_RenderScript loc_fetchedPackage = _startVibFunctionPackage
-	if TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		Log("startVibFunction() - Received " + loc_fetchedPackage.getDeviceName(),3)
 	endif
 	_startVibFunctionPackage = none ;free package
@@ -3017,10 +2844,6 @@ Function TestExpression(Actor akActor,sslBaseExpression sslExpression,bool bMout
 		UDEM.ResetExpression(akActor, none,100)
 		Print(sslExpression.Name + " removed!")
 	endif
-EndFunction
-
-Bool Function TraceAllowed()
-	return UDmain.TraceAllowed()
 EndFunction
 
 bool _debugSwitch = false

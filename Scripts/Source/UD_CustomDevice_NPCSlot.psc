@@ -151,7 +151,7 @@ int Function GetDeviceSlotIndx(UD_CustomDevice_RenderScript device)
 EndFunction
 
 Function SetSlotTo(Actor akActor)
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("SetSlotTo("+getActorName(akActor)+") for " + self)
 	endif
 	if !UDmain.ActorIsPlayer(akActor)
@@ -211,7 +211,7 @@ int Function getNumberOfRegisteredDevices()
 EndFunction
 
 Function unregisterSlot()
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("NPC " + getSlotedNPCName() + " unregistered",2)
 	endif
 	if _iUsedSlots
@@ -325,7 +325,7 @@ Function removeLostRenderDevices()
 	;endif
 	
 	startDeviceManipulation()
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+")")
 	endif
 	Actor _currentSlotedActor = getActor()
@@ -333,24 +333,24 @@ Function removeLostRenderDevices()
 	Form[] loc_toRemove
 	while iItem
 		iItem -= 1
-		if UDCDmain.TraceAllowed()		
+		if UDmain.TraceAllowed()		
 			UDCDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+"): Proccesing form " + _currentSlotedActor.GetNthForm(iItem))
 		endif
 		Armor ArmorDevice = _currentSlotedActor.GetNthForm(iItem) as Armor
 		
 		if ArmorDevice ;is armor (optimalization)
-			if UDCDmain.TraceAllowed()			
+			if UDmain.TraceAllowed()			
 				UDCDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+"): Proccesing armor " + ArmorDevice)
 			endif
 			if ArmorDevice.haskeyword(UDCDmain.UDlibs.UnforgivingDevice) ;is render device
 				;get script and check if player have inventory device
 				Armor loc_RenDevice = ArmorDevice
 				Armor loc_InvDevice = UDCDmain.getStoredInventoryDevice(loc_RenDevice)
-				if UDCDmain.TraceAllowed()				
+				if UDmain.TraceAllowed()				
 					UDCDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+"): Proccesing device " + loc_InvDevice.getName())
 				endif
 				bool loc_cond = !UDCDmain.CheckRenderDeviceEquipped(_currentSlotedActor,loc_RenDevice)
-				if UDCDmain.TraceAllowed()				
+				if UDmain.TraceAllowed()				
 					UDCDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+"): " + loc_InvDevice.getName() + ", cond: " + loc_cond)
 				endif
 				if  loc_cond
@@ -385,7 +385,7 @@ Function removeLostRenderDevices()
 EndFunction
 
 bool Function registerDevice(UD_CustomDevice_RenderScript oref,bool mutex = true)
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("Starting slot device register for " + oref.getDeviceHeader() )
 	endif
 	if GetDeviceSlotIndx(oref) > 0
@@ -545,7 +545,7 @@ Function removeUnusedDevices()
 				loc_device.getWearer().removeItem(loc_device.deviceRendered)
 			endif
 			UD_equipedCustomDevices[i] = none
-			if UDCDmain.TraceAllowed()			
+			if UDmain.TraceAllowed()			
 				UDCDmain.Log(loc_device.getDeviceName() + " is unused, removing from " + getSlotedNPCName(),2)
 			endif
 			_iUsedSlots -= 1
@@ -679,7 +679,7 @@ EndFunction
 
 Event OnHit(ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked)
 	if isScriptRunning()
-		if UDCDMain.TraceAllowed()
+		if UDmain.TraceAllowed()
 			UDCDmain.Log("OnHit("+akAggressor+","+akSource+","+akProjectile+") on " + getSlotedNPCName())
 		endif
 		if akSource
@@ -722,8 +722,8 @@ Function showDebugMenu(int slot_id)
 				UD_equipedCustomDevices[slot_id].decreaseDurabilityAndCheckUnlock(-10.0)
 			elseif res == 2 ;repatch
 				UD_equipedCustomDevices[slot_id].patchDevice()
-				UDCDmain.UDPatcher.safecheckAnimations(UD_equipedCustomDevices[slot_id],True)
-				UD_equipedCustomDevices[slot_id].safeCheckAnimations()
+				;UDCDmain.UDPatcher.safecheckAnimations(UD_equipedCustomDevices[slot_id],True)
+				;UD_equipedCustomDevices[slot_id].safeCheckAnimations()
 				return
 			elseif res == 3 ;unlock
 				UD_equipedCustomDevices[slot_id].unlockRestrain()
@@ -1069,14 +1069,14 @@ EndFunction
 
 
 Function TurnOffAllVibrators()
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("TurnOffAllVibrators() called for " + getSlotedNPCName(),1)
 	endif
 	int i = 0
 	while UD_equipedCustomDevices[i]
 		if UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript && !(UD_equipedCustomDevices[i] as UD_ControlablePlug_RenderScript)
 			if (UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript).isVibrating()
-				if UDCDmain.TraceAllowed()				
+				if UDmain.TraceAllowed()				
 					UDCDmain.Log("Stoping " + UD_equipedCustomDevices[i].getDeviceName() + " on " + getSlotedNPCName())
 				endif
 				(UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript).stopVibrating()
@@ -1088,7 +1088,7 @@ EndFunction
 
 ;returns number of vibrators
 int Function getVibratorNum()
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("getVibratorNum() called for " + getSlotedNPCName(),3)
 	endif
 	int found_devices = 0
@@ -1101,7 +1101,7 @@ int Function getVibratorNum()
 		endif
 		i+=1
 	endwhile
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("getOffVibratorNum() - return value: " + found_devices,3)
 	endif
 	return found_devices
@@ -1109,7 +1109,7 @@ EndFunction
 
 ;returns number of turned off vibrators (and the ones which can be turned on)
 int Function getOffVibratorNum()
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("getOffVibratorNum() called for " + getSlotedNPCName(),3)
 	endif
 	int found_devices = 0
@@ -1123,7 +1123,7 @@ int Function getOffVibratorNum()
 		endif
 		i+=1
 	endwhile
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("getOffVibratorNum() - return value: " + found_devices,3)
 	endif
 	return found_devices
@@ -1131,7 +1131,7 @@ EndFunction
 
 ;returns all vibrators
 UD_CustomDevice_RenderScript[] Function getVibrators()
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("getVibrators() called for " + getSlotedNPCName(),3)
 	endif
 	UD_CustomDevice_RenderScript[] res = UDCDmain.MakeNewDeviceSlots()
@@ -1141,7 +1141,7 @@ UD_CustomDevice_RenderScript[] Function getVibrators()
 		if UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript
 			UD_CustomVibratorBase_RenderScript loc_vibrator = (UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript)
 			;if loc_vibrator.CanVibrate()
-				if UDCDmain.TraceAllowed()				
+				if UDmain.TraceAllowed()				
 					UDCDmain.Log("getVibrators() - usable vibrator found: " + loc_vibrator.getDeviceName(),3)
 				endif
 				res[found_devices] = loc_vibrator
@@ -1150,7 +1150,7 @@ UD_CustomDevice_RenderScript[] Function getVibrators()
 		endif
 		i+=1
 	endwhile
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("getVibrators() - return array: " + res,3)
 	endif
 	return res
@@ -1158,7 +1158,7 @@ EndFunction
 
 ;returns all turned off vibrators
 UD_CustomDevice_RenderScript[] Function getOffVibrators()
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("getOffVibrators() called for " + getSlotedNPCName(),3)
 	endif
 	UD_CustomDevice_RenderScript[] res = UDCDmain.MakeNewDeviceSlots()
@@ -1166,12 +1166,12 @@ UD_CustomDevice_RenderScript[] Function getOffVibrators()
 	int i = 0
 	while UD_equipedCustomDevices[i]
 		if UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript
-			if UDCDmain.TraceAllowed()			
+			if UDmain.TraceAllowed()			
 				UDCDmain.Log("getOffVibrators() - vibrator found: " + UD_equipedCustomDevices[i].getDeviceName(),3)
 			endif
 			UD_CustomVibratorBase_RenderScript loc_vibrator = (UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript)
 			if loc_vibrator.CanVibrate() && !loc_vibrator.isVibrating()
-				if UDCDmain.TraceAllowed()				
+				if UDmain.TraceAllowed()				
 					UDCDmain.Log("getOffVibrators() - non used vibrator found: " + UD_equipedCustomDevices[i].getDeviceName(),3)
 				endif
 				res[found_devices] = loc_vibrator
@@ -1180,7 +1180,7 @@ UD_CustomDevice_RenderScript[] Function getOffVibrators()
 		endif
 		i+=1
 	endwhile
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("getOffVibrators() - return array: " + res,3)
 	endif
 	return res

@@ -1,5 +1,6 @@
 Scriptname UD_MinigameDisable_Script extends activemagiceffect  
 
+;/
 Actor _target = none
 UDCustomDeviceMain Property UDCDmain auto
 UD_CustomDevices_NPCSlotsManager Property UDCD_NPCM auto
@@ -59,3 +60,4 @@ Event OnUpdate()
 	endif
 	loc_precessing = false
 EndEvent
+/;

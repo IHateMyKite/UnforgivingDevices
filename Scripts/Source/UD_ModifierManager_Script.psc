@@ -156,7 +156,7 @@ Function Procces_MAH_Hour(UD_CustomDevice_RenderScript argDevice,float argMult)
 	endif
 	int loc_chance = Round(argDevice.getModifierIntParam("MAH",0)*(UDPatcher.UD_MAHMod/100.0))
 	int loc_number = argDevice.getModifierIntParam("MAH",1,1)
-	if UDCDMain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDCDMain.Log(argDevice.getDeviceHeader()+"MAH found, proccesing. C="+loc_chance+",N="+loc_number,1)
 	endif
 	ManifestDevices(argDevice.GetWearer(),argDevice.getDeviceName() ,loc_chance,loc_number)	
@@ -182,7 +182,7 @@ Function Procces_MAO_Orgasm(UD_CustomDevice_RenderScript argDevice)
 	endif	
 	int loc_chance = Round(argDevice.getModifierIntParam("MAO",0)*(UDPatcher.UD_MAOMod/100.0))
 	int loc_number = argDevice.getModifierIntParam("MAO",1,1)
-	if UDCDMain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDCDMain.Log(argDevice.getDeviceHeader()+"MAO found, proccesing. C="+loc_chance+",N="+loc_number,1)
 	endif
 	ManifestDevices(argDevice.GetWearer(),argDevice.getDeviceName() ,loc_chance,loc_number)
@@ -192,7 +192,7 @@ Function Procces_LootGold_Remove(UD_CustomDevice_RenderScript argDevice)
 	Actor akActor = argDevice.getWearer()
 	if argDevice.zad_DestroyOnRemove || argDevice.hasModifier("DOR") || !akActor.isDead()
 		if argDevice.hasModifier("LootGold")
-			if UDCDmain.TraceAllowed()
+			if UDmain.TraceAllowed()
 			UDCDmain.Log("Gold added: " + argDevice.getModifierIntParam("LootGold"),1)
 			endif
 			int goldNumMin = argDevice.getModifierIntParam("LootGold")

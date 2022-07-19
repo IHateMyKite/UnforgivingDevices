@@ -3,6 +3,11 @@ Scriptname UD_RandomRestraintManager extends Quest
 import UnforgivingDevicesMain
 
 UDCustomDeviceMain Property UDCDmain auto
+UnforgivingDevicesMain Property UDmain 
+	UnforgivingDevicesMain Function get()
+		return UDCDmain.UDmain
+	EndFunction	
+EndProperty
 zadlibs Property libs auto
 
 Formlist Property UD_RandomDeviceList_Collar auto 			;0
@@ -102,7 +107,7 @@ Event onInit()
 	UD_CheckKeywords.addForm(libs.zad_deviousHood) 				;iIndex = 15
 	
 	
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("-UDRRM initiated-")
 	endif
 	ready = True
@@ -206,7 +211,7 @@ EndFunction
 
 ;PC frier 8000
 Armor Function getRandomSuitableRestrain(Actor akActor,Int iPrefSwitch = 0xffffffff)
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("getRandomSuitableRestrain called for " + GetActorName(akActor),3)
 	endif
 	iPrefSwitch = Math.LogicalAnd(iPrefSwitch,UD_RandomDevice_GlobalFilter)
@@ -234,7 +239,7 @@ bool Function LockAnyRandomRestrain(Actor akActor,int iNumber = 1,bool bForce = 
 EndFunction
 
 Armor Function LockRandomRestrain(Actor akActor,Bool force = false,Int iPrefSwitch = 0xffffffff)
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("LockRandomRestrain called for " + GetActorName(akActor))
 	endif
 	iPrefSwitch = Math.LogicalAnd(iPrefSwitch,UD_RandomDevice_GlobalFilter)
@@ -244,12 +249,12 @@ Armor Function LockRandomRestrain(Actor akActor,Bool force = false,Int iPrefSwit
 		UDCDmain.Log("No suitable keyword found. Skipping!")
 		return none
 	endif
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("Selected keyword: " + selected_keyword)
 	endif
 	device = getRandomDeviceByKeyword(akActor, selected_keyword)
 	if device
-		if UDCDmain.TraceAllowed()		
+		if UDmain.TraceAllowed()		
 			UDCDmain.Log("Selected device: " + device.getName())
 		endif
 		
@@ -265,18 +270,18 @@ Armor Function LockRandomRestrain(Actor akActor,Bool force = false,Int iPrefSwit
 EndFunction
 
 int Function LockAllSuitableRestrains(Actor akActor,Bool force = false,Int iPrefSwitch = 0xffffffff)
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("LockAllSuitableRestrains called for " + akActor.getActorBase().getName(),2)
 	endif
 	iPrefSwitch = Math.LogicalAnd(iPrefSwitch,UD_RandomDevice_GlobalFilter)
 	Form[] loc_keywords = getAllSuitableKeywords(akActor,iPrefSwitch)
 	if !loc_keywords
-		if UDCDmain.TraceAllowed()		
+		if UDmain.TraceAllowed()		
 			UDCDmain.Log("No suitable keyword found. Skipping!")
 		endif
 		return 0
 	endif
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("Selected keyword: " + loc_keywords,2)
 	endif
 	
@@ -286,7 +291,7 @@ int Function LockAllSuitableRestrains(Actor akActor,Bool force = false,Int iPref
 	while loc_i < loc_keywords.length
 		device = getRandomDeviceByKeyword(akActor,loc_keywords[loc_i] as Keyword)
 		if device
-			if UDCDmain.TraceAllowed()			
+			if UDmain.TraceAllowed()			
 				UDCDmain.Log("Selected device: " + device.getName(),2)
 			endif
 			if libs.lockdevice(akActor,device,force)
@@ -321,7 +326,7 @@ Armor Function getRandomFormFromLeveledlist(LeveledItem argList)
 	endif
 	LeveledItem loc_list = argList
 	while True
-		if UDCDmain.TraceAllowed()
+		if UDmain.TraceAllowed()
 			UDCDmain.Log("getRandomFormFromLeveledlist(), Proccesing " + loc_list)
 		endif
 		int loc_size = loc_list.GetNumForms()

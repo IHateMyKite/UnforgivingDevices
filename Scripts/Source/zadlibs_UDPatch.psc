@@ -62,7 +62,7 @@ Function LockDevice_Paralel(actor akActor, armor deviceInventory, bool force = f
 EndFunction
 
 Bool Function LockDevice(actor akActor, armor deviceInventory, bool force = false)
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory)+")",3)
 	endif
 	if UDCDmain.UDmain.UD_zadlibs_ParalelProccesing
@@ -108,7 +108,7 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
 	endif
 	bool loc_res = false
 	if deviceInventory.hasKeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
-		if UDCDmain.TraceAllowed()
+		if UDmain.TraceAllowed()
 			if loc_slot
 				UDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - NPC slot: " + loc_slot,1)
 			elseif loc_mutex	
@@ -135,7 +135,7 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
 
 		zad_AlwaysSilent.RemoveAddedForm(akActor)
 		
-		if UDCDmain.TraceAllowed()	
+		if UDmain.TraceAllowed()	
 			if loc_slot
 				UDCDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation completed - NPC slot: " + loc_slot,1)
 			elseif loc_mutex	
@@ -146,7 +146,7 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
 		endif
 		
 	else
-		if UDCDmain.TraceAllowed()		
+		if UDmain.TraceAllowed()		
 			UDCDmain.Log("LockDevicePatched("+getActorName(akActor)+","+deviceInventory.getName()+") (patched) called, device is NOT UD -> skipping mutex")
 		endif
 		
@@ -168,7 +168,7 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
 		
 	endif
 	
-	if UDCDmain.TraceAllowed()		
+	if UDmain.TraceAllowed()		
 		UDCDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - ended",3)
 	endif
 
@@ -228,12 +228,12 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
 		endif
 	endif
 	
-	if UDCDmain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDCDmain.Log("UnlockDevice("+akActor+","+deviceInventory+","+deviceRendered+","+zad_DeviousDevice+","+destroyDevice+","+genericonly+")",1)
 	endif
 	
 	if deviceInventory.hasKeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
-		if UDCDmain.TraceAllowed()
+		if UDmain.TraceAllowed()
 			UDCDmain.Log("UnlockDevice("+MakeDeviceHeader(akActor,deviceInventory)+") called",2)
 		endif
 		If (genericonly && deviceInventory.HasKeyWord(zad_BlockGeneric)) || deviceInventory.HasKeyWord(zad_QuestItem)
@@ -260,7 +260,7 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
 					;is already set by WaitForFreeAndSet_Unlock
 				endif
 				
-				if UDCDmain.TraceAllowed()	
+				if UDmain.TraceAllowed()	
 					if loc_slot
 						UDCDmain.Log("UnlockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - NPC slot: " + loc_slot,1)
 					elseif loc_mutex	
@@ -298,7 +298,7 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
 		;use default DD unlock function
 		loc_res = parent.UnlockDevice(akActor, deviceInventory, deviceRendered, zad_DeviousDevice, destroyDevice, genericonly) ;actor not registered
 	endif
-	if UDCDmain.TraceAllowed()		
+	if UDmain.TraceAllowed()		
 		UDCDmain.Log("UnlockDevice("+deviceInventory.getName()+") (patched) finished: "+loc_res,1)
 	endif
 	
@@ -332,7 +332,7 @@ Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRen
 		endif
 	endif
 	
-	if UDCDMain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDCDMain.Log("RemoveQuestDevice("+getActorName(akActor)+") called for " + deviceInventory.GetName(),1)
 	endif
 	
@@ -374,7 +374,7 @@ Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRen
 				;is already set by WaitForFreeAndSet_Unlock
 			endif
 			
-			if UDCDmain.TraceAllowed()	
+			if UDmain.TraceAllowed()	
 				if loc_slot
 					UDCDmain.Log("RemoveQuestDevice("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - NPC slot: " + loc_slot,1)
 				elseif loc_mutex	
@@ -426,13 +426,13 @@ Bool Function UnlockDeviceByKeyword(actor akActor, keyword zad_DeviousDevice, bo
 	endif
 	
 	if !akActor.wornHasKeyword(zad_DeviousDevice)
-		if UDCDmain.TraceAllowed()
+		if UDmain.TraceAllowed()
 			UDCDmain.Log("UnlockDeviceByKeyword("+GetActorName(akActor)+")(UDP) - actor have mo keyword equipped= " + zad_DeviousDevice)
 		endif
 		return false
 	endif
 	
-	if UDCDmain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDCDmain.Log("UnlockDeviceByKeyword("+GetActorName(akActor)+")(UDP) called for " + zad_DeviousDevice)
 	endif	
 	
@@ -451,7 +451,7 @@ EndFunction
 
 ;updated version to make it work for straightjackets
 Armor Function GetWornRenderedDeviceByKeyword(Actor akActor, Keyword kw)
-	if UDCDmain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDCDmain.Log("GetWornRenderedDeviceByKeyword("+akActor+","+kw+")",3)
 	endif
 	Int slotID = GetSlotMaskForDeviceType(kw)
@@ -463,13 +463,13 @@ Armor Function GetWornRenderedDeviceByKeyword(Actor akActor, Keyword kw)
 		slotID = Armor.GetMaskForSlot(32)
 	endif
 	
-	if UDCDmain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDCDmain.Log("GetWornRenderedDeviceByKeyword("+akActor+","+kw+") - GetSlotMaskForDeviceType = " + slotID,3)
 	endif
 	
 	Armor renderDevice = akActor.GetWornForm(slotID) As Armor
 	
-	if UDCDmain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDCDmain.Log("GetWornRenderedDeviceByKeyword("+akActor+","+kw+") - renderDevice = " + renderDevice,3)
 	endif
 	
@@ -489,12 +489,12 @@ Armor Function GetWornDevice(Actor akActor, Keyword kw)
 		return none
 	endif
 	if !akActor.wornHasKeyword(kw)
-		if UDCDmain.TraceAllowed()
+		if UDmain.TraceAllowed()
 			UDCDmain.Log("GetWornDevice("+GetActorName(akActor)+")(UDP) - actor have no keyword equipped= " + kw)
 		endif
 		return none
 	endif
-	if UDCDmain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDCDMain.Log("GetWornDevice("+GetActorName(akActor)+","+kw+")(UDP)",3)
 	endif
 	if UDCDmain.UDCD_NPCM.isRegistered(akActor)
@@ -522,7 +522,7 @@ Function InflateAnalPlug(actor akActor, int amount = 1)
 			if currentVal > 5
 				currentVal = 5
 			EndIf
-			if UDCDmain.TraceAllowed()
+			if UDmain.TraceAllowed()
 				UDCDMain.Log("Setting anal plug inflation to " + (currentVal),1)
 			endif
 			zadInflatablePlugStateAnal.SetValueInt(currentVal)
@@ -554,7 +554,7 @@ Function InflateVaginalPlug(actor akActor, int amount = 1)
 			if currentVal > 5
 				currentVal = 5
 			EndIf
-			if UDCDmain.TraceAllowed()
+			if UDmain.TraceAllowed()
 				UDCDMain.Log("Setting vaginal plug inflation to " + (currentVal),1)
 			endif
 			zadInflatablePlugStateVaginal.SetValueInt(currentVal)
@@ -727,14 +727,14 @@ EndFunction
 ; Stop vibration event on actor.
 Function StopVibrating(actor akActor)
 	if akActor.WornHasKeyword(UDCDmain.UDlibs.UnforgivingDevice) && UDCDmain.isRegistered(akActor)
-		if UDCDmain.TraceAllowed()		
+		if UDmain.TraceAllowed()		
 			UDCDmain.Log("StopVibrating("+GetActorName(akActor)+") - using patched version: " + akActor)
 		endif
 		UDCDmain.StopAllVibrators(akActor)
 		akActor.SetFactionRank(zadVibratorFaction, 0)
 		akActor.RemoveFromFaction(zadVibratorFaction)
 	else
-		if UDCDmain.TraceAllowed()		
+		if UDmain.TraceAllowed()		
 			UDCDmain.Log("StopVibrating("+GetActorName(akActor)+") - using default version: " + akActor)
 		endif
 		parent.StopVibrating(akActor)
@@ -742,7 +742,7 @@ Function StopVibrating(actor akActor)
 EndFunction
 
 int Function VibrateEffect(actor akActor, int vibStrength, int duration, bool teaseOnly=false, bool silent = false)
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("VibrateEffect(): " + akActor + ", " + vibStrength + ", " + duration)
 	endif
 	if akActor.WornHasKeyword(UDCDmain.UDlibs.UnforgivingDevice) && UDCDmain.isRegistered(akActor)
@@ -750,7 +750,7 @@ int Function VibrateEffect(actor akActor, int vibStrength, int duration, bool te
 		if loc_vibNum > 0
 			UD_CustomDevice_RenderScript[] loc_usableVibrators = UDCDmain.getOffVibrators(akActor)
 			UD_CustomVibratorBase_RenderScript loc_selectedVib = loc_usableVibrators[Utility.randomInt(0,loc_vibNum - 1)] as UD_CustomVibratorBase_RenderScript
-			if UDCDmain.TraceAllowed()			
+			if UDmain.TraceAllowed()			
 				UDCDmain.Log("VibrateEffect("+GetActorName(akActor)+") - selected vib:" + loc_selectedVib,1)
 			endif
 
@@ -801,20 +801,20 @@ bool[] Function StartThirdPersonAnimation(actor akActor, string animation, bool 
 			return new bool[2]
 		endif
 		
-		if UDCDmain.TraceAllowed()
+		if UDmain.TraceAllowed()
 			Log("StartThirdPersonAnimation("+akActor.GetLeveledActorBase().GetName()+","+animation+")")
 		endif
 		
 		;[UD EDIT]: Removed permitRestrictive as its no longer usefull
 		if !IsValidActor(akActor); || (akActor.WornHasKeyword(zad_DeviousArmBinder) && !permitRestrictive)
-			if UDCDmain.TraceAllowed()		
+			if UDmain.TraceAllowed()		
 				Log("Actor is not loaded (Or is otherwise invalid). Aborting.")
 			endif
 			return new bool[2]
 		EndIf
 		
 		if IsAnimating(akActor)
-			if UDCDmain.TraceAllowed()
+			if UDmain.TraceAllowed()
 				Log("Actor already in animating faction.")
 			endif
 			return new bool[2]
@@ -896,7 +896,7 @@ Function EndThirdPersonAnimation(actor akActor, bool[] cameraState, bool permitR
 		if akActor.isInFaction(UDCDmain.BlockAnimationFaction)
 			return
 		endif
-		if UDCDmain.TraceAllowed()	
+		if UDmain.TraceAllowed()	
 			UDCDMain.Log("EndThirdPersonAnimation("+GetActorName(akActor)+","+cameraState+")",1)
 		endif
 		SetAnimating(akActor, false)
@@ -1019,7 +1019,7 @@ Armor Function GetRenderedDevice(armor device)
 	if device.haskeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
 		Armor loc_res = StorageUtil.GetFormValue(device, "UD_RenderDevice", none) as Armor
 		if loc_res
-			if UDCDmain.TraceAllowed()		
+			if UDmain.TraceAllowed()		
 				UDCDmain.Log("GetRenderedDevice(patched)("+device.getName()+")called, returning " + loc_res,2)
 			endif
 			return loc_res
@@ -1032,7 +1032,7 @@ Function UpdateControls()
 	if _installing
 		return
 	endif
-	if UDCDmain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDCDMain.Log("UpdateControls(UDP)()",3)
 	endif
 	

@@ -558,7 +558,7 @@ Function vibrate(float fDurationMult = 1.0)
 		return
 	endif
 	
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("Vibrate called for " + getDeviceName() + " on " + getWearerName() + ", duration: " + _currentVibRemainingDuration + ", strength: " + _currentVibStrength + ", edging: " + _currentEdgingMode)
 	endif
 	

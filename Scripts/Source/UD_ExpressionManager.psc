@@ -96,7 +96,7 @@ Function Update()
 EndFunction
 
 Function RegisterExpression(string sJsonName)
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("Registering expression " + sJsonName)
 	endif
 	
@@ -108,7 +108,7 @@ Function RegisterExpression(string sJsonName)
 		if !loc_expressionSlot.Registered
 			loc_expressionSlot.MakeEphemeral(sJsonName, none)
 			loc_expressionSlot.ImportJson()
-			if UDCDmain.TraceAllowed()			
+			if UDmain.TraceAllowed()			
 				UDCDmain.Log("Expression["+ loc_aliasNum +"] = " + sJsonName + ", registered!")
 			endif
 			return
@@ -339,7 +339,7 @@ bool Function ApplyExpression(Actor akActor, sslBaseExpression expression, int s
 		return false
 	EndIf
 	
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("(Patched) Expression " + expression + " applied for " + getActorName(akActor) +", strength: " + strength + ",mouth?: " + openMouth,2)
 	endif
 	
@@ -349,7 +349,7 @@ bool Function ApplyExpression(Actor akActor, sslBaseExpression expression, int s
 	_ExpressionManip_Mutex = true
 	
 	if !CheckExpressionBlock(akActor,iPriority,1)
-		if UDCDmain.TraceAllowed()		
+		if UDmain.TraceAllowed()		
 			UDCDmain.Log("(Patched) Expression " + expression + " is blocked for " + getActorName(akActor) +", strength: " + strength + ",mouth?: " + openMouth,2)
 		endif
 		_ExpressionManip_Mutex = false
@@ -377,7 +377,7 @@ bool Function ApplyExpressionRaw(Actor akActor, float[] expression, int strength
 		UDCDMain.Error("ApplyExpressionRaw(): Expression is not size 32!")
 		return false
 	EndIf
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("ApplyExpressionRaw (" + expression + ") applied for " + getActorName(akActor) +", strength: " + strength + ",mouth?: " + openMouth,2)
 	endif
 	
@@ -387,7 +387,7 @@ bool Function ApplyExpressionRaw(Actor akActor, float[] expression, int strength
 	_ExpressionManip_Mutex = true
 	
 	if !CheckExpressionBlock(akActor,iPriority,1)
-		if UDCDmain.TraceAllowed()		
+		if UDmain.TraceAllowed()		
 			UDCDmain.Log("ApplyExpressionRaw (" + expression + ") is blocked for " + getActorName(akActor) +", strength: " + strength + ",mouth?: " + openMouth,2)
 		endif
 		_ExpressionManip_Mutex = false
@@ -436,7 +436,7 @@ Function SetExpression(Actor akActor, sslBaseExpression expression, int strength
 	float[] loc_expression = expression.GenderPhase(expression.CalcPhase(Strength, Gender), Gender)
 	float[] loc_appliedExpression = GetCurrentMFG(akActor) 
 
-	if UDCDmain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDCDmain.Log("SetExpression("+akActor+") - passed expression: \n"+loc_expression+"\n Current expression: \n"+loc_appliedExpression)
 	endif
 
@@ -446,7 +446,7 @@ Function SetExpression(Actor akActor, sslBaseExpression expression, int strength
 		loc_expression[expression.Phoneme + 0] = 0.75
 	endif
 	
-	if UDCDmain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDCDmain.Log("SetExpression("+akActor+") - modified expression: \n"+loc_expression)
 	endif
 	
@@ -474,7 +474,7 @@ Function SetExpressionRaw(Actor akActor, float[]  expression, int strength, bool
 EndFunction
 
 bool Function ResetExpression(actor akActor, sslBaseExpression expression,int iPriority = 0)
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("Expression " + expression + " reset for " + getActorName(akActor),2)
 	endif
 	
@@ -484,7 +484,7 @@ bool Function ResetExpression(actor akActor, sslBaseExpression expression,int iP
 	
 	_ExpressionManip_Mutex = true
 	if !CheckExpressionBlock(akActor,iPriority,0)
-		if UDCDmain.TraceAllowed()		
+		if UDmain.TraceAllowed()		
 			UDCDmain.Log("(Patched) Expression " + expression + " is blocked for " + getActorName(akActor),3)
 		endif
 		_ExpressionManip_Mutex = false
@@ -512,7 +512,7 @@ bool Function ResetExpression(actor akActor, sslBaseExpression expression,int iP
 EndFunction
 
 bool Function ResetExpressionRaw(actor akActor, int iPriority = 0)
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("ResetExpressionRaw - Expression reset for " + getActorName(akActor),2)
 	endif
 	
@@ -522,7 +522,7 @@ bool Function ResetExpressionRaw(actor akActor, int iPriority = 0)
 	
 	_ExpressionManip_Mutex = true
 	if !CheckExpressionBlock(akActor,iPriority,0)
-		if UDCDmain.TraceAllowed()		
+		if UDmain.TraceAllowed()		
 			UDCDmain.Log("ResetExpressionRaw - Expression is blocked for " + getActorName(akActor),3)
 		endif
 		_ExpressionManip_Mutex = false
@@ -566,7 +566,7 @@ Function ApplyGagEffect(actor akActor)
 EndFunction
 
 Function RemoveGagEffect(actor akActor)
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("RemoveGagEffect called",2)
 	endif
 	while _ExpressionManip_Mutex

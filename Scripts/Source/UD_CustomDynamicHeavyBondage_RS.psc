@@ -83,7 +83,7 @@ EndFunction
 
 bool _untieMinigameOn = false
 bool Function UntieMinigame()
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("UntieMinigame called for " + getDeviceName() + " on " + getWearerName())
 	endif
 	resetMinigameValues()

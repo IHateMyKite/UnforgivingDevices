@@ -43,6 +43,8 @@ UD_ParalelProcess Property UDPP auto
 UD_CustomDevices_NPCSlotsManager Property UDNPCM auto
 UD_MutexManagerScript Property UDMM auto
 UD_ModifierManager_Script Property UDMOM auto
+UD_UserInputScript Property UDUI auto
+
 UD_MenuChecker Property UDMC 
 	UD_MenuChecker Function get()
 		return UD_UtilityQuest as UD_MenuChecker

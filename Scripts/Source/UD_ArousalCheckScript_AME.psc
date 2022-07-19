@@ -3,6 +3,11 @@ Scriptname UD_ArousalCheckScript_AME extends activemagiceffect
 import UnforgivingDevicesMain
 
 UDCustomDeviceMain Property UDCDmain auto
+UnforgivingDevicesMain Property UDmain
+	UnforgivingDevicesMain Function get()
+		UDCDmain.UDmain
+	EndFunction
+EndProperty
 zadlibs Property libs auto
 UD_OrgasmManager Property UDOM 
 	UD_OrgasmManager Function get()
@@ -25,7 +30,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 	_MagickEffect = GetBaseObject()
 	akActor = akTarget
 	akActor.AddToFaction(UDOM.ArousalCheckLoopFaction)
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("UD_ArousalCheckScript_AME("+getActorName(akActor)+") - OnEffectStart()")
 	endif
 	registerForSingleUpdate(0.1)
@@ -63,7 +68,7 @@ EndEvent
 
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
 	_finished = true
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("UD_ArousalCheckScript_AME("+getActorName(akActor)+") - OnEffectFinish()",1)
 	endif
 	akActor.RemoveFromFaction(UDOM.ArousalCheckLoopFaction)

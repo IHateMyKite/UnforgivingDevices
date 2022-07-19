@@ -27,7 +27,7 @@ Event OnInit()
 		while !(GetNthAlias(index) as UD_CustomDevice_NPCSlot).ready
 			Utility.waitMenuMode(0.1)
 		endwhile
-		if UDCDmain.TraceAllowed()		
+		if UDmain.TraceAllowed()		
 			UDCDMain.Log("NPCslot["+ index +"] ready!")
 		endif
 	endwhile
@@ -148,7 +148,7 @@ Function initPlayerSlot()
 	getPlayerSlot().ForceRefTo(UDmain.Player)
 	UDOM.CheckOrgasmCheck(UDmain.Player)
 	UDOM.CheckArousalCheck(UDmain.Player)
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDMain.Log("PlayerSlot ready!")
 	endif
 EndFunction

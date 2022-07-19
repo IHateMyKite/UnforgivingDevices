@@ -13,7 +13,7 @@ UD_ExpressionManager Property UDEM
 		return UDCDmain.UDEM
 	EndFunction
 EndProperty
-UnforgivingDevicesMain Property UDmain 
+UnforgivingDevicesMain Property UDmain
 	UnforgivingDevicesMain Function get()
 		return UDCDmain.UDmain
 	EndFunction
@@ -57,7 +57,7 @@ float[] loc_expression
 Event OnEffectStart(Actor akTarget, Actor akCaster)
 	akActor = akTarget
 	akActor.AddToFaction(UDOM.OrgasmCheckLoopFaction)
-	if UDCDmain.TraceAllowed() && UDmain.ActorIsPlayer(akActor)
+	if UDmain.TraceAllowed() && UDmain.ActorIsPlayer(akActor)
 		UDCDmain.Log("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - OnEffectStart()",2)
 	endif
 	_MagickEffect = GetBaseObject()
@@ -98,7 +98,7 @@ EndEvent
 
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
 	_finished = true
-	if UDCDmain.TraceAllowed() && UDmain.ActorIsPlayer(akActor)
+	if UDmain.TraceAllowed() && UDmain.ActorIsPlayer(akActor)
 		UDCDmain.Log("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - OnEffectFinish()",1)
 	endif
 	;stop moan sound
@@ -177,7 +177,7 @@ Event OnUpdate()
 
 			;check orgasm
 			if loc_orgasmProgress_p > 0.99
-				if UDCDmain.TraceAllowed()			
+				if UDmain.TraceAllowed()			
 					UDCDmain.Log("Starting orgasm for " + getActorName(akActor))
 				endif
 				if loc_orgasmResisting
@@ -339,7 +339,7 @@ Function Print(String strMsg, int iLevel = 1,bool bLog = false)
 	UDCDmain.Print(strMsg,iLevel,bLog)
 EndFunction
 Bool Function TraceAllowed()
-	return UDCDmain.TraceAllowed()
+	return UDmain.TraceAllowed()
 EndFunction
 zadlibs_UDPatch Property libsp
 	zadlibs_UDPatch function Get()

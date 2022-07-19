@@ -74,11 +74,11 @@ EndFunction
 
 Function CheckOrgasmCheck(Actor akActor)
 	if !akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
-		GInfo("Starting again Orgasm check loop for " + getActorName(akActor))
+		;GInfo("Starting again Orgasm check loop for " + getActorName(akActor))
 		StartOrgasmCheckLoop(akActor)
 	endif
 	if !akActor.hasSpell(UDlibs.OrgasmCheckAbilitySpell) && akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
-		GInfo("Updating Orgasm check loop for " + getActorName(akActor))
+		;GInfo("Updating Orgasm check loop for " + getActorName(akActor))
 		akActor.DispelSpell(UDlibs.OrgasmCheckSpell)
 		StartOrgasmCheckLoop(akActor)
 	endif
@@ -86,11 +86,11 @@ EndFunction
 
 Function CheckArousalCheck(Actor akActor)
 	if !akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
-		GInfo("Starting again Arousal check loop for " + getActorName(akActor))
+		;GInfo("Starting again Arousal check loop for " + getActorName(akActor))
 		StartArousalCheckLoop(akActor)
 	endif
 	if !akActor.hasSpell(UDlibs.ArousalCheckAbilitySpell) && akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
-		GInfo("Updating Arousal check loop for " + getActorName(akActor))
+		;GInfo("Updating Arousal check loop for " + getActorName(akActor))
 		akActor.DispelSpell(UDlibs.ArousalCheckSpell)
 		StartArousalCheckLoop(akActor)
 	endif
@@ -513,7 +513,7 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 75,in
 	
 	Int loc_orgasms = getOrgasmingCount(akActor)
 	
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("ActorOrgasmPatched called for " + GetActorName(akActor),1)
 	endif
 	
@@ -544,7 +544,7 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 75,in
 	elseif akActor.GetCurrentScene()
 		Utility.wait(iDuration)
 	elseif akActor.IsInFaction(libsp.Sexlab.AnimatingFaction)
-		if UDCDmain.TraceAllowed()	
+		if UDmain.TraceAllowed()	
 			UDCDmain.Log("ActorOrgasmPatched - sexlab animation detected - not playing animation for " + GetActorName(akActor),2)
 		endif
 		Utility.wait(iDuration)

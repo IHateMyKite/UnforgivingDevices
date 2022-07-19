@@ -147,6 +147,9 @@ Int Property UD_Level
 	EndFunction
 	Function set(int aiValue)
 		_level = iRange(aiValue,1,1000)
+		;reset vars
+		current_device_health = UD_Health
+		UD_CurrentLocks = UD_Locks
 	EndFunction	
 EndProperty
 
@@ -1091,11 +1094,6 @@ EndProperty
 ;=============================================================
 ;=============================================================
 
-;chekcs if animation are set and if not, sets them
-Function safeCheckAnimations()
-	UDCDmain.UDPatcher.safecheckAnimations(self)
-EndFunction
-
 ;returns current device wearer
 Actor Function getWearer()
 	return Wearer
@@ -1191,7 +1189,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 	
 	if UDmain		
 		if (akOldContainer == UDCDmain.TransfereContainer_ObjRef)
-			if UDCDmain.TraceAllowed()			
+			if UDmain.TraceAllowed()			
 				UDCDmain.Log("Device " + getDeviceHeader() + " transfered to transfer container!",2)
 			endif
 			UDCDmain._transferedDevice = self
@@ -1427,13 +1425,13 @@ Function StartInitMutex()
 		Utility.WaitMenuMode(0.1)
 	EndWhile
 	UDCDmain.UD_EquipMutex = True
-	if UDCDmain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDCDmain.Log("Mutexed and proccesing " + getDeviceHeader(),2)
 	endif
 EndFunction
 
 Function EndInitMutex()
-	if UDCDmain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDCDmain.Log("Mutex ended for " + getDeviceHeader(),2)
 	endif
 	UDCDmain.UD_EquipMutex = False
@@ -1494,7 +1492,7 @@ Function Init(Actor akActor)
 		return
 	endif
 
-	if UDCDmain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDCDmain.Log("Init(called for " + getDeviceHeader(),1)
 	endif
 	
@@ -1509,7 +1507,7 @@ Function Init(Actor akActor)
 		StartInitMutex()
 	endif
 	
-	if UDCDmain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDCDmain.Log("Registering device: " + getDeviceHeader(),1)
 	endif
 	
@@ -1530,7 +1528,7 @@ Function Init(Actor akActor)
 	;endif
 	
 	if deviceRendered.hasKeyword(UDlibs.PatchedDevice) ;patched device
-		if UDCDmain.TraceAllowed()		
+		if UDmain.TraceAllowed()		
 			UDCDmain.Log("Patching device " + deviceInventory.getName(),2)
 		endif
 
@@ -1565,7 +1563,7 @@ Function Init(Actor akActor)
 		resetCooldown()
 	endif
 	
-	if UDCDmain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDCDmain.Log(DeviceInventory.getName() + " fully locked on " + getWearerName(),1)
 	endif
 	
@@ -1583,6 +1581,9 @@ Function removeDevice(actor akActor)
 		return
 	endif
 	_removeDeviceCalled = True
+	
+	GoToState("Stoped")
+	
 	if !akActor.isDead()
 		if !_isUnlocked
 			_isUnlocked = True
@@ -1596,7 +1597,7 @@ Function removeDevice(actor akActor)
 		endif
 	endif
 	
-	if UDCDmain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDCDmain.Log("removeDevice() called for " + getDeviceHeader(),1)
 	endif
 	
@@ -1614,7 +1615,7 @@ Function removeDevice(actor akActor)
 	UDmain.UDMOM.Procces_UpdateModifiers_Remove(self) ;update modifiers
 	
 	if UD_OnDestroyItemList
-		if UDCDmain.TraceAllowed()
+		if UDmain.TraceAllowed()
 			UDCDmain.Log("Items from LIL " + UD_OnDestroyItemList + " added to actor " + GetWearername(),3)
 		endif
 		akActor.addItem(UD_OnDestroyItemList)
@@ -1656,8 +1657,11 @@ Function Update(float timePassed)
 	OnUpdatePre(timePassed)
 	
 	updateCondition()
+	
 	OnUpdatePost(timePassed)
 EndFunction
+
+
 
 Function resetCooldown()
 	_updateTimePassed = 0.0
@@ -2278,7 +2282,7 @@ EndFunction
 ;	16 = special menu
 ;	17 = lockmenu
 Function DeviceMenu(bool[] aControl)
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log(getDeviceHeader()+" DeviceMenu() called , aControl = "+aControl,2)
 	endif
 	bool _break = False
@@ -2422,7 +2426,7 @@ EndFunction
 ;	16 = special menu
 ;	17 = lockmenu
 Function DeviceMenuWH(Actor akSource,bool[] aControl)
-	if UDCDmain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDCDmain.Log(getDeviceHeader() + " DeviceMenuWH() called, aControl = "+aControl,2)
 	endif
 	
@@ -3429,6 +3433,8 @@ bool Function minigamePrecheck()
 	return true
 EndFunction
 
+
+
 ;===============================================================
 ;!!!--------------------MINIGAME LOOP------------------------!!!
 ;===============================================================
@@ -3443,13 +3449,14 @@ Function minigame()
 		showDebugMinigameInfo()
 	endif
 	
+	GoToState("Stoped")
+	
 	bool loc_WearerIsPlayer = WearerIsPlayer()
 	bool loc_HelperIsPlayer = HelperIsPlayer()
 	bool loc_PlayerInMinigame = loc_WearerIsPlayer || loc_HelperIsPlayer
 	
 	if loc_PlayerInMinigame
 		closeMenu()
-		UDCDmain.GoToState("Minigame")
 	endif
 	
 	minigame_on = True
@@ -3462,7 +3469,7 @@ Function minigame()
 	
 	UDCDMain.UDPP.Send_MinigameStarter(getWearer(),self)
 	
-	if UDCDmain.TraceAllowed()
+	if UDmain.TraceAllowed()
 		UDCDmain.Log("Minigame started for: " + deviceInventory.getName())	
 	endif
 	
@@ -3591,10 +3598,7 @@ Function minigame()
 	
 	_MinigameMainLoop_ON = false
 	
-	addStruggleExhaustion()
-	
 	if loc_PlayerInMinigame
-		UDCDmain.GoToState("")
 		UDCDmain.MinigameKeysUnRegister()
 	endif	
 	
@@ -3620,43 +3624,53 @@ Function minigame()
 		endif
 	endif
 	
-	;debug message
-	if UDmain.DebugMod && UD_damage_device && durability_onstart != current_device_health && loc_WearerIsPlayer
-		debug.notification("[Debug] Durability reduced: "+ formatString(durability_onstart - current_device_health,3) + "\n")
-	endif
-	
 	if !UDOM.isOrgasming(Wearer)
 		libs.EndThirdPersonAnimation(Wearer, cameraState, true) ;ends struggle animation
 	endif
 	
-	if hasHelper()
+	if _minigameHelper
 		if !UDOM.isOrgasming(_minigameHelper)
 			libs.EndThirdPersonAnimation(_minigameHelper, cameraState, true) ;ends struggle animation
 		endif
 	endif
-	
+
+	;remove disable
+	UDCDMain.EndMinigameDisable(Wearer)
+	if _minigameHelper
+		UDCDMain.EndMinigameDisable(_minigameHelper)
+	endif
+
+	;/
 	UDCDmain.EnableActor(Wearer,true)
 	if hasHelper()
 		UDCDmain.EnableActor(_minigameHelper,true)
 	endif
-
-	if UDCDmain.TraceAllowed()	
+	/;
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("Minigame ended for: "+ deviceInventory.getName(),1)
 	endif
 	
 	;wait for paralled threads to end
 	float loc_time = 0.0
-	while (_MinigameParProc_1 || _MinigameParProc_2 || _MinigameParProc_3) && loc_time <= 2.5
+	while (_MinigameParProc_1 || _MinigameParProc_2 || _MinigameParProc_3) && loc_time <= 3.5
 		Utility.waitMenuMode(0.01)
 		loc_time += 0.01
 	endwhile
-	if loc_time >= 2.5
+	if loc_time >= 3.5
 		UDCDMain.Error("minigame("+getDeviceHeader()+") - Minigame paralel thread timeout!")
 	endif
 	
 	MinigameVarReset()
 	
 	OnMinigameEnd()
+	
+	GoToState("")
+	
+	;debug message
+	if UDmain.DebugMod && UD_damage_device && durability_onstart != current_device_health && loc_WearerIsPlayer
+		debug.notification("[Debug] Durability reduced: "+ formatString(durability_onstart - current_device_health,3) + "\n")
+	endif
+	
 EndFunction
 
 Function MinigameVarReset()
@@ -3912,14 +3926,14 @@ EndFunction
 ;unlocks restrain, ALWAYS call this if you want to unlock restrain from this script
 Function unlockRestrain(bool forceDestroy = false,bool waitForRemove = True)
 	if _isUnlocked
-		if UDCDmain.TraceAllowed()		
+		if UDmain.TraceAllowed()		
 			UDCDmain.Log("unlockRestrain()"+getDeviceHeader()+": Device is already unlocked! Aborting ",1)
 		endif
 		return
 	endif
 	_isUnlocked = True
-
-	if UDCDmain.TraceAllowed()	
+	GoToState("Stoped")
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("unlockRestrain() called for " + self,1)
 	endif
 	
@@ -3949,22 +3963,6 @@ Function unlockRestrain(bool forceDestroy = false,bool waitForRemove = True)
 	else
 		libs.UnlockDevice(Wearer, deviceInventory, deviceRendered, UD_DeviceKeyword, zad_DestroyOnRemove || hasModifier("DOR") || forceDestroy)
 	endif
-	
-	;unlock device is now blocking. no longer need to check if device was sucefully removed
-	;/
-	if waitForRemove
-		float loc_time = 0.0
-		while !_isRemoved && loc_time <= 4.0
-			Utility.waitMenuMode(0.1)
-			loc_time += 0.1
-		endwhile
-		
-		if loc_time >= 4.0
-			UDCDmain.Error(getDeviceHeader() + " UnlockRestrain/waitForRemove timeout!!! Calling inside remove...")
-			removeDevice(getWearer())
-		endif
-	endif
-	/;
 EndFunction
 
 ;biggest pain in the ass. 
@@ -4136,6 +4134,8 @@ string Function getInfoString()
 			temp += "Resist: "
 			temp += "P = " + Round(getModResistPhysical(0.0)*-100.0) + "/"+Round(UD_WeaponHitResist*100.0)+" %/"
 			temp += "M = " + Round(getModResistMagicka(0.0)*-100.0) + " %\n"
+		elseif loc_accesibility == 0
+			temp += "Resist: Inescapable\n"
 		else
 			temp += "Resist: Indestructable\n"
 		endif
@@ -4435,7 +4435,7 @@ Function cutDevice(float progress_add = 1.0)
 		updateCondition()
 		decreaseDurabilityAndCheckUnlock(UD_DamageMult*cond_dmg*getModResistPhysical(1.0,0.25)/7.0,0.0)
 		_CuttingProgress = 0.0
-		if UDCDmain.TraceAllowed()		
+		if UDmain.TraceAllowed()		
 			UDCDmain.Log(getDeviceHeader() + " is cutted for " + cond_dmg + "C ( " + (UD_DamageMult*cond_dmg*getModResistPhysical(1.0,0.25)/7.0) + " D) (Wearer: " + getWearerName() + ")",1)
 		endif
 		OnDeviceCutted()
@@ -4538,7 +4538,7 @@ Function lockpickDevice()
 				Wearer.RemoveItem(UDCDmain.Lockpick, 1, True)
 			endif
 		endif
-		if UDCDmain.TraceAllowed()
+		if UDmain.TraceAllowed()
 			UDCDmain.UDmain.Log("Lockpick minigame result for " + getWearerName() + ": " + result,2)
 		endif
 		if result == 0
@@ -4672,7 +4672,7 @@ function checkSentient(float mult = 1.0)
 			startSentientDialogue(1)
 		endif
 		if Round(getModifierFloatParam("Sentient")*mult) > Utility.randomInt(1,99)
-			if UDCDmain.TraceAllowed()			
+			if UDmain.TraceAllowed()			
 				UDCDmain.Log("Sentient device activation of : " + getDeviceHeader())
 			endif
 			UDCDmain.activateDevice(self)
@@ -4682,7 +4682,7 @@ EndFunction
 
 ;function called when wearer is hit by source weapon
 Function weaponHit(Weapon source)
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log(getDeviceHeader()+ " hit by "+source.getName()+"(" +source+ ") event received, damage: " + source.getBaseDamage(),3)
 	endif
 	if onWeaponHitPre(source)
@@ -4692,7 +4692,7 @@ EndFunction
 
 ;function called when wearer is hit by source spell
 Function spellHit(Spell source)
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("Device " + DeviceInventory.getName() + " hit by "+source+" event received",3)
 	endif
 	if onSpellHitPre(source)
@@ -4702,7 +4702,7 @@ EndFunction
 
 bool Function CooldownActivate()
 	if OnCooldownActivatePre()
-		if UDCDmain.TraceAllowed()		
+		if UDmain.TraceAllowed()		
 			UDCDmain.Log(getDeviceHeader() + " cooldown activate",1)
 		endif
 		;resetCooldown()
@@ -4737,7 +4737,7 @@ EndFunction
 ;--------------------------------------------------                                                  
 ;theese function should be on every object instance, as not having them may cause multiple function calls to default class
 Function activateDevice()
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("Device " + DeviceInventory.getName() + " (W: " + getWearerName() + ") activated",1)
 	endif
 	resetCooldown()
@@ -4779,7 +4779,7 @@ bool Function OnEdgePre()
 EndFunction
 
 Function OnMinigameEdge()
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("Edge in struggle loop detected",2)
 	endif
 	
@@ -4948,7 +4948,7 @@ Function onWeaponHitPost(Weapon source)
 		if !source.getBaseDamage()
 			loc_damage = 5.0
 		endif
-		decreaseDurabilityAndCheckUnlock(loc_damage*0.08*(1.0 - UD_WeaponHitResist),2.0)
+		decreaseDurabilityAndCheckUnlock(loc_damage*0.25*(1.0 - UD_WeaponHitResist),2.0)
 		
 		if HaveUnlockableLocks()
 			if hasModifier("_L_CHEAP")
@@ -4965,21 +4965,6 @@ EndFunction
 
 Function onSpellHitPost(Spell source)
 	if !isUnlocked; && getModResistMagicka(1.0,0.25) != 1.0
-		;/
-		;decreaseDurabilityAndCheckUnlock(source.getBaseDamage()*0.1*getModResistMagicka(1.0,0.25),1.0)
-		
-		int loc_mageffects = source.GetNumEffects()
-		while loc_mageffects
-			loc_mageffects -= 1
-			;debug.notification("Magick hit for "+ loc_mageffect.GetAssociatedSkill() +"!")
-			MagicEffect loc_mageffect = source.GetNthEffectMagicEffect(loc_mageffects)
-			if loc_mageffect.GetAssociatedSkill() == "Destruction"
-				float loc_mag = source.GetNthEffectMagnitude(loc_mageffects)
-				debug.notification("Magick hit for "+ loc_mag +"!")
-				decreaseDurabilityAndCheckUnlock(loc_mag*0.25*(1.0 - UD_SpellHitResist),2.0)
-			endif
-		endwhile
-		/;
 	endif
 EndFunction
 
@@ -5089,9 +5074,23 @@ Float[] Function GetCurrentMinigameExpression()
 	endif
 EndFunction
 
+
+
 ;-------------------------------------------------------------------------------------
 ;-------------------------------------------------------------------------------------
 ;-------------------------------------------------------------------------------------
+
+State Stoped
+	Function Update(float timePassed)
+		_updateTimePassed += (timePassed*24.0*60.0);*UDCDmain.UD_CooldownMultiplier
+	EndFunction
+	
+	Function updateMend(float timePassed)
+	EndFunction
+	
+	Function UpdateHour(float mult)
+	EndFunction
+EndState
 
 ;UTILITY functions NEEDED because the functions are used before UDmain are loaded
 ;mainly used in initiation of properties, which load before UDCDmain (if its not filled)

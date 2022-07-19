@@ -112,7 +112,7 @@ EndFunction
 
 bool Property Ready = False Auto
 Event OnConfigInit()
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("MCM init started")
 	endif
 	
@@ -134,7 +134,7 @@ Event OnConfigInit()
 	
 	actorIndex = 10
 	
-	if UDCDmain.TraceAllowed()	
+	if UDmain.TraceAllowed()	
 		UDCDmain.Log("MCM ready")
 	endif
 	Ready = True
