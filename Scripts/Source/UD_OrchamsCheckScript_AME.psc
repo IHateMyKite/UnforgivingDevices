@@ -22,6 +22,7 @@ zadlibs Property libs auto
 
 Actor akActor = none
 bool _finished = false
+bool _processing = false
 MagicEffect _MagickEffect = none
 
 ;local variables
@@ -101,6 +102,13 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
 	if UDmain.TraceAllowed() && UDmain.ActorIsPlayer(akActor)
 		UDCDmain.Log("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - OnEffectFinish()",1)
 	endif
+	
+	float loc_elapsedtime = 0.0
+	while _processing && loc_elapsedtime <= 5.0 ;wait for update function to end
+		Utility.waitmenumode(0.1)
+		loc_elapsedtime += 0.1
+	endwhile
+	
 	;stop moan sound
 	if loc_msID != -1
 		Sound.StopInstance(loc_msID)
@@ -120,8 +128,6 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
 	;reset expression
 	UDEM.ResetExpressionRaw(akActor, 10)
 	
-	;StorageUtil.UnsetFloatValue(akActor, "UD_OrgasmProgress")
-
 	;end mutex
 	akActor.RemoveFromFaction(UDOM.OrgasmCheckLoopFaction)
 EndEvent
@@ -130,9 +136,13 @@ Function Update()
 	if !loc_expression
 		loc_expression = UDEM.GetPrebuildExpression_Horny1()
 	endif
+	if IsRunning()
+		akActor.AddToFaction(UDOM.OrgasmCheckLoopFaction)
+	endif
 EndFunction
 
 Event OnUpdate()
+	_processing = true
 	if IsRunning()
 		if UDOM.OrgasmLoopBreak(akActor, UDOM.UD_OrgasmCheckLoop_ver) ;!UDCDmain.isRegistered(akActor) && !akActor.isDead()
 			GInfo("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - OrgasmLoopBreak -> dispeling")
@@ -318,12 +328,12 @@ Event OnUpdate()
 			endif
 		endif
 	endif
+	_processing = false
 EndEvent
 
 bool Function IsRunning()
-	return akActor.hasMagicEffect(_MagickEffect)
+	return !_finished
 EndFunction
-
 
 ;wrappers
 bool Function ActorIsFollower()

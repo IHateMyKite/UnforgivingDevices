@@ -34,8 +34,11 @@ float Property MagickSkill 		= 0.0 auto hidden
 float Property CuttingSkill 	= 0.0 auto hidden
 float Property SmithingSkill 	= 0.0 auto hidden
 
+float Property ArousalSkillMult	= 1.0 auto hidden
+
 ;update other variables
 Function UpdateSlot()
+	ArousalSkillMult = UDCDmain.getArousalSkillMult(getActor())
 	UpdateSkills()
 	UpdateBodySlots()
 EndFunction

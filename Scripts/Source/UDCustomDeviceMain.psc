@@ -1954,30 +1954,28 @@ EndFunction
 bool Property LockpickMinigameOver = false auto hidden
 int Property LockpickMinigameResult = 0 auto hidden
 Event OnMenuClose(String MenuName)
-	if MenuName == "Lockpicking Menu"
-		if UDmain.ConsoleUtilInstalled
-			ConsoleUtil.ExecuteCommand("ToggleDetection")
-		endif
-		int remainingLockpicks = UDmain.Player.GetItemCount(Lockpick)
-		
-		if remainingLockpicks > 0
-			if !_LockPickContainer.IsLocked()
-				LockpickMinigameResult = 1 ;player succesfully finished minigame
-			elseif remainingLockpicks == usedLockpicks
-				LockpickMinigameResult = 0 ;player exited minigame before trying to pick the lock
-			else
-				LockpickMinigameResult = 2 ;player aborted mnigame after breaking at least one lockpick
-			endif
-		else
-			LockpickMinigameResult = 2 ;player tried to lockpick the device but failed (all lockpicks broke)
-		endif
-		if UDmain.TraceAllowed()		
-			Log("Lockpick minigame closed, lockpicks returned: " + (lockpicknum - usedLockpicks) + " ; Result: " + LockpickMinigameResult,1)
-		endif
-		UDmain.Player.AddItem(Lockpick, lockpicknum - usedLockpicks, True)
-		UnregisterForAllMenus()
-		LockpickMinigameOver = True
+	if UDmain.ConsoleUtilInstalled
+		ConsoleUtil.ExecuteCommand("ToggleDetection")
 	endif
+	int remainingLockpicks = UDmain.Player.GetItemCount(Lockpick)
+	
+	if remainingLockpicks > 0
+		if !_LockPickContainer.IsLocked()
+			LockpickMinigameResult = 1 ;player succesfully finished minigame
+		elseif remainingLockpicks == usedLockpicks
+			LockpickMinigameResult = 0 ;player exited minigame before trying to pick the lock
+		else
+			LockpickMinigameResult = 2 ;player aborted mnigame after breaking at least one lockpick
+		endif
+	else
+		LockpickMinigameResult = 2 ;player tried to lockpick the device but failed (all lockpicks broke)
+	endif
+	if UDmain.TraceAllowed()		
+		Log("Lockpick minigame closed, lockpicks returned: " + (lockpicknum - usedLockpicks) + " ; Result: " + LockpickMinigameResult,1)
+	endif
+	UDmain.Player.AddItem(Lockpick, lockpicknum - usedLockpicks, True)
+	LockpickMinigameOver = True
+	UnregisterForAllMenus()
 EndEvent
 
 Keyword Function GetHeavyBondageKeyword(Armor akDevice)
@@ -2051,7 +2049,7 @@ UD_CustomDevice_RenderScript Function getDeviceByKeyword(Actor akActor,keyword a
 EndFunction
 
 ;returs first device by keywords
-;mod = 0 => AND 	(device need all provided keyword)
+;mod = 0 => AND (device need all provided keyword)
 ;mod = 1 => OR 	(device need one provided keyword)
 UD_CustomDevice_RenderScript Function getFirstDeviceByKeyword(Actor akActor,keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)
 	if isRegistered(akActor)
@@ -2071,7 +2069,7 @@ UD_CustomDevice_RenderScript Function getLastDeviceByKeyword(Actor akActor,keywo
 EndFunction
 
 ;returns array of all device containing keyword in their render device
-;mod = 0 => AND 	(device need all provided keyword)
+;mod = 0 => AND (device need all provided keyword)
 ;mod = 1 => OR 	(device need one provided keyword)
 UD_CustomDevice_RenderScript[] Function getAllDevicesByKeyword(Actor akActor,keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)
 	if isRegistered(akActor)
@@ -2082,7 +2080,7 @@ UD_CustomDevice_RenderScript[] Function getAllDevicesByKeyword(Actor akActor,key
 EndFunction
 
 ;returns array of all device containing keyword in their render device
-;mod = 0 => AND 	(device need all provided keyword)
+;mod = 0 => AND (device need all provided keyword)
 ;mod = 1 => OR 	(device need one provided keyword)
 UD_CustomDevice_RenderScript[] Function getAllActivableDevicesByKeyword(Actor akActor,bool bCheckCondition,keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)
 	if isRegistered(akActor)
@@ -2207,7 +2205,6 @@ UD_CustomDevice_RenderScript Function getDeviceScriptByKw(Actor akActor,Keyword 
 EndFunction
 
 UD_CustomDevice_RenderScript[] Function getAllDeviceScriptsByKw(Actor akActor,keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)
-
 	if !kw2
 		kw2 = kw1
 	endif
@@ -2765,45 +2762,13 @@ EndFUnction
 ; gets Lover's Desire perks faster than calling GetMeMyForm every time, based on predefined load order ids on game load
 form Function SLAPerkFastFetch(int formNumber, bool OSL = false)
 	if !OSL
-		; log("Fetched perk " + (Game.GetFormEx(Math.LogicalOr(Math.LeftShift(SLALoadOrder, 24), formNumber))).getName(), 3)
 		return Game.GetFormEx(Math.LogicalOr(Math.LeftShift(SLALoadOrder, 24), formNumber))
 	else
-		; log("Fetched perk " + (Game.GetFormEx(Math.LogicalOr(Math.LogicalOr(0xFE000000, Math.LeftShift(OSLLoadOrderRelative, 12)), formNumber))).getName(), 3)
 		return Game.GetFormEx(Math.LogicalOr(Math.LogicalOr(0xFE000000, Math.LeftShift(OSLLoadOrderRelative, 12)), formNumber))
 	endif
 endFunction
 
-; Spell Property slaDesireSpell auto
-
 Float Function getArousalSkillMult(Actor akActor)
-	; int i = 0
-	; int loc_effects = slaDesireSpell.GetNumEffects()
-	
-	; while i < loc_effects
-	; 	if akActor.HasMagicEffect(slaDesireSpell.GetNthEffectMagicEffect(i))
-	; 		if i == 0
-	; 			return 0.8
-	; 		elseif i == 1
-	; 			return 0.9
-	; 		elseif i == 2
-	; 			return 0.95
-	; 		elseif i == 3
-	; 			return 1.05
-	; 		elseif i == 4
-	; 			return 0.6
-	; 		elseif i == 5
-	; 			return 0.2
-	; 		endif
-	; 	endif
-	; 	i += 1
-	; endwhile
-
-	; int OSL = Game.GetModByName("OSLAroused.esp")
-	; bool OSLSwitch = false
-    ; if ((OSL != 255) && (OSL != 0)) ; 255 = not found, 0 = no skse
-	; 	OSLSwitch = true
-	; endif
-
 	if !UDmain.OSLArousedInstalled
 		if akActor.HasPerk(DesirePerks[0]) 
 			return 0.95
@@ -2832,6 +2797,22 @@ Float Function getArousalSkillMult(Actor akActor)
 		endif
 	endif
 	return 1.0
+EndFunction
+
+Float Function getArousalSkillMultEx(Actor akActor)
+	UD_CustomDevice_NPCSlot loc_slot = GetNPCSlot(akActor)
+	if loc_slot
+		return loc_slot.ArousalSkillMult
+	else
+		return getArousalSkillMult(akActor)
+	endif
+EndFunction
+
+Float Function getSlotArousalSkillMultEx(UD_CustomDevice_NPCSlot akSlot)
+	if !akSlot
+		return 1.0
+	endif
+	return akSlot.ArousalSkillMult
 EndFunction
 
 Function TestExpression(Actor akActor,sslBaseExpression sslExpression,bool bMouth = false,int iTime = 5)

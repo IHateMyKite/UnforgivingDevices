@@ -18,6 +18,11 @@ float Function getAccesibility()
 	if getWearer().wornhaskeyword(libs.zad_DeviousCollar)
 		loc_res *= 0.75
 	endif
+	if getWearer().wornhaskeyword(libs.zad_deviousharness) 	&& !deviceRendered.haskeyword(libs.zad_deviousharness)
+		loc_res *= 0.25
+	elseif getWearer().wornhaskeyword(libs.zad_deviousbelt) && !deviceRendered.haskeyword(libs.zad_deviousbelt)
+		loc_res *= 0.5
+	endif
 	return fRange(loc_res,0.0,1.0)
 EndFunction
 

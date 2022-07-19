@@ -36,235 +36,7 @@ Bool Property Ready = False auto
 Event OnInit()
 	Ready = True
 EndEvent
-;/
-string[] Function GetHeavyBondageAnimation_Armbinder(bool hobble = false)
-	string[] temp
-	int loc_animNum = 0
-	if !hobble
-		loc_animNum = 5
-		if UDCDmain.UDmain.ZaZAnimationPackInstalled
-			loc_animNum += 6
-		endif
-		temp = Utility.CreateStringArray(loc_animNum)
-		temp[0] = "DDRegArmbStruggle01"
-		temp[1] = "DDRegArmbStruggle02"
-		temp[2] = "DDRegArmbStruggle03"
-		temp[3] = "DDRegArmbStruggle04"
-		temp[4] = "DDRegArmbStruggle05"
-		if UDCDmain.UDmain.ZaZAnimationPackInstalled
-			temp[5] = "ZapArmbStruggle01"
-			temp[6] = "ZapArmbStruggle03"
-			temp[7] = "ZapArmbStruggle05"
-			temp[8] = "ZapArmbStruggle07"
-			temp[9] = "ZapArmbStruggle08"
-			temp[10] = "ZapArmbStruggle10"
-		endif
-	else
-		loc_animNum = 2
-		if UDCDmain.UDmain.ZaZAnimationPackInstalled
-			loc_animNum += 3
-		endif
-		temp = Utility.CreateStringArray(loc_animNum)
-		temp[0] = "DDHobArmbStruggle01"
-		temp[1] = "DDHobArmbStruggle02"
-		if UDCDmain.UDmain.ZaZAnimationPackInstalled
-			temp[2] = "ZapArmbStruggle02"
-			temp[3] = "ZapArmbStruggle06"
-			temp[4] = "ZapArmbStruggle09"
-		endif
-	endif
-	return temp
-EndFunction
 
-Function safeCheckAnimations(UD_CustomDevice_RenderScript device,bool force = false)
-	if !device.UD_struggleAnimations || force
-		string[] temp 
-		int loc_animNum = 0
-		if device.deviceRendered.hasKeyword(libs.zad_DeviousArmbinder)
-			temp = GetHeavyBondageAnimation_Armbinder(false)
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousArmbinderElbow)
-			temp = new string[5]
-			temp[0] = "DDRegElbStruggle01"
-			temp[1] = "DDRegElbStruggle02"
-			temp[2] = "DDRegElbStruggle03"
-			temp[3] = "DDRegElbStruggle04"
-			temp[4] = "DDRegElbStruggle05"
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousStraitJacket)
-			loc_animNum = 9
-			if UDCDmain.UDmain.ZaZAnimationPackInstalled
-				loc_animNum += 6
-			endif
-			temp = Utility.CreateStringArray(loc_animNum)
-			temp[0] = "DDRegElbStruggle01"
-			temp[1] = "DDRegElbStruggle02"
-			temp[2] = "DDRegElbStruggle03"
-			temp[3] = "DDRegElbStruggle04"
-			temp[4] = "DDRegElbStruggle05"
-			temp[5] = "DDElbowTie_struggleone"
-			temp[6] = "DDElbowTie_struggletwo"
-			temp[7] = "DDElbowTie_strugglethree"
-			temp[8] = "DDRegbbyokeStruggle01"
-			if UDCDmain.UDmain.ZaZAnimationPackInstalled
-				temp[9] = "ZapArmbStruggle01"
-				temp[10] = "ZapArmbStruggle03"
-				temp[11] = "ZapArmbStruggle05"
-				temp[12] = "ZapArmbStruggle07"
-				temp[13] = "ZapArmbStruggle08"
-				temp[14] = "ZapArmbStruggle10"
-			endif
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousCuffsFront)
-			temp = new string[2]
-			temp[0] = "DDRegcuffsfrontStruggle02"
-			temp[1] = "DDRegcuffsfrontStruggle03"
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousYoke)
-			loc_animNum = 5
-			if UDCDmain.UDmain.ZaZAnimationPackInstalled
-				loc_animNum += 6
-			endif
-			temp = Utility.CreateStringArray(loc_animNum)
-			temp[0] = "DDRegYokeStruggle01"
-			temp[1] = "DDRegYokeStruggle02"
-			temp[2] = "DDRegYokeStruggle03"
-			temp[3] = "DDRegYokeStruggle04"
-			temp[4] = "DDRegYokeStruggle05"
-			if UDCDmain.UDmain.ZaZAnimationPackInstalled
-				temp[5] = "ZapYokeStruggle01"
-				temp[6] = "ZapYokeStruggle03"
-				temp[7] = "ZapYokeStruggle05"
-				temp[8] = "ZapYokeStruggle07"
-				temp[9] = "ZapYokeStruggle08"
-				temp[10] = "ZapYokeStruggle10"
-			endif
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousYokeBB)
-			temp = new string[5]
-			temp[0] = "DDRegbbyokeStruggle01"
-			temp[1] = "DDRegbbyokeStruggle02"
-			temp[2] = "DDRegbbyokeStruggle03"
-			temp[3] = "DDRegbbyokeStruggle04"
-			temp[4] = "DDRegbbyokeStruggle05"
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousElbowTie)
-			temp = new string[3]
-			temp[0] = "DDElbowTie_struggleone"
-			temp[1] = "DDElbowTie_struggletwo"
-			temp[2] = "DDElbowTie_strugglethree"
-		elseif device.deviceRendered.hasKeyword(libs.zad_deviousGag)
-			temp = new string[1]
-			temp[0] = "ft_struggle_gag_1"
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousLegCuffs) || device.deviceRendered.hasKeyword(libs.zad_DeviousBoots)
-			temp = new string[1]
-			temp[0] = "ft_struggle_boots_1"
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousArmCuffs) || device.deviceRendered.hasKeyword(libs.zad_DeviousGloves) || device.deviceRendered.hasKeyword(libs.zad_DeviousBondageMittens)
-			temp = new string[1]
-			temp[0] = "ft_struggle_gloves_1"
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousCollar)
-			temp = new string[1]
-			temp[0] = "ft_struggle_head_1"
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousBlindfold) || device.deviceRendered.hasKeyword(libs.zad_DeviousHood)
-			temp = new string[1]
-			temp[0] = "ft_struggle_blindfold_1"
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousSuit)
-			temp = new string[2]
-			temp[0] = "ft_struggle_boots_1"
-			temp[1] = "ft_struggle_gloves_1"
-			;temp[2] = "ft_struggle_gag_1"
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousBelt)
-			temp = new string[2]
-			temp[0] = "DDChastityBeltStruggle01"
-			temp[1] = "DDChastityBeltStruggle02"
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousPlug)
-			temp = new string[2]
-			temp[0] = "DDZazHornyA"
-			temp[1] = "DDZazHornyD"
-		else	
-			temp = new string[1] ;default for other devices
-			temp[0] = "ft_struggle_gag_1"
-		endif
-		device.UD_struggleAnimations = temp
-	endif
-	
-	if !device.UD_struggleAnimationsHobl || force
-		string[] temp
-		int loc_animNum = 0
-		if device.deviceRendered.hasKeyword(libs.zad_DeviousArmbinder)
-			temp = GetHeavyBondageAnimation_Armbinder(true)
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousArmbinderElbow)
-			temp = new string[2]
-			temp[0] = "DDHobElbStruggle01"
-			temp[1] = "DDHobElbStruggle02"
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousStraitJacket)
-			loc_animNum = 2
-			if UDCDmain.UDmain.ZaZAnimationPackInstalled
-				loc_animNum += 3
-			endif
-			temp = Utility.CreateStringArray(loc_animNum)
-			temp[0] = "DDHobElbStruggle01"
-			temp[1] = "DDHobElbStruggle02"
-			if UDCDmain.UDmain.ZaZAnimationPackInstalled
-				temp[2] = "ZapArmbStruggle02"
-				temp[3] = "ZapArmbStruggle06"
-				temp[4] = "ZapArmbStruggle09"
-			endif
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousCuffsFront)
-			temp = new string[2]
-			temp[0] = "DDHobCuffsFrontStruggle01"
-			temp[1] = "DDHobCuffsFrontStruggle02"
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousYoke)
-			loc_animNum = 2
-			if UDCDmain.UDmain.ZaZAnimationPackInstalled
-				loc_animNum += 3
-			endif
-			temp = Utility.CreateStringArray(loc_animNum)
-			temp[0] = "DDHobYokeStruggle01"
-			temp[1] = "DDHobYokeStruggle02"
-			if UDCDmain.UDmain.ZaZAnimationPackInstalled
-				temp[2] = "ZapYokeStruggle02"
-				temp[3] = "ZapYokeStruggle06"
-				temp[4] = "ZapYokeStruggle09"
-			endif
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousYokeBB)
-			temp = new string[2]
-			temp[0] = "DDHobBBYokeStruggle01"
-			temp[1] = "DDHobBBYokeStruggle02"
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousElbowTie)
-			temp = new string[3]
-			temp[0] = "DDElbowTie_struggleone"
-			temp[1] = "DDElbowTie_struggletwo"
-			temp[2] = "DDElbowTie_strugglethree"
-		elseif device.deviceRendered.hasKeyword(libs.zad_deviousGag)
-			temp = new string[1]
-			temp[0] = "ft_struggle_gag_1"
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousLegCuffs) || device.deviceRendered.hasKeyword(libs.zad_DeviousBoots)
-			temp = new string[1]
-			temp[0] = "ft_struggle_boots_1"
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousArmCuffs) || device.deviceRendered.hasKeyword(libs.zad_DeviousGloves) || device.deviceRendered.hasKeyword(libs.zad_DeviousBondageMittens)
-			temp = new string[1]
-			temp[0] = "ft_struggle_gloves_1"
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousCollar)
-			temp = new string[1]
-			temp[0] = "ft_struggle_head_1"
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousBlindfold) || device.deviceRendered.hasKeyword(libs.zad_DeviousHood)
-			temp = new string[1]
-			temp[0] = "ft_struggle_blindfold_1"
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousSuit)
-			temp = new string[2]
-			temp[0] = "ft_struggle_boots_1"
-			temp[1] = "ft_struggle_gloves_1"
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousBelt)
-			temp = new string[2]
-			temp[0] = "DDChastityBeltStruggle01"
-			temp[1] = "DDChastityBeltStruggle02"
-		elseif device.deviceRendered.hasKeyword(libs.zad_DeviousPlug)
-			temp = new string[2]
-			temp[0] = "DDZazHornyA"
-			temp[1] = "DDZazHornyD"
-		else	
-			temp = new string[1] ;default for other devices
-			temp[0] = "ft_struggle_gag_1"
-		endif
-		device.UD_struggleAnimationsHobl = temp
-	endif
-EndFunction
-/;
 Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
 	Float loc_currentmult = UD_PatchMult_HeavyBondage*UD_PatchMult
 	;device.UD_LockpickDifficulty = 25
@@ -369,7 +141,7 @@ EndFunction
 Function patchBlindfold(UD_CustomBlindfold_RenderScript device)
 	Float loc_currentmult = UD_PatchMult_Blindfold*UD_PatchMult
 	patchDefaultValues(device,loc_currentmult)
-	CheckLocks(device,false,40)
+	CheckLocks(device,false,30)
 	;materials
 	if StringUtil.find(device.deviceInventory.getName(),"Extreme") != -1 || (StringUtil.find(device.deviceInventory.getName(),"High Security") != -1 || StringUtil.find(device.deviceInventory.getName(),"Secure") != -1)
 		device.UD_Locks = UD_MinLocks
@@ -396,7 +168,7 @@ Function patchGag(UD_CustomGag_RenderScript device)
 		(device as UD_CustomPanelGag_RenderScript).UD_RemovePlugDifficulty = Utility.randomInt(50,100)*loc_currentmult
 	endif
 
-	CheckLocks(device,false,40)
+	CheckLocks(device,false,25)
 
 	patchFinish(device,0x0F,loc_currentmult)
 EndFunction
@@ -405,7 +177,7 @@ Function patchBelt(UD_CustomBelt_RenderScript device)
 	Float loc_currentmult = UD_PatchMult_ChastityBelt*UD_PatchMult
 	patchDefaultValues(device,loc_currentmult)
 	
-	CheckLocks(device,false,50)
+	CheckLocks(device,false,25)
 	device.UD_Cooldown = Round(Utility.randomInt(140,200)/fRange(loc_currentmult,0.5,2.0))
 	;materials
 	if isEbonite(device)
@@ -465,7 +237,7 @@ Function patchHood(UD_CustomHood_RenderScript device)
 	Float loc_currentmult = UD_PatchMult_Hood*UD_PatchMult
 	patchDefaultValues(device,loc_currentmult)
 	checkLooseModifier(device,100,0.05, 0.4)
-	CheckLocks(device,false,50)
+	CheckLocks(device,false,40)
 	patchFinish(device,0x0F,loc_currentmult)
 EndFunction
 
@@ -486,7 +258,7 @@ Function patchGeneric(UD_CustomDevice_RenderScript device)
 	Float loc_currentmult = UD_PatchMult_Generic*UD_PatchMult
 
 	patchDefaultValues(device,loc_currentmult)
-	CheckLocks(device,true,50)
+	CheckLocks(device,true,35)
 
 	int loc_control = 0x0F
 	if device as UD_CustomMittens_RenderScript

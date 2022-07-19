@@ -8,7 +8,7 @@ import UnforgivingDevicesMain
 ;03 = 1b, keyGame_on
 ;04 = 1b, repairLocksMinigame_on
 ;TODO
-int _deviceControlBitMap_1 = 0x00000000 ;BOOL, (mutex2)
+int _deviceControlBitMap_1 = 0x00000000 ;BOOL -FULL (mutex2)
 int _deviceControlBitMap_2 = 0x00000000 ;FLOAT-FULL (mutex1)
 int _deviceControlBitMap_3 = 0x00000000 ;FLOAT-FULL (mutex1)
 int _deviceControlBitMap_4 = 0x00000000 ;FLOAT-FULL (mutex1)
@@ -326,6 +326,19 @@ string Property UD_DeviceType = "Generic" auto ;name of active effect
 string[] Property UD_Modifiers auto ;modifiers
 string[] Property UD_struggleAnimations auto ;array of all struggle animations
 string[] Property UD_struggleAnimationsHobl auto ;array of all struggle animations which player when actor have tied legs
+
+UD_CustomDevice_NPCSlot _WearerSlot
+UD_CustomDevice_NPCSlot Property UD_WearerSlot hidden
+	UD_CustomDevice_NPCSlot Function get()
+		if !Wearer
+			return none
+		endif
+		if !_WearerSlot
+			_WearerSlot = UDCDmain.GetNPCSlot(Wearer)
+		endif
+		return _WearerSlot
+	EndFunction
+EndProperty
 
 ;------------local variables-------------------
 Actor Wearer = none ;current device wearer reference
@@ -723,6 +736,17 @@ bool Property _MinigameParProc_3 Hidden
 	
 	bool Function get()
 		return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,30))
+	EndFunction
+EndProperty
+bool Property UD_AllowWidgetUpdate Hidden
+	Function set(bool bVal)
+		startBitMapMutexCheck2()
+		_deviceControlBitMap_1 = codeBit(_deviceControlBitMap_1,bVal as Int,1,31)
+		endBitMapMutexCheck2()
+	EndFunction
+	
+	bool Function get()
+		return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,31))
 	EndFunction
 EndProperty
 
@@ -2154,14 +2178,13 @@ bool Function helperFreeLegs()
 EndFunction
 
 bool Function canShowHUD()
-	bool res = False
 	if WearerIsPlayer()
-		res = (UD_drain_stats || UD_RegenMag_Stamina  || UD_RegenMag_Health || UD_RegenMag_Magicka)
+		return (UD_drain_stats || UD_RegenMag_Stamina  || UD_RegenMag_Health || UD_RegenMag_Magicka)
 	endif
 	if HelperIsPlayer()
-		res = (UD_drain_stats_helper || UD_RegenMagHelper_Stamina  || UD_RegenMagHelper_Health || UD_RegenMagHelper_Magicka)
+		return (UD_drain_stats_helper || UD_RegenMagHelper_Stamina  || UD_RegenMagHelper_Health || UD_RegenMagHelper_Magicka)
 	endif
-	return res
+	return false
 EndFunction
 
 float Function getModResistPhysical(float base = 1.0,float cond_mod = 0.0)
@@ -2560,7 +2583,6 @@ bool Function struggleMinigame(int iType = -1)
 	
 	resetMinigameValues()
 
-	UD_useWidget = True
 	UD_WidgetAutoColor = True
 	
 	if iType == 0 ;normal
@@ -2613,16 +2635,7 @@ bool Function struggleMinigame(int iType = -1)
 	else 
 		return false
 	endif
-	
-	;if !isMittens() && wearerFreeHands()
-	;	if Wearer.wornhaskeyword(libs.zad_DeviousBondageMittens)
-	;		UD_DamageMult *= 0.5
-	;	endif
-	;endif
-	;if isLoose() && !wearerFreeHands()
-	;	UD_DamageMult *= getLooseMod()
-	;endif
-	
+		
 	_struggleGame_Subtype = iType
 	if minigamePostcheck()
 		struggleGame_on = True
@@ -2645,16 +2658,13 @@ bool Function lockpickMinigame()
 	UD_damage_device = False
 	UD_minigame_canCrit = False
 	UD_minigame_critRegen = false
-	;if wearer.hasspell(UDlibs.TelekinesisSpell)
-	;	UD_minigame_magicka_drain = UD_base_stat_drain + Wearer.getBaseAV("Magicka")*0.1
-	;endif
+	UD_UseWidget = False
 	UD_RegenMag_Health = 0.5
 	UD_RegenMag_Magicka = 0.5
 	_customMinigameCritChance = getLockAccesChance(false)
 	_customMinigameCritDuration = 0.8 - getLockLevel()*0.02
-	
+	UD_AllowWidgetUpdate = False
 	_minMinigameStatSP = 0.8
-	;UDCDmain.setLockPickContainer(UD_LockpickDifficulty,Wearer)
 	
 	if minigamePostcheck()
 		lockpickGame_on = True
@@ -2676,8 +2686,7 @@ bool Function repairLocksMinigame()
 	UD_minigame_stamina_drain = UD_base_stat_drain*1.25
 	UD_damage_device = False
 	UD_minigame_canCrit = False
-	;UD_NeedLockReach = True
-	UD_useWidget = True
+	UD_AllowWidgetUpdate = False
 	UD_WidgetColor = 0xffbd00
 	UD_WidgetColor2 = -1
 
@@ -2692,12 +2701,6 @@ bool Function repairLocksMinigame()
 		_customMinigameCritChance += 5
 	endif
 	
-	;/
-	if wearer.hasspell(UDlibs.TelekinesisSpell)
-		UD_minigame_magicka_drain = UD_base_stat_drain + Wearer.getBaseAV("Magicka")*0.1
-		UD_MinigameMult1 += 0.25
-	endif
-	/;
 	UD_RegenMag_Health = 0.5
 	UD_RegenMag_Magicka = 0.5
 	_minMinigameStatSP = 0.8
@@ -2722,9 +2725,8 @@ bool Function cuttingMinigame()
 	UD_damage_device = False
 	UD_minigame_stamina_drain = UD_base_stat_drain + getMaxActorValue(Wearer,"Stamina",0.04)
 	UD_minigame_heal_drain = UD_base_stat_drain/2+ getMaxActorValue(Wearer,"Health",0.01)
-	UD_UseWidget = True
 	UD_WidgetAutoColor = True
-	
+	UD_AllowWidgetUpdate = False
 	UD_RegenMag_Magicka = 0.5
 	_minMinigameStatSP = 0.8
 	_minMinigameStatHP = 0.5
@@ -2756,13 +2758,14 @@ bool Function keyMinigame()
 	UD_minigame_canCrit = False
 	UD_applyExhastionEffect = False
 	UD_minigame_critRegen = false
-	
+	UD_AllowWidgetUpdate = False
 	UD_RegenMag_Health = 0.5
 	UD_RegenMag_Magicka = 0.5
 	_customMinigameCritChance = getLockAccesChance(false)
 	_customMinigameCritDuration = 0.85 - getLockLevel()*0.025
 	_minMinigameStatSP = 0.6
-
+	
+	
 	if minigamePostcheck()
 		keyGame_on = True
 		minigame()
@@ -2906,17 +2909,16 @@ bool Function lockpickMinigameWH(Actor akHelper)
 	UD_minigame_canCrit = False
 	UD_minigame_critRegen = false
 	UD_minigame_critRegen_helper = false
-	
-	;/
-	if wearer.hasspell(UDlibs.TelekinesisSpell)
-		UD_minigame_magicka_drain = UD_base_stat_drain + Wearer.getBaseAV("Magicka")*0.1
-	endif
-	if _minigameHelper.hasspell(UDlibs.TelekinesisSpell)
-		UD_minigame_magicka_drain_helper = UD_base_stat_drain + _minigameHelper.getBaseAV("Magicka")*0.1
-	endif	
-	/;
-	
+	UD_AllowWidgetUpdate = False
 	_customMinigameCritChance = getLockAccesChance(false)
+	UD_RegenMag_Magicka = 0.5
+	UD_RegenMag_Health = 0.5
+	UD_RegenMagHelper_Magicka = 0.75
+	UD_RegenMagHelper_Health = 0.75
+	_customMinigameCritDuration = 0.9
+	_minMinigameStatSP = 0.8
+	UD_UseWidget = False
+	
 	if HelperFreeHands(True)
 		_customMinigameCritChance = 100
 	elseif HelperFreeHands()
@@ -2924,12 +2926,7 @@ bool Function lockpickMinigameWH(Actor akHelper)
 	else
 		_customMinigameCritChance = getLockAccesChance(false) + 10
 	endif
-	UD_RegenMag_Magicka = 0.5
-	UD_RegenMag_Health = 0.5
-	UD_RegenMagHelper_Magicka = 0.75
-	UD_RegenMagHelper_Health = 0.75
-	_customMinigameCritDuration = 0.9
-	_minMinigameStatSP = 0.8
+	
 	if minigamePostcheck()
 		lockpickGame_on = True
 		minigame()
@@ -2954,12 +2951,18 @@ bool Function repairLocksMinigameWH(Actor akHelper)
 	UD_minigame_stamina_drain_helper = UD_base_stat_drain
 	UD_damage_device = False
 	UD_minigame_canCrit = False
-	
-	UD_useWidget = True
+	UD_AllowWidgetUpdate = False
 	UD_WidgetColor = 0xffbd00
 	UD_WidgetColor2 = -1
 	_customMinigameCritChance = 10 + (4 - getLockLevel())*5
 	UD_MinigameMult1 = getAccesibility() + 0.35*(UDCDMain.getActorSmithingSkillsPerc(getWearer()) + UDCDMain.getActorSmithingSkillsPerc(getHelper()))
+	UD_RegenMag_Magicka = 0.5
+	UD_RegenMag_Health = 0.5
+	UD_RegenMagHelper_Magicka = 0.75
+	UD_RegenMagHelper_Health = 0.75
+	_customMinigameCritDuration = 0.85 - getLockLevel()*0.015	
+	_minMinigameStatSP = 0.8
+	
 	if wearerFreeHands()
 		UD_MinigameMult1 += 0.25
 	elseif wearerFreeHands(True)
@@ -2974,23 +2977,6 @@ bool Function repairLocksMinigameWH(Actor akHelper)
 		_customMinigameCritChance += 5
 	endif
 	
-	;/
-	if wearer.hasspell(UDlibs.TelekinesisSpell)
-		UD_minigame_magicka_drain = UD_base_stat_drain + Wearer.getBaseAV("Magicka")*0.1
-		UD_MinigameMult1 += 0.25
-	endif
-	
-	if _minigameHelper.hasspell(UDlibs.TelekinesisSpell)
-		UD_minigame_magicka_drain_helper = UD_base_stat_drain + _minigameHelper.getBaseAV("Magicka")*0.1
-		UD_MinigameMult1 += 0.25
-	endif
-	/;
-	UD_RegenMag_Magicka = 0.5
-	UD_RegenMag_Health = 0.5
-	UD_RegenMagHelper_Magicka = 0.75
-	UD_RegenMagHelper_Health = 0.75
-	_customMinigameCritDuration = 0.85 - getLockLevel()*0.015	
-	_minMinigameStatSP = 0.8
 	if minigamePostcheck()
 		repairLocksMinigame_on = True
 		minigame()
@@ -3015,8 +3001,7 @@ bool Function cuttingMinigameWH(Actor akHelper)
 	UD_minigame_stamina_drain = UD_base_stat_drain + getMaxActorValue(Wearer,"Stamina",0.04)
 	UD_minigame_stamina_drain_helper = UD_base_stat_drain*1.25 + getMaxActorValue(Wearer,"Stamina",0.04)
 	UD_minigame_heal_drain = UD_base_stat_drain*0.75 + getMaxActorValue(Wearer,"Health",0.02)	
-	
-	UD_UseWidget = True
+	UD_AllowWidgetUpdate = False
 	UD_WidgetAutoColor = True
 	UD_RegenMag_Magicka = 0.5
 	UD_RegenMag_Health = 0.5
@@ -3071,6 +3056,7 @@ bool Function keyMinigameWH(Actor akHelper)
 	_customMinigameCritChance = getLockAccesChance(false)
 	_customMinigameCritDuration = 0.9 - getLockLevel()*0.03	
 	_minMinigameStatSP = 0.6
+	UD_AllowWidgetUpdate = False
 	
 	if minigamePostcheck()
 		keyGame_on = True
@@ -3133,9 +3119,8 @@ Function resetMinigameValues()
 	UD_RegenMagHelper_Health = 0.0
 	UD_RegenMagHelper_Magicka = 0.0
 	UD_DamageMult = getAccesibility()
-	UD_useWidget = False
+	UD_useWidget = True
 	UD_WidgetAutoColor = False
-	;UD_NeedLockReach = False
 	UD_MinigameMult1 = 1.0
 	UD_MinigameMult2 = 1.0
 	UD_MinigameMult3 = 1.0
@@ -3148,14 +3133,15 @@ Function resetMinigameValues()
 	UD_minigame_critRegen = true
 	UD_minigame_critRegen_helper = true
 	_usingTelekinesis = false
+	UD_AllowWidgetUpdate = true
 EndFunction
 
 ;set minigame offensive variables
 Function setMinigameOffensiveVar(bool dmgDevice,float dpsAdd = 0.0,float condMultAdd = 0.0, bool canCrit = false,float dmg_mult = 1.0)
+	UD_damage_device = dmgDevice
 	UD_durability_damage_add = dpsAdd
 	_condition_mult_add = condMultAdd
 	UD_minigame_canCrit = canCrit
-	UD_damage_device = dmgDevice
 	UD_DamageMult = dmg_mult
 EndFunction
 
@@ -3219,24 +3205,25 @@ Function setMinigameHelperVar(bool drainHelper,float staminaDrain = 10.0,float h
 EndFunction
 
 ;set minigame effect variables
-Function setMinigameEffectVar(bool alloworgasm = True,bool allowexhastion = True,float exhastion_m = 1.0)
-	UD_applyExhastionEffect = allowexhastion
-	_exhaustion_mult = exhastion_m
+Function setMinigameEffectVar(bool alloworgasm = True,bool allowexhaustion = True,float exhaustion_m = 1.0)
+	UD_applyExhastionEffect = allowexhaustion
+	_exhaustion_mult = exhaustion_m
 EndFunction
 
 ;set minigame effect variables
-Function setMinigameEffectHelperVar(bool alloworgasm = True,bool allowexhastion = True,float exhastion_m = 1.0)
-	UD_applyExhastionEffectHelper = allowexhastion
-	_exhaustion_mult_helper = exhastion_m
+Function setMinigameEffectHelperVar(bool alloworgasm = True,bool allowexhaustion = True,float exhaustion_m = 1.0)
+	UD_applyExhastionEffectHelper = allowexhaustion
+	_exhaustion_mult_helper = exhaustion_m
 EndFunction
 
 ;set minigame widget variables
-Function setMinigameWidgetVar(bool useWidget = False,bool widgetAutoColor = True,int color = 0x0000FF,int sec_color = -1,int flash_col = -1)
+Function setMinigameWidgetVar(bool useWidget = False,bool widgetAutoColor = True,int color = 0x0000FF,int sec_color = -1, bool abWidgetUpdate = True, int flash_col = -1)
 	UD_useWidget = useWidget
 	UD_WidgetColor = color
 	UD_WidgetColor2 = sec_color
 	UD_WidgetFlashColor = flash_col
 	UD_WidgetAutoColor = widgetAutoColor
+	UD_AllowWidgetUpdate = abWidgetUpdate
 EndFunction
 
 ;returns current type of minigame played
@@ -3530,12 +3517,15 @@ Function minigame()
 	int 		tick_s 				= 0
 	float 		fCurrentUpdateTime 	= UDmain.UD_baseUpdateTime
 	
-	;if !loc_PlayerInMinigame
-	;	fCurrentUpdateTime = 0.25
-	;endif
+	if !loc_PlayerInMinigame
+		fCurrentUpdateTime = 1.0
+	endif
 
 	pauseMinigame = False
 	
+	float 	loc_dmg 			= (_durability_damage_mod + UD_durability_damage_add)*fCurrentUpdateTime*UD_DamageMult
+	float 	loc_condmult 		= 1.0 + _condition_mult_add
+	bool 	loc_updatewidget 	= loc_PlayerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
 	while current_device_health > 0.0 && !force_stop_minigame && UDCDmain.actorInMinigame(getWearer())
 		;pause minigame, pause minigame need to be changed from other thread or infinite loop happens
 		while pauseMinigame
@@ -3557,21 +3547,20 @@ Function minigame()
 			OnMinigameTick()
 			;reduce device durability
 			if UD_damage_device
-				decreaseDurabilityAndCheckUnlock((_durability_damage_mod + UD_durability_damage_add)*fCurrentUpdateTime*UD_DamageMult,1.0 + _condition_mult_add)
+				decreaseDurabilityAndCheckUnlock(loc_dmg,loc_condmult)
 			endif
 			;update widget
-			if UDCDmain.UD_UseWidget && UD_UseWidget && loc_PlayerInMinigame && !cuttingGame_on
+			if loc_updatewidget
 				updateWidget()
 			endif
 		endif
 		
 		;--one second timer--
-		if (tick_b*fCurrentUpdateTime > 1.0) && !force_stop_minigame && current_device_health > 0.0 ;once per second	
-			;start new animation if wearer stops animating
-			if !libs.isAnimating(Wearer) && !force_stop_minigame && !pauseMinigame 
-				_sStruggleAnim = struggleArray[Utility.RandomInt(0,  struggleArray.length - 1)]
-				libsp.FastStartThirdPersonAnimation(Wearer, _sStruggleAnim)
-			endif
+		if (tick_b*fCurrentUpdateTime >= 1.0) && !force_stop_minigame && !pauseMinigame && current_device_health > 0.0 ;once per second
+			;update loc vars
+			loc_dmg 			= (_durability_damage_mod + UD_durability_damage_add)*fCurrentUpdateTime*UD_DamageMult
+			loc_condmult 		= 1.0 + _condition_mult_add			
+			loc_updatewidget 	= loc_PlayerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
 			
 			;check non struggle minigames
 			if !loc_PlayerInMinigame
@@ -3584,7 +3573,13 @@ Function minigame()
 			tick_s += 1
 			if !force_stop_minigame
 				OnMinigameTick1()
-				if !(tick_s % 3) ;once per 3 second
+				;--three second timer--
+				if !(tick_s % 3) && tick_s
+					;start new animation if wearer stops animating
+					if !libs.isAnimating(Wearer)  && !pauseMinigame 
+						_sStruggleAnim = struggleArray[Utility.RandomInt(0,  struggleArray.length - 1)]
+						libsp.FastStartThirdPersonAnimation(Wearer, _sStruggleAnim)
+					endif
 					OnMinigameTick3()
 				endif
 			endif
@@ -3592,8 +3587,8 @@ Function minigame()
 		
 		if !force_stop_minigame && !pauseMinigame
 			Utility.wait(fCurrentUpdateTime)
+			tick_b += 1
 		endif
-		tick_b += 1
 	endwhile
 	
 	_MinigameMainLoop_ON = false
@@ -3601,6 +3596,16 @@ Function minigame()
 	if loc_PlayerInMinigame
 		UDCDmain.MinigameKeysUnRegister()
 	endif	
+	
+	if !UDOM.isOrgasming(Wearer)
+		libs.EndThirdPersonAnimation(Wearer, cameraState, true) ;ends struggle animation
+	endif
+	
+	if _minigameHelper
+		if !UDOM.isOrgasming(_minigameHelper)
+			libs.EndThirdPersonAnimation(_minigameHelper, cameraState, true) ;ends struggle animation
+		endif
+	endif
 	
 	;checks if Wearer succesfully escaped device
 	if isUnlocked; && !force_stop_minigame
@@ -3624,28 +3629,12 @@ Function minigame()
 		endif
 	endif
 	
-	if !UDOM.isOrgasming(Wearer)
-		libs.EndThirdPersonAnimation(Wearer, cameraState, true) ;ends struggle animation
-	endif
-	
-	if _minigameHelper
-		if !UDOM.isOrgasming(_minigameHelper)
-			libs.EndThirdPersonAnimation(_minigameHelper, cameraState, true) ;ends struggle animation
-		endif
-	endif
-
 	;remove disable
 	UDCDMain.EndMinigameDisable(Wearer)
 	if _minigameHelper
 		UDCDMain.EndMinigameDisable(_minigameHelper)
 	endif
-
-	;/
-	UDCDmain.EnableActor(Wearer,true)
-	if hasHelper()
-		UDCDmain.EnableActor(_minigameHelper,true)
-	endif
-	/;
+	
 	if UDmain.TraceAllowed()	
 		UDCDmain.Log("Minigame ended for: "+ deviceInventory.getName(),1)
 	endif
@@ -3712,16 +3701,16 @@ Function advanceSkill(float fMult)
 			loc_type = _struggleGame_Subtype
 		endif
 		if loc_type == 0
-			Game.AdvanceSkill("Pickpocket" ,loc_mult*(0.5*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/8.10)/UDCDmain.getArousalSkillMult(getWearer()))
+			Game.AdvanceSkill("Pickpocket" ,loc_mult*(0.5*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/8.10)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
 		elseif loc_type == 1 
-			Game.AdvanceSkill("TwoHanded"  ,loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/5.95)/UDCDmain.getArousalSkillMult(getWearer()))
+			Game.AdvanceSkill("TwoHanded"  ,loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/5.95)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
 		elseif loc_type == 2
-			Game.AdvanceSkill("Destruction",loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/1.35)/UDCDmain.getArousalSkillMult(getWearer()))
+			Game.AdvanceSkill("Destruction",loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/1.35)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
 		endif
 	elseif repairLocksMinigame_on
-		Game.AdvanceSkill("Smithing" , loc_mult*(UDCDmain.UD_BaseDeviceSkillIncrease*fMult/1.0)/UDCDmain.getArousalSkillMult(getWearer()))
+		Game.AdvanceSkill("Smithing" , loc_mult*(UDCDmain.UD_BaseDeviceSkillIncrease*fMult/1.0)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
 	elseif cuttingGame_on
-		Game.AdvanceSkill("OneHanded", loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/6.3)/UDCDmain.getArousalSkillMult(getWearer()))
+		Game.AdvanceSkill("OneHanded", loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/6.3)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
 	endif
 EndFunction
 
