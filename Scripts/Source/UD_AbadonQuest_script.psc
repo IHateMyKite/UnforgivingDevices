@@ -35,45 +35,45 @@ bool property final_finisher_set = True auto
 Actor Property UD_AbadonVictim auto
 
 Event onInit()
-	registerForSingleUpdate(120.0)
-		
-	if UDmain.TraceAllowed()	
-		UDCDmain.Log("Abadon quest initiated")
-	endif
+    registerForSingleUpdate(120.0)
+        
+    if UDmain.TraceAllowed()    
+        UDCDmain.Log("Abadon quest initiated")
+    endif
 EndEvent
 
 Event OnUpdate()
-	if (DragonRising.isCompleted() && getStage() == 0)
-		if UDmain.DebugMod
-			UDCDmain.Print("Abadon quest courier send")
-		endif
-		setStage(10)
-	else
-		;registerForSingleUpdate(25.0)
-		registerForSingleUpdate(30.0)
-	endif
+    if (DragonRising.isCompleted() && getStage() == 0)
+        if UDmain.DebugMod
+            UDCDmain.Print("Abadon quest courier send")
+        endif
+        setStage(10)
+    else
+        ;registerForSingleUpdate(25.0)
+        registerForSingleUpdate(30.0)
+    endif
 EndEvent
 
 Function AbadonEquipSuit(Actor target,int suit)
-	;Game.DisablePlayerControls()
-	UDCDmain.DisableActor(target)
-	if suit == 0
-		suit = Utility.randomInt(1,UDmain.config.final_finisher_pref_list.length - 1)
-	endif
-	if suit == 1
-		UDmain.ItemManager.equipAbadonRopeSuit(target)
-	elseif suit == 2
-		UDmain.ItemManager.equipAbadonTransparentSuit(target)	
-	elseif suit == 3
-		UDmain.ItemManager.equipAbadonLatexSuit(target)
-	elseif suit == 4
-		UDmain.ItemManager.equipAbadonRestrictiveSuit(target)
-	elseif suit == 5
-		UDmain.ItemManager.equipAbadonSimpleSuit(target)
-	elseif suit == 6
-		UDmain.ItemManager.equipAbadonYokeSuit(target)
-	endif
-	UDCDmain.EnableActor(target)
-	;Game.EnablePlayerControls()
+    ;Game.DisablePlayerControls()
+    UDCDmain.DisableActor(target)
+    if suit == 0
+        suit = Utility.randomInt(1,UDmain.config.final_finisher_pref_list.length - 1)
+    endif
+    if suit == 1
+        UDmain.ItemManager.equipAbadonRopeSuit(target)
+    elseif suit == 2
+        UDmain.ItemManager.equipAbadonTransparentSuit(target)    
+    elseif suit == 3
+        UDmain.ItemManager.equipAbadonLatexSuit(target)
+    elseif suit == 4
+        UDmain.ItemManager.equipAbadonRestrictiveSuit(target)
+    elseif suit == 5
+        UDmain.ItemManager.equipAbadonSimpleSuit(target)
+    elseif suit == 6
+        UDmain.ItemManager.equipAbadonYokeSuit(target)
+    endif
+    UDCDmain.EnableActor(target)
+    ;Game.EnablePlayerControls()
 EndFunction
 

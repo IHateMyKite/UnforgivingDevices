@@ -6,21 +6,21 @@ Actor focusedActor = none
 
 
 Function registerActor(Actor akActor)
-	focusedActor = akActor
-	registerforsingleupdate(1.0)
+    focusedActor = akActor
+    registerforsingleupdate(1.0)
 EndFunction
 
 Function unregisterActor(Actor akActor)
-	if focusedActor == akActor
-		focusedActor = none
-	endif
+    if focusedActor == akActor
+        focusedActor = none
+    endif
 EndFunction
 
 Event OnUpdate()
-	if focusedActor
-		
-		
-		
-		registerforsingleupdate(1.0)	
-	endif
+    if focusedActor
+        
+        
+        
+        registerforsingleupdate(1.0)    
+    endif
 EndEvent
