@@ -2,49 +2,55 @@ Scriptname UD_OrgasmManager extends Quest conditional
 
 import UnforgivingDevicesMain
 
-UDCustomDeviceMain                     Property UDCDmain     auto
-UnforgivingDevicesMain                 Property UDmain     auto
-UD_libs                             Property UDlibs     auto
-zadlibs                             Property libs         auto
-UD_ExpressionManager                 Property UDEM         auto
-UD_CustomDevices_NPCSlotsManager     Property UDCD_NPCM auto
+UDCustomDeviceMain                      Property UDCDmain   auto
+UnforgivingDevicesMain                  Property UDmain     auto
+UD_libs                                 Property UDlibs     auto
+zadlibs                                 Property libs       auto
+UD_ExpressionManager                    Property UDEM       auto
+UD_CustomDevices_NPCSlotsManager        Property UDCD_NPCM  auto
 
-float     Property UD_OrgasmResistence         = 3.5     auto ;orgasm rate required for actor to be able to orgasm, lower the value, the faster will orgasm rate increase stop
-int     Property UD_OrgasmArousalThreshold     = 95     auto ;arousal required for actor to be able to orgasm
-bool     Property UD_UseOrgasmWidget         = True     auto
-float     Property UD_OrgasmUpdateTime         = 0.2     auto
+zadlibs_UDPatch Property libsp
+    zadlibs_UDPatch function Get()
+        return UDCDmain.libsp
+    endfunction
+endproperty
+
+float   Property UD_OrgasmResistence        = 3.5   auto ;orgasm rate required for actor to be able to orgasm, lower the value, the faster will orgasm rate increase stop
+int     Property UD_OrgasmArousalThreshold  = 95    auto ;arousal required for actor to be able to orgasm
+bool    Property UD_UseOrgasmWidget         = True  auto
+float   Property UD_OrgasmUpdateTime        = 0.2   auto
 int     Property UD_OrgasmAnimation         = 1     auto
-int     Property UD_OrgasmDuration             = 20     auto
-bool     Property UD_HornyAnimation             = true     auto
-int     Property UD_HornyAnimationDuration     = 5     auto
+int     Property UD_OrgasmDuration          = 20    auto
+bool    Property UD_HornyAnimation          = true  auto
+int     Property UD_HornyAnimationDuration  = 5     auto
 
-Actor Property UD_StopActorOrgasmCheckLoop     = none auto
-Actor Property UD_StopActorArousalCheckLoop = none auto
+Actor Property UD_StopActorOrgasmCheckLoop      = none auto
+Actor Property UD_StopActorArousalCheckLoop     = none auto
 
-Faction Property OrgasmFaction                 auto
+Faction Property OrgasmFaction              auto
 Faction Property OrgasmCheckLoopFaction     auto
-Faction Property ArousalCheckLoopFaction     auto
-Faction Property OrgasmResistFaction         auto
+Faction Property ArousalCheckLoopFaction    auto
+Faction Property OrgasmResistFaction        auto
 
 ;used for validating loop on update
 ;current loop version, changing this to different number will reset the loops with lower versions
 Int Property UD_OrgasmCheckLoop_ver     =  3     autoreadonly
-int Property UD_ArousalCheckLoop_ver     =  3     autoreadonly
+int Property UD_ArousalCheckLoop_ver    =  3     autoreadonly
 
-bool     _crit                     = false
-bool     _specialButtonOn         = false
-string     _crit_meter                = "Error"
+bool    _crit               = false
+bool    _specialButtonOn    = false
+string  _crit_meter         = "UDmain.Error"
 
 
 ;DOCUMANTATION - StorageUtil interfaces
 ;/
-    Orgasm rate             - Key="UD_OrgasmRate"                , Type=Float    , def_value=      0.0
-    Orgasm forcing             - Key="UD_OrgasmForcing"            , Type=Float    , def_value=      0.0
-    Orgasm Rate Multiplier     - Key="UD_OrgasmRateMultiplier"        , Type=Float    , def_value=      1.0
-    Orgasm progress         - Key="UD_OrgasmProgress"            , Type=Float    , def_value=      0.0
-    Orgasm capacity         - Key="UD_OrgasmCapacity"            , Type=Float    , def_value=    100.0
-    Orgasm resistance         - Key="UD_OrgasmResist"                , Type=Float    , def_value=    MCM setting (def. 3.5)
-    Orgasm resistance mult.    - Key="UD_OrgasmResistMultiplier"    , Type=Float    , def_value=      1.0
+    Orgasm rate                 - Key="UD_OrgasmRate"               , Type=Float    , def_value=      0.0
+    Orgasm forcing              - Key="UD_OrgasmForcing"            , Type=Float    , def_value=      0.0
+    Orgasm Rate Multiplier      - Key="UD_OrgasmRateMultiplier"     , Type=Float    , def_value=      1.0
+    Orgasm progress             - Key="UD_OrgasmProgress"           , Type=Float    , def_value=      0.0
+    Orgasm capacity             - Key="UD_OrgasmCapacity"           , Type=Float    , def_value=    100.0
+    Orgasm resistance           - Key="UD_OrgasmResist"             , Type=Float    , def_value=    MCM setting (def. 3.5)
+    Orgasm resistance mult.     - Key="UD_OrgasmResistMultiplier"   , Type=Float    , def_value=      1.0
 /;
 
 
@@ -63,7 +69,9 @@ Function RegisterModEvents()
     RegisterForModEvent("DeviceEdgedActor", "OnEdge")
     RegisterForModEvent("HookOrgasmStart", "OnSexlabOrgasmStart")
     RegisterForModEvent("SexLabOrgasmSeparate", "OnSexlabSepOrgasmStart")
+    RegisterForModEvent("UD_UpdateBaseOrgasmVal", "Receive_UpdateBaseOrgasmVals")
 EndFunction
+
 
 ;used for update, transfers loop from UD_CustomDeviceMain in to this script
 ;this is only valid for player, all NPCS need to be reregistered
@@ -147,11 +155,11 @@ EndFunction
 
 Function StartArousalCheckLoop(Actor akActor)
     if !akActor
-        Error("None passed to StartArousalCheckLoop!!!")
+        UDmain.Error("None passed to StartArousalCheckLoop!!!")
     endif
     
-    if TraceAllowed()    
-        Log("StartArousalCheckLoop("+getActorName(akActor)+") called")
+    if UDmain.TraceAllowed()    
+        UDmain.Log("StartArousalCheckLoop("+getActorName(akActor)+") called")
     endif
     
     if akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
@@ -380,11 +388,11 @@ EndFunction
 ;//////////////////////////////////////;
 
 Function StartOrgasmCheckLoop(Actor akActor)
-    if TraceAllowed()    
-        Log("StartOrgasmCheckLoop("+getActorName(akActor)+") called")
+    if UDmain.TraceAllowed()    
+        UDmain.Log("StartOrgasmCheckLoop("+getActorName(akActor)+") called")
     endif
     if !akActor
-        Error("None passed to sendOrgasmCheckLoop!!!")
+        UDmain.Error("None passed to sendOrgasmCheckLoop!!!")
     endif
     if akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
         return
@@ -409,8 +417,8 @@ EndFunction
 ;=======================================
 
 Function startOrgasm(Actor akActor,int duration,int iArousalDecrease = 75,int iForce = 0, bool blocking = true)
-    if TraceAllowed()    
-        Log("startOrgasm() for " + getActorName(akActor) + ", duration = " + duration + ",blocking = " + blocking,1)
+    if UDmain.TraceAllowed()    
+        UDmain.Log("startOrgasm() for " + getActorName(akActor) + ", duration = " + duration + ",blocking = " + blocking,1)
     endif
     int loc_orgasms = 0
     if blocking
@@ -433,7 +441,7 @@ Function startOrgasm(Actor akActor,int duration,int iArousalDecrease = 75,int iF
             endwhile
             
             if loc_time >= 3.0
-                Error("startOrgasm("+getActorName(akActor)+") timeout!")
+                UDmain.Error("startOrgasm("+getActorName(akActor)+") timeout!")
             endif
         endif
     endIf    
@@ -522,16 +530,12 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 75,in
     bool loc_isplayer = UDmain.ActorIsPlayer(akActor)
     bool loc_isfollower = false
     if !loc_isplayer
-        loc_isfollower = ActorIsFollower(akActor)
+        loc_isfollower = UDmain.ActorIsFollower(akActor)
     endif
     bool loc_is3Dloaded = akActor.Is3DLoaded() || loc_isplayer
     bool loc_close = UDmain.ActorInCloseRange(akActor)
     bool loc_cond = loc_is3Dloaded && loc_close
 
-    ;wait for minigame to end
-    ;while UDCDmain.ActorInMinigame(akActor) 
-    ;    Utility.waitMenuMode(0.01)
-    ;endwhile
     if loc_actorinminigame
         PlayOrgasmAnimation(akActor,iDuration)
     elseif ((akActor.IsInCombat() || akActor.IsSneaking()) && (loc_isplayer || loc_isfollower)) || !loc_cond
@@ -686,16 +690,16 @@ Function CritLoopOrgasmResist(Int iChance,Float fDifficulty)
 EndFunction
 
 Function OnCritSuccesOrgasmResist()
-    if TraceAllowed()    
-        Log("OnCritSuccesOrgasmResist() callled!")
+    if UDmain.TraceAllowed()    
+        UDmain.Log("OnCritSuccesOrgasmResist() callled!")
     endif
     UDmain.Player.restoreAV("Stamina", 15)
     UpdateActorOrgasmProgress(UDmain.Player,-10,true)
 EndFunction
 
 Function OnCritFailureOrgasmResist()
-    if TraceAllowed()    
-        Log("OnCritFailureOrgasmResist() callled!")
+    if UDmain.TraceAllowed()    
+        UDmain.Log("OnCritFailureOrgasmResist() callled!")
     endif
     ;UDmain.Player.damageAV("Stamina", 25)
     UpdateActorOrgasmProgress(UDmain.Player,getActorOrgasmRate(UDmain.Player)*2,true)
@@ -703,8 +707,8 @@ EndFunction
 
 
 Event MinigameKeysRegister()
-    if TraceAllowed()    
-        Log("UD_OrgasmManager MinigameKeysRegister called",1)
+    if UDmain.TraceAllowed()    
+        UDmain.Log("UD_OrgasmManager MinigameKeysRegister called",1)
     endif
     RegisterForKey(UDCDMain.Stamina_meter_Keycode)
     RegisterForKey(UDCDMain.SpecialKey_Keycode)
@@ -714,8 +718,8 @@ Event MinigameKeysRegister()
 EndEvent
 
 Event MinigameKeysUnregister()
-    if TraceAllowed()    
-        Log("UD_OrgasmManager MinigameKeysUnregister called",1)
+    if UDmain.TraceAllowed()    
+        UDmain.Log("UD_OrgasmManager MinigameKeysUnregister called",1)
     endif
     UnregisterForKey(UDCDMain.Stamina_meter_Keycode)
     UnregisterForKey(UDCDMain.SpecialKey_Keycode)
@@ -780,18 +784,15 @@ EndEvent
 ;ORGASM RESIST LOOP
 ;=======================================
 Function FocusOrgasmResistMinigame(Actor akActor)
-    if !akActor.isInFaction(OrgasmCheckLoopFaction)
-        Error("Can't start FocusOrgasmResistMinigame without orgasm check loop!")
-    endif
-    if getCurrentActorValuePerc(akActor,"Stamina") < 0.75; || UDmain.getCurrentActorValuePerc(akActor,"Magicka") < 0.65
+    if getCurrentActorValuePerc(akActor,"Stamina") < 0.75
         if UDmain.ActorIsPlayer(akActor)
-            Print("You are too exhausted!")
+            UDmain.Print("You are too exhausted!")
         endif
         return
     endif
     if UDCDMain.actorInMinigame(akActor) || libs.isAnimating(akActor)
         if akActor == UDmain.Player
-            Print("You are already bussy!")
+            UDmain.Print("You are already bussy!")
         endif
         return
     endif
@@ -942,23 +943,36 @@ int Function GetOrgasmExhaustion(Actor akActor)
     return StorageUtil.getIntValue(akActor,"UD_OrgasmExhaustionNum")
 EndFunction
 
-bool Function ActorIsFollower(Actor akActor)
-    return UDmain.ActorIsFollower(akActor)
+Function UpdateBaseOrgasmVals(Actor akActor, int aiDuration, float afOrgasmRate, float afForcing = 0.0, float afArousalRate = 0.0)
+    int handle = ModEvent.Create("UD_UpdateBaseOrgasmVal")
+    if (handle)
+        ModEvent.PushForm (handle , akActor)
+        ModEvent.PushInt  (handle , aiDuration)
+        ModEvent.PushFloat(handle , afOrgasmRate)
+        ModEvent.PushFloat(handle , afForcing)
+        ModEvent.PushFloat(handle , afArousalRate)
+        ModEvent.Send(handle)
+    else
+        UDmain.Error("Can't create UD_UpdateBaseOrgasmVal event!")
+    endif
 EndFunction
-Function Log(String msg, int level = 1)
-    UDmain.Log(msg,level)
+
+Function Receive_UpdateBaseOrgasmVals(Form akFormActor, int aiDuration, float afOrgasmRate,float afForcing, float afArousalRate)
+    Actor akActor = akFormActor as Actor
+    if afOrgasmRate
+        UpdateOrgasmRate(akActor,afOrgasmRate,afForcing)
+    endif
+    if afArousalRate
+        UpdateArousalRate(akActor,afArousalRate)
+    endif
+    
+    Utility.wait(aiDuration)
+    
+    if afOrgasmRate
+        removeOrgasmRate(akActor,afOrgasmRate,afForcing)
+    endif
+    if afArousalRate
+        UpdateArousalRate(akActor,-1.0*afArousalRate)
+    endif
 EndFunction
-Function Error(String msg)
-    UDmain.Error(msg)
-EndFunction
-Function Print(String strMsg, int iLevel = 1,bool bLog = false)
-    UDmain.Print(strMsg,iLevel,bLog)
-EndFunction
-Bool Function TraceAllowed()
-    return UDmain.TraceAllowed()
-EndFunction
-zadlibs_UDPatch Property libsp
-    zadlibs_UDPatch function Get()
-        return UDCDmain.libsp
-    endfunction
-endproperty
+

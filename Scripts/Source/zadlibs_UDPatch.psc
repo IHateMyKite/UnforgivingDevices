@@ -20,6 +20,11 @@ UD_Libs Property UDlibs
         return UDmain.UDlibs
     EndFunction
 EndProperty
+UD_OrgasmManager Property UDOM
+    UD_OrgasmManager Function get()
+        return UDmain.UDOM
+    EndFunction
+EndProperty
 bool Property UD_GlobalDeviceMutex_Unlock_InventoryScript = false auto
 bool Property UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed = false auto
 ;bool Property UD_GlobalDeviceMutex_Unlock_RenderScript = false auto
@@ -536,15 +541,11 @@ Function InflateAnalPlug(actor akActor, int amount = 1)
             zadInflatablePlugStateAnal.SetValueInt(currentVal)
         EndIf    
         LastInflationAdjustmentAnal = Utility.GetCurrentGameTime()
-    EndiF
-    
-    UDCDmain.UDOM.UpdateArousal(akActor,20)
-    UDCDmain.UDOM.UpdateOrgasmRate(akActor,20.0*currentVal,0.5)
-    ;UDCDmain.UpdateActorOrgasmProgress(akActor,15.0*currentVal,bUpdateWidget = true)
-    ;SendInflationEvent(akActor, False, True, currentval)
-    
-    Utility.wait(2.0)
-    UDCDmain.UDOM.removeOrgasmRate(akActor,20.0*currentVal,0.5)
+    else
+        currentVal = iRange(amount,2,5)
+    endif
+    UDOM.UpdateBaseOrgasmVals(akActor,5,7.5*currentVal,0.5,3.5*currentVal)
+    SendInflationEvent(akActor, False, True, currentval)
 EndFunction
 
 ;copied and modified libs InflateAnalPlug function to make it show correct msg for npcs
@@ -568,15 +569,12 @@ Function InflateVaginalPlug(actor akActor, int amount = 1)
             zadInflatablePlugStateVaginal.SetValueInt(currentVal)
         EndIf    
         LastInflationAdjustmentVaginal = Utility.GetCurrentGameTime()
-    EndIf
+    else
+        currentVal = iRange(amount,2,5)
+    endif
     
-    UDCDmain.UDOM.UpdateArousal(akActor,30)
-    UDCDmain.UDOM.UpdateOrgasmRate(akActor,20.0*currentVal,0.5)
-    ;UDCDmain.UpdateActorOrgasmProgress(akActor,15.0*currentVal,bUpdateWidget = true)
+    UDOM.UpdateBaseOrgasmVals(akActor,5,12.5*currentVal,0.5,5*currentVal)
     SendInflationEvent(akActor, True, True, currentval)
-    
-    Utility.wait(2.0)
-    UDCDmain.UDOM.removeOrgasmRate(akActor,20.0*currentVal,0.5)
 EndFunction
 
 String Function AnimSwitchKeyword(actor akActor, string idleName)

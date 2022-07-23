@@ -5,7 +5,7 @@ import UnforgivingDevicesMain
 UDCustomDeviceMain Property UDCDmain auto
 UnforgivingDevicesMain Property UDmain
     UnforgivingDevicesMain Function get()
-        UDCDmain.UDmain
+        return UDCDmain.UDmain
     EndFunction
 EndProperty
 zadlibs Property libs auto
@@ -20,11 +20,13 @@ UD_ExpressionManager Property UDEM
     EndFunction
 EndProperty
 
-Actor akActor = none
-bool _finished = false
-MagicEffect _MagickEffect = none
-
-float loc_updateTime = 1.0
+Actor       akActor         = none
+bool        _finished       = false
+Bool        loc_isplayer
+float       loc_updateTime  = 0.5
+Float       loc_arousalRate
+Int         loc_arousal ;how much is arousal increased/decreased
+MagicEffect _MagickEffect   = none
 
 Event OnEffectStart(Actor akTarget, Actor akCaster)
     _MagickEffect = GetBaseObject()
@@ -36,9 +38,12 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     registerForSingleUpdate(0.1)
 EndEvent
 
-
-Float     loc_arousalRate
-Int     loc_arousal ;how much is arousal increased/decreased
+Event OnPlayerLoadGame()
+    if IsRunning()
+        akActor.AddToFaction(UDOM.ArousalCheckLoopFaction)
+    endif
+    loc_isplayer = UDmain.ActorIsPlayer(akActor)
+EndEvent
 
 Event OnUpdate()
     if IsRunning()
@@ -46,12 +51,13 @@ Event OnUpdate()
             GInfo("UD_ArousalCheckScript_AME("+GetActorName(akActor)+") - ArousalLoopBreak -> dispeling")
             akActor.DispelSpell(UDCDmain.UDlibs.ArousalCheckSpell)
         else
+            if loc_isplayer
+                loc_updateTime = UDOM.UD_OrgasmUpdateTime
+            else
+                loc_updateTime = 1.0
+            endif
             loc_arousalRate = UDOM.getArousalRateM(akActor)
             loc_arousal = Round(loc_arousalRate*loc_updateTime)
-                        
-            ;if akActor.HasMagicEffectWithKeyword(UDCDmain.UDlibs.OrgasmExhaustionEffect_KW)
-            ;    loc_arousal = Round(loc_arousal * 0.5)
-            ;endif
             
             if loc_arousal > 0
                 akActor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.UpdateArousal(akActor ,loc_arousal))
@@ -75,5 +81,5 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
 EndEvent
 
 bool Function IsRunning()
-    return akActor.hasMagicEffect(_MagickEffect)
+    return !_finished
 EndFunction

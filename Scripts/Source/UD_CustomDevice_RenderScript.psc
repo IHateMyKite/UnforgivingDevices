@@ -2281,16 +2281,16 @@ EndFunction
 
 ;device menu that pops up when Wearer click on this device in inventory
 ;CONTROL; !NUM = 17!
-;    0 = currentDeviceMenu_allowstruggling
-;    1 = currentDeviceMenu_allowUselessStruggling    
-;    2 = currentDeviceMenu_allowcutting
-;    3 = currentDeviceMenu_allowkey
-;    4 = currentDeviceMenu_allowlockpick
-;    5 = currentDeviceMenu_allowlockrepair
-;    6 = currentDeviceMenu_allowTighten
-;    7 = currentDeviceMenu_allowRepair    
-;    8 = currentDeviceMenu_switch1
-;    9 = currentDeviceMenu_switch2
+;    00 = currentDeviceMenu_allowstruggling
+;    01 = currentDeviceMenu_allowUselessStruggling    
+;    02 = currentDeviceMenu_allowcutting
+;    03 = currentDeviceMenu_allowkey
+;    04 = currentDeviceMenu_allowlockpick
+;    05 = currentDeviceMenu_allowlockrepair
+;    06 = currentDeviceMenu_allowTighten
+;    07 = currentDeviceMenu_allowRepair    
+;    08 = currentDeviceMenu_switch1
+;    09 = currentDeviceMenu_switch2
 ;    10 = currentDeviceMenu_switch3
 ;    11 = currentDeviceMenu_switch4
 ;    12 = currentDeviceMenu_switch5
@@ -2321,7 +2321,7 @@ Function DeviceMenu(bool[] aControl)
         elseif msgChoice == 5     ;details
             processDetails()        
         else
-            _break = True        ;exit
+            _break = True         ;exit
         endif
         DeviceMenuExt(msgChoice)
         if Game.UsingGamepad()
@@ -2447,15 +2447,13 @@ Function DeviceMenuWH(Actor akSource,bool[] aControl)
     if UDmain.TraceAllowed()
         UDCDmain.Log(getDeviceHeader() + " DeviceMenuWH() called, aControl = "+aControl,2)
     endif
-    
-    ;StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
-    ;StorageUtil.UnSetIntValue(akSource, "UD_ignoreEvent" + deviceInventory)
-    
+        
     bool _break = False
     while !_break
         deviceMenuInitWH(akSource,aControl)
         Int msgChoice = UD_MessageDeviceInteractionWH.Show()
-
+        StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
+        StorageUtil.UnSetIntValue(akSource, "UD_ignoreEvent" + deviceInventory)
         if msgChoice == 0        ;help struggle
             _break = struggleMinigameWH(akSource)
         elseif msgChoice == 1    ;lockpick

@@ -68,7 +68,7 @@ bool Function proccesSpecialMenu(int msgChoice)
     elseif msgChoice == 2
         if wearerFreeHands(True)
             inflate(false,5)
-            return false
+            return true
         endif
     elseif msgChoice == 3
         if wearerFreeHands(True) && canDeflate() 
@@ -83,17 +83,17 @@ EndFunction
 
 bool Function proccesSpecialMenuWH(Actor akSource,int msgChoice)
     bool res = parent.proccesSpecialMenuWH(akSource,msgChoice)
-    if msgChoice == 0
+    if msgChoice == 1
         if wearerFreeHands(True) || helperFreeHands(True)
             inflate()
             return false
         else
             return inflateMinigame()
         endif
-    elseif msgChoice == 1
-        inflate(false,5)
-        return false
     elseif msgChoice == 2
+        inflate(false,5)
+        return true
+    elseif msgChoice == 3
         if (wearerFreeHands(True) || helperFreeHands(True)) && canDeflate() 
             deflate()
             return false
