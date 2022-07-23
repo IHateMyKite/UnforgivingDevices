@@ -143,7 +143,6 @@ Function Update()
         akActor.AddToFaction(UDOM.OrgasmCheckLoopFaction)
     endif
     loc_isplayer = UDmain.ActorIsPlayer(akActor)
-    GInfo("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - updating")
 EndFunction
 
 Event OnUpdate()

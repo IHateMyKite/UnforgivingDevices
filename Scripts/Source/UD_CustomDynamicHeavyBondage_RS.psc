@@ -6,7 +6,6 @@ bool _tied = false
 float Property UD_UntieDifficulty = 100.0 auto
 float _untieProgress = 0.0
 
-
 Function InitPost()
     UD_DeviceType = "Dynamic Heavy Bondage"
     UD_ActiveEffectName = "Tie up"
@@ -120,11 +119,9 @@ EndFunction
 
 Function OnMinigameTick(Float abUpdateTime)
     if _untieMinigameOn
-        _untieProgress = fRange(_untieProgress + 1.0*UDCDmain.getStruggleDifficultyModifier()*abUpdateTime*getMinigameMult(1),0.0,UD_UntieDifficulty)
+        _untieProgress = fRange(_untieProgress + 5.0*UDCDmain.getStruggleDifficultyModifier()*abUpdateTime*getMinigameMult(1),0.0,UD_UntieDifficulty)
         if _untieProgress >= UD_UntieDifficulty
             stopMinigame()
-            untie()
-            _untieMinigameOn = False
         endif
     endif
     parent.OnMinigameTick(abUpdateTime)
@@ -132,11 +129,9 @@ EndFunction
 
 bool Function OnCritDevicePre()
     if _untieMinigameOn
-        _untieProgress = fRange(_untieProgress + 8.0*UDCDmain.getStruggleDifficultyModifier()*getMinigameMult(1),0.0,UD_UntieDifficulty)
+        _untieProgress = fRange(_untieProgress + 12.0*UDCDmain.getStruggleDifficultyModifier()*getMinigameMult(1),0.0,UD_UntieDifficulty)
         if _untieProgress >= UD_UntieDifficulty
             stopMinigame()
-            untie()
-            _untieMinigameOn = False
         endif
         Return True
     else
@@ -146,9 +141,18 @@ EndFunction
 
 Function OnCritFailure()
     if _untieMinigameOn
-        _untieProgress =  fRange(_untieProgress - UD_UntieDifficulty*0.15,0.0,UD_UntieDifficulty)
+        _untieProgress =  fRange(_untieProgress - UD_UntieDifficulty*0.075,0.0,UD_UntieDifficulty)
     endif
     parent.OnCritFailure()
+EndFunction
+
+Function OnMinigameEnd() ;called when minigame end
+    if _untieMinigameOn
+        if _untieProgress >= UD_UntieDifficulty
+            untie()
+        endif   
+    endif  
+    parent.OnMinigameEnd() 
 EndFunction
 
 Function updateWidget(bool force = false)
@@ -240,9 +244,6 @@ Function OnOrgasmPost(bool sexlab = false) ;called on wearer orgasm. Is only cal
 EndFunction
 Function OnMinigameStart() ;called when minigame start
     parent.OnMinigameStart()
-EndFunction
-Function OnMinigameEnd() ;called when minigame end
-    parent.OnMinigameEnd()
 EndFunction
 Function OnMinigameTick1() ;called every 1s of minigame
     parent.OnMinigameTick1()
