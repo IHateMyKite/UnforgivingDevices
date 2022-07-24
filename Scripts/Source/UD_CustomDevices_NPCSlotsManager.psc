@@ -55,7 +55,7 @@ Function CheckOrgasmLoops()
 EndFunction
 
 Bool _PlayerSlotReady = false
-Float Property UD_SlotUpdatTime = 6.0 auto
+Float Property UD_SlotUpdateTime = 10.0 auto
 Event OnUpdate()
     ;init player slot
     if !_PlayerSlotReady
@@ -75,7 +75,7 @@ Event OnUpdate()
         
         UpdateSlots() ;update slots, this only update variables, not devices
     endif
-    RegisterForSingleUpdate(UD_SlotUpdatTime)
+    RegisterForSingleUpdate(UD_SlotUpdateTime)
 EndEvent
 
 Function UpdateSlots()
@@ -340,10 +340,6 @@ int Function numberOfFreeSlots()
     return res
 EndFunction
 
-;bool Function registerNPC(Actor akActor)
-;    return True
-;EndFunction
-
 bool Function unregisterNPC(Actor akActor,bool bDebugMsg = false)
     if !isRegistered(akActor)
         return false
@@ -354,7 +350,7 @@ bool Function unregisterNPC(Actor akActor,bool bDebugMsg = false)
         UD_CustomDevice_NPCSlot slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
         Actor loc_slotedNPC = slot.getActor()
         if loc_slotedNPC == akActor
-            (GetNthAlias(index) as UD_CustomDevice_NPCSlot).unregisterSlot()
+            slot.unregisterSlot()
             StorageUtil.UnSetIntValue(loc_slotedNPC, "UD_blockSlotUpdate")
             akActor.RemoveFromFaction(UDCDmain.RegisteredNPCFaction)
             if bDebugMsg || UDCDmain.UDmain.DebugMod
@@ -381,3 +377,9 @@ Function CheckOrgasmManagerLoops()
         endif
     endwhile    
 EndFunction
+
+State SlotUpdateStopped
+    Event OnUpdate()
+        RegisterForSingleUpdate(UD_SlotUpdateTime*0.5)
+    EndEvent
+EndState

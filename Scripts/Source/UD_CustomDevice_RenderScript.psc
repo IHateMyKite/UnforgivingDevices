@@ -1147,7 +1147,7 @@ EndFunction
 
 ;returns if wearer/helper is registered in register
 bool Function WearerIsRegistered()
-    return UDCDmain.isRegistered(getWearer())
+    return UDCDmain.isRegistered(Wearer)
 EndFunction 
 bool Function HelperIsRegistered()
     return UDCDmain.isRegistered(getHelper())
@@ -1155,7 +1155,7 @@ EndFunction
 
 ;returns true if device wearer is player
 bool Function WearerIsPlayer()
-    return UDmain.ActorIsPlayer(getWearer())
+    return Wearer == UDmain.Player
 EndFunction
 
 ;returns true if device wearer is current follower
@@ -1176,7 +1176,7 @@ EndFunction
 ;returns true if current device helper is player
 bool Function HelperIsPlayer()
     if _minigameHelper
-        return UDmain.ActorIsPlayer(_minigameHelper)
+        return _minigameHelper == UDmain.Player
     endif
     return false
 EndFunction
@@ -1604,7 +1604,7 @@ Function removeDevice(actor akActor)
     endif
     _removeDeviceCalled = True
     
-    GoToState("Stoped")
+    GoToState("Stopped")
     
     if !akActor.isDead()
         if !_isUnlocked
@@ -2361,9 +2361,9 @@ Function deviceMenuInitWH(Actor akSource,bool[] aControl)
     updateDifficulty()
     UDCDmain.resetCondVar()
     
-    bool     loc_freehands_helper     = WearerFreeHands(true)
-    float     loc_accesibility         = getAccesibility()
-    int     loc_lockacces             = getLockAccesChance()
+    bool    loc_freehands_helper     = WearerFreeHands(true)
+    float   loc_accesibility         = getAccesibility()
+    int     loc_lockacces            = getLockAccesChance()
     
     
     ;help struggle
@@ -3430,7 +3430,7 @@ Function minigame()
         showDebugMinigameInfo()
     endif
     
-    GoToState("Stoped")
+    GoToState("Stopped")
     
     bool loc_WearerIsPlayer = WearerIsPlayer()
     bool loc_HelperIsPlayer = HelperIsPlayer()
@@ -3438,6 +3438,7 @@ Function minigame()
     
     if loc_PlayerInMinigame
         closeMenu()
+        UDmain.UDNPCM.GoToState("SlotUpdateStopped")
     endif
     
     minigame_on = True
@@ -3448,7 +3449,7 @@ Function minigame()
         _minigameHelper.AddToFaction(UDCDmain.MinigameFaction)
     endif
     
-    UDCDMain.UDPP.Send_MinigameStarter(getWearer(),self)
+    UDCDMain.UDPP.Send_MinigameStarter(Wearer,self)
     
     if UDmain.TraceAllowed()
         UDCDmain.Log("Minigame started for: " + deviceInventory.getName())    
@@ -3538,7 +3539,7 @@ Function minigame()
     endif
 
     _MinigameMainLoop_ON = true    
-    UDCDMain.UDPP.Send_MinigameParalel(getWearer(),self)        
+    UDCDMain.UDPP.Send_MinigameParalel(Wearer,self)        
     
     if loc_PlayerInMinigame && UD_useWidget && UDCDmain.UD_UseWidget
         showWidget()
@@ -3557,11 +3558,11 @@ Function minigame()
 
     pauseMinigame = False
     
-    float     loc_dmg             = (_durability_damage_mod + UD_durability_damage_add)*fCurrentUpdateTime*UD_DamageMult
+    float     loc_dmg              = (_durability_damage_mod + UD_durability_damage_add)*fCurrentUpdateTime*UD_DamageMult
     float     loc_condmult         = 1.0 + _condition_mult_add
-    bool     loc_updatewidget     = loc_PlayerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
+    bool      loc_updatewidget     = loc_PlayerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
     
-    while current_device_health > 0.0 && !force_stop_minigame && UDCDmain.actorInMinigame(getWearer())
+    while current_device_health > 0.0 && !force_stop_minigame; && UDCDmain.actorInMinigame(getWearer())
         ;pause minigame, pause minigame need to be changed from other thread or infinite loop happens
         while pauseMinigame
             Utility.wait(0.01)
@@ -3592,37 +3593,41 @@ Function minigame()
         
         ;--one second timer--
         if (tick_b*fCurrentUpdateTime >= 1.0) && !force_stop_minigame && !pauseMinigame && current_device_health > 0.0 ;once per second
-            ;update loc vars
-            loc_dmg             = (_durability_damage_mod + UD_durability_damage_add)*fCurrentUpdateTime*UD_DamageMult
-            loc_condmult         = 1.0 + _condition_mult_add            
-            loc_updatewidget     = loc_PlayerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
-            
-            ;check non struggle minigames
-            if !loc_PlayerInMinigame
-                if cuttingGame_on
-                    cutDevice(fCurrentUpdateTime*UD_CutChance/5.0)
-                endif
-            endif
-            
-            tick_b = 0
-            tick_s += 1
-            if !force_stop_minigame
-                OnMinigameTick1()
-                ;--three second timer--
-                if !(tick_s % 3) && tick_s
-                    ;start new animation if wearer stops animating
-                    if !libs.isAnimating(Wearer)  && !pauseMinigame
-                        _sStruggleAnim = struggleArray[Utility.RandomInt(0,  struggleArray.length - 1)]
-                        libsp.FastStartThirdPersonAnimation(Wearer, _sStruggleAnim)
+            if UDCDmain.actorInMinigame(Wearer)
+                ;update loc vars
+                loc_dmg             = (_durability_damage_mod + UD_durability_damage_add)*fCurrentUpdateTime*UD_DamageMult
+                loc_condmult         = 1.0 + _condition_mult_add            
+                loc_updatewidget     = loc_PlayerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
+                
+                ;check non struggle minigames
+                if !loc_PlayerInMinigame
+                    if cuttingGame_on
+                        cutDevice(fCurrentUpdateTime*UD_CutChance/5.0)
                     endif
-                    if _minigameHelper
-                        if !libs.isAnimating(_minigameHelper)  && !pauseMinigame && !force_stop_minigame
-                            _sStruggleAnimHelper = struggleArrayHelper[Utility.RandomInt(0,  struggleArrayHelper.length - 1)]
-                            libsp.FastStartThirdPersonAnimation(_minigameHelper, _sStruggleAnimHelper)
+                endif
+                
+                tick_b = 0
+                tick_s += 1
+                if !force_stop_minigame
+                    OnMinigameTick1()
+                    ;--three second timer--
+                    if !(tick_s % 3) && tick_s
+                        ;start new animation if wearer stops animating
+                        if !libs.isAnimating(Wearer) && !pauseMinigame
+                            _sStruggleAnim = struggleArray[Utility.RandomInt(0,  struggleArray.length - 1)]
+                            libsp.FastStartThirdPersonAnimation(Wearer, _sStruggleAnim)
                         endif
+                        if _minigameHelper
+                            if !libs.isAnimating(_minigameHelper)  && !pauseMinigame && !force_stop_minigame
+                                _sStruggleAnimHelper = struggleArrayHelper[Utility.RandomInt(0,  struggleArrayHelper.length - 1)]
+                                libsp.FastStartThirdPersonAnimation(_minigameHelper, _sStruggleAnimHelper)
+                            endif
+                        endif
+                        OnMinigameTick3()
                     endif
-                    OnMinigameTick3()
                 endif
+            else
+                StopMinigame()
             endif
         endif
         
@@ -3683,8 +3688,8 @@ Function minigame()
     ;wait for paralled threads to end
     float loc_time = 0.0
     while (_MinigameParProc_1 || _MinigameParProc_2 || _MinigameParProc_3) && loc_time <= 3.5
-        Utility.waitMenuMode(0.01)
-        loc_time += 0.01
+        Utility.waitMenuMode(0.001)
+        loc_time += 0.001
     endwhile
     if loc_time >= 3.5
         UDCDMain.Error("minigame("+getDeviceHeader()+") - Minigame paralel thread timeout!")
@@ -3695,6 +3700,10 @@ Function minigame()
     OnMinigameEnd()
     
     GoToState("")
+    
+    if loc_PlayerInMinigame
+        UDmain.UDNPCM.GoToState("")
+    endif
     
     ;debug message
     if UDmain.DebugMod && UD_damage_device && durability_onstart != current_device_health && loc_WearerIsPlayer
@@ -3722,7 +3731,7 @@ EndFunction
 
 ;https://en.uesp.net/wiki/Skyrim:Leveling
 Function advanceSkill(float fMult)
-    if !WearerIsPlayer() && !HelperIsPlayer()
+    if !PlayerInMinigame()
         return
     endif
     
@@ -3962,7 +3971,7 @@ Function unlockRestrain(bool forceDestroy = false,bool waitForRemove = True)
         return
     endif
     _isUnlocked = True
-    GoToState("Stoped")
+    GoToState("Stopped")
     if UDmain.TraceAllowed()    
         UDCDmain.Log("unlockRestrain() called for " + self,1)
     endif
@@ -5110,7 +5119,7 @@ EndFunction
 ;-------------------------------------------------------------------------------------
 ;-------------------------------------------------------------------------------------
 
-State Stoped
+State Stopped
     Function Update(float timePassed)
         _updateTimePassed += (timePassed*24.0*60.0);*UDCDmain.UD_CooldownMultiplier
     EndFunction

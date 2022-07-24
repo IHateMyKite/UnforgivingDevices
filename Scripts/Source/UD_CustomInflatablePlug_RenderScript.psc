@@ -144,9 +144,7 @@ EndFunction
 float Function getAccesibility()
     float loc_res = parent.getAccesibility()
     if loc_res > 0.0
-        if !(getWearer().wornhaskeyword(libs.zad_DeviousBelt) || getWearer().wornhaskeyword(libs.zad_DeviousHarness))
-            loc_res *= (1.0 - getPlugInflateLevel()*0.2)
-        endif
+        loc_res *= (1.0 - getPlugInflateLevel()*0.2)
     endif
     return fRange(loc_res,0.0,1.0)
 EndFunction

@@ -46,6 +46,7 @@ UD_MutexManagerScript               Property UDMM           auto
 UD_ModifierManager_Script           Property UDMOM          auto
 UD_UserInputScript                  Property UDUI           auto
 UD_AnimationManagerScript           Property UDAM           auto
+UD_CompatibilityManager_Script      Property UDCM           auto
 UD_MenuChecker                      Property UDMC 
     UD_MenuChecker Function get()
         return UD_UtilityQuest as UD_MenuChecker
@@ -95,9 +96,10 @@ int Property UD_InfoLevel = 1 auto hidden
 
 bool Property ZaZAnimationPackInstalled = false auto
 ;zbfBondageShell Property ZAZBS auto
-bool Property OSLArousedInstalled = false auto
-bool Property ConsoleUtilInstalled = false auto
-bool Property SlaveTatsInstalled = false auto
+bool Property OSLArousedInstalled       = false auto
+bool Property ConsoleUtilInstalled      = false auto
+bool Property SlaveTatsInstalled        = false auto
+bool Property OrdinatorInstalled        = false auto
 
 bool Function UDReady()
     return Ready
@@ -214,6 +216,10 @@ Function OnGameReload()
         UDAM.Update()
     endif
     
+    if UDCM.Ready
+        UDCM.Update()
+    endif
+    
     CLog("Unforgiving Devices updated.")
 EndFunction
 
@@ -256,6 +262,7 @@ Function Update()
         UDMM = GetMeMyForm(0x15B555,"UnforgivingDevices.esp") as UD_MutexManagerScript
         Error("UDMM set to "+UDMM)
     endif
+    
     if !Ready
         Ready = true
         CLog("Detected that UD is not ready. Changing state to ready.")
@@ -311,6 +318,15 @@ Function CheckOptionalMods()
     else
         debug.messagebox("--!ERROR!--\nUD can't detect ConsoleUtil. Without this mode, some features of Unforgiving Devices will not work as intended. Please be warned.")
         ConsoleUtilInstalled = False
+    endif
+    
+    if ModInstalled("Ordinator - Perks of Skyrim.esp")
+        OrdinatorInstalled = True
+        if TraceAllowed()
+            Log("Ordinator - Perks of Skyrim detected!")
+        endif
+    else
+        OrdinatorInstalled = false
     endif
 EndFUnction
 

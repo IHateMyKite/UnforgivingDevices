@@ -80,6 +80,11 @@ Function Update()
     RegisterModEvents()
 EndFunction
 
+Function RemoveAbilities(Actor akActor)
+    akActor.RemoveSpell(UDlibs.OrgasmCheckSpell)
+    akActor.RemoveSpell(UDlibs.ArousalCheckSpell)
+EndFunction
+
 Function CheckOrgasmCheck(Actor akActor)
     if !akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
         ;GInfo("Starting again Orgasm check loop for " + getActorName(akActor))
@@ -172,10 +177,7 @@ EndFunction
 
 bool Function ArousalLoopBreak(Actor akActor,Int iVersion)
     bool loc_cond = false
-    loc_cond = loc_cond || !UDCDMain.isRegistered(akActor)
-    ;loc_cond = loc_cond || (UD_StopActorArousalCheckLoop == akActor)
-    ;loc_cond = loc_cond || akActor.isDead()
-    ;loc_cond = loc_cond || (iVersion < UD_ArousalCheckLoop_ver)
+    ;loc_cond = loc_cond || !UDCDMain.isRegistered(akActor)
     return loc_cond
 EndFunction
 
@@ -404,10 +406,7 @@ EndFunction
 
 bool Function OrgasmLoopBreak(Actor akActor, int iVersion)
     bool loc_cond = false
-    ;loc_cond = loc_cond || (UD_StopActorOrgasmCheckLoop == akActor)
-    loc_cond = loc_cond || !UDCDmain.isRegistered(akActor)
-    ;loc_cond = loc_cond || akActor.isDead()
-    ;loc_cond = loc_cond || (iVersion < UD_OrgasmCheckLoop_ver) || UD_OrgasmCheckLoop_ver < 0
+    ;loc_cond = loc_cond || !UDCDmain.isRegistered(akActor)
     return loc_cond
 EndFunction
 

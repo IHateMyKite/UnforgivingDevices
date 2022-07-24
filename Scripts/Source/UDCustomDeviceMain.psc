@@ -404,6 +404,7 @@ bool Function PlayerInMinigame()
     return UDmain.Player.IsInFaction(MinigameFaction)
 EndFunction
 
+;stops current device minigiame. Takes up to 1s second
 Function StopMinigame(Actor akActor)
     if !akActor
         return
@@ -539,7 +540,7 @@ EndFunction
 
 ;returns number of devices that can be activated
 bool Function isRegistered(Actor akActor)
-    if UDmain.ActorIsPlayer(akActor)
+    if akActor == UDmain.Player
         return true
     endif
     return akActor.isInFaction(RegisteredNPCFaction);UDCD_NPCM.isRegistered(akActor)

@@ -68,7 +68,7 @@ bool Function struggleMinigameWH(Actor akSource)
 EndFunction
 
 float Function getAccesibility()
-    float loc_res = 1.0;parent.getAccesibility()
+    float loc_res = 1.0
     int loc_beltstate = UDCDmain.ActorBelted(getWearer()) 
     bool loc_hashelper = HasHelper()
     

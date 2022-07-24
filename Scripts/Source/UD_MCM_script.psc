@@ -51,8 +51,8 @@ int abadon_flag_2
 
 int UD_OrgasmExhaustion_flag
 int UD_OrgasmExhaustion_T
-int UD_OrgasmExhaustionMagnitude_S
-int UD_OrgasmExhaustionDuration_S
+;int UD_OrgasmExhaustionMagnitude_S
+;int UD_OrgasmExhaustionDuration_S
 
 int UD_ActionKey_K
 int UD_StruggleKey_K 
@@ -223,7 +223,6 @@ EndEvent
 int UseAnalVariant_T
 int Property AbadonQuestFlag auto
 Function resetAbadonPage()
-        
         setCursorFillMode(LEFT_TO_RIGHT)
         ;addEmptyOption()
         AddHeaderOption("Abadon Plug Settings")
@@ -273,35 +272,36 @@ int UD_HearingRange_S
 int UD_InfoLevel_M
 string[] UD_InfoLevel_AS
 int UD_WarningAllowed_T
+int UD_SlotUpdateTime_S
 Event resetGeneralPage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
     AddHeaderOption("General")
     addEmptyOption()
     
-    UD_StruggleKey_K = AddKeyMapOption("Action key: ", UDCDmain.StruggleKey_Keycode)
-    UD_ActionKey_K = AddKeyMapOption("Stop key: ", UDCDmain.ActionKey_Keycode)
+    UD_StruggleKey_K        = AddKeyMapOption("Action key: ", UDCDmain.StruggleKey_Keycode)
+    UD_ActionKey_K          = AddKeyMapOption("Stop key: ", UDCDmain.ActionKey_Keycode)
     
-    UD_PlayerMenu_K = AddKeyMapOption("Player menu key:", UDCDmain.PlayerMenu_KeyCode)
-    UD_NPCMenu_K = AddKeyMapOption("NPC menu key:", UDCDmain.NPCMenu_Keycode)
+    UD_PlayerMenu_K         = AddKeyMapOption("Player menu key:", UDCDmain.PlayerMenu_KeyCode)
+    UD_NPCMenu_K            = AddKeyMapOption("NPC menu key:", UDCDmain.NPCMenu_Keycode)
     
-    UD_hightPerformance_T = addToggleOption("Hight performance mod",UDmain.UD_hightPerformance)
-    UD_debugmod_T = addToggleOption("Debug mod",UDmain.DebugMod)
+    UD_hightPerformance_T   = addToggleOption("Hight performance mod",UDmain.UD_hightPerformance)
+    UD_debugmod_T           = addToggleOption("Debug mod",UDmain.DebugMod)
     
-    UD_LoggingLevel_S = addSliderOption("Logging level",UDmain.LogLevel, "{0}")
-    UD_NPCSupport_T = addToggleOption("NPC Auto Scan",UDmain.AllowNPCSupport)
+    UD_LoggingLevel_S       = addSliderOption("Logging level",UDmain.LogLevel, "{0}")
+    UD_NPCSupport_T         = addToggleOption("NPC Auto Scan",UDmain.AllowNPCSupport)
     
-    UD_RandomFilter_T = AddInputOption("Random filter", Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFF), UD_LockMenu_flag)
-    UD_HearingRange_S = addSliderOption("Message range:",UDmain.UD_HearingRange,"{0}")
+    UD_RandomFilter_T       = AddInputOption("Random filter", Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFF), UD_LockMenu_flag)
+    UD_HearingRange_S       = addSliderOption("Message range:",UDmain.UD_HearingRange,"{0}")
 
-    lockmenu_T = addToggleOption("Lock menus",UDmain.lockMCM,UD_LockMenu_flag)
-    UD_useHoods_T = addToggleOption("Use hoods",UDIM.UD_useHoods,UD_LockMenu_flag)
+    lockmenu_T              = addToggleOption("Lock menus",UDmain.lockMCM,UD_LockMenu_flag)
+    UD_useHoods_T           = addToggleOption("Use hoods",UDIM.UD_useHoods,UD_LockMenu_flag)
     
-    UD_InfoLevel_M         = AddMenuOption("Info level", UD_InfoLevel_AS[UDmain.UD_InfoLevel])
-    UD_WarningAllowed_T = addToggleOption("Warnings allowed",UDmain.UD_WarningAllowed)
-    ;addEmptyOption()
+    UD_InfoLevel_M          = AddMenuOption("Info level", UD_InfoLevel_AS[UDmain.UD_InfoLevel])
+    UD_WarningAllowed_T     = addToggleOption("Warnings allowed",UDmain.UD_WarningAllowed)
     
-    UD_OrgasmExhaustion_T = addToggleOption("Orgasm exhaustion",UDmain.UD_OrgasmExhaustion,UD_LockMenu_flag)
+    UD_SlotUpdateTime_S     = addSliderOption("NPC Slot update time:",UDCD_NPCM.UD_SlotUpdateTime,"{0} s")
+    UD_OrgasmExhaustion_T   = addToggleOption("Orgasm exhaustion",UDmain.UD_OrgasmExhaustion,UD_LockMenu_flag)
 EndEvent
 
 int UD_Swimming_flag
@@ -529,8 +529,6 @@ Event resetDebugPage()
     AddHeaderOption("-NPC Slots-")    
     int i = 0
     
-    
-
     UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByIndex(actorIndex)
     if !slot.isUsed()
         slot = UDCD_NPCM.getPlayerSlot()
@@ -899,17 +897,17 @@ event OnOptionSliderOpen(int option)
 endEvent
 
 Function OnOptionSliderOpenGeneral(int option)
-    if (option == UD_OrgasmExhaustionMagnitude_S)
-        SetSliderDialogStartValue(Math.floor(UDmain.UD_OrgasmExhaustionMagnitude))
-        SetSliderDialogDefaultValue(2.0)
-        SetSliderDialogRange(0.0, 100.0)
-        SetSliderDialogInterval(1.0)
-    elseIf (option == UD_OrgasmExhaustionDuration_S)
-        SetSliderDialogStartValue(Math.floor(UDmain.UD_OrgasmExhaustionDuration))
-        SetSliderDialogDefaultValue(30.0)
-        SetSliderDialogRange(10.0, 600.0)
-        SetSliderDialogInterval(10.0)
-    elseif (option == UD_LoggingLevel_S)
+    ;if (option == UD_OrgasmExhaustionMagnitude_S)
+    ;    SetSliderDialogStartValue(Math.floor(UDmain.UD_OrgasmExhaustionMagnitude))
+    ;    SetSliderDialogDefaultValue(2.0)
+    ;    SetSliderDialogRange(0.0, 100.0)
+    ;    SetSliderDialogInterval(1.0)
+    ;elseIf (option == UD_OrgasmExhaustionDuration_S)
+    ;    SetSliderDialogStartValue(Math.floor(UDmain.UD_OrgasmExhaustionDuration))
+    ;    SetSliderDialogDefaultValue(30.0)
+    ;    SetSliderDialogRange(10.0, 600.0)
+    ;    SetSliderDialogInterval(10.0)
+    if (option == UD_LoggingLevel_S)
         SetSliderDialogStartValue(UDmain.LogLevel)
         SetSliderDialogDefaultValue(1.0)
         SetSliderDialogRange(0.0, 3.0)
@@ -919,6 +917,11 @@ Function OnOptionSliderOpenGeneral(int option)
         SetSliderDialogDefaultValue(UDmain.UD_HearingRange)
         SetSliderDialogRange(1000.0, 50000.0)
         SetSliderDialogInterval(500.0)
+    elseif option == UD_SlotUpdateTime_S
+        SetSliderDialogStartValue(UDCD_NPCM.UD_SlotUpdateTime)
+        SetSliderDialogDefaultValue(UDCD_NPCM.UD_SlotUpdateTime)
+        SetSliderDialogRange(5.0, 30.0)
+        SetSliderDialogInterval(1.0)
     endIf
 EndFunction
 
@@ -1140,13 +1143,13 @@ event OnOptionSliderAccept(int option, float value)
 endEvent
 
 Function OnOptionSliderAcceptGeneral(int option, float value)
-    if (option == UD_OrgasmExhaustionMagnitude_S)
-        UDmain.UD_OrgasmExhaustionMagnitude = value
-        SetSliderOptionValue(UD_OrgasmExhaustionMagnitude_S, UDmain.UD_OrgasmExhaustionMagnitude, "{0} %")
-    elseif (option == UD_OrgasmExhaustionDuration_S)
-        UDmain.UD_OrgasmExhaustionDuration = Round(value)
-        SetSliderOptionValue(UD_OrgasmExhaustionDuration_S, UDmain.UD_OrgasmExhaustionDuration, "{0} s")
-    elseif (option == UD_LoggingLevel_S)
+    ;if (option == UD_OrgasmExhaustionMagnitude_S)
+    ;    UDmain.UD_OrgasmExhaustionMagnitude = value
+    ;    SetSliderOptionValue(UD_OrgasmExhaustionMagnitude_S, UDmain.UD_OrgasmExhaustionMagnitude, "{0} %")
+    ;elseif (option == UD_OrgasmExhaustionDuration_S)
+    ;    UDmain.UD_OrgasmExhaustionDuration = Round(value)
+    ;    SetSliderOptionValue(UD_OrgasmExhaustionDuration_S, UDmain.UD_OrgasmExhaustionDuration, "{0} s")
+    if (option == UD_LoggingLevel_S)
         UDmain.LogLevel = Round(value)
         SetSliderOptionValue(UD_LoggingLevel_S, UDmain.LogLevel, "{0}")
     elseif option == UD_RandomFilter_T
@@ -1155,6 +1158,9 @@ Function OnOptionSliderAcceptGeneral(int option, float value)
     elseif option == UD_HearingRange_S
         UDmain.UD_HearingRange =  Round(value)
         SetSliderOptionValue(UD_HearingRange_S, UDmain.UD_HearingRange, "{0}")
+    elseif option == UD_SlotUpdateTime_S
+        UDCD_NPCM.UD_SlotUpdateTime =  Round(value)
+        SetSliderOptionValue(UD_SlotUpdateTime_S, UDCD_NPCM.UD_SlotUpdateTime, "{0} s")
     endIf
 EndFunction
 
@@ -1502,10 +1508,10 @@ Function GeneralPageInfo(int option)
         SetInfoText("Dissable MCM when any of Unforgiving devices is equiped")
     elseif(option == UD_OrgasmExhaustion_T)
         SetInfoText("Adds debuff to player on orgasm. Thsi debuff reduces stamina and magicka regeneration for short time. This effect is applied as on DD orgasm as on Sexlab scene orgasm.")
-    elseif(option == UD_OrgasmExhaustionMagnitude_S)
-        SetInfoText("Strength of debuff in percent. This value is only modifier and doesn't represent excant reduction of regeneration. Example: 50% will not half regeneratio but reduce it much less. On ther hand 60% may reduce regeneration to zero.")
-    elseif(option == UD_OrgasmExhaustionDuration_S)
-        SetInfoText("Duration of debuff. 30 second is duration of taper that take place after effect ends. Taper will reduce debuff strength over time untill it get reduced to zero. So 50s duration is 20 base duration + 30 taper duration, when only during 20s will have effect maximum effect.")
+    ;elseif(option == UD_OrgasmExhaustionMagnitude_S)
+    ;    SetInfoText("Strength of debuff in percent. This value is only modifier and doesn't represent excant reduction of regeneration. Example: 50% will not half regeneratio but reduce it much less. On ther hand 60% may reduce regeneration to zero.")
+    ;elseif(option == UD_OrgasmExhaustionDuration_S)
+    ;    SetInfoText("Duration of debuff. 30 second is duration of taper that take place after effect ends. Taper will reduce debuff strength over time untill it get reduced to zero. So 50s duration is 20 base duration + 30 taper duration, when only during 20s will have effect maximum effect.")
     elseif(option == UD_ActionKey_K)
         SetInfoText("Current use: Stops struggling")
     elseif(option == UD_StruggleKey_K)
@@ -1522,6 +1528,12 @@ Function GeneralPageInfo(int option)
         SetInfoText("Set random restrain filter. This is bitcoded value. For more info check LL or GitHub")
     elseif option == UD_HearingRange_S
         SetInfoText("Actor needs to be in this range from player so user receives actor specific messages (like that some device starts vibratin, other do something else etc...)\n Default: 4000\n(4000 is around the distance of one big hallway. 500 is next to player.)")
+    elseif option == UD_InfoLevel_M
+        SetInfoText("Determinates amount of information shown in Actor detail panel\nDefault: Default")
+    elseif option == UD_WarningAllowed_T
+        SetInfoText("Toggle Warning console messages.\nDefault: OFF")
+    elseif option == UD_SlotUpdateTime_S
+        SetInfoText("Update time for NPC slots. Update is quite performance heavy operation, so change this accordingly.\nDefault: 10s")
     Endif
 EndFunction
 Function CustomBondagePageInfo(int option)
@@ -1740,8 +1752,8 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "lockMCM", UDmain.lockMCM as Int)
     JsonUtil.SetIntValue(strFile, "Debug mode", UDmain.DebugMod as Int)
     JsonUtil.SetIntValue(strFile, "OrgasmExhastion", UDmain.UD_OrgasmExhaustion as int)
-    JsonUtil.SetFloatValue(strFile, "OrgasmExhaustionMag", UDmain.UD_OrgasmExhaustionMagnitude)
-    JsonUtil.SetIntValue(strFile, "OrgasmExhaustionDuration", UDmain.UD_OrgasmExhaustionDuration)
+    ;JsonUtil.SetFloatValue(strFile, "OrgasmExhaustionMag", UDmain.UD_OrgasmExhaustionMagnitude)
+    ;JsonUtil.SetIntValue(strFile, "OrgasmExhaustionDuration", UDmain.UD_OrgasmExhaustionDuration)
     JsonUtil.SetIntValue(strFile, "AutoLoad", UDmain.UD_AutoLoad as int)
     JsonUtil.SetIntValue(strFile, "LogLevel", UDmain.LogLevel as int)
     JsonUtil.SetIntValue(strFile, "HearingRange", UDmain.UD_HearingRange)
@@ -1816,6 +1828,8 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "WidgetPosY", widget.PositionY)
     JsonUtil.SetIntValue(strFile, "RandomFiler", UDmain.UDRRM.UD_RandomDevice_GlobalFilter)
     JsonUtil.SetIntValue(strFile, "DAR", AAScript.UD_DAR as Int)
+    JsonUtil.SetIntValue(strFile, "SlotUpdateTime", Round(UDCD_NPCM.UD_SlotUpdateTime))
+    
     
     JsonUtil.Save(strFile, true)
 EndFunction
@@ -1827,8 +1841,8 @@ Function LoadFromJSON(string strFile)
     UDmain.lockMCM = JsonUtil.GetIntValue(strFile, "lockMCM", UDmain.lockMCM as Int)
     UDmain.DebugMod = JsonUtil.GetIntValue(strFile, "Debug mode", UDmain.DebugMod as Int)
     UDmain.UD_OrgasmExhaustion = JsonUtil.GetIntValue(strFile, "OrgasmExhastion", UDmain.UD_OrgasmExhaustion as int)
-    UDmain.UD_OrgasmExhaustionMagnitude = JsonUtil.GetFloatValue(strFile, "OrgasmExhaustionMag", UDmain.UD_OrgasmExhaustionMagnitude)
-    UDmain.UD_OrgasmExhaustionDuration = JsonUtil.GetIntValue(strFile, "OrgasmExhaustionDuration", UDmain.UD_OrgasmExhaustionDuration)
+    ;UDmain.UD_OrgasmExhaustionMagnitude = JsonUtil.GetFloatValue(strFile, "OrgasmExhaustionMag", UDmain.UD_OrgasmExhaustionMagnitude)
+    ;UDmain.UD_OrgasmExhaustionDuration = JsonUtil.GetIntValue(strFile, "OrgasmExhaustionDuration", UDmain.UD_OrgasmExhaustionDuration)
     UDmain.UD_AutoLoad = JsonUtil.GetIntValue(strFile, "AutoLoad", UDmain.UD_AutoLoad as int)
     UDmain.LogLevel = JsonUtil.GetIntValue(strFile, "LogLevel", UDmain.LogLevel as int)
     UDmain.UD_HearingRange = JsonUtil.GetIntValue(strFile, "HearingRange", UDmain.UD_HearingRange)
@@ -1910,6 +1924,7 @@ Function LoadFromJSON(string strFile)
     UDCDmain.widget2.PositionY = widget.PositionY
     UDmain.UDRRM.UD_RandomDevice_GlobalFilter =  JsonUtil.GetIntValue(strFile, "RandomFiler", UDmain.UDRRM.UD_RandomDevice_GlobalFilter)
     AAScript.UD_DAR =  JsonUtil.GetIntValue(strFile, "DAR", AAScript.UD_DAR as Int)
+    UDCD_NPCM.UD_SlotUpdateTime =  JsonUtil.GetIntValue(strFile, "SlotUpdateTime", Round(UDCD_NPCM.UD_SlotUpdateTime))
 EndFunction
 
 Function ResetToDefaults()
@@ -2011,6 +2026,7 @@ Function ResetToDefaults()
     UDCDmain.widget2.PositionY = widget.PositionY
     UDmain.UDRRM.UD_RandomDevice_GlobalFilter = 0x0000FFFF ;16b
     AAScript.UD_DAR =  false
+    UDCD_NPCM.UD_SlotUpdateTime = 10.0
 EndFunction
 
 Function SetAutoLoad(bool bValue)

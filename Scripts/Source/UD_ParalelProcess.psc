@@ -238,7 +238,7 @@ Function Receive_MinigameParalel(Form fActor)
 
     ;pause thred untill minigame end
     int loc_tick = 0
-    while loc_device._MinigameMainLoop_ON && UDCDmain.ActorInMinigame(akActor)
+    while loc_device._MinigameMainLoop_ON; && UDCDmain.ActorInMinigame(akActor)
         if !loc_device.pauseMinigame
             loc_tick += 1
             ;update disable if it gets somehow removed every 1 s
@@ -269,8 +269,8 @@ Function Receive_MinigameParalel(Form fActor)
             ;advance skill every 3 second
             if !(loc_tick % 6) && loc_tick
                 loc_device.advanceSkill(3.0)
-                loc_updatewidget     = loc_device.UD_UseWidget && UDCDmain.UD_UseWidget && loc_haveplayer
-                loc_canShowHUD         = loc_device.canShowHUD()                
+                loc_updatewidget    = loc_device.UD_UseWidget && UDCDmain.UD_UseWidget && loc_haveplayer
+                loc_canShowHUD      = loc_device.canShowHUD()                
             endif
         endif
         if loc_device._MinigameMainLoop_ON
@@ -374,7 +374,7 @@ Function Receive_MinigameCritloop(Form fActor)
     Utility.Wait(0.75)
     ;process
     int loc_tick = 0
-    while loc_device._MinigameMainLoop_ON && UDCDmain.ActorInMinigame(akActor)
+    while loc_device._MinigameMainLoop_ON; && UDCDmain.ActorInMinigame(akActor)
         if !loc_device.pauseMinigame && !UDmain.IsMenuOpen()
             loc_tick += 1
             ;check crit every 1 s

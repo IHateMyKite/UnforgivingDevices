@@ -40,19 +40,22 @@ Function EvaluateAA(actor akActor)
     if !UD_DAR
         parent.EvaluateAA(akActor)
     else
-        Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
         libs.UpdateControls()
         If !HasCompatibleDevice(akActor)
-            ;ClearAA(akActor)
-            ;ResetExternalAA(akActor)
+            Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
             RemoveBCPerks(akActor)
         Else
+            if akActor.IsWeaponDrawn()
+                akActor.SheatheWeapon()
+                ; Wait for users with flourish sheathe animations.
+                int timeout=0
+                while akActor.IsWeaponDrawn() && timeout <= 45 ;  Wait 4.5 seconds at most before giving up and proceeding.
+                    Utility.Wait(0.1)
+                    timeout += 1
+                EndWhile
+            EndIf
             ApplyBCPerks(akActor)
-            ;int animState = GetSecondaryAAState(akActor)
-            ;Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
-            ;if animState != 1 && animState != 2
-            ;    akActor.SetAnimationVariableInt("FNIS_abc_h2h_LocomotionPose", 1)
-            ;endIf
+            Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
         endif
     endif
     StorageUtil.UnSetIntValue(akActor,"DDStartBoundEffectQue")

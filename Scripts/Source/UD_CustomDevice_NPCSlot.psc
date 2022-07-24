@@ -18,7 +18,11 @@ zadlibs_UDPatch Property libs hidden
         return UDmain.libsp
     EndFunction
 EndProperty
-
+UD_OrgasmManager Property UDOM
+    UD_OrgasmManager Function get()
+        return UDmain.UDOM
+    EndFunction
+EndProperty
 UD_CustomDevice_RenderScript[] Property UD_equipedCustomDevices auto hidden
 Form[] Property UD_BodySlots auto hidden
 
@@ -58,7 +62,7 @@ float Property ArousalSkillMult     = 1.0 auto hidden
 Function UpdateSlot()
     ArousalSkillMult = UDCDmain.getArousalSkillMult(getActor())
     UpdateSkills()
-    UpdateBodySlots()
+    ;UpdateBodySlots()
 EndFunction
 
 Function UpdateBodySlots()
@@ -178,13 +182,11 @@ Function SetSlotTo(Actor akActor)
     if !UDmain.ActorIsPlayer(akActor)
         ForceRefTo(akActor)
     endif
-    
-    UDNPCM.UD_SlotsValidation = Math.logicalOr(UDNPCM.UD_SlotsValidation,Math.LeftShift(0x1,GetID()))
-    
+
     akActor.addToFaction(UDCDmain.RegisteredNPCFaction)
 
-    UDCDmain.UDOM.CheckOrgasmCheck(akActor)
-    UDCDmain.UDOM.CheckArousalCheck(akActor)
+    UDOM.CheckOrgasmCheck(akActor)
+    UDOM.CheckArousalCheck(akActor)
     
     UpdateSlot()
     
@@ -240,10 +242,8 @@ Function unregisterSlot()
     endif
     StorageUtil.UnSetIntValue(getActor(), "UD_ManualRegister")
     _iScriptState = 0
+    UDOM.RemoveAbilities(getActor())
     self.Clear()
-    
-    UDNPCM.UD_SlotsValidation = Math.logicalAnd(UDNPCM.UD_SlotsValidation,Math.LogicalNot(Math.LeftShift(0x1,GetID())))
-    
 EndFunction
 
 Function sortSlots(bool mutex = true)
@@ -324,6 +324,9 @@ Function fix()
     elseif loc_res == 2 ;reset expression
         UDCDMain.UDEM.ResetExpressionRaw(getActor(),100)
     elseif loc_res == 3 ;unequip slot
+        UDCDmain.Print("[UD] Loading slots...")
+        UpdateBodySlots()
+        UDCDmain.Print("[UD] Slots loaded")
         if UD_BodySlots
             int loc_i = 0
             string[] loc_list
