@@ -46,16 +46,16 @@ Function TransferDevices(Actor akTarget, Actor akCaster)
         endwhile
 
         libs.StartBoundEffects(akCaster)
-		libs.StopBoundEffects(akTarget)
+        libs.StopBoundEffects(akTarget)
         akTarget.removespell(UDlibs.PreventCombatSpell)
-        if akCaster.wornhaskeyword(libs.zad_deviousheavybondage)
+        if akCaster != libs.PlayerRef && akCaster.wornhaskeyword(libs.zad_deviousheavybondage)
             akCaster.addspell(UDlibs.PreventCombatSpell)
         endif
-		Outfit OriginalOutfit = StorageUtil.GetFormValue(akTarget.GetActorBase(), "zad_OriginalOutfit") As Outfit
-		if OriginalOutfit && akTarget != libs.PlayerRef && akTarget.GetActorBase().IsUnique()
-			akTarget.SetOutfit(OriginalOutfit, false)
-			StorageUtil.UnSetFormValue(akTarget.GetActorBase(), "zad_OriginalOutfit")
-		endIf
+        Outfit OriginalOutfit = StorageUtil.GetFormValue(akTarget.GetActorBase(), "zad_OriginalOutfit") As Outfit
+        if OriginalOutfit && akTarget != libs.PlayerRef && akTarget.GetActorBase().IsUnique()
+            akTarget.SetOutfit(OriginalOutfit, false)
+            StorageUtil.UnSetFormValue(akTarget.GetActorBase(), "zad_OriginalOutfit")
+        endIf
 
     endif
 endFunction                                                                                
