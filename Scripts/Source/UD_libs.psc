@@ -6,26 +6,26 @@ UnforgivingDevicesMain Property main auto
 
 ;zadlibs slots
 ;/
-zad_DeviousHood				30
-zad_DeviousSuit 			32
-zad_DeviousGloves 			33
-???????????????				33
-zad_DeviousBoots 			37
-??????????????? 			38
-zad_DeviousGag 				44
-zad_DeviousCollar 			45
-zad_DeviousHeavyBondage 	46
-zad_DeviousPlugAnal 		48
-zad_DeviousBelt 			49
+zad_DeviousHood                30
+zad_DeviousSuit             32
+zad_DeviousGloves             33
+???????????????                33
+zad_DeviousBoots             37
+???????????????             38
+zad_DeviousGag                 44
+zad_DeviousCollar             45
+zad_DeviousHeavyBondage     46
+zad_DeviousPlugAnal         48
+zad_DeviousBelt             49
 zad_DeviousPiercingsVaginal 50
-zad_DeviousPiercingsNipple 	51
-zad_DeviousLegCuffs 		53
-zad_DeviousBlindfold 		55
-zad_DeviousBra 				56
-zad_DeviousPlugVaginal 		57
-zad_DeviousHarness 			58
-zad_DeviousCorset 			58
-zad_DeviousArmCuffs 		59
+zad_DeviousPiercingsNipple     51
+zad_DeviousLegCuffs         53
+zad_DeviousBlindfold         55
+zad_DeviousBra                 56
+zad_DeviousPlugVaginal         57
+zad_DeviousHarness             58
+zad_DeviousCorset             58
+zad_DeviousArmCuffs         59
 /;
 
 ;misc
@@ -39,35 +39,35 @@ Soulgem Property FilledSoulgem_Common auto
 
 Bool Property Ready = False auto
 Event OnInit()
-	Ready = True
+    Ready = True
 EndEvent
 
 Function Update()
-	if !PunisherArmbinder
-		PunisherArmbinder = GetMeMyForm(0x15B53D,"UnforgivingDevices.esp") as Armor
-	endif
-	
-	if !PunisherPiercing
-		PunisherPiercing = GetMeMyForm(0x15B538,"UnforgivingDevices.esp") as Armor
-	endif
+    if !PunisherArmbinder
+        PunisherArmbinder = GetMeMyForm(0x15B53D,"UnforgivingDevices.esp") as Armor
+    endif
+    
+    if !PunisherPiercing
+        PunisherPiercing = GetMeMyForm(0x15B538,"UnforgivingDevices.esp") as Armor
+    endif
 
-	if !PreventCombat_KW
-		main.Error("PreventCombat_KW not detected. Loading...")
-		PreventCombat_KW = GetMeMyForm(0x15B551,"UnforgivingDevices.esp") as Keyword
-		main.Error("PreventCombat_KW loaded")
-	endif
+    if !PreventCombat_KW
+        main.Error("PreventCombat_KW not detected. Loading...")
+        PreventCombat_KW = GetMeMyForm(0x15B551,"UnforgivingDevices.esp") as Keyword
+        main.Error("PreventCombat_KW loaded")
+    endif
 
-	if !PreventCombatSpell
-		main.Error("PreventCombatSpell not detected. Loading...")
-		PreventCombatSpell = GetMeMyForm(0x15B553,"UnforgivingDevices.esp") as Spell
-		main.Error("PreventCombatSpell loaded")
-	endif
-	
-	if !ActorTypeNPC
-		main.Error("ActorTypeNPC not detected. Loading...")
-		ActorTypeNPC = GetMeMyForm(0x013794,"Skyrim.esm") as Keyword
-		main.Error("ActorTypeNPC loaded " + ActorTypeNPC)
-	endif
+    if !PreventCombatSpell
+        main.Error("PreventCombatSpell not detected. Loading...")
+        PreventCombatSpell = GetMeMyForm(0x15B553,"UnforgivingDevices.esp") as Spell
+        main.Error("PreventCombatSpell loaded")
+    endif
+    
+    if !ActorTypeNPC
+        main.Error("ActorTypeNPC not detected. Loading...")
+        ActorTypeNPC = GetMeMyForm(0x013794,"Skyrim.esm") as Keyword
+        main.Error("ActorTypeNPC loaded " + ActorTypeNPC)
+    endif
 EndFunction
 
 ;plug

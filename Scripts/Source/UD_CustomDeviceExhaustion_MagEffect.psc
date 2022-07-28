@@ -2,41 +2,41 @@ Scriptname UD_CustomDeviceExhaustion_MagEffect extends activemagiceffect
 
 UnforgivingDevicesMain Property UDmain auto
 UD_ExpressionManager Property UDEM
-	UD_ExpressionManager Function get()
-		return UDmain.UDEM
-	EndFunction
+    UD_ExpressionManager Function get()
+        return UDmain.UDEM
+    EndFunction
 EndProperty
 Actor _target = none
 MagicEffect _MagickEffect = none
 float[] _expression
 Event OnEffectStart(Actor akTarget, Actor akCaster)
-	_target = akTarget 
-	_MagickEffect = GetBaseObject()
-	_expression = UDEM.GetPrebuildExpression_Tired1()
-	UDEM.ApplyExpressionRaw(_target, _expression, 30,false,5)
-	if _target == Game.getPlayer()
-		registerForSingleUpdate(0.1)
-		;Game.SetInChargen(false, true, false)
-	endif
+    _target = akTarget 
+    _MagickEffect = GetBaseObject()
+    _expression = UDEM.GetPrebuildExpression_Tired1()
+    UDEM.ApplyExpressionRaw(_target, _expression, 30,false,5)
+    if UDmain.ActorIsPlayer(_target)
+        registerForSingleUpdate(0.1)
+        ;Game.SetInChargen(false, true, false)
+    endif
 EndEvent
 
 bool _finish = false
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
-	_finish = true
-	if _target == Game.getPlayer()
-		Game.SetInChargen(false, false, false)
-	endif
-	if !_target.hasMagicEffect(_MagickEffect)
-		UDEM.ResetExpressionRaw(_target,10)
-	endif
+    _finish = true
+    if UDmain.ActorIsPlayer(_target)
+        Game.SetInChargen(false, false, false)
+    endif
+    if !_target.hasMagicEffect(_MagickEffect)
+        UDEM.ResetExpressionRaw(_target,10)
+    endif
 EndEvent
 
 Event OnUpdate()
-	if !_finish
-		if _target == Game.getPlayer()
-			Game.SetInChargen(false, true, false)
-		endif
-		UDEM.ApplyExpressionRaw(_target, _expression, 30,false,5)
-		registerForSingleUpdate(1.0)
-	endif
+    if !_finish
+        if UDmain.ActorIsPlayer(_target)
+            Game.SetInChargen(false, true, false)
+        endif
+        UDEM.ApplyExpressionRaw(_target, _expression, 30,false,5)
+        registerForSingleUpdate(1.0)
+    endif
 EndEvent
