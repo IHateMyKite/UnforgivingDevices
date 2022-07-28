@@ -1121,6 +1121,13 @@ Actor Function getWearer()
     return Wearer
 EndFunction
 
+;returns current device wearer
+Actor Function setWearer(Actor akActor)
+    if akActor
+        Wearer = akActor
+    endif
+EndFunction
+
 ;returns current device wearers name
 String Function getWearerName()
     return GetActorName(Wearer)
