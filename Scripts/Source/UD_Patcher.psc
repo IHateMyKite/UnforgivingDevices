@@ -49,7 +49,7 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
     device.UD_base_stat_drain = Utility.randomFloat(8.0,12.0)
     device.UD_StruggleCritDuration = Utility.randomFloat(0.75,0.9)
     device.UD_StruggleCritChance = Utility.randomInt(8,15)
-    device.UD_StruggleCritMul = Utility.randomFloat(2.0,8.0)
+    device.UD_StruggleCritMul = Utility.randomFloat(3.0,8.0)
     ;device.UD_LockpickDifficulty = 25*Utility.randomInt(1,3)
     
     int sentientModChance = 35

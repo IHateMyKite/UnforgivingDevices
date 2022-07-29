@@ -1280,7 +1280,7 @@ Function showActorDetails(Actor akActor)
         loc_orgStr += "--ORGASM DETAILS--\n"
         loc_orgStr += "Active vibrators: " + GetActivatedVibrators(akActor) + "(S="+StorageUtil.GetIntValue(akActor,"UD_ActiveVib_Strength",0)+")" + "\n"
         loc_orgStr += "Arousal: " + UDOM.getArousal(akActor) + "\n"
-        loc_orgStr += "Arousal Rate(M): " + formatString(UDOM.getArousalRateM(akActor),2) + "\n"
+        loc_orgStr += "Arousal Rate(M): " + Math.Ceiling(UDOM.getArousalRateM(akActor)) + "\n"
         loc_orgStr += "Arousal Rate Mult: " + Round(UDOM.getArousalRateMultiplier(akActor)*100) + " %\n"
         loc_orgStr += "Orgasm capacity: " + Round(UDOM.getActorOrgasmCapacity(akActor)) + "\n"
         loc_orgStr += "Orgasm resistence(M): " + FormatString(UDOM.getActorOrgasmResistM(akActor),1) + "\n"
@@ -1310,37 +1310,6 @@ Function showActorDetails(Actor akActor)
             
             ShowMessageBox(loc_cuttStr)
         endif
-        
-        if UDmain.DebugMod
-            string loc_debugStr = "--DEBUG DETAILS--\n"
-            loc_debugStr += "Registered: " + akActor.isInFaction(RegisteredNPCFaction) + "\n"
-            loc_debugStr += "Orgasm Check: " + akActor.IsInFaction(UDOM.OrgasmCheckLoopFaction) + "\n"
-            loc_debugStr += "Arousal Check: " + akActor.isInFaction(UDOM.ArousalCheckLoopFaction) + "\n"
-            loc_debugStr += "Orgasm Check Spell: " + akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW) + "\n"
-            loc_debugStr += "Arousal Check Spell: " + akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW) + "\n"
-            loc_debugStr += "Hardcore Disable: " + akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW) + "\n"
-            loc_debugStr += "Animating: " + libs.IsAnimating(akActor) + "\n"
-            loc_debugStr += "Animation block: " + akActor.isInFaction(BlockAnimationFaction) + "\n"
-            loc_debugStr += "Expression level: " + akActor.GetFactionRank(BlockExpressionFaction) +"\n"
-            loc_debugStr += "Valid: " + libs.IsValidActor(akActor) +"\n"
-            ShowMessageBox(loc_debugStr)
-            
-            if !libs.IsValidActor(akActor)
-                loc_debugStr = "--DEBUG VALID DETAILS--\n"
-                loc_debugStr += "Is3DLoaded: " + akActor.Is3DLoaded() +"\n"
-                loc_debugStr += "IsDead: " + akActor.IsDead() +"\n"
-                loc_debugStr += "IsDisabled: " + akActor.IsDisabled() +"\n"
-                loc_debugStr += "CurrentScene: " + akActor.GetCurrentScene() +"\n"
-                if akActor.GetCurrentScene() != none 
-                    loc_debugStr += "CurrentScene-Playing: " + akActor.GetCurrentScene().IsPlaying() +"\n"
-                    loc_debugStr += "CurrentScene-Quest: " + akActor.GetCurrentScene().GetOwningQuest() +"\n"
-                endif
-                
-                
-                ShowMessageBox(loc_debugStr)
-            endif
-            
-        endif
     elseif UDmain.UD_InfoLevel == 1
         loc_res += "Name: " + akActor.GetLeveledActorBase().GetName() + "(LVL = " +akActor.GetLevel() + ")\n"
         loc_res += "HP: " + formatString(akActor.getAV("Health"),1) + "/" +  formatString(getMaxActorValue(akActor,"Health"),1) + " ("+ Round(getCurrentActorValuePerc(akActor,"Health")*100) +" %)" +"\n"
@@ -1349,7 +1318,7 @@ Function showActorDetails(Actor akActor)
         Weapon loc_sharpestWeapon = getSharpestWeapon(akActor)
         loc_res += "Sharpest weapon: " + loc_sharpestWeapon.getName() +" (" + FormatString(loc_sharpestWeapon.getBaseDamage()*2.5,1) +" %)\n"
         loc_res += "Active vibrators: " + GetActivatedVibrators(akActor) + " (Str = "+StorageUtil.GetIntValue(akActor,"UD_ActiveVib_Strength",0)+")" + "\n"
-        loc_res += "Arousal / rate: " + UDOM.getArousal(akActor) + " / " + formatString(UDOM.getArousalRateM(akActor),2) + "\n"
+        loc_res += "Arousal / rate: " + UDOM.getArousal(akActor) + " / " + Math.Ceiling(UDOM.getArousalRateM(akActor)) + "\n"
         loc_res += "Orgasm progress: " + formatString(UDOM.getOrgasmProgressPerc(akActor) * 100,2) + " %\n"
         loc_res += "Orgasm Rate(M): " + formatString(UDOM.getActorAfterMultOrgasmRate(akActor),2) + " - " + formatString(UDOM.getActorAfterMultAntiOrgasmRate(akActor),2) + " Op/s\n"
         loc_res += "Orgasm exhaustion: " + UDOM.GetOrgasmExhaustion(akActor) + "\n"
@@ -1357,46 +1326,48 @@ Function showActorDetails(Actor akActor)
         loc_res += GetHelperDetails(akActor)
         
         ShowMessageBox(loc_res)
-        
-        if UDmain.DebugMod
-            string loc_debugStr = "--DEBUG DETAILS--\n"
-            loc_debugStr += "Registered: " + akActor.isInFaction(RegisteredNPCFaction) + "\n"
-            loc_debugStr += "Orgasm Check: " + akActor.IsInFaction(UDOM.OrgasmCheckLoopFaction) + "\n"
-            loc_debugStr += "Arousal Check: " + akActor.isInFaction(UDOM.ArousalCheckLoopFaction) + "\n"
-            loc_debugStr += "Orgasm Check Spell: " + akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW) + "\n"
-            loc_debugStr += "Arousal Check Spell: " + akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW) + "\n"
-            loc_debugStr += "Hardcore Disable: " + akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW) + "\n"
-            loc_debugStr += "Animating: " + libs.IsAnimating(akActor) + "\n"
-            loc_debugStr += "Animation block: " + akActor.isInFaction(BlockAnimationFaction) + "\n"
-            loc_debugStr += "Expression level: " + akActor.GetFactionRank(BlockExpressionFaction) +"\n"
-            loc_debugStr += "Valid: " + libs.IsValidActor(akActor) +"\n"
-            ShowMessageBox(loc_debugStr)
-            
-            if !libs.IsValidActor(akActor)
-                loc_debugStr = "--DEBUG VALID DETAILS--\n"
-                loc_debugStr += "Is3DLoaded: " + akActor.Is3DLoaded() +"\n"
-                loc_debugStr += "IsDead: " + akActor.IsDead() +"\n"
-                loc_debugStr += "IsDisabled: " + akActor.IsDisabled() +"\n"
-                loc_debugStr += "CurrentScene: " + akActor.GetCurrentScene() +"\n"
-                if akActor.GetCurrentScene() != none 
-                    loc_debugStr += "CurrentScene-Playing: " + akActor.GetCurrentScene().IsPlaying() +"\n"
-                    loc_debugStr += "CurrentScene-Quest: " + akActor.GetCurrentScene().GetOwningQuest() +"\n"
-                endif
-                
-                
-                ShowMessageBox(loc_debugStr)
-            endif
-        endif
     elseif UDmain.UD_InfoLevel == 0
         loc_res += "Name: " + akActor.GetLeveledActorBase().GetName() + "(LVL = " +akActor.GetLevel() + ")\n"
         loc_res += "HP/MP/SP: "+ Round(getCurrentActorValuePerc(akActor,"Health")*100) + " / " + Round(getCurrentActorValuePerc(akActor,"Magicka")*100) +" / "+ Round(getCurrentActorValuePerc(akActor,"Stamina")*100) +" %\n"
         loc_res += "Active vibrators: " + GetActivatedVibrators(akActor) + "(S="+StorageUtil.GetIntValue(akActor,"UD_ActiveVib_Strength",0)+")" + "\n"
-        loc_res += "Arousal / rate: " + UDOM.getArousal(akActor) + " / " + formatString(UDOM.getArousalRateM(akActor),2) + "\n"
+        loc_res += "Arousal / rate: " + UDOM.getArousal(akActor) + " / " + Math.Ceiling(UDOM.getArousalRateM(akActor)) + "\n"
         loc_res += "Orgasm progress: " + formatString(UDOM.getOrgasmProgressPerc(akActor) * 100,2) + " %\n"
         loc_res += "Orgasm Rate(M): " + formatString(UDOM.getActorAfterMultOrgasmRate(akActor),2) + " - " + formatString(UDOM.getActorAfterMultAntiOrgasmRate(akActor),2) + " Op/s\n"
         loc_res += "Helper LVL: " + GetHelperLVL(akActor) +"("+Round(GetHelperLVLProgress(akActor)*100)+"%)" + "\n"
         ShowMessageBox(loc_res)
     endif
+    
+    if UDmain.DebugMod
+        string loc_debugStr = "--DEBUG DETAILS--\n"
+        loc_debugStr += "Registered: " + akActor.isInFaction(RegisteredNPCFaction) + "\n"
+        loc_debugStr += "Orgasm Check: " + akActor.IsInFaction(UDOM.OrgasmCheckLoopFaction) + "\n"
+        loc_debugStr += "Arousal Check: " + akActor.isInFaction(UDOM.ArousalCheckLoopFaction) + "\n"
+        loc_debugStr += "Orgasm Check Spell: " + akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW) + "\n"
+        loc_debugStr += "Arousal Check Spell: " + akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW) + "\n"
+        loc_debugStr += "Hardcore Disable: " + akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW) + "\n"
+        loc_debugStr += "Animating: " + libs.IsAnimating(akActor) + "\n"
+        loc_debugStr += "Animation block: " + akActor.isInFaction(BlockAnimationFaction) + "\n"
+        loc_debugStr += "Expression level: " + akActor.GetFactionRank(BlockExpressionFaction) +"\n"
+        loc_debugStr += "Valid: " + libs.IsValidActor(akActor) +"\n"
+        ShowMessageBox(loc_debugStr)
+        
+        if !libs.IsValidActor(akActor)
+            loc_debugStr = "--DEBUG VALID DETAILS--\n"
+            loc_debugStr += "Is3DLoaded: " + akActor.Is3DLoaded() +"\n"
+            loc_debugStr += "IsDead: " + akActor.IsDead() +"\n"
+            loc_debugStr += "IsDisabled: " + akActor.IsDisabled() +"\n"
+            loc_debugStr += "CurrentScene: " + akActor.GetCurrentScene() +"\n"
+            if akActor.GetCurrentScene() != none 
+                loc_debugStr += "CurrentScene-Playing: " + akActor.GetCurrentScene().IsPlaying() +"\n"
+                loc_debugStr += "CurrentScene-Quest: " + akActor.GetCurrentScene().GetOwningQuest() +"\n"
+            endif
+            
+            
+            ShowMessageBox(loc_debugStr)
+        endif
+        
+    endif
+    
 EndFunction
 
 Function ShowHelperDetails(Actor akActor)

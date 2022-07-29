@@ -87,64 +87,69 @@ EndFunction
 State Minigame
     Event OnKeyDown(Int KeyCode)
         ;help variables to reduce lag
-        bool     _crit                     = UDCDmain.crit 
-        string     _selected_crit_meter     = UDCDmain.selected_crit_meter
+        bool     _crit                    = UDCDmain.crit 
+        string   _selected_crit_meter     = UDCDmain.selected_crit_meter
+        
+        if _crit
+            UDCDmain.crit = false
+        else
+            _selected_crit_meter     = UDCDmain.selected_crit_meter
+        endif
+
         bool loc_menuopen = UDmain.IsMenuOpen()
         if !loc_menuopen ;only if player is not in menu
             if UDmain.TraceAllowed()        
                 UDmain.Log("OnKeyDown(), Keycode: " + KeyCode,3)
             endif
-            if UDCDmain.CurrentPlayerMinigameDevice
-                if (_crit) && !UDCDMain.UD_AutoCrit
-                    if _selected_crit_meter == "S" && KeyCode == UDCDMain.Stamina_meter_Keycode
-                        UDCDmain.crit = False
-                        _crit = False
-                        if UDmain.TraceAllowed()                    
-                            UDmain.Log("Crit detected for Stamina bar! Keycode: " + KeyCode)
-                        endif
-                        UDCDmain.CurrentPlayerMinigameDevice.critDevice()
-                        return
-                    elseif _selected_crit_meter == "M" && KeyCode == UDCDMain.Magicka_meter_Keycode
-                        UDCDmain.crit = False
-                        _crit = False
-                        if UDmain.TraceAllowed()                    
-                            UDmain.Log("Crit detected for Magicka bar! Keycode: " + KeyCode)
-                        endif
-                        UDCDmain.CurrentPlayerMinigameDevice.critDevice()
-                        return
-                    elseif KeyCode == UDCDMain.Magicka_meter_Keycode || KeyCode == UDCDMain.Stamina_meter_Keycode
-                        UDCDmain.crit = False
-                        _crit = False
-                        if UDmain.TraceAllowed()                    
-                            UDmain.Log("Crit failure detected! Keycode: " + KeyCode)
-                        endif
-                        UDCDmain.CurrentPlayerMinigameDevice.critFailure()
-                        return
-                    elseif KeyCode == UDCDMain.ActionKey_Keycode
-                        if UDmain.TraceAllowed()                    
-                            UDmain.Log("ActionKey_Keycode pressed! Keycode: " + KeyCode)
-                        endif
-                        UDCDmain.CurrentPlayerMinigameDevice.stopMinigame()
-                        UDCDmain.crit = false
-                        return 
-                    endif
-                endif
-                if KeyCode == UDCDMain.SpecialKey_Keycode
-                    _specialButtonOn = true
-                    UDCDmain.CurrentPlayerMinigameDevice.SpecialButtonPressed(1.0)
-                    return
-                endif
-                if KeyCode == UDCDMain.ActionKey_Keycode
-                    if UDCDmain.CurrentPlayerMinigameDevice
-                        UDCDmain.CurrentPlayerMinigameDevice.stopMinigame()
-                    endif
-                    return
-                elseif (KeyCode == UDCDMain.Stamina_meter_Keycode || KeyCode == UDCDMain.Magicka_meter_Keycode) && !UDCDMain.UD_AutoCrit
+            if (_crit) && !UDCDMain.UD_AutoCrit
+                if _selected_crit_meter == "S" && KeyCode == UDCDMain.Stamina_meter_Keycode
                     UDCDmain.crit = False
                     _crit = False
+                    if UDmain.TraceAllowed()                    
+                        UDmain.Log("Crit detected for Stamina bar! Keycode: " + KeyCode)
+                    endif
+                    UDCDmain.CurrentPlayerMinigameDevice.critDevice()
+                    return
+                elseif _selected_crit_meter == "M" && KeyCode == UDCDMain.Magicka_meter_Keycode
+                    UDCDmain.crit = False
+                    _crit = False
+                    if UDmain.TraceAllowed()                    
+                        UDmain.Log("Crit detected for Magicka bar! Keycode: " + KeyCode)
+                    endif
+                    UDCDmain.CurrentPlayerMinigameDevice.critDevice()
+                    return
+                elseif KeyCode == UDCDMain.Magicka_meter_Keycode || KeyCode == UDCDMain.Stamina_meter_Keycode
+                    UDCDmain.crit = False
+                    _crit = False
+                    if UDmain.TraceAllowed()                    
+                        UDmain.Log("Crit failure detected! Keycode: " + KeyCode)
+                    endif
                     UDCDmain.CurrentPlayerMinigameDevice.critFailure()
                     return
+                elseif KeyCode == UDCDMain.ActionKey_Keycode
+                    if UDmain.TraceAllowed()                    
+                        UDmain.Log("ActionKey_Keycode pressed! Keycode: " + KeyCode)
+                    endif
+                    UDCDmain.CurrentPlayerMinigameDevice.stopMinigame()
+                    UDCDmain.crit = false
+                    return 
                 endif
+            endif
+            if KeyCode == UDCDMain.SpecialKey_Keycode
+                _specialButtonOn = true
+                UDCDmain.CurrentPlayerMinigameDevice.SpecialButtonPressed(1.0)
+                return
+            endif
+            if KeyCode == UDCDMain.ActionKey_Keycode
+                if UDCDmain.CurrentPlayerMinigameDevice
+                    UDCDmain.CurrentPlayerMinigameDevice.stopMinigame()
+                endif
+                return
+            elseif (KeyCode == UDCDMain.Stamina_meter_Keycode || KeyCode == UDCDMain.Magicka_meter_Keycode) && !UDCDMain.UD_AutoCrit
+                UDCDmain.crit = False
+                _crit = False
+                UDCDmain.CurrentPlayerMinigameDevice.critFailure()
+                return
             endif
         endif
     EndEvent

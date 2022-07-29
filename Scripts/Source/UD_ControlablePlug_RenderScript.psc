@@ -207,10 +207,6 @@ Function OnUpdatePost(float timePassed)
     parent.OnUpdatePost(timePassed)
 EndFunction
 
-int Function getArousalRate()
-    return parent.getArousalRate() + 5
-EndFunction
-
 bool Function canVibrate()
     return true
 EndFunction
@@ -391,4 +387,7 @@ bool Function onSpellHitPre(Spell source)
 EndFunction
 Function onSpellHitPost(Spell source)
     parent.onSpellHitPost(source)
+EndFunction
+int Function getArousalRate()
+    return parent.getArousalRate()
 EndFunction

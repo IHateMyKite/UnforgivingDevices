@@ -115,9 +115,9 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
         if UDmain.IsContainerMenuOpen()
             if target && giver
                 if !target.isDead() && !giver.isDead()
-                    if giver.getItemCount(deviceRendered)
+                    if giver.getItemCount(deviceRendered) && giver.getItemCount(deviceInventory) == 1
                         if UDmain.TraceAllowed()                        
-                            UDCDmain.Log(" Opening device menu for " + deviceInventory.getName() + " on "+ giver.getActorBase().getName() +" , helper:  " + target.getActorBase().getName(),1)
+                            UDCDmain.Log("Opening device menu for " + deviceInventory.getName() + " on "+ giver.getActorBase().getName() +" , helper:  " + target.getActorBase().getName(),1)
                         endif
                         StorageUtil.SetIntValue(giver, "UD_ignoreEvent" + deviceInventory, 0x111)
                         StorageUtil.SetIntValue(target, "UD_ignoreEvent" + deviceInventory, 0x333)
@@ -145,6 +145,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
                         endif
                         return
                     else
+                        ;only tranfere device, nothink else
                         return
                     endif
                 else

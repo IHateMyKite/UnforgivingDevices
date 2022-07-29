@@ -3758,9 +3758,9 @@ Function advanceSkill(float fMult)
             Game.AdvanceSkill("Destruction",loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/1.35)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
         endif
     elseif repairLocksMinigame_on
-        Game.AdvanceSkill("Smithing" , loc_mult*(UDCDmain.UD_BaseDeviceSkillIncrease*fMult/1.0)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+        Game.AdvanceSkill("Smithing" , loc_mult*(0.75*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/1.0)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
     elseif cuttingGame_on
-        Game.AdvanceSkill("OneHanded", loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/6.3)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+        Game.AdvanceSkill("OneHanded", loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/5.3)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
     endif
 EndFunction
 
@@ -5112,8 +5112,6 @@ Float[] Function GetCurrentMinigameExpression()
         endif
     endif
 EndFunction
-
-
 
 ;-------------------------------------------------------------------------------------
 ;-------------------------------------------------------------------------------------

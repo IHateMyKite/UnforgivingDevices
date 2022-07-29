@@ -23,7 +23,7 @@ EndProperty
 Actor       akActor         = none
 bool        _finished       = false
 Bool        loc_isplayer
-float       loc_updateTime  = 0.5
+float       loc_updateTime  = 1.0
 Float       loc_arousalRate
 Int         loc_arousal ;how much is arousal increased/decreased
 MagicEffect _MagickEffect   = none
@@ -51,13 +51,8 @@ Event OnUpdate()
             GInfo("UD_ArousalCheckScript_AME("+GetActorName(akActor)+") - ArousalLoopBreak -> dispeling")
             akActor.DispelSpell(UDCDmain.UDlibs.ArousalCheckSpell)
         else
-            if loc_isplayer
-                loc_updateTime = UDOM.UD_OrgasmUpdateTime
-            else
-                loc_updateTime = 1.0
-            endif
             loc_arousalRate = UDOM.getArousalRateM(akActor)
-            loc_arousal = Round(loc_arousalRate*loc_updateTime)
+            loc_arousal     = Math.Ceiling(loc_arousalRate)
             
             if loc_arousal > 0
                 akActor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.UpdateArousal(akActor ,loc_arousal))
@@ -66,7 +61,7 @@ Event OnUpdate()
             endif
     
             if IsRunning()
-                registerForSingleUpdate(loc_updateTime)
+                registerForSingleUpdate(1.0)
             endif
         endif
     endif
