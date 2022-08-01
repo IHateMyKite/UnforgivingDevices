@@ -1,9 +1,8 @@
-Scriptname ;/DEVICE SCRIPT NAME/; extends ;/PARENT SCRIPT NAME/;  
+Scriptname UD_CustomBPDevice_RenderScript extends UD_CustomHood_RenderScript
 
 Function InitPost()
 	parent.InitPost()
-	UD_DeviceType = "Device type"
-	UD_ActiveEffectName = "Active effect name"
+	UD_DeviceType = "Breath Play Device"
 EndFunction
 
 ;======================================================================

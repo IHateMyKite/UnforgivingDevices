@@ -747,23 +747,41 @@ Function StopVibrating(actor akActor)
     endif
 EndFunction
 
+Bool _VibEffectMutex = false
+Function StartVibrateEffectMutex()
+    while _VibEffectMutex
+        Utility.waitMenuMode(0.01)
+    endwhile
+    _VibEffectMutex = true
+EndFunction
+Function EndVibrateEffectMutex()
+    _VibEffectMutex = false
+EndFunction
 int Function VibrateEffect(actor akActor, int vibStrength, int duration, bool teaseOnly=false, bool silent = false)
     if UDmain.TraceAllowed()    
         UDCDmain.Log("VibrateEffect(): " + akActor + ", " + vibStrength + ", " + duration)
     endif
-    if akActor.WornHasKeyword(UDCDmain.UDlibs.UnforgivingDevice) && UDCDmain.isRegistered(akActor)
-        int loc_vibNum = UDCDmain.getOffVibratorNum(akActor)
+    ;prevent too short vibs. Can cause issue with orgasm system
+    if duration < 5
+        duration = 5
+    endif
+    
+    if akActor.WornHasKeyword(UDlibs.UnforgivingDevice) && UDCDmain.isRegistered(akActor)
+        int loc_vibNum = UDCDmain.getActivableVibratorNum(akActor)
         if loc_vibNum > 0
-            UD_CustomDevice_RenderScript[] loc_usableVibrators = UDCDmain.getOffVibrators(akActor)
+            UD_CustomDevice_RenderScript[] loc_usableVibrators = UDCDmain.getActivableVibrators(akActor)
             UD_CustomVibratorBase_RenderScript loc_selectedVib = loc_usableVibrators[Utility.randomInt(0,loc_vibNum - 1)] as UD_CustomVibratorBase_RenderScript
             if UDmain.TraceAllowed()            
                 UDCDmain.Log("VibrateEffect("+GetActorName(akActor)+") - selected vib:" + loc_selectedVib,1)
             endif
-
-            loc_selectedVib.forceStrength(vibStrength*20)
-            loc_selectedVib.forceDuration(duration)
-            loc_selectedVib.forceEdgingMode(teaseOnly as Int)
-            loc_selectedVib.vibrate()
+            if !loc_selectedVib.IsVibrating()
+                loc_selectedVib.forceStrength(vibStrength*20)
+                loc_selectedVib.forceDuration(duration)
+                loc_selectedVib.forceEdgingMode(teaseOnly as Int)
+                loc_selectedVib.vibrate()
+            else
+                loc_selectedVib.addVibDuration(duration)
+            endif
             return 0
         else
             return parent.VibrateEffect(akActor, vibStrength, duration, teaseOnly, silent)
@@ -994,20 +1012,37 @@ Function UpdateExposure(actor akRef, float val, bool skipMultiplier=false)
 EndFunction
 
 Function ApplyExpression(Actor akActor, sslBaseExpression expression, int strength, bool openMouth=false)
+    if UDmain.ZadExpressionSystemInstalled
+        parent.ApplyExpression(akActor, expression, strength, openMouth)
+        return
+    endif
+    
     if akActor.Is3DLoaded() || UDmain.ActorIsPlayer(akActor)
         UDCDmain.UDEM.ApplyExpression(akActor, expression, strength, openMouth,0)
     endif
 EndFunction
 
 Function ResetExpression(actor akActor, sslBaseExpression expression)
+    if UDmain.ZadExpressionSystemInstalled
+        parent.ResetExpression(akActor, expression)
+        return
+    endif
     UDCDmain.UDEM.ResetExpression(akActor, expression,0)
 EndFunction
 
-Function ApplyGagEffect(actor akActor)    
+Function ApplyGagEffect(actor akActor) 
+    if UDmain.ZadExpressionSystemInstalled
+        parent.ApplyGagEffect(akActor)
+        return
+    endif   
     UDCDmain.UDEM.ApplyGagEffect(akActor)
 EndFunction
 
 Function RemoveGagEffect(actor akActor)
+    if UDmain.ZadExpressionSystemInstalled
+        parent.RemoveGagEffect(akActor)
+        return
+    endif   
     UDCDmain.UDEM.RemoveGagEffect(akActor)
 EndFunction
 

@@ -100,7 +100,7 @@ bool Property OSLArousedInstalled       = false auto
 bool Property ConsoleUtilInstalled      = false auto
 bool Property SlaveTatsInstalled        = false auto
 bool Property OrdinatorInstalled        = false auto
-
+bool Property ZadExpressionSystemInstalled = false auto
 bool Function UDReady()
     return Ready
 EndFunction
@@ -187,7 +187,7 @@ Function OnGameReload()
         Utility.waitMenuMode(2.5)
     endif
     
-    Utility.waitMenuMode(2.5)
+    Utility.waitMenuMode(3.5)
         
     CLog("OnGameReload() called! - Updating Unforgiving Devices...")
     
@@ -263,10 +263,23 @@ Function Update()
         Error("UDMM set to "+UDMM)
     endif
     
+    Quest loc_DDexpressionQuest = GetMeMyForm(0x000800,"Devious Devices - Integration.esm") as Quest
+    if !ZadExpressionSystemInstalled && loc_DDexpressionQuest
+        Info("ZAD Expression System detected: switching...")
+        ZadExpressionSystemInstalled = True
+        if !libs.ExpLibs
+            libs.ExpLibs = loc_DDexpressionQuest as zadexpressionlibs
+        endif
+        UDEM.GoToState("DDExpressionSystemInstalled") 
+        Info("ZAD Expression System detected: DONE")        
+    endif
+    
     if !Ready
         Ready = true
-        CLog("Detected that UD is not ready. Changing state to ready.")
+        Info("Detected that UD is not ready. Changing state to ready.")
     endif
+    
+
     
     CheckOptionalMods()
     CheckPatchesOrder()

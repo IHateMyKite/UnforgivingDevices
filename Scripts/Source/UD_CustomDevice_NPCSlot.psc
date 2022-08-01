@@ -29,6 +29,11 @@ Form[] Property UD_BodySlots auto hidden
 UD_CustomDevice_RenderScript _handRestrain = none
 UD_CustomDevice_RenderScript Property UD_HandRestrain Hidden
     UD_CustomDevice_RenderScript Function get()
+        if _handRestrain
+            if _handRestrain.IsUnlocked
+                _handRestrain = none
+            endif
+        endif
         if GetActor().wornhaskeyword(libs.zad_deviousHeavyBondage)
             if !_handRestrain
                 _handRestrain = getHeavyBondageDevice()
@@ -1119,15 +1124,29 @@ int Function getVibratorNum()
     int i = 0
     while UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript
-            ;if (UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript).CanVibrate()
-                found_devices += 1
-            ;endif
+            found_devices += 1
         endif
         i+=1
     endwhile
     if UDmain.TraceAllowed()    
         UDCDmain.Log("getOffVibratorNum() - return value: " + found_devices,3)
     endif
+    return found_devices
+EndFunction
+
+;returns number of vibrators
+int Function getActivableVibratorNum()
+    int found_devices = 0
+    int i = 0
+    while UD_equipedCustomDevices[i]
+        UD_CustomVibratorBase_RenderScript loc_vib = UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript
+        if loc_vib
+            if loc_vib.canVibrate()
+                found_devices += 1
+            endif
+        endif
+        i+=1
+    endwhile
     return found_devices
 EndFunction
 
@@ -1207,6 +1226,24 @@ UD_CustomDevice_RenderScript[] Function getOffVibrators()
     if UDmain.TraceAllowed()    
         UDCDmain.Log("getOffVibrators() - return array: " + res,3)
     endif
+    return res
+EndFunction
+
+;returns all turned activable vibrators
+UD_CustomDevice_RenderScript[] Function getActivableVibrators()
+    UD_CustomDevice_RenderScript[] res = UDCDmain.MakeNewDeviceSlots()
+    int found_devices = 0
+    int i = 0
+    while UD_equipedCustomDevices[i]
+        if UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript
+            UD_CustomVibratorBase_RenderScript loc_vibrator = (UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript)
+            if loc_vibrator.CanVibrate()
+                res[found_devices] = loc_vibrator
+                found_devices += 1
+            endif
+        endif
+        i+=1
+    endwhile
     return res
 EndFunction
 

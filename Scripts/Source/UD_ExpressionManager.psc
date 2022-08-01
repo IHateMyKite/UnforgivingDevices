@@ -3,68 +3,67 @@ scriptname UD_ExpressionManager extends Quest
 import MfgConsoleFunc
 import sslBaseExpression
 import UnforgivingDevicesMain
-;/ ====Sexlab Expression Construct====
-All number are floats in range 0.0-1.0
-Only exception is expression[30] whre it needs whole number in range 0-16
-
-    =====================Phonems=====================
-    
-    expression[ 0] = Aah     [ 0.0 , 1.0 ]
-    expression[ 1] = BigAah [ 0.0 , 1.0 ]
-    expression[ 2] = BMP    [ 0.0 , 1.0 ]
-    expression[ 3] = ChJSh    [ 0.0 , 1.0 ]
-    expression[ 4] = DST    [ 0.0 , 1.0 ]
-    expression[ 5] = Eee    [ 0.0 , 1.0 ]
-    expression[ 6] = Eh        [ 0.0 , 1.0 ]
-    expression[ 7] = FV        [ 0.0 , 1.0 ]
-    expression[ 8] = I        [ 0.0 , 1.0 ]
-    expression[ 9] = K        [ 0.0 , 1.0 ]
-    expression[10] = N        [ 0.0 , 1.0 ]
-    expression[11] = Oh        [ 0.0 , 1.0 ]
-    expression[12] = OohQ    [ 0.0 , 1.0 ]
-    expression[13] = R        [ 0.0 , 1.0 ]
-    expression[14] = Th        [ 0.0 , 1.0 ]
-    expression[15] = W        [ 0.0 , 1.0 ]
-    
-    =====================Modifiers=====================
-    
-    expression[16] = BlinkLeft      [ 0.0 , 1.0 ]     !Warning, using this will prevent the eye from blinking! 
-    expression[17] = BlinkRight     [ 0.0 , 1.0 ]     !Warning, using this will prevent the eye from blinking! 
-    expression[18] = BrowDownLeft    [ 0.0 , 1.0 ]
-    expression[19] = BrowDownRight  [ 0.0 , 1.0 ]
-    expression[20] = BrowInLeft     [ 0.0 , 1.0 ]
-    expression[21] = BrowInRight    [ 0.0 , 1.0 ]
-    expression[22] = BrowUpLeft     [ 0.0 , 1.0 ]
-    expression[23] = BrowUpRight    [ 0.0 , 1.0 ]
-    expression[24] = LookDown       [ 0.0 , 1.0 ]
-    expression[25] = LookLeft       [ 0.0 , 1.0 ]
-    expression[26] = LookRight      [ 0.0 , 1.0 ]
-    expression[27] = LookUp         [ 0.0 , 1.0 ]
-    expression[28] = SquintLeft     [ 0.0 , 1.0 ]
-    expression[29] = SquintRight    [ 0.0 , 1.0 ]
-    
-    =====================Expression=====================
-    
-    expression[30] =        X: Selected expression, see below [ 0 , 16 ]
-                         0: Dialogue Anger
-                         1: Dialogue Fear
-                         2: Dialogue Happy
-                         3: Dialogue Sad
-                         4: Dialogue Surprise
-                         5: Dialogue Puzzled
-                         6: Dialogue Disgusted
-                         7: Mood Neutral
-                         8: Mood Anger
-                         9: Mood Fear
-                        10: Mood Happy
-                        11: Mood Sad
-                        12: Mood Surprise
-                        13: Mood Puzzled
-                        14: Mood Disgusted
-                        15: Combat Anger
-                        16: Combat Shout - this opens mouth like phonem, try to not use this unless you have good reason
-    expression[31] = Strength of choosen expression (expression[30]) [ 0.0 , 1.0 ]
-/;
+;====Sexlab Expression Construct====
+;All number are floats in range 0.0-1.0
+;Only exception is expression[30] whre it needs whole number in range 0-16
+;
+;    =====================Phonems=====================
+;    
+;    expression[ 0] = Aah     [ 0.0 , 1.0 ]
+;    expression[ 1] = BigAah  [ 0.0 , 1.0 ]
+;    expression[ 2] = BMP     [ 0.0 , 1.0 ]
+;    expression[ 3] = ChJSh   [ 0.0 , 1.0 ]
+;    expression[ 4] = DST     [ 0.0 , 1.0 ]
+;    expression[ 5] = Eee     [ 0.0 , 1.0 ]
+;    expression[ 6] = Eh      [ 0.0 , 1.0 ]
+;    expression[ 7] = FV      [ 0.0 , 1.0 ]
+;    expression[ 8] = I       [ 0.0 , 1.0 ]
+;    expression[ 9] = K       [ 0.0 , 1.0 ]
+;    expression[10] = N       [ 0.0 , 1.0 ]
+;    expression[11] = Oh      [ 0.0 , 1.0 ]
+;    expression[12] = OohQ    [ 0.0 , 1.0 ]
+;    expression[13] = R       [ 0.0 , 1.0 ]
+;    expression[14] = Th      [ 0.0 , 1.0 ]
+;    expression[15] = W       [ 0.0 , 1.0 ]
+;    
+;    =====================Modifiers=====================
+;    
+;    expression[16] = BlinkLeft      [ 0.0 , 1.0 ]     !Warning, using this will prevent the eye from blinking! 
+;    expression[17] = BlinkRight     [ 0.0 , 1.0 ]     !Warning, using this will prevent the eye from blinking! 
+;    expression[18] = BrowDownLeft   [ 0.0 , 1.0 ]
+;    expression[19] = BrowDownRight  [ 0.0 , 1.0 ]
+;    expression[20] = BrowInLeft     [ 0.0 , 1.0 ]
+;    expression[21] = BrowInRight    [ 0.0 , 1.0 ]
+;    expression[22] = BrowUpLeft     [ 0.0 , 1.0 ]
+;    expression[23] = BrowUpRight    [ 0.0 , 1.0 ]
+;    expression[24] = LookDown       [ 0.0 , 1.0 ]
+;    expression[25] = LookLeft       [ 0.0 , 1.0 ]
+;    expression[26] = LookRight      [ 0.0 , 1.0 ]
+;    expression[27] = LookUp         [ 0.0 , 1.0 ]
+;    expression[28] = SquintLeft     [ 0.0 , 1.0 ]
+;    expression[29] = SquintRight    [ 0.0 , 1.0 ]
+;    
+;    =====================Expression=====================
+;    
+;    expression[30] =     X: Selected expression, see below [ 0 , 16 ]
+;                         0: Dialogue Anger
+;                         1: Dialogue Fear
+;                         2: Dialogue Happy
+;                         3: Dialogue Sad
+;                         4: Dialogue Surprise
+;                         5: Dialogue Puzzled
+;                         6: Dialogue Disgusted
+;                         7: Mood Neutral
+;                         8: Mood Anger
+;                         9: Mood Fear
+;                        10: Mood Happy
+;                        11: Mood Sad
+;                        12: Mood Surprise
+;                        13: Mood Puzzled
+;                        14: Mood Disgusted
+;                        15: Combat Anger
+;                        16: Combat Shout - this opens mouth like phonem, try to not use this unless you have good reason
+;    expression[31] = Strength of choosen expression (expression[30]) [ 0.0 , 1.0 ]
 
 
 UDCustomDeviceMain Property UDCDmain auto
@@ -588,6 +587,27 @@ Function RemoveGagEffect(actor akActor)
     ApplyPresetFloats_NOMC(akActor, loc_appliedExpression)
     _ExpressionManip_Mutex = false
 EndFunction
+
+State DDExpressionSystemInstalled
+    bool Function ApplyExpression(Actor akActor, sslBaseExpression expression, int strength, bool openMouth=false,int iPriority = 0)
+        return libsp.ApplyExpression_v2(akActor, expression, iPriority, strength, openMouth)
+    EndFunction
+    bool Function ApplyExpressionRaw(Actor akActor, float[] expression, int strength, bool openMouth=false,int iPriority = 0)
+        return libsp.ApplyExpressionRaw(akActor, expression, iPriority, strength, openMouth)
+    EndFunction
+    bool Function ResetExpression(actor akActor, sslBaseExpression expression,int iPriority = 0)
+        return libsp.ResetExpressionRaw(akActor,iPriority)
+    EndFunction
+    bool Function ResetExpressionRaw(actor akActor, int iPriority = 0)
+        return libsp.ResetExpressionRaw(akActor,iPriority)
+    EndFunction
+    Function ApplyGagEffect(actor akActor)    
+        libsp.ApplyGagEffect(akActor)
+    EndFunction
+    Function RemoveGagEffect(actor akActor)
+        libsp.RemoveGagEffect(akActor)
+    EndFunction
+EndState
 
 float[] Function ApplyGagEffectToPreset(Actor akActor,Float[] preset)
     float[] loc_preset = Utility.CreateFloatArray(preset.length)

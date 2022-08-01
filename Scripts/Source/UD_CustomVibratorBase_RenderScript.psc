@@ -3,27 +3,27 @@ Scriptname UD_CustomVibratorBase_RenderScript extends UD_CustomDevice_RenderScri
 import UnforgivingDevicesMain
 
 ;Properties
-int     property     UD_VibDuration         = 60     auto ;duration of vibrations. -1 will make the vibrator vib forever (or until stopVibrating() is called)
-float     property     UD_ArousalMult         = 1.0    auto ;arousal multiplier, multiplies arousal which is adde while vib is on
-float     property     UD_OrgasmMult         = 1.0     auto ;orgasm multiplier, multiples orgasm rate which is applied
-int     Property     UD_VibStrength         = -1     auto ;Vib strength, if == -1, value will be set using keywords
-int     Property     UD_EdgingMode         = -1     auto ;Edging mode = 0 - normal, 1 - Edging only, 2 - Edging random    
-float     Property     UD_EdgingThreshold    = 0.75     auto ;used only in edgeMode == 1,2
-bool    Property    UD_Shocking            = False    auto ;change if plug should also shock actor when vibrate is called. If it can't vibrate, shock will still happen
-int        Property    UD_Chaos            = 0        auto ;plug will randomly change its strength and duration on every turn
+int     property     UD_VibDuration         = 60        auto ;duration of vibrations. -1 will make the vibrator vib forever (or until stopVibrating() is called)
+float   property     UD_ArousalMult         = 1.0       auto ;arousal multiplier, multiplies arousal which is adde while vib is on
+float   property     UD_OrgasmMult          = 1.0       auto ;orgasm multiplier, multiples orgasm rate which is applied
+int     Property     UD_VibStrength         = -1        auto ;Vib strength, if == -1, value will be set using keywords
+int     Property     UD_EdgingMode          = -1        auto ;Edging mode = 0 - normal, 1 - Edging only, 2 - Edging random    
+float   Property     UD_EdgingThreshold     = 0.75      auto ;used only in edgeMode == 1,2
+bool    Property     UD_Shocking            = False     auto ;change if plug should also shock actor when vibrate is called. If it can't vibrate, shock will still happen
+int     Property     UD_Chaos               = 0         auto ;plug will randomly change its strength and duration on every turn
 
 ;local variables
-int     _currentVibRemainingDuration = 0
-int     _forceStrength         =     -1
-int     _currentVibStrength =     0
-int     _forceDuration         =      0
-int     _currentEdgingMode     =     -1
-int     _forceEdgingMode     =     -1
-float     _appliedOrgasmRate     =     0.0
-float     _appliedArousalRate    =    0.0
-float     _appliedForcing     =     0.0
-int     _vsID                =     -1            ;current sound ID used to play vib sounds
-bool     _paused             =     false        ;on if vibrator is paused
+int     _currentVibRemainingDuration    =   0
+int     _forceStrength                  =   -1
+int     _currentVibStrength             =   0
+int     _forceDuration                  =   0
+int     _currentEdgingMode              =   -1
+int     _forceEdgingMode                =   -1
+float   _appliedOrgasmRate              =   0.0
+float   _appliedArousalRate             =   0.0
+float   _appliedForcing                 =   0.0
+int     _vsID                           =   -1           ;current sound ID used to play vib sounds
+bool    _paused                         =   false        ;on if vibrator is paused
 
 Function InitPost()
     parent.InitPost()
@@ -411,6 +411,7 @@ Function removeVibStrength(int iValue = 1)
         _currentVibStrength -= iValue
         if _currentVibStrength < 0
             _currentVibStrength = 0
+            stopVibrating()
         endif
         StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", _currentVibStrength)
         if !isPaused() && isVibrating()
@@ -603,10 +604,6 @@ Function vibrate(float fDurationMult = 1.0)
                 ForceStrength(Utility.randomInt(15,95))
             endif
         endif
-        
-        ;if isVibrating() && !_paused
-            ;libs.UpdateExposure(getWearer(), Round(getVibArousalRate()), skipMultiplier=true)
-        ;endif
         
         if isVibrating() && !_paused
             ProccesVibEdge()

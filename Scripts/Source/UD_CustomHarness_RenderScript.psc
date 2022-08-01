@@ -1,9 +1,8 @@
-Scriptname ;/DEVICE SCRIPT NAME/; extends ;/PARENT SCRIPT NAME/;  
+Scriptname UD_CustomHarness_RenderScript extends UD_CustomBelt_RenderScript  
 
 Function InitPost()
 	parent.InitPost()
-	UD_DeviceType = "Device type"
-	UD_ActiveEffectName = "Active effect name"
+	UD_DeviceType = "Harness"
 EndFunction
 
 ;======================================================================

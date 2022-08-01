@@ -149,7 +149,8 @@ bool Function turnOffPlugMinigame()
 EndFunction
 
 Function OnCritFailure()
-    if turnOffPlugMinigame_on        
+    if turnOffPlugMinigame_on
+        addVibStrength(10)
         addVibDuration(45)
     endif
     parent.OnCritFailure()
@@ -174,9 +175,11 @@ bool Function OnCritDevicePre()
         removeVibDuration(loc_duration)
         
         if isVibrating()
-            if Utility.randomInt() < 25 ;25% chance
-                removeVibStrength(Round(10*UD_DischargeRate))
-                debug.notification("You notice that the " + getDeviceName() + " vibrates weaker then before")
+            if Utility.randomInt() < 15 ;25% chance
+                removeVibStrength(10)
+                if WearerIsPlayer()
+                    UDCDMain.Print("You notice that the " + getDeviceName() + " vibrates weaker then before",2)
+                endif
             endif
         endif
         return True

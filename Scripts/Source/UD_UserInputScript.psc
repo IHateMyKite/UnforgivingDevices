@@ -89,13 +89,11 @@ State Minigame
         ;help variables to reduce lag
         bool     _crit                    = UDCDmain.crit 
         string   _selected_crit_meter     = UDCDmain.selected_crit_meter
-        
-        if _crit
-            UDCDmain.crit = false
-        else
-            _selected_crit_meter     = UDCDmain.selected_crit_meter
+        if (KeyCode == UDCDMain.Stamina_meter_Keycode || KeyCode == UDCDMain.Magicka_meter_Keycode)
+            if _crit
+                UDCDmain.crit = false ;remove crit to prevent multiple crits at once
+            endif
         endif
-
         bool loc_menuopen = UDmain.IsMenuOpen()
         if !loc_menuopen ;only if player is not in menu
             if UDmain.TraceAllowed()        

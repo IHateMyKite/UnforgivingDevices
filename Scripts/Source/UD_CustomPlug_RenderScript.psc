@@ -112,9 +112,7 @@ int Function getPlugType()
     EndIf
 EndFunction
 
-int Function getArousalRate()
-    return parent.getArousalRate() + 10
-EndFunction
+
 
 bool forceOutPlugMinigame_on = false
 Function forceOutPlugMinigame()
@@ -328,4 +326,7 @@ bool Function proccesSpecialMenuWH(Actor akSource,int msgChoice)
 EndFunction
 float Function getStruggleOrgasmRate()
     return parent.getStruggleOrgasmRate()
+EndFunction
+int Function getArousalRate()
+    return parent.getArousalRate()
 EndFunction

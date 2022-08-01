@@ -2063,6 +2063,15 @@ int Function getOffVibratorNum(Actor akActor)
     endif
 EndFunction
 
+;returns number of activable vibrators
+int Function getActivableVibratorNum(Actor akActor)
+    if isRegistered(akActor)
+        return getNPCSlot(akActor).getActivableVibratorNum()
+    else
+        return 0
+    endif
+EndFunction
+
 ;returns all vibrators
 UD_CustomDevice_RenderScript[] Function getVibrators(Actor akActor)
     if isRegistered(akActor)
@@ -2073,6 +2082,14 @@ EndFunction
 
 ;returns all turned off vibrators
 UD_CustomDevice_RenderScript[] Function getOffVibrators(Actor akActor)
+    if isRegistered(akActor)
+        return getNPCSlot(akActor).getOffVibrators()
+    endif
+    return none
+EndFunction
+
+;returns all turned off vibrators
+UD_CustomDevice_RenderScript[] Function getActivableVibrators(Actor akActor)
     if isRegistered(akActor)
         return getNPCSlot(akActor).getOffVibrators()
     endif
