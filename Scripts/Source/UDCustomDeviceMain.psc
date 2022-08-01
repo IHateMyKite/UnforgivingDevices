@@ -388,7 +388,11 @@ EndFunction
 Function CheckHardcoreDisabler(Actor akActor)
     if UD_HardcoreMode && UDmain.ActorIsPlayer(akActor)
         if akActor.wornhaskeyword(libs.zad_deviousHeavyBondage) && !akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW)
-            UDlibs.HardcoreDisableSpell.cast(akActor)
+            ;only apply if heavy bondage device is UD
+            Armor loc_hbdevice = akActor.GetWornForm(Armor.GetMaskForSlot(46)) as Armor
+            if loc_hbdevice && loc_hbdevice.haskeyword(UDlibs.UnforgivingDevice)
+                UDlibs.HardcoreDisableSpell.cast(akActor)
+            endif
         endif
     endif
 EndFunction
