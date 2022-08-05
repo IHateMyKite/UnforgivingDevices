@@ -394,3 +394,6 @@ EndFunction
 int Function getArousalRate()
     return parent.getArousalRate()
 EndFunction
+Float[] Function GetCurrentMinigameExpression()
+	return parent.GetCurrentMinigameExpression()
+EndFunction

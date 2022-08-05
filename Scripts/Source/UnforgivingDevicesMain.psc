@@ -181,7 +181,6 @@ Event OnInit()
     CheckPatchesOrder()
 EndEvent
 
-
 Function OnGameReload()
     if !Ready
         Utility.waitMenuMode(2.5)
@@ -211,6 +210,8 @@ Function OnGameReload()
     UDEM.Update()
     
     UDNPCM.GameUpdate()
+    
+    UDLLP.Update()
     
     if UDAM.Ready
         UDAM.Update()
@@ -279,13 +280,9 @@ Function Update()
         Info("Detected that UD is not ready. Changing state to ready.")
     endif
     
-
-    
     CheckOptionalMods()
     CheckPatchesOrder()
 EndFunction
-
-
 
 Function CheckOptionalMods()
     If ModInstalled("ZaZAnimationPack.esm")
@@ -405,11 +402,6 @@ Function CLog(String msg)
     endif
 EndFunction
 
-;only use for debugging
-Function DCLog(String msg) global
-    ConsoleUtil.PrintMessage("[UD,DEBUG,T="+Utility.GetCurrentRealTime()+"]: " + msg)
-EndFunction
-
 int Property PrintLevel = 3 auto
 Function Print(String msg,int iLevel = 1,bool bLog = false)
     if (iRange(iLevel,1,3) <= PrintLevel)
@@ -427,13 +419,6 @@ Function Error(String msg)
     endif
 EndFunction
 
-;global error function. Ignore safety in sake of usebality
-Function GError(String msg) global
-    string loc_msg = "[UD,!ERROR!,T="+Utility.GetCurrentRealTime()+"]: " + msg
-    debug.trace(loc_msg)
-    ConsoleUtil.PrintMessage(loc_msg)
-EndFunction
-
 Function Warning(String msg)
     string loc_msg = "[UD,WARNING,T="+Utility.GetCurrentRealTime()+"]: " + msg
     debug.trace(loc_msg)
@@ -442,24 +427,12 @@ Function Warning(String msg)
     endif
 EndFunction
 
-Function GWarning(String msg) global
-    string loc_msg = "[UD,WARNING,T="+Utility.GetCurrentRealTime()+"]: " + msg
-    debug.trace(loc_msg)
-    ConsoleUtil.PrintMessage(loc_msg)
-EndFunction
-
 Function Info(String msg)
     string loc_msg = "[UD,INFO,T="+Utility.GetCurrentRealTime()+"]: " + msg
     debug.trace(loc_msg)
     if ConsoleUtilInstalled ;print to console
         ConsoleUtil.PrintMessage(loc_msg)
     endif
-EndFunction
-
-Function GInfo(String msg) global
-    string loc_msg = "[UD,INFO,T="+Utility.GetCurrentRealTime()+"]: " + msg
-    debug.trace(loc_msg)
-    ConsoleUtil.PrintMessage(loc_msg)
 EndFunction
 
 bool Function ActorIsFollower(Actor akActor)
@@ -498,7 +471,9 @@ bool Function TraceAllowed()
     return (LogLevel > 0)
 EndFunction
 
-
+bool Function ActorIsPlayer(Actor akActor)
+    return akActor == Player
+EndFunction
 
 ;=======================================================================
 ;                            GLOBAL FUNCTIONS
@@ -539,10 +514,6 @@ EndFunction
 
 bool Function GActorIsPlayer(Actor akActor) global
     return akActor == Game.getPlayer()
-EndFunction
-
-bool Function ActorIsPlayer(Actor akActor)
-    return akActor == Player
 EndFunction
 
 string Function GetActorName(Actor akActor) global
@@ -776,6 +747,30 @@ Function ShowMessageBox(string strText) global
             Utility.waitMenuMode(0.75)
         endif
     endwhile
+EndFunction
+
+;only use for debugging
+Function DCLog(String msg) global
+    ConsoleUtil.PrintMessage("[UD,DEBUG,T="+Utility.GetCurrentRealTime()+"]: " + msg)
+EndFunction
+
+Function GInfo(String msg) global
+    string loc_msg = "[UD,INFO,T="+Utility.GetCurrentRealTime()+"]: " + msg
+    debug.trace(loc_msg)
+    ConsoleUtil.PrintMessage(loc_msg)
+EndFunction
+
+Function GWarning(String msg) global
+    string loc_msg = "[UD,WARNING,T="+Utility.GetCurrentRealTime()+"]: " + msg
+    debug.trace(loc_msg)
+    ConsoleUtil.PrintMessage(loc_msg)
+EndFunction
+
+;global error function. Ignore safety in sake of usebality
+Function GError(String msg) global
+    string loc_msg = "[UD,!ERROR!,T="+Utility.GetCurrentRealTime()+"]: " + msg
+    debug.trace(loc_msg)
+    ConsoleUtil.PrintMessage(loc_msg)
 EndFunction
 
 ; thanks to Subhuman#6830 for ESPFE form check, compatible with LE

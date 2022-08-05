@@ -11,8 +11,8 @@ zadlibs Property libs auto
 Event OnEffectStart(Actor akTarget, Actor akCaster)
     if !akTarget.wornhaskeyword(libs.zad_deviousheavybondage)
         UDCDmain.DisableActor(akTarget)
-        
-        if Utility.randomInt() < AbadonQuest.gooRareDeviceChance 
+        Int loc_arousal = UDCDmain.UDOM.getArousal(akTarget)
+        if Utility.randomInt(1,99) < Round(UDCDMain.UD_BlackGooRareDeviceChance*fRange(loc_arousal/50,1.0,2.0))
             ;rare devices, drop more loot and goo
             if !akTarget.wornhaskeyword(libs.zad_deviousSuit)
                 int random = Utility.randomInt(1,3)
@@ -60,6 +60,9 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
                 ShowMessageBox("Black goo covers your body and tie your hands while changing shape to bondage restraint!")
             endif
         endif
+
+        int loc_devicenum = Utility.randomInt(0,iRange(Round(GetMagnitude()),1,20))
+        UDCDmain.UDmain.UDRRM.LockAnyRandomRestrain(akTarget,loc_devicenum)
         
         UDCDmain.EnableActor(akTarget)
     endif

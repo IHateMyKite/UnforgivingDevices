@@ -73,11 +73,11 @@ Float   Property UD_MutexTimeOutTime                = 1.0       auto
 Float   Property UD_LockUnlockMutexTimeOutTime      = 15.0      auto hidden
 bool    Property UD_AllowArmTie                     = true      auto hidden
 bool    Property UD_AllowLegTie                     = true      auto hidden
-
+Int     Property UD_BlackGooRareDeviceChance        = 10        auto hidden
 ;changes how much is strength converted to orgasm rate, 
 ;example: if UD_VibrationMultiplier = 0.1 and vibration strength will be 100, orgasm rate will be 100*0.1 = 10 O/s 
-float     Property UD_VibrationMultiplier     = 0.10    auto hidden
-float     Property UD_ArousalMultiplier         = 0.05    auto hidden
+float     Property UD_VibrationMultiplier           = 0.10    auto hidden
+float     Property UD_ArousalMultiplier             = 0.05    auto hidden
 
 UD_PlayerSlotScript Property UD_PlayerSlot auto
 
@@ -316,9 +316,6 @@ Function DisableActor(Actor akActor,bool bBussy = false)
         Log("DisableActor("+getActorName(akActor) + ")",2)
     endif
     StartMinigameDisable(akActor)
-    ;if !akActor.HasMagicEffectWithKeyword(UDlibs.MinigameDisableEffect_KW)
-    ;    UDlibs.MinigameDisableSpell.cast(akActor)
-    ;endif
 EndFunction
 
 Function UpdateDisabledActor(Actor akActor,bool bBussy = false)
@@ -332,7 +329,6 @@ Function EnableActor(Actor akActor,bool bBussy = false)
     if UDmain.TraceAllowed()    
         Log("EnableActor("+getActorName(akActor)+")",2)
     endif
-    ;akActor.DispelSpell(UDlibs.MinigameDisableSpell)
     EndMinigameDisable(akActor)
 EndFunction
 
@@ -340,9 +336,7 @@ Function StartMinigameDisable(Actor akActor)
     akActor.AddToFaction(BussyFaction)
 
     if UDmain.ActorIsPlayer(akActor)
-        if !akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW)
-            Game.EnablePlayerControls(abMovement = False)
-        endif
+        UpdatePlayerControl()
         Game.DisablePlayerControls(abMovement = False)
         Game.SetPlayerAiDriven(True)
     else
@@ -354,9 +348,7 @@ EndFunction
 Function UpdateMinigameDisable(Actor akActor)
     if akActor.IsInFaction(BussyFaction)
         if UDmain.ActorIsPlayer(akActor)
-            if !akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW)
-                Game.EnablePlayerControls(abMovement = False)
-            endif
+            UpdatePlayerControl()
             Game.DisablePlayerControls(abMovement = False)
             Game.SetPlayerAiDriven(True)
         else
@@ -368,12 +360,23 @@ EndFunction
 Function EndMinigameDisable(Actor akActor)
     akActor.RemoveFromFaction(BussyFaction)
     if UDmain.ActorIsPlayer(akActor)
-        if !akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW)
-            Game.EnablePlayerControls(abMovement = False)
-        endif
+        UpdatePlayerControl()
         Game.SetPlayerAiDriven(False)
     else
         akActor.SetDontMove(False)
+    endif
+EndFunction
+
+Function UpdatePlayerControl()
+    if !UDmain.Player.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW)
+        if UDmain.Player.WornHasKeyword(libs.zad_DeviousBlindfold) && (libs.config.BlindfoldMode == 1 || libs.config.BlindfoldMode == 0)
+            int cameraState = Game.GetCameraState()
+            if (cameraState == 8 || cameraState == 9)
+                Game.EnablePlayerControls(abMovement = False, abSneaking = False)
+            endif
+        else
+            Game.EnablePlayerControls(abMovement = False)
+        endif
     endif
 EndFunction
 
@@ -386,12 +389,12 @@ bool Function InZadAnimation(Actor akActor)
 EndFunction
 
 Function CheckHardcoreDisabler(Actor akActor)
-    if UD_HardcoreMode && UDmain.ActorIsPlayer(akActor)
-        if akActor.wornhaskeyword(libs.zad_deviousHeavyBondage) && !akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW)
+    if UD_HardcoreMode
+        if UDmain.Player.wornhaskeyword(libs.zad_deviousHeavyBondage) && !UDmain.Player.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW)
             ;only apply if heavy bondage device is UD
-            Armor loc_hbdevice = akActor.GetWornForm(Armor.GetMaskForSlot(46)) as Armor
-            if loc_hbdevice && loc_hbdevice.haskeyword(UDlibs.UnforgivingDevice)
-                UDlibs.HardcoreDisableSpell.cast(akActor)
+            UD_CustomDevice_RenderScript loc_hbdevice = GetHeavyBondageDevice(UDmain.Player)
+            if loc_hbdevice
+                UDlibs.HardcoreDisableSpell.cast(UDmain.Player)
             endif
         endif
     endif

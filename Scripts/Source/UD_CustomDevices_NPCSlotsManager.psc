@@ -12,12 +12,10 @@ Quest Property UDCD_NPCF auto ;finder
 zadlibs Property libs auto
 Bool Property Ready = False auto
 UD_OrgasmManager Property UDOM auto
-
 Message Property UD_FixMenu_MSG auto
-
 Int Property UD_Slots = 10 auto
-
-Int Property UD_SlotsValidation = 0x00000000 auto hidden
+Float Property UD_SlotUpdateTime = 10.0 auto
+Bool _PlayerSlotReady = false
 
 Event OnInit()
     UD_Slots = GetNumAliases()
@@ -34,7 +32,6 @@ Event OnInit()
     registerForSingleUpdate(10.0)
     Ready = True
 EndEvent
-
 
 Function GameUpdate()
     CheckOrgasmLoops()
@@ -54,8 +51,6 @@ Function CheckOrgasmLoops()
     endwhile
 EndFunction
 
-Bool _PlayerSlotReady = false
-Float Property UD_SlotUpdateTime = 10.0 auto
 Event OnUpdate()
     ;init player slot
     if !_PlayerSlotReady
@@ -216,14 +211,16 @@ bool Function RegisterNPC(Actor akActor,bool debugMsg = false)
     int mover = 0
     Actor currentSelectedActor = akActor
     if !currentSelectedActor
+        UDmain.Error("RegisterNPC - none actor passed!")
         return false
     endif
     
     if isRegistered(akActor)
+        UDmain.Error("RegisterNPC - " + GetActorName(akActor) + " is already registered!")
         return false
     endif
     
-    int index = 0;UDCD_NPCF.UD_Slots - 1 ;all slots excluding player
+    int index = 0
     while index < UD_Slots - 1
         if !StorageUtil.GetIntValue(currentSelectedActor, "UD_blockSlotUpdate", 0)
             UD_CustomDevice_NPCSlot slot = GetNthAlias(index) as UD_CustomDevice_NPCSlot
@@ -235,11 +232,13 @@ bool Function RegisterNPC(Actor akActor,bool debugMsg = false)
                 if debugMsg || UDCDmain.UDmain.DebugMod
                     debug.notification("[UD]: NPC slot ["+ index +"] => " + slot.getSlotedNPCName() + " registered!")
                 endif
+                UDmain.Info(GetActorName(akActor) + " registered!")
                 return true
             endif
         endif
         index += 1
     endwhile
+    UDmain.Error("RegisterNPC - Can't find free slot for " + GetActorName(akActor) + " !")
     return false
 EndFunction
 

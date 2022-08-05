@@ -1080,12 +1080,17 @@ Function UpdateControls()
     bool fighting = true
     bool sneaking = true
     bool menu = true
-    ;check hardcore mode
     
+    ;check hardcore mode
     if UDmain.Player.HasMagicEffectWithKeyword(UDCDmain.UDlibs.HardcoreDisable_KW)
         menu = false
     else
         menu = true
+    endif
+    
+    if UDCDmain.PlayerInMinigame()
+        movement = true
+        menu = false
     endif
     
     bool activate = true
@@ -1095,24 +1100,20 @@ Function UpdateControls()
         sneaking = false
     EndIf
     
-    if UDCDmain.PlayerInMinigame()
-        movement = true
-        menu = false
-    endif
-    
     if IsBound(playerRef)
         If playerRef.WornHasKeyword(zad_BoundCombatDisableKick)
             fighting = false            
         Else
             fighting = config.UseBoundCombat            
-        Endif    
+        Endif
     EndIf
     if playerRef.WornHasKeyword(zad_DeviousPetSuit)
         sneaking = false
     EndIf    
     if playerRef.WornHasKeyword(zad_DeviousPonyGear)
         sneaking = false
-    EndIf    
+    EndIf   
+
     Game.DisablePlayerControls(abMovement = !movement, abFighting = !fighting, abSneaking = !sneaking, abMenu = !menu, abActivate = !activate)    
     Game.EnablePlayerControls(abMovement = movement, abFighting = fighting, abSneaking = sneaking, abMenu = menu, abActivate = activate)    
 EndFunction

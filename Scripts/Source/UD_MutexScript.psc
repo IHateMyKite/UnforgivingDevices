@@ -69,8 +69,8 @@ EndFunction
 Function EvaluateLockMutex()
     float loc_time = 0.0
     while loc_time <= UDCDmain.UD_LockUnlockMutexTimeOutTime && (!UD_GlobalDeviceMutex_InventoryScript)
-        Utility.wait(0.05)
-        loc_time += 0.05
+        Utility.wait(0.001)
+        loc_time += 0.001
     endwhile
     
     if UD_GlobalDeviceMutex_InventoryScript_Failed
@@ -86,8 +86,8 @@ EndFunction
 Function EvaluateUnlockMutex()
     float loc_time = 0.0
     while loc_time <= UDCDmain.UD_LockUnlockMutexTimeOutTime && (!UD_GlobalDeviceUnlockMutex_InventoryScript)
-        Utility.wait(0.05)
-        loc_time += 0.05
+        Utility.wait(0.001)
+        loc_time += 0.001
     endwhile
     
     if UD_GlobalDeviceUnlockMutex_InventoryScript_Failed

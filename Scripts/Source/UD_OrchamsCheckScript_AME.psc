@@ -87,7 +87,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     loc_expressionUpdateTimer   = 0
     loc_orgasmResisting         = akActor.isInFaction(UDOM.OrgasmResistFaction)
     loc_orgasmResisting2        = false
-    loc_expressionApplied       = false;ActorHaveExpressionApplied(akActor)
+    loc_expressionApplied       = false
     loc_orgasmCapacity          = UDOM.getActorOrgasmCapacity(akActor)
     loc_orgasmResistence        = UDOM.getActorOrgasmResist(akActor)
     loc_orgasmProgress          = StorageUtil.GetFloatValue(akActor, "UD_OrgasmProgress",0.0)
@@ -214,7 +214,7 @@ Event OnUpdate()
                 else
                     loc_force = 2
                 endif
-                UDOM.startOrgasm(akActor,UDOM.UD_OrgasmDuration,75,loc_force,true)
+                UDOM.startOrgasm(akActor,UDOM.UD_OrgasmDuration,90,loc_force,true)
                 loc_orgasmProgress = 0.0
                 UDOM.SetActorOrgasmProgress(akActor,loc_orgasmProgress)
             endif

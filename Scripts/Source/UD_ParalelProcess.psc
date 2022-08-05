@@ -466,6 +466,7 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
     if UDmain.TraceAllowed()
         UDCDmain.Log("Receive_Orgasm received for " + fActor)
     endif
+    libsp.UpdateExposure(akActor,-1*iDecreaseArousalBy)
     
     if !UDCDmain.isRegistered(akActor) && UDmain.UD_OrgasmExhaustion
         UDmain.addOrgasmExhaustion(akActor)
@@ -477,10 +478,10 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
     if !loc_isplayer
         loc_isfollower = UDmain.ActorIsFollower(akActor)
     endif
-    bool loc_close = UDmain.ActorInCloseRange(akActor)
-    bool loc_is3Dloaded = akActor.Is3DLoaded() || UDmain.ActorIsPlayer(akActor)
-    int loc_orgasmExhaustion = UDOM.GetOrgasmExhaustion(akActor) + 1
-    bool loc_cond = loc_is3Dloaded && loc_close
+    bool    loc_close                   = UDmain.ActorInCloseRange(akActor)
+    bool    loc_is3Dloaded              = akActor.Is3DLoaded() || UDmain.ActorIsPlayer(akActor)
+    int     loc_orgasmExhaustion        = UDOM.GetOrgasmExhaustion(akActor) + 1
+    bool    loc_cond                    = loc_is3Dloaded && loc_close
 
     ;===========================
     ;            MESSAGE
@@ -550,7 +551,6 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
         akActor.CreateDetectionEvent(akActor, 60 - 15*UDCDmain.getGaggedLevel(akActor))
     endif
     
-    libsp.UpdateExposure(akActor,-1*iDecreaseArousalBy)
     libsp.Aroused.UpdateActorOrgasmDate(akActor)
     
     if loc_is3Dloaded && loc_close
@@ -561,14 +561,7 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
         endif
     endif
     
-    SendModEvent("DeviceActorOrgasm", akActor.GetLeveledActorBase().GetName())
-    
-    ;Utility.wait(iDuration)
-    
-    ;if loc_is3Dloaded && loc_close
-    ;    UDEM.ResetExpressionRaw(akActor,80)
-    ;endif
-    
+    SendModEvent("DeviceActorOrgasm", akActor.GetLeveledActorBase().GetName())    
 EndFunction
 
 ;========================

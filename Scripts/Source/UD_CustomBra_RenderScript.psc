@@ -196,3 +196,6 @@ EndFunction
 Function updateWidgetColor()
     parent.updateWidgetColor()
 EndFunction
+Float[] Function GetCurrentMinigameExpression()
+	return parent.GetCurrentMinigameExpression()
+EndFunction

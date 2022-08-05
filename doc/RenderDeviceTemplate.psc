@@ -171,5 +171,5 @@ float Function getStruggleOrgasmRate()
 	return parent.getStruggleOrgasmRate()
 EndFunction
 Float[] Function GetCurrentMinigameExpression()
-	return GetCurrentMinigameExpression()
+	return parent.GetCurrentMinigameExpression()
 EndFunction

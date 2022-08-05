@@ -406,7 +406,7 @@ EndFunction
 
 Function activateDevice()
     resetCooldown()
-    bool loc_canInflate = _inflateLevel <= 4
+    bool loc_canInflate = true;_inflateLevel <= 4
     bool loc_canVibrate = canVibrate() && !isVibrating()
     if loc_canInflate
         if WearerIsPlayer()
@@ -567,4 +567,7 @@ int Function getArousalRate()
 EndFunction
 float Function getStruggleOrgasmRate()
     return parent.getStruggleOrgasmRate()
+EndFunction
+Float[] Function GetCurrentMinigameExpression()
+	return parent.GetCurrentMinigameExpression()
 EndFunction

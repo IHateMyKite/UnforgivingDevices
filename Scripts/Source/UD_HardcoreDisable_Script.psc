@@ -29,7 +29,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     
     
     while UI.IsMenuOpen("Dialogue Menu")
-        Utility.waitMenuMode(0.01) ;wait for player to end dialogue before applying effect
+        Utility.waitMenuMode(0.001) ;wait for player to end dialogue before applying effect
     endwhile
     
     closeMenu()
@@ -63,7 +63,7 @@ Event OnUpdate()
     elseif _target.hasMagicEffect(_MagickEffect)
         if _target.hasMagicEffect(_MagickEffect) && !_target.HasMagicEffectWithKeyword(UDCDmain.UDlibs.MinigameDisableEffect_KW)
             if UDmain.ActorIsPlayer(_target)
-                if !_MenuKeyPressed; && !MenuIsOpen()
+                if !_MenuKeyPressed
                     Game.DisablePlayerControls(abMovement = False,abFighting = false,abCamSwitch = false,abLooking = false, abSneaking = false, abMenu = true, abActivate = false, abJournalTabs = false)
                 endif
                 if !(loc_tick % 10)
@@ -73,19 +73,7 @@ Event OnUpdate()
         endif
         
         Update()
-        
-        ;/
-        if !loc_GameMenuOpen
-            if UDmain.IsMenuOpen()
-                loc_GameMenuOpen = true
-            endif
-        else
-            if !UDmain.IsMenuOpen()
-                loc_GameMenuOpen = false
-            endif
-        endif
-        /;
-        
+
         if _target.hasMagicEffect(_MagickEffect)
             if !(loc_tick % 5)
                 if !UDmain.isMenuOpen()

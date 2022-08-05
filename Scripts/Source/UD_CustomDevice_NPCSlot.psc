@@ -1432,16 +1432,16 @@ EndFunction
 ;===============================================================================
 
 ;LOCK MUTEX
-bool     Property UD_GlobalDeviceMutex_InventoryScript                 = false auto hidden
-bool     Property UD_GlobalDeviceMutex_InventoryScript_Failed         = false auto hidden
-Armor     Property UD_GlobalDeviceMutex_Device                         = none     auto hidden
+bool        Property UD_GlobalDeviceMutex_InventoryScript                   = false     auto hidden
+bool        Property UD_GlobalDeviceMutex_InventoryScript_Failed            = false     auto hidden
+Armor       Property UD_GlobalDeviceMutex_Device                            = none      auto hidden
 
 ;UNLOCK MUTEX
-bool     Property UD_GlobalDeviceUnlockMutex_InventoryScript         = false auto hidden
-bool     Property UD_GlobalDeviceUnlockMutex_InventoryScript_Failed     = false auto hidden
-Armor     Property UD_GlobalDeviceUnlockMutex_Device                     = none     auto hidden
+bool        Property UD_GlobalDeviceUnlockMutex_InventoryScript             = false     auto hidden
+bool        Property UD_GlobalDeviceUnlockMutex_InventoryScript_Failed      = false     auto hidden
+Armor       Property UD_GlobalDeviceUnlockMutex_Device                      = none      auto hidden
 
-Keyword Property UD_UnlockToken                                        = none     auto hidden    
+Keyword     Property UD_UnlockToken                                         = none      auto hidden    
 
 Function ResetMutex_Lock(Armor invDevice)
     UD_GlobalDeviceMutex_inventoryScript                 = false
@@ -1477,7 +1477,7 @@ EndFunction
 
 Bool _LOCKDEVICE_MUTEX = false
 Function StartLockMutex()
-    while _LOCKDEVICE_MUTEX; || _UNLOCKDEVICE_MUTEX
+    while _LOCKDEVICE_MUTEX
         Utility.waitMenuMode(0.01)
     endwhile
     _LOCKDEVICE_MUTEX = true
@@ -1493,7 +1493,7 @@ EndFunction
 
 Bool _UNLOCKDEVICE_MUTEX = false
 Function StartUnLockMutex()
-    while _UNLOCKDEVICE_MUTEX; || _LOCKDEVICE_MUTEX
+    while _UNLOCKDEVICE_MUTEX
         Utility.waitMenuMode(0.01)
     endwhile
     _UNLOCKDEVICE_MUTEX = true

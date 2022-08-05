@@ -491,18 +491,18 @@ Event resetDDPatchPage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
     
-    AddHeaderOption("Custom orgasm")
+    AddHeaderOption("Devious Devices Patches")
     addEmptyOption()
         
     UD_OrgasmAnimation_M = AddMenuOption("Animation list:", orgasmAnimation[UDCDmain.UDOM.UD_OrgasmAnimation])    
-    UD_GagPhonemModifier_S = addSliderOption("Gag phonem mod: ",UDCDmain.UD_GagPhonemModifier, "{0}")
+    UD_GagPhonemModifier_S = addSliderOption("Gag phonem mod: ",UDCDmain.UD_GagPhonemModifier, "{0}",FlahSwitch(UDmain.ZadExpressionSystemInstalled))
     
     UD_StartThirdpersonAnimation_Switch_T = addToggleOption("Animation patch", libs.UD_StartThirdPersonAnimation_Switch)
-    
     if AAScript
-        UD_DAR_T = addToggleOption("DAR patch", AAScript.UD_DAR)
+        UD_DAR_T = addToggleOption("DAR Patch", AAScript.UD_DAR)
+    else
+        addEmptyOption()
     endif
-    addEmptyOption()
 EndEvent
 
 int[] registered_devices_T
@@ -1561,8 +1561,6 @@ Function CustomBondagePageInfo(int option)
         SetInfoText("Change number of lockpicks player can use in lockpick minigame.\nDefault: 2")
     elseif option == UD_BaseDeviceSkillIncrease_S
         SetInfoText("How many skill points are acquired for second of struggling.\nDefault: 35")
-    elseif option == UD_GagPhonemModifier_S
-        SetInfoText("Change how much is mouth opened when gagged. Is disabled for panel gags, as it cause clipping.\nDefault: 0")
     elseif option == UD_AutoCrit_T
         SetInfoText("Toggle auto crit. Auto crit will crit instead of user. Use this if you don't like crits or you can't crit for some other reason.\nDefault: OFF")
     elseif option == UD_AutoCritChance_S
@@ -1652,6 +1650,15 @@ Function AbadanPageInfo(int option)
         SetInfoText("Set equiped when player equip plug.")
     endIf
 EndFunction
+
+Function DDPatchPageInfo(int option)
+    if  option == UD_DAR_T
+        SetInfoText("Toggle DAR compatibility. Please read more about it in changelog on LL\nDefault: OFF")
+    elseif option == UD_GagPhonemModifier_S
+        SetInfoText("Gag modifier which change gag expression for simple gag to better fit mouth. Is not used if DD beta 7 is installed\nDefault: 0")
+    endif
+EndFunction
+
 Function DebugPageInfo(int option)
     ;dear mother of god
     if (option == rescanSlots_T)

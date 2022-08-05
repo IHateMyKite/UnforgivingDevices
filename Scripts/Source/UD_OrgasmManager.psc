@@ -193,20 +193,21 @@ float Function UpdateOrgasmRate(Actor akActor ,float orgasmRate,float orgasmForc
         Utility.waitMenuMode(0.05)
     endwhile
     _OrgasmRateManip_Mutex = true
-    float loc_newOrgasmRate = StorageUtil.getFloatValue(akActor, "UD_OrgasmRate",0.0) + orgasmRate
-    StorageUtil.setFloatValue(akActor, "UD_OrgasmRate",loc_newOrgasmRate)
+    
+    float loc_newOrgasmRate = StorageUtil.setFloatValue(akActor, "UD_OrgasmRate",StorageUtil.getFloatValue(akActor, "UD_OrgasmRate",0.0) + orgasmRate)
     StorageUtil.setFloatValue(akActor, "UD_OrgasmForcing",StorageUtil.getFloatValue(akActor, "UD_OrgasmForcing",0.0) + orgasmForcing)    
     _OrgasmRateManip_Mutex = false
-    return orgasmRate
+    return loc_newOrgasmRate
 EndFunction
-Function removeOrgasmRate(Actor akActor ,float orgasmRate,float orgasmForcing)
+Float Function removeOrgasmRate(Actor akActor ,float orgasmRate,float orgasmForcing)
     while _OrgasmRateManip_Mutex
         Utility.waitMenuMode(0.05)
     endwhile
     _OrgasmRateManip_Mutex = true
-    StorageUtil.setFloatValue(akActor, "UD_OrgasmRate",StorageUtil.getFloatValue(akActor, "UD_OrgasmRate",0.0) - orgasmRate)
+    float loc_newOrgasmRate = StorageUtil.setFloatValue(akActor, "UD_OrgasmRate",StorageUtil.getFloatValue(akActor, "UD_OrgasmRate",0.0) - orgasmRate)
     StorageUtil.setFloatValue(akActor, "UD_OrgasmForcing",StorageUtil.getFloatValue(akActor, "UD_OrgasmForcing",0.0) - orgasmForcing)
     _OrgasmRateManip_Mutex = false
+    return loc_newOrgasmRate
 EndFunction
 float Function getActorOrgasmRate(Actor akActor)
     return fRange(StorageUtil.getFloatValue(akActor, "UD_OrgasmRate",0.0),0.0,1000.0)
@@ -217,8 +218,6 @@ EndFunction
 float Function getActorAfterMultAntiOrgasmRate(Actor akActor)
     return CulculateAntiOrgasmRateMultiplier(getArousal(akActor))*getActorOrgasmResistMultiplier(akActor)*(getActorOrgasmResist(akActor))
 EndFunction
-
-
 float Function getActorOrgasmForcing(Actor akActor)
     return fRange(StorageUtil.getFloatValue(akActor, "UD_OrgasmForcing",0.0),0.0,1.0)
 EndFunction
@@ -236,7 +235,6 @@ Function UpdateOrgasmRateMultiplier(Actor akActor ,float orgasmRateMultiplier)
     StorageUtil.setFloatValue(akActor, "UD_OrgasmRateMultiplier",loc_newOrgasmRateMult)
     _OrgasmRateMultManip_Mutex = false
 EndFunction
-
 Function removeOrgasmRateMultiplier(Actor akActor ,float orgasmRateMultiplier)
     while _OrgasmRateMultManip_Mutex
         Utility.waitMenuMode(0.05)
@@ -245,7 +243,7 @@ Function removeOrgasmRateMultiplier(Actor akActor ,float orgasmRateMultiplier)
     StorageUtil.setFloatValue(akActor, "UD_OrgasmRateMultiplier",StorageUtil.getFloatValue(akActor, "UD_OrgasmRateMultiplier",1.0) - orgasmRateMultiplier)
     _OrgasmRateMultManip_Mutex = false
 EndFunction
-float Function getActorOrgasmRateMultiplier(Actor akActor) ;!!UNSED!!
+float Function getActorOrgasmRateMultiplier(Actor akActor)
     return fRange(StorageUtil.getFloatValue(akActor, "UD_OrgasmRateMultiplier",1.0),0.0,10.0)
 EndFunction
 
@@ -337,12 +335,10 @@ EndFunction
 ;=======================================
 ;ORGASM CAPACITY
 ;=======================================
-
+bool _OrgasmCapacity_Mutex
 float Function getActorOrgasmCapacity(Actor akActor)
     return StorageUtil.GetFloatValue(akActor, "UD_OrgasmCapacity",100.0)
 EndFunction
-
-bool _OrgasmCapacity_Mutex
 Function UpdatetActorOrgasmCapacity(Actor akActor,float fValue)
     while _OrgasmCapacity_Mutex
         Utility.waitMenuMode(0.1)
@@ -351,7 +347,6 @@ Function UpdatetActorOrgasmCapacity(Actor akActor,float fValue)
     StorageUtil.setFloatValue(akActor, "UD_OrgasmCapacity",fRange(StorageUtil.getFloatValue(akActor, "UD_OrgasmCapacity",100.0) + fValue,10.0,500.0))
     _OrgasmCapacity_Mutex = false
 EndFunction
-
 Function SetActorOrgasmCapacity(Actor akActor,float fValue)
     while _OrgasmCapacity_Mutex
         Utility.waitMenuMode(0.1)
@@ -373,10 +368,6 @@ EndFunction
 ;return true if actor can orgasm at 50 arousal, because its not linear, orgasm rate would need to be gigantic 
 bool Function ActorCanOrgasmHalf(Actor akActor)
     return (getActorOrgasmRate(akActor)*getActorOrgasmRateMultiplier(akActor) > CulculateAntiOrgasmRateMultiplier(50)*UD_OrgasmResistence*getActorOrgasmResistMultiplier(akActor))
-EndFunction
-
-bool Function ActorHaveExpressionApplied(Actor akActor)
-    return StorageUtil.GetIntValue(akActor,"zad_expressionApplied",0)
 EndFunction
 
 float Function CulculateAntiOrgasmRateMultiplier(int iArousal)
@@ -518,7 +509,7 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 75,in
         UDCDMain.getMinigameDevice(akActor).stopMinigame()
     endif
     
-    Int loc_orgasms = getOrgasmingCount(akActor)
+    ;Int loc_orgasms = getOrgasmingCount(akActor)
     
     if UDmain.TraceAllowed()    
         UDCDmain.Log("ActorOrgasmPatched called for " + GetActorName(akActor),1)
@@ -526,14 +517,14 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 75,in
     
     UDmain.UDPP.Send_Orgasm(akActor,iDuration,iDecreaseArousalBy,iForce,bForceAnimation,bWairForReceive = false)
     
-    bool loc_isplayer = UDmain.ActorIsPlayer(akActor)
+    bool loc_isplayer   = UDmain.ActorIsPlayer(akActor)
     bool loc_isfollower = false
     if !loc_isplayer
-        loc_isfollower = UDmain.ActorIsFollower(akActor)
+        loc_isfollower  = UDmain.ActorIsFollower(akActor)
     endif
     bool loc_is3Dloaded = akActor.Is3DLoaded() || loc_isplayer
-    bool loc_close = UDmain.ActorInCloseRange(akActor)
-    bool loc_cond = loc_is3Dloaded && loc_close
+    bool loc_close      = UDmain.ActorInCloseRange(akActor)
+    bool loc_cond       = loc_is3Dloaded && loc_close
 
     if loc_actorinminigame
         PlayOrgasmAnimation(akActor,iDuration)
@@ -567,7 +558,7 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
         return
     endif
     if StorageUtil.GetIntValue(akActor,"UD_OrgasmDuration",0)
-        Int loc_duration = Round(aiDuration*0.5)
+        Int loc_duration = Round(aiDuration*0.35)
         StorageUtil.AdjustIntValue(akActor,"UD_OrgasmDuration",loc_duration) ;incfrease current orgasm animation by 50%
         Utility.wait(loc_duration)
         return

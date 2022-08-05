@@ -13,7 +13,7 @@ EndEvent
 
 Function update(float fTimePassed)
     if UDCDmain.UD_HardcoreMode
-        UDCDmain.CheckHardcoreDisabler(Game.GetPlayer())
+        UDCDmain.CheckHardcoreDisabler(UDmain.Player)
     endif
     parent.update(fTimePassed)
 EndFunction

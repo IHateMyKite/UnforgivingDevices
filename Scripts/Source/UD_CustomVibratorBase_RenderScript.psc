@@ -686,7 +686,7 @@ EndFunction
 
 ;vibrator can't be currently vibrating, needs to be able to vibrate AND at least 25% of the cooldown have to pass 
 bool Function canBeActivated()
-    if !isVibrating() && (canVibrate() || UD_Shocking )&& getRelativeElapsedCooldownTime() >= 0.25
+    if !isVibrating() && (canVibrate() || UD_Shocking) && getRelativeElapsedCooldownTime() >= 0.25
         return true
     else
         return false
@@ -833,4 +833,7 @@ int Function getArousalRate()
 EndFunction
 float Function getStruggleOrgasmRate()
     return parent.getStruggleOrgasmRate()
+EndFunction
+Float[] Function GetCurrentMinigameExpression()
+	return parent.GetCurrentMinigameExpression()
 EndFunction
