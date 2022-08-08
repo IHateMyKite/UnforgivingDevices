@@ -68,7 +68,7 @@ Event OnUpdate()
             UpdateDevices(loc_timePassed)
             _LastUpdateTime = Utility.GetCurrentGameTime()
             
-            if UDCDmain.UDmain.AllowNPCSupport
+            if False;UDCDmain.UDmain.AllowNPCSupport
                 scanSlots()
             endif
         endif

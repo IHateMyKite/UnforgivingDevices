@@ -43,17 +43,15 @@ EndProperty
 bool Property Ready = false auto Hidden
 Function OnInit()
     Ready = true
-    UDCDMain.CLog("UD_ModifierManager_Script ready")
     _LastUpdateTime = Utility.GetCurrentGameTime()
     _LastUpdateTime_Hour = Utility.GetCurrentGameTime()
-    RegisterForSingleUpdate(1.0) ;start update loop, 5 s
+    RegisterForSingleUpdate(20.0) ;start update loop, 5 s
     RegisterForSingleUpdateGameTime(1.0) ;start update loop, 1 game hour
 EndFunction
 
 Function Update()
 
 EndFunction
-
 
 float _LastUpdateTime = 0.0
 Event OnUpdate()
@@ -62,7 +60,7 @@ Event OnUpdate()
         UpdateModifiers(loc_timePassed)
         _LastUpdateTime = Utility.GetCurrentGameTime()
     endif
-    RegisterForSingleUpdate(5.0)
+    RegisterForSingleUpdate(UDCDmain.UD_UpdateTime)
 EndEvent
 
 float _LastUpdateTime_Hour = 0.0 ;last time the update happened in days
@@ -86,7 +84,9 @@ Function UpdateModifiers(float argTimePassed)
             UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
             int loc_x = 0
             while loc_devices[loc_x]
-                Procces_UpdateModifiers(loc_devices[loc_x],argTimePassed)
+                if !loc_devices[loc_x].isMinigameOn() ;not update device which are in minigame
+                    Procces_UpdateModifiers(loc_devices[loc_x],argTimePassed)
+                endif
                 loc_x += 1
             endwhile
         endif
