@@ -105,11 +105,19 @@ Function Receive_MinigameStarter(Form fActor)
     UD_CustomDevice_RenderScript loc_device = Send_MinigameStarter_Package_device
     Send_MinigameStarter_Package_device = none
     _MinigameStarter_Received = true
-    
-    Actor akActor = fActor as Actor
-    Actor akHelper = loc_device.getHelper()
-    
     loc_device._MinigameParProc_1 = true
+    
+    Actor   akActor             = fActor as Actor
+    Actor   akHelper            = loc_device.getHelper()
+    bool    loc_canShowHUD      = loc_device.canShowHUD()
+    bool    loc_haveplayer      = loc_device.PlayerInMinigame()
+    bool    loc_updatewidget    = loc_device.UD_UseWidget && UDCDmain.UD_UseWidget && loc_haveplayer
+
+    UDCDMain.StartMinigameDisable(akActor)
+    if akHelper
+        UDCDMain.StartMinigameDisable(akHelper)
+    endif
+    
     StorageUtil.SetFormValue(akActor, "UD_currentMinigameDevice", loc_device.deviceRendered)
     
     if loc_device.PlayerInMinigame()
@@ -118,6 +126,14 @@ Function Receive_MinigameStarter(Form fActor)
     
     if loc_device.PlayerInMinigame()
         UDCDmain.MinigameKeysRegister()
+    endif
+    
+    ;shows bars
+    if loc_updatewidget
+        loc_device.showWidget()
+    endif
+    if loc_canShowHUD
+        loc_device.showHUDbars()
     endif
     
     loc_device.OnMinigameStart()
@@ -179,18 +195,14 @@ Function Receive_MinigameParalel(Form fActor)
     Send_MinigameParalel_Package_device = none
     _MinigameParalel_Received = true
     
-    Actor     akActor         = fActor as Actor
-    Actor     akHelper         = loc_device.getHelper()
+    Actor     akActor       = fActor as Actor
+    Actor     akHelper      = loc_device.getHelper()
     
     loc_device._MinigameParProc_2 = true
     
     ;process
     ;start disable
-    bool      loc_haveplayer     = (loc_device.WearerIsPlayer() || loc_device.HelperIsPlayer())
-    UDCDMain.StartMinigameDisable(akActor)
-    if akHelper
-        UDCDMain.StartMinigameDisable(akHelper)
-    endif
+    bool      loc_haveplayer = (loc_device.WearerIsPlayer() || loc_device.HelperIsPlayer())
     
     ;disable regen of all stats
     float staminaRate     = akActor.getBaseAV("StaminaRate")
@@ -215,10 +227,7 @@ Function Receive_MinigameParalel(Form fActor)
     endif
     
     bool loc_canShowHUD = loc_device.canShowHUD()
-    ;shows bars
-    if loc_canShowHUD
-        loc_device.showHUDbars()
-    endif
+    bool loc_updatewidget   = loc_device.UD_UseWidget && UDCDmain.UD_UseWidget && loc_haveplayer
     
     Send_MinigameCritLoop(akActor,loc_device)
 
@@ -228,53 +237,49 @@ Function Receive_MinigameParalel(Form fActor)
         UDEM.ApplyExpressionRaw(akHelper, loc_expression, 100,false,15)
     endif
     
-    float loc_currentOrgasmRate = loc_device.getStruggleOrgasmRate()
-    float loc_currentArousalRate= loc_device.getArousalRate()
+    float loc_currentOrgasmRate     = loc_device.getStruggleOrgasmRate()
+    float loc_currentArousalRate    = loc_device.getArousalRate()
     
     UDOM.UpdateOrgasmRate(akActor, loc_currentOrgasmRate,0.25)
     UDOM.UpdateArousalRate(akActor,loc_currentArousalRate)
     
-    bool loc_updatewidget     = loc_device.UD_UseWidget && UDCDmain.UD_UseWidget && loc_haveplayer
-
     ;pause thred untill minigame end
     int loc_tick = 0
     while loc_device._MinigameMainLoop_ON; && UDCDmain.ActorInMinigame(akActor)
         if !loc_device.pauseMinigame
             loc_tick += 1
             ;update disable if it gets somehow removed every 1 s
-            if !(loc_tick % 2) && loc_tick
+            if !(loc_tick % 10) && loc_tick
                 UDCDMain.UpdateMinigameDisable(akActor)
                 if akHelper
                     UDCDMain.UpdateMinigameDisable(akHelper)
                 endif
-                ;update widget color
-                if loc_updatewidget
-                    loc_device.updateWidgetColor()
-                endif
             endif
             ;set expression every 3 second
-            if !(loc_tick % 6) && loc_tick
+            if !(loc_tick % 30) && loc_tick
                 UDEM.ApplyExpressionRaw(akActor, loc_expression, 100,false,15)
                 if loc_device.hasHelper()
                     UDEM.ApplyExpressionRaw(akHelper, loc_expression, 100,false,15)
                 endif
             endif
-            ;update widget every 2 s
-            if !(loc_tick % 4) && loc_tick
+            ;update widget and HUD every 2 s
+            if !(loc_tick % 20) && loc_tick
                 if loc_canShowHUD
                     loc_device.showHUDbars(False)
                 endif         
-    
+                if loc_updatewidget
+                    loc_device.showWidget(false,true)
+                endif
             endif
             ;advance skill every 3 second
-            if !(loc_tick % 6) && loc_tick
+            if !(loc_tick % 30) && loc_tick
                 loc_device.advanceSkill(3.0)
                 loc_updatewidget    = loc_device.UD_UseWidget && UDCDmain.UD_UseWidget && loc_haveplayer
                 loc_canShowHUD      = loc_device.canShowHUD()                
             endif
         endif
         if loc_device._MinigameMainLoop_ON
-            Utility.wait(0.5)
+            Utility.wait(0.1)
         endif
     endwhile
     
@@ -295,6 +300,12 @@ Function Receive_MinigameParalel(Form fActor)
     
     if loc_device.WearerIsPlayer() || loc_device.HelperIsPlayer()
         loc_device.hideWidget()
+    endif
+    
+    ;remove disable
+    UDCDMain.EndMinigameDisable(akActor)
+    if akHelper
+        UDCDMain.EndMinigameDisable(akHelper)
     endif
     
     UDEM.ResetExpressionRaw(akActor,15)
@@ -466,7 +477,8 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
     if UDmain.TraceAllowed()
         UDCDmain.Log("Receive_Orgasm received for " + fActor)
     endif
-    libsp.UpdateExposure(akActor,-1*iDecreaseArousalBy)
+    
+    SendModEvent("DeviceActorOrgasm", akActor.GetLeveledActorBase().GetName())
     
     if !UDCDmain.isRegistered(akActor) && UDmain.UD_OrgasmExhaustion
         UDmain.addOrgasmExhaustion(akActor)
@@ -486,7 +498,6 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
     ;===========================
     ;            MESSAGE
     ;===========================
-
     int loc_orgexh = UDOM.GetOrgasmExhaustion(akActor) + 1
     ;float loc_forcing = StorageUtil.getFloatValue(akActor, "UD_OrgasmForcing",0.0)
     bool loc_applytears = false
@@ -513,9 +524,9 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
         elseif loc_orgexh >= 4
             loc_applytears = true
             if loc_isplayer
-                UDCDmain.Print("Toys are making you orgasm nonstop")
+                UDCDmain.Print("Stimulations are making you orgasm nonstop")
             elseif loc_cond
-                UDCDmain.Print(getActorName(akActor) + " toys are making them orgasm nonstop",3)
+                UDCDmain.Print(getActorName(akActor) + " are orgasming nonstop",3)
             endif
         elseif loc_orgexh >= 3
             loc_applytears = true
@@ -540,6 +551,14 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
         endif
     endif
 
+    if loc_is3Dloaded && loc_close
+        if loc_orgasmExhaustion == 1
+            UDEM.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm2(), 75,false,50)
+        else
+            UDEM.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm1(), 100,false,80)
+        endif
+    endif  
+    
     if loc_applytears
         UDCDmain.ApplyTearsEffect(akActor)
     endif
@@ -552,16 +571,6 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
     endif
     
     libsp.Aroused.UpdateActorOrgasmDate(akActor)
-    
-    if loc_is3Dloaded && loc_close
-        if loc_orgasmExhaustion == 1
-            UDEM.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm2(), 75,false,50)
-        else
-            UDEM.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm1(), 100,false,80)
-        endif
-    endif
-    
-    SendModEvent("DeviceActorOrgasm", akActor.GetLeveledActorBase().GetName())    
 EndFunction
 
 ;========================

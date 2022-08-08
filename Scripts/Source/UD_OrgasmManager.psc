@@ -87,25 +87,29 @@ EndFunction
 
 Function CheckOrgasmCheck(Actor akActor)
     if !akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
-        ;GInfo("Starting again Orgasm check loop for " + getActorName(akActor))
         StartOrgasmCheckLoop(akActor)
     endif
-    if !akActor.hasSpell(UDlibs.OrgasmCheckAbilitySpell) && akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
-        ;GInfo("Updating Orgasm check loop for " + getActorName(akActor))
-        akActor.DispelSpell(UDlibs.OrgasmCheckSpell)
-        StartOrgasmCheckLoop(akActor)
+    if !akActor.hasSpell(UDlibs.OrgasmCheckAbilitySpell)
+        if akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
+            akActor.DispelSpell(UDlibs.OrgasmCheckSpell)
+            StartOrgasmCheckLoop(akActor)
+        else
+            StartOrgasmCheckLoop(akActor)
+        endif
     endif
 EndFunction
 
 Function CheckArousalCheck(Actor akActor)
     if !akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
-        ;GInfo("Starting again Arousal check loop for " + getActorName(akActor))
         StartArousalCheckLoop(akActor)
     endif
-    if !akActor.hasSpell(UDlibs.ArousalCheckAbilitySpell) && akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
-        ;GInfo("Updating Arousal check loop for " + getActorName(akActor))
-        akActor.DispelSpell(UDlibs.ArousalCheckSpell)
-        StartArousalCheckLoop(akActor)
+    if !akActor.hasSpell(UDlibs.ArousalCheckAbilitySpell)
+        if akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
+            akActor.DispelSpell(UDlibs.ArousalCheckSpell)
+            StartArousalCheckLoop(akActor)
+        else
+            StartArousalCheckLoop(akActor)
+        endif
     endif
 EndFunction
 
@@ -500,7 +504,7 @@ int Function removeOrgasmFromActor(Actor akActor)
     return loc_count
 EndFunction
 
-Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 75,int iForce = 0, bool bForceAnimation = false)
+Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,int iForce = 0, bool bForceAnimation = false)
     addOrgasmToActor(akActor)
     
     ;call stopMinigame so it get stoped before all other shit gets processed
@@ -509,9 +513,10 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 75,in
         UDCDMain.getMinigameDevice(akActor).stopMinigame()
     endif
     
+    UpdateBaseOrgasmVals(akActor, 7, -5.0, 0.0, -1.0*iDecreaseArousalBy)
     ;Int loc_orgasms = getOrgasmingCount(akActor)
     
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         UDCDmain.Log("ActorOrgasmPatched called for " + GetActorName(akActor),1)
     endif
     
@@ -525,7 +530,7 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 75,in
     bool loc_is3Dloaded = akActor.Is3DLoaded() || loc_isplayer
     bool loc_close      = UDmain.ActorInCloseRange(akActor)
     bool loc_cond       = loc_is3Dloaded && loc_close
-
+        
     if loc_actorinminigame
         PlayOrgasmAnimation(akActor,iDuration)
     elseif ((akActor.IsInCombat() || akActor.IsSneaking()) && (loc_isplayer || loc_isfollower)) || !loc_cond
@@ -545,6 +550,8 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 75,in
     else
         PlayOrgasmAnimation(akActor,iDuration)
     endif
+    
+    ;UpdateArousalRate(akActor,iDecreaseArousalBy)
     
     if RemoveOrgasmFromActor(akActor) == 0
         if loc_cond
@@ -949,7 +956,8 @@ EndFunction
 
 Function Receive_UpdateBaseOrgasmVals(Form akFormActor, int aiDuration, float afOrgasmRate,float afForcing, float afArousalRate)
     Actor akActor = akFormActor as Actor
-    if afOrgasmRate
+    ;GInfo("Receive_UpdateBaseOrgasmVals - Actor:" + GetActorName(akFormActor as Actor) + ",aiDuration=" + aiDuration+ ",afOrgasmRate="+afOrgasmRate + ",afArousalRate="+afArousalRate)
+    if afOrgasmRate || afForcing
         UpdateOrgasmRate(akActor,afOrgasmRate,afForcing)
     endif
     if afArousalRate
@@ -958,7 +966,7 @@ Function Receive_UpdateBaseOrgasmVals(Form akFormActor, int aiDuration, float af
     
     Utility.wait(aiDuration)
     
-    if afOrgasmRate
+    if afOrgasmRate || afForcing
         removeOrgasmRate(akActor,afOrgasmRate,afForcing)
     endif
     if afArousalRate

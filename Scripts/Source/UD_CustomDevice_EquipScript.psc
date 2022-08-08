@@ -102,10 +102,10 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
                 UDCDmain.Log(" Device " + deviceInventory.getName() + " send to Event Container! Waiting for device to return to inventory!",3)
             endif
             while !deviceReturned
-                Utility.WaitMenuMode(0.05)
+                Utility.WaitMenuMode(0.001)
             endwhile
             deviceReturned = False
-            if UDmain.TraceAllowed()            
+            if UDmain.TraceAllowed()
                 UDCDmain.Log(" Device regained! Starting unlock operatios!",1)
             endif
             unlockDevice(giver)
@@ -115,7 +115,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
         if UDmain.IsContainerMenuOpen()
             if target && giver
                 if !target.isDead() && !giver.isDead()
-                    if giver.getItemCount(deviceRendered) && giver.getItemCount(deviceInventory) == 1
+                    if giver.getItemCount(deviceRendered) && giver.getItemCount(deviceInventory) == 0
                         if UDmain.TraceAllowed()                        
                             UDCDmain.Log("Opening device menu for " + deviceInventory.getName() + " on "+ giver.getActorBase().getName() +" , helper:  " + target.getActorBase().getName(),1)
                         endif
@@ -127,7 +127,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
                         StorageUtil.UnSetIntValue(giver, "UD_ignoreEvent" + deviceInventory)
                         StorageUtil.UnSetIntValue(target, "UD_ignoreEvent" + deviceInventory)
                         return
-                    elseif !UDmain.ActorIsPlayer(target) && !target.getItemCount(deviceRendered)
+                    elseif !UDmain.ActorIsPlayer(target) && !target.getItemCount(deviceRendered) && target.getItemCount(deviceInventory)
                         if UDmain.TraceAllowed()                        
                             UDCDmain.Log("OnContainerChanged - Locking device " + deviceInventory.getName() + " to "+ target.getActorBase().getName(),1)
                         endif
@@ -217,17 +217,13 @@ Function OnRemoveDevice(actor akActor)
     
     if deviceRendered.hasKeyword(libs.zad_DeviousGag)
         libs.RemoveGagEffect(akActor)
-        if !libs.IsAnimating(akActor)
-            akActor.ClearExpressionOverride()
-            ResetPhonemeModifier(akActor)
-        EndIf
-    endif
-    if  deviceRendered.hasKeyword(libs.zad_DeviousGagPanel)
-        if akActor.GetFactionRank(UDCDmain.zadGagPanelFaction) == 0
-            akActor.RemoveItem(zad_GagPanelPlug, 1)
-        EndIf
-        akActor.SetFactionRank(UDCDmain.zadGagPanelFaction, 0)
-        akActor.RemoveFromFaction(UDCDmain.zadGagPanelFaction)
+        if  deviceRendered.hasKeyword(libs.zad_DeviousGagPanel)
+            if akActor.GetFactionRank(UDCDmain.zadGagPanelFaction) == 0
+                akActor.RemoveItem(zad_GagPanelPlug, 1)
+            EndIf
+            akActor.SetFactionRank(UDCDmain.zadGagPanelFaction, 0)
+            akActor.RemoveFromFaction(UDCDmain.zadGagPanelFaction)
+        endif
     endif
 EndFunction
 
@@ -842,15 +838,16 @@ EndEvent
 Function unlockDevice(Actor akActor)
     bool loc_failure = false
     StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,0x111)
-    if !akActor.getItemCount(deviceRendered)
+    Int loc_RDNum = akActor.getItemCount(deviceRendered)
+    if !loc_RDNum
         loc_failure = true
         if UDmain.ActorIsPlayer(akActor)
             akActor.unequipItem(deviceInventory, 1, true)
         endif
     endif
     
-    UD_CustomDevice_NPCSlot loc_slot     = none
-    UD_MutexScript             loc_mutex     = none 
+    UD_CustomDevice_NPCSlot loc_slot    = none
+    UD_MutexScript          loc_mutex   = none 
     
     if !loc_failure
         loc_slot = UDCDmain.getNPCSlot(akActor)
@@ -884,20 +881,22 @@ Function unlockDevice(Actor akActor)
     if !loc_failure
         akActor.unequipItem(deviceInventory, 1, true)
         UD_CustomDevice_RenderScript device = getUDScript(akActor)
-        akActor.RemoveItem(deviceRendered, akActor.getItemCount(deviceRendered), true)
+        akActor.RemoveItem(deviceRendered, loc_RDNum, true)
         if device
             device.removeDevice(akActor)
         endif
     endif
 
     if loc_slot
-        loc_slot.UD_GlobalDeviceUnlockMutex_InventoryScript_Failed     = loc_failure
-        loc_slot.UD_GlobalDeviceUnlockMutex_InventoryScript         = True
+        loc_slot.UD_GlobalDeviceUnlockMutex_InventoryScript_Failed      = loc_failure
+        loc_slot.UD_GlobalDeviceUnlockMutex_InventoryScript             = True
     else
-        loc_mutex = UDMM.GetMutexSlot(akActor)
+        if !loc_mutex
+            loc_mutex = UDMM.GetMutexSlot(akActor)
+        endif
         if loc_mutex
-            loc_mutex.UD_GlobalDeviceUnlockMutex_InventoryScript_Failed = loc_failure
-            loc_mutex.UD_GlobalDeviceUnlockMutex_InventoryScript         = True
+            loc_mutex.UD_GlobalDeviceUnlockMutex_InventoryScript_Failed     = loc_failure
+            loc_mutex.UD_GlobalDeviceUnlockMutex_InventoryScript            = True
         endif
     endif
     

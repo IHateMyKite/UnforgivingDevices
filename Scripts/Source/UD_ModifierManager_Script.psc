@@ -193,15 +193,34 @@ Function Procces_LootGold_Remove(UD_CustomDevice_RenderScript argDevice)
     if argDevice.zad_DestroyOnRemove || argDevice.hasModifier("DOR") || !akActor.isDead()
         if argDevice.hasModifier("LootGold")
             if UDmain.TraceAllowed()
-            UDCDmain.Log("Gold added: " + argDevice.getModifierIntParam("LootGold"),1)
+                UDCDmain.Log("Gold added: " + argDevice.getModifierIntParam("LootGold"),1)
             endif
-            int goldNumMin = argDevice.getModifierIntParam("LootGold")
+            int goldNumMin = argDevice.getModifierIntParam("LootGold",0,0)
+            int goldMode   = argDevice.getModifierIntParam("LootGold",2,0)
             if argDevice.getModifierParamNum("LootGold") > 1
-                int goldNumMax = argDevice.getModifierIntParam("LootGold",1)
+                int goldNumMax = argDevice.getModifierIntParam("LootGold",1,0)
                 if goldNumMax < goldNumMin
                     goldNumMax = goldNumMin
                 endif
-                int randomNum = Utility.randomInt(goldNumMin,goldNumMax)
+                int goldNumMin2    = goldNumMin ;modified value
+                int goldNumMax2    = goldNumMax ;modified value
+                
+                float goldModeParam = 0.0
+                
+                if goldMode == 0
+                    ;nothink
+                elseif goldMode == 1 ;increase % gold based on level per parameter
+                    goldModeParam   = argDevice.getModifierFloatParam("LootGold",3,0.05)
+                    goldNumMin2     = Round(goldNumMin2*(1.0 + goldModeParam*argDevice.UD_Level))
+                    goldNumMax2     = Round(goldNumMax2*(1.0 + goldModeParam*argDevice.UD_Level))
+                elseif goldMode == 2 ;increase ABS gold based on level per parameter
+                    goldModeParam   = argDevice.getModifierFloatParam("LootGold",3,10.0)
+                    goldNumMin2     = Round(goldNumMin2 + (goldModeParam*argDevice.UD_Level))
+                    goldNumMax2     = Round(goldNumMax2 + (goldModeParam*argDevice.UD_Level))
+                else    ;unused
+                endif
+                
+                int randomNum = Utility.randomInt(goldNumMin2,goldNumMax2)
                 if randomNum > 0
                     akActor.addItem(UDlibs.Gold,randomNum)    
                 endif                

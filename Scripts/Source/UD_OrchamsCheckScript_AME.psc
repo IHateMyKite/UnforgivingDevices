@@ -52,8 +52,12 @@ int     loc_orgasms                 = 0
 int     loc_hornyAnimTimer          = 0
 bool[]  loc_cameraState
 int     loc_msID                    = -1
+float   loc_edgeprogress            = 0.0
+int     loc_edgelevel               = 0
 sslBaseExpression expression
 float[] loc_expression
+float[] loc_expression2
+float[] loc_expression3
 
 bool    loc_isplayer = false
 
@@ -64,8 +68,11 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     if loc_isplayer && UDmain.TraceAllowed() ;only for player, because it works different for NPCs
         UDCDmain.Log("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - OnEffectStart()",2)
     endif
-    _MagickEffect = GetBaseObject()
-    loc_expression = UDEM.GetPrebuildExpression_Horny1()
+    _MagickEffect   = GetBaseObject()
+    loc_expression  = UDEM.GetPrebuildExpression_Horny1()
+    loc_expression2 = UDEM.GetPrebuildExpression_Happy1()
+    loc_expression3 = UDEM.GetPrebuildExpression_Angry1()
+    
     if loc_isplayer
         loc_currentUpdateTime = UDOM.UD_OrgasmUpdateTime
     else
@@ -139,6 +146,12 @@ Function Update()
     if !loc_expression
         loc_expression = UDEM.GetPrebuildExpression_Horny1()
     endif
+    if !loc_expression2
+        loc_expression2 = UDEM.GetPrebuildExpression_Happy1()
+    endif
+    if !loc_expression3
+        loc_expression3 = UDEM.GetPrebuildExpression_Angry1()
+    endif
     if IsRunning()
         akActor.AddToFaction(UDOM.OrgasmCheckLoopFaction)
     endif
@@ -183,6 +196,9 @@ Event OnUpdate()
                 endif
             endif
             
+            ;proccess edge
+            loc_edgeprogress += fRange(loc_orgasmRate*loc_orgasmRateMultiplier*loc_currentUpdateTime - loc_orgasmRateAnti,0.0,100.0)
+            
             loc_orgasmProgress_p = fRange(loc_orgasmProgress/loc_orgasmCapacity,0.0,1.0) ;update relative orgasm progress
             
             if loc_widgetShown && !loc_orgasmResisting
@@ -204,7 +220,7 @@ Event OnUpdate()
                     UDCDmain.widget2.SetPercent(0.0,true)
                 endif
                 
-                loc_hornyAnimTimer = -45 ;cooldown
+                loc_hornyAnimTimer  = -45 ;cooldown
                 
                 Int loc_force = 0
                 if loc_forcing < 0.5
@@ -214,9 +230,37 @@ Event OnUpdate()
                 else
                     loc_force = 2
                 endif
-                UDOM.startOrgasm(akActor,UDOM.UD_OrgasmDuration,90,loc_force,true)
+                
+                SendOrgasmEvent()
+                UDOM.startOrgasm(akActor,UDOM.UD_OrgasmDuration,20,loc_force,true)
+                
+                Utility.wait(3.0) ;wait, so orgasm variables can be updated
+                
                 loc_orgasmProgress = 0.0
                 UDOM.SetActorOrgasmProgress(akActor,loc_orgasmProgress)
+                
+                loc_edgeprogress    = 0.0
+                loc_edgelevel       = 0 
+            else
+                ;check edge
+                if loc_edgeprogress >= 3.0*loc_orgasmCapacity
+                    loc_edgelevel      += 1
+                    loc_edgeprogress    = 0.0
+                    if loc_isplayer
+                        if loc_edgelevel == 1
+                            UDmain.Print("You feel incredibly horny")
+                        elseif loc_edgelevel == 2
+                            UDmain.Print("You want to cum")
+                        elseif loc_edgelevel == 3
+                            UDmain.Print("You want to cum badly")
+                        elseif loc_edgelevel == 4
+                            UDmain.Print("You would do anythink for orgasm")
+                        else
+                            UDmain.Print("Unending pleasure is driving you crazy!")
+                        endif
+                    endif
+                endif
+                SendEdgeEvent()
             endif
             
             if loc_tick * loc_currentUpdateTime >= 1.0
@@ -227,6 +271,7 @@ Event OnUpdate()
                 
                 loc_tick = 0
                 loc_tickS += 1
+                loc_edgeprogress -= 1.0*fRange(100 - loc_arousal/100,0.01,1.0)
                 
                 int loc_switch = (loc_tickS % 3)
                 if loc_switch == 0
@@ -250,7 +295,14 @@ Event OnUpdate()
                 ;expression
                 if loc_orgasmRate >= loc_orgasmResistence*0.75 && (!loc_expressionApplied || loc_expressionUpdateTimer > 5) 
                     ;init expression
-                    UDEM.ApplyExpressionRaw(akActor, loc_expression, iRange(Round(loc_orgasmProgress),75,100),false,10)
+                    if loc_edgelevel == 0
+                        UDEM.ApplyExpressionRaw(akActor, loc_expression, iRange(Round(loc_orgasmProgress),75,100),false,10)
+                    elseif loc_edgelevel > 0 && loc_edgelevel < 3
+                        UDEM.ApplyExpressionRaw(akActor, loc_expression2, 75,false,10)
+                    else
+                        UDEM.ApplyExpressionRaw(akActor, loc_expression3, 50,false,10)
+                    endif
+                    
                     loc_expressionApplied = true
                     loc_expressionUpdateTimer = 0
                 elseif loc_orgasmRate < loc_orgasmResistence*0.75 && loc_expressionApplied
@@ -279,11 +331,6 @@ Event OnUpdate()
                                 ; Select animation
                                 loc_cameraState = libs.StartThirdPersonAnimation(akActor, libs.AnimSwitchKeyword(akActor, "Horny01"), permitRestrictive=true)
                                 loc_hornyAnimTimer += UDOM.UD_HornyAnimationDuration
-                                if !loc_expressionApplied
-                                    UDEM.ApplyExpressionRaw(akActor, loc_expression, iRange(Round(loc_orgasmProgress),75,100),false,10)
-                                    loc_expressionApplied = true
-                                    loc_expressionUpdateTimer = 0
-                                endif
                             endif
                         EndIf
                     endif
@@ -333,6 +380,32 @@ Event OnUpdate()
     endif
     _processing = false
 EndEvent
+
+
+;Event UDOrgasm(Form akActor,Float afOrgasmRate,Int aiArousal,Int aiEdgeLevel,Float afForcing)
+Function SendOrgasmEvent()
+    int loc_id = ModEvent.Create("UDOrgasmEvent")
+    if loc_id
+        ModEvent.PushForm(loc_id, akActor)
+        ModEvent.PushFloat(loc_id, loc_orgasmRate)
+        ModEvent.PushInt(loc_id, loc_arousal)
+        ModEvent.PushInt(loc_id, loc_edgelevel)
+        ModEvent.PushFloat(loc_id, loc_forcing)
+        ModEvent.Send(loc_id)
+    endif
+EndFunction
+
+Function SendEdgeEvent()
+    int loc_id = ModEvent.Create("UDEdgeEvent")
+    if loc_id
+        ModEvent.PushForm(loc_id, akActor)
+        ModEvent.PushFloat(loc_id, loc_orgasmRate)
+        ModEvent.PushInt(loc_id, loc_arousal)
+        ModEvent.PushInt(loc_id, loc_edgelevel)
+        ModEvent.PushFloat(loc_id, loc_forcing)
+        ModEvent.Send(loc_id)
+    endif
+EndFunction
 
 bool Function IsRunning()
     return !_finished

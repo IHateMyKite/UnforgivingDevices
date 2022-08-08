@@ -334,10 +334,8 @@ EndFunction
 
 Function StartMinigameDisable(Actor akActor)
     akActor.AddToFaction(BussyFaction)
-
     if UDmain.ActorIsPlayer(akActor)
         UpdatePlayerControl()
-        Game.DisablePlayerControls(abMovement = False)
         Game.SetPlayerAiDriven(True)
     else
         akActor.SetDontMove(True)
@@ -349,7 +347,6 @@ Function UpdateMinigameDisable(Actor akActor)
     if akActor.IsInFaction(BussyFaction)
         if UDmain.ActorIsPlayer(akActor)
             UpdatePlayerControl()
-            Game.DisablePlayerControls(abMovement = False)
             Game.SetPlayerAiDriven(True)
         else
             akActor.SetDontMove(True)
@@ -360,7 +357,7 @@ EndFunction
 Function EndMinigameDisable(Actor akActor)
     akActor.RemoveFromFaction(BussyFaction)
     if UDmain.ActorIsPlayer(akActor)
-        UpdatePlayerControl()
+        libsp.ProcessPlayerControls(false)
         Game.SetPlayerAiDriven(False)
     else
         akActor.SetDontMove(False)
@@ -368,6 +365,8 @@ Function EndMinigameDisable(Actor akActor)
 EndFunction
 
 Function UpdatePlayerControl()
+    Game.EnablePlayerControls(abMovement = true, abFighting = false, abSneaking = false, abMenu = true, abActivate = false) 
+    Game.DisablePlayerControls(abMovement = False, abMenu = false)
     if !UDmain.Player.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW)
         if UDmain.Player.WornHasKeyword(libs.zad_DeviousBlindfold) && (libs.config.BlindfoldMode == 1 || libs.config.BlindfoldMode == 0)
             int cameraState = Game.GetCameraState()
@@ -390,11 +389,14 @@ EndFunction
 
 Function CheckHardcoreDisabler(Actor akActor)
     if UD_HardcoreMode
-        if UDmain.Player.wornhaskeyword(libs.zad_deviousHeavyBondage) && !UDmain.Player.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW)
+        if !UDmain.Player.HasSpell(UDlibs.HardcoreDisableSpell) && UDmain.Player.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW) 
+            UDmain.Player.DispelSpell(UDlibs.HardcoreDisableSpell)
+        endif
+        if UDmain.Player.wornhaskeyword(libs.zad_deviousHeavyBondage) && !UDmain.Player.HasSpell(UDlibs.HardcoreDisableSpell)
             ;only apply if heavy bondage device is UD
             UD_CustomDevice_RenderScript loc_hbdevice = GetHeavyBondageDevice(UDmain.Player)
             if loc_hbdevice
-                UDlibs.HardcoreDisableSpell.cast(UDmain.Player)
+                UDmain.Player.AddSpell(UDlibs.HardcoreDisableSpell,false)
             endif
         endif
     endif
@@ -834,29 +836,38 @@ Event onUpdate()
         if UDmain.DebugMod
             UDmain.Player.addItem(UDlibs.AbadonPlug,1)
         endif
-        LastUpdateTime = Utility.GetCurrentGameTime()
-        LastUpdateTime_Hour = Utility.GetCurrentGameTime()
+        ;LastUpdateTime = Utility.GetCurrentGameTime()
+        ;LastUpdateTime_Hour = Utility.GetCurrentGameTime()
         loc_init = true
     endif
-    if !UDmain.UD_DisableUpdate
-        float timePassed = Utility.GetCurrentGameTime() - LastUpdateTime
-        UDCD_NPCM.update(timePassed)
-        LastUpdateTime = Utility.GetCurrentGameTime()
-    endif
-    RegisterForSingleUpdate(UD_UpdateTime)
+    ;if !UDmain.UD_DisableUpdate
+    ;    float timePassed = Utility.GetCurrentGameTime() - LastUpdateTime
+    ;    UDCD_NPCM.update(timePassed)
+    ;    LastUpdateTime = Utility.GetCurrentGameTime()
+    ;endif
+    ;RegisterForSingleUpdate(UD_UpdateTime)
 EndEvent
 
-float LastUpdateTime_Hour = 0.0 ;last time the update happened in days
-Event OnUpdateGameTime()
-    if !UDmain.UD_DisableUpdate
-        Utility.waitMenuMode(Utility.randomFloat(2.0,4.0))
-        float currentgametime = Utility.GetCurrentGameTime()
-        float mult = 24.0*(currentgametime - LastUpdateTime_Hour) ;multiplier for how much more then 1 hour have passed, ex: for 2.5 hours passed without update, the mult will be 2.5
-        UDCD_NPCM.updateHour(mult)
-        LastUpdateTime_Hour = Utility.GetCurrentGameTime()
-    endif
-    registerForSingleUpdateGameTime(1.0)
-endEvent
+;float LastUpdateTime_Hour = 0.0 ;last time the update happened in days
+;Event OnUpdateGameTime()
+;    if !UDmain.UD_DisableUpdate
+;        Utility.waitMenuMode(Utility.randomFloat(2.0,4.0))
+;        float currentgametime = Utility.GetCurrentGameTime()
+;        float mult = 24.0*(currentgametime - LastUpdateTime_Hour) ;multiplier for how much more then 1 hour have passed, ex: for 2.5 hours passed without update, the mult will be 2.5
+;        UDCD_NPCM.updateHour(mult)
+;        LastUpdateTime_Hour = Utility.GetCurrentGameTime()
+;    endif
+;    registerForSingleUpdateGameTime(1.0)
+;endEvent
+
+State Minigame
+    ;Event onUpdate()
+    ;    RegisterForSingleUpdate(2*UD_UpdateTime)
+    ;EndEvent
+    ;Event OnUpdateGameTime()
+    ;    registerForSingleUpdateGameTime(0.1)
+    ;EndEvent
+EndState
 
 ;-------------------------------------------------------------------------------------
 ;-------------------------------------------------------------------------------------
@@ -1540,7 +1551,7 @@ Weapon Function getSharpestWeapon(Actor akActor)
     Weapon loc_bestWeapon = none
     if isRegistered(akActor)
         UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(akActor)
-        loc_bestWeapon = loc_slot.getBestWeapon()
+        loc_bestWeapon = loc_slot.UD_BestWeapon
     else
         int loc_i = akActor.GetNumItems()
         while loc_i
@@ -1565,7 +1576,7 @@ bool Function isSharp(Weapon wWeapon)
     int        loc_type = wWeapon.GetWeaponType()
     loc_cond = loc_cond || (loc_type > 0 && loc_type < 4) ;swords, daggers, war axes
     loc_cond = loc_cond || (loc_type == 5) ;great swords
-    loc_cond = loc_cond || (loc_type == 6) ;battleaxes and warhammes
+    loc_cond = loc_cond || (loc_type == 6) ;battleaxes and warhammers
     return loc_cond
     ;/
     int loc_i = UDlibs.SharpWeaponsKeywords.length

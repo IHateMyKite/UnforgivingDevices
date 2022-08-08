@@ -25,16 +25,8 @@ UD_OrgasmManager Property UDOM
         return UDmain.UDOM
     EndFunction
 EndProperty
-bool Property UD_GlobalDeviceMutex_Unlock_InventoryScript = false auto
-bool Property UD_GlobalDeviceMutex_Unlock_InventoryScript_Failed = false auto
-;bool Property UD_GlobalDeviceMutex_Unlock_RenderScript = false auto
-Armor Property UD_GlobalDeviceMutex_Unlock_Device = none auto
-Actor Property UD_GlobalDeviceMutex_Unlock_Actor = none auto
 
 bool Property UD_StartThirdPersonAnimation_Switch = true auto
-;modified function from libs, function will end only after the device is fully equipped
-bool LOCKDEVICE_MUTEX = False
-
 bool _installing = false
 Function OnInit()
     _installing = true
@@ -42,24 +34,6 @@ Function OnInit()
         Utility.waitMenuMode(5.0)
     endwhile
     _installing = false
-EndFunction
-
-Function ResetMutex()
-    LOCKDEVICE_MUTEX = false
-    UNLOCK_MUTEX = false
-EndFunction
-
-Function StartLockMutex()
-    while LOCKDEVICE_MUTEX
-        Utility.waitMenuMode(0.05)
-    endwhile
-    LOCKDEVICE_MUTEX = True
-EndFunction
-Function EndLockMutex()
-    LOCKDEVICE_MUTEX = False
-EndFunction
-Function ResetLockMutex(Actor akActor,Armor deviceInventory)
-    ;UDCDMain.MutexActor(akActor)
 EndFunction
 
 Function LockDevice_Paralel(actor akActor, armor deviceInventory, bool force = false)
@@ -82,7 +56,7 @@ bool Function isMutexed(Actor akActor,Armor invDevice)
     return UDMM.IsDeviceMutexed(akActor,invDevice)
 EndFunction
 
-bool Property DD_UseMutex = true auto
+bool Property DD_LockDeviceBlocking = true auto
 
 Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force = false)
     if !deviceInventory
@@ -102,16 +76,18 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
         return false
     endif
     
-    UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
-    UD_MutexScript          loc_mutex = none
-    
-    if loc_slot
-        loc_slot.StartLockMutex()
-    else
-        loc_mutex = UDMM.WaitForFreeAndSet_Lock(akActor,deviceInventory)
-    endif
+
     bool loc_res = false
     if deviceInventory.hasKeyword(UDlibs.PatchedInventoryDevice)
+        UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
+        UD_MutexScript          loc_mutex = none
+        
+        if loc_slot
+            loc_slot.StartLockMutex()
+        else
+            loc_mutex = UDMM.WaitForFreeAndSet_Lock(akActor,deviceInventory)
+        endif
+        
         if UDmain.TraceAllowed()
             if loc_slot
                 UDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - NPC slot: " + loc_slot,1)
@@ -159,52 +135,42 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
                 UDCDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation completed - no mutex",1)
             endif
         endif
+        
+        if loc_slot
+            loc_slot.EndLockMutex()
+        elseif loc_mutex
+            loc_mutex.ResetLockMutex()
+        endif
     else
         if UDmain.TraceAllowed()        
             UDCDmain.Log("LockDevicePatched("+getActorName(akActor)+","+deviceInventory.getName()+") (patched) called, device is NOT UD -> skipping mutex")
         endif
         
         loc_res = parent.LockDevice(akActor,deviceInventory,force)
-        ;Utility.waitMenuMode(1.5) ;wait little time, so DCL work properly
         
-        if DD_UseMutex
+        ;make function blocking
+        ;pretty much added just so DCL can work properly when equipping more device at once
+        if DD_LockDeviceBlocking
             Armor deviceRendered = GetRenderedDevice(deviceInventory)
             float loc_time = 0.0
             while loc_time <= 1.5 && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
-                Utility.waitMenuMode(0.01)
-                loc_time += 0.01
+                Utility.waitMenuMode(0.001)
+                loc_time += 0.001
             endwhile
             if loc_time >= 1.5
                 ;render device lock failed, abort
                 UDCDMain.Error("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") DD mutex failed. Render device is not equipped - timeout")
             endif
         endif
-        
     endif
     
     if UDmain.TraceAllowed()        
         UDCDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - ended",3)
     endif
 
-    if loc_slot
-        loc_slot.EndLockMutex()
-    elseif loc_mutex
-        loc_mutex.ResetLockMutex()
-    endif
     return loc_res
 EndFunction
 
-;modified version of UnlockDevice from zadlibs. This version makes use of registered devices from UD, making unequip procces for NPC safer and faster
-bool UNLOCK_MUTEX = False
-Function CheckUnlockMutex()
-    while UNLOCK_MUTEX
-        Utility.waitMenuMode(0.05)
-    endwhile
-    UNLOCK_MUTEX = True
-EndFunction
-Function RemoveUnlockMutex()
-    UNLOCK_MUTEX = False
-EndFunction
 Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRendered = none, keyword zad_DeviousDevice = none, bool destroyDevice = false, bool genericonly = false)
     if !akActor
         UDCDmain.Error("UnlockDevice called for none actor!")
@@ -224,28 +190,27 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
             return false
         endif
     endif
-    
-    UD_CustomDevice_NPCSlot loc_slot     = none ;NPC slot for registered NPC
-    UD_MutexScript             loc_mutex     = none ;mutex used for non registered NPC
-    
-    bool                     loc_res     = False ;return value
-    
-    ;start mutex if actor is not dead
-    bool loc_actordead = akActor.isDead()
-    if !loc_actordead
-        loc_slot = UDCDmain.getNPCSlot(akActor)
-        if loc_slot
-            loc_slot.StartUnlockMutex()
-        else
-            loc_mutex = UDMM.WaitForFreeAndSet_Unlock(akActor,deviceInventory)
-        endif
-    endif
+
+    bool                    loc_res     = False ;return value
     
     if UDmain.TraceAllowed()
         UDCDmain.Log("UnlockDevice("+akActor+","+deviceInventory+","+deviceRendered+","+zad_DeviousDevice+","+destroyDevice+","+genericonly+")",1)
     endif
     
     if deviceInventory.hasKeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
+        UD_CustomDevice_NPCSlot loc_slot    = none ;NPC slot for registered NPC
+        UD_MutexScript          loc_mutex   = none ;mutex used for non registered NPC
+        ;start mutex if actor is not dead
+        bool loc_actordead = akActor.isDead()
+        if !loc_actordead
+            loc_slot = UDCDmain.getNPCSlot(akActor)
+            if loc_slot
+                loc_slot.StartUnlockMutex()
+            else
+                loc_mutex = UDMM.WaitForFreeAndSet_Unlock(akActor,deviceInventory)
+            endif
+        endif
+        
         if UDmain.TraceAllowed()
             UDCDmain.Log("UnlockDevice("+MakeDeviceHeader(akActor,deviceInventory)+") called",2)
         endif
@@ -302,11 +267,18 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
                     akActor.RemoveItem(deviceInventory, 1, true)
                 EndIf
                 
-                loc_res = true         ;succes
+                loc_res = true          ;succes
             else
                 loc_res = false         ;failure
             endif
-        endif            
+        endif
+        
+        ;end mutex
+        if loc_slot
+            loc_slot.EndUnLockMutex()
+        elseif loc_mutex
+            loc_mutex.ResetUnLockMutex()
+        endif
     else
         ;use default DD unlock function
         loc_res = parent.UnlockDevice(akActor, deviceInventory, deviceRendered, zad_DeviousDevice, destroyDevice, genericonly) ;actor not registered
@@ -315,14 +287,11 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
         UDCDmain.Log("UnlockDevice("+deviceInventory.getName()+") (patched) finished: "+loc_res,1)
     endif
     
-    ;end mutex
-    if loc_slot
-        loc_slot.EndUnLockMutex()
-    elseif loc_mutex
-        loc_mutex.ResetUnLockMutex()
-    endif
     return loc_res
 EndFunction
+
+
+
 
 ;modified version of RemoveQuestDevice from zadlibs. This version makes use of registered devices from UD,making unequip procces for NPC safer and faster
 Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRendered, keyword zad_DeviousDevice, keyword RemovalToken, bool destroyDevice=false, bool skipMutex=false)
@@ -886,7 +855,7 @@ EndFunction
 ;doesn't check camera state
 bool Function FastStartThirdPersonAnimation(actor akActor, string animation)
     if animation == "none"
-        UDCDmain.Error("StartThirdPersonAnimation - Called animation is None, aborting")
+        UDmain.Warning("StartThirdPersonAnimation - Called animation is None, aborting")
         return false
     endif
     
@@ -914,6 +883,22 @@ bool Function FastStartThirdPersonAnimation(actor akActor, string animation)
     return true
 EndFunction
 
+;reduced endanimation function
+;doesn't enable actor movement and doesn't check if actor is valid
+;doesn't check camera state
+Function FastEndThirdPersonAnimation(actor akActor)
+    SetAnimating(akActor, false)
+        
+    Form loc_shield = StorageUtil.GetFormValue(akActor,"UD_UnequippedShield",none)
+    if loc_shield
+        StorageUtil.UnsetFormValue(akActor,"UD_UnequippedShield")
+        akActor.equipItem(loc_shield,false,true)
+        StorageUtil.UnSetFormValue(akActor,"UD_UnequippedShield")
+    endif
+    
+    Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
+EndFunction
+
 ;copied with added trace check and block check
 Function EndThirdPersonAnimation(actor akActor, bool[] cameraState, bool permitRestrictive=false)
     if UD_StartThirdPersonAnimation_Switch
@@ -935,7 +920,7 @@ Function EndThirdPersonAnimation(actor akActor, bool[] cameraState, bool permitR
             StorageUtil.UnSetFormValue(akActor,"UD_UnequippedShield")
         endif
         Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
-        if UDmain.ActorIsPlayer(akActor)
+        if akActor == playerRef
             UpdateControls()
         Else
             akActor.SetDontMove(false)
@@ -996,14 +981,12 @@ Function UpdateExposure(actor akRef, float val, bool skipMultiplier=false)
         Error("UpdateExposure passed none reference.")
         return
     EndIf
-    
     int lastRank = Aroused.GetActorExposure(akRef)
     if skipMultiplier
         ; This function is very slow, and sometimes hangs for multiple seconds (Seen 10+). Directly access internals as a work-around.
         int newVal = lastRank + Round(val) 
-        if newVal > 100
-            newVal = 100
-        EndIf
+        newVal = iRange(newVal,0,100)
+  
         Aroused.SetActorExposure(akRef, newVal)
     Else
         int newRank = Round(lastRank + val * Aroused.GetActorExposureRate(akRef))    
@@ -1068,11 +1051,14 @@ Armor Function GetRenderedDevice(armor device)
 EndFunction
 
 Function UpdateControls()
-    if _installing
-        return
+    if !UDCDmain.PlayerInMinigame()
+        ProcessPlayerControls(true)
     endif
+EndFunction
+
+Function ProcessPlayerControls(bool abCheckMinigame = true)
     if UDmain.TraceAllowed()
-        UDCDMain.Log("UpdateControls(UDP)()",3)
+        UDMain.Log("ProcessPlayerControls",3)
     endif
     
     ; Centralized control management function.
@@ -1087,12 +1073,7 @@ Function UpdateControls()
     else
         menu = true
     endif
-    
-    if UDCDmain.PlayerInMinigame()
-        movement = true
-        menu = false
-    endif
-    
+        
     bool activate = true
     int cameraState = Game.GetCameraState()
     if playerRef.WornHasKeyword(zad_DeviousBlindfold) && (config.BlindfoldMode == 1 || config.BlindfoldMode == 0) && (cameraState == 8 || cameraState == 9)
@@ -1112,10 +1093,11 @@ Function UpdateControls()
     EndIf    
     if playerRef.WornHasKeyword(zad_DeviousPonyGear)
         sneaking = false
-    EndIf   
-
-    Game.DisablePlayerControls(abMovement = !movement, abFighting = !fighting, abSneaking = !sneaking, abMenu = !menu, abActivate = !activate)    
-    Game.EnablePlayerControls(abMovement = movement, abFighting = fighting, abSneaking = sneaking, abMenu = menu, abActivate = activate)    
+    EndIf
+    if (!abCheckMinigame || !UDCDmain.PlayerInMinigame())
+        Game.DisablePlayerControls(abMovement = !movement, abFighting = !fighting, abSneaking = !sneaking, abMenu = !menu, abActivate = !activate)    
+        Game.EnablePlayerControls(abMovement = movement, abFighting = fighting, abSneaking = sneaking, abMenu = menu, abActivate = activate) 
+    endif    
 EndFunction
 
 function stripweapons(actor a, bool unequiponly = true)        

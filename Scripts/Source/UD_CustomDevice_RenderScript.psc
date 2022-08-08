@@ -146,7 +146,7 @@ Int Property UD_Level
         return _level
     EndFunction
     Function set(int aiValue)
-        _level = iRange(aiValue,1,1000)
+        _level = iRange(aiValue,-10,1000)
         ;reset vars
         current_device_health = UD_Health
         UD_CurrentLocks = UD_Locks
@@ -357,7 +357,7 @@ float _durability_damage_mod ;durability dmg after applied difficulty, dont chan
 float _updateTimePassed = 0.0 ;time passed from last update in days
 
 ;variables copied from zadEquipScript. !dont change!
-bool[] cameraState
+;bool[] cameraState
 ;---------------------------------------PRIVATE VARS----------------------------------------
 
 int Property UD_CurrentLocks Hidden ;how many locked locks remain, max is 31
@@ -1483,9 +1483,7 @@ Function Init(Actor akActor)
         return
     endif
 
-    ;if UDmain.DebugMod
-    ;    Debug_LogBitMaps()
-    ;endif
+
     ;update now if deviceRendered isn't filled yet, otherwise update on end
     ;deviceRendered should be filled to make the init faster
     if !deviceRendered || !UD_DeviceKeyword
@@ -1544,21 +1542,13 @@ Function Init(Actor akActor)
     if deviceRendered
         updateValuesFromInventoryScript()
     endif
-    
-    ;if UDmain.DebugMod
-    ;    Debug_LogBitMaps("Default bitmask")
-    ;endif
-    
+
     if deviceRendered.hasKeyword(UDlibs.PatchedDevice) ;patched device
         if UDmain.TraceAllowed()        
             UDCDmain.Log("Patching device " + deviceInventory.getName(),2)
         endif
 
         patchDevice()
-        
-        ;if UDmain.DebugMod
-        ;    Debug_LogBitMaps("After patch")
-        ;endif
     else
         if UD_WeaponHitResist == 5.23
             UD_WeaponHitResist = UD_ResistPhysical
@@ -1570,6 +1560,19 @@ Function Init(Actor akActor)
     
     if deviceRendered.hasKeyword(libs.zad_DeviousBelt) || deviceRendered.hasKeyword(libs.zad_DeviousBra)
         libs.Aroused.SetActorExposureRate(akActor, libs.GetModifiedRate(akActor))    
+    endif
+    
+    if UD_Level < 1
+        int loc_level = akActor.GetLevel()
+        if UD_Level == -1 ;random value in +- 25% range from wearer level
+            UD_Level = Round(Utility.randomFloat(fRange(loc_level*0.75,1.0,100.0),fRange(loc_level*1.25,1.0,100.0)))
+        elseif UD_Level == -2 ;random value in + 25% range from wearer level
+            UD_Level = Round(Utility.randomFloat(fRange(loc_level,1.0,100.0),fRange(loc_level*1.25,1.0,100.0)))
+        elseif UD_Level == -3 ;random value in - 25% range from wearer level
+            UD_Level = Round(Utility.randomFloat(fRange(loc_level*0.75,1.0,100.0),fRange(loc_level,1.0,100.0)))
+        else ;same level as wearer
+            UD_Level = loc_level
+        endif
     endif
     
     UD_CurrentLocks = UD_Locks
@@ -1604,7 +1607,7 @@ Function removeDevice(actor akActor)
     endif
     _removeDeviceCalled = True
     
-    GoToState("Stopped")
+    GoToState("UpdatePaused")
     
     if !akActor.isDead()
         if !_isUnlocked
@@ -1864,9 +1867,13 @@ Function setWidgetColor(int val,int val2 = -1,int flash_col = -1)
     UDCDmain.widget1.SetColors(UD_WidgetColor, UD_WidgetColor2,flash_col)
 EndFunction
 
-Function showWidget()
-    updateWidget(true)
-    updateWidgetColor()
+Function showWidget(Bool abUpdate = true, Bool abUpdateColor = true)
+    if abUpdate
+        updateWidget(true)
+    endif
+    if abUpdateColor
+        updateWidgetColor()
+    endif
     UDCDmain.toggleWidget(true)
 EndFunction
 
@@ -2301,8 +2308,15 @@ EndFunction
 ;    17 = lockmenu
 Function DeviceMenu(bool[] aControl)
     if UDmain.TraceAllowed()    
-        UDCDmain.Log(getDeviceHeader()+" DeviceMenu() called , aControl = "+aControl,2)
+        UDmain.Log(getDeviceHeader()+" DeviceMenu() called , aControl = "+aControl,2)
     endif
+    
+    ;if UD_WearerSlot
+        ;UD_WearerSlot.GoToState("UpdatePaused")
+    ;Endif
+    
+    GoToState("UpdatePaused")
+    
     bool _break = False
     while !_break
         deviceMenuInit(aControl)
@@ -2328,6 +2342,11 @@ Function DeviceMenu(bool[] aControl)
             Utility.waitMenuMode(0.75)
         endif
     endwhile
+    
+    ;if UD_WearerSlot
+    ;    UD_WearerSlot.GoToState("")
+    ;Endif
+    GoToState("")
 EndFunction
 
 bool Function lockMenu(bool[] aControl)
@@ -2445,9 +2464,15 @@ EndFunction
 ;    17 = lockmenu
 Function DeviceMenuWH(Actor akSource,bool[] aControl)
     if UDmain.TraceAllowed()
-        UDCDmain.Log(getDeviceHeader() + " DeviceMenuWH() called, aControl = "+aControl,2)
+        UDmain.Log(getDeviceHeader() + " DeviceMenuWH() called, aControl = "+aControl,2)
     endif
-        
+    
+    ;if UD_WearerSlot
+    ;    UD_WearerSlot.GoToState("UpdatePaused")
+    ;Endif
+    
+    GoToState("UpdatePaused")
+    
     bool _break = False
     while !_break
         deviceMenuInitWH(akSource,aControl)
@@ -2479,6 +2504,11 @@ Function DeviceMenuWH(Actor akSource,bool[] aControl)
         DeviceMenuExtWH(msgChoice)
     endwhile
     setHelper(none)
+    
+    ;if UD_WearerSlot
+    ;    UD_WearerSlot.GoToState("")
+    ;Endif
+    GoToState("")
 EndFunction
 
 bool Function lockMenuWH(Actor akSource,bool[] aControl)
@@ -2753,6 +2783,7 @@ bool Function keyMinigame()
     UD_minigame_canCrit = False
     UD_applyExhastionEffect = False
     UD_minigame_critRegen = false
+    UD_UseWidget = False
     UD_AllowWidgetUpdate = False
     UD_RegenMag_Health = 0.5
     UD_RegenMag_Magicka = 0.5
@@ -3051,6 +3082,7 @@ bool Function keyMinigameWH(Actor akHelper)
     _customMinigameCritChance = getLockAccesChance(false)
     _customMinigameCritDuration = 0.9 - getLockLevel()*0.03    
     _minMinigameStatSP = 0.6
+    UD_UseWidget = False
     UD_AllowWidgetUpdate = False
     
     if minigamePostcheck()
@@ -3430,7 +3462,7 @@ Function minigame()
         showDebugMinigameInfo()
     endif
     
-    GoToState("Stopped")
+    GoToState("UpdatePaused")
     
     bool loc_WearerIsPlayer = WearerIsPlayer()
     bool loc_HelperIsPlayer = HelperIsPlayer()
@@ -3438,7 +3470,7 @@ Function minigame()
     
     if loc_PlayerInMinigame
         closeMenu()
-        UDmain.UDNPCM.GoToState("SlotUpdateStopped")
+        ;UDmain.UDNPCM.GoToState("SlotUpdateStopped")
     endif
     
     minigame_on = True
@@ -3540,17 +3572,13 @@ Function minigame()
 
     _MinigameMainLoop_ON = true    
     UDCDMain.UDPP.Send_MinigameParalel(Wearer,self)        
-    
-    if loc_PlayerInMinigame && UD_useWidget && UDCDmain.UD_UseWidget
-        showWidget()
-    endif
 
     float durability_onstart = current_device_health
     
     ;main loop, ends only when character run out off stats or device losts all durability
     int         tick_b                 = 0
     int         tick_s                 = 0
-    float         fCurrentUpdateTime     = UDmain.UD_baseUpdateTime
+    float       fCurrentUpdateTime     = UDmain.UD_baseUpdateTime
     
     if !loc_PlayerInMinigame
         fCurrentUpdateTime = 1.0
@@ -3644,12 +3672,12 @@ Function minigame()
     endif    
     
     if !UDOM.isOrgasming(Wearer)
-        libs.EndThirdPersonAnimation(Wearer, cameraState, true) ;ends struggle animation
+        libsp.FastEndThirdPersonAnimation(Wearer) ;ends struggle animation
     endif
     
     if _minigameHelper
         if !UDOM.isOrgasming(_minigameHelper)
-            libs.EndThirdPersonAnimation(_minigameHelper, cameraState, true) ;ends struggle animation
+            libsp.FastEndThirdPersonAnimation(_minigameHelper) ;ends struggle animation
         endif
     endif
     
@@ -3675,12 +3703,6 @@ Function minigame()
         endif
     endif
     
-    ;remove disable
-    UDCDMain.EndMinigameDisable(Wearer)
-    if _minigameHelper
-        UDCDMain.EndMinigameDisable(_minigameHelper)
-    endif
-    
     if UDmain.TraceAllowed()    
         UDCDmain.Log("Minigame ended for: "+ deviceInventory.getName(),1)
     endif
@@ -3702,8 +3724,11 @@ Function minigame()
     GoToState("")
     
     if loc_PlayerInMinigame
-        UDmain.UDNPCM.GoToState("")
+        ;UDmain.UDNPCM.GoToState("")
     endif
+    ;if UD_WearerSlot
+        ;UD_WearerSlot.GoToState("")
+    ;Endif
     
     ;debug message
     if UDmain.DebugMod && UD_damage_device && durability_onstart != current_device_health && loc_WearerIsPlayer
@@ -3715,7 +3740,6 @@ EndFunction
 Function MinigameVarReset()
     if Wearer
         Wearer.RemoveFromFaction(UDCDmain.MinigameFaction)
-        ;StorageUtil.UnSetFormValue(Wearer, "UD_currentMinigameDevice")
     endif
     
     if hasHelper()
@@ -3971,7 +3995,7 @@ Function unlockRestrain(bool forceDestroy = false,bool waitForRemove = True)
         return
     endif
     _isUnlocked = True
-    GoToState("Stopped")
+    GoToState("UpdatePaused")
     if UDmain.TraceAllowed()    
         UDCDmain.Log("unlockRestrain() called for " + self,1)
     endif
@@ -4296,10 +4320,34 @@ string Function getModifiers(string str = "")
         str += "Contains Items\n"
     endif    
     if hasModifier("LootGold")
+        int loc_lootgold_mod = getModifierIntParam("LootGold",2,0)
         if getModifierParamNum("LootGold") > 1
-            str += "Contains Gold ("+ getModifierIntParam("LootGold",0) +"-"+ getModifierIntParam("LootGold",1) +" G)\n"
+            int loc_min     = getModifierIntParam("LootGold",0,0) ;base value
+            int loc_max     = getModifierIntParam("LootGold",1,0) ;base value
+            int loc_min2    = loc_min
+            int loc_max2    = loc_max
+            float loc_lootgold_mod_param = 0.0
+            if loc_lootgold_mod == 0
+                ;nothink
+            elseif loc_lootgold_mod == 1 ;increase % gold based on level per parameter
+                loc_lootgold_mod_param  = getModifierFloatParam("LootGold",3,0.05)
+                loc_min2                = Round(loc_min*(1.0 + loc_lootgold_mod_param*UD_Level))
+                loc_max2                = Round(loc_max*(1.0 + loc_lootgold_mod_param*UD_Level))
+            elseif loc_lootgold_mod == 2 ;increase ABS gold based on level per parameter
+                loc_lootgold_mod_param  = getModifierFloatParam("LootGold",3,10.0)
+                loc_min2                = Round(loc_min + (loc_lootgold_mod_param*UD_Level))
+                loc_max2                = Round(loc_max + (loc_lootgold_mod_param*UD_Level))
+            else    ;unused
+            endif
+            
+            if loc_min != loc_max
+                str += "Contains Gold ("+ loc_min2 +"-"+ loc_max2 +" G)\n"
+            else
+                str += "Contains Gold ("+ loc_max2 +" G)\n"
+            endif
         else
-            str += "Contains Gold ("+ getModifierIntParam("LootGold") +" G)\n"
+            int loc_min = getModifierIntParam("LootGold",0)
+            str += "Contains Gold ("+ loc_min +" G)\n"
         endif
     endif    
 
@@ -4456,19 +4504,17 @@ EndFunction
 Function cutDevice(float progress_add = 1.0)
     _CuttingProgress += progress_add*UDCDmain.getStruggleDifficultyModifier()*UD_MinigameMult1
     if _CuttingProgress >= 100.0
+        ;only show message fo NPC, as player can see progress progress on widget
         if cuttingGame_on
-            if WearerIsPlayer()
-                UDCDmain.Print("You managed to cut "+ getDeviceName() +" and reduce durability by big amount!",2)
-            elseif UDCDmain.AllowNPCMessage(getWearer())
+            if !PlayerInMinigame() && UDCDmain.AllowNPCMessage(getWearer())
                 UDCDmain.Print(getWearerName() + " managed to cut "+getDeviceName()+" and reduce durability by big amount!",3)
             endif
         else
-            if WearerIsPlayer()
-                UDCDmain.Print("Your "+getDeviceName()+" is cutted!",2)
-            elseif UDCDmain.AllowNPCMessage(getWearer())
+            if !PlayerInMinigame() && UDCDmain.AllowNPCMessage(getWearer())
                 UDCDmain.Print(getWearerName() + "s "+ getDeviceName() +" is cutted!",3)
             endif
         endif
+        
         float cond_dmg = 40.0*UDCDmain.getStruggleDifficultyModifier()*(1.0 + _condition_mult_add)
         _total_durability_drain += cond_dmg
         updateCondition()
@@ -5117,7 +5163,7 @@ EndFunction
 ;-------------------------------------------------------------------------------------
 ;-------------------------------------------------------------------------------------
 
-State Stopped
+State UpdatePaused
     Function Update(float timePassed)
         _updateTimePassed += (timePassed*24.0*60.0);*UDCDmain.UD_CooldownMultiplier
     EndFunction

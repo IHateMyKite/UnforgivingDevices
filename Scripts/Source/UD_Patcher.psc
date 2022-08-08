@@ -7,30 +7,30 @@ zadlibs Property libs auto
 UDCustomDeviceMain Property UDCDmain auto
 UD_libs Property UDlibs auto
 
-Float     Property UD_PatchMult         =  1.0     auto ;global patch multiplier, applies to all devices
-int     Property UD_EscapeModifier     =   10     auto
-Int     Property UD_MinLocks        =    1    auto
-Int     Property UD_MaxLocks        =    6    auto
+Float       Property UD_PatchMult           =  1.0     auto ;global patch multiplier, applies to all devices
+int         Property UD_EscapeModifier      =   10     auto
+Int         Property UD_MinLocks            =    1    auto
+Int         Property UD_MaxLocks            =    6    auto
 
 ;difficulty multipliers
-Float Property UD_PatchMult_HeavyBondage     = 1.0 auto
-Float Property UD_PatchMult_Gag             = 1.0 auto
-Float Property UD_PatchMult_Blindfold         = 1.0 auto
-Float Property UD_PatchMult_ChastityBra     = 1.0 auto
-Float Property UD_PatchMult_ChastityBelt     = 1.0 auto
-Float Property UD_PatchMult_Plug             = 1.0 auto
-Float Property UD_PatchMult_Piercing         = 1.0 auto
-Float Property UD_PatchMult_Hood             = 1.0 auto
-Float Property UD_PatchMult_Generic         = 1.0 auto
+Float Property UD_PatchMult_HeavyBondage        = 1.0 auto
+Float Property UD_PatchMult_Gag                 = 1.0 auto
+Float Property UD_PatchMult_Blindfold           = 1.0 auto
+Float Property UD_PatchMult_ChastityBra         = 1.0 auto
+Float Property UD_PatchMult_ChastityBelt        = 1.0 auto
+Float Property UD_PatchMult_Plug                = 1.0 auto
+Float Property UD_PatchMult_Piercing            = 1.0 auto
+Float Property UD_PatchMult_Hood                = 1.0 auto
+Float Property UD_PatchMult_Generic             = 1.0 auto
 
 ;MCM options
 Float Property UD_ManifestMod = 1.0 auto
 
 ;modifiers switches
-Int Property UD_MAOChanceMod = 100 auto
-int Property UD_MAOMod = 100 auto
-Int Property UD_MAHChanceMod = 100 auto
-int Property UD_MAHMod = 100 auto
+Int Property UD_MAOChanceMod    = 100 auto
+int Property UD_MAOMod          = 100 auto
+Int Property UD_MAHChanceMod    = 100 auto
+int Property UD_MAHMod          = 100 auto
 
 Bool Property Ready = False auto
 Event OnInit()

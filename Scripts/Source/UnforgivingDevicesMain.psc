@@ -52,7 +52,11 @@ UD_MenuChecker                      Property UDMC
         return UD_UtilityQuest as UD_MenuChecker
     EndFunction
 EndProperty
-
+UD_SkillManager_Script              Property UDSKILL
+    UD_SkillManager_Script Function get()
+        return (UDCDmain as Quest) as UD_SkillManager_Script
+    EndFunction
+EndProperty
 bool property lockMCM                   = False     auto hidden
 bool property DebugMod                  = False     auto hidden conditional
 bool Property AllowNPCSupport           = False     auto
@@ -178,7 +182,6 @@ Event OnInit()
     Utility.wait(5.0)
     RegisterForModEvent("UD_VibEvent","EventVib")
     RegisterForSingleUpdate(0.1)
-    CheckPatchesOrder()
 EndEvent
 
 Function OnGameReload()

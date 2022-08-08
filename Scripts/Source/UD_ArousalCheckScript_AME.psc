@@ -49,12 +49,13 @@ Event OnUpdate()
     if IsRunning()
         if UDOM.ArousalLoopBreak(akActor,UDOM.UD_ArousalCheckLoop_ver)
             GInfo("UD_ArousalCheckScript_AME("+GetActorName(akActor)+") - ArousalLoopBreak -> dispeling")
-            akActor.DispelSpell(UDCDmain.UDlibs.ArousalCheckSpell)
+            akActor.RemoveSpell(UDCDmain.UDlibs.ArousalCheckSpell)
+            ;akActor.DispelSpell(UDCDmain.UDlibs.ArousalCheckSpell)
         else
             loc_arousalRate = UDOM.getArousalRateM(akActor)
             loc_arousal     = Math.Ceiling(loc_arousalRate)
             
-            if loc_arousal > 0
+            if loc_arousal != 0
                 akActor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.UpdateArousal(akActor ,loc_arousal))
             else
                 akActor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.getActorArousal(akActor))

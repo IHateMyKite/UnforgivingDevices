@@ -6,26 +6,30 @@ UnforgivingDevicesMain Property main auto
 
 ;zadlibs slots
 ;zad_DeviousHood                30
+;hair                           31
 ;zad_DeviousSuit                32
 ;zad_DeviousGloves              33
-;???????????????                33
+;VANILLA                        34-36
 ;zad_DeviousBoots               37
-;???????????????                38
+;VANILLA                        38-43
 ;zad_DeviousGag                 44
 ;zad_DeviousCollar              45
 ;zad_DeviousHeavyBondage        46
+;HIDER                          47
 ;zad_DeviousPlugAnal            48
 ;zad_DeviousBelt                49
 ;zad_DeviousPiercingsVaginal    50
 ;zad_DeviousPiercingsNipple     51
+;SOS                            52
 ;zad_DeviousLegCuffs            53
+;???                            54
 ;zad_DeviousBlindfold           55
 ;zad_DeviousBra                 56
 ;zad_DeviousPlugVaginal         57
 ;zad_DeviousHarness             58
 ;zad_DeviousCorset              58
 ;zad_DeviousArmCuffs            59
-
+;???                            60
 
 ;misc
 MiscObject Property Gold auto
@@ -223,5 +227,6 @@ Spell Property ZAZDroolSpell auto
 Spell Property DEBUGMagickEffect auto
 
 ;skyrim keywords
-Keyword Property ActorTypeNPC auto
-Keyword Property ArmorShield auto
+Keyword  Property ActorTypeNPC auto
+Keyword  Property ArmorShield auto
+FormList Property WeaponKeywords auto

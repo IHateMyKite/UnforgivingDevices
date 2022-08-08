@@ -53,8 +53,19 @@ int _iUsedSlots = 0
 int _iScriptState = 0
 bool Property Ready = False auto hidden
 
-Weapon Property BestWeapon = none auto hidden
-
+;Weapon Property BestWeapon = none auto hidden
+Weapon _BestWeapon
+Weapon Property UD_BestWeapon Hidden
+    Weapon Function get()
+        if !_BestWeapon || GetActor().getItemCount(_BestWeapon) == 0
+            _BestWeapon = GetBestWeapon()
+        endif
+        return _BestWeapon
+    EndFunction
+    Function set(Weapon akWeapon)
+        _BestWeapon = akWeapon
+    EndFunction
+EndProperty
 float Property AgilitySkill         = 0.0 auto hidden
 float Property StrengthSkill        = 0.0 auto hidden
 float Property MagickSkill          = 0.0 auto hidden
@@ -62,6 +73,20 @@ float Property CuttingSkill         = 0.0 auto hidden
 float Property SmithingSkill        = 0.0 auto hidden
 
 float Property ArousalSkillMult     = 1.0 auto hidden
+
+;prevent slot update
+State UpdatePaused
+    Function update(float fTimePassed)
+    EndFunction
+    Function updateHour(float fMult)
+    EndFunction
+    Function UpdateSlot()
+    EndFunction
+    Function DeviceUpdate(UD_CustomDevice_RenderScript akDevice,Float afTimePassed)
+    EndFunction
+    Function UpdateSkills()
+    EndFunction
+EndState
 
 ;update other variables
 Function UpdateSlot()
@@ -559,7 +584,6 @@ Function removeAllDevices()
     ;endDeviceManipulation()
 EndFunction
 
-
 Function removeUnusedDevices()
     startDeviceManipulation()
     int i = 0
@@ -807,11 +831,18 @@ EndFunction
 Function update(float fTimePassed)
     int i = 0
     while UD_equipedCustomDevices[i]
-        if UD_equipedCustomDevices[i].isReady()
-            UD_equipedCustomDevices[i].update(fTimePassed)
-        endif
+        DeviceUpdate(UD_equipedCustomDevices[i],fTimePassed)
+        ;if UD_equipedCustomDevices[i].isReady()
+            ;UD_equipedCustomDevices[i].update(fTimePassed)
+        ;endif
         i+=1
     endwhile
+EndFunction
+
+Function DeviceUpdate(UD_CustomDevice_RenderScript akDevice,Float afTimePassed)
+    if akDevice.isReady()
+        akDevice.update(afTimePassed)
+    endif
 EndFunction
 
 Function updateHour(float fMult)
@@ -1375,10 +1406,8 @@ Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemRefere
     if akBaseItem as Weapon
         Weapon loc_weapon = akBaseItem as Weapon
         if UDCDmain.isSharp(loc_weapon)
-            if !BestWeapon
-                BestWeapon = loc_weapon
-            elseif BestWeapon.getBaseDamage() < loc_weapon.GetBaseDamage()
-                BestWeapon = loc_weapon
+            if _BestWeapon.getBaseDamage() < loc_weapon.GetBaseDamage()
+                _BestWeapon = loc_weapon
             endif
         endif
     endIf
@@ -1387,42 +1416,42 @@ endEvent
 Event OnItemRemoved(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer)
     if akBaseItem as Weapon
         Weapon loc_weapon = akBaseItem as Weapon
-        if loc_weapon == BestWeapon
-            if getActor().getItemCount(BestWeapon) == 0
-                BestWeapon = UDCDmain.getSharpestWeapon(getActor()) ;find the next best weapon
+        if loc_weapon == _BestWeapon
+            if getActor().getItemCount(loc_weapon) == 0
+                _BestWeapon = GetBestWeapon() ;find the next best weapon
             endif
         endif
     endIf
 endEvent
 
 Weapon Function GetBestWeapon()
-    if BestWeapon
-        return BestWeapon
-    else
-        int loc_i = getActor().GetNumItems()
-        while loc_i
-            loc_i -= 1
-            Weapon loc_weapon = getActor().GetNthForm(loc_i) as Weapon
-            if loc_weapon
-                if UDCDmain.isSharp(loc_weapon)
-                    if !BestWeapon
-                        BestWeapon = loc_weapon
-                    elseif (loc_weapon.getBaseDamage() > BestWeapon.GetBaseDamage())
-                        BestWeapon = loc_weapon
-                    endif
+    int loc_i = getActor().GetNumItems()
+    Weapon loc_res = none
+    if getActor().GetItemCount(_BestWeapon)
+        loc_res = _BestWeapon
+    endif
+    while loc_i
+        loc_i -= 1
+        Weapon loc_weapon = getActor().GetNthForm(loc_i) as Weapon
+        if loc_weapon
+            if UDCDmain.isSharp(loc_weapon)
+                if !loc_res
+                    loc_res = loc_weapon
+                elseif (loc_weapon.getBaseDamage() > loc_res.GetBaseDamage())
+                    loc_res = loc_weapon
                 endif
             endif
-        endwhile
-        return BestWeapon
-    endif
+        endif
+    endwhile
+    return loc_res
 EndFunction
 
 Function UpdateSkills()
-    AgilitySkill = UDCDmain.getActorAgilitySkills(getActor())
-    StrengthSkill = UDCDmain.getActorStrengthSkills(getActor())
-    MagickSkill = UDCDmain.getActorMagickSkills(getActor())
-    CuttingSkill = UDCDmain.getActorCuttingSkills(getActor())
-    SmithingSkill = UDCDmain.getActorSmithingSkills(getActor())
+    AgilitySkill    = UDmain.UDSKILL.getActorAgilitySkills(getActor())
+    StrengthSkill   = UDmain.UDSKILL.getActorStrengthSkills(getActor())
+    MagickSkill     = UDmain.UDSKILL.getActorMagickSkills(getActor())
+    CuttingSkill    = UDmain.UDSKILL.getActorCuttingSkills(getActor())
+    SmithingSkill   = UDmain.UDSKILL.getActorSmithingSkills(getActor())
 EndFunction
 
 ;===============================================================================

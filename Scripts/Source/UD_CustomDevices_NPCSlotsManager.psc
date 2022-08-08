@@ -35,6 +35,8 @@ EndEvent
 
 Function GameUpdate()
     CheckOrgasmLoops()
+    RegisterForSingleUpdate(UDCDmain.UD_UpdateTime*2.0)
+    registerForSingleUpdateGameTime(1.0)
 EndFunction
 
 Function CheckOrgasmLoops()
@@ -51,6 +53,8 @@ Function CheckOrgasmLoops()
     endwhile
 EndFunction
 
+Float   _LastUpdateTime     = 0.0
+Float   _UpdateTimePassed   = 0.0
 Event OnUpdate()
     ;init player slot
     if !_PlayerSlotReady
@@ -60,18 +64,38 @@ Event OnUpdate()
     
     if UDmain.UDReady()
         if !UDmain.UD_DisableUpdate
+            float loc_timePassed = Utility.GetCurrentGameTime() - _LastUpdateTime
+            UpdateDevices(loc_timePassed)
+            _LastUpdateTime = Utility.GetCurrentGameTime()
+            
             if UDCDmain.UDmain.AllowNPCSupport
                 scanSlots()
             endif
         endif
-        
         removeDeadNPCs()
-        CheckOrgasmLoops()
-        
-        UpdateSlots() ;update slots, this only update variables, not devices
+        _UpdateTimePassed += UDCDmain.UD_UpdateTime
+        if _UpdateTimePassed >= 120.0
+            CheckOrgasmLoops()
+            UpdateSlots() ;update slots, this only update variables, not devices
+            _UpdateTimePassed = 0.0
+        endif
     endif
-    RegisterForSingleUpdate(UD_SlotUpdateTime)
+    RegisterForSingleUpdate(UDCDmain.UD_UpdateTime)
 EndEvent
+
+float LastUpdateTime_Hour = 0.0 ;last time the update happened in days
+Event OnUpdateGameTime()
+    if UDmain.UDReady()
+        if !UDmain.UD_DisableUpdate
+            Utility.waitMenuMode(Utility.randomFloat(2.0,4.0))
+            float currentgametime = Utility.GetCurrentGameTime()
+            float mult = 24.0*(currentgametime - LastUpdateTime_Hour) ;multiplier for how much more then 1 hour have passed, ex: for 2.5 hours passed without update, the mult will be 2.5
+            UpdateDevicesHour(mult)
+            LastUpdateTime_Hour = Utility.GetCurrentGameTime()
+        endif
+    endif
+    registerForSingleUpdateGameTime(1.0)
+endEvent
 
 Function UpdateSlots()
     int index = UD_Slots ;all aliases
@@ -301,7 +325,7 @@ UD_CustomDevice_NPCSlot Function getPlayerSlot()
     return GetNthAlias(UD_Slots - 1) as UD_CustomDevice_NPCSlot
 EndFunction
 
-Function update(float fTimePassed)
+Function UpdateDevices(float fTimePassed)
     int index = UD_Slots
     while index
         index -= 1
@@ -312,7 +336,7 @@ Function update(float fTimePassed)
     endwhile
 EndFunction
 
-Function updateHour(float fMult)
+Function UpdateDevicesHour(float fMult)
     int index = UD_Slots
     while index
         index -= 1
@@ -360,25 +384,3 @@ bool Function unregisterNPC(Actor akActor,bool bDebugMsg = false)
     endwhile
     return False
 EndFunction
-
-Function CheckOrgasmManagerLoops()
-    int index = UD_Slots
-    while index
-        index -= 1
-        UD_CustomDevice_NPCSlot slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
-        if slot.isUsed()
-            if !slot.getActor().IsInFaction(UDOM.OrgasmCheckLoopFaction)
-                UDOM.StartOrgasmCheckLoop(slot.getActor())
-            endif
-            if !slot.getActor().IsInFaction(UDOM.ArousalCheckLoopFaction)
-                UDOM.StartArousalCheckLoop(slot.getActor())
-            endif
-        endif
-    endwhile    
-EndFunction
-
-State SlotUpdateStopped
-    Event OnUpdate()
-        RegisterForSingleUpdate(UD_SlotUpdateTime*0.5)
-    EndEvent
-EndState
