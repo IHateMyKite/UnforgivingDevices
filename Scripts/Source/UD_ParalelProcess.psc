@@ -294,18 +294,18 @@ Function Receive_MinigameParalel(Form fActor)
         akHelper.setAV("StaminaRate", staminaRateHelper)
         akHelper.setAV("HealRate", HealRateHelper)
         akHelper.setAV("MagickaRate", magickaRateHelper)            
-    endif    
-
-    loc_device.hideHUDbars() ;hides HUD (not realy?)
-    
-    if loc_device.WearerIsPlayer() || loc_device.HelperIsPlayer()
-        loc_device.hideWidget()
     endif
     
     ;remove disable
     UDCDMain.EndMinigameDisable(akActor)
     if akHelper
         UDCDMain.EndMinigameDisable(akHelper)
+    endif
+    
+    loc_device.hideHUDbars() ;hides HUD (not realy?)
+    
+    if loc_device.WearerIsPlayer() || loc_device.HelperIsPlayer()
+        loc_device.hideWidget()
     endif
     
     UDEM.ResetExpressionRaw(akActor,15)

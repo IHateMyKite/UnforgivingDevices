@@ -472,7 +472,7 @@ Function setOrgasmRate(float fOrgasmRate,float fOrgasmForcing)
     if (fOrgasmRate != _appliedOrgasmRate || fOrgasmForcing != _appliedForcing) && isVibrating()
         _appliedOrgasmRate = fOrgasmRate
         _appliedForcing = fOrgasmForcing
-        UDCDmain.UDOM.UpdateOrgasmRate(getWearer(),_appliedOrgasmRate,_appliedForcing)
+        UDOM.UpdateOrgasmRate(getWearer(),_appliedOrgasmRate,_appliedForcing)
     endif
 EndFunction
 
@@ -484,7 +484,7 @@ Function removeOrgasmRate()
         float loc_appliedForcing    = _appliedForcing
         _appliedForcing = 0.0
         
-        UDCDmain.UDOM.removeOrgasmRate(getWearer(),loc_appliedOrgasmRate,loc_appliedForcing)
+        UDOM.removeOrgasmRate(getWearer(),loc_appliedOrgasmRate,loc_appliedForcing)
     endif
 EndFunction
 
@@ -496,7 +496,7 @@ EndFunction
 Function setArousalRate(float fArousalRate)
     if fArousalRate != _appliedArousalRate 
         _appliedArousalRate = fArousalRate
-        UDCDmain.UDOM.UpdateArousalRate(getWearer() ,fArousalRate)
+        UDOM.UpdateArousalRate(getWearer() ,fArousalRate)
     endif
 EndFunction
 
@@ -504,7 +504,7 @@ Function removeArousalRate()
     if _appliedArousalRate != 0
         float loc_appliedArousalRate = _appliedArousalRate
         _appliedArousalRate = 0
-        UDCDmain.UDOM.UpdateArousalRate(getWearer() ,-1*loc_appliedArousalRate)
+        UDOM.UpdateArousalRate(getWearer() ,-1*loc_appliedArousalRate)
     endif
 EndFunction
 
@@ -560,7 +560,7 @@ Function vibrate(float fDurationMult = 1.0)
     endif
     
     if UDmain.TraceAllowed()    
-        UDCDmain.Log("Vibrate called for " + getDeviceName() + " on " + getWearerName() + ", duration: " + _currentVibRemainingDuration + ", strength: " + _currentVibStrength + ", edging: " + _currentEdgingMode)
+        UDmain.Log("Vibrate called for " + getDeviceName() + " on " + getWearerName() + ", duration: " + _currentVibRemainingDuration + ", strength: " + _currentVibStrength + ", edging: " + _currentEdgingMode)
     endif
     
     ;/
@@ -575,12 +575,12 @@ Function vibrate(float fDurationMult = 1.0)
     StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", _currentVibStrength)
     
     
-    UDCDmain.SendModEvent("DeviceVibrateEffectStart", getWearerName(), getCurrentZadVibStrenth())
+    UDmain.SendModEvent("DeviceVibrateEffectStart", getWearerName(), getCurrentZadVibStrenth())
         
     if WearerIsPlayer()
-        UDCDmain.Print(getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",3)
+        UDmain.Print(getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",3)
     elseif UDCDmain.AllowNPCMessage(GetWearer())
-        UDCDmain.Print(getWearerName() + "s " + getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",3)
+        UDmain.Print(getWearerName() + "s " + getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",3)
     endif
 
     ; Initialize Sounds
@@ -651,11 +651,11 @@ EndFunction
 Function ProccesVibEdge()
     if isVibrating() && !_paused
         if _currentEdgingMode == 1
-            if UDCDmain.UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
+            if UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
                 if WearerIsPlayer()
                     UDCDmain.Print(getDeviceName() + " suddenly stops vibrating!",3)
                 endif
-                while UDCDmain.UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold*0.95
+                while UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold*0.95
                     pauseVibFor(10)
                     Utility.wait(0.25)
                 endwhile
@@ -664,7 +664,7 @@ Function ProccesVibEdge()
                 endif
             endif
         elseif _currentEdgingMode == 2
-            if UDCDmain.UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
+            if UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
                 if Utility.randomInt() < iRange(_currentVibStrength,40,80)
                     if WearerIsPlayer()
                         UDCDmain.Print(getDeviceName() + " suddenly stops vibrating!",3)

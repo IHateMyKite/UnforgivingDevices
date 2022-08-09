@@ -120,12 +120,15 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
             akActor.EquipItemEx(deviceInventory, 0, false, true)	
             loc_res = true
         endif
+        
         if loc_slot
             loc_slot.ProccesLockMutex()
         elseif loc_mutex
             loc_mutex.EvaluateLockMutex()
         endif
+        
         zad_AlwaysSilent.RemoveAddedForm(akActor)
+        
         if UDmain.TraceAllowed()    
             if loc_slot
                 UDCDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation completed - NPC slot: " + loc_slot,1)
@@ -1051,50 +1054,47 @@ Armor Function GetRenderedDevice(armor device)
 EndFunction
 
 Function UpdateControls()
-    if !UDCDmain.PlayerInMinigame()
-        ProcessPlayerControls(true)
-    endif
+    ProcessPlayerControls(true) ;only update when player is not in minigame
 EndFunction
 
 Function ProcessPlayerControls(bool abCheckMinigame = true)
     if UDmain.TraceAllowed()
         UDMain.Log("ProcessPlayerControls",3)
     endif
-    
-    ; Centralized control management function.
-    bool movement = true
-    bool fighting = true
-    bool sneaking = true
-    bool menu = true
-    
-    ;check hardcore mode
-    if UDmain.Player.HasMagicEffectWithKeyword(UDCDmain.UDlibs.HardcoreDisable_KW)
-        menu = false
-    else
-        menu = true
-    endif
-        
-    bool activate = true
-    int cameraState = Game.GetCameraState()
-    if playerRef.WornHasKeyword(zad_DeviousBlindfold) && (config.BlindfoldMode == 1 || config.BlindfoldMode == 0) && (cameraState == 8 || cameraState == 9)
-        movement = false
-        sneaking = false
-    EndIf
-    
-    if IsBound(playerRef)
-        If playerRef.WornHasKeyword(zad_BoundCombatDisableKick)
-            fighting = false            
-        Else
-            fighting = config.UseBoundCombat            
-        Endif
-    EndIf
-    if playerRef.WornHasKeyword(zad_DeviousPetSuit)
-        sneaking = false
-    EndIf    
-    if playerRef.WornHasKeyword(zad_DeviousPonyGear)
-        sneaking = false
-    EndIf
     if (!abCheckMinigame || !UDCDmain.PlayerInMinigame())
+        ; Centralized control management function.
+        bool movement = true
+        bool fighting = true
+        bool sneaking = true
+        bool menu = true
+        
+        ;check hardcore mode
+        if UDmain.Player.HasMagicEffectWithKeyword(UDCDmain.UDlibs.HardcoreDisable_KW)
+            menu = false
+        else
+            menu = true
+        endif
+            
+        bool activate = true
+        int cameraState = Game.GetCameraState()
+        if playerRef.WornHasKeyword(zad_DeviousBlindfold) && (config.BlindfoldMode == 1 || config.BlindfoldMode == 0) && (cameraState == 8 || cameraState == 9)
+            movement = false
+            sneaking = false
+        EndIf
+        
+        if IsBound(playerRef)
+            If playerRef.WornHasKeyword(zad_BoundCombatDisableKick)
+                fighting = false            
+            Else
+                fighting = config.UseBoundCombat            
+            Endif
+        EndIf
+        if playerRef.WornHasKeyword(zad_DeviousPetSuit)
+            sneaking = false
+        EndIf    
+        if playerRef.WornHasKeyword(zad_DeviousPonyGear)
+            sneaking = false
+        EndIf
         Game.DisablePlayerControls(abMovement = !movement, abFighting = !fighting, abSneaking = !sneaking, abMenu = !menu, abActivate = !activate)    
         Game.EnablePlayerControls(abMovement = movement, abFighting = fighting, abSneaking = sneaking, abMenu = menu, abActivate = activate) 
     endif    
