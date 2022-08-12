@@ -393,6 +393,13 @@ Function SendOrgasmEvent()
         ModEvent.PushFloat(loc_id, loc_forcing)
         ModEvent.Send(loc_id)
     endif
+    Int loc_handle = ModEvent.Create("DeviceActorOrgasmExp")
+    if loc_handle
+        ModEvent.PushForm(loc_handle, UDOM)         ;Event source (zadlibs), in case that some other mode might call this function from different place
+        ModEvent.PushForm(loc_handle, akActor)      ;Actor
+        ModEvent.PushInt(loc_handle, loc_arousal)   ;Arousal after orgasm
+        ModEvent.Send(loc_handle)
+    endif
 EndFunction
 
 Function SendEdgeEvent()
@@ -404,6 +411,12 @@ Function SendEdgeEvent()
         ModEvent.PushInt(loc_id, loc_edgelevel)
         ModEvent.PushFloat(loc_id, loc_forcing)
         ModEvent.Send(loc_id)
+    endif
+    Int loc_handle = ModEvent.Create("DeviceActorEdgeExp")
+    if loc_handle
+        ModEvent.PushForm(loc_handle, UDOM)         ;Event source (zadlibs), in case that some other mode might call this function from different place
+        ModEvent.PushForm(loc_handle, akActor)      ;Actor
+        ModEvent.Send(loc_handle)
     endif
 EndFunction
 

@@ -309,25 +309,23 @@ Function stopVibratingAndWait()
     endif
 EndFunction
 
-bool _forceMutex
 
-Function StartForceMutex()
-    while _forceMutex
+bool _manipMutex
+Function StartManipMutex()
+    while _manipMutex
         Utility.waitMenuMode(0.1)
     endwhile
-    _forceMutex = true
+    _manipMutex = true
 EndFunction
-Function StopForceMutex()
-    _forceMutex = false
-    if !isVibrating()
-        StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", -1*_currentVibStrength)
-    endif
+
+Function EndManipMutex()
+    _manipMutex = false
 EndFunction
 
 Function ForceStrength(int iStrenth)
     _forceStrength = iStrenth
     if isVibrating()
-        StartForceMutex()
+        StartManipMutex()
         StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", -1*_currentVibStrength)
         _currentVibStrength = _forceStrength
         StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", _currentVibStrength)
@@ -335,14 +333,14 @@ Function ForceStrength(int iStrenth)
             UpdateVibSound()
             UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
         endif
-        StopForceMutex()
+        EndManipMutex()
     endif
 EndFunction
 
 Function ForceModStrength(float fModifier)
     _forceStrength = Round(UD_VibStrength*fModifier)
     if isVibrating()
-        StartForceMutex()
+        StartManipMutex()
         StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", -1*_currentVibStrength)
         _currentVibStrength = _forceStrength
         StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", _currentVibStrength)
@@ -350,46 +348,54 @@ Function ForceModStrength(float fModifier)
             UpdateVibSound()
             UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
         endif
-        StopForceMutex()
+        EndManipMutex()
     endif
 EndFunction
 
 Function ForceDuration(int iDuration)
     if iDuration != 0
+        StartManipMutex()
         _forceDuration = iDuration
         if isVibrating()
             _currentVibRemainingDuration += _forceDuration
         endif
+        EndManipMutex()
     endif
 EndFunction
 
 Function ForceModDuration(float fModifier)
     if fModifier >= 0.1
+        StartManipMutex()
         _forceDuration = Round(UD_VibDuration*fModifier)
         if isVibrating()
             _currentVibRemainingDuration += _forceDuration
         endif
+        EndManipMutex()
     endif
 EndFunction
 
 Function addVibDuration(int iValue = 1)
     if isVibrating()
+        StartManipMutex()
         _currentVibRemainingDuration += iValue
+        EndManipMutex()
     endif
 EndFunction
 
 Function removeVibDuration(int iValue = 1)
     if isVibrating()
+        StartManipMutex()
         _currentVibRemainingDuration -= iValue
         if _currentVibRemainingDuration < 0
             _currentVibRemainingDuration = 0
         endif
+        EndManipMutex()
     endif
 EndFUnction
 
 Function addVibStrength(int iValue = 1)
     if isVibrating()
-        StartForceMutex()
+        StartManipMutex()
         StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", -1*_currentVibStrength)
         _currentVibStrength += iValue
         if _currentVibStrength > 100
@@ -400,13 +406,13 @@ Function addVibStrength(int iValue = 1)
             UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
             UpdateVibSound()
         endif
-        StopForceMutex()
+        EndManipMutex()
     endif
 EndFunction
 
 Function removeVibStrength(int iValue = 1)
     if isVibrating()
-        StartForceMutex()
+        StartManipMutex()
         StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", -1*_currentVibStrength)
         _currentVibStrength -= iValue
         if _currentVibStrength < 0
@@ -418,13 +424,15 @@ Function removeVibStrength(int iValue = 1)
             UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
             UpdateVibSound()
         endif
-        StopForceMutex()
+        EndManipMutex()
     endif
 EndFUnction
 
 Function forceEdgingMode(int iMode)
+    StartManipMutex()
     _forceEdgingMode = iMode
     _currentEdgingMode = _forceEdgingMode
+    EndManipMutex()
 EndFunction
 
 float Function getVibArousalRate(float mult = 1.0)
@@ -523,7 +531,14 @@ Sound Function getVibrationSound()
 EndFunction
 
 ;custom function made to improve on DD function VibrateEffect and better implement it in to my mod
+bool Property VibLoopOn = false auto hidden
 Function vibrate(float fDurationMult = 1.0)
+    ;mutex
+    if VibLoopOn
+        return
+    endif
+    VibLoopOn = true
+    
     if isVibrating()
         return
     endif
@@ -646,6 +661,7 @@ Function vibrate(float fDurationMult = 1.0)
     _forceEdgingMode = -1
     _currentVibStrength = 0
     OnVibrationEnd()
+    VibLoopOn = false
 EndFunction
 
 Function ProccesVibEdge()

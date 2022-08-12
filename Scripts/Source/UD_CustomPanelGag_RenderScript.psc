@@ -165,17 +165,17 @@ Function plugGag(bool silent = false)
     if !silent
         if hasHelper()
             if WearerIsPlayer()
-                debug.notification(getHelperName() +" inserted plug in to yours " + getDeviceName() + "!")
+                UDmain.Print(getHelperName() +" inserted plug in to yours " + getDeviceName() + "!",1)
             elseif WearerIsFollower() && HelperIsPlayer()
-                debug.notification("You inserted the plug in "+getWearerName()+"s "+ getDeviceName())
+                UDmain.Print("You inserted the plug in "+getWearerName()+"s "+ getDeviceName(),1)
             elseif WearerIsFollower()
-                debug.notification(getHelperName() + " inserted plug in to the "+getWearerName()+"s "+ getDeviceName())
+                UDmain.Print(getHelperName() + " inserted plug in to the "+getWearerName()+"s "+ getDeviceName(),1)
             endif
         else
             if WearerIsPlayer()
-                debug.notification("You insert the plug in to the panel gag")
+                UDmain.Print("You insert the plug in to the panel gag",1)
             elseif WearerIsFollower()
-                debug.notification(getWearerName()+" inserts the plug in to the "+ getDeviceName())
+                UDmain.Print(getWearerName()+" inserts the plug in to the "+ getDeviceName(),1)
             endif
         endif
     endif
@@ -188,17 +188,17 @@ Function unplugGag(bool silent = false)
     if !silent
         if hasHelper()
             if WearerIsPlayer()
-                debug.notification("With " + getHelperName() +"s help you managed to remove the plug from the panel gag.")
+                UDmain.Print("With " + getHelperName() +"s help you managed to remove the plug from the panel gag.",1)
             elseif WearerIsFollower() && HelperIsPlayer()
-                debug.notification("You helped  "+getWearerName()+" to remove the plug from the "+ getDeviceName())
+                UDmain.Print("You helped  "+getWearerName()+" to remove the plug from the "+ getDeviceName(),1)
             elseif WearerIsFollower()
-                debug.notification(getHelperName() + " helped "+getWearerName()+" to remove the plug from the "+ getDeviceName())
+                UDmain.Print(getHelperName() + " helped "+getWearerName()+" to remove the plug from the "+ getDeviceName(),1)
             endif
         else
             if WearerIsPlayer()
-                debug.notification("You removed the plug from the "+ getDeviceName() +"!")
+                UDmain.Print("You removed the plug from the "+ getDeviceName() +"!",1)
             elseif WearerIsFollower()
-                debug.notification(getWearerName()+" removed the plug from the "+ getDeviceName())
+                UDmain.Print(getWearerName()+" removed the plug from the "+ getDeviceName(),1)
             endif
         endif
     endif
@@ -228,9 +228,9 @@ EndFunction
 
 Function activateDevice()
     if WearerIsPlayer()
-        debug.notification("Your panel gag plugs itself!")
+        UDmain.Print("Your panel gag plugs itself!",1)
     elseif WearerIsFollower()
-        debug.notification(getWearerName() + "s " + getDeviceName()+" plugs itself!")        
+        UDmain.Print(getWearerName() + "s " + getDeviceName()+" plugs itself!",2)        
     endif
     addPlug()
 EndFunction

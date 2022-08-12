@@ -119,9 +119,9 @@ bool Function struggleMinigame(int type = -1)
     else
         unlockRestrain()
         if WearerIsPlayer()
-            debug.notification("You succefully forced out " + deviceInventory.getName())
+            UDmain.Print("You succefully forced out " + deviceInventory.getName(),1)
         elseif WearerIsFollower()
-            debug.notification(getWearerName() + "s "+ getDeviceName() +" got removed!")
+            UDmain.Print(getWearerName() + "s "+ getDeviceName() +" got removed!",1)
         endif
     endif
     return true
@@ -133,9 +133,9 @@ bool Function struggleMinigameWH(Actor akSource)
     else
         unlockRestrain()
         if WearerIsPlayer()
-            debug.notification("With help of "+ getHelperName() +", you succefully forced out " + deviceInventory.getName() + " !")
+            UDmain.Print("With help of "+ getHelperName() +", you succefully forced out " + deviceInventory.getName() + " !",1)
         elseif WearerIsFollower()
-            debug.notification(getWearerName() + "s "+ getDeviceName() +" got removed!")
+            UDmain.Print(getWearerName() + "s "+ getDeviceName() +" got removed!",1)
         endif
     endif
     return true
@@ -225,15 +225,15 @@ Function inflate(bool silent = false,int iInflateNum = 1)
         if !silent
             if hasHelper()
                 if WearerIsPlayer()
-                    debug.notification(getHelperName() + " helped you to inflate yours " + getDeviceName() + "!")
+                    UDmain.Print(getHelperName() + " helped you to inflate yours " + getDeviceName() + "!",1)
                 elseif WearerIsFollower() && HelperIsPlayer()
-                    debug.notification("You helped to inflate " + getWearerName() + "s " + getDeviceName() + "!")
+                    UDmain.Print("You helped to inflate " + getWearerName() + "s " + getDeviceName() + "!",1)
                 elseif WearerIsFollower()
-                    debug.notification(getHelperName() + " helped to inflate " + getWearerName() + "s " + getDeviceName() + "!")
+                    UDmain.Print(getHelperName() + " helped to inflate " + getWearerName() + "s " + getDeviceName() + "!",1)
                 endif            
             else
                 if WearerIsPlayer()
-                    debug.notification("You succesfully inflated yours " + getDeviceName())
+                    UDmain.Print("You succesfully inflated yours " + getDeviceName(),1)
                     
                     if currentVal == 0
                         libs.notify("Your plug is completely deflated and doesn't stimulate you very much. You could slide it out of you, if you wish. That or you could give the pump a healthy squeeze and make it more fun!", messagebox = true)
@@ -249,7 +249,7 @@ Function inflate(bool silent = false,int iInflateNum = 1)
                         libs.notify("Your plug is fully inflated and almost bursting inside you. It's causing you more discomfort than anything. But no matter what - you won't be able to remove it from your body anytime soon.", messagebox = true)        
                     EndIf    
                 elseif WearerIsFollower()
-                    debug.notification(getWearerName() + "s " + getDeviceName() + " inflated!")
+                    UDmain.Print(getWearerName() + "s " + getDeviceName() + " inflated!",2)
                 endif
             endif
         endif

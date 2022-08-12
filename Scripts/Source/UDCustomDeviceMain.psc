@@ -66,11 +66,10 @@ float   Property UD_BaseDeviceSkillIncrease         = 35.0      auto hidden
 float   Property UD_CooldownMultiplier              = 1.0       auto hidden
 Bool    Property UD_AutoCrit                        = False     auto hidden
 Int     Property UD_AutoCritChance                  = 80        auto hidden
-Int     Property UD_MinigameHelpCd                  = 45        auto
-Float   Property UD_MinigameHelpCD_PerLVL           = 15.0      auto;CD % decrease per Helper LVL
-Int     Property UD_MinigameHelpXPBase              = 35        auto
-Float   Property UD_MutexTimeOutTime                = 1.0       auto
-Float   Property UD_LockUnlockMutexTimeOutTime      = 5.0       autoreadonly    hidden
+Int     Property UD_MinigameHelpCd                  = 60        auto hidden
+Float   Property UD_MinigameHelpCD_PerLVL           = 10.0      auto hidden ;CD % decrease per Helper LVL
+Int     Property UD_MinigameHelpXPBase              = 35        auto hidden
+Float   Property UD_MutexTimeOutTime                = 1.0       auto hidden
 bool    Property UD_AllowArmTie                     = true      auto hidden
 bool    Property UD_AllowLegTie                     = true      auto hidden
 Int     Property UD_BlackGooRareDeviceChance        = 10        auto hidden
@@ -393,9 +392,17 @@ Function CheckHardcoreDisabler(Actor akActor)
             UDmain.Player.DispelSpell(UDlibs.HardcoreDisableSpell)
         endif
         if UDmain.Player.wornhaskeyword(libs.zad_deviousHeavyBondage) && !UDmain.Player.HasSpell(UDlibs.HardcoreDisableSpell)
-            ;only apply if heavy bondage device is UD
-            UD_CustomDevice_RenderScript loc_hbdevice = GetHeavyBondageDevice(UDmain.Player)
-            if loc_hbdevice
+            bool loc_applyeffect = false
+            if UDmain.Player.wornhaskeyword(UDlibs.InvisibleHBKW)
+                loc_applyeffect = true ;player have invisible heavy bondage (from cuffs)
+            else
+                ;only apply if heavy bondage device is UD
+                UD_CustomDevice_RenderScript loc_hbdevice = GetHeavyBondageDevice(UDmain.Player)
+                if loc_hbdevice
+                    loc_applyeffect = true
+                endif
+            endif
+            if loc_applyeffect
                 UDmain.Player.AddSpell(UDlibs.HardcoreDisableSpell,false)
             endif
         endif
@@ -997,11 +1004,13 @@ EndFunction
 Bool Property UD_CurrentNPCMenuIsFollower = False auto conditional hidden
 Bool Property UD_CurrentNPCMenuIsRegistered = False auto conditional hidden
 Bool Property UD_CurrentNPCMenuTargetIsHelpless = False auto conditional hidden
+Bool Property UD_CurrentNPCMenuTargetIsInMinigame = False auto conditional hidden
 Function NPCMenu(Actor akActor)
     SetMessageAlias(akActor)
     UD_CurrentNPCMenuIsFollower = ActorIsFollower(akActor)
     UD_CurrentNPCMenuIsRegistered = isRegistered(akActor)
     UD_CurrentNPCMenuTargetIsHelpless = (!actorFreeHands(akActor) || akActor.getAV("paralysis") || akActor.GetSleepState() == 3) && actorFreeHands(UDmain.Player)
+    UD_CurrentNPCMenuTargetIsInMinigame = ActorInMinigame(akActor)
     int loc_res = NPCDebugMenuMsg.show()
     if loc_res == 0
         UDCD_NPCM.RegisterNPC(akActor,true)
@@ -1028,6 +1037,8 @@ Function NPCMenu(Actor akActor)
         endif
     elseif loc_res == 8
         showActorDetails(akActor)
+    elseif loc_res == 9
+        getMinigameDevice(akActor).StopMinigame()
     else
         return
     endif
@@ -1087,7 +1098,7 @@ float Function CalculateHelperCD(Actor akActor,Int iLevel = 0)
         iLevel = GetHelperLVL(akActor)
     endif
     float loc_res = UD_MinigameHelpCd - Round((iLevel - 1)*(UD_MinigameHelpCD_PerLVL/100.0)*UD_MinigameHelpCd)
-    loc_res = fRange(loc_res,5.0,600.0) ;crop the value
+    loc_res = fRange(loc_res,5.0,60.0*24.0) ;crop the value
     loc_res = loc_res/(60.0*24.0) ;convert to days
     return loc_res
 EndFunction
@@ -1103,6 +1114,9 @@ int Function ResetHelperCD(Actor akHelper,Actor akHelped,Int iXP = 0)
     return loc_lvl
 EndFunction
 
+Int Function CalculateHelperXpRequired(Int aiLevel)
+    return Round(aiLevel*100*Math.Pow(1.03,aiLevel))
+EndFunction
 
 ;returns updated lvl
 int Function addHelperXP(Actor akHelper, int iXP)
@@ -1110,9 +1124,14 @@ int Function addHelperXP(Actor akHelper, int iXP)
     int loc_currentLVL = GetHelperLVL(akHelper)
     int loc_nextXP = loc_currentXP + iXP
     int loc_nextLVL = loc_currentLVL
-    while loc_nextXP >= loc_nextLVL*100
-        loc_nextXP -= loc_nextLVL*100
+    while loc_nextXP >= CalculateHelperXpRequired(loc_nextLVL)
+        loc_nextXP -= CalculateHelperXpRequired(loc_nextLVL)
         loc_nextLVL += 1
+        if UDmain.ActorIsPlayer(akHelper)
+            UDmain.Print("Your Helper skill level increased to " + loc_nextLVL + " !")
+        elseif ActorIsFollower(akHelper)
+            UDmain.Print(GetActorName(akHelper) + "s Helper level have increased to " + loc_nextLVL + " !")
+        endif
     endwhile
     StorageUtil.SetIntValue(akHelper,"UDNPCXP",loc_nextXP)
     if loc_nextLVL != loc_currentLVL
@@ -1128,7 +1147,7 @@ EndFunction
 float Function GetHelperLVLProgress(Actor akHelper)
     int loc_currentXP = StorageUtil.GetIntValue(akHelper,"UDNPCXP",0)
     int loc_currentLVL = StorageUtil.GetIntValue(akHelper,"UDNPCLVL",1)
-    return loc_currentXP/(100.0*(loc_currentLVL))
+    return loc_currentXP/CalculateHelperXpRequired(loc_currentLVL);(100.0*(loc_currentLVL))
 EndFunction
 
 Function PlayerMenu()
@@ -1412,6 +1431,8 @@ EndFunction
 ;//////////////////////////////////////;
 ;-Used to return absolute and relative skill values which are used by some minigames
 
+Int Property UD_SkillEfficiency = 1 auto ;% increase per one skill point
+
 float Function GetAgilitySkill(Actor akActor)
     UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(akActor)
     if loc_slot
@@ -1429,7 +1450,7 @@ float Function getActorAgilitySkills(Actor akActor)
 EndFunction
 
 float Function getActorAgilitySkillsPerc(Actor akActor)
-    return GetAgilitySkill(akActor)/100.0
+    return GetAgilitySkill(akActor)*UD_SkillEfficiency/100.0
 EndFunction
 
 float Function GetStrengthSkill(Actor akActor)
@@ -1449,7 +1470,7 @@ float Function getActorStrengthSkills(Actor akActor)
 EndFunction
 
 float Function getActorStrengthSkillsPerc(Actor akActor)
-    return GetStrengthSkill(akActor)/100.0
+    return GetStrengthSkill(akActor)*UD_SkillEfficiency/100.0
 EndFunction
 
 float Function GetMagickSkill(Actor akActor)
@@ -1469,7 +1490,7 @@ float Function getActorMagickSkills(Actor akActor)
 EndFunction
 
 float Function getActorMagickSkillsPerc(Actor akActor)
-    return GetMagickSkill(akActor)/100.0
+    return GetMagickSkill(akActor)*UD_SkillEfficiency/100.0
 EndFunction
 
 float Function GetCuttingSkill(Actor akActor)
@@ -1488,7 +1509,7 @@ float Function getActorCuttingSkills(Actor akActor)
 EndFunction
 
 float Function getActorCuttingSkillsPerc(Actor akActor)
-    return GetCuttingSkill(akActor)/100.0
+    return GetCuttingSkill(akActor)*UD_SkillEfficiency/100.0
 EndFunction
 
 float Function GetSmithingSkill(Actor akActor)
@@ -1508,7 +1529,7 @@ float Function getActorSmithingSkills(Actor akActor)
 EndFunction
 
 float Function getActorSmithingSkillsPerc(Actor akActor)
-    return GetSmithingSkill(akActor)/100.0
+    return GetSmithingSkill(akActor)*UD_SkillEfficiency/100.0
 EndFunction
 
 int Function GetPerkSkill(Actor akActor, Formlist akPerkList, int aiSkillPerPerk = 10)
@@ -2231,7 +2252,8 @@ bool Function activateDevice(UD_CustomDevice_RenderScript udCustomDevice)
             UD_CustomDevice_RenderScript[] loc_device_arr = getActiveDevices(udCustomDevice.getWearer())
             UD_CustomDevice_RenderScript loc_device = loc_device_arr[Utility.randomInt(0,loc_num - 1)]
             if udCustomDevice.WearerIsPlayer()
-                debug.notification("Your " + udCustomDevice.getDeviceName() + " activates " + loc_device.getDeviceName() + " !!")
+                ;debug.notification("Your " + udCustomDevice.getDeviceName() + " activates " + loc_device.getDeviceName() + " !!")
+                UDmain.Print("Your " + udCustomDevice.getDeviceName() + " activates " + loc_device.getDeviceName() + " !!",2)
             endif
             udCustomDevice = loc_device
         else

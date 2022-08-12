@@ -272,6 +272,7 @@ int UD_HearingRange_S
 int UD_InfoLevel_M
 string[] UD_InfoLevel_AS
 int UD_WarningAllowed_T
+Int UD_PrintLevel_S
 Event resetGeneralPage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -287,7 +288,7 @@ Event resetGeneralPage()
     AddHeaderOption("General settings")
     addEmptyOption()
     UD_hightPerformance_T   = addToggleOption("Hight performance mod",UDmain.UD_hightPerformance)
-    UD_NPCSupport_T         = addToggleOption("NPC Auto Scan",UDmain.AllowNPCSupport,FlagSwitch(False)) ;disable for now as this feature is long time unupdated and most likely broken
+    UD_NPCSupport_T         = addToggleOption("NPC Auto Scan",UDmain.AllowNPCSupport,FlagSwitch(true)) ;disable for now as this feature is long time unupdated and most likely broken
     
     UD_RandomFilter_T       = AddInputOption("Random filter", Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFF), UD_LockMenu_flag)
     UD_HearingRange_S       = addSliderOption("Message range:",UDmain.UD_HearingRange,"{0}")
@@ -295,12 +296,15 @@ Event resetGeneralPage()
     lockmenu_T              = addToggleOption("Lock menus",UDmain.lockMCM,UD_LockMenu_flag)
     UD_useHoods_T           = addToggleOption("Use hoods",UDIM.UD_useHoods,UD_LockMenu_flag)
     
+    UD_InfoLevel_M          = AddMenuOption("Info level", UD_InfoLevel_AS[UDmain.UD_InfoLevel])
+    UD_PrintLevel_S         = addSliderOption("Message level",UDmain.UD_PrintLevel, "{0}")
+    
     AddHeaderOption("Debug")
     addEmptyOption()
     UD_debugmod_T           = addToggleOption("Debug mod",UDmain.DebugMod)
     UD_LoggingLevel_S       = addSliderOption("Logging level",UDmain.LogLevel, "{0}")
     
-    UD_InfoLevel_M          = AddMenuOption("Info level", UD_InfoLevel_AS[UDmain.UD_InfoLevel])
+    addEmptyOption()
     UD_WarningAllowed_T     = addToggleOption("Warnings allowed",UDmain.UD_WarningAllowed)
 EndEvent
 
@@ -323,12 +327,17 @@ int UD_LockpickMinigameNum_S
 int UD_WidgetPosX_M
 int UD_WidgetPosY_M
 int UD_BaseDeviceSkillIncrease_S
+Int UD_SkillEfficiency_S
 int UD_CooldownMultiplier_S
 string[] criteffectList
 int UD_CritEffect_M
 int UD_HardcoreMode_T
 int UD_AllowArmTie_T
 int UD_AllowLegTie_T
+
+Int UD_MinigameHelpCd_S
+Int UD_MinigameHelpCD_PerLVL_S
+Int UD_MinigameHelpXPBase_S
 Event resetCustomBondagePage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -348,11 +357,27 @@ Event resetCustomBondagePage()
     UD_UpdateTime_S = addSliderOption("Update time: ",UDCDmain.UD_UpdateTime, "{0} s")
     UD_CooldownMultiplier_S = addSliderOption("Cooldown multiplier: ",Round(UDCDmain.UD_CooldownMultiplier*100), "{0} %",UD_LockMenu_flag)
     
-    UD_BaseDeviceSkillIncrease_S = addSliderOption("Skill advance: ",UDCDmain.UD_BaseDeviceSkillIncrease, "{0}",UD_LockMenu_flag)
+    addEmptyOption()
     UD_LockpickMinigameNum_S = addSliderOption("Lockpicks per minigame: ",UDCDmain.UD_LockpicksPerMinigame, "{0}",UD_LockMenu_flag)
     
     UD_AllowArmTie_T = addToggleOption("Arm tie:", UDCDmain.UD_AllowArmTie,UD_LockMenu_flag)
     UD_AllowLegTie_T = addToggleOption("Leg tie:", UDCDmain.UD_AllowLegTie,UD_LockMenu_flag)
+    
+    ;SKILL
+    AddHeaderOption("Skill setting")
+    addEmptyOption()
+    
+    UD_BaseDeviceSkillIncrease_S = addSliderOption("Skill advance: ",UDCDmain.UD_BaseDeviceSkillIncrease, "{0}",UD_LockMenu_flag)
+    UD_SkillEfficiency_S = addSliderOption("Skill efficiency: ",UDCDmain.UD_SkillEfficiency, "{0} %",UD_LockMenu_flag)
+    
+    ;HELPER SETTING
+    AddHeaderOption("Helping setting")
+    addEmptyOption()
+    UD_MinigameHelpCd_S = addSliderOption("Base cooldown: ",UDCDmain.UD_MinigameHelpCd, "{0} min",UD_LockMenu_flag)
+    UD_MinigameHelpXPBase_S = addSliderOption("Base XP gain: ",UDCDmain.UD_MinigameHelpXPBase, "{0} XP",UD_LockMenu_flag)
+    
+    UD_MinigameHelpCD_PerLVL_S = addSliderOption("LVL Cooldown Modifier: ",UDCDmain.UD_MinigameHelpCD_PerLVL, "{0} %",UD_LockMenu_flag)
+    addEmptyOption()
     
     ;HARDCORE SWIMMING
     AddHeaderOption("Unforgiving Swimming")
@@ -706,6 +731,7 @@ Function OptionCustomBondage(int option)
     elseif(option == UD_UseWidget_T)
         UDCDmain.UD_UseWidget = !UDCDmain.UD_UseWidget
         SetToggleOptionValue(UD_UseWidget_T, UDCDmain.UD_UseWidget)
+        forcePageReset()
     elseif option == UD_AutoCrit_T    
         UDCDmain.UD_AutoCrit = !UDCDmain.UD_AutoCrit
         if UDCDmain.UD_AutoCrit
@@ -909,6 +935,11 @@ Function OnOptionSliderOpenGeneral(int option)
         SetSliderDialogDefaultValue(1.0)
         SetSliderDialogRange(0.0, 3.0)
         SetSliderDialogInterval(1.0)    
+    elseif option == UD_PrintLevel_S
+        SetSliderDialogStartValue(UDmain.UD_PrintLevel)
+        SetSliderDialogDefaultValue(3.0)
+        SetSliderDialogRange(0.0, 3.0)
+        SetSliderDialogInterval(1.0)  
     elseif option == UD_HearingRange_S
         SetSliderDialogStartValue(UDmain.UD_HearingRange)
         SetSliderDialogDefaultValue(UDmain.UD_HearingRange)
@@ -928,7 +959,6 @@ Function OnOptionSliderOpenCustomBondage(int option)
         SetSliderDialogDefaultValue(100.0)
         SetSliderDialogRange(25.0, 500.0)
         SetSliderDialogInterval(5.0)
-
     elseif (option == UD_LockpickMinigameNum_S)
         SetSliderDialogStartValue(UDCDmain.UD_LockpicksPerMinigame)
         SetSliderDialogDefaultValue(2.0)
@@ -944,11 +974,31 @@ Function OnOptionSliderOpenCustomBondage(int option)
         SetSliderDialogDefaultValue(10.0)
         SetSliderDialogRange(1.0, 1000.0)
         SetSliderDialogInterval(1.0)
+    elseif option == UD_SkillEfficiency_S
+        SetSliderDialogStartValue(UDCDmain.UD_SkillEfficiency)
+        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogRange(1.0, 10.0)
+        SetSliderDialogInterval(1.0)
     elseif option == UD_GagPhonemModifier_S
         SetSliderDialogStartValue(UDCDmain.UD_GagPhonemModifier)
         SetSliderDialogDefaultValue(0.0)
         SetSliderDialogRange(0.0, 100.0)
         SetSliderDialogInterval(1.0)
+    elseif option == UD_MinigameHelpCd_S
+        SetSliderDialogStartValue(UDCDmain.UD_MinigameHelpCd)
+        SetSliderDialogDefaultValue(60.0)
+        SetSliderDialogRange(5.0, 60.0*24.0)
+        SetSliderDialogInterval(5.0)
+    elseif option == UD_MinigameHelpCD_PerLVL_S
+        SetSliderDialogStartValue(UDCDmain.UD_MinigameHelpCD_PerLVL)
+        SetSliderDialogDefaultValue(10.0)
+        SetSliderDialogRange(1.0, 100.0)
+        SetSliderDialogInterval(1.0)
+    elseif option == UD_MinigameHelpXPBase_S
+        SetSliderDialogStartValue(UDCDmain.UD_MinigameHelpXPBase)
+        SetSliderDialogDefaultValue(35.0)
+        SetSliderDialogRange(5.0, 200.0)
+        SetSliderDialogInterval(5.0)
     endif
 EndFunction
 
@@ -1139,6 +1189,9 @@ Function OnOptionSliderAcceptGeneral(int option, float value)
     if (option == UD_LoggingLevel_S)
         UDmain.LogLevel = Round(value)
         SetSliderOptionValue(UD_LoggingLevel_S, UDmain.LogLevel, "{0}")
+    elseif option == UD_PrintLevel_S
+        UDmain.UD_PrintLevel = Round(value)
+        SetSliderOptionValue(UD_PrintLevel_S, UDmain.UD_PrintLevel, "{0}")
     elseif option == UD_RandomFilter_T
         UDmain.UDRRM.UD_RandomDevice_GlobalFilter =  Math.LogicalXor(round(value),0xFFFF)
         SetSliderOptionValue(UD_RandomFilter_T, Round(value), "{0}")
@@ -1164,9 +1217,21 @@ Function OnOptionSliderAcceptCustomBondage(int option, float value)
     elseif (option == UD_BaseDeviceSkillIncrease_S)
         UDCDmain.UD_BaseDeviceSkillIncrease = round(value)
         SetSliderOptionValue(UD_BaseDeviceSkillIncrease_S, UDCDmain.UD_BaseDeviceSkillIncrease, "{0}")
+    elseif option == UD_SkillEfficiency_S
+        UDCDmain.UD_SkillEfficiency = round(value)
+        SetSliderOptionValue(UD_SkillEfficiency_S, UDCDmain.UD_SkillEfficiency, "{0} %")
     elseif option == UD_GagPhonemModifier_S
         UDCDmain.UD_GagPhonemModifier = round(value)
         SetSliderOptionValue(UD_GagPhonemModifier_S, UDCDmain.UD_GagPhonemModifier, "{0}")
+    elseif option == UD_MinigameHelpCd_S
+        UDCDmain.UD_MinigameHelpCd = round(value)
+        SetSliderOptionValue(UD_MinigameHelpCd_S, UDCDmain.UD_MinigameHelpCd, "{0} min")
+    elseif option == UD_MinigameHelpCD_PerLVL_S
+        UDCDmain.UD_MinigameHelpCD_PerLVL = Round(value)
+        SetSliderOptionValue(UD_MinigameHelpCD_PerLVL_S, UDCDmain.UD_MinigameHelpCD_PerLVL, "{0} %")
+    elseif option == UD_MinigameHelpXPBase_S
+        UDCDmain.UD_MinigameHelpXPBase = round(value)
+        SetSliderOptionValue(UD_MinigameHelpXPBase_S, UDCDmain.UD_MinigameHelpXPBase, "{0} XP")
     endif
 EndFunction
 
@@ -1510,6 +1575,8 @@ Function GeneralPageInfo(int option)
         SetInfoText("Determinates amount of information shown in Actor detail panel\nDefault: Default")
     elseif option == UD_WarningAllowed_T
         SetInfoText("Toggle Warning console messages.\nDefault: OFF")
+    elseif option == UD_PrintLevel_S
+        SetInfoText("Messege level for notifications which show to user. The lower this value is, the less messages will appear in top left. 0 will disable all messages\nDefault: 3")
     Endif
 EndFunction
 Function CustomBondagePageInfo(int option)
@@ -1537,6 +1604,8 @@ Function CustomBondagePageInfo(int option)
         SetInfoText("Change number of lockpicks player can use in lockpick minigame.\nDefault: 2")
     elseif option == UD_BaseDeviceSkillIncrease_S
         SetInfoText("How many skill points are acquired for second of struggling.\nDefault: 35")
+    elseif option == UD_SkillEfficiency_S
+        SetInfoText("How many percets is minigame easier per skill point\nExample: If Strength skill is 50 and efficiency is 1%, desperate minigame will be 50% more powerfull\nDefault: 1 %")
     elseif option == UD_AutoCrit_T
         SetInfoText("Toggle auto crit. Auto crit will crit instead of user. Use this if you don't like crits or you can't crit for some other reason.\nDefault: OFF")
     elseif option == UD_AutoCritChance_S
@@ -1551,6 +1620,12 @@ Function CustomBondagePageInfo(int option)
         SetInfoText("Toggle Arm tie active effect from Arm cuffs. Toogling this off will prevent effect from activating.\nDefault: ON")
     elseif option == UD_AllowLegTie_T
         SetInfoText("Toggle Leg tie active effect from Leg cuffs. Toogling this off will prevent effect from activating.\nDefault: ON")
+    elseif option == UD_MinigameHelpCd_S
+        SetInfoText("Base cooldown which activates after one character helps another character. Character can't help others while on cooldown\nDefault: 60 minutes")
+    elseif option == UD_MinigameHelpCD_PerLVL_S
+        SetInfoText("By how many % will base cooldown reduce per Helper LVL\nDefault: 10 %")
+    elseif option == UD_MinigameHelpXPBase_S
+        SetInfoText("How any XP will character get after helping others.\nXP Formula: XPNEEDED = LVL*100*1.03^LVL\nDefault: 35 XP")
     Endif
 EndFunction
 
@@ -1740,6 +1815,7 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "HearingRange", UDmain.UD_HearingRange)
     JsonUtil.SetIntValue(strFile, "InfoLevel", UDmain.UD_InfoLevel)
     JsonUtil.SetIntValue(strFile, "WarningAllowed", UDmain.UD_WarningAllowed as Int)
+    JsonUtil.SetIntValue(strFile, "PrintLevel", UDmain.UD_PrintLevel)
     
 
     ;UDCDmain
@@ -1771,12 +1847,17 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "HornyAnimation", UDCDmain.UDOM.UD_HornyAnimation as Int)
     JsonUtil.SetIntValue(strFile, "HornyAnimationDuration", UDCDmain.UDOM.UD_HornyAnimationDuration)
     JsonUtil.SetFloatValue(strFile, "CooldownMultiplier", UDCDmain.UD_CooldownMultiplier)
+    JsonUtil.SetIntValue(strFile, "SkillEfficiency", UDCDmain.UD_SkillEfficiency)
     
     JsonUtil.SetIntValue(strFile, "CritEffect", UDCDmain.UD_CritEffect)
     JsonUtil.SetIntValue(strFile, "HardcoreMode", UDCDmain.UD_HardcoreMode as Int)
     JsonUtil.SetIntValue(strFile, "AllowArmTie", UDCDmain.UD_AllowArmTie as Int)
     JsonUtil.SetIntValue(strFile, "AllowLegTie", UDCDmain.UD_AllowLegTie as Int)
     
+    JsonUtil.SetIntValue(strFile, "MinigameHelpCD", UDCDmain.UD_MinigameHelpCd)
+    JsonUtil.SetIntValue(strFile, "MinigameHelpCD_PerLVL", Round(UDCDmain.UD_MinigameHelpCD_PerLVL))
+    JsonUtil.SetIntValue(strFile, "MinigameHelpXPBase", UDCDmain.UD_MinigameHelpXPBase)
+
     ;ABADON
     JsonUtil.SetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
     JsonUtil.SetIntValue(strFile, "AbadonForceSetPref", AbadonQuest.final_finisher_pref as Int)
@@ -1829,6 +1910,7 @@ Function LoadFromJSON(string strFile)
     UDmain.UD_HearingRange = JsonUtil.GetIntValue(strFile, "HearingRange", UDmain.UD_HearingRange)
     UDmain.UD_InfoLevel = JsonUtil.GetIntValue(strFile, "InfoLevel", UDmain.UD_InfoLevel)
     UDmain.UD_WarningAllowed = JsonUtil.GetIntValue(strFile, "WarningAllowed", UDmain.UD_WarningAllowed as Int)
+    UDmain.UD_PrintLevel = JsonUtil.GetIntValue(strFile, "PrintLevel", UDmain.UD_PrintLevel)
 
     ;UDCDmain
     UDCDmain.UnregisterGlobalKeys()
@@ -1866,11 +1948,17 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UDOM.UD_HornyAnimation = JsonUtil.GetIntValue(strFile, "HornyAnimation", UDCDmain.UDOM.UD_HornyAnimation as Int)
     UDCDmain.UDOM.UD_HornyAnimationDuration = JsonUtil.GetIntValue(strFile, "HornyAnimationDuration", UDCDmain.UDOM.UD_HornyAnimationDuration)
     UDCDmain.UD_CooldownMultiplier = JsonUtil.GetFloatValue(strFile, "CooldownMultiplier", UDCDmain.UD_CooldownMultiplier)
+    UDCDMain.UD_SkillEfficiency = JsonUtil.GetIntValue(strFile, "SkillEfficiency", UDCDmain.UD_SkillEfficiency)
     
-    UDCDmain.UD_CritEffect = JsonUtil.GetIntValue(strFile, "CritEffect", UDCDmain.UD_CritEffect)
-    UDCDmain.UD_HardcoreMode = JsonUtil.GetIntValue(strFile, "HardcoreMode", UDCDmain.UD_HardcoreMode as Int)
-    UDCDmain.UD_AllowArmTie = JsonUtil.GetIntValue(strFile, "AllowArmTie", UDCDmain.UD_AllowArmTie as Int)
-    UDCDmain.UD_AllowLegTie = JsonUtil.GetIntValue(strFile, "AllowLegTie", UDCDmain.UD_AllowLegTie as Int)
+    
+    UDCDmain.UD_CritEffect      = JsonUtil.GetIntValue(strFile, "CritEffect", UDCDmain.UD_CritEffect)
+    UDCDmain.UD_HardcoreMode    = JsonUtil.GetIntValue(strFile, "HardcoreMode", UDCDmain.UD_HardcoreMode as Int)
+    UDCDmain.UD_AllowArmTie     = JsonUtil.GetIntValue(strFile, "AllowArmTie", UDCDmain.UD_AllowArmTie as Int)
+    UDCDmain.UD_AllowLegTie     = JsonUtil.GetIntValue(strFile, "AllowLegTie", UDCDmain.UD_AllowLegTie as Int)
+    
+    UDCDmain.UD_MinigameHelpCd  = JsonUtil.GetIntValue(strFile, "MinigameHelpCD",UDCDmain.UD_MinigameHelpCd)
+    UDCDmain.UD_MinigameHelpCD_PerLVL   = JsonUtil.GetIntValue(strFile, "MinigameHelpCD_PerLVL", Round(UDCDmain.UD_MinigameHelpCD_PerLVL))
+    UDCDmain.UD_MinigameHelpXPBase      = JsonUtil.GetIntValue(strFile, "MinigameHelpXPBase", UDCDmain.UD_MinigameHelpXPBase)
     
     ;ABADON
     AbadonQuest.final_finisher_set = JsonUtil.GetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
@@ -1922,6 +2010,8 @@ Function ResetToDefaults()
     UDmain.UD_HearingRange = 4000
     UDmain.UD_InfoLevel = 1
     UDmain.UD_WarningAllowed = false
+    UDmain.UD_PrintLevel = 3
+    
     ;UDCDmain
     UDCDmain.UnregisterGlobalKeys()
     if !Game.UsingGamepad()
@@ -1972,6 +2062,12 @@ Function ResetToDefaults()
     UDCDmain.UD_HardcoreMode = false
     UDCDmain.UD_AllowArmTie = true
     UDCDmain.UD_AllowLegTie = true
+    UDCDMain.UD_SkillEfficiency = 1
+    
+    
+    UDCDmain.UD_MinigameHelpCd                      = 60
+    UDCDmain.UD_MinigameHelpCD_PerLVL               = 10
+    UDCDmain.UD_MinigameHelpXPBase                  = 35
     
     ;ABADON
     AbadonQuest.final_finisher_set = true
@@ -1979,23 +2075,23 @@ Function ResetToDefaults()
     AbadonQuest.UseAnalVariant = false
     
     ;PATCHER
-    UDCDmain.UDPatcher.UD_MAOChanceMod = 100
-    UDCDmain.UDPatcher.UD_MAOMod = 100
-    UDCDmain.UDPatcher.UD_MAHChanceMod = 100
-    UDCDmain.UDPatcher.UD_MAHMod = 100
-    UDCDmain.UDPatcher.UD_EscapeModifier = 10
-    UDCDmain.UDPatcher.UD_MinLocks = 1
-    UDCDmain.UDPatcher.UD_MaxLocks = 6
+    UDCDmain.UDPatcher.UD_MAOChanceMod              = 100
+    UDCDmain.UDPatcher.UD_MAOMod                    = 100
+    UDCDmain.UDPatcher.UD_MAHChanceMod              = 100
+    UDCDmain.UDPatcher.UD_MAHMod                    = 100
+    UDCDmain.UDPatcher.UD_EscapeModifier            = 10
+    UDCDmain.UDPatcher.UD_MinLocks                  = 1
+    UDCDmain.UDPatcher.UD_MaxLocks                  = 6
     UDCDmain.UDPatcher.UD_PatchMult                 = 1.0
-    UDCDmain.UDPatcher.UD_PatchMult_HeavyBondage     = 1.0
-    UDCDmain.UDPatcher.UD_PatchMult_Blindfold         = 1.0
+    UDCDmain.UDPatcher.UD_PatchMult_HeavyBondage    = 1.0
+    UDCDmain.UDPatcher.UD_PatchMult_Blindfold       = 1.0
     UDCDmain.UDPatcher.UD_PatchMult_Gag             = 1.0
-    UDCDmain.UDPatcher.UD_PatchMult_Hood             = 1.0    
-    UDCDmain.UDPatcher.UD_PatchMult_ChastityBelt     = 1.0
-    UDCDmain.UDPatcher.UD_PatchMult_ChastityBra      = 1.0
-    UDCDmain.UDPatcher.UD_PatchMult_Plug             = 1.0
-    UDCDmain.UDPatcher.UD_PatchMult_Piercing         = 1.0
-    UDCDmain.UDPatcher.UD_PatchMult_Generic          = 1.0
+    UDCDmain.UDPatcher.UD_PatchMult_Hood            = 1.0    
+    UDCDmain.UDPatcher.UD_PatchMult_ChastityBelt    = 1.0
+    UDCDmain.UDPatcher.UD_PatchMult_ChastityBra     = 1.0
+    UDCDmain.UDPatcher.UD_PatchMult_Plug            = 1.0
+    UDCDmain.UDPatcher.UD_PatchMult_Piercing        = 1.0
+    UDCDmain.UDPatcher.UD_PatchMult_Generic         = 1.0
     
     ;Other
     UDIM.UD_UseHoods = true

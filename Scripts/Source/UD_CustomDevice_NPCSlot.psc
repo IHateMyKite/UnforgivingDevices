@@ -357,7 +357,22 @@ Function fix()
             int loc_i = 0
             string[] loc_list
             while loc_i < 32
-                loc_list = PapyrusUtil.PushString(loc_list,UD_BodySlots[loc_i].getName() + " ( " +UD_BodySlots[loc_i] + " )")
+                String loc_string = "[" +(30 + loc_i) + "] "
+                if UD_BodySlots[loc_i].getName()
+                    loc_string += UD_BodySlots[loc_i].getName() ;armor have name, use it
+                else
+                    loc_string += UD_BodySlots[loc_i] ;armor doesn't have name, show editor ID
+                    if UD_BodySlots[loc_i].HasKeyWord(UDmain.UDlibs.UnforgivingDevice)
+                        loc_string += " (UD)"
+                    elseif UD_BodySlots[loc_i].HasKeyWord(libs.zad_Lockable)
+                        loc_string += " (DD)"
+                    elseif UD_BodySlots[loc_i] == libs.DevicesUnderneath.zad_DeviceHider
+                        loc_string += " (HIDER)" 
+                    endif
+                endif
+                
+                
+                loc_list = PapyrusUtil.PushString(loc_list,loc_string)
                 loc_i += 1
             endwhile
             loc_list = PapyrusUtil.PushString(loc_list,"-BACK-")
@@ -1376,19 +1391,21 @@ Function regainDevices()
     
     ;super complex shit
     int removedDevices = removeWrongWearerDevices()
-    int iItem = _currentSlotedActor.GetNumItems()
-    while iItem
-        iItem -= 1
-        Armor ArmorDevice = _currentSlotedActor.GetNthForm(iItem) as Armor
+    int loc_slotmask = 0x80000000;_currentSlotedActor.GetNumItems()
+    while loc_slotmask
+        loc_slotmask = Math.RightShift(loc_slotmask,1)
+        Armor ArmorDevice = _currentSlotedActor.GetWornForm(loc_slotmask) as Armor;GetNthForm(iItem) as Armor
         if ArmorDevice
-            if ArmorDevice.hasKeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
+            if ArmorDevice.hasKeyword(UDCDmain.UDlibs.UnforgivingDevice)
                 ;render device with custom script -> register
-                if !deviceAlreadyRegistered(ArmorDevice)
-                    UD_CustomDevice_RenderScript script = UDCDmain.FetchDeviceByInventory(_currentSlotedActor,ArmorDevice)
+                if !deviceAlreadyRegisteredRender(ArmorDevice)
+                    UD_CustomDevice_RenderScript script = UDCDmain.getDeviceScriptByRender(_currentSlotedActor,ArmorDevice)
                     if _currentSlotedActor.getItemCount(script.DeviceInventory) && _currentSlotedActor.getItemCount(script.DeviceRendered)
                         if registerDevice(script)
-                            UDCDmain.Log("UD_CustomDevice_NPCSlot,"+ self +"/ Device "+ script.getDeviceName() + " succesfully registered!",1)
-                        endif    
+                            if UDmain.TraceAllowed()
+                                UDmain.Log("UD_CustomDevice_NPCSlot,"+ self +"/ Device "+ script.getDeviceName() + " succesfully registered!",2)
+                            endif
+                        endif
                     endif
                 endif
             endif

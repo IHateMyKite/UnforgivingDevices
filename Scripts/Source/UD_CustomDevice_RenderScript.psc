@@ -3097,7 +3097,7 @@ bool Function keyMinigameWH(Actor akHelper)
 EndFunction
 
 Function tightUpDevice(Actor akSource)
-    debug.notification(akSource.getActorBase().getName() + " tighted " + getWearerName() + " " + getDeviceName() + " !")
+    UDmain.Print(akSource.getActorBase().getName() + " tighted " + getWearerName() + " " + getDeviceName() + " !",1)
     current_device_health += Utility.randomFloat(5.0,15.0)
     if (current_device_health > UD_Health)
         current_device_health = UD_Health
@@ -3106,7 +3106,7 @@ Function tightUpDevice(Actor akSource)
 EndFunction
 
 Function repairDevice(Actor akSource)
-    debug.notification(akSource.getActorBase().getName() + " repaired " + getWearerName() + " " + getDeviceName() + " !")
+    UDmain.Print(akSource.getActorBase().getName() + " repaired " + getWearerName() + " " + getDeviceName() + " !",1)
     current_device_health += Utility.randomFloat(15.0,30.0)
     if (current_device_health > UD_Health)
         current_device_health = UD_Health
@@ -3362,16 +3362,16 @@ EndFunction
 bool Function minigamePostcheck()
     if !checkMinAV() ;check wearer AVs
         if WearerIsPlayer() ;message related to player wearer
-            debug.notification("You are too exhausted. Try later, after you regain your strength.")
+            UDmain.Print("You are too exhausted. Try later, after you regain your strength.",1)
         else ;message related to NPC wearer
-            debug.notification(getWearerName()+" is too exhausted!")
+            UDmain.Print(getWearerName()+" is too exhausted!",1)
         endif
         return false
     elseif hasHelper() && !checkMinAVHelper()
         if HelperIsPlayer() ;message related to player helper
-            debug.notification("You are too exhausted and can't help "+getWearerName()+".")    
+            UDmain.Print("You are too exhausted and can't help "+getWearerName()+".",1)    
         else ;message related to NPC helper
-            debug.notification(getHelperName()+" is too exhausted and unable to help you.")
+            UDmain.Print(getHelperName()+" is too exhausted and unable to help you.",1)
         endif
         return false
     endif
@@ -3732,7 +3732,7 @@ Function minigame()
     
     ;debug message
     if UDmain.DebugMod && UD_damage_device && durability_onstart != current_device_health && loc_WearerIsPlayer
-        debug.notification("[Debug] Durability reduced: "+ formatString(durability_onstart - current_device_health,3) + "\n")
+        UDmain.Print("[Debug] Durability reduced: "+ formatString(durability_onstart - current_device_health,3) + "\n",1)
     endif
     
 EndFunction

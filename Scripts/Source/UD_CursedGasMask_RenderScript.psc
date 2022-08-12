@@ -15,9 +15,9 @@ EndFunction
 
 Function activateDevice()
     if WearerIsPlayer()
-        debug.notification(getDeviceName() + " is forcing you to inhale aphrodisiacs!")
+        UDmain.Print(getDeviceName() + " is forcing you to inhale aphrodisiacs!",1)
     elseif WearerIsFollower()
-        debug.notification(getDeviceName() + " is forcing "+ getWearerName() +" to inhale aphrodisiacs!")
+        UDmain.Print(getDeviceName() + " is forcing "+ getWearerName() +" to inhale aphrodisiacs!",1)
     endif
     
     Spell loc_spell = UDCDmain.UDlibs.AphrodisiacsSpell

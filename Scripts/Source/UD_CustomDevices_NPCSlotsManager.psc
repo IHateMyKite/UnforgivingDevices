@@ -68,7 +68,7 @@ Event OnUpdate()
             UpdateDevices(loc_timePassed)
             _LastUpdateTime = Utility.GetCurrentGameTime()
             
-            if False;UDCDmain.UDmain.AllowNPCSupport
+            if UDmain.AllowNPCSupport
                 scanSlots()
             endif
         endif
@@ -204,22 +204,24 @@ Function updateSlotedActors(bool debugMsg = False)
                             slot.unregisterSlot()
                             
                             slot.SetSlotTo(currentSelectedActor)        
-                            if debugMsg || UDCDmain.UDmain.DebugMod
+                            if debugMsg || UDmain.DebugMod
                                 debug.notification("[UD]: NPC /" + slot.getSlotedNPCName() + "/ registered!")
                             endif
+                            UDmain.Info("Registered NPC " + getActorName(currentSelectedActor))
                         endif
                     else
                         slot.unregisterSlot()
                         slot.SetSlotTo(currentSelectedActor)
                         
-                        if debugMsg || UDCDmain.UDmain.DebugMod
+                        if debugMsg || UDmain.DebugMod
                             debug.notification("[UD]: NPC /" + slot.getSlotedNPCName() + "/ registered!")
                         endif
+                        UDmain.Info("Registered NPC " + getActorName(currentSelectedActor))
                     endif
                     
-                    if slot.isUsed()
-                        slot.regainDevices()
-                    endif
+                    ;if slot.isUsed()
+                    ;    slot.regainDevices()
+                    ;endif
                 endif
             endif
         else

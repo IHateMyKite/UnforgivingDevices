@@ -32,7 +32,6 @@ Function Fragment_2()
 ;BEGIN CODE
 Alias_LetterAlias.GetReference().Enable() ;If you marked your note alias as "Initially Disabled"
 CourierScript.AddItemToContainer(Alias_LetterAlias.GetReference())
-;debug.notification("Courier sent!")
 ;END CODE
 EndFunction
 ;END FRAGMENT
