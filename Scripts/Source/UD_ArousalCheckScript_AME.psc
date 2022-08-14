@@ -53,7 +53,7 @@ Event OnUpdate()
             ;akActor.DispelSpell(UDCDmain.UDlibs.ArousalCheckSpell)
         else
             loc_arousalRate = UDOM.getArousalRateM(akActor)
-            loc_arousal     = Math.Ceiling(loc_arousalRate)
+            loc_arousal     = Round(loc_arousalRate)
             
             if loc_arousal != 0
                 akActor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.UpdateArousal(akActor ,loc_arousal))

@@ -1731,7 +1731,7 @@ EndFunction
 
 Function resetCooldown()
     _updateTimePassed = 0.0
-    _currentRndCooldown = CalculateCooldown();iRange(Round(UD_Cooldown*Utility.randomFloat(0.75,1.25)*UDCDmain.UD_CooldownMultiplier),0,24*60*60*10)
+    _currentRndCooldown = CalculateCooldown()
 EndFunction
 
 Function UpdateCooldown()
@@ -3931,14 +3931,14 @@ Function critDevice()
             repairLock(15.0*UD_MinigameMult1)
         endif
         
-        libs.Pant(Wearer)
-        
-        advanceSkill(4.0)
-        
         OnCritDevicePost()
         if PlayerInMinigame() && UDCDmain.UD_UseWidget && UD_UseWidget
             updateWidget()
         endif
+        
+        libs.Pant(Wearer)
+        
+        advanceSkill(4.0)
     endif
 EndFunction
 
@@ -4572,24 +4572,27 @@ EndFunction
 
 ;repair lock by progress_add
 Function repairLock(float progress_add = 1.0)
-    _RepairProgress += progress_add*UDCDmain.getStruggleDifficultyModifier()
-    if _RepairProgress >= getLockDurability()
-        if WearerIsPlayer()
-            UDCDmain.Print("You managed to repair one of the locks!")
-        elseif UDCDmain.AllowNPCMessage(GetWearer())
-            UDCDmain.Print(GetWearerName() + " managed to repair one of the "+ getDeviceName() +" locks!")
-        endif
-
-        UD_JammedLocks -= 1
+    Float loc_RepairProgress = _RepairProgress
+    loc_RepairProgress += progress_add*UDCDmain.getStruggleDifficultyModifier()
+    bool loc_repaired = false
+    while loc_RepairProgress >= getLockDurability()
+        loc_repaired = true
+        loc_RepairProgress -= getLockDurability()
+        UD_JammedLocks  -= 1
         if UD_JammedLocks == 0
             libs.UnJamLock(Wearer,UD_DeviceKeyword)
             repairLocksMinigame_on = False
             stopMinigame()
+            loc_RepairProgress = 0.0
         endif
-        ;updateCondition()
-        _RepairProgress = 0.0
-        ;stopMinigame()
-        ;repairLocksMinigame_on = False
+    endwhile
+    _RepairProgress = loc_RepairProgress
+    if loc_repaired
+        if WearerIsPlayer()
+            UDmain.Print("You repaired one or more locks! " + UD_JammedLocks + "/" + UD_CurrentLocks + " locks remaining",1)
+        elseif UDCDmain.AllowNPCMessage(GetWearer())
+            UDmain.Print(GetWearerName() + " managed to repair one or more of the "+ getDeviceName() +" locks!",2)
+        endif
     endif
 EndFunction
 

@@ -346,6 +346,7 @@ Int UD_DeviceLvlLockpick_S
 Int UD_DeviceLvlLocks_S
 
 Int UD_PreventMasterLock_T
+Int UD_MandatoryCrit_T
 Event resetCustomBondagePage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -405,7 +406,7 @@ Event resetCustomBondagePage()
     AddHeaderOption("Device Crits")
     AddEmptyOption()
     UD_CritEffect_M = AddMenuOption("Crit effect:", criteffectList[UDCDmain.UD_CritEffect])
-    AddEmptyOption()
+    UD_MandatoryCrit_T = addToggleOption("Mandatory crit:", UDCDmain.UD_MandatoryCrit);,UD_LockMenu_flag)
     
     UD_AutoCrit_T = addToggleOption("Auto crit:", UDCDmain.UD_AutoCrit,UD_LockMenu_flag)    
     UD_AutoCritChance_S = addSliderOption("Auto crit chance: ",UDCDmain.UD_AutoCritChance, "{0} %",FlagSwitchOr(UD_autocrit_flag,UD_LockMenu_flag))
@@ -796,6 +797,9 @@ Function OptionCustomBondage(int option)
     elseif option == UD_PreventMasterLock_T
         UDCDmain.UD_PreventMasterLock = !UDCDmain.UD_PreventMasterLock
         SetToggleOptionValue(UD_PreventMasterLock_T, UDCDmain.UD_PreventMasterLock)  
+    elseif option == UD_MandatoryCrit_T
+        UDCDmain.UD_MandatoryCrit = !UDCDmain.UD_MandatoryCrit
+        SetToggleOptionValue(UD_MandatoryCrit_T, UDCDmain.UD_MandatoryCrit)  
     endif
 EndFunction
 
@@ -1722,6 +1726,8 @@ Function CustomBondagePageInfo(int option)
         SetInfoText("Prevent devices from having locks with master difficulty\nDefault: OFF")
     elseif option == UD_DeviceLvlLocks_S
         SetInfoText("How many levels are needed for number of maximum locks to increase.Setting this to 0 will disable Lock level scaling\nExample: If this is 5, and device have level 10, maximum level will be increased by 2\nDefault: 5")
+    elseif option == UD_MandatoryCrit_T
+        SetInfoText("When this option is enabled, not landing crits will punish player\nDefault: OFF")
     Endif
 EndFunction
 
@@ -1971,6 +1977,8 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "PostOrgasmArousalReduce", UDOM.UD_OrgasmArousalReduce)
     JsonUtil.SetIntValue(strFile, "PostOrgasmArousalReduce_Duration", UDOM.UD_OrgasmArousalReduceDuration)
 
+    JsonUtil.SetIntValue(strFile, "MandatoryCrit", UDCDmain.UD_MandatoryCrit as Int)
+
     ;ABADON
     JsonUtil.SetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
     JsonUtil.SetIntValue(strFile, "AbadonForceSetPref", AbadonQuest.final_finisher_pref as Int)
@@ -2081,6 +2089,8 @@ Function LoadFromJSON(string strFile)
     
     UDOM.UD_OrgasmArousalReduce = JsonUtil.GetIntValue(strFile, "PostOrgasmArousalReduce", UDOM.UD_OrgasmArousalReduce)
     UDOM.UD_OrgasmArousalReduceDuration = JsonUtil.GetIntValue(strFile, "PostOrgasmArousalReduce_Duration", UDOM.UD_OrgasmArousalReduceDuration)
+    
+    UDCDmain.UD_MandatoryCrit = JsonUtil.GetIntValue(strFile, "MandatoryCrit", UDCDmain.UD_MandatoryCrit as Int)
     
     ;ABADON
     AbadonQuest.final_finisher_set = JsonUtil.GetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
@@ -2200,6 +2210,7 @@ Function ResetToDefaults()
     UDOM.UD_OrgasmArousalReduce             = 25
     UDOM.UD_OrgasmArousalReduceDuration     =  7
     
+    UDCDmain.UD_MandatoryCrit                   = False
     ;ABADON
     AbadonQuest.final_finisher_set = true
     AbadonQuest.final_finisher_pref = 0

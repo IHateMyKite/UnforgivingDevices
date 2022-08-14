@@ -484,7 +484,7 @@ Function removeOrgasmRate()
         float loc_appliedForcing    = _appliedForcing
         _appliedForcing = 0.0
         
-        UDOM.removeOrgasmRate(getWearer(),loc_appliedOrgasmRate,loc_appliedForcing)
+        UDOM.UpdateOrgasmRate(getWearer(),-1*loc_appliedOrgasmRate,-1*loc_appliedForcing)
     endif
 EndFunction
 

@@ -910,9 +910,10 @@ bool Function KeyIsUsedGlobaly(int keyCode)
     return UDUI.KeyIsUsedGlobaly(keyCode)
 EndFunction
 
-bool Property crit = false auto hidden
-string Property selected_crit_meter =  "Error" auto hidden
-Int Property UD_CritEffect = 2 auto hidden
+bool    Property crit = false auto hidden
+string  Property selected_crit_meter    =  "Error" auto hidden
+Int     Property UD_CritEffect = 2 auto hidden
+Bool    Property UD_MandatoryCrit       = False auto
 Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string strArg, float difficulty)
     string meter
     if Utility.randomInt(1,100) <= chance
@@ -972,6 +973,12 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
         endif
         
         Utility.wait(difficulty)
+        if UD_MandatoryCrit
+            if crit
+                crit = False
+                device.CritFailure()
+            endif
+        endif
         crit = False
     endif    
 EndEvent

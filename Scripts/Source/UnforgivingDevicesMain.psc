@@ -719,6 +719,20 @@ Int Function ToUnsig(Int iValue) global
     return iValue
 EndFunction
 
+Int Function iUnsig(Int aiValue) global
+    if aiValue < 0
+        return 0
+    endif
+    return aiValue
+EndFunction
+
+Float Function fUnsig(float afValue) global
+    if afValue < 0.0
+        return 0.0
+    endif
+    return afValue
+EndFunction
+
 Function ShowMessageBox(string strText) global
     String[] loc_lines = StringUtil.split(strText,"\n")
     int loc_linesNum = loc_lines.length

@@ -289,7 +289,7 @@ Function Receive_MinigameParalel(Form fActor)
         UDCDMain.EndMinigameDisable(akHelper)
     endif
     
-    UDOM.RemoveOrgasmRate(akActor, loc_currentOrgasmRate,0.25)        
+    UDOM.UpdateOrgasmRate(akActor, -1*loc_currentOrgasmRate,-0.25)        
     UDOM.UpdateArousalRate(akActor,-1*loc_currentArousalRate)
     
     ;returns wearer regen
