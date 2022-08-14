@@ -232,7 +232,7 @@ Event OnUpdate()
                 endif
                 
                 SendOrgasmEvent()
-                UDOM.startOrgasm(akActor,UDOM.UD_OrgasmDuration,20,loc_force,true)
+                UDOM.startOrgasm(akActor,UDOM.UD_OrgasmDuration,UDOM.UD_OrgasmArousalReduce,loc_force,true)
                 
                 Utility.wait(3.0) ;wait, so orgasm variables can be updated
                 

@@ -151,7 +151,7 @@ Function forceOutPlugMinigameWH(Actor akHelper)
 EndFunction
 
 Function updateWidget(bool force = false)
-    if forceOutPlugMinigame_on
+    if forceOutPlugMinigame_on && PlayerInMinigame() && UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
         setWidgetVal(getRelativeDurability(),force)    
     else
         parent.updateWidget(force)
@@ -198,7 +198,12 @@ EndFunction
 Function OnVibrationEnd()
     parent.OnVibrationStart()
 EndFunction
-
+float Function getVibOrgasmRate(float afMult = 1.0)
+    return parent.getVibOrgasmRate(afMult)
+EndFunction
+float Function getVibArousalRate(float afMult = 1.0)
+    return parent.getVibArousalRate(afMult)
+EndFunction
 ;============================================================================================================================
 ;unused override function, theese are from base script. Extending different script means you also have to add their overrride functions                                                
 ;theese function should be on every object instance, as not having them may cause multiple function calls to default class

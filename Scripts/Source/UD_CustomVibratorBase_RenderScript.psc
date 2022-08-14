@@ -375,7 +375,7 @@ Function ForceModDuration(float fModifier)
 EndFunction
 
 Function addVibDuration(int iValue = 1)
-    if isVibrating()
+    if isVibrating() && _currentVibRemainingDuration > 0
         StartManipMutex()
         _currentVibRemainingDuration += iValue
         EndManipMutex()
@@ -383,7 +383,7 @@ Function addVibDuration(int iValue = 1)
 EndFunction
 
 Function removeVibDuration(int iValue = 1)
-    if isVibrating()
+    if isVibrating() && _currentVibRemainingDuration > 0
         StartManipMutex()
         _currentVibRemainingDuration -= iValue
         if _currentVibRemainingDuration < 0
@@ -435,10 +435,6 @@ Function forceEdgingMode(int iMode)
     EndManipMutex()
 EndFunction
 
-float Function getVibArousalRate(float mult = 1.0)
-    return _currentVibStrength * UDCDmain.UD_ArousalMultiplier * UD_ArousalMult
-EndFunction
-
 Function pauseVibFor(int iTime)
     if iTime < 5
         iTime = 5
@@ -461,10 +457,6 @@ Function pauseVibFor(int iTime)
         StartVibSound()
     endif
     _paused = false
-EndFunction
-
-float Function getVibOrgasmRate(float mult = 1.0)
-    return _currentVibStrength * mult * UDCDmain.UD_VibrationMultiplier * UD_OrgasmMult
 EndFunction
 
 Function UpdateOrgasmRate(float fOrgasmRate,float fOrgasmForcing)
@@ -593,7 +585,7 @@ Function vibrate(float fDurationMult = 1.0)
     UDmain.SendModEvent("DeviceVibrateEffectStart", getWearerName(), getCurrentZadVibStrenth())
         
     if WearerIsPlayer()
-        UDmain.Print(getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",3)
+        UDmain.Print(getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",2)
     elseif UDCDmain.AllowNPCMessage(GetWearer())
         UDmain.Print(getWearerName() + "s " + getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",3)
     endif
@@ -641,7 +633,7 @@ Function vibrate(float fDurationMult = 1.0)
         
     if !_paused
         if WearerIsPlayer()
-            UDCDmain.Print(getDeviceName() + " stops vibrating.",3)
+            UDCDmain.Print(getDeviceName() + " stops vibrating.",2)
         elseif UDCDmain.AllowNPCMessage(GetWearer())
             UDCDmain.Print(getWearerName() + "s " + getDeviceName() + " stops vibrating.",3)
         endif
@@ -718,7 +710,12 @@ Function OnVibrationStart()
 EndFunction
 Function OnVibrationEnd()
 EndFunction
-
+float Function getVibOrgasmRate(float afMult = 1.0)
+    return _currentVibStrength*afMult*UDCDmain.UD_VibrationMultiplier*UD_OrgasmMult
+EndFunction
+float Function getVibArousalRate(float afMult = 1.0)
+    return _currentVibStrength*afMult*UDCDmain.UD_ArousalMultiplier*UD_ArousalMult
+EndFunction
 ;============================================================================================================================
 ;unused override function, theese are from base script. Extending different script means you also have to add their overrride functions                                                
 ;theese function should be on every object instance, as not having them may cause multiple function calls to default class

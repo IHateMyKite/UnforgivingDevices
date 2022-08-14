@@ -30,15 +30,15 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     UDmain.Info("Hardcore disabler activated for " + GetActorName(_target) +"!")
     
     while UI.IsMenuOpen("Dialogue Menu")
-        Utility.waitMenuMode(0.001) ;wait for player to end dialogue before applying effect
+        Utility.waitMenuMode(1.0) ;wait for player to end dialogue before applying effect
     endwhile
     
     closeMenu()
     
-    _MapKeyCode = Input.GetMappedKey("Quick Map")
-    _StatsKeyCode = Input.GetMappedKey("Quick Stats")
-    _TweenMenuKeyCode = Input.GetMappedKey("Tween menu")
-    _MagicKeyCode = Input.GetMappedKey("Quick Magic")
+    _MapKeyCode         = Input.GetMappedKey("Quick Map")
+    _StatsKeyCode       = Input.GetMappedKey("Quick Stats")
+    _TweenMenuKeyCode   = Input.GetMappedKey("Tween menu")
+    _MagicKeyCode       = Input.GetMappedKey("Quick Magic")
     
     Game.DisablePlayerControls(abMovement = False,abFighting = false,abCamSwitch = false,abLooking = false, abSneaking = false, abMenu = true, abActivate = false, abJournalTabs = false)
     Game.EnableFastTravel(false)
@@ -65,6 +65,7 @@ bool loc_precessing = false
 Event OnUpdate()
     loc_precessing = true
     if !_target.wornhaskeyword(UDCDmain.libs.zad_DeviousHeavyBondage) || !UDCDmain.UD_HardcoreMode
+        UDmain.Info("Hardcore disabler not valid for " + GetActorName(_target) +"!")
         _target.RemoveSpell(UDCDmain.UDlibs.HardcoreDisableSpell)
     elseif !loc_finished
         if !UDCDmain.PlayerInMinigame()
@@ -96,7 +97,7 @@ Event OnUpdate()
                 RegisterForKey(_MagicKeyCode)
             endif
             loc_tick += 1
-            registerForSingleUpdate(0.75)
+            registerForSingleUpdate(1.0)
         endif
     endif
     loc_precessing = false
@@ -104,16 +105,21 @@ EndEvent
 
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
     loc_finished = true
-    if UDmain.TraceAllowed()    
-        UDmain.Log("Minigame disabler OnEffectFinish() for " + _target,2)
-    endif
+    UDmain.Info("Hardcore disabler removed for " + GetActorName(_target) +"!")
     ;wait for onUpdate function to finish if it started
     while loc_precessing
-        Utility.waitMenuMode(0.01)
+        Utility.waitMenuMode(1.0)
     endwhile
 
-    Game.EnablePlayerControls()
-    Game.EnableFastTravel(true)
+    if _target.wornhaskeyword(UDCDmain.libs.zad_DeviousHeavyBondage) && UDCDmain.UD_HardcoreMode
+        if _target.hasSpell(UDCDmain.UDlibs.HardcoreDisableSpell)
+            _target.RemoveSpell(UDCDmain.UDlibs.HardcoreDisableSpell)
+        endif
+        _target.AddSpell(UDCDmain.UDlibs.HardcoreDisableSpell,False)
+    else
+        Game.EnablePlayerControls()
+        Game.EnableFastTravel(true)
+    endif
 EndEvent
 
 Event OnKeyDown(Int KeyCode)

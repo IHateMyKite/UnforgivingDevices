@@ -734,7 +734,7 @@ int Function VibrateEffect(actor akActor, int vibStrength, int duration, bool te
         UDCDmain.Log("VibrateEffect(): " + akActor + ", " + vibStrength + ", " + duration)
     endif
     ;prevent too short vibs. Can cause issue with orgasm system
-    if duration < 5
+    if duration >= 0 && duration < 5
         duration = 5
     endif
     

@@ -266,12 +266,23 @@ float Property UD_StruggleCritDuration Hidden ;crit time, the lower this value, 
         return decodeBit(_deviceControlBitMap_12,3,25)/10.0 + 0.5
     EndFunction
 EndProperty
+
 Message Property UD_MessageDeviceInteraction auto ;messagebox that is shown when player click on device in inventory
 Message Property UD_MessageDeviceInteractionWH auto ;messagebox that is shown when player click on device in NPC inventory
 Message Property UD_SpecialMenuInteraction auto ;messagebox that is shown when player select Special from device menu
 Message Property UD_SpecialMenuInteractionWH auto ;messagebox that is shown when player select Special from device menu when helping/getting help
 
 LeveledItem Property UD_OnDestroyItemList auto ;items received when device is unlocked (only when device have DestroyOnRemove)
+
+Form[]  Property UD_DeviceAbilities         auto ;array of abilities which are added on actor when device is equipped
+;array of flags for abilities which are added on actor when device is equipped
+;00 - 01    = 02b (0000 0000 0000 0000 0000 0000 0000 00XX)(0x0003), ;Should device ability be added when device is locked ?
+;               = 00  -> Ability will be added for all NPCs and Player
+;               = 01  -> Ability will be added only for NPC
+;               = 10  -> Ability will be added only for Player
+;               = 11  -> Ability will be not added on when device is locked
+;02 - 31    = 30b (XXXX XXXX XXXX XXXX XXXX XXXX XXXX XX00)(0xFFFFFFFC), ;Unused
+Int[]   Property UD_DeviceAbilities_Flags   auto 
 
 int Property UD_StruggleCritChance ;chance of random crit happening once per second of struggling, range 0-100
     Function set(int iVal)
@@ -294,8 +305,14 @@ int Property UD_LockpickDifficulty ;1 = Novice, 25 = Apprentice, 50 = Adept,75 =
     int Function get()
         int loc_difficutly = decodeBit(_deviceControlBitMap_6,8,7)
         if loc_difficutly < 100
-            loc_difficutly = iRange(loc_difficutly + Round(0.5*(UD_Level - 1)),1,100) ;increase lockpick difficulty by 0.5/level
+            ;increase difficulty based on device level
+            if UDCDMain.UD_PreventMasterLock
+                loc_difficutly = iRange(loc_difficutly + Round(UDCDMain.UD_DeviceLvlLockpick*(UD_Level - 1)),1,75) ;increase lockpick difficulty
+            else
+                loc_difficutly = iRange(loc_difficutly + Round(UDCDMain.UD_DeviceLvlLockpick*(UD_Level - 1)),1,100) ;increase lockpick difficulty
+            endif
         endif
+
         return loc_difficutly
     EndFunction
 EndProperty
@@ -308,8 +325,8 @@ int Property UD_Locks ;number of locks, range 0-31
     
     int Function get()
         int loc_locks = decodeBit(_deviceControlBitMap_6,5,15)
-        if loc_locks > 0
-            loc_locks += Round((UD_Level - 1)/5)
+        if loc_locks > 0 && UDCDMain.UD_DeviceLvlLocks
+            loc_locks += (UD_Level - 1)/UDCDMain.UD_DeviceLvlLocks
         endif
         return loc_locks
     EndFunction
@@ -347,7 +364,7 @@ Actor _minigameHelper = none
 float device_health = 100.0 ;default max device durability, for now always 100
 Float Property UD_Health ;default max health. Is increased with device LVL. Every level increase health by 2.5%
     Float Function get()
-        return device_health + (UD_Level - 1)*0.025*device_health
+        return device_health + (UD_Level - 1)*UDCDmain.UD_DeviceLvlHealth*device_health
     EndFunction
 EndProperty
 
@@ -368,7 +385,11 @@ int Property UD_CurrentLocks Hidden ;how many locked locks remain, max is 31
     EndFunction
     
     int Function get()
-        return decodeBit(_deviceControlBitMap_5,6,0)
+        Int loc_val = decodeBit(_deviceControlBitMap_5,6,0)
+        if loc_val > UD_Locks
+            UD_CurrentLocks = UD_Locks
+        endif
+        return loc_val
     EndFunction
 endproperty
 int Property UD_JammedLocks Hidden ;jammed locks, max is 31
@@ -379,7 +400,11 @@ int Property UD_JammedLocks Hidden ;jammed locks, max is 31
     EndFunction
     
     int Function get()
-        return decodeBit(_deviceControlBitMap_5,6,6)
+        Int loc_val = decodeBit(_deviceControlBitMap_5,6,6)
+        if loc_val > UD_Locks
+            UD_JammedLocks = UD_Locks
+        endif
+        return loc_val
     EndFunction
 endproperty
 int Property UD_condition Hidden ;0 - new , 4 - broke
@@ -1483,7 +1508,6 @@ Function Init(Actor akActor)
         return
     endif
 
-
     ;update now if deviceRendered isn't filled yet, otherwise update on end
     ;deviceRendered should be filled to make the init faster
     if !deviceRendered || !UD_DeviceKeyword
@@ -1588,6 +1612,23 @@ Function Init(Actor akActor)
         resetCooldown()
     endif
     
+    ;Add abilities
+    int loc_abilityId = UD_DeviceAbilities.length
+    while loc_abilityId
+        loc_abilityId -= 1
+        Int loc_filter = Math.LogicalAnd(UD_DeviceAbilities_Flags[loc_abilityId],0x00000003)
+        if loc_filter == 0x00
+            AddAbilityToWearer(loc_abilityId)
+        elseif loc_filter == 0x01 && !loc_isplayer
+            AddAbilityToWearer(loc_abilityId)
+        elseif loc_filter == 0x10 && loc_isplayer
+            AddAbilityToWearer(loc_abilityId)
+        else
+            ;DO NOT ADD
+        endif
+    endwhile
+    
+    
     if UDmain.TraceAllowed()
         UDCDmain.Log(DeviceInventory.getName() + " fully locked on " + getWearerName(),1)
     endif
@@ -1631,6 +1672,8 @@ Function removeDevice(actor akActor)
     if UDCDmain.isRegistered(akActor)
         UDCDmain.endScript(self)
     endif
+    
+    RemoveAllAbilities(akActor)
     
     if deviceRendered.hasKeyword(libs.zad_DeviousBelt) || deviceRendered.hasKeyword(libs.zad_DeviousBra)
         libs.Aroused.SetActorExposureRate(akActor, libs.GetOriginalRate(akActor))
@@ -2236,9 +2279,9 @@ Function deviceMenuInit(bool[] aControl)
     setHelper(none)
     UDCDmain.resetCondVar()
 
-    bool     loc_isloose         = isLoose()
-    bool     loc_freehands         = WearerFreeHands()
-    float     loc_accesibility     = getAccesibility()
+    bool     loc_isloose            = isLoose()
+    bool     loc_freehands          = WearerFreeHands()
+    float     loc_accesibility      = getAccesibility()
     
     ;normal struggle
     if canBeStruggled(loc_accesibility); && (loc_isloose || loc_freehands)
@@ -2495,7 +2538,7 @@ Function DeviceMenuWH(Actor akSource,bool[] aControl)
             aControl = new Bool[30]
             DeviceMenu(aControl)
             _break = True
-        elseif msgChoice == 7     ;details
+        elseif msgChoice == 7    ;details
             processDetails()        
         else
             _break = True        ;exit
@@ -2849,7 +2892,7 @@ bool Function struggleMinigameWH(Actor akHelper)
         
         UD_durability_damage_add = 1.0*_durability_damage_mod*((1.0 - getRelativeDurability()) + UDCDMain.getActorStrengthSkillsPerc(getWearer()) + getHelperStrengthSkillsPerc())
         UD_DamageMult = getModResistPhysical(1.0,0.15)*getAccesibility()
-                
+
         if HelperFreeHands(True)
             UD_DamageMult += 0.5
         elseif HelperFreeHands()
@@ -3726,9 +3769,6 @@ Function minigame()
     if loc_PlayerInMinigame
         ;UDmain.UDNPCM.GoToState("")
     endif
-    ;if UD_WearerSlot
-        ;UD_WearerSlot.GoToState("")
-    ;Endif
     
     ;debug message
     if UDmain.DebugMod && UD_damage_device && durability_onstart != current_device_health && loc_WearerIsPlayer
@@ -3896,8 +3936,9 @@ Function critDevice()
         advanceSkill(4.0)
         
         OnCritDevicePost()
-        
-        updateWidget()
+        if PlayerInMinigame() && UDCDmain.UD_UseWidget && UD_UseWidget
+            updateWidget()
+        endif
     endif
 EndFunction
 
@@ -4321,11 +4362,14 @@ string Function getModifiers(string str = "")
     endif    
     if hasModifier("LootGold")
         int loc_lootgold_mod = getModifierIntParam("LootGold",2,0)
+        int loc_min     = getModifierIntParam("LootGold",0,10) ;base value
         if getModifierParamNum("LootGold") > 1
-            int loc_min     = getModifierIntParam("LootGold",0,0) ;base value
             int loc_max     = getModifierIntParam("LootGold",1,0) ;base value
             int loc_min2    = loc_min
             int loc_max2    = loc_max
+            if loc_max2 < loc_min2
+                loc_max2 = loc_min2
+            endif
             float loc_lootgold_mod_param = 0.0
             if loc_lootgold_mod == 0
                 ;nothink
@@ -4346,7 +4390,6 @@ string Function getModifiers(string str = "")
                 str += "Contains Gold ("+ loc_max2 +" G)\n"
             endif
         else
-            int loc_min = getModifierIntParam("LootGold",0)
             str += "Contains Gold ("+ loc_min +" G)\n"
         endif
     endif    
@@ -4486,17 +4529,17 @@ string Function getCritInfo()
 endFunction
 
 ;adds struggle debuff to Wearer and Helper
-Function addStruggleExhaustion()
-    if Wearer && UD_applyExhastionEffect
+Function addStruggleExhaustion(Actor akWearer, Actor akHelper)
+    if UD_applyExhastionEffect
         UDlibs.StruggleExhaustionSpell.SetNthEffectMagnitude(0, UDCDmain.UD_StruggleExhaustionMagnitude*Utility.randomFloat(0.75,1.25))
         UDlibs.StruggleExhaustionSpell.SetNthEffectDuration(0, Round(UDCDmain.UD_StruggleExhaustionDuration*_exhaustion_mult*Utility.randomFloat(0.75,1.25)))
-        UDlibs.StruggleExhaustionSpell.cast(Wearer)
+        UDlibs.StruggleExhaustionSpell.cast(akWearer)
     endif
-    if _minigameHelper && UD_applyExhastionEffectHelper
-        UDCDmain.ResetHelperCD(_minigameHelper,Wearer,UDCDmain.UD_MinigameHelpXPBase)
+    if akHelper && UD_applyExhastionEffectHelper
+        UDCDmain.ResetHelperCD(akHelper,akWearer,UDCDmain.UD_MinigameHelpXPBase)
         UDlibs.StruggleExhaustionSpell.SetNthEffectMagnitude(0, UDCDmain.UD_StruggleExhaustionMagnitude*Utility.randomFloat(0.75,1.25))
         UDlibs.StruggleExhaustionSpell.SetNthEffectDuration(0, Round(UDCDmain.UD_StruggleExhaustionDuration*_exhaustion_mult_helper*Utility.randomFloat(0.75,1.25)))
-        UDlibs.StruggleExhaustionSpell.cast(_minigameHelper)
+        UDlibs.StruggleExhaustionSpell.cast(akHelper)
     endif
 EndFunction
 
@@ -4633,9 +4676,9 @@ Function lockpickDevice()
             if UD_CurrentLocks - UD_JammedLocks > 0
                 UD_CurrentLocks -= 1
                 if WearerIsPlayer()
-                    UDCDmain.Print("You succesfully unlocked one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining",2)
+                    UDCDmain.Print("You succesfully unlocked one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining",1)
                 elseif UDCDmain.AllowNPCMessage(getWearer())
-                    UDCDmain.Print(getWearerName() + " unlocked one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining",3)
+                    UDCDmain.Print(getWearerName() + " unlocked one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining",2)
                 endif
                 onLockUnlocked(True)
             endif
@@ -4647,8 +4690,8 @@ Function lockpickDevice()
                 OnDeviceLockpicked()
             elseif UD_CurrentLocks == UD_JammedLocks ;device have no more free locks
                 stopMinigame()
-                lockpickGame_on = False    
-                jammLocks()                    
+                lockpickGame_on = False
+                jammLocks()
             endif
         elseif result == 2 ;failure
             if Utility.randomInt() <= zad_JammLockChance*UDCDmain.CalculateKeyModifier() && !libs.Config.DisableLockJam
@@ -4659,9 +4702,7 @@ Function lockpickDevice()
                 endif
                 
                 UD_JammedLocks += 1
-                if UD_JammedLocks; == UD_CurrentLocks
-                    JammLocks()
-                endif
+                JammLocks()
                 stopMinigame()
                 lockpickGame_on = False
                 OnLockJammed()
@@ -4742,7 +4783,7 @@ Function JammLocks()
 EndFunction
 
 bool Function areLocksJammed()
-    return UD_JammedLocks == UD_CurrentLocks;StorageUtil.GetIntValue(Wearer, "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_LockJammedStatus")
+    return UD_JammedLocks == UD_CurrentLocks
 EndFunction
 
 ;starts sentient dialogue
@@ -4810,6 +4851,32 @@ Function ValidateJammedLocks()
             UD_JammedLocks = 0
         endif
     endif
+EndFunction
+
+Function AddAbility(Spell akAbility,Int aiFlag)
+    if akAbility && PapyrusUtil.CountForm(UD_DeviceAbilities,akAbility) == 0
+        UD_DeviceAbilities = PapyrusUtil.PushForm(UD_DeviceAbilities,akAbility)
+        UD_DeviceAbilities_Flags = PapyrusUtil.PushInt(UD_DeviceAbilities_Flags,aiFlag)
+    endif
+EndFunction
+
+Bool Function AddAbilityToWearer(Int aiIndex)
+    if aiIndex < 0 || aiIndex >= UD_DeviceAbilities.length
+        return False
+    endif
+    if !Wearer.HasSpell(UD_DeviceAbilities[aiIndex] as Spell)
+        Wearer.AddSpell(UD_DeviceAbilities[aiIndex] as Spell)
+    else
+        return false
+    endif
+EndFunction
+
+Int Function RemoveAllAbilities(Actor akActor)
+    int loc_abilityId = UD_DeviceAbilities.length
+    while loc_abilityId
+        loc_abilityId -= 1
+        akActor.RemoveSpell(UD_DeviceAbilities[loc_abilityId] as Spell)
+    endwhile
 EndFunction
 
 ;--------------------------------------------------   

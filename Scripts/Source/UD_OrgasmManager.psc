@@ -23,7 +23,8 @@ int     Property UD_OrgasmAnimation         = 1     auto
 int     Property UD_OrgasmDuration          = 20    auto
 bool    Property UD_HornyAnimation          = true  auto
 int     Property UD_HornyAnimationDuration  = 5     auto
-
+Int     Property UD_OrgasmArousalReduce     = 25    auto        ;how much will be arousal rate reduced per second
+Int     Property UD_OrgasmArousalReduceDuration = 7    auto     ;how long will the effect last
 Actor Property UD_StopActorOrgasmCheckLoop      = none auto
 Actor Property UD_StopActorArousalCheckLoop     = none auto
 
@@ -513,7 +514,7 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,in
         UDCDMain.getMinigameDevice(akActor).stopMinigame()
     endif
     
-    UpdateBaseOrgasmVals(akActor, 7, -5.0, 0.0, -1.0*iDecreaseArousalBy)
+    UpdateBaseOrgasmVals(akActor, UD_OrgasmArousalReduceDuration, -5.0, 0.0, -1.0*iDecreaseArousalBy)
     ;Int loc_orgasms = getOrgasmingCount(akActor)
     
     if UDmain.TraceAllowed()
@@ -956,7 +957,7 @@ EndFunction
 
 Function Receive_UpdateBaseOrgasmVals(Form akFormActor, int aiDuration, float afOrgasmRate,float afForcing, float afArousalRate)
     Actor akActor = akFormActor as Actor
-    ;GInfo("Receive_UpdateBaseOrgasmVals - Actor:" + GetActorName(akFormActor as Actor) + ",aiDuration=" + aiDuration+ ",afOrgasmRate="+afOrgasmRate + ",afArousalRate="+afArousalRate)
+    ;GInfo("UpdateBaseOrgasmVals started- Actor:" + GetActorName(akFormActor as Actor) + ",aiDuration=" + aiDuration+ ",afOrgasmRate="+afOrgasmRate + ",afArousalRate="+afArousalRate)
     if afOrgasmRate || afForcing
         UpdateOrgasmRate(akActor,afOrgasmRate,afForcing)
     endif
@@ -972,5 +973,6 @@ Function Receive_UpdateBaseOrgasmVals(Form akFormActor, int aiDuration, float af
     if afArousalRate
         UpdateArousalRate(akActor,-1.0*afArousalRate)
     endif
+    ;GInfo("UpdateBaseOrgasmVals ended - Actor:" + GetActorName(akFormActor as Actor) + ",aiDuration=" + aiDuration+ ",afOrgasmRate="+afOrgasmRate + ",afArousalRate="+afArousalRate)
 EndFunction
 

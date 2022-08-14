@@ -230,3 +230,6 @@ Spell Property DEBUGMagickEffect auto
 Keyword  Property ActorTypeNPC auto
 Keyword  Property ArmorShield auto
 FormList Property WeaponKeywords auto
+
+;Device abilities
+Spell Property ArousingMovement auto

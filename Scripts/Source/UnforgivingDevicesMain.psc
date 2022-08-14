@@ -407,7 +407,7 @@ EndFunction
 
 int Property UD_PrintLevel = 3 auto
 Function Print(String msg,int iLevel = 1,bool bLog = false)
-    if (iRange(iLevel,1,3) <= UD_PrintLevel)
+    if (iRange(iLevel,0,3) <= UD_PrintLevel)
         debug.notification(msg)
         if bLog && TraceAllowed(); || DebugMod    
             Log("Print -> " + msg)

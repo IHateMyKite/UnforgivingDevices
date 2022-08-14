@@ -191,7 +191,10 @@ Function patchBelt(UD_CustomBelt_RenderScript device)
         device.UD_ResistMagicka = Utility.randomFloat(-0.1,0.1)
         device.UD_Locks = 0
     endif
-                
+    
+    if device as UD_CustomCrotchDevice_RenderScript
+        device.AddAbility(UDlibs.ArousingMovement,0)
+    endif
     checkSentientModifier(device,Round(70*loc_currentmult),1.25)
     
     patchFinish(device,0x0F,loc_currentmult)

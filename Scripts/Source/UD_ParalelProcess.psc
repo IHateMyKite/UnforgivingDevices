@@ -205,28 +205,28 @@ Function Receive_MinigameParalel(Form fActor)
     bool      loc_haveplayer = (loc_device.WearerIsPlayer() || loc_device.HelperIsPlayer())
     
     ;disable regen of all stats
-    float staminaRate     = akActor.getBaseAV("StaminaRate")
-    float HealRate         = akActor.getBaseAV("HealRate")
-    float magickaRate     = akActor.getBaseAV("MagickaRate")
+    float staminaRate           = akActor.getBaseAV("StaminaRate")
+    float HealRate              = akActor.getBaseAV("HealRate")
+    float magickaRate           = akActor.getBaseAV("MagickaRate")
 
     akActor.setAV("StaminaRate", staminaRate*loc_device.UD_RegenMag_Stamina)
     akActor.setAV("HealRate", HealRate*loc_device.UD_RegenMag_Health)
     akActor.setAV("MagickaRate", magickaRate*loc_device.UD_RegenMag_Magicka)
 
-    float staminaRateHelper = 0.0
-    float HealRateHelper     = 0.0
-    float magickaRateHelper = 0.0
+    float staminaRateHelper     = 0.0
+    float HealRateHelper        = 0.0
+    float magickaRateHelper     = 0.0
     if akHelper
-        staminaRateHelper     = akHelper.getBaseAV("StaminaRate")
-        HealRateHelper         = akHelper.getBaseAV("HealRate")
-        magickaRateHelper     = akHelper.getBaseAV("MagickaRate")
+        staminaRateHelper       = akHelper.getBaseAV("StaminaRate")
+        HealRateHelper          = akHelper.getBaseAV("HealRate")
+        magickaRateHelper       = akHelper.getBaseAV("MagickaRate")
 
         akHelper.setAV("StaminaRate", staminaRateHelper*loc_device.UD_RegenMagHelper_Stamina)
         akHelper.setAV("HealRate"    , HealRateHelper*loc_device.UD_RegenMagHelper_Health)
         akHelper.setAV("MagickaRate", magickaRateHelper*loc_device.UD_RegenMagHelper_Magicka)            
     endif
     
-    bool loc_canShowHUD = loc_device.canShowHUD()
+    bool loc_canShowHUD     = loc_device.canShowHUD()
     bool loc_updatewidget   = loc_device.UD_UseWidget && UDCDmain.UD_UseWidget && loc_haveplayer
     
     Send_MinigameCritLoop(akActor,loc_device)
@@ -283,6 +283,12 @@ Function Receive_MinigameParalel(Form fActor)
         endif
     endwhile
     
+    ;remove disable
+    UDCDMain.EndMinigameDisable(akActor)
+    if akHelper
+        UDCDMain.EndMinigameDisable(akHelper)
+    endif
+    
     UDOM.RemoveOrgasmRate(akActor, loc_currentOrgasmRate,0.25)        
     UDOM.UpdateArousalRate(akActor,-1*loc_currentArousalRate)
     
@@ -296,26 +302,20 @@ Function Receive_MinigameParalel(Form fActor)
         akHelper.setAV("MagickaRate", magickaRateHelper)            
     endif
     
-    ;remove disable
-    UDCDMain.EndMinigameDisable(akActor)
-    if akHelper
-        UDCDMain.EndMinigameDisable(akHelper)
-    endif
-    
     loc_device.hideHUDbars() ;hides HUD (not realy?)
     
     if loc_device.WearerIsPlayer() || loc_device.HelperIsPlayer()
         loc_device.hideWidget()
     endif
     
+    loc_device._MinigameParProc_2 = false
+    
     UDEM.ResetExpressionRaw(akActor,15)
     if akHelper
         UDEM.ResetExpressionRaw(akHelper,15)
     endif
     
-    loc_device._MinigameParProc_2 = false
-    
-    loc_device.addStruggleExhaustion()
+    loc_device.addStruggleExhaustion(akActor,akHelper)
 EndFunction
 
 
@@ -327,7 +327,7 @@ UD_CustomDevice_RenderScript     Send_MinigameCritLoop_Package_device    = none
 ;mutex
 Function Start_MinigameCritLoopMutex()
     while _MinigameCritLoopMutex
-        Utility.waitMenuMode(0.05)
+        Utility.waitMenuMode(0.25)
     endwhile
     _MinigameCritLoopMutex = true
 EndFunction
@@ -354,8 +354,8 @@ Function Send_MinigameCritLoop(Actor akActor,UD_CustomDevice_RenderScript udDevi
         ;block
         float loc_TimeOut = 0.0
         while !_MinigameCritLoop_Received && loc_TimeOut <= 2.0
-            loc_TimeOut += 0.05
-            Utility.waitMenuMode(0.05)
+            loc_TimeOut += 0.1
+            Utility.waitMenuMode(0.1)
         endwhile
         _MinigameCritLoop_Received = false
         
@@ -369,11 +369,11 @@ Function Send_MinigameCritLoop(Actor akActor,UD_CustomDevice_RenderScript udDevi
 EndFunction
 Function Receive_MinigameCritloop(Form fActor)
     UD_CustomDevice_RenderScript loc_device = Send_MinigameCritLoop_Package_device
-    Send_MinigameCritLoop_Package_device     = none
-    _MinigameCritLoop_Received                 = true
-    Actor akActor                             = fActor as Actor
+    Send_MinigameCritLoop_Package_device    = none
+    _MinigameCritLoop_Received              = true
+    Actor akActor                           = fActor as Actor
     
-    loc_device._MinigameParProc_3             = true
+    loc_device._MinigameParProc_3           = true
     
     string critType = "random"
     if !loc_device.PlayerInMinigame()

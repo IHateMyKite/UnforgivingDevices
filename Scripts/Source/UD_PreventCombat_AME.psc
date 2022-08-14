@@ -59,6 +59,8 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
     endif
 EndEvent
 
+;removed, as it was buggy
+;/
 Form[] _weapons
 Event OnObjectEquipped(Form akBaseObject, ObjectReference akReference)
     bool loc_cond = true
@@ -70,3 +72,4 @@ Event OnObjectEquipped(Form akBaseObject, ObjectReference akReference)
         _target.unequipItem(akBaseObject)
     endif
 EndEvent
+/;

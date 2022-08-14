@@ -11,6 +11,13 @@ UD_AbadonQuest_script Property AbadonQuest auto
 UDCustomHeavyBondageWidget1 Property widget auto
 UD_CustomDevices_NPCSlotsManager Property UDCD_NPCM auto
 zadlibs_UDPatch Property libs auto hidden
+
+UD_OrgasmManager Property UDOM
+    UD_OrgasmManager Function Get()
+        return UDmain.UDOM
+    EndFunction
+EndProperty
+
 int max_difficulty_S
 int overaldifficulty_S ;0-3 where 3 is same as in MDS
 int eventchancemod_S
@@ -133,10 +140,7 @@ Event OnConfigInit()
     UD_LockMenu_flag = OPTION_FLAG_NONE
     
     actorIndex = 10
-    
-    if UDmain.TraceAllowed()    
-        UDmain.Log("MCM ready")
-    endif
+    UDmain.Info("MCM Ready")
     Ready = True
 EndEvent
 
@@ -200,7 +204,9 @@ Event onConfigOpen()
     fix_flag = OPTION_FLAG_NONE
 EndEvent
 
+String _lastPage
 Event OnPageReset(string page)
+    _lastPage = page
     if (page == "General")
         resetGeneralPage()
     elseif (page == "Abadon Plug")
@@ -209,7 +215,7 @@ Event OnPageReset(string page)
         resetCustomBondagePage()
     elseif (page == "Custom orgasm")
         resetCustomOrgasmPage()
-    elseif     (page == "Patcher")
+    elseif (page == "Patcher")
         resetPatcherPage()
     elseif (page == "DD patch")
         resetDDPatchPage()
@@ -223,43 +229,39 @@ EndEvent
 int UseAnalVariant_T
 int Property AbadonQuestFlag auto
 Function resetAbadonPage()
-        setCursorFillMode(LEFT_TO_RIGHT)
-        ;addEmptyOption()
-        AddHeaderOption("Abadon Plug Settings")
-        if(!UDmain.hasAnyUD() || !UDmain.lockMCM)
-            addEmptyOption()
-            
-            preset_M = AddMenuOption("Preset:", presetList[preset])
-            
-            UseAnalVariant_T = addToggleOption("Anal variant:", AbadonQuest.UseAnalVariant,AbadonQuestFlag)
-            
-            max_difficulty_S = AddSliderOption("Max strength:", AbadonQuest.max_difficulty, "{0}",abadon_flag)
-            final_finisher_set_T = addToggleOption("Equip set:", AbadonQuest.final_finisher_set)
-            
-            difficulty_M = AddMenuOption("Difficulty:", difficultyList[AbadonQuest.overaldifficulty],abadon_flag)
-            final_finisher_pref_M = AddMenuOption("Start set:", final_finisher_pref_list[AbadonQuest.final_finisher_pref],abadon_flag_2)
-            
-            hardcore_T = addToggleOption("Hardcore:", AbadonQuest.hardcore,abadon_flag)
-            eventchancemod_S = AddSliderOption("Event modifier:", AbadonQuest.eventchancemod, "{0} %",abadon_flag)
-            
-            dmg_heal_T = addToggleOption("Damage health",AbadonQuest.dmg_heal,abadon_flag)
-            addEmptyOption()
-            
-            dmg_stamina_T = addToggleOption("Damage stamina",AbadonQuest.dmg_stamina,abadon_flag)
-            addEmptyOption()
-            
-            dmg_magica_T = addToggleOption("Damage magica",AbadonQuest.dmg_magica,abadon_flag)
-            addEmptyOption()
-            
-            little_finisher_chance_S = AddSliderOption("Chance of smaller finisher:", AbadonQuest.little_finisher_chance, "{1} %",abadon_flag)
-            little_finisher_cooldown_S = AddSliderOption("Smaller finisher cooldown:", AbadonQuest.little_finisher_cooldown, "{1} hours",abadon_flag)
-            
-            min_orgasm_little_finisher_S = AddSliderOption("Min. orgasms of smaller finisher:", AbadonQuest.min_orgasm_little_finisher, "{1}",abadon_flag)
-            max_orgasm_little_finisher_S = AddSliderOption("Max. orgasms of smaller finisher:", AbadonQuest.max_orgasm_little_finisher, "{1}",abadon_flag)
-        else
-            addEmptyOption()
-            AddHeaderOption("Menu locked")
-        endif
+    UpdateLockMenuFlag()
+    
+    setCursorFillMode(LEFT_TO_RIGHT)
+    
+    AddHeaderOption("Abadon Plug Settings")
+    addEmptyOption()
+
+    preset_M = AddMenuOption("Preset:", presetList[preset])
+    UseAnalVariant_T = addToggleOption("Anal variant:", AbadonQuest.UseAnalVariant,AbadonQuestFlag)
+    
+    max_difficulty_S = AddSliderOption("Max strength:", AbadonQuest.max_difficulty, "{0}",FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
+    final_finisher_set_T = addToggleOption("Equip set:", AbadonQuest.final_finisher_set,UD_LockMenu_flag)
+    
+    difficulty_M = AddMenuOption("Difficulty:", difficultyList[AbadonQuest.overaldifficulty],FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
+    final_finisher_pref_M = AddMenuOption("Start set:", final_finisher_pref_list[AbadonQuest.final_finisher_pref],abadon_flag_2)
+    
+    hardcore_T = addToggleOption("Hardcore:", AbadonQuest.hardcore,FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
+    eventchancemod_S = AddSliderOption("Event modifier:", AbadonQuest.eventchancemod, "{0} %",FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
+    
+    dmg_heal_T = addToggleOption("Damage health",AbadonQuest.dmg_heal,FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
+    addEmptyOption()
+    
+    dmg_stamina_T = addToggleOption("Damage stamina",AbadonQuest.dmg_stamina,FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
+    addEmptyOption()
+    
+    dmg_magica_T = addToggleOption("Damage magica",AbadonQuest.dmg_magica,FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
+    addEmptyOption()
+    
+    little_finisher_chance_S = AddSliderOption("Chance of smaller finisher:", AbadonQuest.little_finisher_chance, "{1} %",FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
+    little_finisher_cooldown_S = AddSliderOption("Smaller finisher cooldown:", AbadonQuest.little_finisher_cooldown, "{1} hours",FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
+    
+    min_orgasm_little_finisher_S = AddSliderOption("Min. orgasms of smaller finisher:", AbadonQuest.min_orgasm_little_finisher, "{1}",FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
+    max_orgasm_little_finisher_S = AddSliderOption("Max. orgasms of smaller finisher:", AbadonQuest.max_orgasm_little_finisher, "{1}",FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
 endfunction
 
 int UD_RandomFilter_T
@@ -288,7 +290,7 @@ Event resetGeneralPage()
     AddHeaderOption("General settings")
     addEmptyOption()
     UD_hightPerformance_T   = addToggleOption("Hight performance mod",UDmain.UD_hightPerformance)
-    UD_NPCSupport_T         = addToggleOption("NPC Auto Scan",UDmain.AllowNPCSupport,FlagSwitch(true)) ;disable for now as this feature is long time unupdated and most likely broken
+    UD_NPCSupport_T         = addToggleOption("NPC Auto Scan",UDmain.AllowNPCSupport)
     
     UD_RandomFilter_T       = AddInputOption("Random filter", Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFF), UD_LockMenu_flag)
     UD_HearingRange_S       = addSliderOption("Message range:",UDmain.UD_HearingRange,"{0}")
@@ -298,14 +300,14 @@ Event resetGeneralPage()
     
     UD_InfoLevel_M          = AddMenuOption("Info level", UD_InfoLevel_AS[UDmain.UD_InfoLevel])
     UD_PrintLevel_S         = addSliderOption("Message level",UDmain.UD_PrintLevel, "{0}")
-    
+
     AddHeaderOption("Debug")
     addEmptyOption()
     UD_debugmod_T           = addToggleOption("Debug mod",UDmain.DebugMod)
     UD_LoggingLevel_S       = addSliderOption("Logging level",UDmain.LogLevel, "{0}")
     
-    addEmptyOption()
     UD_WarningAllowed_T     = addToggleOption("Warnings allowed",UDmain.UD_WarningAllowed)
+    addEmptyOption()
 EndEvent
 
 int UD_Swimming_flag
@@ -338,6 +340,12 @@ int UD_AllowLegTie_T
 Int UD_MinigameHelpCd_S
 Int UD_MinigameHelpCD_PerLVL_S
 Int UD_MinigameHelpXPBase_S
+
+Int UD_DeviceLvlHealth_S
+Int UD_DeviceLvlLockpick_S
+Int UD_DeviceLvlLocks_S
+
+Int UD_PreventMasterLock_T
 Event resetCustomBondagePage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -354,11 +362,11 @@ Event resetCustomBondagePage()
     ;MAIN SETTING
     AddHeaderOption("Main setting")
     addEmptyOption()
-    UD_UpdateTime_S = addSliderOption("Update time: ",UDCDmain.UD_UpdateTime, "{0} s")
-    UD_CooldownMultiplier_S = addSliderOption("Cooldown multiplier: ",Round(UDCDmain.UD_CooldownMultiplier*100), "{0} %",UD_LockMenu_flag)
+    UD_UpdateTime_S = addSliderOption("Update time:",UDCDmain.UD_UpdateTime, "{0} s")
+    UD_CooldownMultiplier_S = addSliderOption("Cooldown multiplier:",Round(UDCDmain.UD_CooldownMultiplier*100), "{0} %",UD_LockMenu_flag)
     
-    addEmptyOption()
-    UD_LockpickMinigameNum_S = addSliderOption("Lockpicks per minigame: ",UDCDmain.UD_LockpicksPerMinigame, "{0}",UD_LockMenu_flag)
+    UD_PreventMasterLock_T = addToggleOption("Prevent master locks:",UDCDmain.UD_PreventMasterLock,UD_LockMenu_flag)
+    UD_LockpickMinigameNum_S = addSliderOption("Lockpicks per minigame:",UDCDmain.UD_LockpicksPerMinigame, "{0}",UD_LockMenu_flag)
     
     UD_AllowArmTie_T = addToggleOption("Arm tie:", UDCDmain.UD_AllowArmTie,UD_LockMenu_flag)
     UD_AllowLegTie_T = addToggleOption("Leg tie:", UDCDmain.UD_AllowLegTie,UD_LockMenu_flag)
@@ -367,16 +375,16 @@ Event resetCustomBondagePage()
     AddHeaderOption("Skill setting")
     addEmptyOption()
     
-    UD_BaseDeviceSkillIncrease_S = addSliderOption("Skill advance: ",UDCDmain.UD_BaseDeviceSkillIncrease, "{0}",UD_LockMenu_flag)
-    UD_SkillEfficiency_S = addSliderOption("Skill efficiency: ",UDCDmain.UD_SkillEfficiency, "{0} %",UD_LockMenu_flag)
+    UD_BaseDeviceSkillIncrease_S = addSliderOption("Skill advance:",UDCDmain.UD_BaseDeviceSkillIncrease, "{0}",UD_LockMenu_flag)
+    UD_SkillEfficiency_S = addSliderOption("Skill efficiency:",UDCDmain.UD_SkillEfficiency, "{0} %",UD_LockMenu_flag)
     
     ;HELPER SETTING
     AddHeaderOption("Helping setting")
     addEmptyOption()
-    UD_MinigameHelpCd_S = addSliderOption("Base cooldown: ",UDCDmain.UD_MinigameHelpCd, "{0} min",UD_LockMenu_flag)
-    UD_MinigameHelpXPBase_S = addSliderOption("Base XP gain: ",UDCDmain.UD_MinigameHelpXPBase, "{0} XP",UD_LockMenu_flag)
+    UD_MinigameHelpCd_S = addSliderOption("Base cooldown:",UDCDmain.UD_MinigameHelpCd, "{0} min",UD_LockMenu_flag)
+    UD_MinigameHelpXPBase_S = addSliderOption("Base XP gain:",UDCDmain.UD_MinigameHelpXPBase, "{0} XP",UD_LockMenu_flag)
     
-    UD_MinigameHelpCD_PerLVL_S = addSliderOption("LVL Cooldown Modifier: ",UDCDmain.UD_MinigameHelpCD_PerLVL, "{0} %",UD_LockMenu_flag)
+    UD_MinigameHelpCD_PerLVL_S = addSliderOption("LVL Cooldown Modifier:",UDCDmain.UD_MinigameHelpCD_PerLVL, "{0} %",UD_LockMenu_flag)
     addEmptyOption()
     
     ;HARDCORE SWIMMING
@@ -402,16 +410,26 @@ Event resetCustomBondagePage()
     UD_AutoCrit_T = addToggleOption("Auto crit:", UDCDmain.UD_AutoCrit,UD_LockMenu_flag)    
     UD_AutoCritChance_S = addSliderOption("Auto crit chance: ",UDCDmain.UD_AutoCritChance, "{0} %",FlagSwitchOr(UD_autocrit_flag,UD_LockMenu_flag))
     
+    ;DEVICE LEVEL scaling
+    AddHeaderOption("Level scaling")
+    AddEmptyOption()
+    
+    UD_DeviceLvlHealth_S    = addSliderOption("Health increase:",UDCDmain.UD_DeviceLvlHealth*100, "{1} %",UD_LockMenu_flag)
+    UD_DeviceLvlLockpick_S  = addSliderOption("Lockpick increase:",UDCDmain.UD_DeviceLvlLockpick, "{1}",UD_LockMenu_flag)
+    
+    UD_DeviceLvlLocks_S     = addSliderOption("Lock increase:",UDCDmain.UD_DeviceLvlLocks, "{0} LVLs");,UD_LockMenu_flag)
+    AddEmptyOption()
+    
     ;DIFFICULTY
     AddHeaderOption("Difficulty")
     AddEmptyOption()
-    UD_StruggleDifficulty_M = AddMenuOption("Escape difficulty:", difficultyList[UDCDmain.UD_StruggleDifficulty],UD_LockMenu_flag)
+    UD_HardcoreMode_T = addToggleOption("Hardcore mode:", UDCDmain.UD_HardcoreMode)
     AddTextOption("Struggle difficulty:", Math.floor((2 - UDCDmain.getStruggleDifficultyModifier())*100 +0.5) + " %",OPTION_FLAG_DISABLED)
     
-    UD_UseDDdifficulty_T = addToggleOption("Use DD difficulty:", UDCDmain.UD_UseDDdifficulty,UD_LockMenu_flag)
+    UD_StruggleDifficulty_M = AddMenuOption("Escape difficulty:", difficultyList[UDCDmain.UD_StruggleDifficulty],UD_LockMenu_flag)
     AddTextOption("Mend difficulty:", Math.floor(UDCDmain.getMendDifficultyModifier()*100 + 0.5) + " %",OPTION_FLAG_DISABLED)
      
-    UD_HardcoreMode_T = addToggleOption("Hardcore mode:", UDCDmain.UD_HardcoreMode)
+    UD_UseDDdifficulty_T = addToggleOption("Use DD difficulty:", UDCDmain.UD_UseDDdifficulty,UD_LockMenu_flag)
     AddTextOption("Key modifier:", Math.floor((UDCDmain.CalculateKeyModifier())*100 + 0.5) + " %",OPTION_FLAG_DISABLED)
 EndEvent
 
@@ -429,24 +447,34 @@ int UD_OrgasmResistence_S
 int UD_VibrationMultiplier_S
 int UD_ArousalMultiplier_S
 
+int UD_OrgasmArousalReduce_S
+int UD_OrgasmArousalReduceDuration_S
+
 Event resetCustomOrgasmPage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
     
-    AddHeaderOption("Custom orgasm")
+    AddHeaderOption("General")
     addEmptyOption()
         
-    UD_OrgasmUpdateTime_S = addSliderOption("Update time: ",UDCDmain.UDOM.UD_OrgasmUpdateTime, "{1} s")
+    UD_OrgasmUpdateTime_S   = addSliderOption("Update time: ",UDOM.UD_OrgasmUpdateTime, "{1} s")
     UD_OrgasmExhaustion_T   = addToggleOption("Orgasm exhaustion",UDmain.UD_OrgasmExhaustion,UD_LockMenu_flag)
     
-    UD_UseOrgasmWidget_T = addToggleOption("Use widget:", UDCDmain.UDOM.UD_UseOrgasmWidget)
-    UD_OrgasmResistence_S = addSliderOption("Orgasm resistence: ",UDCDmain.UDOM.UD_OrgasmResistence, "{1} Op/s",UD_LockMenu_flag)
+    UD_UseOrgasmWidget_T    = addToggleOption("Use widget:", UDOM.UD_UseOrgasmWidget)
+    UD_OrgasmResistence_S   = addSliderOption("Orgasm resistence: ",UDOM.UD_OrgasmResistence, "{1} Op/s",UD_LockMenu_flag)
 
-    UD_HornyAnimation_T = addToggleOption("Horny animation:", UDCDmain.UDOM.UD_HornyAnimation)
-    UD_HornyAnimationDuration_S = addSliderOption("Horny duration: ",UDCDmain.UDOM.UD_HornyAnimationDuration, "{0} s",UD_Horny_f)
-        
-    UD_VibrationMultiplier_S = addSliderOption("Vib. multiplier: ",UDCDmain.UD_VibrationMultiplier, "{3}",UD_LockMenu_flag)
-    UD_ArousalMultiplier_S = addSliderOption("Arousal multiplier: ",UDCDmain.UD_ArousalMultiplier, "{3}",UD_LockMenu_flag)
+    UD_HornyAnimation_T     = addToggleOption("Horny animation:", UDOM.UD_HornyAnimation)
+    UD_HornyAnimationDuration_S     = addSliderOption("Horny duration: ",UDOM.UD_HornyAnimationDuration, "{0} s",UD_Horny_f)
+    
+    AddHeaderOption("Post-Orgasm")
+    addEmptyOption()
+    UD_OrgasmArousalReduce_S    = addSliderOption("Post-Orgasm arousal: ",UDOM.UD_OrgasmArousalReduce, "{0} /s")
+    UD_OrgasmArousalReduceDuration_S = addSliderOption("Post-Orgasm arousal duration: ",UDOM.UD_OrgasmArousalReduceDuration, "{0} s")
+    
+    AddHeaderOption("Vib. setting")
+    addEmptyOption()    
+    UD_VibrationMultiplier_S    = addSliderOption("Vib. multiplier: ",UDCDmain.UD_VibrationMultiplier, "{3}",UD_LockMenu_flag)
+    UD_ArousalMultiplier_S      = addSliderOption("Arousal multiplier: ",UDCDmain.UD_ArousalMultiplier, "{3}",UD_LockMenu_flag)
 EndEvent
 
 
@@ -522,22 +550,27 @@ EndProperty
 
 int UD_StartThirdpersonAnimation_Switch_T
 int UD_DAR_T
+Int UD_OutfitRemove_T
 Event resetDDPatchPage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
     
-    AddHeaderOption("Devious Devices Patches")
+    AddHeaderOption("General")
     addEmptyOption()
-
-    UD_OrgasmAnimation_M = AddMenuOption("Animation list:", orgasmAnimation[UDCDmain.UDOM.UD_OrgasmAnimation])    
     UD_GagPhonemModifier_S = addSliderOption("Gag phonem mod: ",UDCDmain.UD_GagPhonemModifier, "{0}",FlagSwitch(UDmain.ZadExpressionSystemInstalled))
+    addEmptyOption()
     
+    AddHeaderOption("Animation setting")
+    addEmptyOption()
     UD_StartThirdpersonAnimation_Switch_T = addToggleOption("Animation patch", libs.UD_StartThirdPersonAnimation_Switch)
-    if AAScript
-        UD_DAR_T = addToggleOption("DAR Patch", AAScript.UD_DAR)
-    else
-        addEmptyOption()
-    endif
+    UD_OrgasmAnimation_M = AddMenuOption("Animation list:", orgasmAnimation[UDOM.UD_OrgasmAnimation]) 
+    
+    UD_DAR_T = addToggleOption("DAR Patch", AAScript.UD_DAR,FlagSwitch(AAScript))
+    addEmptyOption()
+    
+    AddHeaderOption("Device setting")
+    addEmptyOption()
+    UD_OutfitRemove_T = addToggleOption("Outfit removal", UDCDmain.UD_OutfitRemove)
 EndEvent
 
 int[] registered_devices_T
@@ -606,9 +639,9 @@ Event resetDebugPage()
             elseif i == 12
                 AddTextOption("Devices", slot.getNumberOfRegisteredDevices() ,OPTION_FLAG_DISABLED)
             elseif i == 13
-                OrgasmResist_S         = addSliderOption("Orgasm Resist:",UDCDmain.UDOM.getActorOrgasmResist(slot.getActor()), "{1}")
+                OrgasmResist_S         = addSliderOption("Orgasm Resist:",UDOM.getActorOrgasmResist(slot.getActor()), "{1}")
             elseif i == 14
-                OrgasmCapacity_S     = addSliderOption("Orgasm Capacity:",UDCDmain.UDOM.getActorOrgasmCapacity(slot.getActor()), "{0}")
+                OrgasmCapacity_S     = addSliderOption("Orgasm Capacity:",UDOM.getActorOrgasmCapacity(slot.getActor()), "{0}")
             elseif i == 15
                 unlockAll_T = AddTextOption("Unlock all", "CLICK" ,fix_flag)
             elseif i == 16
@@ -673,14 +706,22 @@ Function resetOtherPage()
     AddHeaderOption("Optional mods")
     addEmptyOption()
     
-    AddTextOption("Zaz animation pack installed: ",UDmain.ZaZAnimationPackInstalled,FlagSwitch(UDmain.ZaZAnimationPackInstalled))
+    AddTextOption("Zaz animation pack installed: ",InstallSwitch(UDmain.ZaZAnimationPackInstalled),FlagSwitch(UDmain.ZaZAnimationPackInstalled))
     addEmptyOption()
     
-    AddTextOption("ConsoleUtil installed: ",UDmain.ConsoleUtilInstalled,FlagSwitch(UDmain.ConsoleUtilInstalled))
+    AddTextOption("ConsoleUtil installed: ",InstallSwitch(UDmain.ConsoleUtilInstalled),FlagSwitch(UDmain.ConsoleUtilInstalled))
     addEmptyOption()
     
-    AddTextOption("SlaveTats installed: ",UDmain.SlaveTatsInstalled,FlagSwitch(UDmain.SlaveTatsInstalled))
+    AddTextOption("SlaveTats installed: ",InstallSwitch(UDmain.SlaveTatsInstalled),FlagSwitch(UDmain.SlaveTatsInstalled))
     addEmptyOption()
+EndFunction
+
+String Function InstallSwitch(Bool abSwitch)
+    if abSwitch
+        return "Installed"
+    else
+        return "Not installed"
+    endif
 EndFunction
 
 event OnOptionSelect(int option)
@@ -711,7 +752,7 @@ Function OptionSelectGeneral(int option)
         SetToggleOptionValue(UD_NPCSupport_T, UDmain.AllowNPCSupport)    
     elseif option == UD_WarningAllowed_T
         UDmain.UD_WarningAllowed = !UDmain.UD_WarningAllowed
-        SetToggleOptionValue(UD_WarningAllowed_T, UDmain.UD_WarningAllowed)    
+        SetToggleOptionValue(UD_WarningAllowed_T, UDmain.UD_WarningAllowed)  
     endif
 EndFunction
 
@@ -752,13 +793,16 @@ Function OptionCustomBondage(int option)
     elseif option == UD_AllowLegTie_T
         UDCDmain.UD_AllowLegTie = !UDCDmain.UD_AllowLegTie
         SetToggleOptionValue(UD_AllowLegTie_T, UDCDmain.UD_AllowLegTie)
+    elseif option == UD_PreventMasterLock_T
+        UDCDmain.UD_PreventMasterLock = !UDCDmain.UD_PreventMasterLock
+        SetToggleOptionValue(UD_PreventMasterLock_T, UDCDmain.UD_PreventMasterLock)  
     endif
 EndFunction
 
 Function OptionCustomOrgasm(int option)
     if(option == UD_UseOrgasmWidget_T)
-        UDCDmain.UDOM.UD_UseOrgasmWidget = !UDCDmain.UDOM.UD_UseOrgasmWidget
-        SetToggleOptionValue(UD_UseOrgasmWidget_T, UDCDmain.UDOM.UD_UseOrgasmWidget)
+        UDOM.UD_UseOrgasmWidget = !UDOM.UD_UseOrgasmWidget
+        SetToggleOptionValue(UD_UseOrgasmWidget_T, UDOM.UD_UseOrgasmWidget)
         forcePageReset()
     elseif (option == UD_OrgasmExhaustion_T)
         UDmain.UD_OrgasmExhaustion = !UDmain.UD_OrgasmExhaustion
@@ -770,9 +814,9 @@ Function OptionCustomOrgasm(int option)
         SetToggleOptionValue(UD_OrgasmExhaustion_T, UDmain.UD_OrgasmExhaustion)
         forcePageReset()
     elseif(option == UD_HornyAnimation_T)
-        UDCDmain.UDOM.UD_HornyAnimation = !UDCDmain.UDOM.UD_HornyAnimation
-        SetToggleOptionValue(UD_HornyAnimation_T, UDCDmain.UDOM.UD_HornyAnimation)
-        if UDCDmain.UDOM.UD_HornyAnimation
+        UDOM.UD_HornyAnimation = !UDOM.UD_HornyAnimation
+        SetToggleOptionValue(UD_HornyAnimation_T, UDOM.UD_HornyAnimation)
+        if UDOM.UD_HornyAnimation
             UD_Horny_f = OPTION_FLAG_NONE
         else
             UD_Horny_f = OPTION_FLAG_DISABLED
@@ -788,6 +832,9 @@ Function OptionDDPatch(int option)
     elseif option == UD_DAR_T
         AAScript.UD_DAR = !AAScript.UD_DAR
         SetToggleOptionValue(UD_DAR_T, AAScript.UD_DAR)
+    elseif option == UD_OutfitRemove_T
+        UDCDMain.UD_OutfitRemove = !UDCDMain.UD_OutfitRemove
+        SetToggleOptionValue(UD_OutfitRemove_T, UDCDMain.UD_OutfitRemove)
     endif
 EndFunction
 
@@ -920,16 +967,6 @@ event OnOptionSliderOpen(int option)
 endEvent
 
 Function OnOptionSliderOpenGeneral(int option)
-    ;if (option == UD_OrgasmExhaustionMagnitude_S)
-    ;    SetSliderDialogStartValue(Math.floor(UDmain.UD_OrgasmExhaustionMagnitude))
-    ;    SetSliderDialogDefaultValue(2.0)
-    ;    SetSliderDialogRange(0.0, 100.0)
-    ;    SetSliderDialogInterval(1.0)
-    ;elseIf (option == UD_OrgasmExhaustionDuration_S)
-    ;    SetSliderDialogStartValue(Math.floor(UDmain.UD_OrgasmExhaustionDuration))
-    ;    SetSliderDialogDefaultValue(30.0)
-    ;    SetSliderDialogRange(10.0, 600.0)
-    ;    SetSliderDialogInterval(10.0)
     if (option == UD_LoggingLevel_S)
         SetSliderDialogStartValue(UDmain.LogLevel)
         SetSliderDialogDefaultValue(1.0)
@@ -999,22 +1036,37 @@ Function OnOptionSliderOpenCustomBondage(int option)
         SetSliderDialogDefaultValue(35.0)
         SetSliderDialogRange(5.0, 200.0)
         SetSliderDialogInterval(5.0)
+    elseif option == UD_DeviceLvlHealth_S
+        SetSliderDialogStartValue(UDCDmain.UD_DeviceLvlHealth*100)
+        SetSliderDialogDefaultValue(2.5)
+        SetSliderDialogRange(0.0, 25.0)
+        SetSliderDialogInterval(0.5)
+    elseif option == UD_DeviceLvlLockpick_S
+        SetSliderDialogStartValue(UDCDmain.UD_DeviceLvlLockpick)
+        SetSliderDialogDefaultValue(0.5)
+        SetSliderDialogRange(0.0, 1.0)
+        SetSliderDialogInterval(0.1)
+    elseif option == UD_DeviceLvlLocks_S
+        SetSliderDialogStartValue(UDCDmain.UD_DeviceLvlLocks)
+        SetSliderDialogDefaultValue(5.0)
+        SetSliderDialogRange(0.0, 20.0)
+        SetSliderDialogInterval(1.0)
     endif
 EndFunction
 
 Function OnOptionSliderOpenCustomOrgasm(int option)
     if (option == UD_OrgasmUpdateTime_S)
-        SetSliderDialogStartValue(UDCDmain.UDOM.UD_OrgasmUpdateTime)
+        SetSliderDialogStartValue(UDOM.UD_OrgasmUpdateTime)
         SetSliderDialogDefaultValue(0.5)
         SetSliderDialogRange(0.1, 2.0)
         SetSliderDialogInterval(0.1)
     elseif (option == UD_HornyAnimationDuration_S)
-        SetSliderDialogStartValue(Round(UDCDmain.UDOM.UD_HornyAnimationDuration))
+        SetSliderDialogStartValue(Round(UDOM.UD_HornyAnimationDuration))
         SetSliderDialogDefaultValue(5.0)
         SetSliderDialogRange(2.0,20.0)
         SetSliderDialogInterval(1.0)
     elseif option == UD_OrgasmResistence_S
-        SetSliderDialogStartValue(UDCDmain.UDOM.UD_OrgasmResistence)
+        SetSliderDialogStartValue(UDOM.UD_OrgasmResistence)
         SetSliderDialogDefaultValue(0.5)
         SetSliderDialogRange(0.1,10.0)
         SetSliderDialogInterval(0.1)
@@ -1028,6 +1080,16 @@ Function OnOptionSliderOpenCustomOrgasm(int option)
         SetSliderDialogDefaultValue(0.05)
         SetSliderDialogRange(0.01,0.5)
         SetSliderDialogInterval(0.01)
+    elseif option == UD_OrgasmArousalReduce_S
+        SetSliderDialogStartValue(UDOM.UD_OrgasmArousalReduce)
+        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogRange(1.0, 100.0)
+        SetSliderDialogInterval(1.0)
+    elseif option == UD_OrgasmArousalReduceDuration_S
+        SetSliderDialogStartValue(UDOM.UD_OrgasmArousalReduceDuration)
+        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogRange(1.0, 30.0)
+        SetSliderDialogInterval(1.0)
     endIf
 EndFunction
 
@@ -1157,13 +1219,13 @@ EndFunction
 Function OnOptionSliderOpenDebug(int option)
     if option == OrgasmResist_S
         UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByIndex(actorIndex)
-        SetSliderDialogStartValue(UDCDmain.UDOM.getActorOrgasmResist(slot.getActor()))
-        SetSliderDialogDefaultValue(UDCDmain.UDOM.UD_OrgasmResistence)
+        SetSliderDialogStartValue(UDOM.getActorOrgasmResist(slot.getActor()))
+        SetSliderDialogDefaultValue(UDOM.UD_OrgasmResistence)
         SetSliderDialogRange(0.0, 10.0)
         SetSliderDialogInterval(0.1)
     elseif option == OrgasmCapacity_S
         UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByIndex(actorIndex)
-        SetSliderDialogStartValue(UDCDmain.UDOM.getActorOrgasmCapacity(slot.getActor()))
+        SetSliderDialogStartValue(UDOM.getActorOrgasmCapacity(slot.getActor()))
         SetSliderDialogDefaultValue(100.0)
         SetSliderDialogRange(10.0, 500.0)
         SetSliderDialogInterval(5.0)        
@@ -1180,12 +1242,6 @@ event OnOptionSliderAccept(int option, float value)
 endEvent
 
 Function OnOptionSliderAcceptGeneral(int option, float value)
-    ;if (option == UD_OrgasmExhaustionMagnitude_S)
-    ;    UDmain.UD_OrgasmExhaustionMagnitude = value
-    ;    SetSliderOptionValue(UD_OrgasmExhaustionMagnitude_S, UDmain.UD_OrgasmExhaustionMagnitude, "{0} %")
-    ;elseif (option == UD_OrgasmExhaustionDuration_S)
-    ;    UDmain.UD_OrgasmExhaustionDuration = Round(value)
-    ;    SetSliderOptionValue(UD_OrgasmExhaustionDuration_S, UDmain.UD_OrgasmExhaustionDuration, "{0} s")
     if (option == UD_LoggingLevel_S)
         UDmain.LogLevel = Round(value)
         SetSliderOptionValue(UD_LoggingLevel_S, UDmain.LogLevel, "{0}")
@@ -1232,25 +1288,40 @@ Function OnOptionSliderAcceptCustomBondage(int option, float value)
     elseif option == UD_MinigameHelpXPBase_S
         UDCDmain.UD_MinigameHelpXPBase = round(value)
         SetSliderOptionValue(UD_MinigameHelpXPBase_S, UDCDmain.UD_MinigameHelpXPBase, "{0} XP")
+    elseif option == UD_DeviceLvlHealth_S
+        UDCDmain.UD_DeviceLvlHealth = value/100
+        SetSliderOptionValue(UD_DeviceLvlHealth_S, UDCDmain.UD_DeviceLvlHealth*100, "{1} %")
+    elseif option == UD_DeviceLvlLockpick_S
+        UDCDmain.UD_DeviceLvlLockpick = value
+        SetSliderOptionValue(UD_DeviceLvlLockpick_S, UDCDmain.UD_DeviceLvlLockpick, "{1}")
+    elseif option == UD_DeviceLvlLocks_S
+        UDCDmain.UD_DeviceLvlLocks = Round(value)
+        SetSliderOptionValue(UD_DeviceLvlLocks_S, UDCDmain.UD_DeviceLvlLocks, "{0} LVLs")
     endif
 EndFunction
 
 Function OnOptionSliderAcceptCustomOrgasm(int option, float value)
     if (option == UD_OrgasmUpdateTime_S)
-        UDCDmain.UDOM.UD_OrgasmUpdateTime = value
-        SetSliderOptionValue(UD_OrgasmUpdateTime_S, UDCDmain.UDOM.UD_OrgasmUpdateTime, "{1} s")
+        UDOM.UD_OrgasmUpdateTime = value
+        SetSliderOptionValue(UD_OrgasmUpdateTime_S, UDOM.UD_OrgasmUpdateTime, "{1} s")
     elseif (option == UD_HornyAnimationDuration_S)
-        UDCDmain.UDOM.UD_HornyAnimationDuration = Round(value)
-        SetSliderOptionValue(UD_HornyAnimationDuration_S, UDCDmain.UDOM.UD_HornyAnimationDuration, "{0} s")
+        UDOM.UD_HornyAnimationDuration = Round(value)
+        SetSliderOptionValue(UD_HornyAnimationDuration_S, UDOM.UD_HornyAnimationDuration, "{0} s")
     elseif option == UD_OrgasmResistence_S
-        UDCDmain.UDOM.UD_OrgasmResistence = value
-        SetSliderOptionValue(UD_OrgasmResistence_S, UDCDmain.UDOM.UD_OrgasmResistence, "{1} Op/s")
+        UDOM.UD_OrgasmResistence = value
+        SetSliderOptionValue(UD_OrgasmResistence_S, UDOM.UD_OrgasmResistence, "{1} Op/s")
     elseif option == UD_VibrationMultiplier_S
         UDCDmain.UD_VibrationMultiplier = value
         SetSliderOptionValue(UD_VibrationMultiplier_S, UDCDmain.UD_VibrationMultiplier, "{3}")
     elseif option == UD_ArousalMultiplier_S
         UDCDmain.UD_ArousalMultiplier = value
         SetSliderOptionValue(UD_ArousalMultiplier_S, UDCDmain.UD_ArousalMultiplier, "{3}")
+    elseif option == UD_OrgasmArousalReduce_S
+        UDOM.UD_OrgasmArousalReduce = Round(value)
+        SetSliderOptionValue(UD_OrgasmArousalReduce_S, UDOM.UD_OrgasmArousalReduce, "{0} /s")
+    elseif option == UD_OrgasmArousalReduceDuration_S
+        UDOM.UD_OrgasmArousalReduceDuration = Round(value)
+        SetSliderOptionValue(UD_OrgasmArousalReduceDuration_S, UDOM.UD_OrgasmArousalReduceDuration, "{0} s")
     endIf
 EndFunction
 
@@ -1335,12 +1406,12 @@ EndFunction
 Function OnOptionSliderAcceptDebug(int option,float value)
     if option == OrgasmResist_S
         UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByIndex(actorIndex)
-        UDCDmain.UDOM.setActorOrgasmResist(slot.getActor(),value)
-        SetSliderOptionValue(OrgasmResist_S, UDCDmain.UDOM.GetActorOrgasmResist(slot.getActor()), "{1}")
+        UDOM.setActorOrgasmResist(slot.getActor(),value)
+        SetSliderOptionValue(OrgasmResist_S, UDOM.GetActorOrgasmResist(slot.getActor()), "{1}")
     elseif option == OrgasmCapacity_S
         UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByIndex(actorIndex)
-        UDCDmain.UDOM.setActorOrgasmCapacity(slot.getActor(),value)
-        SetSliderOptionValue(OrgasmCapacity_S, UDCDmain.UDOM.GetActorOrgasmCapacity(slot.getActor()), "{0}")        
+        UDOM.setActorOrgasmCapacity(slot.getActor(),value)
+        SetSliderOptionValue(OrgasmCapacity_S, UDOM.GetActorOrgasmCapacity(slot.getActor()), "{0}")        
     endIf
 EndFunction
 
@@ -1402,7 +1473,7 @@ EndFunction
 Function OnOptionMenuOpenCustomOrgasm(int option)
     if (option == UD_OrgasmAnimation_M)
         SetMenuDialogOptions(orgasmAnimation)
-        SetMenuDialogStartIndex(UDCDmain.UDOM.UD_OrgasmAnimation)
+        SetMenuDialogStartIndex(UDOM.UD_OrgasmAnimation)
         SetMenuDialogDefaultIndex(0)
     endif
 EndFunction
@@ -1464,8 +1535,8 @@ EndFunction
 
 Function OnOptionMenuAcceptCustomOrgasm(int option, int index)
     if (option == UD_OrgasmAnimation_M)
-        UDCDmain.UDOM.UD_OrgasmAnimation = index
-        SetMenuOptionValue(UD_OrgasmAnimation_M, orgasmAnimation[UDCDmain.UDOM.UD_OrgasmAnimation])
+        UDOM.UD_OrgasmAnimation = index
+        SetMenuOptionValue(UD_OrgasmAnimation_M, orgasmAnimation[UDOM.UD_OrgasmAnimation])
     endIf
 EndFunction
 
@@ -1541,20 +1612,28 @@ event OnOptionKeyMapChange(int option, int keyCode, string conflictControl, stri
 endEvent
 
 Event OnOptionHighlight(int option)
-    GeneralPageInfo(option)
-    AbadanPageInfo(option)
-    CustomBondagePageInfo(option)
-    CustomOrgasmPageInfo(option)
-    PatcherPageInfo(option)
-    DDPatchPageInfo(option)
-    DebugPageInfo(option)
+    if (_lastPage == "General")
+        GeneralPageInfo(option)
+    elseif (_lastPage == "Abadon Plug")
+        AbadanPageInfo(option)
+    elseif (_lastPage == "Custom Devices")
+         CustomBondagePageInfo(option)
+    elseif (_lastPage == "Custom orgasm")
+        CustomOrgasmPageInfo(option)
+    elseif (_lastPage == "Patcher")
+        PatcherPageInfo(option)
+    elseif (_lastPage == "DD patch")
+        DDPatchPageInfo(option)
+    elseif (_lastPage == "Debug panel")
+        DebugPageInfo(option)
+    elseif (_lastPage == "Other")
+
+    endif
 EndEvent
 
 Function GeneralPageInfo(int option)
     if(option == lockmenu_T)
         SetInfoText("Dissable MCM when any of Unforgiving devices is equiped")
-    elseif(option == UD_OrgasmExhaustion_T)
-        SetInfoText("Adds debuff to player on orgasm. Thsi debuff reduces stamina and magicka regeneration for short time. This effect is applied as on DD orgasm as on Sexlab scene orgasm.")
     elseif(option == UD_ActionKey_K)
         SetInfoText("Current use: Stops struggling")
     elseif(option == UD_StruggleKey_K)
@@ -1577,8 +1656,15 @@ Function GeneralPageInfo(int option)
         SetInfoText("Toggle Warning console messages.\nDefault: OFF")
     elseif option == UD_PrintLevel_S
         SetInfoText("Messege level for notifications which show to user. The lower this value is, the less messages will appear in top left. 0 will disable all messages\nDefault: 3")
+    elseif(option == UD_PlayerMenu_K)
+        SetInfoText("Current use: Opens player menu")
+    elseif(option == UD_NPCMenu_K)
+        SetInfoText("Current use: Opens NPC menu for NPC that player is currently looking on")
+    elseif(option == UD_LoggingLevel_S)
+        SetInfoText("Sets logging level. By default logging is turned off, as it can have noticable performance impact. Changing this to 3 will trace aeverythink. 1 will Trace only the most important informations.\n Default: 0")
     Endif
 EndFunction
+
 Function CustomBondagePageInfo(int option)
     if(option == UD_CHB_Stamina_meter_Keycode_K)
         SetInfoText("Key to crit device while struggling when stamina bar blinks")
@@ -1626,11 +1712,21 @@ Function CustomBondagePageInfo(int option)
         SetInfoText("By how many % will base cooldown reduce per Helper LVL\nDefault: 10 %")
     elseif option == UD_MinigameHelpXPBase_S
         SetInfoText("How any XP will character get after helping others.\nXP Formula: XPNEEDED = LVL*100*1.03^LVL\nDefault: 35 XP")
+    elseif option == UDCD_SpecialKey_Keycode_K
+        SetInfoText("Key that progress key mashing minigame, like cutting or forcing out plug.")
+    elseif option == UD_DeviceLvlHealth_S
+        SetInfoText("How much will device durability be increased per device level.\nNote: This will only affect max value, not current value.\nDefault: 2.5%")
+    elseif option == UD_DeviceLvlLockpick_S
+        SetInfoText("How much will lockpick difficulty increase per device level.\nDefault: 0.5")
+    elseif option == UD_PreventMasterLock_T
+        SetInfoText("Prevent devices from having locks with master difficulty\nDefault: OFF")
+    elseif option == UD_DeviceLvlLocks_S
+        SetInfoText("How many levels are needed for number of maximum locks to increase.Setting this to 0 will disable Lock level scaling\nExample: If this is 5, and device have level 10, maximum level will be increased by 2\nDefault: 5")
     Endif
 EndFunction
 
 Function CustomOrgasmPageInfo(int option)
-    if(option == UD_OrgasmUpdateTime_S)
+    if     option == UD_OrgasmUpdateTime_S
         SetInfoText("Update time for orgasm checking (how fast is orgasm widget updated). Is only used for player.\n Default: 0.2s")
     elseif option == UD_OrgasmAnimation_M
         SetInfoText("List of orgasm animations.\nNormal = Normal orgasm animation by  DD\nExtended = Orgasm animation + horny animations\nDefault: Normal")
@@ -1646,6 +1742,12 @@ Function CustomOrgasmPageInfo(int option)
         SetInfoText("Constant for calculating Orgasm rate from Vibration strength. Example: If this value is 0.1 and vibrator strength is 100, resulting Orgasm rate is 10\nDefault: 0.1 s")
     elseif option == UD_VibrationMultiplier_S
         SetInfoText("Constant for calculating Arousal rate from Vibration strength. Example: If this value is 0.025 and vibrator strength is 100, resulting Arousal rate is 2.5\nDefault: 0.025 s")
+    elseif option == UD_OrgasmArousalReduce_S
+        SetInfoText("Post-orgasm amount of arousal that will removed from actor per second\nDefault: 25 Arousal/s")
+    elseif option == UD_OrgasmArousalReduceDuration_S
+        SetInfoText("Duration of post-orgasm effect\nDefault: 7 seconds")
+    elseif(option == UD_OrgasmExhaustion_T)
+        SetInfoText("Adds debuff to player on orgasm. Thsi debuff reduces stamina and magicka regeneration for short time. This effect is applied as on DD orgasm as on Sexlab scene orgasm.")
     Endif
 EndFunction
 
@@ -1707,6 +1809,8 @@ Function DDPatchPageInfo(int option)
         SetInfoText("Toggle DAR compatibility. Please read more about it in changelog on LL\nDefault: OFF")
     elseif option == UD_GagPhonemModifier_S
         SetInfoText("Gag modifier which change gag expression for simple gag to better fit mouth. Is not used if DD beta 7 is installed\nDefault: 0")
+    elseif option == UD_OutfitRemove_T
+        SetInfoText("Prevent NPC outfit from being removed when hand restrain is locked on. Removing outfit can by default cause compatibility issue with NPC overhaul mods. This will obviousl prevent NPC from being naked untill player undress them\nDefault: True")
     endif
 EndFunction
 
@@ -1838,14 +1942,14 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "AutoCritChance", UDCDmain.UD_AutoCritChance)
     JsonUtil.SetFloatValue(strFile, "VibrationMultiplier", UDCDmain.UD_VibrationMultiplier)
     JsonUtil.SetFloatValue(strFile, "ArousalMultiplier", UDCDmain.UD_ArousalMultiplier)
-    JsonUtil.SetFloatValue(strFile, "OrgasmResistence", UDCDmain.UDOM.UD_OrgasmResistence)
-    JsonUtil.SetIntValue(strFile, "OrgasmArousalThreshold", UDCDmain.UDOM.UD_OrgasmArousalThreshold)
+    JsonUtil.SetFloatValue(strFile, "OrgasmResistence", UDOM.UD_OrgasmResistence)
+    JsonUtil.SetIntValue(strFile, "OrgasmArousalThreshold", UDOM.UD_OrgasmArousalThreshold)
     JsonUtil.SetIntValue(strFile, "LockpicksPerMinigame", UDCDmain.UD_LockpicksPerMinigame as Int)
-    JsonUtil.SetIntValue(strFile, "UseOrgasmWidget", UDCDmain.UDOM.UD_UseOrgasmWidget as Int)
-    JsonUtil.SetFloatValue(strFile, "OrgasmUpdateTime", UDCDmain.UDOM.UD_OrgasmUpdateTime)
-    JsonUtil.SetIntValue(strFile, "OrgasmAnimation", UDCDmain.UDOM.UD_OrgasmAnimation)
-    JsonUtil.SetIntValue(strFile, "HornyAnimation", UDCDmain.UDOM.UD_HornyAnimation as Int)
-    JsonUtil.SetIntValue(strFile, "HornyAnimationDuration", UDCDmain.UDOM.UD_HornyAnimationDuration)
+    JsonUtil.SetIntValue(strFile, "UseOrgasmWidget", UDOM.UD_UseOrgasmWidget as Int)
+    JsonUtil.SetFloatValue(strFile, "OrgasmUpdateTime", UDOM.UD_OrgasmUpdateTime)
+    JsonUtil.SetIntValue(strFile, "OrgasmAnimation", UDOM.UD_OrgasmAnimation)
+    JsonUtil.SetIntValue(strFile, "HornyAnimation", UDOM.UD_HornyAnimation as Int)
+    JsonUtil.SetIntValue(strFile, "HornyAnimationDuration", UDOM.UD_HornyAnimationDuration)
     JsonUtil.SetFloatValue(strFile, "CooldownMultiplier", UDCDmain.UD_CooldownMultiplier)
     JsonUtil.SetIntValue(strFile, "SkillEfficiency", UDCDmain.UD_SkillEfficiency)
     
@@ -1857,6 +1961,15 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "MinigameHelpCD", UDCDmain.UD_MinigameHelpCd)
     JsonUtil.SetIntValue(strFile, "MinigameHelpCD_PerLVL", Round(UDCDmain.UD_MinigameHelpCD_PerLVL))
     JsonUtil.SetIntValue(strFile, "MinigameHelpXPBase", UDCDmain.UD_MinigameHelpXPBase)
+
+    JsonUtil.SetFloatValue(strFile, "DeviceLvlHealth", UDCDMain.UD_DeviceLvlHealth*100)
+    JsonUtil.SetFloatValue(strFile, "DeviceLvlLockpick", UDCDMain.UD_DeviceLvlLockpick)
+    JsonUtil.SetIntValue(strFile, "DeviceLvlLocks", UDCDMain.UD_DeviceLvlLocks)
+    
+    JsonUtil.SetIntValue(strFile, "PreventMasterLock", UDCDmain.UD_PreventMasterLock as Int)
+    
+    JsonUtil.SetIntValue(strFile, "PostOrgasmArousalReduce", UDOM.UD_OrgasmArousalReduce)
+    JsonUtil.SetIntValue(strFile, "PostOrgasmArousalReduce_Duration", UDOM.UD_OrgasmArousalReduceDuration)
 
     ;ABADON
     JsonUtil.SetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
@@ -1891,7 +2004,7 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "RandomFiler", UDmain.UDRRM.UD_RandomDevice_GlobalFilter)
     JsonUtil.SetIntValue(strFile, "DAR", AAScript.UD_DAR as Int)
     JsonUtil.SetIntValue(strFile, "SlotUpdateTime", Round(UDCD_NPCM.UD_SlotUpdateTime))
-    
+    JsonUtil.SetIntValue(strFile, "OutfitRemove", UDCDMain.UD_OutfitRemove as Int)
     
     JsonUtil.Save(strFile, true)
 EndFunction
@@ -1936,17 +2049,18 @@ Function LoadFromJSON(string strFile)
     else
         UD_autocrit_flag = OPTION_FLAG_DISABLED
     endif
+    
     UDCDmain.UD_AutoCritChance = JsonUtil.GetIntValue(strFile, "AutoCritChance", UDCDmain.UD_AutoCritChance)
     UDCDmain.UD_VibrationMultiplier = JsonUtil.GetFloatValue(strFile, "VibrationMultiplier", UDCDmain.UD_VibrationMultiplier)
     UDCDmain.UD_ArousalMultiplier = JsonUtil.GetFloatValue(strFile, "ArousalMultiplier", UDCDmain.UD_ArousalMultiplier)
-    UDCDmain.UDOM.UD_OrgasmResistence = JsonUtil.GetFloatValue(strFile, "OrgasmResistence", UDCDmain.UDOM.UD_OrgasmResistence)
-    UDCDmain.UDOM.UD_OrgasmArousalThreshold = JsonUtil.GetIntValue(strFile, "OrgasmArousalThreshold", UDCDmain.UDOM.UD_OrgasmArousalThreshold)
+    UDOM.UD_OrgasmResistence = JsonUtil.GetFloatValue(strFile, "OrgasmResistence", UDOM.UD_OrgasmResistence)
+    UDOM.UD_OrgasmArousalThreshold = JsonUtil.GetIntValue(strFile, "OrgasmArousalThreshold", UDOM.UD_OrgasmArousalThreshold)
     UDCDmain.UD_LockpicksPerMinigame = JsonUtil.GetIntValue(strFile, "LockpicksPerMinigame", UDCDmain.UD_LockpicksPerMinigame)
-    UDCDmain.UDOM.UD_UseOrgasmWidget = JsonUtil.GetIntValue(strFile, "UseOrgasmWidget", UDCDmain.UDOM.UD_UseOrgasmWidget as Int)
-    UDCDmain.UDOM.UD_OrgasmUpdateTime = JsonUtil.GetFloatValue(strFile, "OrgasmUpdateTime", UDCDmain.UDOM.UD_OrgasmUpdateTime)
-    UDCDmain.UDOM.UD_OrgasmAnimation = JsonUtil.GetIntValue(strFile, "OrgasmAnimation", UDCDmain.UDOM.UD_OrgasmAnimation)
-    UDCDmain.UDOM.UD_HornyAnimation = JsonUtil.GetIntValue(strFile, "HornyAnimation", UDCDmain.UDOM.UD_HornyAnimation as Int)
-    UDCDmain.UDOM.UD_HornyAnimationDuration = JsonUtil.GetIntValue(strFile, "HornyAnimationDuration", UDCDmain.UDOM.UD_HornyAnimationDuration)
+    UDOM.UD_UseOrgasmWidget = JsonUtil.GetIntValue(strFile, "UseOrgasmWidget", UDOM.UD_UseOrgasmWidget as Int)
+    UDOM.UD_OrgasmUpdateTime = JsonUtil.GetFloatValue(strFile, "OrgasmUpdateTime", UDOM.UD_OrgasmUpdateTime)
+    UDOM.UD_OrgasmAnimation = JsonUtil.GetIntValue(strFile, "OrgasmAnimation", UDOM.UD_OrgasmAnimation)
+    UDOM.UD_HornyAnimation = JsonUtil.GetIntValue(strFile, "HornyAnimation", UDOM.UD_HornyAnimation as Int)
+    UDOM.UD_HornyAnimationDuration = JsonUtil.GetIntValue(strFile, "HornyAnimationDuration", UDOM.UD_HornyAnimationDuration)
     UDCDmain.UD_CooldownMultiplier = JsonUtil.GetFloatValue(strFile, "CooldownMultiplier", UDCDmain.UD_CooldownMultiplier)
     UDCDMain.UD_SkillEfficiency = JsonUtil.GetIntValue(strFile, "SkillEfficiency", UDCDmain.UD_SkillEfficiency)
     
@@ -1959,6 +2073,14 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UD_MinigameHelpCd  = JsonUtil.GetIntValue(strFile, "MinigameHelpCD",UDCDmain.UD_MinigameHelpCd)
     UDCDmain.UD_MinigameHelpCD_PerLVL   = JsonUtil.GetIntValue(strFile, "MinigameHelpCD_PerLVL", Round(UDCDmain.UD_MinigameHelpCD_PerLVL))
     UDCDmain.UD_MinigameHelpXPBase      = JsonUtil.GetIntValue(strFile, "MinigameHelpXPBase", UDCDmain.UD_MinigameHelpXPBase)
+    
+    UDCDMain.UD_DeviceLvlHealth             = JsonUtil.GetFloatValue(strFile, "DeviceLvlHealth", UDCDMain.UD_DeviceLvlHealth*100)/100
+    UDCDMain.UD_DeviceLvlLockpick           = JsonUtil.GetFloatValue(strFile, "DeviceLvlLockpick", UDCDMain.UD_DeviceLvlLockpick)
+    UDCDMain.UD_DeviceLvlLocks              = JsonUtil.GetIntValue(strFile, "DeviceLvlLocks", UDCDMain.UD_DeviceLvlLocks)
+    UDCDmain.UD_PreventMasterLock           = JsonUtil.GetIntValue(strFile, "PreventMasterLock", UDCDmain.UD_PreventMasterLock as Int)
+    
+    UDOM.UD_OrgasmArousalReduce = JsonUtil.GetIntValue(strFile, "PostOrgasmArousalReduce", UDOM.UD_OrgasmArousalReduce)
+    UDOM.UD_OrgasmArousalReduceDuration = JsonUtil.GetIntValue(strFile, "PostOrgasmArousalReduce_Duration", UDOM.UD_OrgasmArousalReduceDuration)
     
     ;ABADON
     AbadonQuest.final_finisher_set = JsonUtil.GetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
@@ -1994,6 +2116,7 @@ Function LoadFromJSON(string strFile)
     UDmain.UDRRM.UD_RandomDevice_GlobalFilter =  JsonUtil.GetIntValue(strFile, "RandomFiler", UDmain.UDRRM.UD_RandomDevice_GlobalFilter)
     AAScript.UD_DAR =  JsonUtil.GetIntValue(strFile, "DAR", AAScript.UD_DAR as Int)
     UDCD_NPCM.UD_SlotUpdateTime =  JsonUtil.GetIntValue(strFile, "SlotUpdateTime", Round(UDCD_NPCM.UD_SlotUpdateTime))
+    UDCDMain.UD_OutfitRemove = JsonUtil.GetIntValue(strFile, "OutfitRemove", UDCDMain.UD_OutfitRemove as Int)
 EndFunction
 
 Function ResetToDefaults()
@@ -2049,14 +2172,14 @@ Function ResetToDefaults()
     UDCDmain.UD_AutoCritChance = 80
     UDCDmain.UD_VibrationMultiplier = 0.1
     UDCDmain.UD_ArousalMultiplier = 0.025
-    UDCDmain.UDOM.UD_OrgasmResistence = 3.5
-    UDCDmain.UDOM.UD_OrgasmArousalThreshold = 95
+    UDOM.UD_OrgasmResistence = 3.5
+    UDOM.UD_OrgasmArousalThreshold = 95
     UDCDmain.UD_LockpicksPerMinigame = 2
-    UDCDmain.UDOM.UD_UseOrgasmWidget = true
-    UDCDmain.UDOM.UD_OrgasmUpdateTime = 0.5
-    UDCDmain.UDOM.UD_OrgasmAnimation = 1
-    UDCDmain.UDOM.UD_HornyAnimation = true
-    UDCDmain.UDOM.UD_HornyAnimationDuration = 5
+    UDOM.UD_UseOrgasmWidget = true
+    UDOM.UD_OrgasmUpdateTime = 0.5
+    UDOM.UD_OrgasmAnimation = 1
+    UDOM.UD_HornyAnimation = true
+    UDOM.UD_HornyAnimationDuration = 5
     UDCDmain.UD_CooldownMultiplier = 1.0
     UDCDmain.UD_CritEffect = 2
     UDCDmain.UD_HardcoreMode = false
@@ -2068,6 +2191,14 @@ Function ResetToDefaults()
     UDCDmain.UD_MinigameHelpCd                      = 60
     UDCDmain.UD_MinigameHelpCD_PerLVL               = 10
     UDCDmain.UD_MinigameHelpXPBase                  = 35
+    
+    UDCDmain.UD_DeviceLvlHealth             = 0.025
+    UDCDmain.UD_DeviceLvlLockpick           = 0.5
+    UDCDMain.UD_DeviceLvlLocks              = 5
+    UDCDmain.UD_PreventMasterLock           = False
+    
+    UDOM.UD_OrgasmArousalReduce             = 25
+    UDOM.UD_OrgasmArousalReduceDuration     =  7
     
     ;ABADON
     AbadonQuest.final_finisher_set = true
@@ -2104,6 +2235,7 @@ Function ResetToDefaults()
     UDmain.UDRRM.UD_RandomDevice_GlobalFilter = 0x0000FFFF ;16b
     AAScript.UD_DAR =  false
     UDCD_NPCM.UD_SlotUpdateTime = 10.0
+    UDCDMain.UD_OutfitRemove = True
 EndFunction
 
 Function SetAutoLoad(bool bValue)

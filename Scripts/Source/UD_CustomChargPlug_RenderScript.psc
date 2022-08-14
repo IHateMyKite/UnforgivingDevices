@@ -80,7 +80,7 @@ Function UpdateCharge(Float fValue)
     UD_VibDuration     = Round(fRange(UD_MaxDuration*getRelativeCharge()    ,UD_MaxDuration*0.50    ,UD_MaxDuration    ))
 EndFunction
 
-Float Function getVibOrgasmRate(float mult = 1.0)
+float Function getVibOrgasmRate(float mult = 1.0)
     return parent.getVibOrgasmRate(mult*(1.0 + 2.0*getRelativeCharge()))
 EndFunction
 

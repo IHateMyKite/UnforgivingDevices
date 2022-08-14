@@ -73,10 +73,17 @@ Float   Property UD_MutexTimeOutTime                = 1.0       auto hidden
 bool    Property UD_AllowArmTie                     = true      auto hidden
 bool    Property UD_AllowLegTie                     = true      auto hidden
 Int     Property UD_BlackGooRareDeviceChance        = 10        auto hidden
+Bool    Property UD_PreventMasterLock               = False     auto hidden
+;Lvl scalling
+Float   Property UD_DeviceLvlHealth                 = 0.025     auto hidden
+Float   Property UD_DeviceLvlLockpick               = 0.5       auto hidden
+Int     Property UD_DeviceLvlLocks                  = 5         auto hidden
 ;changes how much is strength converted to orgasm rate, 
 ;example: if UD_VibrationMultiplier = 0.1 and vibration strength will be 100, orgasm rate will be 100*0.1 = 10 O/s 
 float     Property UD_VibrationMultiplier           = 0.10    auto hidden
 float     Property UD_ArousalMultiplier             = 0.05    auto hidden
+
+Bool      Property UD_OutfitRemove                  = True    auto hidden
 
 UD_PlayerSlotScript Property UD_PlayerSlot auto
 
@@ -201,7 +208,6 @@ Function Update()
     RegisterForSingleUpdate(2*UD_UpdateTime)
     
     _activateDevicePackage = none
-    
     _startVibFunctionPackage = none
     
     ResetUI()
@@ -896,8 +902,8 @@ Event MinigameKeysRegister()
 EndEvent
 
 Event MinigameKeysUnregister()
-    UDUI.MinigameKeysUnregister()
     UDUI.GoToState("")
+    UDUI.MinigameKeysUnregister()
 EndEvent
 
 bool Function KeyIsUsedGlobaly(int keyCode)
@@ -926,7 +932,7 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
             else
                 device.critFailure() ;failure
             endif
-            return    
+            return
         elseif strArg == "NPC"
             if Utility.randomInt() > 30 ;npc reacted
                 float randomResponceTime = Utility.randomFloat(0.4,0.95) ;random reaction time
@@ -936,7 +942,7 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
                     device.critFailure() ;failure
                 endif
             endif
-            return    
+            return 
         endif
         
         selected_crit_meter = meter
@@ -1062,7 +1068,7 @@ Function OpenHelpDeviceMenu(UD_CustomDevice_RenderScript device,Actor akHelper,b
             float loc_currenttime = Utility.GetCurrentGameTime()
             float loc_cooldowntime = StorageUtil.GetFloatValue(akHelper,"UDNPCCD:"+device.getWearer(),loc_currenttime)
             if loc_cooldowntime > loc_currenttime
-                Print("On cooldown! (" + ToUnsig(Round(((loc_cooldowntime - loc_currenttime)*24*60)))+" min)")
+                Print("On cooldown! (" + ToUnsig(Round(((loc_cooldowntime - loc_currenttime)*24*60)))+" min)",0)
                 loc_cond = false
             endif
         endif
@@ -1120,13 +1126,13 @@ EndFunction
 
 ;returns updated lvl
 int Function addHelperXP(Actor akHelper, int iXP)
-    int loc_currentXP = StorageUtil.GetIntValue(akHelper,"UDNPCXP",0)
-    int loc_currentLVL = GetHelperLVL(akHelper)
-    int loc_nextXP = loc_currentXP + iXP
-    int loc_nextLVL = loc_currentLVL
+    int loc_currentXP   = StorageUtil.GetIntValue(akHelper,"UDNPCXP",0)
+    int loc_currentLVL  = GetHelperLVL(akHelper)
+    int loc_nextXP      = loc_currentXP + iXP
+    int loc_nextLVL     = loc_currentLVL
     while loc_nextXP >= CalculateHelperXpRequired(loc_nextLVL)
-        loc_nextXP -= CalculateHelperXpRequired(loc_nextLVL)
-        loc_nextLVL += 1
+        loc_nextXP      -= CalculateHelperXpRequired(loc_nextLVL)
+        loc_nextLVL     += 1
         if UDmain.ActorIsPlayer(akHelper)
             UDmain.Print("Your Helper skill level increased to " + loc_nextLVL + " !")
         elseif ActorIsFollower(akHelper)
@@ -1145,7 +1151,7 @@ int Function GetHelperLVL(Actor akHelper)
 EndFunction
 
 float Function GetHelperLVLProgress(Actor akHelper)
-    int loc_currentXP = StorageUtil.GetIntValue(akHelper,"UDNPCXP",0)
+    Float loc_currentXP = StorageUtil.GetIntValue(akHelper,"UDNPCXP",0)
     int loc_currentLVL = StorageUtil.GetIntValue(akHelper,"UDNPCLVL",1)
     return loc_currentXP/CalculateHelperXpRequired(loc_currentLVL);(100.0*(loc_currentLVL))
 EndFunction
