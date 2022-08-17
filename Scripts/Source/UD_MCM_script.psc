@@ -347,6 +347,8 @@ Int UD_DeviceLvlLocks_S
 
 Int UD_PreventMasterLock_T
 Int UD_MandatoryCrit_T
+
+Int UD_AlternateAnimation_T
 Event resetCustomBondagePage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -371,6 +373,9 @@ Event resetCustomBondagePage()
     
     UD_AllowArmTie_T = addToggleOption("Arm tie:", UDCDmain.UD_AllowArmTie,UD_LockMenu_flag)
     UD_AllowLegTie_T = addToggleOption("Leg tie:", UDCDmain.UD_AllowLegTie,UD_LockMenu_flag)
+    
+    UD_AlternateAnimation_T = addToggleOption("Alternate animation:", UDCDmain.UD_AlternateAnimation)
+    addEmptyOption()
     
     ;SKILL
     AddHeaderOption("Skill setting")
@@ -800,6 +805,9 @@ Function OptionCustomBondage(int option)
     elseif option == UD_MandatoryCrit_T
         UDCDmain.UD_MandatoryCrit = !UDCDmain.UD_MandatoryCrit
         SetToggleOptionValue(UD_MandatoryCrit_T, UDCDmain.UD_MandatoryCrit)  
+    elseif option == UD_AlternateAnimation_T
+        UDCDmain.UD_AlternateAnimation = !UDCDmain.UD_AlternateAnimation
+        SetToggleOptionValue(UD_AlternateAnimation_T, UDCDmain.UD_AlternateAnimation)  
     endif
 EndFunction
 
@@ -1728,6 +1736,8 @@ Function CustomBondagePageInfo(int option)
         SetInfoText("How many levels are needed for number of maximum locks to increase.Setting this to 0 will disable Lock level scaling\nExample: If this is 5, and device have level 10, maximum level will be increased by 2\nDefault: 5")
     elseif option == UD_MandatoryCrit_T
         SetInfoText("When this option is enabled, not landing crits will punish player\nDefault: OFF")
+    elseif option == UD_AlternateAnimation_T
+        SetInfoText("Enabling this will force struggle animation to randomly switch to different animation periodically\nDefault: OFF")
     Endif
 EndFunction
 
@@ -1978,7 +1988,7 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "PostOrgasmArousalReduce_Duration", UDOM.UD_OrgasmArousalReduceDuration)
 
     JsonUtil.SetIntValue(strFile, "MandatoryCrit", UDCDmain.UD_MandatoryCrit as Int)
-
+    JsonUtil.SetIntValue(strFile, "AlternateAnimation", UDCDmain.UD_AlternateAnimation as Int)
     ;ABADON
     JsonUtil.SetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
     JsonUtil.SetIntValue(strFile, "AbadonForceSetPref", AbadonQuest.final_finisher_pref as Int)
@@ -2091,7 +2101,7 @@ Function LoadFromJSON(string strFile)
     UDOM.UD_OrgasmArousalReduceDuration = JsonUtil.GetIntValue(strFile, "PostOrgasmArousalReduce_Duration", UDOM.UD_OrgasmArousalReduceDuration)
     
     UDCDmain.UD_MandatoryCrit = JsonUtil.GetIntValue(strFile, "MandatoryCrit", UDCDmain.UD_MandatoryCrit as Int)
-    
+    UDCDMain.UD_AlternateAnimation = JsonUtil.GetIntValue(strFile, "AlternateAnimation", UDCDmain.UD_AlternateAnimation as Int)
     ;ABADON
     AbadonQuest.final_finisher_set = JsonUtil.GetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
     AbadonQuest.final_finisher_pref = JsonUtil.GetIntValue(strFile, "AbadonForceSetPref", AbadonQuest.final_finisher_pref as Int)
@@ -2211,6 +2221,8 @@ Function ResetToDefaults()
     UDOM.UD_OrgasmArousalReduceDuration     =  7
     
     UDCDmain.UD_MandatoryCrit                   = False
+    UDCDmain.UD_AlternateAnimation              = False
+    
     ;ABADON
     AbadonQuest.final_finisher_set = true
     AbadonQuest.final_finisher_pref = 0

@@ -57,6 +57,11 @@ UD_SkillManager_Script              Property UDSKILL
         return (UDCDmain as Quest) as UD_SkillManager_Script
     EndFunction
 EndProperty
+
+;UI menus
+UITextEntryMenu Property TextMenu auto
+UIListMenu      Property ListMenu auto
+
 bool property lockMCM                   = False     auto hidden
 bool property DebugMod                  = False     auto hidden conditional
 bool Property AllowNPCSupport           = False     auto
@@ -814,6 +819,36 @@ form function GetMeMyForm(int formNumber, string pluginName) global;fornumber fo
         return Game.GetFormEx(Math.LogicalOr(Math.LeftShift(theLO, 24), formNumber))
     endIf
 endFunction
+
+;open text input for user and return string
+string Function GetUserTextInput()
+    TextMenu.ResetMenu()
+    TextMenu.OpenMenu()
+    TextMenu.BlockUntilClosed()
+    return TextMenu.GetResultString()
+EndFunction
+
+;open list of options and return selected option
+Int Function GetUserListInput(string[] arrList)
+    ListMenu.ResetMenu()
+    int loc_i = 0
+    while loc_i < arrList.length
+        ListMenu.AddEntryItem(arrList[loc_i])
+        loc_i+=1
+    endwhile
+    ListMenu.OpenMenu()
+    ListMenu.BlockUntilClosed()
+    return ListMenu.GetResultInt()
+EndFunction
+
+Form Function GetShield(Actor akActor) Global
+    Form loc_shield = akActor.GetEquippedObject(0)
+    if loc_shield && (loc_shield.GetType() == 26 || loc_shield.GetType() == 31)
+        return loc_shield
+    else
+        return none
+    endif
+EndFunction
 
 ;very fast function for checking if menu is open
 ;have little lag because it works by checking events

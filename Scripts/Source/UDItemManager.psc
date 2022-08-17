@@ -32,6 +32,9 @@ Function lockAbadonHelperPlugs(Actor akTarget)
             libs.lockdevice(akTarget,UDlibs.InflatablePlugAnal)
         endif
     endif
+    if !akTarget.wornhaskeyword(libs.zad_DeviousPlugVaginal)
+        libs.lockdevice(akTarget,UDlibs.InflatablePlugVag)
+    endif
 EndFunction
 
 Function equipAbadonLatexSuit(Actor target)

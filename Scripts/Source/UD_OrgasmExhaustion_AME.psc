@@ -16,14 +16,12 @@ EndEvent
 
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
     if _appliedValue
-        UDOM.removeOrgasmResistMultiplier(_target,_appliedValue)
+        UDOM.UpdateOrgasmResistMultiplier(_target,-1*_appliedValue)
     endif
     if _appliedValue_ARM
         UDOM.UpdateArousalRateMultiplier(_target,-1*_appliedValue_ARM)
     endif
     if _appliedValue || _appliedValue_ARM
-        if StorageUtil.GetIntValue(_target,"UD_OrgasmExhaustionNum",0) > 0
-            StorageUtil.AdjustIntValue(_target,"UD_OrgasmExhaustionNum",-1)
-        endif
+        StorageUtil.AdjustIntValue(_target,"UD_OrgasmExhaustionNum",-1)
     endif
 EndEvent

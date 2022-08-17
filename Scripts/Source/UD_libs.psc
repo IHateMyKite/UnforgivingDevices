@@ -81,6 +81,8 @@ Armor Property ControlablePlugVag auto
 Armor Property ControlablePlugAnal auto
 Armor Property CursedInflatablePlugAnal auto
 Armor Property InflatablePlugAnal auto
+Armor Property InflatablePlugVag auto
+
 ;hand restrains
 Armor Property AbadonArmbinder auto
 Armor Property AbadonArmbinderEbonite auto

@@ -75,33 +75,39 @@ bool Function Ready()
     return UDmain.Ready
 EndFunction
 
-;GLOBAL UnforgivingDevicesMain functions
-;   string  IntToBit(int argInt) ;convert int to bit map string
-;   float   CalcDistance(ObjectReference obj1,ObjectReference obj2)
-;   bool    GActorIsPlayer(Actor akActor) ;slow. Better use local ActorIsPlayer
-;   string  GetActorName(Actor akActor)
-;   int     codeBit(int iCodedMap,int iValue,int iSize,int iIndex)
-;   int     decodeBit(int iCodedMap,int iSize,int iIndex)
-;   float   fRange(float fValue,float fMin,float fMax)
-;   int     iRange(int iValue,int iMin,int iMax)
-;   string  formatString(string str,int floatPoints)
-;   float   checkLimit(float value,float limit)
-;   int     Round(float value)
-;           closeMenu()
-;           closeLockpickMenu()
-;   string  getPlugsVibrationStrengthString(int strenght)
-;   float   getMaxActorValue(Actor akActor,string akValue, float perc_part = 1.0) ;https://www.creationkit.com/index.php?title=GetActorValuePercentage_-_Actor
-;   float   getCurrentActorValuePerc(Actor akActor,string akValue)
-;   float   getCurrentActorValuePercCustom(Actor akActor,string akValue,float fBase)
-;   bool    ModInstalled(string sModFileName)
-;   bool    ModInstalledAfterUD(string sModFileName)
-;   string  MakeDeviceHeader(Actor akActor,Armor invDevice)
-;   Int     ToUnsig(Int iValue)
-;           ShowMessageBox(string strText)
-;           DCLog(String msg) ;only use for debugging
-;           GInfo(String msg)
-;           GWarning(String msg)
-;           GError(String msg) ;global error function. Ignore safety in sake of usebality
+;==========================================================================================
+;                           GLOBAL UnforgivingDevicesMain FUNCTIONS
+;==========================================================================================
+;  RET.VAL   |        FUNCTION NAME              |                 ARGUMENTS
+;==========================================================================================
+;   string   |   IntToBit                        |   (int argInt) ;convert int to bit map string
+;   float    |   CalcDistance                    |   (ObjectReference obj1,ObjectReference obj2)
+;   bool     |   GActorIsPlayer                  |   (Actor akActor) ;slow. Better use local ActorIsPlayer
+;   string   |   GetActorName                    |   (Actor akActor)
+;   int      |   codeBit                         |   (int iCodedMap,int iValue,int iSize,int iIndex)
+;   int      |   decodeBit                       |   (int iCodedMap,int iSize,int iIndex)
+;   float    |   fRange                          |   (float fValue,float fMin,float fMax)
+;   int      |   iRange                          |   (int iValue,int iMin,int iMax)
+;   string   |   formatString                    |   (string str,int floatPoints)
+;   float    |   checkLimit                      |   (float value,float limit)
+;   int      |   Round                           |   (float value)
+;            |   closeMenu                       |   ()
+;            |   closeLockpickMenu               |   ()
+;   string   |   getPlugsVibrationStrengthString |   (int strenght)
+;   float    |   getMaxActorValue                |   (Actor akActor,string akValue, float perc_part = 1.0)
+;   float    |   getCurrentActorValuePerc        |   (Actor akActor,string akValue)
+;   float    |   getCurrentActorValuePercCustom  |   (Actor akActor,string akValue,float fBase)
+;   bool     |   ModInstalled                    |   (string sModFileName)
+;   bool     |   ModInstalledAfterUD             |   (string sModFileName)
+;   string   |   MakeDeviceHeader                |   (Actor akActor,Armor invDevice)
+;   Int      |   iUnsig                          |   (Int iValue)
+;   Float    |   fUnsig                          |   (Int iValue)
+;            |   ShowMessageBox                  |   (string strText)
+;            |   DCLog                           |   (String msg) ;only use for debugging
+;            |   GInfo                           |   (String msg)
+;            |   GWarning                        |   (String msg)
+;            |   GError                          |   (String msg) ;global error function. Ignore safety in sake of usebality
+;==========================================================================================
 
 ;==========================================================================================
 ;                                  UTILITY FUNCTIONS
@@ -116,69 +122,81 @@ EndFunction
 ;   endif
 ;   //do something//
 ;EndFunction
-bool Function TraceAllowed()
+bool    Function TraceAllowed()
     return UDmain.TraceAllowed()
 EndFunction
 
-Function Log(String asMsg, int aiLevel = 1)
+        Function Log(String asMsg, int aiLevel = 1)
     UDmain.Log(asMsg,aiLevel)
 EndFunction
 
 ;Console Log. Print Msg to console
-Function CLog(String asMsg)
+        Function CLog(String asMsg)
     UDmain.CLog(asMsg)
 EndFunction
 
 ;print message for player (notification)
-Function Print(String asMsg,int aiLevel = 1,bool abLog = false)
+        Function Print(String asMsg,int aiLevel = 1,bool abLog = false)
     UDmain.Print(asMsg,aiLevel,abLog)
 EndFunction
 
 ;print error message in to console and papyrus log
-Function Error(String asMsg)
+        Function    Error(String asMsg)
     UDmain.Error(asMsg)
 EndFunction
 
 ;print warning message in to console and papyrus log
 ;can be turned off with MCM
-Function Warning(String asMsg)
+        Function    Warning(String asMsg)
     UDmain.Warning(asMsg)
 EndFunction
 
 ;print info message in to console and papyrus log
 ;is not affected by MCM setting. 
 ;Should be used rarely only for specifically informing user through console
-Function Info(String asMsg)
+        Function    Info(String asMsg)
     UDmain.Info(asMsg)
 EndFunction
 
-;returns true is actor is player
-bool Function ActorIsPlayer(Actor akActor)
-    return UDmain.ActorIsPlayer(akActor)
+;returns true fs actor is player
+bool    Function    ActorIsPlayer(Actor akActor)
+    return akActor == UDmain.Player
 EndFunction
 
 ;return ture if actor is follower
-bool Function ActorIsFollower(Actor akActor)
+bool    Function    ActorIsFollower(Actor akActor)
     return UDmain.ActorIsFollower(akActor)
 EndFunction
 
 ;return ture if actor is valid for mod (can wear devious devices)
-bool Function ActorIsValidForUD(Actor akActor)
+bool    Function    ActorIsValidForUD(Actor akActor)
     return UDmain.ActorIsValidForUD(akActor)
 EndFunction
 
 ;return true if actor is in hearing range from player
 ;hearing range is specified in MCM
 ;can be used in combination with Print function, so message is only show if actor is close to player
-bool Function ActorInCloseRange(Actor akActor)
+bool    Function    ActorInCloseRange(Actor akActor)
     return UDmain.ActorInCloseRange(akActor)
 EndFunction
 
+
+;==========================================================================================
+;                                  MENU FUNCTIONS
+;==========================================================================================
 ;very fast functions for checking if menu is open
 ;have little lag because it works by checking events (still didn't manage to get issue)
+;==========================================================================================
+;  RET.VAL   |        FUNCTION NAME                 |                 ARGUMENTS
+;==========================================================================================
+;   Bool     |   IsMenuOpen                         |   ()
+;   Bool     |   IsMenuOpenID                       |   (int aiID)
+;   Bool     |   IsContainerMenuOpen                |   ()
+;   Bool     |   IsLockpickingMenuOpen              |   ()
+;==========================================================================================
 
 ;return true if any registered menu is open
-Bool Function IsMenuOpen()
+Bool    Function    IsMenuOpen()
     return UDmain.IsMenuOpen()
 EndFunction
 ;======================================;
@@ -209,15 +227,15 @@ EndFunction
 ;    20     =     BarterMenu           ;
 ;======================================;
 ;returns true if menu with aiID is open
-Bool Function IsMenuOpenID(int aiID)
+Bool    Function    IsMenuOpenID(int aiID)
     return UDmain.IsMenuOpenID(aiID)
 EndFunction
 ;return true if Container menu is open
-Bool Function IsContainerMenuOpen()
+Bool    Function    IsContainerMenuOpen()
     return UDmain.IsContainerMenuOpen()
 EndFunction
 ;return true if Lockpick menu is open
-Bool Function IsLockpickingMenuOpen()
+Bool    Function    IsLockpickingMenuOpen()
     return UDmain.IsLockpickingMenuOpen()
 EndFunction
 
@@ -249,70 +267,96 @@ EndFunction
 ;  UD_CustomDevice_RenderScript[] getActivableVibrators()                   ;returns all turned activable vibrators
 
 ;return true if actor is registered
-bool Function isRegistered(Actor akActor)
+bool    Function    isRegistered(Actor akActor)
     return UDNPCM.isRegistered(akActor)
 EndFunction
 
 ;register passed actor in to free NPC slot
 ;abMessage - toggle message that show for user, saying that NPC was registered and number of slot
 ;returns true if actor was succefully registered
-bool Function RegisterNPC(Actor akActor,bool abMessage = false)
+bool    Function    RegisterNPC(Actor akActor,bool abMessage = false)
     return UDNPCM.RegisterNPC(akActor,abMessage)
 EndFunction
 
 ;unregister passed actor
 ;abMessage - toggle message that show for user, saying that NPC was unregistered and number of slot
 ;returns true if actor was succefully unregistered
-bool Function UnregisterNPC(Actor akActor,bool abMessage = false)
+bool    Function    UnregisterNPC(Actor akActor,bool abMessage = false)
     return UDNPCM.UnregisterNPC(akActor,abMessage)
 EndFunction
 
 ;return player NPC slot
-UD_CustomDevice_NPCSlot Function getPlayerSlot()
+UD_CustomDevice_NPCSlot     Function    getPlayerSlot()
     return UDNPCM.getPlayerSlot()
 EndFunction
 
 ;return specific NPC slot
 ;in case that function fails, it returns none
-UD_CustomDevice_NPCSlot Function getNPCSlotByActor(Actor akActor)
+UD_CustomDevice_NPCSlot     Function    getNPCSlotByActor(Actor akActor)
     return UDNPCM.getNPCSlotByActor(akActor)
 EndFunction
 
 ;return specific NPC slot by actor name
 ;asName - name of actor
 ;in case that function fails, it returns none
-UD_CustomDevice_NPCSlot Function getNPCSlotByActorName(string asName)
+UD_CustomDevice_NPCSlot     Function    getNPCSlotByActorName(string asName)
     return UDNPCM.getNPCSlotByActorName(asName)
 EndFunction
 
 ;returns number of free NPC slots
-int Function GetNumberOfFreeNPCSlots()
+int     Function    GetNumberOfFreeNPCSlots()
     return UDNPCM.numberOfFreeSlots()
 EndFunction
 
 ;==========================================================================================
-;                                  ORGASM RELATED FUNCTIONS
+;                               ORGASM/AROUSAL FUNCTIONS
+;==========================================================================================
+;  RET.VAL |        FUNCTION NAME         |                 ARGUMENTS
+;==========================================================================================
+;          | UpdateBaseOrgasmVals         |  (Actor akActor, int aiDuration, float afOrgasmRate, float afForcing = 0.0, float afArousalRate = 0.0)
+;   int    | GetOrgasmExhaustion          |  (Actor akActor)
+;   Float  | getOrgasmRate                |  (Actor akActor, Int aiMode = 0)
+;   Int    | GetArousal                   |  (Actor akActor)
+;   Float  | GetArousalRate               |  (Actor akActor,int abMode = 0)
+;   Float  | GetAntiOrgasmRate            |  (Actor akActor)
+;   Float  | GetActorOrgasmForcing        |  (Actor akActor)
+;   Float  | GetOrgasmRateMultiplier      |  (Actor akActor)
+;   Float  | GetOrgasmResist              |  (Actor akActor, Int aiMode = 0)
+;   Float  | GetOrgasmResistMultiplier    |  (Actor akActor)
+;   Float  | GetArousalRateMultiplier     |  (Actor akActor)
+;   Float  | GetOrgasmProgress            |  (Actor akActor)
+;   Float  | GetOrgasmProgressPerc        |  (Actor akActor)
+;   Float  | GetActorOrgasmCapacity       |  (Actor akActor)
+;   Float  | UpdateOrgasmRate             |  (Actor akActor ,float afOrgasmRate,float afOrgasmForcing)
+;   Float  | UpdateArousalRate            |  (Actor akActor ,float afArousalRate)
+;   Float  | UpdateOrgasmRateMultiplier   |  (Actor akActor ,float afOrgasmRateMultiplier)
+;   Float  | UpdateOrgasmResist           |  (Actor akActor ,float afOrgasmResist)
+;   Float  | UpdateOrgasmResistMultiplie  |  (Actor akActor ,float afOrgasmResistMultiplier)
+;   Float  | UpdateArousalRateMultiplier  |  (Actor akActor ,Float afArousalRateMultiplier)
+;   Int    | UpdatetActorOrgasmCapacity   |  (Actor akActor,Int aiValue)
 ;==========================================================================================
 
+;           Orgasm(Actor akActor,int aiDuration,int aiArousalDecrease = 75,int aiForce = 0, bool abBlocking = true)
 ;increase actor orgasm rate for certain duration. Values will be returned to previous values once effect end
 ;aiDuration - duration of effect
 ;afOrgasmRate - by how much is orgasm rate increased while effect is on
 ;afForcing - how much is orgasm forcing increased (0.0 = masturbation / 1.0> = forced orgasm) while effect is on
 ;afArousalRate - how much is arousal rate increased while effect is on
-Function UpdateBaseOrgasmVals(Actor akActor, int aiDuration, float afOrgasmRate, float afForcing = 0.0, float afArousalRate = 0.0)
+;WARNING: Both afOrgasmRate and afForcing are recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
+        Function    UpdateBaseOrgasmVals(Actor akActor, int aiDuration, float afOrgasmRate, float afForcing = 0.0, float afArousalRate = 0.0)
     UDOM.UpdateBaseOrgasmVals(akActor, aiDuration, afOrgasmRate, afForcing, afArousalRate)
 EndFunction
 
 ;return ammount of orgasm exhaustions actor currently have
-int Function GetOrgasmExhaustion(Actor akActor)
+Int     Function    GetOrgasmExhaustion(Actor akActor)
     return UDOM.GetOrgasmExhaustion(akActor)
 EndFunction
 
 ;return current orgasm rate of actor.
 ;actual orgasm rate can be calculated as OrgasmRate - AntiOrgasmRate
-;aiMode -   0 -> returns value affected by modifier
+;aiMode -   0 -> returns value affected´ by modifier
 ;           1 -> returns raw value
-Float Function getOrgasmRate(Actor akActor, Int aiMode = 0)
+Float   Function    GetOrgasmRate(Actor akActor, Int aiMode = 0)
     if aiMode == 0
         return UDOM.getActorAfterMultOrgasmRate(akActor)
     else
@@ -321,14 +365,14 @@ Float Function getOrgasmRate(Actor akActor, Int aiMode = 0)
 EndFunction
 
 ;return current arousal of actor
-Int Function getArousal(Actor akActor)
+Int     Function    GetArousal(Actor akActor)
     return UDOM.getArousal(akActor)
 EndFunction
 
 ;return current arousal rate of actor.
 ;aiMode -   0 -> returns value affected by modifier
 ;           1 -> returns raw value
-Float Function getArousalRate(Actor akActor,int abMode = 0)
+Float   Function    GetArousalRate(Actor akActor,int abMode = 0)
     if abMode == 0
         return UDOM.getArousalRateM(akActor)
     else
@@ -339,24 +383,24 @@ EndFunction
 ;return current anti orgasm rate of actor. This value is already affected by modifiers
 ;this value is affected by arousal
 ;actual orgasm rate can be calculated as OrgasmRate - AntiOrgasmRate
-Float Function getAntiOrgasmRate(Actor akActor)
+Float   Function    GetAntiOrgasmRate(Actor akActor)
     return UDOM.getActorAfterMultAntiOrgasmRate(akActor)
 EndFunction
 
 ;returns current orgasm forcing of actor
-float Function getActorOrgasmForcing(Actor akActor)
+Float   Function    GetActorOrgasmForcing(Actor akActor)
     return UDOM.getActorOrgasmForcing(akActor)
 EndFunction
 
 ;return current orgasm rate multiplier of actor
-float Function getOrgasmRateMultiplier(Actor akActor)
+Float   Function    GetOrgasmRateMultiplier(Actor akActor)
     return UDOM.getActorOrgasmRateMultiplier(akActor)
 EndFunction
 
 ;return current orgasm resistence. This value is already affected by orgasm resistence multiplier
 ;aiMode -   0 -> returns value affected by modifier
 ;           1 -> returns raw value
-float Function getOrgasmResist(Actor akActor, Int aiMode = 0)
+Float   Function    GetOrgasmResist(Actor akActor, Int aiMode = 0)
     if aiMode == 0
         return UDOM.getActorOrgasmResistM(akActor)
     else
@@ -365,65 +409,72 @@ float Function getOrgasmResist(Actor akActor, Int aiMode = 0)
 EndFunction
 
 ;return current orgasm resist multiplier of actor
-float Function getOrgasmResistMultiplier(Actor akActor)
+Float   Function    GetOrgasmResistMultiplier(Actor akActor)
     return UDOM.getActorOrgasmResistMultiplier(akActor)
 EndFunction
 
 ;return current arousal rate multiplier of actor
-Float Function getArousalRateMultiplier(Actor akActor)
+Float   Function    GetArousalRateMultiplier(Actor akActor)
     return UDOM.getArousalRateMultiplier(akActor)
 EndFunction
 
 ;return current orgasm progress of the actor
-float Function getOrgasmProgress(Actor akActor)
+Float   Function    GetOrgasmProgress(Actor akActor)
     return UDOM.getActorOrgasmProgress(akActor)
 EndFunction
 
 ;return relative orgasm progress of the actor
 ;range 0.0 - 1.0
-float Function getOrgasmProgressPerc(Actor akActor)
+Float   Function    GetOrgasmProgressPerc(Actor akActor)
     return UDOM.getOrgasmProgressPerc(akActor)
 EndFunction
 
 ;return current orgasm capacity of actor
-float Function getActorOrgasmCapacity(Actor akActor)
+Float   Function    GetActorOrgasmCapacity(Actor akActor)
     return UDOM.getActorOrgasmCapacity(akActor)
 EndFunction
 
 ;updates orgasm rate and orgasm forcing by passed value. The value will be not changed back. Allways change the value back to original values !!!!!
 ;returns new value
-float Function UpdateOrgasmRate(Actor akActor ,float afOrgasmRate,float afOrgasmForcing)
+;WARNING: Both afOrgasmRate and afForcing are recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
+Float   Function    UpdateOrgasmRate(Actor akActor ,float afOrgasmRate,float afOrgasmForcing)
     return UDOM.UpdateOrgasmRate(akActor,afOrgasmRate,afOrgasmForcing)
 EndFunction
 
 ;updates arousal rate. The value will be not changed back. Allways change the value back to original values !!!!!
-Float Function UpdateArousalRate(Actor akActor ,float afArousalRate)
+;WARNING: afArousalRate is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
+Float   Function    UpdateArousalRate(Actor akActor ,float afArousalRate)
     return UDOM.UpdateArousalRate(akActor, afArousalRate)
 EndFunction
 
 ;updates orgasm rate multiplier. The value will be not changed back. Allways change the value back to original values !!!!!
-Function UpdateOrgasmRateMultiplier(Actor akActor ,float afOrgasmRateMultiplier)
-    UDOM.UpdateOrgasmRateMultiplier(akActor, afOrgasmRateMultiplier)
+;WARNING: Both afOrgasmRateMultiplier is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
+Float   Function    UpdateOrgasmRateMultiplier(Actor akActor ,float afOrgasmRateMultiplier)
+    return UDOM.UpdateOrgasmRateMultiplier(akActor, afOrgasmRateMultiplier)
 EndFunction
 
 ;updates orgasm rate resistence. The value will be not changed back. Allways change the value back to original values !!!!!
-Function UpdateOrgasmResist(Actor akActor ,float afOrgasmRateMultiplier)
-    return UDOM.UpdateOrgasmResist(akActor ,afOrgasmRateMultiplier)
+;WARNING: afOrgasmResist is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
+Float   Function    UpdateOrgasmResist(Actor akActor ,float afOrgasmResist)
+    return UDOM.UpdateOrgasmResist(akActor ,afOrgasmResist)
 EndFunction
 
 ;updates orgasm rate resistence multiplier. The value will be not changed back. Allways change the value back to original values !!!!!
-Function UpdateOrgasmResistMultiplier(Actor akActor ,float afOrgasmRateMultiplier)
-    return UDOM.UpdateOrgasmResistMultiplier(akActor, afOrgasmRateMultiplier)
+;WARNING: afOrgasmResistMultiplier is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
+Float   Function    UpdateOrgasmResistMultiplier(Actor akActor ,float afOrgasmResistMultiplier)
+    return UDOM.UpdateOrgasmResistMultiplier(akActor, afOrgasmResistMultiplier)
 EndFunction
 
 ;updates arousal rate resistence multiplier. The value will be not changed back. Allways change the value back to original values !!!!!
-Float Function UpdateArousalRateMultiplier(Actor akActor ,Float afArousalRateMultiplier)
+;WARNING: afArousalRateMultiplier is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
+Float   Function    UpdateArousalRateMultiplier(Actor akActor ,Float afArousalRateMultiplier)
     return UDOM.UpdateArousalRateMultiplier(akActor, afArousalRateMultiplier)
 EndFunction
 
 ;updates orgasm capacity. The value will be not changed back. Allways change the value back to original values !!!!!
-Function UpdatetActorOrgasmCapacity(Actor akActor,float afValue)
-    return UDOM.UpdatetActorOrgasmCapacity(akActor, afValue)
+;Returns updated value
+Int     Function    UpdatetActorOrgasmCapacity(Actor akActor,Int aiValue)
+    return UDOM.UpdatetActorOrgasmCapacity(akActor, aiValue)
 EndFunction
 
 ;make actor orgasm
@@ -433,6 +484,19 @@ EndFunction
 ;                       2 -> forced orgasm
 ;                       1 -> something between
 ;abBlocking - if true, function will be blocked untill the orgasm function starts
-Function Orgasm(Actor akActor,int aiDuration,int aiArousalDecrease = 75,int aiForce = 0, bool abBlocking = true)
+        Function    Orgasm(Actor akActor,int aiDuration,int aiArousalDecrease = 75,int aiForce = 0, bool abBlocking = true)
     UDOM.startOrgasm(akActor,aiDuration,aiArousalDecrease,aiForce, abBlocking)
 EndFUnction
+
+;==========================================================================================
+;                                     INPUT FUNCTIONS
+;==========================================================================================
+;open text input for user and return string
+string  Function    GetUserTextInput()
+    return UDmain.GetUserTextInput()
+EndFunction
+
+;open list of options and return selected option
+Int     Function    GetUserListInput(string[] apList)
+    return UDmain.GetUserListInput(apList)
+EndFunction

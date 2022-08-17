@@ -301,14 +301,13 @@ Function Receive_MinigameParalel(Form fActor)
         akHelper.setAV("HealRate", HealRateHelper)
         akHelper.setAV("MagickaRate", magickaRateHelper)            
     endif
+    loc_device._MinigameParProc_2 = false
     
     loc_device.hideHUDbars() ;hides HUD (not realy?)
     
     if loc_device.WearerIsPlayer() || loc_device.HelperIsPlayer()
         loc_device.hideWidget()
     endif
-    
-    loc_device._MinigameParProc_2 = false
     
     UDEM.ResetExpressionRaw(akActor,15)
     if akHelper
@@ -374,9 +373,11 @@ Function Receive_MinigameCritloop(Form fActor)
     Actor akActor                           = fActor as Actor
     
     loc_device._MinigameParProc_3           = true
-    
+    Bool loc_playerInMinigame = loc_device.PlayerInMinigame()
+    Int loc_TickTime = 2
     string critType = "random"
-    if !loc_device.PlayerInMinigame()
+    if !loc_playerInMinigame
+        loc_TickTime = 10
         critType = "NPC"
     elseif UDCDmain.UD_AutoCrit
         critType = "Auto"
@@ -384,21 +385,23 @@ Function Receive_MinigameCritloop(Form fActor)
     
     Utility.Wait(0.75)
     ;process
+    Float loc_passedTime = 0.0
     int loc_tick = 0
     while loc_device._MinigameMainLoop_ON; && UDCDmain.ActorInMinigame(akActor)
         if !loc_device.pauseMinigame && !UDmain.IsMenuOpen()
-            loc_tick += 1
+            loc_tick += loc_TickTime
             ;check crit every 1 s
-            if !(loc_tick % 2) && loc_tick
+            if (loc_tick >= 10)
                 if loc_device.UD_minigame_canCrit
                     UDCDmain.StruggleCritCheck(loc_device,loc_device.UD_StruggleCritChance,critType,loc_device.UD_StruggleCritDuration)
                 elseif loc_device._customMinigameCritChance
                     UDCDmain.StruggleCritCheck(loc_device,loc_device._customMinigameCritChance,critType,loc_device._customMinigameCritDuration)            
                 endif
+                loc_tick = 0
             endif
         endif
         if loc_device._MinigameMainLoop_ON
-            Utility.Wait(0.5)
+            Utility.Wait(0.1*loc_TickTime)
         endif
     endwhile
     

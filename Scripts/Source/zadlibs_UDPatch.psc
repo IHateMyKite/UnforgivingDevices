@@ -834,7 +834,7 @@ bool[] Function StartThirdPersonAnimation(actor akActor, string animation, bool 
             ret[1] = true
         EndIf    
         
-        Form loc_shield = UDCDmain.GetShield(akActor)
+        Form loc_shield = GetShield(akActor)
         if loc_shield
             akActor.unequipItem(loc_shield,true,true)
             StorageUtil.SetFormValue(akActor,"UD_UnequippedShield",loc_shield)
@@ -851,55 +851,6 @@ bool[] Function StartThirdPersonAnimation(actor akActor, string animation, bool 
     else
         return parent.StartThirdPersonAnimation(akActor, animation, true)
     endif
-EndFunction
-
-;reduced startanimation function
-;doesn't disable actor movement and doesn't check if actor is valid
-;doesn't check camera state
-bool Function FastStartThirdPersonAnimation(actor akActor, string animation)
-    if animation == "none"
-        UDmain.Warning("StartThirdPersonAnimation - Called animation is None, aborting")
-        return false
-    endif
-    
-    SetAnimating(akActor, true)    ;immidiatly set faction to prevent other animation from starting
-    
-    if akActor.IsWeaponDrawn()
-        akActor.SheatheWeapon()
-        ; Wait for users with flourish sheathe animations.
-        int timeout=0
-        while akActor.IsWeaponDrawn() && timeout <= 35 ;  Wait 3.5 seconds at most before giving up and proceeding.
-            Utility.Wait(0.1)
-            timeout += 1
-        EndWhile
-    EndIf    
-    
-    ;unequip shield
-    Form loc_shield = UDCDmain.GetShield(akActor)
-    if loc_shield
-        akActor.unequipItem(loc_shield,true,true)
-        StorageUtil.SetFormValue(akActor,"UD_UnequippedShield",loc_shield)
-    endif
-    
-    Debug.SendAnimationEvent(akActor, animation)
-    
-    return true
-EndFunction
-
-;reduced endanimation function
-;doesn't enable actor movement and doesn't check if actor is valid
-;doesn't check camera state
-Function FastEndThirdPersonAnimation(actor akActor)
-    SetAnimating(akActor, false)
-        
-    Form loc_shield = StorageUtil.GetFormValue(akActor,"UD_UnequippedShield",none)
-    if loc_shield
-        StorageUtil.UnsetFormValue(akActor,"UD_UnequippedShield")
-        akActor.equipItem(loc_shield,false,true)
-        StorageUtil.UnSetFormValue(akActor,"UD_UnequippedShield")
-    endif
-    
-    Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
 EndFunction
 
 ;copied with added trace check and block check

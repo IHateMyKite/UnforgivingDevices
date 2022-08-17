@@ -13,6 +13,6 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 EndEvent
 
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
-    UDOM.RemoveOrgasmResistMultiplier(_target,_appliedValue)
-    UDOM.RemoveOrgasmRateMultiplier(_target,-1*_appliedValue*0.5)
+    UDOM.UpdateOrgasmResistMultiplier(_target,-1*_appliedValue)
+    UDOM.UpdateOrgasmRateMultiplier(_target,_appliedValue*0.5)
 EndEvent

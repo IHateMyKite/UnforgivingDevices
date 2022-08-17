@@ -37,9 +37,6 @@ UD_AnimationManagerScript Property UDAM hidden
         return UDmain.UDAM
     EndFunction
 EndProperty
-;UI menus
-UITextEntryMenu Property TextMenu auto
-UIListMenu Property ListMenu auto
 
 bool Property UD_HardcoreMode = true auto hidden
 
@@ -84,7 +81,7 @@ float     Property UD_VibrationMultiplier           = 0.10    auto hidden
 float     Property UD_ArousalMultiplier             = 0.05    auto hidden
 
 Bool      Property UD_OutfitRemove                  = True    auto hidden
-
+Bool      Property UD_AlternateAnimation            = False   auto hidden
 UD_PlayerSlotScript Property UD_PlayerSlot auto
 
 ;factions
@@ -657,19 +654,6 @@ int Function debugSize(Actor akActor)
     return getNPCSlot(akActor).debugSize()
 EndFunction
 
-
-string[] Function GetHeavyBondageAnimation_Armbinder(bool hobble = false)
-    return UDAM.GetHeavyBondageAnimation_Armbinder(hobble)
-EndFunction
-
-string[] Function GetStruggleAnimations(Actor akActor,Armor renDevice)
-    return UDAM.GetStruggleAnimations(akActor, renDevice)
-EndFunction
-
-string[] Function GetStruggleAnimationsByKeyword(Actor akActor,Keyword akKeyword,bool abHobble = false)
-    return UDAM.GetStruggleAnimationsByKeyword(akActor, akKeyword, abHobble)
-EndFunction
-
 Function LockDeviceParalel(actor akActor, armor deviceInventory, bool force = false)
     int handle = ModEvent.Create("UD_LockDeviceParalel")
     if (handle)
@@ -1069,7 +1053,6 @@ EndFunction
 
 Function OpenHelpDeviceMenu(UD_CustomDevice_RenderScript device,Actor akHelper,bool bAllowCommand,bool bIgnoreCooldown = false)
     if device && akHelper
-        bool[] loc_arrcontrol = new bool[30]
         bool loc_cond = true
         if !bIgnoreCooldown
             float loc_currenttime = Utility.GetCurrentGameTime()
@@ -1084,23 +1067,20 @@ Function OpenHelpDeviceMenu(UD_CustomDevice_RenderScript device,Actor akHelper,b
             loc_cond = false
             bAllowCommand = false
         endif
-        
+
+        bool[] loc_arrcontrol; = new bool[30]
         if !loc_cond 
-            int i = 18
-            while i 
-                i -= 1
-                loc_arrcontrol[i] = true
-            endwhile
+            loc_arrcontrol = Utility.CreateBoolArray(30,True)
             loc_arrcontrol[15] = false
             loc_arrcontrol[16] = false
         else
+            loc_arrcontrol = new bool[30]
             ;tying and repairing doesn't sound like helping
             loc_arrcontrol[06] = true
             loc_arrcontrol[07] = true
         endif
 
         loc_arrcontrol[14] = !bAllowCommand
-
         device.deviceMenuWH(akHelper,loc_arrcontrol)
     endif
 EndFunction
@@ -1252,15 +1232,6 @@ bool Function CheckRenderDeviceEquipped(Actor akActor, Armor rendDevice)
         loc_mask = Math.LeftShift(loc_mask,1)
     endwhile
     return false ;device is not equipped
-EndFunction
-
-Form Function GetShield(Actor akActor)
-    Form loc_shield = akActor.GetEquippedObject(0)
-    if loc_shield && (loc_shield.GetType() == 26 || loc_shield.GetType() == 31)
-        return loc_shield
-    else
-        return none
-    endif
 EndFunction
 
 ;function made as replacemant for akActor.isEquipped, because that function doesn't work for NPCs
@@ -2597,79 +2568,17 @@ Function TestExpression(Actor akActor,sslBaseExpression sslExpression,bool bMout
     endif
 EndFunction
 
-bool _debugSwitch = false
-
 ;function used for mod development
 Function DebugFunction(Actor akActor)
-    ;/
-    int loc_map = 0x00000000
-    int loc_value = 65535
-    int loc_iter = 1000
-    int loc_number = loc_iter
-    startRecordTime()
-    while loc_number
-        loc_map = codeBit_old(loc_map,loc_value, 16, 15)
-        loc_number -= 1
-    endwhile
-    float loc_time_codeBit_old = FinishRecordTime("codeBit_old (iter = "+loc_iter+" )")
-    
-    loc_number = loc_iter
-    int loc_res = 0
-    startRecordTime()
-    while loc_number
-        loc_res = decodeBit_old(loc_map, 16, 15)
-        loc_number -= 1
-    endwhile
-    float loc_time_decodeBit_old = FinishRecordTime("decodeBit_old res = "+loc_res+" (iter = "+loc_iter+" )")
-    
-    loc_number = loc_iter
-    startRecordTime()
-    while loc_number
-        loc_map = codeBit(loc_map,loc_value, 16, 15)
-        loc_number -= 1
-    endwhile
-    float loc_time_codeBit = FinishRecordTime("codeBit (iter = "+loc_iter+" )")
-    
-    loc_number = loc_iter
-    startRecordTime()
-    while loc_number
-        loc_res = decodeBit(loc_map, 16, 15)
-        loc_number -= 1
-    endwhile
-    float loc_time_decodeBit = FinishRecordTime("decodeBit res = "+loc_res+" (iter = "+loc_iter+" )")
-    
-    GInfo("Speed increase - codeBit   - " + Round((loc_time_codeBit_old/loc_time_codeBit)*100) + " %")
-    GInfo("Speed increase - decodeBit - " + Round((loc_time_decodeBit_old/loc_time_decodeBit)*100) + " %")
-    /;
     UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0xffff)
-    
-    ;libs.LockDevice(akActor,libsx.zadx_gag_facemask_biz_transparent_Inventory)
-    ;libs.LockDevice(akActor,libsx.zadx_catsuit_gasmask_tube_black_Inventory)
-        
-    ;libs.LockDevice(akActor,libsx.zadx_StraitJacketLatexBlackInventory)
-    ;libs.LockDevice(akActor,libsx.zadx_HR_IronCuffsFrontInventory)        
-        
-    ;UDEM.ApplyExpressionRaw(akActor,UDEM.CreateRandomExpression(true), strength = 100, openMouth=false, iPriority = 0)
 EndFunction
 
 string Function GetUserTextInput()
-    TextMenu.ResetMenu()
-    TextMenu.OpenMenu()
-    TextMenu.BlockUntilClosed()
-    return TextMenu.GetResultString()
+    return UDmain.GetUserTextInput()
 EndFunction
 
 Int Function GetUserListInput(string[] arrList)
-    ListMenu.ResetMenu()
-    ;ListMenu.SetPropertyStringA("appendEntries", arrList)
-    int loc_i = 0
-    while loc_i < arrList.length
-        ListMenu.AddEntryItem(arrList[loc_i])
-        loc_i+=1
-    endwhile
-    ListMenu.OpenMenu()
-    ListMenu.BlockUntilClosed()
-    return ListMenu.GetResultInt()
+    return UDmain.GetUserListInput(arrList)
 EndFunction
 
 float _startTime = 0.0
