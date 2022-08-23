@@ -442,14 +442,10 @@ bool Function FastStartThirdPersonAnimationWithHelper(actor akActor, actor akHel
         ; moving marker to the first actor
         MarkerRef.MoveTo(akActor)
         MarkerRef.Enable()
-        ; not sure
-        Utility.Wait(0.05)
-        ; align actors with the marker
+        
         akHelper.MoveTo(MarkerRef)
-        akActor.MoveTo(MarkerRef)  
-        ; not sure
-        Utility.Wait(0.05)
-        ; set vehicle (saw in SexLab code)
+        akActor.MoveTo(MarkerRef)
+        
         akActor.SetVehicle(MarkerRef)
         akHelper.SetVehicle(MarkerRef)
         
@@ -461,19 +457,8 @@ bool Function FastStartThirdPersonAnimationWithHelper(actor akActor, actor akHel
     Debug.SendAnimationEvent(akHelper, animationA2)
     
     If alignActors
-        Utility.Wait(0.05)
-        ; align actors with the marker
-        akHelper.MoveTo(MarkerRef)
-        akActor.MoveTo(MarkerRef)  
-        ; not sure
-        Utility.Wait(0.05)
-        ; set vehicle (saw in SexLab code)
-        akActor.SetVehicle(MarkerRef)
-        akHelper.SetVehicle(MarkerRef)
-        ; If you use MoveTo after SetVehicle then the actors start to drift, pushing each other away. 
-        ; It is safe to use TranslateToRef instead
-        akActor.TranslateToRef(MarkerRef, 200.0)
-        akHelper.TranslateToRef(MarkerRef, 200.0)
+        akActor.TranslateToRef(MarkerRef, 100.0)
+        akHelper.TranslateToRef(MarkerRef, 100.0)
     EndIf
     
     return true

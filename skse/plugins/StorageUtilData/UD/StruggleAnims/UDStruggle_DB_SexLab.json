@@ -1,0 +1,212 @@
+﻿{
+	"paired" : {
+		"zad_DeviousBoots" : [
+			{
+				"animation" : "PS_Leito_Feet_S2_", 
+				"constraintsA1" : [ 0, 2 ], 
+				"constraintsA2" : [ 0, 10 ], 
+				"switch" : false, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}, {
+				"animation" : "PS_Leito_Feet_S4_", 
+				"constraintsA1" : [ 0 ], 
+				"constraintsA2" : [ 0 ], 
+				"switch" : false, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}, {
+				"animation" : "PS_Leito_Feet_S5_", 
+				"constraintsA1" : [ 0, 3 ], 
+				"constraintsA2" : [ 0, 10 ], 
+				"switch" : false, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}, {
+				"animation" : "PS_Leito_Feet2_S3_", 
+				"constraintsA1" : [ 0, 3 ], 
+				"constraintsA2" : [ 0, 10 ], 
+				"switch" : false, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}, {
+				"animation" : "PS_Leito_Feet3_S4_", 
+				"constraintsA1" : [ 0, 3 ], 
+				"constraintsA2" : [ 0, 10 ], 
+				"switch" : false, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}
+		], 
+		"zad_DeviousPlug" : [
+			
+		], 
+		"zad_DeviousBelt" : [
+			
+		], 
+		"zad_DeviousBra" : [
+			
+		], 
+		"zad_DeviousCollar" : [
+			
+		], 
+		"zad_DeviousArmCuffs" : [
+			
+		], 
+		"zad_DeviousLegCuffs" : [
+			{
+				"animation" : "PS_Leito_Feet_S2_", 
+				"constraintsA1" : [ 0, 2 ], 
+				"constraintsA2" : [ 0, 10 ], 
+				"switch" : false, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}, {
+				"animation" : "PS_Leito_Feet_S4_", 
+				"constraintsA1" : [ 0 ], 
+				"constraintsA2" : [ 0 ], 
+				"switch" : false, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}, {
+				"animation" : "PS_Leito_Feet_S5_", 
+				"constraintsA1" : [ 0, 3 ], 
+				"constraintsA2" : [ 0, 10 ], 
+				"switch" : false, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}, {
+				"animation" : "PS_Leito_Feet2_S3_", 
+				"constraintsA1" : [ 0, 3 ], 
+				"constraintsA2" : [ 0, 10 ], 
+				"switch" : false, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}, {
+				"animation" : "PS_Leito_Feet3_S4_", 
+				"constraintsA1" : [ 0, 3 ], 
+				"constraintsA2" : [ 0, 10 ], 
+				"switch" : false, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}
+		], 
+		"zad_DeviousArmbinder" : [
+			
+		], 
+		"zad_DeviousArmbinderElbow" : [
+			
+		], 
+		"zad_DeviousHobbleSkirt" : [
+			{
+				"animation" : "PS_Leito_Feet_S5_", 
+				"constraintsA1" : [ 0, 3 ], 
+				"constraintsA2" : [ 0, 10 ], 
+				"switch" : false, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}, {
+				"animation" : "PS_Leito_Feet2_S3_", 
+				"constraintsA1" : [ 0, 3 ], 
+				"constraintsA2" : [ 0, 10 ], 
+				"switch" : false, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}
+		], 
+		"zad_DeviousHobbleSkirtRelaxed" : [
+			
+		], 
+		"zad_DeviousAnkleShackles" : [
+			{
+				"animation" : "PS_Leito_Feet_S2_", 
+				"constraintsA1" : [ 0, 2 ], 
+				"constraintsA2" : [ 0, 10 ], 
+				"switch" : false, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}, {
+				"animation" : "PS_Leito_Feet_S5_", 
+				"constraintsA1" : [ 0, 3 ], 
+				"constraintsA2" : [ 0, 10 ], 
+				"switch" : false, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}, {
+				"animation" : "PS_Leito_Feet2_S3_", 
+				"constraintsA1" : [ 0, 3 ], 
+				"constraintsA2" : [ 0, 10 ], 
+				"switch" : false, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}, {
+				"animation" : "PS_Leito_Feet3_S4_", 
+				"constraintsA1" : [ 0, 3 ], 
+				"constraintsA2" : [ 0, 10 ], 
+				"switch" : false, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}
+		], 
+		"zad_DeviousStraitJacket" : [
+			
+		], 
+		"zad_DeviousCuffsFront" : [
+			
+		], 
+		"zad_DeviousPetSuit" : [
+			
+		], 
+		"zad_DeviousYoke" : [
+			
+		], 
+		"zad_DeviousYokeBB" : [
+			
+		], 
+		"zad_DeviousCorset" : [
+			
+		], 
+		"zad_DeviousClamps" : [
+			
+		], 
+		"zad_DeviousGloves" : [
+			
+		], 
+		"zad_DeviousHood" : [
+			
+		], 
+		"zad_DeviousElbowTie" : [
+			
+		], 
+		"zad_DeviousGag" : [
+			
+		], 
+		"zad_DeviousGagLarge" : [
+			
+		], 
+		"zad_DeviousGagPanel" : [
+			
+		], 
+		"zad_DeviousPlugVaginal" : [
+			
+		], 
+		"zad_DeviousPlugAnal" : [
+			
+		], 
+		"zad_DeviousHarness" : [
+			
+		], 
+		"zad_DeviousBlindfold" : [
+			
+		], 
+		"zad_DeviousPiercingsNipple" : [
+			
+		], 
+		"zad_DeviousPiercingsVaginal" : [
+			
+		], 
+		"zad_DeviousBondageMittens" : [
+			
+		]
+	}
+}
