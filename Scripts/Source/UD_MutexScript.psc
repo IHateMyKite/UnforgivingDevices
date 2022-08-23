@@ -68,15 +68,15 @@ EndFunction
 
 Function EvaluateLockMutex()
     float loc_time = 0.0
-    while loc_time <= 10.0 && (!UD_GlobalDeviceMutex_InventoryScript)
-        Utility.wait(0.5)
-        loc_time += 0.5
+    while loc_time <= 5.0 && (!UD_GlobalDeviceMutex_InventoryScript)
+        Utility.wait(0.1)
+        loc_time += 0.1
     endwhile
     
     if UD_GlobalDeviceMutex_InventoryScript_Failed
         UDCDmain.Error("EvaluateLockMutex("+getActorName(GetActorRef())+","+UD_GlobalDeviceMutex_Device.getName()+") failed!!!")
     endif
-    if loc_time >= 10.0
+    if loc_time >= 5.0
         UDCDmain.Error("EvaluateLockMutex("+getActorName(GetActorRef())+","+UD_GlobalDeviceMutex_Device.getName()+") timeout!!!")
     endif
     
@@ -85,15 +85,15 @@ EndFunction
 
 Function EvaluateUnlockMutex()
     float loc_time = 0.0
-    while loc_time <= 10.0 && (!UD_GlobalDeviceUnlockMutex_InventoryScript)
-        Utility.wait(0.5)
-        loc_time += 0.5
+    while loc_time <= 5.0 && (!UD_GlobalDeviceUnlockMutex_InventoryScript)
+        Utility.wait(0.1)
+        loc_time += 0.1
     endwhile
     
     if UD_GlobalDeviceUnlockMutex_InventoryScript_Failed
         UDCDmain.Error("EvaluateUnlockMutex("+getActorName(GetActorRef())+","+UD_GlobalDeviceUnlockMutex_Device.getName()+") failed!!!")
     endif
-    if loc_time >= 10.0
+    if loc_time >= 5.0
         UDCDmain.Error("EvaluateUnlockMutex("+getActorName(GetActorRef())+","+UD_GlobalDeviceUnlockMutex_Device.getName()+") timeout!!!")
     endif
     

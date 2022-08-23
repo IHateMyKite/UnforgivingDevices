@@ -846,3 +846,20 @@ Float[] Function GetPrebuildExpression_Orgasm2()
     loc_res[31] = 0.729
     return loc_res
 EndFunction
+
+Float[] Function GetPrebuildExpression_Orgasm3()
+    float[] loc_res = CreateEmptyExpression()
+    loc_res[ 5] = 0.079
+    loc_res[ 6] = 0.284
+    loc_res[ 7] = 0.237
+    loc_res[ 8] = 0.055
+    loc_res[11] = 0.192
+    loc_res[13] = 0.03
+    loc_res[14] = 0.115
+    loc_res[16] = 0.17
+    loc_res[17] = 0.17
+    loc_res[22] = 0.28
+    loc_res[30] = 11.0
+    loc_res[31] = 0.9
+    return loc_res
+EndFunction

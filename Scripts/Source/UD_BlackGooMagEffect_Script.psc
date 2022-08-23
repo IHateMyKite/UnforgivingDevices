@@ -60,12 +60,10 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
                 ShowMessageBox("Black goo covers your body and tie your hands while changing shape to bondage restraint!")
             endif
         endif
-
-        int loc_devicenum = Utility.randomInt(0,iRange(Round(GetMagnitude()),1,20))
-        UDCDmain.UDmain.UDRRM.LockAnyRandomRestrain(akTarget,loc_devicenum)
-        
         UDCDmain.EnableActor(akTarget)
     endif
+    int loc_devicenum = Utility.randomInt(0,iRange(Round(GetMagnitude()),1,20))
+    UDCDmain.UDmain.UDRRM.LockAnyRandomRestrain(akTarget,loc_devicenum)
 EndEvent
 
 

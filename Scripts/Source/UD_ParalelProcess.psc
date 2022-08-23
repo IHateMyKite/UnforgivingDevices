@@ -557,8 +557,10 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
     if loc_is3Dloaded && loc_close
         if loc_orgasmExhaustion == 1
             UDEM.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm2(), 75,false,50)
-        else
+        elseif loc_orgasmExhaustion < 3
             UDEM.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm1(), 100,false,80)
+        else
+            UDEM.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm3(), 100,false,80)
         endif
     endif  
     
