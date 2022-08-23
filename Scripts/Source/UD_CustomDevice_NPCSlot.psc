@@ -343,6 +343,12 @@ Function fix()
         StorageUtil.UnsetFloatValue(getActor(), "UD_OrgasmRateMultiplier")
         StorageUtil.UnsetFloatValue(getActor(), "UD_ArousalRate")
         StorageUtil.UnsetFloatValue(getActor(), "UD_ArousalRateM")
+        StorageUtil.UnsetIntValue(getActor(), "UD_OrgasmRate")
+        StorageUtil.UnsetIntValue(getActor(), "UD_OrgasmForcing")
+        StorageUtil.UnsetIntValue(getActor(), "UD_OrgasmResistMultiplier")
+        StorageUtil.UnsetIntValue(getActor(), "UD_OrgasmRateMultiplier")
+        StorageUtil.UnsetIntValue(getActor(), "UD_ArousalRate")
+        StorageUtil.UnsetIntValue(getActor(), "UD_ArousalRateM")
         StorageUtil.UnsetIntValue(getActor(), "UD_OrgasmExhaustion")
         StorageUtil.UnsetIntValue(getActor(), "UD_ActiveVib_Strength")
         StorageUtil.UnsetIntValue(getActor(), "UD_ActiveVib")
@@ -843,9 +849,6 @@ Function update(float fTimePassed)
     int i = 0
     while UD_equipedCustomDevices[i]
         DeviceUpdate(UD_equipedCustomDevices[i],fTimePassed)
-        ;if UD_equipedCustomDevices[i].isReady()
-            ;UD_equipedCustomDevices[i].update(fTimePassed)
-        ;endif
         i+=1
     endwhile
 EndFunction

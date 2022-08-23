@@ -112,7 +112,7 @@ Function Receive_MinigameStarter(Form fActor)
     bool    loc_canShowHUD      = loc_device.canShowHUD()
     bool    loc_haveplayer      = loc_device.PlayerInMinigame()
     bool    loc_updatewidget    = loc_device.UD_UseWidget && UDCDmain.UD_UseWidget && loc_haveplayer
-
+    
     UDCDMain.StartMinigameDisable(akActor)
     if akHelper
         UDCDMain.StartMinigameDisable(akHelper)
@@ -248,13 +248,6 @@ Function Receive_MinigameParalel(Form fActor)
     while loc_device._MinigameMainLoop_ON; && UDCDmain.ActorInMinigame(akActor)
         if !loc_device.pauseMinigame
             loc_tick += 1
-            ;update disable if it gets somehow removed every 1 s
-            if !(loc_tick % 10) && loc_tick
-                UDCDMain.UpdateMinigameDisable(akActor)
-                if akHelper
-                    UDCDMain.UpdateMinigameDisable(akHelper)
-                endif
-            endif
             ;set expression every 3 second
             if !(loc_tick % 30) && loc_tick
                 UDEM.ApplyExpressionRaw(akActor, loc_expression, 100,false,15)
@@ -282,12 +275,6 @@ Function Receive_MinigameParalel(Form fActor)
             Utility.wait(0.1)
         endif
     endwhile
-    
-    ;remove disable
-    UDCDMain.EndMinigameDisable(akActor)
-    if akHelper
-        UDCDMain.EndMinigameDisable(akHelper)
-    endif
     
     UDOM.UpdateOrgasmRate(akActor, -1*loc_currentOrgasmRate,-0.25)        
     UDOM.UpdateArousalRate(akActor,-1*loc_currentArousalRate)
