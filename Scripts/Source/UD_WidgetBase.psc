@@ -21,15 +21,62 @@ int Property PositionX
     function set(int a_val)
         if a_val >= 0 && a_val <= 2
             _positionX = a_val
+            
+            ; These formulas are mostly empirical and do not provide 100% accuracy.
+            ; Tested on resolutions: 1920*1080, 2560*1440, 2560*1080, 3440*1440, (4000*1440, 4000*1080)
+            ; Wide screen resolutions tested with mods:
+            ; - Complete Widescreen Fix for Vanilla and SkyUI 2.2 and 5.2 SE (https://www.nexusmods.com/skyrimspecialedition/mods/1778)
+            ; - Ultrawidescreen Fixes for Skyrim LE (https://www.nexusmods.com/skyrim/mods/90214)
+            
+            Float magica_x = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Magica._x")
+            Float health_x = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Health._x")
+            Float stamina_x = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Stamina._x")
+            Float meter_width = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Stamina._width")
+            Float hud_width = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance._width")
+            Float hud_padding = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY")
+            Float hud_left = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefX")
+            Float hud_right = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefX")
+            
+            Float le_corr1 = 0
+            Float le_corr2 = 35
+            
+            ; SE or LE
+            ; minor formula corrections for LE version
+            If SKSE.GetVersion() == 1
+                le_corr1 = 50
+                le_corr2 = 19.5
+            ElseIf SKSE.GetVersion() == 2
+                le_corr1 = 0
+                le_corr2 = 35
+            EndIf
+            ; screen width factor: 16:9 is 1.0, 21:9 is 1.3125, etc.
+            Float width_mult = ((hud_right - hud_left) + 2 * hud_padding - le_corr1) / (1280 - le_corr1)
+
+;   |           |
+;   |           |             |<- width ->|
+;   |           |             <===========>
+;   └-----------└----------------------------
+;   <- offset -> <- padding ->
+
+; all coordinates refer to 1280*720 regardless of screen aspect ratio
+
+            Float offset
+            Float padding
+            Float ref_meter_width
+            
+            offset = 271.0 / width_mult
+            padding = (48.0 + le_corr2) / width_mult + (hud_padding - le_corr2)
+            ref_meter_width = 248.0 / width_mult
+            
             if (Ready) 
                 if _positionX == 0 ;left
-                    X = UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefX") +  Width + UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Health._x") + 2 ;magica boyyyyyyyyy
+                    X = offset + padding
                     FillDirection = "right"
                 elseif _positionX == 1 ;middle
-                    X = UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefX") + (UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefX") - UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefX"))/2.0 + Width/2.0
+                    X = offset + 1280.0 / 2.0 - ref_meter_width / 2.0
                     FillDirection = "center"
                 elseif _positionX == 2 ;right
-                    X = Math.floor(UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefX") - UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Health._x")) - 2
+                    X = offset + 1280.0 - ref_meter_width - padding
                     FillDirection = "left"
                 endif
             endIf
@@ -171,7 +218,22 @@ event OnWidgetReset()
     ;updateSize()
     init()
     PositionX = _positionX
-    PositionY = _positionY    
+    PositionY = _positionY  
+    
+    If False
+        Debug.Trace("_root.WidgetContainer._width = " + UI.getFloat(HUD_MENU, "_root.WidgetContainer._width"))
+        Debug.Trace("_root.WidgetContainer._x = " + UI.getFloat(HUD_MENU, "_root.WidgetContainer._x"))
+        Debug.Trace("_root.HUDMovieBaseInstance.TopLeftRefX = " + UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefX"))
+        Debug.Trace("_root.HUDMovieBaseInstance.BottomRightRefX = " + UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefX"))
+        Debug.Trace("_root.HUDMovieBaseInstance.TopLeftRefY = " + UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY"))
+        Debug.Trace("_root.HUDMovieBaseInstance.BottomRightRefY = " + UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefY"))
+        Debug.Trace("_root.HUDMovieBaseInstance._x = " + UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance._x"))
+        Debug.Trace("_root.HUDMovieBaseInstance._width = " + UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance._width"))
+        Debug.Trace("_root.HUDMovieBaseInstance.Magica._x = " + UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Magica._x"))
+        Debug.Trace("_root.HUDMovieBaseInstance.Health._x = " + UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Health._x"))
+        Debug.Trace("_root.HUDMovieBaseInstance.Stamina._x = " + UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Stamina._x"))
+        Debug.Trace("_root.HUDMovieBaseInstance.Stamina._width = " + UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Stamina._width"))
+    EndIf
 endEvent
 
 Function init()
