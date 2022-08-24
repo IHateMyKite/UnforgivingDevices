@@ -457,8 +457,14 @@ bool Function FastStartThirdPersonAnimationWithHelper(actor akActor, actor akHel
     Debug.SendAnimationEvent(akHelper, animationA2)
     
     If alignActors
-        akActor.TranslateToRef(MarkerRef, 100.0)
-        akHelper.TranslateToRef(MarkerRef, 100.0)
+        akHelper.MoveTo(MarkerRef)
+        akActor.MoveTo(MarkerRef)
+        
+        akActor.SetVehicle(MarkerRef)
+        akHelper.SetVehicle(MarkerRef)
+        
+        akActor.TranslateToRef(MarkerRef, 200.0)
+        akHelper.TranslateToRef(MarkerRef, 200.0)
     EndIf
     
     return true
@@ -467,6 +473,8 @@ EndFunction
 Function LockAnimatingActor(Actor akActor)
     akActor.SetFactionRank(ZadAnimationFaction, 1)
     If UDmain.ActorIsPlayer(akActor)
+        ; disable player controls
+        ; disable activation
     Else
         akActor.SetDontMove(true)
     EndIf
@@ -602,18 +610,24 @@ EndFunction
 ; [4] armbinder
 ; [5] elbowbinder
 ; [6] pet suit
-; [7] 
-; [8] 
+; [7] elbowtie
+; [8] mittens
+; [9] straitjacket
 String[] Function GetStruggleAnimationsByKeyword2(Keyword akKeyword, Bool[] abActorConstraints, Bool helper = False)
+    Debug.Trace("[UD] [TRACE] UD_AnimationManagerScript::GetStruggleAnimationsByKeyword2() akKeyword = " + akKeyword + ", abActorConstraints = " + abActorConstraints + ", helper = " + helper)
     If akKeyword == None
         String[] temp = new String[1]
         temp[0] = "none"
         Return temp
     EndIf
+    Int len = abActorConstraints.length
     If abActorConstraints.length < 10
-        abActorConstraints = Utility.ResizeBoolArray(abActorConstraints, 10)
+        abActorConstraints = Utility.ResizeBoolArray(abActorConstraints, 10, False)         ; this function is bugged: new added items filled with true
+        While len < 10
+            abActorConstraints[len] = False
+            len += 1
+        EndWhile
     EndIf
-    
     If abActorConstraints[2]
         Return GetStruggleAnimationsByKeyword(None, libs.zad_DeviousYoke, abActorConstraints[0])
     ElseIf abActorConstraints[4]
@@ -622,6 +636,10 @@ String[] Function GetStruggleAnimationsByKeyword2(Keyword akKeyword, Bool[] abAc
         Return GetStruggleAnimationsByKeyword(None, libs.zad_DeviousArmbinderElbow, abActorConstraints[0])
     ElseIf abActorConstraints[6]
         Return GetStruggleAnimationsByKeyword(None, libs.zad_DeviousPetSuit, abActorConstraints[0])
+    ElseIf abActorConstraints[8]
+        Return GetStruggleAnimationsByKeyword(None, libs.zad_DeviousBondageMittens, abActorConstraints[0])
+    ElseIf abActorConstraints[9]
+        Return GetStruggleAnimationsByKeyword(None, libs.zad_DeviousStraitJacket, abActorConstraints[0])
     ElseIf abActorConstraints[3]
         Return GetStruggleAnimationsByKeyword(None, libs.zad_DeviousCuffsFront, abActorConstraints[0])
     EndIf
@@ -629,7 +647,7 @@ String[] Function GetStruggleAnimationsByKeyword2(Keyword akKeyword, Bool[] abAc
     If helper
         String[] temp = new String[1]
         temp[0] = "ft_struggle_gloves_1"
-        Return temp        
+        Return temp
     Else
         Return GetStruggleAnimationsByKeyword(None, akKeyword, abActorConstraints[0])
     EndIf

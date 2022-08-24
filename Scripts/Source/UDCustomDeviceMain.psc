@@ -2638,6 +2638,8 @@ EndFunction
 ; [5] elbowbinder
 ; [6] pet suit
 ; [7] elbowtie
+; [8] mittens
+; [9] StraitJacket
 Bool[] Function GetActorConstraints(Actor akActor)
 	Bool[] result = new Bool[10]
     If akActor == None
@@ -2671,4 +2673,11 @@ Bool[] Function GetActorConstraints(Actor akActor)
 	If akActor.WornHasKeyword(libs.zad_DeviousElbowTie)
 		result[7] = True
 	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousBondageMittens)
+		result[8] = True
+	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousStraitJacket)
+		result[9] = True
+	EndIf
+    Return result
 EndFunction
