@@ -2,8 +2,8 @@ Scriptname UD_CustomInflatablePlug_RenderScript extends UD_CustomPlug_RenderScri
 
 import UnforgivingDevicesMain
 
-float Property UD_PumpDifficulty = 50.0 auto
-float Property UD_DeflateRate = 200.0 auto
+float Property UD_PumpDifficulty    = 50.0      auto ;deflation required to deflate plug by one lvel
+float Property UD_DeflateRate       = 200.0     auto ;inflation lost per one day
 int _inflateLevel = 0 ;for npcs
 
 Function InitPost()
@@ -406,7 +406,7 @@ EndFunction
 
 Function activateDevice()
     resetCooldown()
-    bool loc_canInflate = true;_inflateLevel <= 4
+    bool loc_canInflate = _inflateLevel <= 4
     bool loc_canVibrate = canVibrate() && !isVibrating()
     if loc_canInflate
         if WearerIsPlayer()
@@ -430,6 +430,7 @@ Function onUpdatePost(float timePassed)
             elseif WearerIsFollower()
                 UDmain.Print(getWearerName() + "s "+ getDeviceName() + " lost some of its pressure",3)    
             endif
+            resetCooldown()
             deflate(True)
         endif
     endif    
@@ -447,7 +448,7 @@ Function updateWidget(bool force = false)
 EndFunction
 
 bool Function canBeActivated()
-    if parent.canBeActivated() || (_inflateLevel <= 4 && getRelativeElapsedCooldownTime() >= 0.25)
+    if parent.canBeActivated() || (_inflateLevel <= 4 && getRelativeElapsedCooldownTime() >= 0.75)
         return true
     else
         return false

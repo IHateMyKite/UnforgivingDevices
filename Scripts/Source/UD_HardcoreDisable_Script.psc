@@ -116,6 +116,7 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
             _target.RemoveSpell(UDCDmain.UDlibs.HardcoreDisableSpell)
         endif
         _target.AddSpell(UDCDmain.UDlibs.HardcoreDisableSpell,False)
+        UDmain.Error("Hardcore disabler is still present on player, readding !")
     else
         Game.EnablePlayerControls()
         Game.EnableFastTravel(true)

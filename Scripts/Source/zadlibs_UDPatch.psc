@@ -1014,13 +1014,13 @@ Function ProcessPlayerControls(bool abCheckMinigame = true)
     endif
     if (!abCheckMinigame || !UDCDmain.PlayerInMinigame())
         ; Centralized control management function.
-        bool movement = true
-        bool fighting = true
-        bool sneaking = true
-        bool menu = true
+        bool movement   = true
+        bool fighting   = true
+        bool sneaking   = true
+        bool menu       = true
         
         ;check hardcore mode
-        if UDmain.Player.HasMagicEffectWithKeyword(UDCDmain.UDlibs.HardcoreDisable_KW)
+        if UDmain.Player.HasSpell(UDlibs.HardcoreDisableSpell)
             menu = false
         else
             menu = true

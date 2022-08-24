@@ -1718,9 +1718,9 @@ EndFunction
 ;called on every device update
 ;update time is set in MCM
 ;this only works if actor is registered
-;time passed is in days
+;timepassed is in days
 Function Update(float timePassed)
-    _updateTimePassed += (timePassed*24.0*60.0);*UDCDmain.UD_CooldownMultiplier
+    _updateTimePassed += (timePassed*24.0*60.0)
     
     UpdateCooldown()
     
@@ -3615,6 +3615,12 @@ Function minigame()
                 tick_s += 1
                 if !force_stop_minigame
                     OnMinigameTick1()
+                    ;update disable if it gets somehow removed every 1 s
+                    UDCDMain.UpdateMinigameDisable(Wearer)
+                    if _minigameHelper
+                        UDCDMain.UpdateMinigameDisable(_minigameHelper)
+                    endif
+                    
                     ;--three second timer--
                     if !(tick_s % 3) && tick_s
                         ;start new animation if wearer stops animating
@@ -3681,7 +3687,13 @@ Function minigame()
             endif
         endif
     endif
-    
+
+    ;remove disable
+    UDCDMain.EndMinigameDisable(Wearer)
+    if _minigameHelper
+        UDCDMain.EndMinigameDisable(_minigameHelper)
+    endif
+
     if UDmain.TraceAllowed()    
         UDCDmain.Log("Minigame ended for: "+ deviceInventory.getName(),1)
     endif
@@ -4316,7 +4328,7 @@ string Function getModifiers(string str = "")
             else    ;unused
             endif
             
-            if loc_min != loc_max
+            if loc_min2 != loc_max2
                 str += "Contains Gold ("+ loc_min2 +"-"+ loc_max2 +" G)\n"
             else
                 str += "Contains Gold ("+ loc_max2 +" G)\n"

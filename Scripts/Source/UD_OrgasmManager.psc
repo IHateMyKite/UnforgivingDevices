@@ -219,6 +219,7 @@ float Function UpdateOrgasmRate(Actor akActor ,float orgasmRate,float orgasmForc
     if !orgasmRate && !orgasmForcing
         return getActorOrgasmRate(akActor)
     endif
+    
     while _OrgasmRateManip_Mutex
         Utility.waitMenuMode(0.05)
     endwhile
@@ -235,6 +236,7 @@ float Function UpdateOrgasmRate(Actor akActor ,float orgasmRate,float orgasmForc
     if loc_orgasmForcing_Raw
         StorageUtil.AdjustIntValue(akActor, "UD_OrgasmForcing",loc_orgasmForcing_Raw)
     endif
+    
     _OrgasmRateManip_Mutex = false
     return loc_newOrgasmRate
 EndFunction
@@ -245,7 +247,7 @@ float Function getActorAfterMultOrgasmRate(Actor akActor)
     return getActorOrgasmRate(akActor)*getActorOrgasmRateMultiplier(akActor)
 EndFunction
 float Function getActorAfterMultAntiOrgasmRate(Actor akActor)
-    return CulculateAntiOrgasmRateMultiplier(getArousal(akActor))*getActorOrgasmResistMultiplier(akActor)*(getActorOrgasmResist(akActor))
+    return CulculateAntiOrgasmRateMultiplier(getArousal(akActor))*getActorOrgasmResistMultiplier(akActor)*getActorOrgasmResist(akActor)
 EndFunction
 float Function getActorOrgasmForcing(Actor akActor)
     return fRange(StorageUtil.getIntValue(akActor, "UD_OrgasmForcing",0)/100.0,0.0,1.0)
@@ -260,7 +262,7 @@ Float Function UpdateOrgasmRateMultiplier(Actor akActor ,float orgasmRateMultipl
         return 1.0
     endif
     if !orgasmRateMultiplier
-        return 1.0
+        return getActorOrgasmRateMultiplier(akActor)
     endif
     while _OrgasmRateMultManip_Mutex
         Utility.waitMenuMode(0.05)
@@ -284,7 +286,7 @@ Float Function UpdateOrgasmResist(Actor akActor ,float orgasmResist)
         return UD_OrgasmResistence
     endif
     if !orgasmResist
-        return UD_OrgasmResistence
+        return getActorOrgasmResist(akActor)
     endif
     while _OrgasmResistManip_Mutex
         Utility.waitMenuMode(0.05)
@@ -314,6 +316,12 @@ EndFunction
 ;=======================================
 bool _OrgasmResistMultManip_Mutex = false
 Float Function UpdateOrgasmResistMultiplier(Actor akActor ,float orgasmResistMultiplier)
+    if !akActor
+        return 1.0
+    endif
+    if !orgasmResistMultiplier
+        return getActorOrgasmResistMultiplier(akActor)
+    endif
     while _OrgasmResistMultManip_Mutex
         Utility.waitMenuMode(0.05)
     endwhile
@@ -324,7 +332,7 @@ Float Function UpdateOrgasmResistMultiplier(Actor akActor ,float orgasmResistMul
     return loc_newOrgasmResistMultiplier
 EndFunction
 float Function getActorOrgasmResistMultiplier(Actor akActor)
-    return fRange(StorageUtil.getIntValue(akActor, "UD_OrgasmResistMultiplier",100)/100.0,0,10.0)
+    return fRange(StorageUtil.getIntValue(akActor, "UD_OrgasmResistMultiplier",100)/100.0,0.0,10.0)
 EndFunction
 
 ;=======================================
