@@ -1951,7 +1951,6 @@ Function decreaseDurabilityAndCheckUnlock(float value,float cond_mult = 1.0)
 
     if current_device_health <= 0.0 && !_isUnlocked
         unlockRestrain()
-        advanceSkill(10.0)
     endif
 EndFunction
 
@@ -3494,14 +3493,13 @@ Function minigame()
     
     if loc_PlayerInMinigame
         closeMenu()
-        ;UDmain.UDNPCM.GoToState("SlotUpdateStopped")
     endif
     
     minigame_on = True
     force_stop_minigame = False
     
     Wearer.AddToFaction(UDCDmain.MinigameFaction)
-    if hasHelper()
+    if _minigameHelper
         _minigameHelper.AddToFaction(UDCDmain.MinigameFaction)
     endif
     
@@ -3645,7 +3643,11 @@ Function minigame()
         
         ;--one second timer--
         if (tick_b*fCurrentUpdateTime >= 1.0) && !force_stop_minigame && !pauseMinigame && current_device_health > 0.0 ;once per second
-            if UDCDmain.actorInMinigame(Wearer)
+            if !UDCDmain.actorInMinigame(Wearer)
+                StopMinigame()
+            elseif (_minigameHelper && !UDCDmain.actorInMinigame(_minigameHelper))
+                StopMinigame()
+            else
                 ;update loc vars
                 loc_dmg             = (_durability_damage_mod + UD_durability_damage_add)*fCurrentUpdateTime*UD_DamageMult
                 loc_condmult         = 1.0 + _condition_mult_add            
@@ -3684,8 +3686,6 @@ Function minigame()
                         OnMinigameTick3()
                     endif
                 endif
-            else
-                StopMinigame()
             endif
         endif
         
@@ -3711,6 +3711,12 @@ Function minigame()
         endif
     endif
     
+    ;remove disable
+    UDCDMain.EndMinigameDisable(Wearer)
+    if _minigameHelper
+        UDCDMain.EndMinigameDisable(_minigameHelper)
+    endif
+    
     ;checks if Wearer succesfully escaped device
     if isUnlocked; && !force_stop_minigame
         if loc_WearerIsPlayer
@@ -3720,23 +3726,15 @@ Function minigame()
         endif
     else
         libs.pant(Wearer)
-        if !force_stop_minigame
-            if loc_PlayerInMinigame
-                if hasHelper()
-                    UDCDmain.Print("Both of you are too exhausted to continue struggling",1)
-                else
-                    UDCDmain.Print("You are too exhausted to continue struggling",1)
-                endif
-            elseif UDCDmain.AllowNPCMessage(GetWearer())
-                UDCDmain.Print(getWearerName()+" is too exhausted to continue struggling",1)
+        if loc_PlayerInMinigame
+            if _minigameHelper
+                UDCDmain.Print("One of you is too exhausted to continue struggling",1)
+            else
+                UDCDmain.Print("You are too exhausted to continue struggling",1)
             endif
+        elseif UDCDmain.AllowNPCMessage(GetWearer())
+            UDCDmain.Print(getWearerName()+" is too exhausted to continue struggling",1)
         endif
-    endif
-
-    ;remove disable
-    UDCDMain.EndMinigameDisable(Wearer)
-    if _minigameHelper
-        UDCDMain.EndMinigameDisable(_minigameHelper)
     endif
 
     if UDmain.TraceAllowed()    
@@ -3759,10 +3757,6 @@ Function minigame()
     
     GoToState("")
     
-    if loc_PlayerInMinigame
-        ;UDmain.UDNPCM.GoToState("")
-    endif
-    
     ;debug message
     if UDmain.DebugMod && UD_damage_device && durability_onstart != current_device_health && loc_WearerIsPlayer
         UDmain.Print("[Debug] Durability reduced: "+ formatString(durability_onstart - current_device_health,3) + "\n",1)
@@ -3775,7 +3769,7 @@ Function MinigameVarReset()
         Wearer.RemoveFromFaction(UDCDmain.MinigameFaction)
     endif
     
-    if hasHelper()
+    if _minigameHelper
         _minigameHelper.RemoveFromFaction(UDCDmain.MinigameFaction)
     endif
     
@@ -4030,23 +4024,25 @@ Function unlockRestrain(bool forceDestroy = false,bool waitForRemove = True)
     endif
     _isUnlocked = True
     GoToState("UpdatePaused")
-    if UDmain.TraceAllowed()    
-        UDCDmain.Log("unlockRestrain() called for " + self,1)
-    endif
     
     if miniGame_on
         stopMinigame()
+        advanceSkill(10.0)
     endif
     
+    if UDmain.TraceAllowed()    
+        UDCDmain.Log("unlockRestrain() called for " + self,1)
+    endif
+
     current_device_health = 0.0
     if WearerIsPlayer()
         UDCDmain.updateLastOpenedDeviceOnRemove(self)
     endif
-    ;StorageUtil.SetIntValue(Wearer, "UD_removed" + deviceInventory,1)
+
     StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
-    if wearer.isinfaction(UDCDmain.minigamefaction)
-        wearer.removefromfaction(UDCDmain.minigamefaction)
-    endif
+    ;if wearer.isinfaction(UDCDmain.minigamefaction)
+    ;    wearer.removefromfaction(UDCDmain.minigamefaction)
+    ;endif
     
     if (deviceInventory.hasKeyword(libs.zad_QuestItem) || deviceRendered.hasKeyword(libs.zad_QuestItem))
         int questKw = UDCdmain.UD_QuestKeywords.getSize()
@@ -4909,6 +4905,7 @@ bool Function OnOrgasmPre(bool sexlab = false)
 EndFunction
 
 Function OnMinigameOrgasm(bool sexlab = false)
+    OnMinigameOrgasmPost()
 EndFunction
 
 Function OnMinigameOrgasmPost()
@@ -4922,24 +4919,7 @@ bool Function OnEdgePre()
 EndFunction
 
 Function OnMinigameEdge()
-    if UDmain.TraceAllowed()    
-        UDCDmain.Log("Edge in struggle loop detected",2)
-    endif
-    
-    ;libs.SexlabMoan(wearer,100)
-    pauseMinigame = True
-    ;UDCDmain.setScriptState(Wearer,3)
-    
-    if hasHelper()
-        ;UDCDmain.resetScriptState(_minigameHelper)
-        if HelperIsPlayer()
-            UDCDmain.setCurrentMinigameDevice(none)
-        endif
-    endif
-    
-    ;UDCDmain.resetScriptState(Wearer)
     OnMinigameEdgePost()
-    stopMinigame()
 EndFunction
 
 Function OnMinigameEdgePost()

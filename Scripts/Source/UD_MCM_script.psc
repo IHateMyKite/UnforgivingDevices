@@ -275,6 +275,7 @@ int UD_InfoLevel_M
 string[] UD_InfoLevel_AS
 int UD_WarningAllowed_T
 Int UD_PrintLevel_S
+Int UD_LockDebugMCM_T
 Event resetGeneralPage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -296,11 +297,14 @@ Event resetGeneralPage()
     UD_HearingRange_S       = addSliderOption("Message range:",UDmain.UD_HearingRange,"{0}")
 
     lockmenu_T              = addToggleOption("Lock menus",UDmain.lockMCM,UD_LockMenu_flag)
-    UD_useHoods_T           = addToggleOption("Use hoods",UDIM.UD_useHoods,UD_LockMenu_flag)
+    UD_LockDebugMCM_T       = addToggleOption("Lock Debug",UDmain.UD_LockDebugMCM,FlagSwitchAnd(UD_LockMenu_flag,FlagSwitch(!UDmain.UD_LockDebugMCM)))
     
     UD_InfoLevel_M          = AddMenuOption("Info level", UD_InfoLevel_AS[UDmain.UD_InfoLevel])
     UD_PrintLevel_S         = addSliderOption("Message level",UDmain.UD_PrintLevel, "{0}")
 
+    UD_useHoods_T           = addToggleOption("Use hoods",UDIM.UD_useHoods,UD_LockMenu_flag)
+    addEmptyOption()
+    
     AddHeaderOption("Debug")
     addEmptyOption()
     UD_debugmod_T           = addToggleOption("Debug mod",UDmain.DebugMod)
@@ -614,7 +618,7 @@ Event resetDebugPage()
     
     while i < size
         if devices[i]
-            registered_devices_T[i] = AddTextOption((i + 1) + ") " , devices[i].deviceInventory.getName(),device_flag)
+            registered_devices_T[i] = AddTextOption((i + 1) + ") " , devices[i].deviceInventory.getName(),FlagSwitchAnd(UD_LockMenu_flag,FlagSwitch(!UDmain.UD_LockDebugMCM)))
         else
             registered_devices_T[i] = AddTextOption((i + 1) + ") " , "Empty" ,OPTION_FLAG_DISABLED)
         endif
@@ -645,15 +649,15 @@ Event resetDebugPage()
             elseif i == 12
                 AddTextOption("Devices", slot.getNumberOfRegisteredDevices() ,OPTION_FLAG_DISABLED)
             elseif i == 13
-                OrgasmResist_S         = addSliderOption("Orgasm Resist:",UDOM.getActorOrgasmResist(slot.getActor()), "{1}")
+                OrgasmResist_S          = addSliderOption("Orgasm Resist:",UDOM.getActorOrgasmResist(slot.getActor()), "{1}")
             elseif i == 14
-                OrgasmCapacity_S     = addSliderOption("Orgasm Capacity:",UDOM.getActorOrgasmCapacity(slot.getActor()), "{0}")
+                OrgasmCapacity_S        = addSliderOption("Orgasm Capacity:",UDOM.getActorOrgasmCapacity(slot.getActor()), "{0}")
             elseif i == 15
-                unlockAll_T = AddTextOption("Unlock all", "CLICK" ,fix_flag)
+                unlockAll_T             = AddTextOption("Unlock all", "CLICK" ,FlagSwitchAnd(UD_LockMenu_flag,FlagSwitch(!UDmain.UD_LockDebugMCM)))
             elseif i == 16
-                endAnimation_T = AddTextOption("Terminate animation", "CLICK" ,fix_flag)
+                endAnimation_T          = AddTextOption("Terminate animation", "CLICK" ,fix_flag)
             elseif i == 17
-                fixBugs_T = AddTextOption("Fixes", "CLICK" ,fix_flag)
+                fixBugs_T               = AddTextOption("Fixes", "CLICK" ,fix_flag)
             elseif i == 18
                 if !slot.isPlayer()
                     unregisterNPC_T = AddTextOption("Unregister NPC","CLICK")
@@ -759,6 +763,9 @@ Function OptionSelectGeneral(int option)
     elseif option == UD_WarningAllowed_T
         UDmain.UD_WarningAllowed = !UDmain.UD_WarningAllowed
         SetToggleOptionValue(UD_WarningAllowed_T, UDmain.UD_WarningAllowed)  
+    elseif option == UD_LockDebugMCM_T
+        UDmain.UD_LockDebugMCM = !UDmain.UD_LockDebugMCM
+        SetToggleOptionValue(UD_LockDebugMCM_T, UDmain.UD_LockDebugMCM) 
     endif
 EndFunction
 
@@ -1674,6 +1681,8 @@ Function GeneralPageInfo(int option)
         SetInfoText("Current use: Opens NPC menu for NPC that player is currently looking on")
     elseif(option == UD_LoggingLevel_S)
         SetInfoText("Sets logging level. By default logging is turned off, as it can have noticable performance impact. Changing this to 3 will trace aeverythink. 1 will Trace only the most important informations.\n Default: 0")
+    elseif option == UD_LockDebugMCM_T
+        SetInfoText("Disable MCM Debug panel if player have any Unforigivng Device equipped. Only active if \"Lock menus\" is also enabled")
     Endif
 EndFunction
 
@@ -1928,15 +1937,13 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "lockMCM", UDmain.lockMCM as Int)
     JsonUtil.SetIntValue(strFile, "Debug mode", UDmain.DebugMod as Int)
     JsonUtil.SetIntValue(strFile, "OrgasmExhastion", UDmain.UD_OrgasmExhaustion as int)
-    ;JsonUtil.SetFloatValue(strFile, "OrgasmExhaustionMag", UDmain.UD_OrgasmExhaustionMagnitude)
-    ;JsonUtil.SetIntValue(strFile, "OrgasmExhaustionDuration", UDmain.UD_OrgasmExhaustionDuration)
     JsonUtil.SetIntValue(strFile, "AutoLoad", UDmain.UD_AutoLoad as int)
     JsonUtil.SetIntValue(strFile, "LogLevel", UDmain.LogLevel as int)
     JsonUtil.SetIntValue(strFile, "HearingRange", UDmain.UD_HearingRange)
     JsonUtil.SetIntValue(strFile, "InfoLevel", UDmain.UD_InfoLevel)
     JsonUtil.SetIntValue(strFile, "WarningAllowed", UDmain.UD_WarningAllowed as Int)
     JsonUtil.SetIntValue(strFile, "PrintLevel", UDmain.UD_PrintLevel)
-    
+    JsonUtil.SetIntValue(strFile, "LockDebug", UDmain.UD_LockDebugMCM as Int)
 
     ;UDCDmain
     JsonUtil.SetIntValue(strFile, "Stamina_meter_Keycode", UDCDmain.Stamina_meter_Keycode)
@@ -2042,6 +2049,7 @@ Function LoadFromJSON(string strFile)
     UDmain.UD_InfoLevel = JsonUtil.GetIntValue(strFile, "InfoLevel", UDmain.UD_InfoLevel)
     UDmain.UD_WarningAllowed = JsonUtil.GetIntValue(strFile, "WarningAllowed", UDmain.UD_WarningAllowed as Int)
     UDmain.UD_PrintLevel = JsonUtil.GetIntValue(strFile, "PrintLevel", UDmain.UD_PrintLevel)
+    UDmain.UD_LockDebugMCM = JsonUtil.GetIntValue(strFile, "LockDebug", UDmain.UD_LockDebugMCM as Int)
 
     ;UDCDmain
     UDCDmain.UnregisterGlobalKeys()
@@ -2154,6 +2162,7 @@ Function ResetToDefaults()
     UDmain.UD_InfoLevel = 1
     UDmain.UD_WarningAllowed = false
     UDmain.UD_PrintLevel = 3
+    UDmain.UD_LockDebugMCM = False
     
     ;UDCDmain
     UDCDmain.UnregisterGlobalKeys()

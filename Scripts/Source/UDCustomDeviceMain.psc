@@ -369,7 +369,7 @@ EndFunction
 Function UpdatePlayerControl()
     Game.EnablePlayerControls(abMovement = true, abFighting = false, abSneaking = false, abMenu = true, abActivate = false) 
     Game.DisablePlayerControls(abMovement = False, abMenu = false)
-    if !UDmain.Player.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW)
+    if !UDmain.Player.HasSpell(UDlibs.HardcoreDisableSpell)
         if UDmain.Player.WornHasKeyword(libs.zad_DeviousBlindfold) && (libs.config.BlindfoldMode == 1 || libs.config.BlindfoldMode == 0)
             int cameraState = Game.GetCameraState()
             if (cameraState == 8 || cameraState == 9)
@@ -542,7 +542,6 @@ Function openNPCHelpMenu(Actor akTarget)
     akTarget.ShowGiftMenu(False, UDlibs.GiftMenuFilter,True,False)
 EndFunction
 
-;UD_CustomDevice_RenderScript Property lastOpenedDevice                 = none auto hidden
 UD_CustomDevice_RenderScript Property CurrentPlayerMinigameDevice     = none auto hidden
 
 Function setCurrentMinigameDevice(UD_CustomDevice_RenderScript oref)
