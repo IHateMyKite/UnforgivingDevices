@@ -65,7 +65,6 @@ bool loc_precessing = false
 Event OnUpdate()
     loc_precessing = true
     if !_target.wornhaskeyword(UDCDmain.libs.zad_DeviousHeavyBondage) || !UDCDmain.UD_HardcoreMode
-        UDmain.Info("Hardcore disabler not valid for " + GetActorName(_target) +"!")
         _target.RemoveSpell(UDCDmain.UDlibs.HardcoreDisableSpell)
     elseif !loc_finished
         if !UDCDmain.PlayerInMinigame()
@@ -118,7 +117,8 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
         _target.AddSpell(UDCDmain.UDlibs.HardcoreDisableSpell,False)
         UDmain.Error("Hardcore disabler is still present on player, readding !")
     else
-        Game.EnablePlayerControls()
+        Utility.waitMenuMode(0.75) ;wait a little time
+        UDmain.libsp.ProcessPlayerControls(abCheckMinigame = true)
         Game.EnableFastTravel(true)
     endif
 EndEvent

@@ -1008,11 +1008,22 @@ Function UpdateControls()
     ProcessPlayerControls(true) ;only update when player is not in minigame
 EndFunction
 
+Bool _ProcessPlayerControlsMutex = False
+Function StartProcessPlayerControlsMutex()
+    while _ProcessPlayerControlsMutex
+        Utility.waitMenuMode(0.1)
+    endwhile
+    _ProcessPlayerControlsMutex = True
+EndFunction
+Function EndProcessPlayerControlsMutex()
+    _ProcessPlayerControlsMutex = False
+EndFunction
 Function ProcessPlayerControls(bool abCheckMinigame = true)
     if UDmain.TraceAllowed()
         UDMain.Log("ProcessPlayerControls",3)
     endif
     if (!abCheckMinigame || !UDCDmain.PlayerInMinigame())
+        StartProcessPlayerControlsMutex()
         ; Centralized control management function.
         bool movement   = true
         bool fighting   = true
@@ -1048,6 +1059,7 @@ Function ProcessPlayerControls(bool abCheckMinigame = true)
         EndIf
         Game.DisablePlayerControls(abMovement = !movement, abFighting = !fighting, abSneaking = !sneaking, abMenu = !menu, abActivate = !activate)    
         Game.EnablePlayerControls(abMovement = movement, abFighting = fighting, abSneaking = sneaking, abMenu = menu, abActivate = activate) 
+        EndProcessPlayerControlsMutex()
     endif    
 EndFunction
 

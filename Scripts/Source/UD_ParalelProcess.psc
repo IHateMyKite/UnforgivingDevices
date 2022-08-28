@@ -104,8 +104,8 @@ EndFunction
 Function Receive_MinigameStarter(Form fActor)
     UD_CustomDevice_RenderScript loc_device = Send_MinigameStarter_Package_device
     Send_MinigameStarter_Package_device = none
-    _MinigameStarter_Received = true
-    loc_device._MinigameParProc_1 = true
+    _MinigameStarter_Received           = true
+    loc_device._MinigameParProc_1       = true
     
     Actor   akActor             = fActor as Actor
     Actor   akHelper            = loc_device.getHelper()
@@ -118,14 +118,11 @@ Function Receive_MinigameStarter(Form fActor)
         UDCDMain.StartMinigameDisable(akHelper)
     endif
     
-    StorageUtil.SetFormValue(akActor, "UD_currentMinigameDevice", loc_device.deviceRendered)
-    
-    if loc_device.PlayerInMinigame()
+    if loc_haveplayer
         UDCDmain.setCurrentMinigameDevice(loc_device)
-    endif
-    
-    if loc_device.PlayerInMinigame()
         UDCDmain.MinigameKeysRegister()
+    else
+        StorageUtil.SetFormValue(akActor, "UD_currentMinigameDevice", loc_device.deviceRendered)
     endif
     
     ;shows bars
@@ -193,7 +190,7 @@ EndFunction
 Function Receive_MinigameParalel(Form fActor)
     UD_CustomDevice_RenderScript loc_device = Send_MinigameParalel_Package_device
     Send_MinigameParalel_Package_device = none
-    _MinigameParalel_Received = true
+    _MinigameParalel_Received           = true
     
     Actor     akActor       = fActor as Actor
     Actor     akHelper      = loc_device.getHelper()
