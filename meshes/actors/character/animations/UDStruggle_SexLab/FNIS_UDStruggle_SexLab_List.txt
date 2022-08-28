@@ -1,11 +1,11 @@
-﻿
-b PS_Leito_Feet_S2_A1 ..\SexLab\Leito_Feet_A1_S2.hkx
-b PS_Leito_Feet_S2_A2 ..\SexLab\Leito_Feet_A2_S2.hkx
-b PS_Leito_Feet_S4_A1 ..\SexLab\Leito_Feet_A1_S4.hkx
-b PS_Leito_Feet_S4_A2 ..\SexLab\Leito_Feet_A2_S4.hkx
-b PS_Leito_Feet_S5_A1 ..\SexLab\Leito_Feet_A1_S5.hkx
-b PS_Leito_Feet_S5_A2 ..\SexLab\Leito_Feet_A2_S5.hkx
-b PS_Leito_Feet2_S3_A1 ..\SexLab\Leito_Feet2_A1_S3.hkx
-b PS_Leito_Feet2_S3_A2 ..\SexLab\Leito_Feet2_A2_S3.hkx
-b PS_Leito_Feet3_S4_A1 ..\SexLab\Leito_Feet3_A1_S4.hkx
-b PS_Leito_Feet3_S4_A2 ..\SexLab\Leito_Feet3_A2_S4.hkx
+
+b UD_Leito_Feet_S2_A1 ..\SexLab\Leito_Feet_A1_S2.hkx
+b UD_Leito_Feet_S2_A2 ..\SexLab\Leito_Feet_A2_S2.hkx
+b UD_Leito_Feet_S4_A1 ..\SexLab\Leito_Feet_A1_S4.hkx
+b UD_Leito_Feet_S4_A2 ..\SexLab\Leito_Feet_A2_S4.hkx
+b UD_Leito_Feet_S1_A1 ..\SexLab\Leito_Feet_A1_S1.hkx
+b UD_Leito_Feet_S1_A2 ..\SexLab\Leito_Feet_A2_S1.hkx
+b UD_Leito_Feet2_S3_A1 ..\SexLab\Leito_Feet2_A1_S3.hkx
+b UD_Leito_Feet2_S3_A2 ..\SexLab\Leito_Feet2_A2_S3.hkx
+b UD_Leito_Feet3_S4_A1 ..\SexLab\Leito_Feet3_A1_S4.hkx
+b UD_Leito_Feet3_S4_A2 ..\SexLab\Leito_Feet3_A2_S4.hkx
