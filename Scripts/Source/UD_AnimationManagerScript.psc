@@ -473,8 +473,9 @@ EndFunction
 Function LockAnimatingActor(Actor akActor)
     akActor.SetFactionRank(ZadAnimationFaction, 1)
     If UDmain.ActorIsPlayer(akActor)
-        ; disable player controls
-        ; disable activation
+        ; disable player controls (activation)
+        ; bool abMovement, abFighting, abCamSwitch, abLooking, abSneaking, abMenu, abActivate, abJournalTabs, aiDisablePOVType = 0
+        Game.DisablePlayerControls(false, false, false, false, false, false, true, false)
     Else
         akActor.SetDontMove(true)
     EndIf
@@ -499,12 +500,14 @@ EndFunction
 
 Function UnlockAnimatingActor(Actor akActor)
     akActor.RemoveFromFaction(ZadAnimationFaction)
+    akActor.SetVehicle(None)
     If UDmain.ActorIsPlayer(akActor)
+        ; should it be done via some UD wrapper?
+        libs.UpdateControls()
     Else
         akActor.SetDontMove(false)
     EndIf
     akActor.SetVehicle(None)
-    
     Form loc_shield = StorageUtil.GetFormValue(akActor, "UD_UnequippedShield", none)
     if loc_shield
         StorageUtil.UnsetFormValue(akActor,"UD_UnequippedShield")
@@ -532,16 +535,20 @@ Bool forceReloadFiles = true                ;
 ; [4] armbinder
 ; [5] elbowbinder
 ; [6] pet suit
-; [7] 
-; [8] 
+; [7] elbowtie
+; [8] mittens
+; [9] straitjacket
+;
 ; JSON file syntax
 ;{
 ;   "paired": {
 ;       "zad_DeviousArmCuffs" : [                                   Device keyword
 ;           {
 ;               "animation" : "PS_Babo_Conquering04_S1_",               Animation base name. To get animation events for the akActor and akHelper add A1 or A2 to the end
-;               "constraintsA1" : [ 0 ],                                Possible constraints for the akActor (see description for _CheckAnimationConstraints)
-;               "constraintsA2" : [ 0 ],                                Possible constraints for the akHelper (see description for _CheckAnimationConstraints)
+;               "reqConstraintsA1" : 0,                                 Required constraints for the akActor (see description for _CheckAnimationConstraints)
+;               "optConstraintsA1" : 0,                                 Optional constraints for the akActor (see description for _CheckAnimationConstraints)
+;               "reqConstraintsA2" : 0,                                 Required constraints for the akHelper (see description for _CheckAnimationConstraints)
+;               "optConstraintsA2" : 0,                                 Optional constraints for the akHelper (see description for _CheckAnimationConstraints)
 ;               "lewd" : 0,                                             Rate of lewdiness
 ;               "aggressive" : 1,                                       Rate of aggressiveness (from akHelper towards akActor). Could be negative
 ;               "forced" : true                                         First forced animation will be the only animation in result array. Used to test animation in game with forceReloadFiles = true
@@ -567,33 +574,45 @@ string[] Function GetStruggleAnimationsByKeywordWithHelper(Keyword akKeyword, Bo
         String file = "UD/StruggleAnims/" + UD_StruggleAnimDefs[i]
         Debug.Trace("[UD] [TRACE] Build animation list: processing " + file)
         If forceReloadFiles
+            Debug.Trace("[UD] [INFO] Reload json file since flag 'forceReloadFiles' is set")
             JsonUtil.Unload(file)
         EndIf
         If JsonUtil.Load(file) && JsonUtil.IsGood(file)
             String dict_path = ".paired." + akKeyword.GetString()
             Int path_count = JsonUtil.PathCount(file, dict_path)
             Int j = 0
+            If path_count == 0  
+                Debug.Trace("[UD] [TRACE] Build animation list: Found no applicable animations")
+            EndIf
             While j < path_count
                 String anim_path = dict_path + "[" + j + "]"
                 Bool forced = JsonUtil.GetPathBoolValue(file, anim_path + ".forced")
                 If forced 
                     String[] result_forced = new String[1]
                     result_forced[0] = JsonUtil.GetPathStringValue(file, anim_path + ".animation")
+                    Debug.Trace("[UD] [INFO] Return forced animation: " + result_forced[0])
                     Return result_forced
                 EndIf
-                Int[] anim_actorContraintsArray = JsonUtil.PathIntElements(file, anim_path + ".constraintsA1")
-                Int[] anim_helperContraintsArray = JsonUtil.PathIntElements(file, anim_path + ".constraintsA2")
-                If _CheckAnimationConstraints(iActorConstraints, anim_actorContraintsArray) && _CheckAnimationConstraints(iHelperConstraints, anim_helperContraintsArray)
+                Int anim_reqConstrA1 = JsonUtil.GetPathIntValue(file, anim_path + ".reqConstraintsA1")
+                Int anim_optConstrA1 = JsonUtil.GetPathIntValue(file, anim_path + ".optConstraintsA1")
+                Int anim_reqConstrA2 = JsonUtil.GetPathIntValue(file, anim_path + ".reqConstraintsA2")
+                Int anim_optConstrA2 = JsonUtil.GetPathIntValue(file, anim_path + ".optConstraintsA2")
+                If _CheckAnimationConstraints(iActorConstraints, anim_reqConstrA1, anim_optConstrA1) && _CheckAnimationConstraints(iHelperConstraints, anim_reqConstrA2, anim_optConstrA2)
                     result_temp[resultCount] = JsonUtil.GetPathStringValue(file, anim_path + ".animation")
                     resultCount += 1
                     If resultCount == result_temp.length
                         result_temp = Utility.ResizeStringArray(result_temp, result_temp.length + 10)
                     EndIf
-                    Debug.Trace("[UD] [TRACE] Build animation list: pushing into array animation " + result_temp[resultCount - 1])
+                    Debug.Trace("[UD] [TRACE] Build animation list: pushing into array " + result_temp[resultCount - 1])
+                Else
+                    Debug.Trace("[UD] [TRACE] Build animation list: animation doesn't have suitable constraints")
                 EndIf
                 j += 1
             EndWhile
             Debug.Trace("[UD] [TRACE] JsonUtil.PathCount(" + akKeyword.GetString() + ") = " + path_count)
+        ElseIf JsonUtil.IsGood(file) == False
+            Debug.Trace("[UD] [WARNING] Can't load json file: " + file)
+            Debug.Trace("[UD] [WARNING] Found errors: " + JsonUtil.GetErrors(file))
         EndIf
         i += 1
     EndWhile
@@ -654,27 +673,14 @@ String[] Function GetStruggleAnimationsByKeyword2(Keyword akKeyword, Bool[] abAc
 
 EndFunction
 
-; checks compatibility between constraints on actors and constraints in animation defined by array
-; if actor is wearing an yoke then constraints will be like (0,0,1,0,0,0,0) or 4 as int
-; if animation has constraints vector [0, 4, 33], it is OK to use
-; if animation has constraints vector [0, 33], it is not OK to use
-; if animation has constraints vector [0, 7, 33], it is OK to use
-; if animation has constraints vector [], it is not OK to use
-Bool Function _CheckAnimationConstraints(Int actorConstraints, Int[] animationConstraintsArray)
-    If animationConstraintsArray.length == 0
-        return actorConstraints == 0
-    EndIf
-    If actorConstraints == 0
-        Return animationConstraintsArray.Find(0) > -1
-    EndIf
-    Int i = 0
-    While i < animationConstraintsArray.length
-        If Math.LogicalAnd(animationConstraintsArray[i], actorConstraints) == actorConstraints
-            Return True
-        EndIf
-        i += 1
-    EndWhile
-    Return False
+; checks compatibility between constraints applied to actor and constraints in animation
+; actorConstraints      - actor contraints as Int
+; animReqConstraints    - animation required constraints as Int (animation shouldn't be picked if player doesn't have all required constraints)
+; animOptConstraints    - animation optional constraints as Int (animation shouldn't be picked if player has constraints not defined by this bit-mask)
+Bool Function _CheckAnimationConstraints(Int actorConstraints, Int animReqConstraints, Int animOptConstraints)
+
+    Return Math.LogicalAnd(animReqConstraints, actorConstraints) == animReqConstraints && Math.LogicalAnd(animOptConstraints, actorConstraints) == actorConstraints
+    
 EndFunction
 
 ; (0,0,1,0,0,0,0) => 4
@@ -683,7 +689,7 @@ Int Function _FromContraintsBoolArrayToInt(Bool[] constraintsArray)
     If constraintsArray.length == 0
         Return 0
     EndIf
-    Int i = 1
+    Int i = 0
     Int m = 1
     Int r = 0
     While i < constraintsArray.length

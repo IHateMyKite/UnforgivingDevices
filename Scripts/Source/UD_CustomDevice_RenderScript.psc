@@ -1718,9 +1718,9 @@ EndFunction
 ;called on every device update
 ;update time is set in MCM
 ;this only works if actor is registered
-;timepassed is in days
+;time passed is in days
 Function Update(float timePassed)
-    _updateTimePassed += (timePassed*24.0*60.0)
+    _updateTimePassed += (timePassed*24.0*60.0);*UDCDmain.UD_CooldownMultiplier
     
     UpdateCooldown()
     
@@ -3524,6 +3524,7 @@ Function minigame()
             String _baseAnimName = _StruggleAnimationPairArray[Utility.RandomInt(0, _StruggleAnimationPairArray.Length - 1)]
 			_sStruggleAnim = _baseAnimName + "A1"
 			_sStruggleAnimHelper = _baseAnimName + "A2"
+            UDAM.FastStartThirdPersonAnimationWithHelper(Wearer, _minigameHelper, _sStruggleAnim, _sStruggleAnimHelper)
 		Else
             String[] _StruggleAnimationArray = UDAM.GetStruggleAnimationsByKeyword2(UD_DeviceKeyword_Minor, _actorConstraints)
             String[] _StruggleAnimationArrayHelper = UDAM.GetStruggleAnimationsByKeyword2(UD_DeviceKeyword_Minor, _helperConstraints, True)
@@ -3535,8 +3536,9 @@ Function minigame()
             If _StruggleAnimationArrayHelper.Length > 0
                 _sStruggleAnimHelper = _StruggleAnimationArrayHelper[Utility.RandomInt(0, _StruggleAnimationArrayHelper.Length - 1)]
             EndIf
+            UDAM.FastStartThirdPersonAnimation(Wearer, _sStruggleAnim)
+            UDAM.FastStartThirdPersonAnimation(_minigameHelper, _sStruggleAnimHelper)
 		EndIf
-        UDAM.FastStartThirdPersonAnimationWithHelper(Wearer, _minigameHelper, _sStruggleAnim, _sStruggleAnimHelper)
 	Else
         String[] _StruggleAnimationArray = UDAM.GetStruggleAnimationsByKeyword2(UD_DeviceKeyword_Minor, _actorConstraints)
         If _StruggleAnimationArray.Length > 0
@@ -3615,12 +3617,6 @@ Function minigame()
                 tick_s += 1
                 if !force_stop_minigame
                     OnMinigameTick1()
-                    ;update disable if it gets somehow removed every 1 s
-                    UDCDMain.UpdateMinigameDisable(Wearer)
-                    if _minigameHelper
-                        UDCDMain.UpdateMinigameDisable(_minigameHelper)
-                    endif
-                    
                     ;--three second timer--
                     if !(tick_s % 3) && tick_s
                         ;start new animation if wearer stops animating
@@ -3687,13 +3683,7 @@ Function minigame()
             endif
         endif
     endif
-
-    ;remove disable
-    UDCDMain.EndMinigameDisable(Wearer)
-    if _minigameHelper
-        UDCDMain.EndMinigameDisable(_minigameHelper)
-    endif
-
+    
     if UDmain.TraceAllowed()    
         UDCDmain.Log("Minigame ended for: "+ deviceInventory.getName(),1)
     endif
@@ -4328,7 +4318,7 @@ string Function getModifiers(string str = "")
             else    ;unused
             endif
             
-            if loc_min2 != loc_max2
+            if loc_min != loc_max
                 str += "Contains Gold ("+ loc_min2 +"-"+ loc_max2 +" G)\n"
             else
                 str += "Contains Gold ("+ loc_max2 +" G)\n"
