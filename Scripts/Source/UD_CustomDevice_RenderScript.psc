@@ -1718,7 +1718,7 @@ EndFunction
 ;called on every device update
 ;update time is set in MCM
 ;this only works if actor is registered
-;time passed is in days
+;timepassed is in days
 Function Update(float timePassed)
     _updateTimePassed += (timePassed*24.0*60.0);*UDCDmain.UD_CooldownMultiplier
     
@@ -4324,7 +4324,7 @@ string Function getModifiers(string str = "")
             else    ;unused
             endif
             
-            if loc_min != loc_max
+            if loc_min2 != loc_max2
                 str += "Contains Gold ("+ loc_min2 +"-"+ loc_max2 +" G)\n"
             else
                 str += "Contains Gold ("+ loc_max2 +" G)\n"
