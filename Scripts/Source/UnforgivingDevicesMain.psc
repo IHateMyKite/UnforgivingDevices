@@ -63,6 +63,7 @@ UITextEntryMenu Property TextMenu auto
 UIListMenu      Property ListMenu auto
 
 bool property lockMCM                   = False     auto hidden
+bool property UD_LockDebugMCM           = False     auto hidden
 bool property DebugMod                  = False     auto hidden conditional
 bool Property AllowNPCSupport           = False     auto
 Bool Property UD_WarningAllowed         = False     auto hidden
