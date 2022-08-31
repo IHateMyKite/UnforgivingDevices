@@ -406,6 +406,7 @@ ObjectReference MarkerRef = None
 ; animationA2   - animation (animation event) for the second actor (helper)
 ; return        - true if OK
 bool Function FastStartThirdPersonAnimationWithHelper(actor akActor, actor akHelper, string animationA1, string animationA2, bool alignActors = true)
+    Debug.Trace("[UD] [TRACE] UD_AnimationManagerScript::FastStartThirdPersonAnimationWithHelper() akActor = " + akActor + ", akHelper = " + akHelper + ", animationA1 = " + animationA1 + ", animationA2 = " + animationA2 + ", alignActors = " + alignActors)
     If akActor == None 
         UDmain.Error("FastStartThirdPersonAnimationWithHelper - Called with akActor is None, aborting")
         Return False
@@ -471,11 +472,12 @@ bool Function FastStartThirdPersonAnimationWithHelper(actor akActor, actor akHel
 EndFunction
 
 Function LockAnimatingActor(Actor akActor)
-    akActor.SetFactionRank(ZadAnimationFaction, 1)
+    libs.SetAnimating(akActor, True)
     If UDmain.ActorIsPlayer(akActor)
         ; disable player controls (activation)
         ; bool abMovement, abFighting, abCamSwitch, abLooking, abSneaking, abMenu, abActivate, abJournalTabs, aiDisablePOVType = 0
-        Game.DisablePlayerControls(false, false, false, false, false, false, true, false)
+        ; something enables all controls a few moments later
+        ; Game.DisablePlayerControls(true, true, true, false, true, false, true, true)
     Else
         akActor.SetDontMove(true)
     EndIf
@@ -499,13 +501,13 @@ Function LockAnimatingActor(Actor akActor)
 EndFunction
 
 Function UnlockAnimatingActor(Actor akActor)
-    akActor.RemoveFromFaction(ZadAnimationFaction)
+    libs.SetAnimating(akActor, False)
     akActor.SetVehicle(None)
     If UDmain.ActorIsPlayer(akActor)
         ; should it be done via some UD wrapper?
         libs.UpdateControls()
     Else
-        akActor.SetDontMove(false)
+        akActor.SetDontMove(False)
     EndIf
     akActor.SetVehicle(None)
     Form loc_shield = StorageUtil.GetFormValue(akActor, "UD_UnequippedShield", none)
