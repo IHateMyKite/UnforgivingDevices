@@ -7,7 +7,7 @@
 			{
 				"animation" : "UD_Babo_ChokeRape02_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -15,23 +15,23 @@
 			}, {
 				"animation" : "UD_Babo_Conquering_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_DoggyBound01_S1_", 
-				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"reqConstraintsA1" : 48, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_StandingBound01_S2_", 
-				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"reqConstraintsA1" : 48, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -42,7 +42,7 @@
 			{
 				"animation" : "UD_Babo_ChokeRape02_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -50,7 +50,7 @@
 			}, {
 				"animation" : "UD_Babo_Conquering_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -58,15 +58,15 @@
 			}, {
 				"animation" : "UD_Babo_Conquering04_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_DoggyBound01_S1_", 
-				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"reqConstraintsA1" : 48, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -74,15 +74,15 @@
 			}, {
 				"animation" : "UD_Babo_Fallen01_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 258, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_StandingBound01_S2_", 
-				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"reqConstraintsA1" : 48, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -92,16 +92,16 @@
 		"zad_DeviousBra" : [
 			{
 				"animation" : "UD_Babo_SneakYokeStandingFuck_S2_", 
-				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"reqConstraintsA1" : 4, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_StandingBound01_S1_", 
-				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"reqConstraintsA1" : 48, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -112,23 +112,23 @@
 			{
 				"animation" : "UD_Babo_BackHugPressure01_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 258, 
 				"reqConstraintsA2" : 0, 
-				"optConstraintsA2" : 0, 
+				"optConstraintsA2" : 2, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_BackHugPressure01_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 258, 
 				"reqConstraintsA2" : 0, 
-				"optConstraintsA2" : 0, 
+				"optConstraintsA2" : 2, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_ChockingRape01_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -136,7 +136,7 @@
 			}, {
 				"animation" : "UD_Babo_ChockingRape01_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -144,7 +144,7 @@
 			}, {
 				"animation" : "UD_Babo_ChockingRape01_S3_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -152,7 +152,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape02_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -160,7 +160,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape03_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -168,7 +168,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape03_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -176,7 +176,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape03_S3_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -184,7 +184,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape03_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -192,15 +192,15 @@
 			}, {
 				"animation" : "UD_Babo_Conquering_S3_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_Conquering_S4_", 
-				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"reqConstraintsA1" : 48, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -211,7 +211,7 @@
 			{
 				"animation" : "UD_Babo_Conquering04_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -222,7 +222,7 @@
 			{
 				"animation" : "UD_Babo_Conquering04_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -239,7 +239,7 @@
 			{
 				"animation" : "UD_Babo_Conquering03_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -247,7 +247,7 @@
 			}, {
 				"animation" : "UD_Babo_Conquering04_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -267,7 +267,7 @@
 			{
 				"animation" : "UD_Babo_Conquering04_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -280,16 +280,16 @@
 		"zad_DeviousYoke" : [
 			{
 				"animation" : "UD_Babo_SneakYokeStandingFuck_S1_", 
-				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"reqConstraintsA1" : 4, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_SneakYokeStandingFuck_S2_", 
-				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"reqConstraintsA1" : 4, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -303,31 +303,31 @@
 			{
 				"animation" : "UD_Babo_BackHugPressure01_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 258, 
 				"reqConstraintsA2" : 0, 
-				"optConstraintsA2" : 0, 
+				"optConstraintsA2" : 2, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_BackHugPressure01_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 258, 
 				"reqConstraintsA2" : 0, 
-				"optConstraintsA2" : 0, 
+				"optConstraintsA2" : 2, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_Conquering_S3_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_Conquering_S4_", 
-				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"reqConstraintsA1" : 48, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -335,7 +335,7 @@
 			}, {
 				"animation" : "UD_Babo_Fallen01_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 258, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -349,7 +349,7 @@
 			{
 				"animation" : "UD_Babo_Conquering04_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -360,23 +360,23 @@
 			{
 				"animation" : "UD_Babo_BackHugPressure01_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 258, 
 				"reqConstraintsA2" : 0, 
-				"optConstraintsA2" : 0, 
+				"optConstraintsA2" : 2, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_BackHugPressure01_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 258, 
 				"reqConstraintsA2" : 0, 
-				"optConstraintsA2" : 0, 
+				"optConstraintsA2" : 2, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_ChockingRape01_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -384,7 +384,7 @@
 			}, {
 				"animation" : "UD_Babo_ChockingRape01_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -392,7 +392,7 @@
 			}, {
 				"animation" : "UD_Babo_ChockingRape01_S3_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -400,7 +400,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape02_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -408,7 +408,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape03_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -416,7 +416,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape03_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -424,7 +424,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape03_S3_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -432,7 +432,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape03_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -446,7 +446,7 @@
 			{
 				"animation" : "UD_Babo_ChockingRape01_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -454,7 +454,7 @@
 			}, {
 				"animation" : "UD_Babo_ChockingRape01_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -462,7 +462,7 @@
 			}, {
 				"animation" : "UD_Babo_ChockingRape01_S3_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -470,7 +470,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape02_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -478,7 +478,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape03_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -486,7 +486,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape03_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -494,7 +494,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape03_S3_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -502,7 +502,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape03_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -513,7 +513,7 @@
 			{
 				"animation" : "UD_Babo_ChockingRape01_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -521,7 +521,7 @@
 			}, {
 				"animation" : "UD_Babo_ChockingRape01_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -529,7 +529,7 @@
 			}, {
 				"animation" : "UD_Babo_ChockingRape01_S3_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -537,7 +537,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape02_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -545,7 +545,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape03_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -553,7 +553,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape03_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -561,7 +561,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape03_S3_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -569,7 +569,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape03_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -580,7 +580,7 @@
 			{
 				"animation" : "UD_Babo_ChockingRape01_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -588,7 +588,7 @@
 			}, {
 				"animation" : "UD_Babo_ChockingRape01_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -596,7 +596,7 @@
 			}, {
 				"animation" : "UD_Babo_ChockingRape01_S3_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -604,7 +604,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape02_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -612,7 +612,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape03_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -620,7 +620,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape03_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -628,7 +628,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape03_S3_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -636,7 +636,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape03_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -647,7 +647,7 @@
 			{
 				"animation" : "UD_Babo_ChokeRape02_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -655,23 +655,23 @@
 			}, {
 				"animation" : "UD_Babo_Conquering_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_DoggyBound01_S1_", 
-				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"reqConstraintsA1" : 48, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_StandingBound01_S2_", 
-				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"reqConstraintsA1" : 48, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -682,7 +682,7 @@
 			{
 				"animation" : "UD_Babo_ChokeRape02_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -690,23 +690,23 @@
 			}, {
 				"animation" : "UD_Babo_Conquering_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_DoggyBound01_S1_", 
-				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"reqConstraintsA1" : 48, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_StandingBound01_S2_", 
-				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"reqConstraintsA1" : 48, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -717,31 +717,31 @@
 			{
 				"animation" : "UD_Babo_BackHugPressure01_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 258, 
 				"reqConstraintsA2" : 0, 
-				"optConstraintsA2" : 0, 
+				"optConstraintsA2" : 2, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_BackHugPressure01_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 258, 
 				"reqConstraintsA2" : 0, 
-				"optConstraintsA2" : 0, 
+				"optConstraintsA2" : 2, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_Conquering_S3_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_Conquering_S4_", 
-				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"reqConstraintsA1" : 48, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -749,7 +749,7 @@
 			}, {
 				"animation" : "UD_Babo_Fallen01_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 258, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -760,7 +760,7 @@
 			{
 				"animation" : "UD_Babo_ChokeRape03_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -768,7 +768,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape03_S2_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -776,7 +776,7 @@
 			}, {
 				"animation" : "UD_Babo_ChokeRape03_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -786,8 +786,8 @@
 		"zad_DeviousPiercingsNipple" : [
 			{
 				"animation" : "UD_Babo_StandingBound01_S1_", 
-				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"reqConstraintsA1" : 48, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -798,23 +798,23 @@
 			{
 				"animation" : "UD_Babo_Conquering_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_DoggyBound01_S1_", 
-				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"reqConstraintsA1" : 48, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
 				"aggressive" : 1
 			}, {
 				"animation" : "UD_Babo_StandingBound01_S2_", 
-				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"reqConstraintsA1" : 48, 
+				"optConstraintsA1" : 259, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
@@ -825,7 +825,7 @@
 			{
 				"animation" : "UD_Babo_Conquering04_S1_", 
 				"reqConstraintsA1" : 0, 
-				"optConstraintsA1" : 0, 
+				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
 				"optConstraintsA2" : 0, 
 				"lewd" : 0, 
