@@ -367,18 +367,7 @@ Function EndMinigameDisable(Actor akActor)
 EndFunction
 
 Function UpdatePlayerControl()
-    Game.EnablePlayerControls(abMovement = true, abFighting = false, abSneaking = false, abMenu = true, abActivate = false) 
-    Game.DisablePlayerControls(abMovement = False, abMenu = false)
-    if !UDmain.Player.HasSpell(UDlibs.HardcoreDisableSpell)
-        if UDmain.Player.WornHasKeyword(libs.zad_DeviousBlindfold) && (libs.config.BlindfoldMode == 1 || libs.config.BlindfoldMode == 0)
-            int cameraState = Game.GetCameraState()
-            if (cameraState == 8 || cameraState == 9)
-                Game.EnablePlayerControls(abMovement = False, abSneaking = False)
-            endif
-        else
-            Game.EnablePlayerControls(abMovement = False)
-        endif
-    endif
+    libsp.UpdateControls()
 EndFunction
 
 bool Function InSelabAnimation(Actor akActor)
