@@ -398,6 +398,8 @@ EndFunction
 
 ; vehicle marker to aling actors in animation
 ObjectReference MarkerRef = None
+; Package to do nothing
+Package DoNothing = None
 
 ; Prepare actors and start an animation for them 
 ; akActor       - first actor
@@ -472,7 +474,27 @@ bool Function FastStartThirdPersonAnimationWithHelper(actor akActor, actor akHel
 EndFunction
 
 Function LockAnimatingActor(Actor akActor)
+; TODO: change it to direct reference 
+    If DoNothing == None
+        sslSystemConfig slConfig = (Game.GetFormFromFile(0xD62, "SexLab.esm") as sslSystemConfig)
+        If slConfig == None
+            slConfig = (Quest.GetQuest("SexLabQuestFramework") as sslSystemConfig)
+        EndIf
+        If slConfig != None
+            DoNothing = slConfig.DoNothing
+        Else
+            Debug.Trace("[UD] [ERROR] Can't find SexLabQuestFramework")
+        EndIf
+    EndIf
+; TODO: remove high heels
+
     libs.SetAnimating(akActor, True)
+    
+    If DoNothing != None
+        ActorUtil.AddPackageOverride(akActor, DoNothing, 100, 1)
+        akActor.EvaluatePackage()
+    EndIf
+    
     If UDmain.ActorIsPlayer(akActor)
         ; disable player controls (activation)
         ; bool abMovement, abFighting, abCamSwitch, abLooking, abSneaking, abMenu, abActivate, abJournalTabs, aiDisablePOVType = 0
@@ -501,6 +523,10 @@ Function LockAnimatingActor(Actor akActor)
 EndFunction
 
 Function UnlockAnimatingActor(Actor akActor)
+    If DoNothing != None
+        ActorUtil.RemovePackageOverride(akActor, DoNothing)
+        akActor.EvaluatePackage()
+    EndIf
     libs.SetAnimating(akActor, False)
     akActor.SetVehicle(None)
     If UDmain.ActorIsPlayer(akActor)
