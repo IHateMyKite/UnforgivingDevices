@@ -360,8 +360,7 @@ bool Function FastStartThirdPersonAnimation(actor akActor, string animation)
         return false
     endif
     
-	;akActor.AddToFaction(ZadAnimationFaction)
-	akActor.SetFactionRank(ZadAnimationFaction, 1)
+    akActor.SetFactionRank(ZadAnimationFaction, 1)
         
     if akActor.IsWeaponDrawn()
         akActor.SheatheWeapon()
@@ -371,7 +370,7 @@ bool Function FastStartThirdPersonAnimation(actor akActor, string animation)
             Utility.Wait(0.1)
             timeout += 1
         EndWhile
-    EndIf    
+    EndIf
     
     ;unequip shield
     Form loc_shield = GetShield(akActor)
@@ -408,5 +407,5 @@ Bool Function IsAnimating(Actor akActor, Bool abBonusCheck = true)
             return True
         endif
     endif
-	return (akActor.IsInFaction(ZadAnimationFaction) || akActor.IsInFaction(SexlabAnimationFaction))
+    return (akActor.IsInFaction(ZadAnimationFaction) || akActor.IsInFaction(SexlabAnimationFaction))
 EndFunction

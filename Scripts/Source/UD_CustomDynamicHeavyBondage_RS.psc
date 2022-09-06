@@ -187,7 +187,7 @@ Function TieUp()
         if isMinigameOn()
             StopMinigame()
         endif
-        resetCooldown()
+        resetCooldown(3.0)
         OnTiedUp()
     endif
 EndFunction
@@ -196,7 +196,7 @@ Function Untie()
     if _tied
         _untieProgress = 0.0
         _tied = false
-        resetCooldown()
+        resetCooldown(1.0)
         OnUntied()
     endif
 EndFunction

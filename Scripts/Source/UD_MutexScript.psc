@@ -12,7 +12,11 @@ bool    Property UD_GlobalDeviceUnlockMutex_InventoryScript             = false 
 bool    Property UD_GlobalDeviceUnlockMutex_InventoryScript_Failed      = false     auto hidden
 Armor   Property UD_GlobalDeviceUnlockMutex_Device                      = none      auto hidden
 
-Keyword Property UD_UnlockToken                                         = none      auto hidden    
+Keyword Property UD_UnlockToken                                         = none      auto hidden
+
+Actor Function GetActor()
+    return GetReference() as Actor
+EndFunction
 
 Function SetMutex(Actor akActor,Armor invDevice)
     (GetOwningQuest() as UD_MutexManagerScript).Mutex(akActor)

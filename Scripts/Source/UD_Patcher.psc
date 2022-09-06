@@ -37,8 +37,23 @@ Event OnInit()
     Ready = True
 EndEvent
 
+Float Function GetPatchDifficulty(UD_CustomDevice_RenderScript akDevice)
+    Armor akRD = akDevice.deviceRendered
+    if akRD.haskeyword(UDlibs.PatchVeryHard_KW)
+        return 1.75
+    elseif akRD.haskeyword(UDlibs.PatchHard_KW)
+        return 1.35
+    elseif akRD.haskeyword(UDlibs.PatchEasy_KW)
+        return 0.65
+    elseif akRD.haskeyword(UDlibs.PatchVeryEasy_KW)
+        return 0.25
+    else
+        return 1.0
+    endif
+EndFunction
+
 Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
-    Float loc_currentmult = UD_PatchMult_HeavyBondage*UD_PatchMult
+    Float loc_currentmult = UD_PatchMult_HeavyBondage*UD_PatchMult*GetPatchDifficulty(device)
     ;device.UD_LockpickDifficulty = 25
     CheckLocks(device,true,50)
     device.UD_LockAccessDifficulty = 100.0
@@ -139,7 +154,7 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
 EndFunction
 
 Function patchBlindfold(UD_CustomBlindfold_RenderScript device)
-    Float loc_currentmult = UD_PatchMult_Blindfold*UD_PatchMult
+    Float loc_currentmult = UD_PatchMult_Blindfold*UD_PatchMult*GetPatchDifficulty(device)
     patchDefaultValues(device,loc_currentmult)
     CheckLocks(device,false,30)
     ;materials
@@ -155,7 +170,7 @@ Function patchBlindfold(UD_CustomBlindfold_RenderScript device)
 EndFunction
 
 Function patchGag(UD_CustomGag_RenderScript device)
-    Float loc_currentmult = UD_PatchMult_Gag*UD_PatchMult
+    Float loc_currentmult = UD_PatchMult_Gag*UD_PatchMult*GetPatchDifficulty(device)
     patchDefaultValues(device,loc_currentmult)
     
     if StringUtil.find(device.deviceInventory.getName(),"Extreme") != -1 || (StringUtil.find(device.deviceInventory.getName(),"High Security") != -1 || StringUtil.find(device.deviceInventory.getName(),"Secure") != -1)
@@ -174,7 +189,7 @@ Function patchGag(UD_CustomGag_RenderScript device)
 EndFunction
 
 Function patchBelt(UD_CustomBelt_RenderScript device)
-    Float loc_currentmult = UD_PatchMult_ChastityBelt*UD_PatchMult
+    Float loc_currentmult = UD_PatchMult_ChastityBelt*UD_PatchMult*GetPatchDifficulty(device)
     patchDefaultValues(device,loc_currentmult)
     
     CheckLocks(device,false,25)
@@ -201,7 +216,7 @@ Function patchBelt(UD_CustomBelt_RenderScript device)
 EndFunction
 
 Function patchPlug(UD_CustomPlug_RenderScript device)
-    Float loc_currentmult = UD_PatchMult_Plug*UD_PatchMult
+    Float loc_currentmult = UD_PatchMult_Plug*UD_PatchMult*GetPatchDifficulty(device)
     patchDefaultValues(device,loc_currentmult)
     
     device.UD_Locks = 0
@@ -237,7 +252,7 @@ Function patchPlug(UD_CustomPlug_RenderScript device)
 EndFunction
 
 Function patchHood(UD_CustomHood_RenderScript device)
-    Float loc_currentmult = UD_PatchMult_Hood*UD_PatchMult
+    Float loc_currentmult = UD_PatchMult_Hood*UD_PatchMult*GetPatchDifficulty(device)
     patchDefaultValues(device,loc_currentmult)
     checkLooseModifier(device,100,0.05, 0.4)
     CheckLocks(device,false,40)
@@ -245,7 +260,7 @@ Function patchHood(UD_CustomHood_RenderScript device)
 EndFunction
 
 Function patchBra(UD_CustomBra_RenderScript device)
-    Float loc_currentmult = UD_PatchMult_ChastityBra*UD_PatchMult
+    Float loc_currentmult = UD_PatchMult_ChastityBra*UD_PatchMult*GetPatchDifficulty(device)
     patchDefaultValues(device,loc_currentmult)
     
     device.UD_durability_damage_base *= 0.5
@@ -258,7 +273,7 @@ Function patchBra(UD_CustomBra_RenderScript device)
 EndFunction
 
 Function patchGeneric(UD_CustomDevice_RenderScript device)
-    Float loc_currentmult = UD_PatchMult_Generic*UD_PatchMult
+    Float loc_currentmult = UD_PatchMult_Generic*UD_PatchMult*GetPatchDifficulty(device)
 
     patchDefaultValues(device,loc_currentmult)
     CheckLocks(device,true,35)
@@ -283,7 +298,7 @@ Function patchGeneric(UD_CustomDevice_RenderScript device)
 EndFunction
 
 Function patchPiercing(UD_CustomPiercing_RenderScript device)
-    Float loc_currentmult = UD_PatchMult_Piercing*UD_PatchMult
+    Float loc_currentmult = UD_PatchMult_Piercing*UD_PatchMult*GetPatchDifficulty(device)
     patchDefaultValues(device,loc_currentmult)
     ;patchStart(device)
     device.UD_VibDuration = Round(Utility.randomInt(40,75)*fRange(loc_currentmult,0.3,5.0))
