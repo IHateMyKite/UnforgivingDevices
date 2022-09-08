@@ -1566,8 +1566,8 @@ EndFunction
 Function ProccesLockMutex()
     float loc_time = 0.0
     while loc_time <= 3.0 && (!UD_GlobalDeviceMutex_InventoryScript)
-        Utility.waitMenuMode(0.1)
-        loc_time += 0.1
+        Utility.waitMenuMode(0.05)
+        loc_time += 0.05
     endwhile
     
     if UD_GlobalDeviceMutex_InventoryScript_Failed || loc_time >= 3.0

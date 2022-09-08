@@ -1615,7 +1615,7 @@ Function Init(Actor akActor)
     InitPost()
 
     if UD_Cooldown > 0
-        resetCooldown()
+        resetCooldown(1.0)
     endif
     
     ;Add abilities
@@ -1735,13 +1735,12 @@ Function Update(float timePassed)
     OnUpdatePost(timePassed)
 EndFunction
 
-Function resetCooldown()
+Function resetCooldown(Float afMult)
     _updateTimePassed = 0.0
-    _currentRndCooldown = CalculateCooldown()
+    _currentRndCooldown = Round(CalculateCooldown()*afMult)
 EndFunction
 
 Function UpdateCooldown()
-
 EndFunction
 
 int Function CalculateCooldown(Float fMult = 1.0)
@@ -3613,7 +3612,7 @@ Function minigame()
     
     if loc_PlayerInMinigame
         UDCDmain.MinigameKeysUnRegister()
-    endif    
+    endif
     
     if !UDOM.isOrgasming(Wearer)
         UDAM.FastEndThirdPersonAnimation(Wearer) ;ends struggle animation
@@ -3625,14 +3624,8 @@ Function minigame()
         endif
     endif
     
-    ;remove disable
-    UDCDMain.EndMinigameDisable(Wearer)
-    if _minigameHelper
-        UDCDMain.EndMinigameDisable(_minigameHelper)
-    endif
-    
     ;checks if Wearer succesfully escaped device
-    if isUnlocked; && !force_stop_minigame
+    if _isUnlocked
         if loc_WearerIsPlayer
             UDCDmain.Print("You have succesfully escaped out of " + deviceInventory.GetName() + "!",2)
         elseif UDCDmain.AllowNPCMessage(GetWearer())
@@ -3651,7 +3644,20 @@ Function minigame()
         endif
     endif
 
-    if UDmain.TraceAllowed()    
+    ;remove disalbe from helper (can be done earlier as no devices were changed)
+    if _minigameHelper
+        UDCDMain.EndMinigameDisable(_minigameHelper)
+    endif
+
+    ;Wait for device to get fully removed
+    while _isUnlocked && !_isRemoved
+        Utility.waitMenuMode(0.1)
+    endwhile
+
+    ;remove disable from wearer
+    UDCDMain.EndMinigameDisable(Wearer)
+
+    if UDmain.TraceAllowed()
         UDCDmain.Log("Minigame ended for: "+ deviceInventory.getName(),1)
     endif
     
@@ -4344,7 +4350,7 @@ string Function getModifiers(string str = "")
     Endif
     
     if deviceRendered.hasKeyword(UDlibs.PatchedDevice)
-        str += "Patched device\n"
+        str += "Patched device ("+Round(UDCDmain.UDPatcher.GetPatchDifficulty(self)*100.0)+" %)\n"
     endif    
     return str
 EndFunction
@@ -4629,7 +4635,6 @@ Function lockpickDevice()
             if UD_CurrentLocks == 0 && UD_JammedLocks == 0 ;device gets unlocked
                 ;current_device_health = 0
                 unlockRestrain()
-                stopMinigame()
                 lockpickGame_on = False
                 OnDeviceLockpicked()
             elseif UD_CurrentLocks == UD_JammedLocks ;device have no more free locks
@@ -4687,7 +4692,6 @@ Function keyUnlockDevice()
     
     if UD_CurrentLocks == 0 && UD_JammedLocks == 0
         unlockRestrain()
-        stopMinigame()
         keyGame_on = False
         OnDeviceUnlockedWithKey()
     endif
@@ -4774,9 +4778,8 @@ bool Function CooldownActivate()
         if UDmain.TraceAllowed()        
             UDCDmain.Log(getDeviceHeader() + " cooldown activate",1)
         endif
-        ;resetCooldown()
         OnCooldownActivatePost()
-        resetCooldown()
+        resetCooldown(1.0)
         return true
     else
         return false
@@ -4822,7 +4825,7 @@ Int Function RemoveAllAbilities(Actor akActor)
     endwhile
 EndFunction
 
-;--------------------------------------------------   
+;--------------------------------------------------
 ;  ______      ________ _____  _____ _____  ______ 
 ; / __ \ \    / /  ____|  __ \|_   _|  __ \|  ____|
 ;| |  | \ \  / /| |__  | |__) | | | | |  | | |__   
@@ -4832,10 +4835,10 @@ EndFunction
 ;--------------------------------------------------                                                  
 ;theese function should be on every object instance, as not having them may cause multiple function calls to default class
 Function activateDevice()
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         UDCDmain.Log("Device " + DeviceInventory.getName() + " (W: " + getWearerName() + ") activated",1)
     endif
-    resetCooldown()
+    resetCooldown(1.0)
 EndFunction
 
 bool Function canBeActivated()
@@ -5203,4 +5206,27 @@ Function startBitMapMutexCheck3()
 EndFunction
 Function endBitMapMutexCheck3()
     _bitmap_mutex3 = false
+EndFunction
+
+;internal functions, as calling them from UDmain can cause suspension
+int Function codeBit(int iCodedMap,int iValue,int iSize,int iIndex)
+    if iIndex + iSize > 32
+        return 0xFFFFFFFF ;returns error value
+    endif
+    ;sets not shifted bit mask loc_clear_mask
+    int loc_clear_mask = (Math.LeftShift(0x1,iSize) - 1)                        ;mask used to clear bits which will be set
+    iValue = Math.LeftShift(Math.LogicalAnd(iValue,loc_clear_mask),iIndex)      ;clear value from bigger bits
+    loc_clear_mask = Math.LogicalNot(Math.LeftShift(loc_clear_mask,iIndex))     ;shift and negate
+    iCodedMap = Math.LogicalAnd(iCodedMap,loc_clear_mask)                       ;clear maps bits with mask
+    return Math.LogicalOr(iCodedMap,iValue)                                     ;sets bits
+endfunction
+
+int Function decodeBit(int iCodedMap,int iSize,int iIndex)
+    if iIndex + iSize > 32
+        return 0xFFFFFFFF ;returns error value
+    endif
+    ;sets not shifted bit mask
+    iCodedMap = Math.RightShift(iCodedMap,iIndex)                           ;shift to right, so value is correct
+    iCodedMap = Math.LogicalAnd(iCodedMap,(Math.LeftShift(0x1,iSize) - 1))  ;clear maps bits with mask
+    return iCodedMap
 EndFunction

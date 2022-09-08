@@ -27,11 +27,10 @@ EndFunction
 
 Function onDeviceMenuInitPost(bool[] aControlFilter)
     parent.onDeviceMenuInitPost(aControlFilter)
-    if wearerFreeHands(True) && !isVibrating()
-        UDCDmain.currentDeviceMenu_switch3 = True
-    endif
     if isVibrating()
         UDCDmain.currentDeviceMenu_switch4 = True
+    elseif wearerFreeHands(True)
+        UDCDmain.currentDeviceMenu_switch3 = True
     endif
     UDCDmain.currentDeviceMenu_switch1 = False
     UDCDmain.currentDeviceMenu_allowSpecialMenu = True
@@ -39,11 +38,10 @@ EndFunction
 
 Function onDeviceMenuInitPostWH(bool[] aControlFilter)
     parent.onDeviceMenuInitPostWH(aControlFilter)
-    if (wearerFreeHands(True) || helperFreeHands(True)) && !isVibrating()
-        UDCDmain.currentDeviceMenu_switch3 = True
-    endif
     if isVibrating()
         UDCDmain.currentDeviceMenu_switch4 = True
+    elseif (wearerFreeHands(True) || helperFreeHands(True))
+        UDCDmain.currentDeviceMenu_switch3 = True
     endif
     UDCDmain.currentDeviceMenu_switch1 = False
     UDCDmain.currentDeviceMenu_allowSpecialMenu = True
@@ -103,9 +101,8 @@ Function turnOnPlug(int strenght, int mod)
 EndFunction
 
 Function turnOffPlug()
-    ;turned_on = False
     stopVibratingAndWait()
-    resetCooldown()
+    resetCooldown(2.0)
 EndFunction
 
 Function removeDevice(actor akActor)
@@ -188,10 +185,6 @@ bool Function OnCritDevicePre()
     endif
 EndFunction
 
-string Function addInfoString(string str = "")
-    return parent.addInfoString(str)
-EndFunction
-
 float minutes_updated = 0.0
 Function OnUpdatePost(float timePassed)
     minutes_updated += timePassed*(24*60)
@@ -215,7 +208,7 @@ bool Function canVibrate()
 EndFunction
 
 Function activateDevice()
-    resetCooldown()
+    resetCooldown(3.0)
     if !isVibrating()
         if WearerIsPlayer()
             UDmain.Print("Your "+ getDeviceName() +" suddenly turn itself on!",1)
@@ -223,7 +216,7 @@ Function activateDevice()
             UDmain.Print(getWearerName() + "s "+ getDeviceName() +" suddenly turn itself on!",2)
         endif
         turnOnPlug(3,0)
-    elseif isVibrating()
+    else
         if getCurrentVibStrenth() < 100
             if WearerIsPlayer()
                 UDmain.Print("Your controlable "+getPlugType()+" plug suddenly starts to vibrate stronger!",2)
@@ -245,7 +238,7 @@ EndFunction
 
 Function updateWidget(bool force = false)
     if turnOffPlugMinigame_on
-        setWidgetVal(getRemainingVibrationDurationPer(),force)    
+        setWidgetVal(getRemainingVibrationDurationPer(),force)
     else
         parent.updateWidget(force)
     endif
@@ -258,9 +251,9 @@ Function updateWidgetColor()
         elseif getRemainingVibrationDurationPer() > 0.5
             setWidgetColor(0xde84ca)
         elseif getRemainingVibrationDurationPer() > 0.25
-            setWidgetColor(0xdfa3d2)    
+            setWidgetColor(0xdfa3d2)
         else
-            setWidgetColor(0xdec5d8)    
+            setWidgetColor(0xdec5d8)
         endif
     else
         parent.updateWidgetColor()
@@ -273,6 +266,7 @@ Function OnVibrationEnd()
     else
         parent.OnVibrationEnd()
     endif
+    
 EndFunction
 
 ;============================================================================================================================
@@ -395,5 +389,8 @@ int Function getArousalRate()
     return parent.getArousalRate()
 EndFunction
 Float[] Function GetCurrentMinigameExpression()
-	return parent.GetCurrentMinigameExpression()
+    return parent.GetCurrentMinigameExpression()
+EndFunction
+string Function addInfoString(string str = "")
+    return parent.addInfoString(str)
 EndFunction

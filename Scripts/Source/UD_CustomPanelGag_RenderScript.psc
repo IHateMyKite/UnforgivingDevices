@@ -179,7 +179,7 @@ Function plugGag(bool silent = false)
             endif
         endif
     endif
-    resetCooldown()
+    resetCooldown(1.0)
     removePlugProgress = 0.0
 EndFunction
 
@@ -202,8 +202,7 @@ Function unplugGag(bool silent = false)
             endif
         endif
     endif
-    resetCooldown()
-    ;removePlugProgress = 0.0
+    resetCooldown(1.0)
 EndFunction
 
 Function addPlug()

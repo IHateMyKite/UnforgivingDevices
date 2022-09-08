@@ -175,7 +175,6 @@ Keyword Property UnforgivingDevice auto
 Keyword Property CustomHeavyBondage auto 
 Keyword Property PatchedDevice auto
 Keyword Property PatchedInventoryDevice auto
-Keyword Property PatchNoModes_KW auto
 Keyword Property HardcoreDisable_KW auto
 Keyword Property OrgasmCheck_KW auto
 Keyword Property ArousalCheck_KW auto
@@ -235,3 +234,10 @@ FormList Property WeaponKeywords auto
 
 ;Device abilities
 Spell Property ArousingMovement auto
+
+;Patched devices keywords
+Keyword Property PatchNoModes_KW auto
+Keyword Property PatchVeryEasy_KW auto
+Keyword Property PatchEasy_KW auto
+Keyword Property PatchHard_KW auto
+Keyword Property PatchVeryHard_KW auto

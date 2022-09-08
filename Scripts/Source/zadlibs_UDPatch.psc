@@ -1,4 +1,4 @@
-Scriptname zadlibs_UDPatch extends zadlibs  
+Scriptname zadlibs_UDPatch extends zadlibs
 
 import MfgConsoleFunc
 import sslBaseExpression
@@ -57,7 +57,8 @@ bool Function isMutexed(Actor akActor,Armor invDevice)
 EndFunction
 
 bool Property DD_LockDeviceBlocking = true auto
-
+UD_CustomDevice_NPCSlot _lastLockSlot  = none
+UD_MutexScript          _lastLockMutex = none
 Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force = false)
     if !deviceInventory
         UDmain.Error("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - none passed as deviceInventory")
@@ -75,23 +76,36 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
         UDmain.Warning("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") is not valid actor or dead! Aborting")
         return false
     endif
-    
+
 
     bool loc_res = false
     if deviceInventory.hasKeyword(UDlibs.PatchedInventoryDevice)
-        UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
+        UDmain.UDNPCM.GotoState("UpdatePaused")
+        UD_CustomDevice_NPCSlot loc_slot = none
+        if _lastLockSlot && (_lastLockSlot.GetActor() == akActor)
+            loc_slot = _lastLockSlot
+        else
+            loc_slot = UDCDmain.getNPCSlot(akActor)
+        endif
         UD_MutexScript          loc_mutex = none
         
         if loc_slot
             loc_slot.StartLockMutex()
         else
-            loc_mutex = UDMM.WaitForFreeAndSet_Lock(akActor,deviceInventory)
+            if _lastLockMutex && (_lastLockMutex.GetActor() == akActor)
+                loc_mutex = _lastLockMutex
+            else
+                loc_mutex = UDMM.WaitForFreeAndSet_Lock(akActor,deviceInventory)
+            endif
         endif
+        
+        _lastLockSlot  = loc_slot
+        _lastLockMutex = loc_mutex
         
         if UDmain.TraceAllowed()
             if loc_slot
                 UDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - NPC slot: " + loc_slot,1)
-            elseif loc_mutex    
+            elseif loc_mutex
                 UDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - mutex: " + loc_mutex,1)
             else
                 UDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - no mutex",1)
@@ -110,14 +124,14 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
         If force
             Keyword kw = GetDeviceKeyword(deviceInventory)
             if kw
-                loc_res = SwapDevices(akActor, deviceInventory, zad_DeviousDevice = kw)						
+                loc_res = SwapDevices(akActor, deviceInventory, zad_DeviousDevice = kw)
             EndIf
-        else	
+        else
             if !akActor.GetItemCount(deviceInventory)
                 akActor.AddItem(deviceInventory, 1, true)
-            EndIf		
+            EndIf
 
-            akActor.EquipItemEx(deviceInventory, 0, false, true)	
+            akActor.EquipItemEx(deviceInventory, 0, false, true)
             loc_res = true
         endif
         
@@ -129,10 +143,10 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
         
         zad_AlwaysSilent.RemoveAddedForm(akActor)
         
-        if UDmain.TraceAllowed()    
+        if UDmain.TraceAllowed()
             if loc_slot
                 UDCDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation completed - NPC slot: " + loc_slot,1)
-            elseif loc_mutex    
+            elseif loc_mutex
                 UDCDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation completed - mutex: " + loc_mutex,1)
             else
                 UDCDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation completed - no mutex",1)
@@ -145,7 +159,7 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
             loc_mutex.ResetLockMutex()
         endif
     else
-        if UDmain.TraceAllowed()        
+        if UDmain.TraceAllowed()
             UDCDmain.Log("LockDevicePatched("+getActorName(akActor)+","+deviceInventory.getName()+") (patched) called, device is NOT UD -> skipping mutex")
         endif
         
@@ -157,8 +171,8 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
             Armor deviceRendered = GetRenderedDevice(deviceInventory)
             float loc_time = 0.0
             while loc_time <= 1.5 && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
-                Utility.waitMenuMode(0.001)
-                loc_time += 0.001
+                Utility.waitMenuMode(0.1)
+                loc_time += 0.1
             endwhile
             if loc_time >= 1.5
                 ;render device lock failed, abort
@@ -167,10 +181,10 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
         endif
     endif
     
-    if UDmain.TraceAllowed()        
+    if UDmain.TraceAllowed()
         UDCDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - ended",3)
     endif
-
+    UDmain.UDNPCM.GotoState("")
     return loc_res
 EndFunction
 
@@ -201,6 +215,7 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
     endif
     
     if deviceInventory.hasKeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
+        UDmain.UDNPCM.GotoState("UpdatePaused")
         UD_CustomDevice_NPCSlot loc_slot    = none ;NPC slot for registered NPC
         UD_MutexScript          loc_mutex   = none ;mutex used for non registered NPC
         ;start mutex if actor is not dead
@@ -289,7 +304,7 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
     if UDmain.TraceAllowed()        
         UDCDmain.Log("UnlockDevice("+deviceInventory.getName()+") (patched) finished: "+loc_res,1)
     endif
-    
+    UDmain.UDNPCM.GotoState("")
     return loc_res
 EndFunction
 
@@ -1062,6 +1077,45 @@ Function ProcessPlayerControls(bool abCheckMinigame = true)
     Game.EnablePlayerControls(abMovement = movement, abFighting = fighting, abSneaking = sneaking, abMenu = menu, abActivate = activate) 
     EndProcessPlayerControlsMutex()
 
+    if (!abCheckMinigame || !UDCDmain.PlayerInMinigame())
+        StartProcessPlayerControlsMutex()
+        ; Centralized control management function.
+        bool movement   = true
+        bool fighting   = true
+        bool sneaking   = true
+        bool menu       = true
+
+        ;check hardcore mode
+        if UDmain.Player.HasSpell(UDlibs.HardcoreDisableSpell)
+            menu = false
+        else
+            menu = true
+        endif
+
+        bool activate = true
+        int cameraState = Game.GetCameraState()
+        if playerRef.WornHasKeyword(zad_DeviousBlindfold) && (config.BlindfoldMode == 1 || config.BlindfoldMode == 0) && (cameraState == 8 || cameraState == 9)
+            movement = false
+            sneaking = false
+        EndIf
+
+        if IsBound(playerRef)
+            If playerRef.WornHasKeyword(zad_BoundCombatDisableKick)
+                fighting = false
+            Else
+                fighting = config.UseBoundCombat
+            Endif
+        EndIf
+        if playerRef.WornHasKeyword(zad_DeviousPetSuit)
+            sneaking = false
+        EndIf
+        if playerRef.WornHasKeyword(zad_DeviousPonyGear)
+            sneaking = false
+        EndIf
+        Game.DisablePlayerControls(abMovement = !movement, abFighting = !fighting, abSneaking = !sneaking, abMenu = !menu, abActivate = !activate)    
+        Game.EnablePlayerControls(abMovement = movement, abFighting = fighting, abSneaking = sneaking, abMenu = menu, abActivate = activate) 
+        EndProcessPlayerControlsMutex()
+    endif    
 EndFunction
 
 function stripweapons(actor a, bool unequiponly = true)        

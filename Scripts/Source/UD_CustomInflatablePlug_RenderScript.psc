@@ -405,14 +405,14 @@ bool Function OnCritDevicePre()
 EndFunction
 
 Function activateDevice()
-    resetCooldown()
+    resetCooldown(1.0)
     bool loc_canInflate = _inflateLevel <= 4
     bool loc_canVibrate = canVibrate() && !isVibrating()
     if loc_canInflate
         if WearerIsPlayer()
             UDmain.Print("Your "+ getDeviceName()+" suddenly inflate itself!",1)
         elseif WearerIsFollower()
-            UDmain.Print(getWearerName() + "s "+ getDeviceName() + " suddenly inflate itself!",3)        
+            UDmain.Print(getWearerName() + "s "+ getDeviceName() + " suddenly inflate itself!",3)
         endif
         inflatePlug(1)
     endif
@@ -428,9 +428,9 @@ Function onUpdatePost(float timePassed)
             if WearerIsPlayer()
                 UDmain.Print("You feel that your "+getDeviceName()+" lost some of its pressure",2)
             elseif WearerIsFollower()
-                UDmain.Print(getWearerName() + "s "+ getDeviceName() + " lost some of its pressure",3)    
+                UDmain.Print(getWearerName() + "s "+ getDeviceName() + " lost some of its pressure",3)
             endif
-            resetCooldown()
+            resetCooldown(1.25)
             deflate(True)
         endif
     endif    

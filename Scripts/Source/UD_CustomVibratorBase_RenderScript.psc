@@ -227,7 +227,6 @@ bool Function proccesSpecialMenuWH(Actor akSource,int msgChoice)
 EndFunction
 
 Function activateDevice()
-    resetCooldown()
     vibrate()
 EndFunction
 
@@ -534,10 +533,11 @@ Function vibrate(float fDurationMult = 1.0)
     if isVibrating()
         return
     endif
-    resetCooldown()
-    
-    OnVibrationStart()    
-    
+
+    resetCooldown(1.0)
+
+    OnVibrationStart()
+
     if UD_Chaos ;chaos plug, ignore forced strength
         _currentVibStrength = Utility.randomInt(15,100)
     elseif _forceStrength < 0
@@ -620,7 +620,7 @@ Function vibrate(float fDurationMult = 1.0)
             _currentVibRemainingDuration -= 1 ;reduce timer
             Utility.Wait(1.0)
         endif
-        resetCooldown()
+        resetCooldown(1.0)
         while _paused
             Utility.wait(0.5)
         endwhile

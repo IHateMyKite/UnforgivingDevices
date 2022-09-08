@@ -458,13 +458,18 @@ bool Function ActorIsValidForUD(Actor akActor)
     if akActor == Player
         return true
     endif
+    if akActor.isDead()         ;check that actor is not dead
+        return false
+    endif
     ActorBase loc_actorbase = akActor.GetLeveledActorBase()
     Race loc_race = loc_actorbase.getRace()
-    bool loc_cond = true
-    loc_cond = loc_cond && (loc_race.isPlayable() || loc_race.haskeyword(UDlibs.ActorTypeNPC)) ;check that race is playable or NPC
-    loc_cond = loc_cond && !loc_race.IsChildRace()    ;check that actor is not child
-    loc_cond = loc_cond && !akActor.isDead()         ;check that actor is not dead
-    return loc_cond
+    if !loc_race.haskeyword(UDlibs.ActorTypeNPC) ;check that race is playable or NPC
+        return false
+    endif
+    if loc_race.IsChildRace()    ;check that actor is not child
+        return false
+    endif
+    return true
 EndFunction
 
 int Property UD_HearingRange = 4000 auto

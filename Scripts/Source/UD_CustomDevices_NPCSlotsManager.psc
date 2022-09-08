@@ -102,12 +102,16 @@ Function UpdateSlots()
     while index
         index -= 1
         UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
-        if loc_slot.isUsed()
-            if !loc_slot.isDead()
-                loc_slot.UpdateSlot()
-            endif
-        endif
+        UpdateSlot(loc_slot)
     endwhile
+EndFunction
+
+Function UpdateSlot(UD_CustomDevice_NPCSlot akSlot)
+    if akSlot.isUsed()
+        if !akSlot.isDead()
+            akSlot.UpdateSlot()
+        endif
+    endif
 EndFunction
 
 ;bool _updating = false
@@ -332,10 +336,14 @@ Function UpdateDevices(float fTimePassed)
     while index
         index -= 1
         UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
-        if loc_slot.isScriptRunning() && loc_slot.isUsed() && loc_slot.canUpdate()
-            loc_slot.update(fTimePassed)
-        endif
+        UpdateSlotDevices(loc_slot,fTimePassed)
     endwhile
+EndFunction
+
+Function UpdateSlotDevices(UD_CustomDevice_NPCSlot akSlot, Float afTimePassed)
+    if akSlot.isScriptRunning() && akSlot.isUsed() && akSlot.canUpdate()
+        akSlot.update(afTimePassed)
+    endif
 EndFunction
 
 Function UpdateDevicesHour(float fMult)
@@ -386,3 +394,17 @@ bool Function unregisterNPC(Actor akActor,bool bDebugMsg = false)
     endwhile
     return False
 EndFunction
+
+State UpdatePaused
+    Function UpdateSlots()
+    EndFunction
+    Event OnUpdate()
+        RegisterForSingleUpdate(UDCDmain.UD_UpdateTime/2)
+    EndEvent
+    Function UpdateSlot(UD_CustomDevice_NPCSlot akSlot)
+    EndFunction
+    Function UpdateDevices(float fTimePassed)
+    EndFunction
+    Function UpdateSlotDevices(UD_CustomDevice_NPCSlot akSlot, Float afTimePassed)
+    EndFunction
+EndState
