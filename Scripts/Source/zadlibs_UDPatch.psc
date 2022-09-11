@@ -1038,45 +1038,6 @@ Function ProcessPlayerControls(bool abCheckMinigame = true)
         UDMain.Log("ProcessPlayerControls",3)
     endif
     
-    StartProcessPlayerControlsMutex()
-    ; Centralized control management function.
-    bool movement   = true
-    bool fighting   = true
-    bool sneaking   = true
-    bool menu       = true
-    
-    ;check hardcore mode
-    if UDmain.Player.HasSpell(UDlibs.HardcoreDisableSpell)
-        menu = false
-    else
-        menu = true
-    endif
-        
-    bool activate = !(UDCDmain.PlayerInMinigame() && abCheckMinigame)
-    int cameraState = Game.GetCameraState()
-    if playerRef.WornHasKeyword(zad_DeviousBlindfold) && (config.BlindfoldMode == 1 || config.BlindfoldMode == 0) && (cameraState == 8 || cameraState == 9)
-        movement = false
-        sneaking = false
-    EndIf
-    
-    if IsBound(playerRef)
-        If playerRef.WornHasKeyword(zad_BoundCombatDisableKick)
-            fighting = false            
-        Else
-            fighting = config.UseBoundCombat            
-        Endif
-    EndIf
-    if playerRef.WornHasKeyword(zad_DeviousPetSuit)
-        sneaking = false
-    EndIf    
-    if playerRef.WornHasKeyword(zad_DeviousPonyGear)
-        sneaking = false
-    EndIf
-    Debug.Trace("[UD] [TRACE] ProcessPlayerControls() abMovement = " + movement + ", abFighting = " + fighting + ", abSneaking = " + sneaking + ", abMenu = " + menu + ", abActivate = " + activate)
-    Game.DisablePlayerControls(abMovement = !movement, abFighting = !fighting, abSneaking = !sneaking, abMenu = !menu, abActivate = !activate)    
-    Game.EnablePlayerControls(abMovement = movement, abFighting = fighting, abSneaking = sneaking, abMenu = menu, abActivate = activate) 
-    EndProcessPlayerControlsMutex()
-
     if (!abCheckMinigame || !UDCDmain.PlayerInMinigame())
         StartProcessPlayerControlsMutex()
         ; Centralized control management function.
