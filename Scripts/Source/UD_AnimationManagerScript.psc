@@ -496,10 +496,7 @@ Function LockAnimatingActor(Actor akActor)
     EndIf
     
     If UDmain.ActorIsPlayer(akActor)
-        ; disable player controls (activation)
-        ; bool abMovement, abFighting, abCamSwitch, abLooking, abSneaking, abMenu, abActivate, abJournalTabs, aiDisablePOVType = 0
-        ; something enables all controls a few moments later
-        ; Game.DisablePlayerControls(true, true, true, false, true, false, true, true)
+
     Else
         akActor.SetDontMove(true)
     EndIf
@@ -587,7 +584,7 @@ Bool forceReloadFiles = true                ;
 ;   }
 ;}
 string[] Function GetStruggleAnimationsByKeywordWithHelper(Keyword akKeyword, Bool[] abActorConstraints, Bool[] abHelperConstraints)
-	Debug.Trace("[UD] [TRACE] akKeyword = " + akKeyword.GetString() + ", abActorConstraints = " + abActorConstraints + ", abHelperConstraints = " + abHelperConstraints)
+	Debug.Trace("[UD] [TRACE] UD_AnimationManagerScript::GetStruggleAnimationsByKeywordWithHelper() akKeyword = " + akKeyword.GetString() + ", abActorConstraints = " + abActorConstraints + ", abHelperConstraints = " + abHelperConstraints)
     Int iActorConstraints = _FromContraintsBoolArrayToInt(abActorConstraints)
     Int iHelperConstraints = _FromContraintsBoolArrayToInt(abHelperConstraints)
     String[] result_temp = new String[10]
@@ -660,44 +657,62 @@ EndFunction
 ; [7] elbowtie
 ; [8] mittens
 ; [9] straitjacket
-String[] Function GetStruggleAnimationsByKeyword2(Keyword akKeyword, Bool[] abActorConstraints, Bool helper = False)
-    Debug.Trace("[UD] [TRACE] UD_AnimationManagerScript::GetStruggleAnimationsByKeyword2() akKeyword = " + akKeyword + ", abActorConstraints = " + abActorConstraints + ", helper = " + helper)
-    If akKeyword == None
-        String[] temp = new String[1]
-        temp[0] = "none"
-        Return temp
-    EndIf
-    Int len = abActorConstraints.length
-    If abActorConstraints.length < 10
-        abActorConstraints = Utility.ResizeBoolArray(abActorConstraints, 10, False)         ; this function is bugged: new added items filled with true
-        While len < 10
-            abActorConstraints[len] = False
-            len += 1
-        EndWhile
-    EndIf
-    If abActorConstraints[2]
-        Return GetStruggleAnimationsByKeyword(None, libs.zad_DeviousYoke, abActorConstraints[0])
-    ElseIf abActorConstraints[4]
-        Return GetStruggleAnimationsByKeyword(None, libs.zad_DeviousArmbinder, abActorConstraints[0])
-    ElseIf abActorConstraints[5]
-        Return GetStruggleAnimationsByKeyword(None, libs.zad_DeviousArmbinderElbow, abActorConstraints[0])
-    ElseIf abActorConstraints[6]
-        Return GetStruggleAnimationsByKeyword(None, libs.zad_DeviousPetSuit, abActorConstraints[0])
-    ElseIf abActorConstraints[8]
-        Return GetStruggleAnimationsByKeyword(None, libs.zad_DeviousBondageMittens, abActorConstraints[0])
-    ElseIf abActorConstraints[9]
-        Return GetStruggleAnimationsByKeyword(None, libs.zad_DeviousStraitJacket, abActorConstraints[0])
-    ElseIf abActorConstraints[3]
-        Return GetStruggleAnimationsByKeyword(None, libs.zad_DeviousCuffsFront, abActorConstraints[0])
-    EndIf
+String[] Function GetStruggleAnimationsByKeyword2(Keyword akKeyword, Bool[] abActorConstraints)
+	Debug.Trace("[UD] [TRACE] GetStruggleAnimationsByKeyword2 akKeyword = " + akKeyword.GetString() + ", abActorConstraints = " + abActorConstraints)
+    Int iActorConstraints = _FromContraintsBoolArrayToInt(abActorConstraints)
+    String[] result_temp = new String[10]
+    Int resultCount = 0
     
-    If helper
-        String[] temp = new String[1]
-        temp[0] = "ft_struggle_gloves_1"
-        Return temp
-    Else
-        Return GetStruggleAnimationsByKeyword(None, akKeyword, abActorConstraints[0])
+    If UD_StruggleAnimDefs.Length == 0 || forceReloadFiles
+        UD_StruggleAnimDefs = JsonUtil.JsonInFolder("UD/StruggleAnims") 
+        Debug.Trace("[UD] [TRACE] Found " + UD_StruggleAnimDefs.length + " json file(s) in location '<Data>/SKSE/Plugins/StorageUtilData/UD/StruggleAnims/'")
     EndIf
+    Int i = 0
+    While i < UD_StruggleAnimDefs.Length
+        String file = "UD/StruggleAnims/" + UD_StruggleAnimDefs[i]
+        Debug.Trace("[UD] [TRACE] Build animation list: processing " + file)
+        If forceReloadFiles
+            Debug.Trace("[UD] [INFO] Reload json file since flag 'forceReloadFiles' is set")
+            JsonUtil.Unload(file)
+        EndIf
+        If JsonUtil.Load(file) && JsonUtil.IsGood(file)
+            String dict_path = ".solo." + akKeyword.GetString()
+            Int path_count = JsonUtil.PathCount(file, dict_path)
+            Int j = 0
+            If path_count == 0  
+                Debug.Trace("[UD] [TRACE] Build animation list: Found no applicable animations")
+            EndIf
+            While j < path_count
+                String anim_path = dict_path + "[" + j + "]"
+                Bool forced = JsonUtil.GetPathBoolValue(file, anim_path + ".forced")
+                If forced 
+                    String[] result_forced = new String[1]
+                    result_forced[0] = JsonUtil.GetPathStringValue(file, anim_path + ".animation")
+                    Debug.Trace("[UD] [INFO] Return forced animation: " + result_forced[0])
+                    Return result_forced
+                EndIf
+                Int anim_reqConstrA1 = JsonUtil.GetPathIntValue(file, anim_path + ".reqConstraintsA1")
+                Int anim_optConstrA1 = JsonUtil.GetPathIntValue(file, anim_path + ".optConstraintsA1")
+                If _CheckAnimationConstraints(iActorConstraints, anim_reqConstrA1, anim_optConstrA1)
+                    result_temp[resultCount] = JsonUtil.GetPathStringValue(file, anim_path + ".animation")
+                    resultCount += 1
+                    If resultCount == result_temp.length
+                        result_temp = Utility.ResizeStringArray(result_temp, result_temp.length + 10)
+                    EndIf
+                    Debug.Trace("[UD] [TRACE] Build animation list: pushing into array " + result_temp[resultCount - 1])
+                Else
+                    Debug.Trace("[UD] [TRACE] Build animation list: animation doesn't have suitable constraints")
+                EndIf
+                j += 1
+            EndWhile
+            Debug.Trace("[UD] [TRACE] JsonUtil.PathCount(" + akKeyword.GetString() + ") = " + path_count)
+        ElseIf JsonUtil.IsGood(file) == False
+            Debug.Trace("[UD] [WARNING] Can't load json file: " + file)
+            Debug.Trace("[UD] [WARNING] Found errors: " + JsonUtil.GetErrors(file))
+        EndIf
+        i += 1
+    EndWhile
+    Return Utility.ResizeStringArray(result_temp, resultCount)
 
 EndFunction
 
@@ -726,4 +741,56 @@ Int Function _FromContraintsBoolArrayToInt(Bool[] constraintsArray)
         i += 1
     EndWhile
     Return r
+EndFunction
+
+; Possible constraints:
+; [0] hobble skirt or linked cuffs
+; [1] bound ankles
+; [2] yoke
+; [3] wrists bound in front
+; [4] armbinder
+; [5] elbowbinder
+; [6] pet suit
+; [7] elbowtie
+; [8] mittens
+; [9] StraitJacket
+Bool[] Function GetActorConstraints(Actor akActor)
+	Bool[] result = new Bool[10]
+    If akActor == None
+        Return result
+    EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirt)
+	; TODO: check for linked cuffs
+		result[0] = True
+	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousAnkleShackles) || akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirtRelaxed)
+		result[1] = True
+	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousYoke)
+		result[2] = True
+	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousCuffsFront)
+		result[3] = True
+	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousArmbinder)
+	; TODO: check for linked cuffs
+		result[4] = True
+	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousArmbinderElbow)
+	; TODO: check for linked cuffs
+		result[5] = True
+	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousPetSuit)
+		result[6] = True
+	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousElbowTie)
+		result[7] = True
+	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousBondageMittens)
+		result[8] = True
+	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousStraitJacket)
+		result[9] = True
+	EndIf
+    Return result
 EndFunction

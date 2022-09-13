@@ -3510,7 +3510,6 @@ Function minigame()
     
     Bool hasStruggleAnimation = False
     hasStruggleAnimation = _PickAndPlayStruggleAnimation()
-    Game.DisablePlayerControls(false, false, false, false, false, false, true, false)
     
     _MinigameMainLoop_ON = true    
     UDCDMain.UDPP.Send_MinigameParalel(Wearer,self)        
@@ -3685,8 +3684,8 @@ Function minigame()
 EndFunction
 
 Bool Function _PickAndPlayStruggleAnimation()
-    Bool[] _actorConstraints = UDCDMain.GetActorConstraints(Wearer)
-    Bool[] _helperConstraints = UDCDMain.GetActorConstraints(_minigameHelper)
+    Bool[] _actorConstraints = UDAM.GetActorConstraints(Wearer)
+    Bool[] _helperConstraints = UDAM.GetActorConstraints(_minigameHelper)
     
     String _sStruggleAnim = "none"
     String _sStruggleAnimHelper = "none"
@@ -3701,7 +3700,7 @@ Bool Function _PickAndPlayStruggleAnimation()
             UDAM.FastStartThirdPersonAnimationWithHelper(Wearer, _minigameHelper, _sStruggleAnim, _sStruggleAnimHelper)
         Else
             String[] _StruggleAnimationArray = UDAM.GetStruggleAnimationsByKeyword2(UD_DeviceKeyword_Minor, _actorConstraints)
-            String[] _StruggleAnimationArrayHelper = UDAM.GetStruggleAnimationsByKeyword2(UD_DeviceKeyword_Minor, _helperConstraints, True)
+            String[] _StruggleAnimationArrayHelper = UDAM.GetStruggleAnimationsByKeyword2(libs.zad_DeviousGloves, _helperConstraints)
             
             If _StruggleAnimationArray.Length > 0
                 _sStruggleAnim = _StruggleAnimationArray[Utility.RandomInt(0, _StruggleAnimationArray.Length - 1)]
