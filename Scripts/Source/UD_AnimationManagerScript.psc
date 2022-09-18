@@ -169,6 +169,9 @@ Function Update()
         
         GInfo("Zaz animations uninstalled")
     endif
+    
+    UpdateAnimationJSONFiles()
+    
 EndFunction
 
 string[] Function GetHeavyBondageAnimation_Armbinder(bool hobble = false)
@@ -396,8 +399,8 @@ Form Function GetShield(Actor akActor)
     endif
 EndFunction
 
-; vehicle marker to aling actors in animation
-ObjectReference MarkerRef = None
+; XCross Static
+Form VehicleMarkerForm
 ; Package to do nothing
 Package DoNothing = None
 
@@ -408,7 +411,9 @@ Package DoNothing = None
 ; animationA2   - animation (animation event) for the second actor (helper)
 ; return        - true if OK
 bool Function FastStartThirdPersonAnimationWithHelper(actor akActor, actor akHelper, string animationA1, string animationA2, bool alignActors = true)
-    Debug.Trace("[UD] [TRACE] UD_AnimationManagerScript::FastStartThirdPersonAnimationWithHelper() akActor = " + akActor + ", akHelper = " + akHelper + ", animationA1 = " + animationA1 + ", animationA2 = " + animationA2 + ", alignActors = " + alignActors)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::FastStartThirdPersonAnimationWithHelper() akActor = " + akActor + ", akHelper = " + akHelper + ", animationA1 = " + animationA1 + ", animationA2 = " + animationA2 + ", alignActors = " + alignActors)
+    EndIf
     If akActor == None 
         UDmain.Error("FastStartThirdPersonAnimationWithHelper - Called with akActor is None, aborting")
         Return False
@@ -431,26 +436,33 @@ bool Function FastStartThirdPersonAnimationWithHelper(actor akActor, actor akHel
     LockAnimatingActor(akActor)
     LockAnimatingActor(akHelper)
     
+    ObjectReference vehicleMarkerRef = None
     If alignActors
-        ;creating vehicle marker once
-        if (MarkerRef == None)
-            Form markerForm = Game.GetForm(0x0000003B)
-            MarkerRef = akActor.PlaceAtMe(markerForm)
+        ;creating vehicle marker once for each akActor
+        vehicleMarkerRef = StorageUtil.GetFormValue(akActor, "UD_AnimationManager_VehicleMarker") as ObjectReference
+        if (vehicleMarkerRef == None)
+            If VehicleMarkerForm == None 
+                VehicleMarkerForm = Game.GetForm(0x0000003B)
+            EndIf
+            vehicleMarkerRef = akActor.PlaceAtMe(VehicleMarkerForm)
             int cycle
-            while !MarkerRef.Is3DLoaded() && cycle < 50
+            while !vehicleMarkerRef.Is3DLoaded() && cycle < 10
                 Utility.Wait(0.1)
                 cycle += 1
             endWhile
+            StorageUtil.SetFormValue(akActor, "UD_AnimationManager_VehicleMarker", vehicleMarkerRef)
+        Else
+            UDMain.Error("UD_AnimationManagerScript::FastStartThirdPersonAnimationWithHelper() Failed to load vehicle marker form")
         EndIf
         ; moving marker to the first actor
-        MarkerRef.MoveTo(akActor)
-        MarkerRef.Enable()
+        vehicleMarkerRef.MoveTo(akActor)
+        vehicleMarkerRef.Enable()
         
-        akHelper.MoveTo(MarkerRef)
-        akActor.MoveTo(MarkerRef)
+        akHelper.MoveTo(vehicleMarkerRef)
+        akActor.MoveTo(vehicleMarkerRef)
         
-        akActor.SetVehicle(MarkerRef)
-        akHelper.SetVehicle(MarkerRef)
+        akActor.SetVehicle(vehicleMarkerRef)
+        akHelper.SetVehicle(vehicleMarkerRef)
         
         akActor.StopTranslation()
         akHelper.StopTranslation()
@@ -460,30 +472,32 @@ bool Function FastStartThirdPersonAnimationWithHelper(actor akActor, actor akHel
     Debug.SendAnimationEvent(akHelper, animationA2)
     
     If alignActors
-        akHelper.MoveTo(MarkerRef)
-        akActor.MoveTo(MarkerRef)
+        akHelper.MoveTo(vehicleMarkerRef)
+        akActor.MoveTo(vehicleMarkerRef)
         
-        akActor.SetVehicle(MarkerRef)
-        akHelper.SetVehicle(MarkerRef)
+        akActor.SetVehicle(vehicleMarkerRef)
+        akHelper.SetVehicle(vehicleMarkerRef)
         
-        akActor.TranslateToRef(MarkerRef, 200.0)
-        akHelper.TranslateToRef(MarkerRef, 200.0)
+        akActor.TranslateToRef(vehicleMarkerRef, 200.0)
+        akHelper.TranslateToRef(vehicleMarkerRef, 200.0)
     EndIf
     
     return true
 EndFunction
 
+sslSystemConfig slConfig
+
 Function LockAnimatingActor(Actor akActor)
 ; TODO: change it to direct reference 
     If DoNothing == None
-        sslSystemConfig slConfig = (Game.GetFormFromFile(0xD62, "SexLab.esm") as sslSystemConfig)
+        slConfig = (Game.GetFormFromFile(0xD62, "SexLab.esm") as sslSystemConfig)
         If slConfig == None
             slConfig = (Quest.GetQuest("SexLabQuestFramework") as sslSystemConfig)
         EndIf
         If slConfig != None
             DoNothing = slConfig.DoNothing
         Else
-            Debug.Trace("[UD] [ERROR] Can't find SexLabQuestFramework")
+            UDMain.Error("UD_AnimationManagerScript::LockAnimatingActor() Failed to load config from SexLabQuestFramework")
         EndIf
     EndIf
 ; TODO: remove high heels
@@ -542,9 +556,29 @@ Function UnlockAnimatingActor(Actor akActor)
 EndFunction
 
 String[] UD_StruggleAnimDefs
+
+; function to preload and check for errors json files with animation defs
+Function UpdateAnimationJSONFiles()
+    UD_StruggleAnimDefs = JsonUtil.JsonInFolder("UD/StruggleAnims")
+    Int i = 0
+    While i < UD_StruggleAnimDefs.Length
+        String file = "UD/StruggleAnims/" + UD_StruggleAnimDefs[i]
+        JsonUtil.Unload(file)
+        If JsonUtil.Load(file) && JsonUtil.IsGood(file)
+; TODO: Check for dependencies (loaded esp or SLAL packs)
+            i += 1
+        Else
+            UDMain.Warning("UD_AnimationManagerScript::UpdateAnimationJSONFiles() Failed to load json file " + file)
+            UDMain.Warning("UD_AnimationManagerScript::UpdateAnimationJSONFiles() Found errors: " + JsonUtil.GetErrors(file))
+            PapyrusUtil.RemoveString(UD_StruggleAnimDefs, UD_StruggleAnimDefs[i])
+        EndIf
+    EndWhile
+EndFunction
+
 ; For debug purposes. Remove in prod
 ; Disables cache de facto
-Bool forceReloadFiles = true                ;
+Bool forceReloadFiles = true                
+
 ; Function GetStrugglePairAnimationsByKeyword
 ; akActor       - 
 ; akHelper      - 
@@ -584,61 +618,50 @@ Bool forceReloadFiles = true                ;
 ;   }
 ;}
 string[] Function GetStruggleAnimationsByKeywordWithHelper(Keyword akKeyword, Bool[] abActorConstraints, Bool[] abHelperConstraints)
-	Debug.Trace("[UD] [TRACE] UD_AnimationManagerScript::GetStruggleAnimationsByKeywordWithHelper() akKeyword = " + akKeyword.GetString() + ", abActorConstraints = " + abActorConstraints + ", abHelperConstraints = " + abHelperConstraints)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeywordWithHelper() akKeyword = " + akKeyword.GetString() + ", abActorConstraints = " + abActorConstraints + ", abHelperConstraints = " + abHelperConstraints)
+    EndIf
     Int iActorConstraints = _FromContraintsBoolArrayToInt(abActorConstraints)
     Int iHelperConstraints = _FromContraintsBoolArrayToInt(abHelperConstraints)
     String[] result_temp = new String[10]
     Int resultCount = 0
     
-    If UD_StruggleAnimDefs.Length == 0 || forceReloadFiles
-        UD_StruggleAnimDefs = JsonUtil.JsonInFolder("UD/StruggleAnims") 
-        Debug.Trace("[UD] [TRACE] Found " + UD_StruggleAnimDefs.length + " json file(s) in location '<Data>/SKSE/Plugins/StorageUtilData/UD/StruggleAnims/'")
+    If forceReloadFiles
+        UDMain.Info("UD_AnimationManagerScript::GetStruggleAnimationsByKeywordWithHelper() Reloading json files since flag 'forceReloadFiles' is set")
+        UpdateAnimationJSONFiles()
     EndIf
+    
     Int i = 0
     While i < UD_StruggleAnimDefs.Length
         String file = "UD/StruggleAnims/" + UD_StruggleAnimDefs[i]
-        Debug.Trace("[UD] [TRACE] Build animation list: processing " + file)
-        If forceReloadFiles
-            Debug.Trace("[UD] [INFO] Reload json file since flag 'forceReloadFiles' is set")
-            JsonUtil.Unload(file)
-        EndIf
-        If JsonUtil.Load(file) && JsonUtil.IsGood(file)
-            String dict_path = ".paired." + akKeyword.GetString()
-            Int path_count = JsonUtil.PathCount(file, dict_path)
-            Int j = 0
-            If path_count == 0  
-                Debug.Trace("[UD] [TRACE] Build animation list: Found no applicable animations")
+        String dict_path = ".paired." + akKeyword.GetString()
+        Int path_count = JsonUtil.PathCount(file, dict_path)
+        Int j = 0
+        While j < path_count
+            String anim_path = dict_path + "[" + j + "]"
+            Bool forced = JsonUtil.GetPathBoolValue(file, anim_path + ".forced")
+            If forced 
+                String[] result_forced = new String[1]
+                result_forced[0] = JsonUtil.GetPathStringValue(file, anim_path + ".animation")
+                UDMain.Info("UD_AnimationManagerScript::GetStruggleAnimationsByKeywordWithHelper() Returning the first forced animation: " + result_forced[0])
+                Return result_forced
             EndIf
-            While j < path_count
-                String anim_path = dict_path + "[" + j + "]"
-                Bool forced = JsonUtil.GetPathBoolValue(file, anim_path + ".forced")
-                If forced 
-                    String[] result_forced = new String[1]
-                    result_forced[0] = JsonUtil.GetPathStringValue(file, anim_path + ".animation")
-                    Debug.Trace("[UD] [INFO] Return forced animation: " + result_forced[0])
-                    Return result_forced
+            Int anim_reqConstrA1 = JsonUtil.GetPathIntValue(file, anim_path + ".reqConstraintsA1")
+            Int anim_optConstrA1 = JsonUtil.GetPathIntValue(file, anim_path + ".optConstraintsA1")
+            Int anim_reqConstrA2 = JsonUtil.GetPathIntValue(file, anim_path + ".reqConstraintsA2")
+            Int anim_optConstrA2 = JsonUtil.GetPathIntValue(file, anim_path + ".optConstraintsA2")
+            If _CheckAnimationConstraints(iActorConstraints, anim_reqConstrA1, anim_optConstrA1) && _CheckAnimationConstraints(iHelperConstraints, anim_reqConstrA2, anim_optConstrA2)
+                result_temp[resultCount] = JsonUtil.GetPathStringValue(file, anim_path + ".animation")
+                resultCount += 1
+                If resultCount == result_temp.length
+                    result_temp = Utility.ResizeStringArray(result_temp, result_temp.length + 10)
                 EndIf
-                Int anim_reqConstrA1 = JsonUtil.GetPathIntValue(file, anim_path + ".reqConstraintsA1")
-                Int anim_optConstrA1 = JsonUtil.GetPathIntValue(file, anim_path + ".optConstraintsA1")
-                Int anim_reqConstrA2 = JsonUtil.GetPathIntValue(file, anim_path + ".reqConstraintsA2")
-                Int anim_optConstrA2 = JsonUtil.GetPathIntValue(file, anim_path + ".optConstraintsA2")
-                If _CheckAnimationConstraints(iActorConstraints, anim_reqConstrA1, anim_optConstrA1) && _CheckAnimationConstraints(iHelperConstraints, anim_reqConstrA2, anim_optConstrA2)
-                    result_temp[resultCount] = JsonUtil.GetPathStringValue(file, anim_path + ".animation")
-                    resultCount += 1
-                    If resultCount == result_temp.length
-                        result_temp = Utility.ResizeStringArray(result_temp, result_temp.length + 10)
-                    EndIf
-                    Debug.Trace("[UD] [TRACE] Build animation list: pushing into array " + result_temp[resultCount - 1])
-                Else
-                    Debug.Trace("[UD] [TRACE] Build animation list: animation doesn't have suitable constraints")
+                If UDmain.TraceAllowed()
+                    UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeywordWithHelper() Filling animation list: pushing into array " + result_temp[resultCount - 1])
                 EndIf
-                j += 1
-            EndWhile
-            Debug.Trace("[UD] [TRACE] JsonUtil.PathCount(" + akKeyword.GetString() + ") = " + path_count)
-        ElseIf JsonUtil.IsGood(file) == False
-            Debug.Trace("[UD] [WARNING] Can't load json file: " + file)
-            Debug.Trace("[UD] [WARNING] Found errors: " + JsonUtil.GetErrors(file))
-        EndIf
+            EndIf
+            j += 1
+        EndWhile
         i += 1
     EndWhile
     Return Utility.ResizeStringArray(result_temp, resultCount)
@@ -658,58 +681,47 @@ EndFunction
 ; [8] mittens
 ; [9] straitjacket
 String[] Function GetStruggleAnimationsByKeyword2(Keyword akKeyword, Bool[] abActorConstraints)
-	Debug.Trace("[UD] [TRACE] GetStruggleAnimationsByKeyword2 akKeyword = " + akKeyword.GetString() + ", abActorConstraints = " + abActorConstraints)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword2 akKeyword = " + akKeyword.GetString() + ", abActorConstraints = " + abActorConstraints)
+    EndIf
     Int iActorConstraints = _FromContraintsBoolArrayToInt(abActorConstraints)
     String[] result_temp = new String[10]
     Int resultCount = 0
     
-    If UD_StruggleAnimDefs.Length == 0 || forceReloadFiles
-        UD_StruggleAnimDefs = JsonUtil.JsonInFolder("UD/StruggleAnims") 
-        Debug.Trace("[UD] [TRACE] Found " + UD_StruggleAnimDefs.length + " json file(s) in location '<Data>/SKSE/Plugins/StorageUtilData/UD/StruggleAnims/'")
+    If forceReloadFiles
+        UDMain.Info("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword2() Reloading json files since flag 'forceReloadFiles' is set")
+        UpdateAnimationJSONFiles()
     EndIf
+    
     Int i = 0
     While i < UD_StruggleAnimDefs.Length
         String file = "UD/StruggleAnims/" + UD_StruggleAnimDefs[i]
-        Debug.Trace("[UD] [TRACE] Build animation list: processing " + file)
-        If forceReloadFiles
-            Debug.Trace("[UD] [INFO] Reload json file since flag 'forceReloadFiles' is set")
-            JsonUtil.Unload(file)
-        EndIf
-        If JsonUtil.Load(file) && JsonUtil.IsGood(file)
-            String dict_path = ".solo." + akKeyword.GetString()
-            Int path_count = JsonUtil.PathCount(file, dict_path)
-            Int j = 0
-            If path_count == 0  
-                Debug.Trace("[UD] [TRACE] Build animation list: Found no applicable animations")
+        String dict_path = ".solo." + akKeyword.GetString()
+        Int path_count = JsonUtil.PathCount(file, dict_path)
+        Int j = 0
+        While j < path_count
+            String anim_path = dict_path + "[" + j + "]"
+            Bool forced = JsonUtil.GetPathBoolValue(file, anim_path + ".forced")
+            If forced 
+                String[] result_forced = new String[1]
+                result_forced[0] = JsonUtil.GetPathStringValue(file, anim_path + ".animation")
+                UDMain.Info("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword2() Returning the first forced animation: " + result_forced[0])
+                Return result_forced
             EndIf
-            While j < path_count
-                String anim_path = dict_path + "[" + j + "]"
-                Bool forced = JsonUtil.GetPathBoolValue(file, anim_path + ".forced")
-                If forced 
-                    String[] result_forced = new String[1]
-                    result_forced[0] = JsonUtil.GetPathStringValue(file, anim_path + ".animation")
-                    Debug.Trace("[UD] [INFO] Return forced animation: " + result_forced[0])
-                    Return result_forced
+            Int anim_reqConstrA1 = JsonUtil.GetPathIntValue(file, anim_path + ".reqConstraintsA1")
+            Int anim_optConstrA1 = JsonUtil.GetPathIntValue(file, anim_path + ".optConstraintsA1")
+            If _CheckAnimationConstraints(iActorConstraints, anim_reqConstrA1, anim_optConstrA1)
+                result_temp[resultCount] = JsonUtil.GetPathStringValue(file, anim_path + ".animation")
+                resultCount += 1
+                If resultCount == result_temp.length
+                    result_temp = Utility.ResizeStringArray(result_temp, result_temp.length + 10)
                 EndIf
-                Int anim_reqConstrA1 = JsonUtil.GetPathIntValue(file, anim_path + ".reqConstraintsA1")
-                Int anim_optConstrA1 = JsonUtil.GetPathIntValue(file, anim_path + ".optConstraintsA1")
-                If _CheckAnimationConstraints(iActorConstraints, anim_reqConstrA1, anim_optConstrA1)
-                    result_temp[resultCount] = JsonUtil.GetPathStringValue(file, anim_path + ".animation")
-                    resultCount += 1
-                    If resultCount == result_temp.length
-                        result_temp = Utility.ResizeStringArray(result_temp, result_temp.length + 10)
-                    EndIf
-                    Debug.Trace("[UD] [TRACE] Build animation list: pushing into array " + result_temp[resultCount - 1])
-                Else
-                    Debug.Trace("[UD] [TRACE] Build animation list: animation doesn't have suitable constraints")
+                If UDmain.TraceAllowed()
+                    UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword2() Filling animation list: pushing into array " + result_temp[resultCount - 1])
                 EndIf
-                j += 1
-            EndWhile
-            Debug.Trace("[UD] [TRACE] JsonUtil.PathCount(" + akKeyword.GetString() + ") = " + path_count)
-        ElseIf JsonUtil.IsGood(file) == False
-            Debug.Trace("[UD] [WARNING] Can't load json file: " + file)
-            Debug.Trace("[UD] [WARNING] Found errors: " + JsonUtil.GetErrors(file))
-        EndIf
+            EndIf
+            j += 1
+        EndWhile
         i += 1
     EndWhile
     Return Utility.ResizeStringArray(result_temp, resultCount)
@@ -793,4 +805,61 @@ Bool[] Function GetActorConstraints(Actor akActor)
 		result[9] = True
 	EndIf
     Return result
+EndFunction
+
+Function _RemoveHeelEffect(Actor akActor, Bool bRemoveHDT = true, Bool bRemoveNiOverride = true)
+    If !akActor.GetWornForm(0x00000080)
+        Return
+    EndIf
+    If slConfig == None
+        Return
+    EndIf
+    if slConfig.HasNiOverride && bRemoveHDT
+        Bool isRealFemale = (akActor.GetLeveledActorBase().GetSex() == 1)
+        ; Remove NiOverride SexLab High Heels
+        bool UpdateNiOPosition = NiOverride.RemoveNodeTransformPosition(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esm")
+        ; Remove NiOverride High Heels
+        if NiOverride.HasNodeTransformPosition(akActor, false, isRealFemale, "NPC", "internal")
+            float[] pos = NiOverride.GetNodeTransformPosition(akActor, false, isRealFemale, "NPC", "internal")
+            pos[0] = -pos[0]
+            pos[1] = -pos[1]
+            pos[2] = -pos[2]
+            NiOverride.AddNodeTransformPosition(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esm", pos)
+            NiOverride.UpdateNodeTransform(akActor, false, isRealFemale, "NPC")
+        elseIf UpdateNiOPosition
+            NiOverride.UpdateNodeTransform(akActor, false, isRealFemale, "NPC")
+        endIf
+    endIf
+    if bRemoveNiOverride
+        Spell hdtHeelSpell = slConfig.GetHDTSpell(akActor)
+        if hdtHeelSpell
+            StorageUtil.SetFormValue(akActor, "UD_AnimationManager_HDTHeelSpell", hdtHeelSpell)
+            akActor.RemoveSpell(hdtHeelSpell)
+        endIf
+    endIf
+EndFunction
+
+Function _RestoreHeelEffect(Actor akActor)
+    If !akActor.GetWornForm(0x00000080)
+        Return
+    EndIf
+    If slConfig == None
+        Return
+    EndIf
+    if slConfig.RemoveHeelEffect
+        ; HDT High Heel
+        Spell hdtHeelSpell = StorageUtil.GetFormValue(akActor, "UD_AnimationManager_HDTHeelSpell") as Spell
+        if hdtHeelSpell && akActor.GetWornForm(0x00000080) && !akActor.HasSpell(hdtHeelSpell)
+            akActor.AddSpell(hdtHeelSpell)
+        endIf
+        StorageUtil.UnsetFormValue(akActor, "UD_AnimationManager_HDTHeelSpell")
+    endIf
+    if slConfig.HasNiOverride
+        Bool isRealFemale = (akActor.GetLeveledActorBase().GetSex() == 1)
+        bool UpdateNiOPosition = NiOverride.RemoveNodeTransformPosition(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esm")
+        bool UpdateNiOScale = NiOverride.RemoveNodeTransformScale(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esm")
+        if UpdateNiOPosition || UpdateNiOScale ; I make the variables because not sure if execute both funtion in OR condition.
+            NiOverride.UpdateNodeTransform(akActor, false, isRealFemale, "NPC")
+        endIf
+    endIf
 EndFunction
