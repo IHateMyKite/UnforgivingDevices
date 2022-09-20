@@ -1,29 +1,17 @@
-Scriptname UD_OrchamsCheckScript_AME extends activemagiceffect 
+Scriptname UD_OrchamsCheckScript_AME extends activemagiceffect
 
 import UnforgivingDevicesMain
 
-UDCustomDeviceMain Property UDCDmain auto
-UD_OrgasmManager Property UDOM 
-    UD_OrgasmManager Function get()
-        return UDCDmain.UDOM
-    EndFunction
-EndProperty
-UD_ExpressionManager Property UDEM 
-    UD_ExpressionManager Function get()
-        return UDCDmain.UDEM
-    EndFunction
-EndProperty
-UnforgivingDevicesMain Property UDmain
-    UnforgivingDevicesMain Function get()
-        return UDCDmain.UDmain
-    EndFunction
-EndProperty
-zadlibs Property libs auto
+UDCustomDeviceMain      Property UDCDmain   auto
+UD_OrgasmManager        Property UDOM       auto
+UD_ExpressionManager    Property UDEM       auto
+UnforgivingDevicesMain  Property UDmain     auto
+zadlibs                 Property libs       auto
 
-Actor akActor = none
-bool _finished = false
-bool _processing = false
-MagicEffect _MagickEffect = none
+Actor       akActor         = none
+bool        _finished       = false
+bool        _processing     = false
+MagicEffect _MagickEffect   = none
 
 ;local variables
 float   loc_currentUpdateTime       = 1.0
@@ -44,7 +32,7 @@ bool    loc_orgasmResisting         = false
 bool    loc_orgasmResisting2        = false
 bool    loc_expressionApplied       = false
 float   loc_orgasmCapacity          = 100.0
-float   loc_orgasmResistence        = 2.5    
+float   loc_orgasmResistence        = 2.5
 float   loc_orgasmProgress          = 0.0
 float   loc_orgasmProgress2         = 0.0
 float   loc_orgasmProgress_p        = 0.0
@@ -85,9 +73,9 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     loc_orgasmRate              = 0.0
     loc_orgasmRate2             = 0.0
     loc_orgasmRateAnti          = 0.0
-    loc_orgasmResistMultiplier  = UDOM.getActorOrgasmResistMultiplier(akActor)
-    loc_orgasmRateMultiplier    = UDOM.getActorOrgasmRateMultiplier(akActor)
-    loc_arousal                 = UDOM.getArousal(akActor)
+    loc_orgasmResistMultiplier  = getActorOrgasmResistMultiplier()
+    loc_orgasmRateMultiplier    = getActorOrgasmRateMultiplier()
+    loc_arousal                 = getArousal()
     loc_forcing                 = UDOM.getActorOrgasmForcing(akActor)
     loc_tick                    = 1
     loc_tickS                   = 0
@@ -142,6 +130,7 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
     akActor.RemoveFromFaction(UDOM.OrgasmCheckLoopFaction)
 EndEvent
 
+;function called on game reload (only works for player)
 Function Update()
     if !loc_expression
         loc_expression = UDEM.GetPrebuildExpression_Horny1()
@@ -151,6 +140,15 @@ Function Update()
     endif
     if !loc_expression3
         loc_expression3 = UDEM.GetPrebuildExpression_Angry1()
+    endif
+    if !UDOM
+        UDOM = UDCDMain.UDOM
+    endif
+    if !UDmain
+        UDmain = UDCDMain.UDmain
+    endif
+    if !UDEM
+        UDEM = UDCDMain.UDEM
     endif
     if IsRunning()
         akActor.AddToFaction(UDOM.OrgasmCheckLoopFaction)
@@ -165,7 +163,6 @@ Event OnUpdate()
             GInfo("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - OrgasmLoopBreak -> dispeling")
             akActor.DispelSpell(UDCDmain.UDlibs.OrgasmCheckSpell)
         else
-            ;Update()
             loc_orgasmProgress2 = loc_orgasmProgress
             
             loc_orgasmResisting = akActor.isInFaction(UDOM.OrgasmResistFaction)
@@ -175,10 +172,10 @@ Event OnUpdate()
             else
                 if loc_orgasmResisting2
                     loc_orgasmResisting2            = false
-                    loc_arousal                     = UDOM.getArousal(akActor)
-                    loc_orgasmRate                  = UDOM.getActorOrgasmRate(akActor)
-                    loc_orgasmRateMultiplier        = UDOM.getActorOrgasmRateMultiplier(akActor)
-                    loc_orgasmResistMultiplier      = UDOM.getActorOrgasmResistMultiplier(akActor)
+                    loc_arousal                     = getArousal()
+                    loc_orgasmRate                  = getActorOrgasmRate()
+                    loc_orgasmRateMultiplier        = getActorOrgasmRateMultiplier()
+                    loc_orgasmResistMultiplier      = getActorOrgasmResistMultiplier()
                     loc_orgasms                     = UDOM.getOrgasmingCount(akActor)
                     loc_actorinminigame             = UDCDMain.actorInMinigame(akActor)
                     UDOM.SetActorOrgasmProgress(akActor,loc_orgasmProgress)
@@ -283,10 +280,10 @@ Event OnUpdate()
                 endif
                 
                 if !loc_orgasmResisting
-                    loc_arousal                 = UDOM.getArousal(akActor)
-                    loc_orgasmRate              = UDOM.getActorOrgasmRate(akActor)
-                    loc_orgasmRateMultiplier    = UDOM.getActorOrgasmRateMultiplier(akActor)
-                    loc_orgasmResistMultiplier  = UDOM.getActorOrgasmResistMultiplier(akActor)
+                    loc_arousal                 = getArousal()
+                    loc_orgasmRate              = getActorOrgasmRate()
+                    loc_orgasmRateMultiplier    = getActorOrgasmRateMultiplier()
+                    loc_orgasmResistMultiplier  = getActorOrgasmResistMultiplier()
                     loc_orgasms                 = UDOM.getOrgasmingCount(akActor)
                     loc_actorinminigame         = UDCDMain.actorInMinigame(akActor)
                     UDOM.SetActorOrgasmProgress(akActor,loc_orgasmProgress)
@@ -364,6 +361,10 @@ Event OnUpdate()
                 endif
                 
                 loc_expressionUpdateTimer += 1
+                
+                if !loc_isplayer && loc_tickS % 15
+                    Update() ;update from main loop, as OnPlayerLoadGame doesn't work for NPCs
+                endif
             endif
             
             loc_tick += 1
@@ -433,3 +434,26 @@ zadlibs_UDPatch Property libsp
         return UDCDmain.libsp
     endfunction
 endproperty
+
+;===============================================================================================
+;===============================================================================================
+;Functions copied and edited from UD_OrgasmManager
+; Reason: To prevent suspended stacks when more actors have this effect on (functions on UDOM would be blocked)
+;===============================================================================================
+;===============================================================================================
+float Function getActorOrgasmResistMultiplier()
+    return fRange(StorageUtil.getIntValue(akActor, "UD_OrgasmResistMultiplier",100)/100.0,0.0,10.0)
+EndFunction
+Int Function getArousal()
+    if akActor.isInFaction(UDOM.ArousalCheckLoopFaction)
+        return akActor.GetFactionRank(UDOM.ArousalCheckLoopFaction)
+    else
+        return UDOM.getActorArousal(akActor)
+    endif
+EndFunction
+float Function getActorOrgasmRate()
+    return fRange(StorageUtil.getIntValue(akActor, "UD_OrgasmRate",0)/100.0,0.0,1000.0)
+EndFunction
+float Function getActorOrgasmRateMultiplier()
+    return fRange(StorageUtil.getIntValue(akActor, "UD_OrgasmRateMultiplier",100)/100.0,0.0,10.0)
+EndFunction

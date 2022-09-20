@@ -422,7 +422,7 @@ Function OnMinigameTick1()
 EndFunction
 
 Function activateDevice()
-    resetCooldown()
+    resetCooldown(1.0)
     if nextDeviceManifest < Utility.GetCurrentGameTime()
         equipRandomRestrain()
     else

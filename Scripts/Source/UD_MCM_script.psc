@@ -97,6 +97,14 @@ Int Function FlagSwitchOr(int iFlag1,Int iFlag2)
     return OPTION_FLAG_NONE
 EndFunction
 
+Int Function FlagNegate(int aiFlag)
+    if aiFlag == OPTION_FLAG_DISABLED 
+        return OPTION_FLAG_NONE
+    else
+        return OPTION_FLAG_DISABLED
+    endif
+EndFunction
+
 int Function FlagSwitch(bool bVal)
     if bVal == true 
         return OPTION_FLAG_NONE
@@ -276,6 +284,7 @@ string[] UD_InfoLevel_AS
 int UD_WarningAllowed_T
 Int UD_PrintLevel_S
 Int UD_LockDebugMCM_T
+Int UD_GamepadKey_K
 Event resetGeneralPage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -287,6 +296,9 @@ Event resetGeneralPage()
     
     UD_PlayerMenu_K         = AddKeyMapOption("Player menu key:", UDCDmain.PlayerMenu_KeyCode)
     UD_NPCMenu_K            = AddKeyMapOption("NPC menu key:", UDCDmain.NPCMenu_Keycode)
+    
+    UD_GamepadKey_K         = AddKeyMapOption("Gamepad key:", UDmain.UDUI.UD_GamepadKey,FlagSwitch(Game.UsingGamepad()))
+    addEmptyOption()
     
     AddHeaderOption("General settings")
     addEmptyOption()
@@ -351,6 +363,7 @@ Int UD_DeviceLvlLocks_S
 
 Int UD_PreventMasterLock_T
 Int UD_MandatoryCrit_T
+Int UD_CritDurationAdjust_S
 
 Int UD_AlternateAnimation_T
 Event resetCustomBondagePage()
@@ -414,11 +427,14 @@ Event resetCustomBondagePage()
     ;CRITS
     AddHeaderOption("Device Crits")
     AddEmptyOption()
-    UD_CritEffect_M = AddMenuOption("Crit effect:", criteffectList[UDCDmain.UD_CritEffect])
-    UD_MandatoryCrit_T = addToggleOption("Mandatory crit:", UDCDmain.UD_MandatoryCrit);,UD_LockMenu_flag)
+    UD_CritEffect_M     = AddMenuOption("Crit effect:", criteffectList[UDCDmain.UD_CritEffect],FlagNegate(UD_autocrit_flag))
+    UD_MandatoryCrit_T  = addToggleOption("Mandatory crit:", UDCDmain.UD_MandatoryCrit,FlagSwitchOr(FlagNegate(UD_autocrit_flag),UD_LockMenu_flag))
     
-    UD_AutoCrit_T = addToggleOption("Auto crit:", UDCDmain.UD_AutoCrit,UD_LockMenu_flag)    
+    UD_AutoCrit_T       = addToggleOption("Auto crit:", UDCDmain.UD_AutoCrit,UD_LockMenu_flag)
     UD_AutoCritChance_S = addSliderOption("Auto crit chance: ",UDCDmain.UD_AutoCritChance, "{0} %",FlagSwitchOr(UD_autocrit_flag,UD_LockMenu_flag))
+    
+    UD_CritDurationAdjust_S = addSliderOption("Crit duration adjust.: ",UDCDmain.UD_CritDurationAdjust, "{2} s",FlagSwitchOr(FlagNegate(UD_autocrit_flag),UD_LockMenu_flag))
+    AddEmptyOption()
     
     ;DEVICE LEVEL scaling
     AddHeaderOption("Level scaling")
@@ -786,7 +802,7 @@ Function OptionCustomBondage(int option)
         UDCDmain.UD_UseWidget = !UDCDmain.UD_UseWidget
         SetToggleOptionValue(UD_UseWidget_T, UDCDmain.UD_UseWidget)
         forcePageReset()
-    elseif option == UD_AutoCrit_T    
+    elseif option == UD_AutoCrit_T
         UDCDmain.UD_AutoCrit = !UDCDmain.UD_AutoCrit
         if UDCDmain.UD_AutoCrit
             UD_autocrit_flag = OPTION_FLAG_NONE
@@ -1070,6 +1086,11 @@ Function OnOptionSliderOpenCustomBondage(int option)
         SetSliderDialogDefaultValue(5.0)
         SetSliderDialogRange(0.0, 20.0)
         SetSliderDialogInterval(1.0)
+    elseif option == UD_CritDurationAdjust_S
+        SetSliderDialogStartValue(UDCDmain.UD_CritDurationAdjust)
+        SetSliderDialogDefaultValue(0.0)
+        SetSliderDialogRange(-0.5, 0.5)
+        SetSliderDialogInterval(0.05)
     endif
 EndFunction
 
@@ -1316,6 +1337,9 @@ Function OnOptionSliderAcceptCustomBondage(int option, float value)
     elseif option == UD_DeviceLvlLocks_S
         UDCDmain.UD_DeviceLvlLocks = Round(value)
         SetSliderOptionValue(UD_DeviceLvlLocks_S, UDCDmain.UD_DeviceLvlLocks, "{0} LVLs")
+    elseif option == UD_CritDurationAdjust_S
+        UDCDmain.UD_CritDurationAdjust = value
+        SetSliderOptionValue(UD_CritDurationAdjust_S, UDCDmain.UD_CritDurationAdjust, "{2} s")
     endif
 EndFunction
 
@@ -1580,54 +1604,61 @@ EndFunction
 event OnOptionKeyMapChange(int option, int keyCode, string conflictControl, string conflictName)
     if (option == UD_StruggleKey_K)
         if checkGeneralKeyConflict(keyCode)
-            UDCDmain.UnRegisterForKey(UDCDmain.StruggleKey_Keycode)
+            UDmain.UDUI.UnRegisterForKey(UDCDmain.StruggleKey_Keycode)
             UDCDmain.StruggleKey_Keycode = keyCode
             SetKeyMapOptionValue(UD_StruggleKey_K, UDCDmain.StruggleKey_Keycode)
-            UDCDmain.RegisterForKey(UDCDmain.StruggleKey_Keycode)
+            UDmain.UDUI.RegisterForKey(UDCDmain.StruggleKey_Keycode)
         endif
     elseif (option == UD_ActionKey_K)
         if checkGeneralKeyConflict(keyCode)
-            UDCDmain.UnRegisterForKey(UDCDmain.ActionKey_Keycode)
+            UDmain.UDUI.UnRegisterForKey(UDCDmain.ActionKey_Keycode)
             UDCDmain.ActionKey_Keycode = keyCode
-            UDCDmain.RegisterForKey(UDCDmain.ActionKey_Keycode)
+            UDmain.UDUI.RegisterForKey(UDCDmain.ActionKey_Keycode)
             SetKeyMapOptionValue(UD_ActionKey_K, UDCDmain.ActionKey_Keycode)
         endif
     elseif option == UD_PlayerMenu_K
         if checkGeneralKeyConflict(keyCode)
-            UDCDmain.UnRegisterForKey(UDCDmain.PlayerMenu_KeyCode)
+            UDmain.UDUI.UnRegisterForKey(UDCDmain.PlayerMenu_KeyCode)
             UDCDmain.PlayerMenu_KeyCode = keyCode
             SetKeyMapOptionValue(UD_PlayerMenu_K, UDCDmain.PlayerMenu_KeyCode)
-            UDCDmain.RegisterForKey(UDCDmain.PlayerMenu_KeyCode)
+            UDmain.UDUI.RegisterForKey(UDCDmain.PlayerMenu_KeyCode)
         endif
     elseif option == UD_NPCMenu_K
         if checkGeneralKeyConflict(keyCode)
-            UDCDmain.UnRegisterForKey(UDCDmain.NPCMenu_Keycode)
+            UDmain.UDUI.UnRegisterForKey(UDCDmain.NPCMenu_Keycode)
             UDCDmain.NPCMenu_Keycode = keyCode
             SetKeyMapOptionValue(UD_NPCMenu_K, UDCDmain.NPCMenu_Keycode)
-            UDCDmain.RegisterForKey(UDCDmain.NPCMenu_Keycode)
+            UDmain.UDUI.RegisterForKey(UDCDmain.NPCMenu_Keycode)
         endif
     elseif (option == UD_CHB_Stamina_meter_Keycode_K)
         if checkMinigameKeyConflict(keyCode)
-            UDCDmain.UnRegisterForKey(UDCDmain.Stamina_meter_Keycode)
+            UDmain.UDUI.UnRegisterForKey(UDCDmain.Stamina_meter_Keycode)
             UDCDmain.Stamina_meter_Keycode = keyCode
-            UDCDmain.RegisterForKey(UDCDmain.Stamina_meter_Keycode)
+            UDmain.UDUI.RegisterForKey(UDCDmain.Stamina_meter_Keycode)
             SetKeyMapOptionValue(UD_CHB_Stamina_meter_Keycode_K, UDCDmain.Stamina_meter_Keycode)
         endif
     elseif (option == UD_CHB_Magicka_meter_Keycode_K)
         if checkMinigameKeyConflict(keyCode)
-            UDCDmain.UnRegisterForKey(UDCDmain.Magicka_meter_Keycode)
+            UDmain.UDUI.UnRegisterForKey(UDCDmain.Magicka_meter_Keycode)
             UDCDmain.Magicka_meter_Keycode = keyCode
-            UDCDmain.RegisterForKey(UDCDmain.Magicka_meter_Keycode)
+            UDmain.UDUI.RegisterForKey(UDCDmain.Magicka_meter_Keycode)
             SetKeyMapOptionValue(UD_CHB_Magicka_meter_Keycode_K, UDCDmain.Magicka_meter_Keycode)
         endif
     elseif (option == UDCD_SpecialKey_Keycode_K)
         if checkMinigameKeyConflict(keyCode)
-            UDCDmain.UnRegisterForKey(UDCDmain.SpecialKey_Keycode)
+            UDmain.UDUI.UnRegisterForKey(UDCDmain.SpecialKey_Keycode)
             UDCDmain.SpecialKey_Keycode = keyCode
-            UDCDmain.RegisterForKey(UDCDmain.SpecialKey_Keycode)
+            UDmain.UDUI.RegisterForKey(UDCDmain.SpecialKey_Keycode)
             SetKeyMapOptionValue(UDCD_SpecialKey_Keycode_K, UDCDmain.SpecialKey_Keycode)
         endif
-    endIf    
+    elseif (option == UD_GamepadKey_K)
+        if checkGeneralKeyConflict(keyCode)
+            UDmain.UDUI.UnRegisterForKey(UDmain.UDUI.UD_GamepadKey)
+            UDmain.UDUI.UD_GamepadKey = keyCode
+            UDmain.UDUI.RegisterForKey(UDmain.UDUI.UD_GamepadKey)
+            SetKeyMapOptionValue(UD_GamepadKey_K, UDmain.UDUI.UD_GamepadKey)
+        endif
+    endIf
 endEvent
 
 Event OnOptionHighlight(int option)
@@ -1747,6 +1778,8 @@ Function CustomBondagePageInfo(int option)
         SetInfoText("When this option is enabled, not landing crits will punish player\nDefault: OFF")
     elseif option == UD_AlternateAnimation_T
         SetInfoText("Enabling this will force struggle animation to randomly switch to different animation periodically\nDefault: OFF")
+    elseif option == UD_CritDurationAdjust_S
+        SetInfoText("By how much time will be crit duration changed. Setting this to small negative value might make crits impossible.\nIn case you are experiencing bigger lags when using UD, you might increase this value to make crits easier.\nDefault: 0.0 s")
     Endif
 EndFunction
 
@@ -1996,6 +2029,10 @@ Function SaveToJSON(string strFile)
 
     JsonUtil.SetIntValue(strFile, "MandatoryCrit", UDCDmain.UD_MandatoryCrit as Int)
     JsonUtil.SetIntValue(strFile, "AlternateAnimation", UDCDmain.UD_AlternateAnimation as Int)
+    
+    JsonUtil.SetFloatValue(strFile, "CritDurationAdjust", UDCDmain.UD_CritDurationAdjust)
+    
+    
     ;ABADON
     JsonUtil.SetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
     JsonUtil.SetIntValue(strFile, "AbadonForceSetPref", AbadonQuest.final_finisher_pref as Int)
@@ -2110,6 +2147,8 @@ Function LoadFromJSON(string strFile)
     
     UDCDmain.UD_MandatoryCrit = JsonUtil.GetIntValue(strFile, "MandatoryCrit", UDCDmain.UD_MandatoryCrit as Int)
     UDCDMain.UD_AlternateAnimation = JsonUtil.GetIntValue(strFile, "AlternateAnimation", UDCDmain.UD_AlternateAnimation as Int)
+    UDCDmain.UD_CritDurationAdjust = JsonUtil.GetFloatValue(strFile, "CritDurationAdjust", UDCDmain.UD_CritDurationAdjust)
+    
     ;ABADON
     AbadonQuest.final_finisher_set = JsonUtil.GetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
     AbadonQuest.final_finisher_pref = JsonUtil.GetIntValue(strFile, "AbadonForceSetPref", AbadonQuest.final_finisher_pref as Int)
@@ -2216,7 +2255,6 @@ Function ResetToDefaults()
     UDCDmain.UD_AllowLegTie = true
     UDCDMain.UD_SkillEfficiency = 1
     
-    
     UDCDmain.UD_MinigameHelpCd                      = 60
     UDCDmain.UD_MinigameHelpCD_PerLVL               = 10
     UDCDmain.UD_MinigameHelpXPBase                  = 35
@@ -2231,6 +2269,8 @@ Function ResetToDefaults()
     
     UDCDmain.UD_MandatoryCrit                   = False
     UDCDmain.UD_AlternateAnimation              = False
+    
+    UDCDmain.UD_CritDurationAdjust = 0.0
     
     ;ABADON
     AbadonQuest.final_finisher_set = true
@@ -2249,7 +2289,7 @@ Function ResetToDefaults()
     UDCDmain.UDPatcher.UD_PatchMult_HeavyBondage    = 1.0
     UDCDmain.UDPatcher.UD_PatchMult_Blindfold       = 1.0
     UDCDmain.UDPatcher.UD_PatchMult_Gag             = 1.0
-    UDCDmain.UDPatcher.UD_PatchMult_Hood            = 1.0    
+    UDCDmain.UDPatcher.UD_PatchMult_Hood            = 1.0
     UDCDmain.UDPatcher.UD_PatchMult_ChastityBelt    = 1.0
     UDCDmain.UDPatcher.UD_PatchMult_ChastityBra     = 1.0
     UDCDmain.UDPatcher.UD_PatchMult_Plug            = 1.0
