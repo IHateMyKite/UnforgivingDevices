@@ -3719,9 +3719,9 @@ Bool Function _PickAndPlayStruggleAnimation()
         EndIf
         UDAM.FastStartThirdPersonAnimation(Wearer, _sStruggleAnim)
     EndIf
-    ConsoleUtil.PrintMessage("[UD] [TRACE] struggle animation to play (actor) : " + _sStruggleAnim)
-    ConsoleUtil.PrintMessage("[UD] [TRACE] struggle animation to play (helper): " + _sStruggleAnimHelper)
-    
+    UDMain.Info("UD_AnimationManagerScript::_PickAndPlayStruggleAnimation() struggle animation to play (actor) : " + _sStruggleAnim)
+    UDMain.Info("UD_AnimationManagerScript::_PickAndPlayStruggleAnimation() struggle animation to play (helper) : " + _sStruggleAnimHelper)
+        
     Return _sStruggleAnim != "none"
 EndFunction
 

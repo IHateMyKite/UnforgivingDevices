@@ -559,6 +559,9 @@ String[] UD_StruggleAnimDefs
 
 ; function to preload and check for errors json files with animation defs
 Function UpdateAnimationJSONFiles()
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::UpdateAnimationJSONFiles()")
+    EndIf
     UD_StruggleAnimDefs = JsonUtil.JsonInFolder("UD/StruggleAnims")
     Int i = 0
     While i < UD_StruggleAnimDefs.Length
@@ -692,7 +695,6 @@ String[] Function GetStruggleAnimationsByKeyword2(Keyword akKeyword, Bool[] abAc
         UDMain.Info("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword2() Reloading json files since flag 'forceReloadFiles' is set")
         UpdateAnimationJSONFiles()
     EndIf
-    
     Int i = 0
     While i < UD_StruggleAnimDefs.Length
         String file = "UD/StruggleAnims/" + UD_StruggleAnimDefs[i]
@@ -734,7 +736,7 @@ EndFunction
 ; animOptConstraints    - animation optional constraints as Int (animation shouldn't be picked if player has constraints not defined by this bit-mask)
 Bool Function _CheckAnimationConstraints(Int actorConstraints, Int animReqConstraints, Int animOptConstraints)
 
-    Return Math.LogicalAnd(animReqConstraints, actorConstraints) == animReqConstraints && Math.LogicalAnd(animOptConstraints, actorConstraints) == actorConstraints
+    Return Math.LogicalAnd(animReqConstraints, actorConstraints) == animReqConstraints && Math.LogicalAnd(Math.LogicalOr(animOptConstraints, animReqConstraints), actorConstraints) == actorConstraints
     
 EndFunction
 
