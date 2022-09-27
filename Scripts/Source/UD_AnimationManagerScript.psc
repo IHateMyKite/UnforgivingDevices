@@ -26,6 +26,36 @@ zadlibs_UDPatch                        Property     libsp                       
     EndFunction
 EndProperty
 
+sslSystemConfig _slConfig = None
+sslSystemConfig                         Property slConfig                           Hidden
+    sslSystemConfig Function Get()
+        If _slConfig != None
+            Return _slConfig
+        EndIf
+        _slConfig = (Game.GetFormFromFile(0xD62, "SexLab.esm") as sslSystemConfig)
+        If _slConfig == None
+            _slConfig = (Quest.GetQuest("SexLabQuestFramework") as sslSystemConfig)
+        EndIf
+        If _slConfig == None
+            UDmain.Error("UD_AnimationManagerScript::slConfig Can't find SexLab system config object!")
+        EndIf
+        Return _slConfig
+    EndFunction
+EndProperty
+
+; XCross Static
+; TODO: Make it auto property
+Form _VehicleMarkerForm
+Form                                    Property VehicleMarkerForm                  Hidden
+    Form Function Get()
+        If _VehicleMarkerForm == None 
+            _VehicleMarkerForm = Game.GetForm(0x0000003B)
+        EndIf
+        Return _VehicleMarkerForm
+    EndFunction
+EndProperty
+
+; NOT USED ANYMORE
 ;===================;
 ;==ANIMATION ARRAY==;
 ;===================;
@@ -78,6 +108,8 @@ Bool ZAZAnimationsInstalled = false
 ;========================FUNCTIONS===========================
 ;============================================================
 
+; / NOT USED ANYMORE
+
 Function OnInit()
     RegisterForSingleUpdate(5.0)
     Ready = True
@@ -88,270 +120,9 @@ Function OnUpdate()
 EndFunction
 
 Function Update()
-    if !ZAZAnimationsInstalled && UDmain.ZaZAnimationPackInstalled
-        ZAZAnimationsInstalled = true
-        
-        GInfo("Zaz animations not installed, installing...")
-        
-        ;add armbinder animations
-        UD_StruggleAnimation_Armbinder          = PapyrusUtil.PushString(UD_StruggleAnimation_Armbinder         ,"ZapArmbStruggle01")
-        UD_StruggleAnimation_Armbinder          = PapyrusUtil.PushString(UD_StruggleAnimation_Armbinder         ,"ZapArmbStruggle03")
-        UD_StruggleAnimation_Armbinder          = PapyrusUtil.PushString(UD_StruggleAnimation_Armbinder         ,"ZapArmbStruggle05")
-        UD_StruggleAnimation_Armbinder          = PapyrusUtil.PushString(UD_StruggleAnimation_Armbinder         ,"ZapArmbStruggle07")
-        UD_StruggleAnimation_Armbinder          = PapyrusUtil.PushString(UD_StruggleAnimation_Armbinder         ,"ZapArmbStruggle08")
-        UD_StruggleAnimation_Armbinder          = PapyrusUtil.PushString(UD_StruggleAnimation_Armbinder         ,"ZapArmbStruggle10")
-        UD_StruggleAnimation_Armbinder_HB       = PapyrusUtil.PushString(UD_StruggleAnimation_Armbinder_HB      ,"ZapArmbStruggle02")
-        UD_StruggleAnimation_Armbinder_HB       = PapyrusUtil.PushString(UD_StruggleAnimation_Armbinder_HB      ,"ZapArmbStruggle06")
-        UD_StruggleAnimation_Armbinder_HB       = PapyrusUtil.PushString(UD_StruggleAnimation_Armbinder_HB      ,"ZapArmbStruggle09")
-        
-        ;straitjacket       
-        UD_StruggleAnimation_StraitJacket       = PapyrusUtil.PushString(UD_StruggleAnimation_StraitJacket      ,"ZapArmbStruggle01")
-        UD_StruggleAnimation_StraitJacket       = PapyrusUtil.PushString(UD_StruggleAnimation_StraitJacket      ,"ZapArmbStruggle03")
-        UD_StruggleAnimation_StraitJacket       = PapyrusUtil.PushString(UD_StruggleAnimation_StraitJacket      ,"ZapArmbStruggle05")
-        UD_StruggleAnimation_StraitJacket       = PapyrusUtil.PushString(UD_StruggleAnimation_StraitJacket      ,"ZapArmbStruggle07")
-        UD_StruggleAnimation_StraitJacket       = PapyrusUtil.PushString(UD_StruggleAnimation_StraitJacket      ,"ZapArmbStruggle08")
-        UD_StruggleAnimation_StraitJacket       = PapyrusUtil.PushString(UD_StruggleAnimation_StraitJacket      ,"ZapArmbStruggle10")
-        UD_StruggleAnimation_StraitJacket_HB    = PapyrusUtil.PushString(UD_StruggleAnimation_StraitJacket_HB   ,"ZapArmbStruggle02")
-        UD_StruggleAnimation_StraitJacket_HB    = PapyrusUtil.PushString(UD_StruggleAnimation_StraitJacket_HB   ,"ZapArmbStruggle06")
-        UD_StruggleAnimation_StraitJacket_HB    = PapyrusUtil.PushString(UD_StruggleAnimation_StraitJacket_HB   ,"ZapArmbStruggle09")
-                    
-        ;yoke           
-        UD_StruggleAnimation_Yoke               = PapyrusUtil.PushString(UD_StruggleAnimation_Yoke              ,"ZapYokeStruggle01")
-        UD_StruggleAnimation_Yoke               = PapyrusUtil.PushString(UD_StruggleAnimation_Yoke              ,"ZapYokeStruggle03")
-        UD_StruggleAnimation_Yoke               = PapyrusUtil.PushString(UD_StruggleAnimation_Yoke              ,"ZapYokeStruggle05")
-        UD_StruggleAnimation_Yoke               = PapyrusUtil.PushString(UD_StruggleAnimation_Yoke              ,"ZapYokeStruggle07")
-        UD_StruggleAnimation_Yoke               = PapyrusUtil.PushString(UD_StruggleAnimation_Yoke              ,"ZapYokeStruggle08")
-        UD_StruggleAnimation_Yoke               = PapyrusUtil.PushString(UD_StruggleAnimation_Yoke              ,"ZapYokeStruggle10")
-        UD_StruggleAnimation_Yoke_HB            = PapyrusUtil.PushString(UD_StruggleAnimation_Yoke_HB           ,"ZapYokeStruggle02")
-        UD_StruggleAnimation_Yoke_HB            = PapyrusUtil.PushString(UD_StruggleAnimation_Yoke_HB           ,"ZapYokeStruggle06")
-        UD_StruggleAnimation_Yoke_HB            = PapyrusUtil.PushString(UD_StruggleAnimation_Yoke_HB           ,"ZapYokeStruggle09")
 
-        GInfo("Zaz animations installed")
-    endif
+    LoadAnimationJSONFiles()
     
-    if ZAZAnimationsInstalled && !UDmain.ZaZAnimationPackInstalled
-        ZAZAnimationsInstalled = false
-        
-        GInfo("Zaz animations installed but mod is not installed, uninstalling...")
-        
-        ;remove armbinder animations
-        UD_StruggleAnimation_Armbinder          = PapyrusUtil.RemoveString(UD_StruggleAnimation_Armbinder           ,"ZapArmbStruggle01")
-        UD_StruggleAnimation_Armbinder          = PapyrusUtil.RemoveString(UD_StruggleAnimation_Armbinder           ,"ZapArmbStruggle03")
-        UD_StruggleAnimation_Armbinder          = PapyrusUtil.RemoveString(UD_StruggleAnimation_Armbinder           ,"ZapArmbStruggle05")
-        UD_StruggleAnimation_Armbinder          = PapyrusUtil.RemoveString(UD_StruggleAnimation_Armbinder           ,"ZapArmbStruggle07")
-        UD_StruggleAnimation_Armbinder          = PapyrusUtil.RemoveString(UD_StruggleAnimation_Armbinder           ,"ZapArmbStruggle08")
-        UD_StruggleAnimation_Armbinder          = PapyrusUtil.RemoveString(UD_StruggleAnimation_Armbinder           ,"ZapArmbStruggle10")
-        UD_StruggleAnimation_Armbinder_HB       = PapyrusUtil.RemoveString(UD_StruggleAnimation_Armbinder_HB        ,"ZapArmbStruggle02")
-        UD_StruggleAnimation_Armbinder_HB       = PapyrusUtil.RemoveString(UD_StruggleAnimation_Armbinder_HB        ,"ZapArmbStruggle06")
-        UD_StruggleAnimation_Armbinder_HB       = PapyrusUtil.RemoveString(UD_StruggleAnimation_Armbinder_HB        ,"ZapArmbStruggle09")
-
-        ;straitjacket   
-        UD_StruggleAnimation_StraitJacket       = PapyrusUtil.RemoveString(UD_StruggleAnimation_StraitJacket        ,"ZapArmbStruggle01")
-        UD_StruggleAnimation_StraitJacket       = PapyrusUtil.RemoveString(UD_StruggleAnimation_StraitJacket        ,"ZapArmbStruggle03")
-        UD_StruggleAnimation_StraitJacket       = PapyrusUtil.RemoveString(UD_StruggleAnimation_StraitJacket        ,"ZapArmbStruggle05")
-        UD_StruggleAnimation_StraitJacket       = PapyrusUtil.RemoveString(UD_StruggleAnimation_StraitJacket        ,"ZapArmbStruggle07")
-        UD_StruggleAnimation_StraitJacket       = PapyrusUtil.RemoveString(UD_StruggleAnimation_StraitJacket        ,"ZapArmbStruggle08")
-        UD_StruggleAnimation_StraitJacket       = PapyrusUtil.RemoveString(UD_StruggleAnimation_StraitJacket        ,"ZapArmbStruggle10")
-        UD_StruggleAnimation_StraitJacket_HB    = PapyrusUtil.RemoveString(UD_StruggleAnimation_StraitJacket_HB     ,"ZapArmbStruggle02")
-        UD_StruggleAnimation_StraitJacket_HB    = PapyrusUtil.RemoveString(UD_StruggleAnimation_StraitJacket_HB     ,"ZapArmbStruggle06")
-        UD_StruggleAnimation_StraitJacket_HB    = PapyrusUtil.RemoveString(UD_StruggleAnimation_StraitJacket_HB     ,"ZapArmbStruggle09")
-
-        ;yoke   
-        UD_StruggleAnimation_Yoke               = PapyrusUtil.RemoveString(UD_StruggleAnimation_Yoke                ,"ZapYokeStruggle01")
-        UD_StruggleAnimation_Yoke               = PapyrusUtil.RemoveString(UD_StruggleAnimation_Yoke                ,"ZapYokeStruggle03")
-        UD_StruggleAnimation_Yoke               = PapyrusUtil.RemoveString(UD_StruggleAnimation_Yoke                ,"ZapYokeStruggle05")
-        UD_StruggleAnimation_Yoke               = PapyrusUtil.RemoveString(UD_StruggleAnimation_Yoke                ,"ZapYokeStruggle07")
-        UD_StruggleAnimation_Yoke               = PapyrusUtil.RemoveString(UD_StruggleAnimation_Yoke                ,"ZapYokeStruggle08")
-        UD_StruggleAnimation_Yoke               = PapyrusUtil.RemoveString(UD_StruggleAnimation_Yoke                ,"ZapYokeStruggle10")
-        UD_StruggleAnimation_Yoke_HB            = PapyrusUtil.RemoveString(UD_StruggleAnimation_Yoke_HB             ,"ZapYokeStruggle02")
-        UD_StruggleAnimation_Yoke_HB            = PapyrusUtil.RemoveString(UD_StruggleAnimation_Yoke_HB             ,"ZapYokeStruggle06")
-        UD_StruggleAnimation_Yoke_HB            = PapyrusUtil.RemoveString(UD_StruggleAnimation_Yoke_HB             ,"ZapYokeStruggle09")
-        
-        GInfo("Zaz animations uninstalled")
-    endif
-    
-    UpdateAnimationJSONFiles()
-    
-EndFunction
-
-string[] Function GetHeavyBondageAnimation_Armbinder(bool hobble = false)
-    if !hobble
-        return UD_StruggleAnimation_Armbinder
-    else
-        return UD_StruggleAnimation_Armbinder_HB
-    endif
-EndFunction
-
-string[] Function GetStruggleAnimations(Actor akActor,Armor renDevice)
-    if !akActor.wornHasKeyword(libs.zad_DeviousHobbleSkirt)
-        if renDevice.hasKeyword(libs.zad_deviousheavybondage)
-            if renDevice.hasKeyword(libs.zad_DeviousArmbinder)
-                return UD_StruggleAnimation_Armbinder
-            elseif renDevice.hasKeyword(libs.zad_DeviousArmbinderElbow)
-                return UD_StruggleAnimation_Elbowbinder
-            elseif renDevice.hasKeyword(libs.zad_DeviousStraitJacket)
-                return UD_StruggleAnimation_StraitJacket
-            elseif renDevice.hasKeyword(libs.zad_DeviousCuffsFront)
-                return UD_StruggleAnimation_CuffsFront
-            elseif renDevice.hasKeyword(libs.zad_DeviousYoke)
-                return UD_StruggleAnimation_Yoke
-            elseif renDevice.hasKeyword(libs.zad_DeviousYokeBB)
-                return UD_StruggleAnimation_YokeBB
-            elseif renDevice.hasKeyword(libs.zad_DeviousElbowTie)
-                return UD_StruggleAnimation_ElbowTie
-            elseif renDevice.hasKeyword(libs.zad_DeviousPetSuit)
-                string[] temp = new string[1]
-                temp[0] = "none"
-                return temp
-            else
-                return UD_StruggleAnimation_Default
-            endif
-        else
-            if renDevice.hasKeyword(libs.zad_deviousGag)
-                return UD_StruggleAnimation_Gag
-            elseif renDevice.hasKeyword(libs.zad_DeviousLegCuffs) || renDevice.hasKeyword(libs.zad_DeviousBoots)
-                return UD_StruggleAnimation_Boots
-            elseif renDevice.hasKeyword(libs.zad_DeviousArmCuffs) || renDevice.hasKeyword(libs.zad_DeviousGloves) || renDevice.hasKeyword(libs.zad_DeviousBondageMittens)
-                return UD_StruggleAnimation_ArmCuffs
-            elseif renDevice.hasKeyword(libs.zad_DeviousCollar)
-                return UD_StruggleAnimation_Collar
-            elseif renDevice.hasKeyword(libs.zad_DeviousBlindfold) || renDevice.hasKeyword(libs.zad_DeviousHood)
-                return UD_StruggleAnimation_Blindfold
-            elseif renDevice.hasKeyword(libs.zad_DeviousSuit)
-                return UD_StruggleAnimation_Suit
-            elseif renDevice.hasKeyword(libs.zad_DeviousBelt)
-                return UD_StruggleAnimation_Belt
-            elseif renDevice.hasKeyword(libs.zad_DeviousPlug)
-                return UD_StruggleAnimation_Plug
-            else    
-                return UD_StruggleAnimation_Default
-            endif
-        endif
-    else
-        if renDevice.hasKeyword(libs.zad_deviousheavybondage)
-            if renDevice.hasKeyword(libs.zad_DeviousArmbinder)
-                return UD_StruggleAnimation_Armbinder_HB
-            elseif renDevice.hasKeyword(libs.zad_DeviousArmbinderElbow)
-                return UD_StruggleAnimation_Elbowbinder_HB
-            elseif renDevice.hasKeyword(libs.zad_DeviousStraitJacket)
-                return UD_StruggleAnimation_StraitJacket_HB
-            elseif renDevice.hasKeyword(libs.zad_DeviousCuffsFront)
-                return UD_StruggleAnimation_CuffsFront_HB
-            elseif renDevice.hasKeyword(libs.zad_DeviousYoke)
-                return UD_StruggleAnimation_Yoke_HB
-            elseif renDevice.hasKeyword(libs.zad_DeviousYokeBB)
-                return UD_StruggleAnimation_YokeBB_HB
-            elseif renDevice.hasKeyword(libs.zad_DeviousElbowTie)
-                return UD_StruggleAnimation_ElbowTie_HB
-            elseif renDevice.hasKeyword(libs.zad_DeviousPetSuit)
-                string[] temp = new string[1]
-                temp[0] = "none"
-                return temp
-            else
-                return UD_StruggleAnimation_Default_HB
-            endif
-        else
-            if renDevice.hasKeyword(libs.zad_deviousGag)
-                return UD_StruggleAnimation_Gag_HB
-            elseif renDevice.hasKeyword(libs.zad_DeviousLegCuffs) || renDevice.hasKeyword(libs.zad_DeviousBoots)
-                return UD_StruggleAnimation_Boots_HB
-            elseif renDevice.hasKeyword(libs.zad_DeviousArmCuffs) || renDevice.hasKeyword(libs.zad_DeviousGloves) || renDevice.hasKeyword(libs.zad_DeviousBondageMittens)
-                return UD_StruggleAnimation_ArmCuffs_HB
-            elseif renDevice.hasKeyword(libs.zad_DeviousCollar)
-                return UD_StruggleAnimation_Collar_HB
-            elseif renDevice.hasKeyword(libs.zad_DeviousBlindfold) || renDevice.hasKeyword(libs.zad_DeviousHood)
-                return UD_StruggleAnimation_Blindfold_HB
-            elseif renDevice.hasKeyword(libs.zad_DeviousSuit)
-                return UD_StruggleAnimation_Suit_HB
-            elseif renDevice.hasKeyword(libs.zad_DeviousBelt)
-                return UD_StruggleAnimation_Belt_HB
-            elseif renDevice.hasKeyword(libs.zad_DeviousPlug)
-                return UD_StruggleAnimation_Plug_HB
-            else    
-                return UD_StruggleAnimation_Default_HB
-            endif
-        endif
-    endif
-EndFunction
-
-string[] Function GetStruggleAnimationsByKeyword(Actor akActor,Keyword akKeyword,bool abHobble = false)
-    if !abHobble
-        if akKeyword == libs.zad_DeviousArmbinder
-            return UD_StruggleAnimation_Armbinder
-        elseif akKeyword == libs.zad_DeviousArmbinderElbow
-            return UD_StruggleAnimation_Elbowbinder
-        elseif akKeyword == libs.zad_DeviousStraitJacket
-            return UD_StruggleAnimation_StraitJacket
-        elseif akKeyword == libs.zad_DeviousCuffsFront
-            return UD_StruggleAnimation_CuffsFront
-        elseif akKeyword == libs.zad_DeviousYoke
-            return UD_StruggleAnimation_Yoke
-        elseif akKeyword == libs.zad_DeviousYokeBB
-            return UD_StruggleAnimation_YokeBB
-        elseif akKeyword == libs.zad_DeviousElbowTie
-            return UD_StruggleAnimation_ElbowTie
-        elseif akKeyword == libs.zad_DeviousPetSuit
-            string[] temp = new string[1]
-            temp[0] = "none"
-            return temp
-        elseif akKeyword == libs.zad_deviousGag
-            return UD_StruggleAnimation_Gag
-        elseif akKeyword == libs.zad_DeviousLegCuffs || akKeyword == libs.zad_DeviousBoots
-            return UD_StruggleAnimation_Boots
-        elseif akKeyword == libs.zad_DeviousArmCuffs || akKeyword == libs.zad_DeviousGloves || akKeyword == libs.zad_DeviousBondageMittens
-            return UD_StruggleAnimation_ArmCuffs
-        elseif akKeyword == libs.zad_DeviousCollar
-            return UD_StruggleAnimation_Collar
-        elseif akKeyword == libs.zad_DeviousBlindfold || akKeyword == libs.zad_DeviousHood
-            return UD_StruggleAnimation_Blindfold
-        elseif akKeyword == libs.zad_DeviousSuit
-            return UD_StruggleAnimation_Suit
-        elseif akKeyword == libs.zad_DeviousBelt
-            return UD_StruggleAnimation_Belt
-        elseif akKeyword == libs.zad_DeviousPlug
-            return UD_StruggleAnimation_Plug
-        else    
-            return UD_StruggleAnimation_Default
-        endif
-    else
-        if akKeyword == libs.zad_DeviousArmbinder
-            return UD_StruggleAnimation_Armbinder_HB
-        elseif akKeyword == libs.zad_DeviousArmbinderElbow
-            return UD_StruggleAnimation_Elbowbinder_HB
-        elseif akKeyword == libs.zad_DeviousStraitJacket
-            return UD_StruggleAnimation_StraitJacket_HB
-        elseif akKeyword == libs.zad_DeviousCuffsFront
-            return UD_StruggleAnimation_CuffsFront_HB
-        elseif akKeyword == libs.zad_DeviousYoke
-            return UD_StruggleAnimation_Yoke_HB
-        elseif akKeyword == libs.zad_DeviousYokeBB
-            return UD_StruggleAnimation_YokeBB_HB
-        elseif akKeyword == libs.zad_DeviousElbowTie
-            return UD_StruggleAnimation_ElbowTie_HB
-        elseif akKeyword == libs.zad_DeviousPetSuit
-            string[] temp = new string[1]
-            temp[0] = "none"
-            return temp
-        elseif akKeyword == libs.zad_deviousGag
-            return UD_StruggleAnimation_Gag_HB
-        elseif akKeyword == libs.zad_DeviousLegCuffs || akKeyword == libs.zad_DeviousBoots
-            return UD_StruggleAnimation_Boots_HB
-        elseif akKeyword == libs.zad_DeviousArmCuffs || akKeyword == libs.zad_DeviousGloves || akKeyword == libs.zad_DeviousBondageMittens
-            return UD_StruggleAnimation_ArmCuffs_HB
-        elseif akKeyword == libs.zad_DeviousCollar
-            return UD_StruggleAnimation_Collar_HB
-        elseif akKeyword == libs.zad_DeviousBlindfold || akKeyword == libs.zad_DeviousHood
-            return UD_StruggleAnimation_Blindfold_HB
-        elseif akKeyword == libs.zad_DeviousSuit
-            return UD_StruggleAnimation_Suit_HB
-        elseif akKeyword == libs.zad_DeviousBelt
-            return UD_StruggleAnimation_Belt_HB
-        elseif akKeyword == libs.zad_DeviousPlug
-            return UD_StruggleAnimation_Plug_HB
-        else    
-            return UD_StruggleAnimation_Default_HB
-        endif
-    endif
 EndFunction
 
 ;reduced startanimation function
@@ -399,10 +170,6 @@ Form Function GetShield(Actor akActor)
     endif
 EndFunction
 
-; XCross Static
-Form VehicleMarkerForm
-; Package to do nothing
-Package DoNothing = None
 
 ; Prepare actors and start an animation for them 
 ; akActor       - first actor
@@ -415,20 +182,20 @@ bool Function FastStartThirdPersonAnimationWithHelper(actor akActor, actor akHel
         UDmain.Log("UD_AnimationManagerScript::FastStartThirdPersonAnimationWithHelper() akActor = " + akActor + ", akHelper = " + akHelper + ", animationA1 = " + animationA1 + ", animationA2 = " + animationA2 + ", alignActors = " + alignActors)
     EndIf
     If akActor == None 
-        UDmain.Error("FastStartThirdPersonAnimationWithHelper - Called with akActor is None, aborting")
+        UDmain.Error("UD_AnimationManagerScript::FastStartThirdPersonAnimationWithHelper() akActor is None, aborting")
         Return False
     EndIf
     If akHelper == None
         Return FastStartThirdPersonAnimation(akActor, animationA1)
     EndIf
     If animationA1 == "none" && animationA1 == "none"
-        UDmain.Error("FastStartThirdPersonAnimationWithHelper - Called with animationA1 is None, aborting")
+        UDmain.Error("UD_AnimationManagerScript::FastStartThirdPersonAnimationWithHelper() animationA1 is None, aborting")
         Return False
     ElseIf animationA1 == "none"
-        UDmain.Log("FastStartThirdPersonAnimationWithHelper - animation for Actor 1 is None, using solo animation for the Actor 2")
+        UDmain.Log("UD_AnimationManagerScript::FastStartThirdPersonAnimationWithHelper() animation for Actor 1 is None, using solo animation for the Actor 2")
         Return FastStartThirdPersonAnimation(akHelper, animationA2)
     ElseIf animationA2 == "none"
-        UDmain.Log("FastStartThirdPersonAnimationWithHelper - animation for Actor 2 is None, using solo animation for the Actor 1")
+        UDmain.Log("UD_AnimationManagerScript::FastStartThirdPersonAnimationWithHelper() animation for Actor 2 is None, using solo animation for the Actor 1")
         Return FastStartThirdPersonAnimation(akActor, animationA1)
     endif
     
@@ -441,9 +208,6 @@ bool Function FastStartThirdPersonAnimationWithHelper(actor akActor, actor akHel
         ;creating vehicle marker once for each akActor
         vehicleMarkerRef = StorageUtil.GetFormValue(akActor, "UD_AnimationManager_VehicleMarker") as ObjectReference
         if (vehicleMarkerRef == None)
-            If VehicleMarkerForm == None 
-                VehicleMarkerForm = Game.GetForm(0x0000003B)
-            EndIf
             vehicleMarkerRef = akActor.PlaceAtMe(VehicleMarkerForm)
             int cycle
             while !vehicleMarkerRef.Is3DLoaded() && cycle < 10
@@ -485,29 +249,12 @@ bool Function FastStartThirdPersonAnimationWithHelper(actor akActor, actor akHel
     return true
 EndFunction
 
-sslSystemConfig slConfig
-
 Function LockAnimatingActor(Actor akActor)
-; TODO: change it to direct reference 
-    If DoNothing == None
-        slConfig = (Game.GetFormFromFile(0xD62, "SexLab.esm") as sslSystemConfig)
-        If slConfig == None
-            slConfig = (Quest.GetQuest("SexLabQuestFramework") as sslSystemConfig)
-        EndIf
-        If slConfig != None
-            DoNothing = slConfig.DoNothing
-        Else
-            UDMain.Error("UD_AnimationManagerScript::LockAnimatingActor() Failed to load config from SexLabQuestFramework")
-        EndIf
-    EndIf
 ; TODO: remove high heels
 
     libs.SetAnimating(akActor, True)
-    
-    If DoNothing != None
-        ActorUtil.AddPackageOverride(akActor, DoNothing, 100, 1)
-        akActor.EvaluatePackage()
-    EndIf
+    ActorUtil.AddPackageOverride(akActor, slConfig.DoNothing, 100, 1)
+    akActor.EvaluatePackage()
     
     If UDmain.ActorIsPlayer(akActor)
 
@@ -534,10 +281,8 @@ Function LockAnimatingActor(Actor akActor)
 EndFunction
 
 Function UnlockAnimatingActor(Actor akActor)
-    If DoNothing != None
-        ActorUtil.RemovePackageOverride(akActor, DoNothing)
-        akActor.EvaluatePackage()
-    EndIf
+    ActorUtil.RemovePackageOverride(akActor, slConfig.DoNothing)
+    akActor.EvaluatePackage()
     libs.SetAnimating(akActor, False)
     akActor.SetVehicle(None)
     If UDmain.ActorIsPlayer(akActor)
@@ -555,12 +300,17 @@ Function UnlockAnimatingActor(Actor akActor)
     endif
 EndFunction
 
+; array with loaded json files
 String[] UD_StruggleAnimDefs
 
+; For debug purposes. Remove in prod
+; Forces to reload json files on every use
+Bool forceReloadFiles = true
+
 ; function to preload and check for errors json files with animation defs
-Function UpdateAnimationJSONFiles()
+Function LoadAnimationJSONFiles()
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::UpdateAnimationJSONFiles()")
+        UDmain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles()")
     EndIf
     UD_StruggleAnimDefs = JsonUtil.JsonInFolder("UD/StruggleAnims")
     Int i = 0
@@ -571,16 +321,13 @@ Function UpdateAnimationJSONFiles()
 ; TODO: Check for dependencies (loaded esp or SLAL packs)
             i += 1
         Else
-            UDMain.Warning("UD_AnimationManagerScript::UpdateAnimationJSONFiles() Failed to load json file " + file)
-            UDMain.Warning("UD_AnimationManagerScript::UpdateAnimationJSONFiles() Found errors: " + JsonUtil.GetErrors(file))
+            UDMain.Warning("UD_AnimationManagerScript::LoadAnimationJSONFiles() Failed to load json file " + file)
+            UDMain.Warning("UD_AnimationManagerScript::LoadAnimationJSONFiles() Found errors: " + JsonUtil.GetErrors(file))
             PapyrusUtil.RemoveString(UD_StruggleAnimDefs, UD_StruggleAnimDefs[i])
         EndIf
     EndWhile
 EndFunction
-
-; For debug purposes. Remove in prod
-; Disables cache de facto
-Bool forceReloadFiles = true                
+           
 
 ; Function GetStrugglePairAnimationsByKeyword
 ; akActor       - 
@@ -631,7 +378,7 @@ string[] Function GetStruggleAnimationsByKeywordWithHelper(Keyword akKeyword, Bo
     
     If forceReloadFiles
         UDMain.Info("UD_AnimationManagerScript::GetStruggleAnimationsByKeywordWithHelper() Reloading json files since flag 'forceReloadFiles' is set")
-        UpdateAnimationJSONFiles()
+        LoadAnimationJSONFiles()
     EndIf
     
     Int i = 0
@@ -672,6 +419,25 @@ EndFunction
 
 ; Return array with animations for solo struggling
 ; 
+;
+; JSON file syntax
+;{
+;   "solo": {
+;       "zad_DeviousPetSuit" : [                                   Device keyword
+;           {
+;               "animation" : "UD_Struggle_PetSuit_Solo01_A1",          Animation event name.
+;               "reqConstraintsA1" : 0,                                 Required constraints for the akActor (see description for _CheckAnimationConstraints)
+;               "optConstraintsA1" : 0,                                 Optional constraints for the akActor (see description for _CheckAnimationConstraints)
+;               "lewd" : 0,                                             Rate of lewdiness
+;               "aggressive" : 1,                                       Rate of aggressiveness (from akHelper towards akActor). Could be negative
+;               "forced" : true                                         First forced animation will be the only animation in result array. Used to test animation in game with forceReloadFiles = true
+;           },
+;           ...
+;       ], 
+;       ...
+;   }
+;}
+;
 ; Possible constraints:
 ; [0] hobble skirt 
 ; [1] bound ankles
@@ -693,7 +459,7 @@ String[] Function GetStruggleAnimationsByKeyword2(Keyword akKeyword, Bool[] abAc
     
     If forceReloadFiles
         UDMain.Info("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword2() Reloading json files since flag 'forceReloadFiles' is set")
-        UpdateAnimationJSONFiles()
+        LoadAnimationJSONFiles()
     EndIf
     Int i = 0
     While i < UD_StruggleAnimDefs.Length
@@ -809,6 +575,8 @@ Bool[] Function GetActorConstraints(Actor akActor)
     Return result
 EndFunction
 
+; compilation of the code from SexLab functions
+; added dependency for NiOverride
 Function _RemoveHeelEffect(Actor akActor, Bool bRemoveHDT = true, Bool bRemoveNiOverride = true)
     If !akActor.GetWornForm(0x00000080)
         Return
@@ -841,6 +609,8 @@ Function _RemoveHeelEffect(Actor akActor, Bool bRemoveHDT = true, Bool bRemoveNi
     endIf
 EndFunction
 
+; compilation of the code from SexLab functions
+; added dependency for NiOverride
 Function _RestoreHeelEffect(Actor akActor)
     If !akActor.GetWornForm(0x00000080)
         Return

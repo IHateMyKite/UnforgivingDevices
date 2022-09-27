@@ -3368,26 +3368,6 @@ Function stopMinigameAndWait()
     endwhile
 EndFunction
 
-;selects struggle array, taken from zadEquipScript
-String[] Function SelectStruggleArray(Actor akActor)
-    bool loc_hoble = akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirt) && !akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirtRelaxed)
-    If loc_hoble
-        if UD_struggleAnimationsHobl && UD_struggleAnimationsHobl.length > 0
-            return UD_struggleAnimationsHobl        ; Use hobbled struggle idles
-        elseif UD_struggleAnimations && UD_struggleAnimations.length > 0
-            return UD_struggleAnimations        ; Fall back to standard animations if no hobbled variants are available
-        else
-            return UDAM.GetStruggleAnimationsByKeyword(getWearer(),UD_DeviceKeyword_Minor,loc_hoble)
-        endif
-    Else
-        if UD_struggleAnimations && UD_struggleAnimations.length > 0
-            return UD_struggleAnimations        ; Use regular struggle idles
-        else
-            return UDAM.GetStruggleAnimationsByKeyword(getWearer(),UD_DeviceKeyword_Minor,loc_hoble)
-        endif
-    Endif
-EndFunction
-
 bool Function minigamePostcheck()
     if !checkMinAV(Wearer) ;check wearer AVs
         if WearerIsPlayer() ;message related to player wearer
@@ -3593,7 +3573,7 @@ Function minigame()
                     if !(tick_s % 3) && tick_s
                         ;start new animation if wearer stops animating
                         if hasStruggleAnimation && (UDCDmain.UD_AlternateAnimation || !UDAM.isAnimating(Wearer, false) || !UDAM.isAnimating(_minigameHelper, false)) && !pauseMinigame && !force_stop_minigame
-                            _PickAndPlayStruggleAnimation()
+                            _PickAndPlayStruggleAnimation(bUseCache = True)
                         endif
                         OnMinigameTick3()
                     endif
@@ -3683,7 +3663,11 @@ Function minigame()
     
 EndFunction
 
-Bool Function _PickAndPlayStruggleAnimation()
+String[] _StruggleAnimationPairArray
+String[] _StruggleAnimationArray
+String[] _StruggleAnimationArrayHelper
+
+Bool Function _PickAndPlayStruggleAnimation(Bool bUseCache = False)
     Bool[] _actorConstraints = UDAM.GetActorConstraints(Wearer)
     Bool[] _helperConstraints = UDAM.GetActorConstraints(_minigameHelper)
     
@@ -3691,7 +3675,9 @@ Bool Function _PickAndPlayStruggleAnimation()
     String _sStruggleAnimHelper = "none"
     
     If _minigameHelper
-        String[] _StruggleAnimationPairArray = UDAM.GetStruggleAnimationsByKeywordWithHelper(UD_DeviceKeyword_Minor, _actorConstraints, _helperConstraints)
+        If _StruggleAnimationPairArray == None || !bUseCache
+            _StruggleAnimationPairArray = UDAM.GetStruggleAnimationsByKeywordWithHelper(UD_DeviceKeyword_Minor, _actorConstraints, _helperConstraints)
+        EndIf
         ;Debug.Trace()
         If _StruggleAnimationPairArray.Length > 0
             String _baseAnimName = _StruggleAnimationPairArray[Utility.RandomInt(0, _StruggleAnimationPairArray.Length - 1)]
@@ -3699,8 +3685,12 @@ Bool Function _PickAndPlayStruggleAnimation()
             _sStruggleAnimHelper = _baseAnimName + "A2"
             UDAM.FastStartThirdPersonAnimationWithHelper(Wearer, _minigameHelper, _sStruggleAnim, _sStruggleAnimHelper)
         Else
-            String[] _StruggleAnimationArray = UDAM.GetStruggleAnimationsByKeyword2(UD_DeviceKeyword_Minor, _actorConstraints)
-            String[] _StruggleAnimationArrayHelper = UDAM.GetStruggleAnimationsByKeyword2(libs.zad_DeviousGloves, _helperConstraints)
+            If _StruggleAnimationArray == None || !bUseCache
+                _StruggleAnimationArray = UDAM.GetStruggleAnimationsByKeyword2(UD_DeviceKeyword_Minor, _actorConstraints)
+            EndIf
+            If _StruggleAnimationArrayHelper == None || !bUseCache
+                _StruggleAnimationArrayHelper = UDAM.GetStruggleAnimationsByKeyword2(libs.zad_DeviousGloves, _helperConstraints)
+            EndIf
             
             If _StruggleAnimationArray.Length > 0
                 _sStruggleAnim = _StruggleAnimationArray[Utility.RandomInt(0, _StruggleAnimationArray.Length - 1)]
@@ -3713,7 +3703,9 @@ Bool Function _PickAndPlayStruggleAnimation()
             UDAM.FastStartThirdPersonAnimation(_minigameHelper, _sStruggleAnimHelper)
         EndIf
     Else
-        String[] _StruggleAnimationArray = UDAM.GetStruggleAnimationsByKeyword2(UD_DeviceKeyword_Minor, _actorConstraints)
+        If _StruggleAnimationArray == None || !bUseCache
+            _StruggleAnimationArray = UDAM.GetStruggleAnimationsByKeyword2(UD_DeviceKeyword_Minor, _actorConstraints)
+        EndIf
         If _StruggleAnimationArray.Length > 0
             _sStruggleAnim = _StruggleAnimationArray[Utility.RandomInt(0, _StruggleAnimationArray.Length - 1)]
         EndIf
