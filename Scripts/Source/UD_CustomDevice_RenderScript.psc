@@ -3675,7 +3675,7 @@ Bool Function _PickAndPlayStruggleAnimation(Bool bUseCache = False)
     String _sStruggleAnimHelper = "none"
     
     If _minigameHelper
-        If _StruggleAnimationPairArray == None || !bUseCache
+        If _StruggleAnimationPairArray.Length == 0 || !bUseCache
             _StruggleAnimationPairArray = UDAM.GetStruggleAnimationsByKeywordWithHelper(UD_DeviceKeyword_Minor, _actorConstraints, _helperConstraints)
         EndIf
         ;Debug.Trace()
@@ -3685,10 +3685,10 @@ Bool Function _PickAndPlayStruggleAnimation(Bool bUseCache = False)
             _sStruggleAnimHelper = _baseAnimName + "A2"
             UDAM.FastStartThirdPersonAnimationWithHelper(Wearer, _minigameHelper, _sStruggleAnim, _sStruggleAnimHelper)
         Else
-            If _StruggleAnimationArray == None || !bUseCache
+            If _StruggleAnimationArray.Length == 0 || !bUseCache
                 _StruggleAnimationArray = UDAM.GetStruggleAnimationsByKeyword2(UD_DeviceKeyword_Minor, _actorConstraints)
             EndIf
-            If _StruggleAnimationArrayHelper == None || !bUseCache
+            If _StruggleAnimationArrayHelper.Length == 0 || !bUseCache
                 _StruggleAnimationArrayHelper = UDAM.GetStruggleAnimationsByKeyword2(libs.zad_DeviousGloves, _helperConstraints)
             EndIf
             
@@ -3703,7 +3703,7 @@ Bool Function _PickAndPlayStruggleAnimation(Bool bUseCache = False)
             UDAM.FastStartThirdPersonAnimation(_minigameHelper, _sStruggleAnimHelper)
         EndIf
     Else
-        If _StruggleAnimationArray == None || !bUseCache
+        If _StruggleAnimationArray.Length == 0 || !bUseCache
             _StruggleAnimationArray = UDAM.GetStruggleAnimationsByKeyword2(UD_DeviceKeyword_Minor, _actorConstraints)
         EndIf
         If _StruggleAnimationArray.Length > 0

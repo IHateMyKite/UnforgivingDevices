@@ -1,0 +1,5 @@
+
+b UD_Struggle_PetSuit_Pair01_A1 UD_Struggle_PetSuit_Pair01_A1.hkx
+b UD_Struggle_PetSuit_Pair01_A2 UD_Struggle_PetSuit_Pair01_A2.hkx
+b UD_Struggle_PetSuit_Pair02_A1 UD_Struggle_PetSuit_Pair02_A1.hkx
+b UD_Struggle_PetSuit_Pair02_A2 UD_Struggle_PetSuit_Pair02_A2.hkx

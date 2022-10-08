@@ -1,0 +1,120 @@
+{
+	"paired" : {
+		"zad_DeviousBoots" : [
+			
+		], 
+		"zad_DeviousPlug" : [
+			
+		], 
+		"zad_DeviousBelt" : [
+			
+		], 
+		"zad_DeviousBra" : [
+			
+		], 
+		"zad_DeviousCollar" : [
+			
+		], 
+		"zad_DeviousArmCuffs" : [
+			
+		], 
+		"zad_DeviousLegCuffs" : [
+			
+		], 
+		"zad_DeviousArmbinder" : [
+			
+		], 
+		"zad_DeviousArmbinderElbow" : [
+			
+		], 
+		"zad_DeviousHobbleSkirt" : [
+			
+		], 
+		"zad_DeviousHobbleSkirtRelaxed" : [
+			
+		], 
+		"zad_DeviousAnkleShackles" : [
+			
+		], 
+		"zad_DeviousStraitJacket" : [
+			
+		], 
+		"zad_DeviousCuffsFront" : [
+			
+		], 
+		"zad_DeviousPetSuit" : [
+			{
+				"animation" : "UD_Struggle_PetSuit_Pair01_", 
+				"reqConstraintsA1" : 64, 
+				"optConstraintsA1" : 0, 
+				"reqConstraintsA2" : 0, 
+				"optConstraintsA2" : 266, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}, {
+				"animation" : "UD_Struggle_PetSuit_Pair02_", 
+				"reqConstraintsA1" : 64, 
+				"optConstraintsA1" : 0, 
+				"reqConstraintsA2" : 0, 
+				"optConstraintsA2" : 266, 
+				"lewd" : 0, 
+				"aggressive" : 0,
+                "forced": true
+			}
+		], 
+		"zad_DeviousYoke" : [
+			
+		], 
+		"zad_DeviousYokeBB" : [
+			
+		], 
+		"zad_DeviousCorset" : [
+			
+		], 
+		"zad_DeviousClamps" : [
+			
+		], 
+		"zad_DeviousGloves" : [
+			
+		], 
+		"zad_DeviousHood" : [
+			
+		], 
+		"zad_DeviousElbowTie" : [
+			
+		], 
+		"zad_DeviousGag" : [
+			
+		], 
+		"zad_DeviousGagLarge" : [
+			
+		], 
+		"zad_DeviousGagPanel" : [
+			
+		], 
+		"zad_DeviousPlugVaginal" : [
+			
+		], 
+		"zad_DeviousPlugAnal" : [
+			
+		], 
+		"zad_DeviousHarness" : [
+			
+		], 
+		"zad_DeviousBlindfold" : [
+			
+		], 
+		"zad_DeviousPiercingsNipple" : [
+			
+		], 
+		"zad_DeviousPiercingsVaginal" : [
+			
+		], 
+		"zad_DeviousBondageMittens" : [
+			
+		], 
+		"zad_DeviousSuit" : [
+			
+		]
+	}
+}
