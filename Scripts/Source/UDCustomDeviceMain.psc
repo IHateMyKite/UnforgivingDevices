@@ -717,12 +717,8 @@ Function endScript(UD_CustomDevice_RenderScript oref)
     endif
     updateLastOpenedDeviceOnRemove(oref)
     if isRegistered(oref.getWearer())
-        ;StorageUtil.SetIntValue(oref.getWearer(), "UD_blockSlotUpdate",1)
         unregisterDevice(oref)
-        ;StorageUtil.UnsetIntValue(oref.getWearer(), "UD_blockSlotUpdate")
     endif
-    ;UDCD_NPCM.updateSlots()
-    ;getNPCSlot(oref.getWearer()).regainDevices()
 EndFunction
 
 Function RegisterGlobalKeys()
@@ -734,7 +730,7 @@ Function UnregisterGlobalKeys()
 EndFunction
 
 Function registerAllEvents()
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         Log("registerAllEvents")
     endif
     registerEvents()
@@ -742,7 +738,7 @@ Function registerAllEvents()
 EndFunction
 
 Function registerEvents()
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         Log("registerEvents")
     endif
     RegisterForModEvent("UD_ActivateDevice","OnActivateDevice")
@@ -823,37 +819,11 @@ Event onUpdate()
         if UDmain.DebugMod
             UDmain.Player.addItem(UDlibs.AbadonPlug,1)
         endif
-        ;LastUpdateTime = Utility.GetCurrentGameTime()
-        ;LastUpdateTime_Hour = Utility.GetCurrentGameTime()
         loc_init = true
     endif
-    ;if !UDmain.UD_DisableUpdate
-    ;    float timePassed = Utility.GetCurrentGameTime() - LastUpdateTime
-    ;    UDCD_NPCM.update(timePassed)
-    ;    LastUpdateTime = Utility.GetCurrentGameTime()
-    ;endif
-    ;RegisterForSingleUpdate(UD_UpdateTime)
 EndEvent
 
-;float LastUpdateTime_Hour = 0.0 ;last time the update happened in days
-;Event OnUpdateGameTime()
-;    if !UDmain.UD_DisableUpdate
-;        Utility.waitMenuMode(Utility.randomFloat(2.0,4.0))
-;        float currentgametime = Utility.GetCurrentGameTime()
-;        float mult = 24.0*(currentgametime - LastUpdateTime_Hour) ;multiplier for how much more then 1 hour have passed, ex: for 2.5 hours passed without update, the mult will be 2.5
-;        UDCD_NPCM.updateHour(mult)
-;        LastUpdateTime_Hour = Utility.GetCurrentGameTime()
-;    endif
-;    registerForSingleUpdateGameTime(1.0)
-;endEvent
-
 State Minigame
-    ;Event onUpdate()
-    ;    RegisterForSingleUpdate(2*UD_UpdateTime)
-    ;EndEvent
-    ;Event OnUpdateGameTime()
-    ;    registerForSingleUpdateGameTime(0.1)
-    ;EndEvent
 EndState
 
 ;-------------------------------------------------------------------------------------
@@ -862,12 +832,12 @@ EndState
 
 
 Event keyUnregister(string eventName = "none", string strArg = "", float numArg = 0.0, Form sender = none)
-    UDUI.keyUnregister()
     ResetUI()
 EndEvent
 
 Event ResetUI()
     UnregisterForAllKeys()
+    UDUI.keyUnregister()
 EndEvent
 
 Event MinigameKeysRegister()
@@ -884,10 +854,12 @@ bool Function KeyIsUsedGlobaly(int keyCode)
     return UDUI.KeyIsUsedGlobaly(keyCode)
 EndFunction
 
-bool    Property crit = false auto hidden
-string  Property selected_crit_meter    =  "Error" auto hidden
-Int     Property UD_CritEffect = 2 auto hidden
-Bool    Property UD_MandatoryCrit       = False auto
+bool    Property crit                   = false         auto hidden
+string  Property selected_crit_meter    =  "Error"      auto hidden
+Int     Property UD_CritEffect          = 2             auto hidden
+Bool    Property UD_MandatoryCrit       = False         auto hidden
+Float   Property UD_CritDurationAdjust  = 0.0           auto hidden
+
 Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string strArg, float difficulty)
     string meter
     if Utility.randomInt(1,100) <= chance
@@ -926,7 +898,6 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
         if (selected_crit_meter == "S")
             if UD_CritEffect == 2 || UD_CritEffect == 1
                 UDlibs.GreenCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player)
-                Utility.wait(0.3)
             endif
             if UD_CritEffect == 2 || UD_CritEffect == 0
                 UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartStaminaBlinking")
@@ -934,7 +905,6 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
         elseif (selected_crit_meter == "M")
             if UD_CritEffect == 2 || UD_CritEffect == 1
                 UDlibs.BlueCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player)
-                Utility.wait(0.3)
             endif
             if UD_CritEffect == 2 || UD_CritEffect == 0
                 UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartMagickaBlinking")
@@ -942,11 +912,11 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
         elseif (selected_crit_meter == "R")
             if UD_CritEffect == 2 || UD_CritEffect == 1
                 UDlibs.RedCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player)
-                Utility.wait(0.3)
             endif
         endif
-        
-        Utility.wait(difficulty)
+
+        Utility.wait(fRange(difficulty + UD_CritDurationAdjust,0.25,2.0))
+
         if UD_MandatoryCrit
             if crit
                 crit = False
@@ -954,7 +924,7 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
             endif
         endif
         crit = False
-    endif    
+    endif
 EndEvent
 
 bool Function registeredKeyPressed(Int KeyCode)
@@ -2561,6 +2531,10 @@ EndFunction
 ;function used for mod development
 Function DebugFunction(Actor akActor)
     UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0xffff)
+    ;updateHUDBars(1,1,1,1)
+    ;UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.MagickaMeter.StartBlinking")
+    ;UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StaminaMeter.StartBlinking")
+    ;UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.HealthMeterLeft.StartBlinking")
 EndFunction
 
 string Function GetUserTextInput()

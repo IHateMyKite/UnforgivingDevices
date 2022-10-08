@@ -19,8 +19,11 @@ UD_CustomDevices_NPCSlotsManager Property UDCD_NPCM
     EndFunction
 EndProperty
 
-UD_CustomDevice_RenderScript Property lastOpenedDevice     = none auto hidden
-bool _specialButtonOn
+UD_CustomDevice_RenderScript    Property lastOpenedDevice     = none    auto hidden
+Int                             Property UD_GamepadKey        = 0x112   auto
+
+bool _specialButtonOn = false
+bool _gamepadButtonOn = false
 
 Event keyUnregister(string eventName = "none", string strArg = "", float numArg = 0.0, Form sender = none)
     if UDmain.TraceAllowed()    
@@ -53,6 +56,7 @@ Event MinigameKeysUnregister()
         UnregisterForKey(UDCDMain.Magicka_meter_Keycode)
     endif
     _specialButtonOn = false
+    _gamepadButtonOn = false
 EndEvent
 
 Function RegisterGlobalKeys()
@@ -63,6 +67,7 @@ Function RegisterGlobalKeys()
     RegisterForKey(UDCDMain.PlayerMenu_KeyCode)
     RegisterForKey(UDCDMain.ActionKey_Keycode)
     RegisterForKey(UDCDMain.NPCMenu_Keycode)
+    RegisterForKey(UD_GamepadKey)
 EndFunction
 
 Function UnregisterGlobalKeys()
@@ -73,6 +78,7 @@ Function UnregisterGlobalKeys()
     UnRegisterForKey(UDCDMain.PlayerMenu_KeyCode)
     UnRegisterForKey(UDCDMain.ActionKey_Keycode)
     UnRegisterForKey(UDCDMain.NPCMenu_Keycode)
+    UnRegisterForKey(UD_GamepadKey)
 EndFunction
 
 bool Function KeyIsUsedGlobaly(int keyCode)
@@ -81,6 +87,7 @@ bool Function KeyIsUsedGlobaly(int keyCode)
     loc_res = loc_res || (keyCode == UDCDMain.PlayerMenu_KeyCode)
     loc_res = loc_res || (keyCode == UDCDMain.NPCMenu_Keycode)
     loc_res = loc_res || (keyCode == UDCDMain.ActionKey_Keycode)
+    loc_res = loc_res || (keyCode == UD_GamepadKey)
     return loc_res
 EndFunction
 
@@ -166,14 +173,18 @@ EndState
 Event OnKeyDown(Int KeyCode)
     bool loc_menuopen = UDmain.IsMenuOpen()
     if !loc_menuopen ;only if player is not in menu
-        if KeyCode == UDCDMain.PlayerMenu_KeyCode
-            UDCDMain.PlayerMenu()
+        if (!Game.UsingGamepad() || GamePadButtonPressed())
+            if KeyCode == UDCDMain.PlayerMenu_KeyCode
+                UDCDMain.PlayerMenu()
+            endif
+        elseif KeyCode == UD_GamepadKey
+            _gamepadButtonOn = true
         endif
     endif
 EndEvent
 
 Event OnKeyUp(Int KeyCode, Float HoldTime)
-    if !UDmain.IsMenuOpen()
+    if !UDmain.IsMenuOpen() && (!Game.UsingGamepad() || GamePadButtonPressed())
         if KeyCode == UDCDMain.StruggleKey_Keycode
             if HoldTime < 0.2
                 if lastOpenedDevice
@@ -215,4 +226,11 @@ Event OnKeyUp(Int KeyCode, Float HoldTime)
             endif
         endif
     endif
+    if GamePadButtonPressed()
+        _gamepadButtonOn = false
+    endif
 EndEvent
+
+Bool Function GamePadButtonPressed()
+    return _gamepadButtonOn
+EndFunction

@@ -169,7 +169,7 @@ Event OnInit()
     UD_hightPerformance = UD_hightPerformance
     
     OrgasmExhaustionSpell = UDlibs.OrgasmExhaustionSpell
-    OrgasmExhaustionSpell.SetNthEffectDuration(0, UD_OrgasmExhaustionDuration)
+    OrgasmExhaustionSpell.SetNthEffectDuration(0, 180) ;for backward compatibility
 
     if UD_hightPerformance
         UD_baseUpdateTime = UD_HightPerformanceTime
@@ -371,7 +371,6 @@ EndFunction
 
 Function addOrgasmExhaustion(Actor akActor)
     OrgasmExhaustionSpell.cast(akActor)
-    
     if TraceAllowed()    
         Log("Orgasm exhaustion debuff applied to "+ getActorName(akActor),1)
     endif
