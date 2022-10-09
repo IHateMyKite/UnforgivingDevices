@@ -3683,7 +3683,7 @@ Bool Function _PickAndPlayStruggleAnimation(Bool bUseCache = False)
             String _baseAnimName = _StruggleAnimationPairArray[Utility.RandomInt(0, _StruggleAnimationPairArray.Length - 1)]
             _sStruggleAnim = _baseAnimName + "A1"
             _sStruggleAnimHelper = _baseAnimName + "A2"
-            UDAM.FastStartThirdPersonAnimationWithHelper(Wearer, _minigameHelper, _sStruggleAnim, _sStruggleAnimHelper)
+            UDAM.FastStartThirdPersonAnimationWithHelper(Wearer, _minigameHelper, _sStruggleAnim, _sStruggleAnimHelper, !bUseCache)
         Else
             If _StruggleAnimationArray.Length == 0 || !bUseCache
                 _StruggleAnimationArray = UDAM.GetStruggleAnimationsByKeyword2(UD_DeviceKeyword_Minor, _actorConstraints)
