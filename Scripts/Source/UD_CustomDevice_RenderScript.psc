@@ -3668,15 +3668,12 @@ String[] _StruggleAnimationArray
 String[] _StruggleAnimationArrayHelper
 
 Bool Function _PickAndPlayStruggleAnimation(Bool bUseCache = False)
-    Bool[] _actorConstraints = UDAM.GetActorConstraints(Wearer)
-    Bool[] _helperConstraints = UDAM.GetActorConstraints(_minigameHelper)
-    
     String _sStruggleAnim = "none"
     String _sStruggleAnimHelper = "none"
     
     If _minigameHelper
         If _StruggleAnimationPairArray.Length == 0 || !bUseCache
-            _StruggleAnimationPairArray = UDAM.GetStruggleAnimationsByKeywordWithHelper(UD_DeviceKeyword_Minor, _actorConstraints, _helperConstraints)
+            _StruggleAnimationPairArray = UDAM.GetStruggleAnimationsByKeyword(UD_DeviceKeyword_Minor, Wearer, _minigameHelper)
         EndIf
         ;Debug.Trace()
         If _StruggleAnimationPairArray.Length > 0
@@ -3686,10 +3683,10 @@ Bool Function _PickAndPlayStruggleAnimation(Bool bUseCache = False)
             UDAM.FastStartThirdPersonAnimationWithHelper(Wearer, _minigameHelper, _sStruggleAnim, _sStruggleAnimHelper, !bUseCache)
         Else
             If _StruggleAnimationArray.Length == 0 || !bUseCache
-                _StruggleAnimationArray = UDAM.GetStruggleAnimationsByKeyword2(UD_DeviceKeyword_Minor, _actorConstraints)
+                _StruggleAnimationArray = UDAM.GetStruggleAnimationsByKeyword(UD_DeviceKeyword_Minor, Wearer)
             EndIf
             If _StruggleAnimationArrayHelper.Length == 0 || !bUseCache
-                _StruggleAnimationArrayHelper = UDAM.GetStruggleAnimationsByKeyword2(libs.zad_DeviousGloves, _helperConstraints)
+                _StruggleAnimationArrayHelper = UDAM.GetStruggleAnimationsByKeyword(libs.zad_DeviousGloves, _minigameHelper)
             EndIf
             
             If _StruggleAnimationArray.Length > 0
@@ -3704,7 +3701,7 @@ Bool Function _PickAndPlayStruggleAnimation(Bool bUseCache = False)
         EndIf
     Else
         If _StruggleAnimationArray.Length == 0 || !bUseCache
-            _StruggleAnimationArray = UDAM.GetStruggleAnimationsByKeyword2(UD_DeviceKeyword_Minor, _actorConstraints)
+            _StruggleAnimationArray = UDAM.GetStruggleAnimationsByKeyword(UD_DeviceKeyword_Minor, Wearer)
         EndIf
         If _StruggleAnimationArray.Length > 0
             _sStruggleAnim = _StruggleAnimationArray[Utility.RandomInt(0, _StruggleAnimationArray.Length - 1)]

@@ -27,7 +27,7 @@ zadlibs_UDPatch                        Property     libsp                       
 EndProperty
 
 sslSystemConfig _slConfig = None
-sslSystemConfig                         Property slConfig                           Hidden
+sslSystemConfig                         Property    slConfig                       Hidden
     sslSystemConfig Function Get()
         If _slConfig != None
             Return _slConfig
@@ -97,6 +97,7 @@ String[] Property UD_StruggleAnimation_Belt_HB              auto
 String[] Property UD_StruggleAnimation_Plug_HB              auto
 String[] Property UD_StruggleAnimation_Default_HB           auto
 
+; / NOT USED ANYMORE
 
 ;============================================================
 ;======================LOCAL VARIABLES=======================
@@ -107,8 +108,6 @@ Bool ZAZAnimationsInstalled = false
 ;============================================================
 ;========================FUNCTIONS===========================
 ;============================================================
-
-; / NOT USED ANYMORE
 
 Function OnInit()
     RegisterForSingleUpdate(5.0)
@@ -277,6 +276,8 @@ Function LockAnimatingActor(Actor akActor)
         akActor.UnequipItem(loc_shield, true, true)
         StorageUtil.SetFormValue(akActor, "UD_UnequippedShield", loc_shield)
     endif
+    
+    _RemoveHeelEffect(akActor)
 
 EndFunction
 
@@ -298,24 +299,26 @@ Function UnlockAnimatingActor(Actor akActor)
         akActor.equipItem(loc_shield,false,true)
         StorageUtil.UnSetFormValue(akActor,"UD_UnequippedShield")
     endif
+    _RestoreHeelEffect(akActor)
 EndFunction
 
 ; array with loaded json files
-String[] UD_StruggleAnimDefs
+String[] UD_AnimationDefs
 
 ; For debug purposes. Remove in prod
 ; Forces to reload json files on every use
 Bool forceReloadFiles = true
+Bool enableForcedFlag = True
 
 ; function to preload and check for errors json files with animation defs
 Function LoadAnimationJSONFiles()
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles()")
     EndIf
-    UD_StruggleAnimDefs = JsonUtil.JsonInFolder("UD/StruggleAnims")
+    UD_AnimationDefs = JsonUtil.JsonInFolder("UD/Animations")
     Int i = 0
-    While i < UD_StruggleAnimDefs.Length
-        String file = "UD/StruggleAnims/" + UD_StruggleAnimDefs[i]
+    While i < UD_AnimationDefs.Length
+        String file = "UD/Animations/" + UD_AnimationDefs[i]
         JsonUtil.Unload(file)
         If JsonUtil.Load(file) && JsonUtil.IsGood(file)
 ; TODO: Check for dependencies (loaded esp or SLAL packs)
@@ -323,35 +326,23 @@ Function LoadAnimationJSONFiles()
         Else
             UDMain.Warning("UD_AnimationManagerScript::LoadAnimationJSONFiles() Failed to load json file " + file)
             UDMain.Warning("UD_AnimationManagerScript::LoadAnimationJSONFiles() Found errors: " + JsonUtil.GetErrors(file))
-            PapyrusUtil.RemoveString(UD_StruggleAnimDefs, UD_StruggleAnimDefs[i])
+            PapyrusUtil.RemoveString(UD_AnimationDefs, UD_AnimationDefs[i])
         EndIf
     EndWhile
 EndFunction
-           
 
-; Function GetStrugglePairAnimationsByKeyword
-; akActor       - 
-; akHelper      - 
-; akKeyword     - device keyword to struggle from
-; abActorState  - bool[10] additional constraints for akActor (see below fro the list of possible constraints)
-; bHelperState  - bool[10] additional constraints for akHelper (see below fro the list of possible constraints)
-; return        - string array of found animations for the actors. To get animation for the akActor and akHelper add A1 or A2 to the end
-; Possible constraints:
-; [0] hobble skirt 
-; [1] bound ankles
-; [2] yoke
-; [3] wrists bound in front
-; [4] armbinder
-; [5] elbowbinder
-; [6] pet suit
-; [7] elbowtie
-; [8] mittens
-; [9] straitjacket
+; Function GetAnimationsFromDB
+; This function returns an array of animations found by the given criteria
+; sType                 - type of the animations needed (solo, paired or anything defined in json files as root object)
+; sKeyword              - animation keyword (device keyword or any other string like "horny" to define animation)
+; iActor1Constraints    - constraints for Actor1 as bit mask (see func. GetActorConstraints)
+; iActor2Constraints    - constraints for Actor2 as bit mask (see func. GetActorConstraints)
+; return                - array of strings with found animations. To get animation for the akActor and akHelper add A1 or A2 to the end
 ;
 ; JSON file syntax
 ;{
-;   "paired": {
-;       "zad_DeviousArmCuffs" : [                                   Device keyword
+;   "paired": {                                                         Animation type
+;       "zad_DeviousArmCuffs" : [                                       Animation keyword (device keyword or any other string like "horny" to define animation)
 ;           {
 ;               "animation" : "PS_Babo_Conquering04_S1_",               Animation base name. To get animation events for the akActor and akHelper add A1 or A2 to the end
 ;               "reqConstraintsA1" : 0,                                 Required constraints for the akActor (see description for _CheckAnimationConstraints)
@@ -360,54 +351,52 @@ EndFunction
 ;               "optConstraintsA2" : 0,                                 Optional constraints for the akHelper (see description for _CheckAnimationConstraints)
 ;               "lewd" : 0,                                             Rate of lewdiness
 ;               "aggressive" : 1,                                       Rate of aggressiveness (from akHelper towards akActor). Could be negative
-;               "forced" : true                                         First forced animation will be the only animation in result array. Used to test animation in game with forceReloadFiles = true
+;               "forced" : true                                         First forced animation will be the only animation in result array. Used to test animation in game with forceReloadFiles = true and enableForcedFlag = true
 ;           },
 ;           ...
 ;       ], 
 ;       ...
 ;   }
 ;}
-string[] Function GetStruggleAnimationsByKeywordWithHelper(Keyword akKeyword, Bool[] abActorConstraints, Bool[] abHelperConstraints)
+String[] Function GetAnimationsFromDB(String sType, String sKeyword, Int iActor1Constraints, Int iActor2Constraints = -1, Int iLewdMin = 0, Int iLewdMax = 10, Int iAggroMin = -10, Int iAggroMax = 10)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeywordWithHelper() akKeyword = " + akKeyword.GetString() + ", abActorConstraints = " + abActorConstraints + ", abHelperConstraints = " + abHelperConstraints)
+        UDmain.Log("UD_AnimationManagerScript::GetAnimationsFromDB() sType = " + sType + ", sKeyword = " + sKeyword + ", iActor1Constraints = " + iActor1Constraints + ", iActor2Constraints = " + iActor2Constraints)
     EndIf
-    Int iActorConstraints = _FromContraintsBoolArrayToInt(abActorConstraints)
-    Int iHelperConstraints = _FromContraintsBoolArrayToInt(abHelperConstraints)
     String[] result_temp = new String[10]
     Int resultCount = 0
     
     If forceReloadFiles
-        UDMain.Info("UD_AnimationManagerScript::GetStruggleAnimationsByKeywordWithHelper() Reloading json files since flag 'forceReloadFiles' is set")
+        UDMain.Info("UD_AnimationManagerScript::GetAnimationsFromDB() Reloading json files since flag 'forceReloadFiles' is set")
         LoadAnimationJSONFiles()
     EndIf
     
+    String dict_path = "." + sType + "." + sKeyword
     Int i = 0
-    While i < UD_StruggleAnimDefs.Length
-        String file = "UD/StruggleAnims/" + UD_StruggleAnimDefs[i]
-        String dict_path = ".paired." + akKeyword.GetString()
+    While i < UD_AnimationDefs.Length
+        String file = "UD/Animations/" + UD_AnimationDefs[i]
         Int path_count = JsonUtil.PathCount(file, dict_path)
         Int j = 0
         While j < path_count
             String anim_path = dict_path + "[" + j + "]"
-            Bool forced = JsonUtil.GetPathBoolValue(file, anim_path + ".forced")
-            If forced 
-                String[] result_forced = new String[1]
-                result_forced[0] = JsonUtil.GetPathStringValue(file, anim_path + ".animation")
-                UDMain.Info("UD_AnimationManagerScript::GetStruggleAnimationsByKeywordWithHelper() Returning the first forced animation: " + result_forced[0])
-                Return result_forced
+            If enableForcedFlag
+                Bool forced = JsonUtil.GetPathBoolValue(file, anim_path + ".forced")
+                If forced 
+                    String[] result_forced = new String[1]
+                    result_forced[0] = JsonUtil.GetPathStringValue(file, anim_path + ".animation")
+                    UDMain.Info("UD_AnimationManagerScript::GetAnimationsFromDB() Returning the first forced animation: " + result_forced[0])
+                    Return result_forced
+                EndIf
             EndIf
-            Int anim_reqConstrA1 = JsonUtil.GetPathIntValue(file, anim_path + ".reqConstraintsA1")
-            Int anim_optConstrA1 = JsonUtil.GetPathIntValue(file, anim_path + ".optConstraintsA1")
-            Int anim_reqConstrA2 = JsonUtil.GetPathIntValue(file, anim_path + ".reqConstraintsA2")
-            Int anim_optConstrA2 = JsonUtil.GetPathIntValue(file, anim_path + ".optConstraintsA2")
-            If _CheckAnimationConstraints(iActorConstraints, anim_reqConstrA1, anim_optConstrA1) && _CheckAnimationConstraints(iHelperConstraints, anim_reqConstrA2, anim_optConstrA2)
+            
+        ; using this odd construction to hopefully minimize reads from file
+            If _CheckConstraintsA1(file, anim_path, iActor1Constraints) && _CheckConstraintsA2(file, anim_path, iActor2Constraints) && _CheckAnimationLewd(file, anim_path, iLewdMin, iLewdMax) && _CheckAnimationAggro(file, anim_path, iAggroMin, iAggroMax)
                 result_temp[resultCount] = JsonUtil.GetPathStringValue(file, anim_path + ".animation")
                 resultCount += 1
                 If resultCount == result_temp.length
                     result_temp = Utility.ResizeStringArray(result_temp, result_temp.length + 10)
                 EndIf
                 If UDmain.TraceAllowed()
-                    UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeywordWithHelper() Filling animation list: pushing into array " + result_temp[resultCount - 1])
+                    UDmain.Log("UD_AnimationManagerScript::GetAnimationsFromDB() Filling animation list: pushing into array " + result_temp[resultCount - 1])
                 EndIf
             EndIf
             j += 1
@@ -417,83 +406,84 @@ string[] Function GetStruggleAnimationsByKeywordWithHelper(Keyword akKeyword, Bo
     Return Utility.ResizeStringArray(result_temp, resultCount)
 EndFunction
 
-; Return array with animations for solo struggling
-; 
-;
-; JSON file syntax
-;{
-;   "solo": {
-;       "zad_DeviousPetSuit" : [                                   Device keyword
-;           {
-;               "animation" : "UD_Struggle_PetSuit_Solo01_A1",          Animation event name.
-;               "reqConstraintsA1" : 0,                                 Required constraints for the akActor (see description for _CheckAnimationConstraints)
-;               "optConstraintsA1" : 0,                                 Optional constraints for the akActor (see description for _CheckAnimationConstraints)
-;               "lewd" : 0,                                             Rate of lewdiness
-;               "aggressive" : 1,                                       Rate of aggressiveness (from akHelper towards akActor). Could be negative
-;               "forced" : true                                         First forced animation will be the only animation in result array. Used to test animation in game with forceReloadFiles = true
-;           },
-;           ...
-;       ], 
-;       ...
-;   }
-;}
-;
-; Possible constraints:
-; [0] hobble skirt 
-; [1] bound ankles
-; [2] yoke
-; [3] wrists bound in front
-; [4] armbinder
-; [5] elbowbinder
-; [6] pet suit
-; [7] elbowtie
-; [8] mittens
-; [9] straitjacket
-String[] Function GetStruggleAnimationsByKeyword2(Keyword akKeyword, Bool[] abActorConstraints)
+Bool Function _CheckAnimationLewd(String sFile, String sObjPath, Int iLewdMin, Int iLewdMax)
+    Int lewd = JsonUtil.GetPathIntValue(sFile, sObjPath + ".lewd", -100)
+    Return lewd == -100 || (lewd >= iLewdMin && lewd <= iLewdMax)
+EndFunction
+
+Bool Function _CheckAnimationAggro(String sFile, String sObjPath, Int iAggroMin = -10, Int iAggroMax = 10)
+    Int aggro = JsonUtil.GetPathIntValue(sFile, sObjPath + ".aggressive", -100)
+    Return aggro == -100 || (aggro >= iAggroMin && aggro <= iAggroMax)
+EndFunction
+
+Bool Function _CheckConstraintsA1(String sFile, String sObjPath, Int iActorConstraints)
+    If iActorConstraints < 0
+        Return True
+    EndIf
+    Int anim_reqConstrA1 = JsonUtil.GetPathIntValue(sFile, sObjPath + ".reqConstraintsA1", -1)
+    If anim_reqConstrA1 < 0
+        Return True
+    EndIf
+    Int anim_optConstrA1 = JsonUtil.GetPathIntValue(sFile, sObjPath + ".optConstraintsA1", -1)
+    Return Math.LogicalAnd(anim_reqConstrA1, iActorConstraints) == anim_reqConstrA1 && (anim_optConstrA1 < 0 || Math.LogicalAnd(Math.LogicalOr(anim_optConstrA1, anim_reqConstrA1), iActorConstraints) == iActorConstraints)
+EndFunction
+
+Bool Function _CheckConstraintsA2(String sFile, String sObjPath, Int iActorConstraints)
+    If iActorConstraints < 0
+        Return True
+    EndIf
+    Int anim_reqConstrA2 = JsonUtil.GetPathIntValue(sFile, sObjPath + ".reqConstraintsA2", -1)
+    If anim_reqConstrA2 < 0
+        Return True
+    EndIf
+    Int anim_optConstrA2 = JsonUtil.GetPathIntValue(sFile, sObjPath + ".optConstraintsA2", -1)
+    Return Math.LogicalAnd(anim_reqConstrA2, iActorConstraints) == anim_reqConstrA2 && (anim_optConstrA2 < 0 || Math.LogicalAnd(Math.LogicalOr(anim_optConstrA2, anim_reqConstrA2), iActorConstraints) == iActorConstraints)
+EndFunction
+
+; Function GetStruggleAnimationsByKeyword
+; This function returns an array of solo struggle animations for the specified device on actor with optional helper
+; akKeyword             - device keyword to struggle from
+; akActor               - wearer of the device
+; akHelper              - optional helper
+; return                - array of strings
+String[] Function GetStruggleAnimationsByKeyword(Keyword akKeyword, Actor akActor, Actor akHelper = None)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword2 akKeyword = " + akKeyword.GetString() + ", abActorConstraints = " + abActorConstraints)
+        UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword akKeyword = " + akKeyword.GetString() + ", akActor = " + akActor + ", akHelper = " + akHelper)
+    EndIf
+    Int iActorConstraints = _FromContraintsBoolArrayToInt(GetActorConstraints(akActor))
+    If akHelper == None
+        Return GetAnimationsFromDB("solo", akKeyword.GetString(), iActorConstraints)
+    Else
+        Int iHelperConstraints = _FromContraintsBoolArrayToInt(GetActorConstraints(akHelper))
+        Return GetAnimationsFromDB("paired", akKeyword.GetString(), iActorConstraints, iHelperConstraints)
+    EndIf
+EndFunction
+
+String[] Function GetHornyAnimations(Bool[] abActorConstraints)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::GetHornyAnimations abActorConstraints = " + abActorConstraints)
     EndIf
     Int iActorConstraints = _FromContraintsBoolArrayToInt(abActorConstraints)
-    String[] result_temp = new String[10]
-    Int resultCount = 0
-    
-    If forceReloadFiles
-        UDMain.Info("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword2() Reloading json files since flag 'forceReloadFiles' is set")
-        LoadAnimationJSONFiles()
-    EndIf
-    Int i = 0
-    While i < UD_StruggleAnimDefs.Length
-        String file = "UD/StruggleAnims/" + UD_StruggleAnimDefs[i]
-        String dict_path = ".solo." + akKeyword.GetString()
-        Int path_count = JsonUtil.PathCount(file, dict_path)
-        Int j = 0
-        While j < path_count
-            String anim_path = dict_path + "[" + j + "]"
-            Bool forced = JsonUtil.GetPathBoolValue(file, anim_path + ".forced")
-            If forced 
-                String[] result_forced = new String[1]
-                result_forced[0] = JsonUtil.GetPathStringValue(file, anim_path + ".animation")
-                UDMain.Info("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword2() Returning the first forced animation: " + result_forced[0])
-                Return result_forced
-            EndIf
-            Int anim_reqConstrA1 = JsonUtil.GetPathIntValue(file, anim_path + ".reqConstraintsA1")
-            Int anim_optConstrA1 = JsonUtil.GetPathIntValue(file, anim_path + ".optConstraintsA1")
-            If _CheckAnimationConstraints(iActorConstraints, anim_reqConstrA1, anim_optConstrA1)
-                result_temp[resultCount] = JsonUtil.GetPathStringValue(file, anim_path + ".animation")
-                resultCount += 1
-                If resultCount == result_temp.length
-                    result_temp = Utility.ResizeStringArray(result_temp, result_temp.length + 10)
-                EndIf
-                If UDmain.TraceAllowed()
-                    UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword2() Filling animation list: pushing into array " + result_temp[resultCount - 1])
-                EndIf
-            EndIf
-            j += 1
-        EndWhile
-        i += 1
-    EndWhile
-    Return Utility.ResizeStringArray(result_temp, resultCount)
 
+    Return GetAnimationsFromDB("solo", "horny", iActorConstraints)
+EndFunction
+
+String[] Function GetOrgasmAnimations(Bool[] abActorConstraints)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::GetOrgasmAnimations abActorConstraints = " + abActorConstraints)
+    EndIf
+    Int iActorConstraints = _FromContraintsBoolArrayToInt(abActorConstraints)
+
+    Return GetAnimationsFromDB("solo", "orgasm", iActorConstraints)
+EndFunction
+
+String[] Function GetEdgeAnimations(Bool[] abActorConstraints)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::GetEdgeAnimations abActorConstraints = " + abActorConstraints)
+    EndIf
+    Int iActorConstraints = _FromContraintsBoolArrayToInt(abActorConstraints)
+
+    Return GetAnimationsFromDB("solo", "edge", iActorConstraints)
 EndFunction
 
 ; checks compatibility between constraints applied to actor and constraints in animation
@@ -502,6 +492,9 @@ EndFunction
 ; animOptConstraints    - animation optional constraints as Int (animation shouldn't be picked if player has constraints not defined by this bit-mask)
 Bool Function _CheckAnimationConstraints(Int actorConstraints, Int animReqConstraints, Int animOptConstraints)
 
+    If actorConstraints < 0 || animReqConstraints < 0 || animOptConstraints < 0 
+        Return True
+    EndIf
     Return Math.LogicalAnd(animReqConstraints, actorConstraints) == animReqConstraints && Math.LogicalAnd(Math.LogicalOr(animOptConstraints, animReqConstraints), actorConstraints) == actorConstraints
     
 EndFunction
