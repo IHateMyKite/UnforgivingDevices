@@ -9,6 +9,18 @@ zadlibs                                 Property libs       auto
 UD_ExpressionManager                    Property UDEM       auto
 UD_CustomDevices_NPCSlotsManager        Property UDCD_NPCM  auto
 
+; For now it is coded this way because I don't want to change esp file
+UD_AnimationManagerScript _UDAM
+UD_AnimationManagerScript               Property UDAM       Hidden
+    UD_AnimationManagerScript Function Get()
+        If _UDAM == None
+            _UDAM = Quest.GetQuest("UD_AnimationManager_Quest") as UD_AnimationManagerScript
+        EndIf
+        Return _UDAM
+    EndFunction
+EndProperty
+
+
 zadlibs_UDPatch Property libsp
     zadlibs_UDPatch function Get()
         return UDCDmain.libsp
@@ -614,20 +626,14 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
     else
         StorageUtil.SetIntValue(akActor,"UD_OrgasmDuration",aiDuration)
     endif
-    
-    libsp.SetAnimating(akActor, true)
-    string loc_anim = libsp.AnimSwitchKeyword(akActor, "Orgasm")
-    ;libsp.PlayThirdPersonAnimationBlocking(akActor,loc_anim, iDuration, true)
-    ;libsp.StartThirdPersonAnimation(akActor,loc_anim, iDuration)
-    
-    Form loc_shield = GetShield(akActor)
-    if loc_shield
-        akActor.unequipItem(loc_shield,true,true)
-    endif
-    
+
     UDCDmain.DisableActor(akActor)
     
-    Debug.SendAnimationEvent(akActor, loc_anim)    
+    String[] animationArray = UDAM.GetOrgasmAnimations(akActor)
+    If animationArray.Length > 0
+        UDAM.FastStartThirdPersonAnimation(akActor, animationArray[Utility.RandomInt(0, animationArray.Length - 1)])
+    EndIf
+    
     int loc_elapsedtime = 0
     while loc_elapsedtime < aiDuration
         if loc_elapsedtime && !(loc_elapsedtime % 2)
@@ -638,17 +644,13 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
         Utility.wait(1.0)
         loc_elapsedtime += 1
     endwhile
-    Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
+    
+    UDAM.FastEndThirdPersonAnimation(akActor)
     
     StorageUtil.UnsetIntValue(akActor,"UD_OrgasmDuration")
     
     UDCDmain.EnableActor(akActor)
     
-    if loc_shield
-        akActor.equipItem(loc_shield,false,true)
-    endif
-    
-    libsp.SetAnimating(akActor, false)
 EndFunction
 
 ;///////////////////////////////////////

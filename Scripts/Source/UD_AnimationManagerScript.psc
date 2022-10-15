@@ -146,6 +146,8 @@ EndFunction
 Function FastEndThirdPersonAnimation(actor akActor)
     
     UnlockAnimatingActor(akActor)
+    ; restoring HH if it was removed in FastStartThirdPersonAnimationWithHelper
+    _RestoreHeelEffect(akActor)
     
     Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
 EndFunction
@@ -201,6 +203,9 @@ bool Function FastStartThirdPersonAnimationWithHelper(actor akActor, actor akHel
     ; locking actors
     LockAnimatingActor(akActor)
     LockAnimatingActor(akHelper)
+    ; removing HH
+    _RemoveHeelEffect(akActor)
+    _RemoveHeelEffect(akHelper)
     
     ObjectReference vehicleMarkerRef = None
     If alignActors
@@ -214,8 +219,6 @@ bool Function FastStartThirdPersonAnimationWithHelper(actor akActor, actor akHel
                 cycle += 1
             endWhile
             StorageUtil.SetFormValue(akActor, "UD_AnimationManager_VehicleMarker", vehicleMarkerRef)
-        Else
-            UDMain.Error("UD_AnimationManagerScript::FastStartThirdPersonAnimationWithHelper() Failed to load vehicle marker form")
         EndIf
         ; moving marker to the first actor
         vehicleMarkerRef.MoveTo(akActor)
@@ -230,6 +233,7 @@ bool Function FastStartThirdPersonAnimationWithHelper(actor akActor, actor akHel
         akActor.StopTranslation()
         akHelper.StopTranslation()
     EndIf
+
     ; sending animation events
     Debug.SendAnimationEvent(akActor, animationA1)
     Debug.SendAnimationEvent(akHelper, animationA2)
@@ -249,7 +253,6 @@ bool Function FastStartThirdPersonAnimationWithHelper(actor akActor, actor akHel
 EndFunction
 
 Function LockAnimatingActor(Actor akActor)
-; TODO: remove high heels
 
     libs.SetAnimating(akActor, True)
     ActorUtil.AddPackageOverride(akActor, slConfig.DoNothing, 100, 1)
@@ -276,12 +279,11 @@ Function LockAnimatingActor(Actor akActor)
         akActor.UnequipItem(loc_shield, true, true)
         StorageUtil.SetFormValue(akActor, "UD_UnequippedShield", loc_shield)
     endif
-    
-    _RemoveHeelEffect(akActor)
 
 EndFunction
 
 Function UnlockAnimatingActor(Actor akActor)
+
     ActorUtil.RemovePackageOverride(akActor, slConfig.DoNothing)
     akActor.EvaluatePackage()
     libs.SetAnimating(akActor, False)
@@ -299,15 +301,14 @@ Function UnlockAnimatingActor(Actor akActor)
         akActor.equipItem(loc_shield,false,true)
         StorageUtil.UnSetFormValue(akActor,"UD_UnequippedShield")
     endif
-    _RestoreHeelEffect(akActor)
+    
 EndFunction
 
 ; array with loaded json files
 String[] UD_AnimationDefs
 
 ; For debug purposes. Remove in prod
-; Forces to reload json files on every use
-Bool forceReloadFiles = true
+Bool forceReloadFiles = True
 Bool enableForcedFlag = True
 
 ; function to preload and check for errors json files with animation defs
@@ -370,7 +371,7 @@ String[] Function GetAnimationsFromDB(String sType, String sKeyword, Int iActor1
         LoadAnimationJSONFiles()
     EndIf
     
-    String dict_path = "." + sType + "." + sKeyword
+    String dict_path = sType + sKeyword
     Int i = 0
     While i < UD_AnimationDefs.Length
         String file = "UD/Animations/" + UD_AnimationDefs[i]
@@ -452,38 +453,62 @@ String[] Function GetStruggleAnimationsByKeyword(Keyword akKeyword, Actor akActo
     EndIf
     Int iActorConstraints = _FromContraintsBoolArrayToInt(GetActorConstraints(akActor))
     If akHelper == None
-        Return GetAnimationsFromDB("solo", akKeyword.GetString(), iActorConstraints)
+        Return GetAnimationsFromDB(".solo", "." + akKeyword.GetString(), iActorConstraints)
     Else
         Int iHelperConstraints = _FromContraintsBoolArrayToInt(GetActorConstraints(akHelper))
-        Return GetAnimationsFromDB("paired", akKeyword.GetString(), iActorConstraints, iHelperConstraints)
+        Return GetAnimationsFromDB(".paired", "." + akKeyword.GetString(), iActorConstraints, iHelperConstraints)
     EndIf
 EndFunction
 
-String[] Function GetHornyAnimations(Bool[] abActorConstraints)
+String[] Function GetHornyAnimations(Actor akActor)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetHornyAnimations abActorConstraints = " + abActorConstraints)
+        UDmain.Log("UD_AnimationManagerScript::GetHornyAnimations akActor = " + akActor)
     EndIf
-    Int iActorConstraints = _FromContraintsBoolArrayToInt(abActorConstraints)
+    Int iActorConstraints = _FromContraintsBoolArrayToInt(GetActorConstraints(akActor))
 
-    Return GetAnimationsFromDB("solo", "horny", iActorConstraints)
+    String[] anims = GetAnimationsFromDB(".solo", ".horny", iActorConstraints)
+    If anims.Length == 0
+        String anim_dd = libs.AnimSwitchKeyword(akActor, "Horny0" + (Utility.RandomInt(1, 3) as String))
+        If anim_dd != ""
+            anims = new String[1]
+            anims[0] = anim_dd
+        EndIf
+    EndIf
+    Return anims
 EndFunction
 
-String[] Function GetOrgasmAnimations(Bool[] abActorConstraints)
+String[] Function GetOrgasmAnimations(Actor akActor)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetOrgasmAnimations abActorConstraints = " + abActorConstraints)
+        UDmain.Log("UD_AnimationManagerScript::GetOrgasmAnimations akActor = " + akActor)
     EndIf
-    Int iActorConstraints = _FromContraintsBoolArrayToInt(abActorConstraints)
+    Int iActorConstraints = _FromContraintsBoolArrayToInt(GetActorConstraints(akActor))
 
-    Return GetAnimationsFromDB("solo", "orgasm", iActorConstraints)
+    String[] anims = GetAnimationsFromDB(".solo", ".orgasm", iActorConstraints)
+    If anims.Length == 0
+        String anim_dd = libs.AnimSwitchKeyword(akActor, "Orgasm")
+        If anim_dd != ""
+            anims = new String[1]
+            anims[0] = anim_dd
+        EndIf
+    EndIf
+    Return anims
 EndFunction
 
-String[] Function GetEdgeAnimations(Bool[] abActorConstraints)
+String[] Function GetEdgedAnimations(Actor akActor)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetEdgeAnimations abActorConstraints = " + abActorConstraints)
+        UDmain.Log("UD_AnimationManagerScript::GetEdgedAnimations akActor = " + akActor)
     EndIf
-    Int iActorConstraints = _FromContraintsBoolArrayToInt(abActorConstraints)
+    Int iActorConstraints = _FromContraintsBoolArrayToInt(GetActorConstraints(akActor))
 
-    Return GetAnimationsFromDB("solo", "edge", iActorConstraints)
+    String[] anims = GetAnimationsFromDB(".solo", ".edged", iActorConstraints)
+    If anims.Length == 0
+        String anim_dd = libs.AnimSwitchKeyword(akActor, "Edged")
+        If anim_dd != ""
+            anims = new String[1]
+            anims[0] = anim_dd
+        EndIf
+    EndIf
+    Return anims
 EndFunction
 
 ; checks compatibility between constraints applied to actor and constraints in animation
