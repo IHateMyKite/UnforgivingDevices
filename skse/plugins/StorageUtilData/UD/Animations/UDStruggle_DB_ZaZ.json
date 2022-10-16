@@ -1,4 +1,7 @@
 {
+	"conditions" : {
+		"has_mod": "ZaZAnimationPack.esm"
+	},
 	"solo" : {
 		"zad_DeviousBoots" : [
 			{
@@ -1193,6 +1196,15 @@
 				"optConstraintsA1" : 258, 
 				"lewd" : 0, 
 			}
+		], 
+		"horny" : [
+			
+		], 
+		"edged" : [
+			
+		], 
+		"orgasm" : [
+			
 		]
 	}
 }

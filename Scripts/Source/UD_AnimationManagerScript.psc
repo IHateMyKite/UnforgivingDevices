@@ -134,6 +134,8 @@ bool Function FastStartThirdPersonAnimation(actor akActor, string animation)
     endif
     
     LockAnimatingActor(akActor)
+    ; in case it called just after paired animation (for example, during orgasm ending)
+    akActor.SetVehicle(None)
     
     Debug.SendAnimationEvent(akActor, animation)
     
@@ -316,32 +318,50 @@ Function LoadAnimationJSONFiles()
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles()")
     EndIf
-    UD_AnimationDefs = JsonUtil.JsonInFolder("UD/Animations")
+    String[] files = JsonUtil.JsonInFolder("UD/Animations")
     Int i = 0
-    While i < UD_AnimationDefs.Length
-        String file = "UD/Animations/" + UD_AnimationDefs[i]
+    While i < files.Length
+        String file = "UD/Animations/" + files[i]
         JsonUtil.Unload(file)
+        Bool file_is_good = True
         If JsonUtil.Load(file) && JsonUtil.IsGood(file)
 ; TODO: Check for dependencies (loaded esp or SLAL packs)
-            i += 1
+            String file_to_check = JsonUtil.GetPathStringValue(file, "conditions.has_json")
+            If file_to_check != "" && JsonUtil.JsonExists(file_to_check) == False
+                UDMain.Warning("UD_AnimationManagerScript::LoadAnimationJSONFiles() Load condition of the file " + file + " is not valid. Can't find JSON file " + file_to_check)
+                file_is_good = False
+            EndIf
+            file_to_check = JsonUtil.GetPathStringValue(file, "conditions.has_mod")
+            If file_to_check != "" && UnforgivingDevicesMain.ModInstalled(file_to_check) == False
+                UDMain.Warning("UD_AnimationManagerScript::LoadAnimationJSONFiles() Load condition of the file " + file + " is not valid. Can't find mod " + file_to_check)
+                file_is_good = False
+            EndIf
         Else
             UDMain.Warning("UD_AnimationManagerScript::LoadAnimationJSONFiles() Failed to load json file " + file)
             UDMain.Warning("UD_AnimationManagerScript::LoadAnimationJSONFiles() Found errors: " + JsonUtil.GetErrors(file))
-            PapyrusUtil.RemoveString(UD_AnimationDefs, UD_AnimationDefs[i])
+            file_is_good = False
         EndIf
+        If file_is_good
+            PapyrusUtil.PushString(UD_AnimationDefs, files[i])
+        EndIf
+        i += 1
     EndWhile
 EndFunction
 
 ; Function GetAnimationsFromDB
 ; This function returns an array of animations found by the given criteria
-; sType                 - type of the animations needed (solo, paired or anything defined in json files as root object)
-; sKeyword              - animation keyword (device keyword or any other string like "horny" to define animation)
+; sType                 - type of the animations needed (solo, paired or anything defined in json files as root object). Value should starts with '.' because papyrus sometimes replaces the first character with a capital one.
+; sKeyword              - animation keyword (device keyword or any other string like "horny" to define animation). Value should starts with '.' because papyrus sometimes replaces the first character with a capital one.
 ; iActor1Constraints    - constraints for Actor1 as bit mask (see func. GetActorConstraints)
 ; iActor2Constraints    - constraints for Actor2 as bit mask (see func. GetActorConstraints)
 ; return                - array of strings with found animations. To get animation for the akActor and akHelper add A1 or A2 to the end
 ;
 ; JSON file syntax
 ;{
+;   "conditions": {                                                     Conditions that determine whether the file will be used 
+;       "has_mod": "<mod name>",
+;       "has_json": "<path to json file relative to SKSE\Plugins\StorageUtilData>"
+;   },
 ;   "paired": {                                                         Animation type
 ;       "zad_DeviousArmCuffs" : [                                       Animation keyword (device keyword or any other string like "horny" to define animation)
 ;           {
@@ -366,8 +386,10 @@ String[] Function GetAnimationsFromDB(String sType, String sKeyword, Int iActor1
     String[] result_temp = new String[10]
     Int resultCount = 0
     
-    If forceReloadFiles
-        UDMain.Info("UD_AnimationManagerScript::GetAnimationsFromDB() Reloading json files since flag 'forceReloadFiles' is set")
+    If forceReloadFiles || UD_AnimationDefs.Length == 0
+        If forceReloadFiles
+            UDMain.Info("UD_AnimationManagerScript::GetAnimationsFromDB() Reloading json files since flag 'forceReloadFiles' is set")
+        EndIf
         LoadAnimationJSONFiles()
     EndIf
     

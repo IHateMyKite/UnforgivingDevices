@@ -1,4 +1,6 @@
 {
+	"conditions" : {
+	},
 	"paired" : {
 		"zad_DeviousBoots" : [
 			{
@@ -20,11 +22,27 @@
 			}
 		], 
 		"zad_DeviousPlug" : [
-			
+			{
+				"animation" : "UD_Struggle_PetSuit_Pair06_", 
+				"reqConstraintsA1" : 64, 
+				"optConstraintsA1" : 256, 
+				"reqConstraintsA2" : 0, 
+				"optConstraintsA2" : 266, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}
 		], 
 		"zad_DeviousBelt" : [
 			{
 				"animation" : "UD_Struggle_PetSuit_Pair05_", 
+				"reqConstraintsA1" : 64, 
+				"optConstraintsA1" : 256, 
+				"reqConstraintsA2" : 0, 
+				"optConstraintsA2" : 266, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}, {
+				"animation" : "UD_Struggle_PetSuit_Pair06_", 
 				"reqConstraintsA1" : 64, 
 				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
@@ -284,10 +302,26 @@
 			}
 		], 
 		"zad_DeviousPlugVaginal" : [
-			
+			{
+				"animation" : "UD_Struggle_PetSuit_Pair06_", 
+				"reqConstraintsA1" : 64, 
+				"optConstraintsA1" : 256, 
+				"reqConstraintsA2" : 0, 
+				"optConstraintsA2" : 266, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}
 		], 
 		"zad_DeviousPlugAnal" : [
-			
+			{
+				"animation" : "UD_Struggle_PetSuit_Pair06_", 
+				"reqConstraintsA1" : 64, 
+				"optConstraintsA1" : 256, 
+				"reqConstraintsA2" : 0, 
+				"optConstraintsA2" : 266, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}
 		], 
 		"zad_DeviousHarness" : [
 			{
@@ -300,6 +334,14 @@
 				"aggressive" : 0
 			}, {
 				"animation" : "UD_Struggle_PetSuit_Pair05_", 
+				"reqConstraintsA1" : 64, 
+				"optConstraintsA1" : 256, 
+				"reqConstraintsA2" : 0, 
+				"optConstraintsA2" : 266, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}, {
+				"animation" : "UD_Struggle_PetSuit_Pair06_", 
 				"reqConstraintsA1" : 64, 
 				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 
@@ -339,7 +381,15 @@
 			
 		], 
 		"zad_DeviousPiercingsVaginal" : [
-			
+			{
+				"animation" : "UD_Struggle_PetSuit_Pair06_", 
+				"reqConstraintsA1" : 64, 
+				"optConstraintsA1" : 256, 
+				"reqConstraintsA2" : 0, 
+				"optConstraintsA2" : 266, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}
 		], 
 		"zad_DeviousBondageMittens" : [
 			{
@@ -387,6 +437,14 @@
 				"aggressive" : 0
 			}, {
 				"animation" : "UD_Struggle_PetSuit_Pair05_", 
+				"reqConstraintsA1" : 64, 
+				"optConstraintsA1" : 256, 
+				"reqConstraintsA2" : 0, 
+				"optConstraintsA2" : 266, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}, {
+				"animation" : "UD_Struggle_PetSuit_Pair06_", 
 				"reqConstraintsA1" : 64, 
 				"optConstraintsA1" : 256, 
 				"reqConstraintsA2" : 0, 

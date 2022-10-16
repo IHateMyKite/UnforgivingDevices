@@ -1,4 +1,7 @@
 {
+	"conditions" : {
+		"has_json": "..\\..\\..\\SLAnims\\json\\Billyy_HumanLesbian.json"
+	},
 	"paired" : {
 		"zad_DeviousBoots" : [
 			
@@ -365,7 +368,15 @@
 			
 		], 
 		"zad_DeviousStraitJacket" : [
-			
+			{
+				"animation" : "UD_B_LSKiss1_S1_", 
+				"reqConstraintsA1" : 0, 
+				"optConstraintsA1" : 258, 
+				"reqConstraintsA2" : 0, 
+				"optConstraintsA2" : 2, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}
 		], 
 		"zad_DeviousCuffsFront" : [
 			
@@ -855,6 +866,17 @@
 		], 
 		"zad_DeviousBondageMittens" : [
 			
+		], 
+		"zad_DeviousSuit" : [
+			{
+				"animation" : "UD_B_LSKiss1_S1_", 
+				"reqConstraintsA1" : 0, 
+				"optConstraintsA1" : 258, 
+				"reqConstraintsA2" : 0, 
+				"optConstraintsA2" : 2, 
+				"lewd" : 0, 
+				"aggressive" : 0
+			}
 		]
 	}
 }

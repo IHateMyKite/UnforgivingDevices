@@ -1037,7 +1037,6 @@ Function ProcessPlayerControls(bool abCheckMinigame = true)
     if UDmain.TraceAllowed()
         UDMain.Log("ProcessPlayerControls",3)
     endif
-    
     if (!abCheckMinigame || !UDCDmain.PlayerInMinigame())
         StartProcessPlayerControlsMutex()
         ; Centralized control management function.

@@ -367,7 +367,7 @@ Function EndMinigameDisable(Actor akActor)
 EndFunction
 
 Function UpdatePlayerControl()
-    libsp.UpdateControls()
+;    libsp.UpdateControls()
     Game.EnablePlayerControls(abMovement = true, abFighting = false, abSneaking = false, abMenu = False, abActivate = false)
     Game.DisablePlayerControls(abMovement = False, abMenu = True)
 EndFunction

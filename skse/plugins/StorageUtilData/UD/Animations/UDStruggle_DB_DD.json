@@ -1,4 +1,7 @@
 {
+	"conditions" : {
+		"has_mod": "Devious Devices - Integration.esm"
+	},
 	"solo" : {
 		"zad_DeviousBoots" : [
 			{
@@ -18,8 +21,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -43,8 +46,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "ft_struggle_boots_1", 
@@ -71,8 +74,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -106,8 +109,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}
 		], 
@@ -139,8 +142,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -164,8 +167,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}
 		], 
@@ -187,8 +190,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -212,8 +215,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}
 		], 
@@ -235,8 +238,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -260,8 +263,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "ft_struggle_head_1", 
@@ -298,13 +301,13 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle02", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -328,8 +331,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "ft_struggle_gloves_1", 
@@ -356,8 +359,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -381,8 +384,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "ft_struggle_boots_1", 
@@ -419,13 +422,13 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
-				"reqConstraintsA1" : 16, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 17, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobArmbStruggle02", 
-				"reqConstraintsA1" : 16, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 17, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
@@ -439,8 +442,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -464,8 +467,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}
 		], 
@@ -487,8 +490,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -537,8 +540,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}
 		], 
@@ -560,8 +563,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -585,8 +588,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}
 		], 
@@ -608,8 +611,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -633,8 +636,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}
 		], 
@@ -656,8 +659,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -681,8 +684,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "ft_struggle_boots_1", 
@@ -714,8 +717,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -764,8 +767,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegbbYokeStruggle01", 
@@ -792,8 +795,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -817,8 +820,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}
 		], 
@@ -840,8 +843,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -865,8 +868,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}
 		], 
@@ -888,8 +891,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -933,13 +936,13 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle02", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}
 		], 
@@ -961,8 +964,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -986,8 +989,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegbbYokeStruggle01", 
@@ -1016,13 +1019,13 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobBBYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobBBYokeStruggle02", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}
 		], 
@@ -1044,8 +1047,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -1069,8 +1072,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}
 		], 
@@ -1092,8 +1095,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -1117,8 +1120,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}
 		], 
@@ -1140,8 +1143,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -1165,8 +1168,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "ft_struggle_gloves_1", 
@@ -1193,8 +1196,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -1218,8 +1221,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "ft_struggle_blindfold_1", 
@@ -1251,8 +1254,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -1286,8 +1289,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}
 		], 
@@ -1309,8 +1312,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -1334,8 +1337,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "ft_struggle_gag_1", 
@@ -1362,8 +1365,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -1387,8 +1390,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "ft_struggle_gag_1", 
@@ -1415,8 +1418,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -1440,8 +1443,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "ft_struggle_gag_1", 
@@ -1468,8 +1471,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -1503,8 +1506,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}
 		], 
@@ -1526,8 +1529,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -1561,8 +1564,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}
 		], 
@@ -1594,8 +1597,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -1619,8 +1622,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}
 		], 
@@ -1642,8 +1645,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -1667,8 +1670,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "ft_struggle_blindfold_1", 
@@ -1695,56 +1698,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
-			}, {
-				"animation" : "DDRegElbStruggle01", 
-				"reqConstraintsA1" : 32, 
+				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
-			}, {
-				"animation" : "DDHobElbStruggle01", 
-				"reqConstraintsA1" : 33, 
-				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
-			}, {
-				"animation" : "DDElbowTie_struggleone", 
-				"reqConstraintsA1" : 128, 
-				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
-			}, {
-				"animation" : "DDRegYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
-			}, {
-				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
-			}
-		], 
-		"zad_DeviousPiercingsVaginal" : [
-			{
-				"animation" : "DDRegArmbStruggle01", 
-				"reqConstraintsA1" : 16, 
-				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
-			}, {
-				"animation" : "DDHobArmbStruggle01", 
-				"reqConstraintsA1" : 512, 
-				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
-			}, {
-				"animation" : "DDRegCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
-			}, {
-				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -1778,8 +1733,66 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
+				"lewd" : 0, 
+			}
+		], 
+		"zad_DeviousPiercingsVaginal" : [
+			{
+				"animation" : "DDRegArmbStruggle01", 
+				"reqConstraintsA1" : 16, 
+				"optConstraintsA1" : 258, 
+				"lewd" : 0, 
+			}, {
+				"animation" : "DDHobArmbStruggle01", 
+				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
+				"lewd" : 0, 
+			}, {
+				"animation" : "DDRegCuffsFrontStruggle01", 
+				"reqConstraintsA1" : 8, 
+				"optConstraintsA1" : 256, 
+				"lewd" : 0, 
+			}, {
+				"animation" : "DDHobCuffsFrontStruggle01", 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
+				"lewd" : 0, 
+			}, {
+				"animation" : "DDRegElbStruggle01", 
+				"reqConstraintsA1" : 32, 
+				"optConstraintsA1" : 256, 
+				"lewd" : 0, 
+			}, {
+				"animation" : "DDHobElbStruggle01", 
+				"reqConstraintsA1" : 33, 
+				"optConstraintsA1" : 256, 
+				"lewd" : 0, 
+			}, {
+				"animation" : "DDElbowTie_struggleone", 
+				"reqConstraintsA1" : 128, 
+				"optConstraintsA1" : 257, 
+				"lewd" : 0, 
+			}, {
+				"animation" : "DDZazHornyA", 
+				"reqConstraintsA1" : 0, 
+				"optConstraintsA1" : 257, 
+				"lewd" : 0, 
+			}, {
+				"animation" : "DDZazHornyD", 
+				"reqConstraintsA1" : 0, 
+				"optConstraintsA1" : 257, 
+				"lewd" : 0, 
+			}, {
+				"animation" : "DDRegYokeStruggle01", 
+				"reqConstraintsA1" : 4, 
+				"optConstraintsA1" : 256, 
+				"lewd" : 0, 
+			}, {
+				"animation" : "DDHobYokeStruggle01", 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}
 		], 
@@ -1801,8 +1814,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -1826,8 +1839,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}
 		], 
@@ -1849,8 +1862,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
-				"reqConstraintsA1" : 8, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 9, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDRegElbStruggle01", 
@@ -1874,8 +1887,8 @@
 				"lewd" : 0, 
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
-				"reqConstraintsA1" : 4, 
-				"optConstraintsA1" : 257, 
+				"reqConstraintsA1" : 5, 
+				"optConstraintsA1" : 256, 
 				"lewd" : 0, 
 			}, {
 				"animation" : "ft_struggle_gloves_1", 
@@ -1888,6 +1901,15 @@
 				"optConstraintsA1" : 1, 
 				"lewd" : 0, 
 			}
+		], 
+		"horny" : [
+			
+		], 
+		"edged" : [
+			
+		], 
+		"orgasm" : [
+			
 		]
 	}
 }
