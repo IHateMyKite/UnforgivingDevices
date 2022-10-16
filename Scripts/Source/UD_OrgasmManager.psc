@@ -850,7 +850,12 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     akActor.setAV("StaminaRate", 0.0)
     
     UDCDMain.DisableActor(akActor,true)
-    bool[] loc_cameraState = libs.StartThirdPersonAnimation(akActor, libs.AnimSwitchKeyword(akActor, "Horny01"), permitRestrictive=true)
+    
+    String[] animationArray = UDAM.GetHornyAnimations(akActor)
+    If animationArray.Length > 0
+        UDAM.FastStartThirdPersonAnimation(akActor, animationArray[Utility.RandomInt(0, animationArray.Length - 1)])
+    EndIf
+    
     Game.EnablePlayerControls(abMovement = true)
     UDCDMain.sendHUDUpdateEvent(true,true,true,true)
     
@@ -948,7 +953,8 @@ Function FocusOrgasmResistMinigame(Actor akActor)
         _PlayerOrgasmResist_MinigameOn = false
     endif
     
-    libs.EndThirdPersonAnimation(akActor, loc_cameraState, permitRestrictive=true)
+    UDAM.FastEndThirdPersonAnimation(akActor)
+    
     akActor.RemoveFromFaction(UDCDmain.MinigameFaction)
     UDCDMain.EnableActor(akActor,true)
     MinigameKeysUnregister()

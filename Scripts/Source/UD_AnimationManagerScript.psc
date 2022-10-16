@@ -128,8 +128,8 @@ EndFunction
 ;doesn't disable actor movement and doesn't check if actor is valid
 ;doesn't check camera state
 bool Function FastStartThirdPersonAnimation(actor akActor, string animation)
-    if animation == "none"
-        UDmain.Warning("StartThirdPersonAnimation - Called animation is None, aborting")
+    if animation == "none" || animation == ""
+        UDmain.Warning("UD_AnimationManagerScript::FastStartThirdPersonAnimation() Called animation is None, aborting")
         return false
     endif
     
@@ -191,13 +191,13 @@ bool Function FastStartThirdPersonAnimationWithHelper(actor akActor, actor akHel
     If akHelper == None
         Return FastStartThirdPersonAnimation(akActor, animationA1)
     EndIf
-    If animationA1 == "none" && animationA1 == "none"
-        UDmain.Error("UD_AnimationManagerScript::FastStartThirdPersonAnimationWithHelper() animationA1 is None, aborting")
+    If (animationA1 == "none" || animationA1 == "") && (animationA2 == "none" || animationA2 == "")
+        UDmain.Error("UD_AnimationManagerScript::FastStartThirdPersonAnimationWithHelper() animations is None, aborting")
         Return False
-    ElseIf animationA1 == "none"
+    ElseIf (animationA1 == "none" || animationA1 == "")
         UDmain.Log("UD_AnimationManagerScript::FastStartThirdPersonAnimationWithHelper() animation for Actor 1 is None, using solo animation for the Actor 2")
         Return FastStartThirdPersonAnimation(akHelper, animationA2)
-    ElseIf animationA2 == "none"
+    ElseIf (animationA2 == "none" || animationA2 == "")
         UDmain.Log("UD_AnimationManagerScript::FastStartThirdPersonAnimationWithHelper() animation for Actor 2 is None, using solo animation for the Actor 1")
         Return FastStartThirdPersonAnimation(akActor, animationA1)
     endif
@@ -275,12 +275,6 @@ Function LockAnimatingActor(Actor akActor)
             timeout += 1
         EndWhile
     EndIf
-    ;unequip shield
-    Form loc_shield = GetShield(akActor)
-    if loc_shield
-        akActor.UnequipItem(loc_shield, true, true)
-        StorageUtil.SetFormValue(akActor, "UD_UnequippedShield", loc_shield)
-    endif
 
 EndFunction
 
@@ -297,12 +291,6 @@ Function UnlockAnimatingActor(Actor akActor)
         akActor.SetDontMove(False)
     EndIf
     akActor.SetVehicle(None)
-    Form loc_shield = StorageUtil.GetFormValue(akActor, "UD_UnequippedShield", none)
-    if loc_shield
-        StorageUtil.UnsetFormValue(akActor,"UD_UnequippedShield")
-        akActor.equipItem(loc_shield,false,true)
-        StorageUtil.UnSetFormValue(akActor,"UD_UnequippedShield")
-    endif
     
 EndFunction
 
@@ -318,6 +306,7 @@ Function LoadAnimationJSONFiles()
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles()")
     EndIf
+    UD_AnimationDefs = PapyrusUtil.ResizeStringArray(UD_AnimationDefs, 0)
     String[] files = JsonUtil.JsonInFolder("UD/Animations")
     Int i = 0
     While i < files.Length
@@ -342,10 +331,14 @@ Function LoadAnimationJSONFiles()
             file_is_good = False
         EndIf
         If file_is_good
-            PapyrusUtil.PushString(UD_AnimationDefs, files[i])
+            UD_AnimationDefs = PapyrusUtil.PushString(UD_AnimationDefs, files[i])
         EndIf
         i += 1
     EndWhile
+    
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() Loaded files: " + UD_AnimationDefs)
+    EndIf
 EndFunction
 
 ; Function GetAnimationsFromDB
@@ -384,7 +377,7 @@ String[] Function GetAnimationsFromDB(String sType, String sKeyword, Int iActor1
         UDmain.Log("UD_AnimationManagerScript::GetAnimationsFromDB() sType = " + sType + ", sKeyword = " + sKeyword + ", iActor1Constraints = " + iActor1Constraints + ", iActor2Constraints = " + iActor2Constraints)
     EndIf
     String[] result_temp = new String[10]
-    Int resultCount = 0
+    Int currentIndex = 0
     
     If forceReloadFiles || UD_AnimationDefs.Length == 0
         If forceReloadFiles
@@ -395,7 +388,7 @@ String[] Function GetAnimationsFromDB(String sType, String sKeyword, Int iActor1
     
     String dict_path = sType + sKeyword
     Int i = 0
-    While i < UD_AnimationDefs.Length
+    While i < UD_AnimationDefs.Length && currentIndex < 128
         String file = "UD/Animations/" + UD_AnimationDefs[i]
         Int path_count = JsonUtil.PathCount(file, dict_path)
         Int j = 0
@@ -411,22 +404,32 @@ String[] Function GetAnimationsFromDB(String sType, String sKeyword, Int iActor1
                 EndIf
             EndIf
             
+            String anim = JsonUtil.GetPathStringValue(file, anim_path + ".animation")
         ; using this odd construction to hopefully minimize reads from file
-            If _CheckConstraintsA1(file, anim_path, iActor1Constraints) && _CheckConstraintsA2(file, anim_path, iActor2Constraints) && _CheckAnimationLewd(file, anim_path, iLewdMin, iLewdMax) && _CheckAnimationAggro(file, anim_path, iAggroMin, iAggroMax)
-                result_temp[resultCount] = JsonUtil.GetPathStringValue(file, anim_path + ".animation")
-                resultCount += 1
-                If resultCount == result_temp.length
-                    result_temp = Utility.ResizeStringArray(result_temp, result_temp.length + 10)
-                EndIf
-                If UDmain.TraceAllowed()
-                    UDmain.Log("UD_AnimationManagerScript::GetAnimationsFromDB() Filling animation list: pushing into array " + result_temp[resultCount - 1])
+            If anim != "" && _CheckConstraintsA1(file, anim_path, iActor1Constraints) && _CheckConstraintsA2(file, anim_path, iActor2Constraints) && _CheckAnimationLewd(file, anim_path, iLewdMin, iLewdMax) && _CheckAnimationAggro(file, anim_path, iAggroMin, iAggroMax)
+                result_temp[currentIndex] = anim
+                currentIndex += 1
+                
+                If currentIndex == result_temp.length
+                    Int new_length = result_temp.length + 10
+                    If new_length > 128 
+                        new_length = 128
+                    EndIf
+                    result_temp = Utility.ResizeStringArray(result_temp, new_length)
                 EndIf
             EndIf
             j += 1
         EndWhile
         i += 1
     EndWhile
-    Return Utility.ResizeStringArray(result_temp, resultCount)
+    If currentIndex == 128
+        UDMain.Warning("UD_AnimationManagerScript::GetAnimationsFromDB() Reached maximum array size!")
+    EndIf
+    result_temp = Utility.ResizeStringArray(result_temp, currentIndex)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::GetAnimationsFromDB() Animation array: " + result_temp)
+    EndIf
+    Return result_temp
 EndFunction
 
 Bool Function _CheckAnimationLewd(String sFile, String sObjPath, Int iLewdMin, Int iLewdMax)
@@ -489,12 +492,9 @@ String[] Function GetHornyAnimations(Actor akActor)
     Int iActorConstraints = _FromContraintsBoolArrayToInt(GetActorConstraints(akActor))
 
     String[] anims = GetAnimationsFromDB(".solo", ".horny", iActorConstraints)
-    If anims.Length == 0
-        String anim_dd = libs.AnimSwitchKeyword(akActor, "Horny0" + (Utility.RandomInt(1, 3) as String))
-        If anim_dd != ""
-            anims = new String[1]
-            anims[0] = anim_dd
-        EndIf
+    String anim_dd = libs.AnimSwitchKeyword(akActor, "Horny0" + (Utility.RandomInt(1, 3) as String))
+    If (anim_dd != "" && anim_dd != "none") && anims.Length < 128
+        anims = PapyrusUtil.PushString(anims, anim_dd)
     EndIf
     Return anims
 EndFunction
@@ -506,12 +506,9 @@ String[] Function GetOrgasmAnimations(Actor akActor)
     Int iActorConstraints = _FromContraintsBoolArrayToInt(GetActorConstraints(akActor))
 
     String[] anims = GetAnimationsFromDB(".solo", ".orgasm", iActorConstraints)
-    If anims.Length == 0
-        String anim_dd = libs.AnimSwitchKeyword(akActor, "Orgasm")
-        If anim_dd != ""
-            anims = new String[1]
-            anims[0] = anim_dd
-        EndIf
+    String anim_dd = libs.AnimSwitchKeyword(akActor, "Orgasm")
+    If (anim_dd != "" && anim_dd != "none") && anims.Length < 128
+        anims = PapyrusUtil.PushString(anims, anim_dd)
     EndIf
     Return anims
 EndFunction
@@ -523,12 +520,9 @@ String[] Function GetEdgedAnimations(Actor akActor)
     Int iActorConstraints = _FromContraintsBoolArrayToInt(GetActorConstraints(akActor))
 
     String[] anims = GetAnimationsFromDB(".solo", ".edged", iActorConstraints)
-    If anims.Length == 0
-        String anim_dd = libs.AnimSwitchKeyword(akActor, "Edged")
-        If anim_dd != ""
-            anims = new String[1]
-            anims[0] = anim_dd
-        EndIf
+    String anim_dd = libs.AnimSwitchKeyword(akActor, "Edged")
+    If (anim_dd != "" && anim_dd != "none") && anims.Length < 128
+        anims = PapyrusUtil.PushString(anims, anim_dd)
     EndIf
     Return anims
 EndFunction
@@ -626,17 +620,24 @@ Function _RemoveHeelEffect(Actor akActor, Bool bRemoveHDT = true, Bool bRemoveNi
     EndIf
     if slConfig.HasNiOverride && bRemoveHDT
         Bool isRealFemale = (akActor.GetLeveledActorBase().GetSex() == 1)
-        ; Remove NiOverride SexLab High Heels
-        bool UpdateNiOPosition = NiOverride.RemoveNodeTransformPosition(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esm")
-        ; Remove NiOverride High Heels
-        if NiOverride.HasNodeTransformPosition(akActor, false, isRealFemale, "NPC", "internal")
+        bool UpdateNiOPosition = False
+        String[] overrideKeys = NiOverride.GetNodeTransformKeys(akActor, false, isRealFemale, "NPC")
+        ; removing previous override
+        If overrideKeys.Find("UnforgivingDevices.esm") >= 0
+            NiOverride.RemoveNodeTransformPosition(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esm")
+            UpdateNiOPosition = True
+        EndIf
+        ; checking if actor has SexLab HH and DD overrides on override is not present
+        ; TODO: Can be done as a shift by the sum of all vectors
+        If overrideKeys.Find("DDC") < 0 && overrideKeys.Find("DDPET") < 0 && overrideKeys.Find("internal") >= 0
             float[] pos = NiOverride.GetNodeTransformPosition(akActor, false, isRealFemale, "NPC", "internal")
             pos[0] = -pos[0]
             pos[1] = -pos[1]
             pos[2] = -pos[2]
             NiOverride.AddNodeTransformPosition(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esm", pos)
-            NiOverride.UpdateNodeTransform(akActor, false, isRealFemale, "NPC")
-        elseIf UpdateNiOPosition
+            UpdateNiOPosition = True
+        EndIf
+        If UpdateNiOPosition
             NiOverride.UpdateNodeTransform(akActor, false, isRealFemale, "NPC")
         endIf
     endIf
@@ -669,8 +670,7 @@ Function _RestoreHeelEffect(Actor akActor)
     if slConfig.HasNiOverride
         Bool isRealFemale = (akActor.GetLeveledActorBase().GetSex() == 1)
         bool UpdateNiOPosition = NiOverride.RemoveNodeTransformPosition(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esm")
-        bool UpdateNiOScale = NiOverride.RemoveNodeTransformScale(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esm")
-        if UpdateNiOPosition || UpdateNiOScale ; I make the variables because not sure if execute both funtion in OR condition.
+        if UpdateNiOPosition
             NiOverride.UpdateNodeTransform(akActor, false, isRealFemale, "NPC")
         endIf
     endIf

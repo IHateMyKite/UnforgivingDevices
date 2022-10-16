@@ -3708,8 +3708,8 @@ Bool Function _PickAndPlayStruggleAnimation(Bool bUseCache = False)
         EndIf
         UDAM.FastStartThirdPersonAnimation(Wearer, _sStruggleAnim)
     EndIf
-    UDMain.Info("UD_AnimationManagerScript::_PickAndPlayStruggleAnimation() struggle animation to play (actor) : " + _sStruggleAnim)
-    UDMain.Info("UD_AnimationManagerScript::_PickAndPlayStruggleAnimation() struggle animation to play (helper) : " + _sStruggleAnimHelper)
+    UDMain.Info("UD_CustomDevice_RenderScript::_PickAndPlayStruggleAnimation() struggle animation to play (actor) : " + _sStruggleAnim)
+    UDMain.Info("UD_CustomDevice_RenderScript::_PickAndPlayStruggleAnimation() struggle animation to play (helper) : " + _sStruggleAnimHelper)
         
     Return _sStruggleAnim != "none"
 EndFunction
