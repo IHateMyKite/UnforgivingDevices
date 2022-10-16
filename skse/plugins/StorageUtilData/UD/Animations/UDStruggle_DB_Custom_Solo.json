@@ -1,4 +1,6 @@
 {
+	"conditions" : {
+	},
 	"solo" : {
 		"zad_DeviousBoots" : [
 			{
@@ -265,10 +267,20 @@
 			}
 		], 
 		"horny" : [
-			
+			{
+				"animation" : "UD_Horny_PetSuit_Solo01_A1", 
+				"reqConstraintsA1" : 64, 
+				"optConstraintsA1" : 256, 
+				"lewd" : 0, 
+			}
 		], 
 		"edged" : [
-			
+			{
+				"animation" : "UD_Horny_PetSuit_Solo01_A1", 
+				"reqConstraintsA1" : 64, 
+				"optConstraintsA1" : 256, 
+				"lewd" : 0, 
+			}
 		], 
 		"orgasm" : [
 			{

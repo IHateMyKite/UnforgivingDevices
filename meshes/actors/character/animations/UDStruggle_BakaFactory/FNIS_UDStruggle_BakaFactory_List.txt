@@ -19,8 +19,6 @@ b UD_Babo_ChokeRape03_S2_A1 Babo_ChokeRape03_A1_S2.hkx
 b UD_Babo_ChokeRape03_S2_A2 Babo_ChokeRape03_A2_S2.hkx
 b UD_Babo_ChokeRape03_S3_A1 Babo_ChokeRape03_A1_S3.hkx
 b UD_Babo_ChokeRape03_S3_A2 Babo_ChokeRape03_A2_S3.hkx
-b UD_Babo_ChokeRape03_S1_A1 Babo_ChokeRape03_A1_S1.hkx
-b UD_Babo_ChokeRape03_S1_A2 Babo_ChokeRape03_A2_S1.hkx
 b UD_Babo_Conquering_S1_A1 Babo_Conquering_A1_S1.hkx
 b UD_Babo_Conquering_S1_A2 Babo_Conquering_A2_S1.hkx
 b UD_Babo_Conquering_S3_A1 Babo_Conquering_A1_S3.hkx
