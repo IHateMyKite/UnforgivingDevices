@@ -1,6 +1,6 @@
 {
 	"conditions" : {
-		"has_mod": "Devious Devices - Integration.esm"
+		"has_mod" : "Devious Devices - Integration.esm"
 	},
 	"solo" : {
 		"zad_DeviousBoots" : [
@@ -8,52 +8,52 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "ft_struggle_boots_1", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 1, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousPlug" : [
@@ -61,57 +61,57 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDZazHornyA", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDZazHornyD", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousBelt" : [
@@ -119,57 +119,57 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDChastityBeltStruggle01", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDChastityBeltStruggle02", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousBra" : [
@@ -177,47 +177,47 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousCollar" : [
@@ -225,52 +225,52 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "ft_struggle_head_1", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 1, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousArmCuffs" : [
@@ -278,67 +278,67 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle02", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle03", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle02", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "ft_struggle_gloves_1", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 1, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousLegCuffs" : [
@@ -346,52 +346,52 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "ft_struggle_boots_1", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 1, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousArmbinder" : [
@@ -399,77 +399,77 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegArmbStruggle02", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegArmbStruggle03", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegArmbStruggle04", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegArmbStruggle05", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 17, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle02", 
 				"reqConstraintsA1" : 17, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousArmbinderElbow" : [
@@ -477,72 +477,72 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle02", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle03", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle04", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle05", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle02", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousHobbleSkirt" : [
@@ -550,47 +550,47 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousHobbleSkirtRelaxed" : [
@@ -598,47 +598,47 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousAnkleShackles" : [
@@ -646,52 +646,52 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "ft_struggle_boots_1", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 1, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousStraitJacket" : [
@@ -699,82 +699,82 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle02", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle02", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle03", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle04", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle05", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegbbYokeStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousCuffsFront" : [
@@ -782,47 +782,47 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousPetSuit" : [
@@ -830,47 +830,47 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousYoke" : [
@@ -878,72 +878,72 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle02", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle03", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle04", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle05", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle02", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousYokeBB" : [
@@ -951,82 +951,82 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegbbYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegbbYokeStruggle02", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegbbYokeStruggle03", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegbbYokeStruggle04", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegbbYokeStruggle05", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobBBYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobBBYokeStruggle02", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousCorset" : [
@@ -1034,47 +1034,47 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousClamps" : [
@@ -1082,47 +1082,47 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousGloves" : [
@@ -1130,52 +1130,52 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "ft_struggle_gloves_1", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 1, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousHood" : [
@@ -1183,57 +1183,57 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "ft_struggle_blindfold_1", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 1, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "ft_struggle_head_1", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 1, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousElbowTie" : [
@@ -1241,57 +1241,57 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggletwo", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_strugglethree", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousGag" : [
@@ -1299,52 +1299,52 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "ft_struggle_gag_1", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 1, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousGagLarge" : [
@@ -1352,52 +1352,52 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "ft_struggle_gag_1", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 1, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousGagPanel" : [
@@ -1405,52 +1405,52 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "ft_struggle_gag_1", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 1, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousPlugVaginal" : [
@@ -1458,57 +1458,57 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDZazHornyA", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDZazHornyD", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousPlugAnal" : [
@@ -1516,57 +1516,57 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDZazHornyA", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDZazHornyD", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousHarness" : [
@@ -1574,57 +1574,57 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDChastityBeltStruggle01", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDChastityBeltStruggle02", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousBlindfold" : [
@@ -1632,52 +1632,52 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "ft_struggle_blindfold_1", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 1, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousPiercingsNipple" : [
@@ -1685,57 +1685,57 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDZazHornyA", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDZazHornyD", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousPiercingsVaginal" : [
@@ -1743,57 +1743,57 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDZazHornyA", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDZazHornyD", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousBondageMittens" : [
@@ -1801,47 +1801,47 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"zad_DeviousSuit" : [
@@ -1849,57 +1849,57 @@
 				"animation" : "DDRegArmbStruggle01", 
 				"reqConstraintsA1" : 16, 
 				"optConstraintsA1" : 258, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobArmbStruggle01", 
 				"reqConstraintsA1" : 512, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 8, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobCuffsFrontStruggle01", 
 				"reqConstraintsA1" : 9, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegElbStruggle01", 
 				"reqConstraintsA1" : 32, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobElbStruggle01", 
 				"reqConstraintsA1" : 33, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDElbowTie_struggleone", 
 				"reqConstraintsA1" : 128, 
 				"optConstraintsA1" : 257, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDRegYokeStruggle01", 
 				"reqConstraintsA1" : 4, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "DDHobYokeStruggle01", 
 				"reqConstraintsA1" : 5, 
 				"optConstraintsA1" : 256, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "ft_struggle_gloves_1", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 1, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}, {
 				"animation" : "ft_struggle_boots_1", 
 				"reqConstraintsA1" : 0, 
 				"optConstraintsA1" : 1, 
-				"lewd" : 0, 
+				"lewd" : 0
 			}
 		], 
 		"horny" : [
