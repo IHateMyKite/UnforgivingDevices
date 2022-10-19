@@ -301,7 +301,8 @@ String[] UD_AnimationDefs
 Bool forceReloadFiles = True
 Bool enableForcedFlag = True
 
-; function to preload and check for errors json files with animation defs
+; function to preload and validate json files with animations
+; it also checks if met load condtion (a specified mod is loaded or there is a json file in the data folder)
 Function LoadAnimationJSONFiles()
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles()")
@@ -314,7 +315,6 @@ Function LoadAnimationJSONFiles()
         JsonUtil.Unload(file)
         Bool file_is_good = True
         If JsonUtil.Load(file) && JsonUtil.IsGood(file)
-; TODO: Check for dependencies (loaded esp or SLAL packs)
             String file_to_check = JsonUtil.GetPathStringValue(file, "conditions.has_json")
             If file_to_check != "" && JsonUtil.JsonExists(file_to_check) == False
                 UDMain.Warning("UD_AnimationManagerScript::LoadAnimationJSONFiles() Load condition of the file " + file + " is not valid. Can't find JSON file " + file_to_check)
@@ -359,10 +359,10 @@ EndFunction
 ;       "zad_DeviousArmCuffs" : [                                       Animation keyword (device keyword or any other string like "horny" to define animation)
 ;           {
 ;               "animation" : "PS_Babo_Conquering04_S1_",               Animation base name. To get animation events for the akActor and akHelper add A1 or A2 to the end
-;               "reqConstraintsA1" : 0,                                 Required constraints for the akActor (see description for _CheckAnimationConstraints)
-;               "optConstraintsA1" : 0,                                 Optional constraints for the akActor (see description for _CheckAnimationConstraints)
-;               "reqConstraintsA2" : 0,                                 Required constraints for the akHelper (see description for _CheckAnimationConstraints)
-;               "optConstraintsA2" : 0,                                 Optional constraints for the akHelper (see description for _CheckAnimationConstraints)
+;               "reqConstraintsA1" : 0,                                 Required constraints for the akActor (animation shouldn't be picked if actor doesn't have all required constraints)
+;               "optConstraintsA1" : 0,                                 Optional constraints for the akActor (animation shouldn't be picked if actor has constraints not defined by this bit-mask)
+;               "reqConstraintsA2" : 0,                                 Required constraints for the akHelper (animation shouldn't be picked if helper doesn't have all required constraints)
+;               "optConstraintsA2" : 0,                                 Optional constraints for the akHelper (animation shouldn't be picked if helper has constraints not defined by this bit-mask)
 ;               "lewd" : 0,                                             Rate of lewdiness
 ;               "aggressive" : 1,                                       Rate of aggressiveness (from akHelper towards akActor). Could be negative
 ;               "forced" : true                                         First forced animation will be the only animation in result array. Used to test animation in game with forceReloadFiles = true and enableForcedFlag = true
@@ -467,7 +467,7 @@ Bool Function _CheckConstraintsA2(String sFile, String sObjPath, Int iActorConst
 EndFunction
 
 ; Function GetStruggleAnimationsByKeyword
-; This function returns an array of solo struggle animations for the specified device on actor with optional helper
+; This function returns an array of struggle animations for the specified device on actor with optional helper
 ; akKeyword             - device keyword to struggle from
 ; akActor               - wearer of the device
 ; akHelper              - optional helper
@@ -485,44 +485,50 @@ String[] Function GetStruggleAnimationsByKeyword(Keyword akKeyword, Actor akActo
     EndIf
 EndFunction
 
-String[] Function GetHornyAnimations(Actor akActor)
+String[] Function GetHornyAnimations(Actor akActor, Bool bIncludeDD = True)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetHornyAnimations akActor = " + akActor)
     EndIf
     Int iActorConstraints = _FromContraintsBoolArrayToInt(GetActorConstraints(akActor))
 
     String[] anims = GetAnimationsFromDB(".solo", ".horny", iActorConstraints)
-    String anim_dd = libs.AnimSwitchKeyword(akActor, "Horny0" + (Utility.RandomInt(1, 3) as String))
-    If (anim_dd != "" && anim_dd != "none") && anims.Length < 128
-        anims = PapyrusUtil.PushString(anims, anim_dd)
+    If bIncludeDD
+        String anim_dd = libs.AnimSwitchKeyword(akActor, "Horny0" + (Utility.RandomInt(1, 3) as String))
+        If (anim_dd != "" && anim_dd != "none") && anims.Length < 128
+            anims = PapyrusUtil.PushString(anims, anim_dd)
+        EndIf
     EndIf
     Return anims
 EndFunction
 
-String[] Function GetOrgasmAnimations(Actor akActor)
+String[] Function GetOrgasmAnimations(Actor akActor, Bool bIncludeDD = True)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetOrgasmAnimations akActor = " + akActor)
     EndIf
     Int iActorConstraints = _FromContraintsBoolArrayToInt(GetActorConstraints(akActor))
 
     String[] anims = GetAnimationsFromDB(".solo", ".orgasm", iActorConstraints)
-    String anim_dd = libs.AnimSwitchKeyword(akActor, "Orgasm")
-    If (anim_dd != "" && anim_dd != "none") && anims.Length < 128
-        anims = PapyrusUtil.PushString(anims, anim_dd)
+    If bIncludeDD
+        String anim_dd = libs.AnimSwitchKeyword(akActor, "Orgasm")
+        If (anim_dd != "" && anim_dd != "none") && anims.Length < 128
+            anims = PapyrusUtil.PushString(anims, anim_dd)
+        EndIf
     EndIf
     Return anims
 EndFunction
 
-String[] Function GetEdgedAnimations(Actor akActor)
+String[] Function GetEdgedAnimations(Actor akActor, Bool bIncludeDD = True)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetEdgedAnimations akActor = " + akActor)
     EndIf
     Int iActorConstraints = _FromContraintsBoolArrayToInt(GetActorConstraints(akActor))
 
     String[] anims = GetAnimationsFromDB(".solo", ".edged", iActorConstraints)
-    String anim_dd = libs.AnimSwitchKeyword(akActor, "Edged")
-    If (anim_dd != "" && anim_dd != "none") && anims.Length < 128
-        anims = PapyrusUtil.PushString(anims, anim_dd)
+    If bIncludeDD
+        String anim_dd = libs.AnimSwitchKeyword(akActor, "Edged")
+        If (anim_dd != "" && anim_dd != "none") && anims.Length < 128
+            anims = PapyrusUtil.PushString(anims, anim_dd)
+        EndIf
     EndIf
     Return anims
 EndFunction
@@ -610,7 +616,7 @@ Bool[] Function GetActorConstraints(Actor akActor)
 EndFunction
 
 ; compilation of the code from SexLab functions
-; added dependency for NiOverride
+; there is a weak dependence on NiOverride
 Function _RemoveHeelEffect(Actor akActor, Bool bRemoveHDT = true, Bool bRemoveNiOverride = true)
     If !akActor.GetWornForm(0x00000080)
         Return
@@ -618,7 +624,7 @@ Function _RemoveHeelEffect(Actor akActor, Bool bRemoveHDT = true, Bool bRemoveNi
     If slConfig == None
         Return
     EndIf
-    if slConfig.HasNiOverride && bRemoveHDT
+    if bRemoveNiOverride && slConfig.HasNiOverride
         Bool isRealFemale = (akActor.GetLeveledActorBase().GetSex() == 1)
         bool UpdateNiOPosition = False
         String[] overrideKeys = NiOverride.GetNodeTransformKeys(akActor, false, isRealFemale, "NPC")
@@ -641,7 +647,7 @@ Function _RemoveHeelEffect(Actor akActor, Bool bRemoveHDT = true, Bool bRemoveNi
             NiOverride.UpdateNodeTransform(akActor, false, isRealFemale, "NPC")
         endIf
     endIf
-    if bRemoveNiOverride
+    if bRemoveHDT
         Spell hdtHeelSpell = slConfig.GetHDTSpell(akActor)
         if hdtHeelSpell
             StorageUtil.SetFormValue(akActor, "UD_AnimationManager_HDTHeelSpell", hdtHeelSpell)
@@ -651,7 +657,7 @@ Function _RemoveHeelEffect(Actor akActor, Bool bRemoveHDT = true, Bool bRemoveNi
 EndFunction
 
 ; compilation of the code from SexLab functions
-; added dependency for NiOverride
+; there is a weak dependence on NiOverride
 Function _RestoreHeelEffect(Actor akActor)
     If !akActor.GetWornForm(0x00000080)
         Return
@@ -659,10 +665,10 @@ Function _RestoreHeelEffect(Actor akActor)
     If slConfig == None
         Return
     EndIf
-    if slConfig.RemoveHeelEffect
-        ; HDT High Heel
+    ; HDT High Heel
+    if True
         Spell hdtHeelSpell = StorageUtil.GetFormValue(akActor, "UD_AnimationManager_HDTHeelSpell") as Spell
-        if hdtHeelSpell && akActor.GetWornForm(0x00000080) && !akActor.HasSpell(hdtHeelSpell)
+        if hdtHeelSpell && !akActor.HasSpell(hdtHeelSpell)
             akActor.AddSpell(hdtHeelSpell)
         endIf
         StorageUtil.UnsetFormValue(akActor, "UD_AnimationManager_HDTHeelSpell")
