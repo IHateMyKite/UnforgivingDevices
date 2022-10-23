@@ -3718,7 +3718,7 @@ Bool Function _PickAndPlayStruggleAnimation(Bool bUseCache = False)
 
             If _StruggleAnimationDefHelperArray.Length > 0
                 _animationDef = _StruggleAnimationDefHelperArray[Utility.RandomInt(0, _StruggleAnimationDefHelperArray.Length - 1)]
-                _sStruggleAnim = UDAM.GetAnimDefAttribute(_animationDef, ".A1.animation")
+                _sStruggleAnimHelper = UDAM.GetAnimDefAttribute(_animationDef, ".A1.animation")
             EndIf
             UDAM.FastStartThirdPersonAnimation(Wearer, _sStruggleAnim)
             UDAM.FastStartThirdPersonAnimation(_minigameHelper, _sStruggleAnimHelper)
