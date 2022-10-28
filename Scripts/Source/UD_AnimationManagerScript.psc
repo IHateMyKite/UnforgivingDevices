@@ -143,6 +143,7 @@ Bool Function FastStartThirdPersonSequence(Actor akActor, String[] aAnimation)
     While a_index < aAnimation.Length
         Debug.SendAnimationEvent(akActor, aAnimation[a_index])
         Utility.Wait(0.05)
+        a_index += 1
     EndWhile
     return true
 EndFunction
@@ -160,7 +161,9 @@ EndFunction
 ;doesn't enable actor movement and doesn't check if actor is valid
 ;doesn't check camera state
 Function FastEndThirdPersonAnimation(actor akActor)
-    
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::FastEndThirdPersonAnimation() akActor = " + akActor)
+    EndIf
     UnlockAnimatingActor(akActor)
     ; restoring HH if it was removed in FastStartThirdPersonAnimationWithHelper
     _RestoreHeelEffect(akActor)
@@ -568,57 +571,42 @@ String[] Function GetStruggleAnimationsByKeyword(Keyword akKeyword, Actor akActo
     EndIf
 EndFunction
 
-String[] Function GetHornyAnimations(Actor akActor, Bool bIncludeDD = True)
+String[] Function GetHornyAnimEvents(Actor akActor)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetHornyAnimations() akActor = " + akActor)
+        UDmain.Log("UD_AnimationManagerScript::GetHornyAnimEvents() akActor = " + akActor)
     EndIf
 
     Int[] aActorConstraints = new Int[1]
     aActorConstraints[0] = _FromConstraintsBoolArrayToInt(GetActorConstraints(akActor))
 
     String[] anims = GetAnimationsFromDB(".solo", ".horny", ".A1.animation", aActorConstraints)
-    If bIncludeDD
-        String anim_dd = libs.AnimSwitchKeyword(akActor, "Horny0" + (Utility.RandomInt(1, 3) as String))
-        If (anim_dd != "" && anim_dd != "none") && anims.Length < 128
-            anims = PapyrusUtil.PushString(anims, anim_dd)
-        EndIf
-    EndIf
+
     Return anims
 EndFunction
 
-String[] Function GetOrgasmAnimations(Actor akActor, Bool bIncludeDD = True)
+String[] Function GetOrgasmAnimEvents(Actor akActor)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetOrgasmAnimations() akActor = " + akActor)
+        UDmain.Log("UD_AnimationManagerScript::GetOrgasmAnimEvents() akActor = " + akActor)
     EndIf
 
     Int[] aActorConstraints = new Int[1]
     aActorConstraints[0] = _FromConstraintsBoolArrayToInt(GetActorConstraints(akActor))
 
     String[] anims = GetAnimationsFromDB(".solo", ".orgasm", ".A1.animation", aActorConstraints)
-    If bIncludeDD
-        String anim_dd = libs.AnimSwitchKeyword(akActor, "Orgasm")
-        If (anim_dd != "" && anim_dd != "none") && anims.Length < 128
-            anims = PapyrusUtil.PushString(anims, anim_dd)
-        EndIf
-    EndIf
+
     Return anims
 EndFunction
 
-String[] Function GetEdgedAnimations(Actor akActor, Bool bIncludeDD = True)
+String[] Function GetEdgedAnimEvents(Actor akActor)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetEdgedAnimations() akActor = " + akActor)
+        UDmain.Log("UD_AnimationManagerScript::GetEdgedAnimEvents() akActor = " + akActor)
     EndIf
 
     Int[] aActorConstraints = new Int[1]
     aActorConstraints[0] = _FromConstraintsBoolArrayToInt(GetActorConstraints(akActor))
 
     String[] anims = GetAnimationsFromDB(".solo", ".edged", ".A1.animation", aActorConstraints)
-    If bIncludeDD
-        String anim_dd = libs.AnimSwitchKeyword(akActor, "Edged")
-        If (anim_dd != "" && anim_dd != "none") && anims.Length < 128
-            anims = PapyrusUtil.PushString(anims, anim_dd)
-        EndIf
-    EndIf
+
     Return anims
 EndFunction
 
@@ -704,8 +692,9 @@ EndFunction
 ; [7] elbowtie
 ; [8] mittens
 ; [9] StraitJacket
+; [10] BB yoke
 Bool[] Function GetActorConstraints(Actor akActor)
-	Bool[] result = new Bool[10]
+	Bool[] result = new Bool[11]
     If akActor == None
         Return result
     EndIf
@@ -738,6 +727,9 @@ Bool[] Function GetActorConstraints(Actor akActor)
 	EndIf
 	If akActor.WornHasKeyword(libs.zad_DeviousStraitJacket)
 		result[9] = True
+	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousYokeBB)
+		result[10] = True
 	EndIf
     Return result
 EndFunction

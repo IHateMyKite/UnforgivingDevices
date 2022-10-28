@@ -9,14 +9,9 @@ zadlibs                                 Property libs       auto
 UD_ExpressionManager                    Property UDEM       auto
 UD_CustomDevices_NPCSlotsManager        Property UDCD_NPCM  auto
 
-; For now it is coded this way because I don't want to change esp file
-UD_AnimationManagerScript _UDAM
-UD_AnimationManagerScript               Property UDAM       Hidden
-    UD_AnimationManagerScript Function Get()
-        If _UDAM == None
-            _UDAM = Quest.GetQuest("UD_AnimationManager_Quest") as UD_AnimationManagerScript
-        EndIf
-        Return _UDAM
+UD_AnimationManagerScript Property UDAM hidden
+    UD_AnimationManagerScript Function get()
+        return UDmain.UDAM
     EndFunction
 EndProperty
 
@@ -629,7 +624,7 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
 
     UDCDmain.DisableActor(akActor)
     
-    String[] animationArray = UDAM.GetOrgasmAnimations(akActor)
+    String[] animationArray = UDAM.GetOrgasmAnimEvents(akActor)
     If animationArray.Length > 0
         UDAM.FastStartThirdPersonAnimation(akActor, animationArray[Utility.RandomInt(0, animationArray.Length - 1)])
     EndIf
@@ -851,7 +846,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     
     UDCDMain.DisableActor(akActor,true)
     
-    String[] animationArray = UDAM.GetHornyAnimations(akActor)
+    String[] animationArray = UDAM.GetHornyAnimEvents(akActor)
     If animationArray.Length > 0
         UDAM.FastStartThirdPersonAnimation(akActor, animationArray[Utility.RandomInt(0, animationArray.Length - 1)])
     EndIf

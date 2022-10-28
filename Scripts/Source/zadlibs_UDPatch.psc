@@ -26,6 +26,12 @@ UD_OrgasmManager Property UDOM
     EndFunction
 EndProperty
 
+UD_AnimationManagerScript Property UDAM hidden
+    UD_AnimationManagerScript Function get()
+        return UDmain.UDAM
+    EndFunction
+EndProperty
+
 bool Property UD_StartThirdPersonAnimation_Switch = true auto
 bool _installing = false
 Function OnInit()
@@ -565,156 +571,20 @@ Function InflateVaginalPlug(actor akActor, int amount = 1)
 EndFunction
 
 String Function AnimSwitchKeyword(actor akActor, string idleName)
-    if UDCDmain.UDOM.UD_OrgasmAnimation != 0
-        If idleName == "Orgasm"
-            ;hobbled animations
-            if akActor.WornHasKeyword(zad_DeviousHobbleSkirt)
-                if !akActor.WornHasKeyword(zad_DeviousHeavyBondage)    
-                    int random = Utility.randomInt(1,3)
-                    if random == 1
-                        return "DDZazHornyA"
-                    elseif random == 2
-                        return "DDZazHornyB"
-                    elseif random == 3
-                        return "DDZazHornyC"
-                    endif
-                endif
-                
-                if akActor.WornHasKeyword(zad_DeviousArmbinder)
-                    int random = Utility.randomInt(1,5)
-                    if random == 1
-                        return "ft_orgasm_hobbled_armbinder_1"
-                    elseif random == 2
-                        return "ft_horny_armbinder_1"
-                    elseif random == 3
-                        return "ft_horny_armbinder_2"
-                    elseif random == 4
-                        return "ft_horny_armbinder_3"
-                    elseif random == 5
-                        return "ft_horny_armbinder_7"
-                    endif
-                ElseIf akActor.WornHasKeyword(zad_DeviousYoke)
-                    int random = Utility.randomInt(1,3)
-                    if random == 1
-                        return "ft_orgasm_hobbled_yoke_1"
-                    elseif random == 2
-                        return "ft_horny_yoke_1"
-                    elseif random == 3
-                        return "ft_horny_yoke_7"
-                    endif
-                ElseIf akActor.WornHasKeyword(zad_DeviousArmbinderElbow)
-                    int random = Utility.randomInt(1,5)
-                    if random == 1
-                        return "ft_orgasm_hobbled_elbowbinder_1"
-                    elseif random == 2
-                        return "ft_horny_elbowbinder_1"
-                    elseif random == 3
-                        return "ft_horny_elbowbinder_2"
-                    elseif random == 4
-                        return "ft_horny_elbowbinder_3"
-                    elseif random == 5
-                        return "ft_horny_elbowbinder_7"
-                    endif
-                ElseIf akActor.WornHasKeyword(zad_DeviousYokeBB)
-                    return "ft_orgasm_hobbled_bbyoke_1"
-                ElseIf akActor.WornHasKeyword(zad_DeviousCuffsFront)
-                    return "ft_orgasm_hobbled_frontcuffs_1"
-                ElseIf akActor.WornHasKeyword(zad_DeviousElbowTie)                
-                    return "DDElbowTie_orgasm"    
-                elseif akActor.WornHasKeyword(zad_DeviousPetSuit)
-                    return "none"                    
-                Elseif akActor.WornHasKeyword(zad_DeviousHeavyBondage)    
-                    int random = Utility.randomInt(1,5)
-                    if random == 1
-                        return "ft_orgasm_hobbled_elbowbinder_1"
-                    elseif random == 2
-                        return "ft_horny_elbowbinder_1"
-                    elseif random == 3
-                        return "ft_horny_elbowbinder_2"
-                    elseif random == 4
-                        return "ft_horny_elbowbinder_3"
-                    elseif random == 5
-                        return "ft_horny_elbowbinder_7"
-                    endif
-                EndIf
-            else ;no hobble
-                if !akActor.WornHasKeyword(zad_DeviousHeavyBondage)    
-                    int random = Utility.randomInt(1,3)
-                    if random == 1
-                        return "DDZazHornyA"
-                    elseif random == 2
-                        return "DDZazHornyB"
-                    elseif random == 3
-                        return "DDZazHornyC"
-                    endif
-                endif
-                
-                if akActor.WornHasKeyword(zad_DeviousArmbinder)
-                    int random = 0
-                    if UDCDmain.UDmain.ZaZAnimationPackInstalled
-                        random = Utility.randomInt(1,11)
-                    else
-                        random = Utility.randomInt(1,8)
-                    endif
-                    
-                    if random < 8
-                        return ("ft_horny_armbinder_" + random)
-                    elseif random == 8
-                        return "ft_orgasm_armbinder_1"
-                    elseif random > 8
-                        return ("ZapArmbHorny0" + (random - 8))
-                    endif
-                ElseIf akActor.WornHasKeyword(zad_DeviousYoke)
-                    int random = 0
-                    if UDCDmain.UDmain.ZaZAnimationPackInstalled
-                        random = Utility.randomInt(1,11)
-                    else
-                        random = Utility.randomInt(1,8)
-                    endif
-                    if random < 8
-                        return ("ft_horny_yoke_" + random)
-                    elseif random == 8
-                        return "ft_orgasm_yoke_1"
-                    elseif random > 8
-                        return ("ZapYokeHorny0" + (random - 8))
-                    endif
-                ElseIf akActor.WornHasKeyword(zad_DeviousArmbinderElbow)
-                    int random = Utility.randomInt(1,8)
-                    if random < 8
-                        return ("ft_horny_elbowbinder_" + random)
-                    else
-                        return "ft_orgasm_elbowbinder_1"
-                    endif
-                ElseIf akActor.WornHasKeyword(zad_DeviousYokeBB)
-                    return "ft_orgasm_bbyoke_1"
-                ElseIf akActor.WornHasKeyword(zad_DeviousCuffsFront)
-                    return "ft_orgasm_frontcuffs_1"
-                ElseIf akActor.WornHasKeyword(zad_DeviousElbowTie)                
-                    return "DDElbowTie_orgasm"    
-                elseif akActor.WornHasKeyword(zad_DeviousPetSuit)
-                    return "none"                        
-                Elseif akActor.WornHasKeyword(zad_DeviousHeavyBondage)    
-                    int random = 0
-                    if UDmain.ZaZAnimationPackInstalled
-                        random = Utility.randomInt(1,11)
-                    else
-                        random = Utility.randomInt(1,8)
-                    endif
-                    if random < 8
-                        return ("ft_horny_elbowbinder_" + random)
-                    elseif random == 8
-                        return "ft_orgasm_elbowbinder_1"
-                    elseif random > 8
-                        return ("ZapArmbHorny0" + (random - 8))
-                    endif
-                EndIf
-            EndIf
-        else
-            return parent.AnimSwitchKeyword(akActor, idleName )
-        endif
-    else
+    String[] anims
+    If idleName == "Horny01" || idleName == "Horny02" || idleName == "Horny03"
+        anims = UDAM.GetHornyAnimEvents(akActor)
+    ElseIf idleName == "Orgasm" && UDCDmain.UDOM.UD_OrgasmAnimation != 0
+        anims = UDAM.GetOrgasmAnimEvents(akActor)
+    ElseIf idleName == "Edged"
+        anims = UDAM.GetEdgedAnimEvents(akActor)
+    EndIf
+    
+    If anims.Length > 0
+        Return anims[Utility.RandomInt(0, anims.Length - 1)]
+    Else
         return parent.AnimSwitchKeyword(akActor, idleName )
-    endif
+    EndIf
 EndFunction
 
 ; Stop vibration event on actor.

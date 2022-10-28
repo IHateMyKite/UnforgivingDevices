@@ -8,6 +8,12 @@ UD_ExpressionManager    Property UDEM       auto
 UnforgivingDevicesMain  Property UDmain     auto
 zadlibs                 Property libs       auto
 
+UD_AnimationManagerScript Property UDAM hidden
+    UD_AnimationManagerScript Function get()
+        return UDmain.UDAM
+    EndFunction
+EndProperty
+
 Actor       akActor         = none
 bool        _finished       = false
 bool        _processing     = false
@@ -48,6 +54,8 @@ float[] loc_expression2
 float[] loc_expression3
 
 bool    loc_isplayer = false
+
+String[] _HornyAnimEvents
 
 Event OnEffectStart(Actor akTarget, Actor akCaster)
     akActor = akTarget
@@ -326,7 +334,15 @@ Event OnUpdate()
                         if (loc_hornyAnimTimer == 0) && !libs.IsAnimating(akActor) && UDOM.UD_HornyAnimation ;start horny animation for UD_HornyAnimationDuration
                             if Utility.RandomInt() <= (Math.ceiling(100/fRange(loc_orgasmProgress,15.0,100.0))) 
                                 ; Select animation
-                                loc_cameraState = libs.StartThirdPersonAnimation(akActor, libs.AnimSwitchKeyword(akActor, "Horny01"), permitRestrictive=true)
+                                If _HornyAnimEvents.Length == 0
+                                    _HornyAnimEvents = UDAM.GetHornyAnimEvents(akActor)
+                                EndIf
+                                If _HornyAnimEvents.Length > 0
+                                    String anim_event = _HornyAnimEvents[Utility.RandomInt(0, _HornyAnimEvents.Length - 1)]
+                                    UDAM.FastStartThirdPersonAnimation(akActor, anim_event)
+                                Else
+                                    UDmain.Warning("UD_OrchamsCheckScript_AME::OnUpdate() Can't find animations for the horny actor")
+                                EndIf
                                 loc_hornyAnimTimer += UDOM.UD_HornyAnimationDuration
                             endif
                         EndIf
@@ -336,7 +352,7 @@ Event OnUpdate()
                         if loc_hornyAnimTimer > 0 ;reduce horny animation timer 
                             loc_hornyAnimTimer -= 1
                             if (loc_hornyAnimTimer == 0)
-                                libs.EndThirdPersonAnimation(akActor, loc_cameraState, permitRestrictive=true)
+                                UDAM.FastEndThirdPersonAnimation(akActor)
                                 loc_hornyAnimTimer = -20 ;cooldown
                             EndIf
                         elseif loc_hornyAnimTimer < 0 ;cooldown
