@@ -122,6 +122,8 @@ Function Update()
 
     LoadAnimationJSONFiles()
     
+;    _Benchmark()
+    
 EndFunction
 
 ; Prepare actor and start an animation sequence for it. The sequence is scrolled to the last element, which remains active until the animation stops from the outside
@@ -161,9 +163,6 @@ EndFunction
 ;doesn't enable actor movement and doesn't check if actor is valid
 ;doesn't check camera state
 Function FastEndThirdPersonAnimation(actor akActor)
-    If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::FastEndThirdPersonAnimation() akActor = " + akActor)
-    EndIf
     UnlockAnimatingActor(akActor)
     ; restoring HH if it was removed in FastStartThirdPersonAnimationWithHelper
     _RestoreHeelEffect(akActor)
@@ -201,7 +200,7 @@ EndFunction
 ; return         - true if OK
 Bool Function FastStartThirdPersonSequenceWithHelper(Actor akActor, Actor akHelper, String[] aAnimationA1, String[] aAnimationA2, Bool bAlignActors = True)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::FastStartThirdPersonSequenceWithHelper() akActor = " + akActor + ", akHelper = " + akHelper + ", aAnimationA1 = " + aAnimationA1 + ", animationA2 = " + aAnimationA2 + ", alignActors = " + bAlignActors)
+        UDmain.Log("UD_AnimationManagerScript::FastStartThirdPersonSequenceWithHelper() akActor = " + akActor + ", akHelper = " + akHelper + ", aAnimationA1 = " + aAnimationA1 + ", animationA2 = " + aAnimationA2 + ", alignActors = " + bAlignActors, 3)
     EndIf
     If akActor == None 
         UDmain.Error("UD_AnimationManagerScript::FastStartThirdPersonSequenceWithHelper() akActor is None, aborting")
@@ -342,8 +341,95 @@ Function UnlockAnimatingActor(Actor akActor)
     
 EndFunction
 
+Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bContinueAnimation = False)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::PlayAnimationByDef() sAnimDef = " + sAnimDef + ", aakActors = " + aakActors, 3)
+    EndIf
+    
+    Int part_index = StringUtil.Find(sAnimDef, ":")
+    If part_index < 0 
+        UDMain.Error("UD_AnimationManagerScript::PlayAnimationByDef() AnimDef has invalid format (should be <file_name>:<path_in_file>): " + sAnimDef)
+        Return
+    EndIf
+    String file = "UD/Animations/" + StringUtil.Substring(sAnimDef, 0, part_index)
+    String path = StringUtil.Substring(sAnimDef, part_index + 1)
+    String[] actor_animVars = PapyrusUtil.StringArray(aakActors.Length)
+    
+    Int k = 0
+    While k < aakActors.Length
+        Int actor_constraints = GetActorConstraintsInt(aakActors[k])
+        String anim_var_path = path + ".A" + (k + 1)
+        ; checking if it has variations
+        Bool has_vars = JsonUtil.GetPathIntValue(file, anim_var_path + ".reqConstraints", -1) == -1
+        If has_vars
+            Int var_count = JsonUtil.PathCount(file, anim_var_path) - 1
+            While var_count >= 0 && !_CheckConstraints(file, anim_var_path + "[" + var_count + "]", actor_constraints)
+                var_count -= 1
+            EndWhile
+            If var_count >= 0
+                actor_animVars[k] = anim_var_path + "[" + var_count + "]"
+            Else
+                UDmain.Warning("UD_AnimationManagerScript::PlayAnimationByDef() Can't find valid animation in def " + sAnimDef +" for actors with constraints " + actor_constraints)
+                Return
+            EndIf
+        ElseIf _CheckConstraints(file, anim_var_path, actor_constraints)
+            actor_animVars[k] = anim_var_path
+        Else
+            UDmain.Warning("UD_AnimationManagerScript::PlayAnimationByDef() Can't find valid animation in def " + sAnimDef +" for actors with constraints " + actor_constraints)
+            Return
+        EndIf
+        k += 1
+    EndWhile
+
+    Bool is_sequence = JsonUtil.GetPathStringValue(file, path + ".isSequence") == "TRUE"
+    
+    If aakActors.Length == 2
+        If is_sequence
+        ; sequence animation (from sex lab animation packs)
+            String[] atemp1 = JsonUtil.PathStringElements(file, actor_animVars[0] + ".animation")
+            String[] atemp2 = JsonUtil.PathStringElements(file, actor_animVars[1] + ".animation")
+            If atemp1.Length > 0 && atemp2.Length > 0
+                FastStartThirdPersonSequenceWithHelper(aakActors[0], aakActors[1], atemp1, atemp2, !bContinueAnimation)
+            Else
+                UDMain.Error("UD_CustomDevice_RenderScript::PlayAnimationByDef() animation sequence array is empty! Check file " + file + " and animDef variations: " + actor_animVars)
+                Return
+            EndIf
+        Else
+        ; regular animation 
+            String temp1 = JsonUtil.GetPathStringValue(file, actor_animVars[0] + ".animation")
+            String temp2 = JsonUtil.GetPathStringValue(file, actor_animVars[1] + ".animation")
+            If temp1 != "" && temp2 != ""
+                FastStartThirdPersonAnimationWithHelper(aakActors[0], aakActors[1], temp1, temp2, !bContinueAnimation)
+            Else
+                UDMain.Error("UD_CustomDevice_RenderScript::PlayAnimationByDef() animation is empty! Check file " + file + " and animDef variations: " + actor_animVars)
+                Return
+            EndIf
+        EndIf
+    ElseIf aakActors.Length == 1
+        If is_sequence
+        ; sequence animation (from sex lab animation packs)
+            String[] atemp1 = JsonUtil.PathStringElements(file, actor_animVars[0] + ".animation")
+            If atemp1.Length > 0
+                FastStartThirdPersonSequence(aakActors[0], atemp1)
+            Else
+                UDMain.Error("UD_CustomDevice_RenderScript::PlayAnimationByDef() animation sequence array is empty! Check file " + file + " and animDef variations: " + actor_animVars)
+                Return
+            EndIf
+        Else
+        ; regular animation 
+            String temp1 = JsonUtil.GetPathStringValue(file, actor_animVars[0] + ".animation")
+            If temp1 != ""
+                FastStartThirdPersonAnimation(aakActors[0], temp1)
+            Else
+                UDMain.Error("UD_CustomDevice_RenderScript::PlayAnimationByDef() animation is empty! Check file " + file + " and animDef variations: " + actor_animVars)
+                Return
+            EndIf
+        EndIf
+    EndIf
+EndFunction
+
 ; array with loaded json files
-String[] UD_AnimationDefs
+String[] UD_AnimationJSON
 
 ; For debug purposes. Remove in prod
 Bool forceReloadFiles = True
@@ -351,12 +437,12 @@ Bool enableForcedFlag = True
 
 ; Function to preload and validate json files with animations
 ; If the use conditions are specified in the file (by the "condition" field), then they are checked before the file name is saved in the list for the future uses.
-; All loaded and validated files saved in the UD_AnimationDefs array.
+; All loaded and validated files saved in the UD_AnimationJSON array.
 Function LoadAnimationJSONFiles()
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles()")
+        UDmain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles()", 3)
     EndIf
-    UD_AnimationDefs = PapyrusUtil.ResizeStringArray(UD_AnimationDefs, 0)
+    UD_AnimationJSON = PapyrusUtil.ResizeStringArray(UD_AnimationJSON, 0)
     String[] files = JsonUtil.JsonInFolder("UD/Animations")
     Int i = 0
     While i < files.Length
@@ -366,7 +452,7 @@ Function LoadAnimationJSONFiles()
         If JsonUtil.Load(file) && JsonUtil.IsGood(file)
             String file_to_check = JsonUtil.GetPathStringValue(file, "conditions.json")
             If file_to_check != "" && JsonUtil.JsonExists(file_to_check) == False
-                UDMain.Warning("UD_AnimationManagerScript::LoadAnimationJSONFiles() Load condition of the file " + file + " is not valid. Can't find JSON file " + file_to_check)
+                UDMain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() Load condition of the file " + file + " is not valid. Can't find JSON file " + file_to_check, 1)
                 file_is_good = False
             EndIf
             file_to_check = JsonUtil.GetPathStringValue(file, "conditions.mod")
@@ -380,13 +466,13 @@ Function LoadAnimationJSONFiles()
             file_is_good = False
         EndIf
         If file_is_good
-            UD_AnimationDefs = PapyrusUtil.PushString(UD_AnimationDefs, files[i])
+            UD_AnimationJSON = PapyrusUtil.PushString(UD_AnimationJSON, files[i])
         EndIf
         i += 1
     EndWhile
     
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() Loaded files: " + UD_AnimationDefs)
+        UDmain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() Loaded files: " + UD_AnimationJSON, 3)
     EndIf
 EndFunction
 
@@ -416,11 +502,18 @@ EndFunction
 ;                   "reqConstraints" : 0,                               Required constraints for the first actor (animation shouldn't be picked if actor doesn't have all required constraints)
 ;                   "optConstraints" : 0                                Optional constraints for the first actor (animation shouldn't be picked if actor has constraints not defined by this bit-mask)
 ;               },
-;               "A2" : {
-;                   "animation" : "<animation event>",
-;                   "reqConstraints" : 0,                               Required constraints for the second actor (animation shouldn't be picked if actor doesn't have all required constraints)
-;                   "optConstraints" : 0                                Optional constraints for the second actor (animation shouldn't be picked if actor has constraints not defined by this bit-mask)
-;               },
+;               "A2" : [                                                Array with variants
+;                   {
+;                       "animation" : "<animation event variant 1>",        Animation event for specified actor's constraints
+;                       "reqConstraints" : 256,                             Required constraints for the second actor (animation shouldn't be picked if actor doesn't have all required constraints)
+;                       "optConstraints" : 0                                Optional constraints for the second actor (animation shouldn't be picked if actor has constraints not defined by this bit-mask)
+;                  },
+;                   {
+;                       "animation" : "<animation event variant 2>",        Variant for specified actor's constraints
+;                       "reqConstraints" : 512,                             Required constraints for the second actor (animation shouldn't be picked if actor doesn't have all required constraints)
+;                       "optConstraints" : 0                                Optional constraints for the second actor (animation shouldn't be picked if actor has constraints not defined by this bit-mask)
+;                   }
+;               ],
 ;               "lewd" : 0,                                             Rate of lewdiness
 ;               "aggressive" : 1,                                       Rate of aggressiveness (from akHelper towards akActor). Could be negative
 ;               "forced" : true                                         First forced animation will be the only animation in result array. Used to test animation in game with forceReloadFiles = true and enableForcedFlag = true
@@ -432,12 +525,12 @@ EndFunction
 ;}
 String[] Function GetAnimationsFromDB(String sType, String sKeyword, String sAttribute, Int[] aActorConstraints, Int iLewdMin = 0, Int iLewdMax = 10, Int iAggroMin = -10, Int iAggroMax = 10)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetAnimationsFromDB() sType = " + sType + ", sKeyword = " + sKeyword + ", sAttribute = " + sAttribute + ", aActorConstraints = " + aActorConstraints)
+        UDmain.Log("UD_AnimationManagerScript::GetAnimationsFromDB() sType = " + sType + ", sKeyword = " + sKeyword + ", sAttribute = " + sAttribute + ", aActorConstraints = " + aActorConstraints, 3)
     EndIf
     String[] result_temp = new String[10]
     Int currentIndex = 0
     
-    If forceReloadFiles || UD_AnimationDefs.Length == 0
+    If forceReloadFiles || UD_AnimationJSON.Length == 0
         If forceReloadFiles
             UDMain.Info("UD_AnimationManagerScript::GetAnimationsFromDB() Reloading json files since flag 'forceReloadFiles' is set")
         EndIf
@@ -446,8 +539,8 @@ String[] Function GetAnimationsFromDB(String sType, String sKeyword, String sAtt
     
     String dict_path = sType + sKeyword
     Int i = 0
-    While i < UD_AnimationDefs.Length && currentIndex < 128
-        String file = "UD/Animations/" + UD_AnimationDefs[i]
+    While i < UD_AnimationJSON.Length && currentIndex < 128
+        String file = "UD/Animations/" + UD_AnimationJSON[i]
         Int path_count = JsonUtil.PathCount(file, dict_path)
         Int j = 0
         While j < path_count && currentIndex < 128
@@ -457,24 +550,34 @@ String[] Function GetAnimationsFromDB(String sType, String sKeyword, String sAtt
                 If forced 
                     String[] result_forced = new String[1]
                     If sAttribute == ""
-                        result_forced[0] = UD_AnimationDefs[i] + ":" + anim_path
+                        result_forced[0] = UD_AnimationJSON[i] + ":" + anim_path
                     Else
                         result_forced[0] = JsonUtil.GetPathStringValue(file, anim_path + sAttribute)
                     EndIf
-                    UDMain.Info("UD_AnimationManagerScript::GetAnimationsFromDB() Returning the first forced animation: " + result_forced[0])
+                    UDMain.Log("UD_AnimationManagerScript::GetAnimationsFromDB() Returning the first forced animation: " + result_forced[0])
                     Return result_forced
                 EndIf
             EndIf
-        ; using this odd construction to hopefully minimize reads from file
             Bool check = True
             Int k = 0
             While check && k < aActorConstraints.Length
-                check = check && _CheckConstraints(file, anim_path + ".A" + (k + 1), aActorConstraints[k])
+                String anim_var_path = anim_path + ".A" + (k + 1)
+                ; checking if it has variations
+                Bool has_vars = JsonUtil.GetPathIntValue(file, anim_var_path + ".reqConstraints", -1) == -1
+                If has_vars
+                    Int var_count = JsonUtil.PathCount(file, anim_var_path) - 1
+                    While var_count >= 0 && !_CheckConstraints(file, anim_var_path + "[" + var_count + "]", aActorConstraints[k])
+                        var_count -= 1
+                    EndWhile
+                    check = check && (var_count >= 0)
+                Else
+                    check = check && _CheckConstraints(file, anim_var_path, aActorConstraints[k])
+                EndIf
                 k += 1
             EndWhile
             If check && _CheckAnimationLewd(file, anim_path, iLewdMin, iLewdMax) && _CheckAnimationAggro(file, anim_path, iAggroMin, iAggroMax)
                 If sAttribute == ""
-                    result_temp[currentIndex] = UD_AnimationDefs[i] + ":" + anim_path
+                    result_temp[currentIndex] = UD_AnimationJSON[i] + ":" + anim_path
                 Else
                     result_temp[currentIndex] = JsonUtil.GetPathStringValue(file, anim_path + sAttribute)
                 EndIf
@@ -496,7 +599,7 @@ String[] Function GetAnimationsFromDB(String sType, String sKeyword, String sAtt
     EndIf
     result_temp = Utility.ResizeStringArray(result_temp, currentIndex)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetAnimationsFromDB() Animation array: " + result_temp)
+        UDmain.Log("UD_AnimationManagerScript::GetAnimationsFromDB() Animation array: " + result_temp, 3)
     EndIf
     Return result_temp
 EndFunction
@@ -526,29 +629,7 @@ Bool Function _CheckConstraints(String sFile, String sObjPath, Int iActorConstra
     Return Math.LogicalAnd(anim_reqConstr, iActorConstraints) == anim_reqConstr && (anim_optConstr < 0 || Math.LogicalAnd(Math.LogicalOr(anim_optConstr, anim_reqConstr), iActorConstraints) == iActorConstraints)
 EndFunction
 
-; Function GetStruggleAnimEventsByKeyword
-; This function returns an array of struggle animations for the specified device on actor with optional helper
-; akKeyword             - device keyword to struggle from
-; akActor               - wearer of the device
-; akHelper              - optional helper
-; return                - array of strings with animation event names
-String[] Function GetStruggleAnimEventsByKeyword(Keyword akKeyword, Actor akActor, Actor akHelper = None)
-    If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimEventsByKeyword() akKeyword = " + akKeyword.GetString() + ", akActor = " + akActor + ", akHelper = " + akHelper)
-    EndIf
-    If akHelper == None
-        Int[] aActorConstraints = new Int[1]
-        aActorConstraints[0] = _FromConstraintsBoolArrayToInt(GetActorConstraints(akActor))
-        Return GetAnimationsFromDB(".solo", "." + akKeyword.GetString(), ".A1.animation", aActorConstraints)
-    Else
-        Int[] aActorConstraints = new Int[2]
-        aActorConstraints[0] = _FromConstraintsBoolArrayToInt(GetActorConstraints(akActor))
-        aActorConstraints[1] = _FromConstraintsBoolArrayToInt(GetActorConstraints(akHelper))
-        Return GetAnimationsFromDB(".paired", "." + akKeyword.GetString(), ".A1.animation", aActorConstraints)
-    EndIf
-EndFunction
-
-; Function GetStruggleAnimationsByKeyword [OBSOLETE]
+; Function GetStruggleAnimationsByKeyword
 ; This function returns an array of struggle animations for the specified device on actor with optional helper.
 ; akKeyword             - device keyword to struggle from
 ; akActor               - wearer of the device
@@ -556,28 +637,28 @@ EndFunction
 ; return                - array of strings with animation paths in DB
 String[] Function GetStruggleAnimationsByKeyword(Keyword akKeyword, Actor akActor, Actor akHelper = None)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword() akKeyword = " + akKeyword.GetString() + ", akActor = " + akActor + ", akHelper = " + akHelper)
+        UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword() akKeyword = " + akKeyword.GetString() + ", akActor = " + akActor + ", akHelper = " + akHelper, 3)
     EndIf
 
     If akHelper == None
         Int[] aActorConstraints = new Int[1]
-        aActorConstraints[0] = _FromConstraintsBoolArrayToInt(GetActorConstraints(akActor))
+        aActorConstraints[0] = GetActorConstraintsInt(akActor)
         Return GetAnimationsFromDB(".solo", "." + akKeyword.GetString(), "", aActorConstraints)
     Else
         Int[] aActorConstraints = new Int[2]
-        aActorConstraints[0] = _FromConstraintsBoolArrayToInt(GetActorConstraints(akActor))
-        aActorConstraints[1] = _FromConstraintsBoolArrayToInt(GetActorConstraints(akHelper))
+        aActorConstraints[0] = GetActorConstraintsInt(akActor)
+        aActorConstraints[1] = GetActorConstraintsInt(akHelper)
         Return GetAnimationsFromDB(".paired", "." + akKeyword.GetString(), "", aActorConstraints)
     EndIf
 EndFunction
 
 String[] Function GetHornyAnimEvents(Actor akActor)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetHornyAnimEvents() akActor = " + akActor)
+        UDmain.Log("UD_AnimationManagerScript::GetHornyAnimEvents() akActor = " + akActor, 3)
     EndIf
 
     Int[] aActorConstraints = new Int[1]
-    aActorConstraints[0] = _FromConstraintsBoolArrayToInt(GetActorConstraints(akActor))
+    aActorConstraints[0] = GetActorConstraintsInt(akActor)
 
     String[] anims = GetAnimationsFromDB(".solo", ".horny", ".A1.animation", aActorConstraints)
 
@@ -586,11 +667,11 @@ EndFunction
 
 String[] Function GetOrgasmAnimEvents(Actor akActor)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetOrgasmAnimEvents() akActor = " + akActor)
+        UDmain.Log("UD_AnimationManagerScript::GetOrgasmAnimEvents() akActor = " + akActor, 3)
     EndIf
 
     Int[] aActorConstraints = new Int[1]
-    aActorConstraints[0] = _FromConstraintsBoolArrayToInt(GetActorConstraints(akActor))
+    aActorConstraints[0] = GetActorConstraintsInt(akActor)
 
     String[] anims = GetAnimationsFromDB(".solo", ".orgasm", ".A1.animation", aActorConstraints)
 
@@ -599,11 +680,11 @@ EndFunction
 
 String[] Function GetEdgedAnimEvents(Actor akActor)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetEdgedAnimEvents() akActor = " + akActor)
+        UDmain.Log("UD_AnimationManagerScript::GetEdgedAnimEvents() akActor = " + akActor, 3)
     EndIf
 
     Int[] aActorConstraints = new Int[1]
-    aActorConstraints[0] = _FromConstraintsBoolArrayToInt(GetActorConstraints(akActor))
+    aActorConstraints[0] = GetActorConstraintsInt(akActor)
 
     String[] anims = GetAnimationsFromDB(".solo", ".edged", ".A1.animation", aActorConstraints)
 
@@ -632,7 +713,7 @@ String Function GetAnimDefAttribute(String sAnimDef, String sAttrName, String sD
         UDMain.Warning("UD_AnimationManagerScript::GetAnimDefAttribute() Returning default value for the attribute " + sAttrName + " in AnimDef + " + sAnimDef)
     EndIf
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetAnimDefAttribute() sAnimDef = " + sAnimDef + ", sAttrName = " + sAttrName + " Value = " + res)
+        UDmain.Log("UD_AnimationManagerScript::GetAnimDefAttribute() sAnimDef = " + sAnimDef + ", sAttrName = " + sAttrName + " Value = " + res, 3)
     EndIf
     Return res
 EndFunction
@@ -659,28 +740,32 @@ String[] Function GetAnimDefAttributeArray(String sAnimDef, String sAttrName)
         UDMain.Warning("UD_AnimationManagerScript::GetAnimDefAttributeArray() Empty array as attribute value " + sAttrName + " in AnimDef + " + sAnimDef)
     EndIf
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetAnimDefAttributeArray() sAnimDef = " + sAnimDef + ", sAttrName = " + sAttrName + " Value = " + res)
+        UDmain.Log("UD_AnimationManagerScript::GetAnimDefAttributeArray() sAnimDef = " + sAnimDef + ", sAttrName = " + sAttrName + " Value = " + res, 3)
     EndIf
     Return res
 EndFunction
 
+; Function _FromBoolArrayToInt
+; Converts from Bool[] to Int bit mask
 ; (0,0,1,0,0,0,0) => 4
 ; (1,1,0,0,1,0,0) => 1+2+16
-Int Function _FromConstraintsBoolArrayToInt(Bool[] constraintsArray)
-    If constraintsArray.length == 0
+Int Function _FromBoolArrayToInt(Bool[] abArray)
+    If abArray.length == 0
         Return 0
     EndIf
     Int i = 0
     Int m = 1
     Int r = 0
-    While i < constraintsArray.length
-        r += m * (constraintsArray[i] as Int)
+    While i < abArray.length
+        r += m * (abArray[i] as Int)
         m *= 2
         i += 1
     EndWhile
     Return r
 EndFunction
 
+; Function GetActorConstraints [OBSOLETE ?]
+; Used to get actor's constraints from equipped devices as an array of bools
 ; Possible constraints:
 ; [0] hobble skirt or linked cuffs
 ; [1] bound ankles
@@ -730,6 +815,50 @@ Bool[] Function GetActorConstraints(Actor akActor)
 	EndIf
 	If akActor.WornHasKeyword(libs.zad_DeviousYokeBB)
 		result[10] = True
+	EndIf
+    Return result
+EndFunction
+
+; TODO: Cache it somehow for actors
+; Function GetActorConstraintsInt
+; Used to get actor's constraints from equipped devices as a bit mask
+Int Function GetActorConstraintsInt(Actor akActor)
+	Int result = 0
+    If akActor == None
+        Return result
+    EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirt)
+		result += 1
+	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousAnkleShackles) || akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirtRelaxed)
+		result += 2
+	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousYoke)
+		result += 4
+	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousCuffsFront)
+		result += 8
+	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousArmbinder)
+		result += 16
+	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousArmbinderElbow)
+		result += 32
+	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousPetSuit)
+		result += 64
+	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousElbowTie)
+		result += 128
+	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousBondageMittens)
+		result += 256
+	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousStraitJacket)
+		result += 512
+	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousYokeBB)
+		result += 1024
 	EndIf
     Return result
 EndFunction
@@ -799,4 +928,43 @@ Function _RestoreHeelEffect(Actor akActor)
             NiOverride.UpdateNodeTransform(akActor, false, isRealFemale, "NPC")
         endIf
     endIf
+EndFunction
+
+Function _Benchmark(Int iCycles = 10)
+    Int n = iCycles
+    Bool old_forceReloadFiles = forceReloadFiles
+    Bool old_enableForcedFlag = enableForcedFlag
+    forceReloadFiles = False
+    enableForcedFlag = False
+    UDmain.Info("UD_AnimationManagerScript::_Benchmark() Start benchmark GetAnimationsFromDB(solo) with iCycles = " + iCycles)
+    While n >= 0
+        n -= 1
+        Int[] cc = new Int[1]
+        cc[0] = 0
+        String[] res = GetAnimationsFromDB(".solo", ".zad_DeviousBoots", "", cc)
+    EndWhile
+    UDmain.Info("UD_AnimationManagerScript::_Benchmark() Benchmark GetAnimationsFromDB(solo) ends")
+    
+    n = iCycles
+    UDmain.Info("UD_AnimationManagerScript::_Benchmark() Start benchmark GetAnimationsFromDB(paired) with iCycles = " + iCycles)
+    While n >= 0
+        n -= 1
+        Int[] cc = new Int[2]
+        cc[0] = 0
+        cc[1] = 0
+        String[] res = GetAnimationsFromDB(".paired", ".zad_DeviousBoots", "", cc)
+    EndWhile
+    UDmain.Info("UD_AnimationManagerScript::_Benchmark() Benchmark GetAnimationsFromDB(paired) ends")
+    
+    Actor akActor = Game.GetPlayer()
+    n = iCycles
+    UDmain.Info("UD_AnimationManagerScript::_Benchmark() Start benchmark GetActorConstraintsInt with iCycles = " + iCycles)
+    While n >= 0
+        n -= 1
+        Int cc = GetActorConstraintsInt(akActor)
+    EndWhile
+    UDmain.Info("UD_AnimationManagerScript::_Benchmark() Benchmark GetActorConstraintsInt ends")
+    
+    forceReloadFiles = old_forceReloadFiles
+    enableForcedFlag = old_enableForcedFlag
 EndFunction

@@ -3573,7 +3573,7 @@ Function minigame()
                     if !(tick_s % 3) && tick_s
                         ;start new animation if wearer stops animating
                         if hasStruggleAnimation && (UDCDmain.UD_AlternateAnimation || !UDAM.isAnimating(Wearer, false) || (_minigameHelper && !UDAM.isAnimating(_minigameHelper, false))) && !pauseMinigame && !force_stop_minigame
-                            _PickAndPlayStruggleAnimation(bUseCache = True)
+                            _PickAndPlayStruggleAnimation(bContinueAnimation = True)
                         endif
                         OnMinigameTick3()
                     endif
@@ -3668,75 +3668,78 @@ String[] _StruggleAnimationDefPairArray
 String[] _StruggleAnimationDefActorArray
 String[] _StruggleAnimationDefHelperArray
 
-Bool Function _PickAndPlayStruggleAnimation(Bool bUseCache = False)
-    String _sStruggleAnim = ""
-    String _sStruggleAnimHelper = ""
+Int _PlayerLastConstraints = 0
+Int _HelperLastConstraints = 0
+
+Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bContinueAnimation = False)
     String _animationDef = ""
     
+    Bool _clearCache_Pair = bClearCache
+    Bool _clearCache_SoloActor = bClearCache
+    Bool _clearCache_SoloHelper = bClearCache
+    
+    Int constraints = UDAM.GetActorConstraintsInt(Wearer)
+    If constraints != _PlayerLastConstraints
+        _PlayerLastConstraints = constraints
+        _clearCache_Pair = True
+        _clearCache_SoloActor = True
+    EndIf
     If _minigameHelper
-        If _StruggleAnimationDefPairArray.Length == 0 || !bUseCache
+        constraints = UDAM.GetActorConstraintsInt(_minigameHelper)
+        If constraints != _HelperLastConstraints
+            _HelperLastConstraints = constraints
+            _clearCache_Pair = True
+            _clearCache_SoloHelper = True
+        EndIf
+    Else
+        
+    EndIf
+    
+    If _minigameHelper
+        If _StruggleAnimationDefPairArray.Length == 0 || _clearCache_Pair
             _StruggleAnimationDefPairArray = UDAM.GetStruggleAnimationsByKeyword(UD_DeviceKeyword_Minor, Wearer, _minigameHelper)
         EndIf
         If _StruggleAnimationDefPairArray.Length > 0
         ; using paired animation
             _animationDef = _StruggleAnimationDefPairArray[Utility.RandomInt(0, _StruggleAnimationDefPairArray.Length - 1)]
-            Bool is_sequence = UDAM.GetAnimDefAttribute(_animationDef, ".isSequence") == "TRUE"
-            If is_sequence
-            ; sequence animation (from sex lab animation packs)
-                String[] temp1 = UDAM.GetAnimDefAttributeArray(_animationDef, ".A1.animation")
-                String[] temp2 = UDAM.GetAnimDefAttributeArray(_animationDef, ".A2.animation")
-                If temp1.Length > 0 && temp2.Length > 0
-                    UDAM.FastStartThirdPersonSequenceWithHelper(Wearer, _minigameHelper, temp1, temp2, !bUseCache)
-                    _sStruggleAnim = temp1[temp1.Length - 1]
-                    _sStruggleAnimHelper = temp2[temp2.Length - 1]
-                Else
-                    UDMain.Error("UD_CustomDevice_RenderScript::_PickAndPlayStruggleAnimation() animation sequence array is empty! Check animation def: " + _animationDef)
-                EndIf
-            Else
-            ; regular animation 
-                _sStruggleAnim = UDAM.GetAnimDefAttribute(_animationDef, ".A1.animation")
-                _sStruggleAnimHelper = UDAM.GetAnimDefAttribute(_animationDef, ".A2.animation")
-                If _sStruggleAnim != "" && _sStruggleAnimHelper != ""
-                    UDAM.FastStartThirdPersonAnimationWithHelper(Wearer, _minigameHelper, _sStruggleAnim, _sStruggleAnimHelper, !bUseCache)
-                Else
-                    UDMain.Error("UD_CustomDevice_RenderScript::_PickAndPlayStruggleAnimation() animation is empty! Check animation def: " + _animationDef)
-                EndIf
-            EndIf
+            Actor[] actors = new Actor[2]
+            actors[0] = Wearer
+            actors[1] = _minigameHelper
+            UDAM.PlayAnimationByDef(_animationDef, actors, bContinueAnimation)
         Else
         ; using solo animation for actors
-            If _StruggleAnimationDefActorArray.Length == 0 || !bUseCache
+            If _StruggleAnimationDefActorArray.Length == 0 || _clearCache_SoloActor
                 _StruggleAnimationDefActorArray = UDAM.GetStruggleAnimationsByKeyword(UD_DeviceKeyword_Minor, Wearer)
             EndIf
-            If _StruggleAnimationDefHelperArray.Length == 0 || !bUseCache
+            If _StruggleAnimationDefHelperArray.Length == 0 || _clearCache_SoloHelper
                 _StruggleAnimationDefHelperArray = UDAM.GetStruggleAnimationsByKeyword(libs.zad_DeviousGloves, _minigameHelper)
             EndIf
             
             If _StruggleAnimationDefActorArray.Length > 0
                 _animationDef = _StruggleAnimationDefActorArray[Utility.RandomInt(0, _StruggleAnimationDefActorArray.Length - 1)]
-                _sStruggleAnim = UDAM.GetAnimDefAttribute(_animationDef, ".A1.animation")
+                Actor[] actors = new Actor[1]
+                actors[0] = Wearer
+                UDAM.PlayAnimationByDef(_animationDef, actors)
             EndIf
 
             If _StruggleAnimationDefHelperArray.Length > 0
                 _animationDef = _StruggleAnimationDefHelperArray[Utility.RandomInt(0, _StruggleAnimationDefHelperArray.Length - 1)]
-                _sStruggleAnimHelper = UDAM.GetAnimDefAttribute(_animationDef, ".A1.animation")
+                Actor[] actors = new Actor[1]
+                actors[0] = _minigameHelper
+                UDAM.PlayAnimationByDef(_animationDef, actors)
             EndIf
-            UDAM.FastStartThirdPersonAnimation(Wearer, _sStruggleAnim)
-            UDAM.FastStartThirdPersonAnimation(_minigameHelper, _sStruggleAnimHelper)
         EndIf
     Else
-        If _StruggleAnimationDefActorArray.Length == 0 || !bUseCache
+        If _StruggleAnimationDefActorArray.Length == 0 || _clearCache_SoloActor
             _StruggleAnimationDefActorArray = UDAM.GetStruggleAnimationsByKeyword(UD_DeviceKeyword_Minor, Wearer)
         EndIf
         If _StruggleAnimationDefActorArray.Length > 0
             _animationDef = _StruggleAnimationDefActorArray[Utility.RandomInt(0, _StruggleAnimationDefActorArray.Length - 1)]
-            _sStruggleAnim = UDAM.GetAnimDefAttribute(_animationDef, ".A1.animation")
+            Actor[] actors = new Actor[1]
+            actors[0] = Wearer
+            UDAM.PlayAnimationByDef(_animationDef, actors)
         EndIf
-        UDAM.FastStartThirdPersonAnimation(Wearer, _sStruggleAnim)
     EndIf
-    UDMain.Info("UD_CustomDevice_RenderScript::_PickAndPlayStruggleAnimation() struggle animation to play (actor) : " + _sStruggleAnim)
-    UDMain.Info("UD_CustomDevice_RenderScript::_PickAndPlayStruggleAnimation() struggle animation to play (helper) : " + _sStruggleAnimHelper)
-
-    Return _sStruggleAnim != ""
 EndFunction
 
 Function MinigameVarReset()
