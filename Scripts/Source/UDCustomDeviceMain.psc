@@ -1253,9 +1253,6 @@ Function showActorDetails(Actor akActor)
 
         ShowMessageBox(loc_res)
         
-        if Game.UsingGamepad()
-            Utility.waitMenuMode(0.75)
-        endif
         string loc_orgStr = ""
         loc_orgStr += "--ORGASM DETAILS--\n"
         loc_orgStr += "Active vibrators: " + GetActivatedVibrators(akActor) + "(S="+StorageUtil.GetIntValue(akActor,"UD_ActiveVib_Strength",0)+")" + "\n"
@@ -1271,15 +1268,8 @@ Function showActorDetails(Actor akActor)
         loc_orgStr += "Orgasm exhaustion: " + UDOM.GetOrgasmExhaustion(akActor) + "\n"
         
         ShowMessageBox(loc_orgStr)
-        if Game.UsingGamepad()
-            Utility.waitMenuMode(0.75)
-        endif
         
         ShowHelperDetails(akActor)
-        
-        if Game.UsingGamepad()
-            Utility.waitMenuMode(0.75)
-        endif
         
         Weapon loc_sharpestWeapon = getSharpestWeapon(akActor)
         if loc_sharpestWeapon
@@ -1342,12 +1332,9 @@ Function showActorDetails(Actor akActor)
                 loc_debugStr += "CurrentScene-Quest: " + akActor.GetCurrentScene().GetOwningQuest() +"\n"
             endif
             
-            
             ShowMessageBox(loc_debugStr)
         endif
-        
     endif
-    
 EndFunction
 
 Function ShowHelperDetails(Actor akActor)

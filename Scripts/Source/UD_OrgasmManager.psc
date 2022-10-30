@@ -82,8 +82,10 @@ Function Update()
 EndFunction
 
 Function RemoveAbilities(Actor akActor)
-    akActor.RemoveSpell(UDlibs.OrgasmCheckSpell)
-    akActor.RemoveSpell(UDlibs.ArousalCheckSpell)
+    if akActor
+        akActor.RemoveSpell(UDlibs.OrgasmCheckSpell)
+        akActor.RemoveSpell(UDlibs.ArousalCheckSpell)
+    endif
 EndFunction
 
 Function CheckOrgasmCheck(Actor akActor)
@@ -615,6 +617,8 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
         StorageUtil.SetIntValue(akActor,"UD_OrgasmDuration",aiDuration)
     endif
     
+    UDmain.UDUI.GoToState("UIDisabled") ;disable UI
+    
     libsp.SetAnimating(akActor, true)
     string loc_anim = libsp.AnimSwitchKeyword(akActor, "Orgasm")
     ;libsp.PlayThirdPersonAnimationBlocking(akActor,loc_anim, iDuration, true)
@@ -649,6 +653,7 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
     endif
     
     libsp.SetAnimating(akActor, false)
+    UDmain.UDUI.GoToState("") ;enable UI
 EndFunction
 
 ;///////////////////////////////////////
@@ -829,6 +834,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
         endif
         return
     endif
+    
     if UDCDMain.actorInMinigame(akActor) || libs.isAnimating(akActor)
         if akActor == UDmain.Player
             UDmain.Print("You are already bussy!")
@@ -837,22 +843,23 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     endif
     
     if !(getActorAfterMultOrgasmRate(akActor) > 0)
-        if UDmain.ActorIsPlayer(akActor)
-        endif
         return
     endif
+    
     akActor.AddToFaction(UDCDmain.MinigameFaction)
     akActor.AddToFaction(OrgasmResistFaction)
     
     float loc_staminaRate     = akActor.getBaseAV("StaminaRate")
     akActor.setAV("StaminaRate", 0.0)
     
-    UDCDMain.DisableActor(akActor,true)
-    bool[] loc_cameraState = libs.StartThirdPersonAnimation(akActor, libs.AnimSwitchKeyword(akActor, "Horny01"), permitRestrictive=true)
-    Game.EnablePlayerControls(abMovement = true)
+    ;UDCDMain.DisableActor(akActor,true)
+    UDCDMain.StartMinigameDisable(akActor)
+    UDmain.UDAM.FastStartThirdPersonAnimation(akActor, libs.AnimSwitchKeyword(akActor, "Horny01"))
     UDCDMain.sendHUDUpdateEvent(true,true,true,true)
     
+    UDmain.UDUI.GoToState("UIDisabled")
     MinigameKeysRegister()
+    
     UDCDMain.toggleWidget2(true)
     if UDmain.ActorIsPlayer(akActor)
         _PlayerOrgasmResist_MinigameOn = true
@@ -863,13 +870,15 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     if akActor.wornhaskeyword(libs.zad_deviousheavybondage)
         loc_baseDrain += 2.5
     endif
-    float loc_currentOrgasmRate = getActorOrgasmRate(akActor)
-    bool loc_cycleON = true
-    int loc_tick = 0
-    float loc_StaminaRateMult = 1.0
-    float loc_orgasmResistence = getActorOrgasmResist(akActor)
-    int loc_HightSpiritMode_Duration = -2*Round(1/UDmain.UD_baseUpdateTime)
-    int loc_HightSpiritMode_Type = 1
+    
+    float   loc_currentOrgasmRate           = getActorOrgasmRate(akActor)
+    bool    loc_cycleON                     = true
+    int     loc_tick                        = 0
+    float   loc_StaminaRateMult             = 1.0
+    float   loc_orgasmResistence            = getActorOrgasmResist(akActor)
+    int     loc_HightSpiritMode_Duration    = -2*Round(1/UDmain.UD_baseUpdateTime)
+    int     loc_HightSpiritMode_Type        = 1
+    
     while loc_cycleON
         if !akActor.isInFaction(OrgasmResistFaction);StorageUtil.GetIntValue(akActor,"UD_OrgasmResistMinigame_EndFlag",0)
             loc_cycleON = false
@@ -902,8 +911,8 @@ Function FocusOrgasmResistMinigame(Actor akActor)
         endif
         
         if loc_tick*UDmain.UD_baseUpdateTime >= 1.0 && loc_cycleON
-            loc_currentOrgasmRate     = getActorOrgasmRate(akActor)
-            loc_orgasmResistence    = getActorOrgasmResist(akActor)
+            loc_currentOrgasmRate       = getActorOrgasmRate(akActor)
+            loc_orgasmResistence        = getActorOrgasmResist(akActor)
             if loc_HightSpiritMode_Duration == 0
                 if Utility.randomInt() <= 40 
                     loc_HightSpiritMode_Type = Utility.randomInt(1,3)
@@ -919,6 +928,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
             endif
             loc_tick = 0
             UDCDmain.sendHUDUpdateEvent(true,true,true,true)
+            UDCDMain.UpdateMinigameDisable(akActor)
         endif
         
         if loc_cycleON
@@ -942,20 +952,29 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     endwhile
     
     akActor.setAV("StaminaRate", loc_staminaRate)
+    
     if UDmain.ActorIsPlayer(akActor)
         _PlayerOrgasmResist_MinigameOn = false
     endif
     
-    libs.EndThirdPersonAnimation(akActor, loc_cameraState, permitRestrictive=true)
+    if !UDmain.UDOM.isOrgasming(akActor)
+        UDmain.UDAM.FastEndThirdPersonAnimation(akActor) ;ends animation
+    endif
+    
     akActor.RemoveFromFaction(UDCDmain.MinigameFaction)
-    UDCDMain.EnableActor(akActor,true)
+    
+    UDCDMain.EndMinigameDisable(akActor)
+    
+    UDmain.UDUI.GoToState("")
     MinigameKeysUnregister()
+    
     UDCDMain.widget2.SetColors(0xE727F5, 0xF775FF,0xFF00BC)
+    
     akActor.RemoveFromFaction(OrgasmResistFaction)
     
     UDlibs.StruggleExhaustionSpell.SetNthEffectMagnitude(0, 40)
     UDlibs.StruggleExhaustionSpell.SetNthEffectDuration(0, 15)
-    Utility.wait(0.5)
+    Utility.wait(0.1)
     UDlibs.StruggleExhaustionSpell.cast(akActor)
 EndFunction
 

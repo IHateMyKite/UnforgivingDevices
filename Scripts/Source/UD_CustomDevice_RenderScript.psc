@@ -116,22 +116,39 @@ zadlibs_UDPatch Property libsp
 EndProperty
 
 ;FILL FOR FASTER LOCK
-Armor Property DeviceRendered auto
-Keyword Property UD_DeviceKeyword auto ;keyword of this device for better manipulation
+Armor   Property DeviceRendered     auto
+Keyword Property UD_DeviceKeyword   auto ;keyword of this device for better manipulation
 
 ;-------------------------------------------------------
 ;-------------------------------------------------------
 
 ;libs, filled automatically
-UnforgivingDevicesMain Property UDmain auto ;main function
+UnforgivingDevicesMain  _udmain
+Quest                   _udquest ;kept for possible future optimization
+UnforgivingDevicesMain Property UDmain hidden ;main function
+    UnforgivingDevicesMain Function get()
+        if !_udmain
+            _udquest = Game.getFormFromFile(0x00005901,"UnforgivingDevices.esp") as Quest
+            _udmain = _udquest as UnforgivingDevicesMain
+        endif
+        return _udmain
+    EndFunction
+    Function set(UnforgivingDevicesMain akForm)
+        _udmain = akForm
+    EndFunction
+EndProperty
 UD_libs Property UDlibs Hidden;device/keyword library
     UD_libs Function get()
         return UDmain.UDlibs
     EndFunction
-EndProperty 
+EndProperty
+UDCustomDeviceMain _udcdmain
 UDCustomDeviceMain Property UDCDmain Hidden
     UDCustomDeviceMain Function get()
-        return UDmain.UDCDmain
+        if !_udcdmain
+            _udcdmain = UDmain.UDCDmain
+        endif
+        return _udcdmain
     EndFunction
 EndProperty
 UD_OrgasmManager Property UDOM Hidden
@@ -2381,9 +2398,7 @@ Function DeviceMenu(bool[] aControl)
             _break = True         ;exit
         endif
         DeviceMenuExt(msgChoice)
-        if Game.UsingGamepad()
-            Utility.waitMenuMode(0.75)
-        endif
+        GamepadMenuPause()
     endwhile
     
     GoToState("")

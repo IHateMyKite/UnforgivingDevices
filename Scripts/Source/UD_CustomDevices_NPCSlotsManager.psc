@@ -238,8 +238,8 @@ Function updateSlotedActors(bool debugMsg = False)
 EndFunction
 
 bool Function RegisterNPC(Actor akActor,bool debugMsg = false)
-    int mover = 0
     Actor currentSelectedActor = akActor
+    
     if !currentSelectedActor
         UDmain.Error("RegisterNPC - none actor passed!")
         return false
@@ -250,24 +250,29 @@ bool Function RegisterNPC(Actor akActor,bool debugMsg = false)
         return false
     endif
     
-    int index = 0
-    while index < UD_Slots - 1
-        if !StorageUtil.GetIntValue(currentSelectedActor, "UD_blockSlotUpdate", 0)
-            UD_CustomDevice_NPCSlot slot = GetNthAlias(index) as UD_CustomDevice_NPCSlot
-            Actor currentSlotActor = slot.getActor()
-            if !currentSlotActor
-                slot.unregisterSlot()
-                slot.SetSlotTo(currentSelectedActor)
-                StorageUtil.SetIntValue(currentSelectedActor, "UD_ManualRegister", 1)
-                if debugMsg || UDCDmain.UDmain.DebugMod
-                    debug.notification("[UD]: NPC slot ["+ index +"] => " + slot.getSlotedNPCName() + " registered!")
+    if !StorageUtil.GetIntValue(currentSelectedActor, "UD_blockSlotUpdate", 0)
+        int index = 0
+        while index < UD_Slots - 1
+                UD_CustomDevice_NPCSlot slot = GetNthAlias(index) as UD_CustomDevice_NPCSlot
+                Actor currentSlotActor = slot.getActor()
+                if !currentSlotActor
+                    slot.unregisterSlot()
+                    slot.GoToState("UpdatePaused")
+                    slot.SetSlotTo(currentSelectedActor)
+                    StorageUtil.SetIntValue(currentSelectedActor, "UD_ManualRegister", 1)
+                    if debugMsg || UDCDmain.UDmain.DebugMod
+                        UDmain.Print("NPC slot ["+ index +"] => " + slot.getSlotedNPCName() + " registered!",0)
+                    endif
+                    UDmain.Info(GetActorName(akActor) + " registered!")
+                    slot.GoToState("")
+                    return true
                 endif
-                UDmain.Info(GetActorName(akActor) + " registered!")
-                return true
-            endif
-        endif
-        index += 1
-    endwhile
+            index += 1
+        endwhile
+    else
+        UDmain.Print(GetActorName(akActor) + " can't be currently registered!",0)
+        return false
+    endif
     UDmain.Error("RegisterNPC - Can't find free slot for " + GetActorName(akActor) + " !")
     return false
 EndFunction

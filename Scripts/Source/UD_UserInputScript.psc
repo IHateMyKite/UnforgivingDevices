@@ -21,6 +21,7 @@ EndProperty
 
 UD_CustomDevice_RenderScript    Property lastOpenedDevice     = none    auto hidden
 Int                             Property UD_GamepadKey        = 0x112   auto
+Bool                            Property UD_EasyGamepadMode   = false   auto
 
 bool _specialButtonOn = false
 bool _gamepadButtonOn = false
@@ -103,38 +104,23 @@ State Minigame
         endif
         bool loc_menuopen = UDmain.IsMenuOpen()
         if !loc_menuopen ;only if player is not in menu
-            if UDmain.TraceAllowed()        
-                UDmain.Log("OnKeyDown(), Keycode: " + KeyCode,3)
-            endif
             if (_crit) && !UDCDMain.UD_AutoCrit
                 if _selected_crit_meter == "S" && KeyCode == UDCDMain.Stamina_meter_Keycode
                     UDCDmain.crit = False
                     _crit = False
-                    if UDmain.TraceAllowed()                    
-                        UDmain.Log("Crit detected for Stamina bar! Keycode: " + KeyCode)
-                    endif
                     UDCDmain.CurrentPlayerMinigameDevice.critDevice()
                     return
                 elseif _selected_crit_meter == "M" && KeyCode == UDCDMain.Magicka_meter_Keycode
                     UDCDmain.crit = False
                     _crit = False
-                    if UDmain.TraceAllowed()                    
-                        UDmain.Log("Crit detected for Magicka bar! Keycode: " + KeyCode)
-                    endif
                     UDCDmain.CurrentPlayerMinigameDevice.critDevice()
                     return
                 elseif KeyCode == UDCDMain.Magicka_meter_Keycode || KeyCode == UDCDMain.Stamina_meter_Keycode
                     UDCDmain.crit = False
                     _crit = False
-                    if UDmain.TraceAllowed()                    
-                        UDmain.Log("Crit failure detected! Keycode: " + KeyCode)
-                    endif
                     UDCDmain.CurrentPlayerMinigameDevice.critFailure()
                     return
                 elseif KeyCode == UDCDMain.ActionKey_Keycode
-                    if UDmain.TraceAllowed()                    
-                        UDmain.Log("ActionKey_Keycode pressed! Keycode: " + KeyCode)
-                    endif
                     UDCDmain.CurrentPlayerMinigameDevice.stopMinigame()
                     UDCDmain.crit = false
                     return 
@@ -173,64 +159,103 @@ EndState
 Event OnKeyDown(Int KeyCode)
     bool loc_menuopen = UDmain.IsMenuOpen()
     if !loc_menuopen ;only if player is not in menu
-        if (!Game.UsingGamepad() || GamePadButtonPressed())
+        if UD_EasyGamepadMode && Game.UsingGamepad()
+            if KeyCode == UD_GamepadKey
+                ;show menu
+                ShowGamePadMenu()
+            endif
+        else
             if KeyCode == UDCDMain.PlayerMenu_KeyCode
                 UDCDMain.PlayerMenu()
             endif
-        elseif KeyCode == UD_GamepadKey
-            _gamepadButtonOn = true
         endif
     endif
 EndEvent
 
 Event OnKeyUp(Int KeyCode, Float HoldTime)
-    if !UDmain.IsMenuOpen() && (!Game.UsingGamepad() || GamePadButtonPressed())
+    if !UDmain.IsMenuOpen() && !(UD_EasyGamepadMode && Game.UsingGamepad())
         if KeyCode == UDCDMain.StruggleKey_Keycode
             if HoldTime < 0.2
-                if lastOpenedDevice
-                    lastOpenedDevice.deviceMenu(new Bool[30])
-                elseif libs.playerRef.wornhaskeyword(libs.zad_deviousheavybondage)
-                    if !lastOpenedDevice
-                        lastOpenedDevice = UDCDMain.getHeavyBondageDevice(UDmain.Player)
-                    endif
-                    if lastOpenedDevice
-                        lastOpenedDevice.deviceMenu(new Bool[30])
-                    else
-                        UDmain.Error("Can't set lastOpenedDevice")
-                    endif
-                endif
+                OpenLastDeviceMenu()
             else
-                UD_CustomDevice_RenderScript loc_device = UDCD_NPCM.getPlayerSlot().GetUserSelectedDevice()
-                if loc_device
-                    loc_device.deviceMenu(new Bool[30])
-                endif
+                OpenDeviceMenu()
             endif
         elseif KeyCode == UDCDmain.NPCMenu_Keycode
-            ObjectReference loc_ref = Game.GetCurrentCrosshairRef()
-            if loc_ref as Actor
-                Actor loc_actor = loc_ref as Actor
-                if !loc_actor.isDead() && UDmain.ActorIsValidForUD(loc_actor)
-                    if HoldTime <= 0.2
-                        UDCDmain.NPCMenu(loc_actor)
-                    else
-                        bool loc_actorisregistered = UDCDmain.isRegistered(loc_actor)
-                        if loc_actorisregistered
-                            bool loc_actorisfollower = UDmain.ActorIsFollower(loc_actor)
-                            bool loc_actorishelpless = (!UDCDmain.actorFreeHands(loc_actor) || loc_actor.getAV("paralysis") ;/|| loc_actor.GetSleepState() == 3/;) && UDCDmain.actorFreeHands(UDmain.Player)
-                            if loc_actorisfollower || loc_actorishelpless
-                                UDCDmain.HelpNPC(loc_actor,UDmain.Player,loc_actorisfollower)
-                            endif
-                        endif
+            OpenNPCMenu(HoldTime > 0.2)
+        endif
+    endif
+EndEvent
+
+State UIDisabled
+    Event OnKeyDown(Int KeyCode)
+    EndEvent
+    Event OnKeyUp(Int KeyCode, Float HoldTime)
+    EndEvent
+EndState
+
+Function OpenLastDeviceMenu()
+    if lastOpenedDevice
+        lastOpenedDevice.deviceMenu(new Bool[30])
+    elseif libs.playerRef.wornhaskeyword(libs.zad_deviousheavybondage)
+        if !lastOpenedDevice
+            lastOpenedDevice = UDCDMain.getHeavyBondageDevice(UDmain.Player)
+        endif
+        if lastOpenedDevice
+            lastOpenedDevice.deviceMenu(new Bool[30])
+        else
+            UDmain.Error("Can't set lastOpenedDevice")
+        endif
+    endif
+EndFunction
+
+Function OpenDeviceMenu()
+    UD_CustomDevice_RenderScript loc_device = UDCD_NPCM.getPlayerSlot().GetUserSelectedDevice()
+    if loc_device
+        loc_device.deviceMenu(new Bool[30])
+    endif
+EndFunction
+
+Function OpenNPCMenu(Bool abOpenDeviceList)
+    ObjectReference loc_ref = Game.GetCurrentCrosshairRef()
+    if loc_ref as Actor
+        Actor loc_actor = loc_ref as Actor
+        if !loc_actor.isDead() && UDmain.ActorIsValidForUD(loc_actor)
+            if !abOpenDeviceList
+                UDCDmain.NPCMenu(loc_actor)
+            else
+                bool loc_actorisregistered = UDCDmain.isRegistered(loc_actor)
+                if loc_actorisregistered
+                    bool loc_actorisfollower = UDmain.ActorIsFollower(loc_actor)
+                    bool loc_actorishelpless = (!UDCDmain.actorFreeHands(loc_actor) || loc_actor.getAV("paralysis") ;/|| loc_actor.GetSleepState() == 3/;) && UDCDmain.actorFreeHands(UDmain.Player)
+                    if loc_actorisfollower || loc_actorishelpless
+                        UDCDmain.HelpNPC(loc_actor,UDmain.Player,loc_actorisfollower)
                     endif
                 endif
             endif
         endif
     endif
-    if GamePadButtonPressed()
-        _gamepadButtonOn = false
-    endif
-EndEvent
+EndFunction
 
-Bool Function GamePadButtonPressed()
-    return _gamepadButtonOn
+Function ShowGamePadMenu()
+    string[] loc_options = new String[6]
+    loc_options[0] = "Last Device menu"
+    loc_options[1] = "Device list"
+    loc_options[2] = "Player menu"
+    loc_options[3] = "NPC menu"
+    loc_options[4] = "NPC Device List"
+    loc_options[5] = "Exit"
+    int loc_result = UDmain.GetUserListInput(loc_options)
+    if loc_result == 0
+        OpenLastDeviceMenu()
+    elseif loc_result == 1
+        OpenDeviceMenu()
+    elseif loc_result == 2
+        UDCDMain.PlayerMenu()
+    elseif loc_result == 3
+        OpenNPCMenu(false)
+    elseif loc_result == 4
+        OpenNPCMenu(true)
+    else
+        return
+    endif
 EndFunction

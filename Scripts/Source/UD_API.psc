@@ -9,7 +9,7 @@ Quest                               Property UD_UtilityQuest    auto
 ;SCRIPTS
 UDCustomDeviceMain                  Property UDCDmain       auto
 UD_AbadonQuest_script               Property UDAbadonQuest  auto
-UD_MCM_script                       Property UDMCM          auto  
+UD_MCM_script                       Property UDMCM          auto
 UD_OrgasmManager                    Property UDOM           auto
 UD_ExpressionManager                Property UDEM           auto
 UD_CustomDevices_NPCSlotsManager    Property UDNPCM         auto
