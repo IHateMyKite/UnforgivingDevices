@@ -9,13 +9,6 @@ zadlibs                                 Property libs       auto
 UD_ExpressionManager                    Property UDEM       auto
 UD_CustomDevices_NPCSlotsManager        Property UDCD_NPCM  auto
 
-UD_AnimationManagerScript Property UDAM hidden
-    UD_AnimationManagerScript Function get()
-        return UDmain.UDAM
-    EndFunction
-EndProperty
-
-
 zadlibs_UDPatch Property libsp
     zadlibs_UDPatch function Get()
         return UDCDmain.libsp
@@ -626,7 +619,7 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
     
     UDmain.UDUI.GoToState("UIDisabled") ;disable UI
     
-    String[] animationArray = UDAM.GetOrgasmAnimEvents(akActor)
+    String[] animationArray = UDmain.UDAM.GetOrgasmAnimEvents(akActor)
     If animationArray.Length > 0
         UDmain.UDAM.FastStartThirdPersonAnimation(akActor, animationArray[Utility.RandomInt(0, animationArray.Length - 1)])
     EndIf
@@ -642,9 +635,9 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
         loc_elapsedtime += 1
     endwhile
     
-    UDmain.UDAM.FastEndThirdPersonAnimation(akActor)
-    
     StorageUtil.UnsetIntValue(akActor,"UD_OrgasmDuration")
+    
+    UDmain.UDAM.FastEndThirdPersonAnimation(akActor)
 
     UDmain.UDUI.GoToState("") ;enable UI
 EndFunction
