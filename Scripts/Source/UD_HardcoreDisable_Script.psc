@@ -137,7 +137,7 @@ Event OnKeyDown(Int KeyCode)
             OpenMenu(_StatsKeyCode, "StatsMenu")
         elseif KeyCode == _MagicKeyCode
             OpenMenu(_MagicKeyCode, "MagicMenu")
-        elseif KeyCode == _TweenMenuKeyCode
+        elseif KeyCode == _TweenMenuKeyCode && !Game.UsingGamepad()
             UDCDmain.getHeavyBondageDevice(UDmain.Player).deviceMenu(new Bool[30])
         endif
     endif

@@ -267,7 +267,7 @@ Function deflate(bool silent = False)
             endif            
         else
             if WearerIsPlayer()
-                UDmain.Print("You succesfully deflated yours "+getPlugType()+" plug!",1)
+                UDmain.Print("You succesfully deflated your "+getDeviceName()+" plug!",1)
             elseif PlayerInMinigame()
                 UDmain.Print(getWearerName() + "s " + getDeviceName()+ " deflated!",1)
             endif

@@ -1,10 +1,10 @@
 Scriptname UnforgivingDevicesMain extends Quest  conditional
-{Main function of Unforgiving Devices}
+{Main script of Unforgiving Devices}
 
-zadlibs property libs auto 
-zadxlibs property libsx auto
-zadxlibs2 property libsx2 auto
-Quest Property UD_UtilityQuest auto
+zadlibs     property libs               auto 
+zadxlibs    property libsx              auto
+zadxlibs2   property libsx2             auto
+Quest       Property UD_UtilityQuest    auto
 
 Actor Property Player auto hidden
 
@@ -24,13 +24,16 @@ zadBoundCombatScript_UDPatch Property BoundCombat Hidden
         return libs.BoundCombat as zadBoundCombatScript_UDPatch
     EndFunction
 EndProperty
-bool Property UD_OrgasmExhaustion = True auto
-float Property UD_OrgasmExhaustionMagnitude = 0.0 auto
-int Property UD_OrgasmExhaustionDuration = 50 auto
 
-UD_libs Property UDlibs auto
-UDCustomDeviceMain Property UDCDmain auto
-UD_AbadonQuest_script Property UDAbadonQuest auto
+bool    Property UD_OrgasmExhaustion            = True  auto
+float   Property UD_OrgasmExhaustionMagnitude   = 0.0   auto
+int     Property UD_OrgasmExhaustionDuration    = 50    auto
+
+Float   Property UD_GamePadMenuWaitTime         = 0.25  auto
+
+UD_libs                 Property UDlibs         auto
+UDCustomDeviceMain      Property UDCDmain       auto
+UD_AbadonQuest_script   Property UDAbadonQuest  auto
 
 bool Property UD_AutoLoad = false auto
 
@@ -47,7 +50,7 @@ UD_ModifierManager_Script           Property UDMOM          auto
 UD_UserInputScript                  Property UDUI           auto
 UD_AnimationManagerScript           Property UDAM           auto
 UD_CompatibilityManager_Script      Property UDCM           auto
-UD_MenuChecker                      Property UDMC 
+UD_MenuChecker                      Property UDMC
     UD_MenuChecker Function get()
         return UD_UtilityQuest as UD_MenuChecker
     EndFunction
@@ -72,7 +75,8 @@ bool Property UD_DisableUpdate          = False     auto hidden conditional
 ;zadlibs patch control
 bool Property UD_zadlibs_ParalelProccesing = false auto
 
-bool _UD_hightPerformance
+Spell   OrgasmExhaustionSpell
+bool    _UD_hightPerformance
 bool Property UD_hightPerformance
     Function set(bool bValue)
         _UD_hightPerformance = bValue
@@ -90,19 +94,12 @@ bool Property UD_hightPerformance
     EndFunction
 EndProperty
 
-float Property UD_LowPerformanceTime = 1.0 autoreadonly
-float Property UD_HightPerformanceTime = 0.25 autoreadonly
-
-float Property UD_baseUpdateTime auto
-
-zadConfig Property DDconfig auto 
-
-Spell OrgasmExhaustionSpell
-bool Property Ready = False auto hidden
-
-String[] Property UD_OfficialPatches auto
-
-int Property UD_InfoLevel = 1 auto hidden
+float Property UD_LowPerformanceTime    = 1.0   autoreadonly
+float Property UD_HightPerformanceTime  = 0.25  autoreadonly
+float Property UD_baseUpdateTime                auto
+zadConfig   Property DDconfig                   auto
+String[]    Property UD_OfficialPatches         auto
+int         Property UD_InfoLevel       = 1     auto    hidden
 
 bool Property ZaZAnimationPackInstalled = false auto
 ;zbfBondageShell Property ZAZBS auto
@@ -111,6 +108,8 @@ bool Property ConsoleUtilInstalled      = false auto
 bool Property SlaveTatsInstalled        = false auto
 bool Property OrdinatorInstalled        = false auto
 bool Property ZadExpressionSystemInstalled = false auto
+
+bool Property Ready = False auto hidden
 bool Function UDReady()
     return Ready
 EndFunction
@@ -184,7 +183,7 @@ Event OnInit()
     if TraceAllowed()    
         Log("UnforgivingDevicesMain initialized",0)
     endif
-    Print("$UDREADY")
+    Print("Unforgiving Devices Ready!")
     Utility.wait(5.0)
     RegisterForModEvent("UD_VibEvent","EventVib")
     RegisterForSingleUpdate(0.1)
@@ -753,7 +752,6 @@ Function ShowMessageBox(string strText) global
     int loc_iterLine = 0
     int loc_iterBox = 0
     
-    
     while loc_iterBox < (loc_boxesNum)
         string loc_messagebox = ""
         
@@ -768,11 +766,11 @@ Function ShowMessageBox(string strText) global
             loc_messagebox += "===PAGE " + (loc_iterBox) + "/" + (loc_boxesNum) + "===\n"
         endif
         loc_iterLine = 0
+        
         debug.messagebox(loc_messagebox)
         
-        if Game.UsingGamepad()
-            Utility.waitMenuMode(0.75)
-        endif
+        ;wait for fucking messagebox to actually get OKd before continuing thread (holy FUCKING shit toad)
+        GamepadMenuPause()
     endwhile
 EndFunction
 
@@ -852,6 +850,12 @@ Form Function GetShield(Actor akActor) Global
         return loc_shield
     else
         return none
+    endif
+EndFunction
+
+Function GamepadMenuPause() Global
+    if Game.UsingGamepad()
+        Utility.wait(0.1)
     endif
 EndFunction
 

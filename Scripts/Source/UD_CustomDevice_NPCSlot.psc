@@ -80,7 +80,7 @@ State UpdatePaused
     EndFunction
     Function updateHour(float fMult)
     EndFunction
-    Function UpdateSlot()
+    Function UpdateSlot(Bool abUpdateSkill = true)
     EndFunction
     Function DeviceUpdate(UD_CustomDevice_RenderScript akDevice,Float afTimePassed)
     EndFunction
@@ -89,9 +89,11 @@ State UpdatePaused
 EndState
 
 ;update other variables
-Function UpdateSlot()
+Function UpdateSlot(Bool abUpdateSkill = true)
     ArousalSkillMult = UDCDmain.getArousalSkillMult(getActor())
-    UpdateSkills()
+    if abUpdateSkill
+        UpdateSkills()
+    endif
     ;UpdateBodySlots()
 EndFunction
 
@@ -208,6 +210,7 @@ Function SetSlotTo(Actor akActor)
     if UDmain.TraceAllowed()    
         UDCDmain.Log("SetSlotTo("+getActorName(akActor)+") for " + self)
     endif
+
     if !UDmain.ActorIsPlayer(akActor)
         ForceRefTo(akActor)
     endif
@@ -216,9 +219,9 @@ Function SetSlotTo(Actor akActor)
 
     UDOM.CheckOrgasmCheck(akActor)
     UDOM.CheckArousalCheck(akActor)
-    
-    UpdateSlot()
-    
+
+    UpdateSlot(false)
+
     if !UDmain.ActorIsPlayer(akActor)
         regainDevices()
     endif

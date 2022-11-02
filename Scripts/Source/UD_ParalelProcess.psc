@@ -306,7 +306,7 @@ EndFunction
 ;vars
 bool                             _MinigameCritLoopMutex                     = false
 bool                             _MinigameCritLoop_Received                 = false
-UD_CustomDevice_RenderScript     Send_MinigameCritLoop_Package_device    = none    
+UD_CustomDevice_RenderScript     Send_MinigameCritLoop_Package_device       = none
 ;mutex
 Function Start_MinigameCritLoopMutex()
     while _MinigameCritLoopMutex

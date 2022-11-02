@@ -18,6 +18,12 @@ UD_OrgasmManager Property UDOM
     EndFunction
 EndProperty
 
+UD_UserInputScript Property UDUI
+    UD_UserInputScript Function Get()
+        return UDmain.UDUI
+    EndFunction
+EndProperty
+
 int max_difficulty_S
 int overaldifficulty_S ;0-3 where 3 is same as in MDS
 int eventchancemod_S
@@ -285,20 +291,22 @@ int UD_WarningAllowed_T
 Int UD_PrintLevel_S
 Int UD_LockDebugMCM_T
 Int UD_GamepadKey_K
+int UD_EasyGamepadMode_T
 Event resetGeneralPage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
 
     AddHeaderOption("Key mapping")
     addEmptyOption()
-    UD_StruggleKey_K        = AddKeyMapOption("Action key: ", UDCDmain.StruggleKey_Keycode)
-    UD_ActionKey_K          = AddKeyMapOption("Stop key: ", UDCDmain.ActionKey_Keycode)
     
-    UD_PlayerMenu_K         = AddKeyMapOption("Player menu key:", UDCDmain.PlayerMenu_KeyCode)
-    UD_NPCMenu_K            = AddKeyMapOption("NPC menu key:", UDCDmain.NPCMenu_Keycode)
-    
-    UD_GamepadKey_K         = AddKeyMapOption("Gamepad key:", UDmain.UDUI.UD_GamepadKey,FlagSwitch(Game.UsingGamepad()))
+    UD_StruggleKey_K        = AddKeyMapOption("Action key: ", UDCDmain.StruggleKey_Keycode,FlagSwitch(!UDUI.UD_EasyGamepadMode || !Game.UsingGamepad()))
     addEmptyOption()
+    
+    UD_PlayerMenu_K         = AddKeyMapOption("Player menu key:", UDCDmain.PlayerMenu_KeyCode,FlagSwitch(!UDUI.UD_EasyGamepadMode || !Game.UsingGamepad()))
+    UD_NPCMenu_K            = AddKeyMapOption("NPC menu key:", UDCDmain.NPCMenu_Keycode,FlagSwitch(!UDUI.UD_EasyGamepadMode || !Game.UsingGamepad()))
+    
+    UD_EasyGamepadMode_T    = addToggleOption("Easy Gamepad Mode",UDUI.UD_EasyGamepadMode,FlagSwitch(Game.UsingGamepad() || UDUI.UD_EasyGamepadMode))
+    UD_GamepadKey_K         = AddKeyMapOption("Gamepad key:", UDmain.UDUI.UD_GamepadKey,FlagSwitch(UDUI.UD_EasyGamepadMode))
     
     AddHeaderOption("General settings")
     addEmptyOption()
@@ -374,10 +382,10 @@ Event resetCustomBondagePage()
     AddHeaderOption("Key mapping")
     addEmptyOption()
     UD_CHB_Stamina_meter_Keycode_K = AddKeyMapOption("Stamina key:", UDCDmain.Stamina_meter_Keycode)
-    UD_CHB_Magicka_meter_Keycode_K = AddKeyMapOption("Magicka key:", UDCDmain.Magicka_meter_Keycode)    
-    
-    UDCD_SpecialKey_Keycode_K = AddKeyMapOption("Special key:", UDCDmain.SpecialKey_Keycode)
-    AddEmptyOption()
+    UD_CHB_Magicka_meter_Keycode_K = AddKeyMapOption("Magicka key:", UDCDmain.Magicka_meter_Keycode)
+
+    UDCD_SpecialKey_Keycode_K   = AddKeyMapOption("Special key:", UDCDmain.SpecialKey_Keycode)
+    UD_ActionKey_K              = AddKeyMapOption("Stop key: ", UDCDmain.ActionKey_Keycode)
     
     ;MAIN SETTING
     AddHeaderOption("Main setting")
@@ -781,7 +789,11 @@ Function OptionSelectGeneral(int option)
         SetToggleOptionValue(UD_WarningAllowed_T, UDmain.UD_WarningAllowed)  
     elseif option == UD_LockDebugMCM_T
         UDmain.UD_LockDebugMCM = !UDmain.UD_LockDebugMCM
-        SetToggleOptionValue(UD_LockDebugMCM_T, UDmain.UD_LockDebugMCM) 
+        SetToggleOptionValue(UD_LockDebugMCM_T, UDmain.UD_LockDebugMCM)
+    elseif option == UD_EasyGamepadMode_T
+        UDUI.UD_EasyGamepadMode = !UDUI.UD_EasyGamepadMode
+        SetToggleOptionValue(UD_EasyGamepadMode_T, UDUI.UD_EasyGamepadMode)
+        forcePageReset()
     endif
 EndFunction
 
@@ -1714,6 +1726,8 @@ Function GeneralPageInfo(int option)
         SetInfoText("Sets logging level. By default logging is turned off, as it can have noticable performance impact. Changing this to 3 will trace aeverythink. 1 will Trace only the most important informations.\n Default: 0")
     elseif option == UD_LockDebugMCM_T
         SetInfoText("Disable MCM Debug panel if player have any Unforigivng Device equipped. Only active if \"Lock menus\" is also enabled")
+    elseif option == UD_EasyGamepadMode_T
+        SetInfoText("Toogle Easy Gamepad Mode. While in this mode, only the Gamepad button is usable. This button will open menu with all options that are opened by other buttons.\nDefault: OFF")
     Endif
 EndFunction
 
@@ -1977,7 +1991,8 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "WarningAllowed", UDmain.UD_WarningAllowed as Int)
     JsonUtil.SetIntValue(strFile, "PrintLevel", UDmain.UD_PrintLevel)
     JsonUtil.SetIntValue(strFile, "LockDebug", UDmain.UD_LockDebugMCM as Int)
-
+    JsonUtil.SetIntValue(strFile, "EasyGamepadMode", UDUI.UD_EasyGamepadMode as Int)
+    
     ;UDCDmain
     JsonUtil.SetIntValue(strFile, "Stamina_meter_Keycode", UDCDmain.Stamina_meter_Keycode)
     JsonUtil.SetIntValue(strFile, "StruggleKey_Keycode", UDCDmain.StruggleKey_Keycode)
@@ -2087,7 +2102,8 @@ Function LoadFromJSON(string strFile)
     UDmain.UD_WarningAllowed = JsonUtil.GetIntValue(strFile, "WarningAllowed", UDmain.UD_WarningAllowed as Int)
     UDmain.UD_PrintLevel = JsonUtil.GetIntValue(strFile, "PrintLevel", UDmain.UD_PrintLevel)
     UDmain.UD_LockDebugMCM = JsonUtil.GetIntValue(strFile, "LockDebug", UDmain.UD_LockDebugMCM as Int)
-
+    UDUI.UD_EasyGamepadMode = JsonUtil.GetIntValue(strFile, "EasyGamepadMode", UDUI.UD_EasyGamepadMode as Int)
+    
     ;UDCDmain
     UDCDmain.UnregisterGlobalKeys()
     UDCDmain.Stamina_meter_Keycode = JsonUtil.GetIntValue(strFile, "Stamina_meter_Keycode", UDCDmain.Stamina_meter_Keycode)
@@ -2202,6 +2218,7 @@ Function ResetToDefaults()
     UDmain.UD_WarningAllowed = false
     UDmain.UD_PrintLevel = 3
     UDmain.UD_LockDebugMCM = False
+    UDUI.UD_EasyGamepadMode = false
     
     ;UDCDmain
     UDCDmain.UnregisterGlobalKeys()
