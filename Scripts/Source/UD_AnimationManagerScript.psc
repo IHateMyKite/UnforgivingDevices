@@ -341,7 +341,7 @@ Function UnlockAnimatingActor(Actor akActor)
     
 EndFunction
 
-Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bContinueAnimation = False)
+Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bContinueAnimation = False)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::PlayAnimationByDef() sAnimDef = " + sAnimDef + ", aakActors = " + aakActors, 3)
     EndIf
@@ -349,7 +349,7 @@ Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bContinueAn
     Int part_index = StringUtil.Find(sAnimDef, ":")
     If part_index < 0 
         UDMain.Error("UD_AnimationManagerScript::PlayAnimationByDef() AnimDef has invalid format (should be <file_name>:<path_in_file>): " + sAnimDef)
-        Return
+        Return False
     EndIf
     String file = "UD/Animations/" + StringUtil.Substring(sAnimDef, 0, part_index)
     String path = StringUtil.Substring(sAnimDef, part_index + 1)
@@ -370,13 +370,13 @@ Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bContinueAn
                 actor_animVars[k] = anim_var_path + "[" + var_count + "]"
             Else
                 UDmain.Warning("UD_AnimationManagerScript::PlayAnimationByDef() Can't find valid animation in def " + sAnimDef +" for actors with constraints " + actor_constraints)
-                Return
+                Return False
             EndIf
         ElseIf _CheckConstraints(file, anim_var_path, actor_constraints)
             actor_animVars[k] = anim_var_path
         Else
             UDmain.Warning("UD_AnimationManagerScript::PlayAnimationByDef() Can't find valid animation in def " + sAnimDef +" for actors with constraints " + actor_constraints)
-            Return
+            Return False
         EndIf
         k += 1
     EndWhile
@@ -390,9 +390,10 @@ Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bContinueAn
             String[] atemp2 = JsonUtil.PathStringElements(file, actor_animVars[1] + ".animation")
             If atemp1.Length > 0 && atemp2.Length > 0
                 FastStartThirdPersonSequenceWithHelper(aakActors[0], aakActors[1], atemp1, atemp2, !bContinueAnimation)
+                Return True
             Else
                 UDMain.Error("UD_CustomDevice_RenderScript::PlayAnimationByDef() animation sequence array is empty! Check file " + file + " and animDef variations: " + actor_animVars)
-                Return
+                Return False
             EndIf
         Else
         ; regular animation 
@@ -400,9 +401,10 @@ Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bContinueAn
             String temp2 = JsonUtil.GetPathStringValue(file, actor_animVars[1] + ".animation")
             If temp1 != "" && temp2 != ""
                 FastStartThirdPersonAnimationWithHelper(aakActors[0], aakActors[1], temp1, temp2, !bContinueAnimation)
+                Return True
             Else
                 UDMain.Error("UD_CustomDevice_RenderScript::PlayAnimationByDef() animation is empty! Check file " + file + " and animDef variations: " + actor_animVars)
-                Return
+                Return False
             EndIf
         EndIf
     ElseIf aakActors.Length == 1
@@ -411,21 +413,24 @@ Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bContinueAn
             String[] atemp1 = JsonUtil.PathStringElements(file, actor_animVars[0] + ".animation")
             If atemp1.Length > 0
                 FastStartThirdPersonSequence(aakActors[0], atemp1)
+                Return True
             Else
                 UDMain.Error("UD_CustomDevice_RenderScript::PlayAnimationByDef() animation sequence array is empty! Check file " + file + " and animDef variations: " + actor_animVars)
-                Return
+                Return False
             EndIf
         Else
         ; regular animation 
             String temp1 = JsonUtil.GetPathStringValue(file, actor_animVars[0] + ".animation")
             If temp1 != ""
                 FastStartThirdPersonAnimation(aakActors[0], temp1)
+                Return True
             Else
                 UDMain.Error("UD_CustomDevice_RenderScript::PlayAnimationByDef() animation is empty! Check file " + file + " and animDef variations: " + actor_animVars)
-                Return
+                Return False
             EndIf
         EndIf
     EndIf
+    Return False
 EndFunction
 
 ; array with loaded json files
@@ -822,7 +827,10 @@ EndFunction
 ; TODO: Cache it somehow for actors
 ; Function GetActorConstraintsInt
 ; Used to get actor's constraints from equipped devices as a bit mask
-Int Function GetActorConstraintsInt(Actor akActor)
+Int Function GetActorConstraintsInt(Actor akActor, Bool bUseCache = False)
+    If bUseCache && StorageUtil.HasIntValue(akActor, "UD_ActorConstraintsInt")
+        Return StorageUtil.GetIntValue(akActor, "UD_ActorConstraintsInt")
+    EndIf
 	Int result = 0
     If akActor == None
         Return result
@@ -860,6 +868,7 @@ Int Function GetActorConstraintsInt(Actor akActor)
 	If akActor.WornHasKeyword(libs.zad_DeviousYokeBB)
 		result += 1024
 	EndIf
+    StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt", result)
     Return result
 EndFunction
 

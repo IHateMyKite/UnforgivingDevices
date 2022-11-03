@@ -3686,32 +3686,33 @@ String[] _StruggleAnimationDefHelperArray
 Int _PlayerLastConstraints = 0
 Int _HelperLastConstraints = 0
 
-Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bContinueAnimation = False)
+Bool Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bContinueAnimation = False)
+    Bool result = False
     String _animationDef = ""
     
     Bool _clearCache_Pair = bClearCache
     Bool _clearCache_SoloActor = bClearCache
     Bool _clearCache_SoloHelper = bClearCache
     
-    Int constraints = UDAM.GetActorConstraintsInt(Wearer)
-    If constraints != _PlayerLastConstraints
-        _PlayerLastConstraints = constraints
-        _clearCache_Pair = True
-        _clearCache_SoloActor = True
-    EndIf
-    If _minigameHelper
-        constraints = UDAM.GetActorConstraintsInt(_minigameHelper)
-        If constraints != _HelperLastConstraints
-            _HelperLastConstraints = constraints
+    If !bClearCache
+        Int constraints = UDAM.GetActorConstraintsInt(Wearer)
+        If constraints != _PlayerLastConstraints
+            _PlayerLastConstraints = constraints
             _clearCache_Pair = True
-            _clearCache_SoloHelper = True
+            _clearCache_SoloActor = True
         EndIf
-    Else
-        
+        If _minigameHelper
+            constraints = UDAM.GetActorConstraintsInt(_minigameHelper)
+            If constraints != _HelperLastConstraints
+                _HelperLastConstraints = constraints
+                _clearCache_Pair = True
+                _clearCache_SoloHelper = True
+            EndIf
+        EndIf
     EndIf
     
     If _minigameHelper
-        If _StruggleAnimationDefPairArray.Length == 0 || _clearCache_Pair
+        If _clearCache_Pair || _StruggleAnimationDefPairArray.Length == 0
             _StruggleAnimationDefPairArray = UDAM.GetStruggleAnimationsByKeyword(UD_DeviceKeyword_Minor, Wearer, _minigameHelper)
         EndIf
         If _StruggleAnimationDefPairArray.Length > 0
@@ -3720,13 +3721,13 @@ Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bContinueA
             Actor[] actors = new Actor[2]
             actors[0] = Wearer
             actors[1] = _minigameHelper
-            UDAM.PlayAnimationByDef(_animationDef, actors, bContinueAnimation)
+            result = UDAM.PlayAnimationByDef(_animationDef, actors, bContinueAnimation)
         Else
         ; using solo animation for actors
-            If _StruggleAnimationDefActorArray.Length == 0 || _clearCache_SoloActor
+            If _clearCache_SoloActor || _StruggleAnimationDefActorArray.Length == 0
                 _StruggleAnimationDefActorArray = UDAM.GetStruggleAnimationsByKeyword(UD_DeviceKeyword_Minor, Wearer)
             EndIf
-            If _StruggleAnimationDefHelperArray.Length == 0 || _clearCache_SoloHelper
+            If _clearCache_SoloHelper || _StruggleAnimationDefHelperArray.Length == 0
                 _StruggleAnimationDefHelperArray = UDAM.GetStruggleAnimationsByKeyword(libs.zad_DeviousGloves, _minigameHelper)
             EndIf
             
@@ -3734,7 +3735,7 @@ Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bContinueA
                 _animationDef = _StruggleAnimationDefActorArray[Utility.RandomInt(0, _StruggleAnimationDefActorArray.Length - 1)]
                 Actor[] actors = new Actor[1]
                 actors[0] = Wearer
-                UDAM.PlayAnimationByDef(_animationDef, actors)
+                result = UDAM.PlayAnimationByDef(_animationDef, actors)
             EndIf
 
             If _StruggleAnimationDefHelperArray.Length > 0
@@ -3745,16 +3746,17 @@ Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bContinueA
             EndIf
         EndIf
     Else
-        If _StruggleAnimationDefActorArray.Length == 0 || _clearCache_SoloActor
+        If _clearCache_SoloActor || _StruggleAnimationDefActorArray.Length == 0
             _StruggleAnimationDefActorArray = UDAM.GetStruggleAnimationsByKeyword(UD_DeviceKeyword_Minor, Wearer)
         EndIf
         If _StruggleAnimationDefActorArray.Length > 0
             _animationDef = _StruggleAnimationDefActorArray[Utility.RandomInt(0, _StruggleAnimationDefActorArray.Length - 1)]
             Actor[] actors = new Actor[1]
             actors[0] = Wearer
-            UDAM.PlayAnimationByDef(_animationDef, actors)
+            result = UDAM.PlayAnimationByDef(_animationDef, actors)
         EndIf
     EndIf
+    Return result
 EndFunction
 
 Function MinigameVarReset()
