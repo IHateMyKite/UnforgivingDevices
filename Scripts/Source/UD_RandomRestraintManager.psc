@@ -533,10 +533,10 @@ EndFunction
 bool Function ConflictNone(Actor akActor,Armor to_check)										; returns true if no conflicts present
 	Keyword checking_kw
     Armor rend_to_check  = libs.GetRenderedDevice(to_check) 									; getting rendered device 
-	int iCheck = 0 
+	int i = 0 
 	int kw_size = UD_CheckKeywords.getSize()
-    while iCheck < (kw_size) 																		; go through all keywords one by one
-		checking_kw = UD_CheckKeywords.getAt(iCheck) as Keyword
+    while i < (kw_size) 																		; go through all keywords one by one
+		checking_kw = UD_CheckKeywords.getAt(i) as Keyword
 		if (rend_to_check.haskeyword(checking_kw) && akActor.wornhaskeyword(checking_kw))		; and see if the current keyword both present on rendered device and worn by actor
             return false																		; in such situation no need to continue check, abort and return false
 	    endif                                                                               
