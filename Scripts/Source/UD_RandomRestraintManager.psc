@@ -41,7 +41,7 @@ Formlist Property UD_AbadonDeviceList_HeavyBondageHard auto
 
 zadDeviceLists Property zadDL auto
 
-int Property UD_RandomDevice_GlobalFilter = 0x0000FFFF auto
+int Property UD_RandomDevice_GlobalFilter = 0xFFFFFFFF auto
 
 
 Function StartMutex()
@@ -58,7 +58,7 @@ Function EndMutex()
 EndFunction
 bool _mutex = false
 
-;DO NOT MODIFI
+;DO NOT MODIFY
 
 ;0b = zad_DeviousCollar
 ;1b = zad_DeviousArmCuffs
@@ -80,32 +80,43 @@ bool _mutex = false
 ;14b= zad_DeviousGloves
 ;15b= zad_DeviousHood
 
+;adding missed items
+;16b= zad_DeviousCorset
+;17b= zad_DeviousHarness
+
 FormList Property UD_CheckKeywords auto
 FormList Property SuitableKeywords auto
 
 bool ready = false
 Event onInit()
+
     UD_CheckKeywords.revert()
-    UD_CheckKeywords.addForm(libs.zad_DeviousCollar)         ;iIndex = 0
-    UD_CheckKeywords.addForm(libs.zad_DeviousArmCuffs)        ;iIndex = 1
-    UD_CheckKeywords.addForm(libs.zad_DeviousBelt)            ;iIndex = 2
-    UD_CheckKeywords.addForm(libs.zad_DeviousBlindfold)        ;iIndex = 3
-    
-    UD_CheckKeywords.addForm(libs.zad_DeviousBra)            ;iIndex = 4
-    UD_CheckKeywords.addForm(libs.zad_DeviousBoots)            ;iIndex = 5
-    UD_CheckKeywords.addForm(libs.zad_DeviousGag)            ;iIndex = 6
-    UD_CheckKeywords.addForm(libs.zad_DeviousHeavyBondage)    ;iIndex = 7
-    
-    UD_CheckKeywords.addForm(libs.zad_DeviousLegCuffs)        ;iIndex = 8
-    UD_CheckKeywords.addForm(libs.zad_DeviousSuit)            ;iIndex = 9
-    UD_CheckKeywords.addForm(libs.zad_DeviousPlugVaginal)    ;iIndex = 10
-    UD_CheckKeywords.addForm(libs.zad_DeviousPlugAnal)        ;iIndex = 11
-    
-    UD_CheckKeywords.addForm(libs.zad_DeviousPiercingsVaginal)    ;iIndex = 12
-    UD_CheckKeywords.addForm(libs.zad_DeviousPiercingsNipple)    ;iIndex = 13
-    UD_CheckKeywords.addForm(libs.zad_DeviousGloves)            ;iIndex = 14
-    UD_CheckKeywords.addForm(libs.zad_deviousHood)                 ;iIndex = 15
-    
+
+ ; rearrange keywords order to ensure better compatibility while locking up multiples, probably broke device filter here...
+
+    UD_CheckKeywords.addForm(libs.zad_DeviousPiercingsVaginal)	;iIndex = 12,	new 0
+    UD_CheckKeywords.addForm(libs.zad_DeviousPiercingsNipple)	;iIndex = 13,	new 1
+    UD_CheckKeywords.addForm(libs.zad_DeviousPlugVaginal)		;iIndex = 10,	new 2
+    UD_CheckKeywords.addForm(libs.zad_DeviousPlugAnal)			;iIndex = 11,	new 3
+
+    UD_CheckKeywords.addForm(libs.zad_DeviousHeavyBondage)		;iIndex = 7,	new 4
+    UD_CheckKeywords.addForm(libs.zad_deviousHarness)			;iIndex = 17,	new 5
+    UD_CheckKeywords.addForm(libs.zad_DeviousCorset)            ;iIndex = 16,	new 6
+    UD_CheckKeywords.addForm(libs.zad_deviousHood)				;iIndex = 15,	new 7
+
+    UD_CheckKeywords.addForm(libs.zad_DeviousCollar)			;iIndex = 0,	new 8
+    UD_CheckKeywords.addForm(libs.zad_DeviousArmCuffs)			;iIndex = 1,	new 9
+    UD_CheckKeywords.addForm(libs.zad_DeviousBlindfold)			;iIndex = 3,	new 10
+    UD_CheckKeywords.addForm(libs.zad_DeviousBoots)				;iIndex = 5,	new 11
+
+    UD_CheckKeywords.addForm(libs.zad_DeviousGag)				;iIndex = 6,	new 12
+    UD_CheckKeywords.addForm(libs.zad_DeviousLegCuffs)			;iIndex = 8,	new 13
+    UD_CheckKeywords.addForm(libs.zad_DeviousSuit)				;iIndex = 9,	new 14
+    UD_CheckKeywords.addForm(libs.zad_DeviousGloves)            ;iIndex = 14,	new 15
+
+    UD_CheckKeywords.addForm(libs.zad_DeviousBra)				;iIndex = 4,	new 16
+    UD_CheckKeywords.addForm(libs.zad_DeviousBelt)				;iIndex = 2,	new 17
+
     
     if UDmain.TraceAllowed()    
         UDCDmain.Log("-UDRRM initiated-")
@@ -162,51 +173,82 @@ Armor Function getRandomDeviceByKeyword(Actor akActor,Keyword kwKeyword)
 EndFunction
 
 Armor Function getRandomDeviceByKeyword_LL(Actor akActor,Keyword kwKeyword)
+	LeveledItem LL = none
     Armor res = none
     if kwKeyword == libs.zad_DeviousCollar 
-        res = getRandomFormFromLeveledlist(zadDL.zad_dev_collars) ;getRandomFormFromFormlist(UD_RandomDeviceList_Collar)
+        LL = zadDL.zad_dev_collars
     elseif kwKeyword == libs.zad_DeviousArmCuffs
-        res = getRandomFormFromLeveledlist(zadDL.zad_dev_armcuffs);getRandomFormFromFormlist(UD_RandomDeviceList_ArmCuffs)
+        LL = zadDL.zad_dev_armcuffs
     elseif kwKeyword == libs.zad_DeviousLegCuffs
-        res = getRandomFormFromLeveledlist(zadDL.zad_dev_legcuffs);getRandomFormFromFormlist(UD_RandomDeviceList_LegCuffs)
+        LL = zadDL.zad_dev_legcuffs
     elseif kwKeyword == libs.zad_DeviousGag
-        res = getRandomFormFromLeveledlist(zadDL.zad_dev_gags);getRandomFormFromFormlist(UD_RandomDeviceList_Gag)
+        LL = zadDL.zad_dev_gags
     elseif kwKeyword == libs.zad_DeviousBoots
-        res = getRandomFormFromLeveledlist(zadDL.zad_dev_boots);getRandomFormFromFormlist(UD_RandomDeviceList_Boots)
+        LL = zadDL.zad_dev_boots
     elseif kwKeyword == libs.zad_DeviousBlindfold
-        res = getRandomFormFromLeveledlist(zadDL.zad_dev_blindfolds);getRandomFormFromFormlist(UD_RandomDeviceList_Blindfold)
+        LL = zadDL.zad_dev_blindfolds
     elseif kwKeyword == libs.zad_DeviousBra
-        res = getRandomFormFromLeveledlist(zadDL.zad_dev_chastitybras);getRandomFormFromFormlist(UD_RandomDeviceList_Bra)
+        LL = zadDL.zad_dev_chastitybras
     elseif kwKeyword == libs.zad_DeviousBelt
-        res = getRandomFormFromLeveledlist(zadDL.zad_dev_chastitybelts);getRandomFormFromFormlist(UD_RandomDeviceList_Belt)
+        LL = zadDL.zad_dev_chastitybelts
     elseif kwKeyword == libs.zad_DeviousHeavyBondage
         if akActor.wornhaskeyword(libs.zad_DeviousSuit)
-            res = getRandomFormFromLeveledlist(zadDL.zad_dev_heavyrestraints);getRandomFormFromFormlist(UD_RandomDeviceList_HeavyBondage)
+            LL = zadDL.zad_dev_heavyrestraints
         else
             if Utility.randomInt(0,1)
-                res = getRandomFormFromLeveledlist(zadDL.zad_dev_heavyrestraints);getRandomFormFromFormlist(UD_RandomDeviceList_HeavyBondage)
+                LL = zadDL.zad_dev_suits_straitjackets
             else
-                res = getRandomFormFromLeveledlist(zadDL.zad_dev_suits_straitjackets);getRandomFormFromFormlist(UD_RandomDeviceList_HeavyBondage_Suit)
+                LL = zadDL.zad_dev_heavyrestraints
             endif
         endif
     elseif kwKeyword == libs.zad_DeviousSuit
-        if !akActor.wornhaskeyword(libs.zad_DeviousSuit)
-            res = getRandomFormFromLeveledlist(zadDL.zad_dev_suits_catsuits);getRandomFormFromFormlist(UD_RandomDeviceList_Suit)
+        if !akActor.wornhaskeyword(libs.zad_DeviousHeavyBondage)
+            LL = zadDL.zad_dev_suits									; can use any suit, including straitjacket
+        else
+            int rnd_suit = Utility.randomInt(0,4)						; can solve this by adding leveled list without SJs...
+			if rnd_suit == 0											; but this should be good enough
+                LL = zadDL.zad_dev_suits_catsuits
+            elseif rnd_suit == 1
+                LL = zadDL.zad_dev_suits_hobbledresses
+            elseif rnd_suit == 2
+                LL = zadDL.zad_dev_suits_relaxed_hobbledresses
+            elseif rnd_suit == 3
+                LL = zadDL.zad_dev_suits_hobbledresses
+            elseif rnd_suit == 4
+                LL = zadDL.zad_dev_suits_formaldresses
+            endif
         endif
     elseif kwKeyword == libs.zad_DeviousPlugVaginal
-        res = getRandomFormFromLeveledlist(zadDL.zad_dev_plugs_vaginal);getRandomFormFromFormlist(UD_RandomDeviceList_PlugVaginal)
+        LL = zadDL.zad_dev_plugs_vaginal
     elseif kwKeyword == libs.zad_DeviousPlugAnal
-        res = getRandomFormFromLeveledlist(zadDL.zad_dev_plugs_anal);getRandomFormFromFormlist(UD_RandomDeviceList_PlugAnal)
+        LL = zadDL.zad_dev_plugs_anal
     elseif kwKeyword == libs.zad_DeviousPiercingsVaginal
-        res = getRandomFormFromLeveledlist(zadDL.zad_dev_piercings_vaginal);getRandomFormFromFormlist(UD_RandomDeviceList_PiercingVag)
+        LL = zadDL.zad_dev_piercings_vaginal
     elseif kwKeyword == libs.zad_DeviousPiercingsNipple
-        res = getRandomFormFromLeveledlist(zadDL.zad_dev_piercings_nipple);getRandomFormFromFormlist(UD_RandomDeviceList_PiercingNipple)
+        LL = zadDL.zad_dev_piercings_nipple
     elseif kwKeyword == libs.zad_DeviousGloves
-        res = getRandomFormFromLeveledlist(zadDL.zad_dev_gloves);getRandomFormFromFormlist(UD_RandomDeviceList_Gloves)
+        LL = zadDL.zad_dev_gloves
     elseif kwKeyword == libs.zad_DeviousHood
-        res = getRandomFormFromLeveledlist(zadDL.zad_dev_hoods);getRandomFormFromFormlist(UD_RandomDeviceList_Hood)
+        LL = zadDL.zad_dev_hoods
+    elseif kwKeyword == libs.zad_DeviousCorset
+        LL = zadDL.zad_dev_corsets
+    elseif kwKeyword == libs.zad_DeviousHarness
+        LL = zadDL.zad_dev_harnesses
     endif
-    return res
+
+	if LL
+		int tries = 10						; 10 attempts
+		while tries > 0			
+	    	res = zadDL.GetRandomDevice(LL)
+			if ConflictNone(akActor,res)	; if no coflict - good to go, return device
+		    	return res
+			endif
+			tries -= 1						; else we go and try to get another device
+			Utility.wait(0.1)	 			; small delay to ensure better random
+		endwhile
+	else
+		return none
+	endif
 EndFunction
 
 ;PC frier 8000
@@ -220,7 +262,7 @@ Armor Function getRandomSuitableRestrain(Actor akActor,Int iPrefSwitch = 0xfffff
     if !selected_keyword
         return none
     endif
-    return getRandomDeviceByKeyword(akActor,selected_keyword)
+    return getRandomDeviceByKeyword_LL(akActor,selected_keyword)
 EndFunction
 
 bool Function LockAnyRandomRestrain(Actor akActor,int iNumber = 1,bool bForce = false)
@@ -233,6 +275,7 @@ bool Function LockAnyRandomRestrain(Actor akActor,int iNumber = 1,bool bForce = 
     while iNumber
         iNumber -= 1
         loc_res = loc_res || LockRandomRestrain(akActor)
+		Utility.wait(3)	 ; small delay to ensure of no equips running into one another
     endwhile
     
     return loc_res
@@ -252,7 +295,7 @@ Armor Function LockRandomRestrain(Actor akActor,Bool force = false,Int iPrefSwit
     if UDmain.TraceAllowed()    
         UDCDmain.Log("Selected keyword: " + selected_keyword)
     endif
-    device = getRandomDeviceByKeyword(akActor, selected_keyword)
+    device = getRandomDeviceByKeyword_LL(akActor, selected_keyword);switch to LL is here
     if device
         if UDmain.TraceAllowed()        
             UDCDmain.Log("Selected device: " + device.getName())
@@ -289,7 +332,7 @@ int Function LockAllSuitableRestrains(Actor akActor,Bool force = false,Int iPref
     int loc_i = 0
     int loc_res = 0
     while loc_i < loc_keywords.length
-        device = getRandomDeviceByKeyword(akActor,loc_keywords[loc_i] as Keyword)
+        device = getRandomDeviceByKeyword_LL(akActor,loc_keywords[loc_i] as Keyword)
         if device
             if UDmain.TraceAllowed()            
                 UDCDmain.Log("Selected device: " + device.getName(),2)
@@ -299,6 +342,7 @@ int Function LockAllSuitableRestrains(Actor akActor,Bool force = false,Int iPref
             endif
         endif
         loc_i += 1
+		Utility.wait(3)	 ; small delay to ensure of no equips running into one another
     endwhile
     return loc_res
 EndFunction
@@ -319,7 +363,7 @@ Form Function getRandomFormFromFormlist(Formlist list)
     return list.getAt(iter)
 EndFunction
 
-Armor Function getRandomFormFromLeveledlist(LeveledItem argList)
+Armor Function getRandomFormFromLeveledlist(LeveledItem argList) ;this function is redundant, easier to use zadDL.GetRandomDevice
     if !argList ;wrong leveledlist, exit
         UDCDmain.Error("getRandomFormFromLeveledlist(), argList = none!")
         return none
@@ -474,10 +518,38 @@ Form[] Function getAllSuitableKeywords(Actor akActor,int iPrefSwitch = 0xfffffff
 EndFunction
 
 bool Function additionCheck(Actor akActor,int iIndex)
-    if iIndex == 9    ;needed check for suit, checks if actor have straitjacket
-        return !akActor.wornhaskeyword(libs.zad_DeviousStraitjacket)
-    elseif iIndex == 15
+;    if iIndex == 10    ;needed check for suit, checks if actor have straitjacket
+;        return !akActor.wornhaskeyword(libs.zad_DeviousStraitjacket)
+    if iIndex == 7
         return UDCDmain.UDmain.ItemManager.UD_useHoods
+    elseif iIndex == 6    ;needed check for corset, checks if actor has harness
+        return !akActor.wornhaskeyword(libs.zad_DeviousHarness)
+    elseif iIndex == 5    ;needed check for harness, checks if actor have corset
+        return !akActor.wornhaskeyword(libs.zad_DeviousCorset)
     endif
     return true
+EndFunction
+
+bool Function ConflictNone(Actor akActor,Armor to_check)										; returns true if no conflicts present
+	Keyword checking_kw
+    Armor rend_to_check  = libs.GetRenderedDevice(to_check) 									; getting rendered device 
+	int iCheck = 0 
+	int kw_size = UD_CheckKeywords.getSize()
+    while iCheck < (kw_size) 																		; go through all keywords one by one
+		checking_kw = UD_CheckKeywords.getAt(iCheck) as Keyword
+		if (rend_to_check.haskeyword(checking_kw) && akActor.wornhaskeyword(checking_kw))		; and see if the current keyword both present on rendered device and worn by actor
+            return false																		; in such situation no need to continue check, abort and return false
+	    endif                                                                               
+		if i == 6                                                                               ; again cross-checking harness and corset keywords, just to be safe...
+            if rend_to_check.haskeyword(checking_kw) && akActor.wornhaskeyword(libs.zad_DeviousHarness)  
+    	        return false
+            endif
+	    elseif i == 5 
+            if rend_to_check.haskeyword(checking_kw) && akActor.wornhaskeyword(libs.zad_DeviousCorset)
+    	        return false
+            endif
+        endif
+        i += 1
+    endwhile
+	return true																					; no conflicts found, good to go!
 EndFunction

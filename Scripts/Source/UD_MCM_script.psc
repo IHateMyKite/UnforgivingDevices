@@ -292,6 +292,7 @@ Int UD_PrintLevel_S
 Int UD_LockDebugMCM_T
 Int UD_GamepadKey_K
 int UD_EasyGamepadMode_T
+
 Event resetGeneralPage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -313,7 +314,7 @@ Event resetGeneralPage()
     UD_hightPerformance_T   = addToggleOption("Hight performance mod",UDmain.UD_hightPerformance)
     UD_NPCSupport_T         = addToggleOption("NPC Auto Scan",UDmain.AllowNPCSupport)
     
-    UD_RandomFilter_T       = AddInputOption("Random filter", Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFF), UD_LockMenu_flag)
+    UD_RandomFilter_T       = AddInputOption("Random filter", Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFFFFFF), UD_LockMenu_flag)
     UD_HearingRange_S       = addSliderOption("Message range:",UDmain.UD_HearingRange,"{0}")
 
     lockmenu_T              = addToggleOption("Lock menus",UDmain.lockMCM,UD_LockMenu_flag)
@@ -993,14 +994,14 @@ EndFunction
 
 Function OnOptionInputOpen(int option)
     if option == UD_RandomFilter_T
-        SetInputDialogStartText(Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFF))
+        SetInputDialogStartText(Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFFFFFF))
     endif
 EndFunction
 
 Function OnOptionInputAccept(int option, string value)
     if(option == UD_RandomFilter_T)
-        UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(value as Int,0xFFFF)
-        SetInputOptionValue(UD_RandomFilter_T, Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFF))
+        UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(value as Int,0xFFFFFFFF)
+        SetInputOptionValue(UD_RandomFilter_T, Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFFFFFF))
     endif
 EndFunction
 
@@ -1301,7 +1302,7 @@ Function OnOptionSliderAcceptGeneral(int option, float value)
         UDmain.UD_PrintLevel = Round(value)
         SetSliderOptionValue(UD_PrintLevel_S, UDmain.UD_PrintLevel, "{0}")
     elseif option == UD_RandomFilter_T
-        UDmain.UDRRM.UD_RandomDevice_GlobalFilter =  Math.LogicalXor(round(value),0xFFFF)
+        UDmain.UDRRM.UD_RandomDevice_GlobalFilter =  Math.LogicalXor(round(value),0xFFFFFFFF)
         SetSliderOptionValue(UD_RandomFilter_T, Round(value), "{0}")
     elseif option == UD_HearingRange_S
         UDmain.UD_HearingRange =  Round(value)
@@ -1727,7 +1728,7 @@ Function GeneralPageInfo(int option)
     elseif option == UD_LockDebugMCM_T
         SetInfoText("Disable MCM Debug panel if player have any Unforigivng Device equipped. Only active if \"Lock menus\" is also enabled")
     elseif option == UD_EasyGamepadMode_T
-        SetInfoText("Toogle Easy Gamepad Mode. While in this mode, only the Gamepad button is usable. This button will open menu with all options that are opened by other buttons.\nDefault: OFF")
+        SetInfoText("Toggle Easy Gamepad Mode. While in this mode, only the Gamepad button is usable. This button will open menu with all options that are opened by other buttons.\nDefault: OFF")
     Endif
 EndFunction
 
@@ -1992,7 +1993,7 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "PrintLevel", UDmain.UD_PrintLevel)
     JsonUtil.SetIntValue(strFile, "LockDebug", UDmain.UD_LockDebugMCM as Int)
     JsonUtil.SetIntValue(strFile, "EasyGamepadMode", UDUI.UD_EasyGamepadMode as Int)
-    
+
     ;UDCDmain
     JsonUtil.SetIntValue(strFile, "Stamina_meter_Keycode", UDCDmain.Stamina_meter_Keycode)
     JsonUtil.SetIntValue(strFile, "StruggleKey_Keycode", UDCDmain.StruggleKey_Keycode)
@@ -2103,7 +2104,7 @@ Function LoadFromJSON(string strFile)
     UDmain.UD_PrintLevel = JsonUtil.GetIntValue(strFile, "PrintLevel", UDmain.UD_PrintLevel)
     UDmain.UD_LockDebugMCM = JsonUtil.GetIntValue(strFile, "LockDebug", UDmain.UD_LockDebugMCM as Int)
     UDUI.UD_EasyGamepadMode = JsonUtil.GetIntValue(strFile, "EasyGamepadMode", UDUI.UD_EasyGamepadMode as Int)
-    
+
     ;UDCDmain
     UDCDmain.UnregisterGlobalKeys()
     UDCDmain.Stamina_meter_Keycode = JsonUtil.GetIntValue(strFile, "Stamina_meter_Keycode", UDCDmain.Stamina_meter_Keycode)
@@ -2321,7 +2322,7 @@ Function ResetToDefaults()
     widget.PositionY = 0
     UDCDmain.widget2.PositionX = widget.PositionX
     UDCDmain.widget2.PositionY = widget.PositionY
-    UDmain.UDRRM.UD_RandomDevice_GlobalFilter = 0x0000FFFF ;16b
+    UDmain.UDRRM.UD_RandomDevice_GlobalFilter = 0xFFFFFFFF ;32b
     AAScript.UD_DAR =  false
     UDCD_NPCM.UD_SlotUpdateTime = 10.0
     UDCDMain.UD_OutfitRemove = True
