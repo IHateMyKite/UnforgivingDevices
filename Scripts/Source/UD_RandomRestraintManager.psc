@@ -103,6 +103,7 @@ Function Update()
         if UDmain.TraceAllowed()    
             UDCDmain.Log("Refilled Keywords formlist")
         endif
+        UD_RandomDevice_GlobalFilter = 0xFFFFFFFF
     endif
 EndFunction
 
@@ -184,7 +185,9 @@ EndFunction
 Armor Function getRandomDeviceByKeyword_LL(Actor akActor,Keyword kwKeyword)
     LeveledItem LL = none
     Armor res = none
-    if kwKeyword == libs.zad_DeviousCollar 
+    if akActor.wornhaskeyword(kwKeyword)            ; excessive check, useful when a lot of additions happening and script load is heavy, thus 3 seconds pause is not enough
+        return none
+    elseif kwKeyword == libs.zad_DeviousCollar 
         LL = zadDL.zad_dev_collars
     elseif kwKeyword == libs.zad_DeviousArmCuffs
         LL = zadDL.zad_dev_armcuffs
@@ -239,10 +242,12 @@ Armor Function getRandomDeviceByKeyword_LL(Actor akActor,Keyword kwKeyword)
         LL = zadDL.zad_dev_gloves
     elseif kwKeyword == libs.zad_DeviousHood
         LL = zadDL.zad_dev_hoods
-    elseif kwKeyword == libs.zad_DeviousCorset
+    elseif kwKeyword == libs.zad_DeviousCorset && !akActor.wornhaskeyword(libs.zad_DeviousHarness)
         LL = zadDL.zad_dev_corsets
-    elseif kwKeyword == libs.zad_DeviousHarness
+    elseif kwKeyword == libs.zad_DeviousHarness && !akActor.wornhaskeyword(libs.zad_DeviousCorset)
         LL = zadDL.zad_dev_harnesses
+    else
+        return none
     endif
 
     if LL
@@ -509,6 +514,7 @@ Form[] Function getAllSuitableKeywords(Actor akActor,int iPrefSwitch = 0xfffffff
     int i = 0
     SuitableKeywords.Revert()
     iPrefSwitch = Math.LogicalAnd(iPrefSwitch,UD_RandomDevice_GlobalFilter)
+        
     while i < UD_CheckKeywords.getSize()
         if !akActor.wornhaskeyword(UD_CheckKeywords.getAt(i) as Keyword) && additionCheck(akActor,i) && Math.LogicalAnd(iPrefSwitch,Math.LeftShift(0x01,i))
             SuitableKeywords.AddForm(UD_CheckKeywords.getAt(i))
@@ -528,9 +534,9 @@ Form[] Function getAllSuitableKeywords(Actor akActor,int iPrefSwitch = 0xfffffff
 EndFunction
 
 bool Function additionCheck(Actor akActor,int iIndex)
-;    if iIndex == 10    ;needed check for suit, checks if actor have straitjacket
-;        return !akActor.wornhaskeyword(libs.zad_DeviousStraitjacket)
-    if iIndex == 7
+    if iIndex == 14    ;needed check for suit, checks if actor have straitjacket
+        return !akActor.wornhaskeyword(libs.zad_DeviousStraitjacket)
+    elseif iIndex == 7
         return UDCDmain.UDmain.ItemManager.UD_useHoods
     elseif iIndex == 6    ;needed check for corset, checks if actor has harness
         return !akActor.wornhaskeyword(libs.zad_DeviousHarness)
