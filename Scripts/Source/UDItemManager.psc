@@ -357,17 +357,17 @@ Function equipAbadonFinisherSuit(Actor target)
 ;    endif
 
     if target.wornHasKeyword(libs.zad_DeviousBelt) && !target.wornHasKeyword(libs.zad_DeviousCorset) && !target.wornHasKeyword(libs.zad_DeviousHarness) 
-		libs.LockDevice(target,UDlibs.AbadonCorset) ; has belt and no corset? wear it!
+        libs.LockDevice(target,UDlibs.AbadonCorset) ; has belt and no corset? wear it!
     elseif !target.wornHasKeyword(libs.zad_DeviousBelt) && !target.wornHasKeyword(libs.zad_DeviousCorset) && !target.wornHasKeyword(libs.zad_DeviousHarness) && !target.WornhasKeyword(libs.zad_DeviousCollar) ; no belt and no corset and no harness? time to decide what we will do!
-		if Utility.RandomInt(0,1) == 0
-			libs.LockDevice(target,UDlibs.AbadonHarness) ; either harness...
-		else	
-			libs.LockDevice(target,UDlibs.AbadonCorset)	; ...or corset and belt combo!
-			libs.LockDevice(target,UDlibs.AbadonBelt)
-		endif
-	elseif !target.wornHasKeyword(libs.zad_DeviousBelt) ; last resolve, maybe add at least the belt?
-		libs.LockDevice(target,UDlibs.AbadonBelt)
-	endif
+        if Utility.RandomInt(0,1) == 0
+            libs.LockDevice(target,UDlibs.AbadonHarness) ; either harness...
+        else    
+            libs.LockDevice(target,UDlibs.AbadonCorset)    ; ...or corset and belt combo!
+            libs.LockDevice(target,UDlibs.AbadonBelt)
+        endif
+    elseif !target.wornHasKeyword(libs.zad_DeviousBelt) ; last resolve, maybe add at least the belt?
+        libs.LockDevice(target,UDlibs.AbadonBelt)
+    endif
     
     libs.SwapDevices(target,UDlibs.AbadonBra,libs.zad_DeviousBra)
     
