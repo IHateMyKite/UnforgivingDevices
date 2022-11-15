@@ -98,13 +98,11 @@ Event onInit()
 EndEvent
 
 Function Update()
-    if UD_CheckKeywords.getSize() < 17
-        FillOutCheckKeywords()
-        if UDmain.TraceAllowed()    
-            UDCDmain.Log("Refilled Keywords formlist")
-        endif
-        UD_RandomDevice_GlobalFilter = 0xFFFFFFFF
+    FillOutCheckKeywords()
+    if UDmain.TraceAllowed()    
+        UDCDmain.Log("Refilled Keywords formlist")
     endif
+    UD_RandomDevice_GlobalFilter = 0xFFFFFFFF
 EndFunction
 
 Function FillOutCheckKeywords()
@@ -185,7 +183,7 @@ EndFunction
 Armor Function getRandomDeviceByKeyword_LL(Actor akActor,Keyword kwKeyword)
     LeveledItem LL = none
     Armor res = none
-    if akActor.wornhaskeyword(kwKeyword)            ; excessive check, useful when a lot of additions happening and script load is heavy, thus 3 seconds pause is not enough
+    if akActor.wornhaskeyword(kwKeyword)            ; excessive check, useful when a lot of additions happening and script load is heavy
         return none
     elseif kwKeyword == libs.zad_DeviousCollar 
         LL = zadDL.zad_dev_collars
@@ -215,10 +213,10 @@ Armor Function getRandomDeviceByKeyword_LL(Actor akActor,Keyword kwKeyword)
         endif
     elseif kwKeyword == libs.zad_DeviousSuit
         if !akActor.wornhaskeyword(libs.zad_DeviousHeavyBondage)
-            LL = zadDL.zad_dev_suits                                    ; can use any suit, including straitjackets
+            LL = zadDL.zad_dev_suits                                ; can use any suit, including straitjackets
         else
-            int rnd_suit = Utility.randomInt(0,4)                       ; can solve this by adding leveled list without SJs...
-            if rnd_suit == 0                                            ; but this should be good enough
+            int rnd_suit = Utility.randomInt(0,4)                   ; can solve this by adding leveled list without SJs...
+            if rnd_suit == 0                                        ; but this should be good enough
                 LL = zadDL.zad_dev_suits_catsuits
             elseif rnd_suit == 1
                 LL = zadDL.zad_dev_suits_hobbledresses
@@ -289,8 +287,7 @@ bool Function LockAnyRandomRestrain(Actor akActor,int iNumber = 1,bool bForce = 
     
     while iNumber
         iNumber -= 1
-        loc_res = loc_res || LockRandomRestrain(akActor)
-        Utility.wait(1)     ; small delay to ensure of no equips running into one another
+        loc_res = loc_res || LockRandomRestrain(akActor,bForce)
     endwhile
     
     return loc_res
@@ -357,7 +354,6 @@ int Function LockAllSuitableRestrains(Actor akActor,Bool force = false,Int iPref
             endif
         endif
         loc_i += 1
-        Utility.wait(3)     ; small delay to ensure of no equips running into one another
     endwhile
     return loc_res
 EndFunction
