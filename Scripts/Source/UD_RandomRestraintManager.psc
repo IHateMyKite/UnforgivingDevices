@@ -102,7 +102,6 @@ Function Update()
     if UDmain.TraceAllowed()    
         UDCDmain.Log("Refilled Keywords formlist")
     endif
-    UD_RandomDevice_GlobalFilter = 0xFFFFFFFF
 EndFunction
 
 Function FillOutCheckKeywords()
