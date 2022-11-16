@@ -18,7 +18,7 @@ Function OnEffectStart(Actor akTarget, Actor akCaster)
         if UDmain.TraceAllowed()
             UDmain.Log(GetActorName(akTarget) + " hit by abadon weapon. Locking device")
         endif
-        UDmain.UDRRM.LockRandomRestrain(loc_actor,false,0x00000080) ;lock hand restrain
+        UDmain.UDRRM.LockRandomRestrain(loc_actor,false,0x00000010) ;lock hand restraint
         ;UDmain.UDRRM.LockAnyRandomRestrain(loc_actor,iNumber = 1)
     endif
 EndFunction

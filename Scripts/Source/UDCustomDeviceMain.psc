@@ -2516,7 +2516,7 @@ EndFunction
 
 ;function used for mod development
 Function DebugFunction(Actor akActor)
-    UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0xffff)
+    UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0xffffffff)
     ;updateHUDBars(1,1,1,1)
     ;UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.MagickaMeter.StartBlinking")
     ;UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StaminaMeter.StartBlinking")
