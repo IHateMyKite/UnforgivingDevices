@@ -617,7 +617,10 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
         StorageUtil.SetIntValue(akActor,"UD_OrgasmDuration",aiDuration)
     endif
     
-    UDmain.UDUI.GoToState("UIDisabled") ;disable UI
+    int loc_isPlayer = UDmain.ActorIsPlayer(akActor) as Int
+    if loc_isPlayer
+        UDmain.UDUI.GoToState("UIDisabled") ;disable UI
+    endif
     
     libsp.SetAnimating(akActor, true)
     string loc_anim = libsp.AnimSwitchKeyword(akActor, "Orgasm")
@@ -629,13 +632,13 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
         akActor.unequipItem(loc_shield,true,true)
     endif
     
-    UDCDmain.DisableActor(akActor)
+    UDCDmain.DisableActor(akActor,loc_isPlayer)
     
-    Debug.SendAnimationEvent(akActor, loc_anim)    
+    Debug.SendAnimationEvent(akActor, loc_anim)
     int loc_elapsedtime = 0
     while loc_elapsedtime < aiDuration
         if loc_elapsedtime && !(loc_elapsedtime % 2)
-            UDCDmain.UpdateDisabledActor(akActor)
+            UDCDmain.UpdateDisabledActor(akActor,loc_isPlayer)
         else
             aiDuration = StorageUtil.GetIntValue(akActor,"UD_OrgasmDuration",aiDuration)
         endif
@@ -646,14 +649,17 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
     
     StorageUtil.UnsetIntValue(akActor,"UD_OrgasmDuration")
     
-    UDCDmain.EnableActor(akActor)
+    UDCDmain.EnableActor(akActor,loc_isPlayer)
     
     if loc_shield
         akActor.equipItem(loc_shield,false,true)
     endif
     
     libsp.SetAnimating(akActor, false)
-    UDmain.UDUI.GoToState("") ;enable UI
+    
+    if loc_isPlayer
+        UDmain.UDUI.GoToState("") ;enable UI
+    endif
 EndFunction
 
 ;///////////////////////////////////////

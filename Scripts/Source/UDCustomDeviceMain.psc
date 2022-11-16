@@ -313,30 +313,30 @@ Function CheckAndDisableSpecialMenu()
     endif
 EndFunction
 
-Function DisableActor(Actor akActor,bool bBussy = false)
+Function DisableActor(Actor akActor,int aiIsPlayer = -1)
     if UDmain.TraceAllowed()    
         Log("DisableActor("+getActorName(akActor) + ")",2)
     endif
-    StartMinigameDisable(akActor)
+    StartMinigameDisable(akActor,aiIsPlayer)
 EndFunction
 
-Function UpdateDisabledActor(Actor akActor,bool bBussy = false)
+Function UpdateDisabledActor(Actor akActor,int aiIsPlayer = -1)
     if UDmain.TraceAllowed()    
         Log("UpdateDisabledActor("+getActorName(akActor) + ")",2)
     endif
-    UpdateMinigameDisable(akActor)
+    UpdateMinigameDisable(akActor,aiIsPlayer)
 EndFunction
 
-Function EnableActor(Actor akActor,bool bBussy = false)
+Function EnableActor(Actor akActor,int aiIsPlayer = -1)
     if UDmain.TraceAllowed()    
         Log("EnableActor("+getActorName(akActor)+")",2)
     endif
-    EndMinigameDisable(akActor)
+    EndMinigameDisable(akActor,aiIsPlayer)
 EndFunction
 
-Function StartMinigameDisable(Actor akActor)
+Function StartMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
     akActor.AddToFaction(BussyFaction)
-    if UDmain.ActorIsPlayer(akActor)
+    if aiIsPlayer == 1 || UDmain.ActorIsPlayer(akActor)
         UpdatePlayerControl()
         Game.SetPlayerAiDriven(True)
     else
@@ -345,9 +345,9 @@ Function StartMinigameDisable(Actor akActor)
     endif
 EndFunction
 
-Function UpdateMinigameDisable(Actor akActor)
+Function UpdateMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
     if akActor.IsInFaction(BussyFaction)
-        if UDmain.ActorIsPlayer(akActor)
+        if aiIsPlayer == 1 || UDmain.ActorIsPlayer(akActor)
             UpdatePlayerControl()
             Game.SetPlayerAiDriven(True)
         else
@@ -356,9 +356,9 @@ Function UpdateMinigameDisable(Actor akActor)
     endif
 EndFunction
 
-Function EndMinigameDisable(Actor akActor)
+Function EndMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
     akActor.RemoveFromFaction(BussyFaction)
-    if UDmain.ActorIsPlayer(akActor)
+    if aiIsPlayer == 1 || UDmain.ActorIsPlayer(akActor)
         libsp.ProcessPlayerControls(false)
         Game.SetPlayerAiDriven(False)
     else
