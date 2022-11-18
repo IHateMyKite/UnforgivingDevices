@@ -15,7 +15,10 @@ UD_CustomDevices_NPCSlotsManager       Property     UDCD_NPCM               auto
 zadlibs                                Property     libs                    auto
 Faction                                Property     ZadAnimationFaction     auto
 Faction                                Property     SexlabAnimationFaction  auto
-
+sslSystemConfig                        Property     slConfig                Auto
+{SexLab Config to check NiOverride}
+Static                                 Property     VehicleMarkerForm       Auto
+{XMarker Static to place vehicle marker for animating actors}
 
 ;==========;                                                                           
 ;==MANUAL==;                                                                           
@@ -25,85 +28,6 @@ zadlibs_UDPatch                        Property     libsp                       
         return libs as zadlibs_UDPatch
     EndFunction
 EndProperty
-
-sslSystemConfig _slConfig = None
-sslSystemConfig                         Property    slConfig                        Hidden
-    sslSystemConfig Function Get()
-        If _slConfig != None
-            Return _slConfig
-        EndIf
-        _slConfig = (Game.GetFormFromFile(0xD62, "SexLab.esm") as sslSystemConfig)
-        If _slConfig == None
-            _slConfig = (Quest.GetQuest("SexLabQuestFramework") as sslSystemConfig)
-        EndIf
-        If _slConfig == None
-            UDmain.Error("UD_AnimationManagerScript::slConfig Can't find SexLab system config object!")
-        EndIf
-        Return _slConfig
-    EndFunction
-EndProperty
-
-; XCross Static
-; TODO: Make it auto property
-Form _VehicleMarkerForm
-Form                                    Property VehicleMarkerForm                  Hidden
-    Form Function Get()
-        If _VehicleMarkerForm == None 
-            _VehicleMarkerForm = Game.GetForm(0x0000003B)
-        EndIf
-        Return _VehicleMarkerForm
-    EndFunction
-EndProperty
-
-; NOT USED ANYMORE
-;===================;
-;==ANIMATION ARRAY==;
-;===================;
-;animations arrays for faster acces
-;normal animations without hobble skirt
-String[] Property UD_StruggleAnimation_Armbinder            auto
-String[] Property UD_StruggleAnimation_Elbowbinder          auto
-String[] Property UD_StruggleAnimation_StraitJacket         auto
-String[] Property UD_StruggleAnimation_CuffsFront           auto
-String[] Property UD_StruggleAnimation_Yoke                 auto
-String[] Property UD_StruggleAnimation_YokeBB               auto
-String[] Property UD_StruggleAnimation_ElbowTie             auto
-;String[] Property UD_StruggleAnimation_PetSuit             auto !TODO
-String[] Property UD_StruggleAnimation_Gag                  auto
-String[] Property UD_StruggleAnimation_Boots                auto ;also leg cuffs
-String[] Property UD_StruggleAnimation_ArmCuffs             auto ;also gloves and mittens
-String[] Property UD_StruggleAnimation_Collar               auto
-String[] Property UD_StruggleAnimation_Blindfold            auto ;also includes hood
-String[] Property UD_StruggleAnimation_Suit                 auto
-String[] Property UD_StruggleAnimation_Belt                 auto
-String[] Property UD_StruggleAnimation_Plug                 auto
-String[] Property UD_StruggleAnimation_Default              auto
-;animations with hobble skirt
-String[] Property UD_StruggleAnimation_Armbinder_HB         auto
-String[] Property UD_StruggleAnimation_Elbowbinder_HB       auto
-String[] Property UD_StruggleAnimation_StraitJacket_HB      auto
-String[] Property UD_StruggleAnimation_CuffsFront_HB        auto
-String[] Property UD_StruggleAnimation_Yoke_HB              auto
-String[] Property UD_StruggleAnimation_YokeBB_HB            auto
-String[] Property UD_StruggleAnimation_ElbowTie_HB          auto
-;String[] Property UD_StruggleAnimation_PetSuit_HB          auto !TODO
-String[] Property UD_StruggleAnimation_Gag_HB               auto
-String[] Property UD_StruggleAnimation_Boots_HB             auto ;also leg cuffs
-String[] Property UD_StruggleAnimation_ArmCuffs_HB          auto ;also gloves and mittens
-String[] Property UD_StruggleAnimation_Collar_HB            auto
-String[] Property UD_StruggleAnimation_Blindfold_HB         auto ;also includes hood
-String[] Property UD_StruggleAnimation_Suit_HB              auto
-String[] Property UD_StruggleAnimation_Belt_HB              auto
-String[] Property UD_StruggleAnimation_Plug_HB              auto
-String[] Property UD_StruggleAnimation_Default_HB           auto
-
-; / NOT USED ANYMORE
-
-;============================================================
-;======================LOCAL VARIABLES=======================
-;============================================================
-
-Bool ZAZAnimationsInstalled = false
 
 ;============================================================
 ;========================FUNCTIONS===========================
@@ -183,16 +107,6 @@ Bool Function IsAnimating(Actor akActor, Bool abBonusCheck = true)
     endif
     return (akActor.IsInFaction(ZadAnimationFaction) || akActor.IsInFaction(SexlabAnimationFaction))
 EndFunction
-
-Form Function GetShield(Actor akActor)
-    Form loc_shield = akActor.GetEquippedObject(0)
-    if loc_shield && (loc_shield.GetType() == 26 || loc_shield.GetType() == 31)
-        return loc_shield
-    else
-        return none
-    endif
-EndFunction
-
 
 ; Prepare actors and start an animation sequence for them. The sequence is scrolled to the last element, which remains active until the animation stops from the outside
 ; Used to play any animation even from the middle of the sequence.
@@ -788,7 +702,7 @@ Int Function GetActorConstraintsInt(Actor akActor, Bool bUseCache = False)
     If akActor == None
         Return result
     EndIf
-	If akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirt)
+	If akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirt) && !akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirtRelaxed)
 		result += 1
 	EndIf
 	If akActor.WornHasKeyword(libs.zad_DeviousAnkleShackles) || akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirtRelaxed)
