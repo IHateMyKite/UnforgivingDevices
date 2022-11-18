@@ -617,17 +617,22 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
         StorageUtil.SetIntValue(akActor,"UD_OrgasmDuration",aiDuration)
     endif
     
-    UDmain.UDUI.GoToState("UIDisabled") ;disable UI
+    int loc_isPlayer = UDmain.ActorIsPlayer(akActor) as Int
+    if loc_isPlayer
+        UDmain.UDUI.GoToState("UIDisabled") ;disable UI
+    endif
+    
+    UDCDmain.DisableActor(akActor,loc_isPlayer)
     
     String[] animationArray = UDmain.UDAM.GetOrgasmAnimEvents(akActor)
     If animationArray.Length > 0
         UDmain.UDAM.FastStartThirdPersonAnimation(akActor, animationArray[Utility.RandomInt(0, animationArray.Length - 1)])
     EndIf
-    
+
     int loc_elapsedtime = 0
     while loc_elapsedtime < aiDuration
         if loc_elapsedtime && !(loc_elapsedtime % 2)
-            UDCDmain.UpdateDisabledActor(akActor)
+            UDCDmain.UpdateDisabledActor(akActor,loc_isPlayer)
         else
             aiDuration = StorageUtil.GetIntValue(akActor,"UD_OrgasmDuration",aiDuration)
         endif
@@ -636,10 +641,14 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
     endwhile
     
     StorageUtil.UnsetIntValue(akActor,"UD_OrgasmDuration")
+
+    UDCDmain.EnableActor(akActor,loc_isPlayer)
     
     UDmain.UDAM.FastEndThirdPersonAnimation(akActor)
 
-    UDmain.UDUI.GoToState("") ;enable UI
+    if loc_isPlayer
+        UDmain.UDUI.GoToState("") ;enable UI
+    endif
 EndFunction
 
 ;///////////////////////////////////////

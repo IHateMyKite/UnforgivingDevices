@@ -120,15 +120,16 @@ int Function FlagSwitch(bool bVal)
 EndFunction
 
 Function LoadConfigPages()
-    pages = new String[8]
+    pages = new String[9]
     pages[0] = "General"
-    pages[1] = "Custom devices"
-    pages[2] = "Custom orgasm"
-    pages[3] = "Patcher"
-    pages[4] = "DD Patch"
-    pages[5] = "Abadon Plug"
-    pages[6] = "Debug panel"
-    pages[7] = "Other"
+    pages[1] = "Device filter"
+    pages[2] = "Custom devices"
+    pages[3] = "Custom orgasm"
+    pages[4] = "Patcher"
+    pages[5] = "DD Patch"
+    pages[6] = "Abadon Plug"
+    pages[7] = "Debug panel"
+    pages[8] = "Other"
 EndFunction
 
 bool Property Ready = False Auto
@@ -223,6 +224,8 @@ Event OnPageReset(string page)
     _lastPage = page
     if (page == "General")
         resetGeneralPage()
+    elseif (page == "Device filter")
+        resetFilterPage()
     elseif (page == "Abadon Plug")
         resetAbadonPage()
     elseif (page == "Custom Devices")
@@ -278,8 +281,6 @@ Function resetAbadonPage()
     max_orgasm_little_finisher_S = AddSliderOption("Max. orgasms of smaller finisher:", AbadonQuest.max_orgasm_little_finisher, "{1}",FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
 endfunction
 
-int UD_RandomFilter_T
-int UD_useHoods_T
 int UD_LoggingLevel_S
 int UD_NPCSupport_T
 int UD_PlayerMenu_K
@@ -292,6 +293,7 @@ Int UD_PrintLevel_S
 Int UD_LockDebugMCM_T
 Int UD_GamepadKey_K
 int UD_EasyGamepadMode_T
+
 Event resetGeneralPage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -310,10 +312,9 @@ Event resetGeneralPage()
     
     AddHeaderOption("General settings")
     addEmptyOption()
-    UD_hightPerformance_T   = addToggleOption("Hight performance mod",UDmain.UD_hightPerformance)
+    UD_hightPerformance_T   = addToggleOption("High performance mod",UDmain.UD_hightPerformance)
     UD_NPCSupport_T         = addToggleOption("NPC Auto Scan",UDmain.AllowNPCSupport)
     
-    UD_RandomFilter_T       = AddInputOption("Random filter", Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFF), UD_LockMenu_flag)
     UD_HearingRange_S       = addSliderOption("Message range:",UDmain.UD_HearingRange,"{0}")
 
     lockmenu_T              = addToggleOption("Lock menus",UDmain.lockMCM,UD_LockMenu_flag)
@@ -322,7 +323,6 @@ Event resetGeneralPage()
     UD_InfoLevel_M          = AddMenuOption("Info level", UD_InfoLevel_AS[UDmain.UD_InfoLevel])
     UD_PrintLevel_S         = addSliderOption("Message level",UDmain.UD_PrintLevel, "{0}")
 
-    UD_useHoods_T           = addToggleOption("Use hoods",UDIM.UD_useHoods,UD_LockMenu_flag)
     addEmptyOption()
     
     AddHeaderOption("Debug")
@@ -333,6 +333,60 @@ Event resetGeneralPage()
     UD_WarningAllowed_T     = addToggleOption("Warnings allowed",UDmain.UD_WarningAllowed)
     addEmptyOption()
 EndEvent
+
+int UD_RandomFilter_T ; leaving this just in case
+
+int UD_UseArmCuffs_T
+int UD_UseBelts_T
+int UD_UseBlindfolds_T
+int UD_UseBoots_T
+int UD_UseBras_T
+int UD_UseCollars_T
+int UD_UseCorsets_T
+int UD_UseGags_T
+int UD_UseGloves_T
+int UD_UseHarnesses_T
+int UD_UseHeavyBondage_T
+int UD_UseHoods_T
+int UD_UseLegCuffs_T
+int UD_UsePiercingsNipple_T
+int UD_UsePiercingsVaginal_T
+int UD_UsePlugsAnal_T
+int UD_UsePlugsVaginal_T
+int UD_UseSuits_T
+
+Event resetFilterPage()
+    UpdateLockMenuFlag()
+    setCursorFillMode(LEFT_TO_RIGHT)
+
+    AddHeaderOption("Device filter")
+    addEmptyOption()
+
+    UD_UseArmCuffs_T        = AddToggleOption("Arm cuffs", Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00001000), UD_LockMenu_flag)
+    UD_UseLegCuffs_T        = AddToggleOption("Leg cuffs", Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00002000), UD_LockMenu_flag)
+    UD_UseBras_T            = AddToggleOption("Chastity Bras", Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00010000), UD_LockMenu_flag)
+    UD_UseBelts_T           = AddToggleOption("Chastity belts", Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00020000), UD_LockMenu_flag)
+    UD_UseBlindfolds_T      = AddToggleOption("Blindfolds", Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000400), UD_LockMenu_flag)
+    UD_UseBoots_T           = AddToggleOption("Boots", Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000800), UD_LockMenu_flag)
+    UD_UseCollars_T         = AddToggleOption("Collars", Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000100), UD_LockMenu_flag)
+    UD_UseCorsets_T         = AddToggleOption("Corsets", Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000040), UD_LockMenu_flag)
+    UD_UseGags_T            = AddToggleOption("Gags", Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000200), UD_LockMenu_flag)
+    UD_UseGloves_T          = AddToggleOption("Gloves", Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00008000), UD_LockMenu_flag)
+    UD_UseHarnesses_T       = AddToggleOption("Harnesses", Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000020), UD_LockMenu_flag)
+    UD_UseHoods_T           = AddToggleOption("Use hoods",UDIM.UD_useHoods,UD_LockMenu_flag) ; leave it as it is, no point in changing, unless we get rid of this variable
+    UD_UsePiercingsNipple_T = AddToggleOption("Piercings on nipples", Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000002), UD_LockMenu_flag)
+    UD_UsePiercingsVaginal_T= AddToggleOption("Piercings clitoral", Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000001), UD_LockMenu_flag)
+    UD_UsePlugsAnal_T       = AddToggleOption("Plugs anal", Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000008), UD_LockMenu_flag)
+    UD_UsePlugsVaginal_T    = AddToggleOption("Plugs vaginal", Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000004), UD_LockMenu_flag)
+    UD_UseHeavyBondage_T    = AddToggleOption("Heavy Bondage", Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000010), UD_LockMenu_flag)
+    UD_UseSuits_T           = AddToggleOption("Suits", Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00004000), UD_LockMenu_flag)
+    addEmptyOption()
+    addEmptyOption()
+    UD_RandomFilter_T       = AddInputOption("Random filter", Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFFFFFF), UD_LockMenu_flag) ; leaving this just in case
+    addEmptyOption()
+
+EndEvent
+
 
 int UD_Swimming_flag
 int UD_autocrit_flag
@@ -760,6 +814,7 @@ EndFunction
 
 event OnOptionSelect(int option)
     OptionSelectGeneral(option)
+    OptionSelectFilter(option)
     OptionCustomBondage(option)
     OptionCustomOrgasm(option)
     OptionDDPatch(option)
@@ -772,9 +827,6 @@ Function OptionSelectGeneral(int option)
     if(option == lockmenu_T)
         UDmain.lockMCM = !UDmain.lockMCM
         SetToggleOptionValue(lockmenu_T, UDmain.lockMCM)
-    elseif (option == UD_useHoods_T)
-        UDIM.UD_useHoods = !UDIM.UD_useHoods
-        SetToggleOptionValue(UD_useHoods_T, UDIM.UD_useHoods)
     elseif (option == UD_hightPerformance_T)
         UDmain.UD_hightPerformance = !UDmain.UD_hightPerformance
         SetToggleOptionValue(UD_hightPerformance_T, UDmain.UD_hightPerformance)
@@ -793,6 +845,83 @@ Function OptionSelectGeneral(int option)
     elseif option == UD_EasyGamepadMode_T
         UDUI.UD_EasyGamepadMode = !UDUI.UD_EasyGamepadMode
         SetToggleOptionValue(UD_EasyGamepadMode_T, UDUI.UD_EasyGamepadMode)
+        forcePageReset()
+    endif
+EndFunction
+
+Function OptionSelectFilter(int option)
+    if (option == UD_UseArmCuffs_T)
+        UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00001000)
+        SetToggleOptionValue(UD_UseArmCuffs_T, Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00001000))
+        forcePageReset()
+    elseif (option == UD_UseBelts_T)
+        UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00020000)
+        SetToggleOptionValue(UD_UseBelts_T, Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00020000))
+        forcePageReset()
+    elseif (option == UD_UseBlindfolds_T)
+        UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000400)
+        SetToggleOptionValue(UD_UseBlindfolds_T, Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000400))
+        forcePageReset()
+    elseif (option == UD_UseBoots_T)
+        UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000800)
+        SetToggleOptionValue(UD_UseBoots_T, Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000800))
+        forcePageReset()
+    elseif (option == UD_UseBras_T)
+        UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00010000)
+        SetToggleOptionValue(UD_UseBras_T, Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00010000))
+        forcePageReset()
+    elseif (option == UD_UseCollars_T)
+        UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000100)
+        SetToggleOptionValue(UD_UseCollars_T, Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000100))
+        forcePageReset()
+    elseif (option == UD_UseCorsets_T)
+        UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000040)
+        SetToggleOptionValue(UD_UseCorsets_T, Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000040))
+        forcePageReset()
+    elseif (option == UD_UseGags_T)
+        UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000200)
+        SetToggleOptionValue(UD_UseGags_T, Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000200))
+        forcePageReset()
+    elseif (option == UD_UseGloves_T)
+        UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00008000)
+        SetToggleOptionValue(UD_UseGloves_T, Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00008000))
+        forcePageReset()
+    elseif (option == UD_UseHarnesses_T)
+        UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000020)
+        SetToggleOptionValue(UD_UseHarnesses_T, Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000020))
+        forcePageReset()
+    elseif (option == UD_UseHeavyBondage_T)
+        UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000010)
+        SetToggleOptionValue(UD_UseHeavyBondage_T, Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000010))
+        forcePageReset()
+    elseif (option == UD_UseHoods_T)
+        UDIM.UD_useHoods = !UDIM.UD_useHoods
+        UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000080)
+        SetToggleOptionValue(UD_UseHoods_T, UDIM.UD_useHoods)
+        forcePageReset()
+    elseif (option == UD_UseLegCuffs_T)
+        UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00002000)
+        SetToggleOptionValue(UD_UseLegCuffs_T, Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00002000))
+        forcePageReset()
+    elseif (option == UD_UsePiercingsNipple_T)
+        UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000002)
+        SetToggleOptionValue(UD_UsePiercingsNipple_T, Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000002))
+        forcePageReset()
+    elseif (option == UD_UsePiercingsVaginal_T)
+        UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000001)
+        SetToggleOptionValue(UD_UsePiercingsVaginal_T, Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000001))
+        forcePageReset()
+    elseif (option == UD_UsePlugsAnal_T)
+        UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000008)
+        SetToggleOptionValue(UD_UsePlugsAnal_T, Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000008))
+        forcePageReset()
+    elseif (option == UD_UsePlugsVaginal_T)
+        UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000004)
+        SetToggleOptionValue(UD_UsePlugsVaginal_T, Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00000004))
+        forcePageReset()
+    elseif (option == UD_UseSuits_T)
+        UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00004000)
+        SetToggleOptionValue(UD_UseSuits_T, Math.LogicalAnd(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0x00004000))
         forcePageReset()
     endif
 EndFunction
@@ -993,14 +1122,14 @@ EndFunction
 
 Function OnOptionInputOpen(int option)
     if option == UD_RandomFilter_T
-        SetInputDialogStartText(Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFF))
+        SetInputDialogStartText(Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFFFFFF))
     endif
 EndFunction
 
 Function OnOptionInputAccept(int option, string value)
     if(option == UD_RandomFilter_T)
-        UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(value as Int,0xFFFF)
-        SetInputOptionValue(UD_RandomFilter_T, Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFF))
+        UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(value as Int,0xFFFFFFFF)
+        SetInputOptionValue(UD_RandomFilter_T, Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFFFFFF))
     endif
 EndFunction
 
@@ -1301,7 +1430,7 @@ Function OnOptionSliderAcceptGeneral(int option, float value)
         UDmain.UD_PrintLevel = Round(value)
         SetSliderOptionValue(UD_PrintLevel_S, UDmain.UD_PrintLevel, "{0}")
     elseif option == UD_RandomFilter_T
-        UDmain.UDRRM.UD_RandomDevice_GlobalFilter =  Math.LogicalXor(round(value),0xFFFF)
+        UDmain.UDRRM.UD_RandomDevice_GlobalFilter =  Math.LogicalXor(round(value),0xFFFFFFFF)
         SetSliderOptionValue(UD_RandomFilter_T, Round(value), "{0}")
     elseif option == UD_HearingRange_S
         UDmain.UD_HearingRange =  Round(value)
@@ -1676,6 +1805,8 @@ endEvent
 Event OnOptionHighlight(int option)
     if (_lastPage == "General")
         GeneralPageInfo(option)
+    elseif (_lastPage == "Device filter")
+        FilterPageInfo(option)
     elseif (_lastPage == "Abadon Plug")
         AbadanPageInfo(option)
     elseif (_lastPage == "Custom Devices")
@@ -1702,14 +1833,10 @@ Function GeneralPageInfo(int option)
         SetInfoText("Current use: Starts struggling")
     elseif(option == UD_hightPerformance_T)
         SetInfoText("Hight performance mod will decrease update time. This will make struggle game more smooth and also less buggy.")
-    elseif(option == UD_useHoods_T)
-        SetInfoText("Toogle if hoods can be equipped on player by this mod.")
     elseif(option == UD_debugmod_T)
         SetInfoText("Toogle debug mod. Debug mod shows more information for devices from this mod.")
     elseif (option == UD_NPCSupport_T)
         SetInfoText("Toogle automatic scaning")
-    elseif option == UD_RandomFilter_T
-        SetInfoText("Set random restrain filter. This is bitcoded value. For more info check LL or GitHub")
     elseif option == UD_HearingRange_S
         SetInfoText("Actor needs to be in this range from player so user receives actor specific messages (like that some device starts vibratin, other do something else etc...)\n Default: 4000\n(4000 is around the distance of one big hallway. 500 is next to player.)")
     elseif option == UD_InfoLevel_M
@@ -1727,8 +1854,50 @@ Function GeneralPageInfo(int option)
     elseif option == UD_LockDebugMCM_T
         SetInfoText("Disable MCM Debug panel if player have any Unforigivng Device equipped. Only active if \"Lock menus\" is also enabled")
     elseif option == UD_EasyGamepadMode_T
-        SetInfoText("Toogle Easy Gamepad Mode. While in this mode, only the Gamepad button is usable. This button will open menu with all options that are opened by other buttons.\nDefault: OFF")
+        SetInfoText("Toggle Easy Gamepad Mode. While in this mode, only the Gamepad button is usable. This button will open menu with all options that are opened by other buttons.\nDefault: OFF")
     Endif
+EndFunction
+
+Function FilterPageInfo(int option)
+    if(option == UD_UseArmCuffs_T)
+        SetInfoText("Toggle if arm cuffs allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseBelts_T)
+        SetInfoText("Toggle if chastity belts allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseBlindfolds_T)
+        SetInfoText("Toggle if blindfolds allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseBoots_T)
+        SetInfoText("Toggle if boots allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseBras_T)
+        SetInfoText("Toggle if chastity bras allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseCollars_T)
+        SetInfoText("Toggle if collars allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseCorsets_T)
+        SetInfoText("Toggle if corsets allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseGags_T)
+        SetInfoText("Toggle if gags allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseGloves_T)
+        SetInfoText("Toggle if gloves allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseHarnesses_T)
+        SetInfoText("Toggle if harnesses allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseHeavyBondage_T)
+        SetInfoText("Toggle if heavy bondage allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseHoods_T)
+        SetInfoText("Toggle if hoods allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseLegCuffs_T)
+        SetInfoText("Toggle if leg cuffs allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UsePiercingsNipple_T)
+        SetInfoText("Toggle if nipple piercings allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UsePiercingsVaginal_T)
+        SetInfoText("Toggle if clitoral piercings allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UsePlugsAnal_T)
+        SetInfoText("Toggle if anal plugs allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UsePlugsVaginal_T)
+        SetInfoText("Toggle if vaginal plugs allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseSuits_T)
+        SetInfoText("Toggle if suits allowed to be equipped by this mod. Default: TRUE")
+    elseif option == UD_RandomFilter_T ;this option will be deleted
+        SetInfoText("Set random restraint filter. This is bitcoded value. Normally no need to use it instead of checkboxes. For more info check LL or GitHub. Default: 0")
+    endif
 EndFunction
 
 Function CustomBondagePageInfo(int option)
@@ -1992,7 +2161,7 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "PrintLevel", UDmain.UD_PrintLevel)
     JsonUtil.SetIntValue(strFile, "LockDebug", UDmain.UD_LockDebugMCM as Int)
     JsonUtil.SetIntValue(strFile, "EasyGamepadMode", UDUI.UD_EasyGamepadMode as Int)
-    
+
     ;UDCDmain
     JsonUtil.SetIntValue(strFile, "Stamina_meter_Keycode", UDCDmain.Stamina_meter_Keycode)
     JsonUtil.SetIntValue(strFile, "StruggleKey_Keycode", UDCDmain.StruggleKey_Keycode)
@@ -2103,7 +2272,7 @@ Function LoadFromJSON(string strFile)
     UDmain.UD_PrintLevel = JsonUtil.GetIntValue(strFile, "PrintLevel", UDmain.UD_PrintLevel)
     UDmain.UD_LockDebugMCM = JsonUtil.GetIntValue(strFile, "LockDebug", UDmain.UD_LockDebugMCM as Int)
     UDUI.UD_EasyGamepadMode = JsonUtil.GetIntValue(strFile, "EasyGamepadMode", UDUI.UD_EasyGamepadMode as Int)
-    
+
     ;UDCDmain
     UDCDmain.UnregisterGlobalKeys()
     UDCDmain.Stamina_meter_Keycode = JsonUtil.GetIntValue(strFile, "Stamina_meter_Keycode", UDCDmain.Stamina_meter_Keycode)
@@ -2321,7 +2490,7 @@ Function ResetToDefaults()
     widget.PositionY = 0
     UDCDmain.widget2.PositionX = widget.PositionX
     UDCDmain.widget2.PositionY = widget.PositionY
-    UDmain.UDRRM.UD_RandomDevice_GlobalFilter = 0x0000FFFF ;16b
+    UDmain.UDRRM.UD_RandomDevice_GlobalFilter = 0xFFFFFFFF ;32b
     AAScript.UD_DAR =  false
     UDCD_NPCM.UD_SlotUpdateTime = 10.0
     UDCDMain.UD_OutfitRemove = True

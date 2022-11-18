@@ -308,7 +308,6 @@ Function stopVibratingAndWait()
     endif
 EndFunction
 
-
 bool _manipMutex
 Function StartManipMutex()
     while _manipMutex
@@ -570,25 +569,13 @@ Function vibrate(float fDurationMult = 1.0)
         UDmain.Log("Vibrate called for " + getDeviceName() + " on " + getWearerName() + ", duration: " + _currentVibRemainingDuration + ", strength: " + _currentVibStrength + ", edging: " + _currentEdgingMode)
     endif
     
-    ;/
-    if !GetWearer().IsInFaction(UDCDmain.VibrationFaction)
-        GetWearer().AddToFaction(UDCDmain.VibrationFaction)
-        GetWearer().SetFactionRank(UDCDmain.VibrationFaction,1)
-    else
-        GetWearer().ModFactionRank(UDCDmain.VibrationFaction,1)
-    endif
-    /;
     StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib", 1)
     StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", _currentVibStrength)
     
     
     UDmain.SendModEvent("DeviceVibrateEffectStart", getWearerName(), getCurrentZadVibStrenth())
-        
-    if WearerIsPlayer()
-        UDmain.Print(getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",2)
-    elseif UDCDmain.AllowNPCMessage(GetWearer())
-        UDmain.Print(getWearerName() + "s " + getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",3)
-    endif
+    
+    PrintVibMessage_Start()
 
     ; Initialize Sounds
     StartVibSound()
@@ -632,20 +619,13 @@ Function vibrate(float fDurationMult = 1.0)
     StopVibSound()
         
     if !_paused
-        if WearerIsPlayer()
-            UDCDmain.Print(getDeviceName() + " stops vibrating.",2)
-        elseif UDCDmain.AllowNPCMessage(GetWearer())
-            UDCDmain.Print(getWearerName() + "s " + getDeviceName() + " stops vibrating.",3)
-        endif
+        PrintVibMessage_Stop()
     endif
     
-    ;GetWearer().ModFactionRank(UDCDmain.VibrationFaction,-1)
     StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib", -1)
     StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", -1*_currentVibStrength)
     
     UDCDmain.SendModEvent("DeviceVibrateEffectStop", getWearerName(), getCurrentZadVibStrenth())
-    ;libs.UpdateArousalTimeRate(getWearer(), _currentVibStrength)
-    ;libs.Aroused.GetActorArousal(getWearer())
     
     _currentVibRemainingDuration = 0
     _forceDuration = 0
@@ -701,6 +681,9 @@ bool Function canBeActivated()
     endif
 EndFunction
 
+Float Function GetAppliedOrgasmRate()
+    return _appliedOrgasmRate
+EndFunction
 ;======================================================================
 ;Place new override functions here, do not forget to check override functions in parent if its not base script (UD_CustomDevice_RenderScript)
 ;Function OnVibStart(int blablabla)
@@ -716,6 +699,21 @@ EndFunction
 float Function getVibArousalRate(float afMult = 1.0)
     return _currentVibStrength*afMult*UDCDmain.UD_ArousalMultiplier*UD_ArousalMult
 EndFunction
+Function PrintVibMessage_Start()
+    if WearerIsPlayer()
+        UDmain.Print(getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",2)
+    elseif UDCDmain.AllowNPCMessage(GetWearer())
+        UDmain.Print(getWearerName() + "s " + getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",3)
+    endif
+EndFunction
+Function PrintVibMessage_Stop()
+    if WearerIsPlayer()
+        UDCDmain.Print(getDeviceName() + " stops vibrating.",2)
+    elseif UDCDmain.AllowNPCMessage(GetWearer())
+        UDCDmain.Print(getWearerName() + "s " + getDeviceName() + " stops vibrating.",3)
+    endif
+EndFunction
+
 ;============================================================================================================================
 ;unused override function, theese are from base script. Extending different script means you also have to add their overrride functions                                                
 ;theese function should be on every object instance, as not having them may cause multiple function calls to default class

@@ -224,7 +224,8 @@ Function equipAbadonSimpleSuit(Actor target)
         if (!target.WornhasKeyword(libs.zad_DeviousBoots))
             ;libs.LockDevice(target,UDlibs.AbadonTransBoots)
             ;libs.LockDevice(target, UDlibs.AbadonPonyBootsWhite)
-            libs.LockDevice(target,libsx.zadx_HR_IronBalletBootsInventory)
+            ;libs.LockDevice(target,libsx.zadx_HR_IronBalletBootsInventory)
+            libs.LockDevice(target,libsx2.zadx_leather_heels_black_Inventory) ; iron boots were total mismatch, these are much better
         endif
         
         if (!target.WornhasKeyword(libs.zad_DeviousBlindfold))
@@ -350,8 +351,22 @@ Function equipAbadonFinisherSuit(Actor target)
     
     libs.SwapDevices(target,UDlibs.AbadonCursedStraitjacket,libs.zad_DeviousHeavyBondage) ;TFuck
 
-    if target.wornHasKeyword(libs.zad_DeviousCorset)
-        libs.UnlockDeviceByKeyword(target,libs.zad_DeviousCorset)
+; unlock corset? no way, we have to punish!
+;    if target.wornHasKeyword(libs.zad_DeviousCorset)
+;        libs.UnlockDeviceByKeyword(target,libs.zad_DeviousCorset)
+;    endif
+
+    if target.wornHasKeyword(libs.zad_DeviousBelt) && !target.wornHasKeyword(libs.zad_DeviousCorset) && !target.wornHasKeyword(libs.zad_DeviousHarness) 
+        libs.LockDevice(target,UDlibs.AbadonCorset) ; has belt and no corset? wear it!
+    elseif !target.wornHasKeyword(libs.zad_DeviousBelt) && !target.wornHasKeyword(libs.zad_DeviousCorset) && !target.wornHasKeyword(libs.zad_DeviousHarness) && !target.WornhasKeyword(libs.zad_DeviousCollar) ; no belt and no corset and no harness? time to decide what we will do!
+        if Utility.RandomInt(0,1) == 0
+            libs.LockDevice(target,UDlibs.AbadonHarness) ; either harness...
+        else    
+            libs.LockDevice(target,UDlibs.AbadonCorset)    ; ...or corset and belt combo!
+            libs.LockDevice(target,UDlibs.AbadonBelt)
+        endif
+    elseif !target.wornHasKeyword(libs.zad_DeviousBelt) ; last resolve, maybe add at least the belt?
+        libs.LockDevice(target,UDlibs.AbadonBelt)
     endif
     
     libs.SwapDevices(target,UDlibs.AbadonBra,libs.zad_DeviousBra)
@@ -368,16 +383,32 @@ Function equipAbadonFinisherSuit(Actor target)
         libs.LockDevice(target,UDlibs.AbadonCuffCollar)
     endif
     
-    if !target.wornHasKeyword(libs.zad_DeviousHood) && UD_useHoods
-        libs.LockDevice(target,UDlibs.CursedAbadonGasmask)
+;    if !target.wornHasKeyword(libs.zad_DeviousHood) && UD_useHoods
+;        libs.LockDevice(target,UDlibs.CursedAbadonGasmask)
+;    endif
+ 
+    if UD_useHoods
+        libs.SwapDevices(target,UDlibs.CursedAbadonGasmask,libs.zad_DeviousHood) ; force to wear cursed gasmask too
     endif
-    
+   
     if !target.WornhasKeyword(libs.zad_DeviousGag)
         libs.LockDevice(target,UDlibs.AbadonGagTape)
     endif
     
     if !target.WornhasKeyword(libs.zad_DeviousBlindfold)
         libs.LockDevice(target,UDlibs.AbadonBlindfold)
+    endif
+; and here we also add mittens and cuffs, more is better!
+    if !target.WornhasKeyword(libs.zad_DeviousGloves)
+        libs.LockDevice(target,UDlibs.AbadonMittens)
+    endif
+
+    if !target.WornhasKeyword(libs.zad_DeviousArmCuffs)
+        libs.LockDevice(target,UDlibs.AbadonArmCuffs)
+    endif
+
+    if !target.WornhasKeyword(libs.zad_DeviousLegCuffs)
+        libs.LockDevice(target,UDlibs.AbadonLegsCuffs)
     endif
 EndFunction
 

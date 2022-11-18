@@ -220,6 +220,8 @@ Function OnGameReload()
     UDNPCM.GameUpdate()
     
     UDLLP.Update()
+
+    UDRRM.Update()
     
     if UDAM.Ready
         UDAM.Update()

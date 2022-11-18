@@ -199,7 +199,7 @@ Function Receive_MinigameParalel(Form fActor)
     
     ;process
     ;start disable
-    bool      loc_haveplayer = (loc_device.WearerIsPlayer() || loc_device.HelperIsPlayer())
+    bool      loc_haveplayer = loc_device.PlayerInMinigame()
     
     ;disable regen of all stats
     float staminaRate           = akActor.getBaseAV("StaminaRate")

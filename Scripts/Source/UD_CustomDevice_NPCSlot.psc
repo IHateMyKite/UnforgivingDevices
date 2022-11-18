@@ -315,7 +315,7 @@ Function fix()
         removeUnusedDevices()
         removeLostRenderDevices()
 
-        UDCDmain.EnableActor(getActor(),true)
+        UDCDmain.EnableActor(getActor())
 
         getActor().removeFromFaction(UDCDmain.MinigameFaction)
         getActor().removeFromFaction(UDCDmain.BlockExpressionFaction)
