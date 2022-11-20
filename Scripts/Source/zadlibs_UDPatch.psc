@@ -188,6 +188,35 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
     return loc_res
 EndFunction
 
+Bool Function SwapDevices(actor akActor, armor deviceInventory, keyword zad_DeviousDevice = none, bool destroyDevice = false, bool genericonly = true)
+    return SwapDevicesPatched(akActor, deviceInventory, zad_DeviousDevice, destroyDevice, genericonly)
+EndFunction
+
+Bool Function SwapDevicesPatched(actor akActor, armor deviceInventory, keyword zad_DeviousDevice = none, bool destroyDevice = false, bool genericonly = true)
+    Keyword loc_keyword
+    if !zad_DeviousDevice
+        loc_keyword = GetDeviceKeyword(deviceInventory)
+    else
+        loc_keyword = zad_DeviousDevice
+    EndIf
+    Armor WornDevice = GetWornRenderedDeviceByKeyword(akActor, loc_keyword)
+    if WornDevice
+        Armor idevice = GetWornDevice(akActor, loc_keyword)
+        if !UnlockDevice(akActor, idevice, WornDevice, zad_DeviousDevice = loc_keyword, destroyDevice = destroyDevice, genericonly = genericonly)
+            GError("UnlockDevice() failed for "+ deviceInventory.getName() +". Aborting.")
+            return false
+        EndIf
+    Else
+        log("No confilicting device worn. Proceeding.")
+    EndIf
+    LockDevicePatched(akActor,deviceInventory)
+    ;if akActor.GetItemCount(deviceInventory) <= 0
+    ;    akActor.AddItem(deviceInventory, 1, true)
+    ;EndIf
+    ;akActor.EquipItemEx(deviceInventory, 0, false, true)
+	return true
+EndFunction
+
 Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRendered = none, keyword zad_DeviousDevice = none, bool destroyDevice = false, bool genericonly = false)
     if !akActor
         UDCDmain.Error("UnlockDevice called for none actor!")
@@ -307,9 +336,6 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
     UDmain.UDNPCM.GotoState("")
     return loc_res
 EndFunction
-
-
-
 
 ;modified version of RemoveQuestDevice from zadlibs. This version makes use of registered devices from UD,making unequip procces for NPC safer and faster
 Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRendered, keyword zad_DeviousDevice, keyword RemovalToken, bool destroyDevice=false, bool skipMutex=false)

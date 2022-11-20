@@ -754,14 +754,16 @@ Event LockDevice(Actor akActor)
         ;EndIf
     ;endif
     
+    Utility.wait(0.1)
+    
     akActor.EquipItem(DeviceRendered, true, true)
     
     int loc_ticks = 0
-    while loc_ticks <= 10 && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
-        Utility.waitMenuMode(0.1)
+    while loc_ticks <= 20 && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
+        Utility.wait(0.05)
         loc_ticks += 1
     endwhile
-    if loc_ticks >= 10
+    if loc_ticks >= 20
         ;render device lock failed, abort
         _locked = false
         StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))

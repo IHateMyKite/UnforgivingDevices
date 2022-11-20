@@ -231,6 +231,8 @@ Function OnGameReload()
         UDCM.Update()
     endif
     
+    UDAbadonQuest.Update()
+    
     CLog("Unforgiving Devices updated.")
 EndFunction
 
@@ -858,6 +860,27 @@ EndFunction
 Function GamepadMenuPause() Global
     if Game.UsingGamepad()
         Utility.wait(0.1)
+    endif
+EndFunction
+
+;SoS faction. If none, it means that the SoS is not installed
+Faction _SOS_SchlongifiedActors
+Faction Property UD_SOS_SchlongifiedActors
+    Faction Function Get()
+        if !_SOS_SchlongifiedActors
+            _SOS_SchlongifiedActors = UnforgivingDevicesMain.GetMeMyForm(0x00AFF8,"Schlongs of Skyrim.esp") as Faction
+        endif
+        return _SOS_SchlongifiedActors
+    EndFunction
+EndProperty
+
+;might or might not be used in future
+Bool Function ActorHaveSoS(Actor akActor)
+    if UD_SOS_SchlongifiedActors
+        return akActor.IsInFaction(UD_SOS_SchlongifiedActors)
+    else
+        Info("UnforgivingDevicesMain::ActorHaveSoS() - SoS not installed, returning false")
+        return false
     endif
 EndFunction
 

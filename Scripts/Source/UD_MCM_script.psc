@@ -260,7 +260,10 @@ Function resetAbadonPage()
     final_finisher_set_T = addToggleOption("Equip set:", AbadonQuest.final_finisher_set,UD_LockMenu_flag)
     
     difficulty_M = AddMenuOption("Difficulty:", difficultyList[AbadonQuest.overaldifficulty],FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
-    final_finisher_pref_M = AddMenuOption("Start set:", final_finisher_pref_list[AbadonQuest.final_finisher_pref],abadon_flag_2)
+    if AbadonQuest.final_finisher_pref >= AbadonQuest.UD_AbadonSuitNumber
+        AbadonQuest.final_finisher_pref = 0 ;turn to random if the previous suit is no longer valid
+    endif
+    final_finisher_pref_M = AddMenuOption("Start set:", AbadonQuest.UD_AbadonSuitList[AbadonQuest.final_finisher_pref],abadon_flag_2)
     
     hardcore_T = addToggleOption("Hardcore:", AbadonQuest.hardcore,FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
     eventchancemod_S = AddSliderOption("Event modifier:", AbadonQuest.eventchancemod, "{0} %",FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
@@ -316,6 +319,7 @@ Event resetGeneralPage()
     UD_NPCSupport_T         = addToggleOption("NPC Auto Scan",UDmain.AllowNPCSupport)
     
     UD_HearingRange_S       = addSliderOption("Message range:",UDmain.UD_HearingRange,"{0}")
+    addEmptyOption()
 
     lockmenu_T              = addToggleOption("Lock menus",UDmain.lockMCM,UD_LockMenu_flag)
     UD_LockDebugMCM_T       = addToggleOption("Lock Debug",UDmain.UD_LockDebugMCM,FlagSwitchAnd(UD_LockMenu_flag,FlagSwitch(!UDmain.UD_LockDebugMCM)))
@@ -323,8 +327,6 @@ Event resetGeneralPage()
     UD_InfoLevel_M          = AddMenuOption("Info level", UD_InfoLevel_AS[UDmain.UD_InfoLevel])
     UD_PrintLevel_S         = addSliderOption("Message level",UDmain.UD_PrintLevel, "{0}")
 
-    addEmptyOption()
-    
     AddHeaderOption("Debug")
     addEmptyOption()
     UD_debugmod_T           = addToggleOption("Debug mod",UDmain.DebugMod)
@@ -645,11 +647,13 @@ Event resetDDPatchPage()
     
     AddHeaderOption("General")
     addEmptyOption()
-    UD_GagPhonemModifier_S = addSliderOption("Gag phonem mod: ",UDCDmain.UD_GagPhonemModifier, "{0}",FlagSwitch(UDmain.ZadExpressionSystemInstalled))
+    
+    UD_GagPhonemModifier_S = addSliderOption("Gag phonem mod: ",UDCDmain.UD_GagPhonemModifier, "{0}",FlagSwitch(!UDmain.ZadExpressionSystemInstalled))
     addEmptyOption()
     
     AddHeaderOption("Animation setting")
     addEmptyOption()
+    
     UD_StartThirdpersonAnimation_Switch_T = addToggleOption("Animation patch", libs.UD_StartThirdPersonAnimation_Switch)
     UD_OrgasmAnimation_M = AddMenuOption("Animation list:", orgasmAnimation[UDOM.UD_OrgasmAnimation]) 
     
@@ -1108,7 +1112,6 @@ Function OptionSelectOther(int option)
     elseif UD_Import_T == option
         LoadFromJSON(File)
         ShowMessage("Saved configuration loaded!",false,"OK")
-        ;forcePageReset()
     elseif option == UD_Default_T
         if ShowMessage("Do you really want to discard all changes and load default values?")
             ResetToDefaults()
@@ -1429,9 +1432,9 @@ Function OnOptionSliderAcceptGeneral(int option, float value)
     elseif option == UD_PrintLevel_S
         UDmain.UD_PrintLevel = Round(value)
         SetSliderOptionValue(UD_PrintLevel_S, UDmain.UD_PrintLevel, "{0}")
-    elseif option == UD_RandomFilter_T
-        UDmain.UDRRM.UD_RandomDevice_GlobalFilter =  Math.LogicalXor(round(value),0xFFFFFFFF)
-        SetSliderOptionValue(UD_RandomFilter_T, Round(value), "{0}")
+    ;elseif option == UD_RandomFilter_T
+    ;    UDmain.UDRRM.UD_RandomDevice_GlobalFilter =  Math.LogicalXor(round(value),0xFFFFFFFF)
+    ;    SetSliderOptionValue(UD_RandomFilter_T, Round(value), "{0}")
     elseif option == UD_HearingRange_S
         UDmain.UD_HearingRange =  Round(value)
         SetSliderOptionValue(UD_HearingRange_S, UDmain.UD_HearingRange, "{0}")
@@ -1624,7 +1627,7 @@ Function OnOptionMenuOpenAbadon(int option)
         SetMenuDialogStartIndex(preset)
         SetMenuDialogDefaultIndex(0)
     elseif option == final_finisher_pref_M
-        SetMenuDialogOptions(final_finisher_pref_list)
+        SetMenuDialogOptions(AbadonQuest.UD_AbadonSuitList)
         SetMenuDialogStartIndex(AbadonQuest.final_finisher_pref)
         SetMenuDialogDefaultIndex(1)
     endif
@@ -1688,7 +1691,7 @@ Function OnOptionMenuAcceptAbadon(int option, int index)
         forcePageReset()
     elseif (option == final_finisher_pref_M)
         AbadonQuest.final_finisher_pref = index
-        SetMenuOptionValue(final_finisher_pref_M, final_finisher_pref_list[AbadonQuest.final_finisher_pref])
+        SetMenuOptionValue(final_finisher_pref_M, AbadonQuest.UD_AbadonSuitList[AbadonQuest.final_finisher_pref])
     endIf
 EndFunction
 
@@ -1969,8 +1972,6 @@ EndFunction
 Function CustomOrgasmPageInfo(int option)
     if     option == UD_OrgasmUpdateTime_S
         SetInfoText("Update time for orgasm checking (how fast is orgasm widget updated). Is only used for player.\n Default: 0.2s")
-    elseif option == UD_OrgasmAnimation_M
-        SetInfoText("List of orgasm animations.\nNormal = Normal orgasm animation by  DD\nExtended = Orgasm animation + horny animations\nDefault: Normal")
     elseif option == UD_UseOrgasmWidget_T
         SetInfoText("Toogle orgasm progress widget\nDefault: ON")
     elseif option == UD_OrgasmResistence_S
@@ -1981,7 +1982,7 @@ Function CustomOrgasmPageInfo(int option)
         SetInfoText("Duration of random horny animation\nDefault: 5 s")
     elseif option == UD_VibrationMultiplier_S
         SetInfoText("Constant for calculating Orgasm rate from Vibration strength. Example: If this value is 0.1 and vibrator strength is 100, resulting Orgasm rate is 10\nDefault: 0.1 s")
-    elseif option == UD_VibrationMultiplier_S
+    elseif option == UD_ArousalMultiplier_S
         SetInfoText("Constant for calculating Arousal rate from Vibration strength. Example: If this value is 0.025 and vibrator strength is 100, resulting Arousal rate is 2.5\nDefault: 0.025 s")
     elseif option == UD_OrgasmArousalReduce_S
         SetInfoText("Post-orgasm amount of arousal that will removed from actor per second\nDefault: 25 Arousal/s")
@@ -2052,6 +2053,8 @@ Function DDPatchPageInfo(int option)
         SetInfoText("Gag modifier which change gag expression for simple gag to better fit mouth. Is not used if DD beta 7 is installed\nDefault: 0")
     elseif option == UD_OutfitRemove_T
         SetInfoText("Prevent NPC outfit from being removed when hand restrain is locked on. Removing outfit can by default cause compatibility issue with NPC overhaul mods. This will obviousl prevent NPC from being naked untill player undress them\nDefault: True")
+    elseif option == UD_OrgasmAnimation_M
+        SetInfoText("List of orgasm animations.\nNormal = Normal orgasm animation by  DD\nExtended = Orgasm animation + horny animations\nDefault: Normal")
     endif
 EndFunction
 
@@ -2082,8 +2085,7 @@ Function setAbadonPreset(int selected_preset)
     else
         abadon_flag = OPTION_FLAG_DISABLED
     endif
-    
-    
+
     if (preset == 0) ;forgiving
         AbadonQuest.max_difficulty = 150.0
         AbadonQuest.overaldifficulty = 0 ;0-3 where 3 is same as in MDS

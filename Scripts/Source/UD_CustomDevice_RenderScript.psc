@@ -1519,6 +1519,8 @@ Function Init(Actor akActor)
 
     Wearer = akActor
     
+    Utility.wait(0.05) ;wait for menus to be closed
+    
     UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
     
     if isUnlocked 
@@ -1536,7 +1538,7 @@ Function Init(Actor akActor)
     if !deviceRendered || !UD_DeviceKeyword
         updateValuesFromInventoryScript()
     endif
-        
+
     if akActor.getItemCount(deviceRendered) > 1
         UDCDmain.Error("!Aborting Init("+ getDeviceHeader() + " because device is already present!")
         akActor.removeItem(deviceRendered,akActor.getItemCount(deviceRendered) - 1,true)
@@ -1547,9 +1549,10 @@ Function Init(Actor akActor)
     bool loc_isplayer = (akActor == UDmain.Player)
     while loc_time <= 1.0 && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
         if loc_isplayer
-            Utility.waitMenuMode(0.01)
+            ;Utility.waitMenuMode(0.05)
+            Utility.wait(0.05)
         else
-            Utility.wait(0.01)
+            Utility.wait(0.05)
         endif
         loc_time += 0.05
     endwhile
@@ -1656,13 +1659,13 @@ Function Init(Actor akActor)
         UDCDmain.Log(DeviceInventory.getName() + " fully locked on " + getWearerName(),1)
     endif
     
-    InitPostPost()
-    
     Ready = True
     
     if UDCDmain.isRegistered(getWearer())
         Update(1/24/60) ;1 minute update
     endif
+    
+    InitPostPost() ;called after everything else. Can add some followup interaction immidiatly after device is equipped (activate device, start vib, etc...)
 EndFunction
 
 Function removeDevice(actor akActor)
