@@ -26,12 +26,6 @@ UD_OrgasmManager Property UDOM
     EndFunction
 EndProperty
 
-UD_AnimationManagerScript Property UDAM hidden
-    UD_AnimationManagerScript Function get()
-        return UDmain.UDAM
-    EndFunction
-EndProperty
-
 bool Property UD_StartThirdPersonAnimation_Switch = true auto
 bool _installing = false
 Function OnInit()
@@ -573,11 +567,11 @@ EndFunction
 String Function AnimSwitchKeyword(actor akActor, string idleName)
     String[] anims
     If idleName == "Horny01" || idleName == "Horny02" || idleName == "Horny03"
-        anims = UDAM.GetHornyAnimEvents(akActor)
+        anims = UDmain.UDAM.GetHornyAnimEvents(akActor)
     ElseIf idleName == "Orgasm" && UDCDmain.UDOM.UD_OrgasmAnimation != 0
-        anims = UDAM.GetOrgasmAnimEvents(akActor)
+        anims = UDmain.UDAM.GetOrgasmAnimEvents(akActor)
     ElseIf idleName == "Edged"
-        anims = UDAM.GetEdgedAnimEvents(akActor)
+        anims = UDmain.UDAM.GetEdgedAnimEvents(akActor)
     EndIf
     
     If anims.Length > 0

@@ -29,6 +29,18 @@ zadlibs_UDPatch                        Property     libsp                       
     EndFunction
 EndProperty
 
+;------------local variables-------------------
+
+; array with loaded json files
+String[] UD_AnimationJSON
+
+; reload json files before every use
+Bool forceReloadFiles = False
+; enable checking the "force" flag of animation
+Bool enableForcedFlag = False
+; print full array of found animations (may lead to CTD)
+Bool useUnsafeLogging = False
+
 ;============================================================
 ;========================FUNCTIONS===========================
 ;============================================================
@@ -50,6 +62,7 @@ Function Update()
     
     forceReloadFiles = False
     enableForcedFlag = False
+    useUnsafeLogging = False
 EndFunction
 
 ; Prepare actor and start an animation sequence for it. The sequence is scrolled to the last element, which remains active until the animation stops from the outside
@@ -355,13 +368,6 @@ Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bConti
     Return False
 EndFunction
 
-; array with loaded json files
-String[] UD_AnimationJSON
-
-; For debug purposes. Remove in prod
-Bool forceReloadFiles = False
-Bool enableForcedFlag = False
-
 ; Function to preload and validate json files with animations
 ; If the use conditions are specified in the file (by the "condition" field), then they are checked before the file name is saved in the list for the future uses.
 ; All loaded and validated files saved in the UD_AnimationJSON array.
@@ -526,7 +532,12 @@ String[] Function GetAnimationsFromDB(String sType, String sKeyword, String sAtt
     EndIf
     result_temp = Utility.ResizeStringArray(result_temp, currentIndex)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetAnimationsFromDB() Animation array: " + result_temp, 3)
+        If useUnsafeLogging
+            ; Even though when outputting long arrays, the last elements are replaced with ellipsis, sometimes CTD occurs. (It's unsafe to print more than 1000 symbols or so. That's about 14 animations)
+            UDmain.Log("UD_AnimationManagerScript::GetAnimationsFromDB() Animation array: " + result_temp, 3)
+        Else
+            UDmain.Log("UD_AnimationManagerScript::GetAnimationsFromDB() Animation array length: " + result_temp.Length, 3)
+        EndIf
     EndIf
     Return result_temp
 EndFunction
@@ -753,8 +764,8 @@ Function _RemoveHeelEffect(Actor akActor, Bool bRemoveHDT = true, Bool bRemoveNi
         bool UpdateNiOPosition = False
         String[] overrideKeys = NiOverride.GetNodeTransformKeys(akActor, false, isRealFemale, "NPC")
         ; removing previous override
-        If overrideKeys.Find("UnforgivingDevices.esm") >= 0
-            NiOverride.RemoveNodeTransformPosition(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esm")
+        If overrideKeys.Find("UnforgivingDevices.esp") >= 0
+            NiOverride.RemoveNodeTransformPosition(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esp")
             UpdateNiOPosition = True
         EndIf
         ; checking if actor has SexLab HH and DD overrides are not present
@@ -764,7 +775,7 @@ Function _RemoveHeelEffect(Actor akActor, Bool bRemoveHDT = true, Bool bRemoveNi
             pos[0] = -pos[0]
             pos[1] = -pos[1]
             pos[2] = -pos[2]
-            NiOverride.AddNodeTransformPosition(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esm", pos)
+            NiOverride.AddNodeTransformPosition(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esp", pos)
             UpdateNiOPosition = True
         EndIf
         If UpdateNiOPosition
@@ -799,7 +810,7 @@ Function _RestoreHeelEffect(Actor akActor)
     endIf
     if slConfig.HasNiOverride
         Bool isRealFemale = (akActor.GetLeveledActorBase().GetSex() == 1)
-        bool UpdateNiOPosition = NiOverride.RemoveNodeTransformPosition(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esm")
+        bool UpdateNiOPosition = NiOverride.RemoveNodeTransformPosition(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esp")
         if UpdateNiOPosition
             NiOverride.UpdateNodeTransform(akActor, false, isRealFemale, "NPC")
         endIf
