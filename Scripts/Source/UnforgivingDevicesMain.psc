@@ -71,6 +71,7 @@ bool property DebugMod                  = False     auto hidden conditional
 bool Property AllowNPCSupport           = False     auto
 Bool Property UD_WarningAllowed         = False     auto hidden
 bool Property UD_DisableUpdate          = False     auto hidden conditional
+bool Property UD_CheckAllKw             = False     auto hidden conditional
 
 ;zadlibs patch control
 bool Property UD_zadlibs_ParalelProccesing = false auto
@@ -99,7 +100,6 @@ float Property UD_HightPerformanceTime  = 0.25  autoreadonly
 float Property UD_baseUpdateTime                auto
 zadConfig   Property DDconfig                   auto
 String[]    Property UD_OfficialPatches         auto
-int         Property UD_InfoLevel       = 1     auto    hidden
 
 bool Property ZaZAnimationPackInstalled = false auto
 ;zbfBondageShell Property ZAZBS auto
@@ -465,7 +465,7 @@ bool Function ActorIsValidForUD(Actor akActor)
     endif
     ActorBase loc_actorbase = akActor.GetLeveledActorBase()
     Race loc_race = loc_actorbase.getRace()
-    if !loc_race.haskeyword(UDlibs.ActorTypeNPC) ;check that race is playable or NPC
+    if !loc_race.haskeyword(UDlibs.ActorTypeNPC) && !loc_race.IsPlayable() ;check that race is playable or NPC
         return false
     endif
     if loc_race.IsChildRace()    ;check that actor is not child

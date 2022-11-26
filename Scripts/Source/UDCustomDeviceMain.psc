@@ -654,7 +654,7 @@ Function LockDeviceParalel(actor akActor, armor deviceInventory, bool force = fa
 EndFunction
 
 Function LockDevice(form fActor, form fDeviceInventory, int iForce)
-    (libs as zadlibs_UDPatch).LockDevicePatched(fActor as Actor,fDeviceInventory as Armor,iForce as Bool)
+    libsp.LockDevicePatched(fActor as Actor,fDeviceInventory as Armor,iForce as Bool)
 EndFunction
 
 Function StopAllVibrators(Actor akActor)
@@ -1221,120 +1221,80 @@ int Function CheckRenderDeviceConflict(Actor akActor, Armor rendDevice)
     return 0 ;slots are empty, lock should succes
 EndFunction
 
-Function showActorDetails(Actor akActor)
-    string loc_res = ""
-    loc_res += "--BASE DETAILS--\n"
+Message Property UD_ActorDetailsOptions auto
 
-    if UDmain.UD_InfoLevel == 2
-        loc_res += "Name: " + akActor.GetLeveledActorBase().GetName() + "\n"
-        loc_res += "LVL: " + akActor.GetLevel() + "\n"
-        loc_res += "HP: " + formatString(akActor.getAV("Health"),1) + "/" +  formatString(getMaxActorValue(akActor,"Health"),1) + " ("+ Round(getCurrentActorValuePerc(akActor,"Health")*100) +" %)" +"\n"
-        loc_res += "MP: " + formatString(akActor.getAV("Magicka"),1) + "/" + formatString(getMaxActorValue(akActor,"Magicka"),1) + " ( "+ Round(getCurrentActorValuePerc(akActor,"Magicka")*100) +" %)" +"\n"
-        loc_res += "SP: " + formatString(akActor.getAV("Stamina"),1) + "/" +  formatString(getMaxActorValue(akActor,"Stamina"),1) + " ("+ Round(getCurrentActorValuePerc(akActor,"Stamina")*100) +" %)" +"\n"
-        if IsRegistered(akActor)
-            UD_CustomDevice_NPCSlot loc_slot = GetNPCSlot(akActor)
-            if loc_slot
-                loc_res += "Agility skill: " + Round(loc_slot.AgilitySkill) + "\n"
-                loc_res += "Strength skill: " + Round(loc_slot.StrengthSkill) + "\n"
-                loc_res += "Magicka skill: " + Round(loc_slot.MagickSkill) + "\n"
-                loc_res += "Cutting skill: " + Round(loc_slot.CuttingSkill) + "\n"
+Function showActorDetails(Actor akActor)
+    while True
+        Int loc_option = UD_ActorDetailsOptions.Show()
+        Utility.wait(0.01)
+        if loc_option == 0 ;base details
+            String loc_res = "--BASE DETAILS--\n"
+            loc_res += "Name: " + akActor.GetLeveledActorBase().GetName() + "\n"
+            loc_res += "Race: " + loc_race.GetName() + "\n"
+            loc_res += "LVL: " + akActor.GetLevel() + "\n"
+            loc_res += "HP: " + formatString(akActor.getAV("Health"),1) + "/" +  formatString(getMaxActorValue(akActor,"Health"),1) + " ("+ Round(getCurrentActorValuePerc(akActor,"Health")*100) +" %)" +"\n"
+            loc_res += "MP: " + formatString(akActor.getAV("Magicka"),1) + "/" + formatString(getMaxActorValue(akActor,"Magicka"),1) + " ( "+ Round(getCurrentActorValuePerc(akActor,"Magicka")*100) +" %)" +"\n"
+            loc_res += "SP: " + formatString(akActor.getAV("Stamina"),1) + "/" +  formatString(getMaxActorValue(akActor,"Stamina"),1) + " ("+ Round(getCurrentActorValuePerc(akActor,"Stamina")*100) +" %)" +"\n"
+            Race loc_race = akActor.getActorBase().GetRace()
+            loc_res += "Arousal: " + UDOM.getArousal(akActor) + "\n"
+            loc_res += "Orgasm progress: " + formatString(UDOM.getOrgasmProgressPerc(akActor) * 100,2) + " %\n"
+            ShowMessageBox(loc_res)
+        elseif loc_option == 1 ;skills
+            String loc_res = "--SKILL DETAILS--\n"
+            if IsRegistered(akActor)
+                UD_CustomDevice_NPCSlot loc_slot = GetNPCSlot(akActor)
+                if loc_slot
+                    loc_res += "Agility skill: " + Round(loc_slot.AgilitySkill) + "\n"
+                    loc_res += "Strength skill: " + Round(loc_slot.StrengthSkill) + "\n"
+                    loc_res += "Magicka skill: " + Round(loc_slot.MagickSkill) + "\n"
+                    loc_res += "Cutting skill: " + Round(loc_slot.CuttingSkill) + "\n"
+                else
+                    loc_res += "Agility skill: " + Round(getAgilitySkill(akActor)) + "\n"
+                    loc_res += "Strength skill: " + Round(getStrengthSkill(akActor)) + "\n"
+                    loc_res += "Magicka skill: " + Round(getMagickSkill(akActor)) + "\n"
+                    loc_res += "Cutting skill: " + Round(getCuttingSkill(akActor)) + "\n"
+                endif
             else
                 loc_res += "Agility skill: " + Round(getAgilitySkill(akActor)) + "\n"
                 loc_res += "Strength skill: " + Round(getStrengthSkill(akActor)) + "\n"
                 loc_res += "Magicka skill: " + Round(getMagickSkill(akActor)) + "\n"
                 loc_res += "Cutting skill: " + Round(getCuttingSkill(akActor)) + "\n"
             endif
-        else
-            loc_res += "Agility skill: " + Round(getAgilitySkill(akActor)) + "\n"
-            loc_res += "Strength skill: " + Round(getStrengthSkill(akActor)) + "\n"
-            loc_res += "Magicka skill: " + Round(getMagickSkill(akActor)) + "\n"
-            loc_res += "Cutting skill: " + Round(getCuttingSkill(akActor)) + "\n"
-        endif
-
-        ShowMessageBox(loc_res)
-        
-        string loc_orgStr = ""
-        loc_orgStr += "--ORGASM DETAILS--\n"
-        loc_orgStr += "Active vibrators: " + GetActivatedVibrators(akActor) + "(S="+StorageUtil.GetIntValue(akActor,"UD_ActiveVib_Strength",0)+")" + "\n"
-        loc_orgStr += "Arousal: " + UDOM.getArousal(akActor) + "\n"
-        loc_orgStr += "Arousal Rate(M): " + Math.Ceiling(UDOM.getArousalRateM(akActor)) + "\n"
-        loc_orgStr += "Arousal Rate Mult: " + Round(UDOM.getArousalRateMultiplier(akActor)*100) + " %\n"
-        loc_orgStr += "Orgasm capacity: " + Round(UDOM.getActorOrgasmCapacity(akActor)) + "\n"
-        loc_orgStr += "Orgasm resistence(M): " + FormatString(UDOM.getActorOrgasmResistM(akActor),1) + "\n"
-        loc_orgStr += "Orgasm progress: " + formatString(UDOM.getOrgasmProgressPerc(akActor) * 100,2) + " %\n"
-        loc_orgStr += "Orgasm rate: " + formatString(UDOM.getActorAfterMultOrgasmRate(akActor),2) + " - " + formatString(UDOM.getActorAfterMultAntiOrgasmRate(akActor),2) + " Op/s\n"
-        loc_orgStr += "Orgasm mult: " + Round(UDOM.getActorOrgasmRateMultiplier(akActor)*100.0) + " %\n"
-        loc_orgStr += "Orgasm resisting: " + Round(UDOM.getActorOrgasmResistMultiplier(akActor)*100.0) + " %\n"
-        loc_orgStr += "Orgasm exhaustion: " + UDOM.GetOrgasmExhaustion(akActor) + "\n"
-        
-        ShowMessageBox(loc_orgStr)
-        
-        ShowHelperDetails(akActor)
-        
-        Weapon loc_sharpestWeapon = getSharpestWeapon(akActor)
-        if loc_sharpestWeapon
-            string loc_cuttStr = ""
-            loc_cuttStr += "--CUTTING DETAILS--\n"
-            loc_cuttStr += "Sharpest weapon: " + loc_sharpestWeapon.getName() + "\n"
-            loc_cuttStr += "Cutting multiplier: " + FormatString(loc_sharpestWeapon.getBaseDamage()*2.5,1) + " %\n"
+            ShowMessageBox(loc_res)
+        elseif loc_option == 2 ;arousal/orgasm details
+            string loc_orgStr = ""
+            loc_orgStr += "--ORGASM DETAILS--\n"
+            loc_orgStr += "Active vibrators: " + GetActivatedVibrators(akActor) + "(S="+StorageUtil.GetIntValue(akActor,"UD_ActiveVib_Strength",0)+")" + "\n"
+            loc_orgStr += "Arousal: " + UDOM.getArousal(akActor) + "\n"
+            loc_orgStr += "Arousal Rate(M): " + Math.Ceiling(UDOM.getArousalRateM(akActor)) + "\n"
+            loc_orgStr += "Arousal Rate Mult: " + Round(UDOM.getArousalRateMultiplier(akActor)*100) + " %\n"
+            loc_orgStr += "Orgasm capacity: " + Round(UDOM.getActorOrgasmCapacity(akActor)) + "\n"
+            loc_orgStr += "Orgasm resistence(M): " + FormatString(UDOM.getActorOrgasmResistM(akActor),1) + "\n"
+            loc_orgStr += "Orgasm progress: " + formatString(UDOM.getOrgasmProgressPerc(akActor) * 100,2) + " %\n"
+            loc_orgStr += "Orgasm rate: " + formatString(UDOM.getActorAfterMultOrgasmRate(akActor),2) + " - " + formatString(UDOM.getActorAfterMultAntiOrgasmRate(akActor),2) + " Op/s\n"
+            loc_orgStr += "Orgasm mult: " + Round(UDOM.getActorOrgasmRateMultiplier(akActor)*100.0) + " %\n"
+            loc_orgStr += "Orgasm resisting: " + Round(UDOM.getActorOrgasmResistMultiplier(akActor)*100.0) + " %\n"
+            loc_orgStr += "Orgasm exhaustion: " + UDOM.GetOrgasmExhaustion(akActor) + "\n"
             
-            ShowMessageBox(loc_cuttStr)
-        endif
-    elseif UDmain.UD_InfoLevel == 1
-        loc_res += "Name: " + akActor.GetLeveledActorBase().GetName() + "(LVL = " +akActor.GetLevel() + ")\n"
-        loc_res += "HP: " + formatString(akActor.getAV("Health"),1) + "/" +  formatString(getMaxActorValue(akActor,"Health"),1) + " ("+ Round(getCurrentActorValuePerc(akActor,"Health")*100) +" %)" +"\n"
-        loc_res += "MP: " + formatString(akActor.getAV("Magicka"),1) + "/" + formatString(getMaxActorValue(akActor,"Magicka"),1) + " ( "+ Round(getCurrentActorValuePerc(akActor,"Magicka")*100) +" %)" +"\n"
-        loc_res += "SP: " + formatString(akActor.getAV("Stamina"),1) + "/" +  formatString(getMaxActorValue(akActor,"Stamina"),1) + " ("+ Round(getCurrentActorValuePerc(akActor,"Stamina")*100) +" %)" +"\n"
-        Weapon loc_sharpestWeapon = getSharpestWeapon(akActor)
-        loc_res += "Sharpest weapon: " + loc_sharpestWeapon.getName() +" (" + FormatString(loc_sharpestWeapon.getBaseDamage()*2.5,1) +" %)\n"
-        loc_res += "Active vibrators: " + GetActivatedVibrators(akActor) + " (Str = "+StorageUtil.GetIntValue(akActor,"UD_ActiveVib_Strength",0)+")" + "\n"
-        loc_res += "Arousal / rate: " + UDOM.getArousal(akActor) + " / " + Math.Ceiling(UDOM.getArousalRateM(akActor)) + "\n"
-        loc_res += "Orgasm progress: " + formatString(UDOM.getOrgasmProgressPerc(akActor) * 100,2) + " %\n"
-        loc_res += "Orgasm Rate(M): " + formatString(UDOM.getActorAfterMultOrgasmRate(akActor),2) + " - " + formatString(UDOM.getActorAfterMultAntiOrgasmRate(akActor),2) + " Op/s\n"
-        loc_res += "Orgasm exhaustion: " + UDOM.GetOrgasmExhaustion(akActor) + "\n"
-        
-        loc_res += GetHelperDetails(akActor)
-        
-        ShowMessageBox(loc_res)
-    elseif UDmain.UD_InfoLevel == 0
-        loc_res += "Name: " + akActor.GetLeveledActorBase().GetName() + "(LVL = " +akActor.GetLevel() + ")\n"
-        loc_res += "HP/MP/SP: "+ Round(getCurrentActorValuePerc(akActor,"Health")*100) + " / " + Round(getCurrentActorValuePerc(akActor,"Magicka")*100) +" / "+ Round(getCurrentActorValuePerc(akActor,"Stamina")*100) +" %\n"
-        loc_res += "Active vibrators: " + GetActivatedVibrators(akActor) + "(S="+StorageUtil.GetIntValue(akActor,"UD_ActiveVib_Strength",0)+")" + "\n"
-        loc_res += "Arousal / rate: " + UDOM.getArousal(akActor) + " / " + Math.Ceiling(UDOM.getArousalRateM(akActor)) + "\n"
-        loc_res += "Orgasm progress: " + formatString(UDOM.getOrgasmProgressPerc(akActor) * 100,2) + " %\n"
-        loc_res += "Orgasm Rate(M): " + formatString(UDOM.getActorAfterMultOrgasmRate(akActor),2) + " - " + formatString(UDOM.getActorAfterMultAntiOrgasmRate(akActor),2) + " Op/s\n"
-        loc_res += "Helper LVL: " + GetHelperLVL(akActor) +"("+Round(GetHelperLVLProgress(akActor)*100)+"%)" + "\n"
-        ShowMessageBox(loc_res)
-    endif
-    
-    if UDmain.DebugMod
-        string loc_debugStr = "--DEBUG DETAILS--\n"
-        loc_debugStr += "Registered: " + akActor.isInFaction(RegisteredNPCFaction) + "\n"
-        loc_debugStr += "Orgasm Check: " + akActor.IsInFaction(UDOM.OrgasmCheckLoopFaction) + "\n"
-        loc_debugStr += "Arousal Check: " + akActor.isInFaction(UDOM.ArousalCheckLoopFaction) + "\n"
-        loc_debugStr += "Orgasm Check Spell: " + akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW) + "\n"
-        loc_debugStr += "Arousal Check Spell: " + akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW) + "\n"
-        loc_debugStr += "Hardcore Disable: " + akActor.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW) + "\n"
-        loc_debugStr += "Animating: " + libs.IsAnimating(akActor) + "\n"
-        loc_debugStr += "Animation block: " + akActor.isInFaction(BlockAnimationFaction) + "\n"
-        loc_debugStr += "Expression level: " + akActor.GetFactionRank(BlockExpressionFaction) +"\n"
-        loc_debugStr += "Valid: " + libs.IsValidActor(akActor) +"\n"
-        ShowMessageBox(loc_debugStr)
-        
-        if !libs.IsValidActor(akActor)
-            loc_debugStr = "--DEBUG VALID DETAILS--\n"
-            loc_debugStr += "Is3DLoaded: " + akActor.Is3DLoaded() +"\n"
-            loc_debugStr += "IsDead: " + akActor.IsDead() +"\n"
-            loc_debugStr += "IsDisabled: " + akActor.IsDisabled() +"\n"
-            loc_debugStr += "CurrentScene: " + akActor.GetCurrentScene() +"\n"
-            if akActor.GetCurrentScene() != none 
-                loc_debugStr += "CurrentScene-Playing: " + akActor.GetCurrentScene().IsPlaying() +"\n"
-                loc_debugStr += "CurrentScene-Quest: " + akActor.GetCurrentScene().GetOwningQuest() +"\n"
+            ShowMessageBox(loc_orgStr)
+        elseif loc_option == 3 ;Helper details
+            ShowHelperDetails(akActor)
+        elseif loc_option == 4 ;other details
+            Weapon loc_sharpestWeapon = getSharpestWeapon(akActor)
+            string loc_otherStr = "--OTHER--\n"
+            if loc_sharpestWeapon
+                loc_otherStr += "Sharpest weapon: " + loc_sharpestWeapon.getName() + "\n"
+                loc_otherStr += "Cutting multiplier: " + FormatString(loc_sharpestWeapon.getBaseDamage()*2.5,1) + " %\n"
+            else
+                loc_otherStr += "Sharpest weapon: NONE\n"
+                loc_otherStr += "Cutting multiplier: 0 %\n"
             endif
-            
-            ShowMessageBox(loc_debugStr)
+            ShowMessageBox(loc_otherStr)
+        else
+            return
         endif
-    endif
+        Utility.wait(0.01)
+    endwhile
 EndFunction
 
 Function ShowHelperDetails(Actor akActor)
@@ -1343,7 +1303,7 @@ EndFunction
 
 string Function GetHelperDetails(Actor akActor)
     string loc_res = ""
-    loc_res += "--Helper details--\n"
+    loc_res += "--HELPER DETAILS--\n"
     loc_res += "Helper LVL: " + GetHelperLVL(akActor) +"("+Round(GetHelperLVLProgress(akActor)*100)+"%)" + "\n"
     loc_res += "Base Cooldown: " + Round(CalculateHelperCD(akActor)*24*60) + " min\n"
     float loc_currenttime = Utility.GetCurrentGameTime()
@@ -1826,7 +1786,7 @@ UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armo
     bool loc_isplayer = UDmain.ActorIsPlayer(akActor)
 
     while !_transferedDevice && loc_time <= 4.0
-        Utility.waitMenuMode(0.05)
+        Utility.wait(0.05)
         loc_time += 0.05
     endwhile
     

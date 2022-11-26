@@ -23,6 +23,9 @@ Float Property UD_PatchMult_Piercing            = 1.0 auto
 Float Property UD_PatchMult_Hood                = 1.0 auto
 Float Property UD_PatchMult_Generic             = 1.0 auto
 
+Float Property UD_MinResistMult =   -1.0 auto
+Float Property UD_MaxResistMult =    1.0 auto
+
 ;MCM options
 Float Property UD_ManifestMod = 1.0 auto
 
@@ -402,6 +405,8 @@ Function patchFinish(UD_CustomDevice_RenderScript device,int argControlVar = 0x0
         device.UD_Cooldown = Round(device.UD_Cooldown*0.6)
     endif
     
+    CheckResist(device) ;check resist, so it can never bee too big or too low
+    
     device.UD_WeaponHitResist = device.UD_ResistPhysical
     int loc_random = Utility.randomInt(0,100)
     if loc_random > 75
@@ -533,6 +538,7 @@ Function patchDefaultValues(UD_CustomDevice_RenderScript device,Float fMult)
     device.UD_durability_damage_base = fRange(Utility.randomFloat(0.7,1.3)/fMult,0.05,100.0)
     device.UD_ResistPhysical = Utility.randomFloat(-0.5,0.9)
     device.UD_ResistMagicka = Utility.randomFloat(-0.9,1.0)
+
     device.UD_StruggleCritDuration = fRange(0.9/fMult,0.6,1.1)
     device.UD_StruggleCritChance = Utility.randomInt(15,30)
     device.UD_StruggleCritMul = Utility.randomFloat(2.0,6.0)
@@ -554,4 +560,26 @@ Function patchDefaultValues(UD_CustomDevice_RenderScript device,Float fMult)
     
     checkSentientModifier(device,Round(15*fMult),1.0)
     checkHealModifier(device,10)
+EndFunction
+
+;check resist, so it can never bee too big or too low
+Function CheckResist(UD_CustomDevice_RenderScript device)
+    Float loc_ResistMult = device.UD_ResistPhysical + device.UD_ResistMagicka
+    if loc_ResistMult > UD_MaxResistMult
+        Bool loc_randomResist = Utility.randomInt(0,1)
+        Float loc_dRes = loc_ResistMult - UD_MaxResistMult
+        if loc_randomResist ;Decrease physical resist
+            device.UD_ResistPhysical -= loc_dRes ;decrease resist by min ammount
+        else    ;Decrease magickal resist
+            device.UD_ResistMagicka  -= loc_dRes ;decrease resist by min ammount
+        endif
+    elseif loc_ResistMult < UD_MinResistMult
+        Bool loc_randomResist = Utility.randomInt(0,1)
+        Float loc_dRes = UD_MinResistMult - loc_ResistMult
+        if loc_randomResist ;Increase physical resist
+            device.UD_ResistPhysical += loc_dRes ;decrease resist by min ammount
+        else    ;Decrease magickal resist
+            device.UD_ResistMagicka  += loc_dRes ;decrease resist by min ammount
+        endif
+    endif
 EndFunction

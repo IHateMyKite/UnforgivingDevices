@@ -241,3 +241,5 @@ Keyword Property PatchVeryEasy_KW auto
 Keyword Property PatchEasy_KW auto
 Keyword Property PatchHard_KW auto
 Keyword Property PatchVeryHard_KW auto
+
+Keyword Property WoodedWeapon auto

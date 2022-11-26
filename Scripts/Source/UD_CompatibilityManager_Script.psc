@@ -27,7 +27,7 @@ bool    _OrdinatorCompatibilityApplied      = false
 ;============================================================
 
 Event OnInit()
-    RegisterForSingleUpdate(1.0)
+    RegisterForSingleUpdate(12.0)
     Ready = true
 EndEvent
 

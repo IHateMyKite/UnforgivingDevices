@@ -194,11 +194,6 @@ Function Update()
     criteffectList[1] = "Body shader"
     criteffectList[2] = "HUD + Body shader"
     
-    UD_InfoLevel_AS = new string[3]
-    UD_InfoLevel_AS[0] = "Reduced"
-    UD_InfoLevel_AS[1] = "Default"
-    UD_InfoLevel_AS[2] = "Enhanced"
-    
     final_finisher_pref_list = new string[7]
     final_finisher_pref_list[0] = "Random"
     final_finisher_pref_list[1] = "Rope"
@@ -263,7 +258,7 @@ Function resetAbadonPage()
     if AbadonQuest.final_finisher_pref >= AbadonQuest.UD_AbadonSuitNumber
         AbadonQuest.final_finisher_pref = 0 ;turn to random if the previous suit is no longer valid
     endif
-    final_finisher_pref_M = AddMenuOption("Start set:", AbadonQuest.UD_AbadonSuitList[AbadonQuest.final_finisher_pref],abadon_flag_2)
+    final_finisher_pref_M = AddMenuOption("Start set:", AbadonQuest.UD_AbadonSuitNames[AbadonQuest.final_finisher_pref],abadon_flag_2)
     
     hardcore_T = addToggleOption("Hardcore:", AbadonQuest.hardcore,FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
     eventchancemod_S = AddSliderOption("Event modifier:", AbadonQuest.eventchancemod, "{0} %",FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
@@ -289,8 +284,6 @@ int UD_NPCSupport_T
 int UD_PlayerMenu_K
 int UD_NPCMenu_K
 int UD_HearingRange_S
-int UD_InfoLevel_M
-string[] UD_InfoLevel_AS
 int UD_WarningAllowed_T
 Int UD_PrintLevel_S
 Int UD_LockDebugMCM_T
@@ -319,13 +312,10 @@ Event resetGeneralPage()
     UD_NPCSupport_T         = addToggleOption("NPC Auto Scan",UDmain.AllowNPCSupport)
     
     UD_HearingRange_S       = addSliderOption("Message range:",UDmain.UD_HearingRange,"{0}")
-    addEmptyOption()
+    UD_PrintLevel_S         = addSliderOption("Message level",UDmain.UD_PrintLevel, "{0}")
 
     lockmenu_T              = addToggleOption("Lock menus",UDmain.lockMCM,UD_LockMenu_flag)
     UD_LockDebugMCM_T       = addToggleOption("Lock Debug",UDmain.UD_LockDebugMCM,FlagSwitchAnd(UD_LockMenu_flag,FlagSwitch(!UDmain.UD_LockDebugMCM)))
-    
-    UD_InfoLevel_M          = AddMenuOption("Info level", UD_InfoLevel_AS[UDmain.UD_InfoLevel])
-    UD_PrintLevel_S         = addSliderOption("Message level",UDmain.UD_PrintLevel, "{0}")
 
     AddHeaderOption("Debug")
     addEmptyOption()
@@ -586,6 +576,9 @@ int UD_PatchMult_Plug_S
 int UD_PatchMult_Piercing_S
 int UD_PatchMult_Hood_S
 int UD_PatchMult_Generic_S
+int UD_MinResistMult_S
+int UD_MaxResistMult_S
+
 Event resetPatcherPage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -598,6 +591,9 @@ Event resetPatcherPage()
     
     UD_MinLocks_S = addSliderOption("Min. Locks",UDCDmain.UDPatcher.UD_MinLocks, "{0}",UD_LockMenu_flag)
     UD_MaxLocks_S = addSliderOption("Max. Locks",UDCDmain.UDPatcher.UD_MaxLocks, "{0}",UD_LockMenu_flag)
+    
+    UD_MinResistMult_S = addSliderOption("Min. Resist Sum",Round(UDCDmain.UDPatcher.UD_MinResistMult*100), "{0} %",UD_LockMenu_flag)
+    UD_MaxResistMult_S = addSliderOption("Max. Resist Sum",Round(UDCDmain.UDPatcher.UD_MaxResistMult*100), "{0} %",UD_LockMenu_flag)
     
     addEmptyOption()
     addEmptyOption()
@@ -629,7 +625,6 @@ Event resetPatcherPage()
     
     UD_PatchMult_Generic_S = addSliderOption("Generic",Round(UDCDmain.UDPatcher.UD_PatchMult_Generic * 100), "{0} %",UD_LockMenu_flag)
     addEmptyOption()
-    
 EndEvent
 
 zadBoundCombatScript_UDPatch Property AAScript
@@ -641,6 +636,7 @@ EndProperty
 int UD_StartThirdpersonAnimation_Switch_T
 int UD_DAR_T
 Int UD_OutfitRemove_T
+Int UD_CheckAllKw_T
 Event resetDDPatchPage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -648,14 +644,14 @@ Event resetDDPatchPage()
     AddHeaderOption("General")
     addEmptyOption()
     
-    UD_GagPhonemModifier_S = addSliderOption("Gag phonem mod: ",UDCDmain.UD_GagPhonemModifier, "{0}",FlagSwitch(!UDmain.ZadExpressionSystemInstalled))
-    addEmptyOption()
+    UD_GagPhonemModifier_S = addSliderOption("Gag phonem mod",UDCDmain.UD_GagPhonemModifier, "{0}",FlagSwitch(!UDmain.ZadExpressionSystemInstalled))
+    UD_CheckAllKw_T = addToggleOption("All Keyword check",UDmain.UD_CheckAllKw)
     
     AddHeaderOption("Animation setting")
     addEmptyOption()
     
     UD_StartThirdpersonAnimation_Switch_T = addToggleOption("Animation patch", libs.UD_StartThirdPersonAnimation_Switch)
-    UD_OrgasmAnimation_M = AddMenuOption("Animation list:", orgasmAnimation[UDOM.UD_OrgasmAnimation]) 
+    UD_OrgasmAnimation_M = AddMenuOption("Animation list", orgasmAnimation[UDOM.UD_OrgasmAnimation]) 
     
     UD_DAR_T = addToggleOption("DAR Patch", AAScript.UD_DAR,FlagSwitch(AAScript))
     addEmptyOption()
@@ -1015,6 +1011,9 @@ Function OptionDDPatch(int option)
     elseif option == UD_OutfitRemove_T
         UDCDMain.UD_OutfitRemove = !UDCDMain.UD_OutfitRemove
         SetToggleOptionValue(UD_OutfitRemove_T, UDCDMain.UD_OutfitRemove)
+    elseif option == UD_CheckAllKw_T
+        UDmain.UD_CheckAllKw = !UDmain.UD_CheckAllKw
+        SetToggleOptionValue(UD_CheckAllKw_T, UDMain.UD_CheckAllKw)
     endif
 EndFunction
 
@@ -1318,6 +1317,16 @@ Function OnOptionSliderOpenPatcher(int option)
         SetSliderDialogDefaultValue(1.0)
         SetSliderDialogRange(UDCDmain.UDPatcher.UD_MinLocks,30.0)
         SetSliderDialogInterval(1.0)
+    elseif option == UD_MinResistMult_S
+        SetSliderDialogStartValue(Round(UDCDmain.UDPatcher.UD_MinResistMult * 100))
+        SetSliderDialogDefaultValue(-100.0)
+        SetSliderDialogRange(-200.0,Round(UDCDmain.UDPatcher.UD_MaxResistMult * 100))
+        SetSliderDialogInterval(10.0)
+    elseif option == UD_MaxResistMult_S
+        SetSliderDialogStartValue(Round(UDCDmain.UDPatcher.UD_MaxResistMult * 100))
+        SetSliderDialogDefaultValue(100.0)
+        SetSliderDialogRange(Round(UDCDmain.UDPatcher.UD_MinResistMult * 100),200.0)
+        SetSliderDialogInterval(10.0)
     elseif (option == UD_PatchMult_HeavyBondage_S)
         SetSliderDialogStartValue(Round(UDCDmain.UDPatcher.UD_PatchMult_HeavyBondage * 100))
         SetSliderDialogDefaultValue(100.0)
@@ -1538,6 +1547,12 @@ Function OnOptionSliderAcceptPatcher(int option, float value)
     elseif option == UD_MaxLocks_S
         UDCDmain.UDPatcher.UD_MaxLocks = Round(value)
         SetSliderOptionValue(UD_MaxLocks_S, UDCDmain.UDPatcher.UD_MaxLocks, "{0}")
+    elseif option == UD_MinResistMult_S
+        UDCDmain.UDPatcher.UD_MinResistMult = value/100.0
+        SetSliderOptionValue(UD_MinResistMult_S, Round(UDCDmain.UDPatcher.UD_MinResistMult * 100), "{0} %")
+    elseif option == UD_MaxResistMult_S
+        UDCDmain.UDPatcher.UD_MaxResistMult = value/100.0
+        SetSliderOptionValue(UD_MaxResistMult_S, Round(UDCDmain.UDPatcher.UD_MaxResistMult * 100), "{0} %")
     elseif (option == UD_PatchMult_HeavyBondage_S)
         UDCDmain.UDPatcher.UD_PatchMult_HeavyBondage = value/100.0
         SetSliderOptionValue(UD_PatchMult_HeavyBondage_S, Round(UDCDmain.UDPatcher.UD_PatchMult_HeavyBondage * 100), "{0} %")
@@ -1610,11 +1625,6 @@ event OnOptionMenuOpen(int option)
 endEvent
 
 Function OnOptionMenuOpenDefault(int option)
-    if (option == UD_InfoLevel_M)
-        SetMenuDialogOptions(UD_InfoLevel_AS)
-        SetMenuDialogStartIndex(UDmain.UD_InfoLevel)
-        SetMenuDialogDefaultIndex(1)
-    endif
 EndFUnction
 
 Function OnOptionMenuOpenAbadon(int option)
@@ -1627,9 +1637,9 @@ Function OnOptionMenuOpenAbadon(int option)
         SetMenuDialogStartIndex(preset)
         SetMenuDialogDefaultIndex(0)
     elseif option == final_finisher_pref_M
-        SetMenuDialogOptions(AbadonQuest.UD_AbadonSuitList)
+        SetMenuDialogOptions(AbadonQuest.UD_AbadonSuitNames)
         SetMenuDialogStartIndex(AbadonQuest.final_finisher_pref)
-        SetMenuDialogDefaultIndex(1)
+        SetMenuDialogDefaultIndex(0)
     endif
 EndFunction
 
@@ -1673,11 +1683,6 @@ event OnOptionMenuAccept(int option, int index)
 endEvent
 
 Function OnOptionMenuAcceptDefault(int option, int index)
-    if (option == UD_InfoLevel_M)
-        UDmain.UD_InfoLevel = index
-        SetMenuOptionValue(UD_InfoLevel_M, UD_InfoLevel_AS[UDmain.UD_InfoLevel])
-        forcePageReset()
-    endif
 EndFUnction
 
 Function OnOptionMenuAcceptAbadon(int option, int index)
@@ -1691,7 +1696,7 @@ Function OnOptionMenuAcceptAbadon(int option, int index)
         forcePageReset()
     elseif (option == final_finisher_pref_M)
         AbadonQuest.final_finisher_pref = index
-        SetMenuOptionValue(final_finisher_pref_M, AbadonQuest.UD_AbadonSuitList[AbadonQuest.final_finisher_pref])
+        SetMenuOptionValue(final_finisher_pref_M, AbadonQuest.UD_AbadonSuitNames[AbadonQuest.final_finisher_pref])
     endIf
 EndFunction
 
@@ -1805,6 +1810,321 @@ event OnOptionKeyMapChange(int option, int keyCode, string conflictControl, stri
     endIf
 endEvent
 
+
+;=========================================
+;             DEFAULT VALUES..............
+;=========================================
+Event OnOptionDefault(int option)
+    if (_lastPage == "General")
+        GeneralPageDefault(option)
+    elseif (_lastPage == "Device filter")
+        ;FilterPageDefault(option) ;TODO. Will winish later, as doing this is pain in the ass
+    elseif (_lastPage == "Abadon Plug")
+        ;AbadanPageDefault(option) ;TODO. Will winish later, as doing this is pain in the ass
+    elseif (_lastPage == "Custom Devices")
+        ;CustomBondagePageDefault(option) ;TODO. Will winish later, as doing this is pain in the ass
+    elseif (_lastPage == "Custom orgasm")
+        ;CustomOrgasmPageDefault(option) ;TODO. Will winish later, as doing this is pain in the ass
+    elseif (_lastPage == "Patcher")
+        ;PatcherPageDefault(option) ;TODO. Will winish later, as doing this is pain in the ass
+    elseif (_lastPage == "DD patch")
+        ;DDPatchPageDefault(option) ;TODO. Will winish later, as doing this is pain in the ass
+    elseif (_lastPage == "Debug panel")
+        ;DebugPageDefault(option) ;TODO. Will winish later, as doing this is pain in the ass
+    elseif (_lastPage == "Other")
+
+    endif
+EndEvent
+
+Function GeneralPageDefault(int option)
+    if(option == lockmenu_T)
+        UDmain.lockMCM = false
+        SetToggleOptionValue(lockmenu_T, UDmain.lockMCM)
+    elseif(option == UD_ActionKey_K)
+        if !Game.UsingGamepad()
+            UDCDMain.ActionKey_Keycode = 18
+        else
+            UDCDMain.ActionKey_Keycode = 279
+        endif
+        SetKeyMapOptionValue(UD_ActionKey_K, UDCDMain.ActionKey_Keycode)
+    elseif(option == UD_StruggleKey_K)
+        if !Game.UsingGamepad()
+            UDCDMain.StruggleKey_Keycode = 52
+        else
+            UDCDMain.StruggleKey_Keycode = 275
+        endif
+        SetKeyMapOptionValue(UD_StruggleKey_K, UDCDMain.StruggleKey_Keycode)
+    elseif(option == UD_hightPerformance_T)
+        UDmain.UD_hightPerformance = true
+        SetToggleOptionValue(UD_hightPerformance_T, UDmain.UD_hightPerformance)
+    elseif(option == UD_debugmod_T)
+        UDmain.DebugMod = false
+        SetToggleOptionValue(UD_debugmod_T, UDmain.DebugMod)
+    elseif (option == UD_NPCSupport_T)
+        UDmain.AllowNPCSupport = false
+        SetToggleOptionValue(UD_NPCSupport_T, UDmain.AllowNPCSupport)
+    elseif option == UD_HearingRange_S
+        UDmain.UD_HearingRange = 4000
+        SetSliderOptionValue(UD_HearingRange_S, UDmain.UD_HearingRange)
+    elseif option == UD_WarningAllowed_T
+        UDmain.UD_WarningAllowed = false
+        SetToggleOptionValue(UD_WarningAllowed_T, UDmain.UD_WarningAllowed)
+    elseif option == UD_PrintLevel_S
+        UDmain.UD_PrintLevel = 3
+        SetSliderOptionValue(UD_PrintLevel_S, UDmain.UD_PrintLevel)
+    elseif(option == UD_PlayerMenu_K)
+        if !Game.UsingGamepad()
+            UDCDMain.PlayerMenu_KeyCode = 40
+        else
+            UDCDMain.PlayerMenu_KeyCode = 268
+        endif
+        SetKeyMapOptionValue(UD_PlayerMenu_K, UDCDMain.PlayerMenu_KeyCode)
+    elseif(option == UD_NPCMenu_K)
+        if !Game.UsingGamepad()
+            UDCDMain.NPCMenu_Keycode = 39
+        else
+            UDCDMain.NPCMenu_Keycode = 269
+        endif
+        SetKeyMapOptionValue(UD_NPCMenu_K, UDCDMain.NPCMenu_Keycode)
+    elseif(option == UD_LoggingLevel_S)
+        UDmain.LogLevel = 0
+        SetSliderOptionValue(UD_LoggingLevel_S, UDmain.LogLevel)
+    elseif option == UD_LockDebugMCM_T
+        UDmain.UD_LockDebugMCM = false
+        SetToggleOptionValue(UD_LockDebugMCM_T, UDmain.UD_LockDebugMCM)
+    elseif option == UD_EasyGamepadMode_T
+        UDUI.UD_EasyGamepadMode = false
+        SetToggleOptionValue(UD_EasyGamepadMode_T, UDUI.UD_EasyGamepadMode)
+    Endif
+EndFunction
+
+Function FilterPageDefault(int option)
+    if(option == UD_UseArmCuffs_T)
+        SetInfoText("Toggle if arm cuffs allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseBelts_T)
+        SetInfoText("Toggle if chastity belts allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseBlindfolds_T)
+        SetInfoText("Toggle if blindfolds allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseBoots_T)
+        SetInfoText("Toggle if boots allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseBras_T)
+        SetInfoText("Toggle if chastity bras allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseCollars_T)
+        SetInfoText("Toggle if collars allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseCorsets_T)
+        SetInfoText("Toggle if corsets allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseGags_T)
+        SetInfoText("Toggle if gags allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseGloves_T)
+        SetInfoText("Toggle if gloves allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseHarnesses_T)
+        SetInfoText("Toggle if harnesses allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseHeavyBondage_T)
+        SetInfoText("Toggle if heavy bondage allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseHoods_T)
+        SetInfoText("Toggle if hoods allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseLegCuffs_T)
+        SetInfoText("Toggle if leg cuffs allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UsePiercingsNipple_T)
+        SetInfoText("Toggle if nipple piercings allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UsePiercingsVaginal_T)
+        SetInfoText("Toggle if clitoral piercings allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UsePlugsAnal_T)
+        SetInfoText("Toggle if anal plugs allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UsePlugsVaginal_T)
+        SetInfoText("Toggle if vaginal plugs allowed to be equipped by this mod. Default: TRUE")
+    elseif(option == UD_UseSuits_T)
+        SetInfoText("Toggle if suits allowed to be equipped by this mod. Default: TRUE")
+    elseif option == UD_RandomFilter_T ;this option will be deleted
+        SetInfoText("Set random restraint filter. This is bitcoded value. Normally no need to use it instead of checkboxes. For more info check LL or GitHub. Default: 0")
+    endif
+EndFunction
+
+Function CustomBondagePageDefault(int option)
+    if(option == UD_CHB_Stamina_meter_Keycode_K)
+        SetInfoText("Key to crit device while struggling when stamina bar blinks")
+    elseif option == UD_UseWidget_T
+        SetInfoText("Shows widget in minigame that shows current relevant value. Not all minigames will show widget because they may not use them.")
+    elseif(option == UD_CHB_Magicka_meter_Keycode_K)
+        SetInfoText("Key to crit device while struggling when magicka bar blinks")
+    elseif(option == UD_StruggleDifficulty_M)
+        SetInfoText("General escape difficulty of custom heavy bondage.")
+    elseif(option == UD_UpdateTime_S)
+        SetInfoText("Update time for all registered devices.")
+    elseif(option == UD_UseDDdifficulty_T)
+        SetInfoText("Integrate difficulty from DD framework. This adds to general escape difficulty of custom heavy bondage")
+    elseif(option == UD_hardcore_swimming_T)
+        SetInfoText("Toggle hardcore swimming. If on, player will have hard time swimming with tied hands. This works for any devices, not only for devices from this mod. Slow will be applied on player and stamina will starts to decrease. Once all stamina is consumed, player will be slowed even further and health will now starts to decrease too.")
+    elseif(option == UD_hardcore_swimming_difficulty_M)
+        SetInfoText("Difficulty of swimming with tied hands. The harded the difficulty, the more stamina and health will be drain. Player will also be more slowed.")
+    elseif option == UD_WidgetPosX_M
+        SetInfoText("Change widget X position\nDefault: Right")
+    elseif option == UD_WidgetPosY_M
+        SetInfoText("Change widget Y position\nDefault: Down")
+    elseif option == UD_LockpickMinigameNum_S
+        SetInfoText("Change number of lockpicks player can use in lockpick minigame.\nDefault: 2")
+    elseif option == UD_BaseDeviceSkillIncrease_S
+        SetInfoText("How many skill points are acquired for second of struggling.\nDefault: 35")
+    elseif option == UD_SkillEfficiency_S
+        SetInfoText("How many percets is minigame easier per skill point\nExample: If Strength skill is 50 and efficiency is 1%, desperate minigame will be 50% more powerfull\nDefault: 1 %")
+    elseif option == UD_AutoCrit_T
+        SetInfoText("Toggle auto crit. Auto crit will crit instead of user. Use this if you don't like crits or you can't crit for some other reason.\nDefault: OFF")
+    elseif option == UD_AutoCritChance_S
+        SetInfoText("Chance that auto crit will result in sucessfull crit.\nDefault: 80%")
+    elseif option == UD_CritEffect_M
+        SetInfoText("Effect used to indicate that crit is happening.\n[HUD] HUD will blink when crit is happening\n[Body shader] Actor body will have shader applied for short time\n[HUD + Body shader] Both of the previous effects combined\nDefault: [HUD + Body shader]")
+    elseif option == UD_CooldownMultiplier_S
+        SetInfoText("Change how big the devices cooldowns are. The bigger the value the bigger they will be.\nExamle: 200% makes all devices cooldown two times bigger.\nDefault: 100%")
+    elseif option == UD_HardcoreMode_T
+        SetInfoText("Hardcore mode disables most game features when players hands are tied up, to empathize the helpless feeling\n*Disables Inventory, Magick Menu and Fast travel (Map still works)\nTween menu is disabled, pressing it will open list of devices\nStats and Map can only be opened with key\nDefault: OFF")
+    elseif option == UD_AllowArmTie_T
+        SetInfoText("Toggle Arm tie active effect from Arm cuffs. Toogling this off will prevent effect from activating.\nDefault: ON")
+    elseif option == UD_AllowLegTie_T
+        SetInfoText("Toggle Leg tie active effect from Leg cuffs. Toogling this off will prevent effect from activating.\nDefault: ON")
+    elseif option == UD_MinigameHelpCd_S
+        SetInfoText("Base cooldown which activates after one character helps another character. Character can't help others while on cooldown\nDefault: 60 minutes")
+    elseif option == UD_MinigameHelpCD_PerLVL_S
+        SetInfoText("By how many % will base cooldown reduce per Helper LVL\nDefault: 10 %")
+    elseif option == UD_MinigameHelpXPBase_S
+        SetInfoText("How any XP will character get after helping others.\nXP Formula: XPNEEDED = LVL*100*1.03^LVL\nDefault: 35 XP")
+    elseif option == UDCD_SpecialKey_Keycode_K
+        SetInfoText("Key that progress key mashing minigame, like cutting or forcing out plug.")
+    elseif option == UD_DeviceLvlHealth_S
+        SetInfoText("How much will device durability be increased per device level.\nNote: This will only affect max value, not current value.\nDefault: 2.5%")
+    elseif option == UD_DeviceLvlLockpick_S
+        SetInfoText("How much will lockpick difficulty increase per device level.\nDefault: 0.5")
+    elseif option == UD_PreventMasterLock_T
+        SetInfoText("Prevent devices from having locks with master difficulty\nDefault: OFF")
+    elseif option == UD_DeviceLvlLocks_S
+        SetInfoText("How many levels are needed for number of maximum locks to increase.Setting this to 0 will disable Lock level scaling\nExample: If this is 5, and device have level 10, maximum level will be increased by 2\nDefault: 5")
+    elseif option == UD_MandatoryCrit_T
+        SetInfoText("When this option is enabled, not landing crits will punish player\nDefault: OFF")
+    elseif option == UD_AlternateAnimation_T
+        SetInfoText("Enabling this will force struggle animation to randomly switch to different animation periodically\nDefault: OFF")
+    elseif option == UD_CritDurationAdjust_S
+        SetInfoText("By how much time will be crit duration changed. Setting this to small negative value might make crits impossible.\nIn case you are experiencing bigger lags when using UD, you might increase this value to make crits easier.\nDefault: 0.0 s")
+    Endif
+EndFunction
+
+Function CustomOrgasmPageDefault(int option)
+    if     option == UD_OrgasmUpdateTime_S
+        SetInfoText("Update time for orgasm checking (how fast is orgasm widget updated). Is only used for player.\n Default: 0.2s")
+    elseif option == UD_UseOrgasmWidget_T
+        SetInfoText("Toogle orgasm progress widget\nDefault: ON")
+    elseif option == UD_OrgasmResistence_S
+        SetInfoText("Defines how much orgasm rate is required for actor to orgasm. If orgasm rate is less then this, orgasm progress will stop before 100%. Also changes how fast is orgasm progress reduced for every update.\nDefault: 2.0")
+    elseif option == UD_HornyAnimation_T
+        SetInfoText("Toogle if random horny animation can play while orgasm rate is bigger then 0\nDefault: YES")
+    elseif option == UD_HornyAnimationDuration_S
+        SetInfoText("Duration of random horny animation\nDefault: 5 s")
+    elseif option == UD_VibrationMultiplier_S
+        SetInfoText("Constant for calculating Orgasm rate from Vibration strength. Example: If this value is 0.1 and vibrator strength is 100, resulting Orgasm rate is 10\nDefault: 0.1 s")
+    elseif option == UD_ArousalMultiplier_S
+        SetInfoText("Constant for calculating Arousal rate from Vibration strength. Example: If this value is 0.025 and vibrator strength is 100, resulting Arousal rate is 2.5\nDefault: 0.025 s")
+    elseif option == UD_OrgasmArousalReduce_S
+        SetInfoText("Post-orgasm amount of arousal that will removed from actor per second\nDefault: 25 Arousal/s")
+    elseif option == UD_OrgasmArousalReduceDuration_S
+        SetInfoText("Duration of post-orgasm effect\nDefault: 7 seconds")
+    elseif(option == UD_OrgasmExhaustion_T)
+        SetInfoText("Adds debuff to player on orgasm. Thsi debuff reduces stamina and magicka regeneration for short time. This effect is applied as on DD orgasm as on Sexlab scene orgasm.")
+    Endif
+EndFunction
+
+Function PatcherPageDefault(int option)
+    if  option == UD_PatchMult_S
+        SetInfoText("Sets patching multiplier. The more this value the harder will be patched devices.\nDefault: 100%")
+    elseif option == UD_MAOChanceMod_S
+        SetInfoText("Sets MAO chance multiplier. Bigger the value, the more likely will patched device have MAO modifier\nExample: If patcher have set value of 8% of adding this modifier to device and this value will be 50%, result chance is 4%.\nDefault: 100%")
+    elseif option == UD_MAHChanceMod_S
+        SetInfoText("Sets MAH chance multiplier. Bigger the value, the more likely will patched device have MAH modifier\nExample: If patcher have set value of 8% of adding this modifier to device and this value will be 50%, result chance is 4%.\nDefault: 100%")
+    elseif option == UD_MAOMod_S
+        SetInfoText("Sets Orgasm manifest (MAO) multiplier. Bigger the value, the more likely will device manifest when actor orgasms.\nExample: If device have manifest 50% and this value will be 50%, result chance is 25%.\nDefault: 100%")
+    elseif option == UD_MAHMod_S
+        SetInfoText("Sets Hour manifest (MAH) multiplier. Bigger the value, the more likely will device manifest every hour.\nExample: If device have manifest 50% and this value will be 50%, result chance is 25%.\nDefault: 100%")
+    elseif option == UD_EscapeModifier_S
+        SetInfoText("Sets escape modifier. Escape modifier determinates how patched device DPS is calculated. Default formalu is DDEscapeChance/EscapeModifier = DPS\n Example: if this is 10 and to be patched device have escape chance 10%, resulting base DPS will be 1.0\nDefault: 10")
+    elseif option == UD_MinLocks_S
+        SetInfoText("Minimum number of locks which device can get by patcher\nDefault: 1")
+    elseif option == UD_MaxLocks_S
+        SetInfoText("Maximum number of locks which device can get by patcher\nDefault: 1")
+    elseif option == UD_MinResistMult_S
+        SetInfoText("Minimum sum of both resistences (Physical + Magickal). If their sum is smaller then this value, one of the resist will be increased so the total sum is this number. The smaller thisnumber will be, the smaller device resistences will be (device is easier)\nDefault: -100%")
+    elseif option == UD_MaxResistMult_S
+        SetInfoText("Maximum sum of both resistences (Physical + Magickal). If their sum is bigger then this value, one of the resist will be reduces so the total sum is this number. The bigger this number will be, the bigger device resistence will be (device is harder)\nDefault: 100%")
+    elseif option == UD_MaxResistMult_S
+    endif
+EndFunction
+
+Function AbadanPageDefault(int option)
+    ;dear mother of god
+    if (option == dmg_heal_T)
+        SetInfoText("Toggle if plug should sap health from player on Orgasm,Edge or Vib")
+    elseif (option == UseAnalVariant_T)
+        SetInfoText("Toggle if Anal plug will be used instead of vaginal plug. This only switch which is used for Abadon Curse quest and gets disabled after the letter from courier is readed.")
+    elseif(option == dmg_stamina_T)
+        SetInfoText("Toggle if plug should sap stamina from player on Orgasm,Edge or Vib")
+    elseif(option == dmg_magica_T)
+        SetInfoText("Toggle if plug should sap magica from player on Orgasm,Edge or Vib")
+    elseif(option == hardcore_T)
+        SetInfoText("Toggle Hardcore mod.\n This makes it possible for plug to kill you. Otherwise the plug will only sap your health to 1")
+    elseif (option == difficulty_M)
+        SetInfoText("Select plug difficulty. This changes how much health,stamina and magica is sapped from player")
+    elseif (option == preset_M)
+        SetInfoText("Overal setting preset. If you want to change values to your liking, then select custom preset")
+    elseif (option == max_difficulty_S)
+        SetInfoText("Maximum strength at which last finisher is activated")
+    elseIf (option == eventchancemod_S)
+        SetInfoText("Chance of abadon plug event modifier.\nEnd formula of event happening is base_chance + eventmodifier*(Strength -> 0.0-1.0)\nBase chance can be changed in Devious Devices MCM under Events pages. Just look for Abadon Plug Chance.\n Default base_chance is 50%.")
+    elseIf (option == little_finisher_chance_S)
+        SetInfoText("Chance of little finisher happening when plug grow stronger.\nWarning: This is max value thet is only achieved at maximum plug strength.")
+    elseIf (option == min_orgasm_little_finisher_S)
+        SetInfoText("Minimum number of orgasms player will have to receive for little finisher to end.")
+    elseIf (option == max_orgasm_little_finisher_S)
+        SetInfoText("Maximum number of orgasms player will have to receive for little finisher to end.")
+    elseIf (option == little_finisher_cooldown_S)
+        SetInfoText("Time in hours after which can little finisher happen again.")
+    elseIf (option == final_finisher_pref_M)
+        SetInfoText("Set equiped when player equip plug.")
+    endIf
+EndFunction
+
+Function DDPatchPageDefault(int option)
+    if  option == UD_DAR_T
+        SetInfoText("Toggle DAR compatibility. Please read more about it in changelog on LL\nDefault: OFF")
+    elseif option == UD_GagPhonemModifier_S
+        SetInfoText("Gag modifier which change gag expression for simple gag to better fit mouth. Is not used if DD beta 7 is installed\nDefault: 0")
+    elseif option == UD_OutfitRemove_T
+        SetInfoText("Prevent NPC outfit from being removed when hand restrain is locked on. Removing outfit can by default cause compatibility issue with NPC overhaul mods. This will obviousl prevent NPC from being naked untill player undress them\nDefault: True")
+    elseif option == UD_OrgasmAnimation_M
+        SetInfoText("List of orgasm animations.\nNormal = Normal orgasm animation by  DD\nExtended = Orgasm animation + horny animations\nDefault: Normal")
+    elseif option == UD_CheckAllKw_T
+        SetInfoText("!!EXPERIMENTAL FEATURE!!\nWhen enabled, Lock/Unlock devices will use patched funtions which doesn't check ID script devious keyword, but instead all keywords on RD. This way, framework should somehow work when processing devices which have multiple major keywords on RD (for emalbe when some catsuit would have both belt and suit keyword)\nDefault: OFF")
+    endif
+EndFunction
+
+Function DebugPageDefault(int option)
+    ;dear mother of god
+    if (option == rescanSlots_T)
+        SetInfoText("Rescan all slots with nearby npcs. This is only way to fill slots if Auto scan is turned off.")
+    elseif option == fixBugs_T
+        SetInfoText("Apply some fixes for selected slot.\n-Rest orgasm check loop\n-Remove lost devices\n-Removes copies\n-Removes unused devices\n-Resets minigame states")
+    elseif option == unlockAll_T
+        SetInfoText("Unlock all currently REGISTERED devices")
+    elseif option == endAnimation_T
+        SetInfoText("Ends animation for currently sloted npc")
+    elseif option == unregisterNPC_T
+        SetInfoText("Unregister whole slot. This will not unlock any devices.")
+    elseif option == OrgasmCapacity_S
+        SetInfoText("Change registered NPC orgasm capacity.This change how fast will actor reach orgasm.\nDefault: 100")
+    elseif option == OrgasmResist_S
+        SetInfoText("Change registered NPC orgasm resistence.This change how fast will actor reach orgasm AND if actor will reach orgasm at all.\nDefault: Set in MCM (Custom Orgasm tab)")
+    endIf
+EndFunction
+
+
+;=========================================
+;                 INFO.      .............
+;=========================================
 Event OnOptionHighlight(int option)
     if (_lastPage == "General")
         GeneralPageInfo(option)
@@ -1842,8 +2162,6 @@ Function GeneralPageInfo(int option)
         SetInfoText("Toogle automatic scaning")
     elseif option == UD_HearingRange_S
         SetInfoText("Actor needs to be in this range from player so user receives actor specific messages (like that some device starts vibratin, other do something else etc...)\n Default: 4000\n(4000 is around the distance of one big hallway. 500 is next to player.)")
-    elseif option == UD_InfoLevel_M
-        SetInfoText("Determinates amount of information shown in Actor detail panel\nDefault: Default")
     elseif option == UD_WarningAllowed_T
         SetInfoText("Toggle Warning console messages.\nDefault: OFF")
     elseif option == UD_PrintLevel_S
@@ -2010,6 +2328,11 @@ Function PatcherPageInfo(int option)
         SetInfoText("Minimum number of locks which device can get by patcher\nDefault: 1")
     elseif option == UD_MaxLocks_S
         SetInfoText("Maximum number of locks which device can get by patcher\nDefault: 1")
+    elseif option == UD_MinResistMult_S
+        SetInfoText("Minimum sum of both resistences (Physical + Magickal). If their sum is smaller then this value, one of the resist will be increased so the total sum is this number. The smaller thisnumber will be, the smaller device resistences will be (device is easier)\nDefault: -100%")
+    elseif option == UD_MaxResistMult_S
+        SetInfoText("Maximum sum of both resistences (Physical + Magickal). If their sum is bigger then this value, one of the resist will be reduces so the total sum is this number. The bigger this number will be, the bigger device resistence will be (device is harder)\nDefault: 100%")
+    elseif option == UD_MaxResistMult_S
     endif
 EndFunction
 
@@ -2055,6 +2378,8 @@ Function DDPatchPageInfo(int option)
         SetInfoText("Prevent NPC outfit from being removed when hand restrain is locked on. Removing outfit can by default cause compatibility issue with NPC overhaul mods. This will obviousl prevent NPC from being naked untill player undress them\nDefault: True")
     elseif option == UD_OrgasmAnimation_M
         SetInfoText("List of orgasm animations.\nNormal = Normal orgasm animation by  DD\nExtended = Orgasm animation + horny animations\nDefault: Normal")
+    elseif option == UD_CheckAllKw_T
+        SetInfoText("!!EXPERIMENTAL FEATURE!!\nWhen enabled, Lock/Unlock devices will use patched funtions which doesn't check ID script devious keyword, but instead all keywords on RD. This way, framework should somehow work when processing devices which have multiple major keywords on RD (for example when some catsuit would have both belt and suit keywords)\nDefault: OFF")
     endif
 EndFunction
 
@@ -2076,6 +2401,11 @@ Function DebugPageInfo(int option)
         SetInfoText("Change registered NPC orgasm resistence.This change how fast will actor reach orgasm AND if actor will reach orgasm at all.\nDefault: Set in MCM (Custom Orgasm tab)")
     endIf
 EndFunction
+
+
+;=========================================
+;                 OTHER.     .............
+;=========================================
 
 Function setAbadonPreset(int selected_preset)
     preset = selected_preset
@@ -2158,11 +2488,11 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "AutoLoad", UDmain.UD_AutoLoad as int)
     JsonUtil.SetIntValue(strFile, "LogLevel", UDmain.LogLevel as int)
     JsonUtil.SetIntValue(strFile, "HearingRange", UDmain.UD_HearingRange)
-    JsonUtil.SetIntValue(strFile, "InfoLevel", UDmain.UD_InfoLevel)
     JsonUtil.SetIntValue(strFile, "WarningAllowed", UDmain.UD_WarningAllowed as Int)
     JsonUtil.SetIntValue(strFile, "PrintLevel", UDmain.UD_PrintLevel)
     JsonUtil.SetIntValue(strFile, "LockDebug", UDmain.UD_LockDebugMCM as Int)
     JsonUtil.SetIntValue(strFile, "EasyGamepadMode", UDUI.UD_EasyGamepadMode as Int)
+    JsonUtil.SetIntValue(strFile, "AllKeywordCheck",UDmain.UD_CheckAllKw as Int)
 
     ;UDCDmain
     JsonUtil.SetIntValue(strFile, "Stamina_meter_Keycode", UDCDmain.Stamina_meter_Keycode)
@@ -2232,6 +2562,8 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "EscapeModifier", UDCDmain.UDPatcher.UD_EscapeModifier)
     JsonUtil.SetIntValue(strFile, "MinLocks", UDCDmain.UDPatcher.UD_MinLocks)
     JsonUtil.SetIntValue(strFile, "MaxLocks", UDCDmain.UDPatcher.UD_MaxLocks)
+    JsonUtil.SetIntValue(strFile, "MinResist", Round(UDCDmain.UDPatcher.UD_MinResistMult*100))
+    JsonUtil.SetIntValue(strFile, "MaxResist", Round(UDCDmain.UDPatcher.UD_MaxResistMult*100))
     JsonUtil.SetFloatValue(strFile, "PatchMult", UDCDmain.UDPatcher.UD_PatchMult)
     JsonUtil.SetFloatValue(strFile, "PatchMult_HeavyBondage"    , UDCDmain.UDPatcher.UD_PatchMult_HeavyBondage)
     JsonUtil.SetFloatValue(strFile, "PatchMult_Blindfold"        , UDCDmain.UDPatcher.UD_PatchMult_Blindfold)
@@ -2269,11 +2601,11 @@ Function LoadFromJSON(string strFile)
     UDmain.UD_AutoLoad = JsonUtil.GetIntValue(strFile, "AutoLoad", UDmain.UD_AutoLoad as int)
     UDmain.LogLevel = JsonUtil.GetIntValue(strFile, "LogLevel", UDmain.LogLevel as int)
     UDmain.UD_HearingRange = JsonUtil.GetIntValue(strFile, "HearingRange", UDmain.UD_HearingRange)
-    UDmain.UD_InfoLevel = JsonUtil.GetIntValue(strFile, "InfoLevel", UDmain.UD_InfoLevel)
     UDmain.UD_WarningAllowed = JsonUtil.GetIntValue(strFile, "WarningAllowed", UDmain.UD_WarningAllowed as Int)
     UDmain.UD_PrintLevel = JsonUtil.GetIntValue(strFile, "PrintLevel", UDmain.UD_PrintLevel)
     UDmain.UD_LockDebugMCM = JsonUtil.GetIntValue(strFile, "LockDebug", UDmain.UD_LockDebugMCM as Int)
     UDUI.UD_EasyGamepadMode = JsonUtil.GetIntValue(strFile, "EasyGamepadMode", UDUI.UD_EasyGamepadMode as Int)
+    UDmain.UD_CheckAllKw = JsonUtil.GetIntValue("AllKeywordCheck",UDmain.UD_CheckAllKw as Int)
 
     ;UDCDmain
     UDCDmain.UnregisterGlobalKeys()
@@ -2314,7 +2646,6 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UD_CooldownMultiplier = JsonUtil.GetFloatValue(strFile, "CooldownMultiplier", UDCDmain.UD_CooldownMultiplier)
     UDCDMain.UD_SkillEfficiency = JsonUtil.GetIntValue(strFile, "SkillEfficiency", UDCDmain.UD_SkillEfficiency)
     
-    
     UDCDmain.UD_CritEffect      = JsonUtil.GetIntValue(strFile, "CritEffect", UDCDmain.UD_CritEffect)
     UDCDmain.UD_HardcoreMode    = JsonUtil.GetIntValue(strFile, "HardcoreMode", UDCDmain.UD_HardcoreMode as Int)
     UDCDmain.UD_AllowArmTie     = JsonUtil.GetIntValue(strFile, "AllowArmTie", UDCDmain.UD_AllowArmTie as Int)
@@ -2349,6 +2680,8 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UDPatcher.UD_EscapeModifier = JsonUtil.GetIntValue(strFile, "EscapeModifier", UDCDmain.UDPatcher.UD_EscapeModifier)
     UDCDmain.UDPatcher.UD_MinLocks = JsonUtil.GetIntValue(strFile, "MinLocks", UDCDmain.UDPatcher.UD_MinLocks)
     UDCDmain.UDPatcher.UD_MaxLocks = JsonUtil.GetIntValue(strFile, "MaxLocks", UDCDmain.UDPatcher.UD_MaxLocks)
+    UDCDmain.UDPatcher.UD_MinResistMult = JsonUtil.GetIntValue(strFile, "MinResist", Round(UDCDmain.UDPatcher.UD_MinResistMult*100))/100
+    UDCDmain.UDPatcher.UD_MaxResistMult = JsonUtil.GetIntValue(strFile, "MaxResist", Round(UDCDmain.UDPatcher.UD_MaxResistMult*100))/100
     UDCDmain.UDPatcher.UD_PatchMult_HeavyBondage = JsonUtil.GetFloatValue(strFile, "PatchMult_HeavyBondage", UDCDmain.UDPatcher.UD_PatchMult_HeavyBondage)
     UDCDmain.UDPatcher.UD_PatchMult_Blindfold = JsonUtil.GetFloatValue(strFile, "PatchMult_Blindfold", UDCDmain.UDPatcher.UD_PatchMult_Blindfold)
     UDCDmain.UDPatcher.UD_PatchMult_Gag = JsonUtil.GetFloatValue(strFile, "PatchMult_Gag", UDCDmain.UDPatcher.UD_PatchMult_Gag)
@@ -2375,49 +2708,49 @@ EndFunction
 
 Function ResetToDefaults()
     ;UDmain
-    UDmain.UD_hightPerformance = true
-    UDmain.AllowNPCSupport = false
-    UDmain.lockMCM = false
-    UDmain.DebugMod = false
-    UDmain.UD_OrgasmExhaustion = true
+    UDmain.UD_hightPerformance          = true
+    UDmain.AllowNPCSupport              = false
+    UDmain.lockMCM                      = false
+    UDmain.DebugMod                     = false
+    UDmain.UD_OrgasmExhaustion          = true
     UDmain.UD_OrgasmExhaustionMagnitude = 20.0
-    UDmain.UD_OrgasmExhaustionDuration = 30
-    UDmain.UD_AutoLoad = false
-    UDmain.LogLevel = 0
-    UDmain.UD_HearingRange = 4000
-    UDmain.UD_InfoLevel = 1
-    UDmain.UD_WarningAllowed = false
-    UDmain.UD_PrintLevel = 3
-    UDmain.UD_LockDebugMCM = False
-    UDUI.UD_EasyGamepadMode = false
+    UDmain.UD_OrgasmExhaustionDuration  = 30
+    UDmain.UD_AutoLoad                  = false
+    UDmain.LogLevel                     = 0
+    UDmain.UD_HearingRange              = 4000
+    UDmain.UD_WarningAllowed            = false
+    UDmain.UD_PrintLevel                = 3
+    UDmain.UD_LockDebugMCM              = False
+    UDUI.UD_EasyGamepadMode             = false
+    UDmain.UD_CheckAllKw                = False
     
     ;UDCDmain
     UDCDmain.UnregisterGlobalKeys()
     if !Game.UsingGamepad()
-        UDCDmain.Stamina_meter_Keycode = 32
-        UDCDmain.StruggleKey_Keycode = 52
-        UDCDmain.Magicka_meter_Keycode = 30
-        UDCDmain.SpecialKey_Keycode = 31
-        UDCDmain.PlayerMenu_KeyCode = 40
-        UDCDmain.ActionKey_Keycode = 18
-        UDCDmain.NPCMenu_Keycode = 39
+        UDCDmain.Stamina_meter_Keycode  = 32
+        UDCDmain.StruggleKey_Keycode    = 52
+        UDCDmain.Magicka_meter_Keycode  = 30
+        UDCDmain.SpecialKey_Keycode     = 31
+        UDCDmain.PlayerMenu_KeyCode     = 40
+        UDCDmain.ActionKey_Keycode      = 18
+        UDCDmain.NPCMenu_Keycode        = 39
     else
-        UDCDmain.Stamina_meter_Keycode = 275
-        UDCDmain.StruggleKey_Keycode = 275
-        UDCDmain.Magicka_meter_Keycode = 274
-        UDCDmain.SpecialKey_Keycode = 276
-        UDCDmain.PlayerMenu_KeyCode = 268
-        UDCDmain.NPCMenu_Keycode = 269
-        UDCDmain.ActionKey_Keycode = 279
+        UDCDmain.Stamina_meter_Keycode  = 275
+        UDCDmain.StruggleKey_Keycode    = 275
+        UDCDmain.Magicka_meter_Keycode  = 274
+        UDCDmain.SpecialKey_Keycode     = 276
+        UDCDmain.PlayerMenu_KeyCode     = 268
+        UDCDmain.NPCMenu_Keycode        = 269
+        UDCDmain.ActionKey_Keycode      = 279
     endif
     UDCDmain.RegisterGlobalKeys()
     
-    UDCDmain.UD_UseDDdifficulty = true
-    UDCDmain.UD_UseWidget = true
-    UDCDmain.UD_GagPhonemModifier = 50
-    UDCDmain.UD_StruggleDifficulty = 1
+    UDCDmain.UD_UseDDdifficulty         = true
+    UDCDmain.UD_UseWidget               = true
+    UDCDmain.UD_GagPhonemModifier       = 50
+    UDCDmain.UD_StruggleDifficulty      = 1
     UDCDmain.UD_BaseDeviceSkillIncrease = 35.0
-    UDCDmain.UD_UpdateTime = 5.0
+    UDCDmain.UD_UpdateTime              = 5.0
     
     UDCDmain.UD_AutoCrit = false
     if UDCDmain.UD_AutoCrit
@@ -2425,45 +2758,45 @@ Function ResetToDefaults()
     else
         UD_autocrit_flag = OPTION_FLAG_DISABLED
     endif
-    UDCDmain.UD_AutoCritChance = 80
-    UDCDmain.UD_VibrationMultiplier = 0.1
-    UDCDmain.UD_ArousalMultiplier = 0.025
-    UDOM.UD_OrgasmResistence = 3.5
-    UDOM.UD_OrgasmArousalThreshold = 95
-    UDCDmain.UD_LockpicksPerMinigame = 2
-    UDOM.UD_UseOrgasmWidget = true
-    UDOM.UD_OrgasmUpdateTime = 0.5
-    UDOM.UD_OrgasmAnimation = 1
-    UDOM.UD_HornyAnimation = true
-    UDOM.UD_HornyAnimationDuration = 5
-    UDCDmain.UD_CooldownMultiplier = 1.0
-    UDCDmain.UD_CritEffect = 2
-    UDCDmain.UD_HardcoreMode = false
-    UDCDmain.UD_AllowArmTie = true
-    UDCDmain.UD_AllowLegTie = true
-    UDCDMain.UD_SkillEfficiency = 1
+    UDCDmain.UD_AutoCritChance          = 80
+    UDCDmain.UD_VibrationMultiplier     = 0.1
+    UDCDmain.UD_ArousalMultiplier       = 0.025
+    UDOM.UD_OrgasmResistence            = 3.5
+    UDOM.UD_OrgasmArousalThreshold      = 95
+    UDCDmain.UD_LockpicksPerMinigame    = 2
+    UDOM.UD_UseOrgasmWidget             = true
+    UDOM.UD_OrgasmUpdateTime            = 0.5
+    UDOM.UD_OrgasmAnimation             = 1
+    UDOM.UD_HornyAnimation              = true
+    UDOM.UD_HornyAnimationDuration      = 5
+    UDCDmain.UD_CooldownMultiplier      = 1.0
+    UDCDmain.UD_CritEffect              = 2
+    UDCDmain.UD_HardcoreMode            = false
+    UDCDmain.UD_AllowArmTie             = true
+    UDCDmain.UD_AllowLegTie             = true
+    UDCDMain.UD_SkillEfficiency         = 1
     
-    UDCDmain.UD_MinigameHelpCd                      = 60
-    UDCDmain.UD_MinigameHelpCD_PerLVL               = 10
-    UDCDmain.UD_MinigameHelpXPBase                  = 35
+    UDCDmain.UD_MinigameHelpCd          = 60
+    UDCDmain.UD_MinigameHelpCD_PerLVL   = 10
+    UDCDmain.UD_MinigameHelpXPBase      = 35
     
-    UDCDmain.UD_DeviceLvlHealth             = 0.025
-    UDCDmain.UD_DeviceLvlLockpick           = 0.5
-    UDCDMain.UD_DeviceLvlLocks              = 5
-    UDCDmain.UD_PreventMasterLock           = False
+    UDCDmain.UD_DeviceLvlHealth         = 0.025
+    UDCDmain.UD_DeviceLvlLockpick       = 0.5
+    UDCDMain.UD_DeviceLvlLocks          = 5
+    UDCDmain.UD_PreventMasterLock       = False
     
-    UDOM.UD_OrgasmArousalReduce             = 25
-    UDOM.UD_OrgasmArousalReduceDuration     =  7
+    UDOM.UD_OrgasmArousalReduce         = 25
+    UDOM.UD_OrgasmArousalReduceDuration =  7
     
-    UDCDmain.UD_MandatoryCrit                   = False
-    UDCDmain.UD_AlternateAnimation              = False
+    UDCDmain.UD_MandatoryCrit           = False
+    UDCDmain.UD_AlternateAnimation      = False
     
-    UDCDmain.UD_CritDurationAdjust = 0.0
+    UDCDmain.UD_CritDurationAdjust      = 0.0
     
     ;ABADON
-    AbadonQuest.final_finisher_set = true
-    AbadonQuest.final_finisher_pref = 0
-    AbadonQuest.UseAnalVariant = false
+    AbadonQuest.final_finisher_set      = true
+    AbadonQuest.final_finisher_pref     = 0
+    AbadonQuest.UseAnalVariant          = false
     
     ;PATCHER
     UDCDmain.UDPatcher.UD_MAOChanceMod              = 100
@@ -2473,6 +2806,8 @@ Function ResetToDefaults()
     UDCDmain.UDPatcher.UD_EscapeModifier            = 10
     UDCDmain.UDPatcher.UD_MinLocks                  = 1
     UDCDmain.UDPatcher.UD_MaxLocks                  = 6
+    UDCDmain.UDPatcher.UD_MinResistMult             =-1.0
+    UDCDmain.UDPatcher.UD_MaxResistMult             = 1.0
     UDCDmain.UDPatcher.UD_PatchMult                 = 1.0
     UDCDmain.UDPatcher.UD_PatchMult_HeavyBondage    = 1.0
     UDCDmain.UDPatcher.UD_PatchMult_Blindfold       = 1.0
@@ -2485,17 +2820,17 @@ Function ResetToDefaults()
     UDCDmain.UDPatcher.UD_PatchMult_Generic         = 1.0
     
     ;Other
-    UDIM.UD_UseHoods = true
-    libs.UD_StartThirdpersonAnimation_Switch = true
-    UDSS.UD_hardcore_swimming_difficulty = 1
-    widget.PositionX = 2
-    widget.PositionY = 0
-    UDCDmain.widget2.PositionX = widget.PositionX
-    UDCDmain.widget2.PositionY = widget.PositionY
-    UDmain.UDRRM.UD_RandomDevice_GlobalFilter = 0xFFFFFFFF ;32b
-    AAScript.UD_DAR =  false
-    UDCD_NPCM.UD_SlotUpdateTime = 10.0
-    UDCDMain.UD_OutfitRemove = True
+    UDIM.UD_UseHoods                                = true
+    libs.UD_StartThirdpersonAnimation_Switch        = true
+    UDSS.UD_hardcore_swimming_difficulty            = 1
+    widget.PositionX                                = 2
+    widget.PositionY                                = 0
+    UDCDmain.widget2.PositionX                      = widget.PositionX
+    UDCDmain.widget2.PositionY                      = widget.PositionY
+    UDmain.UDRRM.UD_RandomDevice_GlobalFilter       = 0xFFFFFFFF ;32b
+    AAScript.UD_DAR                                 =  false
+    UDCD_NPCM.UD_SlotUpdateTime                     = 10.0
+    UDCDMain.UD_OutfitRemove                        = True
 EndFunction
 
 Function SetAutoLoad(bool bValue)

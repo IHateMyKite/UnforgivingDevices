@@ -1,8 +1,8 @@
 Scriptname UD_PatchInit extends Quest
 
-String      Property UD_PatchName           auto
-Formlist    Property KeywordFormList        auto
-Keyword[]   Property QuestKeywords          auto
+String      Property UD_PatchName       = "UnNamedPatch"    auto
+Formlist    Property KeywordFormList                        auto
+Keyword[]   Property QuestKeywords                          auto
 UnforgivingDevicesMain  _udmain
 Quest                   _udquest ;kept for possible future optimization
 
@@ -64,12 +64,18 @@ Armor[] Property UD_PatchRandomDeviceList_Gloves            auto    ;14
 
 ;String[] Property UD_CustomAbadonSuitEvent                  auto
 
-String  Property UD_CustomAbadonSuitEvent_1                 auto
-String  Property UD_CustomAbadonSuitEvent_2                 auto
-String  Property UD_CustomAbadonSuitEvent_3                 auto
-String  Property UD_CustomAbadonSuitEvent_4                 auto
-String  Property UD_CustomAbadonSuitEvent_5                 auto
+;Max 5 custom suits per patch for now. In case more are needed, other quest with UD_PatchInit will have to be created
+String  Property UD_CustomAbadonSuitEvent_1                         auto
+String  Property UD_CustomAbadonSuitEvent_2                         auto
+String  Property UD_CustomAbadonSuitEvent_3                         auto
+String  Property UD_CustomAbadonSuitEvent_4                         auto
+String  Property UD_CustomAbadonSuitEvent_5                         auto
 
+String  Property UD_CustomAbadonSuitName_1      = "UnNamedSuit"     auto
+String  Property UD_CustomAbadonSuitName_2      = "UnNamedSuit"     auto
+String  Property UD_CustomAbadonSuitName_3      = "UnNamedSuit"     auto
+String  Property UD_CustomAbadonSuitName_4      = "UnNamedSuit"     auto
+String  Property UD_CustomAbadonSuitName_5      = "UnNamedSuit"     auto
 
 Event onInit()
     Utility.wait(Utility.randomFloat(1.0,4.0))
@@ -146,19 +152,19 @@ Function UpdateSuit()
     
     RegisterForModEvent("UD_AbadonSuitUpdate", "UpdateEvent")
 
-    RegisterCustomAbadonSuitEvent(UD_CustomAbadonSuitEvent_1)
-    RegisterCustomAbadonSuitEvent(UD_CustomAbadonSuitEvent_2)
-    RegisterCustomAbadonSuitEvent(UD_CustomAbadonSuitEvent_3)
-    RegisterCustomAbadonSuitEvent(UD_CustomAbadonSuitEvent_4)
-    RegisterCustomAbadonSuitEvent(UD_CustomAbadonSuitEvent_5)
+    RegisterCustomAbadonSuitEvent(UD_CustomAbadonSuitEvent_1,UD_CustomAbadonSuitName_1)
+    RegisterCustomAbadonSuitEvent(UD_CustomAbadonSuitEvent_2,UD_CustomAbadonSuitName_2)
+    RegisterCustomAbadonSuitEvent(UD_CustomAbadonSuitEvent_3,UD_CustomAbadonSuitName_3)
+    RegisterCustomAbadonSuitEvent(UD_CustomAbadonSuitEvent_4,UD_CustomAbadonSuitName_4)
+    RegisterCustomAbadonSuitEvent(UD_CustomAbadonSuitEvent_5,UD_CustomAbadonSuitName_5)
 
     _updateSuitMutex = False
 EndFunction
 
-Function RegisterCustomAbadonSuitEvent(String asEvent)
+Function RegisterCustomAbadonSuitEvent(String asEvent,String asSuitName)
     if asEvent
         UnregisterForModEvent(asEvent)
-        UDmain.UDAbadonQuest.AddCustomAbadonSet(asEvent)
+        UDmain.UDAbadonQuest.AddCustomAbadonSet(asEvent,asSuitName)
         RegisterForModEvent(asEvent, "EquipSuitEvent")
     endif
 EndFunction

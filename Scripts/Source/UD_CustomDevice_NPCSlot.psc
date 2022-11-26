@@ -139,6 +139,7 @@ Function endDeviceManipulation()
 EndFunction
 
 Event OnInit()
+    Utility.wait(1.0)
     UD_equipedCustomDevices = UDCDMain.MakeNewDeviceSlots()
     Ready = True
 EndEvent
@@ -207,7 +208,7 @@ int Function GetDeviceSlotIndx(UD_CustomDevice_RenderScript device)
 EndFunction
 
 Function SetSlotTo(Actor akActor)
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         UDCDmain.Log("SetSlotTo("+getActorName(akActor)+") for " + self)
     endif
 
@@ -570,10 +571,10 @@ bool Function deviceAlreadyRegistered(Armor deviceInventory)
     return false
 EndFunction
 
-bool Function deviceAlreadyRegisteredKw(Keyword kw)
+bool Function deviceAlreadyRegisteredKw(Keyword kw,Bool abCheckAllKw = false)
     int i = 0
     while UD_equipedCustomDevices[i]
-        if UD_equipedCustomDevices[i].UD_DeviceKeyword == kw
+        if (UD_equipedCustomDevices[i].UD_DeviceKeyword == kw) || (abCheckAllKw && UD_equipedCustomDevices[i].DeviceRendered.haskeyword(kw))
             return true
         endif
         i+=1
