@@ -3611,12 +3611,12 @@ Function minigame()
     endif
     
     if !UDOM.isOrgasming(Wearer)
-        UDAM.FastEndThirdPersonAnimation(Wearer) ;ends struggle animation
+        UDAM.StopAnimation(Wearer) ;ends struggle animation
     endif
     
     if _minigameHelper
         if !UDOM.isOrgasming(_minigameHelper)
-            UDAM.FastEndThirdPersonAnimation(_minigameHelper) ;ends struggle animation
+            UDAM.StopAnimation(_minigameHelper) ;ends struggle animation
         endif
     endif
     

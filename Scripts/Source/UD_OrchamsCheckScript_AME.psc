@@ -333,7 +333,7 @@ Event OnUpdate()
                                 EndIf
                                 If _HornyAnimEvents.Length > 0
                                     String anim_event = _HornyAnimEvents[Utility.RandomInt(0, _HornyAnimEvents.Length - 1)]
-                                    UDmain.UDAM.FastStartThirdPersonAnimation(akActor, anim_event)
+                                    UDmain.UDAM.StartSoloAnimation(akActor, anim_event)
                                 Else
                                     UDmain.Warning("UD_OrchamsCheckScript_AME::OnUpdate() Can't find animations for the horny actor")
                                 EndIf
@@ -346,7 +346,7 @@ Event OnUpdate()
                         if loc_hornyAnimTimer > 0 ;reduce horny animation timer 
                             loc_hornyAnimTimer -= 1
                             if (loc_hornyAnimTimer == 0)
-                                UDmain.UDAM.FastEndThirdPersonAnimation(akActor)
+                                UDmain.UDAM.StopAnimation(akActor)
                                 loc_hornyAnimTimer = -20 ;cooldown
                             EndIf
                         elseif loc_hornyAnimTimer < 0 ;cooldown

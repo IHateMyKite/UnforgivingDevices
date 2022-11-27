@@ -628,7 +628,7 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
     
     String[] animationArray = UDmain.UDAM.GetOrgasmAnimEvents(akActor)
     If animationArray.Length > 0
-        UDmain.UDAM.FastStartThirdPersonAnimation(akActor, animationArray[Utility.RandomInt(0, animationArray.Length - 1)])
+        UDmain.UDAM.StartSoloAnimation(akActor, animationArray[Utility.RandomInt(0, animationArray.Length - 1)])
     EndIf
 
     int loc_elapsedtime = 0
@@ -646,7 +646,7 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
 
     UDCDmain.EnableActor(akActor,loc_isPlayer)
     
-    UDmain.UDAM.FastEndThirdPersonAnimation(akActor)
+    UDmain.UDAM.StopAnimation(akActor)
 
     if loc_isPlayer
         UDmain.UDUI.GoToState("") ;enable UI
@@ -853,7 +853,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     UDCDMain.StartMinigameDisable(akActor)
     String[] animationArray = UDmain.UDAM.GetHornyAnimEvents(akActor)
     If animationArray.Length > 0
-        UDmain.UDAM.FastStartThirdPersonAnimation(akActor, animationArray[Utility.RandomInt(0, animationArray.Length - 1)])
+        UDmain.UDAM.StartSoloAnimation(akActor, animationArray[Utility.RandomInt(0, animationArray.Length - 1)])
     EndIf
 
     UDCDMain.sendHUDUpdateEvent(true,true,true,true)
@@ -959,7 +959,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     endif
 
     if !UDmain.UDOM.isOrgasming(akActor)
-        UDmain.UDAM.FastEndThirdPersonAnimation(akActor) ;ends animation
+        UDmain.UDAM.StopAnimation(akActor) ;ends animation
     endif
     
     akActor.RemoveFromFaction(UDCDmain.MinigameFaction)

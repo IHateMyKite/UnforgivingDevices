@@ -20,6 +20,14 @@ sslSystemConfig                        Property     slConfig                Auto
 Static                                 Property     VehicleMarkerForm       Auto
 {XMarker Static to place vehicle marker for animating actors}
 
+; array with all found json files
+String[]                               Property     UD_AnimationJSON_All    Auto    Hidden
+; array with files disabled by load condition
+String[]                               Property     UD_AnimationJSON_Inv    Auto    Hidden
+; array with files disabled by user
+String[]                               Property     UD_AnimationJSON_Dis    Auto    Hidden
+; array with currently used files
+String[]                               Property     UD_AnimationJSON        Auto    Hidden
 ;==========;                                                                           
 ;==MANUAL==;                                                                           
 ;==========;                                                                           
@@ -30,9 +38,6 @@ zadlibs_UDPatch                        Property     libsp                       
 EndProperty
 
 ;------------local variables-------------------
-
-; array with loaded json files
-String[] UD_AnimationJSON
 
 ; reload json files before every use
 Bool forceReloadFiles = False
@@ -70,9 +75,9 @@ EndFunction
 ; akActor        - actor
 ; aAnimation     - animation sequence (array of animation events) for the actor
 ; return         - true if OK
-Bool Function FastStartThirdPersonSequence(Actor akActor, String[] aAnimation)
+Bool Function StartSoloAnimationSequence(Actor akActor, String[] aAnimation)
     if (aAnimation.Length == 0 || aAnimation[0] == "" || aAnimation[0] == "none")
-        UDmain.Warning("UD_AnimationManagerScript::FastStartThirdPersonAnimation() Called animation is None, aborting")
+        UDmain.Warning("UD_AnimationManagerScript::StartSoloAnimationSequence() Called animation is None, aborting")
         return false
     endif
     
@@ -91,27 +96,32 @@ Bool Function FastStartThirdPersonSequence(Actor akActor, String[] aAnimation)
     return true
 EndFunction
 
-;reduced startanimation function
-;doesn't disable actor movement and doesn't check if actor is valid
-;doesn't check camera state
-Bool Function FastStartThirdPersonAnimation(Actor akActor, String sAnimation)
+; Shortcut of StartSoloAnimationSequence for single animation
+Bool Function StartSoloAnimation(Actor akActor, String sAnimation)
     String[] aAnimation = new String[1]
     aAnimation[0] = sAnimation
-    Return FastStartThirdPersonSequence(akActor, aAnimation)
+    Return StartSoloAnimationSequence(akActor, aAnimation)
 EndFunction
 
-;reduced endanimation function
-;doesn't enable actor movement and doesn't check if actor is valid
-;doesn't check camera state
-Function FastEndThirdPersonAnimation(actor akActor)
+; Function to stop animation and unlock actor(s)
+Function StopAnimation(Actor akActor, Actor akHelper = None)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::EndAnimation() akActor = " + akActor + ", akHelper = " + akHelper, 3)
+    EndIf
     UnlockAnimatingActor(akActor)
-    ; restoring HH if it was removed in FastStartThirdPersonAnimationWithHelper
+    ; restoring HH if it was removed in StartPairAnimation
     _RestoreHeelEffect(akActor)
-    
     Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
+    If akHelper != None
+        UnlockAnimatingActor(akActor)
+        ; restoring HH if it was removed in StartPairAnimation
+        _RestoreHeelEffect(akActor)
+        Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
+    EndIf
 EndFunction
 
 ;copied from zadlibs
+; check if actor is in animation
 Bool Function IsAnimating(Actor akActor, Bool abBonusCheck = true)
     if abBonusCheck
         if (akActor.GetSitState() != 0) || akActor.IsOnMount()
@@ -126,31 +136,31 @@ EndFunction
 ; akActor        - first actor
 ; akHelper       - second actor (helper)
 ; aAnimationA1   - animation sequence (array of animation events) for the first actor
-; aAnimationA1   - animation sequence (array of animation events) for the second actor (helper)
-; bAlignActors   - should be actors aligned
+; aAnimationA2   - animation sequence (array of animation events) for the second actor (helper)
+; bAlignActors   - should actors be aligned
 ; return         - true if OK
-Bool Function FastStartThirdPersonSequenceWithHelper(Actor akActor, Actor akHelper, String[] aAnimationA1, String[] aAnimationA2, Bool bAlignActors = True)
+Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[] aAnimationA1, String[] aAnimationA2, Bool bAlignActors = True)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::FastStartThirdPersonSequenceWithHelper() akActor = " + akActor + ", akHelper = " + akHelper + ", aAnimationA1 = " + aAnimationA1 + ", animationA2 = " + aAnimationA2 + ", alignActors = " + bAlignActors, 3)
+        UDmain.Log("UD_AnimationManagerScript::StartPairAnimationSequence() akActor = " + akActor + ", akHelper = " + akHelper + ", aAnimationA1 = " + aAnimationA1 + ", animationA2 = " + aAnimationA2 + ", alignActors = " + bAlignActors, 3)
     EndIf
     If akActor == None 
-        UDmain.Error("UD_AnimationManagerScript::FastStartThirdPersonSequenceWithHelper() akActor is None, aborting")
+        UDmain.Error("UD_AnimationManagerScript::StartPairAnimationSequence() akActor is None, aborting")
         Return False
     EndIf
     If akHelper == None
-        Return FastStartThirdPersonSequence(akActor, aAnimationA1)
+        Return StartSoloAnimationSequence(akActor, aAnimationA1)
     EndIf
     Bool a1_is_none = (aAnimationA1.Length == 0 || aAnimationA1[0] == "" || aAnimationA1[0] == "none")
     Bool a2_is_none = (aAnimationA2.Length == 0 || aAnimationA2[0] == "" || aAnimationA2[0] == "none")
     If a1_is_none && a2_is_none
-        UDmain.Error("UD_AnimationManagerScript::FastStartThirdPersonSequenceWithHelper() animations is None, aborting")
+        UDmain.Error("UD_AnimationManagerScript::StartPairAnimationSequence() animations is None, aborting")
         Return False
     ElseIf a1_is_none
-        UDmain.Log("UD_AnimationManagerScript::FastStartThirdPersonSequenceWithHelper() animation for Actor 1 is None, using solo animation for the Actor 2")
-        Return FastStartThirdPersonAnimation(akHelper, aAnimationA2)
+        UDmain.Log("UD_AnimationManagerScript::StartPairAnimationSequence() animation for Actor 1 is None, using solo animation for the Actor 2")
+        Return StartSoloAnimation(akHelper, aAnimationA2)
     ElseIf a2_is_none
-        UDmain.Log("UD_AnimationManagerScript::FastStartThirdPersonSequenceWithHelper() animation for Actor 2 is None, using solo animation for the Actor 1")
-        Return FastStartThirdPersonAnimation(akActor, aAnimationA1)
+        UDmain.Log("UD_AnimationManagerScript::StartPairAnimationSequence() animation for Actor 2 is None, using solo animation for the Actor 1")
+        Return StartSoloAnimation(akActor, aAnimationA1)
     endif
     
     ; locking actors
@@ -222,14 +232,16 @@ Bool Function FastStartThirdPersonSequenceWithHelper(Actor akActor, Actor akHelp
     Return True
 EndFunction
 
-Bool Function FastStartThirdPersonAnimationWithHelper(Actor akActor, Actor akHelper, String sAnimationA1, String sAnimationA2, Bool bAlignActors = True)
+; Shortcut for StartPairAnimationSequence with single animation events
+Bool Function StartPairAnimation(Actor akActor, Actor akHelper, String sAnimationA1, String sAnimationA2, Bool bAlignActors = True)
     String[] aAnimationA1 = new String[1]
     aAnimationA1[0] = sAnimationA1
     String[] aAnimationA2 = new String[1]
     aAnimationA2[0] = sAnimationA2
-    Return FastStartThirdPersonSequenceWithHelper(akActor, akHelper, aAnimationA1, aAnimationA2, bAlignActors)
+    Return StartPairAnimationSequence(akActor, akHelper, aAnimationA1, aAnimationA2, bAlignActors)
 EndFunction
 
+; Function to lock actor to perform in animation
 Function LockAnimatingActor(Actor akActor)
     
     If IsAnimating(akActor)
@@ -258,6 +270,7 @@ Function LockAnimatingActor(Actor akActor)
 
 EndFunction
 
+; Function to unlock actor after animation
 Function UnlockAnimatingActor(Actor akActor)
 
     ActorUtil.RemovePackageOverride(akActor, slConfig.DoNothing)
@@ -274,9 +287,13 @@ Function UnlockAnimatingActor(Actor akActor)
     
 EndFunction
 
+; Function to start animation according to the specified definition from json
+; sAnimDef                  animation definition from json, should be in format <file_name>:<path_in_file>
+; akActors                  actors who will participate
+; bContinueAnimation        flag that the animation continues with already locked actors
 Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bContinueAnimation = False)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::PlayAnimationByDef() sAnimDef = " + sAnimDef + ", aakActors = " + aakActors, 3)
+        UDmain.Log("UD_AnimationManagerScript::PlayAnimationByDef() sAnimDef = " + sAnimDef + ", aakActors = " + aakActors + ", bContinueAnimation = " + bContinueAnimation, 3)
     EndIf
     
     Int part_index = StringUtil.Find(sAnimDef, ":")
@@ -324,7 +341,7 @@ Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bConti
             String[] atemp1 = JsonUtil.PathStringElements(file, actor_animVars[0] + ".animation")
             String[] atemp2 = JsonUtil.PathStringElements(file, actor_animVars[1] + ".animation")
             If atemp1.Length > 0 && atemp2.Length > 0
-                FastStartThirdPersonSequenceWithHelper(aakActors[0], aakActors[1], atemp1, atemp2, !bContinueAnimation)
+                StartPairAnimationSequence(aakActors[0], aakActors[1], atemp1, atemp2, !bContinueAnimation)
                 Return True
             Else
                 UDMain.Error("UD_CustomDevice_RenderScript::PlayAnimationByDef() animation sequence array is empty! Check file " + file + " and animDef variations: " + actor_animVars)
@@ -335,7 +352,7 @@ Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bConti
             String temp1 = JsonUtil.GetPathStringValue(file, actor_animVars[0] + ".animation")
             String temp2 = JsonUtil.GetPathStringValue(file, actor_animVars[1] + ".animation")
             If temp1 != "" && temp2 != ""
-                FastStartThirdPersonAnimationWithHelper(aakActors[0], aakActors[1], temp1, temp2, !bContinueAnimation)
+                StartPairAnimation(aakActors[0], aakActors[1], temp1, temp2, !bContinueAnimation)
                 Return True
             Else
                 UDMain.Error("UD_CustomDevice_RenderScript::PlayAnimationByDef() animation is empty! Check file " + file + " and animDef variations: " + actor_animVars)
@@ -347,7 +364,7 @@ Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bConti
         ; sequence animation (from sex lab animation packs)
             String[] atemp1 = JsonUtil.PathStringElements(file, actor_animVars[0] + ".animation")
             If atemp1.Length > 0
-                FastStartThirdPersonSequence(aakActors[0], atemp1)
+                StartSoloAnimationSequence(aakActors[0], atemp1)
                 Return True
             Else
                 UDMain.Error("UD_CustomDevice_RenderScript::PlayAnimationByDef() animation sequence array is empty! Check file " + file + " and animDef variations: " + actor_animVars)
@@ -357,7 +374,7 @@ Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bConti
         ; regular animation 
             String temp1 = JsonUtil.GetPathStringValue(file, actor_animVars[0] + ".animation")
             If temp1 != ""
-                FastStartThirdPersonAnimation(aakActors[0], temp1)
+                StartSoloAnimation(aakActors[0], temp1)
                 Return True
             Else
                 UDMain.Error("UD_CustomDevice_RenderScript::PlayAnimationByDef() animation is empty! Check file " + file + " and animDef variations: " + actor_animVars)
@@ -375,37 +392,51 @@ Function LoadAnimationJSONFiles()
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles()", 3)
     EndIf
+    UD_AnimationJSON_All = PapyrusUtil.ResizeStringArray(UD_AnimationJSON_All, 0)
+    UD_AnimationJSON_Inv = PapyrusUtil.ResizeStringArray(UD_AnimationJSON_Inv, 0)
     UD_AnimationJSON = PapyrusUtil.ResizeStringArray(UD_AnimationJSON, 0)
     String[] files = JsonUtil.JsonInFolder("UD/Animations")
     Int i = 0
     While i < files.Length
         String file = "UD/Animations/" + files[i]
         JsonUtil.Unload(file)
-        Bool file_is_good = True
+        Bool file_is_valid = True
         If JsonUtil.Load(file) && JsonUtil.IsGood(file)
             String file_to_check = JsonUtil.GetPathStringValue(file, "conditions.json")
             If file_to_check != "" && JsonUtil.JsonExists(file_to_check) == False
-                UDMain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() Load condition of the file " + file + " is not valid. Can't find JSON file " + file_to_check, 1)
-                file_is_good = False
+                UDMain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() Load condition of the file '" + file + "' is not valid. Can't find JSON file " + file_to_check, 1)
+                file_is_valid = False
             EndIf
             file_to_check = JsonUtil.GetPathStringValue(file, "conditions.mod")
             If file_to_check != "" && UnforgivingDevicesMain.ModInstalled(file_to_check) == False
-                UDMain.Warning("UD_AnimationManagerScript::LoadAnimationJSONFiles() Load condition of the file " + file + " is not valid. Can't find mod " + file_to_check)
-                file_is_good = False
+                UDMain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() Load condition of the file '" + file + "' is not valid. Can't find mod " + file_to_check, 1)
+                file_is_valid = False
             EndIf
         Else
-            UDMain.Warning("UD_AnimationManagerScript::LoadAnimationJSONFiles() Failed to load json file " + file)
+            UDMain.Warning("UD_AnimationManagerScript::LoadAnimationJSONFiles() Failed to load json file '" + file + "'")
             UDMain.Warning("UD_AnimationManagerScript::LoadAnimationJSONFiles() Found errors: " + JsonUtil.GetErrors(file))
-            file_is_good = False
+            file_is_valid = False
         EndIf
-        If file_is_good
-            UD_AnimationJSON = PapyrusUtil.PushString(UD_AnimationJSON, files[i])
+        UD_AnimationJSON_All = PapyrusUtil.PushString(UD_AnimationJSON_All, files[i])
+        If !file_is_valid
+            UD_AnimationJSON_Inv = PapyrusUtil.PushString(UD_AnimationJSON_Inv, files[i])
+        Else
+            If UD_AnimationJSON_Dis.Find(files[i]) < 0
+                UD_AnimationJSON = PapyrusUtil.PushString(UD_AnimationJSON, files[i])
+            Else
+                UDMain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() File '" + file + "' is disabled by player", 1)
+            EndIf
         EndIf
         i += 1
     EndWhile
     
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() Loaded files: " + UD_AnimationJSON, 3)
+        If useUnsafeLogging
+            ; Even though when outputting long arrays, the last elements are replaced with ellipsis, sometimes CTD occurs. (It's unsafe to print more than 1000 symbols or so. That's about 14 animations)
+            UDmain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() Loaded files: " + UD_AnimationJSON, 3)
+        Else
+            UDmain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() Loaded files count: " + UD_AnimationJSON.Length, 3)
+        EndIf
     EndIf
 EndFunction
 
