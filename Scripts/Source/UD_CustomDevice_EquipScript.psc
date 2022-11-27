@@ -105,7 +105,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
                 UDCDmain.Log(" Device " + deviceInventory.getName() + " send to Event Container! Waiting for device to return to inventory!",3)
             endif
             while !deviceReturned
-                Utility.WaitMenuMode(0.001)
+                Utility.WaitMenuMode(0.01)
             endwhile
             deviceReturned = False
             if UDmain.TraceAllowed()
@@ -754,14 +754,18 @@ Event LockDevice(Actor akActor)
         ;EndIf
     ;endif
     
+    Utility.wait(0.05)
+    
     akActor.EquipItem(DeviceRendered, true, true)
     
+    Utility.wait(0.05)
+    
     int loc_ticks = 0
-    while loc_ticks <= 10 && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
-        Utility.waitMenuMode(0.1)
+    while loc_ticks <= 40 && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
+        Utility.wait(0.05)
         loc_ticks += 1
     endwhile
-    if loc_ticks >= 10
+    if loc_ticks >= 40
         ;render device lock failed, abort
         _locked = false
         StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))

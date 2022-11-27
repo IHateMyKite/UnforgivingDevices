@@ -18,16 +18,19 @@ Float Property UD_SlotUpdateTime = 10.0 auto
 Bool _PlayerSlotReady = false
 
 Event OnInit()
+    Utility.wait(0.1)
     UD_Slots = GetNumAliases()
-    int index = UD_Slots
-    while index
-        index -= 1
-        while !(GetNthAlias(index) as UD_CustomDevice_NPCSlot).ready
-            Utility.waitMenuMode(0.1)
+    int index = 0
+    while index < UD_Slots
+        UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
+        while !loc_slot.ready
+            Utility.wait(0.1)
         endwhile
         if UDmain.TraceAllowed()        
             UDCDMain.Log("NPCslot["+ index +"] ready!")
         endif
+        index += 1
+        Utility.wait(0.1)
     endwhile
     registerForSingleUpdate(10.0)
     Ready = True
@@ -53,8 +56,13 @@ Function CheckOrgasmLoops()
     endwhile
 EndFunction
 
-Float   _LastUpdateTime     = 0.0
-Float   _UpdateTimePassed   = 0.0
+Float   _LastUpdateTime         = 0.0
+Float   _UpdateTimePassed       = 0.0
+Float   _UpdateTimePassed2      = 0.0
+
+Int Property UD_SlotScanUpdateTime  = 25 auto
+Int Property UD_HeavySlotUpdateTime = 120 auto
+
 Event OnUpdate()
     ;init player slot
     if !_PlayerSlotReady
@@ -67,14 +75,17 @@ Event OnUpdate()
             float loc_timePassed = Utility.GetCurrentGameTime() - _LastUpdateTime
             UpdateDevices(loc_timePassed)
             _LastUpdateTime = Utility.GetCurrentGameTime()
-            
             if UDmain.AllowNPCSupport
-                scanSlots()
+                _UpdateTimePassed2 += UDCDmain.UD_UpdateTime
+                if _UpdateTimePassed2 >= UD_SlotScanUpdateTime
+                     scanSlots()
+                    _UpdateTimePassed2 = 0.0
+                endif
             endif
         endif
         removeDeadNPCs()
         _UpdateTimePassed += UDCDmain.UD_UpdateTime
-        if _UpdateTimePassed >= 120.0
+        if _UpdateTimePassed >= UD_HeavySlotUpdateTime
             CheckOrgasmLoops()
             UpdateSlots() ;update slots, this only update variables, not devices
             _UpdateTimePassed = 0.0
@@ -136,7 +147,7 @@ Function CheckSlots()
     int index = UD_Slots - 1 ;all aliases, excluding player
     while index
         index -= 1
-        UD_CustomDevice_NPCSlot loc_slot = (UDCD_NPCF.GetNthAlias(index) as UD_CustomDevice_NPCSlot)
+        UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
         if loc_slot
             if loc_slot.isUsed()
                 loc_slot.QuickFix()
@@ -146,7 +157,7 @@ Function CheckSlots()
 EndFunction
 
 Function resetNPCFSlots()
-    int index = UD_Slots - 1 ;all aliases, excluding player
+    int index = UDCD_NPCF.GetNumAliases() - 1 ;all aliases, excluding player
     while index
         index -= 1
         ReferenceAlias loc_refAl = (UDCD_NPCF.GetNthAlias(index) as ReferenceAlias)
@@ -156,6 +167,30 @@ Function resetNPCFSlots()
                 loc_refAl.clear()
             endif
         endif
+    endwhile
+EndFunction
+
+Function FreeUnusedSlots()
+    int index = 0 
+    while index < GetNumAliases() - 1 ;all aliases, excluding player
+        UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
+        if loc_slot && loc_slot.getActor() && !StorageUtil.GetIntValue(loc_slot.getActor(), "UD_ManualRegister", 0)
+            int index2 = 0
+            bool loc_found = false
+            while (index2 < UDCD_NPCF.GetNumAliases() - 1) && !loc_found
+                ReferenceAlias loc_refAl = (UDCD_NPCF.GetNthAlias(index2) as ReferenceAlias)
+                if loc_refAl.getActorReference() == loc_slot.GetActor()
+                    loc_found = true
+                endif
+                index2 += 1
+            endwhile
+            if !loc_found
+                loc_slot.GetActor().RemoveFromFaction(UDCDmain.RegisteredNPCFaction)
+                loc_slot.unregisterSlot()
+                GInfo("Removed unused slot " + loc_slot.getSlotedNPCName())
+            endif
+        endif
+        index += 1
     endwhile
 EndFunction
 
@@ -190,51 +225,60 @@ Function removeDeadNPCs()
 EndFunction
 
 Function updateSlotedActors(bool debugMsg = False)
-    int index = UDCD_NPCF.GetNumAliases() - 1;all slots excluding player
+    int index = 0
+    int loc_aliases = UDCD_NPCF.GetNumAliases() - 1 ;all slots excluding player
     int mover = 0
-    while index
-        index -= 1
-        Actor currentSelectedActor = (UDCD_NPCF.GetNthAlias(index + mover) as ReferenceAlias).getActorReference()
+    GoToState("UpdatePaused")
+    while index < loc_aliases
+        ReferenceAlias loc_finderSlot = (UDCD_NPCF.GetNthAlias(index + mover) as ReferenceAlias)
+        ObjectReference loc_ref = loc_finderSlot.GetReference()
+        Actor currentSelectedActor = loc_ref as Actor
         if currentSelectedActor
-            if !StorageUtil.GetIntValue(currentSelectedActor, "UD_blockSlotUpdate", 0)
-                UD_CustomDevice_NPCSlot slot = GetNthAlias(index) as UD_CustomDevice_NPCSlot
-                Actor currentSlotActor = slot.getActor()
-                if StorageUtil.GetIntValue(currentSlotActor, "UD_ManualRegister", 0)
-                    mover -= 1
-                else
-                    if currentSlotActor
-                        if currentSelectedActor != currentSlotActor                        
-                            currentSlotActor.RemoveFromFaction(UDCDmain.RegisteredNPCFaction)
+            if !isRegistered(currentSelectedActor)
+                if !StorageUtil.GetIntValue(currentSelectedActor, "UD_blockSlotUpdate", 0)
+                    UD_CustomDevice_NPCSlot slot = GetNthAlias(index) as UD_CustomDevice_NPCSlot
+                    Actor currentSlotActor = slot.getActor()
+                    if StorageUtil.GetIntValue(currentSlotActor, "UD_ManualRegister", 0)
+                        mover -= 1
+                    else
+                        if currentSlotActor
+                            if currentSelectedActor != currentSlotActor
+                                currentSlotActor.RemoveFromFaction(UDCDmain.RegisteredNPCFaction)
+                                slot.unregisterSlot()
+                                
+                                slot.SetSlotTo(currentSelectedActor)
+                                if debugMsg || UDmain.DebugMod
+                                    debug.notification("[UD]: NPC /" + slot.getSlotedNPCName() + "/ registered!")
+                                endif
+                                UDmain.Info("Registered NPC " + getActorName(currentSelectedActor))
+                            endif
+                        else
                             slot.unregisterSlot()
+                            slot.SetSlotTo(currentSelectedActor)
                             
-                            slot.SetSlotTo(currentSelectedActor)        
                             if debugMsg || UDmain.DebugMod
                                 debug.notification("[UD]: NPC /" + slot.getSlotedNPCName() + "/ registered!")
                             endif
                             UDmain.Info("Registered NPC " + getActorName(currentSelectedActor))
                         endif
-                    else
-                        slot.unregisterSlot()
-                        slot.SetSlotTo(currentSelectedActor)
-                        
-                        if debugMsg || UDmain.DebugMod
-                            debug.notification("[UD]: NPC /" + slot.getSlotedNPCName() + "/ registered!")
-                        endif
-                        UDmain.Info("Registered NPC " + getActorName(currentSelectedActor))
                     endif
-                    
-                    ;if slot.isUsed()
-                    ;    slot.regainDevices()
-                    ;endif
                 endif
+            else
+                ;GInfo("NPC " + currentSelectedActor + " already registered. SKipping")
             endif
-        else
-            UD_CustomDevice_NPCSlot slot = GetNthAlias(index) as UD_CustomDevice_NPCSlot
-            if slot.isUsed() && !StorageUtil.GetIntValue(slot.getActor(), "UD_ManualRegister", 0)
-                slot.unregisterSlot()
-            endif
+        ;else
+        ;    UD_CustomDevice_NPCSlot slot = GetNthAlias(index) as UD_CustomDevice_NPCSlot
+        ;    if slot.isUsed() && !StorageUtil.GetIntValue(slot.getActor(), "UD_ManualRegister", 0)
+        ;        slot.unregisterSlot()
+        ;    endif
         endif
+        index += 1
     endwhile
+    
+    ;remove unfinded NPCs
+    FreeUnusedSlots()
+    
+    GoToState("")
 EndFunction
 
 bool Function RegisterNPC(Actor akActor,bool debugMsg = false)
@@ -337,11 +381,13 @@ UD_CustomDevice_NPCSlot Function getPlayerSlot()
 EndFunction
 
 Function UpdateDevices(float fTimePassed)
-    int index = UD_Slots
-    while index
-        index -= 1
+    int index = 0
+    while index < UD_Slots
         UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
-        UpdateSlotDevices(loc_slot,fTimePassed)
+        if loc_slot
+            UpdateSlotDevices(loc_slot,fTimePassed)
+        endif
+        index += 1
     endwhile
 EndFunction
 

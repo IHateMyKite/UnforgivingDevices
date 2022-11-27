@@ -124,8 +124,10 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
         If force
             Keyword kw = GetDeviceKeyword(deviceInventory)
             if kw
-                loc_res = SwapDevices(akActor, deviceInventory, zad_DeviousDevice = kw)
-            EndIf
+                loc_res = SwapDevicesPatched(akActor, deviceInventory, zad_DeviousDevice = kw,abUseLockFunction = false) ;don't use lock function, as that would block whole system
+            else
+                loc_res = false
+            endif
         else
             if !akActor.GetItemCount(deviceInventory)
                 akActor.AddItem(deviceInventory, 1, true)
@@ -186,6 +188,39 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
     endif
     UDmain.UDNPCM.GotoState("")
     return loc_res
+EndFunction
+
+Bool Function SwapDevices(actor akActor, armor deviceInventory, keyword zad_DeviousDevice = none, bool destroyDevice = false, bool genericonly = true)
+    return SwapDevicesPatched(akActor, deviceInventory, zad_DeviousDevice, destroyDevice, genericonly)
+EndFunction
+
+Bool Function SwapDevicesPatched(actor akActor, armor deviceInventory, keyword zad_DeviousDevice = none, bool destroyDevice = false, bool genericonly = true,bool abUseLockFunction = true)
+    Keyword loc_keyword
+    if !zad_DeviousDevice
+        loc_keyword = GetDeviceKeyword(deviceInventory)
+    else
+        loc_keyword = zad_DeviousDevice
+    EndIf
+    Armor WornDevice = GetWornRenderedDeviceByKeyword(akActor, loc_keyword)
+    if WornDevice
+        Armor idevice = GetWornDevice(akActor, loc_keyword)
+        if !UnlockDevice(akActor, idevice, WornDevice, zad_DeviousDevice = loc_keyword, destroyDevice = destroyDevice, genericonly = genericonly)
+            GError("UnlockDevice() failed for "+ deviceInventory.getName() +". Aborting.")
+            return false
+        EndIf
+    Else
+        log("No confilicting device worn. Proceeding.")
+    EndIf
+    if abUseLockFunction
+        LockDevicePatched(akActor,deviceInventory)
+    else
+        if akActor.GetItemCount(deviceInventory) <= 0
+            akActor.AddItem(deviceInventory, 1, true)
+        EndIf
+        akActor.EquipItemEx(deviceInventory, 0, false, true)
+    endif
+
+    return true
 EndFunction
 
 Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRendered = none, keyword zad_DeviousDevice = none, bool destroyDevice = false, bool genericonly = false)
@@ -307,9 +342,6 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
     UDmain.UDNPCM.GotoState("")
     return loc_res
 EndFunction
-
-
-
 
 ;modified version of RemoveQuestDevice from zadlibs. This version makes use of registered devices from UD,making unequip procces for NPC safer and faster
 Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRendered, keyword zad_DeviousDevice, keyword RemovalToken, bool destroyDevice=false, bool skipMutex=false)
@@ -480,6 +512,10 @@ Armor Function GetWornRenderedDeviceByKeyword(Actor akActor, Keyword kw)
 EndFunction
 
 Armor Function GetWornDevice(Actor akActor, Keyword kw)
+    return GetWornDevicePatched(akActor, kw)
+EndFunction
+
+Armor Function GetWornDevicePatched(Actor akActor, Keyword kw)
     if !akActor
         UDCDmain.Error("GetWornDevice - Actor is none")
         return none
@@ -499,12 +535,33 @@ Armor Function GetWornDevice(Actor akActor, Keyword kw)
     endif
     if UDCDmain.UDCD_NPCM.isRegistered(akActor)
         UD_CustomDevice_NPCSlot slot = UDCDmain.UDCD_NPCM.getNPCSlotByActor(akActor)
-        if slot.deviceAlreadyRegisteredKw(kw)
+        if slot.deviceAlreadyRegisteredKw(kw,UDmain.UD_CheckAllKw)
             return slot.getFirstDeviceByKeyword(kw).deviceInventory
         endif
     endif
     
-    return parent.GetWornDevice(akActor,kw)
+    Armor loc_result = none
+    Int loc_FormIndex = akActor.GetNumItems()
+    While loc_FormIndex
+        loc_FormIndex -= 1
+        Form loc_Form = akActor.GetNthForm(loc_FormIndex)
+        If loc_Form.HasKeyword(zad_InventoryDevice) && (akActor.IsEquipped(loc_Form) || akActor != playerRef)
+            zadEquipScript loc_tmpZRef = akActor.placeAtMe(loc_Form, abInitiallyDisabled = true) as zadEquipScript
+            if loc_tmpZRef
+                Armor loc_deviceInventory = loc_tmpZRef.deviceInventory
+                Armor loc_deviceRendered = loc_tmpZRef.deviceRendered
+                Keyword loc_DeviceKeyword = loc_tmpZRef.zad_DeviousDevice
+                if akActor.GetItemCount(loc_deviceRendered) && (loc_DeviceKeyword == kw || (UDmain.UD_CheckAllKw && loc_deviceRendered.haskeyword(kw)))
+                    loc_tmpZRef.delete()
+                    return loc_deviceInventory
+                endif
+            endif
+            if loc_tmpZRef
+                loc_tmpZRef.delete()
+            endif
+        EndIf
+    EndWhile
+    return none
 EndFunction
 
 ;copied and modified libs InflateAnalPlug function to make it show correct msg for npcs

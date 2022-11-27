@@ -341,6 +341,7 @@ EndFunction
 ;              ORGASM PROGRESS
 ;=======================================
 bool _OrgasmProgressManip_Mutex
+;DO NOT USE IF UPDATE LOOP IS RUNNING. Is only used by Orgasm Resist minigame
 Function UpdateActorOrgasmProgress(Actor akActor,Float fValue,bool bUpdateWidget = false)
     while _OrgasmProgressManip_Mutex
         Utility.waitMenuMode(0.1)
@@ -353,6 +354,7 @@ Function UpdateActorOrgasmProgress(Actor akActor,Float fValue,bool bUpdateWidget
     endif
     _OrgasmProgressManip_Mutex = false
 EndFunction
+;DO NOT USE IF UPDATE LOOP IS RUNNING. Is only used by Orgasm Resist minigame
 Function SetActorOrgasmProgress(Actor akActor,Float fValue)
     while _OrgasmProgressManip_Mutex
         Utility.waitMenuMode(0.05)

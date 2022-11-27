@@ -1,42 +1,41 @@
 Scriptname UD_AbadonQuest_script extends Quest Conditional 
 
-UDCustomDeviceMain Property UDCDmain auto
-UnforgivingDevicesMain Property UDmain  Auto
+UDCustomDeviceMain      Property UDCDmain auto
+UnforgivingDevicesMain  Property UDmain  Auto
 UD_libs Property UDlibs  Auto  
 zadlibs Property libs auto 
-Quest Property DragonRising auto
+Quest   Property DragonRising auto
 
 ;const values
-int property overaldifficulty  = 1 auto ;0-2 where 3 is same as in MDS
-float property max_difficulty = 100.0 auto
-int property eventchancemod = 5 auto
+int     property overaldifficulty   = 1     auto ;0-2 where 3 is same as in MDS
+float   property max_difficulty     = 100.0 auto
+int     property eventchancemod     = 5     auto
 
-int property little_finisher_chance = 40 auto
-int property min_orgasm_little_finisher = 3 auto
-int property max_orgasm_little_finisher = 6 auto
+int     property little_finisher_chance     = 40    auto
+int     property min_orgasm_little_finisher = 3     auto
+int     property max_orgasm_little_finisher = 6     auto
 
-bool property dmg_heal = True auto
-bool property dmg_magica = True auto
-bool property dmg_stamina = False auto
+bool    property dmg_heal       = True  auto
+bool    property dmg_magica     = True  auto
+bool    property dmg_stamina    = False auto
 
-bool property hardcore = False auto
-float property little_finisher_cooldown = 3.0 auto ;in hours
-float property plug_hunger_update_time = 1.0 auto ;after one hour plugs escape difficulty increase again
+bool    property hardcore                   = False auto
+float   property little_finisher_cooldown   = 3.0   auto ;in hours
+float   property plug_hunger_update_time    = 1.0   auto ;after one hour plugs escape difficulty increase again
 ;float property plug_hunger = 0.0 auto
-float Property arousaltimehours = 0.05 auto
-int Property final_finisher_pref = 0 auto
-float Property masturbate_cd = 3.0 auto;hours
-float property handrestrain_chance = 15.0 auto ;maximal chance for getting hand restrain on orgasm
-float Property executecdhoursbase = 1.0 auto
-int Property gooRareDeviceChance = 25 auto
-bool Property UseAnalVariant = false auto Conditional
-bool property final_finisher_set = True auto
+float   Property arousaltimehours       = 0.05  auto
+int     Property final_finisher_pref    = 0     auto
+float   Property masturbate_cd          = 3.0   auto    ;hours
+float   property handrestrain_chance    = 15.0  auto    ;maximal chance for getting hand restrain on orgasm
+float   Property executecdhoursbase     = 1.0   auto
+int     Property gooRareDeviceChance    = 25    auto
+bool    Property UseAnalVariant         = false auto Conditional
+bool    property final_finisher_set     = True  auto
 
-Actor Property UD_AbadonVictim auto
+Actor   Property UD_AbadonVictim auto
 
 Event onInit()
     registerForSingleUpdate(120.0)
-        
     if UDmain.TraceAllowed()    
         UDCDmain.Log("Abadon quest initiated")
     endif
@@ -49,21 +48,83 @@ Event OnUpdate()
         endif
         setStage(10)
     else
-        ;registerForSingleUpdate(25.0)
         registerForSingleUpdate(30.0)
     endif
 EndEvent
 
+Function Update()
+    _CustomSets     = 0
+    _EquipEvent     = Utility.CreateStringArray(0) ;create empty array .......
+    _SuitNames      = Utility.CreateStringArray(0) ;create empty array .......
+    _CustomSetMutex = false
+    SendModEvent("UD_AbadonSuitUpdate", "UpdateEvent") ;send update event, which should all patches get
+EndFunction
+
+Int         _CustomSets     = 0
+String[]    _EquipEvent
+String[]    _SuitNames
+Bool        _CustomSetMutex = false
+Function AddCustomAbadonSet(String asEquipEvent,String asSuitName)
+    _CustomSets += 1
+    while _CustomSetMutex
+        Utility.waitMenuMode(0.01)
+    endwhile
+    _CustomSetMutex = true
+    _EquipEvent = PapyrusUtil.PushString(_EquipEvent,asEquipEvent)
+    _SuitNames  = PapyrusUtil.PushString(_SuitNames,asSuitName)
+    UDmain.Info("Adding new custom abadon suit - " + asSuitName)
+    _CustomSetMutex = false
+EndFunction
+Function EquipCustomAbadonSet(Actor akActor, Int aiSuitEvent)
+    Int loc_suit = aiSuitEvent - UDmain.config.final_finisher_pref_list.length
+    int loc_handle = ModEvent.Create(_EquipEvent[loc_suit])
+    if loc_handle
+        ModEvent.PushForm(loc_handle, akActor) ;actor
+        ModEvent.PushString(loc_handle, _EquipEvent[loc_suit]) ;event
+        ModEvent.Send(loc_handle)
+    endif
+EndFunction
+
+Int Property UD_AbadonSuitNumber
+    Int Function Get()
+        return UDmain.config.final_finisher_pref_list.length + _CustomSets
+    EndFunction
+EndProperty
+
+String[] Property UD_AbadonSuitList
+    String[] Function Get()
+        if _CustomSets
+            return PapyrusUtil.MergeStringArray(UDmain.config.final_finisher_pref_list,_EquipEvent)
+        else
+            return UDmain.config.final_finisher_pref_list
+        endif
+    EndFunction
+EndProperty
+String[] Property UD_AbadonSuitNames
+    String[] Function Get()
+        if _CustomSets
+            return PapyrusUtil.MergeStringArray(UDmain.config.final_finisher_pref_list,_SuitNames)
+        else
+            return UDmain.config.final_finisher_pref_list
+        endif
+    EndFunction
+EndProperty
+
+
 Function AbadonEquipSuit(Actor target,int suit)
-    ;Game.DisablePlayerControls()
     UDCDmain.DisableActor(target)
+    UnforgivingDevicesMain.closeMenu()
     if suit == 0
-        suit = Utility.randomInt(1,UDmain.config.final_finisher_pref_list.length - 1)
+        if _CustomSets
+            suit = Utility.randomInt(1,UDmain.config.final_finisher_pref_list.length - 1 + _CustomSets)
+        else
+            suit = Utility.randomInt(1,UDmain.config.final_finisher_pref_list.length - 1)
+        endif
     endif
     if suit == 1
         UDmain.ItemManager.equipAbadonRopeSuit(target)
     elseif suit == 2
-        UDmain.ItemManager.equipAbadonTransparentSuit(target)    
+        UDmain.ItemManager.equipAbadonTransparentSuit(target)
     elseif suit == 3
         UDmain.ItemManager.equipAbadonLatexSuit(target)
     elseif suit == 4
@@ -72,8 +133,9 @@ Function AbadonEquipSuit(Actor target,int suit)
         UDmain.ItemManager.equipAbadonSimpleSuit(target)
     elseif suit == 6
         UDmain.ItemManager.equipAbadonYokeSuit(target)
+    else
+        EquipCustomAbadonSet(target,suit)
     endif
     UDCDmain.EnableActor(target)
-    ;Game.EnablePlayerControls()
 EndFunction
 

@@ -1519,6 +1519,8 @@ Function Init(Actor akActor)
 
     Wearer = akActor
     
+    Utility.wait(0.05) ;wait for menus to be closed
+    
     UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
     
     if isUnlocked 
@@ -1536,7 +1538,7 @@ Function Init(Actor akActor)
     if !deviceRendered || !UD_DeviceKeyword
         updateValuesFromInventoryScript()
     endif
-        
+
     if akActor.getItemCount(deviceRendered) > 1
         UDCDmain.Error("!Aborting Init("+ getDeviceHeader() + " because device is already present!")
         akActor.removeItem(deviceRendered,akActor.getItemCount(deviceRendered) - 1,true)
@@ -1545,11 +1547,11 @@ Function Init(Actor akActor)
         
     float loc_time = 0.0
     bool loc_isplayer = (akActor == UDmain.Player)
-    while loc_time <= 1.0 && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
+    while loc_time <= 2.0 && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
         if loc_isplayer
-            Utility.waitMenuMode(0.01)
+            Utility.wait(0.05)
         else
-            Utility.wait(0.01)
+            Utility.wait(0.05)
         endif
         loc_time += 0.05
     endwhile
@@ -1656,13 +1658,13 @@ Function Init(Actor akActor)
         UDCDmain.Log(DeviceInventory.getName() + " fully locked on " + getWearerName(),1)
     endif
     
-    InitPostPost()
-    
     Ready = True
     
     if UDCDmain.isRegistered(getWearer())
         Update(1/24/60) ;1 minute update
     endif
+    
+    InitPostPost() ;called after everything else. Can add some followup interaction immidiatly after device is equipped (activate device, start vib, etc...)
 EndFunction
 
 Function removeDevice(actor akActor)
@@ -4797,9 +4799,6 @@ EndFunction
 
 ;function called when wearer is hit by source weapon
 Function weaponHit(Weapon source)
-    if UDmain.TraceAllowed()    
-        UDCDmain.Log(getDeviceHeader()+ " hit by "+source.getName()+"(" +source+ ") event received, damage: " + source.getBaseDamage(),3)
-    endif
     if onWeaponHitPre(source)
         onWeaponHitPost(source)
     endif
@@ -4807,9 +4806,6 @@ EndFunction
 
 ;function called when wearer is hit by source spell
 Function spellHit(Spell source)
-    if UDmain.TraceAllowed()    
-        UDCDmain.Log("Device " + DeviceInventory.getName() + " hit by "+source+" event received",3)
-    endif
     if onSpellHitPre(source)
         onSpellHitPost(source)
     endif
@@ -5063,13 +5059,18 @@ Function onSpecialButtonReleased(Float fHoldTime)
 EndFunction
 
 bool Function onWeaponHitPre(Weapon source)
-    return true;UDCDmain.isSharp(source)
+    return true
 EndFunction
 
 Function onWeaponHitPost(Weapon source)
+    ;check if weapon is wooded (whips and canes have also this keyword)
+    if source.haskeyword(UDlibs.WoodedWeapon)
+        ;weapon is wooden, no damage should be deald
+        return
+    endif
     if !isUnlocked && canBeCutted()
-        float loc_damage = 0.0
-        if !source.getBaseDamage()
+        float loc_damage = source.getBaseDamage()
+        if !loc_damage
             loc_damage = 5.0
         endif
         decreaseDurabilityAndCheckUnlock(loc_damage*0.25*(1.0 - UD_WeaponHitResist),2.0)

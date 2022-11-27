@@ -139,6 +139,7 @@ Function endDeviceManipulation()
 EndFunction
 
 Event OnInit()
+    Utility.wait(1.0)
     UD_equipedCustomDevices = UDCDMain.MakeNewDeviceSlots()
     Ready = True
 EndEvent
@@ -207,7 +208,7 @@ int Function GetDeviceSlotIndx(UD_CustomDevice_RenderScript device)
 EndFunction
 
 Function SetSlotTo(Actor akActor)
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         UDCDmain.Log("SetSlotTo("+getActorName(akActor)+") for " + self)
     endif
 
@@ -570,10 +571,10 @@ bool Function deviceAlreadyRegistered(Armor deviceInventory)
     return false
 EndFunction
 
-bool Function deviceAlreadyRegisteredKw(Keyword kw)
+bool Function deviceAlreadyRegisteredKw(Keyword kw,Bool abCheckAllKw = false)
     int i = 0
     while UD_equipedCustomDevices[i]
-        if UD_equipedCustomDevices[i].UD_DeviceKeyword == kw
+        if (UD_equipedCustomDevices[i].UD_DeviceKeyword == kw) || (abCheckAllKw && UD_equipedCustomDevices[i].DeviceRendered.haskeyword(kw))
             return true
         endif
         i+=1
@@ -701,8 +702,8 @@ int Function debugSize()
 EndFunction
 
 Function orgasm()
-    if UDCDmain.UDmain.UD_OrgasmExhaustion
-        UDCDmain.UDmain.addOrgasmExhaustion(getActor())
+    if UDmain.UD_OrgasmExhaustion
+        UDmain.addOrgasmExhaustion(getActor())
     endif
     int size = UD_equipedCustomDevices.length
     int i = 0
@@ -710,6 +711,8 @@ Function orgasm()
         if UD_equipedCustomDevices[i].isReady()
             UD_equipedCustomDevices[i].orgasm()
             UDmain.UDMOM.Procces_UpdateModifiers_Orgasm(UD_equipedCustomDevices[i])
+        else
+            GError("Device " + UD_equipedCustomDevices[i].GetDeviceName() + " is not ready -> aborting orgasm call")
         endif
         i+=1
     endwhile
@@ -1569,7 +1572,7 @@ EndFunction
 Function ProccesLockMutex()
     float loc_time = 0.0
     while loc_time <= 3.0 && (!UD_GlobalDeviceMutex_InventoryScript)
-        Utility.waitMenuMode(0.05)
+        Utility.wait(0.05)
         loc_time += 0.05
     endwhile
     
@@ -1583,7 +1586,7 @@ EndFunction
 Function ProccesUnlockMutex()
     float loc_time = 0.0
     while loc_time <= 3.0 && (!UD_GlobalDeviceUnlockMutex_InventoryScript)
-        Utility.waitMenuMode(0.1)
+        Utility.wait(0.1)
         loc_time += 0.1
     endwhile
     

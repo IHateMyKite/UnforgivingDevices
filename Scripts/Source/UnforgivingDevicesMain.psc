@@ -71,6 +71,7 @@ bool property DebugMod                  = False     auto hidden conditional
 bool Property AllowNPCSupport           = False     auto
 Bool Property UD_WarningAllowed         = False     auto hidden
 bool Property UD_DisableUpdate          = False     auto hidden conditional
+bool Property UD_CheckAllKw             = False     auto hidden conditional
 
 ;zadlibs patch control
 bool Property UD_zadlibs_ParalelProccesing = false auto
@@ -99,7 +100,6 @@ float Property UD_HightPerformanceTime  = 0.25  autoreadonly
 float Property UD_baseUpdateTime                auto
 zadConfig   Property DDconfig                   auto
 String[]    Property UD_OfficialPatches         auto
-int         Property UD_InfoLevel       = 1     auto    hidden
 
 bool Property ZaZAnimationPackInstalled = false auto
 ;zbfBondageShell Property ZAZBS auto
@@ -230,6 +230,8 @@ Function OnGameReload()
     if UDCM.Ready
         UDCM.Update()
     endif
+    
+    UDAbadonQuest.Update()
     
     CLog("Unforgiving Devices updated.")
 EndFunction
@@ -463,7 +465,7 @@ bool Function ActorIsValidForUD(Actor akActor)
     endif
     ActorBase loc_actorbase = akActor.GetLeveledActorBase()
     Race loc_race = loc_actorbase.getRace()
-    if !loc_race.haskeyword(UDlibs.ActorTypeNPC) ;check that race is playable or NPC
+    if !loc_race.haskeyword(UDlibs.ActorTypeNPC) && !loc_race.IsPlayable() ;check that race is playable or NPC
         return false
     endif
     if loc_race.IsChildRace()    ;check that actor is not child
@@ -858,6 +860,27 @@ EndFunction
 Function GamepadMenuPause() Global
     if Game.UsingGamepad()
         Utility.wait(0.1)
+    endif
+EndFunction
+
+;SoS faction. If none, it means that the SoS is not installed
+Faction _SOS_SchlongifiedActors
+Faction Property UD_SOS_SchlongifiedActors
+    Faction Function Get()
+        if !_SOS_SchlongifiedActors
+            _SOS_SchlongifiedActors = UnforgivingDevicesMain.GetMeMyForm(0x00AFF8,"Schlongs of Skyrim.esp") as Faction
+        endif
+        return _SOS_SchlongifiedActors
+    EndFunction
+EndProperty
+
+;might or might not be used in future
+Bool Function ActorHaveSoS(Actor akActor)
+    if UD_SOS_SchlongifiedActors
+        return akActor.IsInFaction(UD_SOS_SchlongifiedActors)
+    else
+        Info("UnforgivingDevicesMain::ActorHaveSoS() - SoS not installed, returning false")
+        return false
     endif
 EndFunction
 
