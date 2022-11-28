@@ -1786,7 +1786,7 @@ UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armo
     bool loc_isplayer = UDmain.ActorIsPlayer(akActor)
 
     while !_transferedDevice && loc_time <= 4.0
-        Utility.wait(0.05)
+        Utility.waitMenuMode(0.05)
         loc_time += 0.05
     endwhile
     
@@ -2054,7 +2054,7 @@ bool Function ChangeSoulgemState(Actor akActor,Int iSoulgemType,bool bState = tr
     if !akActor
         return false
     endif
-    if iSoulgemType > 2 || iSoulgemType < 0
+    if iSoulgemType > 4 || iSoulgemType < 0
         return false
     endif
     
@@ -2068,6 +2068,12 @@ bool Function ChangeSoulgemState(Actor akActor,Int iSoulgemType,bool bState = tr
         elseif iSoulgemType == 2
             akActor.removeItem(UDlibs.FilledSoulgem_Common,1,true)
             akActor.AddItem(UDlibs.EmptySoulgem_Common,1,true)
+        elseif iSoulgemType == 3
+            akActor.removeItem(UDlibs.FilledSoulgem_Great,1,true)
+            akActor.AddItem(UDlibs.EmptySoulgem_Great,1,true)
+        elseif iSoulgemType == 4
+            akActor.removeItem(UDlibs.FilledSoulgem_Grand,1,true)
+            akActor.AddItem(UDlibs.EmptySoulgem_Grand,1,true)
         endif
     else    ;charge
         if iSoulgemType == 0
@@ -2079,6 +2085,12 @@ bool Function ChangeSoulgemState(Actor akActor,Int iSoulgemType,bool bState = tr
         elseif iSoulgemType == 2
             akActor.removeItem(UDlibs.EmptySoulgem_Common,1,true)
             akActor.AddItem(UDlibs.FilledSoulgem_Common,1,true)
+        elseif iSoulgemType == 3
+            akActor.removeItem(UDlibs.EmptySoulgem_Great,1,true)
+            akActor.AddItem(UDlibs.FilledSoulgem_Great,1,true)
+        elseif iSoulgemType == 4
+            akActor.removeItem(UDlibs.EmptySoulgem_Grand,1,true)
+            akActor.AddItem(UDlibs.FilledSoulgem_Grand,1,true)
         endif
     endif
     return true
@@ -2089,7 +2101,7 @@ Int Function ShowSoulgemMessage(Actor akActor,Bool bEmpty = false)
     ;precheck
     resetCondVar()
     if !bEmpty
-        if akActor.getItemCount(UDlibs.FilledSoulgem_Petty) > 0
+        if akActor.getItemCount(UDlibs.FilledSoulgem_Petty)  > 0
             currentDeviceMenu_switch1 = true
         endif
         if akActor.getItemCount(UDlibs.FilledSoulgem_Lesser) > 0
@@ -2098,8 +2110,14 @@ Int Function ShowSoulgemMessage(Actor akActor,Bool bEmpty = false)
         if akActor.getItemCount(UDlibs.FilledSoulgem_Common) > 0
             currentDeviceMenu_switch3 = true
         endif
+        if akActor.getItemCount(UDlibs.FilledSoulgem_Great)  > 0
+            currentDeviceMenu_switch4 = true
+        endif
+        if akActor.getItemCount(UDlibs.FilledSoulgem_Grand)  > 0
+            currentDeviceMenu_switch5 = true
+        endif
     else
-        if akActor.getItemCount(UDlibs.EmptySoulgem_Petty) > 0
+        if akActor.getItemCount(UDlibs.EmptySoulgem_Petty)  > 0
             currentDeviceMenu_switch1 = true
         endif
         if akActor.getItemCount(UDlibs.EmptySoulgem_Lesser) > 0
@@ -2108,10 +2126,16 @@ Int Function ShowSoulgemMessage(Actor akActor,Bool bEmpty = false)
         if akActor.getItemCount(UDlibs.EmptySoulgem_Common) > 0
             currentDeviceMenu_switch3 = true
         endif
+        if akActor.getItemCount(UDlibs.EmptySoulgem_Great)  > 0
+            currentDeviceMenu_switch4 = true
+        endif
+        if akActor.getItemCount(UDlibs.EmptySoulgem_Grand)  > 0
+            currentDeviceMenu_switch5 = true
+        endif
     endif
     ;message
     Int loc_res = UD_SoulgemSelect_MSG.Show()
-    if loc_res == 3
+    if loc_res > 5
         return -1
     endif
     return loc_res

@@ -36,9 +36,13 @@ MiscObject Property Gold auto
 Soulgem Property EmptySoulgem_Petty auto
 Soulgem Property EmptySoulgem_Lesser auto
 Soulgem Property EmptySoulgem_Common auto
+Soulgem Property EmptySoulgem_Great  auto
+Soulgem Property EmptySoulgem_Grand  auto
 Soulgem Property FilledSoulgem_Petty auto
 Soulgem Property FilledSoulgem_Lesser auto
 Soulgem Property FilledSoulgem_Common auto
+Soulgem Property FilledSoulgem_Great  auto
+Soulgem Property FilledSoulgem_Grand  auto
 
 Bool Property Ready = False auto
 Event OnInit()
