@@ -127,20 +127,13 @@ EndFunction
 
 ;bool _updating = false
 bool Function scanSlots(bool debugMsg = False)
-    ;if !_updating
-    ;    _updating = True
-        ;getPlayerSlot().regainDevices()
-        UDCD_NPCF.Stop()
-        UDCD_NPCF.Start()
-        ;removeDeadNPCs()
-        ;resetNPCFSlots()
-        updateSlotedActors(debugMsg)
-        return true
-    ;    _updating = False
-    ;    return true
-    ;else
-    ;    return false
-    ;endif
+    UDCD_NPCF.Stop()
+    Utility.wait(0.25)
+    UDCD_NPCF.Start()
+    Utility.wait(0.25)
+
+    updateSlotedActors(debugMsg)
+    return true
 EndFunction
 
 Function CheckSlots()

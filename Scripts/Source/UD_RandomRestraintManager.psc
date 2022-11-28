@@ -250,7 +250,7 @@ Armor Function getRandomDeviceByKeyword_LL(Actor akActor,Keyword kwKeyword)
     if LL
         int tries = 10                        ; 10 attempts
         while tries > 0            
-            res = zadDL.GetRandomDevice(LL)
+            res = GetRandomDevice(LL)
             if ConflictNone(akActor,res)      ; if no conflict - good to go, return device
                 return res
             endif
@@ -261,6 +261,51 @@ Armor Function getRandomDeviceByKeyword_LL(Actor akActor,Keyword kwKeyword)
     else
         return none
     endif
+EndFunction
+
+;fixed function from zadDeviceList
+;Original function can break the game if recursive LeveledList is empty
+;BEcause there is no Wait, this will drain most computere resources just for nothing, making the game almost non playable
+Int     Property    UD_MaxStepBacksLeveledItem = 6 auto
+Armor Function GetRandomDevice(LeveledItem akDeviceList)
+    Form loc_form               = none
+    Form loc_startLeveledList   = akDeviceList
+
+    Int loc_size = akDeviceList.GetNumForms() - 1
+    If loc_size < 0
+        return none
+    EndIf
+
+    Form loc_prevForm           = loc_form
+
+    loc_form = akDeviceList.GetNthForm(Utility.RandomInt(0, loc_size))
+    LeveledItem loc_nestedLL    = loc_form As LeveledItem
+    Armor       loc_armor       = loc_form As Armor
+    Int         loc_stepsBacks   = UD_MaxStepBacksLeveledItem
+    While (!loc_armor && loc_nestedLL) ;check if form is not armor, and is LL, otherwise do nothing
+        ;it's not an armor, but a nested LeveledItem list
+        loc_size = loc_nestedLL.GetNumForms() - 1
+        if loc_size > 0
+            loc_prevForm = loc_form
+            loc_form = loc_nestedLL.GetNthForm(Utility.RandomInt(0, loc_size))
+            Utility.waitMenuMode(0.01) ;little wait time in case of error
+        else
+            ;empty LeveledList entered, do step back
+            if loc_stepsBacks
+                GError("Empty LeveledList entered = "+ loc_form +". Stepping back in to "+ loc_prevForm +" and finding other random device")
+                loc_stepsBacks -= 1
+                loc_form = loc_prevForm
+            else
+                ;no more chances, return none
+                GError("No correct device found in LeveledList "+loc_startLeveledList+". Returning none")
+                return none
+            endif
+        endif
+        loc_nestedLL    = loc_form As LeveledItem
+        loc_armor       = loc_form As Armor
+    EndWhile
+    
+    Return loc_form as Armor
 EndFunction
 
 ;PC frier 8000

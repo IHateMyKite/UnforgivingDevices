@@ -210,7 +210,7 @@ bool Function proccesSpecialMenuWH(Actor akSource,int msgChoice)
     if msgChoice == 0
         Int loc_res = UDCDmain.ShowSoulgemMessage(UDmain.Player)
         if loc_res >= 0
-            if UDCDmain.ChangeSoulgemState(UDmain.Player,loc_res)
+            if UDCDmain.ChangeSoulgemState(akSource,loc_res)
                 if !isVibrating()
                     ForceModDuration(0.75 + (loc_res)*0.25)
                     ForceModStrength(0.75 + (loc_res)*0.25)
