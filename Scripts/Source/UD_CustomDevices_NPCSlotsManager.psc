@@ -60,7 +60,7 @@ Float   _LastUpdateTime         = 0.0
 Float   _UpdateTimePassed       = 0.0
 Float   _UpdateTimePassed2      = 0.0
 
-Int Property UD_SlotScanUpdateTime  = 25 auto
+Int Property UD_SlotScanUpdateTime  = 10 auto
 Int Property UD_HeavySlotUpdateTime = 120 auto
 
 Event OnUpdate()
@@ -227,7 +227,7 @@ Function updateSlotedActors(bool debugMsg = False)
         ObjectReference loc_ref = loc_finderSlot.GetReference()
         Actor currentSelectedActor = loc_ref as Actor
         if currentSelectedActor
-            if !isRegistered(currentSelectedActor)
+            if !isRegistered(currentSelectedActor) && !StorageUtil.GetIntValue(currentSelectedActor,"UDLockOperations",0) ;do not register already registered actors or actor which currently have active lock operations
                 if !StorageUtil.GetIntValue(currentSelectedActor, "UD_blockSlotUpdate", 0)
                     UD_CustomDevice_NPCSlot slot = GetNthAlias(index) as UD_CustomDevice_NPCSlot
                     Actor currentSlotActor = slot.getActor()

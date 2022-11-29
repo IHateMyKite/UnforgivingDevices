@@ -148,7 +148,7 @@ Function UpdateSuit()
     endwhile
     _updateSuitMutex = True
     
-    UDmain.Info("Updating custom abadon suit on patch " + UD_PatchName)
+    ;UDmain.Info("Updating custom abadon suit on patch " + UD_PatchName)
     
     RegisterForModEvent("UD_AbadonSuitUpdate", "UpdateEvent")
 
@@ -164,7 +164,7 @@ EndFunction
 Function RegisterCustomAbadonSuitEvent(String asEvent,String asSuitName)
     if asEvent
         UnregisterForModEvent(asEvent)
-        UDmain.UDAbadonQuest.AddCustomAbadonSet(asEvent,asSuitName)
+        UDmain.UDAbadonQuest.AddCustomAbadonSet(asEvent,asSuitName,UD_PatchName)
         RegisterForModEvent(asEvent, "EquipSuitEvent")
     endif
 EndFunction

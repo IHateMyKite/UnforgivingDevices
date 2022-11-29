@@ -1924,14 +1924,14 @@ int Function GetTelekinesisLockModifier()
 EndFunction
 
 Function setWidgetVal(float val,bool force = false)
-    UDCDmain.widget1.SetPercent(val, force)
+    UDmain.UDWC.UpdatePercent_DeviceWidget(val, force)
 EndFunction
 
 Function setWidgetColor(int val,int val2 = -1,int flash_col = -1)
     UD_WidgetColor = val
     UD_WidgetColor2 = val2
     UD_WidgetFlashColor = flash_col
-    UDCDmain.widget1.SetColors(UD_WidgetColor, UD_WidgetColor2,flash_col)
+    UDmain.UDWC.UpdateColor_DeviceWidget(UD_WidgetColor, UD_WidgetColor2,flash_col)
 EndFunction
 
 Function showWidget(Bool abUpdate = true, Bool abUpdateColor = true)
@@ -1941,11 +1941,11 @@ Function showWidget(Bool abUpdate = true, Bool abUpdateColor = true)
     if abUpdateColor
         updateWidgetColor()
     endif
-    UDCDmain.toggleWidget(true)
+    UDmain.UDWC.Toggle_DeviceWidget(true)
 EndFunction
 
 Function hideWidget()
-    UDCDmain.toggleWidget(False)
+    UDmain.UDWC.Toggle_DeviceWidget(False)
 EndFunction
 
 Function decreaseDurability(float value,float cond_mult = 1.0)
@@ -5145,7 +5145,7 @@ Function updateWidgetColor()
         endif
     endif
     
-    UDCDmain.widget1.SetColors(UD_WidgetColor, UD_WidgetColor2,UD_WidgetFlashColor)
+    UDmain.UDWC.UpdateColor_DeviceWidget(UD_WidgetColor, UD_WidgetColor2,UD_WidgetFlashColor)
 EndFunction
 
 bool Function proccesSpecialMenu(int msgChoice)

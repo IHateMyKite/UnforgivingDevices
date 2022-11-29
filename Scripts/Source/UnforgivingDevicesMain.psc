@@ -37,7 +37,7 @@ UD_AbadonQuest_script   Property UDAbadonQuest  auto
 
 bool Property UD_AutoLoad = false auto
 
-UD_MCM_script                       Property config         Auto  
+UD_MCM_script                       Property config         Auto
 UDItemManager                       Property ItemManager    auto
 UD_RandomRestraintManager           Property UDRRM          auto
 UD_LeveledList_Patcher              Property UDLLP          auto
@@ -55,6 +55,11 @@ UD_MenuChecker                      Property UDMC
         return UD_UtilityQuest as UD_MenuChecker
     EndFunction
 EndProperty
+UD_WidgetControl                    Property UDWC
+    UD_WidgetControl Function get()
+        return UD_UtilityQuest as UD_WidgetControl
+    EndFunction
+EndProperty
 UD_SkillManager_Script              Property UDSKILL
     UD_SkillManager_Script Function get()
         return (UDCDmain as Quest) as UD_SkillManager_Script
@@ -62,16 +67,21 @@ UD_SkillManager_Script              Property UDSKILL
 EndProperty
 
 ;UI menus
-UITextEntryMenu Property TextMenu auto
-UIListMenu      Property ListMenu auto
+UITextEntryMenu Property TextMenu                       auto
+UIListMenu      Property ListMenu                       auto
 
-bool property lockMCM                   = False     auto hidden
-bool property UD_LockDebugMCM           = False     auto hidden
-bool property DebugMod                  = False     auto hidden conditional
-bool Property AllowNPCSupport           = False     auto
-Bool Property UD_WarningAllowed         = False     auto hidden
-bool Property UD_DisableUpdate          = False     auto hidden conditional
-bool Property UD_CheckAllKw             = False     auto hidden conditional
+;IWantWidgets. Not currently used, but have some ideas for future. No scripts are currently required to compile
+Bool    Property iWidgetInstalled          = False      auto
+Quest   Property iWidgetQuest                           auto
+
+;Global switches
+bool    property lockMCM                   = False      auto hidden
+bool    property UD_LockDebugMCM           = False      auto hidden
+bool    property DebugMod                  = False      auto hidden conditional
+bool    Property AllowNPCSupport           = False      auto
+Bool    Property UD_WarningAllowed         = False      auto hidden
+bool    Property UD_DisableUpdate          = False      auto hidden conditional
+bool    Property UD_CheckAllKw             = False      auto hidden conditional
 
 ;zadlibs patch control
 bool Property UD_zadlibs_ParalelProccesing = false auto
@@ -201,6 +211,12 @@ Function OnGameReload()
     ;update all scripts
     Update()
     
+    if UDWC.Ready
+        UDWC.Update()
+    else
+        Error("Can't update UDWC because the script is not ready")
+    endif
+    
     UDMC.Update()
     
     BoundCombat.Update()
@@ -230,7 +246,7 @@ Function OnGameReload()
     if UDCM.Ready
         UDCM.Update()
     endif
-    
+
     UDAbadonQuest.Update()
     
     CLog("Unforgiving Devices updated.")
@@ -349,6 +365,20 @@ Function CheckOptionalMods()
         endif
     else
         OrdinatorInstalled = false
+    endif
+    
+    ;Check iWidgets
+    iWidgetInstalled = true
+    
+    iWidgetQuest = GetMeMyForm(0x000800,"iWant Widgets LE.esp") as Quest
+    if !iWidgetQuest
+        iWidgetQuest = GetMeMyForm(0x000800,"iWant Widgets.esl") as Quest
+    endif
+    
+    if iWidgetQuest
+        iWidgetInstalled = True
+    else
+        iWidgetInstalled = False
     endif
 EndFUnction
 
@@ -659,14 +689,12 @@ int Function Round(float value) global
 EndFunction
 
 Function closeMenu() global
-    if Utility.IsInMenuMode()
-        ;https://www.reddit.com/r/skyrimmods/comments/elg97s/function_to_close_objects_container_menu/
-        UI.InvokeString("ContainerMenu", "_global.skse.CloseMenu", "ContainerMenu")
-        UI.InvokeString("Dialogue Menu", "_global.skse.CloseMenu", "Dialogue Menu")
-        UI.InvokeString("InventoryMenu", "_global.skse.CloseMenu", "InventoryMenu")
-        UI.InvokeString("TweenMenu", "_global.skse.CloseMenu", "TweenMenu")
-        UI.InvokeString("GiftMenu", "_global.skse.CloseMenu", "GiftMenu")
-    endif
+    ;https://www.reddit.com/r/skyrimmods/comments/elg97s/function_to_close_objects_container_menu/
+    UI.InvokeString("ContainerMenu", "_global.skse.CloseMenu", "ContainerMenu")
+    UI.InvokeString("Dialogue Menu", "_global.skse.CloseMenu", "Dialogue Menu")
+    UI.InvokeString("InventoryMenu", "_global.skse.CloseMenu", "InventoryMenu")
+    UI.InvokeString("TweenMenu", "_global.skse.CloseMenu", "TweenMenu")
+    UI.InvokeString("GiftMenu", "_global.skse.CloseMenu", "GiftMenu")
 EndFunction
 
 Function closeLockpickMenu() global
@@ -897,4 +925,7 @@ Bool Function IsContainerMenuOpen()
 EndFunction
 Bool Function IsLockpickingMenuOpen()
     return UDMC.IsMenuOpen(1)
+EndFunction
+Bool Function IsInventoryMenuOpen()
+    return UDMC.IsMenuOpen(2)
 EndFunction

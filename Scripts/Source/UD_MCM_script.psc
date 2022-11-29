@@ -475,8 +475,8 @@ Event resetCustomBondagePage()
     AddEmptyOption()
     UD_UseWidget_T = addToggleOption("Use widget:", UDCDmain.UD_UseWidget)
     AddEmptyOption()
-    UD_WidgetPosX_M = AddMenuOption("Widget pos X:", widgetXList[widget.PositionX],FlagSwitch(UDCDmain.UD_UseWidget))
-    UD_WidgetPosY_M = AddMenuOption("Widget pos Y:", widgetYList[widget.PositionY],FlagSwitch(UDCDmain.UD_UseWidget))
+    UD_WidgetPosX_M = AddMenuOption("Widget pos X:", widgetXList[UDmain.UDWC.UD_WidgetXPos],FlagSwitch(UDCDmain.UD_UseWidget))
+    UD_WidgetPosY_M = AddMenuOption("Widget pos Y:", widgetYList[UDmain.UDWC.UD_WidgetYPos],FlagSwitch(UDCDmain.UD_UseWidget))
     
     ;CRITS
     AddHeaderOption("Device Crits")
@@ -1709,14 +1709,12 @@ Function OnOptionMenuAcceptCustomBondage(int option, int index)
         SetMenuOptionValue(UD_StruggleDifficulty_M, difficultyList[UDCDmain.UD_StruggleDifficulty])
         forcePageReset()
     elseif (option == UD_WidgetPosX_M)
-        widget.PositionX = index
-        UDCDmain.widget2.PositionX = index
-        SetMenuOptionValue(UD_WidgetPosX_M, widgetXList[widget.PositionX])
+        UDmain.UDWC.UD_WidgetXPos = index
+        SetMenuOptionValue(UD_WidgetPosX_M, widgetXList[UDmain.UDWC.UD_WidgetXPos])
         forcePageReset()
     elseif (option == UD_WidgetPosY_M)
-        widget.PositionY = index
-        UDCDmain.widget2.PositionY = index
-        SetMenuOptionValue(UD_WidgetPosY_M, widgetYList[widget.PositionY])
+        UDmain.UDWC.UD_WidgetYPos = index
+        SetMenuOptionValue(UD_WidgetPosY_M, widgetYList[UDmain.UDWC.UD_WidgetYPos])
         forcePageReset()
     elseif option == UD_CritEffect_M
         UDCDmain.UD_CritEffect = index
@@ -2579,8 +2577,8 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "UseHoods", UDIM.UD_UseHoods as Int)
     JsonUtil.SetIntValue(strFile, "StartThirdpersonAnimation_Switch", libs.UD_StartThirdpersonAnimation_Switch as Int)
     JsonUtil.SetIntValue(strFile, "SwimmingDifficulty", UDSS.UD_hardcore_swimming_difficulty)
-    JsonUtil.SetIntValue(strFile, "WidgetPosX", widget.PositionX)
-    JsonUtil.SetIntValue(strFile, "WidgetPosY", widget.PositionY)
+    JsonUtil.SetIntValue(strFile, "WidgetPosX", UDmain.UDWC.UD_WidgetXPos)
+    JsonUtil.SetIntValue(strFile, "WidgetPosY", UDmain.UDWC.UD_WidgetYPos)
     JsonUtil.SetIntValue(strFile, "RandomFiler", UDmain.UDRRM.UD_RandomDevice_GlobalFilter)
     JsonUtil.SetIntValue(strFile, "DAR", AAScript.UD_DAR as Int)
     JsonUtil.SetIntValue(strFile, "SlotUpdateTime", Round(UDCD_NPCM.UD_SlotUpdateTime))
@@ -2696,10 +2694,8 @@ Function LoadFromJSON(string strFile)
     UDIM.UD_UseHoods = JsonUtil.GetIntValue(strFile, "UseHoods", UDIM.UD_UseHoods as Int)
     libs.UD_StartThirdpersonAnimation_Switch = JsonUtil.GetIntValue(strFile, "StartThirdpersonAnimation_Switch", libs.UD_StartThirdpersonAnimation_Switch as Int)
     UDSS.UD_hardcore_swimming_difficulty = JsonUtil.GetIntValue(strFile, "SwimmingDifficulty", UDSS.UD_hardcore_swimming_difficulty)
-    widget.PositionX = JsonUtil.GetIntValue(strFile, "WidgetPosX", widget.PositionX)
-    widget.PositionY = JsonUtil.GetIntValue(strFile, "WidgetPosY", widget.PositionY)
-    UDCDmain.widget2.PositionX = widget.PositionX
-    UDCDmain.widget2.PositionY = widget.PositionY
+    UDmain.UDWC.UD_WidgetXPos = JsonUtil.GetIntValue(strFile, "WidgetPosX", widget.PositionX)
+    UDmain.UDWC.UD_WidgetYPos = JsonUtil.GetIntValue(strFile, "WidgetPosY", widget.PositionY)
     UDmain.UDRRM.UD_RandomDevice_GlobalFilter =  JsonUtil.GetIntValue(strFile, "RandomFiler", UDmain.UDRRM.UD_RandomDevice_GlobalFilter)
     AAScript.UD_DAR =  JsonUtil.GetIntValue(strFile, "DAR", AAScript.UD_DAR as Int)
     UDCD_NPCM.UD_SlotUpdateTime =  JsonUtil.GetIntValue(strFile, "SlotUpdateTime", Round(UDCD_NPCM.UD_SlotUpdateTime))
@@ -2823,10 +2819,8 @@ Function ResetToDefaults()
     UDIM.UD_UseHoods                                = true
     libs.UD_StartThirdpersonAnimation_Switch        = true
     UDSS.UD_hardcore_swimming_difficulty            = 1
-    widget.PositionX                                = 2
-    widget.PositionY                                = 0
-    UDCDmain.widget2.PositionX                      = widget.PositionX
-    UDCDmain.widget2.PositionY                      = widget.PositionY
+    UDmain.UDWC.UD_WidgetXPos                       = 2
+    UDmain.UDWC.UD_WidgetYPos                       = 0
     UDmain.UDRRM.UD_RandomDevice_GlobalFilter       = 0xFFFFFFFF ;32b
     AAScript.UD_DAR                                 =  false
     UDCD_NPCM.UD_SlotUpdateTime                     = 10.0

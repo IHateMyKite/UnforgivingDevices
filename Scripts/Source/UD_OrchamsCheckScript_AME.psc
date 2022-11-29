@@ -120,7 +120,7 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
     
     ;hide widget
     if loc_widgetShown
-        UDCDmain.toggleWidget2(false)
+        UDmain.UDWC.Toggle_OrgasmWidget(false)
     endif
     
     ;reset expression
@@ -199,7 +199,7 @@ Event OnUpdate()
             loc_orgasmProgress_p = fRange(loc_orgasmProgress/loc_orgasmCapacity,0.0,1.0) ;update relative orgasm progress
             
             if loc_widgetShown && !loc_orgasmResisting
-                UDCDMain.widget2.SetPercent(loc_orgasmProgress_p)
+                UDmain.UDWC.UpdatePercent_OrgasmWidget(loc_orgasmProgress_p)
             endif
 
             ;check orgasm
@@ -213,8 +213,8 @@ Event OnUpdate()
                 
                 if loc_widgetShown
                     loc_widgetShown = false
-                    UDCDMain.toggleWidget2(false)
-                    UDCDmain.widget2.SetPercent(0.0,true)
+                    UDmain.UDWC.Toggle_OrgasmWidget(false)
+                    UDmain.UDWC.UpdatePercent_OrgasmWidget(0.0,true)
                 endif
                 
                 loc_hornyAnimTimer  = -45 ;cooldown
@@ -347,11 +347,11 @@ Event OnUpdate()
                 
                 if UDOM.UD_UseOrgasmWidget && loc_isplayer
                     if (loc_widgetShown && loc_orgasmProgress < 2.5) ;|| (loc_widgetShown)
-                        UDCDMain.toggleWidget2(false)
+                        UDmain.UDWC.Toggle_OrgasmWidget(false)
                         loc_widgetShown = false
                     elseif !loc_widgetShown && loc_orgasmProgress >= 2.5
-                        UDCDMain.widget2.SetPercent(loc_orgasmProgress_p,true)
-                        UDCDMain.toggleWidget2(true)
+                        UDmain.UDWC.UpdatePercent_OrgasmWidget(loc_orgasmProgress_p,true)
+                        UDmain.UDWC.Toggle_OrgasmWidget(true)
                         loc_widgetShown = true
                     endif
                 endif
