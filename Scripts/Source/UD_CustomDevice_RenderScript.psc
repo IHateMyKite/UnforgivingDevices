@@ -1,5 +1,6 @@
 Scriptname UD_CustomDevice_RenderScript extends ObjectReference  
 import UnforgivingDevicesMain
+import UD_NPCInteligence
 ;bit maps used to code simple values to reduce memory size of script
 ;-----_deviceControlBitMap_1-----
 ;00 = 1b, struggleGame_on
@@ -1687,6 +1688,11 @@ Function removeDevice(actor akActor)
     
     GoToState("UpdatePaused")
     
+    ;remove ID
+    if zad_DestroyOnRemove || hasModifier("DOR")
+        akActor.RemoveItem(deviceInventory, 1, true)
+    EndIf
+    
     if !akActor.isDead()
         if !_isUnlocked
             _isUnlocked = True
@@ -2048,7 +2054,7 @@ Function updateCondition(bool decrease = True)
             UD_condition += 1
             if WearerIsPlayer()
                 UDCDmain.Print("You feel that "+getDeviceName()+" condition have decreased!",2)
-            elseif UDCDmain.AllowNPCMessage(GetWearer())
+            elseif UDCDmain.AllowNPCMessage(GetWearer(), true)
                 UDCDmain.Print(GetWearerName() + "s " + getDeviceName() + " condition have decreased!",3)
             endif
         endwhile
@@ -2059,7 +2065,7 @@ Function updateCondition(bool decrease = True)
                 UD_condition -= 1
                 if WearerIsPlayer()
                     UDCDmain.Print("You feel that "+getDeviceName()+" condition have increased!",1)
-                elseif UDCDmain.AllowNPCMessage(GetWearer())
+                elseif UDCDmain.AllowNPCMessage(GetWearer(), true)
                     UDCDmain.Print(GetWearerName() + "s " + getDeviceName() + " condition have increased!",3)
                 endif
             endif
@@ -2372,20 +2378,17 @@ Int Function LockMinigamesAllowed(Float afAccesibility)
             if zad_deviceKey
                 if wearer.getItemCount(zad_deviceKey) > 0
                     loc_res += 2
-                    UDCDmain.currentDeviceMenu_allowkey = True
                 endif
             endif
             
             ;lockpicking
             if UD_LockpickDifficulty < 255 && wearer.getItemCount(UDCDmain.Lockpick) > 0
                 loc_res += 1
-                UDCDmain.currentDeviceMenu_allowlockpick = True
             endif
         endif
         ;lock repair
         if UD_JammedLocks && afAccesibility > 0
             loc_res += 4
-            UDCDmain.currentDeviceMenu_allowlockrepair = True
         endif
     endif
     return loc_res
@@ -3449,7 +3452,7 @@ bool Function minigamePostcheck(Bool abSilent = False)
         if !abSilent
             if WearerIsPlayer() ;message related to player wearer
                 UDmain.Print("You are too exhausted. Try later, after you regain your strength.",1)
-            elseif UDCDmain.AllowNPCMessage(Wearer) ;message related to NPC wearer
+            elseif UDCDmain.AllowNPCMessage(Wearer, True) ;message related to NPC wearer
                 UDmain.Print(getWearerName()+" is too exhausted!",1)
             endif
         endif
@@ -3458,7 +3461,7 @@ bool Function minigamePostcheck(Bool abSilent = False)
         if !abSilent
             if HelperIsPlayer() ;message related to player helper
                 UDmain.Print("You are too exhausted and can't help "+getWearerName()+".",1)    
-            elseif UDCDmain.AllowNPCMessage(Wearer) ;message related to NPC helper
+            elseif UDCDmain.AllowNPCMessage(Wearer, True) ;message related to NPC helper
                 UDmain.Print(getHelperName()+" is too exhausted and unable to help you.",1)
             endif
         endif
@@ -3472,7 +3475,7 @@ bool Function minigamePrecheck(Bool abSilent = False)
         if !abSilent
             if WearerIsPlayer()
                 UDCDmain.Print("You are already doing something")
-            elseif UDCDmain.AllowNPCMessage(Wearer)
+            elseif UDCDmain.AllowNPCMessage(Wearer, True)
                 UDCDmain.Print(getWearerName() + " is already doing something")
             endif
         endif
@@ -3495,7 +3498,7 @@ bool Function minigamePrecheck(Bool abSilent = False)
         if !abSilent
             if WearerIsPlayer()
                 UDCDmain.Print("You are already doing something",1)
-            elseif UDCDmain.AllowNPCMessage(GetWearer())
+            elseif UDCDmain.AllowNPCMessage(Wearer, True)
                 UDCDmain.Print(getWearerName() + " is already doing something",1)
             endif
         endif
@@ -3794,8 +3797,11 @@ Function minigame()
     if _isUnlocked
         if loc_WearerIsPlayer
             UDCDmain.Print("You have succesfully escaped out of " + deviceInventory.GetName() + "!",2)
-        elseif UDCDmain.AllowNPCMessage(GetWearer())
+        elseif UDCDmain.AllowNPCMessage(Wearer, true)
             UDCDmain.Print(getWearerName()+" succesfully escaped out of " + deviceInventory.GetName() + "!",2)
+        endif
+        if !loc_WearerIsPlayer
+            UpdateMotivation(Wearer,50) ;increase NPC motivation on failed escape
         endif
     else
         libs.pant(Wearer)
@@ -3805,8 +3811,11 @@ Function minigame()
             else
                 UDCDmain.Print("You are too exhausted to continue struggling",1)
             endif
-        elseif UDCDmain.AllowNPCMessage(GetWearer())
+        elseif UDCDmain.AllowNPCMessage(GetWearer(), true)
             UDCDmain.Print(getWearerName()+" is too exhausted to continue struggling",1)
+        endif
+        if !loc_WearerIsPlayer
+            UpdateMotivation(Wearer,-5) ;decrease NPC motivation on failed escape
         endif
     endif
 
@@ -3830,7 +3839,7 @@ Function minigame()
     ;wait for paralled threads to end
     float loc_time = 0.0
     while (_MinigameParProc_1 || _MinigameParProc_2 || _MinigameParProc_3) && loc_time <= 3.5
-        Utility.waitMenuMode(0.1)
+        Utility.wait(0.1)
         loc_time += 0.1
     endwhile
     if loc_time >= 3.5
@@ -4116,7 +4125,7 @@ Function unlockRestrain(bool forceDestroy = false,bool waitForRemove = True)
         advanceSkill(10.0)
     endif
     
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         UDCDmain.Log("unlockRestrain() called for " + self,1)
     endif
 
@@ -4620,11 +4629,11 @@ Function cutDevice(float progress_add = 1.0)
     if _CuttingProgress >= 100.0
         ;only show message fo NPC, as player can see progress progress on widget
         if cuttingGame_on
-            if !PlayerInMinigame() && UDCDmain.AllowNPCMessage(getWearer())
+            if !PlayerInMinigame() && UDCDmain.AllowNPCMessage(getWearer(), True)
                 UDCDmain.Print(getWearerName() + " managed to cut "+getDeviceName()+" and reduce durability by big amount!",3)
             endif
         else
-            if !PlayerInMinigame() && UDCDmain.AllowNPCMessage(getWearer())
+            if !PlayerInMinigame() && UDCDmain.AllowNPCMessage(getWearer(), True)
                 UDCDmain.Print(getWearerName() + "s "+ getDeviceName() +" is cutted!",3)
             endif
         endif
@@ -4661,7 +4670,7 @@ Function repairLock(float progress_add = 1.0)
     if loc_repaired
         if WearerIsPlayer()
             UDmain.Print("You repaired one or more locks! " + UD_JammedLocks + "/" + UD_CurrentLocks + " locks remaining",1)
-        elseif UDCDmain.AllowNPCMessage(GetWearer())
+        elseif UDCDmain.AllowNPCMessage(Wearer, True)
             UDmain.Print(GetWearerName() + " managed to repair one or more of the "+ getDeviceName() +" locks!",2)
         endif
     endif
@@ -4751,7 +4760,7 @@ Function lockpickDevice()
                 UD_CurrentLocks -= 1
                 if PlayerInMinigame()
                     UDCDmain.Print("You succesfully unlocked one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining",1)
-                elseif UDCDmain.AllowNPCMessage(getWearer())
+                elseif UDCDmain.AllowNPCMessage(Wearer, True)
                     UDCDmain.Print(getWearerName() + " unlocked one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining",2)
                 endif
                 onLockUnlocked(True)
@@ -4770,7 +4779,7 @@ Function lockpickDevice()
             if Utility.randomInt() <= zad_JammLockChance*UDCDmain.CalculateKeyModifier() && !libs.Config.DisableLockJam
                 if PlayerInMinigame()
                     UDCDmain.Print("Your lockpick jammed the lock!",1)
-                elseif UDCDmain.AllowNPCMessage(getWearer())
+                elseif UDCDmain.AllowNPCMessage(Wearer, True)
                     UDCDmain.Print(getWearerName() + "s "+getDeviceName()+" lock gets jammed!",3)
                 endif
                 
@@ -4799,7 +4808,7 @@ Function keyUnlockDevice()
         UD_CurrentLocks -= 1
         if PlayerInMinigame()
             UDCDMain.Print("You managed to unlock one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining",1)
-        elseif UDCDmain.AllowNPCMessage(getWearer())
+        elseif UDCDmain.AllowNPCMessage(Wearer, True)
             UDCDMain.Print(getWearerName() + " managed to unlock one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining",2)
         endif
         
@@ -4935,7 +4944,7 @@ Bool Function AddAbilityToWearer(Int aiIndex)
     endif
 EndFunction
 
-Int Function RemoveAllAbilities(Actor akActor)
+Function RemoveAllAbilities(Actor akActor)
     int loc_abilityId = UD_DeviceAbilities.length
     while loc_abilityId
         loc_abilityId -= 1
@@ -4955,7 +4964,6 @@ Bool Function EvaluateNPCAI()
     
     ;first try to unlock the device with key
     if Math.LogicalAnd(loc_lockMinigames,0x2)
-        ;GInfo("Startning keyMinigame")
         if keyMinigame(True)
             return true
         endif
@@ -4963,7 +4971,6 @@ Bool Function EvaluateNPCAI()
     
     ;then try to use lockpicks
     if Math.LogicalAnd(loc_lockMinigames,0x1)
-        ;GInfo("Startning lockpickMinigame")
         if lockpickMinigame(True)
             return true
         endif
@@ -4971,7 +4978,6 @@ Bool Function EvaluateNPCAI()
     
     ;then try to struggle
     if StruggleMinigameAllowed(loc_accesibility)
-        ;GInfo("Startning struggleMinigame")
         if struggleMinigame(0, True)
             return true
         endif
@@ -4979,7 +4985,6 @@ Bool Function EvaluateNPCAI()
     
     ;try cutting
     if CuttingMinigameAllowed(loc_accesibility)
-        ;GInfo("Startning cuttingMinigame")
         if cuttingMinigame(True)
             return true
         endif
@@ -4987,7 +4992,6 @@ Bool Function EvaluateNPCAI()
     
     ;lastly, try to repair locks
     if Math.LogicalAnd(loc_lockMinigames,0x4)
-        ;GInfo("Startning repairLocksMinigame")
         if repairLocksMinigame(True)
             return true
         endif

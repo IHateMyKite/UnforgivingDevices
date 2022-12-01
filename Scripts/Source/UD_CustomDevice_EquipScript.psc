@@ -904,6 +904,8 @@ Function unlockDevice(Actor akActor)
         akActor.RemoveItem(deviceRendered, loc_RDNum, true)
         if device
             device.removeDevice(akActor)
+        else
+            GError("Could not get RD script! Unlock operation on " + self)
         endif
     endif
 

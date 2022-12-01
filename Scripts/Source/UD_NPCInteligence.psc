@@ -9,6 +9,8 @@ Bool    Property Ready          = False auto hidden
 UD_CustomDevices_NPCSlotsManager    Property UDNPCM auto
 UnforgivingDevicesMain              Property UDmain auto
 
+Faction                             Property UD_AIDisableFaction auto ;NPCs in this faction will have AI disabled
+
 ;Enable variable. Can be used to disable/enable script
 Bool _IsEnabled = True
 Bool Property Enabled Hidden
@@ -48,13 +50,15 @@ Function Evaluate()
 EndFunction
 
 Bool Function SlotAIEnabled(UD_CustomDevice_NPCSlot akSlot)
+    Actor loc_actor = akSlot.GetActor()
     Bool loc_cond = true
-    loc_cond = loc_cond && akSlot.isUsed()                          ;there is actor in slot
-    loc_cond = loc_cond && akSlot.getNumberOfRegisteredDevices()    ;actor needs to have at least one device
-    loc_cond = loc_cond && !akSlot.GetActor().IsInCombat()           ;actor is not in combat
-    loc_cond = loc_cond && !akSlot.isInMinigame()                   ;actor is not in minigame
-    loc_cond = loc_cond && EvaluateAICooldown(akSlot.GetActor())      ;actor have passed cooldown
-    loc_cond = loc_cond && !akSlot.HaveLockingOperations()          ;actor have no locking operations
+    loc_cond = loc_cond && akSlot.isUsed()                                  ;there is actor in slot
+    loc_cond = loc_cond && akSlot.getNumberOfRegisteredDevices()            ;actor needs to have at least one device
+    loc_cond = loc_cond && !loc_actor.IsInCombat()                          ;actor is not in combat
+    loc_cond = loc_cond && !akSlot.isInMinigame()                           ;actor is not in minigame
+    loc_cond = loc_cond && !loc_actor.IsInFaction(UD_AIDisableFaction)      ;actor have no AI disabled
+    loc_cond = loc_cond && EvaluateAICooldown(loc_actor)                    ;actor have passed cooldown
+    loc_cond = loc_cond && !akSlot.HaveLockingOperations()                  ;actor have no locking operations
     ;GInfo(akSlot.isUsed() + "," + akSlot.getNumberOfRegisteredDevices() + "," + !akSlot.GetActor().IsInCombat() + "," + !akSlot.isInMinigame() + "," + EvaluateCooldown(akSlot.GetActor()) + "," + !akSlot.HaveLockingOperations())
     return loc_cond
 EndFunction

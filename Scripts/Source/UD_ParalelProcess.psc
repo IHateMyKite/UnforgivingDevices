@@ -136,9 +136,9 @@ Function Receive_MinigameStarter(Form fActor)
     
     loc_device.OnMinigameStart()
     
-    libsp.pant(akActor)
-    
     loc_device._MinigameParProc_1 = false
+    
+    libsp.pant(akActor)
 EndFunction
 
 ;paralel
@@ -221,7 +221,7 @@ Function Receive_MinigameParalel(Form fActor)
 
         akHelper.setAV("StaminaRate", staminaRateHelper*loc_device.UD_RegenMagHelper_Stamina)
         akHelper.setAV("HealRate"    , HealRateHelper*loc_device.UD_RegenMagHelper_Health)
-        akHelper.setAV("MagickaRate", magickaRateHelper*loc_device.UD_RegenMagHelper_Magicka)            
+        akHelper.setAV("MagickaRate", magickaRateHelper*loc_device.UD_RegenMagHelper_Magicka)
     endif
     
     bool loc_canShowHUD     = loc_device.canShowHUD()
@@ -266,7 +266,7 @@ Function Receive_MinigameParalel(Form fActor)
             if !(loc_tick % 30) && loc_tick
                 loc_device.advanceSkill(3.0)
                 loc_updatewidget    = loc_device.UD_UseWidget && UDCDmain.UD_UseWidget && loc_haveplayer
-                loc_canShowHUD      = loc_device.canShowHUD()                
+                loc_canShowHUD      = loc_device.canShowHUD()
             endif
         endif
         if loc_device._MinigameMainLoop_ON
@@ -274,7 +274,7 @@ Function Receive_MinigameParalel(Form fActor)
         endif
     endwhile
     
-    UDOM.UpdateOrgasmRate(akActor, -1*loc_currentOrgasmRate,-0.25)        
+    UDOM.UpdateOrgasmRate(akActor, -1*loc_currentOrgasmRate,-0.25)
     UDOM.UpdateArousalRate(akActor,-1*loc_currentArousalRate)
     
     ;returns wearer regen
@@ -284,7 +284,7 @@ Function Receive_MinigameParalel(Form fActor)
     if akHelper
         akHelper.setAV("StaminaRate", staminaRateHelper)
         akHelper.setAV("HealRate", HealRateHelper)
-        akHelper.setAV("MagickaRate", magickaRateHelper)            
+        akHelper.setAV("MagickaRate", magickaRateHelper)
     endif
     loc_device._MinigameParProc_2 = false
     
@@ -362,13 +362,14 @@ Function Receive_MinigameCritloop(Form fActor)
     Int loc_TickTime = 2
     string critType = "random"
     if !loc_playerInMinigame
-        loc_TickTime = 10
+        ;loc_TickTime = 10
         critType = "NPC"
     elseif UDCDmain.UD_AutoCrit
         critType = "Auto"
     endif
     
-    Utility.Wait(0.75)
+    Utility.Wait(0.75) ;wait little time before starting crits
+    
     ;process
     Float loc_passedTime = 0.0
     int loc_tick = 0

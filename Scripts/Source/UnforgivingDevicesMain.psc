@@ -311,6 +311,7 @@ Function Update()
     
     CheckOptionalMods()
     CheckPatchesOrder()
+    SendModEvent("UD_PatchUpdate") ;send update event to all patches. Will force patches to check if they are installed correctly
 EndFunction
 
 Function CheckOptionalMods()
@@ -722,7 +723,13 @@ EndFunction
 
 ;https://www.creationkit.com/index.php?title=GetActorValuePercentage_-_Actor
 float Function getMaxActorValue(Actor akActor,string akValue, float perc_part = 1.0) global
-    return (akActor.GetActorValue(akValue)/akActor.GetActorValuePercentage(akValue))*perc_part
+    Float loc_perc = akActor.GetActorValuePercentage(akValue)
+    if loc_perc
+        return (akActor.GetActorValue(akValue)/loc_perc)*perc_part
+    else
+        ;GInfo("GetActorValuePercentage("+akValue+") returns 0 for " + GetActorName(akActor) + ", Value="+akActor.GetActorValue(akValue) +"Base="+akActor.GetBaseActorValue(akValue))
+        return akActor.GetBaseActorValue(akValue)*perc_part ;assume base stats. Dunno how is this possible
+    endif
 EndFunction
 
 float Function getCurrentActorValuePerc(Actor akActor,string akValue) global
@@ -937,6 +944,18 @@ Int Function iAbs(Int aiVal) Global
     else
         return -1*aiVal
     endif
+EndFunction
+
+;wait random time. Thread will not continue unless menus are closed
+;Can be used to separate threads (like many of same events firing at the same time)
+Function WaitRandomTime(Float afMin = 0.1, Float afMax = 1.0) Global
+    Utility.wait(Utility.randomFloat(afMin,afMax))
+EndFunction
+
+;wait random time. Thread will continue even if menus are open
+;Can be used  to separate wanted thread separation (like many of same events firing at the same time)
+Function WaitMenuRandomTime(Float afMin = 0.1, Float afMax = 1.0) Global
+    Utility.waitMenuMode(Utility.randomFloat(afMin,afMax))
 EndFunction
 
 ;very fast function for checking if menu is open

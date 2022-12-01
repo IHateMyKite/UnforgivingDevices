@@ -795,11 +795,15 @@ Function showDebugMenu(Actor akActor,int slot_id)
     getNPCSlot(akActor).showDebugMenu(slot_id)
 EndFunction
 
-bool Function AllowNPCMessage(Actor akActor)
-    if ActorIsFollower(akActor) 
+bool Function AllowNPCMessage(Actor akActor,Bool abOnlyFollower = false)
+    if ActorIsFollower(akActor) || UDmain.ActorIsPlayer(akActor)
         return true
     endif
-    return UDmain.ActorInCloseRange(akActor)
+    if !abOnlyFollower
+        return UDmain.ActorInCloseRange(akActor)
+    else
+        return false
+    endif
 EndFunction
 
 ;///////////////////////////////////////
