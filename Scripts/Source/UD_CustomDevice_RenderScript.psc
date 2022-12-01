@@ -360,6 +360,18 @@ EndProperty
 int    Property UD_Cooldown = 0 auto 
 int _currentRndCooldown = 0
 
+;AI Priority
+Int _AIPriority = -1
+Int Property UD_AIPriority
+    Int Function Get()
+        return _AIPriority
+    EndFunction
+    Function Set(Int aiVal)
+        _AIPriority = aiVal
+    EndFunction
+EndProperty
+
+
 string Property UD_ActiveEffectName = "Share" auto ;name of active effect
 string Property UD_DeviceType = "Generic" auto ;name of active effect
 
@@ -2302,41 +2314,34 @@ Function deviceMenuInit(bool[] aControl)
     setHelper(none)
     UDCDmain.resetCondVar()
 
-    bool     loc_isloose            = isLoose()
-    bool     loc_freehands          = WearerFreeHands()
-    float     loc_accesibility      = getAccesibility()
+    bool        loc_isloose             = isLoose()
+    bool        loc_freehands           = WearerFreeHands()
+    float       loc_accesibility        = getAccesibility()
     
     ;normal struggle
-    if canBeStruggled(loc_accesibility); && (loc_isloose || loc_freehands)
+    if StruggleMinigameAllowed(loc_accesibility); && (loc_isloose || loc_freehands)
         UDCDmain.currentDeviceMenu_allowstruggling = True
     else
         UDCDmain.currentDeviceMenu_allowUselessStruggling = True
     endif
     
-    if (getLockAccesChance() > 0)
-        if UD_CurrentLocks != UD_JammedLocks
-            ;key unlock
-            if zad_deviceKey
-                if wearer.getItemCount(zad_deviceKey) > 0
-                    UDCDmain.currentDeviceMenu_allowkey = True
-                endif
-            endif
-            
-            ;lockpicking
-            if UD_LockpickDifficulty < 255 && wearer.getItemCount(UDCDmain.Lockpick) > 0
-                UDCDmain.currentDeviceMenu_allowlockpick = True
-            endif
-        endif
-        ;lock repair
-        if UD_JammedLocks && loc_accesibility > 0
-            UDCDmain.currentDeviceMenu_allowlockrepair = True
-        endif
+    Int loc_lockMinigames = LockMinigamesAllowed(loc_accesibility)
+    if Math.LogicalAnd(loc_lockMinigames,0x1)
+        UDCDmain.currentDeviceMenu_allowlockpick = True
     endif
+    if Math.LogicalAnd(loc_lockMinigames,0x2)
+        UDCDmain.currentDeviceMenu_allowkey = True
+    endif
+    if Math.LogicalAnd(loc_lockMinigames,0x4)
+        UDCDmain.currentDeviceMenu_allowlockrepair = True
+    endif
+    
     ;cutting
-    if canBeCutted() && loc_accesibility
+    if CuttingMinigameAllowed(loc_accesibility)
         UDCDmain.currentDeviceMenu_allowcutting = True
     endif
     
+    ;Check if Lock menu button should be present in menu
     if (UDCDmain.currentDeviceMenu_allowkey || UDCDmain.currentDeviceMenu_allowlockpick || UDCDmain.currentDeviceMenu_allowlockrepair)
         UDCDmain.currentDeviceMenu_allowLockMenu = true
     endif
@@ -2350,6 +2355,40 @@ Function deviceMenuInit(bool[] aControl)
     onDeviceMenuInitPost(aControl)
     filterControl(aControl)
     UDCdmain.CheckAndDisableSpecialMenu()
+EndFunction
+
+;Checks for SOLO struggle minigames
+Bool Function StruggleMinigameAllowed(Float afAccesibility)
+    return canBeStruggled(afAccesibility)
+EndFunction
+Bool Function CuttingMinigameAllowed(Float afAccesibility)
+    return canBeCutted() && afAccesibility
+EndFunction
+Int Function LockMinigamesAllowed(Float afAccesibility)
+    Int loc_res = 0
+    if (getLockAccesChance() > 0)
+        if UD_CurrentLocks != UD_JammedLocks
+            ;key unlock
+            if zad_deviceKey
+                if wearer.getItemCount(zad_deviceKey) > 0
+                    loc_res += 2
+                    UDCDmain.currentDeviceMenu_allowkey = True
+                endif
+            endif
+            
+            ;lockpicking
+            if UD_LockpickDifficulty < 255 && wearer.getItemCount(UDCDmain.Lockpick) > 0
+                loc_res += 1
+                UDCDmain.currentDeviceMenu_allowlockpick = True
+            endif
+        endif
+        ;lock repair
+        if UD_JammedLocks && afAccesibility > 0
+            loc_res += 4
+            UDCDmain.currentDeviceMenu_allowlockrepair = True
+        endif
+    endif
+    return loc_res
 EndFunction
 
 ;device menu that pops up when Wearer click on this device in inventory
@@ -2637,7 +2676,7 @@ EndFunction
 ;-------------------------------------------------------
 
 
-bool Function struggleMinigame(int iType = -1)
+bool Function struggleMinigame(int iType = -1, Bool abSilent = False)
     if iType == -1
         iType = UDCDmain.StruggleMessage.show()
     endif
@@ -2646,7 +2685,7 @@ bool Function struggleMinigame(int iType = -1)
         return false
     endif
     
-    if !minigamePrecheck()
+    if !minigamePrecheck(abSilent)
         return false
     endif
     
@@ -2707,7 +2746,7 @@ bool Function struggleMinigame(int iType = -1)
         
     _struggleGame_Subtype = iType
 
-    bool loc_minigamecheck = minigamePostcheck()
+    bool loc_minigamecheck = minigamePostcheck(abSilent)
     if loc_minigamecheck
         struggleGame_on = True
         minigame()
@@ -2718,8 +2757,8 @@ bool Function struggleMinigame(int iType = -1)
     endif
 EndFunction
 
-bool Function lockpickMinigame()
-    if !minigamePrecheck()
+bool Function lockpickMinigame(Bool abSilent = False)
+    if !minigamePrecheck(abSilent)
         return false
     endif    
     
@@ -2737,7 +2776,7 @@ bool Function lockpickMinigame()
     UD_AllowWidgetUpdate = False
     _minMinigameStatSP = 0.8
     
-    if minigamePostcheck()
+    if minigamePostcheck(abSilent)
         lockpickGame_on = True
         minigame()
         lockpickGame_on = False
@@ -2747,8 +2786,8 @@ bool Function lockpickMinigame()
     endif
 EndFunction
 
-bool Function repairLocksMinigame()
-    if !minigamePrecheck()
+bool Function repairLocksMinigame(Bool abSilent = False)
+    if !minigamePrecheck(abSilent)
         return false
     endif
     
@@ -2776,7 +2815,7 @@ bool Function repairLocksMinigame()
     UD_RegenMag_Magicka = 0.5
     _minMinigameStatSP = 0.8
     
-    if minigamePostcheck()
+    if minigamePostcheck(abSilent)
         repairLocksMinigame_on = True
         minigame()
         repairLocksMinigame_on = False
@@ -2786,8 +2825,8 @@ bool Function repairLocksMinigame()
     endif
 EndFunction
 
-bool Function cuttingMinigame()
-    if !minigamePrecheck()
+bool Function cuttingMinigame(Bool abSilent = False)
+    if !minigamePrecheck(abSilent)
         return false
     endif
 
@@ -2802,7 +2841,7 @@ bool Function cuttingMinigame()
     _minMinigameStatSP = 0.8
     _minMinigameStatHP = 0.5
         
-    if minigamePostcheck()
+    if minigamePostcheck(abSilent)
         float loc_BaseMult = UDCDmain.getActorCuttingWeaponMultiplier(getWearer())
         
         UD_MinigameMult1 = loc_BaseMult + UDCDmain.getActorCuttingSkillsPerc(getWearer())
@@ -2817,8 +2856,8 @@ bool Function cuttingMinigame()
     endif
 EndFunction
 
-bool Function keyMinigame()
-    if !minigamePrecheck()
+bool Function keyMinigame(Bool abSilent = False)
+    if !minigamePrecheck(abSilent)
         return false
     endif
 
@@ -2838,7 +2877,7 @@ bool Function keyMinigame()
     _minMinigameStatSP = 0.6
     
     
-    if minigamePostcheck()
+    if minigamePostcheck(abSilent)
         keyGame_on = True
         minigame()
         keyGame_on = False
@@ -3405,80 +3444,99 @@ String[] Function SelectStruggleArray(Actor akActor)
     Endif
 EndFunction
 
-bool Function minigamePostcheck()
+bool Function minigamePostcheck(Bool abSilent = False)
     if !checkMinAV(Wearer) ;check wearer AVs
-        if WearerIsPlayer() ;message related to player wearer
-            UDmain.Print("You are too exhausted. Try later, after you regain your strength.",1)
-        else ;message related to NPC wearer
-            UDmain.Print(getWearerName()+" is too exhausted!",1)
+        if !abSilent
+            if WearerIsPlayer() ;message related to player wearer
+                UDmain.Print("You are too exhausted. Try later, after you regain your strength.",1)
+            elseif UDCDmain.AllowNPCMessage(Wearer) ;message related to NPC wearer
+                UDmain.Print(getWearerName()+" is too exhausted!",1)
+            endif
         endif
         return false
     elseif hasHelper() && !checkMinAV(_minigameHelper)
-        if HelperIsPlayer() ;message related to player helper
-            UDmain.Print("You are too exhausted and can't help "+getWearerName()+".",1)    
-        else ;message related to NPC helper
-            UDmain.Print(getHelperName()+" is too exhausted and unable to help you.",1)
+        if !abSilent
+            if HelperIsPlayer() ;message related to player helper
+                UDmain.Print("You are too exhausted and can't help "+getWearerName()+".",1)    
+            elseif UDCDmain.AllowNPCMessage(Wearer) ;message related to NPC helper
+                UDmain.Print(getHelperName()+" is too exhausted and unable to help you.",1)
+            endif
         endif
         return false
     endif
     return true
 EndFunction
 
-bool Function minigamePrecheck()
+bool Function minigamePrecheck(Bool abSilent = False)
     if UDCDmain.actorInMinigame(Wearer)
-        if WearerIsPlayer()
-            UDCDmain.Print("You are already doing something")
-        elseif UDCDmain.AllowNPCMessage(Wearer)
-            UDCDmain.Print(getWearerName() + " is already doing something")
+        if !abSilent
+            if WearerIsPlayer()
+                UDCDmain.Print("You are already doing something")
+            elseif UDCDmain.AllowNPCMessage(Wearer)
+                UDCDmain.Print(getWearerName() + " is already doing something")
+            endif
         endif
         return false
     endif
 
     if (UDAM.isAnimating(Wearer))
-        if WearerIsPlayer()
-            UDCDmain.Print("You are already doing something",1)
-        elseif WearerIsFollower()
-            UDCDmain.Print(getWearerName() + " is already doing something",1)
+        if !abSilent
+            if WearerIsPlayer()
+                UDCDmain.Print("You are already doing something",1)
+            elseif WearerIsFollower()
+                UDCDmain.Print(getWearerName() + " is already doing something",1)
+            endif
         endif
         return false
     endif
     
-    if !libs.isValidActor(GetWearer())
-        if WearerIsPlayer()
-            UDCDmain.Print("You are already doing something",1)
-        elseif UDCDmain.AllowNPCMessage(GetWearer())
-            UDCDmain.Print(getWearerName() + " is already doing something",1)
+    ;Allow minigames on unloaded actors
+    if !(;/Wearer.Is3DLoaded() && /;!Wearer.IsDead() && !Wearer.IsDisabled() && Wearer.GetCurrentScene() == none)
+        if !abSilent
+            if WearerIsPlayer()
+                UDCDmain.Print("You are already doing something",1)
+            elseif UDCDmain.AllowNPCMessage(GetWearer())
+                UDCDmain.Print(getWearerName() + " is already doing something",1)
+            endif
         endif
         return false
     endif
     
     if hasHelper()
         if (UDAM.isAnimating(_minigameHelper))
-            UDCDmain.Print(getWearerName() + " is already doing something",1)
+            if !abSilent
+                UDCDmain.Print(getWearerName() + " is already doing something",1)
+            endif
             return false
         endif
         if UDCDmain.actorInMinigame(_minigameHelper)
-            if HelperIsPlayer()
-                UDCDmain.Print("You are already doing something")
-            elseif HelperIsFollower()
-                UDCDmain.Print(getHelperName() + " is already doing something")
+            if !abSilent
+                if HelperIsPlayer()
+                    UDCDmain.Print("You are already doing something")
+                elseif HelperIsFollower()
+                    UDCDmain.Print(getHelperName() + " is already doing something")
+                endif
             endif
             return false
         endif
         
         if !libs.isValidActor(GetHelper())
-            if HelperIsPlayer()
-                UDCDmain.Print("You are already doing something",1)
-            elseif HelperIsFollower()
-                UDCDmain.Print(getHelperName() + " is already doing something",1)
+            if !abSilent
+                if HelperIsPlayer()
+                    UDCDmain.Print("You are already doing something",1)
+                elseif HelperIsFollower()
+                    UDCDmain.Print(getHelperName() + " is already doing something",1)
+                endif
             endif
             return false
         endif
     endif
     
     if _MinigameParProc_1 || _MinigameParProc_2 || _MinigameParProc_3
-        if WearerIsPlayer() || WearerIsFollower()
-            UDCDmain.Print("Slow down!",1)
+        if !abSilent
+            if WearerIsPlayer() || WearerIsFollower()
+                UDCDmain.Print("Slow down!",1)
+            endif
         endif
         return false
     endif
@@ -3618,7 +3676,7 @@ Function minigame()
     int         tick_s                 = 0
     float       fCurrentUpdateTime     = UDmain.UD_baseUpdateTime
     
-    if !loc_PlayerInMinigame
+    if !loc_PlayerInMinigame && !Wearer.Is3DLoaded()
         fCurrentUpdateTime = 1.0
     endif
 
@@ -3635,12 +3693,17 @@ Function minigame()
         endwhile
         
         if !force_stop_minigame
-            if !ProccesAV(fCurrentUpdateTime)
+            if !loc_PlayerInMinigame && Wearer.IsInCombat()
+                ;stop minigame if NPC is in combat
                 StopMinigame()
-            endif
-            if hasHelper()
-                if !ProccesAVHelper(fCurrentUpdateTime)
+            else
+                if !ProccesAV(fCurrentUpdateTime)
                     StopMinigame()
+                endif
+                if hasHelper()
+                    if !ProccesAVHelper(fCurrentUpdateTime)
+                        StopMinigame()
+                    endif
                 endif
             endif
         endif
@@ -4878,6 +4941,58 @@ Int Function RemoveAllAbilities(Actor akActor)
         loc_abilityId -= 1
         akActor.RemoveSpell(UD_DeviceAbilities[loc_abilityId] as Spell)
     endwhile
+EndFunction
+
+;Priority for AI
+Int Function GetAiPriority()
+    return 25 ;generic value
+EndFunction
+
+;choose the best minigame and start it. Returns false if minigame was not started
+Bool Function EvaluateNPCAI()
+    float   loc_accesibility    = getAccesibility()
+    Int     loc_lockMinigames   = LockMinigamesAllowed(loc_accesibility)
+    
+    ;first try to unlock the device with key
+    if Math.LogicalAnd(loc_lockMinigames,0x2)
+        ;GInfo("Startning keyMinigame")
+        if keyMinigame(True)
+            return true
+        endif
+    endif
+    
+    ;then try to use lockpicks
+    if Math.LogicalAnd(loc_lockMinigames,0x1)
+        ;GInfo("Startning lockpickMinigame")
+        if lockpickMinigame(True)
+            return true
+        endif
+    endif
+    
+    ;then try to struggle
+    if StruggleMinigameAllowed(loc_accesibility)
+        ;GInfo("Startning struggleMinigame")
+        if struggleMinigame(0, True)
+            return true
+        endif
+    endif
+    
+    ;try cutting
+    if CuttingMinigameAllowed(loc_accesibility)
+        ;GInfo("Startning cuttingMinigame")
+        if cuttingMinigame(True)
+            return true
+        endif
+    endif
+    
+    ;lastly, try to repair locks
+    if Math.LogicalAnd(loc_lockMinigames,0x4)
+        ;GInfo("Startning repairLocksMinigame")
+        if repairLocksMinigame(True)
+            return true
+        endif
+    endif
+    return false
 EndFunction
 
 ;--------------------------------------------------

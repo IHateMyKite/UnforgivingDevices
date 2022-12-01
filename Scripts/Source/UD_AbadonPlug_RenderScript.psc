@@ -70,16 +70,28 @@ Function InitPost()
     endif
 EndFunction
 
-Function forceOutPlugMinigame()
-    forceOutAbadonPlugMinigame()
+Int Function GetAiPriority()
+    Int loc_res = 35
+    if isVibrating()
+        loc_res += 25
+    endif
+    return loc_res ;generic value
 EndFunction
 
-Function forceOutPlugMinigameWH(Actor akHelper)
-    forceOutAbadonPlugMinigameWH(akHelper)
+bool Function forceOutPlugMinigame(Bool abSilent = False)
+    return forceOutAbadonPlugMinigame()
+EndFunction
+
+bool Function forceOutPlugMinigameWH(Actor akHelper, Bool abSilent = False)
+    return forceOutAbadonPlugMinigameWH(akHelper)
 EndFunction
 
 bool _forceOutAbadonPlugMinigame_on = false
-Function forceOutAbadonPlugMinigame()
+bool Function forceOutAbadonPlugMinigame(Bool abSilent = False)
+    if !minigamePrecheck(abSilent)
+        return False
+    endif
+    
     resetMinigameValues()
     
     setMinigameOffensiveVar(False,0.0,0.0,True)
@@ -88,12 +100,20 @@ Function forceOutAbadonPlugMinigame()
     setMinigameWidgetVar(True)
     setMinigameMinStats(0.8)
     
-    _forceOutAbadonPlugMinigame_on = True
-    minigame()
-    _forceOutAbadonPlugMinigame_on = False
+    if minigamePostcheck(abSilent)
+        _forceOutAbadonPlugMinigame_on = True
+        minigame()
+        _forceOutAbadonPlugMinigame_on = False
+        return true
+    endif
+    return false
 EndFunction
 
-Function forceOutAbadonPlugMinigameWH(Actor akHelper)
+bool Function forceOutAbadonPlugMinigameWH(Actor akHelper, Bool abSilent = False)
+    if !minigamePrecheck(abSilent)
+        return False
+    endif
+    
     resetMinigameValues()
     
     setHelper(akHelper)
@@ -106,11 +126,15 @@ Function forceOutAbadonPlugMinigameWH(Actor akHelper)
     setMinigameWidgetVar(True)
     setMinigameMinStats(0.8)
     
-    _forceOutAbadonPlugMinigame_on = True
-    minigame()
-    _forceOutAbadonPlugMinigame_on = False
-    
+    if minigamePostcheck(abSilent)
+        _forceOutAbadonPlugMinigame_on = True
+        minigame()
+        _forceOutAbadonPlugMinigame_on = False
+        setHelper(none)
+        return true
+    endif
     setHelper(none)
+    return False
 EndFunction
 
 Float Function getButtonPressDamage()

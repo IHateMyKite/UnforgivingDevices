@@ -1,6 +1,7 @@
 Scriptname UD_ParalelProcess extends Quest
 
 import UnforgivingDevicesMain
+import UD_NPCInteligence
 
 UDCustomDeviceMain Property UDCDmain auto
 UnforgivingDevicesMain Property UDmain auto
@@ -560,6 +561,10 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
     endif
     
     libsp.Aroused.UpdateActorOrgasmDate(akActor)
+    
+    if loc_orgexh > 1
+        UpdateMotivation(akActor, 30)
+    endif
 EndFunction
 
 ;========================

@@ -101,6 +101,7 @@ Event OnUpdateGameTime()
             Utility.waitMenuMode(Utility.randomFloat(2.0,4.0))
             float currentgametime = Utility.GetCurrentGameTime()
             float mult = 24.0*(currentgametime - LastUpdateTime_Hour) ;multiplier for how much more then 1 hour have passed, ex: for 2.5 hours passed without update, the mult will be 2.5
+            UpdateSlotsHour(mult)
             UpdateDevicesHour(mult)
             LastUpdateTime_Hour = Utility.GetCurrentGameTime()
         endif
@@ -396,6 +397,17 @@ Function UpdateDevicesHour(float fMult)
         index -= 1
         UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
         if loc_slot.isScriptRunning() && loc_slot.isUsed() && loc_slot.canUpdate()
+            loc_slot.updateDeviceHour(fMult)
+        endif
+    endwhile
+EndFunction
+
+Function UpdateSlotsHour(float fMult)
+    int index = UD_Slots
+    while index
+        index -= 1
+        UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
+        if loc_slot.isUsed()
             loc_slot.updateHour(fMult)
         endif
     endwhile

@@ -1,6 +1,7 @@
 Scriptname UDCustomDeviceMain extends Quest  conditional
 
 import UnforgivingDevicesMain
+import UD_NPCInteligence
 
 Spell Property SwimPenaltySpell auto
 UnforgivingDevicesMain Property UDmain auto
@@ -1044,7 +1045,6 @@ Function OpenHelpDeviceMenu(UD_CustomDevice_RenderScript device,Actor akHelper,b
     endif
 EndFunction
 
-
 float Function CalculateHelperCD(Actor akActor,Int iLevel = 0)
     if iLevel <= 0
         iLevel = GetHelperLVL(akActor)
@@ -1230,12 +1230,16 @@ Function showActorDetails(Actor akActor)
         if loc_option == 0 ;base details
             String loc_res = "--BASE DETAILS--\n"
             loc_res += "Name: " + akActor.GetLeveledActorBase().GetName() + "\n"
+            Race loc_race = akActor.getActorBase().GetRace()
             loc_res += "Race: " + loc_race.GetName() + "\n"
             loc_res += "LVL: " + akActor.GetLevel() + "\n"
             loc_res += "HP: " + formatString(akActor.getAV("Health"),1) + "/" +  formatString(getMaxActorValue(akActor,"Health"),1) + " ("+ Round(getCurrentActorValuePerc(akActor,"Health")*100) +" %)" +"\n"
             loc_res += "MP: " + formatString(akActor.getAV("Magicka"),1) + "/" + formatString(getMaxActorValue(akActor,"Magicka"),1) + " ( "+ Round(getCurrentActorValuePerc(akActor,"Magicka")*100) +" %)" +"\n"
             loc_res += "SP: " + formatString(akActor.getAV("Stamina"),1) + "/" +  formatString(getMaxActorValue(akActor,"Stamina"),1) + " ("+ Round(getCurrentActorValuePerc(akActor,"Stamina")*100) +" %)" +"\n"
-            Race loc_race = akActor.getActorBase().GetRace()
+            if UDmain.UDAI.Enabled && !UDmain.ActorIsPlayer(akActor)
+                loc_res += "Motivation: " + getMotivation(akActor) + "\n"
+                loc_res += "AI Cooldown: " + GetAIRemainingCooldown(akActor) + " min\n"
+            endif
             loc_res += "Arousal: " + UDOM.getArousal(akActor) + "\n"
             loc_res += "Orgasm progress: " + formatString(UDOM.getOrgasmProgressPerc(akActor) * 100,2) + " %\n"
             ShowMessageBox(loc_res)

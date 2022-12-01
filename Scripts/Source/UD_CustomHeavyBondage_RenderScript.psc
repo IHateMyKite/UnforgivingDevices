@@ -10,6 +10,10 @@ Function InitPost()
     endif
 EndFunction
 
+Int Function GetAiPriority()
+    return 75 ;generic value
+EndFunction
+
 Function patchDevice()
     UDCDmain.UDPatcher.patchHeavyBondage(self)
 EndFunction

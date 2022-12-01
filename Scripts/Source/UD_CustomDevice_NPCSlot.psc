@@ -1,6 +1,7 @@
 Scriptname UD_CustomDevice_NPCSlot  extends ReferenceAlias
 
 import UnforgivingDevicesMain
+import UD_NPCInteligence
 
 UDCustomDeviceMain Property UDCDmain auto
 UnforgivingDevicesMain Property UDmain 
@@ -78,7 +79,7 @@ float Property ArousalSkillMult     = 1.0 auto hidden
 State UpdatePaused
     Function update(float fTimePassed)
     EndFunction
-    Function updateHour(float fMult)
+    Function updateDeviceHour(float fMult)
     EndFunction
     Function UpdateSlot(Bool abUpdateSkill = true)
     EndFunction
@@ -120,7 +121,6 @@ Form Function getSlotForm(int aiSlot)
 EndFunction
 
 bool _DeviceManipMutex = false
-
 Function startDeviceManipulation()
     float loc_time = 0.0
     while _DeviceManipMutex && loc_time <= 60.0
@@ -865,14 +865,18 @@ Function DeviceUpdate(UD_CustomDevice_RenderScript akDevice,Float afTimePassed)
     endif
 EndFunction
 
-Function updateHour(float fMult)
+Function updateDeviceHour(float fMult)
     int i = 0
     while UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i].isReady()
             UD_equipedCustomDevices[i].updateHour(fMult)
         endif
         i+=1
-    endwhile    
+    endwhile
+EndFunction
+
+Function updateHour(float fMult)
+    UpdateMotivationToDef(GetActor(),10) ;decrease/increase motivation so it will finally reach default 100
 EndFunction
 
 ;returns first device which have connected corresponding Inventory Device
@@ -1350,6 +1354,24 @@ bool Function isUsed()
         return true
     else
         return false
+    endif
+EndFunction
+
+Bool Function IsInMinigame()
+    Actor loc_actor = getActor()
+    if loc_actor
+        return loc_actor.IsInFaction(UDCDmain.MinigameFaction)
+    else
+        return false
+    endif
+EndFunction
+
+Bool Function HaveLockingOperations()
+    Actor loc_actor = getActor()
+    if loc_actor
+        return StorageUtil.GetIntValue(loc_actor,"UDLockOperations",0)
+    else
+        return 0
     endif
 EndFunction
 

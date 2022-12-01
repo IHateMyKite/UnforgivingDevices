@@ -50,6 +50,7 @@ UD_ModifierManager_Script           Property UDMOM          auto
 UD_UserInputScript                  Property UDUI           auto
 UD_AnimationManagerScript           Property UDAM           auto
 UD_CompatibilityManager_Script      Property UDCM           auto
+UD_NPCInteligence                   Property UDAI           auto
 UD_MenuChecker                      Property UDMC
     UD_MenuChecker Function get()
         return UD_UtilityQuest as UD_MenuChecker
@@ -909,6 +910,32 @@ Bool Function ActorHaveSoS(Actor akActor)
     else
         Info("UnforgivingDevicesMain::ActorHaveSoS() - SoS not installed, returning false")
         return false
+    endif
+EndFunction
+
+;Convert any time unit to days
+Float Function ConvertTime(Float akHours, Float akMinutes = 0.0, Float akSeconds = 0.0) Global
+    Float loc_res = 0.0
+    loc_res += akHours/24
+    loc_res += akMinutes/24/60
+    loc_res += akSeconds/24/3600
+    return loc_res
+EndFunction
+Float Function ConvertTimeHours(Float akHours) global
+    return akHours/24
+EndFunction
+Float Function ConvertTimeMinutes(Float akMinutes) global
+    return akMinutes/24/60
+EndFunction
+Float Function ConvertTimeSeconds(Float akSeconds) global
+    return akSeconds/24/3600
+EndFunction
+
+Int Function iAbs(Int aiVal) Global
+    if aiVal > 0
+        return aiVal
+    else
+        return -1*aiVal
     endif
 EndFunction
 

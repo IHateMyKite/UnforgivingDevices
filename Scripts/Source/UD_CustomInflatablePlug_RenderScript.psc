@@ -113,9 +113,9 @@ string Function addInfoString(string str = "")
     return parent.addInfoString(str)
 EndFunction
 
-bool Function struggleMinigame(int type = -1)
+bool Function struggleMinigame(int type = -1, Bool abSilent = False)
     if isSentient() || !WearerFreeHands(True) || getPlugInflateLevel() > 0
-        forceOutPlugMinigame()
+        return forceOutPlugMinigame(abSilent)
     else
         unlockRestrain()
         if WearerIsPlayer()
@@ -129,7 +129,7 @@ EndFunction
 
 bool Function struggleMinigameWH(Actor akSource)
     if isSentient() || !WearerFreeHands(True) || getPlugInflateLevel() > 0
-        forceOutPlugMinigameWH(akSource)
+        return forceOutPlugMinigameWH(akSource)
     else
         unlockRestrain()
         if WearerIsPlayer()
