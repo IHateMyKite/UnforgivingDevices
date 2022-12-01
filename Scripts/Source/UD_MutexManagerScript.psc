@@ -93,7 +93,7 @@ UD_MutexScript Function WaitForFreeAndSet_Lock(Actor akActor,Armor invDevice)
             loc_slot.SetLockMutex(akActor,invDevice)
             return loc_slot
         endif
-        if loc_i == 0
+        if loc_i == 0 ;no free slot found, do it again
             loc_i = GetNumAliases()
             Utility.waitMenuMode(0.1)
         endif

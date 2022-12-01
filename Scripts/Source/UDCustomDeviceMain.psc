@@ -2032,24 +2032,6 @@ Function deleteLastUsedSlot(Actor akActor)
     endif
 EndFunction
 
-;toggle widget
-Function toggleWidget(bool val)
-    if val
-        widget1.show(True)
-    else
-        widget1.hide(True)
-    endif
-EndFunction
-
-;toggle widget2
-Function toggleWidget2(bool val)
-    if val
-        widget2.show(True)
-    else
-        widget2.hide(True)
-    endif
-EndFunction
-
 bool Function ChangeSoulgemState(Actor akActor,Int iSoulgemType,bool bState = true)
     if !akActor
         return false

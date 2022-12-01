@@ -52,19 +52,22 @@ Event OnUpdate()
     endif
 EndEvent
 
+Int         _CustomSets     = 0
+String[]    _EquipEvent
+String[]    _SuitNames
+String[]    _PatchName ;only used for possible further optimizations
+
 Function Update()
     _CustomSets     = 0
     _EquipEvent     = Utility.CreateStringArray(0) ;create empty array .......
     _SuitNames      = Utility.CreateStringArray(0) ;create empty array .......
+    _PatchName      = Utility.CreateStringArray(0) ;create empty array .......
     _CustomSetMutex = false
     SendModEvent("UD_AbadonSuitUpdate", "UpdateEvent") ;send update event, which should all patches get
 EndFunction
 
-Int         _CustomSets     = 0
-String[]    _EquipEvent
-String[]    _SuitNames
 Bool        _CustomSetMutex = false
-Function AddCustomAbadonSet(String asEquipEvent,String asSuitName)
+Function AddCustomAbadonSet(String asEquipEvent,String asSuitName, String asPatchName)
     _CustomSets += 1
     while _CustomSetMutex
         Utility.waitMenuMode(0.01)
@@ -72,7 +75,8 @@ Function AddCustomAbadonSet(String asEquipEvent,String asSuitName)
     _CustomSetMutex = true
     _EquipEvent = PapyrusUtil.PushString(_EquipEvent,asEquipEvent)
     _SuitNames  = PapyrusUtil.PushString(_SuitNames,asSuitName)
-    UDmain.Info("Adding new custom abadon suit - " + asSuitName)
+    _PatchName  = PapyrusUtil.PushString(_PatchName,asPatchName)
+    UDmain.Info("Adding new custom abadon suit /" + asSuitName + " / from patch " + asPatchName)
     _CustomSetMutex = false
 EndFunction
 Function EquipCustomAbadonSet(Actor akActor, Int aiSuitEvent)

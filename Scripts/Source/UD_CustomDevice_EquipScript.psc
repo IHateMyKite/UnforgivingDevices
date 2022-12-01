@@ -72,7 +72,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
         endif
         if Math.LogicalAnd(loc_ignoreEventTarget,0x002)
             StorageUtil.SetIntValue(target, "UD_ignoreEvent" + deviceInventory,Math.LogicalAnd(loc_ignoreEventTarget,0xFF0))
-        endif            
+        endif
         return
     endif
     
@@ -748,11 +748,11 @@ Event LockDevice(Actor akActor)
     endif
     
     _locked = true
-    ;if akActor == libs.PlayerRef ;doesn't work for NPCs, get todded
-        ;if !akActor.IsEquipped(DeviceInventory)
-        ;    akActor.EquipItem(DeviceInventory, false, true)    
-        ;EndIf
-    ;endif
+    
+    ;close menu, as it will otherwise cause issue with locking of RD
+    if UDmain.ActorIsPlayer(akActor) && UDmain.IsMenuOpen()
+        CloseMenu()
+    endif
     
     Utility.wait(0.05)
     

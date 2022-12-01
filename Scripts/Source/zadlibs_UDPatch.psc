@@ -76,11 +76,15 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
         UDmain.Warning("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") is not valid actor or dead! Aborting")
         return false
     endif
-
-
+    
+    if !UDmain.ActorIsPlayer(akActor)
+        StorageUtil.AdjustIntValue(akActor,"UDLockOperations",1) ;increase number of lock operations for NPC. Is used by NPC manager before NPC is register with auto scan
+    endif
+    
     bool loc_res = false
     if deviceInventory.hasKeyword(UDlibs.PatchedInventoryDevice)
         UDmain.UDNPCM.GotoState("UpdatePaused")
+        
         UD_CustomDevice_NPCSlot loc_slot = none
         if _lastLockSlot && (_lastLockSlot.GetActor() == akActor)
             loc_slot = _lastLockSlot
@@ -187,6 +191,9 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
         UDCDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - ended",3)
     endif
     UDmain.UDNPCM.GotoState("")
+    if !UDmain.ActorIsPlayer(akActor)
+        StorageUtil.AdjustIntValue(akActor,"UDLockOperations",-1) ;decrease number of lock operations for NPC. Is used by NPC manager before NPC is register with auto scan
+    endif
     return loc_res
 EndFunction
 
@@ -242,7 +249,11 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
             return false
         endif
     endif
-
+    
+    if !UDmain.ActorIsPlayer(akActor)
+        StorageUtil.AdjustIntValue(akActor,"UDLockOperations",1) ;increase number of lock operations for NPC. Is used by NPC manager before NPC is register with auto scan
+    endif
+    
     bool                    loc_res     = False ;return value
     
     if UDmain.TraceAllowed()
@@ -340,6 +351,9 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
         UDCDmain.Log("UnlockDevice("+deviceInventory.getName()+") (patched) finished: "+loc_res,1)
     endif
     UDmain.UDNPCM.GotoState("")
+    if !UDmain.ActorIsPlayer(akActor)
+        StorageUtil.AdjustIntValue(akActor,"UDLockOperations",-1) ;decrease number of lock operations for NPC. Is used by NPC manager before NPC is register with auto scan
+    endif
     return loc_res
 EndFunction
 
@@ -368,8 +382,12 @@ Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRen
         UDCDMain.Log("RemoveQuestDevice("+getActorName(akActor)+") called for " + deviceInventory.GetName(),1)
     endif
     
-    UD_CustomDevice_NPCSlot loc_slot     = none ;NPC slot for registered NPC
-    UD_MutexScript             loc_mutex     = none ;mutex used for non registered NPC
+    UD_CustomDevice_NPCSlot     loc_slot        = none ;NPC slot for registered NPC
+    UD_MutexScript              loc_mutex       = none ;mutex used for non registered NPC
+    
+    if !UDmain.ActorIsPlayer(akActor)
+        StorageUtil.AdjustIntValue(akActor,"UDLockOperations",1) ;increase number of lock operations for NPC. Is used by NPC manager before NPC is register with auto scan
+    endif
     
     ;start mutex if actor is not dead
     bool loc_actordead = akActor.isDead()
@@ -442,6 +460,9 @@ Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRen
         loc_slot.EndUnLockMutex()
     elseif loc_mutex
         loc_mutex.ResetUnLockMutex()
+    endif
+    if !UDmain.ActorIsPlayer(akActor)
+        StorageUtil.AdjustIntValue(akActor,"UDLockOperations",-1) ;decrease number of lock operations for NPC. Is used by NPC manager before NPC is register with auto scan
     endif
 EndFunction
 
