@@ -445,7 +445,7 @@ EndFunction
 ; As an alternative (when sAttribute == "") it returns paths to animation definitions in fson files (formatted as <json_file>:<path_in_file>)
 ; sType                 - type of the animations needed (solo, paired or anything defined in json files as root object). 
 ;                         Value should starts with '.' because papyrus sometimes replaces the first character with a capital one.
-; sKeyword              - animation keyword (device keyword or any other string like "horny" to define animation). Value should 
+; sKeywords             - animation keywords (device keywords or any other strings like "horny" to define animation). Value should 
 ;                         starts with '.' because papyrus sometimes replaces the first character with a capital one.
 ; iActorConstraints[]   - array with constraints for the participating actors as bit mask (see func. GetActorConstraints)
 ; sAttribute            - attribute of animation which should be returned
@@ -487,9 +487,9 @@ EndFunction
 ;       ...
 ;   }
 ;}
-String[] Function GetAnimationsFromDB(String sType, String sKeyword, String sAttribute, Int[] aActorConstraints, Int iLewdMin = 0, Int iLewdMax = 10, Int iAggroMin = -10, Int iAggroMax = 10)
+String[] Function GetAnimationsFromDB(String sType, String[] sKeywords, String sAttribute, Int[] aActorConstraints, Int iLewdMin = 0, Int iLewdMax = 10, Int iAggroMin = -10, Int iAggroMax = 10)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetAnimationsFromDB() sType = " + sType + ", sKeyword = " + sKeyword + ", sAttribute = " + sAttribute + ", aActorConstraints = " + aActorConstraints, 3)
+        UDmain.Log("UD_AnimationManagerScript::GetAnimationsFromDB() sType = " + sType + ", sKeywords = " + sKeywords + ", sAttribute = " + sAttribute + ", aActorConstraints = " + aActorConstraints, 3)
     EndIf
     String[] result_temp = new String[10]
     Int currentIndex = 0
@@ -501,62 +501,66 @@ String[] Function GetAnimationsFromDB(String sType, String sKeyword, String sAtt
         LoadAnimationJSONFiles()
     EndIf
     
-    String dict_path = sType + sKeyword
-    Int i = 0
-    While i < UD_AnimationJSON.Length && currentIndex < 128
-        String file = "UD/Animations/" + UD_AnimationJSON[i]
-        Int path_count = JsonUtil.PathCount(file, dict_path)
-        Int j = 0
-        While j < path_count && currentIndex < 128
-            String anim_path = dict_path + "[" + j + "]"
-            If enableForcedFlag
-                Bool forced = JsonUtil.GetPathBoolValue(file, anim_path + ".forced")
-                If forced 
-                    String[] result_forced = new String[1]
-                    If sAttribute == ""
-                        result_forced[0] = UD_AnimationJSON[i] + ":" + anim_path
+    Int h = 0
+    While h < sKeywords.Length
+        String dict_path = sType + sKeywords[h]
+        Int i = 0
+        While i < UD_AnimationJSON.Length && currentIndex < 128
+            String file = "UD/Animations/" + UD_AnimationJSON[i]
+            Int path_count = JsonUtil.PathCount(file, dict_path)
+            Int j = 0
+            While j < path_count && currentIndex < 128
+                String anim_path = dict_path + "[" + j + "]"
+                If enableForcedFlag
+                    Bool forced = JsonUtil.GetPathBoolValue(file, anim_path + ".forced")
+                    If forced 
+                        String[] result_forced = new String[1]
+                        If sAttribute == ""
+                            result_forced[0] = UD_AnimationJSON[i] + ":" + anim_path
+                        Else
+                            result_forced[0] = JsonUtil.GetPathStringValue(file, anim_path + sAttribute)
+                        EndIf
+                        UDMain.Log("UD_AnimationManagerScript::GetAnimationsFromDB() Returning the first forced animation: " + result_forced[0])
+                        Return result_forced
+                    EndIf
+                EndIf
+                Bool check = True
+                Int k = 0
+                While check && k < aActorConstraints.Length
+                    String anim_var_path = anim_path + ".A" + (k + 1)
+                    ; checking if it has variations
+                    Bool has_vars = JsonUtil.GetPathIntValue(file, anim_var_path + ".reqConstraints", -1) == -1
+                    If has_vars
+                        Int var_count = JsonUtil.PathCount(file, anim_var_path) - 1
+                        While var_count >= 0 && !_CheckConstraints(file, anim_var_path + "[" + var_count + "]", aActorConstraints[k])
+                            var_count -= 1
+                        EndWhile
+                        check = check && (var_count >= 0)
                     Else
-                        result_forced[0] = JsonUtil.GetPathStringValue(file, anim_path + sAttribute)
+                        check = check && _CheckConstraints(file, anim_var_path, aActorConstraints[k])
                     EndIf
-                    UDMain.Log("UD_AnimationManagerScript::GetAnimationsFromDB() Returning the first forced animation: " + result_forced[0])
-                    Return result_forced
+                    k += 1
+                EndWhile
+                If check && _CheckAnimationLewd(file, anim_path, iLewdMin, iLewdMax) && _CheckAnimationAggro(file, anim_path, iAggroMin, iAggroMax)
+                    If sAttribute == ""
+                        result_temp[currentIndex] = UD_AnimationJSON[i] + ":" + anim_path
+                    Else
+                        result_temp[currentIndex] = JsonUtil.GetPathStringValue(file, anim_path + sAttribute)
+                    EndIf
+                    currentIndex += 1
+                    If currentIndex == result_temp.length
+                        Int new_length = result_temp.length + 10
+                        If new_length > 128 
+                            new_length = 128
+                        EndIf
+                        result_temp = Utility.ResizeStringArray(result_temp, new_length)
+                    EndIf
                 EndIf
-            EndIf
-            Bool check = True
-            Int k = 0
-            While check && k < aActorConstraints.Length
-                String anim_var_path = anim_path + ".A" + (k + 1)
-                ; checking if it has variations
-                Bool has_vars = JsonUtil.GetPathIntValue(file, anim_var_path + ".reqConstraints", -1) == -1
-                If has_vars
-                    Int var_count = JsonUtil.PathCount(file, anim_var_path) - 1
-                    While var_count >= 0 && !_CheckConstraints(file, anim_var_path + "[" + var_count + "]", aActorConstraints[k])
-                        var_count -= 1
-                    EndWhile
-                    check = check && (var_count >= 0)
-                Else
-                    check = check && _CheckConstraints(file, anim_var_path, aActorConstraints[k])
-                EndIf
-                k += 1
+                j += 1
             EndWhile
-            If check && _CheckAnimationLewd(file, anim_path, iLewdMin, iLewdMax) && _CheckAnimationAggro(file, anim_path, iAggroMin, iAggroMax)
-                If sAttribute == ""
-                    result_temp[currentIndex] = UD_AnimationJSON[i] + ":" + anim_path
-                Else
-                    result_temp[currentIndex] = JsonUtil.GetPathStringValue(file, anim_path + sAttribute)
-                EndIf
-                currentIndex += 1
-                If currentIndex == result_temp.length
-                    Int new_length = result_temp.length + 10
-                    If new_length > 128 
-                        new_length = 128
-                    EndIf
-                    result_temp = Utility.ResizeStringArray(result_temp, new_length)
-                EndIf
-            EndIf
-            j += 1
+            i += 1
         EndWhile
-        i += 1
+        h += 1
     EndWhile
     If currentIndex == 128
         UDMain.Warning("UD_AnimationManagerScript::GetAnimationsFromDB() Reached maximum array size!")
@@ -612,12 +616,16 @@ String[] Function GetStruggleAnimationsByKeyword(Keyword akKeyword, Actor akActo
     If akHelper == None
         Int[] aActorConstraints = new Int[1]
         aActorConstraints[0] = GetActorConstraintsInt(akActor, bReuseConstraintsCache)
-        Return GetAnimationsFromDB(".solo", "." + akKeyword.GetString(), "", aActorConstraints)
+        String[] sKeywords = new String[1]
+        sKeywords[0] = "." + akKeyword.GetString()
+        Return GetAnimationsFromDB(".solo", sKeywords, "", aActorConstraints)
     Else
         Int[] aActorConstraints = new Int[2]
         aActorConstraints[0] = GetActorConstraintsInt(akActor, bReuseConstraintsCache)
         aActorConstraints[1] = GetActorConstraintsInt(akHelper, bReuseConstraintsCache)
-        Return GetAnimationsFromDB(".paired", "." + akKeyword.GetString(), "", aActorConstraints)
+        String[] sKeywords = new String[1]
+        sKeywords[0] = "." + akKeyword.GetString()
+        Return GetAnimationsFromDB(".paired", sKeywords, "", aActorConstraints)
     EndIf
 EndFunction
 
@@ -628,8 +636,10 @@ String[] Function GetHornyAnimEvents(Actor akActor)
 
     Int[] aActorConstraints = new Int[1]
     aActorConstraints[0] = GetActorConstraintsInt(akActor)
-
-    String[] anims = GetAnimationsFromDB(".solo", ".horny", ".A1.animation", aActorConstraints)
+    String[] sKeywords = new String[1]
+    sKeywords[0] = ".horny"
+    
+    String[] anims = GetAnimationsFromDB(".solo", sKeywords, ".A1.animation", aActorConstraints)
 
     Return anims
 EndFunction
@@ -641,8 +651,10 @@ String[] Function GetOrgasmAnimEvents(Actor akActor)
 
     Int[] aActorConstraints = new Int[1]
     aActorConstraints[0] = GetActorConstraintsInt(akActor)
-
-    String[] anims = GetAnimationsFromDB(".solo", ".orgasm", ".A1.animation", aActorConstraints)
+    String[] sKeywords = new String[1]
+    sKeywords[0] = ".orgasm"
+    
+    String[] anims = GetAnimationsFromDB(".solo", sKeywords, ".A1.animation", aActorConstraints)
 
     Return anims
 EndFunction
@@ -654,8 +666,10 @@ String[] Function GetEdgedAnimEvents(Actor akActor)
 
     Int[] aActorConstraints = new Int[1]
     aActorConstraints[0] = GetActorConstraintsInt(akActor)
+    String[] sKeywords = new String[1]
+    sKeywords[0] = ".edged"
 
-    String[] anims = GetAnimationsFromDB(".solo", ".edged", ".A1.animation", aActorConstraints)
+    String[] anims = GetAnimationsFromDB(".solo", sKeywords, ".A1.animation", aActorConstraints)
 
     Return anims
 EndFunction
@@ -712,25 +726,6 @@ String[] Function GetAnimDefAttributeArray(String sAnimDef, String sAttrName)
         UDmain.Log("UD_AnimationManagerScript::GetAnimDefAttributeArray() sAnimDef = " + sAnimDef + ", sAttrName = " + sAttrName + " Value = " + res, 3)
     EndIf
     Return res
-EndFunction
-
-; Function _FromBoolArrayToInt
-; Converts from Bool[] to Int bit mask
-; (0,0,1,0,0,0,0) => 4
-; (1,1,0,0,1,0,0) => 1+2+16
-Int Function _FromBoolArrayToInt(Bool[] abArray)
-    If abArray.length == 0
-        Return 0
-    EndIf
-    Int i = 0
-    Int m = 1
-    Int r = 0
-    While i < abArray.length
-        r += m * (abArray[i] as Int)
-        m *= 2
-        i += 1
-    EndWhile
-    Return r
 EndFunction
 
 ; TODO: Cache it somehow for actors
@@ -859,7 +854,9 @@ Function _Benchmark(Int iCycles = 10)
         n -= 1
         Int[] cc = new Int[1]
         cc[0] = 0
-        String[] res = GetAnimationsFromDB(".solo", ".zad_DeviousBoots", "", cc)
+        String[] sKeywords = new String[1]
+        sKeywords[0] = ".zad_DeviousBoots"
+        String[] res = GetAnimationsFromDB(".solo", sKeywords, "", cc)
     EndWhile
     UDmain.Info("UD_AnimationManagerScript::_Benchmark() Benchmark GetAnimationsFromDB(solo) ends")
     
@@ -870,7 +867,9 @@ Function _Benchmark(Int iCycles = 10)
         Int[] cc = new Int[2]
         cc[0] = 0
         cc[1] = 0
-        String[] res = GetAnimationsFromDB(".paired", ".zad_DeviousBoots", "", cc)
+        String[] sKeywords = new String[1]
+        sKeywords[0] = ".zad_DeviousBoots"
+        String[] res = GetAnimationsFromDB(".paired", sKeywords, "", cc)
     EndWhile
     UDmain.Info("UD_AnimationManagerScript::_Benchmark() Benchmark GetAnimationsFromDB(paired) ends")
     
