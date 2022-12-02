@@ -5,7 +5,7 @@ import UnforgivingDevicesMain
 UnforgivingDevicesMain Property UDmain auto
 
 ;exist
-UDCustomHeavyBondageWidget1 Property UD_Widget1 auto
+UD_WidgetBase               Property UD_Widget1 auto
 UD_WidgetBase               Property UD_Widget2 auto
 
 
