@@ -3507,6 +3507,11 @@ Function minigame()
     
     Bool hasStruggleAnimation = False
     hasStruggleAnimation = _PickAndPlayStruggleAnimation()
+    If !hasStruggleAnimation
+        ; clear cache and try again (cache misses are possible after changing json files)
+        UDmain.Warning("UD_CustomDevice_RenderScript::minigame() _PickAndPlayStruggleAnimation failed. Clear cache and try again")
+        hasStruggleAnimation = _PickAndPlayStruggleAnimation(bClearCache = True)
+    EndIf
     
     _MinigameMainLoop_ON = true    
     UDCDMain.UDPP.Send_MinigameParalel(Wearer,self)        

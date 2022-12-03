@@ -76,10 +76,10 @@ EndFunction
 ; aAnimation     - animation sequence (array of animation events) for the actor
 ; return         - true if OK
 Bool Function StartSoloAnimationSequence(Actor akActor, String[] aAnimation)
-    if (aAnimation.Length == 0 || aAnimation[0] == "" || aAnimation[0] == "none")
+    If (aAnimation.Length == 0 || aAnimation[0] == "" || aAnimation[0] == "none")
         UDmain.Warning("UD_AnimationManagerScript::StartSoloAnimationSequence() Called animation is None, aborting")
-        return false
-    endif
+        Return False
+    EndIf
     
     LockAnimatingActor(akActor)
     ; in case it called just after paired animation (for example, during orgasm ending)
@@ -93,7 +93,11 @@ Bool Function StartSoloAnimationSequence(Actor akActor, String[] aAnimation)
             Utility.Wait(0.05)
         EndIf
     EndWhile
-    return true
+    ; unequipping the shield again after starting the animation
+    If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
+        akActor.UnequipItemSlot(39)
+    EndIf
+    Return True
 EndFunction
 
 ; Shortcut of StartSoloAnimationSequence for single animation
@@ -122,7 +126,7 @@ EndFunction
 
 ;copied from zadlibs
 ; check if actor is in animation
-Bool Function IsAnimating(Actor akActor, Bool abBonusCheck = true)
+Bool Function IsAnimating(Actor akActor, Bool abBonusCheck = True)
     if abBonusCheck
         if (akActor.GetSitState() != 0) || akActor.IsOnMount()
             return True
@@ -161,7 +165,7 @@ Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[]
     ElseIf a2_is_none
         UDmain.Log("UD_AnimationManagerScript::StartPairAnimationSequence() animation for Actor 2 is None, using solo animation for the Actor 1")
         Return StartSoloAnimation(akActor, aAnimationA1)
-    endif
+    EndIf
     
     ; locking actors
     LockAnimatingActor(akActor)
@@ -228,6 +232,13 @@ Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[]
         akActor.TranslateToRef(vehicleMarkerRef, 200.0)
         akHelper.TranslateToRef(vehicleMarkerRef, 200.0)
     EndIf
+    ; unequipping the shield again after starting the animation
+    If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
+        akActor.UnequipItemSlot(39)
+    EndIf
+    If StorageUtil.HasFormValue(akHelper, "UD_EquippedShield")
+        akHelper.UnequipItemSlot(39)
+    EndIf
     
     Return True
 EndFunction
@@ -249,42 +260,65 @@ Function LockAnimatingActor(Actor akActor)
     EndIf
     
     libs.SetAnimating(akActor, True)
-    ActorUtil.AddPackageOverride(akActor, slConfig.DoNothing, 100, 1)
-    akActor.EvaluatePackage()
+
     
     If UDmain.ActorIsPlayer(akActor)
 
     Else
+        ActorUtil.AddPackageOverride(akActor, slConfig.DoNothing, 100, 1)
+        akActor.EvaluatePackage()
         akActor.SetDontMove(true)
     EndIf
-
+    
+    Armor shield = akActor.GetEquippedShield()
+    If shield
+        StorageUtil.SetFormValue(akActor, "UD_EquippedShield", shield)
+        akActor.UnequipItemSlot(39)
+    Else
+        StorageUtil.UnsetFormValue(akActor, "UD_EquippedShield")
+    EndIf
+    
     if akActor.IsWeaponDrawn()
         akActor.SheatheWeapon()
         ; Wait for users with flourish sheathe animations.
         int timeout=0
-        while akActor.IsWeaponDrawn() && timeout <= 35 ;  Wait 3.5 seconds at most before giving up and proceeding.
-            Utility.Wait(0.1)
+        while akActor.IsWeaponDrawn() && timeout <= 70 ;  Wait 3.5 seconds at most before giving up and proceeding.
+            Utility.Wait(0.05)
             timeout += 1
         EndWhile
     EndIf
+    
 
 EndFunction
 
 ; Function to unlock actor after animation
 Function UnlockAnimatingActor(Actor akActor)
 
-    ActorUtil.RemovePackageOverride(akActor, slConfig.DoNothing)
-    akActor.EvaluatePackage()
     libs.SetAnimating(akActor, False)
-    akActor.SetVehicle(None)
+
     If UDmain.ActorIsPlayer(akActor)
         ; should it be done via some UD wrapper?
         libs.UpdateControls()
     Else
+        ActorUtil.RemovePackageOverride(akActor, slConfig.DoNothing)
+        akActor.EvaluatePackage()
         akActor.SetDontMove(False)
     EndIf
     akActor.SetVehicle(None)
     
+    If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
+        If UDmain.ActorIsPlayer(akActor)
+            Armor shield = StorageUtil.GetFormValue(akActor, "UD_EquippedShield") as Armor
+            If shield
+                akActor.EquipItem(akActor, shield)
+            EndIf
+        Else
+            ; if akActor is a NPC lets hope it has enough AI to equip shield
+            ; because I don't want to check its outfit for having shiled.
+        EndIf
+        StorageUtil.UnsetFormValue(akActor, "UD_EquippedShield")
+    EndIf
+
 EndFunction
 
 ; Function to start animation according to the specified definition from json
@@ -319,13 +353,13 @@ Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bConti
             If var_count >= 0
                 actor_animVars[k] = anim_var_path + "[" + var_count + "]"
             Else
-                UDmain.Warning("UD_AnimationManagerScript::PlayAnimationByDef() Can't find valid animation in def " + sAnimDef +" for actors with constraints " + actor_constraints)
+                UDmain.Warning("UD_AnimationManagerScript::PlayAnimationByDef() Can't find valid animation variant in def " + sAnimDef +" for actor with constraints " + actor_constraints)
                 Return False
             EndIf
         ElseIf _CheckConstraints(file, anim_var_path, actor_constraints)
             actor_animVars[k] = anim_var_path
         Else
-            UDmain.Warning("UD_AnimationManagerScript::PlayAnimationByDef() Can't find valid animation in def " + sAnimDef +" for actors with constraints " + actor_constraints)
+            UDmain.Warning("UD_AnimationManagerScript::PlayAnimationByDef() Can't find valid animation in def " + sAnimDef +" for actor with constraints " + actor_constraints)
             Return False
         EndIf
         k += 1
@@ -502,7 +536,7 @@ String[] Function GetAnimationsFromDB(String sType, String[] sKeywords, String s
     EndIf
     
     Int h = 0
-    While h < sKeywords.Length
+    While h < sKeywords.Length && currentIndex < 128
         String dict_path = sType + sKeywords[h]
         Int i = 0
         While i < UD_AnimationJSON.Length && currentIndex < 128
