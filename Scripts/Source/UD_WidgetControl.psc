@@ -41,6 +41,14 @@ Int Property UD_WidgetYPos
     EndFunction
 EndProperty
 
+Int CanvasWidth = 1280
+Int CanvasHeight = 720
+
+Float HUDMeterWidthRef = 248.0
+Float HUDMeterWidth
+Float HUDMeterHeight
+Float HUDPadding
+
 Bool Property Ready = False auto
 Event OnInit()
     Ready = True
@@ -54,18 +62,46 @@ EndEvent
 
 ;Disabled. Might return to it in far away future
 Function Update()
-    ;iWidget compatibility
-    ;if UDmain.iWidgetInstalled
-    ;    GoToState("iWidgetInstalled")
-    ;    UD_Widget1.hide(true)
-    ;    UD_Widget2.hide(true)
-    ;    InitWidgets()
-    ;else
-    ;    GoToState("")
-    ;endif
+    UDmain.Warning("UD_WidgetControl::Update() UDmain.iWidgetInstalled = " + UDmain.iWidgetInstalled)
+    ; iWidget compatibility
+    if UDmain.iWidgetInstalled
+        GoToState("iWidgetInstalled")
+        RefreshCanvasMetrics()
+        UD_Widget1.hide(true)
+        UD_Widget2.hide(true)
+        InitWidgets()
+    else
+        GoToState("")
+    endif
     GoToState("")
 EndFunction
 
+; should be called before placing widgets
+Function RefreshCanvasMetrics()
+    Float hud_padding = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY")
+    Float hud_left = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefX")
+    Float hud_right = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefX")
+    
+    Float le_corr1 = 0
+    Float le_corr2 = 35
+    
+    ; SE or LE
+    ; minor formula corrections for LE version
+    If SKSE.GetVersion() == 1
+        le_corr1 = 50
+    ElseIf SKSE.GetVersion() == 2
+        le_corr1 = 0
+    EndIf
+    ; screen width factor: 16:9 is 1.0, 21:9 is 1.3125, etc.
+    Float width_mult = ((hud_right - hud_left) + 2 * hud_padding - le_corr1) / (1280 - le_corr1)
+    
+    CanvasWidth = (1280 * width_mult) as Int
+    CanvasHeight = 720
+    HUDMeterWidth = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Stamina._width")
+    HUDMeterHeight = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Stamina._height")
+    HUDMeterWidthRef = 248.0 ; / width_mult
+    HUDPadding = 48.0 + hud_padding
+EndFunction
 
 Function InitWidgets()
 EndFunction
@@ -126,7 +162,7 @@ EndFunction
 
 
 ;Fuck this stupid as shit. It's even harder to make widget position right
-;/
+
 iWant_Widgets Property iWidget Hidden
     iWant_Widgets Function Get()
         return (UDmain.iWidgetQuest as iWant_Widgets)
@@ -140,7 +176,80 @@ State iWidgetInstalled
         _Widget_DeviceCondition  = iWidget.loadMeter()
         _Widget_Orgasm = iWidget.loadMeter()
         UpdateGroupPositions()
+        
+        ;Toggle_DeviceWidget(True)
+        ;Toggle_OrgasmWidget(True)
+        
+        ; TEST PLACEMENT
+            
+        ; Canvas corners
+        Int t = iWidget.loadText("X")
+        iWidget.setPos(t, 0, 0)
+        iWidget.setRGB(t, 255, 0, 0)
+        iWidget.setVisible(t)
+        t = iWidget.loadText("X")
+        iWidget.setPos(t, CanvasWidth, 0)
+        iWidget.setRGB(t, 255, 0, 0)
+        iWidget.setVisible(t)
+        t = iWidget.loadText("X")
+        iWidget.setPos(t, CanvasWidth, CanvasHeight)
+        iWidget.setRGB(t, 255, 0, 0)
+        iWidget.setVisible(t)
+        t = iWidget.loadText("X")
+        iWidget.setPos(t, 0, CanvasHeight)
+        iWidget.setRGB(t, 255, 0, 0)
+        iWidget.setVisible(t)
+        
+        ; HUD corners
+        t = iWidget.loadText("X")
+        iWidget.setPos(t, HUDPadding as Int, HUDPadding as Int)
+        iWidget.setRGB(t, 0, 0, 255)
+        iWidget.setVisible(t)
+        t = iWidget.loadText("X")
+        iWidget.setPos(t, (CanvasWidth - HUDPadding) as Int, (CanvasHeight - HUDPadding) as Int)
+        iWidget.setRGB(t, 0, 0, 255)
+        iWidget.setVisible(t)
+        t = iWidget.loadText("X")
+        iWidget.setPos(t, (CanvasWidth - HUDPadding) as Int, HUDPadding as Int)
+        iWidget.setRGB(t, 0, 0, 255)
+        iWidget.setVisible(t)
+        t = iWidget.loadText("X")
+        iWidget.setPos(t, HUDPadding as Int, (CanvasHeight - HUDPadding) as Int)
+        iWidget.setRGB(t, 0, 0, 255)
+        iWidget.setVisible(t)
+        
+        ; Anchor points
+        Int i = 0
+        While i <= 2
+            Int j = 0
+            While j <= 2
+                t = iWidget.loadText("X")
+                iWidget.setPos(t, CalculateGroupXPos(i), CalculateGroupYPos(j))
+                iWidget.setRGB(t, 0, 255, 0)
+                iWidget.setVisible(t)
+                j += 1
+            EndWhile
+            i += 1
+        EndWhile
+
+        ; Meters on bottom position
+        Int m = iWidget.loadMeter()
+        iWidget.setSize(m, HUDMeterHeight as Int, HUDMeterWidth as Int)
+        iWidget.setPos(m, CalculateGroupXPos(0), CalculateGroupYPos(0))
+        iWidget.setVisible(m, 1)
+        
+        m = iWidget.loadMeter()
+        iWidget.setSize(m, HUDMeterHeight as Int, HUDMeterWidth as Int)
+        iWidget.setPos(m, CalculateGroupXPos(1), CalculateGroupYPos(0))
+        iWidget.setVisible(m, 1)
+        
+        m = iWidget.loadMeter()
+        iWidget.setSize(m, HUDMeterHeight as Int, HUDMeterWidth as Int)
+        iWidget.setPos(m, CalculateGroupXPos(2), CalculateGroupYPos(0))
+        iWidget.setVisible(m, 1)
+        
     EndFunction
+    
     Int[] Function AddWidget(Int[] aaiGroup,Int aiWidget, Float afMultX = 1.0,Float afMultY = 1.0)
         iWidget.setZoom(aiWidget, Round(afMultX*100), Round(afMultY*100))
         return PapyrusUtil.PushInt(aaiGroup,aiWidget)
@@ -212,23 +321,21 @@ State iWidgetInstalled
 EndState
 
 Int Function CalculateGroupXPos(int aival)
-    Int loc_size = iWidget.getXsize(_Widget_DeviceDurability)
-    if aival == 0
-        return 2*1280/10 - loc_size/2
-    elseif aival == 1
-        return 5*1280/10 - loc_size/2
-    else
-        return 8*1280/10 - loc_size/2
+    if aival == 0           ; left
+        return (HUDPadding + HUDMeterWidthRef / 2) As Int
+    elseif aival == 1       ; center
+        return (CanvasWidth * 5 / 10) As Int
+    elseif aival == 2       ; right
+        return (CanvasWidth - HUDPadding - HUDMeterWidthRef / 2) As Int
     endif
 endFunction
 
 Int Function CalculateGroupYPos(int aival)
-    if aival == 0 ;down
-        return 8*720/10
-    elseif aival == 1 ;less down
-        return 5*720/10
-    elseif aival == 2 ;top
-        return 2*720/10
+    if aival == 0           ; down
+        return (CanvasHeight * 17 / 20)
+    elseif aival == 1       ; less down
+        return (CanvasHeight * 13 / 20)
+    elseif aival == 2       ; top
+        return (CanvasHeight * 3 / 20)
     endif
 endFunction
-/;
