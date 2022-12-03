@@ -11,6 +11,9 @@ int             _flashColor             = 0xFF00BC
 string          _fillDirection          = "left"
 float           _percent                = 1.0
 
+Float HUDMeterWidthRef = 248.0
+Float HUDMeterHeightRef = 15.0
+
 int _positionX = 2
 int Property PositionX
     {Pre set X position of widget. 0 = Left, 1 = Middle, 2 = Right; Default: 2}
@@ -66,7 +69,7 @@ int Property PositionX
             
             offset = 271.0 / width_mult
             padding = (48.0 + le_corr2) / width_mult + (hud_padding - le_corr2)
-            ref_meter_width = 248.0 / width_mult
+            ref_meter_width = HUDMeterWidthRef / width_mult
             
             if (Ready) 
                 if _positionX == 0 ;left
@@ -96,11 +99,11 @@ int Property PositionY
             _positionY = a_val
             if (Ready) 
                 if _positionY == 0      ; near the bottom 
-                    Y = UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefY") - Height * (1.0 + PositionYOffset)
+                    Y = UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefY") - HUDMeterHeightRef * (0.5 + PositionYOffset)
                 elseif _positionY == 1  ; 3/4 to the bottom
-                    Y = (3 * UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefY") + UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY")) / 4 - Height * (0.5 + PositionYOffset)
+                    Y = (3 * UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefY") + UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY")) / 4 - HUDMeterHeightRef * (0.5 + PositionYOffset)
                 elseif _positionY == 2  ; on the top
-                    Y = UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY") + Height * (1.0 + PositionYOffset);
+                    Y = UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY") + HUDMeterHeightRef * (0.5 + PositionYOffset);
                 endif
             endIf
         endif
@@ -108,7 +111,9 @@ int Property PositionY
 EndProperty
 
 Float Property PositionYOffset Auto
-{additional offset measured in widget's heights}
+{Additional offset measured in widget's heights (not screen height but HUDMeterHeightRef!). 
+Value 0.0 means that widget will be placed exactly on the anchor points, i.e. will 'replace' existing HUD meter on bottom position.
+Value 1.0 means that widget will be placed just above (below) anchor point, i.e. will 'touch' existing HUD meter on bottom position}
 
 float property Width
     {Width of the meter in pixels at a resolution of 1280x720. Default: 292.8}
