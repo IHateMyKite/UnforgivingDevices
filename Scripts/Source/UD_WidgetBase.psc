@@ -99,11 +99,13 @@ int Property PositionY
             _positionY = a_val
             if (Ready) 
                 if _positionY == 0      ; near the bottom 
-                    Y = UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefY") - HUDMeterHeightRef * (0.5 + PositionYOffset)
+                    ; added offset to not overlap existing HUD indicators
+                    Y = UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefY") - HUDMeterHeightRef * (0.5 + 1.5 + PositionYOffset)
                 elseif _positionY == 1  ; 3/4 to the bottom
                     Y = (3 * UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefY") + UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY")) / 4 - HUDMeterHeightRef * (0.5 + PositionYOffset)
                 elseif _positionY == 2  ; on the top
-                    Y = UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY") + HUDMeterHeightRef * (0.5 + PositionYOffset);
+                    ; added offset to not overlap existing HUD indicators
+                    Y = UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY") + HUDMeterHeightRef * (0.5 + 1.5 + PositionYOffset);
                 endif
             endIf
         endif

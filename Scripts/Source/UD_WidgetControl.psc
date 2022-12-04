@@ -163,7 +163,7 @@ Function UpdateGroupPositions()
 EndFunction
 Function UpdateColor_Widget(Int aiId,int aiColor,int aiColor2 = 0,int aiFlashColor = 0xFFFFFF)
 EndFunction
-Int[] Function AddWidget(Int[] aaiGroup,Int aiWidget,Float afMultX = 1.0,Float afMultY = 1.0)
+Int[] Function AddWidget(Int[] aaiGroup, Int aiWidget, Float fVerticalOffset, Float afMultX = 1.0, Float afMultY = 1.0)
 EndFunction
 
 
@@ -183,104 +183,116 @@ State iWidgetInstalled
         _Widget_Orgasm = iWidget.loadMeter()
         UpdateGroupPositions()
         
-        ;Toggle_DeviceWidget(True)
-        ;Toggle_OrgasmWidget(True)
-        
+        Toggle_DeviceWidget(True)
+        Toggle_OrgasmWidget(True)
+       
         ; TEST PLACEMENT
+        If True    
+            ; Canvas corners
+            Int t = iWidget.loadText("X")
+            iWidget.setPos(t, 0, 0)
+            iWidget.setRGB(t, 255, 0, 0)
+            iWidget.setVisible(t)
+            t = iWidget.loadText("X")
+            iWidget.setPos(t, CanvasWidth, 0)
+            iWidget.setRGB(t, 255, 0, 0)
+            iWidget.setVisible(t)
+            t = iWidget.loadText("X")
+            iWidget.setPos(t, CanvasWidth, CanvasHeight)
+            iWidget.setRGB(t, 255, 0, 0)
+            iWidget.setVisible(t)
+            t = iWidget.loadText("X")
+            iWidget.setPos(t, 0, CanvasHeight)
+            iWidget.setRGB(t, 255, 0, 0)
+            iWidget.setVisible(t)
             
-        ; Canvas corners
-        Int t = iWidget.loadText("X")
-        iWidget.setPos(t, 0, 0)
-        iWidget.setRGB(t, 255, 0, 0)
-        iWidget.setVisible(t)
-        t = iWidget.loadText("X")
-        iWidget.setPos(t, CanvasWidth, 0)
-        iWidget.setRGB(t, 255, 0, 0)
-        iWidget.setVisible(t)
-        t = iWidget.loadText("X")
-        iWidget.setPos(t, CanvasWidth, CanvasHeight)
-        iWidget.setRGB(t, 255, 0, 0)
-        iWidget.setVisible(t)
-        t = iWidget.loadText("X")
-        iWidget.setPos(t, 0, CanvasHeight)
-        iWidget.setRGB(t, 255, 0, 0)
-        iWidget.setVisible(t)
-        
-        ; HUD corners
-        t = iWidget.loadText("X")
-        iWidget.setPos(t, HUDPaddingX as Int, HUDPaddingY as Int)
-        iWidget.setRGB(t, 0, 0, 255)
-        iWidget.setVisible(t)
-        t = iWidget.loadText("X")
-        iWidget.setPos(t, (CanvasWidth - HUDPaddingX) as Int, (CanvasHeight - HUDPaddingY) as Int)
-        iWidget.setRGB(t, 0, 0, 255)
-        iWidget.setVisible(t)
-        t = iWidget.loadText("X")
-        iWidget.setPos(t, (CanvasWidth - HUDPaddingX) as Int, HUDPaddingY as Int)
-        iWidget.setRGB(t, 0, 0, 255)
-        iWidget.setVisible(t)
-        t = iWidget.loadText("X")
-        iWidget.setPos(t, HUDPaddingX as Int, (CanvasHeight - HUDPaddingY) as Int)
-        iWidget.setRGB(t, 0, 0, 255)
-        iWidget.setVisible(t)
-        
-        ; Anchor points
-        Int i = 0
-        While i <= 2
-            Int j = 0
-            While j <= 2
-                t = iWidget.loadText("X")
-                iWidget.setPos(t, CalculateGroupXPos(i), CalculateGroupYPos(j))
-                iWidget.setRGB(t, 0, 255, 0)
-                iWidget.setVisible(t)
-                j += 1
+            ; HUD corners
+            t = iWidget.loadText("X")
+            iWidget.setPos(t, HUDPaddingX as Int, HUDPaddingY as Int)
+            iWidget.setRGB(t, 0, 0, 255)
+            iWidget.setVisible(t)
+            t = iWidget.loadText("X")
+            iWidget.setPos(t, (CanvasWidth - HUDPaddingX) as Int, (CanvasHeight - HUDPaddingY) as Int)
+            iWidget.setRGB(t, 0, 0, 255)
+            iWidget.setVisible(t)
+            t = iWidget.loadText("X")
+            iWidget.setPos(t, (CanvasWidth - HUDPaddingX) as Int, HUDPaddingY as Int)
+            iWidget.setRGB(t, 0, 0, 255)
+            iWidget.setVisible(t)
+            t = iWidget.loadText("X")
+            iWidget.setPos(t, HUDPaddingX as Int, (CanvasHeight - HUDPaddingY) as Int)
+            iWidget.setRGB(t, 0, 0, 255)
+            iWidget.setVisible(t)
+            
+            ; Anchor points
+            Int i = 0
+            While i <= 2
+                Int j = 0
+                While j <= 2
+                    t = iWidget.loadText("X")
+                    iWidget.setPos(t, CalculateGroupXPos(i), CalculateGroupYPos(j))
+                    iWidget.setRGB(t, 0, 255, 0)
+                    iWidget.setVisible(t)
+                    j += 1
+                EndWhile
+                i += 1
             EndWhile
-            i += 1
-        EndWhile
+            
+            If False
+                ; Meters on bottom position
+                ; Widget on the left above magica meter
+                Int m = iWidget.loadMeter()
+                iWidget.setSize(m, HUDMeterHeight as Int, HUDMeterWidth as Int)
+                iWidget.setPos(m, CalculateGroupXPos(0), (CalculateGroupYPos(0) - HUDMeterHeightRef * 1.5) As Int)
+                iWidget.setVisible(m, 1)
+                
+                ; Widget at the center above health meter
+                m = iWidget.loadMeter()
+                iWidget.setSize(m, HUDMeterHeight as Int, HUDMeterWidth as Int)
+                iWidget.setPos(m, CalculateGroupXPos(1), (CalculateGroupYPos(0) - HUDMeterHeightRef * 1.5) As Int)
+                iWidget.setVisible(m, 1)
 
-        ; Meters on bottom position
-        ; Widget on the left above magica meter
-        Int m = iWidget.loadMeter()
-        iWidget.setSize(m, HUDMeterHeight as Int, HUDMeterWidth as Int)
-        iWidget.setPos(m, CalculateGroupXPos(0), (CalculateGroupYPos(0) - HUDMeterHeightRef * 1.5) As Int)
-        iWidget.setVisible(m, 1)
-        
-        ; Widget at the center above health meter
-        m = iWidget.loadMeter()
-        iWidget.setSize(m, HUDMeterHeight as Int, HUDMeterWidth as Int)
-        iWidget.setPos(m, CalculateGroupXPos(1), (CalculateGroupYPos(0) - HUDMeterHeightRef * 1.5) As Int)
-        iWidget.setVisible(m, 1)
+                ; widget on the right above HUD stamina meter
+                m = iWidget.loadMeter()
+                iWidget.setSize(m, HUDMeterHeight as Int, HUDMeterWidth as Int)
+                iWidget.setPos(m, CalculateGroupXPos(2), (CalculateGroupYPos(0) - HUDMeterHeightRef * 1.5) As Int)
+                iWidget.setVisible(m, 1)
 
-        ; widget on the right above HUD stamina meter
-        m = iWidget.loadMeter()
-        iWidget.setSize(m, HUDMeterHeight as Int, HUDMeterWidth as Int)
-        iWidget.setPos(m, CalculateGroupXPos(2), (CalculateGroupYPos(0) - HUDMeterHeightRef * 1.5) As Int)
-        iWidget.setVisible(m, 1)
-
-        ; widget on the right above the last one
-        m = iWidget.loadMeter()
-        iWidget.setSize(m, HUDMeterHeight as Int, HUDMeterWidth as Int)
-        iWidget.setPos(m, CalculateGroupXPos(2), (CalculateGroupYPos(0) - HUDMeterHeightRef * 3.0) As Int)
-        iWidget.setVisible(m, 1)
-        
+                ; widget on the right above the last one
+                m = iWidget.loadMeter()
+                iWidget.setSize(m, HUDMeterHeight as Int, HUDMeterWidth as Int)
+                iWidget.setPos(m, CalculateGroupXPos(2), (CalculateGroupYPos(0) - HUDMeterHeightRef * 3.0) As Int)
+                iWidget.setVisible(m, 1)
+            EndIf
+        EndIf
     EndFunction
     
-    Int[] Function AddWidget(Int[] aaiGroup,Int aiWidget, Float afMultX = 1.0,Float afMultY = 1.0)
-        iWidget.setZoom(aiWidget, Round(afMultX*100), Round(afMultY*100))
-        return PapyrusUtil.PushInt(aaiGroup,aiWidget)
+    ; fVerticalOffset       - offset in meter's heights
+    Int[] Function AddWidget(Int[] aaiGroup, Int aiWidget, Float fVerticalOffset, Float afMultX = 1.0, Float afMultY = 1.0)
+        iWidget.setSize(aiWidget, HUDMeterHeight as Int, HUDMeterWidth as Int)
+        ; on the top position we stack widgets from top to the bottom
+        If UD_WidgetYPos == 2
+            fVerticalOffset = -fVerticalOffset
+        EndIf
+        iWidget.setPos(aiWidget, CalculateGroupXPos(UD_WidgetXPos), (CalculateGroupYPos(UD_WidgetYPos) - HUDMeterHeightRef * fVerticalOffset) As Int)
+        ; iWidget.setZoom(aiWidget, Round(afMultX * 100), Round(afMultY * 100))
+        return PapyrusUtil.PushInt(aaiGroup, aiWidget)
     EndFunction
     
     Function UpdateGroupPositions()
         _WidgetsID = Utility.CreateIntArray(0)
-        
+        Float offset = 0.0
         if _Widget_DeviceDurability
-            _WidgetsID = AddWidget(_WidgetsID, _Widget_DeviceDurability,0.5,0.5)
+            _WidgetsID = AddWidget(_WidgetsID, _Widget_DeviceDurability, offset)
+            offset += 1.5
         endif
         if _Widget_DeviceCondition_Visible
-            _WidgetsID = AddWidget(_WidgetsID, _Widget_DeviceCondition,0.5,0.5)
+            _WidgetsID = AddWidget(_WidgetsID, _Widget_DeviceCondition, offset)
+            offset += 1.5
         endif
         if _Widget_Orgasm_Visible
-            _WidgetsID = AddWidget(_WidgetsID, _Widget_Orgasm,0.5,0.5)
+            _WidgetsID = AddWidget(_WidgetsID, _Widget_Orgasm, offset)
+            offset += 1.5
         endif
         
         iWidget.drawShapeLine(_WidgetsID,CalculateGroupXPos(_WidgetXPos),CalculateGroupYPos(_WidgetYPos),0,-1*Math.Ceiling(iWidget.getYsize(_WidgetsID[0])*0.5) - 1)
@@ -347,10 +359,12 @@ endFunction
 
 Int Function CalculateGroupYPos(int aival)
     if aival == 0           ; down
-        return (CanvasHeight - HUDPaddingY - HUDMeterHeightRef / 2) As Int
+        ; added offset to not overlap existing HUD indicators
+        return (CanvasHeight - HUDPaddingY - HUDMeterHeightRef / 2 - 1.5 * HUDMeterHeightRef) As Int
     elseif aival == 1       ; less down
         return (CanvasHeight * 3 / 4 - HUDPaddingY / 2 + HUDMeterHeightRef / 2) As Int
     elseif aival == 2       ; top
-        return (CanvasHeight + HUDPaddingY + HUDMeterHeightRef / 2) As Int
+        ; added offset to not overlap existing HUD indicators
+        return (HUDPaddingY + HUDMeterHeightRef / 2 + 1.5 * HUDMeterHeightRef) As Int
     endif
 endFunction
