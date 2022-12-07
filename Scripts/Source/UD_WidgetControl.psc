@@ -179,6 +179,8 @@ EndProperty
 State iWidgetInstalled
     Function InitWidgets()
         _Widget_DeviceDurability = iWidget.loadMeter()
+        Toggle_DeviceWidget(true)
+        UpdatePercent_DeviceWidget(1)
         _Widget_DeviceCondition  = iWidget.loadMeter()
         _Widget_Orgasm = iWidget.loadMeter()
         UpdateGroupPositions()
