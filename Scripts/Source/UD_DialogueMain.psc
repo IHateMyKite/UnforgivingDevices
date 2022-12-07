@@ -28,6 +28,7 @@ Scene Property BraDialogueScene_End auto
 Scene Property GenericDialogueScene_End auto
 Scene Property HoodDialogueScene_End auto
 
+Bool Property HaveMoney = false auto conditional hidden
 
 Function onInit()
     Utility.wait(3.0)

@@ -1,6 +1,8 @@
 ;BEGIN FRAGMENT CODE - Do not edit anything between this and the end comment
 ;NEXT FRAGMENT INDEX 6
-Scriptname UD_TopicFragments Extends TopicInfo Hidden
+Scriptname UD_TopicFragments Extends TopicInfo Hidden conditional
+
+import UnforgivingDevicesMain
 
 ;BEGIN FRAGMENT Fragment_0
 Function Fragment_0(ObjectReference akSpeakerRef)
@@ -63,4 +65,44 @@ EndFunction
 
 ;END FRAGMENT CODE - Do not edit anything between this and the begin comment
 
-UDCustomDeviceMain Property UDCDmain  Auto  
+GlobalVariable _moneyForHelp
+GlobalVariable Property MoneyForHelp
+    GlobalVariable Function Get()
+        if !_moneyForHelp
+            _moneyForHelp = GetMeMyForm(0x15D5F2, "PR100_NPCAI.esp") as GlobalVariable
+        endif
+        return _moneyForHelp
+    EndFunction
+EndProperty
+
+
+
+Function SetHelpPrice_50G(ObjectReference akSpeakerRef)
+   MoneyForHelp.Value = 50
+EndFunction
+Function SetHelpPrice_100G(ObjectReference akSpeakerRef)
+    MoneyForHelp.Value = 100
+EndFunction
+Function SetHelpPrice_200G(ObjectReference akSpeakerRef)
+    MoneyForHelp.Value = 200
+EndFunction
+Function SetHelpPrice_300G(ObjectReference akSpeakerRef)
+    MoneyForHelp.Value = 300
+EndFunction
+Function SetHelpPrice_500G(ObjectReference akSpeakerRef)
+    MoneyForHelp.Value = 500
+EndFunction
+
+Function PayAndHelp(ObjectReference akSpeakerRef)
+    Game.GetPlayer().RemoveItem(UDCDMain.UDlibs.Gold,Round(MoneyForHelp.Value),false,akSpeakerRef) ;move the gold to the speaker
+    (akSpeakerRef as Actor).PathToReference(Game.GetPlayer(), 0.5)
+    UDCDmain.HelpNPC(Game.getPlayer(),akSpeakerRef as Actor,false)
+EndFunction
+
+Function LockRandomHandRestrain(ObjectReference akSpeakerRef)
+    ;Game.GetPlayer().RemoveItem(UDCDMain.UDlibs.Gold,Round(MoneyForHelp.Value),akSpeakerRef) ;move the gold to the speaker
+    ;UDCDmain.HelpNPC(Game.getPlayer(),akSpeakerRef as Actor,false)
+    UDCDmain.UDmain.UDRRM.LockRandomRestrain(Game.GetPlayer(),false,0x00000010)
+EndFunction
+
+UDCustomDeviceMain Property UDCDmain  Auto

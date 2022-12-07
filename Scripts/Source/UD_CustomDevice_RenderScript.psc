@@ -3508,7 +3508,11 @@ bool Function minigamePrecheck(Bool abSilent = False)
     if hasHelper()
         if (UDAM.isAnimating(_minigameHelper))
             if !abSilent
-                UDCDmain.Print(getWearerName() + " is already doing something",1)
+                if HelperIsPlayer()
+                    UDCDmain.Print("You are already doing something")
+                elseif HelperIsFollower()
+                    UDCDmain.Print(getHelperName() + " is already doing something",1)
+                endif
             endif
             return false
         endif
@@ -4978,7 +4982,7 @@ Bool Function EvaluateNPCAI()
     
     ;then try to struggle
     if StruggleMinigameAllowed(loc_accesibility)
-        if struggleMinigame(0, True)
+        if struggleMinigame(Utility.randomInt(0,2), True) ;start random struggle minigame
             return true
         endif
     endif
