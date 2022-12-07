@@ -78,7 +78,7 @@ Function Update()
     else
         GoToState("")
     endif
-    GoToState("")
+;    GoToState("")
 EndFunction
 
 ; should be called before placing widgets
@@ -165,6 +165,8 @@ Function UpdateColor_Widget(Int aiId,int aiColor,int aiColor2 = 0,int aiFlashCol
 EndFunction
 Int[] Function AddWidget(Int[] aaiGroup, Int aiWidget, Float fVerticalOffset, Float afMultX = 1.0, Float afMultY = 1.0)
 EndFunction
+Int Function AddWidget2(Float fVerticalOffset)
+EndFunction
 
 
 ;Fuck this stupid as shit. It's even harder to make widget position right
@@ -178,16 +180,26 @@ EndProperty
 ;Use iWidget instead
 State iWidgetInstalled
     Function InitWidgets()
-        _Widget_DeviceDurability = iWidget.loadMeter()
-        Toggle_DeviceWidget(true)
-        UpdatePercent_DeviceWidget(1)
-        _Widget_DeviceCondition  = iWidget.loadMeter()
-        _Widget_Orgasm = iWidget.loadMeter()
+
         UpdateGroupPositions()
-        
+        UpdatePercent_DeviceWidget(1)
         Toggle_DeviceWidget(True)
         Toggle_OrgasmWidget(True)
-       
+
+        If False
+            iWidget.setSize(_Widget_DeviceDurability, HUDMeterHeight as Int, HUDMeterWidth as Int)
+            iWidget.setPos(_Widget_DeviceDurability, CalculateGroupXPos(UD_WidgetXPos), (CalculateGroupYPos(UD_WidgetYPos)) As Int)
+            iWidget.setVisible(_Widget_DeviceDurability, 0)
+            iWidget.setMeterPercent(_Widget_DeviceDurability, 25)
+
+            iWidget.setVisible(_Widget_DeviceDurability, 1)
+            iWidget.doMeterFlash(_Widget_DeviceDurability)
+            iWidget.setMeterRGB(_Widget_DeviceDurability, 255, 255, 255, 0, 0, 0, 128, 128, 128)
+    ;        iWidget.setSize(_Widget_DeviceDurability, HUDMeterHeight as Int, (HUDMeterWidth - 1) as Int)
+    ;        iWidget.setPos(_Widget_DeviceDurability, CalculateGroupXPos(UD_WidgetXPos), (CalculateGroupYPos(UD_WidgetYPos)) As Int)   
+            iWidget.setMeterPercent(_Widget_DeviceDurability, 50)
+         EndIf
+
         ; TEST PLACEMENT
         If True    
             ; Canvas corners
@@ -281,34 +293,66 @@ State iWidgetInstalled
         return PapyrusUtil.PushInt(aaiGroup, aiWidget)
     EndFunction
     
+    Int Function AddWidget2(Float fVerticalOffset)
+        Int id = iWidget.loadMeter()
+        iWidget.setSize(id, HUDMeterHeight as Int, HUDMeterWidth as Int)
+        ; on the top position we stack widgets from top to the bottom
+        If UD_WidgetYPos == 2
+            fVerticalOffset = -fVerticalOffset
+        EndIf
+        iWidget.setPos(id, CalculateGroupXPos(UD_WidgetXPos), (CalculateGroupYPos(UD_WidgetYPos) - HUDMeterHeightRef * fVerticalOffset) As Int)
+        Return id
+    EndFunction
+    
     Function UpdateGroupPositions()
+        ; destroying old instances because they are infected with the setMeterPercent function
+        If _Widget_DeviceDurability
+            iWidget.destroy(_Widget_DeviceDurability)
+        EndIf
+        If _Widget_DeviceCondition
+            iWidget.destroy(_Widget_DeviceCondition)
+        EndIf
+        If _Widget_Orgasm
+            iWidget.destroy(_Widget_Orgasm)
+        EndIf
+        
+        ; creating new instances
+        ; restoring size, position, colors, percents and everything
         _WidgetsID = Utility.CreateIntArray(0)
         Float offset = 0.0
-        if _Widget_DeviceDurability
-            _WidgetsID = AddWidget(_WidgetsID, _Widget_DeviceDurability, offset)
-            offset += 1.5
-        endif
-        if _Widget_DeviceCondition_Visible
-            _WidgetsID = AddWidget(_WidgetsID, _Widget_DeviceCondition, offset)
-            offset += 1.5
-        endif
-        if _Widget_Orgasm_Visible
-            _WidgetsID = AddWidget(_WidgetsID, _Widget_Orgasm, offset)
-            offset += 1.5
-        endif
+        _Widget_DeviceDurability = AddWidget2(offset)
+        _WidgetsID = PapyrusUtil.PushInt(_WidgetsID, _Widget_DeviceDurability)
+        iWidget.setVisible(_Widget_DeviceDurability, _Widget_DeviceDurability_Visible As Int)
+        ; testing
+        iWidget.setMeterPercent(_Widget_DeviceDurability, Utility.RandomInt(0, 100))
+        offset += 1.5
         
-        iWidget.drawShapeLine(_WidgetsID,CalculateGroupXPos(_WidgetXPos),CalculateGroupYPos(_WidgetYPos),0,-1*Math.Ceiling(iWidget.getYsize(_WidgetsID[0])*0.5) - 1)
+        _Widget_DeviceCondition = AddWidget2(offset)
+        _WidgetsID = PapyrusUtil.PushInt(_WidgetsID, _Widget_DeviceCondition)
+        iWidget.setVisible(_Widget_DeviceCondition, _Widget_DeviceCondition_Visible As Int)
+        ; testing
+        iWidget.setMeterPercent(_Widget_DeviceCondition, Utility.RandomInt(0, 100))
+        offset += 1.5
+        
+        _Widget_Orgasm = AddWidget2(offset)
+        _WidgetsID = PapyrusUtil.PushInt(_WidgetsID, _Widget_Orgasm)
+        iWidget.setVisible(_Widget_Orgasm, _Widget_Orgasm_Visible As Int)
+        ; testing
+        iWidget.setMeterPercent(_Widget_Orgasm, Utility.RandomInt(0, 100))
+        offset += 1.5
+        
+;        iWidget.drawShapeLine(_WidgetsID,CalculateGroupXPos(_WidgetXPos),CalculateGroupYPos(_WidgetYPos),0,-1*Math.Ceiling(iWidget.getYsize(_WidgetsID[0])*0.5) - 1)
     EndFunction
     
     ;toggle widget
     Function Toggle_DeviceWidget(bool abVal)
         _Widget_DeviceDurability_Visible = abVal
-        UpdateGroupPositions()
+;        UpdateGroupPositions()
         iWidget.setVisible(_Widget_DeviceDurability, abVal as Int)
     EndFunction
     Function Toggle_OrgasmWidget(bool abVal)
         _Widget_Orgasm_Visible = abVal
-        UpdateGroupPositions()
+;        UpdateGroupPositions()
         iWidget.setVisible(_Widget_Orgasm, abVal as Int)
     EndFunction
 
