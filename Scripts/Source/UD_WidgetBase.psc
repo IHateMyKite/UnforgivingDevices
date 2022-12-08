@@ -3,13 +3,16 @@ Scriptname UD_WidgetBase extends SKI_WidgetBase
 ;copied and modified script for DD Escape Overhall, because i have no idea wtf is going on
 
 ; Widget Configuration
-float    _width            = 292.8
-float    _height            = 25.2
-int        _primaryColor    = 0xE727F5
-int        _secondaryColor    = 0xF775FF
-int        _flashColor        = 0xFF00BC
-string     _fillDirection    = "left"
-float    _percent        = 1.0
+float           _width                  = 292.8
+float           _height                 = 25.2
+int             _primaryColor           = 0xE727F5
+int             _secondaryColor         = 0xF775FF
+int             _flashColor             = 0xFF00BC
+string          _fillDirection          = "left"
+float           _percent                = 1.0
+
+Float HUDMeterWidthRef = 248.0
+Float HUDMeterHeightRef = 15.0
 
 int _positionX = 2
 int Property PositionX
@@ -21,13 +24,13 @@ int Property PositionX
     function set(int a_val)
         if a_val >= 0 && a_val <= 2
             _positionX = a_val
-            
+
             ; These formulas are mostly empirical and do not provide 100% accuracy.
             ; Tested on resolutions: 1920*1080, 2560*1440, 2560*1080, 3440*1440, (4000*1440, 4000*1080)
             ; Wide screen resolutions tested with mods:
             ; - Complete Widescreen Fix for Vanilla and SkyUI 2.2 and 5.2 SE (https://www.nexusmods.com/skyrimspecialedition/mods/1778)
             ; - Ultrawidescreen Fixes for Skyrim LE (https://www.nexusmods.com/skyrim/mods/90214)
-            
+
             Float magica_x = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Magica._x")
             Float health_x = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Health._x")
             Float stamina_x = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Stamina._x")
@@ -66,7 +69,7 @@ int Property PositionX
             
             offset = 271.0 / width_mult
             padding = (48.0 + le_corr2) / width_mult + (hud_padding - le_corr2)
-            ref_meter_width = 248.0 / width_mult
+            ref_meter_width = HUDMeterWidthRef / width_mult
             
             if (Ready) 
                 if _positionX == 0 ;left
@@ -95,22 +98,24 @@ int Property PositionY
         if a_val >= 0 && a_val <= 2
             _positionY = a_val
             if (Ready) 
-                if _positionY == 0 ;down
-                    ;debug.trace("[UD]: Bottom right ref y:" + UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefY"))
-                    ;debug.trace("[UD]: Widget y size:" + Height)
-                    ;debug.trace("[UD]: old" + (UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefY") - Math.Ceiling(1.05*Height)))
-                    ;debug.trace("[UD]: new" + (UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefY") - Math.Ceiling(1.85*Height)))
-                    
-                    Y = 633
-                elseif _positionY == 1 ;less down
-                    Y = UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefY") - 3.0*Height
-                elseif _positionY == 2 ;top
-                    Y = UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY") + 3.5*Height; - 2.05*Height
+                if _positionY == 0      ; near the bottom 
+                    ; added offset to not overlap existing HUD indicators
+                    Y = UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefY") - HUDMeterHeightRef * (0.5 + 1.5 + PositionYOffset)
+                elseif _positionY == 1  ; 3/4 to the bottom
+                    Y = (3 * UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefY") + UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY")) / 4 - HUDMeterHeightRef * (0.5 + PositionYOffset)
+                elseif _positionY == 2  ; on the top
+                    ; added offset to not overlap existing HUD indicators
+                    Y = UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY") + HUDMeterHeightRef * (0.5 + 1.5 + PositionYOffset);
                 endif
             endIf
         endif
     endFunction
 EndProperty
+
+Float Property PositionYOffset Auto
+{Additional offset measured in widget's heights (not screen height but HUDMeterHeightRef!). 
+Value 0.0 means that widget will be placed exactly on the anchor points, i.e. will 'replace' existing HUD meter on bottom position.
+Value 1.0 means that widget will be placed just above (below) anchor point, i.e. will 'touch' existing HUD meter on bottom position}
 
 float property Width
     {Width of the meter in pixels at a resolution of 1280x720. Default: 292.8}
@@ -219,21 +224,7 @@ event OnWidgetReset()
     init()
     PositionX = _positionX
     PositionY = _positionY  
-    
-    If False
-        Debug.Trace("_root.WidgetContainer._width = " + UI.getFloat(HUD_MENU, "_root.WidgetContainer._width"))
-        Debug.Trace("_root.WidgetContainer._x = " + UI.getFloat(HUD_MENU, "_root.WidgetContainer._x"))
-        Debug.Trace("_root.HUDMovieBaseInstance.TopLeftRefX = " + UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefX"))
-        Debug.Trace("_root.HUDMovieBaseInstance.BottomRightRefX = " + UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefX"))
-        Debug.Trace("_root.HUDMovieBaseInstance.TopLeftRefY = " + UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY"))
-        Debug.Trace("_root.HUDMovieBaseInstance.BottomRightRefY = " + UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefY"))
-        Debug.Trace("_root.HUDMovieBaseInstance._x = " + UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance._x"))
-        Debug.Trace("_root.HUDMovieBaseInstance._width = " + UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance._width"))
-        Debug.Trace("_root.HUDMovieBaseInstance.Magica._x = " + UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Magica._x"))
-        Debug.Trace("_root.HUDMovieBaseInstance.Health._x = " + UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Health._x"))
-        Debug.Trace("_root.HUDMovieBaseInstance.Stamina._x = " + UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Stamina._x"))
-        Debug.Trace("_root.HUDMovieBaseInstance.Stamina._width = " + UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Stamina._width"))
-    EndIf
+
 endEvent
 
 Function init()
@@ -325,3 +316,15 @@ Function Hide(bool inst = false)
         self.FadeTo(0, 1.0)
     EndIf
 EndFunction
+
+; override this so I don't have to recalculate widget position for different values
+; HAnchor property becomes useless
+function UpdateWidgetHAnchor()
+	UI.InvokeString(HUD_MENU, WidgetRoot + ".setHAnchor", "right")
+endFunction
+
+; override this so I don't have to recalculate widget position for different values
+; VAnchor property becomes useless
+function UpdateWidgetVAnchor()
+	UI.InvokeString(HUD_MENU, WidgetRoot + ".setVAnchor", "center")
+endFunction
