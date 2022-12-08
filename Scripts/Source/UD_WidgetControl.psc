@@ -4,6 +4,9 @@ import UnforgivingDevicesMain
 
 UnforgivingDevicesMain Property UDmain auto
 
+;use iWantWidgets if true
+Bool                        Property UD_UseIWantWidget = true auto
+
 ;exist
 UD_WidgetBase               Property UD_Widget1 auto
 UD_WidgetBase               Property UD_Widget2 auto
@@ -17,7 +20,11 @@ Int Property UD_WidgetXPos
             UD_Widget1.PositionX = _WidgetXPos
             UD_Widget2.PositionX = _WidgetXPos
         else
-            UpdateGroupPositions()
+            if !UD_AutoAdjustWidget
+                InitWidgets()
+            else
+                UpdateGroupPositions()
+            endif
         endif
     EndFunction
     Int Function Get()
@@ -33,7 +40,11 @@ Int Property UD_WidgetYPos
             UD_Widget1.PositionY = _WidgetYPos
             UD_Widget2.PositionY = _WidgetYPos
         else
-            UpdateGroupPositions()
+            if !UD_AutoAdjustWidget
+                InitWidgets()
+            else
+                UpdateGroupPositions()
+            endif
         endif
     EndFunction
     Int Function Get()
@@ -67,18 +78,18 @@ EndEvent
 
 ;Disabled. Might return to it in far away future
 Function Update()
-    UDmain.Warning("UD_WidgetControl::Update() UDmain.iWidgetInstalled = " + UDmain.iWidgetInstalled)
+    UDmain.Info("UD_WidgetControl::Update() UDmain.iWidgetInstalled = " + UDmain.iWidgetInstalled + " , UD_UseIWantWidget="+UD_UseIWantWidget)
     ; iWidget compatibility
-    if UDmain.iWidgetInstalled
+    if UDmain.UseiWW()
         GoToState("iWidgetInstalled")
-        RefreshCanvasMetrics()
         UD_Widget1.hide(true)
         UD_Widget2.hide(true)
         InitWidgets()
     else
         GoToState("")
+        UD_WidgetXPos = UD_WidgetXPos
+        UD_WidgetYPos = UD_WidgetYPos
     endif
-;    GoToState("")
 EndFunction
 
 ; should be called before placing widgets
@@ -185,7 +196,7 @@ Function UpdateGroupPositions()
 EndFunction
 Function UpdateColor_Widget(Int aiId,int aiColor,int aiColor2 = 0,int aiFlashColor = 0xFFFFFF)
 EndFunction
-Int[] Function AddWidget(Int[] aaiGroup, Int aiWidget, Float fVerticalOffset)
+Int[] Function AddWidget(Int[] aaiGroup, Int aiWidget, Float fVerticalOffset, Int akPerc = 0, Int akCol1 = 0x0, Int akCol2 = 0x0, Int akCol3 = 0xFFFFFFFF)
 EndFunction
 
 ;Fuck this stupid as shit. It's even harder to make widget position right
@@ -198,112 +209,65 @@ EndProperty
 
 Float Property UD_WidgetVerOffset = 1.25 auto
 
+;By default, auto adjust is turned off
+Bool _AutoAdjustWidget = False
+Bool Property UD_AutoAdjustWidget Hidden
+    Function Set(Bool abVal)
+        if !abVal
+            ;Reininit widgets
+            InitWidgets()
+        endif
+        _AutoAdjustWidget = abVal
+    EndFunction
+    Bool Function Get()
+        return _AutoAdjustWidget
+    EndFunction
+EndProperty
+
+
 ;Use iWidget instead
 State iWidgetInstalled
     Function InitWidgets()
-        If False
-            iWidget.setSize(_Widget_DeviceDurability, HUDMeterHeight as Int, HUDMeterWidth as Int)
-            iWidget.setPos(_Widget_DeviceDurability, CalculateGroupXPos(UD_WidgetXPos), (CalculateGroupYPos(UD_WidgetYPos)) As Int)
-            iWidget.setVisible(_Widget_DeviceDurability, 0)
-            iWidget.setMeterPercent(_Widget_DeviceDurability, 25)
-
-            iWidget.setVisible(_Widget_DeviceDurability, 1)
-            iWidget.doMeterFlash(_Widget_DeviceDurability)
-            iWidget.setMeterRGB(_Widget_DeviceDurability, 255, 255, 255, 0, 0, 0, 128, 128, 128)
-    ;        iWidget.setSize(_Widget_DeviceDurability, HUDMeterHeight as Int, (HUDMeterWidth - 1) as Int)
-    ;        iWidget.setPos(_Widget_DeviceDurability, CalculateGroupXPos(UD_WidgetXPos), (CalculateGroupYPos(UD_WidgetYPos)) As Int)   
-            iWidget.setMeterPercent(_Widget_DeviceDurability, 50)
-         EndIf
-
-        ; TEST PLACEMENT
-        If False    
-            ; Canvas corners
-            Int t = iWidget.loadText("X")
-            iWidget.setPos(t, 0, 0)
-            iWidget.setRGB(t, 255, 0, 0)
-            iWidget.setVisible(t)
-            t = iWidget.loadText("X")
-            iWidget.setPos(t, CanvasWidth, 0)
-            iWidget.setRGB(t, 255, 0, 0)
-            iWidget.setVisible(t)
-            t = iWidget.loadText("X")
-            iWidget.setPos(t, CanvasWidth, CanvasHeight)
-            iWidget.setRGB(t, 255, 0, 0)
-            iWidget.setVisible(t)
-            t = iWidget.loadText("X")
-            iWidget.setPos(t, 0, CanvasHeight)
-            iWidget.setRGB(t, 255, 0, 0)
-            iWidget.setVisible(t)
+        RefreshCanvasMetrics()
+        ;No autoadjust, reinit the widgets
+        if !UD_AutoAdjustWidget
+            if _Widget_DeviceDurability
+                iWidget.destroy(_Widget_DeviceDurability)
+            endif
+            if _Widget_DeviceCondition
+                iWidget.destroy(_Widget_DeviceCondition)
+            endif
+            if _Widget_Orgasm
+                iWidget.destroy(_Widget_Orgasm)
+            endif
             
-            ; HUD corners
-            t = iWidget.loadText("X")
-            iWidget.setPos(t, HUDPaddingX as Int, HUDPaddingY as Int)
-            iWidget.setRGB(t, 0, 0, 255)
-            iWidget.setVisible(t)
-            t = iWidget.loadText("X")
-            iWidget.setPos(t, (CanvasWidth - HUDPaddingX) as Int, (CanvasHeight - HUDPaddingY) as Int)
-            iWidget.setRGB(t, 0, 0, 255)
-            iWidget.setVisible(t)
-            t = iWidget.loadText("X")
-            iWidget.setPos(t, (CanvasWidth - HUDPaddingX) as Int, HUDPaddingY as Int)
-            iWidget.setRGB(t, 0, 0, 255)
-            iWidget.setVisible(t)
-            t = iWidget.loadText("X")
-            iWidget.setPos(t, HUDPaddingX as Int, (CanvasHeight - HUDPaddingY) as Int)
-            iWidget.setRGB(t, 0, 0, 255)
-            iWidget.setVisible(t)
+            _WidgetsID = Utility.CreateIntArray(0)
             
-            ; Anchor points
-            Int i = 0
-            While i <= 2
-                Int j = 0
-                While j <= 2
-                    t = iWidget.loadText("X")
-                    iWidget.setPos(t, CalculateGroupXPos(i), CalculateGroupYPos(j))
-                    iWidget.setRGB(t, 0, 255, 0)
-                    iWidget.setVisible(t)
-                    j += 1
-                EndWhile
-                i += 1
-            EndWhile
+            _Widget_DeviceDurability = iWidget.loadMeter()
+            _WidgetsID = AddWidget(_WidgetsID, _Widget_DeviceDurability, 0*UD_WidgetVerOffset, _Widget_DeviceDurability_Perc, _Widget_DeviceDurability_Color, _Widget_DeviceDurability_Color2, _Widget_DeviceDurability_Color3)
             
-            If False
-                ; Meters on bottom position
-                ; Widget on the left above magica meter
-                Int m = iWidget.loadMeter()
-                iWidget.setSize(m, HUDMeterHeight as Int, HUDMeterWidth as Int)
-                iWidget.setPos(m, CalculateGroupXPos(0), (CalculateGroupYPos(0) - HUDMeterHeightRef * 1.5) As Int)
-                iWidget.setVisible(m, 1)
-                
-                ; Widget at the center above health meter
-                m = iWidget.loadMeter()
-                iWidget.setSize(m, HUDMeterHeight as Int, HUDMeterWidth as Int)
-                iWidget.setPos(m, CalculateGroupXPos(1), (CalculateGroupYPos(0) - HUDMeterHeightRef * 1.5) As Int)
-                iWidget.setVisible(m, 1)
-
-                ; widget on the right above HUD stamina meter
-                m = iWidget.loadMeter()
-                iWidget.setSize(m, HUDMeterHeight as Int, HUDMeterWidth as Int)
-                iWidget.setPos(m, CalculateGroupXPos(2), (CalculateGroupYPos(0) - HUDMeterHeightRef * 1.5) As Int)
-                iWidget.setVisible(m, 1)
-
-                ; widget on the right above the last one
-                m = iWidget.loadMeter()
-                iWidget.setSize(m, HUDMeterHeight as Int, HUDMeterWidth as Int)
-                iWidget.setPos(m, CalculateGroupXPos(2), (CalculateGroupYPos(0) - HUDMeterHeightRef * 3.0) As Int)
-                iWidget.setVisible(m, 1)
-            EndIf
-        EndIf
+            _Widget_DeviceCondition = iWidget.loadMeter()
+            _WidgetsID = AddWidget(_WidgetsID, _Widget_DeviceCondition, 1.0*UD_WidgetVerOffset, _Widget_DeviceCondition_Perc, _Widget_DeviceCondition_Color, _Widget_DeviceCondition_Color2, _Widget_DeviceCondition_Color3)
+            
+            _Widget_Orgasm = iWidget.loadMeter()
+            _WidgetsID = AddWidget(_WidgetsID, _Widget_Orgasm, 2.0*UD_WidgetVerOffset, _Widget_Orgasm_Perc, _Widget_Orgasm_Color, _Widget_Orgasm_Color2, _Widget_Orgasm_Color3)
+            
+            iWidget.setVisible(_Widget_DeviceDurability, _Widget_DeviceDurability_Visible As Int)
+            iWidget.setVisible(_Widget_DeviceCondition, _Widget_DeviceCondition_Visible As Int)
+            iWidget.setVisible(_Widget_Orgasm, _Widget_Orgasm_Visible As Int)
+        endif
     EndFunction
     
     ; fVerticalOffset       - offset in meter's heights
-    Int[] Function AddWidget(Int[] aaiGroup, Int aiWidget, Float fVerticalOffset)
+    Int[] Function AddWidget(Int[] aaiGroup, Int aiWidget, Float fVerticalOffset, Int akPerc = 0, Int akCol1 = 0x0, Int akCol2 = 0x0, Int akCol3 = 0xFFFFFFFF)
         iWidget.setSize(aiWidget, HUDMeterHeight as Int, HUDMeterWidth as Int)
         ; on the top position we stack widgets from top to the bottom
         If UD_WidgetYPos == 2
             fVerticalOffset = -fVerticalOffset
         EndIf
         iWidget.setPos(aiWidget, CalculateGroupXPos(UD_WidgetXPos), (CalculateGroupYPos(UD_WidgetYPos) - HUDMeterHeightRef * fVerticalOffset) As Int)
+        iWidget.setMeterPercent(aiWidget,akPerc)
+        UpdateColor_Widget(aiWidget, akCol1,akCol2,akCol3)
         Return PapyrusUtil.PushInt(aaiGroup, aiWidget)
     EndFunction
 
@@ -324,66 +288,64 @@ State iWidgetInstalled
         Float offset = 0.0
         if _Widget_DeviceDurability_Visible
             _Widget_DeviceDurability = iWidget.loadMeter()
-            _WidgetsID = AddWidget(_WidgetsID, _Widget_DeviceDurability, offset)
-            iWidget.setMeterPercent(_Widget_DeviceDurability,_Widget_DeviceDurability_Perc)
-            UpdateColor_DeviceWidget(_Widget_DeviceDurability_Color,_Widget_DeviceDurability_Color2,_Widget_DeviceDurability_Color3)
+            _WidgetsID = AddWidget(_WidgetsID, _Widget_DeviceDurability, offset, _Widget_DeviceDurability_Perc, _Widget_DeviceDurability_Color, _Widget_DeviceDurability_Color2, _Widget_DeviceDurability_Color3)
             offset += UD_WidgetVerOffset
         endif
         if _Widget_DeviceCondition_Visible
             _Widget_DeviceCondition = iWidget.loadMeter()
-            _WidgetsID = AddWidget(_WidgetsID, _Widget_DeviceCondition, offset)
-            iWidget.setMeterPercent(_Widget_DeviceCondition,_Widget_DeviceCondition_Perc)
-            UpdateColor_DeviceCondWidget(_Widget_DeviceCondition_Color,_Widget_DeviceCondition_Color2,_Widget_DeviceCondition_Color3)
+            _WidgetsID = AddWidget(_WidgetsID, _Widget_DeviceCondition, offset, _Widget_DeviceCondition_Perc, _Widget_DeviceCondition_Color, _Widget_DeviceCondition_Color2, _Widget_DeviceCondition_Color3)
             offset += UD_WidgetVerOffset
         endif
         if _Widget_Orgasm_Visible
             _Widget_Orgasm = iWidget.loadMeter()
-            _WidgetsID = AddWidget(_WidgetsID, _Widget_Orgasm, offset)
-            iWidget.setMeterPercent(_Widget_Orgasm,_Widget_Orgasm_Perc)
-            UpdateColor_OrgasmWidget(_Widget_Orgasm_Color,_Widget_Orgasm_Color2,_Widget_Orgasm_Color3)
+            _WidgetsID = AddWidget(_WidgetsID, _Widget_Orgasm, offset, _Widget_Orgasm_Perc, _Widget_Orgasm_Color, _Widget_Orgasm_Color2, _Widget_Orgasm_Color3)
             offset += UD_WidgetVerOffset
         endif
         
         ;show all widgets at the end, so they can't be seen moving
-        if _Widget_DeviceDurability_Visible
-            iWidget.setVisible(_Widget_DeviceDurability, _Widget_DeviceDurability_Visible As Int)
-        endif
-        if _Widget_DeviceCondition_Visible
-            iWidget.setVisible(_Widget_DeviceCondition, _Widget_DeviceCondition_Visible As Int)
-        endif
-        if _Widget_Orgasm_Visible
-            iWidget.setVisible(_Widget_Orgasm, _Widget_Orgasm_Visible As Int)
-        endif
-        
-        ;iWidget.drawShapeLine(_WidgetsID,CalculateGroupXPos(_WidgetXPos),CalculateGroupYPos(_WidgetYPos),-1*(HUDMeterWidth/2) as Int,-HUDMeterHeightRef as Int)
+        iWidget.setVisible(_Widget_DeviceDurability, _Widget_DeviceDurability_Visible As Int)
+        iWidget.setVisible(_Widget_DeviceCondition, _Widget_DeviceCondition_Visible As Int)
+        iWidget.setVisible(_Widget_Orgasm, _Widget_Orgasm_Visible As Int)
     EndFunction
     
     ;toggle widget
     Function Toggle_DeviceWidget(bool abVal, Bool abUpdateVisPos = True)
-        if _Widget_DeviceDurability_Visible != abVal
-            _Widget_DeviceDurability_Visible = abVal
-            if abUpdateVisPos
-                UpdateGroupPositions()
-                ;iWidget.setVisible(_Widget_DeviceDurability, abVal as Int)
+        if UD_AutoAdjustWidget
+            if _Widget_DeviceDurability_Visible != abVal
+                _Widget_DeviceDurability_Visible = abVal
+                if abUpdateVisPos
+                    UpdateGroupPositions()
+                endif
             endif
+        else
+            _Widget_DeviceDurability_Visible = abVal
+            iWidget.setVisible(_Widget_DeviceDurability, _Widget_DeviceDurability_Visible As Int)
         endif
     EndFunction
     Function Toggle_DeviceCondWidget(bool abVal, Bool abUpdateVisPos = True)
-        if _Widget_DeviceCondition_Visible != abVal
-            _Widget_DeviceCondition_Visible = abVal
-            if abUpdateVisPos
-                UpdateGroupPositions()
-                ;iWidget.setVisible(_Widget_DeviceCondition, abVal as Int)
+        if UD_AutoAdjustWidget
+            if _Widget_DeviceCondition_Visible != abVal
+                _Widget_DeviceCondition_Visible = abVal
+                if abUpdateVisPos
+                    UpdateGroupPositions()
+                endif
             endif
+        else
+            _Widget_DeviceCondition_Visible = abVal
+            iWidget.setVisible(_Widget_DeviceCondition, _Widget_DeviceCondition_Visible As Int)
         endif
     EndFunction
     Function Toggle_OrgasmWidget(bool abVal, Bool abUpdateVisPos = True)
-        if _Widget_Orgasm_Visible != abVal
-            _Widget_Orgasm_Visible = abVal
-            if abUpdateVisPos
-                UpdateGroupPositions()
-                ;iWidget.setVisible(_Widget_Orgasm, abVal as Int)
+        if UD_AutoAdjustWidget
+            if _Widget_Orgasm_Visible != abVal
+                _Widget_Orgasm_Visible = abVal
+                if abUpdateVisPos
+                    UpdateGroupPositions()
+                endif
             endif
+        else
+            _Widget_Orgasm_Visible = abVal
+            iWidget.setVisible(_Widget_Orgasm, _Widget_Orgasm_Visible As Int)
         endif
     EndFunction
 
@@ -472,3 +434,81 @@ Int Function CalculateGroupYPos(int aival)
         return (HUDPaddingY + HUDMeterHeightRef / 2 + 1.5 * HUDMeterHeightRef) As Int
     endif
 endFunction
+
+Function TestFun()
+    ; TEST PLACEMENT
+    ; Canvas corners
+    Int t = iWidget.loadText("X")
+    iWidget.setPos(t, 0, 0)
+    iWidget.setRGB(t, 255, 0, 0)
+    iWidget.setVisible(t)
+    t = iWidget.loadText("X")
+    iWidget.setPos(t, CanvasWidth, 0)
+    iWidget.setRGB(t, 255, 0, 0)
+    iWidget.setVisible(t)
+    t = iWidget.loadText("X")
+    iWidget.setPos(t, CanvasWidth, CanvasHeight)
+    iWidget.setRGB(t, 255, 0, 0)
+    iWidget.setVisible(t)
+    t = iWidget.loadText("X")
+    iWidget.setPos(t, 0, CanvasHeight)
+    iWidget.setRGB(t, 255, 0, 0)
+    iWidget.setVisible(t)
+    
+    ; HUD corners
+    t = iWidget.loadText("X")
+    iWidget.setPos(t, HUDPaddingX as Int, HUDPaddingY as Int)
+    iWidget.setRGB(t, 0, 0, 255)
+    iWidget.setVisible(t)
+    t = iWidget.loadText("X")
+    iWidget.setPos(t, (CanvasWidth - HUDPaddingX) as Int, (CanvasHeight - HUDPaddingY) as Int)
+    iWidget.setRGB(t, 0, 0, 255)
+    iWidget.setVisible(t)
+    t = iWidget.loadText("X")
+    iWidget.setPos(t, (CanvasWidth - HUDPaddingX) as Int, HUDPaddingY as Int)
+    iWidget.setRGB(t, 0, 0, 255)
+    iWidget.setVisible(t)
+    t = iWidget.loadText("X")
+    iWidget.setPos(t, HUDPaddingX as Int, (CanvasHeight - HUDPaddingY) as Int)
+    iWidget.setRGB(t, 0, 0, 255)
+    iWidget.setVisible(t)
+    
+    ; Anchor points
+    Int i = 0
+    While i <= 2
+        Int j = 0
+        While j <= 2
+            t = iWidget.loadText("X")
+            iWidget.setPos(t, CalculateGroupXPos(i), CalculateGroupYPos(j))
+            iWidget.setRGB(t, 0, 255, 0)
+            iWidget.setVisible(t)
+            j += 1
+        EndWhile
+        i += 1
+    EndWhile
+    
+    ; Meters on bottom position
+    ; Widget on the left above magica meter
+    Int m = iWidget.loadMeter()
+    iWidget.setSize(m, HUDMeterHeight as Int, HUDMeterWidth as Int)
+    iWidget.setPos(m, CalculateGroupXPos(0), (CalculateGroupYPos(0) - HUDMeterHeightRef * 1.5) As Int)
+    iWidget.setVisible(m, 1)
+    
+    ; Widget at the center above health meter
+    m = iWidget.loadMeter()
+    iWidget.setSize(m, HUDMeterHeight as Int, HUDMeterWidth as Int)
+    iWidget.setPos(m, CalculateGroupXPos(1), (CalculateGroupYPos(0) - HUDMeterHeightRef * 1.5) As Int)
+    iWidget.setVisible(m, 1)
+
+    ; widget on the right above HUD stamina meter
+    m = iWidget.loadMeter()
+    iWidget.setSize(m, HUDMeterHeight as Int, HUDMeterWidth as Int)
+    iWidget.setPos(m, CalculateGroupXPos(2), (CalculateGroupYPos(0) - HUDMeterHeightRef * 1.5) As Int)
+    iWidget.setVisible(m, 1)
+
+    ; widget on the right above the last one
+    m = iWidget.loadMeter()
+    iWidget.setSize(m, HUDMeterHeight as Int, HUDMeterWidth as Int)
+    iWidget.setPos(m, CalculateGroupXPos(2), (CalculateGroupYPos(0) - HUDMeterHeightRef * 3.0) As Int)
+    iWidget.setVisible(m, 1)
+EndFunction

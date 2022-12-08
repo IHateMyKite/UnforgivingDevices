@@ -1987,8 +1987,6 @@ float Function getCondition()
 EndFunction
 
 float Function getRelativeCondition()
-    GInfo("UD_Health="+UD_Health)
-    GInfo("_total_durability_drain="+_total_durability_drain)
     return (UD_Health - _total_durability_drain)/UD_Health
 EndFunction
 
@@ -2062,7 +2060,7 @@ Function updateCondition(bool decrease = True)
         endif
         unlockRestrain(True)
     else
-        if UDmain.iWidgetInstalled && PlayerInMinigame() && UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
+        if UDmain.UseiWW() && PlayerInMinigame() && UDCDmain.UD_UseWidget && UD_UseWidget; && UD_AllowWidgetUpdate
             UDmain.UDWC.UpdatePercent_DeviceCondWidget(getRelativeCondition())
         endif
     endif
@@ -5130,7 +5128,7 @@ Function updateWidget(bool force = false)
 EndFunction
 
 Function updateWidgetColor()
-    if UD_WidgetAutoColor && !UDmain.iWidgetInstalled
+    if UD_WidgetAutoColor && !UDmain.UseiWW()
         if UD_Condition == 0
             UD_WidgetColor2 = 0x61ff00
             UD_WidgetColor  = 0x4da319
@@ -5152,7 +5150,7 @@ Function updateWidgetColor()
         UD_WidgetColor  = 0xFF005E
     endif
 
-    if UDmain.iWidgetInstalled
+    if UDmain.UseiWW()
         if UD_Condition == 0
             UDmain.UDWC.UpdateColor_DeviceCondWidget(0x4df319, 0x62ff00)
         elseif UD_Condition == 1
