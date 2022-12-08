@@ -163,7 +163,7 @@ Formlist Property UD_QuestKeywords auto
 FormList Property UD_HeavyBondageKeywords auto
 ;Spell Property TelekinesisSpell auto
 
-UDCustomHeavyBondageWidget1 Property widget1 auto
+UD_WidgetBase Property widget1 auto
 UD_WidgetBase Property widget2 auto
 
 Bool Property UD_EquipMutex = False auto hidden

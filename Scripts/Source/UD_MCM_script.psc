@@ -8,7 +8,7 @@ UDCustomDeviceMain Property UDCDmain auto
 UD_SwimmingScript Property UDSS auto
 UDItemManager Property UDIM auto
 UD_AbadonQuest_script Property AbadonQuest auto
-UDCustomHeavyBondageWidget1 Property widget auto
+UD_WidgetBase Property widget auto
 UD_CustomDevices_NPCSlotsManager Property UDCD_NPCM auto
 zadlibs_UDPatch Property libs auto hidden
 
@@ -43,15 +43,12 @@ int  dmg_heal_T
 int  dmg_magica_T
 int dmg_stamina_T
 
-
 int AbadonForceSuitOnEquip_T
-
 
 string[] difficultyList
 int difficulty_M
 
 int little_finisher_cooldown_S ;in hours
-
 
 int final_finisher_set_T
 
@@ -129,7 +126,7 @@ EndFunction
 String Property UD_NPCsPageName = "NPCs Config" auto
 
 Function LoadConfigPages()
-    pages = new String[10]
+    pages = new String[11]
     pages[0] = "General"
     pages[1] = "Device filter"
     pages[2] = "Custom devices"
@@ -138,8 +135,9 @@ Function LoadConfigPages()
     pages[5] = "Patcher"
     pages[6] = "DD Patch"
     pages[7] = "Abadon Plug"
-    pages[8] = "Debug panel"
-    pages[9] = "Other"
+    pages[8] = "UI/Widgets"
+    pages[9] = "Debug panel"
+    pages[10] = "Other"
 EndFunction
 
 bool Property Ready = False Auto
@@ -243,6 +241,8 @@ Event OnPageReset(string page)
         resetPatcherPage()
     elseif (page == "DD patch")
         resetDDPatchPage()
+    elseif (page == "UI/Widgets")
+        resetUIWidgetPage()
     elseif (page == "Debug panel")
         resetDebugPage()
     elseif (page == "Other")
@@ -683,6 +683,30 @@ Event resetDDPatchPage()
     UD_OutfitRemove_T = addToggleOption("Outfit removal", UDCDmain.UD_OutfitRemove)
 EndEvent
 
+
+UD_WidgetControl Property UDWC Hidden
+    UD_WidgetControl Function Get()
+        return UDmain.UDWC
+    EndFunction
+EndProperty
+
+int UD_UseIWantWidget_T
+Int UD_AutoAdjustWidget_T
+Event resetUIWidgetPage()
+    UpdateLockMenuFlag()
+    setCursorFillMode(LEFT_TO_RIGHT)
+    
+    AddHeaderOption("Widgets")
+    addEmptyOption()
+    
+    AddTextOption("iWantWidgets",InstallSwitch(UDmain.iWidgetInstalled),FlagSwitch(UDmain.iWidgetInstalled))
+    UD_UseIWantWidget_T = addToggleOption("Use iWW",UDWC.UD_UseIWantWidget,FlagSwitch(UDmain.iWidgetInstalled))
+    
+    UD_AutoAdjustWidget_T = addToggleOption("Auto adjust",UDWC.UD_AutoAdjustWidget,FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    addEmptyOption()
+EndEvent
+
+
 int[] registered_devices_T
 int[] NPCSlots_T
 int device_flag
@@ -840,6 +864,7 @@ event OnOptionSelect(int option)
     OptionSelectNPCs(option)
     OptionDDPatch(option)
     OptionSelectAbadon(option)
+    OptionSelectUiWidget(option)
     OptionSelectDebug(option)
     OptionSelectOther(option)
 endEvent
@@ -1043,6 +1068,17 @@ Function OptionDDPatch(int option)
     elseif option == UD_CheckAllKw_T
         UDmain.UD_CheckAllKw = !UDmain.UD_CheckAllKw
         SetToggleOptionValue(UD_CheckAllKw_T, UDMain.UD_CheckAllKw)
+    endif
+EndFunction
+
+Function OptionSelectUiWidget(int option)
+    if(option == UD_UseIWantWidget_T)
+        UDWC.UD_UseIWantWidget = !UDWC.UD_UseIWantWidget
+        SetToggleOptionValue(UD_UseIWantWidget_T, UDWC.UD_UseIWantWidget)
+        forcePageReset()
+    elseif (option == UD_AutoAdjustWidget_T)
+        UDWC.UD_AutoAdjustWidget = !UDWC.UD_AutoAdjustWidget
+        SetToggleOptionValue(UD_AutoAdjustWidget_T, UDWC.UD_AutoAdjustWidget)
     endif
 EndFunction
 
@@ -2463,6 +2499,14 @@ Function DDPatchPageInfo(int option)
     endif
 EndFunction
 
+Function UiWidgetPageInfo(int option)
+    if  option == UD_AutoAdjustWidget_T
+        SetInfoText("Toggle auto adjust for iWantWidget widgets. If ON, it will cause widgets to get rearanged every time they are shown/hidden. This make it more compact, but also slower. \nDefault: OFF")
+    elseif option == UD_UseIWantWidget_T
+        SetInfoText("Toggle if iWantWidget should be used instead of currect widget implementation. Only works if iWW is installed\n!!IMPORTANT: After changing this value, you will have to save and reload the game, otherwise the changes will not be applied!!\nDefault: ON")
+    endif
+EndFunction
+
 Function DebugPageInfo(int option)
     ;dear mother of god
     if (option == rescanSlots_T)
@@ -2655,6 +2699,10 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetFloatValue(strFile, "PatchMult_Piercing"        , UDCDmain.UDPatcher.UD_PatchMult_Piercing)
     JsonUtil.SetFloatValue(strFile, "PatchMult_Generic"            , UDCDmain.UDPatcher.UD_PatchMult_Generic)
     
+    ;UI/WIDGET
+    JsonUtil.SetIntValue(strFile, "AutoAdjustWidget", UDWC.UD_AutoAdjustWidget as Int)
+    JsonUtil.SetIntValue(strFile, "UseIWantWidget", UDWC.UD_UseIWantWidget as Int)
+    
     ;OTHER
     JsonUtil.SetIntValue(strFile, "UseHoods", UDIM.UD_UseHoods as Int)
     JsonUtil.SetIntValue(strFile, "StartThirdpersonAnimation_Switch", libs.UD_StartThirdpersonAnimation_Switch as Int)
@@ -2771,6 +2819,10 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UDPatcher.UD_PatchMult_Plug = JsonUtil.GetFloatValue(strFile, "PatchMult_Plug", UDCDmain.UDPatcher.UD_PatchMult_Plug)
     UDCDmain.UDPatcher.UD_PatchMult_Piercing = JsonUtil.GetFloatValue(strFile, "PatchMult_Piercing", UDCDmain.UDPatcher.UD_PatchMult_Piercing)
     UDCDmain.UDPatcher.UD_PatchMult_Generic = JsonUtil.GetFloatValue(strFile, "PatchMult_Generic", UDCDmain.UDPatcher.UD_PatchMult_Generic)
+    
+    ;UI/WIDGET
+    UDWC.UD_AutoAdjustWidget = JsonUtil.GetIntValue(strFile, "AutoAdjustWidget", UDWC.UD_AutoAdjustWidget as Int)
+    UDWC.UD_UseIWantWidget = JsonUtil.GetIntValue(strFile, "UseIWantWidget", UDWC.UD_UseIWantWidget as Int)
     
     ;Other
     UDIM.UD_UseHoods = JsonUtil.GetIntValue(strFile, "UseHoods", UDIM.UD_UseHoods as Int)
@@ -2896,6 +2948,10 @@ Function ResetToDefaults()
     UDCDmain.UDPatcher.UD_PatchMult_Plug            = 1.0
     UDCDmain.UDPatcher.UD_PatchMult_Piercing        = 1.0
     UDCDmain.UDPatcher.UD_PatchMult_Generic         = 1.0
+    
+    ;UI/WIDGET
+    UDWC.UD_AutoAdjustWidget    = False
+    UDWC.UD_UseIWantWidget      = True
     
     ;Other
     UDIM.UD_UseHoods                                = true

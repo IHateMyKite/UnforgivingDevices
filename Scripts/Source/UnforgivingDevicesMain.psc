@@ -74,7 +74,9 @@ UIListMenu      Property ListMenu                       auto
 ;IWantWidgets. Not currently used, but have some ideas for future. No scripts are currently required to compile
 Bool    Property iWidgetInstalled          = False      auto
 Quest   Property iWidgetQuest                           auto
-
+Bool Function UseiWW()
+    return iWidgetInstalled && UDWC.UD_UseIWantWidget
+EndFunction
 ;Global switches
 bool    property lockMCM                   = False      auto hidden
 bool    property UD_LockDebugMCM           = False      auto hidden

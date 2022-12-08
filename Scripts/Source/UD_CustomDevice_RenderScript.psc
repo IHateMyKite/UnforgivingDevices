@@ -1959,11 +1959,13 @@ Function showWidget(Bool abUpdate = true, Bool abUpdateColor = true)
     if abUpdateColor
         updateWidgetColor()
     endif
-    UDmain.UDWC.Toggle_DeviceWidget(true)
+    UDmain.UDWC.Toggle_DeviceWidget(true,False)
+    UDmain.UDWC.Toggle_DeviceCondWidget(true,True)
 EndFunction
 
 Function hideWidget()
     UDmain.UDWC.Toggle_DeviceWidget(False)
+    UDmain.UDWC.Toggle_DeviceCondWidget(False)
 EndFunction
 
 Function decreaseDurability(float value,float cond_mult = 1.0)
@@ -2026,11 +2028,6 @@ Function setDurability(float durability)
     current_device_health = durability
 EndFunction
 
-Function decreaseConditionSlow(float value)
-    _total_durability_drain += value
-    updateCondition(value >= 0)
-EndFunction
-
 Function updateMend(float timePassed)
     if getRelativeDurability() < 1.0 && hasModifier("Regen")
         mendDevice(1.0,timePassed)
@@ -2048,9 +2045,10 @@ Function updateMend(float timePassed)
 EndFunction
 
 Function updateCondition(bool decrease = True)
+    Float loc_health = UD_Health
     if decrease
-        while (_total_durability_drain >= UD_Health) && !_isUnlocked && UD_condition < 4
-            _total_durability_drain -= UD_Health
+        while (_total_durability_drain >= loc_health) && !_isUnlocked && UD_condition < 4
+            _total_durability_drain -= loc_health
             UD_condition += 1
             if WearerIsPlayer()
                 UDCDmain.Print("You feel that "+getDeviceName()+" condition have decreased!",2)
@@ -2079,6 +2077,10 @@ Function updateCondition(bool decrease = True)
             UDCDmain.Print(GetWearerName() + " managed to destroy " + getDeviceName() + "!",2)
         endif
         unlockRestrain(True)
+    else
+        if UDmain.UseiWW() && PlayerInMinigame() && UDCDmain.UD_UseWidget && UD_UseWidget; && UD_AllowWidgetUpdate
+            UDmain.UDWC.UpdatePercent_DeviceCondWidget(getRelativeCondition())
+        endif
     endif
 EndFunction
 
@@ -2110,7 +2112,7 @@ Function refillDurability(float arg_fValue)
     if current_device_health > 0.0
         current_device_health += arg_fValue
         if (current_device_health > UD_Health)
-            _total_durability_drain -= 5*(current_device_health - UD_Health)
+            _total_durability_drain -= 0.5*(arg_fValue)
             current_device_health = UD_Health
             updateCondition(False)
         endif
@@ -5249,22 +5251,39 @@ Function updateWidget(bool force = false)
 EndFunction
 
 Function updateWidgetColor()
-    if UD_WidgetAutoColor
+    if UD_WidgetAutoColor && !UDmain.UseiWW()
         if UD_Condition == 0
             UD_WidgetColor2 = 0x61ff00
-            UD_WidgetColor = 0x4da319
+            UD_WidgetColor  = 0x4da319
         elseif UD_Condition == 1
             UD_WidgetColor2 = 0x4da319
-            UD_WidgetColor = 0xafba24
+            UD_WidgetColor  = 0xafba24
         elseif UD_Condition == 2
             UD_WidgetColor2 = 0xafba24
-            UD_WidgetColor = 0xe37418
+            UD_WidgetColor  = 0xe37418
         elseif UD_Condition == 3
             UD_WidgetColor2 = 0xe37418
-            UD_WidgetColor = 0xdc1515
+            UD_WidgetColor  = 0xdc1515
         else
             UD_WidgetColor2 = 0xdc1515
-            UD_WidgetColor = 0x5a1515
+            UD_WidgetColor  = 0x5a1515
+        endif
+    elseif UD_WidgetAutoColor
+        UD_WidgetColor2 = 0xFF307C
+        UD_WidgetColor  = 0xFF005E
+    endif
+
+    if UDmain.UseiWW()
+        if UD_Condition == 0
+            UDmain.UDWC.UpdateColor_DeviceCondWidget(0x4df319, 0x62ff00)
+        elseif UD_Condition == 1
+            UDmain.UDWC.UpdateColor_DeviceCondWidget(0xafba24, 0x4da319)
+        elseif UD_Condition == 2
+            UDmain.UDWC.UpdateColor_DeviceCondWidget(0xe37418, 0xafba24)
+        elseif UD_Condition == 3
+            UDmain.UDWC.UpdateColor_DeviceCondWidget(0xdc1515, 0xe37418)
+        else
+            UDmain.UDWC.UpdateColor_DeviceCondWidget(0x5a1515, 0xdc1515)
         endif
     endif
     
