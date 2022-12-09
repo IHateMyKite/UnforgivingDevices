@@ -75,8 +75,20 @@ GlobalVariable Property MoneyForHelp
     EndFunction
 EndProperty
 
+GlobalVariable _validDevice
+GlobalVariable Property ValidDevice
+    GlobalVariable Function Get()
+        if !_validDevice
+            _validDevice = GetMeMyForm(0x15D5FA, "PR100_NPCAI.esp") as GlobalVariable
+        endif
+        return _validDevice
+    EndFunction
+EndProperty
 
-
+Function SetHelpPrice_0G(ObjectReference akSpeakerRef) ;Free
+   GInfo("SetHelpPrice_0G")
+   MoneyForHelp.Value = 0
+EndFunction
 Function SetHelpPrice_50G(ObjectReference akSpeakerRef)
    MoneyForHelp.Value = 50
 EndFunction
@@ -94,15 +106,72 @@ Function SetHelpPrice_500G(ObjectReference akSpeakerRef)
 EndFunction
 
 Function PayAndHelp(ObjectReference akSpeakerRef)
-    Game.GetPlayer().RemoveItem(UDCDMain.UDlibs.Gold,Round(MoneyForHelp.Value),false,akSpeakerRef) ;move the gold to the speaker
-    (akSpeakerRef as Actor).PathToReference(Game.GetPlayer(), 0.5)
-    UDCDmain.HelpNPC(Game.getPlayer(),akSpeakerRef as Actor,false)
+    ValidatePrice()
+    if Round(MoneyForHelp.Value)
+        Game.GetPlayer().RemoveItem(UDCDMain.UDlibs.Gold,Round(MoneyForHelp.Value),false,akSpeakerRef) ;move the gold to the speaker
+        MoneyForHelp.Value = 0 ;reset
+    endif
+    
+    if UDCDMain.UDDmain.SelectedDevice
+        UDCDmain.OpenHelpDeviceMenu(UDCDMain.UDDmain.SelectedDevice,akSpeakerRef as Actor,False,True)
+    else
+        GError("Error: Selected device is none")
+    endif
+EndFunction
+
+Function ChooseDeviceAndCheckFree(ObjectReference akSpeakerRef)
+    MoneyForHelp.Value = 0 ;reset
+    ChooseDeviceAndCheck(akSpeakerRef)
+EndFunction
+
+Function ChooseDeviceAndCheck(ObjectReference akSpeakerRef)
+    Actor akHelper = akSpeakerRef as Actor
+    float loc_currenttime = Utility.GetCurrentGameTime()
+    float loc_cooldowntime = StorageUtil.GetFloatValue(akHelper,"UDNPCCD:"+Game.GetPlayer(),0)
+    if loc_cooldowntime > loc_currenttime
+        ValidDevice.Value = 1 ;NPC is on cooldown
+        return
+    endif
+    
+    UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(Game.GetPlayer())
+    if loc_slot
+        UD_CustomDevice_RenderScript loc_device = loc_slot.GetUserSelectedDevice()
+        if loc_device
+            UDCDMain.UDDmain.SelectedDevice = loc_device
+            ValidDevice.Value = 0 ;Player choose device
+            return
+        else
+            ValidDevice.Value = 2 ;Player didnt choose device
+            ValidatePrice()
+            return
+        endif
+    else
+        ValidDevice.Value = 3 ;actor is not registered
+        return
+    endif
+EndFunction
+
+Function ValidatePrice()
+    if ValidDevice.Value
+        MoneyForHelp.Value = 0
+    endif
 EndFunction
 
 Function LockRandomHandRestrain(ObjectReference akSpeakerRef)
-    ;Game.GetPlayer().RemoveItem(UDCDMain.UDlibs.Gold,Round(MoneyForHelp.Value),akSpeakerRef) ;move the gold to the speaker
-    ;UDCDmain.HelpNPC(Game.getPlayer(),akSpeakerRef as Actor,false)
-    UDCDmain.UDmain.UDRRM.LockRandomRestrain(Game.GetPlayer(),false,0x00000010)
+    UDCDmain.UDmain.UDRRM.LockRandomRestrain(Game.GetPlayer(),false,0x00000010) ;lock hand restrain
+    UDCDmain.UDmain.UDRRM.LockAnyRandomRestrain(Game.GetPlayer(),Utility.randomInt(3,8),false) ;lock other random devices
+    Debug.Messagebox(GetActorName(akSpeakerRef as Actor) + " didn't like your attitude and locked you in variaty of devices to teach you a lesson.")
 EndFunction
 
-UDCustomDeviceMain Property UDCDmain  Auto
+UDCustomDeviceMain _UDCDmain
+UDCustomDeviceMain Property UDCDmain 
+    UDCustomDeviceMain Function Get()
+        if !_UDCDmain
+            _UDCDmain = GetMeMyForm(0x15E73C, "UnforgivingDevices.esp") as UDCustomDeviceMain
+        endif
+        return _UDCDmain
+    EndFunction
+    Function Set(UDCustomDeviceMain akVal)
+        _UDCDmain = akVal
+    EndFunction
+EndProperty

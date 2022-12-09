@@ -30,6 +30,9 @@ Scene Property HoodDialogueScene_End auto
 
 Bool Property HaveMoney = false auto conditional hidden
 
+UD_CustomDevice_RenderScript Property SelectedDevice = none auto hidden
+
+
 Function onInit()
     Utility.wait(3.0)
     RegisterForModEvent("UD_SentientDialogue","startDialogue")

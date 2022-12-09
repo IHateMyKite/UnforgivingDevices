@@ -1315,10 +1315,10 @@ string Function GetHelperDetails(Actor akActor)
     loc_res += "Helper LVL: " + GetHelperLVL(akActor) +"("+Round(GetHelperLVLProgress(akActor)*100)+"%)" + "\n"
     loc_res += "Base Cooldown: " + Round(CalculateHelperCD(akActor)*24*60) + " min\n"
     float loc_currenttime = Utility.GetCurrentGameTime()
-    float loc_cooldowntimeHP = StorageUtil.GetFloatValue(akActor,"UDNPCCD:"+UDmain.Player,loc_currenttime)
-    float loc_cooldowntimePH = StorageUtil.GetFloatValue(UDmain.Player,"UDNPCCD:"+akActor,loc_currenttime)
-    loc_res += "Avaible in (H->P): " + ToUnsig(Round(((loc_cooldowntimeHP - loc_currenttime)*24*60))) + " min\n"
-    loc_res += "Avaible in (P->H): " + ToUnsig(Round(((loc_cooldowntimePH - loc_currenttime)*24*60))) + " min\n"
+    float loc_cooldowntimeHP = StorageUtil.GetFloatValue(akActor,"UDNPCCD:"+UDmain.Player,0)
+    float loc_cooldowntimePH = StorageUtil.GetFloatValue(UDmain.Player,"UDNPCCD:"+akActor,0)
+    loc_res += "Avaible in (H->P): " + iRange(ToUnsig(Round(((loc_cooldowntimeHP - loc_currenttime)*24*60))),0,10000) + " min\n"
+    loc_res += "Avaible in (P->H): " + iRange(ToUnsig(Round(((loc_cooldowntimePH - loc_currenttime)*24*60))),0,10000) + " min\n"
     return loc_res
 EndFunction
 
