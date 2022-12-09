@@ -1213,7 +1213,7 @@ EndFunction
 
 ;returns true if player is taking part in minigame (either as wearer or helper)
 bool Function PlayerInMinigame()
-    return WearerIsPlayer() || HelperIsPlayer()
+    return (WearerIsPlayer() || HelperIsPlayer()) && miniGame_on
 EndFunction
 
 ;returns true if device currently have helper
@@ -2404,7 +2404,6 @@ Function DeviceMenu(bool[] aControl)
         DeviceMenuExt(msgChoice)
         GamepadMenuPause()
     endwhile
-    
     GoToState("")
 EndFunction
 
