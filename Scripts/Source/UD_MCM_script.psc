@@ -710,8 +710,6 @@ Int UDAM_TestQuery_PlayerLegs_Index
 Int UDAM_TestQuery_PlayerMittens_T
 Bool UDAM_TestQuery_PlayerMittens
 
-Int UDAM_TestQuery_PlayerConstraints
-
 Int UDAM_TestQuery_HelperArms_M
 Int UDAM_TestQuery_HelperArms_Index
 
@@ -721,20 +719,29 @@ Int UDAM_TestQuery_HelperLegs_Index
 Int UDAM_TestQuery_HelperMittens_T
 Bool UDAM_TestQuery_HelperMittens
 
-Int UDAM_TestQuery_HelperConstraints
-
 Int UDAM_TestQuery_Button_T
 
 Int UDAM_TestQuery_Keyword_M
 String[] UDAM_TestQuery_Keyword_List
 Int UDAM_TestQuery_Keyword_Index
 
+Int UDAM_TestQuery_Type_M
+String[] UDAM_TestQuery_Type_List
+Int UDAM_TestQuery_Type_Index
+
+Float UDAM_TestQuery_TimeSpan
 
 String[] UDAM_TestQuery_Results
 Int UDAM_TestQuery_Results_First_T
 
 Event resetAnimationsPage() 
 ; FIRST RUN
+    If UDAM_TestQuery_Type_List.Length == 0
+        UDAM_TestQuery_Type_List = new String[2]
+        UDAM_TestQuery_Type_List[0] = ".solo"
+        UDAM_TestQuery_Type_List[1] = ".paired"
+        UDAM_TestQuery_Type_Index = 1
+    EndIf
     If UDAM_TestQuery_Keyword_List.Length == 0
         UDAM_TestQuery_Keyword_List = new String[36]
         UDAM_TestQuery_Keyword_List[0] = ".zad_DeviousBoots"
@@ -843,6 +850,8 @@ Event resetAnimationsPage()
     SetCursorPosition(1)
     AddHeaderOption("Test animation query")
     rows_right += 1
+    UDAM_TestQuery_Type_M = AddMenuOption("Animation type", UDAM_TestQuery_Type_List[UDAM_TestQuery_Type_Index])
+    rows_right += 1
     UDAM_TestQuery_Keyword_M = AddMenuOption("Keyword", UDAM_TestQuery_Keyword_List[UDAM_TestQuery_Keyword_Index])
     rows_right += 1
 
@@ -853,11 +862,17 @@ Event resetAnimationsPage()
     UDAM_TestQuery_PlayerMittens_T = AddToggleOption("Player wears mittens", UDAM_TestQuery_PlayerMittens)
     rows_right += 1
     
-    UDAM_TestQuery_HelperArms_M = AddMenuOption("Helper arms restraints", UDAM_TestQuery_PlayerArms_List[UDAM_TestQuery_HelperArms_Index])
+    Int helper_flags = OPTION_FLAG_NONE
+    If UDAM_TestQuery_Type_Index == 0
+        helper_flags = OPTION_FLAG_DISABLED
+    EndIf
+    UDAM_TestQuery_HelperArms_M = AddMenuOption("Helper arms restraints", UDAM_TestQuery_PlayerArms_List[UDAM_TestQuery_HelperArms_Index], helper_flags)
     rows_right += 1
-    UDAM_TestQuery_HelperLegs_M = AddMenuOption("Helper legs restraints", UDAM_TestQuery_PlayerLegs_List[UDAM_TestQuery_HelperLegs_Index])
+    UDAM_TestQuery_HelperLegs_M = AddMenuOption("Helper legs restraints", UDAM_TestQuery_PlayerLegs_List[UDAM_TestQuery_HelperLegs_Index], helper_flags)
     rows_right += 1
-    UDAM_TestQuery_HelperMittens_T = AddToggleOption("Helper wears mittens", UDAM_TestQuery_HelperMittens)
+    UDAM_TestQuery_HelperMittens_T = AddToggleOption("Helper wears mittens", UDAM_TestQuery_HelperMittens, helper_flags)
+    rows_right += 1
+    AddTextOption("Time spent on last request", (UDAM_TestQuery_TimeSpan * 1000) As Int + " ms", OPTION_FLAG_DISABLED)
     rows_right += 1
     
     UDAM_TestQuery_Button_T =  AddTextOption("Test query", "-PRESS-")
@@ -865,9 +880,9 @@ Event resetAnimationsPage()
     
 ; BOTH COLUMNS 
     If rows_right > rows_left
-        SetCursorPosition(rows_right * 2 + 1)
+        SetCursorPosition(rows_right * 2)
     Else
-        SetCursorPosition(rows_left * 2 + 2)
+        SetCursorPosition(rows_left * 2)
     EndIf
 
     SetCursorFillMode(LEFT_TO_RIGHT)
@@ -1267,7 +1282,6 @@ Function OptionSelectAnimations(int option)
     If (option >= UDAM_AnimationJSON_First_T) && (option <= (UDAM_AnimationJSON_First_T + (UDAM.UD_AnimationJSON_All.Length - 1) * 2)) && (((option - UDAM_AnimationJSON_First_T) % 2) == 0)
         Int index = (option - UDAM_AnimationJSON_First_T) / 2
         String val = UDAM.UD_AnimationJSON_All[index]
-        UDmain.Log("UD_MCM_Script::OptionSelectAnimations() toggle json '" + val + "'", 3)
         If UDAM.UD_AnimationJSON_Dis.Find(val) == -1
             UDAM.UD_AnimationJSON_Dis = PapyrusUtil.PushString(UDAM.UD_AnimationJSON_Dis, UDAM.UD_AnimationJSON_All[index])
             SetToggleOptionValue(option, False)
@@ -1281,12 +1295,21 @@ Function OptionSelectAnimations(int option)
         SetOptionFlags(option, OPTION_FLAG_NONE)
     ElseIf option == UDAM_TestQuery_Button_T
         SetOptionFlags(option, OPTION_FLAG_DISABLED)
-        Int[] constr = new Int[2]
-        constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 128 * (UDAM_TestQuery_PlayerMittens as Int)
-        constr[1] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_HelperArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_HelperLegs_Index] + 128 * (UDAM_TestQuery_HelperMittens as Int)
+        Float start_time = Utility.GetCurrentRealTime()
         String[] kwds = new String[1]
         kwds[0] = UDAM_TestQuery_Keyword_List[UDAM_TestQuery_Keyword_Index]
-        UDAM_TestQuery_Results = UDAM.GetAnimationsFromDB(".paired", kwds, "", constr)
+        String anim_type = UDAM_TestQuery_Type_List[UDAM_TestQuery_Type_Index]
+        If UDAM_TestQuery_Type_Index == 1                                       ; .paired
+            Int[] constr = new Int[2]
+            constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int)
+            constr[1] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_HelperArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_HelperLegs_Index] + 256 * (UDAM_TestQuery_HelperMittens as Int)
+            UDAM_TestQuery_Results = UDAM.GetAnimationsFromDB(anim_type, kwds, "", constr)
+        Else                                                                    ; .solo
+            Int[] constr = new Int[1]
+            constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int)
+            UDAM_TestQuery_Results = UDAM.GetAnimationsFromDB(anim_type, kwds, "", constr)
+        EndIf
+        UDAM_TestQuery_TimeSpan = Utility.GetCurrentRealTime() - start_time
         forcePageReset()
         SetOptionFlags(option, OPTION_FLAG_NONE)
     ElseIf option == UDAM_TestQuery_PlayerMittens_T
@@ -1976,10 +1999,14 @@ Function OnOptionMenuOpenCustomOrgasm(int option)
 EndFunction
 
 Function OnOptionMenuOpenAnimations(Int option)
-    If option == UDAM_TestQuery_Keyword_M
+    If option == UDAM_TestQuery_Type_M
+        SetMenuDialogOptions(UDAM_TestQuery_Type_List)
+        SetMenuDialogStartIndex(UDAM_TestQuery_Type_Index)
+        SetMenuDialogDefaultIndex(1)
+    ElseIf option == UDAM_TestQuery_Keyword_M
         SetMenuDialogOptions(UDAM_TestQuery_Keyword_List)
         SetMenuDialogStartIndex(UDAM_TestQuery_Keyword_Index)
-        SetMenuDialogDefaultIndex(1)
+        SetMenuDialogDefaultIndex(0)
     ElseIf option == UDAM_TestQuery_PlayerArms_M
         SetMenuDialogOptions(UDAM_TestQuery_PlayerArms_List)
         SetMenuDialogStartIndex(UDAM_TestQuery_PlayerArms_Index)
@@ -2056,7 +2083,17 @@ Function OnOptionMenuAcceptCustomOrgasm(int option, int index)
 EndFunction
 
 Function OnOptionMenuAcceptAnimations(Int option, Int index)
-    If option == UDAM_TestQuery_Keyword_M
+    If option == UDAM_TestQuery_Type_M
+        UDAM_TestQuery_Type_Index = index
+        SetMenuOptionValue(option, UDAM_TestQuery_Type_List[index])
+        Int helper_flags = OPTION_FLAG_NONE
+        If index == 0
+            helper_flags = OPTION_FLAG_DISABLED
+        EndIf
+        SetOptionFlags(UDAM_TestQuery_HelperArms_M, helper_flags)
+        SetOptionFlags(UDAM_TestQuery_HelperLegs_M, helper_flags)
+        SetOptionFlags(UDAM_TestQuery_HelperMittens_T, helper_flags)
+    ElseIf option == UDAM_TestQuery_Keyword_M
         UDAM_TestQuery_Keyword_Index = index
         SetMenuOptionValue(option, UDAM_TestQuery_Keyword_List[index])
     ElseIf option == UDAM_TestQuery_PlayerArms_M
