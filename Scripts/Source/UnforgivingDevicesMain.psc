@@ -121,6 +121,7 @@ bool Property ConsoleUtilInstalled      = false auto
 bool Property SlaveTatsInstalled        = false auto
 bool Property OrdinatorInstalled        = false auto
 bool Property ZadExpressionSystemInstalled = false auto
+Bool Property DeviousStrikeInstalled    = False auto
 
 bool Property Ready = False auto hidden
 bool Function UDReady()
@@ -317,6 +318,8 @@ Function Update()
 EndFunction
 
 Function CheckOptionalMods()
+    UDNPCM.ResetIncompatibleFactionArray() ;reset incomatible scan factions
+    
     If ModInstalled("ZaZAnimationPack.esm")
         ZaZAnimationPackInstalled = True
         if TraceAllowed()
@@ -383,6 +386,18 @@ Function CheckOptionalMods()
         iWidgetInstalled = True
     else
         iWidgetInstalled = False
+    endif
+    
+    if ModInstalled("Devious Strike.esp")
+        DeviousStrikeInstalled = True
+        if TraceAllowed()
+            Log("Devious Strike detected!")
+        endif
+        ;2 Factions, as it looks like that the forID changes between versions
+        UDNPCM.AddScanIncompatibleFaction(GetMeMyForm(0x000801,"Devious Strike.esp") as Faction) 
+        UDNPCM.AddScanIncompatibleFaction(GetMeMyForm(0x005930,"Devious Strike.esp") as Faction)
+    else
+        DeviousStrikeInstalled = false
     endif
 EndFUnction
 
@@ -451,7 +466,7 @@ int Property UD_PrintLevel = 3 auto
 Function Print(String msg,int iLevel = 1,bool bLog = false)
     if (iRange(iLevel,0,3) <= UD_PrintLevel)
         debug.notification(msg)
-        if bLog && TraceAllowed(); || DebugMod    
+        if bLog || TraceAllowed()
             Log("Print -> " + msg)
         endif
     endif

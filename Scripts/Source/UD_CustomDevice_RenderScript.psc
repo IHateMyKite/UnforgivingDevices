@@ -2905,6 +2905,7 @@ bool Function struggleMinigameWH(Actor akHelper)
     setHelper(akHelper)
     
     if !minigamePrecheck()
+        setHelper(none)
         return false
     endif
     
@@ -3453,7 +3454,7 @@ bool Function minigamePostcheck(Bool abSilent = False)
         if !abSilent
             if WearerIsPlayer() ;message related to player wearer
                 UDmain.Print("You are too exhausted. Try later, after you regain your strength.",1)
-            elseif UDCDmain.AllowNPCMessage(Wearer, True) ;message related to NPC wearer
+            elseif UDCDmain.AllowNPCMessage(Wearer) ;message related to NPC wearer
                 UDmain.Print(getWearerName()+" is too exhausted!",1)
             endif
         endif
@@ -3461,8 +3462,8 @@ bool Function minigamePostcheck(Bool abSilent = False)
     elseif hasHelper() && !checkMinAV(_minigameHelper)
         if !abSilent
             if HelperIsPlayer() ;message related to player helper
-                UDmain.Print("You are too exhausted and can't help "+getWearerName()+".",1)    
-            elseif UDCDmain.AllowNPCMessage(Wearer, True) ;message related to NPC helper
+                UDmain.Print("You are too exhausted and can't help "+getWearerName()+".",1)
+            elseif UDCDmain.AllowNPCMessage(_minigameHelper) ;message related to NPC helper
                 UDmain.Print(getHelperName()+" is too exhausted and unable to help you.",1)
             endif
         endif
@@ -3476,7 +3477,7 @@ bool Function minigamePrecheck(Bool abSilent = False)
         if !abSilent
             if WearerIsPlayer()
                 UDCDmain.Print("You are already doing something")
-            elseif UDCDmain.AllowNPCMessage(Wearer, True)
+            elseif UDCDmain.AllowNPCMessage(Wearer)
                 UDCDmain.Print(getWearerName() + " is already doing something")
             endif
         endif
@@ -3487,7 +3488,7 @@ bool Function minigamePrecheck(Bool abSilent = False)
         if !abSilent
             if WearerIsPlayer()
                 UDCDmain.Print("You are already doing something",1)
-            elseif WearerIsFollower()
+            elseif UDCDmain.AllowNPCMessage(Wearer)
                 UDCDmain.Print(getWearerName() + " is already doing something",1)
             endif
         endif
@@ -3499,7 +3500,7 @@ bool Function minigamePrecheck(Bool abSilent = False)
         if !abSilent
             if WearerIsPlayer()
                 UDCDmain.Print("You are already doing something",1)
-            elseif UDCDmain.AllowNPCMessage(Wearer, True)
+            elseif UDCDmain.AllowNPCMessage(Wearer)
                 UDCDmain.Print(getWearerName() + " is already doing something",1)
             endif
         endif
@@ -3511,7 +3512,7 @@ bool Function minigamePrecheck(Bool abSilent = False)
             if !abSilent
                 if HelperIsPlayer()
                     UDCDmain.Print("You are already doing something")
-                elseif HelperIsFollower()
+                elseif UDCDmain.AllowNPCMessage(_minigameHelper)
                     UDCDmain.Print(getHelperName() + " is already doing something",1)
                 endif
             endif
@@ -3521,7 +3522,7 @@ bool Function minigamePrecheck(Bool abSilent = False)
             if !abSilent
                 if HelperIsPlayer()
                     UDCDmain.Print("You are already doing something")
-                elseif HelperIsFollower()
+                elseif UDCDmain.AllowNPCMessage(_minigameHelper)
                     UDCDmain.Print(getHelperName() + " is already doing something")
                 endif
             endif
@@ -3532,7 +3533,7 @@ bool Function minigamePrecheck(Bool abSilent = False)
             if !abSilent
                 if HelperIsPlayer()
                     UDCDmain.Print("You are already doing something",1)
-                elseif HelperIsFollower()
+                elseif UDCDmain.AllowNPCMessage(_minigameHelper)
                     UDCDmain.Print(getHelperName() + " is already doing something",1)
                 endif
             endif
