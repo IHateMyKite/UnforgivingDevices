@@ -117,7 +117,7 @@ int Function FlagSwitch(bool bVal)
 EndFunction
 
 Function LoadConfigPages()
-    pages = new String[10]
+    pages = new String[11]
     pages[0] = "General"
     pages[1] = "Device filter"
     pages[2] = "Custom devices"
@@ -126,8 +126,9 @@ Function LoadConfigPages()
     pages[5] = "DD Patch"
     pages[6] = "Abadon Plug"
     pages[7] = "UI/Widgets"
-    pages[8] = "Debug panel"
-    pages[9] = "Other"
+    pages[8] = "Animations"
+    pages[9] = "Debug panel"
+    pages[10] = "Other"
 EndFunction
 
 bool Property Ready = False Auto
@@ -231,6 +232,8 @@ Event OnPageReset(string page)
         resetDDPatchPage()
     elseif (page == "UI/Widgets")
         resetUIWidgetPage()
+    elseif (page == "Animations")
+        resetAnimationsPage()
     elseif (page == "Debug panel")
         resetDebugPage()
     elseif (page == "Other")
@@ -685,6 +688,209 @@ Event resetUIWidgetPage()
 EndEvent
 
 
+UD_AnimationManagerScript Property UDAM Hidden
+    UD_AnimationManagerScript Function Get()
+        return UDmain.UDAM
+    EndFunction
+EndProperty
+
+Int UDAM_AnimationJSON_First_T
+Int UDAM_Reload_T
+
+Int UDAM_TestQuery_PlayerArms_M
+String[] UDAM_TestQuery_PlayerArms_List
+Int[] UDAM_TestQuery_PlayerArms_Bit
+Int UDAM_TestQuery_PlayerArms_Index
+
+Int UDAM_TestQuery_PlayerLegs_M
+String[] UDAM_TestQuery_PlayerLegs_List
+Int[] UDAM_TestQuery_PlayerLegs_Bit
+Int UDAM_TestQuery_PlayerLegs_Index
+
+Int UDAM_TestQuery_PlayerMittens_T
+Bool UDAM_TestQuery_PlayerMittens
+
+Int UDAM_TestQuery_PlayerConstraints
+
+Int UDAM_TestQuery_HelperArms_M
+Int UDAM_TestQuery_HelperArms_Index
+
+Int UDAM_TestQuery_HelperLegs_M
+Int UDAM_TestQuery_HelperLegs_Index
+
+Int UDAM_TestQuery_HelperMittens_T
+Bool UDAM_TestQuery_HelperMittens
+
+Int UDAM_TestQuery_HelperConstraints
+
+Int UDAM_TestQuery_Button_T
+
+Int UDAM_TestQuery_Keyword_M
+String[] UDAM_TestQuery_Keyword_List
+Int UDAM_TestQuery_Keyword_Index
+
+
+String[] UDAM_TestQuery_Results
+Int UDAM_TestQuery_Results_First_T
+
+Event resetAnimationsPage() 
+; FIRST RUN
+    If UDAM_TestQuery_Keyword_List.Length == 0
+        UDAM_TestQuery_Keyword_List = new String[36]
+        UDAM_TestQuery_Keyword_List[0] = ".zad_DeviousBoots"
+        UDAM_TestQuery_Keyword_List[1] = ".zad_DeviousPlug"
+        UDAM_TestQuery_Keyword_List[2] = ".zad_DeviousBelt"
+        UDAM_TestQuery_Keyword_List[3] = ".zad_DeviousBra"
+        UDAM_TestQuery_Keyword_List[4] = ".zad_DeviousCollar"
+        UDAM_TestQuery_Keyword_List[5] = ".zad_DeviousArmCuffs"
+        UDAM_TestQuery_Keyword_List[6] = ".zad_DeviousLegCuffs"
+        UDAM_TestQuery_Keyword_List[7] = ".zad_DeviousArmbinder"
+        UDAM_TestQuery_Keyword_List[8] = ".zad_DeviousArmbinderElbow"
+        UDAM_TestQuery_Keyword_List[9] = ".zad_DeviousHobbleSkirt"
+        UDAM_TestQuery_Keyword_List[10] = ".zad_DeviousHobbleSkirtRelaxed"
+        UDAM_TestQuery_Keyword_List[11] = ".zad_DeviousAnkleShackles"
+        UDAM_TestQuery_Keyword_List[12] = ".zad_DeviousStraitJacket"
+        UDAM_TestQuery_Keyword_List[13] = ".zad_DeviousCuffsFront"
+        UDAM_TestQuery_Keyword_List[14] = ".zad_DeviousPetSuit"
+        UDAM_TestQuery_Keyword_List[15] = ".zad_DeviousYoke"
+        UDAM_TestQuery_Keyword_List[16] = ".zad_DeviousYokeBB"
+        UDAM_TestQuery_Keyword_List[17] = ".zad_DeviousCorset"
+        UDAM_TestQuery_Keyword_List[18] = ".zad_DeviousClamps"
+        UDAM_TestQuery_Keyword_List[19] = ".zad_DeviousGloves"
+        UDAM_TestQuery_Keyword_List[20] = ".zad_DeviousHood"
+        UDAM_TestQuery_Keyword_List[21] = ".zad_DeviousElbowTie"
+        UDAM_TestQuery_Keyword_List[22] = ".zad_DeviousGag"
+        UDAM_TestQuery_Keyword_List[23] = ".zad_DeviousGagLarge"
+        UDAM_TestQuery_Keyword_List[24] = ".zad_DeviousGagPanel"
+        UDAM_TestQuery_Keyword_List[25] = ".zad_DeviousPlugVaginal"
+        UDAM_TestQuery_Keyword_List[26] = ".zad_DeviousPlugAnal"
+        UDAM_TestQuery_Keyword_List[27] = ".zad_DeviousHarness"
+        UDAM_TestQuery_Keyword_List[28] = ".zad_DeviousBlindfold"
+        UDAM_TestQuery_Keyword_List[29] = ".zad_DeviousPiercingsNipple"
+        UDAM_TestQuery_Keyword_List[30] = ".zad_DeviousPiercingsVaginal"
+        UDAM_TestQuery_Keyword_List[31] = ".zad_DeviousBondageMittens"
+        UDAM_TestQuery_Keyword_List[32] = ".zad_DeviousSuit"
+        UDAM_TestQuery_Keyword_List[33] = ".horny"
+        UDAM_TestQuery_Keyword_List[34] = ".edged"
+        UDAM_TestQuery_Keyword_List[35] = ".orgasm"
+        UDAM_TestQuery_Keyword_Index = 0
+    EndIf
+    If UDAM_TestQuery_PlayerArms_List.Length == 0
+        UDAM_TestQuery_PlayerArms_List = new String[9]
+        UDAM_TestQuery_PlayerArms_Bit = new Int[9]
+        UDAM_TestQuery_PlayerArms_List[0] = "NOTHING"
+        UDAM_TestQuery_PlayerArms_Bit[0] = 0
+        UDAM_TestQuery_PlayerArms_List[1] = "Yoke"
+        UDAM_TestQuery_PlayerArms_Bit[1] = 4
+        UDAM_TestQuery_PlayerArms_List[2] = "Front Cuffs"
+        UDAM_TestQuery_PlayerArms_Bit[2] = 8
+        UDAM_TestQuery_PlayerArms_List[3] = "Armbinder"
+        UDAM_TestQuery_PlayerArms_Bit[3] = 16
+        UDAM_TestQuery_PlayerArms_List[4] = "Elbowbinder"
+        UDAM_TestQuery_PlayerArms_Bit[4] = 32
+        UDAM_TestQuery_PlayerArms_List[5] = "Pet suit"
+        UDAM_TestQuery_PlayerArms_Bit[5] = 64
+        UDAM_TestQuery_PlayerArms_List[6] = "Elbowtie"
+        UDAM_TestQuery_PlayerArms_Bit[6] = 128
+        UDAM_TestQuery_PlayerArms_List[7] = "Straitjacket"
+        UDAM_TestQuery_PlayerArms_Bit[7] = 512
+        UDAM_TestQuery_PlayerArms_List[8] = "YokeBB"
+        UDAM_TestQuery_PlayerArms_Bit[8] = 1024
+        UDAM_TestQuery_PlayerArms_Index = 0
+    EndIf
+    If UDAM_TestQuery_PlayerLegs_List.Length == 0
+        UDAM_TestQuery_PlayerLegs_List = new String[3]
+        UDAM_TestQuery_PlayerLegs_Bit = new Int[3]
+        UDAM_TestQuery_PlayerLegs_List[0] = "NOTHING"
+        UDAM_TestQuery_PlayerLegs_Bit[0] = 0
+        UDAM_TestQuery_PlayerLegs_List[1] = "Bound Ankles"
+        UDAM_TestQuery_PlayerLegs_Bit[1] = 2
+        UDAM_TestQuery_PlayerLegs_List[2] = "Hobble Skirt"
+        UDAM_TestQuery_PlayerLegs_Bit[2] = 1
+    EndIf
+    
+    UpdateLockMenuFlag()
+    
+; LEFT COLUMN
+    Int rows_left = 0
+    
+    SetCursorFillMode(TOP_TO_BOTTOM)
+    SetCursorPosition(0)
+    AddHeaderOption("Loaded JSONs")
+    rows_left += 1
+    Int i = 0
+    While i < UDAM.UD_AnimationJSON_All.Length
+        Bool val = False
+        Int flags = OPTION_FLAG_NONE
+        If (UDAM.UD_AnimationJSON_Inv.Find(UDAM.UD_AnimationJSON_All[i]) > -1)
+            flags = OPTION_FLAG_DISABLED
+        Else
+            val = (UDAM.UD_AnimationJSON_Dis.Find(UDAM.UD_AnimationJSON_All[i]) == -1)
+        EndIf
+        Int id = AddToggleOption(UDAM.UD_AnimationJSON_All[i], val, flags)
+        If i == 0
+            UDAM_AnimationJSON_First_T = id
+        EndIf
+        i += 1
+        rows_left += 1
+    EndWhile
+    UDAM_Reload_T =  AddTextOption("Reload JSONs", "-PRESS-")
+    rows_left += 1
+    
+; RIGHT COLUMN
+    Int rows_right = 0
+
+    SetCursorPosition(1)
+    AddHeaderOption("Test animation query")
+    rows_right += 1
+    UDAM_TestQuery_Keyword_M = AddMenuOption("Keyword", UDAM_TestQuery_Keyword_List[UDAM_TestQuery_Keyword_Index])
+    rows_right += 1
+
+    UDAM_TestQuery_PlayerArms_M = AddMenuOption("Player arms restraints", UDAM_TestQuery_PlayerArms_List[UDAM_TestQuery_PlayerArms_Index])
+    rows_right += 1
+    UDAM_TestQuery_PlayerLegs_M = AddMenuOption("Player legs restraints", UDAM_TestQuery_PlayerLegs_List[UDAM_TestQuery_PlayerLegs_Index])
+    rows_right += 1
+    UDAM_TestQuery_PlayerMittens_T = AddToggleOption("Player wears mittens", UDAM_TestQuery_PlayerMittens)
+    rows_right += 1
+    
+    UDAM_TestQuery_HelperArms_M = AddMenuOption("Helper arms restraints", UDAM_TestQuery_PlayerArms_List[UDAM_TestQuery_HelperArms_Index])
+    rows_right += 1
+    UDAM_TestQuery_HelperLegs_M = AddMenuOption("Helper legs restraints", UDAM_TestQuery_PlayerLegs_List[UDAM_TestQuery_HelperLegs_Index])
+    rows_right += 1
+    UDAM_TestQuery_HelperMittens_T = AddToggleOption("Helper wears mittens", UDAM_TestQuery_HelperMittens)
+    rows_right += 1
+    
+    UDAM_TestQuery_Button_T =  AddTextOption("Test query", "-PRESS-")
+    rows_right += 1
+    
+; BOTH COLUMNS 
+    If rows_right > rows_left
+        SetCursorPosition(rows_right * 2 + 1)
+    Else
+        SetCursorPosition(rows_left * 2 + 2)
+    EndIf
+
+    SetCursorFillMode(LEFT_TO_RIGHT)
+    AddHeaderOption("Test animation query results (file)")
+    AddHeaderOption("Test animation query results (path)")
+    i = 0
+    While i < UDAM_TestQuery_Results.Length
+        Int part_index = StringUtil.Find(UDAM_TestQuery_Results[i], ":")
+        If part_index > -1
+            String file_part = StringUtil.Substring(UDAM_TestQuery_Results[i], 0, part_index)
+            String path_part = StringUtil.Substring(UDAM_TestQuery_Results[i], part_index + 1)
+            AddTextOption(file_part, ":", OPTION_FLAG_DISABLED)
+            Int id = AddTextOption(path_part, "-PLAY-", OPTION_FLAG_DISABLED)
+            If id == 0
+                UDAM_TestQuery_Results_First_T = id
+            EndIf
+        EndIf
+        i += 1
+    EndWhile
+    
+EndEvent
+
+
 int[] registered_devices_T
 int[] NPCSlots_T
 int device_flag
@@ -844,6 +1050,7 @@ event OnOptionSelect(int option)
     OptionDDPatch(option)
     OptionSelectAbadon(option)
     OptionSelectUiWidget(option)
+    OptionSelectAnimations(option)
     OptionSelectDebug(option)
     OptionSelectOther(option)
 endEvent
@@ -1053,6 +1260,44 @@ Function OptionSelectUiWidget(int option)
     endif
 EndFunction
 
+Function OptionSelectAnimations(int option)
+    If UDAM_AnimationJSON_First_T == 0 
+        Return
+    EndIf
+    If (option >= UDAM_AnimationJSON_First_T) && (option <= (UDAM_AnimationJSON_First_T + (UDAM.UD_AnimationJSON_All.Length - 1) * 2)) && (((option - UDAM_AnimationJSON_First_T) % 2) == 0)
+        Int index = (option - UDAM_AnimationJSON_First_T) / 2
+        String val = UDAM.UD_AnimationJSON_All[index]
+        UDmain.Log("UD_MCM_Script::OptionSelectAnimations() toggle json '" + val + "'", 3)
+        If UDAM.UD_AnimationJSON_Dis.Find(val) == -1
+            UDAM.UD_AnimationJSON_Dis = PapyrusUtil.PushString(UDAM.UD_AnimationJSON_Dis, UDAM.UD_AnimationJSON_All[index])
+            SetToggleOptionValue(option, False)
+        Else
+            UDAM.UD_AnimationJSON_Dis = PapyrusUtil.RemoveString(UDAM.UD_AnimationJSON_Dis, UDAM.UD_AnimationJSON_All[index])
+            SetToggleOptionValue(option, True)
+        EndIf
+    ElseIf option == UDAM_Reload_T
+        SetOptionFlags(option, OPTION_FLAG_DISABLED)
+        UDAM.LoadAnimationJSONFiles()
+        SetOptionFlags(option, OPTION_FLAG_NONE)
+    ElseIf option == UDAM_TestQuery_Button_T
+        SetOptionFlags(option, OPTION_FLAG_DISABLED)
+        Int[] constr = new Int[2]
+        constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 128 * (UDAM_TestQuery_PlayerMittens as Int)
+        constr[1] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_HelperArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_HelperLegs_Index] + 128 * (UDAM_TestQuery_HelperMittens as Int)
+        String[] kwds = new String[1]
+        kwds[0] = UDAM_TestQuery_Keyword_List[UDAM_TestQuery_Keyword_Index]
+        UDAM_TestQuery_Results = UDAM.GetAnimationsFromDB(".paired", kwds, "", constr)
+        forcePageReset()
+        SetOptionFlags(option, OPTION_FLAG_NONE)
+    ElseIf option == UDAM_TestQuery_PlayerMittens_T
+        UDAM_TestQuery_PlayerMittens = !UDAM_TestQuery_PlayerMittens
+        SetToggleOptionValue(option, UDAM_TestQuery_PlayerMittens)
+    ElseIf option == UDAM_TestQuery_HelperMittens_T
+        UDAM_TestQuery_HelperMittens = !UDAM_TestQuery_HelperMittens
+        SetToggleOptionValue(option, UDAM_TestQuery_HelperMittens)
+    EndIf
+EndFunction
+
 Function OptionSelectAbadon(int option)
     if(option == UseAnalVariant_T)
         AbadonQuest.UseAnalVariant = !AbadonQuest.UseAnalVariant
@@ -1159,16 +1404,34 @@ Function OptionSelectOther(int option)
 EndFunction
 
 Function OnOptionInputOpen(int option)
+    OnOptionInputOpenGeneral(option)
+    OnOptionInputOpenAnimations(option)
+EndFunction
+
+Function OnOptionInputOpenGeneral(int option)
     if option == UD_RandomFilter_T
         SetInputDialogStartText(Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFFFFFF))
     endif
 EndFunction
 
+Function OnOptionInputOpenAnimations(int option)
+
+EndFunction
+
 Function OnOptionInputAccept(int option, string value)
+    OnOptionInputAcceptGeneral(option, value)
+    OnOptionInputAcceptAnimations(option, value)
+EndFunction
+
+Function OnOptionInputAcceptGeneral(int option, string value)
     if(option == UD_RandomFilter_T)
         UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(value as Int,0xFFFFFFFF)
         SetInputOptionValue(UD_RandomFilter_T, Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFFFFFF))
     endif
+EndFunction
+
+Function OnOptionInputAcceptAnimations(int option, string value)
+
 EndFunction
 
 event OnOptionSliderOpen(int option)
@@ -1658,6 +1921,7 @@ event OnOptionMenuOpen(int option)
     OnOptionMenuOpenCustomBondage(option)
     OnOptionMenuOpenCustomOrgasm(option)
     OnOptionMenuOpenAbadon(option)
+    OnOptionMenuOpenAnimations(option)
 endEvent
 
 Function OnOptionMenuOpenDefault(int option)
@@ -1711,15 +1975,40 @@ Function OnOptionMenuOpenCustomOrgasm(int option)
     endif
 EndFunction
 
+Function OnOptionMenuOpenAnimations(Int option)
+    If option == UDAM_TestQuery_Keyword_M
+        SetMenuDialogOptions(UDAM_TestQuery_Keyword_List)
+        SetMenuDialogStartIndex(UDAM_TestQuery_Keyword_Index)
+        SetMenuDialogDefaultIndex(1)
+    ElseIf option == UDAM_TestQuery_PlayerArms_M
+        SetMenuDialogOptions(UDAM_TestQuery_PlayerArms_List)
+        SetMenuDialogStartIndex(UDAM_TestQuery_PlayerArms_Index)
+        SetMenuDialogDefaultIndex(0)
+    ElseIf option == UDAM_TestQuery_PlayerLegs_M
+        SetMenuDialogOptions(UDAM_TestQuery_PlayerLegs_List)
+        SetMenuDialogStartIndex(UDAM_TestQuery_PlayerLegs_Index)
+        SetMenuDialogDefaultIndex(0)
+    ElseIf option == UDAM_TestQuery_HelperArms_M
+        SetMenuDialogOptions(UDAM_TestQuery_PlayerArms_List)
+        SetMenuDialogStartIndex(UDAM_TestQuery_HelperArms_Index)
+        SetMenuDialogDefaultIndex(0)
+    ElseIf option == UDAM_TestQuery_HelperLegs_M
+        SetMenuDialogOptions(UDAM_TestQuery_PlayerLegs_List)
+        SetMenuDialogStartIndex(UDAM_TestQuery_HelperLegs_Index)
+        SetMenuDialogDefaultIndex(0)
+    EndIf
+EndFunction
+
 event OnOptionMenuAccept(int option, int index)
     OnOptionMenuAcceptDefault(option,index)
     OnOptionMenuAcceptCustomBondage(option,index)
     OnOptionMenuAcceptCustomOrgasm(option,index)
     OnOptionMenuAcceptAbadon(option, index)
+    OnOptionMenuAcceptAnimations(option, index)
 endEvent
 
 Function OnOptionMenuAcceptDefault(int option, int index)
-EndFUnction
+EndFunction
 
 Function OnOptionMenuAcceptAbadon(int option, int index)
     if (option == difficulty_M)
@@ -1764,6 +2053,25 @@ Function OnOptionMenuAcceptCustomOrgasm(int option, int index)
         UDOM.UD_OrgasmAnimation = index
         SetMenuOptionValue(UD_OrgasmAnimation_M, orgasmAnimation[UDOM.UD_OrgasmAnimation])
     endIf
+EndFunction
+
+Function OnOptionMenuAcceptAnimations(Int option, Int index)
+    If option == UDAM_TestQuery_Keyword_M
+        UDAM_TestQuery_Keyword_Index = index
+        SetMenuOptionValue(option, UDAM_TestQuery_Keyword_List[index])
+    ElseIf option == UDAM_TestQuery_PlayerArms_M
+        UDAM_TestQuery_PlayerArms_Index = index
+        SetMenuOptionValue(option, UDAM_TestQuery_PlayerArms_List[index])
+    ElseIf option == UDAM_TestQuery_PlayerLegs_M
+        UDAM_TestQuery_PlayerLegs_Index = index
+        SetMenuOptionValue(option, UDAM_TestQuery_PlayerLegs_List[index])
+    ElseIf option == UDAM_TestQuery_HelperArms_M
+        UDAM_TestQuery_HelperArms_Index = index
+        SetMenuOptionValue(option, UDAM_TestQuery_PlayerArms_List[index])
+    ElseIf option == UDAM_TestQuery_HelperLegs_M
+        UDAM_TestQuery_HelperLegs_Index = index
+        SetMenuOptionValue(option, UDAM_TestQuery_PlayerLegs_List[index])
+    EndIf
 EndFunction
 
 bool Function checkMinigameKeyConflict(int iKeyCode)
