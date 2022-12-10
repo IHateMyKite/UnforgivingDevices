@@ -137,18 +137,22 @@ Function ChooseDeviceAndCheck(ObjectReference akSpeakerRef)
     if loc_slot
         UD_CustomDevice_RenderScript loc_device = loc_slot.GetUserSelectedDevice()
         if loc_device
-            UDCDMain.UDDmain.SelectedDevice = loc_device
+            UDCDmain.UDDmain.SelectedDevice = loc_device
             ValidDevice.Value = 0 ;Player choose device
             return
         else
             ValidDevice.Value = 2 ;Player didnt choose device
-            ValidatePrice()
+            ResetCooldownNoXP(akSpeakerRef)
             return
         endif
     else
         ValidDevice.Value = 3 ;actor is not registered
         return
     endif
+EndFunction
+
+Function ResetCooldownNoXP(ObjectReference akSpeakerRef)
+    UDCDMain.ResetHelperCD(akSpeakerRef as Actor,Game.GetPlayer(),0)
 EndFunction
 
 Function ValidatePrice()
@@ -161,10 +165,11 @@ Function LockRandomHandRestrain(ObjectReference akSpeakerRef)
     UDCDmain.UDmain.UDRRM.LockRandomRestrain(Game.GetPlayer(),false,0x00000010) ;lock hand restrain
     UDCDmain.UDmain.UDRRM.LockAnyRandomRestrain(Game.GetPlayer(),Utility.randomInt(3,8),false) ;lock other random devices
     Debug.Messagebox(GetActorName(akSpeakerRef as Actor) + " didn't like your attitude and locked you in variaty of devices to teach you a lesson.")
+    ResetCooldownNoXP(akSpeakerRef)
 EndFunction
 
 UDCustomDeviceMain _UDCDmain
-UDCustomDeviceMain Property UDCDmain 
+UDCustomDeviceMain Property UDCDmain
     UDCustomDeviceMain Function Get()
         if !_UDCDmain
             _UDCDmain = GetMeMyForm(0x15E73C, "UnforgivingDevices.esp") as UDCustomDeviceMain
