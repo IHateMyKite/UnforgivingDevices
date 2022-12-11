@@ -344,7 +344,7 @@ Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bConti
         Int actor_constraints = GetActorConstraintsInt(aakActors[k], True)
         String anim_var_path = path + ".A" + (k + 1)
         ; checking if it has variations
-        Bool has_vars = JsonUtil.GetPathIntValue(file, anim_var_path + ".reqConstraints", -1) == -1
+        Bool has_vars = JsonUtil.GetPathIntValue(file, anim_var_path + ".req", -1) == -1
         If has_vars
             Int var_count = JsonUtil.PathCount(file, anim_var_path) - 1
             While var_count >= 0 && !_CheckConstraints(file, anim_var_path + "[" + var_count + "]", actor_constraints)
@@ -366,14 +366,14 @@ Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bConti
     EndWhile
 
     ; checking if it is a sequence
-    Bool is_sequence = JsonUtil.GetPathStringValue(file, actor_animVars[0] + ".animation[0]", "") != ""
+    Bool is_sequence = JsonUtil.GetPathStringValue(file, actor_animVars[0] + ".anim[0]", "") != ""
     ;Bool is_sequence = JsonUtil.GetPathStringValue(file, path + ".isSequence") == "TRUE"
     
     If aakActors.Length == 2
         If is_sequence
         ; sequence animation (from sex lab animation packs)
-            String[] atemp1 = JsonUtil.PathStringElements(file, actor_animVars[0] + ".animation")
-            String[] atemp2 = JsonUtil.PathStringElements(file, actor_animVars[1] + ".animation")
+            String[] atemp1 = JsonUtil.PathStringElements(file, actor_animVars[0] + ".anim")
+            String[] atemp2 = JsonUtil.PathStringElements(file, actor_animVars[1] + ".anim")
             If atemp1.Length > 0 && atemp2.Length > 0
                 StartPairAnimationSequence(aakActors[0], aakActors[1], atemp1, atemp2, !bContinueAnimation)
                 Return True
@@ -383,8 +383,8 @@ Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bConti
             EndIf
         Else
         ; regular animation 
-            String temp1 = JsonUtil.GetPathStringValue(file, actor_animVars[0] + ".animation")
-            String temp2 = JsonUtil.GetPathStringValue(file, actor_animVars[1] + ".animation")
+            String temp1 = JsonUtil.GetPathStringValue(file, actor_animVars[0] + ".anim")
+            String temp2 = JsonUtil.GetPathStringValue(file, actor_animVars[1] + ".anim")
             If temp1 != "" && temp2 != ""
                 StartPairAnimation(aakActors[0], aakActors[1], temp1, temp2, !bContinueAnimation)
                 Return True
@@ -396,7 +396,7 @@ Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bConti
     ElseIf aakActors.Length == 1
         If is_sequence
         ; sequence animation (from sex lab animation packs)
-            String[] atemp1 = JsonUtil.PathStringElements(file, actor_animVars[0] + ".animation")
+            String[] atemp1 = JsonUtil.PathStringElements(file, actor_animVars[0] + ".anim")
             If atemp1.Length > 0
                 StartSoloAnimationSequence(aakActors[0], atemp1)
                 Return True
@@ -406,7 +406,7 @@ Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bConti
             EndIf
         Else
         ; regular animation 
-            String temp1 = JsonUtil.GetPathStringValue(file, actor_animVars[0] + ".animation")
+            String temp1 = JsonUtil.GetPathStringValue(file, actor_animVars[0] + ".anim")
             If temp1 != ""
                 StartSoloAnimation(aakActors[0], temp1)
                 Return True
@@ -481,7 +481,7 @@ EndFunction
 ;                         Value should starts with '.' because papyrus sometimes replaces the first character with a capital one.
 ; sKeywords             - animation keywords (device keywords or any other strings like "horny" to define animation). Value should 
 ;                         starts with '.' because papyrus sometimes replaces the first character with a capital one.
-; iActorConstraints[]   - array with constraints for the participating actors as bit mask (see func. GetActorConstraints)
+; aActorConstraints[]   - array with constraints for the participating actors as bit mask (see func. GetActorConstraints)
 ; sAttribute            - attribute of animation which should be returned
 ; return                - array of strings with attributes values. If sAttribute is not set then funtion resturns paths to animation definitions in fson files 
 ;                         (formatted as <json_file>:<path_in_file>)
@@ -496,24 +496,24 @@ EndFunction
 ;       "zad_DeviousArmCuffs" : [                                       Animation keyword (device keyword or any other string like "horny" to define animation)
 ;           {
 ;               "A1" : {
-;                   "animation" : "<animation event>",                  Animation event
-;                   "reqConstraints" : 0,                               Required constraints for the first actor (animation shouldn't be picked if actor doesn't have all required constraints)
-;                   "optConstraints" : 0                                Optional constraints for the first actor (animation shouldn't be picked if actor has constraints not defined by this bit-mask)
+;                   "anim" : "<animation event>",                       Animation event
+;                   "req" : 0,                                          Required constraints for the first actor (animation shouldn't be picked if actor doesn't have all required constraints)
+;                   "opt" : 0                                           Optional constraints for the first actor (animation shouldn't be picked if actor has constraints not defined by this bit-mask)
 ;               },
 ;               "A2" : [                                                Array with variants
 ;                   {
-;                       "animation" : "<animation event variant 1>",        Animation event for specified actor's constraints
-;                       "reqConstraints" : 256,                             Required constraints for the second actor (animation shouldn't be picked if actor doesn't have all required constraints)
-;                       "optConstraints" : 0                                Optional constraints for the second actor (animation shouldn't be picked if actor has constraints not defined by this bit-mask)
+;                       "anim" : "<animation event variant 1>",             Animation event for specified actor's constraints
+;                       "req" : 256,                                        Required constraints for the second actor (animation shouldn't be picked if actor doesn't have all required constraints)
+;                       "opt" : 0                                           Optional constraints for the second actor (animation shouldn't be picked if actor has constraints not defined by this bit-mask)
 ;                  },
 ;                   {
 ;                       "animation" : "<animation event variant 2>",        Variant for specified actor's constraints
-;                       "reqConstraints" : 512,                             Required constraints for the second actor (animation shouldn't be picked if actor doesn't have all required constraints)
-;                       "optConstraints" : 0                                Optional constraints for the second actor (animation shouldn't be picked if actor has constraints not defined by this bit-mask)
+;                       "req" : 512,                                        Required constraints for the second actor (animation shouldn't be picked if actor doesn't have all required constraints)
+;                       "opt" : 0                                           Optional constraints for the second actor (animation shouldn't be picked if actor has constraints not defined by this bit-mask)
 ;                   }
 ;               ],
 ;               "lewd" : 0,                                             Rate of lewdiness
-;               "aggressive" : 1,                                       Rate of aggressiveness (from akHelper towards akActor). Could be negative
+;               "aggr" : 1,                                             Rate of aggressiveness (from akHelper towards akActor). Could be negative
 ;               "forced" : true                                         First forced animation will be the only animation in result array. Used to test animation in game with forceReloadFiles = true and enableForcedFlag = true
 ;           },
 ;           ...
@@ -536,14 +536,14 @@ String[] Function GetAnimationsFromDB(String sType, String[] sKeywords, String s
     EndIf
     
     Int h = 0
-    While h < sKeywords.Length && currentIndex < 128
+    While h < sKeywords.Length
         String dict_path = sType + sKeywords[h]
         Int i = 0
-        While i < UD_AnimationJSON.Length && currentIndex < 128
+        While i < UD_AnimationJSON.Length
             String file = "UD/Animations/" + UD_AnimationJSON[i]
             Int path_count = JsonUtil.PathCount(file, dict_path)
             Int j = 0
-            While j < path_count && currentIndex < 128
+            While j < path_count
                 String anim_path = dict_path + "[" + j + "]"
                 If enableForcedFlag
                     Bool forced = JsonUtil.GetPathBoolValue(file, anim_path + ".forced")
@@ -562,8 +562,8 @@ String[] Function GetAnimationsFromDB(String sType, String[] sKeywords, String s
                 Int k = 0
                 While check && k < aActorConstraints.Length
                     String anim_var_path = anim_path + ".A" + (k + 1)
-                    ; checking if it has variations
-                    Bool has_vars = JsonUtil.GetPathIntValue(file, anim_var_path + ".reqConstraints", -1) == -1
+                    ; checking if it has variants
+                    Bool has_vars = JsonUtil.GetPathIntValue(file, anim_var_path + ".req", -1) == -1
                     If has_vars
                         Int var_count = JsonUtil.PathCount(file, anim_var_path) - 1
                         While var_count >= 0 && !_CheckConstraints(file, anim_var_path + "[" + var_count + "]", aActorConstraints[k])
@@ -582,6 +582,10 @@ String[] Function GetAnimationsFromDB(String sType, String[] sKeywords, String s
                         result_temp[currentIndex] = JsonUtil.GetPathStringValue(file, anim_path + sAttribute)
                     EndIf
                     currentIndex += 1
+                    If currentIndex >= 128
+                        UDMain.Warning("UD_AnimationManagerScript::GetAnimationsFromDB() Reached maximum array size!")
+                        Return result_temp
+                    EndIf
                     If currentIndex == result_temp.length
                         Int new_length = result_temp.length + 10
                         If new_length > 128 
@@ -596,9 +600,6 @@ String[] Function GetAnimationsFromDB(String sType, String[] sKeywords, String s
         EndWhile
         h += 1
     EndWhile
-    If currentIndex == 128
-        UDMain.Warning("UD_AnimationManagerScript::GetAnimationsFromDB() Reached maximum array size!")
-    EndIf
     result_temp = Utility.ResizeStringArray(result_temp, currentIndex)
     If UDmain.TraceAllowed()
         If useUnsafeLogging
@@ -617,23 +618,23 @@ Bool Function _CheckAnimationLewd(String sFile, String sObjPath, Int iLewdMin, I
 EndFunction
 
 Bool Function _CheckAnimationAggro(String sFile, String sObjPath, Int iAggroMin = -10, Int iAggroMax = 10)
-    Int aggro = JsonUtil.GetPathIntValue(sFile, sObjPath + ".aggressive", -100)
+    Int aggro = JsonUtil.GetPathIntValue(sFile, sObjPath + ".aggr", -100)
     Return aggro == -100 || (aggro >= iAggroMin && aggro <= iAggroMax)
 EndFunction
 
 Bool Function _CheckConstraints(String sFile, String sObjPath, Int iActorConstraints)
-    Int anim_reqConstr = JsonUtil.GetPathIntValue(sFile, sObjPath + ".reqConstraints", -1)
-    If anim_reqConstr < 0
-        Return True
-    EndIf
-    Int anim_optConstr = JsonUtil.GetPathIntValue(sFile, sObjPath + ".optConstraints", -1)
-    
 ; checking that the actor has constraints suitable for the specified animation
 ; iActorConstraints      - actor contraints
 ; anim_reqConstr         - animation required constraints (animation shouldn't be picked if player doesn't have all required constraints)
 ; anim_optConstr         - animation optional constraints (animation shouldn't be picked if player has constraints not defined by this bit-mask)
 
-    Return Math.LogicalAnd(anim_reqConstr, iActorConstraints) == anim_reqConstr && (anim_optConstr < 0 || Math.LogicalAnd(Math.LogicalOr(anim_optConstr, anim_reqConstr), iActorConstraints) == iActorConstraints)
+    Int anim_reqConstr = JsonUtil.GetPathIntValue(sFile, sObjPath + ".req")
+    If Math.LogicalAnd(anim_reqConstr, iActorConstraints) != anim_reqConstr
+        Return False
+    Else
+        Int anim_optConstr = JsonUtil.GetPathIntValue(sFile, sObjPath + ".opt")
+        Return Math.LogicalAnd(Math.LogicalOr(anim_optConstr, anim_reqConstr), iActorConstraints) == iActorConstraints
+    EndIf
 EndFunction
 
 ; Function GetStruggleAnimationsByKeyword
@@ -673,7 +674,7 @@ String[] Function GetHornyAnimEvents(Actor akActor)
     String[] sKeywords = new String[1]
     sKeywords[0] = ".horny"
     
-    String[] anims = GetAnimationsFromDB(".solo", sKeywords, ".A1.animation", aActorConstraints)
+    String[] anims = GetAnimationsFromDB(".solo", sKeywords, ".A1.anim", aActorConstraints)
 
     Return anims
 EndFunction
@@ -688,7 +689,7 @@ String[] Function GetOrgasmAnimEvents(Actor akActor)
     String[] sKeywords = new String[1]
     sKeywords[0] = ".orgasm"
     
-    String[] anims = GetAnimationsFromDB(".solo", sKeywords, ".A1.animation", aActorConstraints)
+    String[] anims = GetAnimationsFromDB(".solo", sKeywords, ".A1.anim", aActorConstraints)
 
     Return anims
 EndFunction
@@ -703,7 +704,7 @@ String[] Function GetEdgedAnimEvents(Actor akActor)
     String[] sKeywords = new String[1]
     sKeywords[0] = ".edged"
 
-    String[] anims = GetAnimationsFromDB(".solo", sKeywords, ".A1.animation", aActorConstraints)
+    String[] anims = GetAnimationsFromDB(".solo", sKeywords, ".A1.anim", aActorConstraints)
 
     Return anims
 EndFunction
@@ -781,31 +782,25 @@ Int Function GetActorConstraintsInt(Actor akActor, Bool bUseCache = False)
 	EndIf
 	If akActor.WornHasKeyword(libs.zad_DeviousYoke)
 		result += 4
-	EndIf
-	If akActor.WornHasKeyword(libs.zad_DeviousCuffsFront)
+	ElseIf akActor.WornHasKeyword(libs.zad_DeviousCuffsFront)
 		result += 8
-	EndIf
-	If akActor.WornHasKeyword(libs.zad_DeviousArmbinder)
+	ElseIf akActor.WornHasKeyword(libs.zad_DeviousArmbinder)
 		result += 16
-	EndIf
-	If akActor.WornHasKeyword(libs.zad_DeviousArmbinderElbow)
+	ElseIf akActor.WornHasKeyword(libs.zad_DeviousArmbinderElbow)
 		result += 32
-	EndIf
-	If akActor.WornHasKeyword(libs.zad_DeviousPetSuit)
+	ElseIf akActor.WornHasKeyword(libs.zad_DeviousPetSuit)
 		result += 64
-	EndIf
-	If akActor.WornHasKeyword(libs.zad_DeviousElbowTie)
+	ElseIf akActor.WornHasKeyword(libs.zad_DeviousElbowTie)
 		result += 128
+	ElseIf akActor.WornHasKeyword(libs.zad_DeviousStraitJacket)
+		result += 512
+	ElseIf akActor.WornHasKeyword(libs.zad_DeviousYokeBB)
+		result += 1024
 	EndIf
 	If akActor.WornHasKeyword(libs.zad_DeviousBondageMittens)
 		result += 256
 	EndIf
-	If akActor.WornHasKeyword(libs.zad_DeviousStraitJacket)
-		result += 512
-	EndIf
-	If akActor.WornHasKeyword(libs.zad_DeviousYokeBB)
-		result += 1024
-	EndIf
+
     StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt", result)
     Return result
 EndFunction
@@ -879,43 +874,170 @@ EndFunction
 
 Function _Benchmark(Int iCycles = 10)
     Int n = iCycles
+    Float start_time
+    Int duration
     Bool old_forceReloadFiles = forceReloadFiles
     Bool old_enableForcedFlag = enableForcedFlag
+    Int old_UDPrintLevel = UDmain.UD_PrintLevel
+    Int old_UDLogLevel = UDmain.LogLevel
     forceReloadFiles = False
     enableForcedFlag = False
-    UDmain.Info("UD_AnimationManagerScript::_Benchmark() Start benchmark GetAnimationsFromDB(solo) with iCycles = " + iCycles)
-    While n >= 0
-        n -= 1
-        Int[] cc = new Int[1]
-        cc[0] = 0
-        String[] sKeywords = new String[1]
-        sKeywords[0] = ".zad_DeviousBoots"
-        String[] res = GetAnimationsFromDB(".solo", sKeywords, "", cc)
-    EndWhile
-    UDmain.Info("UD_AnimationManagerScript::_Benchmark() Benchmark GetAnimationsFromDB(solo) ends")
+    UDmain.UD_PrintLevel = 0
+    UDmain.LogLevel = 0
+
+    If True
+        n = iCycles
+        start_time = Utility.GetCurrentRealTime()
+        While n >= 0
+            n -= 1
+            ; NOP
+        EndWhile
+        duration = ((Utility.GetCurrentRealTime() - start_time) * 1000) As Int
+        UDmain.Warning("UD_AnimationManagerScript::_Benchmark() Benchmark NOP with " + (iCycles) + " cycles ends in " + duration + " ms")
+        ; Benchmark NOP with 10 cycles ends in 6 ms
+    EndIf
+
+    If True
+        n = iCycles * 100
+        start_time = Utility.GetCurrentRealTime()
+        While n >= 0
+            n -= 1
+            ; NOP
+        EndWhile
+        duration = ((Utility.GetCurrentRealTime() - start_time) * 1000) As Int
+        UDmain.Warning("UD_AnimationManagerScript::_Benchmark() Benchmark NOP with " + (iCycles * 100) + " cycles ends in " + duration + " ms")
+        ; Benchmark NOP with 1000 cycles ends in 173 ms
+    EndIf
     
-    n = iCycles
-    UDmain.Info("UD_AnimationManagerScript::_Benchmark() Start benchmark GetAnimationsFromDB(paired) with iCycles = " + iCycles)
-    While n >= 0
-        n -= 1
-        Int[] cc = new Int[2]
-        cc[0] = 0
-        cc[1] = 0
-        String[] sKeywords = new String[1]
-        sKeywords[0] = ".zad_DeviousBoots"
-        String[] res = GetAnimationsFromDB(".paired", sKeywords, "", cc)
-    EndWhile
-    UDmain.Info("UD_AnimationManagerScript::_Benchmark() Benchmark GetAnimationsFromDB(paired) ends")
+    If False
+        start_time = Utility.GetCurrentRealTime()
+        While n >= 0
+            n -= 1
+            Int[] cc = new Int[1]
+            cc[0] = 0
+            String[] sKeywords = new String[1]
+            sKeywords[0] = ".zad_DeviousBoots"
+            String[] res = GetAnimationsFromDB(".solo", sKeywords, "", cc)
+        EndWhile
+        duration = ((Utility.GetCurrentRealTime() - start_time) * 1000) As Int
+        UDmain.Warning("UD_AnimationManagerScript::_Benchmark() Benchmark GetAnimationsFromDB(solo) with " + iCycles + " cycles ends in " + duration + " ms")
+    EndIf
+
+    If True
+        n = iCycles
+        start_time = Utility.GetCurrentRealTime()
+        While n >= 0
+            n -= 1
+            Int[] cc = new Int[2]
+            cc[0] = 0
+            cc[1] = 0
+            String[] sKeywords = new String[1]
+            sKeywords[0] = ".zad_DeviousBelt"
+            String[] res = GetAnimationsFromDB(".paired", sKeywords, "", cc)
+        EndWhile
+        duration = ((Utility.GetCurrentRealTime() - start_time) * 1000) As Int
+        UDmain.Warning("UD_AnimationManagerScript::_Benchmark() Benchmark GetAnimationsFromDB(paired) with " + iCycles + " cycles ends in " + duration + " ms")
+        ; Benchmark GetAnimationsFromDB(paired) with 10 cycles ends in 2014 ms
+    EndIf
     
-    Actor akActor = Game.GetPlayer()
-    n = iCycles
-    UDmain.Info("UD_AnimationManagerScript::_Benchmark() Start benchmark UDAM.GetActorConstraintsInt with iCycles = " + iCycles)
-    While n >= 0
-        n -= 1
-        Int cc = GetActorConstraintsInt(akActor)
-    EndWhile
-    UDmain.Info("UD_AnimationManagerScript::_Benchmark() Benchmark UDAM.GetActorConstraintsInt ends")
+    If False
+        Actor akActor = Game.GetPlayer()
+        n = iCycles
+        start_time = Utility.GetCurrentRealTime()
+        While n >= 0
+            n -= 1
+            Int cc = GetActorConstraintsInt(akActor)
+        EndWhile
+        duration = ((Utility.GetCurrentRealTime() - start_time) * 1000) As Int
+        UDmain.Warning("UD_AnimationManagerScript::_Benchmark() Benchmark UDAM.GetActorConstraintsInt with " + iCycles + " cycles ends in " + duration + " ms")
+    EndIf
+
+    If False
+        Actor akActor = Game.GetPlayer()
+        n = iCycles * 100
+        start_time = Utility.GetCurrentRealTime()
+        Int aa
+        While n >= 0
+            n -= 1
+            aa = JsonUtil.GetPathIntValue("UD/Animations/UDStruggle_DB_Custom_Pair.json", ".paired.zad_DeviousBoots[1]" + ".A1[0].req", -1)
+            aa = JsonUtil.GetPathIntValue("UD/Animations/UDStruggle_DB_Custom_Pair.json", ".paired.zad_DeviousBoots[1]" + ".A1[1].req", -1)
+            aa = JsonUtil.GetPathIntValue("UD/Animations/UDStruggle_DB_Custom_Pair.json", ".paired.zad_DeviousBoots[1]" + ".A1[2].req", -1)
+            aa = JsonUtil.GetPathIntValue("UD/Animations/UDStruggle_DB_Custom_Pair.json", ".paired.zad_DeviousBoots[1]" + ".A1[3].req", -1)
+            aa = JsonUtil.GetPathIntValue("UD/Animations/UDStruggle_DB_Custom_Pair.json", ".paired.zad_DeviousBoots[1]" + ".A1[4].req", -1)
+            aa = JsonUtil.GetPathIntValue("UD/Animations/UDStruggle_DB_Custom_Pair.json", ".paired.zad_DeviousBoots[1]" + ".A1[5].req", -1)
+            aa = JsonUtil.GetPathIntValue("UD/Animations/UDStruggle_DB_Custom_Pair.json", ".paired.zad_DeviousBoots[1]" + ".A1[6].req", -1)
+            aa = JsonUtil.GetPathIntValue("UD/Animations/UDStruggle_DB_Custom_Pair.json", ".paired.zad_DeviousBoots[1]" + ".A1[7].req", -1)
+        EndWhile
+        duration = ((Utility.GetCurrentRealTime() - start_time) * 1000) As Int
+        UDmain.Warning("UD_AnimationManagerScript::_Benchmark() Benchmark JsonUtil #1 with " + iCycles * 100 + " cycles ends in " + duration + " ms")
+    EndIf
+
+    If False
+        Actor akActor = Game.GetPlayer()
+        n = iCycles * 100
+        start_time = Utility.GetCurrentRealTime()
+        Int aa
+        Int[] arr
+        While n >= 0
+            n -= 1
+            arr = JsonUtil.PathIntElements("UD/Animations/UDStruggle_DB_Custom_Pair.json", ".paired.zad_DeviousBoots[1]" + ".A1_req")
+            aa = arr[0]
+            aa = arr[1]
+            aa = arr[2]
+            aa = arr[3]
+            aa = arr[4]
+            aa = arr[5]
+            aa = arr[6]
+            aa = arr[7]
+        EndWhile
+        duration = ((Utility.GetCurrentRealTime() - start_time) * 1000) As Int
+        UDmain.Warning("UD_AnimationManagerScript::_Benchmark() Benchmark JsonUtil #2 with " + iCycles * 100 + " cycles ends in " + duration + " ms")
+    EndIf
+
+    If False
+        Actor akActor = Game.GetPlayer()
+        n = iCycles * 100
+        start_time = Utility.GetCurrentRealTime()
+        While n >= 0
+            n -= 1
+            JsonUtil.GetPathIntValue("UD/Animations/UDStruggle_DB_Custom_Pair.json", ".paired.zad_DeviousBoots[0]" + ".A1[0].req", -1)
+        EndWhile
+        duration = ((Utility.GetCurrentRealTime() - start_time) * 1000) As Int
+        UDmain.Warning("UD_AnimationManagerScript::_Benchmark() Benchmark JsonUtil #3 with " + iCycles * 100 + " cycles ends in " + duration + " ms")
+    EndIf
+
+    If False
+        Actor akActor = Game.GetPlayer()
+        n = iCycles * 100
+        start_time = Utility.GetCurrentRealTime()
+        While n >= 0
+            n -= 1
+            Int[] arr = JsonUtil.PathIntElements("UD/Animations/UDStruggle_DB_Custom_Pair.json", ".paired.zad_DeviousBoots[0]" + ".A1_req")
+            Int aa = arr[0]
+        EndWhile
+        duration = ((Utility.GetCurrentRealTime() - start_time) * 1000) As Int
+        UDmain.Warning("UD_AnimationManagerScript::_Benchmark() Benchmark JsonUtil #4 with " + iCycles * 100 + " cycles ends in " + duration + " ms")
+    EndIf
+
+    If False
+        Actor akActor = Game.GetPlayer()
+        n = iCycles * 100
+        String[] temp_str_array = new String[10]
+        start_time = Utility.GetCurrentRealTime()
+        While n >= 0
+            n -= 1
+            Int m = 10
+            While m <= 100
+                m += 10
+                temp_str_array = Utility.ResizeStringArray(temp_str_array, m)
+            EndWhile
+        EndWhile
+        duration = ((Utility.GetCurrentRealTime() - start_time) * 1000) As Int
+        UDmain.Warning("UD_AnimationManagerScript::_Benchmark() Benchmark ResizeStringArray with " + iCycles * 100 + " cycles ends in " + duration + " ms")
+    EndIf
     
     forceReloadFiles = old_forceReloadFiles
     enableForcedFlag = old_enableForcedFlag
+    UDmain.UD_PrintLevel = old_UDPrintLevel
+    UDmain.LogLevel = old_UDLogLevel
 EndFunction

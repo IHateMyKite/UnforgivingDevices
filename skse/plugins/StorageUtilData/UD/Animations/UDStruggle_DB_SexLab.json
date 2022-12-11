@@ -5,74 +5,69 @@
 		"zad_DeviousBoots" : [
 			{
 				"A1" : {
-						"animation" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 258
-					}, 
+						"anim" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 258
+					},
 				"A2" : {
-						"animation" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 10
-					}, 
-				"isSequence" : true, 
-				"lewd" : 0, 
-				"aggressive" : 0
+						"anim" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
 			}, {
 				"A1" : {
-						"animation" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2", "Leito_Feet_A1_S3", "Leito_Feet_A1_S4" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 256
-					}, 
+						"anim" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2", "Leito_Feet_A1_S3", "Leito_Feet_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
 				"A2" : {
-						"animation" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2", "Leito_Feet_A2_S3", "Leito_Feet_A2_S4" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 0
-					}, 
-				"isSequence" : true, 
-				"lewd" : 0, 
-				"aggressive" : 0
+						"anim" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2", "Leito_Feet_A2_S3", "Leito_Feet_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
+				"lewd" : 0,
+				"aggr" : 0
 			}, {
 				"A1" : {
-						"animation" : [ "Leito_Feet_A1_S1" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 259
-					}, 
+						"anim" : [ "Leito_Feet_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 259
+					},
 				"A2" : {
-						"animation" : [ "Leito_Feet_A2_S1" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 10
-					}, 
-				"isSequence" : true, 
-				"lewd" : 0, 
-				"aggressive" : 0
+						"anim" : [ "Leito_Feet_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
 			}, {
 				"A1" : {
-						"animation" : [ "Leito_Feet2_A1_S1", "Leito_Feet2_A1_S2", "Leito_Feet2_A1_S3" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 259
-					}, 
+						"anim" : [ "Leito_Feet2_A1_S1", "Leito_Feet2_A1_S2", "Leito_Feet2_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 259
+					},
 				"A2" : {
-						"animation" : [ "Leito_Feet2_A2_S1", "Leito_Feet2_A2_S2", "Leito_Feet2_A2_S3" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 10
-					}, 
-				"isSequence" : true, 
-				"lewd" : 0, 
-				"aggressive" : 0
+						"anim" : [ "Leito_Feet2_A2_S1", "Leito_Feet2_A2_S2", "Leito_Feet2_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
 			}, {
 				"A1" : {
-						"animation" : [ "Leito_Feet3_A1_S1", "Leito_Feet3_A1_S2", "Leito_Feet3_A1_S3", "Leito_Feet3_A1_S4" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 259
-					}, 
+						"anim" : [ "Leito_Feet3_A1_S1", "Leito_Feet3_A1_S2", "Leito_Feet3_A1_S3", "Leito_Feet3_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 259
+					},
 				"A2" : {
-						"animation" : [ "Leito_Feet3_A2_S1", "Leito_Feet3_A2_S2", "Leito_Feet3_A2_S3", "Leito_Feet3_A2_S4" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 10
-					}, 
-				"isSequence" : true, 
-				"lewd" : 0, 
-				"aggressive" : 0
+						"anim" : [ "Leito_Feet3_A2_S1", "Leito_Feet3_A2_S2", "Leito_Feet3_A2_S3", "Leito_Feet3_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
 			}
 		], 
 		"zad_DeviousPlug" : [
@@ -93,74 +88,69 @@
 		"zad_DeviousLegCuffs" : [
 			{
 				"A1" : {
-						"animation" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 258
-					}, 
+						"anim" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 258
+					},
 				"A2" : {
-						"animation" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 10
-					}, 
-				"isSequence" : true, 
-				"lewd" : 0, 
-				"aggressive" : 0
+						"anim" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
 			}, {
 				"A1" : {
-						"animation" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2", "Leito_Feet_A1_S3", "Leito_Feet_A1_S4" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 256
-					}, 
+						"anim" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2", "Leito_Feet_A1_S3", "Leito_Feet_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
 				"A2" : {
-						"animation" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2", "Leito_Feet_A2_S3", "Leito_Feet_A2_S4" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 0
-					}, 
-				"isSequence" : true, 
-				"lewd" : 0, 
-				"aggressive" : 0
+						"anim" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2", "Leito_Feet_A2_S3", "Leito_Feet_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
+				"lewd" : 0,
+				"aggr" : 0
 			}, {
 				"A1" : {
-						"animation" : [ "Leito_Feet_A1_S1" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 259
-					}, 
+						"anim" : [ "Leito_Feet_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 259
+					},
 				"A2" : {
-						"animation" : [ "Leito_Feet_A2_S1" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 10
-					}, 
-				"isSequence" : true, 
-				"lewd" : 0, 
-				"aggressive" : 0
+						"anim" : [ "Leito_Feet_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
 			}, {
 				"A1" : {
-						"animation" : [ "Leito_Feet2_A1_S1", "Leito_Feet2_A1_S2", "Leito_Feet2_A1_S3" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 259
-					}, 
+						"anim" : [ "Leito_Feet2_A1_S1", "Leito_Feet2_A1_S2", "Leito_Feet2_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 259
+					},
 				"A2" : {
-						"animation" : [ "Leito_Feet2_A2_S1", "Leito_Feet2_A2_S2", "Leito_Feet2_A2_S3" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 10
-					}, 
-				"isSequence" : true, 
-				"lewd" : 0, 
-				"aggressive" : 0
+						"anim" : [ "Leito_Feet2_A2_S1", "Leito_Feet2_A2_S2", "Leito_Feet2_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
 			}, {
 				"A1" : {
-						"animation" : [ "Leito_Feet3_A1_S1", "Leito_Feet3_A1_S2", "Leito_Feet3_A1_S3", "Leito_Feet3_A1_S4" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 259
-					}, 
+						"anim" : [ "Leito_Feet3_A1_S1", "Leito_Feet3_A1_S2", "Leito_Feet3_A1_S3", "Leito_Feet3_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 259
+					},
 				"A2" : {
-						"animation" : [ "Leito_Feet3_A2_S1", "Leito_Feet3_A2_S2", "Leito_Feet3_A2_S3", "Leito_Feet3_A2_S4" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 10
-					}, 
-				"isSequence" : true, 
-				"lewd" : 0, 
-				"aggressive" : 0
+						"anim" : [ "Leito_Feet3_A2_S1", "Leito_Feet3_A2_S2", "Leito_Feet3_A2_S3", "Leito_Feet3_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
 			}
 		], 
 		"zad_DeviousArmbinder" : [
@@ -172,32 +162,30 @@
 		"zad_DeviousHobbleSkirt" : [
 			{
 				"A1" : {
-						"animation" : [ "Leito_Feet_A1_S1" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 259
-					}, 
+						"anim" : [ "Leito_Feet_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 259
+					},
 				"A2" : {
-						"animation" : [ "Leito_Feet_A2_S1" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 10
-					}, 
-				"isSequence" : true, 
-				"lewd" : 0, 
-				"aggressive" : 0
+						"anim" : [ "Leito_Feet_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
 			}, {
 				"A1" : {
-						"animation" : [ "Leito_Feet2_A1_S1", "Leito_Feet2_A1_S2", "Leito_Feet2_A1_S3" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 259
-					}, 
+						"anim" : [ "Leito_Feet2_A1_S1", "Leito_Feet2_A1_S2", "Leito_Feet2_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 259
+					},
 				"A2" : {
-						"animation" : [ "Leito_Feet2_A2_S1", "Leito_Feet2_A2_S2", "Leito_Feet2_A2_S3" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 10
-					}, 
-				"isSequence" : true, 
-				"lewd" : 0, 
-				"aggressive" : 0
+						"anim" : [ "Leito_Feet2_A2_S1", "Leito_Feet2_A2_S2", "Leito_Feet2_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
 			}
 		], 
 		"zad_DeviousHobbleSkirtRelaxed" : [
@@ -206,60 +194,56 @@
 		"zad_DeviousAnkleShackles" : [
 			{
 				"A1" : {
-						"animation" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 258
-					}, 
+						"anim" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 258
+					},
 				"A2" : {
-						"animation" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 10
-					}, 
-				"isSequence" : true, 
-				"lewd" : 0, 
-				"aggressive" : 0
+						"anim" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
 			}, {
 				"A1" : {
-						"animation" : [ "Leito_Feet_A1_S1" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 259
-					}, 
+						"anim" : [ "Leito_Feet_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 259
+					},
 				"A2" : {
-						"animation" : [ "Leito_Feet_A2_S1" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 10
-					}, 
-				"isSequence" : true, 
-				"lewd" : 0, 
-				"aggressive" : 0
+						"anim" : [ "Leito_Feet_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
 			}, {
 				"A1" : {
-						"animation" : [ "Leito_Feet2_A1_S1", "Leito_Feet2_A1_S2", "Leito_Feet2_A1_S3" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 259
-					}, 
+						"anim" : [ "Leito_Feet2_A1_S1", "Leito_Feet2_A1_S2", "Leito_Feet2_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 259
+					},
 				"A2" : {
-						"animation" : [ "Leito_Feet2_A2_S1", "Leito_Feet2_A2_S2", "Leito_Feet2_A2_S3" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 10
-					}, 
-				"isSequence" : true, 
-				"lewd" : 0, 
-				"aggressive" : 0
+						"anim" : [ "Leito_Feet2_A2_S1", "Leito_Feet2_A2_S2", "Leito_Feet2_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
 			}, {
 				"A1" : {
-						"animation" : [ "Leito_Feet3_A1_S1", "Leito_Feet3_A1_S2", "Leito_Feet3_A1_S3", "Leito_Feet3_A1_S4" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 259
-					}, 
+						"anim" : [ "Leito_Feet3_A1_S1", "Leito_Feet3_A1_S2", "Leito_Feet3_A1_S3", "Leito_Feet3_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 259
+					},
 				"A2" : {
-						"animation" : [ "Leito_Feet3_A2_S1", "Leito_Feet3_A2_S2", "Leito_Feet3_A2_S3", "Leito_Feet3_A2_S4" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 10
-					}, 
-				"isSequence" : true, 
-				"lewd" : 0, 
-				"aggressive" : 0
+						"anim" : [ "Leito_Feet3_A2_S1", "Leito_Feet3_A2_S2", "Leito_Feet3_A2_S3", "Leito_Feet3_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
 			}
 		], 
 		"zad_DeviousStraitJacket" : [
@@ -325,74 +309,69 @@
 		"zad_DeviousSuit" : [
 			{
 				"A1" : {
-						"animation" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 258
-					}, 
+						"anim" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 258
+					},
 				"A2" : {
-						"animation" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 10
-					}, 
-				"isSequence" : true, 
-				"lewd" : 0, 
-				"aggressive" : 0
+						"anim" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
 			}, {
 				"A1" : {
-						"animation" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2", "Leito_Feet_A1_S3", "Leito_Feet_A1_S4" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 256
-					}, 
+						"anim" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2", "Leito_Feet_A1_S3", "Leito_Feet_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
 				"A2" : {
-						"animation" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2", "Leito_Feet_A2_S3", "Leito_Feet_A2_S4" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 0
-					}, 
-				"isSequence" : true, 
-				"lewd" : 0, 
-				"aggressive" : 0
+						"anim" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2", "Leito_Feet_A2_S3", "Leito_Feet_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
+				"lewd" : 0,
+				"aggr" : 0
 			}, {
 				"A1" : {
-						"animation" : [ "Leito_Feet_A1_S1" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 259
-					}, 
+						"anim" : [ "Leito_Feet_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 259
+					},
 				"A2" : {
-						"animation" : [ "Leito_Feet_A2_S1" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 10
-					}, 
-				"isSequence" : true, 
-				"lewd" : 0, 
-				"aggressive" : 0
+						"anim" : [ "Leito_Feet_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
 			}, {
 				"A1" : {
-						"animation" : [ "Leito_Feet2_A1_S1", "Leito_Feet2_A1_S2", "Leito_Feet2_A1_S3" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 259
-					}, 
+						"anim" : [ "Leito_Feet2_A1_S1", "Leito_Feet2_A1_S2", "Leito_Feet2_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 259
+					},
 				"A2" : {
-						"animation" : [ "Leito_Feet2_A2_S1", "Leito_Feet2_A2_S2", "Leito_Feet2_A2_S3" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 10
-					}, 
-				"isSequence" : true, 
-				"lewd" : 0, 
-				"aggressive" : 0
+						"anim" : [ "Leito_Feet2_A2_S1", "Leito_Feet2_A2_S2", "Leito_Feet2_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
 			}, {
 				"A1" : {
-						"animation" : [ "Leito_Feet3_A1_S1", "Leito_Feet3_A1_S2", "Leito_Feet3_A1_S3", "Leito_Feet3_A1_S4" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 259
-					}, 
+						"anim" : [ "Leito_Feet3_A1_S1", "Leito_Feet3_A1_S2", "Leito_Feet3_A1_S3", "Leito_Feet3_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 259
+					},
 				"A2" : {
-						"animation" : [ "Leito_Feet3_A2_S1", "Leito_Feet3_A2_S2", "Leito_Feet3_A2_S3", "Leito_Feet3_A2_S4" ], 
-						"reqConstraints" : 0, 
-						"optConstraints" : 10
-					}, 
-				"isSequence" : true, 
-				"lewd" : 0, 
-				"aggressive" : 0
+						"anim" : [ "Leito_Feet3_A2_S1", "Leito_Feet3_A2_S2", "Leito_Feet3_A2_S3", "Leito_Feet3_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
 			}
 		]
 	}

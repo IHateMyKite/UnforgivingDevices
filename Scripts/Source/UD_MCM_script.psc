@@ -734,6 +734,8 @@ Float UDAM_TestQuery_TimeSpan
 String[] UDAM_TestQuery_Results
 Int UDAM_TestQuery_Results_First_T
 
+Int UDAM_TestQuery_ElapsedTime_T
+
 Event resetAnimationsPage() 
 ; FIRST RUN
     If UDAM_TestQuery_Type_List.Length == 0
@@ -872,8 +874,6 @@ Event resetAnimationsPage()
     rows_right += 1
     UDAM_TestQuery_HelperMittens_T = AddToggleOption("Helper wears mittens", UDAM_TestQuery_HelperMittens, helper_flags)
     rows_right += 1
-    AddTextOption("Time spent on last request", (UDAM_TestQuery_TimeSpan * 1000) As Int + " ms", OPTION_FLAG_DISABLED)
-    rows_right += 1
     
     UDAM_TestQuery_Button_T =  AddTextOption("Test query", "-PRESS-")
     rows_right += 1
@@ -884,10 +884,13 @@ Event resetAnimationsPage()
     Else
         SetCursorPosition(rows_left * 2)
     EndIf
-
     SetCursorFillMode(LEFT_TO_RIGHT)
     AddHeaderOption("Test animation query results (file)")
     AddHeaderOption("Test animation query results (path)")
+    
+    AddTextOption("Number of found animations", UDAM_TestQuery_Results.Length)
+    UDAM_TestQuery_ElapsedTime_T = AddTextOption("Elapsed time", (UDAM_TestQuery_TimeSpan * 1000) As Int + " ms")
+    
     i = 0
     While i < UDAM_TestQuery_Results.Length
         Int part_index = StringUtil.Find(UDAM_TestQuery_Results[i], ":")
@@ -2522,7 +2525,9 @@ Event OnOptionHighlight(int option)
     elseif (_lastPage == "Debug panel")
         DebugPageInfo(option)
     elseif (_lastPage == "Other")
-
+    
+    elseif (_lastPage == "Animations")
+        AnimationPageInfo(option)
     endif
 EndEvent
 
@@ -2789,7 +2794,13 @@ Function DebugPageInfo(int option)
     endIf
 EndFunction
 
-
+Function AnimationPageInfo(Int option)
+    If option == UDAM_Reload_T
+        SetInfoText("Click to reload all files from the disk. Unchecked files will be ignored. These settings are persisted through saves.")
+    ElseIf option == UDAM_TestQuery_ElapsedTime_T
+        SetInfoText("")
+    EndIf
+EndFunction
 ;=========================================
 ;                 OTHER.     .............
 ;=========================================
