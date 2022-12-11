@@ -8,6 +8,16 @@ UDCustomDeviceMain Property UDCDmain auto
 zadlibs Property libs auto
 
 Event OnEffectStart(Actor akTarget, Actor akCaster)
+    ;25 % chance of locking random abadon suit
+    if Utility.randomInt(1,100) > 75
+        AbadonQuest.AbadonEquipSuit(akTarget,0)
+        if GActorIsPlayer(akTarget)
+            UDCDmain.Print("Black goo smacks you and transforms into variaty of restrains!")
+        else
+            UDCDmain.Print("Black goo smacks " + GetActorName(akTarget) + " and transforms into variaty of restrains!")
+        endif
+        return
+    endif
 
     if !akTarget.wornhaskeyword(libs.zad_deviousheavybondage)
         UDCDmain.DisableActor(akTarget)
@@ -44,20 +54,18 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
             endif
 
         UDCDmain.EnableActor(akTarget)
-
-    else
-        int loc_devicenum = Utility.randomInt(0,iRange(Round(GetMagnitude()),1,20))
-        if UDCDmain.UDmain.UDRRM.LockAnyRandomRestrain(akTarget,loc_devicenum) ;did we managed to add some restraints?
-            if GActorIsPlayer(akTarget)
-                UDCDmain.Print("Black goo smacks you and transforms into restraint!")
-            else
-                UDCDmain.Print("Black goo smacks " + GetActorName(akTarget) + " and transforms into restraint!")
-            endif
-        else
-            ;placeholder for something fun to be done in case our victim is already all wrapped up... add some black goo to inventory maybe?
-        endif
     endif
-
+    
+    ;Allways lock random devices. only lock basic devices, so actor doesn look like clown
+    if UDCDmain.UDmain.UDRRM.LockAllSuitableRestrains(akTarget,force = false,iPrefSwitch = 0x38E0F) ;did we managed to add some restraints?
+        if GActorIsPlayer(akTarget)
+            UDCDmain.Print("Black goo smacks you and transforms into restraint!")
+        else
+            UDCDmain.Print("Black goo smacks " + GetActorName(akTarget) + " and transforms into restraint!")
+        endif
+    else
+        ;placeholder for something fun to be done in case our victim is already all wrapped up... add some black goo to inventory maybe?
+    endif
 EndEvent
 
 

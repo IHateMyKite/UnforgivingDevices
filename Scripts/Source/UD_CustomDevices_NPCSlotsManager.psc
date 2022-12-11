@@ -211,7 +211,7 @@ Function removeDeadNPCs()
         UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
         if loc_slot.isUsed()
             if loc_slot.isDead()
-                unregisterNPC(loc_slot.getActor(),true)
+                unregisterNPC(loc_slot.getActor())
             endif
         endif
     endwhile
@@ -227,7 +227,7 @@ Function updateSlotedActors(bool debugMsg = False)
         ObjectReference loc_ref = loc_finderSlot.GetReference()
         Actor currentSelectedActor = loc_ref as Actor
         if currentSelectedActor
-            if !isRegistered(currentSelectedActor) && !StorageUtil.GetIntValue(currentSelectedActor,"UDLockOperations",0) ;do not register already registered actors or actor which currently have active lock operations
+            if !isRegistered(currentSelectedActor) && !StorageUtil.GetIntValue(currentSelectedActor,"UDLockOperations",0) && AdditionalScanCheck(currentSelectedActor);do not register already registered actors or actor which currently have active lock operations
                 if !StorageUtil.GetIntValue(currentSelectedActor, "UD_blockSlotUpdate", 0)
                     UD_CustomDevice_NPCSlot slot = GetNthAlias(index) as UD_CustomDevice_NPCSlot
                     Actor currentSlotActor = slot.getActor()
@@ -256,14 +256,7 @@ Function updateSlotedActors(bool debugMsg = False)
                         endif
                     endif
                 endif
-            else
-                ;GInfo("NPC " + currentSelectedActor + " already registered. SKipping")
             endif
-        ;else
-        ;    UD_CustomDevice_NPCSlot slot = GetNthAlias(index) as UD_CustomDevice_NPCSlot
-        ;    if slot.isUsed() && !StorageUtil.GetIntValue(slot.getActor(), "UD_ManualRegister", 0)
-        ;        slot.unregisterSlot()
-        ;    endif
         endif
         index += 1
     endwhile
@@ -272,6 +265,43 @@ Function updateSlotedActors(bool debugMsg = False)
     FreeUnusedSlots()
     
     GoToState("")
+EndFunction
+
+
+Form[] _ScanInCompatibilityFactions
+Function AddScanIncompatibleFaction(Faction akFaction)
+    if akFaction
+        _ScanInCompatibilityFactions = PapyrusUtil.PushForm(_ScanInCompatibilityFactions, akFaction)
+        GInfo("Added " + akFaction + " to incompatible NPC factions")
+    endif
+EndFunction
+
+Function ResetIncompatibleFactionArray()
+    _ScanInCompatibilityFactions = Utility.CreateFormArray(0)
+EndFunction
+
+;Compatibility check
+Faction _DeviousStrikeFaction ;optimization variable
+Bool Function AdditionalScanCheck(Actor akActor)
+    Bool loc_res = True
+    
+    if _ScanInCompatibilityFactions
+        Int loc_id = _ScanInCompatibilityFactions.length
+        while loc_id
+            loc_id -= 1
+            Faction loc_faction = _ScanInCompatibilityFactions[loc_id] as Faction
+            if loc_faction
+                loc_res = loc_res && !akActor.IsInFaction(loc_faction)
+            endif
+        endwhile
+    endif
+    if UDmain.DeviousStrikeInstalled
+        if !_DeviousStrikeFaction
+            _DeviousStrikeFaction = GetMeMyForm(0x005930,"Devious Strike.esp") as Faction
+        endif
+    endif
+    
+    return loc_res
 EndFunction
 
 bool Function RegisterNPC(Actor akActor,bool debugMsg = false)
