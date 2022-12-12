@@ -28,6 +28,11 @@ String[]                               Property     UD_AnimationJSON_Inv    Auto
 String[]                               Property     UD_AnimationJSON_Dis    Auto    Hidden
 ; array with currently used files
 String[]                               Property     UD_AnimationJSON        Auto    Hidden
+
+; Animation playback settings moved from UDMain
+Bool                                   Property     UD_AlternateAnimation       = False     Auto    Hidden
+Float                                  Property     UD_AlternateAnimationPeriod = 5.0       Auto    Hidden
+
 ;==========;                                                                           
 ;==MANUAL==;                                                                           
 ;==========;                                                                           
@@ -75,13 +80,14 @@ EndFunction
 ; akActor        - actor
 ; aAnimation     - animation sequence (array of animation events) for the actor
 ; return         - true if OK
-Bool Function StartSoloAnimationSequence(Actor akActor, String[] aAnimation)
+Bool Function StartSoloAnimationSequence(Actor akActor, String[] aAnimation, Bool bContinueAnimation = False)
     If (aAnimation.Length == 0 || aAnimation[0] == "" || aAnimation[0] == "none")
         UDmain.Warning("UD_AnimationManagerScript::StartSoloAnimationSequence() Called animation is None, aborting")
         Return False
     EndIf
-    
-    LockAnimatingActor(akActor)
+    If !bContinueAnimation
+        LockAnimatingActor(akActor)
+    EndIf
     ; in case it called just after paired animation (for example, during orgasm ending)
     akActor.SetVehicle(None)
 
@@ -93,18 +99,21 @@ Bool Function StartSoloAnimationSequence(Actor akActor, String[] aAnimation)
             Utility.Wait(0.05)
         EndIf
     EndWhile
-    ; unequipping the shield again after starting the animation
-    If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
-        akActor.UnequipItemSlot(39)
+    
+    If !bContinueAnimation
+        ; unequipping the shield again after starting the animation
+        If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
+            akActor.UnequipItemSlot(39)
+        EndIf
     EndIf
     Return True
 EndFunction
 
 ; Shortcut of StartSoloAnimationSequence for single animation
-Bool Function StartSoloAnimation(Actor akActor, String sAnimation)
+Bool Function StartSoloAnimation(Actor akActor, String sAnimation, Bool bContinueAnimation = False)
     String[] aAnimation = new String[1]
     aAnimation[0] = sAnimation
-    Return StartSoloAnimationSequence(akActor, aAnimation)
+    Return StartSoloAnimationSequence(akActor, aAnimation, bContinueAnimation)
 EndFunction
 
 ; Function to stop animation and unlock actor(s)
@@ -117,10 +126,10 @@ Function StopAnimation(Actor akActor, Actor akHelper = None)
     _RestoreHeelEffect(akActor)
     Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
     If akHelper != None
-        UnlockAnimatingActor(akActor)
+        UnlockAnimatingActor(akHelper)
         ; restoring HH if it was removed in StartPairAnimation
-        _RestoreHeelEffect(akActor)
-        Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
+        _RestoreHeelEffect(akHelper)
+        Debug.SendAnimationEvent(akHelper, "IdleForceDefaultState")
     EndIf
 EndFunction
 
@@ -137,15 +146,17 @@ EndFunction
 
 ; Prepare actors and start an animation sequence for them. The sequence is scrolled to the last element, which remains active until the animation stops from the outside
 ; Used to play any animation even from the middle of the sequence.
-; akActor        - first actor
-; akHelper       - second actor (helper)
-; aAnimationA1   - animation sequence (array of animation events) for the first actor
-; aAnimationA2   - animation sequence (array of animation events) for the second actor (helper)
-; bAlignActors   - should actors be aligned
-; return         - true if OK
-Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[] aAnimationA1, String[] aAnimationA2, Bool bAlignActors = True)
+; akActor               - first actor
+; akHelper              - second actor (helper)
+; aAnimationA1          - animation sequence (array of animation events) for the first actor
+; aAnimationA2          - animation sequence (array of animation events) for the second actor (helper)
+; bAlignActors          - should actors be aligned
+; bContinueAnimation    - if actor have been locked already
+; bInterruptSequence    - if previous animation was from a sequence
+; return                - true if OK
+Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[] aAnimationA1, String[] aAnimationA2, Bool bAlignActors = True, Bool bContinueAnimation = False)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::StartPairAnimationSequence() akActor = " + akActor + ", akHelper = " + akHelper + ", aAnimationA1 = " + aAnimationA1 + ", animationA2 = " + aAnimationA2 + ", alignActors = " + bAlignActors, 3)
+        UDmain.Log("UD_AnimationManagerScript::StartPairAnimationSequence() akActor = " + akActor + ", akHelper = " + akHelper + ", aAnimationA1 = " + aAnimationA1 + ", animationA2 = " + aAnimationA2 + ", alignActors = " + bAlignActors + ", bContinueAnimation = " + bContinueAnimation, 3)
     EndIf
     If akActor == None 
         UDmain.Error("UD_AnimationManagerScript::StartPairAnimationSequence() akActor is None, aborting")
@@ -167,22 +178,24 @@ Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[]
         Return StartSoloAnimation(akActor, aAnimationA1)
     EndIf
     
-    ; locking actors
-    LockAnimatingActor(akActor)
-    LockAnimatingActor(akHelper)
-    ; removing HH
-    _RemoveHeelEffect(akActor)
-    _RemoveHeelEffect(akHelper)
+    If !bContinueAnimation
+        ; locking actors
+        LockAnimatingActor(akActor)
+        LockAnimatingActor(akHelper)
+        ; removing HH
+        _RemoveHeelEffect(akActor)
+        _RemoveHeelEffect(akHelper)
+    EndIf
     
     ObjectReference vehicleMarkerRef = None
-    If bAlignActors
+    If !bContinueAnimation && bAlignActors
         ;creating vehicle marker once for each akActor
         vehicleMarkerRef = StorageUtil.GetFormValue(akActor, "UD_AnimationManager_VehicleMarker") as ObjectReference
         If (vehicleMarkerRef == None)
             vehicleMarkerRef = akActor.PlaceAtMe(VehicleMarkerForm)
             Int cycle
-            While !vehicleMarkerRef.Is3DLoaded() && cycle < 10
-                Utility.Wait(0.1)
+            While !vehicleMarkerRef.Is3DLoaded() && cycle < 20
+                Utility.Wait(0.05)
                 cycle += 1
             EndWhile
             StorageUtil.SetFormValue(akActor, "UD_AnimationManager_VehicleMarker", vehicleMarkerRef)
@@ -222,7 +235,7 @@ Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[]
         EndIf
     EndWhile
     
-    If bAlignActors
+    If !bContinueAnimation && bAlignActors
         akHelper.MoveTo(vehicleMarkerRef)
         akActor.MoveTo(vehicleMarkerRef)
         
@@ -232,24 +245,27 @@ Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[]
         akActor.TranslateToRef(vehicleMarkerRef, 200.0)
         akHelper.TranslateToRef(vehicleMarkerRef, 200.0)
     EndIf
-    ; unequipping the shield again after starting the animation
-    If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
-        akActor.UnequipItemSlot(39)
-    EndIf
-    If StorageUtil.HasFormValue(akHelper, "UD_EquippedShield")
-        akHelper.UnequipItemSlot(39)
+    
+    If !bContinueAnimation
+        ; unequipping the shield again after starting the animation
+        If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
+            akActor.UnequipItemSlot(39)
+        EndIf
+        If StorageUtil.HasFormValue(akHelper, "UD_EquippedShield")
+            akHelper.UnequipItemSlot(39)
+        EndIf
     EndIf
     
     Return True
 EndFunction
 
 ; Shortcut for StartPairAnimationSequence with single animation events
-Bool Function StartPairAnimation(Actor akActor, Actor akHelper, String sAnimationA1, String sAnimationA2, Bool bAlignActors = True)
+Bool Function StartPairAnimation(Actor akActor, Actor akHelper, String sAnimationA1, String sAnimationA2, Bool bAlignActors = True, Bool bContinueAnimation = False)
     String[] aAnimationA1 = new String[1]
     aAnimationA1[0] = sAnimationA1
     String[] aAnimationA2 = new String[1]
     aAnimationA2[0] = sAnimationA2
-    Return StartPairAnimationSequence(akActor, akHelper, aAnimationA1, aAnimationA2, bAlignActors)
+    Return StartPairAnimationSequence(akActor, akHelper, aAnimationA1, aAnimationA2, bAlignActors, bContinueAnimation)
 EndFunction
 
 ; Function to lock actor to perform in animation
@@ -375,7 +391,7 @@ Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bConti
             String[] atemp1 = JsonUtil.PathStringElements(file, actor_animVars[0] + ".anim")
             String[] atemp2 = JsonUtil.PathStringElements(file, actor_animVars[1] + ".anim")
             If atemp1.Length > 0 && atemp2.Length > 0
-                StartPairAnimationSequence(aakActors[0], aakActors[1], atemp1, atemp2, !bContinueAnimation)
+                StartPairAnimationSequence(aakActors[0], aakActors[1], atemp1, atemp2, True, bContinueAnimation)
                 Return True
             Else
                 UDMain.Error("UD_CustomDevice_RenderScript::PlayAnimationByDef() animation sequence array is empty! Check file " + file + " and animDef variations: " + actor_animVars)
@@ -386,7 +402,7 @@ Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bConti
             String temp1 = JsonUtil.GetPathStringValue(file, actor_animVars[0] + ".anim")
             String temp2 = JsonUtil.GetPathStringValue(file, actor_animVars[1] + ".anim")
             If temp1 != "" && temp2 != ""
-                StartPairAnimation(aakActors[0], aakActors[1], temp1, temp2, !bContinueAnimation)
+                StartPairAnimation(aakActors[0], aakActors[1], temp1, temp2, True, bContinueAnimation)
                 Return True
             Else
                 UDMain.Error("UD_CustomDevice_RenderScript::PlayAnimationByDef() animation is empty! Check file " + file + " and animDef variations: " + actor_animVars)
@@ -398,7 +414,7 @@ Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bConti
         ; sequence animation (from sex lab animation packs)
             String[] atemp1 = JsonUtil.PathStringElements(file, actor_animVars[0] + ".anim")
             If atemp1.Length > 0
-                StartSoloAnimationSequence(aakActors[0], atemp1)
+                StartSoloAnimationSequence(aakActors[0], atemp1, bContinueAnimation)
                 Return True
             Else
                 UDMain.Error("UD_CustomDevice_RenderScript::PlayAnimationByDef() animation sequence array is empty! Check file " + file + " and animDef variations: " + actor_animVars)
@@ -408,7 +424,7 @@ Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bConti
         ; regular animation 
             String temp1 = JsonUtil.GetPathStringValue(file, actor_animVars[0] + ".anim")
             If temp1 != ""
-                StartSoloAnimation(aakActors[0], temp1)
+                StartSoloAnimation(aakActors[0], temp1, bContinueAnimation)
                 Return True
             Else
                 UDMain.Error("UD_CustomDevice_RenderScript::PlayAnimationByDef() animation is empty! Check file " + file + " and animDef variations: " + actor_animVars)

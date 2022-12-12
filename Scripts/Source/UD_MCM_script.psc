@@ -422,7 +422,6 @@ Int UD_PreventMasterLock_T
 Int UD_MandatoryCrit_T
 Int UD_CritDurationAdjust_S
 
-Int UD_AlternateAnimation_T
 Event resetCustomBondagePage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -448,7 +447,7 @@ Event resetCustomBondagePage()
     UD_AllowArmTie_T = addToggleOption("Arm tie:", UDCDmain.UD_AllowArmTie,UD_LockMenu_flag)
     UD_AllowLegTie_T = addToggleOption("Leg tie:", UDCDmain.UD_AllowLegTie,UD_LockMenu_flag)
     
-    UD_AlternateAnimation_T = addToggleOption("Alternate animation:", UDCDmain.UD_AlternateAnimation)
+    addEmptyOption()
     addEmptyOption()
     
     ;SKILL
@@ -736,6 +735,9 @@ Int UDAM_TestQuery_Results_First_T
 
 Int UDAM_TestQuery_ElapsedTime_T
 
+Int UD_AlternateAnimation_T
+Int UD_AlternateAnimationPeriod_S
+
 Event resetAnimationsPage() 
 ; FIRST RUN
     If UDAM_TestQuery_Type_List.Length == 0
@@ -818,19 +820,44 @@ Event resetAnimationsPage()
         UDAM_TestQuery_PlayerLegs_Bit[2] = 1
     EndIf
     
+    Int flags = OPTION_FLAG_NONE
+        
     UpdateLockMenuFlag()
-    
-; LEFT COLUMN
+    Int rows_right = 0
     Int rows_left = 0
     
-    SetCursorFillMode(TOP_TO_BOTTOM)
+; LEFT COLUMN
+
     SetCursorPosition(0)
+    SetCursorFillMode(TOP_TO_BOTTOM)
+    
+    AddHeaderOption("Animation playback options")
+    rows_left += 1
+    UD_AlternateAnimation_T = addToggleOption("Alternate animation:", UDAM.UD_AlternateAnimation)
+    rows_left += 1
+    If UDAM.UD_AlternateAnimation
+        flags = OPTION_FLAG_NONE
+    Else
+        flags = OPTION_FLAG_DISABLED
+    EndIf
+    UD_AlternateAnimationPeriod_S = AddSliderOption("Switch period", UDAM.UD_AlternateAnimationPeriod, "{0} s", flags)
+    rows_left += 1
+    
+; LEFT COLUMN
+
+    If rows_right > rows_left
+        SetCursorPosition(rows_right * 2)
+    Else
+        SetCursorPosition(rows_left * 2)
+    EndIf
+    
+    SetCursorFillMode(TOP_TO_BOTTOM)
     AddHeaderOption("Loaded JSONs")
     rows_left += 1
     Int i = 0
     While i < UDAM.UD_AnimationJSON_All.Length
         Bool val = False
-        Int flags = OPTION_FLAG_NONE
+        flags = OPTION_FLAG_NONE
         If (UDAM.UD_AnimationJSON_Inv.Find(UDAM.UD_AnimationJSON_All[i]) > -1)
             flags = OPTION_FLAG_DISABLED
         Else
@@ -847,7 +874,6 @@ Event resetAnimationsPage()
     rows_left += 1
     
 ; RIGHT COLUMN
-    Int rows_right = 0
 
     SetCursorPosition(1)
     AddHeaderOption("Test animation query")
@@ -1219,9 +1245,6 @@ Function OptionCustomBondage(int option)
     elseif option == UD_MandatoryCrit_T
         UDCDmain.UD_MandatoryCrit = !UDCDmain.UD_MandatoryCrit
         SetToggleOptionValue(UD_MandatoryCrit_T, UDCDmain.UD_MandatoryCrit)  
-    elseif option == UD_AlternateAnimation_T
-        UDCDmain.UD_AlternateAnimation = !UDCDmain.UD_AlternateAnimation
-        SetToggleOptionValue(UD_AlternateAnimation_T, UDCDmain.UD_AlternateAnimation)  
     endif
 EndFunction
 
@@ -1321,6 +1344,14 @@ Function OptionSelectAnimations(int option)
     ElseIf option == UDAM_TestQuery_HelperMittens_T
         UDAM_TestQuery_HelperMittens = !UDAM_TestQuery_HelperMittens
         SetToggleOptionValue(option, UDAM_TestQuery_HelperMittens)
+    elseif option == UD_AlternateAnimation_T
+        UDAM.UD_AlternateAnimation = !UDAM.UD_AlternateAnimation
+        SetToggleOptionValue(UD_AlternateAnimation_T, UDAM.UD_AlternateAnimation)
+        If UDAM.UD_AlternateAnimation
+            SetOptionFlags(UD_AlternateAnimationPeriod_S, OPTION_FLAG_NONE)
+        Else
+            SetOptionFlags(UD_AlternateAnimationPeriod_S, OPTION_FLAG_DISABLED)
+        EndIf
     EndIf
 EndFunction
 
@@ -1467,6 +1498,7 @@ event OnOptionSliderOpen(int option)
     OnOptionSliderOpenPatcher(option)
     OnOptionSliderOpenAbadon(option)
     OnOptionSliderOpenDebug(option)
+    OnOptionSliderOpenAnimations(option)
 endEvent
 
 Function OnOptionSliderOpenGeneral(int option)
@@ -1749,6 +1781,15 @@ Function OnOptionSliderOpenDebug(int option)
         SetSliderDialogInterval(5.0)        
     endIf
 EndFunction
+
+Function OnOptionSliderOpenAnimations(int option)
+    if (option == UD_AlternateAnimationPeriod_S)
+        SetSliderDialogStartValue(UDAM.UD_AlternateAnimationPeriod)
+        SetSliderDialogDefaultValue(5.0)
+        SetSliderDialogRange(3.0, 15.0)
+        SetSliderDialogInterval(0.1)
+    endIf
+EndFunction
     
 event OnOptionSliderAccept(int option, float value)
     OnOptionSliderAcceptGeneral(option,value)
@@ -1757,6 +1798,7 @@ event OnOptionSliderAccept(int option, float value)
     OnOptionSliderAcceptPatcher(option, value)
     OnOptionSliderAcceptAbadon(option, value)
     OnOptionSliderAcceptDebug(option,value)
+    OnOptionSliderAcceptAnimations(option, value)
 endEvent
 
 Function OnOptionSliderAcceptGeneral(int option, float value)
@@ -1939,6 +1981,13 @@ Function OnOptionSliderAcceptDebug(int option,float value)
         UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByIndex(actorIndex)
         UDOM.setActorOrgasmCapacity(slot.getActor(),value)
         SetSliderOptionValue(OrgasmCapacity_S, UDOM.GetActorOrgasmCapacity(slot.getActor()), "{0}")        
+    endIf
+EndFunction
+
+Function OnOptionSliderAcceptAnimations(int option, float value)
+    if option == UD_AlternateAnimationPeriod_S
+        UDAM.UD_AlternateAnimationPeriod = (value As Int) As Float
+        SetSliderOptionValue(UD_AlternateAnimationPeriod_S, value, "{0} s")
     endIf
 EndFunction
 
@@ -2214,7 +2263,8 @@ Event OnOptionDefault(int option)
     elseif (_lastPage == "Debug panel")
         ;DebugPageDefault(option) ;TODO. Will winish later, as doing this is pain in the ass
     elseif (_lastPage == "Other")
-
+    elseif (_lastPage == "Animations")
+        ; AnimationPageDefault(option)  ; copy-paste, where did you take me?!
     endif
 EndEvent
 
@@ -2381,8 +2431,6 @@ Function CustomBondagePageDefault(int option)
         SetInfoText("How many levels are needed for number of maximum locks to increase.Setting this to 0 will disable Lock level scaling\nExample: If this is 5, and device have level 10, maximum level will be increased by 2\nDefault: 5")
     elseif option == UD_MandatoryCrit_T
         SetInfoText("When this option is enabled, not landing crits will punish player\nDefault: OFF")
-    elseif option == UD_AlternateAnimation_T
-        SetInfoText("Enabling this will force struggle animation to randomly switch to different animation periodically\nDefault: OFF")
     elseif option == UD_CritDurationAdjust_S
         SetInfoText("By how much time will be crit duration changed. Setting this to small negative value might make crits impossible.\nIn case you are experiencing bigger lags when using UD, you might increase this value to make crits easier.\nDefault: 0.0 s")
     Endif
@@ -2503,7 +2551,11 @@ Function DebugPageDefault(int option)
     endIf
 EndFunction
 
-
+Function AnimationPageDefault(Int option)
+    If option == UD_AlternateAnimation_T
+        SetInfoText("Enabling this will force struggle animation to randomly switch to different animation periodically\nDefault: OFF")
+    EndIf
+EndFunction
 ;=========================================
 ;                 INFO.      .............
 ;=========================================
@@ -2664,8 +2716,6 @@ Function CustomBondagePageInfo(int option)
         SetInfoText("How many levels are needed for number of maximum locks to increase.Setting this to 0 will disable Lock level scaling\nExample: If this is 5, and device have level 10, maximum level will be increased by 2\nDefault: 5")
     elseif option == UD_MandatoryCrit_T
         SetInfoText("When this option is enabled, not landing crits will punish player\nDefault: OFF")
-    elseif option == UD_AlternateAnimation_T
-        SetInfoText("Enabling this will force struggle animation to randomly switch to different animation periodically\nDefault: OFF")
     elseif option == UD_CritDurationAdjust_S
         SetInfoText("By how much time will be crit duration changed. Setting this to small negative value might make crits impossible.\nIn case you are experiencing bigger lags when using UD, you might increase this value to make crits easier.\nDefault: 0.0 s")
     Endif
@@ -2797,6 +2847,10 @@ EndFunction
 Function AnimationPageInfo(Int option)
     If option == UDAM_Reload_T
         SetInfoText("Click to reload all files from the disk. Unchecked files will be ignored. These settings are persisted through saves.")
+    elseif option == UD_AlternateAnimation_T
+        SetInfoText("Enabling this will force struggle animation to randomly switch to different animation periodically\nDefault: OFF")
+    elseif option == UD_AlternateAnimationPeriod_S
+        SetInfoText("Animation is picked from an array of suitable ones with a given period.\nDefault: 5 sec")
     ElseIf option == UDAM_TestQuery_ElapsedTime_T
         SetInfoText("")
     EndIf
@@ -2942,7 +2996,6 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "PostOrgasmArousalReduce_Duration", UDOM.UD_OrgasmArousalReduceDuration)
 
     JsonUtil.SetIntValue(strFile, "MandatoryCrit", UDCDmain.UD_MandatoryCrit as Int)
-    JsonUtil.SetIntValue(strFile, "AlternateAnimation", UDCDmain.UD_AlternateAnimation as Int)
     
     JsonUtil.SetFloatValue(strFile, "CritDurationAdjust", UDCDmain.UD_CritDurationAdjust)
     
@@ -2987,6 +3040,11 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "DAR", AAScript.UD_DAR as Int)
     JsonUtil.SetIntValue(strFile, "SlotUpdateTime", Round(UDCD_NPCM.UD_SlotUpdateTime))
     JsonUtil.SetIntValue(strFile, "OutfitRemove", UDCDMain.UD_OutfitRemove as Int)
+    
+    ; ANIMATIONS
+    JsonUtil.StringListCopy(strFile, "Anims_UserDisabledJSONs", UDAM.UD_AnimationJSON_Dis)
+    JsonUtil.SetIntValue(strFile, "AlternateAnimation", UDAM.UD_AlternateAnimation as Int)
+    JsonUtil.SetFloatValue(strFile, "AlternateAnimationPeriod", UDAM.UD_AlternateAnimationPeriod)
     
     JsonUtil.Save(strFile, true)
 EndFunction
@@ -3066,7 +3124,6 @@ Function LoadFromJSON(string strFile)
     UDOM.UD_OrgasmArousalReduceDuration = JsonUtil.GetIntValue(strFile, "PostOrgasmArousalReduce_Duration", UDOM.UD_OrgasmArousalReduceDuration)
     
     UDCDmain.UD_MandatoryCrit = JsonUtil.GetIntValue(strFile, "MandatoryCrit", UDCDmain.UD_MandatoryCrit as Int)
-    UDCDMain.UD_AlternateAnimation = JsonUtil.GetIntValue(strFile, "AlternateAnimation", UDCDmain.UD_AlternateAnimation as Int)
     UDCDmain.UD_CritDurationAdjust = JsonUtil.GetFloatValue(strFile, "CritDurationAdjust", UDCDmain.UD_CritDurationAdjust)
     
     ;ABADON
@@ -3108,6 +3165,14 @@ Function LoadFromJSON(string strFile)
     AAScript.UD_DAR =  JsonUtil.GetIntValue(strFile, "DAR", AAScript.UD_DAR as Int)
     UDCD_NPCM.UD_SlotUpdateTime =  JsonUtil.GetIntValue(strFile, "SlotUpdateTime", Round(UDCD_NPCM.UD_SlotUpdateTime))
     UDCDMain.UD_OutfitRemove = JsonUtil.GetIntValue(strFile, "OutfitRemove", UDCDMain.UD_OutfitRemove as Int)
+    
+    ; ANIMATIONS
+    If JsonUtil.StringListCount(strFile, "Anims_UserDisabledJSONs") > 0
+        UDAM.UD_AnimationJSON_Dis = JsonUtil.StringListToArray(strFile, "Anims_UserDisabledJSONs")
+    EndIf
+    UDAM.UD_AlternateAnimation = JsonUtil.GetIntValue(strFile, "AlternateAnimation", UDAM.UD_AlternateAnimation as Int) > 0
+    UDAM.UD_AlternateAnimationPeriod = JsonUtil.GetFloatValue(strFile, "AlternateAnimationPeriod", UDAM.UD_AlternateAnimationPeriod)
+    
 EndFunction
 
 Function ResetToDefaults()
@@ -3193,7 +3258,6 @@ Function ResetToDefaults()
     UDOM.UD_OrgasmArousalReduceDuration =  7
     
     UDCDmain.UD_MandatoryCrit           = False
-    UDCDmain.UD_AlternateAnimation      = False
     
     UDCDmain.UD_CritDurationAdjust      = 0.0
     
@@ -3237,6 +3301,11 @@ Function ResetToDefaults()
     AAScript.UD_DAR                                 =  false
     UDCD_NPCM.UD_SlotUpdateTime                     = 10.0
     UDCDMain.UD_OutfitRemove                        = True
+    
+    ; Animations
+    UDAM.UD_AnimationJSON_Dis = PapyrusUtil.StringArray(0)
+    UDAM.UD_AlternateAnimation = False
+    UDAM.UD_AlternateAnimationPeriod = 5.0
 EndFunction
 
 Function SetAutoLoad(bool bValue)

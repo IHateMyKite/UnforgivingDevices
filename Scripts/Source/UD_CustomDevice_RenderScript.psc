@@ -3596,10 +3596,17 @@ Function minigame()
                     ;--three second timer--
                     if !(tick_s % 3) && tick_s
                         ;start new animation if wearer stops animating
-                        if hasStruggleAnimation && (UDCDmain.UD_AlternateAnimation || !UDAM.isAnimating(Wearer, false) || (_minigameHelper && !UDAM.isAnimating(_minigameHelper, false))) && !pauseMinigame && !force_stop_minigame
+                        if hasStruggleAnimation && (!UDAM.isAnimating(Wearer, false) || (_minigameHelper && !UDAM.isAnimating(_minigameHelper, false))) && !pauseMinigame && !force_stop_minigame
                             _PickAndPlayStruggleAnimation(bContinueAnimation = True)
                         endif
                         OnMinigameTick3()
+                    endif
+                    
+                    ;-- alternate animation timer--
+                    if !(tick_s % (UDAM.UD_AlternateAnimationPeriod As Int)) && tick_s
+                        if hasStruggleAnimation && UDAM.UD_AlternateAnimation && !pauseMinigame && !force_stop_minigame
+                            _PickAndPlayStruggleAnimation(bContinueAnimation = True)
+                        endif
                     endif
                 endif
             endif
