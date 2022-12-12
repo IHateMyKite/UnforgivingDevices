@@ -213,24 +213,29 @@ Float Property UD_WidgetVerOffset = 1.25 auto
 Bool _AutoAdjustWidget = False
 Bool Property UD_AutoAdjustWidget Hidden
     Function Set(Bool abVal)
-        if !abVal
+        _AutoAdjustWidget = abVal
+        if !_AutoAdjustWidget
             ;Reininit widgets
             InitWidgets()
         endif
-        _AutoAdjustWidget = abVal
     EndFunction
     Bool Function Get()
         return _AutoAdjustWidget
     EndFunction
 EndProperty
 
-
+Bool _InitMutex = False
 ;Use iWidget instead
 State iWidgetInstalled
     Function InitWidgets()
         RefreshCanvasMetrics()
         ;No autoadjust, reinit the widgets
         if !UD_AutoAdjustWidget
+            if _InitMutex
+                return
+            endif
+            _InitMutex = true
+            Utility.wait(1.5) ;wait little time, so previous operatious could finish first
             if _Widget_DeviceDurability
                 iWidget.destroy(_Widget_DeviceDurability)
             endif
@@ -255,6 +260,7 @@ State iWidgetInstalled
             iWidget.setVisible(_Widget_DeviceDurability, _Widget_DeviceDurability_Visible As Int)
             iWidget.setVisible(_Widget_DeviceCondition, _Widget_DeviceCondition_Visible As Int)
             iWidget.setVisible(_Widget_Orgasm, _Widget_Orgasm_Visible As Int)
+            _InitMutex = false
         endif
     EndFunction
     
@@ -272,6 +278,9 @@ State iWidgetInstalled
     EndFunction
 
     Function UpdateGroupPositions()
+        if _InitMutex
+            return
+        endif
         if _Widget_DeviceDurability
             iWidget.destroy(_Widget_DeviceDurability)
         endif
@@ -351,15 +360,21 @@ State iWidgetInstalled
 
     Function UpdatePercent_DeviceWidget(Float afVal,Bool abForce = false)
         _Widget_DeviceDurability_Perc = Round(afVal*100)
-        iWidget.setMeterPercent(_Widget_DeviceDurability, _Widget_DeviceDurability_Perc)
+        if !_InitMutex
+            iWidget.setMeterPercent(_Widget_DeviceDurability, _Widget_DeviceDurability_Perc)
+        endif
     EndFunction
     Function UpdatePercent_DeviceCondWidget(Float afVal,Bool abForce = false)
         _Widget_DeviceCondition_Perc = Round(afVal*100)
-        iWidget.setMeterPercent(_Widget_DeviceCondition, _Widget_DeviceCondition_Perc)
+        if !_InitMutex
+            iWidget.setMeterPercent(_Widget_DeviceCondition, _Widget_DeviceCondition_Perc)
+        endif
     EndFunction
     Function UpdatePercent_OrgasmWidget(Float afVal,Bool abForce = false)
         _Widget_Orgasm_Perc = Round(afVal*100)
-        iWidget.setMeterPercent(_Widget_Orgasm, _Widget_Orgasm_Perc)
+        if !_InitMutex
+            iWidget.setMeterPercent(_Widget_Orgasm, _Widget_Orgasm_Perc)
+        endif
     EndFunction
 
     Function UpdateColor_DeviceWidget(int aiColor,int aiColor2 = 0,int aiFlashColor = 0xFFFFFF)

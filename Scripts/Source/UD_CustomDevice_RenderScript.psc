@@ -1213,7 +1213,7 @@ EndFunction
 
 ;returns true if player is taking part in minigame (either as wearer or helper)
 bool Function PlayerInMinigame()
-    return WearerIsPlayer() || HelperIsPlayer()
+    return (WearerIsPlayer() || HelperIsPlayer()) && miniGame_on
 EndFunction
 
 ;returns true if device currently have helper
@@ -2404,7 +2404,6 @@ Function DeviceMenu(bool[] aControl)
         DeviceMenuExt(msgChoice)
         GamepadMenuPause()
     endwhile
-    
     GoToState("")
 EndFunction
 
@@ -2864,6 +2863,7 @@ bool Function struggleMinigameWH(Actor akHelper)
     setHelper(akHelper)
     
     if !minigamePrecheck()
+        setHelper(none)
         return false
     endif
     
@@ -3391,14 +3391,14 @@ bool Function minigamePostcheck()
     if !checkMinAV(Wearer) ;check wearer AVs
         if WearerIsPlayer() ;message related to player wearer
             UDmain.Print("You are too exhausted. Try later, after you regain your strength.",1)
-        else ;message related to NPC wearer
+        elseif UDCDmain.AllowNPCMessage(Wearer) ;message related to NPC wearer
             UDmain.Print(getWearerName()+" is too exhausted!",1)
         endif
         return false
     elseif hasHelper() && !checkMinAV(_minigameHelper)
         if HelperIsPlayer() ;message related to player helper
-            UDmain.Print("You are too exhausted and can't help "+getWearerName()+".",1)    
-        else ;message related to NPC helper
+            UDmain.Print("You are too exhausted and can't help "+getWearerName()+".",1)
+        elseif UDCDmain.AllowNPCMessage(_minigameHelper) ;message related to NPC helper
             UDmain.Print(getHelperName()+" is too exhausted and unable to help you.",1)
         endif
         return false
@@ -3419,16 +3419,16 @@ bool Function minigamePrecheck()
     if (UDAM.isAnimating(Wearer))
         if WearerIsPlayer()
             UDCDmain.Print("You are already doing something",1)
-        elseif WearerIsFollower()
+        elseif UDCDmain.AllowNPCMessage(Wearer)
             UDCDmain.Print(getWearerName() + " is already doing something",1)
         endif
         return false
     endif
     
-    if !libs.isValidActor(GetWearer())
+    if !libs.isValidActor(Wearer)
         if WearerIsPlayer()
             UDCDmain.Print("You are already doing something",1)
-        elseif UDCDmain.AllowNPCMessage(GetWearer())
+        elseif UDCDmain.AllowNPCMessage(Wearer)
             UDCDmain.Print(getWearerName() + " is already doing something",1)
         endif
         return false
@@ -3436,22 +3436,26 @@ bool Function minigamePrecheck()
     
     if hasHelper()
         if (UDAM.isAnimating(_minigameHelper))
-            UDCDmain.Print(getWearerName() + " is already doing something",1)
+            if HelperIsPlayer()
+                UDCDmain.Print("You are already doing something")
+            elseif UDCDmain.AllowNPCMessage(_minigameHelper)
+                UDCDmain.Print(getHelperName() + " is already doing something",1)
+            endif
             return false
         endif
         if UDCDmain.actorInMinigame(_minigameHelper)
             if HelperIsPlayer()
                 UDCDmain.Print("You are already doing something")
-            elseif HelperIsFollower()
+            elseif UDCDmain.AllowNPCMessage(_minigameHelper)
                 UDCDmain.Print(getHelperName() + " is already doing something")
             endif
             return false
         endif
         
-        if !libs.isValidActor(GetHelper())
+        if !libs.isValidActor(_minigameHelper)
             if HelperIsPlayer()
                 UDCDmain.Print("You are already doing something",1)
-            elseif HelperIsFollower()
+            elseif UDCDmain.AllowNPCMessage(_minigameHelper)
                 UDCDmain.Print(getHelperName() + " is already doing something",1)
             endif
             return false

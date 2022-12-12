@@ -335,7 +335,7 @@ bool Function LockAnyRandomRestrain(Actor akActor,int iNumber = 1,bool bForce = 
     
     while iNumber
         iNumber -= 1
-        loc_res = loc_res || LockRandomRestrain(akActor,bForce)
+        loc_res = LockRandomRestrain(akActor,bForce) || loc_res
     endwhile
     
     return loc_res
