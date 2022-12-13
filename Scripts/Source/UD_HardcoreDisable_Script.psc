@@ -16,7 +16,7 @@ MagicEffect _MagickEffect = none
 int _MapKeyCode         = -1
 int _StatsKeyCode       = -1
 int _TweenMenuKeyCode   = -1
-int _MagicKeyCode       = -1      
+int _MagicKeyCode       = -1
 
 bool    _MenuKeyPressed = false
 bool    _MenuOpen = false
@@ -27,7 +27,6 @@ Bool loc_finished = false
 Bool loc_isPlayer = false
 Event OnEffectStart(Actor akTarget, Actor akCaster)
     _target = akTarget  
-    UDmain.Info("Hardcore disabler activated for " + GetActorName(_target) +"!")
     
     while UI.IsMenuOpen("Dialogue Menu")
         Utility.waitMenuMode(1.0) ;wait for player to end dialogue before applying effect
@@ -104,7 +103,6 @@ EndEvent
 
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
     loc_finished = true
-    UDmain.Info("Hardcore disabler removed for " + GetActorName(_target) +"!")
     ;wait for onUpdate function to finish if it started
     while loc_precessing
         Utility.waitMenuMode(1.0)

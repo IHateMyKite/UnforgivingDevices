@@ -114,6 +114,7 @@ Function PayAndHelp(ObjectReference akSpeakerRef)
     
     if UDCDMain.UDDmain.SelectedDevice
         UDCDmain.OpenHelpDeviceMenu(UDCDMain.UDDmain.SelectedDevice,akSpeakerRef as Actor,False,True)
+        UDCDMain.UDDmain.SelectedDevice = none
     else
         GError("Error: Selected device is none")
     endif

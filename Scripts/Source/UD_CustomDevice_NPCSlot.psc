@@ -95,14 +95,16 @@ Function UpdateSlot(Bool abUpdateSkill = true)
     if abUpdateSkill
         UpdateSkills()
     endif
-    ;UpdateBodySlots()
+    if !GetActor().wornhaskeyword(libs.zad_deviousHeavyBondage)
+        _handRestrain = none ;unreference device
+    endif
 EndFunction
 
 Function UpdateBodySlots()
-    if !UD_BodySlots
-        UD_BodySlots = new Form[32]
-        GInfo("UD_BodySlots not init for " + getSlotedNPCName() + ", creating array")
-    endif
+    ;if !UD_BodySlots
+    ;    UD_BodySlots = new Form[32]
+    ;    GInfo("UD_BodySlots not init for " + getSlotedNPCName() + ", creating array")
+    ;endif
     
     int loc_i = 0
     Actor loc_actor = GetActor()
@@ -264,7 +266,8 @@ int Function getNumberOfRegisteredDevices()
 EndFunction
 
 Function unregisterSlot()
-    if UDmain.TraceAllowed()    
+    ;UDmain.Info("Unregistered NPC " + GetSlotedNPCName())
+    if UDmain.TraceAllowed()
         UDCDmain.Log("NPC " + getSlotedNPCName() + " unregistered",2)
     endif
     if _iUsedSlots
@@ -1594,8 +1597,8 @@ EndFunction
 Function ProccesLockMutex()
     float loc_time = 0.0
     while loc_time <= 3.0 && (!UD_GlobalDeviceMutex_InventoryScript)
-        Utility.wait(0.05)
-        loc_time += 0.05
+        Utility.waitMenuMode(0.1)
+        loc_time += 0.1
     endwhile
     
     if UD_GlobalDeviceMutex_InventoryScript_Failed || loc_time >= 3.0
@@ -1608,12 +1611,12 @@ EndFunction
 Function ProccesUnlockMutex()
     float loc_time = 0.0
     while loc_time <= 3.0 && (!UD_GlobalDeviceUnlockMutex_InventoryScript)
-        Utility.wait(0.1)
+        Utility.waitMenuMode(0.1)
         loc_time += 0.1
     endwhile
     
     if UD_GlobalDeviceUnlockMutex_InventoryScript_Failed || loc_time >= 3.0
-        UDCDmain.Error("LockDevicePatched("+GetSlotedNPCName()+","+UD_GlobalDeviceUnlockMutex_Device.getName()+") failed!!! ID Fail? " + UD_GlobalDeviceUnlockMutex_InventoryScript_Failed)
+        UDCDmain.Error("UnLockDevicePatched("+GetSlotedNPCName()+","+UD_GlobalDeviceUnlockMutex_Device.getName()+") failed!!! ID Fail? " + UD_GlobalDeviceUnlockMutex_InventoryScript_Failed)
     endif
     
     UD_GlobalDeviceUnlockMutex_Device = none

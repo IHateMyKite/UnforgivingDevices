@@ -126,6 +126,8 @@ Function Receive_MinigameStarter(Form fActor)
         StorageUtil.SetFormValue(akActor, "UD_currentMinigameDevice", loc_device.deviceRendered)
     endif
     
+    loc_device._MinigameParProc_1 = false
+    
     ;shows bars
     if loc_updatewidget
         loc_device.showWidget()
@@ -135,8 +137,6 @@ Function Receive_MinigameStarter(Form fActor)
     endif
     
     loc_device.OnMinigameStart()
-    
-    loc_device._MinigameParProc_1 = false
     
     libsp.pant(akActor)
 EndFunction
@@ -242,35 +242,48 @@ Function Receive_MinigameParalel(Form fActor)
     UDOM.UpdateArousalRate(akActor,loc_currentArousalRate)
     
     ;pause thred untill minigame end
-    int loc_tick = 0
+    Float loc_UpdateTime   = 0.25
+    if !loc_haveplayer
+        loc_UpdateTime = 1.0
+    endif
+    
+    Float loc_ElapsedTime1 = 0.0
+    Float loc_ElapsedTime2 = 0.0
+    Float loc_ElapsedTime3 = 0.0
+    
     while loc_device._MinigameMainLoop_ON; && UDCDmain.ActorInMinigame(akActor)
         if !loc_device.pauseMinigame
-            loc_tick += 1
             ;set expression every 3 second
-            if !(loc_tick % 30) && loc_tick
+            if loc_ElapsedTime1 >= 3.0
                 UDEM.ApplyExpressionRaw(akActor, loc_expression, 100,false,15)
                 if loc_device.hasHelper()
                     UDEM.ApplyExpressionRaw(akHelper, loc_expression, 100,false,15)
                 endif
+                loc_ElapsedTime1 = 0.0
             endif
             ;update widget and HUD every 2 s
-            if !(loc_tick % 20) && loc_tick
+            if loc_ElapsedTime2 >= 2.0
                 if loc_canShowHUD
                     loc_device.showHUDbars(False)
                 endif         
                 if loc_updatewidget
                     loc_device.showWidget(false,true)
                 endif
+                loc_ElapsedTime2 = 0.0
             endif
             ;advance skill every 3 second
-            if !(loc_tick % 30) && loc_tick
+            if loc_ElapsedTime3 >= 3.0
                 loc_device.advanceSkill(3.0)
                 loc_updatewidget    = loc_device.UD_UseWidget && UDCDmain.UD_UseWidget && loc_haveplayer
                 loc_canShowHUD      = loc_device.canShowHUD()
+                loc_ElapsedTime3    = 0.0
             endif
         endif
         if loc_device._MinigameMainLoop_ON
-            Utility.wait(0.1)
+            Utility.wait(loc_UpdateTime)
+            loc_ElapsedTime1 += loc_UpdateTime
+            loc_ElapsedTime2 += loc_UpdateTime
+            loc_ElapsedTime3 += loc_UpdateTime
         endif
     endwhile
     
@@ -359,10 +372,12 @@ Function Receive_MinigameCritloop(Form fActor)
     
     loc_device._MinigameParProc_3           = true
     Bool loc_playerInMinigame = loc_device.PlayerInMinigame()
-    Int loc_TickTime = 2
+
+    Float loc_elapsedTime = 0.0
+    Float loc_updateTime  = 0.25
     string critType = "random"
     if !loc_playerInMinigame
-        ;loc_TickTime = 10
+        loc_updateTime = 0.5
         critType = "NPC"
     elseif UDCDmain.UD_AutoCrit
         critType = "Auto"
@@ -371,23 +386,21 @@ Function Receive_MinigameCritloop(Form fActor)
     Utility.Wait(0.75) ;wait little time before starting crits
     
     ;process
-    Float loc_passedTime = 0.0
-    int loc_tick = 0
     while loc_device._MinigameMainLoop_ON; && UDCDmain.ActorInMinigame(akActor)
         if !loc_device.pauseMinigame && !UDmain.IsMenuOpen()
-            loc_tick += loc_TickTime
             ;check crit every 1 s
-            if (loc_tick >= 10)
+            if loc_elapsedTime >= 1.0
                 if loc_device.UD_minigame_canCrit
                     UDCDmain.StruggleCritCheck(loc_device,loc_device.UD_StruggleCritChance,critType,loc_device.UD_StruggleCritDuration)
                 elseif loc_device._customMinigameCritChance
                     UDCDmain.StruggleCritCheck(loc_device,loc_device._customMinigameCritChance,critType,loc_device._customMinigameCritDuration)            
                 endif
-                loc_tick = 0
+                loc_elapsedTime = 0.0
             endif
         endif
         if loc_device._MinigameMainLoop_ON
-            Utility.Wait(0.1*loc_TickTime)
+            Utility.Wait(loc_updateTime)
+            loc_elapsedTime += loc_updateTime
         endif
     endwhile
     

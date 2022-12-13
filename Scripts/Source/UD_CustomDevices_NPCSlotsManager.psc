@@ -2,20 +2,38 @@ Scriptname UD_CustomDevices_NPCSlotsManager extends Quest
 
 import UnforgivingDevicesMain
 
-UDCustomDeviceMain Property UDCDmain auto
-UnforgivingDevicesMain Property UDmain hidden
+UDCustomDeviceMain      Property UDCDmain                               auto
+UnforgivingDevicesMain  Property UDmain                     hidden
     UnforgivingDevicesMain Function get()
         return UDCDmain.UDmain
-    EndFunction    
+    EndFunction
 EndProperty
-Quest Property UDCD_NPCF auto ;finder
-zadlibs Property libs auto
-Bool Property Ready = False auto
-UD_OrgasmManager Property UDOM auto
-Message Property UD_FixMenu_MSG auto
-Int Property UD_Slots = 10 auto
-Float Property UD_SlotUpdateTime = 10.0 auto
-Bool _PlayerSlotReady = false
+
+Float                   Property UD_SlotScanUpdateTime      Hidden
+    Float Function get()
+        return UDmain.UDGV.UDG_NPCScanUpT.Value
+    EndFunction
+EndProperty
+Float                   Property UD_HeavySlotUpdateTime     Hidden
+    Float Function get()
+        return UDmain.UDGV.UDG_NPCHeavyUpT.Value
+    EndFunction
+EndProperty
+
+Quest               Property UDCD_NPCF                                  auto ;finder
+zadlibs             Property libs                                       auto
+UD_OrgasmManager    Property UDOM                                       auto
+Message             Property UD_FixMenu_MSG                             auto
+Int                 Property UD_Slots                       = 10        auto
+Float               Property UD_SlotUpdateTime              = 10.0      auto
+Bool                Property Ready                          = False     auto
+
+Bool                         _PlayerSlotReady               = false
+Float                        _LastUpdateTime                = 0.0
+Float                        _UpdateTimePassed              = 0.0
+Float                        _UpdateTimePassed2             = 0.0
+float                        LastUpdateTime_Hour            = 0.0 ;last time the update happened in days
+Form[]                       _ScanInCompatibilityFactions
 
 Event OnInit()
     Utility.wait(0.1)
@@ -26,7 +44,7 @@ Event OnInit()
         while !loc_slot.ready
             Utility.wait(0.1)
         endwhile
-        if UDmain.TraceAllowed()        
+        if UDmain.TraceAllowed()
             UDCDMain.Log("NPCslot["+ index +"] ready!")
         endif
         index += 1
@@ -55,13 +73,6 @@ Function CheckOrgasmLoops()
         endif
     endwhile
 EndFunction
-
-Float   _LastUpdateTime         = 0.0
-Float   _UpdateTimePassed       = 0.0
-Float   _UpdateTimePassed2      = 0.0
-
-Int Property UD_SlotScanUpdateTime  = 10 auto
-Int Property UD_HeavySlotUpdateTime = 120 auto
 
 Event OnUpdate()
     ;init player slot
@@ -94,11 +105,10 @@ Event OnUpdate()
     RegisterForSingleUpdate(UDCDmain.UD_UpdateTime)
 EndEvent
 
-float LastUpdateTime_Hour = 0.0 ;last time the update happened in days
 Event OnUpdateGameTime()
     if UDmain.UDReady()
         if !UDmain.UD_DisableUpdate
-            Utility.waitMenuMode(Utility.randomFloat(2.0,4.0))
+            Utility.wait(Utility.randomFloat(2.0,4.0))
             float currentgametime = Utility.GetCurrentGameTime()
             float mult = 24.0*(currentgametime - LastUpdateTime_Hour) ;multiplier for how much more then 1 hour have passed, ex: for 2.5 hours passed without update, the mult will be 2.5
             UpdateSlotsHour(mult)
@@ -239,7 +249,6 @@ Function updateSlotedActors(bool debugMsg = False)
                             if currentSelectedActor != currentSlotActor
                                 currentSlotActor.RemoveFromFaction(UDCDmain.RegisteredNPCFaction)
                                 slot.unregisterSlot()
-                                
                                 slot.SetSlotTo(currentSelectedActor)
                                 if debugMsg || UDmain.DebugMod
                                     debug.notification("[UD]: NPC /" + slot.getSlotedNPCName() + "/ registered!")
@@ -249,7 +258,6 @@ Function updateSlotedActors(bool debugMsg = False)
                         else
                             slot.unregisterSlot()
                             slot.SetSlotTo(currentSelectedActor)
-                            
                             if debugMsg || UDmain.DebugMod
                                 debug.notification("[UD]: NPC /" + slot.getSlotedNPCName() + "/ registered!")
                             endif
@@ -268,8 +276,6 @@ Function updateSlotedActors(bool debugMsg = False)
     GoToState("")
 EndFunction
 
-
-Form[] _ScanInCompatibilityFactions
 Function AddScanIncompatibleFaction(Faction akFaction)
     if akFaction
         _ScanInCompatibilityFactions = PapyrusUtil.PushForm(_ScanInCompatibilityFactions, akFaction)
@@ -282,7 +288,6 @@ Function ResetIncompatibleFactionArray()
 EndFunction
 
 ;Compatibility check
-Faction _DeviousStrikeFaction ;optimization variable
 Bool Function AdditionalScanCheck(Actor akActor)
     Bool loc_res = True
     
@@ -296,12 +301,6 @@ Bool Function AdditionalScanCheck(Actor akActor)
             endif
         endwhile
     endif
-    if UDmain.DeviousStrikeInstalled
-        if !_DeviousStrikeFaction
-            _DeviousStrikeFaction = GetMeMyForm(0x005930,"Devious Strike.esp") as Faction
-        endif
-    endif
-    
     return loc_res
 EndFunction
 
@@ -412,6 +411,7 @@ Function UpdateDevices(float fTimePassed)
             UpdateSlotDevices(loc_slot,fTimePassed)
         endif
         index += 1
+        Utility.waitMenuMode(0.1)
     endwhile
 EndFunction
 
@@ -429,6 +429,7 @@ Function UpdateDevicesHour(float fMult)
         if loc_slot.isScriptRunning() && loc_slot.isUsed() && loc_slot.canUpdate()
             loc_slot.updateDeviceHour(fMult)
         endif
+        Utility.waitMenuMode(0.1)
     endwhile
 EndFunction
 
@@ -440,6 +441,7 @@ Function UpdateSlotsHour(float fMult)
         if loc_slot.isUsed()
             loc_slot.updateHour(fMult)
         endif
+        Utility.waitMenuMode(0.1)
     endwhile
 EndFunction
 
@@ -477,6 +479,7 @@ bool Function unregisterNPC(Actor akActor,bool bDebugMsg = false)
             endif
             return True
         endif
+        Utility.waitMenuMode(0.1)
     endwhile
     return False
 EndFunction

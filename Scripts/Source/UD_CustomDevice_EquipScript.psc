@@ -142,8 +142,8 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
                                     return
                                 endif
                             endif
-                            LockDevice(target)    
-                        else                    
+                            LockDevice(target,False) ;no mutex neede, lets assume user can't lock npc in devices faster then they need to be locked on
+                        else
                             UDCDmain.Error("OnContainerChanged - " + target + " is not valid actor!")
                         endif
                         return
@@ -625,33 +625,37 @@ EndFunction
 
 ;COPIED FROM zadequipscript
 ;reason is to make it possible to edit some values which were not editable before
-Event LockDevice(Actor akActor)    
+Event LockDevice(Actor akActor, Bool abUseMutex = True)
     if UDmain.TraceAllowed()
-        UDmain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory)+") called")        
+        UDmain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory)+") called")
     endif
     
-    UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
-    UD_MutexScript loc_mutex = none 
-    bool _actorselfbound = false
-    if loc_slot
-        if !loc_slot.isLockMutexed(deviceInventory)
-            _actorselfbound = true
-            loc_slot.StartLockMutex()
-            loc_slot.ResetMutex_Lock(deviceInventory)
-        endif
-    else
-        Utility.waitMenuMode(Utility.randomFloat(0.05,0.15)) ;make thread to wait random time, because in some cases bunch of devices can be equipped at once (like when they are par of outfit)
-        if !UDMM.IsDeviceMutexed(akActor,deviceInventory)
-            _actorselfbound = true
-            if UDmain.TraceAllowed()        
-                UDCDMain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") : Not using mutex on " + akActor)
+    UD_CustomDevice_NPCSlot loc_slot        = none
+    UD_MutexScript          loc_mutex       = none
+    bool                    _actorselfbound = false
+    
+    if abUseMutex
+        loc_slot = UDCDmain.getNPCSlot(akActor)
+        if loc_slot
+            if !loc_slot.isLockMutexed(deviceInventory)
+                _actorselfbound = true
+                loc_slot.StartLockMutex()
+                loc_slot.ResetMutex_Lock(deviceInventory)
             endif
-            ;loc_mutex = UDMM.WaitForFreeAndSet(akActor,deviceInventory)
-            ;unregistered npcs will be not mutexed, no reason for that
         else
-            loc_mutex = UDMM.GetMutexSlot(akActor)
-            if UDmain.TraceAllowed()        
-                UDCDMain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") : Found mutex for NPC - " + loc_mutex)
+            Utility.waitMenuMode(Utility.randomFloat(0.05,0.15)) ;make thread to wait random time, because in some cases bunch of devices can be equipped at once (like when they are par of outfit)
+            if !UDMM.IsDeviceMutexed(akActor,deviceInventory)
+                _actorselfbound = true
+                if UDmain.TraceAllowed()
+                    UDCDMain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") : Not using mutex on " + akActor)
+                endif
+                loc_mutex = UDMM.WaitForFreeAndSet_Lock(akActor,deviceInventory)
+                ;unregistered npcs will be not mutexed, no reason for that
+            else
+                loc_mutex = UDMM.GetMutexSlot(akActor)
+                if UDmain.TraceAllowed()        
+                    UDCDMain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") : Found mutex for NPC - " + loc_mutex)
+                endif
             endif
         endif
     endif
@@ -750,52 +754,54 @@ Event LockDevice(Actor akActor)
     _locked = true
     
     ;close menu, as it will otherwise cause issue with locking of RD
-    if UDmain.ActorIsPlayer(akActor) && UDmain.IsMenuOpen()
-        CloseMenu()
-    endif
+    ;if UDmain.ActorIsPlayer(akActor) && UDmain.IsMenuOpen()
+    ;    CloseMenu()
+    ;endif
     
-    Utility.wait(0.05)
+    ;if abUseMutex
+    ;    Utility.wait(0.05)
+    ;endif
     
     akActor.EquipItem(DeviceRendered, true, true)
     
-    Utility.wait(0.05)
-    
-    int loc_ticks = 0
-    while loc_ticks <= 40 && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
-        Utility.wait(0.05)
-        loc_ticks += 1
-    endwhile
-    if loc_ticks >= 40
-        ;render device lock failed, abort
-        _locked = false
-        StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
-        akActor.UnequipItem(deviceInventory, false, true)
-        if DestroyOnRemove
-            akActor.RemoveItem(deviceInventory,1,true)
-        endif
-        akActor.removeItem(DeviceRendered,1,true)
-        UDmain.Error("LockDevice("+getDeviceName()+","+GetActorName(akActor)+") failed. Render device is not equipped - conflict")
-        if UDmain.ActorIsPlayer(akActor)
-            UDCDmain.Print(getDeviceName() + " can't be equipped because of device conflict")
-        elseif UDCDmain.UDmain.ActorInCloseRange(akActor)
-            UDCDmain.Print(MakeDeviceHeader(akActor,deviceInventory) + " can't be equipped because of device conflict")
-        endif
-    endif
-        
-    if loc_slot
-        if loc_slot.isLockMutexed(deviceInventory)
-            if !_locked
-                loc_slot.UD_GlobalDeviceMutex_InventoryScript_Failed = true
+    if abUseMutex
+        ;Utility.wait(0.05)
+        int loc_ticks = 0
+        while loc_ticks <= 40 && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
+            Utility.waitMenuMode(0.05)
+            loc_ticks += 1
+        endwhile
+        if loc_ticks >= 40
+            ;render device lock failed, abort
+            _locked = false
+            StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
+            akActor.UnequipItem(deviceInventory, false, true)
+            if DestroyOnRemove
+                akActor.RemoveItem(deviceInventory,1,true)
             endif
-            loc_slot.UD_GlobalDeviceMutex_InventoryScript = true
+            akActor.removeItem(DeviceRendered,1,true)
+            Armor loc_conflictDevice = UDCDmain.GetConflictDevice(akActor,deviceRendered)
+            UDmain.Error("LockDevice("+getDeviceName()+","+GetActorName(akActor)+") failed. Render device is not equipped - conflict with " + loc_conflictDevice)
+            if UDmain.ActorIsPlayer(akActor)
+                UDCDmain.Print(getDeviceName() + " can't be equipped because of device conflict")
+            elseif UDCDmain.UDmain.ActorInCloseRange(akActor)
+                UDCDmain.Print(MakeDeviceHeader(akActor,deviceInventory) + " can't be equipped because of device conflict")
+            endif
         endif
-    elseif loc_mutex
-        if !_locked
-            loc_mutex.UD_GlobalDeviceMutex_InventoryScript_Failed = true
+        if loc_slot
+            if loc_slot.isLockMutexed(deviceInventory)
+                if !_locked
+                    loc_slot.UD_GlobalDeviceMutex_InventoryScript_Failed = true
+                endif
+                loc_slot.UD_GlobalDeviceMutex_InventoryScript = true
+            endif
+        elseif loc_mutex
+            if !_locked
+                loc_mutex.UD_GlobalDeviceMutex_InventoryScript_Failed = true
+            endif
+            loc_mutex.UD_GlobalDeviceMutex_InventoryScript = true
         endif
-        loc_mutex.UD_GlobalDeviceMutex_InventoryScript = true
     endif
-    
     if _actorselfbound
         if loc_slot
             if loc_slot.isLockMutexed(deviceInventory)
@@ -828,11 +834,11 @@ Event LockDevice(Actor akActor)
         akActor.QueueNiNodeUpdate()
     elseif !UDmain.ActorIsPlayer(akActor) && !akActor.IsOnMount() && loc_haveHBkwd
         ; prevent a bug with straitjackets and elbowbinders not hiding NPC hands when equipping these items.        
-        akActor.UpdateWeight(0)        
+        akActor.UpdateWeight(0)
     EndIf    
     if !UDmain.ActorIsPlayer(akActor) && (loc_haveHBkwd || deviceRendered.HasKeyword(libs.zad_DeviousHobbleSkirt))
         libs.RepopulateNpcs()
-    EndIf    
+    EndIf
     
     OnEquippedPost(akActor)
     

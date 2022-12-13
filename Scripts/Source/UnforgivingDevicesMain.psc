@@ -51,17 +51,22 @@ UD_UserInputScript                  Property UDUI           auto
 UD_AnimationManagerScript           Property UDAM           auto
 UD_CompatibilityManager_Script      Property UDCM           auto
 UD_NPCInteligence                   Property UDAI           auto
-UD_MenuChecker                      Property UDMC
-    UD_MenuChecker Function get()
+UD_MenuChecker                      Property UDMC Hidden
+    UD_MenuChecker Function get() 
         return UD_UtilityQuest as UD_MenuChecker
     EndFunction
 EndProperty
-UD_WidgetControl                    Property UDWC
+UD_WidgetControl                    Property UDWC Hidden
     UD_WidgetControl Function get()
         return UD_UtilityQuest as UD_WidgetControl
     EndFunction
 EndProperty
-UD_SkillManager_Script              Property UDSKILL
+UD_GlobalVariables                  Property UDGV Hidden
+    UD_GlobalVariables Function get()
+        return UD_UtilityQuest as UD_GlobalVariables
+    EndFunction
+EndProperty
+UD_SkillManager_Script              Property UDSKILL Hidden
     UD_SkillManager_Script Function get()
         return (UDCDmain as Quest) as UD_SkillManager_Script
     EndFunction
@@ -94,15 +99,7 @@ bool    _UD_hightPerformance
 bool Property UD_hightPerformance
     Function set(bool bValue)
         _UD_hightPerformance = bValue
-        if _UD_hightPerformance 
-            UD_baseUpdateTime = UD_HightPerformanceTime
-            ;ItemManager.UD_WaitTime = 0.3
-        else
-            UD_baseUpdateTime = UD_LowPerformanceTime
-            ;ItemManager.UD_WaitTime = 0.8
-        endif
     EndFunction
-    
     bool Function get()
         return _UD_hightPerformance
     EndFunction
@@ -110,7 +107,20 @@ EndProperty
 
 float Property UD_LowPerformanceTime    = 1.0   autoreadonly
 float Property UD_HightPerformanceTime  = 0.25  autoreadonly
-float Property UD_baseUpdateTime                auto
+
+float Property UD_baseUpdateTime
+    Float Function Get()
+        if UDGV.UDG_CustomMinigameUpT.Value
+            return fRange(UDGV.UDG_CustomMinigameUpT.Value,0.01,10.0)
+        endif
+        if UD_hightPerformance
+            return UD_HightPerformanceTime
+        else
+            return UD_LowPerformanceTime
+        endif
+    EndFunction
+EndProperty
+
 zadConfig   Property DDconfig                   auto
 String[]    Property UD_OfficialPatches         auto
 
@@ -184,12 +194,6 @@ Event OnInit()
     OrgasmExhaustionSpell = UDlibs.OrgasmExhaustionSpell
     OrgasmExhaustionSpell.SetNthEffectDuration(0, 180) ;for backward compatibility
 
-    if UD_hightPerformance
-        UD_baseUpdateTime = UD_HightPerformanceTime
-    else
-        UD_baseUpdateTime = UD_LowPerformanceTime
-    endif
-    
     Player = Game.GetPlayer()
     
     CheckOptionalMods()

@@ -1532,7 +1532,7 @@ Function Init(Actor akActor)
 
     Wearer = akActor
     
-    Utility.wait(0.05) ;wait for menus to be closed
+    ;Utility.wait(0.05) ;wait for menus to be closed
     
     UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
     
@@ -3450,6 +3450,10 @@ String[] Function SelectStruggleArray(Actor akActor)
 EndFunction
 
 bool Function minigamePostcheck(Bool abSilent = False)
+    If UDmain.TraceAllowed()
+        UDmain.Log("minigamePostcheck called for " + getDeviceHeader() + " abSilent="+abSilent)
+    endif
+    
     if !checkMinAV(Wearer) ;check wearer AVs
         if !abSilent
             if WearerIsPlayer() ;message related to player wearer
@@ -3473,8 +3477,13 @@ bool Function minigamePostcheck(Bool abSilent = False)
 EndFunction
 
 bool Function minigamePrecheck(Bool abSilent = False)
-    if UDCDmain.actorInMinigame(Wearer)
+    If UDmain.TraceAllowed()
+        UDmain.Log("minigamePrecheck called for " + getDeviceHeader() + " abSilent="+abSilent)
+    endif
+
+    if miniGame_on || UDCDmain.actorInMinigame(Wearer)
         if !abSilent
+            GWarning("Can't start minigame for " + getDeviceHeader() + " because wearer is already in minigame!")
             if WearerIsPlayer()
                 UDCDmain.Print("You are already doing something")
             elseif UDCDmain.AllowNPCMessage(Wearer)
@@ -3486,6 +3495,7 @@ bool Function minigamePrecheck(Bool abSilent = False)
 
     if (UDAM.isAnimating(Wearer))
         if !abSilent
+            GWarning("Can't start minigame for " + getDeviceHeader() + " because wearer is already in animating!")
             if WearerIsPlayer()
                 UDCDmain.Print("You are already doing something",1)
             elseif UDCDmain.AllowNPCMessage(Wearer)
@@ -3496,8 +3506,9 @@ bool Function minigamePrecheck(Bool abSilent = False)
     endif
     
     ;Allow minigames on unloaded actors
-    if !(;/Wearer.Is3DLoaded() && /;!Wearer.IsDead() && !Wearer.IsDisabled() && Wearer.GetCurrentScene() == none)
+    if (Wearer.IsDead() || Wearer.IsDisabled() || (Wearer.GetCurrentScene() == none && !Wearer.Is3DLoaded()))
         if !abSilent
+            GWarning("Can't start minigame for " + getDeviceHeader() + " because wearer is invalid! Dead="+Wearer.IsDead() + ",Disabled="+Wearer.IsDisabled()+",Scene+"+Wearer.GetCurrentScene())
             if WearerIsPlayer()
                 UDCDmain.Print("You are already doing something",1)
             elseif UDCDmain.AllowNPCMessage(Wearer)
@@ -3510,6 +3521,7 @@ bool Function minigamePrecheck(Bool abSilent = False)
     if hasHelper()
         if (UDAM.isAnimating(_minigameHelper))
             if !abSilent
+                GWarning("Can't start minigame for " + getDeviceHeader() + " because helper is already in minigame!")
                 if HelperIsPlayer()
                     UDCDmain.Print("You are already doing something")
                 elseif UDCDmain.AllowNPCMessage(_minigameHelper)
@@ -3520,6 +3532,7 @@ bool Function minigamePrecheck(Bool abSilent = False)
         endif
         if UDCDmain.actorInMinigame(_minigameHelper)
             if !abSilent
+                GWarning("Can't start minigame for " + getDeviceHeader() + " because helper is already in minigame!")
                 if HelperIsPlayer()
                     UDCDmain.Print("You are already doing something")
                 elseif UDCDmain.AllowNPCMessage(_minigameHelper)
@@ -3529,8 +3542,9 @@ bool Function minigamePrecheck(Bool abSilent = False)
             return false
         endif
         
-        if !libs.isValidActor(GetHelper())
+        if !libs.isValidActor(_minigameHelper)
             if !abSilent
+                GWarning("Can't start minigame for " + getDeviceHeader() + " because helper is invalid!")
                 if HelperIsPlayer()
                     UDCDmain.Print("You are already doing something",1)
                 elseif UDCDmain.AllowNPCMessage(_minigameHelper)
@@ -3547,6 +3561,7 @@ bool Function minigamePrecheck(Bool abSilent = False)
                 UDCDmain.Print("Slow down!",1)
             endif
         endif
+        GError("Paralel process still activated on " + getDeviceHeader() + " skipping minigame!!")
         return false
     endif
     
@@ -3564,10 +3579,11 @@ Function minigame()
         return
     endif
     
-    if UDmain.DebugMod
+    if UDmain.DebugMod && PlayerInMinigame()
         showDebugMinigameInfo()
     endif
     
+    minigame_on = True
     GoToState("UpdatePaused")
     
     bool loc_WearerIsPlayer = WearerIsPlayer()
@@ -3578,7 +3594,6 @@ Function minigame()
         closeMenu()
     endif
     
-    minigame_on = True
     force_stop_minigame = False
     
     Wearer.AddToFaction(UDCDmain.MinigameFaction)
@@ -3685,8 +3700,10 @@ Function minigame()
     int         tick_s                 = 0
     float       fCurrentUpdateTime     = UDmain.UD_baseUpdateTime
     
-    if !loc_PlayerInMinigame && !Wearer.Is3DLoaded()
+    if !Wearer.Is3DLoaded() && !loc_PlayerInMinigame
         fCurrentUpdateTime = 1.0
+    elseif !loc_PlayerInMinigame
+        fCurrentUpdateTime = 0.5
     endif
 
     pauseMinigame = False
@@ -3789,7 +3806,7 @@ Function minigame()
         UDCDmain.MinigameKeysUnRegister()
     endif
     
-    if !UDOM.isOrgasming(Wearer)
+    if !StorageUtil.GetIntValue(Wearer,"UD_OrgasmDuration",0);!UDOM.isOrgasming(Wearer)
         UDAM.FastEndThirdPersonAnimation(Wearer) ;ends struggle animation
     endif
     
@@ -3862,7 +3879,6 @@ Function minigame()
     if UDmain.DebugMod && UD_damage_device && durability_onstart != current_device_health && loc_WearerIsPlayer
         UDmain.Print("[Debug] Durability reduced: "+ formatString(durability_onstart - current_device_health,3) + "\n",1)
     endif
-    
 EndFunction
 
 Function MinigameVarReset()
@@ -4309,27 +4325,33 @@ string Function getInfoString()
         temp += "Impossible\n"
     endif
     
-    ;if Details_CanShowHitResist()
-        bool loc_showhitres = canBeCutted()
-        bool loc_showstrres = canBeStruggled(loc_accesibility)
-        if loc_showstrres && !loc_showhitres
-            temp += "Resist: "
-            temp += "P = " + Round(getModResistPhysical(0.0)*-100.0) + "/XXX %/"
-            temp += "M = " + Round(getModResistMagicka(0.0)*-100.0) + " %\n"
-        elseif loc_showhitres && !loc_showstrres
-            temp += "Resist: "
-            temp += "P = XXX/" + Round(UD_WeaponHitResist*100.0) + "%/"
-            temp += "M = XXX\n"
-        elseif loc_showhitres && loc_showstrres
-            temp += "Resist: "
-            temp += "P = " + Round(getModResistPhysical(0.0)*-100.0) + "/"+Round(UD_WeaponHitResist*100.0)+" %/"
-            temp += "M = " + Round(getModResistMagicka(0.0)*-100.0) + " %\n"
-        elseif loc_accesibility == 0
-            temp += "Resist: Inescapable\n"
-        else
-            temp += "Resist: Indestructable\n"
-        endif
-    ;endif
+    bool loc_showhitres = canBeCutted()
+    bool loc_showstrres = canBeStruggled(loc_accesibility)
+    if loc_showstrres && !loc_showhitres
+        temp += "Resist: "
+        temp += "P = " + Round(getModResistPhysical(0.0)*-100.0) + "/XXX %/"
+        temp += "M = " + Round(getModResistMagicka(0.0)*-100.0) + " %\n"
+    elseif loc_showhitres && !loc_showstrres
+        temp += "Resist: "
+        temp += "P = XXX/" + Round(UD_WeaponHitResist*100.0) + "%/"
+        temp += "M = XXX\n"
+    elseif loc_showhitres && loc_showstrres
+        temp += "Resist: "
+        temp += "P = " + Round(getModResistPhysical(0.0)*-100.0) + "/"+Round(UD_WeaponHitResist*100.0)+" %/"
+        temp += "M = " + Round(getModResistMagicka(0.0)*-100.0) + " %\n"
+    elseif loc_accesibility == 0
+        temp += "Resist: Inescapable\n"
+    else
+        temp += "Resist: Indestructable\n"
+    endif
+        
+    
+    if UDmain.UDGV.UDG_ShowCritVars.Value
+        temp += "Crit chance: "+UD_StruggleCritChance+" %\n"
+        temp += "Crit duration: "+formatString(UD_StruggleCritDuration,1)+" s\n"
+        temp += "Crit mult: "+formatString(UD_StruggleCritMul*100,1)+" %\n"
+    endif
+    
     if canBeCutted()
         temp += "Cut chance: " + formatString(UD_CutChance,1) + " %\n"
     else
@@ -5247,6 +5269,11 @@ Function updateWidget(bool force = false)
         setWidgetVal(getRelativeCuttingProgress(),force)
     elseif repairLocksMinigame_on
         setWidgetVal(getRelativeLockRepairProgress(),force)
+    endif
+    
+    ;update condition widget
+    if UDmain.UseiWW()
+        UDmain.UDWC.UpdatePercent_DeviceCondWidget(getRelativeCondition())
     endif
 EndFunction
 

@@ -59,7 +59,7 @@ Bool Function SlotAIEnabled(UD_CustomDevice_NPCSlot akSlot)
     loc_cond = loc_cond && !loc_actor.IsInFaction(UD_AIDisableFaction)      ;actor have no AI disabled
     loc_cond = loc_cond && EvaluateAICooldown(loc_actor)                    ;actor have passed cooldown
     loc_cond = loc_cond && !akSlot.HaveLockingOperations()                  ;actor have no locking operations
-    ;GInfo(akSlot.isUsed() + "," + akSlot.getNumberOfRegisteredDevices() + "," + !akSlot.GetActor().IsInCombat() + "," + !akSlot.isInMinigame() + "," + EvaluateCooldown(akSlot.GetActor()) + "," + !akSlot.HaveLockingOperations())
+    ;GInfo(akSlot.isUsed() + "," + akSlot.getNumberOfRegisteredDevices() + "," + !akSlot.GetActor().IsInCombat() + "," + !akSlot.isInMinigame() + "," + EvaluateAICooldown(loc_actor) + "," + !akSlot.HaveLockingOperations())
     return loc_cond
 EndFunction
 
@@ -137,7 +137,7 @@ EndFunction
 
 ;returns remaining cooldown in minutes
 Int Function GetAIRemainingCooldown(Actor akActor) Global
-    return Round(GetAICooldown(akActor)*24*60 - Utility.GetCurrentGameTime()*24*60)
+    return Round((GetAICooldown(akActor) - Utility.GetCurrentGameTime())*24*60)
 EndFunction
 
 ;returns actor motivation to escape the device

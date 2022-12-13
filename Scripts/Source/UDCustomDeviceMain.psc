@@ -962,16 +962,17 @@ Function SetMessageAlias(Actor akActor1,Actor akActor2 = none,zadequipscript arD
     endif
 EndFunction
 
-Bool Property UD_CurrentNPCMenuIsFollower = False auto conditional hidden
-Bool Property UD_CurrentNPCMenuIsRegistered = False auto conditional hidden
-Bool Property UD_CurrentNPCMenuTargetIsHelpless = False auto conditional hidden
-Bool Property UD_CurrentNPCMenuTargetIsInMinigame = False auto conditional hidden
+Bool Property UD_CurrentNPCMenuIsFollower           = False auto conditional hidden
+Bool Property UD_CurrentNPCMenuIsRegistered         = False auto conditional hidden
+Bool Property UD_CurrentNPCMenuTargetIsHelpless     = False auto conditional hidden
+Bool Property UD_CurrentNPCMenuTargetIsInMinigame   = False auto conditional hidden
 Function NPCMenu(Actor akActor)
     SetMessageAlias(akActor)
-    UD_CurrentNPCMenuIsFollower = ActorIsFollower(akActor)
-    UD_CurrentNPCMenuIsRegistered = isRegistered(akActor)
-    UD_CurrentNPCMenuTargetIsHelpless = (!actorFreeHands(akActor) || akActor.getAV("paralysis") || akActor.GetSleepState() == 3) && actorFreeHands(UDmain.Player)
+    UD_CurrentNPCMenuIsFollower         = ActorIsFollower(akActor)
+    UD_CurrentNPCMenuIsRegistered       = isRegistered(akActor)
+    UD_CurrentNPCMenuTargetIsHelpless   = (!actorFreeHands(akActor) || akActor.getAV("paralysis") || akActor.GetSleepState() == 3) && actorFreeHands(UDmain.Player)
     UD_CurrentNPCMenuTargetIsInMinigame = ActorInMinigame(akActor)
+
     int loc_res = NPCDebugMenuMsg.show()
     if loc_res == 0
         UDCD_NPCM.RegisterNPC(akActor,true)
@@ -1122,29 +1123,36 @@ Function PlayerMenu()
 EndFunction
 
 Function UndressArmor(Actor akActor)
-    Form[] loc_armors
-    String[] loc_armorsnames
-    int loc_mask = 0x00000001
-    while loc_mask != 0x00004000
-        Form loc_armor = akActor.GetWornForm(loc_mask)
-        if loc_armor
-            if !loc_armor.haskeyword(libs.zad_Lockable) && !loc_armor.HasKeyWordString("SexLabNoStrip")
-                if !loc_armors || !PapyrusUtil.CountForm(loc_armors,loc_armor)
-                    loc_armors = PapyrusUtil.PushForm(loc_armors,loc_armor)
-                    loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,loc_armor.getName())
+    while True
+        Form[] loc_armors
+        String[] loc_armorsnames
+        int loc_mask = 0x00000001
+        while loc_mask != 0x80000000
+            Armor loc_armor = akActor.GetWornForm(loc_mask) as Armor
+            if loc_armor && loc_armor.GetName()
+                if !loc_armor.haskeyword(libs.zad_Lockable) && !loc_armor.HasKeyWordString("SexLabNoStrip")
+                    if !loc_armors || !PapyrusUtil.CountForm(loc_armors,loc_armor)
+                        loc_armors = PapyrusUtil.PushForm(loc_armors,loc_armor)
+                        loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,loc_armor.getName())
+                    endif
                 endif
             endif
+            loc_mask = Math.LeftShift(loc_mask,1)
+        endwhile
+        loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--ALL--")
+        loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--BACK--")
+        int loc_res = GetUserListInput(loc_armorsnames)
+        if loc_res == (loc_armorsnames.length - 2)
+            libs.strip(akActor,false)
+        elseif loc_res < (loc_armorsnames.length - 2) && loc_res >= 0
+            akActor.unequipItem(loc_armors[loc_res], abSilent = true)
+        else
+            return ;exit undress menu
         endif
-        loc_mask = Math.LeftShift(loc_mask,1)
+        loc_armors = Utility.CreateFormArray(0)
+        loc_armorsnames = Utility.CreateStringArray(0)
+        Utility.wait(0.05)
     endwhile
-    loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--ALL--")
-    loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--BACK--")
-    int loc_res = GetUserListInput(loc_armorsnames)
-    if loc_res == (loc_armorsnames.length - 2)
-        libs.strip(akActor,false)
-    elseif loc_res < (loc_armorsnames.length - 2) && loc_res >= 0
-        akActor.unequipItem(loc_armors[loc_res], abSilent = true)
-    endif
 EndFunction
 
 Function UndressAllArmor(Actor akActor)
@@ -1195,6 +1203,32 @@ bool Function CheckRenderDeviceEquipped(Actor akActor, Armor rendDevice)
         loc_mask = Math.LeftShift(loc_mask,1)
     endwhile
     return false ;device is not equipped
+EndFunction
+
+;returns conflicting device, should be only used after equipitem function fails
+Armor Function GetConflictDevice(Actor akActor, Armor rendDevice)
+    if !akActor
+        return none
+    endif
+    int loc_mask = 0x00000001
+    int loc_devicemask = rendDevice.GetSlotMask()
+    while loc_mask < 0x80000000
+        if loc_mask > loc_devicemask
+            return none
+        endif
+        if Math.LogicalAnd(loc_mask,loc_devicemask)
+            Armor loc_armor = akActor.GetWornForm(loc_mask) as Armor
+            if loc_armor ;check if there is anything in slot
+                if loc_armor == rendDevice
+                    return none ;render device is equipped
+                else
+                    return loc_armor ;;render device is unequipped
+                endif
+            endif
+        endif
+        loc_mask = Math.LeftShift(loc_mask,1)
+    endwhile
+    return none ;device is not equipped
 EndFunction
 
 ;function made as replacemant for akActor.isEquipped, because that function doesn't work for NPCs
