@@ -738,6 +738,9 @@ Int UDAM_TestQuery_ElapsedTime_T
 Int UD_AlternateAnimation_T
 Int UD_AlternateAnimationPeriod_S
 
+Actor LastHelper
+Int UD_Helper_T
+
 Event resetAnimationsPage() 
 ; FIRST RUN
     If UDAM_TestQuery_Type_List.Length == 0
@@ -820,6 +823,10 @@ Event resetAnimationsPage()
         UDAM_TestQuery_PlayerLegs_Bit[2] = 1
     EndIf
     
+    If (Game.GetCurrentCrosshairRef() as Actor)
+        LastHelper = (Game.GetCurrentCrosshairRef() as Actor)
+    EndIf
+    
     Int flags = OPTION_FLAG_NONE
         
     UpdateLockMenuFlag()
@@ -894,6 +901,11 @@ Event resetAnimationsPage()
     If UDAM_TestQuery_Type_Index == 0
         helper_flags = OPTION_FLAG_DISABLED
     EndIf
+    If LastHelper
+        AddTextOption("Helper", LastHelper.GetActorBase().GetName(), OPTION_FLAG_DISABLED)
+    Else
+        UD_Helper_T = AddTextOption("Helper", "----", OPTION_FLAG_NONE)
+    EndIf
     UDAM_TestQuery_HelperArms_M = AddMenuOption("Helper arms restraints", UDAM_TestQuery_PlayerArms_List[UDAM_TestQuery_HelperArms_Index], helper_flags)
     rows_right += 1
     UDAM_TestQuery_HelperLegs_M = AddMenuOption("Helper legs restraints", UDAM_TestQuery_PlayerLegs_List[UDAM_TestQuery_HelperLegs_Index], helper_flags)
@@ -914,9 +926,14 @@ Event resetAnimationsPage()
     AddHeaderOption("Test animation query results (file)")
     AddHeaderOption("Test animation query results (path)")
     
-    AddTextOption("Number of found animations", UDAM_TestQuery_Results.Length)
-    UDAM_TestQuery_ElapsedTime_T = AddTextOption("Elapsed time", (UDAM_TestQuery_TimeSpan * 1000) As Int + " ms")
+    AddTextOption("Number of found animations", UDAM_TestQuery_Results.Length, OPTION_FLAG_DISABLED)
+    UDAM_TestQuery_ElapsedTime_T = AddTextOption("Elapsed time", (UDAM_TestQuery_TimeSpan * 1000) As Int + " ms", OPTION_FLAG_DISABLED)
     
+    If LastHelper == None && UDAM_TestQuery_Type_Index == 0
+        flags = OPTION_FLAG_DISABLED
+    Else
+        flags = OPTION_FLAG_NONE
+    EndIf
     i = 0
     While i < UDAM_TestQuery_Results.Length
         Int part_index = StringUtil.Find(UDAM_TestQuery_Results[i], ":")
@@ -924,8 +941,8 @@ Event resetAnimationsPage()
             String file_part = StringUtil.Substring(UDAM_TestQuery_Results[i], 0, part_index)
             String path_part = StringUtil.Substring(UDAM_TestQuery_Results[i], part_index + 1)
             AddTextOption(file_part, ":", OPTION_FLAG_DISABLED)
-            Int id = AddTextOption(path_part, "-PLAY-", OPTION_FLAG_DISABLED)
-            If id == 0
+            Int id = AddTextOption(path_part, "-PLAY-", flags)
+            If i == 0
                 UDAM_TestQuery_Results_First_T = id
             EndIf
         EndIf
@@ -1351,6 +1368,27 @@ Function OptionSelectAnimations(int option)
             SetOptionFlags(UD_AlternateAnimationPeriod_S, OPTION_FLAG_NONE)
         Else
             SetOptionFlags(UD_AlternateAnimationPeriod_S, OPTION_FLAG_DISABLED)
+        EndIf
+    ElseIf (option >= UDAM_TestQuery_Results_First_T) && (option <= (UDAM_TestQuery_Results_First_T + (UDAM_TestQuery_Results.Length - 1) * 2)) && (((option - UDAM_TestQuery_Results_First_T) % 2) == 0)
+        Int index = (option - UDAM_TestQuery_Results_First_T) / 2
+        String val = UDAM_TestQuery_Results[index]
+        If ShowMessage("FOR DEBUG ONLY! It is impossible to stop the animation, only switch to another one! Animation will start if you press ACCEPT and close menu.", True)
+            ShowMessage("Now close menu to start animation.", False)
+            If LastHelper && UDAM_TestQuery_Type_Index == 1
+                Actor[] actors = new Actor[2]
+                actors[0] = Game.GetPlayer()
+                actors[1] = LastHelper
+                Int[] constr = new Int[2]
+                constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int)
+                constr[1] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_HelperArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_HelperLegs_Index] + 256 * (UDAM_TestQuery_HelperMittens as Int)
+                UDAM.PlayAnimationByDef(val, actors, constr)
+            Else
+                Actor[] actors = new Actor[1]
+                actors[0] = Game.GetPlayer()
+                Int[] constr = new Int[1]
+                constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int)
+                UDAM.PlayAnimationByDef(val, actors, constr)
+            EndIf
         EndIf
     EndIf
 EndFunction
@@ -2847,14 +2885,22 @@ Function DebugPageInfo(int option)
 EndFunction
 
 Function AnimationPageInfo(Int option)
-    If option == UDAM_Reload_T
+    If (option >= UDAM_AnimationJSON_First_T) && (option <= (UDAM_AnimationJSON_First_T + (UDAM.UD_AnimationJSON_All.Length - 1) * 2)) && (((option - UDAM_AnimationJSON_First_T) % 2) == 0)
+        SetInfoText("Toggle file to be loaded into animation pull. Use Reload option to apply changes.")
+    ElseIf option == UDAM_Reload_T
         SetInfoText("Click to reload all files from the disk. Unchecked files will be ignored. These settings are persisted through saves.")
     elseif option == UD_AlternateAnimation_T
         SetInfoText("Enabling this will force struggle animation to randomly switch to different animation periodically\nDefault: OFF")
     elseif option == UD_AlternateAnimationPeriod_S
         SetInfoText("Animation is picked from an array of suitable ones with a given period.\nDefault: 5 sec")
+    ElseIf option == UDAM_TestQuery_Button_T
+        SetInfoText("Request animations with specified conditions")
     ElseIf option == UDAM_TestQuery_ElapsedTime_T
         SetInfoText("")
+    ElseIf (option >= UDAM_TestQuery_Results_First_T) && (option <= (UDAM_TestQuery_Results_First_T + (UDAM_TestQuery_Results.Length - 1) * 2)) && (((option - UDAM_TestQuery_Results_First_T) % 2) == 0)
+        SetInfoText("FOR DEBUG ONLY! It is impossible to stop the animation, only switch to another one.")
+    ElseIf option == UD_Helper_T
+        SetInfoText("Put crosshair on actor to set it as helper in animation")
     EndIf
 EndFunction
 ;=========================================

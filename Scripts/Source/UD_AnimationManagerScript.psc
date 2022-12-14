@@ -338,12 +338,13 @@ Function UnlockAnimatingActor(Actor akActor)
 EndFunction
 
 ; Function to start animation according to the specified definition from json
-; sAnimDef                  animation definition from json, should be in format <file_name>:<path_in_file>
-; akActors                  actors who will participate
-; bContinueAnimation        flag that the animation continues with already locked actors
-Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bContinueAnimation = False)
+; sAnimDef                      animation definition from json, should be in format <file_name>:<path_in_file>
+; akActors                      actors who will participate
+; aaiActorContraints            actors' constraints. If array is empty then called GetActorConstraintsInt function
+; bContinueAnimation            flag that the animation continues with already locked actors
+Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Int[] aaiActorContraints, Bool bContinueAnimation = False)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::PlayAnimationByDef() sAnimDef = " + sAnimDef + ", aakActors = " + aakActors + ", bContinueAnimation = " + bContinueAnimation, 3)
+        UDmain.Log("UD_AnimationManagerScript::PlayAnimationByDef() sAnimDef = " + sAnimDef + ", aakActors = " + aakActors + ", aaiActorContraints = " + aaiActorContraints + ", bContinueAnimation = " + bContinueAnimation, 3)
     EndIf
     
     Int part_index = StringUtil.Find(sAnimDef, ":")
@@ -357,7 +358,12 @@ Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Bool bConti
     
     Int k = 0
     While k < aakActors.Length
-        Int actor_constraints = GetActorConstraintsInt(aakActors[k], True)
+        Int actor_constraints = 0
+        If aaiActorContraints.Length > k
+            actor_constraints = aaiActorContraints[k]
+        Else
+            actor_constraints = GetActorConstraintsInt(aakActors[k], False)
+        EndIf
         String anim_var_path = path + ".A" + (k + 1)
         ; checking if it has variations
         Bool has_vars = JsonUtil.GetPathIntValue(file, anim_var_path + ".req", -1) == -1

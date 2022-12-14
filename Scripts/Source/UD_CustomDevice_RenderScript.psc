@@ -3750,7 +3750,7 @@ Bool Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCont
             Actor[] actors = new Actor[2]
             actors[0] = Wearer
             actors[1] = _minigameHelper
-            result = UDAM.PlayAnimationByDef(_animationDef, actors, bContinueAnimation)
+            result = UDAM.PlayAnimationByDef(_animationDef, actors, aActorConstraints, bContinueAnimation)
         Else
         ; using solo animation for actors
             If _clearCache_SoloActor || _StruggleAnimationDefActorArray.Length == 0
@@ -3764,14 +3764,14 @@ Bool Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCont
                 _animationDef = _StruggleAnimationDefActorArray[Utility.RandomInt(0, _StruggleAnimationDefActorArray.Length - 1)]
                 Actor[] actors = new Actor[1]
                 actors[0] = Wearer
-                result = UDAM.PlayAnimationByDef(_animationDef, actors)
+                result = UDAM.PlayAnimationByDef(_animationDef, actors, aActorConstraints, bContinueAnimation)
             EndIf
 
             If _StruggleAnimationDefHelperArray.Length > 0
                 _animationDef = _StruggleAnimationDefHelperArray[Utility.RandomInt(0, _StruggleAnimationDefHelperArray.Length - 1)]
                 Actor[] actors = new Actor[1]
                 actors[0] = _minigameHelper
-                UDAM.PlayAnimationByDef(_animationDef, actors)
+                UDAM.PlayAnimationByDef(_animationDef, actors, aActorConstraints, bContinueAnimation)
             EndIf
         EndIf
     Else
@@ -3782,7 +3782,7 @@ Bool Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCont
             _animationDef = _StruggleAnimationDefActorArray[Utility.RandomInt(0, _StruggleAnimationDefActorArray.Length - 1)]
             Actor[] actors = new Actor[1]
             actors[0] = Wearer
-            result = UDAM.PlayAnimationByDef(_animationDef, actors)
+            result = UDAM.PlayAnimationByDef(_animationDef, actors, aActorConstraints, bContinueAnimation)
         EndIf
     EndIf
     Return result
