@@ -11,10 +11,7 @@ import UnforgivingDevicesMain
 ;==========;
 Bool                                   Property     Ready         = false   auto    hidden
 UnforgivingDevicesMain                 Property     UDmain                  auto
-UD_CustomDevices_NPCSlotsManager       Property     UDCD_NPCM               auto
 zadlibs                                Property     libs                    auto
-Faction                                Property     ZadAnimationFaction     auto
-Faction                                Property     SexlabAnimationFaction  auto
 sslSystemConfig                        Property     slConfig                Auto
 {SexLab Config to check NiOverride}
 Static                                 Property     VehicleMarkerForm       Auto
@@ -36,11 +33,6 @@ Float                                  Property     UD_AlternateAnimationPeriod 
 ;==========;                                                                           
 ;==MANUAL==;                                                                           
 ;==========;                                                                           
-zadlibs_UDPatch                        Property     libsp                           hidden
-    zadlibs_UDPatch Function get()
-        return libs as zadlibs_UDPatch
-    EndFunction
-EndProperty
 
 ;------------local variables-------------------
 
@@ -133,15 +125,13 @@ Function StopAnimation(Actor akActor, Actor akHelper = None)
     EndIf
 EndFunction
 
-;copied from zadlibs
 ; check if actor is in animation
+; First, we check in the fastest way that the actor is used in UDAM. After that check with zadlibs
 Bool Function IsAnimating(Actor akActor, Bool abBonusCheck = True)
-    if abBonusCheck
-        if (akActor.GetSitState() != 0) || akActor.IsOnMount()
-            return True
-        endif
-    endif
-    return (akActor.IsInFaction(ZadAnimationFaction) || akActor.IsInFaction(SexlabAnimationFaction))
+    If StorageUtil.GetIntValue(akActor, "UD_ActorIsAnimating", 0) == 1
+        Return True
+    EndIf
+    Return abBonusCheck && libs.IsAnimating(akActor)
 EndFunction
 
 ; Prepare actors and start an animation sequence for them. The sequence is scrolled to the last element, which remains active until the animation stops from the outside
@@ -270,14 +260,15 @@ EndFunction
 
 ; Function to lock actor to perform in animation
 Function LockAnimatingActor(Actor akActor)
-    
-    If IsAnimating(akActor)
+
+    If libs.IsAnimating(akActor)
         Return
     EndIf
     
+    StorageUtil.SetIntValue(akActor, "UD_ActorIsAnimating", 1)
+    
     libs.SetAnimating(akActor, True)
 
-    
     If UDmain.ActorIsPlayer(akActor)
 
     Else
@@ -310,6 +301,7 @@ EndFunction
 ; Function to unlock actor after animation
 Function UnlockAnimatingActor(Actor akActor)
 
+    StorageUtil.SetIntValue(akActor, "UD_ActorIsAnimating", 0)
     libs.SetAnimating(akActor, False)
 
     If UDmain.ActorIsPlayer(akActor)
@@ -491,7 +483,7 @@ Function LoadAnimationJSONFiles()
             ; Even though when outputting long arrays, the last elements are replaced with ellipsis, sometimes CTD occurs. (It's unsafe to print more than 1000 symbols or so. That's about 14 animations)
             UDmain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() Loaded files: " + UD_AnimationJSON, 3)
         Else
-            UDmain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() Loaded files count: " + UD_AnimationJSON.Length, 3)
+            UDmain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() Loaded files: " + UD_AnimationJSON.Length, 3)
         EndIf
     EndIf
 EndFunction
@@ -802,23 +794,25 @@ Int Function GetActorConstraintsInt(Actor akActor, Bool bUseCache = False)
 	If akActor.WornHasKeyword(libs.zad_DeviousAnkleShackles) || akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirtRelaxed)
 		result += 2
 	EndIf
-	If akActor.WornHasKeyword(libs.zad_DeviousYoke)
-		result += 4
-	ElseIf akActor.WornHasKeyword(libs.zad_DeviousCuffsFront)
-		result += 8
-	ElseIf akActor.WornHasKeyword(libs.zad_DeviousArmbinder)
-		result += 16
-	ElseIf akActor.WornHasKeyword(libs.zad_DeviousArmbinderElbow)
-		result += 32
-	ElseIf akActor.WornHasKeyword(libs.zad_DeviousPetSuit)
-		result += 64
-	ElseIf akActor.WornHasKeyword(libs.zad_DeviousElbowTie)
-		result += 128
-	ElseIf akActor.WornHasKeyword(libs.zad_DeviousStraitJacket)
-		result += 512
-	ElseIf akActor.WornHasKeyword(libs.zad_DeviousYokeBB)
-		result += 1024
-	EndIf
+    If akActor.WornHasKeyword(libs.zad_DeviousHeavyBondage)
+        If akActor.WornHasKeyword(libs.zad_DeviousYoke)
+            result += 4
+        ElseIf akActor.WornHasKeyword(libs.zad_DeviousCuffsFront)
+            result += 8
+        ElseIf akActor.WornHasKeyword(libs.zad_DeviousArmbinder)
+            result += 16
+        ElseIf akActor.WornHasKeyword(libs.zad_DeviousArmbinderElbow)
+            result += 32
+        ElseIf akActor.WornHasKeyword(libs.zad_DeviousPetSuit)
+            result += 64
+        ElseIf akActor.WornHasKeyword(libs.zad_DeviousElbowTie)
+            result += 128
+        ElseIf akActor.WornHasKeyword(libs.zad_DeviousStraitJacket)
+            result += 512
+        ElseIf akActor.WornHasKeyword(libs.zad_DeviousYokeBB)
+            result += 1024
+        EndIf
+    EndIf
 	If akActor.WornHasKeyword(libs.zad_DeviousBondageMittens)
 		result += 256
 	EndIf

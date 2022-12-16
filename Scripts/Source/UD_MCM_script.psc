@@ -718,7 +718,8 @@ Int UDAM_TestQuery_HelperLegs_Index
 Int UDAM_TestQuery_HelperMittens_T
 Bool UDAM_TestQuery_HelperMittens
 
-Int UDAM_TestQuery_Button_T
+Int UDAM_TestQuery_Request_T
+Int UDAM_TestQuery_StopAnimation_T 
 
 Int UDAM_TestQuery_Keyword_M
 String[] UDAM_TestQuery_Keyword_List
@@ -823,8 +824,10 @@ Event resetAnimationsPage()
         UDAM_TestQuery_PlayerLegs_Bit[2] = 1
     EndIf
     
-    If (Game.GetCurrentCrosshairRef() as Actor)
-        LastHelper = (Game.GetCurrentCrosshairRef() as Actor)
+    Actor actor_in_crosshair = (Game.GetCurrentCrosshairRef() as Actor)
+    ; change helper if the last one is not in animation
+    If !(LastHelper && UDAM.IsAnimating(LastHelper)) && actor_in_crosshair
+        LastHelper = actor_in_crosshair
     EndIf
     
     Int flags = OPTION_FLAG_NONE
@@ -906,6 +909,7 @@ Event resetAnimationsPage()
     Else
         UD_Helper_T = AddTextOption("Helper", "----", OPTION_FLAG_NONE)
     EndIf
+    
     UDAM_TestQuery_HelperArms_M = AddMenuOption("Helper arms restraints", UDAM_TestQuery_PlayerArms_List[UDAM_TestQuery_HelperArms_Index], helper_flags)
     rows_right += 1
     UDAM_TestQuery_HelperLegs_M = AddMenuOption("Helper legs restraints", UDAM_TestQuery_PlayerLegs_List[UDAM_TestQuery_HelperLegs_Index], helper_flags)
@@ -913,7 +917,14 @@ Event resetAnimationsPage()
     UDAM_TestQuery_HelperMittens_T = AddToggleOption("Helper wears mittens", UDAM_TestQuery_HelperMittens, helper_flags)
     rows_right += 1
     
-    UDAM_TestQuery_Button_T =  AddTextOption("Test query", "-PRESS-")
+    UDAM_TestQuery_Request_T =  AddTextOption("Test query", "-PRESS-")
+    rows_right += 1
+    If UDAM.IsAnimating(UDMain.Player)
+        flags = OPTION_FLAG_NONE
+    Else
+        flags = OPTION_FLAG_DISABLED
+    EndIf
+    UDAM_TestQuery_StopAnimation_T =  AddTextOption("Try to stop animation", "-PRESS-", flags)
     rows_right += 1
     
 ; BOTH COLUMNS 
@@ -1336,7 +1347,7 @@ Function OptionSelectAnimations(int option)
         SetOptionFlags(option, OPTION_FLAG_DISABLED)
         UDAM.LoadAnimationJSONFiles()
         SetOptionFlags(option, OPTION_FLAG_NONE)
-    ElseIf option == UDAM_TestQuery_Button_T
+    ElseIf option == UDAM_TestQuery_Request_T
         SetOptionFlags(option, OPTION_FLAG_DISABLED)
         Float start_time = Utility.GetCurrentRealTime()
         String[] kwds = new String[1]
@@ -1372,24 +1383,32 @@ Function OptionSelectAnimations(int option)
     ElseIf (option >= UDAM_TestQuery_Results_First_T) && (option <= (UDAM_TestQuery_Results_First_T + (UDAM_TestQuery_Results.Length - 1) * 2)) && (((option - UDAM_TestQuery_Results_First_T) % 2) == 0)
         Int index = (option - UDAM_TestQuery_Results_First_T) / 2
         String val = UDAM_TestQuery_Results[index]
-        If ShowMessage("FOR DEBUG ONLY! It is impossible to stop the animation, only switch to another one! Animation will start if you press ACCEPT and close menu.", True)
-            ShowMessage("Now close menu to start animation.", False)
-            If LastHelper && UDAM_TestQuery_Type_Index == 1
-                Actor[] actors = new Actor[2]
-                actors[0] = Game.GetPlayer()
-                actors[1] = LastHelper
-                Int[] constr = new Int[2]
-                constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int)
-                constr[1] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_HelperArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_HelperLegs_Index] + 256 * (UDAM_TestQuery_HelperMittens as Int)
-                UDAM.PlayAnimationByDef(val, actors, constr)
-            Else
-                Actor[] actors = new Actor[1]
-                actors[0] = Game.GetPlayer()
-                Int[] constr = new Int[1]
-                constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int)
-                UDAM.PlayAnimationByDef(val, actors, constr)
+        If UDAM_TestQuery_Type_Index == 1 && !LastHelper
+            ShowMessage("First you need to choose a helper. Hover your crosshair over an NPC in the game and make sure its name appears in the 'Helper' option above")
+        Else
+            If ShowMessage("FOR DEBUG ONLY! It is impossible to stop the animation, only switch to another one! Animation will start if you press ACCEPT and close menu.", True)
+                closeMCM()
+                If LastHelper && UDAM_TestQuery_Type_Index == 1
+                    Actor[] actors = new Actor[2]
+                    actors[0] = Game.GetPlayer()
+                    actors[1] = LastHelper
+                    Int[] constr = new Int[2]
+                    constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int)
+                    constr[1] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_HelperArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_HelperLegs_Index] + 256 * (UDAM_TestQuery_HelperMittens as Int)
+                    UDAM.PlayAnimationByDef(val, actors, constr)
+                Else
+                    Actor[] actors = new Actor[1]
+                    actors[0] = Game.GetPlayer()
+                    Int[] constr = new Int[1]
+                    constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int)
+                    UDAM.PlayAnimationByDef(val, actors, constr)
+                EndIf
             EndIf
         EndIf
+    ElseIf option == UDAM_TestQuery_StopAnimation_T
+        ShowMessage("Lets try to stop animation")
+        UDAM.StopAnimation(Game.GetPlayer(), LastHelper)
+        closeMCM()
     EndIf
 EndFunction
 
@@ -1440,6 +1459,7 @@ Function OptionSelectDebug(int option)
         cameraState[1] = False
         UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor().RemoveFromFaction(UDCDmain.BlockAnimationFaction)
         UDCDmain.libs.EndThirdPersonAnimation(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor(), cameraState)
+        UDAM.StopAnimation(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
     elseif unregisterNPC_T == option
         UDCD_NPCM.unregisterNPC(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
         forcePageReset()
@@ -2893,8 +2913,10 @@ Function AnimationPageInfo(Int option)
         SetInfoText("Enabling this will force struggle animation to randomly switch to different animation periodically\nDefault: OFF")
     elseif option == UD_AlternateAnimationPeriod_S
         SetInfoText("Animation is picked from an array of suitable ones with a given period.\nDefault: 5 sec")
-    ElseIf option == UDAM_TestQuery_Button_T
+    ElseIf option == UDAM_TestQuery_Request_T
         SetInfoText("Request animations with specified conditions")
+    ElseIf option == UDAM_TestQuery_StopAnimation_T
+        SetInfoText("You can try to stop the animation. No guarantees!")
     ElseIf option == UDAM_TestQuery_ElapsedTime_T
         SetInfoText("")
     ElseIf (option >= UDAM_TestQuery_Results_First_T) && (option <= (UDAM_TestQuery_Results_First_T + (UDAM_TestQuery_Results.Length - 1) * 2)) && (((option - UDAM_TestQuery_Results_First_T) % 2) == 0)
