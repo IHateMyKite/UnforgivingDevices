@@ -81,12 +81,12 @@
 		"zad_DeviousPlugVaginal" : [
 			{
 				"A1" : {
-						"anim" : [ "B_FSrv1_A2_S1", "B_FSrv1_A2_S2" ], 
+						"anim" : [ "B_B_FSrv1_A2_S1", "B_B_FSrv1_A2_S2" ], 
 						"req" : 0, 
 						"opt" : 256
 					},
 				"A2" : {
-						"anim" : [ "B_FSrv1_A2_S1", "B_FSrv1_A2_S2" ], 
+						"anim" : [ "B_B_FSrv1_A2_S1", "B_B_FSrv1_A2_S2" ], 
 						"req" : 0, 
 						"opt" : 256
 					},
@@ -97,12 +97,12 @@
 		"zad_DeviousPlugAnal" : [
 			{
 				"A1" : {
-						"anim" : [ "B_FSrv1_A2_S1", "B_FSrv1_A2_S2" ], 
+						"anim" : [ "B_B_FSrv1_A2_S1", "B_B_FSrv1_A2_S2" ], 
 						"req" : 0, 
 						"opt" : 256
 					},
 				"A2" : {
-						"anim" : [ "B_FSrv1_A2_S1", "B_FSrv1_A2_S2" ], 
+						"anim" : [ "B_B_FSrv1_A2_S1", "B_B_FSrv1_A2_S2" ], 
 						"req" : 0, 
 						"opt" : 256
 					},
