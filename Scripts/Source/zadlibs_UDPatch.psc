@@ -655,7 +655,7 @@ String Function AnimSwitchKeyword(actor akActor, string idleName)
     If anims.Length > 0
         Return anims[Utility.RandomInt(0, anims.Length - 1)]
     Else
-        return parent.AnimSwitchKeyword(akActor, idleName )
+        return parent.AnimSwitchKeyword(akActor, idleName)
     EndIf
 EndFunction
 
@@ -750,61 +750,8 @@ EndFunction
 ;copied with added trace check and block check
 bool[] Function StartThirdPersonAnimation(actor akActor, string animation, bool permitRestrictive=false)
     if UD_StartThirdPersonAnimation_Switch
-        if akActor.isInFaction(UDCDmain.BlockAnimationFaction)
-            return new bool[2]
-        endif
-        
-        if UDmain.TraceAllowed()
-            Log("StartThirdPersonAnimation("+akActor.GetLeveledActorBase().GetName()+","+animation+")")
-        endif
-        
-        ;[UD EDIT]: Removed permitRestrictive as its no longer usefull
-        if !IsValidActor(akActor); || (akActor.WornHasKeyword(zad_DeviousArmBinder) && !permitRestrictive)
-            if UDmain.TraceAllowed()        
-                Log("Actor is not loaded (Or is otherwise invalid). Aborting.")
-            endif
-            return new bool[2]
-        EndIf
-        
-        if IsAnimating(akActor)
-            if UDmain.TraceAllowed()
-                Log("Actor already in animating faction.")
-            endif
-            return new bool[2]
-        EndIf
-
-        if animation == "none"
-            UDCDmain.Error("StartThirdPersonAnimation - Called animation is None, aborting")
-            return new bool[2]
-        endif
-        
-        bool[] ret = new bool[2]
-        
-        if akActor.IsWeaponDrawn()
-            akActor.SheatheWeapon()
-            ; Wait for users with flourish sheathe animations.
-            int timeout=0
-            while akActor.IsWeaponDrawn() && timeout <= 35 ;  Wait 3.5 seconds at most before giving up and proceeding.
-                Utility.Wait(0.1)
-                timeout += 1
-            EndWhile
-            ret[1] = true
-        EndIf    
-        
-        Form loc_shield = GetShield(akActor)
-        if loc_shield
-            akActor.unequipItem(loc_shield,true,true)
-            StorageUtil.SetFormValue(akActor,"UD_UnequippedShield",loc_shield)
-        endif
-        ;[UD EDIT]: Removed camera check as I think it's useless
-        if UDmain.ActorIsPlayer(akActor)
-            DisableControls()
-        Else
-            akActor.SetDontMove(true)
-        EndIf    
-        SetAnimating(akActor, true)    
-        Debug.SendAnimationEvent(akActor, animation)    
-        return ret
+        UDMain.UDAM.StartSoloAnimation(akActor, animation)
+        return new Bool[2]
     else
         return parent.StartThirdPersonAnimation(akActor, animation, true)
     endif
@@ -813,69 +760,15 @@ EndFunction
 ;copied with added trace check and block check
 Function EndThirdPersonAnimation(actor akActor, bool[] cameraState, bool permitRestrictive=false)
     if UD_StartThirdPersonAnimation_Switch
-        if akActor.isInFaction(UDCDmain.BlockAnimationFaction)
-            return
-        endif
-        if UDmain.TraceAllowed()    
-            UDCDMain.Log("EndThirdPersonAnimation("+GetActorName(akActor)+","+cameraState+")",1)
-        endif
-        SetAnimating(akActor, false)
-        if (!akActor.Is3DLoaded() ||  akActor.IsDead() || akActor.IsDisabled())
-            UDCDMain.Error("EndThirdPersonAnimation("+GetActorName(akActor)+") - Actor is not loaded (Or is otherwise invalid). Aborting.")
-            return
-        EndIf
-        Form loc_shield = StorageUtil.GetFormValue(akActor,"UD_UnequippedShield",none)
-        if loc_shield
-            StorageUtil.UnsetFormValue(akActor,"UD_UnequippedShield")
-            akActor.equipItem(loc_shield,false,true)
-            StorageUtil.UnSetFormValue(akActor,"UD_UnequippedShield")
-        endif
-        Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
-        if akActor == playerRef
-            UpdateControls()
-        Else
-            akActor.SetDontMove(false)
-        EndIf
+        UDMain.UDAM.StopAnimation(akActor)
     else
         parent.EndThirdPersonAnimation(akActor, cameraState, true)
     endif
 EndFunction
 
-Function SwitchAndPlayAnimation(actor akActor, string animation, int iDuration,bool permitRestrictive=false)
-    if akActor.isInFaction(UDCDmain.BlockAnimationFaction)
-        return
-    endif
-    ;StorageUtil.SetStringValue(akActor,"zad_animation",animation)
-    parent.EndThirdPersonAnimation(akActor, new bool[2], true)
-    PlayThirdPersonAnimationBlocking(akActor, animation,iDuration, true)
-EndFunction
-
 Function PlayThirdPersonAnimation(actor akActor, string animation, int duration, bool permitRestrictive=false)
-    if akActor.isInFaction(UDCDmain.BlockAnimationFaction)
-        return
-    endif
     ;StorageUtil.SetStringValue(akActor,"zad_animation",animation)
     parent.PlayThirdPersonAnimation(akActor, animation, duration, permitRestrictive=false)
-EndFunction
-
-bool Function PlayThirdPersonAnimationBlocking(actor akActor, string animation, int duration, bool permitRestrictive=false)
-    if akActor.isInFaction(UDCDmain.BlockAnimationFaction)
-        return false
-    endif
-    
-    if isAnimating(akActor)
-        EndThirdPersonAnimation(akActor, new bool[2], true)
-    endif
-    
-    bool[] loc_cameraState = StartThirdPersonAnimation(akActor, animation,permitRestrictive)
-    akActor.AddToFaction(UDCDmain.BlockAnimationFaction)
-    
-    Utility.wait(duration)
-
-    akActor.RemoveFromFaction(UDCDmain.BlockAnimationFaction)
-    EndThirdPersonAnimation(akActor,loc_cameraState,permitRestrictive)
-    
-    return true
 EndFunction
 
 Function ActorOrgasm(actor akActor, int setArousalTo=-1, int vsID=-1)

@@ -78,6 +78,9 @@ Bool Function StartSoloAnimationSequence(Actor akActor, String[] aAnimation, Boo
         Return False
     EndIf
     If !bContinueAnimation
+        If UDmain.ActorIsPlayer(akActor)
+            _Apply3rdPersonCamera(bDismount = True)
+        EndIf
         LockAnimatingActor(akActor)
     EndIf
     ; in case it called just after paired animation (for example, during orgasm ending)
@@ -122,6 +125,9 @@ Function StopAnimation(Actor akActor, Actor akHelper = None)
         ; restoring HH if it was removed in StartPairAnimation
         _RestoreHeelEffect(akHelper)
         Debug.SendAnimationEvent(akHelper, "IdleForceDefaultState")
+    EndIf
+    If UDmain.ActorIsPlayer(akActor) || UDmain.ActorIsPlayer(akHelper)
+        _RestorePlayerCamera()
     EndIf
 EndFunction
 
@@ -169,6 +175,9 @@ Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[]
     EndIf
     
     If !bContinueAnimation
+        If UDmain.ActorIsPlayer(akActor) || UDmain.ActorIsPlayer(akHelper)
+            _Apply3rdPersonCamera(bDismount = False)
+        EndIf
         ; locking actors
         LockAnimatingActor(akActor)
         LockAnimatingActor(akHelper)
@@ -886,6 +895,41 @@ Function _RestoreHeelEffect(Actor akActor)
             NiOverride.UpdateNodeTransform(akActor, false, isRealFemale, "NPC")
         endIf
     endIf
+EndFunction
+
+; bDismount should not be used with group animations since they are using "mount"
+Function _Apply3rdPersonCamera(Bool bDismount = True)
+    Actor player = UDMain.Player
+    ; taken from zadLibs.psc
+    int cameraOld = Game.GetCameraState()
+    If (cameraOld == 10 || player.IsOnMount()); 10 On a horse
+        If bDismount
+            player.Dismount()
+            Game.ForceThirdPerson()
+            int timeout = 0
+            while player.IsOnMount() && timeout <= 30; Wait for dismount to complete
+                Utility.Wait(0.1)
+                timeout += 1
+            EndWhile
+        EndIf
+    ElseIf cameraOld == 11; Bleeding out.
+        
+    ElseIf cameraOld == 12 ; Dragon? Wtf?
+        
+    ElseIf cameraOld == 8 || cameraOld == 9 || cameraOld ==  7 ;;; 8 / 9 are third person. 7 is tween menu.
+
+    Else
+        StorageUtil.SetIntValue(player, "UD_AnimationManager_RestoreCamera", 1)
+        Game.ForceThirdPerson()
+    EndIf
+EndFunction
+
+Function _RestorePlayerCamera()
+    Actor player = UDMain.Player
+    If StorageUtil.GetIntValue(player, "UD_AnimationManager_RestoreCamera", 0) == 1
+        StorageUtil.SetIntValue(player, "UD_AnimationManager_RestoreCamera", 0)
+        Game.ForceFirstPerson()
+    EndIf
 EndFunction
 
 Function _Benchmark(Int iCycles = 10)
