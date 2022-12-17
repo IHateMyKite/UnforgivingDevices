@@ -3,10 +3,229 @@
 		"json" : "..\\..\\..\\SLAnims\\json\\Billyy_Human.json"
 	},
 	"paired" : {
-		"zad_DeviousBoots" : [
+		"zad_DeviousAnkleShackles" : [
 			
 		], 
-		"zad_DeviousPlug" : [
+		"zad_DeviousHobbleSkirtRelaxed" : [
+			
+		], 
+		"zad_DeviousHobbleSkirt" : [
+			{
+				"A1" : {
+						"anim" : [ "B_B_SpankDog_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
+				"A2" : {
+						"anim" : [ "B_B_SpankDog_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "B_B_SpankDog_A1_S1", "B_B_SpankDog_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
+				"A2" : {
+						"anim" : [ "B_B_SpankDog_A2_S1", "B_B_SpankDog_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "B_B_SpankDog_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
+				"A2" : {
+						"anim" : [ "B_B_SpankDog_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousCuffsFront" : [
+			
+		], 
+		"zad_DeviousArmbinder" : [
+			
+		], 
+		"zad_DeviousArmbinderElbow" : [
+			
+		], 
+		"zad_DeviousElbowTie" : [
+			
+		], 
+		"zad_DeviousStraitJacket" : [
+			
+		], 
+		"zad_DeviousYoke" : [
+			
+		], 
+		"zad_DeviousYokeBB" : [
+			
+		], 
+		"zad_DeviousPetSuit" : [
+			
+		], 
+		"zad_DeviousHood" : [
+			
+		], 
+		"zad_DeviousGag" : [
+			
+		], 
+		"zad_DeviousGagLarge" : [
+			
+		], 
+		"zad_DeviousGagPanel" : [
+			
+		], 
+		"zad_DeviousBlindfold" : [
+			
+		], 
+		"zad_DeviousCollar" : [
+			
+		], 
+		"zad_DeviousBra" : [
+			{
+				"A1" : {
+						"anim" : [ "B_B_Doggy1_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
+				"A2" : {
+						"anim" : [ "B_B_Doggy1_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "B_B_SThighF_A1_S1", "B_B_SThighF_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 258
+					},
+				"A2" : {
+						"anim" : [ "B_B_SThighF_A2_S1", "B_B_SThighF_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 258
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "B_B_Finger1_A1_S1 " ], 
+						"req" : 0, 
+						"opt" : 258
+					},
+				"A2" : {
+						"anim" : [ "B_B_Finger1_A2_S1 " ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousPiercingsNipple" : [
+			{
+				"A1" : {
+						"anim" : [ "B_B_Doggy1_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
+				"A2" : {
+						"anim" : [ "B_B_Doggy1_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "B_B_SThighF_A1_S1", "B_B_SThighF_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 258
+					},
+				"A2" : {
+						"anim" : [ "B_B_SThighF_A2_S1", "B_B_SThighF_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 258
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "B_B_Finger1_A1_S1 " ], 
+						"req" : 0, 
+						"opt" : 258
+					},
+				"A2" : {
+						"anim" : [ "B_B_Finger1_A2_S1 " ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousClamps" : [
+			{
+				"A1" : {
+						"anim" : [ "B_B_Doggy1_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
+				"A2" : {
+						"anim" : [ "B_B_Doggy1_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "B_B_SThighF_A1_S1", "B_B_SThighF_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 258
+					},
+				"A2" : {
+						"anim" : [ "B_B_SThighF_A2_S1", "B_B_SThighF_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 258
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "B_B_Finger1_A1_S1 " ], 
+						"req" : 0, 
+						"opt" : 258
+					},
+				"A2" : {
+						"anim" : [ "B_B_Finger1_A2_S1 " ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousCorset" : [
+			
+		], 
+		"zad_DeviousHarness" : [
+			
+		], 
+		"zad_DeviousSuit" : [
 			
 		], 
 		"zad_DeviousBelt" : [
@@ -142,148 +361,7 @@
 				"aggr" : 0
 			}
 		], 
-		"zad_DeviousBra" : [
-			{
-				"A1" : {
-						"anim" : [ "B_B_Doggy1_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"A2" : {
-						"anim" : [ "B_B_Doggy1_A2_S1" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "B_B_SThighF_A1_S1", "B_B_SThighF_A1_S2" ], 
-						"req" : 0, 
-						"opt" : 258
-					},
-				"A2" : {
-						"anim" : [ "B_B_SThighF_A2_S1", "B_B_SThighF_A2_S2" ], 
-						"req" : 0, 
-						"opt" : 258
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "B_B_Finger1_A1_S1 " ], 
-						"req" : 0, 
-						"opt" : 258
-					},
-				"A2" : {
-						"anim" : [ "B_B_Finger1_A2_S1 " ], 
-						"req" : 0, 
-						"opt" : 266
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}
-		], 
-		"zad_DeviousCollar" : [
-			
-		], 
-		"zad_DeviousArmCuffs" : [
-			
-		], 
-		"zad_DeviousLegCuffs" : [
-			
-		], 
-		"zad_DeviousArmbinder" : [
-			
-		], 
-		"zad_DeviousArmbinderElbow" : [
-			
-		], 
-		"zad_DeviousHobbleSkirt" : [
-			{
-				"A1" : {
-						"anim" : [ "B_B_SpankDog_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"A2" : {
-						"anim" : [ "B_B_SpankDog_A2_S1" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "B_B_SpankDog_A1_S1", "B_B_SpankDog_A1_S2" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"A2" : {
-						"anim" : [ "B_B_SpankDog_A2_S1", "B_B_SpankDog_A2_S2" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "B_B_SpankDog_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"A2" : {
-						"anim" : [ "B_B_SpankDog_A2_S1" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}
-		], 
-		"zad_DeviousHobbleSkirtRelaxed" : [
-			
-		], 
-		"zad_DeviousAnkleShackles" : [
-			
-		], 
-		"zad_DeviousStraitJacket" : [
-			
-		], 
-		"zad_DeviousCuffsFront" : [
-			
-		], 
-		"zad_DeviousPetSuit" : [
-			
-		], 
-		"zad_DeviousYoke" : [
-			
-		], 
-		"zad_DeviousYokeBB" : [
-			
-		], 
-		"zad_DeviousCorset" : [
-			
-		], 
-		"zad_DeviousClamps" : [
-			
-		], 
-		"zad_DeviousGloves" : [
-			
-		], 
-		"zad_DeviousHood" : [
-			
-		], 
-		"zad_DeviousElbowTie" : [
-			
-		], 
-		"zad_DeviousGag" : [
-			
-		], 
-		"zad_DeviousGagLarge" : [
-			
-		], 
-		"zad_DeviousGagPanel" : [
+		"zad_DeviousPlug" : [
 			
 		], 
 		"zad_DeviousPlugVaginal" : [
@@ -291,54 +369,6 @@
 		], 
 		"zad_DeviousPlugAnal" : [
 			
-		], 
-		"zad_DeviousHarness" : [
-			
-		], 
-		"zad_DeviousBlindfold" : [
-			
-		], 
-		"zad_DeviousPiercingsNipple" : [
-			{
-				"A1" : {
-						"anim" : [ "B_B_Doggy1_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"A2" : {
-						"anim" : [ "B_B_Doggy1_A2_S1" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "B_B_SThighF_A1_S1", "B_B_SThighF_A1_S2" ], 
-						"req" : 0, 
-						"opt" : 258
-					},
-				"A2" : {
-						"anim" : [ "B_B_SThighF_A2_S1", "B_B_SThighF_A2_S2" ], 
-						"req" : 0, 
-						"opt" : 258
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "B_B_Finger1_A1_S1 " ], 
-						"req" : 0, 
-						"opt" : 258
-					},
-				"A2" : {
-						"anim" : [ "B_B_Finger1_A2_S1 " ], 
-						"req" : 0, 
-						"opt" : 266
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}
 		], 
 		"zad_DeviousPiercingsVaginal" : [
 			{
@@ -411,7 +441,16 @@
 		"zad_DeviousBondageMittens" : [
 			
 		], 
-		"zad_DeviousSuit" : [
+		"zad_DeviousArmCuffs" : [
+			
+		], 
+		"zad_DeviousGloves" : [
+			
+		], 
+		"zad_DeviousBoots" : [
+			
+		], 
+		"zad_DeviousLegCuffs" : [
 			
 		]
 	}

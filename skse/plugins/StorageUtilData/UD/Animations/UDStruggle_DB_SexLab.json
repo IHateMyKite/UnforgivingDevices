@@ -2,6 +2,242 @@
 	"conditions" : {
 	},
 	"paired" : {
+		"zad_DeviousAnkleShackles" : [
+			{
+				"A1" : {
+						"anim" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 258
+					},
+				"A2" : {
+						"anim" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Leito_Feet_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 259
+					},
+				"A2" : {
+						"anim" : [ "Leito_Feet_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Leito_Feet2_A1_S1", "Leito_Feet2_A1_S2", "Leito_Feet2_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 259
+					},
+				"A2" : {
+						"anim" : [ "Leito_Feet2_A2_S1", "Leito_Feet2_A2_S2", "Leito_Feet2_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Leito_Feet3_A1_S1", "Leito_Feet3_A1_S2", "Leito_Feet3_A1_S3", "Leito_Feet3_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 259
+					},
+				"A2" : {
+						"anim" : [ "Leito_Feet3_A2_S1", "Leito_Feet3_A2_S2", "Leito_Feet3_A2_S3", "Leito_Feet3_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousHobbleSkirtRelaxed" : [
+			
+		], 
+		"zad_DeviousHobbleSkirt" : [
+			{
+				"A1" : {
+						"anim" : [ "Leito_Feet_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 259
+					},
+				"A2" : {
+						"anim" : [ "Leito_Feet_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Leito_Feet2_A1_S1", "Leito_Feet2_A1_S2", "Leito_Feet2_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 259
+					},
+				"A2" : {
+						"anim" : [ "Leito_Feet2_A2_S1", "Leito_Feet2_A2_S2", "Leito_Feet2_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousCuffsFront" : [
+			
+		], 
+		"zad_DeviousArmbinder" : [
+			
+		], 
+		"zad_DeviousArmbinderElbow" : [
+			
+		], 
+		"zad_DeviousElbowTie" : [
+			
+		], 
+		"zad_DeviousStraitJacket" : [
+			
+		], 
+		"zad_DeviousYoke" : [
+			
+		], 
+		"zad_DeviousYokeBB" : [
+			
+		], 
+		"zad_DeviousPetSuit" : [
+			
+		], 
+		"zad_DeviousHood" : [
+			
+		], 
+		"zad_DeviousGag" : [
+			
+		], 
+		"zad_DeviousGagLarge" : [
+			
+		], 
+		"zad_DeviousGagPanel" : [
+			
+		], 
+		"zad_DeviousBlindfold" : [
+			
+		], 
+		"zad_DeviousCollar" : [
+			
+		], 
+		"zad_DeviousBra" : [
+			
+		], 
+		"zad_DeviousPiercingsNipple" : [
+			
+		], 
+		"zad_DeviousClamps" : [
+			
+		], 
+		"zad_DeviousCorset" : [
+			
+		], 
+		"zad_DeviousHarness" : [
+			
+		], 
+		"zad_DeviousSuit" : [
+			{
+				"A1" : {
+						"anim" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 258
+					},
+				"A2" : {
+						"anim" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2", "Leito_Feet_A1_S3", "Leito_Feet_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
+				"A2" : {
+						"anim" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2", "Leito_Feet_A2_S3", "Leito_Feet_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Leito_Feet_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 259
+					},
+				"A2" : {
+						"anim" : [ "Leito_Feet_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Leito_Feet2_A1_S1", "Leito_Feet2_A1_S2", "Leito_Feet2_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 259
+					},
+				"A2" : {
+						"anim" : [ "Leito_Feet2_A2_S1", "Leito_Feet2_A2_S2", "Leito_Feet2_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Leito_Feet3_A1_S1", "Leito_Feet3_A1_S2", "Leito_Feet3_A1_S3", "Leito_Feet3_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 259
+					},
+				"A2" : {
+						"anim" : [ "Leito_Feet3_A2_S1", "Leito_Feet3_A2_S2", "Leito_Feet3_A2_S3", "Leito_Feet3_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 266
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousBelt" : [
+			
+		], 
+		"zad_DeviousPlug" : [
+			
+		], 
+		"zad_DeviousPlugVaginal" : [
+			
+		], 
+		"zad_DeviousPlugAnal" : [
+			
+		], 
+		"zad_DeviousPiercingsVaginal" : [
+			
+		], 
+		"zad_DeviousBondageMittens" : [
+			
+		], 
+		"zad_DeviousArmCuffs" : [
+			
+		], 
+		"zad_DeviousGloves" : [
+			
+		], 
 		"zad_DeviousBoots" : [
 			{
 				"A1" : {
@@ -70,243 +306,7 @@
 				"aggr" : 0
 			}
 		], 
-		"zad_DeviousPlug" : [
-			
-		], 
-		"zad_DeviousBelt" : [
-			
-		], 
-		"zad_DeviousBra" : [
-			
-		], 
-		"zad_DeviousCollar" : [
-			
-		], 
-		"zad_DeviousArmCuffs" : [
-			
-		], 
 		"zad_DeviousLegCuffs" : [
-			{
-				"A1" : {
-						"anim" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2" ], 
-						"req" : 0, 
-						"opt" : 258
-					},
-				"A2" : {
-						"anim" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2" ], 
-						"req" : 0, 
-						"opt" : 266
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2", "Leito_Feet_A1_S3", "Leito_Feet_A1_S4" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"A2" : {
-						"anim" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2", "Leito_Feet_A2_S3", "Leito_Feet_A2_S4" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Leito_Feet_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 259
-					},
-				"A2" : {
-						"anim" : [ "Leito_Feet_A2_S1" ], 
-						"req" : 0, 
-						"opt" : 266
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Leito_Feet2_A1_S1", "Leito_Feet2_A1_S2", "Leito_Feet2_A1_S3" ], 
-						"req" : 0, 
-						"opt" : 259
-					},
-				"A2" : {
-						"anim" : [ "Leito_Feet2_A2_S1", "Leito_Feet2_A2_S2", "Leito_Feet2_A2_S3" ], 
-						"req" : 0, 
-						"opt" : 266
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Leito_Feet3_A1_S1", "Leito_Feet3_A1_S2", "Leito_Feet3_A1_S3", "Leito_Feet3_A1_S4" ], 
-						"req" : 0, 
-						"opt" : 259
-					},
-				"A2" : {
-						"anim" : [ "Leito_Feet3_A2_S1", "Leito_Feet3_A2_S2", "Leito_Feet3_A2_S3", "Leito_Feet3_A2_S4" ], 
-						"req" : 0, 
-						"opt" : 266
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}
-		], 
-		"zad_DeviousArmbinder" : [
-			
-		], 
-		"zad_DeviousArmbinderElbow" : [
-			
-		], 
-		"zad_DeviousHobbleSkirt" : [
-			{
-				"A1" : {
-						"anim" : [ "Leito_Feet_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 259
-					},
-				"A2" : {
-						"anim" : [ "Leito_Feet_A2_S1" ], 
-						"req" : 0, 
-						"opt" : 266
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Leito_Feet2_A1_S1", "Leito_Feet2_A1_S2", "Leito_Feet2_A1_S3" ], 
-						"req" : 0, 
-						"opt" : 259
-					},
-				"A2" : {
-						"anim" : [ "Leito_Feet2_A2_S1", "Leito_Feet2_A2_S2", "Leito_Feet2_A2_S3" ], 
-						"req" : 0, 
-						"opt" : 266
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}
-		], 
-		"zad_DeviousHobbleSkirtRelaxed" : [
-			
-		], 
-		"zad_DeviousAnkleShackles" : [
-			{
-				"A1" : {
-						"anim" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2" ], 
-						"req" : 0, 
-						"opt" : 258
-					},
-				"A2" : {
-						"anim" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2" ], 
-						"req" : 0, 
-						"opt" : 266
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Leito_Feet_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 259
-					},
-				"A2" : {
-						"anim" : [ "Leito_Feet_A2_S1" ], 
-						"req" : 0, 
-						"opt" : 266
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Leito_Feet2_A1_S1", "Leito_Feet2_A1_S2", "Leito_Feet2_A1_S3" ], 
-						"req" : 0, 
-						"opt" : 259
-					},
-				"A2" : {
-						"anim" : [ "Leito_Feet2_A2_S1", "Leito_Feet2_A2_S2", "Leito_Feet2_A2_S3" ], 
-						"req" : 0, 
-						"opt" : 266
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Leito_Feet3_A1_S1", "Leito_Feet3_A1_S2", "Leito_Feet3_A1_S3", "Leito_Feet3_A1_S4" ], 
-						"req" : 0, 
-						"opt" : 259
-					},
-				"A2" : {
-						"anim" : [ "Leito_Feet3_A2_S1", "Leito_Feet3_A2_S2", "Leito_Feet3_A2_S3", "Leito_Feet3_A2_S4" ], 
-						"req" : 0, 
-						"opt" : 266
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}
-		], 
-		"zad_DeviousStraitJacket" : [
-			
-		], 
-		"zad_DeviousCuffsFront" : [
-			
-		], 
-		"zad_DeviousPetSuit" : [
-			
-		], 
-		"zad_DeviousYoke" : [
-			
-		], 
-		"zad_DeviousYokeBB" : [
-			
-		], 
-		"zad_DeviousCorset" : [
-			
-		], 
-		"zad_DeviousClamps" : [
-			
-		], 
-		"zad_DeviousGloves" : [
-			
-		], 
-		"zad_DeviousHood" : [
-			
-		], 
-		"zad_DeviousElbowTie" : [
-			
-		], 
-		"zad_DeviousGag" : [
-			
-		], 
-		"zad_DeviousGagLarge" : [
-			
-		], 
-		"zad_DeviousGagPanel" : [
-			
-		], 
-		"zad_DeviousPlugVaginal" : [
-			
-		], 
-		"zad_DeviousPlugAnal" : [
-			
-		], 
-		"zad_DeviousHarness" : [
-			
-		], 
-		"zad_DeviousBlindfold" : [
-			
-		], 
-		"zad_DeviousPiercingsNipple" : [
-			
-		], 
-		"zad_DeviousPiercingsVaginal" : [
-			
-		], 
-		"zad_DeviousBondageMittens" : [
-			
-		], 
-		"zad_DeviousSuit" : [
 			{
 				"A1" : {
 						"anim" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2" ], 

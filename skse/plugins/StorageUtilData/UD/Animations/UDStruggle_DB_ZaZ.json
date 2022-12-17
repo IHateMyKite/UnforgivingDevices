@@ -3,15 +3,8 @@
 		"mod" : "ZaZAnimationPack.esm"
 	},
 	"solo" : {
-		"zad_DeviousBoots" : [
+		"zad_DeviousAnkleShackles" : [
 			{
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
@@ -20,23 +13,9 @@
 				"lewd" : 0 
 			}, {
 				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 512, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
 					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle01", 
-					"req" : 4, 
-					"opt" : 256
 				}, 
 				"lewd" : 0 
 			}, {
@@ -48,15 +27,8 @@
 				"lewd" : 0 
 			}
 		], 
-		"zad_DeviousPlug" : [
+		"zad_DeviousHobbleSkirtRelaxed" : [
 			{
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
@@ -65,23 +37,9 @@
 				"lewd" : 0 
 			}, {
 				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 512, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
 					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle01", 
-					"req" : 4, 
-					"opt" : 256
 				}, 
 				"lewd" : 0 
 			}, {
@@ -93,15 +51,8 @@
 				"lewd" : 0 
 			}
 		], 
-		"zad_DeviousBelt" : [
+		"zad_DeviousHobbleSkirt" : [
 			{
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
@@ -110,23 +61,9 @@
 				"lewd" : 0 
 			}, {
 				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 512, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
 					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle01", 
-					"req" : 4, 
-					"opt" : 256
 				}, 
 				"lewd" : 0 
 			}, {
@@ -138,185 +75,8 @@
 				"lewd" : 0 
 			}
 		], 
-		"zad_DeviousBra" : [
-			{
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 17, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 512, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 513, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle01", 
-					"req" : 4, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 5, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}
-		], 
-		"zad_DeviousCollar" : [
-			{
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 17, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 512, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 513, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle01", 
-					"req" : 4, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 5, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}
-		], 
-		"zad_DeviousArmCuffs" : [
-			{
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 17, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 512, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 513, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle01", 
-					"req" : 4, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 5, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}
-		], 
-		"zad_DeviousLegCuffs" : [
-			{
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 17, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 512, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 513, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle01", 
-					"req" : 4, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 5, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}
+		"zad_DeviousCuffsFront" : [
+			
 		], 
 		"zad_DeviousArmbinder" : [
 			{
@@ -382,232 +142,16 @@
 					"opt" : 258
 				}, 
 				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 512, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 513, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle01", 
-					"req" : 4, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 5, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
 			}
 		], 
 		"zad_DeviousArmbinderElbow" : [
-			{
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 17, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 512, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 513, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle01", 
-					"req" : 4, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 5, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}
+			
 		], 
-		"zad_DeviousHobbleSkirt" : [
-			{
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 17, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 512, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 513, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle01", 
-					"req" : 4, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 5, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}
-		], 
-		"zad_DeviousHobbleSkirtRelaxed" : [
-			{
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 17, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 512, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 513, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle01", 
-					"req" : 4, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 5, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}
-		], 
-		"zad_DeviousAnkleShackles" : [
-			{
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 17, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 512, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 513, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle01", 
-					"req" : 4, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 5, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}
+		"zad_DeviousElbowTie" : [
+			
 		], 
 		"zad_DeviousStraitJacket" : [
 			{
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 17, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle01", 
 					"req" : 512, 
@@ -670,142 +214,10 @@
 					"opt" : 258
 				}, 
 				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle01", 
-					"req" : 4, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 5, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}
-		], 
-		"zad_DeviousCuffsFront" : [
-			{
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 17, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 512, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 513, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle01", 
-					"req" : 4, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 5, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}
-		], 
-		"zad_DeviousPetSuit" : [
-			{
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 17, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 512, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 513, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle01", 
-					"req" : 4, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 5, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
 			}
 		], 
 		"zad_DeviousYoke" : [
 			{
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 17, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 512, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 513, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle01", 
 					"req" : 4, 
@@ -871,231 +283,12 @@
 			}
 		], 
 		"zad_DeviousYokeBB" : [
-			{
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 17, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 512, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 513, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle01", 
-					"req" : 4, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 5, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}
+			
 		], 
-		"zad_DeviousCorset" : [
-			{
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 17, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 512, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 513, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle01", 
-					"req" : 4, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 5, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}
-		], 
-		"zad_DeviousClamps" : [
-			{
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 17, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 512, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 513, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle01", 
-					"req" : 4, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 5, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}
-		], 
-		"zad_DeviousGloves" : [
-			{
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 17, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 512, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 513, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle01", 
-					"req" : 4, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 5, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}
+		"zad_DeviousPetSuit" : [
+			
 		], 
 		"zad_DeviousHood" : [
-			{
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 17, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 512, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 513, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle01", 
-					"req" : 4, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 5, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}
-		], 
-		"zad_DeviousElbowTie" : [
 			{
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
@@ -1275,7 +468,7 @@
 				"lewd" : 0 
 			}
 		], 
-		"zad_DeviousPlugVaginal" : [
+		"zad_DeviousBlindfold" : [
 			{
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
@@ -1320,7 +513,187 @@
 				"lewd" : 0 
 			}
 		], 
-		"zad_DeviousPlugAnal" : [
+		"zad_DeviousCollar" : [
+			{
+				"A1" : {
+					"anim" : "ZapArmbStruggle03", 
+					"req" : 16, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 17, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle03", 
+					"req" : 512, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 513, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle01", 
+					"req" : 4, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 5, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"zad_DeviousBra" : [
+			{
+				"A1" : {
+					"anim" : "ZapArmbStruggle03", 
+					"req" : 16, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 17, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle03", 
+					"req" : 512, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 513, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle01", 
+					"req" : 4, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 5, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"zad_DeviousPiercingsNipple" : [
+			{
+				"A1" : {
+					"anim" : "ZapArmbStruggle03", 
+					"req" : 16, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 17, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle03", 
+					"req" : 512, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 513, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle01", 
+					"req" : 4, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 5, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"zad_DeviousClamps" : [
+			{
+				"A1" : {
+					"anim" : "ZapArmbStruggle03", 
+					"req" : 16, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 17, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle03", 
+					"req" : 512, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 513, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle01", 
+					"req" : 4, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 5, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"zad_DeviousCorset" : [
 			{
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
@@ -1410,7 +783,7 @@
 				"lewd" : 0 
 			}
 		], 
-		"zad_DeviousBlindfold" : [
+		"zad_DeviousSuit" : [
 			{
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
@@ -1455,7 +828,142 @@
 				"lewd" : 0 
 			}
 		], 
-		"zad_DeviousPiercingsNipple" : [
+		"zad_DeviousBelt" : [
+			{
+				"A1" : {
+					"anim" : "ZapArmbStruggle03", 
+					"req" : 16, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 17, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle03", 
+					"req" : 512, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 513, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle01", 
+					"req" : 4, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 5, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"zad_DeviousPlug" : [
+			{
+				"A1" : {
+					"anim" : "ZapArmbStruggle03", 
+					"req" : 16, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 17, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle03", 
+					"req" : 512, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 513, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle01", 
+					"req" : 4, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 5, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"zad_DeviousPlugVaginal" : [
+			{
+				"A1" : {
+					"anim" : "ZapArmbStruggle03", 
+					"req" : 16, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 17, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle03", 
+					"req" : 512, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 513, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle01", 
+					"req" : 4, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 5, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"zad_DeviousPlugAnal" : [
 			{
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
@@ -1590,7 +1098,142 @@
 				"lewd" : 0 
 			}
 		], 
-		"zad_DeviousSuit" : [
+		"zad_DeviousArmCuffs" : [
+			{
+				"A1" : {
+					"anim" : "ZapArmbStruggle03", 
+					"req" : 16, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 17, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle03", 
+					"req" : 512, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 513, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle01", 
+					"req" : 4, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 5, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"zad_DeviousGloves" : [
+			{
+				"A1" : {
+					"anim" : "ZapArmbStruggle03", 
+					"req" : 16, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 17, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle03", 
+					"req" : 512, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 513, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle01", 
+					"req" : 4, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 5, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"zad_DeviousBoots" : [
+			{
+				"A1" : {
+					"anim" : "ZapArmbStruggle03", 
+					"req" : 16, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 17, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle03", 
+					"req" : 512, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 513, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle01", 
+					"req" : 4, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbStruggle02", 
+					"req" : 5, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"zad_DeviousLegCuffs" : [
 			{
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
