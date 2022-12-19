@@ -400,6 +400,7 @@ EndFunction
 ;======================================================================
 Function OnVibrationStart()
     updateVibrationParam()
+    Parent.OnVibrationStart()
 EndFunction
 
 Function OnVibrationEnd()
@@ -410,6 +411,7 @@ Function OnVibrationEnd()
     if plug_hunger < 0
         plug_hunger = 0.0
     endif
+    Parent.OnVibrationEnd()
 EndFunction
 
 Function OnMinigameEnd()
@@ -498,7 +500,7 @@ EndFunction
 
 string Function addInfoString(string str = "")
     str = parent.addInfoString(str)
-    str += "(AP) Strenght: " + formatString(abadonPlugDiff,1) + " (~"+Math.floor(relativeStrength()*100.0)+" %)" + "\n"
+    str += "(AP) Strength: " + formatString(abadonPlugDiff,1) + " (~"+Math.floor(relativeStrength()*100.0)+" %)" + "\n"
     str += "(AP) Hunger: "+ Math.floor(100.0 - plug_hunger) + " %\n"
     str += "(AP) Orgasms feeded: "+ orgasm_cout +"\n"
     str += "(AP) Finisher?: "+ finisherOn +"\n"
@@ -519,7 +521,7 @@ Function onUpdatePost(float timePassed)
         if (abadonPlugDiff >= AbadonQuestScript.max_difficulty && !max_diff_finisher)
             max_diff_finisher = True
             if WearerIsPlayer()
-                UDCDmain.Print("Abadon plug have reached its full strenght!")
+                UDCDmain.Print("Abadon plug have reached its full strength!")
                 if AbadonQuestScript.UD_AbadonVictim == getWearer()
                     AbadonQuestScript.SetStage(30)
                     AbadonQuestScript.SetObjectiveFailed(30)

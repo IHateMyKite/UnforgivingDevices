@@ -1269,3 +1269,11 @@ Bool Function UnJamLock(actor akActor, keyword zad_DeviousDevice)
         return false
     endif
 EndFunction
+
+Function Notify(string out, bool messageBox=false)
+    If !messageBox
+        UDMain.UDWC.ShowNotification(out)
+    Else
+        Parent.Notify(out, messageBox)
+    EndIf
+EndFunction

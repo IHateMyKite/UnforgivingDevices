@@ -992,11 +992,11 @@ Function OnEdge(string eventName, string strArg, float numArg, Form sender)
     if strArg != UDmain.Player.getActorBase().getName()
         int random = Utility.randomInt(1,3)
         if random == 1
-            debug.notification(strArg + " gets denied just before reaching the orgasm!")
+            UDMain.UDWC.ShowNotification(strArg + " gets denied just before reaching the orgasm!")
         elseif random == 2
-            debug.notification(strArg + " screams as they are edged just before climax!")
+            UDMain.UDWC.ShowNotification(strArg + " screams as they are edged just before climax!")
         elseif random == 3
-            debug.notification(strArg + " is edged!")
+            UDMain.UDWC.ShowNotification(strArg + " is edged!")
         endif
     endif
     UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByActorName(strArg)

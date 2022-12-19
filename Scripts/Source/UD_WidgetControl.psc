@@ -2,6 +2,15 @@ ScriptName UD_WidgetControl extends Quest
 
 import UnforgivingDevicesMain
 
+; CONSTANTS
+Int W_POSY_TOP = 0
+Int W_POSY_MIDDLE = 3
+Int W_POSY_LOWER = 1
+Int W_POSY_BOTTOM = 2
+Int W_POSX_LEFT = 0
+Int W_POSX_CENTER = 1
+Int W_POSX_RIGHT = 2
+
 UnforgivingDevicesMain Property UDmain auto
 
 ;use iWantWidgets if true
@@ -11,6 +20,16 @@ Bool                        Property UD_UseIWantWidget = true auto
 UD_WidgetBase               Property UD_Widget1 auto
 UD_WidgetBase               Property UD_Widget2 auto
 
+; new UI settings
+Int                         Property    UD_IconsSize            = 60    Auto    Hidden
+Int                         Property    UD_DDIconsAnchorX       = 1     Auto    Hidden      ; W_POSX_CENTER
+Int                         Property    UD_DDIconsAnchorY       = 3     Auto    Hidden      ; W_POSY_MIDDLE
+Int                         Property    UD_DDIconsOffsetX       = -300  Auto    Hidden
+Int                         Property    UD_DDIconsOffsetY       = 0     Auto    Hidden
+Int                         Property    UD_BuffIconsAnchorX     = 1     Auto    Hidden      ; W_POSX_CENTER
+Int                         Property    UD_BuffIconsAnchorY     = 3     Auto    Hidden      ; W_POSY_MIDDLE
+Int                         Property    UD_BuffIconsOffsetX     = 300   Auto    Hidden
+Int                         Property    UD_BuffIconsOffsetY     = 0     Auto    Hidden
 
 Int _WidgetXPos = 2
 Int Property UD_WidgetXPos
@@ -166,7 +185,6 @@ EndFunction
 Function Flash_OrgasmWidget()
 EndFunction
 
-
 ;iWidget variables, should not be used ifiWidget is not installed
 Int     _Widget_DeviceDurability            = -1
 Bool    _Widget_DeviceDurability_Visible    = False
@@ -192,11 +210,51 @@ Int     _Widget_Orgasm_Color3               = 0xFF00BC
 ;GROUP
 Int[] _WidgetsID
 
+Float _Animation_LastGameTime
+Float _Notifications_QueueStart
+Int[] _Notifications_Id
+Int[] _Notifications_AnimStage
+Float[] _Notifications_Timer
+Float[] _Notifications_Duration
+String[] _Notification_NewText
+
+Int[] _Icons_Id                 ; widget id
+String[] _Icons_Name            ; DDS file name in '<Data>/interface/exported/widgets/iwant/widgets/library' folder
+Int[] _Icons_Magnitude             ; 0 .. 100
+Float[] _Icons_Timer            ; animation timer
+Int[] _Icons_Stage              ; animation stage
+
+Int     _Widget_Icon_Inactive_Color             = 0xFFFFFF
+Int     _Widget_Icon_Active0_Color              = 0xFFFF00
+Int     _Widget_Icon_Active50_Color             = 0xFF0000
+Int     _Widget_Icon_Active100_Color            = 0xFF00FF
+
+Event OnBeginState()
+    RegisterForSingleUpdate(30.0)
+EndEvent
+    
 Function UpdateGroupPositions()
 EndFunction
 Function UpdateColor_Widget(Int aiId,int aiColor,int aiColor2 = 0,int aiFlashColor = 0xFFFFFF)
 EndFunction
 Int[] Function AddWidget(Int[] aaiGroup, Int aiWidget, Float fVerticalOffset, Int akPerc = 0, Int akCol1 = 0x0, Int akCol2 = 0x0, Int akCol3 = 0xFFFFFFFF)
+EndFunction
+
+Function ShowNotification(String asText)
+    Debug.Notification(asText)
+EndFunction
+
+Function AnimateWidgets()
+EndFunction
+Function _ProcessNewNotifications()
+EndFunction
+Int Function _CreateNewIcon(String asName, Int aiXOffset = -1, Int aiYOffset = -1, Int aiAlpha = 100)
+EndFunction
+Function ToggleStatusEffect(String asName, Bool abShow = True, Int aiStrength = 0)
+EndFunction
+Function IncrementStatusEffect(String asName, Int aiIncrement = 20, Bool abHideIfZero = True)
+EndFunction
+Function _SetIconRGB(Int aiWidget, Int aiRGB)
 EndFunction
 
 ;Fuck this stupid as shit. It's even harder to make widget position right
@@ -227,7 +285,19 @@ EndProperty
 Bool _InitMutex = False
 ;Use iWidget instead
 State iWidgetInstalled
+
+    Event OnBeginState()
+        _Animation_LastGameTime = Utility.GetCurrentRealTime()
+        RegisterForSingleUpdate(0.5)
+    EndEvent
+    
+    Event OnUpdate()
+        AnimateWidgets()
+        RegisterForSingleUpdate(0.5)
+    EndEvent
+
     Function InitWidgets()
+        UDMain.Log("UD_WidgetControl::InitWidgets()")
         RefreshCanvasMetrics()
         ;No autoadjust, reinit the widgets
         if !UD_AutoAdjustWidget
@@ -260,6 +330,32 @@ State iWidgetInstalled
             iWidget.setVisible(_Widget_DeviceDurability, _Widget_DeviceDurability_Visible As Int)
             iWidget.setVisible(_Widget_DeviceCondition, _Widget_DeviceCondition_Visible As Int)
             iWidget.setVisible(_Widget_Orgasm, _Widget_Orgasm_Visible As Int)
+            
+            ;          XXX     XXX                          XXX
+            ;          XXX     XXX                          XXX
+            ;               a               X                b
+            ;          XXX     XXX                          XXX
+            ;          XXX     XXX                          XXX
+            ;
+            ; a - DD Icons Anchor + Offset          b - Buff Icons Anchor + Offset
+            
+            Int x = CalculateGroupXPos(UD_DDIconsAnchorX) + UD_DDIconsOffsetX + (0.55 * UD_IconsSize) As Int
+            Int y = CalculateGroupYPos(UD_DDIconsAnchorY) + UD_DDIconsOffsetY + (0.55 * UD_IconsSize) As Int
+            _CreateNewIcon("dd-plug-anal", x, y, 50)
+            y -= (UD_IconsSize * 1.1) As Int
+            _CreateNewIcon("dd-plug-vaginal", x, y, 50)
+            y += (UD_IconsSize * 1.1) As Int
+            x -= (UD_IconsSize * 1.1) As Int
+            _CreateNewIcon("dd-piercing-clit", x, y, 50)
+            y -= (UD_IconsSize * 1.1) As Int
+            _CreateNewIcon("dd-piercing-nipples", x, y, 50)
+
+            x = CalculateGroupXPos(UD_BuffIconsAnchorX) + UD_BuffIconsOffsetX
+            y = CalculateGroupYPos(UD_BuffIconsAnchorY) + UD_BuffIconsOffsetY + (0.55 * UD_IconsSize) As Int
+            _CreateNewIcon("effect-exhaustion", x, y, 100)
+            y -= (UD_IconsSize * 1.1) As Int
+            _CreateNewIcon("effect-orgasm", x, y, 100)
+            
             _InitMutex = false
         endif
     EndFunction
@@ -426,6 +522,187 @@ State iWidgetInstalled
         iWidget.doMeterFlash(_Widget_Orgasm)
     EndFunction
     
+    ; quickly push a string into array and leave the function
+    Function ShowNotification(String asText)
+        _Notification_NewText = PapyrusUtil.PushString(_Notification_NewText, asText)
+        RegisterForSingleUpdate(0.1)
+    EndFunction
+    
+    ; create new notifications in a single thread (hopefully)
+    ; TODO: multiline text
+    Function _ProcessNewNotifications()
+        Int len = _Notification_NewText.Length
+        Int i = 0
+        While i < len
+            Int text_id = iWidget.loadText(_Notification_NewText[i], size = 24)
+            Int anim_stage = 0              ; invisible
+            Float timer = 0.0               ; lifetime timer
+            iWidget.setPos(text_id, CalculateGroupXPos(W_POSX_CENTER), CalculateGroupYPos(W_POSY_LOWER))
+            If _Notifications_QueueStart >= 0.0
+                _Notifications_QueueStart = 0.0
+                anim_stage = 1              ; visible
+                iWidget.setVisible(text_id, 1)
+            Else
+                timer = _Notifications_QueueStart
+            EndIf
+            Float time_to_read = (StringUtil.GetLength(_Notification_NewText[i]) as Float) / 25.0
+            ; next notifications will wait some time before appearing
+            _Notifications_QueueStart -= time_to_read + 1.0
+            _Notifications_Id = PapyrusUtil.PushInt(_Notifications_Id, text_id)
+            _Notifications_Timer = PapyrusUtil.PushFloat(_Notifications_Timer, timer)
+            _Notifications_AnimStage = PapyrusUtil.PushInt(_Notifications_AnimStage, anim_stage)
+            _Notifications_Duration = PapyrusUtil.PushFloat(_Notifications_Duration, time_to_read)
+            i += 1
+        EndWhile
+        _Notification_NewText = PapyrusUtil.SliceStringArray(_Notification_NewText, len, -1)
+    EndFunction
+    
+    Int Function _CreateNewIcon(String asName, Int aiX = -1, Int aiY = -1, Int aiAlpha = 100)
+        UDMain.Log("UD_WidgetControl::_CreateNewIcon() asName = " + asName + ", aiX = " + aiX + ", aiY = " + aiY)
+        If aiX < 0 || aiY < 0
+            UDMain.Warning("UD_WidgetControl::_CreateNewIcon() icon created without proper positioning")
+            aiX = CanvasWidth / 2
+            aiY = CanvasHeight / 2
+        EndIf
+        Int icon_id = iWidget.loadLibraryWidget(asName)
+        iWidget.setSize(icon_id, UD_IconsSize, UD_IconsSize)
+    ; TODO: Set proper places for each icon (effect)
+        iWidget.setPos(icon_id, aiX, aiY)
+        iWidget.setTransparency(icon_id, aiAlpha)
+        _Icons_Name = PapyrusUtil.PushString(_Icons_Name, asName)
+        _Icons_Id = PapyrusUtil.PushInt(_Icons_Id, icon_id)
+        _Icons_Timer = PapyrusUtil.PushFloat(_Icons_Timer, 0.0)
+        _Icons_Magnitude = PapyrusUtil.PushInt(_Icons_Magnitude, 0)
+        _Icons_Stage = PapyrusUtil.PushInt(_Icons_Stage, 0)
+        
+        Return _Icons_Id.Length - 1
+    EndFunction
+    
+    Function ToggleStatusEffect(String asName, Bool abShow = True, Int aiMagnitude = 0)
+        UDMain.Log("UD_WidgetControl::ToggleStatusEffect() asName = " + asName + ", abShow = " + abShow + ", aiMagnitude = " + aiMagnitude)
+        Int index = _Icons_Name.Find(asName)
+        If index == -1
+            index = _CreateNewIcon(asName)
+        EndIf
+        iWidget.setVisible(_Icons_Id[index], abShow as Int)
+        _Icons_Magnitude[index] = aiMagnitude
+        _SetIconRGB(_Icons_Id[index], aiMagnitude)
+    EndFunction
+
+    Function IncrementStatusEffect(String asName, Int aiIncrement = 20, Bool abHideIfZero = True)
+        UDMain.Log("UD_WidgetControl::IncrementStatusEffect() asName = " + asName + ", aiIncrement = " + aiIncrement + ", abHideIfZero = " + abHideIfZero)
+        Int index = _Icons_Name.Find(asName)
+        If index == -1
+            index = _CreateNewIcon(asName)
+        EndIf
+        _Icons_Magnitude[index] = _Icons_Magnitude[index] + aiIncrement
+        If _Icons_Magnitude[index] < 0
+            _Icons_Magnitude[index] = 0
+        EndIf
+        If abHideIfZero && _Icons_Magnitude[index] <= 0
+            iWidget.setVisible(_Icons_Id[index], 0)
+        Else
+            iWidget.setVisible(_Icons_Id[index], 1)
+        EndIf
+        _SetIconRGB(_Icons_Id[index], _Icons_Magnitude[index])
+    EndFunction
+    
+    Function _SetIconRGB(Int aiWidget, Int aiMagnitude)
+        Int R
+        Int G
+        Int B
+        If aiMagnitude <= 0
+            R  = Math.LogicalAnd(Math.RightShift(_Widget_Icon_Inactive_Color,16),0xFF)
+            G  = Math.LogicalAnd(Math.RightShift(_Widget_Icon_Inactive_Color,8),0xFF)
+            B  = Math.LogicalAnd(Math.RightShift(_Widget_Icon_Inactive_Color,0),0xFF)
+        ElseIf aiMagnitude <= 50
+            R  = (Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active0_Color,16),0xFF) * (50 - aiMagnitude) + Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active50_Color,16),0xFF) * aiMagnitude) / 50
+            G  = (Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active0_Color,8),0xFF) * (50 - aiMagnitude) + Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active50_Color,8),0xFF) * aiMagnitude) / 50
+            B  = (Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active0_Color,0),0xFF) * (50 - aiMagnitude) + Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active50_Color,0),0xFF) * aiMagnitude) / 50
+        Else
+            Int m = aiMagnitude
+            If m > 100
+                m = 100
+            EndIf
+            R  = (Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active100_Color,16),0xFF) * (m - 50) + Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active50_Color,16),0xFF) * (100 - m)) / 50
+            G  = (Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active100_Color,8),0xFF) * (m - 50) + Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active50_Color,8),0xFF)) * (100 - m) / 50
+            B  = (Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active100_Color,0),0xFF) * (m - 50) + Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active50_Color,0),0xFF)) * (100 - m) / 50
+        EndIf
+        iWidget.setRGB(aiWidget, R, G, B)
+    EndFunction
+    
+    Function AnimateWidgets()
+        Float real_time = Utility.GetCurrentRealTime()
+        Float frame = real_time - _Animation_LastGameTime
+        _Animation_LastGameTime = real_time
+        ; Notifications
+        _ProcessNewNotifications()
+        _Notifications_QueueStart += frame
+        Int i = _Notifications_Id.Length
+        Bool ready_to_purge = True
+        While i > 0
+            i -= 1
+            Int text_id = _Notifications_Id[i]
+            If text_id > -1
+                ready_to_purge = False
+                Float timer = _Notifications_Timer[i]
+                Int anim_stage = _Notifications_AnimStage[i]
+                Float time_to_read = _Notifications_Duration[i]
+                timer += frame
+                If anim_stage == 0 && timer >= 0.0
+                ; visible stage
+                    iWidget.setVisible(text_id, 1)
+                    anim_stage = 1
+                ElseIf anim_stage == 1 && timer >= time_to_read
+                ; fade out stage
+                    anim_stage = 2
+                    iWidget.doTransitionByTime(text_id, 0, 1.0, "alpha")
+                ElseIf anim_stage == 2 && timer >= time_to_read + 2.0
+                ; ending stage
+                    iWidget.destroy(text_id)
+                    text_id = -1
+                    anim_stage = -1
+                EndIf
+                _Notifications_Id[i] = text_id
+                _Notifications_Timer[i] = timer
+                _Notifications_AnimStage[i] = anim_stage
+            EndIf
+        EndWhile
+        If _Notifications_Id.Length > 0 && ready_to_purge
+        ; TODO: remove first elements when they become invisible
+            _Notifications_Id = PapyrusUtil.ResizeIntArray(_Notifications_Id, 0)
+            _Notifications_Timer = PapyrusUtil.ResizeFloatArray(_Notifications_Timer, 0)
+            _Notifications_Duration = PapyrusUtil.ResizeFloatArray(_Notifications_Duration, 0)
+            _Notifications_AnimStage = PapyrusUtil.ResizeIntArray(_Notifications_AnimStage, 0)
+        EndIf
+        ; Icons
+        i = _Icons_Id.Length
+        While i > 0
+            i -= 1
+            Int icon_id = _Icons_Id[i]
+            Float timer = _Icons_Timer[i]
+            Int magnitude = _Icons_Magnitude[i]
+            String name =  _Icons_Name[i]
+            Int anim_stage = _Icons_Stage[i]
+            timer += frame
+            
+            If StringUtil.Substring(name, 0, 3) == "dd-"
+                If magnitude > 0
+                    If ((timer / 0.5) As Int) % 2 == 0
+                        iWidget.doTransitionByTime(icon_id, 25, 0.5, "alpha")
+                    Else
+                        iWidget.doTransitionByTime(icon_id, 100, 0.5, "alpha")
+                    EndIf
+                    anim_stage = 1
+                ElseIf anim_stage == 1
+                    anim_stage = 0
+                    iWidget.doTransitionByTime(icon_id, 50, 0.1, "alpha")
+                EndIf
+            EndIf
+            _Icons_Timer[i] = timer
+            _Icons_Stage[i] = anim_stage
+        EndWhile
+    EndFunction    
 EndState
 
 Int Function CalculateGroupXPos(int aival)
@@ -447,6 +724,9 @@ Int Function CalculateGroupYPos(int aival)
     elseif aival == 2       ; top
         ; added offset to not overlap existing HUD indicators
         return (HUDPaddingY + HUDMeterHeightRef / 2 + 1.5 * HUDMeterHeightRef) As Int
+    elseif aival == 3       ; middle
+        ; added offset to not overlap existing HUD indicators
+        return (CanvasHeight / 2 - HUDPaddingY / 2 + HUDMeterHeightRef / 2) As Int
     endif
 endFunction
 
