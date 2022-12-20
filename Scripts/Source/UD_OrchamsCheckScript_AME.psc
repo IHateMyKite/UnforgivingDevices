@@ -269,7 +269,7 @@ Event OnUpdate()
                 
                 loc_tick = 0
                 loc_tickS += 1
-                loc_edgeprogress = UDOM.UpdateHornyProgress(akActor,5.0*fRange((100.0 - loc_arousal)/100.0,0.01,1.0))
+                loc_edgeprogress = UDOM.UpdateHornyProgress(akActor,-5.0*fRange((100.0 - loc_arousal)/100.0,0.01,1.0))
                 
                 int loc_switch = (loc_tickS % 3)
                 if loc_switch == 0
