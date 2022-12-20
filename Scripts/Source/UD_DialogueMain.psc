@@ -54,7 +54,7 @@ Function startDialogue(string eventName, string type, float fArg, Form sender)
     ;debug.trace("[UD] Dialogue called for "+type+ " , value : "+OnStart)
     spawnDummy()
     Utility.wait(1.0)
-    if type == "Hand restrain"
+    if type == "Hand restraint"
         if OnStart
             HeavyBondageDialogueScene_Start.start()
         else

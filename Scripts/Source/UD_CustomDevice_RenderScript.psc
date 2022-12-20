@@ -4640,7 +4640,7 @@ Function lockpickDevice()
                     if Utility.randomInt(0,1)
                         UDmain.Print("Your hands are sweating")
                     else
-                        UDmain.Print("Your hands starts to trembl")
+                        UDmain.Print("Your hands starting to tremble")
                     endif
                     loc_msgshown = true
                 endif
@@ -4653,7 +4653,7 @@ Function lockpickDevice()
                 if UDmain.IsLockpickingMenuOpen()
                     closeLockpickMenu()
                 endif
-                UDCDmain.Print("You lost the focus and broke the lockpick!")
+                UDCDmain.Print("You lost focus and broke the lockpick!")
                 result = 2
                 getWearer().removeItem(UDCDmain.Lockpick,1)
             endif

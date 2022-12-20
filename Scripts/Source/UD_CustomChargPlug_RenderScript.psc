@@ -89,7 +89,7 @@ Function removeDevice(actor akActor)
         ; Break down plug.
         if UD_ChargeRewardFull
             if WearerIsPlayer()
-                UDmain.Print("After removing the plug from your trembling groin, the stand easily detaches and breaks in to " + UD_ChargeRewardFull.getName(),1)
+                UDmain.Print("After removing plug its stand breaks into " + UD_ChargeRewardFull.getName(),1) ;need to really shorten this one, otherwise it's too long and unreadable. maybe break it into 2 strings?
             endif
             getWearer().AddItem(UD_ChargeRewardFull,UD_ChargeRewardNum)
         else
@@ -100,7 +100,7 @@ Function removeDevice(actor akActor)
     Else
         if UD_ChargeRewardEmpty
             if WearerIsPlayer()
-                UDmain.Print("Though the plug glows upon removal, the light quickly fades from it and break to " + UD_ChargeRewardEmpty.getName())
+                UDmain.Print("Removed plug's light fades from it while breaking into " + UD_ChargeRewardEmpty.getName()) ;same shortening here
             endif
             getWearer().AddItem(UD_ChargeRewardEmpty,UD_ChargeRewardNum)
         else
