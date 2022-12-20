@@ -555,6 +555,68 @@ int Function removeOrgasmFromActor(Actor akActor)
     return loc_count
 EndFunction
 
+Int Function     UpdateHornyLevel(Actor akActor, Int aiValue)
+    Int loc_val = iRange(GetHornyLevel(akActor) + aiValue,-5,5)
+    SetHornyLevel(akActor, loc_val)
+    return loc_val
+EndFunction
+
+Function     SetHornyLevel(Actor akActor, Int aiValue)
+    StorageUtil.SetIntValue(akActor,"UD_HornyLevel",iRange(aiValue,-5,5))
+EndFunction
+
+Int Function GetHornyLevel(Actor akActor)
+    return StorageUtil.GetIntValue(akActor,"UD_HornyLevel",0)
+EndFunction
+
+String Function GetHornyLevelString(Actor akActor)
+    Int loc_edgeLevel = StorageUtil.GetIntValue(akActor,"UD_HornyLevel",0)
+    string loc_res
+    if loc_edgeLevel == -5
+        loc_res = "Going crazy"
+    elseif loc_edgeLevel == -4
+        loc_res = "Climaxing nonstop"
+    elseif loc_edgeLevel == -3
+        loc_res = "Can't stop cumming"
+    elseif loc_edgeLevel == -2
+        loc_res = "Very exhausted"
+    elseif loc_edgeLevel == -1
+        loc_res = "Exhausted"
+    elseif loc_edgeLevel == 0
+        loc_res = "Normal"
+    elseif loc_edgeLevel == 1
+        loc_res = "Horny"
+    elseif loc_edgeLevel == 2
+        loc_res = "Very Horny"
+    elseif loc_edgeLevel == 3
+        loc_res = "Increadibly horny"
+    elseif loc_edgeLevel == 4
+        loc_res = "Wants to cum badly"
+    elseif loc_edgeLevel == 5
+        loc_res = "Driven mad with pleasure"
+    endif
+    return loc_res
+EndFunction
+
+Float Function     UpdateHornyProgress(Actor akActor, Float afValue)
+    Float loc_val = fRange(GetHornyProgress(akActor) + afValue,0.0,10000.0)
+    SetHornyProgress(akActor, loc_val)
+    return loc_val
+EndFunction
+
+Function     SetHornyProgress(Actor akActor, Float afValue)
+    StorageUtil.SetFloatValue(akActor,"UD_HornyProgress",fRange(afValue,0.0,10000.0))
+EndFunction
+
+Float Function GetHornyProgress(Actor akActor)
+    return StorageUtil.GetFloatValue(akActor,"UD_HornyProgress",0.0)
+EndFunction
+
+Float Function GetRelativeHornyProgress(Actor akActor)
+    return StorageUtil.GetFloatValue(akActor,"UD_HornyProgress",0.0)/(3.0*GetActorOrgasmCapacity(akActor))
+EndFunction
+
+
 Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,int iForce = 0, bool bForceAnimation = false)
     Int loc_orgasms = addOrgasmToActor(akActor)
     

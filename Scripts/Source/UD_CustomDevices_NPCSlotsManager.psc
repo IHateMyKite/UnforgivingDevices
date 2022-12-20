@@ -90,6 +90,7 @@ Event OnUpdate()
                 _UpdateTimePassed2 += UDCDmain.UD_UpdateTime
                 if _UpdateTimePassed2 >= UD_SlotScanUpdateTime
                      scanSlots()
+                     UndressSlots()
                     _UpdateTimePassed2 = 0.0
                 endif
             endif
@@ -125,6 +126,17 @@ Function UpdateSlots()
         index -= 1
         UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
         UpdateSlot(loc_slot)
+    endwhile
+EndFunction
+
+Function UndressSlots()
+    int index = UD_Slots ;all aliases
+    while index
+        index -= 1
+        UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
+        if loc_slot && loc_slot.isUsed() && !loc_slot.hasFreeHands() && !UDmain.ActorIsFollower(loc_slot.GetActor())
+            libs.strip(loc_slot.GetActor(),false)
+        endif
     endwhile
 EndFunction
 
@@ -279,7 +291,7 @@ EndFunction
 Function AddScanIncompatibleFaction(Faction akFaction)
     if akFaction
         _ScanInCompatibilityFactions = PapyrusUtil.PushForm(_ScanInCompatibilityFactions, akFaction)
-        GInfo("Added " + akFaction + " to incompatible NPC factions")
+        ;GInfo("Added " + akFaction + " to incompatible NPC factions")
     endif
 EndFunction
 

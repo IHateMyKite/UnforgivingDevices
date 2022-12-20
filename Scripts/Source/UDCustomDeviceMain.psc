@@ -964,6 +964,7 @@ EndFunction
 
 Bool Property UD_CurrentNPCMenuIsFollower           = False auto conditional hidden
 Bool Property UD_CurrentNPCMenuIsRegistered         = False auto conditional hidden
+Bool Property UD_CurrentNPCMenuIsPersistent         = False auto conditional hidden
 Bool Property UD_CurrentNPCMenuTargetIsHelpless     = False auto conditional hidden
 Bool Property UD_CurrentNPCMenuTargetIsInMinigame   = False auto conditional hidden
 Function NPCMenu(Actor akActor)
@@ -972,24 +973,29 @@ Function NPCMenu(Actor akActor)
     UD_CurrentNPCMenuIsRegistered       = isRegistered(akActor)
     UD_CurrentNPCMenuTargetIsHelpless   = (!actorFreeHands(akActor) || akActor.getAV("paralysis") || akActor.GetSleepState() == 3) && actorFreeHands(UDmain.Player)
     UD_CurrentNPCMenuTargetIsInMinigame = ActorInMinigame(akActor)
+    UD_CurrentNPCMenuIsPersistent       = StorageUtil.GetIntValue(akActor, "UD_ManualRegister", 0)
 
     int loc_res = NPCDebugMenuMsg.show()
     if loc_res == 0
         UDCD_NPCM.RegisterNPC(akActor,true)
     elseif loc_res == 1
         UDCD_NPCM.UnregisterNPC(akActor,true)
-    elseif loc_res == 2 ;Acces devices
+    elseif loc_res == 2
+        StorageUtil.SetIntValue(akActor, "UD_ManualRegister", 1)
+    elseif loc_res == 3
+        StorageUtil.SetIntValue(akActor, "UD_ManualRegister", 0)
+    elseif loc_res == 4 ;Acces devices
         HelpNPC(akActor,UDmain.Player,ActorIsFollower(akActor))
-    elseif loc_res == 3 ; get help
+    elseif loc_res == 5 ; get help
         HelpNPC(UDmain.Player,akActor,false)
-    elseif loc_res == 4
+    elseif loc_res == 6
         UndressArmor(akActor)
         akActor.UpdateWeight(0)
-    elseif loc_res == 5
-        DebugFunction(akActor)
-    elseif loc_res == 6
-        akActor.openInventory(True)
     elseif loc_res == 7
+        DebugFunction(akActor)
+    elseif loc_res == 8
+        akActor.openInventory(True)
+    elseif loc_res == 9
         if !StorageUtil.GetIntValue(akActor,"UDNPCMenu_SetDontMove",0)
             StorageUtil.SetIntValue(akActor,"UDNPCMenu_SetDontMove",1)
             akActor.setDontMove(true)
@@ -997,9 +1003,9 @@ Function NPCMenu(Actor akActor)
             StorageUtil.UnSetIntValue(akActor,"UDNPCMenu_SetDontMove")
             akActor.setDontMove(false)
         endif
-    elseif loc_res == 8
+    elseif loc_res == 10
         showActorDetails(akActor)
-    elseif loc_res == 9
+    elseif loc_res == 11
         getMinigameDevice(akActor).StopMinigame()
     else
         return
@@ -1041,8 +1047,9 @@ Function OpenHelpDeviceMenu(UD_CustomDevice_RenderScript device,Actor akHelper,b
         else
             loc_arrcontrol = new bool[30]
             ;tying and repairing doesn't sound like helping
-            loc_arrcontrol[06] = true
-            loc_arrcontrol[07] = true
+            ;allow for now, will have to add some switch later which will determinate if player can be dick to NPC or not
+            ;loc_arrcontrol[06] = true
+            ;loc_arrcontrol[07] = true
         endif
 
         loc_arrcontrol[14] = !bAllowCommand
@@ -1264,7 +1271,9 @@ Message Property UD_ActorDetailsOptions auto
 Function showActorDetails(Actor akActor)
     while True
         Int loc_option = UD_ActorDetailsOptions.Show()
-        Utility.wait(0.01)
+        if !UDmain.IsContainerMenuOpen() && !UDmain.IsInventoryMenuOpen()
+            Utility.wait(0.01)
+        endif
         if loc_option == 0 ;base details
             String loc_res = "--BASE DETAILS--\n"
             loc_res += "Name: " + akActor.GetLeveledActorBase().GetName() + "\n"
@@ -1306,6 +1315,8 @@ Function showActorDetails(Actor akActor)
         elseif loc_option == 2 ;arousal/orgasm details
             string loc_orgStr = ""
             loc_orgStr += "--ORGASM DETAILS--\n"
+            loc_orgStr += "State: " + UDOM.GetHornyLevelString(akActor) + "\n"
+            loc_orgStr += "Horny progress: " + Round(UDOM.GetRelativeHornyProgress(akActor)*100.0) + " %\n"
             loc_orgStr += "Active vibrators: " + GetActivatedVibrators(akActor) + "(S="+StorageUtil.GetIntValue(akActor,"UD_ActiveVib_Strength",0)+")" + "\n"
             loc_orgStr += "Arousal: " + UDOM.getArousal(akActor) + "\n"
             loc_orgStr += "Arousal Rate(M): " + Math.Ceiling(UDOM.getArousalRateM(akActor)) + "\n"
@@ -1335,7 +1346,9 @@ Function showActorDetails(Actor akActor)
         else
             return
         endif
-        Utility.wait(0.01)
+        if !UDmain.IsContainerMenuOpen() && !UDmain.IsInventoryMenuOpen()
+            Utility.wait(0.01)
+        endif
     endwhile
 EndFunction
 

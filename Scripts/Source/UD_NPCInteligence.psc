@@ -59,6 +59,7 @@ Bool Function SlotAIEnabled(UD_CustomDevice_NPCSlot akSlot)
     loc_cond = loc_cond && !loc_actor.IsInFaction(UD_AIDisableFaction)      ;actor have no AI disabled
     loc_cond = loc_cond && EvaluateAICooldown(loc_actor)                    ;actor have passed cooldown
     loc_cond = loc_cond && !akSlot.HaveLockingOperations()                  ;actor have no locking operations
+    loc_cond = loc_cond && EvaluateAIStats(loc_actor)                       ;actor have minimum stats
     ;GInfo(akSlot.isUsed() + "," + akSlot.getNumberOfRegisteredDevices() + "," + !akSlot.GetActor().IsInCombat() + "," + !akSlot.isInMinigame() + "," + EvaluateAICooldown(loc_actor) + "," + !akSlot.HaveLockingOperations())
     return loc_cond
 EndFunction
@@ -133,6 +134,13 @@ EndFunction
 ;returns true if cooldown have passed
 Bool Function EvaluateAICooldown(Actor akActor) Global
     return (GetAICooldown(akActor) < Utility.GetCurrentGameTime())
+EndFunction
+
+;checks npc stats
+Bool Function EvaluateAIStats(Actor akActor) Global
+    Bool loc_res = True
+    loc_res = loc_res && (getCurrentActorValuePerc(akActor,"Stamina") > 0.9) ;check that actors stamina is at least 90%
+    return loc_res
 EndFunction
 
 ;returns remaining cooldown in minutes

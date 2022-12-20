@@ -1557,23 +1557,24 @@ Function Init(Actor akActor)
         akActor.removeItem(deviceRendered,akActor.getItemCount(deviceRendered) - 1,true)
         return
     endif
-        
-    float loc_time = 0.0
-    bool loc_isplayer = (akActor == UDmain.Player)
-    while loc_time <= 2.0 && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
-        if loc_isplayer
-            Utility.wait(0.05)
-        else
-            Utility.wait(0.05)
-        endif
-        loc_time += 0.05
-    endwhile
     
-    if loc_time >= 1.0
-        UDCDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because equip failed - timeout")
-        return
+    bool loc_isplayer = (akActor == UDmain.Player)
+    if loc_slot ;ignore additional check if actor is not registered
+        float loc_time = 0.0
+        while loc_time <= 2.0 && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
+            ;if loc_isplayer
+            ;    Utility.wait(0.05)
+            ;else
+                Utility.waitMenuMode(0.05)
+            ;endif
+            loc_time += 0.05
+        endwhile
+        
+        if loc_time >= 1.0
+            UDCDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because equip failed - timeout")
+            return
+        endif
     endif
-
     if UDmain.TraceAllowed()
         UDCDmain.Log("Init(called for " + getDeviceHeader(),1)
     endif
@@ -1598,18 +1599,17 @@ Function Init(Actor akActor)
     if loc_slot
         EndInitMutex()
     endif
-        
-    ;MUTEX END    
+
+    ;MUTEX END
     
     if deviceRendered
         updateValuesFromInventoryScript()
     endif
 
     if deviceRendered.hasKeyword(UDlibs.PatchedDevice) ;patched device
-        if UDmain.TraceAllowed()        
+        if UDmain.TraceAllowed()
             UDCDmain.Log("Patching device " + deviceInventory.getName(),2)
         endif
-
         patchDevice()
     else
         if UD_WeaponHitResist == 5.23
@@ -1843,6 +1843,10 @@ EndFunction
 
 float Function getLockDurability()
     return 100.0
+EndFunction
+
+Float Function getRelativeLocks()
+    return UD_CurrentLocks/UD_Locks
 EndFunction
 
 ;returns comprehesive lock level
@@ -2218,6 +2222,16 @@ bool Function HaveUnlockableLocks()
     return false
 EndFunction
 
+bool Function canBeRepaired(Actor akSource)
+    if !akSource
+        return false
+    endif
+    bool loc_res = true
+    loc_res = loc_res && (getRelativeDurability() < 1.0 || getRelativeCondition() < 1.0 || getRelativeLocks() < 1.0)
+    loc_res = loc_res && (akSource.getItemCount(UDlibs.SteelIngot) >= 2)
+    return loc_res
+EndFunction
+
 bool Function wearerFreeHands(bool checkGrasp = false,bool ignoreHeavyBondageTarget = true,bool ignoreHeavyBondage = false)
     bool res = !Wearer.wornhaskeyword(libs.zad_deviousHeavyBondage) || ignoreHeavyBondage
     if ignoreHeavyBondageTarget 
@@ -2478,7 +2492,8 @@ Function deviceMenuInitWH(Actor akSource,bool[] aControl)
     updateDifficulty()
     UDCDmain.resetCondVar()
     
-    bool    loc_freehands_helper     = WearerFreeHands(true)
+    bool    loc_freehands_wearer     = WearerFreeHands(true,False)
+    bool    loc_freehands_helper     = HelperFreeHands(true)
     float   loc_accesibility         = getAccesibility()
     int     loc_lockacces            = getLockAccesChance()
     
@@ -2514,13 +2529,14 @@ Function deviceMenuInitWH(Actor akSource,bool[] aControl)
         UDCDmain.currentDeviceMenu_allowcutting = True
     endif
         
-    if loc_freehands_helper
+    if !loc_freehands_wearer && loc_freehands_helper
         UDCDmain.currentDeviceMenu_allowTighten = True
     endif
     
-    if loc_freehands_helper
+    if !loc_freehands_wearer && loc_freehands_helper && canBeRepaired(akSource)
         UDCDmain.currentDeviceMenu_allowRepair = True
     endif
+    
     if (UDCDmain.currentDeviceMenu_allowkey || UDCDmain.currentDeviceMenu_allowlockpick || UDCDmain.currentDeviceMenu_allowlockrepair)
         UDCDmain.currentDeviceMenu_allowLockMenu = true
     endif
@@ -2577,9 +2593,11 @@ Function DeviceMenuWH(Actor akSource,bool[] aControl)
         elseif msgChoice == 3     ;special
             _break = specialMenuWH(akSource,aControl)
         elseif msgChoice == 4    ;tighten up
-            _break = tightUpDevice(akSource)
+            tightUpDevice(akSource)
+            _break = true
         elseif msgChoice == 5    ;repair
-            _break = repairDevice(akSource)
+            repairDevice(akSource)
+            _break = true
         elseif msgChoice == 6    ;command
             aControl = new Bool[30]
             DeviceMenu(aControl)
@@ -3187,7 +3205,13 @@ bool Function keyMinigameWH(Actor akHelper)
 EndFunction
 
 Function tightUpDevice(Actor akSource)
-    UDmain.Print(akSource.getActorBase().getName() + " tighted " + getWearerName() + " " + getDeviceName() + " !",1)
+    if WearerIsPlayer()
+        UDmain.Print(GetActorName(akSource) + " tighted your " + getDeviceName() + " !",1)
+    elseif HelperIsPlayer()
+        UDmain.Print("You tighted " + getWearerName() + "s " + getDeviceName() + " !",1)
+    elseif !PlayerInMinigame()
+        UDmain.Print(GetActorName(akSource) + " tighted " + getWearerName() + "s " + getDeviceName() + " !",1)
+    endif
     current_device_health += Utility.randomFloat(5.0,15.0)
     if (current_device_health > UD_Health)
         current_device_health = UD_Health
@@ -3196,18 +3220,38 @@ Function tightUpDevice(Actor akSource)
 EndFunction
 
 Function repairDevice(Actor akSource)
-    UDmain.Print(akSource.getActorBase().getName() + " repaired " + getWearerName() + " " + getDeviceName() + " !",1)
-    current_device_health += Utility.randomFloat(15.0,30.0)
+    if WearerIsPlayer()
+        UDmain.Print(GetActorName(akSource) + " repaired your " + getDeviceName() + " !",1)
+    elseif HelperIsPlayer()
+        UDmain.Print("You repaired " + getWearerName() + "s " + getDeviceName() + " !",1)
+    elseif !PlayerInMinigame()
+        UDmain.Print(GetActorName(akSource) + " repaired " + getWearerName() + "s " + getDeviceName() + " !",1)
+    endif
+    
+    ;repair durability
+    current_device_health += Utility.randomFloat(45.0,75.0)
     if (current_device_health > UD_Health)
         current_device_health = UD_Health
-    endif    
-    _total_durability_drain = -1
+    endif
+    
+    ;repair condition
+    _total_durability_drain -= 75
+    if _total_durability_drain < 0.0
+        _total_durability_drain = 0.0
+    endif
+
     updateCondition(False)
 
     _CuttingProgress -= 30.0
     if _CuttingProgress < 0.0
         _CuttingProgress = 0.0
     endif
+    
+    if UD_CurrentLocks < UD_Locks
+        UD_CurrentLocks += 1 ;lock one of the locks
+    endif
+    
+    akSource.removeItem(UDlibs.SteelIngot,2) ;remove 2 ingots
 EndFunction
 
 ;reset minigames variables

@@ -86,7 +86,6 @@ GlobalVariable Property ValidDevice
 EndProperty
 
 Function SetHelpPrice_0G(ObjectReference akSpeakerRef) ;Free
-   GInfo("SetHelpPrice_0G")
    MoneyForHelp.Value = 0
 EndFunction
 Function SetHelpPrice_50G(ObjectReference akSpeakerRef)
@@ -103,6 +102,9 @@ Function SetHelpPrice_300G(ObjectReference akSpeakerRef)
 EndFunction
 Function SetHelpPrice_500G(ObjectReference akSpeakerRef)
     MoneyForHelp.Value = 500
+EndFunction
+Function SetHelpPrice_1000G(ObjectReference akSpeakerRef)
+    MoneyForHelp.Value = 1000
 EndFunction
 
 Function PayAndHelp(ObjectReference akSpeakerRef)

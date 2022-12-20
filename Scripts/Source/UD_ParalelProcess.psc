@@ -579,6 +579,9 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
     if loc_orgexh > 1
         UpdateMotivation(akActor, 30)
     endif
+    
+    UDOM.SetHornyProgress(akActor,0.0)
+    UDOM.UpdateHornyLevel(akActor,-1) ;decrease horny level by 1
 EndFunction
 
 ;========================

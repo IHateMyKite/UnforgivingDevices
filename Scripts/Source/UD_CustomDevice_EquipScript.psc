@@ -142,7 +142,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
                                     return
                                 endif
                             endif
-                            LockDevice(target,False) ;no mutex neede, lets assume user can't lock npc in devices faster then they need to be locked on
+                            LockDevice(target,False) ;no mutex needed, lets assume user can't lock npc in devices faster then they need to be locked on
                         else
                             UDCDmain.Error("OnContainerChanged - " + target + " is not valid actor!")
                         endif
@@ -649,7 +649,7 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
                 if UDmain.TraceAllowed()
                     UDCDMain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") : Not using mutex on " + akActor)
                 endif
-                loc_mutex = UDMM.WaitForFreeAndSet_Lock(akActor,deviceInventory)
+                ;loc_mutex = UDMM.WaitForFreeAndSet_Lock(akActor,deviceInventory)
                 ;unregistered npcs will be not mutexed, no reason for that
             else
                 loc_mutex = UDMM.GetMutexSlot(akActor)
@@ -723,27 +723,28 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
     
     
     if prelock_fail
-        if loc_slot
-            if loc_slot.isLockMutexed(deviceInventory)
-                loc_slot.UD_GlobalDeviceMutex_InventoryScript_Failed = true
-                loc_slot.UD_GlobalDeviceMutex_InventoryScript = true
-            endif
-        elseif loc_mutex
-            loc_mutex.UD_GlobalDeviceMutex_InventoryScript_Failed = true
-            loc_mutex.UD_GlobalDeviceMutex_InventoryScript = true
-        endif
-        
-        if _actorselfbound
+        if abUseMutex
             if loc_slot
                 if loc_slot.isLockMutexed(deviceInventory)
-                    loc_slot.EndLockMutex()
+                    loc_slot.UD_GlobalDeviceMutex_InventoryScript_Failed = true
+                    loc_slot.UD_GlobalDeviceMutex_InventoryScript = true
                 endif
             elseif loc_mutex
-                loc_mutex.ResetLockMutex()
+                loc_mutex.UD_GlobalDeviceMutex_InventoryScript_Failed = true
+                loc_mutex.UD_GlobalDeviceMutex_InventoryScript = true
             endif
-            _actorselfbound = false
+            
+            if _actorselfbound
+                if loc_slot
+                    if loc_slot.isLockMutexed(deviceInventory)
+                        loc_slot.EndLockMutex()
+                    endif
+                elseif loc_mutex
+                    loc_mutex.ResetLockMutex()
+                endif
+                _actorselfbound = false
+            endif
         endif
-        
         if DestroyOnRemove && !akActor.GetItemCount(deviceRendered)
             akActor.RemoveItem(deviceInventory,1,true)
         endif

@@ -154,38 +154,38 @@ Event OnInit()
     While !UDlibs.ready
         Utility.waitMenuMode(0.25)
     EndWhile
-    if TraceAllowed()    
+    if TraceAllowed()
         Log("UDLibs ready!",0)
     endif
     While !UDCDmain.ready
         Utility.waitMenuMode(0.25)
     EndWhile
-    if TraceAllowed()    
+    if TraceAllowed()
         Log("UDCDmain ready!",0)
     endif
     While !config.ready
         Utility.waitMenuMode(0.25)
     EndWhile    
-    if TraceAllowed()    
+    if TraceAllowed()
         Log("config ready!",0)
     endif
     While !ItemManager.ready
         Utility.waitMenuMode(0.25)
     EndWhile        
-    if TraceAllowed()    
+    if TraceAllowed()
         Log("ItemManager ready!",0)
     endif
     While !UDLLP.ready
         Utility.waitMenuMode(0.25)
     endwhile
-    if TraceAllowed()    
+    if TraceAllowed()
         Log("UDLLP ready!",0)
     endif
 
     While !UDOM.ready
         Utility.WaitMenuMode(0.1)
     endwhile
-    if TraceAllowed()    
+    if TraceAllowed()
         Log("UDOM ready!",0)
     endif
     
@@ -198,7 +198,7 @@ Event OnInit()
     
     CheckOptionalMods()
     
-    if TraceAllowed()    
+    if TraceAllowed()
         Log("UnforgivingDevicesMain initialized",0)
     endif
     Print("Unforgiving Devices Ready!")
@@ -397,7 +397,7 @@ Function CheckOptionalMods()
         if TraceAllowed()
             Log("Devious Strike detected!")
         endif
-        ;2 Factions, as it looks like that the forID changes between versions
+        ;2 Factions, as it looks like that the formID changes between versions
         UDNPCM.AddScanIncompatibleFaction(GetMeMyForm(0x000801,"Devious Strike.esp") as Faction) 
         UDNPCM.AddScanIncompatibleFaction(GetMeMyForm(0x005930,"Devious Strike.esp") as Faction)
     else
@@ -748,7 +748,6 @@ float Function getMaxActorValue(Actor akActor,string akValue, float perc_part = 
     if loc_perc
         return (akActor.GetActorValue(akValue)/loc_perc)*perc_part
     else
-        ;GInfo("GetActorValuePercentage("+akValue+") returns 0 for " + GetActorName(akActor) + ", Value="+akActor.GetActorValue(akValue) +"Base="+akActor.GetBaseActorValue(akValue))
         return akActor.GetBaseActorValue(akValue)*perc_part ;assume base stats. Dunno how is this possible
     endif
 EndFunction
