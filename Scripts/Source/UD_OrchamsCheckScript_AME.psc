@@ -196,7 +196,7 @@ Event OnUpdate()
             endif
             
             ;proccess edge
-            loc_edgeprogress = UDOM.UpdateHornyProgress(akActor, (loc_orgasmRate*loc_orgasmRateMultiplier - loc_orgasmRateAnti)*loc_currentUpdateTime)
+            loc_edgeprogress = UDOM.UpdateHornyProgress(akActor, fUnsig((loc_orgasmRate*loc_orgasmRateMultiplier - loc_orgasmRateAnti)*loc_currentUpdateTime))
             loc_edgelevel    = UDOM.GetHornyLevel(akActor)
             
             loc_orgasmProgress_p = fRange(loc_orgasmProgress/loc_orgasmCapacity,0.0,1.0) ;update relative orgasm progress
@@ -257,8 +257,12 @@ Event OnUpdate()
                             UDmain.Print("Unending pleasure is driving you crazy!")
                         endif
                     endif
+                    SendEdgeEvent()
+                elseif loc_edgelevel > 0 && loc_edgeprogress <= loc_orgasmCapacity/3.0
+                    loc_edgelevel       = UDOM.UpdateHornyLevel(akActor,-1) ;decrease edge level by 1
+                    loc_edgeprogress    = 0.0
+                    UDOM.SetHornyProgress(akActor,0.0)
                 endif
-                SendEdgeEvent()
             endif
             
             if loc_tick * loc_currentUpdateTime >= 1.0
@@ -269,8 +273,11 @@ Event OnUpdate()
                 
                 loc_tick = 0
                 loc_tickS += 1
-                loc_edgeprogress = UDOM.UpdateHornyProgress(akActor,-5.0*fRange((100.0 - loc_arousal)/100.0,0.01,1.0))
-                
+                if loc_edgelevel > 0
+                    loc_edgeprogress = UDOM.UpdateHornyProgress(akActor,-1.0*(100.0 - loc_arousal)/100.0)
+                elseif loc_edgelevel < 0
+                    loc_edgeprogress = UDOM.UpdateHornyProgress(akActor,1.0*(100.0 - loc_arousal)/100.0)
+                endif
                 int loc_switch = (loc_tickS % 3)
                 if loc_switch == 0
                     loc_orgasmCapacity              = UDOM.getActorOrgasmCapacity(akActor)

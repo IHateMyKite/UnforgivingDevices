@@ -556,9 +556,14 @@ int Function removeOrgasmFromActor(Actor akActor)
 EndFunction
 
 Int Function     UpdateHornyLevel(Actor akActor, Int aiValue)
-    Int loc_val = iRange(GetHornyLevel(akActor) + aiValue,-5,5)
-    SetHornyLevel(akActor, loc_val)
-    return loc_val
+    Int loc_val = GetHornyLevel(akActor)
+    if aiValue
+        loc_val = iRange(loc_val + aiValue,-5,5)
+        SetHornyLevel(akActor, loc_val)
+        return loc_val
+    else
+        return loc_val
+    endif
 EndFunction
 
 Function     SetHornyLevel(Actor akActor, Int aiValue)
@@ -599,13 +604,18 @@ String Function GetHornyLevelString(Actor akActor)
 EndFunction
 
 Float Function     UpdateHornyProgress(Actor akActor, Float afValue)
-    Float loc_val = fRange(GetHornyProgress(akActor) + afValue,0.0,10000.0)
-    SetHornyProgress(akActor, loc_val)
-    return loc_val
+    Float loc_val = GetHornyProgress(akActor)
+    if afValue
+        loc_val = loc_val + afValue
+        SetHornyProgress(akActor, loc_val)
+        return loc_val
+    else
+        return loc_val
+    endif
 EndFunction
 
 Function     SetHornyProgress(Actor akActor, Float afValue)
-    StorageUtil.SetFloatValue(akActor,"UD_HornyProgress",fRange(afValue,0.0,10000.0))
+    StorageUtil.SetFloatValue(akActor,"UD_HornyProgress",afValue)
 EndFunction
 
 Float Function GetHornyProgress(Actor akActor)

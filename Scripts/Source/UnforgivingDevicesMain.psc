@@ -965,7 +965,13 @@ Int Function iAbs(Int aiVal) Global
         return -1*aiVal
     endif
 EndFunction
-
+Float Function fAbs(Float afVal) Global
+    if afVal > 0.0
+        return afVal
+    else
+        return -1.0*afVal
+    endif
+EndFunction
 ;wait random time. Thread will not continue unless menus are closed
 ;Can be used to separate threads (like many of same events firing at the same time)
 Function WaitRandomTime(Float afMin = 0.1, Float afMax = 1.0) Global

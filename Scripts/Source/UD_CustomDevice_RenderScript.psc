@@ -2727,8 +2727,8 @@ bool Function struggleMinigame(int iType = -1, Bool abSilent = False)
     elseif iType == 1 ;desperate
         UD_minigame_stamina_drain = UD_base_stat_drain*1.1
         UD_minigame_heal_drain = 0.5*UD_base_stat_drain + getMaxActorValue(Wearer,"Health",0.06)
-        UD_durability_damage_add = 1.0*(_durability_damage_mod*((1.0 - getRelativeDurability()) + UDCDMain.getActorStrengthSkillsPerc(getWearer())));UDmain.getMaxActorValue(Wearer,"Health",0.02);*getModResistPhysical()
-        UD_DamageMult *= getModResistPhysical(1.0,0.1)
+        UD_durability_damage_add = 1.0*(_durability_damage_mod*((5.0 - 5.0*getRelativeDurability()) + UDCDMain.getActorStrengthSkillsPerc(getWearer())));UDmain.getMaxActorValue(Wearer,"Health",0.02);*getModResistPhysical()
+        UD_DamageMult *= getModResistPhysical(1.0,0.2)
         _condition_mult_add = -0.5
         _exhaustion_mult = 1.6
         UD_RegenMag_Magicka = 0.5
@@ -2955,7 +2955,7 @@ bool Function struggleMinigameWH(Actor akHelper)
         UD_minigame_heal_drain = 0.5*UD_base_stat_drain + getMaxActorValue(Wearer,"Health",0.05)
         UD_minigame_heal_drain_helper = 0.5*UD_base_stat_drain + getMaxActorValue(_minigameHelper,"Health",0.05)
         
-        UD_durability_damage_add = 1.0*_durability_damage_mod*((1.0 - getRelativeDurability()) + UDCDMain.getActorStrengthSkillsPerc(getWearer()) + getHelperStrengthSkillsPerc())
+        UD_durability_damage_add = 1.0*_durability_damage_mod*((5.0 - 5.0*getRelativeDurability()) + UDCDMain.getActorStrengthSkillsPerc(getWearer()) + getHelperStrengthSkillsPerc())
         UD_DamageMult = getModResistPhysical(1.0,0.15)*getAccesibility()
 
         if HelperFreeHands(True)
@@ -5158,10 +5158,9 @@ EndFunction
 
 Function OnMinigameTick1()
     if getStruggleMinigameSubType() == 1
-        UD_DamageMult = getAccesibility()*getModResistPhysical(1.0,0.1) + (1.0 - getRelativeDurability())
-        ;if isLoose() && !wearerFreeHands()
-        ;    UD_DamageMult *= getLooseMod()
-        ;endif
+        ;UD_DamageMult = getAccesibility()*getModResistPhysical(1.0,0.1) + (1.0 - getRelativeDurability())
+        UD_durability_damage_add = (5.0 - 5.0*getRelativeDurability()) + UDCDMain.getActorStrengthSkillsPerc(getWearer()) + getHelperStrengthSkillsPerc()
+        UD_durability_damage_add *= _durability_damage_mod
     endif
 EndFunction
 
