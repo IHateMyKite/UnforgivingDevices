@@ -354,10 +354,10 @@ Function EquipPrePlug(actor akActor, bool silent=false)
                 elseif loc_arousal < libs.ArousalThreshold("Desperate")
                     msg = "You insert the plug inside your opening and take great delight in the resulting feelings of pleasure."
                 else
-                    msg = "Barely in control of control your own body you thrust the plug almost forcefully into the appropriate opening."
+                    msg = "Barely in control of your own body you thrust the plug almost forcefully into the appropriate opening."
                 endif
             else
-                msg = akActor.GetLeveledActorBase().GetName() + " shudders as you push the plugs in to her."
+                msg = akActor.GetLeveledActorBase().GetName() + " shudders as you push the plugs into her."
             EndIf
         Else
             if akActor == libs.PlayerRef
@@ -382,9 +382,9 @@ EndFunction
 Function EquipPreHarness(actor akActor, bool silent=false)
     if !silent
         if akActor == libs.PlayerRef
-            libs.NotifyActor("You step in to the harness, securing it tightly against your body.", akActor, true)
+            libs.NotifyActor("You step into the harness, securing it tightly against your body.", akActor, true)
         Else
-            libs.NotifyActor(GetMessageName(akActor) +" steps in to the harness, securing it tightly against her body.", akActor, true)
+            libs.NotifyActor(GetMessageName(akActor) +" steps into the harness, securing it tightly against her body.", akActor, true)
         EndIf
     EndIf
 EndFunction
@@ -602,7 +602,7 @@ int Function EquipFilterStraitjacket(actor akActor, bool silent=false)
     if !akActor.IsEquipped(deviceRendered)
         if akActor != libs.PlayerRef && ShouldEquipSilently(akActor)
             if UDmain.TraceAllowed()
-                libs.Log("Avoiding FTM duplication bug (Straitjakcet).")
+                libs.Log("Avoiding FTM duplication bug (Straitjacket).")
             endif
             return 0
         EndIf
@@ -660,7 +660,7 @@ Event LockDevice(Actor akActor)
     int loc_rdnum = akActor.GetItemCount(deviceRendered)
     if loc_rdnum > 0    
         if UDmain.UD_WarningAllowed
-            UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - item "+ deviceRendered +" is already in invetory. Aborting")        
+            UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - item "+ deviceRendered +" is already in inventory. Aborting")        
         endif
         prelock_fail = true
     EndIf

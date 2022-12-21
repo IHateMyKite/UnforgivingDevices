@@ -12,9 +12,9 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     if Utility.randomInt(1,100) > 75
         AbadonQuest.AbadonEquipSuit(akTarget,0)
         if GActorIsPlayer(akTarget)
-            UDCDmain.Print("Black goo smacks you and transforms into variaty of restrains!")
+            UDCDmain.Print("Black goo smacks you and transforms into variety of restrains!")
         else
-            UDCDmain.Print("Black goo smacks " + GetActorName(akTarget) + " and transforms into variaty of restrains!")
+            UDCDmain.Print("Black goo smacks " + GetActorName(akTarget) + " and transforms into variety of restrains!")
         endif
         return
     endif
