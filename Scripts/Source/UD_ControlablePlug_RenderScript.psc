@@ -175,7 +175,7 @@ bool Function OnCritDevicePre()
             if Utility.randomInt() < 15 ;25% chance
                 removeVibStrength(10)
                 if WearerIsPlayer()
-                    UDCDMain.Print("You notice that the " + getDeviceName() + " vibrates weaker then before",2)
+                    UDCDMain.Print("You notice that the " + getDeviceName() + " vibrates weaker than before",2)
                 endif
             endif
         endif
@@ -211,15 +211,15 @@ Function activateDevice()
     resetCooldown(3.0)
     if !isVibrating()
         if WearerIsPlayer()
-            UDmain.Print("Your "+ getDeviceName() +" suddenly turn itself on!",1)
+            UDmain.Print("Your "+ getDeviceName() +" suddenly turns itself on!",1)
         elseif UDmain.ActorInCloseRange(getWearer())
-            UDmain.Print(getWearerName() + "s "+ getDeviceName() +" suddenly turn itself on!",2)
+            UDmain.Print(getWearerName() + "s "+ getDeviceName() +" suddenly turns itself on!",2)
         endif
         turnOnPlug(3,0)
     else
         if getCurrentVibStrenth() < 100
             if WearerIsPlayer()
-                UDmain.Print("Your controlable "+getPlugType()+" plug suddenly starts to vibrate stronger!",2)
+                UDmain.Print("Your controllable "+getPlugType()+" plug suddenly starts to vibrate stronger!",2)
             elseif UDmain.ActorInCloseRange(getWearer())            
                 UDmain.Print(getWearerName() + "s "+getDeviceName()+" suddenly starts to vibrate stronger!",3)
             endif
@@ -228,9 +228,9 @@ Function activateDevice()
         if Utility.randomInt() < 50
             addVibDuration(300)
             if WearerIsPlayer()
-                UDmain.Print("Your controlable "+getPlugType()+" plug regain some of its charge!",2)
+                UDmain.Print("Your controllable "+getPlugType()+" plug regains some of its charge!",2)
             elseif UDmain.ActorInCloseRange(getWearer())            
-                UDmain.Print(getWearerName() + "s "+getDeviceName()+" regain some of its charge!",3)
+                UDmain.Print(getWearerName() + "s "+getDeviceName()+" regains some of its charge!",3)
             endif
         endif
     endif

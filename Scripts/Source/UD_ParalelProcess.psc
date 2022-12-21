@@ -519,7 +519,7 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
         if loc_orgexh >= 6
             loc_applytears = true
             if loc_isplayer
-                UDCDmain.Print("You are loosing your mind")
+                UDCDmain.Print("You are losing your mind")
             elseif loc_cond
                 UDCDmain.Print("Orgasms are breaking " + getActorName(akActor) + "s mind")
             endif

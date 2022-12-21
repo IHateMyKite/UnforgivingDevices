@@ -657,7 +657,7 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,in
         PlayOrgasmAnimation(akActor,iDuration)
     elseif ((akActor.IsInCombat() || akActor.IsSneaking()) && (loc_isplayer || loc_isfollower)) || !loc_cond
         if UDmain.ActorIsPlayer(akActor)
-            UDCDmain.Print("You managed to not loss control over your body from orgasm!",2)
+            UDCDmain.Print("You managed to avoid losing control over your body from orgasm!",2)
         endif
         akActor.damageAv("Stamina",50.0)
         akActor.damageAv("Magicka",50.0)
@@ -918,7 +918,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     
     if UDCDMain.actorInMinigame(akActor) || libs.isAnimating(akActor)
         if akActor == UDmain.Player
-            UDmain.Print("You are already bussy!")
+            UDmain.Print("You are already busy!")
         endif
         return
     endif

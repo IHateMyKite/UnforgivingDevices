@@ -252,7 +252,7 @@ Event OnUpdate()
                         elseif loc_edgelevel == 3
                             UDmain.Print("You want to cum badly")
                         elseif loc_edgelevel == 4
-                            UDmain.Print("You would do anythink for orgasm")
+                            UDmain.Print("You would do anything for orgasm")
                         elseif loc_edgelevel > 4
                             UDmain.Print("Unending pleasure is driving you crazy!")
                         endif

@@ -147,8 +147,8 @@ Event OnInit()
         ;because of that UD is incompatible with already ongoing DD moded game
         string loc_msg = "!!!!ERROR!!!!\n"
         loc_msg += "Unforgiving Devices detected that it was installed on already ongoing game. "
-        loc_msg += "Without starting fresh game, UD will not be able to use mutexes which are needed for safety run of the mod. "
-        loc_msg += "\n\n!Please, consider starting new game for best experience.!"
+        loc_msg += "Without starting fresh game, UD will not be able to use mutexes which are needed for safe run of the mod. "
+        loc_msg += "\n\n!Please consider starting new game for the best experience.!"
         debug.messagebox(loc_msg)
     endif
     While !UDlibs.ready
@@ -356,7 +356,7 @@ Function CheckOptionalMods()
             Log("UIExtensions detected!")
         endif
     else
-        debug.messagebox("--!ERROR!--\nUD can't detect UIExtensions. Without this mode, some features of Unforgiving Devices will not work as intended. Please be warned.")
+        debug.messagebox("--!ERROR!--\nUD can't detect UIExtensions. Without this mod, some features of Unforgiving Devices will not work as intended. Please be warned.")
     endif
     
     if ConsoleUtil.GetVersion()
@@ -365,7 +365,7 @@ Function CheckOptionalMods()
             Log("ConsoleUtil detected!")
         endif
     else
-        debug.messagebox("--!ERROR!--\nUD can't detect ConsoleUtil. Without this mode, some features of Unforgiving Devices will not work as intended. Please be warned.")
+        debug.messagebox("--!ERROR!--\nUD can't detect ConsoleUtil. Without this mod, some features of Unforgiving Devices will not work as intended. Please be warned.")
         ConsoleUtilInstalled = False
     endif
     

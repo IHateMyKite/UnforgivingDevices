@@ -3,7 +3,7 @@ Scriptname UD_CustomHeavyBondage_RenderScript extends UD_CustomDevice_RenderScri
 import UnforgivingDevicesMain
 
 Function InitPost()
-    UD_DeviceType = "Hand restrain"
+    UD_DeviceType = "Hand restraint"
     if !WearerIsPlayer(); && !WearerIsFollower()
         GetWearer().AddSpell(UDlibs.PreventCombatSpell,false)
         libs.strip(getWearer(),false)

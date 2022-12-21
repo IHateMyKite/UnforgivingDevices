@@ -165,17 +165,17 @@ Function plugGag(bool silent = false)
     if !silent
         if hasHelper()
             if WearerIsPlayer()
-                UDmain.Print(getHelperName() +" inserted plug in to yours " + getDeviceName() + "!",1)
+                UDmain.Print(getHelperName() +" inserted plug into your " + getDeviceName() + "!",1)
             elseif WearerIsFollower() && HelperIsPlayer()
                 UDmain.Print("You inserted the plug in "+getWearerName()+"s "+ getDeviceName(),1)
             elseif WearerIsFollower()
-                UDmain.Print(getHelperName() + " inserted plug in to the "+getWearerName()+"s "+ getDeviceName(),1)
+                UDmain.Print(getHelperName() + " inserted plug into the "+getWearerName()+"s "+ getDeviceName(),1)
             endif
         else
             if WearerIsPlayer()
-                UDmain.Print("You insert the plug in to the panel gag",1)
+                UDmain.Print("You insert the plug into the panel gag",1)
             elseif WearerIsFollower()
-                UDmain.Print(getWearerName()+" inserts the plug in to the "+ getDeviceName(),1)
+                UDmain.Print(getWearerName()+" inserts the plug into the "+ getDeviceName(),1)
             endif
         endif
     endif

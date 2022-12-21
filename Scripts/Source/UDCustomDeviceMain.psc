@@ -1322,7 +1322,7 @@ Function showActorDetails(Actor akActor)
             loc_orgStr += "Arousal Rate(M): " + Math.Ceiling(UDOM.getArousalRateM(akActor)) + "\n"
             loc_orgStr += "Arousal Rate Mult: " + Round(UDOM.getArousalRateMultiplier(akActor)*100) + " %\n"
             loc_orgStr += "Orgasm capacity: " + Round(UDOM.getActorOrgasmCapacity(akActor)) + "\n"
-            loc_orgStr += "Orgasm resistence(M): " + FormatString(UDOM.getActorOrgasmResistM(akActor),1) + "\n"
+            loc_orgStr += "Orgasm resistance(M): " + FormatString(UDOM.getActorOrgasmResistM(akActor),1) + "\n"
             loc_orgStr += "Orgasm progress: " + formatString(UDOM.getOrgasmProgressPerc(akActor) * 100,2) + " %\n"
             loc_orgStr += "Orgasm rate: " + formatString(UDOM.getActorAfterMultOrgasmRate(akActor),2) + " - " + formatString(UDOM.getActorAfterMultAntiOrgasmRate(akActor),2) + " Op/s\n"
             loc_orgStr += "Orgasm mult: " + Round(UDOM.getActorOrgasmRateMultiplier(akActor)*100.0) + " %\n"
