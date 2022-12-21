@@ -81,10 +81,11 @@ bool Function proccesSpecialMenuWH(Actor akSource,int msgChoice)
 EndFunction
 
 bool _untieMinigameOn = false
-bool Function UntieMinigame()
-    if UDmain.TraceAllowed()    
-        UDCDmain.Log("UntieMinigame called for " + getDeviceName() + " on " + getWearerName())
+bool Function UntieMinigame(Bool abSilent = False)
+    if !minigamePrecheck(abSilent)
+        return False
     endif
+
     resetMinigameValues()
     
     setMinigameOffensiveVar(False,0.0,0.0)
@@ -107,7 +108,7 @@ bool Function UntieMinigame()
     endif
     setMinigameMult(1,mult)
     
-    if minigamePreCheck()
+    if minigamePreCheck(abSilent)
         _untieMinigameOn = True
         minigame()
         _untieMinigameOn = False

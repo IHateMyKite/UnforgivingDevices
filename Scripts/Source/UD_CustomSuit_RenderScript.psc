@@ -26,6 +26,10 @@ float Function getAccesibility()
     return fRange(loc_res,0.0,1.0)
 EndFunction
 
+Int Function GetAiPriority()
+    return 30
+EndFunction
+
 ;============================================================================================================================
 ;unused override function, theese are from base script. Extending different script means you also have to add their overrride functions                                                
 ;theese function should be on every object instance, as not having them may cause multiple function calls to default class

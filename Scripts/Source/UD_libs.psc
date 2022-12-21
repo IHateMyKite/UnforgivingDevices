@@ -44,6 +44,9 @@ Soulgem Property FilledSoulgem_Common auto
 Soulgem Property FilledSoulgem_Great  auto
 Soulgem Property FilledSoulgem_Grand  auto
 
+MiscObject Property SteelIngot auto
+
+
 Bool Property Ready = False auto
 Event OnInit()
     Ready = True

@@ -1,6 +1,7 @@
 Scriptname UD_ParalelProcess extends Quest
 
 import UnforgivingDevicesMain
+import UD_NPCInteligence
 
 UDCustomDeviceMain Property UDCDmain auto
 UnforgivingDevicesMain Property UDmain auto
@@ -125,6 +126,8 @@ Function Receive_MinigameStarter(Form fActor)
         StorageUtil.SetFormValue(akActor, "UD_currentMinigameDevice", loc_device.deviceRendered)
     endif
     
+    loc_device._MinigameParProc_1 = false
+    
     ;shows bars
     if loc_updatewidget
         loc_device.showWidget()
@@ -136,8 +139,6 @@ Function Receive_MinigameStarter(Form fActor)
     loc_device.OnMinigameStart()
     
     libsp.pant(akActor)
-    
-    loc_device._MinigameParProc_1 = false
 EndFunction
 
 ;paralel
@@ -220,7 +221,7 @@ Function Receive_MinigameParalel(Form fActor)
 
         akHelper.setAV("StaminaRate", staminaRateHelper*loc_device.UD_RegenMagHelper_Stamina)
         akHelper.setAV("HealRate"    , HealRateHelper*loc_device.UD_RegenMagHelper_Health)
-        akHelper.setAV("MagickaRate", magickaRateHelper*loc_device.UD_RegenMagHelper_Magicka)            
+        akHelper.setAV("MagickaRate", magickaRateHelper*loc_device.UD_RegenMagHelper_Magicka)
     endif
     
     bool loc_canShowHUD     = loc_device.canShowHUD()
@@ -241,39 +242,52 @@ Function Receive_MinigameParalel(Form fActor)
     UDOM.UpdateArousalRate(akActor,loc_currentArousalRate)
     
     ;pause thred untill minigame end
-    int loc_tick = 0
+    Float loc_UpdateTime   = 0.25
+    if !loc_haveplayer
+        loc_UpdateTime = 1.0
+    endif
+    
+    Float loc_ElapsedTime1 = 0.0
+    Float loc_ElapsedTime2 = 0.0
+    Float loc_ElapsedTime3 = 0.0
+    
     while loc_device._MinigameMainLoop_ON; && UDCDmain.ActorInMinigame(akActor)
         if !loc_device.pauseMinigame
-            loc_tick += 1
             ;set expression every 3 second
-            if !(loc_tick % 30) && loc_tick
+            if loc_ElapsedTime1 >= 3.0
                 UDEM.ApplyExpressionRaw(akActor, loc_expression, 100,false,15)
                 if loc_device.hasHelper()
                     UDEM.ApplyExpressionRaw(akHelper, loc_expression, 100,false,15)
                 endif
+                loc_ElapsedTime1 = 0.0
             endif
             ;update widget and HUD every 2 s
-            if !(loc_tick % 20) && loc_tick
+            if loc_ElapsedTime2 >= 2.0
                 if loc_canShowHUD
                     loc_device.showHUDbars(False)
                 endif         
                 if loc_updatewidget
                     loc_device.showWidget(false,true)
                 endif
+                loc_ElapsedTime2 = 0.0
             endif
             ;advance skill every 3 second
-            if !(loc_tick % 30) && loc_tick
+            if loc_ElapsedTime3 >= 3.0
                 loc_device.advanceSkill(3.0)
                 loc_updatewidget    = loc_device.UD_UseWidget && UDCDmain.UD_UseWidget && loc_haveplayer
-                loc_canShowHUD      = loc_device.canShowHUD()                
+                loc_canShowHUD      = loc_device.canShowHUD()
+                loc_ElapsedTime3    = 0.0
             endif
         endif
         if loc_device._MinigameMainLoop_ON
-            Utility.wait(0.1)
+            Utility.wait(loc_UpdateTime)
+            loc_ElapsedTime1 += loc_UpdateTime
+            loc_ElapsedTime2 += loc_UpdateTime
+            loc_ElapsedTime3 += loc_UpdateTime
         endif
     endwhile
     
-    UDOM.UpdateOrgasmRate(akActor, -1*loc_currentOrgasmRate,-0.25)        
+    UDOM.UpdateOrgasmRate(akActor, -1*loc_currentOrgasmRate,-0.25)
     UDOM.UpdateArousalRate(akActor,-1*loc_currentArousalRate)
     
     ;returns wearer regen
@@ -283,7 +297,7 @@ Function Receive_MinigameParalel(Form fActor)
     if akHelper
         akHelper.setAV("StaminaRate", staminaRateHelper)
         akHelper.setAV("HealRate", HealRateHelper)
-        akHelper.setAV("MagickaRate", magickaRateHelper)            
+        akHelper.setAV("MagickaRate", magickaRateHelper)
     endif
     loc_device._MinigameParProc_2 = false
     
@@ -358,34 +372,35 @@ Function Receive_MinigameCritloop(Form fActor)
     
     loc_device._MinigameParProc_3           = true
     Bool loc_playerInMinigame = loc_device.PlayerInMinigame()
-    Int loc_TickTime = 2
+
+    Float loc_elapsedTime = 0.0
+    Float loc_updateTime  = 0.25
     string critType = "random"
     if !loc_playerInMinigame
-        loc_TickTime = 10
+        loc_updateTime = 0.5
         critType = "NPC"
     elseif UDCDmain.UD_AutoCrit
         critType = "Auto"
     endif
     
-    Utility.Wait(0.75)
+    Utility.Wait(0.75) ;wait little time before starting crits
+    
     ;process
-    Float loc_passedTime = 0.0
-    int loc_tick = 0
     while loc_device._MinigameMainLoop_ON; && UDCDmain.ActorInMinigame(akActor)
         if !loc_device.pauseMinigame && !UDmain.IsMenuOpen()
-            loc_tick += loc_TickTime
             ;check crit every 1 s
-            if (loc_tick >= 10)
+            if loc_elapsedTime >= 1.0
                 if loc_device.UD_minigame_canCrit
                     UDCDmain.StruggleCritCheck(loc_device,loc_device.UD_StruggleCritChance,critType,loc_device.UD_StruggleCritDuration)
                 elseif loc_device._customMinigameCritChance
                     UDCDmain.StruggleCritCheck(loc_device,loc_device._customMinigameCritChance,critType,loc_device._customMinigameCritDuration)            
                 endif
-                loc_tick = 0
+                loc_elapsedTime = 0.0
             endif
         endif
         if loc_device._MinigameMainLoop_ON
-            Utility.Wait(0.1*loc_TickTime)
+            Utility.Wait(loc_updateTime)
+            loc_elapsedTime += loc_updateTime
         endif
     endwhile
     
@@ -560,6 +575,13 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
     endif
     
     libsp.Aroused.UpdateActorOrgasmDate(akActor)
+    
+    if loc_orgexh > 1
+        UpdateMotivation(akActor, 30)
+    endif
+    
+    UDOM.SetHornyProgress(akActor,0.0)
+    UDOM.UpdateHornyLevel(akActor,-1) ;decrease horny level by 1
 EndFunction
 
 ;========================

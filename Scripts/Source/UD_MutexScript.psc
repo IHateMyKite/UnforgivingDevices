@@ -73,7 +73,7 @@ EndFunction
 Function EvaluateLockMutex()
     float loc_time = 0.0
     while loc_time <= 5.0 && (!UD_GlobalDeviceMutex_InventoryScript)
-        Utility.wait(0.1)
+        Utility.waitMenuMode(0.1)
         loc_time += 0.1
     endwhile
     
@@ -90,7 +90,7 @@ EndFunction
 Function EvaluateUnlockMutex()
     float loc_time = 0.0
     while loc_time <= 5.0 && (!UD_GlobalDeviceUnlockMutex_InventoryScript)
-        Utility.wait(0.1)
+        Utility.waitMenuMode(0.1)
         loc_time += 0.1
     endwhile
     

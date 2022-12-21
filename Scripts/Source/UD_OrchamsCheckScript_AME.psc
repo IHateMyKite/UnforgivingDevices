@@ -92,6 +92,8 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     loc_msID                    = -1
     loc_orgasms                 = 0
     loc_actorinminigame         = UDCDMain.actorInMinigame(akActor)
+    loc_edgeprogress            = UDOM.GetHornyProgress(akActor)
+    loc_edgelevel               = UDOM.GetHornyLevel(akActor)
     registerForSingleUpdate(0.1)
 EndEvent
 
@@ -194,7 +196,8 @@ Event OnUpdate()
             endif
             
             ;proccess edge
-            loc_edgeprogress += fRange(loc_orgasmRate*loc_orgasmRateMultiplier*loc_currentUpdateTime - loc_orgasmRateAnti,0.0,100.0)
+            loc_edgeprogress = UDOM.UpdateHornyProgress(akActor, fUnsig((loc_orgasmRate*loc_orgasmRateMultiplier - loc_orgasmRateAnti)*loc_currentUpdateTime))
+            loc_edgelevel    = UDOM.GetHornyLevel(akActor)
             
             loc_orgasmProgress_p = fRange(loc_orgasmProgress/loc_orgasmCapacity,0.0,1.0) ;update relative orgasm progress
             
@@ -204,7 +207,7 @@ Event OnUpdate()
 
             ;check orgasm
             if loc_orgasmProgress_p > 0.99
-                if UDmain.TraceAllowed()            
+                if UDmain.TraceAllowed()
                     UDCDmain.Log("Starting orgasm for " + getActorName(akActor))
                 endif
                 if loc_orgasmResisting
@@ -235,14 +238,12 @@ Event OnUpdate()
                 
                 loc_orgasmProgress = 0.0
                 UDOM.SetActorOrgasmProgress(akActor,loc_orgasmProgress)
-                
-                loc_edgeprogress    = 0.0
-                loc_edgelevel       = 0 
             else
                 ;check edge
                 if loc_edgeprogress >= 3.0*loc_orgasmCapacity
-                    loc_edgelevel      += 1
+                    loc_edgelevel       = UDOM.UpdateHornyLevel(akActor,1) ;increase edge level by 1
                     loc_edgeprogress    = 0.0
+                    UDOM.SetHornyProgress(akActor,0.0)
                     if loc_isplayer
                         if loc_edgelevel == 1
                             UDmain.Print("You feel incredibly horny")
@@ -252,12 +253,16 @@ Event OnUpdate()
                             UDmain.Print("You want to cum badly")
                         elseif loc_edgelevel == 4
                             UDmain.Print("You would do anything for orgasm")
-                        else
+                        elseif loc_edgelevel > 4
                             UDmain.Print("Unending pleasure is driving you crazy!")
                         endif
                     endif
+                    SendEdgeEvent()
+                elseif loc_edgelevel > 0 && loc_edgeprogress <= loc_orgasmCapacity/3.0
+                    loc_edgelevel       = UDOM.UpdateHornyLevel(akActor,-1) ;decrease edge level by 1
+                    loc_edgeprogress    = 0.0
+                    UDOM.SetHornyProgress(akActor,0.0)
                 endif
-                SendEdgeEvent()
             endif
             
             if loc_tick * loc_currentUpdateTime >= 1.0
@@ -268,8 +273,11 @@ Event OnUpdate()
                 
                 loc_tick = 0
                 loc_tickS += 1
-                loc_edgeprogress -= 1.0*fRange(100 - loc_arousal/100,0.01,1.0)
-                
+                if loc_edgelevel > 0
+                    loc_edgeprogress = UDOM.UpdateHornyProgress(akActor,-1.0*(100.0 - loc_arousal)/100.0)
+                elseif loc_edgelevel < 0
+                    loc_edgeprogress = UDOM.UpdateHornyProgress(akActor,1.0*(100.0 - loc_arousal)/100.0)
+                endif
                 int loc_switch = (loc_tickS % 3)
                 if loc_switch == 0
                     loc_orgasmCapacity              = UDOM.getActorOrgasmCapacity(akActor)

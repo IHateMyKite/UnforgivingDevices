@@ -76,7 +76,7 @@ Function AddCustomAbadonSet(String asEquipEvent,String asSuitName, String asPatc
     _EquipEvent = PapyrusUtil.PushString(_EquipEvent,asEquipEvent)
     _SuitNames  = PapyrusUtil.PushString(_SuitNames,asSuitName)
     _PatchName  = PapyrusUtil.PushString(_PatchName,asPatchName)
-    UDmain.Info("Adding new custom abadon suit /" + asSuitName + " / from patch " + asPatchName)
+    ;UDmain.Info("Adding new custom abadon suit /" + asSuitName + " / from patch " + asPatchName)
     _CustomSetMutex = false
 EndFunction
 Function EquipCustomAbadonSet(Actor akActor, Int aiSuitEvent)

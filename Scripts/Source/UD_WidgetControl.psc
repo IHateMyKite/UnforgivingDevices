@@ -78,7 +78,7 @@ EndEvent
 
 ;Disabled. Might return to it in far away future
 Function Update()
-    UDmain.Info("UD_WidgetControl::Update() UDmain.iWidgetInstalled = " + UDmain.iWidgetInstalled + " , UD_UseIWantWidget="+UD_UseIWantWidget)
+    ;UDmain.Info("UD_WidgetControl::Update() UDmain.iWidgetInstalled = " + UDmain.iWidgetInstalled + " , UD_UseIWantWidget="+UD_UseIWantWidget)
     ; iWidget compatibility
     if UDmain.UseiWW()
         GoToState("iWidgetInstalled")

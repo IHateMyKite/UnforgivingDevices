@@ -4,6 +4,10 @@ Function InitPost()
     UD_DeviceType = "Mittens"
 EndFunction
 
+Int Function GetAiPriority()
+    return 65 ;generic value
+EndFunction
+
 ;============================================================================================================================
 ;unused override function, theese are from base script. Extending different script means you also have to add their overrride functions                                                
 ;theese function should be on every object instance, as not having them may cause multiple function calls to default class
