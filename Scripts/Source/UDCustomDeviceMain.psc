@@ -1285,7 +1285,7 @@ Function showActorDetails(Actor akActor)
             loc_res += "SP: " + formatString(akActor.getAV("Stamina"),1) + "/" +  formatString(getMaxActorValue(akActor,"Stamina"),1) + " ("+ Round(getCurrentActorValuePerc(akActor,"Stamina")*100) +" %)" +"\n"
             if UDmain.UDAI.Enabled && !UDmain.ActorIsPlayer(akActor)
                 loc_res += "Motivation: " + getMotivation(akActor) + "\n"
-                loc_res += "AI Cooldown: " + GetAIRemainingCooldown(akActor) + " min\n"
+                loc_res += "AI Cooldown: " + iUnsig(GetAIRemainingCooldown(akActor)) + " min\n"
             endif
             loc_res += "Arousal: " + UDOM.getArousal(akActor) + "\n"
             loc_res += "Orgasm progress: " + formatString(UDOM.getOrgasmProgressPerc(akActor) * 100,2) + " %\n"
@@ -1364,8 +1364,8 @@ string Function GetHelperDetails(Actor akActor)
     float loc_currenttime = Utility.GetCurrentGameTime()
     float loc_cooldowntimeHP = StorageUtil.GetFloatValue(akActor,"UDNPCCD:"+UDmain.Player,0)
     float loc_cooldowntimePH = StorageUtil.GetFloatValue(UDmain.Player,"UDNPCCD:"+akActor,0)
-    loc_res += "Avaible in (H->P): " + iRange(ToUnsig(Round(((loc_cooldowntimeHP - loc_currenttime)*24*60))),0,10000) + " min\n"
-    loc_res += "Avaible in (P->H): " + iRange(ToUnsig(Round(((loc_cooldowntimePH - loc_currenttime)*24*60))),0,10000) + " min\n"
+    loc_res += "Avaible in (H->P): " + iUnsig(Round(((loc_cooldowntimeHP - loc_currenttime)*24*60))) + " min\n"
+    loc_res += "Avaible in (P->H): " + iUnsig(Round(((loc_cooldowntimePH - loc_currenttime)*24*60))) + " min\n"
     return loc_res
 EndFunction
 

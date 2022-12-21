@@ -2,6 +2,13 @@ Scriptname UD_NPCInteligence extends Quest
 
 import UnforgivingDevicesMain
 
+;Device priorities
+; Vibrator      = 15 (40 when vibrating)
+; Abadon plug   = 20 (45 when vibrating)
+; Other         = 25
+; Belt          = 35
+; HB            = 75
+
 Int     Property UD_UpdateTime  = 10    auto
 Int     Property UD_AICooldown  = 30    auto        ;by default 30 minutes
 Bool    Property Ready          = False auto hidden

@@ -71,7 +71,7 @@ Function InitPost()
 EndFunction
 
 Int Function GetAiPriority()
-    Int loc_res = 35
+    Int loc_res = 20
     if isVibrating()
         loc_res += 25
     endif

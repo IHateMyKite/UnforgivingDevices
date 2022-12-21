@@ -4,6 +4,45 @@ Scriptname UD_TopicFragments Extends TopicInfo Hidden conditional
 
 import UnforgivingDevicesMain
 
+UDCustomDeviceMain _UDCDmain
+UDCustomDeviceMain Property UDCDmain
+    UDCustomDeviceMain Function Get()
+        if !_UDCDmain
+            _UDCDmain = GetMeMyForm(0x15E73C, "UnforgivingDevices.esp") as UDCustomDeviceMain
+        endif
+        return _UDCDmain
+    EndFunction
+    Function Set(UDCustomDeviceMain akVal)
+        _UDCDmain = akVal
+    EndFunction
+EndProperty
+
+UD_DialogueMain Property UDDM
+    UD_DialogueMain Function Get()
+        return UDCDmain.UDDmain
+    EndFunction
+EndProperty
+
+GlobalVariable _moneyForHelp
+GlobalVariable Property MoneyForHelp
+    GlobalVariable Function Get()
+        if !_moneyForHelp
+            _moneyForHelp = GetMeMyForm(0x15D5F2, "PR100_NPCAI.esp") as GlobalVariable
+        endif
+        return _moneyForHelp
+    EndFunction
+EndProperty
+
+GlobalVariable _validDevice
+GlobalVariable Property ValidDevice
+    GlobalVariable Function Get()
+        if !_validDevice
+            _validDevice = GetMeMyForm(0x15D5FA, "PR100_NPCAI.esp") as GlobalVariable
+        endif
+        return _validDevice
+    EndFunction
+EndProperty
+
 ;BEGIN FRAGMENT Fragment_0
 Function Fragment_0(ObjectReference akSpeakerRef)
 Actor akSpeaker = akSpeakerRef as Actor
@@ -65,31 +104,31 @@ EndFunction
 
 ;END FRAGMENT CODE - Do not edit anything between this and the begin comment
 
-GlobalVariable _moneyForHelp
-GlobalVariable Property MoneyForHelp
-    GlobalVariable Function Get()
-        if !_moneyForHelp
-            _moneyForHelp = GetMeMyForm(0x15D5F2, "PR100_NPCAI.esp") as GlobalVariable
-        endif
-        return _moneyForHelp
-    EndFunction
-EndProperty
 
-GlobalVariable _validDevice
-GlobalVariable Property ValidDevice
-    GlobalVariable Function Get()
-        if !_validDevice
-            _validDevice = GetMeMyForm(0x15D5FA, "PR100_NPCAI.esp") as GlobalVariable
-        endif
-        return _validDevice
-    EndFunction
-EndProperty
+
+Function HelpPrecheck(ObjectReference akSpeakerRef)
+    Actor akActor = akSpeakerRef as Actor
+    
+    ;check that NPC is on cooldown
+    float loc_cooldowntime = StorageUtil.GetFloatValue(akActor,"UDNPCCD:"+Game.GetPlayer(),0) - Utility.GetCurrentGameTime()
+    UDDM.NPCTired = False
+    if loc_cooldowntime > 0.0
+        UDDM.NPCTired = True
+    endif
+    
+    ;check that actor have at least 90% of stamina
+    if (getCurrentActorValuePerc(akActor,"Stamina") < 0.9)
+        UDDM.NPCTired = True
+    endif
+    
+    GInfo("UDDM.NPCTired="+UDDM.NPCTired)
+EndFunction
 
 Function SetHelpPrice_0G(ObjectReference akSpeakerRef) ;Free
-   MoneyForHelp.Value = 0
+    MoneyForHelp.Value = 0
 EndFunction
 Function SetHelpPrice_50G(ObjectReference akSpeakerRef)
-   MoneyForHelp.Value = 50
+    MoneyForHelp.Value = 50
 EndFunction
 Function SetHelpPrice_100G(ObjectReference akSpeakerRef)
     MoneyForHelp.Value = 100
@@ -129,13 +168,6 @@ EndFunction
 
 Function ChooseDeviceAndCheck(ObjectReference akSpeakerRef)
     Actor akHelper = akSpeakerRef as Actor
-    float loc_currenttime = Utility.GetCurrentGameTime()
-    float loc_cooldowntime = StorageUtil.GetFloatValue(akHelper,"UDNPCCD:"+Game.GetPlayer(),0)
-    if loc_cooldowntime > loc_currenttime
-        ValidDevice.Value = 1 ;NPC is on cooldown
-        return
-    endif
-    
     UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(Game.GetPlayer())
     if loc_slot
         UD_CustomDevice_RenderScript loc_device = loc_slot.GetUserSelectedDevice()
@@ -171,15 +203,3 @@ Function LockRandomHandRestrain(ObjectReference akSpeakerRef)
     ResetCooldownNoXP(akSpeakerRef)
 EndFunction
 
-UDCustomDeviceMain _UDCDmain
-UDCustomDeviceMain Property UDCDmain
-    UDCustomDeviceMain Function Get()
-        if !_UDCDmain
-            _UDCDmain = GetMeMyForm(0x15E73C, "UnforgivingDevices.esp") as UDCustomDeviceMain
-        endif
-        return _UDCDmain
-    EndFunction
-    Function Set(UDCustomDeviceMain akVal)
-        _UDCDmain = akVal
-    EndFunction
-EndProperty

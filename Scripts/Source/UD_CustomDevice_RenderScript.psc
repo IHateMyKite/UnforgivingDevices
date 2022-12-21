@@ -361,18 +361,6 @@ EndProperty
 int    Property UD_Cooldown = 0 auto 
 int _currentRndCooldown = 0
 
-;AI Priority
-Int _AIPriority = -1
-Int Property UD_AIPriority
-    Int Function Get()
-        return _AIPriority
-    EndFunction
-    Function Set(Int aiVal)
-        _AIPriority = aiVal
-    EndFunction
-EndProperty
-
-
 string Property UD_ActiveEffectName = "Share" auto ;name of active effect
 string Property UD_DeviceType = "Generic" auto ;name of active effect
 
