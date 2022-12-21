@@ -1988,9 +1988,9 @@ Function CustomBondagePageDefault(int option)
     elseif(option == UD_UseDDdifficulty_T)
         SetInfoText("Integrate difficulty from DD framework. This adds to general escape difficulty of custom heavy bondage")
     elseif(option == UD_hardcore_swimming_T)
-        SetInfoText("Toggle hardcore swimming. If on, player will have hard time swimming with tied hands. This works for any devices, not only for devices from this mod. Slow will be applied on player and stamina will starts to decrease. Once all stamina is consumed, player will be slowed even further and health will now starts to decrease too.")
+        SetInfoText("Toggle hardcore swimming. If on, player will have hard time swimming with tied hands. This works for any devices, not only for devices from this mod. Slow will be applied on player and stamina will start to decrease. Once all stamina is consumed, player will be slowed even further and health will start to decrease too.")
     elseif(option == UD_hardcore_swimming_difficulty_M)
-        SetInfoText("Difficulty of swimming with tied hands. The harded the difficulty, the more stamina and health will be drain. Player will also be more slowed.")
+        SetInfoText("Difficulty of swimming with tied hands. The harder the difficulty, the more stamina and health will be drained. Player will also be more slowed.")
     elseif option == UD_WidgetPosX_M
         SetInfoText("Change widget X position\nDefault: Right")
     elseif option == UD_WidgetPosY_M
@@ -2000,17 +2000,17 @@ Function CustomBondagePageDefault(int option)
     elseif option == UD_BaseDeviceSkillIncrease_S
         SetInfoText("How many skill points are acquired for second of struggling.\nDefault: 35")
     elseif option == UD_SkillEfficiency_S
-        SetInfoText("How many percets is minigame easier per skill point\nExample: If Strength skill is 50 and efficiency is 1%, desperate minigame will be 50% more powerfull\nDefault: 1 %")
+        SetInfoText("How many percents is minigame easier per skill point\nExample: If Strength skill is 50 and efficiency is 1%, desperate minigame will be 50% more powerful\nDefault: 1 %")
     elseif option == UD_AutoCrit_T
         SetInfoText("Toggle auto crit. Auto crit will crit instead of user. Use this if you don't like crits or you can't crit for some other reason.\nDefault: OFF")
     elseif option == UD_AutoCritChance_S
-        SetInfoText("Chance that auto crit will result in sucessfull crit.\nDefault: 80%")
+        SetInfoText("Chance that auto crit will result in successfull crit.\nDefault: 80%")
     elseif option == UD_CritEffect_M
         SetInfoText("Effect used to indicate that crit is happening.\n[HUD] HUD will blink when crit is happening\n[Body shader] Actor body will have shader applied for short time\n[HUD + Body shader] Both of the previous effects combined\nDefault: [HUD + Body shader]")
     elseif option == UD_CooldownMultiplier_S
-        SetInfoText("Change how big the devices cooldowns are. The bigger the value the bigger they will be.\nExamle: 200% makes all devices cooldown two times bigger.\nDefault: 100%")
+        SetInfoText("Change how big the devices cooldowns are. The bigger the value the longer they will be.\nExamle: 200% makes all devices cooldown two times longer.\nDefault: 100%")
     elseif option == UD_HardcoreMode_T
-        SetInfoText("Hardcore mode disables most game features when players hands are tied up, to empathize the helpless feeling\n*Disables Inventory, Magick Menu and Fast travel (Map still works)\nTween menu is disabled, pressing it will open list of devices\nStats and Map can only be opened with key\nDefault: OFF")
+        SetInfoText("Hardcore mode disables most game features when players hands are tied up, to emulate the helpless feeling\n*Disables Inventory, Magic Menu and Fast travel (Map still works)\nTween menu is disabled, pressing it will open list of devices\nStats and Map can only be opened with key\nDefault: OFF")
     elseif option == UD_AllowArmTie_T
         SetInfoText("Toggle Arm tie active effect from Arm cuffs. Toogling this off will prevent effect from activating.\nDefault: ON")
     elseif option == UD_AllowLegTie_T
@@ -2036,7 +2036,7 @@ Function CustomBondagePageDefault(int option)
     elseif option == UD_AlternateAnimation_T
         SetInfoText("Enabling this will force struggle animation to randomly switch to different animation periodically\nDefault: OFF")
     elseif option == UD_CritDurationAdjust_S
-        SetInfoText("By how much time will be crit duration changed. Setting this to small negative value might make crits impossible.\nIn case you are experiencing bigger lags when using UD, you might increase this value to make crits easier.\nDefault: 0.0 s")
+        SetInfoText("By how much time will be crit duration changed. Setting this to small negative value might make crits impossible.\nIn case you are experiencing bigger lags when using UD, you may need to increase this value to make crits easier.\nDefault: 0.0 s")
     Endif
 EndFunction
 
@@ -2044,11 +2044,11 @@ Function CustomOrgasmPageDefault(int option)
     if     option == UD_OrgasmUpdateTime_S
         SetInfoText("Update time for orgasm checking (how fast is orgasm widget updated). Is only used for player.\n Default: 0.2s")
     elseif option == UD_UseOrgasmWidget_T
-        SetInfoText("Toogle orgasm progress widget\nDefault: ON")
+        SetInfoText("Toggle orgasm progress widget\nDefault: ON")
     elseif option == UD_OrgasmResistence_S
-        SetInfoText("Defines how much orgasm rate is required for actor to orgasm. If orgasm rate is less then this, orgasm progress will stop before 100%. Also changes how fast is orgasm progress reduced for every update.\nDefault: 2.0")
+        SetInfoText("Defines how much orgasm rate is required for actor to orgasm. If orgasm rate is less than this, orgasm progress will stop before 100%. Also changes how fast is orgasm progress reduced for every update.\nDefault: 2.0")
     elseif option == UD_HornyAnimation_T
-        SetInfoText("Toogle if random horny animation can play while orgasm rate is bigger then 0\nDefault: YES")
+        SetInfoText("Toggle if random horny animation can play while orgasm rate is bigger than 0\nDefault: YES")
     elseif option == UD_HornyAnimationDuration_S
         SetInfoText("Duration of random horny animation\nDefault: 5 s")
     elseif option == UD_VibrationMultiplier_S
@@ -2060,7 +2060,7 @@ Function CustomOrgasmPageDefault(int option)
     elseif option == UD_OrgasmArousalReduceDuration_S
         SetInfoText("Duration of post-orgasm effect\nDefault: 7 seconds")
     elseif(option == UD_OrgasmExhaustion_T)
-        SetInfoText("Adds debuff to player on orgasm. Thsi debuff reduces stamina and magicka regeneration for short time. This effect is applied as on DD orgasm as on Sexlab scene orgasm.")
+        SetInfoText("Adds debuff to player on orgasm. This debuff reduces stamina and magicka regeneration for short time. This effect is applied as on DD orgasm as on Sexlab scene orgasm.")
     Endif
 EndFunction
 
@@ -2068,23 +2068,23 @@ Function PatcherPageDefault(int option)
     if  option == UD_PatchMult_S
         SetInfoText("Sets patching multiplier. The more this value the harder will be patched devices.\nDefault: 100%")
     elseif option == UD_MAOChanceMod_S
-        SetInfoText("Sets MAO chance multiplier. Bigger the value, the more likely will patched device have MAO modifier\nExample: If patcher have set value of 8% of adding this modifier to device and this value will be 50%, result chance is 4%.\nDefault: 100%")
+        SetInfoText("Sets Orgasm manifest (MAO) chance multiplier. Bigger the value, the more likely will patched device have MAO modifier\nExample: If patcher have set value of 8% of adding this modifier to device and this value will be 50%, result chance is 4%.\nDefault: 100%")
     elseif option == UD_MAHChanceMod_S
-        SetInfoText("Sets MAH chance multiplier. Bigger the value, the more likely will patched device have MAH modifier\nExample: If patcher have set value of 8% of adding this modifier to device and this value will be 50%, result chance is 4%.\nDefault: 100%")
+        SetInfoText("Sets Hour manifest (MAH) chance multiplier. Bigger the value, the more likely will patched device have MAH modifier\nExample: If patcher have set value of 8% of adding this modifier to device and this value will be 50%, result chance is 4%.\nDefault: 100%")
     elseif option == UD_MAOMod_S
         SetInfoText("Sets Orgasm manifest (MAO) multiplier. Bigger the value, the more likely will device manifest when actor orgasms.\nExample: If device have manifest 50% and this value will be 50%, result chance is 25%.\nDefault: 100%")
     elseif option == UD_MAHMod_S
         SetInfoText("Sets Hour manifest (MAH) multiplier. Bigger the value, the more likely will device manifest every hour.\nExample: If device have manifest 50% and this value will be 50%, result chance is 25%.\nDefault: 100%")
     elseif option == UD_EscapeModifier_S
-        SetInfoText("Sets escape modifier. Escape modifier determinates how patched device DPS is calculated. Default formalu is DDEscapeChance/EscapeModifier = DPS\n Example: if this is 10 and to be patched device have escape chance 10%, resulting base DPS will be 1.0\nDefault: 10")
+        SetInfoText("Sets escape modifier. Escape modifier determinates how patched device DPS is calculated. Default formula is DDEscapeChance/EscapeModifier = DPS\n Example: if this is 10 and to be patched device have escape chance 10%, resulting base DPS will be 1.0\nDefault: 10")
     elseif option == UD_MinLocks_S
         SetInfoText("Minimum number of locks which device can get by patcher\nDefault: 1")
     elseif option == UD_MaxLocks_S
         SetInfoText("Maximum number of locks which device can get by patcher\nDefault: 1")
     elseif option == UD_MinResistMult_S
-        SetInfoText("Minimum sum of both resistences (Physical + Magickal). If their sum is smaller then this value, one of the resist will be increased so the total sum is this number. The smaller thisnumber will be, the smaller device resistences will be (device is easier)\nDefault: -100%")
+        SetInfoText("Minimum sum of both resistances (Physical + Magical). If their sum is smaller than this value, one of the resists will be increased so the total sum is this number. The smaller this number will be, the smaller device resistances will be (device is easier)\nDefault: -100%")
     elseif option == UD_MaxResistMult_S
-        SetInfoText("Maximum sum of both resistences (Physical + Magickal). If their sum is bigger then this value, one of the resist will be reduces so the total sum is this number. The bigger this number will be, the bigger device resistence will be (device is harder)\nDefault: 100%")
+        SetInfoText("Maximum sum of both resistances (Physical + Magical). If their sum is bigger than this value, one of the resists will be reduced so the total sum is this number. The bigger this number will be, the bigger device resistance will be (device is harder)\nDefault: 100%")
     elseif option == UD_MaxResistMult_S
     endif
 EndFunction
@@ -2094,17 +2094,17 @@ Function AbadanPageDefault(int option)
     if (option == dmg_heal_T)
         SetInfoText("Toggle if plug should sap health from player on Orgasm,Edge or Vib")
     elseif (option == UseAnalVariant_T)
-        SetInfoText("Toggle if Anal plug will be used instead of vaginal plug. This only switch which is used for Abadon Curse quest and gets disabled after the letter from courier is readed.")
+        SetInfoText("Toggle if Anal plug will be used instead of vaginal plug. This switch is used only for Abadon Curse quest and gets disabled after reading the letter from courier.")
     elseif(option == dmg_stamina_T)
         SetInfoText("Toggle if plug should sap stamina from player on Orgasm,Edge or Vib")
     elseif(option == dmg_magica_T)
-        SetInfoText("Toggle if plug should sap magica from player on Orgasm,Edge or Vib")
+        SetInfoText("Toggle if plug should sap magicka from player on Orgasm,Edge or Vib")
     elseif(option == hardcore_T)
         SetInfoText("Toggle Hardcore mod.\n This makes it possible for plug to kill you. Otherwise the plug will only sap your health to 1")
     elseif (option == difficulty_M)
         SetInfoText("Select plug difficulty. This changes how much health,stamina and magica is sapped from player")
     elseif (option == preset_M)
-        SetInfoText("Overal setting preset. If you want to change values to your liking, then select custom preset")
+        SetInfoText("Overall setting preset. If you want to change values to your liking, then select custom preset")
     elseif (option == max_difficulty_S)
         SetInfoText("Maximum strength at which last finisher is activated")
     elseIf (option == eventchancemod_S)
@@ -2118,7 +2118,7 @@ Function AbadanPageDefault(int option)
     elseIf (option == little_finisher_cooldown_S)
         SetInfoText("Time in hours after which can little finisher happen again.")
     elseIf (option == final_finisher_pref_M)
-        SetInfoText("Set equiped when player equip plug.")
+        SetInfoText("Set equipped when player equip plug.")
     endIf
 EndFunction
 
@@ -2126,13 +2126,13 @@ Function DDPatchPageDefault(int option)
     if  option == UD_DAR_T
         SetInfoText("Toggle DAR compatibility. Please read more about it in changelog on LL\nDefault: OFF")
     elseif option == UD_GagPhonemModifier_S
-        SetInfoText("Gag modifier which change gag expression for simple gag to better fit mouth. Is not used if DD beta 7 is installed\nDefault: 0")
+        SetInfoText("Gag modifier which change gag expression for simple gag to better fit mouth. Not used if DD beta 7 is installed\nDefault: 0")
     elseif option == UD_OutfitRemove_T
-        SetInfoText("Prevent NPC outfit from being removed when hand restrain is locked on. Removing outfit can by default cause compatibility issue with NPC overhaul mods. This will obviousl prevent NPC from being naked untill player undress them\nDefault: True")
+        SetInfoText("Prevent NPC outfit from being removed when hand restraint is locked on. Removing outfit can by default cause compatibility issue with NPC overhaul mods. This will obviously prevent NPC from being naked until player undresses them\nDefault: True")
     elseif option == UD_OrgasmAnimation_M
-        SetInfoText("List of orgasm animations.\nNormal = Normal orgasm animation by  DD\nExtended = Orgasm animation + horny animations\nDefault: Normal")
+        SetInfoText("List of orgasm animations.\nNormal = Normal orgasm animations by  DD\nExtended = Orgasm animations + horny animations\nDefault: Normal")
     elseif option == UD_CheckAllKw_T
-        SetInfoText("!!EXPERIMENTAL FEATURE!!\nWhen enabled, Lock/Unlock devices will use patched funtions which doesn't check ID script devious keyword, but instead all keywords on RD. This way, framework should somehow work when processing devices which have multiple major keywords on RD (for emalbe when some catsuit would have both belt and suit keyword)\nDefault: OFF")
+        SetInfoText("!!EXPERIMENTAL FEATURE!!\nWhen enabled, Lock/Unlock devices will use patched functions which doesn't check ID script devious keyword, but instead all keywords on RD. This way, framework should somehow work when processing devices which have multiple major keywords on RD (for example when some catsuit would have both belt and suit keyword)\nDefault: OFF")
     endif
 EndFunction
 
@@ -2141,17 +2141,17 @@ Function DebugPageDefault(int option)
     if (option == rescanSlots_T)
         SetInfoText("Rescan all slots with nearby npcs. This is only way to fill slots if Auto scan is turned off.")
     elseif option == fixBugs_T
-        SetInfoText("Apply some fixes for selected slot.\n-Rest orgasm check loop\n-Remove lost devices\n-Removes copies\n-Removes unused devices\n-Resets minigame states")
+        SetInfoText("Apply some fixes for selected slot.\n-Resets orgasm check loop\n-Removes lost devices\n-Removes copies\n-Removes unused devices\n-Resets minigame states")
     elseif option == unlockAll_T
         SetInfoText("Unlock all currently REGISTERED devices")
     elseif option == endAnimation_T
-        SetInfoText("Ends animation for currently sloted npc")
+        SetInfoText("End animation for currently slotted npc")
     elseif option == unregisterNPC_T
         SetInfoText("Unregister whole slot. This will not unlock any devices.")
     elseif option == OrgasmCapacity_S
         SetInfoText("Change registered NPC orgasm capacity.This change how fast will actor reach orgasm.\nDefault: 100")
     elseif option == OrgasmResist_S
-        SetInfoText("Change registered NPC orgasm resistence.This change how fast will actor reach orgasm AND if actor will reach orgasm at all.\nDefault: Set in MCM (Custom Orgasm tab)")
+        SetInfoText("Change registered NPC orgasm resistance.This change how fast will actor reach orgasm AND if actor will reach orgasm at all.\nDefault: Set in MCM (Custom Orgasm tab)")
     endIf
 EndFunction
 
@@ -2185,29 +2185,29 @@ EndEvent
 
 Function GeneralPageInfo(int option)
     if(option == lockmenu_T)
-        SetInfoText("Dissable MCM when any of Unforgiving devices is equiped")
+        SetInfoText("Disable MCM when any of Unforgiving devices is equipped")
     elseif(option == UD_ActionKey_K)
         SetInfoText("Current use: Stops struggling")
     elseif(option == UD_StruggleKey_K)
         SetInfoText("Current use: Starts struggling")
     elseif(option == UD_hightPerformance_T)
-        SetInfoText("Hight performance mod will decrease update time. This will make struggle game more smooth and also less buggy.")
+        SetInfoText("High performance mod will decrease update time. This will make struggle game more smooth and also less buggy.")
     elseif(option == UD_debugmod_T)
-        SetInfoText("Toogle debug mod. Debug mod shows more information for devices from this mod.")
+        SetInfoText("Toggle debug mod. Debug mod shows more information for devices from this mod.")
     elseif (option == UD_NPCSupport_T)
-        SetInfoText("Toogle automatic scaning")
+        SetInfoText("Toggle automatic scanning")
     elseif option == UD_HearingRange_S
         SetInfoText("Actor needs to be in this range from player so user receives actor specific messages (like that some device starts vibratin, other do something else etc...)\n Default: 4000\n(4000 is around the distance of one big hallway. 500 is next to player.)")
     elseif option == UD_WarningAllowed_T
         SetInfoText("Toggle Warning console messages.\nDefault: OFF")
     elseif option == UD_PrintLevel_S
-        SetInfoText("Messege level for notifications which show to user. The lower this value is, the less messages will appear in top left. 0 will disable all messages\nDefault: 3")
+        SetInfoText("Message level for notifications which show to user. The lower this value is, the less messages will appear in top left. 0 will disable all messages\nDefault: 3")
     elseif(option == UD_PlayerMenu_K)
         SetInfoText("Current use: Opens player menu")
     elseif(option == UD_NPCMenu_K)
         SetInfoText("Current use: Opens NPC menu for NPC that player is currently looking on")
     elseif(option == UD_LoggingLevel_S)
-        SetInfoText("Sets logging level. By default logging is turned off, as it can have noticable performance impact. Changing this to 3 will trace aeverythink. 1 will Trace only the most important informations.\n Default: 0")
+        SetInfoText("Sets logging level. By default logging is turned off, as it can have noticable performance impact. Changing this to 3 will trace aeverything. 1 will Trace only the most important information.\n Default: 0")
     elseif option == UD_LockDebugMCM_T
         SetInfoText("Disable MCM Debug panel if player have any Unforigivng Device equipped. Only active if \"Lock menus\" is also enabled")
     elseif option == UD_EasyGamepadMode_T
@@ -2273,7 +2273,7 @@ Function CustomBondagePageInfo(int option)
     elseif(option == UD_hardcore_swimming_T)
         SetInfoText("Toggle hardcore swimming. If on, player will have hard time swimming with tied hands. This works for any devices, not only for devices from this mod. Slow will be applied on player and stamina will starts to decrease. Once all stamina is consumed, player will be slowed even further and health will now starts to decrease too.")
     elseif(option == UD_hardcore_swimming_difficulty_M)
-        SetInfoText("Difficulty of swimming with tied hands. The harded the difficulty, the more stamina and health will be drain. Player will also be more slowed.")
+        SetInfoText("Difficulty of swimming with tied hands. The harder the difficulty, the more stamina and health will be drained. Player will also be more slowed.")
     elseif option == UD_WidgetPosX_M
         SetInfoText("Change widget X position\nDefault: Right")
     elseif option == UD_WidgetPosY_M
@@ -2283,21 +2283,21 @@ Function CustomBondagePageInfo(int option)
     elseif option == UD_BaseDeviceSkillIncrease_S
         SetInfoText("How many skill points are acquired for second of struggling.\nDefault: 35")
     elseif option == UD_SkillEfficiency_S
-        SetInfoText("How many percets is minigame easier per skill point\nExample: If Strength skill is 50 and efficiency is 1%, desperate minigame will be 50% more powerfull\nDefault: 1 %")
+        SetInfoText("How many percents is minigame easier per skill point\nExample: If Strength skill is 50 and efficiency is 1%, desperate minigame will be 50% more powerful\nDefault: 1 %")
     elseif option == UD_AutoCrit_T
         SetInfoText("Toggle auto crit. Auto crit will crit instead of user. Use this if you don't like crits or you can't crit for some other reason.\nDefault: OFF")
     elseif option == UD_AutoCritChance_S
-        SetInfoText("Chance that auto crit will result in sucessfull crit.\nDefault: 80%")
+        SetInfoText("Chance that auto crit will result in successfull crit.\nDefault: 80%")
     elseif option == UD_CritEffect_M
         SetInfoText("Effect used to indicate that crit is happening.\n[HUD] HUD will blink when crit is happening\n[Body shader] Actor body will have shader applied for short time\n[HUD + Body shader] Both of the previous effects combined\nDefault: [HUD + Body shader]")
     elseif option == UD_CooldownMultiplier_S
-        SetInfoText("Change how big the devices cooldowns are. The bigger the value the bigger they will be.\nExamle: 200% makes all devices cooldown two times bigger.\nDefault: 100%")
+        SetInfoText("Change how big the devices cooldowns are. The bigger the value the longer they will be.\nExamle: 200% makes all devices cooldown two times longer.\nDefault: 100%")
     elseif option == UD_HardcoreMode_T
-        SetInfoText("Hardcore mode disables most game features when players hands are tied up, to empathize the helpless feeling\n*Disables Inventory, Magick Menu and Fast travel (Map still works)\nTween menu is disabled, pressing it will open list of devices\nStats and Map can only be opened with key\nDefault: OFF")
+        SetInfoText("Hardcore mode disables most game features when players hands are tied up, to emulate the helpless feeling\n*Disables Inventory, Magick Menu and Fast travel (Map still works)\nTween menu is disabled, pressing it will open list of devices\nStats and Map can only be opened with key\nDefault: OFF")
     elseif option == UD_AllowArmTie_T
-        SetInfoText("Toggle Arm tie active effect from Arm cuffs. Toogling this off will prevent effect from activating.\nDefault: ON")
+        SetInfoText("Toggle Arm tie active effect from Arm cuffs. Toggling this off will prevent effect from activating.\nDefault: ON")
     elseif option == UD_AllowLegTie_T
-        SetInfoText("Toggle Leg tie active effect from Leg cuffs. Toogling this off will prevent effect from activating.\nDefault: ON")
+        SetInfoText("Toggle Leg tie active effect from Leg cuffs. Toggling this off will prevent effect from activating.\nDefault: ON")
     elseif option == UD_MinigameHelpCd_S
         SetInfoText("Base cooldown which activates after one character helps another character. Character can't help others while on cooldown\nDefault: 60 minutes")
     elseif option == UD_MinigameHelpCD_PerLVL_S
@@ -2327,11 +2327,11 @@ Function CustomOrgasmPageInfo(int option)
     if     option == UD_OrgasmUpdateTime_S
         SetInfoText("Update time for orgasm checking (how fast is orgasm widget updated). Is only used for player.\n Default: 0.2s")
     elseif option == UD_UseOrgasmWidget_T
-        SetInfoText("Toogle orgasm progress widget\nDefault: ON")
+        SetInfoText("Toggle orgasm progress widget\nDefault: ON")
     elseif option == UD_OrgasmResistence_S
-        SetInfoText("Defines how much orgasm rate is required for actor to orgasm. If orgasm rate is less then this, orgasm progress will stop before 100%. Also changes how fast is orgasm progress reduced for every update.\nDefault: 2.0")
+        SetInfoText("Defines how much orgasm rate is required for actor to orgasm. If orgasm rate is less than this, orgasm progress will stop before 100%. Also changes how fast is orgasm progress reduced for every update.\nDefault: 2.0")
     elseif option == UD_HornyAnimation_T
-        SetInfoText("Toogle if random horny animation can play while orgasm rate is bigger then 0\nDefault: YES")
+        SetInfoText("Toogle if random horny animation can play while orgasm rate is bigger than 0\nDefault: YES")
     elseif option == UD_HornyAnimationDuration_S
         SetInfoText("Duration of random horny animation\nDefault: 5 s")
     elseif option == UD_VibrationMultiplier_S
@@ -2343,7 +2343,7 @@ Function CustomOrgasmPageInfo(int option)
     elseif option == UD_OrgasmArousalReduceDuration_S
         SetInfoText("Duration of post-orgasm effect\nDefault: 7 seconds")
     elseif(option == UD_OrgasmExhaustion_T)
-        SetInfoText("Adds debuff to player on orgasm. Thsi debuff reduces stamina and magicka regeneration for short time. This effect is applied as on DD orgasm as on Sexlab scene orgasm.")
+        SetInfoText("Adds debuff to player on orgasm. This debuff reduces stamina and magicka regeneration for short time. This effect is applied as on DD orgasm as on Sexlab scene orgasm.")
     Endif
 EndFunction
 
@@ -2351,9 +2351,9 @@ Function PatcherPageInfo(int option)
     if  option == UD_PatchMult_S
         SetInfoText("Sets patching multiplier. The more this value the harder will be patched devices.\nDefault: 100%")
     elseif option == UD_MAOChanceMod_S
-        SetInfoText("Sets MAO chance multiplier. Bigger the value, the more likely will patched device have MAO modifier\nExample: If patcher have set value of 8% of adding this modifier to device and this value will be 50%, result chance is 4%.\nDefault: 100%")
+        SetInfoText("Sets Orgasm manifest (MAO) chance multiplier. Bigger the value, the more likely will patched device have MAO modifier\nExample: If patcher have set value of 8% of adding this modifier to device and this value will be 50%, result chance is 4%.\nDefault: 100%")
     elseif option == UD_MAHChanceMod_S
-        SetInfoText("Sets MAH chance multiplier. Bigger the value, the more likely will patched device have MAH modifier\nExample: If patcher have set value of 8% of adding this modifier to device and this value will be 50%, result chance is 4%.\nDefault: 100%")
+        SetInfoText("Sets Hour manifest (MAH) chance multiplier. Bigger the value, the more likely will patched device have MAH modifier\nExample: If patcher have set value of 8% of adding this modifier to device and this value will be 50%, result chance is 4%.\nDefault: 100%")
     elseif option == UD_MAOMod_S
         SetInfoText("Sets Orgasm manifest (MAO) multiplier. Bigger the value, the more likely will device manifest when actor orgasms.\nExample: If device have manifest 50% and this value will be 50%, result chance is 25%.\nDefault: 100%")
     elseif option == UD_MAHMod_S
@@ -2365,9 +2365,9 @@ Function PatcherPageInfo(int option)
     elseif option == UD_MaxLocks_S
         SetInfoText("Maximum number of locks which device can get by patcher\nDefault: 1")
     elseif option == UD_MinResistMult_S
-        SetInfoText("Minimum sum of both resistences (Physical + Magickal). If their sum is smaller then this value, one of the resist will be increased so the total sum is this number. The smaller thisnumber will be, the smaller device resistences will be (device is easier)\nDefault: -100%")
+        SetInfoText("Minimum sum of both resistances (Physical + Magical). If their sum is smaller than this value, one of the resists will be increased so the total sum is this number. The smaller this number will be, the smaller device resistances will be (device is easier)\nDefault: -100%")
     elseif option == UD_MaxResistMult_S
-        SetInfoText("Maximum sum of both resistences (Physical + Magickal). If their sum is bigger then this value, one of the resist will be reduces so the total sum is this number. The bigger this number will be, the bigger device resistence will be (device is harder)\nDefault: 100%")
+        SetInfoText("Maximum sum of both resistances (Physical + Magical). If their sum is bigger than this value, one of the resists will be reduced so the total sum is this number. The bigger this number will be, the bigger device resistance will be (device is harder)\nDefault: 100%")
     elseif option == UD_MaxResistMult_S
     endif
 EndFunction
@@ -2377,17 +2377,17 @@ Function AbadanPageInfo(int option)
     if (option == dmg_heal_T)
         SetInfoText("Toggle if plug should sap health from player on Orgasm,Edge or Vib")
     elseif (option == UseAnalVariant_T)
-        SetInfoText("Toggle if Anal plug will be used instead of vaginal plug. This only switch which is used for Abadon Curse quest and gets disabled after the letter from courier is readed.")
+        SetInfoText("Toggle if Anal plug will be used instead of vaginal plug. This switch is used only for Abadon Curse quest and gets disabled after reading the letter from courier.")
     elseif(option == dmg_stamina_T)
         SetInfoText("Toggle if plug should sap stamina from player on Orgasm,Edge or Vib")
     elseif(option == dmg_magica_T)
-        SetInfoText("Toggle if plug should sap magica from player on Orgasm,Edge or Vib")
+        SetInfoText("Toggle if plug should sap magicka from player on Orgasm,Edge or Vib")
     elseif(option == hardcore_T)
         SetInfoText("Toggle Hardcore mod.\n This makes it possible for plug to kill you. Otherwise the plug will only sap your health to 1")
     elseif (option == difficulty_M)
         SetInfoText("Select plug difficulty. This changes how much health,stamina and magica is sapped from player")
     elseif (option == preset_M)
-        SetInfoText("Overal setting preset. If you want to change values to your liking, then select custom preset")
+        SetInfoText("Overall setting preset. If you want to change values to your liking, then select custom preset")
     elseif (option == max_difficulty_S)
         SetInfoText("Maximum strength at which last finisher is activated")
     elseIf (option == eventchancemod_S)
@@ -2401,7 +2401,7 @@ Function AbadanPageInfo(int option)
     elseIf (option == little_finisher_cooldown_S)
         SetInfoText("Time in hours after which can little finisher happen again.")
     elseIf (option == final_finisher_pref_M)
-        SetInfoText("Set equiped when player equip plug.")
+        SetInfoText("Set equipped when player equip plug.")
     endIf
 EndFunction
 
@@ -2409,19 +2409,19 @@ Function DDPatchPageInfo(int option)
     if  option == UD_DAR_T
         SetInfoText("Toggle DAR compatibility. Please read more about it in changelog on LL\nDefault: OFF")
     elseif option == UD_GagPhonemModifier_S
-        SetInfoText("Gag modifier which change gag expression for simple gag to better fit mouth. Is not used if DD beta 7 is installed\nDefault: 0")
+        SetInfoText("Gag modifier which change gag expression for simple gag to better fit mouth. Not used if DD beta 7 is installed\nDefault: 0")
     elseif option == UD_OutfitRemove_T
-        SetInfoText("Prevent NPC outfit from being removed when hand restrain is locked on. Removing outfit can by default cause compatibility issue with NPC overhaul mods. This will obviousl prevent NPC from being naked untill player undress them\nDefault: True")
+        SetInfoText("Prevent NPC outfit from being removed when hand restraint is locked on. Removing outfit can by default cause compatibility issue with NPC overhaul mods. This will obviously prevent NPC from being naked until player undress them\nDefault: True")
     elseif option == UD_OrgasmAnimation_M
         SetInfoText("List of orgasm animations.\nNormal = Normal orgasm animation by  DD\nExtended = Orgasm animation + horny animations\nDefault: Normal")
     elseif option == UD_CheckAllKw_T
-        SetInfoText("!!EXPERIMENTAL FEATURE!!\nWhen enabled, Lock/Unlock devices will use patched funtions which doesn't check ID script devious keyword, but instead all keywords on RD. This way, framework should somehow work when processing devices which have multiple major keywords on RD (for example when some catsuit would have both belt and suit keywords)\nDefault: OFF")
+        SetInfoText("!!EXPERIMENTAL FEATURE!!\nWhen enabled, Lock/Unlock devices will use patched functions which doesn't check ID script devious keyword, but instead all keywords on RD. This way, framework should somehow work when processing devices which have multiple major keywords on RD (for example when some catsuit would have both belt and suit keywords)\nDefault: OFF")
     endif
 EndFunction
 
 Function UiWidgetPageInfo(int option)
     if  option == UD_AutoAdjustWidget_T
-        SetInfoText("Toggle auto adjust for iWantWidget widgets. If ON, it will cause widgets to get rearanged every time they are shown/hidden. This make it more compact, but also slower. \nDefault: OFF")
+        SetInfoText("Toggle auto adjust for iWantWidget widgets. If ON, it will cause widgets to get rearranged every time they are shown/hidden. This make it more compact, but also slower. \nDefault: OFF")
     elseif option == UD_UseIWantWidget_T
         SetInfoText("Toggle if iWantWidget should be used instead of currect widget implementation. Only works if iWW is installed\n!!IMPORTANT: After changing this value, you will have to save and reload the game, otherwise the changes will not be applied!!\nDefault: ON")
     endif
@@ -2432,17 +2432,17 @@ Function DebugPageInfo(int option)
     if (option == rescanSlots_T)
         SetInfoText("Rescan all slots with nearby npcs. This is only way to fill slots if Auto scan is turned off.")
     elseif option == fixBugs_T
-        SetInfoText("Apply some fixes for selected slot.\n-Rest orgasm check loop\n-Remove lost devices\n-Removes copies\n-Removes unused devices\n-Resets minigame states")
+        SetInfoText("Apply some fixes for selected slot.\n-Resets orgasm check loop\n-Removes lost devices\n-Removes copies\n-Removes unused devices\n-Resets minigame states")
     elseif option == unlockAll_T
         SetInfoText("Unlock all currently REGISTERED devices")
     elseif option == endAnimation_T
-        SetInfoText("Ends animation for currently sloted npc")
+        SetInfoText("End animation for currently sloted npc")
     elseif option == unregisterNPC_T
         SetInfoText("Unregister whole slot. This will not unlock any devices.")
     elseif option == OrgasmCapacity_S
         SetInfoText("Change registered NPC orgasm capacity.This change how fast will actor reach orgasm.\nDefault: 100")
     elseif option == OrgasmResist_S
-        SetInfoText("Change registered NPC orgasm resistence.This change how fast will actor reach orgasm AND if actor will reach orgasm at all.\nDefault: Set in MCM (Custom Orgasm tab)")
+        SetInfoText("Change registered NPC orgasm resistance.This change how fast will actor reach orgasm AND if actor will reach orgasm at all.\nDefault: Set in MCM (Custom Orgasm tab)")
     endIf
 EndFunction
 
