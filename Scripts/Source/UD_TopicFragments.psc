@@ -17,27 +17,27 @@ UDCustomDeviceMain Property UDCDmain
     EndFunction
 EndProperty
 
-UD_DialogueMain Property UDDM
+UD_DialogueMain Property UDDM Hidden
     UD_DialogueMain Function Get()
         return UDCDmain.UDDmain
     EndFunction
 EndProperty
 
 GlobalVariable _moneyForHelp
-GlobalVariable Property MoneyForHelp
+GlobalVariable Property MoneyForHelp Hidden
     GlobalVariable Function Get()
         if !_moneyForHelp
-            _moneyForHelp = GetMeMyForm(0x15D5F2, "PR100_NPCAI.esp") as GlobalVariable
+            _moneyForHelp = GetMeMyForm(0x15D5F2, "UnforgivingDevices.esp") as GlobalVariable
         endif
         return _moneyForHelp
     EndFunction
 EndProperty
 
 GlobalVariable _validDevice
-GlobalVariable Property ValidDevice
+GlobalVariable Property ValidDevice Hidden
     GlobalVariable Function Get()
         if !_validDevice
-            _validDevice = GetMeMyForm(0x15D5FA, "PR100_NPCAI.esp") as GlobalVariable
+            _validDevice = GetMeMyForm(0x15D5FA, "UnforgivingDevices.esp") as GlobalVariable
         endif
         return _validDevice
     EndFunction
