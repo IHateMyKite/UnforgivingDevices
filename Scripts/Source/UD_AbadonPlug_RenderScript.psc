@@ -185,7 +185,7 @@ Function randomEquipHandRestrain()
             elseif loc_renderDevice.hasKeyword(libs.zad_DeviousArmbinderElbow)
                 debug.messagebox("Suddenly, Abadon plug starts to emit black smoke. Before you could react, smoke forces your hands painfully behind your back and manifests into elbowbinder.")
             elseif loc_renderDevice.hasKeyword(libs.zad_DeviousYoke)
-                debug.messagebox("Suddenly, Abadon plug starts to emit black smoke. Before you could react, smoke forces your hands away from your body and locks them in to cold, steel yoke.")
+                debug.messagebox("Suddenly, Abadon plug starts to emit black smoke. Before you could react, smoke forces your hands away from your body and locks them into cold steel yoke.")
             endif
         else
             UDCDmain.Print(getDeviceName() + " locks restraint on " + getWearerName())
@@ -525,9 +525,9 @@ Function onUpdatePost(float timePassed)
                     AbadonQuestScript.SetObjectiveFailed(30)
                     AbadonQuestScript.SetObjectiveDisplayed(40)
                 endif
-                string tmp = "Despite your best effort to remove the plug in time, you ultimately failed. Abadon plug have finaly reached it full strength. It manifested and locked extremely sturdy straitjacket suit on your body that barely allow you to move your arms."
-                tmp += "You immediately tried to struggle free, but that only made plugs inside you start vibrating furiously. You pant in pleasure as first of many orgasms that is awating you starts to build up."
-                tmp += "With realisation of how bad situation you get yourself into, you let last scream just before gag manifested over your mouth. Tears run down your cheeks as you uselessly try to resist coming orgasm."
+                string tmp = "Despite your best efforts to remove the plug in time, you ultimately failed. Abadon plug have finally reached its full strength. It manifested and locked extremely sturdy straitjacket suit on your body that barely allow you to move your arms."
+                tmp += "You immediately tried to struggle free, but that only made plugs inside you start vibrating furiously. You pant in pleasure as first of many orgasms that are awating you starts to build up."
+                tmp += "With realisation of how bad situation you get yourself into, you let last scream out just before gag manifested over your mouth. Tears run down your cheeks as you uselessly try to resist coming orgasm."
                 debug.messagebox(tmp)
             else
                 if AbadonQuestScript.UD_AbadonVictim == getWearer()
