@@ -89,8 +89,8 @@ bool Function proccesSpecialMenuWH(Actor akSource,int msgChoice)
 EndFunction
 
 bool removePlugMinigame_on = False
-bool Function removePlugMinigame()
-    if !minigamePrecheck()
+bool Function removePlugMinigame(Bool abSilent = False)
+    if !minigamePrecheck(abSilent)
         return false
     endif
     
@@ -113,7 +113,7 @@ bool Function removePlugMinigame()
     endif
     setMinigameMult(1,mult)
     
-    if minigamePostCheck()
+    if minigamePostCheck(abSilent)
         removePlugMinigame_on = True
         minigame()
         removePlugMinigame_on = False

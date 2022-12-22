@@ -28,6 +28,10 @@ Scene Property BraDialogueScene_End auto
 Scene Property GenericDialogueScene_End auto
 Scene Property HoodDialogueScene_End auto
 
+;control variables for dialogue conditions, do not use unless you know what you are doing!
+Bool Property NPCTired = false auto conditional hidden
+UD_CustomDevice_RenderScript Property SelectedDevice = none auto hidden
+
 
 Function onInit()
     Utility.wait(3.0)

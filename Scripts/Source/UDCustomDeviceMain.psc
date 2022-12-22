@@ -1,6 +1,7 @@
 Scriptname UDCustomDeviceMain extends Quest  conditional
 
 import UnforgivingDevicesMain
+import UD_NPCInteligence
 
 Spell Property SwimPenaltySpell auto
 UnforgivingDevicesMain Property UDmain auto
@@ -793,11 +794,15 @@ Function showDebugMenu(Actor akActor,int slot_id)
     getNPCSlot(akActor).showDebugMenu(slot_id)
 EndFunction
 
-bool Function AllowNPCMessage(Actor akActor)
-    if ActorIsFollower(akActor) 
+bool Function AllowNPCMessage(Actor akActor,Bool abOnlyFollower = false)
+    if ActorIsFollower(akActor) || UDmain.ActorIsPlayer(akActor)
         return true
     endif
-    return UDmain.ActorInCloseRange(akActor)
+    if !abOnlyFollower
+        return UDmain.ActorInCloseRange(akActor)
+    else
+        return false
+    endif
 EndFunction
 
 ;///////////////////////////////////////
@@ -956,33 +961,40 @@ Function SetMessageAlias(Actor akActor1,Actor akActor2 = none,zadequipscript arD
     endif
 EndFunction
 
-Bool Property UD_CurrentNPCMenuIsFollower = False auto conditional hidden
-Bool Property UD_CurrentNPCMenuIsRegistered = False auto conditional hidden
-Bool Property UD_CurrentNPCMenuTargetIsHelpless = False auto conditional hidden
-Bool Property UD_CurrentNPCMenuTargetIsInMinigame = False auto conditional hidden
+Bool Property UD_CurrentNPCMenuIsFollower           = False auto conditional hidden
+Bool Property UD_CurrentNPCMenuIsRegistered         = False auto conditional hidden
+Bool Property UD_CurrentNPCMenuIsPersistent         = False auto conditional hidden
+Bool Property UD_CurrentNPCMenuTargetIsHelpless     = False auto conditional hidden
+Bool Property UD_CurrentNPCMenuTargetIsInMinigame   = False auto conditional hidden
 Function NPCMenu(Actor akActor)
     SetMessageAlias(akActor)
-    UD_CurrentNPCMenuIsFollower = ActorIsFollower(akActor)
-    UD_CurrentNPCMenuIsRegistered = isRegistered(akActor)
-    UD_CurrentNPCMenuTargetIsHelpless = (!actorFreeHands(akActor) || akActor.getAV("paralysis") || akActor.GetSleepState() == 3) && actorFreeHands(UDmain.Player)
+    UD_CurrentNPCMenuIsFollower         = ActorIsFollower(akActor)
+    UD_CurrentNPCMenuIsRegistered       = isRegistered(akActor)
+    UD_CurrentNPCMenuTargetIsHelpless   = (!actorFreeHands(akActor) || akActor.getAV("paralysis") || akActor.GetSleepState() == 3) && actorFreeHands(UDmain.Player)
     UD_CurrentNPCMenuTargetIsInMinigame = ActorInMinigame(akActor)
+    UD_CurrentNPCMenuIsPersistent       = StorageUtil.GetIntValue(akActor, "UD_ManualRegister", 0)
+
     int loc_res = NPCDebugMenuMsg.show()
     if loc_res == 0
         UDCD_NPCM.RegisterNPC(akActor,true)
     elseif loc_res == 1
         UDCD_NPCM.UnregisterNPC(akActor,true)
-    elseif loc_res == 2 ;Acces devices
+    elseif loc_res == 2
+        StorageUtil.SetIntValue(akActor, "UD_ManualRegister", 1)
+    elseif loc_res == 3
+        StorageUtil.SetIntValue(akActor, "UD_ManualRegister", 0)
+    elseif loc_res == 4 ;Acces devices
         HelpNPC(akActor,UDmain.Player,ActorIsFollower(akActor))
-    elseif loc_res == 3 ; get help
+    elseif loc_res == 5 ; get help
         HelpNPC(UDmain.Player,akActor,false)
-    elseif loc_res == 4
+    elseif loc_res == 6
         UndressArmor(akActor)
         akActor.UpdateWeight(0)
-    elseif loc_res == 5
-        DebugFunction(akActor)
-    elseif loc_res == 6
-        akActor.openInventory(True)
     elseif loc_res == 7
+        DebugFunction(akActor)
+    elseif loc_res == 8
+        akActor.openInventory(True)
+    elseif loc_res == 9
         if !StorageUtil.GetIntValue(akActor,"UDNPCMenu_SetDontMove",0)
             StorageUtil.SetIntValue(akActor,"UDNPCMenu_SetDontMove",1)
             akActor.setDontMove(true)
@@ -990,9 +1002,9 @@ Function NPCMenu(Actor akActor)
             StorageUtil.UnSetIntValue(akActor,"UDNPCMenu_SetDontMove")
             akActor.setDontMove(false)
         endif
-    elseif loc_res == 8
+    elseif loc_res == 10
         showActorDetails(akActor)
-    elseif loc_res == 9
+    elseif loc_res == 11
         getMinigameDevice(akActor).StopMinigame()
     else
         return
@@ -1034,15 +1046,15 @@ Function OpenHelpDeviceMenu(UD_CustomDevice_RenderScript device,Actor akHelper,b
         else
             loc_arrcontrol = new bool[30]
             ;tying and repairing doesn't sound like helping
-            loc_arrcontrol[06] = true
-            loc_arrcontrol[07] = true
+            ;allow for now, will have to add some switch later which will determinate if player can be dick to NPC or not
+            ;loc_arrcontrol[06] = true
+            ;loc_arrcontrol[07] = true
         endif
 
         loc_arrcontrol[14] = !bAllowCommand
         device.deviceMenuWH(akHelper,loc_arrcontrol)
     endif
 EndFunction
-
 
 float Function CalculateHelperCD(Actor akActor,Int iLevel = 0)
     if iLevel <= 0
@@ -1117,29 +1129,36 @@ Function PlayerMenu()
 EndFunction
 
 Function UndressArmor(Actor akActor)
-    Form[] loc_armors
-    String[] loc_armorsnames
-    int loc_mask = 0x00000001
-    while loc_mask != 0x00004000
-        Form loc_armor = akActor.GetWornForm(loc_mask)
-        if loc_armor
-            if !loc_armor.haskeyword(libs.zad_Lockable) && !loc_armor.HasKeyWordString("SexLabNoStrip")
-                if !loc_armors || !PapyrusUtil.CountForm(loc_armors,loc_armor)
-                    loc_armors = PapyrusUtil.PushForm(loc_armors,loc_armor)
-                    loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,loc_armor.getName())
+    while True
+        Form[] loc_armors
+        String[] loc_armorsnames
+        int loc_mask = 0x00000001
+        while loc_mask != 0x80000000
+            Armor loc_armor = akActor.GetWornForm(loc_mask) as Armor
+            if loc_armor && loc_armor.GetName()
+                if !loc_armor.haskeyword(libs.zad_Lockable) && !loc_armor.HasKeyWordString("SexLabNoStrip")
+                    if !loc_armors || !PapyrusUtil.CountForm(loc_armors,loc_armor)
+                        loc_armors = PapyrusUtil.PushForm(loc_armors,loc_armor)
+                        loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,loc_armor.getName())
+                    endif
                 endif
             endif
+            loc_mask = Math.LeftShift(loc_mask,1)
+        endwhile
+        loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--ALL--")
+        loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--BACK--")
+        int loc_res = GetUserListInput(loc_armorsnames)
+        if loc_res == (loc_armorsnames.length - 2)
+            libs.strip(akActor,false)
+        elseif loc_res < (loc_armorsnames.length - 2) && loc_res >= 0
+            akActor.unequipItem(loc_armors[loc_res], abSilent = true)
+        else
+            return ;exit undress menu
         endif
-        loc_mask = Math.LeftShift(loc_mask,1)
+        loc_armors = Utility.CreateFormArray(0)
+        loc_armorsnames = Utility.CreateStringArray(0)
+        Utility.wait(0.05)
     endwhile
-    loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--ALL--")
-    loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--BACK--")
-    int loc_res = GetUserListInput(loc_armorsnames)
-    if loc_res == (loc_armorsnames.length - 2)
-        libs.strip(akActor,false)
-    elseif loc_res < (loc_armorsnames.length - 2) && loc_res >= 0
-        akActor.unequipItem(loc_armors[loc_res], abSilent = true)
-    endif
 EndFunction
 
 Function UndressAllArmor(Actor akActor)
@@ -1192,6 +1211,32 @@ bool Function CheckRenderDeviceEquipped(Actor akActor, Armor rendDevice)
     return false ;device is not equipped
 EndFunction
 
+;returns conflicting device, should be only used after equipitem function fails
+Armor Function GetConflictDevice(Actor akActor, Armor rendDevice)
+    if !akActor
+        return none
+    endif
+    int loc_mask = 0x00000001
+    int loc_devicemask = rendDevice.GetSlotMask()
+    while loc_mask < 0x80000000
+        if loc_mask > loc_devicemask
+            return none
+        endif
+        if Math.LogicalAnd(loc_mask,loc_devicemask)
+            Armor loc_armor = akActor.GetWornForm(loc_mask) as Armor
+            if loc_armor ;check if there is anything in slot
+                if loc_armor == rendDevice
+                    return none ;render device is equipped
+                else
+                    return loc_armor ;;render device is unequipped
+                endif
+            endif
+        endif
+        loc_mask = Math.LeftShift(loc_mask,1)
+    endwhile
+    return none ;device is not equipped
+EndFunction
+
 ;function made as replacemant for akActor.isEquipped, because that function doesn't work for NPCs
 int Function CheckRenderDeviceConflict(Actor akActor, Armor rendDevice)
     if !akActor
@@ -1225,16 +1270,22 @@ Message Property UD_ActorDetailsOptions auto
 Function showActorDetails(Actor akActor)
     while True
         Int loc_option = UD_ActorDetailsOptions.Show()
-        Utility.wait(0.01)
+        if !UDmain.IsContainerMenuOpen() && !UDmain.IsInventoryMenuOpen()
+            Utility.wait(0.01)
+        endif
         if loc_option == 0 ;base details
             String loc_res = "--BASE DETAILS--\n"
             loc_res += "Name: " + akActor.GetLeveledActorBase().GetName() + "\n"
+            Race loc_race = akActor.getActorBase().GetRace()
             loc_res += "Race: " + loc_race.GetName() + "\n"
             loc_res += "LVL: " + akActor.GetLevel() + "\n"
             loc_res += "HP: " + formatString(akActor.getAV("Health"),1) + "/" +  formatString(getMaxActorValue(akActor,"Health"),1) + " ("+ Round(getCurrentActorValuePerc(akActor,"Health")*100) +" %)" +"\n"
             loc_res += "MP: " + formatString(akActor.getAV("Magicka"),1) + "/" + formatString(getMaxActorValue(akActor,"Magicka"),1) + " ( "+ Round(getCurrentActorValuePerc(akActor,"Magicka")*100) +" %)" +"\n"
             loc_res += "SP: " + formatString(akActor.getAV("Stamina"),1) + "/" +  formatString(getMaxActorValue(akActor,"Stamina"),1) + " ("+ Round(getCurrentActorValuePerc(akActor,"Stamina")*100) +" %)" +"\n"
-            Race loc_race = akActor.getActorBase().GetRace()
+            if UDmain.UDAI.Enabled && !UDmain.ActorIsPlayer(akActor)
+                loc_res += "Motivation: " + getMotivation(akActor) + "\n"
+                loc_res += "AI Cooldown: " + iUnsig(GetAIRemainingCooldown(akActor)) + " min\n"
+            endif
             loc_res += "Arousal: " + UDOM.getArousal(akActor) + "\n"
             loc_res += "Orgasm progress: " + formatString(UDOM.getOrgasmProgressPerc(akActor) * 100,2) + " %\n"
             ShowMessageBox(loc_res)
@@ -1263,6 +1314,8 @@ Function showActorDetails(Actor akActor)
         elseif loc_option == 2 ;arousal/orgasm details
             string loc_orgStr = ""
             loc_orgStr += "--ORGASM DETAILS--\n"
+            loc_orgStr += "State: " + UDOM.GetHornyLevelString(akActor) + "\n"
+            loc_orgStr += "Horny progress: " + Round(UDOM.GetRelativeHornyProgress(akActor)*100.0) + " %\n"
             loc_orgStr += "Active vibrators: " + GetActivatedVibrators(akActor) + "(S="+StorageUtil.GetIntValue(akActor,"UD_ActiveVib_Strength",0)+")" + "\n"
             loc_orgStr += "Arousal: " + UDOM.getArousal(akActor) + "\n"
             loc_orgStr += "Arousal Rate(M): " + Math.Ceiling(UDOM.getArousalRateM(akActor)) + "\n"
@@ -1292,7 +1345,9 @@ Function showActorDetails(Actor akActor)
         else
             return
         endif
-        Utility.wait(0.01)
+        if !UDmain.IsContainerMenuOpen() && !UDmain.IsInventoryMenuOpen()
+            Utility.wait(0.01)
+        endif
     endwhile
 EndFunction
 
@@ -1306,10 +1361,10 @@ string Function GetHelperDetails(Actor akActor)
     loc_res += "Helper LVL: " + GetHelperLVL(akActor) +"("+Round(GetHelperLVLProgress(akActor)*100)+"%)" + "\n"
     loc_res += "Base Cooldown: " + Round(CalculateHelperCD(akActor)*24*60) + " min\n"
     float loc_currenttime = Utility.GetCurrentGameTime()
-    float loc_cooldowntimeHP = StorageUtil.GetFloatValue(akActor,"UDNPCCD:"+UDmain.Player,loc_currenttime)
-    float loc_cooldowntimePH = StorageUtil.GetFloatValue(UDmain.Player,"UDNPCCD:"+akActor,loc_currenttime)
-    loc_res += "Avaible in (H->P): " + ToUnsig(Round(((loc_cooldowntimeHP - loc_currenttime)*24*60))) + " min\n"
-    loc_res += "Avaible in (P->H): " + ToUnsig(Round(((loc_cooldowntimePH - loc_currenttime)*24*60))) + " min\n"
+    float loc_cooldowntimeHP = StorageUtil.GetFloatValue(akActor,"UDNPCCD:"+UDmain.Player,0)
+    float loc_cooldowntimePH = StorageUtil.GetFloatValue(UDmain.Player,"UDNPCCD:"+akActor,0)
+    loc_res += "Avaible in (H->P): " + iUnsig(Round(((loc_cooldowntimeHP - loc_currenttime)*24*60))) + " min\n"
+    loc_res += "Avaible in (P->H): " + iUnsig(Round(((loc_cooldowntimePH - loc_currenttime)*24*60))) + " min\n"
     return loc_res
 EndFunction
 

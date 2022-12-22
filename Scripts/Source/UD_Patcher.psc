@@ -58,7 +58,7 @@ EndFunction
 Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
     Float loc_currentmult = UD_PatchMult_HeavyBondage*UD_PatchMult*GetPatchDifficulty(device)
     ;device.UD_LockpickDifficulty = 25
-    CheckLocks(device,true,50)
+    ;CheckLocks(device,true,50)
     device.UD_LockAccessDifficulty = 100.0
     device.UD_CutChance = 0.0
 
@@ -78,57 +78,49 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
     if device.deviceRendered.hasKeyword(libs.zad_DeviousArmbinder)
         device.UD_durability_damage_base = fRange(Utility.randomFloat(0.7,1.0)/loc_currentmult,0.05,100.0)
         device.UD_CutChance = fRange(Utility.randomFloat(5.0,10.0)/loc_currentmult,1.0,50.0)
-        ;device.UD_Locks = UDCDmain.Round(2*loc_currentmult)
         if isSteel(device)
-            ;device.UD_Locks = UDCDmain.Round(6*loc_currentmult)
-            ;device.UD_LockpickDifficulty = UDCDmain.Round(50*loc_currentmult) ;Adept
             device.UD_LockAccessDifficulty = 85
             device.UD_CutChance = 0
-            ;loc_control = Math.LogicalAnd(loc_control,0x03)
         endif
+        CheckLocks(device,true,25)
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousArmbinderElbow)
         device.UD_durability_damage_base = fRange(Utility.randomFloat(0.65,0.8)/loc_currentmult,0.05,100.0)
         device.UD_CutChance = fRange(Utility.randomFloat(3.0,8.0)/loc_currentmult,1.0,50.0)
-        ;device.UD_Locks = UDCDmain.Round(2*loc_currentmult)
         if isSteel(device)
-            ;device.UD_Locks = UDCDmain.Round(6*loc_currentmult)
-            ;device.UD_LockpickDifficulty = UDCDmain.Round(50*loc_currentmult) ;Adept
             device.UD_LockAccessDifficulty = 85
             device.UD_CutChance = 0
-            ;loc_control = Math.LogicalAnd(loc_control,0x03)
-        endif        
+        endif
+        CheckLocks(device,true,25)
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousStraitJacket)
         device.UD_durability_damage_base = fRange(Utility.randomFloat(0.7,0.9)/loc_currentmult,0.05,100.0)
         device.UD_CutChance = fRange(Utility.randomFloat(2.0,8.0)/loc_currentmult,1.0,50.0)
-        ;device.UD_Locks = UDCDmain.Round(6*loc_currentmult)
         sentientModChance = 75
         if isSteel(device)
-            ;device.UD_Locks += UDCDmain.Round(6*loc_currentmult)
-            ;device.UD_LockpickDifficulty = UDCDmain.Round(50*loc_currentmult) ;Adept
             device.UD_LockAccessDifficulty = 85
             device.UD_CutChance = 0
-            ;loc_control = Math.LogicalAnd(loc_control,0x03)
         endif
+        CheckLocks(device,true,25)
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousCuffsFront)
         device.UD_durability_damage_base = fRange(Utility.randomFloat(0.3,0.8)/loc_currentmult,0.05,100.0)
-        ;device.UD_Locks = UDCDmain.Round(6*loc_currentmult)
+        CheckLocks(device,true,0)
         device.UD_LockAccessDifficulty = iRange(Round(Utility.randomInt(70,80)*loc_currentmult),0,95)
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousYoke) || device.deviceRendered.hasKeyword(libs.zad_DeviousYokeBB)
         device.UD_durability_damage_base = fRange(Utility.randomFloat(0.1,0.25)/loc_currentmult,0.05,100.0)
-        ;device.UD_Locks =  UDCDmain.Round(4*loc_currentmult)
+        CheckLocks(device,true,0)
         device.UD_LockAccessDifficulty = iRange(Round(Utility.randomInt(75,90)*loc_currentmult),0,95)
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousElbowTie)
         device.UD_durability_damage_base = Utility.randomFloat(0.05,0.1)
-        ;device.UD_Locks = UDCDmain.Round(1*loc_currentmult)
-        ;device.UD_LockpickDifficulty = 100
+        CheckLocks(device,true,0)
         device.UD_StruggleCritChance = Utility.randomInt(3,5)
         device.UD_StruggleCritMul = Utility.randomFloat(150.0,255.0)
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousPetSuit)
         device.UD_durability_damage_base = fRange(Utility.randomFloat(0.9,1.4)/loc_currentmult,0.05,100.0)
-        ;device.UD_Locks = UDCDmain.Round(4*loc_currentmult)
+        CheckLocks(device,true,25)
         device.UD_LockAccessDifficulty = iRange(Round(Utility.randomInt(60,80)*loc_currentmult),0,95)
         device.UD_CutChance = fRange(Utility.randomFloat(2.0,5.0)/loc_currentmult,1.0,50.0)
         sentientModChance = 75
+    else
+        CheckLocks(device,true,50)
     endif
     
     ;materials

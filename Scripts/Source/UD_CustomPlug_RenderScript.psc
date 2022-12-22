@@ -39,9 +39,9 @@ Function onDeviceMenuInitPostWH(bool[] aControlFilter)
     endif
 EndFunction
 
-bool Function struggleMinigame(int type = -1)
+bool Function struggleMinigame(int type = -1, Bool abSilent = False)
     if isSentient() || !WearerFreeHands(True)
-        forceOutPlugMinigame()
+        return forceOutPlugMinigame(abSilent)
     else
         unlockRestrain()
         if WearerIsPlayer()
@@ -55,7 +55,7 @@ EndFunction
 
 bool Function struggleMinigameWH(Actor akSource)
     if isSentient() || !WearerFreeHands(True)
-        forceOutPlugMinigameWH(akSource)
+        return forceOutPlugMinigameWH(akSource)
     else
         unlockRestrain()
         if WearerIsPlayer()
@@ -115,7 +115,10 @@ EndFunction
 
 
 bool forceOutPlugMinigame_on = false
-Function forceOutPlugMinigame()
+bool Function forceOutPlugMinigame(Bool abSilent = False)
+    if !minigamePrecheck(abSilent)
+        return False
+    endif
     resetMinigameValues()
     
     setMinigameOffensiveVar(False,0.0,0.0,True)
@@ -125,12 +128,20 @@ Function forceOutPlugMinigame()
     setMinigameMinStats(0.8)
     setMinigameDmgMult(getAccesibility())
     
-    forceOutPlugMinigame_on = True
-    minigame()
-    forceOutPlugMinigame_on = False
+    if minigamePostcheck(abSilent)
+        forceOutPlugMinigame_on = True
+        minigame()
+        forceOutPlugMinigame_on = False
+        return true
+    endif
+    return false
 EndFunction
 
-Function forceOutPlugMinigameWH(Actor akHelper)
+Bool Function forceOutPlugMinigameWH(Actor akHelper,Bool abSilent = False)
+    if !minigamePrecheck(abSilent)
+        return False
+    endif
+
     resetMinigameValues()
     
     setHelper(akHelper)
@@ -143,11 +154,15 @@ Function forceOutPlugMinigameWH(Actor akHelper)
     setMinigameWidgetVar(True)
     setMinigameMinStats(0.8)
     
-    forceOutPlugMinigame_on = True
-    minigame()
-    forceOutPlugMinigame_on = False
-    
+    if minigamePostcheck(abSilent)
+        forceOutPlugMinigame_on = True
+        minigame()
+        forceOutPlugMinigame_on = False
+        setHelper(none)
+        return true
+    endif
     setHelper(none)
+    return false
 EndFunction
 
 Function updateWidget(bool force = false)

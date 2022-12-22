@@ -24,6 +24,13 @@ UD_UserInputScript Property UDUI
     EndFunction
 EndProperty
 
+
+UD_NPCInteligence Property UDAI
+    UD_NPCInteligence Function Get()
+        return UDmain.UDAI
+    EndFunction
+EndProperty
+
 int max_difficulty_S
 int overaldifficulty_S ;0-3 where 3 is same as in MDS
 int eventchancemod_S
@@ -116,19 +123,22 @@ int Function FlagSwitch(bool bVal)
     endif
 EndFunction
 
+String Property UD_NPCsPageName = "NPCs Config" auto
+
 Function LoadConfigPages()
-    pages = new String[11]
+    pages = new String[12]
     pages[0] = "General"
     pages[1] = "Device filter"
     pages[2] = "Custom devices"
     pages[3] = "Custom orgasm"
-    pages[4] = "Patcher"
-    pages[5] = "DD Patch"
-    pages[6] = "Abadon Plug"
-    pages[7] = "UI/Widgets"
-    pages[8] = "Animations"
-    pages[9] = "Debug panel"
-    pages[10] = "Other"
+    pages[4] = UD_NPCsPageName
+    pages[5] = "Patcher"
+    pages[6] = "DD Patch"
+    pages[7] = "Abadon Plug"
+    pages[8] = "UI/Widgets"
+    pages[9] = "Animations"
+    pages[10] = "Debug panel"
+    pages[11] = "Other"
 EndFunction
 
 bool Property Ready = False Auto
@@ -224,6 +234,8 @@ Event OnPageReset(string page)
         resetAbadonPage()
     elseif (page == "Custom Devices")
         resetCustomBondagePage()
+    elseif (page == UD_NPCsPageName)
+        ResetNPCsPage()
     elseif (page == "Custom orgasm")
         resetCustomOrgasmPage()
     elseif (page == "Patcher")
@@ -292,7 +304,6 @@ Int UD_PrintLevel_S
 Int UD_LockDebugMCM_T
 Int UD_GamepadKey_K
 int UD_EasyGamepadMode_T
-
 Event resetGeneralPage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -311,8 +322,9 @@ Event resetGeneralPage()
     
     AddHeaderOption("General settings")
     addEmptyOption()
+    
     UD_hightPerformance_T   = addToggleOption("High performance mod",UDmain.UD_hightPerformance)
-    UD_NPCSupport_T         = addToggleOption("NPC Auto Scan",UDmain.AllowNPCSupport)
+    addEmptyOption()
     
     UD_HearingRange_S       = addSliderOption("Message range:",UDmain.UD_HearingRange,"{0}")
     UD_PrintLevel_S         = addSliderOption("Message level",UDmain.UD_PrintLevel, "{0}")
@@ -330,7 +342,6 @@ Event resetGeneralPage()
 EndEvent
 
 int UD_RandomFilter_T ; leaving this just in case
-
 int UD_UseArmCuffs_T
 int UD_UseBelts_T
 int UD_UseBlindfolds_T
@@ -349,7 +360,6 @@ int UD_UsePiercingsVaginal_T
 int UD_UsePlugsAnal_T
 int UD_UsePlugsVaginal_T
 int UD_UseSuits_T
-
 Event resetFilterPage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -409,15 +419,12 @@ int UD_CritEffect_M
 int UD_HardcoreMode_T
 int UD_AllowArmTie_T
 int UD_AllowLegTie_T
-
 Int UD_MinigameHelpCd_S
 Int UD_MinigameHelpCD_PerLVL_S
 Int UD_MinigameHelpXPBase_S
-
 Int UD_DeviceLvlHealth_S
 Int UD_DeviceLvlLockpick_S
 Int UD_DeviceLvlLocks_S
-
 Int UD_PreventMasterLock_T
 Int UD_MandatoryCrit_T
 Int UD_CritDurationAdjust_S
@@ -517,18 +524,13 @@ EndEvent
 
 int UD_OrgasmUpdateTime_S
 int UD_OrgasmAnimation_M
-
 int UD_UseOrgasmWidget_T
-
 int UD_HornyAnimation_T
 int UD_Horny_f
 int UD_HornyAnimationDuration_S
-
 int UD_OrgasmResistence_S
-
 int UD_VibrationMultiplier_S
 int UD_ArousalMultiplier_S
-
 int UD_OrgasmArousalReduce_S
 int UD_OrgasmArousalReduceDuration_S
 
@@ -559,6 +561,27 @@ Event resetCustomOrgasmPage()
     UD_ArousalMultiplier_S      = addSliderOption("Arousal multiplier: ",UDCDmain.UD_ArousalMultiplier, "{3}",UD_LockMenu_flag)
 EndEvent
 
+Int UD_AIEnable_T
+Int UD_AIUpdateTime_S
+Int UD_AICooldown_S
+Event resetNPCsPage()
+    UpdateLockMenuFlag()
+    setCursorFillMode(LEFT_TO_RIGHT)
+    
+    AddHeaderOption("NPCs Inteligence")
+    addEmptyOption()
+    
+    UD_AIEnable_T = addToggleOption("Enabled", UDAI.Enabled)
+    addEmptyOption()
+    
+    UD_AIUpdateTime_S   = addSliderOption("Update time: ",UDAI.UD_UpdateTime, "{0} s",      FlagSwitchOr(UD_LockMenu_flag,FlagSwitch(UDAI.Enabled)))
+    UD_AICooldown_S     = addSliderOption("Base Cooldown",UDAI.UD_AICooldown, "{0} min",    FlagSwitchOr(UD_LockMenu_flag,FlagSwitch(UDAI.Enabled)))
+    
+    AddHeaderOption("Autoscan")
+    addEmptyOption()
+    
+    UD_NPCSupport_T         = addToggleOption("NPC Auto Scan",UDmain.AllowNPCSupport)
+EndEvent
 
 Int UD_MAOChanceMod_S
 int UD_MAOMod_S
@@ -975,10 +998,8 @@ int endAnimation_T
 int actorIndex = 5
 int unregisterNPC_T
 int GlobalUpdateNPC_T
-
 int OrgasmResist_S
 int OrgasmCapacity_S
-
 Event resetDebugPage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -1119,6 +1140,7 @@ event OnOptionSelect(int option)
     OptionSelectFilter(option)
     OptionCustomBondage(option)
     OptionCustomOrgasm(option)
+    OptionSelectNPCs(option)
     OptionDDPatch(option)
     OptionSelectAbadon(option)
     OptionSelectUiWidget(option)
@@ -1137,9 +1159,6 @@ Function OptionSelectGeneral(int option)
     elseif (option == UD_debugmod_T)
         UDmain.debugmod = !UDmain.debugmod
         SetToggleOptionValue(UD_debugmod_T, UDmain.debugmod)
-    elseif option == UD_NPCSupport_T
-        UDmain.AllowNPCSupport = !UDmain.AllowNPCSupport
-        SetToggleOptionValue(UD_NPCSupport_T, UDmain.AllowNPCSupport)    
     elseif option == UD_WarningAllowed_T
         UDmain.UD_WarningAllowed = !UDmain.UD_WarningAllowed
         SetToggleOptionValue(UD_WarningAllowed_T, UDmain.UD_WarningAllowed)  
@@ -1299,6 +1318,17 @@ Function OptionCustomOrgasm(int option)
             UD_Horny_f = OPTION_FLAG_DISABLED
         endif
         forcePageReset()
+    endif
+EndFunction
+
+Function OptionSelectNPCs(int option)
+    if(option == UD_AIEnable_T)
+        UDAI.Enabled = !UDAI.Enabled
+        SetToggleOptionValue(UD_AIEnable_T, UDAI.Enabled)
+        forcePageReset()
+    elseif option == UD_NPCSupport_T
+        UDmain.AllowNPCSupport = !UDmain.AllowNPCSupport
+        SetToggleOptionValue(UD_NPCSupport_T, UDmain.AllowNPCSupport)
     endif
 EndFunction
 
@@ -1553,6 +1583,7 @@ event OnOptionSliderOpen(int option)
     OnOptionSliderOpenGeneral(option)
     OnOptionSliderOpenCustomBondage(option)
     OnOptionSliderOpenCustomOrgasm(option)
+    OnOptionSliderOpenNPCs(option)
     OnOptionSliderOpenPatcher(option)
     OnOptionSliderOpenAbadon(option)
     OnOptionSliderOpenDebug(option)
@@ -1688,6 +1719,20 @@ Function OnOptionSliderOpenCustomOrgasm(int option)
         SetSliderDialogDefaultValue(1.0)
         SetSliderDialogRange(1.0, 30.0)
         SetSliderDialogInterval(1.0)
+    endIf
+EndFunction
+
+Function OnOptionSliderOpenNPCs(int option)
+    if (option == UD_AIUpdateTime_S)
+        SetSliderDialogStartValue(UDAI.UD_UpdateTime)
+        SetSliderDialogDefaultValue(10.0)
+        SetSliderDialogRange(1.0, 30.0)
+        SetSliderDialogInterval(1.0)
+    elseif option == UD_AICooldown_S
+        SetSliderDialogStartValue(UDAI.UD_AICooldown)
+        SetSliderDialogDefaultValue(30.0)
+        SetSliderDialogRange(5.0, 120.0)
+        SetSliderDialogInterval(5.0)
     endIf
 EndFunction
 
@@ -1853,6 +1898,7 @@ event OnOptionSliderAccept(int option, float value)
     OnOptionSliderAcceptGeneral(option,value)
     OnOptionSliderAcceptCustomBondage(option, value)
     OnOptionSliderAcceptCustomOrgasm(option, value)
+    OnOptionSliderAcceptNPCs(option, value)
     OnOptionSliderAcceptPatcher(option, value)
     OnOptionSliderAcceptAbadon(option, value)
     OnOptionSliderAcceptDebug(option,value)
@@ -1943,6 +1989,16 @@ Function OnOptionSliderAcceptCustomOrgasm(int option, float value)
     elseif option == UD_OrgasmArousalReduceDuration_S
         UDOM.UD_OrgasmArousalReduceDuration = Round(value)
         SetSliderOptionValue(UD_OrgasmArousalReduceDuration_S, UDOM.UD_OrgasmArousalReduceDuration, "{0} s")
+    endIf
+EndFunction
+
+Function OnOptionSliderAcceptNPCs(int option, float value)
+    if (option == UD_AIUpdateTime_S)
+        UDAI.UD_UpdateTime = Round(value)
+        SetSliderOptionValue(UD_AIUpdateTime_S, UDAI.UD_UpdateTime, "{0} s")
+    elseif option == UD_AICooldown_S
+        UDAI.UD_AICooldown = Round(value)
+        SetSliderOptionValue(UD_AICooldown_S, UDAI.UD_AICooldown, "{0} min")
     endIf
 EndFunction
 
@@ -2314,6 +2370,8 @@ Event OnOptionDefault(int option)
         ;CustomBondagePageDefault(option) ;TODO. Will winish later, as doing this is pain in the ass
     elseif (_lastPage == "Custom orgasm")
         ;CustomOrgasmPageDefault(option) ;TODO. Will winish later, as doing this is pain in the ass
+    elseif (_lastPage == UD_NPCsPageName)
+        NPCsPageDefault(option)
     elseif (_lastPage == "Patcher")
         ;PatcherPageDefault(option) ;TODO. Will winish later, as doing this is pain in the ass
     elseif (_lastPage == "DD patch")
@@ -2350,9 +2408,6 @@ Function GeneralPageDefault(int option)
     elseif(option == UD_debugmod_T)
         UDmain.DebugMod = false
         SetToggleOptionValue(UD_debugmod_T, UDmain.DebugMod)
-    elseif (option == UD_NPCSupport_T)
-        UDmain.AllowNPCSupport = false
-        SetToggleOptionValue(UD_NPCSupport_T, UDmain.AllowNPCSupport)
     elseif option == UD_HearingRange_S
         UDmain.UD_HearingRange = 4000
         SetSliderOptionValue(UD_HearingRange_S, UDmain.UD_HearingRange)
@@ -2518,6 +2573,22 @@ Function CustomOrgasmPageDefault(int option)
     Endif
 EndFunction
 
+Function NPCsPageDefault(int option)
+    if option == UD_AIEnable_T
+        UDAI.Enabled = True
+        SetToggleOptionValue(UD_AIEnable_T, UDAI.Enabled)
+    elseif     option == UD_AIUpdateTime_S
+        UDAI.UD_UpdateTime = 10
+        SetSliderOptionValue(UD_AIUpdateTime_S, UDAI.UD_UpdateTime)
+    elseif option == UD_AICooldown_S
+        UDAI.UD_AICooldown = 30
+        SetSliderOptionValue(UD_AICooldown_S, UDAI.UD_AICooldown)
+    elseif (option == UD_NPCSupport_T)
+        UDmain.AllowNPCSupport = false
+        SetToggleOptionValue(UD_NPCSupport_T, UDmain.AllowNPCSupport)
+    Endif
+EndFunction
+
 Function PatcherPageDefault(int option)
     if  option == UD_PatchMult_S
         SetInfoText("Sets patching multiplier. The more this value the harder will be patched devices.\nDefault: 100%")
@@ -2628,6 +2699,8 @@ Event OnOptionHighlight(int option)
          CustomBondagePageInfo(option)
     elseif (_lastPage == "Custom orgasm")
         CustomOrgasmPageInfo(option)
+    elseif (_lastPage == UD_NPCsPageName)
+        NPCsPageInfo(option)
     elseif (_lastPage == "Patcher")
         PatcherPageInfo(option)
     elseif (_lastPage == "DD patch")
@@ -2654,8 +2727,6 @@ Function GeneralPageInfo(int option)
         SetInfoText("High performance mod will decrease update time. This will make struggle game more smooth and also less buggy.")
     elseif(option == UD_debugmod_T)
         SetInfoText("Toggle debug mod. Debug mod shows more information for devices from this mod.")
-    elseif (option == UD_NPCSupport_T)
-        SetInfoText("Toggle automatic scanning")
     elseif option == UD_HearingRange_S
         SetInfoText("Actor needs to be in this range from player so user receives actor specific messages (like that some device starts vibratin, other do something else etc...)\n Default: 4000\n(4000 is around the distance of one big hallway. 500 is next to player.)")
     elseif option == UD_WarningAllowed_T
@@ -2802,6 +2873,18 @@ Function CustomOrgasmPageInfo(int option)
         SetInfoText("Duration of post-orgasm effect\nDefault: 7 seconds")
     elseif(option == UD_OrgasmExhaustion_T)
         SetInfoText("Adds debuff to player on orgasm. This debuff reduces stamina and magicka regeneration for short time. This effect is applied as on DD orgasm as on Sexlab scene orgasm.")
+    Endif
+EndFunction
+
+Function NPCsPageInfo(int option)
+    if (option == UD_NPCSupport_T)
+        SetInfoText("Toogle automatic scaning\nDefault: OFF")
+    elseif option == UD_AIEnable_T
+        SetInfoText("Enable/Disable NPCs AI. When enabled, NPCs will try to escape the devices on their own. Only applies for registered NPCs\n Default: ON")
+    elseif option == UD_AIUpdateTime_S
+        SetInfoText("How offten will slotted NPCs AI be checked. Default value should be sufficient\n Default: 10 s")
+    elseif option == UD_AICooldown_S
+        SetInfoText("Base cooldown for NPC Ai. AI can only try to escape device on this time have passed (in-game time). This value is further affected by motivation of NPC\n Default: 30 minutes") 
     Endif
 EndFunction
 

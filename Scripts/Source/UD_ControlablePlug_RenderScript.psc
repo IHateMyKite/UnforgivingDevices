@@ -111,8 +111,8 @@ Function removeDevice(actor akActor)
 EndFunction
 
 bool turnOffPlugMinigame_on = false
-bool Function turnOffPlugMinigame()
-    if !minigamePrecheck()
+bool Function turnOffPlugMinigame(Bool abSilent = False)
+    if !minigamePrecheck(abSilent)
         return false
     endif
     resetMinigameValues()
@@ -135,7 +135,7 @@ bool Function turnOffPlugMinigame()
     endif
     ;setMinigameMult(1,mult*UD_DischargeRate)
     
-    if minigamePostCheck()
+    if minigamePostCheck(abSilent)
         turnOffPlugMinigame_on = True
         minigame()
         turnOffPlugMinigame_on = False
