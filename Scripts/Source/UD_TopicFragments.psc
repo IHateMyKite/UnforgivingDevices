@@ -199,7 +199,7 @@ EndFunction
 Function LockRandomHandRestrain(ObjectReference akSpeakerRef)
     UDCDmain.UDmain.UDRRM.LockRandomRestrain(Game.GetPlayer(),false,0x00000010) ;lock hand restrain
     UDCDmain.UDmain.UDRRM.LockAnyRandomRestrain(Game.GetPlayer(),Utility.randomInt(3,8),false) ;lock other random devices
-    Debug.Messagebox(GetActorName(akSpeakerRef as Actor) + " didn't like your attitude and locked you in variaty of devices to teach you a lesson.")
+    Debug.Messagebox(GetActorName(akSpeakerRef as Actor) + " didn't liked your attitude and locked you in variety of devices to teach you a lesson.")
     ResetCooldownNoXP(akSpeakerRef)
 EndFunction
 
