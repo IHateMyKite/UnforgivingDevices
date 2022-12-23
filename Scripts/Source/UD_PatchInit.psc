@@ -1,5 +1,8 @@
 Scriptname UD_PatchInit extends Quest
 
+import unforgivingDevicesMain
+
+String      Property UD_PatchSource     = "error"           auto
 String      Property UD_PatchName       = "UnNamedPatch"    auto
 Formlist    Property KeywordFormList                        auto
 Keyword[]   Property QuestKeywords                          auto
@@ -79,6 +82,7 @@ String  Property UD_CustomAbadonSuitName_5      = "UnNamedSuit"     auto
 
 Event onInit()
     Utility.wait(Utility.randomFloat(1.0,4.0))
+    ProcessLists()
     Update()
     RegisterForModEvent("UD_PatchUpdate", "UpdateEvent")
     UpdateSuit()
@@ -110,6 +114,25 @@ Event EquipSuitEvent(Form kActor,String asEvent)
 EndEvent
 
 Function Update()
+    ;validate patch
+    CheckPatchInstalled()
+EndFunction
+
+Function CheckPatchInstalled()
+    if UD_PatchSource != "error"
+        if !ModInstalled(UD_PatchSource)
+            WaitRandomTime(0.5,1.5)
+            debug.messagebox("--!ERROR!--\nUD detected that patch "+ UD_PatchSource +" is not installed, but script is still present!")
+            return
+        endif
+        if !ModInstalledAfterUD(UD_PatchSource)
+            WaitRandomTime(0.5,1.5)
+            debug.messagebox("--!ERROR!--\nUD detected that patch "+ UD_PatchSource +" is loaded before main mod! Patch always needs to be loaded after main mod or it will not work!!! Please change the load order, and reload save.")
+        endif
+    endif
+EndFunction
+
+Function ProcessLists()
     if !UDRRM
         UDRRM = UDmain.UDRRM
     endif

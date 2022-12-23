@@ -5,6 +5,10 @@ Function InitPost()
     UD_DeviceType = "Belt"
 EndFunction
 
+Int Function GetAiPriority()
+    return 35
+EndFunction
+
 Function patchDevice()
     UDCDmain.UDPatcher.patchBelt(self)
 EndFunction

@@ -86,25 +86,25 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
         UDmain.UDNPCM.GotoState("UpdatePaused")
         
         UD_CustomDevice_NPCSlot loc_slot = none
-        if _lastLockSlot && (_lastLockSlot.GetActor() == akActor)
-            loc_slot = _lastLockSlot
-        else
+        ;if _lastLockSlot && (_lastLockSlot.GetActor() == akActor)
+        ;    loc_slot = _lastLockSlot
+        ;else
             loc_slot = UDCDmain.getNPCSlot(akActor)
-        endif
+        ;endif
         UD_MutexScript          loc_mutex = none
         
         if loc_slot
             loc_slot.StartLockMutex()
         else
-            if _lastLockMutex && (_lastLockMutex.GetActor() == akActor)
-                loc_mutex = _lastLockMutex
-            else
+            ;if _lastLockMutex && (_lastLockMutex.GetActor() == akActor) && !_lastLockMutex.IsLockMutexed()
+            ;    loc_mutex = _lastLockMutex
+            ;else
                 loc_mutex = UDMM.WaitForFreeAndSet_Lock(akActor,deviceInventory)
-            endif
+            ;endif
         endif
         
-        _lastLockSlot  = loc_slot
-        _lastLockMutex = loc_mutex
+        ;_lastLockSlot  = loc_slot
+        ;_lastLockMutex = loc_mutex
         
         if UDmain.TraceAllowed()
             if loc_slot
@@ -327,9 +327,9 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
                 endif
                 
                 ;remove inventiory device if its detroy on remove
-                if destroyDevice
-                    akActor.RemoveItem(deviceInventory, 1, true)
-                EndIf
+                ;if destroyDevice
+                ;    akActor.RemoveItem(deviceInventory, 1, true)
+                ;EndIf
                 
                 loc_res = true          ;succes
             else

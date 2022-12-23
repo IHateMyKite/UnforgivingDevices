@@ -50,17 +50,23 @@ UD_ModifierManager_Script           Property UDMOM          auto
 UD_UserInputScript                  Property UDUI           auto
 UD_AnimationManagerScript           Property UDAM           auto
 UD_CompatibilityManager_Script      Property UDCM           auto
-UD_MenuChecker                      Property UDMC
-    UD_MenuChecker Function get()
+UD_NPCInteligence                   Property UDAI           auto
+UD_MenuChecker                      Property UDMC Hidden
+    UD_MenuChecker Function get() 
         return UD_UtilityQuest as UD_MenuChecker
     EndFunction
 EndProperty
-UD_WidgetControl                    Property UDWC
+UD_WidgetControl                    Property UDWC Hidden
     UD_WidgetControl Function get()
         return UD_UtilityQuest as UD_WidgetControl
     EndFunction
 EndProperty
-UD_SkillManager_Script              Property UDSKILL
+UD_GlobalVariables                  Property UDGV Hidden
+    UD_GlobalVariables Function get()
+        return UD_UtilityQuest as UD_GlobalVariables
+    EndFunction
+EndProperty
+UD_SkillManager_Script              Property UDSKILL Hidden
     UD_SkillManager_Script Function get()
         return (UDCDmain as Quest) as UD_SkillManager_Script
     EndFunction
@@ -93,15 +99,7 @@ bool    _UD_hightPerformance
 bool Property UD_hightPerformance
     Function set(bool bValue)
         _UD_hightPerformance = bValue
-        if _UD_hightPerformance 
-            UD_baseUpdateTime = UD_HightPerformanceTime
-            ;ItemManager.UD_WaitTime = 0.3
-        else
-            UD_baseUpdateTime = UD_LowPerformanceTime
-            ;ItemManager.UD_WaitTime = 0.8
-        endif
     EndFunction
-    
     bool Function get()
         return _UD_hightPerformance
     EndFunction
@@ -109,7 +107,20 @@ EndProperty
 
 float Property UD_LowPerformanceTime    = 1.0   autoreadonly
 float Property UD_HightPerformanceTime  = 0.25  autoreadonly
-float Property UD_baseUpdateTime                auto
+
+float Property UD_baseUpdateTime
+    Float Function Get()
+        if UDGV.UDG_CustomMinigameUpT.Value
+            return fRange(UDGV.UDG_CustomMinigameUpT.Value,0.01,10.0)
+        endif
+        if UD_hightPerformance
+            return UD_HightPerformanceTime
+        else
+            return UD_LowPerformanceTime
+        endif
+    EndFunction
+EndProperty
+
 zadConfig   Property DDconfig                   auto
 String[]    Property UD_OfficialPatches         auto
 
@@ -143,38 +154,38 @@ Event OnInit()
     While !UDlibs.ready
         Utility.waitMenuMode(0.25)
     EndWhile
-    if TraceAllowed()    
+    if TraceAllowed()
         Log("UDLibs ready!",0)
     endif
     While !UDCDmain.ready
         Utility.waitMenuMode(0.25)
     EndWhile
-    if TraceAllowed()    
+    if TraceAllowed()
         Log("UDCDmain ready!",0)
     endif
     While !config.ready
         Utility.waitMenuMode(0.25)
     EndWhile    
-    if TraceAllowed()    
+    if TraceAllowed()
         Log("config ready!",0)
     endif
     While !ItemManager.ready
         Utility.waitMenuMode(0.25)
     EndWhile        
-    if TraceAllowed()    
+    if TraceAllowed()
         Log("ItemManager ready!",0)
     endif
     While !UDLLP.ready
         Utility.waitMenuMode(0.25)
     endwhile
-    if TraceAllowed()    
+    if TraceAllowed()
         Log("UDLLP ready!",0)
     endif
 
     While !UDOM.ready
         Utility.WaitMenuMode(0.1)
     endwhile
-    if TraceAllowed()    
+    if TraceAllowed()
         Log("UDOM ready!",0)
     endif
     
@@ -183,17 +194,11 @@ Event OnInit()
     OrgasmExhaustionSpell = UDlibs.OrgasmExhaustionSpell
     OrgasmExhaustionSpell.SetNthEffectDuration(0, 180) ;for backward compatibility
 
-    if UD_hightPerformance
-        UD_baseUpdateTime = UD_HightPerformanceTime
-    else
-        UD_baseUpdateTime = UD_LowPerformanceTime
-    endif
-    
     Player = Game.GetPlayer()
     
     CheckOptionalMods()
     
-    if TraceAllowed()    
+    if TraceAllowed()
         Log("UnforgivingDevicesMain initialized",0)
     endif
     Print("Unforgiving Devices Ready!")
@@ -313,6 +318,7 @@ Function Update()
     
     CheckOptionalMods()
     CheckPatchesOrder()
+    SendModEvent("UD_PatchUpdate") ;send update event to all patches. Will force patches to check if they are installed correctly
 EndFunction
 
 Function CheckOptionalMods()
@@ -391,7 +397,7 @@ Function CheckOptionalMods()
         if TraceAllowed()
             Log("Devious Strike detected!")
         endif
-        ;2 Factions, as it looks like that the forID changes between versions
+        ;2 Factions, as it looks like that the formID changes between versions
         UDNPCM.AddScanIncompatibleFaction(GetMeMyForm(0x000801,"Devious Strike.esp") as Faction) 
         UDNPCM.AddScanIncompatibleFaction(GetMeMyForm(0x005930,"Devious Strike.esp") as Faction)
     else
@@ -739,7 +745,12 @@ EndFunction
 
 ;https://www.creationkit.com/index.php?title=GetActorValuePercentage_-_Actor
 float Function getMaxActorValue(Actor akActor,string akValue, float perc_part = 1.0) global
-    return (akActor.GetActorValue(akValue)/akActor.GetActorValuePercentage(akValue))*perc_part
+    Float loc_perc = akActor.GetActorValuePercentage(akValue)
+    if loc_perc
+        return (akActor.GetActorValue(akValue)/loc_perc)*perc_part
+    else
+        return akActor.GetBaseActorValue(akValue)*perc_part ;assume base stats. Dunno how is this possible
+    endif
 EndFunction
 
 float Function getCurrentActorValuePerc(Actor akActor,string akValue) global
@@ -928,6 +939,50 @@ Bool Function ActorHaveSoS(Actor akActor)
         Info("UnforgivingDevicesMain::ActorHaveSoS() - SoS not installed, returning false")
         return false
     endif
+EndFunction
+
+;Convert any time unit to days
+Float Function ConvertTime(Float akHours, Float akMinutes = 0.0, Float akSeconds = 0.0) Global
+    Float loc_res = 0.0
+    loc_res += akHours/24
+    loc_res += akMinutes/24/60
+    loc_res += akSeconds/24/3600
+    return loc_res
+EndFunction
+Float Function ConvertTimeHours(Float akHours) global
+    return akHours/24
+EndFunction
+Float Function ConvertTimeMinutes(Float akMinutes) global
+    return akMinutes/24/60
+EndFunction
+Float Function ConvertTimeSeconds(Float akSeconds) global
+    return akSeconds/24/3600
+EndFunction
+
+Int Function iAbs(Int aiVal) Global
+    if aiVal > 0
+        return aiVal
+    else
+        return -1*aiVal
+    endif
+EndFunction
+Float Function fAbs(Float afVal) Global
+    if afVal > 0.0
+        return afVal
+    else
+        return -1.0*afVal
+    endif
+EndFunction
+;wait random time. Thread will not continue unless menus are closed
+;Can be used to separate threads (like many of same events firing at the same time)
+Function WaitRandomTime(Float afMin = 0.1, Float afMax = 1.0) Global
+    Utility.wait(Utility.randomFloat(afMin,afMax))
+EndFunction
+
+;wait random time. Thread will continue even if menus are open
+;Can be used  to separate wanted thread separation (like many of same events firing at the same time)
+Function WaitMenuRandomTime(Float afMin = 0.1, Float afMax = 1.0) Global
+    Utility.waitMenuMode(Utility.randomFloat(afMin,afMax))
 EndFunction
 
 ;very fast function for checking if menu is open

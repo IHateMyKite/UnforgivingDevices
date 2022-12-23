@@ -113,6 +113,14 @@ Function InitPost()
     endif
 EndFunction
 
+Int Function GetAiPriority()
+    Int loc_res = 15
+    if isVibrating()
+        loc_res += 35
+    endif
+    return loc_res ;generic value
+EndFunction
+
 Function safeCheck()
     if !UD_SpecialMenuInteraction
         UD_SpecialMenuInteraction = UDCDmain.DefaultVibratorSpecialMsg
