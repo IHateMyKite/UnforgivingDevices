@@ -990,11 +990,11 @@ Function NPCMenu(Actor akActor)
     elseif loc_res == 6
         UndressArmor(akActor)
         akActor.UpdateWeight(0)
-    elseif loc_res == 7
+    elseif loc_res == 10
         DebugFunction(akActor)
-    elseif loc_res == 8
+    elseif loc_res == 7
         akActor.openInventory(True)
-    elseif loc_res == 9
+    elseif loc_res == 11
         if !StorageUtil.GetIntValue(akActor,"UDNPCMenu_SetDontMove",0)
             StorageUtil.SetIntValue(akActor,"UDNPCMenu_SetDontMove",1)
             akActor.setDontMove(true)
@@ -1002,9 +1002,9 @@ Function NPCMenu(Actor akActor)
             StorageUtil.UnSetIntValue(akActor,"UDNPCMenu_SetDontMove")
             akActor.setDontMove(false)
         endif
-    elseif loc_res == 10
+    elseif loc_res == 8
         showActorDetails(akActor)
-    elseif loc_res == 11
+    elseif loc_res == 9
         getMinigameDevice(akActor).StopMinigame()
     else
         return
