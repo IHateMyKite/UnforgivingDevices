@@ -680,6 +680,9 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,in
 EndFunction
 
 Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_OrgasmManager::PlayOrgasmAnimation() akActor = " + akActor + ", aiDuration = " + aiDuration)
+    EndIf
     if !aiDuration
         return
     endif
@@ -909,7 +912,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
         return
     endif
     
-    if UDCDMain.actorInMinigame(akActor) || libs.isAnimating(akActor)
+    if UDCDMain.actorInMinigame(akActor) || UDmain.UDAM.isAnimating(akActor)
         if akActor == UDmain.Player
             UDmain.Print("You are already busy!")
         endif

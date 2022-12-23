@@ -73,6 +73,9 @@ EndFunction
 ; aAnimation     - animation sequence (array of animation events) for the actor
 ; return         - true if OK
 Bool Function StartSoloAnimationSequence(Actor akActor, String[] aAnimation, Bool bContinueAnimation = False)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::StartSoloAnimationSequence() akActor = " + akActor + ", aAnimation = " + aAnimation + ", bContinueAnimation = " + bContinueAnimation, 3)
+    EndIf
     If (aAnimation.Length == 0 || aAnimation[0] == "" || aAnimation[0] == "none")
         UDmain.Warning("UD_AnimationManagerScript::StartSoloAnimationSequence() Called animation is None, aborting")
         Return False
@@ -114,17 +117,19 @@ EndFunction
 ; Function to stop animation and unlock actor(s)
 Function StopAnimation(Actor akActor, Actor akHelper = None)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::EndAnimation() akActor = " + akActor + ", akHelper = " + akHelper, 3)
+        UDmain.Log("UD_AnimationManagerScript::StopAnimation() akActor = " + akActor + ", akHelper = " + akHelper, 3)
     EndIf
     UnlockAnimatingActor(akActor)
     ; restoring HH if it was removed in StartPairAnimation
     _RestoreHeelEffect(akActor)
     Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
+    _RestoreActorPosition(akActor)
     If akHelper != None
         UnlockAnimatingActor(akHelper)
         ; restoring HH if it was removed in StartPairAnimation
         _RestoreHeelEffect(akHelper)
         Debug.SendAnimationEvent(akHelper, "IdleForceDefaultState")
+        _RestoreActorPosition(akHelper)
     EndIf
     If UDmain.ActorIsPlayer(akActor) || UDmain.ActorIsPlayer(akHelper)
         _RestorePlayerCamera()
@@ -184,6 +189,8 @@ Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[]
         ; removing HH
         _RemoveHeelEffect(akActor)
         _RemoveHeelEffect(akHelper)
+        _SaveActorPosition(akActor, abSavePos = False, abSaveAngle = True, akHeadingTarget = akHelper)
+        _SaveActorPosition(akHelper, abSavePos = True, abSaveAngle = True, akHeadingTarget = akActor)
     EndIf
     
     ObjectReference vehicleMarkerRef = None
@@ -270,7 +277,7 @@ EndFunction
 ; Function to lock actor to perform in animation
 Function LockAnimatingActor(Actor akActor)
 
-    If libs.IsAnimating(akActor)
+    If IsAnimating(akActor)
         Return
     EndIf
     
@@ -929,6 +936,48 @@ Function _RestorePlayerCamera()
     If StorageUtil.GetIntValue(player, "UD_AnimationManager_RestoreCamera", 0) == 1
         StorageUtil.SetIntValue(player, "UD_AnimationManager_RestoreCamera", 0)
         Game.ForceFirstPerson()
+    EndIf
+EndFunction
+
+Function _SaveActorPosition(Actor akActor, Bool abSavePos = True, Bool abSaveAngle = True, ObjectReference akHeadingTarget = None)
+    If !akActor
+        Return
+    EndIf
+    If abSavePos
+        StorageUtil.SetFloatValue(akActor, "UD_AnimationManager_X", akActor.X)
+        StorageUtil.SetFloatValue(akActor, "UD_AnimationManager_Y", akActor.Y)
+        StorageUtil.SetFloatValue(akActor, "UD_AnimationManager_Z", akActor.Z)
+    Else
+        StorageUtil.UnsetFloatValue(akActor, "UD_AnimationManager_X")
+        StorageUtil.UnsetFloatValue(akActor, "UD_AnimationManager_Y")
+        StorageUtil.UnsetFloatValue(akActor, "UD_AnimationManager_Z")
+    EndIf
+    If abSaveAngle
+        Float a = akActor.GetAngleZ()
+        ; The actor will face towards the akHeadingTarget
+        If akHeadingTarget != None
+            a += akActor.GetHeadingAngle(akHeadingTarget)
+        EndIf
+        StorageUtil.SetFloatValue(akActor, "UD_AnimationManager_A", a)
+    Else
+        StorageUtil.UnsetFloatValue(akActor, "UD_AnimationManager_A")
+    EndIf
+EndFunction
+
+Function _RestoreActorPosition(Actor akActor)
+    If !akActor
+        Return
+    EndIf
+    Float x = StorageUtil.GetFloatValue(akActor, "UD_AnimationManager_X", akActor.X)
+    Float y = StorageUtil.GetFloatValue(akActor, "UD_AnimationManager_Y", akActor.Y)
+    Float z = StorageUtil.GetFloatValue(akActor, "UD_AnimationManager_Z", akActor.Z)
+    Float a = StorageUtil.GetFloatValue(akActor, "UD_AnimationManager_A", akActor.GetAngleZ())
+    
+    If UDMain.ActorIsPlayer(akActor)
+        akActor.SetPosition(x, y, z)
+        akActor.SetAngle(0, 0, a)
+    Else
+        akActor.TranslateTo(x , y, z, 0, 0, a, 150, 180)
     EndIf
 EndFunction
 

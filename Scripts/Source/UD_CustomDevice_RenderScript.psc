@@ -3780,7 +3780,7 @@ Function minigame()
     endif
 
     ;remove disalbe from helper (can be done earlier as no devices were changed)
-    if _minigameHelper
+    if _minigameHelper && !UDOM.isOrgasming(_minigameHelper)
         UDCDMain.EndMinigameDisable(_minigameHelper)
     endif
 
@@ -3790,7 +3790,9 @@ Function minigame()
     endwhile
 
     ;remove disable from wearer
-    UDCDMain.EndMinigameDisable(Wearer)
+    If !StorageUtil.GetIntValue(Wearer,"UD_OrgasmDuration",0)       ;!UDOM.isOrgasming(Wearer)
+        UDCDMain.EndMinigameDisable(Wearer)
+    EndIf
 
     if UDmain.TraceAllowed()
         UDCDmain.Log("Minigame ended for: "+ deviceInventory.getName(),1)

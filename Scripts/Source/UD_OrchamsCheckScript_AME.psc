@@ -333,7 +333,7 @@ Event OnUpdate()
                 endif
                 if !loc_actorinminigame
                     if (loc_orgasmRate > 0.5*loc_orgasmResistMultiplier*loc_orgasmResistence) && !loc_orgasmResisting && !akActor.IsInCombat() ;orgasm progress is increasing
-                        if (loc_hornyAnimTimer == 0) && !libs.IsAnimating(akActor) && UDOM.UD_HornyAnimation ;start horny animation for UD_HornyAnimationDuration
+                        if (loc_hornyAnimTimer == 0) && !UDmain.UDAM.IsAnimating(akActor) && UDOM.UD_HornyAnimation ;start horny animation for UD_HornyAnimationDuration
                             if Utility.RandomInt() <= (Math.ceiling(100/fRange(loc_orgasmProgress,15.0,100.0))) 
                                 ; Select animation
                                 If _HornyAnimEvents.Length == 0
