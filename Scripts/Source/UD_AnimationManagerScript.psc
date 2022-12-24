@@ -65,6 +65,23 @@ Function Update()
     forceReloadFiles = False
     enableForcedFlag = False
     useUnsafeLogging = False
+    
+    _CheckAndLoadForms()
+EndFunction
+
+Function _CheckAndLoadForms()
+    If !slConfig
+        slConfig = (Game.GetFormFromFile(0xD62, "SexLab.esm") as sslSystemConfig)
+        If !slConfig
+            slConfig = (Quest.GetQuest("SexLabQuestFramework") as sslSystemConfig)
+        EndIf
+        If !slConfig
+            UDmain.Error("UD_AnimationManagerScript::_CheckAndLoadForms() Can't find SexLab system config object!")
+        EndIf
+    EndIf
+    If !VehicleMarkerForm
+        VehicleMarkerForm = Game.GetForm(0x0000003B) as Static
+    EndIf
 EndFunction
 
 ; Prepare actor and start an animation sequence for it. The sequence is scrolled to the last element, which remains active until the animation stops from the outside

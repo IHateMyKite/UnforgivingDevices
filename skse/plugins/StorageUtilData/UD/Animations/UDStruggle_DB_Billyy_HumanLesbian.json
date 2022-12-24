@@ -68,13 +68,52 @@
 			
 		], 
 		"zad_DeviousBra" : [
-			
+			{
+				"A1" : {
+						"anim" : [ "B_B_LFing1_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
+				"A2" : {
+						"anim" : [ "B_B_LFing1_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 258
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}
 		], 
 		"zad_DeviousPiercingsNipple" : [
-			
+			{
+				"A1" : {
+						"anim" : [ "B_B_LFing1_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
+				"A2" : {
+						"anim" : [ "B_B_LFing1_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 258
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}
 		], 
 		"zad_DeviousClamps" : [
-			
+			{
+				"A1" : {
+						"anim" : [ "B_B_LFing1_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 256
+					},
+				"A2" : {
+						"anim" : [ "B_B_LFing1_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 258
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}
 		], 
 		"zad_DeviousCorset" : [
 			{
@@ -255,19 +294,6 @@
 					},
 				"lewd" : 0,
 				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "B_B_LFing1_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 258
-					},
-				"A2" : {
-						"anim" : [ "B_B_LFing1_A2_S1" ], 
-						"req" : 0, 
-						"opt" : 258
-					},
-				"lewd" : 0,
-				"aggr" : 0
 			}
 		], 
 		"zad_DeviousPlug" : [
@@ -403,19 +429,6 @@
 				"aggr" : 0
 			}, {
 				"A1" : {
-						"anim" : [ "B_B_LFing1_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 258
-					},
-				"A2" : {
-						"anim" : [ "B_B_LFing1_A2_S1" ], 
-						"req" : 0, 
-						"opt" : 258
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
 						"anim" : [ "B_B_LFing1_A1_S1", "B_B_LFing1_A1_S2", "B_B_LFing1_A1_S3" ], 
 						"req" : 0, 
 						"opt" : 258
@@ -435,19 +448,6 @@
 					},
 				"A2" : {
 						"anim" : [ "B_B_LFing1_A2_S1", "B_B_LFing1_A2_S2", "B_B_LFing1_A2_S3", "B_B_LFing1_A2_S4" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "B_B_LFing1_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"A2" : {
-						"anim" : [ "B_B_LFing1_A2_S1" ], 
 						"req" : 0, 
 						"opt" : 256
 					},
@@ -588,19 +588,6 @@
 				"aggr" : 0
 			}, {
 				"A1" : {
-						"anim" : [ "B_B_LFing1_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 258
-					},
-				"A2" : {
-						"anim" : [ "B_B_LFing1_A2_S1" ], 
-						"req" : 0, 
-						"opt" : 258
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
 						"anim" : [ "B_B_LFing1_A1_S1", "B_B_LFing1_A1_S2", "B_B_LFing1_A1_S3" ], 
 						"req" : 0, 
 						"opt" : 258
@@ -620,19 +607,6 @@
 					},
 				"A2" : {
 						"anim" : [ "B_B_LFing1_A2_S1", "B_B_LFing1_A2_S2", "B_B_LFing1_A2_S3", "B_B_LFing1_A2_S4" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "B_B_LFing1_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"A2" : {
-						"anim" : [ "B_B_LFing1_A2_S1" ], 
 						"req" : 0, 
 						"opt" : 256
 					},
@@ -773,19 +747,6 @@
 				"aggr" : 0
 			}, {
 				"A1" : {
-						"anim" : [ "B_B_LFing1_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 258
-					},
-				"A2" : {
-						"anim" : [ "B_B_LFing1_A2_S1" ], 
-						"req" : 0, 
-						"opt" : 258
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
 						"anim" : [ "B_B_LFing1_A1_S1", "B_B_LFing1_A1_S2", "B_B_LFing1_A1_S3" ], 
 						"req" : 0, 
 						"opt" : 258
@@ -805,19 +766,6 @@
 					},
 				"A2" : {
 						"anim" : [ "B_B_LFing1_A2_S1", "B_B_LFing1_A2_S2", "B_B_LFing1_A2_S3", "B_B_LFing1_A2_S4" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "B_B_LFing1_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"A2" : {
-						"anim" : [ "B_B_LFing1_A2_S1" ], 
 						"req" : 0, 
 						"opt" : 256
 					},
@@ -958,19 +906,6 @@
 				"aggr" : 0
 			}, {
 				"A1" : {
-						"anim" : [ "B_B_LFing1_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 258
-					},
-				"A2" : {
-						"anim" : [ "B_B_LFing1_A2_S1" ], 
-						"req" : 0, 
-						"opt" : 258
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
 						"anim" : [ "B_B_LFing1_A1_S1", "B_B_LFing1_A1_S2", "B_B_LFing1_A1_S3" ], 
 						"req" : 0, 
 						"opt" : 258
@@ -990,19 +925,6 @@
 					},
 				"A2" : {
 						"anim" : [ "B_B_LFing1_A2_S1", "B_B_LFing1_A2_S2", "B_B_LFing1_A2_S3", "B_B_LFing1_A2_S4" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "B_B_LFing1_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"A2" : {
-						"anim" : [ "B_B_LFing1_A2_S1" ], 
 						"req" : 0, 
 						"opt" : 256
 					},

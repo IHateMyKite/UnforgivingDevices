@@ -119,6 +119,7 @@ EndProperty
 ;FILL FOR FASTER LOCK
 Armor   Property DeviceRendered     auto
 Keyword Property UD_DeviceKeyword   auto ;keyword of this device for better manipulation
+String[] Property UD_DeviceKeywordStrings       Auto    Hidden
 
 ;-------------------------------------------------------
 ;-------------------------------------------------------
@@ -1319,12 +1320,22 @@ Function updateValuesFromInventoryScript()
         zad_DestroyKey = temp.DestroyKey
         zad_JammLockChance = temp.LockJamChance
         UD_DeviceKeyword = temp.zad_deviousDevice
+        If UD_DeviceKeyword == libs.zad_DeviousSuit
+            If deviceRendered.HasKeyword(libs.zad_DeviousHobbleSkirt)
+                UD_DeviceKeyword = libs.zad_DeviousHobbleSkirt
+            EndIf
+        EndIf
+    ;    UD_DeviceKeywordStrings = UDCDMain.GetDeviousKeywords(DeviceRendered)
         DeviceRendered = temp.DeviceRendered
         temp.delete()
     endif
     if zad_DestroyOnRemove && !hasModifier("DOR")
         addModifier("DOR")
     endif
+EndFunction
+
+Keyword[] Function _GetDeviceKeywords(Armor akDevice, Bool bMinor)
+    
 EndFunction
 
 bool Function addModifier(string modifier,string param = "")

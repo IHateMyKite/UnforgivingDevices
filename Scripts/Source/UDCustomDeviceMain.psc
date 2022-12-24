@@ -1670,6 +1670,20 @@ Keyword Function GetHeavyBondageKeyword(Armor akDevice)
     return none
 EndFunction
 
+String[] Function GetDeviousKeywords(Armor akDevice)
+    String[] result
+    Int i = akDevice.GetNumKeywords()
+    While i > 0
+        i -= 1
+        Keyword k = akDevice.GetNthKeyword(i)
+        String ks = k.GetString()
+        If StringUtil.Find("zad_devious", ks) > -1
+            result = PapyrusUtil.PushString(result, ks)
+        EndIf
+    EndWhile
+    Return result
+EndFunction
+
 ;returns first device which have connected corresponding Inventory Device
 UD_CustomDevice_RenderScript Function getDeviceByInventory(Actor akActor, Armor deviceInventory)
     if isRegistered(akActor)

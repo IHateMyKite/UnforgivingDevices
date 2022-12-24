@@ -63,19 +63,6 @@
 		"zad_DeviousHobbleSkirt" : [
 			{
 				"A1" : {
-						"anim" : [ "Leito_Feet_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 259
-					},
-				"A2" : {
-						"anim" : [ "Leito_Feet_A2_S1" ], 
-						"req" : 0, 
-						"opt" : 266
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
 						"anim" : [ "Leito_Feet2_A1_S1", "Leito_Feet2_A1_S2", "Leito_Feet2_A1_S3" ], 
 						"req" : 0, 
 						"opt" : 259
