@@ -979,6 +979,10 @@ Function _RestoreActorPosition(Actor akActor)
     Else
         akActor.TranslateTo(x , y, z, 0, 0, a, 150, 180)
     EndIf
+    StorageUtil.UnsetFloatValue(akActor, "UD_AnimationManager_X")
+    StorageUtil.UnsetFloatValue(akActor, "UD_AnimationManager_Y")
+    StorageUtil.UnsetFloatValue(akActor, "UD_AnimationManager_Z")
+    StorageUtil.UnsetFloatValue(akActor, "UD_AnimationManager_A")
 EndFunction
 
 Function _Benchmark(Int iCycles = 10)
