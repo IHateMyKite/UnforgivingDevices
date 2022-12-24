@@ -38,6 +38,12 @@ UD_AnimationManagerScript Property UDAM hidden
         return UDmain.UDAM
     EndFunction
 EndProperty
+Package Property NPCDisablePackage Hidden
+    Package Function Get()
+        return libs.SexLab.Config.DoNothing
+    EndFunction
+EndProperty
+
 
 bool Property UD_HardcoreMode = true auto hidden
 
@@ -340,6 +346,8 @@ Function StartMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
         UpdatePlayerControl()
         Game.SetPlayerAiDriven(True)
     else
+        ActorUtil.AddPackageOverride(akActor, NPCDisablePackage, 100, 1)
+        akActor.EvaluatePackage()
         akActor.SetDontMove(True)
         akActor.SheatheWeapon()
     endif
@@ -352,6 +360,7 @@ Function UpdateMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
             Game.SetPlayerAiDriven(True)
         else
             akActor.SetDontMove(True)
+            akActor.EvaluatePackage()
         endif
     endif
 EndFunction
@@ -362,6 +371,8 @@ Function EndMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
         libsp.ProcessPlayerControls(false)
         Game.SetPlayerAiDriven(False)
     else
+        ActorUtil.RemovePackageOverride(akActor, NPCDisablePackage)
+        akActor.EvaluatePackage()
         akActor.SetDontMove(False)
     endif
 EndFunction
