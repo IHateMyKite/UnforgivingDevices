@@ -134,7 +134,7 @@ Function UndressSlots()
     while index
         index -= 1
         UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
-        if loc_slot && loc_slot.isUsed() && !loc_slot.hasFreeHands() && !UDmain.ActorIsFollower(loc_slot.GetActor())
+        if loc_slot && loc_slot.isUsed() && !loc_slot.hasFreeHands() && !UDmain.ActorIsPlayer(loc_slot.GetActor()) && !UDmain.ActorIsFollower(loc_slot.GetActor())
             libs.strip(loc_slot.GetActor(),false)
         endif
     endwhile

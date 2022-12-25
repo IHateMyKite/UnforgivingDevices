@@ -11,6 +11,11 @@ import UnforgivingDevicesMain
 ;==========;
 Bool                                   Property     Ready         = false   auto    hidden
 UnforgivingDevicesMain                 Property     UDmain                  auto
+UDCustomDeviceMain                     Property     UDCDmain                        hidden
+    UDCustomDeviceMain Function Get()
+        return UDmain.UDCDmain
+    EndFunction
+EndProperty
 zadlibs                                Property     libs                    auto
 sslSystemConfig                        Property     slConfig                Auto
 {SexLab Config to check NiOverride}
@@ -89,7 +94,7 @@ EndFunction
 ; akActor        - actor
 ; aAnimation     - animation sequence (array of animation events) for the actor
 ; return         - true if OK
-Bool Function StartSoloAnimationSequence(Actor akActor, String[] aAnimation, Bool bContinueAnimation = False)
+Bool Function StartSoloAnimationSequence(Actor akActor, String[] aAnimation, Bool bContinueAnimation = False, Bool bDisableActor = True)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::StartSoloAnimationSequence() akActor = " + akActor + ", aAnimation = " + aAnimation + ", bContinueAnimation = " + bContinueAnimation, 3)
     EndIf
@@ -101,7 +106,7 @@ Bool Function StartSoloAnimationSequence(Actor akActor, String[] aAnimation, Boo
         If UDmain.ActorIsPlayer(akActor)
             _Apply3rdPersonCamera(bDismount = True)
         EndIf
-        LockAnimatingActor(akActor)
+        LockAnimatingActor(akActor, bDisableActor)
     EndIf
     ; in case it called just after paired animation (for example, during orgasm ending)
     akActor.SetVehicle(None)
@@ -125,24 +130,26 @@ Bool Function StartSoloAnimationSequence(Actor akActor, String[] aAnimation, Boo
 EndFunction
 
 ; Shortcut of StartSoloAnimationSequence for single animation
-Bool Function StartSoloAnimation(Actor akActor, String sAnimation, Bool bContinueAnimation = False)
+Bool Function StartSoloAnimation(Actor akActor, String sAnimation, Bool bContinueAnimation = False, Bool bDisableActor = True)
     String[] aAnimation = new String[1]
     aAnimation[0] = sAnimation
-    Return StartSoloAnimationSequence(akActor, aAnimation, bContinueAnimation)
+    Return StartSoloAnimationSequence(akActor, aAnimation, bContinueAnimation, bDisableActor)
 EndFunction
 
 ; Function to stop animation and unlock actor(s)
-Function StopAnimation(Actor akActor, Actor akHelper = None)
+Function StopAnimation(Actor akActor, Actor akHelper = None, Bool bEnableActors = True)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::StopAnimation() akActor = " + akActor + ", akHelper = " + akHelper, 3)
     EndIf
-    UnlockAnimatingActor(akActor)
+
+    UnlockAnimatingActor(akActor, bEnableActors)
     ; restoring HH if it was removed in StartPairAnimation
     _RestoreHeelEffect(akActor)
     Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
-    _RestoreActorPosition(akActor)
+    
     If akHelper != None
-        UnlockAnimatingActor(akHelper)
+        _RestoreActorPosition(akActor) ;only move player if there are 2 actors, otherwise solo animation is player and there is no need to move player
+        UnlockAnimatingActor(akHelper, bEnableActors)
         ; restoring HH if it was removed in StartPairAnimation
         _RestoreHeelEffect(akHelper)
         Debug.SendAnimationEvent(akHelper, "IdleForceDefaultState")
@@ -172,7 +179,7 @@ EndFunction
 ; bContinueAnimation    - if actor have been locked already
 ; bInterruptSequence    - if previous animation was from a sequence
 ; return                - true if OK
-Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[] aAnimationA1, String[] aAnimationA2, Bool bAlignActors = True, Bool bContinueAnimation = False)
+Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[] aAnimationA1, String[] aAnimationA2, Bool bAlignActors = True, Bool bContinueAnimation = False, Bool bDisableActors = True)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::StartPairAnimationSequence() akActor = " + akActor + ", akHelper = " + akHelper + ", aAnimationA1 = " + aAnimationA1 + ", animationA2 = " + aAnimationA2 + ", alignActors = " + bAlignActors + ", bContinueAnimation = " + bContinueAnimation, 3)
     EndIf
@@ -200,9 +207,9 @@ Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[]
         If UDmain.ActorIsPlayer(akActor) || UDmain.ActorIsPlayer(akHelper)
             _Apply3rdPersonCamera(bDismount = False)
         EndIf
-        ; locking actors
-        LockAnimatingActor(akActor)
-        LockAnimatingActor(akHelper)
+        ; locking actors, disable actors control/movement
+        LockAnimatingActor(akActor, bDisableActors)
+        LockAnimatingActor(akHelper, bDisableActors)
         ; removing HH
         _RemoveHeelEffect(akActor)
         _RemoveHeelEffect(akHelper)
@@ -283,16 +290,16 @@ Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[]
 EndFunction
 
 ; Shortcut for StartPairAnimationSequence with single animation events
-Bool Function StartPairAnimation(Actor akActor, Actor akHelper, String sAnimationA1, String sAnimationA2, Bool bAlignActors = True, Bool bContinueAnimation = False)
+Bool Function StartPairAnimation(Actor akActor, Actor akHelper, String sAnimationA1, String sAnimationA2, Bool bAlignActors = True, Bool bContinueAnimation = False, Bool bDisableActors = True)
     String[] aAnimationA1 = new String[1]
     aAnimationA1[0] = sAnimationA1
     String[] aAnimationA2 = new String[1]
     aAnimationA2[0] = sAnimationA2
-    Return StartPairAnimationSequence(akActor, akHelper, aAnimationA1, aAnimationA2, bAlignActors, bContinueAnimation)
+    Return StartPairAnimationSequence(akActor, akHelper, aAnimationA1, aAnimationA2, bAlignActors, bContinueAnimation, bDisableActors)
 EndFunction
 
 ; Function to lock actor to perform in animation
-Function LockAnimatingActor(Actor akActor)
+Function LockAnimatingActor(Actor akActor, Bool bDisableActor = True)
 
     If IsAnimating(akActor)
         Return
@@ -302,14 +309,10 @@ Function LockAnimatingActor(Actor akActor)
     
     libs.SetAnimating(akActor, True)
 
-    If UDmain.ActorIsPlayer(akActor)
+    if bDisableActor
+        UDCDMain.DisableActor(akActor)
+    endif
 
-    Else
-        ActorUtil.AddPackageOverride(akActor, slConfig.DoNothing, 100, 1)
-        akActor.EvaluatePackage()
-        akActor.SetDontMove(true)
-    EndIf
-    
     Armor shield = akActor.GetEquippedShield()
     If shield
         StorageUtil.SetFormValue(akActor, "UD_EquippedShield", shield)
@@ -327,24 +330,18 @@ Function LockAnimatingActor(Actor akActor)
             timeout += 1
         EndWhile
     EndIf
-    
-
 EndFunction
 
 ; Function to unlock actor after animation
-Function UnlockAnimatingActor(Actor akActor)
+Function UnlockAnimatingActor(Actor akActor, Bool bEnableActor = True)
 
     StorageUtil.SetIntValue(akActor, "UD_ActorIsAnimating", 0)
     libs.SetAnimating(akActor, False)
 
-    If UDmain.ActorIsPlayer(akActor)
-        ; should it be done via some UD wrapper?
-        libs.UpdateControls()
-    Else
-        ActorUtil.RemovePackageOverride(akActor, slConfig.DoNothing)
-        akActor.EvaluatePackage()
-        akActor.SetDontMove(False)
-    EndIf
+    if bEnableActor
+        UDCDMain.EnableActor(akActor)
+    endif
+
     akActor.SetVehicle(None)
     
     If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
@@ -367,7 +364,7 @@ EndFunction
 ; akActors                      actors who will participate
 ; aaiActorConstraints            actors' constraints. If array is empty then called GetActorConstraintsInt function
 ; bContinueAnimation            flag that the animation continues with already locked actors
-Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Int[] aaiActorConstraints, Bool bContinueAnimation = False)
+Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Int[] aaiActorConstraints, Bool bContinueAnimation = False, Bool bDisableActors = True)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::PlayAnimationByDef() sAnimDef = " + sAnimDef + ", aakActors = " + aakActors + ", aaiActorConstraints = " + aaiActorConstraints + ", bContinueAnimation = " + bContinueAnimation, 3)
     EndIf
@@ -422,7 +419,7 @@ Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Int[] aaiAc
             String[] atemp1 = JsonUtil.PathStringElements(file, actor_animVars[0] + ".anim")
             String[] atemp2 = JsonUtil.PathStringElements(file, actor_animVars[1] + ".anim")
             If atemp1.Length > 0 && atemp2.Length > 0
-                StartPairAnimationSequence(aakActors[0], aakActors[1], atemp1, atemp2, True, bContinueAnimation)
+                StartPairAnimationSequence(aakActors[0], aakActors[1], atemp1, atemp2, True, bContinueAnimation, bDisableActors)
                 Return True
             Else
                 UDMain.Error("UD_CustomDevice_RenderScript::PlayAnimationByDef() animation sequence array is empty! Check file " + file + " and animDef variations: " + actor_animVars)
@@ -433,7 +430,7 @@ Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Int[] aaiAc
             String temp1 = JsonUtil.GetPathStringValue(file, actor_animVars[0] + ".anim")
             String temp2 = JsonUtil.GetPathStringValue(file, actor_animVars[1] + ".anim")
             If temp1 != "" && temp2 != ""
-                StartPairAnimation(aakActors[0], aakActors[1], temp1, temp2, True, bContinueAnimation)
+                StartPairAnimation(aakActors[0], aakActors[1], temp1, temp2, True, bContinueAnimation, bDisableActors)
                 Return True
             Else
                 UDMain.Error("UD_CustomDevice_RenderScript::PlayAnimationByDef() animation is empty! Check file " + file + " and animDef variations: " + actor_animVars)
@@ -445,7 +442,7 @@ Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Int[] aaiAc
         ; sequence animation (from sex lab animation packs)
             String[] atemp1 = JsonUtil.PathStringElements(file, actor_animVars[0] + ".anim")
             If atemp1.Length > 0
-                StartSoloAnimationSequence(aakActors[0], atemp1, bContinueAnimation)
+                StartSoloAnimationSequence(aakActors[0], atemp1, bContinueAnimation, bDisableActors)
                 Return True
             Else
                 UDMain.Error("UD_CustomDevice_RenderScript::PlayAnimationByDef() animation sequence array is empty! Check file " + file + " and animDef variations: " + actor_animVars)
@@ -455,7 +452,7 @@ Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Int[] aaiAc
         ; regular animation 
             String temp1 = JsonUtil.GetPathStringValue(file, actor_animVars[0] + ".anim")
             If temp1 != ""
-                StartSoloAnimation(aakActors[0], temp1, bContinueAnimation)
+                StartSoloAnimation(aakActors[0], temp1, bContinueAnimation, bDisableActors)
                 Return True
             Else
                 UDMain.Error("UD_CustomDevice_RenderScript::PlayAnimationByDef() animation is empty! Check file " + file + " and animDef variations: " + actor_animVars)
@@ -813,6 +810,21 @@ EndFunction
 ; TODO: Cache it somehow for actors
 ; Function GetActorConstraintsInt
 ; Used to get actor's constraints from equipped devices as a bit mask
+; === Bit masks ===
+; Hobble skirt                      - 0000 0000 0001 / 0x0001 /    1
+; Ankle shackel or relaxed skirt    - 0000 0000 0010 / 0x0002 /    2
+; Yoke                              - 0000 0000 0100 / 0x0004 /    4
+; Front cuffs                       - 0000 0000 1000 / 0x0008 /    8
+; Armbinder                         - 0000 0001 0000 / 0x0010 /   16
+; Armbinder (Elbow)                 - 0000 0010 0000 / 0x0020 /   32
+; Pet suit                          - 0000 0100 0000 / 0x0040 /   64
+; Elbowtie                          - 0000 1000 0000 / 0x0080 /  128
+; Mittens                           - 0001 0000 0000 / 0x0100 /  256
+; Straitjacket                      - 0010 0000 0000 / 0x0200 /  512
+; Breast yoke                       - 0100 0000 0000 / 0x0400 / 1024
+; All                               - 0111 1111 1111 / 0x07FF / 2047
+; All (without HB)                  - 0001 0000 0011 / 0x0103 /  259
+; == All enable constrain value is 0x07FF or 2047
 Int Function GetActorConstraintsInt(Actor akActor, Bool bUseCache = False)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetActorConstraintsInt() akActor = " + akActor + ", bUseCache = " + bUseCache, 3)
@@ -824,12 +836,12 @@ Int Function GetActorConstraintsInt(Actor akActor, Bool bUseCache = False)
     If bUseCache && StorageUtil.HasIntValue(akActor, "UD_ActorConstraintsInt")
         Return StorageUtil.GetIntValue(akActor, "UD_ActorConstraintsInt")
     EndIf
-	If akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirt) && !akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirtRelaxed)
-		result += 1
-	EndIf
-	If akActor.WornHasKeyword(libs.zad_DeviousAnkleShackles) || akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirtRelaxed)
-		result += 2
-	EndIf
+    If akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirt) && !akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirtRelaxed)
+        result += 1
+    EndIf
+    If akActor.WornHasKeyword(libs.zad_DeviousAnkleShackles) || akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirtRelaxed)
+        result += 2
+    EndIf
     If akActor.WornHasKeyword(libs.zad_DeviousHeavyBondage)
         If akActor.WornHasKeyword(libs.zad_DeviousElbowTie)     ; FIX: temporal fix for errors in "Devious Devices SE patch.esp". In that patch Yoke keyword was added to ElbowTie devices.
             result += 128
@@ -857,7 +869,6 @@ Int Function GetActorConstraintsInt(Actor akActor, Bool bUseCache = False)
 	If akActor.WornHasKeyword(libs.zad_DeviousGag)
 		result += 2048
 	EndIf
-
     StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt", result)
     Return result
 EndFunction

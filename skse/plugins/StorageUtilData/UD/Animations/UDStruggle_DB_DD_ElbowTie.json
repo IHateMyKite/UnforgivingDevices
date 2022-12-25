@@ -1,0 +1,75 @@
+{
+	"conditions" : {
+		"mod" : "Devious Devices - Integration.esm"
+	},
+	"solo" : {
+		"zad_DeviousElbowTie" : [
+			{
+				"A1" : {
+					"anim" : "DDElbowTie_struggleone", 
+					"req" : 128, 
+					"opt" : 257
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDElbowTie_struggletwo", 
+					"req" : 128, 
+					"opt" : 257
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDElbowTie_strugglethree", 
+					"req" : 128, 
+					"opt" : 257
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"horny" : [
+			{
+				"A1" : {
+					"anim" : "DDElbowTie_hornyone", 
+					"req" : 128, 
+					"opt" : 259
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDElbowTie_hornytwo", 
+					"req" : 128, 
+					"opt" : 259
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"edged" : [
+			{
+				"A1" : {
+					"anim" : "DDElbowTie_hornyone", 
+					"req" : 128, 
+					"opt" : 259
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDElbowTie_hornytwo", 
+					"req" : 128, 
+					"opt" : 259
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"orgasm" : [
+			{
+				"A1" : {
+					"anim" : "DDElbowTie_orgasm", 
+					"req" : 128, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}
+		]
+	}
+}

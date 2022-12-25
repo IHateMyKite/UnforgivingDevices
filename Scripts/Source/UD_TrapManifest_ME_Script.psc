@@ -47,11 +47,11 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
             
         UDCDMain.LockDeviceParalel(akTarget,device)
 
-            if GActorIsPlayer(akTarget)
-                UDCDmain.Print("Black goo smacks you and transforms into " + device.getName())
-            else
-                UDCDmain.Print("Black goo smacks " + GetActorName(akTarget) + " and transforms into " + device.getName())
-            endif
+        if GActorIsPlayer(akTarget)
+            UDCDmain.Print("Black goo smacks you and transforms into " + device.getName())
+        else
+            UDCDmain.Print("Black goo smacks " + GetActorName(akTarget) + " and transforms into " + device.getName())
+        endif
 
         UDCDmain.EnableActor(akTarget)
     endif

@@ -1,0 +1,194 @@
+{
+	"conditions" : {
+		"mod" : "Devious Devices - Integration.esm"
+	},
+	"solo" : {
+		"zad_DeviousArmbinderElbow" : [
+			{
+				"A1" : {
+					"anim" : "DDRegElbStruggle01", 
+					"req" : 32, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDRegElbStruggle02", 
+					"req" : 32, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDRegElbStruggle03", 
+					"req" : 32, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDRegElbStruggle04", 
+					"req" : 32, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDRegElbStruggle05", 
+					"req" : 32, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDHobElbStruggle01", 
+					"req" : 33, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDHobElbStruggle02", 
+					"req" : 33, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"horny" : [
+			{
+				"A1" : {
+					"anim" : "ft_horny_elbowbinder_1", 
+					"req" : 32, 
+					"opt" : 259
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_elbowbinder_2", 
+					"req" : 32, 
+					"opt" : 259
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_elbowbinder_3", 
+					"req" : 32, 
+					"opt" : 259
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_elbowbinder_4", 
+					"req" : 32, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_elbowbinder_5", 
+					"req" : 32, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_elbowbinder_6", 
+					"req" : 32, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_elbowbinder_7", 
+					"req" : 32, 
+					"opt" : 259
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"edged" : [
+			{
+				"A1" : {
+					"anim" : "ft_edged_elbowbinder_1", 
+					"req" : 32, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_edged_hobbled_elbowbinder_1", 
+					"req" : 33, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"orgasm" : [
+			{
+				"A1" : {
+					"anim" : "ft_horny_elbowbinder_1", 
+					"req" : 32, 
+					"opt" : 259
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_elbowbinder_2", 
+					"req" : 32, 
+					"opt" : 259
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_elbowbinder_3", 
+					"req" : 32, 
+					"opt" : 259
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_elbowbinder_4", 
+					"req" : 32, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_elbowbinder_5", 
+					"req" : 32, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_elbowbinder_6", 
+					"req" : 32, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_elbowbinder_7", 
+					"req" : 32, 
+					"opt" : 259
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_orgasm_elbowbinder_1", 
+					"req" : 32, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_orgasm_hobbled_elbowbinder_1", 
+					"req" : 33, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}
+		]
+	}
+}
