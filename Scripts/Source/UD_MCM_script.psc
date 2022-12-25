@@ -963,7 +963,7 @@ Event resetAnimationsPage()
     AddTextOption("Number of found animations", UDAM_TestQuery_Results.Length, OPTION_FLAG_DISABLED)
     UDAM_TestQuery_ElapsedTime_T = AddTextOption("Elapsed time", (UDAM_TestQuery_TimeSpan * 1000) As Int + " ms", OPTION_FLAG_DISABLED)
     
-    If LastHelper == None && UDAM_TestQuery_Type_Index == 0
+    If LastHelper == None && UDAM_TestQuery_Type_Index == 1
         flags = OPTION_FLAG_DISABLED
     Else
         flags = OPTION_FLAG_NONE

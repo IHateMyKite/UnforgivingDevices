@@ -365,11 +365,11 @@ EndFunction
 ; Function to start animation according to the specified definition from json
 ; sAnimDef                      animation definition from json, should be in format <file_name>:<path_in_file>
 ; akActors                      actors who will participate
-; aaiActorContraints            actors' constraints. If array is empty then called GetActorConstraintsInt function
+; aaiActorConstraints            actors' constraints. If array is empty then called GetActorConstraintsInt function
 ; bContinueAnimation            flag that the animation continues with already locked actors
-Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Int[] aaiActorContraints, Bool bContinueAnimation = False)
+Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Int[] aaiActorConstraints, Bool bContinueAnimation = False)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::PlayAnimationByDef() sAnimDef = " + sAnimDef + ", aakActors = " + aakActors + ", aaiActorContraints = " + aaiActorContraints + ", bContinueAnimation = " + bContinueAnimation, 3)
+        UDmain.Log("UD_AnimationManagerScript::PlayAnimationByDef() sAnimDef = " + sAnimDef + ", aakActors = " + aakActors + ", aaiActorConstraints = " + aaiActorConstraints + ", bContinueAnimation = " + bContinueAnimation, 3)
     EndIf
     
     Int part_index = StringUtil.Find(sAnimDef, ":")
@@ -384,8 +384,8 @@ Bool Function PlayAnimationByDef(String sAnimDef, Actor[] aakActors, Int[] aaiAc
     Int k = 0
     While k < aakActors.Length
         Int actor_constraints = 0
-        If aaiActorContraints.Length > k
-            actor_constraints = aaiActorContraints[k]
+        If aaiActorConstraints.Length > k
+            actor_constraints = aaiActorConstraints[k]
         Else
             actor_constraints = GetActorConstraintsInt(aakActors[k], False)
         EndIf
@@ -692,7 +692,7 @@ EndFunction
 ; return                - array of strings with animation paths in DB
 String[] Function GetStruggleAnimationsByKeyword(Keyword akKeyword, Actor akActor, Actor akHelper = None, Bool bReuseConstraintsCache = False)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword() akKeyword = " + akKeyword.GetString() + ", akActor = " + akActor + ", akHelper = " + akHelper, 3)
+        UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword() akKeyword = " + akKeyword.GetString() + ", akActor = " + akActor + ", akHelper = " + akHelper + ", bReuseConstraintsCache = " + bReuseConstraintsCache, 3)
     EndIf
 
     If akHelper == None
@@ -814,12 +814,15 @@ EndFunction
 ; Function GetActorConstraintsInt
 ; Used to get actor's constraints from equipped devices as a bit mask
 Int Function GetActorConstraintsInt(Actor akActor, Bool bUseCache = False)
-    If bUseCache && StorageUtil.HasIntValue(akActor, "UD_ActorConstraintsInt")
-        Return StorageUtil.GetIntValue(akActor, "UD_ActorConstraintsInt")
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::GetActorConstraintsInt() akActor = " + akActor + ", bUseCache = " + bUseCache, 3)
+    EndIf
+    If akActor == None
+        Return 0
     EndIf
 	Int result = 0
-    If akActor == None
-        Return result
+    If bUseCache && StorageUtil.HasIntValue(akActor, "UD_ActorConstraintsInt")
+        Return StorageUtil.GetIntValue(akActor, "UD_ActorConstraintsInt")
     EndIf
 	If akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirt) && !akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirtRelaxed)
 		result += 1
@@ -828,7 +831,9 @@ Int Function GetActorConstraintsInt(Actor akActor, Bool bUseCache = False)
 		result += 2
 	EndIf
     If akActor.WornHasKeyword(libs.zad_DeviousHeavyBondage)
-        If akActor.WornHasKeyword(libs.zad_DeviousYoke)
+        If akActor.WornHasKeyword(libs.zad_DeviousElbowTie)     ; FIX: temporal fix for errors in "Devious Devices SE patch.esp". In that patch Yoke keyword was added to ElbowTie devices.
+            result += 128
+        ElseIf akActor.WornHasKeyword(libs.zad_DeviousYoke)
             result += 4
         ElseIf akActor.WornHasKeyword(libs.zad_DeviousCuffsFront)
             result += 8
@@ -838,8 +843,8 @@ Int Function GetActorConstraintsInt(Actor akActor, Bool bUseCache = False)
             result += 32
         ElseIf akActor.WornHasKeyword(libs.zad_DeviousPetSuit)
             result += 64
-        ElseIf akActor.WornHasKeyword(libs.zad_DeviousElbowTie)
-            result += 128
+;        ElseIf akActor.WornHasKeyword(libs.zad_DeviousElbowTie)        
+;            result += 128
         ElseIf akActor.WornHasKeyword(libs.zad_DeviousStraitJacket)
             result += 512
         ElseIf akActor.WornHasKeyword(libs.zad_DeviousYokeBB)
@@ -848,6 +853,9 @@ Int Function GetActorConstraintsInt(Actor akActor, Bool bUseCache = False)
     EndIf
 	If akActor.WornHasKeyword(libs.zad_DeviousBondageMittens)
 		result += 256
+	EndIf
+	If akActor.WornHasKeyword(libs.zad_DeviousGag)
+		result += 2048
 	EndIf
 
     StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt", result)

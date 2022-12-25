@@ -42,12 +42,6 @@
 		"zad_DeviousGag" : [
 			
 		], 
-		"zad_DeviousGagLarge" : [
-			
-		], 
-		"zad_DeviousGagPanel" : [
-			
-		], 
 		"zad_DeviousBlindfold" : [
 			
 		], 
@@ -83,12 +77,12 @@
 				"A1" : {
 						"anim" : [ "B_B_FSrv1_A2_S1", "B_B_FSrv1_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "B_B_FSrv1_A2_S1", "B_B_FSrv1_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
 				"aggr" : 0
@@ -99,12 +93,12 @@
 				"A1" : {
 						"anim" : [ "B_B_FSrv1_A2_S1", "B_B_FSrv1_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "B_B_FSrv1_A2_S1", "B_B_FSrv1_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
 				"aggr" : 0

@@ -8,21 +8,21 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -32,21 +32,21 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -56,21 +56,21 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -83,63 +83,63 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle01", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle05", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle07", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle08", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle10", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle06", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle09", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -155,63 +155,63 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle01", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle05", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle07", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle08", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle10", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle06", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle09", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -221,63 +221,63 @@
 				"A1" : {
 					"anim" : "ZapYokeStruggle01", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle03", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle05", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle07", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle08", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle10", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle06", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle09", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -293,42 +293,42 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle01", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -338,132 +338,42 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle01", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}
-		], 
-		"zad_DeviousGagLarge" : [
-			{
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 17, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 512, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 513, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapYokeStruggle01", 
-					"req" : 4, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapYokeStruggle02", 
-					"req" : 5, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}
-		], 
-		"zad_DeviousGagPanel" : [
-			{
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 17, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle03", 
-					"req" : 512, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapArmbStruggle02", 
-					"req" : 513, 
-					"opt" : 258
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapYokeStruggle01", 
-					"req" : 4, 
-					"opt" : 256
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "ZapYokeStruggle02", 
-					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -473,42 +383,42 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle01", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -518,42 +428,42 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle01", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -563,42 +473,42 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle01", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -608,42 +518,42 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle01", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -653,42 +563,42 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle01", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -698,42 +608,42 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle01", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -743,42 +653,42 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle01", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -788,42 +698,42 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle01", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -833,42 +743,42 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle01", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -878,42 +788,42 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle01", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -923,42 +833,42 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle01", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -968,42 +878,42 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle01", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -1013,42 +923,42 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle01", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -1058,42 +968,42 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle01", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -1103,42 +1013,42 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle01", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -1148,42 +1058,42 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle01", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -1193,42 +1103,42 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle01", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -1238,42 +1148,42 @@
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 16, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 17, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle03", 
 					"req" : 512, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbStruggle02", 
 					"req" : 513, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle01", 
 					"req" : 4, 
-					"opt" : 256
+					"opt" : 2304
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeStruggle02", 
 					"req" : 5, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -1283,42 +1193,42 @@
 				"A1" : {
 					"anim" : "ZapArmbHorny01", 
 					"req" : 16, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbHorny02", 
 					"req" : 16, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapArmbHorny03", 
 					"req" : 16, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeHorny01", 
 					"req" : 4, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeHorny02", 
 					"req" : 4, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "ZapYokeHorny03", 
 					"req" : 4, 
-					"opt" : 258
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}

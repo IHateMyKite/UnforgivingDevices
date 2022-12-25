@@ -12,30 +12,43 @@
 		"zad_DeviousHobbleSkirt" : [
 			{
 				"A1" : {
+						"anim" : [ "Babo_Conquering_A1_S1", "Babo_Conquering_A1_S2", "Babo_Conquering_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 2315
+					},
+				"A2" : {
+						"anim" : [ "Babo_Conquering_A2_S1", "Babo_Conquering_A2_S2", "Babo_Conquering_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 0,
+				"aggr" : 5
+			}, {
+				"A1" : {
 						"anim" : [ "Babo_Conquering03_A1_S1", "Babo_Conquering03_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_Conquering03_A2_S1", "Babo_Conquering03_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_Conquering04_A1_S1", "Babo_Conquering04_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_Conquering04_A2_S1", "Babo_Conquering04_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}
 		], 
 		"zad_DeviousCuffsFront" : [
@@ -43,15 +56,15 @@
 				"A1" : {
 						"anim" : [ "Babo_Conquering04_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Babo_Conquering04_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}
 		], 
 		"zad_DeviousArmbinder" : [
@@ -68,67 +81,54 @@
 				"A1" : {
 						"anim" : [ "Babo_BackHugPressure01_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Babo_BackHugPressure01_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_BackHugPressure01_A1_S1", "Babo_BackHugPressure01_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_BackHugPressure01_A2_S1", "Babo_BackHugPressure01_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_Conquering_A1_S1", "Babo_Conquering_A1_S2", "Babo_Conquering_A1_S3" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2315
 					},
 				"A2" : {
 						"anim" : [ "Babo_Conquering_A2_S1", "Babo_Conquering_A2_S2", "Babo_Conquering_A2_S3" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_Conquering_A1_S1", "Babo_Conquering_A1_S2", "Babo_Conquering_A1_S3", "Babo_Conquering_A1_S4" ], 
-						"req" : 48, 
-						"opt" : 256
+						"req" : 0, 
+						"opt" : 2352
 					},
 				"A2" : {
 						"anim" : [ "Babo_Conquering_A2_S1", "Babo_Conquering_A2_S2", "Babo_Conquering_A2_S3", "Babo_Conquering_A2_S4" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Babo_Fallen01_A1_S1", "Babo_Fallen01_A1_S2" ], 
-						"req" : 0, 
-						"opt" : 258
-					},
-				"A2" : {
-						"anim" : [ "Babo_Fallen01_A2_S1", "Babo_Fallen01_A2_S2" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}
 		], 
 		"zad_DeviousYoke" : [
@@ -145,119 +145,132 @@
 				"A1" : {
 						"anim" : [ "Babo_BackHugPressure01_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Babo_BackHugPressure01_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_BackHugPressure01_A1_S1", "Babo_BackHugPressure01_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_BackHugPressure01_A2_S1", "Babo_BackHugPressure01_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_ChockingRape01_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChockingRape01_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_ChockingRape01_A1_S1", "Babo_ChockingRape01_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChockingRape01_A2_S1", "Babo_ChockingRape01_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_ChockingRape01_A1_S1", "Babo_ChockingRape01_A1_S2", "Babo_ChockingRape01_A1_S3" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChockingRape01_A2_S1", "Babo_ChockingRape01_A2_S2", "Babo_ChockingRape01_A2_S3" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_ChokeRape02_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChokeRape02_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_ChokeRape03_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChokeRape03_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_ChokeRape03_A1_S1", "Babo_ChokeRape03_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChokeRape03_A2_S1", "Babo_ChokeRape03_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_ChokeRape03_A1_S1", "Babo_ChokeRape03_A1_S2", "Babo_ChokeRape03_A1_S3" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChokeRape03_A2_S1", "Babo_ChokeRape03_A2_S2", "Babo_ChokeRape03_A2_S3" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
+			}, {
+				"A1" : {
+						"anim" : [ "Babo_Conquering_A1_S1", "Babo_Conquering_A1_S2", "Babo_Conquering_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 2315
+					},
+				"A2" : {
+						"anim" : [ "Babo_Conquering_A2_S1", "Babo_Conquering_A2_S2", "Babo_Conquering_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 0,
+				"aggr" : 5
 			}
 		], 
 		"zad_DeviousGag" : [
@@ -265,310 +278,96 @@
 				"A1" : {
 						"anim" : [ "Babo_ChockingRape01_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChockingRape01_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_ChockingRape01_A1_S1", "Babo_ChockingRape01_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChockingRape01_A2_S1", "Babo_ChockingRape01_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_ChockingRape01_A1_S1", "Babo_ChockingRape01_A1_S2", "Babo_ChockingRape01_A1_S3" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChockingRape01_A2_S1", "Babo_ChockingRape01_A2_S2", "Babo_ChockingRape01_A2_S3" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_ChokeRape02_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChokeRape02_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_ChokeRape03_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChokeRape03_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_ChokeRape03_A1_S1", "Babo_ChokeRape03_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChokeRape03_A2_S1", "Babo_ChokeRape03_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Babo_ChokeRape03_A1_S1", "Babo_ChokeRape03_A1_S2", "Babo_ChokeRape03_A1_S3" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"A2" : {
-						"anim" : [ "Babo_ChokeRape03_A2_S1", "Babo_ChokeRape03_A2_S2", "Babo_ChokeRape03_A2_S3" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}
-		], 
-		"zad_DeviousGagLarge" : [
-			{
-				"A1" : {
-						"anim" : [ "Babo_ChockingRape01_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 259
-					},
-				"A2" : {
-						"anim" : [ "Babo_ChockingRape01_A2_S1" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Babo_ChockingRape01_A1_S1", "Babo_ChockingRape01_A1_S2" ], 
-						"req" : 0, 
-						"opt" : 259
-					},
-				"A2" : {
-						"anim" : [ "Babo_ChockingRape01_A2_S1", "Babo_ChockingRape01_A2_S2" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Babo_ChockingRape01_A1_S1", "Babo_ChockingRape01_A1_S2", "Babo_ChockingRape01_A1_S3" ], 
-						"req" : 0, 
-						"opt" : 259
-					},
-				"A2" : {
-						"anim" : [ "Babo_ChockingRape01_A2_S1", "Babo_ChockingRape01_A2_S2", "Babo_ChockingRape01_A2_S3" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Babo_ChokeRape02_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 259
-					},
-				"A2" : {
-						"anim" : [ "Babo_ChokeRape02_A2_S1" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Babo_ChokeRape03_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"A2" : {
-						"anim" : [ "Babo_ChokeRape03_A2_S1" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Babo_ChokeRape03_A1_S1", "Babo_ChokeRape03_A1_S2" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"A2" : {
-						"anim" : [ "Babo_ChokeRape03_A2_S1", "Babo_ChokeRape03_A2_S2" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Babo_ChokeRape03_A1_S1", "Babo_ChokeRape03_A1_S2", "Babo_ChokeRape03_A1_S3" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"A2" : {
-						"anim" : [ "Babo_ChokeRape03_A2_S1", "Babo_ChokeRape03_A2_S2", "Babo_ChokeRape03_A2_S3" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}
-		], 
-		"zad_DeviousGagPanel" : [
-			{
-				"A1" : {
-						"anim" : [ "Babo_ChockingRape01_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 259
-					},
-				"A2" : {
-						"anim" : [ "Babo_ChockingRape01_A2_S1" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Babo_ChockingRape01_A1_S1", "Babo_ChockingRape01_A1_S2" ], 
-						"req" : 0, 
-						"opt" : 259
-					},
-				"A2" : {
-						"anim" : [ "Babo_ChockingRape01_A2_S1", "Babo_ChockingRape01_A2_S2" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Babo_ChockingRape01_A1_S1", "Babo_ChockingRape01_A1_S2", "Babo_ChockingRape01_A1_S3" ], 
-						"req" : 0, 
-						"opt" : 259
-					},
-				"A2" : {
-						"anim" : [ "Babo_ChockingRape01_A2_S1", "Babo_ChockingRape01_A2_S2", "Babo_ChockingRape01_A2_S3" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Babo_ChokeRape02_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 259
-					},
-				"A2" : {
-						"anim" : [ "Babo_ChokeRape02_A2_S1" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Babo_ChokeRape03_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"A2" : {
-						"anim" : [ "Babo_ChokeRape03_A2_S1" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Babo_ChokeRape03_A1_S1", "Babo_ChokeRape03_A1_S2" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"A2" : {
-						"anim" : [ "Babo_ChokeRape03_A2_S1", "Babo_ChokeRape03_A2_S2" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Babo_ChokeRape03_A1_S1", "Babo_ChokeRape03_A1_S2", "Babo_ChokeRape03_A1_S3" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"A2" : {
-						"anim" : [ "Babo_ChokeRape03_A2_S1", "Babo_ChokeRape03_A2_S2", "Babo_ChokeRape03_A2_S3" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}
 		], 
 		"zad_DeviousBlindfold" : [
 			{
 				"A1" : {
-						"anim" : [ "Babo_ChokeRape03_A1_S1" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"A2" : {
-						"anim" : [ "Babo_ChokeRape03_A2_S1" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
 						"anim" : [ "Babo_ChokeRape03_A1_S1", "Babo_ChokeRape03_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChokeRape03_A2_S1", "Babo_ChokeRape03_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}
 		], 
 		"zad_DeviousCollar" : [
@@ -576,145 +375,145 @@
 				"A1" : {
 						"anim" : [ "Babo_BackHugPressure01_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Babo_BackHugPressure01_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_BackHugPressure01_A1_S1", "Babo_BackHugPressure01_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_BackHugPressure01_A2_S1", "Babo_BackHugPressure01_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_ChockingRape01_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChockingRape01_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_ChockingRape01_A1_S1", "Babo_ChockingRape01_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChockingRape01_A2_S1", "Babo_ChockingRape01_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_ChockingRape01_A1_S1", "Babo_ChockingRape01_A1_S2", "Babo_ChockingRape01_A1_S3" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChockingRape01_A2_S1", "Babo_ChockingRape01_A2_S2", "Babo_ChockingRape01_A2_S3" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_ChokeRape02_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChokeRape02_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_ChokeRape03_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChokeRape03_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_ChokeRape03_A1_S1", "Babo_ChokeRape03_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChokeRape03_A2_S1", "Babo_ChokeRape03_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_ChokeRape03_A1_S1", "Babo_ChokeRape03_A1_S2", "Babo_ChokeRape03_A1_S3" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChokeRape03_A2_S1", "Babo_ChokeRape03_A2_S2", "Babo_ChokeRape03_A2_S3" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_Conquering_A1_S1", "Babo_Conquering_A1_S2", "Babo_Conquering_A1_S3" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2315
 					},
 				"A2" : {
 						"anim" : [ "Babo_Conquering_A2_S1", "Babo_Conquering_A2_S2", "Babo_Conquering_A2_S3" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_Conquering_A1_S1", "Babo_Conquering_A1_S2", "Babo_Conquering_A1_S3", "Babo_Conquering_A1_S4" ], 
-						"req" : 48, 
-						"opt" : 256
+						"req" : 0, 
+						"opt" : 2352
 					},
 				"A2" : {
 						"anim" : [ "Babo_Conquering_A2_S1", "Babo_Conquering_A2_S2", "Babo_Conquering_A2_S3", "Babo_Conquering_A2_S4" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}
 		], 
 		"zad_DeviousBra" : [
@@ -722,15 +521,15 @@
 				"A1" : {
 						"anim" : [ "Babo_StandingBound01_A1_S1" ], 
 						"req" : 48, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_StandingBound01_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}
 		], 
 		"zad_DeviousPiercingsNipple" : [
@@ -738,15 +537,15 @@
 				"A1" : {
 						"anim" : [ "Babo_StandingBound01_A1_S1" ], 
 						"req" : 48, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_StandingBound01_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}
 		], 
 		"zad_DeviousClamps" : [
@@ -754,15 +553,15 @@
 				"A1" : {
 						"anim" : [ "Babo_StandingBound01_A1_S1" ], 
 						"req" : 48, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_StandingBound01_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}
 		], 
 		"zad_DeviousCorset" : [
@@ -770,67 +569,54 @@
 				"A1" : {
 						"anim" : [ "Babo_BackHugPressure01_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Babo_BackHugPressure01_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_BackHugPressure01_A1_S1", "Babo_BackHugPressure01_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_BackHugPressure01_A2_S1", "Babo_BackHugPressure01_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Babo_Conquering_A1_S1", "Babo_Conquering_A1_S2", "Babo_Conquering_A1_S3" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"A2" : {
-						"anim" : [ "Babo_Conquering_A2_S1", "Babo_Conquering_A2_S2", "Babo_Conquering_A2_S3" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_Conquering_A1_S1", "Babo_Conquering_A1_S2", "Babo_Conquering_A1_S3", "Babo_Conquering_A1_S4" ], 
-						"req" : 48, 
-						"opt" : 256
+						"req" : 0, 
+						"opt" : 2352
 					},
 				"A2" : {
 						"anim" : [ "Babo_Conquering_A2_S1", "Babo_Conquering_A2_S2", "Babo_Conquering_A2_S3", "Babo_Conquering_A2_S4" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_Fallen01_A1_S1", "Babo_Fallen01_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Babo_Fallen01_A2_S1", "Babo_Fallen01_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2306
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}
 		], 
 		"zad_DeviousHarness" : [
@@ -838,67 +624,54 @@
 				"A1" : {
 						"anim" : [ "Babo_BackHugPressure01_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Babo_BackHugPressure01_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_BackHugPressure01_A1_S1", "Babo_BackHugPressure01_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_BackHugPressure01_A2_S1", "Babo_BackHugPressure01_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Babo_Conquering_A1_S1", "Babo_Conquering_A1_S2", "Babo_Conquering_A1_S3" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"A2" : {
-						"anim" : [ "Babo_Conquering_A2_S1", "Babo_Conquering_A2_S2", "Babo_Conquering_A2_S3" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_Conquering_A1_S1", "Babo_Conquering_A1_S2", "Babo_Conquering_A1_S3", "Babo_Conquering_A1_S4" ], 
-						"req" : 48, 
-						"opt" : 256
+						"req" : 0, 
+						"opt" : 2352
 					},
 				"A2" : {
 						"anim" : [ "Babo_Conquering_A2_S1", "Babo_Conquering_A2_S2", "Babo_Conquering_A2_S3", "Babo_Conquering_A2_S4" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_Fallen01_A1_S1", "Babo_Fallen01_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Babo_Fallen01_A2_S1", "Babo_Fallen01_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2306
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}
 		], 
 		"zad_DeviousSuit" : [
@@ -906,93 +679,106 @@
 				"A1" : {
 						"anim" : [ "Babo_BackHugPressure01_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Babo_BackHugPressure01_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_BackHugPressure01_A1_S1", "Babo_BackHugPressure01_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_BackHugPressure01_A2_S1", "Babo_BackHugPressure01_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_Conquering_A1_S1", "Babo_Conquering_A1_S2", "Babo_Conquering_A1_S3" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2315
 					},
 				"A2" : {
 						"anim" : [ "Babo_Conquering_A2_S1", "Babo_Conquering_A2_S2", "Babo_Conquering_A2_S3" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_Conquering_A1_S1", "Babo_Conquering_A1_S2", "Babo_Conquering_A1_S3", "Babo_Conquering_A1_S4" ], 
-						"req" : 48, 
-						"opt" : 256
+						"req" : 0, 
+						"opt" : 2352
 					},
 				"A2" : {
 						"anim" : [ "Babo_Conquering_A2_S1", "Babo_Conquering_A2_S2", "Babo_Conquering_A2_S3", "Babo_Conquering_A2_S4" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_Conquering03_A1_S1", "Babo_Conquering03_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_Conquering03_A2_S1", "Babo_Conquering03_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_Conquering04_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Babo_Conquering04_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
+			}, {
+				"A1" : {
+						"anim" : [ "Babo_Conquering04_A1_S1", "Babo_Conquering04_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 2307
+					},
+				"A2" : {
+						"anim" : [ "Babo_Conquering04_A2_S1", "Babo_Conquering04_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 0,
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_Fallen01_A1_S1", "Babo_Fallen01_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Babo_Fallen01_A2_S1", "Babo_Fallen01_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2306
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}
 		], 
 		"zad_DeviousBelt" : [
@@ -1000,80 +786,67 @@
 				"A1" : {
 						"anim" : [ "Babo_ChokeRape02_A1_S1", "Babo_ChokeRape02_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChokeRape02_A2_S1", "Babo_ChokeRape02_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_Conquering_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Babo_Conquering_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
-			}, {
-				"A1" : {
-						"anim" : [ "Babo_Conquering04_A1_S1", "Babo_Conquering04_A1_S2" ], 
-						"req" : 0, 
-						"opt" : 259
-					},
-				"A2" : {
-						"anim" : [ "Babo_Conquering04_A2_S1", "Babo_Conquering04_A2_S2" ], 
-						"req" : 0, 
-						"opt" : 256
-					},
-				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_DoggyBound01_A1_S1" ], 
 						"req" : 48, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Babo_DoggyBound01_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_Fallen01_A1_S1", "Babo_Fallen01_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Babo_Fallen01_A2_S1", "Babo_Fallen01_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2306
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_StandingBound01_A1_S1", "Babo_StandingBound01_A1_S2" ], 
 						"req" : 48, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_StandingBound01_A2_S1", "Babo_StandingBound01_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}
 		], 
 		"zad_DeviousPlug" : [
@@ -1081,54 +854,54 @@
 				"A1" : {
 						"anim" : [ "Babo_ChokeRape02_A1_S1", "Babo_ChokeRape02_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChokeRape02_A2_S1", "Babo_ChokeRape02_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_Conquering_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Babo_Conquering_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_DoggyBound01_A1_S1" ], 
 						"req" : 48, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Babo_DoggyBound01_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_StandingBound01_A1_S1", "Babo_StandingBound01_A1_S2" ], 
 						"req" : 48, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_StandingBound01_A2_S1", "Babo_StandingBound01_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}
 		], 
 		"zad_DeviousPlugVaginal" : [
@@ -1136,54 +909,54 @@
 				"A1" : {
 						"anim" : [ "Babo_ChokeRape02_A1_S1", "Babo_ChokeRape02_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChokeRape02_A2_S1", "Babo_ChokeRape02_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_Conquering_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Babo_Conquering_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_DoggyBound01_A1_S1" ], 
 						"req" : 48, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Babo_DoggyBound01_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_StandingBound01_A1_S1", "Babo_StandingBound01_A1_S2" ], 
 						"req" : 48, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_StandingBound01_A2_S1", "Babo_StandingBound01_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}
 		], 
 		"zad_DeviousPlugAnal" : [
@@ -1191,54 +964,54 @@
 				"A1" : {
 						"anim" : [ "Babo_ChokeRape02_A1_S1", "Babo_ChokeRape02_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Babo_ChokeRape02_A2_S1", "Babo_ChokeRape02_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_Conquering_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Babo_Conquering_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_DoggyBound01_A1_S1" ], 
 						"req" : 48, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Babo_DoggyBound01_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_StandingBound01_A1_S1", "Babo_StandingBound01_A1_S2" ], 
 						"req" : 48, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_StandingBound01_A2_S1", "Babo_StandingBound01_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}
 		], 
 		"zad_DeviousPiercingsVaginal" : [
@@ -1246,41 +1019,41 @@
 				"A1" : {
 						"anim" : [ "Babo_Conquering_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Babo_Conquering_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_DoggyBound01_A1_S1" ], 
 						"req" : 48, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Babo_DoggyBound01_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}, {
 				"A1" : {
 						"anim" : [ "Babo_StandingBound01_A1_S1", "Babo_StandingBound01_A1_S2" ], 
 						"req" : 48, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_StandingBound01_A2_S1", "Babo_StandingBound01_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}
 		], 
 		"zad_DeviousBondageMittens" : [
@@ -1288,15 +1061,15 @@
 				"A1" : {
 						"anim" : [ "Babo_Conquering04_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Babo_Conquering04_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}
 		], 
 		"zad_DeviousArmCuffs" : [
@@ -1304,15 +1077,15 @@
 				"A1" : {
 						"anim" : [ "Babo_Conquering04_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Babo_Conquering04_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}
 		], 
 		"zad_DeviousGloves" : [
@@ -1320,15 +1093,15 @@
 				"A1" : {
 						"anim" : [ "Babo_Conquering04_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Babo_Conquering04_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}
 		], 
 		"zad_DeviousBoots" : [
@@ -1339,15 +1112,15 @@
 				"A1" : {
 						"anim" : [ "Babo_Conquering04_A1_S1", "Babo_Conquering04_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Babo_Conquering04_A2_S1", "Babo_Conquering04_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"lewd" : 0,
-				"aggr" : 0
+				"aggr" : 5
 			}
 		]
 	}

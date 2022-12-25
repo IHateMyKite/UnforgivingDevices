@@ -7,12 +7,12 @@
 				"A1" : {
 						"anim" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2314
 					},
 				"A2" : {
 						"anim" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 266
+						"opt" : 2314
 					},
 				"lewd" : 0,
 				"aggr" : 0
@@ -20,12 +20,12 @@
 				"A1" : {
 						"anim" : [ "Leito_Feet_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Leito_Feet_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 266
+						"opt" : 2314
 					},
 				"lewd" : 0,
 				"aggr" : 0
@@ -33,27 +33,27 @@
 				"A1" : {
 						"anim" : [ "Leito_Feet2_A1_S1", "Leito_Feet2_A1_S2", "Leito_Feet2_A1_S3" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Leito_Feet2_A2_S1", "Leito_Feet2_A2_S2", "Leito_Feet2_A2_S3" ], 
 						"req" : 0, 
-						"opt" : 266
+						"opt" : 2312
 					},
-				"lewd" : 0,
+				"lewd" : 5,
 				"aggr" : 0
 			}, {
 				"A1" : {
 						"anim" : [ "Leito_Feet3_A1_S1", "Leito_Feet3_A1_S2", "Leito_Feet3_A1_S3", "Leito_Feet3_A1_S4" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Leito_Feet3_A2_S1", "Leito_Feet3_A2_S2", "Leito_Feet3_A2_S3", "Leito_Feet3_A2_S4" ], 
 						"req" : 0, 
-						"opt" : 266
+						"opt" : 2314
 					},
-				"lewd" : 0,
+				"lewd" : 5,
 				"aggr" : 0
 			}
 		], 
@@ -65,14 +65,14 @@
 				"A1" : {
 						"anim" : [ "Leito_Feet2_A1_S1", "Leito_Feet2_A1_S2", "Leito_Feet2_A1_S3" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Leito_Feet2_A2_S1", "Leito_Feet2_A2_S2", "Leito_Feet2_A2_S3" ], 
 						"req" : 0, 
-						"opt" : 266
+						"opt" : 2312
 					},
-				"lewd" : 0,
+				"lewd" : 5,
 				"aggr" : 0
 			}
 		], 
@@ -106,12 +106,6 @@
 		"zad_DeviousGag" : [
 			
 		], 
-		"zad_DeviousGagLarge" : [
-			
-		], 
-		"zad_DeviousGagPanel" : [
-			
-		], 
 		"zad_DeviousBlindfold" : [
 			
 		], 
@@ -138,66 +132,66 @@
 				"A1" : {
 						"anim" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2314
 					},
 				"A2" : {
 						"anim" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 266
+						"opt" : 2314
 					},
-				"lewd" : 0,
+				"lewd" : 5,
 				"aggr" : 0
 			}, {
 				"A1" : {
 						"anim" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2", "Leito_Feet_A1_S3", "Leito_Feet_A1_S4" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2", "Leito_Feet_A2_S3", "Leito_Feet_A2_S4" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
-				"lewd" : 0,
+				"lewd" : 5,
 				"aggr" : 0
 			}, {
 				"A1" : {
 						"anim" : [ "Leito_Feet_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Leito_Feet_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 266
+						"opt" : 2314
 					},
-				"lewd" : 0,
+				"lewd" : 5,
 				"aggr" : 0
 			}, {
 				"A1" : {
 						"anim" : [ "Leito_Feet2_A1_S1", "Leito_Feet2_A1_S2", "Leito_Feet2_A1_S3" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Leito_Feet2_A2_S1", "Leito_Feet2_A2_S2", "Leito_Feet2_A2_S3" ], 
 						"req" : 0, 
-						"opt" : 266
+						"opt" : 2312
 					},
-				"lewd" : 0,
+				"lewd" : 5,
 				"aggr" : 0
 			}, {
 				"A1" : {
 						"anim" : [ "Leito_Feet3_A1_S1", "Leito_Feet3_A1_S2", "Leito_Feet3_A1_S3", "Leito_Feet3_A1_S4" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Leito_Feet3_A2_S1", "Leito_Feet3_A2_S2", "Leito_Feet3_A2_S3", "Leito_Feet3_A2_S4" ], 
 						"req" : 0, 
-						"opt" : 266
+						"opt" : 2314
 					},
-				"lewd" : 0,
+				"lewd" : 5,
 				"aggr" : 0
 			}
 		], 
@@ -230,66 +224,66 @@
 				"A1" : {
 						"anim" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2314
 					},
 				"A2" : {
 						"anim" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 266
+						"opt" : 2314
 					},
-				"lewd" : 0,
+				"lewd" : 5,
 				"aggr" : 0
 			}, {
 				"A1" : {
 						"anim" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2", "Leito_Feet_A1_S3", "Leito_Feet_A1_S4" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2", "Leito_Feet_A2_S3", "Leito_Feet_A2_S4" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
-				"lewd" : 0,
+				"lewd" : 5,
 				"aggr" : 0
 			}, {
 				"A1" : {
 						"anim" : [ "Leito_Feet_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Leito_Feet_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 266
+						"opt" : 2314
 					},
-				"lewd" : 0,
+				"lewd" : 5,
 				"aggr" : 0
 			}, {
 				"A1" : {
 						"anim" : [ "Leito_Feet2_A1_S1", "Leito_Feet2_A1_S2", "Leito_Feet2_A1_S3" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Leito_Feet2_A2_S1", "Leito_Feet2_A2_S2", "Leito_Feet2_A2_S3" ], 
 						"req" : 0, 
-						"opt" : 266
+						"opt" : 2312
 					},
-				"lewd" : 0,
+				"lewd" : 5,
 				"aggr" : 0
 			}, {
 				"A1" : {
 						"anim" : [ "Leito_Feet3_A1_S1", "Leito_Feet3_A1_S2", "Leito_Feet3_A1_S3", "Leito_Feet3_A1_S4" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Leito_Feet3_A2_S1", "Leito_Feet3_A2_S2", "Leito_Feet3_A2_S3", "Leito_Feet3_A2_S4" ], 
 						"req" : 0, 
-						"opt" : 266
+						"opt" : 2314
 					},
-				"lewd" : 0,
+				"lewd" : 5,
 				"aggr" : 0
 			}
 		], 
@@ -298,66 +292,66 @@
 				"A1" : {
 						"anim" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2" ], 
 						"req" : 0, 
-						"opt" : 258
+						"opt" : 2314
 					},
 				"A2" : {
 						"anim" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2" ], 
 						"req" : 0, 
-						"opt" : 266
+						"opt" : 2314
 					},
-				"lewd" : 0,
+				"lewd" : 5,
 				"aggr" : 0
 			}, {
 				"A1" : {
 						"anim" : [ "Leito_Feet_A1_S1", "Leito_Feet_A1_S2", "Leito_Feet_A1_S3", "Leito_Feet_A1_S4" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
 				"A2" : {
 						"anim" : [ "Leito_Feet_A2_S1", "Leito_Feet_A2_S2", "Leito_Feet_A2_S3", "Leito_Feet_A2_S4" ], 
 						"req" : 0, 
-						"opt" : 256
+						"opt" : 2304
 					},
-				"lewd" : 0,
+				"lewd" : 5,
 				"aggr" : 0
 			}, {
 				"A1" : {
 						"anim" : [ "Leito_Feet_A1_S1" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2306
 					},
 				"A2" : {
 						"anim" : [ "Leito_Feet_A2_S1" ], 
 						"req" : 0, 
-						"opt" : 266
+						"opt" : 2314
 					},
-				"lewd" : 0,
+				"lewd" : 5,
 				"aggr" : 0
 			}, {
 				"A1" : {
 						"anim" : [ "Leito_Feet2_A1_S1", "Leito_Feet2_A1_S2", "Leito_Feet2_A1_S3" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Leito_Feet2_A2_S1", "Leito_Feet2_A2_S2", "Leito_Feet2_A2_S3" ], 
 						"req" : 0, 
-						"opt" : 266
+						"opt" : 2312
 					},
-				"lewd" : 0,
+				"lewd" : 5,
 				"aggr" : 0
 			}, {
 				"A1" : {
 						"anim" : [ "Leito_Feet3_A1_S1", "Leito_Feet3_A1_S2", "Leito_Feet3_A1_S3", "Leito_Feet3_A1_S4" ], 
 						"req" : 0, 
-						"opt" : 259
+						"opt" : 2307
 					},
 				"A2" : {
 						"anim" : [ "Leito_Feet3_A2_S1", "Leito_Feet3_A2_S2", "Leito_Feet3_A2_S3", "Leito_Feet3_A2_S4" ], 
 						"req" : 0, 
-						"opt" : 266
+						"opt" : 2314
 					},
-				"lewd" : 0,
+				"lewd" : 5,
 				"aggr" : 0
 			}
 		]
