@@ -1212,6 +1212,27 @@
 				"lewd" : 0 
 			}, {
 				"A1" : {
+					"anim" : "ZapArmbHorny01", 
+					"req" : 512, 
+					"opt" : 2306
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbHorny02", 
+					"req" : 512, 
+					"opt" : 2306
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ZapArmbHorny03", 
+					"req" : 512, 
+					"opt" : 2306
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
 					"anim" : "ZapYokeHorny01", 
 					"req" : 4, 
 					"opt" : 2306

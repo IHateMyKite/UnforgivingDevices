@@ -822,8 +822,9 @@ EndFunction
 ; Mittens                           - 0001 0000 0000 / 0x0100 /  256
 ; Straitjacket                      - 0010 0000 0000 / 0x0200 /  512
 ; Breast yoke                       - 0100 0000 0000 / 0x0400 / 1024
-; All                               - 0111 1111 1111 / 0x07FF / 2047
-; All (without HB)                  - 0001 0000 0011 / 0x0103 /  259
+; Gag                               - 1000 0000 0000 / 0x0800 / 2048
+; All                               - 1111 1111 1111 / 0x0FFF / 4095
+; All (without HB)                  - 1001 0000 0011 / 0x0903 / 2307
 ; == All enable constrain value is 0x07FF or 2047
 Int Function GetActorConstraintsInt(Actor akActor, Bool bUseCache = False)
     If UDmain.TraceAllowed()

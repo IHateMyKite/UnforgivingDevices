@@ -646,8 +646,13 @@ String Function AnimSwitchKeyword(actor akActor, string idleName)
     String[] anims
     If idleName == "Horny01" || idleName == "Horny02" || idleName == "Horny03"
         anims = UDmain.UDAM.GetHornyAnimEvents(akActor)
-    ElseIf idleName == "Orgasm" && UDCDmain.UDOM.UD_OrgasmAnimation != 0
+    ElseIf idleName == "Orgasm"
         anims = UDmain.UDAM.GetOrgasmAnimEvents(akActor)
+        ; append horny animations to list
+        If UDCDmain.UDOM.UD_OrgasmAnimation == 1        ; Extended List
+            String[] anims2 = UDmain.UDAM.GetHornyAnimEvents(akActor)
+            anims = PapyrusUtil.MergeStringArray(anims, anims2, RemoveDupes = True)
+        EndIf
     ElseIf idleName == "Edged"
         anims = UDmain.UDAM.GetEdgedAnimEvents(akActor)
     EndIf
