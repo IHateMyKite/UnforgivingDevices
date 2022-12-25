@@ -1,0 +1,194 @@
+{
+	"conditions" : {
+		"mod" : "Devious Devices - Integration.esm"
+	},
+	"solo" : {
+		"zad_DeviousYoke" : [
+			{
+				"A1" : {
+					"anim" : "DDRegYokeStruggle01", 
+					"req" : 4, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDRegYokeStruggle02", 
+					"req" : 4, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDRegYokeStruggle03", 
+					"req" : 4, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDRegYokeStruggle04", 
+					"req" : 4, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDRegYokeStruggle05", 
+					"req" : 4, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDHobYokeStruggle01", 
+					"req" : 5, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDHobYokeStruggle02", 
+					"req" : 5, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"horny" : [
+			{
+				"A1" : {
+					"anim" : "ft_horny_yoke_1", 
+					"req" : 4, 
+					"opt" : 259
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_yoke_2", 
+					"req" : 4, 
+					"opt" : 259
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_yoke_3", 
+					"req" : 4, 
+					"opt" : 259
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_yoke_4", 
+					"req" : 4, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_yoke_5", 
+					"req" : 4, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_yoke_6", 
+					"req" : 4, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_yoke_7", 
+					"req" : 4, 
+					"opt" : 259
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"edged" : [
+			{
+				"A1" : {
+					"anim" : "ft_edged_yoke_1", 
+					"req" : 4, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_edged_hobbled_yoke_1", 
+					"req" : 5, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"orgasm" : [
+			{
+				"A1" : {
+					"anim" : "ft_horny_yoke_1", 
+					"req" : 4, 
+					"opt" : 259
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_yoke_2", 
+					"req" : 4, 
+					"opt" : 259
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_yoke_3", 
+					"req" : 4, 
+					"opt" : 259
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_yoke_4", 
+					"req" : 4, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_yoke_5", 
+					"req" : 4, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_yoke_6", 
+					"req" : 4, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_yoke_7", 
+					"req" : 4, 
+					"opt" : 259
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_orgasm_yoke_1", 
+					"req" : 4, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_orgasm_hobbled_yoke_1", 
+					"req" : 5, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}
+		]
+	}
+}

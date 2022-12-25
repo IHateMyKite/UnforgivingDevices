@@ -106,9 +106,7 @@ Bool Function StartSoloAnimationSequence(Actor akActor, String[] aAnimation, Boo
         If UDmain.ActorIsPlayer(akActor)
             _Apply3rdPersonCamera(bDismount = True)
         EndIf
-        if bDisableActor
-            LockAnimatingActor(akActor)
-        endif
+        LockAnimatingActor(akActor, bDisableActor)
     EndIf
     ; in case it called just after paired animation (for example, during orgasm ending)
     akActor.SetVehicle(None)
@@ -143,18 +141,15 @@ Function StopAnimation(Actor akActor, Actor akHelper = None, Bool bEnableActors 
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::StopAnimation() akActor = " + akActor + ", akHelper = " + akHelper, 3)
     EndIf
-    if bEnableActors
-        UnlockAnimatingActor(akActor)
-    endif
+
+    UnlockAnimatingActor(akActor, bEnableActors)
     ; restoring HH if it was removed in StartPairAnimation
     _RestoreHeelEffect(akActor)
     Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
     
     If akHelper != None
         _RestoreActorPosition(akActor) ;only move player if there are 2 actors, otherwise solo animation is player and there is no need to move player
-        if bEnableActors
-            UnlockAnimatingActor(akHelper)
-        endif
+        UnlockAnimatingActor(akHelper, bEnableActors)
         ; restoring HH if it was removed in StartPairAnimation
         _RestoreHeelEffect(akHelper)
         Debug.SendAnimationEvent(akHelper, "IdleForceDefaultState")
@@ -213,10 +208,8 @@ Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[]
             _Apply3rdPersonCamera(bDismount = False)
         EndIf
         ; locking actors, disable actors control/movement
-        if bDisableActors
-            LockAnimatingActor(akActor)
-            LockAnimatingActor(akHelper)
-        endif
+        LockAnimatingActor(akActor, bDisableActors)
+        LockAnimatingActor(akHelper, bDisableActors)
         ; removing HH
         _RemoveHeelEffect(akActor)
         _RemoveHeelEffect(akHelper)
@@ -306,7 +299,7 @@ Bool Function StartPairAnimation(Actor akActor, Actor akHelper, String sAnimatio
 EndFunction
 
 ; Function to lock actor to perform in animation
-Function LockAnimatingActor(Actor akActor)
+Function LockAnimatingActor(Actor akActor, Bool bDisableActor = True)
 
     If IsAnimating(akActor)
         Return
@@ -316,16 +309,10 @@ Function LockAnimatingActor(Actor akActor)
     
     libs.SetAnimating(akActor, True)
 
-    UDCDMain.DisableActor(akActor)
+    if bDisableActor
+        UDCDMain.DisableActor(akActor)
+    endif
 
-    ;If UDmain.ActorIsPlayer(akActor)
-    ;
-    ;Else
-    ;    ActorUtil.AddPackageOverride(akActor, slConfig.DoNothing, 100, 1)
-    ;    akActor.EvaluatePackage()
-    ;    akActor.SetDontMove(true)
-    ;EndIf
-    
     Armor shield = akActor.GetEquippedShield()
     If shield
         StorageUtil.SetFormValue(akActor, "UD_EquippedShield", shield)
@@ -346,20 +333,15 @@ Function LockAnimatingActor(Actor akActor)
 EndFunction
 
 ; Function to unlock actor after animation
-Function UnlockAnimatingActor(Actor akActor)
+Function UnlockAnimatingActor(Actor akActor, Bool bEnableActor = True)
 
     StorageUtil.SetIntValue(akActor, "UD_ActorIsAnimating", 0)
     libs.SetAnimating(akActor, False)
 
-    UDCDMain.EnableActor(akActor)
-    ;If UDmain.ActorIsPlayer(akActor)
-    ;    ; should it be done via some UD wrapper?
-    ;    libs.UpdateControls()
-    ;Else
-    ;    ActorUtil.RemovePackageOverride(akActor, slConfig.DoNothing)
-    ;    akActor.EvaluatePackage()
-    ;    akActor.SetDontMove(False)
-    ;EndIf
+    if bEnableActor
+        UDCDMain.EnableActor(akActor)
+    endif
+
     akActor.SetVehicle(None)
     
     If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
@@ -828,6 +810,21 @@ EndFunction
 ; TODO: Cache it somehow for actors
 ; Function GetActorConstraintsInt
 ; Used to get actor's constraints from equipped devices as a bit mask
+; === Bit masks ===
+; Hobble skirt                      - 0000 0000 0001 / 0x0001 /    1
+; Ankle shackel or relaxed skirt    - 0000 0000 0010 / 0x0002 /    2
+; Yoke                              - 0000 0000 0100 / 0x0004 /    4
+; Front cuffs                       - 0000 0000 1000 / 0x0008 /    8
+; Armbinder                         - 0000 0001 0000 / 0x0010 /   16
+; Armbinder (Elbow)                 - 0000 0010 0000 / 0x0020 /   32
+; Pet suit                          - 0000 0100 0000 / 0x0040 /   64
+; Elbowtie                          - 0000 1000 0000 / 0x0080 /  128
+; Mittens                           - 0001 0000 0000 / 0x0100 /  256
+; Straitjacket                      - 0010 0000 0000 / 0x0200 /  512
+; Breast yoke                       - 0100 0000 0000 / 0x0400 / 1024
+; All                               - 0111 1111 1111 / 0x07FF / 2047
+; All (without HB)                  - 0001 0000 0011 / 0x0103 /  259
+; == All enable constrain value is 0x07FF or 2047
 Int Function GetActorConstraintsInt(Actor akActor, Bool bUseCache = False)
     If bUseCache && StorageUtil.HasIntValue(akActor, "UD_ActorConstraintsInt")
         Return StorageUtil.GetIntValue(akActor, "UD_ActorConstraintsInt")

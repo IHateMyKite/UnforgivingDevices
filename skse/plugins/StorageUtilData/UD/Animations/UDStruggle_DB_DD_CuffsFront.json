@@ -1,0 +1,138 @@
+{
+	"conditions" : {
+		"mod" : "Devious Devices - Integration.esm"
+	},
+	"solo" : {
+		"zad_DeviousCuffsFront" : [
+			{
+				"A1" : {
+					"anim" : "DDRegCuffsFrontStruggle01", 
+					"req" : 8, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDRegCuffsFrontStruggle02", 
+					"req" : 8, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDRegCuffsFrontStruggle03", 
+					"req" : 8, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDHobCuffsFrontStruggle01", 
+					"req" : 9, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDHobCuffsFrontStruggle02", 
+					"req" : 9, 
+					"opt" : 256
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_struggle_gloves_1", 
+					"req" : 0, 
+					"opt" : 267
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"horny" : [
+			{
+				"A1" : {
+					"anim" : "ft_horny_frontcuffs_1", 
+					"req" : 8, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_frontcuffs_2", 
+					"req" : 8, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_frontcuffs_3", 
+					"req" : 8, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_frontcuffs_4", 
+					"req" : 8, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_frontcuffs_5", 
+					"req" : 8, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_frontcuffs_6", 
+					"req" : 8, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_horny_frontcuffs_7", 
+					"req" : 8, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"edged" : [
+			{
+				"A1" : {
+					"anim" : "ft_edged_frontcuffs_1", 
+					"req" : 8, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_edged_hobbled_frontcuffs_1", 
+					"req" : 9, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"orgasm" : [
+			{
+				"A1" : {
+					"anim" : "ft_orgasm_frontcuffs_1", 
+					"req" : 8, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_edged_hobbled_frontcuffs_1", 
+					"req" : 9, 
+					"opt" : 258
+				}, 
+				"lewd" : 0 
+			}
+		]
+	}
+}
