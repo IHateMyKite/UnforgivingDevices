@@ -175,6 +175,8 @@ Bool Property UD_EquipMutex = False auto hidden
 Bool Property Ready = False auto hidden
 Bool Property EventsReady = false auto hidden
 
+String[] Property UD_DeviceStruggleKeywordsDefault          Auto        Hidden      ; default set of keywords when no animation is found (zad_DeviousGloves)
+
 Event OnInit()
     While !UDPatcher.ready
         Utility.WaitMenuMode(0.1)
@@ -221,6 +223,9 @@ Function Update()
     CheckHardcoreDisabler(UDmain.Player)
     
     SetArousalPerks()
+    
+    UD_DeviceStruggleKeywordsDefault = new String[1]
+    UD_DeviceStruggleKeywordsDefault[0] = "." + libs.zad_DeviousGloves.GetString()
 EndFunction
 
 UD_CustomDevice_RenderScript[] Function MakeNewDeviceSlots()
@@ -1687,11 +1692,27 @@ String[] Function GetDeviousKeywords(Armor akDevice)
     While i > 0
         i -= 1
         Keyword k = akDevice.GetNthKeyword(i)
-        String ks = k.GetString()
-        If StringUtil.Find("zad_devious", ks) > -1
+        String ks = "." + k.GetString()                         ; "." is crucial so that the papyrus won't mess with the case of letters
+        If StringUtil.Find(ks, "zad_devious") > -1
             result = PapyrusUtil.PushString(result, ks)
         EndIf
     EndWhile
+    Return result
+EndFunction
+
+String[] Function GetDeviceStruggleKeywords(Armor akDevice)
+    String[] result
+    If akDevice.HasKeyword(libs.zad_DeviousHeavyBondage)
+        String hb = "." + GetHeavyBondageKeyword(akDevice).GetString()      ; "." is crucial so that the papyrus won't mess with the case of letters
+        If hb == "."
+            UDMain.Error("UDCustomDeiceMain::GetDeviceStruggleKeywords() No keyword for heavy bondage on " + akDevice)
+        Else
+            result = PapyrusUtil.PushString(result, hb)
+        EndIf
+    Else
+        result = GetDeviousKeywords(akDevice)
+    EndIf
+    UDMain.Log("UDCustomDeviceMain::GetDeviceStruggleKeywords() " + akDevice + " : " + result, 3)
     Return result
 EndFunction
 

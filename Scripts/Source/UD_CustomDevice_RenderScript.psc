@@ -119,7 +119,7 @@ EndProperty
 ;FILL FOR FASTER LOCK
 Armor   Property DeviceRendered     auto
 Keyword Property UD_DeviceKeyword   auto ;keyword of this device for better manipulation
-String[] Property UD_DeviceKeywordStrings       Auto    Hidden
+String[] Property UD_DeviceStruggleKeywords       Auto    Hidden        ; keywords (as string array) used to filter struggle animations
 
 ;-------------------------------------------------------
 ;-------------------------------------------------------
@@ -1325,17 +1325,13 @@ Function updateValuesFromInventoryScript()
                 UD_DeviceKeyword = libs.zad_DeviousHobbleSkirt
             EndIf
         EndIf
-    ;    UD_DeviceKeywordStrings = UDCDMain.GetDeviousKeywords(DeviceRendered)
         DeviceRendered = temp.DeviceRendered
+        UD_DeviceStruggleKeywords = UDCDMain.GetDeviceStruggleKeywords(DeviceRendered)
         temp.delete()
     endif
     if zad_DestroyOnRemove && !hasModifier("DOR")
         addModifier("DOR")
     endif
-EndFunction
-
-Keyword[] Function _GetDeviceKeywords(Armor akDevice, Bool bMinor)
-    
 EndFunction
 
 bool Function addModifier(string modifier,string param = "")
@@ -3936,10 +3932,18 @@ Bool[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCo
             EndIf
         EndIf
     EndIf
+    ; filling struggle keywords list
+    String[] keywordsList
+    If UDAM.UD_UseSingleStruggleKeyword
+        keywordsList = new String[1]
+        keywordsList[0] = "." + UD_DeviceKeyword_Minor.GetString()
+    Else
+        keywordsList = UD_DeviceStruggleKeywords
+    EndIf
     
     If _minigameHelper
         If _clearCache_Pair || _StruggleAnimationDefPairArray.Length == 0
-            _StruggleAnimationDefPairArray = UDAM.GetStruggleAnimationsByKeyword(UD_DeviceKeyword_Minor, Wearer, _minigameHelper, True)
+            _StruggleAnimationDefPairArray = UDAM.GetStruggleAnimationsByKeyword(keywordsList, Wearer, _minigameHelper, True)
         EndIf
         If _StruggleAnimationDefPairArray.Length > 0
         ; using paired animation
@@ -3954,10 +3958,10 @@ Bool[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCo
         Else
         ; using solo animation for actors
             If _clearCache_SoloActor || _StruggleAnimationDefActorArray.Length == 0
-                _StruggleAnimationDefActorArray = UDAM.GetStruggleAnimationsByKeyword(UD_DeviceKeyword_Minor, Wearer, None, True)
+                _StruggleAnimationDefActorArray = UDAM.GetStruggleAnimationsByKeyword(keywordsList, Wearer, None, True)
             EndIf
             If _clearCache_SoloHelper || _StruggleAnimationDefHelperArray.Length == 0
-                _StruggleAnimationDefHelperArray = UDAM.GetStruggleAnimationsByKeyword(libs.zad_DeviousGloves, _minigameHelper, None, True)
+                _StruggleAnimationDefHelperArray = UDAM.GetStruggleAnimationsByKeyword(UDCDmain.UD_DeviceStruggleKeywordsDefault, _minigameHelper, None, True)
             EndIf
             
             If _StruggleAnimationDefActorArray.Length > 0
@@ -3980,7 +3984,7 @@ Bool[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCo
         EndIf
     Else
         If _clearCache_SoloActor || _StruggleAnimationDefActorArray.Length == 0
-            _StruggleAnimationDefActorArray = UDAM.GetStruggleAnimationsByKeyword(UD_DeviceKeyword_Minor, Wearer, None, True)
+            _StruggleAnimationDefActorArray = UDAM.GetStruggleAnimationsByKeyword(keywordsList, Wearer, None, True)
         EndIf
         If _StruggleAnimationDefActorArray.Length > 0
             _animationDef = _StruggleAnimationDefActorArray[Utility.RandomInt(0, _StruggleAnimationDefActorArray.Length - 1)]

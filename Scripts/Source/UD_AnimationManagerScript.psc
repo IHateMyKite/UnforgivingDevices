@@ -34,6 +34,7 @@ String[]                               Property     UD_AnimationJSON        Auto
 ; Animation playback settings moved from UDMain
 Bool                                   Property     UD_AlternateAnimation       = False     Auto    Hidden
 Float                                  Property     UD_AlternateAnimationPeriod = 5.0       Auto    Hidden
+Bool                                   Property     UD_UseSingleStruggleKeyword = True      Auto    Hidden
 
 ;==========;                                                                           
 ;==MANUAL==;                                                                           
@@ -551,7 +552,7 @@ EndFunction
 ;                       "opt" : 0                                           Optional constraints for the second actor (animation shouldn't be picked if actor has constraints not defined by this bit-mask)
 ;                  },
 ;                   {
-;                       "animation" : "<animation event variant 2>",        Variant for specified actor's constraints
+;                       "anim" : "<animation event variant 2>",             Variant for specified actor's constraints
 ;                       "req" : 512,                                        Required constraints for the second actor (animation shouldn't be picked if actor doesn't have all required constraints)
 ;                       "opt" : 0                                           Optional constraints for the second actor (animation shouldn't be picked if actor has constraints not defined by this bit-mask)
 ;                   }
@@ -687,24 +688,20 @@ EndFunction
 ; akActor               - wearer of the device
 ; akHelper              - optional helper
 ; return                - array of strings with animation paths in DB
-String[] Function GetStruggleAnimationsByKeyword(Keyword akKeyword, Actor akActor, Actor akHelper = None, Bool bReuseConstraintsCache = False)
+String[] Function GetStruggleAnimationsByKeyword(String[] asKeywords, Actor akActor, Actor akHelper = None, Bool bReuseConstraintsCache = False)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword() akKeyword = " + akKeyword.GetString() + ", akActor = " + akActor + ", akHelper = " + akHelper + ", bReuseConstraintsCache = " + bReuseConstraintsCache, 3)
+        UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword() asKeywords = " + asKeywords + ", akActor = " + akActor + ", akHelper = " + akHelper + ", bReuseConstraintsCache = " + bReuseConstraintsCache, 3)
     EndIf
 
     If akHelper == None
         Int[] aActorConstraints = new Int[1]
         aActorConstraints[0] = GetActorConstraintsInt(akActor, bReuseConstraintsCache)
-        String[] sKeywords = new String[1]
-        sKeywords[0] = "." + akKeyword.GetString()
-        Return GetAnimationsFromDB(".solo", sKeywords, "", aActorConstraints)
+        Return GetAnimationsFromDB(".solo", asKeywords, "", aActorConstraints)
     Else
         Int[] aActorConstraints = new Int[2]
         aActorConstraints[0] = GetActorConstraintsInt(akActor, bReuseConstraintsCache)
         aActorConstraints[1] = GetActorConstraintsInt(akHelper, bReuseConstraintsCache)
-        String[] sKeywords = new String[1]
-        sKeywords[0] = "." + akKeyword.GetString()
-        Return GetAnimationsFromDB(".paired", sKeywords, "", aActorConstraints)
+        Return GetAnimationsFromDB(".paired", asKeywords, "", aActorConstraints)
     EndIf
 EndFunction
 

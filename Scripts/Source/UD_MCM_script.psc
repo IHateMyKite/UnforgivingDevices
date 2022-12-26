@@ -762,6 +762,8 @@ Int UDAM_TestQuery_ElapsedTime_T
 Int UD_AlternateAnimation_T
 Int UD_AlternateAnimationPeriod_S
 
+Int UD_UseSingleStruggleKeyword_T
+
 Actor LastHelper
 Int UD_Helper_T
 
@@ -874,6 +876,8 @@ Event resetAnimationsPage()
         flags = OPTION_FLAG_DISABLED
     EndIf
     UD_AlternateAnimationPeriod_S = AddSliderOption("Switch period", UDAM.UD_AlternateAnimationPeriod, "{0} s", flags)
+    rows_left += 1
+    UD_UseSingleStruggleKeyword_T = AddToggleOption("Use single keyword from device", UDAM.UD_UseSingleStruggleKeyword)
     rows_left += 1
     
 ; LEFT COLUMN
@@ -1439,6 +1443,9 @@ Function OptionSelectAnimations(int option)
         ShowMessage("Lets try to stop animation")
         UDAM.StopAnimation(Game.GetPlayer(), LastHelper)
         closeMCM()
+    ElseIf option == UD_UseSingleStruggleKeyword_T
+        UDAM.UD_UseSingleStruggleKeyword = !UDAM.UD_UseSingleStruggleKeyword
+        SetToggleOptionValue(UD_UseSingleStruggleKeyword_T, UDAM.UD_UseSingleStruggleKeyword)
     EndIf
 EndFunction
 
@@ -2994,6 +3001,8 @@ Function AnimationPageInfo(Int option)
         SetInfoText("Click to reload all files from the disk. Unchecked files will be ignored. These settings are persisted through saves.")
     elseif option == UD_AlternateAnimation_T
         SetInfoText("Enabling this will force struggle animation to randomly switch to different animation periodically\nDefault: OFF")
+    elseif option == UD_UseSingleStruggleKeyword_T
+        SetInfoText("If this option is enabled, then only one (defining) device keyword will be used when filtering the struggle animation. Otherwise, all suitable keywords will be applied.\nDefault: ON")
     elseif option == UD_AlternateAnimationPeriod_S
         SetInfoText("Animation is picked from an array of suitable ones with a given period.\nDefault: 5 sec")
     ElseIf option == UDAM_TestQuery_Request_T
