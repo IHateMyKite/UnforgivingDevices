@@ -3609,9 +3609,11 @@ Function minigame()
     minigame_on = True
     GoToState("UpdatePaused")
     
-    bool loc_WearerIsPlayer = WearerIsPlayer()
-    bool loc_HelperIsPlayer = HelperIsPlayer()
-    bool loc_PlayerInMinigame = loc_WearerIsPlayer || loc_HelperIsPlayer
+    bool loc_WearerIsPlayer     = WearerIsPlayer()
+    bool loc_HelperIsPlayer     = HelperIsPlayer()
+    bool loc_PlayerInMinigame   = loc_WearerIsPlayer || loc_HelperIsPlayer
+    Bool loc_is3DLoaded         = Wearer.Is3DLoaded()  || loc_PlayerInMinigame
+    
     
     if loc_PlayerInMinigame
         closeMenu()
@@ -3624,7 +3626,13 @@ Function minigame()
         _minigameHelper.AddToFaction(UDCDmain.MinigameFaction)
     endif
     
-    UDCDMain.UDPP.Send_MinigameStarter(Wearer,self)
+    
+    if loc_is3DLoaded
+        UDCDMain.UDPP.Send_MinigameStarter(Wearer,self)
+    else
+        MinigameStarter()
+    endif
+    
     
     if UDmain.TraceAllowed()
         UDCDmain.Log("Minigame started for: " + deviceInventory.getName())    
@@ -3638,9 +3646,10 @@ Function minigame()
         hasStruggleAnimation = _PickAndPlayStruggleAnimation(bClearCache = True)
     EndIf
     
-    _MinigameMainLoop_ON = true    
-    UDCDMain.UDPP.Send_MinigameParalel(Wearer,self)        
-
+    _MinigameMainLoop_ON = true
+    
+    UDCDMain.UDPP.Send_MinigameParalel(Wearer,self)
+    
     float durability_onstart = current_device_health
     
     ;main loop, ends only when character run out off stats or device losts all durability
@@ -3648,8 +3657,8 @@ Function minigame()
     int         tick_s                 = 0
     float       fCurrentUpdateTime     = UDmain.UD_baseUpdateTime
     
-    if !Wearer.Is3DLoaded() && !loc_PlayerInMinigame
-        fCurrentUpdateTime = 1.0
+    if !loc_is3DLoaded
+        fCurrentUpdateTime = 2.0
     elseif !loc_PlayerInMinigame
         fCurrentUpdateTime = 0.5
     endif
@@ -3660,7 +3669,7 @@ Function minigame()
     float     loc_condmult         = 1.0 + _condition_mult_add
     bool      loc_updatewidget     = loc_PlayerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
     
-    while current_device_health > 0.0 && !force_stop_minigame; && UDCDmain.actorInMinigame(getWearer())
+    while current_device_health > 0.0 && !force_stop_minigame
         ;pause minigame, pause minigame need to be changed from other thread or infinite loop happens
         while pauseMinigame
             Utility.wait(0.01)
@@ -3689,7 +3698,7 @@ Function minigame()
                 decreaseDurabilityAndCheckUnlock(loc_dmg,loc_condmult)
             endif
             ;update widget
-            if loc_updatewidget
+            if loc_is3DLoaded && loc_updatewidget
                 updateWidget()
             endif
         endif
@@ -3702,9 +3711,12 @@ Function minigame()
                 StopMinigame()
             else
                 ;update loc vars
-                loc_dmg             = (_durability_damage_mod + UD_durability_damage_add)*fCurrentUpdateTime*UD_DamageMult
-                loc_condmult         = 1.0 + _condition_mult_add            
-                loc_updatewidget     = loc_PlayerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
+                loc_dmg              = (_durability_damage_mod + UD_durability_damage_add)*fCurrentUpdateTime*UD_DamageMult
+                loc_condmult         = 1.0 + _condition_mult_add
+                
+                if loc_is3DLoaded
+                    loc_updatewidget     = loc_PlayerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
+                endif
                 
                 ;check non struggle minigames
                 if !loc_PlayerInMinigame
@@ -3717,27 +3729,39 @@ Function minigame()
                 tick_s += 1
                 if !force_stop_minigame
                     OnMinigameTick1()
-                    ;update disable if it gets somehow removed every 1 s
-                    UDCDMain.UpdateMinigameDisable(Wearer)
-                    if _minigameHelper
-                        UDCDMain.UpdateMinigameDisable(_minigameHelper)
+                    
+                    if loc_is3DLoaded
+                        ;update disable if it gets somehow removed every 1 s
+                        UDCDMain.UpdateMinigameDisable(Wearer)
+                        if _minigameHelper
+                            UDCDMain.UpdateMinigameDisable(_minigameHelper)
+                        endif
                     endif
                     
                     ;--three second timer--
+                    ; Call child function
                     if !(tick_s % 3) && tick_s
-                        ;start new animation if wearer stops animating
-                        if ((hasStruggleAnimation[0] && !UDAM.isAnimating(Wearer, false)) || (_minigameHelper && hasStruggleAnimation[1] && !UDAM.isAnimating(_minigameHelper, false))) && !pauseMinigame && !force_stop_minigame
-                            _PickAndPlayStruggleAnimation(bContinueAnimation = True)
-                        endif
                         OnMinigameTick3()
                     endif
                     
-                    ;-- alternate animation timer--
-                    if !(tick_s % (UDAM.UD_AlternateAnimationPeriod As Int)) && tick_s
-                        if hasStruggleAnimation[0] && UDAM.UD_AlternateAnimation && !pauseMinigame && !force_stop_minigame
-                            _PickAndPlayStruggleAnimation(bContinueAnimation = True)
+                    ;only check animations if actor is loaded
+                    if loc_is3DLoaded
+                        ;--three second timer--
+                        if !(tick_s % 3) && tick_s
+                            ;start new animation if wearer stops animating
+                            if ((hasStruggleAnimation[0] && !UDAM.isAnimating(Wearer, false)) || (_minigameHelper && hasStruggleAnimation[1] && !UDAM.isAnimating(_minigameHelper, false))) && !pauseMinigame && !force_stop_minigame
+                                _PickAndPlayStruggleAnimation(bContinueAnimation = True)
+                            endif
+                        endif
+                        
+                        ;-- alternate animation timer--
+                        if !(tick_s % (UDAM.UD_AlternateAnimationPeriod As Int)) && tick_s
+                            if hasStruggleAnimation[0] && UDAM.UD_AlternateAnimation && !pauseMinigame && !force_stop_minigame
+                                _PickAndPlayStruggleAnimation(bContinueAnimation = True)
+                            endif
                         endif
                     endif
+                    
                 endif
             endif
         endif
@@ -3810,12 +3834,19 @@ Function minigame()
     endif
     
     ;wait for paralled threads to end
-    float loc_time = 0.0
-    while (_MinigameParProc_1 || _MinigameParProc_2 || _MinigameParProc_3) && loc_time <= 3.5
-        Utility.wait(0.1)
-        loc_time += 0.1
+    float loc_time          = 0.0
+    Float loc_timeout       = 3.5
+    Float loc_timeoutUpT    = 0.1
+    if !loc_is3DLoaded
+        loc_timeout     = 10.0
+        loc_timeoutUpT  = 1.0
+    endif
+    
+    while (_MinigameParProc_1 || _MinigameParProc_2 || _MinigameParProc_3) && loc_time <= loc_timeout
+        Utility.wait(loc_timeoutUpT)
+        loc_time += loc_timeoutUpT
     endwhile
-    if loc_time >= 3.5
+    if loc_time >= loc_timeout
         UDCDMain.Error("minigame("+getDeviceHeader()+") - Minigame paralel thread timeout!")
     endif
     
@@ -3830,6 +3861,39 @@ Function minigame()
         UDmain.Print("[Debug] Durability reduced: "+ formatString(durability_onstart - current_device_health,3) + "\n",1)
     endif
 EndFunction
+
+Function MinigameStarter()
+    bool    loc_canShowHUD      = canShowHUD()
+    bool    loc_haveplayer      = PlayerInMinigame()
+    bool    loc_updatewidget    = UD_UseWidget && UDCDmain.UD_UseWidget && loc_haveplayer
+    
+    UDCDMain.StartMinigameDisable(Wearer)
+    if _minigameHelper
+        UDCDMain.StartMinigameDisable(_minigameHelper)
+    endif
+    
+    if loc_haveplayer
+        UDCDmain.setCurrentMinigameDevice(self)
+        UDCDmain.MinigameKeysRegister()
+    else
+        StorageUtil.SetFormValue(Wearer, "UD_currentMinigameDevice", deviceRendered)
+    endif
+    
+    _MinigameParProc_1 = false
+    
+    ;shows bars
+    if loc_updatewidget
+        showWidget()
+    endif
+    if loc_canShowHUD
+        showHUDbars()
+    endif
+    
+    OnMinigameStart()
+    
+    libsp.pant(Wearer)
+EndFunction
+
 
 ; TODO: keep the cache alive as long as the actor constraints don't change
 String[] _StruggleAnimationDefPairArray
