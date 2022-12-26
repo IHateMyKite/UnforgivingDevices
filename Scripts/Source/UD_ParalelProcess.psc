@@ -311,8 +311,9 @@ Function Receive_MinigameParalel(Form fActor)
     if akHelper
         UDEM.ResetExpressionRaw(akHelper,15)
     endif
-    
-    loc_device.addStruggleExhaustion(akActor,akHelper)
+    if UDmain.UDGV.UDG_MinigameExhaustion.Value == 1
+        loc_device.addStruggleExhaustion(akActor,akHelper)
+    endif
 EndFunction
 
 
@@ -371,13 +372,13 @@ Function Receive_MinigameCritloop(Form fActor)
     Actor akActor                           = fActor as Actor
     
     loc_device._MinigameParProc_3           = true
-    Bool loc_playerInMinigame = loc_device.PlayerInMinigame()
+    Bool loc_playerInMinigame               = loc_device.PlayerInMinigame()
 
     Float loc_elapsedTime = 0.0
     Float loc_updateTime  = 0.25
     string critType = "random"
     if !loc_playerInMinigame
-        loc_updateTime = 0.5
+        loc_updateTime = 1.0
         critType = "NPC"
     elseif UDCDmain.UD_AutoCrit
         critType = "Auto"
@@ -393,7 +394,7 @@ Function Receive_MinigameCritloop(Form fActor)
                 if loc_device.UD_minigame_canCrit
                     UDCDmain.StruggleCritCheck(loc_device,loc_device.UD_StruggleCritChance,critType,loc_device.UD_StruggleCritDuration)
                 elseif loc_device._customMinigameCritChance
-                    UDCDmain.StruggleCritCheck(loc_device,loc_device._customMinigameCritChance,critType,loc_device._customMinigameCritDuration)            
+                    UDCDmain.StruggleCritCheck(loc_device,loc_device._customMinigameCritChance,critType,loc_device._customMinigameCritDuration)
                 endif
                 loc_elapsedTime = 0.0
             endif

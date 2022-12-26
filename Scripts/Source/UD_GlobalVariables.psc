@@ -13,3 +13,6 @@ GlobalVariable Property UDG_NPCScanUpT          auto
 
 ;update time for NPC heavy processing (skill update), float
 GlobalVariable Property UDG_NPCHeavyUpT         auto
+
+;setting it to value different then 1 will disable exhaustion from being applied, short
+GlobalVariable Property UDG_MinigameExhaustion  auto

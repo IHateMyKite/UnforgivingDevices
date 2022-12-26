@@ -133,9 +133,13 @@ Function UndressSlots()
     int index = UD_Slots ;all aliases
     while index
         index -= 1
-        UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
-        if loc_slot && loc_slot.isUsed() && !loc_slot.hasFreeHands() && !UDmain.ActorIsPlayer(loc_slot.GetActor()) && !UDmain.ActorIsFollower(loc_slot.GetActor())
-            libs.strip(loc_slot.GetActor(),false)
+        UD_CustomDevice_NPCSlot loc_slot    = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
+        Actor                   loc_actor   = none
+        if loc_slot
+            loc_actor = loc_slot.GetActor()
+            if loc_actor && loc_actor.Is3DLoaded() && !loc_slot.hasFreeHands() && !UDmain.ActorIsPlayer(loc_actor) && !UDmain.ActorIsFollower(loc_actor)
+                libs.strip(loc_slot.GetActor(),false)
+            endif
         endif
     endwhile
 EndFunction

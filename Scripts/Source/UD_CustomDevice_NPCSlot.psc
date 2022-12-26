@@ -92,7 +92,9 @@ EndState
 ;update other variables
 Function UpdateSlot(Bool abUpdateSkill = true)
     ArousalSkillMult = UDCDmain.getArousalSkillMult(getActor())
-    if abUpdateSkill
+    if abUpdateSkill && (isPlayer() || isFollower())
+        ;only update skills if actor is player or follower
+        ;TODO: Add switch to allow users to also update skills for other NPCs
         UpdateSkills()
     endif
     if !GetActor().wornhaskeyword(libs.zad_deviousHeavyBondage)
@@ -1352,6 +1354,10 @@ bool Function isPlayer()
     return UDmain.ActorIsPlayer(GetActor())
 EndFunction
 
+Bool Function isFollower()
+    return UDmain.ActorIsFollower(GetActor())
+EndFunction
+
 bool Function isUsed()
     if getActor()
         return true
@@ -1522,13 +1528,13 @@ Armor       Property UD_GlobalDeviceUnlockMutex_Device                      = no
 Keyword     Property UD_UnlockToken                                         = none      auto hidden    
 
 Function ResetMutex_Lock(Armor invDevice)
-    UD_GlobalDeviceMutex_inventoryScript                 = false
+    UD_GlobalDeviceMutex_inventoryScript                = false
     UD_GlobalDeviceMutex_InventoryScript_Failed         = false
     UD_GlobalDeviceMutex_Device                         = invDevice
 EndFunction
 
 Function ResetMutex_Unlock(Armor invDevice)
-    UD_GlobalDeviceUnlockMutex_InventoryScript             = false
+    UD_GlobalDeviceUnlockMutex_InventoryScript            = false
     UD_GlobalDeviceUnlockMutex_InventoryScript_Failed     = false
     UD_UnlockToken                                        = none
     UD_GlobalDeviceUnlockMutex_Device                     = invDevice

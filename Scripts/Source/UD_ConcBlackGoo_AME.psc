@@ -9,7 +9,5 @@ zadlibs_UDPatch Property libsp
 EndProperty
 
 Event OnEffectStart(Actor akTarget, Actor akCaster)
-    libsp.strip(akTarget,false)
     UD_AbadonQuest.AbadonEquipSuit(akTarget,UD_AbadonQuest.final_finisher_pref)
-    libsp.strip(akTarget,false)
 EndEvent

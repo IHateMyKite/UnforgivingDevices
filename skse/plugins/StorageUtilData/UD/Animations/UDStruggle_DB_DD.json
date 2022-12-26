@@ -1213,6 +1213,13 @@
 					"opt" : 2306
 				}, 
 				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_struggle_gloves_1", 
+					"req" : 0, 
+					"opt" : 2315
+				}, 
+				"lewd" : 0 
 			}
 		], 
 		"zad_DeviousHarness" : [
@@ -1305,6 +1312,13 @@
 					"anim" : "DDHobYokeStruggle01", 
 					"req" : 5, 
 					"opt" : 2306
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "ft_struggle_gloves_1", 
+					"req" : 0, 
+					"opt" : 2315
 				}, 
 				"lewd" : 0 
 			}

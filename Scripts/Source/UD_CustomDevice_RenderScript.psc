@@ -4685,6 +4685,9 @@ endFunction
 
 ;adds struggle debuff to Wearer and Helper
 Function addStruggleExhaustion(Actor akWearer, Actor akHelper)
+    if UDmain.TraceAllowed()
+        UDmain.Log("UD_CustomDevice_RenderScript::addStruggleExhaustion("+getDeviceHeader()+") called")
+    endif
     if UD_applyExhastionEffect
         UDlibs.StruggleExhaustionSpell.SetNthEffectMagnitude(0, UDCDmain.UD_StruggleExhaustionMagnitude*Utility.randomFloat(0.75,1.25))
         UDlibs.StruggleExhaustionSpell.SetNthEffectDuration(0, Round(UDCDmain.UD_StruggleExhaustionDuration*_exhaustion_mult*Utility.randomFloat(0.75,1.25)))

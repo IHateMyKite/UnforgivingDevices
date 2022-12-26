@@ -72,6 +72,8 @@ UD_SkillManager_Script              Property UDSKILL Hidden
     EndFunction
 EndProperty
 
+Package         Property UD_NPCDisablePackage           auto
+
 ;UI menus
 UITextEntryMenu Property TextMenu                       auto
 UIListMenu      Property ListMenu                       auto

@@ -346,7 +346,7 @@ Function StartMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
         UpdatePlayerControl()
         Game.SetPlayerAiDriven(True)
     else
-        ActorUtil.AddPackageOverride(akActor, NPCDisablePackage, 100, 1)
+        ActorUtil.AddPackageOverride(akActor, UDmain.UD_NPCDisablePackage, 100, 1)
         akActor.EvaluatePackage()
         akActor.SetDontMove(True)
         akActor.SheatheWeapon()
@@ -371,7 +371,7 @@ Function EndMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
         libsp.ProcessPlayerControls(false)
         Game.SetPlayerAiDriven(False)
     else
-        ActorUtil.RemovePackageOverride(akActor, NPCDisablePackage)
+        ActorUtil.RemovePackageOverride(akActor, UDmain.UD_NPCDisablePackage)
         akActor.EvaluatePackage()
         akActor.SetDontMove(False)
     endif

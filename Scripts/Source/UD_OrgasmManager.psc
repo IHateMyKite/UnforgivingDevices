@@ -650,12 +650,11 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,in
         loc_isfollower  = UDmain.ActorIsFollower(akActor)
     endif
     bool loc_is3Dloaded = akActor.Is3DLoaded() || loc_isplayer
-    bool loc_close      = UDmain.ActorInCloseRange(akActor)
-    bool loc_cond       = loc_is3Dloaded && loc_close
+    bool loc_cond       = loc_is3Dloaded && UDmain.ActorInCloseRange(akActor)
     
     if loc_actorinminigame
         PlayOrgasmAnimation(akActor,iDuration)
-    elseif ((akActor.IsInCombat() || akActor.IsSneaking()) && (loc_isplayer || loc_isfollower)) || !loc_cond
+    elseif !loc_cond || ((akActor.IsInCombat() || akActor.IsSneaking()) && (loc_isplayer || loc_isfollower))
         if UDmain.ActorIsPlayer(akActor)
             UDCDmain.Print("You managed to avoid losing control over your body from orgasm!",2)
         endif
