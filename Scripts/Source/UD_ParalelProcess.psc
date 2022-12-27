@@ -538,7 +538,7 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
         endif
     endif
 
-    if loc_is3Dloaded && loc_close
+    if loc_cond
         if loc_orgasmExhaustion == 1
             UDEM.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm2(), 75,false,50)
         elseif loc_orgasmExhaustion < 3
@@ -548,11 +548,11 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
         endif
     endif  
     
-    if loc_applytears
+    if loc_applytears && loc_cond
         UDCDmain.ApplyTearsEffect(akActor)
     endif
     
-    if loc_is3Dloaded && loc_close
+    if loc_cond
         int sID = libsp.OrgasmSound.Play(akActor)
         Sound.SetInstanceVolume(sid, libsp.Config.VolumeOrgasm)
         

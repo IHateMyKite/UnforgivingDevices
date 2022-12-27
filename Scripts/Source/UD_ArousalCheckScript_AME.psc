@@ -14,12 +14,14 @@ Bool        loc_isplayer    = false
 float       loc_updateTime  = 1.0
 Float       loc_arousalRate = 0.0
 Int         loc_arousal     = 0      ;how much is arousal increased/decreased
+bool        loc_Is3DLoaded  = False
 MagicEffect _MagickEffect   = none
 
 Event OnEffectStart(Actor akTarget, Actor akCaster)
     _MagickEffect = GetBaseObject()
     akActor = akTarget
     akActor.AddToFaction(UDOM.ArousalCheckLoopFaction)
+    loc_Is3DLoaded = loc_isplayer || akActor.Is3DLoaded()
     if UDmain.TraceAllowed()
         UDCDmain.Log("UD_ArousalCheckScript_AME("+getActorName(akActor)+") - OnEffectStart()")
     endif
@@ -50,6 +52,7 @@ Event OnUpdate()
             akActor.RemoveSpell(UDCDmain.UDlibs.ArousalCheckSpell)
             ;akActor.DispelSpell(UDCDmain.UDlibs.ArousalCheckSpell)
         else
+            loc_Is3DLoaded = loc_isplayer || akActor.Is3DLoaded()
             loc_arousalRate = UDOM.getArousalRateM(akActor)
             loc_arousal     = Round(loc_arousalRate)
             
@@ -60,7 +63,11 @@ Event OnUpdate()
             endif
     
             if IsRunning()
-                registerForSingleUpdate(1.0)
+                if loc_Is3DLoaded
+                    registerForSingleUpdate(1.0) ;update once per 1 seconds
+                else
+                    registerForSingleUpdate(2.0) ;update once per 2 seconds
+                endif
             endif
         endif
     endif

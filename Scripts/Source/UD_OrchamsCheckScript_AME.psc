@@ -42,6 +42,7 @@ bool[]  loc_cameraState
 int     loc_msID                    = -1
 float   loc_edgeprogress            = 0.0
 int     loc_edgelevel               = 0
+bool    loc_Is3DLoaded              = False
 sslBaseExpression expression
 float[] loc_expression
 float[] loc_expression2
@@ -96,6 +97,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     loc_actorinminigame         = UDCDMain.actorInMinigame(akActor)
     loc_edgeprogress            = UDOM.GetHornyProgress(akActor)
     loc_edgelevel               = UDOM.GetHornyLevel(akActor)
+    loc_Is3DLoaded              = akActor.Is3DLoaded() || loc_isplayer
     registerForSingleUpdate(0.1)
 EndEvent
 
@@ -268,6 +270,9 @@ Event OnUpdate()
             endif
             
             if loc_tick * loc_currentUpdateTime >= 1.0
+                
+                loc_Is3DLoaded = loc_isplayer || akActor.Is3DLoaded() ;check if actor 3D is loaded
+                
                 loc_orgasmRate2 = loc_orgasmRate
                 if loc_isplayer
                     loc_currentUpdateTime = UDOM.UD_OrgasmUpdateTime
@@ -299,81 +304,83 @@ Event OnUpdate()
                     UDOM.SetActorOrgasmProgress(akActor,loc_orgasmProgress)
                 endif
 
-                ;expression
-                if loc_orgasmRate >= loc_orgasmResistence*0.75 && (!loc_expressionApplied || loc_expressionUpdateTimer > 5) 
-                    ;init expression
-                    if loc_edgelevel == 0
-                        UDEM.ApplyExpressionRaw(akActor, loc_expression, iRange(Round(loc_orgasmProgress),75,100),false,10)
-                    elseif loc_edgelevel > 0 && loc_edgelevel < 3
-                        UDEM.ApplyExpressionRaw(akActor, loc_expression2, 75,false,10)
+                ;more advances features, only enable if actor is loaded
+                if loc_Is3DLoaded
+                    ;expression
+                    if loc_orgasmRate >= loc_orgasmResistence*0.75 && (!loc_expressionApplied || loc_expressionUpdateTimer > 5) 
+                        ;init expression
+                        if loc_edgelevel == 0
+                            UDEM.ApplyExpressionRaw(akActor, loc_expression, iRange(Round(loc_orgasmProgress),75,100),false,10)
+                        elseif loc_edgelevel > 0 && loc_edgelevel < 3
+                            UDEM.ApplyExpressionRaw(akActor, loc_expression2, 75,false,10)
+                        else
+                            UDEM.ApplyExpressionRaw(akActor, loc_expression3, 50,false,10)
+                        endif
+                        
+                        loc_expressionApplied = true
+                        loc_expressionUpdateTimer = 0
+                    elseif loc_orgasmRate < loc_orgasmResistence*0.75 && loc_expressionApplied
+                        UDEM.ResetExpressionRaw(akActor,10)
+                        loc_expressionApplied = false
+                    endif
+                    
+                    ;can play horny animation ?
+                    if (loc_orgasmRate > 0.5*loc_orgasmResistMultiplier*loc_orgasmResistence) 
+                        ;start moaning sound again. Not play when actor orgasms
+                        if loc_msID == -1 && !loc_orgasms && !loc_actorinminigame
+                            loc_msID = libs.MoanSound.Play(akActor)
+                            Sound.SetInstanceVolume(loc_msID, fRange(loc_orgasmProgress_p*2.0,0.75,1.0)*libs.GetMoanVolume(akActor,loc_arousal))
+                        endif
                     else
-                        UDEM.ApplyExpressionRaw(akActor, loc_expression3, 50,false,10)
+                        ;disable moaning sound when orgasm rate is too low
+                        if loc_msID != -1
+                            Sound.StopInstance(loc_msID)
+                            loc_msID = -1
+                        endif
                     endif
-                    
-                    loc_expressionApplied = true
-                    loc_expressionUpdateTimer = 0
-                elseif loc_orgasmRate < loc_orgasmResistence*0.75 && loc_expressionApplied
-                    UDEM.ResetExpressionRaw(akActor,10)
-                    loc_expressionApplied = false
-                endif
-                
-                ;can play horny animation ?
-                if (loc_orgasmRate > 0.5*loc_orgasmResistMultiplier*loc_orgasmResistence) 
-                    ;start moaning sound again. Not play when actor orgasms
-                    if loc_msID == -1 && !loc_orgasms && !loc_actorinminigame
-                        loc_msID = libs.MoanSound.Play(akActor)
-                        Sound.SetInstanceVolume(loc_msID, fRange(loc_orgasmProgress_p*2.0,0.75,1.0)*libs.GetMoanVolume(akActor,loc_arousal))
-                    endif
-                else
-                    ;disable moaning sound when orgasm rate is too low
-                    if loc_msID != -1
-                        Sound.StopInstance(loc_msID)
-                        loc_msID = -1
-                    endif
-                endif
-                if !loc_actorinminigame
-                    if (loc_orgasmRate > 0.5*loc_orgasmResistMultiplier*loc_orgasmResistence) && !loc_orgasmResisting && !akActor.IsInCombat() ;orgasm progress is increasing
-                        if (loc_hornyAnimTimer == 0) && !UDmain.UDAM.IsAnimating(akActor) && UDOM.UD_HornyAnimation ;start horny animation for UD_HornyAnimationDuration
-                            if Utility.RandomInt() <= (Math.ceiling(100/fRange(loc_orgasmProgress,15.0,100.0))) 
-                                ; Select animation
-                                If _HornyAnimEvents.Length == 0
-                                    _HornyAnimEvents = UDmain.UDAM.GetHornyAnimEvents(akActor)
-                                EndIf
-                                If _HornyAnimEvents.Length > 0
-                                    String anim_event = _HornyAnimEvents[Utility.RandomInt(0, _HornyAnimEvents.Length - 1)]
-                                    UDmain.UDAM.StartSoloAnimation(akActor, anim_event)
-                                Else
-                                    UDmain.Warning("UD_OrchamsCheckScript_AME::OnUpdate() Can't find animations for the horny actor")
-                                EndIf
-                                loc_hornyAnimTimer += UDOM.UD_HornyAnimationDuration
-                            endif
-                        EndIf
-                    endif
-                    
-                    if !loc_orgasmResisting
-                        if loc_hornyAnimTimer > 0 ;reduce horny animation timer 
-                            loc_hornyAnimTimer -= 1
-                            if (loc_hornyAnimTimer == 0)
-                                UDmain.UDAM.StopAnimation(akActor)
-                                loc_hornyAnimTimer = -20 ;cooldown
+                    if !loc_actorinminigame
+                        if (loc_orgasmRate > 0.5*loc_orgasmResistMultiplier*loc_orgasmResistence) && !loc_orgasmResisting && !akActor.IsInCombat() ;orgasm progress is increasing
+                            if (loc_hornyAnimTimer == 0) && !UDmain.UDAM.IsAnimating(akActor) && UDOM.UD_HornyAnimation ;start horny animation for UD_HornyAnimationDuration
+                                if Utility.RandomInt() <= (Math.ceiling(100/fRange(loc_orgasmProgress,15.0,100.0))) 
+                                    ; Select animation
+                                    If _HornyAnimEvents.Length == 0
+                                        _HornyAnimEvents = UDmain.UDAM.GetHornyAnimEvents(akActor)
+                                    EndIf
+                                    If _HornyAnimEvents.Length > 0
+                                        String anim_event = _HornyAnimEvents[Utility.RandomInt(0, _HornyAnimEvents.Length - 1)]
+                                        UDmain.UDAM.StartSoloAnimation(akActor, anim_event)
+                                    Else
+                                        UDmain.Warning("UD_OrchamsCheckScript_AME::OnUpdate() Can't find animations for the horny actor")
+                                    EndIf
+                                    loc_hornyAnimTimer += UDOM.UD_HornyAnimationDuration
+                                endif
                             EndIf
-                        elseif loc_hornyAnimTimer < 0 ;cooldown
-                            loc_hornyAnimTimer += 1
+                        endif
+                        
+                        if !loc_orgasmResisting
+                            if loc_hornyAnimTimer > 0 ;reduce horny animation timer 
+                                loc_hornyAnimTimer -= 1
+                                if (loc_hornyAnimTimer == 0)
+                                    UDmain.UDAM.StopAnimation(akActor)
+                                    loc_hornyAnimTimer = -20 ;cooldown
+                                EndIf
+                            elseif loc_hornyAnimTimer < 0 ;cooldown
+                                loc_hornyAnimTimer += 1
+                            endif
+                        endif
+                    endif
+                    
+                    if UDOM.UD_UseOrgasmWidget && loc_isplayer
+                        if (loc_widgetShown && loc_orgasmProgress < 2.5) ;|| (loc_widgetShown)
+                            UDmain.UDWC.Toggle_OrgasmWidget(false)
+                            loc_widgetShown = false
+                        elseif !loc_widgetShown && loc_orgasmProgress >= 2.5
+                            UDmain.UDWC.UpdatePercent_OrgasmWidget(loc_orgasmProgress_p,true)
+                            UDmain.UDWC.Toggle_OrgasmWidget(true)
+                            loc_widgetShown = true
                         endif
                     endif
                 endif
-                
-                if UDOM.UD_UseOrgasmWidget && loc_isplayer
-                    if (loc_widgetShown && loc_orgasmProgress < 2.5) ;|| (loc_widgetShown)
-                        UDmain.UDWC.Toggle_OrgasmWidget(false)
-                        loc_widgetShown = false
-                    elseif !loc_widgetShown && loc_orgasmProgress >= 2.5
-                        UDmain.UDWC.UpdatePercent_OrgasmWidget(loc_orgasmProgress_p,true)
-                        UDmain.UDWC.Toggle_OrgasmWidget(true)
-                        loc_widgetShown = true
-                    endif
-                endif
-                
                 if loc_orgasmProgress < 0.0
                     loc_orgasmProgress = 0.0
                 endif
@@ -390,8 +397,10 @@ Event OnUpdate()
             if IsRunning()
                 if loc_isplayer
                     loc_currentUpdateTime = UDOM.UD_OrgasmUpdateTime
+                elseif loc_Is3DLoaded
+                    loc_currentUpdateTime = 0.5 ;0.5 s update time if actor is loaded
                 else
-                    loc_currentUpdateTime = 1.0
+                    loc_currentUpdateTime = 2.0 ;2s update time if actor is not loaded
                 endif
                 registerForSingleUpdate(loc_currentUpdateTime)
             endif

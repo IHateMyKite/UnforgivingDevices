@@ -699,13 +699,17 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
         UDmain.UDUI.GoToState("UIDisabled") ;disable UI
     endif
     
+    Bool loc_is3Dloaded = akActor.Is3DLoaded()
+    
     UDCDmain.DisableActor(akActor,loc_isPlayer)
     
-    String[] animationArray = UDmain.UDAM.GetOrgasmAnimEvents(akActor)
-    If animationArray.Length > 0
-        UDmain.UDAM.StartSoloAnimation(akActor, animationArray[Utility.RandomInt(0, animationArray.Length - 1)])
-    EndIf
-
+    if loc_is3Dloaded
+        String[] animationArray = UDmain.UDAM.GetOrgasmAnimEvents(akActor)
+        If animationArray.Length > 0
+            UDmain.UDAM.StartSoloAnimation(akActor, animationArray[Utility.RandomInt(0, animationArray.Length - 1)], bDisableActor = False)
+        EndIf
+    endif
+    
     int loc_elapsedtime = 0
     while loc_elapsedtime < aiDuration
         if loc_elapsedtime && !(loc_elapsedtime % 2)
@@ -718,14 +722,12 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
     endwhile
 
     StorageUtil.UnsetIntValue(akActor,"UD_OrgasmDuration")
-
-    UDCDmain.EnableActor(akActor,loc_isPlayer)
     
-    UDmain.UDAM.StopAnimation(akActor)
-
-;    if loc_shield
-;        akActor.equipItem(loc_shield,false,true)
-;    endif
+    if loc_is3Dloaded
+        UDmain.UDAM.StopAnimation(akActor, bEnableActors = False)
+    endif
+    
+    UDCDmain.EnableActor(akActor,loc_isPlayer)
 
     if loc_isPlayer
         UDmain.UDUI.GoToState("") ;enable UI
