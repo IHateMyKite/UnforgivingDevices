@@ -17,3 +17,7 @@ Function update(float fTimePassed)
     endif
     parent.update(fTimePassed)
 EndFunction
+
+bool Function isPlayer()
+    return True
+EndFunction
