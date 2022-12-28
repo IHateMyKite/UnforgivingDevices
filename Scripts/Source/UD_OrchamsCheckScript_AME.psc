@@ -205,7 +205,7 @@ Event OnUpdate()
             
             loc_orgasmProgress_p = fRange(loc_orgasmProgress/loc_orgasmCapacity,0.0,1.0) ;update relative orgasm progress
             
-            if loc_widgetShown && !loc_orgasmResisting
+            if loc_Is3DLoaded && loc_widgetShown && !loc_orgasmResisting
                 UDmain.UDWC.UpdatePercent_OrgasmWidget(loc_orgasmProgress_p)
             endif
 

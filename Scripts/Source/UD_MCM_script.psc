@@ -1060,7 +1060,7 @@ Event resetDebugPage()
             elseif i == 15
                 unlockAll_T             = AddTextOption("Unlock all", "CLICK" ,FlagSwitchAnd(UD_LockMenu_flag,FlagSwitch(!UDmain.UD_LockDebugMCM)))
             elseif i == 16
-                endAnimation_T          = AddTextOption("Terminate animation", "CLICK" ,fix_flag)
+                endAnimation_T          = AddTextOption("Show details", "CLICK" )
             elseif i == 17
                 fixBugs_T               = AddTextOption("Fixes", "CLICK" ,fix_flag)
             elseif i == 18
@@ -1491,12 +1491,13 @@ Function OptionSelectDebug(int option)
         UDCDmain.removeAllDevices(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
     elseif endAnimation_T == option
         closeMCM()
-        bool[] cameraState = new Bool[2]
-        cameraState[0] = False
-        cameraState[1] = False
-        UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor().RemoveFromFaction(UDCDmain.BlockAnimationFaction)
-        UDCDmain.libs.EndThirdPersonAnimation(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor(), cameraState)
-        UDAM.StopAnimation(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
+        UDCDmain.ShowActorDetails(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
+        ;bool[] cameraState = new Bool[2]
+        ;cameraState[0] = False
+        ;cameraState[1] = False
+        ;UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor().RemoveFromFaction(UDCDmain.BlockAnimationFaction)
+        ;UDCDmain.libs.EndThirdPersonAnimation(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor(), cameraState)
+        ;UDAM.StopAnimation(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
     elseif unregisterNPC_T == option
         UDCD_NPCM.unregisterNPC(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
         forcePageReset()

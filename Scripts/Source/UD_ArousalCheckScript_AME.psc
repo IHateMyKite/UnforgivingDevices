@@ -14,14 +14,12 @@ Bool        loc_isplayer    = false
 float       loc_updateTime  = 1.0
 Float       loc_arousalRate = 0.0
 Int         loc_arousal     = 0      ;how much is arousal increased/decreased
-bool        loc_Is3DLoaded  = False
 MagicEffect _MagickEffect   = none
 
 Event OnEffectStart(Actor akTarget, Actor akCaster)
     _MagickEffect = GetBaseObject()
     akActor = akTarget
     akActor.AddToFaction(UDOM.ArousalCheckLoopFaction)
-    loc_Is3DLoaded = loc_isplayer || akActor.Is3DLoaded()
     if UDmain.TraceAllowed()
         UDCDmain.Log("UD_ArousalCheckScript_AME("+getActorName(akActor)+") - OnEffectStart()")
     endif
@@ -45,30 +43,25 @@ Event OnPlayerLoadGame()
     loc_isplayer = UDmain.ActorIsPlayer(akActor)
 EndEvent
 
+Int _UpdateTime = 1
 Event OnUpdate()
     if IsRunning()
-        if UDOM.ArousalLoopBreak(akActor,UDOM.UD_ArousalCheckLoop_ver)
-            GInfo("UD_ArousalCheckScript_AME("+GetActorName(akActor)+") - ArousalLoopBreak -> dispeling")
-            akActor.RemoveSpell(UDCDmain.UDlibs.ArousalCheckSpell)
-            ;akActor.DispelSpell(UDCDmain.UDlibs.ArousalCheckSpell)
+        loc_arousalRate = UDOM.getArousalRateM(akActor)         ;arousal rate
+        loc_arousal     = Round(loc_arousalRate)*_UpdateTime    ;how much will be arousal increased
+        
+        if loc_arousal != 0
+            akActor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.UpdateArousal(akActor ,loc_arousal))
         else
-            loc_Is3DLoaded = loc_isplayer || akActor.Is3DLoaded()
-            loc_arousalRate = UDOM.getArousalRateM(akActor)
-            loc_arousal     = Round(loc_arousalRate)
-            
-            if loc_arousal != 0
-                akActor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.UpdateArousal(akActor ,loc_arousal))
+            akActor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.getActorArousal(akActor))
+        endif
+
+        if IsRunning()
+            if loc_isplayer
+                _UpdateTime = 1 ;update once per 1 seconds
             else
-                akActor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.getActorArousal(akActor))
+                _UpdateTime = 2 ;update once per 2 seconds
             endif
-    
-            if IsRunning()
-                if loc_Is3DLoaded
-                    registerForSingleUpdate(1.0) ;update once per 1 seconds
-                else
-                    registerForSingleUpdate(2.0) ;update once per 2 seconds
-                endif
-            endif
+            registerForSingleUpdate(_UpdateTime) 
         endif
     endif
 EndEvent
