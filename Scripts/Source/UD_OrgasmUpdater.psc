@@ -33,14 +33,30 @@ Int Property UD_UpdateTime  Hidden
 EndProperty
 
 Event OnInit()
-    Ready = True
+    ;Ready = True
     RegisterForSingleUpdate(5.0)
 EndEvent
 
 Event OnUpdate()
+    if !Ready
+        Ready = True
+        InitSlots()
+    endif
     Evaluate()
     RegisterForSingleUpdate(UD_UpdateTime)
 EndEvent
+
+Function InitSlots()
+    Int loc_id = UDNPCM.GetNumAliases() - 1 ;all except player
+    while loc_id
+        loc_id -= 1
+        UD_CustomDevice_NPCSlot loc_Slot = UDNPCM.getNPCSlotByIndex(loc_id)
+        if loc_Slot && loc_Slot.IsUsed()
+            loc_Slot.InitArousalUpdate()
+            loc_Slot.InitOrgasmUpdate()
+        endif
+    endwhile
+EndFunction
 
 Function Evaluate()
     Int loc_updateTime = UD_UpdateTime
@@ -50,6 +66,7 @@ Function Evaluate()
         UD_CustomDevice_NPCSlot loc_Slot = UDNPCM.getNPCSlotByIndex(loc_id)
         if SlotOrgasmUpdateEnabled(loc_Slot)
             UpdateArousal(loc_Slot,loc_updateTime)
+            UpdateOrgasm(loc_Slot,loc_updateTime)
         endif
     endwhile
 EndFunction
@@ -64,8 +81,12 @@ Bool Function SlotOrgasmUpdateEnabled(UD_CustomDevice_NPCSlot akSlot)
     return loc_cond
 EndFunction
 
-Function UpdateArousal(UD_CustomDevice_NPCSlot akSlot,Int aiupdateTime)
-    akSlot.UpdateArousal(aiupdateTime)
+Function UpdateArousal(UD_CustomDevice_NPCSlot akSlot,Int aiUpdateTime)
+    akSlot.UpdateArousal(aiUpdateTime)
+EndFunction
+
+Function UpdateOrgasm(UD_CustomDevice_NPCSlot akSlot,Float afUpdateTime)
+    akSlot.UpdateOrgasm(afUpdateTime)
 EndFunction
 
 State Paused
