@@ -45,23 +45,17 @@ EndEvent
 
 Event OnUpdate()
     if IsRunning()
-        if UDOM.ArousalLoopBreak(akActor,UDOM.UD_ArousalCheckLoop_ver)
-            GInfo("UD_ArousalCheckScript_AME("+GetActorName(akActor)+") - ArousalLoopBreak -> dispeling")
-            akActor.RemoveSpell(UDCDmain.UDlibs.ArousalCheckSpell)
-            ;akActor.DispelSpell(UDCDmain.UDlibs.ArousalCheckSpell)
+        loc_arousalRate = UDOM.getArousalRateM(akActor)
+        loc_arousal     = Round(loc_arousalRate)
+        
+        if loc_arousal != 0
+            akActor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.UpdateArousal(akActor ,loc_arousal))
         else
-            loc_arousalRate = UDOM.getArousalRateM(akActor)
-            loc_arousal     = Round(loc_arousalRate)
-            
-            if loc_arousal != 0
-                akActor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.UpdateArousal(akActor ,loc_arousal))
-            else
-                akActor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.getActorArousal(akActor))
-            endif
-    
-            if IsRunning()
-                registerForSingleUpdate(1.0)
-            endif
+            akActor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.getActorArousal(akActor))
+        endif
+
+        if IsRunning() && loc_isplayer
+            registerForSingleUpdate(1.0)
         endif
     endif
 EndEvent
@@ -71,7 +65,9 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
     if UDmain.TraceAllowed()    
         UDCDmain.Log("UD_ArousalCheckScript_AME("+getActorName(akActor)+") - OnEffectFinish()",1)
     endif
-    akActor.RemoveFromFaction(UDOM.ArousalCheckLoopFaction)
+    if loc_isplayer
+        akActor.RemoveFromFaction(UDOM.ArousalCheckLoopFaction)
+    endif
 EndEvent
 
 bool Function IsRunning()

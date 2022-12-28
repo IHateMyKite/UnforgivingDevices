@@ -220,8 +220,12 @@ Function SetSlotTo(Actor akActor)
 
     akActor.addToFaction(UDCDmain.RegisteredNPCFaction)
 
-    UDOM.CheckOrgasmCheck(akActor)
-    UDOM.CheckArousalCheck(akActor)
+    if UDmain.ActorIsPlayer(akActor)
+        UDOM.CheckOrgasmCheck(akActor)
+        UDOM.CheckArousalCheck(akActor)
+    else
+        akActor.AddToFaction(UDOM.ArousalCheckLoopFaction)
+    endif
 
     UpdateSlot(false)
 
@@ -275,7 +279,11 @@ Function unregisterSlot()
     endif
     StorageUtil.UnSetIntValue(getActor(), "UD_ManualRegister")
     _iScriptState = 0
-    UDOM.RemoveAbilities(getActor())
+    if UDmain.ActorIsPlayer(getActor())
+        UDOM.RemoveAbilities(getActor())
+    else
+        getActor().RemoveFromFaction(UDOM.ArousalCheckLoopFaction)
+    endif
     self.Clear()
 EndFunction
 
@@ -338,8 +346,10 @@ Function fix()
         
         _DeviceManipMutex = false
         
-        UDCDmain.UDOM.CheckArousalCheck(getActor())
-        UDCDmain.UDOM.CheckOrgasmCheck(getActor())
+        if UDmain.ActorIsPlayer(getActor())
+            UDCDmain.UDOM.CheckArousalCheck(getActor())
+            UDCDmain.UDOM.CheckOrgasmCheck(getActor())
+        endif
         UDCDmain.Print("[UD] loops checked!")
         
         UDCDmain.Print("[UD] General fixes done!")
@@ -1621,3 +1631,26 @@ Function ProccesUnlockMutex()
     
     UD_GlobalDeviceUnlockMutex_Device = none
 EndFunction
+
+;===============================================================================
+;===============================================================================
+;                             AROUSAL/ORGASM UPDATE
+;===============================================================================
+;===============================================================================
+
+;Arousal update
+Event UpdateArousal(Int aiUpdateTime)
+    Actor   loc_actor = GetActor()
+    Float   loc_arousalRate = UDOM.getArousalRateM(loc_actor)
+    Int     loc_arousal     = Round(loc_arousalRate)*aiUpdateTime
+    
+    if loc_arousal != 0
+        loc_actor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.UpdateArousal(loc_actor ,loc_arousal))
+    else
+        loc_actor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.getActorArousal(loc_actor))
+    endif
+    
+    GInfo("UpdatedArousal("+GetSlotedNPCName()+") by "+loc_arousal)
+EndEvent
+
+;
