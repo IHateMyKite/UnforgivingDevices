@@ -734,6 +734,15 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
     endif
 EndFunction
 
+Function addOrgasmExhaustion(Actor akActor)
+    if akActor.Is3DLoaded()
+        UDlibs.OrgasmExhaustionSpell.cast(akActor)
+    endif
+    if UDmain.TraceAllowed()
+        UDmain.Log("Orgasm exhaustion debuff applied to "+ getActorName(akActor),1)
+    endif
+EndFunction
+
 ;///////////////////////////////////////
 ;=======================================
 ;ORGASM RESIST MINIGAME

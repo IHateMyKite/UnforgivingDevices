@@ -1145,11 +1145,16 @@ Keyword Property UD_DeviceKeyword_Minor  ;minor keyword of this device. Currentl
                 if !_DeviceKeyword_Minor
                     UDmain.Error("UD_DeviceKeyword_Minor - Could not find minor keyword!")
                 endif
-                return _DeviceKeyword_Minor
+            elseif UD_DeviceKeyword == libs.zad_deviousHobbleSkirt
+                if DeviceRendered.HasKeyword(libs.zad_DeviousHobbleSkirtRelaxed)
+                    _DeviceKeyword_Minor = libs.zad_DeviousHobbleSkirtRelaxed
+                else
+                    _DeviceKeyword_Minor = libs.zad_deviousHobbleSkirt
+                endif
             else
                 _DeviceKeyword_Minor = UD_DeviceKeyword
-                return _DeviceKeyword_Minor
             endif
+            return _DeviceKeyword_Minor
         endif
     EndFunction
     Function set(Keyword akKeyword)
@@ -3605,11 +3610,11 @@ Function minigame()
     minigame_on = True
     GoToState("UpdatePaused")
     
-    bool loc_WearerIsPlayer     = WearerIsPlayer()
-    bool loc_HelperIsPlayer     = HelperIsPlayer()
-    bool loc_PlayerInMinigame   = loc_WearerIsPlayer || loc_HelperIsPlayer
-    Bool loc_is3DLoaded         = Wearer.Is3DLoaded()  || loc_PlayerInMinigame
-    
+    bool                    loc_WearerIsPlayer                  = WearerIsPlayer()
+    bool                    loc_HelperIsPlayer                  = HelperIsPlayer()
+    bool                    loc_PlayerInMinigame                = loc_WearerIsPlayer || loc_HelperIsPlayer
+    Bool                    loc_is3DLoaded                      = Wearer.Is3DLoaded()  || loc_PlayerInMinigame
+    UD_CustomDevice_NPCSlot loc_WearerSlot                      = UD_WearerSlot
     
     if loc_PlayerInMinigame
         closeMenu()
@@ -3624,7 +3629,11 @@ Function minigame()
     
     
     if loc_is3DLoaded
-        UDCDMain.UDPP.Send_MinigameStarter(Wearer,self)
+        if loc_WearerSlot
+            loc_WearerSlot.Send_MinigameStarter(self)
+        else
+            UDCDMain.UDPP.Send_MinigameStarter(Wearer,self)
+        endif
     else
         MinigameStarter()
     endif
@@ -3635,16 +3644,28 @@ Function minigame()
     endif
     
     Bool[] hasStruggleAnimation
-    hasStruggleAnimation = _PickAndPlayStruggleAnimation()
-    If !hasStruggleAnimation[0]
-        ; clear cache and try again (cache misses are possible after changing json files)
-        UDmain.Warning("UD_CustomDevice_RenderScript::minigame() _PickAndPlayStruggleAnimation failed. Clear cache and try again")
-        hasStruggleAnimation = _PickAndPlayStruggleAnimation(bClearCache = True)
-    EndIf
+    Bool   loc_StartedAnimation = False
+    if loc_is3DLoaded ;only play animation if actor is loaded
+        hasStruggleAnimation = _PickAndPlayStruggleAnimation()
+        If !hasStruggleAnimation[0]
+            ; clear cache and try again (cache misses are possible after changing json files)
+            UDmain.Warning("UD_CustomDevice_RenderScript::minigame("+GetDeviceHeader()+") _PickAndPlayStruggleAnimation failed. Clear cache and try again")
+            hasStruggleAnimation = _PickAndPlayStruggleAnimation(bClearCache = True)
+            If hasStruggleAnimation[0]
+                loc_StartedAnimation = true
+            endif
+        else
+            loc_StartedAnimation = true
+        endif
+    endif
     
     _MinigameMainLoop_ON = true
     
-    UDCDMain.UDPP.Send_MinigameParalel(Wearer,self)
+    if loc_WearerSlot
+        loc_WearerSlot.Send_MinigameParalel(self)
+    else
+        UDCDMain.UDPP.Send_MinigameParalel(Wearer,self)
+    endif
     
     float durability_onstart = current_device_health
     
@@ -3774,13 +3795,15 @@ Function minigame()
         UDCDmain.MinigameKeysUnRegister()
     endif
     
-    if !StorageUtil.GetIntValue(Wearer,"UD_OrgasmDuration",0)       ;!UDOM.isOrgasming(Wearer)
-        UDAM.StopAnimation(Wearer, bEnableActors = False)      ;ends struggle animation
-    endif
-    
-    if _minigameHelper
-        if !UDOM.isOrgasming(_minigameHelper)
-            UDAM.StopAnimation(_minigameHelper, bEnableActors = False) ;ends struggle animation
+    if loc_StartedAnimation
+        if !StorageUtil.GetIntValue(Wearer,"UD_OrgasmDuration",0)       ;!UDOM.isOrgasming(Wearer)
+            UDAM.StopAnimation(Wearer, bEnableActors = False)      ;ends struggle animation
+        endif
+        
+        if _minigameHelper
+            if !UDOM.isOrgasming(_minigameHelper)
+                UDAM.StopAnimation(_minigameHelper, bEnableActors = False) ;ends struggle animation
+            endif
         endif
     endif
     
@@ -4151,11 +4174,12 @@ Function critDevice()
         endif
         
         OnCritDevicePost()
-        if PlayerInMinigame() && UDCDmain.UD_UseWidget && UD_UseWidget
-            updateWidget()
+        if Wearer && Wearer.Is3DLoaded()
+            if PlayerInMinigame() && UDCDmain.UD_UseWidget && UD_UseWidget
+                updateWidget()
+            endif
+            libs.Pant(Wearer)
         endif
-        
-        libs.Pant(Wearer)
         
         advanceSkill(4.0)
     endif
@@ -5111,6 +5135,15 @@ Bool Function EvaluateNPCAI()
     ;first try to unlock the device with key
     if Math.LogicalAnd(loc_lockMinigames,0x2)
         if keyMinigame(True)
+            GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - keyMinigame finished")
+            return true
+        endif
+    endif
+    
+    ;try to repair the locks then
+    if Math.LogicalAnd(loc_lockMinigames,0x4)
+        if repairLocksMinigame(True)
+            GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - repairLocksMinigame finished")
             return true
         endif
     endif
@@ -5118,30 +5151,28 @@ Bool Function EvaluateNPCAI()
     ;then try to use lockpicks
     if Math.LogicalAnd(loc_lockMinigames,0x1)
         if lockpickMinigame(True)
+            GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - lockpickMinigame finished")
             return true
         endif
     endif
     
     ;then try to struggle
     if StruggleMinigameAllowed(loc_accesibility)
-        if struggleMinigame(Utility.randomInt(0,2), True) ;start random struggle minigame
+        Int loc_minigame = Utility.randomInt(0,2)
+        if struggleMinigame(loc_minigame, True) ;start random struggle minigame
+            GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - struggleMinigame ["+loc_minigame+"] finished")
             return true
         endif
     endif
     
-    ;try cutting
+    ;lastly try cutting
     if CuttingMinigameAllowed(loc_accesibility)
         if cuttingMinigame(True)
+            GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - cuttingMinigame finished")
             return true
         endif
     endif
     
-    ;lastly, try to repair locks
-    if Math.LogicalAnd(loc_lockMinigames,0x4)
-        if repairLocksMinigame(True)
-            return true
-        endif
-    endif
     return false
 EndFunction
 
