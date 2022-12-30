@@ -732,6 +732,9 @@ Int UDAM_TestQuery_PlayerLegs_Index
 Int UDAM_TestQuery_PlayerMittens_T
 Bool UDAM_TestQuery_PlayerMittens
 
+Int UDAM_TestQuery_PlayerGag_T
+Bool UDAM_TestQuery_PlayerGag
+
 Int UDAM_TestQuery_HelperArms_M
 Int UDAM_TestQuery_HelperArms_Index
 
@@ -740,6 +743,9 @@ Int UDAM_TestQuery_HelperLegs_Index
 
 Int UDAM_TestQuery_HelperMittens_T
 Bool UDAM_TestQuery_HelperMittens
+
+Int UDAM_TestQuery_HelperGag_T
+Bool UDAM_TestQuery_HelperGag
 
 Int UDAM_TestQuery_Request_T
 Int UDAM_TestQuery_StopAnimation_T 
@@ -926,6 +932,8 @@ Event resetAnimationsPage()
     rows_right += 1
     UDAM_TestQuery_PlayerMittens_T = AddToggleOption("Player wears mittens", UDAM_TestQuery_PlayerMittens)
     rows_right += 1
+    UDAM_TestQuery_PlayerGag_T = AddToggleOption("Player wears gag", UDAM_TestQuery_PlayerGag)
+    rows_right += 1
     
     Int helper_flags = OPTION_FLAG_NONE
     If UDAM_TestQuery_Type_Index == 0
@@ -942,6 +950,8 @@ Event resetAnimationsPage()
     UDAM_TestQuery_HelperLegs_M = AddMenuOption("Helper legs restraints", UDAM_TestQuery_PlayerLegs_List[UDAM_TestQuery_HelperLegs_Index], helper_flags)
     rows_right += 1
     UDAM_TestQuery_HelperMittens_T = AddToggleOption("Helper wears mittens", UDAM_TestQuery_HelperMittens, helper_flags)
+    rows_right += 1
+    UDAM_TestQuery_HelperGag_T = AddToggleOption("Helper wears gag", UDAM_TestQuery_HelperGag, helper_flags)
     rows_right += 1
     
     UDAM_TestQuery_Request_T =  AddTextOption("Test query", "-PRESS-")
@@ -1389,12 +1399,12 @@ Function OptionSelectAnimations(int option)
         String anim_type = UDAM_TestQuery_Type_List[UDAM_TestQuery_Type_Index]
         If UDAM_TestQuery_Type_Index == 1                                       ; .paired
             Int[] constr = new Int[2]
-            constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int)
-            constr[1] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_HelperArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_HelperLegs_Index] + 256 * (UDAM_TestQuery_HelperMittens as Int)
+            constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int) + 2048 * (UDAM_TestQuery_PlayerGag as Int)
+            constr[1] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_HelperArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_HelperLegs_Index] + 256 * (UDAM_TestQuery_HelperMittens as Int) + 2048 * (UDAM_TestQuery_HelperGag as Int)
             UDAM_TestQuery_Results = UDAM.GetAnimationsFromDB(anim_type, kwds, "", constr)
         Else                                                                    ; .solo
             Int[] constr = new Int[1]
-            constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int)
+            constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int) + 2048 * (UDAM_TestQuery_PlayerGag as Int)
             UDAM_TestQuery_Results = UDAM.GetAnimationsFromDB(anim_type, kwds, "", constr)
         EndIf
         UDAM_TestQuery_TimeSpan = Utility.GetCurrentRealTime() - start_time
@@ -1406,6 +1416,12 @@ Function OptionSelectAnimations(int option)
     ElseIf option == UDAM_TestQuery_HelperMittens_T
         UDAM_TestQuery_HelperMittens = !UDAM_TestQuery_HelperMittens
         SetToggleOptionValue(option, UDAM_TestQuery_HelperMittens)
+    ElseIf option == UDAM_TestQuery_PlayerGag_T
+        UDAM_TestQuery_PlayerGag = !UDAM_TestQuery_PlayerGag
+        SetToggleOptionValue(option, UDAM_TestQuery_PlayerGag)
+    ElseIf option == UDAM_TestQuery_HelperGag_T
+        UDAM_TestQuery_HelperGag = !UDAM_TestQuery_HelperGag
+        SetToggleOptionValue(option, UDAM_TestQuery_HelperGag)
     elseif option == UD_AlternateAnimation_T
         UDAM.UD_AlternateAnimation = !UDAM.UD_AlternateAnimation
         SetToggleOptionValue(UD_AlternateAnimation_T, UDAM.UD_AlternateAnimation)
@@ -2267,6 +2283,7 @@ Function OnOptionMenuAcceptAnimations(Int option, Int index)
         SetOptionFlags(UDAM_TestQuery_HelperArms_M, helper_flags)
         SetOptionFlags(UDAM_TestQuery_HelperLegs_M, helper_flags)
         SetOptionFlags(UDAM_TestQuery_HelperMittens_T, helper_flags)
+        SetOptionFlags(UDAM_TestQuery_HelperGag_T, helper_flags)
     ElseIf option == UDAM_TestQuery_Keyword_M
         UDAM_TestQuery_Keyword_Index = index
         SetMenuOptionValue(option, UDAM_TestQuery_Keyword_List[index])
@@ -3208,6 +3225,7 @@ Function SaveToJSON(string strFile)
     JsonUtil.StringListCopy(strFile, "Anims_UserDisabledJSONs", UDAM.UD_AnimationJSON_Dis)
     JsonUtil.SetIntValue(strFile, "AlternateAnimation", UDAM.UD_AlternateAnimation as Int)
     JsonUtil.SetFloatValue(strFile, "AlternateAnimationPeriod", UDAM.UD_AlternateAnimationPeriod)
+    JsonUtil.SetIntValue(strFile, "UseSingleStruggleKeyword", UDAM.UD_UseSingleStruggleKeyword as Int)
     
     JsonUtil.Save(strFile, true)
 EndFunction
@@ -3335,6 +3353,7 @@ Function LoadFromJSON(string strFile)
     EndIf
     UDAM.UD_AlternateAnimation = JsonUtil.GetIntValue(strFile, "AlternateAnimation", UDAM.UD_AlternateAnimation as Int) > 0
     UDAM.UD_AlternateAnimationPeriod = JsonUtil.GetFloatValue(strFile, "AlternateAnimationPeriod", UDAM.UD_AlternateAnimationPeriod)
+    UDAM.UD_UseSingleStruggleKeyword = JsonUtil.GetIntValue(strFile, "UseSingleStruggleKeyword", UDAM.UD_UseSingleStruggleKeyword as Int) > 0
     
 EndFunction
 
