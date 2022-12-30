@@ -170,7 +170,7 @@ EndEvent
 Function Update()
     LoadConfigPages()
     registered_devices_T = new Int[25]
-    NPCSlots_T = new Int[11];Utility.CreateIntArray(UDCD_NPCM.getNumSlots());new Int[6]
+    NPCSlots_T = Utility.CreateIntArray(UDCD_NPCM.GetNumAliases())
     
     difficultyList = new string[3]
     difficultyList[0] = "Easy"
