@@ -684,11 +684,35 @@ EndFunction
 
 ; Function GetStruggleAnimationsByKeyword
 ; This function returns an array of struggle animations for the specified device on actor with optional helper.
-; akKeyword             - device keyword to struggle from
+; asKeyword             - device keyword to struggle from. Should starts with "."
 ; akActor               - wearer of the device
 ; akHelper              - optional helper
 ; return                - array of strings with animation paths in DB
-String[] Function GetStruggleAnimationsByKeyword(String[] asKeywords, Actor akActor, Actor akHelper = None, Bool bReuseConstraintsCache = False)
+String[] Function GetStruggleAnimationsByKeyword(String asKeyword, Actor akActor, Actor akHelper = None, Bool bReuseConstraintsCache = False)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword() asKeyword = " + asKeyword + ", akActor = " + akActor + ", akHelper = " + akHelper + ", bReuseConstraintsCache = " + bReuseConstraintsCache, 3)
+    EndIf
+    String[] asKwd = new String[1]
+    asKwd[0] = asKeyword
+    If akHelper == None
+        Int[] aActorConstraints = new Int[1]
+        aActorConstraints[0] = GetActorConstraintsInt(akActor, bReuseConstraintsCache)
+        Return GetAnimationsFromDB(".solo", asKwd, "", aActorConstraints)
+    Else
+        Int[] aActorConstraints = new Int[2]
+        aActorConstraints[0] = GetActorConstraintsInt(akActor, bReuseConstraintsCache)
+        aActorConstraints[1] = GetActorConstraintsInt(akHelper, bReuseConstraintsCache)
+        Return GetAnimationsFromDB(".paired", asKwd, "", aActorConstraints)
+    EndIf
+EndFunction
+
+; Function GetStruggleAnimationsByKeywordsList
+; This function returns an array of struggle animations for the specified keywords on actor with optional helper.
+; akKeyword             - list of keyword to filter animations. Every element should starts with "."
+; akActor               - wearer of the device
+; akHelper              - optional helper
+; return                - array of strings with animation paths in DB
+String[] Function GetStruggleAnimationsByKeywordsList(String[] asKeywords, Actor akActor, Actor akHelper = None, Bool bReuseConstraintsCache = False)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword() asKeywords = " + asKeywords + ", akActor = " + akActor + ", akHelper = " + akHelper + ", bReuseConstraintsCache = " + bReuseConstraintsCache, 3)
     EndIf
@@ -822,7 +846,7 @@ EndFunction
 ; Gag                               - 1000 0000 0000 / 0x0800 / 2048
 ; All                               - 1111 1111 1111 / 0x0FFF / 4095
 ; All (without HB)                  - 1001 0000 0011 / 0x0903 / 2307
-; == All enable constrain value is 0x07FF or 2047
+; == All enable constrain value is 0x0FFF or 4095
 Int Function GetActorConstraintsInt(Actor akActor, Bool bUseCache = False)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetActorConstraintsInt() akActor = " + akActor + ", bUseCache = " + bUseCache, 3)
@@ -869,6 +893,27 @@ Int Function GetActorConstraintsInt(Actor akActor, Bool bUseCache = False)
 	EndIf
     StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt", result)
     Return result
+EndFunction
+
+Keyword Function GetHeavyBondageKeyword(Int aiConstraints)
+    If Math.LogicalAnd(aiConstraints, 128) == 128
+        Return libs.zad_DeviousElbowTie
+    ElseIf Math.LogicalAnd(aiConstraints, 4) == 4
+        Return libs.zad_DeviousYoke
+    ElseIf Math.LogicalAnd(aiConstraints, 8) == 8
+        Return libs.zad_DeviousCuffsFront
+    ElseIf Math.LogicalAnd(aiConstraints, 16) == 16
+        Return libs.zad_DeviousArmbinder
+    ElseIf Math.LogicalAnd(aiConstraints, 32) == 32
+        Return libs.zad_DeviousArmbinderElbow
+    ElseIf Math.LogicalAnd(aiConstraints, 64) == 64
+        Return libs.zad_DeviousPetSuit
+    ElseIf Math.LogicalAnd(aiConstraints, 512) == 512
+        Return libs.zad_DeviousStraitJacket
+    ElseIf Math.LogicalAnd(aiConstraints, 1024) == 1024
+        Return libs.zad_DeviousYokeBB
+    EndIf
+    Return None
 EndFunction
 
 ; compilation of the code from SexLab functions

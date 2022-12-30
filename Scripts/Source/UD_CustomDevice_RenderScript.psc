@@ -120,6 +120,7 @@ EndProperty
 Armor   Property DeviceRendered     auto
 Keyword Property UD_DeviceKeyword   auto ;keyword of this device for better manipulation
 String[] Property UD_DeviceStruggleKeywords       Auto    Hidden        ; keywords (as string array) used to filter struggle animations
+String[] Property UD_DeviceStruggleKeywordsHeavy  Auto    Hidden        ; keywords (as string array) used to filter struggle animations with heavy bondage
 
 ;-------------------------------------------------------
 ;-------------------------------------------------------
@@ -3774,15 +3775,17 @@ Function minigame()
         UDCDmain.MinigameKeysUnRegister()
     endif
     
-    if !StorageUtil.GetIntValue(Wearer,"UD_OrgasmDuration",0)       ;!UDOM.isOrgasming(Wearer)
-        UDAM.StopAnimation(Wearer, bEnableActors = False)      ;ends struggle animation
-    endif
+    UDAM.StopAnimation(Wearer, _minigameHelper, bEnableActors = False)
     
-    if _minigameHelper
-        if !UDOM.isOrgasming(_minigameHelper)
-            UDAM.StopAnimation(_minigameHelper, bEnableActors = False) ;ends struggle animation
-        endif
-    endif
+;    if !StorageUtil.GetIntValue(Wearer,"UD_OrgasmDuration",0)       ;!UDOM.isOrgasming(Wearer)
+;        UDAM.StopAnimation(Wearer, bEnableActors = False)      ;ends struggle animation
+;    endif
+;    
+;    if _minigameHelper
+;        if !UDOM.isOrgasming(_minigameHelper)
+;            UDAM.StopAnimation(_minigameHelper, bEnableActors = False) ;ends struggle animation
+;        endif
+;    endif
     
     ;checks if Wearer succesfully escaped device
     if _isUnlocked
@@ -3898,40 +3901,39 @@ String[] _StruggleAnimationDefHelperArray
 
 Int _PlayerLastConstraints = 0
 Int _HelperLastConstraints = 0
+Int[] _ActorsConstraints
+    
+Function _CheckAndUpdateAnimationCache(Bool bClearCache = False)
+    ; since GetActorConstraintsInt is time-heavy saving its result here for this call
+    If _minigameHelper
+        _ActorsConstraints = New Int[2]
+        _ActorsConstraints[0] = UDAM.GetActorConstraintsInt(Wearer)
+        _ActorsConstraints[1] = UDAM.GetActorConstraintsInt(_minigameHelper)
+    Else
+        _ActorsConstraints = New Int[1]
+        _ActorsConstraints[0] = UDAM.GetActorConstraintsInt(Wearer)
+    EndIf
+
+    If bClearCache || _ActorsConstraints[0] != _PlayerLastConstraints
+        _PlayerLastConstraints = _ActorsConstraints[0]
+        _StruggleAnimationDefPairArray = PapyrusUtil.StringArray(0)
+        _StruggleAnimationDefActorArray = PapyrusUtil.StringArray(0)
+    EndIf
+    If _minigameHelper
+        If bClearCache || _ActorsConstraints[1] != _HelperLastConstraints
+            _HelperLastConstraints = _ActorsConstraints[1]
+            _StruggleAnimationDefPairArray = PapyrusUtil.StringArray(0)
+            _StruggleAnimationDefHelperArray = PapyrusUtil.StringArray(0)
+        EndIf
+    EndIf
+EndFunction
 
 Bool[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bContinueAnimation = False)
     Bool[] result = new Bool[2]
     String _animationDef = ""
     
-    Bool _clearCache_Pair = bClearCache
-    Bool _clearCache_SoloActor = bClearCache
-    Bool _clearCache_SoloHelper = bClearCache
-    
-    ; since GetActorConstraintsInt is time-heavy saving its result here for this call
-    Int[] aActorConstraints
-    If _minigameHelper
-        aActorConstraints = New Int[2]
-        aActorConstraints[0] = UDAM.GetActorConstraintsInt(Wearer)
-        aActorConstraints[1] = UDAM.GetActorConstraintsInt(_minigameHelper)
-    Else
-        aActorConstraints = New Int[1]
-        aActorConstraints[0] = UDAM.GetActorConstraintsInt(Wearer)
-    EndIf
-    
-    If !bClearCache
-        If aActorConstraints[0] != _PlayerLastConstraints
-            _PlayerLastConstraints = aActorConstraints[0]
-            _clearCache_Pair = True
-            _clearCache_SoloActor = True
-        EndIf
-        If _minigameHelper
-            If aActorConstraints[1] != _HelperLastConstraints
-                _HelperLastConstraints = aActorConstraints[1]
-                _clearCache_Pair = True
-                _clearCache_SoloHelper = True
-            EndIf
-        EndIf
-    EndIf
+    _CheckAndUpdateAnimationCache(bClearCache)
+
     ; filling struggle keywords list
     String[] keywordsList
     If UDAM.UD_UseSingleStruggleKeyword
@@ -3942,58 +3944,93 @@ Bool[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCo
     EndIf
     
     If _minigameHelper
-        If _clearCache_Pair || _StruggleAnimationDefPairArray.Length == 0
-            _StruggleAnimationDefPairArray = UDAM.GetStruggleAnimationsByKeyword(keywordsList, Wearer, _minigameHelper, True)
+        If _StruggleAnimationDefPairArray.Length == 0
+            _StruggleAnimationDefPairArray = UDAM.GetStruggleAnimationsByKeywordsList(keywordsList, Wearer, _minigameHelper, True)
+        EndIf
+        If _StruggleAnimationDefPairArray.Length == 0
+            ; if actor has heavy bondage then try to get paired animation for it
+            Keyword heavyBondage = UDAM.GetHeavyBondageKeyword(_ActorsConstraints[0])
+            If heavyBondage != None
+                _StruggleAnimationDefPairArray = UDAM.GetStruggleAnimationsByKeyword("." + heavyBondage.GetString(), Wearer, _minigameHelper, True)
+            EndIf            
         EndIf
         If _StruggleAnimationDefPairArray.Length > 0
         ; using paired animation
             _animationDef = _StruggleAnimationDefPairArray[Utility.RandomInt(0, _StruggleAnimationDefPairArray.Length - 1)]
-            Actor[] actors = new Actor[2]
-            actors[0] = Wearer
-            actors[1] = _minigameHelper
-            If UDAM.PlayAnimationByDef(_animationDef, actors, aActorConstraints, bContinueAnimation, bDisableActors = False)
+            If UDAM.PlayAnimationByDef(_animationDef, ActorArray2(Wearer, _minigameHelper), _ActorsConstraints, bContinueAnimation, bDisableActors = False)
                 result[0] = True
                 result[1] = True
             EndIf
         Else
         ; using solo animation for actors
-            If _clearCache_SoloActor || _StruggleAnimationDefActorArray.Length == 0
-                _StruggleAnimationDefActorArray = UDAM.GetStruggleAnimationsByKeyword(keywordsList, Wearer, None, True)
+            If _StruggleAnimationDefActorArray.Length == 0
+                _StruggleAnimationDefActorArray = _GetSoloStruggleAnimation(keywordsList, Wearer, _ActorsConstraints[0])
             EndIf
-            If _clearCache_SoloHelper || _StruggleAnimationDefHelperArray.Length == 0
-                _StruggleAnimationDefHelperArray = UDAM.GetStruggleAnimationsByKeyword(UDCDmain.UD_DeviceStruggleKeywordsDefault, _minigameHelper, None, True)
+            If _StruggleAnimationDefHelperArray.Length == 0
+                String[] helperKeywordsList = New String[1]
+                helperKeywordsList[0] = ".spectator"
+                _StruggleAnimationDefHelperArray = _GetSoloStruggleAnimation(helperKeywordsList, _minigameHelper, _ActorsConstraints[1])
             EndIf
             
             If _StruggleAnimationDefActorArray.Length > 0
                 _animationDef = _StruggleAnimationDefActorArray[Utility.RandomInt(0, _StruggleAnimationDefActorArray.Length - 1)]
-                Actor[] actors = new Actor[1]
-                actors[0] = Wearer
-                Int[] ac = new Int[1]
-                ac[0] = aActorConstraints[0]
-                result[0] = UDAM.PlayAnimationByDef(_animationDef, actors, ac, bContinueAnimation, bDisableActors = False)
+                result[0] = UDAM.PlayAnimationByDef(_animationDef, ActorArray1(Wearer), IntArray1(_ActorsConstraints[0]), bContinueAnimation, bDisableActors = False)
             EndIf
 
             If _StruggleAnimationDefHelperArray.Length > 0
                 _animationDef = _StruggleAnimationDefHelperArray[Utility.RandomInt(0, _StruggleAnimationDefHelperArray.Length - 1)]
-                Actor[] actors = new Actor[1]
-                actors[0] = _minigameHelper
-                Int[] ac = new Int[1]
-                ac[0] = aActorConstraints[1]
-                result[1] = UDAM.PlayAnimationByDef(_animationDef, actors, ac, bContinueAnimation, bDisableActors = False)
+                result[1] = UDAM.PlayAnimationByDef(_animationDef, ActorArray1(_minigameHelper), IntArray1(_ActorsConstraints[1]), bContinueAnimation, bDisableActors = False)
             EndIf
         EndIf
     Else
-        If _clearCache_SoloActor || _StruggleAnimationDefActorArray.Length == 0
-            _StruggleAnimationDefActorArray = UDAM.GetStruggleAnimationsByKeyword(keywordsList, Wearer, None, True)
+        If _StruggleAnimationDefActorArray.Length == 0
+            _StruggleAnimationDefActorArray = _GetSoloStruggleAnimation(keywordsList, Wearer, _ActorsConstraints[0])
         EndIf
         If _StruggleAnimationDefActorArray.Length > 0
             _animationDef = _StruggleAnimationDefActorArray[Utility.RandomInt(0, _StruggleAnimationDefActorArray.Length - 1)]
-            Actor[] actors = new Actor[1]
-            actors[0] = Wearer
-            result[0] = UDAM.PlayAnimationByDef(_animationDef, actors, aActorConstraints, bContinueAnimation, bDisableActors = False)
+            result[0] = UDAM.PlayAnimationByDef(_animationDef, ActorArray1(Wearer), _ActorsConstraints, bContinueAnimation, bDisableActors = False)
         EndIf
     EndIf
     Return result
+EndFunction
+
+String[] Function _GetSoloStruggleAnimation(String[] asKeywords, Actor akActor, Int aiConstraints)
+    String[] result
+    result = UDAM.GetStruggleAnimationsByKeywordsList(asKeywords, akActor, None, True)
+    If result.Length == 0
+        ; if actor has heavy bondage then try to get solo animation for it
+        Keyword heavyBondage = UDAM.GetHeavyBondageKeyword(aiConstraints)
+        If heavyBondage != None
+            result = UDAM.GetStruggleAnimationsByKeyword("." + heavyBondage.GetString(), akActor, None, True)
+        EndIf
+    EndIf
+    If result.Length == 0
+        result = UDAM.GetStruggleAnimationsByKeyword(".zad_DeviousGloves", akActor, None, True)
+    EndIf
+    If result.Length == 0
+        ; horny animation is our last hope!
+        result = UDAM.GetStruggleAnimationsByKeyword(".horny", akActor, None, True)
+    EndIf
+    Return result
+EndFunction
+
+Actor[] Function ActorArray1(Actor actor1)
+    Actor[] arr = new Actor[1]
+    arr[0] = actor1
+    Return arr
+EndFunction
+
+Actor[] Function ActorArray2(Actor actor1, Actor actor2)
+    Actor[] arr = new Actor[2]
+    arr[0] = actor1
+    arr[1] = actor2
+    Return arr
+EndFunction
+
+Int[] Function IntArray1(Int i1)
+    Int[] arr = new Int[1]
+    arr[0] = i1
+    Return arr
 EndFunction
 
 Function MinigameVarReset()
