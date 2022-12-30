@@ -1177,14 +1177,19 @@ Function UndressArmor(Actor akActor)
     endwhile
 EndFunction
 
+;default undress mask, all slots with 0 will be skipped
+;By default, amulet and ring is excluded
+Int Property UD_UndressMask = 0xFFFFFF9F auto
+
+;Unequp all armors that are no DD, unnamed or with sexlab keyword
 Function UndressAllArmor(Actor akActor)
-    Form[] loc_armors
+    Form[] loc_armors = Utility.CreateFormArray(0)
     int loc_mask = 0x00000001
-    while loc_mask != 0x00004000
-        Form loc_armor = akActor.GetWornForm(loc_mask)
-        if loc_armor
-            if !loc_armor.haskeyword(libs.zad_Lockable) && !loc_armor.HasKeyWordString("SexLabNoStrip")
-                if !loc_armors || !PapyrusUtil.CountForm(loc_armors,loc_armor)
+    while loc_mask != 0x80000000
+        if Math.LogicalAnd(UD_UndressMask,loc_mask)
+            Form loc_armor = akActor.GetWornForm(loc_mask)
+            if loc_armor
+                if loc_armor.GetName() && !loc_armor.haskeyword(libs.zad_Lockable) && !loc_armor.HasKeyWordString("SexLabNoStrip")
                     loc_armors = PapyrusUtil.PushForm(loc_armors,loc_armor)
                 endif
             endif
@@ -1196,6 +1201,18 @@ Function UndressAllArmor(Actor akActor)
         loc_armornum -= 1
         akActor.unequipItem(loc_armors[loc_armornum], abSilent = true)
     endwhile
+    Weapon  loc_weap1   = akActor.GetEquippedWeapon(abLeftHand = false)
+    Weapon  loc_weap2   = akActor.GetEquippedWeapon(abLeftHand = True)
+    Armor   loc_shield  = akActor.GetEquippedShield()
+    if loc_weap1
+        akActor.unequipItem(loc_weap1, abSilent = true)
+    endif
+    if loc_weap2
+        akActor.unequipItem(loc_weap2, abSilent = true)
+    endif
+    if loc_shield
+        akActor.unequipItem(loc_shield, abSilent = true)
+    endif
 EndFunction
 
 ;function made as replacemant for akActor.isEquipped, because that function doesn't work for NPCs

@@ -140,7 +140,8 @@ Function UndressSlots()
         if loc_slot
             loc_actor = loc_slot.GetActor()
             if loc_actor && loc_actor.Is3DLoaded() && !loc_slot.hasFreeHands() && !UDmain.ActorIsPlayer(loc_actor) && ((loc_Follower && UDmain.ActorIsFollower(loc_actor)) || (loc_NPC && !UDmain.ActorIsFollower(loc_actor)))
-                libs.strip(loc_slot.GetActor(),false)
+                ;libs.strip(loc_slot.GetActor(),false)
+                UDCDmain.UndressAllArmor(loc_actor)
             endif
         endif
     endwhile

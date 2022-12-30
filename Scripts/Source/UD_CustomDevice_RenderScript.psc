@@ -5162,7 +5162,7 @@ Bool Function EvaluateNPCAI()
     ;first try to unlock the device with key
     if Math.LogicalAnd(loc_lockMinigames,0x2)
         if keyMinigame(True)
-            GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - keyMinigame finished")
+            ;GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - keyMinigame finished")
             return true
         endif
     endif
@@ -5170,7 +5170,7 @@ Bool Function EvaluateNPCAI()
     ;try to repair the locks then
     if Math.LogicalAnd(loc_lockMinigames,0x4)
         if repairLocksMinigame(True)
-            GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - repairLocksMinigame finished")
+            ;GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - repairLocksMinigame finished")
             return true
         endif
     endif
@@ -5178,7 +5178,7 @@ Bool Function EvaluateNPCAI()
     ;then try to use lockpicks
     if Math.LogicalAnd(loc_lockMinigames,0x1)
         if lockpickMinigame(True)
-            GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - lockpickMinigame finished")
+            ;GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - lockpickMinigame finished")
             return true
         endif
     endif
@@ -5187,7 +5187,7 @@ Bool Function EvaluateNPCAI()
     if StruggleMinigameAllowed(loc_accesibility)
         Int loc_minigame = Utility.randomInt(0,2)
         if struggleMinigame(loc_minigame, True) ;start random struggle minigame
-            GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - struggleMinigame ["+loc_minigame+"] finished")
+            ;GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - struggleMinigame ["+loc_minigame+"] finished")
             return true
         endif
     endif
@@ -5195,7 +5195,7 @@ Bool Function EvaluateNPCAI()
     ;lastly try cutting
     if CuttingMinigameAllowed(loc_accesibility)
         if cuttingMinigame(True)
-            GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - cuttingMinigame finished")
+            ;GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - cuttingMinigame finished")
             return true
         endif
     endif
