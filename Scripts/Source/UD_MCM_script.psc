@@ -1038,7 +1038,7 @@ Event resetDebugPage()
             registered_devices_T[i] = AddTextOption((i + 1) + ") " , "Empty" ,OPTION_FLAG_DISABLED)
         endif
             if i == 0
-                setNPCSlot(10,"PlayerSlot",False)
+                setNPCSlot(15,"PlayerSlot",False)
             elseif i == 1
                 setNPCSlot(0)
             elseif i == 2
@@ -1060,32 +1060,49 @@ Event resetDebugPage()
             elseif i == 10
                 setNPCSlot(9)
             elseif i == 11
-                AddHeaderOption("-TOOLS-")
+                setNPCSlot(10)
             elseif i == 12
-                AddTextOption("Devices", slot.getNumberOfRegisteredDevices() ,OPTION_FLAG_DISABLED)
+                setNPCSlot(11)
             elseif i == 13
-                OrgasmResist_S          = addSliderOption("Orgasm Resist:",UDOM.getActorOrgasmResist(slot.getActor()), "{1}")
+                setNPCSlot(12)
             elseif i == 14
-                OrgasmCapacity_S        = addSliderOption("Orgasm Capacity:",UDOM.getActorOrgasmCapacity(slot.getActor()), "{0}")
+                setNPCSlot(13)
             elseif i == 15
-                unlockAll_T             = AddTextOption("Unlock all", "CLICK" ,FlagSwitchAnd(UD_LockMenu_flag,FlagSwitch(!UDmain.UD_LockDebugMCM)))
+                setNPCSlot(14)
             elseif i == 16
-                endAnimation_T          = AddTextOption("Show details", "CLICK" )
+                AddHeaderOption("-TOOLS-")
             elseif i == 17
-                fixBugs_T               = AddTextOption("Fixes", "CLICK" ,fix_flag)
+                AddTextOption("Devices", slot.getNumberOfRegisteredDevices() ,OPTION_FLAG_DISABLED)
             elseif i == 18
+                OrgasmResist_S          = addSliderOption("Orgasm Resist:",UDOM.getActorOrgasmResist(slot.getActor()), "{1}")
+            elseif i == 19
+                OrgasmCapacity_S        = addSliderOption("Orgasm Capacity:",UDOM.getActorOrgasmCapacity(slot.getActor()), "{0}")
+            elseif i == 20
+                unlockAll_T             = AddTextOption("Unlock all", "CLICK" ,FlagSwitchAnd(UD_LockMenu_flag,FlagSwitch(!UDmain.UD_LockDebugMCM)))
+            elseif i == 21
+                endAnimation_T          = AddTextOption("Show details", "CLICK" )
+            elseif i == 22
+                fixBugs_T               = AddTextOption("Fixes", "CLICK" ,fix_flag)
+            elseif i == 23
                 if !slot.isPlayer()
                     unregisterNPC_T = AddTextOption("Unregister NPC","CLICK")
                 else
                     addEmptyOption()
                 endif
-            elseif i == 19
-                rescanSlots_T = AddTextOption("Rescan slots", "CLICK")    
+            elseif i == 24
+                addEmptyOption()
+                    
             else     
                 addEmptyOption()
             endif
         i += 1
     endwhile
+    
+    AddHeaderOption("--GLOBAL--")
+    addEmptyOption()
+    
+    rescanSlots_T = AddTextOption("Rescan slots", "CLICK")
+    addEmptyOption()
 EndEvent
 
 Function setNPCSlot(int index,string text = "NPC Slot",bool useIndex = True)

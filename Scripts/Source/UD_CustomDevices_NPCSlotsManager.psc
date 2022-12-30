@@ -24,7 +24,7 @@ Quest               Property UDCD_NPCF                                  auto ;fi
 zadlibs             Property libs                                       auto
 UD_OrgasmManager    Property UDOM                                       auto
 Message             Property UD_FixMenu_MSG                             auto
-Int                 Property UD_Slots                       = 10        auto
+Int                 Property UD_Slots                       = 15        auto
 Float               Property UD_SlotUpdateTime              = 10.0      auto
 Bool                Property Ready                          = False     auto
 
@@ -55,6 +55,7 @@ Event OnInit()
 EndEvent
 
 Function GameUpdate()
+    UD_Slots = GetNumAliases()
     CheckOrgasmLoops()
     RegisterForSingleUpdate(UDCDmain.UD_UpdateTime*2.0)
     registerForSingleUpdateGameTime(1.0)
