@@ -220,9 +220,11 @@ String[] _Notification_NewText
 
 Int[] _Icons_Id                 ; widget id
 String[] _Icons_Name            ; DDS file name in '<Data>/interface/exported/widgets/iwant/widgets/library' folder
-Int[] _Icons_Magnitude             ; 0 .. 100
+Int[] _Icons_Magnitude          ; 0 .. 100+
 Float[] _Icons_Timer            ; animation timer
 Int[] _Icons_Stage              ; animation stage
+Int[] _Icon_Blicking            ; 0, 1
+Int[] _Icon_Alpha               ; 0 .. 100
 
 Int     _Widget_Icon_Inactive_Color             = 0xFFFFFF
 Int     _Widget_Icon_Active0_Color              = 0xFFFF00
@@ -253,6 +255,8 @@ EndFunction
 Function ToggleStatusEffect(String asName, Bool abShow = True, Int aiStrength = 0)
 EndFunction
 Function IncrementStatusEffect(String asName, Int aiIncrement = 20, Bool abHideIfZero = True)
+EndFunction
+Function BlinkStatusEffect(String asName, Bool abBlink)
 EndFunction
 Function _SetIconRGB(Int aiWidget, Int aiRGB)
 EndFunction
@@ -352,9 +356,9 @@ State iWidgetInstalled
 
             x = CalculateGroupXPos(UD_BuffIconsAnchorX) + UD_BuffIconsOffsetX
             y = CalculateGroupYPos(UD_BuffIconsAnchorY) + UD_BuffIconsOffsetY + (0.55 * UD_IconsSize) As Int
-            _CreateNewIcon("effect-exhaustion", x, y, 100)
+            _CreateNewIcon("effect-exhaustion", x, y, 75)
             y -= (UD_IconsSize * 1.1) As Int
-            _CreateNewIcon("effect-orgasm", x, y, 100)
+            _CreateNewIcon("effect-orgasm", x, y, 75)
             
             _InitMutex = false
         endif
@@ -558,7 +562,7 @@ State iWidgetInstalled
     EndFunction
     
     Int Function _CreateNewIcon(String asName, Int aiX = -1, Int aiY = -1, Int aiAlpha = 100)
-        UDMain.Log("UD_WidgetControl::_CreateNewIcon() asName = " + asName + ", aiX = " + aiX + ", aiY = " + aiY)
+        UDMain.Log("UD_WidgetControl::_CreateNewIcon() asName = " + asName + ", aiX = " + aiX + ", aiY = " + aiY, 3)
         If aiX < 0 || aiY < 0
             UDMain.Warning("UD_WidgetControl::_CreateNewIcon() icon created without proper positioning")
             aiX = CanvasWidth / 2
@@ -574,12 +578,14 @@ State iWidgetInstalled
         _Icons_Timer = PapyrusUtil.PushFloat(_Icons_Timer, 0.0)
         _Icons_Magnitude = PapyrusUtil.PushInt(_Icons_Magnitude, 0)
         _Icons_Stage = PapyrusUtil.PushInt(_Icons_Stage, 0)
+        _Icon_Blicking = PapyrusUtil.PushInt(_Icon_Blicking, 0)
+        _Icon_Alpha = PapyrusUtil.PushInt(_Icon_Blicking, aiAlpha)
         
         Return _Icons_Id.Length - 1
     EndFunction
     
     Function ToggleStatusEffect(String asName, Bool abShow = True, Int aiMagnitude = 0)
-        UDMain.Log("UD_WidgetControl::ToggleStatusEffect() asName = " + asName + ", abShow = " + abShow + ", aiMagnitude = " + aiMagnitude)
+        UDMain.Log("UD_WidgetControl::ToggleStatusEffect() asName = " + asName + ", abShow = " + abShow + ", aiMagnitude = " + aiMagnitude, 3)
         Int index = _Icons_Name.Find(asName)
         If index == -1
             index = _CreateNewIcon(asName)
@@ -590,7 +596,7 @@ State iWidgetInstalled
     EndFunction
 
     Function IncrementStatusEffect(String asName, Int aiIncrement = 20, Bool abHideIfZero = True)
-        UDMain.Log("UD_WidgetControl::IncrementStatusEffect() asName = " + asName + ", aiIncrement = " + aiIncrement + ", abHideIfZero = " + abHideIfZero)
+        UDMain.Log("UD_WidgetControl::IncrementStatusEffect() asName = " + asName + ", aiIncrement = " + aiIncrement + ", abHideIfZero = " + abHideIfZero, 3)
         Int index = _Icons_Name.Find(asName)
         If index == -1
             index = _CreateNewIcon(asName)
@@ -607,6 +613,15 @@ State iWidgetInstalled
         _SetIconRGB(_Icons_Id[index], _Icons_Magnitude[index])
     EndFunction
     
+    Function BlinkStatusEffect(String asName, Bool abBlink)
+        UDMain.Log("UD_WidgetControl::BlinkStatusEffect() asName = " + asName + ", abBlink = " + abBlink, 3)
+        Int index = _Icons_Name.Find(asName)
+        If index == -1
+            index = _CreateNewIcon(asName)
+        EndIf
+        _Icon_Blicking[index] = abBlink As Int
+    EndFunction
+
     Function _SetIconRGB(Int aiWidget, Int aiMagnitude)
         Int R
         Int G
@@ -684,20 +699,19 @@ State iWidgetInstalled
             Int magnitude = _Icons_Magnitude[i]
             String name =  _Icons_Name[i]
             Int anim_stage = _Icons_Stage[i]
+            Bool blink = _Icon_Blicking[i] ==  1
             timer += frame
             
-            If StringUtil.Substring(name, 0, 3) == "dd-"
-                If magnitude > 0
-                    If ((timer / 0.5) As Int) % 2 == 0
-                        iWidget.doTransitionByTime(icon_id, 25, 0.5, "alpha")
-                    Else
-                        iWidget.doTransitionByTime(icon_id, 100, 0.5, "alpha")
-                    EndIf
-                    anim_stage = 1
-                ElseIf anim_stage == 1
-                    anim_stage = 0
-                    iWidget.doTransitionByTime(icon_id, 50, 0.1, "alpha")
+            If blink
+                If ((timer / 0.5) As Int) % 2 == 0
+                    iWidget.doTransitionByTime(icon_id, 25, 0.5, "alpha")
+                Else
+                    iWidget.doTransitionByTime(icon_id, 100, 0.5, "alpha")
                 EndIf
+                anim_stage = 1
+            ElseIf anim_stage == 1
+                iWidget.doTransitionByTime(icon_id, _Icon_Alpha[i], 0.1, "alpha")
+                anim_stage = 0
             EndIf
             _Icons_Timer[i] = timer
             _Icons_Stage[i] = anim_stage

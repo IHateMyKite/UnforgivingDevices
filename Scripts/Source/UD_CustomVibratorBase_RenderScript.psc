@@ -138,6 +138,7 @@ Function InitPostPost()
     endif
     If WearerIsPlayer()
         UDMain.UDWC.ToggleStatusEffect(VibrationEffectSlot, True, 0)
+        UDMain.UDWC.BlinkStatusEffect(VibrationEffectSlot, False)
     EndIf
 EndFunction
 
@@ -726,11 +727,13 @@ EndFunction
 Function OnVibrationStart()
     If WearerIsPlayer()
         UDMain.UDWC.ToggleStatusEffect(VibrationEffectSlot, True, _currentVibStrength)
+        UDMain.UDWC.BlinkStatusEffect(VibrationEffectSlot, _currentVibStrength > 0)
     EndIf
 EndFunction
 Function OnVibrationEnd()
     If WearerIsPlayer()
         UDMain.UDWC.ToggleStatusEffect(VibrationEffectSlot, True, _currentVibStrength)
+        UDMain.UDWC.BlinkStatusEffect(VibrationEffectSlot, _currentVibStrength > 0)
     EndIf
 EndFunction
 float Function getVibOrgasmRate(float afMult = 1.0)
@@ -849,6 +852,7 @@ EndFunction
 Function onRemoveDevicePost(Actor akActor)
     If UDMain.ActorIsPlayer(akActor)
         UDMain.UDWC.ToggleStatusEffect(VibrationEffectSlot, False, 0)
+        UDMain.UDWC.BlinkStatusEffect(VibrationEffectSlot, False)
     EndIf
     parent.onRemoveDevicePost(akActor)
 EndFunction

@@ -697,6 +697,8 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
         UDmain.UDUI.GoToState("UIDisabled") ;disable UI
     endif
     
+    UDMain.UDWC.BlinkStatusEffect("effect-orgasm", True)
+    
     libsp.SetAnimating(akActor, true)
     string loc_anim = libsp.AnimSwitchKeyword(akActor, "Orgasm")
     ;libsp.PlayThirdPersonAnimationBlocking(akActor,loc_anim, iDuration, true)
@@ -727,6 +729,8 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
     endif
     
     libsp.SetAnimating(akActor, false)
+    
+    UDMain.UDWC.BlinkStatusEffect("effect-orgasm", False)
     
     StorageUtil.UnsetIntValue(akActor,"UD_OrgasmDuration")
     
