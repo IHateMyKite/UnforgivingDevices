@@ -3797,7 +3797,16 @@ Function minigame()
     endif
     
     if loc_StartedAnimation
-        UDAM.StopAnimation(Wearer, _minigameHelper, bEnableActors = False)
+        Int loc_toggle  = 0x0
+        if !StorageUtil.GetIntValue(Wearer,"UD_OrgasmDuration",0)
+            ;wearer is orgasming, prevent animation stop
+            loc_toggle += 0x1
+        endif
+        if _minigameHelper && !StorageUtil.GetIntValue(_minigameHelper,"UD_OrgasmDuration",0)
+            ;helper is orgasming, prevent animation stop
+            loc_toggle += 0x2
+        endif
+        UDAM.StopAnimation(Wearer, _minigameHelper, bEnableActors = False, aiToggle = loc_toggle)
     endif
     
     ;checks if Wearer succesfully escaped device
