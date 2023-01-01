@@ -138,17 +138,19 @@ Bool Function StartSoloAnimation(Actor akActor, String sAnimation, Bool bContinu
 EndFunction
 
 ; Function to stop animation and unlock actor(s)
-Function StopAnimation(Actor akActor, Actor akHelper = None, Bool bEnableActors = True)
+Function StopAnimation(Actor akActor, Actor akHelper = None, Bool bEnableActors = True, Int aiToggle = 0x3)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::StopAnimation() akActor = " + akActor + ", akHelper = " + akHelper, 3)
     EndIf
-
-    UnlockAnimatingActor(akActor, bEnableActors)
-    ; restoring HH if it was removed in StartPairAnimation
-    _RestoreHeelEffect(akActor)
-    Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
     
-    If akHelper != None
+    if Math.LogicalAnd(aiToggle,0x1)
+        UnlockAnimatingActor(akActor, bEnableActors)
+        ; restoring HH if it was removed in StartPairAnimation
+        _RestoreHeelEffect(akActor)
+        Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
+    endif
+    
+    If akHelper != None && Math.LogicalAnd(aiToggle,0x2)
         _RestoreActorPosition(akActor) ;only move player if there are 2 actors, otherwise solo animation is player and there is no need to move player
         UnlockAnimatingActor(akHelper, bEnableActors)
         ; restoring HH if it was removed in StartPairAnimation
