@@ -950,15 +950,20 @@ Function _RemoveHeelEffect(Actor akActor, Bool bRemoveHDT = true, Bool bRemoveNi
         If overrideKeys.Find("UnforgivingDevices.esp") >= 0
             NiOverride.RemoveNodeTransformPosition(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esp")
             UpdateNiOPosition = True
+            overrideKeys = NiOverride.GetNodeTransformKeys(akActor, false, isRealFemale, "NPC")
         EndIf
-        ; checking if actor has SexLab HH and DD overrides are not present
-        ; TODO: Can be done as a shift by the sum of all vectors
-        If overrideKeys.Find("DDC") < 0 && overrideKeys.Find("DDPET") < 0 && overrideKeys.Find("internal") >= 0
-            float[] pos = NiOverride.GetNodeTransformPosition(akActor, false, isRealFemale, "NPC", "internal")
-            pos[0] = -pos[0]
-            pos[1] = -pos[1]
-            pos[2] = -pos[2]
-            NiOverride.AddNodeTransformPosition(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esp", pos)
+        ; calculation of the resulting shift from all modificators
+        Int i = overrideKeys.Length
+        Float[] shift_sum = new Float[3]
+        While i > 0
+            i -= 1
+            Float[] shift = NiOverride.GetNodeTransformPosition(akActor, false, isRealFemale, "NPC", overrideKeys[i])
+            shift_sum[0] = shift_sum[0] - shift[0]
+            shift_sum[1] = shift_sum[1] - shift[1]
+            shift_sum[2] = shift_sum[2] - shift[2]
+        EndWhile
+        If shift_sum[0] > 0 || shift_sum[1] > 0 || shift_sum[2] > 0
+            NiOverride.AddNodeTransformPosition(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esp", shift_sum)
             UpdateNiOPosition = True
         EndIf
         If UpdateNiOPosition

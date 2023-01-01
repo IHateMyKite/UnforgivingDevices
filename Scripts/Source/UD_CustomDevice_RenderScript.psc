@@ -120,7 +120,6 @@ EndProperty
 Armor   Property DeviceRendered     auto
 Keyword Property UD_DeviceKeyword   auto ;keyword of this device for better manipulation
 String[] Property UD_DeviceStruggleKeywords       Auto    Hidden        ; keywords (as string array) used to filter struggle animations
-String[] Property UD_DeviceStruggleKeywordsHeavy  Auto    Hidden        ; keywords (as string array) used to filter struggle animations with heavy bondage
 
 ;-------------------------------------------------------
 ;-------------------------------------------------------

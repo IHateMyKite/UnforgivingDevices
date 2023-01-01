@@ -175,8 +175,6 @@ Bool Property UD_EquipMutex = False auto hidden
 Bool Property Ready = False auto hidden
 Bool Property EventsReady = false auto hidden
 
-String[] Property UD_DeviceStruggleKeywordsDefault          Auto        Hidden      ; default set of keywords when no animation is found (zad_DeviousGloves)
-
 Event OnInit()
     While !UDPatcher.ready
         Utility.WaitMenuMode(0.1)
@@ -223,9 +221,7 @@ Function Update()
     CheckHardcoreDisabler(UDmain.Player)
     
     SetArousalPerks()
-    
-    UD_DeviceStruggleKeywordsDefault = new String[1]
-    UD_DeviceStruggleKeywordsDefault[0] = "." + libs.zad_DeviousGloves.GetString()
+
 EndFunction
 
 UD_CustomDevice_RenderScript[] Function MakeNewDeviceSlots()
