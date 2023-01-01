@@ -120,7 +120,6 @@ EndProperty
 Armor   Property DeviceRendered     auto
 Keyword Property UD_DeviceKeyword   auto ;keyword of this device for better manipulation
 String[] Property UD_DeviceStruggleKeywords       Auto    Hidden        ; keywords (as string array) used to filter struggle animations
-String[] Property UD_DeviceStruggleKeywordsHeavy  Auto    Hidden        ; keywords (as string array) used to filter struggle animations with heavy bondage
 
 ;-------------------------------------------------------
 ;-------------------------------------------------------
@@ -3993,6 +3992,9 @@ Bool[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCo
                 helperKeywordsList[0] = ".spectator"
                 _StruggleAnimationDefHelperArray = _GetSoloStruggleAnimation(helperKeywordsList, _minigameHelper, _ActorsConstraints[1])
             EndIf
+            
+            UDAM.SetActorHeading(Wearer, _minigameHelper)
+            UDAM.SetActorHeading(_minigameHelper, Wearer)
             
             If _StruggleAnimationDefActorArray.Length > 0
                 _animationDef = _StruggleAnimationDefActorArray[Utility.RandomInt(0, _StruggleAnimationDefActorArray.Length - 1)]
