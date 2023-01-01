@@ -53,6 +53,9 @@ Function Evaluate()
         if SlotAIEnabled(loc_Slot)
             SendEvaluationEvent(loc_Slot)
         endif
+        if loc_Slot.UD_AITimer
+            loc_Slot.UD_AITimer -= 1
+        endif
     endwhile
 EndFunction
 
@@ -60,6 +63,7 @@ Bool Function SlotAIEnabled(UD_CustomDevice_NPCSlot akSlot)
     Actor loc_actor = akSlot.GetActor()
     Bool loc_cond = true
     loc_cond = loc_cond && akSlot.isUsed()                                  ;there is actor in slot
+    loc_cond = loc_cond && !akSlot.UD_AITimer                               ;safety cooldown
     loc_cond = loc_cond && akSlot.getNumberOfRegisteredDevices()            ;actor needs to have at least one device
     loc_cond = loc_cond && !loc_actor.IsInCombat()                          ;actor is not in combat
     loc_cond = loc_cond && !akSlot.isInMinigame()                           ;actor is not in minigame
@@ -123,7 +127,7 @@ EndFunction
 
 ;returns next time on which NPC can again try to struggle
 Float Function GetAICooldown(Actor akActor) Global
-    return StorageUtil.GetFloatValue(akActor,"UDAICooldown",0)
+    return StorageUtil.GetFloatValue(akActor,"UDAICooldown",Utility.GetCurrentGameTime() + ConvertTime(0,10))
 EndFunction
 
 Function ResetCooldown(Actor akActor)

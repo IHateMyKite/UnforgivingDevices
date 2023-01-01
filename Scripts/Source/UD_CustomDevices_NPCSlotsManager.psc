@@ -56,9 +56,21 @@ EndEvent
 
 Function GameUpdate()
     UD_Slots = GetNumAliases()
+    SlotGameUpdate()
     CheckOrgasmLoops()
     RegisterForSingleUpdate(UDCDmain.UD_UpdateTime*2.0)
     registerForSingleUpdateGameTime(1.0)
+EndFunction
+
+Function SlotGameUpdate()
+    int index = 0
+    while index < UD_Slots
+        UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
+        if loc_slot.isUsed()
+            loc_slot.GameUpdate()
+        endif
+        index += 1
+    endwhile
 EndFunction
 
 Function CheckOrgasmLoops()

@@ -60,13 +60,16 @@ EndFunction
 
 Function Evaluate()
     Int loc_updateTime = UD_UpdateTime
-    Int loc_id = UDNPCM.GetNumAliases() - 1 ;all except player
+    Int loc_id = UDNPCM.GetNumAliases() ;all except player
     while loc_id
         loc_id -= 1
         UD_CustomDevice_NPCSlot loc_Slot = UDNPCM.getNPCSlotByIndex(loc_id)
         if SlotOrgasmUpdateEnabled(loc_Slot)
-            UpdateArousal(loc_Slot,loc_updateTime)
-            UpdateOrgasm(loc_Slot,loc_updateTime)
+            UpdateVibrators(loc_Slot,loc_updateTime)
+            if !loc_Slot.IsPlayer()
+                UpdateArousal(loc_Slot,loc_updateTime)
+                UpdateOrgasm(loc_Slot,loc_updateTime)
+            endif
         endif
     endwhile
 EndFunction
@@ -87,6 +90,10 @@ EndFunction
 
 Function UpdateOrgasm(UD_CustomDevice_NPCSlot akSlot,Float afUpdateTime)
     akSlot.UpdateOrgasm(afUpdateTime)
+EndFunction
+
+Function UpdateVibrators(UD_CustomDevice_NPCSlot akSlot,Int aiUpdateTime)
+    akSlot.VibrateUpdate(aiUpdateTime)
 EndFunction
 
 State Paused

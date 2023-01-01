@@ -258,7 +258,7 @@ Function OnGameReload()
 
     UDAbadonQuest.Update()
     
-    CLog("Unforgiving Devices updated.")
+    Info("<=====| Unforgiving Devices updated |=====>")
 EndFunction
 
 Event OnUpdate()

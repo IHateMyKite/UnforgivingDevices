@@ -369,16 +369,12 @@ string[] Property UD_Modifiers auto ;modifiers
 string[] Property UD_struggleAnimations auto ;array of all struggle animations
 string[] Property UD_struggleAnimationsHobl auto ;array of all struggle animations which player when actor have tied legs
 
-UD_CustomDevice_NPCSlot _WearerSlot
 UD_CustomDevice_NPCSlot Property UD_WearerSlot hidden
     UD_CustomDevice_NPCSlot Function get()
         if !Wearer
             return none
         endif
-        if !_WearerSlot
-            _WearerSlot = UDCDmain.GetNPCSlot(Wearer)
-        endif
-        return _WearerSlot
+        return UDCDmain.GetNPCSlot(Wearer) ;needs to be updated everytime because the device can have linked old slot which can now store other actor or be empty
     EndFunction
 EndProperty
 
@@ -1846,7 +1842,11 @@ float Function getLockDurability()
 EndFunction
 
 Float Function getRelativeLocks()
-    return UD_CurrentLocks/UD_Locks
+    if UD_Locks
+        return UD_CurrentLocks/UD_Locks
+    else
+        return 1.0
+    endif
 EndFunction
 
 ;returns comprehesive lock level

@@ -39,7 +39,22 @@ UD_ExpressionManager Property UDEM Hidden
         return UDmain.UDEM
     EndFunction
 EndProperty
-UD_CustomDevice_RenderScript[] Property UD_equipedCustomDevices auto hidden
+
+UD_CustomDevice_RenderScript[]          Property UD_equipedCustomDevices    auto hidden
+
+UD_CustomDevice_RenderScript[] _ActiveVibrators
+UD_CustomDevice_RenderScript[]          Property UD_ActiveVibrators         hidden
+    UD_CustomDevice_RenderScript[] Function Get()
+        if !_ActiveVibrators
+            _ActiveVibrators = UDCDMain.MakeNewDeviceSlots()
+        endif
+        return _ActiveVibrators
+    EndFunction
+    Function Set(UD_CustomDevice_RenderScript[] akVal)
+        _ActiveVibrators = akVal
+    EndFunction
+EndProperty
+
 Form[] Property UD_BodySlots auto hidden
 
 UD_CustomDevice_RenderScript _handRestrain = none
@@ -83,13 +98,17 @@ Weapon Property UD_BestWeapon Hidden
         _BestWeapon = akWeapon
     EndFunction
 EndProperty
-float Property AgilitySkill         = 0.0 auto hidden
-float Property StrengthSkill        = 0.0 auto hidden
-float Property MagickSkill          = 0.0 auto hidden
-float Property CuttingSkill         = 0.0 auto hidden
-float Property SmithingSkill        = 0.0 auto hidden
+float Property AgilitySkill         = 0.0   auto hidden
+float Property StrengthSkill        = 0.0   auto hidden
+float Property MagickSkill          = 0.0   auto hidden
+float Property CuttingSkill         = 0.0   auto hidden
+float Property SmithingSkill        = 0.0   auto hidden
 
-float Property ArousalSkillMult     = 1.0 auto hidden
+float Property ArousalSkillMult     = 1.0   auto hidden
+
+;timer used to prevent AI being activated too early
+;number means how many AI updates will be ommited
+Int   Property UD_AITimer           = 2     auto hidden
 
 ;prevent slot update
 State UpdatePaused
@@ -104,6 +123,10 @@ State UpdatePaused
     Function UpdateSkills()
     EndFunction
 EndState
+
+Function GameUpdate()
+    CheckVibrators()
+EndFunction
 
 Bool Function IsBlocked()
     Bool loc_res = False
@@ -126,11 +149,6 @@ Function UpdateSlot(Bool abUpdateSkill = true)
 EndFunction
 
 Function UpdateBodySlots()
-    ;if !UD_BodySlots
-    ;    UD_BodySlots = new Form[32]
-    ;    GInfo("UD_BodySlots not init for " + getSlotedNPCName() + ", creating array")
-    ;endif
-    
     int loc_i = 0
     Actor loc_actor = GetActor()
     while loc_i < 32
@@ -168,6 +186,7 @@ EndFunction
 Event OnInit()
     Utility.wait(1.0)
     UD_equipedCustomDevices = UDCDMain.MakeNewDeviceSlots()
+    UD_ActiveVibrators      = UDCDMain.MakeNewDeviceSlots()
     Ready = True
 EndEvent
 
@@ -234,7 +253,23 @@ int Function GetDeviceSlotIndx(UD_CustomDevice_RenderScript device)
     return -1
 EndFunction
 
+int Function GetVibratorSlotIndx(UD_CustomDevice_RenderScript akVib)
+    if !(akVib as UD_CustomVibratorBase_RenderScript)
+        ;device is not vibrator, return -1
+        return -1
+    endif
+    int i = 0
+    while UD_ActiveVibrators[i]
+        if UD_ActiveVibrators[i] == akVib
+            return i
+        endif
+        i+=1
+    endwhile
+    return -1
+EndFunction
+
 Function SetSlotTo(Actor akActor)
+    UD_AITimer = 2
     if UDmain.TraceAllowed()
         UDCDmain.Log("SetSlotTo("+getActorName(akActor)+") for " + self)
     endif
@@ -257,6 +292,7 @@ Function SetSlotTo(Actor akActor)
 
     if !IsPlayer()
         regainDevices()
+        CheckVibrators()
     endif
 EndFunction
 
@@ -302,6 +338,7 @@ Function unregisterSlot()
     endif
     if _iUsedSlots
         unregisterAllDevices()
+        EndAllVibrators()
     endif
     StorageUtil.UnSetIntValue(getActor(), "UD_ManualRegister")
     _iScriptState = 0
@@ -335,6 +372,30 @@ Function sortSlots(bool mutex = true)
     endwhile
     if mutex
         endDeviceManipulation()
+    endif
+EndFunction
+
+Function SortVibrators(bool mutex = true)
+    if mutex
+        startVibratorManipulation()
+    endif
+    int i = 0
+    while i < UD_ActiveVibrators.length - 1
+        if UD_ActiveVibrators[i] == none && UD_ActiveVibrators[i + 1]
+            UD_ActiveVibrators[i] = UD_ActiveVibrators[i + 1]
+            UD_ActiveVibrators[i + 1] = none
+        endif
+        
+        ;sorted
+        if UD_ActiveVibrators[i] == none && UD_ActiveVibrators[i + 1] == none
+            endVibratorManipulation()
+            return
+        endif
+        
+        i+=1
+    endwhile
+    if mutex
+        endVibratorManipulation()
     endif
 EndFunction
 
@@ -440,6 +501,26 @@ Function fix()
     endif
 EndFunction
 
+;check if actor have activated vibrators but don't have them registered
+Function CheckVibrators()
+    int i = 0
+    Bool loc_Error = false
+    while UD_equipedCustomDevices[i]
+        ;check if device is vibrators
+        UD_CustomVibratorBase_RenderScript loc_vib = (UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript)
+        if loc_vib
+            ;check if vib is activtaed and not registered
+            if loc_vib.IsVibrating() && UD_ActiveVibrators.Find(UD_equipedCustomDevices[i]) < 0
+                UDmain.Error(self + "::CheckVibrators - Found unregistered active vibrator , registering " + loc_vib.GetDeviceName())
+                if RegisterVibrator(loc_vib)
+                    loc_Error = True
+                endif
+            endif
+        endif
+        i+=1
+    endwhile
+EndFunction
+
 Function removeLostRenderDevices()
     ;if !isPlayer()
     ;    UDCDmain.Print("removeLostRenderDevices doesn't work for NPCs. Skipping!",1)
@@ -535,6 +616,45 @@ bool Function registerDevice(UD_CustomDevice_RenderScript oref,bool mutex = true
     return false
 EndFunction
 
+Bool _VibratorMutex = False
+Function startVibratorManipulation()
+    while _VibratorMutex
+        Utility.waitMenuMode(0.05)
+    endwhile
+    _VibratorMutex = True
+EndFUnction
+Function endVibratorManipulation()
+    _VibratorMutex = False
+EndFUnction
+
+bool Function RegisterVibrator(UD_CustomDevice_RenderScript akVib)
+    if UDmain.TraceAllowed()
+        UDmain.Log("Starting slot vibrator register for " + akVib.getDeviceHeader() )
+    endif
+    if !(akVib as UD_CustomVibratorBase_RenderScript)
+        ;device is not vibrator, return -1
+        UDmain.Error(self+"::RegisterVibrator("+akVib+") failed because device is not vibrator")
+        return False
+    endif
+    if UD_ActiveVibrators.Find(akVib) > 0
+        UDmain.Error("RegisterVibrator("+akVib.getDeviceHeader()+") - Vibrator is already registered")
+        return false
+    endif
+    startVibratorManipulation()
+    int size = UD_ActiveVibrators.length
+    int i = 0
+    while i < size
+        if !UD_ActiveVibrators[i]
+            UD_ActiveVibrators[i] = akVib
+            endVibratorManipulation()
+            return true
+        endif
+        i+=1
+    endwhile
+    endVibratorManipulation()
+    return false
+EndFunction
+
 int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool sort = True,bool mutex = true)
     if mutex
         startDeviceManipulation()
@@ -560,6 +680,25 @@ int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool s
         sortSlots(mutex)
     endif
     
+    return res
+EndFunction
+
+int Function UnregisterVibrator(UD_CustomDevice_RenderScript akVib,int i = 0,bool sort = True)
+    startVibratorManipulation()
+    int res = 0
+    while UD_ActiveVibrators[i]
+        if UD_ActiveVibrators[i] == akVib
+            UD_ActiveVibrators[i] = none
+            res += 1
+        endif
+        i+=1
+    endwhile
+    
+    if isScriptRunning() && sort
+        SortVibrators(false)
+    endif
+    
+    endVibratorManipulation()
     return res
 EndFunction
 
@@ -2072,6 +2211,30 @@ Function CleanOrgasmUpdate()
     
     ;end mutex
     akActor.RemoveFromFaction(UDOM.OrgasmCheckLoopFaction)
+EndFunction
+
+
+Function VibrateUpdate(Int aiUpdateTime)
+    int i = 0
+    while UD_ActiveVibrators[i]
+        UD_CustomVibratorBase_RenderScript loc_vib = UD_ActiveVibrators[i] as UD_CustomVibratorBase_RenderScript
+        if loc_vib
+            loc_vib.VibrateUpdate(aiUpdateTime)
+        endif
+        i+=1
+    endwhile
+EndFunction
+
+Function EndAllVibrators()
+    int i = 0
+    while UD_ActiveVibrators[i]
+        UD_CustomVibratorBase_RenderScript loc_vib = UD_ActiveVibrators[i] as UD_CustomVibratorBase_RenderScript
+        if loc_vib
+            loc_vib.VibrateEnd(True,False)
+            UD_ActiveVibrators[i] = none
+        endif
+        i+=1
+    endwhile
 EndFunction
 
 ;===============================================================================
