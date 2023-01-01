@@ -3750,9 +3750,9 @@ Function minigame()
                     
                     if loc_is3DLoaded
                         ;update disable if it gets somehow removed every 1 s
-                        UDCDMain.UpdateMinigameDisable(Wearer)
+                        UDCDMain.UpdateMinigameDisable(Wearer,loc_WearerIsPlayer as Int)
                         if _minigameHelper
-                            UDCDMain.UpdateMinigameDisable(_minigameHelper)
+                            UDCDMain.UpdateMinigameDisable(_minigameHelper,loc_HelperIsPlayer as Int)
                         endif
                     endif
                     
@@ -3836,7 +3836,7 @@ Function minigame()
     endif
 
     ;remove disalbe from helper (can be done earlier as no devices were changed)
-    if _minigameHelper && !UDOM.isOrgasming(_minigameHelper)
+    if _minigameHelper && !StorageUtil.GetIntValue(_minigameHelper,"UD_OrgasmDuration",0)
         UDCDMain.EndMinigameDisable(_minigameHelper, loc_HelperIsPlayer as Int)
     endif
 
@@ -3846,7 +3846,7 @@ Function minigame()
     endwhile
 
     ;remove disable from wearer
-    If !StorageUtil.GetIntValue(Wearer,"UD_OrgasmDuration",0)       ;!UDOM.isOrgasming(Wearer)
+    If !StorageUtil.GetIntValue(Wearer,"UD_OrgasmDuration",0)
         UDCDMain.EndMinigameDisable(Wearer,loc_WearerIsPlayer as Int)
     EndIf
 

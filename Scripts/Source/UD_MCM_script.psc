@@ -24,7 +24,6 @@ UD_UserInputScript Property UDUI
     EndFunction
 EndProperty
 
-
 UD_NPCInteligence Property UDAI
     UD_NPCInteligence Function Get()
         return UDmain.UDAI
@@ -574,7 +573,7 @@ Event resetNPCsPage()
     UD_AIEnable_T = addToggleOption("Enabled", UDAI.Enabled)
     addEmptyOption()
     
-    UD_AIUpdateTime_S   = addSliderOption("Update time: ",UDAI.UD_UpdateTime, "{0} s",      FlagSwitchOr(UD_LockMenu_flag,FlagSwitch(UDAI.Enabled)))
+    UD_AIUpdateTime_S   = addSliderOption("Update time: ",UDAI.UD_UpdateTime, "{0} s",      FlagSwitch(UDAI.Enabled))
     UD_AICooldown_S     = addSliderOption("Base Cooldown",UDAI.UD_AICooldown, "{0} min",    FlagSwitchOr(UD_LockMenu_flag,FlagSwitch(UDAI.Enabled)))
     
     AddHeaderOption("Autoscan")

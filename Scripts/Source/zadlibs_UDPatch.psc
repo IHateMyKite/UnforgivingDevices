@@ -648,11 +648,6 @@ String Function AnimSwitchKeyword(actor akActor, string idleName)
         anims = UDmain.UDAM.GetHornyAnimEvents(akActor)
     ElseIf idleName == "Orgasm"
         anims = UDmain.UDAM.GetOrgasmAnimEvents(akActor)
-        ; append horny animations to list
-        If UDCDmain.UDOM.UD_OrgasmAnimation == 1        ; Extended List
-            String[] anims2 = UDmain.UDAM.GetHornyAnimEvents(akActor)
-            anims = PapyrusUtil.MergeStringArray(anims, anims2, RemoveDupes = True)
-        EndIf
     ElseIf idleName == "Edged"
         anims = UDmain.UDAM.GetEdgedAnimEvents(akActor)
     EndIf
@@ -915,7 +910,7 @@ Function ProcessPlayerControls(bool abCheckMinigame = true)
         Game.DisablePlayerControls(abMovement = !movement, abFighting = !fighting, abSneaking = !sneaking, abMenu = !menu, abActivate = !activate)    
         Game.EnablePlayerControls(abMovement = movement, abFighting = fighting, abSneaking = sneaking, abMenu = menu, abActivate = activate) 
         EndProcessPlayerControlsMutex()
-    endif    
+    endif
 EndFunction
 
 function stripweapons(actor a, bool unequiponly = true)        

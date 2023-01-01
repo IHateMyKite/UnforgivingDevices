@@ -753,9 +753,16 @@ String[] Function GetOrgasmAnimEvents(Actor akActor)
 
     Int[] aActorConstraints = new Int[1]
     aActorConstraints[0] = GetActorConstraintsInt(akActor)
-    String[] sKeywords = new String[1]
-    sKeywords[0] = ".orgasm"
-    
+    String[] sKeywords
+    Bool loc_useHornyAnim = (UDCDmain.UDOM.UD_OrgasmAnimation == 1)
+    if loc_useHornyAnim
+        sKeywords = new String[2]
+        sKeywords[0] = ".orgasm"
+        sKeywords[1] = ".horny"
+    else
+        sKeywords = new String[1]
+        sKeywords[0] = ".orgasm"
+    endif
     String[] anims = GetAnimationsFromDB(".solo", sKeywords, ".A1.anim", aActorConstraints)
 
     Return anims

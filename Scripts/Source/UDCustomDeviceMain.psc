@@ -384,11 +384,8 @@ EndFunction
 
 Function UpdatePlayerControl()
     Game.EnablePlayerControls(abMovement = true, abFighting = false, abSneaking = false, abMenu = False, abActivate = false)
+    Utility.waitMenuMode(0.05)
     Game.DisablePlayerControls(abMovement = False, abMenu = True)
-EndFunction
-
-bool Function InSelabAnimation(Actor akActor)
-    return akActor.IsInFaction(libs.Sexlab.AnimatingFaction)
 EndFunction
 
 bool Function InZadAnimation(Actor akActor)

@@ -168,7 +168,6 @@ Function Receive_MinigameParalel(Form fActor)
     loc_device._MinigameParProc_2 = true
     
     ;process
-    ;start disable
     bool      loc_haveplayer    = loc_device.PlayerInMinigame()
     bool      loc_is3DLoaded    = akActor.Is3DLoaded() || loc_haveplayer
     
