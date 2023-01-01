@@ -360,6 +360,21 @@ Function UnlockAnimatingActor(Actor akActor, Bool bEnableActor = True)
 
 EndFunction
 
+Function SetActorHeading(Actor akActor, ObjectReference akHeadingTarget)
+    If akActor == None || akHeadingTarget == None
+        Return
+    EndIf
+    Float a = akActor.GetAngleZ()
+    If akHeadingTarget != None
+        a += akActor.GetHeadingAngle(akHeadingTarget)
+    EndIf
+    If UDMain.ActorIsPlayer(akActor)
+        akActor.SetAngle(0, 0, a)
+    Else
+        akActor.TranslateTo(akActor.X, akActor.Y, akActor.Z, 0, 0, a, 150, 180)
+    EndIf
+EndFunction
+
 ; Function to start animation according to the specified definition from json
 ; sAnimDef                      animation definition from json, should be in format <file_name>:<path_in_file>
 ; akActors                      actors who will participate

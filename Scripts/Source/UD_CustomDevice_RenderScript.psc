@@ -3972,6 +3972,9 @@ Bool[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCo
                 _StruggleAnimationDefHelperArray = _GetSoloStruggleAnimation(helperKeywordsList, _minigameHelper, _ActorsConstraints[1])
             EndIf
             
+            UDAM.SetActorHeading(Wearer, _minigameHelper)
+            UDAM.SetActorHeading(_minigameHelper, Wearer)
+            
             If _StruggleAnimationDefActorArray.Length > 0
                 _animationDef = _StruggleAnimationDefActorArray[Utility.RandomInt(0, _StruggleAnimationDefActorArray.Length - 1)]
                 result[0] = UDAM.PlayAnimationByDef(_animationDef, ActorArray1(Wearer), IntArray1(_ActorsConstraints[0]), bContinueAnimation, bDisableActors = False)
