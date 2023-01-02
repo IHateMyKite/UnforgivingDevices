@@ -16,7 +16,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     UDEM.ApplyExpressionRaw(_target, _expression, 30,false,5)
     if UDmain.ActorIsPlayer(_target)
         registerForSingleUpdate(0.1)
-        UDMain.UDWC.IncrementStatusEffect("effect-exhaustion", 20)
+        UDMain.UDWC.StatusEffect_IncMagnitude("effect-exhaustion", 20)
         ;Game.SetInChargen(false, true, false)
     endif
 EndEvent
@@ -26,7 +26,7 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
     _finish = true
     if UDmain.ActorIsPlayer(_target)
         Game.SetInChargen(false, false, false)
-        UDMain.UDWC.IncrementStatusEffect("effect-exhaustion", -20)
+        UDMain.UDWC.StatusEffect_IncMagnitude("effect-exhaustion", -20)
     endif
     if !_target.hasMagicEffect(_MagickEffect)
         UDEM.ResetExpressionRaw(_target,10)

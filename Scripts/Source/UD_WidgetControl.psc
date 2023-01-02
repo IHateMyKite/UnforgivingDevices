@@ -3,10 +3,10 @@ ScriptName UD_WidgetControl extends Quest
 import UnforgivingDevicesMain
 
 ; CONSTANTS
-Int W_POSY_TOP = 0
-Int W_POSY_MIDDLE = 3
-Int W_POSY_LOWER = 1
-Int W_POSY_BOTTOM = 2
+Int W_POSY_CENTER = 3
+Int W_POSY_TOP = 2
+Int W_POSY_BELOWCENTER = 1
+Int W_POSY_BOTTOM = 0
 Int W_POSX_LEFT = 0
 Int W_POSX_CENTER = 1
 Int W_POSX_RIGHT = 2
@@ -21,15 +21,14 @@ UD_WidgetBase               Property UD_Widget1 auto
 UD_WidgetBase               Property UD_Widget2 auto
 
 ; new UI settings
-Int                         Property    UD_IconsSize            = 60    Auto    Hidden
-Int                         Property    UD_DDIconsAnchorX       = 1     Auto    Hidden      ; W_POSX_CENTER
-Int                         Property    UD_DDIconsAnchorY       = 3     Auto    Hidden      ; W_POSY_MIDDLE
-Int                         Property    UD_DDIconsOffsetX       = -300  Auto    Hidden
-Int                         Property    UD_DDIconsOffsetY       = 0     Auto    Hidden
-Int                         Property    UD_BuffIconsAnchorX     = 1     Auto    Hidden      ; W_POSX_CENTER
-Int                         Property    UD_BuffIconsAnchorY     = 3     Auto    Hidden      ; W_POSY_MIDDLE
-Int                         Property    UD_BuffIconsOffsetX     = 300   Auto    Hidden
-Int                         Property    UD_BuffIconsOffsetY     = 0     Auto    Hidden
+Int                         Property    UD_TextFontSize             = 24    Auto    Hidden
+Int                         Property    UD_TextLineLength           = 100   Auto    Hidden
+Bool                        Property    UD_FilterVibNotifications   = True  Auto    Hidden
+Int                         Property    UD_IconsSize                = 60    Auto    Hidden
+Int                         Property    UD_IconsAnchor              = 1     Auto    Hidden      ; 0 - left, 1 - center, 2 - right
+Int                         Property    UD_IconsPadding             = 300   Auto    Hidden      ; horizontal padding relative to anchor
+Int                         Property    UD_TextAnchor               = 1     Auto    Hidden      ; 0 - top, 1 - bottom
+Int                         Property    UD_TextPadding              = 0     Auto    Hidden      ; vertical padding relative to anchor
 
 Int _WidgetXPos = 2
 Int Property UD_WidgetXPos
@@ -95,7 +94,6 @@ Event OnUpdate()
     RegisterForSingleUpdate(30) ;maintenance update
 EndEvent
 
-;Disabled. Might return to it in far away future
 Function Update()
     ;UDmain.Info("UD_WidgetControl::Update() UDmain.iWidgetInstalled = " + UDmain.iWidgetInstalled + " , UD_UseIWantWidget="+UD_UseIWantWidget)
     ; iWidget compatibility
@@ -103,7 +101,8 @@ Function Update()
         GoToState("iWidgetInstalled")
         UD_Widget1.hide(true)
         UD_Widget2.hide(true)
-        InitWidgets()
+        _InitMutex = False
+        InitWidgets(abGameLoad = True)
     else
         GoToState("")
         UD_WidgetXPos = UD_WidgetXPos
@@ -139,7 +138,13 @@ Function RefreshCanvasMetrics()
     HUDPaddingY = hud_padding
 EndFunction
 
-Function InitWidgets()
+Function InitWidgets(Bool abGameLoad = False)
+EndFunction
+Function InitIcons()
+EndFunction
+Function InitText()
+EndFunction
+Function _AddTextLine()
 EndFunction
 
 ;toggle widget
@@ -210,26 +215,30 @@ Int     _Widget_Orgasm_Color3               = 0xFF00BC
 ;GROUP
 Int[] _WidgetsID
 
-Float _Animation_LastGameTime
-Float _Notifications_QueueStart
-Int[] _Notifications_Id
-Int[] _Notifications_AnimStage
-Float[] _Notifications_Timer
-Float[] _Notifications_Duration
-String[] _Notification_NewText
+Float       _Animation_LastGameTime
+Float       _Animation_Update               = 0.5
+Float       _Animation_UpdateInstant        = 0.1
 
-Int[] _Icons_Id                 ; widget id
-String[] _Icons_Name            ; DDS file name in '<Data>/interface/exported/widgets/iwant/widgets/library' folder
-Int[] _Icons_Magnitude          ; 0 .. 100+
-Float[] _Icons_Timer            ; animation timer
-Int[] _Icons_Stage              ; animation stage
-Int[] _Icon_Blicking            ; 0, 1
-Int[] _Icon_Alpha               ; 0 .. 100
+Int[]       _Text_LinesId
+Int         _Text_AnimStage                 = -1
+Float       _Text_Timer
+Float       _Text_Duration
 
-Int     _Widget_Icon_Inactive_Color             = 0xFFFFFF
-Int     _Widget_Icon_Active0_Color              = 0xFFFF00
-Int     _Widget_Icon_Active50_Color             = 0xFF0000
-Int     _Widget_Icon_Active100_Color            = 0xFF00FF
+String[]    _Text_Queue
+
+Int[]       _Icons_Id                 ; widget id
+String[]    _Icons_Name               ; DDS file name in '<Data>/interface/exported/widgets/iwant/widgets/library' folder
+Int[]       _Icons_Magnitude          ; 0 .. 100+
+Float[]     _Icons_Timer              ; animation timer
+Int[]       _Icons_Stage              ; animation stage
+Int[]       _Icons_Blicking           ; 0, 1
+Int[]       _Icons_Alpha              ; 0 .. 100
+Int[]       _Icon_Visible             ; 0, 1
+
+Int         _Widget_Icon_Inactive_Color             = 0xFFFFFF      ; Gray
+Int         _Widget_Icon_Active0_Color              = 0xFFFF00      ; Yellow
+Int         _Widget_Icon_Active50_Color             = 0xFF0000      ; Red
+Int         _Widget_Icon_Active100_Color            = 0xFF00FF      ; Magenta
 
 Event OnBeginState()
     RegisterForSingleUpdate(30.0)
@@ -242,25 +251,33 @@ EndFunction
 Int[] Function AddWidget(Int[] aaiGroup, Int aiWidget, Float fVerticalOffset, Int akPerc = 0, Int akCol1 = 0x0, Int akCol2 = 0x0, Int akCol3 = 0xFFFFFFFF)
 EndFunction
 
-Function ShowNotification(String asText)
+Function Notification_Push(String asText)
     Debug.Notification(asText)
 EndFunction
-
-Function AnimateWidgets()
+Function StatusEffect_SetVisible(String asName, Bool abVisible = True)
 EndFunction
-Function _ProcessNewNotifications()
+Function StatusEffect_SetMagnitude(String asName, Int aiMagnitude)
 EndFunction
-Int Function _CreateNewIcon(String asName, Int aiXOffset = -1, Int aiYOffset = -1, Int aiAlpha = 100)
+Function StatusEffect_IncMagnitude(String asName, Int aiIncrement, Bool abControlVisibility = True)
 EndFunction
-Function ToggleStatusEffect(String asName, Bool abShow = True, Int aiStrength = 0)
-EndFunction
-Function IncrementStatusEffect(String asName, Int aiIncrement = 20, Bool abHideIfZero = True)
-EndFunction
-Function BlinkStatusEffect(String asName, Bool abBlink)
+Function StatusEffect_SetBlink(String asName, Bool abBlink = True)
 EndFunction
 Function _SetIconRGB(Int aiWidget, Int aiRGB)
 EndFunction
-
+Function TestWidgets()
+EndFunction
+Function AnimateWidgets()
+EndFunction
+Function _AnimateNotifications(Float frame)
+EndFunction
+Function _AnimateIcons(Float frame)
+EndFunction
+Bool Function _NextNotification()
+EndFunction
+Int Function _GetIconIndex(String asName)
+EndFunction
+Int Function _CreateIcon(String asName, Int aiXOffset = -1, Int aiYOffset = -1, Int aiAlpha = -1)
+EndFunction
 ;Fuck this stupid as shit. It's even harder to make widget position right
 
 iWant_Widgets Property iWidget Hidden
@@ -292,24 +309,41 @@ State iWidgetInstalled
 
     Event OnBeginState()
         _Animation_LastGameTime = Utility.GetCurrentRealTime()
-        RegisterForSingleUpdate(0.5)
+        _InitMutex = False
+        RegisterForSingleUpdate(_Animation_Update)
     EndEvent
     
     Event OnUpdate()
         AnimateWidgets()
-        RegisterForSingleUpdate(0.5)
+        RegisterForSingleUpdate(_Animation_Update)
     EndEvent
 
-    Function InitWidgets()
-        UDMain.Log("UD_WidgetControl::InitWidgets()")
+    ; abGameLoad        - flag that it's game load event. And we recreate all widgets regardless of previous IDs
+    Function InitWidgets(Bool abGameLoad = False)
+        if _InitMutex
+            return
+        endif
+        _InitMutex = true
         RefreshCanvasMetrics()
+        If abGameLoad
+        ; clearing all IDs
+            _Widget_DeviceDurability = -1
+            _Widget_DeviceCondition = -1
+            _Widget_Orgasm = -1
+            _Text_LinesId = PapyrusUtil.IntArray(0)
+            Int i = _Icons_Id.Length
+            While i > 0
+                i -= 1
+                _Icons_Id[i] = -1
+            EndWhile
+        EndIf
+        UnregisterForUpdate()
+        Utility.Wait(_Animation_Update + 0.5)
+        InitIcons()
+        InitText()
         ;No autoadjust, reinit the widgets
         if !UD_AutoAdjustWidget
-            if _InitMutex
-                return
-            endif
-            _InitMutex = true
-            Utility.wait(1.5) ;wait little time, so previous operatious could finish first
+            ; Utility.wait(1.5) ;wait little time, so previous operatious could finish first
             if _Widget_DeviceDurability
                 iWidget.destroy(_Widget_DeviceDurability)
             endif
@@ -335,33 +369,130 @@ State iWidgetInstalled
             iWidget.setVisible(_Widget_DeviceCondition, _Widget_DeviceCondition_Visible As Int)
             iWidget.setVisible(_Widget_Orgasm, _Widget_Orgasm_Visible As Int)
             
-            ;          XXX     XXX                          XXX
-            ;          XXX     XXX                          XXX
-            ;               a               X                b
-            ;          XXX     XXX                          XXX
-            ;          XXX     XXX                          XXX
+        endif
+        _InitMutex = False
+        RegisterForSingleUpdate(_Animation_Update)
+    EndFunction
+    
+    Function InitText()
+        If _Text_LinesId.Length == 0
+            Int text_id = iWidget.loadText("", size = UD_TextFontSize)
+            _Text_LinesId = PapyrusUtil.PushInt(_Text_LinesId, text_id)
+        EndIf
+        Int i = 0
+        While i < _Text_LinesId.Length
+            Int text_id = _Text_LinesId[i]
+            If UD_TextAnchor >= 0 && UD_TextAnchor < 4
+                iWidget.setPos(text_id, CalculateGroupXPos(W_POSX_CENTER), (CalculateGroupYPos(UD_TextAnchor) + UD_TextPadding + 1.5 * UD_TextFontSize * (_Text_LinesId.Length - 1)) as Int)
+            Else
+                UDMain.Warning("UD_WidgetControl::_AddTextLine() Unsupported value UD_TextAnchor = " + UD_TextAnchor)
+            EndIf
+            iWidget.setVisible(text_id, 0)
+            iWidget.setTransparency(text_id, 0)
+            i += 1
+        EndWhile
+        _Text_AnimStage = -1
+        _Text_Timer = 0.0
+    EndFunction
+    
+    Function _AddTextLine()
+        Int text_id = iWidget.loadText("", size = UD_TextFontSize)
+        _Text_LinesId = PapyrusUtil.PushInt(_Text_LinesId, text_id)
+        If UD_TextAnchor >= 0 && UD_TextAnchor < 4
+            iWidget.setPos(text_id, CalculateGroupXPos(W_POSX_CENTER), (CalculateGroupYPos(UD_TextAnchor) + UD_TextPadding + 1.5 * UD_TextFontSize * (_Text_LinesId.Length - 1)) as Int)
+        Else
+            UDMain.Warning("UD_WidgetControl::_AddTextLine() Unsupported value UD_TextAnchor = " + UD_TextAnchor)
+        EndIf
+        iWidget.setVisible(text_id, 0)
+        iWidget.setTransparency(text_id, 0)
+    EndFunction
+    
+    Function InitIcons()
+        If UD_IconsAnchor == 0
+            ; Left icons position
             ;
-            ; a - DD Icons Anchor + Offset          b - Buff Icons Anchor + Offset
+            ;          ###     ###
+            ;          ###     ###
+            ;               B
+            ;          ###     ###
+            ;          ###     ###
+            ;
+            ;     X         A
+            ;
+            ;              ###
+            ;              ###
+            ;
+            ;              ###
+            ;              ###
+            ;
+            ; X = Left-Center Anchor
+            ; A = Anchor + Hor. Padding
             
-            Int x = CalculateGroupXPos(UD_DDIconsAnchorX) + UD_DDIconsOffsetX + (0.55 * UD_IconsSize) As Int
-            Int y = CalculateGroupYPos(UD_DDIconsAnchorY) + UD_DDIconsOffsetY + (0.55 * UD_IconsSize) As Int
-            _CreateNewIcon("dd-plug-anal", x, y, 50)
+            Int x = CalculateGroupXPos(W_POSX_LEFT) + UD_IconsPadding + (0.55 * UD_IconsSize) As Int
+            Int y = CalculateGroupYPos(W_POSY_CENTER) - UD_IconsSize - (0.55 * UD_IconsSize) As Int
+            _CreateIcon("dd-plug-anal", x, y, 50)
             y -= (UD_IconsSize * 1.1) As Int
-            _CreateNewIcon("dd-plug-vaginal", x, y, 50)
+            _CreateIcon("dd-plug-vaginal", x, y, 50)
             y += (UD_IconsSize * 1.1) As Int
             x -= (UD_IconsSize * 1.1) As Int
-            _CreateNewIcon("dd-piercing-clit", x, y, 50)
+            _CreateIcon("dd-piercing-clit", x, y, 50)
             y -= (UD_IconsSize * 1.1) As Int
-            _CreateNewIcon("dd-piercing-nipples", x, y, 50)
+            _CreateIcon("dd-piercing-nipples", x, y, 50)
 
-            x = CalculateGroupXPos(UD_BuffIconsAnchorX) + UD_BuffIconsOffsetX
-            y = CalculateGroupYPos(UD_BuffIconsAnchorY) + UD_BuffIconsOffsetY + (0.55 * UD_IconsSize) As Int
-            _CreateNewIcon("effect-exhaustion", x, y, 75)
+            x = CalculateGroupXPos(W_POSX_LEFT) + UD_IconsPadding
+            y = CalculateGroupYPos(W_POSY_CENTER) + UD_IconsSize + (0.55 * UD_IconsSize) As Int
+            _CreateIcon("effect-exhaustion", x, y, 75)
             y -= (UD_IconsSize * 1.1) As Int
-            _CreateNewIcon("effect-orgasm", x, y, 75)
+            _CreateIcon("effect-orgasm", x, y, 75)
+        ElseIf UD_IconsAnchor == 1
+            ; Center icons position
+            ;
+            ;          ###     ###                          ###
+            ;          ###     ###                          ###
+            ;               A               X                B
+            ;          ###     ###                          ###
+            ;          ###     ###                          ###
+            ;
+            ; X = Crosshair
+            ; A = Anchor - Hor. Padding
+            ; B = Anchor + Hor. Padding
             
-            _InitMutex = false
-        endif
+            Int x = CalculateGroupXPos(W_POSX_CENTER) - UD_IconsPadding + (0.55 * UD_IconsSize) As Int
+            Int y = CalculateGroupYPos(W_POSY_CENTER) + (0.55 * UD_IconsSize) As Int
+            _CreateIcon("dd-plug-anal", x, y, 50)
+            y -= (UD_IconsSize * 1.1) As Int
+            _CreateIcon("dd-plug-vaginal", x, y, 50)
+            y += (UD_IconsSize * 1.1) As Int
+            x -= (UD_IconsSize * 1.1) As Int
+            _CreateIcon("dd-piercing-clit", x, y, 50)
+            y -= (UD_IconsSize * 1.1) As Int
+            _CreateIcon("dd-piercing-nipples", x, y, 50)
+
+            x = CalculateGroupXPos(W_POSX_CENTER) + UD_IconsPadding
+            y = CalculateGroupYPos(W_POSY_CENTER) + (0.55 * UD_IconsSize) As Int
+            _CreateIcon("effect-exhaustion", x, y, 75)
+            y -= (UD_IconsSize * 1.1) As Int
+            _CreateIcon("effect-orgasm", x, y, 75)
+        ElseIf UD_IconsAnchor == 2
+            Int x = CalculateGroupXPos(W_POSX_RIGHT) - UD_IconsPadding + (0.55 * UD_IconsSize) As Int
+            Int y = CalculateGroupYPos(W_POSY_CENTER) - UD_IconsSize - (0.55 * UD_IconsSize) As Int
+            _CreateIcon("dd-plug-anal", x, y, 50)
+            y -= (UD_IconsSize * 1.1) As Int
+            _CreateIcon("dd-plug-vaginal", x, y, 50)
+            y += (UD_IconsSize * 1.1) As Int
+            x -= (UD_IconsSize * 1.1) As Int
+            _CreateIcon("dd-piercing-clit", x, y, 50)
+            y -= (UD_IconsSize * 1.1) As Int
+            _CreateIcon("dd-piercing-nipples", x, y, 50)
+
+            x = CalculateGroupXPos(W_POSX_RIGHT) - UD_IconsPadding
+            y = CalculateGroupYPos(W_POSY_CENTER) + UD_IconsSize + (0.55 * UD_IconsSize) As Int
+            _CreateIcon("effect-exhaustion", x, y, 75)
+            y -= (UD_IconsSize * 1.1) As Int
+            _CreateIcon("effect-orgasm", x, y, 75)
+        Else
+            UDMain.Warning("UD_WidgetControl::InitIcons() Unsupported value UD_IconsAnchor = " + UD_IconsAnchor)
+        EndIf
     EndFunction
     
     ; fVerticalOffset       - offset in meter's heights
@@ -526,100 +657,156 @@ State iWidgetInstalled
         iWidget.doMeterFlash(_Widget_Orgasm)
     EndFunction
     
-    ; quickly push a string into array and leave the function
-    Function ShowNotification(String asText)
-        _Notification_NewText = PapyrusUtil.PushString(_Notification_NewText, asText)
-        RegisterForSingleUpdate(0.1)
-    EndFunction
-    
-    ; create new notifications in a single thread (hopefully)
-    ; TODO: multiline text
-    Function _ProcessNewNotifications()
-        Int len = _Notification_NewText.Length
-        Int i = 0
-        While i < len
-            Int text_id = iWidget.loadText(_Notification_NewText[i], size = 24)
-            Int anim_stage = 0              ; invisible
-            Float timer = 0.0               ; lifetime timer
-            iWidget.setPos(text_id, CalculateGroupXPos(W_POSX_CENTER), CalculateGroupYPos(W_POSY_LOWER))
-            If _Notifications_QueueStart >= 0.0
-                _Notifications_QueueStart = 0.0
-                anim_stage = 1              ; visible
-                iWidget.setVisible(text_id, 1)
-            Else
-                timer = _Notifications_QueueStart
-            EndIf
-            Float time_to_read = (StringUtil.GetLength(_Notification_NewText[i]) as Float) / 25.0
-            ; next notifications will wait some time before appearing
-            _Notifications_QueueStart -= time_to_read + 1.0
-            _Notifications_Id = PapyrusUtil.PushInt(_Notifications_Id, text_id)
-            _Notifications_Timer = PapyrusUtil.PushFloat(_Notifications_Timer, timer)
-            _Notifications_AnimStage = PapyrusUtil.PushInt(_Notifications_AnimStage, anim_stage)
-            _Notifications_Duration = PapyrusUtil.PushFloat(_Notifications_Duration, time_to_read)
-            i += 1
+    Function TestWidgets()
+    ; save current values
+        Int[] magnitudes = PapyrusUtil.SliceIntArray(_Icons_Magnitude, 0)
+        Float[] timers = PapyrusUtil.SliceFloatArray(_Icons_Timer, 0)
+        Int[] stages = PapyrusUtil.SliceIntArray(_Icons_Stage, 0)
+        Int[] blinks = PapyrusUtil.SliceIntArray(_Icons_Blicking, 0)
+        Int[] alphas = PapyrusUtil.SliceIntArray(_Icons_Alpha, 0)
+        Int[] visibles = PapyrusUtil.SliceIntArray(_Icon_Visible, 0)
+
+        Notification_Push("TEST 1 TEST 1 TEST 1 TEST 1")
+        Notification_Push("TEST 2 TEST 2 TEST 2 TEST 2 TEST 2 TEST 2 TEST 2 TEST 2")
+
+        StatusEffect_SetVisible("dd-plug-anal", True)
+        StatusEffect_SetVisible("dd-plug-vaginal", True)
+        StatusEffect_SetVisible("dd-piercing-clit", True)
+        StatusEffect_SetVisible("dd-piercing-nipples", True)
+        StatusEffect_SetVisible("effect-exhaustion", True)
+        StatusEffect_SetVisible("effect-orgasm", True)
+        
+        StatusEffect_SetMagnitude("dd-plug-anal", 0)
+        StatusEffect_SetMagnitude("dd-plug-vaginal", 25)
+        StatusEffect_SetMagnitude("dd-piercing-clit", 50)
+        StatusEffect_SetMagnitude("dd-piercing-nipples", 75)
+        StatusEffect_SetMagnitude("effect-exhaustion", 50)
+        StatusEffect_SetMagnitude("effect-orgasm", 100)
+
+        StatusEffect_SetBlink("dd-plug-anal", True)
+        StatusEffect_SetBlink("dd-plug-vaginal", True)
+        StatusEffect_SetBlink("dd-piercing-clit", True)
+        StatusEffect_SetBlink("dd-piercing-nipples", True)
+        
+        Utility.Wait(5.0)
+
+    ; load last values
+        _Icons_Magnitude = magnitudes
+        _Icons_Timer = timers
+        _Icons_Stage = stages
+        _Icons_Blicking = blinks
+        _Icons_Alpha = alphas
+        _Icon_Visible = visibles
+        Int i = _Icons_Name.Length
+        While i > 0
+            i -= 1
+            StatusEffect_SetVisible(_Icons_Name[i], _Icon_Visible[i])
+            StatusEffect_SetMagnitude(_Icons_Name[i], _Icons_Magnitude[i])
+            StatusEffect_SetBlink(_Icons_Name[i], _Icons_Blicking[i])
         EndWhile
-        _Notification_NewText = PapyrusUtil.SliceStringArray(_Notification_NewText, len, -1)
     EndFunction
     
-    Int Function _CreateNewIcon(String asName, Int aiX = -1, Int aiY = -1, Int aiAlpha = 100)
-        UDMain.Log("UD_WidgetControl::_CreateNewIcon() asName = " + asName + ", aiX = " + aiX + ", aiY = " + aiY, 3)
+    ; quickly push a string into array and leave the function
+    Function Notification_Push(String asText)
+        If UD_FilterVibNotifications && StringUtil.Find(asText, "vibr") >= 0
+            Return
+        EndIf
+        _Text_Queue = PapyrusUtil.PushString(_Text_Queue, asText)
+        RegisterForSingleUpdate(_Animation_UpdateInstant)
+    EndFunction
+    
+    Bool Function _NextNotification()
+        If _Text_Queue.Length == 0
+            Return False
+        EndIf
+        String str = _Text_Queue[0]
+        _Text_Duration = (StringUtil.GetLength(str) as Float) / 25.0
+    ; TODO: multiline
+        iWidget.setText(_Text_LinesId[0], str)
+        _Text_Queue = PapyrusUtil.SliceStringArray(_Text_Queue, 1)
+        Return True
+    EndFunction
+    
+    Int Function _GetIconIndex(String asName)
+        Int index = _Icons_Name.Find(asName)
+        If index == -1
+            index = _CreateIcon(asName)
+        EndIf
+        Return index
+    EndFunction
+    
+    Int Function _CreateIcon(String asName, Int aiX = -1, Int aiY = -1, Int aiAlpha = -1)
+        UDMain.Log("UD_WidgetControl::_CreateIcon() asName = " + asName + ", aiX = " + aiX + ", aiY = " + aiY + ", aiAlpha = " + aiAlpha, 3)
         If aiX < 0 || aiY < 0
-            UDMain.Warning("UD_WidgetControl::_CreateNewIcon() icon created without proper positioning")
+            UDMain.Warning("UD_WidgetControl::_CreateIcon() icon created without proper positioning")
             aiX = CanvasWidth / 2
             aiY = CanvasHeight / 2
         EndIf
-        Int icon_id = iWidget.loadLibraryWidget(asName)
+        Int icon_id = -1
+        Int index = _Icons_Name.Find(asName)
+        If index >= 0
+            If _Icons_Id[index] > 0
+                icon_id = _Icons_Id[index]
+            Else
+                icon_id = iWidget.loadLibraryWidget(asName)
+                _Icons_Id[index] = icon_id
+            EndIf
+            If aiAlpha >= 0
+                _Icons_Alpha[index] = aiAlpha
+            EndIf
+        Else
+            icon_id = iWidget.loadLibraryWidget(asName)
+            _Icons_Name = PapyrusUtil.PushString(_Icons_Name, asName)
+            _Icons_Id = PapyrusUtil.PushInt(_Icons_Id, icon_id)
+            _Icons_Timer = PapyrusUtil.PushFloat(_Icons_Timer, 0.0)
+            _Icons_Magnitude = PapyrusUtil.PushInt(_Icons_Magnitude, 0)
+            _Icons_Stage = PapyrusUtil.PushInt(_Icons_Stage, 0)
+            _Icons_Blicking = PapyrusUtil.PushInt(_Icons_Blicking, 0)
+            _Icon_Visible = PapyrusUtil.PushInt(_Icon_Visible, 0)
+            _Icons_Alpha = PapyrusUtil.PushInt(_Icons_Alpha, aiAlpha)
+            index = _Icons_Id.Length - 1
+        EndIf
         iWidget.setSize(icon_id, UD_IconsSize, UD_IconsSize)
-    ; TODO: Set proper places for each icon (effect)
         iWidget.setPos(icon_id, aiX, aiY)
         iWidget.setTransparency(icon_id, aiAlpha)
-        _Icons_Name = PapyrusUtil.PushString(_Icons_Name, asName)
-        _Icons_Id = PapyrusUtil.PushInt(_Icons_Id, icon_id)
-        _Icons_Timer = PapyrusUtil.PushFloat(_Icons_Timer, 0.0)
-        _Icons_Magnitude = PapyrusUtil.PushInt(_Icons_Magnitude, 0)
-        _Icons_Stage = PapyrusUtil.PushInt(_Icons_Stage, 0)
-        _Icon_Blicking = PapyrusUtil.PushInt(_Icon_Blicking, 0)
-        _Icon_Alpha = PapyrusUtil.PushInt(_Icon_Blicking, aiAlpha)
-        
-        Return _Icons_Id.Length - 1
+        iWidget.setVisible(icon_id, _Icon_Visible[index])
+        Return index
     EndFunction
     
-    Function ToggleStatusEffect(String asName, Bool abShow = True, Int aiMagnitude = 0)
-        UDMain.Log("UD_WidgetControl::ToggleStatusEffect() asName = " + asName + ", abShow = " + abShow + ", aiMagnitude = " + aiMagnitude, 3)
-        Int index = _Icons_Name.Find(asName)
-        If index == -1
-            index = _CreateNewIcon(asName)
+    Function StatusEffect_SetVisible(String asName, Bool abVisible = True)
+        Int index = _GetIconIndex(asName)
+        iWidget.setVisible(_Icons_Id[index], abVisible as Int)
+        _Icon_Visible[index] = abVisible as Int
+        If abVisible
+            iWidget.setTransparency(_Icons_Id[index], _Icons_Alpha[index])
+        Else
+            _Icons_Blicking[index] = 0
         EndIf
-        iWidget.setVisible(_Icons_Id[index], abShow as Int)
+    EndFunction
+    
+    Function StatusEffect_SetMagnitude(String asName, Int aiMagnitude)
+        Int index = _GetIconIndex(asName)
         _Icons_Magnitude[index] = aiMagnitude
         _SetIconRGB(_Icons_Id[index], aiMagnitude)
     EndFunction
-
-    Function IncrementStatusEffect(String asName, Int aiIncrement = 20, Bool abHideIfZero = True)
-        UDMain.Log("UD_WidgetControl::IncrementStatusEffect() asName = " + asName + ", aiIncrement = " + aiIncrement + ", abHideIfZero = " + abHideIfZero, 3)
-        Int index = _Icons_Name.Find(asName)
-        If index == -1
-            index = _CreateNewIcon(asName)
-        EndIf
+    
+    Function StatusEffect_IncMagnitude(String asName, Int aiIncrement, Bool abControlVisibility = True)
+        Int index = _GetIconIndex(asName)
         _Icons_Magnitude[index] = _Icons_Magnitude[index] + aiIncrement
         If _Icons_Magnitude[index] < 0
             _Icons_Magnitude[index] = 0
         EndIf
-        If abHideIfZero && _Icons_Magnitude[index] <= 0
-            iWidget.setVisible(_Icons_Id[index], 0)
-        Else
-            iWidget.setVisible(_Icons_Id[index], 1)
+        If abControlVisibility
+            _Icon_Visible[index] = (_Icons_Magnitude[index] > 0) as Int
+            iWidget.setVisible(_Icons_Id[index], _Icon_Visible[index])
         EndIf
         _SetIconRGB(_Icons_Id[index], _Icons_Magnitude[index])
     EndFunction
     
-    Function BlinkStatusEffect(String asName, Bool abBlink)
-        UDMain.Log("UD_WidgetControl::BlinkStatusEffect() asName = " + asName + ", abBlink = " + abBlink, 3)
-        Int index = _Icons_Name.Find(asName)
-        If index == -1
-            index = _CreateNewIcon(asName)
-        EndIf
-        _Icon_Blicking[index] = abBlink As Int
+    Function StatusEffect_SetBlink(String asName, Bool abBlink = True)
+        Int index = _GetIconIndex(asName)
+        _Icons_Blicking[index] = abBlink As Int
+        RegisterForSingleUpdate(_Animation_UpdateInstant)
     EndFunction
 
     Function _SetIconRGB(Int aiWidget, Int aiMagnitude)
@@ -650,48 +837,55 @@ State iWidgetInstalled
         Float real_time = Utility.GetCurrentRealTime()
         Float frame = real_time - _Animation_LastGameTime
         _Animation_LastGameTime = real_time
-        ; Notifications
-        _ProcessNewNotifications()
-        _Notifications_QueueStart += frame
-        Int i = _Notifications_Id.Length
-        Bool ready_to_purge = True
-        While i > 0
-            i -= 1
-            Int text_id = _Notifications_Id[i]
-            If text_id > -1
-                ready_to_purge = False
-                Float timer = _Notifications_Timer[i]
-                Int anim_stage = _Notifications_AnimStage[i]
-                Float time_to_read = _Notifications_Duration[i]
-                timer += frame
-                If anim_stage == 0 && timer >= 0.0
-                ; visible stage
-                    iWidget.setVisible(text_id, 1)
-                    anim_stage = 1
-                ElseIf anim_stage == 1 && timer >= time_to_read
-                ; fade out stage
-                    anim_stage = 2
-                    iWidget.doTransitionByTime(text_id, 0, 1.0, "alpha")
-                ElseIf anim_stage == 2 && timer >= time_to_read + 2.0
-                ; ending stage
-                    iWidget.destroy(text_id)
-                    text_id = -1
-                    anim_stage = -1
-                EndIf
-                _Notifications_Id[i] = text_id
-                _Notifications_Timer[i] = timer
-                _Notifications_AnimStage[i] = anim_stage
-            EndIf
-        EndWhile
-        If _Notifications_Id.Length > 0 && ready_to_purge
-        ; TODO: remove first elements when they become invisible
-            _Notifications_Id = PapyrusUtil.ResizeIntArray(_Notifications_Id, 0)
-            _Notifications_Timer = PapyrusUtil.ResizeFloatArray(_Notifications_Timer, 0)
-            _Notifications_Duration = PapyrusUtil.ResizeFloatArray(_Notifications_Duration, 0)
-            _Notifications_AnimStage = PapyrusUtil.ResizeIntArray(_Notifications_AnimStage, 0)
+        If frame > 1.0
+        ; probably menu time
+            frame = 0.5
         EndIf
+        ; Notifications
+        _AnimateNotifications(frame)
         ; Icons
-        i = _Icons_Id.Length
+        _AnimateIcons(frame)
+    EndFunction
+    
+    Function _AnimateNotifications(Float frame)
+        _Text_Timer += frame
+        If _Text_AnimStage == -1
+            If _NextNotification()
+                _Text_AnimStage = 0
+                _Text_Timer = 0.0
+            EndIf
+        EndIf
+        If _Text_AnimStage == 0 && _Text_Timer >= 0.0
+        ; visible stage
+            Int i = _Text_LinesId.Length
+            While i > 0
+                i -= 1
+                iWidget.setVisible(_Text_LinesId[i], 1)
+                iWidget.doTransitionByTime(_Text_LinesId[i], 100, 0.2, "alpha")
+            EndWhile
+            _Text_Timer = 0.0
+            _Text_AnimStage = 1
+        ElseIf _Text_AnimStage == 1 && _Text_Timer >= _Text_Duration
+        ; fade out stage
+            Int i = _Text_LinesId.Length
+            While i > 0
+                i -= 1
+                iWidget.doTransitionByTime(_Text_LinesId[i], 0, 1.0, "alpha")
+            EndWhile
+            _Text_AnimStage = 2
+        ElseIf _Text_AnimStage == 2 && _Text_Timer >= _Text_Duration + 1.0
+            _Text_AnimStage = -1
+            Int i = _Text_LinesId.Length
+            While i > 0
+                i -= 1
+                iWidget.setVisible(_Text_LinesId[i], 0)
+                iWidget.setTransparency(_Text_LinesId[i], 0)
+            EndWhile
+        EndIf
+    EndFunction
+
+    Function _AnimateIcons(Float frame)
+        Int i = _Icons_Id.Length
         While i > 0
             i -= 1
             Int icon_id = _Icons_Id[i]
@@ -699,9 +893,17 @@ State iWidgetInstalled
             Int magnitude = _Icons_Magnitude[i]
             String name =  _Icons_Name[i]
             Int anim_stage = _Icons_Stage[i]
-            Bool blink = _Icon_Blicking[i] ==  1
+            Bool blink = _Icons_Blicking[i] > 0
+            Bool visible = _Icon_Visible[i] > 0
             timer += frame
             
+            If visible && anim_stage == -1
+                iWidget.setVisible(icon_id, 1)
+                anim_stage = 0
+            ElseIf !visible && anim_stage != -1
+                iWidget.setVisible(icon_id, 0)
+                anim_stage = -1
+            EndIf
             If blink
                 If ((timer / 0.5) As Int) % 2 == 0
                     iWidget.doTransitionByTime(icon_id, 25, 0.5, "alpha")
@@ -710,14 +912,14 @@ State iWidgetInstalled
                 EndIf
                 anim_stage = 1
             ElseIf anim_stage == 1
-                iWidget.doTransitionByTime(icon_id, _Icon_Alpha[i], 0.1, "alpha")
-                anim_stage = 0
+                iWidget.doTransitionByTime(icon_id, _Icons_Alpha[i], 0.1, "alpha")
             EndIf
             _Icons_Timer[i] = timer
             _Icons_Stage[i] = anim_stage
         EndWhile
-    EndFunction    
-EndState
+    EndFunction
+    
+EndState        ; iWidgetInstalled
 
 Int Function CalculateGroupXPos(int aival)
     if aival == 0           ; left

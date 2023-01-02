@@ -481,8 +481,8 @@ Event resetCustomBondagePage()
     AddEmptyOption()
     UD_UseWidget_T = addToggleOption("Use widget:", UDCDmain.UD_UseWidget)
     AddEmptyOption()
-    UD_WidgetPosX_M = AddMenuOption("Widget pos X:", widgetXList[UDmain.UDWC.UD_WidgetXPos],FlagSwitch(UDCDmain.UD_UseWidget))
-    UD_WidgetPosY_M = AddMenuOption("Widget pos Y:", widgetYList[UDmain.UDWC.UD_WidgetYPos],FlagSwitch(UDCDmain.UD_UseWidget))
+    UD_WidgetPosX_M = AddMenuOption("Widget pos X:", widgetXList[UDWC.UD_WidgetXPos],FlagSwitch(UDCDmain.UD_UseWidget))
+    UD_WidgetPosY_M = AddMenuOption("Widget pos Y:", widgetYList[UDWC.UD_WidgetYPos],FlagSwitch(UDCDmain.UD_UseWidget))
     
     ;CRITS
     AddHeaderOption("Device Crits")
@@ -686,24 +686,89 @@ EndEvent
 
 UD_WidgetControl Property UDWC Hidden
     UD_WidgetControl Function Get()
-        return UDmain.UDWC
+        return UDMain.UDWC
     EndFunction
 EndProperty
 
 int UD_UseIWantWidget_T
 Int UD_AutoAdjustWidget_T
+
+; new UI settings
+Int UD_TextFontSize_S
+Int UD_TextLineLength_S
+Int UD_FilterVibNotifications_T
+Int UD_IconsSize_S
+Int UD_IconsAnchor_M
+String[] UD_IconsAnchorList
+Int UD_IconsPadding_S
+Int UD_TextAnchor_M
+String[] UD_TextAnchorList
+Int UD_TextPadding_S
+Int UD_WidgetTest_T
+Int UD_WidgetReset_T
+
 Event resetUIWidgetPage()
     UpdateLockMenuFlag()
-    setCursorFillMode(LEFT_TO_RIGHT)
+
+    If UD_IconsAnchorList.Length == 0
+        UD_IconsAnchorList = new String[3]
+        UD_IconsAnchorList[0] = "LEFT"
+        UD_IconsAnchorList[1] = "CENTER"
+        UD_IconsAnchorList[2] = "RIGHT"
+    EndIf
+    If UD_TextAnchorList.Length == 0
+        UD_TextAnchorList = new String[2]
+        UD_TextAnchorList[0] = "BOTTOM"
+        UD_TextAnchorList[1] = "BELOW CENTER"
+        UD_TextAnchorList[2] = "TOP"
+        UD_TextAnchorList[3] = "CENTER"
+    EndIf
+    
+    SetCursorFillMode(TOP_TO_BOTTOM)
+    
+    Int right_col = 0
+    Int left_col = 0
     
     AddHeaderOption("Widgets")
-    addEmptyOption()
-    
+    left_col += 1
     AddTextOption("iWantWidgets",InstallSwitch(UDmain.iWidgetInstalled),FlagSwitch(UDmain.iWidgetInstalled))
+    left_col += 1
     UD_UseIWantWidget_T = addToggleOption("Use iWW",UDWC.UD_UseIWantWidget,FlagSwitch(UDmain.iWidgetInstalled))
-    
+    left_col += 1
     UD_AutoAdjustWidget_T = addToggleOption("Auto adjust",UDWC.UD_AutoAdjustWidget,FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
-    addEmptyOption()
+    left_col += 1
+    
+    SetCursorPosition(1)
+    SetCursorFillMode(TOP_TO_BOTTOM)
+    AddHeaderOption("iWidgets Settings")
+    right_col += 1
+    UD_TextFontSize_S = addSliderOption("Notification font size", UDWC.UD_TextFontSize, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    right_col += 1
+    UD_TextLineLength_S = addSliderOption("Notification line length", UDWC.UD_TextLineLength, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    right_col += 1
+    UD_FilterVibNotifications_T = AddToggleOption("Filter vibrator notifications", UDWC.UD_FilterVibNotifications, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    right_col += 1
+    If UDWC.UD_TextAnchor <= 0 || UDWC.UD_TextAnchor > 3
+        UDMain.Warning("UD_MCM_script::resetUIWidgetPage() WTF! UDWC.UD_TextAnchor = " + UDWC.UD_TextAnchor)
+    EndIf
+    UD_TextAnchor_M = addMenuOption("Notifications base position", UD_TextAnchorList[UDWC.UD_TextAnchor], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    right_col += 1
+    UD_TextPadding_S = addSliderOption("Notifications offset", UDWC.UD_TextPadding, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    right_col += 1
+    UD_IconsSize_S = addSliderOption("Icon size", UDWC.UD_IconsSize, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    right_col += 1
+    If UDWC.UD_IconsAnchor <= 0 || UDWC.UD_IconsAnchor > 2
+        UDMain.Warning("UD_MCM_script::resetUIWidgetPage() WTF! UDWC.UD_IconsAnchor = " + UDWC.UD_IconsAnchor)
+        UDWC.UD_IconsAnchor = 1
+    EndIf
+    UD_IconsAnchor_M = addMenuOption("Icons base position", UD_IconsAnchorList[UDWC.UD_IconsAnchor], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    right_col += 1
+    UD_IconsPadding_S = addSliderOption("Icons offset", UDWC.UD_IconsPadding, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    right_col += 1
+    UD_WidgetTest_T = AddTextOption("TEST WIDGETS", "-CLICK-", a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    right_col += 1
+    UD_WidgetReset_T = AddTextOption("RESET WIDGETS", "-CLICK-", a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    right_col += 1
 EndEvent
 
 
@@ -1079,6 +1144,17 @@ Function OptionSelectUiWidget(int option)
     elseif (option == UD_AutoAdjustWidget_T)
         UDWC.UD_AutoAdjustWidget = !UDWC.UD_AutoAdjustWidget
         SetToggleOptionValue(UD_AutoAdjustWidget_T, UDWC.UD_AutoAdjustWidget)
+    ElseIf option == UD_FilterVibNotifications_T
+        UDWC.UD_FilterVibNotifications = !UDWC.UD_FilterVibNotifications
+        SetToggleOptionValue(UD_FilterVibNotifications_T, UDWC.UD_FilterVibNotifications)
+    ElseIf option == UD_WidgetTest_T
+        closeMCM()
+        UDWC.TestWidgets()
+    ElseIf option == UD_WidgetReset_T
+        closeMCM()
+        UDWC.InitWidgets()
+        Utility.Wait(1.0)
+        UDWC.TestWidgets()
     endif
 EndFunction
 
@@ -1208,6 +1284,7 @@ event OnOptionSliderOpen(int option)
     OnOptionSliderOpenPatcher(option)
     OnOptionSliderOpenAbadon(option)
     OnOptionSliderOpenDebug(option)
+    OnOptionSliderOpenUIWidget(option)
 endEvent
 
 Function OnOptionSliderOpenGeneral(int option)
@@ -1501,8 +1578,37 @@ Function OnOptionSliderOpenDebug(int option)
         SetSliderDialogStartValue(UDOM.getActorOrgasmCapacity(slot.getActor()))
         SetSliderDialogDefaultValue(100.0)
         SetSliderDialogRange(10.0, 500.0)
-        SetSliderDialogInterval(5.0)        
+        SetSliderDialogInterval(5.0)
     endIf
+EndFunction
+
+Function OnOptionSliderOpenUIWidget(Int option)
+    If option == UD_TextFontSize_S
+        SetSliderDialogStartValue(UDWC.UD_TextFontSize)
+        SetSliderDialogDefaultValue(24.0)
+        SetSliderDialogRange(16.0, 36.0)
+        SetSliderDialogInterval(1.0)
+    ElseIf option == UD_TextLineLength_S
+        SetSliderDialogStartValue(UDWC.UD_TextLineLength)
+        SetSliderDialogDefaultValue(100.0)
+        SetSliderDialogRange(50.0, 200.0)
+        SetSliderDialogInterval(1.0)
+    ElseIf option == UD_IconsSize_S
+        SetSliderDialogStartValue(UDWC.UD_IconsSize)
+        SetSliderDialogDefaultValue(60.0)
+        SetSliderDialogRange(40.0, 80.0)
+        SetSliderDialogInterval(1.0)
+    ElseIf option == UD_IconsPadding_S
+        SetSliderDialogStartValue(UDWC.UD_IconsPadding)
+        SetSliderDialogDefaultValue(350.0)
+        SetSliderDialogRange(50.0, 500.0)
+        SetSliderDialogInterval(1.0)
+    ElseIf option == UD_TextPadding_S
+        SetSliderDialogStartValue(UDWC.UD_TextPadding)
+        SetSliderDialogDefaultValue(0.0)
+        SetSliderDialogRange(0.0, 300.0)
+        SetSliderDialogInterval(1.0)
+    EndIf
 EndFunction
     
 event OnOptionSliderAccept(int option, float value)
@@ -1513,6 +1619,7 @@ event OnOptionSliderAccept(int option, float value)
     OnOptionSliderAcceptPatcher(option, value)
     OnOptionSliderAcceptAbadon(option, value)
     OnOptionSliderAcceptDebug(option,value)
+    OnOptionSliderAcceptUIWidget(option,value)
 endEvent
 
 Function OnOptionSliderAcceptGeneral(int option, float value)
@@ -1708,11 +1815,31 @@ Function OnOptionSliderAcceptDebug(int option,float value)
     endIf
 EndFunction
 
+Function OnOptionSliderAcceptUIWidget(Int option, Float value)
+    If option == UD_TextFontSize_S
+        UDWC.UD_TextFontSize = value as Int
+        SetSliderOptionValue(UD_TextFontSize_S, value)
+    ElseIf option == UD_TextLineLength_S
+        UDWC.UD_TextLineLength = value as Int
+        SetSliderOptionValue(UD_TextLineLength_S, value)
+    ElseIf option == UD_IconsSize_S
+        UDWC.UD_IconsSize = value as Int
+        SetSliderOptionValue(UD_IconsSize_S, value)
+    ElseIf option == UD_IconsPadding_S
+        UDWC.UD_IconsPadding = value as Int
+        SetSliderOptionValue(UD_IconsPadding_S, value)
+    ElseIf option == UD_TextPadding_S
+        UDWC.UD_TextPadding = value as Int
+        SetSliderOptionValue(UD_TextPadding_S, value)
+    EndIf
+EndFunction
+
 event OnOptionMenuOpen(int option)
     OnOptionMenuOpenDefault(option)
     OnOptionMenuOpenCustomBondage(option)
     OnOptionMenuOpenCustomOrgasm(option)
     OnOptionMenuOpenAbadon(option)
+    OnOptionMenuOpenUIWidget(option)
 endEvent
 
 Function OnOptionMenuOpenDefault(int option)
@@ -1766,11 +1893,24 @@ Function OnOptionMenuOpenCustomOrgasm(int option)
     endif
 EndFunction
 
+Function OnOptionMenuOpenUIWidget(int option)
+    if (option == UD_IconsAnchor_M)
+        SetMenuDialogOptions(UD_IconsAnchorList)
+        SetMenuDialogStartIndex(UDWC.UD_IconsAnchor)
+        SetMenuDialogDefaultIndex(1)
+    ElseIf (option == UD_TextAnchor_M)
+        SetMenuDialogOptions(UD_TextAnchorList)
+        SetMenuDialogStartIndex(UDWC.UD_TextAnchor)
+        SetMenuDialogDefaultIndex(1)
+    endif
+EndFunction
+
 event OnOptionMenuAccept(int option, int index)
     OnOptionMenuAcceptDefault(option,index)
     OnOptionMenuAcceptCustomBondage(option,index)
     OnOptionMenuAcceptCustomOrgasm(option,index)
     OnOptionMenuAcceptAbadon(option, index)
+    OnOptionMenuAcceptUIWidget(option, index)
 endEvent
 
 Function OnOptionMenuAcceptDefault(int option, int index)
@@ -1800,12 +1940,12 @@ Function OnOptionMenuAcceptCustomBondage(int option, int index)
         SetMenuOptionValue(UD_StruggleDifficulty_M, difficultyList[UDCDmain.UD_StruggleDifficulty])
         forcePageReset()
     elseif (option == UD_WidgetPosX_M)
-        UDmain.UDWC.UD_WidgetXPos = index
-        SetMenuOptionValue(UD_WidgetPosX_M, widgetXList[UDmain.UDWC.UD_WidgetXPos])
+        UDWC.UD_WidgetXPos = index
+        SetMenuOptionValue(UD_WidgetPosX_M, widgetXList[UDWC.UD_WidgetXPos])
         forcePageReset()
     elseif (option == UD_WidgetPosY_M)
-        UDmain.UDWC.UD_WidgetYPos = index
-        SetMenuOptionValue(UD_WidgetPosY_M, widgetYList[UDmain.UDWC.UD_WidgetYPos])
+        UDWC.UD_WidgetYPos = index
+        SetMenuOptionValue(UD_WidgetPosY_M, widgetYList[UDWC.UD_WidgetYPos])
         forcePageReset()
     elseif option == UD_CritEffect_M
         UDCDmain.UD_CritEffect = index
@@ -1819,6 +1959,16 @@ Function OnOptionMenuAcceptCustomOrgasm(int option, int index)
         UDOM.UD_OrgasmAnimation = index
         SetMenuOptionValue(UD_OrgasmAnimation_M, orgasmAnimation[UDOM.UD_OrgasmAnimation])
     endIf
+EndFunction
+
+Function OnOptionMenuAcceptUIWidget(Int option, Int index)
+    if option == UD_IconsAnchor_M && index >= 0 && index < 3
+        UDWC.UD_IconsAnchor = index
+        SetMenuOptionValue(UD_IconsAnchor_M, UD_IconsAnchorList[index])
+    ElseIf option == UD_TextAnchor_M && index >= 0 && index < 2
+        UDWC.UD_TextAnchor = index
+        SetMenuOptionValue(UD_TextAnchor_M, UD_TextAnchorList[index])
+    endif
 EndFunction
 
 bool Function checkMinigameKeyConflict(int iKeyCode)
@@ -2506,6 +2656,26 @@ Function UiWidgetPageInfo(int option)
         SetInfoText("Toggle auto adjust for iWantWidget widgets. If ON, it will cause widgets to get rearranged every time they are shown/hidden. This make it more compact, but also slower. \nDefault: OFF")
     elseif option == UD_UseIWantWidget_T
         SetInfoText("Toggle if iWantWidget should be used instead of currect widget implementation. Only works if iWW is installed\n!!IMPORTANT: After changing this value, you will have to save and reload the game, otherwise the changes will not be applied!!\nDefault: ON")
+    ElseIf option == UD_TextFontSize_S
+        SetInfoText("Notification text font size.\nDefault: 24")
+    ElseIf option == UD_TextLineLength_S
+        SetInfoText("Notification text line length (NOT IMPLEMENTED).\nDefault: 100")
+    ElseIf option == UD_FilterVibNotifications_T
+        SetInfoText("Toggle to hide notifications from vibrators.\nDefault: ON")
+    ElseIf option == UD_IconsSize_S
+        SetInfoText("Icon size.\nDefault: 60")
+    ElseIf option == UD_IconsAnchor_M
+        SetInfoText("Base positions of the icons cluster.\nDefault: CENTER")
+    ElseIf option == UD_IconsPadding_S
+        SetInfoText("Horizontal offset of the icons cluster relative to its base position.\nDefault: 350")
+    ElseIf option == UD_TextAnchor_M
+        SetInfoText("Base positions of the notifications.\nDefault: BOTTOM")
+    ElseIf option == UD_TextPadding_S
+        SetInfoText("Vertical offset of the notifications relative to its base position.\nDefault: 0")
+    ElseIf option == UD_WidgetTest_T
+        SetInfoText("Press to view all widgets on screen (they dissappear after 5 seconds)")
+    ElseIf option == UD_WidgetReset_T
+        SetInfoText("Press to apply changes")
     endif
 EndFunction
 
@@ -2704,13 +2874,21 @@ Function SaveToJSON(string strFile)
     ;UI/WIDGET
     JsonUtil.SetIntValue(strFile, "AutoAdjustWidget", UDWC.UD_AutoAdjustWidget as Int)
     JsonUtil.SetIntValue(strFile, "UseIWantWidget", UDWC.UD_UseIWantWidget as Int)
+    JsonUtil.SetIntValue(strFile, "iWidgets_TextFontSize", UDWC.UD_TextFontSize)
+    JsonUtil.SetIntValue(strFile, "iWidgets_TextLineLength", UDWC.UD_TextLineLength)
+    JsonUtil.SetIntValue(strFile, "iWidgets_FilterVibNotifications", UDWC.UD_FilterVibNotifications as Int)
+    JsonUtil.SetIntValue(strFile, "iWidgets_IconsSize", UDWC.UD_IconsSize)
+    JsonUtil.SetIntValue(strFile, "iWidgets_IconsAnchor", UDWC.UD_IconsAnchor)
+    JsonUtil.SetIntValue(strFile, "iWidgets_IconsPadding", UDWC.UD_IconsPadding)
+    JsonUtil.SetIntValue(strFile, "iWidgets_TextAnchor", UDWC.UD_TextAnchor)
+    JsonUtil.SetIntValue(strFile, "iWidgets_TextPadding", UDWC.UD_TextPadding)
     
     ;OTHER
     JsonUtil.SetIntValue(strFile, "UseHoods", UDIM.UD_UseHoods as Int)
     JsonUtil.SetIntValue(strFile, "StartThirdpersonAnimation_Switch", libs.UD_StartThirdpersonAnimation_Switch as Int)
     JsonUtil.SetIntValue(strFile, "SwimmingDifficulty", UDSS.UD_hardcore_swimming_difficulty)
-    JsonUtil.SetIntValue(strFile, "WidgetPosX", UDmain.UDWC.UD_WidgetXPos)
-    JsonUtil.SetIntValue(strFile, "WidgetPosY", UDmain.UDWC.UD_WidgetYPos)
+    JsonUtil.SetIntValue(strFile, "WidgetPosX", UDWC.UD_WidgetXPos)
+    JsonUtil.SetIntValue(strFile, "WidgetPosY", UDWC.UD_WidgetYPos)
     JsonUtil.SetIntValue(strFile, "RandomFiler", UDmain.UDRRM.UD_RandomDevice_GlobalFilter)
     JsonUtil.SetIntValue(strFile, "DAR", AAScript.UD_DAR as Int)
     JsonUtil.SetIntValue(strFile, "SlotUpdateTime", Round(UDCD_NPCM.UD_SlotUpdateTime))
@@ -2825,13 +3003,21 @@ Function LoadFromJSON(string strFile)
     ;UI/WIDGET
     UDWC.UD_AutoAdjustWidget = JsonUtil.GetIntValue(strFile, "AutoAdjustWidget", UDWC.UD_AutoAdjustWidget as Int)
     UDWC.UD_UseIWantWidget = JsonUtil.GetIntValue(strFile, "UseIWantWidget", UDWC.UD_UseIWantWidget as Int)
+    UDWC.UD_TextFontSize = JsonUtil.GetIntValue(strFile, "iWidgets_TextFontSize", UDWC.UD_TextFontSize)
+    UDWC.UD_TextLineLength = JsonUtil.GetIntValue(strFile, "iWidgets_TextLineLength", UDWC.UD_TextLineLength)
+    UDWC.UD_FilterVibNotifications = JsonUtil.GetIntValue(strFile, "iWidgets_FilterVibNotifications", UDWC.UD_FilterVibNotifications as Int) == 1
+    UDWC.UD_IconsSize = JsonUtil.GetIntValue(strFile, "iWidgets_IconsSize", UDWC.UD_IconsSize)
+    UDWC.UD_IconsAnchor = JsonUtil.GetIntValue(strFile, "iWidgets_IconsAnchor", UDWC.UD_IconsAnchor)
+    UDWC.UD_IconsPadding = JsonUtil.GetIntValue(strFile, "iWidgets_IconsPadding", UDWC.UD_IconsPadding)
+    UDWC.UD_TextAnchor = JsonUtil.GetIntValue(strFile, "iWidgets_TextAnchor", UDWC.UD_TextAnchor)
+    UDWC.UD_TextPadding = JsonUtil.GetIntValue(strFile, "iWidgets_TextPadding", UDWC.UD_TextPadding)
     
     ;Other
     UDIM.UD_UseHoods = JsonUtil.GetIntValue(strFile, "UseHoods", UDIM.UD_UseHoods as Int)
     libs.UD_StartThirdpersonAnimation_Switch = JsonUtil.GetIntValue(strFile, "StartThirdpersonAnimation_Switch", libs.UD_StartThirdpersonAnimation_Switch as Int)
     UDSS.UD_hardcore_swimming_difficulty = JsonUtil.GetIntValue(strFile, "SwimmingDifficulty", UDSS.UD_hardcore_swimming_difficulty)
-    UDmain.UDWC.UD_WidgetXPos = JsonUtil.GetIntValue(strFile, "WidgetPosX", widget.PositionX)
-    UDmain.UDWC.UD_WidgetYPos = JsonUtil.GetIntValue(strFile, "WidgetPosY", widget.PositionY)
+    UDWC.UD_WidgetXPos = JsonUtil.GetIntValue(strFile, "WidgetPosX", widget.PositionX)
+    UDWC.UD_WidgetYPos = JsonUtil.GetIntValue(strFile, "WidgetPosY", widget.PositionY)
     UDmain.UDRRM.UD_RandomDevice_GlobalFilter =  JsonUtil.GetIntValue(strFile, "RandomFiler", UDmain.UDRRM.UD_RandomDevice_GlobalFilter)
     AAScript.UD_DAR =  JsonUtil.GetIntValue(strFile, "DAR", AAScript.UD_DAR as Int)
     UDCD_NPCM.UD_SlotUpdateTime =  JsonUtil.GetIntValue(strFile, "SlotUpdateTime", Round(UDCD_NPCM.UD_SlotUpdateTime))
@@ -2959,8 +3145,8 @@ Function ResetToDefaults()
     UDIM.UD_UseHoods                                = true
     libs.UD_StartThirdpersonAnimation_Switch        = true
     UDSS.UD_hardcore_swimming_difficulty            = 1
-    UDmain.UDWC.UD_WidgetXPos                       = 2
-    UDmain.UDWC.UD_WidgetYPos                       = 0
+    UDWC.UD_WidgetXPos                       = 2
+    UDWC.UD_WidgetYPos                       = 0
     UDmain.UDRRM.UD_RandomDevice_GlobalFilter       = 0xFFFFFFFF ;32b
     AAScript.UD_DAR                                 =  false
     UDCD_NPCM.UD_SlotUpdateTime                     = 10.0

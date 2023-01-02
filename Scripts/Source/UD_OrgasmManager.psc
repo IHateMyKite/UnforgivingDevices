@@ -697,7 +697,7 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
         UDmain.UDUI.GoToState("UIDisabled") ;disable UI
     endif
     
-    UDMain.UDWC.BlinkStatusEffect("effect-orgasm", True)
+    UDMain.UDWC.StatusEffect_SetBlink("effect-orgasm", True)
     
     libsp.SetAnimating(akActor, true)
     string loc_anim = libsp.AnimSwitchKeyword(akActor, "Orgasm")
@@ -730,7 +730,7 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
     
     libsp.SetAnimating(akActor, false)
     
-    UDMain.UDWC.BlinkStatusEffect("effect-orgasm", False)
+    UDMain.UDWC.StatusEffect_SetBlink("effect-orgasm", False)
     
     StorageUtil.UnsetIntValue(akActor,"UD_OrgasmDuration")
     
@@ -1069,11 +1069,11 @@ Function OnEdge(string eventName, string strArg, float numArg, Form sender)
     if strArg != UDmain.Player.getActorBase().getName()
         int random = Utility.randomInt(1,3)
         if random == 1
-            UDMain.UDWC.ShowNotification(strArg + " gets denied just before reaching the orgasm!")
+            UDMain.UDWC.Notification_Push(strArg + " gets denied just before reaching the orgasm!")
         elseif random == 2
-            UDMain.UDWC.ShowNotification(strArg + " screams as they are edged just before climax!")
+            UDMain.UDWC.Notification_Push(strArg + " screams as they are edged just before climax!")
         elseif random == 3
-            UDMain.UDWC.ShowNotification(strArg + " is edged!")
+            UDMain.UDWC.Notification_Push(strArg + " is edged!")
         endif
     endif
     UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByActorName(strArg)

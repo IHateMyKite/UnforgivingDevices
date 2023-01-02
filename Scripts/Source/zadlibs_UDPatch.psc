@@ -1272,7 +1272,7 @@ EndFunction
 
 Function Notify(string out, bool messageBox=false)
     If !messageBox
-        UDMain.UDWC.ShowNotification(out)
+        UDMain.UDWC.Notification_Push(out)
     Else
         Parent.Notify(out, messageBox)
     EndIf
