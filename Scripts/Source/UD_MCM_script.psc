@@ -748,8 +748,9 @@ Event resetUIWidgetPage()
     right_col += 1
     UD_FilterVibNotifications_T = AddToggleOption("Filter vibrator notifications", UDWC.UD_FilterVibNotifications, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
     right_col += 1
-    If UDWC.UD_TextAnchor <= 0 || UDWC.UD_TextAnchor > 3
+    If UDWC.UD_TextAnchor < 0 || UDWC.UD_TextAnchor > 3
         UDMain.Warning("UD_MCM_script::resetUIWidgetPage() WTF! UDWC.UD_TextAnchor = " + UDWC.UD_TextAnchor)
+        UDWC.UD_TextAnchor = 1
     EndIf
     UD_TextAnchor_M = addMenuOption("Notifications base position", UD_TextAnchorList[UDWC.UD_TextAnchor], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
     right_col += 1
@@ -757,7 +758,7 @@ Event resetUIWidgetPage()
     right_col += 1
     UD_IconsSize_S = addSliderOption("Icon size", UDWC.UD_IconsSize, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
     right_col += 1
-    If UDWC.UD_IconsAnchor <= 0 || UDWC.UD_IconsAnchor > 2
+    If UDWC.UD_IconsAnchor < 0 || UDWC.UD_IconsAnchor > 2
         UDMain.Warning("UD_MCM_script::resetUIWidgetPage() WTF! UDWC.UD_IconsAnchor = " + UDWC.UD_IconsAnchor)
         UDWC.UD_IconsAnchor = 1
     EndIf
@@ -1617,8 +1618,8 @@ Function OnOptionSliderOpenUIWidget(Int option)
         SetSliderDialogInterval(1.0)
     ElseIf option == UD_IconsPadding_S
         SetSliderDialogStartValue(UDWC.UD_IconsPadding)
-        SetSliderDialogDefaultValue(350.0)
-        SetSliderDialogRange(50.0, 500.0)
+        SetSliderDialogDefaultValue(0.0)
+        SetSliderDialogRange(-200, 500.0)
         SetSliderDialogInterval(1.0)
     ElseIf option == UD_TextPadding_S
         SetSliderDialogStartValue(UDWC.UD_TextPadding)
@@ -1982,7 +1983,7 @@ Function OnOptionMenuAcceptUIWidget(Int option, Int index)
     if option == UD_IconsAnchor_M && index >= 0 && index < 3
         UDWC.UD_IconsAnchor = index
         SetMenuOptionValue(UD_IconsAnchor_M, UD_IconsAnchorList[index])
-    ElseIf option == UD_TextAnchor_M && index >= 0 && index < 2
+    ElseIf option == UD_TextAnchor_M && index >= 0 && index < 4
         UDWC.UD_TextAnchor = index
         SetMenuOptionValue(UD_TextAnchor_M, UD_TextAnchorList[index])
     endif
@@ -2684,9 +2685,9 @@ Function UiWidgetPageInfo(int option)
     ElseIf option == UD_IconsAnchor_M
         SetInfoText("Base positions of the icons cluster.\nDefault: CENTER")
     ElseIf option == UD_IconsPadding_S
-        SetInfoText("Horizontal offset of the icons cluster relative to its base position.\nDefault: 350")
+        SetInfoText("Horizontal offset of the icons cluster relative to its base position.\nDefault: 0")
     ElseIf option == UD_TextAnchor_M
-        SetInfoText("Base positions of the notifications.\nDefault: BOTTOM")
+        SetInfoText("Base positions of the notifications.\nDefault: BELLOW CENTER")
     ElseIf option == UD_TextPadding_S
         SetInfoText("Vertical offset of the notifications relative to its base position.\nDefault: 0")
     ElseIf option == UD_WidgetTest_T

@@ -3,10 +3,10 @@ ScriptName UD_WidgetControl extends Quest
 import UnforgivingDevicesMain
 
 ; CONSTANTS
-Int W_POSY_CENTER = 3
-Int W_POSY_TOP = 2
-Int W_POSY_BELOWCENTER = 1
 Int W_POSY_BOTTOM = 0
+Int W_POSY_BELOWCENTER = 1
+Int W_POSY_TOP = 2
+Int W_POSY_CENTER = 3
 Int W_POSX_LEFT = 0
 Int W_POSX_CENTER = 1
 Int W_POSX_RIGHT = 2
@@ -23,12 +23,13 @@ UD_WidgetBase               Property UD_Widget2 auto
 ; new UI settings
 Int                         Property    UD_TextFontSize             = 24    Auto    Hidden
 Int                         Property    UD_TextLineLength           = 100   Auto    Hidden
+Int                         Property    UD_TextReadSpeed            = 20    Auto    Hidden      ; symbols per second
 Bool                        Property    UD_FilterVibNotifications   = True  Auto    Hidden
-Int                         Property    UD_IconsSize                = 60    Auto    Hidden
-Int                         Property    UD_IconsAnchor              = 1     Auto    Hidden      ; 0 - left, 1 - center, 2 - right
-Int                         Property    UD_IconsPadding             = 300   Auto    Hidden      ; horizontal padding relative to anchor
-Int                         Property    UD_TextAnchor               = 1     Auto    Hidden      ; 0 - top, 1 - bottom
+Int                         Property    UD_TextAnchor               = 1     Auto    Hidden      ; see W_POSY_**** constants
 Int                         Property    UD_TextPadding              = 0     Auto    Hidden      ; vertical padding relative to anchor
+Int                         Property    UD_IconsSize                = 60    Auto    Hidden
+Int                         Property    UD_IconsAnchor              = 1     Auto    Hidden      ; see W_POSX_**** constants
+Int                         Property    UD_IconsPadding             = 0     Auto    Hidden      ; horizontal padding relative to anchor
 
 Int _WidgetXPos = 2
 Int Property UD_WidgetXPos
@@ -39,7 +40,7 @@ Int Property UD_WidgetXPos
             UD_Widget2.PositionX = _WidgetXPos
         else
             if !UD_AutoAdjustWidget
-                InitWidgets()
+                InitWidgetsRequest()
             else
                 UpdateGroupPositions()
             endif
@@ -59,7 +60,7 @@ Int Property UD_WidgetYPos
             UD_Widget2.PositionY = _WidgetYPos
         else
             if !UD_AutoAdjustWidget
-                InitWidgets()
+                InitWidgetsRequest()
             else
                 UpdateGroupPositions()
             endif
@@ -83,6 +84,8 @@ Float HUDMeterHeight
 Float HUDPaddingX
 Float HUDPaddingY
 
+Bool _InitWidgetsRequested = False
+
 Bool Property Ready = False auto
 Event OnInit()
     Ready = True
@@ -90,7 +93,11 @@ Event OnInit()
 EndEvent
 
 Event OnUpdate()
-    ;UNUSED
+    If _InitWidgetsRequested
+        _InitWidgetsRequested = False
+        InitWidgets()
+    EndIf
+
     RegisterForSingleUpdate(30) ;maintenance update
 EndEvent
 
@@ -138,13 +145,17 @@ Function RefreshCanvasMetrics()
     HUDPaddingY = hud_padding
 EndFunction
 
+Function InitWidgetsRequest()
+    _InitWidgetsRequested = True
+    RegisterForSingleUpdate(0.5)
+EndFunction
 Function InitWidgets(Bool abGameLoad = False)
 EndFunction
 Function InitIcons()
 EndFunction
 Function InitText()
 EndFunction
-Function _AddTextLine()
+Function _AddTextLineWidget()
 EndFunction
 
 ;toggle widget
@@ -295,7 +306,7 @@ Bool Property UD_AutoAdjustWidget Hidden
         _AutoAdjustWidget = abVal
         if !_AutoAdjustWidget
             ;Reininit widgets
-            InitWidgets()
+            InitWidgetsRequest()
         endif
     EndFunction
     Bool Function Get()
@@ -314,6 +325,10 @@ State iWidgetInstalled
     EndEvent
     
     Event OnUpdate()
+        If _InitWidgetsRequested
+            _InitWidgetsRequested = False
+            InitWidgets()
+        EndIf
         AnimateWidgets()
         RegisterForSingleUpdate(_Animation_Update)
     EndEvent
@@ -385,7 +400,7 @@ State iWidgetInstalled
             If UD_TextAnchor >= 0 && UD_TextAnchor < 4
                 iWidget.setPos(text_id, CalculateGroupXPos(W_POSX_CENTER), (CalculateGroupYPos(UD_TextAnchor) + UD_TextPadding + 1.5 * UD_TextFontSize * (_Text_LinesId.Length - 1)) as Int)
             Else
-                UDMain.Warning("UD_WidgetControl::_AddTextLine() Unsupported value UD_TextAnchor = " + UD_TextAnchor)
+                UDMain.Warning("UD_WidgetControl::InitText() Unsupported value UD_TextAnchor = " + UD_TextAnchor)
             EndIf
             iWidget.setVisible(text_id, 0)
             iWidget.setTransparency(text_id, 0)
@@ -395,13 +410,13 @@ State iWidgetInstalled
         _Text_Timer = 0.0
     EndFunction
     
-    Function _AddTextLine()
+    Function _AddTextLineWidget()
         Int text_id = iWidget.loadText("", size = UD_TextFontSize)
         _Text_LinesId = PapyrusUtil.PushInt(_Text_LinesId, text_id)
         If UD_TextAnchor >= 0 && UD_TextAnchor < 4
             iWidget.setPos(text_id, CalculateGroupXPos(W_POSX_CENTER), (CalculateGroupYPos(UD_TextAnchor) + UD_TextPadding + 1.5 * UD_TextFontSize * (_Text_LinesId.Length - 1)) as Int)
         Else
-            UDMain.Warning("UD_WidgetControl::_AddTextLine() Unsupported value UD_TextAnchor = " + UD_TextAnchor)
+            UDMain.Warning("UD_WidgetControl::_AddTextLineWidget() Unsupported value UD_TextAnchor = " + UD_TextAnchor)
         EndIf
         iWidget.setVisible(text_id, 0)
         iWidget.setTransparency(text_id, 0)
@@ -454,10 +469,10 @@ State iWidgetInstalled
             ;          ###     ###                          ###
             ;
             ; X = Crosshair
-            ; A = Anchor - Hor. Padding
-            ; B = Anchor + Hor. Padding
+            ; A = Anchor - 300 - Hor. Padding
+            ; B = Anchor + 300 + Hor. Padding
             
-            Int x = CalculateGroupXPos(W_POSX_CENTER) - UD_IconsPadding + (0.55 * UD_IconsSize) As Int
+            Int x = CalculateGroupXPos(W_POSX_CENTER) - 300 - UD_IconsPadding + (0.55 * UD_IconsSize) As Int
             Int y = CalculateGroupYPos(W_POSY_CENTER) + (0.55 * UD_IconsSize) As Int
             _CreateIcon("dd-plug-anal", x, y, 50)
             y -= (UD_IconsSize * 1.1) As Int
@@ -468,7 +483,7 @@ State iWidgetInstalled
             y -= (UD_IconsSize * 1.1) As Int
             _CreateIcon("dd-piercing-nipples", x, y, 50)
 
-            x = CalculateGroupXPos(W_POSX_CENTER) + UD_IconsPadding
+            x = CalculateGroupXPos(W_POSX_CENTER) + 300 + UD_IconsPadding
             y = CalculateGroupYPos(W_POSY_CENTER) + (0.55 * UD_IconsSize) As Int
             _CreateIcon("effect-exhaustion", x, y, 75)
             y -= (UD_IconsSize * 1.1) As Int
@@ -709,6 +724,7 @@ State iWidgetInstalled
     ; quickly push a string into array and leave the function
     Function Notification_Push(String asText)
         If UD_FilterVibNotifications && StringUtil.Find(asText, "vibr") >= 0
+        ; TODO: Implement
             Return
         EndIf
         _Text_Queue = PapyrusUtil.PushString(_Text_Queue, asText)
@@ -720,10 +736,10 @@ State iWidgetInstalled
             Return False
         EndIf
         String str = _Text_Queue[0]
-        _Text_Duration = (StringUtil.GetLength(str) as Float) / 25.0
+        _Text_Queue = PapyrusUtil.SliceStringArray(_Text_Queue, 1)
+        _Text_Duration = (StringUtil.GetLength(str) as Float) / (UD_TextReadSpeed as Float)
     ; TODO: multiline
         iWidget.setText(_Text_LinesId[0], str)
-        _Text_Queue = PapyrusUtil.SliceStringArray(_Text_Queue, 1)
         Return True
     EndFunction
     
