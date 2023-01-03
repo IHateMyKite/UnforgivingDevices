@@ -33,7 +33,7 @@ String[]                               Property     UD_AnimationJSON        Auto
 
 ; Animation playback settings moved from UDMain
 Bool                                   Property     UD_AlternateAnimation       = False     Auto    Hidden
-Float                                  Property     UD_AlternateAnimationPeriod = 5.0       Auto    Hidden
+Int                                    Property     UD_AlternateAnimationPeriod = 5         Auto    Hidden
 Bool                                   Property     UD_UseSingleStruggleKeyword = True      Auto    Hidden
 
 ;==========;                                                                           
@@ -42,10 +42,6 @@ Bool                                   Property     UD_UseSingleStruggleKeyword 
 
 ;------------local variables-------------------
 
-; reload json files before every use
-Bool forceReloadFiles = False
-; enable checking the "force" flag of animation
-Bool enableForcedFlag = False
 ; print full array of found animations (may lead to CTD)
 Bool useUnsafeLogging = False
 
@@ -67,9 +63,7 @@ Function Update()
     LoadAnimationJSONFiles()
     
 ;    _Benchmark()
-    
-    forceReloadFiles = False
-    enableForcedFlag = False
+
     useUnsafeLogging = False
     
     _CheckAndLoadForms()
@@ -88,6 +82,14 @@ Function _CheckAndLoadForms()
     If !VehicleMarkerForm
         VehicleMarkerForm = Game.GetForm(0x0000003B) as Static
     EndIf
+EndFunction
+
+Function LoadDefaultMCMSettings()
+    UD_AnimationJSON_Dis = PapyrusUtil.StringArray(0)
+    LoadAnimationJSONFiles()
+    UD_AlternateAnimation = False
+    UD_AlternateAnimationPeriod = 5
+    UD_UseSingleStruggleKeyword = True
 EndFunction
 
 ; Prepare actor and start an animation sequence for it. The sequence is scrolled to the last element, which remains active until the animation stops from the outside
@@ -590,10 +592,7 @@ String[] Function GetAnimationsFromDB(String sType, String[] sKeywords, String s
     String[] result_temp = new String[10]
     Int currentIndex = 0
     
-    If forceReloadFiles || UD_AnimationJSON.Length == 0
-        If forceReloadFiles
-            UDMain.Info("UD_AnimationManagerScript::GetAnimationsFromDB() Reloading json files since flag 'forceReloadFiles' is set")
-        EndIf
+    If UD_AnimationJSON.Length == 0
         LoadAnimationJSONFiles()
     EndIf
     
@@ -607,19 +606,6 @@ String[] Function GetAnimationsFromDB(String sType, String[] sKeywords, String s
             Int j = 0
             While j < path_count
                 String anim_path = dict_path + "[" + j + "]"
-                If enableForcedFlag
-                    Bool forced = JsonUtil.GetPathBoolValue(file, anim_path + ".forced")
-                    If forced 
-                        String[] result_forced = new String[1]
-                        If sAttribute == ""
-                            result_forced[0] = UD_AnimationJSON[i] + ":" + anim_path
-                        Else
-                            result_forced[0] = JsonUtil.GetPathStringValue(file, anim_path + sAttribute)
-                        EndIf
-                        UDMain.Log("UD_AnimationManagerScript::GetAnimationsFromDB() Returning the first forced animation: " + result_forced[0])
-                        Return result_forced
-                    EndIf
-                EndIf
                 Bool check = True
                 Int k = 0
                 While check && k < aActorConstraints.Length
@@ -1097,12 +1083,8 @@ Function _Benchmark(Int iCycles = 10)
     Int n = iCycles
     Float start_time
     Int duration
-    Bool old_forceReloadFiles = forceReloadFiles
-    Bool old_enableForcedFlag = enableForcedFlag
     Int old_UDPrintLevel = UDmain.UD_PrintLevel
     Int old_UDLogLevel = UDmain.LogLevel
-    forceReloadFiles = False
-    enableForcedFlag = False
     UDmain.UD_PrintLevel = 0
     UDmain.LogLevel = 0
 
@@ -1257,8 +1239,6 @@ Function _Benchmark(Int iCycles = 10)
         UDmain.Warning("UD_AnimationManagerScript::_Benchmark() Benchmark ResizeStringArray with " + iCycles * 100 + " cycles ends in " + duration + " ms")
     EndIf
     
-    forceReloadFiles = old_forceReloadFiles
-    enableForcedFlag = old_enableForcedFlag
     UDmain.UD_PrintLevel = old_UDPrintLevel
     UDmain.LogLevel = old_UDLogLevel
 EndFunction

@@ -1930,7 +1930,7 @@ Function OnOptionSliderOpenAnimations(int option)
         SetSliderDialogStartValue(UDAM.UD_AlternateAnimationPeriod)
         SetSliderDialogDefaultValue(5.0)
         SetSliderDialogRange(3.0, 15.0)
-        SetSliderDialogInterval(0.1)
+        SetSliderDialogInterval(1.0)
     endIf
 EndFunction
     
@@ -2140,7 +2140,7 @@ EndFunction
 
 Function OnOptionSliderAcceptAnimations(int option, float value)
     if option == UD_AlternateAnimationPeriod_S
-        UDAM.UD_AlternateAnimationPeriod = (value As Int) As Float
+        UDAM.UD_AlternateAnimationPeriod = (value As Int)
         SetSliderOptionValue(UD_AlternateAnimationPeriod_S, value, "{0} s")
     endIf
 EndFunction
@@ -3240,7 +3240,7 @@ Function SaveToJSON(string strFile)
     ; ANIMATIONS
     JsonUtil.StringListCopy(strFile, "Anims_UserDisabledJSONs", UDAM.UD_AnimationJSON_Dis)
     JsonUtil.SetIntValue(strFile, "AlternateAnimation", UDAM.UD_AlternateAnimation as Int)
-    JsonUtil.SetFloatValue(strFile, "AlternateAnimationPeriod", UDAM.UD_AlternateAnimationPeriod)
+    JsonUtil.SetIntValue(strFile, "AlternateAnimationPeriod", UDAM.UD_AlternateAnimationPeriod)
     JsonUtil.SetIntValue(strFile, "UseSingleStruggleKeyword", UDAM.UD_UseSingleStruggleKeyword as Int)
     
     JsonUtil.Save(strFile, true)
@@ -3368,7 +3368,7 @@ Function LoadFromJSON(string strFile)
         UDAM.UD_AnimationJSON_Dis = JsonUtil.StringListToArray(strFile, "Anims_UserDisabledJSONs")
     EndIf
     UDAM.UD_AlternateAnimation = JsonUtil.GetIntValue(strFile, "AlternateAnimation", UDAM.UD_AlternateAnimation as Int) > 0
-    UDAM.UD_AlternateAnimationPeriod = JsonUtil.GetFloatValue(strFile, "AlternateAnimationPeriod", UDAM.UD_AlternateAnimationPeriod)
+    UDAM.UD_AlternateAnimationPeriod = JsonUtil.GetIntValue(strFile, "AlternateAnimationPeriod", UDAM.UD_AlternateAnimationPeriod)
     UDAM.UD_UseSingleStruggleKeyword = JsonUtil.GetIntValue(strFile, "UseSingleStruggleKeyword", UDAM.UD_UseSingleStruggleKeyword as Int) > 0
     
 EndFunction
@@ -3501,9 +3501,8 @@ Function ResetToDefaults()
     UDCDMain.UD_OutfitRemove                        = True
     
     ; Animations
-    UDAM.UD_AnimationJSON_Dis = PapyrusUtil.StringArray(0)
-    UDAM.UD_AlternateAnimation = False
-    UDAM.UD_AlternateAnimationPeriod = 5.0
+    UDAM.LoadDefaultMCMSettings()
+    
 EndFunction
 
 Function SetAutoLoad(bool bValue)
