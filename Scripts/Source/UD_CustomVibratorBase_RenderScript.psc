@@ -239,7 +239,7 @@ Function activateDevice()
 EndFunction
 
 Function StopVibSound()
-    if getWearer().is3DLoaded()
+    if _vsID != -1 && getWearer().is3DLoaded()
         Sound.StopInstance(_vsID)
     endif
     _vsID = -1

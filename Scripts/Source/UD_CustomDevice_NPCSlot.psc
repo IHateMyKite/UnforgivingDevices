@@ -29,6 +29,7 @@ UD_OrgasmManager Property UDOM Hidden
         endif
     EndFunction
 EndProperty
+
 UD_OrgasmManager Property UDOMcfg Hidden
     UD_OrgasmManager Function get()
             return UDmain.UDOM
@@ -125,6 +126,9 @@ State UpdatePaused
 EndState
 
 Function GameUpdate()
+    if !IsPlayer()
+        UDOM.RemoveAbilities(GetActor())
+    endif
     CheckVibrators()
 EndFunction
 
@@ -284,6 +288,7 @@ Function SetSlotTo(Actor akActor)
         UDOM.CheckOrgasmCheck(akActor)
         UDOM.CheckArousalCheck(akActor)
     else
+        InitOrgasmUpdate()
         akActor.AddToFaction(UDOM.ArousalCheckLoopFaction)
         akActor.AddToFaction(UDOM.OrgasmCheckLoopFaction)
     endif
@@ -457,12 +462,15 @@ Function fix()
         StorageUtil.UnsetIntValue(getActor(), "UD_OrgasmExhaustion")
         StorageUtil.UnsetIntValue(getActor(), "UD_ActiveVib_Strength")
         StorageUtil.UnsetIntValue(getActor(), "UD_ActiveVib")
+        StorageUtil.UnsetIntValue(getActor(), "UD_OrgasmExhaustionNum")
         
-        GetActor().DispelSpell(UDmain.UDlibs.ArousalCheckSpell)
-        GetActor().AddSpell(UDmain.UDlibs.ArousalCheckAbilitySpell,true)
-        
-        GetActor().DispelSpell(UDmain.UDlibs.OrgasmCheckSpell)
-        GetActor().AddSpell(UDmain.UDlibs.OrgasmCheckSpell,true)
+        if IsPlayer()
+            GetActor().DispelSpell(UDmain.UDlibs.ArousalCheckAbilitySpell)
+            GetActor().AddSpell(UDmain.UDlibs.ArousalCheckAbilitySpell,true)
+            
+            GetActor().DispelSpell(UDmain.UDlibs.OrgasmCheckAbilitySpell)
+            GetActor().AddSpell(UDmain.UDlibs.OrgasmCheckAbilitySpell,true)
+        endif
         UDCDmain.Print("[UD] Orgasm variables reseted!")
     elseif loc_res == 2 ;reset expression
         UDCDMain.UDEM.ResetExpressionRaw(getActor(),100)
@@ -2196,7 +2204,7 @@ Function CleanOrgasmUpdate()
     endif
     
     ;end animation if it still exist
-    if  _hornyAnimTimer > 0
+    if  _hornyAnimTimer > 0 && akActor
         libs.EndThirdPersonAnimation(akActor, _cameraState, permitRestrictive=true)
         _hornyAnimTimer = 0
     EndIf
@@ -2207,7 +2215,9 @@ Function CleanOrgasmUpdate()
     endif
     
     ;reset expression
-    UDEM.ResetExpressionRaw(akActor, 10)
+    if akActor
+        UDEM.ResetExpressionRaw(akActor, 10)
+    endif
     
     ;end mutex
     akActor.RemoveFromFaction(UDOM.OrgasmCheckLoopFaction)

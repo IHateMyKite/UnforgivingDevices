@@ -1773,8 +1773,9 @@ EndFunction
 
 ;returns current device that have minigame on (return none if no minigame is on)
 UD_CustomDevice_RenderScript Function getMinigameDevice(Actor akActor)
-    if CurrentPlayerMinigameDevice.getWearer() == akActor || CurrentPlayerMinigameDevice.getHelper() == akActor
-        return CurrentPlayerMinigameDevice
+    UD_CustomDevice_RenderScript loc_device = CurrentPlayerMinigameDevice
+    if loc_device && (loc_device.getWearer() == akActor || loc_device.getHelper() == akActor)
+        return loc_device
     endif
     if isRegistered(akActor)
         return getNPCSlot(akActor).getMinigameDevice()
@@ -2509,7 +2510,7 @@ Function SetArousalPerks()
 endfunction
 bool Function ApplyTearsEffect(Actor akActor)
     if UDmain.ZaZAnimationPackInstalled && UDmain.SlaveTatsInstalled
-        if !akActor.HasMagicEffectWithKeyword(UDlibs.ZAZTears_KW)
+        if akActor.Is3DLoaded() && !akActor.HasMagicEffectWithKeyword(UDlibs.ZAZTears_KW)
             UDlibs.ZAZTearsSpell.cast(akActor)
             return true
         endif
@@ -2519,7 +2520,7 @@ EndFUnction
 
 bool Function ApplyDroolEffect(Actor akActor) ;works only for player
     if UDmain.ZaZAnimationPackInstalled && UDmain.SlaveTatsInstalled
-        if !akActor.HasMagicEffectWithKeyword(UDlibs.ZAZDrool_KW)
+        if akActor.Is3DLoaded() && !akActor.HasMagicEffectWithKeyword(UDlibs.ZAZDrool_KW)
             UDlibs.ZAZDroolSpell.cast(akActor)
             return true
         endif

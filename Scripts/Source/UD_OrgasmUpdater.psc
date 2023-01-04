@@ -22,19 +22,14 @@ Bool Property Enabled Hidden
     EndFunction
 EndProperty
 
-Int _UpdateTime = 1
 Int Property UD_UpdateTime  Hidden
     Int Function Get()
-        return _UpdateTime
-    EndFunction
-    Function Set(Int aiVal)
-        _UpdateTime = aiVal
+        return Round(UDmain.UDGV.UDG_NPCOrgasmUpT.Value)
     EndFunction
 EndProperty
 
 Event OnInit()
-    ;Ready = True
-    RegisterForSingleUpdate(5.0)
+    RegisterForSingleUpdate(15.0)
 EndEvent
 
 Event OnUpdate()
