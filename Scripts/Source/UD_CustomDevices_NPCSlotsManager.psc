@@ -74,17 +74,9 @@ Function SlotGameUpdate()
 EndFunction
 
 Function CheckOrgasmLoops()
-    int index = UD_Slots ;all aliases
-    while index
-        index -= 1
-        UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
-        if loc_slot
-            if loc_slot.isUsed() && !loc_slot.isDead()
-                UDOM.CheckArousalCheck(loc_slot.getActor())
-                UDOM.CheckOrgasmCheck(loc_slot.getActor())
-            endif
-        endif
-    endwhile
+    UD_CustomDevice_NPCSlot loc_slot = GetPlayerSlot()
+    UDOM.CheckArousalCheck(loc_slot.getActor())
+    UDOM.CheckOrgasmCheck(loc_slot.getActor())
 EndFunction
 
 Event OnUpdate()

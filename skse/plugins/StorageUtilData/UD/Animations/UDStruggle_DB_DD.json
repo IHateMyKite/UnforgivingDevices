@@ -121,21 +121,21 @@
 				"A1" : {
 					"anim" : "DDRegElbStruggle01", 
 					"req" : 32, 
-					"opt" : 2304
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "DDRegElbStruggle02", 
 					"req" : 32, 
-					"opt" : 2304
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "DDRegElbStruggle03", 
 					"req" : 32, 
-					"opt" : 2304
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
@@ -149,7 +149,7 @@
 				"A1" : {
 					"anim" : "DDRegElbStruggle05", 
 					"req" : 32, 
-					"opt" : 2304
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
@@ -211,21 +211,21 @@
 				"A1" : {
 					"anim" : "DDRegElbStruggle01", 
 					"req" : 512, 
-					"opt" : 2304
+					"opt" : 2308
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "DDRegElbStruggle02", 
 					"req" : 512, 
-					"opt" : 2304
+					"opt" : 2308
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "DDRegElbStruggle03", 
 					"req" : 512, 
-					"opt" : 2304
+					"opt" : 2308
 				}, 
 				"lewd" : 0 
 			}, {
@@ -239,14 +239,14 @@
 				"A1" : {
 					"anim" : "DDRegElbStruggle05", 
 					"req" : 512, 
-					"opt" : 2304
+					"opt" : 2308
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "DDRegbbYokeStruggle01", 
 					"req" : 512, 
-					"opt" : 2304
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}
@@ -256,35 +256,35 @@
 				"A1" : {
 					"anim" : "DDRegYokeStruggle01", 
 					"req" : 4, 
-					"opt" : 2304
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "DDRegYokeStruggle02", 
 					"req" : 4, 
-					"opt" : 2304
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "DDRegYokeStruggle03", 
 					"req" : 4, 
-					"opt" : 2304
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "DDRegYokeStruggle04", 
 					"req" : 4, 
-					"opt" : 2304
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "DDRegYokeStruggle05", 
 					"req" : 4, 
-					"opt" : 2304
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
@@ -308,35 +308,35 @@
 				"A1" : {
 					"anim" : "DDRegbbYokeStruggle01", 
 					"req" : 1024, 
-					"opt" : 2304
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "DDRegbbYokeStruggle02", 
 					"req" : 1024, 
-					"opt" : 2304
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "DDRegbbYokeStruggle03", 
 					"req" : 1024, 
-					"opt" : 2304
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "DDRegbbYokeStruggle04", 
 					"req" : 1024, 
-					"opt" : 2304
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "DDRegbbYokeStruggle05", 
 					"req" : 1024, 
-					"opt" : 2304
+					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
@@ -631,139 +631,6 @@
 		"horny" : [
 			{
 				"A1" : {
-					"anim" : "DDRegArmbStruggle01", 
-					"req" : 16, 
-					"opt" : 2306
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegArmbStruggle02", 
-					"req" : 16, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegArmbStruggle03", 
-					"req" : 16, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegArmbStruggle04", 
-					"req" : 16, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegArmbStruggle05", 
-					"req" : 16, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDHobArmbStruggle01", 
-					"req" : 17, 
-					"opt" : 2306
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDHobArmbStruggle02", 
-					"req" : 17, 
-					"opt" : 2306
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegCuffsFrontStruggle01", 
-					"req" : 8, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegCuffsFrontStruggle02", 
-					"req" : 8, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegCuffsFrontStruggle03", 
-					"req" : 8, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDHobCuffsFrontStruggle01", 
-					"req" : 9, 
-					"opt" : 2306
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDHobCuffsFrontStruggle02", 
-					"req" : 9, 
-					"opt" : 2306
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegElbStruggle01", 
-					"req" : 32, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegElbStruggle02", 
-					"req" : 32, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegElbStruggle03", 
-					"req" : 32, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegElbStruggle04", 
-					"req" : 32, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegElbStruggle05", 
-					"req" : 32, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDHobElbStruggle01", 
-					"req" : 33, 
-					"opt" : 2306
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDHobElbStruggle02", 
-					"req" : 33, 
-					"opt" : 2306
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
 					"anim" : "DDElbowTie_hornyone", 
 					"req" : 128, 
 					"opt" : 2307
@@ -795,111 +662,6 @@
 					"anim" : "DDZazHornyC", 
 					"req" : 0, 
 					"opt" : 2307
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegYokeStruggle01", 
-					"req" : 4, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegYokeStruggle02", 
-					"req" : 4, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegYokeStruggle03", 
-					"req" : 4, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegYokeStruggle04", 
-					"req" : 4, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegYokeStruggle05", 
-					"req" : 4, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDHobYokeStruggle01", 
-					"req" : 5, 
-					"opt" : 2306
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDHobYokeStruggle02", 
-					"req" : 5, 
-					"opt" : 2306
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegbbYokeStruggle01", 
-					"req" : 1024, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegbbYokeStruggle02", 
-					"req" : 1024, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegbbYokeStruggle03", 
-					"req" : 1024, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegbbYokeStruggle04", 
-					"req" : 1024, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegbbYokeStruggle05", 
-					"req" : 1024, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDRegbbYokeStruggle01", 
-					"req" : 512, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDHobBBYokeStruggle01", 
-					"req" : 1025, 
-					"opt" : 2306
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDHobBBYokeStruggle02", 
-					"req" : 1025, 
-					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {

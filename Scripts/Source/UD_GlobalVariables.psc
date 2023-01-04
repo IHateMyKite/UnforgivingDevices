@@ -28,3 +28,7 @@ GlobalVariable Property UDG_UndressNPC  auto
 ;toggle to 1 to automatically also undress follower when they wear HB, they have to be registered for it to work, short
 ;by default is 0
 GlobalVariable Property UDG_UndressFollower  auto
+
+;update time of orgasm updater, short
+;by default is 1s, but 2s can be also used. Should not be highter then 2s, as it might cause issues
+GlobalVariable Property UDG_NPCOrgasmUpT  auto

@@ -83,12 +83,15 @@ EndFunction
 
 Function RemoveAbilities(Actor akActor)
     if akActor
-        akActor.RemoveSpell(UDlibs.OrgasmCheckSpell)
-        akActor.RemoveSpell(UDlibs.ArousalCheckSpell)
+        akActor.RemoveSpell(UDlibs.OrgasmCheckAbilitySpell)
+        akActor.RemoveSpell(UDlibs.ArousalCheckAbilitySpell)
     endif
 EndFunction
 
 Function CheckOrgasmCheck(Actor akActor)
+    if !UDmain.ActorIsPlayer(akActor)
+        return
+    endif
     if !akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
         StartOrgasmCheckLoop(akActor)
     endif
@@ -103,6 +106,9 @@ Function CheckOrgasmCheck(Actor akActor)
 EndFunction
 
 Function CheckArousalCheck(Actor akActor)
+    if !UDmain.ActorIsPlayer(akActor)
+        return
+    endif
     if !akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
         StartArousalCheckLoop(akActor)
     endif
@@ -737,9 +743,9 @@ EndFunction
 Function addOrgasmExhaustion(Actor akActor)
     if akActor.Is3DLoaded()
         UDlibs.OrgasmExhaustionSpell.cast(akActor)
-    endif
-    if UDmain.TraceAllowed()
-        UDmain.Log("Orgasm exhaustion debuff applied to "+ getActorName(akActor),1)
+        if UDmain.TraceAllowed()
+            UDmain.Log("Orgasm exhaustion debuff applied to "+ getActorName(akActor),1)
+        endif
     endif
 EndFunction
 

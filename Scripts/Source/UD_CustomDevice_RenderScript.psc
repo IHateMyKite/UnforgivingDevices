@@ -1321,12 +1321,12 @@ Function updateValuesFromInventoryScript()
         zad_DestroyKey = temp.DestroyKey
         zad_JammLockChance = temp.LockJamChance
         UD_DeviceKeyword = temp.zad_deviousDevice
+        DeviceRendered = temp.DeviceRendered
         If UD_DeviceKeyword == libs.zad_DeviousSuit
             If deviceRendered.HasKeyword(libs.zad_DeviousHobbleSkirt)
                 UD_DeviceKeyword = libs.zad_DeviousHobbleSkirt
             EndIf
         EndIf
-        DeviceRendered = temp.DeviceRendered
         UD_DeviceStruggleKeywords = UDCDMain.GetDeviceStruggleKeywords(DeviceRendered)
         temp.delete()
     endif
@@ -2248,7 +2248,7 @@ bool Function wearerFreeHands(bool checkGrasp = false,bool ignoreHeavyBondageTar
     return res
 EndFunction
 bool Function helperFreeHands(bool checkGrasp = false,bool ignoreHeavyBondage = false)
-    if !hasHelper()
+    if !_minigameHelper
         return false
     endif
     bool res = !_minigameHelper.wornhaskeyword(libs.zad_deviousHeavyBondage) || ignoreHeavyBondage 
@@ -3441,11 +3441,20 @@ EndFunction
 
 ;stops minigame
 Function stopMinigame()
-    if PlayerInMinigame()
-        UDCDmain.resetCurrentMinigameDevice()
-    endif
+    UnsetMinigameDevice()
     force_stop_minigame = True
     pauseMinigame = False
+EndFunction
+
+Function UnsetMinigameDevice()
+    if PlayerInMinigame()
+        UDCDmain.resetCurrentMinigameDevice()
+    else
+        StorageUtil.UnSetFormValue(Wearer, "UD_currentMinigameDevice")
+        if _minigameHelper
+            StorageUtil.UnSetFormValue(_minigameHelper, "UD_currentMinigameDevice")
+        endif
+    endif
 EndFunction
 
 Function ForcePauseMinigame()
@@ -3530,7 +3539,7 @@ bool Function minigamePrecheck(Bool abSilent = False)
     endif
     
     ;Allow minigames on unloaded actors
-    if (Wearer.IsDead() || Wearer.IsDisabled() || (Wearer.GetCurrentScene() == none && !Wearer.Is3DLoaded()))
+    if (Wearer.IsDead() || Wearer.IsDisabled() || Wearer.GetCurrentScene())
         if !abSilent
             GWarning("Can't start minigame for " + getDeviceHeader() + " because wearer is invalid! Dead="+Wearer.IsDead() + ",Disabled="+Wearer.IsDisabled()+",Scene+"+Wearer.GetCurrentScene())
             if WearerIsPlayer()
@@ -3613,7 +3622,7 @@ Function minigame()
     bool                    loc_WearerIsPlayer                  = WearerIsPlayer()
     bool                    loc_HelperIsPlayer                  = HelperIsPlayer()
     bool                    loc_PlayerInMinigame                = loc_WearerIsPlayer || loc_HelperIsPlayer
-    Bool                    loc_is3DLoaded                      = Wearer.Is3DLoaded()  || loc_PlayerInMinigame
+    Bool                    loc_is3DLoaded                      = loc_PlayerInMinigame || Wearer.Is3DLoaded()
     UD_CustomDevice_NPCSlot loc_WearerSlot                      = UD_WearerSlot
     
     if loc_PlayerInMinigame
@@ -3675,9 +3684,9 @@ Function minigame()
     float       fCurrentUpdateTime     = UDmain.UD_baseUpdateTime
     
     if !loc_is3DLoaded
-        fCurrentUpdateTime = 2.0
+        fCurrentUpdateTime = 1.0
     elseif !loc_PlayerInMinigame
-        fCurrentUpdateTime = 0.5
+        fCurrentUpdateTime = 0.25
     endif
 
     pauseMinigame = False
@@ -3745,6 +3754,7 @@ Function minigame()
                 tick_b = 0
                 tick_s += 1
                 if !force_stop_minigame
+                    loc_is3DLoaded  = loc_PlayerInMinigame || Wearer.Is3DLoaded()
                     OnMinigameTick1()
                     
                     if loc_is3DLoaded
@@ -3819,7 +3829,9 @@ Function minigame()
             UpdateMotivation(Wearer,50) ;increase NPC motivation on failed escape
         endif
     else
-        libs.pant(Wearer)
+        if loc_is3DLoaded
+            libs.pant(Wearer)
+        endif
         if loc_PlayerInMinigame
             if _minigameHelper
                 UDCDmain.Print("One of you is too exhausted to continue struggling",1)
@@ -3886,6 +3898,8 @@ Function MinigameStarter()
     bool    loc_canShowHUD      = canShowHUD()
     bool    loc_haveplayer      = PlayerInMinigame()
     bool    loc_updatewidget    = UD_UseWidget && UDCDmain.UD_UseWidget && loc_haveplayer
+    bool    loc_is3DLoaded      = loc_haveplayer || Wearer.Is3DLoaded()
+    
     
     UDCDMain.StartMinigameDisable(Wearer)
     if _minigameHelper
@@ -3911,7 +3925,9 @@ Function MinigameStarter()
     
     OnMinigameStart()
     
-    libsp.pant(Wearer)
+    if loc_is3DLoaded
+        libsp.pant(Wearer)
+    endif
 EndFunction
 
 
@@ -4066,9 +4082,7 @@ Function MinigameVarReset()
         _minigameHelper.RemoveFromFaction(UDCDmain.MinigameFaction)
     endif
     
-    if PlayerInMinigame()
-        UDCDmain.resetCurrentMinigameDevice()
-    endif
+    UnsetMinigameDevice()
     
     minigame_on = False
 EndFunction
@@ -5167,51 +5181,98 @@ EndFunction
 
 ;choose the best minigame and start it. Returns false if minigame was not started
 Bool Function EvaluateNPCAI()
-    float   loc_accesibility    = getAccesibility()
-    Int     loc_lockMinigames   = LockMinigamesAllowed(loc_accesibility)
-    
-    ;first try to unlock the device with key
-    if Math.LogicalAnd(loc_lockMinigames,0x2)
-        if keyMinigame(True)
-            ;GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - keyMinigame finished")
-            return true
+    Bool    loc_minigameStarted     = False
+    Float   loc_durabilityBefore    = current_device_health
+    Int     loc_LocksBefore         = UD_CurrentLocks
+
+    ;50% chance to first check locks, then struggle
+    if Utility.randomInt(0,1)
+        Int loc_lockMinigames
+        if !loc_minigameStarted
+            loc_lockMinigames       = LockMinigamesAllowed(loc_accesibility)
+        endif
+        ;first try to unlock the device with key
+        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x2)
+            if keyMinigame(True)
+                loc_minigameStarted = True
+            endif
+        endif
+        ;try to repair the locks then
+        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x4)
+            if repairLocksMinigame(True)
+                loc_minigameStarted = True
+            endif
+        endif
+        ;then try to use lockpicks
+        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x1)
+            if lockpickMinigame(True)
+                loc_minigameStarted = True
+            endif
+        endif
+        float   loc_accesibility    = 1.0
+        if !loc_minigameStarted
+            loc_accesibility        = getAccesibility()
+        endif
+        ;then try to struggle
+        if !loc_minigameStarted && StruggleMinigameAllowed(loc_accesibility)
+            Int loc_minigame = Utility.randomInt(0,2)
+            if struggleMinigame(loc_minigame, True) ;start random struggle minigame
+                loc_minigameStarted = True
+            endif
+        endif
+        ;lastly try cutting
+        if !loc_minigameStarted && CuttingMinigameAllowed(loc_accesibility)
+            if cuttingMinigame(True)
+                loc_minigameStarted = True
+            endif
+        endif
+    else
+        float   loc_accesibility    = 1.0
+        if !loc_minigameStarted
+            loc_accesibility        = getAccesibility()
+        endif
+        ;then try to struggle
+        if !loc_minigameStarted && StruggleMinigameAllowed(loc_accesibility)
+            Int loc_minigame = Utility.randomInt(0,2)
+            if struggleMinigame(loc_minigame, True) ;start random struggle minigame
+                loc_minigameStarted = True
+            endif
+        endif
+        ;lastly try cutting
+        if !loc_minigameStarted && CuttingMinigameAllowed(loc_accesibility)
+            if cuttingMinigame(True)
+                loc_minigameStarted = True
+            endif
+        endif
+        Int loc_lockMinigames
+        if !loc_minigameStarted
+            loc_lockMinigames       = LockMinigamesAllowed(loc_accesibility)
+        endif
+        ;first try to unlock the device with key
+        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x2)
+            if keyMinigame(True)
+                loc_minigameStarted = True
+            endif
+        endif
+        ;try to repair the locks then
+        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x4)
+            if repairLocksMinigame(True)
+                loc_minigameStarted = True
+            endif
+        endif
+        ;then try to use lockpicks
+        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x1)
+            if lockpickMinigame(True)
+                loc_minigameStarted = True
+            endif
         endif
     endif
     
-    ;try to repair the locks then
-    if Math.LogicalAnd(loc_lockMinigames,0x4)
-        if repairLocksMinigame(True)
-            ;GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - repairLocksMinigame finished")
-            return true
-        endif
+    if loc_minigameStarted
+        GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - Stats after minigame = durability reduced="+ (loc_durabilityBefore - current_device_health) + " , Locks unlocked="+ (loc_LocksBefore - UD_CurrentLocks))
     endif
     
-    ;then try to use lockpicks
-    if Math.LogicalAnd(loc_lockMinigames,0x1)
-        if lockpickMinigame(True)
-            ;GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - lockpickMinigame finished")
-            return true
-        endif
-    endif
-    
-    ;then try to struggle
-    if StruggleMinigameAllowed(loc_accesibility)
-        Int loc_minigame = Utility.randomInt(0,2)
-        if struggleMinigame(loc_minigame, True) ;start random struggle minigame
-            ;GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - struggleMinigame ["+loc_minigame+"] finished")
-            return true
-        endif
-    endif
-    
-    ;lastly try cutting
-    if CuttingMinigameAllowed(loc_accesibility)
-        if cuttingMinigame(True)
-            ;GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - cuttingMinigame finished")
-            return true
-        endif
-    endif
-    
-    return false
+    return loc_minigameStarted
 EndFunction
 
 ;--------------------------------------------------

@@ -469,10 +469,6 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
     
     SendModEvent("DeviceActorOrgasm", akActor.GetLeveledActorBase().GetName())
     
-    if !UDCDmain.isRegistered(akActor) && UDmain.UD_OrgasmExhaustion
-        UDOM.addOrgasmExhaustion(akActor)
-    endif
-    
     bool loc_isplayer = UDmain.ActorIsPlayer(akActor)
     bool loc_isfollower = false
     
