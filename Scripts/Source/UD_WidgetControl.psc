@@ -242,7 +242,7 @@ String[]    _Icons_Name               ; DDS file name in '<Data>/interface/expor
 Int[]       _Icons_Magnitude          ; 0 .. 100+
 Float[]     _Icons_Timer              ; animation timer
 Int[]       _Icons_Stage              ; animation stage
-Int[]       _Icons_Blicking           ; 0, 1
+Int[]       _Icons_Blinking           ; 0, 1
 Int[]       _Icons_Alpha              ; 0 .. 100
 Int[]       _Icon_Visible             ; 0, 1
 
@@ -677,7 +677,7 @@ State iWidgetInstalled
         Int[] magnitudes = PapyrusUtil.SliceIntArray(_Icons_Magnitude, 0)
         Float[] timers = PapyrusUtil.SliceFloatArray(_Icons_Timer, 0)
         Int[] stages = PapyrusUtil.SliceIntArray(_Icons_Stage, 0)
-        Int[] blinks = PapyrusUtil.SliceIntArray(_Icons_Blicking, 0)
+        Int[] blinks = PapyrusUtil.SliceIntArray(_Icons_Blinking, 0)
         Int[] alphas = PapyrusUtil.SliceIntArray(_Icons_Alpha, 0)
         Int[] visibles = PapyrusUtil.SliceIntArray(_Icon_Visible, 0)
 
@@ -709,7 +709,7 @@ State iWidgetInstalled
         _Icons_Magnitude = magnitudes
         _Icons_Timer = timers
         _Icons_Stage = stages
-        _Icons_Blicking = blinks
+        _Icons_Blinking = blinks
         _Icons_Alpha = alphas
         _Icon_Visible = visibles
         Int i = _Icons_Name.Length
@@ -717,7 +717,7 @@ State iWidgetInstalled
             i -= 1
             StatusEffect_SetVisible(_Icons_Name[i], _Icon_Visible[i])
             StatusEffect_SetMagnitude(_Icons_Name[i], _Icons_Magnitude[i])
-            StatusEffect_SetBlink(_Icons_Name[i], _Icons_Blicking[i])
+            StatusEffect_SetBlink(_Icons_Name[i], _Icons_Blinking[i])
         EndWhile
     EndFunction
     
@@ -777,7 +777,7 @@ State iWidgetInstalled
             _Icons_Timer = PapyrusUtil.PushFloat(_Icons_Timer, 0.0)
             _Icons_Magnitude = PapyrusUtil.PushInt(_Icons_Magnitude, 0)
             _Icons_Stage = PapyrusUtil.PushInt(_Icons_Stage, 0)
-            _Icons_Blicking = PapyrusUtil.PushInt(_Icons_Blicking, 0)
+            _Icons_Blinking = PapyrusUtil.PushInt(_Icons_Blinking, 0)
             _Icon_Visible = PapyrusUtil.PushInt(_Icon_Visible, 0)
             _Icons_Alpha = PapyrusUtil.PushInt(_Icons_Alpha, aiAlpha)
             index = _Icons_Id.Length - 1
@@ -796,7 +796,7 @@ State iWidgetInstalled
         If abVisible
             iWidget.setTransparency(_Icons_Id[index], _Icons_Alpha[index])
         Else
-            _Icons_Blicking[index] = 0
+            _Icons_Blinking[index] = 0
         EndIf
     EndFunction
     
@@ -821,7 +821,7 @@ State iWidgetInstalled
     
     Function StatusEffect_SetBlink(String asName, Bool abBlink = True)
         Int index = _GetIconIndex(asName)
-        _Icons_Blicking[index] = abBlink As Int
+        _Icons_Blinking[index] = abBlink As Int
         RegisterForSingleUpdate(_Animation_UpdateInstant)
     EndFunction
 
@@ -843,8 +843,8 @@ State iWidgetInstalled
                 m = 100
             EndIf
             R  = (Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active100_Color,16),0xFF) * (m - 50) + Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active50_Color,16),0xFF) * (100 - m)) / 50
-            G  = (Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active100_Color,8),0xFF) * (m - 50) + Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active50_Color,8),0xFF)) * (100 - m) / 50
-            B  = (Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active100_Color,0),0xFF) * (m - 50) + Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active50_Color,0),0xFF)) * (100 - m) / 50
+            G  = (Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active100_Color,8),0xFF) * (m - 50) + Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active50_Color,8),0xFF) * (100 - m)) / 50
+            B  = (Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active100_Color,0),0xFF) * (m - 50) + Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active50_Color,0),0xFF) * (100 - m)) / 50
         EndIf
         iWidget.setRGB(aiWidget, R, G, B)
     EndFunction
@@ -909,7 +909,7 @@ State iWidgetInstalled
             Int magnitude = _Icons_Magnitude[i]
             String name =  _Icons_Name[i]
             Int anim_stage = _Icons_Stage[i]
-            Bool blink = _Icons_Blicking[i] > 0
+            Bool blink = _Icons_Blinking[i] > 0
             Bool visible = _Icon_Visible[i] > 0
             timer += frame
             

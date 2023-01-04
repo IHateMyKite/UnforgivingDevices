@@ -76,8 +76,6 @@ int UD_StruggleKey_K
 
 int UD_hightPerformance_T
 
-string[] widgetXList
-string[] widgetYList
 string[] orgasmAnimation
 
 int UD_LockMenu_flag
@@ -210,7 +208,18 @@ Function Update()
     final_finisher_pref_list[4] = "Restrictive"
     final_finisher_pref_list[5] = "Simple"
     final_finisher_pref_list[6] = "Yoke"
+
+    UD_IconsAnchorList = new String[3]
+    UD_IconsAnchorList[0] = "LEFT"
+    UD_IconsAnchorList[1] = "CENTER"
+    UD_IconsAnchorList[2] = "RIGHT"
     
+    UD_TextAnchorList = new String[4]
+    UD_TextAnchorList[0] = "BOTTOM"
+    UD_TextAnchorList[1] = "BELOW CENTER"
+    UD_TextAnchorList[2] = "TOP"
+    UD_TextAnchorList[3] = "CENTER"
+
     libs = UDCDmain.libs as zadlibs_UDPatch
 EndFunction
 
@@ -396,7 +405,6 @@ int UD_CHB_Stamina_meter_Keycode_K
 int UD_CHB_Magicka_meter_Keycode_K
 int UDCD_SpecialKey_Keycode_K
 int UD_UseDDdifficulty_T
-int UD_UseWidget_T
 int UD_AutoCrit_T
 int UD_AutoCritChance_S
 int UD_StruggleDifficulty_M
@@ -406,8 +414,6 @@ int UD_UpdateTime_S
 int UD_GagPhonemModifier_S
 int UD_PatchMult_S
 int UD_LockpickMinigameNum_S
-int UD_WidgetPosX_M
-int UD_WidgetPosY_M
 int UD_BaseDeviceSkillIncrease_S
 Int UD_SkillEfficiency_S
 int UD_CooldownMultiplier_S
@@ -476,14 +482,7 @@ Event resetCustomBondagePage()
     UD_hardcore_swimming_T = addToggleOption("Unforgiving swimming:", UDSS.UD_hardcore_swimming,UD_LockMenu_flag)    
     UD_hardcore_swimming_difficulty_M = AddMenuOption("Swimming difficulty:", difficultyList[UDSS.UD_hardcore_swimming_difficulty],FlagSwitchOr(UD_Swimming_flag,UD_LockMenu_flag))
     
-    ;WIDGET
-    AddHeaderOption("Widget")
-    AddEmptyOption()
-    UD_UseWidget_T = addToggleOption("Use widget:", UDCDmain.UD_UseWidget)
-    AddEmptyOption()
-    UD_WidgetPosX_M = AddMenuOption("Widget pos X:", widgetXList[UDWC.UD_WidgetXPos],FlagSwitch(UDCDmain.UD_UseWidget))
-    UD_WidgetPosY_M = AddMenuOption("Widget pos Y:", widgetYList[UDWC.UD_WidgetYPos],FlagSwitch(UDCDmain.UD_UseWidget))
-    
+   
     ;CRITS
     AddHeaderOption("Device Crits")
     AddEmptyOption()
@@ -692,7 +691,12 @@ EndProperty
 
 int UD_UseIWantWidget_T
 Int UD_AutoAdjustWidget_T
-
+; device widgets
+int UD_UseWidget_T
+int UD_WidgetPosX_M
+int UD_WidgetPosY_M
+string[] widgetXList
+string[] widgetYList
 ; new UI settings
 Int UD_TextFontSize_S
 Int UD_TextLineLength_S
@@ -709,26 +713,12 @@ Int UD_WidgetReset_T
 
 Event resetUIWidgetPage()
     UpdateLockMenuFlag()
-
-    If UD_IconsAnchorList.Length == 0
-        UD_IconsAnchorList = new String[3]
-        UD_IconsAnchorList[0] = "LEFT"
-        UD_IconsAnchorList[1] = "CENTER"
-        UD_IconsAnchorList[2] = "RIGHT"
-    EndIf
-    If UD_TextAnchorList.Length == 0
-        UD_TextAnchorList = new String[2]
-        UD_TextAnchorList[0] = "BOTTOM"
-        UD_TextAnchorList[1] = "BELOW CENTER"
-        UD_TextAnchorList[2] = "TOP"
-        UD_TextAnchorList[3] = "CENTER"
-    EndIf
     
     SetCursorFillMode(TOP_TO_BOTTOM)
     
     Int right_col = 0
     Int left_col = 0
-    
+    ; LEFT COLUMN
     AddHeaderOption("Widgets")
     left_col += 1
     AddTextOption("iWantWidgets",InstallSwitch(UDmain.iWidgetInstalled),FlagSwitch(UDmain.iWidgetInstalled))
@@ -737,7 +727,17 @@ Event resetUIWidgetPage()
     left_col += 1
     UD_AutoAdjustWidget_T = addToggleOption("Auto adjust",UDWC.UD_AutoAdjustWidget,FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
     left_col += 1
+    ; device widgets
+    AddHeaderOption("Device widgets")
+    left_col += 1
+    UD_UseWidget_T = addToggleOption("Use device widgets", UDCDmain.UD_UseWidget)
+    left_col += 1
+    UD_WidgetPosX_M = AddMenuOption("Widgets horizontal position", widgetXList[UDWC.UD_WidgetXPos],FlagSwitch(UDCDmain.UD_UseWidget))
+    left_col += 1
+    UD_WidgetPosY_M = AddMenuOption("Widgets vertical position", widgetYList[UDWC.UD_WidgetYPos],FlagSwitch(UDCDmain.UD_UseWidget))
+    left_col += 1
     
+    ; RIGHT COLUMN
     SetCursorPosition(1)
     SetCursorFillMode(TOP_TO_BOTTOM)
     AddHeaderOption("iWidgets Settings")
@@ -1065,10 +1065,6 @@ Function OptionCustomBondage(int option)
     elseif(option == UD_UseDDdifficulty_T)
         UDCDmain.UD_UseDDdifficulty = !UDCDmain.UD_UseDDdifficulty
         SetToggleOptionValue(UD_UseDDdifficulty_T, UDCDmain.UD_UseDDdifficulty)
-    elseif(option == UD_UseWidget_T)
-        UDCDmain.UD_UseWidget = !UDCDmain.UD_UseWidget
-        SetToggleOptionValue(UD_UseWidget_T, UDCDmain.UD_UseWidget)
-        forcePageReset()
     elseif option == UD_AutoCrit_T
         UDCDmain.UD_AutoCrit = !UDCDmain.UD_AutoCrit
         if UDCDmain.UD_AutoCrit
@@ -1162,6 +1158,10 @@ Function OptionSelectUiWidget(int option)
     elseif (option == UD_AutoAdjustWidget_T)
         UDWC.UD_AutoAdjustWidget = !UDWC.UD_AutoAdjustWidget
         SetToggleOptionValue(UD_AutoAdjustWidget_T, UDWC.UD_AutoAdjustWidget)
+    elseif(option == UD_UseWidget_T)
+        UDCDmain.UD_UseWidget = !UDCDmain.UD_UseWidget
+        SetToggleOptionValue(UD_UseWidget_T, UDCDmain.UD_UseWidget)
+        forcePageReset()
     ElseIf option == UD_FilterVibNotifications_T
         UDWC.UD_FilterVibNotifications = !UDWC.UD_FilterVibNotifications
         SetToggleOptionValue(UD_FilterVibNotifications_T, UDWC.UD_FilterVibNotifications)
@@ -1888,14 +1888,6 @@ Function OnOptionMenuOpenCustomBondage(int option)
         SetMenuDialogOptions(difficultyList)
         SetMenuDialogStartIndex(UDCDmain.UD_StruggleDifficulty)
         SetMenuDialogDefaultIndex(1)
-    elseif (option == UD_WidgetPosX_M)
-        SetMenuDialogOptions(widgetXList)
-        SetMenuDialogStartIndex(widget.PositionX)
-        SetMenuDialogDefaultIndex(1)
-    elseif (option == UD_WidgetPosY_M)
-        SetMenuDialogOptions(widgetYList)
-        SetMenuDialogStartIndex(widget.PositionY)
-        SetMenuDialogDefaultIndex(1)
     elseif option == UD_CritEffect_M
         SetMenuDialogOptions(criteffectList)
         SetMenuDialogStartIndex(UDCDmain.UD_CritEffect)
@@ -1919,6 +1911,14 @@ Function OnOptionMenuOpenUIWidget(int option)
     ElseIf (option == UD_TextAnchor_M)
         SetMenuDialogOptions(UD_TextAnchorList)
         SetMenuDialogStartIndex(UDWC.UD_TextAnchor)
+        SetMenuDialogDefaultIndex(1)
+    elseif (option == UD_WidgetPosX_M)
+        SetMenuDialogOptions(widgetXList)
+        SetMenuDialogStartIndex(UDWC.UD_WidgetXPos)
+        SetMenuDialogDefaultIndex(1)
+    elseif (option == UD_WidgetPosY_M)
+        SetMenuDialogOptions(widgetYList)
+        SetMenuDialogStartIndex(UDWC.UD_WidgetYPos)
         SetMenuDialogDefaultIndex(1)
     endif
 EndFunction
@@ -1957,14 +1957,6 @@ Function OnOptionMenuAcceptCustomBondage(int option, int index)
         UDCDmain.UD_StruggleDifficulty = index
         SetMenuOptionValue(UD_StruggleDifficulty_M, difficultyList[UDCDmain.UD_StruggleDifficulty])
         forcePageReset()
-    elseif (option == UD_WidgetPosX_M)
-        UDWC.UD_WidgetXPos = index
-        SetMenuOptionValue(UD_WidgetPosX_M, widgetXList[UDWC.UD_WidgetXPos])
-        forcePageReset()
-    elseif (option == UD_WidgetPosY_M)
-        UDWC.UD_WidgetYPos = index
-        SetMenuOptionValue(UD_WidgetPosY_M, widgetYList[UDWC.UD_WidgetYPos])
-        forcePageReset()
     elseif option == UD_CritEffect_M
         UDCDmain.UD_CritEffect = index
         SetMenuOptionValue(UD_CritEffect_M, criteffectList[UDCDmain.UD_CritEffect])
@@ -1986,6 +1978,14 @@ Function OnOptionMenuAcceptUIWidget(Int option, Int index)
     ElseIf option == UD_TextAnchor_M && index >= 0 && index < 4
         UDWC.UD_TextAnchor = index
         SetMenuOptionValue(UD_TextAnchor_M, UD_TextAnchorList[index])
+    elseif (option == UD_WidgetPosX_M)
+        UDWC.UD_WidgetXPos = index
+        SetMenuOptionValue(UD_WidgetPosX_M, widgetXList[UDWC.UD_WidgetXPos])
+        forcePageReset()
+    elseif (option == UD_WidgetPosY_M)
+        UDWC.UD_WidgetYPos = index
+        SetMenuOptionValue(UD_WidgetPosY_M, widgetYList[UDWC.UD_WidgetYPos])
+        forcePageReset()
     endif
 EndFunction
 
@@ -2498,8 +2498,6 @@ EndFunction
 Function CustomBondagePageInfo(int option)
     if(option == UD_CHB_Stamina_meter_Keycode_K)
         SetInfoText("Key to crit device while struggling when stamina bar blinks")
-    elseif option == UD_UseWidget_T
-        SetInfoText("Shows widget in minigame that shows current relevant value. Not all minigames will show widget because they may not use them.")
     elseif(option == UD_CHB_Magicka_meter_Keycode_K)
         SetInfoText("Key to crit device while struggling when magicka bar blinks")
     elseif(option == UD_StruggleDifficulty_M)
@@ -2512,10 +2510,6 @@ Function CustomBondagePageInfo(int option)
         SetInfoText("Toggle hardcore swimming. If on, player will have hard time swimming with tied hands. This works for any devices, not only for devices from this mod. Slow will be applied on player and stamina will starts to decrease. Once all stamina is consumed, player will be slowed even further and health will now starts to decrease too.")
     elseif(option == UD_hardcore_swimming_difficulty_M)
         SetInfoText("Difficulty of swimming with tied hands. The harder the difficulty, the more stamina and health will be drained. Player will also be more slowed.")
-    elseif option == UD_WidgetPosX_M
-        SetInfoText("Change widget X position\nDefault: Right")
-    elseif option == UD_WidgetPosY_M
-        SetInfoText("Change widget Y position\nDefault: Down")
     elseif option == UD_LockpickMinigameNum_S
         SetInfoText("Change number of lockpicks player can use in lockpick minigame.\nDefault: 2")
     elseif option == UD_BaseDeviceSkillIncrease_S
@@ -2674,6 +2668,12 @@ Function UiWidgetPageInfo(int option)
         SetInfoText("Toggle auto adjust for iWantWidget widgets. If ON, it will cause widgets to get rearranged every time they are shown/hidden. This make it more compact, but also slower. \nDefault: OFF")
     elseif option == UD_UseIWantWidget_T
         SetInfoText("Toggle if iWantWidget should be used instead of currect widget implementation. Only works if iWW is installed\n!!IMPORTANT: After changing this value, you will have to save and reload the game, otherwise the changes will not be applied!!\nDefault: ON")
+    elseif option == UD_UseWidget_T
+        SetInfoText("Shows widget in minigame that shows current relevant value. Not all minigames will show widget because they may not use them.")
+    elseif option == UD_WidgetPosX_M
+        SetInfoText("Change widget X position\nDefault: Right")
+    elseif option == UD_WidgetPosY_M
+        SetInfoText("Change widget Y position\nDefault: Down")
     ElseIf option == UD_TextFontSize_S
         SetInfoText("Notification text font size.\nDefault: 24")
     ElseIf option == UD_TextLineLength_S
@@ -3034,8 +3034,8 @@ Function LoadFromJSON(string strFile)
     UDIM.UD_UseHoods = JsonUtil.GetIntValue(strFile, "UseHoods", UDIM.UD_UseHoods as Int)
     libs.UD_StartThirdpersonAnimation_Switch = JsonUtil.GetIntValue(strFile, "StartThirdpersonAnimation_Switch", libs.UD_StartThirdpersonAnimation_Switch as Int)
     UDSS.UD_hardcore_swimming_difficulty = JsonUtil.GetIntValue(strFile, "SwimmingDifficulty", UDSS.UD_hardcore_swimming_difficulty)
-    UDWC.UD_WidgetXPos = JsonUtil.GetIntValue(strFile, "WidgetPosX", widget.PositionX)
-    UDWC.UD_WidgetYPos = JsonUtil.GetIntValue(strFile, "WidgetPosY", widget.PositionY)
+    UDWC.UD_WidgetXPos = JsonUtil.GetIntValue(strFile, "WidgetPosX", UDWC.UD_WidgetXPos)
+    UDWC.UD_WidgetYPos = JsonUtil.GetIntValue(strFile, "WidgetPosY", UDWC.UD_WidgetXPos)
     UDmain.UDRRM.UD_RandomDevice_GlobalFilter =  JsonUtil.GetIntValue(strFile, "RandomFiler", UDmain.UDRRM.UD_RandomDevice_GlobalFilter)
     AAScript.UD_DAR =  JsonUtil.GetIntValue(strFile, "DAR", AAScript.UD_DAR as Int)
     UDCD_NPCM.UD_SlotUpdateTime =  JsonUtil.GetIntValue(strFile, "SlotUpdateTime", Round(UDCD_NPCM.UD_SlotUpdateTime))
