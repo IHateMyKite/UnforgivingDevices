@@ -3815,7 +3815,7 @@ Function minigame()
             ;helper is orgasming, prevent animation stop
             loc_toggle += 0x2
         endif
-        UDAM.StopAnimation(Wearer, _minigameHelper, bEnableActors = False, aiToggle = loc_toggle)
+        UDAM.StopAnimation(Wearer, _minigameHelper, abEnableActors = False, aiToggle = loc_toggle)
     endif
     
     ;checks if Wearer succesfully escaped device
@@ -4008,7 +4008,7 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
             ; start new animation
                 _StruggleAnimationDefPairLastIndex = anim_index
                 _animationDef = _StruggleAnimationDefPairArray[anim_index]
-                If UDAM.PlayAnimationByDef(_animationDef, ActorArray2(Wearer, _minigameHelper), _ActorsConstraints, bContinueAnimation, bDisableActors = False)
+                If UDAM.PlayAnimationByDef(_animationDef, ActorArray2(Wearer, _minigameHelper), _ActorsConstraints, bContinueAnimation, abDisableActors = False)
                     result[0] = _StruggleAnimationDefPairArray.Length
                     result[1] = _StruggleAnimationDefPairArray.Length
                 EndIf
@@ -4037,7 +4037,7 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
                     ; start new animation
                     _StruggleAnimationDefActorLastIndex = anim_index
                     _animationDef = _StruggleAnimationDefActorArray[anim_index]
-                    If UDAM.PlayAnimationByDef(_animationDef, ActorArray1(Wearer), IntArray1(_ActorsConstraints[0]), bContinueAnimation, bDisableActors = False)
+                    If UDAM.PlayAnimationByDef(_animationDef, ActorArray1(Wearer), IntArray1(_ActorsConstraints[0]), bContinueAnimation, abDisableActors = False)
                         result[0] = _StruggleAnimationDefActorArray.Length
                     EndIf
                 Else
@@ -4052,7 +4052,7 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
                     ; start new animation
                     _StruggleAnimationDefHelperLastIndex = anim_index
                     _animationDef = _StruggleAnimationDefHelperArray[anim_index]
-                    If UDAM.PlayAnimationByDef(_animationDef, ActorArray1(_minigameHelper), IntArray1(_ActorsConstraints[1]), bContinueAnimation, bDisableActors = False)
+                    If UDAM.PlayAnimationByDef(_animationDef, ActorArray1(_minigameHelper), IntArray1(_ActorsConstraints[1]), bContinueAnimation, abDisableActors = False)
                         result[1] = _StruggleAnimationDefHelperArray.Length
                     EndIf
                 Else
@@ -4067,7 +4067,7 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
         EndIf
         If _StruggleAnimationDefActorArray.Length > 0
             _animationDef = _StruggleAnimationDefActorArray[Utility.RandomInt(0, _StruggleAnimationDefActorArray.Length - 1)]
-            If UDAM.PlayAnimationByDef(_animationDef, ActorArray1(Wearer), _ActorsConstraints, bContinueAnimation, bDisableActors = False)
+            If UDAM.PlayAnimationByDef(_animationDef, ActorArray1(Wearer), _ActorsConstraints, bContinueAnimation, abDisableActors = False)
                 result[0] = _StruggleAnimationDefActorArray.Length
             EndIf
         EndIf

@@ -712,7 +712,7 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
     if loc_is3Dloaded
         String[] animationArray = UDmain.UDAM.GetOrgasmAnimEvents(akActor)
         If animationArray.Length > 0
-            UDmain.UDAM.StartSoloAnimation(akActor, animationArray[Utility.RandomInt(0, animationArray.Length - 1)], bDisableActor = False)
+            UDmain.UDAM.StartSoloAnimation(akActor, animationArray[Utility.RandomInt(0, animationArray.Length - 1)], abDisableActor = False)
         EndIf
     endif
     
@@ -730,7 +730,7 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
     StorageUtil.UnsetIntValue(akActor,"UD_OrgasmDuration")
     
     if loc_is3Dloaded
-        UDmain.UDAM.StopAnimation(akActor, bEnableActors = False)
+        UDmain.UDAM.StopAnimation(akActor, abEnableActors = False)
     endif
     
     UDCDmain.EnableActor(akActor,loc_isPlayer)
