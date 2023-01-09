@@ -314,7 +314,9 @@ Bool Function StartPairAnimation(Actor akActor, Actor akHelper, String sAnimatio
     Return StartPairAnimationSequence(akActor, akHelper, aaAnimationA1, aaAnimationA2, abAlignActors, abContinueAnimation, abDisableActors)
 EndFunction
 
-; Function to lock actor to perform in animation
+; Function to lock and prepare actor to perform in animation.
+; akActor               - actor
+; abDisableActor        - disbale actor (player) controls
 Function LockAnimatingActor(Actor akActor, Bool abDisableActor = True)
 
     If IsAnimating(akActor)
@@ -328,6 +330,11 @@ Function LockAnimatingActor(Actor akActor, Bool abDisableActor = True)
     if abDisableActor
         UDCDMain.DisableActor(akActor)
     endif
+
+    If !UDmain.ActorIsPlayer(akActor)
+        akActor.SetHeadTracking(False)
+        akActor.ClearLookAt()
+    EndIf
 
     Armor shield = akActor.GetEquippedShield()
     If shield
@@ -359,7 +366,11 @@ Function UnlockAnimatingActor(Actor akActor, Bool abEnableActor = True)
     if abEnableActor
         UDCDMain.EnableActor(akActor)
     endif
-
+    
+    If !UDmain.ActorIsPlayer(akActor)
+        akActor.SetHeadTracking(True)
+    EndIf
+    
     akActor.SetVehicle(None)
     
     If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
