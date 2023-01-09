@@ -66,9 +66,7 @@ Function SlotGameUpdate()
     int index = 0
     while index < UD_Slots
         UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
-        if loc_slot.isUsed()
-            loc_slot.GameUpdate()
-        endif
+        loc_slot.GameUpdate()
         index += 1
     endwhile
 EndFunction
@@ -199,21 +197,27 @@ Function resetNPCFSlots()
 EndFunction
 
 Function FreeUnusedSlots()
-    int index = 0 
-    while index < GetNumAliases() - 1 ;all aliases, excluding player
+    int index = 0
+    Int loc_Size1 = GetNumAliases() - 1
+    Int loc_Size2 = UDCD_NPCF.GetNumAliases() - 1
+    while index < loc_Size1 ;all aliases, excluding player
         UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
-        if loc_slot && loc_slot.getActor() && !StorageUtil.GetIntValue(loc_slot.getActor(), "UD_ManualRegister", 0)
-            int index2 = 0
+        Actor loc_actor = loc_slot.GetActor()
+        if loc_slot.IsUsed() && !StorageUtil.GetIntValue(loc_actor, "UD_ManualRegister", 0)
+            ;try to find actor in finder. If actor is not present, it means it is not in range or out of the cell
+            int  index2 = 0
             bool loc_found = false
-            while (index2 < UDCD_NPCF.GetNumAliases() - 1) && !loc_found
+            while !loc_found && (index2 < loc_Size2)
                 ReferenceAlias loc_refAl = (UDCD_NPCF.GetNthAlias(index2) as ReferenceAlias)
-                if loc_refAl.getActorReference() == loc_slot.GetActor()
+                if loc_refAl.getActorReference() == loc_actor
                     loc_found = true
                 endif
                 index2 += 1
             endwhile
-            if !loc_slot.IsBlocked() && !loc_found 
-                loc_slot.GetActor().RemoveFromFaction(UDCDmain.RegisteredNPCFaction)
+            
+            ;unregister NPC if it was not found
+            if !loc_found && !loc_slot.IsBlocked()
+                loc_actor.RemoveFromFaction(UDCDmain.RegisteredNPCFaction)
                 loc_slot.unregisterSlot()
                 ;GInfo("Removed unused slot " + loc_slot.getSlotedNPCName())
             endif
@@ -305,7 +309,6 @@ EndFunction
 Function AddScanIncompatibleFaction(Faction akFaction)
     if akFaction
         _ScanInCompatibilityFactions = PapyrusUtil.PushForm(_ScanInCompatibilityFactions, akFaction)
-        ;GInfo("Added " + akFaction + " to incompatible NPC factions")
     endif
 EndFunction
 

@@ -520,12 +520,6 @@ EndFunction
 
 bool Property VibLoopOn = false auto hidden
 Function VibrateStart(float fDurationMult = 1.0)
-    UD_CustomDevice_NPCSLot loc_slot = UD_WearerSlot
-    if !loc_slot
-        UDmain.Warning(getDeviceHeader() + " - can't start vib function because actor is not registered")
-        return
-    endif
-
     ;mutex
     if VibLoopOn
         return
@@ -586,10 +580,15 @@ Function VibrateStart(float fDurationMult = 1.0)
     setOrgasmRate(getVibOrgasmRate(),1.0)
     setArousalRate(getVibArousalRate())
     
+    UD_CustomDevice_NPCSLot loc_slot = UD_WearerSlot
+    if !loc_slot
+        UDmain.Warning(getDeviceHeader() + " - can't register vib function because actor is not registered")
+        return
+    endif
+    
     ;register the vibrator to slot, so it can be periodically updated
     ;failing to register the vibrator will result in infinite vibrations
     loc_slot.RegisterVibrator(self)
-    
 EndFunction
 
 ; Main Loop

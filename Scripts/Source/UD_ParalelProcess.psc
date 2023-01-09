@@ -467,8 +467,6 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
         UDCDmain.Log("Receive_Orgasm received for " + fActor)
     endif
     
-    SendModEvent("DeviceActorOrgasm", akActor.GetLeveledActorBase().GetName())
-    
     bool loc_isplayer = UDmain.ActorIsPlayer(akActor)
     bool loc_isfollower = false
     
@@ -479,6 +477,8 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
     bool    loc_is3Dloaded              = akActor.Is3DLoaded() || UDmain.ActorIsPlayer(akActor)
     int     loc_orgasmExhaustion        = UDOM.GetOrgasmExhaustion(akActor) + 1
     bool    loc_cond                    = loc_is3Dloaded && loc_close
+
+    SendModEvent("DeviceActorOrgasm", akActor.GetLeveledActorBase().GetName())
 
     ;===========================
     ;            MESSAGE

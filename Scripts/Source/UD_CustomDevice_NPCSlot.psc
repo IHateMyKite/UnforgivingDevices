@@ -126,10 +126,13 @@ State UpdatePaused
 EndState
 
 Function GameUpdate()
-    if !IsPlayer()
-        UDOM.RemoveAbilities(GetActor())
+    If isUsed()
+        if !IsPlayer()
+            UDOM.RemoveAbilities(GetActor())
+        endif
+        CheckVibrators()
+        InitOrgasmExpression()
     endif
-    CheckVibrators()
 EndFunction
 
 Bool Function IsBlocked()
@@ -518,10 +521,14 @@ Function CheckVibrators()
         UD_CustomVibratorBase_RenderScript loc_vib = (UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript)
         if loc_vib
             ;check if vib is activtaed and not registered
-            if loc_vib.IsVibrating() && UD_ActiveVibrators.Find(UD_equipedCustomDevices[i]) < 0
-                UDmain.Error(self + "::CheckVibrators - Found unregistered active vibrator , registering " + loc_vib.GetDeviceName())
-                if RegisterVibrator(loc_vib)
-                    loc_Error = True
+            if UD_ActiveVibrators.Find(UD_equipedCustomDevices[i]) < 0
+                if loc_vib.IsVibrating()
+                    UDmain.Error(self + "::CheckVibrators - Found unregistered active vibrator , registering " + loc_vib.GetDeviceName())
+                    if RegisterVibrator(loc_vib)
+                        loc_Error = True
+                    endif
+                elseif !loc_vib.IsVibrating() && !loc_vib.IsPaused() && loc_vib.UD_VibDuration == -1
+                    loc_vib.Vibrate()
                 endif
             endif
         endif
@@ -896,7 +903,7 @@ EndFunction
 
 Function orgasm()
     if UDmain.UD_OrgasmExhaustion
-        UDOM.addOrgasmExhaustion(getActor())
+        AddOrgasmExhaustion()
     endif
     int size = UD_equipedCustomDevices.length
     int i = 0
@@ -909,6 +916,42 @@ Function orgasm()
         endif
         i+=1
     endwhile
+EndFunction
+
+
+;NPC Orgasm exhaustion time. Is only reduced by 1 at the time, so the duration should be shorter to not make it too long
+Int Property UD_OrgasmExhaustionTime = 45 auto
+
+;adds orgasm exhastion to slotted actor. 
+;If actor is NPC, it will directly update orgasm values.
+;If actor is Player, it will cast UD_OrgasmExhastion_AME magick effect
+Function AddOrgasmExhaustion()
+    Actor loc_actor = GetActor()
+    StorageUtil.AdjustIntValue(loc_actor,"UD_OrgasmExhaustionNum",1)
+    if _OrgasmExhaustionTime == 0
+        _OrgasmExhaustionTime = UD_OrgasmExhaustionTime ;increase exhaustion to 1 minute
+    endif
+    UDOM.UpdateOrgasmResistMultiplier(loc_actor,0.35)
+    UDOM.UpdateArousalRateMultiplier(loc_actor,-0.1)
+EndFunction
+
+Function _UpdateOrgasmExhaustion(Int aiUpdateTime)
+    Actor loc_actor = GetActor()
+    Int loc_exhaustions = StorageUtil.GetIntValue(loc_actor,"UD_OrgasmExhaustionNum",0)
+    if _OrgasmExhaustionTime > 0 && loc_exhaustions
+        _OrgasmExhaustionTime -= aiUpdateTime
+        if _OrgasmExhaustionTime <= 0
+            _OrgasmExhaustionTime = UD_OrgasmExhaustionTime ;increase exhaustion to 1 minute
+            StorageUtil.AdjustIntValue(loc_actor,"UD_OrgasmExhaustionNum",-1)
+            UDOM.UpdateOrgasmResistMultiplier(loc_actor,-0.35)
+            UDOM.UpdateArousalRateMultiplier(loc_actor,0.1)
+        endif
+    endif
+EndFunction
+
+;returns remaining duration of orgasm duration. Will allways return 0 if actor is player
+Int Function GetOrgasmExhaustionDuration()
+    return _OrgasmExhaustionTime
 EndFunction
 
 Event OnActivateDevice(string sDeviceName)
@@ -1875,6 +1918,8 @@ int     _msID                    = -1
 float   _edgeprogress            = 0.0
 int     _edgelevel               = 0
 
+Int     _OrgasmExhaustionTime     = 0
+
 sslBaseExpression expression
 float[] _org_expression
 float[] _org_expression2
@@ -1884,9 +1929,7 @@ Function InitOrgasmUpdate()
     Actor loc_actor = GetActor()
     if loc_actor
         loc_actor.AddToFaction(UDOM.OrgasmCheckLoopFaction)
-        _org_expression             = UDEM.GetPrebuildExpression_Horny1()
-        _org_expression2            = UDEM.GetPrebuildExpression_Happy1()
-        _org_expression3            = UDEM.GetPrebuildExpression_Angry1()
+        InitOrgasmExpression()
         _widgetShown                = false
         _forceStop                  = false
         _orgasmRate                 = 0.0
@@ -1914,6 +1957,13 @@ Function InitOrgasmUpdate()
         _edgeprogress               = UDOM.GetHornyProgress(loc_actor)
         _edgelevel                  = UDOM.GetHornyLevel(loc_actor)
     endif
+EndFunction
+
+;this reassign slots arousal expression. Should be be used on every game reload to update the expressions to last version
+Function InitOrgasmExpression()
+    _org_expression             = UDEM.GetPrebuildExpression_Horny1()
+    _org_expression2            = UDEM.GetPrebuildExpression_Happy1()
+    _org_expression3            = UDEM.GetPrebuildExpression_Angry1()
 EndFunction
 
 Function UpdateOrgasm(Float afUpdateTime)
@@ -1982,6 +2032,7 @@ Function UpdateOrgasm(Float afUpdateTime)
     
     if _tick * afUpdateTime >= 1.0
         UpdateOrgasmSecond()
+        _UpdateOrgasmExhaustion(Round(afUpdateTime))
     endif
     _tick += 1
 EndFunction

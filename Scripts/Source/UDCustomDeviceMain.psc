@@ -1155,11 +1155,23 @@ Function UndressArmor(Actor akActor)
             loc_mask = Math.LeftShift(loc_mask,1)
         endwhile
         loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--ALL--")
+        loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--TOGGLE OUTFIT--")
         loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--BACK--")
         int loc_res = GetUserListInput(loc_armorsnames)
-        if loc_res == (loc_armorsnames.length - 2)
+        if loc_res == (loc_armorsnames.length - 3)
             libs.strip(akActor,false)
-        elseif loc_res < (loc_armorsnames.length - 2) && loc_res >= 0
+        elseif loc_res == (loc_armorsnames.length - 2)
+            if !UDmain.ActorIsFollower(akActor) && !UDmain.ActorIsPlayer(akActor)
+                Outfit originalOutfit = akActor.GetActorBase().GetOutfit()
+                If originalOutfit == libs.zadEmptyOutfit
+                    DressOutfit(akActor)
+                else
+                    UndressOutfit(akActor)
+                endif
+            else
+                GInfo("TOGGLE OUTFIT can¨t be used for player or follower!")
+            endif
+        elseif loc_res < (loc_armorsnames.length - 3) && loc_res >= 0
             akActor.unequipItem(loc_armors[loc_res], abSilent = true)
         else
             return ;exit undress menu
@@ -1206,6 +1218,35 @@ Function UndressAllArmor(Actor akActor)
     if loc_shield
         akActor.unequipItem(loc_shield, abSilent = true)
     endif
+EndFunction
+
+;this function replace NPC outfit. Should only be used for non-follower actors. Might cause issues with NPC overhaul mods
+; If NPC is using armor which it have in inventory, this function will remove it when changing outfit
+Function UndressOutfit(Actor akActor)
+    if !UDmain.ActorIsPlayer(akActor)
+        ; We change the outfit only for unique actors because SetOutfit() seems to operate on the ActorBASE and not the actor, so changing a non-unique actors's gear would change it for ALL instances of this actor.
+        Outfit originalOutfit = akActor.GetActorBase().GetOutfit()
+        If originalOutfit != libs.zadEmptyOutfit
+            StorageUtil.SetFormValue(akActor.GetActorBase(), "zad_OriginalOutfit", originalOutfit)
+            akActor.SetOutfit(libs.zadEmptyOutfit, false)
+        EndIf
+    endIf
+EndFunction
+
+;undo UndressOutfit()
+Function DressOutfit(Actor akActor)
+    if !UDmain.ActorIsPlayer(akActor)
+        ; We change the outfit only for unique actors because SetOutfit() seems to operate on the ActorBASE and not the actor, so changing a non-unique actors's gear would change it for ALL instances of this actor.
+        Outfit originalOutfit = akActor.GetActorBase().GetOutfit()
+        If originalOutfit == libs.zadEmptyOutfit
+            Outfit loc_oldOutfit = StorageUtil.GetFormValue(akActor.GetActorBase(), "zad_OriginalOutfit", none) as OutFit
+            if loc_oldOutfit
+                akActor.SetOutfit(loc_oldOutfit, false)
+            else
+                UDmain.Error("DressOutfit("+GetActorName(akActor)+")No saved default outfit for found!")
+            endif
+        EndIf
+    endIf
 EndFunction
 
 ;function made as replacemant for akActor.isEquipped, because that function doesn't work for NPCs
@@ -1352,8 +1393,15 @@ Function showActorDetails(Actor akActor)
             loc_orgStr += "Orgasm rate: " + formatString(UDOM.getActorAfterMultOrgasmRate(akActor),2) + " - " + formatString(UDOM.getActorAfterMultAntiOrgasmRate(akActor),2) + " Op/s\n"
             loc_orgStr += "Orgasm mult: " + Round(UDOM.getActorOrgasmRateMultiplier(akActor)*100.0) + " %\n"
             loc_orgStr += "Orgasm resisting: " + Round(UDOM.getActorOrgasmResistMultiplier(akActor)*100.0) + " %\n"
-            loc_orgStr += "Orgasm exhaustion: " + UDOM.GetOrgasmExhaustion(akActor) + "\n"
-            
+            if isRegistered(akActor)
+                loc_orgStr += "Orgasm exhaustion: " + UDOM.GetOrgasmExhaustion(akActor) + "\n"
+                if !UDmain.ActorIsPlayer(akActor)
+                    UD_CustomDevice_NPCSlot loc_slot = GetNPCSlot(akActor)
+                    if loc_slot
+                        loc_orgStr += "Orgasm exhaustion dur.: " + loc_slot.GetOrgasmExhaustionDuration() + " s\n"
+                    endif
+                endif
+            endif
             ShowMessageBox(loc_orgStr)
         elseif loc_option == 3 ;Helper details
             ShowHelperDetails(akActor)
