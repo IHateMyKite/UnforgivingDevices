@@ -21,14 +21,14 @@ UD_WidgetBase               Property UD_Widget1 auto
 UD_WidgetBase               Property UD_Widget2 auto
 
 ; new UI settings
-Int                         Property    UD_TextFontSize             = 24    Auto    Hidden
-Int                         Property    UD_TextLineLength           = 100   Auto    Hidden
+Int                         Property    UD_TextFontSize             = 24    Auto    Hidden      ; text font size
+Int                         Property    UD_TextLineLength           = 100   Auto    Hidden      ; length of line in text notification (not implemented)
 Int                         Property    UD_TextReadSpeed            = 20    Auto    Hidden      ; symbols per second
-Bool                        Property    UD_FilterVibNotifications   = True  Auto    Hidden
-Int                         Property    UD_TextAnchor               = 1     Auto    Hidden      ; see W_POSY_**** constants
+Bool                        Property    UD_FilterVibNotifications   = True  Auto    Hidden      ; how long notification will be on the screen
+Int                         Property    UD_TextAnchor               = 1     Auto    Hidden      ; anchor position of the notification (see W_POSY_**** constants)
 Int                         Property    UD_TextPadding              = 0     Auto    Hidden      ; vertical padding relative to anchor
-Int                         Property    UD_IconsSize                = 60    Auto    Hidden
-Int                         Property    UD_IconsAnchor              = 1     Auto    Hidden      ; see W_POSX_**** constants
+Int                         Property    UD_IconsSize                = 60    Auto    Hidden      ; effect icon size
+Int                         Property    UD_IconsAnchor              = 1     Auto    Hidden      ; anchor position of the icons cluster (see W_POSX_**** constants)
 Int                         Property    UD_IconsPadding             = 0     Auto    Hidden      ; horizontal padding relative to anchor
 
 Int _WidgetXPos = 2
@@ -83,7 +83,7 @@ Float HUDMeterHeight
 ; HUD's paddings
 Float HUDPaddingX
 Float HUDPaddingY
-
+; request to init widgets (see OnUpdate function)
 Bool _InitWidgetsRequested = False
 
 Bool Property Ready = False auto
@@ -226,30 +226,30 @@ Int     _Widget_Orgasm_Color3               = 0xFF00BC
 ;GROUP
 Int[] _WidgetsID
 
-Float       _Animation_LastGameTime
-Float       _Animation_Update               = 0.5
-Float       _Animation_UpdateInstant        = 0.1
+Float       _Animation_LastGameTime                 ; last time of the animation frame
+Float       _Animation_Update               = 0.5   ; animation update period
+Float       _Animation_UpdateInstant        = 0.1   ; instant update
 
-Int[]       _Text_LinesId
-Int         _Text_AnimStage                 = -1
-Float       _Text_Timer
-Float       _Text_Duration
+Int[]       _Text_LinesId                           ; notification lines widgets IDs
+Int         _Text_AnimStage                 = -1    ; animation stage of notification lines
+Float       _Text_Timer                             ; animation timer of notification lines
+Float       _Text_Duration                          ; how long to display text on the screen
 
-String[]    _Text_Queue
+String[]    _Text_Queue                             ; notificztions in queue
 
-Int[]       _Icons_Id                 ; widget id
-String[]    _Icons_Name               ; DDS file name in '<Data>/interface/exported/widgets/iwant/widgets/library' folder
-Int[]       _Icons_Magnitude          ; 0 .. 100+
-Float[]     _Icons_Timer              ; animation timer
-Int[]       _Icons_Stage              ; animation stage
-Int[]       _Icons_Blinking           ; 0, 1
-Int[]       _Icons_Alpha              ; 0 .. 100
-Int[]       _Icon_Visible             ; 0, 1
+Int[]       _Icons_Id                               ; widget id
+String[]    _Icons_Name                             ; DDS file name in '<Data>/interface/exported/widgets/iwant/widgets/library' folder
+Int[]       _Icons_Magnitude                        ; 0 .. 100+
+Float[]     _Icons_Timer                            ; animation timer
+Int[]       _Icons_Stage                            ; animation stage
+Int[]       _Icons_Blinking                         ; 0, 1
+Int[]       _Icons_Alpha                            ; 0 .. 100
+Int[]       _Icon_Visible                           ; 0, 1
 
-Int         _Widget_Icon_Inactive_Color             = 0xFFFFFF      ; Gray
-Int         _Widget_Icon_Active0_Color              = 0xFFFF00      ; Yellow
-Int         _Widget_Icon_Active50_Color             = 0xFF0000      ; Red
-Int         _Widget_Icon_Active100_Color            = 0xFF00FF      ; Magenta
+Int         _Widget_Icon_Inactive_Color             = 0xFFFFFF      ; Gray          Color of innactive effect
+Int         _Widget_Icon_Active0_Color              = 0xFFFF00      ; Yellow        Color of active effect with magnitude 0
+Int         _Widget_Icon_Active50_Color             = 0xFF0000      ; Red           Color of active effect with magnitude 50
+Int         _Widget_Icon_Active100_Color            = 0xFF00FF      ; Magenta       Color of active effect with magnitude 100
 
 Event OnBeginState()
     RegisterForSingleUpdate(30.0)
@@ -937,26 +937,26 @@ State iWidgetInstalled
     
 EndState        ; iWidgetInstalled
 
-Int Function CalculateGroupXPos(int aival)
-    if aival == 0           ; left
+Int Function CalculateGroupXPos(int aiVal)
+    if aiVal == 0           ; left
         return (HUDPaddingX + HUDMeterWidthRef / 2) As Int
-    elseif aival == 1       ; center
+    elseif aiVal == 1       ; center
         return (CanvasWidth * 5 / 10) As Int
-    elseif aival == 2       ; right
+    elseif aiVal == 2       ; right
         return (CanvasWidth - HUDPaddingX - HUDMeterWidthRef / 2) As Int
     endif
 endFunction
 
-Int Function CalculateGroupYPos(int aival)
-    if aival == 0           ; down
+Int Function CalculateGroupYPos(int aiVal)
+    if aiVal == 0           ; down
         ; added offset to not overlap existing HUD indicators
         return (CanvasHeight - HUDPaddingY - HUDMeterHeightRef / 2 - 1.5 * HUDMeterHeightRef) As Int
-    elseif aival == 1       ; less down
+    elseif aiVal == 1       ; less down
         return (CanvasHeight * 3 / 4 - HUDPaddingY / 2 + HUDMeterHeightRef / 2) As Int
-    elseif aival == 2       ; top
+    elseif aiVal == 2       ; top
         ; added offset to not overlap existing HUD indicators
         return (HUDPaddingY + HUDMeterHeightRef / 2 + 1.5 * HUDMeterHeightRef) As Int
-    elseif aival == 3       ; middle
+    elseif aiVal == 3       ; middle
         ; added offset to not overlap existing HUD indicators
         return (CanvasHeight / 2 - HUDPaddingY / 2 + HUDMeterHeightRef / 2) As Int
     endif
