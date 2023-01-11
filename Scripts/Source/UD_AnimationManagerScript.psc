@@ -1055,9 +1055,14 @@ EndFunction
 Function _Apply3rdPersonCamera(Bool abDismount = True)
     ; taken from zadLibs.psc
     int cameraOld = Game.GetCameraState()
-    If (cameraOld == 10 || UDMain.Player.IsOnMount()); 10 On a horse
+    if cameraOld == 3 ;free camera, don't do anything, else the cameara can get broekn
+    
+    ElseIf cameraOld == 8 || cameraOld == 9 || cameraOld ==  7 ;;; 8 / 9 are third person. 7 is tween menu.
+    
+    elseIf (cameraOld == 10 || UDMain.Player.IsOnMount()); 10 On a horse
         If abDismount
             UDMain.Player.Dismount()
+            StorageUtil.SetIntValue(UDMain.Player, "UD_AnimationManager_RestoreCamera", 1)
             Game.ForceThirdPerson()
             int timeout = 0
             while UDMain.Player.IsOnMount() && timeout <= 30; Wait for dismount to complete
@@ -1068,9 +1073,7 @@ Function _Apply3rdPersonCamera(Bool abDismount = True)
     ElseIf cameraOld == 11; Bleeding out.
         
     ElseIf cameraOld == 12 ; Dragon? Wtf?
-        
-    ElseIf cameraOld == 8 || cameraOld == 9 || cameraOld ==  7 ;;; 8 / 9 are third person. 7 is tween menu.
-
+    
     Else
         StorageUtil.SetIntValue(UDMain.Player, "UD_AnimationManager_RestoreCamera", 1)
         Game.ForceThirdPerson()
@@ -1079,7 +1082,8 @@ EndFunction
 
 Function _RestorePlayerCamera()
     Actor player = UDMain.Player
-    If StorageUtil.GetIntValue(player, "UD_AnimationManager_RestoreCamera", 0) == 1
+    ;do not restore camera if actor changed camera to free (3) after animation begin
+    If StorageUtil.GetIntValue(player, "UD_AnimationManager_RestoreCamera", 0) == 1 && Game.GetCameraState() != 3
         StorageUtil.SetIntValue(player, "UD_AnimationManager_RestoreCamera", 0)
         Game.ForceFirstPerson()
     EndIf
