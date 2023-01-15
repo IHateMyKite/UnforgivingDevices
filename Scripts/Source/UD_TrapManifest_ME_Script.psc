@@ -8,6 +8,9 @@ UDCustomDeviceMain Property UDCDmain auto
 zadlibs Property libs auto
 
 Event OnEffectStart(Actor akTarget, Actor akCaster)
+    if !UDCDMain.UDmain.ActorIsValidForUD(akTarget)
+        return ;non valid actor, return
+    endif
     ;25 % chance of locking random abadon suit
     if Utility.randomInt(1,100) > 75
         AbadonQuest.AbadonEquipSuit(akTarget,0)

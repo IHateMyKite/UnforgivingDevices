@@ -4,6 +4,9 @@ UDCustomDeviceMain Property UDCDmain auto
 UD_Libs Property UDlibs auto
 zadlibs Property libs auto
 Event OnEffectStart(Actor akTarget, Actor akCaster)
+    if !UDCDMain.UDmain.ActorIsValidForUD(akTarget)
+        return ;non valid actor, return
+    endif
     UDCDmain.DisableActor(akTarget)
     libs = UDCDmain.libs
     UDlibs = UDCDmain.UDlibs
