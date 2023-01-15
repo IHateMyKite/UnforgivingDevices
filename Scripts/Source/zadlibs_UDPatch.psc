@@ -1277,3 +1277,19 @@ Function Notify(string out, bool messageBox=false)
         Parent.Notify(out, messageBox)
     EndIf
 EndFunction
+
+String Function BuildVibrationString(actor akActor, int vibStrength, bool vPlug, bool aPlug, bool vPiercings, bool nPiercings)
+    If UDMain.UDWC.UD_FilterVibNotifications
+        Return ""
+    Else
+        Parent.BuildVibrationString(akActor, vibStrength, vPlug, aPlug, vPiercings, nPiercings)
+    EndIf
+EndFunction
+
+String Function BuildPostVibrationString(actor akActor, int vibStrength, bool vPlug, bool aPlug, bool vPiercings, bool nPiercings)
+    If UDMain.UDWC.UD_FilterVibNotifications
+        Return ""
+    Else
+        Parent.BuildVibrationString(akActor, vibStrength, vPlug, aPlug, vPiercings, nPiercings)
+    EndIf
+EndFunction

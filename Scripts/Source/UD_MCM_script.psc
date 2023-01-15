@@ -701,6 +701,9 @@ string[] widgetYList
 Int UD_TextFontSize_S
 Int UD_TextLineLength_S
 Int UD_FilterVibNotifications_T
+Int UD_EnableCNotifications_S
+Int UD_EnableDeviceIcons_S
+Int UD_EnableEffectIcons_S
 Int UD_IconsSize_S
 Int UD_IconsAnchor_M
 String[] UD_IconsAnchorList
@@ -742,29 +745,36 @@ Event resetUIWidgetPage()
     SetCursorFillMode(TOP_TO_BOTTOM)
     AddHeaderOption("iWidgets Settings")
     right_col += 1
-    UD_TextFontSize_S = addSliderOption("Notification font size", UDWC.UD_TextFontSize, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    UD_EnableCNotifications_S = AddToggleOption("Show customized notifications", UDWC.UD_EnableCNotifications, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
     right_col += 1
-    UD_TextLineLength_S = addSliderOption("Notification line length", UDWC.UD_TextLineLength, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    UD_TextFontSize_S = addSliderOption("Notification font size", UDWC.UD_TextFontSize, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableCNotifications))
     right_col += 1
-    UD_FilterVibNotifications_T = AddToggleOption("Filter vibrator notifications", UDWC.UD_FilterVibNotifications, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    UD_TextLineLength_S = addSliderOption("Notification line length", UDWC.UD_TextLineLength, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableCNotifications))
+    right_col += 1
+    UD_FilterVibNotifications_T = AddToggleOption("Filter vibrator notifications", UDWC.UD_FilterVibNotifications, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableCNotifications))
     right_col += 1
     If UDWC.UD_TextAnchor < 0 || UDWC.UD_TextAnchor > 3
         UDMain.Warning("UD_MCM_script::resetUIWidgetPage() WTF! UDWC.UD_TextAnchor = " + UDWC.UD_TextAnchor)
         UDWC.UD_TextAnchor = 1
     EndIf
-    UD_TextAnchor_M = addMenuOption("Notifications base position", UD_TextAnchorList[UDWC.UD_TextAnchor], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    UD_TextAnchor_M = addMenuOption("Notifications base position", UD_TextAnchorList[UDWC.UD_TextAnchor], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableCNotifications))
     right_col += 1
-    UD_TextPadding_S = addSliderOption("Notifications offset", UDWC.UD_TextPadding, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    UD_TextPadding_S = addSliderOption("Notifications offset", UDWC.UD_TextPadding, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableCNotifications))
     right_col += 1
-    UD_IconsSize_S = addSliderOption("Icon size", UDWC.UD_IconsSize, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+
+    UD_EnableDeviceIcons_S = AddToggleOption("Show DD icons", UDWC.UD_EnableDeviceIcons, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    right_col += 1
+    UD_EnableEffectIcons_S = AddToggleOption("Show effect icons", UDWC.UD_EnableEffectIcons, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    right_col += 1
+    UD_IconsSize_S = addSliderOption("Icon size", UDWC.UD_IconsSize, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && (UDWC.UD_EnableDeviceIcons || UDWC.UD_EnableEffectIcons)))
     right_col += 1
     If UDWC.UD_IconsAnchor < 0 || UDWC.UD_IconsAnchor > 2
         UDMain.Warning("UD_MCM_script::resetUIWidgetPage() WTF! UDWC.UD_IconsAnchor = " + UDWC.UD_IconsAnchor)
         UDWC.UD_IconsAnchor = 1
     EndIf
-    UD_IconsAnchor_M = addMenuOption("Icons base position", UD_IconsAnchorList[UDWC.UD_IconsAnchor], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    UD_IconsAnchor_M = addMenuOption("Icons base position", UD_IconsAnchorList[UDWC.UD_IconsAnchor], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && (UDWC.UD_EnableDeviceIcons || UDWC.UD_EnableEffectIcons)))
     right_col += 1
-    UD_IconsPadding_S = addSliderOption("Icons offset", UDWC.UD_IconsPadding, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    UD_IconsPadding_S = addSliderOption("Icons offset", UDWC.UD_IconsPadding, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && (UDWC.UD_EnableDeviceIcons || UDWC.UD_EnableEffectIcons)))
     right_col += 1
     UD_WidgetTest_T = AddTextOption("TEST WIDGETS", "-CLICK-", a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
     right_col += 1
@@ -1165,6 +1175,18 @@ Function OptionSelectUiWidget(int option)
     ElseIf option == UD_FilterVibNotifications_T
         UDWC.UD_FilterVibNotifications = !UDWC.UD_FilterVibNotifications
         SetToggleOptionValue(UD_FilterVibNotifications_T, UDWC.UD_FilterVibNotifications)
+    ElseIf option == UD_EnableCNotifications_S
+        UDWC.UD_EnableCNotifications = !UDWC.UD_EnableCNotifications
+        SetToggleOptionValue(UD_EnableCNotifications_S, UDWC.UD_EnableCNotifications)
+        forcePageReset()
+    ElseIf option == UD_EnableDeviceIcons_S
+        UDWC.UD_EnableDeviceIcons = !UDWC.UD_EnableDeviceIcons
+        SetToggleOptionValue(UD_EnableDeviceIcons_S, UDWC.UD_EnableDeviceIcons)
+        forcePageReset()
+    ElseIf option == UD_EnableEffectIcons_S
+        UDWC.UD_EnableEffectIcons = !UDWC.UD_EnableEffectIcons
+        SetToggleOptionValue(UD_EnableEffectIcons_S, UDWC.UD_EnableEffectIcons)
+        forcePageReset()
     ElseIf option == UD_WidgetTest_T
         closeMCM()
         UDWC.TestWidgets()
@@ -2680,6 +2702,12 @@ Function UiWidgetPageInfo(int option)
         SetInfoText("Notification text line length (NOT IMPLEMENTED).\nDefault: 100")
     ElseIf option == UD_FilterVibNotifications_T
         SetInfoText("Toggle to hide notifications from vibrators.\nDefault: ON")
+    ElseIf option == UD_EnableCNotifications_S
+        SetInfoText("Toggle to enable customized text notifications.\nDefault: ON")
+    ElseIf option == UD_EnableDeviceIcons_S
+        SetInfoText("Toggle to enable icons for 'installed' devious devices.\nDefault: ON")
+    ElseIf option == UD_EnableEffectIcons_S
+        SetInfoText("Toggle to enable icons for UD effects.\nDefault: ON")
     ElseIf option == UD_IconsSize_S
         SetInfoText("Icon size.\nDefault: 60")
     ElseIf option == UD_IconsAnchor_M

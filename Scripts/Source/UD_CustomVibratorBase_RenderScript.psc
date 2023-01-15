@@ -744,14 +744,18 @@ float Function getVibArousalRate(float afMult = 1.0)
 EndFunction
 Function PrintVibMessage_Start()
     if WearerIsPlayer()
-        UDmain.Print(getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",2)
+        If UDMain.UDWC.UD_FilterVibNotifications
+            UDmain.Print(getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",2)
+        EndIf
     elseif UDCDmain.AllowNPCMessage(GetWearer())
         UDmain.Print(getWearerName() + "s " + getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",3)
     endif
 EndFunction
 Function PrintVibMessage_Stop()
     if WearerIsPlayer()
-        UDCDmain.Print(getDeviceName() + " stops vibrating.",2)
+        If UDMain.UDWC.UD_FilterVibNotifications
+            UDCDmain.Print(getDeviceName() + " stops vibrating.",2)
+        EndIf
     elseif UDCDmain.AllowNPCMessage(GetWearer())
         UDCDmain.Print(getWearerName() + "s " + getDeviceName() + " stops vibrating.",3)
     endif

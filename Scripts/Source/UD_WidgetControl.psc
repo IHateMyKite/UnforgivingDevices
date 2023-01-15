@@ -21,15 +21,118 @@ UD_WidgetBase               Property UD_Widget1 auto
 UD_WidgetBase               Property UD_Widget2 auto
 
 ; new UI settings
-Int                         Property    UD_TextFontSize             = 24    Auto    Hidden      ; text font size
+
+; enable device icons
+Bool _UD_EnableDeviceIcons = True
+Bool Property UD_EnableDeviceIcons
+    Bool Function Get()
+        Return _UD_EnableDeviceIcons
+    EndFunction
+    Function Set(Bool abValue)
+        _UD_EnableDeviceIcons = abValue
+        InitWidgetsRequest()
+    EndFunction
+EndProperty
+
+; enable effect icons
+Bool _UD_EnableEffectIcons = True
+Bool Property UD_EnableEffectIcons
+    Bool Function Get()
+        Return _UD_EnableEffectIcons
+    EndFunction
+    Function Set(Bool abValue)
+        _UD_EnableEffectIcons = abValue
+        InitWidgetsRequest()
+    EndFunction
+EndProperty
+
+; enable customized notifications
+Bool _UD_EnableCNotifications = True
+Bool Property UD_EnableCNotifications
+    Bool Function Get()
+        Return _UD_EnableCNotifications
+    EndFunction
+    Function Set(Bool abValue)
+        _UD_EnableCNotifications = abValue
+        InitWidgetsRequest()
+    EndFunction
+EndProperty
+
+; text font size
+Int _UD_TextFontSize = 24
+Int Property UD_TextFontSize
+    Int Function Get()
+        Return _UD_TextFontSize
+    EndFunction
+    Function Set(Int aiValue)
+        _UD_TextFontSize = aiValue
+        InitWidgetsRequest()
+    EndFunction
+EndProperty
+
 Int                         Property    UD_TextLineLength           = 100   Auto    Hidden      ; length of line in text notification (not implemented)
-Int                         Property    UD_TextReadSpeed            = 20    Auto    Hidden      ; symbols per second
-Bool                        Property    UD_FilterVibNotifications   = True  Auto    Hidden      ; how long notification will be on the screen
-Int                         Property    UD_TextAnchor               = 1     Auto    Hidden      ; anchor position of the notification (see W_POSY_**** constants)
-Int                         Property    UD_TextPadding              = 0     Auto    Hidden      ; vertical padding relative to anchor
-Int                         Property    UD_IconsSize                = 60    Auto    Hidden      ; effect icon size
-Int                         Property    UD_IconsAnchor              = 1     Auto    Hidden      ; anchor position of the icons cluster (see W_POSX_**** constants)
-Int                         Property    UD_IconsPadding             = 0     Auto    Hidden      ; horizontal padding relative to anchor
+Int                         Property    UD_TextReadSpeed            = 20    Auto    Hidden      ; how long notification will be on the screen (symbols per second)
+Bool                        Property    UD_FilterVibNotifications   = True  Auto    Hidden      ; remove redundant notifications from vibrators
+
+; anchor position of the notification (see W_POSY_**** constants)
+Int _UD_TextAnchor = 1
+Int Property UD_TextAnchor
+    Int Function Get()
+        Return _UD_TextAnchor
+    EndFunction
+    Function Set(Int aiValue)
+        _UD_TextAnchor = aiValue
+        InitWidgetsRequest()
+    EndFunction
+EndProperty
+
+; vertical padding relative to anchor
+Int _UD_TextPadding = 0
+Int Property UD_TextPadding
+    Int Function Get()
+        Return _UD_TextPadding
+    EndFunction
+    Function Set(Int aiValue)
+        _UD_TextPadding = aiValue
+        InitWidgetsRequest()
+    EndFunction
+EndProperty
+
+; effect icon size
+Int _UD_IconsSize = 60
+Int Property UD_IconsSize
+    Int Function Get()
+        Return _UD_IconsSize
+    EndFunction
+    Function Set(Int aiValue)
+        _UD_IconsSize = aiValue
+        InitWidgetsRequest()
+    EndFunction
+EndProperty
+
+; anchor position of the icons cluster (see W_POSX_**** constants)
+Int _UD_IconsAnchor = 1
+Int Property UD_IconsAnchor
+    Int Function Get()
+        Return _UD_IconsAnchor
+    EndFunction
+    Function Set(Int aiValue)
+        _UD_IconsAnchor = aiValue
+        InitWidgetsRequest()
+    EndFunction
+EndProperty
+
+; horizontal padding relative to anchor
+Int _UD_IconsPadding = 0
+Int Property UD_IconsPadding
+    Int Function Get()
+        Return _UD_IconsPadding
+    EndFunction
+    Function Set(Int aiValue)
+        _UD_IconsPadding = aiValue
+        InitWidgetsRequest()
+    EndFunction
+EndProperty
 
 Int _WidgetXPos = 2
 Int Property UD_WidgetXPos
@@ -153,6 +256,8 @@ Function InitWidgets(Bool abGameLoad = False)
 EndFunction
 Function InitIcons()
 EndFunction
+Function UpdateIconsEnabled()
+EndFunction
 Function InitText()
 EndFunction
 Function _AddTextLineWidget()
@@ -244,7 +349,8 @@ Float[]     _Icons_Timer                            ; animation timer
 Int[]       _Icons_Stage                            ; animation stage
 Int[]       _Icons_Blinking                         ; 0, 1
 Int[]       _Icons_Alpha                            ; 0 .. 100
-Int[]       _Icon_Visible                           ; 0, 1
+Int[]       _Icons_Visible                           ; 0, 1
+Int[]       _Icons_Enabled                           ; 0, 1
 
 Int         _Widget_Icon_Inactive_Color             = 0xFFFFFF      ; Gray          Color of innactive effect
 Int         _Widget_Icon_Active0_Color              = 0xFFFF00      ; Yellow        Color of active effect with magnitude 0
@@ -320,7 +426,7 @@ State iWidgetInstalled
 
     Event OnBeginState()
         _Animation_LastGameTime = Utility.GetCurrentRealTime()
-        _InitMutex = False
+        ;_InitMutex = False
         RegisterForSingleUpdate(_Animation_Update)
     EndEvent
     
@@ -359,13 +465,13 @@ State iWidgetInstalled
         ;No autoadjust, reinit the widgets
         if !UD_AutoAdjustWidget
             ; Utility.wait(1.5) ;wait little time, so previous operatious could finish first
-            if _Widget_DeviceDurability
+            if _Widget_DeviceDurability >= 0
                 iWidget.destroy(_Widget_DeviceDurability)
             endif
-            if _Widget_DeviceCondition
+            if _Widget_DeviceCondition >= 0
                 iWidget.destroy(_Widget_DeviceCondition)
             endif
-            if _Widget_Orgasm
+            if _Widget_Orgasm >= 0
                 iWidget.destroy(_Widget_Orgasm)
             endif
             
@@ -445,6 +551,7 @@ State iWidgetInstalled
             
             Int x = CalculateGroupXPos(W_POSX_LEFT) + UD_IconsPadding + (0.55 * UD_IconsSize) As Int
             Int y = CalculateGroupYPos(W_POSY_CENTER) - UD_IconsSize - (0.55 * UD_IconsSize) As Int
+            
             _CreateIcon("dd-plug-anal", x, y, 50)
             y -= (UD_IconsSize * 1.1) As Int
             _CreateIcon("dd-plug-vaginal", x, y, 50)
@@ -453,7 +560,7 @@ State iWidgetInstalled
             _CreateIcon("dd-piercing-clit", x, y, 50)
             y -= (UD_IconsSize * 1.1) As Int
             _CreateIcon("dd-piercing-nipples", x, y, 50)
-
+            
             x = CalculateGroupXPos(W_POSX_LEFT) + UD_IconsPadding
             y = CalculateGroupYPos(W_POSY_CENTER) + UD_IconsSize + (0.55 * UD_IconsSize) As Int
             _CreateIcon("effect-exhaustion", x, y, 75)
@@ -474,6 +581,7 @@ State iWidgetInstalled
             
             Int x = CalculateGroupXPos(W_POSX_CENTER) - 300 - UD_IconsPadding + (0.55 * UD_IconsSize) As Int
             Int y = CalculateGroupYPos(W_POSY_CENTER) + (0.55 * UD_IconsSize) As Int
+
             _CreateIcon("dd-plug-anal", x, y, 50)
             y -= (UD_IconsSize * 1.1) As Int
             _CreateIcon("dd-plug-vaginal", x, y, 50)
@@ -491,6 +599,7 @@ State iWidgetInstalled
         ElseIf UD_IconsAnchor == 2
             Int x = CalculateGroupXPos(W_POSX_RIGHT) - UD_IconsPadding + (0.55 * UD_IconsSize) As Int
             Int y = CalculateGroupYPos(W_POSY_CENTER) - UD_IconsSize - (0.55 * UD_IconsSize) As Int
+
             _CreateIcon("dd-plug-anal", x, y, 50)
             y -= (UD_IconsSize * 1.1) As Int
             _CreateIcon("dd-plug-vaginal", x, y, 50)
@@ -508,6 +617,20 @@ State iWidgetInstalled
         Else
             UDMain.Warning("UD_WidgetControl::InitIcons() Unsupported value UD_IconsAnchor = " + UD_IconsAnchor)
         EndIf
+        UpdateIconsEnabled()
+    EndFunction
+    
+    Function UpdateIconsEnabled()
+        Int i = _Icons_Id.Length
+        While i > 0
+            i -= 1
+            If StringUtil.Find(_Icons_Name[i], "dd-") == 0
+                _Icons_Enabled[i] = UD_EnableDeviceIcons as Int
+            ElseIf StringUtil.Find(_Icons_Name[i], "effect-") == 0
+                _Icons_Enabled[i] = UD_EnableEffectIcons as Int
+            EndIf
+            iWidget.setVisible(_Icons_Id[i], _Icons_Visible[i] * _Icons_Enabled[i])
+        EndWhile
     EndFunction
     
     ; fVerticalOffset       - offset in meter's heights
@@ -679,7 +802,7 @@ State iWidgetInstalled
         Int[] stages = PapyrusUtil.SliceIntArray(_Icons_Stage, 0)
         Int[] blinks = PapyrusUtil.SliceIntArray(_Icons_Blinking, 0)
         Int[] alphas = PapyrusUtil.SliceIntArray(_Icons_Alpha, 0)
-        Int[] visibles = PapyrusUtil.SliceIntArray(_Icon_Visible, 0)
+        Int[] visibles = PapyrusUtil.SliceIntArray(_Icons_Visible, 0)
 
         Notification_Push("TEST 1 TEST 1 TEST 1 TEST 1")
         Notification_Push("TEST 2 TEST 2 TEST 2 TEST 2 TEST 2 TEST 2 TEST 2 TEST 2")
@@ -711,20 +834,29 @@ State iWidgetInstalled
         _Icons_Stage = stages
         _Icons_Blinking = blinks
         _Icons_Alpha = alphas
-        _Icon_Visible = visibles
+        _Icons_Visible = visibles
         Int i = _Icons_Name.Length
         While i > 0
             i -= 1
-            StatusEffect_SetVisible(_Icons_Name[i], _Icon_Visible[i])
+            StatusEffect_SetVisible(_Icons_Name[i], _Icons_Visible[i])
             StatusEffect_SetMagnitude(_Icons_Name[i], _Icons_Magnitude[i])
             StatusEffect_SetBlink(_Icons_Name[i], _Icons_Blinking[i])
         EndWhile
+        UDMain.Log("UD_WidgetControl::TestWidgets() _Icons_Id = " + _Icons_Id, 3)
+        UDMain.Log("UD_WidgetControl::TestWidgets() _Icons_Name = " + _Icons_Name, 3)
+        UDMain.Log("UD_WidgetControl::TestWidgets() _Icons_Alpha = " + _Icons_Alpha, 3)
+        UDMain.Log("UD_WidgetControl::TestWidgets() _Icons_Blinking = " + _Icons_Blinking, 3)
+        UDMain.Log("UD_WidgetControl::TestWidgets() _Icons_Visible = " + _Icons_Visible, 3)
+        UDMain.Log("UD_WidgetControl::TestWidgets() _Icons_Enabled = " + _Icons_Enabled, 3)
     EndFunction
     
     ; quickly push a string into array and leave the function
     Function Notification_Push(String asText)
-        If UD_FilterVibNotifications && StringUtil.Find(asText, "vibr") >= 0
-        ; TODO: Implement
+        If asText == ""
+            Return
+        EndIf
+        If !UD_EnableCNotifications
+            Debug.Notification(asText)
             Return
         EndIf
         _Text_Queue = PapyrusUtil.PushString(_Text_Queue, asText)
@@ -761,7 +893,7 @@ State iWidgetInstalled
         Int icon_id = -1
         Int index = _Icons_Name.Find(asName)
         If index >= 0
-            If _Icons_Id[index] > 0
+            If _Icons_Id[index] >= 0
                 icon_id = _Icons_Id[index]
             Else
                 icon_id = iWidget.loadLibraryWidget(asName)
@@ -778,21 +910,26 @@ State iWidgetInstalled
             _Icons_Magnitude = PapyrusUtil.PushInt(_Icons_Magnitude, 0)
             _Icons_Stage = PapyrusUtil.PushInt(_Icons_Stage, 0)
             _Icons_Blinking = PapyrusUtil.PushInt(_Icons_Blinking, 0)
-            _Icon_Visible = PapyrusUtil.PushInt(_Icon_Visible, 0)
+            _Icons_Visible = PapyrusUtil.PushInt(_Icons_Visible, 0)
+            _Icons_Enabled = PapyrusUtil.PushInt(_Icons_Enabled, 1)
             _Icons_Alpha = PapyrusUtil.PushInt(_Icons_Alpha, aiAlpha)
             index = _Icons_Id.Length - 1
         EndIf
         iWidget.setSize(icon_id, UD_IconsSize, UD_IconsSize)
         iWidget.setPos(icon_id, aiX, aiY)
         iWidget.setTransparency(icon_id, aiAlpha)
-        iWidget.setVisible(icon_id, _Icon_Visible[index])
+        iWidget.setVisible(icon_id, _Icons_Visible[index] * _Icons_Enabled[index])
+        UDMain.Log("UD_WidgetControl::_CreateIcon() icon_id = " + icon_id + ", index = " + index, 3)
         Return index
     EndFunction
     
     Function StatusEffect_SetVisible(String asName, Bool abVisible = True)
         Int index = _GetIconIndex(asName)
-        iWidget.setVisible(_Icons_Id[index], abVisible as Int)
-        _Icon_Visible[index] = abVisible as Int
+        If index < 0
+            Return
+        EndIf
+        _Icons_Visible[index] = abVisible as Int
+        iWidget.setVisible(_Icons_Id[index], _Icons_Visible[index] * _Icons_Enabled[index])
         If abVisible
             iWidget.setTransparency(_Icons_Id[index], _Icons_Alpha[index])
         Else
@@ -802,25 +939,34 @@ State iWidgetInstalled
     
     Function StatusEffect_SetMagnitude(String asName, Int aiMagnitude)
         Int index = _GetIconIndex(asName)
+        If index < 0
+            Return
+        EndIf
         _Icons_Magnitude[index] = aiMagnitude
         _SetIconRGB(_Icons_Id[index], aiMagnitude)
     EndFunction
     
     Function StatusEffect_IncMagnitude(String asName, Int aiIncrement, Bool abControlVisibility = True)
         Int index = _GetIconIndex(asName)
+        If index < 0
+            Return
+        EndIf
         _Icons_Magnitude[index] = _Icons_Magnitude[index] + aiIncrement
         If _Icons_Magnitude[index] < 0
             _Icons_Magnitude[index] = 0
         EndIf
         If abControlVisibility
-            _Icon_Visible[index] = (_Icons_Magnitude[index] > 0) as Int
-            iWidget.setVisible(_Icons_Id[index], _Icon_Visible[index])
+            _Icons_Visible[index] = (_Icons_Magnitude[index] > 0) as Int
+            iWidget.setVisible(_Icons_Id[index], _Icons_Visible[index] * _Icons_Enabled[index])
         EndIf
         _SetIconRGB(_Icons_Id[index], _Icons_Magnitude[index])
     EndFunction
     
     Function StatusEffect_SetBlink(String asName, Bool abBlink = True)
         Int index = _GetIconIndex(asName)
+        If index < 0
+            Return
+        EndIf
         _Icons_Blinking[index] = abBlink As Int
         RegisterForSingleUpdate(_Animation_UpdateInstant)
     EndFunction
@@ -910,7 +1056,7 @@ State iWidgetInstalled
             String name =  _Icons_Name[i]
             Int anim_stage = _Icons_Stage[i]
             Bool blink = _Icons_Blinking[i] > 0
-            Bool visible = _Icon_Visible[i] > 0
+            Bool visible = _Icons_Visible[i] > 0
             timer += frame
             
             If visible && anim_stage == -1
