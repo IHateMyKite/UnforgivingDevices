@@ -537,7 +537,7 @@ bool Function ActorIsValidForUD(Actor akActor)
     if loc_race.IsChildRace()    ;check that actor is not child
         return false
     endif
-    if (loc_actorbase.GetSex() == 0 && !AllowMenBondage)
+    if (!AllowMenBondage && loc_actorbase.GetSex() == 0)
         return false
     endif
     return true
