@@ -697,7 +697,7 @@ int UD_WidgetPosX_M
 int UD_WidgetPosY_M
 string[] widgetXList
 string[] widgetYList
-; new UI settings
+; overlay settings
 Int UD_TextFontSize_S
 Int UD_TextLineLength_S
 Int UD_FilterVibNotifications_T
@@ -743,7 +743,7 @@ Event resetUIWidgetPage()
     ; RIGHT COLUMN
     SetCursorPosition(1)
     SetCursorFillMode(TOP_TO_BOTTOM)
-    AddHeaderOption("iWidgets Settings")
+    AddHeaderOption("Overlay Settings")
     right_col += 1
     UD_EnableCNotifications_S = AddToggleOption("Show customized notifications", UDWC.UD_EnableCNotifications, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
     right_col += 1
@@ -1192,9 +1192,7 @@ Function OptionSelectUiWidget(int option)
         UDWC.TestWidgets()
     ElseIf option == UD_WidgetReset_T
         closeMCM()
-        UDWC.InitWidgets()
-        Utility.Wait(1.0)
-        UDWC.TestWidgets()
+        UDWC.InitWidgetsRequest(abMeters = True, abIcons = True, abText = True)
     endif
 EndFunction
 

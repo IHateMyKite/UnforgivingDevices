@@ -20,7 +20,7 @@ Bool                        Property UD_UseIWantWidget = true auto
 UD_WidgetBase               Property UD_Widget1 auto
 UD_WidgetBase               Property UD_Widget2 auto
 
-; new UI settings
+; overlay settings
 
 ; enable device icons
 Bool _UD_EnableDeviceIcons = True
@@ -30,7 +30,7 @@ Bool Property UD_EnableDeviceIcons
     EndFunction
     Function Set(Bool abValue)
         _UD_EnableDeviceIcons = abValue
-        InitWidgetsRequest()
+        InitWidgetsRequest(abIcons = True)
     EndFunction
 EndProperty
 
@@ -42,7 +42,7 @@ Bool Property UD_EnableEffectIcons
     EndFunction
     Function Set(Bool abValue)
         _UD_EnableEffectIcons = abValue
-        InitWidgetsRequest()
+        InitWidgetsRequest(abIcons = True)
     EndFunction
 EndProperty
 
@@ -54,7 +54,7 @@ Bool Property UD_EnableCNotifications
     EndFunction
     Function Set(Bool abValue)
         _UD_EnableCNotifications = abValue
-        InitWidgetsRequest()
+        InitWidgetsRequest(abText = True)
     EndFunction
 EndProperty
 
@@ -66,7 +66,7 @@ Int Property UD_TextFontSize
     EndFunction
     Function Set(Int aiValue)
         _UD_TextFontSize = aiValue
-        InitWidgetsRequest()
+        InitWidgetsRequest(abText = True)
     EndFunction
 EndProperty
 
@@ -82,7 +82,7 @@ Int Property UD_TextAnchor
     EndFunction
     Function Set(Int aiValue)
         _UD_TextAnchor = aiValue
-        InitWidgetsRequest()
+        InitWidgetsRequest(abText = True)
     EndFunction
 EndProperty
 
@@ -94,7 +94,7 @@ Int Property UD_TextPadding
     EndFunction
     Function Set(Int aiValue)
         _UD_TextPadding = aiValue
-        InitWidgetsRequest()
+        InitWidgetsRequest(abText = True)
     EndFunction
 EndProperty
 
@@ -106,7 +106,7 @@ Int Property UD_IconsSize
     EndFunction
     Function Set(Int aiValue)
         _UD_IconsSize = aiValue
-        InitWidgetsRequest()
+        InitWidgetsRequest(abText = True)
     EndFunction
 EndProperty
 
@@ -118,7 +118,7 @@ Int Property UD_IconsAnchor
     EndFunction
     Function Set(Int aiValue)
         _UD_IconsAnchor = aiValue
-        InitWidgetsRequest()
+        InitWidgetsRequest(abIcons = True)
     EndFunction
 EndProperty
 
@@ -130,7 +130,7 @@ Int Property UD_IconsPadding
     EndFunction
     Function Set(Int aiValue)
         _UD_IconsPadding = aiValue
-        InitWidgetsRequest()
+        InitWidgetsRequest(abIcons = True)
     EndFunction
 EndProperty
 
@@ -142,11 +142,7 @@ Int Property UD_WidgetXPos
             UD_Widget1.PositionX = _WidgetXPos
             UD_Widget2.PositionX = _WidgetXPos
         else
-            if !UD_AutoAdjustWidget
-                InitWidgetsRequest()
-            else
-                UpdateGroupPositions()
-            endif
+            InitWidgetsRequest(abMeters = True)
         endif
     EndFunction
     Int Function Get()
@@ -162,11 +158,7 @@ Int Property UD_WidgetYPos
             UD_Widget1.PositionY = _WidgetYPos
             UD_Widget2.PositionY = _WidgetYPos
         else
-            if !UD_AutoAdjustWidget
-                InitWidgetsRequest()
-            else
-                UpdateGroupPositions()
-            endif
+            InitWidgetsRequest(abMeters = True)
         endif
     EndFunction
     Int Function Get()
@@ -187,7 +179,10 @@ Float HUDMeterHeight
 Float HUDPaddingX
 Float HUDPaddingY
 ; request to init widgets (see OnUpdate function)
-Bool _InitWidgetsRequested = False
+Bool _InitMetersRequested = False
+Bool _InitIconsRequested = False
+Bool _InitTextRequested = False
+Bool _InitAfterLoadGame = False
 
 Bool Property Ready = False auto
 Event OnInit()
@@ -196,12 +191,17 @@ Event OnInit()
 EndEvent
 
 Event OnUpdate()
-    If _InitWidgetsRequested
-        _InitWidgetsRequested = False
-        InitWidgets()
+    If _OnUpdateMutex
+        Return
+    EndIf
+    _OnUpdateMutex = True
+    If _InitMetersRequested || _InitIconsRequested || _InitTextRequested
+        InitWidgetsCheck(_InitAfterLoadGame)
+        _InitAfterLoadGame = False
     EndIf
 
     RegisterForSingleUpdate(30) ;maintenance update
+    _OnUpdateMutex = False
 EndEvent
 
 Function Update()
@@ -211,8 +211,7 @@ Function Update()
         GoToState("iWidgetInstalled")
         UD_Widget1.hide(true)
         UD_Widget2.hide(true)
-        _InitMutex = False
-        InitWidgets(abGameLoad = True)
+        InitWidgetsRequest(abGameLoad = True, abMeters = True, abIcons = True, abText = True)
     else
         GoToState("")
         UD_WidgetXPos = UD_WidgetXPos
@@ -248,17 +247,23 @@ Function RefreshCanvasMetrics()
     HUDPaddingY = hud_padding
 EndFunction
 
-Function InitWidgetsRequest()
-    _InitWidgetsRequested = True
+Function InitWidgetsRequest(Bool abGameLoad = False, Bool abMeters = False, Bool abIcons = False, Bool abText = False)
+    UDmain.Info("UD_WidgetControl::InitWidgetsRequest() abGameLoad = " + abGameLoad + " , abMeters = " + abMeters + " , abIcons = " + abIcons + " , abText = " + abText)
+    _InitAfterLoadGame = _InitAfterLoadGame || abGameLoad
+    _InitMetersRequested = _InitMetersRequested || abMeters
+    _InitIconsRequested = _InitIconsRequested || abIcons
+    _InitTextRequested = _InitTextRequested || abText
     RegisterForSingleUpdate(0.5)
 EndFunction
-Function InitWidgets(Bool abGameLoad = False)
+Function InitWidgetsCheck(Bool abGameLoad = False)
 EndFunction
-Function InitIcons()
+Bool Function InitMeters(Bool abGameLoad = False)
+EndFunction
+Bool Function InitIcons(Bool abGameLoad = False)
+EndFunction
+Bool Function InitText(Bool abGameLoad = False)
 EndFunction
 Function UpdateIconsEnabled()
-EndFunction
-Function InitText()
 EndFunction
 Function _AddTextLineWidget()
 EndFunction
@@ -412,7 +417,7 @@ Bool Property UD_AutoAdjustWidget Hidden
         _AutoAdjustWidget = abVal
         if !_AutoAdjustWidget
             ;Reininit widgets
-            InitWidgetsRequest()
+            InitWidgetsRequest(abMeters = True)
         endif
     EndFunction
     Bool Function Get()
@@ -420,84 +425,106 @@ Bool Property UD_AutoAdjustWidget Hidden
     EndFunction
 EndProperty
 
-Bool _InitMutex = False
+Bool _InitMetersMutex = False
+Bool _OnUpdateMutex = False
 ;Use iWidget instead
 State iWidgetInstalled
 
     Event OnBeginState()
         _Animation_LastGameTime = Utility.GetCurrentRealTime()
-        ;_InitMutex = False
         RegisterForSingleUpdate(_Animation_Update)
     EndEvent
     
     Event OnUpdate()
-        If _InitWidgetsRequested
-            _InitWidgetsRequested = False
-            InitWidgets()
+        If _OnUpdateMutex
+            Return
+        EndIf
+        _OnUpdateMutex = True
+        If _InitMetersRequested || _InitIconsRequested || _InitTextRequested
+            InitWidgetsCheck(_InitAfterLoadGame)
+            _InitAfterLoadGame = False
         EndIf
         AnimateWidgets()
         RegisterForSingleUpdate(_Animation_Update)
+        _OnUpdateMutex = False
     EndEvent
 
     ; abGameLoad        - flag that it's game load event. And we recreate all widgets regardless of previous IDs
-    Function InitWidgets(Bool abGameLoad = False)
-        if _InitMutex
-            return
-        endif
-        _InitMutex = true
-        RefreshCanvasMetrics()
-        If abGameLoad
-        ; clearing all IDs
-            _Widget_DeviceDurability = -1
-            _Widget_DeviceCondition = -1
-            _Widget_Orgasm = -1
-            _Text_LinesId = PapyrusUtil.IntArray(0)
-            Int i = _Icons_Id.Length
-            While i > 0
-                i -= 1
-                _Icons_Id[i] = -1
-            EndWhile
-        EndIf
+    Function InitWidgetsCheck(Bool abGameLoad = False)
         UnregisterForUpdate()
-        Utility.Wait(_Animation_Update + 0.5)
-        InitIcons()
-        InitText()
-        ;No autoadjust, reinit the widgets
-        if !UD_AutoAdjustWidget
-            ; Utility.wait(1.5) ;wait little time, so previous operatious could finish first
-            if _Widget_DeviceDurability >= 0
-                iWidget.destroy(_Widget_DeviceDurability)
-            endif
-            if _Widget_DeviceCondition >= 0
-                iWidget.destroy(_Widget_DeviceCondition)
-            endif
-            if _Widget_Orgasm >= 0
-                iWidget.destroy(_Widget_Orgasm)
-            endif
-            
-            _WidgetsID = Utility.CreateIntArray(0)
-            
-            _Widget_DeviceDurability = iWidget.loadMeter()
-            _WidgetsID = AddWidget(_WidgetsID, _Widget_DeviceDurability, 0*UD_WidgetVerOffset, _Widget_DeviceDurability_Perc, _Widget_DeviceDurability_Color, _Widget_DeviceDurability_Color2, _Widget_DeviceDurability_Color3)
-            
-            _Widget_DeviceCondition = iWidget.loadMeter()
-            _WidgetsID = AddWidget(_WidgetsID, _Widget_DeviceCondition, 1.0*UD_WidgetVerOffset, _Widget_DeviceCondition_Perc, _Widget_DeviceCondition_Color, _Widget_DeviceCondition_Color2, _Widget_DeviceCondition_Color3)
-            
-            _Widget_Orgasm = iWidget.loadMeter()
-            _WidgetsID = AddWidget(_WidgetsID, _Widget_Orgasm, 2.0*UD_WidgetVerOffset, _Widget_Orgasm_Perc, _Widget_Orgasm_Color, _Widget_Orgasm_Color2, _Widget_Orgasm_Color3)
-            
-            iWidget.setVisible(_Widget_DeviceDurability, _Widget_DeviceDurability_Visible As Int)
-            iWidget.setVisible(_Widget_DeviceCondition, _Widget_DeviceCondition_Visible As Int)
-            iWidget.setVisible(_Widget_Orgasm, _Widget_Orgasm_Visible As Int)
-            
-        endif
-        _InitMutex = False
+;        Utility.Wait(_Animation_Update + 0.5)
+        
+        RefreshCanvasMetrics()
+        If _InitMetersRequested
+            _InitMetersRequested = !InitMeters(abGameLoad)
+        EndIf
+        If _InitIconsRequested
+            _InitIconsRequested = !InitIcons(abGameLoad)
+        EndIf
+        If _InitTextRequested
+            _InitTextRequested = !InitText(abGameLoad)
+        EndIf
+
         RegisterForSingleUpdate(_Animation_Update)
     EndFunction
     
-    Function InitText()
+    Bool Function InitMeters(Bool abGameLoad = False)
+        UDmain.Info("UD_WidgetControl::InitMeters() abGameLoad = " + abGameLoad)
+        _InitMetersMutex = True
+        If abGameLoad
+        ; clearing all IDs without destroying
+            _Widget_DeviceDurability = -1
+            _Widget_DeviceCondition = -1
+            _Widget_Orgasm = -1
+        EndIf
+        if _Widget_DeviceDurability > 0
+            iWidget.destroy(_Widget_DeviceDurability)
+        endif
+        if _Widget_DeviceCondition > 0
+            iWidget.destroy(_Widget_DeviceCondition)
+        endif
+        if _Widget_Orgasm > 0
+            iWidget.destroy(_Widget_Orgasm)
+        endif
+        
+        _WidgetsID = Utility.CreateIntArray(0)
+        
+        _Widget_DeviceDurability = iWidget.loadMeter()
+        If _Widget_DeviceDurability == 0
+            Return False
+        EndIf
+        _WidgetsID = AddWidget(_WidgetsID, _Widget_DeviceDurability, 0*UD_WidgetVerOffset, _Widget_DeviceDurability_Perc, _Widget_DeviceDurability_Color, _Widget_DeviceDurability_Color2, _Widget_DeviceDurability_Color3)
+        
+        _Widget_DeviceCondition = iWidget.loadMeter()
+        If _Widget_DeviceCondition == 0
+            Return False
+        EndIf
+        _WidgetsID = AddWidget(_WidgetsID, _Widget_DeviceCondition, 1.0*UD_WidgetVerOffset, _Widget_DeviceCondition_Perc, _Widget_DeviceCondition_Color, _Widget_DeviceCondition_Color2, _Widget_DeviceCondition_Color3)
+        
+        _Widget_Orgasm = iWidget.loadMeter()
+        If _Widget_Orgasm == 0
+            Return False
+        EndIf
+        _WidgetsID = AddWidget(_WidgetsID, _Widget_Orgasm, 2.0*UD_WidgetVerOffset, _Widget_Orgasm_Perc, _Widget_Orgasm_Color, _Widget_Orgasm_Color2, _Widget_Orgasm_Color3)
+        
+        iWidget.setVisible(_Widget_DeviceDurability, _Widget_DeviceDurability_Visible As Int)
+        iWidget.setVisible(_Widget_DeviceCondition, _Widget_DeviceCondition_Visible As Int)
+        iWidget.setVisible(_Widget_Orgasm, _Widget_Orgasm_Visible As Int)
+        
+        _InitMetersMutex = False
+        Return True
+    EndFunction
+    
+    Bool Function InitText(Bool abGameLoad = False)
+        If abGameLoad
+        ; clearing all IDs
+            _Text_LinesId = PapyrusUtil.IntArray(0)
+        EndIf
         If _Text_LinesId.Length == 0
             Int text_id = iWidget.loadText("", size = UD_TextFontSize)
+            If text_id == 0
+                Return False
+            EndIf
             _Text_LinesId = PapyrusUtil.PushInt(_Text_LinesId, text_id)
         EndIf
         Int i = 0
@@ -514,6 +541,8 @@ State iWidgetInstalled
         EndWhile
         _Text_AnimStage = -1
         _Text_Timer = 0.0
+
+        Return True
     EndFunction
     
     Function _AddTextLineWidget()
@@ -528,7 +557,15 @@ State iWidgetInstalled
         iWidget.setTransparency(text_id, 0)
     EndFunction
     
-    Function InitIcons()
+    Bool Function InitIcons(Bool abGameLoad = False)
+        If abGameLoad
+        ; clearing all IDs
+            Int i = _Icons_Id.Length
+            While i > 0
+                i -= 1
+                _Icons_Id[i] = -1
+            EndWhile
+        EndIf
         If UD_IconsAnchor == 0
             ; Left icons position
             ;
@@ -617,7 +654,16 @@ State iWidgetInstalled
         Else
             UDMain.Warning("UD_WidgetControl::InitIcons() Unsupported value UD_IconsAnchor = " + UD_IconsAnchor)
         EndIf
+        ; checking if all icons were created
+        Int i = _Icons_Id.Length
+        While i > 0
+            i -= 1
+            If _Icons_Id[i] == 0
+                Return False
+            EndIf
+        EndWhile
         UpdateIconsEnabled()
+        Return True
     EndFunction
     
     Function UpdateIconsEnabled()
@@ -635,6 +681,7 @@ State iWidgetInstalled
     
     ; fVerticalOffset       - offset in meter's heights
     Int[] Function AddWidget(Int[] aaiGroup, Int aiWidget, Float fVerticalOffset, Int akPerc = 0, Int akCol1 = 0x0, Int akCol2 = 0x0, Int akCol3 = 0xFFFFFFFF)
+        UDMain.Log("UD_WidgetControl::AddWidget() aiWidget = " + aiWidget, 3)
         iWidget.setSize(aiWidget, HUDMeterHeight as Int, HUDMeterWidth as Int)
         ; on the top position we stack widgets from top to the bottom
         If UD_WidgetYPos == 2
@@ -645,46 +692,6 @@ State iWidgetInstalled
         UpdateColor_Widget(aiWidget, akCol1,akCol2,akCol3)
         Return PapyrusUtil.PushInt(aaiGroup, aiWidget)
     EndFunction
-
-    Function UpdateGroupPositions()
-        if _InitMutex
-            return
-        endif
-        if _Widget_DeviceDurability
-            iWidget.destroy(_Widget_DeviceDurability)
-        endif
-        if _Widget_DeviceCondition
-            iWidget.destroy(_Widget_DeviceCondition)
-        endif
-        if _Widget_Orgasm
-            iWidget.destroy(_Widget_Orgasm)
-        endif
-
-        ; creating new instances
-        ; restoring size, position, colors, percents and everything
-        _WidgetsID = Utility.CreateIntArray(0)
-        Float offset = 0.0
-        if _Widget_DeviceDurability_Visible
-            _Widget_DeviceDurability = iWidget.loadMeter()
-            _WidgetsID = AddWidget(_WidgetsID, _Widget_DeviceDurability, offset, _Widget_DeviceDurability_Perc, _Widget_DeviceDurability_Color, _Widget_DeviceDurability_Color2, _Widget_DeviceDurability_Color3)
-            offset += UD_WidgetVerOffset
-        endif
-        if _Widget_DeviceCondition_Visible
-            _Widget_DeviceCondition = iWidget.loadMeter()
-            _WidgetsID = AddWidget(_WidgetsID, _Widget_DeviceCondition, offset, _Widget_DeviceCondition_Perc, _Widget_DeviceCondition_Color, _Widget_DeviceCondition_Color2, _Widget_DeviceCondition_Color3)
-            offset += UD_WidgetVerOffset
-        endif
-        if _Widget_Orgasm_Visible
-            _Widget_Orgasm = iWidget.loadMeter()
-            _WidgetsID = AddWidget(_WidgetsID, _Widget_Orgasm, offset, _Widget_Orgasm_Perc, _Widget_Orgasm_Color, _Widget_Orgasm_Color2, _Widget_Orgasm_Color3)
-            offset += UD_WidgetVerOffset
-        endif
-        
-        ;show all widgets at the end, so they can't be seen moving
-        iWidget.setVisible(_Widget_DeviceDurability, _Widget_DeviceDurability_Visible As Int)
-        iWidget.setVisible(_Widget_DeviceCondition, _Widget_DeviceCondition_Visible As Int)
-        iWidget.setVisible(_Widget_Orgasm, _Widget_Orgasm_Visible As Int)
-    EndFunction
     
     ;toggle widget
     Function Toggle_DeviceWidget(bool abVal, Bool abUpdateVisPos = True)
@@ -692,7 +699,7 @@ State iWidgetInstalled
             if _Widget_DeviceDurability_Visible != abVal
                 _Widget_DeviceDurability_Visible = abVal
                 if abUpdateVisPos
-                    UpdateGroupPositions()
+                    InitWidgetsRequest(abMeters = True)
                 endif
             endif
         else
@@ -705,7 +712,7 @@ State iWidgetInstalled
             if _Widget_DeviceCondition_Visible != abVal
                 _Widget_DeviceCondition_Visible = abVal
                 if abUpdateVisPos
-                    UpdateGroupPositions()
+                    InitWidgetsRequest(abMeters = True)
                 endif
             endif
         else
@@ -718,7 +725,7 @@ State iWidgetInstalled
             if _Widget_Orgasm_Visible != abVal
                 _Widget_Orgasm_Visible = abVal
                 if abUpdateVisPos
-                    UpdateGroupPositions()
+                    InitWidgetsRequest(abMeters = True)
                 endif
             endif
         else
@@ -729,19 +736,19 @@ State iWidgetInstalled
 
     Function UpdatePercent_DeviceWidget(Float afVal,Bool abForce = false)
         _Widget_DeviceDurability_Perc = Round(afVal*100)
-        if !_InitMutex
+        if !_InitMetersMutex
             iWidget.setMeterPercent(_Widget_DeviceDurability, _Widget_DeviceDurability_Perc)
         endif
     EndFunction
     Function UpdatePercent_DeviceCondWidget(Float afVal,Bool abForce = false)
         _Widget_DeviceCondition_Perc = Round(afVal*100)
-        if !_InitMutex
+        if !_InitMetersMutex
             iWidget.setMeterPercent(_Widget_DeviceCondition, _Widget_DeviceCondition_Perc)
         endif
     EndFunction
     Function UpdatePercent_OrgasmWidget(Float afVal,Bool abForce = false)
         _Widget_Orgasm_Perc = Round(afVal*100)
-        if !_InitMutex
+        if !_InitMetersMutex
             iWidget.setMeterPercent(_Widget_Orgasm, _Widget_Orgasm_Perc)
         endif
     EndFunction
@@ -968,7 +975,11 @@ State iWidgetInstalled
             Return
         EndIf
         _Icons_Blinking[index] = abBlink As Int
-        RegisterForSingleUpdate(_Animation_UpdateInstant)
+        If abBlink
+            RegisterForSingleUpdate(_Animation_UpdateInstant)
+        Else
+            iWidget.setTransparency(_Icons_Id[index], _Icons_Alpha[index])
+        EndIf
     EndFunction
 
     Function _SetIconRGB(Int aiWidget, Int aiMagnitude)
