@@ -134,7 +134,7 @@ bool Property ZadExpressionSystemInstalled = false auto
 Bool Property DeviousStrikeInstalled    = False auto
 Bool Property ForHimInstalled           = False auto
 
-Bool Property AllowMenBondage           = False auto
+Bool Property AllowMenBondage           = True auto
 
 bool Property Ready = False auto hidden
 bool Function UDReady()
@@ -414,7 +414,6 @@ Function CheckOptionalMods()
         endif
     else
         ForHimInstalled = false
-        AllowMenBondage = false
     endif
 EndFUnction
 
@@ -537,7 +536,7 @@ bool Function ActorIsValidForUD(Actor akActor)
     if loc_race.IsChildRace()    ;check that actor is not child
         return false
     endif
-    if (!AllowMenBondage && loc_actorbase.GetSex() == 0)
+    if ((!ForHimInstalled || !AllowMenBondage) && loc_actorbase.GetSex() == 0)
         return false
     endif
     return true
