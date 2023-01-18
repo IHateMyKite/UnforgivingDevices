@@ -9,6 +9,9 @@ zadlibs_UDPatch Property libsp
 EndProperty
 
 Event OnEffectStart(Actor akTarget, Actor akCaster)
+    if !UD_AbadonQuest.UDmain.ActorIsValidForUD(akTarget)
+        return ;non valid actor, return
+    endif
     libsp.strip(akTarget,false)
     UD_AbadonQuest.AbadonEquipSuit(akTarget,UD_AbadonQuest.final_finisher_pref)
     libsp.strip(akTarget,false)
