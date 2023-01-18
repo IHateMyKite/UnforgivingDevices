@@ -521,11 +521,7 @@ State iWidgetInstalled
             _Text_LinesId = PapyrusUtil.IntArray(0)
         EndIf
         If _Text_LinesId.Length == 0
-            Int text_id = iWidget.loadText("", size = UD_TextFontSize)
-            If text_id == 0
-                Return False
-            EndIf
-            _Text_LinesId = PapyrusUtil.PushInt(_Text_LinesId, text_id)
+            _AddTextLineWidget()
         EndIf
         Int i = 0
         While i < _Text_LinesId.Length
@@ -878,7 +874,44 @@ State iWidgetInstalled
         _Text_Queue = PapyrusUtil.SliceStringArray(_Text_Queue, 1)
         _Text_Duration = (StringUtil.GetLength(str) as Float) / (UD_TextReadSpeed as Float)
     ; TODO: multiline
-        iWidget.setText(_Text_LinesId[0], str)
+;        If _Text_LinesId.Length == 0
+;            _AddTextLineWidget()
+;        EndIf
+        str = str + " " 
+        Int i = 0 
+        Int len = StringUtil.GetLength(str)
+        Int prev_space = -1
+        Int line_start = 0
+        Int text_line_index = 0
+        While i < len
+            If StringUtil.GetNthChar(str, i) == " "
+                If UD_TextLineLength < (i - line_start)
+                    If prev_space <= line_start         ; very long word
+                        prev_space = i
+                    EndIf
+                    If _Text_LinesId.Length <= text_line_index
+                        _AddTextLineWidget()
+                    EndIf
+                    iWidget.setText(_Text_LinesId[text_line_index], StringUtil.Substring(str, line_start, prev_space - line_start))
+                    text_line_index += 1
+                    line_start = prev_space + 1
+                EndIf
+                prev_space = i
+            EndIf
+            i += 1
+        EndWhile
+        If line_start < prev_space
+            If _Text_LinesId.Length <= text_line_index
+                _AddTextLineWidget()
+            EndIf
+            iWidget.setText(_Text_LinesId[text_line_index], StringUtil.Substring(str, line_start, prev_space - line_start))
+            text_line_index += 1
+        EndIf
+        i = text_line_index
+        While i < _Text_LinesId.Length
+            iWidget.setText(_Text_LinesId[i], "")
+            i += 1
+        EndWhile
         Return True
     EndFunction
     
