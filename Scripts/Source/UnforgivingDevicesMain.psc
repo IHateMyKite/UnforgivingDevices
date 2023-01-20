@@ -712,6 +712,28 @@ int Function iRange(int iValue,int iMin,int iMax) global
     return iValue
 EndFunction
 
+;returns true if the passed INT value is in range from iMin to iMax
+Bool Function iInRange(int aiValue,int aiMin,int aiMax) global
+    if aiValue > aiMax
+        return false
+    endif
+    if aiValue < aiMin
+        return false
+    endif
+    return true
+EndFunction
+
+;returns true if the passed FLOAT value is in range from iMin to iMax
+Bool Function fInRange(float afValue,float afMin,float afMax) global
+    if afValue > afMax
+        return false
+    endif
+    if afValue < afMin
+        return false
+    endif
+    return true
+EndFunction
+
 string Function formatString(string str,int floatPoints) global
     int float_point =  StringUtil.find(str,".")
     if (float_point == -1)
