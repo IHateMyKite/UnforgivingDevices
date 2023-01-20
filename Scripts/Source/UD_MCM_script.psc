@@ -38,8 +38,8 @@ int little_finisher_chance_S
 int min_orgasm_little_finisher_S 
 int max_orgasm_little_finisher_S 
 
-int  dmg_heal_T
-int  dmg_magica_T
+int dmg_heal_T
+int dmg_magica_T
 int dmg_stamina_T
 
 int AbadonForceSuitOnEquip_T
@@ -661,6 +661,8 @@ int UD_StartThirdpersonAnimation_Switch_T
 int UD_DAR_T
 Int UD_OutfitRemove_T
 Int UD_CheckAllKw_T
+Int UD_AllowMenBondage_T
+
 Event resetDDPatchPage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -683,8 +685,8 @@ Event resetDDPatchPage()
     AddHeaderOption("Device setting")
     addEmptyOption()
     UD_OutfitRemove_T = addToggleOption("Outfit removal", UDCDmain.UD_OutfitRemove)
+    UD_AllowMenBondage_T = addToggleOption("Allow DD devices on men", UDmain.AllowMenBondage,FlagSwitch(UDmain.ForHimInstalled))
 EndEvent
-
 
 UD_WidgetControl Property UDWC Hidden
     UD_WidgetControl Function Get()
@@ -1155,6 +1157,10 @@ Function resetOtherPage()
     
     AddTextOption("SlaveTats installed: ",InstallSwitch(UDmain.SlaveTatsInstalled),FlagSwitch(UDmain.SlaveTatsInstalled))
     addEmptyOption()
+
+    AddTextOption("Devious Devices For Him: ",InstallSwitch(UDmain.ForHimInstalled),FlagSwitch(UDmain.ForHimInstalled))
+    addEmptyOption()
+
 EndFunction
 
 String Function InstallSwitch(Bool abSwitch)
@@ -1372,6 +1378,9 @@ Function OptionDDPatch(int option)
     elseif option == UD_OutfitRemove_T
         UDCDMain.UD_OutfitRemove = !UDCDMain.UD_OutfitRemove
         SetToggleOptionValue(UD_OutfitRemove_T, UDCDMain.UD_OutfitRemove)
+    elseif option == UD_AllowMenBondage_T
+        UDmain.AllowMenBondage = !UDmain.AllowMenBondage
+        SetToggleOptionValue(UD_AllowMenBondage_T, UDmain.AllowMenBondage)
     elseif option == UD_CheckAllKw_T
         UDmain.UD_CheckAllKw = !UDmain.UD_CheckAllKw
         SetToggleOptionValue(UD_CheckAllKw_T, UDMain.UD_CheckAllKw)
@@ -1672,13 +1681,13 @@ Function OnOptionSliderOpenCustomBondage(int option)
         SetSliderDialogInterval(1.0)
     elseif (option == UD_BaseDeviceSkillIncrease_S)
         SetSliderDialogStartValue(UDCDmain.UD_BaseDeviceSkillIncrease)
-        SetSliderDialogDefaultValue(10.0)
-        SetSliderDialogRange(1.0, 1000.0)
+        SetSliderDialogDefaultValue(35.0)
+        SetSliderDialogRange(0.0, 1000.0)
         SetSliderDialogInterval(1.0)
     elseif option == UD_SkillEfficiency_S
         SetSliderDialogStartValue(UDCDmain.UD_SkillEfficiency)
         SetSliderDialogDefaultValue(1.0)
-        SetSliderDialogRange(1.0, 10.0)
+        SetSliderDialogRange(0.0, 10.0)
         SetSliderDialogInterval(1.0)
     elseif option == UD_GagPhonemModifier_S
         SetSliderDialogStartValue(UDCDmain.UD_GagPhonemModifier)
@@ -2697,6 +2706,8 @@ Function DDPatchPageDefault(int option)
         SetInfoText("Prevent NPC outfit from being removed when hand restraint is locked on. Removing outfit can by default cause compatibility issue with NPC overhaul mods. This will obviously prevent NPC from being naked until player undresses them\nDefault: True")
     elseif option == UD_OrgasmAnimation_M
         SetInfoText("List of orgasm animations.\nNormal = Normal orgasm animations by  DD\nExtended = Orgasm animations + horny animations\nDefault: Normal")
+    elseif option == UD_AllowMenBondage_T
+        SetInfoText("Allow use of DD devices on men.\nDevious Devices For Him required.\nDefault: False")
     elseif option == UD_CheckAllKw_T
         SetInfoText("!!EXPERIMENTAL FEATURE!!\nWhen enabled, Lock/Unlock devices will use patched functions which doesn't check ID script devious keyword, but instead all keywords on RD. This way, framework should somehow work when processing devices which have multiple major keywords on RD (for example when some catsuit would have both belt and suit keyword)\nDefault: OFF")
     endif
@@ -2994,6 +3005,8 @@ Function DDPatchPageInfo(int option)
         SetInfoText("Gag modifier which change gag expression for simple gag to better fit mouth. Not used if DD beta 7 is installed\nDefault: 0")
     elseif option == UD_OutfitRemove_T
         SetInfoText("Prevent NPC outfit from being removed when hand restraint is locked on. Removing outfit can by default cause compatibility issue with NPC overhaul mods. This will obviously prevent NPC from being naked until player undress them\nDefault: True")
+    elseif option == UD_AllowMenBondage_T
+        SetInfoText("Allow use of DD devices on men.\nDevious Devices For Him required.\nDefault: False")
     elseif option == UD_OrgasmAnimation_M
         SetInfoText("List of orgasm animations.\nNormal = Normal orgasm animation by  DD\nExtended = Orgasm animation + horny animations\nDefault: Normal")
     elseif option == UD_CheckAllKw_T
@@ -3236,13 +3249,14 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "DAR", AAScript.UD_DAR as Int)
     JsonUtil.SetIntValue(strFile, "SlotUpdateTime", Round(UDCD_NPCM.UD_SlotUpdateTime))
     JsonUtil.SetIntValue(strFile, "OutfitRemove", UDCDMain.UD_OutfitRemove as Int)
+    JsonUtil.SetIntValue(strFile, "AllowMenBondage", UDmain.AllowMenBondage as Int)
     
     ; ANIMATIONS
     JsonUtil.StringListCopy(strFile, "Anims_UserDisabledJSONs", UDAM.UD_AnimationJSON_Dis)
     JsonUtil.SetIntValue(strFile, "AlternateAnimation", UDAM.UD_AlternateAnimation as Int)
     JsonUtil.SetIntValue(strFile, "AlternateAnimationPeriod", UDAM.UD_AlternateAnimationPeriod)
     JsonUtil.SetIntValue(strFile, "UseSingleStruggleKeyword", UDAM.UD_UseSingleStruggleKeyword as Int)
-    
+
     JsonUtil.Save(strFile, true)
 EndFunction
 
@@ -3362,7 +3376,8 @@ Function LoadFromJSON(string strFile)
     AAScript.UD_DAR =  JsonUtil.GetIntValue(strFile, "DAR", AAScript.UD_DAR as Int)
     UDCD_NPCM.UD_SlotUpdateTime =  JsonUtil.GetIntValue(strFile, "SlotUpdateTime", Round(UDCD_NPCM.UD_SlotUpdateTime))
     UDCDMain.UD_OutfitRemove = JsonUtil.GetIntValue(strFile, "OutfitRemove", UDCDMain.UD_OutfitRemove as Int)
-    
+    UDmain.AllowMenBondage = JsonUtil.GetIntValue(strFile, "AllowMenBondage", UDmain.AllowMenBondage as Int)
+
     ; ANIMATIONS
     If JsonUtil.StringListCount(strFile, "Anims_UserDisabledJSONs") > 0
         UDAM.UD_AnimationJSON_Dis = JsonUtil.StringListToArray(strFile, "Anims_UserDisabledJSONs")
@@ -3370,7 +3385,7 @@ Function LoadFromJSON(string strFile)
     UDAM.UD_AlternateAnimation = JsonUtil.GetIntValue(strFile, "AlternateAnimation", UDAM.UD_AlternateAnimation as Int) > 0
     UDAM.UD_AlternateAnimationPeriod = JsonUtil.GetIntValue(strFile, "AlternateAnimationPeriod", UDAM.UD_AlternateAnimationPeriod)
     UDAM.UD_UseSingleStruggleKeyword = JsonUtil.GetIntValue(strFile, "UseSingleStruggleKeyword", UDAM.UD_UseSingleStruggleKeyword as Int) > 0
-    
+
 EndFunction
 
 Function ResetToDefaults()
@@ -3499,10 +3514,11 @@ Function ResetToDefaults()
     AAScript.UD_DAR                                 =  false
     UDCD_NPCM.UD_SlotUpdateTime                     = 10.0
     UDCDMain.UD_OutfitRemove                        = True
+    UDmain.AllowMenBondage                          = False
     
     ; Animations
     UDAM.LoadDefaultMCMSettings()
-    
+
 EndFunction
 
 Function SetAutoLoad(bool bValue)
