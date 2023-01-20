@@ -1508,7 +1508,7 @@ EndFunction
 ;==============================================================================================
 
 Int _MinigameSelectedLockID = -1
-Int _MinigameSelectedLock   = -1
+Int _MinigameSelectedLock   = 0x00000000
 ;return true if any of the locks is not unlocked
 Bool Function HaveLockedLocks()
     if UD_LockList
@@ -2109,8 +2109,8 @@ EndFunction
 ;returns lock acces chance
 ;100 = 100% chance of reaching lock
 ;0 = 0% chance of reaching lock
-int Function getLockAccesChance(bool checkTelekinesis = true)
-    int res = Round(UD_LockAccessDifficulty)
+int Function getLockAccesChance(Int aiLockID, bool checkTelekinesis = true)
+    int res = GetNthLockAccessibility(aiLockID)
     if res < 100
         if Wearer.wornHasKeyword(libs.zad_DeviousBlindfold)
             res += 25
@@ -2575,15 +2575,17 @@ Function deviceMenuInit(bool[] aControl)
         UDCDmain.currentDeviceMenu_allowUselessStruggling = True
     endif
     
-    Int loc_lockMinigames = LockMinigamesAllowed(loc_accesibility)
-    if Math.LogicalAnd(loc_lockMinigames,0x1)
-        UDCDmain.currentDeviceMenu_allowlockpick = True
-    endif
-    if Math.LogicalAnd(loc_lockMinigames,0x2)
-        UDCDmain.currentDeviceMenu_allowkey = True
-    endif
-    if Math.LogicalAnd(loc_lockMinigames,0x4)
-        UDCDmain.currentDeviceMenu_allowlockrepair = True
+    if UD_LockList
+        Int loc_lockMinigames = LockMinigameAllowed(loc_accesibility)
+        if Math.LogicalAnd(loc_lockMinigames,0x1)
+            UDCDmain.currentDeviceMenu_allowlockpick = True
+        endif
+        if Math.LogicalAnd(loc_lockMinigames,0x2)
+            UDCDmain.currentDeviceMenu_allowkey = True
+        endif
+        if Math.LogicalAnd(loc_lockMinigames,0x4)
+            UDCDmain.currentDeviceMenu_allowlockrepair = True
+        endif
     endif
     
     ;cutting
@@ -2614,27 +2616,39 @@ EndFunction
 Bool Function CuttingMinigameAllowed(Float afAccesibility)
     return canBeCutted() && afAccesibility
 EndFunction
-Int Function LockMinigamesAllowed(Float afAccesibility)
-    Int loc_res = 0
-    if (getLockAccesChance() > 0)
-        if UD_CurrentLocks != UD_JammedLocks
+Int Function NthLockMinigamesAllowed(Int aiLockID, Float afAccesibility)
+    Int     loc_Lock            = GetNthLock(aiLockID)
+    Bool    loc_Jammed          = IsNthLockJammed(aiLockID)
+    Int     loc_Accessibility   = GetNthLockAccessibility(aiLockID)
+    Int     loc_Difficulty      = GetNthLockDifficulty(aiLockID)
+    Int     loc_res = 0
+    if (loc_Accessibility > 0)
+        if !loc_Jammed
             ;key unlock
-            if zad_deviceKey
-                if wearer.getItemCount(zad_deviceKey) > 0
-                    loc_res += 2
-                endif
+            if zad_deviceKey && wearer.getItemCount(zad_deviceKey)
+                loc_res += 2
             endif
             
             ;lockpicking
-            if UD_LockpickDifficulty < 255 && wearer.getItemCount(UDCDmain.Lockpick) > 0
+            if loc_Difficulty < 255 && wearer.getItemCount(UDCDmain.Lockpick) > 0
                 loc_res += 1
             endif
-        endif
-        ;lock repair
-        if UD_JammedLocks && afAccesibility > 0
+        elseif afAccesibility > 0
             loc_res += 4
         endif
     endif
+    return loc_res
+EndFunction
+
+;return true if at least one of the locks can be used in minigame
+Int Function LockMinigameAllowed(Float afAccesibility)
+    Int loc_LockNum = GetLockNumber()
+    int loc_res = 0x0
+    while loc_LockNum
+        Int loc_lockres = NthLockMinigamesAllowed(loc_LockNum,afAccesibility)
+        loc_res = Math.LogicalOr(loc_res,loc_lockres)
+        loc_LockNum -= 1
+    endwhile
     return loc_res
 EndFunction
 
@@ -2723,7 +2737,7 @@ Function deviceMenuInitWH(Actor akSource,bool[] aControl)
     bool    loc_freehands_wearer     = WearerFreeHands(true,False)
     bool    loc_freehands_helper     = HelperFreeHands(true)
     float   loc_accesibility         = getAccesibility()
-    int     loc_lockacces            = getLockAccesChance()
+    ;int     loc_lockacces            = getLockAccesChance()
     
     
     ;help struggle
@@ -2731,7 +2745,7 @@ Function deviceMenuInitWH(Actor akSource,bool[] aControl)
         UDCDmain.currentDeviceMenu_allowstruggling = True
     endif
 
-    if (UD_CurrentLocks != UD_JammedLocks) && (loc_lockacces || loc_freehands_helper)
+    if True;(UD_CurrentLocks != UD_JammedLocks) && (loc_lockacces || loc_freehands_helper)
         ;key unlock
         if zad_deviceKey 
             if (wearer.getItemCount(zad_deviceKey) || akSource.getItemCount(zad_deviceKey)) 
@@ -3012,8 +3026,20 @@ bool Function lockpickMinigame(Bool abSilent = False)
         return false
     endif    
     
+    Int loc_SelectedLock = 0
+    if PlayerInMinigame()
+        loc_SelectedLock = UserSelectLock()
+    else
+        ;TODO, gets best lock
+    endif
+    if loc_SelectedLock < 0
+        return false
+    endif
+    
     resetMinigameValues()
     
+    _MinigameSelectedLockID = loc_SelectedLock
+    _MinigameSelectedLock   = GetNthLock(loc_SelectedLock)
     UD_minigame_stamina_drain = UD_base_stat_drain
     UD_damage_device = False
     UD_minigame_canCrit = False
@@ -3021,7 +3047,7 @@ bool Function lockpickMinigame(Bool abSilent = False)
     UD_UseWidget = False
     UD_RegenMag_Health = 0.5
     UD_RegenMag_Magicka = 0.5
-    _customMinigameCritChance = getLockAccesChance(false)
+    _customMinigameCritChance = getLockAccesChance(_MinigameSelectedLockID, false)
     _customMinigameCritDuration = 0.8 - getLockLevel()*0.02
     UD_AllowWidgetUpdate = False
     _minMinigameStatSP = 0.8
@@ -3041,8 +3067,20 @@ bool Function repairLocksMinigame(Bool abSilent = False)
         return false
     endif
     
+    Int loc_SelectedLock = 0
+    if PlayerInMinigame()
+        loc_SelectedLock = UserSelectLock()
+    else
+        ;TODO, gets best lock
+    endif
+    if loc_SelectedLock < 0
+        return false
+    endif
+    
     resetMinigameValues()
     
+    _MinigameSelectedLockID = loc_SelectedLock
+    _MinigameSelectedLock   = GetNthLock(loc_SelectedLock)
     UD_minigame_stamina_drain = UD_base_stat_drain*1.25
     UD_damage_device = False
     UD_minigame_canCrit = False
@@ -3111,8 +3149,21 @@ bool Function keyMinigame(Bool abSilent = False)
         return false
     endif
 
+    Int loc_SelectedLock = 0
+    if PlayerInMinigame()
+        loc_SelectedLock = UserSelectLock()
+    else
+        ;TODO, gets best lock
+    endif
+    
+    if loc_SelectedLock < 0
+        return false
+    endif
+
     resetMinigameValues()
 
+    _MinigameSelectedLockID = loc_SelectedLock
+    _MinigameSelectedLock   = GetNthLock(loc_SelectedLock)
     UD_damage_device = False
     UD_minigame_stamina_drain = UD_base_stat_drain
     UD_minigame_canCrit = False
@@ -3122,7 +3173,7 @@ bool Function keyMinigame(Bool abSilent = False)
     UD_AllowWidgetUpdate = False
     UD_RegenMag_Health = 0.5
     UD_RegenMag_Magicka = 0.5
-    _customMinigameCritChance = getLockAccesChance(false)
+    _customMinigameCritChance = getLockAccesChance(_MinigameSelectedLockID, false)
     _customMinigameCritDuration = 0.85 - getLockLevel()*0.025
     _minMinigameStatSP = 0.6
     
@@ -3263,7 +3314,20 @@ bool Function lockpickMinigameWH(Actor akHelper)
         return false
     endif
     
+    Int loc_SelectedLock = 0
+    if PlayerInMinigame()
+        loc_SelectedLock = UserSelectLock()
+    else
+        ;TODO, gets best lock
+    endif
+    if loc_SelectedLock < 0
+        return false
+    endif
+    
     resetMinigameValues()
+    
+    _MinigameSelectedLockID = loc_SelectedLock
+    _MinigameSelectedLock   = GetNthLock(loc_SelectedLock)
     
     UD_minigame_stamina_drain = UD_base_stat_drain
     UD_minigame_stamina_drain_helper = UD_base_stat_drain*0.8
@@ -3272,7 +3336,6 @@ bool Function lockpickMinigameWH(Actor akHelper)
     UD_minigame_critRegen = false
     UD_minigame_critRegen_helper = false
     UD_AllowWidgetUpdate = False
-    _customMinigameCritChance = getLockAccesChance(false)
     UD_RegenMag_Magicka = 0.5
     UD_RegenMag_Health = 0.5
     UD_RegenMagHelper_Magicka = 0.75
@@ -3284,9 +3347,9 @@ bool Function lockpickMinigameWH(Actor akHelper)
     if HelperFreeHands(True)
         _customMinigameCritChance = 100
     elseif HelperFreeHands()
-        _customMinigameCritChance = getLockAccesChance(false) + 35
+        _customMinigameCritChance = getLockAccesChance(_MinigameSelectedLockID, false) + 35
     else
-        _customMinigameCritChance = getLockAccesChance(false) + 10
+        _customMinigameCritChance = getLockAccesChance(_MinigameSelectedLockID, false) + 10
     endif
     
     if minigamePostcheck()
@@ -3307,7 +3370,20 @@ bool Function repairLocksMinigameWH(Actor akHelper)
         return false
     endif
     
+    Int loc_SelectedLock = 0
+    if PlayerInMinigame()
+        loc_SelectedLock = UserSelectLock()
+    else
+        ;TODO, gets best lock
+    endif
+    if loc_SelectedLock < 0
+        return false
+    endif
+    
     resetMinigameValues()
+    
+    _MinigameSelectedLockID = loc_SelectedLock
+    _MinigameSelectedLock   = GetNthLock(loc_SelectedLock)
     
     UD_minigame_stamina_drain = UD_base_stat_drain*1.25 
     UD_minigame_stamina_drain_helper = UD_base_stat_drain
@@ -3401,7 +3477,20 @@ bool Function keyMinigameWH(Actor akHelper)
         return false
     endif
     
+    Int loc_SelectedLock = 0
+    if PlayerInMinigame()
+        loc_SelectedLock = UserSelectLock()
+    else
+        ;TODO, gets best lock
+    endif
+    if loc_SelectedLock < 0
+        return false
+    endif
+    
     resetMinigameValues()
+    
+    _MinigameSelectedLockID = loc_SelectedLock
+    _MinigameSelectedLock   = GetNthLock(loc_SelectedLock)
     
     UD_damage_device = False
     UD_minigame_stamina_drain = UD_base_stat_drain
@@ -3415,8 +3504,8 @@ bool Function keyMinigameWH(Actor akHelper)
     UD_RegenMag_Health = 0.5
     UD_RegenMagHelper_Magicka = 0.75
     UD_RegenMagHelper_Health = 0.75
-    _customMinigameCritChance = getLockAccesChance(false)
-    _customMinigameCritDuration = 0.9 - getLockLevel()*0.03    
+    _customMinigameCritChance = getLockAccesChance(_MinigameSelectedLockID, false)
+    _customMinigameCritDuration = 0.9 - getLockLevel()*0.03
     _minMinigameStatSP = 0.6
     UD_UseWidget = False
     UD_AllowWidgetUpdate = False
@@ -3523,6 +3612,8 @@ Function resetMinigameValues()
     UD_minigame_critRegen_helper = true
     _usingTelekinesis = false
     UD_AllowWidgetUpdate = true
+    _MinigameSelectedLockID = -1
+    _MinigameSelectedLock   = 0x00000000
 EndFunction
 
 ;set minigame offensive variables
@@ -4630,52 +4721,64 @@ string Function getInfoString()
         temp += "Cut chance: Uncuttable\n"
     endif
     temp += "Locks: "
-    if UD_Locks == 0
-        temp += "None\n"
-    else
-        if areLocksJammed()
-            temp += "!Jammed!"
-        else
-            int loc_acceschance = getLockAccesChance()
-            if loc_acceschance > 50
-                temp += "Easy to reach"
-            elseif loc_acceschance > 35
-                temp += "Reachable"
-            elseif loc_acceschance > 15
-                temp += "Hard to reach"
-            elseif loc_acceschance > 0
-                temp += "Very hard to reach"
-            else
-                temp += "Unreachable"
-            endif
-        endif
-        
-        temp += " (" + UD_CurrentLocks + "/" + UD_Locks 
-        
-        if UD_JammedLocks
-            temp += " J=" + UD_JammedLocks + ")\n"
-        else
-            temp += ")\n"
-        endif
-        
-        temp += "Locks Difficulty: "
-        int loc_lockdiff = getLockLevel()
-        if loc_lockdiff == 0
-            temp += "Novice"
-        elseif loc_lockdiff == 1
-            temp += "Apprentice"
-        elseif loc_lockdiff == 2
-            temp += "Adept"
-        elseif loc_lockdiff == 3
-            temp += "Expert"
-        elseif loc_lockdiff == 4
-            temp += "Master"
-        else
-            temp += "Requires key\n"
-        endif
-        if loc_lockdiff < 5
-            temp += " ("+UD_LockpickDifficulty+")\n"
-        endif
+    ;if UD_Locks == 0
+    ;    temp += "None\n"
+    ;else
+    ;    if areLocksJammed()
+    ;        temp += "!Jammed!"
+    ;    else
+    ;        int loc_acceschance = getLockAccesChance()
+    ;        if loc_acceschance > 50
+    ;            temp += "Easy to reach"
+    ;        elseif loc_acceschance > 35
+    ;            temp += "Reachable"
+    ;        elseif loc_acceschance > 15
+    ;            temp += "Hard to reach"
+    ;        elseif loc_acceschance > 0
+    ;            temp += "Very hard to reach"
+    ;        else
+    ;            temp += "Unreachable"
+    ;        endif
+    ;    endif
+    ;    
+    ;    temp += " (" + UD_CurrentLocks + "/" + UD_Locks 
+    ;    
+    ;    if UD_JammedLocks
+    ;        temp += " J=" + UD_JammedLocks + ")\n"
+    ;    else
+    ;        temp += ")\n"
+    ;    endif
+    ;    
+    ;    temp += "Locks Difficulty: "
+    ;    int loc_lockdiff = getLockLevel()
+    ;    if loc_lockdiff == 0
+    ;        temp += "Novice"
+    ;    elseif loc_lockdiff == 1
+    ;        temp += "Apprentice"
+    ;    elseif loc_lockdiff == 2
+    ;        temp += "Adept"
+    ;    elseif loc_lockdiff == 3
+    ;        temp += "Expert"
+    ;    elseif loc_lockdiff == 4
+    ;        temp += "Master"
+    ;    else
+    ;        temp += "Requires key\n"
+    ;    endif
+    ;    if loc_lockdiff < 5
+    ;        temp += " ("+UD_LockpickDifficulty+")\n"
+    ;    endif
+    ;    
+    ;    temp += "Key: "
+    ;    if zad_deviceKey
+    ;        temp += zad_deviceKey.GetName() + "\n"
+    ;    else
+    ;        temp += "None\n"
+    ;    endif
+    ;        
+    ;endif
+    
+    if UD_LockList && UD_LockList.length
+        temp += "Locks: " + UD_LockList.length
         
         temp += "Key: "
         if zad_deviceKey
@@ -4683,7 +4786,6 @@ string Function getInfoString()
         else
             temp += "None\n"
         endif
-            
     endif
     
     if isNotShareActive()
@@ -4861,9 +4963,9 @@ string Function getDebugString()
     updateDifficulty()
     string res = ""
     res += "- " + deviceInventory.GetName() + " -\n"
-    if UD_Locks 
-        res += "Lock acces: "+ (Round(UD_LockAccessDifficulty)) + "/" + (100 - Round(getLockAccesChance())) + " %\n"
-    endif
+    ;if UD_Locks 
+    ;    res += "Lock acces: "+ (Round(UD_LockAccessDifficulty)) + "/" + (100 - Round(getLockAccesChance())) + " %\n"
+    ;endif
     if (zad_JammLockChance > 0)
         res += "Lock jamm chance: "+ zad_JammLockChance + " (" + Round(checkLimit(zad_JammLockChance*UDCDmain.CalculateKeyModifier(),100.0)) +") %\n"
     endif
@@ -5260,7 +5362,7 @@ EndFunction
 ;choose the best minigame and start it. Returns false if minigame was not started
 Bool Function EvaluateNPCAI()
     float   loc_accesibility    = getAccesibility()
-    Int     loc_lockMinigames   = LockMinigamesAllowed(loc_accesibility)
+    Int     loc_lockMinigames   = LockMinigameAllowed(loc_accesibility)
     
     ;first try to unlock the device with key
     if Math.LogicalAnd(loc_lockMinigames,0x2)
