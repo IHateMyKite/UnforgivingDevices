@@ -173,8 +173,7 @@ Int Property UD_Level
         _level = iRange(aiValue,-10,1000)
         ;reset vars
         current_device_health = UD_Health
-        UD_CurrentLocks = UD_Locks
-    EndFunction    
+    EndFunction
 EndProperty
 
 float property UD_durability_damage_base ;durability dmg per second of struggling, range 0.00 - 40.00, precision 0.01 (4000 values)
@@ -341,19 +340,14 @@ int Property UD_LockpickDifficulty ;1 = Novice, 25 = Apprentice, 50 = Adept,75 =
     EndFunction
 EndProperty
 
-int Property UD_Locks ;number of locks, range 0-31
-    Function set(int iVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_6 = codeBit(_deviceControlBitMap_6,iRange(iVal,0,31),5,15)
-        endBitMapMutexCheck()
-    EndFunction
-    
+int Property UD_Locks ;number of locks
     int Function get()
-        int loc_locks = decodeBit(_deviceControlBitMap_6,5,15)
-        if loc_locks > 0 && UDCDMain.UD_DeviceLvlLocks
-            loc_locks += (UD_Level - 1)/UDCDMain.UD_DeviceLvlLocks
-        endif
-        return loc_locks
+        ;int loc_locks = decodeBit(_deviceControlBitMap_6,5,15)
+        ;if loc_locks > 0 && UDCDMain.UD_DeviceLvlLocks
+        ;    loc_locks += (UD_Level - 1)/UDCDMain.UD_DeviceLvlLocks
+        ;endif
+        ;return loc_locks
+        return GetLockNumber()
     EndFunction
 EndProperty
 
@@ -418,33 +412,13 @@ float _updateTimePassed = 0.0 ;time passed from last update in days
 ;---------------------------------------PRIVATE VARS----------------------------------------
 
 int Property UD_CurrentLocks Hidden ;how many locked locks remain, max is 31
-    Function set(int iVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_5 = codeBit(_deviceControlBitMap_5,iRange(iVal,0,31),6,0)
-        endBitMapMutexCheck()
-    EndFunction
-    
     int Function get()
-        Int loc_val = decodeBit(_deviceControlBitMap_5,6,0)
-        if loc_val > UD_Locks
-            UD_CurrentLocks = UD_Locks
-        endif
-        return loc_val
+        return GetLockedLocks()
     EndFunction
 endproperty
 int Property UD_JammedLocks Hidden ;jammed locks, max is 31
-    Function set(int iVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_5 = codeBit(_deviceControlBitMap_5,iRange(iVal,0,31),6,6)
-        endBitMapMutexCheck()
-    EndFunction
-    
     int Function get()
-        Int loc_val = decodeBit(_deviceControlBitMap_5,6,6)
-        if loc_val > UD_Locks
-            UD_JammedLocks = UD_Locks
-        endif
-        return loc_val
+        return GetJammedLocks()
     EndFunction
 endproperty
 int Property UD_condition Hidden ;0 - new , 4 - broke
@@ -1506,9 +1480,45 @@ EndFunction
 ;==============================================================================================
 ;                                   LOCK MANIP FUNCTIONS                                       
 ;==============================================================================================
+; === API ===
+;============
+; GETTERS
+; Bool      HaveLocks()                                 = return true if device have locks
+; Bool      HaveLockedLocks()                           = return true if any of the locks is not unlocked
+; Int       GetLockedLocks()                            = return number of currently locked locks or 0 if there is error
+; Int       GetJammedLocks()                            = return number of currently jammed locks or 0 if there is error
+; String[]  GetLockList()                               = return string array of lock names. This is what is shown to player when selecting lock, or return none in case of error
+; Int       UserSelectLock()                            = open the list of locks for user. Returns index of selected lock, or -1 in case that user either backed out or there was error
+; Bool      IsValidLock(Int aiLock)                     = return true if passed lock is in valid format
+; Int       GetLockNumber()                             = returns number of locks on the device or 0 if device have no locks
+; Int       GetNthLock(Int aiLockIndex)                 = This function returns the Nth lock, or error value if no locks are on device
+; Bool      IsNthLockUnlocked(Int aiLockIndex)          = returns true if the Nth lock is unlocked, or false if no Nth lock exist or is invalid
+; Bool      IsNthLockJammed(Int aiLockIndex)            = returns true if the Nth lock is jammed, or false if no Nth lock exist or is invalid
+; Int       GetNthLockShields(Int aiLockIndex)          = returns number of shields of the Nth lock, or 0 if no Nth lock exist or is invalid
+; Int       GetNthLockAccessibility(Int aiLockIndex)    = returns accessibility of the Nth lock in %, or 0 if no Nth lock exist or is invalid
+; Int       GetNthLockDifficulty(Int aiLockIndex)       = returns difficutly of the Nth lock, or 0 if no Nth lock exist or is invalid. Difficulty is in range from 0 to 255 (classic skyrim lockpick difficulty distribution)
+
+;SETTERS
+; Bool      UnlockNthLock(Int aiLockIndex, Bool abUnlock = True)    = sets lock unlock status. If the operation was succesfull, returns true; argument abUnlock can be set to either true or false, depending if lock should be unlocked, or locked
+; Int       UnlockAllLocks(Bool abUnlock = True)                    = Lock/unlock all locks, returns number of locks affected
+; Bool      JammNthLock(Int aiLockIndex, Bool abJamm = True)        = sets lock jammed status. If the operation was succesfull, returns true; argument abJamm can be set to either true or false, depending if lock should be jammed, or unjammed
+; Int       JammAllLocks(Bool abJamm = True)                        = Jamm/unjamm all locks, returns number of locks affected
+; Int       DecreaseLockShield(Int aiLockIndex, Int aiShieldDecrease = 1, Bool abAutoUnlock = False)    = decrease locks shiled by aiShieldDecrease, returns remaining number of shields
+; Bool      UpdateLockAccessibility(Int aiLockIndex, Int aiAccessibilityDelta)  = Update the lock accessibility by aiAccessibilityDelta. If the operation was succesfull, returns true
+; Bool      UpdateLockDifficulty(Int aiLockIndex, Int aiDifficultyDelta, Bool abNoKeyDiff = True)    = Update the lock difficulty by aiDifficultyDelta. If the operation was succesfull, returns true; if abNoKeyDiff is True, lock difficulty can't be "Key required" after the update (capped difficulty at 100 = master lock)
+
+;UTILITY
+; Int       CreateLock(Int aiDifficulty, Int aiAccess, String asName = "", Bool abAdd = False, Int aiShields = 1)   = creates lock from passed arguments ;if abAdd is True, the lock will also be automatically added to the list of locks
+; Int       AddLock(Int aiLock, String asName = "", Bool abNoCreate = False)    = Adds lock to lock list, if abNoCreate is true, the lock will not be added if no locks already exist on device (aka, only if device had locks before), Return index of the added lock. In case of error, returns -1
 
 Int _MinigameSelectedLockID = -1
 Int _MinigameSelectedLock   = 0x00000000
+
+;return true if device have locks
+Bool Function HaveLocks()
+    return UD_LockList
+EndFunction
+
 ;return true if any of the locks is not unlocked
 Bool Function HaveLockedLocks()
     if UD_LockList
@@ -1519,8 +1529,43 @@ Bool Function HaveLockedLocks()
             endif
             loc_LockNum -= 1
         endwhile
+        return false
     else
         return false
+    endif
+EndFunction
+
+;return number of currently locked locks or 0 if there is error
+Int Function GetLockedLocks()
+    if UD_LockList
+        Int loc_LockNum = GetLockNumber()
+        Int loc_res = 0
+        while loc_LockNum
+            if !IsNthLockUnlocked(loc_LockNum)
+                loc_res += 1
+            endif
+            loc_LockNum -= 1
+        endwhile
+        return loc_res
+    else
+        return 0
+    endif
+EndFunction
+
+;return number of currently jammed locks or 0 if there is error
+Int Function GetJammedLocks()
+    if UD_LockList
+        Int loc_LockNum = GetLockNumber()
+        Int loc_res = 0
+        while loc_LockNum
+            if IsNthLockJammed(loc_LockNum)
+                loc_res += 1
+            endif
+            loc_LockNum -= 1
+        endwhile
+        return loc_res
+    else
+        return 0
     endif
 EndFunction
 
@@ -1534,7 +1579,7 @@ String[] Function GetLockList()
             UD_LockNameList = Utility.CreateStringArray(UD_LockList.length)
             Int loc_LockNum = GetLockNumber()
             while loc_LockNum
-                UD_LockNameList[loc_LockNum] = "Diff="+GetNthLockDifficulty(loc_LockNum) + " | Acc="+ GetNthLockAccessibility(loc_LockNum)
+                UD_LockNameList[loc_LockNum] = "S="+GetNthLockShields(loc_LockNum)+" | Diff="+GetNthLockDifficulty(loc_LockNum) + " | Acc="+ GetNthLockAccessibility(loc_LockNum)
                 loc_LockNum -= 1
             endwhile
             return UD_LockNameList
@@ -1575,6 +1620,7 @@ Bool Function IsValidLock(Int aiLock)
     return aiLock
 EndFunction
 
+;returns number of locks on the device or 0 if device have no locks
 Int Function GetLockNumber()
     if UD_LockList
         return UD_LockList.length
@@ -1612,7 +1658,7 @@ Bool Function IsNthLockJammed(Int aiLockIndex)
     endif
 EndFunction
 
-;returns accessibility of the Nth lock in %, or 0 if no Nth lock exist or is invalid
+;returns number of shields of the Nth lock, or 0 if no Nth lock exist or is invalid
 Int Function GetNthLockShields(Int aiLockIndex)
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock) 
@@ -1622,7 +1668,7 @@ Int Function GetNthLockShields(Int aiLockIndex)
     endif
 EndFunction
 
-;returns number of shields of the Nth lock, or 0 if no Nth lock exist or is invalid
+;returns accessibility of the Nth lock in %, or 0 if no Nth lock exist or is invalid
 Int Function GetNthLockAccessibility(Int aiLockIndex)
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock) 
@@ -1632,7 +1678,7 @@ Int Function GetNthLockAccessibility(Int aiLockIndex)
     endif
 EndFunction
 
-;returns accessibility of the Nth lock in %, or 0 if no Nth lock exist or is invalid
+;returns difficutly of the Nth lock, or 0 if no Nth lock exist or is invalid
 Int Function GetNthLockDifficulty(Int aiLockIndex)
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock) 
@@ -1645,72 +1691,181 @@ EndFunction
 ;sets lock unlock status. If the operation was succesfull, returns true
 ;argument abUnlock can be set to either true or false, depending if lock should be unlocked, or locked
 Bool Function UnlockNthLock(Int aiLockIndex, Bool abUnlock = True)
+    _StartLockManipMutex()
+    Bool loc_res  = False ;return False as error value
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock)
         _StartLockManipMutex()
         loc_Lock = codeBit(loc_Lock,0,1, abUnlock as Int)
         UD_LockList[aiLockIndex] = loc_Lock
         _EndLockManipMutex()
-        return true
-    else
-        return false ;return false as error value
+        loc_res = true
     endif
+    _EndLockManipMutex()
+    return loc_res
+EndFunction
+
+;Lock/unlock all locks, returns number of locks affected
+Int Function UnlockAllLocks(Bool abUnlock = True)
+    if !HaveLocks() || !GetLockNumber()
+        return 0 ;device have no locks, return 0 as error value
+    endif
+    _StartLockManipMutex()
+    Int     loc_res     = 0 ;return False as error value
+    Int     loc_LockNum = GetLockNumber()
+    while loc_LockNum
+        Int  loc_Lock = GetNthLock(loc_LockNum)
+        if IsValidLock(loc_Lock)
+            if (abUnlock && !IsNthLockUnlocked(loc_LockNum)) ;unlock lock
+                loc_Lock = codeBit(loc_Lock,0,1, 1)
+                UD_LockList[loc_LockNum] = loc_Lock
+                loc_res += 1
+            elseif (!abUnlock && IsNthLockUnlocked(loc_LockNum)) ;lock lock
+                loc_Lock = codeBit(loc_Lock,0,1, 0)
+                UD_LockList[loc_LockNum] = loc_Lock
+                loc_res += 1
+            endif
+        endif
+        loc_LockNum -= 1
+    endwhile
+    _EndLockManipMutex()
+    return loc_res
 EndFunction
 
 ;sets lock jammed status. If the operation was succesfull, returns true
 ;argument abJamm can be set to either true or false, depending if lock should be jammed, or unjammed
 Bool Function JammNthLock(Int aiLockIndex, Bool abJamm = True)
-    Int loc_Lock = GetNthLock(aiLockIndex)
+    _StartLockManipMutex()
+    Bool loc_res  = False ;return False as error value
+    Int  loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock)
         _StartLockManipMutex()
         loc_Lock = codeBit(loc_Lock,1,2, abJamm as Int)
         UD_LockList[aiLockIndex] = loc_Lock
         _EndLockManipMutex()
-        return true
-    else
-        return false ;return false as error value
+        loc_res = true
     endif
+    _EndLockManipMutex()
+    return loc_res
 EndFunction
 
-;decrease locks shiled by aiShieldDecrease
-;returns bitcoded result
-;   0  = Error
-;   1  = Operation was succesfull
-;   3  = Operation was succesfull, and the lock have no more shields
+;Jamm/unjamm all locks, returns number of locks affected
+Int Function JammAllLocks(Bool abJamm = True)
+    if !HaveLocks() || !GetLockNumber()
+        return 0 ;device have no locks, return 0 as error value
+    endif
+    _StartLockManipMutex()
+    Int     loc_res     = 0 ;return False as error value
+    Int     loc_LockNum = GetLockNumber()
+    while loc_LockNum
+        Int  loc_Lock = GetNthLock(loc_LockNum)
+        if IsValidLock(loc_Lock)
+            if (abJamm && !IsNthLockJammed(loc_LockNum)) ;jamm lock
+                loc_Lock = codeBit(loc_Lock,1,2, 1)
+                UD_LockList[loc_LockNum] = loc_Lock
+                loc_res += 1
+            elseif (!abJamm && IsNthLockJammed(loc_LockNum)) ;unjamm lock
+                loc_Lock = codeBit(loc_Lock,1,2, 0)
+                UD_LockList[loc_LockNum] = loc_Lock
+                loc_res += 1
+            endif
+        endif
+        loc_LockNum -= 1
+    endwhile
+    _EndLockManipMutex()
+    return loc_res
+EndFunction
+
+;decrease locks shiled by aiShieldDecrease, returns remaining number of shields
 Int Function DecreaseLockShield(Int aiLockIndex, Int aiShieldDecrease = 1, Bool abAutoUnlock = False)
+    _StartLockManipMutex()
+    Int loc_res  = 0 ;return 0 as error value
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock)
         Int loc_ShieldNumber = iUnsig(decodeBit(loc_Lock,4,7) + aiShieldDecrease)
-        _StartLockManipMutex()
         loc_Lock = codeBit(loc_Lock,4,7, loc_ShieldNumber)
         UD_LockList[aiLockIndex] = loc_Lock
-        _EndLockManipMutex()
         if loc_ShieldNumber
-            return 0x01 ;lock still have shields after the operation
+            loc_res = loc_ShieldNumber ;lock still have shields after the operation
         else
             if abAutoUnlock
                 UnlockNthLock(aiLockIndex)
             endif
-            return 0x11 ;lock have no more shields after operations
+            loc_res = 0 ;no more shieůds after uúdate
         endif
-    else
-        return 0x00 ;return 0x000 as error value
     endif
+    _EndLockManipMutex()
+    return loc_res
 EndFunction
 
 ;Update the lock accessibility by aiAccessibilityDelta. If the operation was succesfull, returns true
 Bool Function UpdateLockAccessibility(Int aiLockIndex, Int aiAccessibilityDelta)
+    _StartLockManipMutex()
+    Bool loc_res = False ;return False as error value
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock)
         Int loc_Accessibility = iRange(decodeBit(loc_Lock,8,14) + aiAccessibilityDelta,0,100)
-        _StartLockManipMutex()
         loc_Lock = codeBit(loc_Lock,8,14, loc_Accessibility)
         UD_LockList[aiLockIndex] = loc_Lock
-        _EndLockManipMutex()
-        return true
-    else
-        return False ;return False as error value
+        loc_res = true ;operation was succesfull
     endif
+    _EndLockManipMutex()
+    return loc_res
+EndFunction
+
+;Update the lock difficulty by aiDifficultyDelta. If the operation was succesfull, returns true
+; if abNoKeyDiff is True, lock difficulty can't be "Key required" after the update (capped difficulty at 100 = master lock)
+Bool Function UpdateLockDifficulty(Int aiLockIndex, Int aiDifficultyDelta, Bool abNoKeyDiff = True)
+    _StartLockManipMutex()
+    Bool loc_res = False ;return False as error value
+    Int loc_Lock = GetNthLock(aiLockIndex)
+    if IsValidLock(loc_Lock)
+        Int loc_Difficulty = iRange(decodeBit(loc_Lock,15,22) + aiDifficultyDelta,0,255)
+        if abNoKeyDiff
+            loc_Difficulty = iRange(loc_Difficulty,0,100)
+        endif
+        loc_Lock = codeBit(loc_Lock,15,22, loc_Difficulty)
+        UD_LockList[aiLockIndex] = loc_Lock
+        loc_res = true
+    endif
+    _EndLockManipMutex()
+    return loc_res
+EndFunction
+
+;creates lock from passed arguments
+;if abAdd is True, the lock will also be automatically added to the list of locks
+Int Function CreateLock(Int aiDifficulty, Int aiAccess, String asName = "", Bool abAdd = False, Int aiShields = 1)
+    Int loc_res = 0x00000000
+    loc_res = codeBit(loc_res,4,7,aiShields)
+    loc_res = codeBit(loc_res,8,14,aiAccess)
+    loc_res = codeBit(loc_res,15,22,aiDifficulty)
+    if abAdd
+        _StartLockManipMutex()
+        UD_LockList = PapyrusUtil.PushInt(UD_LockList,loc_res)
+        if (UD_LockNameList || !UD_LockList)
+            if asName == ""
+                asName = "S="+aiShields+" | Diff="+aiDifficulty + " | Acc="+ aiAccess
+            endif
+            UD_LockNameList = PapyrusUtil.PushString(UD_LockNameList,asName)
+        endif
+        _EndLockManipMutex()
+    endif
+    return loc_res
+EndFunction
+
+;Adds lock to lock list, if abNoCreate is true, the lock will not be added if no locks already exist on device (aka, only if device had locks before)
+;Return index of the added lock. In case of error, returns -1
+Int Function AddLock(Int aiLock, String asName, Bool abNoCreate = False)
+    if !UD_LockList && abNoCreate
+        return - 1;no creating locks on device is allowed, returns -1 as error value
+    endif
+    _StartLockManipMutex()
+    UD_LockList = PapyrusUtil.PushInt(UD_LockList,aiLock)
+    if (UD_LockNameList || !UD_LockList)
+        UD_LockNameList = PapyrusUtil.PushString(UD_LockNameList,asName)
+    endif
+    _EndLockManipMutex()
+    return UD_LockList.length - 1
 EndFunction
 
 Bool _LockManipMutex = False
@@ -1865,7 +2020,6 @@ Function Init(Actor akActor)
         endif
     endif
     
-    UD_CurrentLocks = UD_Locks
     current_device_health = UD_Health ;repairs device to max durability on equip
     
     safeCheck()
@@ -2040,16 +2194,18 @@ Function safeCheck()
     endif
 EndFunction
 
-float Function getLockStrength()
-    if UD_Locks > 0
-        return (UD_CurrentLocks as float)/(UD_Locks)
+float Function _getLockMinigameModifier()
+    Int loc_Locks = GetLockNumber()
+    if loc_Locks
+        Int loc_Lockedlocks = GetLockedLocks()
+        return 3.0*(1.0 - (loc_Lockedlocks as float)/(loc_Locks)) ;addition modifier range from 0% to 300%, depending on the number of locks unlocked
     else
-        return 1.0
+        return 0.0
     endif
 EndFunction
 
 Function updateDifficulty()
-    _durability_damage_mod = UD_durability_damage_base*UDCDmain.getStruggleDifficultyModifier()*(2.0 - getLockStrength())
+    _durability_damage_mod = UD_durability_damage_base*UDCDmain.getStruggleDifficultyModifier()*(1.0 + _getLockMinigameModifier())
     ValidateJammedLocks()
 EndFunction
 
@@ -2074,7 +2230,7 @@ float Function getLockDurability()
 EndFunction
 
 Float Function getRelativeLocks()
-    return UD_CurrentLocks/UD_Locks
+    return (UD_CurrentLocks as Float)/UD_Locks
 EndFunction
 
 ;returns comprehesive lock level
@@ -3565,7 +3721,8 @@ Function repairDevice(Actor akSource)
     endif
     
     if UD_CurrentLocks < UD_Locks
-        UD_CurrentLocks += 1 ;lock one of the locks
+        ;UD_CurrentLocks += 1 ;lock one of the locks
+        UnlockAllLocks(False) ;lock all locks
     endif
     
     akSource.removeItem(UDlibs.SteelIngot,2) ;remove 2 ingots
@@ -4344,11 +4501,14 @@ Function critFailure()
             endif
             
             Wearer.RemoveItem(zad_deviceKey)
-            UD_JammedLocks += 1
+            
+            JammNthLock(_MinigameSelectedLockID)
+            ;UD_JammedLocks += 1
+            
             jammLocks()
             stopMinigame()
             keyGame_on = False
-            OnLockJammed()    
+            OnLockJammed()
             return
         endif
     endif
@@ -5060,9 +5220,12 @@ Function repairLock(float progress_add = 1.0)
     while loc_RepairProgress >= getLockDurability()
         loc_repaired = true
         loc_RepairProgress -= getLockDurability()
-        UD_JammedLocks  -= 1
-        if UD_JammedLocks == 0
-            libs.UnJamLock(Wearer,UD_DeviceKeyword)
+        ;UD_JammedLocks  -= 1
+        JammNthLock(_MinigameSelectedLockID, False)
+        if True;UD_JammedLocks == 0
+            if !GetJammedLocks()
+                libs.UnJamLock(Wearer,UD_DeviceKeyword)
+            endif
             repairLocksMinigame_on = False
             stopMinigame()
             loc_RepairProgress = 0.0
@@ -5158,14 +5321,25 @@ Function lockpickDevice()
                 stopMinigame()
                 lockpickGame_on = False
         elseif result == 1 ;succes
-            if UD_CurrentLocks - UD_JammedLocks > 0
-                UD_CurrentLocks -= 1
+            Int loc_shields = GetNthLockShields(_MinigameSelectedLockID)
+            if loc_shields > 0 ;lock have shields, needs to unlock them first
+                loc_shields = DecreaseLockShield(_MinigameSelectedLockID,1)
                 if PlayerInMinigame()
-                    UDCDmain.Print("You succesfully unlocked one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining",1)
+                    UDCDmain.Print("You succesfully unlocked one of the locks shields! " + loc_shields + " remaining",1)
                 elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                    UDCDmain.Print(getWearerName() + " unlocked one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining",2)
+                    UDCDmain.Print(getWearerName() + " unlocked one of the locks shields! " +loc_shields + " remaining",2)
                 endif
-                onLockUnlocked(True)
+            else ;no more shields on device, unlock the lock
+                if UD_CurrentLocks - UD_JammedLocks > 0
+                    UnlockNthLock(_MinigameSelectedLockID)
+                    if PlayerInMinigame()
+                        UDCDmain.Print("You succesfully unlocked one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining",1)
+                    elseif UDCDmain.AllowNPCMessage(Wearer, True)
+                        UDCDmain.Print(getWearerName() + " unlocked one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining",2)
+                    endif
+                    onLockUnlocked(True)
+                    stopMinigame() ;stop minigame, as player needs to select next lock manually
+                endif
             endif
             if UD_CurrentLocks == 0 && UD_JammedLocks == 0 ;device gets unlocked
                 ;current_device_health = 0
@@ -5185,7 +5359,8 @@ Function lockpickDevice()
                     UDCDmain.Print(getWearerName() + "s "+getDeviceName()+" lock gets jammed!",3)
                 endif
                 
-                UD_JammedLocks += 1
+                ;UD_JammedLocks += 1
+                JammNthLock(_MinigameSelectedLockID)
                 JammLocks()
                 stopMinigame()
                 lockpickGame_on = False
@@ -5207,7 +5382,8 @@ EndFunction
 ;unlock one of the locks if lock is reached
 Function keyUnlockDevice()
     if UD_CurrentLocks - UD_JammedLocks > 0
-        UD_CurrentLocks -= 1
+        ;UD_CurrentLocks -= 1
+        UnlockNthLock(_MinigameSelectedLockID)
         if PlayerInMinigame()
             UDCDMain.Print("You managed to unlock one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining",1)
         elseif UDCDmain.AllowNPCMessage(Wearer, True)
@@ -5243,11 +5419,14 @@ Function AddJammedLock(int iChance = 5, string strMsg = "", int iNumber = 1)
         if Utility.randomInt(1,99) >= iChance
             return
         endif
-        UD_JammedLocks += iNumber
         
-        if UD_JammedLocks > UD_CurrentLocks
-            UD_JammedLocks = UD_CurrentLocks
-        endif
+        JammAllLocks(True)
+        
+        ;UD_JammedLocks += iNumber
+        
+        ;if UD_JammedLocks > UD_CurrentLocks
+        ;    UD_JammedLocks = UD_CurrentLocks
+        ;endif
         
         JammLocks()
         
@@ -5320,10 +5499,10 @@ bool Function isNotShareActive()
 EndFunction
 
 Function ValidateJammedLocks()
-    if UD_JammedLocks && UD_CurrentLocks
+    if GetJammedLocks() && UD_CurrentLocks
         if !libs.IsLockJammed(getWearer(), UD_DeviceKeyword)
             UDmain.CLog(getDeviceHeader() + " is unjammed but have jammed locks. Unjamming")
-            UD_JammedLocks = 0
+            JammAllLocks(False)
         endif
     endif
 EndFunction

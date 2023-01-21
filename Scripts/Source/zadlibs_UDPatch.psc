@@ -1241,7 +1241,8 @@ Bool Function JamLock(actor akActor, keyword zad_DeviousDevice)
     if loc_renderdevice
         if loc_renderdevice.HasKeyword(UDlibs.UnforgivingDevice)
             UD_CustomDevice_RenderScript loc_device = UDCDmain.getDeviceByRender(akActor, loc_renderdevice)
-            loc_device.UD_JammedLocks = loc_device.UD_CurrentLocks
+            loc_device.JammAllLocks(True)
+            ;loc_device.UD_JammedLocks = loc_device.UD_CurrentLocks
         endif
         StorageUtil.SetIntValue(akActor, "zad_Equipped" + LookupDeviceType(zad_DeviousDevice) + "_LockJammedStatus", 1)
         return True
@@ -1260,7 +1261,8 @@ Bool Function UnJamLock(actor akActor, keyword zad_DeviousDevice)
     if loc_renderdevice
         if loc_renderdevice.HasKeyword(UDlibs.UnforgivingDevice)
             UD_CustomDevice_RenderScript loc_device = UDCDmain.getDeviceByRender(akActor, loc_renderdevice)
-            loc_device.UD_JammedLocks = 0
+            loc_device.JammAllLocks(False)
+            ;loc_device.UD_JammedLocks = 0
         endif
         StorageUtil.SetIntValue(akActor, "zad_Equipped" + LookupDeviceType(zad_DeviousDevice) + "_LockJammedStatus", 0)
         return True

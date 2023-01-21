@@ -127,7 +127,7 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
     if (StringUtil.find(device.deviceInventory.getName(),"High Security") != -1 || StringUtil.find(device.deviceInventory.getName(),"Secure") != -1)
         device.UD_durability_damage_base = fRange(device.UD_durability_damage_base/4.0,0.05,100.0)
         device.UD_StruggleCritDuration = 0.5
-        device.UD_Locks = UD_MinLocks
+        ;device.UD_Locks = UD_MinLocks
         device.UD_LockpickDifficulty = 100
         if device.UD_LockAccessDifficulty < 85
             device.UD_LockAccessDifficulty = 85
@@ -154,7 +154,7 @@ Function patchBlindfold(UD_CustomBlindfold_RenderScript device)
     CheckLocks(device,false,30)
     ;materials
     if StringUtil.find(device.deviceInventory.getName(),"Extreme") != -1 || (StringUtil.find(device.deviceInventory.getName(),"High Security") != -1 || StringUtil.find(device.deviceInventory.getName(),"Secure") != -1)
-        device.UD_Locks = UD_MinLocks
+        ;device.UD_Locks = UD_MinLocks
         device.UD_ResistPhysical = Utility.randomFloat(0.4,0.8)
         device.UD_ResistMagicka = Utility.randomFloat(0.2,1.0)
     endif
@@ -169,7 +169,7 @@ Function patchGag(UD_CustomGag_RenderScript device)
     patchDefaultValues(device,loc_currentmult)
     
     if StringUtil.find(device.deviceInventory.getName(),"Extreme") != -1 || (StringUtil.find(device.deviceInventory.getName(),"High Security") != -1 || StringUtil.find(device.deviceInventory.getName(),"Secure") != -1)
-        device.UD_Locks = UD_MinLocks
+        ;device.UD_Locks = UD_MinLocks
     endif
     
     checkLooseModifier(device,30,0.05, 0.15)
@@ -199,7 +199,7 @@ Function patchBelt(UD_CustomBelt_RenderScript device)
     elseif (StringUtil.find(device.deviceInventory.getName(),"Rope") != -1)
         device.UD_ResistPhysical = Utility.randomFloat(-0.5,0.0)
         device.UD_ResistMagicka = Utility.randomFloat(-0.1,0.1)
-        device.UD_Locks = 0
+        ;device.UD_Locks = 0
     endif
     
     if device as UD_CustomCrotchDevice_RenderScript
@@ -214,7 +214,7 @@ Function patchPlug(UD_CustomPlug_RenderScript device)
     Float loc_currentmult = UD_PatchMult_Plug*UD_PatchMult*GetPatchDifficulty(device)
     patchDefaultValues(device,loc_currentmult)
     
-    device.UD_Locks = 0
+    ;device.UD_Locks = 0
     device.UD_durability_damage_base = Utility.randomFloat(10.0,20.0)/loc_currentmult
     device.UD_VibDuration = Math.Floor(Utility.randomInt(45,80)*fRange(loc_currentmult,0.5,5.0))
     device.UD_OrgasmMult  = Utility.randomFloat(0.75,1.5)*fRange(loc_currentmult,0.7,1.0)
@@ -455,7 +455,7 @@ Function checkInventoryScript(UD_CustomDevice_RenderScript device,int argControl
         endif
         
         if !inventoryScript.deviceKey && inventoryScript.LockPickEscapeChance == 0.0
-            device.UD_Locks = 0
+            ;device.UD_Locks = 0
         elseif !device.UD_durability_damage_base && device.UD_Locks == 0 ;inventoryScript.deviceKey; && inventoryScript.LockAccessDifficulty < 100.0
             CheckLocks(device)
         endif
@@ -479,13 +479,13 @@ Function CheckLocks(UD_CustomDevice_RenderScript device,bool bEven = false,int i
     endif
     
     if UD_MaxLocks == UD_MinLocks
-        device.UD_Locks = UD_MaxLocks
+        ;device.UD_Locks = UD_MaxLocks
         return
     endif
     
     ;device have no locks
     if Utility.randomInt(0,99) < iChanceNone
-        device.UD_Locks = 0
+        ;device.UD_Locks = 0
         return
     endif
     
@@ -493,24 +493,24 @@ Function CheckLocks(UD_CustomDevice_RenderScript device,bool bEven = false,int i
         int loc_res = Utility.randomInt(UD_MinLocks,UD_MaxLocks)
         
         if !loc_res
-            device.UD_Locks = 1 ;can't have device without lock!
+            ;device.UD_Locks = 1 ;can't have device without lock!
             return
         endif
         
         if (loc_res % 2) 
             ;is not even
             if loc_res + 1 <= UD_MaxLocks
-                device.UD_Locks = loc_res + 1
+                ;device.UD_Locks = loc_res + 1
             elseif loc_res - 1 >= UD_MinLocks
-                device.UD_Locks = loc_res - 1
+                ;device.UD_Locks = loc_res - 1
             else
-                device.UD_Locks = loc_res ;fuck it
+                ;device.UD_Locks = loc_res ;fuck it
             endif
         else
-            device.UD_Locks = loc_res
+            ;device.UD_Locks = loc_res
         endif
     else
-        device.UD_Locks = Utility.randomInt(UD_MinLocks,UD_MaxLocks)
+        ;device.UD_Locks = Utility.randomInt(UD_MinLocks,UD_MaxLocks)
     endif
 EndFunction
 
@@ -552,6 +552,10 @@ Function patchDefaultValues(UD_CustomDevice_RenderScript device,Float fMult)
     
     checkSentientModifier(device,Round(15*fMult),1.0)
     checkHealModifier(device,10)
+    
+    device.CreateLock(aiDifficulty = 10, aiAccess = 100, asName = "Test Lock",abAdd = True, aiShields = 3)
+    device.CreateLock(aiDifficulty = 90, aiAccess = 10, asName = "Test Lock 2",abAdd = True, aiShields = 1)
+    device.CreateLock(aiDifficulty = 10, aiAccess = 100, asName = "",abAdd = True, aiShields = 3)
 EndFunction
 
 ;check resist, so it can never bee too big or too low
