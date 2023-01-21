@@ -198,3 +198,11 @@ State Paused
     Function Evaluate()
     EndFunction
 EndState
+
+State Disabled
+    Event OnUpdate()
+        RegisterForSingleUpdate(3*UD_UpdateTime)
+    EndEvent
+    Function Evaluate()
+    EndFunction
+EndState

@@ -210,13 +210,47 @@ Event OnInit()
     RegisterForSingleUpdate(0.1)
 EndEvent
 
+Bool Property _Disabled = False Auto Hidden Conditional
+Bool Property _Updating = False Auto Hidden Conditional
+
+;returns true if mod is currently updating. Mods should be threated as disabled when this happends
+Bool Function IsUpdating()
+    return _Updating
+EndFunction
+
+;returns true if UD is enabled
+Bool Function IsEnabled()
+    return !_Disabled && !_Updating
+EndFunction
+
+;Disables, Enables UD
+Function DISABLE()
+    _Disabled = True
+    UDNPCM.GoToState("Disabled") ;disable NPC manager, disabling all device updates
+    UDAI.GoToState("Disabled") ;disable AI updates
+    UDOM.GoToState("Disabled") ;disable orgasm updates
+EndFunction
+Function ENABLE()
+    _Disabled = False
+    UDNPCM.GoToState("")
+    UDAI.GoToState("")
+    UDOM.GoToState("")
+EndFunction
+
 Function OnGameReload()
+    if _Disabled
+        return ;mod is disabled, do nothing
+    endif
+    
+    _Updating = True
+    DISABLE()
+    
     if !Ready
         Utility.waitMenuMode(2.5)
     endif
     
     Utility.waitMenuMode(3.5)
-        
+    
     CLog("OnGameReload() called! - Updating Unforgiving Devices...")
     
     ;update all scripts
@@ -261,6 +295,9 @@ Function OnGameReload()
     UDAbadonQuest.Update()
     
     CLog("Unforgiving Devices updated.")
+    
+    _Updating = False
+    ENABLE()
 EndFunction
 
 Event OnUpdate()

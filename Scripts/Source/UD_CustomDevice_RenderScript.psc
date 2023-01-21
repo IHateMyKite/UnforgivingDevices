@@ -1317,6 +1317,10 @@ Function updateValuesFromInventoryScript()
     endif
 EndFunction
 
+;==============================================================================================
+;                                 MODIFIER MANIP FUNCTIONS                                     
+;==============================================================================================
+
 bool Function addModifier(string modifier,string param = "")
     if !hasModifier(modifier)
         if param != ""
@@ -1512,7 +1516,6 @@ EndFunction
 ; Int       AddLock(Int aiLock, String asName = "", Bool abNoCreate = False)    = Adds lock to lock list, if abNoCreate is true, the lock will not be added if no locks already exist on device (aka, only if device had locks before), Return index of the added lock. In case of error, returns -1
 
 Int _MinigameSelectedLockID = -1
-Int _MinigameSelectedLock   = 0x00000000
 
 ;return true if device have locks
 Bool Function HaveLocks()
@@ -1524,10 +1527,10 @@ Bool Function HaveLockedLocks()
     if UD_LockList
         Int loc_LockNum = GetLockNumber()
         while loc_LockNum
+            loc_LockNum -= 1
             if !IsNthLockUnlocked(loc_LockNum)
                 return true
             endif
-            loc_LockNum -= 1
         endwhile
         return false
     else
@@ -1537,14 +1540,14 @@ EndFunction
 
 ;return number of currently locked locks or 0 if there is error
 Int Function GetLockedLocks()
-    if UD_LockList
+    if HaveLocks()
         Int loc_LockNum = GetLockNumber()
         Int loc_res = 0
         while loc_LockNum
+            loc_LockNum -= 1
             if !IsNthLockUnlocked(loc_LockNum)
                 loc_res += 1
             endif
-            loc_LockNum -= 1
         endwhile
         return loc_res
     else
@@ -1554,14 +1557,14 @@ EndFunction
 
 ;return number of currently jammed locks or 0 if there is error
 Int Function GetJammedLocks()
-    if UD_LockList
+    if HaveLocks()
         Int loc_LockNum = GetLockNumber()
         Int loc_res = 0
         while loc_LockNum
+            loc_LockNum -= 1
             if IsNthLockJammed(loc_LockNum)
                 loc_res += 1
             endif
-            loc_LockNum -= 1
         endwhile
         return loc_res
     else
@@ -1579,8 +1582,8 @@ String[] Function GetLockList()
             UD_LockNameList = Utility.CreateStringArray(UD_LockList.length)
             Int loc_LockNum = GetLockNumber()
             while loc_LockNum
-                UD_LockNameList[loc_LockNum] = "S="+GetNthLockShields(loc_LockNum)+" | Diff="+GetNthLockDifficulty(loc_LockNum) + " | Acc="+ GetNthLockAccessibility(loc_LockNum)
                 loc_LockNum -= 1
+                UD_LockNameList[loc_LockNum] = "S="+GetNthLockShields(loc_LockNum)+" | Diff="+GetNthLockDifficulty(loc_LockNum) + " | Acc="+ GetNthLockAccessibility(loc_LockNum)
             endwhile
             return UD_LockNameList
         endif
@@ -1592,27 +1595,33 @@ EndFunction
 ;open the list of locks for user. Returns index of selected lock, or -1 in case that user either backed out or there was error
 Int Function UserSelectLock()
     String[] loc_Locks = GetLockList()
-    if loc_Locks
-        Int loc_res = UDmain.GetUserListInput(loc_Locks)
-        if loc_res >= 0
-            return loc_res
+    String[] loc_ResList
+    int loc_i = 0
+    while loc_i < loc_Locks.length
+        loc_ResList = PapyrusUtil.PushString(loc_ResList,loc_Locks[loc_i])
+        if IsNthLockUnlocked(loc_i)
+            loc_ResList[loc_ResList.length - 1] = loc_ResList[loc_ResList.length - 1] + " [UNLOCKED]"
+        elseif IsNthLockJammed(loc_i)
+            loc_ResList[loc_ResList.length - 1] = loc_ResList[loc_ResList.length - 1] + " [JAMMED]"
         else
-            return -1
+            loc_ResList[loc_ResList.length - 1] = loc_ResList[loc_ResList.length - 1] + " [LOCKED] | S="+GetNthLockShields(loc_i)
         endif
+        loc_i += 1
+    endwhile
+    loc_ResList = PapyrusUtil.PushString(loc_ResList,"==BACK==")
+    if loc_ResList
+        Int loc_res = UDmain.GetUserListInput(loc_ResList)
+        return loc_res
     else
         return -1
     endif
 EndFunction
 
-Function _SetMinigameLock(Int aiLockID, Int aiLockValue)
+Function _SetMinigameLock(Int aiLockID)
     _MinigameSelectedLockID = aiLockID
-    _MinigameSelectedLock   = aiLockValue
 EndFunction
 Int Function _GetMinigameLockID()
     return _MinigameSelectedLockID
-EndFunction
-Int Function _GetMinigameLock()
-    return _MinigameSelectedLock
 EndFunction
 
 ;return true if passed lock is in valid format
@@ -1642,7 +1651,7 @@ EndFunction
 Bool Function IsNthLockUnlocked(Int aiLockIndex)
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock) 
-        return decodeBit(loc_Lock,0,1)
+        return decodeBit(loc_Lock,1,0)
     else
         return False ;return false as error value
     endif
@@ -1652,7 +1661,7 @@ EndFunction
 Bool Function IsNthLockJammed(Int aiLockIndex)
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock) 
-        return decodeBit(loc_Lock,1,2)
+        return decodeBit(loc_Lock,1,1)
     else
         return False ;return false as error value
     endif
@@ -1662,7 +1671,7 @@ EndFunction
 Int Function GetNthLockShields(Int aiLockIndex)
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock) 
-        return decodeBit(loc_Lock,4,7)
+        return decodeBit(loc_Lock,4,4)
     else
         return 0 ;return 0 as error value
     endif
@@ -1672,7 +1681,7 @@ EndFunction
 Int Function GetNthLockAccessibility(Int aiLockIndex)
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock) 
-        return iRange(decodeBit(loc_Lock,8,14),0,100)
+        return iRange(decodeBit(loc_Lock,7,8),0,100)
     else
         return 0 ;return 0 as error value
     endif
@@ -1682,7 +1691,7 @@ EndFunction
 Int Function GetNthLockDifficulty(Int aiLockIndex)
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock) 
-        return decodeBit(loc_Lock,15,22)
+        return decodeBit(loc_Lock,8,15)
     else
         return 0 ;return 0 as error value
     endif
@@ -1695,10 +1704,8 @@ Bool Function UnlockNthLock(Int aiLockIndex, Bool abUnlock = True)
     Bool loc_res  = False ;return False as error value
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock)
-        _StartLockManipMutex()
-        loc_Lock = codeBit(loc_Lock,0,1, abUnlock as Int)
+        loc_Lock = codeBit(loc_Lock, abUnlock as Int,1,0)
         UD_LockList[aiLockIndex] = loc_Lock
-        _EndLockManipMutex()
         loc_res = true
     endif
     _EndLockManipMutex()
@@ -1714,10 +1721,11 @@ Int Function UnlockAllLocks(Bool abUnlock = True)
     Int     loc_res     = 0 ;return False as error value
     Int     loc_LockNum = GetLockNumber()
     while loc_LockNum
+        loc_LockNum -= 1
         Int  loc_Lock = GetNthLock(loc_LockNum)
         if IsValidLock(loc_Lock)
             if (abUnlock && !IsNthLockUnlocked(loc_LockNum)) ;unlock lock
-                loc_Lock = codeBit(loc_Lock,0,1, 1)
+                loc_Lock = codeBit(loc_Lock,1,1, 0)
                 UD_LockList[loc_LockNum] = loc_Lock
                 loc_res += 1
             elseif (!abUnlock && IsNthLockUnlocked(loc_LockNum)) ;lock lock
@@ -1726,7 +1734,6 @@ Int Function UnlockAllLocks(Bool abUnlock = True)
                 loc_res += 1
             endif
         endif
-        loc_LockNum -= 1
     endwhile
     _EndLockManipMutex()
     return loc_res
@@ -1739,10 +1746,8 @@ Bool Function JammNthLock(Int aiLockIndex, Bool abJamm = True)
     Bool loc_res  = False ;return False as error value
     Int  loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock)
-        _StartLockManipMutex()
-        loc_Lock = codeBit(loc_Lock,1,2, abJamm as Int)
+        loc_Lock = codeBit(loc_Lock, abJamm as Int,1,1)
         UD_LockList[aiLockIndex] = loc_Lock
-        _EndLockManipMutex()
         loc_res = true
     endif
     _EndLockManipMutex()
@@ -1758,19 +1763,19 @@ Int Function JammAllLocks(Bool abJamm = True)
     Int     loc_res     = 0 ;return False as error value
     Int     loc_LockNum = GetLockNumber()
     while loc_LockNum
+        loc_LockNum -= 1
         Int  loc_Lock = GetNthLock(loc_LockNum)
         if IsValidLock(loc_Lock)
             if (abJamm && !IsNthLockJammed(loc_LockNum)) ;jamm lock
-                loc_Lock = codeBit(loc_Lock,1,2, 1)
+                loc_Lock = codeBit(loc_Lock,1,1, 1)
                 UD_LockList[loc_LockNum] = loc_Lock
                 loc_res += 1
             elseif (!abJamm && IsNthLockJammed(loc_LockNum)) ;unjamm lock
-                loc_Lock = codeBit(loc_Lock,1,2, 0)
+                loc_Lock = codeBit(loc_Lock,0,1, 1)
                 UD_LockList[loc_LockNum] = loc_Lock
                 loc_res += 1
             endif
         endif
-        loc_LockNum -= 1
     endwhile
     _EndLockManipMutex()
     return loc_res
@@ -1782,8 +1787,8 @@ Int Function DecreaseLockShield(Int aiLockIndex, Int aiShieldDecrease = 1, Bool 
     Int loc_res  = 0 ;return 0 as error value
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock)
-        Int loc_ShieldNumber = iUnsig(decodeBit(loc_Lock,4,7) + aiShieldDecrease)
-        loc_Lock = codeBit(loc_Lock,4,7, loc_ShieldNumber)
+        Int loc_ShieldNumber = iUnsig(decodeBit(loc_Lock,4,4) - aiShieldDecrease)
+        loc_Lock = codeBit(loc_Lock, loc_ShieldNumber,4,4)
         UD_LockList[aiLockIndex] = loc_Lock
         if loc_ShieldNumber
             loc_res = loc_ShieldNumber ;lock still have shields after the operation
@@ -1791,7 +1796,7 @@ Int Function DecreaseLockShield(Int aiLockIndex, Int aiShieldDecrease = 1, Bool 
             if abAutoUnlock
                 UnlockNthLock(aiLockIndex)
             endif
-            loc_res = 0 ;no more shieůds after uúdate
+            loc_res = 0 ;no more shields after update
         endif
     endif
     _EndLockManipMutex()
@@ -1804,8 +1809,8 @@ Bool Function UpdateLockAccessibility(Int aiLockIndex, Int aiAccessibilityDelta)
     Bool loc_res = False ;return False as error value
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock)
-        Int loc_Accessibility = iRange(decodeBit(loc_Lock,8,14) + aiAccessibilityDelta,0,100)
-        loc_Lock = codeBit(loc_Lock,8,14, loc_Accessibility)
+        Int loc_Accessibility = iRange(decodeBit(loc_Lock,7,8) + aiAccessibilityDelta,0,100)
+        loc_Lock = codeBit(loc_Lock, loc_Accessibility,7,8)
         UD_LockList[aiLockIndex] = loc_Lock
         loc_res = true ;operation was succesfull
     endif
@@ -1820,11 +1825,11 @@ Bool Function UpdateLockDifficulty(Int aiLockIndex, Int aiDifficultyDelta, Bool 
     Bool loc_res = False ;return False as error value
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock)
-        Int loc_Difficulty = iRange(decodeBit(loc_Lock,15,22) + aiDifficultyDelta,0,255)
+        Int loc_Difficulty = iRange(decodeBit(loc_Lock,8,15) + aiDifficultyDelta,0,255)
         if abNoKeyDiff
             loc_Difficulty = iRange(loc_Difficulty,0,100)
         endif
-        loc_Lock = codeBit(loc_Lock,15,22, loc_Difficulty)
+        loc_Lock = codeBit(loc_Lock, loc_Difficulty,8,15)
         UD_LockList[aiLockIndex] = loc_Lock
         loc_res = true
     endif
@@ -1836,9 +1841,9 @@ EndFunction
 ;if abAdd is True, the lock will also be automatically added to the list of locks
 Int Function CreateLock(Int aiDifficulty, Int aiAccess, String asName = "", Bool abAdd = False, Int aiShields = 1)
     Int loc_res = 0x00000000
-    loc_res = codeBit(loc_res,4,7,aiShields)
-    loc_res = codeBit(loc_res,8,14,aiAccess)
-    loc_res = codeBit(loc_res,15,22,aiDifficulty)
+    loc_res = codeBit(loc_res, aiShields,4,4)
+    loc_res = codeBit(loc_res, aiAccess,8,7)
+    loc_res = codeBit(loc_res, aiDifficulty,15,8)
     if abAdd
         _StartLockManipMutex()
         UD_LockList = PapyrusUtil.PushInt(UD_LockList,loc_res)
@@ -2241,19 +2246,20 @@ EndFunction
 ;5 = Master
 ;6 = Requires Key
 ;1 = Novice, 25 = Apprentice, 50 = Adept,75 = Expert,100 = Master,255 = Requires Key, range 1-255
-int Function getLockLevel()
-    if !UD_LockpickDifficulty
+int Function getLockpickLevel(Int aiLockIndex)
+    Int loc_difficulty = GetNthLockDifficulty(aiLockIndex)
+    if !loc_difficulty
         return 5
     endif
-    if UD_LockpickDifficulty == 1
+    if loc_difficulty == 1
         return 0 ;Novice
-    elseif UD_LockpickDifficulty <= 25
+    elseif loc_difficulty <= 25
         return 1 ;Apprentice
-    elseif UD_LockpickDifficulty <= 50
+    elseif loc_difficulty <= 50
         return 2 ;Adept
-    elseif UD_LockpickDifficulty <= 75
+    elseif loc_difficulty <= 75
         return 3 ;Expert
-    elseif UD_LockpickDifficulty <= 100
+    elseif loc_difficulty <= 100
         return 4 ;master
     else
         return 5
@@ -2578,7 +2584,7 @@ bool Function canBeStruggled(float afAccesibility = -1.0)
 EndFunction
 
 bool Function isEscapable()
-    if UD_durability_damage_base > 0.0 || (UD_Locks > 0 && UD_LockpickDifficulty < 255)
+    if UD_durability_damage_base > 0.0 || (UD_Locks);(UD_Locks > 0 && UD_LockpickDifficulty < 255)
         return True
     else
         return false
@@ -2775,13 +2781,13 @@ EndFunction
 Int Function NthLockMinigamesAllowed(Int aiLockID, Float afAccesibility)
     Int     loc_Lock            = GetNthLock(aiLockID)
     Bool    loc_Jammed          = IsNthLockJammed(aiLockID)
-    Int     loc_Accessibility   = GetNthLockAccessibility(aiLockID)
+    ;Int     loc_Accessibility   = GetNthLockAccessibility(aiLockID)
     Int     loc_Difficulty      = GetNthLockDifficulty(aiLockID)
     Int     loc_res = 0
-    if (loc_Accessibility > 0)
+    if (afAccesibility > 0)
         if !loc_Jammed
             ;key unlock
-            if zad_deviceKey && wearer.getItemCount(zad_deviceKey)
+            if zad_deviceKey && (wearer.getItemCount(zad_deviceKey) || (_minigameHelper && _minigameHelper.getItemCount(zad_deviceKey)))
                 loc_res += 2
             endif
             
@@ -2789,7 +2795,7 @@ Int Function NthLockMinigamesAllowed(Int aiLockID, Float afAccesibility)
             if loc_Difficulty < 255 && wearer.getItemCount(UDCDmain.Lockpick) > 0
                 loc_res += 1
             endif
-        elseif afAccesibility > 0
+        else
             loc_res += 4
         endif
     endif
@@ -2801,9 +2807,9 @@ Int Function LockMinigameAllowed(Float afAccesibility)
     Int loc_LockNum = GetLockNumber()
     int loc_res = 0x0
     while loc_LockNum
+        loc_LockNum -= 1
         Int loc_lockres = NthLockMinigamesAllowed(loc_LockNum,afAccesibility)
         loc_res = Math.LogicalOr(loc_res,loc_lockres)
-        loc_LockNum -= 1
     endwhile
     return loc_res
 EndFunction
@@ -2901,24 +2907,22 @@ Function deviceMenuInitWH(Actor akSource,bool[] aControl)
         UDCDmain.currentDeviceMenu_allowstruggling = True
     endif
 
-    if True;(UD_CurrentLocks != UD_JammedLocks) && (loc_lockacces || loc_freehands_helper)
-        ;key unlock
-        if zad_deviceKey 
-            if (wearer.getItemCount(zad_deviceKey) || akSource.getItemCount(zad_deviceKey)) 
-                UDCDmain.currentDeviceMenu_allowkey = True
-            endif
-        endif
-        
-        ;lockpicking
-        if UD_LockpickDifficulty < 255 
-            if (wearer.getItemCount(UDCDmain.Lockpick) || akSource.getItemCount(UDCDmain.Lockpick))
-                UDCDmain.currentDeviceMenu_allowlockpick = True
-            endif
+    Int loc_lockMinigame = LockMinigameAllowed(loc_accesibility)
+
+    ;key unlock
+    if Math.LogicalAnd(loc_lockMinigame,0x2)
+        UDCDmain.currentDeviceMenu_allowkey = True
+    endif
+    
+    ;lockpicking
+    if Math.LogicalAnd(loc_lockMinigame,0x1)
+        if (wearer.getItemCount(UDCDmain.Lockpick) || akSource.getItemCount(UDCDmain.Lockpick))
+            UDCDmain.currentDeviceMenu_allowlockpick = True
         endif
     endif
 
     ;lock repair
-    if (loc_accesibility || loc_freehands_helper) && UD_JammedLocks
+    if Math.LogicalAnd(loc_lockMinigame,0x4)
         UDCDmain.currentDeviceMenu_allowlockrepair = True
     endif
 
@@ -3183,7 +3187,7 @@ bool Function lockpickMinigame(Bool abSilent = False)
     endif    
     
     Int loc_SelectedLock = 0
-    if PlayerInMinigame()
+    if WearerIsPlayer()
         loc_SelectedLock = UserSelectLock()
     else
         ;TODO, gets best lock
@@ -3195,7 +3199,6 @@ bool Function lockpickMinigame(Bool abSilent = False)
     resetMinigameValues()
     
     _MinigameSelectedLockID = loc_SelectedLock
-    _MinigameSelectedLock   = GetNthLock(loc_SelectedLock)
     UD_minigame_stamina_drain = UD_base_stat_drain
     UD_damage_device = False
     UD_minigame_canCrit = False
@@ -3204,7 +3207,7 @@ bool Function lockpickMinigame(Bool abSilent = False)
     UD_RegenMag_Health = 0.5
     UD_RegenMag_Magicka = 0.5
     _customMinigameCritChance = getLockAccesChance(_MinigameSelectedLockID, false)
-    _customMinigameCritDuration = 0.8 - getLockLevel()*0.02
+    _customMinigameCritDuration = 0.8 - getLockpickLevel(_MinigameSelectedLockID)*0.02
     UD_AllowWidgetUpdate = False
     _minMinigameStatSP = 0.8
     
@@ -3224,7 +3227,7 @@ bool Function repairLocksMinigame(Bool abSilent = False)
     endif
     
     Int loc_SelectedLock = 0
-    if PlayerInMinigame()
+    if WearerIsPlayer()
         loc_SelectedLock = UserSelectLock()
     else
         ;TODO, gets best lock
@@ -3236,7 +3239,6 @@ bool Function repairLocksMinigame(Bool abSilent = False)
     resetMinigameValues()
     
     _MinigameSelectedLockID = loc_SelectedLock
-    _MinigameSelectedLock   = GetNthLock(loc_SelectedLock)
     UD_minigame_stamina_drain = UD_base_stat_drain*1.25
     UD_damage_device = False
     UD_minigame_canCrit = False
@@ -3244,8 +3246,8 @@ bool Function repairLocksMinigame(Bool abSilent = False)
     UD_WidgetColor = 0xffbd00
     UD_WidgetColor2 = -1
 
-    _customMinigameCritChance = 5 + (4 - getLockLevel())*5
-    _customMinigameCritDuration = 0.8 - getLockLevel()*0.02
+    _customMinigameCritChance = 5 + (4 - getLockpickLevel(_MinigameSelectedLockID))*5
+    _customMinigameCritDuration = 0.8 - getLockpickLevel(_MinigameSelectedLockID)*0.02
     UD_MinigameMult1 = getAccesibility() + UDCDMain.getActorSmithingSkillsPerc(getWearer())*0.5
     if wearerFreeHands()
         UD_MinigameMult1 += 0.5
@@ -3306,7 +3308,7 @@ bool Function keyMinigame(Bool abSilent = False)
     endif
 
     Int loc_SelectedLock = 0
-    if PlayerInMinigame()
+    if WearerIsPlayer()
         loc_SelectedLock = UserSelectLock()
     else
         ;TODO, gets best lock
@@ -3319,7 +3321,6 @@ bool Function keyMinigame(Bool abSilent = False)
     resetMinigameValues()
 
     _MinigameSelectedLockID = loc_SelectedLock
-    _MinigameSelectedLock   = GetNthLock(loc_SelectedLock)
     UD_damage_device = False
     UD_minigame_stamina_drain = UD_base_stat_drain
     UD_minigame_canCrit = False
@@ -3330,7 +3331,7 @@ bool Function keyMinigame(Bool abSilent = False)
     UD_RegenMag_Health = 0.5
     UD_RegenMag_Magicka = 0.5
     _customMinigameCritChance = getLockAccesChance(_MinigameSelectedLockID, false)
-    _customMinigameCritDuration = 0.85 - getLockLevel()*0.025
+    _customMinigameCritDuration = 0.85 - getLockpickLevel(_MinigameSelectedLockID)*0.025
     _minMinigameStatSP = 0.6
     
     
@@ -3471,7 +3472,7 @@ bool Function lockpickMinigameWH(Actor akHelper)
     endif
     
     Int loc_SelectedLock = 0
-    if PlayerInMinigame()
+    if WearerIsPlayer() || HelperIsPlayer()
         loc_SelectedLock = UserSelectLock()
     else
         ;TODO, gets best lock
@@ -3483,7 +3484,6 @@ bool Function lockpickMinigameWH(Actor akHelper)
     resetMinigameValues()
     
     _MinigameSelectedLockID = loc_SelectedLock
-    _MinigameSelectedLock   = GetNthLock(loc_SelectedLock)
     
     UD_minigame_stamina_drain = UD_base_stat_drain
     UD_minigame_stamina_drain_helper = UD_base_stat_drain*0.8
@@ -3527,7 +3527,7 @@ bool Function repairLocksMinigameWH(Actor akHelper)
     endif
     
     Int loc_SelectedLock = 0
-    if PlayerInMinigame()
+    if WearerIsPlayer() || HelperIsPlayer()
         loc_SelectedLock = UserSelectLock()
     else
         ;TODO, gets best lock
@@ -3539,7 +3539,6 @@ bool Function repairLocksMinigameWH(Actor akHelper)
     resetMinigameValues()
     
     _MinigameSelectedLockID = loc_SelectedLock
-    _MinigameSelectedLock   = GetNthLock(loc_SelectedLock)
     
     UD_minigame_stamina_drain = UD_base_stat_drain*1.25 
     UD_minigame_stamina_drain_helper = UD_base_stat_drain
@@ -3548,13 +3547,13 @@ bool Function repairLocksMinigameWH(Actor akHelper)
     UD_AllowWidgetUpdate = False
     UD_WidgetColor = 0xffbd00
     UD_WidgetColor2 = -1
-    _customMinigameCritChance = 10 + (4 - getLockLevel())*5
+    _customMinigameCritChance = 10 + (4 - getLockpickLevel(_MinigameSelectedLockID))*5
     UD_MinigameMult1 = getAccesibility() + 0.35*(UDCDMain.getActorSmithingSkillsPerc(getWearer()) + UDCDMain.getActorSmithingSkillsPerc(getHelper()))
     UD_RegenMag_Magicka = 0.5
     UD_RegenMag_Health = 0.5
     UD_RegenMagHelper_Magicka = 0.75
     UD_RegenMagHelper_Health = 0.75
-    _customMinigameCritDuration = 0.85 - getLockLevel()*0.015    
+    _customMinigameCritDuration = 0.85 - getLockpickLevel(_MinigameSelectedLockID)*0.015    
     _minMinigameStatSP = 0.8
     
     if wearerFreeHands()
@@ -3634,7 +3633,7 @@ bool Function keyMinigameWH(Actor akHelper)
     endif
     
     Int loc_SelectedLock = 0
-    if PlayerInMinigame()
+    if WearerIsPlayer() || HelperIsPlayer()
         loc_SelectedLock = UserSelectLock()
     else
         ;TODO, gets best lock
@@ -3646,7 +3645,6 @@ bool Function keyMinigameWH(Actor akHelper)
     resetMinigameValues()
     
     _MinigameSelectedLockID = loc_SelectedLock
-    _MinigameSelectedLock   = GetNthLock(loc_SelectedLock)
     
     UD_damage_device = False
     UD_minigame_stamina_drain = UD_base_stat_drain
@@ -3661,10 +3659,18 @@ bool Function keyMinigameWH(Actor akHelper)
     UD_RegenMagHelper_Magicka = 0.75
     UD_RegenMagHelper_Health = 0.75
     _customMinigameCritChance = getLockAccesChance(_MinigameSelectedLockID, false)
-    _customMinigameCritDuration = 0.9 - getLockLevel()*0.03
+    _customMinigameCritDuration = 0.9 - getLockpickLevel(_MinigameSelectedLockID)*0.03
     _minMinigameStatSP = 0.6
     UD_UseWidget = False
     UD_AllowWidgetUpdate = False
+    
+    if HelperFreeHands(True)
+        _customMinigameCritChance = 100
+    elseif HelperFreeHands()
+        _customMinigameCritChance = getLockAccesChance(_MinigameSelectedLockID, false) + 35
+    else
+        _customMinigameCritChance = getLockAccesChance(_MinigameSelectedLockID, false) + 10
+    endif
     
     if minigamePostcheck()
         keyGame_on = True
@@ -3770,7 +3776,6 @@ Function resetMinigameValues()
     _usingTelekinesis = false
     UD_AllowWidgetUpdate = true
     _MinigameSelectedLockID = -1
-    _MinigameSelectedLock   = 0x00000000
 EndFunction
 
 ;set minigame offensive variables
@@ -4518,6 +4523,7 @@ EndFunction
 
 ;function called when player correctly press crit button
 Function critDevice()
+    GInfo("critDevice")
     if OnCritDevicePre() && !isUnlocked && minigame_on
         if UD_minigame_critRegen
             if (UD_minigame_stamina_drain > 0.0)
@@ -4880,7 +4886,7 @@ string Function getInfoString()
     else
         temp += "Cut chance: Uncuttable\n"
     endif
-    temp += "Locks: "
+    ;temp += "Locks: "
     ;if UD_Locks == 0
     ;    temp += "None\n"
     ;else
@@ -4910,7 +4916,7 @@ string Function getInfoString()
     ;    endif
     ;    
     ;    temp += "Locks Difficulty: "
-    ;    int loc_lockdiff = getLockLevel()
+    ;    int loc_lockdiff = getLockpickLevel()
     ;    if loc_lockdiff == 0
     ;        temp += "Novice"
     ;    elseif loc_lockdiff == 1
@@ -4938,8 +4944,14 @@ string Function getInfoString()
     ;endif
     
     if UD_LockList && UD_LockList.length
-        temp += "Locks: " + UD_LockList.length
+        temp += "Locks: \n"; + UD_LockList.length + "\n"
         
+        Int loc_lockNum = UD_LockList.length
+        Int loc_i = 0
+        while loc_i < loc_lockNum
+            temp += "LOCK"+(loc_i + 1) + "= " + UD_LockNameList[loc_i] + ", L=" + !IsNthLockUnlocked(loc_i) + "\n"
+            loc_i += 1
+        endwhile
         temp += "Key: "
         if zad_deviceKey
             temp += zad_deviceKey.GetName() + "\n"
@@ -5220,9 +5232,8 @@ Function repairLock(float progress_add = 1.0)
     while loc_RepairProgress >= getLockDurability()
         loc_repaired = true
         loc_RepairProgress -= getLockDurability()
-        ;UD_JammedLocks  -= 1
         JammNthLock(_MinigameSelectedLockID, False)
-        if True;UD_JammedLocks == 0
+        if True ;allways stop minigame after the lock is fixed
             if !GetJammedLocks()
                 libs.UnJamLock(Wearer,UD_DeviceKeyword)
             endif
@@ -5257,11 +5268,12 @@ Function lockpickDevice()
                     getWearer().removeItem(UDCDmain.Lockpick,helperGivedLockpicks,True,getHelper())
                 endif
             endif
-            UDCDmain.ReadyLockPickContainer(UD_LockpickDifficulty,Wearer)
+            Int loc_difficulty = GetNthLockDifficulty(_MinigameSelectedLockID)
+            UDCDmain.ReadyLockPickContainer(loc_difficulty,Wearer)
             UDCDmain.startLockpickMinigame()
             
             float loc_elapsedTime = 0.0
-            float loc_maxtime = 20.0 - (UD_LockpickDifficulty/100.0)*10.0
+            float loc_maxtime = 20.0 - (loc_difficulty/100.0)*10.0
             bool loc_msgshown = false
             while (!UDCDmain.LockpickMinigameOver) && loc_elapsedTime <= loc_maxtime
                 Utility.WaitMenuMode(0.05)
@@ -5307,7 +5319,7 @@ Function lockpickDevice()
                 endif
             endif
         else
-            if Utility.randomInt(1,99) >= getLockLevel()*15
+            if Utility.randomInt(1,99) >= getLockpickLevel(_MinigameSelectedLockID)*15
                 result = 1
             else
                 result = 2
@@ -5324,26 +5336,37 @@ Function lockpickDevice()
             Int loc_shields = GetNthLockShields(_MinigameSelectedLockID)
             if loc_shields > 0 ;lock have shields, needs to unlock them first
                 loc_shields = DecreaseLockShield(_MinigameSelectedLockID,1)
-                if PlayerInMinigame()
-                    UDCDmain.Print("You succesfully unlocked one of the locks shields! " + loc_shields + " remaining",1)
-                elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                    UDCDmain.Print(getWearerName() + " unlocked one of the locks shields! " +loc_shields + " remaining",2)
+                if loc_shields
+                    if PlayerInMinigame()
+                        UDCDmain.Print("You succesfully unlocked one of the locks shields! Shields: [" + loc_shields + "]",1)
+                    elseif UDCDmain.AllowNPCMessage(Wearer, True)
+                        UDCDmain.Print(getWearerName() + " unlocked one of the locks shields! Shields: [" + loc_shields + "]",2)
+                    endif
+                else
+                    if PlayerInMinigame()
+                        UDCDmain.Print("You succesfully unlocked all of the shields!",1)
+                    elseif UDCDmain.AllowNPCMessage(Wearer, True)
+                        UDCDmain.Print(getWearerName() + " unlocked all of the shields!",2)
+                    endif
                 endif
             else ;no more shields on device, unlock the lock
-                if UD_CurrentLocks - UD_JammedLocks > 0
-                    UnlockNthLock(_MinigameSelectedLockID)
-                    if PlayerInMinigame()
-                        UDCDmain.Print("You succesfully unlocked one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining",1)
-                    elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                        UDCDmain.Print(getWearerName() + " unlocked one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining",2)
-                    endif
-                    onLockUnlocked(True)
-                    stopMinigame() ;stop minigame, as player needs to select next lock manually
+                UnlockNthLock(_MinigameSelectedLockID)
+                if PlayerInMinigame()
+                    UDCDmain.Print("You succesfully unlocked the "+UD_LockNameList[_MinigameSelectedLockID]+" lock!",1)
+                elseif UDCDmain.AllowNPCMessage(Wearer, True)
+                    UDCDmain.Print(getWearerName() + " unlocked one of the "+UD_LockNameList[_MinigameSelectedLockID]+" lock!",2)
                 endif
+                onLockUnlocked(True)
+                stopMinigame() ;stop minigame, as player needs to select next lock manually
             endif
             if UD_CurrentLocks == 0 && UD_JammedLocks == 0 ;device gets unlocked
-                ;current_device_health = 0
+                if PlayerInMinigame()
+                    UDCDmain.Print("You succesfully unlocked the last lock and removed the "+GetDeviceName()+"!",1)
+                elseif UDCDmain.AllowNPCMessage(Wearer, True)
+                    UDCDmain.Print(getWearerName() + " unlocked last lock and removed the "+GetDeviceName()+"!",2)
+                endif
                 unlockRestrain()
+                stopMinigame()
                 lockpickGame_on = False
                 OnDeviceLockpicked()
             elseif UD_CurrentLocks == UD_JammedLocks ;device have no more free locks
@@ -5359,7 +5382,6 @@ Function lockpickDevice()
                     UDCDmain.Print(getWearerName() + "s "+getDeviceName()+" lock gets jammed!",3)
                 endif
                 
-                ;UD_JammedLocks += 1
                 JammNthLock(_MinigameSelectedLockID)
                 JammLocks()
                 stopMinigame()
@@ -5382,7 +5404,6 @@ EndFunction
 ;unlock one of the locks if lock is reached
 Function keyUnlockDevice()
     if UD_CurrentLocks - UD_JammedLocks > 0
-        ;UD_CurrentLocks -= 1
         UnlockNthLock(_MinigameSelectedLockID)
         if PlayerInMinigame()
             UDCDMain.Print("You managed to unlock one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining",1)
@@ -5991,7 +6012,7 @@ EndFunction
 
 ;internal functions, as calling them from UDmain can cause suspension
 int Function codeBit(int iCodedMap,int iValue,int iSize,int iIndex)
-    if iIndex + iSize > 32
+    if iIndex + iSize > 32 || iSize < 1 || iIndex < 0
         return 0xFFFFFFFF ;returns error value
     endif
     ;sets not shifted bit mask loc_clear_mask
