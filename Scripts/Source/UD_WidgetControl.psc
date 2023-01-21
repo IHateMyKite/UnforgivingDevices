@@ -22,7 +22,7 @@ Bool                        Property UD_UseIWantWidget
     Function Set(Bool abValue)
         If _UD_UseIWantWidget != abValue
             _UD_UseIWantWidget = abValue
-            Update()
+            SwitchStates(abGameLoad = False)
         EndIf
     EndFunction
 EndProperty
@@ -263,13 +263,15 @@ Event OnUpdate()
 EndEvent
 
 Function Update()
-    ;UDmain.Info("UD_WidgetControl::Update() UDmain.iWidgetInstalled = " + UDmain.iWidgetInstalled + " , UD_UseIWantWidget="+UD_UseIWantWidget)
-    ; iWidget compatibility
+    SwitchStates(abGameLoad = True)
+EndFunction
+
+Function SwitchStates(Bool abGameLoad)
     if UDmain.UseiWW()
         GoToState("iWidgetInstalled")
         UD_Widget1.hide(true)
         UD_Widget2.hide(true)
-        InitWidgetsRequest(abGameLoad = True, abMeters = True, abIcons = True, abText = True)
+        InitWidgetsRequest(abGameLoad = abGameLoad, abMeters = True, abIcons = True, abText = True)
     else
         GoToState("")
         UD_WidgetXPos = UD_WidgetXPos
@@ -441,6 +443,7 @@ Int         _Widget_Icon_Active100_Color            = 0xFF00FF      ; Magenta   
 
 Event OnBeginState()
     RegisterForSingleUpdate(30.0)
+    StatusEffect_AllUpdate()
 EndEvent
     
 Function UpdateGroupPositions()
@@ -498,6 +501,12 @@ EndFunction
 ; asName            - effect name (icon name)
 ; abVisible         - desired visibility state
 Function StatusEffect_SetVisible(String asName, Bool abVisible = True)
+    Int index = _GetIconIndex(asName)
+    _Icons_Visible[index] = abVisible as Int
+    If abVisible
+    Else
+        _Icons_Blinking[index] = 0
+    EndIf
 EndFunction
 
 ; Set magnitude of the effect.
@@ -505,6 +514,8 @@ EndFunction
 ; asName            - effect name (icon name)
 ; aiMagnitude       - magnitude
 Function StatusEffect_SetMagnitude(String asName, Int aiMagnitude)
+    Int index = _GetIconIndex(asName)
+    _Icons_Magnitude[index] = aiMagnitude
 EndFunction
 
 ; Adjust magnitude by the given value.
@@ -513,12 +524,50 @@ EndFunction
 ; aiAdjustValue         - adjust value
 ; abControlVisibility   - if true, the icon will be hidden or shown depending on the final value
 Function StatusEffect_AdjustMagnitude(String asName, Int aiAdjustValue, Bool abControlVisibility = True)
+    Int index = _GetIconIndex(asName)
+    _Icons_Magnitude[index] = _Icons_Magnitude[index] + aiAdjustValue
+    If _Icons_Magnitude[index] < 0
+        _Icons_Magnitude[index] = 0
+    EndIf
+    If abControlVisibility
+        _Icons_Visible[index] = (_Icons_Magnitude[index] > 0) as Int
+    EndIf
 EndFunction
 
 ; Set icon blinking (periodic change of alpha in range 25 .. 100).
 ; asName                - effect name (icon name)
 ; abBlink               - blinking status
 Function StatusEffect_SetBlink(String asName, Bool abBlink = True)
+    Int index = _GetIconIndex(asName)
+    _Icons_Blinking[index] = abBlink As Int
+EndFunction
+
+; Update all icons after switching between states
+Function StatusEffect_AllUpdate()
+    If iWidget == None 
+        Return
+    EndIf
+    Int i = _Icons_Id.Length
+    While i > 0
+        i -= 1
+        If _Icons_Id[i] > 0
+            iWidget.setVisible(_Icons_Id[i], 0)
+        EndIf
+    EndWhile
+    i = _Text_LinesId.Length
+    While i > 0
+        i -= 1
+        If _Icons_Id[i] > 0
+            iWidget.setVisible(_Text_LinesId[i], 0)
+        EndIf
+    EndWhile
+    i = _WidgetsID.Length
+    While i > 0
+        i -= 1
+        If _Icons_Id[i] > 0
+            iWidget.setVisible(_WidgetsID[i], 0)
+        EndIf
+    EndWhile
 EndFunction
 
 ; Show all enabled (!) widgets with test animations for the short time
@@ -545,9 +594,43 @@ Bool Function _NextNotification()
 EndFunction
 Function _AddTextLineWidget()
 EndFunction
+
 Int Function _GetIconIndex(String asName)
+    Int index = _Icons_Name.Find(asName)
+    If index == -1
+        index = _CreateIcon(asName)
+    EndIf
+    Return index
 EndFunction
-Int Function _CreateIcon(String asName, Int aiXOffset = -1, Int aiYOffset = -1, Int aiAlpha = -1)
+
+Int Function _CreateIcon(String asName, Int aiX = -1, Int aiY = -1, Int aiAlpha = -1)
+    UDMain.Log("UD_WidgetControl::_CreateIcon() asName = " + asName + ", aiX = " + aiX + ", aiY = " + aiY + ", aiAlpha = " + aiAlpha, 3)
+    Int icon_id = -1
+    Int index = _Icons_Name.Find(asName)
+    If index >= 0
+        If _Icons_Id[index] > 0
+            icon_id = _Icons_Id[index]
+        Else
+            _Icons_Id[index] = -1
+        EndIf
+        If aiAlpha >= 0
+            _Icons_Alpha[index] = aiAlpha
+        EndIf
+    Else
+        icon_id = -1
+        _Icons_Name = PapyrusUtil.PushString(_Icons_Name, asName)
+        _Icons_Id = PapyrusUtil.PushInt(_Icons_Id, icon_id)
+        _Icons_Timer = PapyrusUtil.PushFloat(_Icons_Timer, 0.0)
+        _Icons_Magnitude = PapyrusUtil.PushInt(_Icons_Magnitude, 0)
+        _Icons_Stage = PapyrusUtil.PushInt(_Icons_Stage, 0)
+        _Icons_Blinking = PapyrusUtil.PushInt(_Icons_Blinking, 0)
+        _Icons_Visible = PapyrusUtil.PushInt(_Icons_Visible, 0)
+        _Icons_Enabled = PapyrusUtil.PushInt(_Icons_Enabled, 1)
+        _Icons_Alpha = PapyrusUtil.PushInt(_Icons_Alpha, aiAlpha)
+        index = _Icons_Id.Length - 1
+    EndIf
+    UDMain.Log("UD_WidgetControl::_CreateIcon() icon_id = " + icon_id + ", index = " + index, 3)
+    Return index
 EndFunction
 
 Bool _InitMetersMutex = False
@@ -558,6 +641,7 @@ State iWidgetInstalled
     Event OnBeginState()
         _Animation_LastGameTime = Utility.GetCurrentRealTime()
         RegisterForSingleUpdate(_Animation_Update)
+        StatusEffect_AllUpdate()
     EndEvent
     
     Event OnUpdate()
@@ -631,7 +715,7 @@ State iWidgetInstalled
             Return False
         EndIf
         _WidgetsID = _AddWidget(_WidgetsID, _Widget_Orgasm, 2.0*UD_WidgetVerOffset, _Widget_Orgasm_Perc, _Widget_Orgasm_Color, _Widget_Orgasm_Color2, _Widget_Orgasm_Color3)
-        
+
         iWidget.setVisible(_Widget_DeviceDurability, _Widget_DeviceDurability_Visible As Int)
         iWidget.setVisible(_Widget_DeviceCondition, _Widget_DeviceCondition_Visible As Int)
         iWidget.setVisible(_Widget_Orgasm, _Widget_Orgasm_Visible As Int)
@@ -784,7 +868,7 @@ State iWidgetInstalled
                 Return False
             EndIf
         EndWhile
-        _UpdateIconsEnabled()
+;        _UpdateIconsEnabled()
         Return True
     EndFunction
     
@@ -1041,14 +1125,6 @@ State iWidgetInstalled
         Return True
     EndFunction
     
-    Int Function _GetIconIndex(String asName)
-        Int index = _Icons_Name.Find(asName)
-        If index == -1
-            index = _CreateIcon(asName)
-        EndIf
-        Return index
-    EndFunction
-    
     Int Function _CreateIcon(String asName, Int aiX = -1, Int aiY = -1, Int aiAlpha = -1)
         UDMain.Log("UD_WidgetControl::_CreateIcon() asName = " + asName + ", aiX = " + aiX + ", aiY = " + aiY + ", aiAlpha = " + aiAlpha, 3)
         If aiX < 0 || aiY < 0
@@ -1059,7 +1135,7 @@ State iWidgetInstalled
         Int icon_id = -1
         Int index = _Icons_Name.Find(asName)
         If index >= 0
-            If _Icons_Id[index] >= 0
+            If _Icons_Id[index] > 0
                 icon_id = _Icons_Id[index]
             Else
                 icon_id = iWidget.loadLibraryWidget(asName)
@@ -1083,17 +1159,15 @@ State iWidgetInstalled
         EndIf
         iWidget.setSize(icon_id, UD_IconsSize, UD_IconsSize)
         iWidget.setPos(icon_id, aiX, aiY)
-        iWidget.setTransparency(icon_id, aiAlpha)
+        iWidget.setTransparency(icon_id, _Icons_Alpha[index])
         iWidget.setVisible(icon_id, _Icons_Visible[index] * _Icons_Enabled[index])
+        _SetIconRGB(icon_id, _Icons_Magnitude[index])
         UDMain.Log("UD_WidgetControl::_CreateIcon() icon_id = " + icon_id + ", index = " + index, 3)
         Return index
     EndFunction
     
     Function StatusEffect_SetVisible(String asName, Bool abVisible = True)
         Int index = _GetIconIndex(asName)
-        If index < 0
-            Return
-        EndIf
         _Icons_Visible[index] = abVisible as Int
         iWidget.setVisible(_Icons_Id[index], _Icons_Visible[index] * _Icons_Enabled[index])
         If abVisible
@@ -1105,18 +1179,12 @@ State iWidgetInstalled
     
     Function StatusEffect_SetMagnitude(String asName, Int aiMagnitude)
         Int index = _GetIconIndex(asName)
-        If index < 0
-            Return
-        EndIf
         _Icons_Magnitude[index] = aiMagnitude
         _SetIconRGB(_Icons_Id[index], aiMagnitude)
     EndFunction
     
     Function StatusEffect_AdjustMagnitude(String asName, Int aiAdjustValue, Bool abControlVisibility = True)
         Int index = _GetIconIndex(asName)
-        If index < 0
-            Return
-        EndIf
         _Icons_Magnitude[index] = _Icons_Magnitude[index] + aiAdjustValue
         If _Icons_Magnitude[index] < 0
             _Icons_Magnitude[index] = 0
@@ -1130,9 +1198,6 @@ State iWidgetInstalled
     
     Function StatusEffect_SetBlink(String asName, Bool abBlink = True)
         Int index = _GetIconIndex(asName)
-        If index < 0
-            Return
-        EndIf
         _Icons_Blinking[index] = abBlink As Int
         If abBlink
             RegisterForSingleUpdate(_Animation_UpdateInstant)
@@ -1140,7 +1205,18 @@ State iWidgetInstalled
             iWidget.setTransparency(_Icons_Id[index], _Icons_Alpha[index])
         EndIf
     EndFunction
-
+    
+    ; Update all icons after switching between states
+    Function StatusEffect_AllUpdate()
+        Int i = _Icons_Name.Length
+        While i > 0
+            i -= 1
+            StatusEffect_SetVisible(_Icons_Name[i], _Icons_Visible[i])
+            StatusEffect_SetMagnitude(_Icons_Name[i], _Icons_Magnitude[i])
+            StatusEffect_SetBlink(_Icons_Name[i], _Icons_Blinking[i])
+        EndWhile
+    EndFunction
+    
     Function _SetIconRGB(Int aiWidget, Int aiMagnitude)
         Int R
         Int G
@@ -1226,7 +1302,7 @@ State iWidgetInstalled
             String name =  _Icons_Name[i]
             Int anim_stage = _Icons_Stage[i]
             Bool blink = _Icons_Blinking[i] > 0
-            Bool visible = _Icons_Visible[i] > 0
+            Bool visible = _Icons_Visible[i] * _Icons_Enabled[i] > 0
             timer += frame
             
             If visible && anim_stage == -1

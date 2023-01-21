@@ -674,25 +674,25 @@ Function ProccesVibEdge()
     if isVibrating() && !_paused
         if _currentEdgingMode == 1
             if UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
-                if WearerIsPlayer()
+                if WearerIsPlayer() && !UDMain.UDWC.UD_FilterVibNotifications
                     UDCDmain.Print(getDeviceName() + " suddenly stops vibrating!",3)
                 endif
                 while UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold*0.95
                     pauseVibFor(10)
                     Utility.wait(0.25)
                 endwhile
-                if WearerIsPlayer() && isVibrating()
+                if WearerIsPlayer() && isVibrating() && !UDMain.UDWC.UD_FilterVibNotifications
                     UDCDmain.Print(getDeviceName() + " has come back to life, arousing you once again",3)
                 endif
             endif
         elseif _currentEdgingMode == 2
             if UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
                 if Utility.randomInt() < iRange(CurrentVibStrength, 40 , 80)
-                    if WearerIsPlayer()
+                    if WearerIsPlayer() && !UDMain.UDWC.UD_FilterVibNotifications
                         UDCDmain.Print(getDeviceName() + " suddenly stops vibrating!",3)
                     endif
                     pauseVibFor(Utility.randomInt(30,60))
-                    if WearerIsPlayer() && isVibrating()
+                    if WearerIsPlayer() && isVibrating() && !UDMain.UDWC.UD_FilterVibNotifications
                         UDCDmain.Print(getDeviceName() + " has come back to life, arousing you once again",3)
                     endif
                 endif
