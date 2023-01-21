@@ -9,6 +9,9 @@ UDCustomDeviceMain Property UDCDmain auto
 zadlibs Property libs auto
 
 Event OnEffectStart(Actor akTarget, Actor akCaster)
+    if !UDCDMain.UDmain.ActorIsValidForUD(akTarget)
+        return ;non valid actor, return
+    endif
     if !akTarget.wornhaskeyword(libs.zad_deviousheavybondage)
         UDCDmain.DisableActor(akTarget)
         Int loc_arousal = UDCDmain.UDOM.getArousal(akTarget)

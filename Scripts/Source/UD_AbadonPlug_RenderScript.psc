@@ -526,7 +526,7 @@ string Function addInfoString(string str = "")
     str = parent.addInfoString(str)
     str += "(AP) Strength: " + formatString(abadonPlugDiff,1) + " (~"+Math.floor(relativeStrength()*100.0)+" %)" + "\n"
     str += "(AP) Hunger: "+ Math.floor(100.0 - plug_hunger) + " %\n"
-    str += "(AP) Orgasms feeded: "+ orgasm_cout +"\n"
+    str += "(AP) Orgasms fed: "+ orgasm_cout +"\n"
     str += "(AP) Finisher?: "+ finisherOn +"\n"
     return str
 EndFunction

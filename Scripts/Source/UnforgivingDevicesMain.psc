@@ -132,6 +132,9 @@ bool Property SlaveTatsInstalled        = false auto
 bool Property OrdinatorInstalled        = false auto
 bool Property ZadExpressionSystemInstalled = false auto
 Bool Property DeviousStrikeInstalled    = False auto
+Bool Property ForHimInstalled           = False auto
+
+Bool Property AllowMenBondage           = True auto
 
 bool Property Ready = False auto hidden
 bool Function UDReady()
@@ -403,6 +406,15 @@ Function CheckOptionalMods()
     else
         DeviousStrikeInstalled = false
     endif
+
+    if ModInstalled("Devious Devices For Him.esp")
+        ForHimInstalled = True
+        if TraceAllowed()
+            Log("DD For Him detected!")
+        endif
+    else
+        ForHimInstalled = false
+    endif
 EndFUnction
 
 Function CheckPatchesOrder()
@@ -525,6 +537,9 @@ bool Function ActorIsValidForUD(Actor akActor)
     if loc_race.IsChildRace()    ;check that actor is not child
         return false
     endif
+    if ((!ForHimInstalled || !AllowMenBondage) && loc_actorbase.GetSex() == 0)
+        return false
+    endif
     return true
 EndFunction
 
@@ -602,6 +617,16 @@ string Function GetActorName(Actor akActor) global
         endif
     endif
     return loc_res
+EndFunction
+
+bool Function ActorIsFemale(Actor akActor) 
+    ActorBase loc_actorbase = akActor.GetLeveledActorBase()
+    if loc_actorbase.GetSex() == 1
+        return true
+    else
+        return false
+    endif
+    
 EndFunction
 
 int Function codeBit_old(int iCodedMap,int iValue,int iSize,int iIndex) global
