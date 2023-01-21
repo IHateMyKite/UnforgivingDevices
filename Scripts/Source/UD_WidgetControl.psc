@@ -14,11 +14,45 @@ Int W_POSX_RIGHT = 2
 UnforgivingDevicesMain Property UDmain auto
 
 ;use iWantWidgets if true
-Bool                        Property UD_UseIWantWidget = true auto
+Bool _UD_UseIWantWidget = True
+Bool                        Property UD_UseIWantWidget
+    Bool Function Get() 
+        Return _UD_UseIWantWidget
+    EndFunction
+    Function Set(Bool abValue)
+        If _UD_UseIWantWidget != abValue
+            _UD_UseIWantWidget = abValue
+            Update()
+        EndIf
+    EndFunction
+EndProperty
 
 ;exist
 UD_WidgetBase               Property UD_Widget1 auto
 UD_WidgetBase               Property UD_Widget2 auto
+
+iWant_Widgets Property iWidget Hidden
+    iWant_Widgets Function Get()
+        return (UDmain.iWidgetQuest as iWant_Widgets)
+    EndFunction
+EndProperty
+
+Float Property UD_WidgetVerOffset = 1.25 auto
+
+;By default, auto adjust is turned off
+Bool _AutoAdjustWidget = False
+Bool Property UD_AutoAdjustWidget Hidden
+    Function Set(Bool abVal)
+        _AutoAdjustWidget = abVal
+        if !_AutoAdjustWidget
+            ;Reininit widgets
+            InitWidgetsRequest(abMeters = True)
+        endif
+    EndFunction
+    Bool Function Get()
+        return _AutoAdjustWidget
+    EndFunction
+EndProperty
 
 ; overlay settings
 
@@ -29,8 +63,10 @@ Bool Property UD_EnableDeviceIcons
         Return _UD_EnableDeviceIcons
     EndFunction
     Function Set(Bool abValue)
-        _UD_EnableDeviceIcons = abValue
-        InitWidgetsRequest(abIcons = True)
+        If _UD_EnableDeviceIcons != abValue
+            _UD_EnableDeviceIcons = abValue
+            InitWidgetsRequest(abIcons = True)
+        EndIf
     EndFunction
 EndProperty
 
@@ -41,8 +77,10 @@ Bool Property UD_EnableEffectIcons
         Return _UD_EnableEffectIcons
     EndFunction
     Function Set(Bool abValue)
-        _UD_EnableEffectIcons = abValue
-        InitWidgetsRequest(abIcons = True)
+        If _UD_EnableEffectIcons != abValue
+            _UD_EnableEffectIcons = abValue
+            InitWidgetsRequest(abIcons = True)
+        EndIf
     EndFunction
 EndProperty
 
@@ -53,8 +91,10 @@ Bool Property UD_EnableCNotifications
         Return _UD_EnableCNotifications
     EndFunction
     Function Set(Bool abValue)
-        _UD_EnableCNotifications = abValue
-        InitWidgetsRequest(abText = True)
+        If _UD_EnableCNotifications != abValue
+            _UD_EnableCNotifications = abValue
+            InitWidgetsRequest(abText = True)
+        EndIf
     EndFunction
 EndProperty
 
@@ -65,8 +105,10 @@ Int Property UD_TextFontSize
         Return _UD_TextFontSize
     EndFunction
     Function Set(Int aiValue)
-        _UD_TextFontSize = aiValue
-        InitWidgetsRequest(abText = True)
+        If _UD_TextFontSize != aiValue
+            _UD_TextFontSize = aiValue
+            InitWidgetsRequest(abText = True)
+        EndIf
     EndFunction
 EndProperty
 
@@ -81,8 +123,10 @@ Int Property UD_TextAnchor
         Return _UD_TextAnchor
     EndFunction
     Function Set(Int aiValue)
-        _UD_TextAnchor = aiValue
-        InitWidgetsRequest(abText = True)
+        If _UD_TextAnchor != aiValue
+            _UD_TextAnchor = aiValue
+            InitWidgetsRequest(abText = True)
+        EndIf
     EndFunction
 EndProperty
 
@@ -93,8 +137,10 @@ Int Property UD_TextPadding
         Return _UD_TextPadding
     EndFunction
     Function Set(Int aiValue)
-        _UD_TextPadding = aiValue
-        InitWidgetsRequest(abText = True)
+        If _UD_TextPadding != aiValue
+            _UD_TextPadding = aiValue
+            InitWidgetsRequest(abText = True)
+        EndIf
     EndFunction
 EndProperty
 
@@ -105,8 +151,10 @@ Int Property UD_IconsSize
         Return _UD_IconsSize
     EndFunction
     Function Set(Int aiValue)
-        _UD_IconsSize = aiValue
-        InitWidgetsRequest(abText = True)
+        If _UD_IconsSize != aiValue
+            _UD_IconsSize = aiValue
+            InitWidgetsRequest(abText = True)
+        EndIf
     EndFunction
 EndProperty
 
@@ -117,8 +165,10 @@ Int Property UD_IconsAnchor
         Return _UD_IconsAnchor
     EndFunction
     Function Set(Int aiValue)
-        _UD_IconsAnchor = aiValue
-        InitWidgetsRequest(abIcons = True)
+        If _UD_IconsAnchor != aiValue
+            _UD_IconsAnchor = aiValue
+            InitWidgetsRequest(abIcons = True)
+        EndIf
     EndFunction
 EndProperty
 
@@ -129,14 +179,19 @@ Int Property UD_IconsPadding
         Return _UD_IconsPadding
     EndFunction
     Function Set(Int aiValue)
-        _UD_IconsPadding = aiValue
-        InitWidgetsRequest(abIcons = True)
+        If _UD_IconsPadding != aiValue
+            _UD_IconsPadding = aiValue
+            InitWidgetsRequest(abIcons = True)
+        EndIf
     EndFunction
 EndProperty
 
 Int _WidgetXPos = 2
 Int Property UD_WidgetXPos
     Function Set(Int aiVal)
+        If _WidgetXPos == aiVal
+            Return
+        EndIf
         _WidgetXPos = aiVal
         if GetState() == ""
             UD_Widget1.PositionX = _WidgetXPos
@@ -153,6 +208,9 @@ EndProperty
 Int _WidgetYPos = 0
 Int Property UD_WidgetYPos
     Function Set(Int aiVal)
+        If _WidgetYPos == aiVal
+            Return
+        EndIf
         _WidgetYPos = aiVal
         if GetState() == ""
             UD_Widget1.PositionY = _WidgetYPos
@@ -263,9 +321,26 @@ Bool Function InitIcons(Bool abGameLoad = False)
 EndFunction
 Bool Function InitText(Bool abGameLoad = False)
 EndFunction
-Function UpdateIconsEnabled()
+Function _UpdateIconsEnabled()
 EndFunction
-Function _AddTextLineWidget()
+Function ResetToDefault()
+    UD_AutoAdjustWidget             = False
+    UD_UseIWantWidget               = True
+    UD_EnableDeviceIcons            = True
+    UD_EnableEffectIcons            = True
+    UD_EnableCNotifications         = True
+    UD_TextFontSize                 = 24
+    UD_TextLineLength               = 100
+    UD_TextReadSpeed                = 20
+    UD_FilterVibNotifications       = True
+    UD_TextAnchor                   = W_POSY_BELOWCENTER
+    UD_TextPadding                  = 0
+    UD_IconsSize                    = 60
+    UD_IconsAnchor                  = W_POSX_CENTER
+    UD_IconsPadding                 = 0
+    
+    UD_WidgetXPos                   = W_POSX_RIGHT
+    UD_WidgetYPos                   = W_POSY_BOTTOM
 EndFunction
 
 ;toggle widget
@@ -305,10 +380,12 @@ Function UpdateColor_OrgasmWidget(int aiColor,int aiColor2 = 0,int aiFlashColor 
 EndFunction
 
 Function Flash_DeviceWidget()
+    UD_Widget1.Flash()
 EndFunction
 Function Flash_DeviceCondWidget()
 EndFunction
 Function Flash_OrgasmWidget()
+    UD_Widget2.Flash()
 EndFunction
 
 ;iWidget variables, should not be used ifiWidget is not installed
@@ -345,7 +422,7 @@ Int         _Text_AnimStage                 = -1    ; animation stage of notific
 Float       _Text_Timer                             ; animation timer of notification lines
 Float       _Text_Duration                          ; how long to display text on the screen
 
-String[]    _Text_Queue                             ; notificztions in queue
+String[]    _Text_Queue                             ; notifications queue
 
 Int[]       _Icons_Id                               ; widget id
 String[]    _Icons_Name                             ; DDS file name in '<Data>/interface/exported/widgets/iwant/widgets/library' folder
@@ -354,8 +431,8 @@ Float[]     _Icons_Timer                            ; animation timer
 Int[]       _Icons_Stage                            ; animation stage
 Int[]       _Icons_Blinking                         ; 0, 1
 Int[]       _Icons_Alpha                            ; 0 .. 100
-Int[]       _Icons_Visible                           ; 0, 1
-Int[]       _Icons_Enabled                           ; 0, 1
+Int[]       _Icons_Visible                          ; 0, 1
+Int[]       _Icons_Enabled                          ; 0, 1
 
 Int         _Widget_Icon_Inactive_Color             = 0xFFFFFF      ; Gray          Color of innactive effect
 Int         _Widget_Icon_Active0_Color              = 0xFFFF00      ; Yellow        Color of active effect with magnitude 0
@@ -368,27 +445,97 @@ EndEvent
     
 Function UpdateGroupPositions()
 EndFunction
-Function UpdateColor_Widget(Int aiId,int aiColor,int aiColor2 = 0,int aiFlashColor = 0xFFFFFF)
-EndFunction
-Int[] Function AddWidget(Int[] aaiGroup, Int aiWidget, Float fVerticalOffset, Int akPerc = 0, Int akCol1 = 0x0, Int akCol2 = 0x0, Int akCol3 = 0xFFFFFFFF)
-EndFunction
 
+;/
+    Widget API
+/;
+;/
+Function Meter_SetVisible(String asName, Bool abVisible, Bool abUpdateVisPos = True)
+    If asName == "device-durability"
+        Toggle_DeviceWidget(abVisible, abUpdateVisPos)
+    ElseIf asName == "device-condition"
+        Toggle_DeviceCondWidget(abVisible, abUpdateVisPos)
+    ElseIf asName == "player-orgasm"
+        Toggle_OrgasmWidget(abVisible, abUpdateVisPos)
+    EndIf
+EndFunction
+Function Meter_SetPercent(String asName, Int afValue, Bool abForce = false)
+    If asName == "device-durability"
+        UpdatePercent_DeviceWidget(afValue, abForce)
+    ElseIf asName == "device-condition"
+        UpdatePercent_DeviceCondWidget(afValue, abForce)
+    ElseIf asName == "player-orgasm"
+        UpdatePercent_OrgasmWidget(afValue, abForce)
+    EndIf
+EndFunction
+Function Meter_SetColor(String asName, Int aiColor, Int aiColor2 = 0, Int aiFlashColor = 0xFFFFFF)
+    If asName == "device-durability"
+        UpdateColor_DeviceWidget(aiColor, aiColor2, aiFlashColor)
+    ElseIf asName == "device-condition"
+        UpdateColor_DeviceCondWidget(aiColor, aiColor2, aiFlashColor)
+    ElseIf asName == "player-orgasm"
+        UpdateColor_OrgasmWidget(aiColor, aiColor2, aiFlashColor)
+    EndIf
+EndFunction
+Function Meter_Flash(String asName)
+    If asName == "device-durability"
+        Flash_DeviceWidget()
+    ElseIf asName == "device-condition"
+        Flash_DeviceCondWidget()
+    ElseIf asName == "player-orgasm"
+        Flash_OrgasmWidget()
+    EndIf
+EndFunction
+/;
+
+; Print notification on screen
+; asText                - notification text
 Function Notification_Push(String asText)
     Debug.Notification(asText)
 EndFunction
+
+; Show/hide status effect icon.
+; asName            - effect name (icon name)
+; abVisible         - desired visibility state
 Function StatusEffect_SetVisible(String asName, Bool abVisible = True)
 EndFunction
+
+; Set magnitude of the effect.
+; The color of the icon changes depending on the final value.
+; asName            - effect name (icon name)
+; aiMagnitude       - magnitude
 Function StatusEffect_SetMagnitude(String asName, Int aiMagnitude)
 EndFunction
-Function StatusEffect_IncMagnitude(String asName, Int aiIncrement, Bool abControlVisibility = True)
+
+; Adjust magnitude by the given value.
+; The color of the icon changes depending on the final value.
+; asName                - effect name (icon name)
+; aiAdjustValue         - adjust value
+; abControlVisibility   - if true, the icon will be hidden or shown depending on the final value
+Function StatusEffect_AdjustMagnitude(String asName, Int aiAdjustValue, Bool abControlVisibility = True)
 EndFunction
+
+; Set icon blinking (periodic change of alpha in range 25 .. 100).
+; asName                - effect name (icon name)
+; abBlink               - blinking status
 Function StatusEffect_SetBlink(String asName, Bool abBlink = True)
+EndFunction
+
+; Show all enabled (!) widgets with test animations for the short time
+Function TestWidgets()
+EndFunction
+
+;/
+    End of Widget API
+/;
+
+Function _UpdateMeterColor(Int aiId,int aiColor,int aiColor2 = 0,int aiFlashColor = 0xFFFFFF)
+EndFunction
+Int[] Function _AddWidget(Int[] aaiGroup, Int aiWidget, Float fVerticalOffset, Int akPerc = 0, Int akCol1 = 0x0, Int akCol2 = 0x0, Int akCol3 = 0xFFFFFFFF)
 EndFunction
 Function _SetIconRGB(Int aiWidget, Int aiRGB)
 EndFunction
-Function TestWidgets()
-EndFunction
-Function AnimateWidgets()
+Function _AnimateWidgets()
 EndFunction
 Function _AnimateNotifications(Float frame)
 EndFunction
@@ -396,34 +543,12 @@ Function _AnimateIcons(Float frame)
 EndFunction
 Bool Function _NextNotification()
 EndFunction
+Function _AddTextLineWidget()
+EndFunction
 Int Function _GetIconIndex(String asName)
 EndFunction
 Int Function _CreateIcon(String asName, Int aiXOffset = -1, Int aiYOffset = -1, Int aiAlpha = -1)
 EndFunction
-;Fuck this stupid as shit. It's even harder to make widget position right
-
-iWant_Widgets Property iWidget Hidden
-    iWant_Widgets Function Get()
-        return (UDmain.iWidgetQuest as iWant_Widgets)
-    EndFunction
-EndProperty
-
-Float Property UD_WidgetVerOffset = 1.25 auto
-
-;By default, auto adjust is turned off
-Bool _AutoAdjustWidget = False
-Bool Property UD_AutoAdjustWidget Hidden
-    Function Set(Bool abVal)
-        _AutoAdjustWidget = abVal
-        if !_AutoAdjustWidget
-            ;Reininit widgets
-            InitWidgetsRequest(abMeters = True)
-        endif
-    EndFunction
-    Bool Function Get()
-        return _AutoAdjustWidget
-    EndFunction
-EndProperty
 
 Bool _InitMetersMutex = False
 Bool _OnUpdateMutex = False
@@ -444,7 +569,7 @@ State iWidgetInstalled
             InitWidgetsCheck(_InitAfterLoadGame)
             _InitAfterLoadGame = False
         EndIf
-        AnimateWidgets()
+        _AnimateWidgets()
         RegisterForSingleUpdate(_Animation_Update)
         _OnUpdateMutex = False
     EndEvent
@@ -493,19 +618,19 @@ State iWidgetInstalled
         If _Widget_DeviceDurability == 0
             Return False
         EndIf
-        _WidgetsID = AddWidget(_WidgetsID, _Widget_DeviceDurability, 0*UD_WidgetVerOffset, _Widget_DeviceDurability_Perc, _Widget_DeviceDurability_Color, _Widget_DeviceDurability_Color2, _Widget_DeviceDurability_Color3)
+        _WidgetsID = _AddWidget(_WidgetsID, _Widget_DeviceDurability, 0*UD_WidgetVerOffset, _Widget_DeviceDurability_Perc, _Widget_DeviceDurability_Color, _Widget_DeviceDurability_Color2, _Widget_DeviceDurability_Color3)
         
         _Widget_DeviceCondition = iWidget.loadMeter()
         If _Widget_DeviceCondition == 0
             Return False
         EndIf
-        _WidgetsID = AddWidget(_WidgetsID, _Widget_DeviceCondition, 1.0*UD_WidgetVerOffset, _Widget_DeviceCondition_Perc, _Widget_DeviceCondition_Color, _Widget_DeviceCondition_Color2, _Widget_DeviceCondition_Color3)
+        _WidgetsID = _AddWidget(_WidgetsID, _Widget_DeviceCondition, 1.0*UD_WidgetVerOffset, _Widget_DeviceCondition_Perc, _Widget_DeviceCondition_Color, _Widget_DeviceCondition_Color2, _Widget_DeviceCondition_Color3)
         
         _Widget_Orgasm = iWidget.loadMeter()
         If _Widget_Orgasm == 0
             Return False
         EndIf
-        _WidgetsID = AddWidget(_WidgetsID, _Widget_Orgasm, 2.0*UD_WidgetVerOffset, _Widget_Orgasm_Perc, _Widget_Orgasm_Color, _Widget_Orgasm_Color2, _Widget_Orgasm_Color3)
+        _WidgetsID = _AddWidget(_WidgetsID, _Widget_Orgasm, 2.0*UD_WidgetVerOffset, _Widget_Orgasm_Perc, _Widget_Orgasm_Color, _Widget_Orgasm_Color2, _Widget_Orgasm_Color3)
         
         iWidget.setVisible(_Widget_DeviceDurability, _Widget_DeviceDurability_Visible As Int)
         iWidget.setVisible(_Widget_DeviceCondition, _Widget_DeviceCondition_Visible As Int)
@@ -567,7 +692,7 @@ State iWidgetInstalled
             ;
             ;          ###     ###
             ;          ###     ###
-            ;               B
+            ;               
             ;          ###     ###
             ;          ###     ###
             ;
@@ -630,6 +755,7 @@ State iWidgetInstalled
             y -= (UD_IconsSize * 1.1) As Int
             _CreateIcon("effect-orgasm", x, y, 75)
         ElseIf UD_IconsAnchor == 2
+            ; mirrored version of the left layout
             Int x = CalculateGroupXPos(W_POSX_RIGHT) - UD_IconsPadding + (0.55 * UD_IconsSize) As Int
             Int y = CalculateGroupYPos(W_POSY_CENTER) - UD_IconsSize - (0.55 * UD_IconsSize) As Int
 
@@ -658,11 +784,11 @@ State iWidgetInstalled
                 Return False
             EndIf
         EndWhile
-        UpdateIconsEnabled()
+        _UpdateIconsEnabled()
         Return True
     EndFunction
     
-    Function UpdateIconsEnabled()
+    Function _UpdateIconsEnabled()
         Int i = _Icons_Id.Length
         While i > 0
             i -= 1
@@ -676,8 +802,8 @@ State iWidgetInstalled
     EndFunction
     
     ; fVerticalOffset       - offset in meter's heights
-    Int[] Function AddWidget(Int[] aaiGroup, Int aiWidget, Float fVerticalOffset, Int akPerc = 0, Int akCol1 = 0x0, Int akCol2 = 0x0, Int akCol3 = 0xFFFFFFFF)
-        UDMain.Log("UD_WidgetControl::AddWidget() aiWidget = " + aiWidget, 3)
+    Int[] Function _AddWidget(Int[] aaiGroup, Int aiWidget, Float fVerticalOffset, Int akPerc = 0, Int akCol1 = 0x0, Int akCol2 = 0x0, Int akCol3 = 0xFFFFFFFF)
+        UDMain.Log("UD_WidgetControl::_AddWidget() aiWidget = " + aiWidget, 3)
         iWidget.setSize(aiWidget, HUDMeterHeight as Int, HUDMeterWidth as Int)
         ; on the top position we stack widgets from top to the bottom
         If UD_WidgetYPos == 2
@@ -685,7 +811,7 @@ State iWidgetInstalled
         EndIf
         iWidget.setPos(aiWidget, CalculateGroupXPos(UD_WidgetXPos), (CalculateGroupYPos(UD_WidgetYPos) - HUDMeterHeightRef * fVerticalOffset) As Int)
         iWidget.setMeterPercent(aiWidget,akPerc)
-        UpdateColor_Widget(aiWidget, akCol1,akCol2,akCol3)
+        _UpdateMeterColor(aiWidget, akCol1,akCol2,akCol3)
         Return PapyrusUtil.PushInt(aaiGroup, aiWidget)
     EndFunction
     
@@ -750,17 +876,17 @@ State iWidgetInstalled
     EndFunction
 
     Function UpdateColor_DeviceWidget(int aiColor,int aiColor2 = 0,int aiFlashColor = 0xFFFFFF)
-        UpdateColor_Widget(_Widget_DeviceDurability,aiColor,aiColor2,aiFlashColor)
+        _UpdateMeterColor(_Widget_DeviceDurability,aiColor,aiColor2,aiFlashColor)
     EndFunction
     Function UpdateColor_DeviceCondWidget(int aiColor,int aiColor2 = 0,int aiFlashColor = 0xFFFFFF)
-        UpdateColor_Widget(_Widget_DeviceCondition,aiColor,aiColor2,aiFlashColor)
+        _UpdateMeterColor(_Widget_DeviceCondition,aiColor,aiColor2,aiFlashColor)
     EndFunction
     Function UpdateColor_OrgasmWidget(int aiColor,int aiColor2 = 0,int aiFlashColor = 0xFFFFFF)
-        UpdateColor_Widget(_Widget_Orgasm,aiColor,aiColor2,aiFlashColor)
+        _UpdateMeterColor(_Widget_Orgasm,aiColor,aiColor2,aiFlashColor)
     EndFunction
     
     ;use to convert from hex to this sinfull way of writting colors
-    Function UpdateColor_Widget(Int aiId,int aiColor,int aiColor2 = 0,int aiFlashColor = 0xFFFFFF)
+    Function _UpdateMeterColor(Int aiId,int aiColor,int aiColor2 = 0,int aiFlashColor = 0xFFFFFF)
         Int loc_lightR  = Math.LogicalAnd(Math.RightShift(aiColor,16),0xFF)
         Int loc_lightG  = Math.LogicalAnd(Math.RightShift(aiColor,8),0xFF)
         Int loc_lightB  = Math.LogicalAnd(Math.RightShift(aiColor,0),0xFF)
@@ -986,12 +1112,12 @@ State iWidgetInstalled
         _SetIconRGB(_Icons_Id[index], aiMagnitude)
     EndFunction
     
-    Function StatusEffect_IncMagnitude(String asName, Int aiIncrement, Bool abControlVisibility = True)
+    Function StatusEffect_AdjustMagnitude(String asName, Int aiAdjustValue, Bool abControlVisibility = True)
         Int index = _GetIconIndex(asName)
         If index < 0
             Return
         EndIf
-        _Icons_Magnitude[index] = _Icons_Magnitude[index] + aiIncrement
+        _Icons_Magnitude[index] = _Icons_Magnitude[index] + aiAdjustValue
         If _Icons_Magnitude[index] < 0
             _Icons_Magnitude[index] = 0
         EndIf
@@ -1039,7 +1165,7 @@ State iWidgetInstalled
         iWidget.setRGB(aiWidget, R, G, B)
     EndFunction
     
-    Function AnimateWidgets()
+    Function _AnimateWidgets()
         Float real_time = Utility.GetCurrentRealTime()
         Float frame = real_time - _Animation_LastGameTime
         _Animation_LastGameTime = real_time

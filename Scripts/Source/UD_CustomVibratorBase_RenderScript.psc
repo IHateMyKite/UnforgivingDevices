@@ -42,9 +42,8 @@ Int     Property    CurrentVibStrength                          Hidden
         ElseIf aiValue > 100
             aiValue = 100
         EndIf
-        StorageUtil.AdjustIntValue(getWearer(), "UD_ActiveVib_Strength", -1 * _currentVibStrength)
+        StorageUtil.AdjustIntValue(getWearer(), "UD_ActiveVib_Strength", (aiValue - _currentVibStrength))
         _currentVibStrength = aiValue
-        StorageUtil.AdjustIntValue(getWearer(), "UD_ActiveVib_Strength", _currentVibStrength)
     EndFunction
 EndProperty
 
@@ -303,11 +302,11 @@ Function UpdateVibSound()
 EndFunction
 
 int Function getCurrentVibStrenth()
-    return _currentVibStrength
+    return CurrentVibStrength
 EndFunction
 
 int Function getCurrentZadVibStrenth()
-    return Math.Ceiling(_currentVibStrength*0.05)
+    return Math.Ceiling(CurrentVibStrength * 0.05)
 EndFunction
 
 int Function getDefaultZadVibStrenth()
@@ -323,7 +322,7 @@ bool Function canVibrate()
 EndFunction
 
 bool Function isVibrating()
-    return _currentVibRemainingDuration != 0 && _currentVibStrength
+    return _currentVibRemainingDuration != 0 && CurrentVibStrength
 EndFunction
 
 int Function getRemainingVibrationDuration()
@@ -349,7 +348,7 @@ EndFunction
 Function stopVibratingAndWait()
     if _currentVibRemainingDuration != 0
         _currentVibRemainingDuration = 0
-        while _currentVibStrength
+        while CurrentVibStrength
             Utility.wait(0.1)
         endwhile
     endif
@@ -450,7 +449,7 @@ Function removeVibStrength(int iValue = 1)
     if isVibrating()
         StartManipMutex()
         CurrentVibStrength -= iValue
-        if _currentVibStrength == 0
+        if CurrentVibStrength == 0
             stopVibrating()
         endif
         if !isPaused() && isVibrating()
@@ -542,13 +541,13 @@ Function removeArousalRate()
 EndFunction
 
 Sound Function getVibrationSound()
-    if _currentVibStrength >= 75
+    if CurrentVibStrength >= 75
         return libs.VibrateVeryStrongSound
-    elseIf _currentVibStrength >= 50
+    elseIf CurrentVibStrength >= 50
         return libs.VibrateStrongSound
-    elseIf _currentVibStrength >= 30
+    elseIf CurrentVibStrength >= 30
         return libs.VibrateStandardSound
-    elseIf _currentVibStrength >= 15
+    elseIf CurrentVibStrength >= 15
         return libs.VibrateWeakSound
     else
         return libs.VibrateVeryWeakSound
@@ -601,7 +600,7 @@ Function vibrate(float fDurationMult = 1.0)
     endif
     
     if UDmain.TraceAllowed()    
-        UDmain.Log("Vibrate called for " + getDeviceName() + " on " + getWearerName() + ", duration: " + _currentVibRemainingDuration + ", strength: " + _currentVibStrength + ", edging: " + _currentEdgingMode)
+        UDmain.Log("Vibrate called for " + getDeviceName() + " on " + getWearerName() + ", duration: " + _currentVibRemainingDuration + ", strength: " + CurrentVibStrength + ", edging: " + _currentEdgingMode)
     endif
     
     StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib", 1)
@@ -688,7 +687,7 @@ Function ProccesVibEdge()
             endif
         elseif _currentEdgingMode == 2
             if UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
-                if Utility.randomInt() < iRange(_currentVibStrength,40,80)
+                if Utility.randomInt() < iRange(CurrentVibStrength, 40 , 80)
                     if WearerIsPlayer()
                         UDCDmain.Print(getDeviceName() + " suddenly stops vibrating!",3)
                     endif
@@ -726,21 +725,21 @@ EndFunction
 ;======================================================================
 Function OnVibrationStart()
     If WearerIsPlayer()
-        UDMain.UDWC.StatusEffect_SetMagnitude(VibrationEffectSlot, _currentVibStrength)
-        UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, _currentVibStrength > 0)
+        UDMain.UDWC.StatusEffect_SetMagnitude(VibrationEffectSlot, CurrentVibStrength)
+        UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, CurrentVibStrength > 0)
     EndIf
 EndFunction
 Function OnVibrationEnd()
     If WearerIsPlayer()
-        UDMain.UDWC.StatusEffect_SetMagnitude(VibrationEffectSlot, _currentVibStrength)
-        UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, _currentVibStrength > 0)
+        UDMain.UDWC.StatusEffect_SetMagnitude(VibrationEffectSlot, CurrentVibStrength)
+        UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, CurrentVibStrength > 0)
     EndIf
 EndFunction
 float Function getVibOrgasmRate(float afMult = 1.0)
-    return _currentVibStrength*afMult*UDCDmain.UD_VibrationMultiplier*UD_OrgasmMult
+    return CurrentVibStrength * afMult * UDCDmain.UD_VibrationMultiplier * UD_OrgasmMult
 EndFunction
 float Function getVibArousalRate(float afMult = 1.0)
-    return _currentVibStrength*afMult*UDCDmain.UD_ArousalMultiplier*UD_ArousalMult
+    return CurrentVibStrength * afMult * UDCDmain.UD_ArousalMultiplier * UD_ArousalMult
 EndFunction
 Function PrintVibMessage_Start()
     if WearerIsPlayer()

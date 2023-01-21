@@ -3182,8 +3182,7 @@ Function ResetToDefaults()
     UDCDmain.UDPatcher.UD_PatchMult_Generic         = 1.0
     
     ;UI/WIDGET
-    UDWC.UD_AutoAdjustWidget    = False
-    UDWC.UD_UseIWantWidget      = True
+    UDWC.ResetToDefault()
     
     ;Other
     UDIM.UD_UseHoods                                = true
