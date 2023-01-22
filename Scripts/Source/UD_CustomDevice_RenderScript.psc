@@ -351,21 +351,6 @@ int Property UD_Locks ;number of locks
     EndFunction
 EndProperty
 
-;Array of bit mapped locks.
-; 0 -  3 =  4b (0000 0000 0000 0000 0000 0000 0000 XXXX)(0x0000000F), State of lock
-;                                                                       000X = 1 when lock is unlocked, 0 when locked
-;                                                                       00X0 = 1 when lock is jammed, 0 when not
-;                                                                       XX00 = Reserved for future use
-; 4 -  7 =  4b (0000 0000 0000 0000 0000 0000 XXXX 0000)(0x000000F0), Numbe of locks shields (how many times needs to lock to be unlocked before being "removed")
-; 8 - 14 =  7b (0000 0000 0000 0000 0XXX XXXX 0000 0000)(0x00007F00), Lock accessibility (in %, should be from 0 to 100)
-;15 - 22 =  8b (0000 0000 0XXX XXXX X000 0000 0000 0000)(0x007F8000), Locks difficulty (from 0 to 255)
-;23 - 26 =  4b (0000 0XXX X000 0000 0000 0000 0000 0000)(0x07800000), Reserved for future use
-;27 - 31 =  5b (XXXX X000 0000 0000 0000 0000 0000 0000)(0xF8000000), Unused, can be used by creators for special use
-Int[]       Property UD_LockList                auto
-
-;(optional) Name of the locks. Needs to correspond to the same locks in the UD_LockList. IF not used, the name will be generated from difficulty and accessiblity
-String[]    Property UD_LockNameList            auto
-
 ;Device cooldown, in minutes. Device will activate itself on after this time (if it can)
 ;zero or negative value will disable this feature
 int     Property UD_Cooldown    = 0 auto
@@ -1489,6 +1474,7 @@ EndFunction
 ; GETTERS
 ; Bool      HaveLocks()                                 = return true if device have locks
 ; Bool      HaveLockedLocks()                           = return true if any of the locks is not unlocked
+; Bool      HveLockpickableLocks()                      = returns true if device have at least one lock which can be lockpicked
 ; Int       GetLockedLocks()                            = return number of currently locked locks or 0 if there is error
 ; Int       GetJammedLocks()                            = return number of currently jammed locks or 0 if there is error
 ; String[]  GetLockList()                               = return string array of lock names. This is what is shown to player when selecting lock, or return none in case of error
@@ -1498,10 +1484,12 @@ EndFunction
 ; Int       GetNthLock(Int aiLockIndex)                 = This function returns the Nth lock, or error value if no locks are on device
 ; Bool      IsNthLockUnlocked(Int aiLockIndex)          = returns true if the Nth lock is unlocked, or false if no Nth lock exist or is invalid
 ; Bool      IsNthLockJammed(Int aiLockIndex)            = returns true if the Nth lock is jammed, or false if no Nth lock exist or is invalid
+; Bool      IsNthLockTimeLocked(Int aiLockIndex)        = returns true if the Nth lock is time locked, or false if no Nth lock exist or is invalid
+; Bool      IsNthLockAutoTimeLocked(Int aiLockIndex)    = returns true if the Nth lock is time locked with auto unlock, or false if no Nth lock exist or is invalid
 ; Int       GetNthLockShields(Int aiLockIndex)          = returns number of shields of the Nth lock, or 0 if no Nth lock exist or is invalid
 ; Int       GetNthLockAccessibility(Int aiLockIndex)    = returns accessibility of the Nth lock in %, or 0 if no Nth lock exist or is invalid
 ; Int       GetNthLockDifficulty(Int aiLockIndex)       = returns difficutly of the Nth lock, or 0 if no Nth lock exist or is invalid. Difficulty is in range from 0 to 255 (classic skyrim lockpick difficulty distribution)
-
+; Int       GetNthLockTimeLock(Int aiLockIndex)         = returns number of remaining hours from time lock of the Nth lock, or 0 if no Nth lock exist or is invalid
 ;SETTERS
 ; Bool      UnlockNthLock(Int aiLockIndex, Bool abUnlock = True)    = sets lock unlock status. If the operation was succesfull, returns true; argument abUnlock can be set to either true or false, depending if lock should be unlocked, or locked
 ; Int       UnlockAllLocks(Bool abUnlock = True)                    = Lock/unlock all locks, returns number of locks affected
@@ -1510,10 +1498,29 @@ EndFunction
 ; Int       DecreaseLockShield(Int aiLockIndex, Int aiShieldDecrease = 1, Bool abAutoUnlock = False)    = decrease locks shiled by aiShieldDecrease, returns remaining number of shields
 ; Bool      UpdateLockAccessibility(Int aiLockIndex, Int aiAccessibilityDelta)  = Update the lock accessibility by aiAccessibilityDelta. If the operation was succesfull, returns true
 ; Bool      UpdateLockDifficulty(Int aiLockIndex, Int aiDifficultyDelta, Bool abNoKeyDiff = True)    = Update the lock difficulty by aiDifficultyDelta. If the operation was succesfull, returns true; if abNoKeyDiff is True, lock difficulty can't be "Key required" after the update (capped difficulty at 100 = master lock)
-
+; Int       UpdateLockTimeLock(Int aiLockIndex, Int aiTimeLockDelta)    = Update the lock time lock by aiTimeLockDelta. Returns new time lock value, or 0 in case of error
+; Bool      UpdateAllLocksTimeLock(Int aiTimeLockDelta)             = Update all locked locks timelock by aiTimeLockDelta, returns true if at least one lock was updated, or false if there was either error or no locked lock
 ;UTILITY
 ; Int       CreateLock(Int aiDifficulty, Int aiAccess, String asName = "", Bool abAdd = False, Int aiShields = 1)   = creates lock from passed arguments ;if abAdd is True, the lock will also be automatically added to the list of locks
 ; Int       AddLock(Int aiLock, String asName = "", Bool abNoCreate = False)    = Adds lock to lock list, if abNoCreate is true, the lock will not be added if no locks already exist on device (aka, only if device had locks before), Return index of the added lock. In case of error, returns -1
+
+
+;Array of bit mapped locks.
+; 0 -  3 =  4b (0000 0000 0000 0000 0000 0000 0000 XXXX)(0x0000000F), State of lock
+;                                                                       000X = 1 when lock is unlocked, 0 when locked
+;                                                                       00X0 = 1 when lock is jammed, 0 when not
+;                                                                       0X00 = 1 when lock is using time lock
+;                                                                       X000 = 1 when locks time lock will auto unlock lock, or 0 to just allow user to manipulate the device after the time passes 
+;                                                                              (so if the time is 2 hours, the user will not be able to manipulate the lock for 2 hours. If this is 1, it will unlock itself after this time. If its 0, it will just allow wearer to manipulate the lock)
+; 4 -  7 =  4b (0000 0000 0000 0000 0000 0000 XXXX 0000)(0x000000F0), Numbe of locks shields (how many times needs to lock to be unlocked before being "removed")
+; 8 - 14 =  7b (0000 0000 0000 0000 0XXX XXXX 0000 0000)(0x00007F00), Lock accessibility (in %, should be from 0 to 100)
+;15 - 22 =  8b (0000 0000 0XXX XXXX X000 0000 0000 0000)(0x007F8000), Locks difficulty (from 0 to 255)
+;23 - 29 =  7b (00XX XXXX X000 0000 0000 0000 0000 0000)(0x3F800000), Lock time in hours. Every hour, this value gets reduced by 1. When reduced to 0, will unlock the lock
+;30 - 31 =  2b (XX00 0000 0000 0000 0000 0000 0000 0000)(0xC0000000), Unused, can be used by creators for special use
+Int[]       Property UD_LockList                auto
+
+;Name of the locks. Needs to correspond to the same locks in the UD_LockList. IF not used, the name will be generated from difficulty and accessiblity
+String[]    Property UD_LockNameList            auto
 
 Int _MinigameSelectedLockID = -1
 
@@ -1529,6 +1536,24 @@ Bool Function HaveLockedLocks()
         while loc_LockNum
             loc_LockNum -= 1
             if !IsNthLockUnlocked(loc_LockNum)
+                return true
+            endif
+        endwhile
+        return false
+    else
+        return false
+    endif
+EndFunction
+
+;returns true if device have at least one lock which can be lockpicked
+;This function doesn't check accessibility or if wearer have lockpicks, so additional checks are needed
+Bool Function HaveLockpickableLocks()
+    if UD_LockList
+        Int loc_LockNum = GetLockNumber()
+        while loc_LockNum
+            loc_LockNum -= 1
+            ;lock is not unlocked and have max master difficulty
+            if !IsNthLockUnlocked(loc_LockNum) && iInRange(GetNthLockDifficulty(loc_LockNum),1,100) 
                 return true
             endif
         endwhile
@@ -1603,6 +1628,8 @@ Int Function UserSelectLock()
             loc_ResList[loc_ResList.length - 1] = loc_ResList[loc_ResList.length - 1] + " [UNLOCKED]"
         elseif IsNthLockJammed(loc_i)
             loc_ResList[loc_ResList.length - 1] = loc_ResList[loc_ResList.length - 1] + " [JAMMED]"
+        elseif IsNthLockTimeLocked(loc_i) && GetNthLockTimeLock(loc_i)
+            loc_ResList[loc_ResList.length - 1] = loc_ResList[loc_ResList.length - 1] + " [TIMELOCK="+GetNthLockTimeLock(loc_i)+"h]"
         else
             loc_ResList[loc_ResList.length - 1] = loc_ResList[loc_ResList.length - 1] + " [LOCKED] | S="+GetNthLockShields(loc_i)
         endif
@@ -1667,6 +1694,26 @@ Bool Function IsNthLockJammed(Int aiLockIndex)
     endif
 EndFunction
 
+;returns true if the Nth lock is time locked, or false if no Nth lock exist or is invalid
+Bool Function IsNthLockTimeLocked(Int aiLockIndex)
+    Int loc_Lock = GetNthLock(aiLockIndex)
+    if IsValidLock(loc_Lock) 
+        return decodeBit(loc_Lock,1,2)
+    else
+        return False ;return false as error value
+    endif
+EndFunction
+
+;returns true if the Nth lock is time locked with auto unlock, or false if no Nth lock exist or is invalid
+Bool Function IsNthLockAutoTimeLocked(Int aiLockIndex)
+    Int loc_Lock = GetNthLock(aiLockIndex)
+    if IsValidLock(loc_Lock) 
+        return decodeBit(loc_Lock,1,3)
+    else
+        return False ;return false as error value
+    endif
+EndFunction
+
 ;returns number of shields of the Nth lock, or 0 if no Nth lock exist or is invalid
 Int Function GetNthLockShields(Int aiLockIndex)
     Int loc_Lock = GetNthLock(aiLockIndex)
@@ -1692,6 +1739,16 @@ Int Function GetNthLockDifficulty(Int aiLockIndex)
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock) 
         return decodeBit(loc_Lock,8,15)
+    else
+        return 0 ;return 0 as error value
+    endif
+EndFunction
+
+;returns number of remaining hours from time lock of the Nth lock, or 0 if no Nth lock exist or is invalid
+Int Function GetNthLockTimeLock(Int aiLockIndex)
+    Int loc_Lock = GetNthLock(aiLockIndex)
+    if IsValidLock(loc_Lock) 
+        return decodeBit(loc_Lock,7,23)
     else
         return 0 ;return 0 as error value
     endif
@@ -1834,6 +1891,55 @@ Bool Function UpdateLockDifficulty(Int aiLockIndex, Int aiDifficultyDelta, Bool 
         loc_res = true
     endif
     _EndLockManipMutex()
+    return loc_res
+EndFunction
+
+;Update the lock time lock by aiTimeLockDelta. Returns new time lock value, or 0 in case of error
+;Automatically unlock the lock if the timelock reach 0, and the autoUnlock bat was set to 1
+Int Function UpdateLockTimeLock(Int aiLockIndex, Int aiTimeLockDelta)
+    _StartLockManipMutex()
+    Int loc_res = 0 ;return 0 as error value
+    Int loc_Lock = GetNthLock(aiLockIndex)
+    if IsValidLock(loc_Lock)
+        Int loc_TimeLock = iRange(decodeBit(loc_Lock,7,23) + aiTimeLockDelta,0,122)
+        loc_Lock = codeBit(loc_Lock, loc_TimeLock,7,23)
+        UD_LockList[aiLockIndex] = loc_Lock
+        loc_res = loc_TimeLock
+        if !loc_res && IsNthLockAutoTimeLocked(aiLockIndex)
+            ;auto unlock the lock
+            loc_Lock = codeBit(loc_Lock,1,1, 0)
+            UD_LockList[aiLockIndex] = loc_Lock
+        endif
+    endif
+    _EndLockManipMutex()
+    return loc_res
+EndFunction
+
+;Update all locked locks timelock by aiTimeLockDelta, returns true if at least one lock was updated, or false if there was either error or no locked lock
+Bool Function UpdateAllLocksTimeLock(Int aiTimeLockDelta, Bool abCheckUnlock = True)
+    if !HaveLocks() || !GetLockNumber()
+        return False ;device have no locks, return 0 as error value
+    endif
+    Int     loc_res             = 0 ;return False as error value
+    Int     loc_LockNum         = GetLockNumber()
+    Bool    loc_lockUnlocked    = False
+    while loc_LockNum
+        loc_LockNum -= 1
+        Int  loc_Lock = GetNthLock(loc_LockNum)
+        if IsValidLock(loc_Lock)
+            if (!IsNthLockUnlocked(loc_LockNum) && IsNthLockTimeLocked(loc_LockNum)) ;check that lock is not unlocked and is time locked
+                UpdateLockTimeLock(loc_LockNum, aiTimeLockDelta) ;increase/decreate timelock
+                loc_res += 1
+            endif
+        endif
+    endwhile
+    ;check if lock was unlocked, if yes, check if all locks are now unlocked. If yes, unlock device
+    if abCheckUnlock && !HaveLockedLocks()
+        if WearerIsPlayer()
+            UDmain.Print(getDeviceName() + " gets auto unlocked because of timed locks!")
+        endif
+        unlockRestrain() ;unlock restrain
+    endif
     return loc_res
 EndFunction
 
@@ -2094,7 +2200,7 @@ Function removeDevice(actor akActor)
     endif
     
     if UDmain.TraceAllowed()
-        UDCDmain.Log("removeDevice() called for " + getDeviceHeader(),1)
+        UDmain.Log("removeDevice() called for " + getDeviceHeader(),1)
     endif
     
     OnRemoveDevicePre(akActor)
@@ -2114,7 +2220,7 @@ Function removeDevice(actor akActor)
     
     if UD_OnDestroyItemList
         if UDmain.TraceAllowed()
-            UDCDmain.Log("Items from LIL " + UD_OnDestroyItemList + " added to actor " + GetWearername(),3)
+            UDmain.Log("Items from LIL " + UD_OnDestroyItemList + " added to actor " + GetWearername(),3)
         endif
         akActor.addItem(UD_OnDestroyItemList)
     endif
@@ -2178,6 +2284,7 @@ Function UpdateHour(float mult)
         if OnUpdateHourPost()
         endif
     endif
+    UpdateAllLocksTimeLock(-1*Round(mult),True) ;update timed locks
 EndFunction
 
 Function libSafeCheck()
@@ -2246,8 +2353,13 @@ EndFunction
 ;5 = Master
 ;6 = Requires Key
 ;1 = Novice, 25 = Apprentice, 50 = Adept,75 = Expert,100 = Master,255 = Requires Key, range 1-255
-int Function getLockpickLevel(Int aiLockIndex)
-    Int loc_difficulty = GetNthLockDifficulty(aiLockIndex)
+int Function getLockpickLevel(Int aiLockIndex, Int aiDiff = 0)
+    Int loc_difficulty = 1
+    if aiDiff > 0
+        loc_difficulty = aiDiff
+    else
+        loc_difficulty = GetNthLockDifficulty(aiLockIndex)
+    endif
     if !loc_difficulty
         return 5
     endif
@@ -2262,10 +2374,37 @@ int Function getLockpickLevel(Int aiLockIndex)
     elseif loc_difficulty <= 100
         return 4 ;master
     else
-        return 5
+        return 5 ;require key
     endif
-    
-    return 4
+EndFunction
+
+String Function _getLockpickLevelString(Int aiLevel)
+    if aiLevel == 0
+        return "Novice"
+    elseif aiLevel == 1
+        return "Apprentice"
+    elseif aiLevel == 2
+        return "Adept"
+    elseif aiLevel == 3
+        return "Expert"
+    elseif aiLevel == 4
+        return "Master"
+    else
+        return "Requires key\n"
+    endif
+EndFunction
+String Function _GetLockAccessibilityString(Int aiAcc)
+    if aiAcc > 50
+        return "Easy to reach"
+    elseif aiAcc > 35
+        return "Reachable"
+    elseif aiAcc > 15
+        return "Hard to reach"
+    elseif aiAcc > 0
+        return "Very hard to reach"
+    else
+        return "Unreachable"
+    endif
 EndFunction
 
 ;returns lock acces chance
@@ -2583,14 +2722,16 @@ bool Function canBeStruggled(float afAccesibility = -1.0)
     endif
 EndFunction
 
+;Returns true if device can be struggled from or unlocked
 bool Function isEscapable()
-    if UD_durability_damage_base > 0.0 || (UD_Locks);(UD_Locks > 0 && UD_LockpickDifficulty < 255)
+    if UD_durability_damage_base > 0.0 || (UD_LockList && UD_LockList.length && HaveLockpickableLocks())
         return True
     else
         return false
     endif
 EndFunction
 
+;returns true if device can be cutted
 bool Function canBeCutted()
     if UD_CutChance > 0.0
         return True
@@ -2599,19 +2740,19 @@ bool Function canBeCutted()
     endif
 EndFunction
 
+;returns true if device have any locks that can be lockpicked or unlocked with key
 bool Function HaveUnlockableLocks()
-    if UD_CurrentLocks > 0
-        return true
-    endif
-    if UD_LockpickDifficulty < 255 || zad_deviceKey
-        return true
-    endif
-    if (UD_CurrentLocks - UD_JammedLocks) > 0
-        return true
+    if HaveLocks()
+        Int loc_currentlocks = UD_CurrentLocks
+        ;check if device have not unlocked/jammed locks
+        if loc_currentlocks && (loc_currentlocks - UD_JammedLocks) > 0
+            return true
+        endif
     endif
     return false
 EndFunction
 
+;returns true if device can be repaired by helper
 bool Function canBeRepaired(Actor akSource)
     if !akSource
         return false
@@ -3196,6 +3337,19 @@ bool Function lockpickMinigame(Bool abSilent = False)
         return false
     endif
     
+    Bool loc_cond = True
+    loc_cond = loc_cond && !IsNthLockUnlocked(loc_SelectedLock)
+    loc_cond = loc_cond && !IsNthLockJammed(loc_SelectedLock)
+    loc_cond = loc_cond && (!IsNthLockTimeLocked(loc_SelectedLock) || !GetNthLockTimeLock(loc_SelectedLock))
+    
+    ;lock can't be used in lockpick minigame, return
+    if !loc_cond
+        if WearerIsPlayer() || HelperIsPlayer()
+            UDmain.Print("You can't lockpick "+UD_LockNameList[loc_SelectedLock]+"!")
+        endif
+        return false
+    endif
+    
     resetMinigameValues()
     
     _MinigameSelectedLockID = loc_SelectedLock
@@ -3233,6 +3387,19 @@ bool Function repairLocksMinigame(Bool abSilent = False)
         ;TODO, gets best lock
     endif
     if loc_SelectedLock < 0
+        return false
+    endif
+    
+    Bool loc_cond = True
+    loc_cond = loc_cond && !IsNthLockUnlocked(loc_SelectedLock)
+    loc_cond = loc_cond && IsNthLockJammed(loc_SelectedLock)
+    loc_cond = loc_cond && (!IsNthLockTimeLocked(loc_SelectedLock) || !GetNthLockTimeLock(loc_SelectedLock))
+    
+    ;lock can't be used in lockpick minigame, return
+    if !loc_cond
+        if WearerIsPlayer() || HelperIsPlayer()
+            UDmain.Print("You can't repair "+UD_LockNameList[loc_SelectedLock]+"!")
+        endif
         return false
     endif
     
@@ -3315,6 +3482,19 @@ bool Function keyMinigame(Bool abSilent = False)
     endif
     
     if loc_SelectedLock < 0
+        return false
+    endif
+
+    Bool loc_cond = True
+    loc_cond = loc_cond && !IsNthLockUnlocked(loc_SelectedLock)
+    loc_cond = loc_cond && !IsNthLockJammed(loc_SelectedLock)
+    loc_cond = loc_cond && (!IsNthLockTimeLocked(loc_SelectedLock) || !GetNthLockTimeLock(loc_SelectedLock))
+    
+    ;lock can't be used in lockpick minigame, return
+    if !loc_cond
+        if WearerIsPlayer() || HelperIsPlayer()
+            UDmain.Print("You can't unlock "+UD_LockNameList[loc_SelectedLock]+"!")
+        endif
         return false
     endif
 
@@ -3481,6 +3661,19 @@ bool Function lockpickMinigameWH(Actor akHelper)
         return false
     endif
     
+    Bool loc_cond = True
+    loc_cond = loc_cond && !IsNthLockUnlocked(loc_SelectedLock)
+    loc_cond = loc_cond && !IsNthLockJammed(loc_SelectedLock)
+    loc_cond = loc_cond && (!IsNthLockTimeLocked(loc_SelectedLock) || !GetNthLockTimeLock(loc_SelectedLock))
+    
+    ;lock can't be used in lockpick minigame, return
+    if !loc_cond
+        if WearerIsPlayer() || HelperIsPlayer()
+            UDmain.Print("You can't lockpick "+UD_LockNameList[loc_SelectedLock]+"!")
+        endif
+        return false
+    endif
+    
     resetMinigameValues()
     
     _MinigameSelectedLockID = loc_SelectedLock
@@ -3533,6 +3726,19 @@ bool Function repairLocksMinigameWH(Actor akHelper)
         ;TODO, gets best lock
     endif
     if loc_SelectedLock < 0
+        return false
+    endif
+    
+    Bool loc_cond = True
+    loc_cond = loc_cond && !IsNthLockUnlocked(loc_SelectedLock)
+    loc_cond = loc_cond && IsNthLockJammed(loc_SelectedLock)
+    loc_cond = loc_cond && (!IsNthLockTimeLocked(loc_SelectedLock) || !GetNthLockTimeLock(loc_SelectedLock))
+    
+    ;lock can't be used in lockpick minigame, return
+    if !loc_cond
+        if WearerIsPlayer() || HelperIsPlayer()
+            UDmain.Print("You can't repair "+UD_LockNameList[loc_SelectedLock]+"!")
+        endif
         return false
     endif
     
@@ -3639,6 +3845,19 @@ bool Function keyMinigameWH(Actor akHelper)
         ;TODO, gets best lock
     endif
     if loc_SelectedLock < 0
+        return false
+    endif
+    
+    Bool loc_cond = True
+    loc_cond = loc_cond && !IsNthLockUnlocked(loc_SelectedLock)
+    loc_cond = loc_cond && !IsNthLockJammed(loc_SelectedLock)
+    loc_cond = loc_cond && (!IsNthLockTimeLocked(loc_SelectedLock) || !GetNthLockTimeLock(loc_SelectedLock))
+    
+    ;lock can't be used in lockpick minigame, return
+    if !loc_cond
+        if WearerIsPlayer() || HelperIsPlayer()
+            UDmain.Print("You can't unlock "+UD_LockNameList[loc_SelectedLock]+"!")
+        endif
         return false
     endif
     
@@ -4814,11 +5033,13 @@ Function processDetails()
     if res == 0 
         ShowMessageBox(getInfoString())
     elseif res == 1
-        ShowMessageBox(getModifiers())
+        ShowLockDetails()
     elseif res == 2
+        ShowMessageBox(getModifiers())
+    elseif res == 3
         ;debug.messagebox(getWearerDetails())
         UDCDmain.showActorDetails(GetWearer())
-    elseif res == 3
+    elseif res == 4
         showDebugInfo()
     else
     
@@ -4886,80 +5107,7 @@ string Function getInfoString()
     else
         temp += "Cut chance: Uncuttable\n"
     endif
-    ;temp += "Locks: "
-    ;if UD_Locks == 0
-    ;    temp += "None\n"
-    ;else
-    ;    if areLocksJammed()
-    ;        temp += "!Jammed!"
-    ;    else
-    ;        int loc_acceschance = getLockAccesChance()
-    ;        if loc_acceschance > 50
-    ;            temp += "Easy to reach"
-    ;        elseif loc_acceschance > 35
-    ;            temp += "Reachable"
-    ;        elseif loc_acceschance > 15
-    ;            temp += "Hard to reach"
-    ;        elseif loc_acceschance > 0
-    ;            temp += "Very hard to reach"
-    ;        else
-    ;            temp += "Unreachable"
-    ;        endif
-    ;    endif
-    ;    
-    ;    temp += " (" + UD_CurrentLocks + "/" + UD_Locks 
-    ;    
-    ;    if UD_JammedLocks
-    ;        temp += " J=" + UD_JammedLocks + ")\n"
-    ;    else
-    ;        temp += ")\n"
-    ;    endif
-    ;    
-    ;    temp += "Locks Difficulty: "
-    ;    int loc_lockdiff = getLockpickLevel()
-    ;    if loc_lockdiff == 0
-    ;        temp += "Novice"
-    ;    elseif loc_lockdiff == 1
-    ;        temp += "Apprentice"
-    ;    elseif loc_lockdiff == 2
-    ;        temp += "Adept"
-    ;    elseif loc_lockdiff == 3
-    ;        temp += "Expert"
-    ;    elseif loc_lockdiff == 4
-    ;        temp += "Master"
-    ;    else
-    ;        temp += "Requires key\n"
-    ;    endif
-    ;    if loc_lockdiff < 5
-    ;        temp += " ("+UD_LockpickDifficulty+")\n"
-    ;    endif
-    ;    
-    ;    temp += "Key: "
-    ;    if zad_deviceKey
-    ;        temp += zad_deviceKey.GetName() + "\n"
-    ;    else
-    ;        temp += "None\n"
-    ;    endif
-    ;        
-    ;endif
-    
-    if UD_LockList && UD_LockList.length
-        temp += "Locks: \n"; + UD_LockList.length + "\n"
-        
-        Int loc_lockNum = UD_LockList.length
-        Int loc_i = 0
-        while loc_i < loc_lockNum
-            temp += "LOCK"+(loc_i + 1) + "= " + UD_LockNameList[loc_i] + ", L=" + !IsNthLockUnlocked(loc_i) + "\n"
-            loc_i += 1
-        endwhile
-        temp += "Key: "
-        if zad_deviceKey
-            temp += zad_deviceKey.GetName() + "\n"
-        else
-            temp += "None\n"
-        endif
-    endif
-    
+
     if isNotShareActive()
         temp += "Active effect: " + UD_ActiveEffectName + "\n"
         temp += "Can be activated: " + canBeActivated() + "\n"
@@ -5113,6 +5261,70 @@ Function showDebugMinigameInfo()
         res += "No exhastion\n"
     endif
     ShowMessageBox(res)
+EndFunction
+
+Function ShowLockDetails()
+    string loc_res
+    Int loc_lockNum = GetLockNumber()
+    loc_res = "Number of locks: " + loc_lockNum + "\n"
+    loc_res += "Key: "
+    if zad_deviceKey
+        loc_res += zad_deviceKey.GetName() + "\n"
+    else
+        loc_res += "None\n"
+    endif
+    if loc_lockNum
+        loc_res += "Locked: " + GetLockedLocks() + "\n"
+        loc_res += "-----------------\n"
+        Int loc_i = 0
+        while loc_i < loc_lockNum
+            loc_res += "Name: "+UD_LockNameList[loc_i]+ "\n"
+            loc_res += "Position: "+ (loc_i + 1)+ "\n"
+            loc_res += "Status: "
+            
+            Bool loc_ShowDiff   = False
+            Bool loc_ShowAcc    = False
+            Bool loc_ShowShield = False
+            if IsNthLockUnlocked(loc_i)
+                loc_res += "UNLOCKED\n"
+            elseif IsNthLockJammed(loc_i)
+                loc_ShowDiff   = True
+                loc_ShowAcc    = True
+                loc_res += "JAMMED\n"
+            elseif IsNthLockTimeLocked(loc_i) && GetNthLockTimeLock(loc_i)
+                loc_ShowAcc    = True
+                loc_res += "TIME LOCKED\n"
+                loc_res += "Timelock: "+ GetNthLockTimeLock(loc_i) + " hour/s\n"
+            else
+                loc_ShowDiff   = True
+                loc_ShowAcc    = True
+                loc_ShowShield = True
+                loc_res += "LOCKED\n"
+            endif
+            
+            if loc_ShowShield
+                Int loc_shields = GetNthLockShields(loc_i)
+                if loc_shields
+                    loc_res += "Shields: " + loc_shields + "\n"
+                else
+                    loc_res += "Shields: NONE\n"
+                endif
+            endif
+            if loc_ShowAcc
+                loc_res += "Accesibility: "+_GetLockAccessibilityString(GetNthLockAccessibility(loc_i))+ "\n"
+            endif
+            if loc_ShowDiff
+                Int loc_diff = GetNthLockDifficulty(loc_i)
+                loc_res += "Difficulty: "+ _GetLockpickLevelString(GetLockpickLevel(-1,loc_diff)) + " ("+loc_diff+ ")\n"
+            endif
+            
+            loc_i += 1
+            if loc_i < loc_lockNum
+                loc_res += "-----------------\n"
+            endif
+        endwhile
+    endif
+    ShowMessageBox(loc_res)
 EndFunction
 
 Function showRawModifiers()
@@ -5352,9 +5564,9 @@ Function lockpickDevice()
             else ;no more shields on device, unlock the lock
                 UnlockNthLock(_MinigameSelectedLockID)
                 if PlayerInMinigame()
-                    UDCDmain.Print("You succesfully unlocked the "+UD_LockNameList[_MinigameSelectedLockID]+" lock!",1)
+                    UDCDmain.Print("You succesfully unlocked the "+UD_LockNameList[_MinigameSelectedLockID]+"!",1)
                 elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                    UDCDmain.Print(getWearerName() + " unlocked one of the "+UD_LockNameList[_MinigameSelectedLockID]+" lock!",2)
+                    UDCDmain.Print(getWearerName() + " unlocked one of the "+UD_LockNameList[_MinigameSelectedLockID]+"!",2)
                 endif
                 onLockUnlocked(True)
                 stopMinigame() ;stop minigame, as player needs to select next lock manually

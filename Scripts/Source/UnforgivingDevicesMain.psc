@@ -220,7 +220,7 @@ EndFunction
 
 ;returns true if UD is enabled
 Bool Function IsEnabled()
-    return !_Disabled && !_Updating
+    return !_Disabled && !_Updating && ready
 EndFunction
 
 ;Disables, Enables UD
