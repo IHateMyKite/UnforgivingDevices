@@ -424,7 +424,8 @@ Int         _Text_AnimStage                 = -1    ; animation stage of notific
 Float       _Text_Timer                             ; animation timer of notification lines
 Float       _Text_Duration                          ; how long to display text on the screen
 
-String[]    _Text_Queue                             ; notifications queue
+String[]    _Text_Queue_String                      ; notifications queue: text
+Int[]       _Text_Queue_Color                       ; notifications queue: color
 
 Int[]       _Icons_Id                               ; widget id
 String[]    _Icons_Name                             ; DDS file name in '<Data>/interface/exported/widgets/iwant/widgets/library' folder
@@ -493,7 +494,7 @@ EndFunction
 
 ; Print notification on screen
 ; asText                - notification text
-Function Notification_Push(String asText)
+Function Notification_Push(String asText, Int aiColor = 0xFFFFFF)
     Debug.Notification(asText)
 EndFunction
 
@@ -583,6 +584,8 @@ EndFunction
 Int[] Function _AddWidget(Int[] aaiGroup, Int aiWidget, Float fVerticalOffset, Int akPerc = 0, Int akCol1 = 0x0, Int akCol2 = 0x0, Int akCol3 = 0xFFFFFFFF)
 EndFunction
 Function _SetIconRGB(Int aiWidget, Int aiRGB)
+EndFunction
+Function _SetTextRGB(Int aiWidget, Int aiColor)
 EndFunction
 Function _AnimateWidgets()
 EndFunction
@@ -1017,8 +1020,9 @@ State iWidgetInstalled
         Int[] alphas = PapyrusUtil.SliceIntArray(_Icons_Alpha, 0)
         Int[] visibles = PapyrusUtil.SliceIntArray(_Icons_Visible, 0)
 
-        Notification_Push("TEST 1 TEST 1 TEST 1 TEST 1")
-        Notification_Push("TEST 2 TEST 2 TEST 2 TEST 2 TEST 2 TEST 2 TEST 2 TEST 2")
+        Notification_Push("TEST 0 TEST 0", 0xFF0000)
+        Notification_Push("TEST 1 TEST 1 TEST 1 TEST 1", 0x00FF00)
+        Notification_Push("TEST 2 TEST 2 TEST 2 TEST 2 TEST 2 TEST 2 TEST 2 TEST 2", 0x0000FF)
 
         StatusEffect_SetVisible("dd-plug-anal", True)
         StatusEffect_SetVisible("dd-plug-vaginal", True)
@@ -1064,7 +1068,7 @@ State iWidgetInstalled
     EndFunction
     
     ; quickly push a string into array and leave the function
-    Function Notification_Push(String asText)
+    Function Notification_Push(String asText, Int aiColor = 0xFFFFFF)
         If asText == ""
             Return
         EndIf
@@ -1072,21 +1076,20 @@ State iWidgetInstalled
             Debug.Notification(asText)
             Return
         EndIf
-        _Text_Queue = PapyrusUtil.PushString(_Text_Queue, asText)
+        _Text_Queue_String = PapyrusUtil.PushString(_Text_Queue_String, asText)
+        _Text_Queue_Color = PapyrusUtil.PushInt(_Text_Queue_Color, aiColor)
         RegisterForSingleUpdate(_Animation_UpdateInstant)
     EndFunction
     
     Bool Function _NextNotification()
-        If _Text_Queue.Length == 0
+        If _Text_Queue_String.Length == 0
             Return False
         EndIf
-        String str = _Text_Queue[0]
-        _Text_Queue = PapyrusUtil.SliceStringArray(_Text_Queue, 1)
+        String str = _Text_Queue_String[0]
+        Int color = _Text_Queue_Color[0]
+        _Text_Queue_String = PapyrusUtil.SliceStringArray(_Text_Queue_String, 1)
+        _Text_Queue_Color = PapyrusUtil.SliceIntArray(_Text_Queue_Color, 1)
         _Text_Duration = (StringUtil.GetLength(str) as Float) / (UD_TextReadSpeed as Float)
-    ; TODO: multiline
-;        If _Text_LinesId.Length == 0
-;            _AddTextLineWidget()
-;        EndIf
         str = str + " " 
         Int i = 0 
         Int len = StringUtil.GetLength(str)
@@ -1103,6 +1106,7 @@ State iWidgetInstalled
                         _AddTextLineWidget()
                     EndIf
                     iWidget.setText(_Text_LinesId[text_line_index], StringUtil.Substring(str, line_start, prev_space - line_start))
+                    _SetTextRGB(_Text_LinesId[text_line_index], color)
                     text_line_index += 1
                     line_start = prev_space + 1
                 EndIf
@@ -1115,11 +1119,13 @@ State iWidgetInstalled
                 _AddTextLineWidget()
             EndIf
             iWidget.setText(_Text_LinesId[text_line_index], StringUtil.Substring(str, line_start, prev_space - line_start))
+            _SetTextRGB(_Text_LinesId[text_line_index], color)
             text_line_index += 1
         EndIf
         i = text_line_index
         While i < _Text_LinesId.Length
             iWidget.setText(_Text_LinesId[i], "")
+            _SetTextRGB(_Text_LinesId[text_line_index], color)
             i += 1
         EndWhile
         Return True
@@ -1238,6 +1244,13 @@ State iWidgetInstalled
             G  = (Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active100_Color,8),0xFF) * (m - 50) + Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active50_Color,8),0xFF) * (100 - m)) / 50
             B  = (Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active100_Color,0),0xFF) * (m - 50) + Math.LogicalAnd(Math.RightShift(_Widget_Icon_Active50_Color,0),0xFF) * (100 - m)) / 50
         EndIf
+        iWidget.setRGB(aiWidget, R, G, B)
+    EndFunction
+
+    Function _SetTextRGB(Int aiWidget, Int aiColor)
+        Int R = Math.LogicalAnd(Math.RightShift(aiColor,16),0xFF)
+        Int G = Math.LogicalAnd(Math.RightShift(aiColor,8),0xFF)
+        Int B = Math.LogicalAnd(Math.RightShift(aiColor,0),0xFF)
         iWidget.setRGB(aiWidget, R, G, B)
     EndFunction
     

@@ -1173,6 +1173,7 @@ Function OptionSelectUiWidget(int option)
     if(option == UD_UseIWantWidget_T)
         UDWC.UD_UseIWantWidget = !UDWC.UD_UseIWantWidget
         SetToggleOptionValue(UD_UseIWantWidget_T, UDWC.UD_UseIWantWidget)
+        ShowMessage("To avoid possible errors when switching between different UI modes, please save your game and then load from that save.", False, "OK")
         forcePageReset()
     elseif (option == UD_AutoAdjustWidget_T)
         UDWC.UD_AutoAdjustWidget = !UDWC.UD_AutoAdjustWidget
