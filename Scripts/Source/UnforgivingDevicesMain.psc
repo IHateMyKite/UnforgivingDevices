@@ -242,14 +242,22 @@ Function OnGameReload()
         return ;mod is disabled, do nothing
     endif
     
+    if _Updating
+        return ;mod is already updating, most likely because user saved the game while the mod was already updating
+    endif
+    
     _Updating = True
     DISABLE()
+    
+    Utility.waitMenuMode(1.5)
+    
+    Print("Updating Unforgiving Devices, please wait...")
     
     if !Ready
         Utility.waitMenuMode(2.5)
     endif
     
-    Utility.waitMenuMode(3.5)
+    Utility.waitMenuMode(1.5)
     
     CLog("OnGameReload() called! - Updating Unforgiving Devices...")
     
@@ -298,6 +306,8 @@ Function OnGameReload()
     
     _Updating = False
     ENABLE()
+    
+    Print("Unforgiving Devices updated")
 EndFunction
 
 Event OnUpdate()

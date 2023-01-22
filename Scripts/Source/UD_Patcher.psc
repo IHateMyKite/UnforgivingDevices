@@ -56,9 +56,8 @@ Float Function GetPatchDifficulty(UD_CustomDevice_RenderScript akDevice)
 EndFunction
 
 Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
-    Float loc_currentmult = UD_PatchMult_HeavyBondage*UD_PatchMult*GetPatchDifficulty(device)
-    ;device.UD_LockpickDifficulty = 25
-    ;CheckLocks(device,true,50)
+    Float   loc_currentmult = UD_PatchMult_HeavyBondage*UD_PatchMult*GetPatchDifficulty(device)
+    Int     loc_type        = 0
     device.UD_LockAccessDifficulty = 100.0
     device.UD_CutChance = 0.0
 
@@ -79,48 +78,45 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
         device.UD_durability_damage_base = fRange(Utility.randomFloat(0.7,1.0)/loc_currentmult,0.05,100.0)
         device.UD_CutChance = fRange(Utility.randomFloat(5.0,10.0)/loc_currentmult,1.0,50.0)
         if isSteel(device)
-            device.UD_LockAccessDifficulty = 85
             device.UD_CutChance = 0
         endif
-        CheckLocks(device,true,25)
+        loc_type = 15
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousArmbinderElbow)
         device.UD_durability_damage_base = fRange(Utility.randomFloat(0.65,0.8)/loc_currentmult,0.05,100.0)
         device.UD_CutChance = fRange(Utility.randomFloat(3.0,8.0)/loc_currentmult,1.0,50.0)
         if isSteel(device)
-            device.UD_LockAccessDifficulty = 85
             device.UD_CutChance = 0
         endif
-        CheckLocks(device,true,25)
+        loc_type = 16
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousStraitJacket)
         device.UD_durability_damage_base = fRange(Utility.randomFloat(0.7,0.9)/loc_currentmult,0.05,100.0)
         device.UD_CutChance = fRange(Utility.randomFloat(2.0,8.0)/loc_currentmult,1.0,50.0)
         sentientModChance = 75
         if isSteel(device)
-            device.UD_LockAccessDifficulty = 85
             device.UD_CutChance = 0
         endif
-        CheckLocks(device,true,25)
+        loc_type = 17
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousCuffsFront)
         device.UD_durability_damage_base = fRange(Utility.randomFloat(0.3,0.8)/loc_currentmult,0.05,100.0)
-        CheckLocks(device,true,0)
         device.UD_LockAccessDifficulty = iRange(Round(Utility.randomInt(70,80)*loc_currentmult),0,95)
+        loc_type = 19
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousYoke) || device.deviceRendered.hasKeyword(libs.zad_DeviousYokeBB)
         device.UD_durability_damage_base = fRange(Utility.randomFloat(0.1,0.25)/loc_currentmult,0.05,100.0)
-        CheckLocks(device,true,0)
         device.UD_LockAccessDifficulty = iRange(Round(Utility.randomInt(75,90)*loc_currentmult),0,95)
+        loc_type = 18
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousElbowTie)
         device.UD_durability_damage_base = Utility.randomFloat(0.05,0.1)
-        CheckLocks(device,true,0)
         device.UD_StruggleCritChance = Utility.randomInt(3,5)
         device.UD_StruggleCritMul = Utility.randomFloat(150.0,255.0)
+        loc_type = 22
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousPetSuit)
         device.UD_durability_damage_base = fRange(Utility.randomFloat(0.9,1.4)/loc_currentmult,0.05,100.0)
-        CheckLocks(device,true,25)
         device.UD_LockAccessDifficulty = iRange(Round(Utility.randomInt(60,80)*loc_currentmult),0,95)
         device.UD_CutChance = fRange(Utility.randomFloat(2.0,5.0)/loc_currentmult,1.0,50.0)
         sentientModChance = 75
+        loc_type = 21
     else
-        CheckLocks(device,true,50)
+        loc_type = 0
     endif
     
     ;materials
@@ -128,10 +124,10 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
         device.UD_durability_damage_base = fRange(device.UD_durability_damage_base/4.0,0.05,100.0)
         device.UD_StruggleCritDuration = 0.5
         ;device.UD_Locks = UD_MinLocks
-        device.UD_LockpickDifficulty = 100
-        if device.UD_LockAccessDifficulty < 85
-            device.UD_LockAccessDifficulty = 85
-        endif
+        ;device.UD_LockpickDifficulty = 100
+        ;if device.UD_LockAccessDifficulty < 85
+        ;    device.UD_LockAccessDifficulty = 85
+        ;endif
         
         device.UD_ResistPhysical = Utility.randomFloat(0.5,0.9)
         device.UD_ResistMagicka = Utility.randomFloat(-0.3,1.0)
@@ -145,13 +141,12 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
         checkMendingModifier(device,Round(35*loc_currentmult),0.8)
     endif
     
-    patchFinish(device,loc_control,loc_currentmult)
+    patchFinish(device,loc_control,loc_currentmult,loc_type)
 EndFunction
 
 Function patchBlindfold(UD_CustomBlindfold_RenderScript device)
     Float loc_currentmult = UD_PatchMult_Blindfold*UD_PatchMult*GetPatchDifficulty(device)
     patchDefaultValues(device,loc_currentmult)
-    CheckLocks(device,false,30)
     ;materials
     if StringUtil.find(device.deviceInventory.getName(),"Extreme") != -1 || (StringUtil.find(device.deviceInventory.getName(),"High Security") != -1 || StringUtil.find(device.deviceInventory.getName(),"Secure") != -1)
         ;device.UD_Locks = UD_MinLocks
@@ -161,16 +156,12 @@ Function patchBlindfold(UD_CustomBlindfold_RenderScript device)
     
     checkLooseModifier(device,75,0.2,0.5)
     
-    patchFinish(device,0x0F,loc_currentmult)
+    patchFinish(device,0x0F,loc_currentmult,7)
 EndFunction
 
 Function patchGag(UD_CustomGag_RenderScript device)
     Float loc_currentmult = UD_PatchMult_Gag*UD_PatchMult*GetPatchDifficulty(device)
     patchDefaultValues(device,loc_currentmult)
-    
-    if StringUtil.find(device.deviceInventory.getName(),"Extreme") != -1 || (StringUtil.find(device.deviceInventory.getName(),"High Security") != -1 || StringUtil.find(device.deviceInventory.getName(),"Secure") != -1)
-        ;device.UD_Locks = UD_MinLocks
-    endif
     
     checkLooseModifier(device,30,0.05, 0.15)
     
@@ -178,16 +169,13 @@ Function patchGag(UD_CustomGag_RenderScript device)
         (device as UD_CustomPanelGag_RenderScript).UD_RemovePlugDifficulty = Utility.randomInt(50,100)*loc_currentmult
     endif
 
-    CheckLocks(device,false,25)
-
-    patchFinish(device,0x0F,loc_currentmult)
+    patchFinish(device,0x0F,loc_currentmult,6)
 EndFunction
 
 Function patchBelt(UD_CustomBelt_RenderScript device)
     Float loc_currentmult = UD_PatchMult_ChastityBelt*UD_PatchMult*GetPatchDifficulty(device)
     patchDefaultValues(device,loc_currentmult)
     
-    CheckLocks(device,false,25)
     device.UD_Cooldown = Round(Utility.randomInt(140,200)/fRange(loc_currentmult,0.5,2.0))
     ;materials
     if isEbonite(device)
@@ -207,7 +195,7 @@ Function patchBelt(UD_CustomBelt_RenderScript device)
     endif
     checkSentientModifier(device,Round(70*loc_currentmult),1.25)
     
-    patchFinish(device,0x0F,loc_currentmult)
+    patchFinish(device,0x0F,loc_currentmult,11)
 EndFunction
 
 Function patchPlug(UD_CustomPlug_RenderScript device)
@@ -236,14 +224,14 @@ Function patchPlug(UD_CustomPlug_RenderScript device)
     endif
     
     if device.zad_deviceKey ;lockable plug
-        CheckLocks(device)
-        device.UD_LockAccessDifficulty = 70
         device.UD_durability_damage_base = 0.0 
+        GenerateLocks(device, 8,255)
     endif
+    
     checkMAOModifier(device,25,10,25)
     
     checkSentientModifier(device,50,1.25)
-    patchFinish(device,loc_control,loc_currentmult)
+    patchFinish(device,loc_control,loc_currentmult,-1)
 EndFunction
 
 Function patchHood(UD_CustomHood_RenderScript device)
@@ -251,7 +239,7 @@ Function patchHood(UD_CustomHood_RenderScript device)
     patchDefaultValues(device,loc_currentmult)
     checkLooseModifier(device,100,0.05, 0.4)
     CheckLocks(device,false,40)
-    patchFinish(device,0x0F,loc_currentmult)
+    patchFinish(device,0x0F,loc_currentmult,14)
 EndFunction
 
 Function patchBra(UD_CustomBra_RenderScript device)
@@ -259,19 +247,15 @@ Function patchBra(UD_CustomBra_RenderScript device)
     patchDefaultValues(device,loc_currentmult)
     
     device.UD_durability_damage_base *= 0.5
-    CheckLocks(device,false,35)
-    ;device.UD_LockpickDifficulty = 25*Utility.randomInt(1,3)
-    device.UD_LockAccessDifficulty = Utility.randomFloat(70.0,90.0)
     
     checkSentientModifier(device,50,1.3)
-    patchFinish(device,0x0F,loc_currentmult)
+    patchFinish(device,0x0F,loc_currentmult,12)
 EndFunction
 
 Function patchGeneric(UD_CustomDevice_RenderScript device)
     Float loc_currentmult = UD_PatchMult_Generic*UD_PatchMult*GetPatchDifficulty(device)
-
+    Int loc_type = 0
     patchDefaultValues(device,loc_currentmult)
-    CheckLocks(device,true,35)
 
     int loc_control = 0x0F
     if device as UD_CustomMittens_RenderScript
@@ -280,31 +264,41 @@ Function patchGeneric(UD_CustomDevice_RenderScript device)
         endif
         checkLooseModifier(device,100,0.25, 1.0)
         loc_control = Math.LogicalAnd(loc_control,0x0E)
+        loc_type = 4
     endif
     
     If device as UD_CustomDynamicHeavyBondage_RS
         (device as UD_CustomDynamicHeavyBondage_RS).UD_UntieDifficulty = Utility.randomFloat(75.0,125.0)/loc_currentmult
         device.UD_Cooldown = Round(Utility.randomInt(160,240)/fRange(loc_currentmult,0.5,2.0))
+        if !device.HaveLocks()
+            Int loc_timelock = Utility.randomInt(0,1) ;random timelock, to force player in to being longer locked in device
+            device.CreateLock(10, 75, 1, "Left lock 1", loc_timelock, True)
+            device.CreateLock(10, 25, 1, "Left lock 2", loc_timelock, True)
+            device.CreateLock(10, 75, 1, "Right lock 1", loc_timelock, True)
+            device.CreateLock(10, 25, 1, "Right lock 2", loc_timelock, True)
+        endif
     EndIf
+    
     
     checkLooseModifier(device,50,0.15, 0.4)
     
-    patchFinish(device,loc_control,loc_currentmult)
+    patchFinish(device,loc_control,loc_currentmult,loc_type)
 EndFunction
 
 Function patchPiercing(UD_CustomPiercing_RenderScript device)
     Float loc_currentmult = UD_PatchMult_Piercing*UD_PatchMult*GetPatchDifficulty(device)
+    Int loc_type = 0
     patchDefaultValues(device,loc_currentmult)
     ;patchStart(device)
     device.UD_VibDuration = Round(Utility.randomInt(40,75)*fRange(loc_currentmult,0.3,5.0))
     device.UD_Cooldown = Round(Utility.randomInt(45,90)/fRange(loc_currentmult,0.5,2.0))
     if device.UD_DeviceKeyword == libs.zad_deviousPiercingsNipple
-        CheckLocks(device,true)
+        loc_type = 2
         device.UD_OrgasmMult  = Utility.randomFloat(0.3,0.8)*fRange(loc_currentmult,1.0,5.0)
         device.UD_ArousalMult = Utility.randomFloat(1.5,2.0)*fRange(loc_currentmult,1.0,3.0)
         checkMAHModifier(device,45,3,8,1,3)
     elseif device.UD_DeviceKeyword == libs.zad_DeviousPiercingsVaginal
-        CheckLocks(device,false)
+        loc_type = 1
         device.UD_OrgasmMult  = Utility.randomFloat(1.5,2.5)*fRange(loc_currentmult,0.8,3.0)
         checkMAOModifier(device,15,5,15)
     endif
@@ -313,7 +307,7 @@ Function patchPiercing(UD_CustomPiercing_RenderScript device)
     device.UD_ResistMagicka = 0.1
     checkSentientModifier(device,50,1.0)
     
-    patchFinish(device,0x0F,loc_currentmult)
+    patchFinish(device,0x0F,loc_currentmult,loc_type)
 EndFunction
 
 bool Function isEbonite(UD_CustomDevice_RenderScript device)
@@ -378,8 +372,8 @@ Function checkLCheapModifier(UD_CustomDevice_RenderScript device,int chance,int 
     endif
 EndFunction
 
-Function patchFinish(UD_CustomDevice_RenderScript device,int argControlVar = 0x0F,Float fMult = 1.0)
-    checkInventoryScript(device,argControlVar,fMult)
+Function patchFinish(UD_CustomDevice_RenderScript device,int argControlVar = 0x0F,Float fMult = 1.0, Int aiType = 0)
+    checkInventoryScript(device,argControlVar,fMult,aiType)
     
     if device.UD_CutChance && (device.UD_durability_damage_base || device.UD_Locks)
         CheckCutting(device,35)
@@ -420,7 +414,8 @@ EndFunction
 ;1b - CutDeviceEscapeChance
 ;2b - LockPickEscapeChance
 ;3b - LockAccessDifficulty
-Function checkInventoryScript(UD_CustomDevice_RenderScript device,int argControlVar = 0x0F,Float fMult = 1.0)
+;------------------------
+Function checkInventoryScript(UD_CustomDevice_RenderScript device,int argControlVar = 0x0F,Float fMult = 1.0, Int aiType = 0)
     UD_CustomDevice_EquipScript inventoryScript = device.getInventoryScript()
     
     if Math.LogicalAnd(argControlVar,0x01)
@@ -440,35 +435,140 @@ Function checkInventoryScript(UD_CustomDevice_RenderScript device,int argControl
     endif
     
     if Math.LogicalAnd(argControlVar,0x04)
+        Int loc_diff = 0
         if inventoryScript.LockPickEscapeChance >= 50.0
-            device.UD_LockpickDifficulty = 1 ;Novic
+            loc_diff = 1 ;Novic
         elseif inventoryScript.LockPickEscapeChance >= 20.0
-            device.UD_LockpickDifficulty = Utility.randomInt(2,10) ;Apprentice
+            loc_diff = Utility.randomInt(2,10) ;Apprentice
         elseif inventoryScript.LockPickEscapeChance >= 12.0
-            device.UD_LockpickDifficulty = Utility.randomInt(26,35) ;Adept
+            loc_diff = Utility.randomInt(26,35) ;Adept
         elseif inventoryScript.LockPickEscapeChance >= 7.0
-            device.UD_LockpickDifficulty = Utility.randomInt(51,60) ;Expert
+            loc_diff = Utility.randomInt(51,60) ;Expert
         elseif inventoryScript.LockPickEscapeChance > 0.0
-            device.UD_LockpickDifficulty = Utility.randomInt(76,80);Master
+            loc_diff = Utility.randomInt(76,80);Master
         else 
-            device.UD_LockpickDifficulty = 255 ;Requires Key
+            loc_diff = 255 ;Requires Key
         endif
         
-        if !inventoryScript.deviceKey && inventoryScript.LockPickEscapeChance == 0.0
-            ;device.UD_Locks = 0
-        elseif !device.UD_durability_damage_base && device.UD_Locks == 0 ;inventoryScript.deviceKey; && inventoryScript.LockAccessDifficulty < 100.0
-            CheckLocks(device)
-        endif
+        GenerateLocks(device, aiType, loc_diff)
+        
+        ;if !inventoryScript.deviceKey && inventoryScript.LockPickEscapeChance == 0.0
+        ;    ;device.UD_Locks = 0
+        ;elseif !device.UD_durability_damage_base && device.UD_Locks == 0 ;inventoryScript.deviceKey; && inventoryScript.LockAccessDifficulty < 100.0
+        ;    ;CheckLocks(device)
+        ;endif
     endif
     
-    if Math.LogicalAnd(argControlVar,0x08)
-        if !device.UD_durability_damage_base && inventoryScript.LockAccessDifficulty < 100.0 && device.UD_LockAccessDifficulty == 100.0
-            device.UD_LockAccessDifficulty = inventoryScript.LockAccessDifficulty
-        endif
-    endif
+    ;if Math.LogicalAnd(argControlVar,0x08)
+    ;    if !device.UD_durability_damage_base && inventoryScript.LockAccessDifficulty < 100.0 && device.UD_LockAccessDifficulty == 100.0
+    ;        device.UD_LockAccessDifficulty = inventoryScript.LockAccessDifficulty
+    ;    endif
+    ;endif
 
     inventoryScript.delete()
 EndFunction
+
+
+Function GenerateLocks(UD_CustomDevice_RenderScript akDevice, Int aiType, Int aiDifficulty)
+    if aiType < 0
+        return
+    endif
+    if !akDevice.HaveLocks()
+        Int loc_timelock = Utility.randomInt(0,2) ;random timelock, to force player in to being longer locked in akDevice
+        if aiType == 0 ;generic
+            akDevice.CreateLock(aiDifficulty, 75, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Left lock 1", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 25, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Left lock 2", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 75, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Right lock 1", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 25, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Right lock 2", loc_timelock, True)
+        elseif aiType == 1 ;genital piercing
+            akDevice.CreateLock(aiDifficulty, 50, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Genital lock", loc_timelock, True)
+        elseif aiType == 2 ;nipple piercing
+            akDevice.CreateLock(aiDifficulty, 70, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Left nipple lock", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 70, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Right nipple lock", loc_timelock, True)
+        elseif aiType == 3 ;Gloves
+            akDevice.CreateLock(aiDifficulty, 75, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Left  hand lock 1", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 25, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Left  hand lock 2", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 75, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Right hand lock 1", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 25, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Right hand lock 2", loc_timelock, True)
+        elseif aiType == 4 ;Mittens
+            akDevice.CreateLock(aiDifficulty, 0, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Left  hand lock", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 0, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Right hand lock", loc_timelock, True)
+        elseif aiType == 5 ;boots
+            akDevice.CreateLock(aiDifficulty, 25, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Left  ancle lock", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 25, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Right ancle lock", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 75, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Left  leg lock", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 75, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Right leg lock", loc_timelock, True)
+        elseif aiType == 6 ;Gag
+            akDevice.CreateLock(aiDifficulty, 50, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Strap lock", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 10, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Back lock", loc_timelock, True)
+        elseif aiType == 7 ;Blindfold
+            akDevice.CreateLock(aiDifficulty, 25, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Back lock", loc_timelock, True)
+        elseif aiType == 8 || aiType == 9;Vag. Plug or Anal plug
+            akDevice.CreateLock(aiDifficulty, 80, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Plug lock", loc_timelock, True)
+        elseif aiType == 10 ;Suit
+            akDevice.CreateLock(aiDifficulty, 80, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Front lock", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 60, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Left arm lock", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 60, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Right arm lock", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 60, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Left leg lock", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 60, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Right leg lock", loc_timelock, True)
+        elseif aiType == 11 ;Belt
+            akDevice.CreateLock(aiDifficulty, 80, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Front lock", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 25, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Back lock", loc_timelock, True)
+        elseif aiType == 12 ;Bra
+            akDevice.CreateLock(aiDifficulty, 75, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Front lock", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 15, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Back lock", loc_timelock, True)
+        elseif aiType == 13 ;Harness
+            akDevice.CreateLock(aiDifficulty, 65, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Neck lock", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 75, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Front lock", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 15, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Back lock", loc_timelock, True)
+        elseif aiType == 14 ;hood
+            akDevice.CreateLock(aiDifficulty, 75, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Front lock", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 15, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Back lock", loc_timelock, True)
+        elseif aiType == 15 || aiType == 16 ;Armbinder or Elbowbinder
+            if isSteel(akDevice)
+                akDevice.CreateLock(aiDifficulty, 15, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Left cuff lock", loc_timelock, True)
+                akDevice.CreateLock(aiDifficulty, 15, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Right cuff lock", loc_timelock, True)
+            else
+                akDevice.CreateLock(aiDifficulty, 0, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Left shoulder lock", loc_timelock, True)
+                akDevice.CreateLock(aiDifficulty, 0, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Right shoulder lock", loc_timelock, True)
+            endif
+        elseif aiType == 17 ;Straitjacket
+            if isSteel(akDevice)
+                akDevice.CreateLock(aiDifficulty, 15, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Left cuff lock", loc_timelock, True)
+                akDevice.CreateLock(aiDifficulty, 15, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Right cuff lock", loc_timelock, True)
+            else
+                akDevice.CreateLock(aiDifficulty, 0, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Left side lock", loc_timelock, True)
+                akDevice.CreateLock(aiDifficulty, 0, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Right side lock", loc_timelock, True)
+                akDevice.CreateLock(aiDifficulty, 0, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Front lock", loc_timelock, True)
+                akDevice.CreateLock(aiDifficulty, 0, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Back lock", loc_timelock, True)
+            endif
+        elseif aiType == 18 || aiType == 19 || aiType == 20 ;Yoke or Front cuffs or BB yoke
+            akDevice.CreateLock(aiDifficulty, 35, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Left cuff lock", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 35, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Right cuff lock", loc_timelock, True)
+        elseif aiType == 21 ;Petsuit
+            akDevice.CreateLock(aiDifficulty, 25, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Left arm lock", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 25, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Right arm lock", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 0, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Left leg lock", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 0, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Right leg lock", loc_timelock, True)
+        elseif aiType == 22 ;Elbow tie
+            akDevice.CreateLock(aiDifficulty, 8, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Elbow lock", loc_timelock, True)
+        else
+            akDevice.CreateLock(aiDifficulty, 75, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Left lock 1", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 25, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Left lock 2", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 75, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Right lock 1", loc_timelock, True)
+            akDevice.CreateLock(aiDifficulty, 25, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Right lock 2", loc_timelock, True)
+        endif
+        
+        if (StringUtil.find(akDevice.deviceInventory.getName(),"High Security") != -1 || StringUtil.find(akDevice.deviceInventory.getName(),"Secure") != -1)
+            Int loc_lockNum = akDevice.GetLockNumber()
+            while loc_lockNum
+                loc_lockNum -= 1
+                akDevice.UpdateLockDifficulty(loc_lockNum,50) ;increase all locks difficulty by 50
+            endwhile
+        endif
+    endif
+EndFunction
+
 
 Function CheckLocks(UD_CustomDevice_RenderScript device,bool bEven = false,int iChanceNone = 0)
     if UD_MinLocks > UD_MaxLocks
@@ -552,10 +652,6 @@ Function patchDefaultValues(UD_CustomDevice_RenderScript device,Float fMult)
     
     checkSentientModifier(device,Round(15*fMult),1.0)
     checkHealModifier(device,10)
-    
-    device.CreateLock(aiDifficulty = 10, aiAccess = 100, asName = "Test Lock",abAdd = True, aiShields = 3)
-    device.CreateLock(aiDifficulty = 90, aiAccess = 10, asName = "Test Lock 2",abAdd = True, aiShields = 1)
-    device.CreateLock(aiDifficulty = 10, aiAccess = 100, asName = "",abAdd = True, aiShields = 3)
 EndFunction
 
 ;check resist, so it can never bee too big or too low

@@ -115,59 +115,63 @@ string Function getEdgingModeString(int iMode)
     endif
 EndFunction
 
-string Function getVibDetails(string str = "")
-    str += "{-" + getDeviceName() + "-}\n"
-    str += "--BASE VALUES--\n"
+;Show vibrator details
+Function ShowVibDetails()
+    String loc_res = "{-" + getDeviceName() + "-}\n"
+    loc_res += "--BASE VALUES--\n"
     if UD_Chaos
-        str += "Vib strength: Chaos ( "+UD_Chaos+" %)\n"
+        loc_res += "Vib strength: Chaos ( "+UD_Chaos+" %)\n"
     else
-        str += "Vib strength: " + UD_VibStrength + "\n"
+        loc_res += "Vib strength: " + UD_VibStrength + "\n"
     endif
     
-    str += "Vib duration: " + UD_VibDuration + "\n"
-    str += "Vib mode: " + getEdgingModeString(UD_EdgingMode) + "\n"
-    str += "Shocking: " + UD_Shocking + "\n"
-    str += "Status --> "
+    loc_res += "Vib duration: " + UD_VibDuration + "\n"
+    loc_res += "Vib mode: " + getEdgingModeString(UD_EdgingMode) + "\n"
+    loc_res += "Shocking: " + UD_Shocking + "\n"
+    loc_res += "Status --> "
     if isVibrating() && !isPaused()
-        str += "ON\n"
-        str += "Current vib strength: " + getCurrentVibStrenth() + "\n"
+        loc_res += "ON\n"
+        loc_res += "Current vib strength: " + getCurrentVibStrenth() + "\n"
 
         if _currentVibRemainingDuration > 0
-            str += "Rem. duration: " + _currentVibRemainingDuration + " s\n"
+            loc_res += "Rem. duration: " + _currentVibRemainingDuration + " s\n"
         else
-            str += "Rem. duration: " + "INF" + " s\n"
+            loc_res += "Rem. duration: " + "INF" + " s\n"
         endif
-        str += "Arousal rate: " + FormatString(getVibArousalRate(),2) + " A/s\n"
-        str += "Orgasm rate: " + FormatString(_appliedOrgasmRate,2) + " Op/s\n"
-        str += "Current vib mode: "
+        loc_res += "Arousal rate: " + FormatString(getVibArousalRate(),2) + " A/s\n"
+        loc_res += "Orgasm rate: " + FormatString(_appliedOrgasmRate,2) + " Op/s\n"
+        loc_res += "Current vib mode: "
         if _currentEdgingMode == 0
-            str += "Normal\n"
+            loc_res += "Normal\n"
         elseif _currentEdgingMode == 1
-            str += "Edge\n"
+            loc_res += "Edge\n"
         elseif _currentEdgingMode == 2
-            str += "Random\n"
+            loc_res += "Random\n"
         endif
     elseif isPaused()
-        str += "PAUSED\n"
+        loc_res += "PAUSED\n"
     else
-        str += "OFF\n"
+        loc_res += "OFF\n"
     endif
-    return str
+    ShowMessageBox(loc_res)
 EndFunction
 
 ;function called when player clicks DETAILS button in device menu
 Function processDetails()
     UDCDmain.currentDeviceMenu_switch1 = isVibrating() || canVibrate()
-    int res = UDCDmain.VibDetailsMessage.show()    
+    UDCDmain.currentDeviceMenu_switch2 = HaveLocks()
+    int res = UDCDmain.VibDetailsMessage.show()
     if res == 0 
-        ShowMessageBox(getInfoString())
+        ShowBaseDetails()
     elseif res == 1
-        ShowMessageBox(getVibDetails())
+        ShowLockDetails()
     elseif res == 2
-        ShowMessageBox(getModifiers())
+        ShowVibDetails()
     elseif res == 3
-        UDCDmain.showActorDetails(GetWearer())
+        ShowModifiers()
     elseif res == 4
+        UDCDmain.showActorDetails(GetWearer())
+    elseif res == 5
         showDebugInfo()
     else
         return
