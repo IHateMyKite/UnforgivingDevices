@@ -981,7 +981,7 @@ endFunction
 string Function GetUserTextInput()
     TextMenu.ResetMenu()
     TextMenu.OpenMenu()
-    TextMenu.BlockUntilClosed()
+    ;TextMenu.BlockUntilClosed()
     return TextMenu.GetResultString()
 EndFunction
 
@@ -994,7 +994,7 @@ Int Function GetUserListInput(string[] arrList)
         loc_i+=1
     endwhile
     ListMenu.OpenMenu()
-    ListMenu.BlockUntilClosed()
+    ;ListMenu.BlockUntilClosed()
     return ListMenu.GetResultInt()
 EndFunction
 

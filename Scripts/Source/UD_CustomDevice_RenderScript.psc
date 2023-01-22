@@ -2408,8 +2408,8 @@ float Function getRelativeCuttingProgress()
     return _CuttingProgress/100.0
 EndFunction
 
-float Function getRelativeLockRepairProgress()
-    return _RepairProgress/getLockDurability()
+float Function _GetRelativeLockRepairProgress(Int aiLockIndex)
+    return GetNthLockRepairProgress(aiLockIndex)/getLockDurability()
 EndFunction
 
 float Function getLockDurability()
@@ -5101,23 +5101,20 @@ EndFunction
 ;function called when player clicks DETAILS button in device menu
 Function processDetails()
     UDCDmain.currentDeviceMenu_switch1 = HaveLocks()
-    While True
-        int res = UDCDmain.DetailsMessage.show()
-        if res == 0 
-            ShowBaseDetails()
-        elseif res == 1
-            ShowLockDetails()
-        elseif res == 2
-            ShowModifiers()
-        elseif res == 3
-            UDCDmain.showActorDetails(GetWearer())
-        elseif res == 4
-            showDebugInfo()
-        else
-            return
-        endif
-        Utility.wait(0.01)
-    EndWhile
+    int res = UDCDmain.DetailsMessage.show()
+    if res == 0 
+        ShowBaseDetails()
+    elseif res == 1
+        ShowLockDetails()
+    elseif res == 2
+        ShowModifiers()
+    elseif res == 3
+        UDCDmain.showActorDetails(GetWearer())
+    elseif res == 4
+        showDebugInfo()
+    else
+        return
+    endif
 EndFunction
 
 ;show base device details
@@ -5171,6 +5168,7 @@ Function ShowBaseDetails()
     
     if HaveLocks()
         loc_res += "Number of locks: " + GetLockedLocks() + "/" + GetLockNumber() + "\n"
+        loc_res += "Lock multiplier: " + Round((1.0 + _getLockMinigameModifier())*100.0) + " %\n"
     else
         loc_res += "Device have no locks\n"
     endif
@@ -5351,12 +5349,13 @@ EndFunction
 Function ShowLockDetails()
     while True
         Int loc_lockId = UserSelectLock()
+        
         if loc_lockId < 0 || loc_lockId == GetLockNumber()
             return
         endif
         
         string loc_res = ""
-        loc_res += "Name: "+UD_LockNameList[loc_lockId]+ "\n"
+        loc_res += "Name: "+ GetNthLockName(loc_lockId)+ "\n"
         loc_res += "Status: "
         
         Bool loc_ShowDiff   = True
@@ -5392,7 +5391,7 @@ Function ShowLockDetails()
             loc_res += "Difficulty: "+ _GetLockpickLevelString(GetLockpickLevel(-1,loc_diff)) + " ("+loc_diff+ ")\n"
         endif
         ShowMessageBox(loc_res)
-        Utility.wait(0.01)
+        Utility.wait(0.05)
     endwhile
 EndFunction
 
@@ -5504,24 +5503,14 @@ EndFunction
 
 ;repair lock by progress_add
 Function repairLock(float progress_add = 1.0)
-    Float loc_RepairProgress = _RepairProgress
-    loc_RepairProgress += progress_add*UDCDmain.getStruggleDifficultyModifier()
-    bool loc_repaired = false
-    while loc_RepairProgress >= getLockDurability()
-        loc_repaired = true
-        loc_RepairProgress -= getLockDurability()
+    Float loc_RepairProgress = UpdateNthLockRepairProgress(_MinigameSelectedLockID,progress_add*UDCDmain.getStruggleDifficultyModifier())
+    if loc_RepairProgress >= getLockDurability()
+        loc_RepairProgress = UpdateNthLockRepairProgress(_MinigameSelectedLockID,-1*getLockDurability()) ;reset value
         JammNthLock(_MinigameSelectedLockID, False)
-        if True ;allways stop minigame after the lock is fixed
-            if !GetJammedLocks()
-                libs.UnJamLock(Wearer,UD_DeviceKeyword)
-            endif
-            repairLocksMinigame_on = False
-            stopMinigame()
-            loc_RepairProgress = 0.0
+        if !GetJammedLocks()
+            libs.UnJamLock(Wearer,UD_DeviceKeyword)
         endif
-    endwhile
-    _RepairProgress = loc_RepairProgress
-    if loc_repaired
+        stopMinigame()
         if WearerIsPlayer()
             UDmain.Print("You repaired " +GetDeviceName()+"s "+UD_LockNameList[_MinigameSelectedLockID]+"! ",1)
         elseif UDCDmain.AllowNPCMessage(Wearer, True)
@@ -5681,35 +5670,25 @@ EndFunction
 
 ;unlock one of the locks if lock is reached
 Function keyUnlockDevice()
-    if UD_CurrentLocks - UD_JammedLocks > 0
-        UnlockNthLock(_MinigameSelectedLockID)
-        if PlayerInMinigame()
-            UDCDMain.Print("You managed to unlock one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining",1)
-        elseif UDCDmain.AllowNPCMessage(Wearer, True)
-            UDCDMain.Print(getWearerName() + " managed to unlock one of the locks! " + UD_CurrentLocks + "/" + UD_Locks + " remaining",2)
-        endif
-        
-        if zad_DestroyKey; || libs.Config.GlobalDestroyKey
-            Wearer.RemoveItem(zad_deviceKey)
-            if !Wearer.getItemCount(zad_deviceKey)
-                stopMinigame()
-                keyGame_on = False
-            endif
-        endif
-        
-        onLockUnlocked(false)
+    UnlockNthLock(_MinigameSelectedLockID)
+    
+    stopMinigame()
+    
+    if PlayerInMinigame()
+        UDCDMain.Print("You managed to unlock "+GetDeviceName()+"s "+GetNthLockName(_MinigameSelectedLockID)+"!",1)
+    elseif UDCDmain.AllowNPCMessage(Wearer, True)
+        UDCDMain.Print(getWearerName() + " managed to unlock "+GetDeviceName()+"s "+GetNthLockName(_MinigameSelectedLockID)+"!",2)
     endif
     
-    if UD_CurrentLocks == 0 && UD_JammedLocks == 0
+    if zad_DestroyKey || libs.Config.GlobalDestroyKey
+        Wearer.RemoveItem(zad_deviceKey)
+    endif
+    
+    if UD_CurrentLocks == 0
         unlockRestrain()
-        keyGame_on = False
         OnDeviceUnlockedWithKey()
-    endif
-    
-    if UD_CurrentLocks == UD_JammedLocks ;no more unjammed locks
-        stopMinigame()
-        keyGame_on = False
-        return
+    else
+        onLockUnlocked(false)
     endif
 EndFunction
 
@@ -6119,7 +6098,7 @@ Function updateWidget(bool force = false)
     elseif cuttingGame_on
         setWidgetVal(getRelativeCuttingProgress(),force)
     elseif repairLocksMinigame_on
-        setWidgetVal(getRelativeLockRepairProgress(),force)
+        setWidgetVal(_GetRelativeLockRepairProgress(_MinigameSelectedLockID),force)
     endif
     
     ;update condition widget
