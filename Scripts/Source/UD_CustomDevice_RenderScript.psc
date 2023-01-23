@@ -4813,7 +4813,6 @@ EndFunction
 
 ;function called when player correctly press crit button
 Function critDevice()
-    GInfo("critDevice")
     if OnCritDevicePre() && !isUnlocked && minigame_on
         if UD_minigame_critRegen
             if (UD_minigame_stamina_drain > 0.0)
