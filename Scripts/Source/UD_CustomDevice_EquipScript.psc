@@ -73,6 +73,9 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
         if Math.LogicalAnd(loc_ignoreEventTarget,0x002)
             StorageUtil.SetIntValue(target, "UD_ignoreEvent" + deviceInventory,Math.LogicalAnd(loc_ignoreEventTarget,0xFF0))
         endif
+        if UDmain.TraceAllowed()
+            UDmain.Log("UD_ignoreEvent actived on " + self + " for " + target)
+        endif
         return
     endif
     
@@ -84,6 +87,9 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
         endif
         if Math.LogicalAnd(loc_ignoreEventGiver,0x002)
             StorageUtil.SetIntValue(giver, "UD_ignoreEvent" + deviceInventory,Math.LogicalAnd(loc_ignoreEventGiver,0xFF0))
+        endif
+        if UDmain.TraceAllowed()
+            UDmain.Log("UD_ignoreEvent actived on " + self + " for " + giver)
         endif
         return
     endif

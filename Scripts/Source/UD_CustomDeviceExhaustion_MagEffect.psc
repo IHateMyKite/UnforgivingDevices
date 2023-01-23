@@ -33,10 +33,8 @@ EndEvent
 
 Event OnUpdate()
     if !_finish
-        if UDmain.ActorIsPlayer(_target)
-            Game.SetInChargen(false, true, false)
-        endif
+        Game.SetInChargen(false, true, false)
         UDEM.ApplyExpressionRaw(_target, _expression, 30,false,5)
-        registerForSingleUpdate(1.0)
+        registerForSingleUpdate(3.0)
     endif
 EndEvent

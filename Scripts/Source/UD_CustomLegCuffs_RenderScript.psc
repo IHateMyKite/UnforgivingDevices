@@ -11,7 +11,7 @@ string Function addInfoString(string str = "")
 EndFunction
 
 bool Function canBeActivated()
-    return UDCDMain.UD_AllowLegTie && WearerFreeLegs() && getRelativeElapsedCooldownTime() >= 0.4
+    return !IsTiedUp() && UDCDMain.UD_AllowLegTie && WearerFreeLegs() && getRelativeElapsedCooldownTime() >= 0.4
 EndFunction
 
 Function OnTiedUp()

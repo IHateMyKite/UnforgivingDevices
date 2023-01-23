@@ -15,6 +15,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 EndEvent
 
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
+    Utility.wait(1.0)
     if _appliedValue
         UDOM.UpdateOrgasmResistMultiplier(_target,-1*_appliedValue)
     endif

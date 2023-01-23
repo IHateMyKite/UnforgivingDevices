@@ -243,7 +243,7 @@ Function activateDevice()
 EndFunction
 
 Function StopVibSound()
-    if getWearer().is3DLoaded()
+    if _vsID != -1 && getWearer().is3DLoaded()
         Sound.StopInstance(_vsID)
     endif
     _vsID = -1
@@ -445,28 +445,18 @@ Function forceEdgingMode(int iMode)
     EndManipMutex()
 EndFunction
 
+
+Int _PauseTimer = 0
 Function pauseVibFor(int iTime)
     if iTime < 5
         iTime = 5
     endif
-    _paused = true
-    removeOrgasmRate()
-    removeArousalRate()
     
-    StopVibSound()
-    
-    int loc_elapsedTime = 0
-    while (loc_elapsedTime < iTime) && isVibrating()
-        Utility.wait(1.0)
-        loc_elapsedTime += 1
-    endwhile
-
-    if isVibrating()
-        setOrgasmRate(getVibOrgasmRate(),1.0)
-        setArousalRate(getVibArousalRate())
-        StartVibSound()
+    if !_paused
+        VibPauseStart()
     endif
-    _paused = false
+    
+    _PauseTimer += iTime
 EndFunction
 
 Function UpdateOrgasmRate(float fOrgasmRate,float fOrgasmForcing)
@@ -532,9 +522,8 @@ Sound Function getVibrationSound()
     EndIf
 EndFunction
 
-;custom function made to improve on DD function VibrateEffect and better implement it in to my mod
 bool Property VibLoopOn = false auto hidden
-Function vibrate(float fDurationMult = 1.0)
+Function VibrateStart(float fDurationMult = 1.0)
     ;mutex
     if VibLoopOn
         return
@@ -594,58 +583,119 @@ Function vibrate(float fDurationMult = 1.0)
     
     setOrgasmRate(getVibOrgasmRate(),1.0)
     setArousalRate(getVibArousalRate())
-
-    ; Main Loop
-    ;lasts untill times runs out or device is removed (normally stopVibration is called, but its possible for device to be manually which doesn't stop this loop)
-    While (_currentVibRemainingDuration != 0) && isDeviceValid()
-        ;vibrate sound
-        if isVibrating() && !_paused
-            if (_currentVibRemainingDuration % 2) == 0 ; Make noise
-                getWearer().CreateDetectionEvent(getWearer(), 50 + Round(UD_VibStrength/2.0))
-            EndIf
-        endif
-        
-        if UD_Chaos && isVibrating() && !_paused
-            if Utility.randomInt() < UD_Chaos
-                ForceStrength(Utility.randomInt(15,95))
-            endif
-        endif
-        
-        if isVibrating() && !_paused
-            ProccesVibEdge()
-        endif
-        
-        if isVibrating() && !_paused
-            _currentVibRemainingDuration -= 1 ;reduce timer
-            Utility.Wait(1.0)
-        endif
-        resetCooldown(1.0)
-        while _paused
-            Utility.wait(0.5)
-        endwhile
-    EndWhile
     
-    removeOrgasmRate()
-    removeArousalRate()
+    UD_CustomDevice_NPCSLot loc_slot = UD_WearerSlot
+    if !loc_slot
+        UDmain.Warning(getDeviceHeader() + " - can't register vib function because actor is not registered")
+        return
+    endif
+    
+    ;register the vibrator to slot, so it can be periodically updated
+    ;failing to register the vibrator will result in infinite vibrations
+    loc_slot.RegisterVibrator(self)
+EndFunction
+
+; Main Loop
+Function VibrateUpdate(Int aiUpdateTime)
+    ;lasts untill times runs out or device is removed (normally stopVibration is called, but its possible for device to be manually which doesn't stop this loop)
+    if (_currentVibRemainingDuration != 0) && isDeviceValid()
+        ProcessPause(aiUpdateTime)
+        if !_paused
+            ;vibrate sound
+            if isVibrating() && !_paused && getWearer().Is3DLoaded()
+                if (_currentVibRemainingDuration % 2) == 0 ; Make noise
+                    getWearer().CreateDetectionEvent(getWearer(), 50 + Round(UD_VibStrength/2.0))
+                EndIf
+            endif
+            
+            if UD_Chaos && isVibrating() && !_paused
+                if Utility.randomInt() < UD_Chaos
+                    ForceStrength(Utility.randomInt(15,95))
+                endif
+            endif
+            
+            if isVibrating() && !_paused
+                ProccesVibEdge()
+            endif
+            
+            if isVibrating() && !_paused
+                _currentVibRemainingDuration -= aiUpdateTime ;reduce timer
+                ;Utility.Wait(1.0)
+            endif
+            resetCooldown(1.0)
+        endif
+    else
+        VibrateEnd()
+    endif
+EndFunction
+
+Function VibrateEnd(Bool abUnregister = True, Bool abStop = True)
+    if abUnregister
+        UD_CustomDevice_NPCSLot loc_slot = UD_WearerSlot
+        if loc_slot
+            loc_slot.UnregisterVibrator(self)
+        endif
+    endif
+    
+    if abStop
+        removeOrgasmRate()
+        removeArousalRate()
+    endif
     
     StopVibSound()
-        
-    if !_paused
+    
+    if !_paused && abStop
         PrintVibMessage_Stop()
     endif
     
-    StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib", -1)
-    StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", -1*_currentVibStrength)
-    
-    UDCDmain.SendModEvent("DeviceVibrateEffectStop", getWearerName(), getCurrentZadVibStrenth())
-    
-    _currentVibRemainingDuration = 0
-    _forceDuration = 0
-    _forceStrength = -1
-    _forceEdgingMode = -1
-    _currentVibStrength = 0
-    OnVibrationEnd()
-    VibLoopOn = false
+    if abStop
+        StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib", -1)
+        StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", -1*_currentVibStrength)
+        
+        UDCDmain.SendModEvent("DeviceVibrateEffectStop", getWearerName(), getCurrentZadVibStrenth())
+        
+        _currentVibRemainingDuration = 0
+        _forceDuration = 0
+        _forceStrength = -1
+        _forceEdgingMode = -1
+        _currentVibStrength = 0
+        OnVibrationEnd()
+        VibLoopOn = false
+    endif
+EndFunction
+
+;custom function made to improve on DD function VibrateEffect and better implement it in to my mod
+Function vibrate(float fDurationMult = 1.0)
+    VibrateStart(fDurationMult)
+EndFunction
+
+Function VibPauseStart()
+    _paused = true
+    removeOrgasmRate()
+    removeArousalRate()
+    StopVibSound()
+EndFunction
+
+Function VibPauseStop()
+    if isVibrating()
+        setOrgasmRate(getVibOrgasmRate(),1.0)
+        setArousalRate(getVibArousalRate())
+        StartVibSound()
+        if WearerIsPlayer()
+            UDCDmain.Print(getDeviceName() + " has come back to life, arousing you once again",3)
+        endif
+    endif
+    _PauseTimer = 0
+    _paused = false
+EndFunction
+
+Function ProcessPause(Int aiUpdateTime)
+    if _paused
+        _PauseTimer -= aiUpdateTime
+        if _PauseTimer <= 0
+            VibPauseStop()
+        endif
+    endif
 EndFunction
 
 Function ProccesVibEdge()
@@ -655,13 +705,7 @@ Function ProccesVibEdge()
                 if WearerIsPlayer()
                     UDCDmain.Print(getDeviceName() + " suddenly stops vibrating!",3)
                 endif
-                while UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold*0.95
-                    pauseVibFor(10)
-                    Utility.wait(0.25)
-                endwhile
-                if WearerIsPlayer() && isVibrating()
-                    UDCDmain.Print(getDeviceName() + " has come back to life, arousing you once again",3)
-                endif
+                pauseVibFor(10)
             endif
         elseif _currentEdgingMode == 2
             if UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
@@ -670,9 +714,6 @@ Function ProccesVibEdge()
                         UDCDmain.Print(getDeviceName() + " suddenly stops vibrating!",3)
                     endif
                     pauseVibFor(Utility.randomInt(30,60))
-                    if WearerIsPlayer() && isVibrating()
-                        UDCDmain.Print(getDeviceName() + " has come back to life, arousing you once again",3)
-                    endif
                 endif
             endif
         endif

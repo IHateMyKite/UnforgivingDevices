@@ -118,6 +118,7 @@ EndProperty
 ;FILL FOR FASTER LOCK
 Armor   Property DeviceRendered     auto
 Keyword Property UD_DeviceKeyword   auto ;keyword of this device for better manipulation
+String[] Property UD_DeviceStruggleKeywords       Auto    Hidden        ; keywords (as string array) used to filter struggle animations
 
 ;-------------------------------------------------------
 ;-------------------------------------------------------
@@ -362,16 +363,12 @@ string[] Property UD_Modifiers auto ;modifiers
 string[] Property UD_struggleAnimations auto ;array of all struggle animations
 string[] Property UD_struggleAnimationsHobl auto ;array of all struggle animations which player when actor have tied legs
 
-UD_CustomDevice_NPCSlot _WearerSlot
 UD_CustomDevice_NPCSlot Property UD_WearerSlot hidden
     UD_CustomDevice_NPCSlot Function get()
         if !Wearer
             return none
         endif
-        if !_WearerSlot
-            _WearerSlot = UDCDmain.GetNPCSlot(Wearer)
-        endif
-        return _WearerSlot
+        return UDCDmain.GetNPCSlot(Wearer) ;needs to be updated everytime because the device can have linked old slot which can now store other actor or be empty
     EndFunction
 EndProperty
 
@@ -1118,11 +1115,16 @@ Keyword Property UD_DeviceKeyword_Minor  ;minor keyword of this device. Currentl
                 if !_DeviceKeyword_Minor
                     UDmain.Error("UD_DeviceKeyword_Minor - Could not find minor keyword!")
                 endif
-                return _DeviceKeyword_Minor
+            elseif UD_DeviceKeyword == libs.zad_deviousHobbleSkirt
+                if DeviceRendered.HasKeyword(libs.zad_DeviousHobbleSkirtRelaxed)
+                    _DeviceKeyword_Minor = libs.zad_DeviousHobbleSkirtRelaxed
+                else
+                    _DeviceKeyword_Minor = libs.zad_deviousHobbleSkirt
+                endif
             else
                 _DeviceKeyword_Minor = UD_DeviceKeyword
-                return _DeviceKeyword_Minor
             endif
+            return _DeviceKeyword_Minor
         endif
     EndFunction
     Function set(Keyword akKeyword)
@@ -1296,6 +1298,12 @@ Function updateValuesFromInventoryScript()
         zad_JammLockChance = temp.LockJamChance
         UD_DeviceKeyword = temp.zad_deviousDevice
         DeviceRendered = temp.DeviceRendered
+        If UD_DeviceKeyword == libs.zad_DeviousSuit
+            If deviceRendered.HasKeyword(libs.zad_DeviousHobbleSkirt)
+                UD_DeviceKeyword = libs.zad_DeviousHobbleSkirt
+            EndIf
+        EndIf
+        UD_DeviceStruggleKeywords = UDCDMain.GetDeviceStruggleKeywords(DeviceRendered)
         temp.delete()
     endif
     if zad_DestroyOnRemove && !hasModifier("DOR")
@@ -2033,6 +2041,51 @@ Int Function AddLock(Int aiLock, String asName, Bool abNoCreate = False)
     return UD_LockList.length - 1
 EndFunction
 
+;Selects best lock for minigame of type aiType
+;aiType = 0 => Lockpick minigame
+;aiType = 1 => KeyUnlock minigame
+;aiType = 2 => Repair minigame
+Int Function SelectBestMinigameLock(Int aiType)
+    if HaveLocks()
+        if aiType == 1 ;keyunlock minigame
+            Int loc_bestLock = 0
+            Int loc_LockNum = GetLockNumber()
+            Int loc_i = 0
+            while loc_i < loc_LockNum
+                if loc_i != loc_bestLock && !IsNthLockJammed(loc_i)
+                    Int loc_acc        = GetNthLockAccessibility(loc_i)
+                    Int loc_accBest    = GetNthLockAccessibility(loc_bestLock)
+                    if loc_acc > (loc_accBest + 25) || loc_acc == loc_accBest ;selected lock have bigger accessibility, by at least 25
+                        loc_bestLock = loc_i
+                    endif
+                endif
+                loc_i += 1
+            endwhile
+            return loc_bestLock
+        elseif aiType == 0 || aiType == 2 ;lockpick or repair minigame
+            Int loc_bestLock = 0
+            Int loc_LockNum = GetLockNumber()
+            Int loc_i = 0
+            while loc_i < loc_LockNum
+                if loc_i != loc_bestLock && ((aiType == 0 && !IsNthLockJammed(loc_i)) || (aiType == 2 && IsNthLockJammed(loc_i))) 
+                    Int loc_diff        = GetNthLockDifficulty(loc_i)
+                    Int loc_diffBest    = GetNthLockDifficulty(loc_bestLock)
+                    if loc_diff <= loc_diffBest ;selected lock is easier to lockpick then current best lock
+                        Int loc_acc        = GetNthLockAccessibility(loc_i)
+                        Int loc_accBest    = GetNthLockAccessibility(loc_bestLock)
+                        if loc_acc > (loc_accBest + 25) || loc_acc == loc_accBest ;selected lock have bigger accessibility, by at least 25
+                            loc_bestLock = loc_i
+                        endif
+                    endif
+                endif
+                loc_i += 1
+            endwhile
+            return loc_bestLock
+        endif
+    endif
+    return -1 ;error value
+EndFunction
+
 Bool _LockManipMutex = False
 Function _StartLockManipMutex()
     while _LockManipMutex
@@ -2417,7 +2470,11 @@ float Function getLockDurability()
 EndFunction
 
 Float Function getRelativeLocks()
-    return (UD_CurrentLocks as Float)/UD_Locks
+    if UD_Locks
+        return (UD_CurrentLocks as Float)/UD_Locks
+    else
+        return 1.0
+    endif
 EndFunction
 
 ;returns comprehesive lock level
@@ -2860,7 +2917,7 @@ bool Function wearerFreeHands(bool checkGrasp = false,bool ignoreHeavyBondageTar
     return res
 EndFunction
 bool Function helperFreeHands(bool checkGrasp = false,bool ignoreHeavyBondage = false)
-    if !hasHelper()
+    if !_minigameHelper
         return false
     endif
     bool res = !_minigameHelper.wornhaskeyword(libs.zad_deviousHeavyBondage) || ignoreHeavyBondage 
@@ -3416,7 +3473,7 @@ bool Function lockpickMinigame(Bool abSilent = False)
     if WearerIsPlayer()
         loc_SelectedLock = UserSelectLock()
     else
-        ;TODO, gets best lock
+        loc_SelectedLock = SelectBestMinigameLock(0)
     endif
     if loc_SelectedLock < 0
         return false
@@ -3469,7 +3526,7 @@ bool Function repairLocksMinigame(Bool abSilent = False)
     if WearerIsPlayer()
         loc_SelectedLock = UserSelectLock()
     else
-        ;TODO, gets best lock
+        loc_SelectedLock = SelectBestMinigameLock(2)
     endif
     if loc_SelectedLock < 0
         return false
@@ -3563,7 +3620,7 @@ bool Function keyMinigame(Bool abSilent = False)
     if WearerIsPlayer()
         loc_SelectedLock = UserSelectLock()
     else
-        ;TODO, gets best lock
+        loc_SelectedLock = SelectBestMinigameLock(1)
     endif
     
     if loc_SelectedLock < 0
@@ -3740,7 +3797,7 @@ bool Function lockpickMinigameWH(Actor akHelper)
     if WearerIsPlayer() || HelperIsPlayer()
         loc_SelectedLock = UserSelectLock()
     else
-        ;TODO, gets best lock
+        loc_SelectedLock = SelectBestMinigameLock(0)
     endif
     if loc_SelectedLock < 0
         return false
@@ -3802,7 +3859,7 @@ bool Function repairLocksMinigameWH(Actor akHelper)
     if WearerIsPlayer() || HelperIsPlayer()
         loc_SelectedLock = UserSelectLock()
     else
-        ;TODO, gets best lock
+        loc_SelectedLock = SelectBestMinigameLock(2)
     endif
     if loc_SelectedLock < 0
         return false
@@ -3921,7 +3978,7 @@ bool Function keyMinigameWH(Actor akHelper)
     if WearerIsPlayer() || HelperIsPlayer()
         loc_SelectedLock = UserSelectLock()
     else
-        ;TODO, gets best lock
+        loc_SelectedLock = SelectBestMinigameLock(1)
     endif
     if loc_SelectedLock < 0
         return false
@@ -4212,11 +4269,20 @@ EndFunction
 
 ;stops minigame
 Function stopMinigame()
-    if PlayerInMinigame()
-        UDCDmain.resetCurrentMinigameDevice()
-    endif
+    UnsetMinigameDevice()
     force_stop_minigame = True
     pauseMinigame = False
+EndFunction
+
+Function UnsetMinigameDevice()
+    if PlayerInMinigame()
+        UDCDmain.resetCurrentMinigameDevice()
+    else
+        StorageUtil.UnSetFormValue(Wearer, "UD_currentMinigameDevice")
+        if _minigameHelper
+            StorageUtil.UnSetFormValue(_minigameHelper, "UD_currentMinigameDevice")
+        endif
+    endif
 EndFunction
 
 Function ForcePauseMinigame()
@@ -4244,31 +4310,11 @@ Function stopMinigameAndWait()
     endwhile
 EndFunction
 
-;selects struggle array, taken from zadEquipScript
-String[] Function SelectStruggleArray(Actor akActor)
-    bool loc_hoble = akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirt) && !akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirtRelaxed)
-    If loc_hoble
-        if UD_struggleAnimationsHobl && UD_struggleAnimationsHobl.length > 0
-            return UD_struggleAnimationsHobl        ; Use hobbled struggle idles
-        elseif UD_struggleAnimations && UD_struggleAnimations.length > 0
-            return UD_struggleAnimations        ; Fall back to standard animations if no hobbled variants are available
-        else
-            return UDAM.GetStruggleAnimationsByKeyword(getWearer(),UD_DeviceKeyword_Minor,loc_hoble)
-        endif
-    Else
-        if UD_struggleAnimations && UD_struggleAnimations.length > 0
-            return UD_struggleAnimations        ; Use regular struggle idles
-        else
-            return UDAM.GetStruggleAnimationsByKeyword(getWearer(),UD_DeviceKeyword_Minor,loc_hoble)
-        endif
-    Endif
-EndFunction
-
 bool Function minigamePostcheck(Bool abSilent = False)
     If UDmain.TraceAllowed()
         UDmain.Log("minigamePostcheck called for " + getDeviceHeader() + " abSilent="+abSilent)
     endif
-    
+
     if !checkMinAV(Wearer) ;check wearer AVs
         if !abSilent
             if WearerIsPlayer() ;message related to player wearer
@@ -4321,7 +4367,7 @@ bool Function minigamePrecheck(Bool abSilent = False)
     endif
     
     ;Allow minigames on unloaded actors
-    if (Wearer.IsDead() || Wearer.IsDisabled() || (Wearer.GetCurrentScene() == none && !Wearer.Is3DLoaded()))
+    if (Wearer.IsDead() || Wearer.IsDisabled() || Wearer.GetCurrentScene())
         if !abSilent
             GWarning("Can't start minigame for " + getDeviceHeader() + " because wearer is invalid! Dead="+Wearer.IsDead() + ",Disabled="+Wearer.IsDisabled()+",Scene+"+Wearer.GetCurrentScene())
             if WearerIsPlayer()
@@ -4401,9 +4447,11 @@ Function minigame()
     minigame_on = True
     GoToState("UpdatePaused")
     
-    bool loc_WearerIsPlayer = WearerIsPlayer()
-    bool loc_HelperIsPlayer = HelperIsPlayer()
-    bool loc_PlayerInMinigame = loc_WearerIsPlayer || loc_HelperIsPlayer
+    bool                    loc_WearerIsPlayer                  = WearerIsPlayer()
+    bool                    loc_HelperIsPlayer                  = HelperIsPlayer()
+    bool                    loc_PlayerInMinigame                = loc_WearerIsPlayer || loc_HelperIsPlayer
+    Bool                    loc_is3DLoaded                      = loc_PlayerInMinigame || Wearer.Is3DLoaded()
+    UD_CustomDevice_NPCSlot loc_WearerSlot                      = UD_WearerSlot
     
     if loc_PlayerInMinigame
         closeMenu()
@@ -4416,98 +4464,46 @@ Function minigame()
         _minigameHelper.AddToFaction(UDCDmain.MinigameFaction)
     endif
     
-    UDCDMain.UDPP.Send_MinigameStarter(Wearer,self)
+    
+    if loc_is3DLoaded
+        if loc_WearerSlot
+            loc_WearerSlot.Send_MinigameStarter(self)
+        else
+            UDCDMain.UDPP.Send_MinigameStarter(Wearer,self)
+        endif
+    else
+        MinigameStarter()
+    endif
+    
     
     if UDmain.TraceAllowed()
         UDCDmain.Log("Minigame started for: " + deviceInventory.getName())    
     endif
     
-    ;struggle animations array
-    String[] struggleArray
-    String[] struggleArrayHelper
-    String _sStruggleAnim = "none" ;currently selected struggle animation. Used by minigame.
-    String _sStruggleAnimHelper = "none" ;currently selected struggle animation. Used by minigame.
-    if !wearer.wornhaskeyword(libs.zad_deviousHeavyBondage)
-        struggleArray = SelectStruggleArray(Wearer)
-    else
-        if wearer.wornhaskeyword(UDlibs.InvisibleHBKW)
-            struggleArray = UDAM.GetHeavyBondageAnimation_Armbinder(!WearerFreeLegs())
-        else
-            if isHeavyBondage()
-                struggleArray = SelectStruggleArray(Wearer)
-            else
-                UD_CustomDevice_RenderScript loc_device = UDCDmain.getSlotHeavyBondageDevice(UD_WearerSlot)
-                if loc_device
-                    ;actor is registered
-                    struggleArray = loc_device.SelectStruggleArray(Wearer)
-                else
-                    ;actor is NOT registered
-                    loc_device = UDCDmain.getHeavyBondageDevice(Wearer)
-                    if loc_device
-                        struggleArray = UDCDmain.getHeavyBondageDevice(Wearer).SelectStruggleArray(Wearer)
-                    else
-                        ;device is not UD
-                        Armor loc_deviceRendered = libs.GetWornRenderedDeviceByKeyword(Wearer,libs.zad_deviousHeavyBondage)
-                        if loc_deviceRendered
-                            struggleArray = UDAM.GetStruggleAnimations(Wearer,loc_deviceRendered)
-                        else
-                            UDmain.Error(getDeviceHeader() + "Can't find correct heavy bondage animation to play, skipping animation")
-                        endif
-                    endif
-                endif
+    Int[] hasStruggleAnimation                                  ; number of found struggle animations
+    Bool   loc_StartedAnimation = False
+    if loc_is3DLoaded ;only play animation if actor is loaded
+        hasStruggleAnimation = _PickAndPlayStruggleAnimation()
+        If hasStruggleAnimation[0] == 0
+            ; clear cache and try again (cache misses are possible after changing json files)
+            UDmain.Warning("UD_CustomDevice_RenderScript::minigame("+GetDeviceHeader()+") _PickAndPlayStruggleAnimation failed. Clear cache and try again")
+            hasStruggleAnimation = _PickAndPlayStruggleAnimation(bClearCache = True)
+            If hasStruggleAnimation[0] > 0
+                loc_StartedAnimation = true
             endif
-        endif
-    endif
-    if struggleArray
-        _sStruggleAnim = struggleArray[Utility.RandomInt(0,  struggleArray.length - 1)]
-    else
-        UDmain.Error(getDeviceHeader() + " - selected struggle animation array is none!")
-    endif
-    
-    if _minigameHelper
-        if !_minigameHelper.wornhaskeyword(libs.zad_deviousHeavyBondage)
-            _sStruggleAnimHelper = "ft_struggle_gloves_1"
         else
-            if _minigameHelper.wornhaskeyword(UDlibs.InvisibleHBKW)
-                struggleArrayHelper = UDAM.GetHeavyBondageAnimation_Armbinder(!HelperFreeLegs())
-            else
-                UD_CustomDevice_RenderScript loc_device = UDCDmain.getHeavyBondageDevice(Wearer)
-                if loc_device
-                    struggleArrayHelper = UDCDmain.getHeavyBondageDevice(_minigameHelper).SelectStruggleArray(_minigameHelper)
-                else
-                    ;device is not UD
-                    Armor loc_deviceRendered = libs.GetWornRenderedDeviceByKeyword(_minigameHelper,libs.zad_deviousHeavyBondage)
-                    if loc_deviceRendered
-                        struggleArrayHelper = UDAM.GetStruggleAnimations(_minigameHelper,loc_deviceRendered)
-                    else
-                        UDmain.Error(getDeviceHeader() + "Can't find correct heavy bondage animation to play for helper, skipping animation")
-                    endif
-                endif
-            endif
-            if struggleArrayHelper
-                _sStruggleAnimHelper = struggleArrayHelper[Utility.RandomInt(0,  struggleArrayHelper.length - 1)]
-            else
-                UDmain.Error(getDeviceHeader() + " - selected struggleArrayHelper animation array is none!")
-            endif    
+            loc_StartedAnimation = true
         endif
     endif
     
-    ;starts random struggle animation
-    if _sStruggleAnim != "none" && _sStruggleAnim != ""
-        UDAM.FastStartThirdPersonAnimation(Wearer, _sStruggleAnim)
+    _MinigameMainLoop_ON = true
+    
+    if loc_WearerSlot
+        loc_WearerSlot.Send_MinigameParalel(self)
     else
-        UDmain.Error(getDeviceHeader() + " - Wrong animation name passed in minigame, skipping")
+        UDCDMain.UDPP.Send_MinigameParalel(Wearer,self)
     endif
     
-    if hasHelper()
-        if _sStruggleAnimHelper != "none" && _sStruggleAnim != ""
-            UDAM.FastStartThirdPersonAnimation(_minigameHelper, _sStruggleAnimHelper)
-        endif
-    endif
-    
-    _MinigameMainLoop_ON = true    
-    UDCDMain.UDPP.Send_MinigameParalel(Wearer,self)        
-
     float durability_onstart = current_device_health
     
     ;main loop, ends only when character run out off stats or device losts all durability
@@ -4515,10 +4511,10 @@ Function minigame()
     int         tick_s                 = 0
     float       fCurrentUpdateTime     = UDmain.UD_baseUpdateTime
     
-    if !Wearer.Is3DLoaded() && !loc_PlayerInMinigame
+    if !loc_is3DLoaded
         fCurrentUpdateTime = 1.0
     elseif !loc_PlayerInMinigame
-        fCurrentUpdateTime = 0.5
+        fCurrentUpdateTime = 0.25
     endif
 
     pauseMinigame = False
@@ -4527,7 +4523,7 @@ Function minigame()
     float     loc_condmult         = 1.0 + _condition_mult_add
     bool      loc_updatewidget     = loc_PlayerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
     
-    while current_device_health > 0.0 && !force_stop_minigame; && UDCDmain.actorInMinigame(getWearer())
+    while current_device_health > 0.0 && !force_stop_minigame
         ;pause minigame, pause minigame need to be changed from other thread or infinite loop happens
         while pauseMinigame
             Utility.wait(0.01)
@@ -4556,7 +4552,7 @@ Function minigame()
                 decreaseDurabilityAndCheckUnlock(loc_dmg,loc_condmult)
             endif
             ;update widget
-            if loc_updatewidget
+            if loc_is3DLoaded && loc_updatewidget
                 updateWidget()
             endif
         endif
@@ -4569,9 +4565,12 @@ Function minigame()
                 StopMinigame()
             else
                 ;update loc vars
-                loc_dmg             = (_durability_damage_mod + UD_durability_damage_add)*fCurrentUpdateTime*UD_DamageMult
-                loc_condmult         = 1.0 + _condition_mult_add            
-                loc_updatewidget     = loc_PlayerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
+                loc_dmg              = (_durability_damage_mod + UD_durability_damage_add)*fCurrentUpdateTime*UD_DamageMult
+                loc_condmult         = 1.0 + _condition_mult_add
+                
+                if loc_is3DLoaded
+                    loc_updatewidget     = loc_PlayerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
+                endif
                 
                 ;check non struggle minigames
                 if !loc_PlayerInMinigame
@@ -4583,28 +4582,41 @@ Function minigame()
                 tick_b = 0
                 tick_s += 1
                 if !force_stop_minigame
+                    loc_is3DLoaded  = loc_PlayerInMinigame || Wearer.Is3DLoaded()
                     OnMinigameTick1()
-                    ;update disable if it gets somehow removed every 1 s
-                    UDCDMain.UpdateMinigameDisable(Wearer)
-                    if _minigameHelper
-                        UDCDMain.UpdateMinigameDisable(_minigameHelper)
+                    
+                    if loc_is3DLoaded
+                        ;update disable if it gets somehow removed every 1 s
+                        UDCDMain.UpdateMinigameDisable(Wearer,loc_WearerIsPlayer as Int)
+                        if _minigameHelper
+                            UDCDMain.UpdateMinigameDisable(_minigameHelper,loc_HelperIsPlayer as Int)
+                        endif
                     endif
                     
                     ;--three second timer--
+                    ; Call child function
                     if !(tick_s % 3) && tick_s
-                        ;start new animation if wearer stops animating
-                        if struggleArray && (UDCDmain.UD_AlternateAnimation || !UDAM.isAnimating(Wearer,false)) && !pauseMinigame
-                            _sStruggleAnim = struggleArray[Utility.RandomInt(0,  struggleArray.length - 1)]
-                            UDAM.FastStartThirdPersonAnimation(Wearer, _sStruggleAnim)
-                        endif
-                        if _minigameHelper
-                            if struggleArrayHelper && (UDCDmain.UD_AlternateAnimation || !UDAM.isAnimating(_minigameHelper,false))  && !pauseMinigame && !force_stop_minigame
-                                _sStruggleAnimHelper = struggleArrayHelper[Utility.RandomInt(0,  struggleArrayHelper.length - 1)]
-                                UDAM.FastStartThirdPersonAnimation(_minigameHelper, _sStruggleAnimHelper)
-                            endif
-                        endif
                         OnMinigameTick3()
                     endif
+                    
+                    ;only check animations if actor is loaded
+                    if loc_is3DLoaded
+                        ;--three second timer--
+                        if !(tick_s % 3) && tick_s
+                            ;start new animation if wearer stops animating
+                            if ((hasStruggleAnimation[0] && !UDAM.isAnimating(Wearer, false)) || (_minigameHelper && hasStruggleAnimation[1] && !UDAM.isAnimating(_minigameHelper, false))) && !pauseMinigame && !force_stop_minigame
+                                _PickAndPlayStruggleAnimation(bContinueAnimation = True)
+                            endif
+                        endif
+                        ;-- alternate animation timer--
+                        if UDAM.UD_AlternateAnimation && !(tick_s % UDAM.UD_AlternateAnimationPeriod) && tick_s
+                            if hasStruggleAnimation[0] > 1 && !pauseMinigame && !force_stop_minigame
+                            ; no need to switch to new animation if there was only one found
+                                _PickAndPlayStruggleAnimation(bContinueAnimation = True)
+                            endif
+                        endif
+                    endif
+                    
                 endif
             endif
         endif
@@ -4621,14 +4633,17 @@ Function minigame()
         UDCDmain.MinigameKeysUnRegister()
     endif
     
-    if !StorageUtil.GetIntValue(Wearer,"UD_OrgasmDuration",0);!UDOM.isOrgasming(Wearer)
-        UDAM.FastEndThirdPersonAnimation(Wearer) ;ends struggle animation
-    endif
-    
-    if _minigameHelper
-        if !UDOM.isOrgasming(_minigameHelper)
-            UDAM.FastEndThirdPersonAnimation(_minigameHelper) ;ends struggle animation
+    if loc_StartedAnimation
+        Int loc_toggle  = 0x0
+        if !StorageUtil.GetIntValue(Wearer,"UD_OrgasmDuration",0)
+            ;wearer is orgasming, prevent animation stop
+            loc_toggle += 0x1
         endif
+        if _minigameHelper && !StorageUtil.GetIntValue(_minigameHelper,"UD_OrgasmDuration",0)
+            ;helper is orgasming, prevent animation stop
+            loc_toggle += 0x2
+        endif
+        UDAM.StopAnimation(Wearer, _minigameHelper, abEnableActors = False, aiToggle = loc_toggle)
     endif
     
     ;checks if Wearer succesfully escaped device
@@ -4642,7 +4657,9 @@ Function minigame()
             UpdateMotivation(Wearer,50) ;increase NPC motivation on failed escape
         endif
     else
-        libs.pant(Wearer)
+        if loc_is3DLoaded
+            libs.pant(Wearer)
+        endif
         if loc_PlayerInMinigame
             if _minigameHelper
                 UDCDmain.Print("One of you is too exhausted to continue struggling",1)
@@ -4658,8 +4675,8 @@ Function minigame()
     endif
 
     ;remove disalbe from helper (can be done earlier as no devices were changed)
-    if _minigameHelper
-        UDCDMain.EndMinigameDisable(_minigameHelper)
+    if _minigameHelper && !StorageUtil.GetIntValue(_minigameHelper,"UD_OrgasmDuration",0)
+        UDCDMain.EndMinigameDisable(_minigameHelper, loc_HelperIsPlayer as Int)
     endif
 
     ;Wait for device to get fully removed
@@ -4668,19 +4685,28 @@ Function minigame()
     endwhile
 
     ;remove disable from wearer
-    UDCDMain.EndMinigameDisable(Wearer)
+    If !StorageUtil.GetIntValue(Wearer,"UD_OrgasmDuration",0)
+        UDCDMain.EndMinigameDisable(Wearer,loc_WearerIsPlayer as Int)
+    EndIf
 
     if UDmain.TraceAllowed()
         UDCDmain.Log("Minigame ended for: "+ deviceInventory.getName(),1)
     endif
     
     ;wait for paralled threads to end
-    float loc_time = 0.0
-    while (_MinigameParProc_1 || _MinigameParProc_2 || _MinigameParProc_3) && loc_time <= 3.5
-        Utility.wait(0.1)
-        loc_time += 0.1
+    float loc_time          = 0.0
+    Float loc_timeout       = 3.5
+    Float loc_timeoutUpT    = 0.1
+    if !loc_is3DLoaded
+        loc_timeout     = 10.0
+        loc_timeoutUpT  = 1.0
+    endif
+    
+    while (_MinigameParProc_1 || _MinigameParProc_2 || _MinigameParProc_3) && loc_time <= loc_timeout
+        Utility.wait(loc_timeoutUpT)
+        loc_time += loc_timeoutUpT
     endwhile
-    if loc_time >= 3.5
+    if loc_time >= loc_timeout
         UDCDMain.Error("minigame("+getDeviceHeader()+") - Minigame paralel thread timeout!")
     endif
     
@@ -4696,6 +4722,226 @@ Function minigame()
     endif
 EndFunction
 
+Function MinigameStarter()
+    bool    loc_canShowHUD      = canShowHUD()
+    bool    loc_haveplayer      = PlayerInMinigame()
+    bool    loc_updatewidget    = UD_UseWidget && UDCDmain.UD_UseWidget && loc_haveplayer
+    bool    loc_is3DLoaded      = loc_haveplayer || Wearer.Is3DLoaded()
+    
+    
+    UDCDMain.StartMinigameDisable(Wearer)
+    if _minigameHelper
+        UDCDMain.StartMinigameDisable(_minigameHelper)
+    endif
+    
+    if loc_haveplayer
+        UDCDmain.setCurrentMinigameDevice(self)
+        UDCDmain.MinigameKeysRegister()
+    else
+        StorageUtil.SetFormValue(Wearer, "UD_currentMinigameDevice", deviceRendered)
+    endif
+    
+    _MinigameParProc_1 = false
+    
+    ;shows bars
+    if loc_updatewidget
+        showWidget()
+    endif
+    if loc_canShowHUD
+        showHUDbars()
+    endif
+    
+    OnMinigameStart()
+    
+    if loc_is3DLoaded
+        libsp.pant(Wearer)
+    endif
+EndFunction
+
+
+; TODO: keep the cache alive as long as the actor constraints don't change
+String[] _StruggleAnimationDefPairArray
+String[] _StruggleAnimationDefActorArray
+String[] _StruggleAnimationDefHelperArray
+
+Int _StruggleAnimationDefPairLastIndex = -1
+Int _StruggleAnimationDefActorLastIndex = -1
+Int _StruggleAnimationDefHelperLastIndex = -1
+
+Int _PlayerLastConstraints = 0
+Int _HelperLastConstraints = 0
+Int[] _ActorsConstraints
+    
+Function _CheckAndUpdateAnimationCache(Bool bClearCache = False)
+    ; since GetActorConstraintsInt is time-heavy saving its result here for this call
+    If _minigameHelper
+        _ActorsConstraints = New Int[2]
+        _ActorsConstraints[0] = UDAM.GetActorConstraintsInt(Wearer)
+        _ActorsConstraints[1] = UDAM.GetActorConstraintsInt(_minigameHelper)
+    Else
+        _ActorsConstraints = New Int[1]
+        _ActorsConstraints[0] = UDAM.GetActorConstraintsInt(Wearer)
+    EndIf
+
+    If bClearCache || _ActorsConstraints[0] != _PlayerLastConstraints
+        _PlayerLastConstraints = _ActorsConstraints[0]
+        _StruggleAnimationDefPairArray = PapyrusUtil.StringArray(0)
+        _StruggleAnimationDefActorArray = PapyrusUtil.StringArray(0)
+        _StruggleAnimationDefPairLastIndex = -1
+        _StruggleAnimationDefActorLastIndex = -1
+    EndIf
+    If _minigameHelper
+        If bClearCache || _ActorsConstraints[1] != _HelperLastConstraints
+            _HelperLastConstraints = _ActorsConstraints[1]
+            _StruggleAnimationDefPairArray = PapyrusUtil.StringArray(0)
+            _StruggleAnimationDefHelperArray = PapyrusUtil.StringArray(0)
+            _StruggleAnimationDefPairLastIndex = -1
+            _StruggleAnimationDefHelperLastIndex = -1
+        EndIf
+    EndIf
+EndFunction
+
+Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bContinueAnimation = False)
+    Int[] result = new Int[2]           ; number of found struggle animations for each actor
+    String _animationDef = ""
+    
+    If !bClearCache && !bContinueAnimation
+        _CheckAndUpdateAnimationCache(bClearCache)
+    EndIf
+
+    ; filling struggle keywords list
+    String[] keywordsList
+    If UDAM.UD_UseSingleStruggleKeyword
+        keywordsList = new String[1]
+        keywordsList[0] = "." + UD_DeviceKeyword_Minor.GetString()
+    Else
+        keywordsList = UD_DeviceStruggleKeywords
+    EndIf
+    
+    If _minigameHelper
+        If _StruggleAnimationDefPairArray.Length == 0
+            _StruggleAnimationDefPairArray = UDAM.GetStruggleAnimationsByKeywordsList(keywordsList, Wearer, _minigameHelper, True)
+        EndIf
+        If _StruggleAnimationDefPairArray.Length == 0
+            ; if actor has heavy bondage then try to get paired animation for it
+            Keyword heavyBondage = UDAM.GetHeavyBondageKeyword(_ActorsConstraints[0])
+            If heavyBondage != None
+                _StruggleAnimationDefPairArray = UDAM.GetStruggleAnimationsByKeyword("." + heavyBondage.GetString(), Wearer, _minigameHelper, True)
+            EndIf            
+        EndIf
+        If _StruggleAnimationDefPairArray.Length > 0
+        ; using paired animation
+            Int anim_index = Utility.RandomInt(0, _StruggleAnimationDefPairArray.Length - 1)
+            If !bContinueAnimation || anim_index != _StruggleAnimationDefPairLastIndex
+            ; start new animation
+                _StruggleAnimationDefPairLastIndex = anim_index
+                _animationDef = _StruggleAnimationDefPairArray[anim_index]
+                If UDAM.PlayAnimationByDef(_animationDef, ActorArray2(Wearer, _minigameHelper), _ActorsConstraints, bContinueAnimation, abDisableActors = False)
+                    result[0] = _StruggleAnimationDefPairArray.Length
+                    result[1] = _StruggleAnimationDefPairArray.Length
+                EndIf
+            Else
+            ; keep animation that is currently played
+                result[0] = _StruggleAnimationDefPairArray.Length
+                result[1] = _StruggleAnimationDefPairArray.Length
+            EndIf
+        Else
+        ; using solo animation for actors
+            If _StruggleAnimationDefActorArray.Length == 0
+                _StruggleAnimationDefActorArray = _GetSoloStruggleAnimation(keywordsList, Wearer, _ActorsConstraints[0])
+            EndIf
+            If _StruggleAnimationDefHelperArray.Length == 0
+                String[] helperKeywordsList = New String[1]
+                helperKeywordsList[0] = ".spectator"
+                _StruggleAnimationDefHelperArray = _GetSoloStruggleAnimation(helperKeywordsList, _minigameHelper, _ActorsConstraints[1])
+            EndIf
+            
+            UDAM.SetActorHeading(Wearer, _minigameHelper)
+            UDAM.SetActorHeading(_minigameHelper, Wearer)
+            
+            If _StruggleAnimationDefActorArray.Length > 0
+                Int anim_index = Utility.RandomInt(0, _StruggleAnimationDefActorArray.Length - 1)
+                If !bContinueAnimation || anim_index != _StruggleAnimationDefActorLastIndex
+                    ; start new animation
+                    _StruggleAnimationDefActorLastIndex = anim_index
+                    _animationDef = _StruggleAnimationDefActorArray[anim_index]
+                    If UDAM.PlayAnimationByDef(_animationDef, ActorArray1(Wearer), IntArray1(_ActorsConstraints[0]), bContinueAnimation, abDisableActors = False)
+                        result[0] = _StruggleAnimationDefActorArray.Length
+                    EndIf
+                Else
+                    ; keep animation that is currently played
+                    result[0] = _StruggleAnimationDefActorArray.Length
+                EndIf
+            EndIf
+
+            If _StruggleAnimationDefHelperArray.Length > 0
+                Int anim_index = Utility.RandomInt(0, _StruggleAnimationDefHelperArray.Length - 1)
+                If !bContinueAnimation || anim_index != _StruggleAnimationDefHelperLastIndex
+                    ; start new animation
+                    _StruggleAnimationDefHelperLastIndex = anim_index
+                    _animationDef = _StruggleAnimationDefHelperArray[anim_index]
+                    If UDAM.PlayAnimationByDef(_animationDef, ActorArray1(_minigameHelper), IntArray1(_ActorsConstraints[1]), bContinueAnimation, abDisableActors = False)
+                        result[1] = _StruggleAnimationDefHelperArray.Length
+                    EndIf
+                Else
+                    ; keep animation that is currently played
+                    result[1] = _StruggleAnimationDefHelperArray.Length
+                EndIf
+            EndIf
+        EndIf
+    Else
+        If _StruggleAnimationDefActorArray.Length == 0
+            _StruggleAnimationDefActorArray = _GetSoloStruggleAnimation(keywordsList, Wearer, _ActorsConstraints[0])
+        EndIf
+        If _StruggleAnimationDefActorArray.Length > 0
+            _animationDef = _StruggleAnimationDefActorArray[Utility.RandomInt(0, _StruggleAnimationDefActorArray.Length - 1)]
+            If UDAM.PlayAnimationByDef(_animationDef, ActorArray1(Wearer), _ActorsConstraints, bContinueAnimation, abDisableActors = False)
+                result[0] = _StruggleAnimationDefActorArray.Length
+            EndIf
+        EndIf
+    EndIf
+    Return result
+EndFunction
+
+String[] Function _GetSoloStruggleAnimation(String[] asKeywords, Actor akActor, Int aiConstraints)
+    String[] result
+    result = UDAM.GetStruggleAnimationsByKeywordsList(asKeywords, akActor, None, True)
+    If result.Length == 0
+        ; if actor has heavy bondage then try to get solo animation for it
+        Keyword heavyBondage = UDAM.GetHeavyBondageKeyword(aiConstraints)
+        If heavyBondage != None
+            result = UDAM.GetStruggleAnimationsByKeyword("." + heavyBondage.GetString(), akActor, None, True)
+        EndIf
+    EndIf
+    If result.Length == 0
+        result = UDAM.GetStruggleAnimationsByKeyword(".zad_DeviousGloves", akActor, None, True)
+    EndIf
+    If result.Length == 0
+        ; horny animation is our last hope!
+        result = UDAM.GetStruggleAnimationsByKeyword(".horny", akActor, None, True)
+    EndIf
+    Return result
+EndFunction
+
+Actor[] Function ActorArray1(Actor actor1)
+    Actor[] arr = new Actor[1]
+    arr[0] = actor1
+    Return arr
+EndFunction
+
+Actor[] Function ActorArray2(Actor actor1, Actor actor2)
+    Actor[] arr = new Actor[2]
+    arr[0] = actor1
+    arr[1] = actor2
+    Return arr
+EndFunction
+
+Int[] Function IntArray1(Int i1)
+    Int[] arr = new Int[1]
+    arr[0] = i1
+    Return arr
+EndFunction
+
 Function MinigameVarReset()
     if Wearer
         Wearer.RemoveFromFaction(UDCDmain.MinigameFaction)
@@ -4705,9 +4951,7 @@ Function MinigameVarReset()
         _minigameHelper.RemoveFromFaction(UDCDmain.MinigameFaction)
     endif
     
-    if PlayerInMinigame()
-        UDCDmain.resetCurrentMinigameDevice()
-    endif
+    UnsetMinigameDevice()
     
     minigame_on = False
 EndFunction
@@ -4854,11 +5098,12 @@ Function critDevice()
         endif
         
         OnCritDevicePost()
-        if PlayerInMinigame() && UDCDmain.UD_UseWidget && UD_UseWidget
-            updateWidget()
+        if Wearer && Wearer.Is3DLoaded()
+            if PlayerInMinigame() && UDCDmain.UD_UseWidget && UD_UseWidget
+                updateWidget()
+            endif
+            libs.Pant(Wearer)
         endif
-        
-        libs.Pant(Wearer)
         
         advanceSkill(4.0)
     endif
@@ -5460,6 +5705,9 @@ endFunction
 
 ;adds struggle debuff to Wearer and Helper
 Function addStruggleExhaustion(Actor akWearer, Actor akHelper)
+    if UDmain.TraceAllowed()
+        UDmain.Log("UD_CustomDevice_RenderScript::addStruggleExhaustion("+getDeviceHeader()+") called")
+    endif
     if UD_applyExhastionEffect
         UDlibs.StruggleExhaustionSpell.SetNthEffectMagnitude(0, UDCDmain.UD_StruggleExhaustionMagnitude*Utility.randomFloat(0.75,1.25))
         UDlibs.StruggleExhaustionSpell.SetNthEffectDuration(0, Round(UDCDmain.UD_StruggleExhaustionDuration*_exhaustion_mult*Utility.randomFloat(0.75,1.25)))
@@ -5817,44 +6065,98 @@ EndFunction
 
 ;choose the best minigame and start it. Returns false if minigame was not started
 Bool Function EvaluateNPCAI()
-    float   loc_accesibility    = getAccesibility()
-    Int     loc_lockMinigames   = LockMinigameAllowed(loc_accesibility)
-    
-    ;first try to unlock the device with key
-    if Math.LogicalAnd(loc_lockMinigames,0x2)
-        if keyMinigame(True)
-            return true
+    Bool    loc_minigameStarted     = False
+    Float   loc_durabilityBefore    = current_device_health
+    Int     loc_LocksBefore         = UD_CurrentLocks
+
+    ;50% chance to first check locks, then struggle
+    if Utility.randomInt(0,1)
+        Int loc_lockMinigames
+        if !loc_minigameStarted
+            loc_lockMinigames       = LockMinigameAllowed(loc_accesibility)
+        endif
+        ;first try to unlock the device with key
+        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x2)
+            if keyMinigame(True)
+                loc_minigameStarted = True
+            endif
+        endif
+        ;try to repair the locks then
+        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x4)
+            if repairLocksMinigame(True)
+                loc_minigameStarted = True
+            endif
+        endif
+        ;then try to use lockpicks
+        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x1)
+            if lockpickMinigame(True)
+                loc_minigameStarted = True
+            endif
+        endif
+        float   loc_accesibility    = 1.0
+        if !loc_minigameStarted
+            loc_accesibility        = getAccesibility()
+        endif
+        ;then try to struggle
+        if !loc_minigameStarted && StruggleMinigameAllowed(loc_accesibility)
+            Int loc_minigame = Utility.randomInt(0,2)
+            if struggleMinigame(loc_minigame, True) ;start random struggle minigame
+                loc_minigameStarted = True
+            endif
+        endif
+        ;lastly try cutting
+        if !loc_minigameStarted && CuttingMinigameAllowed(loc_accesibility)
+            if cuttingMinigame(True)
+                loc_minigameStarted = True
+            endif
+        endif
+    else
+        float   loc_accesibility    = 1.0
+        if !loc_minigameStarted
+            loc_accesibility        = getAccesibility()
+        endif
+        ;then try to struggle
+        if !loc_minigameStarted && StruggleMinigameAllowed(loc_accesibility)
+            Int loc_minigame = Utility.randomInt(0,2)
+            if struggleMinigame(loc_minigame, True) ;start random struggle minigame
+                loc_minigameStarted = True
+            endif
+        endif
+        ;lastly try cutting
+        if !loc_minigameStarted && CuttingMinigameAllowed(loc_accesibility)
+            if cuttingMinigame(True)
+                loc_minigameStarted = True
+            endif
+        endif
+        Int loc_lockMinigames
+        if !loc_minigameStarted
+            loc_lockMinigames       = LockMinigameAllowed(loc_accesibility)
+        endif
+        ;first try to unlock the device with key
+        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x2)
+            if keyMinigame(True)
+                loc_minigameStarted = True
+            endif
+        endif
+        ;try to repair the locks then
+        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x4)
+            if repairLocksMinigame(True)
+                loc_minigameStarted = True
+            endif
+        endif
+        ;then try to use lockpicks
+        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x1)
+            if lockpickMinigame(True)
+                loc_minigameStarted = True
+            endif
         endif
     endif
     
-    ;then try to use lockpicks
-    if Math.LogicalAnd(loc_lockMinigames,0x1)
-        if lockpickMinigame(True)
-            return true
-        endif
+    if loc_minigameStarted
+        GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - Stats after minigame = durability reduced="+ (loc_durabilityBefore - current_device_health) + " , Locks unlocked="+ (loc_LocksBefore - UD_CurrentLocks))
     endif
     
-    ;then try to struggle
-    if StruggleMinigameAllowed(loc_accesibility)
-        if struggleMinigame(Utility.randomInt(0,2), True) ;start random struggle minigame
-            return true
-        endif
-    endif
-    
-    ;try cutting
-    if CuttingMinigameAllowed(loc_accesibility)
-        if cuttingMinigame(True)
-            return true
-        endif
-    endif
-    
-    ;lastly, try to repair locks
-    if Math.LogicalAnd(loc_lockMinigames,0x4)
-        if repairLocksMinigame(True)
-            return true
-        endif
-    endif
-    return false
+    return loc_minigameStarted
 EndFunction
 
 ;--------------------------------------------------

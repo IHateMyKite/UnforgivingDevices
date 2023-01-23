@@ -38,6 +38,12 @@ UD_AnimationManagerScript Property UDAM hidden
         return UDmain.UDAM
     EndFunction
 EndProperty
+Package Property NPCDisablePackage Hidden
+    Package Function Get()
+        return libs.SexLab.Config.DoNothing
+    EndFunction
+EndProperty
+
 
 bool Property UD_HardcoreMode = true auto hidden
 
@@ -82,7 +88,6 @@ float     Property UD_VibrationMultiplier           = 0.10    auto hidden
 float     Property UD_ArousalMultiplier             = 0.05    auto hidden
 
 Bool      Property UD_OutfitRemove                  = True    auto hidden
-Bool      Property UD_AlternateAnimation            = False   auto hidden
 UD_PlayerSlotScript Property UD_PlayerSlot auto
 
 ;factions
@@ -216,6 +221,7 @@ Function Update()
     CheckHardcoreDisabler(UDmain.Player)
     
     SetArousalPerks()
+
 EndFunction
 
 UD_CustomDevice_RenderScript[] Function MakeNewDeviceSlots()
@@ -341,6 +347,8 @@ Function StartMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
         UpdatePlayerControl()
         Game.SetPlayerAiDriven(True)
     else
+        ActorUtil.AddPackageOverride(akActor, UDmain.UD_NPCDisablePackage, 100, 1)
+        akActor.EvaluatePackage()
         akActor.SetDontMove(True)
         akActor.SheatheWeapon()
     endif
@@ -353,6 +361,7 @@ Function UpdateMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
             Game.SetPlayerAiDriven(True)
         else
             akActor.SetDontMove(True)
+            akActor.EvaluatePackage()
         endif
     endif
 EndFunction
@@ -363,17 +372,16 @@ Function EndMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
         libsp.ProcessPlayerControls(false)
         Game.SetPlayerAiDriven(False)
     else
+        ActorUtil.RemovePackageOverride(akActor, UDmain.UD_NPCDisablePackage)
+        akActor.EvaluatePackage()
         akActor.SetDontMove(False)
     endif
 EndFunction
 
 Function UpdatePlayerControl()
     Game.EnablePlayerControls(abMovement = true, abFighting = false, abSneaking = false, abMenu = False, abActivate = false)
+    Utility.waitMenuMode(0.05)
     Game.DisablePlayerControls(abMovement = False, abMenu = True)
-EndFunction
-
-bool Function InSelabAnimation(Actor akActor)
-    return akActor.IsInFaction(libs.Sexlab.AnimatingFaction)
 EndFunction
 
 bool Function InZadAnimation(Actor akActor)
@@ -1147,11 +1155,23 @@ Function UndressArmor(Actor akActor)
             loc_mask = Math.LeftShift(loc_mask,1)
         endwhile
         loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--ALL--")
+        loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--TOGGLE OUTFIT--")
         loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--BACK--")
         int loc_res = GetUserListInput(loc_armorsnames)
-        if loc_res == (loc_armorsnames.length - 2)
+        if loc_res == (loc_armorsnames.length - 3)
             libs.strip(akActor,false)
-        elseif loc_res < (loc_armorsnames.length - 2) && loc_res >= 0
+        elseif loc_res == (loc_armorsnames.length - 2)
+            if !UDmain.ActorIsFollower(akActor) && !UDmain.ActorIsPlayer(akActor)
+                Outfit originalOutfit = akActor.GetActorBase().GetOutfit()
+                If originalOutfit == libs.zadEmptyOutfit
+                    DressOutfit(akActor)
+                else
+                    UndressOutfit(akActor)
+                endif
+            else
+                GInfo("TOGGLE OUTFIT can¨t be used for player or follower!")
+            endif
+        elseif loc_res < (loc_armorsnames.length - 3) && loc_res >= 0
             akActor.unequipItem(loc_armors[loc_res], abSilent = true)
         else
             return ;exit undress menu
@@ -1162,14 +1182,19 @@ Function UndressArmor(Actor akActor)
     endwhile
 EndFunction
 
+;default undress mask, all slots with 0 will be skipped
+;By default, amulet and ring is excluded
+Int Property UD_UndressMask = 0xFFFFFF9F auto
+
+;Unequp all armors that are no DD, unnamed or with sexlab keyword
 Function UndressAllArmor(Actor akActor)
-    Form[] loc_armors
+    Form[] loc_armors = Utility.CreateFormArray(0)
     int loc_mask = 0x00000001
-    while loc_mask != 0x00004000
-        Form loc_armor = akActor.GetWornForm(loc_mask)
-        if loc_armor
-            if !loc_armor.haskeyword(libs.zad_Lockable) && !loc_armor.HasKeyWordString("SexLabNoStrip")
-                if !loc_armors || !PapyrusUtil.CountForm(loc_armors,loc_armor)
+    while loc_mask != 0x80000000
+        if Math.LogicalAnd(UD_UndressMask,loc_mask)
+            Form loc_armor = akActor.GetWornForm(loc_mask)
+            if loc_armor
+                if loc_armor.GetName() && !loc_armor.haskeyword(libs.zad_Lockable) && !loc_armor.HasKeyWordString("SexLabNoStrip")
                     loc_armors = PapyrusUtil.PushForm(loc_armors,loc_armor)
                 endif
             endif
@@ -1181,6 +1206,47 @@ Function UndressAllArmor(Actor akActor)
         loc_armornum -= 1
         akActor.unequipItem(loc_armors[loc_armornum], abSilent = true)
     endwhile
+    Weapon  loc_weap1   = akActor.GetEquippedWeapon(abLeftHand = false)
+    Weapon  loc_weap2   = akActor.GetEquippedWeapon(abLeftHand = True)
+    Armor   loc_shield  = akActor.GetEquippedShield()
+    if loc_weap1
+        akActor.unequipItem(loc_weap1, abSilent = true)
+    endif
+    if loc_weap2
+        akActor.unequipItem(loc_weap2, abSilent = true)
+    endif
+    if loc_shield
+        akActor.unequipItem(loc_shield, abSilent = true)
+    endif
+EndFunction
+
+;this function replace NPC outfit. Should only be used for non-follower actors. Might cause issues with NPC overhaul mods
+; If NPC is using armor which it have in inventory, this function will remove it when changing outfit
+Function UndressOutfit(Actor akActor)
+    if !UDmain.ActorIsPlayer(akActor)
+        ; We change the outfit only for unique actors because SetOutfit() seems to operate on the ActorBASE and not the actor, so changing a non-unique actors's gear would change it for ALL instances of this actor.
+        Outfit originalOutfit = akActor.GetActorBase().GetOutfit()
+        If originalOutfit != libs.zadEmptyOutfit
+            StorageUtil.SetFormValue(akActor.GetActorBase(), "zad_OriginalOutfit", originalOutfit)
+            akActor.SetOutfit(libs.zadEmptyOutfit, false)
+        EndIf
+    endIf
+EndFunction
+
+;undo UndressOutfit()
+Function DressOutfit(Actor akActor)
+    if !UDmain.ActorIsPlayer(akActor)
+        ; We change the outfit only for unique actors because SetOutfit() seems to operate on the ActorBASE and not the actor, so changing a non-unique actors's gear would change it for ALL instances of this actor.
+        Outfit originalOutfit = akActor.GetActorBase().GetOutfit()
+        If originalOutfit == libs.zadEmptyOutfit
+            Outfit loc_oldOutfit = StorageUtil.GetFormValue(akActor.GetActorBase(), "zad_OriginalOutfit", none) as OutFit
+            if loc_oldOutfit
+                akActor.SetOutfit(loc_oldOutfit, false)
+            else
+                UDmain.Error("DressOutfit("+GetActorName(akActor)+")No saved default outfit for found!")
+            endif
+        EndIf
+    endIf
 EndFunction
 
 ;function made as replacemant for akActor.isEquipped, because that function doesn't work for NPCs
@@ -1327,8 +1393,15 @@ Function showActorDetails(Actor akActor)
             loc_orgStr += "Orgasm rate: " + formatString(UDOM.getActorAfterMultOrgasmRate(akActor),2) + " - " + formatString(UDOM.getActorAfterMultAntiOrgasmRate(akActor),2) + " Op/s\n"
             loc_orgStr += "Orgasm mult: " + Round(UDOM.getActorOrgasmRateMultiplier(akActor)*100.0) + " %\n"
             loc_orgStr += "Orgasm resisting: " + Round(UDOM.getActorOrgasmResistMultiplier(akActor)*100.0) + " %\n"
-            loc_orgStr += "Orgasm exhaustion: " + UDOM.GetOrgasmExhaustion(akActor) + "\n"
-            
+            if isRegistered(akActor)
+                loc_orgStr += "Orgasm exhaustion: " + UDOM.GetOrgasmExhaustion(akActor) + "\n"
+                if !UDmain.ActorIsPlayer(akActor)
+                    UD_CustomDevice_NPCSlot loc_slot = GetNPCSlot(akActor)
+                    if loc_slot
+                        loc_orgStr += "Orgasm exhaustion dur.: " + loc_slot.GetOrgasmExhaustionDuration() + " s\n"
+                    endif
+                endif
+            endif
             ShowMessageBox(loc_orgStr)
         elseif loc_option == 3 ;Helper details
             ShowHelperDetails(akActor)
@@ -1671,6 +1744,36 @@ Keyword Function GetHeavyBondageKeyword(Armor akDevice)
     return none
 EndFunction
 
+String[] Function GetDeviousKeywords(Armor akDevice)
+    String[] result
+    Int i = akDevice.GetNumKeywords()
+    While i > 0
+        i -= 1
+        Keyword k = akDevice.GetNthKeyword(i)
+        String ks = "." + k.GetString()                         ; "." is crucial so that the papyrus won't mess with the case of letters
+        If StringUtil.Find(ks, "zad_devious") > -1
+            result = PapyrusUtil.PushString(result, ks)
+        EndIf
+    EndWhile
+    Return result
+EndFunction
+
+String[] Function GetDeviceStruggleKeywords(Armor akDevice)
+    String[] result
+    If akDevice.HasKeyword(libs.zad_DeviousHeavyBondage)
+        String hb = "." + GetHeavyBondageKeyword(akDevice).GetString()      ; "." is crucial so that the papyrus won't mess with the case of letters
+        If hb == "."
+            UDMain.Error("UDCustomDeiceMain::GetDeviceStruggleKeywords() No keyword for heavy bondage on " + akDevice)
+        Else
+            result = PapyrusUtil.PushString(result, hb)
+        EndIf
+    Else
+        result = GetDeviousKeywords(akDevice)
+    EndIf
+    UDMain.Log("UDCustomDeviceMain::GetDeviceStruggleKeywords() " + akDevice + " : " + result, 3)
+    Return result
+EndFunction
+
 ;returns first device which have connected corresponding Inventory Device
 UD_CustomDevice_RenderScript Function getDeviceByInventory(Actor akActor, Armor deviceInventory)
     if isRegistered(akActor)
@@ -1718,8 +1821,9 @@ EndFunction
 
 ;returns current device that have minigame on (return none if no minigame is on)
 UD_CustomDevice_RenderScript Function getMinigameDevice(Actor akActor)
-    if CurrentPlayerMinigameDevice.getWearer() == akActor || CurrentPlayerMinigameDevice.getHelper() == akActor
-        return CurrentPlayerMinigameDevice
+    UD_CustomDevice_RenderScript loc_device = CurrentPlayerMinigameDevice
+    if loc_device && (loc_device.getWearer() == akActor || loc_device.getHelper() == akActor)
+        return loc_device
     endif
     if isRegistered(akActor)
         return getNPCSlot(akActor).getMinigameDevice()
@@ -2454,7 +2558,7 @@ Function SetArousalPerks()
 endfunction
 bool Function ApplyTearsEffect(Actor akActor)
     if UDmain.ZaZAnimationPackInstalled && UDmain.SlaveTatsInstalled
-        if !akActor.HasMagicEffectWithKeyword(UDlibs.ZAZTears_KW)
+        if akActor.Is3DLoaded() && !akActor.HasMagicEffectWithKeyword(UDlibs.ZAZTears_KW)
             UDlibs.ZAZTearsSpell.cast(akActor)
             return true
         endif
@@ -2464,7 +2568,7 @@ EndFUnction
 
 bool Function ApplyDroolEffect(Actor akActor) ;works only for player
     if UDmain.ZaZAnimationPackInstalled && UDmain.SlaveTatsInstalled
-        if !akActor.HasMagicEffectWithKeyword(UDlibs.ZAZDrool_KW)
+        if akActor.Is3DLoaded() && !akActor.HasMagicEffectWithKeyword(UDlibs.ZAZDrool_KW)
             UDlibs.ZAZDroolSpell.cast(akActor)
             return true
         endif

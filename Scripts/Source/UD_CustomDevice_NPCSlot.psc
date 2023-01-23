@@ -19,9 +19,20 @@ zadlibs_UDPatch Property libs hidden
         return UDmain.libsp
     EndFunction
 EndProperty
+
 UD_OrgasmManager Property UDOM Hidden
     UD_OrgasmManager Function get()
-        return UDmain.UDOM
+        if IsPlayer()
+            return UDmain.UDOM2
+        else
+            return UDmain.UDOM
+        endif
+    EndFunction
+EndProperty
+
+UD_OrgasmManager Property UDOMcfg Hidden
+    UD_OrgasmManager Function get()
+            return UDmain.UDOM
     EndFunction
 EndProperty
 UD_ExpressionManager Property UDEM Hidden
@@ -29,7 +40,22 @@ UD_ExpressionManager Property UDEM Hidden
         return UDmain.UDEM
     EndFunction
 EndProperty
-UD_CustomDevice_RenderScript[] Property UD_equipedCustomDevices auto hidden
+
+UD_CustomDevice_RenderScript[]          Property UD_equipedCustomDevices    auto hidden
+
+UD_CustomDevice_RenderScript[] _ActiveVibrators
+UD_CustomDevice_RenderScript[]          Property UD_ActiveVibrators         hidden
+    UD_CustomDevice_RenderScript[] Function Get()
+        if !_ActiveVibrators
+            _ActiveVibrators = UDCDMain.MakeNewDeviceSlots()
+        endif
+        return _ActiveVibrators
+    EndFunction
+    Function Set(UD_CustomDevice_RenderScript[] akVal)
+        _ActiveVibrators = akVal
+    EndFunction
+EndProperty
+
 Form[] Property UD_BodySlots auto hidden
 
 UD_CustomDevice_RenderScript _handRestrain = none
@@ -73,13 +99,17 @@ Weapon Property UD_BestWeapon Hidden
         _BestWeapon = akWeapon
     EndFunction
 EndProperty
-float Property AgilitySkill         = 0.0 auto hidden
-float Property StrengthSkill        = 0.0 auto hidden
-float Property MagickSkill          = 0.0 auto hidden
-float Property CuttingSkill         = 0.0 auto hidden
-float Property SmithingSkill        = 0.0 auto hidden
+float Property AgilitySkill         = 0.0   auto hidden
+float Property StrengthSkill        = 0.0   auto hidden
+float Property MagickSkill          = 0.0   auto hidden
+float Property CuttingSkill         = 0.0   auto hidden
+float Property SmithingSkill        = 0.0   auto hidden
 
-float Property ArousalSkillMult     = 1.0 auto hidden
+float Property ArousalSkillMult     = 1.0   auto hidden
+
+;timer used to prevent AI being activated too early
+;number means how many AI updates will be ommited
+Int   Property UD_AITimer           = 2     auto hidden
 
 ;prevent slot update
 State UpdatePaused
@@ -95,10 +125,29 @@ State UpdatePaused
     EndFunction
 EndState
 
+Function GameUpdate()
+    If isUsed()
+        if !IsPlayer()
+            UDOM.RemoveAbilities(GetActor())
+        endif
+        CheckVibrators()
+        InitOrgasmExpression()
+    endif
+EndFunction
+
+Bool Function IsBlocked()
+    Bool loc_res = False
+    loc_res = loc_res || _MinigameStarter_ON
+    loc_res = loc_res || _MinigameParalel_ON
+    loc_res = loc_res || _MinigameCritLoop_ON
+    return loc_res
+EndFunction
 ;update other variables
 Function UpdateSlot(Bool abUpdateSkill = true)
     ArousalSkillMult = UDCDmain.getArousalSkillMult(getActor())
-    if abUpdateSkill
+    if abUpdateSkill && (isPlayer() || isFollower())
+        ;only update skills if actor is player or follower
+        ;TODO: Add switch to allow users to also update skills for other NPCs
         UpdateSkills()
     endif
     if !GetActor().wornhaskeyword(libs.zad_deviousHeavyBondage)
@@ -107,11 +156,6 @@ Function UpdateSlot(Bool abUpdateSkill = true)
 EndFunction
 
 Function UpdateBodySlots()
-    ;if !UD_BodySlots
-    ;    UD_BodySlots = new Form[32]
-    ;    GInfo("UD_BodySlots not init for " + getSlotedNPCName() + ", creating array")
-    ;endif
-    
     int loc_i = 0
     Actor loc_actor = GetActor()
     while loc_i < 32
@@ -149,6 +193,7 @@ EndFunction
 Event OnInit()
     Utility.wait(1.0)
     UD_equipedCustomDevices = UDCDMain.MakeNewDeviceSlots()
+    UD_ActiveVibrators      = UDCDMain.MakeNewDeviceSlots()
     Ready = True
 EndEvent
 
@@ -215,7 +260,23 @@ int Function GetDeviceSlotIndx(UD_CustomDevice_RenderScript device)
     return -1
 EndFunction
 
+int Function GetVibratorSlotIndx(UD_CustomDevice_RenderScript akVib)
+    if !(akVib as UD_CustomVibratorBase_RenderScript)
+        ;device is not vibrator, return -1
+        return -1
+    endif
+    int i = 0
+    while UD_ActiveVibrators[i]
+        if UD_ActiveVibrators[i] == akVib
+            return i
+        endif
+        i+=1
+    endwhile
+    return -1
+EndFunction
+
 Function SetSlotTo(Actor akActor)
+    UD_AITimer = 2
     if UDmain.TraceAllowed()
         UDCDmain.Log("SetSlotTo("+getActorName(akActor)+") for " + self)
     endif
@@ -230,6 +291,7 @@ Function SetSlotTo(Actor akActor)
         UDOM.CheckOrgasmCheck(akActor)
         UDOM.CheckArousalCheck(akActor)
     else
+        InitOrgasmUpdate()
         akActor.AddToFaction(UDOM.ArousalCheckLoopFaction)
         akActor.AddToFaction(UDOM.OrgasmCheckLoopFaction)
     endif
@@ -238,6 +300,7 @@ Function SetSlotTo(Actor akActor)
 
     if !IsPlayer()
         regainDevices()
+        CheckVibrators()
     endif
 EndFunction
 
@@ -283,6 +346,7 @@ Function unregisterSlot()
     endif
     if _iUsedSlots
         unregisterAllDevices()
+        EndAllVibrators()
     endif
     StorageUtil.UnSetIntValue(getActor(), "UD_ManualRegister")
     _iScriptState = 0
@@ -316,6 +380,30 @@ Function sortSlots(bool mutex = true)
     endwhile
     if mutex
         endDeviceManipulation()
+    endif
+EndFunction
+
+Function SortVibrators(bool mutex = true)
+    if mutex
+        startVibratorManipulation()
+    endif
+    int i = 0
+    while i < UD_ActiveVibrators.length - 1
+        if UD_ActiveVibrators[i] == none && UD_ActiveVibrators[i + 1]
+            UD_ActiveVibrators[i] = UD_ActiveVibrators[i + 1]
+            UD_ActiveVibrators[i + 1] = none
+        endif
+        
+        ;sorted
+        if UD_ActiveVibrators[i] == none && UD_ActiveVibrators[i + 1] == none
+            endVibratorManipulation()
+            return
+        endif
+        
+        i+=1
+    endwhile
+    if mutex
+        endVibratorManipulation()
     endif
 EndFunction
 
@@ -377,12 +465,15 @@ Function fix()
         StorageUtil.UnsetIntValue(getActor(), "UD_OrgasmExhaustion")
         StorageUtil.UnsetIntValue(getActor(), "UD_ActiveVib_Strength")
         StorageUtil.UnsetIntValue(getActor(), "UD_ActiveVib")
+        StorageUtil.UnsetIntValue(getActor(), "UD_OrgasmExhaustionNum")
         
-        GetActor().DispelSpell(UDmain.UDlibs.ArousalCheckSpell)
-        GetActor().AddSpell(UDmain.UDlibs.ArousalCheckAbilitySpell,true)
-        
-        GetActor().DispelSpell(UDmain.UDlibs.OrgasmCheckSpell)
-        GetActor().AddSpell(UDmain.UDlibs.OrgasmCheckSpell,true)
+        if IsPlayer()
+            GetActor().DispelSpell(UDmain.UDlibs.ArousalCheckAbilitySpell)
+            GetActor().AddSpell(UDmain.UDlibs.ArousalCheckAbilitySpell,true)
+            
+            GetActor().DispelSpell(UDmain.UDlibs.OrgasmCheckAbilitySpell)
+            GetActor().AddSpell(UDmain.UDlibs.OrgasmCheckAbilitySpell,true)
+        endif
         UDCDmain.Print("[UD] Orgasm variables reseted!")
     elseif loc_res == 2 ;reset expression
         UDCDMain.UDEM.ResetExpressionRaw(getActor(),100)
@@ -419,6 +510,30 @@ Function fix()
             endif
         endif
     endif
+EndFunction
+
+;check if actor have activated vibrators but don't have them registered
+Function CheckVibrators()
+    int i = 0
+    Bool loc_Error = false
+    while UD_equipedCustomDevices[i]
+        ;check if device is vibrators
+        UD_CustomVibratorBase_RenderScript loc_vib = (UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript)
+        if loc_vib
+            ;check if vib is activtaed and not registered
+            if UD_ActiveVibrators.Find(UD_equipedCustomDevices[i]) < 0
+                if loc_vib.IsVibrating()
+                    UDmain.Error(self + "::CheckVibrators - Found unregistered active vibrator , registering " + loc_vib.GetDeviceName())
+                    if RegisterVibrator(loc_vib)
+                        loc_Error = True
+                    endif
+                elseif !loc_vib.IsVibrating() && !loc_vib.IsPaused() && loc_vib.UD_VibDuration == -1
+                    loc_vib.Vibrate()
+                endif
+            endif
+        endif
+        i+=1
+    endwhile
 EndFunction
 
 Function removeLostRenderDevices()
@@ -516,6 +631,45 @@ bool Function registerDevice(UD_CustomDevice_RenderScript oref,bool mutex = true
     return false
 EndFunction
 
+Bool _VibratorMutex = False
+Function startVibratorManipulation()
+    while _VibratorMutex
+        Utility.waitMenuMode(0.05)
+    endwhile
+    _VibratorMutex = True
+EndFUnction
+Function endVibratorManipulation()
+    _VibratorMutex = False
+EndFUnction
+
+bool Function RegisterVibrator(UD_CustomDevice_RenderScript akVib)
+    if UDmain.TraceAllowed()
+        UDmain.Log("Starting slot vibrator register for " + akVib.getDeviceHeader() )
+    endif
+    if !(akVib as UD_CustomVibratorBase_RenderScript)
+        ;device is not vibrator, return -1
+        UDmain.Error(self+"::RegisterVibrator("+akVib+") failed because device is not vibrator")
+        return False
+    endif
+    if UD_ActiveVibrators.Find(akVib) > 0
+        UDmain.Error("RegisterVibrator("+akVib.getDeviceHeader()+") - Vibrator is already registered")
+        return false
+    endif
+    startVibratorManipulation()
+    int size = UD_ActiveVibrators.length
+    int i = 0
+    while i < size
+        if !UD_ActiveVibrators[i]
+            UD_ActiveVibrators[i] = akVib
+            endVibratorManipulation()
+            return true
+        endif
+        i+=1
+    endwhile
+    endVibratorManipulation()
+    return false
+EndFunction
+
 int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool sort = True,bool mutex = true)
     if mutex
         startDeviceManipulation()
@@ -541,6 +695,25 @@ int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool s
         sortSlots(mutex)
     endif
     
+    return res
+EndFunction
+
+int Function UnregisterVibrator(UD_CustomDevice_RenderScript akVib,int i = 0,bool sort = True)
+    startVibratorManipulation()
+    int res = 0
+    while UD_ActiveVibrators[i]
+        if UD_ActiveVibrators[i] == akVib
+            UD_ActiveVibrators[i] = none
+            res += 1
+        endif
+        i+=1
+    endwhile
+    
+    if isScriptRunning() && sort
+        SortVibrators(false)
+    endif
+    
+    endVibratorManipulation()
     return res
 EndFunction
 
@@ -730,7 +903,7 @@ EndFunction
 
 Function orgasm()
     if UDmain.UD_OrgasmExhaustion
-        UDmain.addOrgasmExhaustion(getActor())
+        AddOrgasmExhaustion()
     endif
     int size = UD_equipedCustomDevices.length
     int i = 0
@@ -743,6 +916,42 @@ Function orgasm()
         endif
         i+=1
     endwhile
+EndFunction
+
+
+;NPC Orgasm exhaustion time. Is only reduced by 1 at the time, so the duration should be shorter to not make it too long
+Int Property UD_OrgasmExhaustionTime = 45 auto
+
+;adds orgasm exhastion to slotted actor. 
+;If actor is NPC, it will directly update orgasm values.
+;If actor is Player, it will cast UD_OrgasmExhastion_AME magick effect
+Function AddOrgasmExhaustion()
+    Actor loc_actor = GetActor()
+    StorageUtil.AdjustIntValue(loc_actor,"UD_OrgasmExhaustionNum",1)
+    if _OrgasmExhaustionTime == 0
+        _OrgasmExhaustionTime = UD_OrgasmExhaustionTime ;increase exhaustion to 1 minute
+    endif
+    UDOM.UpdateOrgasmResistMultiplier(loc_actor,0.35)
+    UDOM.UpdateArousalRateMultiplier(loc_actor,-0.1)
+EndFunction
+
+Function _UpdateOrgasmExhaustion(Int aiUpdateTime)
+    Actor loc_actor = GetActor()
+    Int loc_exhaustions = StorageUtil.GetIntValue(loc_actor,"UD_OrgasmExhaustionNum",0)
+    if _OrgasmExhaustionTime > 0 && loc_exhaustions
+        _OrgasmExhaustionTime -= aiUpdateTime
+        if _OrgasmExhaustionTime <= 0
+            _OrgasmExhaustionTime = UD_OrgasmExhaustionTime ;increase exhaustion to 1 minute
+            StorageUtil.AdjustIntValue(loc_actor,"UD_OrgasmExhaustionNum",-1)
+            UDOM.UpdateOrgasmResistMultiplier(loc_actor,-0.35)
+            UDOM.UpdateArousalRateMultiplier(loc_actor,0.1)
+        endif
+    endif
+EndFunction
+
+;returns remaining duration of orgasm duration. Will allways return 0 if actor is player
+Int Function GetOrgasmExhaustionDuration()
+    return _OrgasmExhaustionTime
 EndFunction
 
 Event OnActivateDevice(string sDeviceName)
@@ -1376,6 +1585,10 @@ bool Function isPlayer()
     return False
 EndFunction
 
+Bool Function isFollower()
+    return UDmain.ActorIsFollower(GetActor())
+EndFunction
+
 bool Function isUsed()
     if getActor()
         return true
@@ -1546,13 +1759,13 @@ Armor       Property UD_GlobalDeviceUnlockMutex_Device                      = no
 Keyword     Property UD_UnlockToken                                         = none      auto hidden    
 
 Function ResetMutex_Lock(Armor invDevice)
-    UD_GlobalDeviceMutex_inventoryScript                 = false
+    UD_GlobalDeviceMutex_inventoryScript                = false
     UD_GlobalDeviceMutex_InventoryScript_Failed         = false
     UD_GlobalDeviceMutex_Device                         = invDevice
 EndFunction
 
 Function ResetMutex_Unlock(Armor invDevice)
-    UD_GlobalDeviceUnlockMutex_InventoryScript             = false
+    UD_GlobalDeviceUnlockMutex_InventoryScript            = false
     UD_GlobalDeviceUnlockMutex_InventoryScript_Failed     = false
     UD_UnlockToken                                        = none
     UD_GlobalDeviceUnlockMutex_Device                     = invDevice
@@ -1670,7 +1883,9 @@ Function UpdateArousal(Int aiUpdateTime)
 EndFunction
 
 Function CleanArousalUpdate()
-    GetActor().RemoveFromFaction(UDOM.ArousalCheckLoopFaction)
+    if GetActor()
+        GetActor().RemoveFromFaction(UDOM.ArousalCheckLoopFaction)
+    endif
 EndFunction
 
 ;Orgasm update
@@ -1703,6 +1918,8 @@ int     _msID                    = -1
 float   _edgeprogress            = 0.0
 int     _edgelevel               = 0
 
+Int     _OrgasmExhaustionTime     = 0
+
 sslBaseExpression expression
 float[] _org_expression
 float[] _org_expression2
@@ -1712,9 +1929,7 @@ Function InitOrgasmUpdate()
     Actor loc_actor = GetActor()
     if loc_actor
         loc_actor.AddToFaction(UDOM.OrgasmCheckLoopFaction)
-        _org_expression             = UDEM.GetPrebuildExpression_Horny1()
-        _org_expression2            = UDEM.GetPrebuildExpression_Happy1()
-        _org_expression3            = UDEM.GetPrebuildExpression_Angry1()
+        InitOrgasmExpression()
         _widgetShown                = false
         _forceStop                  = false
         _orgasmRate                 = 0.0
@@ -1744,10 +1959,18 @@ Function InitOrgasmUpdate()
     endif
 EndFunction
 
+;this reassign slots arousal expression. Should be be used on every game reload to update the expressions to last version
+Function InitOrgasmExpression()
+    _org_expression             = UDEM.GetPrebuildExpression_Horny1()
+    _org_expression2            = UDEM.GetPrebuildExpression_Happy1()
+    _org_expression3            = UDEM.GetPrebuildExpression_Angry1()
+EndFunction
+
 Function UpdateOrgasm(Float afUpdateTime)
     if !UDmain.IsEnabled()
         return
     endif
+    _currentUpdateTime = afUpdateTime
     Actor akActor = GetActor()
     CalculateOrgasmProgress()
     ;check orgasm
@@ -1812,6 +2035,7 @@ Function UpdateOrgasm(Float afUpdateTime)
     
     if _tick * afUpdateTime >= 1.0
         UpdateOrgasmSecond()
+        _UpdateOrgasmExhaustion(Round(afUpdateTime))
     endif
     _tick += 1
 EndFunction
@@ -1909,7 +2133,7 @@ Function UpdateOrgasmSecond()
         ;can play horny animation ?
         UpdateOrgasmHornyAnimation()
         
-        if UDOM.UD_UseOrgasmWidget && IsPlayer()
+        if UDOMcfg.UD_UseOrgasmWidget && IsPlayer()
             if (_widgetShown && _orgasmProgress < 2.5) ;|| (loc_widgetShown)
                 UDmain.UDWC.Toggle_OrgasmWidget(false)
                 _widgetShown = false
@@ -1952,15 +2176,24 @@ Function UpdateOrgasmExpression()
     _expressionUpdateTimer += 1
 EndFunction
 
+String[] _HornyAnimEvents
 FUnction UpdateOrgasmHornyAnimation()
     Actor akActor = GetActor()
-    if !_actorinminigame
-        if (_orgasmRate > 0.5*_orgasmResistMultiplier*_orgasmResistence) && !_orgasmResisting && !akActor.IsInCombat() ;orgasm progress is increasing
-            if (_hornyAnimTimer == 0) && !libs.IsAnimating(akActor) && UDOM.UD_HornyAnimation ;start horny animation for UD_HornyAnimationDuration
+    if !_actorinminigame 
+        if UDOMcfg.UD_HornyAnimation && (_orgasmRate > 0.5*_orgasmResistMultiplier*_orgasmResistence) && !_orgasmResisting && !akActor.IsInCombat() ;orgasm progress is increasing
+            if (_hornyAnimTimer == 0) && !UDmain.UDAM.IsAnimating(akActor) ;start horny animation for UD_HornyAnimationDuration
                 if Utility.RandomInt() <= (Math.ceiling(100/fRange(_orgasmProgress,15.0,100.0))) 
                     ; Select animation
-                    _cameraState = libs.StartThirdPersonAnimation(akActor, libs.AnimSwitchKeyword(akActor, "Horny01"), permitRestrictive=true)
-                    _hornyAnimTimer += UDOM.UD_HornyAnimationDuration
+                    If !_HornyAnimEvents || _HornyAnimEvents.Length == 0
+                        _HornyAnimEvents = UDmain.UDAM.GetHornyAnimEvents(akActor)
+                    EndIf
+                    If _HornyAnimEvents.Length > 0
+                        String anim_event = _HornyAnimEvents[Utility.RandomInt(0, _HornyAnimEvents.Length - 1)]
+                        UDmain.UDAM.StartSoloAnimation(akActor, anim_event)
+                    Else
+                        UDmain.Warning("UD_OrchamsCheckScript_AME::OnUpdate() Can't find animations for the horny actor")
+                    EndIf
+                    _hornyAnimTimer += UDOMcfg.UD_HornyAnimationDuration
                 endif
             EndIf
         endif
@@ -1969,7 +2202,7 @@ FUnction UpdateOrgasmHornyAnimation()
             if _hornyAnimTimer > 0 ;reduce horny animation timer 
                 _hornyAnimTimer -= 1
                 if (_hornyAnimTimer == 0)
-                    libs.EndThirdPersonAnimation(akActor, _cameraState, permitRestrictive=true)
+                    UDmain.UDAM.StopAnimation(akActor)
                     _hornyAnimTimer = -20 ;cooldown
                 EndIf
             elseif _hornyAnimTimer < 0 ;cooldown
@@ -2025,7 +2258,7 @@ Function CleanOrgasmUpdate()
     endif
     
     ;end animation if it still exist
-    if  _hornyAnimTimer > 0
+    if  _hornyAnimTimer > 0 && akActor
         libs.EndThirdPersonAnimation(akActor, _cameraState, permitRestrictive=true)
         _hornyAnimTimer = 0
     EndIf
@@ -2036,8 +2269,350 @@ Function CleanOrgasmUpdate()
     endif
     
     ;reset expression
-    UDEM.ResetExpressionRaw(akActor, 10)
+    if akActor
+        UDEM.ResetExpressionRaw(akActor, 10)
+    endif
     
     ;end mutex
     akActor.RemoveFromFaction(UDOM.OrgasmCheckLoopFaction)
+EndFunction
+
+
+Function VibrateUpdate(Int aiUpdateTime)
+    int i = 0
+    while UD_ActiveVibrators[i]
+        UD_CustomVibratorBase_RenderScript loc_vib = UD_ActiveVibrators[i] as UD_CustomVibratorBase_RenderScript
+        if loc_vib
+            loc_vib.VibrateUpdate(aiUpdateTime)
+        endif
+        i+=1
+    endwhile
+EndFunction
+
+Function EndAllVibrators()
+    int i = 0
+    while UD_ActiveVibrators[i]
+        UD_CustomVibratorBase_RenderScript loc_vib = UD_ActiveVibrators[i] as UD_CustomVibratorBase_RenderScript
+        if loc_vib
+            loc_vib.VibrateEnd(True,False)
+            UD_ActiveVibrators[i] = none
+        endif
+        i+=1
+    endwhile
+EndFunction
+
+;===============================================================================
+;===============================================================================
+;                             MINIGAME PARALEL PROCESSES
+;===============================================================================
+;===============================================================================
+;==============================
+;           MINIGAME
+;==============================
+
+;starter
+bool                                _MinigameStarter_ON                         = false
+bool                                _MinigameStarter_Received                   = false
+UD_CustomDevice_RenderScript        Send_MinigameStarter_Package_device
+
+Function Send_MinigameStarter(UD_CustomDevice_RenderScript udDevice)
+    if !udDevice
+        UDCDmain.Error("Send_MinigameStarter wrong arg received!")
+    endif
+    
+    _MinigameStarter_Received = false
+    
+    ;send event
+    int handle = ModEvent.Create("UDMinigameStarter_"+self)
+    if (handle)
+        RegisterForModEvent(    "UDMinigameStarter_"+self  , "Receive_MinigameStarter" )
+        Send_MinigameStarter_Package_device = udDevice
+        ModEvent.Send(handle)
+        
+        ;block
+        float loc_TimeOut = 0.0
+        while !_MinigameStarter_Received && loc_TimeOut <= 2.0
+            loc_TimeOut += 0.05
+            Utility.waitMenuMode(0.05)
+        endwhile
+        _MinigameStarter_Received = false
+        
+        if loc_TimeOut >= 2.0
+            UDCDmain.Error("Send_MinigameStarter("+udDevice.getDeviceHeader()+") timeout!")
+        endif
+    else
+        UDCDmain.Error("Send_MinigameStarter("+udDevice.getDeviceHeader()+") error!")
+    endif
+    UnRegisterForModEvent(    "UDMinigameStarter_"+self )
+EndFunction
+Function Receive_MinigameStarter()
+    _MinigameStarter_ON = True
+    UD_CustomDevice_RenderScript loc_device = Send_MinigameStarter_Package_device
+    Send_MinigameStarter_Package_device = none
+    _MinigameStarter_Received           = true
+    loc_device._MinigameParProc_1       = true
+    loc_device.MinigameStarter()
+    _MinigameStarter_ON = False
+EndFunction
+
+;crit
+;vars
+bool                                _MinigameParalel_ON                         = false
+bool                                _MinigameParalel_Received                   = false
+UD_CustomDevice_RenderScript        Send_MinigameParalel_Package_device
+
+Function Send_MinigameParalel(UD_CustomDevice_RenderScript udDevice)
+    if !udDevice
+        UDCDmain.Error("Send_MinigameParalel wrong arg received!")
+    endif
+    
+    _MinigameParalel_Received = false
+    
+    ;send event
+    int handle = ModEvent.Create("UDMinigameParalel_"+self)
+    if (handle)
+        Send_MinigameParalel_Package_device = udDevice
+        RegisterForModEvent("UDMinigameParalel_"+self ,"Receive_MinigameParalel")
+        ModEvent.Send(handle)
+        
+        ;block
+        float loc_TimeOut = 0.0
+        while !_MinigameParalel_Received && loc_TimeOut <= 2.0
+            loc_TimeOut += 0.05
+            Utility.waitMenuMode(0.05)
+        endwhile
+        _MinigameParalel_Received = false
+        
+        if loc_TimeOut >= 2.0
+            UDCDmain.Error("Send_MinigameParalel("+udDevice.getDeviceHeader()+") timeout!")
+        endif
+    else
+        UDCDmain.Error("Send_MinigameParalel("+udDevice.getDeviceHeader()+") error!")
+    endif
+    UnRegisterForModEvent("UDMinigameParalel_"+self)
+EndFunction
+Function Receive_MinigameParalel()
+    _MinigameParalel_ON = True
+    UD_CustomDevice_RenderScript loc_device = Send_MinigameParalel_Package_device
+    Send_MinigameParalel_Package_device = none
+    _MinigameParalel_Received           = true
+    
+    Actor     akActor       = GetActor()
+    Actor     akHelper      = loc_device.getHelper()
+    
+    loc_device._MinigameParProc_2 = true
+    
+    ;process
+    ;start disable
+    bool      loc_haveplayer    = loc_device.PlayerInMinigame()
+    bool      loc_is3DLoaded    = akActor.Is3DLoaded() || loc_haveplayer
+    
+    ;disable regen of all stats
+    float staminaRate           = akActor.getBaseAV("StaminaRate")
+    float HealRate              = akActor.getBaseAV("HealRate")
+    float magickaRate           = akActor.getBaseAV("MagickaRate")
+
+    akActor.setAV("StaminaRate", staminaRate*loc_device.UD_RegenMag_Stamina)
+    akActor.setAV("HealRate", HealRate*loc_device.UD_RegenMag_Health)
+    akActor.setAV("MagickaRate", magickaRate*loc_device.UD_RegenMag_Magicka)
+
+    float staminaRateHelper     = 0.0
+    float HealRateHelper        = 0.0
+    float magickaRateHelper     = 0.0
+    if akHelper
+        staminaRateHelper       = akHelper.getBaseAV("StaminaRate")
+        HealRateHelper          = akHelper.getBaseAV("HealRate")
+        magickaRateHelper       = akHelper.getBaseAV("MagickaRate")
+
+        akHelper.setAV("StaminaRate", staminaRateHelper*loc_device.UD_RegenMagHelper_Stamina)
+        akHelper.setAV("HealRate"    , HealRateHelper*loc_device.UD_RegenMagHelper_Health)
+        akHelper.setAV("MagickaRate", magickaRateHelper*loc_device.UD_RegenMagHelper_Magicka)
+    endif
+    
+    bool loc_canShowHUD     = loc_device.canShowHUD()
+    bool loc_updatewidget   = loc_device.UD_UseWidget && UDCDmain.UD_UseWidget && loc_haveplayer
+    
+    Send_MinigameCritLoop(loc_device)
+
+    float[] loc_expression = loc_device.GetCurrentMinigameExpression()
+    UDEM.ApplyExpressionRaw(akActor, loc_expression, 100,false,15)
+    if loc_device.hasHelper()
+        UDEM.ApplyExpressionRaw(akHelper, loc_expression, 100,false,15)
+    endif
+    
+    float loc_currentOrgasmRate     = loc_device.getStruggleOrgasmRate()
+    float loc_currentArousalRate    = loc_device.getArousalRate()
+    
+    UDOM.UpdateOrgasmRate(akActor, loc_currentOrgasmRate,0.25)
+    UDOM.UpdateArousalRate(akActor,loc_currentArousalRate)
+    
+    ;pause thred untill minigame end
+    Float loc_UpdateTime   = 0.1
+    if !loc_is3DLoaded
+        loc_UpdateTime = 3.0
+    elseif !loc_haveplayer
+        loc_UpdateTime = 1.0
+    endif
+    
+    Float loc_ElapsedTime1 = 0.0
+    Float loc_ElapsedTime2 = 0.0
+    Float loc_ElapsedTime3 = 0.0
+    
+    while loc_device._MinigameMainLoop_ON; && UDCDmain.ActorInMinigame(akActor)
+        if !loc_device.pauseMinigame
+            ;set expression every 5 second
+            if loc_is3DLoaded
+                if loc_ElapsedTime1 >= 5.0
+                    UDEM.ApplyExpressionRaw(akActor, loc_expression, 100,false,15)
+                    if akHelper
+                        UDEM.ApplyExpressionRaw(akHelper, loc_expression, 100,false,15)
+                    endif
+                    loc_ElapsedTime1 = 0.0
+                endif
+            endif
+            ;update widget and HUD every 2 s
+            if loc_haveplayer
+                if loc_ElapsedTime2 >= 2.0
+                    if loc_canShowHUD
+                        loc_device.showHUDbars(False)
+                    endif         
+                    if loc_updatewidget
+                        loc_device.showWidget(false,true)
+                    endif
+                    loc_ElapsedTime2 = 0.0
+                endif
+                ;advance skill every 3 second
+                if loc_ElapsedTime3 >= 1.0
+                    loc_device.advanceSkill(1.0)
+                    if loc_is3DLoaded
+                        loc_updatewidget    = loc_device.UD_UseWidget && UDCDmain.UD_UseWidget && loc_haveplayer
+                        loc_canShowHUD      = loc_device.canShowHUD()
+                    endif
+                    loc_ElapsedTime3    = 0.0
+                endif
+            endif
+        endif
+        if loc_device._MinigameMainLoop_ON
+            Utility.wait(loc_UpdateTime)
+            loc_ElapsedTime1 += loc_UpdateTime
+            loc_ElapsedTime2 += loc_UpdateTime
+            loc_ElapsedTime3 += loc_UpdateTime
+        endif
+    endwhile
+    
+    UDOM.UpdateOrgasmRate(akActor, -1*loc_currentOrgasmRate,-0.25)
+    UDOM.UpdateArousalRate(akActor,-1*loc_currentArousalRate)
+    
+    ;returns wearer regen
+    akActor.setAV("StaminaRate", staminaRate)
+    akActor.setAV("HealRate", healRate)
+    akActor.setAV("MagickaRate", magickaRate)
+    if akHelper
+        akHelper.setAV("StaminaRate", staminaRateHelper)
+        akHelper.setAV("HealRate", HealRateHelper)
+        akHelper.setAV("MagickaRate", magickaRateHelper)
+    endif
+    
+    loc_device._MinigameParProc_2 = false
+    
+    if loc_haveplayer
+        loc_device.hideHUDbars() ;hides HUD (not realy?)
+        
+        if loc_device.WearerIsPlayer() || loc_device.HelperIsPlayer()
+            loc_device.hideWidget()
+        endif
+    endif
+    
+    if loc_is3DLoaded
+        UDEM.ResetExpressionRaw(akActor,15)
+        if akHelper
+            UDEM.ResetExpressionRaw(akHelper,15)
+        endif
+    endif
+    
+    if loc_is3DLoaded && (UDmain.UDGV.UDG_MinigameExhaustion.Value == 1)
+        loc_device.addStruggleExhaustion(akActor,akHelper)
+    endif
+    _MinigameParalel_ON = False
+EndFunction
+
+bool                             _MinigameCritLoop_ON                       = false
+bool                             _MinigameCritLoop_Received                 = false
+UD_CustomDevice_RenderScript     Send_MinigameCritLoop_Package_device       = none
+Function Send_MinigameCritLoop(UD_CustomDevice_RenderScript udDevice)
+    if !udDevice
+        UDCDmain.Error("Send_MinigameCritLoop wrong arg received!")
+    endif
+    
+    _MinigameCritLoop_Received = false
+    
+    ;send event
+    int handle = ModEvent.Create("UDMinigameCritLoop_"+self)
+    if (handle)
+        Send_MinigameCritLoop_Package_device = udDevice
+        RegisterForModEvent("UDMinigameCritLoop_"+self, "Receive_MinigameCritLoop")
+        ModEvent.Send(handle)
+        
+        ;block
+        float loc_TimeOut = 0.0
+        while !_MinigameCritLoop_Received && loc_TimeOut <= 2.0
+            loc_TimeOut += 0.1
+            Utility.waitMenuMode(0.1)
+        endwhile
+        _MinigameCritLoop_Received = false
+        
+        if loc_TimeOut >= 2.0
+            UDCDmain.Error("Send_MinigameCritLoop("+udDevice.getDeviceHeader()+") timeout!")
+        endif
+    else
+        UDCDmain.Error("Send_MinigameCritLoop("+udDevice.getDeviceHeader()+") error!")
+    endif
+    UnRegisterForModEvent("UDMinigameCritLoop_"+self)
+EndFunction
+Function Receive_MinigameCritloop()
+    _MinigameCritLoop_ON = true
+    UD_CustomDevice_RenderScript loc_device = Send_MinigameCritLoop_Package_device
+    Send_MinigameCritLoop_Package_device    = none
+    _MinigameCritLoop_Received              = true
+    Actor akActor                           = GetActor()
+    
+    loc_device._MinigameParProc_3           = true
+    Bool loc_playerInMinigame               = loc_device.PlayerInMinigame()
+    Bool loc_is3DLoaded                     = akActor.Is3DLoaded() || loc_playerInMinigame
+
+    Float loc_elapsedTime = 0.0
+    Float loc_updateTime  = 0.1
+    string critType = "random"
+    if !loc_playerInMinigame
+        loc_updateTime = 0.5
+        critType = "NPC"
+    elseif UDCDmain.UD_AutoCrit
+        critType = "Auto"
+    endif
+    
+    if loc_playerInMinigame
+        Utility.Wait(0.5) ;wait little time before starting crits
+    endif
+    
+    ;process
+    while loc_device._MinigameMainLoop_ON; && UDCDmain.ActorInMinigame(akActor)
+        if !loc_device.pauseMinigame && (!loc_is3DLoaded || !UDmain.IsMenuOpen())
+            ;check crit every 1 s
+            if loc_elapsedTime >= 1.0
+                if loc_device.UD_minigame_canCrit
+                    UDCDmain.StruggleCritCheck(loc_device,loc_device.UD_StruggleCritChance,critType,loc_device.UD_StruggleCritDuration)
+                elseif loc_device._customMinigameCritChance
+                    UDCDmain.StruggleCritCheck(loc_device,loc_device._customMinigameCritChance,critType,loc_device._customMinigameCritDuration)
+                endif
+                loc_elapsedTime = 0.0
+            endif
+        endif
+        if loc_device._MinigameMainLoop_ON
+            Utility.Wait(loc_updateTime)
+            loc_elapsedTime += loc_updateTime
+        endif
+    endwhile
+    
+    loc_device._MinigameParProc_3 = false
+    _MinigameCritLoop_ON = false
 EndFunction

@@ -1,0 +1,126 @@
+{
+	"conditions" : {
+		"json" : "..\\..\\..\\SLAnims\\json\\Billyy_HumanFuta.json"
+	},
+	"paired" : {
+		"zad_DeviousAnkleShackles" : [
+			
+		], 
+		"zad_DeviousHobbleSkirtRelaxed" : [
+			
+		], 
+		"zad_DeviousHobbleSkirt" : [
+			
+		], 
+		"zad_DeviousCuffsFront" : [
+			
+		], 
+		"zad_DeviousArmbinder" : [
+			
+		], 
+		"zad_DeviousArmbinderElbow" : [
+			
+		], 
+		"zad_DeviousElbowTie" : [
+			
+		], 
+		"zad_DeviousStraitJacket" : [
+			
+		], 
+		"zad_DeviousYoke" : [
+			
+		], 
+		"zad_DeviousYokeBB" : [
+			
+		], 
+		"zad_DeviousPetSuit" : [
+			
+		], 
+		"zad_DeviousHood" : [
+			
+		], 
+		"zad_DeviousGag" : [
+			
+		], 
+		"zad_DeviousBlindfold" : [
+			
+		], 
+		"zad_DeviousCollar" : [
+			
+		], 
+		"zad_DeviousBra" : [
+			
+		], 
+		"zad_DeviousPiercingsNipple" : [
+			
+		], 
+		"zad_DeviousClamps" : [
+			
+		], 
+		"zad_DeviousCorset" : [
+			
+		], 
+		"zad_DeviousHarness" : [
+			
+		], 
+		"zad_DeviousSuit" : [
+			
+		], 
+		"zad_DeviousBelt" : [
+			
+		], 
+		"zad_DeviousPlug" : [
+			
+		], 
+		"zad_DeviousPlugVaginal" : [
+			{
+				"A1" : {
+						"anim" : [ "B_B_FSrv1_A2_S1", "B_B_FSrv1_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "B_B_FSrv1_A2_S1", "B_B_FSrv1_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousPlugAnal" : [
+			{
+				"A1" : {
+						"anim" : [ "B_B_FSrv1_A2_S1", "B_B_FSrv1_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "B_B_FSrv1_A2_S1", "B_B_FSrv1_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 0,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousPiercingsVaginal" : [
+			
+		], 
+		"zad_DeviousBondageMittens" : [
+			
+		], 
+		"zad_DeviousArmCuffs" : [
+			
+		], 
+		"zad_DeviousGloves" : [
+			
+		], 
+		"zad_DeviousBoots" : [
+			
+		], 
+		"zad_DeviousLegCuffs" : [
+			
+		]
+	}
+}
