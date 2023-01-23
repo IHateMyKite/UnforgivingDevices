@@ -643,156 +643,20 @@ Function InflateVaginalPlug(actor akActor, int amount = 1)
 EndFunction
 
 String Function AnimSwitchKeyword(actor akActor, string idleName)
-    if UDCDmain.UDOM.UD_OrgasmAnimation != 0
-        If idleName == "Orgasm"
-            ;hobbled animations
-            if akActor.WornHasKeyword(zad_DeviousHobbleSkirt)
-                if !akActor.WornHasKeyword(zad_DeviousHeavyBondage)    
-                    int random = Utility.randomInt(1,3)
-                    if random == 1
-                        return "DDZazHornyA"
-                    elseif random == 2
-                        return "DDZazHornyB"
-                    elseif random == 3
-                        return "DDZazHornyC"
-                    endif
-                endif
-                
-                if akActor.WornHasKeyword(zad_DeviousArmbinder)
-                    int random = Utility.randomInt(1,5)
-                    if random == 1
-                        return "ft_orgasm_hobbled_armbinder_1"
-                    elseif random == 2
-                        return "ft_horny_armbinder_1"
-                    elseif random == 3
-                        return "ft_horny_armbinder_2"
-                    elseif random == 4
-                        return "ft_horny_armbinder_3"
-                    elseif random == 5
-                        return "ft_horny_armbinder_7"
-                    endif
-                ElseIf akActor.WornHasKeyword(zad_DeviousYoke)
-                    int random = Utility.randomInt(1,3)
-                    if random == 1
-                        return "ft_orgasm_hobbled_yoke_1"
-                    elseif random == 2
-                        return "ft_horny_yoke_1"
-                    elseif random == 3
-                        return "ft_horny_yoke_7"
-                    endif
-                ElseIf akActor.WornHasKeyword(zad_DeviousArmbinderElbow)
-                    int random = Utility.randomInt(1,5)
-                    if random == 1
-                        return "ft_orgasm_hobbled_elbowbinder_1"
-                    elseif random == 2
-                        return "ft_horny_elbowbinder_1"
-                    elseif random == 3
-                        return "ft_horny_elbowbinder_2"
-                    elseif random == 4
-                        return "ft_horny_elbowbinder_3"
-                    elseif random == 5
-                        return "ft_horny_elbowbinder_7"
-                    endif
-                ElseIf akActor.WornHasKeyword(zad_DeviousYokeBB)
-                    return "ft_orgasm_hobbled_bbyoke_1"
-                ElseIf akActor.WornHasKeyword(zad_DeviousCuffsFront)
-                    return "ft_orgasm_hobbled_frontcuffs_1"
-                ElseIf akActor.WornHasKeyword(zad_DeviousElbowTie)                
-                    return "DDElbowTie_orgasm"    
-                elseif akActor.WornHasKeyword(zad_DeviousPetSuit)
-                    return "none"                    
-                Elseif akActor.WornHasKeyword(zad_DeviousHeavyBondage)    
-                    int random = Utility.randomInt(1,5)
-                    if random == 1
-                        return "ft_orgasm_hobbled_elbowbinder_1"
-                    elseif random == 2
-                        return "ft_horny_elbowbinder_1"
-                    elseif random == 3
-                        return "ft_horny_elbowbinder_2"
-                    elseif random == 4
-                        return "ft_horny_elbowbinder_3"
-                    elseif random == 5
-                        return "ft_horny_elbowbinder_7"
-                    endif
-                EndIf
-            else ;no hobble
-                if !akActor.WornHasKeyword(zad_DeviousHeavyBondage)    
-                    int random = Utility.randomInt(1,3)
-                    if random == 1
-                        return "DDZazHornyA"
-                    elseif random == 2
-                        return "DDZazHornyB"
-                    elseif random == 3
-                        return "DDZazHornyC"
-                    endif
-                endif
-                
-                if akActor.WornHasKeyword(zad_DeviousArmbinder)
-                    int random = 0
-                    if UDCDmain.UDmain.ZaZAnimationPackInstalled
-                        random = Utility.randomInt(1,11)
-                    else
-                        random = Utility.randomInt(1,8)
-                    endif
-                    
-                    if random < 8
-                        return ("ft_horny_armbinder_" + random)
-                    elseif random == 8
-                        return "ft_orgasm_armbinder_1"
-                    elseif random > 8
-                        return ("ZapArmbHorny0" + (random - 8))
-                    endif
-                ElseIf akActor.WornHasKeyword(zad_DeviousYoke)
-                    int random = 0
-                    if UDCDmain.UDmain.ZaZAnimationPackInstalled
-                        random = Utility.randomInt(1,11)
-                    else
-                        random = Utility.randomInt(1,8)
-                    endif
-                    if random < 8
-                        return ("ft_horny_yoke_" + random)
-                    elseif random == 8
-                        return "ft_orgasm_yoke_1"
-                    elseif random > 8
-                        return ("ZapYokeHorny0" + (random - 8))
-                    endif
-                ElseIf akActor.WornHasKeyword(zad_DeviousArmbinderElbow)
-                    int random = Utility.randomInt(1,8)
-                    if random < 8
-                        return ("ft_horny_elbowbinder_" + random)
-                    else
-                        return "ft_orgasm_elbowbinder_1"
-                    endif
-                ElseIf akActor.WornHasKeyword(zad_DeviousYokeBB)
-                    return "ft_orgasm_bbyoke_1"
-                ElseIf akActor.WornHasKeyword(zad_DeviousCuffsFront)
-                    return "ft_orgasm_frontcuffs_1"
-                ElseIf akActor.WornHasKeyword(zad_DeviousElbowTie)                
-                    return "DDElbowTie_orgasm"    
-                elseif akActor.WornHasKeyword(zad_DeviousPetSuit)
-                    return "none"                        
-                Elseif akActor.WornHasKeyword(zad_DeviousHeavyBondage)    
-                    int random = 0
-                    if UDmain.ZaZAnimationPackInstalled
-                        random = Utility.randomInt(1,11)
-                    else
-                        random = Utility.randomInt(1,8)
-                    endif
-                    if random < 8
-                        return ("ft_horny_elbowbinder_" + random)
-                    elseif random == 8
-                        return "ft_orgasm_elbowbinder_1"
-                    elseif random > 8
-                        return ("ZapArmbHorny0" + (random - 8))
-                    endif
-                EndIf
-            EndIf
-        else
-            return parent.AnimSwitchKeyword(akActor, idleName )
-        endif
-    else
-        return parent.AnimSwitchKeyword(akActor, idleName )
-    endif
+    String[] anims
+    If idleName == "Horny01" || idleName == "Horny02" || idleName == "Horny03"
+        anims = UDmain.UDAM.GetHornyAnimEvents(akActor)
+    ElseIf idleName == "Orgasm"
+        anims = UDmain.UDAM.GetOrgasmAnimEvents(akActor)
+    ElseIf idleName == "Edged"
+        anims = UDmain.UDAM.GetEdgedAnimEvents(akActor)
+    EndIf
+    
+    If anims.Length > 0
+        Return anims[Utility.RandomInt(0, anims.Length - 1)]
+    Else
+        return parent.AnimSwitchKeyword(akActor, idleName)
+    EndIf
 EndFunction
 
 ; Stop vibration event on actor.
@@ -886,61 +750,8 @@ EndFunction
 ;copied with added trace check and block check
 bool[] Function StartThirdPersonAnimation(actor akActor, string animation, bool permitRestrictive=false)
     if UD_StartThirdPersonAnimation_Switch
-        if akActor.isInFaction(UDCDmain.BlockAnimationFaction)
-            return new bool[2]
-        endif
-        
-        if UDmain.TraceAllowed()
-            Log("StartThirdPersonAnimation("+akActor.GetLeveledActorBase().GetName()+","+animation+")")
-        endif
-        
-        ;[UD EDIT]: Removed permitRestrictive as its no longer usefull
-        if !IsValidActor(akActor); || (akActor.WornHasKeyword(zad_DeviousArmBinder) && !permitRestrictive)
-            if UDmain.TraceAllowed()        
-                Log("Actor is not loaded (Or is otherwise invalid). Aborting.")
-            endif
-            return new bool[2]
-        EndIf
-        
-        if IsAnimating(akActor)
-            if UDmain.TraceAllowed()
-                Log("Actor already in animating faction.")
-            endif
-            return new bool[2]
-        EndIf
-
-        if animation == "none"
-            UDCDmain.Error("StartThirdPersonAnimation - Called animation is None, aborting")
-            return new bool[2]
-        endif
-        
-        bool[] ret = new bool[2]
-        
-        if akActor.IsWeaponDrawn()
-            akActor.SheatheWeapon()
-            ; Wait for users with flourish sheathe animations.
-            int timeout=0
-            while akActor.IsWeaponDrawn() && timeout <= 35 ;  Wait 3.5 seconds at most before giving up and proceeding.
-                Utility.Wait(0.1)
-                timeout += 1
-            EndWhile
-            ret[1] = true
-        EndIf    
-        
-        Form loc_shield = GetShield(akActor)
-        if loc_shield
-            akActor.unequipItem(loc_shield,true,true)
-            StorageUtil.SetFormValue(akActor,"UD_UnequippedShield",loc_shield)
-        endif
-        ;[UD EDIT]: Removed camera check as I think it's useless
-        if UDmain.ActorIsPlayer(akActor)
-            DisableControls()
-        Else
-            akActor.SetDontMove(true)
-        EndIf    
-        SetAnimating(akActor, true)    
-        Debug.SendAnimationEvent(akActor, animation)    
-        return ret
+        UDMain.UDAM.StartSoloAnimation(akActor, animation)
+        return new Bool[2]
     else
         return parent.StartThirdPersonAnimation(akActor, animation, true)
     endif
@@ -949,69 +760,15 @@ EndFunction
 ;copied with added trace check and block check
 Function EndThirdPersonAnimation(actor akActor, bool[] cameraState, bool permitRestrictive=false)
     if UD_StartThirdPersonAnimation_Switch
-        if akActor.isInFaction(UDCDmain.BlockAnimationFaction)
-            return
-        endif
-        if UDmain.TraceAllowed()    
-            UDCDMain.Log("EndThirdPersonAnimation("+GetActorName(akActor)+","+cameraState+")",1)
-        endif
-        SetAnimating(akActor, false)
-        if (!akActor.Is3DLoaded() ||  akActor.IsDead() || akActor.IsDisabled())
-            UDCDMain.Error("EndThirdPersonAnimation("+GetActorName(akActor)+") - Actor is not loaded (Or is otherwise invalid). Aborting.")
-            return
-        EndIf
-        Form loc_shield = StorageUtil.GetFormValue(akActor,"UD_UnequippedShield",none)
-        if loc_shield
-            StorageUtil.UnsetFormValue(akActor,"UD_UnequippedShield")
-            akActor.equipItem(loc_shield,false,true)
-            StorageUtil.UnSetFormValue(akActor,"UD_UnequippedShield")
-        endif
-        Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
-        if akActor == playerRef
-            UpdateControls()
-        Else
-            akActor.SetDontMove(false)
-        EndIf
+        UDMain.UDAM.StopAnimation(akActor)
     else
         parent.EndThirdPersonAnimation(akActor, cameraState, true)
     endif
 EndFunction
 
-Function SwitchAndPlayAnimation(actor akActor, string animation, int iDuration,bool permitRestrictive=false)
-    if akActor.isInFaction(UDCDmain.BlockAnimationFaction)
-        return
-    endif
-    ;StorageUtil.SetStringValue(akActor,"zad_animation",animation)
-    parent.EndThirdPersonAnimation(akActor, new bool[2], true)
-    PlayThirdPersonAnimationBlocking(akActor, animation,iDuration, true)
-EndFunction
-
 Function PlayThirdPersonAnimation(actor akActor, string animation, int duration, bool permitRestrictive=false)
-    if akActor.isInFaction(UDCDmain.BlockAnimationFaction)
-        return
-    endif
     ;StorageUtil.SetStringValue(akActor,"zad_animation",animation)
     parent.PlayThirdPersonAnimation(akActor, animation, duration, permitRestrictive=false)
-EndFunction
-
-bool Function PlayThirdPersonAnimationBlocking(actor akActor, string animation, int duration, bool permitRestrictive=false)
-    if akActor.isInFaction(UDCDmain.BlockAnimationFaction)
-        return false
-    endif
-    
-    if isAnimating(akActor)
-        EndThirdPersonAnimation(akActor, new bool[2], true)
-    endif
-    
-    bool[] loc_cameraState = StartThirdPersonAnimation(akActor, animation,permitRestrictive)
-    akActor.AddToFaction(UDCDmain.BlockAnimationFaction)
-    
-    Utility.wait(duration)
-
-    akActor.RemoveFromFaction(UDCDmain.BlockAnimationFaction)
-    EndThirdPersonAnimation(akActor,loc_cameraState,permitRestrictive)
-    
-    return true
 EndFunction
 
 Function ActorOrgasm(actor akActor, int setArousalTo=-1, int vsID=-1)
@@ -1153,7 +910,7 @@ Function ProcessPlayerControls(bool abCheckMinigame = true)
         Game.DisablePlayerControls(abMovement = !movement, abFighting = !fighting, abSneaking = !sneaking, abMenu = !menu, abActivate = !activate)    
         Game.EnablePlayerControls(abMovement = movement, abFighting = fighting, abSneaking = sneaking, abMenu = menu, abActivate = activate) 
         EndProcessPlayerControlsMutex()
-    endif    
+    endif
 EndFunction
 
 function stripweapons(actor a, bool unequiponly = true)        

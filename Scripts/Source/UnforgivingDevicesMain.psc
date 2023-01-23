@@ -42,6 +42,7 @@ UDItemManager                       Property ItemManager    auto
 UD_RandomRestraintManager           Property UDRRM          auto
 UD_LeveledList_Patcher              Property UDLLP          auto
 UD_OrgasmManager                    Property UDOM           auto
+UD_OrgasmManager                    Property UDOM2          auto
 UD_ExpressionManager                Property UDEM           auto
 UD_ParalelProcess                   Property UDPP           auto
 UD_CustomDevices_NPCSlotsManager    Property UDNPCM         auto
@@ -72,6 +73,8 @@ UD_SkillManager_Script              Property UDSKILL Hidden
     EndFunction
 EndProperty
 
+Package         Property UD_NPCDisablePackage           auto
+
 ;UI menus
 UITextEntryMenu Property TextMenu                       auto
 UIListMenu      Property ListMenu                       auto
@@ -94,7 +97,6 @@ bool    Property UD_CheckAllKw             = False      auto hidden conditional
 ;zadlibs patch control
 bool Property UD_zadlibs_ParalelProccesing = false auto
 
-Spell   OrgasmExhaustionSpell
 bool    _UD_hightPerformance
 bool Property UD_hightPerformance
     Function set(bool bValue)
@@ -194,8 +196,7 @@ Event OnInit()
     
     UD_hightPerformance = UD_hightPerformance
     
-    OrgasmExhaustionSpell = UDlibs.OrgasmExhaustionSpell
-    OrgasmExhaustionSpell.SetNthEffectDuration(0, 180) ;for backward compatibility
+    UDlibs.OrgasmExhaustionSpell.SetNthEffectDuration(0, 180) ;for backward compatibility
 
     Player = Game.GetPlayer()
     
@@ -260,7 +261,7 @@ Function OnGameReload()
 
     UDAbadonQuest.Update()
     
-    CLog("Unforgiving Devices updated.")
+    Info("<=====| Unforgiving Devices updated |=====>")
 EndFunction
 
 Event OnUpdate()
@@ -437,13 +438,6 @@ int Function getDDescapeDifficulty()
     endif
 EndFunction
 
-Function addOrgasmExhaustion(Actor akActor)
-    OrgasmExhaustionSpell.cast(akActor)
-    if TraceAllowed()    
-        Log("Orgasm exhaustion debuff applied to "+ getActorName(akActor),1)
-    endif
-EndFunction
-
 bool function hasAnyUD()
     return Player.wornhaskeyword(libs.zad_Lockable)
 endfunction
@@ -466,7 +460,7 @@ int Property LogLevel = 0 auto
 Function Log(String msg, int level = 1)
     if (iRange(level,1,3) <= LogLevel) || DebugMod
         debug.trace("[UD," + level + ",T="+Utility.GetCurrentRealTime()+"]: " + msg)
-        if ConsoleUtilInstalled ;print to console
+        if ConsoleUtilInstalled && UDGV.UDG_ConsoleLog.Value  ;print to console
             ConsoleUtil.PrintMessage("[UD," + level + ",T="+Utility.GetCurrentRealTime()+"]: " + msg)
         endif
     endif

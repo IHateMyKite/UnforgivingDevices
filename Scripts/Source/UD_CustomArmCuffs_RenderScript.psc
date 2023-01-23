@@ -11,7 +11,7 @@ string Function addInfoString(string str = "")
 EndFunction
 
 bool Function canBeActivated()
-    return UDCDMain.UD_AllowArmTie && WearerFreeHands() && getRelativeElapsedCooldownTime() >= 0.5
+    return !IsTiedUp() && UDCDMain.UD_AllowArmTie && WearerFreeHands() && getRelativeElapsedCooldownTime() >= 0.5
 EndFunction
 
 Function OnTiedUp()
