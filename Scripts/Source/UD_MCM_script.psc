@@ -611,8 +611,8 @@ Event resetPatcherPage()
     UD_PatchMult_S = addSliderOption("Global Diffuculty Modifier",Round(UDCDmain.UDPatcher.UD_PatchMult * 100), "{0} %",UD_LockMenu_flag)
     UD_EscapeModifier_S = addSliderOption("Escape modifier",UDCDmain.UDPatcher.UD_EscapeModifier, "{0}",UD_LockMenu_flag)
     
-    UD_MinLocks_S = addSliderOption("Min. Locks",UDCDmain.UDPatcher.UD_MinLocks, "{0}",UD_LockMenu_flag)
-    UD_MaxLocks_S = addSliderOption("Max. Locks",UDCDmain.UDPatcher.UD_MaxLocks, "{0}",UD_LockMenu_flag)
+    UD_MinLocks_S = addSliderOption("Min. Lock Shields",UDCDmain.UDPatcher.UD_MinLocks, "{0}",UD_LockMenu_flag)
+    UD_MaxLocks_S = addSliderOption("Max. Lock Shields",UDCDmain.UDPatcher.UD_MaxLocks, "{0}",UD_LockMenu_flag)
     
     UD_MinResistMult_S = addSliderOption("Min. Resist Sum",Round(UDCDmain.UDPatcher.UD_MinResistMult*100), "{0} %",UD_LockMenu_flag)
     UD_MaxResistMult_S = addSliderOption("Max. Resist Sum",Round(UDCDmain.UDPatcher.UD_MaxResistMult*100), "{0} %",UD_LockMenu_flag)
@@ -1416,7 +1416,7 @@ Function OnOptionSliderOpenPatcher(int option)
     elseif option == UD_MinLocks_S
         SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_MinLocks)
         SetSliderDialogDefaultValue(1.0)
-        SetSliderDialogRange(1.0,UDCDmain.UDPatcher.UD_MaxLocks)
+        SetSliderDialogRange(0.0,UDCDmain.UDPatcher.UD_MaxLocks)
         SetSliderDialogInterval(1.0)
     elseif option == UD_MaxLocks_S
         SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_MaxLocks)
@@ -2174,9 +2174,9 @@ Function PatcherPageDefault(int option)
     elseif option == UD_EscapeModifier_S
         SetInfoText("Sets escape modifier. Escape modifier determinates how patched device DPS is calculated. Default formula is DDEscapeChance/EscapeModifier = DPS\n Example: if this is 10 and to be patched device have escape chance 10%, resulting base DPS will be 1.0\nDefault: 10")
     elseif option == UD_MinLocks_S
-        SetInfoText("Minimum number of locks which device can get by patcher\nDefault: 1")
+        SetInfoText("Minimum number of lock shields which device can get by patcher\nDefault: 0")
     elseif option == UD_MaxLocks_S
-        SetInfoText("Maximum number of locks which device can get by patcher\nDefault: 1")
+        SetInfoText("Maximum number of lock shields which device can get by patcher\nDefault: 2")
     elseif option == UD_MinResistMult_S
         SetInfoText("Minimum sum of both resistances (Physical + Magical). If their sum is smaller than this value, one of the resists will be increased so the total sum is this number. The smaller this number will be, the smaller device resistances will be (device is easier)\nDefault: -100%")
     elseif option == UD_MaxResistMult_S

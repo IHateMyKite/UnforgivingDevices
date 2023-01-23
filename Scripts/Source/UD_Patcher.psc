@@ -9,8 +9,8 @@ UD_libs Property UDlibs auto
 
 Float       Property UD_PatchMult           =  1.0     auto ;global patch multiplier, applies to all devices
 int         Property UD_EscapeModifier      =   10     auto
-Int         Property UD_MinLocks            =    1    auto
-Int         Property UD_MaxLocks            =    6    auto
+Int         Property UD_MinLocks            =    0    auto
+Int         Property UD_MaxLocks            =    2    auto
 
 ;difficulty multipliers
 Float Property UD_PatchMult_HeavyBondage        = 1.0 auto
