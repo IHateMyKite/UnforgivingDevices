@@ -219,6 +219,15 @@ Function Update()
     UD_TextAnchorList[1] = "BELOW CENTER"
     UD_TextAnchorList[2] = "TOP"
     UD_TextAnchorList[3] = "CENTER"
+    
+    UD_IconVariant_EffExhaustionList = new String[3]
+    UD_IconVariant_EffExhaustionList[0] = "Variant 1"
+    UD_IconVariant_EffExhaustionList[1] = "Variant 2"
+    UD_IconVariant_EffExhaustionList[2] = "Variant 3"
+    UD_IconVariant_EffOrgasmList = new String[3]
+    UD_IconVariant_EffOrgasmList[0] = "Variant 1"
+    UD_IconVariant_EffOrgasmList[1] = "Variant 2"
+    UD_IconVariant_EffOrgasmList[2] = "Variant 3"
 
     libs = UDCDmain.libs as zadlibs_UDPatch
 EndFunction
@@ -715,6 +724,10 @@ String[] UD_TextAnchorList
 Int UD_TextPadding_S
 Int UD_WidgetTest_T
 Int UD_WidgetReset_T
+Int UD_IconVariant_EffExhaustion_M
+String[] UD_IconVariant_EffExhaustionList
+Int UD_IconVariant_EffOrgasm_M
+String[] UD_IconVariant_EffOrgasmList
 
 Event resetUIWidgetPage()
     UpdateLockMenuFlag()
@@ -778,6 +791,12 @@ Event resetUIWidgetPage()
     right_col += 1
     UD_IconsPadding_S = addSliderOption("Icons offset", UDWC.UD_IconsPadding, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && (UDWC.UD_EnableDeviceIcons || UDWC.UD_EnableEffectIcons)))
     right_col += 1
+    
+    UD_IconVariant_EffExhaustion_M = addMenuOption("Struggle exhaustion icon variant", UD_IconVariant_EffExhaustionList[UDWC.UD_IconVar_EffExhaustion], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableEffectIcons))
+    right_col += 1
+    UD_IconVariant_EffOrgasm_M = addMenuOption("Orgasm icon variant", UD_IconVariant_EffOrgasmList[UDWC.UD_IconVar_EffOrgasm], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableEffectIcons))
+    right_col += 1
+    
     UD_WidgetTest_T = AddTextOption("TEST WIDGETS", "-CLICK-", a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
     right_col += 1
     UD_WidgetReset_T = AddTextOption("RESET WIDGETS", "-CLICK-", a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
@@ -1942,6 +1961,14 @@ Function OnOptionMenuOpenUIWidget(int option)
         SetMenuDialogOptions(UD_TextAnchorList)
         SetMenuDialogStartIndex(UDWC.UD_TextAnchor)
         SetMenuDialogDefaultIndex(1)
+    ElseIf (option == UD_IconVariant_EffExhaustion_M)
+        SetMenuDialogOptions(UD_IconVariant_EffExhaustionList)
+        SetMenuDialogStartIndex(UDWC.UD_IconVar_EffExhaustion)
+        SetMenuDialogDefaultIndex(0)
+    ElseIf (option == UD_IconVariant_EffOrgasm_M)
+        SetMenuDialogOptions(UD_IconVariant_EffOrgasmList)
+        SetMenuDialogStartIndex(UDWC.UD_IconVar_EffOrgasm)
+        SetMenuDialogDefaultIndex(0)
     elseif (option == UD_WidgetPosX_M)
         SetMenuDialogOptions(widgetXList)
         SetMenuDialogStartIndex(UDWC.UD_WidgetXPos)
@@ -2008,6 +2035,12 @@ Function OnOptionMenuAcceptUIWidget(Int option, Int index)
     ElseIf option == UD_TextAnchor_M && index >= 0 && index < 4
         UDWC.UD_TextAnchor = index
         SetMenuOptionValue(UD_TextAnchor_M, UD_TextAnchorList[index])
+    ElseIf (option == UD_IconVariant_EffExhaustion_M)
+        UDWC.UD_IconVar_EffExhaustion = index
+        SetMenuOptionValue(UD_IconVariant_EffExhaustion_M, UD_IconVariant_EffExhaustionList[index])
+    ElseIf (option == UD_IconVariant_EffOrgasm_M)
+        UDWC.UD_IconVar_EffOrgasm = index
+        SetMenuOptionValue(UD_IconVariant_EffOrgasm_M, UD_IconVariant_EffOrgasmList[index])
     elseif (option == UD_WidgetPosX_M)
         UDWC.UD_WidgetXPos = index
         SetMenuOptionValue(UD_WidgetPosX_M, widgetXList[UDWC.UD_WidgetXPos])
