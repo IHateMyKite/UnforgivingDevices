@@ -1818,12 +1818,12 @@ Function OnOptionSliderOpenPatcher(int option)
         SetSliderDialogInterval(1.0)
     elseif option == UD_MinLocks_S
         SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_MinLocks)
-        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogDefaultValue(0.0)
         SetSliderDialogRange(0.0,UDCDmain.UDPatcher.UD_MaxLocks)
         SetSliderDialogInterval(1.0)
     elseif option == UD_MaxLocks_S
         SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_MaxLocks)
-        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogDefaultValue(2.0)
         SetSliderDialogRange(UDCDmain.UDPatcher.UD_MinLocks,30.0)
         SetSliderDialogInterval(1.0)
     elseif option == UD_MinResistMult_S

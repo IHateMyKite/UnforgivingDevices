@@ -1672,6 +1672,9 @@ Int Function UserSelectLock()
     loc_ResList = PapyrusUtil.PushString(loc_ResList,"==BACK==")
     if loc_ResList
         Int loc_res = UDmain.GetUserListInput(loc_ResList)
+        if loc_res == (loc_ResList.length - 1)
+            return -1 ;user selected ==BACK==
+        endif
         return loc_res
     else
         return -1
@@ -3057,8 +3060,14 @@ EndFunction
 Bool Function CuttingMinigameAllowed(Float afAccesibility)
     return canBeCutted() && afAccesibility
 EndFunction
+;returns Nth lock control variable which contain information about minigames which are allowed for passed lock
+; 0b = lockpick minigame
+; 1b = key unlock minigame
+; 2b = lcok repair minigame
 Int  Function NthLockMinigamesAllowed(Int aiLockID, Float afAccesibility)
-    Int     loc_Lock            = GetNthLock(aiLockID)
+    if IsNthLockUnlocked(aiLockID)
+        return 0x0 ;lock is unlocked, no minigame slould be allowed
+    endif
     if !GetHelper() ;no helper, check if wearer can reach the lock themself
         Int loc_Accessibility = GetNthLockAccessibility(aiLockID)
         if !loc_Accessibility
@@ -3085,7 +3094,10 @@ Int  Function NthLockMinigamesAllowed(Int aiLockID, Float afAccesibility)
     return loc_res
 EndFunction
 
-;return true if at least one of the locks can be used in minigame
+;returns combinated lock minigame control variable which contain information about minigames which are allowed for all current locks (OR)
+; 0b = at least 1 lock can be lockpicked
+; 1b = at least 1 lock can be unlocked with key
+; 2b = at least 1 lock can be repaired
 Int Function LockMinigameAllowed(Float afAccesibility)
     Int loc_LockNum = GetLockNumber()
     int loc_res = 0x0

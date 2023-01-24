@@ -184,10 +184,9 @@ Function patchBelt(UD_CustomBelt_RenderScript device)
     elseif (StringUtil.find(device.deviceInventory.getName(),"Leather") != -1)
         device.UD_ResistPhysical = Utility.randomFloat(-0.4,0.1)
         device.UD_ResistMagicka = Utility.randomFloat(-0.5,0.5)
-    elseif (StringUtil.find(device.deviceInventory.getName(),"Rope") != -1)
+    elseif isRope(device)
         device.UD_ResistPhysical = Utility.randomFloat(-0.5,0.0)
         device.UD_ResistMagicka = Utility.randomFloat(-0.1,0.1)
-        ;device.UD_Locks = 0
     endif
     
     if device as UD_CustomCrotchDevice_RenderScript
@@ -238,7 +237,6 @@ Function patchHood(UD_CustomHood_RenderScript device)
     Float loc_currentmult = UD_PatchMult_Hood*UD_PatchMult*GetPatchDifficulty(device)
     patchDefaultValues(device,loc_currentmult)
     checkLooseModifier(device,100,0.05, 0.4)
-    CheckLocks(device,false,40)
     patchFinish(device,0x0F,loc_currentmult,14)
 EndFunction
 
@@ -323,8 +321,14 @@ bool Function isSteel(UD_CustomDevice_RenderScript device)
 EndFunction
 
 bool Function isRope(UD_CustomDevice_RenderScript device)
-    return (StringUtil.find(device.deviceInventory.getName(),"Rope") != -1) ;|| (StringUtil.find(device.deviceInventory.getName(),"Iron") != -1)
+    return (StringUtil.find(device.deviceInventory.getName(),"Rope") != -1)
 EndFunction
+
+;returns true if device is extreme. This is done by checking device name for keyword Extreme or Secure
+bool Function isSecure(UD_CustomDevice_RenderScript akDevice)
+    return (StringUtil.find(akDevice.deviceInventory.getName(),"High Security") != -1 || StringUtil.find(akDevice.deviceInventory.getName(),"Secure") != -1)
+EndFunction
+
 
 bool Function DeviceCanHaveModes(UD_CustomDevice_RenderScript device)
     return !device.deviceRendered.haskeyword(UDlibs.PatchNoModes_KW)
@@ -451,20 +455,8 @@ Function checkInventoryScript(UD_CustomDevice_RenderScript device,int argControl
         endif
         
         GenerateLocks(device, aiType, loc_diff)
-        
-        ;if !inventoryScript.deviceKey && inventoryScript.LockPickEscapeChance == 0.0
-        ;    ;device.UD_Locks = 0
-        ;elseif !device.UD_durability_damage_base && device.UD_Locks == 0 ;inventoryScript.deviceKey; && inventoryScript.LockAccessDifficulty < 100.0
-        ;    ;CheckLocks(device)
-        ;endif
     endif
     
-    ;if Math.LogicalAnd(argControlVar,0x08)
-    ;    if !device.UD_durability_damage_base && inventoryScript.LockAccessDifficulty < 100.0 && device.UD_LockAccessDifficulty == 100.0
-    ;        device.UD_LockAccessDifficulty = inventoryScript.LockAccessDifficulty
-    ;    endif
-    ;endif
-
     inventoryScript.delete()
 EndFunction
 
@@ -473,6 +465,11 @@ Function GenerateLocks(UD_CustomDevice_RenderScript akDevice, Int aiType, Int ai
     if aiType < 0
         return
     endif
+    
+    if isRope(akDevice)
+        return ;rope device can't have locks!
+    endif
+    
     if !akDevice.HaveLocks()
         Int loc_timelock = Utility.randomInt(0,2) ;random timelock, to force player in to being longer locked in akDevice
         if aiType == 0 ;generic
@@ -559,58 +556,13 @@ Function GenerateLocks(UD_CustomDevice_RenderScript akDevice, Int aiType, Int ai
             akDevice.CreateLock(aiDifficulty, 25, Utility.randomInt(UD_MinLocks,UD_MaxLocks), "Right lock 2", loc_timelock, True)
         endif
         
-        if (StringUtil.find(akDevice.deviceInventory.getName(),"High Security") != -1 || StringUtil.find(akDevice.deviceInventory.getName(),"Secure") != -1)
+        if isSecure(akDevice)
             Int loc_lockNum = akDevice.GetLockNumber()
             while loc_lockNum
                 loc_lockNum -= 1
                 akDevice.UpdateLockDifficulty(loc_lockNum,50) ;increase all locks difficulty by 50
             endwhile
         endif
-    endif
-EndFunction
-
-
-Function CheckLocks(UD_CustomDevice_RenderScript device,bool bEven = false,int iChanceNone = 0)
-    if UD_MinLocks > UD_MaxLocks
-        UDCDmain.Error("UD_MaxLocks needs to be bigger then UD_MinLocks!!")
-        int loc_temp = UD_MaxLocks
-        UD_MaxLocks = UD_MinLocks
-        UD_MinLocks = loc_temp
-    endif
-    
-    if UD_MaxLocks == UD_MinLocks
-        ;device.UD_Locks = UD_MaxLocks
-        return
-    endif
-    
-    ;device have no locks
-    if Utility.randomInt(0,99) < iChanceNone
-        ;device.UD_Locks = 0
-        return
-    endif
-    
-    if bEven
-        int loc_res = Utility.randomInt(UD_MinLocks,UD_MaxLocks)
-        
-        if !loc_res
-            ;device.UD_Locks = 1 ;can't have device without lock!
-            return
-        endif
-        
-        if (loc_res % 2) 
-            ;is not even
-            if loc_res + 1 <= UD_MaxLocks
-                ;device.UD_Locks = loc_res + 1
-            elseif loc_res - 1 >= UD_MinLocks
-                ;device.UD_Locks = loc_res - 1
-            else
-                ;device.UD_Locks = loc_res ;fuck it
-            endif
-        else
-            ;device.UD_Locks = loc_res
-        endif
-    else
-        ;device.UD_Locks = Utility.randomInt(UD_MinLocks,UD_MaxLocks)
     endif
 EndFunction
 
@@ -623,7 +575,6 @@ EndFunction
 
 Function patchDefaultValues(UD_CustomDevice_RenderScript device,Float fMult)
     ;CheckLocks(device,false,40)
-    ;CheckCutting(device,35)
     device.UD_LockpickDifficulty = 25*Utility.randomInt(1,3)
     device.UD_LockAccessDifficulty = Utility.randomFloat(40.0,70.0) + 20*(fMult - 1.0)
     device.UD_base_stat_drain = Utility.randomFloat(7.0,13.0)
