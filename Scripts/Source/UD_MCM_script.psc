@@ -3485,8 +3485,8 @@ Function ResetToDefaults()
     UDCDmain.UDPatcher.UD_MAHChanceMod              = 100
     UDCDmain.UDPatcher.UD_MAHMod                    = 100
     UDCDmain.UDPatcher.UD_EscapeModifier            = 10
-    UDCDmain.UDPatcher.UD_MinLocks                  = 1
-    UDCDmain.UDPatcher.UD_MaxLocks                  = 6
+    UDCDmain.UDPatcher.UD_MinLocks                  = 0
+    UDCDmain.UDPatcher.UD_MaxLocks                  = 2
     UDCDmain.UDPatcher.UD_MinResistMult             =-1.0
     UDCDmain.UDPatcher.UD_MaxResistMult             = 1.0
     UDCDmain.UDPatcher.UD_PatchMult                 = 1.0
