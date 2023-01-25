@@ -211,13 +211,55 @@ Event OnInit()
     RegisterForSingleUpdate(0.1)
 EndEvent
 
+Bool Property _Disabled = False Auto Hidden Conditional
+Bool Property _Updating = False Auto Hidden Conditional
+
+;returns true if mod is currently updating. Mods should be threated as disabled when this happends
+Bool Function IsUpdating()
+    return _Updating
+EndFunction
+
+;returns true if UD is enabled
+Bool Function IsEnabled()
+    return !_Disabled && !_Updating && ready
+EndFunction
+
+;Disables, Enables UD
+Function DISABLE()
+    _Disabled = True
+    UDNPCM.GoToState("Disabled") ;disable NPC manager, disabling all device updates
+    UDAI.GoToState("Disabled") ;disable AI updates
+    UDOM.GoToState("Disabled") ;disable orgasm updates
+EndFunction
+Function ENABLE()
+    _Disabled = False
+    UDNPCM.GoToState("")
+    UDAI.GoToState("")
+    UDOM.GoToState("")
+EndFunction
+
 Function OnGameReload()
+    if _Disabled
+        return ;mod is disabled, do nothing
+    endif
+    
+    if _Updating
+        return ;mod is already updating, most likely because user saved the game while the mod was already updating
+    endif
+    
+    _Updating = True
+    DISABLE()
+    
+    Utility.waitMenuMode(1.5)
+    
+    Print("Updating Unforgiving Devices, please wait...")
+    
     if !Ready
         Utility.waitMenuMode(2.5)
     endif
     
-    Utility.waitMenuMode(3.5)
-        
+    Utility.waitMenuMode(1.5)
+    
     CLog("OnGameReload() called! - Updating Unforgiving Devices...")
     
     ;update all scripts
@@ -262,6 +304,12 @@ Function OnGameReload()
     UDAbadonQuest.Update()
     
     Info("<=====| Unforgiving Devices updated |=====>")
+    
+    _Updating = False
+    ENABLE()
+    
+    Print("Unforgiving Devices updated")
+    
 EndFunction
 
 Event OnUpdate()
@@ -706,6 +754,28 @@ int Function iRange(int iValue,int iMin,int iMax) global
     return iValue
 EndFunction
 
+;returns true if the passed INT value is in range from iMin to iMax
+Bool Function iInRange(int aiValue,int aiMin,int aiMax) global
+    if aiValue > aiMax
+        return false
+    endif
+    if aiValue < aiMin
+        return false
+    endif
+    return true
+EndFunction
+
+;returns true if the passed FLOAT value is in range from iMin to iMax
+Bool Function fInRange(float afValue,float afMin,float afMax) global
+    if afValue > afMax
+        return false
+    endif
+    if afValue < afMin
+        return false
+    endif
+    return true
+EndFunction
+
 string Function formatString(string str,int floatPoints) global
     int float_point =  StringUtil.find(str,".")
     if (float_point == -1)
@@ -906,7 +976,7 @@ endFunction
 string Function GetUserTextInput()
     TextMenu.ResetMenu()
     TextMenu.OpenMenu()
-    TextMenu.BlockUntilClosed()
+    ;TextMenu.BlockUntilClosed()
     return TextMenu.GetResultString()
 EndFunction
 
@@ -919,7 +989,7 @@ Int Function GetUserListInput(string[] arrList)
         loc_i+=1
     endwhile
     ListMenu.OpenMenu()
-    ListMenu.BlockUntilClosed()
+    ;ListMenu.BlockUntilClosed()
     return ListMenu.GetResultInt()
 EndFunction
 

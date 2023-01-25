@@ -1967,6 +1967,9 @@ Function InitOrgasmExpression()
 EndFunction
 
 Function UpdateOrgasm(Float afUpdateTime)
+    if !UDmain.IsEnabled()
+        return
+    endif
     _currentUpdateTime = afUpdateTime
     Actor akActor = GetActor()
     CalculateOrgasmProgress()

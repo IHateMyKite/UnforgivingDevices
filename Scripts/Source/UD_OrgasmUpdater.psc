@@ -101,3 +101,13 @@ State Paused
     Function Evaluate()
     EndFunction
 EndState
+State Disabled
+    Event OnUpdate()
+        RegisterForSingleUpdate(UD_UpdateTime*3)
+    EndEvent
+    Bool Function SlotOrgasmUpdateEnabled(UD_CustomDevice_NPCSlot akSlot)
+        return False
+    EndFunction
+    Function Evaluate()
+    EndFunction
+EndState

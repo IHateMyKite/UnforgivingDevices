@@ -520,6 +520,26 @@ State UpdatePaused
     Event OnUpdate()
         RegisterForSingleUpdate(UDCDmain.UD_UpdateTime/2)
     EndEvent
+    Event OnUpdateGameTime()
+        RegisterForSingleUpdateGameTime(1.0)
+    endEvent
+    Function UpdateSlot(UD_CustomDevice_NPCSlot akSlot)
+    EndFunction
+    Function UpdateDevices(float fTimePassed)
+    EndFunction
+    Function UpdateSlotDevices(UD_CustomDevice_NPCSlot akSlot, Float afTimePassed)
+    EndFunction
+EndState
+
+State Disabled
+    Function UpdateSlots()
+    EndFunction
+    Event OnUpdate()
+        RegisterForSingleUpdate(UDCDmain.UD_UpdateTime/2)
+    EndEvent
+    Event OnUpdateGameTime()
+        RegisterForSingleUpdateGameTime(1.0)
+    endEvent
     Function UpdateSlot(UD_CustomDevice_NPCSlot akSlot)
     EndFunction
     Function UpdateDevices(float fTimePassed)
