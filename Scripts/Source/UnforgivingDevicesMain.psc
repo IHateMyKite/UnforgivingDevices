@@ -126,17 +126,18 @@ EndProperty
 zadConfig   Property DDconfig                   auto
 String[]    Property UD_OfficialPatches         auto
 
-bool Property ZaZAnimationPackInstalled = false auto
+bool Property ZaZAnimationPackInstalled = false auto hidden
 ;zbfBondageShell Property ZAZBS auto
-bool Property OSLArousedInstalled       = false auto
-bool Property ConsoleUtilInstalled      = false auto
-bool Property SlaveTatsInstalled        = false auto
-bool Property OrdinatorInstalled        = false auto
-bool Property ZadExpressionSystemInstalled = false auto
-Bool Property DeviousStrikeInstalled    = False auto
-Bool Property ForHimInstalled           = False auto
+bool Property OSLArousedInstalled       = false auto hidden
+bool Property ConsoleUtilInstalled      = false auto hidden
+bool Property SlaveTatsInstalled        = false auto hidden
+bool Property OrdinatorInstalled        = false auto hidden
+bool Property ZadExpressionSystemInstalled = false auto hidden
+Bool Property DeviousStrikeInstalled    = False auto hidden
+Bool Property ForHimInstalled           = False auto hidden
+Bool Property PO3Installed              = False auto hidden ;https://www.nexusmods.com/skyrimspecialedition/mods/22854
 
-Bool Property AllowMenBondage           = True auto
+Bool Property AllowMenBondage           = True auto hidden
 
 bool Property Ready = False auto hidden
 bool Function UDReady()
@@ -464,6 +465,13 @@ Function CheckOptionalMods()
     else
         ForHimInstalled = false
     endif
+    
+    if PO3_SKSEFunctions.GetPapyrusExtenderVersion()
+        PO3Installed = True
+    else
+        PO3Installed = False
+    endif
+    
 EndFUnction
 
 Function CheckPatchesOrder()

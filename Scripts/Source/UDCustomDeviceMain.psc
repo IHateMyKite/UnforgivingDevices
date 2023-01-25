@@ -1683,8 +1683,11 @@ EndFunction
 
 ;starts vannila lockpick minigame
 Function startLockpickMinigame()
-    ;setScriptState(CurrentPlayerMinigameDevice.getWearer(),3)
     LockpickMinigameOver = false
+    
+    if UDmain.PO3Installed
+        PO3_SKSEFunctions.PreventActorDetection(UDmain.Player)
+    endif
     
     lockpicknum = UDmain.Player.GetItemCount(Lockpick)
     
@@ -1693,24 +1696,36 @@ Function startLockpickMinigame()
     else
         usedLockpicks = lockpicknum
     endif
+    
     UDmain.Player.RemoveItem(Lockpick, lockpicknum - usedLockpicks, True)
-    if UDmain.TraceAllowed()    
+    
+    if UDmain.TraceAllowed()
         Log("Lockpick minigame opened, lockpicks before: "+lockpicknum+" ;lockpicks taken: " + (lockpicknum - usedLockpicks) + " ;Lockpicks to use: "+ usedLockpicks,1)
     endif
+    
     RegisterForMenu("Lockpicking Menu")
-    if UDmain.ConsoleUtilInstalled
+    
+    if UDmain.PO3Installed
+        while PO3_SKSEFunctions.IsDetectedByAnyone(UDmain.Player)
+            Utility.wait(0.05)
+        endwhile
+    elseif UDmain.ConsoleUtilInstalled
         ConsoleUtil.ExecuteCommand("ToggleDetection")
     endif
+    
     _LockPickContainer.activate(UDmain.Player)
 EndFunction
 
 ;detect when the lockpick minigame ends
-bool Property LockpickMinigameOver = false auto hidden
-int Property LockpickMinigameResult = 0 auto hidden
+bool Property LockpickMinigameOver      = false auto hidden
+int  Property LockpickMinigameResult    = 0     auto hidden
 Event OnMenuClose(String MenuName)
-    if UDmain.ConsoleUtilInstalled
+    if UDmain.PO3Installed
+        PO3_SKSEFunctions.ResetActorDetection(UDmain.Player)
+    elseif UDmain.ConsoleUtilInstalled
         ConsoleUtil.ExecuteCommand("ToggleDetection")
     endif
+    
     int remainingLockpicks = UDmain.Player.GetItemCount(Lockpick)
     
     if remainingLockpicks > 0

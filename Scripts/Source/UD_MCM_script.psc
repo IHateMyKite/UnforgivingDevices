@@ -1149,25 +1149,28 @@ Function resetOtherPage()
     AddHeaderOption("Optional mods")
     addEmptyOption()
     
-    AddTextOption("Zaz animation pack installed: ",InstallSwitch(UDmain.ZaZAnimationPackInstalled),FlagSwitch(UDmain.ZaZAnimationPackInstalled))
+    AddTextOption("Zaz animation pack installed",InstallSwitch(UDmain.ZaZAnimationPackInstalled),FlagSwitch(UDmain.ZaZAnimationPackInstalled))
     addEmptyOption()
     
-    AddTextOption("ConsoleUtil installed: ",InstallSwitch(UDmain.ConsoleUtilInstalled),FlagSwitch(UDmain.ConsoleUtilInstalled))
+    AddTextOption("ConsoleUtil installed",InstallSwitch(UDmain.ConsoleUtilInstalled),FlagSwitch(UDmain.ConsoleUtilInstalled))
     addEmptyOption()
     
-    AddTextOption("SlaveTats installed: ",InstallSwitch(UDmain.SlaveTatsInstalled),FlagSwitch(UDmain.SlaveTatsInstalled))
+    AddTextOption("SlaveTats installed",InstallSwitch(UDmain.SlaveTatsInstalled),FlagSwitch(UDmain.SlaveTatsInstalled))
     addEmptyOption()
 
-    AddTextOption("Devious Devices For Him: ",InstallSwitch(UDmain.ForHimInstalled),FlagSwitch(UDmain.ForHimInstalled))
+    AddTextOption("Devious Devices For Him",InstallSwitch(UDmain.ForHimInstalled),FlagSwitch(UDmain.ForHimInstalled))
+    addEmptyOption()
+
+    AddTextOption("powerofthree's Papyrus Extender",InstallSwitch(UDmain.PO3Installed),FlagSwitch(UDmain.PO3Installed))
     addEmptyOption()
 
 EndFunction
 
 String Function InstallSwitch(Bool abSwitch)
     if abSwitch
-        return "Installed"
+        return "INSTALLED"
     else
-        return "Not installed"
+        return "NOT INSTALLED"
     endif
 EndFunction
 
