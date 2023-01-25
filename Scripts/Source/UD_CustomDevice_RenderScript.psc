@@ -3068,6 +3068,11 @@ Int  Function NthLockMinigamesAllowed(Int aiLockID, Float afAccesibility)
     if IsNthLockUnlocked(aiLockID)
         return 0x0 ;lock is unlocked, no minigame slould be allowed
     endif
+    
+    if IsNthLockTimeLocked(aiLockID) && GetNthLockTimeLock(aiLockID)
+        return 0x0 ;lock is time locked, no minigame is allowed!
+    endif
+    
     if !GetHelper() ;no helper, check if wearer can reach the lock themself
         Int loc_Accessibility = GetNthLockAccessibility(aiLockID)
         if !loc_Accessibility
@@ -5939,8 +5944,29 @@ Function keyUnlockDevice()
         UDCDMain.Print(getWearerName() + " managed to unlock "+GetDeviceName()+"s "+GetNthLockName(_MinigameSelectedLockID)+"!",2)
     endif
     
-    if zad_DestroyKey || libs.Config.GlobalDestroyKey
-        Wearer.RemoveItem(zad_deviceKey)
+    if zad_DestroyKey ;|| libs.Config.GlobalDestroyKey
+        if _minigameHelper && _minigameHelper.GetItemCount(zad_deviceKey)
+            _minigameHelper.RemoveItem(zad_deviceKey,1) ;first remove helper key
+        else
+            Wearer.RemoveItem(zad_deviceKey,1) ;then remove wearer key
+        endif
+    elseif UDCDmain.UD_KeyDurability > 0
+        if _minigameHelper && _minigameHelper.GetItemCount(zad_deviceKey)
+            UDCDMain.ReduceKeyDurability(_minigameHelper, zad_DeviceKey)
+        else
+            Int loc_dur = UDCDMain.ReduceKeyDurability(Wearer, zad_DeviceKey)
+            if !loc_dur
+                if PlayerInMinigame()
+                    UDCDMain.Print("Key "+ zad_DeviceKey.GetName() +" gets destroyed",1)
+                elseif UDCDmain.AllowNPCMessage(Wearer, True)
+                    UDCDMain.Print(getWearerName() + "s key "+ zad_DeviceKey.GetName() +" gets destroyed",1)
+                endif
+            else
+                if PlayerInMinigame()
+                    UDCDMain.Print("Remaining durability of key " + zad_DeviceKey.GetName() + " = [" + loc_dur+"]",2)
+                endif
+            endif
+        endif
     endif
     
     if UD_CurrentLocks == 0

@@ -428,6 +428,8 @@ Int UD_PreventMasterLock_T
 Int UD_MandatoryCrit_T
 Int UD_CritDurationAdjust_S
 
+Int UD_KeyDurability_S
+
 Event resetCustomBondagePage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -449,6 +451,9 @@ Event resetCustomBondagePage()
     
     UD_PreventMasterLock_T = addToggleOption("Prevent master locks:",UDCDmain.UD_PreventMasterLock,UD_LockMenu_flag)
     UD_LockpickMinigameNum_S = addSliderOption("Lockpicks per minigame:",UDCDmain.UD_LockpicksPerMinigame, "{0}",UD_LockMenu_flag)
+    
+    UD_KeyDurability_S = addSliderOption("Key Durability:",UDCDmain.UD_KeyDurability, "{0}",UD_LockMenu_flag)
+    addEmptyOption()
     
     UD_AllowArmTie_T = addToggleOption("Arm tie:", UDCDmain.UD_AllowArmTie,UD_LockMenu_flag)
     UD_AllowLegTie_T = addToggleOption("Leg tie:", UDCDmain.UD_AllowLegTie,UD_LockMenu_flag)
@@ -1732,6 +1737,11 @@ Function OnOptionSliderOpenCustomBondage(int option)
         SetSliderDialogDefaultValue(0.0)
         SetSliderDialogRange(-0.5, 0.5)
         SetSliderDialogInterval(0.05)
+    elseif option == UD_KeyDurability_S
+        SetSliderDialogStartValue(UDCDmain.UD_KeyDurability)
+        SetSliderDialogDefaultValue(5.0)
+        SetSliderDialogRange(0, 20)
+        SetSliderDialogInterval(1)
     endif
 EndFunction
 
@@ -2016,6 +2026,9 @@ Function OnOptionSliderAcceptCustomBondage(int option, float value)
     elseif option == UD_CritDurationAdjust_S
         UDCDmain.UD_CritDurationAdjust = value
         SetSliderOptionValue(UD_CritDurationAdjust_S, UDCDmain.UD_CritDurationAdjust, "{2} s")
+    elseif option == UD_KeyDurability_S
+        UDCDmain.UD_KeyDurability = Round(value)
+        SetSliderOptionValue(UD_KeyDurability_S, UDCDmain.UD_KeyDurability, "{0}")
     endif
 EndFunction
 
@@ -2599,6 +2612,9 @@ Function CustomBondagePageDefault(int option)
         SetInfoText("When this option is enabled, not landing crits will punish player\nDefault: OFF")
     elseif option == UD_CritDurationAdjust_S
         SetInfoText("By how much time will be crit duration changed. Setting this to small negative value might make crits impossible.\nIn case you are experiencing bigger lags when using UD, you may need to increase this value to make crits easier.\nDefault: 0.0 s")
+    elseif option == UD_KeyDurability_S
+        UDCDmain.UD_KeyDurability = 5
+        SetSliderOptionValue(UD_KeyDurability_S, UDCDmain.UD_KeyDurability, "{0}")
     Endif
 EndFunction
 
@@ -2904,6 +2920,8 @@ Function CustomBondagePageInfo(int option)
         SetInfoText("When this option is enabled, not landing crits will punish player\nDefault: OFF")
     elseif option == UD_CritDurationAdjust_S
         SetInfoText("By how much time will be crit duration changed. Setting this to small negative value might make crits impossible.\nIn case you are experiencing bigger lags when using UD, you might increase this value to make crits easier.\nDefault: 0.0 s")
+    elseif option == UD_KeyDurability_S
+        SetInfoText("How many times can be key used to unlock the restrains lock before it gets destroyed. Set this to 0 to make keys indestructible\nDefault: 5")
     Endif
 EndFunction
 
@@ -3166,14 +3184,12 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "PlayerMenu_KeyCode", UDCDmain.PlayerMenu_KeyCode)
     JsonUtil.SetIntValue(strFile, "ActionKey_Keycode", UDCDmain.ActionKey_Keycode)
     JsonUtil.SetIntValue(strFile, "NPCMenu_Keycode", UDCDmain.NPCMenu_Keycode)
-    
     JsonUtil.SetIntValue(strFile, "UseDDdifficulty", UDCDmain.UD_UseDDdifficulty as Int)
     JsonUtil.SetIntValue(strFile, "UseWidget", UDCDmain.UD_UseWidget as Int)
     JsonUtil.SetIntValue(strFile, "GagPhonemModifier", UDCDmain.UD_GagPhonemModifier)
     JsonUtil.SetIntValue(strFile, "StruggleDifficulty", UDCDmain.UD_StruggleDifficulty)
     JsonUtil.SetFloatValue(strFile, "BaseDeviceSkillIncrease", UDCDmain.UD_BaseDeviceSkillIncrease)
     JsonUtil.SetFloatValue(strFile, "DeviceUpdateTime", UDCDmain.UD_UpdateTime)
-    
     JsonUtil.SetIntValue(strFile, "AutoCrit", UDCDmain.UD_AutoCrit as Int)
     JsonUtil.SetIntValue(strFile, "AutoCritChance", UDCDmain.UD_AutoCritChance)
     JsonUtil.SetFloatValue(strFile, "VibrationMultiplier", UDCDmain.UD_VibrationMultiplier)
@@ -3188,29 +3204,22 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "HornyAnimationDuration", UDOM.UD_HornyAnimationDuration)
     JsonUtil.SetFloatValue(strFile, "CooldownMultiplier", UDCDmain.UD_CooldownMultiplier)
     JsonUtil.SetIntValue(strFile, "SkillEfficiency", UDCDmain.UD_SkillEfficiency)
-    
     JsonUtil.SetIntValue(strFile, "CritEffect", UDCDmain.UD_CritEffect)
     JsonUtil.SetIntValue(strFile, "HardcoreMode", UDCDmain.UD_HardcoreMode as Int)
     JsonUtil.SetIntValue(strFile, "AllowArmTie", UDCDmain.UD_AllowArmTie as Int)
     JsonUtil.SetIntValue(strFile, "AllowLegTie", UDCDmain.UD_AllowLegTie as Int)
-    
     JsonUtil.SetIntValue(strFile, "MinigameHelpCD", UDCDmain.UD_MinigameHelpCd)
     JsonUtil.SetIntValue(strFile, "MinigameHelpCD_PerLVL", Round(UDCDmain.UD_MinigameHelpCD_PerLVL))
     JsonUtil.SetIntValue(strFile, "MinigameHelpXPBase", UDCDmain.UD_MinigameHelpXPBase)
-
     JsonUtil.SetFloatValue(strFile, "DeviceLvlHealth", UDCDMain.UD_DeviceLvlHealth*100)
     JsonUtil.SetFloatValue(strFile, "DeviceLvlLockpick", UDCDMain.UD_DeviceLvlLockpick)
     JsonUtil.SetIntValue(strFile, "DeviceLvlLocks", UDCDMain.UD_DeviceLvlLocks)
-    
     JsonUtil.SetIntValue(strFile, "PreventMasterLock", UDCDmain.UD_PreventMasterLock as Int)
-    
     JsonUtil.SetIntValue(strFile, "PostOrgasmArousalReduce", UDOM.UD_OrgasmArousalReduce)
     JsonUtil.SetIntValue(strFile, "PostOrgasmArousalReduce_Duration", UDOM.UD_OrgasmArousalReduceDuration)
-
     JsonUtil.SetIntValue(strFile, "MandatoryCrit", UDCDmain.UD_MandatoryCrit as Int)
-    
     JsonUtil.SetFloatValue(strFile, "CritDurationAdjust", UDCDmain.UD_CritDurationAdjust)
-    
+    JsonUtil.SetIntValue(strFile, "KeyDurability", UDCDmain.UD_KeyDurability)
     
     ;ABADON
     JsonUtil.SetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
@@ -3339,6 +3348,7 @@ Function LoadFromJSON(string strFile)
     
     UDCDmain.UD_MandatoryCrit = JsonUtil.GetIntValue(strFile, "MandatoryCrit", UDCDmain.UD_MandatoryCrit as Int)
     UDCDmain.UD_CritDurationAdjust = JsonUtil.GetFloatValue(strFile, "CritDurationAdjust", UDCDmain.UD_CritDurationAdjust)
+    UDCDmain.UD_KeyDurability = JsonUtil.GetIntValue(strFile, "KeyDurability", UDCDmain.UD_KeyDurability)
     
     ;ABADON
     AbadonQuest.final_finisher_set = JsonUtil.GetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
@@ -3436,7 +3446,6 @@ Function ResetToDefaults()
     UDCDmain.UD_StruggleDifficulty      = 1
     UDCDmain.UD_BaseDeviceSkillIncrease = 35.0
     UDCDmain.UD_UpdateTime              = 5.0
-    
     UDCDmain.UD_AutoCrit = false
     if UDCDmain.UD_AutoCrit
         UD_autocrit_flag = OPTION_FLAG_NONE
@@ -3460,22 +3469,18 @@ Function ResetToDefaults()
     UDCDmain.UD_AllowArmTie             = true
     UDCDmain.UD_AllowLegTie             = true
     UDCDMain.UD_SkillEfficiency         = 1
-    
     UDCDmain.UD_MinigameHelpCd          = 60
     UDCDmain.UD_MinigameHelpCD_PerLVL   = 10
     UDCDmain.UD_MinigameHelpXPBase      = 35
-    
     UDCDmain.UD_DeviceLvlHealth         = 0.025
     UDCDmain.UD_DeviceLvlLockpick       = 0.5
     UDCDMain.UD_DeviceLvlLocks          = 5
     UDCDmain.UD_PreventMasterLock       = False
-    
     UDOM.UD_OrgasmArousalReduce         = 25
     UDOM.UD_OrgasmArousalReduceDuration =  7
-    
     UDCDmain.UD_MandatoryCrit           = False
-    
     UDCDmain.UD_CritDurationAdjust      = 0.0
+    UDCDmain.UD_KeyDurability           = 5
     
     ;ABADON
     AbadonQuest.final_finisher_set      = true

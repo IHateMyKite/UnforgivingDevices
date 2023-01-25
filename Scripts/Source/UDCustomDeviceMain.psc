@@ -78,6 +78,8 @@ bool    Property UD_AllowArmTie                     = true      auto hidden
 bool    Property UD_AllowLegTie                     = true      auto hidden
 Int     Property UD_BlackGooRareDeviceChance        = 10        auto hidden
 Bool    Property UD_PreventMasterLock               = False     auto hidden
+Int     Property UD_KeyDurability                   = 5         auto hidden ;how many times can be key used before it gets destroyed
+
 ;Lvl scalling
 Float   Property UD_DeviceLvlHealth                 = 0.025     auto hidden
 Float   Property UD_DeviceLvlLockpick               = 0.5       auto hidden
@@ -2722,4 +2724,20 @@ float Function FinishRecordTime2(string strObject = "",bool bReset = false,bool 
         StartRecordTime2()
     endif
     return loc_res
+EndFunction
+
+
+;Reduce the key durability by amount set in MCM. 
+; aiDurability = By how much will durability be reduced
+Int Function ReduceKeyDurability(Actor akActor, Form akKey, Int aiDurability = 1)
+    Int loc_durability   = StorageUtil.GetIntValue(akActor,akKey+",UDKeyDurability",UD_KeyDurability)
+    loc_durability      -= aiDurability ;remove one durability
+    if loc_durability == 0
+        akActor.RemoveItem(akKey,1)
+        StorageUtil.SetIntValue(akActor,akKey+",UDKeyDurability",UD_KeyDurability) ;reset durability
+        return 0
+    else
+        StorageUtil.SetIntValue(akActor,akKey+",UDKeyDurability",loc_durability)
+        return loc_durability
+    endif
 EndFunction
