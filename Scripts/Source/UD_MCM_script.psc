@@ -792,9 +792,11 @@ Event resetUIWidgetPage()
     UD_IconsPadding_S = addSliderOption("Icons offset", UDWC.UD_IconsPadding, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && (UDWC.UD_EnableDeviceIcons || UDWC.UD_EnableEffectIcons)))
     right_col += 1
     
-    UD_IconVariant_EffExhaustion_M = addMenuOption("Struggle exhaustion icon variant", UD_IconVariant_EffExhaustionList[UDWC.UD_IconVar_EffExhaustion], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableEffectIcons))
+    Int variant = UDWC.StatusEffect_GetVariant("effect-exhaustion")
+    UD_IconVariant_EffExhaustion_M = addMenuOption("Struggle exhaustion icon variant", UD_IconVariant_EffExhaustionList[variant], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableEffectIcons))
     right_col += 1
-    UD_IconVariant_EffOrgasm_M = addMenuOption("Orgasm icon variant", UD_IconVariant_EffOrgasmList[UDWC.UD_IconVar_EffOrgasm], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableEffectIcons))
+    variant = UDWC.StatusEffect_GetVariant("effect-orgasm")
+    UD_IconVariant_EffOrgasm_M = addMenuOption("Orgasm icon variant", UD_IconVariant_EffOrgasmList[variant], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableEffectIcons))
     right_col += 1
     
     UD_WidgetTest_T = AddTextOption("TEST WIDGETS", "-CLICK-", a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
@@ -1963,11 +1965,13 @@ Function OnOptionMenuOpenUIWidget(int option)
         SetMenuDialogDefaultIndex(1)
     ElseIf (option == UD_IconVariant_EffExhaustion_M)
         SetMenuDialogOptions(UD_IconVariant_EffExhaustionList)
-        SetMenuDialogStartIndex(UDWC.UD_IconVar_EffExhaustion)
+        Int variant = UDWC.StatusEffect_GetVariant("effect-exhaustion")
+        SetMenuDialogStartIndex(variant)
         SetMenuDialogDefaultIndex(0)
     ElseIf (option == UD_IconVariant_EffOrgasm_M)
         SetMenuDialogOptions(UD_IconVariant_EffOrgasmList)
-        SetMenuDialogStartIndex(UDWC.UD_IconVar_EffOrgasm)
+        Int variant = UDWC.StatusEffect_GetVariant("effect-orgasm")
+        SetMenuDialogStartIndex(variant)
         SetMenuDialogDefaultIndex(0)
     elseif (option == UD_WidgetPosX_M)
         SetMenuDialogOptions(widgetXList)
@@ -2036,10 +2040,10 @@ Function OnOptionMenuAcceptUIWidget(Int option, Int index)
         UDWC.UD_TextAnchor = index
         SetMenuOptionValue(UD_TextAnchor_M, UD_TextAnchorList[index])
     ElseIf (option == UD_IconVariant_EffExhaustion_M)
-        UDWC.UD_IconVar_EffExhaustion = index
+        UDWC.StatusEffect_Register("effect-exhaustion", index, 1)
         SetMenuOptionValue(UD_IconVariant_EffExhaustion_M, UD_IconVariant_EffExhaustionList[index])
     ElseIf (option == UD_IconVariant_EffOrgasm_M)
-        UDWC.UD_IconVar_EffOrgasm = index
+        UDWC.StatusEffect_Register("effect-orgasm", index, 1)
         SetMenuOptionValue(UD_IconVariant_EffOrgasm_M, UD_IconVariant_EffOrgasmList[index])
     elseif (option == UD_WidgetPosX_M)
         UDWC.UD_WidgetXPos = index

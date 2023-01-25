@@ -264,6 +264,15 @@ EndEvent
 
 Function Update()
     SwitchStates(abGameLoad = True)
+    
+    StatusEffect_Register("dd-piercing-nipples", 0, 0)
+    StatusEffect_Register("dd-plug-vaginal", 0, 0)
+    StatusEffect_Register("dd-piercing-clit", 0, 0)
+    StatusEffect_Register("dd-plug-anal", 0, 0)
+
+    StatusEffect_Register("effect-exhaustion", 0, 1)
+    StatusEffect_Register("effect-orgasm", 0, 1)
+    
 EndFunction
 
 Function SwitchStates(Bool abGameLoad)
@@ -427,6 +436,10 @@ Float       _Text_Duration                          ; how long to display text o
 String[]    _Text_Queue_String                      ; notifications queue: text
 Int[]       _Text_Queue_Color                       ; notifications queue: color
 
+String[]    _IconRegs_Name
+Int[]       _IconRegs_Cluster
+Int[]       _IconRegs_Variant
+
 Int[]       _Icons_Id                               ; widget id
 String[]    _Icons_Name                             ; DDS file name in '<Data>/interface/exported/widgets/iwant/widgets/library' folder
 Int[]       _Icons_Variant                          ; icon variant
@@ -437,84 +450,6 @@ Int[]       _Icons_Blinking                         ; 0, 1
 Int[]       _Icons_Alpha                            ; 0 .. 100
 Int[]       _Icons_Visible                          ; 0, 1
 Int[]       _Icons_Enabled                          ; 0, 1
-
-Int _UD_IconVar_DDVibAnal = 0                   
-Int     Property    UD_IconVar_DDVibAnal
-    Int Function Get()
-        Return _UD_IconVar_DDVibAnal
-    EndFunction
-    Function Set(Int aiValue)
-        If _UD_IconVar_DDVibAnal != aiValue
-            _UD_IconVar_DDVibAnal = aiValue
-            InitWidgetsRequest(abIcons = True)
-        EndIf
-    EndFunction
-EndProperty
-
-Int _UD_IconVar_DDVibVaginal = 0                   
-Int     Property    UD_IconVar_DDVibVaginal
-    Int Function Get()
-        Return _UD_IconVar_DDVibVaginal
-    EndFunction
-    Function Set(Int aiValue)
-        If _UD_IconVar_DDVibVaginal != aiValue
-            _UD_IconVar_DDVibVaginal = aiValue
-            InitWidgetsRequest(abIcons = True)
-        EndIf
-    EndFunction
-EndProperty
-
-Int _UD_IconVar_DDVibNipples = 0                   
-Int     Property    UD_IconVar_DDVibNipples
-    Int Function Get()
-        Return _UD_IconVar_DDVibNipples
-    EndFunction
-    Function Set(Int aiValue)
-        If _UD_IconVar_DDVibNipples != aiValue
-            _UD_IconVar_DDVibNipples = aiValue
-            InitWidgetsRequest(abIcons = True)
-        EndIf
-    EndFunction
-EndProperty
-
-Int _UD_IconVar_DDVibClit = 0                   
-Int     Property    UD_IconVar_DDVibClit
-    Int Function Get()
-        Return _UD_IconVar_DDVibClit
-    EndFunction
-    Function Set(Int aiValue)
-        If _UD_IconVar_DDVibClit != aiValue
-            _UD_IconVar_DDVibClit = aiValue
-            InitWidgetsRequest(abIcons = True)
-        EndIf
-    EndFunction
-EndProperty
-
-Int _UD_IconVar_EffExhaustion = 0                   
-Int     Property    UD_IconVar_EffExhaustion
-    Int Function Get()
-        Return _UD_IconVar_EffExhaustion
-    EndFunction
-    Function Set(Int aiValue)
-        If _UD_IconVar_EffExhaustion != aiValue
-            _UD_IconVar_EffExhaustion = aiValue
-            InitWidgetsRequest(abIcons = True)
-        EndIf
-    EndFunction
-EndProperty
-
-Int _UD_IconVar_EffOrgasm = 0                   
-Int     Property    UD_IconVar_EffOrgasm
-    Int Function Get()
-        Return _UD_IconVar_EffOrgasm
-    EndFunction
-    Function Set(Int aiValue)
-        If _UD_IconVar_EffOrgasm != aiValue
-            _UD_IconVar_EffOrgasm = aiValue
-            InitWidgetsRequest(abIcons = True)
-        EndIf
-    EndFunction
-EndProperty
 
 Int         _Widget_Icon_Inactive_Color             = 0xFFFFFF      ; Gray          Color of innactive effect
 Int         _Widget_Icon_Active0_Color              = 0xFFFF00      ; Yellow        Color of active effect with magnitude 0
@@ -577,8 +512,44 @@ Function Notification_Push(String asText, Int aiColor = 0xFFFFFF)
     Debug.Notification(asText)
 EndFunction
 
+; Register new status effect icon (or change existing)
+; asName        - effect name (and base part of file name)
+; aiVariant     - icon variant.
+; aiClusterId   - icon cluster (0 or 1 for device or effect cluster)    
 Function StatusEffect_Register(String asName, Int aiVariant, Int aiClusterId)
+    UDmain.Info("UD_WidgetControl::StatusEffect_Register() asName = " + asName + ", aiVariant = " + aiVariant + ", aiClusterId = " + aiClusterId)
+    Int index = _IconRegs_Name.Find(asName)
+    If index >= 0
+        Bool need_init = False
+        If (_IconRegs_Cluster[index] != aiClusterId)
+            _IconRegs_Cluster[index] = aiClusterId
+            need_init = True
+        EndIf
+        If (_IconRegs_Variant[index] != aiVariant)
+            _IconRegs_Variant[index] = aiVariant
+            need_init = True
+        EndIf
+        If need_init
+            InitWidgetsRequest(abIcons = True)
+        EndIf
+    Else
+        _IconRegs_Name = PapyrusUtil.PushString(_IconRegs_Name, asName)
+        _IconRegs_Cluster = PapyrusUtil.PushInt(_IconRegs_Cluster, aiClusterId)
+        _IconRegs_Variant = PapyrusUtil.PushInt(_IconRegs_Variant, aiVariant)
+        InitWidgetsRequest(abIcons = True)
+    EndIf
 ; TODO custom icons registration
+EndFunction
+
+; Gets current icon variant of the given effect
+; asName        - effect name
+; return        - icon variant
+Int Function StatusEffect_GetVariant(String asName)
+    Int index = _IconRegs_Name.Find(asName)
+    If index >= 0
+        Return _IconRegs_Variant[index]
+    EndIf
+    Return 0
 EndFunction
 
 ; Show/hide status effect icon.
@@ -689,7 +660,17 @@ Int Function _GetIconIndex(String asName)
     Return index
 EndFunction
 
+Bool _CreateIcon_Mutex = False
+
 Int Function _CreateIcon(String asName, Int aiVariant = 0, Int aiX = -1, Int aiY = -1, Int aiAlpha = -1)
+    If _CreateIcon_Mutex
+        Int i = 0
+        While i < 20 && _CreateIcon_Mutex
+            Utility.Wait(0.05)
+            i += 1
+        EndWhile
+    EndIf
+    _CreateIcon_Mutex = True
     UDMain.Log("UD_WidgetControl::_CreateIcon() asName = " + asName + ", aiX = " + aiX + ", aiY = " + aiY + ", aiAlpha = " + aiAlpha, 3)
     Int icon_id = -1
     Int index = _Icons_Name.Find(asName)
@@ -718,6 +699,7 @@ Int Function _CreateIcon(String asName, Int aiVariant = 0, Int aiX = -1, Int aiY
         index = _Icons_Id.Length - 1
     EndIf
     UDMain.Log("UD_WidgetControl::_CreateIcon() icon_id = " + icon_id + ", index = " + index, 3)
+    _CreateIcon_Mutex = False
     Return index
 EndFunction
 
@@ -814,7 +796,7 @@ State iWidgetInstalled
     
     Bool Function InitText(Bool abGameLoad = False)
         If abGameLoad
-        ; clearing all IDs
+        ; clearing IDs on game load since all widgets are already destroyed
             _Text_LinesId = PapyrusUtil.IntArray(0)
         EndIf
         If _Text_LinesId.Length == 0
@@ -852,13 +834,32 @@ State iWidgetInstalled
     
     Bool Function InitIcons(Bool abGameLoad = False)
         If abGameLoad
-        ; clearing all IDs
+        ; clearing IDs on game load since all widgets are already destroyed
             Int i = _Icons_Id.Length
             While i > 0
                 i -= 1
                 _Icons_Id[i] = -1
             EndWhile
         EndIf
+
+        ; counting icons in clusters
+        Int cluster0_count = 0
+        Int cluster1_count = 0
+        Int len = _IconRegs_Name.Length
+        Int i = 0
+        While i < len
+            If _IconRegs_Cluster[i] == 0
+                cluster0_count += 1
+            ElseIf _IconRegs_Cluster[i] == 0
+                cluster1_count += 1
+            EndIf
+            i += 1
+        EndWhile
+        
+        Int x = 0
+        Int y = 0            
+        Int index0 = 0
+        Int index1 = 0
         If UD_IconsAnchor == 0
             ; Left icons position
             ;
@@ -879,23 +880,20 @@ State iWidgetInstalled
             ; X = Left-Center Anchor
             ; A = Anchor + Hor. Padding
             
-            Int x = CalculateGroupXPos(W_POSX_LEFT) + UD_IconsPadding + (0.55 * UD_IconsSize) As Int
-            Int y = CalculateGroupYPos(W_POSY_CENTER) - UD_IconsSize - (0.55 * UD_IconsSize) As Int
-            
-            _CreateIcon("dd-plug-anal", UD_IconVar_DDVibAnal, x, y, 50)
-            y -= (UD_IconsSize * 1.1) As Int
-            _CreateIcon("dd-plug-vaginal", UD_IconVar_DDVibVaginal, x, y, 50)
-            y += (UD_IconsSize * 1.1) As Int
-            x -= (UD_IconsSize * 1.1) As Int
-            _CreateIcon("dd-piercing-clit", UD_IconVar_DDVibClit, x, y, 50)
-            y -= (UD_IconsSize * 1.1) As Int
-            _CreateIcon("dd-piercing-nipples", UD_IconVar_DDVibNipples, x, y, 50)
-            
-            x = CalculateGroupXPos(W_POSX_LEFT) + UD_IconsPadding
-            y = CalculateGroupYPos(W_POSY_CENTER) + UD_IconsSize + (0.55 * UD_IconsSize) As Int
-            _CreateIcon("effect-exhaustion", UD_IconVar_EffExhaustion, x, y, 75)
-            y -= (UD_IconsSize * 1.1) As Int
-            _CreateIcon("effect-orgasm", UD_IconVar_EffOrgasm, x, y, 75)
+            i = 0
+            While i < len
+                If _IconRegs_Cluster[i] == 0                                       ; device cluster
+                    x = CalculateGroupXPos(W_POSX_LEFT) + UD_IconsPadding + (UD_IconsSize * (-0.55 + 1.1 * (index0 % 2))) As Int
+                    y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (-1.1 * (cluster0_count / 2) + 1.1 * (index0 / 2))) As Int
+                    index0 += 1
+                ElseIf _IconRegs_Cluster[i] == 1                                   ; effect cluster
+                    x = CalculateGroupXPos(W_POSX_LEFT) + UD_IconsPadding + (UD_IconsSize * (-0.55 + 1.1 * (index1 % 2))) As Int
+                    y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (1.1 + 1.1 * (index1 / 2))) As Int
+                    index1 += 1
+                EndIf
+                _CreateIcon(_IconRegs_Name[i], _IconRegs_Variant[i], x, y, 75)
+                i += 1
+            EndWhile
         ElseIf UD_IconsAnchor == 1
             ; Center icons position
             ;
@@ -909,47 +907,41 @@ State iWidgetInstalled
             ; A = Anchor - 300 - Hor. Padding
             ; B = Anchor + 300 + Hor. Padding
             
-            Int x = CalculateGroupXPos(W_POSX_CENTER) - 300 - UD_IconsPadding + (0.55 * UD_IconsSize) As Int
-            Int y = CalculateGroupYPos(W_POSY_CENTER) + (0.55 * UD_IconsSize) As Int
-
-            _CreateIcon("dd-plug-anal", UD_IconVar_DDVibAnal, x, y, 50)
-            y -= (UD_IconsSize * 1.1) As Int
-            _CreateIcon("dd-plug-vaginal", UD_IconVar_DDVibVaginal, x, y, 50)
-            y += (UD_IconsSize * 1.1) As Int
-            x -= (UD_IconsSize * 1.1) As Int
-            _CreateIcon("dd-piercing-clit", UD_IconVar_DDVibClit, x, y, 50)
-            y -= (UD_IconsSize * 1.1) As Int
-            _CreateIcon("dd-piercing-nipples", UD_IconVar_DDVibNipples, x, y, 50)
-
-            x = CalculateGroupXPos(W_POSX_CENTER) + 300 + UD_IconsPadding
-            y = CalculateGroupYPos(W_POSY_CENTER) + (0.55 * UD_IconsSize) As Int
-            _CreateIcon("effect-exhaustion", UD_IconVar_EffExhaustion, x, y, 75)
-            y -= (UD_IconsSize * 1.1) As Int
-            _CreateIcon("effect-orgasm", UD_IconVar_EffOrgasm, x, y, 75)
+            i = 0
+            While i < len
+                If _IconRegs_Cluster[i] == 0                                       ; device cluster
+                    x = CalculateGroupXPos(W_POSX_CENTER) - 300 - UD_IconsPadding + (UD_IconsSize * (-0.55 + 1.1 * (index0 % 2))) As Int
+                    y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (-0.55 * (cluster0_count / 2) + 1.1 * (index0 / 2))) As Int
+                    index0 += 1
+                ElseIf _IconRegs_Cluster[i] == 1                                   ; effect cluster
+                    x = CalculateGroupXPos(W_POSX_CENTER) + 300 + UD_IconsPadding + (UD_IconsSize * (-0.55 + 1.1 * (index1 % 2))) As Int
+                    y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (-0.55 * (cluster1_count / 2) + 1.1 * (index1 / 2))) As Int
+                    index1 += 1
+                EndIf
+                _CreateIcon(_IconRegs_Name[i], _IconRegs_Variant[i], x, y, 75)
+                i += 1
+            EndWhile
         ElseIf UD_IconsAnchor == 2
             ; mirrored version of the left layout
-            Int x = CalculateGroupXPos(W_POSX_RIGHT) - UD_IconsPadding + (0.55 * UD_IconsSize) As Int
-            Int y = CalculateGroupYPos(W_POSY_CENTER) - UD_IconsSize - (0.55 * UD_IconsSize) As Int
-
-            _CreateIcon("dd-plug-anal", UD_IconVar_DDVibAnal, x, y, 50)
-            y -= (UD_IconsSize * 1.1) As Int
-            _CreateIcon("dd-plug-vaginal", UD_IconVar_DDVibVaginal, x, y, 50)
-            y += (UD_IconsSize * 1.1) As Int
-            x -= (UD_IconsSize * 1.1) As Int
-            _CreateIcon("dd-piercing-clit", UD_IconVar_DDVibClit, x, y, 50)
-            y -= (UD_IconsSize * 1.1) As Int
-            _CreateIcon("dd-piercing-nipples", UD_IconVar_DDVibNipples, x, y, 50)
-
-            x = CalculateGroupXPos(W_POSX_RIGHT) - UD_IconsPadding
-            y = CalculateGroupYPos(W_POSY_CENTER) + UD_IconsSize + (0.55 * UD_IconsSize) As Int
-            _CreateIcon("effect-exhaustion", UD_IconVar_EffExhaustion, x, y, 75)
-            y -= (UD_IconsSize * 1.1) As Int
-            _CreateIcon("effect-orgasm", UD_IconVar_EffOrgasm, x, y, 75)
+            i = 0
+            While i < len
+                If _IconRegs_Cluster[i] == 0                                       ; device cluster
+                    x = CalculateGroupXPos(W_POSX_RIGHT) - UD_IconsPadding - (UD_IconsSize * (-0.55 + 1.1 * (index0 % 2))) As Int
+                    y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (-1.1 * (cluster0_count / 2) + 1.1 * (index0 / 2))) As Int
+                    index0 += 1
+                ElseIf _IconRegs_Cluster[i] == 1                                   ; effect cluster
+                    x = CalculateGroupXPos(W_POSX_RIGHT) - UD_IconsPadding - (UD_IconsSize * (-0.55 + 1.1 * (index1 % 2))) As Int
+                    y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (1.1 + 1.1 * (index1 / 2))) As Int
+                    index1 += 1
+                EndIf
+                _CreateIcon(_IconRegs_Name[i], _IconRegs_Variant[i], x, y, 75)
+                i += 1
+            EndWhile
         Else
             UDMain.Warning("UD_WidgetControl::InitIcons() Unsupported value UD_IconsAnchor = " + UD_IconsAnchor)
         EndIf
         ; checking if all icons were created
-        Int i = _Icons_Id.Length
+        i = _Icons_Id.Length
         While i > 0
             i -= 1
             If _Icons_Id[i] == 0
@@ -1146,6 +1138,7 @@ State iWidgetInstalled
         EndWhile
         UDMain.Log("UD_WidgetControl::TestWidgets() _Icons_Id = " + _Icons_Id, 3)
         UDMain.Log("UD_WidgetControl::TestWidgets() _Icons_Name = " + _Icons_Name, 3)
+        UDMain.Log("UD_WidgetControl::TestWidgets() _IconRegs_Variant = " + _IconRegs_Variant, 3)
         UDMain.Log("UD_WidgetControl::TestWidgets() _Icons_Alpha = " + _Icons_Alpha, 3)
         UDMain.Log("UD_WidgetControl::TestWidgets() _Icons_Blinking = " + _Icons_Blinking, 3)
         UDMain.Log("UD_WidgetControl::TestWidgets() _Icons_Visible = " + _Icons_Visible, 3)
@@ -1229,6 +1222,9 @@ State iWidgetInstalled
         Int index = _Icons_Name.Find(asName)
         If index >= 0
             If !skip_creation && (_Icons_Id[index] <= 0 || _Icons_Variant[index] != aiVariant)
+                If _Icons_Id[index] > 0
+                    iWidget.destroy(_Icons_Id[index])
+                EndIf
                 String file_name = asName
                 If aiVariant > 0
                     file_name = file_name + "-" + aiVariant
