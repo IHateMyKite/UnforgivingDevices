@@ -2570,11 +2570,9 @@ int Function getLockAccesChance(Int aiLockID, bool checkTelekinesis = true)
     loc_res         = loc_acc
     if loc_res > 0
         if Wearer.wornHasKeyword(libs.zad_DeviousBlindfold)
-            loc_res -= 25
+            loc_res -= 40
         endif
-        if loc_res < 0
-            loc_res = loc_acc/2
-        endif
+        loc_res = iRange(loc_res,15,100)
     endif
 
     If !WearerFreeHands(True)
@@ -5663,10 +5661,8 @@ Function ShowLockDetails()
             Int loc_acc  = GetNthLockAccessibility(loc_lockId)
             Int loc_cacc = GetLockAccesChance(loc_lockId)
             
-            Int loc_resacc = loc_acc*loc_cacc/10000
-            
             loc_res += "Base Access: "+_GetLockAccessibilityString(loc_acc) + " ("+ loc_acc +"%)\n"
-            loc_res += "Current Access: "+_GetLockAccessibilityString(loc_resacc)+ " ("+ loc_resacc +"%\n"
+            loc_res += "Current Access: "+_GetLockAccessibilityString(loc_cacc)+ " ("+ loc_cacc +"%)\n"
         endif
         if loc_ShowDiff
             Int loc_diff = GetNthLockDifficulty(loc_lockId)
