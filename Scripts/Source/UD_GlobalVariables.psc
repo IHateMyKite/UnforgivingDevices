@@ -32,3 +32,12 @@ GlobalVariable Property UDG_UndressFollower  auto
 ;update time of orgasm updater, short
 ;by default is 1s, but 2s can be also used. Should not be highter then 2s, as it might cause issues
 GlobalVariable Property UDG_NPCOrgasmUpT  auto
+
+;change this to 1 to force disable of detection by PO3PE, can help with freeze in case of Lockpick minigame, short
+;Default 1
+GlobalVariable Property UDG_PO3PEDetection  auto
+
+;Change this to 1 to enable profiling of device minigame, short
+;bEnableProfiling needs to be set to 1 in skyrim .ini file
+;Default 0
+GlobalVariable Property UDG_MinigameProfiling  auto

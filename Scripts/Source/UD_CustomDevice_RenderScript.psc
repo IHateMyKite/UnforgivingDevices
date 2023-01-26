@@ -1606,6 +1606,7 @@ Bool Function HaveAccesibleLock()
                 return true
             endif
         endwhile
+        return false
     else
         return false
     endif
@@ -4477,6 +4478,11 @@ Function minigame()
     minigame_on = True
     GoToState("UpdatePaused")
     
+    Bool loc_Profiling = UDmain.UDGV.UDG_MinigameProfiling.Value
+    if loc_Profiling
+        Debug.StartStackProfiling()
+    endif
+    
     bool                    loc_WearerIsPlayer                  = WearerIsPlayer()
     bool                    loc_HelperIsPlayer                  = HelperIsPlayer()
     bool                    loc_PlayerInMinigame                = loc_WearerIsPlayer || loc_HelperIsPlayer
@@ -4745,6 +4751,10 @@ Function minigame()
     OnMinigameEnd()
     
     GoToState("")
+    
+    if loc_Profiling
+        Debug.StopStackProfiling()
+    endif
     
     ;debug message
     if UDmain.DebugMod && UD_damage_device && durability_onstart != current_device_health && loc_WearerIsPlayer
