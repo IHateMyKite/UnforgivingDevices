@@ -2002,7 +2002,9 @@ Function UpdateOrgasm(Float afUpdateTime)
         SendOrgasmEvent()
         UDOM.startOrgasm(akActor,UDOM.UD_OrgasmDuration,UDOM.UD_OrgasmArousalReduce,_force,true)
         
-        ;Utility.wait(0.25) ;wait, so orgasm variables can be updated
+        if IsPlayer()
+            Utility.wait(0.5) ;wait half second, so orgasm can take effect, and prevent some strange behavier, like infinite orgasms
+        endif
         
         _orgasmProgress = 0.0
         UDOM.SetActorOrgasmProgress(akActor,_orgasmProgress)
