@@ -78,6 +78,8 @@ bool    Property UD_AllowArmTie                     = true      auto hidden
 bool    Property UD_AllowLegTie                     = true      auto hidden
 Int     Property UD_BlackGooRareDeviceChance        = 10        auto hidden
 Bool    Property UD_PreventMasterLock               = False     auto hidden
+Int     Property UD_KeyDurability                   = 5         auto hidden ;how many times can be key used before it gets destroyed
+
 ;Lvl scalling
 Float   Property UD_DeviceLvlHealth                 = 0.025     auto hidden
 Float   Property UD_DeviceLvlLockpick               = 0.5       auto hidden
@@ -1683,8 +1685,11 @@ EndFunction
 
 ;starts vannila lockpick minigame
 Function startLockpickMinigame()
-    ;setScriptState(CurrentPlayerMinigameDevice.getWearer(),3)
     LockpickMinigameOver = false
+    
+    if UDmain.PO3Installed
+        PO3_SKSEFunctions.PreventActorDetection(UDmain.Player)
+    endif
     
     lockpicknum = UDmain.Player.GetItemCount(Lockpick)
     
@@ -1693,24 +1698,36 @@ Function startLockpickMinigame()
     else
         usedLockpicks = lockpicknum
     endif
+    
     UDmain.Player.RemoveItem(Lockpick, lockpicknum - usedLockpicks, True)
-    if UDmain.TraceAllowed()    
+    
+    if UDmain.TraceAllowed()
         Log("Lockpick minigame opened, lockpicks before: "+lockpicknum+" ;lockpicks taken: " + (lockpicknum - usedLockpicks) + " ;Lockpicks to use: "+ usedLockpicks,1)
     endif
+    
     RegisterForMenu("Lockpicking Menu")
-    if UDmain.ConsoleUtilInstalled
+    
+    if UDmain.PO3Installed
+        while PO3_SKSEFunctions.IsDetectedByAnyone(UDmain.Player)
+            Utility.wait(0.05)
+        endwhile
+    elseif UDmain.ConsoleUtilInstalled
         ConsoleUtil.ExecuteCommand("ToggleDetection")
     endif
+    
     _LockPickContainer.activate(UDmain.Player)
 EndFunction
 
 ;detect when the lockpick minigame ends
-bool Property LockpickMinigameOver = false auto hidden
-int Property LockpickMinigameResult = 0 auto hidden
+bool Property LockpickMinigameOver      = false auto hidden
+int  Property LockpickMinigameResult    = 0     auto hidden
 Event OnMenuClose(String MenuName)
-    if UDmain.ConsoleUtilInstalled
+    if UDmain.PO3Installed
+        PO3_SKSEFunctions.ResetActorDetection(UDmain.Player)
+    elseif UDmain.ConsoleUtilInstalled
         ConsoleUtil.ExecuteCommand("ToggleDetection")
     endif
+    
     int remainingLockpicks = UDmain.Player.GetItemCount(Lockpick)
     
     if remainingLockpicks > 0
@@ -2707,4 +2724,20 @@ float Function FinishRecordTime2(string strObject = "",bool bReset = false,bool 
         StartRecordTime2()
     endif
     return loc_res
+EndFunction
+
+
+;Reduce the key durability by amount set in MCM. 
+; aiDurability = By how much will durability be reduced
+Int Function ReduceKeyDurability(Actor akActor, Form akKey, Int aiDurability = 1)
+    Int loc_durability   = StorageUtil.GetIntValue(akActor,akKey+",UDKeyDurability",UD_KeyDurability)
+    loc_durability      -= aiDurability ;remove one durability
+    if loc_durability == 0
+        akActor.RemoveItem(akKey,1)
+        StorageUtil.SetIntValue(akActor,akKey+",UDKeyDurability",UD_KeyDurability) ;reset durability
+        return 0
+    else
+        StorageUtil.SetIntValue(akActor,akKey+",UDKeyDurability",loc_durability)
+        return loc_durability
+    endif
 EndFunction

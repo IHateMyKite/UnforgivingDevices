@@ -76,11 +76,20 @@ EndProperty
 Package         Property UD_NPCDisablePackage           auto
 
 ;UI menus
-UITextEntryMenu Property TextMenu                       auto
-UIListMenu      Property ListMenu                       auto
+Quest           Property UD_UIE_Quest                   auto
+UITextEntryMenu Property TextMenu   hidden
+    UITextEntryMenu Function Get()
+        return (UD_UIE_Quest as UITextEntryMenu)
+    EndFunction
+EndProperty
+UIListMenu      Property ListMenu   hidden
+    UIListMenu Function Get()
+        return (UD_UIE_Quest as UIListMenu)
+    EndFunction
+EndProperty
 
 ;IWantWidgets. Not currently used, but have some ideas for future. No scripts are currently required to compile
-Bool    Property iWidgetInstalled          = False      auto
+Bool    Property iWidgetInstalled          = False      auto hidden
 Quest   Property iWidgetQuest                           auto
 Bool Function UseiWW()
     return iWidgetInstalled && UDWC.UD_UseIWantWidget
@@ -89,7 +98,7 @@ EndFunction
 bool    property lockMCM                   = False      auto hidden
 bool    property UD_LockDebugMCM           = False      auto hidden
 bool    property DebugMod                  = False      auto hidden conditional
-bool    Property AllowNPCSupport           = False      auto
+bool    Property AllowNPCSupport           = False      auto hidden
 Bool    Property UD_WarningAllowed         = False      auto hidden
 bool    Property UD_DisableUpdate          = False      auto hidden conditional
 bool    Property UD_CheckAllKw             = False      auto hidden conditional
@@ -110,7 +119,7 @@ EndProperty
 float Property UD_LowPerformanceTime    = 1.0   autoreadonly
 float Property UD_HightPerformanceTime  = 0.25  autoreadonly
 
-float Property UD_baseUpdateTime
+float Property UD_baseUpdateTime hidden
     Float Function Get()
         if UDGV.UDG_CustomMinigameUpT.Value
             return fRange(UDGV.UDG_CustomMinigameUpT.Value,0.01,10.0)
@@ -126,17 +135,18 @@ EndProperty
 zadConfig   Property DDconfig                   auto
 String[]    Property UD_OfficialPatches         auto
 
-bool Property ZaZAnimationPackInstalled = false auto
+bool Property ZaZAnimationPackInstalled = false auto hidden
 ;zbfBondageShell Property ZAZBS auto
-bool Property OSLArousedInstalled       = false auto
-bool Property ConsoleUtilInstalled      = false auto
-bool Property SlaveTatsInstalled        = false auto
-bool Property OrdinatorInstalled        = false auto
-bool Property ZadExpressionSystemInstalled = false auto
-Bool Property DeviousStrikeInstalled    = False auto
-Bool Property ForHimInstalled           = False auto
+bool Property OSLArousedInstalled       = false auto hidden
+bool Property ConsoleUtilInstalled      = false auto hidden
+bool Property SlaveTatsInstalled        = false auto hidden
+bool Property OrdinatorInstalled        = false auto hidden
+bool Property ZadExpressionSystemInstalled = false auto hidden
+Bool Property DeviousStrikeInstalled    = False auto hidden
+Bool Property ForHimInstalled           = False auto hidden
+Bool Property PO3Installed              = False auto hidden ;https://www.nexusmods.com/skyrimspecialedition/mods/22854
 
-Bool Property AllowMenBondage           = True auto
+Bool Property AllowMenBondage           = True auto hidden
 
 bool Property Ready = False auto hidden
 bool Function UDReady()
@@ -464,6 +474,13 @@ Function CheckOptionalMods()
     else
         ForHimInstalled = false
     endif
+    
+    if PO3_SKSEFunctions.GetPapyrusExtenderVersion()
+        PO3Installed = True
+    else
+        PO3Installed = False
+    endif
+    
 EndFUnction
 
 Function CheckPatchesOrder()
