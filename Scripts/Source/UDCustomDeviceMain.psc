@@ -1656,9 +1656,9 @@ Int Function GetActivatedVibrators(Actor akActor)
 EndFunction
 
 ;manipulation vars, don't tough!
-int lockpicknum
-int usedLockpicks
-
+int     lockpicknum
+int     usedLockpicks
+Bool    _PO3PEDetection = False
 ;sets lockpick container
 Function ReadyLockPickContainer(int lock_difficulty,Actor owner)
     _LockPickContainer = LockPickContainer_ObjRef.placeAtMe(LockPickContainer)
@@ -1677,6 +1677,7 @@ Function startLockpickMinigame()
     LockpickMinigameOver = false
     
     if UDmain.PO3Installed
+        _PO3PEDetection = UDmain.UDGV.UDG_PO3PEDetection.Value
         PO3_SKSEFunctions.PreventActorDetection(UDmain.Player)
     endif
     
@@ -1697,7 +1698,7 @@ Function startLockpickMinigame()
     RegisterForMenu("Lockpicking Menu")
     
     if UDmain.PO3Installed
-        while PO3_SKSEFunctions.IsDetectedByAnyone(UDmain.Player)
+        while _PO3PEDetection && PO3_SKSEFunctions.IsDetectedByAnyone(UDmain.Player)
             Utility.wait(0.05)
         endwhile
     elseif UDmain.ConsoleUtilInstalled
@@ -1711,7 +1712,7 @@ EndFunction
 bool Property LockpickMinigameOver      = false auto hidden
 int  Property LockpickMinigameResult    = 0     auto hidden
 Event OnMenuClose(String MenuName)
-    if UDmain.PO3Installed
+    if _PO3PEDetection && UDmain.PO3Installed
         PO3_SKSEFunctions.ResetActorDetection(UDmain.Player)
     elseif UDmain.ConsoleUtilInstalled
         ConsoleUtil.ExecuteCommand("ToggleDetection")
