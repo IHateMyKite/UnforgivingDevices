@@ -933,17 +933,19 @@ Function ShowMessageBox(string strText)
         endif
         loc_iterLine = 0
         
-        debug.messagebox(loc_messagebox)
+        ShowSingleMessageBox(loc_messagebox)
+    endwhile
+EndFunction
+
+Function ShowSingleMessageBox(String asMessage)
+        debug.messagebox(asMessage)
         
         ;wait for fucking messagebox to actually get OKd before continuing thread (holy FUCKING shit toad)
         Utility.waitMenuMode(0.3)
         while IsMessageboxOpen()
             Utility.waitMenuMode(0.15)
         EndWhile
-        ;GamepadMenuPause()
-    endwhile
 EndFunction
-
 ;only use for debugging
 Function DCLog(String msg) global
     ConsoleUtil.PrintMessage("[UD,DEBUG,T="+Utility.GetCurrentRealTime()+"]: " + msg)
