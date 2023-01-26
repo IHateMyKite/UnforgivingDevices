@@ -432,17 +432,6 @@ Function StopMinigame(Actor akActor)
     return akActor.RemoveFromFaction(MinigameFaction)
 EndFunction
 
-bool Function actorFreeHands(Actor akActor,bool checkGrasp = false)
-    bool res = !akActor.wornhaskeyword(libs.zad_deviousHeavyBondage) 
-        
-    if checkGrasp
-        if akActor.wornhaskeyword(libs.zad_DeviousBondageMittens)
-            res = false
-        endif
-    endif
-    return res
-EndFunction
-
 Function BlockActorExpression(Actor akActor,sslBaseExpression sslExpression)
     StorageUtil.SetStringValue(akActor,"zad_BlockinkExpression",sslExpression.name)
 EndFunction
@@ -981,7 +970,7 @@ Function NPCMenu(Actor akActor)
     SetMessageAlias(akActor)
     UD_CurrentNPCMenuIsFollower         = ActorIsFollower(akActor)
     UD_CurrentNPCMenuIsRegistered       = isRegistered(akActor)
-    UD_CurrentNPCMenuTargetIsHelpless   = (!actorFreeHands(akActor) || akActor.getAV("paralysis") || akActor.GetSleepState() == 3) && actorFreeHands(UDmain.Player)
+    UD_CurrentNPCMenuTargetIsHelpless   = UDmain.ActorIsHelpless(akActor) && UDmain.ActorFreeHands(akActor)
     UD_CurrentNPCMenuTargetIsInMinigame = ActorInMinigame(akActor)
     UD_CurrentNPCMenuIsPersistent       = StorageUtil.GetIntValue(akActor, "UD_ManualRegister", 0)
 
@@ -1357,7 +1346,7 @@ Function showActorDetails(Actor akActor)
             endif
             loc_res += "Arousal: " + UDOM.getArousal(akActor) + "\n"
             loc_res += "Orgasm progress: " + formatString(UDOM.getOrgasmProgressPerc(akActor) * 100,2) + " %\n"
-            ShowMessageBox(loc_res)
+            UDmain.ShowMessageBox(loc_res)
         elseif loc_option == 1 ;skills
             String loc_res = "--SKILL DETAILS--\n"
             if IsRegistered(akActor)
@@ -1379,7 +1368,7 @@ Function showActorDetails(Actor akActor)
                 loc_res += "Magicka skill: " + Round(getMagickSkill(akActor)) + "\n"
                 loc_res += "Cutting skill: " + Round(getCuttingSkill(akActor)) + "\n"
             endif
-            ShowMessageBox(loc_res)
+            UDmain.ShowMessageBox(loc_res)
         elseif loc_option == 2 ;arousal/orgasm details
             string loc_orgStr = ""
             loc_orgStr += "--ORGASM DETAILS--\n"
@@ -1404,7 +1393,7 @@ Function showActorDetails(Actor akActor)
                     endif
                 endif
             endif
-            ShowMessageBox(loc_orgStr)
+            UDmain.ShowMessageBox(loc_orgStr)
         elseif loc_option == 3 ;Helper details
             ShowHelperDetails(akActor)
         elseif loc_option == 4 ;other details
@@ -1417,7 +1406,7 @@ Function showActorDetails(Actor akActor)
                 loc_otherStr += "Sharpest weapon: NONE\n"
                 loc_otherStr += "Cutting multiplier: 0 %\n"
             endif
-            ShowMessageBox(loc_otherStr)
+            UDmain.ShowMessageBox(loc_otherStr)
         else
             return
         endif
@@ -1428,7 +1417,7 @@ Function showActorDetails(Actor akActor)
 EndFunction
 
 Function ShowHelperDetails(Actor akActor)
-    ShowMessageBox(GetHelperDetails(akActor))
+    UDmain.ShowMessageBox(GetHelperDetails(akActor))
 EndFunction
 
 string Function GetHelperDetails(Actor akActor)

@@ -4,9 +4,9 @@ import UnforgivingDevicesMain
 
 UnforgivingDevicesMain Property UDmain auto
 
-String[]     Property UD_MenuList                             auto hidden
-bool[]         Property UD_MenuListID                             auto hidden
-string         Property UD_LastMenuOpened             = "none"     auto hidden
+String[]     Property UD_MenuList                               auto hidden
+bool[]       Property UD_MenuListID                             auto hidden
+string       Property UD_LastMenuOpened             = "none"    auto hidden
 Bool         Property UD_MenuOpened                 = false     auto hidden
 
 ;================================;

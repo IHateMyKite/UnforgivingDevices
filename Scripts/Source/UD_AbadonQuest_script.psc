@@ -169,7 +169,7 @@ Function EquipAbadonDevices(Actor akTarget,Int aiMinDevices, Int aiMaxDevices)
                 endif
             endif
             if UDmain.ActorIsPlayer(akTarget)
-                ShowMessageBox("Black goo covers your body and tie your hands while changing shape to RARE bondage restraint!")
+                UDmain.ShowMessageBox("Black goo covers your body and tie your hands while changing shape to RARE bondage restraint!")
             endif
         else
             if !akTarget.wornhaskeyword(libs.zad_deviousSuit)
@@ -194,7 +194,7 @@ Function EquipAbadonDevices(Actor akTarget,Int aiMinDevices, Int aiMaxDevices)
                 endif
             endif
             if UDmain.ActorIsPlayer(akTarget)
-                ShowMessageBox("Black goo covers your body and tie your hands while changing shape to bondage restraint!")
+                UDmain.ShowMessageBox("Black goo covers your body and tie your hands while changing shape to bondage restraint!")
             endif
         endif
         UDCDmain.EnableActor(akTarget)

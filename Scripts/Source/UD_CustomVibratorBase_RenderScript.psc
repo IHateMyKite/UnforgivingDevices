@@ -191,7 +191,7 @@ Function ShowVibDetails()
     else
         loc_res += "OFF\n"
     endif
-    ShowMessageBox(loc_res)
+    UDMain.ShowMessageBox(loc_res)
 EndFunction
 
 ;function called when player clicks DETAILS button in device menu

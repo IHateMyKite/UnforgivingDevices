@@ -909,7 +909,7 @@ Float Function fUnsig(float afValue) global
     return afValue
 EndFunction
 
-Function ShowMessageBox(string strText) global
+Function ShowMessageBox(string strText)
     String[] loc_lines = StringUtil.split(strText,"\n")
     int loc_linesNum = loc_lines.length
     
@@ -934,11 +934,40 @@ Function ShowMessageBox(string strText) global
         endif
         loc_iterLine = 0
         
-        debug.messagebox(loc_messagebox)
-        
-        ;wait for fucking messagebox to actually get OKd before continuing thread (holy FUCKING shit toad)
-        GamepadMenuPause()
+        ShowSingleMessageBox(loc_messagebox)
     endwhile
+EndFunction
+
+;shows single message box. This function will be blocked untill messagebox menu is closed
+Function ShowSingleMessageBox(String asMessage)
+        debug.messagebox(asMessage)
+        ;wait for fucking messagebox to actually get OKd before continuing thread (holy FUCKING shit toad)
+        Utility.waitMenuMode(0.3)
+        while IsMessageboxOpen()
+            Utility.waitMenuMode(0.05)
+        EndWhile
+EndFunction
+
+;returns true if actor have free hands
+; if abCheckGrasp is True, actor will also need to not have mittens for this to return true
+bool Function ActorFreeHands(Actor akActor,bool abCheckGrasp = false)
+    bool loc_res = !akActor.wornhaskeyword(libs.zad_deviousHeavyBondage)
+    if abCheckGrasp
+        if akActor.wornhaskeyword(libs.zad_DeviousBondageMittens)
+            loc_res = false
+        endif
+    endif
+    return loc_res
+EndFunction
+
+;returns true if actor is helpless
+Bool Function ActorIsHelpless(Actor akActor)
+    Bool loc_res = False
+    loc_res = loc_res || !ActorFreeHands(akActor)
+    loc_res = loc_res || akActor.getAV("paralysis")
+    loc_res = loc_res || (akActor.GetSleepState() == 3)
+    loc_res = loc_res || akActor.IsBleedingOut()
+    return loc_res
 EndFunction
 
 ;only use for debugging
@@ -1107,4 +1136,7 @@ Bool Function IsLockpickingMenuOpen()
 EndFunction
 Bool Function IsInventoryMenuOpen()
     return UDMC.IsMenuOpen(2)
+EndFunction
+Bool Function IsMessageboxOpen()
+    return UDMC.IsMenuOpen(13) ;I hope to god that this works
 EndFunction
