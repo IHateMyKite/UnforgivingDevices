@@ -432,17 +432,6 @@ Function StopMinigame(Actor akActor)
     return akActor.RemoveFromFaction(MinigameFaction)
 EndFunction
 
-bool Function actorFreeHands(Actor akActor,bool checkGrasp = false)
-    bool res = !akActor.wornhaskeyword(libs.zad_deviousHeavyBondage) 
-        
-    if checkGrasp
-        if akActor.wornhaskeyword(libs.zad_DeviousBondageMittens)
-            res = false
-        endif
-    endif
-    return res
-EndFunction
-
 Function BlockActorExpression(Actor akActor,sslBaseExpression sslExpression)
     StorageUtil.SetStringValue(akActor,"zad_BlockinkExpression",sslExpression.name)
 EndFunction
@@ -981,7 +970,7 @@ Function NPCMenu(Actor akActor)
     SetMessageAlias(akActor)
     UD_CurrentNPCMenuIsFollower         = ActorIsFollower(akActor)
     UD_CurrentNPCMenuIsRegistered       = isRegistered(akActor)
-    UD_CurrentNPCMenuTargetIsHelpless   = (!actorFreeHands(akActor) || akActor.getAV("paralysis") || akActor.GetSleepState() == 3) && actorFreeHands(UDmain.Player)
+    UD_CurrentNPCMenuTargetIsHelpless   = UDmain.ActorIsHelpless(akActor) && UDmain.ActorFreeHands(akActor)
     UD_CurrentNPCMenuTargetIsInMinigame = ActorInMinigame(akActor)
     UD_CurrentNPCMenuIsPersistent       = StorageUtil.GetIntValue(akActor, "UD_ManualRegister", 0)
 

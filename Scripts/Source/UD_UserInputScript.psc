@@ -230,7 +230,7 @@ Function OpenNPCMenu(Bool abOpenDeviceList)
                 bool loc_actorisregistered = UDCDmain.isRegistered(loc_actor)
                 if loc_actorisregistered
                     bool loc_actorisfollower = UDmain.ActorIsFollower(loc_actor)
-                    bool loc_actorishelpless = (!UDCDmain.actorFreeHands(loc_actor) || loc_actor.getAV("paralysis") ;/|| loc_actor.GetSleepState() == 3/;) && UDCDmain.actorFreeHands(UDmain.Player)
+                    bool loc_actorishelpless = (!UDmain.ActorFreeHands(loc_actor) || loc_actor.getAV("paralysis") ;/|| loc_actor.GetSleepState() == 3/;) && UDmain.ActorFreeHands(UDmain.Player)
                     if loc_actorisfollower || loc_actorishelpless
                         UDCDmain.HelpNPC(loc_actor,UDmain.Player,loc_actorisfollower)
                     endif
