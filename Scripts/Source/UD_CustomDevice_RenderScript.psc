@@ -1606,6 +1606,7 @@ Bool Function HaveAccesibleLock()
                 return true
             endif
         endwhile
+        return false
     else
         return false
     endif
