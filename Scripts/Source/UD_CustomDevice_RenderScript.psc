@@ -1581,7 +1581,7 @@ EndFunction
 ;returns true if device have at least one lock which can be lockpicked
 ;This function doesn't check accessibility or if wearer have lockpicks, so additional checks are needed
 Bool Function HaveLockpickableLocks()
-    if UD_LockList
+    if HaveLocks()
         Int loc_LockNum = GetLockNumber()
         while loc_LockNum
             loc_LockNum -= 1
@@ -1591,6 +1591,21 @@ Bool Function HaveLockpickableLocks()
             endif
         endwhile
         return false
+    else
+        return false
+    endif
+EndFunction
+
+;return true if at least one lock can be accessed
+Bool Function HaveAccesibleLock()
+    if HaveLocks()
+        Int loc_LockNum = GetLockNumber()
+        while loc_LockNum
+            loc_LockNum -= 1
+            if GetLockAccesChance(loc_LockNum) > 0
+                return true
+            endif
+        endwhile
     else
         return false
     endif
@@ -3019,7 +3034,7 @@ Function deviceMenuInit(bool[] aControl)
         UDCDmain.currentDeviceMenu_allowUselessStruggling = True
     endif
     
-    if HaveLocks()
+    if HaveLocks() && HaveAccesibleLock() ;check if device have locks, and if they can be currently accessed
         Int loc_lockMinigames = LockMinigameAllowed(loc_accesibility)
         if Math.LogicalAnd(loc_lockMinigames,0x1)
             UDCDmain.currentDeviceMenu_allowlockpick = True
@@ -3201,31 +3216,31 @@ Function deviceMenuInitWH(Actor akSource,bool[] aControl)
     float   loc_accesibility         = getAccesibility()
     ;int     loc_lockacces            = getLockAccesChance()
     
-    
     ;help struggle
     if canBeStruggled(loc_accesibility)
         UDCDmain.currentDeviceMenu_allowstruggling = True
     endif
 
-    Int loc_lockMinigame = LockMinigameAllowed(loc_accesibility)
+    if HaveAccesibleLock()
+        Int loc_lockMinigame = LockMinigameAllowed(loc_accesibility)
+        ;key unlock
+        if Math.LogicalAnd(loc_lockMinigame,0x2)
+            UDCDmain.currentDeviceMenu_allowkey = True
+        endif
+        
+        ;lockpicking
+        if Math.LogicalAnd(loc_lockMinigame,0x1)
+            if (wearer.getItemCount(UDCDmain.Lockpick) || akSource.getItemCount(UDCDmain.Lockpick))
+                UDCDmain.currentDeviceMenu_allowlockpick = True
+            endif
+        endif
 
-    ;key unlock
-    if Math.LogicalAnd(loc_lockMinigame,0x2)
-        UDCDmain.currentDeviceMenu_allowkey = True
-    endif
-    
-    ;lockpicking
-    if Math.LogicalAnd(loc_lockMinigame,0x1)
-        if (wearer.getItemCount(UDCDmain.Lockpick) || akSource.getItemCount(UDCDmain.Lockpick))
-            UDCDmain.currentDeviceMenu_allowlockpick = True
+        ;lock repair
+        if Math.LogicalAnd(loc_lockMinigame,0x4)
+            UDCDmain.currentDeviceMenu_allowlockrepair = True
         endif
     endif
-
-    ;lock repair
-    if Math.LogicalAnd(loc_lockMinigame,0x4)
-        UDCDmain.currentDeviceMenu_allowlockrepair = True
-    endif
-
+    
     ;cutting
     if canBeCutted()
         UDCDmain.currentDeviceMenu_allowcutting = True
@@ -5645,7 +5660,13 @@ Function ShowLockDetails()
             endif
         endif
         if loc_ShowAcc
-            loc_res += "Accesibility: "+_GetLockAccessibilityString(GetNthLockAccessibility(loc_lockId))+ "\n"
+            Int loc_acc  = GetNthLockAccessibility(loc_lockId)
+            Int loc_cacc = GetLockAccesChance(loc_lockId)
+            
+            Int loc_resacc = loc_acc*loc_cacc/10000
+            
+            loc_res += "Base Access: "+_GetLockAccessibilityString(loc_acc) + " ("+ loc_acc +"%)\n"
+            loc_res += "Current Access: "+_GetLockAccessibilityString(loc_resacc)+ " ("+ loc_resacc +"%\n"
         endif
         if loc_ShowDiff
             Int loc_diff = GetNthLockDifficulty(loc_lockId)
