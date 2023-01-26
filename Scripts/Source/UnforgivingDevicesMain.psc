@@ -42,6 +42,7 @@ UDItemManager                       Property ItemManager    auto
 UD_RandomRestraintManager           Property UDRRM          auto
 UD_LeveledList_Patcher              Property UDLLP          auto
 UD_OrgasmManager                    Property UDOM           auto
+UD_OrgasmManager                    Property UDOM2          auto
 UD_ExpressionManager                Property UDEM           auto
 UD_ParalelProcess                   Property UDPP           auto
 UD_CustomDevices_NPCSlotsManager    Property UDNPCM         auto
@@ -72,12 +73,23 @@ UD_SkillManager_Script              Property UDSKILL Hidden
     EndFunction
 EndProperty
 
+Package         Property UD_NPCDisablePackage           auto
+
 ;UI menus
-UITextEntryMenu Property TextMenu                       auto
-UIListMenu      Property ListMenu                       auto
+Quest           Property UD_UIE_Quest                   auto
+UITextEntryMenu Property TextMenu   hidden
+    UITextEntryMenu Function Get()
+        return (UD_UIE_Quest as UITextEntryMenu)
+    EndFunction
+EndProperty
+UIListMenu      Property ListMenu   hidden
+    UIListMenu Function Get()
+        return (UD_UIE_Quest as UIListMenu)
+    EndFunction
+EndProperty
 
 ;IWantWidgets. Not currently used, but have some ideas for future. No scripts are currently required to compile
-Bool    Property iWidgetInstalled          = False      auto
+Bool    Property iWidgetInstalled          = False      auto hidden
 Quest   Property iWidgetQuest                           auto
 Bool Function UseiWW()
     return iWidgetInstalled && UDWC.UD_UseIWantWidget
@@ -86,7 +98,7 @@ EndFunction
 bool    property lockMCM                   = False      auto hidden
 bool    property UD_LockDebugMCM           = False      auto hidden
 bool    property DebugMod                  = False      auto hidden conditional
-bool    Property AllowNPCSupport           = False      auto
+bool    Property AllowNPCSupport           = False      auto hidden
 Bool    Property UD_WarningAllowed         = False      auto hidden
 bool    Property UD_DisableUpdate          = False      auto hidden conditional
 bool    Property UD_CheckAllKw             = False      auto hidden conditional
@@ -94,7 +106,6 @@ bool    Property UD_CheckAllKw             = False      auto hidden conditional
 ;zadlibs patch control
 bool Property UD_zadlibs_ParalelProccesing = false auto
 
-Spell   OrgasmExhaustionSpell
 bool    _UD_hightPerformance
 bool Property UD_hightPerformance
     Function set(bool bValue)
@@ -108,7 +119,7 @@ EndProperty
 float Property UD_LowPerformanceTime    = 1.0   autoreadonly
 float Property UD_HightPerformanceTime  = 0.25  autoreadonly
 
-float Property UD_baseUpdateTime
+float Property UD_baseUpdateTime hidden
     Float Function Get()
         if UDGV.UDG_CustomMinigameUpT.Value
             return fRange(UDGV.UDG_CustomMinigameUpT.Value,0.01,10.0)
@@ -124,17 +135,18 @@ EndProperty
 zadConfig   Property DDconfig                   auto
 String[]    Property UD_OfficialPatches         auto
 
-bool Property ZaZAnimationPackInstalled = false auto
+bool Property ZaZAnimationPackInstalled = false auto hidden
 ;zbfBondageShell Property ZAZBS auto
-bool Property OSLArousedInstalled       = false auto
-bool Property ConsoleUtilInstalled      = false auto
-bool Property SlaveTatsInstalled        = false auto
-bool Property OrdinatorInstalled        = false auto
-bool Property ZadExpressionSystemInstalled = false auto
-Bool Property DeviousStrikeInstalled    = False auto
-Bool Property ForHimInstalled           = False auto
+bool Property OSLArousedInstalled       = false auto hidden
+bool Property ConsoleUtilInstalled      = false auto hidden
+bool Property SlaveTatsInstalled        = false auto hidden
+bool Property OrdinatorInstalled        = false auto hidden
+bool Property ZadExpressionSystemInstalled = false auto hidden
+Bool Property DeviousStrikeInstalled    = False auto hidden
+Bool Property ForHimInstalled           = False auto hidden
+Bool Property PO3Installed              = False auto hidden ;https://www.nexusmods.com/skyrimspecialedition/mods/22854
 
-Bool Property AllowMenBondage           = True auto
+Bool Property AllowMenBondage           = True auto hidden
 
 bool Property Ready = False auto hidden
 bool Function UDReady()
@@ -194,8 +206,7 @@ Event OnInit()
     
     UD_hightPerformance = UD_hightPerformance
     
-    OrgasmExhaustionSpell = UDlibs.OrgasmExhaustionSpell
-    OrgasmExhaustionSpell.SetNthEffectDuration(0, 180) ;for backward compatibility
+    UDlibs.OrgasmExhaustionSpell.SetNthEffectDuration(0, 180) ;for backward compatibility
 
     Player = Game.GetPlayer()
     
@@ -210,13 +221,55 @@ Event OnInit()
     RegisterForSingleUpdate(0.1)
 EndEvent
 
+Bool Property _Disabled = False Auto Hidden Conditional
+Bool Property _Updating = False Auto Hidden Conditional
+
+;returns true if mod is currently updating. Mods should be threated as disabled when this happends
+Bool Function IsUpdating()
+    return _Updating
+EndFunction
+
+;returns true if UD is enabled
+Bool Function IsEnabled()
+    return !_Disabled && !_Updating && ready
+EndFunction
+
+;Disables, Enables UD
+Function DISABLE()
+    _Disabled = True
+    UDNPCM.GoToState("Disabled") ;disable NPC manager, disabling all device updates
+    UDAI.GoToState("Disabled") ;disable AI updates
+    UDOM.GoToState("Disabled") ;disable orgasm updates
+EndFunction
+Function ENABLE()
+    _Disabled = False
+    UDNPCM.GoToState("")
+    UDAI.GoToState("")
+    UDOM.GoToState("")
+EndFunction
+
 Function OnGameReload()
+    if _Disabled
+        return ;mod is disabled, do nothing
+    endif
+    
+    if _Updating
+        return ;mod is already updating, most likely because user saved the game while the mod was already updating
+    endif
+    
+    _Updating = True
+    DISABLE()
+    
+    Utility.waitMenuMode(1.5)
+    
+    Print("Updating Unforgiving Devices, please wait...")
+    
     if !Ready
         Utility.waitMenuMode(2.5)
     endif
     
-    Utility.waitMenuMode(3.5)
-        
+    Utility.waitMenuMode(1.5)
+    
     CLog("OnGameReload() called! - Updating Unforgiving Devices...")
     
     ;update all scripts
@@ -260,7 +313,13 @@ Function OnGameReload()
 
     UDAbadonQuest.Update()
     
-    CLog("Unforgiving Devices updated.")
+    Info("<=====| Unforgiving Devices updated |=====>")
+    
+    _Updating = False
+    ENABLE()
+    
+    Print("Unforgiving Devices updated")
+    
 EndFunction
 
 Event OnUpdate()
@@ -415,6 +474,13 @@ Function CheckOptionalMods()
     else
         ForHimInstalled = false
     endif
+    
+    if PO3_SKSEFunctions.GetPapyrusExtenderVersion()
+        PO3Installed = True
+    else
+        PO3Installed = False
+    endif
+    
 EndFUnction
 
 Function CheckPatchesOrder()
@@ -434,13 +500,6 @@ int Function getDDescapeDifficulty()
         return (8 - DDconfig.EscapeDifficulty)
     else
         return 4
-    endif
-EndFunction
-
-Function addOrgasmExhaustion(Actor akActor)
-    OrgasmExhaustionSpell.cast(akActor)
-    if TraceAllowed()    
-        Log("Orgasm exhaustion debuff applied to "+ getActorName(akActor),1)
     endif
 EndFunction
 
@@ -466,7 +525,7 @@ int Property LogLevel = 0 auto
 Function Log(String msg, int level = 1)
     if (iRange(level,1,3) <= LogLevel) || DebugMod
         debug.trace("[UD," + level + ",T="+Utility.GetCurrentRealTime()+"]: " + msg)
-        if ConsoleUtilInstalled ;print to console
+        if ConsoleUtilInstalled && UDGV.UDG_ConsoleLog.Value  ;print to console
             ConsoleUtil.PrintMessage("[UD," + level + ",T="+Utility.GetCurrentRealTime()+"]: " + msg)
         endif
     endif
@@ -713,6 +772,28 @@ int Function iRange(int iValue,int iMin,int iMax) global
     return iValue
 EndFunction
 
+;returns true if the passed INT value is in range from iMin to iMax
+Bool Function iInRange(int aiValue,int aiMin,int aiMax) global
+    if aiValue > aiMax
+        return false
+    endif
+    if aiValue < aiMin
+        return false
+    endif
+    return true
+EndFunction
+
+;returns true if the passed FLOAT value is in range from iMin to iMax
+Bool Function fInRange(float afValue,float afMin,float afMax) global
+    if afValue > afMax
+        return false
+    endif
+    if afValue < afMin
+        return false
+    endif
+    return true
+EndFunction
+
 string Function formatString(string str,int floatPoints) global
     int float_point =  StringUtil.find(str,".")
     if (float_point == -1)
@@ -913,7 +994,7 @@ endFunction
 string Function GetUserTextInput()
     TextMenu.ResetMenu()
     TextMenu.OpenMenu()
-    TextMenu.BlockUntilClosed()
+    ;TextMenu.BlockUntilClosed()
     return TextMenu.GetResultString()
 EndFunction
 
@@ -926,7 +1007,7 @@ Int Function GetUserListInput(string[] arrList)
         loc_i+=1
     endwhile
     ListMenu.OpenMenu()
-    ListMenu.BlockUntilClosed()
+    ;ListMenu.BlockUntilClosed()
     return ListMenu.GetResultInt()
 EndFunction
 

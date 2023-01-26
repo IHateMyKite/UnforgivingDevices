@@ -12,3 +12,6 @@ This are all examples of what I want to archieve in this mod (not what is curren
 # Binary files
 
 For compiling the source files, use the https://www.nexusmods.com/skyrimspecialedition/mods/23852 or https://www.nexusmods.com/skyrim/mods/96339/
+
+# Development tools (WIP)
+https://ihatemykite.github.io/

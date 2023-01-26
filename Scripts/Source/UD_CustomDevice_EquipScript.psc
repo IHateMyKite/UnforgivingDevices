@@ -73,6 +73,9 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
         if Math.LogicalAnd(loc_ignoreEventTarget,0x002)
             StorageUtil.SetIntValue(target, "UD_ignoreEvent" + deviceInventory,Math.LogicalAnd(loc_ignoreEventTarget,0xFF0))
         endif
+        if UDmain.TraceAllowed()
+            UDmain.Log("UD_ignoreEvent actived on " + self + " for " + target)
+        endif
         return
     endif
     
@@ -84,6 +87,9 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
         endif
         if Math.LogicalAnd(loc_ignoreEventGiver,0x002)
             StorageUtil.SetIntValue(giver, "UD_ignoreEvent" + deviceInventory,Math.LogicalAnd(loc_ignoreEventGiver,0xFF0))
+        endif
+        if UDmain.TraceAllowed()
+            UDmain.Log("UD_ignoreEvent actived on " + self + " for " + giver)
         endif
         return
     endif
@@ -193,10 +199,12 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
 EndEvent
 
 Function openWHMenu(Actor akTarget,Actor akSource)
-    if UDmain.TraceAllowed()    
-        UDCDmain.Log(" NPC menu opened for " + deviceInventory.getName() + " (" + akTarget.getActorBase().getName() + ") by " + akSource.getActorBase().getName(),1)
+    if UDmain.IsEnabled()
+        if UDmain.TraceAllowed()
+            UDCDmain.Log(" NPC menu opened for " + deviceInventory.getName() + " (" + akTarget.getActorBase().getName() + ") by " + akSource.getActorBase().getName(),1)
+        endif
+        UDCDMain.OpenHelpDeviceMenu(getUDScript(akTarget),akSource,UDCDmain.ActorIsFollower(akTarget))
     endif
-    UDCDMain.OpenHelpDeviceMenu(getUDScript(akTarget),akSource,UDCDmain.ActorIsFollower(akTarget))
 EndFunction
 
 UD_CustomDevice_RenderScript Function getUDScript(Actor akActor)
@@ -295,19 +303,16 @@ EndEvent
 
 ;device menu that pops up when Wearer click on this device in inventory
 Function DeviceMenu(Int msgChoice = 0)
-    if UDmain.TraceAllowed()    
-        UDCDmain.Log("DeviceMenu("+MakeDeviceHeader(UDmain.Player,deviceInventory)+")",1)
-    endif
-    
-    if !deviceRendered.haskeyword(UDCDmain.UDlibs.UnforgivingDevice)
-        parent.deviceMenu() ;not patched device
-        return
-    endif
-    UD_CustomDevice_RenderScript device = UDCDmain.getDeviceByInventory(UDmain.Player,deviceInventory)
-    if device
-        UDCDmain.getDeviceByInventory(UDmain.Player,deviceInventory).DeviceMenu(new Bool[30])
-    else
-        UDCDmain.getDeviceScriptByRender(UDmain.Player,deviceRendered).DeviceMenu(new Bool[30])
+    if UDmain.IsEnabled()
+        if UDmain.TraceAllowed()    
+            UDCDmain.Log("DeviceMenu("+MakeDeviceHeader(UDmain.Player,deviceInventory)+")",1)
+        endif
+        UD_CustomDevice_RenderScript device = UDCDmain.getDeviceByInventory(UDmain.Player,deviceInventory)
+        if device
+            UDCDmain.getDeviceByInventory(UDmain.Player,deviceInventory).DeviceMenu(new Bool[30])
+        else
+            UDCDmain.getDeviceScriptByRender(UDmain.Player,deviceRendered).DeviceMenu(new Bool[30])
+        endif
     endif
 EndFunction
 

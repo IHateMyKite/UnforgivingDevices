@@ -1,5 +1,7 @@
 Scriptname UD_AbadonQuest_script extends Quest Conditional 
 
+import UnforgivingDevicesMain
+
 UDCustomDeviceMain      Property UDCDmain auto
 UnforgivingDevicesMain  Property UDmain  Auto
 UD_libs Property UDlibs  Auto  
@@ -143,3 +145,60 @@ Function AbadonEquipSuit(Actor target,int suit)
     UDCDmain.EnableActor(target)
 EndFunction
 
+Function EquipAbadonDevices(Actor akTarget,Int aiMinDevices, Int aiMaxDevices)
+    if !akTarget.wornhaskeyword(libs.zad_deviousheavybondage)
+        UDCDmain.DisableActor(akTarget)
+        Int loc_arousal = UDCDmain.UDOM.getArousal(akTarget)
+        if Utility.randomInt(1,99) < Round(UDCDMain.UD_BlackGooRareDeviceChance*fRange(loc_arousal/50,1.0,2.0))
+            ;rare devices, drop more loot and goo
+            if !akTarget.wornhaskeyword(libs.zad_deviousSuit)
+                int random = Utility.randomInt(1,3)
+                if random == 1
+                    libs.LockDevice(akTarget,UDlibs.AbadonBlueArmbinder)
+                elseif random == 2
+                    libs.LockDevice(akTarget,UDlibs.MageBinder)
+                elseif random == 3
+                    libs.LockDevice(akTarget,UDlibs.RogueBinder)
+                endif
+            else
+                int random = Utility.randomInt(1,2)
+                if random == 1
+                    libs.LockDevice(akTarget,UDlibs.AbadonBlueArmbinder)
+                elseif random == 2
+                    libs.LockDevice(akTarget,UDlibs.RogueBinder)
+                endif
+            endif
+            if UDmain.ActorIsPlayer(akTarget)
+                ShowMessageBox("Black goo covers your body and tie your hands while changing shape to RARE bondage restraint!")
+            endif
+        else
+            if !akTarget.wornhaskeyword(libs.zad_deviousSuit)
+                int random = Utility.randomInt(1,4)
+                if random == 1
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakArmbinder)
+                elseif random == 2
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakStraitjacket)
+                elseif random == 3
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakElbowbinder)
+                elseif random == 4
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakYoke)
+                endif
+            else
+                int random = Utility.randomInt(1,3)
+                if random == 1
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakArmbinder)
+                elseif random == 2
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakElbowbinder)
+                elseif random == 3
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakYoke)
+                endif
+            endif
+            if UDmain.ActorIsPlayer(akTarget)
+                ShowMessageBox("Black goo covers your body and tie your hands while changing shape to bondage restraint!")
+            endif
+        endif
+        UDCDmain.EnableActor(akTarget)
+    endif
+    int loc_devicenum = Utility.randomInt(aiMinDevices,aiMaxDevices)
+    UDmain.UDRRM.LockAnyRandomRestrain(akTarget,loc_devicenum)
+EndFunction

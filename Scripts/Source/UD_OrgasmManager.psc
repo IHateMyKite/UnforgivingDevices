@@ -83,12 +83,15 @@ EndFunction
 
 Function RemoveAbilities(Actor akActor)
     if akActor
-        akActor.RemoveSpell(UDlibs.OrgasmCheckSpell)
-        akActor.RemoveSpell(UDlibs.ArousalCheckSpell)
+        akActor.RemoveSpell(UDlibs.OrgasmCheckAbilitySpell)
+        akActor.RemoveSpell(UDlibs.ArousalCheckAbilitySpell)
     endif
 EndFunction
 
 Function CheckOrgasmCheck(Actor akActor)
+    if !UDmain.ActorIsPlayer(akActor)
+        return
+    endif
     if !akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
         StartOrgasmCheckLoop(akActor)
     endif
@@ -103,6 +106,9 @@ Function CheckOrgasmCheck(Actor akActor)
 EndFunction
 
 Function CheckArousalCheck(Actor akActor)
+    if !UDmain.ActorIsPlayer(akActor)
+        return
+    endif
     if !akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
         StartArousalCheckLoop(akActor)
     endif
@@ -650,12 +656,11 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,in
         loc_isfollower  = UDmain.ActorIsFollower(akActor)
     endif
     bool loc_is3Dloaded = akActor.Is3DLoaded() || loc_isplayer
-    bool loc_close      = UDmain.ActorInCloseRange(akActor)
-    bool loc_cond       = loc_is3Dloaded && loc_close
+    bool loc_cond       = loc_is3Dloaded && UDmain.ActorInCloseRange(akActor)
     
     if loc_actorinminigame
         PlayOrgasmAnimation(akActor,iDuration)
-    elseif ((akActor.IsInCombat() || akActor.IsSneaking()) && (loc_isplayer || loc_isfollower)) || !loc_cond
+    elseif !loc_cond || ((akActor.IsInCombat() || akActor.IsSneaking()) && (loc_isplayer || loc_isfollower))
         if UDmain.ActorIsPlayer(akActor)
             UDCDmain.Print("You managed to avoid losing control over your body from orgasm!",2)
         endif
@@ -680,6 +685,9 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,in
 EndFunction
 
 Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_OrgasmManager::PlayOrgasmAnimation() akActor = " + akActor + ", aiDuration = " + aiDuration)
+    EndIf
     if !aiDuration
         return
     endif
@@ -698,20 +706,17 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
     endif
     
     UDMain.UDWC.StatusEffect_SetBlink("effect-orgasm", True)
-    
-    libsp.SetAnimating(akActor, true)
-    string loc_anim = libsp.AnimSwitchKeyword(akActor, "Orgasm")
-    ;libsp.PlayThirdPersonAnimationBlocking(akActor,loc_anim, iDuration, true)
-    ;libsp.StartThirdPersonAnimation(akActor,loc_anim, iDuration)
-    
-    Form loc_shield = GetShield(akActor)
-    if loc_shield
-        akActor.unequipItem(loc_shield,true,true)
-    endif
+    Bool loc_is3Dloaded = akActor.Is3DLoaded()
     
     UDCDmain.DisableActor(akActor,loc_isPlayer)
     
-    Debug.SendAnimationEvent(akActor, loc_anim)
+    if loc_is3Dloaded
+        String[] animationArray = UDmain.UDAM.GetOrgasmAnimEvents(akActor)
+        If animationArray.Length > 0
+            UDmain.UDAM.StartSoloAnimation(akActor, animationArray[Utility.RandomInt(0, animationArray.Length - 1)], abDisableActor = False)
+        EndIf
+    endif
+    
     int loc_elapsedtime = 0
     while loc_elapsedtime < aiDuration
         if loc_elapsedtime && !(loc_elapsedtime % 2)
@@ -722,22 +727,27 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
         Utility.wait(1.0)
         loc_elapsedtime += 1
     endwhile
-    Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
-    
-    if loc_shield
-        akActor.equipItem(loc_shield,false,true)
-    endif
-    
-    libsp.SetAnimating(akActor, false)
     
     UDMain.UDWC.StatusEffect_SetBlink("effect-orgasm", False)
-    
     StorageUtil.UnsetIntValue(akActor,"UD_OrgasmDuration")
+    
+    if loc_is3Dloaded
+        UDmain.UDAM.StopAnimation(akActor, abEnableActors = False)
+    endif
     
     UDCDmain.EnableActor(akActor,loc_isPlayer)
 
     if loc_isPlayer
         UDmain.UDUI.GoToState("") ;enable UI
+    endif
+EndFunction
+
+Function addOrgasmExhaustion(Actor akActor)
+    if akActor.Is3DLoaded()
+        UDlibs.OrgasmExhaustionSpell.cast(akActor)
+        if UDmain.TraceAllowed()
+            UDmain.Log("Orgasm exhaustion debuff applied to "+ getActorName(akActor),1)
+        endif
     endif
 EndFunction
 
@@ -920,7 +930,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
         return
     endif
     
-    if UDCDMain.actorInMinigame(akActor) || libs.isAnimating(akActor)
+    if UDCDMain.actorInMinigame(akActor) || UDmain.UDAM.isAnimating(akActor)
         if akActor == UDmain.Player
             UDmain.Print("You are already busy!")
         endif
@@ -939,7 +949,11 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     
     ;UDCDMain.DisableActor(akActor,true)
     UDCDMain.StartMinigameDisable(akActor)
-    UDmain.UDAM.FastStartThirdPersonAnimation(akActor, libs.AnimSwitchKeyword(akActor, "Horny01"))
+    String[] animationArray = UDmain.UDAM.GetHornyAnimEvents(akActor)
+    If animationArray.Length > 0
+        UDmain.UDAM.StartSoloAnimation(akActor, animationArray[Utility.RandomInt(0, animationArray.Length - 1)])
+    EndIf
+
     UDCDMain.sendHUDUpdateEvent(true,true,true,true)
     
     UDmain.UDUI.GoToState("UIDisabled")
@@ -1041,9 +1055,9 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     if UDmain.ActorIsPlayer(akActor)
         _PlayerOrgasmResist_MinigameOn = false
     endif
-    
+
     if !UDmain.UDOM.isOrgasming(akActor)
-        UDmain.UDAM.FastEndThirdPersonAnimation(akActor) ;ends animation
+        UDmain.UDAM.StopAnimation(akActor) ;ends animation
     endif
     
     akActor.RemoveFromFaction(UDCDmain.MinigameFaction)

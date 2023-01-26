@@ -11,7 +11,10 @@ zadlibs                 Property libs       auto
 UD_PlayerSlotScript _PlayerSlot
 UD_PlayerSlotScript Property UD_PlayerSlot
     UD_PlayerSlotScript Function Get()
-        return UDCDmain.UD_PlayerSlot
+        if !_PlayerSlot
+            _PlayerSlot = UDCDmain.UD_PlayerSlot
+        endif
+        return _PlayerSlot
     EndFunction
 EndProperty
 

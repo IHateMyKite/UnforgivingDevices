@@ -24,7 +24,6 @@ UD_UserInputScript Property UDUI
     EndFunction
 EndProperty
 
-
 UD_NPCInteligence Property UDAI
     UD_NPCInteligence Function Get()
         return UDmain.UDAI
@@ -124,7 +123,7 @@ EndFunction
 String Property UD_NPCsPageName = "NPCs Config" auto
 
 Function LoadConfigPages()
-    pages = new String[11]
+    pages = new String[12]
     pages[0] = "General"
     pages[1] = "Device filter"
     pages[2] = "Custom devices"
@@ -134,8 +133,9 @@ Function LoadConfigPages()
     pages[6] = "DD Patch"
     pages[7] = "Abadon Plug"
     pages[8] = "UI/Widgets"
-    pages[9] = "Debug panel"
-    pages[10] = "Other"
+    pages[9] = "Animations"
+    pages[10] = "Debug panel"
+    pages[11] = "Other"
 EndFunction
 
 bool Property Ready = False Auto
@@ -261,6 +261,8 @@ Event OnPageReset(string page)
         resetDDPatchPage()
     elseif (page == "UI/Widgets")
         resetUIWidgetPage()
+    elseif (page == "Animations")
+        resetAnimationsPage()
     elseif (page == "Debug panel")
         resetDebugPage()
     elseif (page == "Other")
@@ -440,7 +442,9 @@ Int UD_DeviceLvlLocks_S
 Int UD_PreventMasterLock_T
 Int UD_MandatoryCrit_T
 Int UD_CritDurationAdjust_S
-Int UD_AlternateAnimation_T
+
+Int UD_KeyDurability_S
+
 Event resetCustomBondagePage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -463,10 +467,13 @@ Event resetCustomBondagePage()
     UD_PreventMasterLock_T = addToggleOption("Prevent master locks:",UDCDmain.UD_PreventMasterLock,UD_LockMenu_flag)
     UD_LockpickMinigameNum_S = addSliderOption("Lockpicks per minigame:",UDCDmain.UD_LockpicksPerMinigame, "{0}",UD_LockMenu_flag)
     
+    UD_KeyDurability_S = addSliderOption("Key Durability:",UDCDmain.UD_KeyDurability, "{0}",UD_LockMenu_flag)
+    addEmptyOption()
+    
     UD_AllowArmTie_T = addToggleOption("Arm tie:", UDCDmain.UD_AllowArmTie,UD_LockMenu_flag)
     UD_AllowLegTie_T = addToggleOption("Leg tie:", UDCDmain.UD_AllowLegTie,UD_LockMenu_flag)
     
-    UD_AlternateAnimation_T = addToggleOption("Alternate animation:", UDCDmain.UD_AlternateAnimation)
+    addEmptyOption()
     addEmptyOption()
     
     ;SKILL
@@ -579,7 +586,7 @@ Event resetNPCsPage()
     UD_AIEnable_T = addToggleOption("Enabled", UDAI.Enabled)
     addEmptyOption()
     
-    UD_AIUpdateTime_S   = addSliderOption("Update time: ",UDAI.UD_UpdateTime, "{0} s",      FlagSwitchOr(UD_LockMenu_flag,FlagSwitch(UDAI.Enabled)))
+    UD_AIUpdateTime_S   = addSliderOption("Update time: ",UDAI.UD_UpdateTime, "{0} s",      FlagSwitch(UDAI.Enabled))
     UD_AICooldown_S     = addSliderOption("Base Cooldown",UDAI.UD_AICooldown, "{0} min",    FlagSwitchOr(UD_LockMenu_flag,FlagSwitch(UDAI.Enabled)))
     
     AddHeaderOption("Autoscan")
@@ -619,8 +626,8 @@ Event resetPatcherPage()
     UD_PatchMult_S = addSliderOption("Global Diffuculty Modifier",Round(UDCDmain.UDPatcher.UD_PatchMult * 100), "{0} %",UD_LockMenu_flag)
     UD_EscapeModifier_S = addSliderOption("Escape modifier",UDCDmain.UDPatcher.UD_EscapeModifier, "{0}",UD_LockMenu_flag)
     
-    UD_MinLocks_S = addSliderOption("Min. Locks",UDCDmain.UDPatcher.UD_MinLocks, "{0}",UD_LockMenu_flag)
-    UD_MaxLocks_S = addSliderOption("Max. Locks",UDCDmain.UDPatcher.UD_MaxLocks, "{0}",UD_LockMenu_flag)
+    UD_MinLocks_S = addSliderOption("Min. Lock Shields",UDCDmain.UDPatcher.UD_MinLocks, "{0}",UD_LockMenu_flag)
+    UD_MaxLocks_S = addSliderOption("Max. Lock Shields",UDCDmain.UDPatcher.UD_MaxLocks, "{0}",UD_LockMenu_flag)
     
     UD_MinResistMult_S = addSliderOption("Min. Resist Sum",Round(UDCDmain.UDPatcher.UD_MinResistMult*100), "{0} %",UD_LockMenu_flag)
     UD_MaxResistMult_S = addSliderOption("Max. Resist Sum",Round(UDCDmain.UDPatcher.UD_MaxResistMult*100), "{0} %",UD_LockMenu_flag)
@@ -806,6 +813,296 @@ Event resetUIWidgetPage()
 EndEvent
 
 
+UD_AnimationManagerScript Property UDAM Hidden
+    UD_AnimationManagerScript Function Get()
+        return UDmain.UDAM
+    EndFunction
+EndProperty
+
+Int UDAM_AnimationJSON_First_T
+Int UDAM_Reload_T
+
+Int UDAM_TestQuery_PlayerArms_M
+String[] UDAM_TestQuery_PlayerArms_List
+Int[] UDAM_TestQuery_PlayerArms_Bit
+Int UDAM_TestQuery_PlayerArms_Index
+
+Int UDAM_TestQuery_PlayerLegs_M
+String[] UDAM_TestQuery_PlayerLegs_List
+Int[] UDAM_TestQuery_PlayerLegs_Bit
+Int UDAM_TestQuery_PlayerLegs_Index
+
+Int UDAM_TestQuery_PlayerMittens_T
+Bool UDAM_TestQuery_PlayerMittens
+
+Int UDAM_TestQuery_PlayerGag_T
+Bool UDAM_TestQuery_PlayerGag
+
+Int UDAM_TestQuery_HelperArms_M
+Int UDAM_TestQuery_HelperArms_Index
+
+Int UDAM_TestQuery_HelperLegs_M
+Int UDAM_TestQuery_HelperLegs_Index
+
+Int UDAM_TestQuery_HelperMittens_T
+Bool UDAM_TestQuery_HelperMittens
+
+Int UDAM_TestQuery_HelperGag_T
+Bool UDAM_TestQuery_HelperGag
+
+Int UDAM_TestQuery_Request_T
+Int UDAM_TestQuery_StopAnimation_T 
+
+Int UDAM_TestQuery_Keyword_M
+String[] UDAM_TestQuery_Keyword_List
+Int UDAM_TestQuery_Keyword_Index
+
+Int UDAM_TestQuery_Type_M
+String[] UDAM_TestQuery_Type_List
+Int UDAM_TestQuery_Type_Index
+
+Float UDAM_TestQuery_TimeSpan
+
+String[] UDAM_TestQuery_Results
+Int UDAM_TestQuery_Results_First_T
+
+Int UDAM_TestQuery_ElapsedTime_T
+
+Int UD_AlternateAnimation_T
+Int UD_AlternateAnimationPeriod_S
+
+Int UD_UseSingleStruggleKeyword_T
+
+Actor LastHelper
+Int UD_Helper_T
+
+Event resetAnimationsPage() 
+; FIRST RUN
+    If UDAM_TestQuery_Type_List.Length == 0
+        UDAM_TestQuery_Type_List = new String[2]
+        UDAM_TestQuery_Type_List[0] = ".solo"
+        UDAM_TestQuery_Type_List[1] = ".paired"
+        UDAM_TestQuery_Type_Index = 1
+    EndIf
+    If UDAM_TestQuery_Keyword_List.Length == 0
+        UDAM_TestQuery_Keyword_List = new String[36]
+        UDAM_TestQuery_Keyword_List[0] = ".zad_DeviousBoots"
+        UDAM_TestQuery_Keyword_List[1] = ".zad_DeviousPlug"
+        UDAM_TestQuery_Keyword_List[2] = ".zad_DeviousBelt"
+        UDAM_TestQuery_Keyword_List[3] = ".zad_DeviousBra"
+        UDAM_TestQuery_Keyword_List[4] = ".zad_DeviousCollar"
+        UDAM_TestQuery_Keyword_List[5] = ".zad_DeviousArmCuffs"
+        UDAM_TestQuery_Keyword_List[6] = ".zad_DeviousLegCuffs"
+        UDAM_TestQuery_Keyword_List[7] = ".zad_DeviousArmbinder"
+        UDAM_TestQuery_Keyword_List[8] = ".zad_DeviousArmbinderElbow"
+        UDAM_TestQuery_Keyword_List[9] = ".zad_DeviousHobbleSkirt"
+        UDAM_TestQuery_Keyword_List[10] = ".zad_DeviousHobbleSkirtRelaxed"
+        UDAM_TestQuery_Keyword_List[11] = ".zad_DeviousAnkleShackles"
+        UDAM_TestQuery_Keyword_List[12] = ".zad_DeviousStraitJacket"
+        UDAM_TestQuery_Keyword_List[13] = ".zad_DeviousCuffsFront"
+        UDAM_TestQuery_Keyword_List[14] = ".zad_DeviousPetSuit"
+        UDAM_TestQuery_Keyword_List[15] = ".zad_DeviousYoke"
+        UDAM_TestQuery_Keyword_List[16] = ".zad_DeviousYokeBB"
+        UDAM_TestQuery_Keyword_List[17] = ".zad_DeviousCorset"
+        UDAM_TestQuery_Keyword_List[18] = ".zad_DeviousClamps"
+        UDAM_TestQuery_Keyword_List[19] = ".zad_DeviousGloves"
+        UDAM_TestQuery_Keyword_List[20] = ".zad_DeviousHood"
+        UDAM_TestQuery_Keyword_List[21] = ".zad_DeviousElbowTie"
+        UDAM_TestQuery_Keyword_List[22] = ".zad_DeviousGag"
+        UDAM_TestQuery_Keyword_List[23] = ".zad_DeviousGagLarge"
+        UDAM_TestQuery_Keyword_List[24] = ".zad_DeviousGagPanel"
+        UDAM_TestQuery_Keyword_List[25] = ".zad_DeviousPlugVaginal"
+        UDAM_TestQuery_Keyword_List[26] = ".zad_DeviousPlugAnal"
+        UDAM_TestQuery_Keyword_List[27] = ".zad_DeviousHarness"
+        UDAM_TestQuery_Keyword_List[28] = ".zad_DeviousBlindfold"
+        UDAM_TestQuery_Keyword_List[29] = ".zad_DeviousPiercingsNipple"
+        UDAM_TestQuery_Keyword_List[30] = ".zad_DeviousPiercingsVaginal"
+        UDAM_TestQuery_Keyword_List[31] = ".zad_DeviousBondageMittens"
+        UDAM_TestQuery_Keyword_List[32] = ".zad_DeviousSuit"
+        UDAM_TestQuery_Keyword_List[33] = ".horny"
+        UDAM_TestQuery_Keyword_List[34] = ".edged"
+        UDAM_TestQuery_Keyword_List[35] = ".orgasm"
+        UDAM_TestQuery_Keyword_Index = 0
+    EndIf
+    If UDAM_TestQuery_PlayerArms_List.Length == 0
+        UDAM_TestQuery_PlayerArms_List = new String[9]
+        UDAM_TestQuery_PlayerArms_Bit = new Int[9]
+        UDAM_TestQuery_PlayerArms_List[0] = "NOTHING"
+        UDAM_TestQuery_PlayerArms_Bit[0] = 0
+        UDAM_TestQuery_PlayerArms_List[1] = "Yoke"
+        UDAM_TestQuery_PlayerArms_Bit[1] = 4
+        UDAM_TestQuery_PlayerArms_List[2] = "Front Cuffs"
+        UDAM_TestQuery_PlayerArms_Bit[2] = 8
+        UDAM_TestQuery_PlayerArms_List[3] = "Armbinder"
+        UDAM_TestQuery_PlayerArms_Bit[3] = 16
+        UDAM_TestQuery_PlayerArms_List[4] = "Elbowbinder"
+        UDAM_TestQuery_PlayerArms_Bit[4] = 32
+        UDAM_TestQuery_PlayerArms_List[5] = "Pet suit"
+        UDAM_TestQuery_PlayerArms_Bit[5] = 64
+        UDAM_TestQuery_PlayerArms_List[6] = "Elbowtie"
+        UDAM_TestQuery_PlayerArms_Bit[6] = 128
+        UDAM_TestQuery_PlayerArms_List[7] = "Straitjacket"
+        UDAM_TestQuery_PlayerArms_Bit[7] = 512
+        UDAM_TestQuery_PlayerArms_List[8] = "YokeBB"
+        UDAM_TestQuery_PlayerArms_Bit[8] = 1024
+        UDAM_TestQuery_PlayerArms_Index = 0
+    EndIf
+    If UDAM_TestQuery_PlayerLegs_List.Length == 0
+        UDAM_TestQuery_PlayerLegs_List = new String[3]
+        UDAM_TestQuery_PlayerLegs_Bit = new Int[3]
+        UDAM_TestQuery_PlayerLegs_List[0] = "NOTHING"
+        UDAM_TestQuery_PlayerLegs_Bit[0] = 0
+        UDAM_TestQuery_PlayerLegs_List[1] = "Bound Ankles"
+        UDAM_TestQuery_PlayerLegs_Bit[1] = 2
+        UDAM_TestQuery_PlayerLegs_List[2] = "Hobble Skirt"
+        UDAM_TestQuery_PlayerLegs_Bit[2] = 1
+    EndIf
+    
+    Actor actor_in_crosshair = (Game.GetCurrentCrosshairRef() as Actor)
+    ; change helper if the last one is not in animation
+    If !(LastHelper && UDAM.IsAnimating(LastHelper)) && actor_in_crosshair
+        LastHelper = actor_in_crosshair
+    EndIf
+    
+    Int flags = OPTION_FLAG_NONE
+        
+    UpdateLockMenuFlag()
+    Int rows_right = 0
+    Int rows_left = 0
+    
+; LEFT COLUMN
+
+    SetCursorPosition(0)
+    SetCursorFillMode(TOP_TO_BOTTOM)
+    
+    AddHeaderOption("Animation playback options")
+    rows_left += 1
+    UD_AlternateAnimation_T = addToggleOption("Alternate animation:", UDAM.UD_AlternateAnimation)
+    rows_left += 1
+    If UDAM.UD_AlternateAnimation
+        flags = OPTION_FLAG_NONE
+    Else
+        flags = OPTION_FLAG_DISABLED
+    EndIf
+    UD_AlternateAnimationPeriod_S = AddSliderOption("Switch period", UDAM.UD_AlternateAnimationPeriod, "{0} s", flags)
+    rows_left += 1
+    UD_UseSingleStruggleKeyword_T = AddToggleOption("Use single keyword from device", UDAM.UD_UseSingleStruggleKeyword)
+    rows_left += 1
+    
+; LEFT COLUMN
+
+    If rows_right > rows_left
+        SetCursorPosition(rows_right * 2)
+    Else
+        SetCursorPosition(rows_left * 2)
+    EndIf
+    
+    SetCursorFillMode(TOP_TO_BOTTOM)
+    AddHeaderOption("Loaded JSONs")
+    rows_left += 1
+    Int i = 0
+    While i < UDAM.UD_AnimationJSON_All.Length
+        Bool val = False
+        flags = OPTION_FLAG_NONE
+        If (UDAM.UD_AnimationJSON_Inv.Find(UDAM.UD_AnimationJSON_All[i]) > -1)
+            flags = OPTION_FLAG_DISABLED
+        Else
+            val = (UDAM.UD_AnimationJSON_Dis.Find(UDAM.UD_AnimationJSON_All[i]) == -1)
+        EndIf
+        Int id = AddToggleOption(UDAM.UD_AnimationJSON_All[i], val, flags)
+        If i == 0
+            UDAM_AnimationJSON_First_T = id
+        EndIf
+        i += 1
+        rows_left += 1
+    EndWhile
+    UDAM_Reload_T =  AddTextOption("Reload JSONs", "-PRESS-")
+    rows_left += 1
+    
+; RIGHT COLUMN
+
+    SetCursorPosition(1)
+    AddHeaderOption("Test animation query")
+    rows_right += 1
+    UDAM_TestQuery_Type_M = AddMenuOption("Animation type", UDAM_TestQuery_Type_List[UDAM_TestQuery_Type_Index])
+    rows_right += 1
+    UDAM_TestQuery_Keyword_M = AddMenuOption("Keyword", UDAM_TestQuery_Keyword_List[UDAM_TestQuery_Keyword_Index])
+    rows_right += 1
+
+    UDAM_TestQuery_PlayerArms_M = AddMenuOption("Player arms restraints", UDAM_TestQuery_PlayerArms_List[UDAM_TestQuery_PlayerArms_Index])
+    rows_right += 1
+    UDAM_TestQuery_PlayerLegs_M = AddMenuOption("Player legs restraints", UDAM_TestQuery_PlayerLegs_List[UDAM_TestQuery_PlayerLegs_Index])
+    rows_right += 1
+    UDAM_TestQuery_PlayerMittens_T = AddToggleOption("Player wears mittens", UDAM_TestQuery_PlayerMittens)
+    rows_right += 1
+    UDAM_TestQuery_PlayerGag_T = AddToggleOption("Player wears gag", UDAM_TestQuery_PlayerGag)
+    rows_right += 1
+    
+    Int helper_flags = OPTION_FLAG_NONE
+    If UDAM_TestQuery_Type_Index == 0
+        helper_flags = OPTION_FLAG_DISABLED
+    EndIf
+    If LastHelper
+        AddTextOption("Helper", LastHelper.GetActorBase().GetName(), OPTION_FLAG_DISABLED)
+    Else
+        UD_Helper_T = AddTextOption("Helper", "----", OPTION_FLAG_NONE)
+    EndIf
+    
+    UDAM_TestQuery_HelperArms_M = AddMenuOption("Helper arms restraints", UDAM_TestQuery_PlayerArms_List[UDAM_TestQuery_HelperArms_Index], helper_flags)
+    rows_right += 1
+    UDAM_TestQuery_HelperLegs_M = AddMenuOption("Helper legs restraints", UDAM_TestQuery_PlayerLegs_List[UDAM_TestQuery_HelperLegs_Index], helper_flags)
+    rows_right += 1
+    UDAM_TestQuery_HelperMittens_T = AddToggleOption("Helper wears mittens", UDAM_TestQuery_HelperMittens, helper_flags)
+    rows_right += 1
+    UDAM_TestQuery_HelperGag_T = AddToggleOption("Helper wears gag", UDAM_TestQuery_HelperGag, helper_flags)
+    rows_right += 1
+    
+    UDAM_TestQuery_Request_T =  AddTextOption("Test query", "-PRESS-")
+    rows_right += 1
+    If UDAM.IsAnimating(UDMain.Player)
+        flags = OPTION_FLAG_NONE
+    Else
+        flags = OPTION_FLAG_DISABLED
+    EndIf
+    UDAM_TestQuery_StopAnimation_T =  AddTextOption("Try to stop animation", "-PRESS-", flags)
+    rows_right += 1
+    
+; BOTH COLUMNS 
+    If rows_right > rows_left
+        SetCursorPosition(rows_right * 2)
+    Else
+        SetCursorPosition(rows_left * 2)
+    EndIf
+    SetCursorFillMode(LEFT_TO_RIGHT)
+    AddHeaderOption("Test animation query results (file)")
+    AddHeaderOption("Test animation query results (path)")
+    
+    AddTextOption("Number of found animations", UDAM_TestQuery_Results.Length, OPTION_FLAG_DISABLED)
+    UDAM_TestQuery_ElapsedTime_T = AddTextOption("Elapsed time", (UDAM_TestQuery_TimeSpan * 1000) As Int + " ms", OPTION_FLAG_DISABLED)
+    
+    If LastHelper == None && UDAM_TestQuery_Type_Index == 1
+        flags = OPTION_FLAG_DISABLED
+    Else
+        flags = OPTION_FLAG_NONE
+    EndIf
+    i = 0
+    While i < UDAM_TestQuery_Results.Length
+        Int part_index = StringUtil.Find(UDAM_TestQuery_Results[i], ":")
+        If part_index > -1
+            String file_part = StringUtil.Substring(UDAM_TestQuery_Results[i], 0, part_index)
+            String path_part = StringUtil.Substring(UDAM_TestQuery_Results[i], part_index + 1)
+            AddTextOption(file_part, ":", OPTION_FLAG_DISABLED)
+            Int id = AddTextOption(path_part, "-PLAY-", flags)
+            If i == 0
+                UDAM_TestQuery_Results_First_T = id
+            EndIf
+        EndIf
+        i += 1
+    EndWhile
+    
+EndEvent
+
+
 int[] registered_devices_T
 int[] NPCSlots_T
 int device_flag
@@ -886,7 +1183,7 @@ Event resetDebugPage()
             elseif i == 20
                 unlockAll_T             = AddTextOption("Unlock all", "CLICK" ,FlagSwitchAnd(UD_LockMenu_flag,FlagSwitch(!UDmain.UD_LockDebugMCM)))
             elseif i == 21
-                endAnimation_T          = AddTextOption("Terminate animation", "CLICK" ,fix_flag)
+                endAnimation_T          = AddTextOption("Show details", "CLICK" )
             elseif i == 22
                 fixBugs_T               = AddTextOption("Fixes", "CLICK" ,fix_flag)
             elseif i == 23
@@ -954,25 +1251,28 @@ Function resetOtherPage()
     AddHeaderOption("Optional mods")
     addEmptyOption()
     
-    AddTextOption("Zaz animation pack installed: ",InstallSwitch(UDmain.ZaZAnimationPackInstalled),FlagSwitch(UDmain.ZaZAnimationPackInstalled))
+    AddTextOption("Zaz animation pack installed",InstallSwitch(UDmain.ZaZAnimationPackInstalled),FlagSwitch(UDmain.ZaZAnimationPackInstalled))
     addEmptyOption()
     
-    AddTextOption("ConsoleUtil installed: ",InstallSwitch(UDmain.ConsoleUtilInstalled),FlagSwitch(UDmain.ConsoleUtilInstalled))
+    AddTextOption("ConsoleUtil installed",InstallSwitch(UDmain.ConsoleUtilInstalled),FlagSwitch(UDmain.ConsoleUtilInstalled))
     addEmptyOption()
     
-    AddTextOption("SlaveTats installed: ",InstallSwitch(UDmain.SlaveTatsInstalled),FlagSwitch(UDmain.SlaveTatsInstalled))
+    AddTextOption("SlaveTats installed",InstallSwitch(UDmain.SlaveTatsInstalled),FlagSwitch(UDmain.SlaveTatsInstalled))
     addEmptyOption()
 
-    AddTextOption("Devious Devices For Him: ",InstallSwitch(UDmain.ForHimInstalled),FlagSwitch(UDmain.ForHimInstalled))
+    AddTextOption("Devious Devices For Him",InstallSwitch(UDmain.ForHimInstalled),FlagSwitch(UDmain.ForHimInstalled))
+    addEmptyOption()
+
+    AddTextOption("powerofthree's Papyrus Extender",InstallSwitch(UDmain.PO3Installed),FlagSwitch(UDmain.PO3Installed))
     addEmptyOption()
 
 EndFunction
 
 String Function InstallSwitch(Bool abSwitch)
     if abSwitch
-        return "Installed"
+        return "INSTALLED"
     else
-        return "Not installed"
+        return "NOT INSTALLED"
     endif
 EndFunction
 
@@ -985,6 +1285,7 @@ event OnOptionSelect(int option)
     OptionDDPatch(option)
     OptionSelectAbadon(option)
     OptionSelectUiWidget(option)
+    OptionSelectAnimations(option)
     OptionSelectDebug(option)
     OptionSelectOther(option)
 endEvent
@@ -1128,9 +1429,6 @@ Function OptionCustomBondage(int option)
     elseif option == UD_MandatoryCrit_T
         UDCDmain.UD_MandatoryCrit = !UDCDmain.UD_MandatoryCrit
         SetToggleOptionValue(UD_MandatoryCrit_T, UDCDmain.UD_MandatoryCrit)  
-    elseif option == UD_AlternateAnimation_T
-        UDCDmain.UD_AlternateAnimation = !UDCDmain.UD_AlternateAnimation
-        SetToggleOptionValue(UD_AlternateAnimation_T, UDCDmain.UD_AlternateAnimation)  
     endif
 EndFunction
 
@@ -1227,6 +1525,98 @@ Function OptionSelectUiWidget(int option)
     endif
 EndFunction
 
+Function OptionSelectAnimations(int option)
+    If UDAM_AnimationJSON_First_T == 0 
+        Return
+    EndIf
+    If (option >= UDAM_AnimationJSON_First_T) && (option <= (UDAM_AnimationJSON_First_T + (UDAM.UD_AnimationJSON_All.Length - 1) * 2)) && (((option - UDAM_AnimationJSON_First_T) % 2) == 0)
+        Int index = (option - UDAM_AnimationJSON_First_T) / 2
+        String val = UDAM.UD_AnimationJSON_All[index]
+        If UDAM.UD_AnimationJSON_Dis.Find(val) == -1
+            UDAM.UD_AnimationJSON_Dis = PapyrusUtil.PushString(UDAM.UD_AnimationJSON_Dis, UDAM.UD_AnimationJSON_All[index])
+            SetToggleOptionValue(option, False)
+        Else
+            UDAM.UD_AnimationJSON_Dis = PapyrusUtil.RemoveString(UDAM.UD_AnimationJSON_Dis, UDAM.UD_AnimationJSON_All[index])
+            SetToggleOptionValue(option, True)
+        EndIf
+    ElseIf option == UDAM_Reload_T
+        SetOptionFlags(option, OPTION_FLAG_DISABLED)
+        UDAM.LoadAnimationJSONFiles()
+        SetOptionFlags(option, OPTION_FLAG_NONE)
+    ElseIf option == UDAM_TestQuery_Request_T
+        SetOptionFlags(option, OPTION_FLAG_DISABLED)
+        Float start_time = Utility.GetCurrentRealTime()
+        String[] kwds = new String[1]
+        kwds[0] = UDAM_TestQuery_Keyword_List[UDAM_TestQuery_Keyword_Index]
+        String anim_type = UDAM_TestQuery_Type_List[UDAM_TestQuery_Type_Index]
+        If UDAM_TestQuery_Type_Index == 1                                       ; .paired
+            Int[] constr = new Int[2]
+            constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int) + 2048 * (UDAM_TestQuery_PlayerGag as Int)
+            constr[1] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_HelperArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_HelperLegs_Index] + 256 * (UDAM_TestQuery_HelperMittens as Int) + 2048 * (UDAM_TestQuery_HelperGag as Int)
+            UDAM_TestQuery_Results = UDAM.GetAnimationsFromDB(anim_type, kwds, "", constr)
+        Else                                                                    ; .solo
+            Int[] constr = new Int[1]
+            constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int) + 2048 * (UDAM_TestQuery_PlayerGag as Int)
+            UDAM_TestQuery_Results = UDAM.GetAnimationsFromDB(anim_type, kwds, "", constr)
+        EndIf
+        UDAM_TestQuery_TimeSpan = Utility.GetCurrentRealTime() - start_time
+        forcePageReset()
+        SetOptionFlags(option, OPTION_FLAG_NONE)
+    ElseIf option == UDAM_TestQuery_PlayerMittens_T
+        UDAM_TestQuery_PlayerMittens = !UDAM_TestQuery_PlayerMittens
+        SetToggleOptionValue(option, UDAM_TestQuery_PlayerMittens)
+    ElseIf option == UDAM_TestQuery_HelperMittens_T
+        UDAM_TestQuery_HelperMittens = !UDAM_TestQuery_HelperMittens
+        SetToggleOptionValue(option, UDAM_TestQuery_HelperMittens)
+    ElseIf option == UDAM_TestQuery_PlayerGag_T
+        UDAM_TestQuery_PlayerGag = !UDAM_TestQuery_PlayerGag
+        SetToggleOptionValue(option, UDAM_TestQuery_PlayerGag)
+    ElseIf option == UDAM_TestQuery_HelperGag_T
+        UDAM_TestQuery_HelperGag = !UDAM_TestQuery_HelperGag
+        SetToggleOptionValue(option, UDAM_TestQuery_HelperGag)
+    elseif option == UD_AlternateAnimation_T
+        UDAM.UD_AlternateAnimation = !UDAM.UD_AlternateAnimation
+        SetToggleOptionValue(UD_AlternateAnimation_T, UDAM.UD_AlternateAnimation)
+        If UDAM.UD_AlternateAnimation
+            SetOptionFlags(UD_AlternateAnimationPeriod_S, OPTION_FLAG_NONE)
+        Else
+            SetOptionFlags(UD_AlternateAnimationPeriod_S, OPTION_FLAG_DISABLED)
+        EndIf
+    ElseIf (option >= UDAM_TestQuery_Results_First_T) && (option <= (UDAM_TestQuery_Results_First_T + (UDAM_TestQuery_Results.Length - 1) * 2)) && (((option - UDAM_TestQuery_Results_First_T) % 2) == 0)
+        Int index = (option - UDAM_TestQuery_Results_First_T) / 2
+        String val = UDAM_TestQuery_Results[index]
+        If UDAM_TestQuery_Type_Index == 1 && !LastHelper
+            ShowMessage("First you need to choose a helper. Hover your crosshair over an NPC in the game and make sure its name appears in the 'Helper' option above")
+        Else
+            If ShowMessage("FOR DEBUG ONLY! It is impossible to stop the animation, only switch to another one! Animation will start if you press ACCEPT and close menu.", True)
+                closeMCM()
+                If LastHelper && UDAM_TestQuery_Type_Index == 1
+                    Actor[] actors = new Actor[2]
+                    actors[0] = Game.GetPlayer()
+                    actors[1] = LastHelper
+                    Int[] constr = new Int[2]
+                    constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int)
+                    constr[1] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_HelperArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_HelperLegs_Index] + 256 * (UDAM_TestQuery_HelperMittens as Int)
+                    UDAM.PlayAnimationByDef(val, actors, constr)
+                Else
+                    Actor[] actors = new Actor[1]
+                    actors[0] = Game.GetPlayer()
+                    Int[] constr = new Int[1]
+                    constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int)
+                    UDAM.PlayAnimationByDef(val, actors, constr)
+                EndIf
+            EndIf
+        EndIf
+    ElseIf option == UDAM_TestQuery_StopAnimation_T
+        ShowMessage("Lets try to stop animation")
+        UDAM.StopAnimation(Game.GetPlayer(), LastHelper)
+        closeMCM()
+    ElseIf option == UD_UseSingleStruggleKeyword_T
+        UDAM.UD_UseSingleStruggleKeyword = !UDAM.UD_UseSingleStruggleKeyword
+        SetToggleOptionValue(UD_UseSingleStruggleKeyword_T, UDAM.UD_UseSingleStruggleKeyword)
+    EndIf
+EndFunction
+
 Function OptionSelectAbadon(int option)
     if(option == UseAnalVariant_T)
         AbadonQuest.UseAnalVariant = !AbadonQuest.UseAnalVariant
@@ -1269,11 +1659,13 @@ Function OptionSelectDebug(int option)
         UDCDmain.removeAllDevices(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
     elseif endAnimation_T == option
         closeMCM()
-        bool[] cameraState = new Bool[2]
-        cameraState[0] = False
-        cameraState[1] = False
-        UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor().RemoveFromFaction(UDCDmain.BlockAnimationFaction)
-        UDCDmain.libs.EndThirdPersonAnimation(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor(), cameraState)
+        UDCDmain.ShowActorDetails(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
+        ;bool[] cameraState = new Bool[2]
+        ;cameraState[0] = False
+        ;cameraState[1] = False
+        ;UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor().RemoveFromFaction(UDCDmain.BlockAnimationFaction)
+        ;UDCDmain.libs.EndThirdPersonAnimation(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor(), cameraState)
+        ;UDAM.StopAnimation(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
     elseif unregisterNPC_T == option
         UDCD_NPCM.unregisterNPC(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
         forcePageReset()
@@ -1333,16 +1725,34 @@ Function OptionSelectOther(int option)
 EndFunction
 
 Function OnOptionInputOpen(int option)
+    OnOptionInputOpenGeneral(option)
+    OnOptionInputOpenAnimations(option)
+EndFunction
+
+Function OnOptionInputOpenGeneral(int option)
     if option == UD_RandomFilter_T
         SetInputDialogStartText(Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFFFFFF))
     endif
 EndFunction
 
+Function OnOptionInputOpenAnimations(int option)
+
+EndFunction
+
 Function OnOptionInputAccept(int option, string value)
+    OnOptionInputAcceptGeneral(option, value)
+    OnOptionInputAcceptAnimations(option, value)
+EndFunction
+
+Function OnOptionInputAcceptGeneral(int option, string value)
     if(option == UD_RandomFilter_T)
         UDmain.UDRRM.UD_RandomDevice_GlobalFilter = Math.LogicalXor(value as Int,0xFFFFFFFF)
         SetInputOptionValue(UD_RandomFilter_T, Math.LogicalXor(UDmain.UDRRM.UD_RandomDevice_GlobalFilter,0xFFFFFFFF))
     endif
+EndFunction
+
+Function OnOptionInputAcceptAnimations(int option, string value)
+
 EndFunction
 
 event OnOptionSliderOpen(int option)
@@ -1354,6 +1764,7 @@ event OnOptionSliderOpen(int option)
     OnOptionSliderOpenAbadon(option)
     OnOptionSliderOpenDebug(option)
     OnOptionSliderOpenUIWidget(option)
+    OnOptionSliderOpenAnimations(option)
 endEvent
 
 Function OnOptionSliderOpenGeneral(int option)
@@ -1446,6 +1857,11 @@ Function OnOptionSliderOpenCustomBondage(int option)
         SetSliderDialogDefaultValue(0.0)
         SetSliderDialogRange(-0.5, 0.5)
         SetSliderDialogInterval(0.05)
+    elseif option == UD_KeyDurability_S
+        SetSliderDialogStartValue(UDCDmain.UD_KeyDurability)
+        SetSliderDialogDefaultValue(5.0)
+        SetSliderDialogRange(0, 20)
+        SetSliderDialogInterval(1)
     endif
 EndFunction
 
@@ -1535,12 +1951,12 @@ Function OnOptionSliderOpenPatcher(int option)
         SetSliderDialogInterval(1.0)
     elseif option == UD_MinLocks_S
         SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_MinLocks)
-        SetSliderDialogDefaultValue(1.0)
-        SetSliderDialogRange(1.0,UDCDmain.UDPatcher.UD_MaxLocks)
+        SetSliderDialogDefaultValue(0.0)
+        SetSliderDialogRange(0.0,UDCDmain.UDPatcher.UD_MaxLocks)
         SetSliderDialogInterval(1.0)
     elseif option == UD_MaxLocks_S
         SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_MaxLocks)
-        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogDefaultValue(2.0)
         SetSliderDialogRange(UDCDmain.UDPatcher.UD_MinLocks,30.0)
         SetSliderDialogInterval(1.0)
     elseif option == UD_MinResistMult_S
@@ -1679,6 +2095,15 @@ Function OnOptionSliderOpenUIWidget(Int option)
         SetSliderDialogInterval(1.0)
     EndIf
 EndFunction
+
+Function OnOptionSliderOpenAnimations(int option)
+    if (option == UD_AlternateAnimationPeriod_S)
+        SetSliderDialogStartValue(UDAM.UD_AlternateAnimationPeriod)
+        SetSliderDialogDefaultValue(5.0)
+        SetSliderDialogRange(3.0, 15.0)
+        SetSliderDialogInterval(1.0)
+    endIf
+EndFunction
     
 event OnOptionSliderAccept(int option, float value)
     OnOptionSliderAcceptGeneral(option,value)
@@ -1689,6 +2114,7 @@ event OnOptionSliderAccept(int option, float value)
     OnOptionSliderAcceptAbadon(option, value)
     OnOptionSliderAcceptDebug(option,value)
     OnOptionSliderAcceptUIWidget(option,value)
+    OnOptionSliderAcceptAnimations(option, value)
 endEvent
 
 Function OnOptionSliderAcceptGeneral(int option, float value)
@@ -1750,6 +2176,9 @@ Function OnOptionSliderAcceptCustomBondage(int option, float value)
     elseif option == UD_CritDurationAdjust_S
         UDCDmain.UD_CritDurationAdjust = value
         SetSliderOptionValue(UD_CritDurationAdjust_S, UDCDmain.UD_CritDurationAdjust, "{2} s")
+    elseif option == UD_KeyDurability_S
+        UDCDmain.UD_KeyDurability = Round(value)
+        SetSliderOptionValue(UD_KeyDurability_S, UDCDmain.UD_KeyDurability, "{0}")
     endif
 EndFunction
 
@@ -1903,12 +2332,20 @@ Function OnOptionSliderAcceptUIWidget(Int option, Float value)
     EndIf
 EndFunction
 
+Function OnOptionSliderAcceptAnimations(int option, float value)
+    if option == UD_AlternateAnimationPeriod_S
+        UDAM.UD_AlternateAnimationPeriod = (value As Int)
+        SetSliderOptionValue(UD_AlternateAnimationPeriod_S, value, "{0} s")
+    endIf
+EndFunction
+
 event OnOptionMenuOpen(int option)
     OnOptionMenuOpenDefault(option)
     OnOptionMenuOpenCustomBondage(option)
     OnOptionMenuOpenCustomOrgasm(option)
     OnOptionMenuOpenAbadon(option)
     OnOptionMenuOpenUIWidget(option)
+    OnOptionMenuOpenAnimations(option)
 endEvent
 
 Function OnOptionMenuOpenDefault(int option)
@@ -1954,6 +2391,7 @@ Function OnOptionMenuOpenCustomOrgasm(int option)
     endif
 EndFunction
 
+
 Function OnOptionMenuOpenUIWidget(int option)
     if (option == UD_IconsAnchor_M)
         SetMenuDialogOptions(UD_IconsAnchorList)
@@ -1984,16 +2422,45 @@ Function OnOptionMenuOpenUIWidget(int option)
     endif
 EndFunction
 
+Function OnOptionMenuOpenAnimations(Int option)
+    If option == UDAM_TestQuery_Type_M
+        SetMenuDialogOptions(UDAM_TestQuery_Type_List)
+        SetMenuDialogStartIndex(UDAM_TestQuery_Type_Index)
+        SetMenuDialogDefaultIndex(1)
+    ElseIf option == UDAM_TestQuery_Keyword_M
+        SetMenuDialogOptions(UDAM_TestQuery_Keyword_List)
+        SetMenuDialogStartIndex(UDAM_TestQuery_Keyword_Index)
+        SetMenuDialogDefaultIndex(0)
+    ElseIf option == UDAM_TestQuery_PlayerArms_M
+        SetMenuDialogOptions(UDAM_TestQuery_PlayerArms_List)
+        SetMenuDialogStartIndex(UDAM_TestQuery_PlayerArms_Index)
+        SetMenuDialogDefaultIndex(0)
+    ElseIf option == UDAM_TestQuery_PlayerLegs_M
+        SetMenuDialogOptions(UDAM_TestQuery_PlayerLegs_List)
+        SetMenuDialogStartIndex(UDAM_TestQuery_PlayerLegs_Index)
+        SetMenuDialogDefaultIndex(0)
+    ElseIf option == UDAM_TestQuery_HelperArms_M
+        SetMenuDialogOptions(UDAM_TestQuery_PlayerArms_List)
+        SetMenuDialogStartIndex(UDAM_TestQuery_HelperArms_Index)
+        SetMenuDialogDefaultIndex(0)
+    ElseIf option == UDAM_TestQuery_HelperLegs_M
+        SetMenuDialogOptions(UDAM_TestQuery_PlayerLegs_List)
+        SetMenuDialogStartIndex(UDAM_TestQuery_HelperLegs_Index)
+        SetMenuDialogDefaultIndex(0)
+    EndIf
+EndFunction
+
 event OnOptionMenuAccept(int option, int index)
     OnOptionMenuAcceptDefault(option,index)
     OnOptionMenuAcceptCustomBondage(option,index)
     OnOptionMenuAcceptCustomOrgasm(option,index)
     OnOptionMenuAcceptAbadon(option, index)
     OnOptionMenuAcceptUIWidget(option, index)
+    OnOptionMenuAcceptAnimations(option, index)
 endEvent
 
 Function OnOptionMenuAcceptDefault(int option, int index)
-EndFUnction
+EndFunction
 
 Function OnOptionMenuAcceptAbadon(int option, int index)
     if (option == difficulty_M)
@@ -2054,6 +2521,36 @@ Function OnOptionMenuAcceptUIWidget(Int option, Int index)
         SetMenuOptionValue(UD_WidgetPosY_M, widgetYList[UDWC.UD_WidgetYPos])
         forcePageReset()
     endif
+EndFunction
+
+Function OnOptionMenuAcceptAnimations(Int option, Int index)
+    If option == UDAM_TestQuery_Type_M
+        UDAM_TestQuery_Type_Index = index
+        SetMenuOptionValue(option, UDAM_TestQuery_Type_List[index])
+        Int helper_flags = OPTION_FLAG_NONE
+        If index == 0
+            helper_flags = OPTION_FLAG_DISABLED
+        EndIf
+        SetOptionFlags(UDAM_TestQuery_HelperArms_M, helper_flags)
+        SetOptionFlags(UDAM_TestQuery_HelperLegs_M, helper_flags)
+        SetOptionFlags(UDAM_TestQuery_HelperMittens_T, helper_flags)
+        SetOptionFlags(UDAM_TestQuery_HelperGag_T, helper_flags)
+    ElseIf option == UDAM_TestQuery_Keyword_M
+        UDAM_TestQuery_Keyword_Index = index
+        SetMenuOptionValue(option, UDAM_TestQuery_Keyword_List[index])
+    ElseIf option == UDAM_TestQuery_PlayerArms_M
+        UDAM_TestQuery_PlayerArms_Index = index
+        SetMenuOptionValue(option, UDAM_TestQuery_PlayerArms_List[index])
+    ElseIf option == UDAM_TestQuery_PlayerLegs_M
+        UDAM_TestQuery_PlayerLegs_Index = index
+        SetMenuOptionValue(option, UDAM_TestQuery_PlayerLegs_List[index])
+    ElseIf option == UDAM_TestQuery_HelperArms_M
+        UDAM_TestQuery_HelperArms_Index = index
+        SetMenuOptionValue(option, UDAM_TestQuery_PlayerArms_List[index])
+    ElseIf option == UDAM_TestQuery_HelperLegs_M
+        UDAM_TestQuery_HelperLegs_Index = index
+        SetMenuOptionValue(option, UDAM_TestQuery_PlayerLegs_List[index])
+    EndIf
 EndFunction
 
 bool Function checkMinigameKeyConflict(int iKeyCode)
@@ -2158,7 +2655,8 @@ Event OnOptionDefault(int option)
     elseif (_lastPage == "Debug panel")
         ;DebugPageDefault(option) ;TODO. Will winish later, as doing this is pain in the ass
     elseif (_lastPage == "Other")
-
+    elseif (_lastPage == "Animations")
+        ; AnimationPageDefault(option)  ; copy-paste, where did you take me?!
     endif
 EndEvent
 
@@ -2322,10 +2820,11 @@ Function CustomBondagePageDefault(int option)
         SetInfoText("How many levels are needed for number of maximum locks to increase.Setting this to 0 will disable Lock level scaling\nExample: If this is 5, and device have level 10, maximum level will be increased by 2\nDefault: 5")
     elseif option == UD_MandatoryCrit_T
         SetInfoText("When this option is enabled, not landing crits will punish player\nDefault: OFF")
-    elseif option == UD_AlternateAnimation_T
-        SetInfoText("Enabling this will force struggle animation to randomly switch to different animation periodically\nDefault: OFF")
     elseif option == UD_CritDurationAdjust_S
         SetInfoText("By how much time will be crit duration changed. Setting this to small negative value might make crits impossible.\nIn case you are experiencing bigger lags when using UD, you may need to increase this value to make crits easier.\nDefault: 0.0 s")
+    elseif option == UD_KeyDurability_S
+        UDCDmain.UD_KeyDurability = 5
+        SetSliderOptionValue(UD_KeyDurability_S, UDCDmain.UD_KeyDurability, "{0}")
     Endif
 EndFunction
 
@@ -2383,9 +2882,9 @@ Function PatcherPageDefault(int option)
     elseif option == UD_EscapeModifier_S
         SetInfoText("Sets escape modifier. Escape modifier determinates how patched device DPS is calculated. Default formula is DDEscapeChance/EscapeModifier = DPS\n Example: if this is 10 and to be patched device have escape chance 10%, resulting base DPS will be 1.0\nDefault: 10")
     elseif option == UD_MinLocks_S
-        SetInfoText("Minimum number of locks which device can get by patcher\nDefault: 1")
+        SetInfoText("Minimum number of lock shields which device can get by patcher\nDefault: 0")
     elseif option == UD_MaxLocks_S
-        SetInfoText("Maximum number of locks which device can get by patcher\nDefault: 1")
+        SetInfoText("Maximum number of lock shields which device can get by patcher\nDefault: 2")
     elseif option == UD_MinResistMult_S
         SetInfoText("Minimum sum of both resistances (Physical + Magical). If their sum is smaller than this value, one of the resists will be increased so the total sum is this number. The smaller this number will be, the smaller device resistances will be (device is easier)\nDefault: -100%")
     elseif option == UD_MaxResistMult_S
@@ -2462,7 +2961,11 @@ Function DebugPageDefault(int option)
     endIf
 EndFunction
 
-
+Function AnimationPageDefault(Int option)
+    If option == UD_AlternateAnimation_T
+        SetInfoText("Enabling this will force struggle animation to randomly switch to different animation periodically\nDefault: OFF")
+    EndIf
+EndFunction
 ;=========================================
 ;                 INFO.      .............
 ;=========================================
@@ -2488,7 +2991,9 @@ Event OnOptionHighlight(int option)
     elseif (_lastPage == "Debug panel")
         DebugPageInfo(option)
     elseif (_lastPage == "Other")
-
+    
+    elseif (_lastPage == "Animations")
+        AnimationPageInfo(option)
     endif
 EndEvent
 
@@ -2617,10 +3122,10 @@ Function CustomBondagePageInfo(int option)
         SetInfoText("How many levels are needed for number of maximum locks to increase.Setting this to 0 will disable Lock level scaling\nExample: If this is 5, and device have level 10, maximum level will be increased by 2\nDefault: 5")
     elseif option == UD_MandatoryCrit_T
         SetInfoText("When this option is enabled, not landing crits will punish player\nDefault: OFF")
-    elseif option == UD_AlternateAnimation_T
-        SetInfoText("Enabling this will force struggle animation to randomly switch to different animation periodically\nDefault: OFF")
     elseif option == UD_CritDurationAdjust_S
         SetInfoText("By how much time will be crit duration changed. Setting this to small negative value might make crits impossible.\nIn case you are experiencing bigger lags when using UD, you might increase this value to make crits easier.\nDefault: 0.0 s")
+    elseif option == UD_KeyDurability_S
+        SetInfoText("How many times can be key used to unlock the restrains lock before it gets destroyed. Set this to 0 to make keys indestructible\nDefault: 5")
     Endif
 EndFunction
 
@@ -2793,7 +3298,29 @@ Function DebugPageInfo(int option)
     endIf
 EndFunction
 
-
+Function AnimationPageInfo(Int option)
+    If (option >= UDAM_AnimationJSON_First_T) && (option <= (UDAM_AnimationJSON_First_T + (UDAM.UD_AnimationJSON_All.Length - 1) * 2)) && (((option - UDAM_AnimationJSON_First_T) % 2) == 0)
+        SetInfoText("Toggle file to be loaded into animation pull. Use Reload option to apply changes.")
+    ElseIf option == UDAM_Reload_T
+        SetInfoText("Click to reload all files from the disk. Unchecked files will be ignored. These settings are persisted through saves.")
+    elseif option == UD_AlternateAnimation_T
+        SetInfoText("Enabling this will force struggle animation to randomly switch to different animation periodically\nDefault: OFF")
+    elseif option == UD_UseSingleStruggleKeyword_T
+        SetInfoText("If this option is enabled, then only one (defining) device keyword will be used when filtering the struggle animation. Otherwise, all suitable keywords will be applied.\nDefault: ON")
+    elseif option == UD_AlternateAnimationPeriod_S
+        SetInfoText("Animation is picked from an array of suitable ones with a given period.\nDefault: 5 sec")
+    ElseIf option == UDAM_TestQuery_Request_T
+        SetInfoText("Request animations with specified conditions")
+    ElseIf option == UDAM_TestQuery_StopAnimation_T
+        SetInfoText("You can try to stop the animation. No guarantees!")
+    ElseIf option == UDAM_TestQuery_ElapsedTime_T
+        SetInfoText("")
+    ElseIf (option >= UDAM_TestQuery_Results_First_T) && (option <= (UDAM_TestQuery_Results_First_T + (UDAM_TestQuery_Results.Length - 1) * 2)) && (((option - UDAM_TestQuery_Results_First_T) % 2) == 0)
+        SetInfoText("FOR DEBUG ONLY! It is impossible to stop the animation, only switch to another one.")
+    ElseIf option == UD_Helper_T
+        SetInfoText("Put crosshair on actor to set it as helper in animation")
+    EndIf
+EndFunction
 ;=========================================
 ;                 OTHER.     .............
 ;=========================================
@@ -2893,14 +3420,12 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "PlayerMenu_KeyCode", UDCDmain.PlayerMenu_KeyCode)
     JsonUtil.SetIntValue(strFile, "ActionKey_Keycode", UDCDmain.ActionKey_Keycode)
     JsonUtil.SetIntValue(strFile, "NPCMenu_Keycode", UDCDmain.NPCMenu_Keycode)
-    
     JsonUtil.SetIntValue(strFile, "UseDDdifficulty", UDCDmain.UD_UseDDdifficulty as Int)
     JsonUtil.SetIntValue(strFile, "UseWidget", UDCDmain.UD_UseWidget as Int)
     JsonUtil.SetIntValue(strFile, "GagPhonemModifier", UDCDmain.UD_GagPhonemModifier)
     JsonUtil.SetIntValue(strFile, "StruggleDifficulty", UDCDmain.UD_StruggleDifficulty)
     JsonUtil.SetFloatValue(strFile, "BaseDeviceSkillIncrease", UDCDmain.UD_BaseDeviceSkillIncrease)
     JsonUtil.SetFloatValue(strFile, "DeviceUpdateTime", UDCDmain.UD_UpdateTime)
-    
     JsonUtil.SetIntValue(strFile, "AutoCrit", UDCDmain.UD_AutoCrit as Int)
     JsonUtil.SetIntValue(strFile, "AutoCritChance", UDCDmain.UD_AutoCritChance)
     JsonUtil.SetFloatValue(strFile, "VibrationMultiplier", UDCDmain.UD_VibrationMultiplier)
@@ -2915,30 +3440,22 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "HornyAnimationDuration", UDOM.UD_HornyAnimationDuration)
     JsonUtil.SetFloatValue(strFile, "CooldownMultiplier", UDCDmain.UD_CooldownMultiplier)
     JsonUtil.SetIntValue(strFile, "SkillEfficiency", UDCDmain.UD_SkillEfficiency)
-    
     JsonUtil.SetIntValue(strFile, "CritEffect", UDCDmain.UD_CritEffect)
     JsonUtil.SetIntValue(strFile, "HardcoreMode", UDCDmain.UD_HardcoreMode as Int)
     JsonUtil.SetIntValue(strFile, "AllowArmTie", UDCDmain.UD_AllowArmTie as Int)
     JsonUtil.SetIntValue(strFile, "AllowLegTie", UDCDmain.UD_AllowLegTie as Int)
-    
     JsonUtil.SetIntValue(strFile, "MinigameHelpCD", UDCDmain.UD_MinigameHelpCd)
     JsonUtil.SetIntValue(strFile, "MinigameHelpCD_PerLVL", Round(UDCDmain.UD_MinigameHelpCD_PerLVL))
     JsonUtil.SetIntValue(strFile, "MinigameHelpXPBase", UDCDmain.UD_MinigameHelpXPBase)
-
     JsonUtil.SetFloatValue(strFile, "DeviceLvlHealth", UDCDMain.UD_DeviceLvlHealth*100)
     JsonUtil.SetFloatValue(strFile, "DeviceLvlLockpick", UDCDMain.UD_DeviceLvlLockpick)
     JsonUtil.SetIntValue(strFile, "DeviceLvlLocks", UDCDMain.UD_DeviceLvlLocks)
-    
     JsonUtil.SetIntValue(strFile, "PreventMasterLock", UDCDmain.UD_PreventMasterLock as Int)
-    
     JsonUtil.SetIntValue(strFile, "PostOrgasmArousalReduce", UDOM.UD_OrgasmArousalReduce)
     JsonUtil.SetIntValue(strFile, "PostOrgasmArousalReduce_Duration", UDOM.UD_OrgasmArousalReduceDuration)
-
     JsonUtil.SetIntValue(strFile, "MandatoryCrit", UDCDmain.UD_MandatoryCrit as Int)
-    JsonUtil.SetIntValue(strFile, "AlternateAnimation", UDCDmain.UD_AlternateAnimation as Int)
-    
     JsonUtil.SetFloatValue(strFile, "CritDurationAdjust", UDCDmain.UD_CritDurationAdjust)
-    
+    JsonUtil.SetIntValue(strFile, "KeyDurability", UDCDmain.UD_KeyDurability)
     
     ;ABADON
     JsonUtil.SetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
@@ -2989,6 +3506,12 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "SlotUpdateTime", Round(UDCD_NPCM.UD_SlotUpdateTime))
     JsonUtil.SetIntValue(strFile, "OutfitRemove", UDCDMain.UD_OutfitRemove as Int)
     JsonUtil.SetIntValue(strFile, "AllowMenBondage", UDmain.AllowMenBondage as Int)
+    
+    ; ANIMATIONS
+    JsonUtil.StringListCopy(strFile, "Anims_UserDisabledJSONs", UDAM.UD_AnimationJSON_Dis)
+    JsonUtil.SetIntValue(strFile, "AlternateAnimation", UDAM.UD_AlternateAnimation as Int)
+    JsonUtil.SetIntValue(strFile, "AlternateAnimationPeriod", UDAM.UD_AlternateAnimationPeriod)
+    JsonUtil.SetIntValue(strFile, "UseSingleStruggleKeyword", UDAM.UD_UseSingleStruggleKeyword as Int)
 
     JsonUtil.Save(strFile, true)
 EndFunction
@@ -3068,8 +3591,8 @@ Function LoadFromJSON(string strFile)
     UDOM.UD_OrgasmArousalReduceDuration = JsonUtil.GetIntValue(strFile, "PostOrgasmArousalReduce_Duration", UDOM.UD_OrgasmArousalReduceDuration)
     
     UDCDmain.UD_MandatoryCrit = JsonUtil.GetIntValue(strFile, "MandatoryCrit", UDCDmain.UD_MandatoryCrit as Int)
-    UDCDMain.UD_AlternateAnimation = JsonUtil.GetIntValue(strFile, "AlternateAnimation", UDCDmain.UD_AlternateAnimation as Int)
     UDCDmain.UD_CritDurationAdjust = JsonUtil.GetFloatValue(strFile, "CritDurationAdjust", UDCDmain.UD_CritDurationAdjust)
+    UDCDmain.UD_KeyDurability = JsonUtil.GetIntValue(strFile, "KeyDurability", UDCDmain.UD_KeyDurability)
     
     ;ABADON
     AbadonQuest.final_finisher_set = JsonUtil.GetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
@@ -3119,6 +3642,15 @@ Function LoadFromJSON(string strFile)
     UDCD_NPCM.UD_SlotUpdateTime =  JsonUtil.GetIntValue(strFile, "SlotUpdateTime", Round(UDCD_NPCM.UD_SlotUpdateTime))
     UDCDMain.UD_OutfitRemove = JsonUtil.GetIntValue(strFile, "OutfitRemove", UDCDMain.UD_OutfitRemove as Int)
     UDmain.AllowMenBondage = JsonUtil.GetIntValue(strFile, "AllowMenBondage", UDmain.AllowMenBondage as Int)
+
+    ; ANIMATIONS
+    If JsonUtil.StringListCount(strFile, "Anims_UserDisabledJSONs") > 0
+        UDAM.UD_AnimationJSON_Dis = JsonUtil.StringListToArray(strFile, "Anims_UserDisabledJSONs")
+    EndIf
+    UDAM.UD_AlternateAnimation = JsonUtil.GetIntValue(strFile, "AlternateAnimation", UDAM.UD_AlternateAnimation as Int) > 0
+    UDAM.UD_AlternateAnimationPeriod = JsonUtil.GetIntValue(strFile, "AlternateAnimationPeriod", UDAM.UD_AlternateAnimationPeriod)
+    UDAM.UD_UseSingleStruggleKeyword = JsonUtil.GetIntValue(strFile, "UseSingleStruggleKeyword", UDAM.UD_UseSingleStruggleKeyword as Int) > 0
+
 EndFunction
 
 Function ResetToDefaults()
@@ -3166,7 +3698,6 @@ Function ResetToDefaults()
     UDCDmain.UD_StruggleDifficulty      = 1
     UDCDmain.UD_BaseDeviceSkillIncrease = 35.0
     UDCDmain.UD_UpdateTime              = 5.0
-    
     UDCDmain.UD_AutoCrit = false
     if UDCDmain.UD_AutoCrit
         UD_autocrit_flag = OPTION_FLAG_NONE
@@ -3190,23 +3721,18 @@ Function ResetToDefaults()
     UDCDmain.UD_AllowArmTie             = true
     UDCDmain.UD_AllowLegTie             = true
     UDCDMain.UD_SkillEfficiency         = 1
-    
     UDCDmain.UD_MinigameHelpCd          = 60
     UDCDmain.UD_MinigameHelpCD_PerLVL   = 10
     UDCDmain.UD_MinigameHelpXPBase      = 35
-    
     UDCDmain.UD_DeviceLvlHealth         = 0.025
     UDCDmain.UD_DeviceLvlLockpick       = 0.5
     UDCDMain.UD_DeviceLvlLocks          = 5
     UDCDmain.UD_PreventMasterLock       = False
-    
     UDOM.UD_OrgasmArousalReduce         = 25
     UDOM.UD_OrgasmArousalReduceDuration =  7
-    
     UDCDmain.UD_MandatoryCrit           = False
-    UDCDmain.UD_AlternateAnimation      = False
-    
     UDCDmain.UD_CritDurationAdjust      = 0.0
+    UDCDmain.UD_KeyDurability           = 5
     
     ;ABADON
     AbadonQuest.final_finisher_set      = true
@@ -3219,8 +3745,8 @@ Function ResetToDefaults()
     UDCDmain.UDPatcher.UD_MAHChanceMod              = 100
     UDCDmain.UDPatcher.UD_MAHMod                    = 100
     UDCDmain.UDPatcher.UD_EscapeModifier            = 10
-    UDCDmain.UDPatcher.UD_MinLocks                  = 1
-    UDCDmain.UDPatcher.UD_MaxLocks                  = 6
+    UDCDmain.UDPatcher.UD_MinLocks                  = 0
+    UDCDmain.UDPatcher.UD_MaxLocks                  = 2
     UDCDmain.UDPatcher.UD_MinResistMult             =-1.0
     UDCDmain.UDPatcher.UD_MaxResistMult             = 1.0
     UDCDmain.UDPatcher.UD_PatchMult                 = 1.0
@@ -3248,6 +3774,10 @@ Function ResetToDefaults()
     UDCD_NPCM.UD_SlotUpdateTime                     = 10.0
     UDCDMain.UD_OutfitRemove                        = True
     UDmain.AllowMenBondage                          = False
+    
+    ; Animations
+    UDAM.LoadDefaultMCMSettings()
+
 EndFunction
 
 Function SetAutoLoad(bool bValue)

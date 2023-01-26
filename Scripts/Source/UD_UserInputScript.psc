@@ -157,31 +157,35 @@ State Minigame
 EndState
 
 Event OnKeyDown(Int KeyCode)
-    bool loc_menuopen = UDmain.IsMenuOpen()
-    if !loc_menuopen ;only if player is not in menu
-        if UD_EasyGamepadMode && Game.UsingGamepad()
-            if KeyCode == UD_GamepadKey
-                ;show menu
-                ShowGamePadMenu()
-            endif
-        else
-            if KeyCode == UDCDMain.PlayerMenu_KeyCode
-                UDCDMain.PlayerMenu()
+    if UDmain.IsEnabled()
+        bool loc_menuopen = UDmain.IsMenuOpen()
+        if !loc_menuopen ;only if player is not in menu
+            if UD_EasyGamepadMode && Game.UsingGamepad()
+                if KeyCode == UD_GamepadKey
+                    ;show menu
+                    ShowGamePadMenu()
+                endif
+            else
+                if KeyCode == UDCDMain.PlayerMenu_KeyCode
+                    UDCDMain.PlayerMenu()
+                endif
             endif
         endif
     endif
 EndEvent
 
 Event OnKeyUp(Int KeyCode, Float HoldTime)
-    if !UDmain.IsMenuOpen() && !(UD_EasyGamepadMode && Game.UsingGamepad())
-        if KeyCode == UDCDMain.StruggleKey_Keycode
-            if HoldTime < 0.2
-                OpenLastDeviceMenu()
-            else
-                OpenDeviceMenu()
+    if UDmain.IsEnabled()
+        if !UDmain.IsMenuOpen() && !(UD_EasyGamepadMode && Game.UsingGamepad())
+            if KeyCode == UDCDMain.StruggleKey_Keycode
+                if HoldTime < 0.2
+                    OpenLastDeviceMenu()
+                else
+                    OpenDeviceMenu()
+                endif
+            elseif KeyCode == UDCDmain.NPCMenu_Keycode
+                OpenNPCMenu(HoldTime > 0.2)
             endif
-        elseif KeyCode == UDCDmain.NPCMenu_Keycode
-            OpenNPCMenu(HoldTime > 0.2)
         endif
     endif
 EndEvent
