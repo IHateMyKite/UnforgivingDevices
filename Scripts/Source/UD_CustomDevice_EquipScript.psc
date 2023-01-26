@@ -1035,7 +1035,7 @@ Function ShowDetails(Actor akActor)
         loc_msg += "Lock Access difficulty: "    + Round(LockAccessDifficulty)     +" %\n"
         loc_msg += "Key: "    + deviceKey.getName()     +"\n"
     endif
-    ShowMessageBox(loc_msg)
+    UDmain.ShowMessageBox(loc_msg)
 EndFunction
 
 bool Function ShouldEquipSilently(actor akActor)

@@ -908,7 +908,7 @@ Float Function fUnsig(float afValue) global
     return afValue
 EndFunction
 
-Function ShowMessageBox(string strText) global
+Function ShowMessageBox(string strText)
     String[] loc_lines = StringUtil.split(strText,"\n")
     int loc_linesNum = loc_lines.length
     
@@ -936,7 +936,11 @@ Function ShowMessageBox(string strText) global
         debug.messagebox(loc_messagebox)
         
         ;wait for fucking messagebox to actually get OKd before continuing thread (holy FUCKING shit toad)
-        GamepadMenuPause()
+        Utility.waitMenuMode(0.3)
+        while IsMessageboxOpen()
+            Utility.waitMenuMode(0.15)
+        EndWhile
+        ;GamepadMenuPause()
     endwhile
 EndFunction
 
@@ -1106,4 +1110,7 @@ Bool Function IsLockpickingMenuOpen()
 EndFunction
 Bool Function IsInventoryMenuOpen()
     return UDMC.IsMenuOpen(2)
+EndFunction
+Bool Function IsMessageboxOpen()
+    return UDMC.IsMenuOpen(13) ;I hope to god that this works
 EndFunction

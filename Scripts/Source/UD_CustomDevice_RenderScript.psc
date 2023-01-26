@@ -5476,7 +5476,7 @@ Function ShowBaseDetails()
         endif
     endif
     loc_res += addInfoString()
-    ShowMessageBox(loc_res)
+    UDmain.ShowMessageBox(loc_res)
 EndFunction
 
 bool Function Details_CanShowResist()
@@ -5564,7 +5564,7 @@ Function ShowModifiers()
     if deviceRendered.hasKeyword(UDlibs.PatchedDevice)
         loc_res += "Patched device ("+Round(UDCDmain.UDPatcher.GetPatchDifficulty(self)*100.0)+" %)\n"
     endif
-    ShowMessageBox(loc_res)
+    UDmain.ShowMessageBox(loc_res)
 EndFunction
 
 Function showDebugMinigameInfo()
@@ -5617,7 +5617,7 @@ Function showDebugMinigameInfo()
     else
         res += "No exhastion\n"
     endif
-    ShowMessageBox(res)
+    UDmain.ShowMessageBox(res)
 EndFunction
 
 Function ShowLockDetails()
@@ -5668,8 +5668,8 @@ Function ShowLockDetails()
             Int loc_diff = GetNthLockDifficulty(loc_lockId)
             loc_res += "Difficulty: "+ _GetLockpickLevelString(GetLockpickLevel(-1,loc_diff)) + " ("+loc_diff+ ")\n"
         endif
-        ShowMessageBox(loc_res)
-        Utility.wait(0.05)
+        UDmain.ShowMessageBox(loc_res)
+        ;Utility.wait(0.05)
     endwhile
 EndFunction
 
@@ -5680,11 +5680,11 @@ Function showRawModifiers()
         res += UD_Modifiers[i] + "\n"
         i += 1
     endwhile
-    ShowMessageBox(res)
+    UDmain.ShowMessageBox(res)
 EndFunction
 
 Function showDebugInfo()
-    ShowMessageBox(getDebugString())
+    UDmain.ShowMessageBox(getDebugString())
     showRawModifiers()
 EndFunction
 
