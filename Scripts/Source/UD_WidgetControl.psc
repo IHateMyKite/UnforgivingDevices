@@ -114,6 +114,7 @@ EndProperty
 
 Int                         Property    UD_TextLineLength           = 100   Auto    Hidden      ; length of line in text notification (not implemented)
 Int                         Property    UD_TextReadSpeed            = 20    Auto    Hidden      ; how long notification will be on the screen (symbols per second)
+Int                         Property    UD_TextOutlineShift         = 1     Auto    Hidden      ; text outline shift
 Bool                        Property    UD_FilterVibNotifications   = True  Auto    Hidden      ; remove redundant notifications from vibrators
 
 ; anchor position of the notification (see W_POSY_**** constants)
@@ -429,6 +430,7 @@ Float       _Animation_Update               = 0.5   ; animation update period
 Float       _Animation_UpdateInstant        = 0.1   ; instant update
 
 Int[]       _Text_LinesId                           ; notification lines widgets IDs
+Int[]       _Text_LinesOutlineId                    ; outlines
 Int         _Text_AnimStage                 = -1    ; animation stage of notification lines
 Float       _Text_Timer                             ; animation timer of notification lines
 Float       _Text_Duration                          ; how long to display text on the screen
@@ -441,6 +443,7 @@ Int[]       _IconRegs_Cluster
 Int[]       _IconRegs_Variant
 
 Int[]       _Icons_Id                               ; widget id
+Int[]       _Icons_OutlinesId                       ; outlines
 String[]    _Icons_Name                             ; DDS file name in '<Data>/interface/exported/widgets/iwant/widgets/library' folder
 Int[]       _Icons_Variant                          ; icon variant
 Int[]       _Icons_Magnitude                        ; 0 .. 100+
@@ -607,6 +610,7 @@ Function StatusEffect_AllUpdate()
         i -= 1
         If _Icons_Id[i] > 0
             iWidget.setVisible(_Icons_Id[i], 0)
+            iWidget.setVisible(_Icons_Id[i], 0)
         EndIf
     EndWhile
     i = _Text_LinesId.Length
@@ -614,6 +618,7 @@ Function StatusEffect_AllUpdate()
         i -= 1
         If _Icons_Id[i] > 0
             iWidget.setVisible(_Text_LinesId[i], 0)
+            iWidget.setVisible(_Text_LinesOutlineId[i], 0)
         EndIf
     EndWhile
     i = _WidgetsID.Length
@@ -798,6 +803,7 @@ State iWidgetInstalled
         If abGameLoad
         ; clearing IDs on game load since all widgets are already destroyed
             _Text_LinesId = PapyrusUtil.IntArray(0)
+            _Text_LinesOutlineId = PapyrusUtil.IntArray(0)
         EndIf
         If _Text_LinesId.Length == 0
             _AddTextLineWidget()
@@ -805,8 +811,10 @@ State iWidgetInstalled
         Int i = 0
         While i < _Text_LinesId.Length
             Int text_id = _Text_LinesId[i]
+            Int outline_id = _Text_LinesOutlineId[i]
             If UD_TextAnchor >= 0 && UD_TextAnchor < 4
                 iWidget.setPos(text_id, CalculateGroupXPos(W_POSX_CENTER), (CalculateGroupYPos(UD_TextAnchor) + UD_TextPadding + 1.5 * UD_TextFontSize * (_Text_LinesId.Length - 1)) as Int)
+                iWidget.setPos(outline_id, CalculateGroupXPos(W_POSX_CENTER) + UD_TextOutlineShift, (CalculateGroupYPos(UD_TextAnchor) + UD_TextPadding + 1.5 * UD_TextFontSize * (_Text_LinesId.Length - 1)) as Int + UD_TextOutlineShift)
             Else
                 UDMain.Warning("UD_WidgetControl::InitText() Unsupported value UD_TextAnchor = " + UD_TextAnchor)
             EndIf
@@ -821,10 +829,13 @@ State iWidgetInstalled
     EndFunction
     
     Function _AddTextLineWidget()
+        Int outline_id = iWidget.loadText("", size = UD_TextFontSize)
         Int text_id = iWidget.loadText("", size = UD_TextFontSize)
         _Text_LinesId = PapyrusUtil.PushInt(_Text_LinesId, text_id)
+        _Text_LinesOutlineId = PapyrusUtil.PushInt(_Text_LinesOutlineId, outline_id)
         If UD_TextAnchor >= 0 && UD_TextAnchor < 4
             iWidget.setPos(text_id, CalculateGroupXPos(W_POSX_CENTER), (CalculateGroupYPos(UD_TextAnchor) + UD_TextPadding + 1.5 * UD_TextFontSize * (_Text_LinesId.Length - 1)) as Int)
+            iWidget.setPos(outline_id, CalculateGroupXPos(W_POSX_CENTER) + UD_TextOutlineShift, (CalculateGroupYPos(UD_TextAnchor) + UD_TextPadding + 1.5 * UD_TextFontSize * (_Text_LinesId.Length - 1)) as Int + UD_TextOutlineShift)
         Else
             UDMain.Warning("UD_WidgetControl::_AddTextLineWidget() Unsupported value UD_TextAnchor = " + UD_TextAnchor)
         EndIf
@@ -1185,6 +1196,8 @@ State iWidgetInstalled
                     EndIf
                     iWidget.setText(_Text_LinesId[text_line_index], StringUtil.Substring(str, line_start, prev_space - line_start))
                     _SetTextRGB(_Text_LinesId[text_line_index], color)
+                    iWidget.setText(_Text_LinesOutlineId[text_line_index], StringUtil.Substring(str, line_start, prev_space - line_start))
+                    _SetTextRGB(_Text_LinesOutlineId[text_line_index], 0)
                     text_line_index += 1
                     line_start = prev_space + 1
                 EndIf
@@ -1198,12 +1211,14 @@ State iWidgetInstalled
             EndIf
             iWidget.setText(_Text_LinesId[text_line_index], StringUtil.Substring(str, line_start, prev_space - line_start))
             _SetTextRGB(_Text_LinesId[text_line_index], color)
+            iWidget.setText(_Text_LinesOutlineId[text_line_index], StringUtil.Substring(str, line_start, prev_space - line_start))
+            _SetTextRGB(_Text_LinesOutlineId[text_line_index], 0)
             text_line_index += 1
         EndIf
         i = text_line_index
         While i < _Text_LinesId.Length
             iWidget.setText(_Text_LinesId[i], "")
-            _SetTextRGB(_Text_LinesId[text_line_index], color)
+            iWidget.setText(_Text_LinesOutlineId[i], "")
             i += 1
         EndWhile
         Return True
@@ -1219,6 +1234,7 @@ State iWidgetInstalled
             skip_creation = True
         EndIf
         Int icon_id = -1
+        Int outline_id = -1
         Int index = _Icons_Name.Find(asName)
         If index >= 0
             If !skip_creation && (_Icons_Id[index] <= 0 || _Icons_Variant[index] != aiVariant)
@@ -1229,11 +1245,18 @@ State iWidgetInstalled
                 If aiVariant > 0
                     file_name = file_name + "-" + aiVariant
                 EndIf
+                If _Icons_OutlinesId[index] <= 0
+                    outline_id = iWidget.loadLibraryWidget("background")
+                    _Icons_OutlinesId[index] = outline_id
+                Else
+                    outline_id = _Icons_OutlinesId[index]
+                EndIf
                 icon_id = iWidget.loadLibraryWidget(file_name)
                 _Icons_Id[index] = icon_id
                 _Icons_Variant[index] = aiVariant
             ElseIf _Icons_Id[index] > 0
                 icon_id = _Icons_Id[index]
+                outline_id = _Icons_OutlinesId[index]
             EndIf
             If aiAlpha >= 0
                 _Icons_Alpha[index] = aiAlpha
@@ -1244,10 +1267,12 @@ State iWidgetInstalled
                 If aiVariant > 0
                     file_name = file_name + "-" + aiVariant
                 EndIf
+                outline_id = iWidget.loadLibraryWidget("background")
                 icon_id = iWidget.loadLibraryWidget(file_name)
             EndIf
             _Icons_Name = PapyrusUtil.PushString(_Icons_Name, asName)
             _Icons_Id = PapyrusUtil.PushInt(_Icons_Id, icon_id)
+            _Icons_OutlinesId = PapyrusUtil.PushInt(_Icons_OutlinesId, outline_id)
             _Icons_Timer = PapyrusUtil.PushFloat(_Icons_Timer, 0.0)
             _Icons_Magnitude = PapyrusUtil.PushInt(_Icons_Magnitude, 0)
             _Icons_Stage = PapyrusUtil.PushInt(_Icons_Stage, 0)
@@ -1265,6 +1290,13 @@ State iWidgetInstalled
             iWidget.setVisible(icon_id, _Icons_Visible[index] * _Icons_Enabled[index])
             _SetIconRGB(icon_id, _Icons_Magnitude[index])
         EndIf
+        If outline_id > 0
+            iWidget.setSize(outline_id, UD_IconsSize, UD_IconsSize)
+            iWidget.setPos(outline_id, aiX, aiY)
+            iWidget.setTransparency(outline_id, 15)
+            iWidget.setVisible(outline_id, _Icons_Visible[index] * _Icons_Enabled[index])
+            _SetTextRGB(outline_id, 0)
+        EndIf
         UDMain.Log("UD_WidgetControl::_CreateIcon() icon_id = " + icon_id + ", index = " + index, 3)
         Return index
     EndFunction
@@ -1273,6 +1305,7 @@ State iWidgetInstalled
         Int index = _GetIconIndex(asName)
         _Icons_Visible[index] = abVisible as Int
         iWidget.setVisible(_Icons_Id[index], _Icons_Visible[index] * _Icons_Enabled[index])
+        iWidget.setVisible(_Icons_OutlinesId[index], _Icons_Visible[index] * _Icons_Enabled[index])
         If abVisible
             iWidget.setTransparency(_Icons_Id[index], _Icons_Alpha[index])
         Else
@@ -1295,6 +1328,7 @@ State iWidgetInstalled
         If abControlVisibility
             _Icons_Visible[index] = (_Icons_Magnitude[index] > 0) as Int
             iWidget.setVisible(_Icons_Id[index], _Icons_Visible[index] * _Icons_Enabled[index])
+            iWidget.setVisible(_Icons_OutlinesId[index], _Icons_Visible[index] * _Icons_Enabled[index])
         EndIf
         _SetIconRGB(_Icons_Id[index], _Icons_Magnitude[index])
     EndFunction
@@ -1379,7 +1413,9 @@ State iWidgetInstalled
             While i > 0
                 i -= 1
                 iWidget.setVisible(_Text_LinesId[i], 1)
+                iWidget.setVisible(_Text_LinesOutlineId[i], 1)
                 iWidget.doTransitionByTime(_Text_LinesId[i], 100, 0.2, "alpha")
+                iWidget.doTransitionByTime(_Text_LinesOutlineId[i], 100, 0.2, "alpha")
             EndWhile
             _Text_Timer = 0.0
             _Text_AnimStage = 1
@@ -1389,6 +1425,7 @@ State iWidgetInstalled
             While i > 0
                 i -= 1
                 iWidget.doTransitionByTime(_Text_LinesId[i], 0, 1.0, "alpha")
+                iWidget.doTransitionByTime(_Text_LinesOutlineId[i], 0, 1.0, "alpha")
             EndWhile
             _Text_AnimStage = 2
         ElseIf _Text_AnimStage == 2 && _Text_Timer >= _Text_Duration + 1.0
@@ -1397,7 +1434,9 @@ State iWidgetInstalled
             While i > 0
                 i -= 1
                 iWidget.setVisible(_Text_LinesId[i], 0)
+                iWidget.setVisible(_Text_LinesOutlineId[i], 0)
                 iWidget.setTransparency(_Text_LinesId[i], 0)
+                iWidget.setTransparency(_Text_LinesOutlineId[i], 0)
             EndWhile
         EndIf
     EndFunction
@@ -1407,6 +1446,7 @@ State iWidgetInstalled
         While i > 0
             i -= 1
             Int icon_id = _Icons_Id[i]
+            Int outline_id = _Icons_OutlinesId[i]
             Float timer = _Icons_Timer[i]
             Int magnitude = _Icons_Magnitude[i]
             String name =  _Icons_Name[i]
@@ -1417,9 +1457,11 @@ State iWidgetInstalled
             
             If visible && anim_stage == -1
                 iWidget.setVisible(icon_id, 1)
+                iWidget.setVisible(outline_id, 1)
                 anim_stage = 0
             ElseIf !visible && anim_stage != -1
                 iWidget.setVisible(icon_id, 0)
+                iWidget.setVisible(outline_id, 0)
                 anim_stage = -1
             EndIf
             If blink
