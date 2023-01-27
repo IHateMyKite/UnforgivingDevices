@@ -254,11 +254,13 @@ Event OnUpdate()
         Return
     EndIf
     _OnUpdateMutex = True
-    If _InitMetersRequested || _InitIconsRequested || _InitTextRequested
-        InitWidgetsCheck(_InitAfterLoadGame)
-        _InitAfterLoadGame = False
-    EndIf
-
+    if UDmain.IsEnabled()
+        return ;UD is disabled, do not update
+        If _InitMetersRequested || _InitIconsRequested || _InitTextRequested
+            InitWidgetsCheck(_InitAfterLoadGame)
+            _InitAfterLoadGame = False
+        EndIf
+    endif
     RegisterForSingleUpdate(30) ;maintenance update
     _OnUpdateMutex = False
 EndEvent
