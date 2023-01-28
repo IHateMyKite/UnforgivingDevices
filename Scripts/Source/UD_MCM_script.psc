@@ -2507,10 +2507,10 @@ Function OnOptionMenuAcceptUIWidget(Int option, Int index)
         UDWC.UD_TextAnchor = index
         SetMenuOptionValue(UD_TextAnchor_M, UD_TextAnchorList[index])
     ElseIf (option == UD_IconVariant_EffExhaustion_M)
-        UDWC.StatusEffect_Register("effect-exhaustion", index, 1)
+        UDWC.StatusEffect_Register("effect-exhaustion", -1, index)
         SetMenuOptionValue(UD_IconVariant_EffExhaustion_M, UD_IconVariant_EffExhaustionList[index])
     ElseIf (option == UD_IconVariant_EffOrgasm_M)
-        UDWC.StatusEffect_Register("effect-orgasm", index, 1)
+        UDWC.StatusEffect_Register("effect-orgasm", -1, index)
         SetMenuOptionValue(UD_IconVariant_EffOrgasm_M, UD_IconVariant_EffOrgasmList[index])
     elseif (option == UD_WidgetPosX_M)
         UDWC.UD_WidgetXPos = index

@@ -11,6 +11,10 @@ Int W_POSX_LEFT = 0
 Int W_POSX_CENTER = 1
 Int W_POSX_RIGHT = 2
 
+Int W_ICON_CLUSTER_UNSET    = -1
+Int W_ICON_CLUSTER_DEVICES  = 0
+Int W_ICON_CLUSTER_EFFECTS  = 1
+
 UnforgivingDevicesMain Property UDmain auto
 
 ;use iWantWidgets if true
@@ -269,13 +273,13 @@ EndEvent
 Function Update()
     SwitchStates(abGameLoad = True)
     
-    StatusEffect_Register("dd-piercing-nipples", 0, 0)
-    StatusEffect_Register("dd-plug-vaginal", 0, 0)
-    StatusEffect_Register("dd-piercing-clit", 0, 0)
-    StatusEffect_Register("dd-plug-anal", 0, 0)
+    StatusEffect_Register("dd-piercing-nipples", W_ICON_CLUSTER_DEVICES)
+    StatusEffect_Register("dd-plug-vaginal", W_ICON_CLUSTER_DEVICES)
+    StatusEffect_Register("dd-piercing-clit", W_ICON_CLUSTER_DEVICES)
+    StatusEffect_Register("dd-plug-anal", W_ICON_CLUSTER_DEVICES)
 
-    StatusEffect_Register("effect-exhaustion", 0, 1)
-    StatusEffect_Register("effect-orgasm", 0, 1)
+    StatusEffect_Register("effect-exhaustion", W_ICON_CLUSTER_EFFECTS)
+    StatusEffect_Register("effect-orgasm", W_ICON_CLUSTER_EFFECTS)
 EndFunction
 
 Function SwitchStates(Bool abGameLoad)
@@ -320,7 +324,7 @@ Function RefreshCanvasMetrics()
 EndFunction
 
 Function InitWidgetsRequest(Bool abGameLoad = False, Bool abMeters = False, Bool abIcons = False, Bool abText = False)
-    UDmain.Info("UD_WidgetControl::InitWidgetsRequest() abGameLoad = " + abGameLoad + " , abMeters = " + abMeters + " , abIcons = " + abIcons + " , abText = " + abText)
+    UDmain.Log("UD_WidgetControl::InitWidgetsRequest() abGameLoad = " + abGameLoad + " , abMeters = " + abMeters + " , abIcons = " + abIcons + " , abText = " + abText, 3)
     _InitAfterLoadGame = _InitAfterLoadGame || abGameLoad
     _InitMetersRequested = _InitMetersRequested || abMeters
     _InitIconsRequested = _InitIconsRequested || abIcons
@@ -519,18 +523,17 @@ EndFunction
 
 ; Register new status effect icon (or change existing)
 ; asName        - effect name (and base part of file name)
-; aiVariant     - icon variant.
-; aiClusterId   - icon cluster (0 or 1 for device or effect cluster)    
-Function StatusEffect_Register(String asName, Int aiVariant, Int aiClusterId)
-    UDmain.Info("UD_WidgetControl::StatusEffect_Register() asName = " + asName + ", aiVariant = " + aiVariant + ", aiClusterId = " + aiClusterId)
+; aiVariant     - icon variant. If equal to -1, then the previous value is kept
+; aiClusterId   - icon cluster (0 or 1 for device or effect cluster). If equal to -1, then the previous value is kept
+Function StatusEffect_Register(String asName, Int aiClusterId = -1, Int aiVariant = -1)
     Int index = _IconRegs_Name.Find(asName)
     If index >= 0
         Bool need_init = False
-        If (_IconRegs_Cluster[index] != aiClusterId)
+        If (aiClusterId >= 0 && _IconRegs_Cluster[index] != aiClusterId)
             _IconRegs_Cluster[index] = aiClusterId
             need_init = True
         EndIf
-        If (_IconRegs_Variant[index] != aiVariant)
+        If (aiVariant >= 0 && _IconRegs_Variant[index] != aiVariant)
             _IconRegs_Variant[index] = aiVariant
             need_init = True
         EndIf
@@ -538,12 +541,14 @@ Function StatusEffect_Register(String asName, Int aiVariant, Int aiClusterId)
             InitWidgetsRequest(abIcons = True)
         EndIf
     Else
+        If aiVariant < 0
+            aiVariant = 0
+        EndIf
         _IconRegs_Name = PapyrusUtil.PushString(_IconRegs_Name, asName)
         _IconRegs_Cluster = PapyrusUtil.PushInt(_IconRegs_Cluster, aiClusterId)
         _IconRegs_Variant = PapyrusUtil.PushInt(_IconRegs_Variant, aiVariant)
         InitWidgetsRequest(abIcons = True)
     EndIf
-; TODO custom icons registration
 EndFunction
 
 ; Gets current icon variant of the given effect
@@ -759,7 +764,6 @@ State iWidgetInstalled
     EndFunction
     
     Bool Function InitMeters(Bool abGameLoad = False)
-        UDmain.Info("UD_WidgetControl::InitMeters() abGameLoad = " + abGameLoad)
         _InitMetersMutex = True
         If abGameLoad
         ; clearing all IDs without destroying
@@ -856,6 +860,7 @@ State iWidgetInstalled
             While i > 0
                 i -= 1
                 _Icons_Id[i] = -1
+                _Icons_OutlinesId[i] = -1
             EndWhile
         EndIf
 
@@ -1299,7 +1304,7 @@ State iWidgetInstalled
         If outline_id > 0
             iWidget.setSize(outline_id, UD_IconsSize, UD_IconsSize)
             iWidget.setPos(outline_id, aiX, aiY)
-            iWidget.setTransparency(outline_id, 15)
+            iWidget.setTransparency(outline_id, 20)
             iWidget.setVisible(outline_id, _Icons_Visible[index] * _Icons_Enabled[index])
             _SetTextRGB(outline_id, 0)
         EndIf
