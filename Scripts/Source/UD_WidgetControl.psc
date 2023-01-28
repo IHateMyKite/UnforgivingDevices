@@ -250,19 +250,20 @@ Event OnInit()
 EndEvent
 
 Event OnUpdate()
-    If _OnUpdateMutex
-        Return
-    EndIf
-    _OnUpdateMutex = True
     if UDmain.IsEnabled()
-        return ;UD is disabled, do not update
+        If _OnUpdateMutex
+            Return
+        EndIf
+        _OnUpdateMutex = True
         If _InitMetersRequested || _InitIconsRequested || _InitTextRequested
             InitWidgetsCheck(_InitAfterLoadGame)
             _InitAfterLoadGame = False
         EndIf
+        RegisterForSingleUpdate(30) ;maintenance update
+        _OnUpdateMutex = False
+    else
+        RegisterForSingleUpdate(30)
     endif
-    RegisterForSingleUpdate(30) ;maintenance update
-    _OnUpdateMutex = False
 EndEvent
 
 Function Update()
@@ -275,7 +276,6 @@ Function Update()
 
     StatusEffect_Register("effect-exhaustion", 0, 1)
     StatusEffect_Register("effect-orgasm", 0, 1)
-    
 EndFunction
 
 Function SwitchStates(Bool abGameLoad)
@@ -722,17 +722,21 @@ State iWidgetInstalled
     EndEvent
     
     Event OnUpdate()
-        If _OnUpdateMutex
-            Return
-        EndIf
-        _OnUpdateMutex = True
-        If _InitMetersRequested || _InitIconsRequested || _InitTextRequested
-            InitWidgetsCheck(_InitAfterLoadGame)
-            _InitAfterLoadGame = False
-        EndIf
-        _AnimateWidgets()
-        RegisterForSingleUpdate(_Animation_Update)
-        _OnUpdateMutex = False
+        if UDmain.IsEnabled()
+            If _OnUpdateMutex
+                Return
+            EndIf
+            _OnUpdateMutex = True
+            If _InitMetersRequested || _InitIconsRequested || _InitTextRequested
+                InitWidgetsCheck(_InitAfterLoadGame)
+                _InitAfterLoadGame = False
+            EndIf
+            _AnimateWidgets()
+            RegisterForSingleUpdate(_Animation_Update)
+            _OnUpdateMutex = False
+        else
+            RegisterForSingleUpdate(5.0)
+        endif
     EndEvent
 
     ; abGameLoad        - flag that it's game load event. And we recreate all widgets regardless of previous IDs
@@ -1447,14 +1451,14 @@ State iWidgetInstalled
         Int i = _Icons_Id.Length
         While i > 0
             i -= 1
-            Int icon_id = _Icons_Id[i]
-            Int outline_id = _Icons_OutlinesId[i]
-            Float timer = _Icons_Timer[i]
-            Int magnitude = _Icons_Magnitude[i]
-            String name =  _Icons_Name[i]
-            Int anim_stage = _Icons_Stage[i]
-            Bool blink = _Icons_Blinking[i] > 0
-            Bool visible = _Icons_Visible[i] * _Icons_Enabled[i] > 0
+            Int     icon_id     = _Icons_Id[i]
+            Int     outline_id  = _Icons_OutlinesId[i]
+            Float   timer       = _Icons_Timer[i]
+            Int     magnitude   = _Icons_Magnitude[i]
+            String  name        = _Icons_Name[i]
+            Int     anim_stage  = _Icons_Stage[i]
+            Bool    blink       = _Icons_Blinking[i] > 0
+            Bool    visible     = _Icons_Visible[i] * _Icons_Enabled[i] > 0
             timer += frame
             
             If visible && anim_stage == -1
