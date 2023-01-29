@@ -3,6 +3,9 @@ Scriptname UD_UIEListMenu extends UIListMenu
 
 Import UnforgivingDevicesMain
 
+Function Update()
+EndFunction
+
 Bool    _waitLock       = False
 
 Function Lock()
