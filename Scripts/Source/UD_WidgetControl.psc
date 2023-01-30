@@ -19,7 +19,7 @@ UnforgivingDevicesMain Property UDmain auto
 
 ;use iWantWidgets if true
 Bool _UD_UseIWantWidget = True
-Bool                        Property UD_UseIWantWidget
+Bool                        Property UD_UseIWantWidget  Hidden
     Bool Function Get() 
         Return _UD_UseIWantWidget
     EndFunction
@@ -41,8 +41,6 @@ iWant_Widgets Property iWidget Hidden
     EndFunction
 EndProperty
 
-Float Property UD_WidgetVerOffset = 1.25 auto
-
 ;By default, auto adjust is turned off
 Bool _AutoAdjustWidget = False
 Bool Property UD_AutoAdjustWidget Hidden
@@ -60,9 +58,11 @@ EndProperty
 
 ; overlay settings
 
+Float Property UD_MeterVertPadding = 1.25 Auto   Hidden
+
 ; enable device icons
 Bool _UD_EnableDeviceIcons = True
-Bool Property UD_EnableDeviceIcons
+Bool Property UD_EnableDeviceIcons Hidden
     Bool Function Get()
         Return _UD_EnableDeviceIcons
     EndFunction
@@ -76,7 +76,7 @@ EndProperty
 
 ; enable effect icons
 Bool _UD_EnableEffectIcons = True
-Bool Property UD_EnableEffectIcons
+Bool Property UD_EnableEffectIcons Hidden
     Bool Function Get()
         Return _UD_EnableEffectIcons
     EndFunction
@@ -90,7 +90,7 @@ EndProperty
 
 ; enable customized notifications
 Bool _UD_EnableCNotifications = True
-Bool Property UD_EnableCNotifications
+Bool Property UD_EnableCNotifications Hidden
     Bool Function Get()
         Return _UD_EnableCNotifications
     EndFunction
@@ -104,7 +104,7 @@ EndProperty
 
 ; text font size
 Int _UD_TextFontSize = 24
-Int Property UD_TextFontSize
+Int Property UD_TextFontSize Hidden
     Int Function Get()
         Return _UD_TextFontSize
     EndFunction
@@ -123,7 +123,7 @@ Bool                        Property    UD_FilterVibNotifications   = True  Auto
 
 ; anchor position of the notification (see W_POSY_**** constants)
 Int _UD_TextAnchor = 1
-Int Property UD_TextAnchor
+Int Property UD_TextAnchor Hidden
     Int Function Get()
         Return _UD_TextAnchor
     EndFunction
@@ -137,7 +137,7 @@ EndProperty
 
 ; vertical padding relative to anchor
 Int _UD_TextPadding = 0
-Int Property UD_TextPadding
+Int Property UD_TextPadding Hidden
     Int Function Get()
         Return _UD_TextPadding
     EndFunction
@@ -151,7 +151,7 @@ EndProperty
 
 ; effect icon size
 Int _UD_IconsSize = 60
-Int Property UD_IconsSize
+Int Property UD_IconsSize Hidden
     Int Function Get()
         Return _UD_IconsSize
     EndFunction
@@ -165,7 +165,7 @@ EndProperty
 
 ; anchor position of the icons cluster (see W_POSX_**** constants)
 Int _UD_IconsAnchor = 1
-Int Property UD_IconsAnchor
+Int Property UD_IconsAnchor Hidden
     Int Function Get()
         Return _UD_IconsAnchor
     EndFunction
@@ -179,7 +179,7 @@ EndProperty
 
 ; horizontal padding relative to anchor
 Int _UD_IconsPadding = 0
-Int Property UD_IconsPadding
+Int Property UD_IconsPadding Hidden
     Int Function Get()
         Return _UD_IconsPadding
     EndFunction
@@ -192,16 +192,15 @@ Int Property UD_IconsPadding
 EndProperty
 
 Int _WidgetXPos = 2
-Int Property UD_WidgetXPos
+Int Property UD_WidgetXPos Hidden
     Function Set(Int aiVal)
         If _WidgetXPos == aiVal
             Return
         EndIf
         _WidgetXPos = aiVal
-        if GetState() == ""
-            UD_Widget1.PositionX = _WidgetXPos
-            UD_Widget2.PositionX = _WidgetXPos
-        else
+        UD_Widget1.PositionX = _WidgetXPos
+        UD_Widget2.PositionX = _WidgetXPos
+        if GetState() == "iWidgetInstalled"
             InitWidgetsRequest(abMeters = True)
         endif
     EndFunction
@@ -211,16 +210,15 @@ Int Property UD_WidgetXPos
 EndProperty
 
 Int _WidgetYPos = 0
-Int Property UD_WidgetYPos
+Int Property UD_WidgetYPos Hidden
     Function Set(Int aiVal)
         If _WidgetYPos == aiVal
             Return
         EndIf
         _WidgetYPos = aiVal
-        if GetState() == ""
-            UD_Widget1.PositionY = _WidgetYPos
-            UD_Widget2.PositionY = _WidgetYPos
-        else
+        UD_Widget1.PositionY = _WidgetYPos
+        UD_Widget2.PositionY = _WidgetYPos
+        if GetState() == "iWidgetInstalled"
             InitWidgetsRequest(abMeters = True)
         endif
     EndFunction
@@ -248,9 +246,9 @@ Bool _InitTextRequested = False
 Bool _InitAfterLoadGame = False
 
 Bool Property Ready = False auto
+
 Event OnInit()
-    Ready = True
-    RegisterForSingleUpdate(30) ;maintenance update
+    RegisterForSingleUpdate(10) ;maintenance update
 EndEvent
 
 Event OnUpdate()
@@ -263,23 +261,30 @@ Event OnUpdate()
             InitWidgetsCheck(_InitAfterLoadGame)
             _InitAfterLoadGame = False
         EndIf
-        RegisterForSingleUpdate(30) ;maintenance update
         _OnUpdateMutex = False
-    else
-        RegisterForSingleUpdate(30)
     endif
+    RegisterForSingleUpdate(30) ;maintenance update
+    If !Ready
+        Ready = True
+        StatusEffect_SetPosition("dd-piercing-nipples", W_ICON_CLUSTER_DEVICES)
+        StatusEffect_SetPosition("dd-plug-vaginal", W_ICON_CLUSTER_DEVICES)
+        StatusEffect_SetPosition("dd-piercing-clit", W_ICON_CLUSTER_DEVICES)
+        StatusEffect_SetPosition("dd-plug-anal", W_ICON_CLUSTER_DEVICES)
+        StatusEffect_SetPosition("effect-exhaustion", W_ICON_CLUSTER_EFFECTS, 2)
+        StatusEffect_SetPosition("effect-orgasm", W_ICON_CLUSTER_EFFECTS, 2)
+        SwitchStates(abGameLoad = False)
+        InitWidgetsRequest(abGameLoad = False, abMeters = True, abIcons = True, abText = True)
+    EndIf
 EndEvent
 
 Function Update()
+    StatusEffect_SetPosition("dd-piercing-nipples", W_ICON_CLUSTER_DEVICES)
+    StatusEffect_SetPosition("dd-plug-vaginal", W_ICON_CLUSTER_DEVICES)
+    StatusEffect_SetPosition("dd-piercing-clit", W_ICON_CLUSTER_DEVICES)
+    StatusEffect_SetPosition("dd-plug-anal", W_ICON_CLUSTER_DEVICES)
+    StatusEffect_SetPosition("effect-exhaustion", W_ICON_CLUSTER_EFFECTS)
+    StatusEffect_SetPosition("effect-orgasm", W_ICON_CLUSTER_EFFECTS)
     SwitchStates(abGameLoad = True)
-    
-    StatusEffect_Register("dd-piercing-nipples", W_ICON_CLUSTER_DEVICES)
-    StatusEffect_Register("dd-plug-vaginal", W_ICON_CLUSTER_DEVICES)
-    StatusEffect_Register("dd-piercing-clit", W_ICON_CLUSTER_DEVICES)
-    StatusEffect_Register("dd-plug-anal", W_ICON_CLUSTER_DEVICES)
-
-    StatusEffect_Register("effect-exhaustion", W_ICON_CLUSTER_EFFECTS)
-    StatusEffect_Register("effect-orgasm", W_ICON_CLUSTER_EFFECTS)
 EndFunction
 
 Function SwitchStates(Bool abGameLoad)
@@ -290,8 +295,6 @@ Function SwitchStates(Bool abGameLoad)
         InitWidgetsRequest(abGameLoad = abGameLoad, abMeters = True, abIcons = True, abText = True)
     else
         GoToState("")
-        UD_WidgetXPos = UD_WidgetXPos
-        UD_WidgetYPos = UD_WidgetYPos
     endif
 EndFunction
 
@@ -338,8 +341,6 @@ EndFunction
 Bool Function InitIcons(Bool abGameLoad = False)
 EndFunction
 Bool Function InitText(Bool abGameLoad = False)
-EndFunction
-Function _UpdateIconsEnabled()
 EndFunction
 Function ResetToDefault()
     UD_AutoAdjustWidget             = False
@@ -444,21 +445,7 @@ Float       _Text_Duration                          ; how long to display text o
 String[]    _Text_Queue_String                      ; notifications queue: text
 Int[]       _Text_Queue_Color                       ; notifications queue: color
 
-String[]    _IconRegs_Name
-Int[]       _IconRegs_Cluster
-Int[]       _IconRegs_Variant
-
-Int[]       _Icons_Id                               ; widget id
-Int[]       _Icons_OutlinesId                       ; outlines
-String[]    _Icons_Name                             ; DDS file name in '<Data>/interface/exported/widgets/iwant/widgets/library' folder
-Int[]       _Icons_Variant                          ; icon variant
-Int[]       _Icons_Magnitude                        ; 0 .. 100+
-Float[]     _Icons_Timer                            ; animation timer
-Int[]       _Icons_Stage                            ; animation stage
-Int[]       _Icons_Blinking                         ; 0, 1
-Int[]       _Icons_Alpha                            ; 0 .. 100
-Int[]       _Icons_Visible                          ; 0, 1
-Int[]       _Icons_Enabled                          ; 0, 1
+UD_WidgetStatusEffect_RefAlias[]    Property    StatusEffectSlots     Auto
 
 Int         _Widget_Icon_Inactive_Color             = 0xFFFFFF      ; Gray          Color of innactive effect
 Int         _Widget_Icon_Active0_Color              = 0xFFFF00      ; Yellow        Color of active effect with magnitude 0
@@ -525,29 +512,30 @@ EndFunction
 ; asName        - effect name (and base part of file name)
 ; aiVariant     - icon variant. If equal to -1, then the previous value is kept
 ; aiClusterId   - icon cluster (0 or 1 for device or effect cluster). If equal to -1, then the previous value is kept
-Function StatusEffect_Register(String asName, Int aiClusterId = -1, Int aiVariant = -1)
-    Int index = _IconRegs_Name.Find(asName)
-    If index >= 0
-        Bool need_init = False
-        If (aiClusterId >= 0 && _IconRegs_Cluster[index] != aiClusterId)
-            _IconRegs_Cluster[index] = aiClusterId
-            need_init = True
-        EndIf
-        If (aiVariant >= 0 && _IconRegs_Variant[index] != aiVariant)
-            _IconRegs_Variant[index] = aiVariant
-            need_init = True
-        EndIf
-        If need_init
-            InitWidgetsRequest(abIcons = True)
-        EndIf
-    Else
-        If aiVariant < 0
-            aiVariant = 0
-        EndIf
-        _IconRegs_Name = PapyrusUtil.PushString(_IconRegs_Name, asName)
-        _IconRegs_Cluster = PapyrusUtil.PushInt(_IconRegs_Cluster, aiClusterId)
-        _IconRegs_Variant = PapyrusUtil.PushInt(_IconRegs_Variant, aiVariant)
+Function StatusEffect_SetPosition(String asName, Int aiClusterId = -1, Int aiVariant = -1)
+    UDMain.Info("UD_WidgetControl::StatusEffect_SetPosition() asName = " + asName + ", aiClusterId = " + aiClusterId + ", aiVariant = " + aiVariant)
+    UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName)
+    If data == None
+        Return
+    EndIf
+    Bool need_init = False
+    If (aiClusterId >= 0 && data.Cluster != aiClusterId)
+        data.Cluster = aiClusterId
+        need_init = True
+    EndIf
+    If (aiVariant >= 0 && data.Variant != aiVariant)
+        data.Variant = aiVariant
+        need_init = True
+    EndIf
+    If need_init
         InitWidgetsRequest(abIcons = True)
+    EndIf
+EndFunction
+
+Function StatusEffect_Remove(String asName)
+    UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName, abFindEmpty = False)
+    If data != None
+        data.Reset()
     EndIf
 EndFunction
 
@@ -555,22 +543,24 @@ EndFunction
 ; asName        - effect name
 ; return        - icon variant
 Int Function StatusEffect_GetVariant(String asName)
-    Int index = _IconRegs_Name.Find(asName)
-    If index >= 0
-        Return _IconRegs_Variant[index]
+    UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName, abFindEmpty = False)
+    If data == None
+        Return -1
     EndIf
-    Return 0
+    Return data.Variant
 EndFunction
 
 ; Show/hide status effect icon.
 ; asName            - effect name (icon name)
 ; abVisible         - desired visibility state
 Function StatusEffect_SetVisible(String asName, Bool abVisible = True)
-    Int index = _GetIconIndex(asName)
-    _Icons_Visible[index] = abVisible as Int
-    If abVisible
-    Else
-        _Icons_Blinking[index] = 0
+    UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName)
+    If data == None 
+        Return
+    EndIf
+    data.Visible = abVisible
+    If !abVisible
+        data.Blinking = False
     EndIf
 EndFunction
 
@@ -579,8 +569,11 @@ EndFunction
 ; asName            - effect name (icon name)
 ; aiMagnitude       - magnitude
 Function StatusEffect_SetMagnitude(String asName, Int aiMagnitude)
-    Int index = _GetIconIndex(asName)
-    _Icons_Magnitude[index] = aiMagnitude
+    UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName)
+    If data == None 
+        Return
+    EndIf
+    data.Magnitude = aiMagnitude
 EndFunction
 
 ; Adjust magnitude by the given value.
@@ -589,13 +582,16 @@ EndFunction
 ; aiAdjustValue         - adjust value
 ; abControlVisibility   - if true, the icon will be hidden or shown depending on the final value
 Function StatusEffect_AdjustMagnitude(String asName, Int aiAdjustValue, Bool abControlVisibility = True)
-    Int index = _GetIconIndex(asName)
-    _Icons_Magnitude[index] = _Icons_Magnitude[index] + aiAdjustValue
-    If _Icons_Magnitude[index] < 0
-        _Icons_Magnitude[index] = 0
+    UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName)
+    If data == None 
+        Return
+    EndIf
+    data.Magnitude += aiAdjustValue
+    If data.Magnitude < 0
+        data.Magnitude = 0
     EndIf
     If abControlVisibility
-        _Icons_Visible[index] = (_Icons_Magnitude[index] > 0) as Int
+        data.Visible = data.Magnitude > 0
     EndIf
 EndFunction
 
@@ -603,38 +599,41 @@ EndFunction
 ; asName                - effect name (icon name)
 ; abBlink               - blinking status
 Function StatusEffect_SetBlink(String asName, Bool abBlink = True)
-    Int index = _GetIconIndex(asName)
-    _Icons_Blinking[index] = abBlink As Int
+    UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName)
+    If data == None 
+        Return
+    EndIf
+    data.Blinking = abBlink
 EndFunction
 
 ; Update all icons after switching between states
 Function StatusEffect_AllUpdate()
-    If iWidget == None 
-        Return
-    EndIf
-    Int i = _Icons_Id.Length
-    While i > 0
-        i -= 1
-        If _Icons_Id[i] > 0
-            iWidget.setVisible(_Icons_Id[i], 0)
-            iWidget.setVisible(_Icons_Id[i], 0)
-        EndIf
-    EndWhile
-    i = _Text_LinesId.Length
-    While i > 0
-        i -= 1
-        If _Icons_Id[i] > 0
-            iWidget.setVisible(_Text_LinesId[i], 0)
-            iWidget.setVisible(_Text_LinesOutlineId[i], 0)
-        EndIf
-    EndWhile
-    i = _WidgetsID.Length
-    While i > 0
-        i -= 1
-        If _Icons_Id[i] > 0
-            iWidget.setVisible(_WidgetsID[i], 0)
-        EndIf
-    EndWhile
+;    If iWidget == None 
+;        Return
+;    EndIf
+;    Int i = _Icons_Id.Length
+;    While i > 0
+;        i -= 1
+;        If _Icons_Id[i] > 0
+;            iWidget.setVisible(_Icons_Id[i], 0)
+;            iWidget.setVisible(_Icons_Id[i], 0)
+;        EndIf
+;    EndWhile
+;    i = _Text_LinesId.Length
+;    While i > 0
+;        i -= 1
+;        If _Icons_Id[i] > 0
+;            iWidget.setVisible(_Text_LinesId[i], 0)
+;            iWidget.setVisible(_Text_LinesOutlineId[i], 0)
+;        EndIf
+;    EndWhile
+;    i = _WidgetsID.Length
+;    While i > 0
+;        i -= 1
+;        If _Icons_Id[i] > 0
+;            iWidget.setVisible(_WidgetsID[i], 0)
+;        EndIf
+;    EndWhile
 EndFunction
 
 ; Show all enabled (!) widgets with test animations for the short time
@@ -664,55 +663,45 @@ EndFunction
 Function _AddTextLineWidget()
 EndFunction
 
-Int Function _GetIconIndex(String asName)
-    Int index = _Icons_Name.Find(asName)
-    If index == -1
-        index = _CreateIcon(asName)
+Bool _FindEmpty_Mutex = False
+
+UD_WidgetStatusEffect_RefAlias Function _GetStatusEffect(String asName, Bool abFindEmpty = True)
+    Int i = 0
+    While i < StatusEffectSlots.Length
+        If StatusEffectSlots[i].Name == asName
+            Return StatusEffectSlots[i]
+        EndIf
+        i += 1
+    EndWhile
+    If abFindEmpty
+    ; first empty slot
+        If _FindEmpty_Mutex
+            Int j = 0
+            While j < 20 && _FindEmpty_Mutex
+                Utility.Wait(0.05)
+                j += 1
+            EndWhile
+        EndIf
+        _FindEmpty_Mutex = True
+        Int k = 0
+        While k < StatusEffectSlots.Length
+            If StatusEffectSlots[k].Name == ""
+                StatusEffectSlots[k].Reset()
+                StatusEffectSlots[k].Name = asName
+                _FindEmpty_Mutex = False
+                Return StatusEffectSlots[k]
+            EndIf
+            k += 1
+        EndWhile
+        _FindEmpty_Mutex = False
+        UDMain.Info("UD_WidgetControl::_GetStatusEffect() No more slots for the status effect icons!")
     EndIf
-    Return index
+    Return None
 EndFunction
 
 Bool _CreateIcon_Mutex = False
 
-Int Function _CreateIcon(String asName, Int aiVariant = 0, Int aiX = -1, Int aiY = -1, Int aiAlpha = -1)
-    If _CreateIcon_Mutex
-        Int i = 0
-        While i < 20 && _CreateIcon_Mutex
-            Utility.Wait(0.05)
-            i += 1
-        EndWhile
-    EndIf
-    _CreateIcon_Mutex = True
-    UDMain.Log("UD_WidgetControl::_CreateIcon() asName = " + asName + ", aiX = " + aiX + ", aiY = " + aiY + ", aiAlpha = " + aiAlpha, 3)
-    Int icon_id = -1
-    Int index = _Icons_Name.Find(asName)
-    If index >= 0
-        If _Icons_Id[index] > 0
-            icon_id = _Icons_Id[index]
-        Else
-            _Icons_Id[index] = -1
-            _Icons_Variant[index] = -1
-        EndIf
-        If aiAlpha >= 0
-            _Icons_Alpha[index] = aiAlpha
-        EndIf
-    Else
-        icon_id = -1
-        _Icons_Name = PapyrusUtil.PushString(_Icons_Name, asName)
-        _Icons_Id = PapyrusUtil.PushInt(_Icons_Id, icon_id)
-        _Icons_Timer = PapyrusUtil.PushFloat(_Icons_Timer, 0.0)
-        _Icons_Magnitude = PapyrusUtil.PushInt(_Icons_Magnitude, 0)
-        _Icons_Stage = PapyrusUtil.PushInt(_Icons_Stage, 0)
-        _Icons_Blinking = PapyrusUtil.PushInt(_Icons_Blinking, 0)
-        _Icons_Visible = PapyrusUtil.PushInt(_Icons_Visible, 0)
-        _Icons_Enabled = PapyrusUtil.PushInt(_Icons_Enabled, 1)
-        _Icons_Alpha = PapyrusUtil.PushInt(_Icons_Alpha, aiAlpha)
-        _Icons_Variant = PapyrusUtil.PushInt(_Icons_Variant, -1)
-        index = _Icons_Id.Length - 1
-    EndIf
-    UDMain.Log("UD_WidgetControl::_CreateIcon() icon_id = " + icon_id + ", index = " + index, 3)
-    _CreateIcon_Mutex = False
-    Return index
+Function _CreateIconWidget(UD_WidgetStatusEffect_RefAlias akData, Int aiX, Int aiY, Int aiAlpha, Bool abForceDestory = False)
 EndFunction
 
 Bool _InitMetersMutex = False
@@ -753,11 +742,11 @@ State iWidgetInstalled
         If _InitMetersRequested
             _InitMetersRequested = !InitMeters(abGameLoad)
         EndIf
-        If _InitIconsRequested
-            _InitIconsRequested = !InitIcons(abGameLoad)
-        EndIf
         If _InitTextRequested
             _InitTextRequested = !InitText(abGameLoad)
+        EndIf
+        If _InitIconsRequested
+            _InitIconsRequested = !InitIcons(abGameLoad)
         EndIf
 
         RegisterForSingleUpdate(_Animation_Update)
@@ -787,19 +776,19 @@ State iWidgetInstalled
         If _Widget_DeviceDurability == 0
             Return False
         EndIf
-        _WidgetsID = _AddWidget(_WidgetsID, _Widget_DeviceDurability, 0*UD_WidgetVerOffset, _Widget_DeviceDurability_Perc, _Widget_DeviceDurability_Color, _Widget_DeviceDurability_Color2, _Widget_DeviceDurability_Color3)
+        _WidgetsID = _AddWidget(_WidgetsID, _Widget_DeviceDurability, 0*UD_MeterVertPadding, _Widget_DeviceDurability_Perc, _Widget_DeviceDurability_Color, _Widget_DeviceDurability_Color2, _Widget_DeviceDurability_Color3)
         
         _Widget_DeviceCondition = iWidget.loadMeter()
         If _Widget_DeviceCondition == 0
             Return False
         EndIf
-        _WidgetsID = _AddWidget(_WidgetsID, _Widget_DeviceCondition, 1.0*UD_WidgetVerOffset, _Widget_DeviceCondition_Perc, _Widget_DeviceCondition_Color, _Widget_DeviceCondition_Color2, _Widget_DeviceCondition_Color3)
+        _WidgetsID = _AddWidget(_WidgetsID, _Widget_DeviceCondition, 1.0*UD_MeterVertPadding, _Widget_DeviceCondition_Perc, _Widget_DeviceCondition_Color, _Widget_DeviceCondition_Color2, _Widget_DeviceCondition_Color3)
         
         _Widget_Orgasm = iWidget.loadMeter()
         If _Widget_Orgasm == 0
             Return False
         EndIf
-        _WidgetsID = _AddWidget(_WidgetsID, _Widget_Orgasm, 2.0*UD_WidgetVerOffset, _Widget_Orgasm_Perc, _Widget_Orgasm_Color, _Widget_Orgasm_Color2, _Widget_Orgasm_Color3)
+        _WidgetsID = _AddWidget(_WidgetsID, _Widget_Orgasm, 2.0*UD_MeterVertPadding, _Widget_Orgasm_Perc, _Widget_Orgasm_Color, _Widget_Orgasm_Color2, _Widget_Orgasm_Color3)
 
         iWidget.setVisible(_Widget_DeviceDurability, _Widget_DeviceDurability_Visible As Int)
         iWidget.setVisible(_Widget_DeviceCondition, _Widget_DeviceCondition_Visible As Int)
@@ -856,24 +845,27 @@ State iWidgetInstalled
     Bool Function InitIcons(Bool abGameLoad = False)
         If abGameLoad
         ; clearing IDs on game load since all widgets are already destroyed
-            Int i = _Icons_Id.Length
+            Int i = StatusEffectSlots.Length
             While i > 0
                 i -= 1
-                _Icons_Id[i] = -1
-                _Icons_OutlinesId[i] = -1
+                StatusEffectSlots[i].Id = -1
+                StatusEffectSlots[i].AuxId = -1
             EndWhile
         EndIf
-
+        UD_WidgetStatusEffect_RefAlias data
         ; counting icons in clusters
         Int cluster0_count = 0
         Int cluster1_count = 0
-        Int len = _IconRegs_Name.Length
+        Int len = StatusEffectSlots.Length
         Int i = 0
         While i < len
-            If _IconRegs_Cluster[i] == 0
-                cluster0_count += 1
-            ElseIf _IconRegs_Cluster[i] == 0
-                cluster1_count += 1
+            data = StatusEffectSlots[i]
+            If data.Name != ""
+                If data.Cluster == W_ICON_CLUSTER_DEVICES
+                    cluster0_count += 1
+                ElseIf data.Cluster == W_ICON_CLUSTER_EFFECTS
+                    cluster1_count += 1
+                EndIf
             EndIf
             i += 1
         EndWhile
@@ -882,7 +874,7 @@ State iWidgetInstalled
         Int y = 0            
         Int index0 = 0
         Int index1 = 0
-        If UD_IconsAnchor == 0
+        If UD_IconsAnchor == W_POSX_LEFT
             ; Left icons position
             ;
             ;          ###     ###
@@ -904,19 +896,24 @@ State iWidgetInstalled
             
             i = 0
             While i < len
-                If _IconRegs_Cluster[i] == 0                                       ; device cluster
-                    x = CalculateGroupXPos(W_POSX_LEFT) + UD_IconsPadding + (UD_IconsSize * (-0.55 + 1.1 * (index0 % 2))) As Int
-                    y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (-1.1 * (cluster0_count / 2) + 1.1 * (index0 / 2))) As Int
-                    index0 += 1
-                ElseIf _IconRegs_Cluster[i] == 1                                   ; effect cluster
-                    x = CalculateGroupXPos(W_POSX_LEFT) + UD_IconsPadding + (UD_IconsSize * (-0.55 + 1.1 * (index1 % 2))) As Int
-                    y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (1.1 + 1.1 * (index1 / 2))) As Int
-                    index1 += 1
+                data = StatusEffectSlots[i]
+                If data.Name != ""
+                    If data.Cluster == W_ICON_CLUSTER_DEVICES                                       ; device cluster
+                        x = CalculateGroupXPos(W_POSX_LEFT) + UD_IconsPadding + (UD_IconsSize * (-0.55 + 1.1 * (index0 % 2))) As Int
+                        y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (-1.1 * (cluster0_count / 2) + 1.1 * (index0 / 2))) As Int
+                        data.Enabled = UD_EnableDeviceIcons
+                        index0 += 1
+                    ElseIf data.Cluster == W_ICON_CLUSTER_EFFECTS                                   ; effect cluster
+                        x = CalculateGroupXPos(W_POSX_LEFT) + UD_IconsPadding + (UD_IconsSize * (-0.55 + 1.1 * (index1 % 2))) As Int
+                        y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (1.1 + 1.1 * (index1 / 2))) As Int
+                        data.Enabled = UD_EnableEffectIcons
+                        index1 += 1
+                    EndIf
+                    _CreateIconWidget(data, x, y, 75)
                 EndIf
-                _CreateIcon(_IconRegs_Name[i], _IconRegs_Variant[i], x, y, 75)
                 i += 1
             EndWhile
-        ElseIf UD_IconsAnchor == 1
+        ElseIf UD_IconsAnchor == W_POSX_CENTER
             ; Center icons position
             ;
             ;          ###     ###                          ###
@@ -931,60 +928,48 @@ State iWidgetInstalled
             
             i = 0
             While i < len
-                If _IconRegs_Cluster[i] == 0                                       ; device cluster
-                    x = CalculateGroupXPos(W_POSX_CENTER) - 300 - UD_IconsPadding + (UD_IconsSize * (-0.55 + 1.1 * (index0 % 2))) As Int
-                    y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (-0.55 * (cluster0_count / 2) + 1.1 * (index0 / 2))) As Int
-                    index0 += 1
-                ElseIf _IconRegs_Cluster[i] == 1                                   ; effect cluster
-                    x = CalculateGroupXPos(W_POSX_CENTER) + 300 + UD_IconsPadding + (UD_IconsSize * (-0.55 + 1.1 * (index1 % 2))) As Int
-                    y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (-0.55 * (cluster1_count / 2) + 1.1 * (index1 / 2))) As Int
-                    index1 += 1
+                data = StatusEffectSlots[i]
+                If data.Name != ""
+                    If data.Cluster == W_ICON_CLUSTER_DEVICES                                       ; device cluster
+                        x = CalculateGroupXPos(W_POSX_CENTER) - 300 - UD_IconsPadding + (UD_IconsSize * (-0.55 + 1.1 * (index0 % 2))) As Int
+                        y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (-0.55 * (Math.Ceiling((cluster0_count as Float) / 2.0) - 1) + 1.1 * (index0 / 2))) As Int
+                        data.Enabled = UD_EnableDeviceIcons
+                        index0 += 1
+                    ElseIf data.Cluster == W_ICON_CLUSTER_EFFECTS                                   ; effect cluster
+                        x = CalculateGroupXPos(W_POSX_CENTER) + 300 + UD_IconsPadding + (UD_IconsSize * (-0.55 + 1.1 * (index1 % 2))) As Int
+                        y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (-0.55 * (Math.Ceiling((cluster1_count as Float) / 2.0) - 1) + 1.1 * (index1 / 2))) As Int
+                        data.Enabled = UD_EnableEffectIcons
+                        index1 += 1
+                    EndIf
+                    _CreateIconWidget(data, x, y, 75)
                 EndIf
-                _CreateIcon(_IconRegs_Name[i], _IconRegs_Variant[i], x, y, 75)
                 i += 1
             EndWhile
-        ElseIf UD_IconsAnchor == 2
+        ElseIf UD_IconsAnchor == W_POSX_RIGHT
             ; mirrored version of the left layout
             i = 0
             While i < len
-                If _IconRegs_Cluster[i] == 0                                       ; device cluster
-                    x = CalculateGroupXPos(W_POSX_RIGHT) - UD_IconsPadding - (UD_IconsSize * (-0.55 + 1.1 * (index0 % 2))) As Int
-                    y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (-1.1 * (cluster0_count / 2) + 1.1 * (index0 / 2))) As Int
-                    index0 += 1
-                ElseIf _IconRegs_Cluster[i] == 1                                   ; effect cluster
-                    x = CalculateGroupXPos(W_POSX_RIGHT) - UD_IconsPadding - (UD_IconsSize * (-0.55 + 1.1 * (index1 % 2))) As Int
-                    y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (1.1 + 1.1 * (index1 / 2))) As Int
-                    index1 += 1
+                data = StatusEffectSlots[i]
+                If data.Name != ""
+                    If data.Cluster == W_ICON_CLUSTER_DEVICES                                       ; device cluster
+                        x = CalculateGroupXPos(W_POSX_RIGHT) - UD_IconsPadding - (UD_IconsSize * (-0.55 + 1.1 * (index0 % 2))) As Int
+                        y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (-1.1 * (cluster0_count / 2) + 1.1 * (index0 / 2))) As Int
+                        data.Enabled = UD_EnableDeviceIcons
+                        index0 += 1
+                    ElseIf data.Cluster == W_ICON_CLUSTER_EFFECTS                                   ; effect cluster
+                        x = CalculateGroupXPos(W_POSX_RIGHT) - UD_IconsPadding - (UD_IconsSize * (-0.55 + 1.1 * (index1 % 2))) As Int
+                        y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (1.1 + 1.1 * (index1 / 2))) As Int
+                        data.Enabled = UD_EnableEffectIcons
+                        index1 += 1
+                    EndIf
+                    _CreateIconWidget(data, x, y, 75)
                 EndIf
-                _CreateIcon(_IconRegs_Name[i], _IconRegs_Variant[i], x, y, 75)
                 i += 1
             EndWhile
         Else
             UDMain.Warning("UD_WidgetControl::InitIcons() Unsupported value UD_IconsAnchor = " + UD_IconsAnchor)
         EndIf
-        ; checking if all icons were created
-        i = _Icons_Id.Length
-        While i > 0
-            i -= 1
-            If _Icons_Id[i] == 0
-                Return False
-            EndIf
-        EndWhile
-;        _UpdateIconsEnabled()
         Return True
-    EndFunction
-    
-    Function _UpdateIconsEnabled()
-        Int i = _Icons_Id.Length
-        While i > 0
-            i -= 1
-            If StringUtil.Find(_Icons_Name[i], "dd-") == 0
-                _Icons_Enabled[i] = UD_EnableDeviceIcons as Int
-            ElseIf StringUtil.Find(_Icons_Name[i], "effect-") == 0
-                _Icons_Enabled[i] = UD_EnableEffectIcons as Int
-            EndIf
-            iWidget.setVisible(_Icons_Id[i], _Icons_Visible[i] * _Icons_Enabled[i])
-        EndWhile
     EndFunction
     
     ; fVerticalOffset       - offset in meter's heights
@@ -1111,60 +1096,38 @@ State iWidgetInstalled
     EndFunction
     
     Function TestWidgets()
-    ; save current values
-        Int[] magnitudes = PapyrusUtil.SliceIntArray(_Icons_Magnitude, 0)
-        Float[] timers = PapyrusUtil.SliceFloatArray(_Icons_Timer, 0)
-        Int[] stages = PapyrusUtil.SliceIntArray(_Icons_Stage, 0)
-        Int[] blinks = PapyrusUtil.SliceIntArray(_Icons_Blinking, 0)
-        Int[] alphas = PapyrusUtil.SliceIntArray(_Icons_Alpha, 0)
-        Int[] visibles = PapyrusUtil.SliceIntArray(_Icons_Visible, 0)
-
+        UD_WidgetStatusEffect_RefAlias data
+        Int len = StatusEffectSlots.Length
+        Int i = 0
+        While i < len
+            data = StatusEffectSlots[i]
+            If data.Name != ""
+                data.StartTest()
+                StatusEffect_SetMagnitude(data.Name, Utility.RandomInt(1, 100))
+                StatusEffect_SetVisible(data.Name, True)
+                StatusEffect_SetBlink(data.Name, True)
+            EndIf
+            i += 1
+        EndWhile
+        
         Notification_Push("TEST 0 TEST 0", 0xFF0000)
         Notification_Push("TEST 1 TEST 1", 0x00FF00)
         Notification_Push("TEST 2 TEST 2", 0x0000FF)
-
-        StatusEffect_SetVisible("dd-plug-anal", True)
-        StatusEffect_SetVisible("dd-plug-vaginal", True)
-        StatusEffect_SetVisible("dd-piercing-clit", True)
-        StatusEffect_SetVisible("dd-piercing-nipples", True)
-        StatusEffect_SetVisible("effect-exhaustion", True)
-        StatusEffect_SetVisible("effect-orgasm", True)
-        
-        StatusEffect_SetMagnitude("dd-plug-anal", 0)
-        StatusEffect_SetMagnitude("dd-plug-vaginal", 25)
-        StatusEffect_SetMagnitude("dd-piercing-clit", 50)
-        StatusEffect_SetMagnitude("dd-piercing-nipples", 75)
-        StatusEffect_SetMagnitude("effect-exhaustion", 50)
-        StatusEffect_SetMagnitude("effect-orgasm", 100)
-
-        StatusEffect_SetBlink("dd-plug-anal", True)
-        StatusEffect_SetBlink("dd-plug-vaginal", True)
-        StatusEffect_SetBlink("dd-piercing-clit", True)
-        StatusEffect_SetBlink("dd-piercing-nipples", True)
         
         Utility.Wait(5.0)
 
     ; load last values
-        _Icons_Magnitude = magnitudes
-        _Icons_Timer = timers
-        _Icons_Stage = stages
-        _Icons_Blinking = blinks
-        _Icons_Alpha = alphas
-        _Icons_Visible = visibles
-        Int i = _Icons_Name.Length
-        While i > 0
-            i -= 1
-            StatusEffect_SetVisible(_Icons_Name[i], _Icons_Visible[i])
-            StatusEffect_SetMagnitude(_Icons_Name[i], _Icons_Magnitude[i])
-            StatusEffect_SetBlink(_Icons_Name[i], _Icons_Blinking[i])
+        i = 0
+        While i < len
+            data = StatusEffectSlots[i]
+            If data.Name != ""
+                data.EndTest()
+                StatusEffect_SetMagnitude(data.Name, data.Magnitude)
+                StatusEffect_SetVisible(data.Name, data.Visible)
+                StatusEffect_SetBlink(data.Name, data.Blinking)
+            EndIf
+            i += 1
         EndWhile
-        UDMain.Log("UD_WidgetControl::TestWidgets() _Icons_Id = " + _Icons_Id, 3)
-        UDMain.Log("UD_WidgetControl::TestWidgets() _Icons_Name = " + _Icons_Name, 3)
-        UDMain.Log("UD_WidgetControl::TestWidgets() _IconRegs_Variant = " + _IconRegs_Variant, 3)
-        UDMain.Log("UD_WidgetControl::TestWidgets() _Icons_Alpha = " + _Icons_Alpha, 3)
-        UDMain.Log("UD_WidgetControl::TestWidgets() _Icons_Blinking = " + _Icons_Blinking, 3)
-        UDMain.Log("UD_WidgetControl::TestWidgets() _Icons_Visible = " + _Icons_Visible, 3)
-        UDMain.Log("UD_WidgetControl::TestWidgets() _Icons_Enabled = " + _Icons_Enabled, 3)
     EndFunction
     
     ; quickly push a string into array and leave the function
@@ -1235,134 +1198,114 @@ State iWidgetInstalled
         Return True
     EndFunction
     
-    Int Function _CreateIcon(String asName, Int aiVariant = 0, Int aiX = -1, Int aiY = -1, Int aiAlpha = -1)
-        UDMain.Log("UD_WidgetControl::_CreateIcon() asName = " + asName + ", aiVariant = " + aiVariant + ", aiX = " + aiX + ", aiY = " + aiY + ", aiAlpha = " + aiAlpha, 3)
-        Bool skip_creation = False
-        If aiX < 0 || aiY < 0
-            UDMain.Warning("UD_WidgetControl::_CreateIcon() icon created without proper positioning")
-            aiX = CanvasWidth / 2
-            aiY = CanvasHeight / 2
-            skip_creation = True
+    Function _CreateIconWidget(UD_WidgetStatusEffect_RefAlias akData, Int aiX, Int aiY, Int aiAlpha, Bool abForceDestory = False)
+        UDMain.Log("UD_WidgetControl::_CreateIconWidget() akData = " + akData + ", aiX = " + aiX + ", aiY = " + aiY + ", aiAlpha = " + aiAlpha, 3)
+        If akData == None || akData.Name == ""
+            Return
         EndIf
-        Int icon_id = -1
-        Int outline_id = -1
-        Int index = _Icons_Name.Find(asName)
-        If index >= 0
-            If !skip_creation && (_Icons_Id[index] <= 0 || _Icons_Variant[index] != aiVariant)
-                If _Icons_Id[index] > 0
-                    iWidget.destroy(_Icons_Id[index])
-                EndIf
-                String file_name = asName
-                If aiVariant > 0
-                    file_name = file_name + "-" + aiVariant
-                EndIf
-                If _Icons_OutlinesId[index] <= 0
-                    outline_id = iWidget.loadLibraryWidget("background")
-                    _Icons_OutlinesId[index] = outline_id
-                Else
-                    outline_id = _Icons_OutlinesId[index]
-                EndIf
-                icon_id = iWidget.loadLibraryWidget(file_name)
-                _Icons_Id[index] = icon_id
-                _Icons_Variant[index] = aiVariant
-            ElseIf _Icons_Id[index] > 0
-                icon_id = _Icons_Id[index]
-                outline_id = _Icons_OutlinesId[index]
-            EndIf
-            If aiAlpha >= 0
-                _Icons_Alpha[index] = aiAlpha
-            EndIf
-        Else
-            If !skip_creation
-                String file_name = asName
-                If aiVariant > 0
-                    file_name = file_name + "-" + aiVariant
-                EndIf
-                outline_id = iWidget.loadLibraryWidget("background")
-                icon_id = iWidget.loadLibraryWidget(file_name)
-            EndIf
-            _Icons_Name = PapyrusUtil.PushString(_Icons_Name, asName)
-            _Icons_Id = PapyrusUtil.PushInt(_Icons_Id, icon_id)
-            _Icons_OutlinesId = PapyrusUtil.PushInt(_Icons_OutlinesId, outline_id)
-            _Icons_Timer = PapyrusUtil.PushFloat(_Icons_Timer, 0.0)
-            _Icons_Magnitude = PapyrusUtil.PushInt(_Icons_Magnitude, 0)
-            _Icons_Stage = PapyrusUtil.PushInt(_Icons_Stage, 0)
-            _Icons_Blinking = PapyrusUtil.PushInt(_Icons_Blinking, 0)
-            _Icons_Visible = PapyrusUtil.PushInt(_Icons_Visible, 0)
-            _Icons_Enabled = PapyrusUtil.PushInt(_Icons_Enabled, 1)
-            _Icons_Alpha = PapyrusUtil.PushInt(_Icons_Alpha, aiAlpha)
-            _Icons_Variant = PapyrusUtil.PushInt(_Icons_Variant, aiVariant)
-            index = _Icons_Id.Length - 1
+        If _CreateIcon_Mutex
+            Int i = 0
+            While i < 100 && _CreateIcon_Mutex
+                Utility.Wait(0.05)
+                i += 1
+            EndWhile
         EndIf
-        If icon_id > 0
-            iWidget.setSize(icon_id, UD_IconsSize, UD_IconsSize)
-            iWidget.setPos(icon_id, aiX, aiY)
-            iWidget.setTransparency(icon_id, _Icons_Alpha[index])
-            iWidget.setVisible(icon_id, _Icons_Visible[index] * _Icons_Enabled[index])
-            _SetIconRGB(icon_id, _Icons_Magnitude[index])
+        _CreateIcon_Mutex = True
+
+        If (akData.Id > 0 && (akData.Variant != akData.VariantLoaded)) || abForceDestory
+            iWidget.destroy(akData.Id)
+            akData.Id = -1
         EndIf
-        If outline_id > 0
-            iWidget.setSize(outline_id, UD_IconsSize, UD_IconsSize)
-            iWidget.setPos(outline_id, aiX, aiY)
-            iWidget.setTransparency(outline_id, 20)
-            iWidget.setVisible(outline_id, _Icons_Visible[index] * _Icons_Enabled[index])
-            _SetTextRGB(outline_id, 0)
+        If akData.Id < 0
+            akData.Id = iWidget.loadLibraryWidget(akData.FileName)
+            akData.VariantLoaded = akData.Variant
         EndIf
-        UDMain.Log("UD_WidgetControl::_CreateIcon() icon_id = " + icon_id + ", index = " + index, 3)
-        Return index
+        If akData.AuxId > 0 && abForceDestory
+            iWidget.destroy(akData.AuxId)
+            akData.AuxId = -1
+        EndIf
+        If akData.AuxId < 0
+            akData.AuxId = iWidget.loadLibraryWidget("background")
+        EndIf
+        akData.Alpha = aiAlpha
+        
+        iWidget.setSize(akData.Id, UD_IconsSize, UD_IconsSize)
+        iWidget.setPos(akData.Id, aiX, aiY)
+        iWidget.setTransparency(akData.Id, akData.Alpha)
+        iWidget.setVisible(akData.Id, (akData.Visible && akData.Enabled) as Int)
+        _SetIconRGB(akData.Id, akData.Magnitude)
+
+        iWidget.setSize(akData.AuxId, UD_IconsSize, UD_IconsSize)
+        iWidget.setPos(akData.AuxId, aiX, aiY)
+        iWidget.setTransparency(akData.AuxId, 20)
+        iWidget.setVisible(akData.AuxId, (akData.Visible && akData.Enabled) as Int)
+        _SetTextRGB(akData.AuxId, 0)
+        _CreateIcon_Mutex = False
     EndFunction
     
     Function StatusEffect_SetVisible(String asName, Bool abVisible = True)
-        Int index = _GetIconIndex(asName)
-        _Icons_Visible[index] = abVisible as Int
-        iWidget.setVisible(_Icons_Id[index], _Icons_Visible[index] * _Icons_Enabled[index])
-        iWidget.setVisible(_Icons_OutlinesId[index], _Icons_Visible[index] * _Icons_Enabled[index])
+        UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName)
+        If data == None 
+            Return
+        EndIf
+        data.Visible = abVisible
+        iWidget.setVisible(data.Id, (data.Visible && data.Enabled) as Int)
+        iWidget.setVisible(data.AuxId, (data.Visible && data.Enabled) as Int)
         If abVisible
-            iWidget.setTransparency(_Icons_Id[index], _Icons_Alpha[index])
+            iWidget.setTransparency(data.Id, data.Alpha)
         Else
-            _Icons_Blinking[index] = 0
+            data.Blinking = False
         EndIf
     EndFunction
     
     Function StatusEffect_SetMagnitude(String asName, Int aiMagnitude)
-        Int index = _GetIconIndex(asName)
-        _Icons_Magnitude[index] = aiMagnitude
-        _SetIconRGB(_Icons_Id[index], aiMagnitude)
+        UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName)
+        If data == None 
+            Return
+        EndIf
+        data.Magnitude = aiMagnitude
+        _SetIconRGB(data.Id, data.Magnitude)
     EndFunction
     
     Function StatusEffect_AdjustMagnitude(String asName, Int aiAdjustValue, Bool abControlVisibility = True)
-        Int index = _GetIconIndex(asName)
-        _Icons_Magnitude[index] = _Icons_Magnitude[index] + aiAdjustValue
-        If _Icons_Magnitude[index] < 0
-            _Icons_Magnitude[index] = 0
+        UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName)
+        If data == None 
+            Return
+        EndIf
+        data.Magnitude += aiAdjustValue
+        If data.Magnitude < 0
+            data.Magnitude = 0
         EndIf
         If abControlVisibility
-            _Icons_Visible[index] = (_Icons_Magnitude[index] > 0) as Int
-            iWidget.setVisible(_Icons_Id[index], _Icons_Visible[index] * _Icons_Enabled[index])
-            iWidget.setVisible(_Icons_OutlinesId[index], _Icons_Visible[index] * _Icons_Enabled[index])
+            data.Visible = data.Magnitude > 0
+            iWidget.setVisible(data.Id, (data.Visible && data.Enabled) as Int)
+            iWidget.setVisible(data.AuxId, (data.Visible && data.Enabled) as Int)
         EndIf
-        _SetIconRGB(_Icons_Id[index], _Icons_Magnitude[index])
+        _SetIconRGB(data.Id, data.Magnitude)
     EndFunction
     
     Function StatusEffect_SetBlink(String asName, Bool abBlink = True)
-        Int index = _GetIconIndex(asName)
-        _Icons_Blinking[index] = abBlink As Int
+        UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName)
+        If data == None 
+            Return
+        EndIf
+        data.Blinking = abBlink
         If abBlink
             RegisterForSingleUpdate(_Animation_UpdateInstant)
         Else
-            iWidget.setTransparency(_Icons_Id[index], _Icons_Alpha[index])
+            iWidget.setTransparency(data.Id, data.Alpha)
         EndIf
     EndFunction
     
     ; Update all icons after switching between states
     Function StatusEffect_AllUpdate()
-        Int i = _Icons_Name.Length
-        While i > 0
-            i -= 1
-            StatusEffect_SetVisible(_Icons_Name[i], _Icons_Visible[i])
-            StatusEffect_SetMagnitude(_Icons_Name[i], _Icons_Magnitude[i])
-            StatusEffect_SetBlink(_Icons_Name[i], _Icons_Blinking[i])
-        EndWhile
+;        Int i = _Icons_Name.Length
+;        While i > 0
+;            i -= 1
+;            StatusEffect_SetVisible(_Icons_Name[i], _Icons_Visible[i])
+;            StatusEffect_SetMagnitude(_Icons_Name[i], _Icons_Magnitude[i])
+;            StatusEffect_SetBlink(_Icons_Name[i], _Icons_Blinking[i])
+;        EndWhile
     EndFunction
     
     Function _SetIconRGB(Int aiWidget, Int aiMagnitude)
@@ -1453,40 +1396,33 @@ State iWidgetInstalled
     EndFunction
 
     Function _AnimateIcons(Float frame)
-        Int i = _Icons_Id.Length
-        While i > 0
-            i -= 1
-            Int     icon_id     = _Icons_Id[i]
-            Int     outline_id  = _Icons_OutlinesId[i]
-            Float   timer       = _Icons_Timer[i]
-            Int     magnitude   = _Icons_Magnitude[i]
-            String  name        = _Icons_Name[i]
-            Int     anim_stage  = _Icons_Stage[i]
-            Bool    blink       = _Icons_Blinking[i] > 0
-            Bool    visible     = _Icons_Visible[i] * _Icons_Enabled[i] > 0
-            timer += frame
-            
-            If visible && anim_stage == -1
-                iWidget.setVisible(icon_id, 1)
-                iWidget.setVisible(outline_id, 1)
-                anim_stage = 0
-            ElseIf !visible && anim_stage != -1
-                iWidget.setVisible(icon_id, 0)
-                iWidget.setVisible(outline_id, 0)
-                anim_stage = -1
-            EndIf
-            If blink
-                If ((timer / 0.5) As Int) % 2 == 0
-                    iWidget.doTransitionByTime(icon_id, 25, 0.5, "alpha")
-                Else
-                    iWidget.doTransitionByTime(icon_id, 100, 0.5, "alpha")
+        Int i = 0
+        While i < StatusEffectSlots.Length
+            UD_WidgetStatusEffect_RefAlias data = StatusEffectSlots[i]
+            If data.Id > 0
+                data.Timer += frame
+                If data.Visible && data.Enabled && data.Stage == -1
+                    iWidget.setVisible(data.Id, 1)
+                    iWidget.setTransparency(data.Id, data.Alpha)
+                    iWidget.setVisible(data.AuxId, 1)
+                    data.Stage = 0
+                ElseIf !(data.Visible && data.Enabled) && data.Stage != -1
+                    iWidget.setVisible(data.Id, 0)
+                    iWidget.setVisible(data.AuxId, 0)
+                    data.Stage = -1
                 EndIf
-                anim_stage = 1
-            ElseIf anim_stage == 1
-                iWidget.doTransitionByTime(icon_id, _Icons_Alpha[i], 0.1, "alpha")
+                If data.Blinking
+                    If ((data.Timer / 0.5) As Int) % 2 == 0
+                        iWidget.doTransitionByTime(data.Id, 25, 0.5, "alpha")
+                    Else
+                        iWidget.doTransitionByTime(data.Id, 100, 0.5, "alpha")
+                    EndIf
+                    data.Stage = 1
+                ElseIf data.Stage == 1
+                    iWidget.doTransitionByTime(data.Id, data.Alpha, 0.1, "alpha")
+                EndIf
             EndIf
-            _Icons_Timer[i] = timer
-            _Icons_Stage[i] = anim_stage
+            i += 1
         EndWhile
     EndFunction
     

@@ -740,76 +740,65 @@ Event resetUIWidgetPage()
     UpdateLockMenuFlag()
     
     SetCursorFillMode(TOP_TO_BOTTOM)
-    
-    Int right_col = 0
-    Int left_col = 0
+
     ; LEFT COLUMN
     AddHeaderOption("Widgets")
-    left_col += 1
-    AddTextOption("iWantWidgets",InstallSwitch(UDmain.iWidgetInstalled),FlagSwitch(UDmain.iWidgetInstalled))
-    left_col += 1
-    UD_UseIWantWidget_T = addToggleOption("Use iWW",UDWC.UD_UseIWantWidget,FlagSwitch(UDmain.iWidgetInstalled))
-    left_col += 1
-    UD_AutoAdjustWidget_T = addToggleOption("Auto adjust",UDWC.UD_AutoAdjustWidget,FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
-    left_col += 1
+    AddTextOption("iWantWidgets", InstallSwitch(UDmain.iWidgetInstalled), FlagSwitch(UDmain.iWidgetInstalled))
+    UD_UseIWantWidget_T = AddToggleOption("Use iWW", UDWC.UD_UseIWantWidget, FlagSwitch(UDmain.iWidgetInstalled))
+    UD_AutoAdjustWidget_T = addToggleOption("Auto adjust", UDWC.UD_AutoAdjustWidget, FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
     ; device widgets
     AddHeaderOption("Device widgets")
-    left_col += 1
     UD_UseWidget_T = addToggleOption("Use device widgets", UDCDmain.UD_UseWidget)
-    left_col += 1
-    UD_WidgetPosX_M = AddMenuOption("Widgets horizontal position", widgetXList[UDWC.UD_WidgetXPos],FlagSwitch(UDCDmain.UD_UseWidget))
-    left_col += 1
-    UD_WidgetPosY_M = AddMenuOption("Widgets vertical position", widgetYList[UDWC.UD_WidgetYPos],FlagSwitch(UDCDmain.UD_UseWidget))
-    left_col += 1
-    
+    UD_WidgetPosX_M = AddMenuOption("Widgets horizontal position", widgetXList[UDWC.UD_WidgetXPos], FlagSwitch(UDCDmain.UD_UseWidget))
+    UD_WidgetPosY_M = AddMenuOption("Widgets vertical position", widgetYList[UDWC.UD_WidgetYPos], FlagSwitch(UDCDmain.UD_UseWidget))
+;    
     ; RIGHT COLUMN
     SetCursorPosition(1)
     SetCursorFillMode(TOP_TO_BOTTOM)
     AddHeaderOption("Overlay Settings")
-    right_col += 1
     UD_EnableCNotifications_S = AddToggleOption("Show customized notifications", UDWC.UD_EnableCNotifications, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
-    right_col += 1
     UD_TextFontSize_S = addSliderOption("Notification font size", UDWC.UD_TextFontSize, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableCNotifications))
-    right_col += 1
     UD_TextLineLength_S = addSliderOption("Notification line length", UDWC.UD_TextLineLength, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableCNotifications))
-    right_col += 1
     UD_FilterVibNotifications_T = AddToggleOption("Filter vibrator notifications", UDWC.UD_FilterVibNotifications, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableCNotifications))
-    right_col += 1
     If UDWC.UD_TextAnchor < 0 || UDWC.UD_TextAnchor > 3
         UDMain.Warning("UD_MCM_script::resetUIWidgetPage() WTF! UDWC.UD_TextAnchor = " + UDWC.UD_TextAnchor)
         UDWC.UD_TextAnchor = 1
     EndIf
     UD_TextAnchor_M = addMenuOption("Notifications base position", UD_TextAnchorList[UDWC.UD_TextAnchor], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableCNotifications))
-    right_col += 1
     UD_TextPadding_S = addSliderOption("Notifications offset", UDWC.UD_TextPadding, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableCNotifications))
-    right_col += 1
-
     UD_EnableDeviceIcons_S = AddToggleOption("Show DD icons", UDWC.UD_EnableDeviceIcons, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
-    right_col += 1
     UD_EnableEffectIcons_S = AddToggleOption("Show effect icons", UDWC.UD_EnableEffectIcons, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
-    right_col += 1
     UD_IconsSize_S = addSliderOption("Icon size", UDWC.UD_IconsSize, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && (UDWC.UD_EnableDeviceIcons || UDWC.UD_EnableEffectIcons)))
-    right_col += 1
     If UDWC.UD_IconsAnchor < 0 || UDWC.UD_IconsAnchor > 2
         UDMain.Warning("UD_MCM_script::resetUIWidgetPage() WTF! UDWC.UD_IconsAnchor = " + UDWC.UD_IconsAnchor)
         UDWC.UD_IconsAnchor = 1
     EndIf
     UD_IconsAnchor_M = addMenuOption("Icons base position", UD_IconsAnchorList[UDWC.UD_IconsAnchor], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && (UDWC.UD_EnableDeviceIcons || UDWC.UD_EnableEffectIcons)))
-    right_col += 1
     UD_IconsPadding_S = addSliderOption("Icons offset", UDWC.UD_IconsPadding, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && (UDWC.UD_EnableDeviceIcons || UDWC.UD_EnableEffectIcons)))
-    right_col += 1
     
-    Int variant = UDWC.StatusEffect_GetVariant("effect-exhaustion")
-    UD_IconVariant_EffExhaustion_M = addMenuOption("Struggle exhaustion icon variant", UD_IconVariant_EffExhaustionList[variant], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableEffectIcons))
-    right_col += 1
-    variant = UDWC.StatusEffect_GetVariant("effect-orgasm")
-    UD_IconVariant_EffOrgasm_M = addMenuOption("Orgasm icon variant", UD_IconVariant_EffOrgasmList[variant], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableEffectIcons))
-    right_col += 1
+    Int variant_index = UDWC.StatusEffect_GetVariant("effect-exhaustion")
+    String variant_str = ""
+    Bool variant_err = False
+    If variant_index < 0 || variant_index >= UD_IconVariant_EffExhaustionList.Length
+        variant_str = "ERROR"
+        variant_err = True
+    Else
+        variant_err = False
+        variant_str = UD_IconVariant_EffExhaustionList[variant_index]
+    EndIf
+    UD_IconVariant_EffExhaustion_M = addMenuOption("Struggle exhaustion icon variant", variant_str, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableEffectIcons && !variant_err))
+    variant_index = UDWC.StatusEffect_GetVariant("effect-orgasm")
+    If variant_index < 0 || variant_index >= UD_IconVariant_EffOrgasmList.Length
+        variant_str = "ERROR"
+        variant_err = True
+    Else
+        variant_err = False
+        variant_str = UD_IconVariant_EffOrgasmList[variant_index]
+    EndIf
+    UD_IconVariant_EffOrgasm_M = addMenuOption("Orgasm icon variant", variant_str, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableEffectIcons && !variant_err))
     
     UD_WidgetTest_T = AddTextOption("TEST WIDGETS", "-CLICK-", a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
-    right_col += 1
     UD_WidgetReset_T = AddTextOption("RESET WIDGETS", "-CLICK-", a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
-    right_col += 1
 EndEvent
 
 
@@ -2404,11 +2393,17 @@ Function OnOptionMenuOpenUIWidget(int option)
     ElseIf (option == UD_IconVariant_EffExhaustion_M)
         SetMenuDialogOptions(UD_IconVariant_EffExhaustionList)
         Int variant = UDWC.StatusEffect_GetVariant("effect-exhaustion")
+        If variant < 0 || variant >= UD_IconVariant_EffExhaustionList.Length
+            variant = 0
+        EndIf
         SetMenuDialogStartIndex(variant)
         SetMenuDialogDefaultIndex(0)
     ElseIf (option == UD_IconVariant_EffOrgasm_M)
         SetMenuDialogOptions(UD_IconVariant_EffOrgasmList)
         Int variant = UDWC.StatusEffect_GetVariant("effect-orgasm")
+        If variant < 0 || variant >= UD_IconVariant_EffOrgasmList.Length
+            variant = 0
+        EndIf
         SetMenuDialogStartIndex(variant)
         SetMenuDialogDefaultIndex(0)
     elseif (option == UD_WidgetPosX_M)
@@ -2507,10 +2502,10 @@ Function OnOptionMenuAcceptUIWidget(Int option, Int index)
         UDWC.UD_TextAnchor = index
         SetMenuOptionValue(UD_TextAnchor_M, UD_TextAnchorList[index])
     ElseIf (option == UD_IconVariant_EffExhaustion_M)
-        UDWC.StatusEffect_Register("effect-exhaustion", -1, index)
+        UDWC.StatusEffect_SetPosition("effect-exhaustion", -1, index)
         SetMenuOptionValue(UD_IconVariant_EffExhaustion_M, UD_IconVariant_EffExhaustionList[index])
     ElseIf (option == UD_IconVariant_EffOrgasm_M)
-        UDWC.StatusEffect_Register("effect-orgasm", -1, index)
+        UDWC.StatusEffect_SetPosition("effect-orgasm", -1, index)
         SetMenuOptionValue(UD_IconVariant_EffOrgasm_M, UD_IconVariant_EffOrgasmList[index])
     elseif (option == UD_WidgetPosX_M)
         UDWC.UD_WidgetXPos = index

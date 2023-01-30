@@ -57,11 +57,7 @@ UD_MenuChecker                      Property UDMC Hidden
         return UD_UtilityQuest as UD_MenuChecker
     EndFunction
 EndProperty
-UD_WidgetControl                    Property UDWC Hidden
-    UD_WidgetControl Function get()
-        return UD_UtilityQuest as UD_WidgetControl
-    EndFunction
-EndProperty
+UD_WidgetControl                    Property UDWC           Auto
 UD_GlobalVariables                  Property UDGV Hidden
     UD_GlobalVariables Function get()
         return UD_UtilityQuest as UD_GlobalVariables

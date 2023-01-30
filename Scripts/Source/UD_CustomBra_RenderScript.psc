@@ -36,7 +36,7 @@ Function activateDevice()
 
         if (loc_piercings as UD_CustomVibratorBase_RenderScript)
             UD_CustomVibratorBase_RenderScript loc_vibrator = loc_piercings as UD_CustomVibratorBase_RenderScript
-            if WearerIsPlayer()
+            if WearerIsPlayer() && (!loc_vibrator.canVibrate() || !UDMain.UDWC.UD_FilterVibNotifications)
                 UDCDmain.Print(getDeviceName() + " activates your nipple piercings!")
             elseif UDmain.ActorInCloseRange(getWearer())
                 UDCDmain.Print(getWearerName() + "s "+ getDeviceName() +" activates their nipple piercings!")
