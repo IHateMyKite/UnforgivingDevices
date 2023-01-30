@@ -52,6 +52,7 @@ UD_UserInputScript                  Property UDUI           auto
 UD_AnimationManagerScript           Property UDAM           auto
 UD_CompatibilityManager_Script      Property UDCM           auto
 UD_NPCInteligence                   Property UDAI           auto
+UD_UIEManager                       Property UDUIE          auto
 UD_MenuChecker                      Property UDMC Hidden
     UD_MenuChecker Function get() 
         return UD_UtilityQuest as UD_MenuChecker
@@ -961,7 +962,7 @@ Bool Function ActorIsHelpless(Actor akActor)
     Bool loc_res = False
     loc_res = loc_res || !ActorFreeHands(akActor)
     loc_res = loc_res || akActor.getAV("paralysis")
-    loc_res = loc_res || (akActor.GetSleepState() == 3)
+    ;loc_res = loc_res || (akActor.GetSleepState() == 3)
     loc_res = loc_res || akActor.IsBleedingOut()
     return loc_res
 EndFunction
@@ -1017,23 +1018,12 @@ endFunction
 
 ;open text input for user and return string
 string Function GetUserTextInput()
-    TextMenu.ResetMenu()
-    TextMenu.OpenMenu()
-    ;TextMenu.BlockUntilClosed()
-    return TextMenu.GetResultString()
+    return UDUIE.GetUserTextInput()
 EndFunction
 
 ;open list of options and return selected option
 Int Function GetUserListInput(string[] arrList)
-    ListMenu.ResetMenu()
-    int loc_i = 0
-    while loc_i < arrList.length
-        ListMenu.AddEntryItem(arrList[loc_i])
-        loc_i+=1
-    endwhile
-    ListMenu.OpenMenu()
-    ;ListMenu.BlockUntilClosed()
-    return ListMenu.GetResultInt()
+    return UDUIE.GetUserListInput(arrList)
 EndFunction
 
 Form Function GetShield(Actor akActor) Global
