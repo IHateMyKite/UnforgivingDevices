@@ -17,7 +17,6 @@ Only mods which are not listed on LL are here. These mods are not needed to play
 | UI Extensions        | https://www.nexusmods.com/skyrim/mods/57046 | https://www.nexusmods.com/skyrimspecialedition/mods/17561 |
 | IWantWidget          |                      X                      | https://www.nexusmods.com/skyrimspecialedition/mods/36457 |
 | PO3 Papyrus Extender |                      X                      | https://www.nexusmods.com/skyrimspecialedition/mods/22854 |
-|                      |                                             |                                                           |
 
 
 # Related repositories
