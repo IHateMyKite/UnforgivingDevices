@@ -27,7 +27,7 @@ UD_Patcher Property UDPatcher auto
 UD_DialogueMain Property UDDmain auto
 UD_CustomDevices_NPCSlotsManager Property UDCD_NPCM auto
 UD_ExpressionManager Property UDEM auto
-UD_OrgasmManager Property UDOM auto 
+;UD_OrgasmManager Property UDOM auto 
 UD_UserInputScript Property UDUI hidden
     UD_UserInputScript Function get()
         return UDmain.UDUI
@@ -1033,7 +1033,7 @@ Function OpenHelpDeviceMenu(UD_CustomDevice_RenderScript device,Actor akHelper,b
             endif
         endif
         
-        if UDOM.GetOrgasmingCount(device.getWearer()) ||  UDOM.GetOrgasmingCount(akHelper) ;actor is orgasming, prevent help
+        if UDmain.GetUDOM(device.getWearer()).GetOrgasmingCount(device.getWearer()) ||  UDmain.GetUDOM(akHelper).GetOrgasmingCount(akHelper) ;actor is orgasming, prevent help
             loc_cond = false
             bAllowCommand = false
         endif
@@ -1116,7 +1116,7 @@ EndFunction
 Function PlayerMenu()
     int loc_playerMenuRes = PlayerMenuMsg.show()
     if loc_playerMenuRes == 0
-        UDOM.FocusOrgasmResistMinigame(UDmain.Player)
+        UDmain.UDOMPlayer.FocusOrgasmResistMinigame(UDmain.Player)
     elseif loc_playerMenuRes == 1
         UndressArmor(UDmain.Player)
     elseif loc_playerMenuRes == 2
@@ -1331,6 +1331,7 @@ Function showActorDetails(Actor akActor)
         if !UDmain.IsContainerMenuOpen() && !UDmain.IsInventoryMenuOpen()
             Utility.wait(0.01)
         endif
+        UD_OrgasmManager _UDOM = UDmain.GetUDOM(akActor)
         if loc_option == 0 ;base details
             String loc_res = "--BASE DETAILS--\n"
             loc_res += "Name: " + akActor.GetLeveledActorBase().GetName() + "\n"
@@ -1344,8 +1345,8 @@ Function showActorDetails(Actor akActor)
                 loc_res += "Motivation: " + getMotivation(akActor) + "\n"
                 loc_res += "AI Cooldown: " + iUnsig(GetAIRemainingCooldown(akActor)) + " min\n"
             endif
-            loc_res += "Arousal: " + UDOM.getArousal(akActor) + "\n"
-            loc_res += "Orgasm progress: " + formatString(UDOM.getOrgasmProgressPerc(akActor) * 100,2) + " %\n"
+            loc_res += "Arousal: " + _UDOM.getArousal(akActor) + "\n"
+            loc_res += "Orgasm progress: " + formatString(_UDOM.getOrgasmProgressPerc(akActor) * 100,2) + " %\n"
             UDmain.ShowMessageBox(loc_res)
         elseif loc_option == 1 ;skills
             String loc_res = "--SKILL DETAILS--\n"
@@ -1372,20 +1373,20 @@ Function showActorDetails(Actor akActor)
         elseif loc_option == 2 ;arousal/orgasm details
             string loc_orgStr = ""
             loc_orgStr += "--ORGASM DETAILS--\n"
-            loc_orgStr += "State: " + UDOM.GetHornyLevelString(akActor) + "\n"
-            loc_orgStr += "Horny progress: " + Round(UDOM.GetRelativeHornyProgress(akActor)*100.0) + " %\n"
+            loc_orgStr += "State: " + _UDOM.GetHornyLevelString(akActor) + "\n"
+            loc_orgStr += "Horny progress: " + Round(_UDOM.GetRelativeHornyProgress(akActor)*100.0) + " %\n"
             loc_orgStr += "Active vibrators: " + GetActivatedVibrators(akActor) + "(S="+StorageUtil.GetIntValue(akActor,"UD_ActiveVib_Strength",0)+")" + "\n"
-            loc_orgStr += "Arousal: " + UDOM.getArousal(akActor) + "\n"
-            loc_orgStr += "Arousal Rate(M): " + Math.Ceiling(UDOM.getArousalRateM(akActor)) + "\n"
-            loc_orgStr += "Arousal Rate Mult: " + Round(UDOM.getArousalRateMultiplier(akActor)*100) + " %\n"
-            loc_orgStr += "Orgasm capacity: " + Round(UDOM.getActorOrgasmCapacity(akActor)) + "\n"
-            loc_orgStr += "Orgasm resistance(M): " + FormatString(UDOM.getActorOrgasmResistM(akActor),1) + "\n"
-            loc_orgStr += "Orgasm progress: " + formatString(UDOM.getOrgasmProgressPerc(akActor) * 100,2) + " %\n"
-            loc_orgStr += "Orgasm rate: " + formatString(UDOM.getActorAfterMultOrgasmRate(akActor),2) + " - " + formatString(UDOM.getActorAfterMultAntiOrgasmRate(akActor),2) + " Op/s\n"
-            loc_orgStr += "Orgasm mult: " + Round(UDOM.getActorOrgasmRateMultiplier(akActor)*100.0) + " %\n"
-            loc_orgStr += "Orgasm resisting: " + Round(UDOM.getActorOrgasmResistMultiplier(akActor)*100.0) + " %\n"
+            loc_orgStr += "Arousal: " + _UDOM.getArousal(akActor) + "\n"
+            loc_orgStr += "Arousal Rate(M): " + Math.Ceiling(_UDOM.getArousalRateM(akActor)) + "\n"
+            loc_orgStr += "Arousal Rate Mult: " + Round(_UDOM.getArousalRateMultiplier(akActor)*100) + " %\n"
+            loc_orgStr += "Orgasm capacity: " + Round(_UDOM.getActorOrgasmCapacity(akActor)) + "\n"
+            loc_orgStr += "Orgasm resistance(M): " + FormatString(_UDOM.getActorOrgasmResistM(akActor),1) + "\n"
+            loc_orgStr += "Orgasm progress: " + formatString(_UDOM.getOrgasmProgressPerc(akActor) * 100,2) + " %\n"
+            loc_orgStr += "Orgasm rate: " + formatString(_UDOM.getActorAfterMultOrgasmRate(akActor),2) + " - " + formatString(_UDOM.getActorAfterMultAntiOrgasmRate(akActor),2) + " Op/s\n"
+            loc_orgStr += "Orgasm mult: " + Round(_UDOM.getActorOrgasmRateMultiplier(akActor)*100.0) + " %\n"
+            loc_orgStr += "Orgasm resisting: " + Round(_UDOM.getActorOrgasmResistMultiplier(akActor)*100.0) + " %\n"
             if isRegistered(akActor)
-                loc_orgStr += "Orgasm exhaustion: " + UDOM.GetOrgasmExhaustion(akActor) + "\n"
+                loc_orgStr += "Orgasm exhaustion: " + _UDOM.GetOrgasmExhaustion(akActor) + "\n"
                 if !UDmain.ActorIsPlayer(akActor)
                     UD_CustomDevice_NPCSlot loc_slot = GetNPCSlot(akActor)
                     if loc_slot

@@ -777,7 +777,7 @@ Function ActorOrgasm(actor akActor, int setArousalTo=-1, int vsID=-1)
         loc_newArousal = 75
     endif
     ;ActorOrgasmPatched(akActor,20,loc_newArousal)
-    UDCDmain.UDOM.ActorOrgasm(akActor,20,loc_newArousal)
+    UDmain.GetUDOM(akActor).ActorOrgasm(akActor,20,loc_newArousal)
 EndFunction
 
 Function UpdateExposure(actor akRef, float val, bool skipMultiplier=false)

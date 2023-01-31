@@ -14,7 +14,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     endif
     if !akTarget.wornhaskeyword(libs.zad_deviousheavybondage)
         UDCDmain.DisableActor(akTarget)
-        Int loc_arousal = UDCDmain.UDOM.getArousal(akTarget)
+        Int loc_arousal = UDCDmain.UDmain.UDOM.getArousal(akTarget)
         if Utility.randomInt(1,99) < Round(UDCDMain.UD_BlackGooRareDeviceChance*fRange(loc_arousal/50,1.0,2.0))
             ;rare devices, drop more loot and goo
             if !akTarget.wornhaskeyword(libs.zad_deviousSuit)

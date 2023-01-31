@@ -23,9 +23,9 @@ EndProperty
 UD_OrgasmManager Property UDOM Hidden
     UD_OrgasmManager Function get()
         if IsPlayer()
-            return UDmain.UDOM2
+            return UDmain.UDOMPlayer
         else
-            return UDmain.UDOM
+            return UDmain.UDOMNPC
         endif
     EndFunction
 EndProperty
@@ -2216,6 +2216,7 @@ EndFunction
 
 ;Event UDOrgasm(Form akActor,Float afOrgasmRate,Int aiArousal,Int aiEdgeLevel,Float afForcing)
 Function SendOrgasmEvent()
+    SendModEvent("DeviceActorOrgasm", GetActor().GetLeveledActorBase().GetName())
     int loc_id = ModEvent.Create("UDOrgasmEvent")
     if loc_id
         ModEvent.PushForm(loc_id, GetActor())
@@ -2235,6 +2236,7 @@ Function SendOrgasmEvent()
 EndFunction
 
 Function SendEdgeEvent()
+    SendModEvent("DeviceEdgedActor", GetActor().GetLeveledActorBase().GetName())
     int loc_id = ModEvent.Create("UDEdgeEvent")
     if loc_id
         ModEvent.PushForm(loc_id, GetActor())

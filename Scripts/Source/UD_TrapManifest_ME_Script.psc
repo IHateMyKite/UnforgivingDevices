@@ -2,10 +2,10 @@ Scriptname UD_TrapManifest_ME_Script extends activemagiceffect
 
 import UnforgivingDevicesMain
 
-UD_AbadonQuest_script Property AbadonQuest auto
-UD_libs Property UDlibs auto
-UDCustomDeviceMain Property UDCDmain auto
-zadlibs Property libs auto
+UD_AbadonQuest_script   Property AbadonQuest    auto
+UD_libs                 Property UDlibs         auto
+UDCustomDeviceMain      Property UDCDmain       auto
+zadlibs                 Property libs           auto
 
 Event OnEffectStart(Actor akTarget, Actor akCaster)
     if !UDCDMain.UDmain.ActorIsValidForUD(akTarget)
@@ -29,7 +29,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
         Formlist loc_formlist = none
         Armor device = none
 
-        Int loc_arousal = UDCDmain.UDOM.getArousal(akTarget)
+        Int loc_arousal = UDCDmain.UDmain.UDOM.getArousal(akTarget)
         int random = Round(Utility.randomInt(1,100) + (loc_arousal/5))
         
         if random > 90

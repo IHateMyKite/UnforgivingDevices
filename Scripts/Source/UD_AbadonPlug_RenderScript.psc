@@ -497,10 +497,10 @@ EndFunction
 
 Function OnCritFailure()
     parent.OnCritFailure()
-    float loc_arousal = 10 + UDCDmain.UDOM.getArousal(GetWearer())
-    UDCDmain.UDOM.UpdateArousalRate(getWearer(),loc_arousal)
+    float loc_arousal = 10 + UDOM.getArousal(GetWearer())
+    UDOM.UpdateArousalRate(getWearer(),loc_arousal)
     Utility.wait(3.5)
-    UDCDmain.UDOM.UpdateArousalRate(getWearer(),-1*loc_arousal)
+    UDOM.UpdateArousalRate(getWearer(),-1*loc_arousal)
 EndFunction
 
 Function OnCritDevicePost()
@@ -531,7 +531,7 @@ EndFunction
 
 Function onUpdatePost(float timePassed)
     updateVibrationParam()
-    addStrength(UDCDmain.UDOM.getArousal(GetWearer())*0.001*(1 + AbadonQuestScript.overaldifficulty)*(24.0*timePassed))
+    addStrength(UDOM.getArousal(GetWearer())*0.001*(1 + AbadonQuestScript.overaldifficulty)*(24.0*timePassed))
     plug_hunger -= 0.25*timePassed*24*60
     ;_littleFinisherUpdateTimePassed += timePassed
     if (plug_hunger < 0.0)

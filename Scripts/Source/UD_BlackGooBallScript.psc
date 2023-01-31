@@ -11,7 +11,6 @@ Int     Property UD_MaxDevices      = 5     auto
 
 
 Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldContainer)
-    UDmain.Info("Ball transfered between " + akNewContainer + " and " + akOldContainer)
     if (akNewContainer as Actor) && (akOldContainer as Actor) ;check that ball is transfered between actors
         Actor loc_victim = akNewContainer as Actor
         Actor loc_giver  = akOldContainer as Actor

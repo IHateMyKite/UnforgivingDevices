@@ -171,8 +171,6 @@ Function UpdateSuit()
     endwhile
     _updateSuitMutex = True
     
-    ;UDmain.Info("Updating custom abadon suit on patch " + UD_PatchName)
-    
     RegisterForModEvent("UD_AbadonSuitUpdate", "UpdateEvent")
 
     RegisterCustomAbadonSuitEvent(UD_CustomAbadonSuitEvent_1,UD_CustomAbadonSuitName_1)

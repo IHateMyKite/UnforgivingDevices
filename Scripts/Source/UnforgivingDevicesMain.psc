@@ -41,8 +41,6 @@ UD_MCM_script                       Property config         Auto
 UDItemManager                       Property ItemManager    auto
 UD_RandomRestraintManager           Property UDRRM          auto
 UD_LeveledList_Patcher              Property UDLLP          auto
-UD_OrgasmManager                    Property UDOM           auto
-UD_OrgasmManager                    Property UDOM2          auto
 UD_ExpressionManager                Property UDEM           auto
 UD_ParalelProcess                   Property UDPP           auto
 UD_CustomDevices_NPCSlotsManager    Property UDNPCM         auto
@@ -74,6 +72,15 @@ UD_SkillManager_Script              Property UDSKILL Hidden
     EndFunction
 EndProperty
 
+UD_OrgasmManager                    Property UDOMNPC        auto
+UD_OrgasmManager                    Property UDOMPlayer     auto
+UD_OrgasmManager                    Property UDOM Hidden
+    UD_OrgasmManager Function get()
+        return UDOMNPC ;NPC one is used as main one for storring MCM values
+    EndFunction
+EndProperty
+
+
 Package         Property UD_NPCDisablePackage           auto
 
 ;UI menus
@@ -88,6 +95,16 @@ UIListMenu      Property ListMenu   hidden
         return (UD_UIE_Quest as UIListMenu)
     EndFunction
 EndProperty
+
+;returns correct monager depending on actor
+UD_OrgasmManager Function GetUDOM(Actor akActor)
+    if ActorIsPlayer(akActor)
+        return UDOMPlayer
+    else
+        return UDOMNPC
+    endif
+EndFunction
+
 
 ;IWantWidgets. Not currently used, but have some ideas for future. No scripts are currently required to compile
 Bool    Property iWidgetInstalled          = False      auto hidden
@@ -240,13 +257,15 @@ Function DISABLE()
     _Disabled = True
     UDNPCM.GoToState("Disabled") ;disable NPC manager, disabling all device updates
     UDAI.GoToState("Disabled") ;disable AI updates
-    UDOM.GoToState("Disabled") ;disable orgasm updates
+    UDOMNPC.GoToState("Disabled") ;disable orgasm updates
+    UDOMPlayer.GoToState("Disabled") ;disable orgasm updates
 EndFunction
 Function ENABLE()
     _Disabled = False
     UDNPCM.GoToState("")
     UDAI.GoToState("")
-    UDOM.GoToState("")
+    UDOMNPC.GoToState("")
+    UDOMPlayer.GoToState("")
 EndFunction
 
 Function OnGameReload()
@@ -294,7 +313,8 @@ Function OnGameReload()
     
     UDPP.Update()
     
-    UDOM.Update()
+    UDOMNPC.Update()  ;NPC orgasm manager
+    UDOMPlayer.Update() ;player orgasm manager
     
     UDEM.Update()
     
@@ -331,12 +351,6 @@ Function Update()
     if !Player
         CLog("Detected that Player ref is not ready. Setting variable")
         Player = Game.GetPlayer()
-    endif
-    
-    if !UDOM
-        Error("UDOM not loaded! Loading...")
-        UDOM = GetMeMyForm(0x15B532,"UnforgivingDevices.esp") as UD_OrgasmManager
-        Error("UDOM set to "+UDOM)
     endif
     
     if !UDEM
@@ -444,9 +458,9 @@ Function CheckOptionalMods()
     ;Check iWidgets
     iWidgetInstalled = true
     
-    iWidgetQuest = GetMeMyForm(0x000800,"iWant Widgets LE.esp") as Quest
+    iWidgetQuest = GetMeMyForm(0x000800,"iWant Widgets LE.esp",False) as Quest
     if !iWidgetQuest
-        iWidgetQuest = GetMeMyForm(0x000800,"iWant Widgets.esl") as Quest
+        iWidgetQuest = GetMeMyForm(0x000800,"iWant Widgets.esl",False) as Quest
     endif
     
     if iWidgetQuest
@@ -999,16 +1013,20 @@ EndFunction
 ; 1) it breaks the compile-time dependency.   GetformFromFile requires you to have the plugin you're getting a form for in order to compile, this does not
 ; 2) less papyrus spam, if the plugin isn't found it prints a single line debug.trace instead 4-5 lines of errors
 ; 3) related to 1, it doesn't verify you didn't screw up.   If you're trying to cast a package as a quest, for example, GetFormFromFile will throw a compiler error because it can't be done.  This will not.  You have to verify your own work. 
-form function GetMeMyForm(int formNumber, string pluginName) global;fornumber format is 0xFULLFORMID, for example 0x00000007. Even for ESPFE format, ignoring 0xFE
+form function GetMeMyForm(int formNumber, string pluginName, Bool abErrorMsg = True) global;fornumber format is 0xFULLFORMID, for example 0x00000007. Even for ESPFE format, ignoring 0xFE
     int theLO = Game.GetModByName(pluginName)
     if ((theLO == 255) || (theLO == 0)) ; 255 = not found, 0 = no skse
-        GError(pluginName + " not loaded or SKSE not found")
+        if abErrorMsg
+            GError(pluginName + " not loaded or SKSE not found")
+        endif
         return none
     elseIf (theLO > 255) ; > 255 = ESL
         ; the first FIVE hex digits in an ESL are its address, so a formNumber exceeding 0xFFF or below 0x800 is invalid
         if ((Math.LogicalAnd(0xFFFFF000, formNumber) != 0) || (Math.LogicalAnd(0x00000800, formNumber) == 0))
-            GError("Plugin " + pluginName + " has FormIDs outside the range\nallocated for ESL plugins!: " + formNumber)
-            GError("ESL-flagged plugin " + pluginName + " contains invalid FormIDs: " + formNumber)
+            if abErrorMsg
+                GError("Plugin " + pluginName + " has FormIDs outside the range\nallocated for ESL plugins!: " + formNumber)
+                GError("ESL-flagged plugin " + pluginName + " contains invalid FormIDs: " + formNumber)
+            endif
             return none
         endIf
         ; getmodbyname reports an ESL as 256 higher than the game indexes it internally

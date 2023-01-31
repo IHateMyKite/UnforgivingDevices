@@ -796,7 +796,7 @@ String[] Function GetOrgasmAnimEvents(Actor akActor)
     Int[] aActorConstraints = new Int[1]
     aActorConstraints[0] = GetActorConstraintsInt(akActor)
     String[] sKeywords
-    Bool loc_useHornyAnim = (UDCDmain.UDOM.UD_OrgasmAnimation == 1)
+    Bool loc_useHornyAnim = (UDmain.UDOM.UD_OrgasmAnimation == 1)
     if loc_useHornyAnim
         sKeywords = new String[2]
         sKeywords[0] = ".orgasm"

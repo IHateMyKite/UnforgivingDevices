@@ -154,7 +154,7 @@ UDCustomDeviceMain Property UDCDmain Hidden
 EndProperty
 UD_OrgasmManager Property UDOM Hidden
     UD_OrgasmManager Function get()
-        return UDmain.UDOM
+        return UDMain.GetUDOM(Wearer)
     EndFunction
 EndProperty
 UD_AnimationManagerScript Property UDAM Hidden

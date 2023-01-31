@@ -27,8 +27,8 @@ Bool Property Ready auto
 Event OnInit()
     registerEvents()
 
-    if TraceAllowed()    
-        Log("UD_ParalelProcess ready!",0)
+    if UDmain.TraceAllowed()    
+        UDmain.Log("UD_ParalelProcess ready!",0)
     endif
     
     Ready = True
@@ -73,7 +73,7 @@ UD_CustomDevice_RenderScript Send_MinigameStarter_Package_device
 
 Function Send_MinigameStarter(Actor akActor,UD_CustomDevice_RenderScript udDevice)
     if !akActor || !udDevice
-        UDCDmain.Error("Send_MinigameStarter wrong arg received!")
+        UDmain.Error("Send_MinigameStarter wrong arg received!")
     endif
     
     Start_MinigameStarterMutex()
@@ -95,10 +95,10 @@ Function Send_MinigameStarter(Actor akActor,UD_CustomDevice_RenderScript udDevic
         _MinigameStarter_Received = false
         
         if loc_TimeOut >= 2.0
-            UDCDmain.Error("Send_MinigameStarter("+udDevice.getDeviceHeader()+") timeout!")
+            UDmain.Error("Send_MinigameStarter("+udDevice.getDeviceHeader()+") timeout!")
         endif
     else
-        UDCDmain.Error("Send_MinigameStarter("+udDevice.getDeviceHeader()+") error!")
+        UDmain.Error("Send_MinigameStarter("+udDevice.getDeviceHeader()+") UDmain.Error!")
     endif
     End_MinigameStarterMutex()
 EndFunction
@@ -128,7 +128,7 @@ bool _MinigameParalel_Received = false
 UD_CustomDevice_RenderScript Send_MinigameParalel_Package_device
 Function Send_MinigameParalel(Actor akActor,UD_CustomDevice_RenderScript udDevice)
     if !akActor || !udDevice
-        UDCDmain.Error("Send_MinigameParalel wrong arg received!")
+        UDmain.Error("Send_MinigameParalel wrong arg received!")
     endif
     
     Start_MinigameParalelMutex()
@@ -150,10 +150,10 @@ Function Send_MinigameParalel(Actor akActor,UD_CustomDevice_RenderScript udDevic
         _MinigameParalel_Received = false
         
         if loc_TimeOut >= 2.0
-            UDCDmain.Error("Send_MinigameParalel("+udDevice.getDeviceHeader()+") timeout!")
+            UDmain.Error("Send_MinigameParalel("+udDevice.getDeviceHeader()+") timeout!")
         endif
     else
-        UDCDmain.Error("Send_MinigameParalel("+udDevice.getDeviceHeader()+") error!")
+        UDmain.Error("Send_MinigameParalel("+udDevice.getDeviceHeader()+") UDmain.Error!")
     endif
     End_MinigameParalelMutex()
 EndFunction
@@ -319,7 +319,7 @@ EndFunction
 
 Function Send_MinigameCritLoop(Actor akActor,UD_CustomDevice_RenderScript udDevice)
     if !akActor || !udDevice
-        UDCDmain.Error("Send_MinigameCritLoop wrong arg received!")
+        UDmain.Error("Send_MinigameCritLoop wrong arg received!")
     endif
     
     Start_MinigameCritLoopMutex()
@@ -341,10 +341,10 @@ Function Send_MinigameCritLoop(Actor akActor,UD_CustomDevice_RenderScript udDevi
         _MinigameCritLoop_Received = false
         
         if loc_TimeOut >= 2.0
-            UDCDmain.Error("Send_MinigameCritLoop("+udDevice.getDeviceHeader()+") timeout!")
+            UDmain.Error("Send_MinigameCritLoop("+udDevice.getDeviceHeader()+") timeout!")
         endif
     else
-        UDCDmain.Error("Send_MinigameCritLoop("+udDevice.getDeviceHeader()+") error!")
+        UDmain.Error("Send_MinigameCritLoop("+udDevice.getDeviceHeader()+") UDmain.Error!")
     endif
     End_MinigameCritLoopMutex()
 EndFunction
@@ -418,7 +418,7 @@ bool _OrgasmStarter_Received = false
 
 Function Send_Orgasm(Actor akActor,int iDuration,int iDecreaseArousalBy, int iForce,bool bForceAnimation,bool bWairForReceive = false)
     if !akActor
-        UDCDmain.Error("Send_Orgasm wrong arg received!")
+        UDmain.Error("Send_Orgasm wrong arg received!")
     endif
     
     if bWairForReceive
@@ -448,11 +448,11 @@ Function Send_Orgasm(Actor akActor,int iDuration,int iDecreaseArousalBy, int iFo
             _OrgasmStarter_Received = false
             
             if loc_TimeOut >= 1.0
-                UDCDmain.Error("Send_Orgasm timeout!")
+                UDmain.Error("Send_Orgasm timeout!")
             endif
         endif
     else
-        UDCDmain.Error("Send_Orgasm error!")
+        UDmain.Error("Send_Orgasm UDmain.Error!")
     endif
     if bWairForReceive
         End_OrgasmMutex()
@@ -464,7 +464,7 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
         _OrgasmStarter_Received = true
     endif
     if UDmain.TraceAllowed()
-        UDCDmain.Log("Receive_Orgasm received for " + fActor)
+        UDmain.Log("Receive_Orgasm received for " + fActor)
     endif
     
     bool loc_isplayer = UDmain.ActorIsPlayer(akActor)
@@ -474,64 +474,61 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
         loc_isfollower = UDmain.ActorIsFollower(akActor)
     endif
     bool    loc_close                   = UDmain.ActorInCloseRange(akActor)
-    bool    loc_is3Dloaded              = akActor.Is3DLoaded() || UDmain.ActorIsPlayer(akActor)
+    bool    loc_is3Dloaded              = akActor.Is3DLoaded() || loc_isplayer
     int     loc_orgasmExhaustion        = UDOM.GetOrgasmExhaustion(akActor) + 1
     bool    loc_cond                    = loc_is3Dloaded && loc_close
-
-    SendModEvent("DeviceActorOrgasm", akActor.GetLeveledActorBase().GetName())
 
     ;===========================
     ;            MESSAGE
     ;===========================
-    int loc_orgexh = UDOM.GetOrgasmExhaustion(akActor) + 1
     ;float loc_forcing = StorageUtil.getFloatValue(akActor, "UD_OrgasmForcing",0.0)
     bool loc_applytears = false
     if iForce == 0
         if loc_isplayer
-            UDCDmain.Print("You have brought yourself to orgasm",2)
+            UDmain.Print("You have brought yourself to orgasm",2)
         elseif loc_cond
-            UDCDmain.Print(getActorName(akActor) + " have brought themself to orgasm",3)
+            UDmain.Print(getActorName(akActor) + " have brought themself to orgasm",3)
         endif
     elseif iForce == 1
         if loc_isplayer
-            UDCDmain.Print("You are cumming!",2)
+            UDmain.Print("You are cumming!",2)
         elseif loc_cond
-            UDCDmain.Print(getActorName(akActor) + " is cumming!",3)
+            UDmain.Print(getActorName(akActor) + " is cumming!",3)
         endif
     elseif iForce > 1
-        if loc_orgexh >= 6
+        if loc_orgasmExhaustion >= 6
             loc_applytears = true
             if loc_isplayer
-                UDCDmain.Print("You are losing your mind")
+                UDmain.Print("You are losing your mind")
             elseif loc_cond
-                UDCDmain.Print("Orgasms are breaking " + getActorName(akActor) + "s mind")
+                UDmain.Print("Orgasms are breaking " + getActorName(akActor) + "s mind")
             endif
-        elseif loc_orgexh >= 4
+        elseif loc_orgasmExhaustion >= 4
             loc_applytears = true
             if loc_isplayer
-                UDCDmain.Print("Stimulations are making you orgasm nonstop")
+                UDmain.Print("Stimulations are making you orgasm nonstop")
             elseif loc_cond
-                UDCDmain.Print(getActorName(akActor) + " are orgasming nonstop",3)
+                UDmain.Print(getActorName(akActor) + " are orgasming nonstop",3)
             endif
-        elseif loc_orgexh >= 3
+        elseif loc_orgasmExhaustion >= 3
             loc_applytears = true
             if loc_isplayer
-                UDCDmain.Print("Constants orgasms barely let you catch a breath")
+                UDmain.Print("Constants orgasms barely let you catch a breath")
             elseif loc_cond
-                UDCDmain.Print(getActorName(akActor) + " can barely catch a breath from nonstop climax",3)
+                UDmain.Print(getActorName(akActor) + " can barely catch a breath from nonstop climax",3)
             endif
         elseif Utility.randomInt(1,99) < 15 
             loc_applytears = true
             if loc_isplayer
-                UDCDmain.Print("Tears run down your cheeks as you are forced to orgasm",2)
+                UDmain.Print("Tears run down your cheeks as you are forced to orgasm",2)
             elseif loc_cond
-                UDCDmain.Print("Tears run down " + getActorName(akActor) + "s cheeks as they are forced to orgasm",3)
+                UDmain.Print("Tears run down " + getActorName(akActor) + "s cheeks as they are forced to orgasm",3)
             endif
         else
             if loc_isplayer
-                UDCDmain.Print("You are forced to orgasm!",2)
+                UDmain.Print("You are forced to orgasm!",2)
             elseif loc_cond
-                UDCDmain.Print(getActorName(akActor) + " is forced to orgasm!",3)
+                UDmain.Print(getActorName(akActor) + " is forced to orgasm!",3)
             endif
         endif
     endif
@@ -559,27 +556,10 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
     
     libsp.Aroused.UpdateActorOrgasmDate(akActor)
     
-    if loc_orgexh > 1
+    if loc_orgasmExhaustion > 1
         UpdateMotivation(akActor, 30)
     endif
     
     UDOM.SetHornyProgress(akActor,0.0)
     UDOM.UpdateHornyLevel(akActor,-1) ;decrease horny level by 1
-EndFunction
-
-;========================
-;          UTILITY
-;========================
-
-bool Function TraceAllowed()    
-    return UDmain.TraceAllowed()
-EndFunction
-Function Log(String msg, int level = 1)
-    UDmain.Log(msg,level)
-EndFunction
-Function Error(String msg)
-    UDCDMain.Error(msg)
-EndFunction
-Function Print(String strMsg, int iLevel = 1,bool bLog = false)
-    UDmain.Print(strMsg,iLevel,bLog)
 EndFunction
