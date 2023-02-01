@@ -8,6 +8,24 @@ My goal with this mod is to make custom devices with custom behavier. My vision 
 
 This are all examples of what I want to archieve in this mod (not what is currently in this mod yet).
 
+# Required mods
+
+Only mods which are not listed on LL are here. These mods are not needed to play the mod, but to compile the scripts
+
+| **Name**             | **LE**                                      | **SE**                                                    |
+|----------------------|---------------------------------------------|-----------------------------------------------------------|
+| UI Extensions        | https://www.nexusmods.com/skyrim/mods/57046 | https://www.nexusmods.com/skyrimspecialedition/mods/17561 |
+| IWantWidget          |                      X                      | https://www.nexusmods.com/skyrimspecialedition/mods/36457 |
+| PO3 Papyrus Extender |                      X                      | https://www.nexusmods.com/skyrimspecialedition/mods/22854 |
+
+
+# Related repositories
+
+| **Name**            | **Author**  | **Link**                                         |
+|---------------------|-------------|--------------------------------------------------|
+| Animation Pack [LE] | iiw2012     | https://github.com/iiw2012/UDAnimationsLE        |
+| Animation Pack [SE] | iiw2012     | https://github.com/iiw2012/UDAnimationsSE        |
+| Unforgiving Skyrim  | kurotatsu77 | https://github.com/kurotatsu77/UnforgivingSkyrim |
 
 # Binary files
 
