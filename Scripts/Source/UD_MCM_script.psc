@@ -3,14 +3,14 @@ Scriptname UD_MCM_script extends SKI_ConfigBase
 import UnforgivingDevicesMain
 
 ;UDAbadonPlug_Event property abadon auto
-UnforgivingDevicesMain property UDmain auto
-UDCustomDeviceMain Property UDCDmain auto
-UD_SwimmingScript Property UDSS auto
-UDItemManager Property UDIM auto
-UD_AbadonQuest_script Property AbadonQuest auto
-UD_WidgetBase Property widget auto
-UD_CustomDevices_NPCSlotsManager Property UDCD_NPCM auto
-zadlibs_UDPatch Property libs auto hidden
+UnforgivingDevicesMain              Property UDmain auto
+UDCustomDeviceMain                  Property UDCDmain auto
+UD_SwimmingScript                   Property UDSS auto
+UDItemManager                       Property UDIM auto
+UD_AbadonQuest_script               Property AbadonQuest auto
+UD_WidgetBase                       Property widget auto
+UD_CustomDevices_NPCSlotsManager    Property UDCD_NPCM auto
+zadlibs_UDPatch                     Property libs auto hidden
 
 UD_OrgasmManager Property UDOM
     UD_OrgasmManager Function Get()
@@ -429,6 +429,7 @@ Int UD_MandatoryCrit_T
 Int UD_CritDurationAdjust_S
 
 Int UD_KeyDurability_S
+Int UD_HardcoreAccess_T
 
 Event resetCustomBondagePage()
     UpdateLockMenuFlag()
@@ -437,26 +438,26 @@ Event resetCustomBondagePage()
     ;KEY MAPPING
     AddHeaderOption("Key mapping")
     addEmptyOption()
-    UD_CHB_Stamina_meter_Keycode_K = AddKeyMapOption("Stamina key:", UDCDmain.Stamina_meter_Keycode)
-    UD_CHB_Magicka_meter_Keycode_K = AddKeyMapOption("Magicka key:", UDCDmain.Magicka_meter_Keycode)
+    UD_CHB_Stamina_meter_Keycode_K = AddKeyMapOption("Stamina key", UDCDmain.Stamina_meter_Keycode)
+    UD_CHB_Magicka_meter_Keycode_K = AddKeyMapOption("Magicka key", UDCDmain.Magicka_meter_Keycode)
 
-    UDCD_SpecialKey_Keycode_K   = AddKeyMapOption("Special key:", UDCDmain.SpecialKey_Keycode)
-    UD_ActionKey_K              = AddKeyMapOption("Stop key: ", UDCDmain.ActionKey_Keycode)
+    UDCD_SpecialKey_Keycode_K   = AddKeyMapOption("Special key", UDCDmain.SpecialKey_Keycode)
+    UD_ActionKey_K              = AddKeyMapOption("Stop key", UDCDmain.ActionKey_Keycode)
     
     ;MAIN SETTING
     AddHeaderOption("Main setting")
     addEmptyOption()
-    UD_UpdateTime_S = addSliderOption("Update time:",UDCDmain.UD_UpdateTime, "{0} s")
-    UD_CooldownMultiplier_S = addSliderOption("Cooldown multiplier:",Round(UDCDmain.UD_CooldownMultiplier*100), "{0} %",UD_LockMenu_flag)
+    UD_UpdateTime_S = addSliderOption("Update time",UDCDmain.UD_UpdateTime, "{0} s")
+    UD_CooldownMultiplier_S = addSliderOption("Cooldown multiplier",Round(UDCDmain.UD_CooldownMultiplier*100), "{0} %",UD_LockMenu_flag)
     
-    UD_PreventMasterLock_T = addToggleOption("Prevent master locks:",UDCDmain.UD_PreventMasterLock,UD_LockMenu_flag)
-    UD_LockpickMinigameNum_S = addSliderOption("Lockpicks per minigame:",UDCDmain.UD_LockpicksPerMinigame, "{0}",UD_LockMenu_flag)
+    UD_PreventMasterLock_T = addToggleOption("Prevent master locks",UDCDmain.UD_PreventMasterLock,UD_LockMenu_flag)
+    UD_LockpickMinigameNum_S = addSliderOption("Lockpicks per minigame",UDCDmain.UD_LockpicksPerMinigame, "{0}",UD_LockMenu_flag)
     
-    UD_KeyDurability_S = addSliderOption("Key Durability:",UDCDmain.UD_KeyDurability, "{0}",UD_LockMenu_flag)
-    addEmptyOption()
+    UD_KeyDurability_S = addSliderOption("Key Durability",UDCDmain.UD_KeyDurability, "{0}",UD_LockMenu_flag)
+    UD_HardcoreAccess_T = addToggleOption("Hardcore Access", UDCDmain.UD_HardcoreAccess,UD_LockMenu_flag)
     
-    UD_AllowArmTie_T = addToggleOption("Arm tie:", UDCDmain.UD_AllowArmTie,UD_LockMenu_flag)
-    UD_AllowLegTie_T = addToggleOption("Leg tie:", UDCDmain.UD_AllowLegTie,UD_LockMenu_flag)
+    UD_AllowArmTie_T = addToggleOption("Arm tie", UDCDmain.UD_AllowArmTie,UD_LockMenu_flag)
+    UD_AllowLegTie_T = addToggleOption("Leg tie", UDCDmain.UD_AllowLegTie,UD_LockMenu_flag)
     
     addEmptyOption()
     addEmptyOption()
@@ -465,52 +466,52 @@ Event resetCustomBondagePage()
     AddHeaderOption("Skill setting")
     addEmptyOption()
     
-    UD_BaseDeviceSkillIncrease_S = addSliderOption("Skill advance:",UDCDmain.UD_BaseDeviceSkillIncrease, "{0}",UD_LockMenu_flag)
-    UD_SkillEfficiency_S = addSliderOption("Skill efficiency:",UDCDmain.UD_SkillEfficiency, "{0} %",UD_LockMenu_flag)
+    UD_BaseDeviceSkillIncrease_S = addSliderOption("Skill advance",UDCDmain.UD_BaseDeviceSkillIncrease, "{0}",UD_LockMenu_flag)
+    UD_SkillEfficiency_S = addSliderOption("Skill efficiency",UDCDmain.UD_SkillEfficiency, "{0} %",UD_LockMenu_flag)
     
     ;HELPER SETTING
     AddHeaderOption("Helping setting")
     addEmptyOption()
-    UD_MinigameHelpCd_S = addSliderOption("Base cooldown:",UDCDmain.UD_MinigameHelpCd, "{0} min",UD_LockMenu_flag)
-    UD_MinigameHelpXPBase_S = addSliderOption("Base XP gain:",UDCDmain.UD_MinigameHelpXPBase, "{0} XP",UD_LockMenu_flag)
+    UD_MinigameHelpCd_S = addSliderOption("Base cooldown",UDCDmain.UD_MinigameHelpCd, "{0} min",UD_LockMenu_flag)
+    UD_MinigameHelpXPBase_S = addSliderOption("Base XP gain",UDCDmain.UD_MinigameHelpXPBase, "{0} XP",UD_LockMenu_flag)
     
-    UD_MinigameHelpCD_PerLVL_S = addSliderOption("LVL Cooldown Modifier:",UDCDmain.UD_MinigameHelpCD_PerLVL, "{0} %",UD_LockMenu_flag)
+    UD_MinigameHelpCD_PerLVL_S = addSliderOption("LVL Cooldown Modifier",UDCDmain.UD_MinigameHelpCD_PerLVL, "{0} %",UD_LockMenu_flag)
     addEmptyOption()
     
     ;HARDCORE SWIMMING
     AddHeaderOption("Unforgiving Swimming")
     AddEmptyOption()
-    UD_hardcore_swimming_T = addToggleOption("Unforgiving swimming:", UDSS.UD_hardcore_swimming,UD_LockMenu_flag)    
-    UD_hardcore_swimming_difficulty_M = AddMenuOption("Swimming difficulty:", difficultyList[UDSS.UD_hardcore_swimming_difficulty],FlagSwitchOr(UD_Swimming_flag,UD_LockMenu_flag))
+    UD_hardcore_swimming_T = addToggleOption("Unforgiving swimming", UDSS.UD_hardcore_swimming,UD_LockMenu_flag)    
+    UD_hardcore_swimming_difficulty_M = AddMenuOption("Swimming difficulty", difficultyList[UDSS.UD_hardcore_swimming_difficulty],FlagSwitchOr(UD_Swimming_flag,UD_LockMenu_flag))
     
     ;WIDGET
     AddHeaderOption("Widget")
     AddEmptyOption()
-    UD_UseWidget_T = addToggleOption("Use widget:", UDCDmain.UD_UseWidget)
+    UD_UseWidget_T = addToggleOption("Use widget", UDCDmain.UD_UseWidget)
     AddEmptyOption()
-    UD_WidgetPosX_M = AddMenuOption("Widget pos X:", widgetXList[UDmain.UDWC.UD_WidgetXPos],FlagSwitch(UDCDmain.UD_UseWidget))
-    UD_WidgetPosY_M = AddMenuOption("Widget pos Y:", widgetYList[UDmain.UDWC.UD_WidgetYPos],FlagSwitch(UDCDmain.UD_UseWidget))
+    UD_WidgetPosX_M = AddMenuOption("Widget pos X", widgetXList[UDmain.UDWC.UD_WidgetXPos],FlagSwitch(UDCDmain.UD_UseWidget))
+    UD_WidgetPosY_M = AddMenuOption("Widget pos Y", widgetYList[UDmain.UDWC.UD_WidgetYPos],FlagSwitch(UDCDmain.UD_UseWidget))
     
     ;CRITS
     AddHeaderOption("Device Crits")
     AddEmptyOption()
-    UD_CritEffect_M     = AddMenuOption("Crit effect:", criteffectList[UDCDmain.UD_CritEffect],FlagNegate(UD_autocrit_flag))
-    UD_MandatoryCrit_T  = addToggleOption("Mandatory crit:", UDCDmain.UD_MandatoryCrit,FlagSwitchOr(FlagNegate(UD_autocrit_flag),UD_LockMenu_flag))
+    UD_CritEffect_M     = AddMenuOption("Crit effect", criteffectList[UDCDmain.UD_CritEffect],FlagNegate(UD_autocrit_flag))
+    UD_MandatoryCrit_T  = addToggleOption("Mandatory crit", UDCDmain.UD_MandatoryCrit,FlagSwitchOr(FlagNegate(UD_autocrit_flag),UD_LockMenu_flag))
     
-    UD_AutoCrit_T       = addToggleOption("Auto crit:", UDCDmain.UD_AutoCrit,UD_LockMenu_flag)
-    UD_AutoCritChance_S = addSliderOption("Auto crit chance: ",UDCDmain.UD_AutoCritChance, "{0} %",FlagSwitchOr(UD_autocrit_flag,UD_LockMenu_flag))
+    UD_AutoCrit_T       = addToggleOption("Auto crit", UDCDmain.UD_AutoCrit,UD_LockMenu_flag)
+    UD_AutoCritChance_S = addSliderOption("Auto crit chance",UDCDmain.UD_AutoCritChance, "{0} %",FlagSwitchOr(UD_autocrit_flag,UD_LockMenu_flag))
     
-    UD_CritDurationAdjust_S = addSliderOption("Crit duration adjust.: ",UDCDmain.UD_CritDurationAdjust, "{2} s",FlagSwitchOr(FlagNegate(UD_autocrit_flag),UD_LockMenu_flag))
+    UD_CritDurationAdjust_S = addSliderOption("Crit duration adjust.",UDCDmain.UD_CritDurationAdjust, "{2} s",FlagSwitchOr(FlagNegate(UD_autocrit_flag),UD_LockMenu_flag))
     AddEmptyOption()
     
     ;DEVICE LEVEL scaling
     AddHeaderOption("Level scaling")
     AddEmptyOption()
     
-    UD_DeviceLvlHealth_S    = addSliderOption("Health increase:",UDCDmain.UD_DeviceLvlHealth*100, "{1} %",UD_LockMenu_flag)
-    UD_DeviceLvlLockpick_S  = addSliderOption("Lockpick increase:",UDCDmain.UD_DeviceLvlLockpick, "{1}",UD_LockMenu_flag)
+    UD_DeviceLvlHealth_S    = addSliderOption("Health increase",UDCDmain.UD_DeviceLvlHealth*100, "{1} %",UD_LockMenu_flag)
+    UD_DeviceLvlLockpick_S  = addSliderOption("Lockpick increase",UDCDmain.UD_DeviceLvlLockpick, "{1}",UD_LockMenu_flag)
     
-    UD_DeviceLvlLocks_S     = addSliderOption("Lock increase:",UDCDmain.UD_DeviceLvlLocks, "{0} LVLs");,UD_LockMenu_flag)
+    UD_DeviceLvlLocks_S     = addSliderOption("Lock increase",UDCDmain.UD_DeviceLvlLocks, "{0} LVLs");,UD_LockMenu_flag)
     AddEmptyOption()
     
     ;DIFFICULTY
@@ -1335,7 +1336,10 @@ Function OptionCustomBondage(int option)
         SetToggleOptionValue(UD_PreventMasterLock_T, UDCDmain.UD_PreventMasterLock)  
     elseif option == UD_MandatoryCrit_T
         UDCDmain.UD_MandatoryCrit = !UDCDmain.UD_MandatoryCrit
-        SetToggleOptionValue(UD_MandatoryCrit_T, UDCDmain.UD_MandatoryCrit)  
+        SetToggleOptionValue(UD_MandatoryCrit_T, UDCDmain.UD_MandatoryCrit)
+    elseif option == UD_HardcoreAccess_T
+        UDCDmain.UD_HardcoreAccess = !UDCDmain.UD_HardcoreAccess
+        SetToggleOptionValue(UD_HardcoreAccess_T, UDCDmain.UD_HardcoreAccess)
     endif
 EndFunction
 
@@ -2615,6 +2619,9 @@ Function CustomBondagePageDefault(int option)
     elseif option == UD_KeyDurability_S
         UDCDmain.UD_KeyDurability = 5
         SetSliderOptionValue(UD_KeyDurability_S, UDCDmain.UD_KeyDurability, "{0}")
+    elseif option == UD_HardcoreAccess_T
+        UDCDmain.UD_HardcoreAccess = False
+        SetToggleOptionValue(UD_HardcoreAccess_T, UDCDmain.UD_HardcoreAccess)
     Endif
 EndFunction
 
@@ -2922,6 +2929,8 @@ Function CustomBondagePageInfo(int option)
         SetInfoText("By how much time will be crit duration changed. Setting this to small negative value might make crits impossible.\nIn case you are experiencing bigger lags when using UD, you might increase this value to make crits easier.\nDefault: 0.0 s")
     elseif option == UD_KeyDurability_S
         SetInfoText("How many times can be key used to unlock the restrains lock before it gets destroyed. Set this to 0 to make keys indestructible\nDefault: 5")
+    elseif option == UD_HardcoreAccess_T
+        SetInfoText("Toggling this on will make all devices with accessibility less then 90% inaccessible\nDefault: False")
     Endif
 EndFunction
 
@@ -3220,6 +3229,7 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "MandatoryCrit", UDCDmain.UD_MandatoryCrit as Int)
     JsonUtil.SetFloatValue(strFile, "CritDurationAdjust", UDCDmain.UD_CritDurationAdjust)
     JsonUtil.SetIntValue(strFile, "KeyDurability", UDCDmain.UD_KeyDurability)
+    JsonUtil.SetIntValue(strFile, "HardcoreAccess", UDCDmain.UD_HardcoreAccess as Int)
     
     ;ABADON
     JsonUtil.SetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
@@ -3340,27 +3350,23 @@ Function LoadFromJSON(string strFile)
     UDOM.UD_HornyAnimationDuration = JsonUtil.GetIntValue(strFile, "HornyAnimationDuration", UDOM.UD_HornyAnimationDuration)
     UDCDmain.UD_CooldownMultiplier = JsonUtil.GetFloatValue(strFile, "CooldownMultiplier", UDCDmain.UD_CooldownMultiplier)
     UDCDMain.UD_SkillEfficiency = JsonUtil.GetIntValue(strFile, "SkillEfficiency", UDCDmain.UD_SkillEfficiency)
-    
     UDCDmain.UD_CritEffect      = JsonUtil.GetIntValue(strFile, "CritEffect", UDCDmain.UD_CritEffect)
     UDCDmain.UD_HardcoreMode    = JsonUtil.GetIntValue(strFile, "HardcoreMode", UDCDmain.UD_HardcoreMode as Int)
     UDCDmain.UD_AllowArmTie     = JsonUtil.GetIntValue(strFile, "AllowArmTie", UDCDmain.UD_AllowArmTie as Int)
     UDCDmain.UD_AllowLegTie     = JsonUtil.GetIntValue(strFile, "AllowLegTie", UDCDmain.UD_AllowLegTie as Int)
-    
     UDCDmain.UD_MinigameHelpCd  = JsonUtil.GetIntValue(strFile, "MinigameHelpCD",UDCDmain.UD_MinigameHelpCd)
     UDCDmain.UD_MinigameHelpCD_PerLVL   = JsonUtil.GetIntValue(strFile, "MinigameHelpCD_PerLVL", Round(UDCDmain.UD_MinigameHelpCD_PerLVL))
     UDCDmain.UD_MinigameHelpXPBase      = JsonUtil.GetIntValue(strFile, "MinigameHelpXPBase", UDCDmain.UD_MinigameHelpXPBase)
-    
     UDCDMain.UD_DeviceLvlHealth             = JsonUtil.GetFloatValue(strFile, "DeviceLvlHealth", UDCDMain.UD_DeviceLvlHealth*100)/100
     UDCDMain.UD_DeviceLvlLockpick           = JsonUtil.GetFloatValue(strFile, "DeviceLvlLockpick", UDCDMain.UD_DeviceLvlLockpick)
     UDCDMain.UD_DeviceLvlLocks              = JsonUtil.GetIntValue(strFile, "DeviceLvlLocks", UDCDMain.UD_DeviceLvlLocks)
     UDCDmain.UD_PreventMasterLock           = JsonUtil.GetIntValue(strFile, "PreventMasterLock", UDCDmain.UD_PreventMasterLock as Int)
-    
     UDOM.UD_OrgasmArousalReduce = JsonUtil.GetIntValue(strFile, "PostOrgasmArousalReduce", UDOM.UD_OrgasmArousalReduce)
     UDOM.UD_OrgasmArousalReduceDuration = JsonUtil.GetIntValue(strFile, "PostOrgasmArousalReduce_Duration", UDOM.UD_OrgasmArousalReduceDuration)
-    
     UDCDmain.UD_MandatoryCrit = JsonUtil.GetIntValue(strFile, "MandatoryCrit", UDCDmain.UD_MandatoryCrit as Int)
     UDCDmain.UD_CritDurationAdjust = JsonUtil.GetFloatValue(strFile, "CritDurationAdjust", UDCDmain.UD_CritDurationAdjust)
     UDCDmain.UD_KeyDurability = JsonUtil.GetIntValue(strFile, "KeyDurability", UDCDmain.UD_KeyDurability)
+    UDCDmain.UD_HardcoreAccess = JsonUtil.GetIntValue(strFile, "HardcoreAccess", UDCDmain.UD_HardcoreAccess as Int)
     
     ;ABADON
     AbadonQuest.final_finisher_set = JsonUtil.GetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
@@ -3505,6 +3511,7 @@ Function ResetToDefaults()
     UDCDmain.UD_MandatoryCrit           = False
     UDCDmain.UD_CritDurationAdjust      = 0.0
     UDCDmain.UD_KeyDurability           = 5
+    UDCDmain.UD_HardcoreAccess          = False
     
     ;ABADON
     AbadonQuest.final_finisher_set      = true

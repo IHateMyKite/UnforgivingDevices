@@ -6271,6 +6271,13 @@ Bool Function EvaluateNPCAI()
     return loc_minigameStarted
 EndFunction
 
+Float Function ValidateAccessibility(Float afValue)
+    if UDCDmain.UD_HardcoreAccess && afValue < 0.9
+        return 0.0
+    endif
+    return fRange(afValue,0.0,1.0)
+EndFunction
+
 ;--------------------------------------------------
 ;  ______      ________ _____  _____ _____  ______ 
 ; / __ \ \    / /  ____|  __ \|_   _|  __ \|  ____|
@@ -6353,7 +6360,6 @@ EndFunction
 
 ;make it lightweight
 Function OnMinigameTick(float afUpdateTime)
-
 EndFunction
 
 Function OnMinigameTick1()
@@ -6388,7 +6394,7 @@ float Function getAccesibility()
             endif
         endif
     endif
-    return loc_res
+    return ValidateAccessibility(loc_res)
 EndFunction
 
 Function OnDeviceCutted()

@@ -79,6 +79,7 @@ bool    Property UD_AllowLegTie                     = true      auto hidden
 Int     Property UD_BlackGooRareDeviceChance        = 10        auto hidden
 Bool    Property UD_PreventMasterLock               = False     auto hidden
 Int     Property UD_KeyDurability                   = 5         auto hidden ;how many times can be key used before it gets destroyed
+Bool    Property UD_HardcoreAccess                  = False     auto hidden ;if true, device accessibility can be only either 0 or 1. If number is less then 0.90, it will be 0
 
 ;Lvl scalling
 Float   Property UD_DeviceLvlHealth                 = 0.025     auto hidden

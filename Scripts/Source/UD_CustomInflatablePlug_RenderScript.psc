@@ -143,10 +143,10 @@ EndFunction
 
 float Function getAccesibility()
     float loc_res = parent.getAccesibility()
-    if loc_res > 0.0
+    if loc_res
         loc_res *= (1.0 - getPlugInflateLevel()*0.2)
     endif
-    return fRange(loc_res,0.0,1.0)
+    return ValidateAccessibility(loc_res)
 EndFunction
 
 float inflateprogress = 0.0

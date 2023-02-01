@@ -68,23 +68,9 @@ bool Function struggleMinigameWH(Actor akSource)
 EndFunction
 
 float Function getAccesibility()
-    float loc_res = 1.0
-    int loc_beltstate = UDCDmain.ActorBelted(getWearer()) 
-    bool loc_hashelper = HasHelper()
-    
-    if !wearerFreeHands() && (!loc_hashelper || !HelperFreeHands())
-        loc_res *= 0.25
-    elseif !wearerFreeHands(true) && (!loc_hashelper || !HelperFreeHands(true))
-        loc_res *= 0.5
-    endif
-    
-    if getWearer().wornhaskeyword(libs.zad_DeviousHobbleSkirt)
-        loc_res *= 0.7
-    elseif getWearer().wornhaskeyword(libs.zad_DeviousHobbleSkirtRelaxed)
-        loc_res *= 0.8
-    elseif getWearer().wornhaskeyword(libs.zad_DeviousSuit)
-        loc_res *= 0.9
-    endif
+    float   loc_res         = 1.0
+    int     loc_beltstate   = UDCDmain.ActorBelted(getWearer()) 
+    bool    loc_hashelper   = HasHelper()
     
     if loc_beltstate > 0 ;belted
         if loc_beltstate == 1 ;all holes belted
@@ -94,7 +80,23 @@ float Function getAccesibility()
         endif
     endif
     
-    return fRange(loc_res,0.0,1.0)
+    if loc_res
+        if !wearerFreeHands() && (!loc_hashelper || !HelperFreeHands())
+            loc_res *= 0.25
+        elseif !wearerFreeHands(true) && (!loc_hashelper || !HelperFreeHands(true))
+            loc_res *= 0.5
+        endif
+        
+        if getWearer().wornhaskeyword(libs.zad_DeviousHobbleSkirt)
+            loc_res *= 0.7
+        elseif getWearer().wornhaskeyword(libs.zad_DeviousHobbleSkirtRelaxed)
+            loc_res *= 0.8
+        elseif getWearer().wornhaskeyword(libs.zad_DeviousSuit)
+            loc_res *= 0.9
+        endif
+    endif
+    
+    return ValidateAccessibility(loc_res)
 EndFunction
 
 ;returns plug type
