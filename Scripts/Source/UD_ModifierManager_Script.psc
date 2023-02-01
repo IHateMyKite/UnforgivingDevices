@@ -172,7 +172,9 @@ Function Procces__L_CHEAP_Hour(UD_CustomDevice_RenderScript argDevice,float argM
         return
     endif
     int loc_chance = argDevice.getModifierIntParam("_L_CHEAP",0)
-    argDevice.AddJammedLock(loc_chance)
+    if loc_chance
+        argDevice.AddJammedLock(loc_chance)
+    endif
 EndFunction
 
 Function Procces_MAO_Orgasm(UD_CustomDevice_RenderScript argDevice)

@@ -7,7 +7,7 @@ bool    _specialButtonOn    = false
 string  _crit_meter         = "UDmain.Error"
 
 Function RegisterModEvents()
-    _OrgasmEventName = "UD_Orgasm"
+    _OrgasmEventName = "UD_OrgasmPlayer"
     _UpdateBaseOrgasmValEventName = "UD_UpdateBaseOrgasmValPlayer"
     RegisterForModEvent("UD_CritUpdateLoopStart_OrgasmResist","CritLoopOrgasmResist")
     RegisterForModEvent(_UpdateBaseOrgasmValEventName, "Receive_UpdateBaseOrgasmVals")

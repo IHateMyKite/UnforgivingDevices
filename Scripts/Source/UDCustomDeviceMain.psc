@@ -2640,18 +2640,6 @@ Float Function getSlotArousalSkillMultEx(UD_CustomDevice_NPCSlot akSlot)
     return akSlot.ArousalSkillMult
 EndFunction
 
-Function TestExpression(Actor akActor,sslBaseExpression sslExpression,bool bMouth = false,int iTime = 5)
-    libs.resetExpression(akActor,none)
-    
-    if sslExpression
-        UDEM.ApplyExpression(akActor,sslExpression,50,bMouth,100)
-        Print(sslExpression.Name + " applied!")
-        Utility.wait(iTime)
-        UDEM.ResetExpression(akActor, none,100)
-        Print(sslExpression.Name + " removed!")
-    endif
-EndFunction
-
 ;function used for mod development
 Function DebugFunction(Actor akActor)
     UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0xffffffff)
