@@ -123,8 +123,8 @@ EndEvent
 
 Event OnKeyDown(Int KeyCode)
     if !UDMain.IsMenuOpen()
-        if UDCDmain.PlayerInMinigame()
-            return
+        if UDCDMain.IsBussy(UDmain.Player)
+            return ;player is bussy, do not open menu
         endif
         if UDmain.TraceAllowed()
             UDCDmain.Log("UD_HardcoreDisable_Script - OnKeyDown for " + KeyCode,3)

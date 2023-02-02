@@ -381,6 +381,11 @@ Function EndMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
     endif
 EndFunction
 
+;returns true if actor is bussy (disabled)
+Bool Function IsBussy(Actor akActor)
+    return akActor.IsInFaction(BussyFaction)
+EndFunction
+
 Function UpdatePlayerControl()
     Game.EnablePlayerControls(abMovement = true, abFighting = false, abSneaking = false, abMenu = False, abActivate = false)
     Utility.waitMenuMode(0.05)
