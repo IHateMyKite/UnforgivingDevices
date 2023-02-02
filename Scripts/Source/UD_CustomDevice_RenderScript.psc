@@ -154,7 +154,7 @@ UDCustomDeviceMain Property UDCDmain Hidden
 EndProperty
 UD_OrgasmManager Property UDOM Hidden
     UD_OrgasmManager Function get()
-        return UDmain.UDOM
+        return UDMain.GetUDOM(Wearer)
     EndFunction
 EndProperty
 UD_AnimationManagerScript Property UDAM Hidden
@@ -1506,6 +1506,7 @@ EndFunction
 ; Int       UnlockAllLocks(Bool abUnlock = True)                    = Lock/unlock all locks, returns number of locks affected
 ; Bool      JammNthLock(Int aiLockIndex, Bool abJamm = True)        = sets lock jammed status. If the operation was succesfull, returns true; argument abJamm can be set to either true or false, depending if lock should be jammed, or unjammed
 ; Int       JammAllLocks(Bool abJamm = True)                        = Jamm/unjamm all locks, returns number of locks affected
+; Bool      JammRandomLock()                                        = TODO
 ; Int       DecreaseLockShield(Int aiLockIndex, Int aiShieldDecrease = 1, Bool abAutoUnlock = False)    = decrease locks shiled by aiShieldDecrease, returns remaining number of shields
 ; Bool      UpdateLockAccessibility(Int aiLockIndex, Int aiAccessibilityDelta)  = Update the lock accessibility by aiAccessibilityDelta. If the operation was succesfull, returns true
 ; Bool      UpdateLockDifficulty(Int aiLockIndex, Int aiDifficultyDelta, Bool abNoKeyDiff = True)    = Update the lock difficulty by aiDifficultyDelta. If the operation was succesfull, returns true; if abNoKeyDiff is True, lock difficulty can't be "Key required" after the update (capped difficulty at 100 = master lock)
@@ -1906,6 +1907,36 @@ Int Function JammAllLocks(Bool abJamm = True)
             endif
         endif
     endwhile
+    _EndLockManipMutex()
+    return loc_res
+EndFunction
+
+;Jamm/unjamm all locks, returns number of locks affected
+Bool Function JammRandomLock()
+    if !HaveLocks() || !GetLockNumber()
+        return 0 ;device have no locks, return 0 as error value
+    endif
+    _StartLockManipMutex()
+    Bool    loc_res     = False ;return False as error value
+    Int     loc_LockNum = GetLockNumber()
+    
+    Int[]   loc_correctLocks
+    
+    while loc_LockNum
+        loc_LockNum -= 1
+        Int  loc_Lock = GetNthLock(loc_LockNum)
+        if IsValidLock(loc_Lock) && !IsNthLockUnlocked(loc_LockNum) && !IsNthLockJammed(loc_LockNum) 
+            loc_correctLocks = PapyrusUtil.PushInt(loc_correctLocks,loc_LockNum)
+        endif
+    endwhile
+    
+    if loc_correctLocks
+        Int loc_randomLock = loc_correctLocks[Utility.RandomInt(0, loc_correctLocks.length - 1)]
+        Int  loc_Lock = GetNthLock(loc_randomLock)
+        UD_LockList[loc_randomLock] = codeBit(loc_Lock,1,1, 1)
+        loc_res = True
+    endif
+    
     _EndLockManipMutex()
     return loc_res
 EndFunction
@@ -4316,9 +4347,15 @@ Function UnsetMinigameDevice()
     endif
 EndFunction
 
-Function ForcePauseMinigame()
+Function PauseMinigame()
     if minigame_on
         pauseMinigame = True
+    endif
+EndFunction
+
+Function UnPauseMinigame()
+    if minigame_on
+        pauseMinigame = False
     endif
 EndFunction
 
@@ -4561,8 +4598,8 @@ Function minigame()
     
     while current_device_health > 0.0 && !force_stop_minigame
         ;pause minigame, pause minigame need to be changed from other thread or infinite loop happens
-        while pauseMinigame
-            Utility.wait(0.01)
+        while pauseMinigame && !force_stop_minigame
+            Utility.wait(0.1)
         endwhile
         
         if !force_stop_minigame
@@ -4670,16 +4707,7 @@ Function minigame()
     endif
     
     if loc_StartedAnimation
-        Int loc_toggle  = 0x0
-        if !StorageUtil.GetIntValue(Wearer,"UD_OrgasmDuration",0)
-            ;wearer is orgasming, prevent animation stop
-            loc_toggle += 0x1
-        endif
-        if _minigameHelper && !StorageUtil.GetIntValue(_minigameHelper,"UD_OrgasmDuration",0)
-            ;helper is orgasming, prevent animation stop
-            loc_toggle += 0x2
-        endif
-        UDAM.StopAnimation(Wearer, _minigameHelper, abEnableActors = False, aiToggle = loc_toggle)
+        _StopMinigameAnimation()
     endif
     
     ;checks if Wearer succesfully escaped device
@@ -4711,7 +4739,7 @@ Function minigame()
     endif
 
     ;remove disalbe from helper (can be done earlier as no devices were changed)
-    if _minigameHelper && !StorageUtil.GetIntValue(_minigameHelper,"UD_OrgasmDuration",0)
+    if _minigameHelper && !UDOM.GetOrgasmInMinigame(_minigameHelper)
         UDCDMain.EndMinigameDisable(_minigameHelper, loc_HelperIsPlayer as Int)
     endif
 
@@ -4721,7 +4749,7 @@ Function minigame()
     endwhile
 
     ;remove disable from wearer
-    If !StorageUtil.GetIntValue(Wearer,"UD_OrgasmDuration",0)
+    If !UDOM.GetOrgasmInMinigame(Wearer)
         UDCDMain.EndMinigameDisable(Wearer,loc_WearerIsPlayer as Int)
     EndIf
 
@@ -4759,6 +4787,21 @@ Function minigame()
     ;debug message
     if UDmain.DebugMod && UD_damage_device && durability_onstart != current_device_health && loc_WearerIsPlayer
         UDmain.Print("[Debug] Durability reduced: "+ formatString(durability_onstart - current_device_health,3) + "\n",1)
+    endif
+EndFunction
+
+Function _StopMinigameAnimation()
+    Int loc_toggle  = 0x0
+    if !UDOM.GetOrgasmInMinigame(Wearer)
+        ;wearer is not orgasming, stop animation
+        loc_toggle += 0x1
+    endif
+    if _minigameHelper && !UDOM.GetOrgasmInMinigame(_minigameHelper)
+        ;helper is not orgasming, stop animation
+        loc_toggle += 0x2
+    endif
+    if loc_toggle
+        UDAM.StopAnimation(Wearer, _minigameHelper, abEnableActors = False, aiToggle = loc_toggle)
     endif
 EndFunction
 
@@ -5084,7 +5127,7 @@ Function critFailure()
             JammNthLock(_MinigameSelectedLockID)
             ;UD_JammedLocks += 1
             
-            jammLocks()
+            SetJammStatus()
             stopMinigame()
             keyGame_on = False
             OnLockJammed()
@@ -5815,6 +5858,7 @@ Function lockpickDevice()
     if lockpickGame_on && (UD_CurrentLocks - UD_JammedLocks > 0)
         int result = 0
         if PlayerInMinigame()
+            PauseMinigame() ;pause minigame untill lockpick minigame starts
             int helperGivedLockpicks = 0
             if hasHelper()
                 ;always transfere lockpicks to player
@@ -5876,6 +5920,7 @@ Function lockpickDevice()
                     endif
                 endif
             endif
+            UnPauseMinigame()
         else
             if Utility.randomInt(1,99) >= getLockpickLevel(_MinigameSelectedLockID)*15
                 result = 1
@@ -5930,7 +5975,7 @@ Function lockpickDevice()
             elseif UD_CurrentLocks == UD_JammedLocks ;device have no more free locks
                 stopMinigame()
                 lockpickGame_on = False
-                jammLocks()
+                SetJammStatus()
             endif
         elseif result == 2 ;failure
             if Utility.randomInt() <= zad_JammLockChance*UDCDmain.CalculateKeyModifier() && !libs.Config.DisableLockJam
@@ -5941,7 +5986,7 @@ Function lockpickDevice()
                 endif
                 
                 JammNthLock(_MinigameSelectedLockID)
-                JammLocks()
+                SetJammStatus()
                 stopMinigame()
                 lockpickGame_on = False
                 OnLockJammed()
@@ -6010,7 +6055,9 @@ Function AddJammedLock(int iChance = 5, string strMsg = "", int iNumber = 1)
             return
         endif
         
-        JammAllLocks(True)
+        while iNumber && JammRandomLock()
+            iNumber -= 1
+        endwhile
         
         ;UD_JammedLocks += iNumber
         
@@ -6018,7 +6065,7 @@ Function AddJammedLock(int iChance = 5, string strMsg = "", int iNumber = 1)
         ;    UD_JammedLocks = UD_CurrentLocks
         ;endif
         
-        JammLocks()
+        SetJammStatus()
         
         if strMsg != ""
             UDCDmain.Print(strMsg,2)
@@ -6028,7 +6075,7 @@ Function AddJammedLock(int iChance = 5, string strMsg = "", int iNumber = 1)
     endif
 EndFunction
 
-Function JammLocks()
+Function SetJammStatus()
     libs.SendDeviceJamLockEventVerbose(deviceInventory, UD_DeviceKeyword, wearer)
     StorageUtil.SetIntValue(wearer, "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_LockJammedStatus", 1)
 EndFunction
@@ -6224,6 +6271,13 @@ Bool Function EvaluateNPCAI()
     return loc_minigameStarted
 EndFunction
 
+Float Function ValidateAccessibility(Float afValue)
+    if UDCDmain.UD_HardcoreAccess && afValue < 0.9
+        return 0.0
+    endif
+    return fRange(afValue,0.0,1.0)
+EndFunction
+
 ;--------------------------------------------------
 ;  ______      ________ _____  _____ _____  ______ 
 ; / __ \ \    / /  ____|  __ \|_   _|  __ \|  ____|
@@ -6306,7 +6360,6 @@ EndFunction
 
 ;make it lightweight
 Function OnMinigameTick(float afUpdateTime)
-
 EndFunction
 
 Function OnMinigameTick1()
@@ -6341,7 +6394,7 @@ float Function getAccesibility()
             endif
         endif
     endif
-    return loc_res
+    return ValidateAccessibility(loc_res)
 EndFunction
 
 Function OnDeviceCutted()

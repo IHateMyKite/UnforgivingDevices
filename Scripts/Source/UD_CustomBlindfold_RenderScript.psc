@@ -13,11 +13,11 @@ EndFunction
 float Function getAccesibility()
     float loc_res = parent.getAccesibility()
     
-    if getWearer().wornhaskeyword(libs.zad_DeviousHood) && !deviceRendered.haskeyword(libs.zad_DeviousHood)
+    if loc_res && getWearer().wornhaskeyword(libs.zad_DeviousHood) && !deviceRendered.haskeyword(libs.zad_DeviousHood)
         loc_res *= 0.35
     endif
     
-    return fRange(loc_res,0.0,1.0)
+    return ValidateAccessibility(loc_res)
 EndFunction
 
 ;Priority for AI

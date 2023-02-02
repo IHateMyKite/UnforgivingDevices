@@ -36,7 +36,7 @@ Function onDeviceMenuInitPostWH(Bool[] aControlFilter)
 EndFunction
 
 float Function getAccesibility()
-    float loc_res = 1.0;parent.getAccesibility()
+    float loc_res = 1.0
     
     if (isPiercing(True,False) && wearerHaveBra()) || (isPiercing(False,True) && wearerHaveBelt())
         loc_res = 0.0
@@ -51,7 +51,7 @@ float Function getAccesibility()
             loc_res *= 0.75
         endif
     endif
-    return fRange(loc_res,0.0,1.0)
+    return ValidateAccessibility(loc_res)
 EndFunction
 
 ;============================================================================================================================

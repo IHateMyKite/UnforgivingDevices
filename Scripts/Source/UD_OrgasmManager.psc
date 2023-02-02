@@ -38,11 +38,6 @@ Faction Property OrgasmResistFaction        auto
 Int Property UD_OrgasmCheckLoop_ver     =  3     autoreadonly
 int Property UD_ArousalCheckLoop_ver    =  3     autoreadonly
 
-bool    _crit               = false
-bool    _specialButtonOn    = false
-string  _crit_meter         = "UDmain.Error"
-
-
 ;DOCUMANTATION - StorageUtil interfaces
 ;/
     Orgasm rate                 - Key="UD_OrgasmRate"               , Type=Float    , def_value=      0.0
@@ -54,7 +49,8 @@ string  _crit_meter         = "UDmain.Error"
     Orgasm resistance mult.     - Key="UD_OrgasmResistMultiplier"   , Type=Float    , def_value=      1.0
 /;
 
-
+String Property _OrgasmEventName                = "UD_Orgasm"               auto hidden
+String Property _UpdateBaseOrgasmValEventName   = "UD_UpdateBaseOrgasmVal"  auto hidden
 bool Property Ready auto conditional
 Event OnInit()
     RegisterModEvents()
@@ -62,15 +58,14 @@ Event OnInit()
 EndEvent
 
 Function RegisterModEvents()
-    RegisterForModEvent("UD_OrgasmCheckLoop","OrgasmCheckLoop")
-    RegisterForModEvent("UD_ArousalCheckLoop","ArousalCheckLoop")
-    RegisterForModEvent("UD_Orgasm","Orgasm")
-    RegisterForModEvent("UD_CritUpdateLoopStart_OrgasmResist","CritLoopOrgasmResist")
+    _OrgasmEventName = "UD_Orgasm"
+    _UpdateBaseOrgasmValEventName = "UD_UpdateBaseOrgasmVal"
+    RegisterForModEvent(_OrgasmEventName,"Orgasm")
     RegisterForModEvent("DeviceActorOrgasm", "OnOrgasm")
     RegisterForModEvent("DeviceEdgedActor", "OnEdge")
     RegisterForModEvent("HookOrgasmStart", "OnSexlabOrgasmStart")
     RegisterForModEvent("SexLabOrgasmSeparate", "OnSexlabSepOrgasmStart")
-    RegisterForModEvent("UD_UpdateBaseOrgasmVal", "Receive_UpdateBaseOrgasmVals")
+    RegisterForModEvent(_UpdateBaseOrgasmValEventName, "Receive_UpdateBaseOrgasmVals")
 EndFunction
 
 
@@ -466,11 +461,7 @@ Function startOrgasm(Actor akActor,int duration,int iArousalDecrease = 75,int iF
     if UDmain.TraceAllowed()
         UDmain.Log("startOrgasm() for " + getActorName(akActor) + ", duration = " + duration + ",blocking = " + blocking,1)
     endif
-    int loc_orgasms = 0
-    if blocking
-        loc_orgasms = getOrgasmingCount(akActor)
-    endif
-    int handle = ModEvent.Create("UD_Orgasm")
+    int handle = ModEvent.Create(_OrgasmEventName)
     if (handle)
         ModEvent.PushForm(handle, akActor)
         ModEvent.PushInt(handle, duration)
@@ -510,7 +501,7 @@ Event OnOrgasm(string eventName, string strArg, float numArg, Form sender)
 EndEvent
 
 ;call devices function orgasm() when player have sexlab orgasm
-Event OnSexlabOrgasmStart(int tid, bool HasPlayer)   
+Event OnSexlabOrgasmStart(int tid, bool HasPlayer)
     if HasPlayer
         UDCD_NPCM.getPlayerSlot().orgasm()
     endif
@@ -632,14 +623,13 @@ Float Function GetRelativeHornyProgress(Actor akActor)
     return StorageUtil.GetFloatValue(akActor,"UD_HornyProgress",0.0)/(3.0*GetActorOrgasmCapacity(akActor))
 EndFunction
 
-
 Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,int iForce = 0, bool bForceAnimation = false)
     Int loc_orgasms = addOrgasmToActor(akActor)
-    
     ;call stopMinigame so it get stoped before all other shit gets processed
-    bool loc_actorinminigame = UDCDmain.actorInMinigame(akActor) 
+    bool loc_actorinminigame = UDCDmain.actorInMinigame(akActor)
     if loc_actorinminigame
-        UDCDMain.getMinigameDevice(akActor).stopMinigame()
+        StorageUtil.SetIntValue(akActor,"UD_OrgasmInMinigame_Flag",1)
+        UDCDMain.getMinigameDevice(akActor).StopMinigame()
     endif
     
     UpdateBaseOrgasmVals(akActor, UD_OrgasmArousalReduceDuration, -5.0, 0.0, -1.0*iDecreaseArousalBy)
@@ -659,7 +649,10 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,in
     bool loc_cond       = loc_is3Dloaded && UDmain.ActorInCloseRange(akActor)
     
     if loc_actorinminigame
-        PlayOrgasmAnimation(akActor,iDuration)
+        Int loc_res = PlayOrgasmAnimation(akActor,iDuration)
+        if loc_res == 1
+            StorageUtil.UnsetIntValue(akActor,"UD_OrgasmInMinigame_Flag")
+        endif
     elseif !loc_cond || ((akActor.IsInCombat() || akActor.IsSneaking()) && (loc_isplayer || loc_isfollower))
         if UDmain.ActorIsPlayer(akActor)
             UDCDmain.Print("You managed to avoid losing control over your body from orgasm!",2)
@@ -684,18 +677,26 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,in
     endif
 EndFunction
 
-Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
+Int Function GetOrgasmAnimDuration(Actor akActor)
+    return StorageUtil.GetIntValue(akActor,"UD_OrgasmDuration",0)
+EndFunction
+
+Bool Function GetOrgasmInMinigame(Actor akActor)
+    return StorageUtil.GetIntValue(akActor,"UD_OrgasmInMinigame_Flag",0)
+EndFunction
+
+Int Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_OrgasmManager::PlayOrgasmAnimation() akActor = " + akActor + ", aiDuration = " + aiDuration)
     EndIf
     if !aiDuration
-        return
+        return 0 ;error
     endif
     if StorageUtil.GetIntValue(akActor,"UD_OrgasmDuration",0)
         Int loc_duration = Round(aiDuration*0.35)
         StorageUtil.AdjustIntValue(akActor,"UD_OrgasmDuration",loc_duration) ;incfrease current orgasm animation by 50%
         Utility.wait(loc_duration)
-        return
+        return 2 ;animation prolonged, but not player
     else
         StorageUtil.SetIntValue(akActor,"UD_OrgasmDuration",aiDuration)
     endif
@@ -740,341 +741,14 @@ Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
     if loc_isPlayer
         UDmain.UDUI.GoToState("") ;enable UI
     endif
+    return 1
 EndFunction
 
 Function addOrgasmExhaustion(Actor akActor)
-    if akActor.Is3DLoaded()
-        UDlibs.OrgasmExhaustionSpell.cast(akActor)
-        if UDmain.TraceAllowed()
-            UDmain.Log("Orgasm exhaustion debuff applied to "+ getActorName(akActor),1)
-        endif
+    UDlibs.OrgasmExhaustionSpell.Cast(akActor, akActor)
+    if UDmain.TraceAllowed()
+        UDmain.Log("Orgasm exhaustion debuff applied to "+ getActorName(akActor),1)
     endif
-EndFunction
-
-;///////////////////////////////////////
-;=======================================
-;ORGASM RESIST MINIGAME
-;=======================================
-;//////////////////////////////////////;
-
-;=======================================
-;ORGASM _crit FUNCTIONS
-;=======================================
-
-bool _PlayerOrgasmResist_MinigameOn = false
-Function sendOrgasmResistCritUpdateLoop(Int iChance,Float fDifficulty)
-    int handle = ModEvent.Create("UD_CritUpdateLoopStart_OrgasmResist")
-    if (handle)
-        ModEvent.PushInt(handle,iChance)
-        ModEvent.PushFloat(handle,fDifficulty)
-        ModEvent.Send(handle)
-    endif
-EndFunction
-
-Function CritLoopOrgasmResist(Int iChance,Float fDifficulty)
-    string loc_meter = "none"
-    bool loc_sendCrit = false
-    while _PlayerOrgasmResist_MinigameOn
-        if Utility.randomInt(1,100) <= iChance
-            if !UDCDmain.UD_AutoCrit
-                if Utility.randomInt(0,1)
-                    loc_meter = "S"
-                else
-                    loc_meter = "M"
-                endif
-                loc_sendCrit = true
-            else ;auto crits
-                if Utility.randomInt() <= UDCDmain.UD_AutoCritChance
-                    OnCritSuccesOrgasmResist()
-                else
-                    OnCritFailureOrgasmResist()
-                endif
-                return    
-            endif
-        endif    
-        if loc_sendCrit
-            _crit = True
-            _crit_meter = loc_meter
-            if (loc_meter == "S")
-                if UDCDmain.UD_CritEffect == 2 || UDCDmain.UD_CritEffect == 1
-                    UDlibs.GreenCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player)
-                    Utility.wait(0.3)
-                endif
-                if UDCDmain.UD_CritEffect == 2 || UDCDmain.UD_CritEffect == 0
-                    UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartStaminaBlinking")
-                endif
-            elseif (loc_meter == "M")
-                if UDCDmain.UD_CritEffect == 2 || UDCDmain.UD_CritEffect == 1
-                    UDlibs.BlueCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player)
-                    Utility.wait(0.3)
-                endif
-                if UDCDmain.UD_CritEffect == 2 || UDCDmain.UD_CritEffect == 0
-                    UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartMagickaBlinking")
-                endif
-            elseif (loc_meter == "R")
-                if UDCDmain.UD_CritEffect == 2 || UDCDmain.UD_CritEffect == 1
-                    UDlibs.RedCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player)
-                    Utility.wait(0.3)
-                endif
-            endif
-            
-            Utility.wait(fDifficulty)
-            _crit = False
-            loc_meter = "none"
-            _crit_meter = "none"
-            loc_sendCrit = false
-        endif
-        Utility.wait(1.0)
-    endwhile
-EndFunction
-
-Function OnCritSuccesOrgasmResist()
-    if UDmain.TraceAllowed()    
-        UDmain.Log("OnCritSuccesOrgasmResist() callled!")
-    endif
-    UDmain.Player.restoreAV("Stamina", 15)
-    UpdateActorOrgasmProgress(UDmain.Player,-10,true)
-EndFunction
-
-Function OnCritFailureOrgasmResist()
-    if UDmain.TraceAllowed()    
-        UDmain.Log("OnCritFailureOrgasmResist() callled!")
-    endif
-    ;UDmain.Player.damageAV("Stamina", 25)
-    UpdateActorOrgasmProgress(UDmain.Player,getActorOrgasmRate(UDmain.Player)*2,true)
-EndFunction
-
-
-Event MinigameKeysRegister()
-    if UDmain.TraceAllowed()    
-        UDmain.Log("UD_OrgasmManager MinigameKeysRegister called",1)
-    endif
-    RegisterForKey(UDCDMain.Stamina_meter_Keycode)
-    RegisterForKey(UDCDMain.SpecialKey_Keycode)
-    RegisterForKey(UDCDMain.Magicka_meter_Keycode)
-    RegisterForKey(UDCDMain.ActionKey_Keycode)
-    _specialButtonOn = false
-EndEvent
-
-Event MinigameKeysUnregister()
-    if UDmain.TraceAllowed()    
-        UDmain.Log("UD_OrgasmManager MinigameKeysUnregister called",1)
-    endif
-    UnregisterForKey(UDCDMain.Stamina_meter_Keycode)
-    UnregisterForKey(UDCDMain.SpecialKey_Keycode)
-    UnregisterForKey(UDCDMain.Magicka_meter_Keycode)
-    UnregisterForKey(UDCDMain.ActionKey_Keycode)
-    _specialButtonOn = false
-EndEvent
-
-Event OnKeyDown(Int KeyCode)
-    if !UDmain.IsMenuOpen() ;only if player is not in menu
-        bool loc_crit = _crit ;help variable to reduce lag
-        if _PlayerOrgasmResist_MinigameOn
-            if KeyCode == UDCDmain.SpecialKey_Keycode
-                _specialButtonOn = true
-                return
-            endif
-            if (loc_crit) && !UDCDmain.UD_AutoCrit
-                if _crit_meter == "S" && KeyCode == UDCDmain.Stamina_meter_Keycode
-                    _crit = False
-                    loc_crit = False
-                    OnCritSuccesOrgasmResist()
-                    return
-                elseif _crit_meter == "M" && KeyCode == UDCDmain.Magicka_meter_Keycode
-                    _crit = False
-                    loc_crit = False
-                    OnCritSuccesOrgasmResist()
-                    return
-                elseif KeyCode == UDCDmain.Magicka_meter_Keycode || KeyCode == UDCDmain.Stamina_meter_Keycode
-                    _crit = False
-                    loc_crit = False
-                    OnCritFailureOrgasmResist()
-                elseif KeyCode == UDCDmain.ActionKey_Keycode
-                    UDmain.Player.removeFromFaction(OrgasmResistFaction)
-                    _crit = false
-                    return 
-                endif
-            endif
-            if KeyCode == UDCDmain.ActionKey_Keycode
-                UDmain.Player.removeFromFaction(OrgasmResistFaction)
-                _crit = false
-                return
-            elseif (KeyCode == UDCDmain.Stamina_meter_Keycode || KeyCode == UDCDmain.Magicka_meter_Keycode) && !UDCDmain.UD_AutoCrit
-                _crit = False
-                loc_crit = False
-                OnCritFailureOrgasmResist()
-                return
-            endif
-        endif
-    endif
-EndEvent
-
-Event OnKeyUp(Int KeyCode, Float HoldTime)
-    if KeyCode == UDCDmain.SpecialKey_Keycode
-        if _PlayerOrgasmResist_MinigameOn
-            _specialButtonOn = false
-        endif
-        return
-    endif
-EndEvent
-
-;=======================================
-;ORGASM RESIST LOOP
-;=======================================
-Function FocusOrgasmResistMinigame(Actor akActor)
-    if getCurrentActorValuePerc(akActor,"Stamina") < 0.75
-        if UDmain.ActorIsPlayer(akActor)
-            UDmain.Print("You are too exhausted!")
-        endif
-        return
-    endif
-    
-    if UDCDMain.actorInMinigame(akActor) || UDmain.UDAM.isAnimating(akActor)
-        if akActor == UDmain.Player
-            UDmain.Print("You are already busy!")
-        endif
-        return
-    endif
-    
-    if !(getActorAfterMultOrgasmRate(akActor) > 0)
-        return
-    endif
-    
-    akActor.AddToFaction(UDCDmain.MinigameFaction)
-    akActor.AddToFaction(OrgasmResistFaction)
-    
-    float loc_staminaRate     = akActor.getBaseAV("StaminaRate")
-    akActor.setAV("StaminaRate", 0.0)
-    
-    ;UDCDMain.DisableActor(akActor,true)
-    UDCDMain.StartMinigameDisable(akActor)
-    String[] animationArray = UDmain.UDAM.GetHornyAnimEvents(akActor)
-    If animationArray.Length > 0
-        UDmain.UDAM.StartSoloAnimation(akActor, animationArray[Utility.RandomInt(0, animationArray.Length - 1)])
-    EndIf
-
-    UDCDMain.sendHUDUpdateEvent(true,true,true,true)
-    
-    UDmain.UDUI.GoToState("UIDisabled")
-    MinigameKeysRegister()
-    
-    UDmain.UDWC.Toggle_OrgasmWidget(true)
-    if UDmain.ActorIsPlayer(akActor)
-        _PlayerOrgasmResist_MinigameOn = true
-        sendOrgasmResistCritUpdateLoop(15,0.8)
-    endif
-    
-    float loc_baseDrain = 5.0
-    if akActor.wornhaskeyword(libs.zad_deviousheavybondage)
-        loc_baseDrain += 2.5
-    endif
-    
-    float   loc_currentOrgasmRate           = getActorOrgasmRate(akActor)
-    bool    loc_cycleON                     = true
-    int     loc_tick                        = 0
-    float   loc_StaminaRateMult             = 1.0
-    float   loc_orgasmResistence            = getActorOrgasmResist(akActor)
-    int     loc_HightSpiritMode_Duration    = -2*Round(1/UDmain.UD_baseUpdateTime)
-    int     loc_HightSpiritMode_Type        = 1
-    
-    while loc_cycleON
-        if !akActor.isInFaction(OrgasmResistFaction);StorageUtil.GetIntValue(akActor,"UD_OrgasmResistMinigame_EndFlag",0)
-            loc_cycleON = false
-        endif
-        
-        if loc_cycleON
-            if akActor.getAV("Stamina") <= 0 ;|| akActor.getAV("magicka") <= 0
-                loc_cycleON = false
-            endif
-        endif
-        
-        if loc_cycleON
-            if _specialButtonOn
-                if loc_HightSpiritMode_Duration > 0
-                    if loc_HightSpiritMode_Type == 1
-                        loc_StaminaRateMult = 0.25
-                    elseif loc_HightSpiritMode_Type == 2
-                        loc_StaminaRateMult = 0.75
-                        UpdateActorOrgasmProgress(akActor,-8.0*(UDmain.UD_baseUpdateTime),true)
-                    elseif loc_HightSpiritMode_Type == 3
-                        loc_StaminaRateMult = 0.75
-                        libs.UpdateExposure(akActor,-2*iRange(Math.Floor(5*UDmain.UD_baseUpdateTime),1,10))
-                    endif
-                else
-                    loc_StaminaRateMult = 2.0
-                endif
-            else
-                loc_StaminaRateMult = 1.0
-            endif
-        endif
-        
-        if loc_tick*UDmain.UD_baseUpdateTime >= 1.0 && loc_cycleON
-            loc_currentOrgasmRate       = getActorOrgasmRate(akActor)
-            loc_orgasmResistence        = getActorOrgasmResist(akActor)
-            if loc_HightSpiritMode_Duration == 0
-                if Utility.randomInt() <= 40 
-                    loc_HightSpiritMode_Type = Utility.randomInt(1,3)
-                    if loc_HightSpiritMode_Type == 1 ;RED
-                        UDmain.UDWC.UpdateColor_OrgasmWidget(0xff0000, 0xff00d8,0xFF00BC)
-                    elseif loc_HightSpiritMode_Type == 2 ;GREEN
-                        UDmain.UDWC.UpdateColor_OrgasmWidget(0x00ff68, 0x00ff68,0xFF00BC)
-                    elseif loc_HightSpiritMode_Type == 3 ;BLUE
-                        UDmain.UDWC.UpdateColor_OrgasmWidget(0x2e40d8, 0x2e40d8,0xFF00BC)
-                    endif
-                    loc_HightSpiritMode_Duration += Utility.randomInt(3,6)*Round(1/UDmain.UD_baseUpdateTime)
-                endif
-            endif
-            loc_tick = 0
-            UDCDmain.sendHUDUpdateEvent(true,true,true,true)
-            UDCDMain.UpdateMinigameDisable(akActor)
-        endif
-        
-        if loc_cycleON
-            akActor.damageAV("Stamina", loc_StaminaRateMult*loc_baseDrain*fRange((loc_currentOrgasmRate/loc_orgasmResistence),0.5,3.5)*UDmain.UD_baseUpdateTime)
-        endif
-        
-        if loc_HightSpiritMode_Duration > 0 && loc_cycleON
-            loc_HightSpiritMode_Duration -= 1
-            if loc_HightSpiritMode_Duration == 0
-                UDmain.UDWC.UpdateColor_OrgasmWidget(0xE727F5, 0xF775FF,0xFF00BC)
-                loc_HightSpiritMode_Duration -= Utility.randomInt(3,4)*Round(1/UDmain.UD_baseUpdateTime)
-            endif
-        elseif loc_HightSpiritMode_Duration < 0
-            loc_HightSpiritMode_Duration += 1
-        endif
-        
-        if loc_cycleON
-            Utility.wait(UDmain.UD_baseUpdateTime)
-            loc_tick += 1
-        endif
-    endwhile
-    
-    akActor.setAV("StaminaRate", loc_staminaRate)
-    
-    if UDmain.ActorIsPlayer(akActor)
-        _PlayerOrgasmResist_MinigameOn = false
-    endif
-
-    if !UDmain.UDOM.isOrgasming(akActor)
-        UDmain.UDAM.StopAnimation(akActor) ;ends animation
-    endif
-    
-    akActor.RemoveFromFaction(UDCDmain.MinigameFaction)
-    
-    UDCDMain.EndMinigameDisable(akActor)
-    
-    UDmain.UDUI.GoToState("")
-    MinigameKeysUnregister()
-    
-    UDmain.UDWC.UpdateColor_OrgasmWidget(0xE727F5, 0xF775FF,0xFF00BC)
-    
-    akActor.RemoveFromFaction(OrgasmResistFaction)
-    
-    UDlibs.StruggleExhaustionSpell.SetNthEffectMagnitude(0, 40)
-    UDlibs.StruggleExhaustionSpell.SetNthEffectDuration(0, 15)
-    Utility.wait(0.1)
-    UDlibs.StruggleExhaustionSpell.cast(akActor)
 EndFunction
 
 ;UNUSED
@@ -1133,3 +807,5 @@ Function Receive_UpdateBaseOrgasmVals(Form akFormActor, int aiDuration, float af
     endif
 EndFunction
 
+Function FocusOrgasmResistMinigame(Actor akActor)
+EndFunction

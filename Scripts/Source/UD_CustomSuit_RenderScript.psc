@@ -9,21 +9,24 @@ EndFunction
 float Function getAccesibility()
     float loc_res = parent.getAccesibility()
     
-    if getWearer().wornhaskeyword(libs.zad_DeviousArmCuffs)
-        loc_res *= 0.75
+    if loc_res
+        if getWearer().wornhaskeyword(libs.zad_DeviousArmCuffs)
+            loc_res *= 0.75
+        endif
+        if getWearer().wornhaskeyword(libs.zad_DeviousLegCuffs)
+            loc_res *= 0.75
+        endif
+        if getWearer().wornhaskeyword(libs.zad_DeviousCollar)
+            loc_res *= 0.75
+        endif
+        if getWearer().wornhaskeyword(libs.zad_deviousharness)  && !deviceRendered.haskeyword(libs.zad_deviousharness)
+            loc_res *= 0.25
+        elseif getWearer().wornhaskeyword(libs.zad_deviousbelt) && !deviceRendered.haskeyword(libs.zad_deviousbelt)
+            loc_res *= 0.5
+        endif
     endif
-    if getWearer().wornhaskeyword(libs.zad_DeviousLegCuffs)
-        loc_res *= 0.75
-    endif
-    if getWearer().wornhaskeyword(libs.zad_DeviousCollar)
-        loc_res *= 0.75
-    endif
-    if getWearer().wornhaskeyword(libs.zad_deviousharness)     && !deviceRendered.haskeyword(libs.zad_deviousharness)
-        loc_res *= 0.25
-    elseif getWearer().wornhaskeyword(libs.zad_deviousbelt) && !deviceRendered.haskeyword(libs.zad_deviousbelt)
-        loc_res *= 0.5
-    endif
-    return fRange(loc_res,0.0,1.0)
+    
+    return ValidateAccessibility(loc_res)
 EndFunction
 
 Int Function GetAiPriority()

@@ -219,7 +219,6 @@ Function FreeUnusedSlots()
             if !loc_found && !loc_slot.IsBlocked()
                 loc_actor.RemoveFromFaction(UDCDmain.RegisteredNPCFaction)
                 loc_slot.unregisterSlot()
-                ;GInfo("Removed unused slot " + loc_slot.getSlotedNPCName())
             endif
         endif
         index += 1

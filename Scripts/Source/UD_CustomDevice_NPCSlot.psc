@@ -23,9 +23,9 @@ EndProperty
 UD_OrgasmManager Property UDOM Hidden
     UD_OrgasmManager Function get()
         if IsPlayer()
-            return UDmain.UDOM2
+            return UDmain.UDOMPlayer
         else
-            return UDmain.UDOM
+            return UDmain.UDOMNPC
         endif
     EndFunction
 EndProperty
@@ -435,6 +435,8 @@ Function fix()
             getActor().SetDontMove(False)
         endif
         
+        UDmain.UDAM.StopAnimation(getActor(), none, abEnableActors = True)
+        
         getActor().RemoveFromFaction(libs.zadAnimatingFaction)
         getActor().RemoveFromFaction(libs.Sexlab.AnimatingFaction)
         
@@ -466,7 +468,8 @@ Function fix()
         StorageUtil.UnsetIntValue(getActor(), "UD_ActiveVib_Strength")
         StorageUtil.UnsetIntValue(getActor(), "UD_ActiveVib")
         StorageUtil.UnsetIntValue(getActor(), "UD_OrgasmExhaustionNum")
-        
+        StorageUtil.UnsetIntValue(getActor(),"UD_OrgasmInMinigame_Flag")
+        StorageUtil.UnsetIntValue(getActor(),"UD_OrgasmDuration")
         if IsPlayer()
             GetActor().DispelSpell(UDmain.UDlibs.ArousalCheckAbilitySpell)
             GetActor().AddSpell(UDmain.UDlibs.ArousalCheckAbilitySpell,true)
@@ -2003,7 +2006,7 @@ Function UpdateOrgasm(Float afUpdateTime)
         UDOM.startOrgasm(akActor,UDOM.UD_OrgasmDuration,UDOM.UD_OrgasmArousalReduce,_force,true)
         
         if IsPlayer()
-            Utility.wait(0.5) ;wait half second, so orgasm can take effect, and prevent some strange behavier, like infinite orgasms
+            Utility.wait(1.0) ;wait second, so there is time for some effects to be applied
         endif
         
         _orgasmProgress = 0.0
@@ -2116,7 +2119,7 @@ Function UpdateOrgasmSecond()
     endif
     
     if loc_is3dLoaded
-        UpdateOrgasmExpression()
+        UpdateHornyExpression()
         
         if (_orgasmRate > 0.5*_orgasmResistMultiplier*_orgasmResistence) 
             ;start moaning sound again. Not play when actor orgasms
@@ -2156,7 +2159,7 @@ Function UpdateOrgasmSecond()
     endif
 EndFunction
 
-Function UpdateOrgasmExpression()
+Function UpdateHornyExpression()
     Actor akActor = GetActor()
     ;expression
     if _orgasmRate >= _orgasmResistence*0.75 && (!_expressionApplied || _expressionUpdateTimer > 5) 
@@ -2216,6 +2219,7 @@ EndFunction
 
 ;Event UDOrgasm(Form akActor,Float afOrgasmRate,Int aiArousal,Int aiEdgeLevel,Float afForcing)
 Function SendOrgasmEvent()
+    SendModEvent("DeviceActorOrgasm", GetActor().GetLeveledActorBase().GetName())
     int loc_id = ModEvent.Create("UDOrgasmEvent")
     if loc_id
         ModEvent.PushForm(loc_id, GetActor())
@@ -2235,6 +2239,7 @@ Function SendOrgasmEvent()
 EndFunction
 
 Function SendEdgeEvent()
+    SendModEvent("DeviceEdgedActor", GetActor().GetLeveledActorBase().GetName())
     int loc_id = ModEvent.Create("UDEdgeEvent")
     if loc_id
         ModEvent.PushForm(loc_id, GetActor())

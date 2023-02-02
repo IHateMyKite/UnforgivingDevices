@@ -8,10 +8,10 @@ EndFunction
 
 float Function getAccesibility()
     float loc_res = parent.getAccesibility()
-    if getWearer().wornhaskeyword(libs.zad_DeviousLegCuffs)
+    if loc_res && getWearer().wornhaskeyword(libs.zad_DeviousLegCuffs)
         loc_res *= 0.75
     endif
-    return fRange(loc_res,0.0,1.0)
+    return ValidateAccessibility(loc_res)
 EndFunction
 
 ;============================================================================================================================

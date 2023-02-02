@@ -263,19 +263,18 @@ Function patchGeneric(UD_CustomDevice_RenderScript device)
         checkLooseModifier(device,100,0.25, 1.0)
         loc_control = Math.LogicalAnd(loc_control,0x0E)
         loc_type = 4
+    elseif device as UD_CustomBoots_RenderScript
+        loc_type = 5
+    elseif device as UD_CustomGloves_RenderScript
+        loc_type = 3
+    elseif device as UD_CustomSuit_RenderScript
+        loc_type = 10
     endif
     
     If device as UD_CustomDynamicHeavyBondage_RS
         (device as UD_CustomDynamicHeavyBondage_RS).UD_UntieDifficulty = Utility.randomFloat(75.0,125.0)/loc_currentmult
         device.UD_Cooldown = Round(Utility.randomInt(160,240)/fRange(loc_currentmult,0.5,2.0))
-        if !device.HaveLocks()
-            Int loc_timelock = Utility.randomInt(0,1) ;random timelock, to force player in to being longer locked in device
-            device.CreateLock(10, 75, 1, "Left lock 1", loc_timelock, True)
-            device.CreateLock(10, 25, 1, "Left lock 2", loc_timelock, True)
-            device.CreateLock(10, 75, 1, "Right lock 1", loc_timelock, True)
-            device.CreateLock(10, 25, 1, "Right lock 2", loc_timelock, True)
-        endif
-    EndIf
+    endif
     
     
     checkLooseModifier(device,50,0.15, 0.4)

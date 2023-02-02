@@ -159,7 +159,7 @@ Function Procces_MAH_Hour(UD_CustomDevice_RenderScript argDevice,float argMult)
     int loc_chance = Round(argDevice.getModifierIntParam("MAH",0)*(UDPatcher.UD_MAHMod/100.0))
     int loc_number = argDevice.getModifierIntParam("MAH",1,1)
     if UDmain.TraceAllowed()
-        UDCDMain.Log(argDevice.getDeviceHeader()+"MAH found, proccesing. C="+loc_chance+",N="+loc_number,1)
+        UDMain.Log(argDevice.getDeviceHeader()+"MAH found, proccesing. C="+loc_chance+",N="+loc_number,1)
     endif
     ManifestDevices(argDevice.GetWearer(),argDevice.getDeviceName() ,loc_chance,loc_number)    
 EndFunction
@@ -172,7 +172,9 @@ Function Procces__L_CHEAP_Hour(UD_CustomDevice_RenderScript argDevice,float argM
         return
     endif
     int loc_chance = argDevice.getModifierIntParam("_L_CHEAP",0)
-    argDevice.AddJammedLock(loc_chance)
+    if loc_chance
+        argDevice.AddJammedLock(loc_chance)
+    endif
 EndFunction
 
 Function Procces_MAO_Orgasm(UD_CustomDevice_RenderScript argDevice)
@@ -185,7 +187,7 @@ Function Procces_MAO_Orgasm(UD_CustomDevice_RenderScript argDevice)
     int loc_chance = Round(argDevice.getModifierIntParam("MAO",0)*(UDPatcher.UD_MAOMod/100.0))
     int loc_number = argDevice.getModifierIntParam("MAO",1,1)
     if UDmain.TraceAllowed()
-        UDCDMain.Log(argDevice.getDeviceHeader()+"MAO found, proccesing. C="+loc_chance+",N="+loc_number,1)
+        UDMain.Log(argDevice.getDeviceHeader()+"MAO found, proccesing. C="+loc_chance+",N="+loc_number,1)
     endif
     ManifestDevices(argDevice.GetWearer(),argDevice.getDeviceName() ,loc_chance,loc_number)
 EndFunction
@@ -195,7 +197,7 @@ Function Procces_LootGold_Remove(UD_CustomDevice_RenderScript argDevice)
     if argDevice.zad_DestroyOnRemove || argDevice.hasModifier("DOR") || !akActor.isDead()
         if argDevice.hasModifier("LootGold")
             if UDmain.TraceAllowed()
-                UDCDmain.Log("Gold added: " + argDevice.getModifierIntParam("LootGold"),1)
+                UDmain.Log("Gold added: " + argDevice.getModifierIntParam("LootGold"),1)
             endif
             int goldNumMin = argDevice.getModifierIntParam("LootGold",0,0)
             int goldMode   = argDevice.getModifierIntParam("LootGold",2,0)
@@ -237,7 +239,7 @@ int Function ManifestDevices(Actor akActor,string strSource ,int iChance,int iNu
     Form[] loc_array
     if Utility.randomInt(1,99) < iChance
         while iNumber
-            while UDCDmain.UDOM.isOrgasming(akActor);UDCDmain.InSelabAnimation(getWearer()) || UDCDmain.InZadAnimation(getWearer())
+            while UDmain.UDOM.isOrgasming(akActor);UDCDmain.InSelabAnimation(getWearer()) || UDCDmain.InZadAnimation(getWearer())
                 Utility.wait(0.1)
             endwhile
             iNumber -= 1
@@ -252,7 +254,7 @@ int Function ManifestDevices(Actor akActor,string strSource ,int iChance,int iNu
     if loc_array
         if loc_array.length > 0
             if UDmain.ActorIsPlayer(akActor)
-                UDCDmain.Print(strSource + " suddenly locks you in bondage restraint!",1)
+                UDmain.Print(strSource + " suddenly locks you in bondage restraint!",1)
                 ;/
                 string loc_str = "Devices locked: \n"
                 int i = 0
@@ -263,7 +265,7 @@ int Function ManifestDevices(Actor akActor,string strSource ,int iChance,int iNu
                 ShowMessageBox(loc_str)
                 /;
             elseif UDCDmain.AllowNPCMessage(akActor)
-                UDCDmain.Print(GetActorName(akActor) + "s "+ strSource +" suddenly locks them in bondage restraint!",3)
+                UDmain.Print(GetActorName(akActor) + "s "+ strSource +" suddenly locks them in bondage restraint!",3)
             endif
         endif
     endif
