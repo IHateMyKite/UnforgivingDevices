@@ -40,6 +40,14 @@ Function Reset()
     Enabled = True
 EndFunction
 
+Function SoftReset()
+    Magnitude = 0
+    Timer = 0.0
+    Stage = 0
+    Blinking = False
+    Visible = False
+EndFunction
+
 Int _Magnitude
 Float _Timer
 Int _Stage
