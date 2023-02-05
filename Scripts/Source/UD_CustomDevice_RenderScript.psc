@@ -6206,7 +6206,6 @@ EndFunction
 
 ;choose the best minigame and start it. Returns false if minigame was not started
 Bool Function EvaluateNPCAI()
-    GInfo(GetDeviceHeader() + "::EvaluateNPCAI")
     Bool    loc_minigameStarted     = False
     Float   loc_durabilityBefore    = current_device_health
     Int     loc_LocksBefore         = UD_CurrentLocks
@@ -6295,7 +6294,7 @@ Bool Function EvaluateNPCAI()
     endif
     
     if loc_minigameStarted
-        GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - Stats after minigame = durability reduced="+ (loc_durabilityBefore - current_device_health) + " , Locks unlocked="+ (loc_LocksBefore - UD_CurrentLocks))
+        ;GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - Stats after minigame = durability reduced="+ (loc_durabilityBefore - current_device_health) + " , Locks unlocked="+ (loc_LocksBefore - UD_CurrentLocks))
     endif
     
     return loc_minigameStarted

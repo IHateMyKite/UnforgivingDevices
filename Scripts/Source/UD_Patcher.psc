@@ -559,9 +559,10 @@ Function GenerateLocks(UD_CustomDevice_RenderScript akDevice, Int aiType, Int ai
             Int loc_lockNum = akDevice.GetLockNumber()
             while loc_lockNum
                 loc_lockNum -= 1
-                akDevice.UpdateLockDifficulty(loc_lockNum,50) ;increase all locks difficulty by 50
+                akDevice.UpdateLockDifficulty(loc_lockNum,50,False) ;increase all locks difficulty by 50
             endwhile
         endif
+        
     endif
 EndFunction
 
