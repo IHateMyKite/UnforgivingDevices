@@ -717,6 +717,7 @@ string[] widgetXList
 string[] widgetYList
 ; overlay settings
 Int UD_TextFontSize_S
+Int UD_TextReadSpeed_S
 Int UD_TextLineLength_S
 Int UD_FilterVibNotifications_T
 Int UD_EnableCNotifications_S
@@ -759,6 +760,7 @@ Event resetUIWidgetPage()
     UD_EnableCNotifications_S = AddToggleOption("Show customized notifications", UDWC.UD_EnableCNotifications, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
     UD_TextFontSize_S = addSliderOption("Notification font size", UDWC.UD_TextFontSize, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableCNotifications))
     UD_TextLineLength_S = addSliderOption("Notification line length", UDWC.UD_TextLineLength, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableCNotifications))
+    UD_TextReadSpeed_S = addSliderOption("Notification text read speed", UDWC.UD_TextReadSpeed, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableCNotifications))
     UD_FilterVibNotifications_T = AddToggleOption("Filter vibrator notifications", UDWC.UD_FilterVibNotifications, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableCNotifications))
     If UDWC.UD_TextAnchor < 0 || UDWC.UD_TextAnchor > 3
         UDMain.Warning("UD_MCM_script::resetUIWidgetPage() WTF! UDWC.UD_TextAnchor = " + UDWC.UD_TextAnchor)
@@ -798,7 +800,7 @@ Event resetUIWidgetPage()
     UD_IconVariant_EffOrgasm_M = addMenuOption("Orgasm icon variant", variant_str, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableEffectIcons && !variant_err))
     
     UD_WidgetTest_T = AddTextOption("TEST WIDGETS", "-CLICK-", a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
-    UD_WidgetReset_T = AddTextOption("RESET WIDGETS", "-CLICK-", a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    UD_WidgetReset_T = AddTextOption("RESET UI", "-CLICK-", a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
 EndEvent
 
 
@@ -1513,6 +1515,8 @@ Function OptionSelectUiWidget(int option)
         UDWC.TestWidgets()
     ElseIf option == UD_WidgetReset_T
         closeMCM()
+        UDWC.Notification_Reset()
+        UDWC.StatusEffect_ResetValues()
         UDWC.InitWidgetsRequest(abMeters = True, abIcons = True, abText = True)
     endif
 EndFunction
@@ -2070,6 +2074,11 @@ Function OnOptionSliderOpenUIWidget(Int option)
         SetSliderDialogDefaultValue(100.0)
         SetSliderDialogRange(50.0, 200.0)
         SetSliderDialogInterval(1.0)
+    ElseIf option == UD_TextReadSpeed_S
+        SetSliderDialogStartValue(UDWC.UD_TextReadSpeed)
+        SetSliderDialogDefaultValue(20.0)
+        SetSliderDialogRange(10.0, 50.0)
+        SetSliderDialogInterval(1.0)
     ElseIf option == UD_IconsSize_S
         SetSliderDialogStartValue(UDWC.UD_IconsSize)
         SetSliderDialogDefaultValue(60.0)
@@ -2312,6 +2321,9 @@ Function OnOptionSliderAcceptUIWidget(Int option, Float value)
     ElseIf option == UD_TextLineLength_S
         UDWC.UD_TextLineLength = value as Int
         SetSliderOptionValue(UD_TextLineLength_S, value)
+    ElseIf option == UD_TextReadSpeed_S
+        UDWC.UD_TextReadSpeed = value as Int
+        SetSliderOptionValue(UD_TextReadSpeed_S, value)
     ElseIf option == UD_IconsSize_S
         UDWC.UD_IconsSize = value as Int
         SetSliderOptionValue(UD_IconsSize_S, value)
@@ -3256,7 +3268,9 @@ Function UiWidgetPageInfo(int option)
     ElseIf option == UD_TextFontSize_S
         SetInfoText("Notification text font size.\nDefault: 24")
     ElseIf option == UD_TextLineLength_S
-        SetInfoText("Notification text line length (NOT IMPLEMENTED).\nDefault: 100")
+        SetInfoText("Notification text line length.\nDefault: 100")
+    ElseIf option == UD_TextReadSpeed_S
+        SetInfoText("Notification text read speed (symbols per second). How fast notification will disappear.\nDefault: 20")
     ElseIf option == UD_FilterVibNotifications_T
         SetInfoText("Toggle to hide notifications from vibrators.\nDefault: ON")
     ElseIf option == UD_EnableCNotifications_S
@@ -3278,7 +3292,7 @@ Function UiWidgetPageInfo(int option)
     ElseIf option == UD_WidgetTest_T
         SetInfoText("Press to view all widgets on screen (they dissappear after 5 seconds)")
     ElseIf option == UD_WidgetReset_T
-        SetInfoText("Press to apply changes")
+        SetInfoText("Press to reset UI.\nATTENTION: It also resets all effects magnitudes and modifiers! If you have active effects or devices icons then they may not display correctly!")
     endif
 EndFunction
 

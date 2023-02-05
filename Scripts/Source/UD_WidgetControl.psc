@@ -454,7 +454,6 @@ Int         _Widget_Icon_Active100_Color            = 0xFF00FF      ; Magenta   
 
 Event OnBeginState()
     RegisterForSingleUpdate(30.0)
-    StatusEffect_AllUpdate()
 EndEvent
     
 Function UpdateGroupPositions()
@@ -506,6 +505,10 @@ EndFunction
 ; asText                - notification text
 Function Notification_Push(String asText, Int aiColor = 0xFFFFFF)
     Debug.Notification(asText)
+EndFunction
+
+; Clear notification queue
+Function Notification_Reset()
 EndFunction
 
 ; Register new status effect icon (or change existing)
@@ -606,34 +609,13 @@ Function StatusEffect_SetBlink(String asName, Bool abBlink = True)
     data.Blinking = abBlink
 EndFunction
 
-; Update all icons after switching between states
-Function StatusEffect_AllUpdate()
-;    If iWidget == None 
-;        Return
-;    EndIf
-;    Int i = _Icons_Id.Length
-;    While i > 0
-;        i -= 1
-;        If _Icons_Id[i] > 0
-;            iWidget.setVisible(_Icons_Id[i], 0)
-;            iWidget.setVisible(_Icons_Id[i], 0)
-;        EndIf
-;    EndWhile
-;    i = _Text_LinesId.Length
-;    While i > 0
-;        i -= 1
-;        If _Icons_Id[i] > 0
-;            iWidget.setVisible(_Text_LinesId[i], 0)
-;            iWidget.setVisible(_Text_LinesOutlineId[i], 0)
-;        EndIf
-;    EndWhile
-;    i = _WidgetsID.Length
-;    While i > 0
-;        i -= 1
-;        If _Icons_Id[i] > 0
-;            iWidget.setVisible(_WidgetsID[i], 0)
-;        EndIf
-;    EndWhile
+; Resets all effects to default state
+Function StatusEffect_ResetValues()
+    Int i = StatusEffectSlots.Length
+    While i > 0
+        i -= 1
+        StatusEffectSlots[i].SoftReset()
+    EndWhile
 EndFunction
 
 ; Show all enabled (!) widgets with test animations for the short time
@@ -712,7 +694,6 @@ State iWidgetInstalled
     Event OnBeginState()
         _Animation_LastGameTime = Utility.GetCurrentRealTime()
         RegisterForSingleUpdate(_Animation_Update)
-        StatusEffect_AllUpdate()
     EndEvent
     
     Event OnUpdate()
@@ -823,7 +804,8 @@ State iWidgetInstalled
         EndWhile
         _Text_AnimStage = -1
         _Text_Timer = 0.0
-
+        _Text_Duration = 0.0
+        
         Return True
     EndFunction
     
@@ -1144,6 +1126,12 @@ State iWidgetInstalled
         RegisterForSingleUpdate(_Animation_UpdateInstant)
     EndFunction
     
+    ; Clear notification queue
+    Function Notification_Reset()
+        _Text_Queue_String = PapyrusUtil.StringArray(0)
+        _Text_Queue_Color = PapyrusUtil.IntArray(0)
+    EndFunction
+
     Bool Function _NextNotification()
         If _Text_Queue_String.Length == 0
             Return False
@@ -1295,17 +1283,6 @@ State iWidgetInstalled
         Else
             iWidget.setTransparency(data.Id, data.Alpha)
         EndIf
-    EndFunction
-    
-    ; Update all icons after switching between states
-    Function StatusEffect_AllUpdate()
-;        Int i = _Icons_Name.Length
-;        While i > 0
-;            i -= 1
-;            StatusEffect_SetVisible(_Icons_Name[i], _Icons_Visible[i])
-;            StatusEffect_SetMagnitude(_Icons_Name[i], _Icons_Magnitude[i])
-;            StatusEffect_SetBlink(_Icons_Name[i], _Icons_Blinking[i])
-;        EndWhile
     EndFunction
     
     Function _SetIconRGB(Int aiWidget, Int aiMagnitude)
