@@ -23,6 +23,10 @@ Function onRemoveDevicePost(Actor akActor)
     parent.onRemoveDevicePost(akActor)
 EndFunction
 
+float Function getAccesibility() ;return accesibility of device in range 0.0 - 1.0
+    return 1.0 ;HB should allways be accessible
+EndFunction
+
 ;============================================================================================================================
 ;unused override function, theese are from base script. Extending different script means you also have to add their overrride functions                                                
 ;theese function should be on every object instance, as not having them may cause multiple function calls to default class
@@ -78,9 +82,6 @@ Function OnMinigameTick3() ;called every 3s of minigame
 EndFunction
 Function OnCritFailure() ;called on crit failure (wrong key pressed)
     parent.OnCritFailure()
-EndFunction
-float Function getAccesibility() ;return accesibility of device in range 0.0 - 1.0
-    return parent.getAccesibility()
 EndFunction
 Function OnDeviceCutted() ;called when device is cutted
     parent.OnDeviceCutted()
