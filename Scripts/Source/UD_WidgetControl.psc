@@ -26,16 +26,19 @@ Bool                        Property UD_UseIWantWidget  Hidden
     Function Set(Bool abValue)
         If _UD_UseIWantWidget != abValue
             _UD_UseIWantWidget = abValue
-            SwitchStates(abGameLoad = False)
+            OnInterfaceSwitch(abGameLoad = False)
         EndIf
     EndFunction
 EndProperty
 
-;exist
+; vanilla widgets
 UD_WidgetBase               Property UD_Widget1 auto
+{Vanilla Device widget}
 UD_WidgetBase               Property UD_Widget2 auto
+{Vanilla Orgasm widget}
 
 iWant_Widgets Property iWidget Hidden
+{iWidget quest}
     iWant_Widgets Function Get()
         return (UDmain.iWidgetQuest as iWant_Widgets)
     EndFunction
@@ -47,7 +50,7 @@ Bool Property UD_AutoAdjustWidget Hidden
     Function Set(Bool abVal)
         _AutoAdjustWidget = abVal
         if !_AutoAdjustWidget
-            ;Reininit widgets
+            ; Rebuild widgets
             InitWidgetsRequest(abMeters = True)
         endif
     EndFunction
@@ -58,9 +61,10 @@ EndProperty
 
 ; overlay settings
 
+; vertical spacing between widgets, measured in their heights
 Float Property UD_MeterVertPadding = 1.25 Auto   Hidden
 
-; enable device icons
+; enable device icons (W_ICON_CLUSTER_DEVICES)
 Bool _UD_EnableDeviceIcons = True
 Bool Property UD_EnableDeviceIcons Hidden
     Bool Function Get()
@@ -74,15 +78,15 @@ Bool Property UD_EnableDeviceIcons Hidden
     EndFunction
 EndProperty
 
-; enable effect icons
-Bool _UD_EnableEffectIcons = True
-Bool Property UD_EnableEffectIcons Hidden
+; enable (de)buffs icons (W_ICON_CLUSTER_EFFECTS)
+Bool _UD_EnableDebuffIcons = True
+Bool Property UD_EnableDebuffIcons Hidden
     Bool Function Get()
-        Return _UD_EnableEffectIcons
+        Return _UD_EnableDebuffIcons
     EndFunction
     Function Set(Bool abValue)
-        If _UD_EnableEffectIcons != abValue
-            _UD_EnableEffectIcons = abValue
+        If _UD_EnableDebuffIcons != abValue
+            _UD_EnableDebuffIcons = abValue
             InitWidgetsRequest(abIcons = True)
         EndIf
     EndFunction
@@ -102,7 +106,7 @@ Bool Property UD_EnableCNotifications Hidden
     EndFunction
 EndProperty
 
-; text font size
+; notification text font size
 Int _UD_TextFontSize = 24
 Int Property UD_TextFontSize Hidden
     Int Function Get()
@@ -116,7 +120,7 @@ Int Property UD_TextFontSize Hidden
     EndFunction
 EndProperty
 
-Int                         Property    UD_TextLineLength           = 100   Auto    Hidden      ; length of line in text notification (not implemented)
+Int                         Property    UD_TextLineLength           = 100   Auto    Hidden      ; length of line in text notification
 Int                         Property    UD_TextReadSpeed            = 20    Auto    Hidden      ; how long notification will be on the screen (symbols per second)
 Int                         Property    UD_TextOutlineShift         = 1     Auto    Hidden      ; text outline shift
 Bool                        Property    UD_FilterVibNotifications   = True  Auto    Hidden      ; remove redundant notifications from vibrators
@@ -149,7 +153,7 @@ Int Property UD_TextPadding Hidden
     EndFunction
 EndProperty
 
-; effect icon size
+; status effect icon size
 Int _UD_IconsSize = 60
 Int Property UD_IconsSize Hidden
     Int Function Get()
@@ -239,11 +243,6 @@ Float HUDMeterHeight
 ; HUD's paddings
 Float HUDPaddingX
 Float HUDPaddingY
-; request to init widgets (see OnUpdate function)
-Bool _InitMetersRequested = False
-Bool _InitIconsRequested = False
-Bool _InitTextRequested = False
-Bool _InitAfterLoadGame = False
 
 Bool Property Ready = False auto
 
@@ -272,7 +271,7 @@ Event OnUpdate()
         StatusEffect_SetPosition("dd-plug-anal", W_ICON_CLUSTER_DEVICES)
         StatusEffect_SetPosition("effect-exhaustion", W_ICON_CLUSTER_EFFECTS, 2)
         StatusEffect_SetPosition("effect-orgasm", W_ICON_CLUSTER_EFFECTS, 2)
-        SwitchStates(abGameLoad = False)
+        OnInterfaceSwitch(abGameLoad = False)
         InitWidgetsRequest(abGameLoad = False, abMeters = True, abIcons = True, abText = True)
     EndIf
 EndEvent
@@ -284,10 +283,12 @@ Function Update()
     StatusEffect_SetPosition("dd-plug-anal", W_ICON_CLUSTER_DEVICES)
     StatusEffect_SetPosition("effect-exhaustion", W_ICON_CLUSTER_EFFECTS)
     StatusEffect_SetPosition("effect-orgasm", W_ICON_CLUSTER_EFFECTS)
-    SwitchStates(abGameLoad = True)
+    OnInterfaceSwitch(abGameLoad = True)
 EndFunction
 
-Function SwitchStates(Bool abGameLoad)
+; In this function, switching between different interface options is checked and processed.
+; abGameLoad        - if it called after game load
+Function OnInterfaceSwitch(Bool abGameLoad)
     if UDmain.UseiWW()
         GoToState("iWidgetInstalled")
         UD_Widget1.hide(true)
@@ -326,6 +327,18 @@ Function RefreshCanvasMetrics()
     HUDPaddingY = hud_padding
 EndFunction
 
+; request to init widgets (see OnUpdate function)
+Bool _InitMetersRequested = False
+Bool _InitIconsRequested = False
+Bool _InitTextRequested = False
+Bool _InitAfterLoadGame = False
+; Function for asynchronous interface rebuilding
+; The interface will be rebuilt in the next call to the OnUpdate function.
+; See functions: InitWidgetsCheck, InitMeters, InitIcons, InitText
+; abGameLoad        - if it called after game load then all saved widgets IDs are invalid.
+; abMeters          - rebuild meter widgets
+; abIcons           - reduild icons
+; abText            - reduild notification lines
 Function InitWidgetsRequest(Bool abGameLoad = False, Bool abMeters = False, Bool abIcons = False, Bool abText = False)
     UDmain.Log("UD_WidgetControl::InitWidgetsRequest() abGameLoad = " + abGameLoad + " , abMeters = " + abMeters + " , abIcons = " + abIcons + " , abText = " + abText, 3)
     _InitAfterLoadGame = _InitAfterLoadGame || abGameLoad
@@ -334,19 +347,33 @@ Function InitWidgetsRequest(Bool abGameLoad = False, Bool abMeters = False, Bool
     _InitTextRequested = _InitTextRequested || abText
     RegisterForSingleUpdate(0.5)
 EndFunction
+
+; This function checks the flags previously set by the InitWidgetsRequest function and calls methods to rebuild the interface
+; See functions: InitMeters, InitIcons, InitText
+; abGameLoad        - if it called after game load
 Function InitWidgetsCheck(Bool abGameLoad = False)
 EndFunction
+
+; Rebuild meter widgets
+; abGameLoad        - if it called after game load
 Bool Function InitMeters(Bool abGameLoad = False)
 EndFunction
+
+; Rebuild icons
+; abGameLoad        - if it called after game load
 Bool Function InitIcons(Bool abGameLoad = False)
 EndFunction
+; Rebuild text lines
+; abGameLoad        - if it called after game load
 Bool Function InitText(Bool abGameLoad = False)
 EndFunction
+
+; Sets all settings to its default values
 Function ResetToDefault()
     UD_AutoAdjustWidget             = False
     UD_UseIWantWidget               = True
     UD_EnableDeviceIcons            = True
-    UD_EnableEffectIcons            = True
+    UD_EnableDebuffIcons            = True
     UD_EnableCNotifications         = True
     UD_TextFontSize                 = 24
     UD_TextLineLength               = 100
@@ -407,6 +434,9 @@ Function Flash_OrgasmWidget()
     UD_Widget2.Flash()
 EndFunction
 
+; Array with slots for meter widgets
+UD_WidgetMeter_RefAlias[]           Property    MeterSlots            Auto
+
 ;iWidget variables, should not be used ifiWidget is not installed
 Int     _Widget_DeviceDurability            = -1
 Bool    _Widget_DeviceDurability_Visible    = False
@@ -445,6 +475,7 @@ Float       _Text_Duration                          ; how long to display text o
 String[]    _Text_Queue_String                      ; notifications queue: text
 Int[]       _Text_Queue_Color                       ; notifications queue: color
 
+; Array with slots for status effect icons
 UD_WidgetStatusEffect_RefAlias[]    Property    StatusEffectSlots     Auto
 
 Int         _Widget_Icon_Inactive_Color             = 0xFFFFFF      ; Gray          Color of innactive effect
@@ -628,7 +659,7 @@ EndFunction
 
 Function _UpdateMeterColor(Int aiId,int aiColor,int aiColor2 = 0,int aiFlashColor = 0xFFFFFF)
 EndFunction
-Int[] Function _AddWidget(Int[] aaiGroup, Int aiWidget, Float fVerticalOffset, Int akPerc = 0, Int akCol1 = 0x0, Int akCol2 = 0x0, Int akCol3 = 0xFFFFFFFF)
+Int[] Function _AddMeterWidget(Int[] aaiGroup, Int aiWidget, Float fVerticalOffset, Int akPerc = 0, Int akCol1 = 0x0, Int akCol2 = 0x0, Int akCol3 = 0xFFFFFFFF)
 EndFunction
 Function _SetIconRGB(Int aiWidget, Int aiRGB)
 EndFunction
@@ -676,7 +707,7 @@ UD_WidgetStatusEffect_RefAlias Function _GetStatusEffect(String asName, Bool abF
             k += 1
         EndWhile
         _FindEmpty_Mutex = False
-        UDMain.Info("UD_WidgetControl::_GetStatusEffect() No more slots for the status effect icons!")
+        UDMain.Warning("UD_WidgetControl::_GetStatusEffect() No more slots for the status effect icons!")
     EndIf
     Return None
 EndFunction
@@ -735,6 +766,7 @@ State iWidgetInstalled
     
     Bool Function InitMeters(Bool abGameLoad = False)
         _InitMetersMutex = True
+        Utility.Wait(0.2)                   ; waiting for the end of all UpdatePercent_***Widget calls
         If abGameLoad
         ; clearing all IDs without destroying
             _Widget_DeviceDurability = -1
@@ -757,19 +789,19 @@ State iWidgetInstalled
         If _Widget_DeviceDurability == 0
             Return False
         EndIf
-        _WidgetsID = _AddWidget(_WidgetsID, _Widget_DeviceDurability, 0*UD_MeterVertPadding, _Widget_DeviceDurability_Perc, _Widget_DeviceDurability_Color, _Widget_DeviceDurability_Color2, _Widget_DeviceDurability_Color3)
+        _WidgetsID = _AddMeterWidget(_WidgetsID, _Widget_DeviceDurability, 0*UD_MeterVertPadding, _Widget_DeviceDurability_Perc, _Widget_DeviceDurability_Color, _Widget_DeviceDurability_Color2, _Widget_DeviceDurability_Color3)
         
         _Widget_DeviceCondition = iWidget.loadMeter()
         If _Widget_DeviceCondition == 0
             Return False
         EndIf
-        _WidgetsID = _AddWidget(_WidgetsID, _Widget_DeviceCondition, 1.0*UD_MeterVertPadding, _Widget_DeviceCondition_Perc, _Widget_DeviceCondition_Color, _Widget_DeviceCondition_Color2, _Widget_DeviceCondition_Color3)
+        _WidgetsID = _AddMeterWidget(_WidgetsID, _Widget_DeviceCondition, 1.0*UD_MeterVertPadding, _Widget_DeviceCondition_Perc, _Widget_DeviceCondition_Color, _Widget_DeviceCondition_Color2, _Widget_DeviceCondition_Color3)
         
         _Widget_Orgasm = iWidget.loadMeter()
         If _Widget_Orgasm == 0
             Return False
         EndIf
-        _WidgetsID = _AddWidget(_WidgetsID, _Widget_Orgasm, 2.0*UD_MeterVertPadding, _Widget_Orgasm_Perc, _Widget_Orgasm_Color, _Widget_Orgasm_Color2, _Widget_Orgasm_Color3)
+        _WidgetsID = _AddMeterWidget(_WidgetsID, _Widget_Orgasm, 2.0*UD_MeterVertPadding, _Widget_Orgasm_Perc, _Widget_Orgasm_Color, _Widget_Orgasm_Color2, _Widget_Orgasm_Color3)
 
         iWidget.setVisible(_Widget_DeviceDurability, _Widget_DeviceDurability_Visible As Int)
         iWidget.setVisible(_Widget_DeviceCondition, _Widget_DeviceCondition_Visible As Int)
@@ -888,7 +920,7 @@ State iWidgetInstalled
                     ElseIf data.Cluster == W_ICON_CLUSTER_EFFECTS                                   ; effect cluster
                         x = CalculateGroupXPos(W_POSX_LEFT) + UD_IconsPadding + (UD_IconsSize * (-0.55 + 1.1 * (index1 % 2))) As Int
                         y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (1.1 + 1.1 * (index1 / 2))) As Int
-                        data.Enabled = UD_EnableEffectIcons
+                        data.Enabled = UD_EnableDebuffIcons
                         index1 += 1
                     EndIf
                     _CreateIconWidget(data, x, y, 75)
@@ -920,7 +952,7 @@ State iWidgetInstalled
                     ElseIf data.Cluster == W_ICON_CLUSTER_EFFECTS                                   ; effect cluster
                         x = CalculateGroupXPos(W_POSX_CENTER) + 300 + UD_IconsPadding + (UD_IconsSize * (-0.55 + 1.1 * (index1 % 2))) As Int
                         y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (-0.55 * (Math.Ceiling((cluster1_count as Float) / 2.0) - 1) + 1.1 * (index1 / 2))) As Int
-                        data.Enabled = UD_EnableEffectIcons
+                        data.Enabled = UD_EnableDebuffIcons
                         index1 += 1
                     EndIf
                     _CreateIconWidget(data, x, y, 75)
@@ -941,7 +973,7 @@ State iWidgetInstalled
                     ElseIf data.Cluster == W_ICON_CLUSTER_EFFECTS                                   ; effect cluster
                         x = CalculateGroupXPos(W_POSX_RIGHT) - UD_IconsPadding - (UD_IconsSize * (-0.55 + 1.1 * (index1 % 2))) As Int
                         y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (1.1 + 1.1 * (index1 / 2))) As Int
-                        data.Enabled = UD_EnableEffectIcons
+                        data.Enabled = UD_EnableDebuffIcons
                         index1 += 1
                     EndIf
                     _CreateIconWidget(data, x, y, 75)
@@ -955,8 +987,8 @@ State iWidgetInstalled
     EndFunction
     
     ; fVerticalOffset       - offset in meter's heights
-    Int[] Function _AddWidget(Int[] aaiGroup, Int aiWidget, Float fVerticalOffset, Int akPerc = 0, Int akCol1 = 0x0, Int akCol2 = 0x0, Int akCol3 = 0xFFFFFFFF)
-        UDMain.Log("UD_WidgetControl::_AddWidget() aiWidget = " + aiWidget, 3)
+    Int[] Function _AddMeterWidget(Int[] aaiGroup, Int aiWidget, Float fVerticalOffset, Int akPerc = 0, Int akCol1 = 0x0, Int akCol2 = 0x0, Int akCol3 = 0xFFFFFFFF)
+        UDMain.Log("UD_WidgetControl::_AddMeterWidget() aiWidget = " + aiWidget, 3)
         iWidget.setSize(aiWidget, HUDMeterHeight as Int, HUDMeterWidth as Int)
         ; on the top position we stack widgets from top to the bottom
         If UD_WidgetYPos == 2

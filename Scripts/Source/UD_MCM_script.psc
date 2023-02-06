@@ -722,7 +722,7 @@ Int UD_TextLineLength_S
 Int UD_FilterVibNotifications_T
 Int UD_EnableCNotifications_S
 Int UD_EnableDeviceIcons_S
-Int UD_EnableEffectIcons_S
+Int UD_EnableDebuffIcons_S
 Int UD_IconsSize_S
 Int UD_IconsAnchor_M
 String[] UD_IconsAnchorList
@@ -769,14 +769,14 @@ Event resetUIWidgetPage()
     UD_TextAnchor_M = addMenuOption("Notifications base position", UD_TextAnchorList[UDWC.UD_TextAnchor], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableCNotifications))
     UD_TextPadding_S = addSliderOption("Notifications offset", UDWC.UD_TextPadding, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableCNotifications))
     UD_EnableDeviceIcons_S = AddToggleOption("Show DD icons", UDWC.UD_EnableDeviceIcons, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
-    UD_EnableEffectIcons_S = AddToggleOption("Show effect icons", UDWC.UD_EnableEffectIcons, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
-    UD_IconsSize_S = addSliderOption("Icon size", UDWC.UD_IconsSize, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && (UDWC.UD_EnableDeviceIcons || UDWC.UD_EnableEffectIcons)))
+    UD_EnableDebuffIcons_S = AddToggleOption("Show effect icons", UDWC.UD_EnableDebuffIcons, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    UD_IconsSize_S = addSliderOption("Icon size", UDWC.UD_IconsSize, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && (UDWC.UD_EnableDeviceIcons || UDWC.UD_EnableDebuffIcons)))
     If UDWC.UD_IconsAnchor < 0 || UDWC.UD_IconsAnchor > 2
         UDMain.Warning("UD_MCM_script::resetUIWidgetPage() WTF! UDWC.UD_IconsAnchor = " + UDWC.UD_IconsAnchor)
         UDWC.UD_IconsAnchor = 1
     EndIf
-    UD_IconsAnchor_M = addMenuOption("Icons base position", UD_IconsAnchorList[UDWC.UD_IconsAnchor], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && (UDWC.UD_EnableDeviceIcons || UDWC.UD_EnableEffectIcons)))
-    UD_IconsPadding_S = addSliderOption("Icons offset", UDWC.UD_IconsPadding, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && (UDWC.UD_EnableDeviceIcons || UDWC.UD_EnableEffectIcons)))
+    UD_IconsAnchor_M = addMenuOption("Icons base position", UD_IconsAnchorList[UDWC.UD_IconsAnchor], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && (UDWC.UD_EnableDeviceIcons || UDWC.UD_EnableDebuffIcons)))
+    UD_IconsPadding_S = addSliderOption("Icons offset", UDWC.UD_IconsPadding, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && (UDWC.UD_EnableDeviceIcons || UDWC.UD_EnableDebuffIcons)))
     
     Int variant_index = UDWC.StatusEffect_GetVariant("effect-exhaustion")
     String variant_str = ""
@@ -788,7 +788,7 @@ Event resetUIWidgetPage()
         variant_err = False
         variant_str = UD_IconVariant_EffExhaustionList[variant_index]
     EndIf
-    UD_IconVariant_EffExhaustion_M = addMenuOption("Struggle exhaustion icon variant", variant_str, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableEffectIcons && !variant_err))
+    UD_IconVariant_EffExhaustion_M = addMenuOption("Struggle exhaustion icon variant", variant_str, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableDebuffIcons && !variant_err))
     variant_index = UDWC.StatusEffect_GetVariant("effect-orgasm")
     If variant_index < 0 || variant_index >= UD_IconVariant_EffOrgasmList.Length
         variant_str = "ERROR"
@@ -797,7 +797,7 @@ Event resetUIWidgetPage()
         variant_err = False
         variant_str = UD_IconVariant_EffOrgasmList[variant_index]
     EndIf
-    UD_IconVariant_EffOrgasm_M = addMenuOption("Orgasm icon variant", variant_str, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableEffectIcons && !variant_err))
+    UD_IconVariant_EffOrgasm_M = addMenuOption("Orgasm icon variant", variant_str, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableDebuffIcons && !variant_err))
     
     UD_WidgetTest_T = AddTextOption("TEST WIDGETS", "-CLICK-", a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
     UD_WidgetReset_T = AddTextOption("RESET UI", "-CLICK-", a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
@@ -1506,9 +1506,9 @@ Function OptionSelectUiWidget(int option)
         UDWC.UD_EnableDeviceIcons = !UDWC.UD_EnableDeviceIcons
         SetToggleOptionValue(UD_EnableDeviceIcons_S, UDWC.UD_EnableDeviceIcons)
         forcePageReset()
-    ElseIf option == UD_EnableEffectIcons_S
-        UDWC.UD_EnableEffectIcons = !UDWC.UD_EnableEffectIcons
-        SetToggleOptionValue(UD_EnableEffectIcons_S, UDWC.UD_EnableEffectIcons)
+    ElseIf option == UD_EnableDebuffIcons_S
+        UDWC.UD_EnableDebuffIcons = !UDWC.UD_EnableDebuffIcons
+        SetToggleOptionValue(UD_EnableDebuffIcons_S, UDWC.UD_EnableDebuffIcons)
         forcePageReset()
     ElseIf option == UD_WidgetTest_T
         closeMCM()
@@ -3277,8 +3277,8 @@ Function UiWidgetPageInfo(int option)
         SetInfoText("Toggle to enable customized text notifications.\nDefault: ON")
     ElseIf option == UD_EnableDeviceIcons_S
         SetInfoText("Toggle to enable icons for 'installed' devious devices.\nDefault: ON")
-    ElseIf option == UD_EnableEffectIcons_S
-        SetInfoText("Toggle to enable icons for UD effects.\nDefault: ON")
+    ElseIf option == UD_EnableDebuffIcons_S
+        SetInfoText("Toggle to enable icons for UD (de)buffs.\nDefault: ON")
     ElseIf option == UD_IconsSize_S
         SetInfoText("Icon size.\nDefault: 60")
     ElseIf option == UD_IconsAnchor_M
@@ -3517,7 +3517,7 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "AutoAdjustWidget", UDWC.UD_AutoAdjustWidget as Int)
     JsonUtil.SetIntValue(strFile, "UseIWantWidget", UDWC.UD_UseIWantWidget as Int)
     JsonUtil.SetIntValue(strFile, "iWidgets_EnableDeviceIcons", UDWC.UD_EnableDeviceIcons as Int)
-    JsonUtil.SetIntValue(strFile, "iWidgets_EnableEffectIcons", UDWC.UD_EnableEffectIcons as Int)
+    JsonUtil.SetIntValue(strFile, "iWidgets_EnableEffectIcons", UDWC.UD_EnableDebuffIcons as Int)
     JsonUtil.SetIntValue(strFile, "iWidgets_EnableCNotifications", UDWC.UD_EnableCNotifications as Int)
     JsonUtil.SetIntValue(strFile, "iWidgets_TextFontSize", UDWC.UD_TextFontSize)
     JsonUtil.SetIntValue(strFile, "iWidgets_TextLineLength", UDWC.UD_TextLineLength)
@@ -3667,7 +3667,7 @@ Function LoadFromJSON(string strFile)
     UDWC.UD_AutoAdjustWidget = JsonUtil.GetIntValue(strFile, "AutoAdjustWidget", UDWC.UD_AutoAdjustWidget as Int)
     UDWC.UD_UseIWantWidget = JsonUtil.GetIntValue(strFile, "UseIWantWidget", UDWC.UD_UseIWantWidget as Int)
     UDWC.UD_EnableDeviceIcons = JsonUtil.GetIntValue(strFile, "iWidgets_EnableDeviceIcons", UDWC.UD_EnableDeviceIcons as Int)
-    UDWC.UD_EnableEffectIcons = JsonUtil.GetIntValue(strFile, "iWidgets_EnableEffectIcons", UDWC.UD_EnableEffectIcons as Int)
+    UDWC.UD_EnableDebuffIcons = JsonUtil.GetIntValue(strFile, "iWidgets_EnableEffectIcons", UDWC.UD_EnableDebuffIcons as Int)
     UDWC.UD_EnableCNotifications = JsonUtil.GetIntValue(strFile, "iWidgets_EnableCNotifications", UDWC.UD_EnableCNotifications as Int)
     UDWC.UD_TextFontSize = JsonUtil.GetIntValue(strFile, "iWidgets_TextFontSize", UDWC.UD_TextFontSize)
     UDWC.UD_TextLineLength = JsonUtil.GetIntValue(strFile, "iWidgets_TextLineLength", UDWC.UD_TextLineLength)
