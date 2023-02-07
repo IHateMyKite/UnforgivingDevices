@@ -58,7 +58,6 @@ EndFunction
 Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
     Float   loc_currentmult = UD_PatchMult_HeavyBondage*UD_PatchMult*GetPatchDifficulty(device)
     Int     loc_type        = 0
-    device.UD_LockAccessDifficulty = 100.0
     device.UD_CutChance = 0.0
 
     device.UD_ResistPhysical = Utility.randomFloat(-0.1,0.7)
@@ -67,7 +66,6 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
     device.UD_StruggleCritDuration = Utility.randomFloat(0.75,0.9)
     device.UD_StruggleCritChance = Utility.randomInt(8,15)
     device.UD_StruggleCritMul = Utility.randomFloat(3.0,8.0)
-    ;device.UD_LockpickDifficulty = 25*Utility.randomInt(1,3)
     
     int sentientModChance = 35
     device.UD_durability_damage_base = Utility.randomFloat(0.1,0.8)
@@ -98,11 +96,9 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
         loc_type = 17
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousCuffsFront)
         device.UD_durability_damage_base = fRange(Utility.randomFloat(0.3,0.8)/loc_currentmult,0.05,100.0)
-        device.UD_LockAccessDifficulty = iRange(Round(Utility.randomInt(70,80)*loc_currentmult),0,95)
         loc_type = 19
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousYoke) || device.deviceRendered.hasKeyword(libs.zad_DeviousYokeBB)
         device.UD_durability_damage_base = fRange(Utility.randomFloat(0.1,0.25)/loc_currentmult,0.05,100.0)
-        device.UD_LockAccessDifficulty = iRange(Round(Utility.randomInt(75,90)*loc_currentmult),0,95)
         loc_type = 18
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousElbowTie)
         device.UD_durability_damage_base = Utility.randomFloat(0.05,0.1)
@@ -111,7 +107,6 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
         loc_type = 22
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousPetSuit)
         device.UD_durability_damage_base = fRange(Utility.randomFloat(0.9,1.4)/loc_currentmult,0.05,100.0)
-        device.UD_LockAccessDifficulty = iRange(Round(Utility.randomInt(60,80)*loc_currentmult),0,95)
         device.UD_CutChance = fRange(Utility.randomFloat(2.0,5.0)/loc_currentmult,1.0,50.0)
         sentientModChance = 75
         loc_type = 21
@@ -123,12 +118,6 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
     if (StringUtil.find(device.deviceInventory.getName(),"High Security") != -1 || StringUtil.find(device.deviceInventory.getName(),"Secure") != -1)
         device.UD_durability_damage_base = fRange(device.UD_durability_damage_base/4.0,0.05,100.0)
         device.UD_StruggleCritDuration = 0.5
-        ;device.UD_Locks = UD_MinLocks
-        ;device.UD_LockpickDifficulty = 100
-        ;if device.UD_LockAccessDifficulty < 85
-        ;    device.UD_LockAccessDifficulty = 85
-        ;endif
-        
         device.UD_ResistPhysical = Utility.randomFloat(0.5,0.9)
         device.UD_ResistMagicka = Utility.randomFloat(-0.3,1.0)
     endif
@@ -574,9 +563,6 @@ Function CheckCutting(UD_CustomDevice_RenderScript device,int iChanceNone = 0)
 EndFunction
 
 Function patchDefaultValues(UD_CustomDevice_RenderScript device,Float fMult)
-    ;CheckLocks(device,false,40)
-    device.UD_LockpickDifficulty = 25*Utility.randomInt(1,3)
-    device.UD_LockAccessDifficulty = Utility.randomFloat(40.0,70.0) + 20*(fMult - 1.0)
     device.UD_base_stat_drain = Utility.randomFloat(7.0,13.0)
     device.UD_durability_damage_base = fRange(Utility.randomFloat(0.7,1.3)/fMult,0.05,100.0)
     device.UD_ResistPhysical = Utility.randomFloat(-0.5,0.9)

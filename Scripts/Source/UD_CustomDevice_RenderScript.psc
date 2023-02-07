@@ -52,7 +52,7 @@ int _deviceControlBitMap_5 = 0x00000000 ;INT (mutex1)
 
 ; === _deviceControlBitMap_6 === (mutex1)
 ;00 - 06 =  7b (0000 0000 0000 0000 0000 0000 0XXX XXXX)(0x007F), UD_StruggleCritChance
-;07 - 14 =  8b (0000 0000 0000 0000 0XXX XXXX X000 0000)(0x00FF), UD_LockpickDifficulty
+;07 - 14 =  8b (0000 0000 0000 0000 0XXX XXXX X000 0000)(0x00FF), UNUSED
 ;15 - 19 =  5b (0000 0000 0000 XXXX X000 0000 0000 0000)(0x003F), UD_Locks
 ;20 - 26 =  7b (0000 0XXX XXXX 0000 0000 0000 0000 0000)(0x007F), UD_CutChance
 ;27 - 31 =  5b (XXXX X000 0000 0000 0000 0000 0000 0000)(0x001F), UD_base_stat_drain
@@ -99,10 +99,9 @@ int _deviceControlBitMap_11 = 0x1F4FFFFF
 
 ; === _deviceControlBitMap_12 === (mutex3)
 ;00 - 07 =  8b (0000 0000 0000 0000 0000 0000 XXXX XXXX)(0x00FF), _exhaustion_mult_helper
-;08 - 14 =  7b (0000 0000 0000 0000 0XXX XXXX 0000 0000)(0x007F), UD_LockAccessDifficulty
-;15 - 24 = 10b (0000 000X XXXX XXXX X000 0000 0000 0000)(0x01FF), UD_StruggleCritMul, defualt value 4x (0x0F)
+;15 - 24 = 10b (0000 000X XXXX XXXX X000 0000 0000 0000)(0x03FF), UD_StruggleCritMul, defualt value 4x (0x0F)
 ;25 - 27 =  3b (0000 XXX0 0000 0000 0000 0000 0000 0000)(0x0007), UD_StruggleCritDuration, default value 1s (0x5)
-;28 - 31 =  4b (XXXX 0000 0000 0000 0000 0000 0000 0000)(0x000F), !UNUSED!
+;X  -  X =  Xb (XXXX 0000 0000 0000 0XXX XXXX 0000 0000)(0x000F), !UNUSED!
 int _deviceControlBitMap_12 = 0x0A078000
 
 ; === _deviceControlBitMap_13 === (mutex3)
@@ -260,18 +259,7 @@ float       Property UD_CutChance                                           ;cha
         return decodeBit(_deviceControlBitMap_6,7,20)
     EndFunction
 EndProperty
-float       Property UD_LockAccessDifficulty                                ;chance of reaching the lock for every 1s of minigame, 100. is unreachable
-    Function set(float fVal)
-        startBitMapMutexCheck3()
-        _deviceControlBitMap_12 = codeBit(_deviceControlBitMap_12,Round(fRange(fVal,0.0,100.0)),7,8)
-        endBitMapMutexCheck3()
-    EndFunction
-    
-    float Function get()
-        return decodeBit(_deviceControlBitMap_12,7,8)
-    EndFunction
-EndProperty
-float       Property UD_StruggleCritMul                                     ;crit multiplier applied on crit, step = 0.25, max 255
+float       Property UD_StruggleCritMul                                     ;crit multiplier applied on crit, step = 0.25, max 255, default 3.75x
     Function set(float fVal)
         startBitMapMutexCheck3()
         _deviceControlBitMap_12 = codeBit(_deviceControlBitMap_12,Round(fRange(fVal,0.0,255.0)*4),10,15)
@@ -304,32 +292,9 @@ int         Property UD_StruggleCritChance                                  ;cha
         return decodeBit(_deviceControlBitMap_6,7,0)
     EndFunction
 EndProperty
-int         Property UD_LockpickDifficulty                                  ;1 = Novice, 25 = Apprentice, 50 = Adept,75 = Expert,100 = Master,255 = Requires Key, range 1-255
-    Function set(int iVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_6 = codeBit(_deviceControlBitMap_6,iRange(iVal,1,255),8,7)
-        endBitMapMutexCheck()
-    EndFunction
-    
-    int Function get()
-        int loc_difficutly = decodeBit(_deviceControlBitMap_6,8,7)
-        if loc_difficutly < 100
-            ;increase difficulty based on device level
-            if UDCDMain.UD_PreventMasterLock
-                loc_difficutly = iRange(loc_difficutly + Round(UDCDMain.UD_DeviceLvlLockpick*(UD_Level - 1)),1,75) ;increase lockpick difficulty
-            else
-                loc_difficutly = iRange(loc_difficutly + Round(UDCDMain.UD_DeviceLvlLockpick*(UD_Level - 1)),1,100) ;increase lockpick difficulty
-            endif
-        endif
-
-        return loc_difficutly
-    EndFunction
-EndProperty
 
 int         Property UD_Cooldown                    = 0             auto    ;Device cooldown, in minutes. Device will activate itself on after this time (if it can), zero or negative value will disable this feature
 Float       Property UD_DefaultHealth               = 100.0         auto    ;default max device durability on first level, for now always 100
-string      Property UD_ActiveEffectName            = "Share"       auto    ;name of active effect
-string      Property UD_DeviceType                  = "Generic"     auto    ;name of active effect
 string[]    Property UD_Modifiers                                   auto    ;modifiers
 Message     Property UD_MessageDeviceInteraction                    auto    ;messagebox that is shown when player click on device in inventory
 Message     Property UD_MessageDeviceInteractionWH                  auto    ;messagebox that is shown when player click on device in NPC inventory
@@ -441,9 +406,11 @@ UD_AnimationManagerScript   Property UDAM       Hidden ;animation libs
     EndFunction 
 EndProperty
 
-String[] Property UD_DeviceStruggleKeywords Auto    Hidden ;keywords (as string array) used to filter struggle animations
-Armor    Property DeviceRendered            auto    hidden ;Is taken from ID
-Keyword  Property UD_DeviceKeyword          auto    hidden ;keyword of this device for better manipulation. Is taken from ID
+String[] Property UD_DeviceStruggleKeywords                     auto Hidden ;keywords (as string array) used to filter struggle animations
+Armor    Property DeviceRendered                                auto hidden ;Is taken from ID
+Keyword  Property UD_DeviceKeyword                              auto hidden ;keyword of this device for better manipulation. Is taken from ID
+string   Property UD_ActiveEffectName           = "Share"       auto hidden ;name of active effect
+string   Property UD_DeviceType                 = "Generic"     auto hidden ;name of the device type
 
 zadlibs_UDPatch         Property libsp              hidden
     zadlibs_UDPatch Function get()
