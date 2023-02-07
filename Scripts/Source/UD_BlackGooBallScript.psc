@@ -19,7 +19,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
             if UD_Type == 0 ;abadon hand restrain
                 UDmain.UDAbadonQuest.EquipAbadonDevices(loc_victim, UD_MinDevices, UD_MaxDevices)
             elseif UD_Type == 1 ;abadon suit
-                UDmain.UDAbadonQuest.AbadonEquipSuit(loc_victim,0)
+                UDmain.UDAbadonQuest.AbadonEquipSuit(loc_victim,UDmain.UDAbadonQuest.final_finisher_pref)
             elseif UD_Type == 2 ;purified goo
                 UDmain.UDRRM.LockAnyRandomRestrain(loc_victim,Utility.RandomInt(UD_MinDevices, UD_MaxDevices))
             endif

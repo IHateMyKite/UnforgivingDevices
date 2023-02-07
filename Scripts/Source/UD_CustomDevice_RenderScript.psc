@@ -1483,7 +1483,7 @@ EndFunction
 ;====GETTERS====
 ; Bool      HaveLocks()                                 = return true if device have locks
 ; Bool      HaveLockedLocks()                           = return true if any of the locks is not unlocked
-; Bool      HveLockpickableLocks()                      = returns true if device have at least one lock which can be lockpicked
+; Bool      HaveLockpickableLocks()                      = returns true if device have at least one lock which can be lockpicked
 ; Int       GetLockedLocks()                            = return number of currently locked locks or 0 if there is error
 ; Int       GetJammedLocks()                            = return number of currently jammed locks or 0 if there is error
 ; String[]  GetLockList()                               = return string array of lock names. This is what is shown to player when selecting lock, or return none in case of error
@@ -1740,6 +1740,15 @@ Bool Function IsNthLockUnlocked(Int aiLockIndex)
         return decodeBit(loc_Lock,1,0)
     else
         return False ;return false as error value
+    endif
+EndFunction
+
+;returns true if the Nth lock is unlocked, or false if no Nth lock exist or is invalid
+Bool Function IsNthLockLockpicable(Int aiLockIndex)
+    if iInRange(GetNthLockDifficulty(aiLockIndex),1,100)
+        return True ;lock can be lockpicked
+    else
+        return False ;lock can't be lockpicked
     endif
 EndFunction
 
@@ -2098,33 +2107,53 @@ EndFunction
 Int Function SelectBestMinigameLock(Int aiType)
     if HaveLocks()
         if aiType == 1 ;keyunlock minigame
-            Int loc_bestLock = 0
-            Int loc_LockNum = GetLockNumber()
-            Int loc_i = 0
+            Int loc_bestLock    = -1
+            Int loc_LockNum     = GetLockNumber()
+            Int loc_i           = 0
             while loc_i < loc_LockNum
-                if loc_i != loc_bestLock && !IsNthLockJammed(loc_i)
-                    Int loc_acc        = GetNthLockAccessibility(loc_i)
-                    Int loc_accBest    = GetNthLockAccessibility(loc_bestLock)
-                    if loc_acc > (loc_accBest + 25) || loc_acc == loc_accBest ;selected lock have bigger accessibility, by at least 25
+                if !IsNthLockUnlocked(loc_i) && !IsNthLockJammed(loc_i)
+                    if loc_bestLock == -1
                         loc_bestLock = loc_i
+                    else
+                        Int loc_acc        = GetNthLockAccessibility(loc_i)
+                        Int loc_accBest    = GetNthLockAccessibility(loc_bestLock)
+                        if loc_acc > loc_accBest ;selected lock have bigger accessibility
+                            loc_bestLock = loc_i
+                        endif
                     endif
                 endif
                 loc_i += 1
             endwhile
             return loc_bestLock
         elseif aiType == 0 || aiType == 2 ;lockpick or repair minigame
-            Int loc_bestLock = 0
-            Int loc_LockNum = GetLockNumber()
-            Int loc_i = 0
+            Int loc_bestLock    = -1
+            Int loc_LockNum     = GetLockNumber()
+            Int loc_i           = 0
             while loc_i < loc_LockNum
-                if loc_i != loc_bestLock && ((aiType == 0 && !IsNthLockJammed(loc_i)) || (aiType == 2 && IsNthLockJammed(loc_i))) 
-                    Int loc_diff        = GetNthLockDifficulty(loc_i)
-                    Int loc_diffBest    = GetNthLockDifficulty(loc_bestLock)
-                    if loc_diff <= loc_diffBest ;selected lock is easier to lockpick then current best lock
-                        Int loc_acc        = GetNthLockAccessibility(loc_i)
-                        Int loc_accBest    = GetNthLockAccessibility(loc_bestLock)
-                        if loc_acc > (loc_accBest + 25) || loc_acc == loc_accBest ;selected lock have bigger accessibility, by at least 25
-                            loc_bestLock = loc_i
+                if !IsNthLockUnlocked(loc_i) && ((aiType == 0 && !IsNthLockJammed(loc_i) && IsNthLockLockpicable(loc_i)) || (aiType == 2 && IsNthLockJammed(loc_i)))
+                    if loc_bestLock == -1
+                        loc_bestLock = loc_i
+                    else
+                        ;local values
+                        Int loc_diff        = GetNthLockDifficulty(loc_i)
+                        Int loc_diffBest    = GetNthLockDifficulty(loc_bestLock)
+                        Int loc_acc         = GetNthLockAccessibility(loc_i)
+                        Int loc_accBest     = GetNthLockAccessibility(loc_bestLock)
+                        
+                        ;difference
+                        Int loc_dDiff       = (loc_diffBest - loc_diff) ;+ = good, - = bad
+                        Int loc_dAcc        = (loc_acc - loc_accBest)   ;+ = good, - = bad
+                        
+                        Int loc_ControlValue = 0
+                        ;calculate control value
+                        if aiType == 0
+                            loc_ControlValue = loc_dDiff + loc_dAcc
+                        elseif aiType == 1
+                            loc_ControlValue = loc_dAcc
+                        endif
+                        
+                        if loc_ControlValue > 0 ;selected lock is in total better
+                            loc_bestLock    = loc_i
                         endif
                     endif
                 endif
@@ -3134,7 +3163,7 @@ Int  Function NthLockMinigamesAllowed(Int aiLockID, Float afAccesibility)
             endif
             Int loc_Difficulty = GetNthLockDifficulty(aiLockID)
             ;lockpicking
-            if loc_Difficulty < 255 && (wearer.getItemCount(UDCDmain.Lockpick) > 0 || (_minigameHelper && _minigameHelper.getItemCount(UDCDmain.Lockpick))) 
+            if loc_Difficulty < 255 && (wearer.getItemCount(UDCDmain.Lockpick) || (_minigameHelper && _minigameHelper.getItemCount(UDCDmain.Lockpick))) 
                 loc_res += 1
             endif
         else
@@ -6177,12 +6206,17 @@ EndFunction
 
 ;choose the best minigame and start it. Returns false if minigame was not started
 Bool Function EvaluateNPCAI()
+    GInfo(GetDeviceHeader() + "::EvaluateNPCAI")
     Bool    loc_minigameStarted     = False
     Float   loc_durabilityBefore    = current_device_health
     Int     loc_LocksBefore         = UD_CurrentLocks
 
     ;50% chance to first check locks, then struggle
     if Utility.randomInt(0,1)
+        float   loc_accesibility    = 1.0
+        if !loc_minigameStarted
+            loc_accesibility        = getAccesibility()
+        endif
         Int loc_lockMinigames
         if !loc_minigameStarted
             loc_lockMinigames       = LockMinigameAllowed(loc_accesibility)
@@ -6204,10 +6238,6 @@ Bool Function EvaluateNPCAI()
             if lockpickMinigame(True)
                 loc_minigameStarted = True
             endif
-        endif
-        float   loc_accesibility    = 1.0
-        if !loc_minigameStarted
-            loc_accesibility        = getAccesibility()
         endif
         ;then try to struggle
         if !loc_minigameStarted && StruggleMinigameAllowed(loc_accesibility)
@@ -6379,19 +6409,17 @@ EndFunction
 
 float Function getAccesibility()
     float loc_res = 1.0
-    if !isHeavyBondage()
-        if (!WearerFreeHands() && !HelperFreeHands())
-            if isLoose()
-                loc_res = getLooseMod()
-            else
-                loc_res = 0.0
-            endif
-        elseif !isMittens()
-            if WearerHaveMittens() && (!HasHelper() || HelperHaveMittens())
-                loc_res = 0.5
-            else
-                loc_res = 1.0
-            endif
+    if (!WearerFreeHands() && !HelperFreeHands())
+        if isLoose()
+            loc_res = getLooseMod()
+        else
+            loc_res = 0.0
+        endif
+    elseif !isMittens()
+        if WearerHaveMittens() && (!_minigameHelper || HelperHaveMittens())
+            loc_res = 0.5
+        else
+            loc_res = 1.0
         endif
     endif
     return ValidateAccessibility(loc_res)
