@@ -82,11 +82,13 @@ bool Property Ready = false auto
 
 Event OnInit()
     Utility.waitMenuMode(2.5)
-    RegisterExpression("UDAroused")
-    RegisterExpression("UDOrgasm")
-    RegisterExpression("UDStruggleMinigame_Angry")
-    UDCDmain.Log("Expressions ready!")
+    RegisterForSingleUpdate(10.0) ;update expression manager on init
     Ready = true
+EndEvent
+
+;on init update
+Event OnUpdate()
+    Update()
 EndEvent
 
 Function Update()
