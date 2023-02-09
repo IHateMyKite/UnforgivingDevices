@@ -2624,7 +2624,6 @@ Function Receive_MinigameCritloop()
     _MinigameCritLoop_ON = false
 EndFunction
 
-bool                             _MinigameAVCheck_ON                        = false
 bool                             _MinigameAVCheck_Received                  = false
 UD_CustomDevice_RenderScript     _Send_MinigameAVCheck_Package_device       = none
 Function StartMinigameAVCheckLoop(UD_CustomDevice_RenderScript akDevice)
@@ -2632,7 +2631,6 @@ Function StartMinigameAVCheckLoop(UD_CustomDevice_RenderScript akDevice)
         UDCDmain.Error("StartMinigameAVCheckLoop wrong arg received!")
     endif
     
-    _MinigameAVCheck_ON = false
     String loc_EventName = "UDMinigameAVCheck_"+self
     ;send event
     int handle = ModEvent.Create(loc_EventName)
@@ -2658,14 +2656,12 @@ Function StartMinigameAVCheckLoop(UD_CustomDevice_RenderScript akDevice)
     UnRegisterForModEvent(loc_EventName)
 EndFunction
 Function _Receive_MinigameCritloop()
-    _MinigameAVCheck_ON = true
     UD_CustomDevice_RenderScript loc_device = _Send_MinigameAVCheck_Package_device
     _Send_MinigameAVCheck_Package_device    = none
     _MinigameAVCheck_Received               = true
     
     loc_device._MinigameParProc_4           = true
     
-    Actor akActor                           = GetActor()
     float loc_CurrentUpdateTime             = UDmain.UD_baseUpdateTime
     Bool  loc_HaveHelper                    = loc_device.hasHelper()
 
