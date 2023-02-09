@@ -431,11 +431,15 @@ bool Function PlayerInMinigame()
 EndFunction
 
 ;stops current device minigiame. Takes up to 1s second
-Function StopMinigame(Actor akActor)
+Function StopMinigame(Actor akActor, Bool abWaitForStop)
     if !akActor
         return
     endif
-    return akActor.RemoveFromFaction(MinigameFaction)
+    
+    UD_CustomDevice_RenderScript loc_device = GetMinigameDevice(akActor)
+    if loc_device
+        loc_device.StopMinigame(abWaitForStop)
+    endif
 EndFunction
 
 Function BlockActorExpression(Actor akActor,sslBaseExpression sslExpression)
@@ -1784,7 +1788,9 @@ String[] Function GetDeviceStruggleKeywords(Armor akDevice)
     Else
         result = GetDeviousKeywords(akDevice)
     EndIf
-    UDMain.Log("UDCustomDeviceMain::GetDeviceStruggleKeywords() " + akDevice + " : " + result, 3)
+    if UDmain.TraceAllowed()
+        UDMain.Log("UDCustomDeviceMain::GetDeviceStruggleKeywords() " + akDevice + " : " + result, 3)
+    endif
     Return result
 EndFunction
 
