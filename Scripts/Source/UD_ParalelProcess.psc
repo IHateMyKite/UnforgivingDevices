@@ -222,8 +222,8 @@ Function Receive_MinigameParalel(Form fActor)
     Float loc_ElapsedTime2 = 0.0
     Float loc_ElapsedTime3 = 0.0
     
-    while loc_device._MinigameMainLoop_ON; && UDCDmain.ActorInMinigame(akActor)
-        if !loc_device.pauseMinigame
+    while loc_device.IsMinigameLoopRunning()
+        if !loc_device.isPaused()
             ;set expression every 5 second
             if loc_is3DLoaded
                 if loc_ElapsedTime1 >= 5.0
@@ -256,7 +256,7 @@ Function Receive_MinigameParalel(Form fActor)
                 endif
             endif
         endif
-        if loc_device._MinigameMainLoop_ON
+        if loc_device.IsMinigameLoopRunning()
             Utility.wait(loc_UpdateTime)
             loc_ElapsedTime1 += loc_UpdateTime
             loc_ElapsedTime2 += loc_UpdateTime
@@ -373,8 +373,8 @@ Function Receive_MinigameCritloop(Form fActor)
     endif
     
     ;process
-    while loc_device._MinigameMainLoop_ON; && UDCDmain.ActorInMinigame(akActor)
-        if !loc_device.pauseMinigame && (!loc_is3DLoaded || !UDmain.IsMenuOpen())
+    while loc_device.IsMinigameLoopRunning()
+        if !loc_device.isPaused() && (!loc_is3DLoaded || !UDmain.IsMenuOpen())
             ;check crit every 1 s
             if loc_elapsedTime >= 1.0
                 if loc_device.UD_minigame_canCrit
@@ -385,7 +385,7 @@ Function Receive_MinigameCritloop(Form fActor)
                 loc_elapsedTime = 0.0
             endif
         endif
-        if loc_device._MinigameMainLoop_ON
+        if loc_device.IsMinigameLoopRunning()
             Utility.Wait(loc_updateTime)
             loc_elapsedTime += loc_updateTime
         endif
