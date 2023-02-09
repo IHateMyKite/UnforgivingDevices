@@ -2154,7 +2154,7 @@ Function UpdateOrgasmSecond()
         _orgasmProgress = 0.0
     endif
     
-    if _tickS % 15
+    if _tickS && _tickS % 15
         ;Update
     endif
 EndFunction

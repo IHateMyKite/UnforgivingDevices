@@ -91,7 +91,7 @@ EndEvent
 
 Function Update()
     UnregisterForAllModEvents()
-    RegisterForModEvent("UD_ApplyUDExpression","ApplyUDExpression_r")
+    UpdatePrebuildExpressions()
 EndFunction
 
 Function RegisterExpression(string sJsonName)
@@ -393,32 +393,6 @@ bool Function ApplyExpressionRaw(Actor akActor, float[] expression, int strength
     return true
 EndFunction
 
-Function ApplyUDExpression_p(Actor akActor,string strExpressionName,int iStrength,bool bOpenMouth,int iPriority)
-    int handle = ModEvent.Create("UD_ApplyUDExpression")
-    if (handle)
-        ModEvent.PushForm(handle,akActor)
-        ModEvent.PushString(handle,strExpressionName)
-        ModEvent.PushInt(handle,iStrength)
-        ModEvent.PushInt(handle,bOpenMouth as Int)
-        ModEvent.PushInt(handle,iPriority)
-        ModEvent.Send(handle)
-    endif
-EndFunction
-
-Function ApplyUDExpression(Actor akActor,string strExpressionName,int iStrength,bool bOpenMouth,int iPriority)
-    ApplyUDExpression_r(akActor,strExpressionName,iStrength,bOpenMouth as Int,iPriority)
-EndFunction
-
-Function ApplyUDExpression_r(Form fActor,string strExpressionName,int iStrength,int bOpenMouth,int iPriority)
-    Actor akActor = fActor as Actor
-    sslBaseExpression loc_expression = getExpression(strExpressionName)
-    if loc_expression
-        ApplyExpression(akActor, loc_expression, iStrength, bOpenMouth,iPriority)
-    else
-        UDCDmain.Error("Can't find expression " + strExpressionName + " !")
-    endif
-EndFunction
-
 Function SetExpression(Actor akActor, sslBaseExpression expression, int strength, bool openMouth=false)
     ;StorageUtil.SetIntValue(akActor,"zad_expressionApplied",1)
     int gender = (akActor.GetBaseObject() as ActorBase).GetSex()
@@ -693,173 +667,218 @@ endFunction
 
 ;prebuild expressions
 
+Function UpdatePrebuildExpressions()
+    _UpdatePrebuildExpression_Happy1()
+    _UpdatePrebuildExpression_Concetrated1()
+    _UpdatePrebuildExpression_Angry1()
+    _UpdatePrebuildExpression_Tired1()
+    _UpdatePrebuildExpression_Horny1()
+    _UpdatePrebuildExpression_Orgasm1()
+    _UpdatePrebuildExpression_Orgasm2()
+    _UpdatePrebuildExpression_Orgasm3()
+EndFunction
+
+float[] loc_Expression_Happy1
+Function _UpdatePrebuildExpression_Happy1()
+    if !loc_Expression_Happy1
+        loc_Expression_Happy1 = CreateEmptyExpression()
+    endif
+    ;phonems
+    loc_Expression_Happy1[ 5] = 0.079
+    loc_Expression_Happy1[ 6] = 0.284
+    loc_Expression_Happy1[ 7] = 0.237
+    loc_Expression_Happy1[ 8] = 0.055
+    loc_Expression_Happy1[11] = 0.192
+    loc_Expression_Happy1[13] = 0.03
+    loc_Expression_Happy1[14] = 0.115
+    ;modifiers
+    loc_Expression_Happy1[20] = 0.104
+    loc_Expression_Happy1[22] = 0.212
+    loc_Expression_Happy1[23] = 0.078
+    loc_Expression_Happy1[24] = 0.129
+    loc_Expression_Happy1[27] = 0.108
+    ;expression
+    loc_Expression_Happy1[30] = 10.0
+    loc_Expression_Happy1[31] = 0.729
+EndFunction
 Float[] Function GetPrebuildExpression_Happy1()
-    float[] loc_res = CreateEmptyExpression()
-    ;phonems
-    loc_res[ 5] = 0.079
-    loc_res[ 6] = 0.284
-    loc_res[ 7] = 0.237
-    loc_res[ 8] = 0.055
-    loc_res[11] = 0.192
-    loc_res[13] = 0.03
-    loc_res[14] = 0.115
-    ;modifiers
-    loc_res[20] = 0.104
-    loc_res[22] = 0.212
-    loc_res[23] = 0.078
-    loc_res[24] = 0.129
-    loc_res[27] = 0.108
-    ;expression
-    loc_res[30] = 10.0
-    loc_res[31] = 0.729
-    return loc_res
+    return loc_Expression_Happy1
 EndFunction
 
+float[] loc_Expression_Concetrated1
+Function _UpdatePrebuildExpression_Concetrated1()
+    if !loc_Expression_Concetrated1
+        loc_Expression_Concetrated1 = CreateEmptyExpression()
+    endif
+    ;phonems
+    loc_Expression_Concetrated1[ 2] = 0.12
+    loc_Expression_Concetrated1[ 3] = 0.24
+    loc_Expression_Concetrated1[ 7] = 0.08
+    loc_Expression_Concetrated1[ 8] = 0.08
+    loc_Expression_Concetrated1[ 9] = 0.14
+    loc_Expression_Concetrated1[14] = 0.08
+    ;modifiers
+    loc_Expression_Concetrated1[18] = 0.18
+    loc_Expression_Concetrated1[19] = 0.29
+    loc_Expression_Concetrated1[21] = 0.06
+    loc_Expression_Concetrated1[22] = 0.19
+    loc_Expression_Concetrated1[25] = 0.27
+    loc_Expression_Concetrated1[26] = 0.26
+    loc_Expression_Concetrated1[27] = 0.29
+    loc_Expression_Concetrated1[29] = 0.01
+    ;expression
+    loc_Expression_Concetrated1[30] = 4
+    loc_Expression_Concetrated1[31] = 0.59
+EndFunction
 Float[] Function GetPrebuildExpression_Concetrated1()
-    float[] loc_res = CreateEmptyExpression()
-    ;phonems
-    loc_res[ 2] = 0.12
-    loc_res[ 3] = 0.24
-    loc_res[ 7] = 0.08
-    loc_res[ 8] = 0.08
-    loc_res[ 9] = 0.14
-    loc_res[14] = 0.08
-    ;modifiers
-    loc_res[18] = 0.18
-    loc_res[19] = 0.29
-    loc_res[21] = 0.06
-    loc_res[22] = 0.19
-    loc_res[25] = 0.27
-    loc_res[26] = 0.26
-    loc_res[27] = 0.29
-    loc_res[29] = 0.01
-    ;expression
-    loc_res[30] = 4
-    loc_res[31] = 0.59
-        
-    return loc_res
+    return loc_Expression_Concetrated1
 EndFunction
 
+float[] loc_Expression_Angry1
+Function _UpdatePrebuildExpression_Angry1()
+    if !loc_Expression_Angry1
+        loc_Expression_Angry1 = CreateEmptyExpression()
+    endif
+    ;phonems
+    loc_Expression_Angry1[ 1] = 0.174
+    loc_Expression_Angry1[ 3] = 0.122
+    loc_Expression_Angry1[ 4] = 0.08
+    loc_Expression_Angry1[ 6] = 0.281
+    loc_Expression_Angry1[ 8] = 0.053
+    loc_Expression_Angry1[ 9] = 0.004
+    loc_Expression_Angry1[10] = 0.145
+    loc_Expression_Angry1[11] = 0.073
+    loc_Expression_Angry1[14] = 0.277
+    ;modifiers
+    loc_Expression_Angry1[19] = 0.144
+    loc_Expression_Angry1[20] = 0.245
+    loc_Expression_Angry1[21] = 0.23
+    loc_Expression_Angry1[24] = 0.269
+    loc_Expression_Angry1[25] = 0.067
+    loc_Expression_Angry1[27] = 0.186
+    loc_Expression_Angry1[28] = 0.247
+    loc_Expression_Angry1[29] = 0.103
+    ;expression
+    loc_Expression_Angry1[30] = 14
+    loc_Expression_Angry1[31] = 0.757
+EndFunction
 Float[] Function GetPrebuildExpression_Angry1()
-    float[] loc_res = CreateEmptyExpression()
-    ;phonems
-    loc_res[ 1] = 0.174
-    loc_res[ 3] = 0.122
-    loc_res[ 4] = 0.08
-    loc_res[ 6] = 0.281
-    loc_res[ 8] = 0.053
-    loc_res[ 9] = 0.004
-    loc_res[10] = 0.145
-    loc_res[11] = 0.073
-    loc_res[14] = 0.277
-    ;modifiers
-    loc_res[19] = 0.144
-    loc_res[20] = 0.245
-    loc_res[21] = 0.23
-    loc_res[24] = 0.269
-    loc_res[25] = 0.067
-    loc_res[27] = 0.186
-    loc_res[28] = 0.247
-    loc_res[29] = 0.103
-    ;expression
-    loc_res[30] = 14
-    loc_res[31] = 0.757
-        
-    return loc_res
+    return loc_Expression_Angry1
 EndFunction
 
+float[] loc_Expression_Tired1
+Function _UpdatePrebuildExpression_Tired1()
+    if !loc_Expression_Tired1
+        loc_Expression_Tired1 = CreateEmptyExpression()
+    endif
+    loc_Expression_Tired1[ 0] = 0.151
+    loc_Expression_Tired1[ 1] = 0.246
+    loc_Expression_Tired1[ 2] = 0.181
+    loc_Expression_Tired1[ 3] = 0.226
+    loc_Expression_Tired1[ 7] = 0.060
+    loc_Expression_Tired1[ 8] = 0.216
+    loc_Expression_Tired1[10] = 0.098
+    loc_Expression_Tired1[12] = 0.122
+    loc_Expression_Tired1[13] = 0.170
+    loc_Expression_Tired1[14] = 0.094
+    loc_Expression_Tired1[15] = 0.071
+    loc_Expression_Tired1[22] = 0.213
+    loc_Expression_Tired1[23] = 0.187
+    loc_Expression_Tired1[25] = 0.092
+    loc_Expression_Tired1[26] = 0.205
+    loc_Expression_Tired1[28] = 0.274
+    loc_Expression_Tired1[30] = 3.000
+    loc_Expression_Tired1[31] = 0.641
+EndFunction
 Float[] Function GetPrebuildExpression_Tired1()
-    float[] loc_res = CreateEmptyExpression()
-    ;phonems
-    loc_res[ 0] = 0.151
-    loc_res[ 1] = 0.246
-    loc_res[ 2] = 0.181
-    loc_res[ 3] = 0.226
-    loc_res[ 7] = 0.06
-    loc_res[ 8] = 0.216
-    loc_res[10] = 0.098
-    loc_res[12] = 0.122
-    loc_res[13] = 0.17
-    loc_res[14] = 0.094
-    loc_res[15] = 0.071
-    ;modifiers
-    loc_res[22] = 0.213
-    loc_res[23] = 0.187
-    loc_res[25] = 0.092
-    loc_res[26] = 0.205
-    loc_res[28] = 0.274
-    ;expression
-    loc_res[30] = 3
-    loc_res[31] = 0.641
-        
-    return loc_res
+    return loc_Expression_Tired1
 EndFunction
 
-Float[] Function GetPrebuildExpression_Horny1()    
-    float[] loc_res = CreateEmptyExpression()
-    loc_res[10] = 0.5
-    loc_res[16] = 0.10
-    loc_res[17] = 0.10
-    loc_res[18] = 0.25
-    loc_res[19] = 0.25
-    loc_res[20] = 0.25
-    loc_res[21] = 0.25
-    loc_res[24] = 0.30
-    loc_res[25] = 0.5
-    loc_res[26] = 0.5
-    loc_res[28] = 0.25
-    loc_res[29] = 0.25
-    loc_res[30] = 13.0
-    loc_res[31] = 0.25
-    return loc_res
+float[] loc_Expression_Horny1
+Function _UpdatePrebuildExpression_Horny1()
+    if !loc_Expression_Horny1
+        loc_Expression_Horny1 = CreateEmptyExpression()
+    endif
+    loc_Expression_Horny1[10] = 0.50
+    loc_Expression_Horny1[16] = 0.10
+    loc_Expression_Horny1[17] = 0.10
+    loc_Expression_Horny1[18] = 0.25
+    loc_Expression_Horny1[19] = 0.25
+    loc_Expression_Horny1[20] = 0.25
+    loc_Expression_Horny1[21] = 0.25
+    loc_Expression_Horny1[24] = 0.30
+    loc_Expression_Horny1[25] = 0.50
+    loc_Expression_Horny1[26] = 0.50
+    loc_Expression_Horny1[28] = 0.25
+    loc_Expression_Horny1[29] = 0.25
+    loc_Expression_Horny1[30] = 13.0
+    loc_Expression_Horny1[31] = 0.25
+EndFunction
+Float[] Function GetPrebuildExpression_Horny1()
+    return loc_Expression_Horny1
 EndFunction
 
+float[] loc_Expression_Orgasm1
+Function _UpdatePrebuildExpression_Orgasm1()
+    if !loc_Expression_Orgasm1
+        loc_Expression_Orgasm1 = CreateEmptyExpression()
+    endif
+    loc_Expression_Orgasm1[ 0] = 0.5
+    loc_Expression_Orgasm1[11] = 0.5
+    loc_Expression_Orgasm1[16] = 0.2
+    loc_Expression_Orgasm1[17] = 0.2
+    loc_Expression_Orgasm1[22] = 0.4
+    loc_Expression_Orgasm1[23] = 0.4
+    loc_Expression_Orgasm1[27] = 0.75
+    loc_Expression_Orgasm1[30] = 10.0
+    loc_Expression_Orgasm1[31] = 0.5
+EndFunction
 Float[] Function GetPrebuildExpression_Orgasm1()
-    float[] loc_res = CreateEmptyExpression()
-    loc_res[ 0] = 0.5
-    loc_res[11] = 0.5
-    loc_res[16] = 0.2
-    loc_res[17] = 0.2
-    loc_res[22] = 0.4
-    loc_res[23] = 0.4
-    loc_res[27] = 0.75
-    loc_res[30] = 10.0
-    loc_res[31] = 0.5
-    return loc_res
+    return loc_Expression_Orgasm1
 EndFunction
 
+float[] loc_Expression_Orgasm2
+Function _UpdatePrebuildExpression_Orgasm2()
+    if !loc_Expression_Orgasm2
+        loc_Expression_Orgasm2 = CreateEmptyExpression()
+    endif
+    loc_Expression_Orgasm2[ 5] = 0.079
+    loc_Expression_Orgasm2[ 6] = 0.284
+    loc_Expression_Orgasm2[ 7] = 0.237
+    loc_Expression_Orgasm2[ 8] = 0.055
+    loc_Expression_Orgasm2[11] = 0.192
+    loc_Expression_Orgasm2[13] = 0.030
+    loc_Expression_Orgasm2[14] = 0.115
+    loc_Expression_Orgasm2[16] = 0.200
+    loc_Expression_Orgasm2[17] = 0.200
+    loc_Expression_Orgasm2[22] = 0.400
+    loc_Expression_Orgasm2[23] = 0.400
+    loc_Expression_Orgasm2[27] = 0.750
+    loc_Expression_Orgasm2[30] = 10.00
+    loc_Expression_Orgasm2[31] = 0.729
+EndFunction
 Float[] Function GetPrebuildExpression_Orgasm2()
-    float[] loc_res = CreateEmptyExpression()
-    loc_res[ 5] = 0.079
-    loc_res[ 6] = 0.284
-    loc_res[ 7] = 0.237
-    loc_res[ 8] = 0.055
-    loc_res[11] = 0.192
-    loc_res[13] = 0.03
-    loc_res[14] = 0.115
-    loc_res[16] = 0.2
-    loc_res[17] = 0.2
-    loc_res[22] = 0.4
-    loc_res[23] = 0.4
-    loc_res[27] = 0.75
-    loc_res[30] = 10.0
-    loc_res[31] = 0.729
-    return loc_res
+    return loc_Expression_Orgasm2
 EndFunction
 
+float[] loc_Expression_Orgasm3
+Function _UpdatePrebuildExpression_Orgasm3()
+    if !loc_Expression_Orgasm3
+        loc_Expression_Orgasm3 = CreateEmptyExpression()
+    endif
+    loc_Expression_Orgasm3[ 5] = 0.079
+    loc_Expression_Orgasm3[ 6] = 0.284
+    loc_Expression_Orgasm3[ 7] = 0.237
+    loc_Expression_Orgasm3[ 8] = 0.055
+    loc_Expression_Orgasm3[11] = 0.192
+    loc_Expression_Orgasm3[13] = 0.030
+    loc_Expression_Orgasm3[14] = 0.115
+    loc_Expression_Orgasm3[16] = 0.170
+    loc_Expression_Orgasm3[17] = 0.170
+    loc_Expression_Orgasm3[22] = 0.280
+    loc_Expression_Orgasm3[30] = 11.00
+    loc_Expression_Orgasm3[31] = 0.900
+EndFunction
 Float[] Function GetPrebuildExpression_Orgasm3()
-    float[] loc_res = CreateEmptyExpression()
-    loc_res[ 5] = 0.079
-    loc_res[ 6] = 0.284
-    loc_res[ 7] = 0.237
-    loc_res[ 8] = 0.055
-    loc_res[11] = 0.192
-    loc_res[13] = 0.03
-    loc_res[14] = 0.115
-    loc_res[16] = 0.17
-    loc_res[17] = 0.17
-    loc_res[22] = 0.28
-    loc_res[30] = 11.0
-    loc_res[31] = 0.9
-    return loc_res
+    return loc_Expression_Orgasm3
 EndFunction
