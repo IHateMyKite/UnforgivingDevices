@@ -6,7 +6,6 @@ Int     Property    VariantLoaded = -1    Auto Hidden
 
 Int     Property    Id            = -1    Auto Hidden     ; widget id (foreground)
 Int     Property    AuxId         = -1    Auto Hidden     ; aux widget id (background)
-String  Property    Name          = ""    Auto Hidden     ; effect name
 String  Property    FileName                   Hidden     ; DDS file name in '<Data>/interface/exported/widgets/iwant/widgets/library' folder
     String Function Get()
         If Variant == 0
@@ -25,12 +24,12 @@ Bool    Property    Visible       = False Auto Hidden     ; 0, 1
 Bool    Property    Enabled       = True  Auto Hidden     ; 0, 1
 
 Function Reset()
+    Parent.Reset()
     Cluster = -1
     Variant = 0
     VariantLoaded = -1
     Id = -1
     AuxId = -1
-    Name = ""
     Magnitude = 0
     Timer = 0.0
     Stage = 0
@@ -41,6 +40,7 @@ Function Reset()
 EndFunction
 
 Function SoftReset()
+    Parent.SoftReset()
     Magnitude = 0
     Timer = 0.0
     Stage = 0

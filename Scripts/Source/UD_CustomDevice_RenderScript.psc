@@ -2689,15 +2689,15 @@ int Function GetTelekinesisLockModifier()
     return loc_res
 EndFunction
 
-Function setWidgetVal(float val,bool force = false)
-    UDmain.UDWC.UpdatePercent_DeviceWidget(val, force)
+Function setWidgetVal(float val, bool force = false)
+    UDmain.UDWC.Meter_SetPercent("device-durability", val, force)
 EndFunction
 
 Function setWidgetColor(int val,int val2 = -1,int flash_col = -1)
     UD_WidgetColor = val
     UD_WidgetColor2 = val2
     UD_WidgetFlashColor = flash_col
-    UDmain.UDWC.UpdateColor_DeviceWidget(UD_WidgetColor, UD_WidgetColor2,flash_col)
+    UDmain.UDWC.Meter_SetColor("device-durability", UD_WidgetColor, UD_WidgetColor2, flash_col)
 EndFunction
 
 Function showWidget(Bool abUpdate = true, Bool abUpdateColor = true)
@@ -2707,13 +2707,13 @@ Function showWidget(Bool abUpdate = true, Bool abUpdateColor = true)
     if abUpdateColor
         updateWidgetColor()
     endif
-    UDmain.UDWC.Toggle_DeviceWidget(true,False)
-    UDmain.UDWC.Toggle_DeviceCondWidget(true,True)
+    UDmain.UDWC.Meter_SetVisible("device-durability", True)
+    UDmain.UDWC.Meter_SetVisible("device-condition", True)
 EndFunction
 
 Function hideWidget()
-    UDmain.UDWC.Toggle_DeviceWidget(False)
-    UDmain.UDWC.Toggle_DeviceCondWidget(False)
+    UDmain.UDWC.Meter_SetVisible("device-durability", False)
+    UDmain.UDWC.Meter_SetVisible("device-condition", False)
 EndFunction
 
 Function decreaseDurability(float value,float cond_mult = 1.0)
@@ -2827,7 +2827,7 @@ Function updateCondition(bool decrease = True)
         unlockRestrain(True)
     else
         if UDmain.UseiWW() && PlayerInMinigame() && UDCDmain.UD_UseWidget && UD_UseWidget; && UD_AllowWidgetUpdate
-            UDmain.UDWC.UpdatePercent_DeviceCondWidget(getRelativeCondition())
+            UDmain.UDWC.Meter_SetPercent("device-condition", getRelativeCondition())
         endif
     endif
 EndFunction
@@ -6550,7 +6550,7 @@ Function updateWidget(bool force = false)
     
     ;update condition widget
     if UDmain.UseiWW()
-        UDmain.UDWC.UpdatePercent_DeviceCondWidget(getRelativeCondition())
+        UDmain.UDWC.Meter_SetPercent("device-condition", getRelativeCondition())
     endif
 EndFunction
 
@@ -6579,19 +6579,18 @@ Function updateWidgetColor()
 
     if UDmain.UseiWW()
         if UD_Condition == 0
-            UDmain.UDWC.UpdateColor_DeviceCondWidget(0x4df319, 0x62ff00)
+            UDmain.UDWC.Meter_SetColor("device-condition", 0x4df319, 0x62ff00)
         elseif UD_Condition == 1
-            UDmain.UDWC.UpdateColor_DeviceCondWidget(0xafba24, 0x4da319)
+            UDmain.UDWC.Meter_SetColor("device-condition", 0xafba24, 0x4da319)
         elseif UD_Condition == 2
-            UDmain.UDWC.UpdateColor_DeviceCondWidget(0xe37418, 0xafba24)
+            UDmain.UDWC.Meter_SetColor("device-condition", 0xe37418, 0xafba24)
         elseif UD_Condition == 3
-            UDmain.UDWC.UpdateColor_DeviceCondWidget(0xdc1515, 0xe37418)
+            UDmain.UDWC.Meter_SetColor("device-condition", 0xdc1515, 0xe37418)
         else
-            UDmain.UDWC.UpdateColor_DeviceCondWidget(0x5a1515, 0xdc1515)
+            UDmain.UDWC.Meter_SetColor("device-condition", 0x5a1515, 0xdc1515)
         endif
     endif
-    
-    UDmain.UDWC.UpdateColor_DeviceWidget(UD_WidgetColor, UD_WidgetColor2,UD_WidgetFlashColor)
+    UDmain.UDWC.Meter_SetColor("device-durability", UD_WidgetColor, UD_WidgetColor2, UD_WidgetFlashColor)
 EndFunction
 
 bool Function proccesSpecialMenu(int msgChoice)

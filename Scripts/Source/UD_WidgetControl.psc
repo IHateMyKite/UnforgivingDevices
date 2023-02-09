@@ -234,6 +234,8 @@ EndProperty
 Int CanvasWidth = 1280
 Int CanvasHeight = 720
 
+;
+Float WideScreenFactor = 1.0
 ; meter's size in canvas pixels (used to calculate positions/offsets)
 Float HUDMeterWidthRef = 248.0
 Float HUDMeterHeightRef = 15.0
@@ -265,34 +267,36 @@ Event OnUpdate()
     RegisterForSingleUpdate(30) ;maintenance update
     If !Ready
         Ready = True
-        StatusEffect_SetPosition("dd-piercing-nipples", W_ICON_CLUSTER_DEVICES)
-        StatusEffect_SetPosition("dd-plug-vaginal", W_ICON_CLUSTER_DEVICES)
-        StatusEffect_SetPosition("dd-piercing-clit", W_ICON_CLUSTER_DEVICES)
-        StatusEffect_SetPosition("dd-plug-anal", W_ICON_CLUSTER_DEVICES)
-        StatusEffect_SetPosition("effect-exhaustion", W_ICON_CLUSTER_EFFECTS, 2)
-        StatusEffect_SetPosition("effect-orgasm", W_ICON_CLUSTER_EFFECTS, 2)
         OnInterfaceSwitch(abGameLoad = False)
         InitWidgetsRequest(abGameLoad = False, abMeters = True, abIcons = True, abText = True)
     EndIf
 EndEvent
 
 Function Update()
-    StatusEffect_SetPosition("dd-piercing-nipples", W_ICON_CLUSTER_DEVICES)
-    StatusEffect_SetPosition("dd-plug-vaginal", W_ICON_CLUSTER_DEVICES)
-    StatusEffect_SetPosition("dd-piercing-clit", W_ICON_CLUSTER_DEVICES)
-    StatusEffect_SetPosition("dd-plug-anal", W_ICON_CLUSTER_DEVICES)
-    StatusEffect_SetPosition("effect-exhaustion", W_ICON_CLUSTER_EFFECTS)
-    StatusEffect_SetPosition("effect-orgasm", W_ICON_CLUSTER_EFFECTS)
     OnInterfaceSwitch(abGameLoad = True)
 EndFunction
 
 ; In this function, switching between different interface options is checked and processed.
 ; abGameLoad        - if it called after game load
 Function OnInterfaceSwitch(Bool abGameLoad)
+
+    StatusEffect_Register("dd-piercing-nipples", W_ICON_CLUSTER_DEVICES)
+    StatusEffect_Register("dd-plug-vaginal", W_ICON_CLUSTER_DEVICES)
+    StatusEffect_Register("dd-piercing-clit", W_ICON_CLUSTER_DEVICES)
+    StatusEffect_Register("dd-plug-anal", W_ICON_CLUSTER_DEVICES)
+    StatusEffect_Register("effect-exhaustion", W_ICON_CLUSTER_EFFECTS)
+    StatusEffect_Register("effect-orgasm", W_ICON_CLUSTER_EFFECTS)
+    
     if UDmain.UseiWW()
         GoToState("iWidgetInstalled")
         UD_Widget1.hide(true)
         UD_Widget2.hide(true)
+        Meter_Register("device-durability")
+        Meter_SetColor("device-durability", 0xFF005E, 0xFF307C, 0)
+        Meter_Register("device-condition")
+        Meter_SetColor("device-condition", 0x4df319, 0x62ff00, 0)
+        Meter_Register("player-orgasm")
+        Meter_SetColor("player-orgasm", 0xE727F5, 0xF775FF, 0xFF00BC)
         InitWidgetsRequest(abGameLoad = abGameLoad, abMeters = True, abIcons = True, abText = True)
     else
         GoToState("")
@@ -316,13 +320,13 @@ Function RefreshCanvasMetrics()
         le_corr1 = 0
     EndIf
     ; screen width factor: 16:9 is 1.0, 21:9 is 1.3125, etc.
-    Float width_mult = ((hud_right - hud_left) + 2 * hud_padding - le_corr1) / (1280 - le_corr1)
+    WideScreenFactor = ((hud_right - hud_left) + 2 * hud_padding - le_corr1) / (1280 - le_corr1)
     
-    CanvasWidth = (1280 * width_mult) as Int
+    CanvasWidth = (1280 * WideScreenFactor) as Int
     CanvasHeight = 720
     HUDMeterWidth = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Stamina._width")
     HUDMeterHeight = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Stamina._height")
-    HUDMeterWidthRef = 248.0 ; / width_mult
+    HUDMeterWidthRef = 248.0 ; / WideScreenFactor
     HUDPaddingX = 48.0 + hud_padding
     HUDPaddingY = hud_padding
 EndFunction
@@ -389,78 +393,10 @@ Function ResetToDefault()
     UD_WidgetYPos                   = W_POSY_BOTTOM
 EndFunction
 
-;toggle widget
-Function Toggle_DeviceWidget(bool abVal, Bool abUpdateVisPos = True)
-    if abVal
-        UD_Widget1.show(true)
-    else
-        UD_Widget1.hide(true)
-    endif
-EndFunction
-Function Toggle_DeviceCondWidget(bool abVal, Bool abUpdateVisPos = True)
-EndFunction
-Function Toggle_OrgasmWidget(bool abVal, Bool abUpdateVisPos = True)
-    if abVal
-        UD_Widget2.show(true)
-    else
-        UD_Widget2.hide(true)
-    endif
-EndFunction
-
-Function UpdatePercent_DeviceWidget(Float afVal,Bool abForce = false)
-    UD_Widget1.SetPercent(afVal, abForce)
-EndFunction
-Function UpdatePercent_DeviceCondWidget(Float afVal,Bool abForce = false)
-EndFunction
-Function UpdatePercent_OrgasmWidget(Float afVal,Bool abForce = false)
-    UD_Widget2.SetPercent(afVal, abForce)
-EndFunction
-
-Function UpdateColor_DeviceWidget(int aiColor,int aiColor2 = 0,int aiFlashColor = 0xFFFFFF)
-    UD_Widget1.SetColors(aiColor, aiColor2,aiFlashColor)
-EndFunction
-Function UpdateColor_DeviceCondWidget(int aiColor,int aiColor2 = 0,int aiFlashColor = 0xFFFFFF)
-EndFunction
-Function UpdateColor_OrgasmWidget(int aiColor,int aiColor2 = 0,int aiFlashColor = 0xFFFFFF)
-    UD_Widget2.SetColors(aiColor, aiColor2,aiFlashColor)
-EndFunction
-
-Function Flash_DeviceWidget()
-    UD_Widget1.Flash()
-EndFunction
-Function Flash_DeviceCondWidget()
-EndFunction
-Function Flash_OrgasmWidget()
-    UD_Widget2.Flash()
-EndFunction
-
 ; Array with slots for meter widgets
 UD_WidgetMeter_RefAlias[]           Property    MeterSlots            Auto
 
-;iWidget variables, should not be used ifiWidget is not installed
-Int     _Widget_DeviceDurability            = -1
-Bool    _Widget_DeviceDurability_Visible    = False
-Int     _Widget_DeviceDurability_Perc       = 0
-Int     _Widget_DeviceDurability_Color      = 0xFF005E
-Int     _Widget_DeviceDurability_Color2     = 0xFF307C
-Int     _Widget_DeviceDurability_Color3     = 0
-
-Int     _Widget_DeviceCondition             = -1
-Bool    _Widget_DeviceCondition_Visible     = False
-Int     _Widget_DeviceCondition_Perc        = 0
-Int     _Widget_DeviceCondition_Color       = 0x4df319
-Int     _Widget_DeviceCondition_Color2      = 0x62ff00
-Int     _Widget_DeviceCondition_Color3      = 0
-
-Int     _Widget_Orgasm                      = -1
-Bool    _Widget_Orgasm_Visible              = False
-Int     _Widget_Orgasm_Perc                 = 0
-Int     _Widget_Orgasm_Color                = 0xE727F5
-Int     _Widget_Orgasm_Color2               = 0xF775FF
-Int     _Widget_Orgasm_Color3               = 0xFF00BC
-
-;GROUP
-Int[] _WidgetsID
+Bool _iWidget_MeterPosFix                   = True  ; enables fix for the meter setPos-setMeterPercent conflict
 
 Float       _Animation_LastGameTime                 ; last time of the animation frame
 Float       _Animation_Update               = 0.5   ; animation update period
@@ -493,44 +429,69 @@ EndFunction
 ;/
     Widget API
 /;
-;/
+
+; Register new meter widget
+; asName        - meter's name
+Function Meter_Register(String asName)
+    UDMain.Info("UD_WidgetControl::Meter_Register() asName = " + asName)
+    UD_WidgetMeter_RefAlias loc_data = _GetMeter(asName)
+    If loc_data == None
+        Return
+    EndIf
+    Bool need_init = loc_data.IsNew
+    loc_data.IsNew = False
+    If need_init
+        InitWidgetsRequest(abMeters = True)
+    EndIf
+EndFunction
+
 Function Meter_SetVisible(String asName, Bool abVisible, Bool abUpdateVisPos = True)
     If asName == "device-durability"
-        Toggle_DeviceWidget(abVisible, abUpdateVisPos)
+        if abVisible
+            UD_Widget1.show(true)
+        else
+            UD_Widget1.hide(true)
+        endif
     ElseIf asName == "device-condition"
-        Toggle_DeviceCondWidget(abVisible, abUpdateVisPos)
+        
     ElseIf asName == "player-orgasm"
-        Toggle_OrgasmWidget(abVisible, abUpdateVisPos)
+        if abVisible
+            UD_Widget2.show(true)
+        else
+            UD_Widget2.hide(true)
+        endif
     EndIf
 EndFunction
-Function Meter_SetPercent(String asName, Int afValue, Bool abForce = false)
+
+Function Meter_SetPercent(String asName, Float afValue, Bool abForce = false)
     If asName == "device-durability"
-        UpdatePercent_DeviceWidget(afValue, abForce)
+        UD_Widget1.SetPercent(afValue, abForce)
     ElseIf asName == "device-condition"
-        UpdatePercent_DeviceCondWidget(afValue, abForce)
+
     ElseIf asName == "player-orgasm"
-        UpdatePercent_OrgasmWidget(afValue, abForce)
+        UD_Widget2.SetPercent(afValue, abForce)
     EndIf
 EndFunction
+
 Function Meter_SetColor(String asName, Int aiColor, Int aiColor2 = 0, Int aiFlashColor = 0xFFFFFF)
     If asName == "device-durability"
-        UpdateColor_DeviceWidget(aiColor, aiColor2, aiFlashColor)
+        UD_Widget1.SetColors(aiColor, aiColor2, aiFlashColor)
     ElseIf asName == "device-condition"
-        UpdateColor_DeviceCondWidget(aiColor, aiColor2, aiFlashColor)
+
     ElseIf asName == "player-orgasm"
-        UpdateColor_OrgasmWidget(aiColor, aiColor2, aiFlashColor)
+        UD_Widget2.SetColors(aiColor, aiColor2, aiFlashColor)
     EndIf
 EndFunction
+
 Function Meter_Flash(String asName)
     If asName == "device-durability"
-        Flash_DeviceWidget()
+        UD_Widget1.Flash()
     ElseIf asName == "device-condition"
-        Flash_DeviceCondWidget()
+
     ElseIf asName == "player-orgasm"
-        Flash_OrgasmWidget()
+        UD_Widget2.Flash()
     EndIf
 EndFunction
-/;
 
 ; Print notification on screen
 ; asText                - notification text
@@ -546,13 +507,14 @@ EndFunction
 ; asName        - effect name (and base part of file name)
 ; aiVariant     - icon variant. If equal to -1, then the previous value is kept
 ; aiClusterId   - icon cluster (0 or 1 for device or effect cluster). If equal to -1, then the previous value is kept
-Function StatusEffect_SetPosition(String asName, Int aiClusterId = -1, Int aiVariant = -1)
-    UDMain.Info("UD_WidgetControl::StatusEffect_SetPosition() asName = " + asName + ", aiClusterId = " + aiClusterId + ", aiVariant = " + aiVariant)
+Function StatusEffect_Register(String asName, Int aiClusterId = -1, Int aiVariant = -1)
+    UDMain.Info("UD_WidgetControl::StatusEffect_Register() asName = " + asName + ", aiClusterId = " + aiClusterId + ", aiVariant = " + aiVariant)
     UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName)
     If data == None
         Return
     EndIf
-    Bool need_init = False
+    Bool need_init = data.IsNew
+    data.IsNew = False
     If (aiClusterId >= 0 && data.Cluster != aiClusterId)
         data.Cluster = aiClusterId
         need_init = True
@@ -676,37 +638,37 @@ EndFunction
 Function _AddTextLineWidget()
 EndFunction
 
-Bool _FindEmpty_Mutex = False
+Bool _FindEmptySE_Mutex = False
 
 UD_WidgetStatusEffect_RefAlias Function _GetStatusEffect(String asName, Bool abFindEmpty = True)
-    Int i = 0
-    While i < StatusEffectSlots.Length
-        If StatusEffectSlots[i].Name == asName
-            Return StatusEffectSlots[i]
+    Int loc_index = 0
+    While loc_index < StatusEffectSlots.Length
+        If StatusEffectSlots[loc_index].Name == asName
+            Return StatusEffectSlots[loc_index]
         EndIf
-        i += 1
+        loc_index += 1
     EndWhile
     If abFindEmpty
     ; first empty slot
-        If _FindEmpty_Mutex
-            Int j = 0
-            While j < 20 && _FindEmpty_Mutex
+        If _FindEmptySE_Mutex
+            loc_index = 0
+            While loc_index < 20 && _FindEmptySE_Mutex
                 Utility.Wait(0.05)
-                j += 1
+                loc_index += 1
             EndWhile
         EndIf
-        _FindEmpty_Mutex = True
-        Int k = 0
-        While k < StatusEffectSlots.Length
-            If StatusEffectSlots[k].Name == ""
-                StatusEffectSlots[k].Reset()
-                StatusEffectSlots[k].Name = asName
-                _FindEmpty_Mutex = False
-                Return StatusEffectSlots[k]
+        _FindEmptySE_Mutex = True
+        loc_index = 0
+        While loc_index < StatusEffectSlots.Length
+            If StatusEffectSlots[loc_index].Name == ""
+                StatusEffectSlots[loc_index].Reset()
+                StatusEffectSlots[loc_index].Name = asName
+                _FindEmptySE_Mutex = False
+                Return StatusEffectSlots[loc_index]
             EndIf
-            k += 1
+            loc_index += 1
         EndWhile
-        _FindEmpty_Mutex = False
+        _FindEmptySE_Mutex = False
         UDMain.Warning("UD_WidgetControl::_GetStatusEffect() No more slots for the status effect icons!")
     EndIf
     Return None
@@ -715,6 +677,47 @@ EndFunction
 Bool _CreateIcon_Mutex = False
 
 Function _CreateIconWidget(UD_WidgetStatusEffect_RefAlias akData, Int aiX, Int aiY, Int aiAlpha, Bool abForceDestory = False)
+EndFunction
+
+Bool _FindEmptyME_Mutex = False
+
+UD_WidgetMeter_RefAlias Function _GetMeter(String asName, Bool abFindEmpty = True)
+    Int loc_index = 0
+    While loc_index < MeterSlots.Length
+        If MeterSlots[loc_index].Name == asName
+            Return MeterSlots[loc_index]
+        EndIf
+        loc_index += 1
+    EndWhile
+    If abFindEmpty
+    ; first empty slot
+        If _FindEmptyME_Mutex
+            loc_index = 0
+            While loc_index < 20 && _FindEmptyME_Mutex
+                Utility.Wait(0.05)
+                loc_index += 1
+            EndWhile
+        EndIf
+        _FindEmptyME_Mutex = True
+        loc_index = 0
+        While loc_index < MeterSlots.Length
+            If MeterSlots[loc_index].Name == ""
+                MeterSlots[loc_index].Reset()
+                MeterSlots[loc_index].Name = asName
+                _FindEmptyME_Mutex = False
+                Return MeterSlots[loc_index]
+            EndIf
+            loc_index += 1
+        EndWhile
+        _FindEmptyME_Mutex = False
+        UDMain.Warning("UD_WidgetControl::_GetMeter() No more slots for the meters!")
+    EndIf
+    Return None
+EndFunction
+
+Bool _CreateMeter_Mutex = False
+
+Function _CreateMeterWidget(UD_WidgetMeter_RefAlias akData, Int aiX, Int aiY, Bool abForceDestory = False)
 EndFunction
 
 Bool _InitMetersMutex = False
@@ -763,49 +766,35 @@ State iWidgetInstalled
 
         RegisterForSingleUpdate(_Animation_Update)
     EndFunction
-    
+        
     Bool Function InitMeters(Bool abGameLoad = False)
         _InitMetersMutex = True
         Utility.Wait(0.2)                   ; waiting for the end of all UpdatePercent_***Widget calls
         If abGameLoad
         ; clearing all IDs without destroying
-            _Widget_DeviceDurability = -1
-            _Widget_DeviceCondition = -1
-            _Widget_Orgasm = -1
+            Int i = MeterSlots.Length
+            While i > 0
+                i -= 1
+                MeterSlots[i].Id = -1
+            EndWhile
         EndIf
-        if _Widget_DeviceDurability > 0
-            iWidget.destroy(_Widget_DeviceDurability)
-        endif
-        if _Widget_DeviceCondition > 0
-            iWidget.destroy(_Widget_DeviceCondition)
-        endif
-        if _Widget_Orgasm > 0
-            iWidget.destroy(_Widget_Orgasm)
-        endif
         
-        _WidgetsID = Utility.CreateIntArray(0)
-        
-        _Widget_DeviceDurability = iWidget.loadMeter()
-        If _Widget_DeviceDurability == 0
-            Return False
-        EndIf
-        _WidgetsID = _AddMeterWidget(_WidgetsID, _Widget_DeviceDurability, 0*UD_MeterVertPadding, _Widget_DeviceDurability_Perc, _Widget_DeviceDurability_Color, _Widget_DeviceDurability_Color2, _Widget_DeviceDurability_Color3)
-        
-        _Widget_DeviceCondition = iWidget.loadMeter()
-        If _Widget_DeviceCondition == 0
-            Return False
-        EndIf
-        _WidgetsID = _AddMeterWidget(_WidgetsID, _Widget_DeviceCondition, 1.0*UD_MeterVertPadding, _Widget_DeviceCondition_Perc, _Widget_DeviceCondition_Color, _Widget_DeviceCondition_Color2, _Widget_DeviceCondition_Color3)
-        
-        _Widget_Orgasm = iWidget.loadMeter()
-        If _Widget_Orgasm == 0
-            Return False
-        EndIf
-        _WidgetsID = _AddMeterWidget(_WidgetsID, _Widget_Orgasm, 2.0*UD_MeterVertPadding, _Widget_Orgasm_Perc, _Widget_Orgasm_Color, _Widget_Orgasm_Color2, _Widget_Orgasm_Color3)
-
-        iWidget.setVisible(_Widget_DeviceDurability, _Widget_DeviceDurability_Visible As Int)
-        iWidget.setVisible(_Widget_DeviceCondition, _Widget_DeviceCondition_Visible As Int)
-        iWidget.setVisible(_Widget_Orgasm, _Widget_Orgasm_Visible As Int)
+        UD_WidgetMeter_RefAlias data
+        Int len = MeterSlots.Length
+        Int i = 0
+        Int loc_VertOffset = 0
+        While i < len
+            data = MeterSlots[i]
+            If data.Name != ""
+                _CreateMeterWidget(data, CalculateGroupXPos(UD_WidgetXPos), (CalculateGroupYPos(UD_WidgetYPos) - loc_VertOffset) As Int)
+                If UD_WidgetYPos == W_POSY_TOP
+                    loc_VertOffset -= (UD_MeterVertPadding * HUDMeterHeight) as Int
+                Else
+                    loc_VertOffset += (UD_MeterVertPadding * HUDMeterHeight) as Int
+                EndIf
+            EndIf
+            i += 1
+        EndWhile
         
         _InitMetersMutex = False
         Return True
@@ -985,93 +974,39 @@ State iWidgetInstalled
         EndIf
         Return True
     EndFunction
-    
-    ; fVerticalOffset       - offset in meter's heights
-    Int[] Function _AddMeterWidget(Int[] aaiGroup, Int aiWidget, Float fVerticalOffset, Int akPerc = 0, Int akCol1 = 0x0, Int akCol2 = 0x0, Int akCol3 = 0xFFFFFFFF)
-        UDMain.Log("UD_WidgetControl::_AddMeterWidget() aiWidget = " + aiWidget, 3)
-        iWidget.setSize(aiWidget, HUDMeterHeight as Int, HUDMeterWidth as Int)
-        ; on the top position we stack widgets from top to the bottom
-        If UD_WidgetYPos == 2
-            fVerticalOffset = -fVerticalOffset
+
+    Function _CreateMeterWidget(UD_WidgetMeter_RefAlias akData, Int aiX, Int aiY, Bool abForceDestory = False)
+        UDMain.Log("UD_WidgetControl::_CreateMeterWidget() akData = " + akData + ", aiX = " + aiX + ", aiY = " + aiY + ", abForceDestory = " + abForceDestory, 3)
+        If akData == None || akData.Name == ""
+            Return
         EndIf
-        iWidget.setPos(aiWidget, CalculateGroupXPos(UD_WidgetXPos), (CalculateGroupYPos(UD_WidgetYPos) - HUDMeterHeightRef * fVerticalOffset) As Int)
-        iWidget.setMeterPercent(aiWidget,akPerc)
-        _UpdateMeterColor(aiWidget, akCol1,akCol2,akCol3)
-        Return PapyrusUtil.PushInt(aaiGroup, aiWidget)
-    EndFunction
-    
-    ;toggle widget
-    Function Toggle_DeviceWidget(bool abVal, Bool abUpdateVisPos = True)
-        if UD_AutoAdjustWidget
-            if _Widget_DeviceDurability_Visible != abVal
-                _Widget_DeviceDurability_Visible = abVal
-                if abUpdateVisPos
-                    InitWidgetsRequest(abMeters = True)
-                endif
-            endif
-        else
-            _Widget_DeviceDurability_Visible = abVal
-            iWidget.setVisible(_Widget_DeviceDurability, _Widget_DeviceDurability_Visible As Int)
-        endif
-    EndFunction
-    Function Toggle_DeviceCondWidget(bool abVal, Bool abUpdateVisPos = True)
-        if UD_AutoAdjustWidget
-            if _Widget_DeviceCondition_Visible != abVal
-                _Widget_DeviceCondition_Visible = abVal
-                if abUpdateVisPos
-                    InitWidgetsRequest(abMeters = True)
-                endif
-            endif
-        else
-            _Widget_DeviceCondition_Visible = abVal
-            iWidget.setVisible(_Widget_DeviceCondition, _Widget_DeviceCondition_Visible As Int)
-        endif
-    EndFunction
-    Function Toggle_OrgasmWidget(bool abVal, Bool abUpdateVisPos = True)
-        if UD_AutoAdjustWidget
-            if _Widget_Orgasm_Visible != abVal
-                _Widget_Orgasm_Visible = abVal
-                if abUpdateVisPos
-                    InitWidgetsRequest(abMeters = True)
-                endif
-            endif
-        else
-            _Widget_Orgasm_Visible = abVal
-            iWidget.setVisible(_Widget_Orgasm, _Widget_Orgasm_Visible As Int)
-        endif
-    EndFunction
+        If _CreateMeter_Mutex
+            Int i = 0
+            While i < 100 && _CreateMeter_Mutex
+                Utility.Wait(0.05)
+                i += 1
+            EndWhile
+        EndIf
+        _CreateMeter_Mutex = True
 
-    Function UpdatePercent_DeviceWidget(Float afVal,Bool abForce = false)
-        _Widget_DeviceDurability_Perc = Round(afVal*100)
-        if !_InitMetersMutex
-            iWidget.setMeterPercent(_Widget_DeviceDurability, _Widget_DeviceDurability_Perc)
-        endif
-    EndFunction
-    Function UpdatePercent_DeviceCondWidget(Float afVal,Bool abForce = false)
-        _Widget_DeviceCondition_Perc = Round(afVal*100)
-        if !_InitMetersMutex
-            iWidget.setMeterPercent(_Widget_DeviceCondition, _Widget_DeviceCondition_Perc)
-        endif
-    EndFunction
-    Function UpdatePercent_OrgasmWidget(Float afVal,Bool abForce = false)
-        _Widget_Orgasm_Perc = Round(afVal*100)
-        if !_InitMetersMutex
-            iWidget.setMeterPercent(_Widget_Orgasm, _Widget_Orgasm_Perc)
-        endif
-    EndFunction
-
-    Function UpdateColor_DeviceWidget(int aiColor,int aiColor2 = 0,int aiFlashColor = 0xFFFFFF)
-        _UpdateMeterColor(_Widget_DeviceDurability,aiColor,aiColor2,aiFlashColor)
-    EndFunction
-    Function UpdateColor_DeviceCondWidget(int aiColor,int aiColor2 = 0,int aiFlashColor = 0xFFFFFF)
-        _UpdateMeterColor(_Widget_DeviceCondition,aiColor,aiColor2,aiFlashColor)
-    EndFunction
-    Function UpdateColor_OrgasmWidget(int aiColor,int aiColor2 = 0,int aiFlashColor = 0xFFFFFF)
-        _UpdateMeterColor(_Widget_Orgasm,aiColor,aiColor2,aiFlashColor)
+        If (akData.Id > 0 && _iWidget_MeterPosFix) || abForceDestory
+            iWidget.destroy(akData.Id)
+            akData.Id = -1
+        EndIf
+        If akData.Id < 0
+            akData.Id = iWidget.loadMeter()
+        EndIf
+        
+        iWidget.setSize(akData.Id, HUDMeterHeight as Int, HUDMeterWidth as Int)
+        iWidget.setPos(akData.Id, aiX, aiY)
+        iWidget.setMeterPercent(akData.Id, akData.FillPercent)
+        iWidget.setVisible(akData.Id, akData.Visible as Int)
+        _UpdateMeterColor(akData.Id, akData.PrimaryColor, akData.SecondaryColor, akData.FlashColor)
+        _CreateIcon_Mutex = False
     EndFunction
     
     ;use to convert from hex to this sinfull way of writting colors
-    Function _UpdateMeterColor(Int aiId,int aiColor,int aiColor2 = 0,int aiFlashColor = 0xFFFFFF)
+    Function _UpdateMeterColor(Int aiId, int aiColor, int aiColor2 = 0, int aiFlashColor = 0xFFFFFF)
         Int loc_lightR  = Math.LogicalAnd(Math.RightShift(aiColor,16),0xFF)
         Int loc_lightG  = Math.LogicalAnd(Math.RightShift(aiColor,8),0xFF)
         Int loc_lightB  = Math.LogicalAnd(Math.RightShift(aiColor,0),0xFF)
@@ -1083,30 +1018,47 @@ State iWidgetInstalled
         Int loc_flashB  = Math.LogicalAnd(Math.RightShift(aiFlashColor,0),0xFF)
         
         iWidget.setMeterRGB(aiId,loc_lightR,loc_lightG,loc_lightB,loc_darkR,loc_darkG,loc_darkB,loc_flashR,loc_flashG,loc_flashB)
-        
-        if aiId == _Widget_DeviceDurability
-            _Widget_DeviceDurability_Color  = aiColor
-            _Widget_DeviceDurability_Color2 = aiColor2
-            _Widget_DeviceDurability_Color3 = aiFlashColor
-        elseif aiId == _Widget_DeviceCondition
-            _Widget_DeviceCondition_Color   = aiColor
-            _Widget_DeviceCondition_Color2  = aiColor2
-            _Widget_DeviceCondition_Color3  = aiFlashColor
-        elseif aiId == _Widget_Orgasm
-            _Widget_Orgasm_Color            = aiColor
-            _Widget_Orgasm_Color2           = aiColor2
-            _Widget_Orgasm_Color3           = aiFlashColor
-        endif
+
     EndFunction
     
-    Function Flash_DeviceWidget()
-        iWidget.doMeterFlash(_Widget_DeviceDurability)
+    Function Meter_SetVisible(String asName, Bool abVisible, Bool abUpdateVisPos = True)
+        UD_WidgetMeter_RefAlias loc_data = _GetMeter(asName, False)
+        If loc_data == None
+            Return
+        EndIf
+        loc_data.Visible = abVisible
+        iWidget.setVisible(loc_data.Id, loc_data.Visible as Int)
     EndFunction
-    Function Flash_DeviceCondWidget()
-        iWidget.doMeterFlash(_Widget_DeviceCondition)
+
+    Function Meter_SetPercent(String asName, Float afValue, Bool abForce = false)
+        UD_WidgetMeter_RefAlias loc_data = _GetMeter(asName, False)
+        If loc_data == None
+            Return
+        EndIf
+        loc_data.FillPercent = (afValue * 100) as Int
+        If _InitMetersMutex
+            Return
+        EndIf
+        iWidget.setMeterPercent(loc_data.Id, loc_data.FillPercent)
     EndFunction
-    Function Flash_OrgasmWidget()
-        iWidget.doMeterFlash(_Widget_Orgasm)
+
+    Function Meter_SetColor(String asName, Int aiColor, Int aiColor2 = 0, Int aiFlashColor = 0xFFFFFF)
+        UD_WidgetMeter_RefAlias loc_data = _GetMeter(asName, False)
+        If loc_data == None
+            Return
+        EndIf
+        loc_data.PrimaryColor = aiColor
+        loc_data.SecondaryColor = aiColor2
+        loc_data.FlashColor = aiFlashColor
+        _UpdateMeterColor(loc_data.Id, loc_data.PrimaryColor, loc_data.SecondaryColor, loc_data.FlashColor)
+    EndFunction
+
+    Function Meter_Flash(String asName)
+        UD_WidgetMeter_RefAlias loc_data = _GetMeter(asName, False)
+        If loc_data == None
+            Return
+        EndIf
+        iWidget.doMeterFlash(loc_data.Id)
     EndFunction
     
     Function TestWidgets()
@@ -1538,4 +1490,30 @@ Function TestFun()
     iWidget.setSize(m, HUDMeterHeight as Int, HUDMeterWidth as Int)
     iWidget.setPos(m, CalculateGroupXPos(2), (CalculateGroupYPos(0) - HUDMeterHeightRef * 3.0) As Int)
     iWidget.setVisible(m, 1)
+EndFunction
+
+Function TestFun2()
+
+    Utility.Wait(2.0)
+    
+    Int m = iWidget.loadMeter()
+    iWidget.setSize(m, HUDMeterHeight as Int, HUDMeterWidth as Int)
+    ; iWidget.setZoom(m, (50 / WideScreenFactor) as Int, 50)
+    iWidget.setPos(m, 720, 400)
+    iWidget.setVisible(m, 1)
+    
+    iWidget.setMeterPercent(m, 75)
+    
+    Utility.Wait(2.0)
+    
+    iWidget.setPos(m, 720, 500)
+    
+    Utility.Wait(2.0)
+    
+    iWidget.setSize(m, HUDMeterHeight as Int, HUDMeterWidth as Int)
+    
+    Utility.Wait(2.0)
+    
+    iWidget.setPos(m, 720, 600)
+
 EndFunction
