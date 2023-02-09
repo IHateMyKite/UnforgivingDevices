@@ -234,6 +234,11 @@ EndEvent
 
 String _lastPage
 Event OnPageReset(string page)
+    if !UDmain.IsEnabled()
+        AddHeaderOption("Unforgiving devices is updating...")
+        return
+    endif
+    
     _lastPage = page
     if (page == "General")
         resetGeneralPage()
@@ -2359,10 +2364,10 @@ EndFunction
 
 bool Function checkMinigameKeyConflict(int iKeyCode)
     bool loc_res = true
+    loc_res = loc_res && CheckButton(iKeyCode)
     loc_res = loc_res && (iKeyCode != UDCDmain.Stamina_meter_Keycode)
     loc_res = loc_res && (iKeyCode != UDCDmain.Magicka_meter_Keycode)
     loc_res = loc_res && (iKeyCode != UDCDmain.SpecialKey_Keycode)
-    
     return loc_res
 EndFunction
 
