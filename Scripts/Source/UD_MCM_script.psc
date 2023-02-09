@@ -122,6 +122,16 @@ int Function FlagSwitch(bool bVal)
     endif
 EndFunction
 
+;check if button can be used for UD
+Bool Function CheckButton(Int aiKeyCode)
+    Bool loc_res = True
+    
+    loc_res = loc_res && (aiKeyCode != 264) ;is not mouse wheel up
+    loc_res = loc_res && (aiKeyCode != 265) ;is not mouse wheel down
+    
+    return loc_res
+EndFunction
+
 String Property UD_NPCsPageName = "NPCs Config" auto
 
 Function LoadConfigPages()
@@ -2358,6 +2368,7 @@ EndFunction
 
 bool Function checkGeneralKeyConflict(int iKeyCode)
     bool loc_res = true
+    loc_res = loc_res && CheckButton(iKeyCode)
     loc_res = loc_res && (iKeyCode != UDCDmain.StruggleKey_Keycode)
     loc_res = loc_res && (iKeyCode != UDCDmain.PlayerMenu_KeyCode)
     loc_res = loc_res && (iKeyCode != UDCDmain.ActionKey_Keycode)
