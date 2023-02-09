@@ -2154,7 +2154,7 @@ Function UpdateOrgasmSecond()
         _orgasmProgress = 0.0
     endif
     
-    if _tickS % 15
+    if _tickS && _tickS % 15
         ;Update
     endif
 EndFunction
@@ -2465,8 +2465,8 @@ Function Receive_MinigameParalel()
     Float loc_ElapsedTime2 = 0.0
     Float loc_ElapsedTime3 = 0.0
     
-    while loc_device._MinigameMainLoop_ON; && UDCDmain.ActorInMinigame(akActor)
-        if !loc_device.pauseMinigame
+    while loc_device.IsMinigameLoopRunning()
+        if !loc_device.isPaused()
             ;set expression every 5 second
             if loc_is3DLoaded
                 if loc_ElapsedTime1 >= 5.0
@@ -2499,7 +2499,7 @@ Function Receive_MinigameParalel()
                 endif
             endif
         endif
-        if loc_device._MinigameMainLoop_ON
+        if loc_device.IsMinigameLoopRunning()
             Utility.wait(loc_UpdateTime)
             loc_ElapsedTime1 += loc_UpdateTime
             loc_ElapsedTime2 += loc_UpdateTime
@@ -2602,8 +2602,8 @@ Function Receive_MinigameCritloop()
     endif
     
     ;process
-    while loc_device._MinigameMainLoop_ON; && UDCDmain.ActorInMinigame(akActor)
-        if !loc_device.pauseMinigame && (!loc_is3DLoaded || !UDmain.IsMenuOpen())
+    while loc_device.IsMinigameLoopRunning()
+        if !loc_device.isPaused() && (!loc_is3DLoaded || !UDmain.IsMenuOpen())
             ;check crit every 1 s
             if loc_elapsedTime >= 1.0
                 if loc_device.UD_minigame_canCrit
@@ -2614,7 +2614,7 @@ Function Receive_MinigameCritloop()
                 loc_elapsedTime = 0.0
             endif
         endif
-        if loc_device._MinigameMainLoop_ON
+        if loc_device.IsMinigameLoopRunning()
             Utility.Wait(loc_updateTime)
             loc_elapsedTime += loc_updateTime
         endif
@@ -2622,4 +2622,65 @@ Function Receive_MinigameCritloop()
     
     loc_device._MinigameParProc_3 = false
     _MinigameCritLoop_ON = false
+EndFunction
+
+bool                             _MinigameAVCheck_Received                  = false
+UD_CustomDevice_RenderScript     _Send_MinigameAVCheck_Package_device       = none
+Function StartMinigameAVCheckLoop(UD_CustomDevice_RenderScript akDevice)
+    if !akDevice
+        UDCDmain.Error("StartMinigameAVCheckLoop wrong arg received!")
+    endif
+    
+    String loc_EventName = "UDMinigameAVCheck_"+self
+    ;send event
+    int handle = ModEvent.Create(loc_EventName)
+    if (handle)
+        _Send_MinigameAVCheck_Package_device = akDevice
+        RegisterForModEvent(loc_EventName, "_Receive_MinigameCritloop")
+        ModEvent.Send(handle)
+        
+        ;block
+        float loc_TimeOut = 0.0
+        while !_MinigameAVCheck_Received && loc_TimeOut <= 1.0
+            loc_TimeOut += 0.1
+            Utility.waitMenuMode(0.1)
+        endwhile
+        _MinigameAVCheck_Received = false
+        
+        if loc_TimeOut >= 1.0
+            UDCDmain.Error("Send_MinigameAVCheckLoop("+akDevice.getDeviceHeader()+") timeout!")
+        endif
+    else
+        UDCDmain.Error("Send_MinigameAVCheckLoop("+akDevice.getDeviceHeader()+") error!")
+    endif
+    UnRegisterForModEvent(loc_EventName)
+EndFunction
+Function _Receive_MinigameCritloop()
+    UD_CustomDevice_RenderScript loc_device = _Send_MinigameAVCheck_Package_device
+    _Send_MinigameAVCheck_Package_device    = none
+    _MinigameAVCheck_Received               = true
+    
+    loc_device._MinigameParProc_4           = true
+    
+    float loc_CurrentUpdateTime             = UDmain.UD_baseUpdateTime
+    Bool  loc_HaveHelper                    = loc_device.hasHelper()
+
+    ;process
+    while loc_device.IsMinigameLoopRunning()
+        if !loc_device.isPaused()
+            if !loc_device.ProccesAV(loc_CurrentUpdateTime)
+                loc_device.StopMinigame()
+            endif
+            if loc_HaveHelper
+                if !loc_device.ProccesAVHelper(loc_CurrentUpdateTime)
+                    loc_device.StopMinigame()
+                endif
+            endif
+        endif
+        if loc_device.IsMinigameLoopRunning()
+            Utility.Wait(loc_CurrentUpdateTime)
+        endif
+    endwhile
+    
+    loc_device._MinigameParProc_4 = false
 EndFunction

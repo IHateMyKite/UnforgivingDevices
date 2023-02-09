@@ -104,6 +104,11 @@ State Minigame
         endif
         bool loc_menuopen = UDmain.IsMenuOpen()
         if !loc_menuopen ;only if player is not in menu
+            if KeyCode == UDCDMain.SpecialKey_Keycode
+                _specialButtonOn = true
+                UDCDmain.CurrentPlayerMinigameDevice.SpecialButtonPressed(1.0)
+                return
+            endif
             if (_crit) && !UDCDMain.UD_AutoCrit
                 if _selected_crit_meter == "S" && KeyCode == UDCDMain.Stamina_meter_Keycode
                     UDCDmain.crit = False
@@ -115,28 +120,20 @@ State Minigame
                     _crit = False
                     UDCDmain.CurrentPlayerMinigameDevice.critDevice()
                     return
-                elseif KeyCode == UDCDMain.Magicka_meter_Keycode || KeyCode == UDCDMain.Stamina_meter_Keycode
+                elseif (KeyCode == UDCDMain.Magicka_meter_Keycode) || (KeyCode == UDCDMain.Stamina_meter_Keycode)
                     UDCDmain.crit = False
                     _crit = False
                     UDCDmain.CurrentPlayerMinigameDevice.critFailure()
                     return
-                elseif KeyCode == UDCDMain.ActionKey_Keycode
-                    UDCDmain.CurrentPlayerMinigameDevice.stopMinigame()
-                    UDCDmain.crit = false
-                    return 
                 endif
             endif
-            if KeyCode == UDCDMain.SpecialKey_Keycode
-                _specialButtonOn = true
-                UDCDmain.CurrentPlayerMinigameDevice.SpecialButtonPressed(1.0)
-                return
-            endif
             if KeyCode == UDCDMain.ActionKey_Keycode
+                UDCDmain.crit = False
                 if UDCDmain.CurrentPlayerMinigameDevice
                     UDCDmain.CurrentPlayerMinigameDevice.stopMinigame()
                 endif
                 return
-            elseif (KeyCode == UDCDMain.Stamina_meter_Keycode || KeyCode == UDCDMain.Magicka_meter_Keycode) && !UDCDMain.UD_AutoCrit
+            elseif !UDCDMain.UD_AutoCrit && (KeyCode == UDCDMain.Stamina_meter_Keycode || KeyCode == UDCDMain.Magicka_meter_Keycode)
                 UDCDmain.crit = False
                 _crit = False
                 UDCDmain.CurrentPlayerMinigameDevice.critFailure()

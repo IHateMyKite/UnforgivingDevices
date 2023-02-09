@@ -28,6 +28,7 @@ Only sources are required for the UD to compile correctly. If mod is required, i
 
 | **Name**            | **Author**  | **Link**                                         |
 |---------------------|-------------|--------------------------------------------------|
+| FOMOD               | IHateMyKite | https://github.com/IHateMyKite/UnforgivingDevices_FOMOD|
 | Animation Pack [LE] | iiw2012     | https://github.com/iiw2012/UDAnimationsLE        |
 | Animation Pack [SE] | iiw2012     | https://github.com/iiw2012/UDAnimationsSE        |
 | Unforgiving Skyrim  | kurotatsu77 | https://github.com/kurotatsu77/UnforgivingSkyrim |

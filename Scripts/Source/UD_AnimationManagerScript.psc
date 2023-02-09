@@ -153,22 +153,27 @@ Function StopAnimation(Actor akActor, Actor akHelper = None, Bool abEnableActors
         UDmain.Log("UD_AnimationManagerScript::StopAnimation() akActor = " + akActor + ", akHelper = " + akHelper, 3)
     EndIf
     
-    if Math.LogicalAnd(aiToggle,0x1)
+    Bool loc_stopActor  = Math.LogicalAnd(aiToggle,0x1)
+    Bool loc_stopHelper = Math.LogicalAnd(aiToggle,0x2)
+    
+    if loc_stopActor
         UnlockAnimatingActor(akActor, abEnableActors)
         ; restoring HH if it was removed in StartPairAnimation
         _RestoreHeelEffect(akActor)
         Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
     endif
     
-    If akHelper != None && Math.LogicalAnd(aiToggle,0x2)
-        _RestoreActorPosition(akActor) ;only move player if there are 2 actors, otherwise solo animation is player and there is no need to move player
+    If akHelper != None && loc_stopHelper
+        if loc_stopActor ;only restore position if actors animation should be stopped
+            _RestoreActorPosition(akActor) ;only move player if there are 2 actors, otherwise solo animation is player and there is no need to move player
+        endif
         UnlockAnimatingActor(akHelper, abEnableActors)
         ; restoring HH if it was removed in StartPairAnimation
         _RestoreHeelEffect(akHelper)
         Debug.SendAnimationEvent(akHelper, "IdleForceDefaultState")
         _RestoreActorPosition(akHelper)
     EndIf
-    If UDmain.ActorIsPlayer(akActor) || UDmain.ActorIsPlayer(akHelper)
+    If (loc_stopActor && UDmain.ActorIsPlayer(akActor)) || (loc_stopHelper && UDmain.ActorIsPlayer(akHelper))
         _RestorePlayerCamera()
     EndIf
 EndFunction
