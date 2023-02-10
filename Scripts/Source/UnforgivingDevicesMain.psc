@@ -1056,12 +1056,6 @@ Form Function GetShield(Actor akActor) Global
     endif
 EndFunction
 
-Function GamepadMenuPause() Global
-    if Game.UsingGamepad()
-        Utility.wait(0.1)
-    endif
-EndFunction
-
 ;SoS faction. If none, it means that the SoS is not installed
 Faction _SOS_SchlongifiedActors
 Faction Property UD_SOS_SchlongifiedActors

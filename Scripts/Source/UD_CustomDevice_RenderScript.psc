@@ -3149,7 +3149,6 @@ Function DeviceMenu(bool[] aControl)
             _break = True         ;exit
         endif
         DeviceMenuExt(msgChoice)
-        GamepadMenuPause()
     endwhile
     GoToState("")
 EndFunction
