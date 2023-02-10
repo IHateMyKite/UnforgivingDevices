@@ -248,11 +248,38 @@ Float HUDPaddingY
 
 Bool Property Ready = False auto
 
+;returns true if the module is the one assigned to UD_Main
+Bool Function SingletonCheck()
+    Bool loc_res = (self == UDmain.UDWC)
+    
+    if !loc_res
+        GError(self+"::SingletonCheck() - This instance of script should not exist!")
+    endif
+    return loc_res
+EndFunction
+
 Event OnInit()
-    RegisterForSingleUpdate(10) ;maintenance update
+    Utility.waitMenuMode(4.0)
+    if !SingletonCheck()
+        return
+    endif
+    RegisterForSingleUpdate(3) ;maintenance update
 EndEvent
 
 Event OnUpdate()
+    if !SingletonCheck()
+        UnregisterForUpdate()
+        return
+    endif
+    If !Ready
+        ;wait for UD to get ready first
+        if !UDmain.WaitForReady()
+            return ;fatal error, do not use the module
+        endif
+        Ready = True
+        OnInterfaceSwitch(abGameLoad = False)
+        InitWidgetsRequest(abGameLoad = False, abMeters = True, abIcons = True, abText = True)
+    EndIf
     if UDmain.IsEnabled()
         If _OnUpdateMutex
             Return
@@ -265,11 +292,6 @@ Event OnUpdate()
         _OnUpdateMutex = False
     endif
     RegisterForSingleUpdate(30) ;maintenance update
-    If !Ready
-        Ready = True
-        OnInterfaceSwitch(abGameLoad = False)
-        InitWidgetsRequest(abGameLoad = False, abMeters = True, abIcons = True, abText = True)
-    EndIf
 EndEvent
 
 Function Update()
@@ -279,7 +301,6 @@ EndFunction
 ; In this function, switching between different interface options is checked and processed.
 ; abGameLoad        - if it called after game load
 Function OnInterfaceSwitch(Bool abGameLoad)
-
     StatusEffect_Register("dd-piercing-nipples", W_ICON_CLUSTER_DEVICES)
     StatusEffect_Register("dd-plug-vaginal", W_ICON_CLUSTER_DEVICES)
     StatusEffect_Register("dd-piercing-clit", W_ICON_CLUSTER_DEVICES)

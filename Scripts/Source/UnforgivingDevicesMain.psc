@@ -167,7 +167,20 @@ bool Function UDReady()
     return Ready
 EndFunction
 
+Bool Function WaitForReady()
+    while !Ready && !_FatalError
+        Utility.waitMenuMode(0.5)
+    endwhile
+    if _FatalError
+        return false
+    else
+        return true
+    endif
+EndFunction
+
 Event OnInit()
+    Player = Game.GetPlayer()
+    
     Utility.waitmenumode(3.0)
     Print("Installing Unforgiving Devices...")
     if zadbq.modVersion
@@ -180,63 +193,54 @@ Event OnInit()
         loc_msg += "\n\n!Please consider starting new game for the best experience.!"
         debug.messagebox(loc_msg)
     endif
-    While !UDlibs.ready
-        Utility.waitMenuMode(0.25)
-    EndWhile
-    if TraceAllowed()
-        Log("UDLibs ready!",0)
-    endif
-    While !UDCDmain.ready
-        Utility.waitMenuMode(0.25)
-    EndWhile
-    if TraceAllowed()
-        Log("UDCDmain ready!",0)
-    endif
-    While !config.ready
-        Utility.waitMenuMode(0.25)
-    EndWhile    
-    if TraceAllowed()
-        Log("config ready!",0)
-    endif
-    While !ItemManager.ready
-        Utility.waitMenuMode(0.25)
-    EndWhile        
-    if TraceAllowed()
-        Log("ItemManager ready!",0)
-    endif
-    While !UDLLP.ready
-        Utility.waitMenuMode(0.25)
-    endwhile
-    if TraceAllowed()
-        Log("UDLLP ready!",0)
-    endif
+    
 
-    While !UDOM.ready
-        Utility.WaitMenuMode(0.1)
-    endwhile
-    if TraceAllowed()
-        Log("UDOM ready!",0)
+    if CheckSubModules()
+        RegisterForSingleUpdate(1.0)
+    else
+        DISABLE() ;disable UD
     endif
-    
-    UD_hightPerformance = UD_hightPerformance
-    
-    UDlibs.OrgasmExhaustionSpell.SetNthEffectDuration(0, 180) ;for backward compatibility
-
-    Player = Game.GetPlayer()
-    
-    CheckOptionalMods()
-    
-    if TraceAllowed()
-        Log("UnforgivingDevicesMain initialized",0)
-    endif
-    Print("Unforgiving Devices Ready!")
-    Utility.wait(5.0)
-    RegisterForModEvent("UD_VibEvent","EventVib")
-    RegisterForSingleUpdate(0.1)
 EndEvent
 
-Bool Property _Disabled = False Auto Hidden Conditional
-Bool Property _Updating = False Auto Hidden Conditional
+Bool Function CheckSubModules()
+    Bool    loc_cond = False
+    Int     loc_elapsedTime = 0
+    while !loc_cond && loc_elapsedTime < 20
+        loc_cond = True
+        loc_cond = loc_cond && UDlibs.ready
+        loc_cond = loc_cond && UDCDmain.ready
+        loc_cond = loc_cond && config.ready
+        loc_cond = loc_cond && ItemManager.ready
+        loc_cond = loc_cond && UDLLP.ready
+        loc_cond = loc_cond && UDOM.ready
+        
+        if !loc_cond
+            Utility.Wait(1.0)
+            loc_elapsedTime += 1
+        endif
+    endwhile
+    
+    ;check for fatal error
+    if !loc_cond
+        _FatalError = True
+        ShowMessageBox("!!FATAL ERROR!!\nError loading Unforgiving devices. One or more of the modules are not ready. Please contact developrs on LL or GitHub")
+        ;Dumb info to console, use GInfo to skip ConsoleUtil installation check
+        GInfo("!!FATAL ERROR!! = Error loading Unforgiving devices. One or more of the modules are not ready. Please contact developrs on LL or GitHub")
+        GInfo("UDlibs="+UDlibs.ready)
+        GInfo("UDCDmain="+UDCDmain.ready)
+        GInfo("config="+config.ready)
+        GInfo("ItemManager="+ItemManager.ready)
+        GInfo("UDLLP="+UDLLP.ready)
+        GInfo("UDOM="+UDOM.ready)
+        return False
+    endif
+    _FatalError = False
+    return true ;all OK
+EndFunction
+
+Bool Property _FatalError   = False Auto Hidden Conditional
+Bool Property _Disabled     = False Auto Hidden Conditional
+Bool Property _Updating     = False Auto Hidden Conditional
 
 ;returns true if mod is currently updating. Mods should be threated as disabled when this happends
 Bool Function IsUpdating()
@@ -271,6 +275,10 @@ Function OnGameReload()
     
     if _Updating
         return ;mod is already updating, most likely because user saved the game while the mod was already updating
+    endif
+    
+    if !CheckSubModules()
+        return ;Fatal error when initializing UD
     endif
     
     _Updating = True
@@ -380,17 +388,26 @@ Function Update()
         if !libs.ExpLibs
             libs.ExpLibs = loc_DDexpressionQuest as zadexpressionlibs
         endif
-        UDEM.GoToState("DDExpressionSystemInstalled") 
-        Info("ZAD Expression System detected: DONE")        
-    endif
-    
-    if !Ready
-        Ready = true
-        Info("Detected that UD is not ready. Changing state to ready.")
+        UDEM.GoToState("DDExpressionSystemInstalled")
+        Info("ZAD Expression System detected: DONE")
     endif
     
     CheckOptionalMods()
     CheckPatchesOrder()
+    
+    if !Ready
+        UD_hightPerformance = UD_hightPerformance
+        UDlibs.OrgasmExhaustionSpell.SetNthEffectDuration(0, 180) ;for backward compatibility
+        
+        RegisterForModEvent("UD_VibEvent","EventVib")
+        
+        Info("<=====| UnforgivingDevicesMain installed |=====>")
+        
+        Print("Unforgiving Devices Ready!")
+        
+        Ready = true
+    endif
+    
     SendModEvent("UD_PatchUpdate") ;send update event to all patches. Will force patches to check if they are installed correctly
 EndFunction
 
@@ -422,14 +439,14 @@ Function CheckOptionalMods()
         endif
     else
         SlaveTatsInstalled = false
-    endif    
+    endif
     
     if ModInstalled("UIExtensions.esp")
         if TraceAllowed()
             Log("UIExtensions detected!")
         endif
     else
-        debug.messagebox("--!ERROR!--\nUD can't detect UIExtensions. Without this mod, some features of Unforgiving Devices will not work as intended. Please be warned.")
+        ShowMessageBox("--!ERROR!--\nUD can't detect UIExtensions. Without this mod, some features of Unforgiving Devices will not work as intended. Please be warned.")
     endif
     
     if ConsoleUtil.GetVersion()
@@ -438,7 +455,7 @@ Function CheckOptionalMods()
             Log("ConsoleUtil detected!")
         endif
     else
-        debug.messagebox("--!ERROR!--\nUD can't detect ConsoleUtil. Without this mod, some features of Unforgiving Devices will not work as intended. Please be warned.")
+        ShowMessageBox("--!ERROR!--\nUD can't detect ConsoleUtil. Without this mod, some features of Unforgiving Devices will not work as intended. Please be warned.")
         ConsoleUtilInstalled = False
     endif
     
@@ -452,8 +469,6 @@ Function CheckOptionalMods()
     endif
     
     ;Check iWidgets
-    iWidgetInstalled = true
-    
     iWidgetQuest = GetMeMyForm(0x000800,"iWant Widgets LE.esp",False) as Quest
     if !iWidgetQuest
         iWidgetQuest = GetMeMyForm(0x000800,"iWant Widgets.esl",False) as Quest

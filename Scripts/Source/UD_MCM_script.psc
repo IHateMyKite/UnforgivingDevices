@@ -736,8 +736,8 @@ Int UD_TextReadSpeed_S
 Int UD_TextLineLength_S
 Int UD_FilterVibNotifications_T
 Int UD_EnableCNotifications_S
-Int UD_EnableDeviceIcons_S
-Int UD_EnableDebuffIcons_S
+Int UD_EnableDeviceIcons_T
+Int UD_EnableDebuffIcons_T
 Int UD_IconsSize_S
 Int UD_IconsAnchor_M
 String[] UD_IconsAnchorList
@@ -783,8 +783,8 @@ Event resetUIWidgetPage()
     EndIf
     UD_TextAnchor_M = addMenuOption("Notifications base position", UD_TextAnchorList[UDWC.UD_TextAnchor], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableCNotifications))
     UD_TextPadding_S = addSliderOption("Notifications offset", UDWC.UD_TextPadding, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableCNotifications))
-    UD_EnableDeviceIcons_S = AddToggleOption("Show DD icons", UDWC.UD_EnableDeviceIcons, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
-    UD_EnableDebuffIcons_S = AddToggleOption("Show effect icons", UDWC.UD_EnableDebuffIcons, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    UD_EnableDeviceIcons_T = AddToggleOption("Show DD icons", UDWC.UD_EnableDeviceIcons, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    UD_EnableDebuffIcons_T = AddToggleOption("Show effect icons", UDWC.UD_EnableDebuffIcons, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
     UD_IconsSize_S = addSliderOption("Icon size", UDWC.UD_IconsSize, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && (UDWC.UD_EnableDeviceIcons || UDWC.UD_EnableDebuffIcons)))
     If UDWC.UD_IconsAnchor < 0 || UDWC.UD_IconsAnchor > 2
         UDMain.Warning("UD_MCM_script::resetUIWidgetPage() WTF! UDWC.UD_IconsAnchor = " + UDWC.UD_IconsAnchor)
@@ -1517,13 +1517,13 @@ Function OptionSelectUiWidget(int option)
         UDWC.UD_EnableCNotifications = !UDWC.UD_EnableCNotifications
         SetToggleOptionValue(UD_EnableCNotifications_S, UDWC.UD_EnableCNotifications)
         forcePageReset()
-    ElseIf option == UD_EnableDeviceIcons_S
+    ElseIf option == UD_EnableDeviceIcons_T
         UDWC.UD_EnableDeviceIcons = !UDWC.UD_EnableDeviceIcons
-        SetToggleOptionValue(UD_EnableDeviceIcons_S, UDWC.UD_EnableDeviceIcons)
+        SetToggleOptionValue(UD_EnableDeviceIcons_T, UDWC.UD_EnableDeviceIcons)
         forcePageReset()
-    ElseIf option == UD_EnableDebuffIcons_S
+    ElseIf option == UD_EnableDebuffIcons_T
         UDWC.UD_EnableDebuffIcons = !UDWC.UD_EnableDebuffIcons
-        SetToggleOptionValue(UD_EnableDebuffIcons_S, UDWC.UD_EnableDebuffIcons)
+        SetToggleOptionValue(UD_EnableDebuffIcons_T, UDWC.UD_EnableDebuffIcons)
         forcePageReset()
     ElseIf option == UD_WidgetTest_T
         closeMCM()
@@ -3291,9 +3291,9 @@ Function UiWidgetPageInfo(int option)
         SetInfoText("Toggle to hide notifications from vibrators.\nDefault: ON")
     ElseIf option == UD_EnableCNotifications_S
         SetInfoText("Toggle to enable customized text notifications.\nDefault: ON")
-    ElseIf option == UD_EnableDeviceIcons_S
+    ElseIf option == UD_EnableDeviceIcons_T
         SetInfoText("Toggle to enable icons for 'installed' devious devices.\nDefault: ON")
-    ElseIf option == UD_EnableDebuffIcons_S
+    ElseIf option == UD_EnableDebuffIcons_T
         SetInfoText("Toggle to enable icons for UD (de)buffs.\nDefault: ON")
     ElseIf option == UD_IconsSize_S
         SetInfoText("Icon size.\nDefault: 60")
