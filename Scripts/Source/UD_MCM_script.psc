@@ -1753,10 +1753,10 @@ Function OnOptionSliderOpenCustomBondage(int option)
         SetSliderDialogRange(0, 20)
         SetSliderDialogInterval(1)
     ElseIf option == UD_MinigameDrainMult_S
-        SetSliderDialogStartValue(UDCDmain.UD_MinigameDrainMult)
-        SetSliderDialogDefaultValue(1.0)
-        SetSliderDialogRange(0.2, 5.0)
-        SetSliderDialogInterval(0.1)
+        SetSliderDialogStartValue(UDCDmain.UD_MinigameDrainMult * 100)
+        SetSliderDialogDefaultValue(100)
+        SetSliderDialogRange(20, 500)
+        SetSliderDialogInterval(10)
     ElseIf option == UD_InitialDrainDelay_S
         SetSliderDialogStartValue(UDCDmain.UD_InitialDrainDelay)
         SetSliderDialogDefaultValue(0)
@@ -2050,8 +2050,8 @@ Function OnOptionSliderAcceptCustomBondage(int option, float value)
         UDCDmain.UD_KeyDurability = Round(value)
         SetSliderOptionValue(UD_KeyDurability_S, UDCDmain.UD_KeyDurability, "{0}")
     ElseIf option == UD_MinigameDrainMult_S
-        UDCDmain.UD_MinigameDrainMult = value
-        SetSliderOptionValue(UD_MinigameDrainMult_S, UDCDmain.UD_MinigameDrainMult, "{1} %")
+        UDCDmain.UD_MinigameDrainMult = value / 100
+        SetSliderOptionValue(UD_MinigameDrainMult_S, UDCDmain.UD_MinigameDrainMult * 100, "{1} %")
     ElseIf option == UD_InitialDrainDelay_S
         UDCDmain.UD_InitialDrainDelay = Round(value)
         SetSliderOptionValue(UD_InitialDrainDelay_S, UDCDmain.UD_InitialDrainDelay, "{0} s")
@@ -3256,6 +3256,8 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetFloatValue(strFile, "CritDurationAdjust", UDCDmain.UD_CritDurationAdjust)
     JsonUtil.SetIntValue(strFile, "KeyDurability", UDCDmain.UD_KeyDurability)
     JsonUtil.SetIntValue(strFile, "HardcoreAccess", UDCDmain.UD_HardcoreAccess as Int)
+    JsonUtil.SetFloatValue(strFile, "MinigameDrainMult", UDCDmain.UD_MinigameDrainMult)
+    JsonUtil.SetFloatValue(strFile, "InitialDrainDelay", UDCDmain.UD_InitialDrainDelay)
     
     ;ABADON
     JsonUtil.SetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
@@ -3393,6 +3395,8 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UD_CritDurationAdjust = JsonUtil.GetFloatValue(strFile, "CritDurationAdjust", UDCDmain.UD_CritDurationAdjust)
     UDCDmain.UD_KeyDurability = JsonUtil.GetIntValue(strFile, "KeyDurability", UDCDmain.UD_KeyDurability)
     UDCDmain.UD_HardcoreAccess = JsonUtil.GetIntValue(strFile, "HardcoreAccess", UDCDmain.UD_HardcoreAccess as Int)
+    UDCDmain.UD_MinigameDrainMult = JsonUtil.GetFloatValue(strFile, "MinigameDrainMult", UDCDmain.UD_MinigameDrainMult)
+    UDCDmain.UD_InitialDrainDelay = JsonUtil.GetFloatValue(strFile, "InitialDrainDelay", UDCDmain.UD_InitialDrainDelay)
     
     ;ABADON
     AbadonQuest.final_finisher_set = JsonUtil.GetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
