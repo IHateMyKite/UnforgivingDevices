@@ -433,11 +433,15 @@ bool Function PlayerInMinigame()
 EndFunction
 
 ;stops current device minigiame. Takes up to 1s second
-Function StopMinigame(Actor akActor)
+Function StopMinigame(Actor akActor, Bool abWaitForStop)
     if !akActor
         return
     endif
-    return akActor.RemoveFromFaction(MinigameFaction)
+    
+    UD_CustomDevice_RenderScript loc_device = GetMinigameDevice(akActor)
+    if loc_device
+        loc_device.StopMinigame(abWaitForStop)
+    endif
 EndFunction
 
 Function BlockActorExpression(Actor akActor,sslBaseExpression sslExpression)
@@ -978,7 +982,7 @@ Function NPCMenu(Actor akActor)
     SetMessageAlias(akActor)
     UD_CurrentNPCMenuIsFollower         = ActorIsFollower(akActor)
     UD_CurrentNPCMenuIsRegistered       = isRegistered(akActor)
-    UD_CurrentNPCMenuTargetIsHelpless   = UDmain.ActorIsHelpless(akActor) && UDmain.ActorFreeHands(akActor)
+    UD_CurrentNPCMenuTargetIsHelpless   = UDmain.ActorIsHelpless(akActor) && UDmain.ActorFreeHands(UDmain.Player)
     UD_CurrentNPCMenuTargetIsInMinigame = ActorInMinigame(akActor)
     UD_CurrentNPCMenuIsPersistent       = StorageUtil.GetIntValue(akActor, "UD_ManualRegister", 0)
 
@@ -1786,7 +1790,9 @@ String[] Function GetDeviceStruggleKeywords(Armor akDevice)
     Else
         result = GetDeviousKeywords(akDevice)
     EndIf
-    UDMain.Log("UDCustomDeviceMain::GetDeviceStruggleKeywords() " + akDevice + " : " + result, 3)
+    if UDmain.TraceAllowed()
+        UDMain.Log("UDCustomDeviceMain::GetDeviceStruggleKeywords() " + akDevice + " : " + result, 3)
+    endif
     Return result
 EndFunction
 

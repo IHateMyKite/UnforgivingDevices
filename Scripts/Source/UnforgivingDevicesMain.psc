@@ -639,8 +639,8 @@ EndFunction
 
 ;convert int to bit map
 string Function IntToBit(int argInt) global
-    string     loc_res =     ""
-    int     loc_i     =    32
+    string  loc_res = ""
+    int     loc_i   = 32
     while loc_i ;32 bit number
         loc_i -= 1
         if Math.LogicalAnd(argInt,Math.LeftShift(0x00000001,loc_i))
@@ -1053,12 +1053,6 @@ Form Function GetShield(Actor akActor) Global
         return loc_shield
     else
         return none
-    endif
-EndFunction
-
-Function GamepadMenuPause() Global
-    if Game.UsingGamepad()
-        Utility.wait(0.1)
     endif
 EndFunction
 

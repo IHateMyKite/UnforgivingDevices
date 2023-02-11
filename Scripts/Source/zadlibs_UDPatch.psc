@@ -326,10 +326,10 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
                     loc_mutex.EvaluateUnLockMutex()
                 endif
                 
-                ;remove inventiory device if its detroy on remove
-                ;if destroyDevice
-                ;    akActor.RemoveItem(deviceInventory, 1, true)
-                ;EndIf
+                ;remove inventory device if its detroy on remove
+                if destroyDevice
+                    akActor.RemoveItem(deviceInventory, 1, true)
+                EndIf
                 
                 loc_res = true          ;succes
             else
