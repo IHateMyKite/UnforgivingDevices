@@ -351,7 +351,7 @@ Function UpdateActorOrgasmProgress(Actor akActor,Float fValue,bool bUpdateWidget
     float loc_newValue = fRange(StorageUtil.GetFloatValue(akActor, "UD_OrgasmProgress",0.0) + fValue,0.0,getActorOrgasmCapacity(akActor))
     StorageUtil.SetFloatValue(akActor, "UD_OrgasmProgress",loc_newValue)
     if bUpdateWidget && UD_UseOrgasmWidget
-        UDmain.UDWC.Meter_SetPercent("player-orgasm", loc_newValue / getActorOrgasmCapacity(akActor))
+        UDmain.UDWC.Meter_SetFillPercent("player-orgasm", loc_newValue / getActorOrgasmCapacity(akActor) * 100.0)
     endif
     _OrgasmProgressManip_Mutex = false
 EndFunction

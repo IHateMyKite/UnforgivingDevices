@@ -8,7 +8,6 @@ UDCustomDeviceMain                  Property UDCDmain auto
 UD_SwimmingScript                   Property UDSS auto
 UDItemManager                       Property UDIM auto
 UD_AbadonQuest_script               Property AbadonQuest auto
-UD_WidgetBase                       Property widget auto
 UD_CustomDevices_NPCSlotsManager    Property UDCD_NPCM auto
 zadlibs_UDPatch                     Property libs auto hidden
 

@@ -1988,7 +1988,7 @@ Function UpdateOrgasm(Float afUpdateTime)
         if _widgetShown
             _widgetShown = false
             UDmain.UDWC.Meter_SetVisible("player-orgasm", False)
-            UDmain.UDWC.Meter_SetPercent("player-orgasm", 0.0, True)
+            UDmain.UDWC.Meter_SetFillPercent("player-orgasm", 0.0, True)
         endif
         
         _hornyAnimTimer  = -45 ;cooldown
@@ -2083,7 +2083,7 @@ Function CalculateOrgasmProgress()
     _orgasmProgress_p = fRange(_orgasmProgress/_orgasmCapacity,0.0,1.0) ;update relative orgasm progress
     
     if _widgetShown && !_orgasmResisting
-        UDmain.UDWC.Meter_SetPercent("player-orgasm", _orgasmProgress_p)
+        UDmain.UDWC.Meter_SetFillPercent("player-orgasm", _orgasmProgress_p * 100.0)
     endif
 EndFunction
 
@@ -2139,11 +2139,11 @@ Function UpdateOrgasmSecond()
         UpdateOrgasmHornyAnimation()
         
         if UDOMcfg.UD_UseOrgasmWidget && IsPlayer()
-            if (_widgetShown && _orgasmProgress < 2.5) ;|| (loc_widgetShown)
+            if (_widgetShown && _orgasmProgress_p < 0.025) ;|| (loc_widgetShown)
                 UDmain.UDWC.Meter_SetVisible("player-orgasm", False)
                 _widgetShown = false
-            elseif !_widgetShown && _orgasmProgress >= 2.5
-                UDmain.UDWC.Meter_SetPercent("player-orgasm", _orgasmProgress_p, True)
+            elseif !_widgetShown && _orgasmProgress_p >= 0.025
+                UDmain.UDWC.Meter_SetFillPercent("player-orgasm", _orgasmProgress_p * 100.0, True)
                 UDmain.UDWC.Meter_SetVisible("player-orgasm", True)
                 _widgetShown = true
             endif

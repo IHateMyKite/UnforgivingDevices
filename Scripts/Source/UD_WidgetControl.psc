@@ -32,10 +32,8 @@ Bool                        Property UD_UseIWantWidget  Hidden
 EndProperty
 
 ; vanilla widgets
-UD_WidgetBase               Property UD_Widget1 auto
-{Vanilla Device widget}
-UD_WidgetBase               Property UD_Widget2 auto
-{Vanilla Orgasm widget}
+UD_WidgetBase[]             Property UD_VanillaWidgets Auto
+{Vanilla meter widgets}
 
 iWant_Widgets Property iWidget Hidden
 {iWidget quest}
@@ -202,8 +200,11 @@ Int Property UD_WidgetXPos Hidden
             Return
         EndIf
         _WidgetXPos = aiVal
-        UD_Widget1.PositionX = _WidgetXPos
-        UD_Widget2.PositionX = _WidgetXPos
+        Int i = UD_VanillaWidgets.Length
+        While i > 0
+            i -= 1
+            UD_VanillaWidgets[i].PositionX = _WidgetXPos
+        EndWhile
         if GetState() == "iWidgetInstalled"
             InitWidgetsRequest(abMeters = True)
         endif
@@ -220,8 +221,11 @@ Int Property UD_WidgetYPos Hidden
             Return
         EndIf
         _WidgetYPos = aiVal
-        UD_Widget1.PositionY = _WidgetYPos
-        UD_Widget2.PositionY = _WidgetYPos
+        Int i = UD_VanillaWidgets.Length
+        While i > 0
+            i -= 1
+            UD_VanillaWidgets[i].PositionY = _WidgetYPos
+        EndWhile
         if GetState() == "iWidgetInstalled"
             InitWidgetsRequest(abMeters = True)
         endif
@@ -230,6 +234,8 @@ Int Property UD_WidgetYPos Hidden
         return _WidgetYPos
     EndFunction
 EndProperty
+
+Bool    Property   UD_UseDeviceConditionWidget  = True  Auto    Hidden
 
 Int CanvasWidth = 1280
 Int CanvasHeight = 720
@@ -296,6 +302,16 @@ EndEvent
 
 Function Update()
     OnInterfaceSwitch(abGameLoad = True)
+    ; upgrade version
+    Int i = UD_VanillaWidgets.Length
+    While i > 0
+        i -= 1
+        If UD_VanillaWidgets[i].WidgetName == "DeviceWidget"
+            UD_VanillaWidgets[i].WidgetName = "device-main"
+        ElseIf UD_VanillaWidgets[i].WidgetName == "OrgasmWidget"
+            UD_VanillaWidgets[i].WidgetName = "player-orgasm"
+        EndIf
+    EndWhile
 EndFunction
 
 ; In this function, switching between different interface options is checked and processed.
@@ -310,18 +326,31 @@ Function OnInterfaceSwitch(Bool abGameLoad)
     
     if UDmain.UseiWW()
         GoToState("iWidgetInstalled")
-        UD_Widget1.hide(true)
-        UD_Widget2.hide(true)
-        Meter_Register("device-durability")
-        Meter_SetColor("device-durability", 0xFF005E, 0xFF307C, 0)
+        Int i = UD_VanillaWidgets.Length
+        While i > 0
+            i -= 1
+            UD_VanillaWidgets[i].Hide(True)
+        EndWhile
+        Meter_Register("device-main")
         Meter_Register("device-condition")
-        Meter_SetColor("device-condition", 0x4df319, 0x62ff00, 0)
         Meter_Register("player-orgasm")
-        Meter_SetColor("player-orgasm", 0xE727F5, 0xF775FF, 0xFF00BC)
         InitWidgetsRequest(abGameLoad = abGameLoad, abMeters = True, abIcons = True, abText = True)
     else
         GoToState("")
+        ; arranging vanilla widgets
+        Int i = 0
+        Float loc_posOffset = 0.0
+        While i < UD_VanillaWidgets.Length
+            UD_VanillaWidgets[i].PositionX = _WidgetXPos
+            UD_VanillaWidgets[i].PositionY = _WidgetYPos
+            UD_VanillaWidgets[i].PositionYOffset = loc_posOffset
+            loc_posOffset += 1.5
+            i += 1
+        EndWhile
     endif
+    Meter_SetColor("device-main", 0xFF005E, 0xFF307C, 0)
+    Meter_SetColor("device-condition", 0x4df319, 0x62ff00, 0)
+    Meter_SetColor("player-orgasm", 0xE727F5, 0xF775FF, 0xFF00BC)
 EndFunction
 
 ; should be called before placing widgets
@@ -451,8 +480,8 @@ EndFunction
     Widget API
 /;
 
-; Register new meter widget
-; asName        - meter's name
+; Registers new meter widget
+; asName            - meter's name
 Function Meter_Register(String asName)
     UDMain.Info("UD_WidgetControl::Meter_Register() asName = " + asName)
     UD_WidgetMeter_RefAlias loc_data = _GetMeter(asName)
@@ -466,52 +495,56 @@ Function Meter_Register(String asName)
     EndIf
 EndFunction
 
+; Changes meter visibility
+; asName            - meter's name
+; abVisible         - if true then become visible
+; abUpdateVisPos    - 
 Function Meter_SetVisible(String asName, Bool abVisible, Bool abUpdateVisPos = True)
-    If asName == "device-durability"
-        if abVisible
-            UD_Widget1.show(true)
-        else
-            UD_Widget1.hide(true)
-        endif
-    ElseIf asName == "device-condition"
-        
-    ElseIf asName == "player-orgasm"
-        if abVisible
-            UD_Widget2.show(true)
-        else
-            UD_Widget2.hide(true)
-        endif
+    UD_WidgetBase loc_widget = _GetVanillaMeter(asName)
+    If loc_widget == None
+        Return
     EndIf
+    if abVisible
+        loc_widget.show(true)
+    else
+        loc_widget.hide(true)
+    endif
 EndFunction
 
-Function Meter_SetPercent(String asName, Float afValue, Bool abForce = false)
-    If asName == "device-durability"
-        UD_Widget1.SetPercent(afValue, abForce)
-    ElseIf asName == "device-condition"
-
-    ElseIf asName == "player-orgasm"
-        UD_Widget2.SetPercent(afValue, abForce)
+; Changes meter fill
+; asName            - meter's name
+; afValue           - value to fill the meter's bar in percents (0.0 ... 100.0)
+; abForce           - 
+Function Meter_SetFillPercent(String asName, Float afValue, Bool abForce = false)
+    UDMain.Log("UD_WidgetControl::Meter_SetFillPercent() asName = " + asName + ", afValue = " + afValue)
+    UD_WidgetBase loc_widget = _GetVanillaMeter(asName)
+    If loc_widget == None
+        Return
     EndIf
+    loc_widget.SetPercent(afValue / 100.0, abForce)
 EndFunction
 
+; Sets meter's bar color and flash color
+; asName            - meter's name
+; aiColor           - primary color of the meter
+; aiColor2           - secondary color of the meter
+; aiFlashColor       - flash color of the meter
 Function Meter_SetColor(String asName, Int aiColor, Int aiColor2 = 0, Int aiFlashColor = 0xFFFFFF)
-    If asName == "device-durability"
-        UD_Widget1.SetColors(aiColor, aiColor2, aiFlashColor)
-    ElseIf asName == "device-condition"
-
-    ElseIf asName == "player-orgasm"
-        UD_Widget2.SetColors(aiColor, aiColor2, aiFlashColor)
+    UD_WidgetBase loc_widget = _GetVanillaMeter(asName)
+    If loc_widget == None
+        Return
     EndIf
+    loc_widget.SetColors(aiColor, aiColor2, aiFlashColor)
 EndFunction
 
+; Makes meter to flash
+; asName        - meter's name
 Function Meter_Flash(String asName)
-    If asName == "device-durability"
-        UD_Widget1.Flash()
-    ElseIf asName == "device-condition"
-
-    ElseIf asName == "player-orgasm"
-        UD_Widget2.Flash()
+    UD_WidgetBase loc_widget = _GetVanillaMeter(asName)
+    If loc_widget == None
+        Return
     EndIf
+    loc_widget.Flash()
 EndFunction
 
 ; Print notification on screen
@@ -657,6 +690,18 @@ EndFunction
 Bool Function _NextNotification()
 EndFunction
 Function _AddTextLineWidget()
+EndFunction
+
+UD_WidgetBase Function _GetVanillaMeter(String asName)
+    Int i = UD_VanillaWidgets.Length
+    While i > 0
+        i -= 1
+        If UD_VanillaWidgets[i].WidgetName == asName
+            Return UD_VanillaWidgets[i]
+        EndIf
+    EndWhile
+    UDMain.Log("UD_WidgetControl::_GetVanillaMeter() Can't find vanilla widget with the name " + asName)
+    Return None
 EndFunction
 
 Bool _FindEmptySE_Mutex = False
@@ -1051,12 +1096,12 @@ State iWidgetInstalled
         iWidget.setVisible(loc_data.Id, loc_data.Visible as Int)
     EndFunction
 
-    Function Meter_SetPercent(String asName, Float afValue, Bool abForce = false)
+    Function Meter_SetFillPercent(String asName, Float afValue, Bool abForce = false)
         UD_WidgetMeter_RefAlias loc_data = _GetMeter(asName, False)
         If loc_data == None
             Return
         EndIf
-        loc_data.FillPercent = (afValue * 100) as Int
+        loc_data.FillPercent = afValue as Int
         If _InitMetersMutex
             Return
         EndIf
