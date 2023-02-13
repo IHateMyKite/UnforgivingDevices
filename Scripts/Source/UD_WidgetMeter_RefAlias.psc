@@ -22,3 +22,22 @@ Function SoftReset()
     FillPercent = 0
     Visible = False
 EndFunction
+
+Int _PrimaryColor
+Int _SecondaryColor
+Int _FlashColor
+Bool _Visible
+
+Function StartTest()
+    _Visible = Visible
+    _PrimaryColor = PrimaryColor
+    _SecondaryColor = SecondaryColor
+    _FlashColor = FlashColor
+EndFunction
+
+Function EndTest()
+    Visible = _Visible
+    PrimaryColor = _PrimaryColor
+    SecondaryColor = _SecondaryColor
+    FlashColor = _FlashColor
+EndFunction

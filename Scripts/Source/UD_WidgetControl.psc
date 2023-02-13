@@ -283,19 +283,19 @@ Event OnUpdate()
             return ;fatal error, do not use the module
         endif
         Ready = True
-        OnInterfaceSwitch(abGameLoad = False)
-        InitWidgetsRequest(abGameLoad = False, abMeters = True, abIcons = True, abText = True)
+        OnInterfaceSwitch(abGameLoad = True)
+        InitWidgetsRequest(abGameLoad = True, abMeters = True, abIcons = True, abText = True)
     EndIf
     if UDmain.IsEnabled()
-        If _OnUpdateMutex
-            Return
-        EndIf
-        _OnUpdateMutex = True
-        If _InitMetersRequested || _InitIconsRequested || _InitTextRequested
-            InitWidgetsCheck(_InitAfterLoadGame)
-            _InitAfterLoadGame = False
-        EndIf
-        _OnUpdateMutex = False
+;        If _OnUpdateMutex
+;            Return
+;        EndIf
+;        _OnUpdateMutex = True
+;        If _InitMetersRequested || _InitIconsRequested || _InitTextRequested
+;            InitWidgetsCheck(_InitAfterLoadGame)
+;            _InitAfterLoadGame = False
+;        EndIf
+;        _OnUpdateMutex = False
     endif
     RegisterForSingleUpdate(30) ;maintenance update
 EndEvent
@@ -376,7 +376,8 @@ Function RefreshCanvasMetrics()
     CanvasHeight = 720
     HUDMeterWidth = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Stamina._width")
     HUDMeterHeight = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Stamina._height")
-    HUDMeterWidthRef = 248.0 ; / WideScreenFactor
+    HUDMeterWidthRef = 248.0
+    HUDMeterHeightRef = 15.0
     HUDPaddingX = 48.0 + hud_padding
     HUDPaddingY = hud_padding
 EndFunction
@@ -388,7 +389,7 @@ Bool _InitTextRequested = False
 Bool _InitAfterLoadGame = False
 ; Function for asynchronous interface rebuilding
 ; The interface will be rebuilt in the next call to the OnUpdate function.
-; See functions: InitWidgetsCheck, InitMeters, InitIcons, InitText
+; See functions: InitMeters, InitIcons, InitText
 ; abGameLoad        - if it called after game load then all saved widgets IDs are invalid.
 ; abMeters          - rebuild meter widgets
 ; abIcons           - reduild icons
@@ -400,12 +401,6 @@ Function InitWidgetsRequest(Bool abGameLoad = False, Bool abMeters = False, Bool
     _InitIconsRequested = _InitIconsRequested || abIcons
     _InitTextRequested = _InitTextRequested || abText
     RegisterForSingleUpdate(0.5)
-EndFunction
-
-; This function checks the flags previously set by the InitWidgetsRequest function and calls methods to rebuild the interface
-; See functions: InitMeters, InitIcons, InitText
-; abGameLoad        - if it called after game load
-Function InitWidgetsCheck(Bool abGameLoad = False)
 EndFunction
 
 ; Rebuild meter widgets
@@ -803,7 +798,17 @@ State iWidgetInstalled
             EndIf
             _OnUpdateMutex = True
             If _InitMetersRequested || _InitIconsRequested || _InitTextRequested
-                InitWidgetsCheck(_InitAfterLoadGame)
+                UnregisterForUpdate()
+                RefreshCanvasMetrics()
+                If _InitMetersRequested
+                    _InitMetersRequested = !InitMeters(_InitAfterLoadGame)
+                EndIf
+                If _InitTextRequested
+                    _InitTextRequested = !InitText(_InitAfterLoadGame)
+                EndIf
+                If _InitIconsRequested
+                    _InitIconsRequested = !InitIcons(_InitAfterLoadGame)
+                EndIf
                 _InitAfterLoadGame = False
             EndIf
             _AnimateWidgets()
@@ -813,27 +818,9 @@ State iWidgetInstalled
             RegisterForSingleUpdate(5.0)
         endif
     EndEvent
-
-    ; abGameLoad        - flag that it's game load event. And we recreate all widgets regardless of previous IDs
-    Function InitWidgetsCheck(Bool abGameLoad = False)
-        UnregisterForUpdate()
-;        Utility.Wait(_Animation_Update + 0.5)
-        
-        RefreshCanvasMetrics()
-        If _InitMetersRequested
-            _InitMetersRequested = !InitMeters(abGameLoad)
-        EndIf
-        If _InitTextRequested
-            _InitTextRequested = !InitText(abGameLoad)
-        EndIf
-        If _InitIconsRequested
-            _InitIconsRequested = !InitIcons(abGameLoad)
-        EndIf
-
-        RegisterForSingleUpdate(_Animation_Update)
-    EndFunction
         
     Bool Function InitMeters(Bool abGameLoad = False)
+        UDMain.Log("UD_WidgetControl::InitMeters() abGameLoad = " + abGameLoad, 3)
         _InitMetersMutex = True
         Utility.Wait(0.2)                   ; waiting for the end of all UpdatePercent_***Widget calls
         If abGameLoad
@@ -867,6 +854,7 @@ State iWidgetInstalled
     EndFunction
     
     Bool Function InitText(Bool abGameLoad = False)
+        UDMain.Log("UD_WidgetControl::InitText() abGameLoad = " + abGameLoad, 3)
         If abGameLoad
         ; clearing IDs on game load since all widgets are already destroyed
             _Text_LinesId = PapyrusUtil.IntArray(0)
@@ -912,6 +900,7 @@ State iWidgetInstalled
     EndFunction
     
     Bool Function InitIcons(Bool abGameLoad = False)
+        UDMain.Log("UD_WidgetControl::InitIcons() abGameLoad = " + abGameLoad, 3)
         If abGameLoad
         ; clearing IDs on game load since all widgets are already destroyed
             Int i = StatusEffectSlots.Length
@@ -1048,7 +1037,7 @@ State iWidgetInstalled
         EndIf
         If _CreateMeter_Mutex
             Int i = 0
-            While i < 100 && _CreateMeter_Mutex
+            While i < 20 && _CreateMeter_Mutex
                 Utility.Wait(0.05)
                 i += 1
             EndWhile
@@ -1061,14 +1050,14 @@ State iWidgetInstalled
         EndIf
         If akData.Id < 0
             akData.Id = iWidget.loadMeter()
+            iWidget.setSize(akData.Id, HUDMeterHeight as Int, HUDMeterWidth as Int)
+            ; iWidget.setZoom(akData.Id, 67, 67)
         EndIf
-        
-        iWidget.setSize(akData.Id, HUDMeterHeight as Int, HUDMeterWidth as Int)
         iWidget.setPos(akData.Id, aiX, aiY)
         iWidget.setMeterPercent(akData.Id, akData.FillPercent)
         iWidget.setVisible(akData.Id, akData.Visible as Int)
         _UpdateMeterColor(akData.Id, akData.PrimaryColor, akData.SecondaryColor, akData.FlashColor)
-        _CreateIcon_Mutex = False
+        _CreateMeter_Mutex = False
     EndFunction
     
     ;use to convert from hex to this sinfull way of writting colors
@@ -1126,42 +1115,7 @@ State iWidgetInstalled
         EndIf
         iWidget.doMeterFlash(loc_data.Id)
     EndFunction
-    
-    Function TestWidgets()
-        UD_WidgetStatusEffect_RefAlias data
-        Int len = StatusEffectSlots.Length
-        Int i = 0
-        While i < len
-            data = StatusEffectSlots[i]
-            If data.Name != ""
-                data.StartTest()
-                StatusEffect_SetMagnitude(data.Name, Utility.RandomInt(1, 100))
-                StatusEffect_SetVisible(data.Name, True)
-                StatusEffect_SetBlink(data.Name, True)
-            EndIf
-            i += 1
-        EndWhile
-        
-        Notification_Push("TEST 0 TEST 0", 0xFF0000)
-        Notification_Push("TEST 1 TEST 1", 0x00FF00)
-        Notification_Push("TEST 2 TEST 2", 0x0000FF)
-        
-        Utility.Wait(5.0)
-
-    ; load last values
-        i = 0
-        While i < len
-            data = StatusEffectSlots[i]
-            If data.Name != ""
-                data.EndTest()
-                StatusEffect_SetMagnitude(data.Name, data.Magnitude)
-                StatusEffect_SetVisible(data.Name, data.Visible)
-                StatusEffect_SetBlink(data.Name, data.Blinking)
-            EndIf
-            i += 1
-        EndWhile
-    EndFunction
-    
+   
     ; quickly push a string into array and leave the function
     Function Notification_Push(String asText, Int aiColor = 0xFFFFFF)
         If asText == ""
@@ -1243,7 +1197,7 @@ State iWidgetInstalled
         EndIf
         If _CreateIcon_Mutex
             Int i = 0
-            While i < 100 && _CreateIcon_Mutex
+            While i < 20 && _CreateIcon_Mutex
                 Utility.Wait(0.05)
                 i += 1
             EndWhile
@@ -1451,6 +1405,65 @@ State iWidgetInstalled
             EndIf
             i += 1
         EndWhile
+    EndFunction
+    
+    Function TestWidgets()
+        UD_WidgetStatusEffect_RefAlias loc_dataIcon
+        UD_WidgetMeter_RefAlias loc_dataMeter
+        Int len = StatusEffectSlots.Length
+        Int i = 0
+        While i < len
+            loc_dataIcon = StatusEffectSlots[i]
+            If loc_dataIcon.Name != ""
+                loc_dataIcon.StartTest()
+                StatusEffect_SetMagnitude(loc_dataIcon.Name, Utility.RandomInt(1, 100))
+                StatusEffect_SetVisible(loc_dataIcon.Name, True)
+                StatusEffect_SetBlink(loc_dataIcon.Name, True)
+            EndIf
+            i += 1
+        EndWhile
+        
+        len = MeterSlots.Length
+        i = 0
+        While i < len
+            loc_dataMeter = MeterSlots[i]
+            If loc_dataMeter.Name != ""
+                loc_dataMeter.StartTest()
+                Meter_SetVisible(loc_dataMeter.Name, True)
+            EndIf
+            i += 1
+        EndWhile
+        
+        Notification_Push("TEST 0 TEST 0", 0xFF0000)
+        Notification_Push("TEST 1 TEST 1", 0x00FF00)
+        Notification_Push("TEST 2 TEST 2", 0x0000FF)
+        
+        Utility.Wait(5.0)
+
+    ; load last values
+        i = 0
+        While i < len
+            loc_dataIcon = StatusEffectSlots[i]
+            If loc_dataIcon.Name != ""
+                loc_dataIcon.EndTest()
+                StatusEffect_SetMagnitude(loc_dataIcon.Name, loc_dataIcon.Magnitude)
+                StatusEffect_SetVisible(loc_dataIcon.Name, loc_dataIcon.Visible)
+                StatusEffect_SetBlink(loc_dataIcon.Name, loc_dataIcon.Blinking)
+            EndIf
+            i += 1
+        EndWhile
+        
+        len = MeterSlots.Length
+        i = 0
+        While i < len
+            loc_dataMeter = MeterSlots[i]
+            If loc_dataMeter.Name != ""
+                loc_dataMeter.EndTest()
+                Meter_SetVisible(loc_dataMeter.Name, loc_dataMeter.Visible)
+            EndIf
+            i += 1
+        EndWhile
+        
     EndFunction
     
 EndState        ; iWidgetInstalled
