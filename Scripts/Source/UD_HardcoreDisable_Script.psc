@@ -113,7 +113,7 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
             _target.RemoveSpell(UDCDmain.UDlibs.HardcoreDisableSpell)
         endif
         _target.AddSpell(UDCDmain.UDlibs.HardcoreDisableSpell,False)
-        UDmain.Error("Hardcore disabler is still present on player, readding !")
+        UDmain.Error("Hardcore mode is still enabled! Recasting spell.")
     else
         Utility.waitMenuMode(0.75) ;wait a little time
         UDmain.libsp.ProcessPlayerControls(abCheckMinigame = true)

@@ -225,7 +225,7 @@ Function inflate(bool silent = false,int iInflateNum = 1)
         if !silent
             if hasHelper()
                 if WearerIsPlayer()
-                    UDmain.Print(getHelperName() + " helped you to inflate yours " + getDeviceName() + "!",1)
+                    UDmain.Print(getHelperName() + " helped you to inflate your " + getDeviceName() + "!",1)
                 elseif WearerIsFollower() && HelperIsPlayer()
                     UDmain.Print("You helped to inflate " + getWearerName() + "s " + getDeviceName() + "!",1)
                 elseif WearerIsFollower()
@@ -410,9 +410,9 @@ Function activateDevice()
     bool loc_canVibrate = canVibrate() && !isVibrating()
     if loc_canInflate
         if WearerIsPlayer()
-            UDmain.Print("Your "+ getDeviceName()+" suddenly inflate itself!",1)
+            UDmain.Print("Your "+ getDeviceName()+" suddenly inflates itself!",1)
         elseif WearerIsFollower()
-            UDmain.Print(getWearerName() + "s "+ getDeviceName() + " suddenly inflate itself!",3)
+            UDmain.Print(getWearerName() + "s "+ getDeviceName() + " suddenly inflates itself!",3)
         endif
         inflatePlug(1)
     endif

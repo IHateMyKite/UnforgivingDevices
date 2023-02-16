@@ -194,6 +194,10 @@ EndFunction
 
 Function Procces_LootGold_Remove(UD_CustomDevice_RenderScript argDevice)
     Actor akActor = argDevice.getWearer()
+    if !argDevice.WearerIsPlayer()
+        return ;do nothing if wearer is not player. Added as way to make mod harder, as this can make getting money very easy
+    endif
+    
     if argDevice.zad_DestroyOnRemove || argDevice.hasModifier("DOR") || !akActor.isDead()
         if argDevice.hasModifier("LootGold")
             if UDmain.TraceAllowed()
@@ -226,8 +230,8 @@ Function Procces_LootGold_Remove(UD_CustomDevice_RenderScript argDevice)
                 
                 int randomNum = Utility.randomInt(goldNumMin2,goldNumMax2)
                 if randomNum > 0
-                    akActor.addItem(UDlibs.Gold,randomNum)    
-                endif                
+                    akActor.addItem(UDlibs.Gold,randomNum)
+                endif
             else
                 akActor.addItem(UDlibs.Gold,goldNumMin)
             endif

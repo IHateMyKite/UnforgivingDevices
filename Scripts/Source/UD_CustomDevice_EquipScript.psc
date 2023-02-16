@@ -115,7 +115,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
             endwhile
             deviceReturned = False
             if UDmain.TraceAllowed()
-                UDCDmain.Log(" Device regained! Starting unlock operatios!",1)
+                UDCDmain.Log(" Device regained! Starting unlock operations!",1)
             endif
             unlockDevice(giver)
             return
@@ -143,7 +143,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
                         if UDmain.ActorIsValidForUD(target)
                             if UDmain.ActorIsPlayer(giver)
                                 if !EquipDeviceMenu(target)
-                                    UDmain.Print("You put and lock " + getDeviceName() + " on " + GetActorName(target))
+                                    UDmain.Print("You equip and lock " + getDeviceName() + " on " + GetActorName(target))
                                 else
                                     return
                                 endif
@@ -462,7 +462,7 @@ int Function EquipFilterPlug(actor akActor, bool silent=false)
         if akActor == libs.PlayerRef && !silent
             libs.NotifyActor("Try as you might, the belt you are wearing prevents you from inserting this plug.", akActor, true)
         ElseIf  !silent
-            libs.NotifyActor("The belt " + akActor.GetLeveledActorBase().GetName() + " is wearing prevents from having this plug inserted.", akActor, true)
+            libs.NotifyActor("The belt " + GetActorName(akActor) + " is wearing prevents plug from being inserted.", akActor, true)
         EndIf
         if !silent
             return 2
@@ -615,7 +615,7 @@ int Function EquipFilterStraitjacket(actor akActor, bool silent=false)
             if akActor == libs.PlayerRef && !silent
                 libs.NotifyActor("You can't equip straitjacket while wearing bondage suit!", akActor, true)
             ElseIf  !silent
-                libs.NotifyActor(akActor.GetLeveledActorBase().GetName() + " can't equip straitjacket because they are already wearing suit!", akActor, true)
+                libs.NotifyActor(akActor.GetLeveledActorBase().GetName() + " is already wearing a suit so straitjacket can't be equipped!", akActor, true)
             EndIf
             
             return 2
