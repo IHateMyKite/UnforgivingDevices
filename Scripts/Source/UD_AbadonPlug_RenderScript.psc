@@ -10,30 +10,19 @@ EndProperty
 import UnforgivingDevicesMain
 
 ;const values
-float diffuptimehours = 4.0 ;hours
-float difficultygain = 0.0
-float diff_gain_orgasm = 3.0
-float diff_gain_edge = 1.0
-
-;variables
-float abadonPlugDiff = 0.0
-
-float last_time_little_finisher_time = 1.0
-
-;mutex checks
-bool finisherOn = false
-
-float total_strenght = 0.0
-int orgasm_cout = 0
-
-;Actor Property Player auto
-bool max_diff_finisher = False
-
-float nextDeviceManifest = 0.0
-float plug_hunger = 0.0
-
-
-bool belt_used = false
+float   diffuptimehours     = 4.0 ;hours
+float   difficultygain      = 0.0
+float   diff_gain_orgasm    = 3.0
+float   diff_gain_edge      = 1.0
+float   abadonPlugDiff      = 0.0
+float   last_time_little_finisher_time  = 1.0
+bool    finisherOn          = false ;mutex checks
+float   total_strenght      = 0.0
+int     orgasm_cout         = 0
+bool    max_diff_finisher   = False
+float   nextDeviceManifest  = 0.0
+float   plug_hunger         = 0.0
+bool    belt_used           = false
 
 float Function relativeStrength()
     return abadonPlugDiff/AbadonQuestScript.max_difficulty
@@ -282,7 +271,7 @@ Function abadonorgasm(float mult = 1.0)
                 UDCDmain.Print("Plugs within you are making you orgasm nonstop!")
                 msg1 = true
             elseif (finisher_current_orgasms > 6 && !msg2)
-                UDCDmain.Print("Constants orgasms barely let you catch a breath!")
+                UDCDmain.Print("Constant orgasms barely let you catch a breath!")
                 msg2 = true
             elseif (finisher_current_orgasms > 10 && !msg3)
                 UDCDmain.Print("You feel your mind breaking with every new orgasm")
@@ -413,7 +402,7 @@ Function BeltCheck()
         belt_used = True
         stopMinigame()
         if WearerIsPlayer()
-            UDCDmain.Print("Plug have locked you in chastity belt!")
+            UDCDmain.Print("Plug has locked you in a chastity belt!")
         endif
         libs.lockdevice(getWearer(),UDlibs.AbadonBelt)
     endif
@@ -549,9 +538,9 @@ Function onUpdatePost(float timePassed)
                     AbadonQuestScript.SetObjectiveFailed(30)
                     AbadonQuestScript.SetObjectiveDisplayed(40)
                 endif
-                string tmp = "Despite your best efforts to remove the plug in time, you ultimately failed. Abadon plug have finally reached its full strength. It manifested and locked extremely sturdy straitjacket suit on your body that barely allow you to move your arms."
-                tmp += "You immediately tried to struggle free, but that only made plugs inside you start vibrating furiously. You pant in pleasure as first of many orgasms that are awating you starts to build up."
-                tmp += "With realisation of how bad situation you get yourself into, you let last scream out just before gag manifested over your mouth. Tears run down your cheeks as you uselessly try to resist coming orgasm."
+                string tmp = "Despite your best efforts to remove the plug in time, you ultimately failed. Abadon plug has finally reached its full strength. It manifested and locked extremely sturdy straitjacket suit on your body that barely allows you to move your arms."
+                tmp += "You immediately tried to struggle free, but that only made the plugs inside you start vibrating furiously. You pant in pleasure as first of many orgasms that are awaiting you starts to build up."
+                tmp += "With realisation of how bad the situation you got yourself into is, you let out a scream just before a gag manifested over your mouth. Tears run down your cheeks as you uselessly try to resist the coming orgasm."
                 debug.messagebox(tmp)
             else
                 if AbadonQuestScript.UD_AbadonVictim == getWearer()
@@ -559,7 +548,7 @@ Function onUpdatePost(float timePassed)
                     AbadonQuestScript.SetObjectiveFailed(31)
                     AbadonQuestScript.SetObjectiveDisplayed(41)
                 endif
-                UDCDmain.Print(getWearerName() + " " + getDeviceName() + " have reached its full potential!")
+                UDCDmain.Print(getWearerName() + "'s " + getDeviceName() + " has reached its full potential!")
             endif
             UDmain.ItemManager.equipAbadonFinisherSuit(getWearer())
             finisher(getWearer(),AbadonQuestScript.max_orgasm_little_finisher)

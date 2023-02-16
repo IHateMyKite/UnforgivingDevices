@@ -26,7 +26,7 @@ bool Function OnUpdateHourPost()
         if WearerIsPlayer()
             UDCDmain.Print("Gag is making you drool uncontrollably",3)
         elseif UDCDmain.AllowNPCMessage(getWearer())
-            UDCDmain.Print(getWearerName() + " gag is making them drool uncontrollably",3)
+            UDCDmain.Print("Gag is making " + getWearerName() + " drool uncontrollably",3)
         endif
     endif
     return parent.OnUpdateHourPost()

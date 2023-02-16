@@ -1103,7 +1103,7 @@ int Function addHelperXP(Actor akHelper, int iXP)
         if UDmain.ActorIsPlayer(akHelper)
             UDmain.Print("Your Helper skill level increased to " + loc_nextLVL + " !")
         elseif ActorIsFollower(akHelper)
-            UDmain.Print(GetActorName(akHelper) + "s Helper level have increased to " + loc_nextLVL + " !")
+            UDmain.Print(GetActorName(akHelper) + "'s helper level have increased to " + loc_nextLVL + " !")
         endif
     endwhile
     StorageUtil.SetIntValue(akHelper,"UDNPCXP",loc_nextXP)
@@ -1170,7 +1170,7 @@ Function UndressArmor(Actor akActor)
                     UndressOutfit(akActor)
                 endif
             else
-                GInfo("TOGGLE OUTFIT can¨t be used for player or follower!")
+                GInfo("TOGGLE OUTFIT can't be used for player or follower!")
             endif
         elseif loc_res < (loc_armorsnames.length - 3) && loc_res >= 0
             akActor.unequipItem(loc_armors[loc_res], abSilent = true)
@@ -1439,8 +1439,8 @@ string Function GetHelperDetails(Actor akActor)
     float loc_currenttime = Utility.GetCurrentGameTime()
     float loc_cooldowntimeHP = StorageUtil.GetFloatValue(akActor,"UDNPCCD:"+UDmain.Player,0)
     float loc_cooldowntimePH = StorageUtil.GetFloatValue(UDmain.Player,"UDNPCCD:"+akActor,0)
-    loc_res += "Avaible in (H->P): " + iUnsig(Round(((loc_cooldowntimeHP - loc_currenttime)*24*60))) + " min\n"
-    loc_res += "Avaible in (P->H): " + iUnsig(Round(((loc_cooldowntimePH - loc_currenttime)*24*60))) + " min\n"
+    loc_res += "Available in (H->P): " + iUnsig(Round(((loc_cooldowntimeHP - loc_currenttime)*24*60))) + " min\n"
+    loc_res += "Available in (P->H): " + iUnsig(Round(((loc_cooldowntimePH - loc_currenttime)*24*60))) + " min\n"
     return loc_res
 EndFunction
 
@@ -2447,12 +2447,12 @@ EndFunction
 
 UD_CustomVibratorBase_RenderScript _startVibFunctionPackage = none
 bool Function startVibFunction(UD_CustomVibratorBase_RenderScript udCustomVibrator,bool bBlocking = false)
-    if !udCustomVibrator    
-        Error("startVibFunction() - Can't turn none plug!!")
+    if !udCustomVibrator
+        Error("UDCustomDeiceMain::startVibFunction() - Can't start vibration because passed vibrator is NONE!!")
         return false
     endif
     if !udCustomVibrator.canVibrate()        
-        Error("startVibFunction() - " + udCustomVibrator.getDeviceHeader() + " can't vibrate!")
+        Error("UDCustomDeiceMain::startVibFunction() - " + udCustomVibrator.getDeviceHeader() + " can't vibrate!")
         return false
     endif
     

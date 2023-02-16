@@ -1121,6 +1121,64 @@ Function WaitMenuRandomTime(Float afMin = 0.1, Float afMax = 1.0) Global
     Utility.waitMenuMode(Utility.randomFloat(afMin,afMax))
 EndFunction
 
+;returns number which represents actors gender
+; -1 - None
+;  0 - Male
+;  1 - Female
+Int Function GetActorGender(Actor akActor) global
+    return akActor.GetActorBase().GetSex()
+EndFunction
+
+;Returns pronounce for self (himself, herself, themself)
+;abCapital is used for chenging first letter to capital
+String Function GetPronounceSelf(Actor akActor, Bool abCapital = False) global
+    Int loc_gender = GetActorGender(akActor)
+    if loc_gender == 0
+        if abCapital
+            return "Himself"
+        else
+            return "himself"
+        endif
+    elseif loc_gender == 1
+        if abCapital
+            return "Herself"
+        else
+            return "herself"
+        endif
+    else
+        if abCapital
+            return "Themself"
+        else
+            return "themself"
+        endif
+    endif
+EndFunction
+
+;Returns pronounce (he, she, they)
+;abCapital is used for chenging first letter to capital
+String Function GetPronounce(Actor akActor, Bool abCapital = False) global
+    Int loc_gender = GetActorGender(akActor)
+    if loc_gender == 0
+        if abCapital
+            return "He"
+        else
+            return "he"
+        endif
+    elseif loc_gender == 1
+        if abCapital
+            return "She"
+        else
+            return "she"
+        endif
+    else
+        if abCapital
+            return "they"
+        else
+            return "They"
+        endif
+    endif
+EndFunction
+
 ;very fast function for checking if menu is open
 ;have little lag because it works by checking events
 Bool Function IsMenuOpen()

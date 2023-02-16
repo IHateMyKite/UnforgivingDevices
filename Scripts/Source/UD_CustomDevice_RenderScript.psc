@@ -5696,7 +5696,7 @@ string Function getDebugString()
     string res = ""
     res += "- " + deviceInventory.GetName() + " -\n"
     if (zad_JammLockChance > 0)
-        res += "Lock jamm chance: "+ zad_JammLockChance + " (" + Round(checkLimit(zad_JammLockChance*UDCDmain.CalculateKeyModifier(),100.0)) +") %\n"
+        res += "Lock jam chance: "+ zad_JammLockChance + " (" + Round(checkLimit(zad_JammLockChance*UDCDmain.CalculateKeyModifier(),100.0)) +") %\n"
     endif
     if isNotShareActive(); && canBeActivated()
         res += "Cooldown: "+ _currentRndCooldown +" min\n"
@@ -5776,6 +5776,8 @@ Function cutDevice(float progress_add = 1.0)
         _total_durability_drain += cond_dmg
         updateCondition()
         decreaseDurabilityAndCheckUnlock(UD_DamageMult*cond_dmg*getModResistPhysical(1.0,0.25)/7.0,0.0)
+
+
         _CuttingProgress = 0.0
         if UDmain.TraceAllowed()        
             UDCDmain.Log(getDeviceHeader() + " is cutted for " + cond_dmg + "C ( " + (UD_DamageMult*cond_dmg*getModResistPhysical(1.0,0.25)/7.0) + " D) (Wearer: " + getWearerName() + ")",1)
@@ -5980,7 +5982,7 @@ Function keyUnlockDevice()
                 if PlayerInMinigame()
                     UDCDMain.Print("Key "+ zad_DeviceKey.GetName() +" gets destroyed",1)
                 elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                    UDCDMain.Print(getWearerName() + "s key "+ zad_DeviceKey.GetName() +" gets destroyed",1)
+                    UDCDMain.Print(getWearerName() + "'s key "+ zad_DeviceKey.GetName() +" gets destroyed",1)
                 endif
             else
                 if PlayerInMinigame()

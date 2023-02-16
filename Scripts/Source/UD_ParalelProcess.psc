@@ -487,7 +487,7 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
         if loc_isplayer
             UDmain.Print("You have brought yourself to orgasm",2)
         elseif loc_cond
-            UDmain.Print(getActorName(akActor) + " have brought themself to orgasm",3)
+            UDmain.Print(getActorName(akActor) + " have brought "+GetPronounceSelf(akActor)+" to orgasm",3)
         endif
     elseif iForce == 1
         if loc_isplayer
