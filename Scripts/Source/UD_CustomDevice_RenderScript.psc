@@ -5066,7 +5066,7 @@ Function critFailure()
     endif    
     
     if _KeyGameON
-        if Utility.randomInt() <= zad_KeyBreakChance*UDCDmain.CalculateKeyModifier() && !libs.Config.DisableLockJam
+        if !libs.Config.DisableLockJam && UDCDMain.KeyIsGeneric(zad_deviceKey) && (Utility.randomInt() <= zad_KeyBreakChance*UDCDmain.CalculateKeyModifier())
             if PlayerInMinigame()
                 debug.messagebox("You managed to insert the key but it snapped. Its remains also jammed the lock! You will have to find other way to escape.")
             endif
@@ -5967,13 +5967,13 @@ Function keyUnlockDevice()
         UDCDMain.Print(getWearerName() + " managed to unlock "+GetDeviceName()+"s "+GetNthLockName(_MinigameSelectedLockID)+"!",2)
     endif
     
-    if zad_DestroyKey ;|| libs.Config.GlobalDestroyKey
+    if zad_DestroyKey
         if _minigameHelper && _minigameHelper.GetItemCount(zad_deviceKey)
             _minigameHelper.RemoveItem(zad_deviceKey,1) ;first remove helper key
         else
             Wearer.RemoveItem(zad_deviceKey,1) ;then remove wearer key
         endif
-    elseif UDCDmain.UD_KeyDurability > 0
+    elseif UDCDMain.KeyIsGeneric(zad_deviceKey) && UDCDmain.UD_KeyDurability > 0
         if _minigameHelper && _minigameHelper.GetItemCount(zad_deviceKey)
             UDCDMain.ReduceKeyDurability(_minigameHelper, zad_DeviceKey)
         else

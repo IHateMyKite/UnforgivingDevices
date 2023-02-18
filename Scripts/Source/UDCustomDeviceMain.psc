@@ -2632,12 +2632,14 @@ EndFunction
 ;Injects passed keywords to quest keyword formlist. Devices which will have this keyword will be taken as quest devices
 Bool _InjectQuestKeywordMutex = False
 Function InjectQuestKeywords(Keyword[] aaList)
+    if !aaList
+        return
+    endif
+    
     while _InjectQuestKeywordMutex
         Utility.waitMenuMode(0.1)
     endwhile
     _InjectQuestKeywordMutex = True
-
-    UDmain.Info("Injecting quest keywords - " + aaList)
 
     int loc_i = aaList.length
     while loc_i
@@ -2657,12 +2659,15 @@ EndFunction
 ;Injects passed keys to generic key formlist. Keys in this formlist can be destroyed
 Bool _InjectGenericKeysMutex = False
 Function InjectGenericKeys(Key[] aaList)
+    if !aaList
+        return
+    endif
+    
     while _InjectGenericKeysMutex
         Utility.waitMenuMode(0.1)
     endwhile
     _InjectGenericKeysMutex = True
 
-    UDmain.Info("Injecting generic keys - " + aaList)
 
     int loc_i = aaList.length
     while loc_i
@@ -2677,6 +2682,20 @@ EndFunction
 Function UpdateGenericKeys()
     UD_GenericKeys.Revert()
     SendModEvent("UD_GenericKeyUpdate")
+EndFunction
+
+;returns true if key is generic
+Bool Function KeyIsGeneric(Key akKey)
+    return UD_GenericKeys.HasForm(akKey)
+EndFunction
+
+Function _PrintFormList(FormList akList)
+    UDmain.Info("===Showing content of " + akList + " ===")
+    Int loc_size = akList.GetSize()
+    while loc_size
+        loc_size -= 1
+        UDmain.Info(akList.GetAt(loc_size))
+    endwhile
 EndFunction
 
 ;function used for mod development
