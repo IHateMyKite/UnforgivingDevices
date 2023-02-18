@@ -396,6 +396,9 @@ Function Update()
     CheckOptionalMods()
     CheckPatchesOrder()
     SendModEvent("UD_PatchUpdate") ;send update event to all patches. Will force patches to check if they are installed correctly
+    
+    UDCDmain.UpdateQuestKeywords()
+    UDCDmain.UpdateGenericKeys()
 EndFunction
 
 Function CheckOptionalMods()

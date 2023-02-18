@@ -1560,12 +1560,6 @@ Function OptionSelectDebug(int option)
     elseif endAnimation_T == option
         closeMCM()
         UDCDmain.ShowActorDetails(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
-        ;bool[] cameraState = new Bool[2]
-        ;cameraState[0] = False
-        ;cameraState[1] = False
-        ;UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor().RemoveFromFaction(UDCDmain.BlockAnimationFaction)
-        ;UDCDmain.libs.EndThirdPersonAnimation(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor(), cameraState)
-        ;UDAM.StopAnimation(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
     elseif unregisterNPC_T == option
         UDCD_NPCM.unregisterNPC(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
         forcePageReset()
