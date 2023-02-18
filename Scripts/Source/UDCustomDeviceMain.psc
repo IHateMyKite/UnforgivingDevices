@@ -45,142 +45,129 @@ Package Property NPCDisablePackage Hidden
 EndProperty
 
 
-bool Property UD_HardcoreMode = true auto hidden
+int                 OSLLoadOrderRelative    = 0
+int                 SLALoadOrder            = 0
+perk[]              DesirePerks
+ObjectReference     _LockPickContainer
+
+bool    Property UD_HardcoreMode                    = true  auto hidden
 
 ;keys
-Int Property Stamina_meter_Keycode      = 32        auto hidden
-int property StruggleKey_Keycode        = 52        auto hidden
-Int Property Magicka_meter_Keycode      = 30        auto hidden
-Int Property SpecialKey_Keycode         = 31        auto hidden
-Int Property PlayerMenu_KeyCode         = 40        auto hidden
-int property ActionKey_Keycode          = 18        auto hidden
-int Property NPCMenu_Keycode            = 39        auto hidden
-
-bool Property UD_UseDDdifficulty        = True      auto hidden
-bool Property UD_UseWidget              = True      auto hidden
-
-int Property UD_GagPhonemModifier       = 50        auto hidden
-
-int OSLLoadOrderRelative = 0
-int SLALoadOrder = 0
-perk[] DesirePerks
-
-Int     Property UD_StruggleDifficulty              = 1         auto hidden
-float   Property UD_BaseDeviceSkillIncrease         = 35.0      auto hidden
-float   Property UD_CooldownMultiplier              = 1.0       auto hidden
-Bool    Property UD_AutoCrit                        = False     auto hidden
-Int     Property UD_AutoCritChance                  = 80        auto hidden
-Int     Property UD_MinigameHelpCd                  = 60        auto hidden
-Float   Property UD_MinigameHelpCD_PerLVL           = 10.0      auto hidden ;CD % decrease per Helper LVL
-Int     Property UD_MinigameHelpXPBase              = 35        auto hidden
-Float   Property UD_MutexTimeOutTime                = 1.0       auto hidden
-bool    Property UD_AllowArmTie                     = true      auto hidden
-bool    Property UD_AllowLegTie                     = true      auto hidden
-Int     Property UD_BlackGooRareDeviceChance        = 10        auto hidden
-Bool    Property UD_PreventMasterLock               = False     auto hidden
-Int     Property UD_KeyDurability                   = 5         auto hidden ;how many times can be key used before it gets destroyed
-Bool    Property UD_HardcoreAccess                  = False     auto hidden ;if true, device accessibility can be only either 0 or 1. If number is less then 0.90, it will be 0
+Int     Property Stamina_meter_Keycode              = 32    auto hidden
+int     property StruggleKey_Keycode                = 52    auto hidden
+Int     Property Magicka_meter_Keycode              = 30    auto hidden
+Int     Property SpecialKey_Keycode                 = 31    auto hidden
+Int     Property PlayerMenu_KeyCode                 = 40    auto hidden
+int     property ActionKey_Keycode                  = 18    auto hidden
+int     Property NPCMenu_Keycode                    = 39    auto hidden
+bool    Property UD_UseDDdifficulty                 = True  auto hidden
+bool    Property UD_UseWidget                       = True  auto hidden
+int     Property UD_GagPhonemModifier               = 50    auto hidden
+Int     Property UD_StruggleDifficulty              = 1     auto hidden
+float   Property UD_BaseDeviceSkillIncrease         = 35.0  auto hidden
+float   Property UD_CooldownMultiplier              = 1.0   auto hidden
+Bool    Property UD_AutoCrit                        = False auto hidden
+Int     Property UD_AutoCritChance                  = 80    auto hidden
+Int     Property UD_MinigameHelpCd                  = 60    auto hidden
+Float   Property UD_MinigameHelpCD_PerLVL           = 10.0  auto hidden ;CD % decrease per Helper LVL
+Int     Property UD_MinigameHelpXPBase              = 35    auto hidden
+Float   Property UD_MutexTimeOutTime                = 1.0   auto hidden
+bool    Property UD_AllowArmTie                     = true  auto hidden
+bool    Property UD_AllowLegTie                     = true  auto hidden
+Int     Property UD_BlackGooRareDeviceChance        = 10    auto hidden
+Bool    Property UD_PreventMasterLock               = False auto hidden
+Int     Property UD_KeyDurability                   = 5     auto hidden ;how many times can be key used before it gets destroyed
+Bool    Property UD_HardcoreAccess                  = False auto hidden ;if true, device accessibility can be only either 0 or 1. If number is less then 0.90, it will be 0
 
 ;Lvl scalling
-Float   Property UD_DeviceLvlHealth                 = 0.025     auto hidden
-Float   Property UD_DeviceLvlLockpick               = 0.5       auto hidden
-Int     Property UD_DeviceLvlLocks                  = 5         auto hidden
+Float   Property UD_DeviceLvlHealth                 = 0.025 auto hidden
+Float   Property UD_DeviceLvlLockpick               = 0.5   auto hidden
+Int     Property UD_DeviceLvlLocks                  = 5     auto hidden
 ;changes how much is strength converted to orgasm rate, 
 ;example: if UD_VibrationMultiplier = 0.1 and vibration strength will be 100, orgasm rate will be 100*0.1 = 10 O/s 
-float     Property UD_VibrationMultiplier           = 0.10    auto hidden
-float     Property UD_ArousalMultiplier             = 0.05    auto hidden
+float   Property UD_VibrationMultiplier             = 0.10  auto hidden
+float   Property UD_ArousalMultiplier               = 0.05  auto hidden
 
-Bool      Property UD_OutfitRemove                  = True    auto hidden
+Bool            Property UD_OutfitRemove            = True  auto hidden
 UD_PlayerSlotScript Property UD_PlayerSlot auto
 
 ;factions
-Faction     Property zadGagPanelFaction     Auto
-Faction     Property FollowerFaction        auto
-Faction     Property RegisteredNPCFaction   auto
-Faction     Property MinigameFaction        auto
-Faction     Property PlayerFaction          auto
+Faction         Property zadGagPanelFaction                 Auto
+Faction         Property FollowerFaction                    auto
+Faction         Property RegisteredNPCFaction               auto
+Faction         Property MinigameFaction                    auto
+Faction         Property PlayerFaction                      auto
+Faction         Property BlockExpressionFaction             auto
+Faction         Property BussyFaction                       auto
+FormList        Property UD_AgilityPerks                    auto
+FormList        Property UD_StrengthPerks                   auto
+FormList        Property UD_MagickPerks                     auto
 
-Faction     Property BlockExpressionFaction auto
-Faction     Property BlockAnimationFaction  auto
-Faction     Property BussyFaction           auto
+MiscObject      Property zad_GagPanelPlug                   Auto
 
-Faction     Property VibrationFaction       auto
-
-FormList    Property UD_AgilityPerks        auto
-FormList    Property UD_StrengthPerks       auto
-FormList    Property UD_MagickPerks         auto
-
-MiscObject Property zad_GagPanelPlug        Auto
-
-float       Property UD_StruggleExhaustionMagnitude     = 60.0      auto hidden;magnitude of exhaustion, 50.0 will reduce player stats regen modifier by 50%. This cant make regen negative
-int         Property UD_StruggleExhaustionDuration      = 10        auto hidden;How long will debuff last
+float           Property UD_StruggleExhaustionMagnitude     = 60.0      auto hidden;magnitude of exhaustion, 50.0 will reduce player stats regen modifier by 50%. This cant make regen negative
+int             Property UD_StruggleExhaustionDuration      = 10        auto hidden;How long will debuff last
 
 ;messages
-Message Property DebugMessage auto
-Message Property StruggleMessage auto
-Message Property StruggleMessageNPC auto
-Message Property DetailsMessage auto
-Message Property VibDetailsMessage auto
-Message Property ControlablePlugVibMessage auto
-Message Property ControlablePlugModMessage auto
+Message         Property DebugMessage                       auto
+Message         Property StruggleMessage                    auto
+Message         Property StruggleMessageNPC                 auto
+Message         Property DetailsMessage                     auto
+Message         Property VibDetailsMessage                  auto
+Message         Property ControlablePlugVibMessage          auto
+Message         Property ControlablePlugModMessage          auto
 
-Message Property DefaultLockMenuMessage auto
-Message Property DefaultLockMenuMessageWH auto
+Message         Property DefaultLockMenuMessage             auto
+Message         Property DefaultLockMenuMessageWH           auto
 
 ;DEFAULT MENUS
-Message Property DefaultEquipDeviceMessage auto
-Message Property DefaultInteractionDeviceMessage auto
-Message Property DefaultInteractionDeviceMessageWH auto
-Message Property DefaultInteractionPlugMessage auto
-Message Property DefaultInteractionPlugMessageWH auto
+Message         Property DefaultEquipDeviceMessage          auto
+Message         Property DefaultInteractionDeviceMessage    auto
+Message         Property DefaultInteractionDeviceMessageWH  auto
+Message         Property DefaultInteractionPlugMessage      auto
+Message         Property DefaultInteractionPlugMessageWH    auto
 
 ;SPECIAL MENUS
-Message Property DefaultCTRPlugSpecialMsg auto
-Message Property DefaultCTRPlugSpecialMsgWH auto
-Message Property DefaultINFPlugSpecialMsg auto
-Message Property DefaultINFPlugSpecialMsgWH auto
-Message Property DefaultPanelGagSpecialMsg auto
-Message Property DefaultPanelGagSpecialMsgWH auto
-Message Property DefaultAbadonPlugSpecialMsg auto
-Message Property DefaultAbadonPlugSpecialMsgWH auto
-Message Property DefaultDynamicHBSpecialMsg auto
-Message Property DefaultVibratorSpecialMsg auto
+Message         Property DefaultCTRPlugSpecialMsg           auto
+Message         Property DefaultCTRPlugSpecialMsgWH         auto
+Message         Property DefaultINFPlugSpecialMsg           auto
+Message         Property DefaultINFPlugSpecialMsgWH         auto
+Message         Property DefaultPanelGagSpecialMsg          auto
+Message         Property DefaultPanelGagSpecialMsgWH        auto
+Message         Property DefaultAbadonPlugSpecialMsg        auto
+Message         Property DefaultAbadonPlugSpecialMsgWH      auto
+Message         Property DefaultDynamicHBSpecialMsg         auto
+Message         Property DefaultVibratorSpecialMsg          auto
 
-;DEBUG MENUS
-Message Property PlayerMenuMsg auto
-Message Property NPCDebugMenuMsg auto
+;MENUS
+Message         Property PlayerMenuMsg                      auto
+Message         Property NPCDebugMenuMsg                    auto
 
-ObjectReference Property LockPickContainer_ObjRef auto
-ObjectReference _LockPickContainer
-Container Property LockPickContainer auto
+ObjectReference Property LockPickContainer_ObjRef           auto
+Container       Property LockPickContainer                  auto
 
-ObjectReference Property EventContainer_ObjRef auto
-ObjectReference Property TransfereContainer_ObjRef auto
+ObjectReference Property EventContainer_ObjRef              auto
+ObjectReference Property TransfereContainer_ObjRef          auto
 
-ReferenceAlias Property MessageActor1 auto
-ReferenceAlias Property MessageActor2 auto
-ReferenceAlias Property MessageDevice auto
-UD_MutexScript Property MutexSlot auto
+ReferenceAlias  Property MessageActor1                      auto hidden
+ReferenceAlias  Property MessageActor2                      auto hidden
+ReferenceAlias  Property MessageDevice                      auto hidden
+UD_MutexScript  Property MutexSlot                          auto
+MiscObject      Property Lockpick                           auto
+Int             Property UD_LockpicksPerMinigame = 2        auto hidden
+Formlist        Property UD_GenericKeys                     auto
+Formlist        Property UD_QuestKeywords                   auto
+FormList        Property UD_HeavyBondageKeywords            auto
 
-;int Property UD_SlotsNum = 20 AutoReadOnly
-;UD_CustomDevice_RenderScript[] Property UD_equipedCustomDevices auto
-MiscObject     Property Lockpick auto
-Int            Property UD_LockpicksPerMinigame = 2 auto hidden
-
-Formlist Property UD_QuestKeywords auto
-FormList Property UD_HeavyBondageKeywords auto
-;Spell Property TelekinesisSpell auto
-
-Bool Property UD_EquipMutex = False auto hidden
-Bool Property Ready = False auto hidden
-Bool Property EventsReady = false auto hidden
+Bool            Property UD_EquipMutex              = False auto hidden
+Bool            Property Ready                      = False auto hidden
 
 Event OnInit()
     While !UDPatcher.ready
         Utility.WaitMenuMode(0.1)
     EndWhile
-    if UDmain.TraceAllowed()    
-        Log("UDPatcher ready!",0)    
+    if UDmain.TraceAllowed()
+        Log("UDPatcher ready!",0)
     endif
     While !UDCD_NPCM.ready
         Utility.WaitMenuMode(0.1)
@@ -191,7 +178,7 @@ Event OnInit()
     While !UDEM.ready
         Utility.WaitMenuMode(0.1)
     endwhile
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         Log("UDEM ready!",0)
     endif
 
@@ -199,7 +186,7 @@ Event OnInit()
     
     registerForSingleUpdate(5.0)
     RegisterForSingleUpdateGameTime(1.0)
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         Log("UDCustomDeviceMain ready!",0)
     endif
     ready = True
@@ -1653,13 +1640,6 @@ Int Function ActorBelted(Actor akActor)
 EndFunction
 
 Int Function GetActivatedVibrators(Actor akActor)
-    ;/
-    if akActor.isInFaction(VibrationFaction)
-        return akActor.getFactionRank(VibrationFaction)
-    else
-        return 0
-    endif
-    /;
     return StorageUtil.GetIntValue(akActor,"UD_ActiveVib",0)
 EndFunction
 
@@ -1739,7 +1719,7 @@ Event OnMenuClose(String MenuName)
     else
         LockpickMinigameResult = 2 ;player tried to lockpick the device but failed (all lockpicks broke)
     endif
-    if UDmain.TraceAllowed()        
+    if UDmain.TraceAllowed()
         Log("Lockpick minigame closed, lockpicks returned: " + (lockpicknum - usedLockpicks) + " ; Result: " + LockpickMinigameResult,1)
     endif
     UDmain.Player.AddItem(Lockpick, lockpicknum - usedLockpicks, True)
@@ -2650,6 +2630,75 @@ Float Function getSlotArousalSkillMultEx(UD_CustomDevice_NPCSlot akSlot)
     return akSlot.ArousalSkillMult
 EndFunction
 
+;Injects passed keywords to quest keyword formlist. Devices which will have this keyword will be taken as quest devices
+Bool _InjectQuestKeywordMutex = False
+Function InjectQuestKeywords(Keyword[] aaList)
+    if !aaList
+        return
+    endif
+    
+    while _InjectQuestKeywordMutex
+        Utility.waitMenuMode(0.1)
+    endwhile
+    _InjectQuestKeywordMutex = True
+
+    int loc_i = aaList.length
+    while loc_i
+        loc_i-=1
+        UD_QuestKeywords.addForm(aaList[loc_i])
+    endwhile
+
+    _InjectQuestKeywordMutex = False
+EndFunction
+
+;Update all quest keywords. Is not blocking
+Function UpdateQuestKeywords()
+    UD_QuestKeywords.Revert()
+    SendModEvent("UD_QuestKeywordUpdate")
+EndFunction
+
+;Injects passed keys to generic key formlist. Keys in this formlist can be destroyed
+Bool _InjectGenericKeysMutex = False
+Function InjectGenericKeys(Key[] aaList)
+    if !aaList
+        return
+    endif
+    
+    while _InjectGenericKeysMutex
+        Utility.waitMenuMode(0.1)
+    endwhile
+    _InjectGenericKeysMutex = True
+
+
+    int loc_i = aaList.length
+    while loc_i
+        loc_i-=1
+        UD_GenericKeys.addForm(aaList[loc_i])
+    endwhile
+
+    _InjectGenericKeysMutex = False
+EndFunction
+
+;Update all generic keys. Is not blocking
+Function UpdateGenericKeys()
+    UD_GenericKeys.Revert()
+    SendModEvent("UD_GenericKeyUpdate")
+EndFunction
+
+;returns true if key is generic
+Bool Function KeyIsGeneric(Key akKey)
+    return UD_GenericKeys.HasForm(akKey)
+EndFunction
+
+Function _PrintFormList(FormList akList)
+    UDmain.Info("===Showing content of " + akList + " ===")
+    Int loc_size = akList.GetSize()
+    while loc_size
+        loc_size -= 1
+        UDmain.Info(akList.GetAt(loc_size))
+    endwhile
+EndFunction
+
 ;function used for mod development
 Function DebugFunction(Actor akActor)
     UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0xffffffff)
@@ -2714,7 +2763,6 @@ float Function FinishRecordTime2(string strObject = "",bool bReset = false,bool 
     endif
     return loc_res
 EndFunction
-
 
 ;Reduce the key durability by amount set in MCM. 
 ; aiDurability = By how much will durability be reduced
