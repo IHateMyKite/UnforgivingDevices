@@ -321,6 +321,8 @@ Function OnInterfaceSwitch(Bool abGameLoad)
     StatusEffect_Register("dd-plug-vaginal", W_ICON_CLUSTER_DEVICES)
     StatusEffect_Register("dd-piercing-clit", W_ICON_CLUSTER_DEVICES)
     StatusEffect_Register("dd-plug-anal", W_ICON_CLUSTER_DEVICES)
+    StatusEffect_Register("dd-plug-anal-inflation", W_ICON_CLUSTER_DEVICES)
+    StatusEffect_Register("dd-plug-vag-inflation", W_ICON_CLUSTER_DEVICES)
     StatusEffect_Register("effect-exhaustion", W_ICON_CLUSTER_EFFECTS)
     StatusEffect_Register("effect-orgasm", W_ICON_CLUSTER_EFFECTS)
     
