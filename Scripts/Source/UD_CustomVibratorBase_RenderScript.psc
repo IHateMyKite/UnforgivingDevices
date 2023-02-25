@@ -131,11 +131,12 @@ Function safeCheck()
 EndFunction
 
 Function InitPostPost()
+    Parent.InitPostPost()
     ;infinite vib duration, start immidiatly
     if UD_VibDuration == -1 
         vibrate()
     endif
-    If WearerIsPlayer()
+    If canVibrate() && WearerIsPlayer()
         UDMain.UDWC.StatusEffect_SetVisible(VibrationEffectSlot)
         UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, False)
     EndIf
@@ -898,11 +899,11 @@ bool Function OnUpdateHourPost()
     return parent.OnUpdateHourPost()
 EndFunction
 Function onRemoveDevicePost(Actor akActor)
+    parent.onRemoveDevicePost(akActor)
     If UDMain.ActorIsPlayer(akActor)
         UDMain.UDWC.StatusEffect_SetVisible(VibrationEffectSlot, False)
         UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, False)
     EndIf
-    parent.onRemoveDevicePost(akActor)
 EndFunction
 Function onLockUnlocked(bool lockpick = false)
     parent.onLockUnlocked(lockpick)

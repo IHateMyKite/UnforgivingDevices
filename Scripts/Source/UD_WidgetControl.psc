@@ -843,9 +843,9 @@ State iWidgetInstalled
             If data.Name != ""
                 _CreateMeterWidget(data, CalculateGroupXPos(UD_WidgetXPos), (CalculateGroupYPos(UD_WidgetYPos) - loc_VertOffset) As Int)
                 If UD_WidgetYPos == W_POSY_TOP
-                    loc_VertOffset -= (UD_MeterVertPadding * HUDMeterHeight) as Int
+                    loc_VertOffset -= (UD_MeterVertPadding * HUDMeterHeightRef) as Int
                 Else
-                    loc_VertOffset += (UD_MeterVertPadding * HUDMeterHeight) as Int
+                    loc_VertOffset += (UD_MeterVertPadding * HUDMeterHeightRef) as Int
                 EndIf
             EndIf
             i += 1
@@ -1443,6 +1443,7 @@ State iWidgetInstalled
         Utility.Wait(5.0)
 
     ; load last values
+        len = StatusEffectSlots.Length
         i = 0
         While i < len
             loc_dataIcon = StatusEffectSlots[i]

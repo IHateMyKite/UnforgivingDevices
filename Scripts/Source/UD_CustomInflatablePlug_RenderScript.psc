@@ -561,7 +561,7 @@ Function OnRemoveDevicePre(Actor akActor)
 EndFunction
 Function onRemoveDevicePost(Actor akActor)
     parent.onRemoveDevicePost(akActor)
-    If WearerIsPlayer()
+    If UDMain.ActorIsPlayer(akActor)
         UDMain.UDWC.StatusEffect_SetVisible(InflationEffectSlot, False)
     EndIf
 EndFunction
