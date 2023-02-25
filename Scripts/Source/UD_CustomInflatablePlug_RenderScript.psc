@@ -6,6 +6,20 @@ float Property UD_PumpDifficulty    = 50.0      auto ;deflation required to defl
 float Property UD_DeflateRate       = 200.0     auto ;inflation lost per one day
 int _inflateLevel = 0 ;for npcs
 
+String  _InflationEffectSlot
+String  Property     InflationEffectSlot                        Hidden
+    String Function Get()
+        If _InflationEffectSlot == ""
+            If UD_DeviceKeyword == libs.zad_DeviousPlugVaginal
+                _InflationEffectSlot = "dd-plug-vag-inflation"
+            ElseIf UD_DeviceKeyword == libs.zad_DeviousPlugAnal
+                _InflationEffectSlot = "dd-plug-anal-inflation"
+            EndIf
+        EndIf
+        Return _InflationEffectSlot
+    EndFunction
+EndProperty
+
 Function InitPost()
     parent.InitPost()
     if UD_ActiveEffectName == "Share"
@@ -255,6 +269,9 @@ Function inflate(bool silent = false,int iInflateNum = 1)
         endif
         inflatePlug(iInflateNum)
         inflateprogress = 0.0
+        If WearerIsPlayer()
+            UDmain.UDWC.StatusEffect_SetMagnitude(InflationEffectSlot, getPlugInflateLevel() * 20)
+        EndIf
 EndFunction
 
 Function deflate(bool silent = False)
@@ -274,6 +291,9 @@ Function deflate(bool silent = False)
         endif
     endif
     deflatePlug(1)
+    If WearerIsPlayer()
+        UDmain.UDWC.StatusEffect_SetMagnitude(InflationEffectSlot, getPlugInflateLevel() * 20)
+    EndIf
     return
 EndFunction
 
@@ -532,12 +552,18 @@ bool Function OnUpdateHourPost()
 EndFunction
 Function InitPostPost()
     parent.InitPostPost()
+    If WearerIsPlayer()
+        UDMain.UDWC.StatusEffect_SetVisible(InflationEffectSlot)
+    EndIf
 EndFunction
 Function OnRemoveDevicePre(Actor akActor)
     parent.OnRemoveDevicePre(akActor)
 EndFunction
 Function onRemoveDevicePost(Actor akActor)
     parent.onRemoveDevicePost(akActor)
+    If WearerIsPlayer()
+        UDMain.UDWC.StatusEffect_SetVisible(InflationEffectSlot, False)
+    EndIf
 EndFunction
 Function onLockUnlocked(bool lockpick = false)
     parent.onLockUnlocked(lockpick)
