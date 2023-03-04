@@ -2295,10 +2295,11 @@ Function OnInitLevelUpdate()
     ;increase all locks shields by the delta calculated from level
     if HaveLocks() && UDCDMain.UD_DeviceLvlLocks
         Int loc_shieldDelta = (UD_Level - 1)/UDCDMain.UD_DeviceLvlLocks
+        Int[] loc_shields = UDCDMain.DistributeLockShields(GetLockNumber(),loc_shieldDelta)
         Int loc_i = GetLockNumber()
         while loc_i
             loc_i -= 1
-            DecreaseLockShield(loc_i,-1*loc_shieldDelta) ;increase all locks shields by loc_shieldDelta
+            DecreaseLockShield(loc_i,-1*loc_shields[loc_i]) ;increase all locks shields by loc_shields[loc_i]
         endwhile
     endif
 EndFunction
