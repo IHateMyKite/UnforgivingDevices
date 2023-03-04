@@ -269,10 +269,6 @@ Function inflate(bool silent = false,int iInflateNum = 1)
         endif
         inflatePlug(iInflateNum)
         inflateprogress = 0.0
-        If WearerIsPlayer()
-            GInfo(self+"::inflate - Changed inflation level to " + currentVal)
-            UDmain.UDWC.StatusEffect_SetMagnitude(InflationEffectSlot, currentVal * 20)
-        EndIf
 EndFunction
 
 Function deflate(bool silent = False)
@@ -340,6 +336,11 @@ Function inflatePlug(int increase)
     if _inflateLevel > 5
         _inflateLevel = 5
     endif
+    
+    If WearerIsPlayer()
+        UDmain.UDWC.StatusEffect_SetMagnitude(InflationEffectSlot, _inflateLevel * 20)
+    EndIf
+    
     deflateprogress = 0.0
     OnInflated()
 EndFunction
@@ -355,6 +356,11 @@ Function deflatePlug(int decrease)
     if _inflateLevel < 0
         _inflateLevel = 0
     endif
+    
+    If WearerIsPlayer()
+        UDmain.UDWC.StatusEffect_SetMagnitude(InflationEffectSlot, _inflateLevel * 20)
+    EndIf
+    
     deflateprogress = 0.0
     OnDeflated()
 EndFunction
