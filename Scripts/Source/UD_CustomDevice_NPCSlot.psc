@@ -1985,10 +1985,13 @@ Function UpdateOrgasm(Float afUpdateTime)
             akActor.RemoveFromFaction(UDOM.OrgasmResistFaction)
         endif
         
+        _orgasmProgress = 0.0
+        UDOM.ResetActorOrgasmProgress(akActor)
+        
         if _widgetShown
             _widgetShown = false
-            UDmain.UDWC.Meter_SetVisible("player-orgasm", False)
             UDmain.UDWC.Meter_SetFillPercent("player-orgasm", 0.0, True)
+            UDmain.UDWC.Meter_SetVisible("player-orgasm", False)
         endif
         
         _hornyAnimTimer  = -45 ;cooldown
@@ -2008,9 +2011,6 @@ Function UpdateOrgasm(Float afUpdateTime)
         if IsPlayer()
             Utility.wait(1.0) ;wait second, so there is time for some effects to be applied
         endif
-        
-        _orgasmProgress = 0.0
-        UDOM.SetActorOrgasmProgress(akActor,_orgasmProgress)
     else
         ;check edge
         if _edgeprogress >= 3.0*_orgasmCapacity
