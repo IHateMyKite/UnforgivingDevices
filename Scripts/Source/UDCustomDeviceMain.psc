@@ -2778,3 +2778,19 @@ Int Function ReduceKeyDurability(Actor akActor, Form akKey, Int aiDurability = 1
         return loc_durability
     endif
 EndFunction
+
+;distribute lock shields betweeen locks, returns array of distributed lock shields which corresponds to number of locks
+Int[] Function DistributeLockShields(Int aiLockNum, Int aiLockShieldNum)
+    if aiLockNum < 0
+        aiLockNum = 0
+    endif
+    
+    Int[] loc_res = Utility.CreateIntArray(aiLockNum)
+
+    While aiLockShieldNum
+        loc_res[Utility.RandomInt(0,loc_res.length - 1)] = loc_res[Utility.RandomInt(0,loc_res.length - 1)] + 1 ;add one shield to random lock
+        aiLockShieldNum -= 1
+    endwhile
+    
+    return loc_res
+EndFunction

@@ -2295,10 +2295,11 @@ Function OnInitLevelUpdate()
     ;increase all locks shields by the delta calculated from level
     if HaveLocks() && UDCDMain.UD_DeviceLvlLocks
         Int loc_shieldDelta = (UD_Level - 1)/UDCDMain.UD_DeviceLvlLocks
+        Int[] loc_shields = UDCDMain.DistributeLockShields(GetLockNumber(),loc_shieldDelta)
         Int loc_i = GetLockNumber()
         while loc_i
             loc_i -= 1
-            DecreaseLockShield(loc_i,-1*loc_shieldDelta) ;increase all locks shields by loc_shieldDelta
+            DecreaseLockShield(loc_i,-1*loc_shields[loc_i]) ;increase all locks shields by loc_shields[loc_i]
         endwhile
     endif
 EndFunction
@@ -6130,9 +6131,11 @@ EndFunction
 
 ;choose the best minigame and start it. Returns false if minigame was not started
 Bool Function EvaluateNPCAI()
-    Bool    loc_minigameStarted     = False
+    Int     loc_minigameStarted     = 0
     Float   loc_durabilityBefore    = current_device_health
     Int     loc_LocksBefore         = UD_CurrentLocks
+
+    updateDifficulty()
 
     ;50% chance to first check locks, then struggle
     if Utility.randomInt(0,1)
@@ -6147,32 +6150,32 @@ Bool Function EvaluateNPCAI()
         ;first try to unlock the device with key
         if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x2)
             if keyMinigame(True)
-                loc_minigameStarted = True
+                loc_minigameStarted = 3
             endif
         endif
         ;try to repair the locks then
         if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x4)
             if repairLocksMinigame(True)
-                loc_minigameStarted = True
+                loc_minigameStarted = 4
             endif
         endif
         ;then try to use lockpicks
         if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x1)
             if lockpickMinigame(True)
-                loc_minigameStarted = True
+                loc_minigameStarted = 2
             endif
         endif
         ;then try to struggle
         if !loc_minigameStarted && StruggleMinigameAllowed(loc_accesibility)
             Int loc_minigame = Utility.randomInt(0,2)
             if struggleMinigame(loc_minigame, True) ;start random struggle minigame
-                loc_minigameStarted = True
+                loc_minigameStarted = 1
             endif
         endif
         ;lastly try cutting
         if !loc_minigameStarted && CuttingMinigameAllowed(loc_accesibility)
             if cuttingMinigame(True)
-                loc_minigameStarted = True
+                loc_minigameStarted = 5
             endif
         endif
     else
@@ -6184,13 +6187,13 @@ Bool Function EvaluateNPCAI()
         if !loc_minigameStarted && StruggleMinigameAllowed(loc_accesibility)
             Int loc_minigame = Utility.randomInt(0,2)
             if struggleMinigame(loc_minigame, True) ;start random struggle minigame
-                loc_minigameStarted = True
+                loc_minigameStarted = 1
             endif
         endif
         ;lastly try cutting
         if !loc_minigameStarted && CuttingMinigameAllowed(loc_accesibility)
             if cuttingMinigame(True)
-                loc_minigameStarted = True
+                loc_minigameStarted = 5
             endif
         endif
         Int loc_lockMinigames
@@ -6200,25 +6203,25 @@ Bool Function EvaluateNPCAI()
         ;first try to unlock the device with key
         if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x2)
             if keyMinigame(True)
-                loc_minigameStarted = True
+                loc_minigameStarted = 3
             endif
         endif
         ;try to repair the locks then
         if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x4)
             if repairLocksMinigame(True)
-                loc_minigameStarted = True
+                loc_minigameStarted = 4
             endif
         endif
         ;then try to use lockpicks
         if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x1)
             if lockpickMinigame(True)
-                loc_minigameStarted = True
+                loc_minigameStarted = 2
             endif
         endif
     endif
     
-    if loc_minigameStarted
-        ;GInfo("EvaluateNPCAI("+GetDeviceHeader() + ") - Stats after minigame = durability reduced="+ (loc_durabilityBefore - current_device_health) + " , Locks unlocked="+ (loc_LocksBefore - UD_CurrentLocks))
+    if loc_minigameStarted && UDmain.UDGV.UDG_AIMinigameInfo.Value
+        GInfo(GetDeviceHeader()+"::EvaluateNPCAI() - Stats after minigame ["+loc_minigameStarted+"] = durability reduced="+ (loc_durabilityBefore - current_device_health) + " , Locks unlocked="+ (loc_LocksBefore - UD_CurrentLocks))
     endif
     
     return loc_minigameStarted

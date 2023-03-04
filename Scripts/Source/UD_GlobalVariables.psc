@@ -41,3 +41,7 @@ GlobalVariable Property UDG_PO3PEDetection  auto
 ;bEnableProfiling needs to be set to 1 in skyrim .ini file
 ;Default 0
 GlobalVariable Property UDG_MinigameProfiling  auto
+
+;Change this to 1 allow NPC ai information about minigames to be printed to console, short
+;Default 0
+GlobalVariable Property UDG_AIMinigameInfo  auto
