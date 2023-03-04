@@ -270,7 +270,8 @@ Function inflate(bool silent = false,int iInflateNum = 1)
         inflatePlug(iInflateNum)
         inflateprogress = 0.0
         If WearerIsPlayer()
-            UDmain.UDWC.StatusEffect_SetMagnitude(InflationEffectSlot, getPlugInflateLevel() * 20)
+            GInfo(self+"::inflate - Changed inflation level to " + currentVal)
+            UDmain.UDWC.StatusEffect_SetMagnitude(InflationEffectSlot, currentVal * 20)
         EndIf
 EndFunction
 
@@ -281,7 +282,7 @@ Function deflate(bool silent = False)
                 UDmain.Print(getHelperName() + " helped you to deflate yours " + getDeviceName() + "!",1)
             elseif PlayerInMinigame()
                 UDmain.Print("You helped to deflate " + getWearerName() + "s " + getDeviceName() + "!",1)
-            endif            
+            endif
         else
             if WearerIsPlayer()
                 UDmain.Print("You succesfully deflated your "+getDeviceName()+" plug!",1)
@@ -298,10 +299,8 @@ Function deflate(bool silent = False)
 EndFunction
 
 bool Function canDeflate()
-    if getPlugInflateLevel() > 0
-        if getPlugInflateLevel() < 5
-            return True
-        endif
+    if iInRange(getPlugInflateLevel(),1,4)
+        return True
     else
         if WearerIsPlayer()
             debug.MessageBox("Plug is already deflated")
