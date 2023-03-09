@@ -1,6 +1,8 @@
-Scriptname UD_CustomDevices_NPCSlotsManager extends Quest  
+Scriptname UD_CustomDevices_NPCSlotsManager extends Quest
 
 import UnforgivingDevicesMain
+
+String Property SLOTSNAME = "Error" auto
 
 UDCustomDeviceMain      Property UDCDmain                               auto
 UnforgivingDevicesMain  Property UDmain                     hidden
@@ -21,7 +23,6 @@ Float                   Property UD_HeavySlotUpdateTime     Hidden
 EndProperty
 
 Quest               Property UDCD_NPCF                                  auto ;finder
-zadlibs             Property libs                                       auto
 UD_OrgasmManager    Property UDOM                                       auto
 Message             Property UD_FixMenu_MSG                             auto
 Int                 Property UD_Slots                       = 15        auto
@@ -35,6 +36,68 @@ Float                        _UpdateTimePassed2             = 0.0
 float                        LastUpdateTime_Hour            = 0.0 ;last time the update happened in days
 Form[]                       _ScanInCompatibilityFactions
 
+;Static slots used by quests
+Form[] _StaticSlots
+
+Bool Function IsManager()
+    return True
+EndFunction
+
+Bool _StaticSlotMutex = False
+
+Function AddStaticSlot(UD_StaticNPCSlots akSlots)
+    while _StaticSlotMutex
+        Utility.waitMenuMode(0.1)
+    endwhile
+    _StaticSlotMutex = True
+    _StaticSlots = PapyrusUtil.PushForm(_StaticSlots,akSlots)
+    UDMain.Info(self + "::AddStaticSlot() - Static slot added = " + akSlots + ", Total number of slots = " + _StaticSlots.length)
+    _StaticSlotMutex = False
+EndFunction
+
+Function RemoveStaticSlot(UD_StaticNPCSlots akSlots)
+    while _StaticSlotMutex
+        Utility.waitMenuMode(0.1)
+    endwhile
+    _StaticSlotMutex = True
+    _StaticSlots = PapyrusUtil.RemoveForm(_StaticSlots,akSlots)
+    _StaticSlotMutex = False
+EndFunction
+
+Function ResetStaticSlots()
+    _StaticSlots = Utility.CreateFormArray(0)
+EndFunction
+
+Function RegisterStaticEvents()
+EndFunction
+
+Function UnRegisterStaticEvents()
+EndFunction
+
+Function ReregisterStaticSlots()
+    ResetStaticSlots()
+    int handle = ModEvent.Create("UDRegisterStaticSlots")
+    if (handle)
+        ModEvent.Send(handle)
+    endif
+    Utility.waitMenuMode(3.0) ;wait some time for all slots to be installed
+EndFunction
+
+UD_StaticNPCSlots Function GetStaticSlots(String asName)
+    if IsManager()
+        Int loc_slotsnum = _StaticSlots.length
+        Int loc_y = 0
+        while loc_y < loc_slotsnum
+            UD_StaticNPCSlots loc_slots = _StaticSlots[loc_y] as UD_StaticNPCSlots
+            if loc_slots.SLOTSNAME == asName
+                return loc_slots
+            endif
+            loc_y += 1
+        endwhile
+    endif
+    return none
+EndFunction
+
 Event OnInit()
     Utility.wait(0.1)
     UD_Slots = GetNumAliases()
@@ -45,16 +108,19 @@ Event OnInit()
             Utility.wait(0.1)
         endwhile
         if UDmain.TraceAllowed()
-            UDCDMain.Log("NPCslot["+ index +"] ready!")
+            UDCDMain.Log(self + "::OnInit() - NPCslot["+ index +"] ready!")
         endif
         index += 1
-        Utility.wait(0.1)
+        Utility.wait(0.05)
     endwhile
     registerForSingleUpdate(10.0)
     Ready = True
 EndEvent
 
 Function GameUpdate()
+    if IsManager()
+        ReregisterStaticSlots()
+    endif
     UD_Slots = GetNumAliases()
     SlotGameUpdate()
     CheckOrgasmLoops()
@@ -72,14 +138,16 @@ Function SlotGameUpdate()
 EndFunction
 
 Function CheckOrgasmLoops()
-    UD_CustomDevice_NPCSlot loc_slot = GetPlayerSlot()
-    UDOM.CheckArousalCheck(loc_slot.getActor())
-    UDOM.CheckOrgasmCheck(loc_slot.getActor())
+    if IsManager()
+        UD_CustomDevice_NPCSlot loc_slot = GetPlayerSlot()
+        UDOM.CheckArousalCheck(loc_slot.getActor())
+        UDOM.CheckOrgasmCheck(loc_slot.getActor())
+    endif
 EndFunction
 
 Event OnUpdate()
     ;init player slot
-    if !_PlayerSlotReady
+    if IsManager() && !_PlayerSlotReady
         _PlayerSlotReady = True
         initPlayerSlot()
     endif
@@ -91,7 +159,7 @@ Event OnUpdate()
             _LastUpdateTime = Utility.GetCurrentGameTime()
             _UpdateTimePassed2 += UDCDmain.UD_UpdateTime
             if _UpdateTimePassed2 >= UD_SlotScanUpdateTime
-                if UDmain.AllowNPCSupport
+                if IsManager() && UDmain.AllowNPCSupport
                     scanSlots()
                 endif
                 UndressSlots()
@@ -143,7 +211,6 @@ Function UndressSlots()
         if loc_slot
             loc_actor = loc_slot.GetActor()
             if loc_actor && loc_actor.Is3DLoaded() && !loc_slot.hasFreeHands() && !UDmain.ActorIsPlayer(loc_actor) && ((loc_Follower && UDmain.ActorIsFollower(loc_actor)) || (loc_NPC && !UDmain.ActorIsFollower(loc_actor)))
-                ;libs.strip(loc_slot.GetActor(),false)
                 UDCDmain.UndressAllArmor(loc_actor)
             endif
         endif
@@ -160,40 +227,15 @@ EndFunction
 
 ;bool _updating = false
 bool Function scanSlots(bool debugMsg = False)
-    UDCD_NPCF.Stop()
-    Utility.wait(0.25)
-    UDCD_NPCF.Start()
-    Utility.wait(0.25)
+    if IsManager()
+        UDCD_NPCF.Stop()
+        Utility.wait(0.25)
+        UDCD_NPCF.Start()
+        Utility.wait(0.25)
 
-    updateSlotedActors(debugMsg)
+        updateSlotedActors(debugMsg)
+    endif
     return true
-EndFunction
-
-Function CheckSlots()
-    int index = UD_Slots - 1 ;all aliases, excluding player
-    while index
-        index -= 1
-        UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
-        if loc_slot
-            if loc_slot.isUsed()
-                loc_slot.QuickFix()
-            endif
-        endif
-    endwhile
-EndFunction
-
-Function resetNPCFSlots()
-    int index = UDCD_NPCF.GetNumAliases() - 1 ;all aliases, excluding player
-    while index
-        index -= 1
-        ReferenceAlias loc_refAl = (UDCD_NPCF.GetNthAlias(index) as ReferenceAlias)
-        if loc_refAl.getActorReference()
-            Actor loc_akActor = loc_refAl.getActorReference()
-            if !isInPlayerCell(loc_akActor) && !StorageUtil.GetIntValue(loc_akActor, "UD_GlobalUpdate" , 0)
-                loc_refAl.clear()
-            endif
-        endif
-    endwhile
 EndFunction
 
 Function FreeUnusedSlots()
@@ -225,20 +267,14 @@ Function FreeUnusedSlots()
     endwhile
 EndFunction
 
-bool Function isInPlayerCell(Actor akActor)
-    if UDmain.Player.getParentCell() == akActor.getParentCell()
-        return true
-    else
-        return false
-    endif
-EndFunction
-
 Function initPlayerSlot()
-    getPlayerSlot().ForceRefTo(UDmain.Player)
-    UDOM.CheckOrgasmCheck(UDmain.Player)
-    UDOM.CheckArousalCheck(UDmain.Player)
-    if UDmain.TraceAllowed()    
-        UDCDMain.Log("PlayerSlot ready!")
+    if IsManager()
+        getPlayerSlot().ForceRefTo(UDmain.Player)
+        UDOM.CheckOrgasmCheck(UDmain.Player)
+        UDOM.CheckArousalCheck(UDmain.Player)
+        if UDmain.TraceAllowed()    
+            UDCDMain.Log("PlayerSlot ready!")
+        endif
     endif
 EndFunction
 
@@ -306,13 +342,15 @@ Function updateSlotedActors(bool debugMsg = False)
 EndFunction
 
 Function AddScanIncompatibleFaction(Faction akFaction)
-    if akFaction
+    if IsManager() && akFaction
         _ScanInCompatibilityFactions = PapyrusUtil.PushForm(_ScanInCompatibilityFactions, akFaction)
     endif
 EndFunction
 
 Function ResetIncompatibleFactionArray()
-    _ScanInCompatibilityFactions = Utility.CreateFormArray(0)
+    if IsManager()
+        _ScanInCompatibilityFactions = Utility.CreateFormArray(0)
+    endif
 EndFunction
 
 ;Compatibility check
@@ -377,7 +415,7 @@ Function regainDeviceSlots(Form akActor, int slotID,String sSlotedActorName)
 EndFunction
 
 UD_CustomDevice_NPCSlot Function getNPCSlotByActor(Actor akActor)
-    if akActor == UDmain.Player
+    if IsManager() && akActor == UDmain.Player
         return getPlayerSlot()
     endif
     int index = UD_Slots
@@ -387,13 +425,36 @@ UD_CustomDevice_NPCSlot Function getNPCSlotByActor(Actor akActor)
             return GetNthAlias(index) as UD_CustomDevice_NPCSlot
         endif
     endwhile
+    ; ==== check static slots ====
+    if IsManager()
+        Int loc_slotsnum = _StaticSlots.length
+        Int loc_y = 0
+        while loc_y < loc_slotsnum
+            UD_StaticNPCSlots loc_slots = _StaticSlots[loc_y] as UD_StaticNPCSlots
+            int loc_x = loc_slots.UD_Slots
+            while loc_x
+                loc_x -= 1
+                UD_CustomDevice_NPCSlot loc_slot = loc_slots.GetNthAlias(loc_x) as UD_CustomDevice_NPCSlot
+                if loc_slot && loc_slot.GetActor() == akActor
+                    return loc_slot
+                endif
+            endwhile
+            loc_y += 1
+        endwhile
+    endif
     return none
 EndFunction
 
+;get index of player slot, or -1 if it doesn't exist
 int Function getPlayerIndex()
-    return UD_Slots - 1
+    if IsManager()
+        return UD_Slots - 1
+    else
+        return -1
+    endif
 EndFunction
 
+;returns number of slots
 int Function getNumSlots()
     return UD_Slots
 EndFunction
@@ -406,8 +467,8 @@ UD_CustomDevice_NPCSlot Function getNPCSlotByName(string sName)
     return GetAliasByName(sName) as UD_CustomDevice_NPCSlot
 EndFunction
 
-UD_CustomDevice_NPCSlot Function getNPCSlotByActorName(string sName)
-    if sName == UDmain.Player.getLeveledActorBase().getName()
+UD_CustomDevice_NPCSlot Function getNPCSlotByActorName(string asName)
+    if IsManager() && asName == UDmain.Player.getLeveledActorBase().getName()
         return getPlayerSlot()
     endif
     int index = UD_Slots
@@ -415,11 +476,28 @@ UD_CustomDevice_NPCSlot Function getNPCSlotByActorName(string sName)
         index -= 1
         UD_CustomDevice_NPCSlot slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
         if slot.isUsed()
-            if slot.getSlotedNPCName() == sName
+            if slot.getSlotedNPCName() == asName
                 return slot
             endif
         endif
     endwhile
+    ; ==== check static slots ====
+    if IsManager()
+        Int loc_slotsnum = _StaticSlots.length
+        Int loc_y = 0
+        while loc_y < loc_slotsnum
+            UD_StaticNPCSlots loc_slots = _StaticSlots[loc_y] as UD_StaticNPCSlots
+            int loc_x = loc_slots.UD_Slots
+            while loc_x
+                loc_x -= 1
+                UD_CustomDevice_NPCSlot loc_slot = loc_slots.GetNthAlias(loc_x) as UD_CustomDevice_NPCSlot
+                if loc_slot && loc_slot.isUsed() && (loc_slot.getSlotedNPCName() == asName)
+                    return loc_slot
+                endif
+            endwhile
+            loc_y += 1
+        endwhile
+    endif
     return none
 EndFunction
 
