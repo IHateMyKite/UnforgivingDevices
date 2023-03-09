@@ -49,18 +49,30 @@ Event OnUpdate()
 EndEvent
 
 Function Evaluate()
-    Int loc_id = UDNPCM.GetNumAliases() - 1 ;all except player
+    EvaluateSlots(UDNPCM)
+    Int loc_SSlotsNum = UDNPCM.GetNumberOfStatisSlots()
+    while loc_SSlotsNum
+        loc_SSlotsNum -= 1
+        EvaluateSlots(UDNPCM.GetNthStaticSlots(loc_SSlotsNum))
+    endwhile
+EndFunction
+
+Function EvaluateSlots(UD_CustomDevices_NPCSlotsManager akSlots)
+    Int loc_id = akSlots.GetNumAliases()
     while loc_id
         loc_id -= 1
-        UD_CustomDevice_NPCSlot loc_Slot = UDNPCM.getNPCSlotByIndex(loc_id)
-        if SlotAIEnabled(loc_Slot)
-            SendEvaluationEvent(loc_Slot)
-        endif
-        if loc_Slot.UD_AITimer
-            loc_Slot.UD_AITimer -= 1
+        UD_CustomDevice_NPCSlot loc_Slot = akSlots.getNPCSlotByIndex(loc_id)
+        if !loc_Slot.IsPlayer()
+            if SlotAIEnabled(loc_Slot)
+                SendEvaluationEvent(loc_Slot)
+            endif
+            if loc_Slot.UD_AITimer
+                loc_Slot.UD_AITimer -= 1
+            endif
         endif
     endwhile
 EndFunction
+
 
 Bool Function SlotAIEnabled(UD_CustomDevice_NPCSlot akSlot)
     Actor loc_actor = akSlot.GetActor()

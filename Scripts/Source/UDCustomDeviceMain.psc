@@ -577,18 +577,19 @@ Function sortSlots(Actor akActor)
     endif
 EndFunction
 
-bool Function registerDevice(UD_CustomDevice_RenderScript oref)
-    UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(oref.getWearer())
+bool Function registerDevice(UD_CustomDevice_RenderScript akDevice)
+    UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(akDevice.getWearer())
     if loc_slot
-        return loc_slot.registerDevice(oref)
+        return loc_slot.registerDevice(akDevice)
     else
-        Error("registerDevice("+oref.getDeviceHeader()+") - can't find slot for actor " + oref.getWearerName())
+        Error("registerDevice("+akDevice.getDeviceHeader()+") - can't find slot for actor " + akDevice.getWearerName())
+        return false
     endif
 EndFunction
 
-bool Function deviceAlreadyRegistered(Actor akActor, Armor deviceInventory)
+bool Function deviceAlreadyRegistered(Actor akActor, Armor akDeviceInventory)
     if isRegistered(akActor)
-        return getNPCSlot(akActor).deviceAlreadyRegistered(deviceInventory)
+        return getNPCSlot(akActor).deviceAlreadyRegistered(akDeviceInventory)
     else
         return false
     endif

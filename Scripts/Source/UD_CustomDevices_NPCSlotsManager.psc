@@ -25,9 +25,9 @@ EndProperty
 Quest               Property UDCD_NPCF                                  auto ;finder
 UD_OrgasmManager    Property UDOM                                       auto
 Message             Property UD_FixMenu_MSG                             auto
-Int                 Property UD_Slots                       = 15        auto
-Float               Property UD_SlotUpdateTime              = 10.0      auto
-Bool                Property Ready                          = False     auto
+Int                 Property UD_Slots                       = 15        auto hidden
+Float               Property UD_SlotUpdateTime              = 10.0      auto hidden
+Bool                Property Ready                          = False     auto hidden
 
 Bool                         _PlayerSlotReady               = false
 Float                        _LastUpdateTime                = 0.0
@@ -83,6 +83,10 @@ Function ReregisterStaticSlots()
     Utility.waitMenuMode(3.0) ;wait some time for all slots to be installed
 EndFunction
 
+Int Function GetNumberOfStatisSlots()
+    return _StaticSlots.length
+EndFunction
+
 UD_StaticNPCSlots Function GetStaticSlots(String asName)
     if IsManager()
         Int loc_slotsnum = _StaticSlots.length
@@ -94,6 +98,13 @@ UD_StaticNPCSlots Function GetStaticSlots(String asName)
             endif
             loc_y += 1
         endwhile
+    endif
+    return none
+EndFunction
+
+UD_StaticNPCSlots Function GetNthStaticSlots(Int aiId)
+    if IsManager()
+        return _StaticSlots[aiId] as UD_StaticNPCSlots
     endif
     return none
 EndFunction
@@ -118,8 +129,16 @@ Event OnInit()
 EndEvent
 
 Function GameUpdate()
+    ; ==== check static slots ====
     if IsManager()
         ReregisterStaticSlots()
+        Int loc_slotsnum = _StaticSlots.length
+        Int loc_y = 0
+        while loc_y < loc_slotsnum
+            UD_StaticNPCSlots loc_slots = _StaticSlots[loc_y] as UD_StaticNPCSlots
+            loc_slots.GameUpdate()
+            loc_y += 1
+        endwhile
     endif
     UD_Slots = GetNumAliases()
     SlotGameUpdate()
