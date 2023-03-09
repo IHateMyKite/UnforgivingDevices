@@ -957,6 +957,7 @@ EndFunction
 
 Bool Property UD_CurrentNPCMenuIsFollower           = False auto conditional hidden
 Bool Property UD_CurrentNPCMenuIsRegistered         = False auto conditional hidden
+Bool Property UD_CurrentNPCMenuIsStatic             = False auto conditional hidden
 Bool Property UD_CurrentNPCMenuIsPersistent         = False auto conditional hidden
 Bool Property UD_CurrentNPCMenuTargetIsHelpless     = False auto conditional hidden
 Bool Property UD_CurrentNPCMenuTargetIsInMinigame   = False auto conditional hidden
@@ -964,6 +965,7 @@ Function NPCMenu(Actor akActor)
     SetMessageAlias(akActor)
     UD_CurrentNPCMenuIsFollower         = ActorIsFollower(akActor)
     UD_CurrentNPCMenuIsRegistered       = isRegistered(akActor)
+    UD_CurrentNPCMenuIsStatic           = akActor.IsInFaction(UDlibs.StaticNPC)
     UD_CurrentNPCMenuTargetIsHelpless   = UDmain.ActorIsHelpless(akActor) && UDmain.ActorFreeHands(UDmain.Player)
     UD_CurrentNPCMenuTargetIsInMinigame = ActorInMinigame(akActor)
     UD_CurrentNPCMenuIsPersistent       = StorageUtil.GetIntValue(akActor, "UD_ManualRegister", 0)
