@@ -16,9 +16,19 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Runs a single command using the runners shell
+      - name: Check directory
+        run: pwd
+        shell: cmd
+
+      - name: Check directory 2
+        run: pwd
+        shell: cmd
+        working-directory: ./.github/PAPYRUS
+        
       - name: Go to Build directory
-        run: cd ./.github/PAPYRUS
+        run: cd "../.github/PAPYRUS"
+        shell: cmd
         
       - name: Run build scripts
         run: start BUILD.bat
+        shell: cmd
