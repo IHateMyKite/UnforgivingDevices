@@ -19,11 +19,6 @@ jobs:
       - name: Check directory
         run: pwd
         shell: cmd
-
-      - name: Check directory 2
-        run: pwd
-        shell: cmd
-        working-directory: PAPYRUS
         
       - name: Go to Build directory
         run: cd PAPYRUS
