@@ -73,4 +73,4 @@ jobs:
         with:
           tag_name: NB
           # Newline-delimited list of path globs for asset files to upload
-          files: DELIVERY/NightlyBuild.zip
+          files: DELIVERY/UnforgivingDevices_NB.zip
