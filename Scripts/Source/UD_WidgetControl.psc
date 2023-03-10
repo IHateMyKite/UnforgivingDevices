@@ -26,7 +26,7 @@ Bool                        Property UD_UseIWantWidget  Hidden
     Function Set(Bool abValue)
         If _UD_UseIWantWidget != abValue
             _UD_UseIWantWidget = abValue
-            OnInterfaceSwitch(abGameLoad = False)
+            OnUIReload(abGameLoad = False)
         EndIf
     EndFunction
 EndProperty
@@ -60,7 +60,7 @@ EndProperty
 ; overlay settings
 
 ; vertical spacing between widgets, measured in their heights
-Float Property UD_MeterVertPadding = 1.25 Auto   Hidden
+Float Property UD_MeterVertPadding = 1.50 Auto   Hidden
 
 ; enable device icons (W_ICON_CLUSTER_DEVICES)
 Bool _UD_EnableDeviceIcons = True
@@ -283,7 +283,7 @@ Event OnUpdate()
             return ;fatal error, do not use the module
         endif
         Ready = True
-        OnInterfaceSwitch(abGameLoad = True)
+        OnUIReload(abGameLoad = True)
         InitWidgetsRequest(abGameLoad = True, abMeters = True, abIcons = True, abText = True)
     EndIf
     if UDmain.IsEnabled()
@@ -301,8 +301,9 @@ Event OnUpdate()
 EndEvent
 
 Function Update()
-    OnInterfaceSwitch(abGameLoad = True)
+    OnUIReload(abGameLoad = True)
     ; upgrade version
+    UD_MeterVertPadding = 1.50
     Int i = UD_VanillaWidgets.Length
     While i > 0
         i -= 1
@@ -316,7 +317,7 @@ EndFunction
 
 ; In this function, switching between different interface options is checked and processed.
 ; abGameLoad        - if it called after game load
-Function OnInterfaceSwitch(Bool abGameLoad)
+Function OnUIReload(Bool abGameLoad)
     StatusEffect_Register("dd-piercing-nipples", W_ICON_CLUSTER_DEVICES)
     StatusEffect_Register("dd-plug-vaginal", W_ICON_CLUSTER_DEVICES)
     StatusEffect_Register("dd-piercing-clit", W_ICON_CLUSTER_DEVICES)
@@ -334,8 +335,8 @@ Function OnInterfaceSwitch(Bool abGameLoad)
             UD_VanillaWidgets[i].Hide(True)
         EndWhile
         Meter_Register("device-main")
-        Meter_Register("device-condition")
         Meter_Register("player-orgasm")
+        Meter_Register("device-condition")
         InitWidgetsRequest(abGameLoad = abGameLoad, abMeters = True, abIcons = True, abText = True)
     else
         GoToState("")
@@ -353,6 +354,8 @@ Function OnInterfaceSwitch(Bool abGameLoad)
     Meter_SetColor("device-main", 0xFF005E, 0xFF307C, 0)
     Meter_SetColor("device-condition", 0x4df319, 0x62ff00, 0)
     Meter_SetColor("player-orgasm", 0xE727F5, 0xF775FF, 0xFF00BC)
+    
+    SendModEvent("UD_AfterUIReload", "", UDmain.UseiWW() as Float)
 EndFunction
 
 ; should be called before placing widgets
@@ -664,6 +667,27 @@ EndFunction
 
 ; Show all enabled (!) widgets with test animations for the short time
 Function TestWidgets()
+    
+    Int len = UD_VanillaWidgets.Length
+    Int i = 0
+    While i < len
+        If UD_VanillaWidgets[i] != None
+            UD_VanillaWidgets[i].Show(true)
+            UD_VanillaWidgets[i].SetPercent(Utility.RandomFloat(0.0, 1.0), False)
+        EndIf
+        i += 1
+    EndWhile
+        
+    Utility.Wait(5.0)
+    
+    len = UD_VanillaWidgets.Length
+    i = 0
+    While i < len
+        If UD_VanillaWidgets[i] != None
+            UD_VanillaWidgets[i].Hide(true)
+        EndIf
+        i += 1
+    EndWhile
 EndFunction
 
 ;/
@@ -1432,6 +1456,7 @@ State iWidgetInstalled
             If loc_dataMeter.Name != ""
                 loc_dataMeter.StartTest()
                 Meter_SetVisible(loc_dataMeter.Name, True)
+                Meter_SetFillPercent(loc_dataMeter.Name, Utility.RandomInt(1, 100))
             EndIf
             i += 1
         EndWhile
@@ -1463,6 +1488,7 @@ State iWidgetInstalled
             If loc_dataMeter.Name != ""
                 loc_dataMeter.EndTest()
                 Meter_SetVisible(loc_dataMeter.Name, loc_dataMeter.Visible)
+                Meter_SetFillPercent(loc_dataMeter.Name, loc_dataMeter.FillPercent)
             EndIf
             i += 1
         EndWhile

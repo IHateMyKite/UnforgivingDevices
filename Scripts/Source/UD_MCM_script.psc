@@ -813,8 +813,8 @@ Event resetUIWidgetPage()
     EndIf
     UD_IconVariant_EffOrgasm_M = addMenuOption("Orgasm icon variant", variant_str, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableDebuffIcons && !variant_err))
     
-    UD_WidgetTest_T = AddTextOption("TEST WIDGETS", "-CLICK-", a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
-    UD_WidgetReset_T = AddTextOption("RESET UI", "-CLICK-", a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
+    UD_WidgetTest_T = AddTextOption("TEST WIDGETS", "-CLICK-")
+    UD_WidgetReset_T = AddTextOption("RESET UI", "-CLICK-")
 EndEvent
 
 

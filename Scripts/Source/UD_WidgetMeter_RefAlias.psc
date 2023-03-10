@@ -27,12 +27,14 @@ Int _PrimaryColor
 Int _SecondaryColor
 Int _FlashColor
 Bool _Visible
+Int _FillPercent
 
 Function StartTest()
     _Visible = Visible
     _PrimaryColor = PrimaryColor
     _SecondaryColor = SecondaryColor
     _FlashColor = FlashColor
+    _FillPercent = FillPercent
 EndFunction
 
 Function EndTest()
@@ -40,4 +42,5 @@ Function EndTest()
     PrimaryColor = _PrimaryColor
     SecondaryColor = _SecondaryColor
     FlashColor = _FlashColor
+    FillPercent = _FillPercent
 EndFunction
