@@ -56,12 +56,10 @@ jobs:
           name: BuildArtifact
           path: DELIVERY
 
-      - name: Enter delivery directory
-        run: cd DELIVERY
-        
       - uses: montudor/action-zip@v1
         with:
           args: zip -qq -r NightlyBuild.zip .
+          working-directory: DELIVERY
 
       - name: Nightly Release
         uses: andelf/nightly-release@v1
@@ -71,6 +69,7 @@ jobs:
           tag_name: NB
           # Newline-delimited list of path globs for asset files to upload
           files: NightlyBuild.zip
+          working-directory: DELIVERY
 
       #- name: Move to NB
       #  uses: pyTooling/Actions/releaser@main
