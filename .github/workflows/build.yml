@@ -56,10 +56,10 @@ jobs:
           name: BuildArtifact
           path: DELIVERY
           
-      #- name: Move to NB
-      #  uses: pyTooling/Actions/releaser@main
-      #  with:
-      #    tag: NB
-      #    rm: true
-      #    token: ${{ secrets.GITHUB_TOKEN }}
-      #    files: DELIVERY/.
+      - name: Move to NB
+        uses: pyTooling/Actions/releaser@main
+        with:
+          tag: NB
+          rm: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: DELIVERY/.
