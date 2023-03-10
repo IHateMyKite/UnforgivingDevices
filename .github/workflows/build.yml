@@ -19,12 +19,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         
-      - name: Check directory
-        run: pwd
-        
       - name: See files
         run: ls
         
-      - name: Run build scripts
-        run: PAPYRUS/PapyrusCompiler "Scripts/Source" -o="PAPYRUS/build_res" -all -i="Scripts/Source;PAPYRUS/SRC;PAPYRUS/SRC_OTHER;PAPYRUS/SRC_DD;PAPYRUS/SRC_SKYUI;PAPYRUS/SRC_UIEXT;PAPYRUS/SRC_PAPUTIL;PAPYRUS/SRC_SXL;PAPYRUS/SRC_MFG;PAPYRUS/SRC_RM;PAPYRUS/SRC_FNIS;PAPYRUS/SRC_SLA;PAPYRUS/SRC_IWW;PAPYRUS/SRC_XPMSE;PAPYRUS/SRC_ST" -optimize -f="PAPYRUS/Flags.flg"
+      - name: Create result folder
+        run: mkdir DELIVERY
         
+      - name: Copy files to DELIVERY
+        run: robocopy . DELIVERY /E /XD DELIVERY PAPYRUS .github /XF .gitattributes .gitignore CODE_OF_CONDUCT.md
+        
+      - name: Run build scripts
+        run: PAPYRUS/PapyrusCompiler "Scripts/Source" -o="DELIVERY/Scripts" -all -i="Scripts/Source;PAPYRUS/SRC;PAPYRUS/SRC_OTHER;PAPYRUS/SRC_DD;PAPYRUS/SRC_SKYUI;PAPYRUS/SRC_UIEXT;PAPYRUS/SRC_PAPUTIL;PAPYRUS/SRC_SXL;PAPYRUS/SRC_MFG;PAPYRUS/SRC_RM;PAPYRUS/SRC_FNIS;PAPYRUS/SRC_SLA;PAPYRUS/SRC_IWW;PAPYRUS/SRC_XPMSE;PAPYRUS/SRC_ST" -optimize -f="PAPYRUS/Flags.flg"
+                
+      - name: Move to NB
+        uses: eine/tip@master
+        with:
+          tag: NB
+          rm: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: DELIVERY/.
