@@ -2148,6 +2148,12 @@ Function UpdateOrgasmSecond()
                 _widgetShown = true
             endif
         endif
+    else
+        ;stop moan sound if actor is out of range
+        if _msID != -1
+            Sound.StopInstance(_msID)
+            _msID = -1
+        endif
     endif
     
     if _orgasmProgress < 0.0
