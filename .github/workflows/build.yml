@@ -63,7 +63,7 @@ jobs:
           path: DELIVERY
 
       - name: Zip files
-        run: zip -qq -r NightlyBuild.zip .
+        run: zip -qq -r UnforgivingDevices_NB.zip .
         working-directory: DELIVERY
 
       - name: Nightly Release
