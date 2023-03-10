@@ -55,11 +55,18 @@ jobs:
         with:
           name: BuildArtifact
           path: DELIVERY
-          
-      - name: Move to NB
-        uses: pyTooling/Actions/releaser@main
+
+      - name: Nightly Release
+        uses: andelf/nightly-release@v1
         with:
-          tag: NB
-          rm: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-          files: DELIVERY
+          tag_name: NB
+          # Newline-delimited list of path globs for asset files to upload
+          files: DELIVERY/.
+
+      #- name: Move to NB
+      #  uses: pyTooling/Actions/releaser@main
+      #  with:
+      #    tag: NB
+      #    rm: true
+      #    token: ${{ secrets.GITHUB_TOKEN }}
+      #    files: DELIVERY
