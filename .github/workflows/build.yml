@@ -58,6 +58,8 @@ jobs:
 
       - name: Nightly Release
         uses: andelf/nightly-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: NB
           # Newline-delimited list of path globs for asset files to upload
