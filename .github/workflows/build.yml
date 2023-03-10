@@ -62,4 +62,4 @@ jobs:
           tag: NB
           rm: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          files: DELIVERY/.
+          files: DELIVERY
