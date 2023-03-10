@@ -44,6 +44,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Create delivery folder
+        run: mkdir DELIVERY
+
       - name: See files
         run: ls
 
@@ -52,10 +55,10 @@ jobs:
         with:
           name: BuildArtifact
           
-      - name: Move to NB
-        uses: pyTooling/Actions/releaser@main
-        with:
-          tag: NB
-          rm: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-          files: DELIVERY/.
+      #- name: Move to NB
+      #  uses: pyTooling/Actions/releaser@main
+      #  with:
+      #    tag: NB
+      #    rm: true
+      #    token: ${{ secrets.GITHUB_TOKEN }}
+      #    files: DELIVERY/.
