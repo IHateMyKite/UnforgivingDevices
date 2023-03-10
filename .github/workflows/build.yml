@@ -2,6 +2,8 @@ name: CI
 
 # Controls when the workflow will run
 on:
+  push:
+    branches: [ "main" ]
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -26,7 +28,7 @@ jobs:
         run: mkdir DELIVERY
         
       - name: Copy files to DELIVERY
-        run: (robocopy . DELIVERY /E /XD DELIVERY PAPYRUS .github /XF .gitattributes .gitignore CODE_OF_CONDUCT.md) ; if ($lastexitcode -lt 8) { $global:LASTEXITCODE = $null }
+        run: (robocopy . DELIVERY /E /XD DELIVERY PAPYRUS .github .git /XF .gitattributes .gitignore CODE_OF_CONDUCT.md) ; if ($lastexitcode -lt 8) { $global:LASTEXITCODE = $null }
       
       - name: Upload files to artifact
         uses: actions/upload-artifact@v3.1.2
@@ -34,8 +36,8 @@ jobs:
           name: BuildArtifact
           path: DELIVERY
           
-      #- name: Run build scripts
-      #  run: PAPYRUS/PapyrusCompiler "Scripts/Source" -o="DELIVERY/Scripts" -all -i="Scripts/Source;PAPYRUS/SRC;PAPYRUS/SRC_OTHER;PAPYRUS/SRC_DD;PAPYRUS/SRC_SKYUI;PAPYRUS/SRC_UIEXT;PAPYRUS/SRC_PAPUTIL;PAPYRUS/SRC_SXL;PAPYRUS/SRC_MFG;PAPYRUS/SRC_RM;PAPYRUS/SRC_FNIS;PAPYRUS/SRC_SLA;PAPYRUS/SRC_IWW;PAPYRUS/SRC_XPMSE;PAPYRUS/SRC_ST" -optimize -f="PAPYRUS/Flags.flg"
+      - name: Run build scripts
+        run: PAPYRUS/PapyrusCompiler "Scripts/Source" -o="DELIVERY/Scripts" -all -i="Scripts/Source;PAPYRUS/SRC;PAPYRUS/SRC_OTHER;PAPYRUS/SRC_DD;PAPYRUS/SRC_SKYUI;PAPYRUS/SRC_UIEXT;PAPYRUS/SRC_PAPUTIL;PAPYRUS/SRC_SXL;PAPYRUS/SRC_MFG;PAPYRUS/SRC_RM;PAPYRUS/SRC_FNIS;PAPYRUS/SRC_SLA;PAPYRUS/SRC_IWW;PAPYRUS/SRC_XPMSE;PAPYRUS/SRC_ST" -optimize -f="PAPYRUS/Flags.flg"
   release:
     name: ReleaseNB
     runs-on: ubuntu-latest
@@ -71,11 +73,3 @@ jobs:
           tag_name: NB
           # Newline-delimited list of path globs for asset files to upload
           files: DELIVERY/NightlyBuild.zip
-
-      #- name: Move to NB
-      #  uses: pyTooling/Actions/releaser@main
-      #  with:
-      #    tag: NB
-      #    rm: true
-      #    token: ${{ secrets.GITHUB_TOKEN }}
-      #    files: DELIVERY
