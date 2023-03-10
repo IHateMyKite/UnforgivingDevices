@@ -1,5 +1,3 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
 
 # Controls when the workflow will run
@@ -11,6 +9,8 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   build:
+    name: BuildPapyrus
+  
     # The type of runner that the job will run on
     runs-on: windows-latest
 
@@ -30,7 +30,11 @@ jobs:
         
       #- name: Run build scripts
       #  run: PAPYRUS/PapyrusCompiler "Scripts/Source" -o="DELIVERY/Scripts" -all -i="Scripts/Source;PAPYRUS/SRC;PAPYRUS/SRC_OTHER;PAPYRUS/SRC_DD;PAPYRUS/SRC_SKYUI;PAPYRUS/SRC_UIEXT;PAPYRUS/SRC_PAPUTIL;PAPYRUS/SRC_SXL;PAPYRUS/SRC_MFG;PAPYRUS/SRC_RM;PAPYRUS/SRC_FNIS;PAPYRUS/SRC_SLA;PAPYRUS/SRC_IWW;PAPYRUS/SRC_XPMSE;PAPYRUS/SRC_ST" -optimize -f="PAPYRUS/Flags.flg"
-                
+  release:
+    name: ReleaseNB
+    runs-on: ubuntu-latest
+    needs: build
+    steps: 
       - name: Move to NB
         uses: pyTooling/Actions/releaser@main
         with:
