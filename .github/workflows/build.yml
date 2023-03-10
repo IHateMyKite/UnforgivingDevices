@@ -61,7 +61,7 @@ jobs:
         with:
           tag_name: NB
           # Newline-delimited list of path globs for asset files to upload
-          files: DELIVERY/.
+          files: DELIVERY
 
       #- name: Move to NB
       #  uses: pyTooling/Actions/releaser@main
