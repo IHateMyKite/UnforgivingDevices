@@ -16,14 +16,17 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        
       - name: Check directory
         run: pwd
-        shell: cmd
+        
+      - name: See files
+        run: ls
         
       - name: Go to Build directory
         run: cd PAPYRUS
-        shell: cmd
         
       - name: Run build scripts
         run: start BUILD.bat
-        shell: cmd
