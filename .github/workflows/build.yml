@@ -23,10 +23,10 @@ jobs:
       - name: Check directory 2
         run: pwd
         shell: cmd
-        working-directory: ./.github/PAPYRUS
+        working-directory: ./PAPYRUS
         
       - name: Go to Build directory
-        run: cd "../.github/PAPYRUS"
+        run: cd PAPYRUS
         shell: cmd
         
       - name: Run build scripts
