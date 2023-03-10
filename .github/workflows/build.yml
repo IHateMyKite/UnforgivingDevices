@@ -54,6 +54,7 @@ jobs:
         uses: actions/download-artifact@v2.1.1
         with:
           name: BuildArtifact
+          path: DELIVERY
           
       #- name: Move to NB
       #  uses: pyTooling/Actions/releaser@main
