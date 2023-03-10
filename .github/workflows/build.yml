@@ -44,6 +44,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Install zip
+        uses: montudor/action-zip@v1
+
       - name: Create delivery folder
         run: mkdir DELIVERY
 
@@ -56,10 +59,9 @@ jobs:
           name: BuildArtifact
           path: DELIVERY
 
-      - uses: montudor/action-zip@v1
-        with:
-          args: zip -qq -r NightlyBuild.zip .
-          working-directory: DELIVERY
+      - name: Zip files
+        run: zip -qq -r NightlyBuild.zip .
+        working-directory: DELIVERY
 
       - name: Nightly Release
         uses: andelf/nightly-release@v1
@@ -68,8 +70,7 @@ jobs:
         with:
           tag_name: NB
           # Newline-delimited list of path globs for asset files to upload
-          files: NightlyBuild.zip
-          working-directory: DELIVERY
+          files: DELIVERY/NightlyBuild.zip
 
       #- name: Move to NB
       #  uses: pyTooling/Actions/releaser@main
