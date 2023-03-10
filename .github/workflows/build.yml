@@ -25,8 +25,6 @@ jobs:
       - name: See files
         run: ls
         
-      - name: Go to Build directory
-        run: cd PAPYRUS
-        
       - name: Run build scripts
-        run: start BUILD.bat
+        run: PAPYRUS/PapyrusCompiler "Scripts/Source" -o="PAPYRUS/build_res" -all -i="Scripts/Source;PAPYRUS/SRC;PAPYRUS/SRC_OTHER;PAPYRUS/SRC_DD;PAPYRUS/SRC_SKYUI;PAPYRUS/SRC_UIEXT;PAPYRUS/SRC_PAPUTIL;PAPYRUS/SRC_SXL;PAPYRUS/SRC_MFG;PAPYRUS/SRC_RM;PAPYRUS/SRC_FNIS;PAPYRUS/SRC_SLA;PAPYRUS/SRC_IWW;PAPYRUS/SRC_XPMSE;PAPYRUS/SRC_ST" -optimize -f="Flags.flg"
+        
