@@ -17,8 +17,11 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Runs a single command using the runners shell
+      - name: Show current directory (because im stupid)
+        run: ls
+        
       - name: Go to Build directory
-        run: cd ./.github/PAPYRUS
+        run: cd .github/PAPYRUS
         
       - name: Run build scripts
         run: start BUILD.bat
