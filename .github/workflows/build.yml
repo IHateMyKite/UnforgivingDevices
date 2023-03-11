@@ -24,26 +24,33 @@ jobs:
       - name: See files
         run: ls
         
-      - name: Run build scripts
-        run: PAPYRUS/PapyrusCompiler "Scripts/Source" -o="Scripts" -all -i="Scripts/Source;PAPYRUS/SRC;PAPYRUS/SRC_OTHER;PAPYRUS/SRC_DD;PAPYRUS/SRC_SKYUI;PAPYRUS/SRC_UIEXT;PAPYRUS/SRC_PAPUTIL;PAPYRUS/SRC_SXL;PAPYRUS/SRC_MFG;PAPYRUS/SRC_RM;PAPYRUS/SRC_FNIS;PAPYRUS/SRC_SLA;PAPYRUS/SRC_IWW;PAPYRUS/SRC_XPMSE;PAPYRUS/SRC_ST" -optimize -f="PAPYRUS/Flags.flg"
+      #- name: Run build scripts
+      #  run: PAPYRUS/PapyrusCompiler "Scripts/Source" -o="Scripts" -all -i="Scripts/Source;PAPYRUS/SRC;PAPYRUS/SRC_OTHER;PAPYRUS/SRC_DD;PAPYRUS/SRC_SKYUI;PAPYRUS/SRC_UIEXT;PAPYRUS/SRC_PAPUTIL;PAPYRUS/SRC_SXL;PAPYRUS/SRC_MFG;PAPYRUS/SRC_RM;PAPYRUS/SRC_FNIS;PAPYRUS/SRC_SLA;PAPYRUS/SRC_IWW;PAPYRUS/SRC_XPMSE;PAPYRUS/SRC_ST" -optimize -f="PAPYRUS/Flags.flg"
       
       - name: Delete PAPYRUS folder
         uses: JesseTG/rm@v1.0.0
         with:
           path: PAPYRUS
         
+      - name: See files 
+        run: |
+          cd ..
+          git clone https://github.com/IHateMyKite/UnforgivingDevices_FOMOD FOMOD
+          (robocopy "UnforgivingDevices/." "FOMOD/1.Base" /E /XD DELIVERY PAPYRUS .github .git /XF .gitattributes .gitignore CODE_OF_CONDUCT.md) ; if ($lastexitcode -lt 8) { $global:LASTEXITCODE = $null }
+        
       - name: Zip files
         uses: thedoctor0/zip-release@0.7.1
         with:
           type: 'zip'
           filename: 'UnforgivingDevices_NB.zip'
+          path: ../FOMOD/.
           exclusions: '*.git* *CODE_OF_CONDUCT.md*'
       
       - name: Upload files to artifact
         uses: actions/upload-artifact@v3.1.2
         with:
           name: BuildArtifact
-          path: UnforgivingDevices_NB.zip
+          path: ../FOMOD/UnforgivingDevices_NB.zip
           
       - name: Nightly Release
         uses: andelf/nightly-release@v1
@@ -52,4 +59,4 @@ jobs:
         with:
           tag_name: NB
           # Newline-delimited list of path globs for asset files to upload
-          files: UnforgivingDevices_NB.zip
+          files: ../FOMOD/UnforgivingDevices_NB.zip
