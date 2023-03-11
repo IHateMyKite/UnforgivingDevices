@@ -577,18 +577,19 @@ Function sortSlots(Actor akActor)
     endif
 EndFunction
 
-bool Function registerDevice(UD_CustomDevice_RenderScript oref)
-    UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(oref.getWearer())
+bool Function registerDevice(UD_CustomDevice_RenderScript akDevice)
+    UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(akDevice.getWearer())
     if loc_slot
-        return loc_slot.registerDevice(oref)
+        return loc_slot.registerDevice(akDevice)
     else
-        Error("registerDevice("+oref.getDeviceHeader()+") - can't find slot for actor " + oref.getWearerName())
+        Error("registerDevice("+akDevice.getDeviceHeader()+") - can't find slot for actor " + akDevice.getWearerName())
+        return false
     endif
 EndFunction
 
-bool Function deviceAlreadyRegistered(Actor akActor, Armor deviceInventory)
+bool Function deviceAlreadyRegistered(Actor akActor, Armor akDeviceInventory)
     if isRegistered(akActor)
-        return getNPCSlot(akActor).deviceAlreadyRegistered(deviceInventory)
+        return getNPCSlot(akActor).deviceAlreadyRegistered(akDeviceInventory)
     else
         return false
     endif
@@ -957,6 +958,7 @@ EndFunction
 
 Bool Property UD_CurrentNPCMenuIsFollower           = False auto conditional hidden
 Bool Property UD_CurrentNPCMenuIsRegistered         = False auto conditional hidden
+Bool Property UD_CurrentNPCMenuIsStatic             = False auto conditional hidden
 Bool Property UD_CurrentNPCMenuIsPersistent         = False auto conditional hidden
 Bool Property UD_CurrentNPCMenuTargetIsHelpless     = False auto conditional hidden
 Bool Property UD_CurrentNPCMenuTargetIsInMinigame   = False auto conditional hidden
@@ -964,6 +966,7 @@ Function NPCMenu(Actor akActor)
     SetMessageAlias(akActor)
     UD_CurrentNPCMenuIsFollower         = ActorIsFollower(akActor)
     UD_CurrentNPCMenuIsRegistered       = isRegistered(akActor)
+    UD_CurrentNPCMenuIsStatic           = akActor.IsInFaction(UDlibs.StaticNPC)
     UD_CurrentNPCMenuTargetIsHelpless   = UDmain.ActorIsHelpless(akActor) && UDmain.ActorFreeHands(UDmain.Player)
     UD_CurrentNPCMenuTargetIsInMinigame = ActorInMinigame(akActor)
     UD_CurrentNPCMenuIsPersistent       = StorageUtil.GetIntValue(akActor, "UD_ManualRegister", 0)
