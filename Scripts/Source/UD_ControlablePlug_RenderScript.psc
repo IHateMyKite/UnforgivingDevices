@@ -247,13 +247,13 @@ EndFunction
 Function updateWidgetColor()
     if turnOffPlugMinigame_on
         if getRemainingVibrationDurationPer() > 0.8
-            setWidgetColor(0xdd66c2)
+            setMainWidgetAppearance(0xdd66c2)
         elseif getRemainingVibrationDurationPer() > 0.5
-            setWidgetColor(0xde84ca)
+            setMainWidgetAppearance(0xde84ca)
         elseif getRemainingVibrationDurationPer() > 0.25
-            setWidgetColor(0xdfa3d2)
+            setMainWidgetAppearance(0xdfa3d2)
         else
-            setWidgetColor(0xdec5d8)
+            setMainWidgetAppearance(0xdec5d8)
         endif
     else
         parent.updateWidgetColor()

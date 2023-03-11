@@ -334,9 +334,9 @@ Function OnUIReload(Bool abGameLoad)
             i -= 1
             UD_VanillaWidgets[i].Hide(True)
         EndWhile
-        Meter_Register("device-main")
-        Meter_Register("player-orgasm")
-        Meter_Register("device-condition")
+        Meter_Register("device-main", "icon-meter-struggle")
+        Meter_Register("player-orgasm", "icon-meter-orgasm")
+        Meter_Register("device-condition", "icon-meter-condition")
         InitWidgetsRequest(abGameLoad = abGameLoad, abMeters = True, abIcons = True, abText = True)
     else
         GoToState("")
@@ -482,14 +482,16 @@ EndFunction
 
 ; Registers new meter widget
 ; asName            - meter's name
-Function Meter_Register(String asName)
-    UDMain.Info("UD_WidgetControl::Meter_Register() asName = " + asName)
+; asIcon            - icon's name
+Function Meter_Register(String asName, String asIcon = "")
+    UDMain.Info("UD_WidgetControl::Meter_Register() asName = " + asName + ", asIcon = " + asIcon)
     UD_WidgetMeter_RefAlias loc_data = _GetMeter(asName)
     If loc_data == None
         Return
     EndIf
     Bool need_init = loc_data.IsNew
     loc_data.IsNew = False
+    loc_data.IconName = asIcon
     If need_init
         InitWidgetsRequest(abMeters = True)
     EndIf
@@ -545,6 +547,13 @@ Function Meter_Flash(String asName)
         Return
     EndIf
     loc_widget.Flash()
+EndFunction
+
+; Sets small icon next to the meter widget
+; asMeterName       - meter's name
+; asIconName        - icon's name (dds file name)
+Function Meter_SetIcon(String asMeterName, String asIconName)
+    
 EndFunction
 
 ; Print notification on screen
@@ -865,7 +874,9 @@ State iWidgetInstalled
         While i < len
             data = MeterSlots[i]
             If data.Name != ""
-                _CreateMeterWidget(data, CalculateGroupXPos(UD_WidgetXPos), (CalculateGroupYPos(UD_WidgetYPos) - loc_VertOffset) As Int)
+                data.PosX = CalculateGroupXPos(UD_WidgetXPos)
+                data.PosY = (CalculateGroupYPos(UD_WidgetYPos) - loc_VertOffset) As Int
+                _CreateMeterWidget(data, data.PosX, data.PosY)
                 If UD_WidgetYPos == W_POSY_TOP
                     loc_VertOffset -= (UD_MeterVertPadding * HUDMeterHeightRef) as Int
                 Else
@@ -953,9 +964,7 @@ State iWidgetInstalled
             EndIf
             i += 1
         EndWhile
-        
-        Int x = 0
-        Int y = 0            
+         
         Int index0 = 0
         Int index1 = 0
         If UD_IconsAnchor == W_POSX_LEFT
@@ -983,17 +992,17 @@ State iWidgetInstalled
                 data = StatusEffectSlots[i]
                 If data.Name != ""
                     If data.Cluster == W_ICON_CLUSTER_DEVICES                                       ; device cluster
-                        x = CalculateGroupXPos(W_POSX_LEFT) + UD_IconsPadding + (UD_IconsSize * (-0.55 + 1.1 * (index0 % 2))) As Int
-                        y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (-1.1 * (cluster0_count / 2) + 1.1 * (index0 / 2))) As Int
+                        data.PosX = CalculateGroupXPos(W_POSX_LEFT) + UD_IconsPadding + (UD_IconsSize * (-0.55 + 1.1 * (index0 % 2))) As Int
+                        data.PosY = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (-1.1 * (cluster0_count / 2) + 1.1 * (index0 / 2))) As Int
                         data.Enabled = UD_EnableDeviceIcons
                         index0 += 1
                     ElseIf data.Cluster == W_ICON_CLUSTER_EFFECTS                                   ; effect cluster
-                        x = CalculateGroupXPos(W_POSX_LEFT) + UD_IconsPadding + (UD_IconsSize * (-0.55 + 1.1 * (index1 % 2))) As Int
-                        y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (1.1 + 1.1 * (index1 / 2))) As Int
+                        data.PosX = CalculateGroupXPos(W_POSX_LEFT) + UD_IconsPadding + (UD_IconsSize * (-0.55 + 1.1 * (index1 % 2))) As Int
+                        data.PosY = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (1.1 + 1.1 * (index1 / 2))) As Int
                         data.Enabled = UD_EnableDebuffIcons
                         index1 += 1
                     EndIf
-                    _CreateIconWidget(data, x, y, 75)
+                    _CreateIconWidget(data, data.PosX, data.PosY, 75)
                 EndIf
                 i += 1
             EndWhile
@@ -1015,17 +1024,17 @@ State iWidgetInstalled
                 data = StatusEffectSlots[i]
                 If data.Name != ""
                     If data.Cluster == W_ICON_CLUSTER_DEVICES                                       ; device cluster
-                        x = CalculateGroupXPos(W_POSX_CENTER) - 300 - UD_IconsPadding + (UD_IconsSize * (-0.55 + 1.1 * (index0 % 2))) As Int
-                        y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (-0.55 * (Math.Ceiling((cluster0_count as Float) / 2.0) - 1) + 1.1 * (index0 / 2))) As Int
+                        data.PosX = CalculateGroupXPos(W_POSX_CENTER) - 300 - UD_IconsPadding + (UD_IconsSize * (-0.55 + 1.1 * (index0 % 2))) As Int
+                        data.PosY = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (-0.55 * (Math.Ceiling((cluster0_count as Float) / 2.0) - 1) + 1.1 * (index0 / 2))) As Int
                         data.Enabled = UD_EnableDeviceIcons
                         index0 += 1
                     ElseIf data.Cluster == W_ICON_CLUSTER_EFFECTS                                   ; effect cluster
-                        x = CalculateGroupXPos(W_POSX_CENTER) + 300 + UD_IconsPadding + (UD_IconsSize * (-0.55 + 1.1 * (index1 % 2))) As Int
-                        y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (-0.55 * (Math.Ceiling((cluster1_count as Float) / 2.0) - 1) + 1.1 * (index1 / 2))) As Int
+                        data.PosX = CalculateGroupXPos(W_POSX_CENTER) + 300 + UD_IconsPadding + (UD_IconsSize * (-0.55 + 1.1 * (index1 % 2))) As Int
+                        data.PosY = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (-0.55 * (Math.Ceiling((cluster1_count as Float) / 2.0) - 1) + 1.1 * (index1 / 2))) As Int
                         data.Enabled = UD_EnableDebuffIcons
                         index1 += 1
                     EndIf
-                    _CreateIconWidget(data, x, y, 75)
+                    _CreateIconWidget(data, data.PosX, data.PosY, 75)
                 EndIf
                 i += 1
             EndWhile
@@ -1036,17 +1045,17 @@ State iWidgetInstalled
                 data = StatusEffectSlots[i]
                 If data.Name != ""
                     If data.Cluster == W_ICON_CLUSTER_DEVICES                                       ; device cluster
-                        x = CalculateGroupXPos(W_POSX_RIGHT) - UD_IconsPadding - (UD_IconsSize * (-0.55 + 1.1 * (index0 % 2))) As Int
-                        y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (-1.1 * (cluster0_count / 2) + 1.1 * (index0 / 2))) As Int
+                        data.PosX = CalculateGroupXPos(W_POSX_RIGHT) - UD_IconsPadding - (UD_IconsSize * (-0.55 + 1.1 * (index0 % 2))) As Int
+                        data.PosY = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (-1.1 * (cluster0_count / 2) + 1.1 * (index0 / 2))) As Int
                         data.Enabled = UD_EnableDeviceIcons
                         index0 += 1
                     ElseIf data.Cluster == W_ICON_CLUSTER_EFFECTS                                   ; effect cluster
-                        x = CalculateGroupXPos(W_POSX_RIGHT) - UD_IconsPadding - (UD_IconsSize * (-0.55 + 1.1 * (index1 % 2))) As Int
-                        y = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (1.1 + 1.1 * (index1 / 2))) As Int
+                        data.PosX = CalculateGroupXPos(W_POSX_RIGHT) - UD_IconsPadding - (UD_IconsSize * (-0.55 + 1.1 * (index1 % 2))) As Int
+                        data.PosY = CalculateGroupYPos(W_POSY_CENTER) + (UD_IconsSize * (1.1 + 1.1 * (index1 / 2))) As Int
                         data.Enabled = UD_EnableDebuffIcons
                         index1 += 1
                     EndIf
-                    _CreateIconWidget(data, x, y, 75)
+                    _CreateIconWidget(data, data.PosX, data.PosY, 75)
                 EndIf
                 i += 1
             EndWhile
@@ -1083,6 +1092,19 @@ State iWidgetInstalled
         iWidget.setMeterPercent(akData.Id, akData.FillPercent)
         iWidget.setVisible(akData.Id, akData.Visible as Int)
         _UpdateMeterColor(akData.Id, akData.PrimaryColor, akData.SecondaryColor, akData.FlashColor)
+        
+        If akData.IconId > 0
+            iWidget.destroy(akData.IconId)
+        EndIf
+        
+        If akData.IconName != ""
+            akData.IconId = iWidget.loadLibraryWidget(akData.IconName)
+            iWidget.setSize(akData.IconId, HUDMeterHeightRef as Int, HUDMeterHeightRef as Int)
+            iWidget.setPos(akData.IconId, (akData.PosX - HUDMeterWidthRef / 2 - HUDMeterHeightRef * 1.5 - 10) as Int, akData.PosY)
+            iWidget.setTransparency(akData.IconId, 75)
+            iWidget.setVisible(akData.IconId, akData.Visible as Int)
+            _SetIconRGB(akData.IconId, 0)
+        EndIf
         _CreateMeter_Mutex = False
     EndFunction
     
@@ -1109,6 +1131,7 @@ State iWidgetInstalled
         EndIf
         loc_data.Visible = abVisible
         iWidget.setVisible(loc_data.Id, loc_data.Visible as Int)
+        iWidget.setVisible(loc_data.IconId, loc_data.Visible as Int)
     EndFunction
 
     Function Meter_SetFillPercent(String asName, Float afValue, Bool abForce = false)
@@ -1140,6 +1163,27 @@ State iWidgetInstalled
             Return
         EndIf
         iWidget.doMeterFlash(loc_data.Id)
+    EndFunction
+    
+    Function Meter_SetIcon(String asMeterName, String asIconName)
+        UD_WidgetMeter_RefAlias loc_data = _GetMeter(asMeterName, False)
+        If loc_data == None
+            Return
+        EndIf
+        If loc_data.IconName == asIconName
+            Return
+        EndIf
+        If loc_data.IconId > 0
+            iWidget.destroy(loc_data.IconId)
+            loc_data.IconId = -1
+        EndIf
+        loc_data.IconName = asIconName
+        loc_data.IconId = iWidget.loadLibraryWidget(loc_data.IconName)
+        iWidget.setSize(loc_data.IconId, HUDMeterHeightRef as Int, HUDMeterHeightRef as Int)
+        iWidget.setPos(loc_data.IconId, (loc_data.PosX - HUDMeterWidthRef / 2 - HUDMeterHeightRef * 1.5 - 10) as Int, loc_data.PosY)
+        iWidget.setTransparency(loc_data.IconId, 75)
+        iWidget.setVisible(loc_data.IconId, loc_data.Visible as Int)
+        _SetIconRGB(loc_data.IconId, 0)
     EndFunction
    
     ; quickly push a string into array and leave the function

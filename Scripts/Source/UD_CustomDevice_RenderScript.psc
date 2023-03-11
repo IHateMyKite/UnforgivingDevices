@@ -378,9 +378,9 @@ float                   UD_MinigameMult1            = 1.0                ;additi
 float                   UD_MinigameMult2            = 1.0                ;additional multiplier for other minigames effectiveness
 float                   UD_MinigameMult3            = 1.0                ;additional multiplier for other minigames effectiveness
 float                   UD_durability_damage_add    = 0.0                ;adds flat value to durability dmg. Is added beffor UD_DamageMult is applied
-int                     UD_WidgetColor              = 0x0000FF           ;minigame widget color
-int                     UD_WidgetColor2             = -1                 ;minigame widget color 2
-int                     UD_WidgetFlashColor         = -1                 ;minigame widget flash color
+; int                     UD_WidgetColor              = 0x0000FF           ;minigame widget color
+; int                     UD_WidgetColor2             = -1                 ;minigame widget color 2
+; int                     UD_WidgetFlashColor         = -1                 ;minigame widget flash color
 
 ;Local animation variables
 ; TODO: keep the cache alive as long as the actor constraints don't change
@@ -2617,11 +2617,16 @@ Function setWidgetVal(float val, bool force = false)
     UDmain.UDWC.Meter_SetFillPercent("device-main", val * 100.0, force)
 EndFunction
 
-Function setWidgetColor(int val,int val2 = -1,int flash_col = -1)
-    UD_WidgetColor = val
-    UD_WidgetColor2 = val2
-    UD_WidgetFlashColor = flash_col
-    UDmain.UDWC.Meter_SetColor("device-main", UD_WidgetColor, UD_WidgetColor2, flash_col)
+Function setMainWidgetAppearance(Int aiColor1, Int aiColor2 = -1, Int aiFlashColor = -1, String asIconName = "")
+    UDmain.UDWC.Meter_SetColor("device-main", aiColor1, aiColor2, aiFlashColor)
+    If asIconName != ""
+        UDMain.UDWC.Meter_SetIcon("device-main", asIconName)
+    EndIf
+EndFunction
+
+Function setConditionWidgetAppearance(Int aiColor1, Int aiColor2 = -1, Int aiFlashColor = -1)
+    UDmain.UDWC.Meter_SetColor("device-condition", aiColor1, aiColor2, aiFlashColor)
+;    UDMain.UDWC.Meter_SetIcon("device-condition", "icon-meter-condition")
 EndFunction
 
 Function showWidget(Bool abUpdate = true, Bool abUpdateColor = true)
@@ -3564,8 +3569,8 @@ bool Function repairLocksMinigame(Bool abSilent = False)
     UD_damage_device = False
     UD_minigame_canCrit = False
     UD_AllowWidgetUpdate = False
-    UD_WidgetColor = 0xffbd00
-    UD_WidgetColor2 = -1
+    
+    setMainWidgetAppearance(0xffbd00, -1, -1, "icon-meter-pick")
 
     _customMinigameCritChance = 5 + (4 - getLockpickLevel(_MinigameSelectedLockID))*5
     _customMinigameCritDuration = 0.8 - getLockpickLevel(_MinigameSelectedLockID)*0.02
@@ -3899,8 +3904,9 @@ bool Function repairLocksMinigameWH(Actor akHelper)
     UD_damage_device = False
     UD_minigame_canCrit = False
     UD_AllowWidgetUpdate = False
-    UD_WidgetColor = 0xffbd00
-    UD_WidgetColor2 = -1
+    
+    setMainWidgetAppearance(0xffbd00, -1, -1, "icon-meter-pick")
+    
     _customMinigameCritChance = 10 + (4 - getLockpickLevel(_MinigameSelectedLockID))*5
     UD_MinigameMult1 = getAccesibility() + 0.35*(UDCDMain.getActorSmithingSkillsPerc(getWearer()) + UDCDMain.getActorSmithingSkillsPerc(getHelper()))
     UD_RegenMag_Magicka = 0.5
@@ -4218,13 +4224,15 @@ Function setMinigameEffectHelperVar(bool alloworgasm = True,bool allowexhaustion
 EndFunction
 
 ;set minigame widget variables
-Function setMinigameWidgetVar(bool useWidget = False,bool widgetAutoColor = True,int color = 0x0000FF,int sec_color = -1, bool abWidgetUpdate = True, int flash_col = -1)
-    UD_useWidget = useWidget
-    UD_WidgetColor = color
-    UD_WidgetColor2 = sec_color
-    UD_WidgetFlashColor = flash_col
-    UD_WidgetAutoColor = widgetAutoColor
+Function setMinigameWidgetVar(bool bUseWidget = False, bool bWidgetAutoColor = True, int aiColor1 = 0x0000FF, int aiColor2 = -1, bool abWidgetUpdate = True, int aiFlashColor = -1, String asIconName = "")
+    UD_useWidget = bUseWidget
+;    UD_WidgetColor = aiColor1
+;    UD_WidgetColor2 = aiColor2
+;    UD_WidgetFlashColor = aiFlashColor
+    UD_WidgetAutoColor = bWidgetAutoColor
     UD_AllowWidgetUpdate = abWidgetUpdate
+    
+    setMainWidgetAppearance(aiColor1, aiColor2, aiFlashColor, asIconName)
 EndFunction
 
 ;returns current type of minigame played
@@ -6483,40 +6491,33 @@ EndFunction
 Function updateWidgetColor()
     if UD_WidgetAutoColor && !UDmain.UseiWW()
         if UD_Condition == 0
-            UD_WidgetColor2 = 0x61ff00
-            UD_WidgetColor  = 0x4da319
+            setMainWidgetAppearance(0x4df319, 0x62ff00)
         elseif UD_Condition == 1
-            UD_WidgetColor2 = 0x4da319
-            UD_WidgetColor  = 0xafba24
+            setMainWidgetAppearance(0xafba24, 0x4da319)
         elseif UD_Condition == 2
-            UD_WidgetColor2 = 0xafba24
-            UD_WidgetColor  = 0xe37418
+            setMainWidgetAppearance(0xe37418, 0xafba24)
         elseif UD_Condition == 3
-            UD_WidgetColor2 = 0xe37418
-            UD_WidgetColor  = 0xdc1515
+            setMainWidgetAppearance(0xdc1515, 0xe37418)
         else
-            UD_WidgetColor2 = 0xdc1515
-            UD_WidgetColor  = 0x5a1515
+            setMainWidgetAppearance(0x5a1515, 0xdc1515)
         endif
     elseif UD_WidgetAutoColor
-        UD_WidgetColor2 = 0xFF307C
-        UD_WidgetColor  = 0xFF005E
+        setMainWidgetAppearance(0xFF307C, 0xFF005E)
     endif
 
     If UDmain.UDWC.UD_UseDeviceConditionWidget
         if UD_Condition == 0
-            UDmain.UDWC.Meter_SetColor("device-condition", 0x4df319, 0x62ff00)
+            setConditionWidgetAppearance(0x4df319, 0x62ff00)
         elseif UD_Condition == 1
-            UDmain.UDWC.Meter_SetColor("device-condition", 0xafba24, 0x4da319)
+            setConditionWidgetAppearance(0xafba24, 0x4da319)
         elseif UD_Condition == 2
-            UDmain.UDWC.Meter_SetColor("device-condition", 0xe37418, 0xafba24)
+            setConditionWidgetAppearance(0xe37418, 0xafba24)
         elseif UD_Condition == 3
-            UDmain.UDWC.Meter_SetColor("device-condition", 0xdc1515, 0xe37418)
+            setConditionWidgetAppearance(0xdc1515, 0xe37418)
         else
-            UDmain.UDWC.Meter_SetColor("device-condition", 0x5a1515, 0xdc1515)
+            setConditionWidgetAppearance(0x5a1515, 0xdc1515)
         endif
     endif
-    UDmain.UDWC.Meter_SetColor("device-main", UD_WidgetColor, UD_WidgetColor2, UD_WidgetFlashColor)
 EndFunction
 
 bool Function proccesSpecialMenu(int msgChoice)
