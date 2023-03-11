@@ -50,9 +50,6 @@ jobs:
       
       - name: See files
         run: ls
-      
-      - name: Move zip
-        run: copy "../FOMOD/UnforgivingDevices_NB.zip" "."
         
       - name: Upload files to artifact
         uses: actions/upload-artifact@v3.1.2
