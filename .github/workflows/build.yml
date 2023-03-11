@@ -1,4 +1,4 @@
-name: CI
+name: BuildMAIN
 
 # Controls when the workflow will run
 on:
