@@ -250,3 +250,6 @@ Keyword Property PatchHard_KW auto
 Keyword Property PatchVeryHard_KW auto
 
 Keyword Property WoodedWeapon auto
+
+;actor in this faction will be taken as registered in static NPC slot
+Faction Property StaticNPC auto

@@ -8,6 +8,12 @@ My goal with this mod is to make custom devices with custom behavier. My vision 
 
 This are all examples of what I want to archieve in this mod (not what is currently in this mod yet).
 
+# Nightly build
+
+Nightly build is created on every push to main branch. It contains all project files + compiled scripts. Intended for use by users who don't want to deal with compiling scripts. Only latest version is released. If you want to use older version, you have to find specific action and download the artifact which should also contain the zip
+
+Link: https://github.com/IHateMyKite/UnforgivingDevices/releases/tag/NB
+
 # Required/optional mods
 
 Only sources are required for the UD to compile correctly. If mod is required, it means that mod is allways required for mod to work correctly, otherwise the mod is optional. You still need sources of all mods, required and optional. In case there is still error when compiling scripts, it mostly means that you don't have some optional mods for DD installed. In that case, I advice you to use following tutorial (https://github.com/IHateMyKite/UnforgivingDevices/wiki/Developer-Guide#notepad) to compile scripts without needing to install the optional mods.

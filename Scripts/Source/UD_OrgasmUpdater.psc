@@ -54,20 +54,28 @@ Function InitSlots()
 EndFunction
 
 Function Evaluate()
-    Int loc_updateTime = UD_UpdateTime
-    Int loc_id = UDNPCM.GetNumAliases() ;all except player
+    EvaluateSlots(UDNPCM, UD_UpdateTime)
+    Int loc_SSlotsNum = UDNPCM.GetNumberOfStatisSlots()
+    while loc_SSlotsNum
+        loc_SSlotsNum -= 1
+        EvaluateSlots(UDNPCM.GetNthStaticSlots(loc_SSlotsNum), UD_UpdateTime)
+    endwhile
+EndFunction
+
+Function EvaluateSlots(UD_CustomDevices_NPCSlotsManager akSlots, Int aiUpdateTime)
+    Int loc_id = akSlots.GetNumAliases() ;all except player
     while loc_id
         loc_id -= 1
-        UD_CustomDevice_NPCSlot loc_Slot = UDNPCM.getNPCSlotByIndex(loc_id)
+        UD_CustomDevice_NPCSlot loc_Slot = akSlots.getNPCSlotByIndex(loc_id)
         if SlotOrgasmUpdateEnabled(loc_Slot)
-            UpdateVibrators(loc_Slot,loc_updateTime)
+            UpdateVibrators(loc_Slot,aiUpdateTime)
             if !loc_Slot.IsPlayer()
-                UpdateArousal(loc_Slot,loc_updateTime)
-                UpdateOrgasm(loc_Slot,loc_updateTime)
+                UpdateArousal(loc_Slot,aiUpdateTime)
+                UpdateOrgasm(loc_Slot,aiUpdateTime)
             endif
         endif
     endwhile
-EndFunction
+EndFUnction
 
 Bool Function SlotOrgasmUpdateEnabled(UD_CustomDevice_NPCSlot akSlot)
     if !akSlot || !akSlot.GetActor()
