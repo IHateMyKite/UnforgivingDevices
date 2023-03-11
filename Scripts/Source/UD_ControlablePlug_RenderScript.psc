@@ -121,7 +121,7 @@ bool Function turnOffPlugMinigame(Bool abSilent = False)
     setMinigameCustomCrit(40,0.75)
     setMinigameWearerVar(True,UD_base_stat_drain)
     setMinigameEffectVar(True,True,0.5)
-    setMinigameWidgetVar(True,False,0xe21db5)
+    setMinigameWidgetVar(True, True, False, 0xe21db5, -1, -1, "icon-meter-turn-off")
     setMinigameMinStats(0.3)
     float mult = 1.0
     
@@ -264,9 +264,9 @@ Function OnVibrationEnd()
     if turnOffPlugMinigame_on
         StopMinigame()
     else
-        parent.OnVibrationEnd()
+        
     endif
-    
+    parent.OnVibrationEnd()
 EndFunction
 
 ;============================================================================================================================

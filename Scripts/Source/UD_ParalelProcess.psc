@@ -241,7 +241,7 @@ Function Receive_MinigameParalel(Form fActor)
                         loc_device.showHUDbars(False)
                     endif         
                     if loc_updatewidget
-                        loc_device.showWidget(false,true)
+                        loc_device.showWidget(True, False)
                     endif
                     loc_ElapsedTime2 = 0.0
                 endif

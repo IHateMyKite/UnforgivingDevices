@@ -1151,9 +1151,15 @@ State iWidgetInstalled
         If loc_data == None
             Return
         EndIf
-        loc_data.PrimaryColor = aiColor
-        loc_data.SecondaryColor = aiColor2
-        loc_data.FlashColor = aiFlashColor
+        If aiColor >= 0
+            loc_data.PrimaryColor = aiColor
+        EndIf
+        If aiColor2 >= 0
+            loc_data.SecondaryColor = aiColor2
+        EndIf
+        If aiFlashColor >= 0
+            loc_data.FlashColor = aiFlashColor
+        EndIf
         _UpdateMeterColor(loc_data.Id, loc_data.PrimaryColor, loc_data.SecondaryColor, loc_data.FlashColor)
     EndFunction
 

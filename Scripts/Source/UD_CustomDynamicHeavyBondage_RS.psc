@@ -92,7 +92,7 @@ bool Function UntieMinigame(Bool abSilent = False)
     setMinigameCustomCrit(15,0.75)
     setMinigameWearerVar(True,UD_base_stat_drain)
     setMinigameEffectVar(True,True,0.5)
-    setMinigameWidgetVar(True,False,0xFFA200,0xFFA200)
+    setMinigameWidgetVar(True, True, False, 0xFFA200, 0xFFA200, -1, "icon-meter-struggle")
     setMinigameMinStats(0.8)
     
     float mult = 1.0

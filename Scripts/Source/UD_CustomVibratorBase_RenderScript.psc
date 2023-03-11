@@ -37,7 +37,7 @@ Int     Property    CurrentVibStrength                          Hidden
         Return _currentVibStrength
     EndFunction
     Function Set(Int aiValue)
-        If aiValue < 0
+        If aiValue < 0.5
             aiValue = 0
         ElseIf aiValue > 100
             aiValue = 100

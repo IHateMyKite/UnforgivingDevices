@@ -99,7 +99,7 @@ bool Function removePlugMinigame(Bool abSilent = False)
     setMinigameOffensiveVar(False,0.0,0.0,True)
     setMinigameWearerVar(True,UD_base_stat_drain*0.8)
     setMinigameEffectVar(True,True,1.0)
-    setMinigameWidgetVar(True,False,0xc5f513,0x8df513)
+    setMinigameWidgetVar(True, True, False, 0xc5f513, 0x8df513, -1, "icon-meter-pull")
     setMinigameMinStats(0.7)
     
     float mult = 1.0

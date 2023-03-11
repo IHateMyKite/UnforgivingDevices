@@ -86,7 +86,7 @@ bool Function forceOutAbadonPlugMinigame(Bool abSilent = False)
     setMinigameOffensiveVar(False,0.0,0.0,True)
     setMinigameWearerVar(True,UD_base_stat_drain)
     setMinigameEffectVar(True,True,1.25)
-    setMinigameWidgetVar(True)
+    setMinigameWidgetVar(True, True, False, -1, -1, -1, "icon-meter-pull")
     setMinigameMinStats(0.8)
     
     if minigamePostcheck(abSilent)
@@ -112,7 +112,7 @@ bool Function forceOutAbadonPlugMinigameWH(Actor akHelper, Bool abSilent = False
     setMinigameHelperVar(True,UD_base_stat_drain*0.25)
     setMinigameEffectVar(True,True,1.25)
     setMinigameEffectHelperVar(False,False)
-    setMinigameWidgetVar(True)
+    setMinigameWidgetVar(True, True, False, -1, -1, -1, "icon-meter-pull")
     setMinigameMinStats(0.8)
     
     if minigamePostcheck(abSilent)

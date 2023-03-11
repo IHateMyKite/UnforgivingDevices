@@ -2655,7 +2655,7 @@ Function decreaseDurabilityAndCheckUnlock(float value,float cond_mult = 1.0,Bool
             updateCondition()
         endif
     endif
-
+    updateWidgetColor()
     if current_device_health <= 0.0 && !IsUnlocked
         unlockRestrain()
     endif
@@ -3414,8 +3414,7 @@ bool Function struggleMinigame(int iType = -1, Bool abSilent = False)
     endif
     
     resetMinigameValues()
-    
-    UD_WidgetAutoColor = True
+    setMinigameWidgetVar((iType != 5), True, False, 0xffbd00, -1, -1, "icon-meter-struggle")
     
     if iType == 0 ;normal
         UD_minigame_stamina_drain = UD_base_stat_drain*0.75 + getMaxActorValue(Wearer,"Stamina",0.035)
@@ -3460,7 +3459,6 @@ bool Function struggleMinigame(int iType = -1, Bool abSilent = False)
         UD_drain_stats = False
         UD_applyExhastionEffect = False
         UD_minigame_canCrit = False
-        UD_useWidget = False
         UD_RegenMag_Stamina = 0.25
         UD_RegenMag_Health = 0.25
         UD_RegenMag_Magicka = 0.25
@@ -3510,18 +3508,17 @@ bool Function lockpickMinigame(Bool abSilent = False)
     endif
     
     resetMinigameValues()
+    setMinigameWidgetVar(False, False, False)
     
     _MinigameSelectedLockID = loc_SelectedLock
     UD_minigame_stamina_drain = UD_base_stat_drain
     UD_damage_device = False
     UD_minigame_canCrit = False
     UD_minigame_critRegen = false
-    UD_UseWidget = False
     UD_RegenMag_Health = 0.5
     UD_RegenMag_Magicka = 0.5
     _customMinigameCritChance = getLockAccesChance(_MinigameSelectedLockID, false)
     _customMinigameCritDuration = 0.8 - getLockpickLevel(_MinigameSelectedLockID)*0.02
-    UD_AllowWidgetUpdate = False
     _minMinigameStatSP = 0.8
     
     if minigamePostcheck(abSilent)
@@ -3563,14 +3560,12 @@ bool Function repairLocksMinigame(Bool abSilent = False)
     endif
     
     resetMinigameValues()
+    setMinigameWidgetVar(True, True, False, 0xffbd00, -1, -1, "icon-meter-repair")
     
     _MinigameSelectedLockID = loc_SelectedLock
     UD_minigame_stamina_drain = UD_base_stat_drain*1.25
     UD_damage_device = False
     UD_minigame_canCrit = False
-    UD_AllowWidgetUpdate = False
-    
-    setMainWidgetAppearance(0xffbd00, -1, -1, "icon-meter-pick")
 
     _customMinigameCritChance = 5 + (4 - getLockpickLevel(_MinigameSelectedLockID))*5
     _customMinigameCritDuration = 0.8 - getLockpickLevel(_MinigameSelectedLockID)*0.02
@@ -3603,12 +3598,11 @@ bool Function cuttingMinigame(Bool abSilent = False)
     endif
 
     resetMinigameValues()
+    setMinigameWidgetVar(True, True, False, 0xffbd00, -1, -1, "icon-meter-cut")
     
     UD_damage_device = False
     UD_minigame_stamina_drain = UD_base_stat_drain + getMaxActorValue(Wearer,"Stamina",0.04)
     UD_minigame_heal_drain = UD_base_stat_drain/2+ getMaxActorValue(Wearer,"Health",0.01)
-    UD_WidgetAutoColor = True
-    UD_AllowWidgetUpdate = False
     UD_RegenMag_Magicka = 0.5
     _minMinigameStatSP = 0.8
     _minMinigameStatHP = 0.5
@@ -3658,6 +3652,7 @@ bool Function keyMinigame(Bool abSilent = False)
     endif
 
     resetMinigameValues()
+    setMinigameWidgetVar(False, False, False)
 
     _MinigameSelectedLockID = loc_SelectedLock
     UD_damage_device = False
@@ -3665,8 +3660,6 @@ bool Function keyMinigame(Bool abSilent = False)
     UD_minigame_canCrit = False
     UD_applyExhastionEffect = False
     UD_minigame_critRegen = false
-    UD_UseWidget = False
-    UD_AllowWidgetUpdate = False
     UD_RegenMag_Health = 0.5
     UD_RegenMag_Magicka = 0.5
     _customMinigameCritChance = getLockAccesChance(_MinigameSelectedLockID, false)
@@ -3703,8 +3696,7 @@ bool Function struggleMinigameWH(Actor akHelper)
     endif
     
     resetMinigameValues()
-    UD_useWidget = True
-    UD_WidgetAutoColor = True
+    setMinigameWidgetVar(True, True, False, 0xffbd00, -1, -1, "icon-meter-struggle")
     
     if type == 0 ;normal
         UD_durability_damage_add = 0.0
@@ -3834,6 +3826,7 @@ bool Function lockpickMinigameWH(Actor akHelper)
     endif
     
     resetMinigameValues()
+    setMinigameWidgetVar(False, False, False)
     
     _MinigameSelectedLockID = loc_SelectedLock
     
@@ -3843,7 +3836,6 @@ bool Function lockpickMinigameWH(Actor akHelper)
     UD_minigame_canCrit = False
     UD_minigame_critRegen = false
     UD_minigame_critRegen_helper = false
-    UD_AllowWidgetUpdate = False
     UD_RegenMag_Magicka = 0.5
     UD_RegenMag_Health = 0.5
     UD_RegenMagHelper_Magicka = 0.75
@@ -3851,7 +3843,6 @@ bool Function lockpickMinigameWH(Actor akHelper)
     _customMinigameCritDuration = 0.9
     _customMinigameCritChance = getLockAccesChance(_MinigameSelectedLockID, false)
     _minMinigameStatSP = 0.8
-    UD_UseWidget = False
     
     
     if minigamePostcheck()
@@ -3896,6 +3887,7 @@ bool Function repairLocksMinigameWH(Actor akHelper)
     endif
     
     resetMinigameValues()
+    setMinigameWidgetVar(True, True, False, 0xffbd00, -1, -1, "icon-meter-repair")
     
     _MinigameSelectedLockID = loc_SelectedLock
     
@@ -3903,9 +3895,6 @@ bool Function repairLocksMinigameWH(Actor akHelper)
     UD_minigame_stamina_drain_helper = UD_base_stat_drain
     UD_damage_device = False
     UD_minigame_canCrit = False
-    UD_AllowWidgetUpdate = False
-    
-    setMainWidgetAppearance(0xffbd00, -1, -1, "icon-meter-pick")
     
     _customMinigameCritChance = 10 + (4 - getLockpickLevel(_MinigameSelectedLockID))*5
     UD_MinigameMult1 = getAccesibility() + 0.35*(UDCDMain.getActorSmithingSkillsPerc(getWearer()) + UDCDMain.getActorSmithingSkillsPerc(getHelper()))
@@ -3949,13 +3938,12 @@ bool Function cuttingMinigameWH(Actor akHelper)
     endif
     
     resetMinigameValues()
+    setMinigameWidgetVar(True, True, False, 0xffbd00, -1, -1, "icon-meter-cut")
     
     UD_damage_device = False
     UD_minigame_stamina_drain = UD_base_stat_drain + getMaxActorValue(Wearer,"Stamina",0.04)
     UD_minigame_stamina_drain_helper = UD_base_stat_drain*1.25 + getMaxActorValue(Wearer,"Stamina",0.04)
     UD_minigame_heal_drain = UD_base_stat_drain*0.75 + getMaxActorValue(Wearer,"Health",0.02)    
-    UD_AllowWidgetUpdate = False
-    UD_WidgetAutoColor = True
     UD_RegenMag_Magicka = 0.5
     UD_RegenMag_Health = 0.5
     UD_RegenMagHelper_Magicka = 0.75
@@ -4016,6 +4004,7 @@ bool Function keyMinigameWH(Actor akHelper)
     endif
     
     resetMinigameValues()
+    setMinigameWidgetVar(False, False, False)
     
     _MinigameSelectedLockID = loc_SelectedLock
     
@@ -4034,8 +4023,6 @@ bool Function keyMinigameWH(Actor akHelper)
     _customMinigameCritChance = getLockAccesChance(_MinigameSelectedLockID, false)
     _customMinigameCritDuration = 0.9 - getLockpickLevel(_MinigameSelectedLockID)*0.03
     _minMinigameStatSP = 0.6
-    UD_UseWidget = False
-    UD_AllowWidgetUpdate = False
     
     if minigamePostcheck()
         _KeyGameON = True
@@ -4224,12 +4211,9 @@ Function setMinigameEffectHelperVar(bool alloworgasm = True,bool allowexhaustion
 EndFunction
 
 ;set minigame widget variables
-Function setMinigameWidgetVar(bool bUseWidget = False, bool bWidgetAutoColor = True, int aiColor1 = 0x0000FF, int aiColor2 = -1, bool abWidgetUpdate = True, int aiFlashColor = -1, String asIconName = "")
-    UD_useWidget = bUseWidget
-;    UD_WidgetColor = aiColor1
-;    UD_WidgetColor2 = aiColor2
-;    UD_WidgetFlashColor = aiFlashColor
-    UD_WidgetAutoColor = bWidgetAutoColor
+Function setMinigameWidgetVar(Bool abUseWidget = False, Bool abWidgetAutoColor = True, Bool abWidgetUpdate = True, Int aiColor1 = -1, Int aiColor2 = -1, Int aiFlashColor = -1, String asIconName = "")
+    UD_useWidget = abUseWidget
+    UD_WidgetAutoColor = abWidgetAutoColor
     UD_AllowWidgetUpdate = abWidgetUpdate
     
     setMainWidgetAppearance(aiColor1, aiColor2, aiFlashColor, asIconName)
