@@ -17,11 +17,8 @@ jobs:
         uses: GuillaumeFalourd/clone-github-repo-action@v2
         with:
           owner: 'IHateMyKite'
-          repository: 'UnforgivingDevices_PAPYRUS'
+          repository: 'PAPYRUS'
           access-token: ${{ secrets.ACCESS_TOKEN }}
-        
-      - name: Rename folder
-        run: rename UnforgivingDevices_PAPYRUS PAPYRUS
         
       - name: See files
         run: ls
