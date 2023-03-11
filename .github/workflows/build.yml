@@ -37,7 +37,9 @@ jobs:
           cd ..
           git clone https://github.com/IHateMyKite/UnforgivingDevices_FOMOD FOMOD
           (robocopy "UnforgivingDevices/." "FOMOD/1.Base" /E /XD DELIVERY PAPYRUS .github .git /XF .gitattributes .gitignore CODE_OF_CONDUCT.md) ; if ($lastexitcode -lt 8) { $global:LASTEXITCODE = $null }
-        
+          ls
+          ls FOMOD
+
       - name: Zip files
         uses: thedoctor0/zip-release@0.7.1
         with:
@@ -45,6 +47,9 @@ jobs:
           filename: 'UnforgivingDevices_NB.zip'
           path: ../FOMOD/.
           exclusions: '*.git* *CODE_OF_CONDUCT.md*'
+      
+      - name: See files
+        run: ls
       
       - name: Move zip
         run: copy "../FOMOD/UnforgivingDevices_NB.zip" "."
