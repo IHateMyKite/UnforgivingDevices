@@ -32,7 +32,7 @@ jobs:
         with:
           path: PAPYRUS
         
-      - name: See files 
+      - name: Ready FOMOD
         run: |
           cd ..
           git clone https://github.com/IHateMyKite/UnforgivingDevices_FOMOD FOMOD
@@ -46,11 +46,14 @@ jobs:
           path: ../FOMOD/.
           exclusions: '*.git* *CODE_OF_CONDUCT.md*'
       
+      - name: Move zip
+        run: (robocopy "../FOMOD/UnforgivingDevices_NB.zip" "UnforgivingDevices_NB.zip" /E /XD DELIVERY PAPYRUS .github .git /XF .gitattributes .gitignore CODE_OF_CONDUCT.md) ; if ($lastexitcode -lt 8) { $global:LASTEXITCODE = $null }
+        
       - name: Upload files to artifact
         uses: actions/upload-artifact@v3.1.2
         with:
           name: BuildArtifact
-          path: ../FOMOD/UnforgivingDevices_NB.zip
+          path: UnforgivingDevices_NB.zip
           
       - name: Nightly Release
         uses: andelf/nightly-release@v1
@@ -59,4 +62,4 @@ jobs:
         with:
           tag_name: NB
           # Newline-delimited list of path globs for asset files to upload
-          files: ../FOMOD/UnforgivingDevices_NB.zip
+          files: UnforgivingDevices_NB.zip
