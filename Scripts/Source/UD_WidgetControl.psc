@@ -160,7 +160,7 @@ Int Property UD_IconsSize Hidden
     Function Set(Int aiValue)
         If _UD_IconsSize != aiValue
             _UD_IconsSize = aiValue
-            InitWidgetsRequest(abText = True)
+            InitWidgetsRequest(abIcons = True)
         EndIf
     EndFunction
 EndProperty
@@ -905,8 +905,8 @@ State iWidgetInstalled
             Int text_id = _Text_LinesId[i]
             Int outline_id = _Text_LinesOutlineId[i]
             If UD_TextAnchor >= 0 && UD_TextAnchor < 4
-                iWidget.setPos(text_id, CalculateGroupXPos(W_POSX_CENTER), (CalculateGroupYPos(UD_TextAnchor) + UD_TextPadding + 1.5 * UD_TextFontSize * (_Text_LinesId.Length - 1)) as Int)
-                iWidget.setPos(outline_id, CalculateGroupXPos(W_POSX_CENTER) + UD_TextOutlineShift, (CalculateGroupYPos(UD_TextAnchor) + UD_TextPadding + 1.5 * UD_TextFontSize * (_Text_LinesId.Length - 1)) as Int + UD_TextOutlineShift)
+                iWidget.setPos(text_id, CalculateGroupXPos(W_POSX_CENTER), (CalculateGroupYPos(UD_TextAnchor) + UD_TextPadding + 1.5 * UD_TextFontSize * i) as Int)
+                iWidget.setPos(outline_id, CalculateGroupXPos(W_POSX_CENTER) + UD_TextOutlineShift, (CalculateGroupYPos(UD_TextAnchor) + UD_TextPadding + 1.5 * UD_TextFontSize * i) as Int + UD_TextOutlineShift)
             Else
                 UDMain.Warning("UD_WidgetControl::InitText() Unsupported value UD_TextAnchor = " + UD_TextAnchor)
             EndIf

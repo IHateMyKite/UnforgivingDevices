@@ -327,7 +327,7 @@ bool Function canVibrate()
 EndFunction
 
 bool Function isVibrating()
-    return _currentVibRemainingDuration != 0 && CurrentVibStrength
+    return _currentVibRemainingDuration > 0 && CurrentVibStrength > 0
 EndFunction
 
 int Function getRemainingVibrationDuration()
@@ -351,7 +351,7 @@ Function stopVibrating()
 EndFunction
 
 Function stopVibratingAndWait()
-    if _currentVibRemainingDuration != 0
+    if _currentVibRemainingDuration > 0
         _currentVibRemainingDuration = 0
         while CurrentVibStrength
             Utility.wait(0.1)
@@ -420,7 +420,7 @@ Function ForceModDuration(float fModifier)
 EndFunction
 
 Function addVibDuration(int iValue = 1)
-    if isVibrating() && _currentVibRemainingDuration > 0
+    if isVibrating()
         StartManipMutex()
         _currentVibRemainingDuration += iValue
         EndManipMutex()
@@ -428,7 +428,7 @@ Function addVibDuration(int iValue = 1)
 EndFunction
 
 Function removeVibDuration(int iValue = 1)
-    if isVibrating() && _currentVibRemainingDuration > 0
+    if isVibrating()
         StartManipMutex()
         _currentVibRemainingDuration -= iValue
         if _currentVibRemainingDuration < 0
@@ -597,9 +597,7 @@ Function VibrateStart(float fDurationMult = 1.0)
         UDmain.Log("Vibrate called for " + getDeviceName() + " on " + getWearerName() + ", duration: " + _currentVibRemainingDuration + ", strength: " + CurrentVibStrength + ", edging: " + _currentEdgingMode)
     endif
     
-    StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib", 1)
-;    StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", _currentVibStrength)
-    
+    StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib", 1)    
     
     UDmain.SendModEvent("DeviceVibrateEffectStart", getWearerName(), getCurrentZadVibStrenth())
     
@@ -625,7 +623,7 @@ EndFunction
 ; Main Loop
 Function VibrateUpdate(Int aiUpdateTime)
     ;lasts untill times runs out or device is removed (normally stopVibration is called, but its possible for device to be manually which doesn't stop this loop)
-    if (_currentVibRemainingDuration != 0) && isDeviceValid()
+    if (_currentVibRemainingDuration > 0) && isDeviceValid()
         ProcessPause(aiUpdateTime)
         if !_paused
             ;vibrate sound
@@ -677,15 +675,14 @@ Function VibrateEnd(Bool abUnregister = True, Bool abStop = True)
     
     if abStop
         StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib", -1)
-        ;StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib_Strength", -1*_currentVibStrength)
         
         UDCDmain.SendModEvent("DeviceVibrateEffectStop", getWearerName(), getCurrentZadVibStrenth())
         
         _currentVibRemainingDuration = 0
+        CurrentVibStrength = 0
         _forceDuration = 0
         _forceStrength = -1
         _forceEdgingMode = -1
-        _currentVibStrength = 0
         OnVibrationEnd()
         VibLoopOn = false
     endif
@@ -770,15 +767,17 @@ EndFunction
 ;EndFunction
 ;======================================================================
 Function OnVibrationStart()
+    UDMain.Log("UD_CustomVibratorBase_RenderScript::OnVibrationStart() " + Self + ", CurrentVibStrength = " + CurrentVibStrength, 3)
     If WearerIsPlayer()
         UDMain.UDWC.StatusEffect_SetMagnitude(VibrationEffectSlot, CurrentVibStrength)
         UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, CurrentVibStrength > 0)
     EndIf
 EndFunction
 Function OnVibrationEnd()
+    UDMain.Log("UD_CustomVibratorBase_RenderScript::OnVibrationEnd() " + Self + ", CurrentVibStrength = " + CurrentVibStrength, 3)
     If WearerIsPlayer()
-        UDMain.UDWC.StatusEffect_SetMagnitude(VibrationEffectSlot, CurrentVibStrength)
-        UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, CurrentVibStrength > 0)
+        UDMain.UDWC.StatusEffect_SetMagnitude(VibrationEffectSlot, 0)
+        UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, False)
     EndIf
 EndFunction
 float Function getVibOrgasmRate(float afMult = 1.0)
