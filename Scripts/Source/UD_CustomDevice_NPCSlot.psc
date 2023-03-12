@@ -923,7 +923,7 @@ EndFunction
 
 
 ;NPC Orgasm exhaustion time. Is only reduced by 1 at the time, so the duration should be shorter to not make it too long
-Int Property UD_OrgasmExhaustionTime = 45 auto
+Int Property UD_OrgasmExhaustionTime = 45 auto hidden
 
 ;adds orgasm exhastion to slotted actor. 
 ;If actor is NPC, it will directly update orgasm values.
@@ -2147,6 +2147,12 @@ Function UpdateOrgasmSecond()
                 UDmain.UDWC.Meter_SetVisible("player-orgasm", True)
                 _widgetShown = true
             endif
+        endif
+    else
+        ;stop moan sound if actor is out of range
+        if _msID != -1
+            Sound.StopInstance(_msID)
+            _msID = -1
         endif
     endif
     

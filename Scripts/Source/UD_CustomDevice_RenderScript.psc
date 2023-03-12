@@ -4686,6 +4686,7 @@ Function minigame()
         if !loc_WearerIsPlayer
             UpdateMotivation(Wearer,-5) ;decrease NPC motivation on failed escape
         endif
+        advanceSkill(10.0)
     endif
 
     ;remove disalbe from helper (can be done earlier as no devices were changed)
@@ -4767,7 +4768,7 @@ Function MinigameStarter()
     bool    loc_canShowHUD      = canShowHUD()
     bool    loc_haveplayer      = PlayerInMinigame()
     bool    loc_updatewidget    = UD_UseWidget && UDCDmain.UD_UseWidget && loc_haveplayer
-    bool    loc_is3DLoaded      = loc_haveplayer || Wearer.Is3DLoaded()
+    bool    loc_is3DLoaded      = loc_haveplayer || UDmain.ActorInCloseRange(wearer)
     
     
     UDCDMain.StartMinigameDisable(Wearer)
@@ -5125,11 +5126,14 @@ Function critDevice()
         endif
         
         OnCritDevicePost()
-        if Wearer && Wearer.Is3DLoaded()
-            if PlayerInMinigame() && UDCDmain.UD_UseWidget && UD_UseWidget
+        Bool loc_playerInMinigame = PlayerInMinigame()
+        if Wearer && (loc_playerInMinigame || Wearer.Is3DLoaded())
+            if loc_playerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget
                 updateWidget()
             endif
-            libs.Pant(Wearer)
+            if loc_playerInMinigame || UDmain.ActorInCloseRange(wearer)
+                libs.Pant(Wearer)
+            endif
         endif
         
         advanceSkill(4.0)
@@ -5234,7 +5238,6 @@ Function unlockRestrain(bool forceDestroy = false,bool waitForRemove = True)
     
     if _MinigameON
         stopMinigame()
-        advanceSkill(10.0)
     endif
     
     if UDmain.TraceAllowed()

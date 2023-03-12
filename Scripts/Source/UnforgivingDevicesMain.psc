@@ -1214,3 +1214,9 @@ EndFunction
 Bool Function IsMessageboxOpen()
     return UDMC.IsMenuOpen(13) ;I hope to god that this works
 EndFunction
+
+
+;Static slots functions
+UD_StaticNPCSlots Function GetStaticSlots(String asName)
+    return UDNPCM.GetStaticSlots(asName)
+EndFunction
