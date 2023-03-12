@@ -4,6 +4,7 @@ Scriptname UnforgivingDevicesMain extends Quest  conditional
 zadlibs     property libs               auto 
 zadxlibs    property libsx              auto
 zadxlibs2   property libsx2             auto
+zadclibs    property libsc              auto
 Quest       Property UD_UtilityQuest    auto
 
 Actor Property Player auto hidden

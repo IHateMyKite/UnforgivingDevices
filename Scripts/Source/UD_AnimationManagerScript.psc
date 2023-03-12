@@ -109,6 +109,10 @@ Bool Function StartSoloAnimationSequence(Actor akActor, String[] aaAnimation, Bo
         UDmain.Warning("UD_AnimationManagerScript::StartSoloAnimationSequence() Called animation is None, aborting")
         Return False
     EndIf
+    If IsInFurniture(akActor)
+        UDmain.Warning("UD_AnimationManagerScript::StartSoloAnimationSequence() Cant start animation because actor is in furniture")
+        Return False
+    EndIf
     If !abContinueAnimation
         If UDmain.ActorIsPlayer(akActor)
             _Apply3rdPersonCamera(abDismount = True)
@@ -156,6 +160,16 @@ Function StopAnimation(Actor akActor, Actor akHelper = None, Bool abEnableActors
     Bool loc_stopActor  = Math.LogicalAnd(aiToggle,0x1)
     Bool loc_stopHelper = Math.LogicalAnd(aiToggle,0x2)
     
+    if loc_stopActor && IsInFurniture(akActor)
+        loc_stopActor = False
+        UDmain.Warning("UD_AnimationManagerScript::StartSoloAnimationSequence() Cant stop animation because actor is in furniture")
+    endif
+    
+    if loc_stopHelper && IsInFurniture(akHelper)
+        loc_stopHelper = False
+        UDmain.Warning("UD_AnimationManagerScript::StartSoloAnimationSequence() Cant stop animation because helper is in furniture")
+    endif
+    
     if loc_stopActor
         UnlockAnimatingActor(akActor, abEnableActors)
         ; restoring HH if it was removed in StartPairAnimation
@@ -190,6 +204,13 @@ Bool Function IsAnimating(Actor akActor, Bool abBonusCheck = True)
     Return abBonusCheck && libs.IsAnimating(akActor)
 EndFunction
 
+; check if actor is in furniture
+; akActor               - actor
+; return                - true if actor is currently in furniture
+Bool Function IsInFurniture(Actor akActor)
+    Return akActor && UDMain.libsc.GetDevice(akActor)
+EndFunction
+
 ; Prepare actors and start an animation sequence for them. The sequence is scrolled to the last element, which remains active until the animation stops from the outside
 ; Used to play any animation even from the middle of the sequence.
 ; akActor                - first actor
@@ -210,6 +231,10 @@ Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[]
     EndIf
     If akHelper == None
         Return StartSoloAnimationSequence(akActor, aaAnimationA1, abContinueAnimation, abDisableActors)
+    EndIf
+    If IsInFurniture(akActor) || IsInFurniture(akHelper)
+        UDmain.Warning("UD_AnimationManagerScript::StartSoloAnimationSequence() Cant start animation because one of actors is in furniture")
+        Return False
     EndIf
     Bool a1_is_none = (aaAnimationA1.Length == 0 || aaAnimationA1[0] == "" || aaAnimationA1[0] == "none")
     Bool a2_is_none = (aaAnimationA2.Length == 0 || aaAnimationA2[0] == "" || aaAnimationA2[0] == "none")
