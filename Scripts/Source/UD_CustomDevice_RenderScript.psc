@@ -2319,7 +2319,7 @@ Function removeDevice(actor akActor)
     
     if !akActor.isDead()
         if !IsUnlocked
-            IsUnlocked = True
+            _IsUnlocked = True
             current_device_health = 0.0
             UDCDmain.updateLastOpenedDeviceOnRemove(self)
             StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
@@ -5233,7 +5233,7 @@ Function unlockRestrain(bool forceDestroy = false,bool waitForRemove = True)
         endif
         return
     endif
-    IsUnlocked = True
+    _IsUnlocked = True
     GoToState("UpdatePaused")
     
     if _MinigameON
@@ -5882,8 +5882,8 @@ Function lockpickDevice()
             UDmain.Log("Lockpick minigame result for " + getWearerName() + ": " + result,2)
         endif
         if result == 0
-                stopMinigame()
-                _LockpickGameON = False
+            stopMinigame()
+            _LockpickGameON = False
         elseif result == 1 ;succes
             Int loc_shields = GetNthLockShields(_MinigameSelectedLockID)
             if loc_shields > 0 ;lock have shields, needs to unlock them first

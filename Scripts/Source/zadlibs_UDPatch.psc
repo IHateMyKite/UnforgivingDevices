@@ -753,7 +753,7 @@ bool[] Function StartThirdPersonAnimation(actor akActor, string animation, bool 
         UDMain.UDAM.StartSoloAnimation(akActor, animation)
         return new Bool[2]
     else
-        return parent.StartThirdPersonAnimation(akActor, animation, true)
+        return parent.StartThirdPersonAnimation(akActor, animation, permitRestrictive)
     endif
 EndFunction
 

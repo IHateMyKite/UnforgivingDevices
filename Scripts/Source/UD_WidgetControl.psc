@@ -360,6 +360,8 @@ EndFunction
 
 ; should be called before placing widgets
 Function RefreshCanvasMetrics()
+    UDMain.Log("UD_WidgetControl::RefreshCanvasMetrics()")
+
     Float hud_padding = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY")
     Float hud_left = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefX")
     Float hud_right = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefX")
@@ -1085,8 +1087,8 @@ State iWidgetInstalled
         EndIf
         If akData.Id < 0
             akData.Id = iWidget.loadMeter()
-            iWidget.setSize(akData.Id, HUDMeterHeight as Int, HUDMeterWidth as Int)
-            ; iWidget.setZoom(akData.Id, 67, 67)
+            ; iWidget.setSize(akData.Id, HUDMeterHeight as Int, HUDMeterWidth as Int)
+            iWidget.setZoom(akData.Id, 67, 67)
         EndIf
         iWidget.setPos(akData.Id, aiX, aiY)
         iWidget.setMeterPercent(akData.Id, akData.FillPercent)
@@ -1130,6 +1132,9 @@ State iWidgetInstalled
             Return
         EndIf
         loc_data.Visible = abVisible
+        If _InitMetersMutex
+            Return
+        EndIf
         iWidget.setVisible(loc_data.Id, loc_data.Visible as Int)
         iWidget.setVisible(loc_data.IconId, loc_data.Visible as Int)
     EndFunction
@@ -1160,6 +1165,9 @@ State iWidgetInstalled
         If aiFlashColor >= 0
             loc_data.FlashColor = aiFlashColor
         EndIf
+        If _InitMetersMutex
+            Return
+        EndIf
         _UpdateMeterColor(loc_data.Id, loc_data.PrimaryColor, loc_data.SecondaryColor, loc_data.FlashColor)
     EndFunction
 
@@ -1168,12 +1176,19 @@ State iWidgetInstalled
         If loc_data == None
             Return
         EndIf
+        If _InitMetersMutex
+            Return
+        EndIf
         iWidget.doMeterFlash(loc_data.Id)
     EndFunction
     
     Function Meter_SetIcon(String asMeterName, String asIconName)
         UD_WidgetMeter_RefAlias loc_data = _GetMeter(asMeterName, False)
         If loc_data == None
+            Return
+        EndIf
+        If _InitMetersMutex
+            UDMain.Log("UD_WidgetControl::Meter_SetIcon() _InitMetersMutex = " + _InitMetersMutex, 3)
             Return
         EndIf
         If loc_data.IconName == asIconName

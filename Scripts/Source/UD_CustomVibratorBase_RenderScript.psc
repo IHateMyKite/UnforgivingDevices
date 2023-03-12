@@ -327,7 +327,7 @@ bool Function canVibrate()
 EndFunction
 
 bool Function isVibrating()
-    return _currentVibRemainingDuration > 0 && CurrentVibStrength > 0
+    return _currentVibRemainingDuration != 0 && CurrentVibStrength > 0
 EndFunction
 
 int Function getRemainingVibrationDuration()
@@ -351,7 +351,7 @@ Function stopVibrating()
 EndFunction
 
 Function stopVibratingAndWait()
-    if _currentVibRemainingDuration > 0
+    if _currentVibRemainingDuration != 0
         _currentVibRemainingDuration = 0
         while CurrentVibStrength
             Utility.wait(0.1)
@@ -420,7 +420,7 @@ Function ForceModDuration(float fModifier)
 EndFunction
 
 Function addVibDuration(int iValue = 1)
-    if isVibrating()
+    if isVibrating() && _currentVibRemainingDuration > 0
         StartManipMutex()
         _currentVibRemainingDuration += iValue
         EndManipMutex()
@@ -428,7 +428,7 @@ Function addVibDuration(int iValue = 1)
 EndFunction
 
 Function removeVibDuration(int iValue = 1)
-    if isVibrating()
+    if isVibrating() && _currentVibRemainingDuration > 0
         StartManipMutex()
         _currentVibRemainingDuration -= iValue
         if _currentVibRemainingDuration < 0
@@ -623,7 +623,7 @@ EndFunction
 ; Main Loop
 Function VibrateUpdate(Int aiUpdateTime)
     ;lasts untill times runs out or device is removed (normally stopVibration is called, but its possible for device to be manually which doesn't stop this loop)
-    if (_currentVibRemainingDuration > 0) && isDeviceValid()
+    if (_currentVibRemainingDuration != 0) && isDeviceValid()
         ProcessPause(aiUpdateTime)
         if !_paused
             ;vibrate sound

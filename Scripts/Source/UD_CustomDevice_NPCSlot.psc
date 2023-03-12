@@ -2195,9 +2195,7 @@ FUnction UpdateOrgasmHornyAnimation()
             if (_hornyAnimTimer == 0) && !UDmain.UDAM.IsAnimating(akActor) ;start horny animation for UD_HornyAnimationDuration
                 if Utility.RandomInt() <= (Math.ceiling(100/fRange(_orgasmProgress,15.0,100.0))) 
                     ; Select animation
-                    If !_HornyAnimEvents || _HornyAnimEvents.Length == 0
-                        _HornyAnimEvents = UDmain.UDAM.GetHornyAnimEvents(akActor)
-                    EndIf
+                    _HornyAnimEvents = UDmain.UDAM.GetHornyAnimEvents(akActor)
                     If _HornyAnimEvents.Length > 0
                         String anim_event = _HornyAnimEvents[Utility.RandomInt(0, _HornyAnimEvents.Length - 1)]
                         UDmain.UDAM.StartSoloAnimation(akActor, anim_event)
