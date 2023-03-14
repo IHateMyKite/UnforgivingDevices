@@ -462,7 +462,7 @@ Bool Function PlayAnimationByDef(String asAnimDef, Actor[] aakActors, Int[] aaiA
         If aaiActorConstraints.Length > k
             actor_constraints = aaiActorConstraints[k]
         Else
-            actor_constraints = GetActorConstraintsInt(aakActors[k], False)
+            actor_constraints = GetActorConstraintsInt(aakActors[k])
         EndIf
         String anim_var_path = path + ".A" + (k + 1)
         ; checking if it has variations
@@ -761,12 +761,12 @@ String[] Function GetStruggleAnimationsByKeyword(String asKeyword, Actor akActor
     asKwd[0] = asKeyword
     If akHelper == None
         Int[] aActorConstraints = new Int[1]
-        aActorConstraints[0] = GetActorConstraintsInt(akActor, abReuseConstraintsCache)
+        aActorConstraints[0] = GetActorConstraintsInt(akActor)
         Return GetAnimationsFromDB(".solo", asKwd, "", aActorConstraints)
     Else
         Int[] aActorConstraints = new Int[2]
-        aActorConstraints[0] = GetActorConstraintsInt(akActor, abReuseConstraintsCache)
-        aActorConstraints[1] = GetActorConstraintsInt(akHelper, abReuseConstraintsCache)
+        aActorConstraints[0] = GetActorConstraintsInt(akActor)
+        aActorConstraints[1] = GetActorConstraintsInt(akHelper)
         Return GetAnimationsFromDB(".paired", asKwd, "", aActorConstraints)
     EndIf
 EndFunction
@@ -785,12 +785,12 @@ String[] Function GetStruggleAnimationsByKeywordsList(String[] asKeywords, Actor
 
     If akHelper == None
         Int[] aActorConstraints = new Int[1]
-        aActorConstraints[0] = GetActorConstraintsInt(akActor, abReuseConstraintsCache)
+        aActorConstraints[0] = GetActorConstraintsInt(akActor)
         Return GetAnimationsFromDB(".solo", asKeywords, "", aActorConstraints)
     Else
         Int[] aActorConstraints = new Int[2]
-        aActorConstraints[0] = GetActorConstraintsInt(akActor, abReuseConstraintsCache)
-        aActorConstraints[1] = GetActorConstraintsInt(akHelper, abReuseConstraintsCache)
+        aActorConstraints[0] = GetActorConstraintsInt(akActor)
+        aActorConstraints[1] = GetActorConstraintsInt(akHelper)
         Return GetAnimationsFromDB(".paired", asKeywords, "", aActorConstraints)
     EndIf
 EndFunction
@@ -936,7 +936,7 @@ EndFunction
 ; All                               - 1111 1111 1111 / 0x0FFF / 4095
 ; All (without HB)                  - 1001 0000 0011 / 0x0903 / 2307
 ; == All enable constrain value is 0x0FFF or 4095
-Int Function GetActorConstraintsInt(Actor akActor, Bool abUseCache = False)
+Int Function GetActorConstraintsInt(Actor akActor, Bool abUseCache = True)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetActorConstraintsInt() akActor = " + akActor + ", abUseCache = " + abUseCache, 3)
     EndIf
