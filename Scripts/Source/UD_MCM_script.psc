@@ -1509,7 +1509,7 @@ Function OptionSelectAnimations(int option)
             EndIf
         EndIf
     ElseIf option == UDAM_TestQuery_StopAnimation_T
-        ShowMessage("Lets try to stop animation", True)
+        ShowMessage("Lets try to stop animation", False)
         UDAM.StopAnimation(Game.GetPlayer(), LastHelper)
         closeMCM()
     ElseIf option == UD_UseSingleStruggleKeyword_T
