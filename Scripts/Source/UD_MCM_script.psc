@@ -804,7 +804,7 @@ Event resetAnimationsPage()
         UDAM_TestQuery_Type_Index = 1
     EndIf
     If UDAM_TestQuery_Keyword_List.Length == 0
-        UDAM_TestQuery_Keyword_List = new String[36]
+        UDAM_TestQuery_Keyword_List = new String[37]
         UDAM_TestQuery_Keyword_List[0] = ".zad_DeviousBoots"
         UDAM_TestQuery_Keyword_List[1] = ".zad_DeviousPlug"
         UDAM_TestQuery_Keyword_List[2] = ".zad_DeviousBelt"
@@ -841,6 +841,7 @@ Event resetAnimationsPage()
         UDAM_TestQuery_Keyword_List[33] = ".horny"
         UDAM_TestQuery_Keyword_List[34] = ".edged"
         UDAM_TestQuery_Keyword_List[35] = ".orgasm"
+        UDAM_TestQuery_Keyword_List[36] = ".spectator"
         UDAM_TestQuery_Keyword_Index = 0
     EndIf
     If UDAM_TestQuery_PlayerArms_List.Length == 0
@@ -1488,7 +1489,7 @@ Function OptionSelectAnimations(int option)
         If UDAM_TestQuery_Type_Index == 1 && !LastHelper
             ShowMessage("First you need to choose a helper. Hover your crosshair over an NPC in the game and make sure its name appears in the 'Helper' option above")
         Else
-            If ShowMessage("FOR DEBUG ONLY! It is impossible to stop the animation, only switch to another one! Animation will start if you press ACCEPT and close menu.", True)
+            If ShowMessage("FOR DEBUG ONLY! To stop animation use command 'Stop animation' in this menu. Animation will start if you press ACCEPT and close menu.", True)
                 closeMCM()
                 If LastHelper && UDAM_TestQuery_Type_Index == 1
                     Actor[] actors = new Actor[2]
@@ -1508,7 +1509,7 @@ Function OptionSelectAnimations(int option)
             EndIf
         EndIf
     ElseIf option == UDAM_TestQuery_StopAnimation_T
-        ShowMessage("Lets try to stop animation")
+        ShowMessage("Lets try to stop animation", True)
         UDAM.StopAnimation(Game.GetPlayer(), LastHelper)
         closeMCM()
     ElseIf option == UD_UseSingleStruggleKeyword_T
