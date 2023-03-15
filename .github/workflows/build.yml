@@ -19,10 +19,10 @@ jobs:
           owner: 'IHateMyKite'
           repository: 'PAPYRUS'
         
-      - name: Create documantation folder
-        run: mkdir "docs/Documantation" || exit 0
+      - name: Create documentation folder
+        run: mkdir "docs/Documentation" || exit 0
         
-      - name: Generate Documantation
+      - name: Generate Documentation
         run: |
           cd "PAPYRUS/Natural Docs"
           ./NaturalDocs.exe ../GeneratedDocu
