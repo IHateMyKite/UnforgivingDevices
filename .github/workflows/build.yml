@@ -27,7 +27,7 @@ jobs:
       - name: Generate Documantation
         run: |
           cd "PAPYRUS/Natural Docs"
-          (mkdir "../GeneratedDocu") ; if ($lastexitcode -gt 0) { $global:LASTEXITCODE = $null }
+          mkdir "../GeneratedDocu" & exit 0
           ./NaturalDocs.exe ../GeneratedDocu
         
       - name: Run build scripts
