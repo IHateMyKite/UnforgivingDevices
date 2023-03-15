@@ -24,10 +24,12 @@ jobs:
       - name: See files
         run: ls PAPYRUS
         
+      - name: Create documantation folder
+        run: mkdir "docs/Documantation" & exit 0
+        
       - name: Generate Documantation
         run: |
           cd "PAPYRUS/Natural Docs"
-          mkdir "../GeneratedDocu" & exit 0
           ./NaturalDocs.exe ../GeneratedDocu
         
       - name: Run build scripts
