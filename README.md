@@ -8,6 +8,10 @@ My goal with this mod is to make custom devices with custom behavier. My vision 
 
 This are all examples of what I want to archieve in this mod (not what is currently in this mod yet).
 
+# Documantation
+
+Link: https://ihatemykite.github.io/Documantation/index.html#
+
 # Nightly build
 
 Nightly build is created on every push to main branch. It contains all project files + compiled scripts. Intended for use by users who don't want to deal with compiling scripts. Only latest version is released. If you want to use older version, you have to find specific action and download the artifact which should also contain the zip
