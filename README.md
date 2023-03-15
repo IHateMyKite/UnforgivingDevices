@@ -10,7 +10,7 @@ This are all examples of what I want to archieve in this mod (not what is curren
 
 # Documantation
 
-Link: https://ihatemykite.github.io/Documantation/index.html#
+Link: https://ihatemykite.github.io/Documentation/index.html#
 
 # Nightly build
 
