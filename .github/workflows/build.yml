@@ -27,6 +27,7 @@ jobs:
       - name: Generate Documantation
         run: |
           cd "PAPYRUS/Natural Docs"
+          mkdir "../GeneratedDocu"
           ./NaturalDocs.exe ../GeneratedDocu
         
       - name: Run build scripts
