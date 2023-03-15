@@ -2187,7 +2187,9 @@ Function UpdateHornyExpression()
     _expressionUpdateTimer += 1
 EndFunction
 
-String[] _HornyAnimEvents
+String[] _HornyAnimDefs
+Int _ActorConstraints = -1
+
 FUnction UpdateOrgasmHornyAnimation()
     Actor akActor = GetActor()
     if !_actorinminigame 
@@ -2195,10 +2197,16 @@ FUnction UpdateOrgasmHornyAnimation()
             if (_hornyAnimTimer == 0) && !UDmain.UDAM.IsAnimating(akActor) ;start horny animation for UD_HornyAnimationDuration
                 if Utility.RandomInt() <= (Math.ceiling(100/fRange(_orgasmProgress,15.0,100.0))) 
                     ; Requesting and selecting animation
-                    _HornyAnimEvents = UDmain.UDAM.GetHornyAnimEvents(akActor)
-                    If _HornyAnimEvents.Length > 0
-                        String anim_event = _HornyAnimEvents[Utility.RandomInt(0, _HornyAnimEvents.Length - 1)]
-                        UDmain.UDAM.StartSoloAnimation(akActor, anim_event)
+                    Int actor_constraints = UDmain.UDAM.GetActorConstraintsInt(akActor)
+                    If _ActorConstraints != actor_constraints
+                        _ActorConstraints = actor_constraints
+                        _HornyAnimDefs = UDmain.UDAM.GetHornyAnimDefs(akActor)
+                    EndIf
+                    If _HornyAnimDefs.Length > 0
+                        String anim_def = _HornyAnimDefs[Utility.RandomInt(0, _HornyAnimDefs.Length - 1)]
+                        Actor[] actors = new Actor[1]
+                        actors[0] = akActor
+                        UDmain.UDAM.PlayAnimationByDef(anim_def, actors)
                     Else
                         UDmain.Warning("UD_OrchamsCheckScript_AME::OnUpdate() Can't find animations for the horny actor")
                     EndIf

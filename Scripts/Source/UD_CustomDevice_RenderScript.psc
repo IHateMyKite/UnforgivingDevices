@@ -4854,13 +4854,13 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
     
     If _minigameHelper
         If _StruggleAnimationDefPairArray.Length == 0
-            _StruggleAnimationDefPairArray = UDAM.GetStruggleAnimationsByKeywordsList(keywordsList, Wearer, _minigameHelper, True)
+            _StruggleAnimationDefPairArray = UDAM.GetStruggleAnimationsByKeywordsList(keywordsList, Wearer, _minigameHelper)
         EndIf
         If _StruggleAnimationDefPairArray.Length == 0
             ; if actor has heavy bondage then try to get paired animation for it
             Keyword heavyBondage = UDAM.GetHeavyBondageKeyword(_ActorsConstraints[0])
             If heavyBondage != None
-                _StruggleAnimationDefPairArray = UDAM.GetStruggleAnimationsByKeyword("." + heavyBondage.GetString(), Wearer, _minigameHelper, True)
+                _StruggleAnimationDefPairArray = UDAM.GetStruggleAnimationsByKeyword("." + heavyBondage.GetString(), Wearer, _minigameHelper)
             EndIf            
         EndIf
         If _StruggleAnimationDefPairArray.Length > 0
@@ -4870,7 +4870,7 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
             ; start new animation
                 _StruggleAnimationDefPairLastIndex = anim_index
                 _animationDef = _StruggleAnimationDefPairArray[anim_index]
-                If UDAM.PlayAnimationByDef(_animationDef, ActorArray2(Wearer, _minigameHelper), _ActorsConstraints, bContinueAnimation, abDisableActors = False)
+                If UDAM.PlayAnimationByDef(_animationDef, ActorArray2(Wearer, _minigameHelper), bContinueAnimation, abDisableActors = False)
                     result[0] = _StruggleAnimationDefPairArray.Length
                     result[1] = _StruggleAnimationDefPairArray.Length
                 EndIf
@@ -4899,7 +4899,7 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
                     ; start new animation
                     _StruggleAnimationDefActorLastIndex = anim_index
                     _animationDef = _StruggleAnimationDefActorArray[anim_index]
-                    If UDAM.PlayAnimationByDef(_animationDef, ActorArray1(Wearer), IntArray1(_ActorsConstraints[0]), bContinueAnimation, abDisableActors = False)
+                    If UDAM.PlayAnimationByDef(_animationDef, ActorArray1(Wearer), bContinueAnimation, abDisableActors = False)
                         result[0] = _StruggleAnimationDefActorArray.Length
                     EndIf
                 Else
@@ -4914,7 +4914,7 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
                     ; start new animation
                     _StruggleAnimationDefHelperLastIndex = anim_index
                     _animationDef = _StruggleAnimationDefHelperArray[anim_index]
-                    If UDAM.PlayAnimationByDef(_animationDef, ActorArray1(_minigameHelper), IntArray1(_ActorsConstraints[1]), bContinueAnimation, abDisableActors = False)
+                    If UDAM.PlayAnimationByDef(_animationDef, ActorArray1(_minigameHelper), bContinueAnimation, abDisableActors = False)
                         result[1] = _StruggleAnimationDefHelperArray.Length
                     EndIf
                 Else
@@ -4929,7 +4929,7 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
         EndIf
         If _StruggleAnimationDefActorArray.Length > 0
             _animationDef = _StruggleAnimationDefActorArray[Utility.RandomInt(0, _StruggleAnimationDefActorArray.Length - 1)]
-            If UDAM.PlayAnimationByDef(_animationDef, ActorArray1(Wearer), _ActorsConstraints, bContinueAnimation, abDisableActors = False)
+            If UDAM.PlayAnimationByDef(_animationDef, ActorArray1(Wearer), bContinueAnimation, abDisableActors = False)
                 result[0] = _StruggleAnimationDefActorArray.Length
             EndIf
         EndIf
@@ -4939,20 +4939,20 @@ EndFunction
 
 String[] Function _GetSoloStruggleAnimation(String[] asKeywords, Actor akActor, Int aiConstraints)
     String[] result
-    result = UDAM.GetStruggleAnimationsByKeywordsList(asKeywords, akActor, None, True)
+    result = UDAM.GetStruggleAnimationsByKeywordsList(asKeywords, akActor, None)
     If result.Length == 0
         ; if actor has heavy bondage then try to get solo animation for it
         Keyword heavyBondage = UDAM.GetHeavyBondageKeyword(aiConstraints)
         If heavyBondage != None
-            result = UDAM.GetStruggleAnimationsByKeyword("." + heavyBondage.GetString(), akActor, None, True)
+            result = UDAM.GetStruggleAnimationsByKeyword("." + heavyBondage.GetString(), akActor, None)
         EndIf
     EndIf
     If result.Length == 0
-        result = UDAM.GetStruggleAnimationsByKeyword(".zad_DeviousGloves", akActor, None, True)
+        result = UDAM.GetStruggleAnimationsByKeyword(".zad_DeviousGloves", akActor, None)
     EndIf
     If result.Length == 0
         ; horny animation is our last hope!
-        result = UDAM.GetStruggleAnimationsByKeyword(".horny", akActor, None, True)
+        result = UDAM.GetStruggleAnimationsByKeyword(".horny", akActor, None)
     EndIf
     Return result
 EndFunction

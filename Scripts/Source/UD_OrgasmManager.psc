@@ -711,9 +711,13 @@ Int Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
     UDCDmain.DisableActor(akActor,loc_isPlayer)
     
     if loc_is3Dloaded
-        String[] animationArray = UDmain.UDAM.GetOrgasmAnimEvents(akActor)
+        String[] animationArray = UDmain.UDAM.GetOrgasmAnimDefs(akActor)
         If animationArray.Length > 0
-            UDmain.UDAM.StartSoloAnimation(akActor, animationArray[Utility.RandomInt(0, animationArray.Length - 1)], abDisableActor = False)
+            Actor[] loc_actors = new Actor[1]
+            loc_actors[0] = akActor
+            UDmain.UDAM.PlayAnimationByDef(animationArray[Utility.RandomInt(0, animationArray.Length - 1)], loc_actors, abDisableActors = False)
+        Else
+            UDmain.Warning("UD_OrgasmManager::PlayOrgasmAnimation() Can't find orgasm animations for the actor")
         EndIf
     endif
     

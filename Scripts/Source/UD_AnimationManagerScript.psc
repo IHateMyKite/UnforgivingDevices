@@ -440,11 +440,10 @@ EndFunction
 ; Function to start animation according to the specified definition from json
 ; asAnimDef                      animation definition from json, should be in format <file_name>:<path_in_file>
 ; akActors                       actors who will participate
-; aaiActorConstraints            actors' constraints. If array is empty then called GetActorConstraintsInt function
 ; abContinueAnimation            flag that the animation continues with already locked actors
-Bool Function PlayAnimationByDef(String asAnimDef, Actor[] aakActors, Int[] aaiActorConstraints, Bool abContinueAnimation = False, Bool abDisableActors = True)
+Bool Function PlayAnimationByDef(String asAnimDef, Actor[] aakActors, Bool abContinueAnimation = False, Bool abDisableActors = True)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::PlayAnimationByDef() asAnimDef = " + asAnimDef + ", aakActors = " + aakActors + ", aaiActorConstraints = " + aaiActorConstraints + ", abContinueAnimation = " + abContinueAnimation + ", abDisableActors = " + abDisableActors, 3)
+        UDmain.Log("UD_AnimationManagerScript::PlayAnimationByDef() asAnimDef = " + asAnimDef + ", aakActors = " + aakActors + ", abContinueAnimation = " + abContinueAnimation + ", abDisableActors = " + abDisableActors, 3)
     EndIf
     
     Int part_index = StringUtil.Find(asAnimDef, ":")
@@ -458,12 +457,7 @@ Bool Function PlayAnimationByDef(String asAnimDef, Actor[] aakActors, Int[] aaiA
     
     Int k = 0
     While k < aakActors.Length
-        Int actor_constraints = 0
-        If aaiActorConstraints.Length > k
-            actor_constraints = aaiActorConstraints[k]
-        Else
-            actor_constraints = GetActorConstraintsInt(aakActors[k])
-        EndIf
+        Int actor_constraints = GetActorConstraintsInt(aakActors[k])
         String anim_var_path = path + ".A" + (k + 1)
         ; checking if it has variations
         Bool has_vars = JsonUtil.GetPathIntValue(file, anim_var_path + ".req", -1) == -1
@@ -690,7 +684,9 @@ String[] Function GetAnimationsFromDB(String sType, String[] sKeywords, String s
                     Else
                         result_temp[currentIndex] = JsonUtil.GetPathStringValue(file, anim_path + sAttribute)
                     EndIf
-                    currentIndex += 1
+                    If result_temp[currentIndex] != ""
+                        currentIndex += 1
+                    EndIf
                     If currentIndex >= 128
                         UDMain.Warning("UD_AnimationManagerScript::GetAnimationsFromDB() Reached maximum array size!")
                         Return result_temp
@@ -751,11 +747,10 @@ EndFunction
 ; asKeyword                 - device keyword to struggle from. Should starts with "."
 ; akActor                   - wearer of the device
 ; akHelper                  - optional helper
-; abReuseConstraintsCache    - flag to reuse cache in GetActorConstraintsInt function
 ; return                    - array of strings with animation paths in DB
-String[] Function GetStruggleAnimationsByKeyword(String asKeyword, Actor akActor, Actor akHelper = None, Bool abReuseConstraintsCache = False)
+String[] Function GetStruggleAnimationsByKeyword(String asKeyword, Actor akActor, Actor akHelper = None)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword() asKeyword = " + asKeyword + ", akActor = " + akActor + ", akHelper = " + akHelper + ", abReuseConstraintsCache = " + abReuseConstraintsCache, 3)
+        UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword() asKeyword = " + asKeyword + ", akActor = " + akActor + ", akHelper = " + akHelper, 3)
     EndIf
     String[] asKwd = new String[1]
     asKwd[0] = asKeyword
@@ -776,11 +771,10 @@ EndFunction
 ; akKeyword                 - list of keyword to filter animations. Every element should starts with "."
 ; akActor                   - wearer of the device
 ; akHelper                  - optional helper
-; abReuseConstraintsCache    - flag to reuse cache in GetActorConstraintsInt function
 ; return                    - array of strings with animation paths in DB
-String[] Function GetStruggleAnimationsByKeywordsList(String[] asKeywords, Actor akActor, Actor akHelper = None, Bool abReuseConstraintsCache = False)
+String[] Function GetStruggleAnimationsByKeywordsList(String[] asKeywords, Actor akActor, Actor akHelper = None)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword() asKeywords = " + asKeywords + ", akActor = " + akActor + ", akHelper = " + akHelper + ", abReuseConstraintsCache = " + abReuseConstraintsCache, 3)
+        UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword() asKeywords = " + asKeywords + ", akActor = " + akActor + ", akHelper = " + akHelper, 3)
     EndIf
 
     If akHelper == None
@@ -814,6 +808,21 @@ String[] Function GetHornyAnimEvents(Actor akActor)
     Return anims
 EndFunction
 
+String[] Function GetHornyAnimDefs(Actor akActor)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::GetHornyAnimDefs() akActor = " + akActor, 3)
+    EndIf
+
+    Int[] aActorConstraints = new Int[1]
+    aActorConstraints[0] = GetActorConstraintsInt(akActor)
+    String[] sKeywords = new String[1]
+    sKeywords[0] = ".horny"
+    
+    String[] anim_defs = GetAnimationsFromDB(".solo", sKeywords, "", aActorConstraints)
+
+    Return anim_defs
+EndFunction
+
 ; Function GetOrgasmAnimEvents
 ; Filters and returns orgasm animations for given actor (with enabled UD_OrgasmAnimation it returns horny animations too)
 ; akActor           - actor
@@ -826,8 +835,7 @@ String[] Function GetOrgasmAnimEvents(Actor akActor)
     Int[] aActorConstraints = new Int[1]
     aActorConstraints[0] = GetActorConstraintsInt(akActor)
     String[] sKeywords
-    Bool loc_useHornyAnim = (UDmain.UDOM.UD_OrgasmAnimation == 1)
-    if loc_useHornyAnim
+    if (UDmain.UDOM.UD_OrgasmAnimation == 1)
         sKeywords = new String[2]
         sKeywords[0] = ".orgasm"
         sKeywords[1] = ".horny"
@@ -838,6 +846,28 @@ String[] Function GetOrgasmAnimEvents(Actor akActor)
     String[] anims = GetAnimationsFromDB(".solo", sKeywords, ".A1.anim", aActorConstraints)
 
     Return anims
+EndFunction
+
+String[] Function GetOrgasmAnimDefs(Actor akActor)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::GetOrgasmAnimDefs() akActor = " + akActor, 3)
+    EndIf
+
+    Int[] aActorConstraints = new Int[1]
+    aActorConstraints[0] = GetActorConstraintsInt(akActor)
+    String[] sKeywords = new String[1]
+    if (UDmain.UDOM.UD_OrgasmAnimation == 1)
+        sKeywords = new String[2]
+        sKeywords[0] = ".orgasm"
+        sKeywords[1] = ".horny"
+    else
+        sKeywords = new String[1]
+        sKeywords[0] = ".orgasm"
+    endif
+    
+    String[] anim_defs = GetAnimationsFromDB(".solo", sKeywords, "", aActorConstraints)
+
+    Return anim_defs
 EndFunction
 
 ; Function GetEdgedAnimEvents
@@ -857,6 +887,21 @@ String[] Function GetEdgedAnimEvents(Actor akActor)
     String[] anims = GetAnimationsFromDB(".solo", sKeywords, ".A1.anim", aActorConstraints)
 
     Return anims
+EndFunction
+
+String[] Function GetEdgedAnimDefs(Actor akActor)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::GetEdgedAnimDefs() akActor = " + akActor, 3)
+    EndIf
+
+    Int[] aActorConstraints = new Int[1]
+    aActorConstraints[0] = GetActorConstraintsInt(akActor)
+    String[] sKeywords = new String[1]
+    sKeywords[0] = ".edged"
+    
+    String[] anim_defs = GetAnimationsFromDB(".solo", sKeywords, "", aActorConstraints)
+
+    Return anim_defs
 EndFunction
 
 ; Function GetAnimDefAttribute

@@ -449,44 +449,9 @@
 				"lewd" : 0 
 			}, {
 				"A1" : {
-					"anim" : [ "B_B_FMast1_A1_S1", "B_B_FMast1_A1_S2", "B_B_FMast1_A1_S3" ], 
-					"req" : 0, 
-					"opt" : 2050
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : [ "B_B_FMast1_A1_S1", "B_B_FMast1_A1_S2", "B_B_FMast1_A1_S3", "B_B_FMast1_A1_S4" ], 
-					"req" : 0, 
-					"opt" : 2050
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
 					"anim" : [ "B_B_FMast2_A1_S1" ], 
 					"req" : 0, 
 					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : [ "B_B_FMast2_A1_S1", "B_B_FMast2_A1_S2" ], 
-					"req" : 0, 
-					"opt" : 2304
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : [ "B_B_FMast2_A1_S1", "B_B_FMast2_A1_S2", "B_B_FMast2_A1_S3" ], 
-					"req" : 0, 
-					"opt" : 2048
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : [ "B_B_FMast2_A1_S1", "B_B_FMast2_A1_S2", "B_B_FMast2_A1_S3", "B_B_FMast2_A1_S4" ], 
-					"req" : 0, 
-					"opt" : 2048
 				}, 
 				"lewd" : 0 
 			}, {
@@ -529,44 +494,9 @@
 				"lewd" : 5 
 			}, {
 				"A1" : {
-					"anim" : [ "B_B_FMast1_A1_S1", "B_B_FMast1_A1_S2", "B_B_FMast1_A1_S3" ], 
-					"req" : 0, 
-					"opt" : 2050
-				}, 
-				"lewd" : 5 
-			}, {
-				"A1" : {
-					"anim" : [ "B_B_FMast1_A1_S1", "B_B_FMast1_A1_S2", "B_B_FMast1_A1_S3", "B_B_FMast1_A1_S4" ], 
-					"req" : 0, 
-					"opt" : 2050
-				}, 
-				"lewd" : 5 
-			}, {
-				"A1" : {
 					"anim" : [ "B_B_FMast2_A1_S1" ], 
 					"req" : 0, 
 					"opt" : 2304
-				}, 
-				"lewd" : 5 
-			}, {
-				"A1" : {
-					"anim" : [ "B_B_FMast2_A1_S1", "B_B_FMast2_A1_S2" ], 
-					"req" : 0, 
-					"opt" : 2304
-				}, 
-				"lewd" : 5 
-			}, {
-				"A1" : {
-					"anim" : [ "B_B_FMast2_A1_S1", "B_B_FMast2_A1_S2", "B_B_FMast2_A1_S3" ], 
-					"req" : 0, 
-					"opt" : 2048
-				}, 
-				"lewd" : 5 
-			}, {
-				"A1" : {
-					"anim" : [ "B_B_FMast2_A1_S1", "B_B_FMast2_A1_S2", "B_B_FMast2_A1_S3", "B_B_FMast2_A1_S4" ], 
-					"req" : 0, 
-					"opt" : 2048
 				}, 
 				"lewd" : 5 
 			}, {
