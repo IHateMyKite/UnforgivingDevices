@@ -416,7 +416,7 @@ EndFunction
 ;starter
 bool _OrgasmStarter_Received = false
 
-Function Send_Orgasm(Actor akActor,int iDuration,int iDecreaseArousalBy, int iForce,bool bForceAnimation,bool bWairForReceive = false)
+Function Send_Orgasm(Actor akActor, int iForce, bool bWairForReceive = false)
     if !akActor
         UDmain.Error("Send_Orgasm wrong arg received!")
     endif
@@ -430,10 +430,7 @@ Function Send_Orgasm(Actor akActor,int iDuration,int iDecreaseArousalBy, int iFo
     int handle = ModEvent.Create("UDOrgasmParalel")
     if (handle)
         ModEvent.PushForm(handle, akActor)
-        ModEvent.PushInt(handle, iDuration)
-        ModEvent.PushInt(handle, iDecreaseArousalBy)
         ModEvent.PushInt(handle, iForce)
-        ModEvent.PushInt(handle, bForceAnimation as int)
         ModEvent.PushInt(handle, bWairForReceive as int)
         ModEvent.Send(handle)
         
@@ -458,7 +455,7 @@ Function Send_Orgasm(Actor akActor,int iDuration,int iDecreaseArousalBy, int iFo
         End_OrgasmMutex()
     endif
 EndFunction
-Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iForce,int bForceAnimation,int bWairForReceive)
+Function Receive_Orgasm(Form fActor,int iForce,int bWairForReceive)
     Actor akActor = fActor as Actor
     if bWairForReceive
         _OrgasmStarter_Received = true
@@ -481,7 +478,7 @@ Function Receive_Orgasm(Form fActor,int iDuration,int iDecreaseArousalBy,int iFo
     ;===========================
     ;            MESSAGE
     ;===========================
-    ;float loc_forcing = StorageUtil.getFloatValue(akActor, "UD_OrgasmForcing",0.0)
+
     bool loc_applytears = false
     if iForce == 0
         if loc_isplayer

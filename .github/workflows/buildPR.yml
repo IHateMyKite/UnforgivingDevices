@@ -18,10 +18,14 @@ jobs:
         with:
           owner: 'IHateMyKite'
           repository: 'PAPYRUS'
-          access-token: ${{ secrets.ACCESS_TOKEN }}
         
-      - name: See files
-        run: ls
+      - name: Create documantation folder
+        run: mkdir "docs/Documantation" || exit 0
+        
+      - name: Generate Documantation
+        run: |
+          cd "PAPYRUS/Natural Docs"
+          ./NaturalDocs.exe ../GeneratedDocu
         
       - name: Run build scripts
         run: PAPYRUS/PapyrusCompiler "Scripts/Source" -o="Scripts" -all -i="Scripts/Source;PAPYRUS/SRC;PAPYRUS/SRC_OTHER;PAPYRUS/SRC_DD;PAPYRUS/SRC_SKYUI;PAPYRUS/SRC_UIEXT;PAPYRUS/SRC_PAPUTIL;PAPYRUS/SRC_SXL;PAPYRUS/SRC_MFG;PAPYRUS/SRC_RM;PAPYRUS/SRC_FNIS;PAPYRUS/SRC_SLA;PAPYRUS/SRC_IWW;PAPYRUS/SRC_XPMSE;PAPYRUS/SRC_ST" -optimize -f="PAPYRUS/Flags.flg"
@@ -38,6 +42,7 @@ jobs:
           (robocopy "UnforgivingDevices/." "FOMOD/1.Base" /E /XD DELIVERY PAPYRUS .github .git /XF .gitattributes .gitignore CODE_OF_CONDUCT.md) ; if ($lastexitcode -lt 8) { $global:LASTEXITCODE = $null }
           ls
           ls FOMOD
+        
       - name: Zip files
         uses: thedoctor0/zip-release@0.7.1
         with:
@@ -45,7 +50,7 @@ jobs:
           filename: 'UnforgivingDevices_PRNB.zip'
           path: ../FOMOD/.
           exclusions: '*.git* *CODE_OF_CONDUCT.md*'
-      
+        
       - name: See files
         run: ls
         
