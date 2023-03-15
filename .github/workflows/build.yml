@@ -25,7 +25,7 @@ jobs:
         run: ls PAPYRUS
         
       - name: Create documantation folder
-        run: mkdir "docs/Documantation" & exit 0
+        run: mkdir "docs/Documantation" || exit 0
         
       - name: Generate Documantation
         run: |
