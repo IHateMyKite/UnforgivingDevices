@@ -2193,9 +2193,9 @@ Int _ActorConstraints = -1
 FUnction UpdateOrgasmHornyAnimation()
     Actor akActor = GetActor()
     if !_actorinminigame 
-        if UDOMcfg.UD_HornyAnimation && (_orgasmRate > 0.5*_orgasmResistMultiplier*_orgasmResistence) && !_orgasmResisting && !akActor.IsInCombat() ;orgasm progress is increasing
-            if (_hornyAnimTimer == 0) && !UDmain.UDAM.IsAnimating(akActor) ;start horny animation for UD_HornyAnimationDuration
-                if Utility.RandomInt() <= (Math.ceiling(100/fRange(_orgasmProgress,15.0,100.0))) 
+        if (_hornyAnimTimer == 0) && UDOMcfg.UD_HornyAnimation && (_orgasmRate > 0.5*_orgasmResistMultiplier*_orgasmResistence) && !_orgasmResisting && !akActor.IsInCombat() ;orgasm progress is increasing
+            if !UDmain.UDAM.IsAnimating(akActor) ;start horny animation for UD_HornyAnimationDuration
+                if Utility.RandomInt(0,99) <= 10 + Round(10*(fRange(_orgasmProgress,0.0,50.0)/50.0))
                     ; Requesting and selecting animation
                     Int loc_constraints = UDmain.UDAM.GetActorConstraintsInt(akActor, abUseCache = False)
                     If _ActorConstraints != loc_constraints
@@ -2210,8 +2210,10 @@ FUnction UpdateOrgasmHornyAnimation()
                         UDmain.Warning("UD_CustomDevice_NPCSlot::UpdateOrgasmHornyAnimation() Can't find horny animations for the actor")
                     EndIf
                     _hornyAnimTimer += UDOMcfg.UD_HornyAnimationDuration
+                Else
+                    _hornyAnimTimer = -3 ;3s cooldown
                 endif
-            EndIf
+            Endif
         endif
         
         if !_orgasmResisting
