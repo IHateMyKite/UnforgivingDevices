@@ -233,7 +233,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     UDmain.UDUI.GoToState("UIDisabled")
     MinigameKeysRegister()
     
-    UDmain.UDWC.Toggle_OrgasmWidget(true)
+    UDmain.UDWC.Meter_SetVisible("player-orgasm", True)
     if UDmain.ActorIsPlayer(akActor)
         _PlayerOrgasmResist_MinigameOn = true
         sendOrgasmResistCritUpdateLoop(15,0.8)
@@ -290,11 +290,11 @@ Function FocusOrgasmResistMinigame(Actor akActor)
                 if Utility.randomInt() <= 40 
                     loc_HightSpiritMode_Type = Utility.randomInt(1,3)
                     if loc_HightSpiritMode_Type == 1 ;RED
-                        UDmain.UDWC.UpdateColor_OrgasmWidget(0xff0000, 0xff00d8,0xFF00BC)
+                        UDmain.UDWC.Meter_SetColor("player-orgasm", 0xff0000, 0xff00d8, 0xFF00BC)
                     elseif loc_HightSpiritMode_Type == 2 ;GREEN
-                        UDmain.UDWC.UpdateColor_OrgasmWidget(0x00ff68, 0x00ff68,0xFF00BC)
+                        UDmain.UDWC.Meter_SetColor("player-orgasm", 0x00ff68, 0x00ff68, 0xFF00BC)
                     elseif loc_HightSpiritMode_Type == 3 ;BLUE
-                        UDmain.UDWC.UpdateColor_OrgasmWidget(0x2e40d8, 0x2e40d8,0xFF00BC)
+                        UDmain.UDWC.Meter_SetColor("player-orgasm", 0x2e40d8, 0x2e40d8, 0xFF00BC)
                     endif
                     loc_HightSpiritMode_Duration += Utility.randomInt(3,6)*Round(1/UDmain.UD_baseUpdateTime)
                 endif
@@ -311,7 +311,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
         if loc_HightSpiritMode_Duration > 0 && loc_cycleON
             loc_HightSpiritMode_Duration -= 1
             if loc_HightSpiritMode_Duration == 0
-                UDmain.UDWC.UpdateColor_OrgasmWidget(0xE727F5, 0xF775FF,0xFF00BC)
+                UDmain.UDWC.Meter_SetColor("player-orgasm", 0xE727F5, 0xF775FF,0xFF00BC)
                 loc_HightSpiritMode_Duration -= Utility.randomInt(3,4)*Round(1/UDmain.UD_baseUpdateTime)
             endif
         elseif loc_HightSpiritMode_Duration < 0
@@ -341,7 +341,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     UDmain.UDUI.GoToState("")
     MinigameKeysUnregister()
     
-    UDmain.UDWC.UpdateColor_OrgasmWidget(0xE727F5, 0xF775FF,0xFF00BC)
+    UDmain.UDWC.Meter_SetColor("player-orgasm", 0xE727F5, 0xF775FF, 0xFF00BC)
     
     akActor.RemoveFromFaction(OrgasmResistFaction)
     

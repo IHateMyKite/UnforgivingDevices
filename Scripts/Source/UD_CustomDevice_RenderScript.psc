@@ -378,9 +378,9 @@ float                   UD_MinigameMult1            = 1.0                ;additi
 float                   UD_MinigameMult2            = 1.0                ;additional multiplier for other minigames effectiveness
 float                   UD_MinigameMult3            = 1.0                ;additional multiplier for other minigames effectiveness
 float                   UD_durability_damage_add    = 0.0                ;adds flat value to durability dmg. Is added beffor UD_DamageMult is applied
-int                     UD_WidgetColor              = 0x0000FF           ;minigame widget color
-int                     UD_WidgetColor2             = -1                 ;minigame widget color 2
-int                     UD_WidgetFlashColor         = -1                 ;minigame widget flash color
+; int                     UD_WidgetColor              = 0x0000FF           ;minigame widget color
+; int                     UD_WidgetColor2             = -1                 ;minigame widget color 2
+; int                     UD_WidgetFlashColor         = -1                 ;minigame widget flash color
 
 ;Local animation variables
 ; TODO: keep the cache alive as long as the actor constraints don't change
@@ -2319,7 +2319,7 @@ Function removeDevice(actor akActor)
     
     if !akActor.isDead()
         if !IsUnlocked
-            IsUnlocked = True
+            _IsUnlocked = True
             current_device_health = 0.0
             UDCDmain.updateLastOpenedDeviceOnRemove(self)
             StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
@@ -2613,15 +2613,20 @@ int Function GetTelekinesisLockModifier()
     return loc_res
 EndFunction
 
-Function setWidgetVal(float val,bool force = false)
-    UDmain.UDWC.UpdatePercent_DeviceWidget(val, force)
+Function setWidgetVal(float val, bool force = false)
+    UDmain.UDWC.Meter_SetFillPercent("device-main", val * 100.0, force)
 EndFunction
 
-Function setWidgetColor(int val,int val2 = -1,int flash_col = -1)
-    UD_WidgetColor = val
-    UD_WidgetColor2 = val2
-    UD_WidgetFlashColor = flash_col
-    UDmain.UDWC.UpdateColor_DeviceWidget(UD_WidgetColor, UD_WidgetColor2,flash_col)
+Function setMainWidgetAppearance(Int aiColor1, Int aiColor2 = -1, Int aiFlashColor = -1, String asIconName = "")
+    UDmain.UDWC.Meter_SetColor("device-main", aiColor1, aiColor2, aiFlashColor)
+    If asIconName != ""
+        UDMain.UDWC.Meter_SetIcon("device-main", asIconName)
+    EndIf
+EndFunction
+
+Function setConditionWidgetAppearance(Int aiColor1, Int aiColor2 = -1, Int aiFlashColor = -1)
+    UDmain.UDWC.Meter_SetColor("device-condition", aiColor1, aiColor2, aiFlashColor)
+;    UDMain.UDWC.Meter_SetIcon("device-condition", "icon-meter-condition")
 EndFunction
 
 Function showWidget(Bool abUpdate = true, Bool abUpdateColor = true)
@@ -2631,13 +2636,15 @@ Function showWidget(Bool abUpdate = true, Bool abUpdateColor = true)
     if abUpdateColor
         updateWidgetColor()
     endif
-    UDmain.UDWC.Toggle_DeviceWidget(true,False)
-    UDmain.UDWC.Toggle_DeviceCondWidget(true,True)
+    UDmain.UDWC.Meter_SetVisible("device-main", True)
+    If UDmain.UDWC.UD_UseDeviceConditionWidget
+        UDmain.UDWC.Meter_SetVisible("device-condition", True)
+    EndIf
 EndFunction
 
 Function hideWidget()
-    UDmain.UDWC.Toggle_DeviceWidget(False)
-    UDmain.UDWC.Toggle_DeviceCondWidget(False)
+    UDmain.UDWC.Meter_SetVisible("device-main", False)
+    UDmain.UDWC.Meter_SetVisible("device-condition", False)
 EndFunction
 
 Function decreaseDurabilityAndCheckUnlock(float value,float cond_mult = 1.0,Bool abCheckCondition = True)
@@ -2648,7 +2655,7 @@ Function decreaseDurabilityAndCheckUnlock(float value,float cond_mult = 1.0,Bool
             updateCondition()
         endif
     endif
-
+    
     if current_device_health <= 0.0 && !IsUnlocked
         unlockRestrain()
     endif
@@ -2740,9 +2747,9 @@ Function updateCondition(bool decrease = True)
         endif
         unlockRestrain(True)
     else
-        if UDmain.UseiWW() && PlayerInMinigame() && UDCDmain.UD_UseWidget && UD_UseWidget; && UD_AllowWidgetUpdate
-            UDmain.UDWC.UpdatePercent_DeviceCondWidget(getRelativeCondition())
-        endif
+        ;if UDmain.UDWC.UD_UseDeviceConditionWidget && PlayerInMinigame() && UDCDmain.UD_UseWidget && UD_UseWidget; && UD_AllowWidgetUpdate
+        ;    UDmain.UDWC.Meter_SetFillPercent("device-condition", getRelativeCondition() * 100.0)
+        ;endif
     endif
 EndFunction
 
@@ -3407,8 +3414,7 @@ bool Function struggleMinigame(int iType = -1, Bool abSilent = False)
     endif
     
     resetMinigameValues()
-    
-    UD_WidgetAutoColor = True
+    setMinigameWidgetVar((iType != 5), True, True, 0xffbd00, -1, -1, "icon-meter-struggle")
     
     if iType == 0 ;normal
         UD_minigame_stamina_drain = UD_base_stat_drain*0.75 + getMaxActorValue(Wearer,"Stamina",0.035)
@@ -3453,7 +3459,6 @@ bool Function struggleMinigame(int iType = -1, Bool abSilent = False)
         UD_drain_stats = False
         UD_applyExhastionEffect = False
         UD_minigame_canCrit = False
-        UD_useWidget = False
         UD_RegenMag_Stamina = 0.25
         UD_RegenMag_Health = 0.25
         UD_RegenMag_Magicka = 0.25
@@ -3503,18 +3508,17 @@ bool Function lockpickMinigame(Bool abSilent = False)
     endif
     
     resetMinigameValues()
+    setMinigameWidgetVar(False, False, False)
     
     _MinigameSelectedLockID = loc_SelectedLock
     UD_minigame_stamina_drain = UD_base_stat_drain
     UD_damage_device = False
     UD_minigame_canCrit = False
     UD_minigame_critRegen = false
-    UD_UseWidget = False
     UD_RegenMag_Health = 0.5
     UD_RegenMag_Magicka = 0.5
     _customMinigameCritChance = getLockAccesChance(_MinigameSelectedLockID, false)
     _customMinigameCritDuration = 0.8 - getLockpickLevel(_MinigameSelectedLockID)*0.02
-    UD_AllowWidgetUpdate = False
     _minMinigameStatSP = 0.8
     
     if minigamePostcheck(abSilent)
@@ -3556,14 +3560,12 @@ bool Function repairLocksMinigame(Bool abSilent = False)
     endif
     
     resetMinigameValues()
+    setMinigameWidgetVar(True, True, False, 0xffbd00, -1, -1, "icon-meter-repair")
     
     _MinigameSelectedLockID = loc_SelectedLock
     UD_minigame_stamina_drain = UD_base_stat_drain*1.25
     UD_damage_device = False
     UD_minigame_canCrit = False
-    UD_AllowWidgetUpdate = False
-    UD_WidgetColor = 0xffbd00
-    UD_WidgetColor2 = -1
 
     _customMinigameCritChance = 5 + (4 - getLockpickLevel(_MinigameSelectedLockID))*5
     _customMinigameCritDuration = 0.8 - getLockpickLevel(_MinigameSelectedLockID)*0.02
@@ -3596,12 +3598,11 @@ bool Function cuttingMinigame(Bool abSilent = False)
     endif
 
     resetMinigameValues()
+    setMinigameWidgetVar(True, True, False, 0xffbd00, -1, -1, "icon-meter-cut")
     
     UD_damage_device = False
     UD_minigame_stamina_drain = UD_base_stat_drain + getMaxActorValue(Wearer,"Stamina",0.04)
     UD_minigame_heal_drain = UD_base_stat_drain/2+ getMaxActorValue(Wearer,"Health",0.01)
-    UD_WidgetAutoColor = True
-    UD_AllowWidgetUpdate = False
     UD_RegenMag_Magicka = 0.5
     _minMinigameStatSP = 0.8
     _minMinigameStatHP = 0.5
@@ -3651,6 +3652,7 @@ bool Function keyMinigame(Bool abSilent = False)
     endif
 
     resetMinigameValues()
+    setMinigameWidgetVar(False, False, False)
 
     _MinigameSelectedLockID = loc_SelectedLock
     UD_damage_device = False
@@ -3658,8 +3660,6 @@ bool Function keyMinigame(Bool abSilent = False)
     UD_minigame_canCrit = False
     UD_applyExhastionEffect = False
     UD_minigame_critRegen = false
-    UD_UseWidget = False
-    UD_AllowWidgetUpdate = False
     UD_RegenMag_Health = 0.5
     UD_RegenMag_Magicka = 0.5
     _customMinigameCritChance = getLockAccesChance(_MinigameSelectedLockID, false)
@@ -3696,8 +3696,7 @@ bool Function struggleMinigameWH(Actor akHelper)
     endif
     
     resetMinigameValues()
-    UD_useWidget = True
-    UD_WidgetAutoColor = True
+    setMinigameWidgetVar(True, True, True, 0xffbd00, -1, -1, "icon-meter-struggle")
     
     if type == 0 ;normal
         UD_durability_damage_add = 0.0
@@ -3827,6 +3826,7 @@ bool Function lockpickMinigameWH(Actor akHelper)
     endif
     
     resetMinigameValues()
+    setMinigameWidgetVar(False, False, False)
     
     _MinigameSelectedLockID = loc_SelectedLock
     
@@ -3836,7 +3836,6 @@ bool Function lockpickMinigameWH(Actor akHelper)
     UD_minigame_canCrit = False
     UD_minigame_critRegen = false
     UD_minigame_critRegen_helper = false
-    UD_AllowWidgetUpdate = False
     UD_RegenMag_Magicka = 0.5
     UD_RegenMag_Health = 0.5
     UD_RegenMagHelper_Magicka = 0.75
@@ -3844,7 +3843,6 @@ bool Function lockpickMinigameWH(Actor akHelper)
     _customMinigameCritDuration = 0.9
     _customMinigameCritChance = getLockAccesChance(_MinigameSelectedLockID, false)
     _minMinigameStatSP = 0.8
-    UD_UseWidget = False
     
     
     if minigamePostcheck()
@@ -3889,6 +3887,7 @@ bool Function repairLocksMinigameWH(Actor akHelper)
     endif
     
     resetMinigameValues()
+    setMinigameWidgetVar(True, True, False, 0xffbd00, -1, -1, "icon-meter-repair")
     
     _MinigameSelectedLockID = loc_SelectedLock
     
@@ -3896,9 +3895,7 @@ bool Function repairLocksMinigameWH(Actor akHelper)
     UD_minigame_stamina_drain_helper = UD_base_stat_drain
     UD_damage_device = False
     UD_minigame_canCrit = False
-    UD_AllowWidgetUpdate = False
-    UD_WidgetColor = 0xffbd00
-    UD_WidgetColor2 = -1
+    
     _customMinigameCritChance = 10 + (4 - getLockpickLevel(_MinigameSelectedLockID))*5
     UD_MinigameMult1 = getAccesibility() + 0.35*(UDCDMain.getActorSmithingSkillsPerc(getWearer()) + UDCDMain.getActorSmithingSkillsPerc(getHelper()))
     UD_RegenMag_Magicka = 0.5
@@ -3941,13 +3938,12 @@ bool Function cuttingMinigameWH(Actor akHelper)
     endif
     
     resetMinigameValues()
+    setMinigameWidgetVar(True, True, False, 0xffbd00, -1, -1, "icon-meter-cut")
     
     UD_damage_device = False
     UD_minigame_stamina_drain = UD_base_stat_drain + getMaxActorValue(Wearer,"Stamina",0.04)
     UD_minigame_stamina_drain_helper = UD_base_stat_drain*1.25 + getMaxActorValue(Wearer,"Stamina",0.04)
     UD_minigame_heal_drain = UD_base_stat_drain*0.75 + getMaxActorValue(Wearer,"Health",0.02)    
-    UD_AllowWidgetUpdate = False
-    UD_WidgetAutoColor = True
     UD_RegenMag_Magicka = 0.5
     UD_RegenMag_Health = 0.5
     UD_RegenMagHelper_Magicka = 0.75
@@ -4008,6 +4004,7 @@ bool Function keyMinigameWH(Actor akHelper)
     endif
     
     resetMinigameValues()
+    setMinigameWidgetVar(False, False, False)
     
     _MinigameSelectedLockID = loc_SelectedLock
     
@@ -4026,8 +4023,6 @@ bool Function keyMinigameWH(Actor akHelper)
     _customMinigameCritChance = getLockAccesChance(_MinigameSelectedLockID, false)
     _customMinigameCritDuration = 0.9 - getLockpickLevel(_MinigameSelectedLockID)*0.03
     _minMinigameStatSP = 0.6
-    UD_UseWidget = False
-    UD_AllowWidgetUpdate = False
     
     if minigamePostcheck()
         _KeyGameON = True
@@ -4216,13 +4211,12 @@ Function setMinigameEffectHelperVar(bool alloworgasm = True,bool allowexhaustion
 EndFunction
 
 ;set minigame widget variables
-Function setMinigameWidgetVar(bool useWidget = False,bool widgetAutoColor = True,int color = 0x0000FF,int sec_color = -1, bool abWidgetUpdate = True, int flash_col = -1)
-    UD_useWidget = useWidget
-    UD_WidgetColor = color
-    UD_WidgetColor2 = sec_color
-    UD_WidgetFlashColor = flash_col
-    UD_WidgetAutoColor = widgetAutoColor
+Function setMinigameWidgetVar(Bool abUseWidget = False, Bool abWidgetAutoColor = True, Bool abWidgetUpdate = True, Int aiColor1 = -1, Int aiColor2 = -1, Int aiFlashColor = -1, String asIconName = "")
+    UD_useWidget = abUseWidget
+    UD_WidgetAutoColor = abWidgetAutoColor
     UD_AllowWidgetUpdate = abWidgetUpdate
+    
+    setMainWidgetAppearance(aiColor1, aiColor2, aiFlashColor, asIconName)
 EndFunction
 
 ;returns current type of minigame played
@@ -4587,8 +4581,9 @@ Function minigame()
                 decreaseDurabilityAndCheckUnlock(loc_dmg,loc_condmult)
             endif
             ;update widget
-            if loc_is3DLoaded && loc_updatewidget
+            if loc_updatewidget
                 updateWidget()
+                updateWidgetColor()
             endif
         endif
         
@@ -4599,8 +4594,8 @@ Function minigame()
             loc_condmult         = 1.0 + _condition_mult_add
             loc_DamageDevice     = UD_damage_device
             
-            if loc_is3DLoaded
-                loc_updatewidget     = loc_PlayerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
+            if loc_PlayerInMinigame
+                loc_updatewidget     = UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
             endif
             
             ;check non struggle minigames
@@ -5239,7 +5234,7 @@ Function unlockRestrain(bool forceDestroy = false,bool waitForRemove = True)
         endif
         return
     endif
-    IsUnlocked = True
+    _IsUnlocked = True
     GoToState("UpdatePaused")
     
     if _MinigameON
@@ -5775,12 +5770,12 @@ Function cutDevice(float progress_add = 1.0)
                 UDCDmain.Print(getWearerName() + "s "+ getDeviceName() +" is cutted!",3)
             endif
         endif
-        
+
         float cond_dmg = 40.0*UDCDmain.getStruggleDifficultyModifier()*(1.0 + _condition_mult_add)
         _total_durability_drain += cond_dmg
+
         updateCondition()
         decreaseDurabilityAndCheckUnlock(UD_DamageMult*cond_dmg*getModResistPhysical(1.0,0.25)/7.0,0.0)
-
 
         _CuttingProgress = 0.0
         if UDmain.TraceAllowed()        
@@ -5888,8 +5883,8 @@ Function lockpickDevice()
             UDmain.Log("Lockpick minigame result for " + getWearerName() + ": " + result,2)
         endif
         if result == 0
-                stopMinigame()
-                _LockpickGameON = False
+            stopMinigame()
+            _LockpickGameON = False
         elseif result == 1 ;succes
             Int loc_shields = GetNthLockShields(_MinigameSelectedLockID)
             if loc_shields > 0 ;lock have shields, needs to unlock them first
@@ -6476,49 +6471,41 @@ Function updateWidget(bool force = false)
     endif
     
     ;update condition widget
-    if UDmain.UseiWW()
-        UDmain.UDWC.UpdatePercent_DeviceCondWidget(getRelativeCondition())
+    If UDmain.UDWC.UD_UseDeviceConditionWidget
+        UDmain.UDWC.Meter_SetFillPercent("device-condition", getRelativeCondition() * 100.0)
     endif
 EndFunction
 
 Function updateWidgetColor()
     if UD_WidgetAutoColor && !UDmain.UseiWW()
         if UD_Condition == 0
-            UD_WidgetColor2 = 0x61ff00
-            UD_WidgetColor  = 0x4da319
+            setMainWidgetAppearance(0x4df319, 0x62ff00)
         elseif UD_Condition == 1
-            UD_WidgetColor2 = 0x4da319
-            UD_WidgetColor  = 0xafba24
+            setMainWidgetAppearance(0xafba24, 0x4da319)
         elseif UD_Condition == 2
-            UD_WidgetColor2 = 0xafba24
-            UD_WidgetColor  = 0xe37418
+            setMainWidgetAppearance(0xe37418, 0xafba24)
         elseif UD_Condition == 3
-            UD_WidgetColor2 = 0xe37418
-            UD_WidgetColor  = 0xdc1515
+            setMainWidgetAppearance(0xdc1515, 0xe37418)
         else
-            UD_WidgetColor2 = 0xdc1515
-            UD_WidgetColor  = 0x5a1515
+            setMainWidgetAppearance(0x5a1515, 0xdc1515)
         endif
     elseif UD_WidgetAutoColor
-        UD_WidgetColor2 = 0xFF307C
-        UD_WidgetColor  = 0xFF005E
+        setMainWidgetAppearance(0xFF307C, 0xFF005E)
     endif
 
-    if UDmain.UseiWW()
+    If UDmain.UDWC.UD_UseDeviceConditionWidget
         if UD_Condition == 0
-            UDmain.UDWC.UpdateColor_DeviceCondWidget(0x4df319, 0x62ff00)
+            setConditionWidgetAppearance(0x4df319, 0x62ff00)
         elseif UD_Condition == 1
-            UDmain.UDWC.UpdateColor_DeviceCondWidget(0xafba24, 0x4da319)
+            setConditionWidgetAppearance(0xafba24, 0x4da319)
         elseif UD_Condition == 2
-            UDmain.UDWC.UpdateColor_DeviceCondWidget(0xe37418, 0xafba24)
+            setConditionWidgetAppearance(0xe37418, 0xafba24)
         elseif UD_Condition == 3
-            UDmain.UDWC.UpdateColor_DeviceCondWidget(0xdc1515, 0xe37418)
+            setConditionWidgetAppearance(0xdc1515, 0xe37418)
         else
-            UDmain.UDWC.UpdateColor_DeviceCondWidget(0x5a1515, 0xdc1515)
+            setConditionWidgetAppearance(0x5a1515, 0xdc1515)
         endif
     endif
-    
-    UDmain.UDWC.UpdateColor_DeviceWidget(UD_WidgetColor, UD_WidgetColor2,UD_WidgetFlashColor)
 EndFunction
 
 bool Function proccesSpecialMenu(int msgChoice)

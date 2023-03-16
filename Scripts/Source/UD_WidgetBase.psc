@@ -24,65 +24,7 @@ int Property PositionX
     function set(int a_val)
         if a_val >= 0 && a_val <= 2
             _positionX = a_val
-
-            ; These formulas are mostly empirical and do not provide 100% accuracy.
-            ; Tested on resolutions: 1920*1080, 2560*1440, 2560*1080, 3440*1440, (4000*1440, 4000*1080)
-            ; Wide screen resolutions tested with mods:
-            ; - Complete Widescreen Fix for Vanilla and SkyUI 2.2 and 5.2 SE (https://www.nexusmods.com/skyrimspecialedition/mods/1778)
-            ; - Ultrawidescreen Fixes for Skyrim LE (https://www.nexusmods.com/skyrim/mods/90214)
-
-            Float magica_x = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Magica._x")
-            Float health_x = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Health._x")
-            Float stamina_x = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Stamina._x")
-            Float meter_width = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Stamina._width")
-            Float hud_width = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance._width")
-            Float hud_padding = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY")
-            Float hud_left = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefX")
-            Float hud_right = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefX")
-            
-            Float le_corr1 = 0
-            Float le_corr2 = 35
-            
-            ; SE or LE
-            ; minor formula corrections for LE version
-            If SKSE.GetVersion() == 1
-                le_corr1 = 50
-                le_corr2 = 19.5
-            ElseIf SKSE.GetVersion() == 2
-                le_corr1 = 0
-                le_corr2 = 35
-            EndIf
-            ; screen width factor: 16:9 is 1.0, 21:9 is 1.3125, etc.
-            Float width_mult = ((hud_right - hud_left) + 2 * hud_padding - le_corr1) / (1280 - le_corr1)
-
-;   |           |
-;   |           |             |<- width ->|
-;   |           |             <===========>
-;   └-----------└----------------------------
-;   <- offset -> <- padding ->
-
-; all coordinates refer to 1280*720 regardless of screen aspect ratio
-
-            Float offset
-            Float padding
-            Float ref_meter_width
-            
-            offset = 271.0 / width_mult
-            padding = (48.0 + le_corr2) / width_mult + (hud_padding - le_corr2)
-            ref_meter_width = HUDMeterWidthRef / width_mult
-            
-            if (Ready) 
-                if _positionX == 0 ;left
-                    X = offset + padding
-                    FillDirection = "right"
-                elseif _positionX == 1 ;middle
-                    X = offset + 1280.0 / 2.0 - ref_meter_width / 2.0
-                    FillDirection = "center"
-                elseif _positionX == 2 ;right
-                    X = offset + 1280.0 - ref_meter_width - padding
-                    FillDirection = "left"
-                endif
-            endIf
+            _UpdatePosition()
         endif
     endFunction
 EndProperty
@@ -97,25 +39,24 @@ int Property PositionY
     function set(int a_val)
         if a_val >= 0 && a_val <= 2
             _positionY = a_val
-            if (Ready) 
-                if _positionY == 0      ; near the bottom 
-                    ; added offset to not overlap existing HUD indicators
-                    Y = UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefY") - HUDMeterHeightRef * (0.5 + 1.5 + PositionYOffset)
-                elseif _positionY == 1  ; 3/4 to the bottom
-                    Y = (3 * UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefY") + UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY")) / 4 - HUDMeterHeightRef * (0.5 + PositionYOffset)
-                elseif _positionY == 2  ; on the top
-                    ; added offset to not overlap existing HUD indicators
-                    Y = UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY") + HUDMeterHeightRef * (0.5 + 1.5 + PositionYOffset);
-                endif
-            endIf
+            _UpdatePosition()
         endif
     endFunction
 EndProperty
 
-Float Property PositionYOffset Auto
+Float _PositionYOffset = 0.0
+Float Property PositionYOffset
 {Additional offset measured in widget's heights (not screen height but HUDMeterHeightRef!). 
 Value 0.0 means that widget will be placed exactly on the anchor points, i.e. will 'replace' existing HUD meter on bottom position.
 Value 1.0 means that widget will be placed just above (below) anchor point, i.e. will 'touch' existing HUD meter on bottom position}
+    Float Function Get()
+        Return _PositionYOffset
+    EndFunction
+    Function Set(Float afValue)
+        _PositionYOffset = afValue
+        _UpdatePosition()
+    EndFunction
+EndProperty
 
 float property Width
     {Width of the meter in pixels at a resolution of 1280x720. Default: 292.8}
@@ -152,10 +93,7 @@ int property PrimaryColor
     endFunction
 
     function set(int a_val)
-        _primaryColor = a_val
-        if (Ready)
-            UI.InvokeInt(HUD_MENU, WidgetRoot + ".setColor", _primaryColor)
-        endIf
+        SetColors(a_val, _secondaryColor, _flashColor)
     endFunction
 endProperty
 
@@ -177,10 +115,7 @@ int property FlashColor
     endFunction
 
     function set(int a_val)
-        _flashColor = a_val
-        if (Ready)
-            UI.InvokeInt(HUD_MENU, WidgetRoot + ".setFlashColor", _flashColor)
-        endIf
+        SetColors(_primaryColor, _secondaryColor, a_val)
     endFunction
 endProperty
 
@@ -239,11 +174,6 @@ Function init()
     UI.Invoke(HUD_MENU, WidgetRoot + ".initCommit")
 EndFunction
 
-Function updateSize()
-    Width = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Stamina._width")
-    Height = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Stamina._height")
-EndFunction
-
 string function GetWidgetSource()
     return "UD/meter.swf"
 endFunction
@@ -288,7 +218,9 @@ EndFUnction
 Function Show(bool inst = false)
     If !Ready
         return
-    EndIf    
+    EndIf
+    _UpdatePosition()
+    SetColors(PrimaryColor, SecondaryColor, FlashColor)
     ;UI.InvokeBool(HUD_MENU, WidgetRoot + ".setEnabled", True) 
     ;UI.InvokeBool(HUD_MENU, WidgetRoot + ".setVisible",True)
     
@@ -328,3 +260,85 @@ endFunction
 function UpdateWidgetVAnchor()
 	UI.InvokeString(HUD_MENU, WidgetRoot + ".setVAnchor", "center")
 endFunction
+
+Bool _UpdatePosition_Mutex = False
+
+Function _UpdatePosition()
+    ; These formulas are mostly empirical and do not provide 100% accuracy.
+    ; Tested on resolutions: 1920*1080, 2560*1440, 2560*1080, 3440*1440, (4000*1440, 4000*1080)
+    ; Wide screen resolutions tested with mods:
+    ; - Complete Widescreen Fix for Vanilla and SkyUI 2.2 and 5.2 SE (https://www.nexusmods.com/skyrimspecialedition/mods/1778)
+    ; - Ultrawidescreen Fixes for Skyrim LE (https://www.nexusmods.com/skyrim/mods/90214)
+
+    If _UpdatePosition_Mutex
+        Return
+    EndIf
+    _UpdatePosition_Mutex = True
+
+    Float magica_x = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Magica._x")
+    Float health_x = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Health._x")
+    Float stamina_x = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Stamina._x")
+    Float meter_width = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.Stamina._width")
+    Float hud_width = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance._width")
+    Float hud_padding = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY")
+    Float hud_left = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefX")
+    Float hud_right = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefX")
+    
+    Float le_corr1 = 0
+    Float le_corr2 = 35
+    
+    ; SE or LE
+    ; minor formula corrections for LE version
+    If SKSE.GetVersion() == 1
+        le_corr1 = 50
+        le_corr2 = 19.5
+    ElseIf SKSE.GetVersion() == 2
+        le_corr1 = 0
+        le_corr2 = 35
+    EndIf
+    ; screen width factor: 16:9 is 1.0, 21:9 is 1.3125, etc.
+    Float width_mult = ((hud_right - hud_left) + 2 * hud_padding - le_corr1) / (1280 - le_corr1)
+
+;   |           |
+;   |           |             |<- width ->|
+;   |           |             <===========>
+;   └-----------└----------------------------
+;   <- offset -> <- padding ->
+
+; all coordinates refer to 1280*720 regardless of screen aspect ratio
+
+    Float offset
+    Float padding
+    Float ref_meter_width
+    
+    offset = 271.0 / width_mult
+    padding = (48.0 + le_corr2) / width_mult + (hud_padding - le_corr2)
+    ref_meter_width = HUDMeterWidthRef / width_mult
+    
+    ; update X position
+    if (Ready) 
+        if _positionX == 0 ;left
+            X = offset + padding
+            FillDirection = "right"
+        elseif _positionX == 1 ;middle
+            X = offset + 1280.0 / 2.0 - ref_meter_width / 2.0
+            FillDirection = "right"
+        elseif _positionX == 2 ;right
+            X = offset + 1280.0 - ref_meter_width - padding
+            FillDirection = "left"
+        endif
+    endIf
+    ; update Y position
+    if (Ready) 
+        if _positionY == 0      ; near the bottom 
+            ; added offset to not overlap existing HUD indicators
+            Y = UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefY") - HUDMeterHeightRef * (0.5 + 1.5 + PositionYOffset)
+        elseif _positionY == 1  ; 3/4 to the bottom
+            Y = (3 * UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.BottomRightRefY") + UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY")) / 4 - HUDMeterHeightRef * (0.5 + PositionYOffset)
+        elseif _positionY == 2  ; on the top
+            ; added offset to not overlap existing HUD indicators
+            Y = UI.getFloat("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY") + HUDMeterHeightRef * (0.5 + 1.5 + PositionYOffset);
+        endif
+    endIf
+    _UpdatePosition_Mutex = False
+EndFunction

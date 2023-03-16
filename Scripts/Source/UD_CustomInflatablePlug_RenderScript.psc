@@ -6,6 +6,20 @@ float Property UD_PumpDifficulty    = 50.0      auto ;deflation required to defl
 float Property UD_DeflateRate       = 200.0     auto ;inflation lost per one day
 int _inflateLevel = 0 ;for npcs
 
+String  _InflationEffectSlot
+String  Property     InflationEffectSlot                        Hidden
+    String Function Get()
+        If _InflationEffectSlot == ""
+            If UD_DeviceKeyword == libs.zad_DeviousPlugVaginal
+                _InflationEffectSlot = "dd-plug-vag-inflation"
+            ElseIf UD_DeviceKeyword == libs.zad_DeviousPlugAnal
+                _InflationEffectSlot = "dd-plug-anal-inflation"
+            EndIf
+        EndIf
+        Return _InflationEffectSlot
+    EndFunction
+EndProperty
+
 Function InitPost()
     parent.InitPost()
     if UD_ActiveEffectName == "Share"
@@ -162,7 +176,7 @@ bool Function inflateMinigame()
     setMinigameOffensiveVar(False,0.0,0.0,True)
     setMinigameWearerVar(True,UD_base_stat_drain*0.6)
     setMinigameEffectVar(True,True,0.5)
-    setMinigameWidgetVar(True,False,0x7c9cfb,0x7c2cfd)
+    setMinigameWidgetVar(True, True, False, 0x7c9cfb, 0x7c2cfd, -1, "icon-meter-air")
     setMinigameMinStats(0.3)
     float mult = 1.0
     if hasHelper()
@@ -197,7 +211,7 @@ bool Function deflateMinigame()
     setMinigameOffensiveVar(False,0.0,0.0,True)
     setMinigameWearerVar(True,UD_base_stat_drain*0.8)
     setMinigameEffectVar(True,True,0.8)
-    setMinigameWidgetVar(True,False,0x7c9cfb,0x7c2cfd)
+    setMinigameWidgetVar(True, True, False, 0x7c9cfb, 0x7c2cfd, -1, "icon-meter-air")
     setMinigameMinStats(0.6)
     float mult = 1.0
     if hasHelper()
@@ -264,7 +278,7 @@ Function deflate(bool silent = False)
                 UDmain.Print(getHelperName() + " helped you to deflate yours " + getDeviceName() + "!",1)
             elseif PlayerInMinigame()
                 UDmain.Print("You helped to deflate " + getWearerName() + "s " + getDeviceName() + "!",1)
-            endif            
+            endif
         else
             if WearerIsPlayer()
                 UDmain.Print("You succesfully deflated your "+getDeviceName()+" plug!",1)
@@ -274,14 +288,15 @@ Function deflate(bool silent = False)
         endif
     endif
     deflatePlug(1)
+    If WearerIsPlayer()
+        UDmain.UDWC.StatusEffect_SetMagnitude(InflationEffectSlot, getPlugInflateLevel() * 20)
+    EndIf
     return
 EndFunction
 
 bool Function canDeflate()
-    if getPlugInflateLevel() > 0
-        if getPlugInflateLevel() < 5
-            return True
-        endif
+    if iInRange(getPlugInflateLevel(),1,4)
+        return True
     else
         if WearerIsPlayer()
             debug.MessageBox("Plug is already deflated")
@@ -321,6 +336,11 @@ Function inflatePlug(int increase)
     if _inflateLevel > 5
         _inflateLevel = 5
     endif
+    
+    If WearerIsPlayer()
+        UDmain.UDWC.StatusEffect_SetMagnitude(InflationEffectSlot, _inflateLevel * 20)
+    EndIf
+    
     deflateprogress = 0.0
     OnInflated()
 EndFunction
@@ -336,6 +356,11 @@ Function deflatePlug(int decrease)
     if _inflateLevel < 0
         _inflateLevel = 0
     endif
+    
+    If WearerIsPlayer()
+        UDmain.UDWC.StatusEffect_SetMagnitude(InflationEffectSlot, _inflateLevel * 20)
+    EndIf
+    
     deflateprogress = 0.0
     OnDeflated()
 EndFunction
@@ -532,12 +557,18 @@ bool Function OnUpdateHourPost()
 EndFunction
 Function InitPostPost()
     parent.InitPostPost()
+    If WearerIsPlayer()
+        UDMain.UDWC.StatusEffect_SetVisible(InflationEffectSlot)
+    EndIf
 EndFunction
 Function OnRemoveDevicePre(Actor akActor)
     parent.OnRemoveDevicePre(akActor)
 EndFunction
 Function onRemoveDevicePost(Actor akActor)
     parent.onRemoveDevicePost(akActor)
+    If UDMain.ActorIsPlayer(akActor)
+        UDMain.UDWC.StatusEffect_SetVisible(InflationEffectSlot, False)
+    EndIf
 EndFunction
 Function onLockUnlocked(bool lockpick = false)
     parent.onLockUnlocked(lockpick)
