@@ -2655,7 +2655,7 @@ Function decreaseDurabilityAndCheckUnlock(float value,float cond_mult = 1.0,Bool
             updateCondition()
         endif
     endif
-    updateWidgetColor()
+    
     if current_device_health <= 0.0 && !IsUnlocked
         unlockRestrain()
     endif
@@ -2747,9 +2747,9 @@ Function updateCondition(bool decrease = True)
         endif
         unlockRestrain(True)
     else
-        if UDmain.UDWC.UD_UseDeviceConditionWidget && PlayerInMinigame() && UDCDmain.UD_UseWidget && UD_UseWidget; && UD_AllowWidgetUpdate
-            UDmain.UDWC.Meter_SetFillPercent("device-condition", getRelativeCondition() * 100.0)
-        endif
+        ;if UDmain.UDWC.UD_UseDeviceConditionWidget && PlayerInMinigame() && UDCDmain.UD_UseWidget && UD_UseWidget; && UD_AllowWidgetUpdate
+        ;    UDmain.UDWC.Meter_SetFillPercent("device-condition", getRelativeCondition() * 100.0)
+        ;endif
     endif
 EndFunction
 
@@ -3414,7 +3414,7 @@ bool Function struggleMinigame(int iType = -1, Bool abSilent = False)
     endif
     
     resetMinigameValues()
-    setMinigameWidgetVar((iType != 5), True, False, 0xffbd00, -1, -1, "icon-meter-struggle")
+    setMinigameWidgetVar((iType != 5), True, True, 0xffbd00, -1, -1, "icon-meter-struggle")
     
     if iType == 0 ;normal
         UD_minigame_stamina_drain = UD_base_stat_drain*0.75 + getMaxActorValue(Wearer,"Stamina",0.035)
@@ -3696,7 +3696,7 @@ bool Function struggleMinigameWH(Actor akHelper)
     endif
     
     resetMinigameValues()
-    setMinigameWidgetVar(True, True, False, 0xffbd00, -1, -1, "icon-meter-struggle")
+    setMinigameWidgetVar(True, True, True, 0xffbd00, -1, -1, "icon-meter-struggle")
     
     if type == 0 ;normal
         UD_durability_damage_add = 0.0
@@ -4581,8 +4581,9 @@ Function minigame()
                 decreaseDurabilityAndCheckUnlock(loc_dmg,loc_condmult)
             endif
             ;update widget
-            if loc_is3DLoaded && loc_updatewidget
+            if loc_updatewidget
                 updateWidget()
+                updateWidgetColor()
             endif
         endif
         
@@ -4593,8 +4594,8 @@ Function minigame()
             loc_condmult         = 1.0 + _condition_mult_add
             loc_DamageDevice     = UD_damage_device
             
-            if loc_is3DLoaded
-                loc_updatewidget     = loc_PlayerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
+            if loc_PlayerInMinigame
+                loc_updatewidget     = UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
             endif
             
             ;check non struggle minigames
@@ -5769,12 +5770,12 @@ Function cutDevice(float progress_add = 1.0)
                 UDCDmain.Print(getWearerName() + "s "+ getDeviceName() +" is cutted!",3)
             endif
         endif
-        
+
         float cond_dmg = 40.0*UDCDmain.getStruggleDifficultyModifier()*(1.0 + _condition_mult_add)
         _total_durability_drain += cond_dmg
+
         updateCondition()
         decreaseDurabilityAndCheckUnlock(UD_DamageMult*cond_dmg*getModResistPhysical(1.0,0.25)/7.0,0.0)
-
 
         _CuttingProgress = 0.0
         if UDmain.TraceAllowed()        
