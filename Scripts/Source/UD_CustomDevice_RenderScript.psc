@@ -4810,11 +4810,11 @@ Function _CheckAndUpdateAnimationCache(Bool bClearCache = False)
     ; since GetActorConstraintsInt is time-heavy saving its result here for this call
     If _minigameHelper
         _ActorsConstraints = New Int[2]
-        _ActorsConstraints[0] = UDAM.GetActorConstraintsInt(Wearer)
-        _ActorsConstraints[1] = UDAM.GetActorConstraintsInt(_minigameHelper)
+        _ActorsConstraints[0] = UDAM.GetActorConstraintsInt(Wearer, abUseCache = False)
+        _ActorsConstraints[1] = UDAM.GetActorConstraintsInt(_minigameHelper, abUseCache = False)
     Else
         _ActorsConstraints = New Int[1]
-        _ActorsConstraints[0] = UDAM.GetActorConstraintsInt(Wearer)
+        _ActorsConstraints[0] = UDAM.GetActorConstraintsInt(Wearer, abUseCache = False)
     EndIf
 
     If bClearCache || _ActorsConstraints[0] != _PlayerLastConstraints

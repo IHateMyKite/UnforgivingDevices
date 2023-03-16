@@ -793,19 +793,17 @@ EndFunction
 ; Filters and returns horny animations for given actor
 ; akActor           - actor
 ; return            - string array with found animation events names
-String[] Function GetHornyAnimEvents(Actor akActor)
+String[] Function GetHornyAnimEvents(Actor akActor, Bool abUseConstraintsIntCache = True)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetHornyAnimEvents() akActor = " + akActor, 3)
     EndIf
 
     Int[] aActorConstraints = new Int[1]
-    aActorConstraints[0] = GetActorConstraintsInt(akActor)
+    aActorConstraints[0] = GetActorConstraintsInt(akActor, abUseConstraintsIntCache)
     String[] sKeywords = new String[1]
     sKeywords[0] = ".horny"
     
-    String[] anims = GetAnimationsFromDB(".solo", sKeywords, ".A1.anim", aActorConstraints)
-
-    Return anims
+    Return GetAnimationsFromDB(".solo", sKeywords, ".A1.anim", aActorConstraints)
 EndFunction
 
 String[] Function GetHornyAnimDefs(Actor akActor)
@@ -818,22 +816,20 @@ String[] Function GetHornyAnimDefs(Actor akActor)
     String[] sKeywords = new String[1]
     sKeywords[0] = ".horny"
     
-    String[] anim_defs = GetAnimationsFromDB(".solo", sKeywords, "", aActorConstraints)
-
-    Return anim_defs
+    Return GetAnimationsFromDB(".solo", sKeywords, "", aActorConstraints)
 EndFunction
 
 ; Function GetOrgasmAnimEvents
 ; Filters and returns orgasm animations for given actor (with enabled UD_OrgasmAnimation it returns horny animations too)
 ; akActor           - actor
 ; return            - string array with found animation events names
-String[] Function GetOrgasmAnimEvents(Actor akActor)
+String[] Function GetOrgasmAnimEvents(Actor akActor, Bool abUseConstraintsIntCache = True)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetOrgasmAnimEvents() akActor = " + akActor, 3)
     EndIf
 
     Int[] aActorConstraints = new Int[1]
-    aActorConstraints[0] = GetActorConstraintsInt(akActor)
+    aActorConstraints[0] = GetActorConstraintsInt(akActor, abUseConstraintsIntCache)
     String[] sKeywords
     if (UDmain.UDOM.UD_OrgasmAnimation == 1)
         sKeywords = new String[2]
@@ -843,9 +839,7 @@ String[] Function GetOrgasmAnimEvents(Actor akActor)
         sKeywords = new String[1]
         sKeywords[0] = ".orgasm"
     endif
-    String[] anims = GetAnimationsFromDB(".solo", sKeywords, ".A1.anim", aActorConstraints)
-
-    Return anims
+    Return GetAnimationsFromDB(".solo", sKeywords, ".A1.anim", aActorConstraints)
 EndFunction
 
 String[] Function GetOrgasmAnimDefs(Actor akActor)
@@ -865,22 +859,20 @@ String[] Function GetOrgasmAnimDefs(Actor akActor)
         sKeywords[0] = ".orgasm"
     endif
     
-    String[] anim_defs = GetAnimationsFromDB(".solo", sKeywords, "", aActorConstraints)
-
-    Return anim_defs
+    Return GetAnimationsFromDB(".solo", sKeywords, "", aActorConstraints)
 EndFunction
 
 ; Function GetEdgedAnimEvents
 ; Filters and returns edge animations for given actor
 ; akActor           - actor
 ; return            - string array with found animation events names
-String[] Function GetEdgedAnimEvents(Actor akActor)
+String[] Function GetEdgedAnimEvents(Actor akActor, Bool abUseConstraintsIntCache = True)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetEdgedAnimEvents() akActor = " + akActor, 3)
     EndIf
 
     Int[] aActorConstraints = new Int[1]
-    aActorConstraints[0] = GetActorConstraintsInt(akActor)
+    aActorConstraints[0] = GetActorConstraintsInt(akActor, abUseConstraintsIntCache)
     String[] sKeywords = new String[1]
     sKeywords[0] = ".edged"
 

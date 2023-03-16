@@ -215,16 +215,15 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     
     ;UDCDMain.DisableActor(akActor,true)
     UDCDMain.StartMinigameDisable(akActor)
-    Int actor_constraints = UDmain.UDAM.GetActorConstraintsInt(akActor)
-    If _ActorConstraints != actor_constraints
-        _ActorConstraints = actor_constraints
+    Int loc_constraints = UDmain.UDAM.GetActorConstraintsInt(akActor, abUseCache = False)
+    If _ActorConstraints != loc_constraints
+        _ActorConstraints = loc_constraints
         _HornyAnimDefs = UDmain.UDAM.GetHornyAnimDefs(akActor)
     EndIf
     If _HornyAnimDefs.Length > 0
-        String anim_def = _HornyAnimDefs[Utility.RandomInt(0, _HornyAnimDefs.Length - 1)]
-        Actor[] actors = new Actor[1]
-        actors[0] = akActor
-        UDmain.UDAM.PlayAnimationByDef(anim_def, actors)
+        Actor[] loc_actors = new Actor[1]
+        loc_actors[0] = akActor
+        UDmain.UDAM.PlayAnimationByDef(_HornyAnimDefs[Utility.RandomInt(0, _HornyAnimDefs.Length - 1)], loc_actors)
     Else
         UDmain.Warning("UD_OrgasmManagerPlayer::FocusOrgasmResistMinigame() Can't find animations for the horny actor")
     EndIf

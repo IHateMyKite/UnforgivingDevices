@@ -645,11 +645,11 @@ EndFunction
 String Function AnimSwitchKeyword(actor akActor, string idleName)
     String[] anims
     If idleName == "Horny01" || idleName == "Horny02" || idleName == "Horny03"
-        anims = UDmain.UDAM.GetHornyAnimEvents(akActor)
+        anims = UDmain.UDAM.GetHornyAnimEvents(akActor, False)
     ElseIf idleName == "Orgasm"
-        anims = UDmain.UDAM.GetOrgasmAnimEvents(akActor)
+        anims = UDmain.UDAM.GetOrgasmAnimEvents(akActor, False)
     ElseIf idleName == "Edged"
-        anims = UDmain.UDAM.GetEdgedAnimEvents(akActor)
+        anims = UDmain.UDAM.GetEdgedAnimEvents(akActor, False)
     EndIf
     
     If anims.Length > 0

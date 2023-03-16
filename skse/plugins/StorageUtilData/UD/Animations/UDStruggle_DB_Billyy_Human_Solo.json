@@ -468,13 +468,6 @@
 					"opt" : 2048
 				}, 
 				"lewd" : 5 
-			}, {
-				"A1" : {
-					"anim" : [ "B_B_FMast3_A1_S1", "B_B_FMast3_A1_S2", "B_B_FMast3_A1_S3", "B_B_FMast3_A1_S4" ], 
-					"req" : 0, 
-					"opt" : 2048
-				}, 
-				"lewd" : 5 
 			}
 		], 
 		"edged" : [
@@ -509,13 +502,6 @@
 			}, {
 				"A1" : {
 					"anim" : [ "B_B_FMast3_A1_S1", "B_B_FMast3_A1_S2", "B_B_FMast3_A1_S3" ], 
-					"req" : 0, 
-					"opt" : 2048
-				}, 
-				"lewd" : 5 
-			}, {
-				"A1" : {
-					"anim" : [ "B_B_FMast3_A1_S1", "B_B_FMast3_A1_S2", "B_B_FMast3_A1_S3", "B_B_FMast3_A1_S4" ], 
 					"req" : 0, 
 					"opt" : 2048
 				}, 
@@ -604,7 +590,7 @@
 				"A1" : {
 					"anim" : [ "B_B_FMast3_A1_S1", "B_B_FMast3_A1_S2", "B_B_FMast3_A1_S3", "B_B_FMast3_A1_S4", "B_B_FMast3_A1_S5" ], 
 					"req" : 0, 
-					"opt" : 2048
+					"opt" : 2304
 				}, 
 				"lewd" : 5 
 			}
