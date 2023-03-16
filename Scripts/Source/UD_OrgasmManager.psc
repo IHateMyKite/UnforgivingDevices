@@ -351,7 +351,7 @@ Function UpdateActorOrgasmProgress(Actor akActor,Float fValue,bool bUpdateWidget
     float loc_newValue = fRange(StorageUtil.GetFloatValue(akActor, "UD_OrgasmProgress",0.0) + fValue,0.0,getActorOrgasmCapacity(akActor))
     StorageUtil.SetFloatValue(akActor, "UD_OrgasmProgress",loc_newValue)
     if bUpdateWidget && UD_UseOrgasmWidget
-        UDmain.UDWC.UpdatePercent_OrgasmWidget(loc_newValue/getActorOrgasmCapacity(akActor))
+        UDmain.UDWC.Meter_SetFillPercent("player-orgasm", loc_newValue / getActorOrgasmCapacity(akActor) * 100.0)
     endif
     _OrgasmProgressManip_Mutex = false
 EndFunction
@@ -706,6 +706,7 @@ Int Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
         UDmain.UDUI.GoToState("UIDisabled") ;disable UI
     endif
     
+    UDMain.UDWC.StatusEffect_SetBlink("effect-orgasm", True)
     Bool loc_is3Dloaded = akActor.Is3DLoaded()
     
     UDCDmain.DisableActor(akActor,loc_isPlayer)
@@ -727,7 +728,8 @@ Int Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
         Utility.wait(1.0)
         loc_elapsedtime += 1
     endwhile
-
+    
+    UDMain.UDWC.StatusEffect_SetBlink("effect-orgasm", False)
     StorageUtil.UnsetIntValue(akActor,"UD_OrgasmDuration")
     
     if loc_is3Dloaded
@@ -755,11 +757,11 @@ Function OnEdge(string eventName, string strArg, float numArg, Form sender)
     if strArg != UDmain.Player.getActorBase().getName()
         int random = Utility.randomInt(1,3)
         if random == 1
-            debug.notification(strArg + " gets denied just before reaching the orgasm!")
+            UDMain.UDWC.Notification_Push(strArg + " gets denied just before reaching the orgasm!")
         elseif random == 2
-            debug.notification(strArg + " screams as they are edged just before climax!")
+            UDMain.UDWC.Notification_Push(strArg + " screams as they are edged just before climax!")
         elseif random == 3
-            debug.notification(strArg + " is edged!")
+            UDMain.UDWC.Notification_Push(strArg + " is edged!")
         endif
     endif
     UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByActorName(strArg)

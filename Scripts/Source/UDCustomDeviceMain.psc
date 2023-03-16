@@ -2313,7 +2313,8 @@ bool Function activateDevice(UD_CustomDevice_RenderScript udCustomDevice)
             UD_CustomDevice_RenderScript loc_device = loc_device_arr[Utility.randomInt(0,loc_num - 1)]
             if udCustomDevice.WearerIsPlayer()
                 ;debug.notification("Your " + udCustomDevice.getDeviceName() + " activates " + loc_device.getDeviceName() + " !!")
-                UDmain.Print("Your " + udCustomDevice.getDeviceName() + " activates " + loc_device.getDeviceName() + " !!",2)
+                UDmain.Print("Your " + udCustomDevice.getDeviceName() + " activates " + loc_device.getDeviceName() + " !!", 2)
+                ; UDmain.Print("You felt an devious mind that awakened one of the devices on you!", 2)
             endif
             udCustomDevice = loc_device
         else

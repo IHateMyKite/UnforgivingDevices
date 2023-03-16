@@ -25,13 +25,13 @@ Event OnUpdate()
     if target.isSwimming()
         if !SwimmingScript.startedSwimming
             SwimmingScript.startedSwimming = True
-            debug.notification("You are having hard time swimming with your hands tied!")
+            SwimmingScript.UDMain.UDWC.Notification_Push("You are having hard time swimming with your hands tied!")
         endif
         target.damageAV("Stamina",SwimmingScript.fastUpdateTime * 10.0*(1 + (SwimmingScript.UD_hardcore_swimming_difficulty - 1)*0.50))
         
         if target.getAV("Stamina") <= 1.0 && !SwimmingScript.drowning
             SwimmingScript.drowning = True
-            debug.notification("You are drowning!")
+            SwimmingScript.UDMain.UDWC.Notification_Push("You are drowning!")
         endif
         
         if (target.getAV("WaterBreathing") == 0) && SwimmingScript.drowning

@@ -1399,7 +1399,7 @@ Function TurnOffAllVibrators()
     while UD_equipedCustomDevices[i]
         UD_CustomVibratorBase_RenderScript loc_vib = (UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript)
         if loc_vib && !(loc_vib as UD_ControlablePlug_RenderScript)
-            if loc_vib.isVibrating() && loc_vib.getRemainingVibrationDuration() > 0
+            if loc_vib.isVibrating()
                 if UDmain.TraceAllowed()                
                     UDCDmain.Log("Stoping " + UD_equipedCustomDevices[i].getDeviceName() + " on " + getSlotedNPCName())
                 endif
@@ -1990,8 +1990,8 @@ Function UpdateOrgasm(Float afUpdateTime)
         
         if _widgetShown
             _widgetShown = false
-            UDmain.UDWC.UpdatePercent_OrgasmWidget(0.0,true)
-            UDmain.UDWC.Toggle_OrgasmWidget(false)
+            UDmain.UDWC.Meter_SetFillPercent("player-orgasm", 0.0, True)
+            UDmain.UDWC.Meter_SetVisible("player-orgasm", False)
         endif
         
         _hornyAnimTimer  = -45 ;cooldown
@@ -2083,7 +2083,7 @@ Function CalculateOrgasmProgress()
     _orgasmProgress_p = fRange(_orgasmProgress/_orgasmCapacity,0.0,1.0) ;update relative orgasm progress
     
     if _widgetShown && !_orgasmResisting
-        UDmain.UDWC.UpdatePercent_OrgasmWidget(_orgasmProgress_p)
+        UDmain.UDWC.Meter_SetFillPercent("player-orgasm", _orgasmProgress_p * 100.0)
     endif
 EndFunction
 
@@ -2139,12 +2139,12 @@ Function UpdateOrgasmSecond()
         UpdateOrgasmHornyAnimation()
         
         if UDOMcfg.UD_UseOrgasmWidget && IsPlayer()
-            if (_widgetShown && _orgasmProgress < 2.5) ;|| (loc_widgetShown)
-                UDmain.UDWC.Toggle_OrgasmWidget(false)
+            if (_widgetShown && _orgasmProgress_p < 0.025) ;|| (loc_widgetShown)
+                UDmain.UDWC.Meter_SetVisible("player-orgasm", False)
                 _widgetShown = false
-            elseif !_widgetShown && _orgasmProgress >= 2.5
-                UDmain.UDWC.UpdatePercent_OrgasmWidget(_orgasmProgress_p,true)
-                UDmain.UDWC.Toggle_OrgasmWidget(true)
+            elseif !_widgetShown && _orgasmProgress_p >= 0.025
+                UDmain.UDWC.Meter_SetFillPercent("player-orgasm", _orgasmProgress_p * 100.0, True)
+                UDmain.UDWC.Meter_SetVisible("player-orgasm", True)
                 _widgetShown = true
             endif
         endif
@@ -2195,9 +2195,7 @@ FUnction UpdateOrgasmHornyAnimation()
             if (_hornyAnimTimer == 0) && !UDmain.UDAM.IsAnimating(akActor) ;start horny animation for UD_HornyAnimationDuration
                 if Utility.RandomInt() <= (Math.ceiling(100/fRange(_orgasmProgress,15.0,100.0))) 
                     ; Select animation
-                    If !_HornyAnimEvents || _HornyAnimEvents.Length == 0
-                        _HornyAnimEvents = UDmain.UDAM.GetHornyAnimEvents(akActor)
-                    EndIf
+                    _HornyAnimEvents = UDmain.UDAM.GetHornyAnimEvents(akActor)
                     If _HornyAnimEvents.Length > 0
                         String anim_event = _HornyAnimEvents[Utility.RandomInt(0, _HornyAnimEvents.Length - 1)]
                         UDmain.UDAM.StartSoloAnimation(akActor, anim_event)
@@ -2278,7 +2276,7 @@ Function CleanOrgasmUpdate()
     
     ;hide widget
     if _widgetShown
-        UDmain.UDWC.Toggle_OrgasmWidget(false)
+        UDmain.UDWC.Meter_SetVisible("player-orgasm", False)
     endif
     
     ;reset expression
@@ -2490,7 +2488,7 @@ Function Receive_MinigameParalel()
                         loc_device.showHUDbars(False)
                     endif         
                     if loc_updatewidget
-                        loc_device.showWidget(false,true)
+                        loc_device.showWidget(True, False)
                     endif
                     loc_ElapsedTime2 = 0.0
                 endif

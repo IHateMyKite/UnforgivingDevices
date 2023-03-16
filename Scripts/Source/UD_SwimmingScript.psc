@@ -1,5 +1,7 @@
 Scriptname UD_SwimmingScript extends Quest  
 
+UnforgivingDevicesMain                  Property UDmain     auto
+
 zadlibs Property libs auto
 bool Property UD_hardcore_swimming = True auto
 int Property UD_hardcore_swimming_difficulty = 1 auto

@@ -753,7 +753,7 @@ bool[] Function StartThirdPersonAnimation(actor akActor, string animation, bool 
         UDMain.UDAM.StartSoloAnimation(akActor, animation)
         return new Bool[2]
     else
-        return parent.StartThirdPersonAnimation(akActor, animation, true)
+        return parent.StartThirdPersonAnimation(akActor, animation, permitRestrictive)
     endif
 EndFunction
 
@@ -1027,4 +1027,28 @@ Bool Function UnJamLock(actor akActor, keyword zad_DeviousDevice)
         UDmain.Error("UnJamLock("+GetActorName(akActor)+","+zad_DeviousDevice+") - Error getting device!")
         return false
     endif
+EndFunction
+
+Function Notify(string out, bool messageBox=false)
+    If !messageBox
+        UDMain.UDWC.Notification_Push(out)
+    Else
+        Parent.Notify(out, messageBox)
+    EndIf
+EndFunction
+
+String Function BuildVibrationString(actor akActor, int vibStrength, bool vPlug, bool aPlug, bool vPiercings, bool nPiercings)
+    If UDMain.UDWC.UD_FilterVibNotifications
+        Return ""
+    Else
+        Parent.BuildVibrationString(akActor, vibStrength, vPlug, aPlug, vPiercings, nPiercings)
+    EndIf
+EndFunction
+
+String Function BuildPostVibrationString(actor akActor, int vibStrength, bool vPlug, bool aPlug, bool vPiercings, bool nPiercings)
+    If UDMain.UDWC.UD_FilterVibNotifications
+        Return ""
+    Else
+        Parent.BuildVibrationString(akActor, vibStrength, vPlug, aPlug, vPiercings, nPiercings)
+    EndIf
 EndFunction

@@ -84,7 +84,7 @@ Function _CheckAndLoadForms()
     EndIf
 EndFunction
 
-; Function StartSoloAnimationSequence
+; Function LoadDefaultMCMSettings
 ; Load default values for properties on MCM page
 Function LoadDefaultMCMSettings()
     UD_AnimationJSON_Dis = PapyrusUtil.StringArray(0)
