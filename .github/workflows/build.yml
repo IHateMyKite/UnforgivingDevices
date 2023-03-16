@@ -8,9 +8,7 @@ on:
 jobs:
   build:
     name: BuildPapyrus
-  
     runs-on: windows-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -21,12 +19,17 @@ jobs:
           owner: 'IHateMyKite'
           repository: 'PAPYRUS'
         
-      - name: See files
-        run: ls
+      - name: Create documentation folder
+        run: mkdir "docs/Documentation" || exit 0
+        
+      - name: Generate Documentation
+        run: |
+          cd "PAPYRUS/Natural Docs"
+          ./NaturalDocs.exe ../GeneratedDocu
         
       - name: Run build scripts
         run: PAPYRUS/PapyrusCompiler "Scripts/Source" -o="Scripts" -all -i="Scripts/Source;PAPYRUS/SRC;PAPYRUS/SRC_OTHER;PAPYRUS/SRC_DD;PAPYRUS/SRC_SKYUI;PAPYRUS/SRC_UIEXT;PAPYRUS/SRC_PAPUTIL;PAPYRUS/SRC_SXL;PAPYRUS/SRC_MFG;PAPYRUS/SRC_RM;PAPYRUS/SRC_FNIS;PAPYRUS/SRC_SLA;PAPYRUS/SRC_IWW;PAPYRUS/SRC_XPMSE;PAPYRUS/SRC_ST" -optimize -f="PAPYRUS/Flags.flg"
-      
+        
       - name: Delete PAPYRUS folder
         uses: JesseTG/rm@v1.0.0
         with:
@@ -47,10 +50,7 @@ jobs:
           filename: 'UnforgivingDevices_NB.zip'
           path: ../FOMOD/.
           exclusions: '*.git* *CODE_OF_CONDUCT.md*'
-      
-      - name: See files
-        run: ls
-        
+
       - name: Upload files to artifact
         uses: actions/upload-artifact@v3.1.2
         with:

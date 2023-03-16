@@ -457,7 +457,7 @@ EndFunction
 ;ORGASM
 ;=======================================
 
-Function startOrgasm(Actor akActor,int duration,int iArousalDecrease = 75,int iForce = 0, bool blocking = true)
+Function startOrgasm(Actor akActor,int duration,int iArousalDecrease = 10,int iForce = 0, bool blocking = true)
     if UDmain.TraceAllowed()
         UDmain.Log("startOrgasm() for " + getActorName(akActor) + ", duration = " + duration + ",blocking = " + blocking,1)
     endif
@@ -489,7 +489,7 @@ EndFunction
 Function Orgasm(Form fActor,int duration,int iArousalDecrease,int iForce)
     Actor akActor = fActor as Actor
     StorageUtil.SetIntValue(akActor,"UD_Orgasm_Evnt_Received",1)
-    ActorOrgasm(akActor,duration,iArousalDecrease,iForce,true)
+    ActorOrgasm(akActor,duration,iArousalDecrease,iForce)
 EndFunction
 
 ;call devices function orgasm() when player have DD orgasm
@@ -623,7 +623,7 @@ Float Function GetRelativeHornyProgress(Actor akActor)
     return StorageUtil.GetFloatValue(akActor,"UD_HornyProgress",0.0)/(3.0*GetActorOrgasmCapacity(akActor))
 EndFunction
 
-Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,int iForce = 0, bool bForceAnimation = false)
+Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,int iForce = 0)
     Int loc_orgasms = addOrgasmToActor(akActor)
     ;call stopMinigame so it get stoped before all other shit gets processed
     bool loc_actorinminigame = UDCDmain.actorInMinigame(akActor)
@@ -638,7 +638,7 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,in
         UDCDmain.Log("ActorOrgasmPatched called for " + GetActorName(akActor),1)
     endif
     
-    UDmain.UDPP.Send_Orgasm(akActor,iDuration,iDecreaseArousalBy,iForce,bForceAnimation,bWairForReceive = false)
+    UDmain.UDPP.Send_Orgasm(akActor,iForce,bWairForReceive = false)
     
     bool loc_isplayer   = UDmain.ActorIsPlayer(akActor)
     bool loc_isfollower = false

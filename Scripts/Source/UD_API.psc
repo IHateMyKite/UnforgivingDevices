@@ -1,3 +1,6 @@
+;   File: UD_API
+;   This is mod interface for Unforgiving Devices. 
+;   It should be prefered to use these functions instead of functions from modules, as it will be backward compatible
 scriptname UD_API extends Quest
 
 import UnforgivingDevicesMain
@@ -71,7 +74,12 @@ UDItemManager Property UDItem Hidden
     EndFunction
 EndProperty
 
-;return true if mod is ready
+;/  Function: Ready
+
+    Returns:
+
+        True if mod is fully loaded and ready
+/;
 bool Function Ready()
     return UDmain.Ready
 EndFunction
@@ -114,69 +122,180 @@ EndFunction
 ;                                  UTILITY FUNCTIONS
 ;==========================================================================================
 
-;return true if logging is enabled. Use this function first beffore calling Log function in case that Info is called many times in row!!!!
-;Otherwise performance can be greatly affected
-;Example
-;Function fun()
-;   if UDAPI.TraceAllowed()
-;       UDAPI.Log("fun called!",2)
-;   endif
-;   //do something//
-;EndFunction
+
+;/  Function: TraceAllowed
+
+    Allways use this function first beffore calling Log function!
+    
+    Otherwise performance can be greatly affected for users which don't use Papyrus logging
+
+    Example:
+    --- Code
+    Function fun()
+       if UDAPI.TraceAllowed()
+           UDAPI.Log("fun called!",2)
+       endif
+       ; ||              ||
+       ; VV FUNCTINALITY VV
+    EndFunction
+    ---
+
+    Returns:
+
+        True if logging is enabled
+/;
 bool    Function TraceAllowed()
     return UDmain.TraceAllowed()
 EndFunction
 
+;/  Function: Log
+
+    Prints one line of text to Papyrus log
+    
+    Note that users needs to have Papyrus logging enabled first
+
+    Parameters:
+
+        asMsg   - Message which should be printed to Papyrus log.
+        aiLevel - (optional) Level of imporatance for message. Is used for filtering messages based on MCM setting. 1 means most important message and 5 least important message
+/;
         Function Log(String asMsg, int aiLevel = 1)
     UDmain.Log(asMsg,aiLevel)
 EndFunction
 
-;Console Log. Print Msg to console
+
+;/  Function: CLog
+
+    Prints one line of text to console. User first needs to have ConsoleUtil installed!
+    
+    Parameters:
+
+        asMsg   - Message which should be printed to Console
+/;
         Function CLog(String asMsg)
     UDmain.CLog(asMsg)
 EndFunction
 
-;print message for player (notification)
+;/  Function: Print
+
+    Prints one line of text to skyrim text output (left upper corner)
+    
+    Parameters:
+
+        asMsg   - Message which should be printed to Console
+        aiLevel - (optional) Level of imporatance for message. Is used for filtering messages based on MCM setting. 1 means most important message and 5 least important message
+        abLog   - (optional) Set to true if the message should be also added to Papyrus log
+/;
         Function Print(String asMsg,int aiLevel = 1,bool abLog = false)
     UDmain.Print(asMsg,aiLevel,abLog)
 EndFunction
 
-;print error message in to console and papyrus log
+;/  Function: Error
+
+    Prints one line of error message to console and Papyrus log
+    
+    Parameters:
+
+        asMsg   - Error message information
+/;
         Function    Error(String asMsg)
     UDmain.Error(asMsg)
 EndFunction
 
-;print warning message in to console and papyrus log
-;can be turned off with MCM
+
+;/  Function: Warning
+
+    Prints one line of warning message to console and Papyrus log
+    
+    Note: This feature can toggled off in MCM
+    
+    Parameters:
+
+        asMsg   - Error message information
+/;
         Function    Warning(String asMsg)
     UDmain.Warning(asMsg)
 EndFunction
 
-;print info message in to console and papyrus log
-;is not affected by MCM setting. 
-;Should be used rarely only for specifically informing user through console
+
+;/  Function: Info
+
+    Prints one line of info message to console and Papyrus log
+    
+    This function is intended to be only ussed for debugging
+    
+    Parameters:
+
+        asMsg   - Info message information
+/;
         Function    Info(String asMsg)
     UDmain.Info(asMsg)
 EndFunction
 
-;returns true fs actor is player
+
+;/  Function: ActorIsPlayer
+
+    Parameters:
+
+        akActor   - Actor which will be checked
+
+    Returns:
+
+        True if passed akActor is player
+/;
 bool    Function    ActorIsPlayer(Actor akActor)
     return akActor == UDmain.Player
 EndFunction
 
-;return ture if actor is follower
+;/  Function: ActorIsFollower
+
+    Parameters:
+
+        akActor   - Actor which will be checked
+
+    Returns:
+
+        True if passed akActor is follower
+/;
 bool    Function    ActorIsFollower(Actor akActor)
     return UDmain.ActorIsFollower(akActor)
 EndFunction
 
-;return ture if actor is valid for mod (can wear devious devices)
+;/  Function: ActorIsValidForUD
+    This function check if passed actor is valid for Unforgiving Devices (wearing devices, orgasm system, etc...).
+    
+    Following conditions have to be meet for actor to be valid
+
+    - Actor is not child
+    - Actors race is playable
+    - Actor is not dead
+    - Actor is not male IF For Him is not installed
+
+    Parameters:
+
+        akActor   - Actor which will be checked
+
+    Returns:
+
+        True if passed akActor is valid
+/;
 bool    Function    ActorIsValidForUD(Actor akActor)
     return UDmain.ActorIsValidForUD(akActor)
 EndFunction
 
-;return true if actor is in hearing range from player
-;hearing range is specified in MCM
-;can be used in combination with Print function, so message is only show if actor is close to player
+;/  Function: ActorInCloseRange
+    This function check if passed actor is close to Player
+    
+    Checked range depends on MCM setting Hearing range
+
+    Parameters:
+
+        akActor   - Actor which will be checked if they are in close range of Player
+
+    Returns:
+
+        True if passed akActor is close to player
+/;
 bool    Function    ActorInCloseRange(Actor akActor)
     return UDmain.ActorInCloseRange(akActor)
 EndFunction
@@ -196,48 +315,32 @@ EndFunction
 ;   Bool     |   IsLockpickingMenuOpen              |   ()
 ;==========================================================================================
 
-;return true if any registered menu is open
+;/  Function: IsMenuOpen
+
+    This function check if any menu is open. It is much fater then its UI couterpart
+
+    Returns:
+
+        True if any menu is open
+/;
 Bool    Function    IsMenuOpen()
     return UDmain.IsMenuOpen()
 EndFunction
-;======================================;
-;           Menu ID table              ;
-;======================================;
-;   aiID    |||         MENU           ;
-;--------------------------------------;
-;    00     =     ContainerMenu        ;
-;    01     =     Lockpicking Menu     ;
-;    02     =     InventoryMenu        ;
-;    03     =     Journal Menu         ;
-;    04     =     Crafting Menu        ;
-;    05     =     Dialogue Menu        ;
-;    06     =     FavoritesMenu        ;
-;    07     =     GiftMenu             ;
-;    08     =     Main Menu            ;
-;    09     =     Loading Menu         ;
-;    10     =     Book Menu            ;
-;    11     =     MagicMenu            ;
-;    12     =     MapMenu              ;
-;    13     =     MessageBoxMenu       ;
-;    14     =     RaceSex Menu         ;
-;    15     =     Sleep/Wait Menu      ;
-;    16     =     StatsMenu            ;
-;    17     =     Tutorial Menu        ;
-;    18     =     TweenMenu            ;
-;    19     =     Console              ;
-;    20     =     BarterMenu           ;
-;======================================;
-;returns true if menu with aiID is open
+
+;/  Function: IsMenuOpenID
+
+    This function check if specific menu is open
+
+    Parameters:
+
+        aiID   - ID of menu which should be checked. See <Menus ID>
+
+    Returns:
+
+        True if menu with aiID is open
+/;
 Bool    Function    IsMenuOpenID(int aiID)
     return UDmain.IsMenuOpenID(aiID)
-EndFunction
-;return true if Container menu is open
-Bool    Function    IsContainerMenuOpen()
-    return UDmain.IsContainerMenuOpen()
-EndFunction
-;return true if Lockpick menu is open
-Bool    Function    IsLockpickingMenuOpen()
-    return UDmain.IsLockpickingMenuOpen()
 EndFunction
 
 ;==========================================================================================
@@ -267,44 +370,107 @@ EndFunction
 ;  UD_CustomDevice_RenderScript[] getOffVibrators()                         ;returns all turned off vibrators
 ;  UD_CustomDevice_RenderScript[] getActivableVibrators()                   ;returns all turned activable vibrators
 
-;return true if actor is registered
+;/  Function: isRegistered
+
+    This function checks if passed actor is registered in any NPC slot on any NPC manager or NPC static slot
+
+    Parameters:
+
+        akActor   - Actor which should be checked
+
+    Returns:
+
+        True if passed actor is registered
+/;
 bool    Function    isRegistered(Actor akActor)
     return UDNPCM.isRegistered(akActor)
 EndFunction
 
-;register passed actor in to free NPC slot
-;abMessage - toggle message that show for user, saying that NPC was registered and number of slot
-;returns true if actor was succefully registered
+
+;/  Function: RegisterNPC
+
+    Registers passed actor to first free NPC slot on Generic NPC manager
+
+    Parameters:
+
+        akActor   - Actor which should be registered
+        abMessage - (optional) Message will be printed to left upper corner if enabled
+    Returns:
+
+        True if actor was succefully registered
+/;
 bool    Function    RegisterNPC(Actor akActor,bool abMessage = false)
     return UDNPCM.RegisterNPC(akActor,abMessage)
 EndFunction
 
-;unregister passed actor
-;abMessage - toggle message that show for user, saying that NPC was unregistered and number of slot
-;returns true if actor was succefully unregistered
+;/  Function: UnregisterNPC
+
+    Registers passed actor to first free NPC slot on Generic NPC manager
+
+    Parameters:
+
+        akActor   - Actor which should be unregistered
+        abMessage - (optional) Message will be printed to left upper corner if enabled
+    Returns:
+
+        True if actor was succefully unregistered
+/;
 bool    Function    UnregisterNPC(Actor akActor,bool abMessage = false)
     return UDNPCM.UnregisterNPC(akActor,abMessage)
 EndFunction
 
-;return player NPC slot
+;/  Function: getPlayerSlot
+
+    Returns:
+
+        Player NPC slot
+/;
 UD_CustomDevice_NPCSlot     Function    getPlayerSlot()
     return UDNPCM.getPlayerSlot()
 EndFunction
 
-;return specific NPC slot
-;in case that function fails, it returns none
+;/  Function: getNPCSlotByActor
+
+    Returns actors NPC slot
+
+    Parameters:
+
+        akActor   - Actor whose slot should be returned
+
+    Returns:
+
+        Slot of passed actor, or none in case of issue
+/;
 UD_CustomDevice_NPCSlot     Function    getNPCSlotByActor(Actor akActor)
     return UDNPCM.getNPCSlotByActor(akActor)
 EndFunction
 
-;return specific NPC slot by actor name
-;asName - name of actor
-;in case that function fails, it returns none
+
+;/  Function: getNPCSlotByActorName
+
+    Returns NPC slot of actor by the name
+
+    Parameters:
+
+        asName   - Actors name whose slot should be returned
+
+    Returns:
+
+        Slot of passed actors name, or none in case of issue
+/;
 UD_CustomDevice_NPCSlot     Function    getNPCSlotByActorName(string asName)
     return UDNPCM.getNPCSlotByActorName(asName)
 EndFunction
 
-;returns number of free NPC slots
+
+;/  Function: GetNumberOfFreeNPCSlots
+
+    Returns number of free npc slots on UD NPC manager
+
+    Returns:
+
+        Number of free slots
+/;
 int     Function    GetNumberOfFreeNPCSlots()
     return UDNPCM.numberOfFreeSlots()
 EndFunction
@@ -337,26 +503,49 @@ EndFunction
 ;   Int    | UpdatetActorOrgasmCapacity   |  (Actor akActor,Int aiValue)
 ;==========================================================================================
 
-;           Orgasm(Actor akActor,int aiDuration,int aiArousalDecrease = 75,int aiForce = 0, bool abBlocking = true)
-;increase actor orgasm rate for certain duration. Values will be returned to previous values once effect end
-;aiDuration - duration of effect
-;afOrgasmRate - by how much is orgasm rate increased while effect is on
-;afForcing - how much is orgasm forcing increased (0.0 = masturbation / 1.0> = forced orgasm) while effect is on
-;afArousalRate - how much is arousal rate increased while effect is on
-;WARNING: Both afOrgasmRate and afForcing are recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
+;/  Function: UpdateBaseOrgasmVals
+
+    Updates actor orgasm values of set amount of time.
+    This function is not blocking.
+    
+    WARNING: Both afOrgasmRate and afForcing are recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
+    
+    Parameters:
+        akActor         - Actors whose orgasm values should be updated
+        aiDuration      - duration of effect
+        afOrgasmRate    - by how much is orgasm rate increased while effect is on
+        afForcing       - how much is orgasm forcing increased (0.0 = masturbation / 1.0> = forced orgasm) while effect is on
+        afArousalRate   - how much is arousal rate increased while effect is on
+/;
         Function    UpdateBaseOrgasmVals(Actor akActor, int aiDuration, float afOrgasmRate, float afForcing = 0.0, float afArousalRate = 0.0)
     UDmain.GetUDOM(akActor).UpdateBaseOrgasmVals(akActor, aiDuration, afOrgasmRate, afForcing, afArousalRate)
 EndFunction
 
-;return ammount of orgasm exhaustions actor currently have
+;/  Function: GetOrgasmExhaustion
+
+    Parameters:
+        akActor - Actors whose value will be returned
+        
+    Returns:
+    
+        Returns actors number of current orgasm exhaustions
+/;
 Int     Function    GetOrgasmExhaustion(Actor akActor)
     return UDmain.GetUDOM(akActor).GetOrgasmExhaustion(akActor)
 EndFunction
 
-;return current orgasm rate of actor.
-;actual orgasm rate can be calculated as OrgasmRate - AntiOrgasmRate
-;aiMode -   0 -> returns value affected´ by modifier
-;           1 -> returns raw value
+;/  Function: GetOrgasmRate
+
+    Note: Actual orgasm rate can be calculated as OrgasmRate - AntiOrgasmRate
+
+    Parameters:
+        akActor - Actors whose value will be returned
+        aiMode  - 0 = returns value affected by modifier. 1 = returns raw value
+
+    Returns:
+
+        Return current orgasm rate of actor
+/;
 Float   Function    GetOrgasmRate(Actor akActor, Int aiMode = 0)
     if aiMode == 0
         return UDmain.GetUDOM(akActor).getActorAfterMultOrgasmRate(akActor)
@@ -365,14 +554,30 @@ Float   Function    GetOrgasmRate(Actor akActor, Int aiMode = 0)
     endif
 EndFunction
 
-;return current arousal of actor
+
+;/  Function: GetArousal
+
+    Parameters:
+        akActor - Actors whose value will be returned
+
+    Returns:
+
+        Return actors current arousal
+/;
 Int     Function    GetArousal(Actor akActor)
     return UDmain.GetUDOM(akActor).getArousal(akActor)
 EndFunction
 
-;return current arousal rate of actor.
-;aiMode -   0 -> returns value affected by modifier
-;           1 -> returns raw value
+;/  Function: GetArousalRate
+
+    Parameters:
+        akActor - Actors whose value will be returned
+        aiMode  - 0 = returns value affected by modifier. 1 = returns raw value
+
+    Returns:
+
+        Return actors current arousal rate
+/;
 Float   Function    GetArousalRate(Actor akActor,int abMode = 0)
     if abMode == 0
         return UDmain.GetUDOM(akActor).getArousalRateM(akActor)
@@ -381,26 +586,63 @@ Float   Function    GetArousalRate(Actor akActor,int abMode = 0)
     endif
 EndFunction
 
-;return current anti orgasm rate of actor. This value is already affected by modifiers
-;this value is affected by arousal
-;actual orgasm rate can be calculated as OrgasmRate - AntiOrgasmRate
+;/  Function: GetAntiOrgasmRate
+
+    Returns anti orgasm rate. This value is used in orgasm calculation in following way
+    
+    ---code
+        OrgasmRate - AntiOrgasmRate
+    ---
+
+    Parameters:
+        akActor - Actors whose value will be returned
+
+    Returns:
+
+        Return actors current anti arousal rate
+/;
 Float   Function    GetAntiOrgasmRate(Actor akActor)
     return UDmain.GetUDOM(akActor).getActorAfterMultAntiOrgasmRate(akActor)
 EndFunction
 
-;returns current orgasm forcing of actor
+;/  Function: GetActorOrgasmForcing
+
+    Orgasm forcing value specify if actor is masturbating or being forced to orgasm
+
+    Parameters:
+        akActor - Actors whose value will be returned
+
+    Returns:
+
+        Return actors orgasm forcing
+/;
 Float   Function    GetActorOrgasmForcing(Actor akActor)
     return UDmain.GetUDOM(akActor).getActorOrgasmForcing(akActor)
 EndFunction
 
-;return current orgasm rate multiplier of actor
+;/  Function: GetOrgasmRateMultiplier
+
+    Parameters:
+        akActor - Actors whose value will be returned
+
+    Returns:
+
+        Return actors orgasm rate multiplier
+/;
 Float   Function    GetOrgasmRateMultiplier(Actor akActor)
     return UDmain.GetUDOM(akActor).getActorOrgasmRateMultiplier(akActor)
 EndFunction
 
-;return current orgasm resistence. This value is already affected by orgasm resistence multiplier
-;aiMode -   0 -> returns value affected by modifier
-;           1 -> returns raw value
+;/  Function: GetOrgasmResist
+
+    Parameters:
+        akActor - Actors whose value will be returned
+        aiMode  - 0 = returns value affected by modifier. 1 = returns raw value
+
+    Returns:
+
+        Return actors current orgasm resistence
+/;
 Float   Function    GetOrgasmResist(Actor akActor, Int aiMode = 0)
     if aiMode == 0
         return UDmain.GetUDOM(akActor).getActorOrgasmResistM(akActor)
@@ -409,95 +651,277 @@ Float   Function    GetOrgasmResist(Actor akActor, Int aiMode = 0)
     endif
 EndFunction
 
-;return current orgasm resist multiplier of actor
+;/  Function: GetOrgasmResistMultiplier
+
+    Parameters:
+        akActor - Actors whose value will be returned
+
+    Returns:
+
+        Return actors current orgasm resistence multiplier
+/;
 Float   Function    GetOrgasmResistMultiplier(Actor akActor)
     return UDmain.GetUDOM(akActor).getActorOrgasmResistMultiplier(akActor)
 EndFunction
 
-;return current arousal rate multiplier of actor
+;/  Function: GetArousalRateMultiplier
+
+    Parameters:
+        akActor - Actors whose value will be returned
+
+    Returns:
+
+        Return actors current arousal rate multiplier
+/;
 Float   Function    GetArousalRateMultiplier(Actor akActor)
     return UDmain.GetUDOM(akActor).getArousalRateMultiplier(akActor)
 EndFunction
 
-;return current orgasm progress of the actor
+;/  Function: GetOrgasmProgress
+
+    Parameters:
+        akActor - Actors whose value will be returned
+
+    Returns:
+
+        Return actors current orgasm progress
+/;
 Float   Function    GetOrgasmProgress(Actor akActor)
     return UDmain.GetUDOM(akActor).getActorOrgasmProgress(akActor)
 EndFunction
 
-;return relative orgasm progress of the actor
-;range 0.0 - 1.0
+;/  Function: GetOrgasmProgressPerc
+
+    Parameters:
+        akActor - Actors whose value will be returned
+
+    Returns:
+
+        Return actors current orgasm progress as relative value [0.0-1.0]
+/;
 Float   Function    GetOrgasmProgressPerc(Actor akActor)
     return UDmain.GetUDOM(akActor).getOrgasmProgressPerc(akActor)
 EndFunction
 
-;return current orgasm capacity of actor
+;/  Function: GetActorOrgasmCapacity
+
+    Parameters:
+        akActor - Actors whose value will be returned
+
+    Returns:
+
+        Return actors orgasm capacity
+/;
 Float   Function    GetActorOrgasmCapacity(Actor akActor)
     return UDmain.GetUDOM(akActor).getActorOrgasmCapacity(akActor)
 EndFunction
 
-;updates orgasm rate and orgasm forcing by passed value. The value will be not changed back. Allways change the value back to original values !!!!!
-;returns new value
-;WARNING: Both afOrgasmRate and afForcing are recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
+;/  Function: UpdateOrgasmRate
+
+    NOTE: The value will be not changed back. Allways change the value back to original values !!!!!
+    WARNING: Both afOrgasmRate and afForcing are recalculated for storage. Because of that, precision is 0.01. All smaller information will be lost.
+    
+    Parameters:
+        akActor         - Actors whose value will be updated
+        afOrgasmRate    - By how much should be orgasm rate updated. Can be both positive and negative
+        afOrgasmForcing - By how much should be orgasm forcing updated. Can be both positive and negative
+
+    Returns:
+
+        Return actors new orgasm rate after update
+/;
 Float   Function    UpdateOrgasmRate(Actor akActor ,float afOrgasmRate,float afOrgasmForcing)
     return UDmain.GetUDOM(akActor).UpdateOrgasmRate(akActor,afOrgasmRate,afOrgasmForcing)
 EndFunction
 
-;updates arousal rate. The value will be not changed back. Allways change the value back to original values !!!!!
-;WARNING: afArousalRate is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
+;/  Function: UpdateArousalRate
+
+    NOTE: The value will be not changed back. Allways change the value back to original values !!!!!
+    WARNING: afArousalRate is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
+    
+    Parameters:
+        akActor         - Actors whose value will be updated
+        afArousalRate   - By how much should be arousal rate updated. Can be both positive and negative
+
+    Returns:
+
+        Return actors new arousal rate after update
+/;
 Float   Function    UpdateArousalRate(Actor akActor ,float afArousalRate)
     return UDmain.GetUDOM(akActor).UpdateArousalRate(akActor, afArousalRate)
 EndFunction
 
-;updates orgasm rate multiplier. The value will be not changed back. Allways change the value back to original values !!!!!
-;WARNING: Both afOrgasmRateMultiplier is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
+;/  Function: UpdateOrgasmRateMultiplier
+
+    NOTE: The value will be not changed back. Allways change the value back to original values !!!!!
+    WARNING: afOrgasmRateMultiplier is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
+    
+    Parameters:
+        akActor                     - Actors whose value will be updated
+        afOrgasmRateMultiplier      - By how much should be orgasm rate multiplier updated. Can be both positive and negative
+
+    Returns:
+
+        Return actors new orgasm rate multiplier after update
+/;
 Float   Function    UpdateOrgasmRateMultiplier(Actor akActor ,float afOrgasmRateMultiplier)
     return UDmain.GetUDOM(akActor).UpdateOrgasmRateMultiplier(akActor, afOrgasmRateMultiplier)
 EndFunction
 
 ;updates orgasm rate resistence. The value will be not changed back. Allways change the value back to original values !!!!!
 ;WARNING: afOrgasmResist is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
+
+;/  Function: UpdateOrgasmResist
+
+    NOTE: The value will be not changed back. Allways change the value back to original values !!!!!
+    WARNING: afOrgasmResist is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
+    
+    Parameters:
+        akActor         - Actors whose value will be updated
+        afOrgasmResist  - By how much should be orgasm resistence updated. Can be both positive and negative
+
+    Returns:
+
+        Return actors new orgasm resistence after update
+/;
 Float   Function    UpdateOrgasmResist(Actor akActor ,float afOrgasmResist)
     return UDmain.GetUDOM(akActor).UpdateOrgasmResist(akActor ,afOrgasmResist)
 EndFunction
 
-;updates orgasm rate resistence multiplier. The value will be not changed back. Allways change the value back to original values !!!!!
-;WARNING: afOrgasmResistMultiplier is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
+;/  Function: UpdateOrgasmResistMultiplier
+
+    NOTE: The value will be not changed back. Allways change the value back to original values !!!!!
+    WARNING: afOrgasmResistMultiplier is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
+    
+    Parameters:
+        akActor                     - Actors whose value will be updated
+        afOrgasmResistMultiplier    - By how much should be orgasm resistence multiplier updated. Can be both positive and negative
+
+    Returns:
+
+        Return actors new orgasm resistence multiplier after update
+/;
 Float   Function    UpdateOrgasmResistMultiplier(Actor akActor ,float afOrgasmResistMultiplier)
     return UDmain.GetUDOM(akActor).UpdateOrgasmResistMultiplier(akActor, afOrgasmResistMultiplier)
 EndFunction
 
-;updates arousal rate resistence multiplier. The value will be not changed back. Allways change the value back to original values !!!!!
-;WARNING: afArousalRateMultiplier is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
+;/  Function: UpdateArousalRateMultiplier
+
+    NOTE: The value will be not changed back. Allways change the value back to original values !!!!!
+    WARNING: afArousalRateMultiplier is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
+    
+    Parameters:
+        akActor                     - Actors whose value will be updated
+        afArousalRateMultiplier     - By how much should be arousal rate multiplier updated. Can be both positive and negative
+
+    Returns:
+
+        Return actors new arousal rate multiplier after update
+/;
 Float   Function    UpdateArousalRateMultiplier(Actor akActor ,Float afArousalRateMultiplier)
     return UDmain.GetUDOM(akActor).UpdateArousalRateMultiplier(akActor, afArousalRateMultiplier)
 EndFunction
 
-;updates orgasm capacity. The value will be not changed back. Allways change the value back to original values !!!!!
-;Returns updated value
+;/  Function: UpdatetActorOrgasmCapacity
+
+    NOTE: The value will be not changed back. Allways change the value back to original values !!!!!
+    
+    Parameters:
+        akActor     - Actors whose value will be updated
+        aiValue     - By how much should be orgasm capacity updated. Can be both positive and negative
+
+    Returns:
+
+        Return actors new orgasm capacity after update
+/;
 Int     Function    UpdatetActorOrgasmCapacity(Actor akActor,Int aiValue)
     return UDmain.GetUDOM(akActor).UpdatetActorOrgasmCapacity(akActor, aiValue)
 EndFunction
 
-;make actor orgasm
-;aiDuration - duration of orgasm. !WARNING! - some animations might look weird if duration is different then 20 seconds
-;iArousalDecrease - how much is arousal decreased on orgasm
-;iForce - orgasm state: 0 -> self caused orgasm
-;                       2 -> forced orgasm
-;                       1 -> something between
-;abBlocking - if true, function will be blocked untill the orgasm function starts
-        Function    Orgasm(Actor akActor,int aiDuration,int aiArousalDecrease = 75,int aiForce = 0, bool abBlocking = true)
+;/  Function: Orgasm
+
+    NOTE: The value will be not changed back. Allways change the value back to original values !!!!!
+    WARNING: Some animations might look weird if duration is different then 20 seconds
+
+    Parameters:
+
+        akActor             - Actors who will orgasm
+        aiDuration          - How long will actor orgasm
+        aiArousalDecrease   - By how much will be arousal decreased over time. Duration is set in MCM
+        aiForce             - 0 = Self caused orgasm, 2 = Forced orgasm , 1 = Something between
+        abBlocking          - If function should be blocked untill orgasm fully start
+
+    Returns:
+
+        Return actors new orgasm capacity after update
+/;
+        Function    Orgasm(Actor akActor,int aiDuration,int aiArousalDecrease = 10,int aiForce = 0, bool abBlocking = true)
     UDmain.GetUDOM(akActor).startOrgasm(akActor,aiDuration,aiArousalDecrease,aiForce, abBlocking)
 EndFUnction
 
 ;==========================================================================================
 ;                                     INPUT FUNCTIONS
 ;==========================================================================================
-;open text input for user and return string
+
+;/  Function: GetUserTextInput
+
+    Opens text input menu, and returns its result
+
+    NOTE: User needs to have UI Extensions installed for this to work!
+
+    Returns:
+
+        Return string written to text menu
+/;
 string  Function    GetUserTextInput()
     return UDmain.GetUserTextInput()
 EndFunction
 
-;open list of options and return selected option
+;/  Function: GetUserListInput
+
+    Opens list menu and returns index of selected line. Top is 0, bottom is max index
+    
+    NOTE: User needs to have UI Extensions installed for this to work!
+
+    Parameters:
+        apList  - String array of list elements which will be shown in menu
+
+    Returns:
+
+        Return string written to text menu
+/;
 Int     Function    GetUserListInput(string[] apList)
     return UDmain.GetUserListInput(apList)
 EndFunction
+
+;/ About: Menus ID
+    --- Code
+    |======================================|
+    |           Menu ID table              |
+    |======================================|
+    |   aiID    |           MENU           |
+    |======================================|
+    |    00     =     ContainerMenu        |
+    |    01     =     Lockpicking Menu     |
+    |    02     =     InventoryMenu        |
+    |    03     =     Journal Menu         |
+    |    04     =     Crafting Menu        |
+    |    05     =     Dialogue Menu        |
+    |    06     =     FavoritesMenu        |
+    |    07     =     GiftMenu             |
+    |    08     =     Main Menu            |
+    |    09     =     Loading Menu         |
+    |    10     =     Book Menu            |
+    |    11     =     MagicMenu            |
+    |    12     =     MapMenu              |
+    |    13     =     MessageBoxMenu       |
+    |    14     =     RaceSex Menu         |
+    |    15     =     Sleep/Wait Menu      |
+    |    16     =     StatsMenu            |
+    |    17     =     Tutorial Menu        |
+    |    18     =     TweenMenu            |
+    |    19     =     Console              |
+    |    20     =     BarterMenu           |
+    |======================================|
+    ---
+/;
