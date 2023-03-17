@@ -168,8 +168,8 @@ Bool Function forceOutPlugMinigameWH(Actor akHelper,Bool abSilent = False)
 EndFunction
 
 Function updateWidget(bool force = false)
-    if forceOutPlugMinigame_on && PlayerInMinigame() && UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
-        setWidgetVal(getRelativeDurability(),force)    
+    if forceOutPlugMinigame_on
+        setWidgetVal(getRelativeDurability(),force)
     else
         parent.updateWidget(force)
     endif
