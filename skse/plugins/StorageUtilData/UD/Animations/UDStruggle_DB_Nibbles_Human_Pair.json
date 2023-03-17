@@ -1,0 +1,1231 @@
+{
+	"conditions" : {
+		"json" : "..\\..\\..\\SLAnims\\json\\NibblesAnims_HUMAN.json"
+	},
+	"paired" : {
+		"zad_DeviousAnkleShackles" : [
+			
+		], 
+		"zad_DeviousHobbleSkirtRelaxed" : [
+			
+		], 
+		"zad_DeviousHobbleSkirt" : [
+			
+		], 
+		"zad_DeviousCuffsFront" : [
+			
+		], 
+		"zad_DeviousArmbinder" : [
+			
+		], 
+		"zad_DeviousArmbinderElbow" : [
+			
+		], 
+		"zad_DeviousElbowTie" : [
+			
+		], 
+		"zad_DeviousStraitJacket" : [
+			
+		], 
+		"zad_DeviousYoke" : [
+			
+		], 
+		"zad_DeviousYokeBB" : [
+			
+		], 
+		"zad_DeviousPetSuit" : [
+			
+		], 
+		"zad_DeviousHood" : [
+			{
+				"A1" : {
+						"anim" : [ "NibblesCowgirlFemdom_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"A2" : {
+						"anim" : [ "NibblesCowgirlFemdom_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesCowgirlFemdom_A2_S1", "NibblesCowgirlFemdom_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"A2" : {
+						"anim" : [ "NibblesCowgirlFemdom_A1_S1", "NibblesCowgirlFemdom_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousGag" : [
+			{
+				"A1" : {
+						"anim" : [ "NibblesCowgirlFemdom_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"A2" : {
+						"anim" : [ "NibblesCowgirlFemdom_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesCowgirlFemdom_A2_S1", "NibblesCowgirlFemdom_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"A2" : {
+						"anim" : [ "NibblesCowgirlFemdom_A1_S1", "NibblesCowgirlFemdom_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousBlindfold" : [
+			{
+				"A1" : {
+						"anim" : [ "NibblesCowgirlFemdom_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"A2" : {
+						"anim" : [ "NibblesCowgirlFemdom_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesCowgirlFemdom_A2_S1", "NibblesCowgirlFemdom_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"A2" : {
+						"anim" : [ "NibblesCowgirlFemdom_A1_S1", "NibblesCowgirlFemdom_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousCollar" : [
+			
+		], 
+		"zad_DeviousBra" : [
+			
+		], 
+		"zad_DeviousPiercingsNipple" : [
+			
+		], 
+		"zad_DeviousClamps" : [
+			
+		], 
+		"zad_DeviousCorset" : [
+			{
+				"A1" : {
+						"anim" : [ "Nibblesstandingfuck4_A1_S1", "Nibblesstandingfuck4_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 2307
+					},
+				"A2" : {
+						"anim" : [ "Nibblesstandingfuck4_A2_S1", "Nibblesstandingfuck4_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2314
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesstandingfuck4_A1_S1", "Nibblesstandingfuck4_A1_S2", "Nibblesstandingfuck4_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"A2" : {
+						"anim" : [ "Nibblesstandingfuck4_A2_S1", "Nibblesstandingfuck4_A2_S2", "Nibblesstandingfuck4_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesstandingfuck4_A1_S1", "Nibblesstandingfuck4_A1_S2", "Nibblesstandingfuck4_A1_S3", "Nibblesstandingfuck4_A1_S4", "Nibblesstandingfuck4_A1_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesstandingfuck4_A2_S1", "Nibblesstandingfuck4_A2_S2", "Nibblesstandingfuck4_A2_S3", "Nibblesstandingfuck4_A2_S4", "Nibblesstandingfuck4_A2_S5" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLapFuck2_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLapFuck2_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLesbianCuddling_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 2307
+					},
+				"A2" : {
+						"anim" : [ "NibblesLesbianCuddling_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 2307
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLesbianCuddling_A1_S1", "NibblesLesbianCuddling_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"A2" : {
+						"anim" : [ "NibblesLesbianCuddling_A2_S1", "NibblesLesbianCuddling_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLesbianCuddling_A1_S1", "NibblesLesbianCuddling_A1_S2", "NibblesLesbianCuddling_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLesbianCuddling_A2_S1", "NibblesLesbianCuddling_A2_S2", "NibblesLesbianCuddling_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLesbianCuddling_A1_S1", "NibblesLesbianCuddling_A1_S2", "NibblesLesbianCuddling_A1_S3", "NibblesLesbianCuddling_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLesbianCuddling_A2_S1", "NibblesLesbianCuddling_A2_S2", "NibblesLesbianCuddling_A2_S3", "NibblesLesbianCuddling_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLesbianCuddling_A1_S1", "NibblesLesbianCuddling_A1_S2", "NibblesLesbianCuddling_A1_S3", "NibblesLesbianCuddling_A1_S4", "NibblesLesbianCuddling_A1_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLesbianCuddling_A2_S1", "NibblesLesbianCuddling_A2_S2", "NibblesLesbianCuddling_A2_S3", "NibblesLesbianCuddling_A2_S4", "NibblesLesbianCuddling_A2_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousHarness" : [
+			{
+				"A1" : {
+						"anim" : [ "Nibblesstandingfuck4_A1_S1", "Nibblesstandingfuck4_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 2307
+					},
+				"A2" : {
+						"anim" : [ "Nibblesstandingfuck4_A2_S1", "Nibblesstandingfuck4_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2314
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesstandingfuck4_A1_S1", "Nibblesstandingfuck4_A1_S2", "Nibblesstandingfuck4_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"A2" : {
+						"anim" : [ "Nibblesstandingfuck4_A2_S1", "Nibblesstandingfuck4_A2_S2", "Nibblesstandingfuck4_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesstandingfuck4_A1_S1", "Nibblesstandingfuck4_A1_S2", "Nibblesstandingfuck4_A1_S3", "Nibblesstandingfuck4_A1_S4", "Nibblesstandingfuck4_A1_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesstandingfuck4_A2_S1", "Nibblesstandingfuck4_A2_S2", "Nibblesstandingfuck4_A2_S3", "Nibblesstandingfuck4_A2_S4", "Nibblesstandingfuck4_A2_S5" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesdoggystyle3_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesdoggystyle3_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 2312
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesreversecowgirl2_A1_S1", "Nibblesreversecowgirl2_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesreversecowgirl2_A2_S1", "Nibblesreversecowgirl2_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2307
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesbellyflop_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesbellyflop_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesbellyflop_A1_S1", "Nibblesbellyflop_A1_S2", "Nibblesbellyflop_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesbellyflop_A2_S1", "Nibblesbellyflop_A2_S2", "Nibblesbellyflop_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLapFuck2_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLapFuck2_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLesbianCuddling_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 2307
+					},
+				"A2" : {
+						"anim" : [ "NibblesLesbianCuddling_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 2307
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLesbianCuddling_A1_S1", "NibblesLesbianCuddling_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"A2" : {
+						"anim" : [ "NibblesLesbianCuddling_A2_S1", "NibblesLesbianCuddling_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLesbianCuddling_A1_S1", "NibblesLesbianCuddling_A1_S2", "NibblesLesbianCuddling_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLesbianCuddling_A2_S1", "NibblesLesbianCuddling_A2_S2", "NibblesLesbianCuddling_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLesbianCuddling_A1_S1", "NibblesLesbianCuddling_A1_S2", "NibblesLesbianCuddling_A1_S3", "NibblesLesbianCuddling_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLesbianCuddling_A2_S1", "NibblesLesbianCuddling_A2_S2", "NibblesLesbianCuddling_A2_S3", "NibblesLesbianCuddling_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLesbianCuddling_A1_S1", "NibblesLesbianCuddling_A1_S2", "NibblesLesbianCuddling_A1_S3", "NibblesLesbianCuddling_A1_S4", "NibblesLesbianCuddling_A1_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLesbianCuddling_A2_S1", "NibblesLesbianCuddling_A2_S2", "NibblesLesbianCuddling_A2_S3", "NibblesLesbianCuddling_A2_S4", "NibblesLesbianCuddling_A2_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousSuit" : [
+			{
+				"A1" : {
+						"anim" : [ "Nibblesstandingfuck4_A1_S1", "Nibblesstandingfuck4_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 2307
+					},
+				"A2" : {
+						"anim" : [ "Nibblesstandingfuck4_A2_S1", "Nibblesstandingfuck4_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2314
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesstandingfuck4_A1_S1", "Nibblesstandingfuck4_A1_S2", "Nibblesstandingfuck4_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"A2" : {
+						"anim" : [ "Nibblesstandingfuck4_A2_S1", "Nibblesstandingfuck4_A2_S2", "Nibblesstandingfuck4_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesstandingfuck4_A1_S1", "Nibblesstandingfuck4_A1_S2", "Nibblesstandingfuck4_A1_S3", "Nibblesstandingfuck4_A1_S4", "Nibblesstandingfuck4_A1_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesstandingfuck4_A2_S1", "Nibblesstandingfuck4_A2_S2", "Nibblesstandingfuck4_A2_S3", "Nibblesstandingfuck4_A2_S4", "Nibblesstandingfuck4_A2_S5" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesdoggystyle3_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesdoggystyle3_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 2312
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesreversecowgirl2_A1_S1", "Nibblesreversecowgirl2_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesreversecowgirl2_A2_S1", "Nibblesreversecowgirl2_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2307
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesbellyflop_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesbellyflop_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesbellyflop_A1_S1", "Nibblesbellyflop_A1_S2", "Nibblesbellyflop_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesbellyflop_A2_S1", "Nibblesbellyflop_A2_S2", "Nibblesbellyflop_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesanalfingering_A1_S1", "Nibblesanalfingering_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"A2" : {
+						"anim" : [ "Nibblesanalfingering_A2_S1", "Nibblesanalfingering_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2050
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLapFuck_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLapFuck_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLapFuck_A1_S1", "NibblesLapFuck_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLapFuck_A2_S1", "NibblesLapFuck_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLapFuck2_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLapFuck2_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLapFuck2_A1_S1", "NibblesLapFuck2_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLapFuck2_A2_S1", "NibblesLapFuck2_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLapFuck2_A1_S1", "NibblesLapFuck2_A1_S2", "NibblesLapFuck2_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLapFuck2_A2_S1", "NibblesLapFuck2_A2_S2", "NibblesLapFuck2_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLapFuck2_A1_S1", "NibblesLapFuck2_A1_S2", "NibblesLapFuck2_A1_S3", "NibblesLapFuck2_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLapFuck2_A2_S1", "NibblesLapFuck2_A2_S2", "NibblesLapFuck2_A2_S3", "NibblesLapFuck2_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLapFuck2_A1_S1", "NibblesLapFuck2_A1_S2", "NibblesLapFuck2_A1_S3", "NibblesLapFuck2_A1_S4", "NibblesLapFuck2_A1_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLapFuck2_A2_S1", "NibblesLapFuck2_A2_S2", "NibblesLapFuck2_A2_S3", "NibblesLapFuck2_A2_S4", "NibblesLapFuck2_A2_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLesbianCuddling_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 2307
+					},
+				"A2" : {
+						"anim" : [ "NibblesLesbianCuddling_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 2307
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLesbianCuddling_A1_S1", "NibblesLesbianCuddling_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"A2" : {
+						"anim" : [ "NibblesLesbianCuddling_A2_S1", "NibblesLesbianCuddling_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLesbianCuddling_A1_S1", "NibblesLesbianCuddling_A1_S2", "NibblesLesbianCuddling_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLesbianCuddling_A2_S1", "NibblesLesbianCuddling_A2_S2", "NibblesLesbianCuddling_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLesbianCuddling_A1_S1", "NibblesLesbianCuddling_A1_S2", "NibblesLesbianCuddling_A1_S3", "NibblesLesbianCuddling_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLesbianCuddling_A2_S1", "NibblesLesbianCuddling_A2_S2", "NibblesLesbianCuddling_A2_S3", "NibblesLesbianCuddling_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLesbianCuddling_A1_S1", "NibblesLesbianCuddling_A1_S2", "NibblesLesbianCuddling_A1_S3", "NibblesLesbianCuddling_A1_S4", "NibblesLesbianCuddling_A1_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLesbianCuddling_A2_S1", "NibblesLesbianCuddling_A2_S2", "NibblesLesbianCuddling_A2_S3", "NibblesLesbianCuddling_A2_S4", "NibblesLesbianCuddling_A2_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousBelt" : [
+			{
+				"A1" : {
+						"anim" : [ "Nibblesstandingfuck4_A1_S1", "Nibblesstandingfuck4_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 2307
+					},
+				"A2" : {
+						"anim" : [ "Nibblesstandingfuck4_A2_S1", "Nibblesstandingfuck4_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2314
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesstandingfuck4_A1_S1", "Nibblesstandingfuck4_A1_S2", "Nibblesstandingfuck4_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"A2" : {
+						"anim" : [ "Nibblesstandingfuck4_A2_S1", "Nibblesstandingfuck4_A2_S2", "Nibblesstandingfuck4_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesstandingfuck4_A1_S1", "Nibblesstandingfuck4_A1_S2", "Nibblesstandingfuck4_A1_S3", "Nibblesstandingfuck4_A1_S4", "Nibblesstandingfuck4_A1_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesstandingfuck4_A2_S1", "Nibblesstandingfuck4_A2_S2", "Nibblesstandingfuck4_A2_S3", "Nibblesstandingfuck4_A2_S4", "Nibblesstandingfuck4_A2_S5" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesdoggystyle3_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesdoggystyle3_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 2312
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesreversecowgirl2_A1_S1", "Nibblesreversecowgirl2_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesreversecowgirl2_A2_S1", "Nibblesreversecowgirl2_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2307
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesbellyflop_A1_S1", "Nibblesbellyflop_A1_S2", "Nibblesbellyflop_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesbellyflop_A2_S1", "Nibblesbellyflop_A2_S2", "Nibblesbellyflop_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesFaceSitting_A1_S1", "NibblesFaceSitting_A1_S2", "NibblesFaceSitting_A1_S3", "NibblesFaceSitting_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesFaceSitting_A2_S1", "NibblesFaceSitting_A2_S2", "NibblesFaceSitting_A2_S3", "NibblesFaceSitting_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesFaceSitting_A1_S1", "NibblesFaceSitting_A1_S2", "NibblesFaceSitting_A1_S3", "NibblesFaceSitting_A1_S4", "NibblesFaceSitting_A1_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesFaceSitting_A2_S1", "NibblesFaceSitting_A2_S2", "NibblesFaceSitting_A2_S3", "NibblesFaceSitting_A2_S4", "NibblesFaceSitting_A2_S5" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLapFuck_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLapFuck_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLapFuck_A1_S1", "NibblesLapFuck_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLapFuck_A2_S1", "NibblesLapFuck_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLapFuck2_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLapFuck2_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLapFuck2_A1_S1", "NibblesLapFuck2_A1_S2" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLapFuck2_A2_S1", "NibblesLapFuck2_A2_S2" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLapFuck2_A1_S1", "NibblesLapFuck2_A1_S2", "NibblesLapFuck2_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLapFuck2_A2_S1", "NibblesLapFuck2_A2_S2", "NibblesLapFuck2_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLapFuck2_A1_S1", "NibblesLapFuck2_A1_S2", "NibblesLapFuck2_A1_S3", "NibblesLapFuck2_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLapFuck2_A2_S1", "NibblesLapFuck2_A2_S2", "NibblesLapFuck2_A2_S3", "NibblesLapFuck2_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesLapFuck2_A1_S1", "NibblesLapFuck2_A1_S2", "NibblesLapFuck2_A1_S3", "NibblesLapFuck2_A1_S4", "NibblesLapFuck2_A1_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesLapFuck2_A2_S1", "NibblesLapFuck2_A2_S2", "NibblesLapFuck2_A2_S3", "NibblesLapFuck2_A2_S4", "NibblesLapFuck2_A2_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousPlug" : [
+			{
+				"A1" : {
+						"anim" : [ "Nibblesanalfingering_A1_S1", "Nibblesanalfingering_A1_S2", "Nibblesanalfingering_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesanalfingering_A2_S1", "Nibblesanalfingering_A2_S2", "Nibblesanalfingering_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 2050
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesanalfingering_A1_S1", "Nibblesanalfingering_A1_S2", "Nibblesanalfingering_A1_S3", "Nibblesanalfingering_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesanalfingering_A2_S1", "Nibblesanalfingering_A2_S2", "Nibblesanalfingering_A2_S3", "Nibblesanalfingering_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 2050
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesanalfingering_A1_S1", "Nibblesanalfingering_A1_S2", "Nibblesanalfingering_A1_S3", "Nibblesanalfingering_A1_S4", "Nibblesanalfingering_A1_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesanalfingering_A2_S1", "Nibblesanalfingering_A2_S2", "Nibblesanalfingering_A2_S3", "Nibblesanalfingering_A2_S4", "Nibblesanalfingering_A2_S5" ], 
+						"req" : 0, 
+						"opt" : 2050
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesFaceSitting_A1_S1", "NibblesFaceSitting_A1_S2", "NibblesFaceSitting_A1_S3", "NibblesFaceSitting_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesFaceSitting_A2_S1", "NibblesFaceSitting_A2_S2", "NibblesFaceSitting_A2_S3", "NibblesFaceSitting_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesFaceSitting_A1_S1", "NibblesFaceSitting_A1_S2", "NibblesFaceSitting_A1_S3", "NibblesFaceSitting_A1_S4", "NibblesFaceSitting_A1_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesFaceSitting_A2_S1", "NibblesFaceSitting_A2_S2", "NibblesFaceSitting_A2_S3", "NibblesFaceSitting_A2_S4", "NibblesFaceSitting_A2_S5" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousPlugVaginal" : [
+			{
+				"A1" : {
+						"anim" : [ "Nibblesanalfingering_A1_S1", "Nibblesanalfingering_A1_S2", "Nibblesanalfingering_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesanalfingering_A2_S1", "Nibblesanalfingering_A2_S2", "Nibblesanalfingering_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 2050
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesanalfingering_A1_S1", "Nibblesanalfingering_A1_S2", "Nibblesanalfingering_A1_S3", "Nibblesanalfingering_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesanalfingering_A2_S1", "Nibblesanalfingering_A2_S2", "Nibblesanalfingering_A2_S3", "Nibblesanalfingering_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 2050
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesanalfingering_A1_S1", "Nibblesanalfingering_A1_S2", "Nibblesanalfingering_A1_S3", "Nibblesanalfingering_A1_S4", "Nibblesanalfingering_A1_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesanalfingering_A2_S1", "Nibblesanalfingering_A2_S2", "Nibblesanalfingering_A2_S3", "Nibblesanalfingering_A2_S4", "Nibblesanalfingering_A2_S5" ], 
+						"req" : 0, 
+						"opt" : 2050
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesFaceSitting_A1_S1", "NibblesFaceSitting_A1_S2", "NibblesFaceSitting_A1_S3", "NibblesFaceSitting_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesFaceSitting_A2_S1", "NibblesFaceSitting_A2_S2", "NibblesFaceSitting_A2_S3", "NibblesFaceSitting_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesFaceSitting_A1_S1", "NibblesFaceSitting_A1_S2", "NibblesFaceSitting_A1_S3", "NibblesFaceSitting_A1_S4", "NibblesFaceSitting_A1_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesFaceSitting_A2_S1", "NibblesFaceSitting_A2_S2", "NibblesFaceSitting_A2_S3", "NibblesFaceSitting_A2_S4", "NibblesFaceSitting_A2_S5" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousPlugAnal" : [
+			{
+				"A1" : {
+						"anim" : [ "Nibblesanalfingering_A1_S1", "Nibblesanalfingering_A1_S2", "Nibblesanalfingering_A1_S3" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesanalfingering_A2_S1", "Nibblesanalfingering_A2_S2", "Nibblesanalfingering_A2_S3" ], 
+						"req" : 0, 
+						"opt" : 2050
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesanalfingering_A1_S1", "Nibblesanalfingering_A1_S2", "Nibblesanalfingering_A1_S3", "Nibblesanalfingering_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesanalfingering_A2_S1", "Nibblesanalfingering_A2_S2", "Nibblesanalfingering_A2_S3", "Nibblesanalfingering_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 2050
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "Nibblesanalfingering_A1_S1", "Nibblesanalfingering_A1_S2", "Nibblesanalfingering_A1_S3", "Nibblesanalfingering_A1_S4", "Nibblesanalfingering_A1_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesanalfingering_A2_S1", "Nibblesanalfingering_A2_S2", "Nibblesanalfingering_A2_S3", "Nibblesanalfingering_A2_S4", "Nibblesanalfingering_A2_S5" ], 
+						"req" : 0, 
+						"opt" : 2050
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesFaceSitting_A1_S1", "NibblesFaceSitting_A1_S2", "NibblesFaceSitting_A1_S3", "NibblesFaceSitting_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesFaceSitting_A2_S1", "NibblesFaceSitting_A2_S2", "NibblesFaceSitting_A2_S3", "NibblesFaceSitting_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesFaceSitting_A1_S1", "NibblesFaceSitting_A1_S2", "NibblesFaceSitting_A1_S3", "NibblesFaceSitting_A1_S4", "NibblesFaceSitting_A1_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesFaceSitting_A2_S1", "NibblesFaceSitting_A2_S2", "NibblesFaceSitting_A2_S3", "NibblesFaceSitting_A2_S4", "NibblesFaceSitting_A2_S5" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousPiercingsVaginal" : [
+			{
+				"A1" : {
+						"anim" : [ "NibblesFaceSitting_A1_S1", "NibblesFaceSitting_A1_S2", "NibblesFaceSitting_A1_S3", "NibblesFaceSitting_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesFaceSitting_A2_S1", "NibblesFaceSitting_A2_S2", "NibblesFaceSitting_A2_S3", "NibblesFaceSitting_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesFaceSitting_A1_S1", "NibblesFaceSitting_A1_S2", "NibblesFaceSitting_A1_S3", "NibblesFaceSitting_A1_S4", "NibblesFaceSitting_A1_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesFaceSitting_A2_S1", "NibblesFaceSitting_A2_S2", "NibblesFaceSitting_A2_S3", "NibblesFaceSitting_A2_S4", "NibblesFaceSitting_A2_S5" ], 
+						"req" : 0, 
+						"opt" : 2306
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousBondageMittens" : [
+			{
+				"A1" : {
+						"anim" : [ "Nibblesreversecowgirl2_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesreversecowgirl2_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousArmCuffs" : [
+			{
+				"A1" : {
+						"anim" : [ "Nibblesreversecowgirl2_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesreversecowgirl2_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousGloves" : [
+			{
+				"A1" : {
+						"anim" : [ "Nibblesreversecowgirl2_A1_S1" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "Nibblesreversecowgirl2_A2_S1" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 5,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousBoots" : [
+			{
+				"A1" : {
+						"anim" : [ "NibblesCowgirlFemdom_A2_S1", "NibblesCowgirlFemdom_A2_S2", "NibblesCowgirlFemdom_A2_S3", "NibblesCowgirlFemdom_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesCowgirlFemdom_A1_S1", "NibblesCowgirlFemdom_A1_S2", "NibblesCowgirlFemdom_A1_S3", "NibblesCowgirlFemdom_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesCowgirlFemdom_A2_S1", "NibblesCowgirlFemdom_A2_S2", "NibblesCowgirlFemdom_A2_S3", "NibblesCowgirlFemdom_A2_S4", "NibblesCowgirlFemdom_A2_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesCowgirlFemdom_A1_S1", "NibblesCowgirlFemdom_A1_S2", "NibblesCowgirlFemdom_A1_S3", "NibblesCowgirlFemdom_A1_S4", "NibblesCowgirlFemdom_A1_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}
+		], 
+		"zad_DeviousLegCuffs" : [
+			{
+				"A1" : {
+						"anim" : [ "NibblesCowgirlFemdom_A2_S1", "NibblesCowgirlFemdom_A2_S2", "NibblesCowgirlFemdom_A2_S3", "NibblesCowgirlFemdom_A2_S4" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesCowgirlFemdom_A1_S1", "NibblesCowgirlFemdom_A1_S2", "NibblesCowgirlFemdom_A1_S3", "NibblesCowgirlFemdom_A1_S4" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}, {
+				"A1" : {
+						"anim" : [ "NibblesCowgirlFemdom_A2_S1", "NibblesCowgirlFemdom_A2_S2", "NibblesCowgirlFemdom_A2_S3", "NibblesCowgirlFemdom_A2_S4", "NibblesCowgirlFemdom_A2_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"A2" : {
+						"anim" : [ "NibblesCowgirlFemdom_A1_S1", "NibblesCowgirlFemdom_A1_S2", "NibblesCowgirlFemdom_A1_S3", "NibblesCowgirlFemdom_A1_S4", "NibblesCowgirlFemdom_A1_S5" ], 
+						"req" : 0, 
+						"opt" : 2304
+					},
+				"lewd" : 9,
+				"aggr" : 0
+			}
+		]
+	}
+}

@@ -174,6 +174,7 @@ Function StopAnimation(Actor akActor, Actor akHelper = None, Bool abEnableActors
         UnlockAnimatingActor(akActor, abEnableActors)
         ; restoring HH if it was removed in StartPairAnimation
         _RestoreHeelEffect(akActor)
+        Debug.SendAnimationEvent(akActor, "AnimObjectUnequip")
         Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
     endif
     
@@ -184,6 +185,7 @@ Function StopAnimation(Actor akActor, Actor akHelper = None, Bool abEnableActors
         UnlockAnimatingActor(akHelper, abEnableActors)
         ; restoring HH if it was removed in StartPairAnimation
         _RestoreHeelEffect(akHelper)
+        Debug.SendAnimationEvent(akHelper, "AnimObjectUnequip")
         Debug.SendAnimationEvent(akHelper, "IdleForceDefaultState")
         _RestoreActorPosition(akHelper)
     EndIf
