@@ -1869,15 +1869,19 @@ EndFunction
 ;===============================================================================
 
 ;Arousal update
+Float _dfArousal = 0.0
+
 Function InitArousalUpdate()
     GetActor().AddToFaction(UDOM.ArousalCheckLoopFaction)
 EndFunction
 
 Function UpdateArousal(Int aiUpdateTime)
     Actor   loc_actor = GetActor()
-    Float   loc_arousalRate = UDOM.getArousalRateM(loc_actor)
-    Int     loc_arousal     = Round(loc_arousalRate)*aiUpdateTime
-    
+    Float   loc_arousalRate =   UDOM.getArousalRateM(loc_actor)*aiUpdateTime
+            _dfArousal      +=  loc_arousalRate - Math.Floor(loc_arousalRate)   ;increase total float point difference
+    Int     loc_arousal     =   Math.Floor(loc_arousalRate) + Math.Floor(_dfArousal)
+            _dfArousal      -=  Math.Floor(_dfArousal)                          ;decrease total float point difference by whole number
+
     if loc_arousal != 0
         loc_actor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.UpdateArousal(loc_actor ,loc_arousal))
     else
