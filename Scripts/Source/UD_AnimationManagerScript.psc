@@ -443,9 +443,9 @@ EndFunction
 ; asAnimDef                      animation definition from json, should be in format <file_name>:<path_in_file>
 ; akActors                       actors who will participate
 ; abContinueAnimation            flag that the animation continues with already locked actors
-Bool Function PlayAnimationByDef(String asAnimDef, Actor[] aakActors, Bool abContinueAnimation = False, Bool abDisableActors = True)
+Bool Function PlayAnimationByDef(String asAnimDef, Actor[] aakActors, Bool abContinueAnimation = False, Bool abDisableActors = True, Int aiConstraintsOverrideA1 = -1, Int aiConstraintsOverrideA2 = -1)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::PlayAnimationByDef() asAnimDef = " + asAnimDef + ", aakActors = " + aakActors + ", abContinueAnimation = " + abContinueAnimation + ", abDisableActors = " + abDisableActors, 3)
+        UDmain.Log("UD_AnimationManagerScript::PlayAnimationByDef() asAnimDef = " + asAnimDef + ", aakActors = " + aakActors + ", abContinueAnimation = " + abContinueAnimation + ", abDisableActors = " + abDisableActors + ", aiConstraintsOverrideA1 = " + aiConstraintsOverrideA1 + ", aiConstraintsOverrideA2 = " + aiConstraintsOverrideA2, 3)
     EndIf
     
     Int part_index = StringUtil.Find(asAnimDef, ":")
@@ -459,7 +459,14 @@ Bool Function PlayAnimationByDef(String asAnimDef, Actor[] aakActors, Bool abCon
     
     Int k = 0
     While k < aakActors.Length
-        Int actor_constraints = GetActorConstraintsInt(aakActors[k])
+        Int actor_constraints
+        If aiConstraintsOverrideA1 > 0 && k == 0
+            actor_constraints = aiConstraintsOverrideA1
+        ElseIf aiConstraintsOverrideA2 > 0 && k == 1
+            actor_constraints = aiConstraintsOverrideA2
+        Else
+            actor_constraints = GetActorConstraintsInt(aakActors[k])
+        EndIf
         String anim_var_path = path + ".A" + (k + 1)
         ; checking if it has variations
         Bool has_vars = JsonUtil.GetPathIntValue(file, anim_var_path + ".req", -1) == -1
@@ -983,7 +990,7 @@ Int Function GetActorConstraintsInt(Actor akActor, Bool abUseCache = True)
         Return 0
     EndIf
 	Int result = 0
-    If abUseCache && StorageUtil.HasIntValue(akActor, "UD_ActorConstraintsInt")
+    If abUseCache && StorageUtil.HasIntValue(akActor, "UD_ActorConstraintsInt") && (StorageUtil.GetIntValue(akActor, "UD_ActorConstraintsInt_Invalid", 0) == 0)
         Return StorageUtil.GetIntValue(akActor, "UD_ActorConstraintsInt")
     EndIf
     If akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirt) && !akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirtRelaxed)
@@ -1019,8 +1026,19 @@ Int Function GetActorConstraintsInt(Actor akActor, Bool abUseCache = True)
 	If akActor.WornHasKeyword(libs.zad_DeviousGag)
 		result += 2048
 	EndIf
+    StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt_Invalid", 0)
     StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt", result)
     Return result
+EndFunction
+
+Function InvalidateActorConstraintsInt(Actor akActor)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::InvalidateActorConstraintsInt() akActor = " + akActor, 3)
+    EndIf
+    If akActor == None
+        Return
+    EndIf
+    StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt_Invalid", 1)
 EndFunction
 
 ; Function GetHeavyBondageKeyword

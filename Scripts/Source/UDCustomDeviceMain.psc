@@ -703,8 +703,8 @@ Function startScript(UD_CustomDevice_RenderScript oref)
     elseif isRegistered(oref.getWearer())
         registerDevice(oref)
     endif
-    ; updating constraintsInt for the actor
-    UDAM.GetActorConstraintsInt(oref.getWearer(), False)
+    ; invalidate constraintsInt for the actor to update it on the next call
+    UDAM.InvalidateActorConstraintsInt(oref.getWearer())
 EndFunction
 
 Function endScript(UD_CustomDevice_RenderScript oref)
@@ -715,8 +715,8 @@ Function endScript(UD_CustomDevice_RenderScript oref)
     if isRegistered(oref.getWearer())
         unregisterDevice(oref)
     endif
-    ; updating constraintsInt for the actor
-    UDAM.GetActorConstraintsInt(oref.getWearer(), False)
+    ; invalidate constraintsInt for the actor to update it on the next call
+    UDAM.InvalidateActorConstraintsInt(oref.getWearer())
 EndFunction
 
 Function RegisterGlobalKeys()

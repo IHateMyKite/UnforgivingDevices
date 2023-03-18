@@ -1605,16 +1605,14 @@ Function OptionSelectAnimations(int option)
                     Actor[] actors = new Actor[2]
                     actors[0] = Game.GetPlayer()
                     actors[1] = LastHelper
-                    Int[] constr = new Int[2]
-                    constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int)
-                    constr[1] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_HelperArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_HelperLegs_Index] + 256 * (UDAM_TestQuery_HelperMittens as Int)
-                    UDAM.PlayAnimationByDef(val, actors, constr)
+                    Int constrA1 = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int)
+                    Int constrA2 = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_HelperArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_HelperLegs_Index] + 256 * (UDAM_TestQuery_HelperMittens as Int)
+                    UDAM.PlayAnimationByDef(val, actors, False, True, constrA1, constrA2)
                 Else
                     Actor[] actors = new Actor[1]
                     actors[0] = Game.GetPlayer()
-                    Int[] constr = new Int[1]
-                    constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int)
-                    UDAM.PlayAnimationByDef(val, actors, constr)
+                    Int constr = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int)
+                    UDAM.PlayAnimationByDef(val, actors, False, True, constr)
                 EndIf
             EndIf
         EndIf
