@@ -460,9 +460,9 @@ Bool Function PlayAnimationByDef(String asAnimDef, Actor[] aakActors, Bool abCon
     Int k = 0
     While k < aakActors.Length
         Int actor_constraints
-        If aiConstraintsOverrideA1 > 0 && k == 0
+        If aiConstraintsOverrideA1 >= 0 && k == 0
             actor_constraints = aiConstraintsOverrideA1
-        ElseIf aiConstraintsOverrideA2 > 0 && k == 1
+        ElseIf aiConstraintsOverrideA2 >= 0 && k == 1
             actor_constraints = aiConstraintsOverrideA2
         Else
             actor_constraints = GetActorConstraintsInt(aakActors[k])
