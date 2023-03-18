@@ -127,7 +127,7 @@ Event OnKeyDown(Int KeyCode)
             return ;player is bussy, do not open menu
         endif
         if UDmain.TraceAllowed()
-            UDCDmain.Log("UD_HardcoreDisable_Script - OnKeyDown for " + KeyCode,3)
+            UDmain.Log("UD_HardcoreDisable_Script - OnKeyDown for " + KeyCode,3)
         endif
         If KeyCode == _MapKeyCode
             OpenMenu(_MapKeyCode, "MapMenu")
@@ -152,7 +152,7 @@ EndFunction
 
 Event OnMenuOpen(String MenuName)
     if UDmain.TraceAllowed()
-        UDCDmain.Log("UD_HardcoreDisable_Script - OnMenuOpen for " + MenuName,3)
+        UDmain.Log("UD_HardcoreDisable_Script - OnMenuOpen for " + MenuName,3)
     endif
     If MenuName == "MapMenu"
         _MenuOpen = true
@@ -165,7 +165,7 @@ EndEvent
 
 Event OnMenuClose(String MenuName)
     if UDmain.TraceAllowed()
-        UDCDmain.Log("UD_HardcoreDisable_Script - OnMenuClose for " + MenuName,3)
+        UDmain.Log("UD_HardcoreDisable_Script - OnMenuClose for " + MenuName,3)
     endif
     If MenuName == "MapMenu"
         CloseOpenedMenu(_MapKeyCode, "MapMenu")

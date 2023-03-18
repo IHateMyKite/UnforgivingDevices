@@ -71,9 +71,9 @@ Function UpdateCharge(Float fValue)
     if WearerIsPlayer() || UDCDmain.AllowNPCMessage(GetWearer())
         if _currentCharge < UD_MaxCharge && (_currentCharge + fValue) >= UD_MaxCharge
             if WearerIsPlayer()
-                UDCDmain.Print("Your " + GetDeviceName() + " is fully charged!")
+                UDmain.Print("Your " + GetDeviceName() + " is fully charged!")
             elseif UDCDmain.AllowNPCMessage(GetWearer())
-                UDCDmain.Print(getDeviceHeader() + " is fully charged!")
+                UDmain.Print(getDeviceHeader() + " is fully charged!")
             endif
         endif
     endif

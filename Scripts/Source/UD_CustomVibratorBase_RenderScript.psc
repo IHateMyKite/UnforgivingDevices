@@ -706,7 +706,7 @@ Function VibPauseStop()
         setArousalRate(getVibArousalRate())
         StartVibSound()
         if WearerIsPlayer()
-            UDCDmain.Print(getDeviceName() + " has come back to life, arousing you once again",3)
+            UDmain.Print(getDeviceName() + " has come back to life, arousing you once again",3)
         endif
     endif
     _PauseTimer = 0
@@ -727,7 +727,7 @@ Function ProccesVibEdge()
         if _currentEdgingMode == 1
             if UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
                 if WearerIsPlayer() && !UDMain.UDWC.UD_FilterVibNotifications
-                    UDCDmain.Print(getDeviceName() + " suddenly stops vibrating!",3)
+                    UDmain.Print(getDeviceName() + " suddenly stops vibrating!",3)
                 endif
                 pauseVibFor(10)
             endif
@@ -735,7 +735,7 @@ Function ProccesVibEdge()
             if UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
                 if Utility.randomInt() < iRange(CurrentVibStrength, 40 , 80)
                     if WearerIsPlayer() && !UDMain.UDWC.UD_FilterVibNotifications
-                        UDCDmain.Print(getDeviceName() + " suddenly stops vibrating!",3)
+                        UDmain.Print(getDeviceName() + " suddenly stops vibrating!",3)
                     endif
                     pauseVibFor(Utility.randomInt(30,60))
                 endif
@@ -798,10 +798,10 @@ EndFunction
 Function PrintVibMessage_Stop()
     if WearerIsPlayer()
         If !UDMain.UDWC.UD_FilterVibNotifications
-            UDCDmain.Print(getDeviceName() + " stops vibrating.",2)
+            UDmain.Print(getDeviceName() + " stops vibrating.",2)
         EndIf
     elseif UDCDmain.AllowNPCMessage(GetWearer())
-        UDCDmain.Print(getWearerName() + "s " + getDeviceName() + " stops vibrating.",3)
+        UDmain.Print(getWearerName() + "s " + getDeviceName() + " stops vibrating.",3)
     endif
 EndFunction
 

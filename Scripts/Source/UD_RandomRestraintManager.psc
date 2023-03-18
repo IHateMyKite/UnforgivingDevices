@@ -92,7 +92,7 @@ bool ready = false
 Event onInit()
     FillOutCheckKeywords()
     if UDmain.TraceAllowed()    
-        UDCDmain.Log("-UDRRM initiated-")
+        UDmain.Log("-UDRRM initiated-")
     endif
     ready = True
 EndEvent
@@ -100,7 +100,7 @@ EndEvent
 Function Update()
     FillOutCheckKeywords()
     if UDmain.TraceAllowed()    
-        UDCDmain.Log("Refilled Keywords formlist")
+        UDmain.Log("Refilled Keywords formlist")
     endif
 EndFunction
 
@@ -315,7 +315,7 @@ EndFunction
 ;PC frier 8000
 Armor Function getRandomSuitableRestrain(Actor akActor,Int iPrefSwitch = 0xffffffff)
     if UDmain.TraceAllowed()    
-        UDCDmain.Log("getRandomSuitableRestrain called for " + GetActorName(akActor),3)
+        UDmain.Log("getRandomSuitableRestrain called for " + GetActorName(akActor),3)
     endif
     iPrefSwitch = Math.LogicalAnd(iPrefSwitch,UD_RandomDevice_GlobalFilter)
     Armor res = none
@@ -343,22 +343,22 @@ EndFunction
 
 Armor Function LockRandomRestrain(Actor akActor,Bool force = false,Int iPrefSwitch = 0xffffffff)
     if UDmain.TraceAllowed()    
-        UDCDmain.Log("LockRandomRestrain called for " + GetActorName(akActor))
+        UDmain.Log("LockRandomRestrain called for " + GetActorName(akActor))
     endif
     iPrefSwitch = Math.LogicalAnd(iPrefSwitch,UD_RandomDevice_GlobalFilter)
     Armor device = none
     Keyword selected_keyword = getRandomSuitableKeyword(akActor,iPrefSwitch)
     if !selected_keyword
-        UDCDmain.Log("No suitable keyword found. Skipping!")
+        UDmain.Log("No suitable keyword found. Skipping!")
         return none
     endif
     if UDmain.TraceAllowed()    
-        UDCDmain.Log("Selected keyword: " + selected_keyword)
+        UDmain.Log("Selected keyword: " + selected_keyword)
     endif
     device = getRandomDeviceByKeyword_LL(akActor, selected_keyword);switch to LL is here
     if device
         if UDmain.TraceAllowed()        
-            UDCDmain.Log("Selected device: " + device.getName())
+            UDmain.Log("Selected device: " + device.getName())
         endif
         
         if libs.lockdevice(akActor,device,force)
@@ -374,18 +374,18 @@ EndFunction
 
 int Function LockAllSuitableRestrains(Actor akActor,Bool force = false,Int iPrefSwitch = 0xffffffff)
     if UDmain.TraceAllowed()    
-        UDCDmain.Log("LockAllSuitableRestrains called for " + akActor.getActorBase().getName(),2)
+        UDmain.Log("LockAllSuitableRestrains called for " + akActor.getActorBase().getName(),2)
     endif
     iPrefSwitch = Math.LogicalAnd(iPrefSwitch,UD_RandomDevice_GlobalFilter)
     Form[] loc_keywords = getAllSuitableKeywords(akActor,iPrefSwitch)
     if !loc_keywords
         if UDmain.TraceAllowed()        
-            UDCDmain.Log("No suitable keyword found. Skipping!")
+            UDmain.Log("No suitable keyword found. Skipping!")
         endif
         return 0
     endif
     if UDmain.TraceAllowed()    
-        UDCDmain.Log("Selected keyword: " + loc_keywords,2)
+        UDmain.Log("Selected keyword: " + loc_keywords,2)
     endif
     
     Armor device = none
@@ -395,7 +395,7 @@ int Function LockAllSuitableRestrains(Actor akActor,Bool force = false,Int iPref
         device = getRandomDeviceByKeyword_LL(akActor,loc_keywords[loc_i] as Keyword)
         if device
             if UDmain.TraceAllowed()            
-                UDCDmain.Log("Selected device: " + device.getName(),2)
+                UDmain.Log("Selected device: " + device.getName(),2)
             endif
             if libs.lockdevice(akActor,device,force)
                 loc_res += 1
@@ -424,13 +424,13 @@ EndFunction
 
 Armor Function getRandomFormFromLeveledlist(LeveledItem argList) ;this function is redundant, easier to use zadDL.GetRandomDevice
     if !argList ;wrong leveledlist, exit
-        UDCDmain.Error("getRandomFormFromLeveledlist(), argList = none!")
+        UDmain.Error("getRandomFormFromLeveledlist(), argList = none!")
         return none
     endif
     LeveledItem loc_list = argList
     while True
         if UDmain.TraceAllowed()
-            UDCDmain.Log("getRandomFormFromLeveledlist(), Proccesing " + loc_list)
+            UDmain.Log("getRandomFormFromLeveledlist(), Proccesing " + loc_list)
         endif
         int loc_size = loc_list.GetNumForms()
         if loc_size > 0

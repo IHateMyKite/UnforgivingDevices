@@ -9,7 +9,7 @@ MagicEffect _MagickEffect = none
 Event OnEffectStart(Actor akTarget, Actor akCaster)
     _target = akTarget
     if UDCDmain.TraceAllowed()    
-        UDCDmain.Log("Minigame disabler started for " + _target +"!",2)
+        UDmain.Log("Minigame disabler started for " + _target +"!",2)
     endif
     _MagickEffect = GetBaseObject()
     registerForSingleUpdate(0.1)
@@ -18,7 +18,7 @@ EndEvent
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
     _finished = true
     if UDCDmain.TraceAllowed()    
-        UDCDmain.Log("Minigame disabler OnEffectFinish() for " + _target,1)
+        UDmain.Log("Minigame disabler OnEffectFinish() for " + _target,1)
     endif
     
     ;wait for onUpdate function to finish if it started
@@ -41,7 +41,7 @@ Event OnUpdate()
     loc_precessing = true
     if _target.hasMagicEffect(_MagickEffect) && !_finished
         if UDCDmain.TraceAllowed()        
-            UDCDmain.Log("Minigame disabler updated for " + _target,1)
+            UDmain.Log("Minigame disabler updated for " + _target,1)
         endif
         if _target.hasMagicEffect(_MagickEffect)  && !_finished
             if _target == Game.getPlayer()

@@ -180,9 +180,9 @@ EndFunction
 Function TieUp()
     if !_tied
         if WearerIsPlayer()
-            UDCDmain.Print(getDeviceName() + " is tying you up!")
+            UDmain.Print(getDeviceName() + " is tying you up!")
         elseif UDCDmain.AllowNPCMessage(getWearer())
-            UDCDmain.Print(getWearerName() + "s " + getDeviceName() + " is tying them!")    
+            UDmain.Print(getWearerName() + "s " + getDeviceName() + " is tying them!")    
         endif
         _tied = true
         if isMinigameOn()

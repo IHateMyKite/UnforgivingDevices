@@ -12,7 +12,7 @@ int loc_type = 3
 Event OnEffectStart(Actor akTarget, Actor akCaster)
     _target = akTarget
     if UDmain.TraceAllowed()    
-        UDCDmain.Log("UD_ZAZTears_AME started for " + GetActorName(_target),2)
+        UDmain.Log("UD_ZAZTears_AME started for " + GetActorName(_target),2)
     endif
     loc_type = iRange(Round(GetMagnitude()),1,5)
     if loc_type == 5
@@ -25,7 +25,7 @@ EndEvent
 
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
     if UDmain.TraceAllowed()    
-        UDCDmain.Log("UD_ZAZTears_AME OnEffectFinish() for " + GetActorName(_target),1)
+        UDmain.Log("UD_ZAZTears_AME OnEffectFinish() for " + GetActorName(_target),1)
     endif
     if UDmain.SlaveTatsInstalled
         SlaveTats.simple_remove_tattoo(_target, "Tears", "Tears " + loc_type, true, true)

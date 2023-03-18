@@ -1662,8 +1662,6 @@ Function OptionSelectDebug(int option)
     if fixBugs_T == option
         closeMCM()
         UDCD_NPCM.getNPCSlotByIndex(actorIndex).fix()
-        ;UDCDmain.removeCopies(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
-        ;forcePageReset()
     elseif unlockAll_T == option
         closeMCM()
         UDCDmain.removeAllDevices(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())

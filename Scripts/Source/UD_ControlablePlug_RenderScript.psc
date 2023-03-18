@@ -175,7 +175,7 @@ bool Function OnCritDevicePre()
             if Utility.randomInt() < 15 ;25% chance
                 removeVibStrength(10)
                 if WearerIsPlayer()
-                    UDCDMain.Print("You notice that the " + getDeviceName() + " vibrates weaker than before",2)
+                    UDmain.Print("You notice that the " + getDeviceName() + " vibrates weaker than before",2)
                 endif
             endif
         endif
@@ -192,9 +192,9 @@ Function OnUpdatePost(float timePassed)
         if minutes_updated >= 15.0
             int loc_newStrength = Utility.randomInt(25,100)
             if WearerIsPlayer()
-                UDCDmain.Print("Your " + getDeviceName() + " changes its vibration strength!",2)
+                UDmain.Print("Your " + getDeviceName() + " changes its vibration strength!",2)
             elseif WearerIsFollower()
-                UDCDmain.Print(getWearerName() + "s " + getDeviceName() + " changes its vibration strength!",2)
+                UDmain.Print(getWearerName() + "s " + getDeviceName() + " changes its vibration strength!",2)
             endif
             forceStrength(loc_newStrength)
             minutes_updated = 0.0

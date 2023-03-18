@@ -119,7 +119,7 @@ Event OnInit()
             Utility.wait(0.1)
         endwhile
         if UDmain.TraceAllowed()
-            UDCDMain.Log(self + "::OnInit() - NPCslot["+ index +"] ready!")
+            UDmain.Log(self + "::OnInit() - NPCslot["+ index +"] ready!")
         endif
         index += 1
         Utility.wait(0.05)
@@ -292,7 +292,7 @@ Function initPlayerSlot()
         UDOM.CheckOrgasmCheck(UDmain.Player)
         UDOM.CheckArousalCheck(UDmain.Player)
         if UDmain.TraceAllowed()    
-            UDCDMain.Log("PlayerSlot ready!")
+            UDmain.Log("PlayerSlot ready!")
         endif
     endif
 EndFunction

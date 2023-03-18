@@ -243,7 +243,7 @@ int Function ManifestDevices(Actor akActor,string strSource ,int iChance,int iNu
     Form[] loc_array
     if Utility.randomInt(1,99) < iChance
         while iNumber
-            while UDmain.UDOM.isOrgasming(akActor);UDCDmain.InSelabAnimation(getWearer()) || UDCDmain.InZadAnimation(getWearer())
+            while UDmain.UDOM.isOrgasming(akActor)
                 Utility.wait(0.1)
             endwhile
             iNumber -= 1

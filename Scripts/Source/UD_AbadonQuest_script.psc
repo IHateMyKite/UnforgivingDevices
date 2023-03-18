@@ -39,14 +39,14 @@ Actor   Property UD_AbadonVictim auto
 Event onInit()
     registerForSingleUpdate(120.0)
     if UDmain.TraceAllowed()    
-        UDCDmain.Log("Abadon quest initiated")
+        UDmain.Log("Abadon quest initiated")
     endif
 EndEvent
 
 Event OnUpdate()
     if (DragonRising.isCompleted() && getStage() == 0)
         if UDmain.DebugMod
-            UDCDmain.Print("Abadon quest courier send")
+            UDmain.Print("Abadon quest courier send")
         endif
         setStage(10)
     else
