@@ -1025,7 +1025,7 @@ Function OpenHelpDeviceMenu(UD_CustomDevice_RenderScript device,Actor akHelper,b
             float loc_currenttime = Utility.GetCurrentGameTime()
             float loc_cooldowntime = StorageUtil.GetFloatValue(akHelper,"UDNPCCD:"+device.getWearer(),loc_currenttime)
             if loc_cooldowntime > loc_currenttime
-                Print("On cooldown! (" + ToUnsig(Round(((loc_cooldowntime - loc_currenttime)*24*60)))+" min)",0)
+                Print("On cooldown! (" + iUnsig(Round(((loc_cooldowntime - loc_currenttime)*24*60)))+" min)",0)
                 loc_cond = false
             endif
         endif
