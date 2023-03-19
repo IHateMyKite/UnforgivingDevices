@@ -56,7 +56,7 @@ EndFunction
 Function Fragment_1(ObjectReference akSpeakerRef)
 Actor akSpeaker = akSpeakerRef as Actor
 ;BEGIN CODE
-UDCDmain.HelpNPC(akSpeaker,Game.getPlayer(),UDCDmain.ActorIsFollower(akSpeaker))
+UDCDmain.HelpNPC(akSpeaker,Game.getPlayer(),UDCDmain.UDmain.ActorIsFollower(akSpeaker))
 ;END CODE
 EndFunction
 ;END FRAGMENT

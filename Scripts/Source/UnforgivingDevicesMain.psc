@@ -1,3 +1,5 @@
+;   File: UnforgivingDevicesMain
+;   This is main script of Unforgiving Devices, which contains most important functions and propertiest filled with references to other scripts
 Scriptname UnforgivingDevicesMain extends Quest  conditional
 {Main script of Unforgiving Devices}
 
@@ -93,7 +95,16 @@ UIListMenu      Property ListMenu   hidden
     EndFunction
 EndProperty
 
-;returns correct monager depending on actor
+;/  Function: GetUDOM
+
+    Parameters:
+
+        akActor - Actor whose UD_OrgasmManager should be returned
+
+    Returns:
+
+        Correct UD_OrgasmManager for passed actor. There are currently 2 iterations of script, one for NPCs and one for player
+/;
 UD_OrgasmManager Function GetUDOM(Actor akActor)
     if ActorIsPlayer(akActor)
         return UDOMPlayer
@@ -106,9 +117,17 @@ EndFunction
 ;IWantWidgets. Not currently used, but have some ideas for future. No scripts are currently required to compile
 Bool    Property iWidgetInstalled          = False      auto hidden
 Quest   Property iWidgetQuest                           auto
+
+;/  Function: UseiWW
+
+    Returns:
+
+        Returns true if iWantWidgets is installed and enabled in MCM
+/;
 Bool Function UseiWW()
     return iWidgetInstalled && UDWC.UD_UseIWantWidget
 EndFunction
+
 ;Global switches
 bool    property lockMCM                   = False      auto hidden
 bool    property UD_LockDebugMCM           = False      auto hidden
@@ -134,6 +153,12 @@ EndProperty
 float Property UD_LowPerformanceTime    = 1.0   autoreadonly
 float Property UD_HightPerformanceTime  = 0.25  autoreadonly
 
+;/  Variable: UD_baseUpdateTime
+
+    Returns:
+
+        Returns current update time of minigames
+/;
 float Property UD_baseUpdateTime hidden
     Float Function Get()
         if UDGV.UDG_CustomMinigameUpT.Value
@@ -164,10 +189,25 @@ Bool Property PO3Installed              = False auto hidden ;https://www.nexusmo
 Bool Property AllowMenBondage           = True auto hidden
 
 bool Property Ready = False auto hidden
+
+;/  Function: UDReady
+
+    Returns:
+
+        Returns true if mod is fully ready (not installing or updating)
+/;
 bool Function UDReady()
     return Ready
 EndFunction
 
+;/  Function: WaitForReady
+
+    This function will block thread until the mod is ready
+
+    Returns:
+
+        Returns true if there was error while waiting for mod to be ready
+/;
 Bool Function WaitForReady()
     while !Ready && !_FatalError
         Utility.waitMenuMode(0.5)
@@ -203,6 +243,16 @@ Event OnInit()
     endif
 EndEvent
 
+;/  Function: CheckSubModules
+
+    This function will check all submodul scripts and returns if true if they are all ready
+
+    In case one or more scripts don't get ready in first 20 seconds, it will toggle mod to error state, preventing any furthere gameplay. User needs to reload the save in hope that it will fix the issue.
+    
+    Returns:
+
+        Returns true if all submodules are ready and there is not error
+/;
 Bool Function CheckSubModules()
     Bool    loc_cond = False
     Int     loc_elapsedTime = 0
@@ -236,24 +286,37 @@ Bool Function CheckSubModules()
         return False
     endif
     _FatalError = False
-    return true ;all OK
+    return true && !_FatalError ;all OK
 EndFunction
 
 Bool Property _FatalError   = False Auto Hidden Conditional
 Bool Property _Disabled     = False Auto Hidden Conditional
 Bool Property _Updating     = False Auto Hidden Conditional
 
-;returns true if mod is currently updating. Mods should be threated as disabled when this happends
+;/  Function: IsUpdating
+
+    Returns:
+
+        True if mod is currently updating. Mods should be threated as disabled when this happends
+/;
 Bool Function IsUpdating()
     return _Updating
 EndFunction
 
-;returns true if UD is enabled
+;/  Function: IsEnabled
+
+    Returns:
+
+        True if mod is not updating, not disabled and is ready
+/;
 Bool Function IsEnabled()
     return !_Disabled && !_Updating && ready
 EndFunction
 
-;Disables, Enables UD
+;/  Function: DISABLE
+
+    Disables mod, preventing any periodicall updates and interactions
+/;
 Function DISABLE()
     _Disabled = True
     UDNPCM.GoToState("Disabled") ;disable NPC manager, disabling all device updates
@@ -261,6 +324,10 @@ Function DISABLE()
     UDOMNPC.GoToState("Disabled") ;disable orgasm updates
     UDOMPlayer.GoToState("Disabled") ;disable orgasm updates
 EndFunction
+;/  Function: ENABLE
+
+    Reenable mod from disabled state. See <DISABLE>
+/;
 Function ENABLE()
     _Disabled = False
     UDNPCM.GoToState("")
@@ -393,8 +460,8 @@ Function Update()
         Info("ZAD Expression System detected: DONE")
     endif
     
-    CheckOptionalMods()
-    CheckPatchesOrder()
+    _CheckOptionalMods()
+    _CheckPatchesOrder()
     
     if !Ready
         UD_hightPerformance = UD_hightPerformance
@@ -415,7 +482,7 @@ Function Update()
     UDCDmain.UpdateGenericKeys()
 EndFunction
 
-Function CheckOptionalMods()
+Function _CheckOptionalMods()
     UDNPCM.ResetIncompatibleFactionArray() ;reset incomatible scan factions
     
     If ModInstalled("ZaZAnimationPack.esm")
@@ -513,7 +580,7 @@ Function CheckOptionalMods()
     
 EndFUnction
 
-Function CheckPatchesOrder()
+Function _CheckPatchesOrder()
     int loc_it = 0
     while loc_it < UD_OfficialPatches.length
         if ModInstalled(UD_OfficialPatches[loc_it])
@@ -525,6 +592,22 @@ Function CheckPatchesOrder()
     endwhile
 EndFunction
 
+;/  Function: getDDescapeDifficulty
+
+    Returns:
+
+        --- Code
+        |======================================|
+        |   returns |           Meaning        |
+        |======================================|
+        |    00     =     Easiest difficulty   |
+        |    04     =     Default value        |
+        |    08     =     Hardest difficulty   |
+        |======================================|
+        ---
+
+        Integer which repsesent difficulty from Devious Devices framework
+/;
 int Function getDDescapeDifficulty()
     if UDCDmain.UD_UseDDdifficulty
         return (8 - DDconfig.EscapeDifficulty)
@@ -533,74 +616,148 @@ int Function getDDescapeDifficulty()
     endif
 EndFunction
 
+;/  Function: hasAnyUD
+
+    Returns:
+        True if player have any Devious Device locked on
+/;
 bool function hasAnyUD()
     return Player.wornhaskeyword(libs.zad_Lockable)
 endfunction
 
-;vib function queue
-Function startVibEffect(Actor akActor,int strength,int duration,bool edge)
-    int handle = ModEvent.Create("UD_VibEvent")
-    ModEvent.PushForm(handle,akActor)
-    ModEvent.PushInt(handle,strength)
-    ModEvent.PushInt(handle,duration)
-    ModEvent.pushBool(handle,edge)
-    ModEvent.Send(handle)
+Function startVibEffect(Actor akActor, int aiStrenght, int aiDuration, bool abEdge)
+    int loc_handle = ModEvent.Create("UD_VibEvent")
+    ModEvent.PushForm(loc_handle,akActor)
+    ModEvent.PushInt(loc_handle,aiStrenght)
+    ModEvent.PushInt(loc_handle,aiDuration)
+    ModEvent.pushBool(loc_handle,abEdge)
+    ModEvent.Send(loc_handle)
 EndFunction
 
-Event EventVib(Form fActor, int strenght, int duration, bool edge)
-    libs.VibrateEffect(fActor as Actor, strenght, duration, edge)
+Event EventVib(Form akActor, int aiStrenght, int aiDuration, bool abEdge)
+    libs.VibrateEffect(akActor as Actor, aiStrenght, aiDuration, abEdge)
 EndEvent
 
 int Property LogLevel = 0 auto
-Function Log(String msg, int level = 1)
-    if (iRange(level,1,3) <= LogLevel) || DebugMod
-        debug.trace("[UD," + level + ",T="+Utility.GetCurrentRealTime()+"]: " + msg)
+
+;/  Function: Log
+
+    Prints one line of text to Papyrus log
+    
+    Note that users needs to have Papyrus logging enabled first
+
+    Parameters:
+
+        asMsg   - Message which should be printed to Papyrus log.
+        aiLevel - (optional) Level of imporatance for message. Is used for filtering messages based on MCM setting. 1 means most important message and 5 least important message
+/;
+Function Log(String asMsg, int aiLevel = 1)
+    if (iRange(aiLevel,1,3) <= LogLevel) || DebugMod
+        debug.trace("[UD," + aiLevel + ",T="+Utility.GetCurrentRealTime()+"]: " + asMsg)
         if ConsoleUtilInstalled && UDGV.UDG_ConsoleLog.Value  ;print to console
-            ConsoleUtil.PrintMessage("[UD," + level + ",T="+Utility.GetCurrentRealTime()+"]: " + msg)
+            ConsoleUtil.PrintMessage("[UD," + aiLevel + ",T="+Utility.GetCurrentRealTime()+"]: " + asMsg)
         endif
     endif
 EndFunction
 
-Function CLog(String msg)
+;/  Function: CLog
+
+    Prints one line of text to console. User first needs to have ConsoleUtil installed!
+    
+    Parameters:
+
+        asMsg   - Message which should be printed to Console
+/;
+Function CLog(String asMsg)
     if ConsoleUtilInstalled ;print to console
-        ConsoleUtil.PrintMessage("[UD,INFO,T="+Utility.GetCurrentRealTime()+"]: " + msg)
+        ConsoleUtil.PrintMessage("[UD,INFO,T="+Utility.GetCurrentRealTime()+"]: " + asMsg)
     endif
 EndFunction
 
 int Property UD_PrintLevel = 3 auto
-Function Print(String msg,int iLevel = 1,bool bLog = false)
-    if (iRange(iLevel,0,3) <= UD_PrintLevel)
+
+;/  Function: Print
+
+    Prints one line of text to skyrim text output (left upper corner)
+    
+    Parameters:
+
+        asMsg   - Message which should be printed to Console
+        aiLevel - (optional) Level of imporatance for message. Is used for filtering messages based on MCM setting. 1 means most important message and 5 least important message
+        abLog   - (optional) Set to true if the message should be also added to Papyrus log
+/;
+Function Print(String asMsg,int aiLevel = 1,bool abLog = false)
+    if (iRange(aiLevel,0,3) <= UD_PrintLevel)
         ; debug.notification(msg)
-        UDWC.Notification_Push(msg)
-        if bLog || TraceAllowed()
-            Log("Print -> " + msg)
+        UDWC.Notification_Push(asMsg)
+        if abLog || TraceAllowed()
+            Log("Print -> " + asMsg)
         endif
     endif
 EndFunction
 
-Function Error(String msg)
-    debug.trace("[UD,!ERROR!,T="+Utility.GetCurrentRealTime()+"]: " + msg)
+;/  Function: Error
+
+    Prints one line of error message to console and Papyrus log
+    
+    Parameters:
+
+        asMsg   - Error message information
+/;
+Function Error(String asMsg)
+    debug.trace("[UD,!ERROR!,T="+Utility.GetCurrentRealTime()+"]: " + asMsg)
     if ConsoleUtilInstalled ;print to console
-        ConsoleUtil.PrintMessage("[UD,!ERROR!,T="+Utility.GetCurrentRealTime()+"]: " + msg)
+        ConsoleUtil.PrintMessage("[UD,!ERROR!,T="+Utility.GetCurrentRealTime()+"]: " + asMsg)
     endif
 EndFunction
 
-Function Warning(String msg)
-    string loc_msg = "[UD,WARNING,T="+Utility.GetCurrentRealTime()+"]: " + msg
+;/  Function: Warning
+
+    Prints one line of warning message to console and Papyrus log
+    
+    Note: This feature can toggled off in MCM
+    
+    Parameters:
+
+        asMsg   - Error message information
+/;
+Function Warning(String asMsg)
+    string loc_msg = "[UD,WARNING,T="+Utility.GetCurrentRealTime()+"]: " + asMsg
+    debug.trace(loc_msg)
+    if ConsoleUtilInstalled ;print to console
+        ConsoleUtil.PrintMessage(asMsg)
+    endif
+EndFunction
+
+;/  Function: Info
+
+    Prints one line of info message to console and Papyrus log
+    
+    This function is intended to be only ussed for debugging
+    
+    Parameters:
+
+        asMsg   - Info message information
+/;
+Function Info(String asMsg)
+    string loc_msg = "[UD,INFO,T="+Utility.GetCurrentRealTime()+"]: " + asMsg
     debug.trace(loc_msg)
     if ConsoleUtilInstalled ;print to console
         ConsoleUtil.PrintMessage(loc_msg)
     endif
 EndFunction
 
-Function Info(String msg)
-    string loc_msg = "[UD,INFO,T="+Utility.GetCurrentRealTime()+"]: " + msg
-    debug.trace(loc_msg)
-    if ConsoleUtilInstalled ;print to console
-        ConsoleUtil.PrintMessage(loc_msg)
-    endif
-EndFunction
 
+;/  Function: ActorIsFollower
+
+    Parameters:
+
+        akActor   - Actor which will be checked
+
+    Returns:
+
+        True if passed akActor is follower
+/;
 bool Function ActorIsFollower(Actor akActor)
     ;added check for followers that are not marked as followers by normal means, to make loc_res == 4 from UDCustomDeviceMain.NPCMenu() work on them as well
     ;yes yes, some of the followers don't have FollowerFaction assigned, DCL uses similar check for those.
@@ -611,6 +768,24 @@ bool Function ActorIsFollower(Actor akActor)
     return akActor.isInFaction(UDCDmain.FollowerFaction)
 EndFunction
 
+;/  Function: ActorIsValidForUD
+    This function check if passed actor is valid for Unforgiving Devices (wearing devices, orgasm system, etc...).
+    
+    Following conditions have to be meet for actor to be valid
+
+    - Actor is not child
+    - Actors race is playable
+    - Actor is not dead
+    - Actor is not male IF For Him is not installed
+
+    Parameters:
+
+        akActor   - Actor which will be checked
+
+    Returns:
+
+        True if passed akActor is valid
+/;
 bool Function ActorIsValidForUD(Actor akActor)
     if akActor == Player
         return true
@@ -633,6 +808,20 @@ bool Function ActorIsValidForUD(Actor akActor)
 EndFunction
 
 int Property UD_HearingRange = 4000 auto
+
+;/  Function: ActorInCloseRange
+    This function check if passed actor is close to Player
+    
+    Checked range depends on MCM setting Hearing range
+
+    Parameters:
+
+        akActor   - Actor which will be checked if they are in close range of Player
+
+    Returns:
+
+        True if passed akActor is close to player
+/;
 bool Function ActorInCloseRange(Actor akActor)
     if ActorIsPlayer(akActor)
         return true
@@ -641,10 +830,41 @@ bool Function ActorInCloseRange(Actor akActor)
     return (loc_distance >= 0 && loc_distance < UD_HearingRange)
 EndFunction
 
+;/  Function: TraceAllowed
+
+    Allways use this function first beffore calling Log function!
+    
+    Otherwise performance can be greatly affected for users which don't use Papyrus logging
+
+    Returns:
+
+        True if logging is enabled
+        
+    _Example_:
+        --- Papyrus
+        Function fun()
+           if UDAPI.TraceAllowed()
+               UDAPI.Log("fun called!",2)
+           endif
+           ; ||              ||
+           ; VV FUNCTINALITY VV
+        EndFunction
+        ---
+/;
 bool Function TraceAllowed()
     return (LogLevel > 0)
 EndFunction
 
+;/  Function: ActorIsPlayer
+
+    Parameters:
+
+        akActor   - Actor which will be checked
+
+    Returns:
+
+        True if passed akActor is player
+/;
 bool Function ActorIsPlayer(Actor akActor)
     return akActor == Player
 EndFunction
@@ -653,7 +873,25 @@ EndFunction
 ;                            GLOBAL FUNCTIONS
 ;========================================================================
 
-;convert int to bit map
+;/  Function: IntToBit
+
+    This function is internaly only used for debugging
+
+    Parameters:
+
+        argInt   - Integer which will be converted
+
+    Returns:
+
+        String containing converted int to bites. First is the most significant bit and last the least significant bit
+        
+    _Example_:
+        --- Code
+        Int loc_val     = 0xFEDCBA98
+        String loc_res  = IntToBit(loc_val)
+        Print(loc_res) -> 1111 1110 1101 1100 1011 1010 1001 1000
+        ---
+/;
 string Function IntToBit(int argInt) global
     string  loc_res = ""
     int     loc_i   = 32
@@ -672,24 +910,59 @@ string Function IntToBit(int argInt) global
     return loc_res
 EndFunction
 
-float Function CalcDistance(ObjectReference obj1,ObjectReference obj2) global
-    if obj1 == obj2
+;/  Function: CalcDistance
+
+    Calculate distance between two objects
+
+    Parameters:
+
+        akObj1   - Object 1
+        akObj2   - Object 2
+
+    Returns:
+
+        Distance between objects. *Returns 0* if the objects are same. *Returns -1* if objects are not in the same cell
+/;
+float Function CalcDistance(ObjectReference akObj1,ObjectReference akObj2) global
+    if akObj1 == akObj2
         return 0.0
     endif
-    if obj1.GetParentCell() == obj2.GetParentCell()
-        float dX = obj1.X - obj2.X
-        float dY = obj1.Y - obj2.Y
-        float dZ = obj1.Z - obj2.Z
+    if akObj1.GetParentCell() == akObj2.GetParentCell()
+        float dX = akObj1.X - akObj2.X
+        float dY = akObj1.Y - akObj2.Y
+        float dZ = akObj1.Z - akObj2.Z
         return Math.Sqrt(Math.Pow(dX,2) + Math.Pow(dY,2) + Math.Pow(dZ,2))
     else
         return -1.0
     endif
 EndFunction
 
+;/  Function: GActorIsPlayer
+
+    Global version of <ActorIsPlayer>. This function is generaly slower, and its non-global variant should be used instead.
+
+    Parameters:
+
+        akActor   - Actor which will be checked
+
+    Returns:
+
+        True if passed *akActor* is player
+/;
 bool Function GActorIsPlayer(Actor akActor) global
     return akActor == Game.getPlayer()
 EndFunction
 
+;/  Function: GetActorName
+
+    Parameters:
+
+        akActor   - Actor whose name will be returned
+
+    Returns:
+
+        Name of passed actor. Returns *"ERROR:NONE"* if passed actor is none. Returns *"Unnamed X"* if actor have no name.
+/;
 string Function GetActorName(Actor akActor) global
     if !akActor
         return "ERROR:NONE"
@@ -708,6 +981,16 @@ string Function GetActorName(Actor akActor) global
     return loc_res
 EndFunction
 
+;/  Function: ActorIsFemale
+
+    Parameters:
+
+        akActor   - Checked actor
+
+    Returns:
+
+        True if passed actor is female
+/;
 bool Function ActorIsFemale(Actor akActor) 
     ActorBase loc_actorbase = akActor.GetLeveledActorBase()
     if loc_actorbase.GetSex() == 1
@@ -715,7 +998,6 @@ bool Function ActorIsFemale(Actor akActor)
     else
         return false
     endif
-    
 EndFunction
 
 int Function codeBit_old(int iCodedMap,int iValue,int iSize,int iIndex) global
@@ -736,16 +1018,35 @@ int Function codeBit_old(int iCodedMap,int iValue,int iSize,int iIndex) global
     return Math.LogicalOr(loc_clear_map,Math.LeftShift(iValue,iIndex)) ;sets bits
 endfunction
 
-int Function codeBit(int iCodedMap,int iValue,int iSize,int iIndex) global
-    if iIndex + iSize > 32
+;/  Function: codeBit
+
+    Parameters:
+
+        aiCodedMap   - Integer in to which should be additiona information coded
+        aiValue      - Value to be coded in to passed aiCodedMap
+        aiSize       - Size in bites of the information from aiValue
+        aiIndex      - Start index from which will be information coded on aiCodedMap. Sum of aiIndex and aiSize have to be less then 32!
+
+    Returns:
+
+        *aiCodedMap* with coded *aiValue*. Returns *0xFFFFFFFF* in case of error
+
+    _Example_:
+        --- Code
+        Int loc_map = 0x00000000                ;input value
+            loc_map = codeBit(loc_map,0xF,4,27) ;change last four bits to 1
+        ---
+/;
+int Function codeBit(int aiCodedMap,int aiValue,int aiSize,int aiIndex) global
+    if aiIndex + aiSize > 32
         return 0xFFFFFFFF ;returns error value
     endif
     ;sets not shifted bit mask loc_clear_mask
-    int loc_clear_mask = (Math.LeftShift(0x1,iSize) - 1)                     ;mask used to clear bits which will be set
-    iValue = Math.LeftShift(Math.LogicalAnd(iValue,loc_clear_mask),iIndex)    ;clear value from bigger bits
-    loc_clear_mask = Math.LogicalNot(Math.LeftShift(loc_clear_mask,iIndex)) ;shift and negate
-    iCodedMap = Math.LogicalAnd(iCodedMap,loc_clear_mask)                     ;clear maps bits with mask
-    return Math.LogicalOr(iCodedMap,iValue)                                 ;sets bits
+    int loc_clear_mask = (Math.LeftShift(0x1,aiSize) - 1)                     ;mask used to clear bits which will be set
+    aiValue = Math.LeftShift(Math.LogicalAnd(aiValue,loc_clear_mask),aiIndex)    ;clear value from bigger bits
+    loc_clear_mask = Math.LogicalNot(Math.LeftShift(loc_clear_mask,aiIndex)) ;shift and negate
+    aiCodedMap = Math.LogicalAnd(aiCodedMap,loc_clear_mask)                     ;clear maps bits with mask
+    return Math.LogicalOr(aiCodedMap,aiValue)                                 ;sets bits
 endfunction
 
 int Function decodeBit_old(int iCodedMap,int iSize,int iIndex) global
@@ -772,37 +1073,96 @@ int Function decodeBit_old(int iCodedMap,int iSize,int iIndex) global
     return loc_res
 EndFunction
 
-int Function decodeBit(int iCodedMap,int iSize,int iIndex) global
-    if iIndex + iSize > 32
+;/  Function: decodeBit
+
+    Parameters:
+
+        aiCodedMap   - Integer from which should be information decoded
+        aiSize       - Size in bites of the information which will be decoded
+        aiIndex      - Start index from which will be information decoded from aiCodedMap. Sum of aiIndex and aiSize have to be less then 32!
+
+    Returns:
+
+        Decoded value from *iCodedMap*. Returns *0xFFFFFFFF* in case of error
+        
+    _Example_:
+        --- Code
+        Int loc_map = 0x000000F0             ;input value
+        Int loc_res = decodeBit(loc_map,4,3) ;decode value and save it to loc_res. Value in result will be 0xF = 15.
+        ---
+/;
+int Function decodeBit(int aiCodedMap,int aiSize,int aiIndex) global
+    if aiIndex + aiSize > 32
         return 0xFFFFFFFF ;returns error value
     endif
     ;sets not shifted bit mask
-    iCodedMap = Math.RightShift(iCodedMap,iIndex) ;shift to right, so value is correct
-    iCodedMap = Math.LogicalAnd(iCodedMap,(Math.LeftShift(0x1,iSize) - 1)) ;clear maps bits with mask
-    return iCodedMap
+    aiCodedMap = Math.RightShift(aiCodedMap,aiIndex) ;shift to right, so value is correct
+    aiCodedMap = Math.LogicalAnd(aiCodedMap,(Math.LeftShift(0x1,aiSize) - 1)) ;clear maps bits with mask
+    return aiCodedMap
 EndFunction
 
-float Function fRange(float fValue,float fMin,float fMax) global
-    if fValue > fMax
-        return fMax
+;/  Function: fRange
+
+    Truncate passed FLOAT value between two limits
+
+    Parameters:
+
+        afValue      - Value to be truncated
+        afMin        - Minimum value
+        afMax        - Maximum value
+
+    Returns:
+
+        Truncated value
+/;
+float Function fRange(float afValue,float afMin,float afMax) global
+    if afValue > afMax
+        return afMax
     endif
-    if fValue < fMin
-        return fMin
+    if afValue < afMin
+        return afMin
     endif
-    return fValue
+    return afValue
 EndFunction
 
-int Function iRange(int iValue,int iMin,int iMax) global
-    if iValue > iMax
-        return iMax
+;/  Function: iRange
+
+    Truncate passed INT value between two limits
+
+    Parameters:
+
+        aiValue      - Value to be truncated
+        afMin        - Minimum value
+        afMax        - Maximum value
+
+    Returns:
+
+        Truncated value
+/;
+int Function iRange(int aiValue,int aiMin,int aiMax) global
+    if aiValue > aiMax
+        return aiMax
     endif
-    if iValue < iMin
-        return iMin
+    if aiValue < aiMin
+        return aiMin
     endif
-    return iValue
+    return aiValue
 EndFunction
 
-;returns true if the passed INT value is in range from iMin to iMax
+;/  Function: iInRange
+
+    Checks if passed value is in range
+
+    Parameters:
+
+        aiValue      - Value to be checked
+        aiMin        - Minimum value
+        aiMax        - Maximum value
+
+    Returns:
+
+        False if value is less then minimum or more then maximum
+/;
 Bool Function iInRange(int aiValue,int aiMin,int aiMax) global
     if aiValue > aiMax
         return false
@@ -813,7 +1173,20 @@ Bool Function iInRange(int aiValue,int aiMin,int aiMax) global
     return true
 EndFunction
 
-;returns true if the passed FLOAT value is in range from iMin to iMax
+;/  Function: fInRange
+
+    Checks if passed value is in range
+
+    Parameters:
+
+        afValue      - Value to be checked
+        afMin        - Minimum value
+        afMax        - Maximum value
+
+    Returns:
+
+        False if value is less then minimum or more then maximum
+/;
 Bool Function fInRange(float afValue,float afMin,float afMax) global
     if afValue > afMax
         return false
@@ -824,30 +1197,94 @@ Bool Function fInRange(float afValue,float afMin,float afMax) global
     return true
 EndFunction
 
-string Function formatString(string str,int floatPoints) global
-    int float_point =  StringUtil.find(str,".")
-    if (float_point == -1)
-        return str
+;/  Function: formatString
+
+    Formats float stored in string, so it can show only passed number of floating points
+
+    Parameters:
+
+        asValue         - Number which will be formated
+        afFloatPoints   - Number of floating points to show
+
+    Returns:
+
+        Formated number in string
+
+    _Example_:
+        --- Code
+        Float   loc_number      = 1.2345                            ;input value
+        String  loc_formated    = formatString(loc_number,2)        ;formats number so it only shows 2 decimal points
+        Print(loc_formated)                                         ;Will print 1.23 only
+        ---
+/;
+string Function formatString(string asValue,int afFloatPoints) global
+    int loc_floatPoint =  StringUtil.find(asValue,".")
+    if (loc_floatPoint < 0)
+        return asValue
     endif
-    if (floatPoints + float_point + 1 > StringUtil.getLength(str))
-        return str
+    if ((afFloatPoints + loc_floatPoint + 1) > StringUtil.getLength(asValue))
+        return asValue
     else
-        return StringUtil.Substring(str, 0, float_point + floatPoints + 1)
+        return StringUtil.Substring(asValue, 0, loc_floatPoint + afFloatPoints + 1)
     endif
 EndFunction
 
-float Function checkLimit(float value,float limit) global
-    if value > limit
-        return limit
+;/  Function: checkLimit
+
+    Truncate passed value only in positive direction
+
+    Parameters:
+
+        afValue      - Value to be checked
+        afLimit      - Number limit
+
+    Returns:
+
+        Returns truncated number so it is never more then afLimit
+/;
+float Function checkLimit(float afValue,float afLimit) global
+    if afValue > afLimit
+        return afLimit
     else
-        return value
+        return afValue
     endif
 EndFunction
 
-int Function Round(float value) global
-    return Math.floor(value + 0.5)
+
+;/  Function: Round
+
+    Round the FLOAT number to INT
+
+    Parameters:
+
+        afValue      - Value to be  rounded
+
+    Returns:
+
+        Rounded afValue
+
+    _Example_:
+        --- Code
+        Round(0.1) -> Returns 0
+        Round(0.4) -> Returns 0
+        Round(0.5) -> Returns 1
+        Round(0.9) -> Returns 1
+        ---
+/;
+int Function Round(float afValue) global
+    return Math.floor(afValue + 0.5)
 EndFunction
 
+;/  Function: closeMenu
+
+    Closes all following menus
+
+    - Container menu
+    - Dialogue menu
+    - Inventory menu
+    - Tween menu
+    - Gift menu
+/;
 Function closeMenu() global
     ;https://www.reddit.com/r/skyrimmods/comments/elg97s/function_to_close_objects_container_menu/
     UI.InvokeString("ContainerMenu", "_global.skse.CloseMenu", "ContainerMenu")
@@ -857,74 +1294,190 @@ Function closeMenu() global
     UI.InvokeString("GiftMenu", "_global.skse.CloseMenu", "GiftMenu")
 EndFunction
 
+
+;/  Function: closeLockpickMenu
+
+    Closes lockpick menu
+/;
 Function closeLockpickMenu() global
     UI.InvokeString("Lockpicking Menu", "_global.skse.CloseMenu", "Lockpicking Menu")
 EndFunction
 
-string Function getPlugsVibrationStrengthString(int strenght) global
-    if strenght >= 5
+;/  Function: getPlugsVibrationStrengthString
+
+    Returns string with vibrator strength
+
+    Table:
+    --- Code
+    aiStrenght == 1 -> "Very weak"
+    aiStrenght == 2 -> "Weak"
+    aiStrenght == 3 -> "Strong"
+    aiStrenght == 4 -> "Very Strong"
+    aiStrenght == 5 -> "Extremely Strong"
+    ---
+
+    Parameters:
+
+        aiStrenght  - DD Vibrator strength
+
+    Returns:
+
+        Strength of vibrations
+/;
+string Function getPlugsVibrationStrengthString(int aiStrenght) global
+    if aiStrenght >= 5
         return "Extremely Strong"
     endif
-    if strenght == 4
+    if aiStrenght == 4
         return "Very Strong"
     endif
-    if strenght == 3
+    if aiStrenght == 3
         return "Strong"
     endif
-    if strenght == 2
+    if aiStrenght == 2
         return "Weak"
     endif
-    if strenght <= 1
+    if aiStrenght <= 1
         return "Very weak"
     endif
 EndFunction
 
-;https://www.creationkit.com/index.php?title=GetActorValuePercentage_-_Actor
-float Function getMaxActorValue(Actor akActor,string akValue, float perc_part = 1.0) global
+
+;/  Function: getMaxActorValue
+
+    Returns maximum value of AV from passed actor
+
+    Inspiried by https://www.creationkit.com/index.php?title=GetActorValuePercentage_-_Actor
+
+    Parameters:
+
+        akActor  - Used actor
+        akValue  - Name of AV
+        afPerc   - Relative value of max value. Can be used to get specific elative value, like 75% of max health, etc...
+
+    Returns:
+
+        akValue maximum value from akActor
+/;
+float Function getMaxActorValue(Actor akActor,string akValue, float afPerc = 1.0) global
     Float loc_perc = akActor.GetActorValuePercentage(akValue)
     if loc_perc
-        return (akActor.GetActorValue(akValue)/loc_perc)*perc_part
+        return (akActor.GetActorValue(akValue)/loc_perc)*afPerc
     else
-        return akActor.GetBaseActorValue(akValue)*perc_part ;assume base stats. Dunno how is this possible
+        return akActor.GetBaseActorValue(akValue)*afPerc ;assume base stats. Dunno how is this possible
     endif
 EndFunction
 
+;/  Function: getCurrentActorValuePerc
+
+    Parameters:
+
+        akActor  - Used actor
+        akValue  - Name of AV
+
+    Returns:
+
+        Current relative value of akActor akValue
+/;
 float Function getCurrentActorValuePerc(Actor akActor,string akValue) global
     return akActor.GetActorValuePercentage(akValue)
 EndFunction
 
-float Function getCurrentActorValuePercCustom(Actor akActor,string akValue,float fBase) global
-    return akActor.GetActorValue(akValue)/fBase
+;/  Function: ModInstalled
+
+    Check if mod is installed
+
+    Parameters:
+
+        asModFileName  - name of mod WITH extension
+
+    Returns:
+
+        True if mod is installed
+
+    _Example_:
+        --- Code
+        ;check if Slave tats is installed
+        if ModInstalled("SlaveTats.esp")
+            ;DO SOMETHING
+        endif
+        ---
+/;
+bool Function ModInstalled(string asModFileName) global
+    return (Game.GetModByName(asModFileName) != 255) && (Game.GetModByName(asModFileName) != 0) ; 255 = not found, 0 = no skse
 EndFunction
 
-bool Function ModInstalled(string sModFileName) global
-    return (Game.GetModByName(sModFileName) != 255) && (Game.GetModByName(sModFileName) != 0) ; 255 = not found, 0 = no skse
+;/  Function: ModInstalledAfterUD
+
+    Check if mod is installed after Unforgiving Devices
+
+    Parameters:
+
+        asModFileName  - Name of mod WITH extension
+
+    Returns:
+
+        True if mod is installed after Unforgiving Devices
+
+    _Example_:
+        --- Code
+        ;check if patch is installed correctly
+        if !ModInstalledAfterUD("CustomUDPatch.esp")
+            Error("Patch have to be installed after main mod!!")
+        endif
+        ---
+/;
+bool Function ModInstalledAfterUD(string asModFileName) global
+    return (Game.GetModByName(asModFileName) > Game.GetModByName("UnforgivingDevices.esp"))
 EndFunction
 
-bool Function ModInstalledAfterUD(string sModFileName) global
-    return (Game.GetModByName(sModFileName) > Game.GetModByName("UnforgivingDevices.esp"))
-EndFunction
+;/  Function: MakeDeviceHeader
 
-string Function MakeDeviceHeader(Actor akActor,Armor invDevice) global
+    Creates string containing formated information about device worn by actor
+
+    Parameters:
+
+        akActor     - Actor who is wearing akInvDevice
+        akInvDevice - Device worn by akActor
+
+    Returns:
+
+        Formated string
+/;
+string Function MakeDeviceHeader(Actor akActor,Armor akInvDevice) global
     string loc_actorname = "NONE_ACTOR"
     string loc_devicename = "NONE_DEVICE"
     if akActor
         loc_actorname = GetActorName(akActor)
     endif
-    if invDevice
-        loc_devicename = invDevice.GetName()
+    if akInvDevice
+        loc_devicename = akInvDevice.GetName()
     endif
     
     return (loc_devicename + "("+ loc_actorname + ")")
 EndFunction
 
-Int Function ToUnsig(Int iValue) global
-    if iValue < 0
-        return 0
-    endif
-    return iValue
-EndFunction
+;/  Function: iUnsig
 
+    Truncate negative values from passed INT
+
+    Parameters:
+
+        aiValue     - Value to be truncated
+
+    Returns:
+
+        Truncated value
+
+    _Example_:
+        --- Code
+        Int loc_val1 = -100
+        Int loc_val2 = iUnsig(loc_var)
+        
+        Print(loc_val1) -> -100
+        Print(loc_val2) -> 0
+        ---
+/;
 Int Function iUnsig(Int aiValue) global
     if aiValue < 0
         return 0
@@ -932,6 +1485,22 @@ Int Function iUnsig(Int aiValue) global
     return aiValue
 EndFunction
 
+;/  Function: fUnsig
+
+    Truncate negative values from passed FLOAT
+
+    Parameters:
+
+        afValue     - Value to be truncated
+
+    Returns:
+
+        Truncated value
+
+    _Example_:
+
+    See <iUnsig>
+/;
 Float Function fUnsig(float afValue) global
     if afValue < 0.0
         return 0.0
@@ -939,15 +1508,42 @@ Float Function fUnsig(float afValue) global
     return afValue
 EndFunction
 
-Function ShowMessageBox(string strText)
-    String[] loc_lines = StringUtil.split(strText,"\n")
-    int loc_linesNum = loc_lines.length
+;/  Function: ShowMessageBox
+
+    Shows message box with passed string. This function should be only used for showing multiline strings.
     
-    int loc_lineLimit = 12
+    Once the number of lines is too big for message box to be shown, additiona lamssage box will be open.
     
-    int loc_boxesNum = Math.Ceiling((loc_linesNum as float)/(loc_lineLimit as float))
-    int loc_iterLine = 0
-    int loc_iterBox = 0
+    In case you want to show simple string, use instead <ShowSingleMessageBox>
+
+    Limit of lines per one message box is *12* lines!
+
+    Every line have also limited number of characters which it can show. If line is too long, it will be split to multiple lines by engine, which will break this function.
+
+    This function will be blocked until user clicks on OK button (this is not done by debug.messagebox function)
+
+    Parameters:
+
+        asText     - String of lines to be shown
+
+    _Example_:
+        --- Code
+        String loc_text = ""
+        loc_text += "Line 1\n"
+        loc_text += "Line 2\n"
+        loc_text += "Line 3\n"
+        ShowMessageBox(loc_text) -> This will show message box with 3 lines with their corresponding texts
+        ---
+/;
+Function ShowMessageBox(string asText)
+    String[]    loc_lines = StringUtil.split(asText,"\n")
+    int         loc_linesNum = loc_lines.length
+    
+    int         loc_lineLimit = 12
+    
+    int         loc_boxesNum = Math.Ceiling((loc_linesNum as float)/(loc_lineLimit as float))
+    int         loc_iterLine = 0
+    int         loc_iterBox = 0
     
     while loc_iterBox < (loc_boxesNum)
         string loc_messagebox = ""
@@ -968,18 +1564,49 @@ Function ShowMessageBox(string strText)
     endwhile
 EndFunction
 
-;shows single message box. This function will be blocked untill messagebox menu is closed
+;/  Function: ShowSingleMessageBox
+
+    Shows message box with passed string.
+
+    This function will be blocked until user clicks on OK button (this is not done by debug.messagebox function)
+
+    Parameters:
+
+        asMessage     - String to be shown in message box
+/;
 Function ShowSingleMessageBox(String asMessage)
-        debug.messagebox(asMessage)
-        ;wait for fucking messagebox to actually get OKd before continuing thread (holy FUCKING shit toad)
-        Utility.waitMenuMode(0.3)
-        while IsMessageboxOpen()
-            Utility.waitMenuMode(0.05)
-        EndWhile
+    debug.messagebox(asMessage)
+    ;wait for fucking messagebox to actually get OKd before continuing thread (holy FUCKING shit toad)
+    Utility.waitMenuMode(0.3)
+    while IsMessageboxOpen()
+        Utility.waitMenuMode(0.05)
+    EndWhile
 EndFunction
 
-;returns true if actor have free hands
-; if abCheckGrasp is True, actor will also need to not have mittens for this to return true
+;/  Function: ActorFreeHands
+
+    Check if actor have free hands
+
+    Parameters:
+
+        akActor         - Checked actor
+        abCheckGrasp    - If True, mittens will also count as device which makes actors hands not free
+
+    Returns:
+
+        True if actor have free hands
+
+    _Example_:
+        --- Code
+        if ActorFreeHands(SomeActor)
+            ;Actor have no free hands
+        endif
+        
+        if ActorFreeHands(SomeActor,True)
+            ;Actor have no free hands OR they are wearing mittens
+        endif
+        ---
+/;
 bool Function ActorFreeHands(Actor akActor,bool abCheckGrasp = false)
     bool loc_res = !akActor.wornhaskeyword(libs.zad_deviousHeavyBondage)
     if abCheckGrasp
@@ -990,7 +1617,24 @@ bool Function ActorFreeHands(Actor akActor,bool abCheckGrasp = false)
     return loc_res
 EndFunction
 
-;returns true if actor is helpless
+;/  Function: ActorIsHelpless
+
+    Check if actor is helpless and cant resist player actions
+
+    Actor is helpless in following scenarios
+
+    - They dont have free hands
+    - They are paralysed
+    - They are bleeding out
+
+    Parameters:
+
+        akActor         - Checked actor
+
+    Returns:
+
+        True if actor is helpless
+/;
 Bool Function ActorIsHelpless(Actor akActor)
     Bool loc_res = False
     loc_res = loc_res || !ActorFreeHands(akActor)
@@ -1024,45 +1668,95 @@ Function GError(String msg) global
     ConsoleUtil.PrintMessage(loc_msg)
 EndFunction
 
-; thanks to Subhuman#6830 for ESPFE form check, compatible with LE
-; Notes given by him:
-; 1) it breaks the compile-time dependency.   GetformFromFile requires you to have the plugin you're getting a form for in order to compile, this does not
-; 2) less papyrus spam, if the plugin isn't found it prints a single line debug.trace instead 4-5 lines of errors
-; 3) related to 1, it doesn't verify you didn't screw up.   If you're trying to cast a package as a quest, for example, GetFormFromFile will throw a compiler error because it can't be done.  This will not.  You have to verify your own work. 
-form function GetMeMyForm(int formNumber, string pluginName, Bool abErrorMsg = True) global;fornumber format is 0xFULLFORMID, for example 0x00000007. Even for ESPFE format, ignoring 0xFE
-    int theLO = Game.GetModByName(pluginName)
+
+;/  Function: GetMeMyForm
+
+    Returns form from plugin. Also works for esl plugins
+
+    thanks to Subhuman#6830 for ESPFE form check, compatible with LE
+    Notes given by him:
+    1) it breaks the compile-time dependency.   GetformFromFile requires you to have the plugin you're getting a form for in order to compile, this does not
+    2) less papyrus spam, if the plugin isn't found it prints a single line debug.trace instead 4-5 lines of errors
+    3) related to 1, it doesn't verify you didn't screw up.   If you're trying to cast a package as a quest, for example, GetFormFromFile will throw a compiler error because it can't be done.  This will not.  You have to verify your own work.
+
+    Parameters:
+
+        aiFormNumber    - FormID of form. Fornumber format is 0xFULLFORMID, for example 0x00000007. Even for ESPFE format, ignoring 0xFE
+        asPluginName    - Full name of the plugin WITH extension
+        abErrorMsg      - If error message should be shown in case that the function can't find the form
+
+    Returns:
+
+        Corresponding form
+/;
+Form Function GetMeMyForm(int aiFormNumber, string asPluginName, Bool abErrorMsg = True) global
+    int theLO = Game.GetModByName(asPluginName)
     if ((theLO == 255) || (theLO == 0)) ; 255 = not found, 0 = no skse
         if abErrorMsg
-            GError(pluginName + " not loaded or SKSE not found")
+            GError(asPluginName + " not loaded or SKSE not found")
         endif
         return none
     elseIf (theLO > 255) ; > 255 = ESL
-        ; the first FIVE hex digits in an ESL are its address, so a formNumber exceeding 0xFFF or below 0x800 is invalid
-        if ((Math.LogicalAnd(0xFFFFF000, formNumber) != 0) || (Math.LogicalAnd(0x00000800, formNumber) == 0))
+        ; the first FIVE hex digits in an ESL are its address, so a aiFormNumber exceeding 0xFFF or below 0x800 is invalid
+        if ((Math.LogicalAnd(0xFFFFF000, aiFormNumber) != 0) || (Math.LogicalAnd(0x00000800, aiFormNumber) == 0))
             if abErrorMsg
-                GError("Plugin " + pluginName + " has FormIDs outside the range\nallocated for ESL plugins!: " + formNumber)
-                GError("ESL-flagged plugin " + pluginName + " contains invalid FormIDs: " + formNumber)
+                GError("Plugin " + asPluginName + " has FormIDs outside the range\nallocated for ESL plugins!: " + aiFormNumber)
+                GError("ESL-flagged plugin " + asPluginName + " contains invalid FormIDs: " + aiFormNumber)
             endif
             return none
         endIf
         ; getmodbyname reports an ESL as 256 higher than the game indexes it internally
         theLO -= 256
-        return Game.GetFormEx(Math.LogicalOr(Math.LogicalOr(0xFE000000, Math.LeftShift(theLO, 12)), formNumber))
+        return Game.GetFormEx(Math.LogicalOr(Math.LogicalOr(0xFE000000, Math.LeftShift(theLO, 12)), aiFormNumber))
     else    ; regular ESL-free plugin
-        return Game.GetFormEx(Math.LogicalOr(Math.LeftShift(theLO, 24), formNumber))
+        return Game.GetFormEx(Math.LogicalOr(Math.LeftShift(theLO, 24), aiFormNumber))
     endIf
-endFunction
+EndFunction
 
-;open text input for user and return string
+;/  Function: GetUserTextInput
+
+    Opens text input menu, and returns its result
+
+    NOTE: User needs to have UI Extensions installed for this to work!
+
+    Returns:
+
+        String written to text menu
+/;
 string Function GetUserTextInput()
     return UDUIE.GetUserTextInput()
 EndFunction
 
-;open list of options and return selected option
+;/  Function: GetUserListInput
+
+    Opens list menu and returns index of selected line. Top is 0, bottom is max index
+
+    NOTE: User needs to have UI Extensions installed for this to work!
+
+    Parameters:
+
+        apList  - String array of list elements which will be shown in menu
+
+    Returns:
+
+        Index of selected line
+/;
 Int Function GetUserListInput(string[] arrList)
     return UDUIE.GetUserListInput(arrList)
 EndFunction
 
+;/  Function: GetShield
+
+    Returns form of shield that actor have currently equipped
+
+    Parameters:
+
+        akActor  - Used actor
+
+    Returns:
+
+       Shield equipped by akActor
+/;
 Form Function GetShield(Actor akActor) Global
     Form loc_shield = akActor.GetEquippedObject(0)
     if loc_shield && (loc_shield.GetType() == 26 || loc_shield.GetType() == 31)
@@ -1083,7 +1777,16 @@ Faction Property UD_SOS_SchlongifiedActors
     EndFunction
 EndProperty
 
-;might or might not be used in future
+;/  Function: ActorHaveSoS
+
+    Parameters:
+
+        akActor  - Used actor
+
+    Returns:
+
+       True if akActor have Schlong of Skyrim (SoS)
+/;
 Bool Function ActorHaveSoS(Actor akActor)
     if UD_SOS_SchlongifiedActors
         return akActor.IsInFaction(UD_SOS_SchlongifiedActors)
@@ -1093,7 +1796,32 @@ Bool Function ActorHaveSoS(Actor akActor)
     endif
 EndFunction
 
-;Convert any time unit to days
+;/  Function: ConvertTime
+
+    Convert passed time to days
+
+    Parameters:
+
+        akHours     - Hours
+        akMinutes   - Minutes
+        akSeconds   - Seconds
+
+    Returns:
+
+       Converted time
+
+    _Example_:
+        --- Code
+        ;03:30:15
+        ConvertTime(3,30,15) -> 0.1458 days
+        
+        ;24:00:00
+        ConvertTime(24) -> 1.0 days
+        
+        ;120 minutes
+        ConvertTime(0,120) -> 0.083 days
+        ---
+/;
 Float Function ConvertTime(Float akHours, Float akMinutes = 0.0, Float akSeconds = 0.0) Global
     Float loc_res = 0.0
     loc_res += akHours/24
@@ -1101,16 +1829,73 @@ Float Function ConvertTime(Float akHours, Float akMinutes = 0.0, Float akSeconds
     loc_res += akSeconds/24/3600
     return loc_res
 EndFunction
+
+;/  Function: ConvertTimeHours
+
+    Convert passed hours to days
+
+    Parameters:
+
+        akHours     - Hours
+
+    Returns:
+
+       Converted time
+/;
 Float Function ConvertTimeHours(Float akHours) global
     return akHours/24
 EndFunction
+
+;/  Function: ConvertTimeMinutes
+
+    Convert passed minutes to days
+
+    Parameters:
+
+        akMinutes     - Minutes
+
+    Returns:
+
+       Converted time
+/;
 Float Function ConvertTimeMinutes(Float akMinutes) global
     return akMinutes/24/60
 EndFunction
+
+;/  Function: ConvertTimeSeconds
+
+    Convert passed seconds to days
+
+    Parameters:
+
+        akSeconds     - Seconds
+
+    Returns:
+
+       Converted time
+/;
 Float Function ConvertTimeSeconds(Float akSeconds) global
     return akSeconds/24/3600
 EndFunction
 
+;/  Function: iAbs
+
+    Calculate absolute value of passed INT
+
+    Parameters:
+
+        aiVal     - Value
+
+    Returns:
+
+       Absolute value
+
+    _Example_:
+        --- Code
+        iAbs( 50)  -> 50
+        iAbs(-10)  -> 10
+        ---
+/;
 Int Function iAbs(Int aiVal) Global
     if aiVal > 0
         return aiVal
@@ -1118,6 +1903,11 @@ Int Function iAbs(Int aiVal) Global
         return -1*aiVal
     endif
 EndFunction
+
+;/  Function: iAbs
+
+    Same as <iAbs>, but for FLOAT
+/;
 Float Function fAbs(Float afVal) Global
     if afVal > 0.0
         return afVal
@@ -1125,28 +1915,61 @@ Float Function fAbs(Float afVal) Global
         return -1.0*afVal
     endif
 EndFunction
-;wait random time. Thread will not continue unless menus are closed
-;Can be used to separate threads (like many of same events firing at the same time)
+
+;/  Function: WaitRandomTime
+
+    Block thread for random time. Thread will also not continue unless menus are closed
+
+    Can be used to separate threads (like many of same events firing at the same time)
+
+
+    Parameters:
+
+        afMin     - Minimum blocking time
+        afMax     - Maximum blocking time
+/;
 Function WaitRandomTime(Float afMin = 0.1, Float afMax = 1.0) Global
     Utility.wait(Utility.randomFloat(afMin,afMax))
 EndFunction
 
-;wait random time. Thread will continue even if menus are open
-;Can be used  to separate wanted thread separation (like many of same events firing at the same time)
+;/  Function: WaitMenuRandomTime
+
+    Same as <WaitRandomTime>, but will also work if menus are open
+/;
 Function WaitMenuRandomTime(Float afMin = 0.1, Float afMax = 1.0) Global
     Utility.waitMenuMode(Utility.randomFloat(afMin,afMax))
 EndFunction
 
-;returns number which represents actors gender
-; -1 - None
-;  0 - Male
-;  1 - Female
+;/  Function: GetActorGender
+
+    Parameters:
+
+        akActor     - Checked actor
+
+    Returns:
+
+       Gender of actor
+    --- Code
+        -1 = None
+         0 = Male
+         1 = Female
+    ---
+/;
 Int Function GetActorGender(Actor akActor) global
     return akActor.GetActorBase().GetSex()
 EndFunction
 
-;Returns pronounce for self (himself, herself, themself)
-;abCapital is used for chenging first letter to capital
+;/  Function: GetPronounceSelf
+
+    Parameters:
+
+        akActor     - Checked actor
+        abCapital   - If first letter should be capital
+
+    Returns:
+
+       Self pronounce of akActor (Himself/Herself/Themself)
+/;
 String Function GetPronounceSelf(Actor akActor, Bool abCapital = False) global
     Int loc_gender = GetActorGender(akActor)
     if loc_gender == 0
@@ -1170,8 +1993,17 @@ String Function GetPronounceSelf(Actor akActor, Bool abCapital = False) global
     endif
 EndFunction
 
-;Returns pronounce (he, she, they)
-;abCapital is used for chenging first letter to capital
+;/  Function: GetPronounce
+
+    Parameters:
+
+        akActor     - Checked actor
+        abCapital   - If first letter should be capital
+
+    Returns:
+
+       Pronounce of akActor (He/She/They)
+/;
 String Function GetPronounce(Actor akActor, Bool abCapital = False) global
     Int loc_gender = GetActorGender(akActor)
     if loc_gender == 0
@@ -1195,29 +2027,87 @@ String Function GetPronounce(Actor akActor, Bool abCapital = False) global
     endif
 EndFunction
 
-;very fast function for checking if menu is open
-;have little lag because it works by checking events
+;/  Function: IsMenuOpen
+
+    This function check if any menu is open. It is much faster then its UI couterpart
+
+    Returns:
+
+        True if any menu is open
+/;
 Bool Function IsMenuOpen()
     return UDMC.UD_MenuOpened
 EndFunction
+
+;/  Function: IsMenuOpenID
+
+    This function check if specific menu is open
+
+    Parameters:
+
+        aiID   - ID of menu which should be checked. See <Menus ID>
+
+    Returns:
+
+        True if menu with aiID is open
+/;
 Bool Function IsMenuOpenID(int aiID)
     return UDMC.isMenuOpen(iRange(aiID,0,UDMC.UD_MenuListID.length))
 EndFunction
+
+;/  Function: IsContainerMenuOpen
+
+    Returns:
+
+        True if *Container* menu is open
+/;
 Bool Function IsContainerMenuOpen()
     return UDMC.IsMenuOpen(0)
 EndFunction
+
+;/  Function: IsLockpickingMenuOpen
+
+    Returns:
+
+        True if *Lockpicking* menu is open
+/;
 Bool Function IsLockpickingMenuOpen()
     return UDMC.IsMenuOpen(1)
 EndFunction
+
+;/  Function: IsInventoryMenuOpen
+
+    Returns:
+
+        True if *Inventory* menu is open
+/;
 Bool Function IsInventoryMenuOpen()
     return UDMC.IsMenuOpen(2)
 EndFunction
+
+;/  Function: IsMessageboxOpen
+
+    Returns:
+
+        True if *Messagebox* menu is open
+/;
 Bool Function IsMessageboxOpen()
     return UDMC.IsMenuOpen(13) ;I hope to god that this works
 EndFunction
 
 
 ;Static slots functions
+
+;/  Function: GetStaticSlots
+
+    Parameters:
+
+        asName  - Name of static slots
+
+    Returns:
+
+        Static slots
+/;
 UD_StaticNPCSlots Function GetStaticSlots(String asName)
     return UDNPCM.GetStaticSlots(asName)
 EndFunction

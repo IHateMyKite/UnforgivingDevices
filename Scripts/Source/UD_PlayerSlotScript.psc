@@ -2,12 +2,12 @@ Scriptname UD_PlayerSlotScript  extends UD_CustomDevice_NPCSlot
 
 Event OnInit()
     if UDmain.TraceAllowed()    
-        UDCDmain.Log("Initiating Player Slot!!!")
+        UDmain.Log("Initiating Player Slot!!!")
     endif
     parent.OnInit()
     Game.getPlayer().addToFaction(UDCDmain.RegisteredNPCFaction)
     if UDmain.TraceAllowed()    
-        UDCDMain.Log("PlayerSlot ready!")
+        UDmain.Log("PlayerSlot ready!")
     endif
     InitOrgasmUpdate()
 EndEvent

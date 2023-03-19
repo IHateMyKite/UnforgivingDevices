@@ -105,7 +105,6 @@ EndFunction
 ;   string   |   getPlugsVibrationStrengthString |   (int strenght)
 ;   float    |   getMaxActorValue                |   (Actor akActor,string akValue, float perc_part = 1.0)
 ;   float    |   getCurrentActorValuePerc        |   (Actor akActor,string akValue)
-;   float    |   getCurrentActorValuePercCustom  |   (Actor akActor,string akValue,float fBase)
 ;   bool     |   ModInstalled                    |   (string sModFileName)
 ;   bool     |   ModInstalledAfterUD             |   (string sModFileName)
 ;   string   |   MakeDeviceHeader                |   (Actor akActor,Armor invDevice)
@@ -317,7 +316,7 @@ EndFunction
 
 ;/  Function: IsMenuOpen
 
-    This function check if any menu is open. It is much fater then its UI couterpart
+    This function check if any menu is open. It is much faster then its UI couterpart
 
     Returns:
 
@@ -880,48 +879,17 @@ EndFunction
 ;/  Function: GetUserListInput
 
     Opens list menu and returns index of selected line. Top is 0, bottom is max index
-    
+
     NOTE: User needs to have UI Extensions installed for this to work!
 
     Parameters:
+
         apList  - String array of list elements which will be shown in menu
 
     Returns:
 
-        Return string written to text menu
+        Index of selected line
 /;
 Int     Function    GetUserListInput(string[] apList)
     return UDmain.GetUserListInput(apList)
 EndFunction
-
-;/ About: Menus ID
-    --- Code
-    |======================================|
-    |           Menu ID table              |
-    |======================================|
-    |   aiID    |           MENU           |
-    |======================================|
-    |    00     =     ContainerMenu        |
-    |    01     =     Lockpicking Menu     |
-    |    02     =     InventoryMenu        |
-    |    03     =     Journal Menu         |
-    |    04     =     Crafting Menu        |
-    |    05     =     Dialogue Menu        |
-    |    06     =     FavoritesMenu        |
-    |    07     =     GiftMenu             |
-    |    08     =     Main Menu            |
-    |    09     =     Loading Menu         |
-    |    10     =     Book Menu            |
-    |    11     =     MagicMenu            |
-    |    12     =     MapMenu              |
-    |    13     =     MessageBoxMenu       |
-    |    14     =     RaceSex Menu         |
-    |    15     =     Sleep/Wait Menu      |
-    |    16     =     StatsMenu            |
-    |    17     =     Tutorial Menu        |
-    |    18     =     TweenMenu            |
-    |    19     =     Console              |
-    |    20     =     BarterMenu           |
-    |======================================|
-    ---
-/;

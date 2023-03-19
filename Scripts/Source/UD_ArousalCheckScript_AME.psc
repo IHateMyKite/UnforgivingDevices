@@ -26,7 +26,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     endif
     UD_PlayerSlot.InitArousalUpdate()
     if UDmain.TraceAllowed()
-        UDCDmain.Log("UD_ArousalCheckScript_AME("+getActorName(akActor)+") - OnEffectStart()")
+        UDmain.Log("UD_ArousalCheckScript_AME("+getActorName(akActor)+") - OnEffectStart()")
     endif
     registerForSingleUpdate(0.1)
 EndEvent
@@ -41,7 +41,7 @@ EndEvent
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
     _finished = true
     if UDmain.TraceAllowed()
-        UDCDmain.Log("UD_ArousalCheckScript_AME("+getActorName(akActor)+") - OnEffectFinish()",1)
+        UDmain.Log("UD_ArousalCheckScript_AME("+getActorName(akActor)+") - OnEffectFinish()",1)
     endif
     if loc_isplayer
         UD_PlayerSlot.CleanArousalUpdate()

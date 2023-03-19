@@ -13,7 +13,6 @@ bool Property Ready = false auto hidden
 
 Function OnInit()
     Ready = true
-    UDCDMain.CLog("UD_MutexManagerScript ready")
 EndFunction
 
 Function Update()

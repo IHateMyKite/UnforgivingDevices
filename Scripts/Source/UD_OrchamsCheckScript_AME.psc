@@ -32,7 +32,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
         return
     endif
     if UDmain.TraceAllowed() ;only for player, because it works different for NPCs
-        UDCDmain.Log("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - OnEffectStart()",2)
+        UDmain.Log("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - OnEffectStart()",2)
     endif
     UD_PlayerSlot.InitOrgasmUpdate()
     registerForSingleUpdate(0.1)
@@ -41,7 +41,7 @@ EndEvent
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
     _finished = true
     if UDmain.TraceAllowed() && loc_isplayer
-        UDCDmain.Log("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - OnEffectFinish()",1)
+        UDmain.Log("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - OnEffectFinish()",1)
     endif
     if loc_isplayer
         UD_PlayerSlot.CleanOrgasmUpdate()

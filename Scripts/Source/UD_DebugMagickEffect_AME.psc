@@ -13,7 +13,7 @@ EndEvent
 
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
     float loc_time = UDCDMain.FinishRecordTime("UD_DebugMagickEffect_AME - Time")
-    UDCDMain.Log("UD_DebugMagickEffect_AME - Load = " + CalculateLoad(loc_time) )
+    UDCDmain.UDmain.Log("UD_DebugMagickEffect_AME - Load = " + CalculateLoad(loc_time) )
 EndEvent
 
 Event OnUpdate()

@@ -1,4 +1,47 @@
+;/   File: UD_MenuChecker
+    This script checks if any menu is open using events.
+    
+    Because of that, checking if menu is open is much faster by using this script
+    
+    On other hand there is issue with event lag.
+    
+    There is allways small delay before the scripts variables gets updated after menu is opened/closed
+    
+    See: <IsMenuOpen>, <IsMenuOpenID>, <IsContainerMenuOpen>, <IsLockpickingMenuOpen>, <IsInventoryMenuOpen>, <IsMessageboxOpen>
+/;
 Scriptname UD_MenuChecker extends Quest hidden
+
+;/ About: Menus ID
+    --- Code
+    |======================================|
+    |           Menu ID table              |
+    |======================================|
+    |   aiID    |           MENU           |
+    |======================================|
+    |    00     =     ContainerMenu        |
+    |    01     =     Lockpicking Menu     |
+    |    02     =     InventoryMenu        |
+    |    03     =     Journal Menu         |
+    |    04     =     Crafting Menu        |
+    |    05     =     Dialogue Menu        |
+    |    06     =     FavoritesMenu        |
+    |    07     =     GiftMenu             |
+    |    08     =     Main Menu            |
+    |    09     =     Loading Menu         |
+    |    10     =     Book Menu            |
+    |    11     =     MagicMenu            |
+    |    12     =     MapMenu              |
+    |    13     =     MessageBoxMenu       |
+    |    14     =     RaceSex Menu         |
+    |    15     =     Sleep/Wait Menu      |
+    |    16     =     StatsMenu            |
+    |    17     =     Tutorial Menu        |
+    |    18     =     TweenMenu            |
+    |    19     =     Console              |
+    |    20     =     BarterMenu           |
+    |======================================|
+    ---
+/;
 
 import UnforgivingDevicesMain
 
@@ -8,32 +51,6 @@ String[]     Property UD_MenuList                               auto hidden
 bool[]       Property UD_MenuListID                             auto hidden
 string       Property UD_LastMenuOpened             = "none"    auto hidden
 Bool         Property UD_MenuOpened                 = false     auto hidden
-
-;================================;
-;   ID |||        MENU             ;
-;--------------------------------;
-;    00     =     ContainerMenu        ;
-;    01     =     Lockpicking Menu     ;
-;    02     =     InventoryMenu        ;
-;    03     =     Journal Menu         ;
-;    04     =     Crafting Menu        ;
-;    05     =     Dialogue Menu        ;
-;    06     =     FavoritesMenu        ;
-;    07     =     GiftMenu             ;
-;    08     =     Main Menu            ;
-;    09     =     Loading Menu         ;
-;    10     =     Book Menu            ;
-;    11     =     MagicMenu            ;
-;    12     =     MapMenu              ;
-;    13     =     MessageBoxMenu       ;
-;    14     =     RaceSex Menu         ;
-;    15     =     Sleep/Wait Menu      ;
-;    16     =     StatsMenu            ;
-;    17     =     Tutorial Menu        ;
-;    18     =     TweenMenu            ;
-;    19     =     Console              ;
-;    20     =     BarterMenu           ;
-;=================================
 
 Bool Function IsMenuOpen(Int aiID)
     return UD_MenuListID[aiID]

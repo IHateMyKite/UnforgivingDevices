@@ -1142,7 +1142,7 @@ EndFunction
 ;returns true if current device helper is player follower
 bool Function HelperIsFollower()
     if _minigameHelper
-        return UDCDmain.ActorIsFollower(_minigameHelper)
+        return UDmain.ActorIsFollower(_minigameHelper)
     endif
     return false
 EndFunction
@@ -1170,7 +1170,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
     if UDmain
         if (akOldContainer == UDCDmain.TransfereContainer_ObjRef)
             if UDmain.TraceAllowed()            
-                UDCDmain.Log("Device " + getDeviceHeader() + " transfered to transfer container!",2)
+                UDmain.Log("Device " + getDeviceHeader() + " transfered to transfer container!",2)
             endif
             UDCDmain._transferedDevice = self
         endif
@@ -1358,7 +1358,7 @@ EndFunction
 int Function getModifierParamNum(string modifier)
     string[] loc_params = getModifierAllParam(modifier)
     if !loc_params
-        UDCDMain.Error(getDeviceHeader() + " -> getModifierParamNum -> "+ modifier +" have no parameters!")
+        UDmain.Error(getDeviceHeader() + " -> getModifierParamNum -> "+ modifier +" have no parameters!")
         return 0
     else
         return getModifierAllParam(modifier).length
@@ -1368,10 +1368,10 @@ EndFunction
 Int Function getModifierIntParam(string modifier,int index = 0,int default_value = 0)
     string[] loc_params = getModifierAllParam(modifier)
     if (index - 1) > loc_params.length    
-        UDCDMain.Error(getDeviceHeader() + " -> getModifierIntParam -> Wrong index passed for "+ modifier +"!")
+        UDmain.Error(getDeviceHeader() + " -> getModifierIntParam -> Wrong index passed for "+ modifier +"!")
         return default_value
     elseif loc_params.length == 0
-        UDCDMain.Error(getDeviceHeader() + " -> getModifierIntParam -> modifier "+modifier+" have no parameters!")
+        UDmain.Error(getDeviceHeader() + " -> getModifierIntParam -> modifier "+modifier+" have no parameters!")
         return default_value
     else
         return loc_params[index] as Int
@@ -1381,10 +1381,10 @@ EndFunction
 Float Function getModifierFloatParam(string modifier,int index = 0,float default_value = 0.0)
     string[] loc_params = getModifierAllParam(modifier)
     if (index - 1) > loc_params.length    
-        UDCDMain.Error(getDeviceHeader() + " -> getModifierFloatParam -> Wrong index passed for "+ modifier +"!")
+        UDmain.Error(getDeviceHeader() + " -> getModifierFloatParam -> Wrong index passed for "+ modifier +"!")
         return default_value
     elseif loc_params.length == 0
-        UDCDMain.Error(getDeviceHeader() + " -> getModifierFloatParam -> modifier "+modifier+" have no parameters!")
+        UDmain.Error(getDeviceHeader() + " -> getModifierFloatParam -> modifier "+modifier+" have no parameters!")
         return default_value
     else
         return loc_params[index] as Float
@@ -1394,10 +1394,10 @@ EndFunction
 String Function getModifierParam(string modifier,int index = 0,string default_value = "ERROR")
     string[] loc_params = getModifierAllParam(modifier)
     if (index - 1) > loc_params.length    
-        UDCDMain.Error(getDeviceHeader() + " -> getModifierParam -> Wrong index passed for "+ modifier +"!")
+        UDmain.Error(getDeviceHeader() + " -> getModifierParam -> Wrong index passed for "+ modifier +"!")
         return default_value
     elseif loc_params.length == 0
-        UDCDMain.Error(getDeviceHeader() + " -> getModifierParam -> modifier "+modifier+" have no parameters!")
+        UDmain.Error(getDeviceHeader() + " -> getModifierParam -> modifier "+modifier+" have no parameters!")
         return default_value
     else
         return loc_params[index]
@@ -2112,13 +2112,13 @@ Function StartInitMutex()
     EndWhile
     UDCDmain.UD_EquipMutex = True
     if UDmain.TraceAllowed()
-        UDCDmain.Log("Mutexed and proccesing " + getDeviceHeader(),2)
+        UDmain.Log("Mutexed and proccesing " + getDeviceHeader(),2)
     endif
 EndFunction
 
 Function EndInitMutex()
     if UDmain.TraceAllowed()
-        UDCDmain.Log("Mutex ended for " + getDeviceHeader(),2)
+        UDmain.Log("Mutex ended for " + getDeviceHeader(),2)
     endif
     UDCDmain.UD_EquipMutex = False
 EndFunction
@@ -2128,7 +2128,7 @@ Function Init(Actor akActor)
     libSafeCheck()
 
     if !akActor
-        UDCDmain.Error("!Aborting Init called for "+getDeviceName()+" because actor is none!!")
+        UDmain.Error("!Aborting Init called for "+getDeviceName()+" because actor is none!!")
         akActor.removeItem(deviceRendered,1,True)
         return
     endif
@@ -2140,12 +2140,12 @@ Function Init(Actor akActor)
     UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
     
     if IsUnlocked 
-        UDCDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because device is already unlocked!!")
+        UDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because device is already unlocked!!")
         return 
     endif
     
     if akActor.getItemCount(deviceInventory) == 0
-        UDCDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because no inventory device is present!")
+        UDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because no inventory device is present!")
         return
     endif
 
@@ -2156,7 +2156,7 @@ Function Init(Actor akActor)
     endif
 
     if akActor.getItemCount(deviceRendered) > 1
-        UDCDmain.Error("!Aborting Init("+ getDeviceHeader() + " because device is already present!")
+        UDmain.Error("!Aborting Init("+ getDeviceHeader() + " because device is already present!")
         akActor.removeItem(deviceRendered,akActor.getItemCount(deviceRendered) - 1,true)
         return
     endif
@@ -2174,19 +2174,19 @@ Function Init(Actor akActor)
         endwhile
         
         if loc_time >= 1.0
-            UDCDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because equip failed - timeout")
+            UDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because equip failed - timeout")
             return
         endif
     endif
     if UDmain.TraceAllowed()
-        UDCDmain.Log("Init(called for " + getDeviceHeader(),1)
+        UDmain.Log("Init(called for " + getDeviceHeader(),1)
     endif
     
     ;MUTEX START
     ;mutex check because some mods equips items too fast at once, making it possible to have equipped 2 of the same item
     if loc_slot
         if loc_slot.getDeviceByRender(deviceRendered)
-            UDCDmain.Error("!Aborting Init("+ getDeviceHeader() +") because device is already registered!")
+            UDmain.Error("!Aborting Init("+ getDeviceHeader() +") because device is already registered!")
             akActor.removeItem(deviceRendered,akActor.getItemCount(deviceRendered) - 1,true)
             return
         endif
@@ -2194,7 +2194,7 @@ Function Init(Actor akActor)
     endif
     
     if UDmain.TraceAllowed()
-        UDCDmain.Log("Registering device: " + getDeviceHeader(),1)
+        UDmain.Log("Registering device: " + getDeviceHeader(),1)
     endif
     
     GoToState("UpdatePaused")
@@ -2213,7 +2213,7 @@ Function Init(Actor akActor)
 
     if deviceRendered.hasKeyword(UDlibs.PatchedDevice) ;patched device
         if UDmain.TraceAllowed()
-            UDCDmain.Log("Patching device " + deviceInventory.getName(),2)
+            UDmain.Log("Patching device " + deviceInventory.getName(),2)
         endif
         patchDevice()
     else
@@ -2276,7 +2276,7 @@ Function Init(Actor akActor)
     
     
     if UDmain.TraceAllowed()
-        UDCDmain.Log(DeviceInventory.getName() + " fully locked on " + getWearerName(),1)
+        UDmain.Log(DeviceInventory.getName() + " fully locked on " + getWearerName(),1)
     endif
     
     Ready = True
@@ -2720,9 +2720,9 @@ Function updateCondition(bool decrease = True)
             _total_durability_drain -= loc_health
             UD_condition += 1
             if WearerIsPlayer()
-                UDCDmain.Print("You feel that "+getDeviceName()+" condition have decreased!",2)
+                UDmain.Print("You feel that "+getDeviceName()+" condition have decreased!",2)
             elseif UDCDmain.AllowNPCMessage(GetWearer(), true)
-                UDCDmain.Print(GetWearerName() + "s " + getDeviceName() + " condition have decreased!",3)
+                UDmain.Print(GetWearerName() + "s " + getDeviceName() + " condition have decreased!",3)
             endif
         endwhile
     else
@@ -2731,9 +2731,9 @@ Function updateCondition(bool decrease = True)
             if UD_condition > 0 
                 UD_condition -= 1
                 if WearerIsPlayer()
-                    UDCDmain.Print("You feel that "+getDeviceName()+" condition have increased!",1)
+                    UDmain.Print("You feel that "+getDeviceName()+" condition have increased!",1)
                 elseif UDCDmain.AllowNPCMessage(GetWearer(), true)
-                    UDCDmain.Print(GetWearerName() + "s " + getDeviceName() + " condition have increased!",3)
+                    UDmain.Print(GetWearerName() + "s " + getDeviceName() + " condition have increased!",3)
                 endif
             endif
         endif
@@ -2741,9 +2741,9 @@ Function updateCondition(bool decrease = True)
     
     if UD_condition >= 4 && !IsUnlocked
         if WearerIsPlayer()
-            UDCDmain.Print("You managed to destroy "+ getDeviceName() +"!",2)
+            UDmain.Print("You managed to destroy "+ getDeviceName() +"!",2)
         elseif WearerIsFollower()
-            UDCDmain.Print(GetWearerName() + " managed to destroy " + getDeviceName() + "!",2)
+            UDmain.Print(GetWearerName() + " managed to destroy " + getDeviceName() + "!",2)
         endif
         unlockRestrain(True)
     else
@@ -4358,9 +4358,9 @@ bool Function minigamePrecheck(Bool abSilent = False)
         if !abSilent
             GWarning("Can't start minigame for " + getDeviceHeader() + " because wearer is already in minigame!")
             if WearerIsPlayer()
-                UDCDmain.Print("You are already doing something")
+                UDmain.Print("You are already doing something")
             elseif UDCDmain.AllowNPCMessage(Wearer)
-                UDCDmain.Print(getWearerName() + " is already doing something")
+                UDmain.Print(getWearerName() + " is already doing something")
             endif
         endif
         return false
@@ -4370,9 +4370,9 @@ bool Function minigamePrecheck(Bool abSilent = False)
         if !abSilent
             GWarning("Can't start minigame for " + getDeviceHeader() + " because wearer is already in animating!")
             if WearerIsPlayer()
-                UDCDmain.Print("You are already doing something",1)
+                UDmain.Print("You are already doing something",1)
             elseif UDCDmain.AllowNPCMessage(Wearer)
-                UDCDmain.Print(getWearerName() + " is already doing something",1)
+                UDmain.Print(getWearerName() + " is already doing something",1)
             endif
         endif
         return false
@@ -4383,9 +4383,9 @@ bool Function minigamePrecheck(Bool abSilent = False)
         if !abSilent
             GWarning("Can't start minigame for " + getDeviceHeader() + " because wearer is invalid! Dead="+Wearer.IsDead() + ",Disabled="+Wearer.IsDisabled()+",Scene+"+Wearer.GetCurrentScene())
             if WearerIsPlayer()
-                UDCDmain.Print("You are already doing something",1)
+                UDmain.Print("You are already doing something",1)
             elseif UDCDmain.AllowNPCMessage(Wearer)
-                UDCDmain.Print(getWearerName() + " is already doing something",1)
+                UDmain.Print(getWearerName() + " is already doing something",1)
             endif
         endif
         return false
@@ -4396,9 +4396,9 @@ bool Function minigamePrecheck(Bool abSilent = False)
             if !abSilent
                 GWarning("Can't start minigame for " + getDeviceHeader() + " because helper is already in minigame!")
                 if HelperIsPlayer()
-                    UDCDmain.Print("You are already doing something")
+                    UDmain.Print("You are already doing something")
                 elseif UDCDmain.AllowNPCMessage(_minigameHelper)
-                    UDCDmain.Print(getHelperName() + " is already doing something",1)
+                    UDmain.Print(getHelperName() + " is already doing something",1)
                 endif
             endif
             return false
@@ -4407,9 +4407,9 @@ bool Function minigamePrecheck(Bool abSilent = False)
             if !abSilent
                 GWarning("Can't start minigame for " + getDeviceHeader() + " because helper is already in minigame!")
                 if HelperIsPlayer()
-                    UDCDmain.Print("You are already doing something")
+                    UDmain.Print("You are already doing something")
                 elseif UDCDmain.AllowNPCMessage(_minigameHelper)
-                    UDCDmain.Print(getHelperName() + " is already doing something")
+                    UDmain.Print(getHelperName() + " is already doing something")
                 endif
             endif
             return false
@@ -4419,9 +4419,9 @@ bool Function minigamePrecheck(Bool abSilent = False)
             if !abSilent
                 GWarning("Can't start minigame for " + getDeviceHeader() + " because helper is invalid!")
                 if HelperIsPlayer()
-                    UDCDmain.Print("You are already doing something",1)
+                    UDmain.Print("You are already doing something",1)
                 elseif UDCDmain.AllowNPCMessage(_minigameHelper)
-                    UDCDmain.Print(getHelperName() + " is already doing something",1)
+                    UDmain.Print(getHelperName() + " is already doing something",1)
                 endif
             endif
             return false
@@ -4431,7 +4431,7 @@ bool Function minigamePrecheck(Bool abSilent = False)
     if _ParalelProcessRunning()
         if !abSilent
             if WearerIsPlayer() || WearerIsFollower()
-                UDCDmain.Print("Slow down!",1)
+                UDmain.Print("Slow down!",1)
             endif
         endif
         GError("Paralel process still activated on " + getDeviceHeader() + " skipping minigame!!")
@@ -4497,7 +4497,7 @@ Function minigame()
     
     
     if UDmain.TraceAllowed()
-        UDCDmain.Log("Minigame started for: " + deviceInventory.getName())    
+        UDmain.Log("Minigame started for: " + deviceInventory.getName())    
     endif
     
     Int[] hasStruggleAnimation                                  ; number of found struggle animations
@@ -4664,9 +4664,9 @@ Function minigame()
     ;checks if Wearer succesfully escaped device
     if IsUnlocked
         if loc_WearerIsPlayer
-            UDCDmain.Print("You have succesfully escaped out of " + deviceInventory.GetName() + "!",2)
+            UDmain.Print("You have succesfully escaped out of " + deviceInventory.GetName() + "!",2)
         elseif UDCDmain.AllowNPCMessage(Wearer, true)
-            UDCDmain.Print(getWearerName()+" succesfully escaped out of " + deviceInventory.GetName() + "!",2)
+            UDmain.Print(getWearerName()+" succesfully escaped out of " + deviceInventory.GetName() + "!",2)
         endif
         if !loc_WearerIsPlayer
             UpdateMotivation(Wearer,50) ;increase NPC motivation on failed escape
@@ -4677,12 +4677,12 @@ Function minigame()
         endif
         if loc_PlayerInMinigame
             if _minigameHelper
-                UDCDmain.Print("One of you is too exhausted to continue struggling",1)
+                UDmain.Print("One of you is too exhausted to continue struggling",1)
             else
-                UDCDmain.Print("You are too exhausted to continue struggling",1)
+                UDmain.Print("You are too exhausted to continue struggling",1)
             endif
         elseif UDCDmain.AllowNPCMessage(GetWearer(), true)
-            UDCDmain.Print(getWearerName()+" is too exhausted to continue struggling",1)
+            UDmain.Print(getWearerName()+" is too exhausted to continue struggling",1)
         endif
         if !loc_WearerIsPlayer
             UpdateMotivation(Wearer,-5) ;decrease NPC motivation on failed escape
@@ -4706,7 +4706,7 @@ Function minigame()
     EndIf
 
     if UDmain.TraceAllowed()
-        UDCDmain.Log(getDeviceHeader() + "::minigame() - Minigame ended",1)
+        UDmain.Log(getDeviceHeader() + "::minigame() - Minigame ended",1)
     endif
     
     ;wait for paralled threads to end
@@ -4723,7 +4723,7 @@ Function minigame()
         loc_time += loc_timeoutUpT
     endwhile
     if loc_time >= loc_timeout
-        UDCDMain.Error(getDeviceHeader() + "::minigame() - Minigame paralel thread timeout! _deviceControlBitMap_1 = " + IntToBit(_deviceControlBitMap_1))
+        UDmain.Error(getDeviceHeader() + "::minigame() - Minigame paralel thread timeout! _deviceControlBitMap_1 = " + IntToBit(_deviceControlBitMap_1))
     endif
     
     MinigameVarReset()
@@ -5230,7 +5230,7 @@ EndFunction
 Function unlockRestrain(bool forceDestroy = false,bool waitForRemove = True)
     if IsUnlocked
         if UDmain.TraceAllowed()        
-            UDCDmain.Log("unlockRestrain()"+getDeviceHeader()+": Device is already unlocked! Aborting ",1)
+            UDmain.Log("unlockRestrain()"+getDeviceHeader()+": Device is already unlocked! Aborting ",1)
         endif
         return
     endif
@@ -5242,7 +5242,7 @@ Function unlockRestrain(bool forceDestroy = false,bool waitForRemove = True)
     endif
     
     if UDmain.TraceAllowed()
-        UDCDmain.Log("unlockRestrain() called for " + self,1)
+        UDmain.Log("unlockRestrain() called for " + self,1)
     endif
 
     current_device_health = 0.0
@@ -5763,11 +5763,11 @@ Function cutDevice(float progress_add = 1.0)
         ;only show message fo NPC, as player can see progress progress on widget
         if _CuttingGameON
             if !PlayerInMinigame() && UDCDmain.AllowNPCMessage(getWearer(), True)
-                UDCDmain.Print(getWearerName() + " managed to cut "+getDeviceName()+" and reduce durability by big amount!",3)
+                UDmain.Print(getWearerName() + " managed to cut "+getDeviceName()+" and reduce durability by big amount!",3)
             endif
         else
             if !PlayerInMinigame() && UDCDmain.AllowNPCMessage(getWearer(), True)
-                UDCDmain.Print(getWearerName() + "s "+ getDeviceName() +" is cutted!",3)
+                UDmain.Print(getWearerName() + "s "+ getDeviceName() +" is cutted!",3)
             endif
         endif
 
@@ -5779,7 +5779,7 @@ Function cutDevice(float progress_add = 1.0)
 
         _CuttingProgress = 0.0
         if UDmain.TraceAllowed()        
-            UDCDmain.Log(getDeviceHeader() + " is cutted for " + cond_dmg + "C ( " + (UD_DamageMult*cond_dmg*getModResistPhysical(1.0,0.25)/7.0) + " D) (Wearer: " + getWearerName() + ")",1)
+            UDmain.Log(getDeviceHeader() + " is cutted for " + cond_dmg + "C ( " + (UD_DamageMult*cond_dmg*getModResistPhysical(1.0,0.25)/7.0) + " D) (Wearer: " + getWearerName() + ")",1)
         endif
         OnDeviceCutted()
     endif
@@ -5848,7 +5848,7 @@ Function lockpickDevice()
                 if UDmain.IsLockpickingMenuOpen()
                     closeLockpickMenu()
                 endif
-                UDCDmain.Print("You lost focus and broke the lockpick!")
+                UDmain.Print("You lost focus and broke the lockpick!")
                 result = 2
                 getWearer().removeItem(UDCDmain.Lockpick,1)
             endif
@@ -5891,32 +5891,32 @@ Function lockpickDevice()
                 loc_shields = DecreaseLockShield(_MinigameSelectedLockID,1)
                 if loc_shields
                     if PlayerInMinigame()
-                        UDCDmain.Print("You succesfully unlocked one of the locks shields! Shields: [" + loc_shields + "]",1)
+                        UDmain.Print("You succesfully unlocked one of the locks shields! Shields: [" + loc_shields + "]",1)
                     elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                        UDCDmain.Print(getWearerName() + " unlocked one of the locks shields! Shields: [" + loc_shields + "]",2)
+                        UDmain.Print(getWearerName() + " unlocked one of the locks shields! Shields: [" + loc_shields + "]",2)
                     endif
                 else
                     if PlayerInMinigame()
-                        UDCDmain.Print("You succesfully unlocked all of the shields!",1)
+                        UDmain.Print("You succesfully unlocked all of the shields!",1)
                     elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                        UDCDmain.Print(getWearerName() + " unlocked all of the shields!",2)
+                        UDmain.Print(getWearerName() + " unlocked all of the shields!",2)
                     endif
                 endif
             else ;no more shields on device, unlock the lock
                 UnlockNthLock(_MinigameSelectedLockID)
                 if PlayerInMinigame()
-                    UDCDmain.Print("You succesfully unlocked the "+UD_LockNameList[_MinigameSelectedLockID]+"!",1)
+                    UDmain.Print("You succesfully unlocked the "+UD_LockNameList[_MinigameSelectedLockID]+"!",1)
                 elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                    UDCDmain.Print(getWearerName() + " unlocked one of the "+UD_LockNameList[_MinigameSelectedLockID]+"!",2)
+                    UDmain.Print(getWearerName() + " unlocked one of the "+UD_LockNameList[_MinigameSelectedLockID]+"!",2)
                 endif
                 onLockUnlocked(True)
                 stopMinigame() ;stop minigame, as player needs to select next lock manually
             endif
             if UD_CurrentLocks == 0 && UD_JammedLocks == 0 ;device gets unlocked
                 if PlayerInMinigame()
-                    UDCDmain.Print("You succesfully unlocked the last lock and removed the "+GetDeviceName()+"!",1)
+                    UDmain.Print("You succesfully unlocked the last lock and removed the "+GetDeviceName()+"!",1)
                 elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                    UDCDmain.Print(getWearerName() + " unlocked last lock and removed the "+GetDeviceName()+"!",2)
+                    UDmain.Print(getWearerName() + " unlocked last lock and removed the "+GetDeviceName()+"!",2)
                 endif
                 unlockRestrain()
                 stopMinigame()
@@ -5930,9 +5930,9 @@ Function lockpickDevice()
         elseif result == 2 ;failure
             if Utility.randomInt() <= zad_JammLockChance*UDCDmain.CalculateKeyModifier() && !libs.Config.DisableLockJam
                 if PlayerInMinigame()
-                    UDCDmain.Print("Your lockpick jammed the lock!",1)
+                    UDmain.Print("Your lockpick jammed the lock!",1)
                 elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                    UDCDmain.Print(getWearerName() + "s "+getDeviceName()+" lock gets jammed!",3)
+                    UDmain.Print(getWearerName() + "s "+getDeviceName()+" lock gets jammed!",3)
                 endif
                 
                 JammNthLock(_MinigameSelectedLockID)
@@ -5961,9 +5961,9 @@ Function keyUnlockDevice()
     stopMinigame()
     
     if PlayerInMinigame()
-        UDCDMain.Print("You managed to unlock "+GetDeviceName()+"s "+GetNthLockName(_MinigameSelectedLockID)+"!",1)
+        UDmain.Print("You managed to unlock "+GetDeviceName()+"s "+GetNthLockName(_MinigameSelectedLockID)+"!",1)
     elseif UDCDmain.AllowNPCMessage(Wearer, True)
-        UDCDMain.Print(getWearerName() + " managed to unlock "+GetDeviceName()+"s "+GetNthLockName(_MinigameSelectedLockID)+"!",2)
+        UDmain.Print(getWearerName() + " managed to unlock "+GetDeviceName()+"s "+GetNthLockName(_MinigameSelectedLockID)+"!",2)
     endif
     
     if zad_DestroyKey
@@ -5979,13 +5979,13 @@ Function keyUnlockDevice()
             Int loc_dur = UDCDMain.ReduceKeyDurability(Wearer, zad_DeviceKey)
             if !loc_dur
                 if PlayerInMinigame()
-                    UDCDMain.Print("Key "+ zad_DeviceKey.GetName() +" gets destroyed",1)
+                    UDmain.Print("Key "+ zad_DeviceKey.GetName() +" gets destroyed",1)
                 elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                    UDCDMain.Print(getWearerName() + "'s key "+ zad_DeviceKey.GetName() +" gets destroyed",1)
+                    UDmain.Print(getWearerName() + "'s key "+ zad_DeviceKey.GetName() +" gets destroyed",1)
                 endif
             else
                 if PlayerInMinigame()
-                    UDCDMain.Print("Remaining durability of key " + zad_DeviceKey.GetName() + " = [" + loc_dur+"]",2)
+                    UDmain.Print("Remaining durability of key " + zad_DeviceKey.GetName() + " = [" + loc_dur+"]",2)
                 endif
             endif
         endif
@@ -6018,7 +6018,7 @@ Function AddJammedLock(int iChance = 5, string strMsg = "", int iNumber = 1)
         SetJammStatus()
         
         if strMsg != ""
-            UDCDmain.Print(strMsg,2)
+            UDmain.Print(strMsg,2)
         endif
         
         OnLockJammed()
@@ -6047,7 +6047,7 @@ function checkSentient(float mult = 1.0)
         endif
         if Round(getModifierFloatParam("Sentient")*mult) > Utility.randomInt(1,99)
             if UDmain.TraceAllowed()            
-                UDCDmain.Log("Sentient device activation of : " + getDeviceHeader())
+                UDmain.Log("Sentient device activation of : " + getDeviceHeader())
             endif
             UDCDmain.activateDevice(self)
         endif
@@ -6071,7 +6071,7 @@ EndFunction
 bool Function CooldownActivate()
     if OnCooldownActivatePre()
         if UDmain.TraceAllowed()        
-            UDCDmain.Log(getDeviceHeader() + " cooldown activate",1)
+            UDmain.Log(getDeviceHeader() + " cooldown activate",1)
         endif
         OnCooldownActivatePost()
         resetCooldown(1.0)
@@ -6241,7 +6241,7 @@ EndFunction
 ;theese function should be on every object instance, as not having them may cause multiple function calls to default class
 Function activateDevice()
     if UDmain.TraceAllowed()
-        UDCDmain.Log("Device " + DeviceInventory.getName() + " (W: " + getWearerName() + ") activated",1)
+        UDmain.Log("Device " + DeviceInventory.getName() + " (W: " + getWearerName() + ") activated",1)
     endif
     resetCooldown(1.0)
 EndFunction

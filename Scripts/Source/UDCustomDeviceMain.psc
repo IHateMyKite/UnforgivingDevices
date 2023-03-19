@@ -1,3 +1,5 @@
+;   File: UDCustomDeviceMain
+;   Contains all functionality which is relevant to Custom Devices
 Scriptname UDCustomDeviceMain extends Quest  conditional
 
 import UnforgivingDevicesMain
@@ -167,19 +169,19 @@ Event OnInit()
         Utility.WaitMenuMode(0.1)
     EndWhile
     if UDmain.TraceAllowed()
-        Log("UDPatcher ready!",0)
+        UDmain.Log("UDPatcher ready!",0)
     endif
     While !UDCD_NPCM.ready
         Utility.WaitMenuMode(0.1)
     EndWhile
     if UDmain.TraceAllowed()    
-        Log("UDCD_NPCM ready!",0)
+        UDmain.Log("UDCD_NPCM ready!",0)
     endif
     While !UDEM.ready
         Utility.WaitMenuMode(0.1)
     endwhile
     if UDmain.TraceAllowed()
-        Log("UDEM ready!",0)
+        UDmain.Log("UDEM ready!",0)
     endif
 
     registerEvents()
@@ -187,7 +189,7 @@ Event OnInit()
     registerForSingleUpdate(5.0)
     RegisterForSingleUpdateGameTime(1.0)
     if UDmain.TraceAllowed()
-        Log("UDCustomDeviceMain ready!",0)
+        UDmain.Log("UDCustomDeviceMain ready!",0)
     endif
     ready = True
 EndEvent
@@ -211,10 +213,20 @@ Function Update()
 
 EndFunction
 
+;/  Function: MakeNewDeviceSlots
+
+    Returns:
+
+        New array of devices. Size of array is same as maximum amount of devices which can have one actor registered at once
+/;
 UD_CustomDevice_RenderScript[] Function MakeNewDeviceSlots()
     return new UD_CustomDevice_RenderScript[25]
 EndFunction
 
+;/  Function: SendLoadConfig
+
+    Forces JSON config file to be reloaded
+/;
 Function SendLoadConfig()
     RegisterForModEvent("UD_LoadConfig","LoadConfig")
     
@@ -235,28 +247,128 @@ Function LoadConfig()
 EndFunction
 
 ;dedicated switches to hide options from menu
+
+;/  Variable: currentDeviceMenu_allowStruggling
+
+    Conditional variable intended to be used by conditions on messages
+/;
 bool Property currentDeviceMenu_allowStruggling         = false auto conditional hidden
 
+;/  Variable: currentDeviceMenu_allowUselessStruggling
+
+    Conditional variable intended to be used by conditions on messages
+/;
 bool Property currentDeviceMenu_allowUselessStruggling  = false auto conditional hidden
+
+;/  Variable: currentDeviceMenu_allowLockpick
+
+    Conditional variable intended to be used by conditions on messages
+/;
 bool Property currentDeviceMenu_allowLockpick           = false auto conditional hidden
+
+;/  Variable: currentDeviceMenu_allowKey
+
+    Conditional variable intended to be used by conditions on messages
+/;
 bool Property currentDeviceMenu_allowKey                = false auto conditional hidden
+
+;/  Variable: currentDeviceMenu_allowCutting
+
+    Conditional variable intended to be used by conditions on messages
+/;
 bool Property currentDeviceMenu_allowCutting            = false auto conditional hidden
+
+;/  Variable: currentDeviceMenu_allowLockRepair
+
+    Conditional variable intended to be used by conditions on messages
+/;
 bool Property currentDeviceMenu_allowLockRepair         = false auto conditional hidden
+
+;/  Variable: currentDeviceMenu_allowTighten
+
+    Conditional variable intended to be used by conditions on messages
+/;
 bool Property currentDeviceMenu_allowTighten            = false auto conditional hidden
+
+;/  Variable: currentDeviceMenu_allowRepair
+
+    Conditional variable intended to be used by conditions on messages
+/;
 bool Property currentDeviceMenu_allowRepair             = false auto conditional hidden
 
+;/  Variable: currentDeviceMenu_allowCommand
+
+    Conditional variable intended to be used by conditions on messages
+/;
+bool Property currentDeviceMenu_allowCommand            = false auto conditional hidden
+
+;/  Variable: currentDeviceMenu_allowDetails
+
+    Conditional variable intended to be used by conditions on messages
+/;
+bool Property currentDeviceMenu_allowDetails            = false auto conditional hidden
+
+;/  Variable: currentDeviceMenu_allowLockMenu
+
+    Conditional variable intended to be used by conditions on messages
+/;
+bool Property currentDeviceMenu_allowLockMenu           = false auto conditional hidden
+
+;/  Variable: currentDeviceMenu_allowSpecialMenu
+
+    Conditional variable intended to be used by conditions on messages
+/;
+bool Property currentDeviceMenu_allowSpecialMenu        = false auto conditional hidden
+
+
 ;switches for special menu, allows only six buttons
+
+;/  Variable: currentDeviceMenu_switch1
+    Switch for special menu, allows only six buttons
+    
+    Conditional variable intended to be used by conditions on messages
+/;
 bool Property currentDeviceMenu_switch1                 = false auto conditional hidden
+
+;/  Variable: currentDeviceMenu_switch2
+    Switch for special menu, allows only six buttons
+    
+    Conditional variable intended to be used by conditions on messages
+/;
 bool Property currentDeviceMenu_switch2                 = false auto conditional hidden
+
+;/  Variable: currentDeviceMenu_switch3
+    Switch for special menu, allows only six buttons
+    
+    Conditional variable intended to be used by conditions on messages
+/;
 bool Property currentDeviceMenu_switch3                 = false auto conditional hidden
+
+;/  Variable: currentDeviceMenu_switch4
+    Switch for special menu, allows only six buttons
+    
+    Conditional variable intended to be used by conditions on messages
+/;
 bool Property currentDeviceMenu_switch4                 = false auto conditional hidden
+
+;/  Variable: currentDeviceMenu_switch5
+    Switch for special menu, allows only six buttons
+    
+    Conditional variable intended to be used by conditions on messages
+/;
 bool Property currentDeviceMenu_switch5                 = false auto conditional hidden
+
+;/  Variable: currentDeviceMenu_switch6
+    Switch for special menu, allows only six buttons
+    
+    Conditional variable intended to be used by conditions on messages
+/;
 bool Property currentDeviceMenu_switch6                 = false auto conditional hidden
 
-bool Property currentDeviceMenu_allowCommand            = false auto conditional hidden
-bool Property currentDeviceMenu_allowDetails            = false auto conditional hidden
-bool Property currentDeviceMenu_allowLockMenu           = false auto conditional hidden
-bool Property currentDeviceMenu_allowSpecialMenu        = false auto conditional hidden
+;/  Function: resetCondVar
+
+    Resets all variables which are intended to be used by messages  to show buttons
+/;
 Function resetCondVar()
     currentDeviceMenu_allowstruggling = false
     currentDeviceMenu_allowUselessStruggling = false    
@@ -280,11 +392,20 @@ Function resetCondVar()
     currentDeviceMenu_allowSpecialMenu = False
 EndFunction
 
-Function disableStruggleCondVar(bool bDisableLock = true, bool bUselessStruggle = false)
+;/  Function: disableStruggleCondVar
+
+    Resets all struggle related variables which are intended to be used by messages to show buttons
+
+    Parameters:
+
+        abDisableLock       - Also disable lock related buttons
+        abUselessStruggle   - Also disable useless struggle button
+/;
+Function disableStruggleCondVar(bool abDisableLock = true, bool abUselessStruggle = false)
     currentDeviceMenu_allowstruggling = false
-    currentDeviceMenu_allowUselessStruggling = bUselessStruggle    
+    currentDeviceMenu_allowUselessStruggling = abUselessStruggle
     currentDeviceMenu_allowcutting = false
-    if bDisableLock
+    if abDisableLock
         currentDeviceMenu_allowkey = false
         currentDeviceMenu_allowLockMenu = False
         currentDeviceMenu_allowlockpick = false
@@ -294,6 +415,10 @@ Function disableStruggleCondVar(bool bDisableLock = true, bool bUselessStruggle 
     currentDeviceMenu_allowRepair = false
 EndFunction
 
+;/  Function: CheckAndDisableSpecialMenu
+
+    Validate if special menu should be shown. Should be called after changes to any currentDeviceMenu_switchX variable was done
+/;
 Function CheckAndDisableSpecialMenu()
     bool loc_cond = false
     loc_cond = loc_cond || currentDeviceMenu_switch1
@@ -307,27 +432,63 @@ Function CheckAndDisableSpecialMenu()
     endif
 EndFunction
 
+;/  Function: DisableActor
+
+    Wrapper of function <StartMinigameDisable>
+
+    Parameters:
+
+        akActor     - Actor to disable
+        aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
+/;
 Function DisableActor(Actor akActor,int aiIsPlayer = -1)
     if UDmain.TraceAllowed()    
-        Log("DisableActor("+getActorName(akActor) + ")",2)
+        UDmain.Log("DisableActor("+getActorName(akActor) + ")",2)
     endif
     StartMinigameDisable(akActor,aiIsPlayer)
 EndFunction
 
+;/  Function: UpdateDisabledActor
+
+    Wrapper of function <UpdateMinigameDisable>
+
+    Parameters:
+
+        akActor     - Actor to update
+        aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
+/;
 Function UpdateDisabledActor(Actor akActor,int aiIsPlayer = -1)
     if UDmain.TraceAllowed()    
-        Log("UpdateDisabledActor("+getActorName(akActor) + ")",2)
+        UDmain.Log("UpdateDisabledActor("+getActorName(akActor) + ")",2)
     endif
     UpdateMinigameDisable(akActor,aiIsPlayer)
 EndFunction
 
+;/  Function: EnableActor
+
+    Wrapper of function <EndMinigameDisable>
+
+    Parameters:
+
+        akActor     - Actor to enable
+        aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
+/;
 Function EnableActor(Actor akActor,int aiIsPlayer = -1)
     if UDmain.TraceAllowed()    
-        Log("EnableActor("+getActorName(akActor)+")",2)
+        UDmain.Log("EnableActor("+getActorName(akActor)+")",2)
     endif
     EndMinigameDisable(akActor,aiIsPlayer)
 EndFunction
 
+;/  Function: StartMinigameDisable
+
+    Disalbe actor, preventing it from moving. In case of player, it also disables any inputs.
+
+    Parameters:
+
+        akActor     - Actor to disable
+        aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
+/;
 Function StartMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
     akActor.AddToFaction(BussyFaction)
     if aiIsPlayer == 1 || UDmain.ActorIsPlayer(akActor)
@@ -341,6 +502,15 @@ Function StartMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
     endif
 EndFunction
 
+;/  Function: UpdateMinigameDisable
+
+    Update actor disable. Should be used once in the while, as there is chance that other mod might enable actor
+
+    Parameters:
+
+        akActor     - Actor to update
+        aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
+/;
 Function UpdateMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
     if akActor.IsInFaction(BussyFaction)
         if aiIsPlayer == 1 || UDmain.ActorIsPlayer(akActor)
@@ -353,6 +523,15 @@ Function UpdateMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
     endif
 EndFunction
 
+;/  Function: EndMinigameDisable
+
+    Reenable actor, allowing it again to move and use inputs.
+
+    Parameters:
+
+        akActor     - Actor to enable
+        aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
+/;
 Function EndMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
     akActor.RemoveFromFaction(BussyFaction)
     if aiIsPlayer == 1 || UDmain.ActorIsPlayer(akActor)
@@ -365,7 +544,16 @@ Function EndMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
     endif
 EndFunction
 
-;returns true if actor is bussy (disabled)
+;/  Function: IsBussy
+
+    Parameters:
+
+        akActor     - Actor to enable
+        
+    Returns:
+    
+        True if actor is disabled by <DisableActor> function
+/;
 Bool Function IsBussy(Actor akActor)
     return akActor.IsInFaction(BussyFaction)
 EndFunction
@@ -374,10 +562,6 @@ Function UpdatePlayerControl()
     Game.EnablePlayerControls(abMovement = true, abFighting = false, abSneaking = false, abMenu = False, abActivate = false)
     Utility.waitMenuMode(0.05)
     Game.DisablePlayerControls(abMovement = False, abMenu = True)
-EndFunction
-
-bool Function InZadAnimation(Actor akActor)
-    return akActor.IsInFaction(libs.zadAnimatingFaction)
 EndFunction
 
 Function CheckHardcoreDisabler(Actor akActor)
@@ -403,6 +587,16 @@ Function CheckHardcoreDisabler(Actor akActor)
     endif
 EndFunction
 
+;/  Function: actorInMinigame
+
+    Parameters:
+
+        akActor     - Actor to check
+
+    Returns:
+    
+        True if actor is currently in minigame
+/;
 bool Function actorInMinigame(Actor akActor)
     if !akActor
         return false
@@ -410,11 +604,25 @@ bool Function actorInMinigame(Actor akActor)
     return akActor.IsInFaction(MinigameFaction)
 EndFunction
 
+;/  Function: PlayerInMinigame
+
+    Returns:
+    
+        True if player is currently in minigame
+/;
 bool Function PlayerInMinigame()
     return UDmain.Player.IsInFaction(MinigameFaction)
 EndFunction
 
-;stops current device minigiame. Takes up to 1s second
+;/  Function: StopMinigame
+
+    Will try to stop current minigame in which is *akActor*. Will not work if *akActor* is not wearer of the device
+
+    Parameters:
+
+        akActor         - Actor to process
+        abWaitForStop   - Function will ba blocked untill minigame fully stops
+/;
 Function StopMinigame(Actor akActor, Bool abWaitForStop)
     if !akActor
         return
@@ -424,14 +632,6 @@ Function StopMinigame(Actor akActor, Bool abWaitForStop)
     if loc_device
         loc_device.StopMinigame(abWaitForStop)
     endif
-EndFunction
-
-Function BlockActorExpression(Actor akActor,sslBaseExpression sslExpression)
-    StorageUtil.SetStringValue(akActor,"zad_BlockinkExpression",sslExpression.name)
-EndFunction
-
-Function UnBlockActorExpression(Actor akActor)
-    StorageUtil.UnSetStringValue(akActor,"zad_BlockinkExpression")
 EndFunction
 
 Function AddInvisibleArmbinder(Actor akActor)
@@ -507,25 +707,19 @@ Function UpdateInvisibleHobble(Actor akActor)
     endif
 EndFunction
 
-bool Property WHMenuOpened = false auto hidden
 int Property GiftMenuMode = 0 auto hidden
-Function openNPCLockMenu(Actor akTarget)
-    GiftMenuMode = 1
-    akTarget.ShowGiftMenu(True, UDlibs.GiftMenuFilter,True,False)
-EndFunction
-
-
-Function openPlayerHelpMenu(Actor akHelper)
-    GiftMenuMode = 2
-    akHelper.ShowGiftMenu(True, UDlibs.GiftMenuFilter,True,False)
-EndFunction
-
 
 Function openNPCHelpMenu(Actor akTarget)
     GiftMenuMode = 3
     akTarget.ShowGiftMenu(False, UDlibs.GiftMenuFilter,True,False)
 EndFunction
 
+;/  Variable: CurrentPlayerMinigameDevice
+
+    Players device which is currently used in minigame.
+
+    *!!DO NOT EDIT, READ ONLY!!*
+/;
 UD_CustomDevice_RenderScript Property CurrentPlayerMinigameDevice     = none auto hidden
 
 Function setCurrentMinigameDevice(UD_CustomDevice_RenderScript oref)
@@ -536,11 +730,30 @@ Function resetCurrentMinigameDevice()
     CurrentPlayerMinigameDevice = none
 EndFunction
 
+;/  Function: getNumberOfRegisteredDevices
+
+    Parameters:
+
+        akActor     - Actor to check
+
+    Returns:
+    
+        Number of registered devices
+/;
 int Function getNumberOfRegisteredDevices(Actor akActor)
     return getNPCSlot(akActor).getNumberOfRegisteredDevices()
 EndFunction
 
-;returns number of devices that can be activated
+;/  Function: isRegistered
+
+    Parameters:
+
+        akActor     - Actor to check
+
+    Returns:
+    
+        True is actor is registered in any NPC slot
+/;
 bool Function isRegistered(Actor akActor)
     if akActor == UDmain.Player
         return true
@@ -548,6 +761,16 @@ bool Function isRegistered(Actor akActor)
     return akActor.isInFaction(RegisteredNPCFaction);UDCD_NPCM.isRegistered(akActor)
 EndFunction
 
+;/  Function: getNPCSlot
+
+    Parameters:
+
+        akActor     - Actor to process
+
+    Returns:
+    
+        NPC slot in which is *akActor* registered
+/;
 UD_CustomDevice_NPCSlot Function getNPCSlot(Actor akActor)
     if akActor == UDmain.Player
         return UD_PlayerSlot ;faster acces
@@ -559,6 +782,18 @@ UD_CustomDevice_NPCSlot Function getNPCSlot(Actor akActor)
     endif
 EndFunction
 
+;/  Function: getNPCDevices
+
+    *Actor have to be registred for this function to work, otherwise none is returned*
+
+    Parameters:
+
+        akActor     - Actor to process
+
+    Returns:
+    
+        Array of all registered devices.
+/;
 UD_CustomDevice_RenderScript[] Function getNPCDevices(Actor akActor)
     if isRegistered(akActor)
         return getNPCSlot(akActor).UD_equipedCustomDevices
@@ -567,26 +802,45 @@ UD_CustomDevice_RenderScript[] Function getNPCDevices(Actor akActor)
     endif
 EndFunction
 
-bool Function isScriptRunning(Actor akActor)
-    return akActor.isInFaction(RegisteredNPCFaction)
-EndFunction
+;/  Function: registerDevice
 
-Function sortSlots(Actor akActor)
-    if isRegistered(akActor)
-        getNPCSlot(akActor).sortSlots()
-    endif
-EndFunction
+    Try to register passed *akDevice* on its wearer slot.
 
+    *Actor have to be registred for this function to work!*
+
+    Parameters:
+
+        akDevice     - Device to register
+
+    Returns:
+    
+        True if operation was succesfull
+/;
 bool Function registerDevice(UD_CustomDevice_RenderScript akDevice)
     UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(akDevice.getWearer())
     if loc_slot
         return loc_slot.registerDevice(akDevice)
     else
-        Error("registerDevice("+akDevice.getDeviceHeader()+") - can't find slot for actor " + akDevice.getWearerName())
+        UDmain.Error("UDCustomDeiceMain::registerDevice("+akDevice.getDeviceHeader()+") - can't find slot for actor " + akDevice.getWearerName())
         return false
     endif
 EndFunction
 
+;/  Function: deviceAlreadyRegistered
+
+    Check if passed *akDeviceInventory* is already registered on *akActor* slot
+
+    *Actor have to be registred for this function to work!*
+
+    Parameters:
+
+        akActor             - Actor to check
+        akDeviceInventory   - Inventory device
+
+    Returns:
+    
+        True if device is not registered yet
+/;
 bool Function deviceAlreadyRegistered(Actor akActor, Armor akDeviceInventory)
     if isRegistered(akActor)
         return getNPCSlot(akActor).deviceAlreadyRegistered(akDeviceInventory)
@@ -601,62 +855,100 @@ Function removeAllDevices(Actor akActor)
     endif
 EndFunction
 
-Function removeUnusedDevices(Actor akActor)
-    getNPCSlot(akActor).removeUnusedDevices()
-EndFunction
+;/  Function: unregisterDevice
 
-int Function numberOfUnusedDevices(Actor akActor)
-    return getNPCSlot(akActor).numberOfUnusedDevices()
-EndFunction
+    Unregister *akDevice* from its wearer NPC slot
 
-int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool sort = True)
-    UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(oref.getWearer())
+    *Actor have to be registred for this function to work!*
+
+    Parameters:
+
+        akDevice    - Device to unregister
+        aiStartID   - Start index from which will function unregister device. Used for optimization
+        abSort      - If slots should be sorted after device is unregistered
+
+    Returns:
+    
+        Number of unregistered devices
+/;
+int Function unregisterDevice(UD_CustomDevice_RenderScript akDevice,int aiStartID = 0,bool abSort = True)
+    UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(akDevice.getWearer())
     if loc_slot
-        return loc_slot.unregisterDevice(oref,i,sort)
+        return loc_slot.unregisterDevice(akDevice,aiStartID,abSort)
     else
-        Error("unregisterDevice("+oref.getDeviceHeader()+") - can't find slot for actor " + oref.getWearerName())
+        UDmain.Error("UDCustomDeviceMain::unregisterDevice("+akDevice.getDeviceHeader()+") - can't find slot for actor " + akDevice.getWearerName())
     endif
 EndFunction
 
-int Function unregisterDeviceByInv(Actor akActor,Armor invDevice,int i = 0,bool sort = True)
-    return getNPCSlot(akActor).unregisterDeviceByInv(invDevice,i,sort)
+
+;/  Function: LockDevice
+
+    Lock *akDeviceInventory* on *akActor*.
+
+    This function is blocking and will be blocked untill the device is fully locked, or untill error occurs
+
+    Parameters:
+
+        akActor             - Actor to lock device on
+        akDeviceInventory   - Device to lock
+        aiForce             - If the lock operation should be forced
+
+    See:  <LockDeviceParalel>
+/;
+Function LockDevice(form akActor, form akDeviceInventory, int aiForce)
+    libsp.LockDevicePatched(akActor as Actor,akDeviceInventory as Armor,aiForce as Bool)
 EndFunction
 
-int Function getCopiesOfDevice(UD_CustomDevice_RenderScript oref)
-    return getNPCSlot(oref.getWearer()).getCopiesOfDevice(oref)
-EndFunction
+;/  Function: LockDeviceParalel
 
-Function removeCopies(Actor akActor)
-    getNPCSlot(akActor).removeCopies()
-EndFunction
+    Lock *akDeviceInventory* on *akActor*.
 
-int Function numberOfCopies(Actor akActor)
-    return getNPCSlot(akActor).numberOfCopies()
-EndFunction
+    This function will create paralel thread which does all operation, and thus is not blocking.
 
-int Function debugSize(Actor akActor)
-    return getNPCSlot(akActor).debugSize()
-EndFunction
+    Parameters:
 
-Function LockDeviceParalel(actor akActor, armor deviceInventory, bool force = false)
+        akActor             - Actor to lock device on
+        akDeviceInventory   - Device to lock
+        abForce             - If the lock operation should be forced
+        
+    See:  <LockDevice>
+/;
+Function LockDeviceParalel(actor akActor, armor akDeviceInventory, bool abForce = false)
     int handle = ModEvent.Create("UD_LockDeviceParalel")
     if (handle)
         ModEvent.PushForm(handle,akActor)
-        ModEvent.PushForm(handle,deviceInventory)
-        ModEvent.PushInt(handle,force as int)
+        ModEvent.PushForm(handle,akDeviceInventory)
+        ModEvent.PushInt(handle,abForce as int)
         ModEvent.Send(handle)
     endif
 EndFunction
 
-Function LockDevice(form fActor, form fDeviceInventory, int iForce)
-    libsp.LockDevicePatched(fActor as Actor,fDeviceInventory as Armor,iForce as Bool)
-EndFunction
+;/  Function: StopAllVibrators
 
+    Turns off all vibrators on *akActor*
+
+    Parameters:
+
+        akActor             - Actor to process
+/;
 Function StopAllVibrators(Actor akActor)
     if isRegistered(akActor)
         getNPCSlot(akActor).TurnOffAllVibrators()
     endif
 EndFunction
+
+;/  Function: getStruggleDifficultyModifier
+
+    Returns modifier float number. The harder the difficulty, the bigger this number is.
+    
+    Depends on MCM setting of both DD and UD.
+    
+    Intended to be used by Struggle minigames
+    
+    Returns:
+    
+        Modifier. In case that default MCM setting is used, this number will be 1.0
+/;
 float Function getStruggleDifficultyModifier()
     float res = 1.0
     
@@ -669,19 +961,18 @@ float Function getStruggleDifficultyModifier()
     return res
 EndFunction
 
-Function SendStartBoundEffectEvent(Actor akActor)
-    int handle = ModEvent.Create("UD_SBEParalel")
-    if (handle)
-        ModEvent.PushForm(handle, akActor)
-        ModEvent.Send(handle)
-    endIf    
-EndFunction
+;/  Function: getMendDifficultyModifier
 
-Event StartBoundEffectsParalel(Form kTarget)
-    Actor akActor = kTarget as Actor
-    libsp.StartBoundEffectsPatched(akActor)
-EndEvent
-
+    Returns modifier float number. The harder the difficulty, the bigger this number is.
+    
+    Depends on MCM setting of both DD and UD.
+    
+    Intended to be used by any regen related modifiers
+    
+    Returns:
+    
+        Modifier. In case that default MCM setting is used, this number will be 1.0
+/;
 float Function getMendDifficultyModifier()
     float res = 1.0
     
@@ -694,9 +985,28 @@ float Function getMendDifficultyModifier()
     return res
 EndFunction
 
+;/  Function: SendStartBoundEffectEvent
+
+    Works as StartBoundEffects from zadlibs, but is processed paralely
+    
+    Function is not blocking
+/;
+Function SendStartBoundEffectEvent(Actor akActor)
+    int handle = ModEvent.Create("UD_SBEParalel")
+    if (handle)
+        ModEvent.PushForm(handle, akActor)
+        ModEvent.Send(handle)
+    endIf
+EndFunction
+
+Event StartBoundEffectsParalel(Form kTarget)
+    Actor akActor = kTarget as Actor
+    libsp.StartBoundEffectsPatched(akActor)
+EndEvent
+
 Function startScript(UD_CustomDevice_RenderScript oref)
     if UDmain.TraceAllowed()    
-        Log("UDCustomDeviceMain startScript() called for " + oref.getDeviceHeader(),1)
+        UDmain.Log("UDCustomDeviceMain startScript() called for " + oref.getDeviceHeader(),1)
     endif
     if oref.WearerIsPlayer()
         registerDevice(oref)
@@ -709,7 +1019,7 @@ EndFunction
 
 Function endScript(UD_CustomDevice_RenderScript oref)
     if UDmain.TraceAllowed()    
-        Log("UDCustomDeviceMain endScript() called for " + oref.DeviceInventory.getName(),1)
+        UDmain.Log("UDCustomDeviceMain endScript() called for " + oref.DeviceInventory.getName(),1)
     endif
     updateLastOpenedDeviceOnRemove(oref)
     if isRegistered(oref.getWearer())
@@ -729,7 +1039,7 @@ EndFunction
 
 Function registerAllEvents()
     if UDmain.TraceAllowed()
-        Log("registerAllEvents")
+        UDmain.Log("registerAllEvents")
     endif
     registerEvents()
     RegisterGlobalKeys()
@@ -737,7 +1047,7 @@ EndFunction
 
 Function registerEvents()
     if UDmain.TraceAllowed()
-        Log("registerEvents")
+        UDmain.Log("registerEvents")
     endif
     RegisterForModEvent("UD_ActivateDevice","OnActivateDevice")
     RegisterForModEvent("UD_UpdateHud","updateHUDBars")
@@ -750,39 +1060,6 @@ Function registerEvents()
     RegisterForModEvent("UD_SetExpression","SetExpression")
 EndFunction
 
-bool _SetexpressionMutex = false
-sslBaseExpression _SendExpression = none
-Function SendSetExpressionEvent(Actor akActor, sslBaseExpression sslExpression, int iStrength, bool openMouth=false)
-    while _SendExpression
-        Utility.waitMenuMode(0.1)
-    endwhile
-    _SendExpression = sslExpression
-    int handle = ModEvent.Create("UD_SetExpression")
-    if (handle)
-        ModEvent.PushForm(handle,akActor)
-        ModEvent.PushInt(handle,iStrength)
-        ModEvent.PushInt(handle,openMouth as Int)
-        ModEvent.Send(handle)
-    endif
-    
-    float loc_time = 0.0
-    while _SendExpression && loc_time <= 3.0
-        Utility.waitMenuMode(0.05)
-        loc_time += 0.05
-    endwhile
-    if loc_time >= 3.0
-        _SendExpression = none
-        Error("SendSetExpressionEvent timeout!!")
-    endif
-EndFunction
-
-Function SetExpression(Form kActor,int iStrength,int openMouth)
-    Actor akActor = kActor as Actor
-    sslBaseExpression loc_expression = _SendExpression
-    _SendExpression = none
-    UDEM.SetExpression(akActor,loc_expression,iStrength,openMouth)
-EndFunction
-
 ;replece slot with new device
 Function replaceSlot(UD_CustomDevice_RenderScript oref, Armor inventoryDevice)
     getNPCSlot(oref.getWearer()).replaceSlot(oref,inventoryDevice)
@@ -793,8 +1070,23 @@ Function showDebugMenu(Actor akActor,int slot_id)
     getNPCSlot(akActor).showDebugMenu(slot_id)
 EndFunction
 
+;/  Function: AllowNPCMessage
+
+    Filter actors, so messages can be only shown for relevant actors
+
+    Parameters:
+
+        akActor         - Actor to check
+        abOnlyFollower  - If only follower can show message
+
+    Returns:
+
+        True if actor related message can be printed
+        
+    See: <Print>
+/;
 bool Function AllowNPCMessage(Actor akActor,Bool abOnlyFollower = false)
-    if ActorIsFollower(akActor) || UDmain.ActorIsPlayer(akActor)
+    if UDmain.ActorIsFollower(akActor) || UDmain.ActorIsPlayer(akActor)
         return true
     endif
     if !abOnlyFollower
@@ -857,7 +1149,7 @@ bool Function KeyIsUsedGlobaly(int keyCode)
 EndFunction
 
 bool    Property crit                   = false         auto hidden
-string  Property selected_crit_meter    =  "Error"      auto hidden
+string  Property selected_crit_meter    =  "UDmain.Error"      auto hidden
 Int     Property UD_CritEffect          = 2             auto hidden
 Bool    Property UD_MandatoryCrit       = False         auto hidden
 Float   Property UD_CritDurationAdjust  = 0.0           auto hidden
@@ -966,9 +1258,19 @@ Bool Property UD_CurrentNPCMenuIsStatic             = False auto conditional hid
 Bool Property UD_CurrentNPCMenuIsPersistent         = False auto conditional hidden
 Bool Property UD_CurrentNPCMenuTargetIsHelpless     = False auto conditional hidden
 Bool Property UD_CurrentNPCMenuTargetIsInMinigame   = False auto conditional hidden
+
+
+;/  Function: NPCMenu
+
+    Opends NPC menu for passed *akActor*
+
+    Parameters:
+
+        akActor         - Actor to open menu on
+/;
 Function NPCMenu(Actor akActor)
     SetMessageAlias(akActor)
-    UD_CurrentNPCMenuIsFollower         = ActorIsFollower(akActor)
+    UD_CurrentNPCMenuIsFollower         = UDmain.ActorIsFollower(akActor)
     UD_CurrentNPCMenuIsRegistered       = isRegistered(akActor)
     UD_CurrentNPCMenuIsStatic           = akActor.IsInFaction(UDlibs.StaticNPC)
     UD_CurrentNPCMenuTargetIsHelpless   = UDmain.ActorIsHelpless(akActor) && UDmain.ActorFreeHands(UDmain.Player)
@@ -985,7 +1287,7 @@ Function NPCMenu(Actor akActor)
     elseif loc_res == 3
         StorageUtil.SetIntValue(akActor, "UD_ManualRegister", 0)
     elseif loc_res == 4 ;Acces devices
-        HelpNPC(akActor,UDmain.Player,ActorIsFollower(akActor))
+        HelpNPC(akActor,UDmain.Player,UDmain.ActorIsFollower(akActor))
     elseif loc_res == 5 ; get help
         HelpNPC(UDmain.Player,akActor,false)
     elseif loc_res == 6
@@ -1012,31 +1314,61 @@ Function NPCMenu(Actor akActor)
     endif
 EndFunction
 
-Function HelpNPC(Actor akVictim,Actor akHelper,bool bAllowCommand)
+;/  Function: HelpNPC
+
+    Opends the list of registered npcs on *akVictim*.
+    
+    Selecting the device will open Device menu with relevnt options.
+
+    Parameters:
+
+        akVictim        - Actor that is getting the help
+        akHelper        - Actor who is helping *akVictim*
+        abAllowCommand  - If player can command the NPC. Is ignored if *akVictim* is Player
+        
+    Example:
+    --- Code
+        HelpNPC(SomeNPC,Player,False)  -> Player can help SomeNPC, but can't command them
+        HelpNPC(Follower,Player,False) -> Player can help Follower, and can command them
+        HelpNPC(Player,SomeNPC,False)  -> SomeNPC can help Player
+    ---
+/;
+Function HelpNPC(Actor akVictim,Actor akHelper,bool abAllowCommand)
     UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(akVictim)
     if loc_slot
         UD_CustomDevice_RenderScript loc_device = loc_slot.GetUserSelectedDevice()
         if loc_device
-            OpenHelpDeviceMenu(loc_device,akHelper,bAllowCommand)
+            OpenHelpDeviceMenu(loc_device,akHelper,abAllowCommand)
         endif
     endif
 EndFunction
 
-Function OpenHelpDeviceMenu(UD_CustomDevice_RenderScript device,Actor akHelper,bool bAllowCommand,bool bIgnoreCooldown = false)
-    if device && akHelper
+;/  Function: OpenHelpDeviceMenu
+
+    Opends the Device menu of specific device with helper set to *akHelper*
+
+    Parameters:
+
+        akDevice            - Device on which will be menu opened
+        akHelper            - Actor who is helping *akVictim*
+        abAllowCommand      - If player can command the NPC. Is ignored if device wearer is Player
+        abIgnoreCooldown    - If Helper cooldown should be ignored
+/;
+Function OpenHelpDeviceMenu(UD_CustomDevice_RenderScript akDevice,Actor akHelper,bool abAllowCommand,bool abIgnoreCooldown = false)
+    if akDevice && akHelper
         bool loc_cond = true
-        if !bIgnoreCooldown
+        if !abIgnoreCooldown
             float loc_currenttime = Utility.GetCurrentGameTime()
-            float loc_cooldowntime = StorageUtil.GetFloatValue(akHelper,"UDNPCCD:"+device.getWearer(),loc_currenttime)
+            float loc_cooldowntime = StorageUtil.GetFloatValue(akHelper,"UDNPCCD:"+akDevice.getWearer(),loc_currenttime)
             if loc_cooldowntime > loc_currenttime
-                Print("On cooldown! (" + ToUnsig(Round(((loc_cooldowntime - loc_currenttime)*24*60)))+" min)",0)
+                UDmain.Print("On cooldown! (" + iUnsig(Round(((loc_cooldowntime - loc_currenttime)*24*60)))+" min)",0)
                 loc_cond = false
             endif
         endif
         
-        if UDmain.GetUDOM(device.getWearer()).GetOrgasmingCount(device.getWearer()) ||  UDmain.GetUDOM(akHelper).GetOrgasmingCount(akHelper) ;actor is orgasming, prevent help
+        if UDmain.GetUDOM(akDevice.getWearer()).GetOrgasmingCount(akDevice.getWearer()) ||  UDmain.GetUDOM(akHelper).GetOrgasmingCount(akHelper) ;actor is orgasming, prevent help
             loc_cond = false
-            bAllowCommand = false
+            abAllowCommand = false
         endif
 
         bool[] loc_arrcontrol; = new bool[30]
@@ -1052,8 +1384,8 @@ Function OpenHelpDeviceMenu(UD_CustomDevice_RenderScript device,Actor akHelper,b
             ;loc_arrcontrol[07] = true
         endif
 
-        loc_arrcontrol[14] = !bAllowCommand
-        device.deviceMenuWH(akHelper,loc_arrcontrol)
+        loc_arrcontrol[14] = !abAllowCommand
+        akDevice.deviceMenuWH(akHelper,loc_arrcontrol)
     endif
 EndFunction
 
@@ -1082,18 +1414,30 @@ Int Function CalculateHelperXpRequired(Int aiLevel)
     return Round(aiLevel*100*Math.Pow(1.03,aiLevel))
 EndFunction
 
-;returns updated lvl
-int Function addHelperXP(Actor akHelper, int iXP)
+;/  Function: addHelperXP
+
+    Adds helper XP to *akHelper*. Will automatically increase actors Helper LVL
+
+    Parameters:
+
+        akHelper    - Actor whos XP will increase
+        aiXP        - How much XP to add
+
+    Returns:
+    
+        Helper LVL after XP is increased
+/;
+int Function addHelperXP(Actor akHelper, int aiXP)
     int loc_currentXP   = StorageUtil.GetIntValue(akHelper,"UDNPCXP",0)
     int loc_currentLVL  = GetHelperLVL(akHelper)
-    int loc_nextXP      = loc_currentXP + iXP
+    int loc_nextXP      = loc_currentXP + aiXP
     int loc_nextLVL     = loc_currentLVL
     while loc_nextXP >= CalculateHelperXpRequired(loc_nextLVL)
         loc_nextXP      -= CalculateHelperXpRequired(loc_nextLVL)
         loc_nextLVL     += 1
         if UDmain.ActorIsPlayer(akHelper)
             UDmain.Print("Your Helper skill level increased to " + loc_nextLVL + " !")
-        elseif ActorIsFollower(akHelper)
+        elseif AllowNPCMessage(akHelper)
             UDmain.Print(GetActorName(akHelper) + "'s helper level have increased to " + loc_nextLVL + " !")
         endif
     endwhile
@@ -1104,6 +1448,16 @@ int Function addHelperXP(Actor akHelper, int iXP)
     return loc_nextLVL
 EndFunction
 
+;/  Function: GetHelperLVL
+
+    Parameters:
+
+        akHelper    - Actor whos XP will increase
+
+    Returns:
+
+        Helper LVL of *akHelper*
+/;
 int Function GetHelperLVL(Actor akHelper)
     return StorageUtil.GetIntValue(akHelper,"UDNPCLVL",1)
 EndFunction
@@ -1114,6 +1468,10 @@ float Function GetHelperLVLProgress(Actor akHelper)
     return loc_currentXP/CalculateHelperXpRequired(loc_currentLVL);(100.0*(loc_currentLVL))
 EndFunction
 
+;/  Function: PlayerMenu
+
+    Opens Player menu
+/;
 Function PlayerMenu()
     int loc_playerMenuRes = PlayerMenuMsg.show()
     if loc_playerMenuRes == 0
@@ -1129,6 +1487,14 @@ Function PlayerMenu()
     endif
 EndFunction
 
+;/  Function: UndressArmor
+
+    Opens menu with all equipped armos, allowing user to undress certain parts of the outfit
+
+    Parameters:
+
+        akActor    - Actor who will be undressed
+/;
 Function UndressArmor(Actor akActor)
     while True
         Form[] loc_armors
@@ -1149,7 +1515,7 @@ Function UndressArmor(Actor akActor)
         loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--ALL--")
         loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--TOGGLE OUTFIT--")
         loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--BACK--")
-        int loc_res = GetUserListInput(loc_armorsnames)
+        int loc_res = UDmain.GetUserListInput(loc_armorsnames)
         if loc_res == (loc_armorsnames.length - 3)
             libs.strip(akActor,false)
         elseif loc_res == (loc_armorsnames.length - 2)
@@ -1178,7 +1544,14 @@ EndFunction
 ;By default, amulet and ring is excluded
 Int Property UD_UndressMask = 0xFFFFFF9F auto
 
-;Unequp all armors that are no DD, unnamed or with sexlab keyword
+;/  Function: UndressAllArmor
+
+    Undress all armors that are not DD, have name and don't have SexLabNoStrip keyword
+
+    Parameters:
+
+        akActor    - Actor who will be undressed
+/;
 Function UndressAllArmor(Actor akActor)
     Form[] loc_armors = Utility.CreateFormArray(0)
     int loc_mask = 0x00000001
@@ -1212,8 +1585,16 @@ Function UndressAllArmor(Actor akActor)
     endif
 EndFunction
 
-;this function replace NPC outfit. Should only be used for non-follower actors. Might cause issues with NPC overhaul mods
-; If NPC is using armor which it have in inventory, this function will remove it when changing outfit
+;/  Function: UndressOutfit
+
+    Replace NPC outfit. Should only be used for non-follower actors. Might cause issues with NPC overhaul mods
+
+    If NPC is using armor which it have in inventory, this function will remove it when changing outfit
+
+    Parameters:
+
+        akActor    - Actor whos outfit will be removed
+/;
 Function UndressOutfit(Actor akActor)
     if !UDmain.ActorIsPlayer(akActor)
         ; We change the outfit only for unique actors because SetOutfit() seems to operate on the ActorBASE and not the actor, so changing a non-unique actors's gear would change it for ALL instances of this actor.
@@ -1225,7 +1606,14 @@ Function UndressOutfit(Actor akActor)
     endIf
 EndFunction
 
-;undo UndressOutfit()
+;/  Function: DressOutfit
+
+    Undo <UndressOutfit>
+
+    Parameters:
+
+        akActor    - Actor whos outfit will be removed
+/;
 Function DressOutfit(Actor akActor)
     if !UDmain.ActorIsPlayer(akActor)
         ; We change the outfit only for unique actors because SetOutfit() seems to operate on the ActorBASE and not the actor, so changing a non-unique actors's gear would change it for ALL instances of this actor.
@@ -1241,16 +1629,26 @@ Function DressOutfit(Actor akActor)
     endIf
 EndFunction
 
-;function made as replacemant for akActor.isEquipped, because that function doesn't work for NPCs
-bool Function CheckRenderDeviceEquipped(Actor akActor, Armor rendDevice)
+;/  Function: CheckRenderDeviceEquipped
+
+    Function made as replacemant for akActor.isEquipped, because that function doesn't work for NPCs
+
+    Should be used in case that user wants to check if device is equipped
+
+    Parameters:
+
+        akActor         - Actor whos outfit will be removed
+        akRendDevice    - *Render* device
+/;
+bool Function CheckRenderDeviceEquipped(Actor akActor, Armor akRendDevice)
     if !akActor
         return false
     endif
     if UDmain.ActorIsPlayer(akActor)
-        return akActor.isEquipped(rendDevice) ;works fine for player, use this as its faster
+        return akActor.isEquipped(akRendDevice) ;works fine for player, use this as its faster
     endif
     int loc_mask = 0x00000001
-    int loc_devicemask = rendDevice.GetSlotMask()
+    int loc_devicemask = akRendDevice.GetSlotMask()
     while loc_mask < 0x80000000
         if loc_mask > loc_devicemask
             return false
@@ -1258,10 +1656,10 @@ bool Function CheckRenderDeviceEquipped(Actor akActor, Armor rendDevice)
         if Math.LogicalAnd(loc_mask,loc_devicemask)
             Form loc_armor = akActor.GetWornForm(loc_mask)
             if loc_armor ;check if there is anything in slot
-                if (loc_armor as Armor) == rendDevice
+                if (loc_armor as Armor) == akRendDevice
                     return true ;render device is equipped
                 else
-                    return false ;;render device is unequipped
+                    return false ;render device is unequipped
                 endif
             endif
         endif
@@ -1296,13 +1694,34 @@ Armor Function GetConflictDevice(Actor akActor, Armor rendDevice)
     return none ;device is not equipped
 EndFunction
 
-;function made as replacemant for akActor.isEquipped, because that function doesn't work for NPCs
-int Function CheckRenderDeviceConflict(Actor akActor, Armor rendDevice)
+;/  Function: CheckRenderDeviceConflict
+
+    Check if passed *akRendDevice* can be correctly locked on *akActor*
+
+    Parameters:
+
+        akActor         - Actor whos outfit will be removed
+        akRendDevice    - *Render* device
+        
+    Returns:
+    
+        --- Code
+        |=======================================================================|
+        |   returns |           Meaning                                         |
+        |=======================================================================|
+        |    00     =     No issue                                              |
+        |    01     =     Same device is already equipped                       |
+        |    02     =     Different device is already equipped in same slot     |
+        |    03     =     Other issue                                           |
+        |=======================================================================|
+        ---
+/;
+int Function CheckRenderDeviceConflict(Actor akActor, Armor akRendDevice)
     if !akActor
         return 3
     endif
     int loc_mask = 0x00000001
-    int loc_devicemask = rendDevice.GetSlotMask()
+    int loc_devicemask = akRendDevice.GetSlotMask()
     while loc_mask < 0x80000000
         if loc_mask > loc_devicemask
             return 0 ;slots are empty, lock should succes
@@ -1310,7 +1729,7 @@ int Function CheckRenderDeviceConflict(Actor akActor, Armor rendDevice)
         if Math.LogicalAnd(loc_mask,loc_devicemask)
             Form loc_armor = akActor.GetWornForm(loc_mask)
             if loc_armor ;check if there is anything in slot
-                if (loc_armor as Armor) == rendDevice
+                if (loc_armor as Armor) == akRendDevice
                     return 1 ;same render device is already equipped
                 elseif loc_armor.haskeyword(libs.zad_Lockable)
                     return 2 ;slot already occupied
@@ -1444,6 +1863,16 @@ EndFunction
 
 Int Property UD_SkillEfficiency = 1 auto ;% increase per one skill point
 
+;/  Function: GetAgilitySkill
+
+    Parameters:
+
+        akActor         - Actor to check
+        
+    Returns:
+
+        Actors agility skill
+/;
 float Function GetAgilitySkill(Actor akActor)
     UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(akActor)
     if loc_slot
@@ -1460,10 +1889,30 @@ float Function getActorAgilitySkills(Actor akActor)
     return loc_result
 EndFunction
 
+;/  Function: getActorAgilitySkillsPerc
+
+    Parameters:
+
+        akActor         - Actor to check
+        
+    Returns:
+
+        Actors agility skill as modifier value. Depends on MCM setting and amount of skill
+/;
 float Function getActorAgilitySkillsPerc(Actor akActor)
     return GetAgilitySkill(akActor)*UD_SkillEfficiency/100.0
 EndFunction
 
+;/  Function: GetStrengthSkill
+
+    Parameters:
+
+        akActor         - Actor to check
+        
+    Returns:
+
+        Actors strength skill
+/;
 float Function GetStrengthSkill(Actor akActor)
     UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(akActor)
     if loc_slot
@@ -1480,10 +1929,30 @@ float Function getActorStrengthSkills(Actor akActor)
     return loc_result
 EndFunction
 
+;/  Function: getActorStrengthSkillsPerc
+
+    Parameters:
+
+        akActor         - Actor to check
+        
+    Returns:
+
+        Actors strength skill as modifier value. Depends on MCM setting and amount of skill
+/;
 float Function getActorStrengthSkillsPerc(Actor akActor)
     return GetStrengthSkill(akActor)*UD_SkillEfficiency/100.0
 EndFunction
 
+;/  Function: GetMagickSkill
+
+    Parameters:
+
+        akActor         - Actor to check
+        
+    Returns:
+
+        Actors magick skill
+/;
 float Function GetMagickSkill(Actor akActor)
     UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(akActor)
     if loc_slot
@@ -1500,10 +1969,30 @@ float Function getActorMagickSkills(Actor akActor)
     return loc_result
 EndFunction
 
+;/  Function: getActorMagickSkillsPerc
+
+    Parameters:
+
+        akActor         - Actor to check
+        
+    Returns:
+
+        Actors magick skill as modifier value. Depends on MCM setting and amount of skill
+/;
 float Function getActorMagickSkillsPerc(Actor akActor)
     return GetMagickSkill(akActor)*UD_SkillEfficiency/100.0
 EndFunction
 
+;/  Function: GetCuttingSkill
+
+    Parameters:
+
+        akActor         - Actor to check
+        
+    Returns:
+
+        Actors cutting skill
+/;
 float Function GetCuttingSkill(Actor akActor)
     UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(akActor)
     if loc_slot
@@ -1519,10 +2008,30 @@ float Function getActorCuttingSkills(Actor akActor)
     return loc_result
 EndFunction
 
+;/  Function: getActorCuttingSkillsPerc
+
+    Parameters:
+
+        akActor         - Actor to check
+        
+    Returns:
+
+        Actors cutting skill as modifier value. Depends on MCM setting and amount of skill
+/;
 float Function getActorCuttingSkillsPerc(Actor akActor)
     return GetCuttingSkill(akActor)*UD_SkillEfficiency/100.0
 EndFunction
 
+;/  Function: GetCuttingSkill
+
+    Parameters:
+
+        akActor         - Actor to check
+        
+    Returns:
+
+        Actors smithing skill
+/;
 float Function GetSmithingSkill(Actor akActor)
     UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(akActor)
     if loc_slot
@@ -1539,17 +2048,27 @@ float Function getActorSmithingSkills(Actor akActor)
     return loc_result
 EndFunction
 
+;/  Function: getActorSmithingSkillsPerc
+
+    Parameters:
+
+        akActor         - Actor to check
+        
+    Returns:
+
+        Actors smithing skill as modifier value. Depends on MCM setting and amount of skill
+/;
 float Function getActorSmithingSkillsPerc(Actor akActor)
     return GetSmithingSkill(akActor)*UD_SkillEfficiency/100.0
 EndFunction
 
 int Function GetPerkSkill(Actor akActor, Formlist akPerkList, int aiSkillPerPerk = 10)
     if !akActor
-        Error("GetPerkSkill - actor is none")
+        UDmain.Error("GetPerkSkill - actor is none")
         return 0
     endif
     if !akPerkList
-        Error("GetPerkSkill("+getActorName(akActor)+") - akPerkList is none")
+        UDmain.Error("GetPerkSkill("+getActorName(akActor)+") - akPerkList is none")
         return 0
     endif
     int loc_size = akPerkList.getSize()
@@ -1564,9 +2083,20 @@ int Function GetPerkSkill(Actor akActor, Formlist akPerkList, int aiSkillPerPerk
     return loc_res
 EndFunction
 
-;calculates multiplier for cutting minigame
-;value is decided by weapon with sharp wapon with most dmg
-;is much faster if NPC is registered, otherwise it will need to search whole inventory
+;/  Function: getActorCuttingWeaponMultiplier
+
+    Calculates multiplier for cutting minigame. Value is decided by weapon with sharp wapon with most dmg
+    
+    *Is much faster if NPC is registered, otherwise it will need to search whole inventory*
+    
+    Parameters:
+
+        akActor         - Actor to check
+        
+    Returns:
+
+        Actors smithing skill as modifier value. Depends on MCM setting and amount of skill
+/;
 Float Function getActorCuttingWeaponMultiplier(Actor akActor)
     float loc_res = 1.0 ;100%
     
@@ -1579,6 +2109,16 @@ Float Function getActorCuttingWeaponMultiplier(Actor akActor)
     return fRange(loc_res,1.0,3.0)
 EndFunction
 
+;/  Function: getSharpestWeapon
+
+    Parameters:
+
+        akActor         - Actor to check
+        
+    Returns:
+
+        Weapong with most damage
+/;
 Weapon Function getSharpestWeapon(Actor akActor)
     Weapon loc_bestWeapon = none
     if isRegistered(akActor)
@@ -1603,26 +2143,43 @@ Weapon Function getSharpestWeapon(Actor akActor)
     return loc_bestWeapon
 EndFunction
 
-bool Function isSharp(Weapon wWeapon)
+;/  Function: isSharp
+
+    Parameters:
+
+        akWeapon         - Weapon to check
+        
+    Returns:
+
+        True if weapon is sharp
+/;
+bool Function isSharp(Weapon akWeapon)
     bool     loc_cond = false
-    int        loc_type = wWeapon.GetWeaponType()
+    int        loc_type = akWeapon.GetWeaponType()
     loc_cond = loc_cond || (loc_type > 0 && loc_type < 4) ;swords, daggers, war axes
     loc_cond = loc_cond || (loc_type == 5) ;great swords
     loc_cond = loc_cond || (loc_type == 6) ;battleaxes and warhammers
     return loc_cond
-    ;/
-    int loc_i = UDlibs.SharpWeaponsKeywords.length
-    
-    while loc_i
-        loc_i -= 1
-        if wWeapon.hasKeyword(UDlibs.SharpWeaponsKeywords[loc_i])
-            return true
-        endif
-    endwhile
-    return false
-    /;
 EndFunction
 
+;/  Function: ActorBelted
+
+    Parameters:
+
+        akActor - Actor to check
+        
+    Returns:
+
+        --- Code
+        |===========================================================|
+        |   returns |           Meaning                             |
+        |===========================================================|
+        |    00     =     Actor is not belted                       |
+        |    01     =     Actor is belted, anal is not accessible   |
+        |    02     =     Actor is belted, anal is accessible       |
+        |===========================================================|
+        ---
+/;
 Int Function ActorBelted(Actor akActor)
     int loc_res = 0 ;actor doesn't have belt
     If akActor.WornHasKeyword(libs.zad_DeviousBelt)        ;rewritten per issue: https://github.com/IHateMyKite/UnforgivingDevices/issues/17
@@ -1640,12 +2197,22 @@ Int Function ActorBelted(Actor akActor)
                 loc_res = 2 ;Actor has belt which permits anal 
             EndIf
         else
-            Error("ActorBelted("+getActorName(akActor)+") - actor have belt keyword but doesn't have belt!")
+            UDmain.Error("ActorBelted("+getActorName(akActor)+") - actor have belt keyword but doesn't have belt!")
         endif
     EndIf
     return loc_res
 EndFunction
 
+;/  Function: GetActivatedVibrators
+
+    Parameters:
+
+        akActor - Actor to check
+        
+    Returns:
+
+        Number of active vibrators
+/;
 Int Function GetActivatedVibrators(Actor akActor)
     return StorageUtil.GetIntValue(akActor,"UD_ActiveVib",0)
 EndFunction
@@ -1687,7 +2254,7 @@ Function startLockpickMinigame()
     UDmain.Player.RemoveItem(Lockpick, lockpicknum - usedLockpicks, True)
     
     if UDmain.TraceAllowed()
-        Log("Lockpick minigame opened, lockpicks before: "+lockpicknum+" ;lockpicks taken: " + (lockpicknum - usedLockpicks) + " ;Lockpicks to use: "+ usedLockpicks,1)
+        UDmain.Log("Lockpick minigame opened, lockpicks before: "+lockpicknum+" ;lockpicks taken: " + (lockpicknum - usedLockpicks) + " ;Lockpicks to use: "+ usedLockpicks,1)
     endif
     
     RegisterForMenu("Lockpicking Menu")
@@ -1727,13 +2294,23 @@ Event OnMenuClose(String MenuName)
         LockpickMinigameResult = 2 ;player tried to lockpick the device but failed (all lockpicks broke)
     endif
     if UDmain.TraceAllowed()
-        Log("Lockpick minigame closed, lockpicks returned: " + (lockpicknum - usedLockpicks) + " ; Result: " + LockpickMinigameResult,1)
+        UDmain.Log("Lockpick minigame closed, lockpicks returned: " + (lockpicknum - usedLockpicks) + " ; Result: " + LockpickMinigameResult,1)
     endif
     UDmain.Player.AddItem(Lockpick, lockpicknum - usedLockpicks, True)
     LockpickMinigameOver = True
     UnregisterForAllMenus()
 EndEvent
 
+;/  Function: GetHeavyBondageKeyword
+
+    Parameters:
+
+        akDevice - *Render* device to check
+        
+    Returns:
+
+        Heavy bondage Keyword that the passed *akDevice* have
+/;
 Keyword Function GetHeavyBondageKeyword(Armor akDevice)
     int loc_kwnum = UD_HeavyBondageKeywords.getSize()
     while loc_kwnum
@@ -1765,7 +2342,7 @@ String[] Function GetDeviceStruggleKeywords(Armor akDevice)
     If akDevice.HasKeyword(libs.zad_DeviousHeavyBondage)
         String hb = "." + GetHeavyBondageKeyword(akDevice).GetString()      ; "." is crucial so that the papyrus won't mess with the case of letters
         If hb == "."
-            UDMain.Error("UDCustomDeiceMain::GetDeviceStruggleKeywords() No keyword for heavy bondage on " + akDevice)
+            UDmain.Error("UDCustomDeiceMain::GetDeviceStruggleKeywords() No keyword for heavy bondage on " + akDevice)
         Else
             result = PapyrusUtil.PushString(result, hb)
         EndIf
@@ -1773,31 +2350,55 @@ String[] Function GetDeviceStruggleKeywords(Armor akDevice)
         result = GetDeviousKeywords(akDevice)
     EndIf
     if UDmain.TraceAllowed()
-        UDMain.Log("UDCustomDeviceMain::GetDeviceStruggleKeywords() " + akDevice + " : " + result, 3)
+        UDmain.Log("UDCustomDeviceMain::GetDeviceStruggleKeywords() " + akDevice + " : " + result, 3)
     endif
     Return result
 EndFunction
 
-;returns first device which have connected corresponding Inventory Device
-UD_CustomDevice_RenderScript Function getDeviceByInventory(Actor akActor, Armor deviceInventory)
+;/  Function: getDeviceByInventory
+
+    Utility script for fetching UD device scripts
+
+    Parameters:
+        
+        akActor             - Actor to check
+        akDeviceInventory   - *Inventory* device to check
+        
+    Returns:
+
+        First device script which uses *akDeviceInventory*. Returns none if device is not present
+/;
+UD_CustomDevice_RenderScript Function getDeviceByInventory(Actor akActor, Armor akDeviceInventory)
     if isRegistered(akActor)
-        return getNPCSlot(akActor).getDeviceByInventory(deviceInventory)
+        return getNPCSlot(akActor).getDeviceByInventory(akDeviceInventory)
     else
-        return getDeviceScriptByRender(akActor,StorageUtil.GetFormValue(akActor, "UD_RenderDevice" + deviceInventory, none) as Armor)
+        return getDeviceScriptByRender(akActor,StorageUtil.GetFormValue(akActor, "UD_RenderDevice" + akDeviceInventory, none) as Armor)
     endif
 EndFunction
 
-;returns first device which have connected corresponding Render Device
-UD_CustomDevice_RenderScript Function getDeviceByRender(Actor akActor, Armor deviceRendered)
+;/  Function: getDeviceByRender
+
+    Utility script for fetching UD device scripts
+
+    Parameters:
+        
+        akActor             - Actor to check
+        akDeviceRendered    - *Render* device to check
+        
+    Returns:
+
+        First device script which uses *akDeviceRendered*. Returns none if device is not present
+/;
+UD_CustomDevice_RenderScript Function getDeviceByRender(Actor akActor, Armor akDeviceRendered)
     if isRegistered(akActor)
-        UD_CustomDevice_RenderScript loc_device = getNPCSlot(akActor).getDeviceByRender(deviceRendered)
+        UD_CustomDevice_RenderScript loc_device = getNPCSlot(akActor).getDeviceByRender(akDeviceRendered)
         if loc_device
             return loc_device
         else
-            return getDeviceScriptByRender(akActor,deviceRendered)
+            return getDeviceScriptByRender(akActor,akDeviceRendered)
         endif
     else
-        return getDeviceScriptByRender(akActor,deviceRendered)
+        return getDeviceScriptByRender(akActor,akDeviceRendered)
     endif
 EndFunction
 
@@ -1806,7 +2407,18 @@ UD_CustomDevice_RenderScript Function FetchDeviceByInventory(Actor akActor, Armo
     return getDeviceScriptByRender(akActor,StorageUtil.GetFormValue(deviceInventory, "UD_RenderDevice", none) as Armor)
 EndFunction
 
-;returns heavy bondage (hand restrain) device
+;/  Function: getHeavyBondageDevice
+
+    Utility script for fetching UD device scripts
+
+    Parameters:
+        
+        akActor             - Actor to check
+        
+    Returns:
+
+        First device script which uses Heavy Bondage keyword. Returns none if device is not present
+/;
 UD_CustomDevice_RenderScript Function getHeavyBondageDevice(Actor akActor)
     if isRegistered(akActor)
         return getNPCSlot(akActor).UD_HandRestrain
@@ -1815,15 +2427,18 @@ UD_CustomDevice_RenderScript Function getHeavyBondageDevice(Actor akActor)
     endif
 EndFunction
 
-UD_CustomDevice_RenderScript Function getSlotHeavyBondageDevice(UD_CustomDevice_NPCSlot akSlot)
-    if akSlot
-        akSlot.UD_HandRestrain
-    else
-        return none
-    endif
-EndFunction
+;/  Function: getMinigameDevice
 
-;returns current device that have minigame on (return none if no minigame is on)
+    Utility script for fetching UD device scripts
+
+    Parameters:
+        
+        akActor             - Actor to check
+        
+    Returns:
+
+        First device script which is currently in minigame. Returns none if device is not present
+/;
 UD_CustomDevice_RenderScript Function getMinigameDevice(Actor akActor)
     UD_CustomDevice_RenderScript loc_device = CurrentPlayerMinigameDevice
     if loc_device && (loc_device.getWearer() == akActor || loc_device.getHelper() == akActor)
@@ -1836,7 +2451,19 @@ UD_CustomDevice_RenderScript Function getMinigameDevice(Actor akActor)
     endif
 EndFunction
 
-;returs device with main keyword
+;/  Function: getDeviceByKeyword
+
+    Utility script for fetching UD device scripts
+
+    Parameters:
+        
+        akActor     - Actor to check
+        akKeyword   - Keyword to check
+        
+    Returns:
+
+        First device script which have main keyword set to *akKeyword*. Returns none if device is not present
+/;
 UD_CustomDevice_RenderScript Function getDeviceByKeyword(Actor akActor,keyword akKeyword)
     if isRegistered(akActor)
         return getNPCSlot(akActor).getDeviceByKeyword(akKeyword)
@@ -1845,45 +2472,124 @@ UD_CustomDevice_RenderScript Function getDeviceByKeyword(Actor akActor,keyword a
     endif
 EndFunction
 
-;returs first device by keywords
-;mod = 0 => AND (device need all provided keyword)
-;mod = 1 => OR     (device need one provided keyword)
-UD_CustomDevice_RenderScript Function getFirstDeviceByKeyword(Actor akActor,keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)
+;/  Function: getFirstDeviceByKeyword
+
+    Utility script for fetching UD device scripts
+
+    Note: Keywords are checked on render device. Main keyword is ignored
+
+    Parameters:
+        
+        akActor     - Actor to check
+        akKwd1      - Render Keyword 1 to check
+        akKwd2      - Render Keyword 2 to check
+        akKwd3      - Render Keyword 3 to check
+        aiMode      - 0 => AND (device needs all provided keyword), 1 => OR (device need one provided keyword)
+        
+    Returns:
+
+        First device script that meets condition. Returns none if device is not present
+        
+    See: <getLastDeviceByKeyword>, <getAllDevicesByKeyword>
+/;
+UD_CustomDevice_RenderScript Function getFirstDeviceByKeyword(Actor akActor,keyword akKwd1,keyword akKwd2 = none,keyword akKwd3 = none, int aiMode = 0)
     if isRegistered(akActor)
-        return getNPCSlot(akActor).getFirstDeviceByKeyword(kw1,kw2,kw3,mod)
+        return getNPCSlot(akActor).getFirstDeviceByKeyword(akKwd1,akKwd2,akKwd3,aiMode)
     else
-        return getDeviceScriptByKw(akActor,kw1)
+        return getDeviceScriptByKw(akActor,akKwd1)
     endif
 EndFunction
 
-;returns last device containing keyword
-UD_CustomDevice_RenderScript Function getLastDeviceByKeyword(Actor akActor,keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)
+;/  Function: getLastDeviceByKeyword
+
+    Utility script for fetching UD device scripts
+
+    Note: Keywords are checked on render device. Main keyword is ignored
+
+    Parameters:
+        
+        akActor     - Actor to check
+        akKwd1      - Render Keyword 1 to check
+        akKwd2      - Render Keyword 2 to check
+        akKwd3      - Render Keyword 3 to check
+        aiMode      - 0 => AND (device needs all provided keyword), 1 => OR (device need one provided keyword)
+        
+    Returns:
+
+        Last device script that meets condition. Returns none if device is not present
+        
+    See: <getFirstDeviceByKeyword>, <getAllDevicesByKeyword>
+/;
+UD_CustomDevice_RenderScript Function getLastDeviceByKeyword(Actor akActor,keyword akKwd1,keyword akKwd2 = none,keyword akKwd3 = none, int aiMode = 0)
     if isRegistered(akActor)
-        return getNPCSlot(akActor).getLastDeviceByKeyword(kw1,kw2,kw3,mod)
+        return getNPCSlot(akActor).getLastDeviceByKeyword(akKwd1,akKwd2,akKwd3,aiMode)
     else
-        return getDeviceScriptByKw(akActor,kw1)
+        return getDeviceScriptByKw(akActor,akKwd1)
     endif
 EndFunction
 
 ;returns array of all device containing keyword in their render device
 ;mod = 0 => AND (device need all provided keyword)
 ;mod = 1 => OR     (device need one provided keyword)
-UD_CustomDevice_RenderScript[] Function getAllDevicesByKeyword(Actor akActor,keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)
+
+;/  Function: getAllDevicesByKeyword
+
+    Utility script for fetching UD device scripts
+
+    Note: Keywords are checked on render device. Main keyword is ignored
+
+    *This function will not work for unregistered actors!*
+
+    Parameters:
+        
+        akActor     - Actor to check
+        akKwd1      - Render Keyword 1 to check
+        akKwd2      - Render Keyword 2 to check
+        akKwd3      - Render Keyword 3 to check
+        aiMode      - 0 => AND (device needs all provided keyword), 1 => OR (device need one provided keyword)
+        
+    Returns:
+
+        All device script that meets condition. Returns none if device is not present
+        
+    See: <getFirstDeviceByKeyword>, <getLastDeviceByKeyword>
+/;
+UD_CustomDevice_RenderScript[] Function getAllDevicesByKeyword(Actor akActor,keyword akKwd1,keyword akKwd2 = none,keyword akKwd3 = none, int aiMode = 0)
     if isRegistered(akActor)
-        return getNPCSlot(akActor).getAllDevicesByKeyword(kw1,kw2,kw3,mod)
+        return getNPCSlot(akActor).getAllDevicesByKeyword(akKwd1,akKwd2,akKwd3,aiMode)
     else
-        return MakeNewDeviceSlots();getAllDeviceScriptsByKw(akActor,kw1,kw2,kw3,mod)
+        return MakeNewDeviceSlots()
     endif
 EndFunction
 
-;returns array of all device containing keyword in their render device
-;mod = 0 => AND (device need all provided keyword)
-;mod = 1 => OR     (device need one provided keyword)
-UD_CustomDevice_RenderScript[] Function getAllActivableDevicesByKeyword(Actor akActor,bool bCheckCondition,keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)
+;/  Function: getAllActivableDevicesByKeyword
+
+    Utility script for fetching UD device scripts
+
+    Note: Keywords are checked on render device. Main keyword is ignored
+
+    *This function will not work for unregistered actors!*
+
+    Parameters:
+        
+        akActor             - Actor to check
+        abCheckCondition    - ???
+        akKwd1              - Render Keyword 1 to check
+        akKwd2              - Render Keyword 2 to check
+        akKwd3              - Render Keyword 3 to check
+        aiMode              - 0 => AND (device needs all provided keyword), 1 => OR (device need one provided keyword)
+        
+    Returns:
+
+        All device script that meets condition and can be activated. Returns none if device is not present
+        
+    See: <getFirstDeviceByKeyword>, <getLastDeviceByKeyword>, <getAllDevicesByKeyword>
+/;
+UD_CustomDevice_RenderScript[] Function getAllActivableDevicesByKeyword(Actor akActor,bool abCheckCondition,keyword akKwd1,keyword akKwd2 = none,keyword akKwd3 = none, int aiMode = 0)
     if isRegistered(akActor)
-        return getNPCSlot(akActor).getAllActivableDevicesByKeyword(bCheckCondition,kw1,kw2,kw3,mod)
+        return getNPCSlot(akActor).getAllActivableDevicesByKeyword(abCheckCondition,akKwd1,akKwd2,akKwd3,aiMode)
     else
-        return MakeNewDeviceSlots();getAllActivableDevicesByKw(akActor,kw1,kw2,kw3,mod)
+        return MakeNewDeviceSlots()
     endif
 EndFunction
 
@@ -1909,7 +2615,7 @@ Armor Function getEquippedRender(Actor akActor,keyword akKeyword)
         if loc_device
             return loc_device.deviceRendered
         else
-            Error("getEquippedRender("+getActorName(akActor)+","+akKeyword+") - actor is registered but device was not found")
+            UDmain.Error("getEquippedRender("+getActorName(akActor)+","+akKeyword+") - actor is registered but device was not found")
             return libs.GetWornRenderedDeviceByKeyword(akActor,akKeyword)
         endif
     else
@@ -1919,19 +2625,35 @@ EndFunction
 
 UD_CustomDevice_RenderScript Property _transferedDevice = none auto hidden
 bool _transfereMutex = false
-UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armor deviceRendered)
-    if !deviceRendered
-        Error("getDeviceScriptByRender() - deviceRendered = None!!")
+
+;/  Function: getDeviceScriptByRender
+
+    Allow to return device script from actor that is not registered.
+
+    *This is done by doing some black magick fuckery*
+
+    Parameters:
+        
+        akActor             - Actor that have the device equipped
+        akDeviceRendered    - *Render* device
+        
+    Returns:
+
+        Device script. This is not copy but actual script. Because of that it is possible to reregister NPC that unregistered before.
+/;
+UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armor akDeviceRendered)
+    if !akDeviceRendered
+        UDmain.Error("getDeviceScriptByRender() - deviceRendered = None!!")
         return none
     endif
     
     if !akActor
-        Error("getDeviceScriptByRender() - akActor = None!!")
+        UDmain.Error("getDeviceScriptByRender() - akActor = None!!")
         return none
     endif
     
-    if akActor.getItemCount(deviceRendered) <= 0
-        Error("getDeviceScriptByRender("+GetActorName(akActor)+") - Actor doesn't have render device!")
+    if akActor.getItemCount(akDeviceRendered) <= 0
+        UDmain.Error("getDeviceScriptByRender("+GetActorName(akActor)+") - Actor doesn't have render device!")
         return none
     endif
     UD_CustomDevice_RenderScript result = none
@@ -1942,14 +2664,14 @@ UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armo
     _transfereMutex = True
     
     if UDmain.TraceAllowed()    
-        Log("getDeviceScriptByRender called for " + deviceRendered + "("+getActorName(akActor)+")")
+        UDmain.Log("getDeviceScriptByRender called for " + akDeviceRendered + "("+getActorName(akActor)+")")
     endif
     
     _transferedDevice = none
     
-    akActor.removeItem(deviceRendered,1,True,TransfereContainer_ObjRef)
-    TransfereContainer_ObjRef.removeItem(deviceRendered,1,True,akActor)
-    akActor.equipItem(deviceRendered,True,True)
+    akActor.removeItem(akDeviceRendered,1,True,TransfereContainer_ObjRef)
+    TransfereContainer_ObjRef.removeItem(akDeviceRendered,1,True,akActor)
+    akActor.equipItem(akDeviceRendered,True,True)
     float loc_time = 0.0
     bool loc_isplayer = UDmain.ActorIsPlayer(akActor)
 
@@ -1959,22 +2681,35 @@ UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armo
     endwhile
     
     if loc_time >= 4.0 && !_transferedDevice        
-        Error("getDeviceScriptByRender timeout for " + deviceRendered + "("+getActorName(akActor)+")")
+        UDmain.Error("getDeviceScriptByRender timeout for " + akDeviceRendered + "("+getActorName(akActor)+")")
     endif
     
     result = _transferedDevice
     _transferedDevice = none
     _transfereMutex = False
     if akActor != libs.playerRef
-        if deviceRendered.haskeyword(libs.zad_deviousheavybondage)
+        if akDeviceRendered.haskeyword(libs.zad_deviousheavybondage)
             akActor.UpdateWeight(0)
         endif
     endif
     return result
 EndFunction
 
-UD_CustomDevice_RenderScript Function getDeviceScriptByKw(Actor akActor,Keyword kw)
-    if !akActor.wornhaskeyword(kw)
+;/  Function: getDeviceScriptByKw
+
+    Same as <getDeviceScriptByRender>, but returns device based on main keyword
+
+    Parameters:
+        
+        akActor             - Actor that have the device equipped
+        akKw                - Main DD keyword
+        
+    Returns:
+
+        Device script. This is not copy but actual script. Because of that it is possible to reregister NPC that unregistered before.
+/;
+UD_CustomDevice_RenderScript Function getDeviceScriptByKw(Actor akActor,Keyword akKw)
+    if !akActor.wornhaskeyword(akKw)
         return none ;actor doesn't have equipped the device with provided keyword
     endif
 
@@ -1983,7 +2718,7 @@ UD_CustomDevice_RenderScript Function getDeviceScriptByKw(Actor akActor,Keyword 
         Utility.waitMenuMode(0.05)
     endwhile
     _transfereMutex = True
-        Armor deviceRendered = libs.GetWornRenderedDeviceByKeyword(akActor,kw)
+        Armor deviceRendered = libs.GetWornRenderedDeviceByKeyword(akActor,akKw)
         if deviceRendered
             akActor.removeItem(deviceRendered,1,True,TransfereContainer_ObjRef)
             TransfereContainer_ObjRef.removeItem(deviceRendered,1,True,akActor)
@@ -2001,148 +2736,106 @@ UD_CustomDevice_RenderScript Function getDeviceScriptByKw(Actor akActor,Keyword 
     return result
 EndFunction
 
-UD_CustomDevice_RenderScript[] Function getAllDeviceScriptsByKw(Actor akActor,keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)
-    if !kw2
-        kw2 = kw1
-    endif
-    
-    if !kw3
-        kw3 = kw1
-    endif
-            
-    UD_CustomDevice_RenderScript[] res = MakeNewDeviceSlots()
-    int iItem = akActor.GetNumItems()
-    Form[] loc_devices
-    
-    while iItem
-        iItem -= 1
-        Form loc_item = akActor.GetNthForm(iItem)
-        if (loc_item as Armor) && loc_item.haskeyword(UDlibs.UnforgivingDevice)
-            Armor deviceRendered = loc_item as Armor
-            if mod == 0
-                if deviceRendered.hasKeyword(kw1) && deviceRendered.hasKeyword(kw2) && deviceRendered.hasKeyword(kw3)
-                    loc_devices = PapyrusUtil.PushForm(loc_devices,deviceRendered)
-                endif
-            elseif mod == 1
-                if deviceRendered.hasKeyword(kw1) || deviceRendered.hasKeyword(kw2) || deviceRendered.hasKeyword(kw3)
-                    loc_devices = PapyrusUtil.PushForm(loc_devices,deviceRendered)
-                endif
-            endif
-        endif
-    endwhile
-    
-    while _transfereMutex
-        Utility.waitMenuMode(0.05)
-    endwhile
-    _transfereMutex = True
-    
-    int loc_i1 = loc_devices.length
-    while loc_i1
-        loc_i1 -= 1
-        Armor loc_renDevice = loc_devices[loc_i1] as Armor
-        if loc_renDevice
-            _transferedDevice = none
-            akActor.removeItem(loc_renDevice,1,True,TransfereContainer_ObjRef)
-            TransfereContainer_ObjRef.removeItem(loc_renDevice,1,True,akActor)
-            akActor.equipItem(loc_renDevice,True,True)
-            float loc_time = 0.0
-            while !_transferedDevice && loc_time < 2.0
-                Utility.waitMenuMode(0.05)
-                loc_time += 0.05
-            endwhile
-            
-            if loc_time > 1.0 && !_transferedDevice
-                if UDmain.TraceAllowed()                
-                    Error("getDeviceScriptByRender timeout for " + loc_renDevice + "("+getActorName(akActor)+")")
-                endif
-            endif
-        endif
-        if _transferedDevice
-            int loc_i2 = 0
-            while !res[loc_i2]
-                loc_i2 += 1
-            endwhile
-            res[loc_i2] = _transferedDevice
-        endif
-        _transferedDevice = none
-    endwhile
-    _transfereMutex = False
-    if akActor != libs.playerRef
-        akActor.UpdateWeight(0)
-    endif
-    return res
-EndFunction
+;/  Function: getNumberOfDevicesWithKeyword
 
-Int Function getAllActivableDevicesNumByKw(Actor akActor,keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)
-    UD_CustomDevice_RenderScript[] loc_devices = getAllDeviceScriptsByKw(akActor,kw1,kw2,kw3, mod)
-    int loc_i = 0
-    int loc_resNum = 0
-    while loc_devices[loc_i]
-        if loc_devices[loc_i].canBeActivated()
-            loc_resNum += 1
-        endif
+    *This function will not work is akActor is no registered*
+
+    Parameters:
         
-        loc_i += 1
-    endwhile
-    return loc_resNum
-EndFunction
-
-UD_CustomDevice_RenderScript[] Function getAllActivableDevicesByKw(Actor akActor,keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)
-    UD_CustomDevice_RenderScript[] loc_devices = getAllDeviceScriptsByKw(akActor,kw1,kw2,kw3, mod)
-    UD_CustomDevice_RenderScript[] loc_res = MakeNewDeviceSlots()
-    int loc_i = 0
-    int loc_resNum = 0
-    while loc_devices[loc_i]
-        if loc_devices[loc_i].canBeActivated()
-            loc_res[loc_resNum] = loc_devices[loc_i] 
-            loc_resNum += 1
-        endif
+        akActor     - Actor to check
+        akKwd1      - Render Keyword 1 to check
+        akKwd2      - Render Keyword 2 to check
+        akKwd2      - Render Keyword 3 to check
+        aiMode      - 0 => AND (device needs all provided keyword), 1 => OR (device need one provided keyword)
         
-        loc_i += 1
-    endwhile
-    return loc_res
-EndFunction
+    Returns:
 
-;returns number of all device containing keyword in their render device
-;mod = 0 => AND     (device need all provided keyword)
-;mod = 1 => OR     (device need one provided keyword)
-int Function getNumberOfDevicesWithKeyword(Actor akActor,keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)
+        Number of all device script that meets condition
+/;
+int Function getNumberOfDevicesWithKeyword(Actor akActor,keyword akKwd1,keyword akKwd2 = none,keyword akKwd3 = none, int aiMode = 0)
     if isRegistered(akActor)
-        return getNPCSlot(akActor).getNumberOfDevicesWithKeyword(kw1,kw2,kw3,mod)
+        return getNPCSlot(akActor).getNumberOfDevicesWithKeyword(akKwd1,akKwd2,akKwd2,aiMode)
     endif
     return 0
 EndFunction
 
-;returns number of all device containing keyword in their render device
-;mod = 0 => AND     (device need all provided keyword)
-;mod = 1 => OR     (device need one provided keyword)
-int Function getNumberOfActivableDevicesWithKeyword(Actor akActor,bool bCheckCondition, keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)
+;/  Function: getNumberOfActivableDevicesWithKeyword
+
+    *This function will not work is akActor is no registered*
+
+    Parameters:
+        
+        akActor             - Actor to check
+        abCheckCondition    - ???
+        akKwd1              - Render Keyword 1 to check
+        akKwd2              - Render Keyword 2 to check
+        akKwd2              - Render Keyword 3 to check
+        aiMode              - 0 => AND (device needs all provided keyword), 1 => OR (device need one provided keyword)
+        
+    Returns:
+
+        Number of all device script that meets condition and can be activated
+/;
+int Function getNumberOfActivableDevicesWithKeyword(Actor akActor,bool abCheckCondition, keyword akKwd1,keyword akKwd2 = none,keyword akKwd3 = none, int aiMode = 0)
     if isRegistered(akActor)
-        return getNPCSlot(akActor).getNumberOfActivableDevicesWithKeyword(bCheckCondition,kw1,kw2,kw3,mod)
+        return getNPCSlot(akActor).getNumberOfActivableDevicesWithKeyword(abCheckCondition,akKwd1,akKwd2,akKwd3,aiMode)
     else
-        return 0;getAllActivableDevicesNumByKw(akActor,kw1,kw2,kw3,mod)
+        return 0
     endif
 EndFunction
 
-;returns all device that can be activated
+;/  Function: getActiveDevices
+
+    *This function will not work is akActor is no registered*
+
+    Parameters:
+        
+        akActor             - Actor to check
+        
+    Returns:
+
+        All device scripts that can be activated
+/;
 UD_CustomDevice_RenderScript[] Function getActiveDevices(Actor akActor)
     if isRegistered(akActor)
         return getNPCSlot(akActor).getActiveDevices()
     else
-        return MakeNewDeviceSlots();getAllActivableDevicesByKw(akActor,UDLibs.UnforgivingDevice)
+        return MakeNewDeviceSlots()
     endif
 EndFunction
 
-;returns number of devices that can be activated
+;/  Function: getActiveDevicesNum
+
+    *This function will not work is akActor is no registered*
+
+    Parameters:
+        
+        akActor             - Actor to check
+        
+    Returns:
+
+        Number of all device scripts that can be activated
+/;
 int Function getActiveDevicesNum(Actor akActor)
     if isRegistered(akActor)
         return getNPCSlot(akActor).getActiveDevicesNum()
     else
-        return 0;getAllActivableDevicesNumByKw(akActor,UDLibs.UnforgivingDevice)
+        return 0
     endif
 EndFunction
 
-;returns number of vibrators
+;/  Function: getVibratorNum
+
+    *This function will not work is akActor is no registered*
+
+    Parameters:
+        
+        akActor             - Actor to check
+        
+    Returns:
+
+        Number of all vibrators
+/;
 int Function getVibratorNum(Actor akActor)
     if isRegistered(akActor)
         return getNPCSlot(akActor).getVibratorNum()
@@ -2151,7 +2844,18 @@ int Function getVibratorNum(Actor akActor)
     endif
 EndFunction
 
-;returns number of turned off vibrators
+;/  Function: getOffVibratorNum
+
+    *This function will not work is akActor is no registered*
+
+    Parameters:
+        
+        akActor             - Actor to check
+        
+    Returns:
+
+        Number of all turned off vibrators
+/;
 int Function getOffVibratorNum(Actor akActor)
     if isRegistered(akActor)
         return getNPCSlot(akActor).getOffVibratorNum()
@@ -2160,7 +2864,18 @@ int Function getOffVibratorNum(Actor akActor)
     endif
 EndFunction
 
-;returns number of activable vibrators
+;/  Function: getActivableVibratorNum
+
+    *This function will not work is akActor is no registered*
+
+    Parameters:
+        
+        akActor             - Actor to check
+        
+    Returns:
+
+        Number of all vibrators that can be activated
+/;
 int Function getActivableVibratorNum(Actor akActor)
     if isRegistered(akActor)
         return getNPCSlot(akActor).getActivableVibratorNum()
@@ -2169,7 +2884,18 @@ int Function getActivableVibratorNum(Actor akActor)
     endif
 EndFunction
 
-;returns all vibrators
+;/  Function: getVibrators
+
+    *This function will not work is akActor is no registered*
+
+    Parameters:
+        
+        akActor             - Actor to check
+        
+    Returns:
+
+        Array of all vibrators
+/;
 UD_CustomDevice_RenderScript[] Function getVibrators(Actor akActor)
     if isRegistered(akActor)
         return getNPCSlot(akActor).getVibrators()
@@ -2177,7 +2903,18 @@ UD_CustomDevice_RenderScript[] Function getVibrators(Actor akActor)
     return none
 EndFunction
 
-;returns all turned off vibrators
+;/  Function: getOffVibrators
+
+    *This function will not work is akActor is no registered*
+
+    Parameters:
+        
+        akActor             - Actor to check
+        
+    Returns:
+
+        Array of all turned off vibrators
+/;
 UD_CustomDevice_RenderScript[] Function getOffVibrators(Actor akActor)
     if isRegistered(akActor)
         return getNPCSlot(akActor).getOffVibrators()
@@ -2185,60 +2922,78 @@ UD_CustomDevice_RenderScript[] Function getOffVibrators(Actor akActor)
     return none
 EndFunction
 
-;returns all turned off vibrators
+;/  Function: getActivableVibrators
+
+    *This function will not work is akActor is no registered*
+
+    Parameters:
+        
+        akActor             - Actor to check
+        
+    Returns:
+
+        Array of all vibrators that can be activated
+/;
 UD_CustomDevice_RenderScript[] Function getActivableVibrators(Actor akActor)
     if isRegistered(akActor)
-        return getNPCSlot(akActor).getOffVibrators()
+        return getNPCSlot(akActor).getActivableVibrators()
     endif
     return none
 EndFunction
 
-;???
-Function deleteLastUsedSlot(Actor akActor)
-    if isRegistered(akActor)
-        getNPCSlot(akActor).deleteLastUsedSlot()
-    endif
-EndFunction
+;/  Function: getActivableVibrators
 
-bool Function ChangeSoulgemState(Actor akActor,Int iSoulgemType,bool bState = true)
+    Changes state of one of the actors soulgems
+
+    Parameters:
+        
+        akActor             - Actor to check
+        aiSoulgemType       - Type of soulgem (0=Petty,1=Lesser,2=Common,3=Great,4=Grand)
+        abState             - True = Discharge, False = Charge
+
+    Returns:
+
+        True if operation was succesfull
+/;
+bool Function ChangeSoulgemState(Actor akActor,Int aiSoulgemType,bool abState = true)
     if !akActor
         return false
     endif
-    if iSoulgemType > 4 || iSoulgemType < 0
+    if aiSoulgemType > 4 || aiSoulgemType < 0
         return false
     endif
     
-    if bState ;discharge
-        if iSoulgemType == 0
+    if abState ;discharge
+        if aiSoulgemType == 0
             akActor.removeItem(UDlibs.FilledSoulgem_Petty,1,true)
             akActor.AddItem(UDlibs.EmptySoulgem_Petty,1,true)
-        elseif iSoulgemType == 1
+        elseif aiSoulgemType == 1
             akActor.removeItem(UDlibs.FilledSoulgem_Lesser,1,true)
             akActor.AddItem(UDlibs.EmptySoulgem_Lesser,1,true)
-        elseif iSoulgemType == 2
+        elseif aiSoulgemType == 2
             akActor.removeItem(UDlibs.FilledSoulgem_Common,1,true)
             akActor.AddItem(UDlibs.EmptySoulgem_Common,1,true)
-        elseif iSoulgemType == 3
+        elseif aiSoulgemType == 3
             akActor.removeItem(UDlibs.FilledSoulgem_Great,1,true)
             akActor.AddItem(UDlibs.EmptySoulgem_Great,1,true)
-        elseif iSoulgemType == 4
+        elseif aiSoulgemType == 4
             akActor.removeItem(UDlibs.FilledSoulgem_Grand,1,true)
             akActor.AddItem(UDlibs.EmptySoulgem_Grand,1,true)
         endif
     else    ;charge
-        if iSoulgemType == 0
+        if aiSoulgemType == 0
             akActor.removeItem(UDlibs.EmptySoulgem_Petty,1,true)
             akActor.AddItem(UDlibs.FilledSoulgem_Petty,1,true)
-        elseif iSoulgemType == 1
+        elseif aiSoulgemType == 1
             akActor.removeItem(UDlibs.EmptySoulgem_Lesser,1,true)
             akActor.AddItem(UDlibs.FilledSoulgem_Lesser,1,true)
-        elseif iSoulgemType == 2
+        elseif aiSoulgemType == 2
             akActor.removeItem(UDlibs.EmptySoulgem_Common,1,true)
             akActor.AddItem(UDlibs.FilledSoulgem_Common,1,true)
-        elseif iSoulgemType == 3
+        elseif aiSoulgemType == 3
             akActor.removeItem(UDlibs.EmptySoulgem_Great,1,true)
             akActor.AddItem(UDlibs.FilledSoulgem_Great,1,true)
-        elseif iSoulgemType == 4
+        elseif aiSoulgemType == 4
             akActor.removeItem(UDlibs.EmptySoulgem_Grand,1,true)
             akActor.AddItem(UDlibs.FilledSoulgem_Grand,1,true)
         endif
@@ -2247,10 +3002,26 @@ bool Function ChangeSoulgemState(Actor akActor,Int iSoulgemType,bool bState = tr
 EndFunction
 
 Message Property UD_SoulgemSelect_MSG auto
-Int Function ShowSoulgemMessage(Actor akActor,Bool bEmpty = false)
+
+;/  Function: ShowSoulgemMessage
+
+    Opens menu that allow user to select which soulgem they want to use
+
+    If *akActor* doesn't have the soulgem, it will not show
+
+    Parameters:
+        
+        akActor             - Actor to check
+        abEmpty             - True=Player choose empty soulgem, False=Player choose filled soulgem
+        
+    Returns:
+
+        0=Petty,1=Lesser,2=Common,3=Great,4=Grand
+/;
+Int Function ShowSoulgemMessage(Actor akActor,Bool abEmpty = false)
     ;precheck
     resetCondVar()
-    if !bEmpty
+    if !abEmpty
         if akActor.getItemCount(UDlibs.FilledSoulgem_Petty)  > 0
             currentDeviceMenu_switch1 = true
         endif
@@ -2301,26 +3072,37 @@ Float Function CalculateKeyModifier()
 EndFunction
 
 UD_CustomDevice_RenderScript _activateDevicePackage = none
-bool Function activateDevice(UD_CustomDevice_RenderScript udCustomDevice)
-    if !udCustomDevice.canBeActivated() ;can't be activated, return
+
+;/  Function: activateDevice
+
+    Activates passed *akCustomDevice*
+
+    Parameters:
+        
+        akCustomDevice  - Device to activate
+        
+    Returns:
+
+        True if operation was succesfull
+/;
+bool Function activateDevice(UD_CustomDevice_RenderScript akCustomDevice)
+    if !akCustomDevice.canBeActivated() ;can't be activated, return
         if UDmain.TraceAllowed()        
-            Log("activateDevice() - " + udCustomDevice.getDeviceName() + " can't be activated",3)
+            UDmain.Log("activateDevice(" + akCustomDevice.GetDeviceHeader() + ") - Can't be activated",3)
         endif
         return false
     endif
     
-    if !udCustomDevice.isNotShareActive() ;share active
+    if !akCustomDevice.isNotShareActive() ;share active
         ;activate other device
-        int loc_num = getActiveDevicesNum(udCustomDevice.getWearer())
+        int loc_num = getActiveDevicesNum(akCustomDevice.getWearer())
         if loc_num > 0
-            UD_CustomDevice_RenderScript[] loc_device_arr = getActiveDevices(udCustomDevice.getWearer())
+            UD_CustomDevice_RenderScript[] loc_device_arr = getActiveDevices(akCustomDevice.getWearer())
             UD_CustomDevice_RenderScript loc_device = loc_device_arr[Utility.randomInt(0,loc_num - 1)]
-            if udCustomDevice.WearerIsPlayer()
-                ;debug.notification("Your " + udCustomDevice.getDeviceName() + " activates " + loc_device.getDeviceName() + " !!")
-                UDmain.Print("Your " + udCustomDevice.getDeviceName() + " activates " + loc_device.getDeviceName() + " !!", 2)
-                ; UDmain.Print("You felt an devious mind that awakened one of the devices on you!", 2)
+            if akCustomDevice.WearerIsPlayer()
+                UDmain.Print("Your " + akCustomDevice.getDeviceName() + " activates " + loc_device.getDeviceName() + " !!", 2)
             endif
-            udCustomDevice = loc_device
+            akCustomDevice = loc_device
         else
             return false
         endif
@@ -2329,9 +3111,9 @@ bool Function activateDevice(UD_CustomDevice_RenderScript udCustomDevice)
     while _activateDevicePackage
         Utility.waitMenuMode(0.15)
     endwhile
-    _activateDevicePackage = udCustomDevice
+    _activateDevicePackage = akCustomDevice
     if UDmain.TraceAllowed()    
-        Log("activateDevice() - Sending " + udCustomDevice.getDeviceName(),3)
+        UDmain.Log("activateDevice(" + akCustomDevice.GetDeviceHeader() + ") - Sending event",3)
     endif
     int handle = ModEvent.Create("UD_ActivateDevice")
     if (handle)
@@ -2339,7 +3121,7 @@ bool Function activateDevice(UD_CustomDevice_RenderScript udCustomDevice)
         return true
     else
         if UDmain.TraceAllowed()        
-            Log("activateDevice() - !!Sending of " + udCustomDevice.getDeviceName() + " failed!!",1)
+            UDmain.Log("activateDevice(" + akCustomDevice.GetDeviceHeader() + ") - !!Sending of event failed!!",1)
         endif
         _activateDevicePackage = none
         return false
@@ -2350,125 +3132,133 @@ Function OnActivateDevice()
     UD_CustomDevice_RenderScript loc_fetchedPackage = _activateDevicePackage
     _activateDevicePackage = none ;free package
     if UDmain.TraceAllowed()    
-        Log("activateDevice() - Received " + loc_fetchedPackage.getDeviceName(),3)
+        UDmain.Log("activateDevice() - Received " + loc_fetchedPackage.getDeviceName(),3)
     endif
     loc_fetchedPackage.activateDevice()
-EndFunction
-
-
-UD_CustomDevice_RenderScript _AVCheckLoop_Package = none
-Function sendMinigameActorValUpdateLoop(Actor akActor, UD_CustomDevice_RenderScript device, bool bHelper,Float fUpdateTime,Float fUpdateTimeHelper)
-    _AVCheckLoop_Package = device
-    int handle = ModEvent.Create("UD_AVCheckLoopStart")
-    if (handle)
-        ModEvent.PushForm(handle,akActor)
-        ModEvent.PushFloat(handle,fUpdateTime)
-        ModEvent.Send(handle)
-    endIf
-    
-    while _AVCheckLoop_Package
-        Utility.waitMenuMode(0.01)
-    endwhile
-    
-    if bHelper
-        _AVCheckLoop_Package = device
-        handle = ModEvent.Create("UD_AVCheckLoopStartHelper")
-        if (handle)
-            ModEvent.PushForm(handle,akActor)
-            ModEvent.PushFloat(handle,fUpdateTimeHelper)
-            ModEvent.Send(handle)
-        endIf    
-        while _AVCheckLoop_Package
-            Utility.waitMenuMode(0.01)
-        endwhile
-    endif
-    
-EndFunction
-
-string Function getCurrentZadAnimation(Actor akActor)
-    return StorageUtil.getStringValue(akActor,"zad_animation","none")
 EndFunction
 
 Function sendSentientDialogueEvent(string type,int force)
     SendModEvent("UD_SentientDialogue", type, force as float)
 EndFunction
 
-Function sendHUDUpdateEvent(bool flashCall,bool stamina,bool health,bool magicka)
+Function sendHUDUpdateEvent(bool abFlashCall,bool abStamina,bool abHealth,bool abMagicka)
     int handle = ModEvent.Create("UD_UpdateHud")
     if (handle)
-        ModEvent.PushInt(handle,flashCall as Int) ;actor
-        ModEvent.PushInt(handle, stamina as Int) ;value
-        ModEvent.PushInt(handle, health as Int) ;value
-        ModEvent.PushInt(handle, magicka as Int) ;value
+        ModEvent.PushInt(handle,abFlashCall as Int) ;actor
+        ModEvent.PushInt(handle, abStamina as Int) ;value
+        ModEvent.PushInt(handle, abHealth as Int) ;value
+        ModEvent.PushInt(handle, abMagicka as Int) ;value
         ModEvent.Send(handle)
-    endIf    
+    endIf
 EndFunction
 
-Function updateHUDBars(int flashCall,int stamina,int health,int magicka)
-    if flashCall
+Function updateHUDBars(bool abFlashCall,bool abStamina,bool abHealth,bool abMagicka)
+    if abFlashCall
         UI.SetBool("HUD Menu", "_root.HUDMovieBaseInstance.Stamina._visible",True)
         UI.SetBool("HUD Menu", "_root.HUDMovieBaseInstance.Health._visible",True)
         UI.SetBool("HUD Menu", "_root.HUDMovieBaseInstance.Magica._visible",True)
     endif
     
-    if stamina
-    ;if (WearerIsPlayer() || HelperIsPlayer()) && (UD_minigame_stamina_drain != 0.0 || UD_minigame_stamina_drain_helper != 0)
+    if abStamina
         UDmain.Player.damageAV("Stamina",  0.1)
         UDmain.Player.restoreAV("Stamina",  0.1)
     endif
     
-    if health
-    ;if (WearerIsPlayer() || HelperIsPlayer()) && (UD_minigame_heal_drain != 0.0 || UD_minigame_heal_drain_helper != 0.0)
+    if abHealth
         UDmain.Player.damageAV("Health",  0.1)
         UDmain.Player.restoreAV("Health",  0.1)
     endif
     
-    if magicka
-    ;if (WearerIsPlayer() || HelperIsPlayer()) &&  (UD_minigame_magicka_drain != 0.0 || UD_minigame_magicka_drain_helper != 0)
+    if abMagicka
         UDmain.Player.damageAV("Magicka",  0.1)
         UDmain.Player.restoreAV("Magicka",  0.1)
     endif
 EndFunction
 
 UD_CustomVibratorBase_RenderScript _startVibFunctionPackage = none
-bool Function startVibFunction(UD_CustomVibratorBase_RenderScript udCustomVibrator,bool bBlocking = false)
-    if !udCustomVibrator
-        Error("UDCustomDeiceMain::startVibFunction() - Can't start vibration because passed vibrator is NONE!!")
+
+;/  Function: startVibFunction
+
+    Makes passed *akCustomVibrator* to vibrate
+
+    Parameters:
+        
+        akCustomVibrator    - Vibrator which will be turned on
+        abBlocking          - If function should be blocked untill vibrations fully start
+
+    Returns:
+
+        True if operation was succesfull
+/;
+bool Function startVibFunction(UD_CustomVibratorBase_RenderScript akCustomVibrator,bool abBlocking = false)
+    if !akCustomVibrator
+        UDmain.Error("UDCustomDeiceMain::startVibFunction(NONE) - Can't start vibration because passed vibrator is NONE!!")
         return false
     endif
-    if !udCustomVibrator.canVibrate()        
-        Error("UDCustomDeiceMain::startVibFunction() - " + udCustomVibrator.getDeviceHeader() + " can't vibrate!")
+    if !akCustomVibrator.canVibrate()
+        UDmain.Error("UDCustomDeiceMain::startVibFunction("+akCustomVibrator.getDeviceHeader()+") - Passed device can't vibrate!")
         return false
     endif
     
     while _startVibFunctionPackage
         Utility.waitMenuMode(0.1)
     endwhile
-    _startVibFunctionPackage = udCustomVibrator
-    if UDmain.TraceAllowed()    
-        Log("startVibFunction() - Sending " + udCustomVibrator.getDeviceHeader(),3)
+    _startVibFunctionPackage = akCustomVibrator
+    if UDmain.TraceAllowed()
+        UDmain.Log("UDCustomDeiceMain::startVibFunction("+akCustomVibrator.getDeviceHeader()+") - Sending event",3)
     endif
     int handle = ModEvent.Create("UD_StartVibFunction")
     if (handle)
         ModEvent.Send(handle)
-        return true
     else
-        if UDmain.TraceAllowed()        
-            Log("startVibFunction() - !!Sending of " + _startVibFunctionPackage.getDeviceHeader() + " failed!!",1)
-        endif
+        UDmain.Error("UDCustomDeiceMain::startVibFunction("+akCustomVibrator.getDeviceHeader()+") - !!Sending of event failed!!")
         _startVibFunctionPackage = none
         return false
     endif
-    float loc_elapsedtime = 0.0
-    while _startVibFunctionPackage && bBlocking && loc_elapsedtime <= 2.0
-        Utility.waitMenuMode(0.1) ;wait untill vib starts
-        loc_elapsedtime += 0.1
-    endwhile
-    if loc_elapsedtime >= 2.0
-        Error("startVibFunction() - "+udCustomVibrator.getDeviceHeader()+"Timeout")
+    if abBlocking
+        float loc_elapsedtime = 0.0
+        while _startVibFunctionPackage && loc_elapsedtime <= 2.0
+            Utility.waitMenuMode(0.1) ;wait untill vib starts
+            loc_elapsedtime += 0.1
+        endwhile
+        if loc_elapsedtime >= 2.0
+            UDmain.Error("UDCustomDeiceMain::startVibFunction("+akCustomVibrator.getDeviceHeader()+") - Event timeout")
+            return false
+        endif
     endif
+    return true
 EndFunction
 
+Function FetchAndStartVibFunction()
+    UD_CustomVibratorBase_RenderScript loc_fetchedPackage = _startVibFunctionPackage
+    if UDmain.TraceAllowed()    
+        UDmain.Log("startVibFunction() - Received " + loc_fetchedPackage.getDeviceName(),3)
+    endif
+    _startVibFunctionPackage = none ;free package
+    loc_fetchedPackage.vibrate() ;vibrate
+EndFunction
+
+;/  Function: getGaggedLevel
+
+    Calculates Gag difficulty level
+
+    Parameters:
+
+        akActor    - Actor to check
+
+    Returns:
+
+        --- Code
+        |=======================================|
+        |   returns |           Meaning         |
+        |=======================================|
+        |    00     =     Not gagged            |
+        |    01     =     Normal gag            |
+        |    02     =     Large gag             |
+        |    03     =     Close mouth gag       |
+        |=======================================|
+        ---
+/;
 int Function getGaggedLevel(Actor akActor)
     if !akActor.wornhaskeyword(libs.zad_deviousgag)
         return 0 ;ungagged
@@ -2483,54 +3273,16 @@ int Function getGaggedLevel(Actor akActor)
     endif
 EndFunction
 
-;always delete after use!!!
-zadequipscript Function GetEquipScript(Armor arg_InventoryDevice)
-    zadequipscript loc_res = none
-    if arg_InventoryDevice
-        if arg_InventoryDevice.haskeyword(libs.zad_inventoryDevice)
-            loc_res = TransfereContainer_ObjRef.placeAtMe(arg_InventoryDevice) as zadequipscript
-        endif
-    endif
-    return loc_res
-EndFunction
-
-Armor Function GetRenderDevice(Armor arg_InventoryDevice)
+Armor Function GetRenderDevice(Armor akInventoryDevice)
     Armor loc_res = none
-    if arg_InventoryDevice
-        if arg_InventoryDevice.haskeyword(libs.zad_inventoryDevice)
-            zadEquipScript temp_objRef = (TransfereContainer_ObjRef.placeAtMe(arg_InventoryDevice) as zadequipscript)
-            loc_res = temp_objRef.deviceRendered
-            temp_objRef.delete()
+    if akInventoryDevice
+        if akInventoryDevice.haskeyword(libs.zad_inventoryDevice)
+            zadEquipScript _tmpObjRef = (TransfereContainer_ObjRef.placeAtMe(akInventoryDevice) as zadequipscript)
+            loc_res = _tmpObjRef.deviceRendered
+            _tmpObjRef.delete()
         endif
     endif
     return loc_res
-EndFunction
-
-Function FetchAndStartVibFunction()
-    UD_CustomVibratorBase_RenderScript loc_fetchedPackage = _startVibFunctionPackage
-    if UDmain.TraceAllowed()    
-        Log("startVibFunction() - Received " + loc_fetchedPackage.getDeviceName(),3)
-    endif
-    _startVibFunctionPackage = none ;free package
-    loc_fetchedPackage.vibrate() ;vibrate
-EndFunction
-
-;wrappers
-bool Function ActorIsFollower(Actor akActor)
-    return UDmain.ActorIsFollower(akActor)
-EndFunction
-
-Function Log(String msg, int level = 1)
-    UDmain.Log(msg,level)
-EndFunction
-Function Error(String msg)
-    UDmain.Error(msg)
-EndFunction
-Function Print(String strMsg, int iLevel = 1,bool bLog = false)
-    UDmain.Print(strMsg,iLevel,bLog)
-EndFunction
-Function CLog(String strMsg)
-    UDmain.CLog(strMsg)
 EndFunction
 
 Function SetArousalPerks()
@@ -2539,10 +3291,10 @@ Function SetArousalPerks()
         If (OSLLoadOrderRelative > 255)
             OSLLoadOrderRelative -= 256
         endif
-        log("Assuming OSL load order: "+OSLLoadOrderRelative,3)
+        UDmain.Log("Assuming OSL load order: "+OSLLoadOrderRelative,3)
     else
         SLALoadOrder = Game.GetModByName("SexLabAroused.esm")
-        log("Assuming SLA load order: "+SLALoadOrder,3)
+        UDmain.Log("Assuming SLA load order: "+SLALoadOrder,3)
     endif
     if !UDmain.OSLArousedInstalled
         DesirePerks = new perk[6]
@@ -2561,6 +3313,21 @@ Function SetArousalPerks()
         DesirePerks[4] = SLAPerkFastFetch(formNumber=0x00000816, OSL = true) as Perk
     endif
 endfunction
+
+;/  Function: ApplyTearsEffect
+
+    Apply tears overlay to *akActor*
+
+    Note: Requires both SlaveTats and ZaZAnimationPack to work
+
+    Parameters:
+
+        akActor - Actor have effect applied
+
+    Returns:
+
+        True if operation was succesfull
+/;
 bool Function ApplyTearsEffect(Actor akActor)
     if UDmain.ZaZAnimationPackInstalled && UDmain.SlaveTatsInstalled
         if akActor.Is3DLoaded() && !akActor.HasMagicEffectWithKeyword(UDlibs.ZAZTears_KW)
@@ -2571,6 +3338,20 @@ bool Function ApplyTearsEffect(Actor akActor)
     return false
 EndFUnction
 
+;/  Function: ApplyDroolEffect
+
+    Apply drool overlay to *akActor*
+
+    Note: Requires both SlaveTats and ZaZAnimationPack to work
+
+    Parameters:
+
+        akActor - Actor have effect applied
+
+    Returns:
+
+        True if operation was succesfull
+/;
 bool Function ApplyDroolEffect(Actor akActor) ;works only for player
     if UDmain.ZaZAnimationPackInstalled && UDmain.SlaveTatsInstalled
         if akActor.Is3DLoaded() && !akActor.HasMagicEffectWithKeyword(UDlibs.ZAZDrool_KW)
@@ -2692,7 +3473,16 @@ Function UpdateGenericKeys()
     SendModEvent("UD_GenericKeyUpdate")
 EndFunction
 
-;returns true if key is generic
+;/  Function: KeyIsGeneric
+
+    Parameters:
+
+        akKey - Key to check
+
+    Returns:
+
+        True if key is generic (can be destroyed)
+/;
 Bool Function KeyIsGeneric(Key akKey)
     return UD_GenericKeys.HasForm(akKey)
 EndFunction
@@ -2709,18 +3499,6 @@ EndFunction
 ;function used for mod development
 Function DebugFunction(Actor akActor)
     UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0xffffffff)
-    ;updateHUDBars(1,1,1,1)
-    ;UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.MagickaMeter.StartBlinking")
-    ;UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StaminaMeter.StartBlinking")
-    ;UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.HealthMeterLeft.StartBlinking")
-EndFunction
-
-string Function GetUserTextInput()
-    return UDmain.GetUserTextInput()
-EndFunction
-
-Int Function GetUserListInput(string[] arrList)
-    return UDmain.GetUserListInput(arrList)
 EndFunction
 
 float _startTime = 0.0
@@ -2731,11 +3509,11 @@ EndFunction
 float Function FinishRecordTime(string strObject = "",bool bReset = false,bool bLog = true,bool bPrint = true)
     float loc_res = Utility.GetCurrentRealTime() - _startTime
     
-    CLog("[T1]: ElapsedTime for "+ strObject + " = " + loc_res)
+    UDmain.CLog("[T1]: ElapsedTime for "+ strObject + " = " + loc_res)
     
     if bLog
         debug.trace("[UD]: [T1]: ElapsedTime for "+ strObject + " = " + loc_res)
-        ;Log("Elapsed time for " + strObject + " = " + loc_res + " s",1)
+        ;UDmain.Log("Elapsed time for " + strObject + " = " + loc_res + " s",1)
     endif
     if bPrint
         debug.notification("[T1]: ElapsedTime for "+ strObject + " = " + loc_res)
@@ -2755,11 +3533,11 @@ EndFunction
 float Function FinishRecordTime2(string strObject = "",bool bReset = false,bool bLog = true,bool bPrint = true)
     float loc_res = Utility.GetCurrentRealTime() - _startTime2
     
-    CLog("[T2]: ElapsedTime for "+ strObject + " = " + loc_res)
+    UDmain.CLog("[T2]: ElapsedTime for "+ strObject + " = " + loc_res)
     
     if bLog
         debug.trace("[UD]: [T2]: ElapsedTime for "+ strObject + " = " + loc_res)
-        ;Log("Elapsed time for " + strObject + " = " + loc_res + " s",1)
+        ;UDmain.Log("Elapsed time for " + strObject + " = " + loc_res + " s",1)
     endif
     if bPrint
         debug.notification("[T2]: ElapsedTime for "+ strObject + " = " + loc_res)
@@ -2771,8 +3549,22 @@ float Function FinishRecordTime2(string strObject = "",bool bReset = false,bool 
     return loc_res
 EndFunction
 
-;Reduce the key durability by amount set in MCM. 
-; aiDurability = By how much will durability be reduced
+;/  Function: ReduceKeyDurability
+
+    Changes key durability by *aiDurability*.
+    
+    Destroys key once durability reaches 0.
+
+    Parameters:
+
+        akActor         - Actor to process
+        akKey           - Key to check
+        aiDurability    - By how much (can be both positive and negative)
+
+    Returns:
+
+        Durability after it is updated
+/;
 Int Function ReduceKeyDurability(Actor akActor, Form akKey, Int aiDurability = 1)
     Int loc_durability   = StorageUtil.GetIntValue(akActor,akKey+",UDKeyDurability",UD_KeyDurability)
     loc_durability      -= aiDurability ;remove one durability

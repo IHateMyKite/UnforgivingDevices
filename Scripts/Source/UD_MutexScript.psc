@@ -3,6 +3,12 @@ Scriptname UD_MutexScript extends ReferenceAlias
 import UnforgivingDevicesMain
 
 UDCustomDeviceMain Property UDCDmain auto
+
+UnforgivingDevicesMain Property UDmain hidden
+    UnforgivingDevicesMain Function Get()
+        return UDCDmain.UDmain
+    EndFunction
+EndProperty
 ;LOCK
 bool    Property UD_GlobalDeviceMutex_InventoryScript                   = false     auto hidden
 bool    Property UD_GlobalDeviceMutex_InventoryScript_Failed            = false     auto hidden
@@ -78,10 +84,10 @@ Function EvaluateLockMutex()
     endwhile
     
     if UD_GlobalDeviceMutex_InventoryScript_Failed
-        UDCDmain.Error("EvaluateLockMutex("+getActorName(GetActorRef())+","+UD_GlobalDeviceMutex_Device.getName()+") failed!!!")
+        UDmain.Error("EvaluateLockMutex("+getActorName(GetActorRef())+","+UD_GlobalDeviceMutex_Device.getName()+") failed!!!")
     endif
     if loc_time >= 5.0
-        UDCDmain.Error("EvaluateLockMutex("+getActorName(GetActorRef())+","+UD_GlobalDeviceMutex_Device.getName()+") timeout!!!")
+        UDmain.Error("EvaluateLockMutex("+getActorName(GetActorRef())+","+UD_GlobalDeviceMutex_Device.getName()+") timeout!!!")
     endif
     
     UD_GlobalDeviceMutex_Device = none
@@ -95,10 +101,10 @@ Function EvaluateUnlockMutex()
     endwhile
     
     if UD_GlobalDeviceUnlockMutex_InventoryScript_Failed
-        UDCDmain.Error("EvaluateUnlockMutex("+getActorName(GetActorRef())+","+UD_GlobalDeviceUnlockMutex_Device.getName()+") failed!!!")
+        UDmain.Error("EvaluateUnlockMutex("+getActorName(GetActorRef())+","+UD_GlobalDeviceUnlockMutex_Device.getName()+") failed!!!")
     endif
     if loc_time >= 5.0
-        UDCDmain.Error("EvaluateUnlockMutex("+getActorName(GetActorRef())+","+UD_GlobalDeviceUnlockMutex_Device.getName()+") timeout!!!")
+        UDmain.Error("EvaluateUnlockMutex("+getActorName(GetActorRef())+","+UD_GlobalDeviceUnlockMutex_Device.getName()+") timeout!!!")
     endif
     
     UD_GlobalDeviceUnlockMutex_Device = none

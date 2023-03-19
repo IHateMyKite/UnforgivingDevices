@@ -635,7 +635,7 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,in
     UpdateBaseOrgasmVals(akActor, UD_OrgasmArousalReduceDuration, -5.0, 0.0, -1.0*iDecreaseArousalBy)
 
     if UDmain.TraceAllowed()
-        UDCDmain.Log("ActorOrgasmPatched called for " + GetActorName(akActor),1)
+        UDmain.Log("ActorOrgasmPatched called for " + GetActorName(akActor),1)
     endif
     
     UDmain.UDPP.Send_Orgasm(akActor,iForce,bWairForReceive = false)
@@ -655,14 +655,14 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,in
         endif
     elseif !loc_cond || ((akActor.IsInCombat() || akActor.IsSneaking()) && (loc_isplayer || loc_isfollower))
         if UDmain.ActorIsPlayer(akActor)
-            UDCDmain.Print("You managed to avoid losing control over your body from orgasm!",2)
+            UDmain.Print("You managed to avoid losing control over your body from orgasm!",2)
         endif
         akActor.damageAv("Stamina",50.0)
         akActor.damageAv("Magicka",50.0)
         Utility.wait(iDuration)
     elseif akActor.GetCurrentScene() || akActor.IsInFaction(libsp.Sexlab.AnimatingFaction)
         if UDmain.TraceAllowed()    
-            UDCDmain.Log("ActorOrgasmPatched - sexlab animation detected - not playing animation for " + GetActorName(akActor),2)
+            UDmain.Log("ActorOrgasmPatched - sexlab animation detected - not playing animation for " + GetActorName(akActor),2)
         endif
         Utility.wait(iDuration)
     else
