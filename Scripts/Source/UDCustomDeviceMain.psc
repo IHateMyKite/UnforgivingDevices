@@ -49,7 +49,7 @@ EndProperty
 
 int                 OSLLoadOrderRelative    = 0
 int                 SLALoadOrder            = 0
-perk[]              DesirePerks
+Perk[]              DesirePerks
 ObjectReference     _LockPickContainer
 
 bool    Property UD_HardcoreMode                    = true  auto hidden
@@ -3148,7 +3148,7 @@ Function sendHUDUpdateEvent(bool abFlashCall,bool abStamina,bool abHealth,bool a
     endIf
 EndFunction
 
-Function updateHUDBars(bool abFlashCall,bool abStamina,bool abHealth,bool abMagicka)
+Function updateHUDBars(Int abFlashCall,Int abStamina,Int abHealth,Int abMagicka)
     if abFlashCall
         UI.SetBool("HUD Menu", "_root.HUDMovieBaseInstance.Stamina._visible",True)
         UI.SetBool("HUD Menu", "_root.HUDMovieBaseInstance.Health._visible",True)
@@ -3368,31 +3368,33 @@ form Function SLAPerkFastFetch(int formNumber, bool OSL = false)
 endFunction
 
 Float Function getArousalSkillMult(Actor akActor)
-    if !UDmain.OSLArousedInstalled
-        if akActor.HasPerk(DesirePerks[0]) 
-            return 0.95
-        elseif akActor.HasPerk(DesirePerks[1]) 
-            return 0.8
-        elseif akActor.HasPerk(DesirePerks[2]) 
-            return 0.6
-        elseif akActor.HasPerk(DesirePerks[3]) 
-            return 0.9
-        elseif akActor.HasPerk(DesirePerks[4]) 
-            return 0.2
-        elseif akActor.HasPerk(DesirePerks[5]) 
-            return 1.05
-        endif
-    else
-        if akActor.HasPerk(DesirePerks[0])
-            return 0.95
-        elseif akActor.HasPerk(DesirePerks[1]) 
-            return 0.8
-        elseif akActor.HasPerk(DesirePerks[2]) 
-            return 0.6
-        elseif akActor.HasPerk(DesirePerks[3]) 
-            return 0.9
-        elseif akActor.HasPerk(DesirePerks[4]) 
-            return 0.2
+    if DesirePerks
+        if !UDmain.OSLArousedInstalled
+            if akActor.HasPerk(DesirePerks[0]) 
+                return 0.95
+            elseif akActor.HasPerk(DesirePerks[1]) 
+                return 0.8
+            elseif akActor.HasPerk(DesirePerks[2]) 
+                return 0.6
+            elseif akActor.HasPerk(DesirePerks[3]) 
+                return 0.9
+            elseif akActor.HasPerk(DesirePerks[4]) 
+                return 0.2
+            elseif akActor.HasPerk(DesirePerks[5]) 
+                return 1.05
+            endif
+        else
+            if akActor.HasPerk(DesirePerks[0])
+                return 0.95
+            elseif akActor.HasPerk(DesirePerks[1]) 
+                return 0.8
+            elseif akActor.HasPerk(DesirePerks[2]) 
+                return 0.6
+            elseif akActor.HasPerk(DesirePerks[3]) 
+                return 0.9
+            elseif akActor.HasPerk(DesirePerks[4]) 
+                return 0.2
+            endif
         endif
     endif
     return 1.0
