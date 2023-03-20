@@ -3,20 +3,11 @@
 Scriptname UnforgivingDevicesMain extends Quest  conditional
 {Main script of Unforgiving Devices}
 
-zadlibs     property libs               auto 
-zadxlibs    property libsx              auto
-zadxlibs2   property libsx2             auto
-zadclibs    property libsc              auto
+
 Quest       Property UD_UtilityQuest    auto
 
 Actor Property Player auto hidden
 
-;patched zadlibs
-zadlibs_UDPatch property libsp
-    zadlibs_UDPatch Function get()
-        return libs as zadlibs_UDPatch
-    EndFunction
-EndProperty
 zadBQ00 property zadbq
     zadBQ00 Function get()
         return (libs as Quest) as zadBQ00
@@ -34,45 +25,199 @@ int     Property UD_OrgasmExhaustionDuration    = 50    auto
 
 Float   Property UD_GamePadMenuWaitTime         = 0.25  auto
 
-UD_libs                 Property UDlibs         auto
-UDCustomDeviceMain      Property UDCDmain       auto
-UD_AbadonQuest_script   Property UDAbadonQuest  auto
-
 bool Property UD_AutoLoad = false auto
 
+
+;/  Group: Modules
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+;   Variable: libs
+zadlibs                             property libs           auto
+
+;/  Variable: libsp
+    Patched version of <libs>. Should be used for calling DD functions, instead of <libs>
+/;
+zadlibs_UDPatch                     property libsp                  hidden
+    zadlibs_UDPatch Function get()
+        return libs as zadlibs_UDPatch
+    EndFunction
+EndProperty
+
+;   Variable: libsx
+zadxlibs                            property libsx          auto
+;   Variable: libsx2
+zadxlibs2                           property libsx2         auto
+;   Variable: libsc
+zadclibs                            property libsc          auto
+
+;/  Variable: UDlibs
+    This module contains many mod related properties, like abadon devices, utility items (lockpick, gold..), etc...
+/;
+UD_libs                             Property UDlibs         auto
+
+;/  Variable: UDCDmain
+    This module contains funtions for manipulating devices
+/;
+UDCustomDeviceMain                  Property UDCDmain       auto
+
+;/  Variable: UDAbadonQuest
+    Abadon quest script
+/;
+UD_AbadonQuest_script               Property UDAbadonQuest  auto
+
+;/  Variable: config
+    MCM setting
+/;
 UD_MCM_script                       Property config         Auto
+
+;/  Variable: ItemManager
+    This module contains functionality for equipping abadon sets
+/;
 UDItemManager                       Property ItemManager    auto
+
+;/  Variable: UDRRM
+    
+    Meaning: Random Restrain Manager
+    
+    This module contains functionality for locking random devices on actors
+/;
 UD_RandomRestraintManager           Property UDRRM          auto
+
+;/  Variable: UDLLP
+    
+    Meaning: Leveled List Patcher
+    
+    This module contains functionality for injecting forms to leveled lists
+/;
 UD_LeveledList_Patcher              Property UDLLP          auto
+
+; DO NOT USE
 UD_ExpressionManager                Property UDEM           auto
+
 UD_ParalelProcess                   Property UDPP           auto
+
+;/  Variable: UDNPCM
+    
+    Meaning: NPC Manager
+    
+    This module contains functionality for manipulating NPC slots
+/;
 UD_CustomDevices_NPCSlotsManager    Property UDNPCM         auto
+
 UD_MutexManagerScript               Property UDMM           auto
+
+;/  Variable: UDMOM
+    
+    Meaning: Modifier Manager
+    
+    This module contains functionality calculations for device modifiers
+/;
 UD_ModifierManager_Script           Property UDMOM          auto
+
+;/  Variable: UDUI
+    
+    Meaning: User Input
+    
+    This module contains functionality for getting user input
+/;
 UD_UserInputScript                  Property UDUI           auto
+
+;/  Variable: UDAM
+    
+    Meaning: Animation mMnager
+    
+    This module contains functionality for manipulating animations
+/;
 UD_AnimationManagerScript           Property UDAM           auto
+
 UD_CompatibilityManager_Script      Property UDCM           auto
+
+;/  Variable: UDAI
+    
+    Meaning: Artifical inteligence
+    
+    This module contains calculations for AI
+/;
 UD_NPCInteligence                   Property UDAI           auto
+
+;/  Variable: UDUIE
+    
+    Meaning: UI Extensions
+    
+    This module contains functions for opening some UI extension menus
+/;
 UD_UIEManager                       Property UDUIE          auto
+
+;/  Variable: UDMC
+    
+    Meaning: Menu checker
+    
+    This module contains functions for fastly checking if menu is open
+/;
 UD_MenuChecker                      Property UDMC Hidden
     UD_MenuChecker Function get() 
         return UD_UtilityQuest as UD_MenuChecker
     EndFunction
 EndProperty
+
+;/  Variable: UDWC
+    
+    Meaning: Widget Control
+    
+    This module contains functions for manipulating widgets
+/;
 UD_WidgetControl                    Property UDWC           Auto
+
+;/  Variable: UDGV
+    
+    Meaning: Global Variable
+    
+    This module contains properties with global variables
+/;
 UD_GlobalVariables                  Property UDGV Hidden
     UD_GlobalVariables Function get()
         return UD_UtilityQuest as UD_GlobalVariables
     EndFunction
 EndProperty
+
+;/  Variable: UDSKILL
+    This module contains functions gettings actors UD skills
+/;
 UD_SkillManager_Script              Property UDSKILL Hidden
     UD_SkillManager_Script Function get()
         return (UDCDmain as Quest) as UD_SkillManager_Script
     EndFunction
 EndProperty
 
+;/  Variable: UDOMNPC
+    
+    Meaning: NPC Orgasm Manager
+    
+    This module contains functionality for manipulating orgasm variables
+    
+    Only use this on NPCs!! Using it on Player might break the framework!
+/;
 UD_OrgasmManager                    Property UDOMNPC        auto
+
+;/  Variable: UDOMPlayer
+    
+    Meaning: Player Orgasm Manager
+    
+    This module contains functionality for manipulating orgasm variables
+    
+    Only use this on Player!! Using it on NPC might break the framework!
+/;
 UD_OrgasmManager                    Property UDOMPlayer     auto
+
+;/  Variable: UDOM
+    
+    Meaning: Orgasm Manager
+    
+    Default Orgasm Manager. Do not use for manipulations, but only for reading MCM variables
+/;
 UD_OrgasmManager                    Property UDOM Hidden
     UD_OrgasmManager Function get()
         return UDOMNPC ;NPC one is used as main one for storring MCM values
@@ -189,6 +334,12 @@ Bool Property PO3Installed              = False auto hidden ;https://www.nexusmo
 Bool Property AllowMenBondage           = True auto hidden
 
 bool Property Ready = False auto hidden
+
+;/  Group: Utility
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 
 ;/  Function: UDReady
 
@@ -748,88 +899,6 @@ Function Info(String asMsg)
 EndFunction
 
 
-;/  Function: ActorIsFollower
-
-    Parameters:
-
-        akActor   - Actor which will be checked
-
-    Returns:
-
-        True if passed akActor is follower
-/;
-bool Function ActorIsFollower(Actor akActor)
-    ;added check for followers that are not marked as followers by normal means, to make loc_res == 4 from UDCustomDeviceMain.NPCMenu() work on them as well
-    ;yes yes, some of the followers don't have FollowerFaction assigned, DCL uses similar check for those.
-    string acName = akActor.GetDisplayName()
-    if acName == "Serana" || acName == "Inigo" || acName == "Sofia" || acName == "Vilja"
-        return true
-    endif
-    return akActor.isInFaction(UDCDmain.FollowerFaction)
-EndFunction
-
-;/  Function: ActorIsValidForUD
-    This function check if passed actor is valid for Unforgiving Devices (wearing devices, orgasm system, etc...).
-    
-    Following conditions have to be meet for actor to be valid
-
-    - Actor is not child
-    - Actors race is playable
-    - Actor is not dead
-    - Actor is not male IF For Him is not installed
-
-    Parameters:
-
-        akActor   - Actor which will be checked
-
-    Returns:
-
-        True if passed akActor is valid
-/;
-bool Function ActorIsValidForUD(Actor akActor)
-    if akActor == Player
-        return true
-    endif
-    if akActor.isDead()         ;check that actor is not dead
-        return false
-    endif
-    ActorBase loc_actorbase = akActor.GetLeveledActorBase()
-    Race loc_race = loc_actorbase.getRace()
-    if !loc_race.haskeyword(UDlibs.ActorTypeNPC) && !loc_race.IsPlayable() ;check that race is playable or NPC
-        return false
-    endif
-    if loc_race.IsChildRace()    ;check that actor is not child
-        return false
-    endif
-    if ((!ForHimInstalled || !AllowMenBondage) && loc_actorbase.GetSex() == 0)
-        return false
-    endif
-    return true
-EndFunction
-
-int Property UD_HearingRange = 4000 auto
-
-;/  Function: ActorInCloseRange
-    This function check if passed actor is close to Player
-    
-    Checked range depends on MCM setting Hearing range
-
-    Parameters:
-
-        akActor   - Actor which will be checked if they are in close range of Player
-
-    Returns:
-
-        True if passed akActor is close to player
-/;
-bool Function ActorInCloseRange(Actor akActor)
-    if ActorIsPlayer(akActor)
-        return true
-    endif
-    float loc_distance = CalcDistance(Player,akActor)
-    return (loc_distance >= 0 && loc_distance < UD_HearingRange)
-EndFunction
-
 ;/  Function: TraceAllowed
 
     Allways use this function first beffore calling Log function!
@@ -855,23 +924,101 @@ bool Function TraceAllowed()
     return (LogLevel > 0)
 EndFunction
 
-;/  Function: ActorIsPlayer
+;/  Function: WaitRandomTime
+
+    Block thread for random time. Thread will also not continue unless menus are closed
+
+    Can be used to separate threads (like many of same events firing at the same time)
+
 
     Parameters:
 
-        akActor   - Actor which will be checked
+        afMin     - Minimum blocking time
+        afMax     - Maximum blocking time
+/;
+Function WaitRandomTime(Float afMin = 0.1, Float afMax = 1.0) Global
+    Utility.wait(Utility.randomFloat(afMin,afMax))
+EndFunction
+
+;/  Function: WaitMenuRandomTime
+
+    Same as <WaitRandomTime>, but will also work if menus are open
+/;
+Function WaitMenuRandomTime(Float afMin = 0.1, Float afMax = 1.0) Global
+    Utility.waitMenuMode(Utility.randomFloat(afMin,afMax))
+EndFunction
+
+;/  Function: CalcDistance
+
+    Calculate distance between two objects
+
+    Parameters:
+
+        akObj1   - Object 1
+        akObj2   - Object 2
 
     Returns:
 
-        True if passed akActor is player
+        Distance between objects. *Returns 0* if the objects are same. *Returns -1* if objects are not in the same cell
 /;
-bool Function ActorIsPlayer(Actor akActor)
-    return akActor == Player
+float Function CalcDistance(ObjectReference akObj1,ObjectReference akObj2) global
+    if akObj1 == akObj2
+        return 0.0
+    endif
+    if akObj1.GetParentCell() == akObj2.GetParentCell()
+        float dX = akObj1.X - akObj2.X
+        float dY = akObj1.Y - akObj2.Y
+        float dZ = akObj1.Z - akObj2.Z
+        return Math.Sqrt(Math.Pow(dX,2) + Math.Pow(dY,2) + Math.Pow(dZ,2))
+    else
+        return -1.0
+    endif
 EndFunction
 
-;=======================================================================
-;                            GLOBAL FUNCTIONS
-;========================================================================
+;/  Function: getPlugsVibrationStrengthString
+
+    Returns string with vibrator strength
+
+    Table:
+    --- Code
+    aiStrenght == 1 -> "Very weak"
+    aiStrenght == 2 -> "Weak"
+    aiStrenght == 3 -> "Strong"
+    aiStrenght == 4 -> "Very Strong"
+    aiStrenght == 5 -> "Extremely Strong"
+    ---
+
+    Parameters:
+
+        aiStrenght  - DD Vibrator strength
+
+    Returns:
+
+        Strength of vibrations
+/;
+string Function getPlugsVibrationStrengthString(int aiStrenght) global
+    if aiStrenght >= 5
+        return "Extremely Strong"
+    endif
+    if aiStrenght == 4
+        return "Very Strong"
+    endif
+    if aiStrenght == 3
+        return "Strong"
+    endif
+    if aiStrenght == 2
+        return "Weak"
+    endif
+    if aiStrenght <= 1
+        return "Very weak"
+    endif
+EndFunction
+
+;/  Group: Math
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 
 ;/  Function: IntToBit
 
@@ -908,96 +1055,6 @@ string Function IntToBit(int argInt) global
         endif
     endwhile
     return loc_res
-EndFunction
-
-;/  Function: CalcDistance
-
-    Calculate distance between two objects
-
-    Parameters:
-
-        akObj1   - Object 1
-        akObj2   - Object 2
-
-    Returns:
-
-        Distance between objects. *Returns 0* if the objects are same. *Returns -1* if objects are not in the same cell
-/;
-float Function CalcDistance(ObjectReference akObj1,ObjectReference akObj2) global
-    if akObj1 == akObj2
-        return 0.0
-    endif
-    if akObj1.GetParentCell() == akObj2.GetParentCell()
-        float dX = akObj1.X - akObj2.X
-        float dY = akObj1.Y - akObj2.Y
-        float dZ = akObj1.Z - akObj2.Z
-        return Math.Sqrt(Math.Pow(dX,2) + Math.Pow(dY,2) + Math.Pow(dZ,2))
-    else
-        return -1.0
-    endif
-EndFunction
-
-;/  Function: GActorIsPlayer
-
-    Global version of <ActorIsPlayer>. This function is generaly slower, and its non-global variant should be used instead.
-
-    Parameters:
-
-        akActor   - Actor which will be checked
-
-    Returns:
-
-        True if passed *akActor* is player
-/;
-bool Function GActorIsPlayer(Actor akActor) global
-    return akActor == Game.getPlayer()
-EndFunction
-
-;/  Function: GetActorName
-
-    Parameters:
-
-        akActor   - Actor whose name will be returned
-
-    Returns:
-
-        Name of passed actor. Returns *"ERROR:NONE"* if passed actor is none. Returns *"Unnamed X"* if actor have no name.
-/;
-string Function GetActorName(Actor akActor) global
-    if !akActor
-        return "ERROR:NONE"
-    endif
-    ActorBase loc_actorbase = akActor.GetLeveledActorBase()
-    string loc_res = loc_actorbase.getName()
-    if loc_res == "" ;actor have no name
-        if loc_actorbase.GetSex() == 0
-            loc_res = "Unnamed man"
-        elseif loc_actorbase.GetSex() == 1
-            loc_res = "Unnamed woman"
-        else
-            loc_res = "Unnamed person"
-        endif
-    endif
-    return loc_res
-EndFunction
-
-;/  Function: ActorIsFemale
-
-    Parameters:
-
-        akActor   - Checked actor
-
-    Returns:
-
-        True if passed actor is female
-/;
-bool Function ActorIsFemale(Actor akActor) 
-    ActorBase loc_actorbase = akActor.GetLeveledActorBase()
-    if loc_actorbase.GetSex() == 1
-        return true
-    else
-        return false
-    endif
 EndFunction
 
 int Function codeBit_old(int iCodedMap,int iValue,int iSize,int iIndex) global
@@ -1275,188 +1332,6 @@ int Function Round(float afValue) global
     return Math.floor(afValue + 0.5)
 EndFunction
 
-;/  Function: closeMenu
-
-    Closes all following menus
-
-    - Container menu
-    - Dialogue menu
-    - Inventory menu
-    - Tween menu
-    - Gift menu
-/;
-Function closeMenu() global
-    ;https://www.reddit.com/r/skyrimmods/comments/elg97s/function_to_close_objects_container_menu/
-    UI.InvokeString("ContainerMenu", "_global.skse.CloseMenu", "ContainerMenu")
-    UI.InvokeString("Dialogue Menu", "_global.skse.CloseMenu", "Dialogue Menu")
-    UI.InvokeString("InventoryMenu", "_global.skse.CloseMenu", "InventoryMenu")
-    UI.InvokeString("TweenMenu", "_global.skse.CloseMenu", "TweenMenu")
-    UI.InvokeString("GiftMenu", "_global.skse.CloseMenu", "GiftMenu")
-EndFunction
-
-
-;/  Function: closeLockpickMenu
-
-    Closes lockpick menu
-/;
-Function closeLockpickMenu() global
-    UI.InvokeString("Lockpicking Menu", "_global.skse.CloseMenu", "Lockpicking Menu")
-EndFunction
-
-;/  Function: getPlugsVibrationStrengthString
-
-    Returns string with vibrator strength
-
-    Table:
-    --- Code
-    aiStrenght == 1 -> "Very weak"
-    aiStrenght == 2 -> "Weak"
-    aiStrenght == 3 -> "Strong"
-    aiStrenght == 4 -> "Very Strong"
-    aiStrenght == 5 -> "Extremely Strong"
-    ---
-
-    Parameters:
-
-        aiStrenght  - DD Vibrator strength
-
-    Returns:
-
-        Strength of vibrations
-/;
-string Function getPlugsVibrationStrengthString(int aiStrenght) global
-    if aiStrenght >= 5
-        return "Extremely Strong"
-    endif
-    if aiStrenght == 4
-        return "Very Strong"
-    endif
-    if aiStrenght == 3
-        return "Strong"
-    endif
-    if aiStrenght == 2
-        return "Weak"
-    endif
-    if aiStrenght <= 1
-        return "Very weak"
-    endif
-EndFunction
-
-
-;/  Function: getMaxActorValue
-
-    Returns maximum value of AV from passed actor
-
-    Inspiried by https://www.creationkit.com/index.php?title=GetActorValuePercentage_-_Actor
-
-    Parameters:
-
-        akActor  - Used actor
-        akValue  - Name of AV
-        afPerc   - Relative value of max value. Can be used to get specific elative value, like 75% of max health, etc...
-
-    Returns:
-
-        akValue maximum value from akActor
-/;
-float Function getMaxActorValue(Actor akActor,string akValue, float afPerc = 1.0) global
-    Float loc_perc = akActor.GetActorValuePercentage(akValue)
-    if loc_perc
-        return (akActor.GetActorValue(akValue)/loc_perc)*afPerc
-    else
-        return akActor.GetBaseActorValue(akValue)*afPerc ;assume base stats. Dunno how is this possible
-    endif
-EndFunction
-
-;/  Function: getCurrentActorValuePerc
-
-    Parameters:
-
-        akActor  - Used actor
-        akValue  - Name of AV
-
-    Returns:
-
-        Current relative value of akActor akValue
-/;
-float Function getCurrentActorValuePerc(Actor akActor,string akValue) global
-    return akActor.GetActorValuePercentage(akValue)
-EndFunction
-
-;/  Function: ModInstalled
-
-    Check if mod is installed
-
-    Parameters:
-
-        asModFileName  - name of mod WITH extension
-
-    Returns:
-
-        True if mod is installed
-
-    _Example_:
-        --- Code
-        ;check if Slave tats is installed
-        if ModInstalled("SlaveTats.esp")
-            ;DO SOMETHING
-        endif
-        ---
-/;
-bool Function ModInstalled(string asModFileName) global
-    return (Game.GetModByName(asModFileName) != 255) && (Game.GetModByName(asModFileName) != 0) ; 255 = not found, 0 = no skse
-EndFunction
-
-;/  Function: ModInstalledAfterUD
-
-    Check if mod is installed after Unforgiving Devices
-
-    Parameters:
-
-        asModFileName  - Name of mod WITH extension
-
-    Returns:
-
-        True if mod is installed after Unforgiving Devices
-
-    _Example_:
-        --- Code
-        ;check if patch is installed correctly
-        if !ModInstalledAfterUD("CustomUDPatch.esp")
-            Error("Patch have to be installed after main mod!!")
-        endif
-        ---
-/;
-bool Function ModInstalledAfterUD(string asModFileName) global
-    return (Game.GetModByName(asModFileName) > Game.GetModByName("UnforgivingDevices.esp"))
-EndFunction
-
-;/  Function: MakeDeviceHeader
-
-    Creates string containing formated information about device worn by actor
-
-    Parameters:
-
-        akActor     - Actor who is wearing akInvDevice
-        akInvDevice - Device worn by akActor
-
-    Returns:
-
-        Formated string
-/;
-string Function MakeDeviceHeader(Actor akActor,Armor akInvDevice) global
-    string loc_actorname = "NONE_ACTOR"
-    string loc_devicename = "NONE_DEVICE"
-    if akActor
-        loc_actorname = GetActorName(akActor)
-    endif
-    if akInvDevice
-        loc_devicename = akInvDevice.GetName()
-    endif
-    
-    return (loc_devicename + "("+ loc_actorname + ")")
-EndFunction
-
 ;/  Function: iUnsig
 
     Truncate negative values from passed INT
@@ -1506,294 +1381,6 @@ Float Function fUnsig(float afValue) global
         return 0.0
     endif
     return afValue
-EndFunction
-
-;/  Function: ShowMessageBox
-
-    Shows message box with passed string. This function should be only used for showing multiline strings.
-    
-    Once the number of lines is too big for message box to be shown, additiona lamssage box will be open.
-    
-    In case you want to show simple string, use instead <ShowSingleMessageBox>
-
-    Limit of lines per one message box is *12* lines!
-
-    Every line have also limited number of characters which it can show. If line is too long, it will be split to multiple lines by engine, which will break this function.
-
-    This function will be blocked until user clicks on OK button (this is not done by debug.messagebox function)
-
-    Parameters:
-
-        asText     - String of lines to be shown
-
-    _Example_:
-        --- Code
-        String loc_text = ""
-        loc_text += "Line 1\n"
-        loc_text += "Line 2\n"
-        loc_text += "Line 3\n"
-        ShowMessageBox(loc_text) -> This will show message box with 3 lines with their corresponding texts
-        ---
-/;
-Function ShowMessageBox(string asText)
-    String[]    loc_lines = StringUtil.split(asText,"\n")
-    int         loc_linesNum = loc_lines.length
-    
-    int         loc_lineLimit = 12
-    
-    int         loc_boxesNum = Math.Ceiling((loc_linesNum as float)/(loc_lineLimit as float))
-    int         loc_iterLine = 0
-    int         loc_iterBox = 0
-    
-    while loc_iterBox < (loc_boxesNum)
-        string loc_messagebox = ""
-        
-        while loc_iterLine < iRange((loc_linesNum - loc_lineLimit*loc_iterBox),0,loc_lineLimit)
-            loc_messagebox += (loc_lines[loc_iterLine + (loc_lineLimit)*loc_iterBox] + "\n")
-            loc_iterLine += 1
-        endwhile
-        
-        loc_iterBox += 1
-        
-        if loc_boxesNum > 1
-            loc_messagebox += "===PAGE " + (loc_iterBox) + "/" + (loc_boxesNum) + "===\n"
-        endif
-        loc_iterLine = 0
-        
-        ShowSingleMessageBox(loc_messagebox)
-    endwhile
-EndFunction
-
-;/  Function: ShowSingleMessageBox
-
-    Shows message box with passed string.
-
-    This function will be blocked until user clicks on OK button (this is not done by debug.messagebox function)
-
-    Parameters:
-
-        asMessage     - String to be shown in message box
-/;
-Function ShowSingleMessageBox(String asMessage)
-    debug.messagebox(asMessage)
-    ;wait for fucking messagebox to actually get OKd before continuing thread (holy FUCKING shit toad)
-    Utility.waitMenuMode(0.3)
-    while IsMessageboxOpen()
-        Utility.waitMenuMode(0.05)
-    EndWhile
-EndFunction
-
-;/  Function: ActorFreeHands
-
-    Check if actor have free hands
-
-    Parameters:
-
-        akActor         - Checked actor
-        abCheckGrasp    - If True, mittens will also count as device which makes actors hands not free
-
-    Returns:
-
-        True if actor have free hands
-
-    _Example_:
-        --- Code
-        if ActorFreeHands(SomeActor)
-            ;Actor have no free hands
-        endif
-        
-        if ActorFreeHands(SomeActor,True)
-            ;Actor have no free hands OR they are wearing mittens
-        endif
-        ---
-/;
-bool Function ActorFreeHands(Actor akActor,bool abCheckGrasp = false)
-    bool loc_res = !akActor.wornhaskeyword(libs.zad_deviousHeavyBondage)
-    if abCheckGrasp
-        if akActor.wornhaskeyword(libs.zad_DeviousBondageMittens)
-            loc_res = false
-        endif
-    endif
-    return loc_res
-EndFunction
-
-;/  Function: ActorIsHelpless
-
-    Check if actor is helpless and cant resist player actions
-
-    Actor is helpless in following scenarios
-
-    - They dont have free hands
-    - They are paralysed
-    - They are bleeding out
-
-    Parameters:
-
-        akActor         - Checked actor
-
-    Returns:
-
-        True if actor is helpless
-/;
-Bool Function ActorIsHelpless(Actor akActor)
-    Bool loc_res = False
-    loc_res = loc_res || !ActorFreeHands(akActor)
-    loc_res = loc_res || akActor.getAV("paralysis")
-    ;loc_res = loc_res || (akActor.GetSleepState() == 3)
-    loc_res = loc_res || akActor.IsBleedingOut()
-    return loc_res
-EndFunction
-
-;only use for debugging
-Function DCLog(String msg) global
-    ConsoleUtil.PrintMessage("[UD,DEBUG,T="+Utility.GetCurrentRealTime()+"]: " + msg)
-EndFunction
-
-Function GInfo(String msg) global
-    string loc_msg = "[UD,INFO,T="+Utility.GetCurrentRealTime()+"]: " + msg
-    debug.trace(loc_msg)
-    ConsoleUtil.PrintMessage(loc_msg)
-EndFunction
-
-Function GWarning(String msg) global
-    string loc_msg = "[UD,WARNING,T="+Utility.GetCurrentRealTime()+"]: " + msg
-    debug.trace(loc_msg)
-    ConsoleUtil.PrintMessage(loc_msg)
-EndFunction
-
-;global error function. Ignore safety in sake of usebality
-Function GError(String msg) global
-    string loc_msg = "[UD,!ERROR!,T="+Utility.GetCurrentRealTime()+"]: " + msg
-    debug.trace(loc_msg)
-    ConsoleUtil.PrintMessage(loc_msg)
-EndFunction
-
-
-;/  Function: GetMeMyForm
-
-    Returns form from plugin. Also works for esl plugins
-
-    thanks to Subhuman#6830 for ESPFE form check, compatible with LE
-    Notes given by him:
-    1) it breaks the compile-time dependency.   GetformFromFile requires you to have the plugin you're getting a form for in order to compile, this does not
-    2) less papyrus spam, if the plugin isn't found it prints a single line debug.trace instead 4-5 lines of errors
-    3) related to 1, it doesn't verify you didn't screw up.   If you're trying to cast a package as a quest, for example, GetFormFromFile will throw a compiler error because it can't be done.  This will not.  You have to verify your own work.
-
-    Parameters:
-
-        aiFormNumber    - FormID of form. Fornumber format is 0xFULLFORMID, for example 0x00000007. Even for ESPFE format, ignoring 0xFE
-        asPluginName    - Full name of the plugin WITH extension
-        abErrorMsg      - If error message should be shown in case that the function can't find the form
-
-    Returns:
-
-        Corresponding form
-/;
-Form Function GetMeMyForm(int aiFormNumber, string asPluginName, Bool abErrorMsg = True) global
-    int theLO = Game.GetModByName(asPluginName)
-    if ((theLO == 255) || (theLO == 0)) ; 255 = not found, 0 = no skse
-        if abErrorMsg
-            GError(asPluginName + " not loaded or SKSE not found")
-        endif
-        return none
-    elseIf (theLO > 255) ; > 255 = ESL
-        ; the first FIVE hex digits in an ESL are its address, so a aiFormNumber exceeding 0xFFF or below 0x800 is invalid
-        if ((Math.LogicalAnd(0xFFFFF000, aiFormNumber) != 0) || (Math.LogicalAnd(0x00000800, aiFormNumber) == 0))
-            if abErrorMsg
-                GError("Plugin " + asPluginName + " has FormIDs outside the range\nallocated for ESL plugins!: " + aiFormNumber)
-                GError("ESL-flagged plugin " + asPluginName + " contains invalid FormIDs: " + aiFormNumber)
-            endif
-            return none
-        endIf
-        ; getmodbyname reports an ESL as 256 higher than the game indexes it internally
-        theLO -= 256
-        return Game.GetFormEx(Math.LogicalOr(Math.LogicalOr(0xFE000000, Math.LeftShift(theLO, 12)), aiFormNumber))
-    else    ; regular ESL-free plugin
-        return Game.GetFormEx(Math.LogicalOr(Math.LeftShift(theLO, 24), aiFormNumber))
-    endIf
-EndFunction
-
-;/  Function: GetUserTextInput
-
-    Opens text input menu, and returns its result
-
-    NOTE: User needs to have UI Extensions installed for this to work!
-
-    Returns:
-
-        String written to text menu
-/;
-string Function GetUserTextInput()
-    return UDUIE.GetUserTextInput()
-EndFunction
-
-;/  Function: GetUserListInput
-
-    Opens list menu and returns index of selected line. Top is 0, bottom is max index
-
-    NOTE: User needs to have UI Extensions installed for this to work!
-
-    Parameters:
-
-        apList  - String array of list elements which will be shown in menu
-
-    Returns:
-
-        Index of selected line
-/;
-Int Function GetUserListInput(string[] arrList)
-    return UDUIE.GetUserListInput(arrList)
-EndFunction
-
-;/  Function: GetShield
-
-    Returns form of shield that actor have currently equipped
-
-    Parameters:
-
-        akActor  - Used actor
-
-    Returns:
-
-       Shield equipped by akActor
-/;
-Form Function GetShield(Actor akActor) Global
-    Form loc_shield = akActor.GetEquippedObject(0)
-    if loc_shield && (loc_shield.GetType() == 26 || loc_shield.GetType() == 31)
-        return loc_shield
-    else
-        return none
-    endif
-EndFunction
-
-;SoS faction. If none, it means that the SoS is not installed
-Faction _SOS_SchlongifiedActors
-Faction Property UD_SOS_SchlongifiedActors
-    Faction Function Get()
-        if !_SOS_SchlongifiedActors
-            _SOS_SchlongifiedActors = UnforgivingDevicesMain.GetMeMyForm(0x00AFF8,"Schlongs of Skyrim.esp") as Faction
-        endif
-        return _SOS_SchlongifiedActors
-    EndFunction
-EndProperty
-
-;/  Function: ActorHaveSoS
-
-    Parameters:
-
-        akActor  - Used actor
-
-    Returns:
-
-       True if akActor have Schlong of Skyrim (SoS)
-/;
-Bool Function ActorHaveSoS(Actor akActor)
-    if UD_SOS_SchlongifiedActors
-        return akActor.IsInFaction(UD_SOS_SchlongifiedActors)
-    else
-        Info("UnforgivingDevicesMain::ActorHaveSoS() - SoS not installed, returning false")
-        return false
-    endif
 EndFunction
 
 ;/  Function: ConvertTime
@@ -1904,7 +1491,7 @@ Int Function iAbs(Int aiVal) Global
     endif
 EndFunction
 
-;/  Function: iAbs
+;/  Function: fAbs
 
     Same as <iAbs>, but for FLOAT
 /;
@@ -1916,29 +1503,522 @@ Float Function fAbs(Float afVal) Global
     endif
 EndFunction
 
-;/  Function: WaitRandomTime
+;/  Group: Mods
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 
-    Block thread for random time. Thread will also not continue unless menus are closed
+;/  Function: ModInstalled
 
-    Can be used to separate threads (like many of same events firing at the same time)
-
+    Check if mod is installed
 
     Parameters:
 
-        afMin     - Minimum blocking time
-        afMax     - Maximum blocking time
+        asModFileName  - name of mod WITH extension
+
+    Returns:
+
+        True if mod is installed
+
+    _Example_:
+        --- Code
+        ;check if Slave tats is installed
+        if ModInstalled("SlaveTats.esp")
+            ;DO SOMETHING
+        endif
+        ---
 /;
-Function WaitRandomTime(Float afMin = 0.1, Float afMax = 1.0) Global
-    Utility.wait(Utility.randomFloat(afMin,afMax))
+bool Function ModInstalled(string asModFileName) global
+    return (Game.GetModByName(asModFileName) != 255) && (Game.GetModByName(asModFileName) != 0) ; 255 = not found, 0 = no skse
 EndFunction
 
-;/  Function: WaitMenuRandomTime
+;/  Function: ModInstalledAfterUD
 
-    Same as <WaitRandomTime>, but will also work if menus are open
+    Check if mod is installed after Unforgiving Devices
+
+    Parameters:
+
+        asModFileName  - Name of mod WITH extension
+
+    Returns:
+
+        True if mod is installed after Unforgiving Devices
+
+    _Example_:
+        --- Code
+        ;check if patch is installed correctly
+        if !ModInstalledAfterUD("CustomUDPatch.esp")
+            Error("Patch have to be installed after main mod!!")
+        endif
+        ---
 /;
-Function WaitMenuRandomTime(Float afMin = 0.1, Float afMax = 1.0) Global
-    Utility.waitMenuMode(Utility.randomFloat(afMin,afMax))
+bool Function ModInstalledAfterUD(string asModFileName) global
+    return (Game.GetModByName(asModFileName) > Game.GetModByName("UnforgivingDevices.esp"))
 EndFunction
+
+;/  Function: MakeDeviceHeader
+
+    Creates string containing formated information about device worn by actor
+
+    Parameters:
+
+        akActor     - Actor who is wearing akInvDevice
+        akInvDevice - Device worn by akActor
+
+    Returns:
+
+        Formated string
+/;
+string Function MakeDeviceHeader(Actor akActor,Armor akInvDevice) global
+    string loc_actorname = "NONE_ACTOR"
+    string loc_devicename = "NONE_DEVICE"
+    if akActor
+        loc_actorname = GetActorName(akActor)
+    endif
+    if akInvDevice
+        loc_devicename = akInvDevice.GetName()
+    endif
+    
+    return (loc_devicename + "("+ loc_actorname + ")")
+EndFunction
+
+;only use for debugging
+Function DCLog(String msg) global
+    ConsoleUtil.PrintMessage("[UD,DEBUG,T="+Utility.GetCurrentRealTime()+"]: " + msg)
+EndFunction
+
+Function GInfo(String msg) global
+    string loc_msg = "[UD,INFO,T="+Utility.GetCurrentRealTime()+"]: " + msg
+    debug.trace(loc_msg)
+    ConsoleUtil.PrintMessage(loc_msg)
+EndFunction
+
+Function GWarning(String msg) global
+    string loc_msg = "[UD,WARNING,T="+Utility.GetCurrentRealTime()+"]: " + msg
+    debug.trace(loc_msg)
+    ConsoleUtil.PrintMessage(loc_msg)
+EndFunction
+
+;global error function. Ignore safety in sake of usebality
+Function GError(String msg) global
+    string loc_msg = "[UD,!ERROR!,T="+Utility.GetCurrentRealTime()+"]: " + msg
+    debug.trace(loc_msg)
+    ConsoleUtil.PrintMessage(loc_msg)
+EndFunction
+
+
+;/  Function: GetMeMyForm
+
+    Returns form from plugin. Also works for esl plugins
+
+    thanks to Subhuman#6830 for ESPFE form check, compatible with LE
+    Notes given by him:
+    1) it breaks the compile-time dependency.   GetformFromFile requires you to have the plugin you're getting a form for in order to compile, this does not
+    2) less papyrus spam, if the plugin isn't found it prints a single line debug.trace instead 4-5 lines of errors
+    3) related to 1, it doesn't verify you didn't screw up.   If you're trying to cast a package as a quest, for example, GetFormFromFile will throw a compiler error because it can't be done.  This will not.  You have to verify your own work.
+
+    Parameters:
+
+        aiFormNumber    - FormID of form. Fornumber format is 0xFULLFORMID, for example 0x00000007. Even for ESPFE format, ignoring 0xFE
+        asPluginName    - Full name of the plugin WITH extension
+        abErrorMsg      - If error message should be shown in case that the function can't find the form
+
+    Returns:
+
+        Corresponding form
+/;
+Form Function GetMeMyForm(int aiFormNumber, string asPluginName, Bool abErrorMsg = True) global
+    int theLO = Game.GetModByName(asPluginName)
+    if ((theLO == 255) || (theLO == 0)) ; 255 = not found, 0 = no skse
+        if abErrorMsg
+            GError(asPluginName + " not loaded or SKSE not found")
+        endif
+        return none
+    elseIf (theLO > 255) ; > 255 = ESL
+        ; the first FIVE hex digits in an ESL are its address, so a aiFormNumber exceeding 0xFFF or below 0x800 is invalid
+        if ((Math.LogicalAnd(0xFFFFF000, aiFormNumber) != 0) || (Math.LogicalAnd(0x00000800, aiFormNumber) == 0))
+            if abErrorMsg
+                GError("Plugin " + asPluginName + " has FormIDs outside the range\nallocated for ESL plugins!: " + aiFormNumber)
+                GError("ESL-flagged plugin " + asPluginName + " contains invalid FormIDs: " + aiFormNumber)
+            endif
+            return none
+        endIf
+        ; getmodbyname reports an ESL as 256 higher than the game indexes it internally
+        theLO -= 256
+        return Game.GetFormEx(Math.LogicalOr(Math.LogicalOr(0xFE000000, Math.LeftShift(theLO, 12)), aiFormNumber))
+    else    ; regular ESL-free plugin
+        return Game.GetFormEx(Math.LogicalOr(Math.LeftShift(theLO, 24), aiFormNumber))
+    endIf
+EndFunction
+
+;/  Group: Input
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+;/  Function: GetUserTextInput
+
+    Opens text input menu, and returns its result
+
+    NOTE: User needs to have UI Extensions installed for this to work!
+
+    Returns:
+
+        String written to text menu
+/;
+string Function GetUserTextInput()
+    return UDUIE.GetUserTextInput()
+EndFunction
+
+;/  Function: GetUserListInput
+
+    Opens list menu and returns index of selected line. Top is 0, bottom is max index
+
+    NOTE: User needs to have UI Extensions installed for this to work!
+
+    Parameters:
+
+        apList  - String array of list elements which will be shown in menu
+
+    Returns:
+
+        Index of selected line
+/;
+Int Function GetUserListInput(string[] arrList)
+    return UDUIE.GetUserListInput(arrList)
+EndFunction
+
+;/  Group: Output
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+;/  Function: ShowMessageBox
+
+    Shows message box with passed string. This function should be only used for showing multiline strings.
+    
+    Once the number of lines is too big for message box to be shown, additiona lamssage box will be open.
+    
+    In case you want to show simple string, use instead <ShowSingleMessageBox>
+
+    Limit of lines per one message box is *12* lines!
+
+    Every line have also limited number of characters which it can show. If line is too long, it will be split to multiple lines by engine, which will break this function.
+
+    This function will be blocked until user clicks on OK button (this is not done by debug.messagebox function)
+
+    Parameters:
+
+        asText     - String of lines to be shown
+
+    _Example_:
+        --- Code
+        String loc_text = ""
+        loc_text += "Line 1\n"
+        loc_text += "Line 2\n"
+        loc_text += "Line 3\n"
+        ShowMessageBox(loc_text) -> This will show message box with 3 lines with their corresponding texts
+        ---
+/;
+Function ShowMessageBox(string asText)
+    String[]    loc_lines = StringUtil.split(asText,"\n")
+    int         loc_linesNum = loc_lines.length
+    
+    int         loc_lineLimit = 12
+    
+    int         loc_boxesNum = Math.Ceiling((loc_linesNum as float)/(loc_lineLimit as float))
+    int         loc_iterLine = 0
+    int         loc_iterBox = 0
+    
+    while loc_iterBox < (loc_boxesNum)
+        string loc_messagebox = ""
+        
+        while loc_iterLine < iRange((loc_linesNum - loc_lineLimit*loc_iterBox),0,loc_lineLimit)
+            loc_messagebox += (loc_lines[loc_iterLine + (loc_lineLimit)*loc_iterBox] + "\n")
+            loc_iterLine += 1
+        endwhile
+        
+        loc_iterBox += 1
+        
+        if loc_boxesNum > 1
+            loc_messagebox += "===PAGE " + (loc_iterBox) + "/" + (loc_boxesNum) + "===\n"
+        endif
+        loc_iterLine = 0
+        
+        ShowSingleMessageBox(loc_messagebox)
+    endwhile
+EndFunction
+
+;/  Function: ShowSingleMessageBox
+
+    Shows message box with passed string.
+
+    This function will be blocked until user clicks on OK button (this is not done by debug.messagebox function)
+
+    Parameters:
+
+        asMessage     - String to be shown in message box
+/;
+Function ShowSingleMessageBox(String asMessage)
+    debug.messagebox(asMessage)
+    ;wait for fucking messagebox to actually get OKd before continuing thread (holy FUCKING shit toad)
+    Utility.waitMenuMode(0.3)
+    while IsMessageboxOpen()
+        Utility.waitMenuMode(0.05)
+    EndWhile
+EndFunction
+
+;/  Group: Actor
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+;/  Function: getMaxActorValue
+
+    Returns maximum value of AV from passed actor
+
+    Inspiried by https://www.creationkit.com/index.php?title=GetActorValuePercentage_-_Actor
+
+    Parameters:
+
+        akActor  - Used actor
+        akValue  - Name of AV
+        afPerc   - Relative value of max value. Can be used to get specific elative value, like 75% of max health, etc...
+
+    Returns:
+
+        akValue maximum value from akActor
+/;
+float Function getMaxActorValue(Actor akActor,string akValue, float afPerc = 1.0) global
+    Float loc_perc = akActor.GetActorValuePercentage(akValue)
+    if loc_perc
+        return (akActor.GetActorValue(akValue)/loc_perc)*afPerc
+    else
+        return akActor.GetBaseActorValue(akValue)*afPerc ;assume base stats. Dunno how is this possible
+    endif
+EndFunction
+
+;/  Function: getCurrentActorValuePerc
+
+    Parameters:
+
+        akActor  - Used actor
+        akValue  - Name of AV
+
+    Returns:
+
+        Current relative value of akActor akValue
+/;
+float Function getCurrentActorValuePerc(Actor akActor,string akValue) global
+    return akActor.GetActorValuePercentage(akValue)
+EndFunction
+
+
+;/  Function: ActorIsPlayer
+
+    Parameters:
+
+        akActor   - Actor which will be checked
+
+    Returns:
+
+        True if passed akActor is player
+/;
+bool Function ActorIsPlayer(Actor akActor)
+    return akActor == Player
+EndFunction
+
+;/  Function: GActorIsPlayer
+
+    Global version of <ActorIsPlayer>. This function is generaly slower, and its non-global variant should be used instead.
+
+    Parameters:
+
+        akActor   - Actor which will be checked
+
+    Returns:
+
+        True if passed *akActor* is player
+/;
+bool Function GActorIsPlayer(Actor akActor) global
+    return akActor == Game.getPlayer()
+EndFunction
+
+;/  Function: GetActorName
+
+    Parameters:
+
+        akActor   - Actor whose name will be returned
+
+    Returns:
+
+        Name of passed actor. Returns *"ERROR:NONE"* if passed actor is none. Returns *"Unnamed X"* if actor have no name.
+/;
+string Function GetActorName(Actor akActor) global
+    if !akActor
+        return "ERROR:NONE"
+    endif
+    ActorBase loc_actorbase = akActor.GetLeveledActorBase()
+    string loc_res = loc_actorbase.getName()
+    if loc_res == "" ;actor have no name
+        if loc_actorbase.GetSex() == 0
+            loc_res = "Unnamed man"
+        elseif loc_actorbase.GetSex() == 1
+            loc_res = "Unnamed woman"
+        else
+            loc_res = "Unnamed person"
+        endif
+    endif
+    return loc_res
+EndFunction
+
+;/  Function: ActorIsFollower
+
+    Parameters:
+
+        akActor   - Actor which will be checked
+
+    Returns:
+
+        True if passed akActor is follower
+/;
+bool Function ActorIsFollower(Actor akActor)
+    ;added check for followers that are not marked as followers by normal means, to make loc_res == 4 from UDCustomDeviceMain.NPCMenu() work on them as well
+    ;yes yes, some of the followers don't have FollowerFaction assigned, DCL uses similar check for those.
+    string acName = akActor.GetDisplayName()
+    if acName == "Serana" || acName == "Inigo" || acName == "Sofia" || acName == "Vilja"
+        return true
+    endif
+    return akActor.isInFaction(UDCDmain.FollowerFaction)
+EndFunction
+
+;/  Function: ActorIsValidForUD
+    This function check if passed actor is valid for Unforgiving Devices (wearing devices, orgasm system, etc...).
+    
+    Following conditions have to be meet for actor to be valid
+
+    - Actor is not child
+    - Actors race is playable
+    - Actor is not dead
+    - Actor is not male IF For Him is not installed
+
+    Parameters:
+
+        akActor   - Actor which will be checked
+
+    Returns:
+
+        True if passed akActor is valid
+/;
+bool Function ActorIsValidForUD(Actor akActor)
+    if akActor == Player
+        return true
+    endif
+    if akActor.isDead()         ;check that actor is not dead
+        return false
+    endif
+    ActorBase loc_actorbase = akActor.GetLeveledActorBase()
+    Race loc_race = loc_actorbase.getRace()
+    if !loc_race.haskeyword(UDlibs.ActorTypeNPC) && !loc_race.IsPlayable() ;check that race is playable or NPC
+        return false
+    endif
+    if loc_race.IsChildRace()    ;check that actor is not child
+        return false
+    endif
+    if ((!ForHimInstalled || !AllowMenBondage) && loc_actorbase.GetSex() == 0)
+        return false
+    endif
+    return true
+EndFunction
+
+int Property UD_HearingRange = 4000 auto hidden
+
+;/  Function: ActorInCloseRange
+    This function check if passed actor is close to Player
+    
+    Checked range depends on MCM setting Hearing range
+
+    Parameters:
+
+        akActor   - Actor which will be checked if they are in close range of Player
+
+    Returns:
+
+        True if passed akActor is close to player
+/;
+bool Function ActorInCloseRange(Actor akActor)
+    if ActorIsPlayer(akActor)
+        return true
+    endif
+    float loc_distance = CalcDistance(Player,akActor)
+    return (loc_distance >= 0 && loc_distance < UD_HearingRange)
+EndFunction
+
+;/  Function: ActorFreeHands
+
+    Check if actor have free hands
+
+    Parameters:
+
+        akActor         - Checked actor
+        abCheckGrasp    - If True, mittens will also count as device which makes actors hands not free
+
+    Returns:
+
+        True if actor have free hands
+
+    _Example_:
+        --- Code
+        if ActorFreeHands(SomeActor)
+            ;Actor have no free hands
+        endif
+        
+        if ActorFreeHands(SomeActor,True)
+            ;Actor have no free hands OR they are wearing mittens
+        endif
+        ---
+/;
+bool Function ActorFreeHands(Actor akActor,bool abCheckGrasp = false)
+    bool loc_res = !akActor.wornhaskeyword(libs.zad_deviousHeavyBondage)
+    if abCheckGrasp
+        if akActor.wornhaskeyword(libs.zad_DeviousBondageMittens)
+            loc_res = false
+        endif
+    endif
+    return loc_res
+EndFunction
+
+;/  Function: ActorIsHelpless
+
+    Check if actor is helpless and cant resist player actions
+
+    Actor is helpless in following scenarios
+
+    - They dont have free hands
+    - They are paralysed
+    - They are bleeding out
+
+    Parameters:
+
+        akActor         - Checked actor
+
+    Returns:
+
+        True if actor is helpless
+/;
+Bool Function ActorIsHelpless(Actor akActor)
+    Bool loc_res = False
+    loc_res = loc_res || !ActorFreeHands(akActor)
+    loc_res = loc_res || akActor.getAV("paralysis")
+    ;loc_res = loc_res || (akActor.GetSleepState() == 3)
+    loc_res = loc_res || akActor.IsBleedingOut()
+    return loc_res
+EndFunction
+
 
 ;/  Function: GetActorGender
 
@@ -1957,6 +2037,24 @@ EndFunction
 /;
 Int Function GetActorGender(Actor akActor) global
     return akActor.GetActorBase().GetSex()
+EndFunction
+
+;/  Function: ActorIsFemale
+
+    Parameters:
+
+        akActor   - Checked actor
+
+    Returns:
+
+        True if passed actor is female
+/;
+bool Function ActorIsFemale(Actor akActor) global
+    if GetActorGender(akActor) == 1
+        return true
+    else
+        return false
+    endif
 EndFunction
 
 ;/  Function: GetPronounceSelf
@@ -2027,6 +2125,71 @@ String Function GetPronounce(Actor akActor, Bool abCapital = False) global
     endif
 EndFunction
 
+;SoS faction. If none, it means that the SoS is not installed
+Faction _SOS_SchlongifiedActors
+Faction Property UD_SOS_SchlongifiedActors
+    Faction Function Get()
+        if !_SOS_SchlongifiedActors
+            _SOS_SchlongifiedActors = UnforgivingDevicesMain.GetMeMyForm(0x00AFF8,"Schlongs of Skyrim.esp") as Faction
+        endif
+        return _SOS_SchlongifiedActors
+    EndFunction
+EndProperty
+
+;/  Function: ActorHaveSoS
+
+    Parameters:
+
+        akActor  - Used actor
+
+    Returns:
+
+       True if akActor have Schlong of Skyrim (SoS)
+/;
+Bool Function ActorHaveSoS(Actor akActor)
+    if UD_SOS_SchlongifiedActors
+        return akActor.IsInFaction(UD_SOS_SchlongifiedActors)
+    else
+        Info("UnforgivingDevicesMain::ActorHaveSoS() - SoS not installed, returning false")
+        return false
+    endif
+EndFunction
+
+;/  Group: Menu
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+;/  Function: closeMenu
+
+    Closes all following menus
+
+    - Container menu
+    - Dialogue menu
+    - Inventory menu
+    - Tween menu
+    - Gift menu
+/;
+Function closeMenu() global
+    ;https://www.reddit.com/r/skyrimmods/comments/elg97s/function_to_close_objects_container_menu/
+    UI.InvokeString("ContainerMenu", "_global.skse.CloseMenu", "ContainerMenu")
+    UI.InvokeString("Dialogue Menu", "_global.skse.CloseMenu", "Dialogue Menu")
+    UI.InvokeString("InventoryMenu", "_global.skse.CloseMenu", "InventoryMenu")
+    UI.InvokeString("TweenMenu", "_global.skse.CloseMenu", "TweenMenu")
+    UI.InvokeString("GiftMenu", "_global.skse.CloseMenu", "GiftMenu")
+EndFunction
+
+
+;/  Function: closeLockpickMenu
+
+    Closes lockpick menu
+/;
+Function closeLockpickMenu() global
+    UI.InvokeString("Lockpicking Menu", "_global.skse.CloseMenu", "Lockpicking Menu")
+EndFunction
+
+
 ;/  Function: IsMenuOpen
 
     This function check if any menu is open. It is much faster then its UI couterpart
@@ -2096,7 +2259,11 @@ Bool Function IsMessageboxOpen()
 EndFunction
 
 
-;Static slots functions
+;/  Group: Static slos
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 
 ;/  Function: GetStaticSlots
 

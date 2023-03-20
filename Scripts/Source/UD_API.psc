@@ -1,5 +1,6 @@
 ;   File: UD_API
 ;   This is mod interface for Unforgiving Devices. 
+;   
 ;   It should be prefered to use these functions instead of functions from modules, as it will be backward compatible
 scriptname UD_API extends Quest
 
@@ -10,79 +11,194 @@ Quest                               Property UD_Quest           auto
 Quest                               Property UD_UtilityQuest    auto
 
 ;SCRIPTS
+
+; Group: Modules
+
+;/  Variable: UDCDmain
+    This module contains funtions for manipulating devices. See <UDCustomDeviceMain>
+/;
 UDCustomDeviceMain                  Property UDCDmain       auto
+
+;/  Variable: UDAbadonQuest
+    Abadon quest script
+/;
 UD_AbadonQuest_script               Property UDAbadonQuest  auto
+
+;/  Variable: UDMCM
+    MCM setting
+/;
 UD_MCM_script                       Property UDMCM          auto
+
+;/  Variable: UDOM
+    
+    Meaning: Orgasm Manager
+    
+    This module contains functionality for manipulating orgasm variables
+    
+    Only use this on NPCs!! Using it on Player might break the framework! In case you want to edit player variables, use <UDOMPlayer>
+    
+    This instance is used by MCM
+/;
 UD_OrgasmManager                    Property UDOM           auto
+
+;/  Variable: UDOMPlayer
+    
+    Meaning: Player Orgasm Manager
+    
+    This module contains functionality for manipulating orgasm variables
+    
+    Only use this on Player!! Using it on NPC might break the framework!
+/;
 UD_OrgasmManager                    Property UDOMPlayer     auto
+
 UD_ExpressionManager                Property UDEM           auto
+
+;/  Variable: UDNPCM
+    
+    Meaning: NPC Manager
+    
+    This module contains functionality for manipulating NPC slots
+/;
 UD_CustomDevices_NPCSlotsManager    Property UDNPCM         auto
+
 UD_MutexManagerScript               Property UDMM           auto
+
+;/  Variable: UDMOM
+    
+    Meaning: Modifier Manager
+    
+    This module contains functionality calculations for device modifiers
+/;
 UD_ModifierManager_Script           Property UDMOM          auto
+
+;/  Variable: UDUI
+    
+    Meaning: User Input
+    
+    This module contains functionality for getting user input
+/;
 UD_UserInputScript                  Property UDUI           auto
+
+;/  Variable: UDAM
+    
+    Meaning: Animation Manager
+    
+    This module contains functionality for manipulating animations
+/;
 UD_AnimationManagerScript           Property UDAM           auto
+
 UD_CompatibilityManager_Script      Property UDCM           auto
 
 ;zadlibs for simpler access
+;   Variable: libs
 zadlibs                             property libs           auto 
+;   Variable: libsx
 zadxlibs                            property libsx          auto
+;   Variable: libsx2
 zadxlibs2                           property libsx2         auto
 
-UD_MenuChecker Property UDMC Hidden
-    UD_MenuChecker Function get()
-        return UD_UtilityQuest as UD_MenuChecker
-    EndFunction
-EndProperty
-zadlibs_UDPatch property libsp Hidden
-    zadlibs_UDPatch Function get()
-        return libs as zadlibs_UDPatch
-    EndFunction
-EndProperty
-zadBoundCombatScript_UDPatch Property BoundCombat Hidden
-    zadBoundCombatScript_UDPatch Function get()
-        return libs.BoundCombat as zadBoundCombatScript_UDPatch
-    EndFunction
-EndProperty
+;/  Variable: UDmain
+    This is main script of Unforgiving Devices, which contains most important functions and propertiest filled with references to other scripts
+    See <UnforgivingDevicesMain>
+/;
 UnforgivingDevicesMain Property UDmain Hidden
     UnforgivingDevicesMain Function get()
         return UD_Quest as UnforgivingDevicesMain
     EndFunction
 EndProperty
+
+;/  Variable: UDMC
+    
+    Meaning: Menu checker
+    
+    This module contains functions for fastly checking if menu is open
+/;
+UD_MenuChecker Property UDMC Hidden
+    UD_MenuChecker Function get()
+        return UD_UtilityQuest as UD_MenuChecker
+    EndFunction
+EndProperty
+
+;/  Variable: libsp
+    Patched version of <libs>. Should be used for calling DD functions, instead of <libs>
+/;
+zadlibs_UDPatch property libsp Hidden
+    zadlibs_UDPatch Function get()
+        return libs as zadlibs_UDPatch
+    EndFunction
+EndProperty
+
+zadBoundCombatScript_UDPatch Property BoundCombat Hidden
+    zadBoundCombatScript_UDPatch Function get()
+        return libs.BoundCombat as zadBoundCombatScript_UDPatch
+    EndFunction
+EndProperty
+
+;/  Variable: UDlibs
+    This module contains many mod related properties, like abadon devices, utility items (lockpick, gold..), etc...
+/;
 UD_libs Property UDlibs Hidden
     UD_libs Function get()
         return UD_Quest as UD_libs
     EndFunction
 EndProperty
+
+;/  Variable: UDLLP
+    
+    Meaning: Leveled List Patcher
+    
+    This module contains functionality for injecting forms to leveled lists
+/;
 UD_LeveledList_Patcher Property UDLLP Hidden
     UD_LeveledList_Patcher Function get()
         return UD_Quest as UD_LeveledList_Patcher
     EndFunction
 EndProperty
+
 UD_ParalelProcess Property UDPP Hidden
     UD_ParalelProcess Function get()
         return UD_Quest as UD_ParalelProcess
     EndFunction
 EndProperty
+
+;/  Variable: UDRRM
+    
+    Meaning: Random Restrain Manager
+    
+    This module contains functionality for locking random devices on actors
+/;
 UD_RandomRestraintManager Property UDRRM Hidden
     UD_RandomRestraintManager Function get()
         return UD_Quest as UD_RandomRestraintManager
     EndFunction
 EndProperty
+
+;/  Variable: UDItem
+    This module contains functionality for equipping abadon sets
+/;
 UDItemManager Property UDItem Hidden
     UDItemManager Function get()
         return UD_Quest as UDItemManager
     EndFunction
 EndProperty
 
-;/  Function: Ready
-
-    Returns:
-
-        True if mod is fully loaded and ready
+;/  Variable: UDWC
+    
+    Meaning: Widget Control
+    
+    This module contains functions for manipulating widgets
 /;
-bool Function Ready()
-    return UDmain.Ready
-EndFunction
+UD_WidgetControl                    Property UDWC                   hidden
+    UD_WidgetControl Function get()
+        return UDmain.UDWC
+    EndFunction
+EndProperty
+
+;/  Group: Utility
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 
 ;==========================================================================================
 ;                           GLOBAL UnforgivingDevicesMain FUNCTIONS
@@ -121,6 +237,16 @@ EndFunction
 ;                                  UTILITY FUNCTIONS
 ;==========================================================================================
 
+
+;/  Function: Ready
+
+    Returns:
+
+        True if mod is fully loaded and ready
+/;
+bool Function Ready()
+    return UDmain.Ready
+EndFunction
 
 ;/  Function: TraceAllowed
 
@@ -342,6 +468,12 @@ Bool    Function    IsMenuOpenID(int aiID)
     return UDmain.IsMenuOpenID(aiID)
 EndFunction
 
+;/  Group: Actor Slots
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
 ;==========================================================================================
 ;                                  NPC SLOT FUNCTIONS
 ;==========================================================================================
@@ -473,6 +605,12 @@ EndFunction
 int     Function    GetNumberOfFreeNPCSlots()
     return UDNPCM.numberOfFreeSlots()
 EndFunction
+
+;/  Group: Orgasm/Arousal
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 
 ;==========================================================================================
 ;                               ORGASM/AROUSAL FUNCTIONS
@@ -858,6 +996,11 @@ EndFunction
     UDmain.GetUDOM(akActor).startOrgasm(akActor,aiDuration,aiArousalDecrease,aiForce, abBlocking)
 EndFUnction
 
+;/  Group: Input
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 ;==========================================================================================
 ;                                     INPUT FUNCTIONS
 ;==========================================================================================
