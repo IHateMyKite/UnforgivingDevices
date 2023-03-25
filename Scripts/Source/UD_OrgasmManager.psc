@@ -209,7 +209,7 @@ bool Function ArousalLoopBreak(Actor akActor,Int iVersion)
 EndFunction
 
 int Function getActorArousal(Actor akActor)
-    return libs.Aroused.GetActorExposure(akActor)
+    return akActor.GetFactionRank(libs.Aroused.slaArousal)
 EndFunction
 ;=======================================
 ;                  ORGASM RATE
