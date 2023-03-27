@@ -213,40 +213,9 @@ Function Update()
 
 EndFunction
 
-;/  Function: MakeNewDeviceSlots
-
-    Returns:
-
-        New array of devices. Size of array is same as maximum amount of devices which can have one actor registered at once
-/;
-UD_CustomDevice_RenderScript[] Function MakeNewDeviceSlots()
-    return new UD_CustomDevice_RenderScript[25]
-EndFunction
-
-;/  Function: SendLoadConfig
-
-    Forces JSON config file to be reloaded
-/;
-Function SendLoadConfig()
-    RegisterForModEvent("UD_LoadConfig","LoadConfig")
-    
-    int handle = ModEvent.Create("UD_LoadConfig")
-    if (handle)
-        ModEvent.Send(handle)
-    endif
-
-    UnRegisterForModEvent("UD_LoadConfig")
-EndFunction
-
-Function LoadConfig()
-    UDmain.config.ResetToDefaults()
-    if UDmain.config.getAutoLoad()
-        UDmain.config.LoadFromJSON(UDmain.config.File)
-        GInfo("MCM Config loaded!")
-    endif
-EndFunction
-
 ;dedicated switches to hide options from menu
+
+; Group: Device menu
 
 ;/  Variable: currentDeviceMenu_allowStruggling
 
@@ -429,6 +398,41 @@ Function CheckAndDisableSpecialMenu()
     loc_cond = loc_cond || currentDeviceMenu_switch6
     if !loc_cond
         currentDeviceMenu_allowSpecialMenu = false
+    endif
+EndFunction
+
+; Group: Generic
+
+;/  Function: MakeNewDeviceSlots
+
+    Returns:
+
+        New array of devices. Size of array is same as maximum amount of devices which can have one actor registered at once
+/;
+UD_CustomDevice_RenderScript[] Function MakeNewDeviceSlots()
+    return new UD_CustomDevice_RenderScript[25]
+EndFunction
+
+;/  Function: SendLoadConfig
+
+    Forces JSON config file to be reloaded
+/;
+Function SendLoadConfig()
+    RegisterForModEvent("UD_LoadConfig","LoadConfig")
+    
+    int handle = ModEvent.Create("UD_LoadConfig")
+    if (handle)
+        ModEvent.Send(handle)
+    endif
+
+    UnRegisterForModEvent("UD_LoadConfig")
+EndFunction
+
+Function LoadConfig()
+    UDmain.config.ResetToDefaults()
+    if UDmain.config.getAutoLoad()
+        UDmain.config.LoadFromJSON(UDmain.config.File)
+        GInfo("MCM Config loaded!")
     endif
 EndFunction
 
@@ -743,6 +747,13 @@ EndFunction
 int Function getNumberOfRegisteredDevices(Actor akActor)
     return getNPCSlot(akActor).getNumberOfRegisteredDevices()
 EndFunction
+
+;/  Group: Register and device
+    Functions used for manipulating NPC slots, and regstered devices
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 
 ;/  Function: isRegistered
 
@@ -1090,6 +1101,72 @@ bool Function AllowNPCMessage(Actor akActor,Bool abOnlyFollower = false)
     else
         return false
     endif
+EndFunction
+
+UD_CustomDevice_RenderScript _activateDevicePackage = none
+
+;/  Function: activateDevice
+
+    Activates passed *akCustomDevice*
+
+    Parameters:
+        
+        akCustomDevice  - Device to activate
+        
+    Returns:
+
+        True if operation was succesfull
+/;
+bool Function activateDevice(UD_CustomDevice_RenderScript akCustomDevice)
+    if !akCustomDevice.canBeActivated() ;can't be activated, return
+        if UDmain.TraceAllowed()        
+            UDmain.Log("activateDevice(" + akCustomDevice.GetDeviceHeader() + ") - Can't be activated",3)
+        endif
+        return false
+    endif
+    
+    if !akCustomDevice.isNotShareActive() ;share active
+        ;activate other device
+        int loc_num = getActiveDevicesNum(akCustomDevice.getWearer())
+        if loc_num > 0
+            UD_CustomDevice_RenderScript[] loc_device_arr = getActiveDevices(akCustomDevice.getWearer())
+            UD_CustomDevice_RenderScript loc_device = loc_device_arr[Utility.randomInt(0,loc_num - 1)]
+            if akCustomDevice.WearerIsPlayer()
+                UDmain.Print("Your " + akCustomDevice.getDeviceName() + " activates " + loc_device.getDeviceName() + " !!", 2)
+            endif
+            akCustomDevice = loc_device
+        else
+            return false
+        endif
+    endif
+    
+    while _activateDevicePackage
+        Utility.waitMenuMode(0.15)
+    endwhile
+    _activateDevicePackage = akCustomDevice
+    if UDmain.TraceAllowed()    
+        UDmain.Log("activateDevice(" + akCustomDevice.GetDeviceHeader() + ") - Sending event",3)
+    endif
+    int handle = ModEvent.Create("UD_ActivateDevice")
+    if (handle)
+        ModEvent.Send(handle)
+        return true
+    else
+        if UDmain.TraceAllowed()        
+            UDmain.Log("activateDevice(" + akCustomDevice.GetDeviceHeader() + ") - !!Sending of event failed!!",1)
+        endif
+        _activateDevicePackage = none
+        return false
+    endif
+EndFunction
+
+Function OnActivateDevice()
+    UD_CustomDevice_RenderScript loc_fetchedPackage = _activateDevicePackage
+    _activateDevicePackage = none ;free package
+    if UDmain.TraceAllowed()    
+        UDmain.Log("activateDevice() - Received " + loc_fetchedPackage.getDeviceName(),3)
+    endif
+    loc_fetchedPackage.activateDevice()
 EndFunction
 
 ;///////////////////////////////////////
@@ -2351,6 +2428,13 @@ String[] Function GetDeviceStruggleKeywords(Armor akDevice)
     Return result
 EndFunction
 
+;/  Group: Device getters
+    Functions for getting devices from actors
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
 ;/  Function: getDeviceByInventory
 
     Utility script for fetching UD device scripts
@@ -2937,7 +3021,13 @@ UD_CustomDevice_RenderScript[] Function getActivableVibrators(Actor akActor)
     return none
 EndFunction
 
-;/  Function: getActivableVibrators
+;/  Group: Utility
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+;/  Function: ChangeSoulgemState
 
     Changes state of one of the actors soulgems
 
@@ -3065,72 +3155,6 @@ Float Function CalculateKeyModifier()
     int median = Math.floor((mcmSize/2)) ; This assumes the array to be uneven, otherwise there is no median value.
     val += (median - libs.config.KeyDifficulty)*(1.0/median)
     return val
-EndFunction
-
-UD_CustomDevice_RenderScript _activateDevicePackage = none
-
-;/  Function: activateDevice
-
-    Activates passed *akCustomDevice*
-
-    Parameters:
-        
-        akCustomDevice  - Device to activate
-        
-    Returns:
-
-        True if operation was succesfull
-/;
-bool Function activateDevice(UD_CustomDevice_RenderScript akCustomDevice)
-    if !akCustomDevice.canBeActivated() ;can't be activated, return
-        if UDmain.TraceAllowed()        
-            UDmain.Log("activateDevice(" + akCustomDevice.GetDeviceHeader() + ") - Can't be activated",3)
-        endif
-        return false
-    endif
-    
-    if !akCustomDevice.isNotShareActive() ;share active
-        ;activate other device
-        int loc_num = getActiveDevicesNum(akCustomDevice.getWearer())
-        if loc_num > 0
-            UD_CustomDevice_RenderScript[] loc_device_arr = getActiveDevices(akCustomDevice.getWearer())
-            UD_CustomDevice_RenderScript loc_device = loc_device_arr[Utility.randomInt(0,loc_num - 1)]
-            if akCustomDevice.WearerIsPlayer()
-                UDmain.Print("Your " + akCustomDevice.getDeviceName() + " activates " + loc_device.getDeviceName() + " !!", 2)
-            endif
-            akCustomDevice = loc_device
-        else
-            return false
-        endif
-    endif
-    
-    while _activateDevicePackage
-        Utility.waitMenuMode(0.15)
-    endwhile
-    _activateDevicePackage = akCustomDevice
-    if UDmain.TraceAllowed()    
-        UDmain.Log("activateDevice(" + akCustomDevice.GetDeviceHeader() + ") - Sending event",3)
-    endif
-    int handle = ModEvent.Create("UD_ActivateDevice")
-    if (handle)
-        ModEvent.Send(handle)
-        return true
-    else
-        if UDmain.TraceAllowed()        
-            UDmain.Log("activateDevice(" + akCustomDevice.GetDeviceHeader() + ") - !!Sending of event failed!!",1)
-        endif
-        _activateDevicePackage = none
-        return false
-    endif
-EndFunction
-
-Function OnActivateDevice()
-    UD_CustomDevice_RenderScript loc_fetchedPackage = _activateDevicePackage
-    _activateDevicePackage = none ;free package
-    if UDmain.TraceAllowed()    
-        UDmain.Log("activateDevice() - Received " + loc_fetchedPackage.getDeviceName(),3)
-    endif
-    loc_fetchedPackage.activateDevice()
 EndFunction
 
 Function sendSentientDialogueEvent(string type,int force)
