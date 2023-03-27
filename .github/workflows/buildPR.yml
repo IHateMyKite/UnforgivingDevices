@@ -28,7 +28,9 @@ jobs:
           ./NaturalDocs.exe ../GeneratedDocu
         
       - name: Copy media folder
-        run: (robocopy "PAPYRUS/Natural Docs/GeneratedDocu/Media" docs/Documentation/other/Media /E) ; if ($lastexitcode -lt 8) { $global:LASTEXITCODE = $null }
+        run: |
+          mkdir "docs/Documentation/other/Media" || exit 0
+          (robocopy "PAPYRUS/Natural Docs/GeneratedDocu/Media" docs/Documentation/other/Media /E) ; if ($lastexitcode -lt 8) { $global:LASTEXITCODE = $null }
         
       - name: Run build scripts
         run: PAPYRUS/PapyrusCompiler "Scripts/Source" -o="Scripts" -all -i="Scripts/Source;PAPYRUS/SRC;PAPYRUS/SRC_OTHER;PAPYRUS/SRC_DD;PAPYRUS/SRC_SKYUI;PAPYRUS/SRC_UIEXT;PAPYRUS/SRC_PAPUTIL;PAPYRUS/SRC_SXL;PAPYRUS/SRC_MFG;PAPYRUS/SRC_RM;PAPYRUS/SRC_FNIS;PAPYRUS/SRC_SLA;PAPYRUS/SRC_IWW;PAPYRUS/SRC_XPMSE;PAPYRUS/SRC_ST" -optimize -f="PAPYRUS/Flags.flg"
