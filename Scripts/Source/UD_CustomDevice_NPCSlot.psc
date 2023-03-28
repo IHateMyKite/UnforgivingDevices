@@ -191,7 +191,7 @@ Function endDeviceManipulation()
 EndFunction
 
 Event OnInit()
-    Utility.wait(1.0)
+    Utility.waitMenuMode(0.6)
     UD_equipedCustomDevices = UDCDMain.MakeNewDeviceSlots()
     UD_ActiveVibrators      = UDCDMain.MakeNewDeviceSlots()
     Ready = True
@@ -1677,7 +1677,7 @@ Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemRefere
     if akBaseItem as Weapon
         Weapon loc_weapon = akBaseItem as Weapon
         if UDCDmain.isSharp(loc_weapon)
-            if _BestWeapon.getBaseDamage() < loc_weapon.GetBaseDamage()
+            if !_BestWeapon || (_BestWeapon.getBaseDamage() < loc_weapon.GetBaseDamage())
                 _BestWeapon = loc_weapon
             endif
         endif
@@ -1687,7 +1687,7 @@ endEvent
 Event OnItemRemoved(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer)
     if akBaseItem as Weapon
         Weapon loc_weapon = akBaseItem as Weapon
-        if loc_weapon == _BestWeapon
+        if (loc_weapon == _BestWeapon) && _BestWeapon
             if getActor().getItemCount(loc_weapon) == 0
                 _BestWeapon = GetBestWeapon() ;find the next best weapon
             endif

@@ -417,7 +417,7 @@ Bool Function CheckSubModules()
         loc_cond = loc_cond && UDOM.ready
         
         if !loc_cond
-            Utility.Wait(1.0)
+            Utility.WaitMenuMode(1.0)
             loc_elapsedTime += 1
         endif
     endwhile
