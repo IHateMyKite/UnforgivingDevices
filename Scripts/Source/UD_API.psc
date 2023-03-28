@@ -15,7 +15,9 @@ Quest                               Property UD_UtilityQuest    auto
 ; Group: Modules
 
 ;/  Variable: UDCDmain
-    This module contains funtions for manipulating devices. See <UDCustomDeviceMain>
+    This module contains funtions for manipulating devices.
+    
+    See <UDCustomDeviceMain>
 /;
 UDCustomDeviceMain                  Property UDCDmain       auto
 
@@ -38,6 +40,8 @@ UD_MCM_script                       Property UDMCM          auto
     Only use this on NPCs!! Using it on Player might break the framework! In case you want to edit player variables, use <UDOMPlayer>
     
     This instance is used by MCM
+    
+    See <UD_OrgasmManager>
 /;
 UD_OrgasmManager                    Property UDOM           auto
 
@@ -48,6 +52,8 @@ UD_OrgasmManager                    Property UDOM           auto
     This module contains functionality for manipulating orgasm variables
     
     Only use this on Player!! Using it on NPC might break the framework!
+    
+    See <UD_OrgasmManager>
 /;
 UD_OrgasmManager                    Property UDOMPlayer     auto
 
@@ -76,6 +82,8 @@ UD_ModifierManager_Script           Property UDMOM          auto
     Meaning: User Input
     
     This module contains functionality for getting user input
+    
+    See <UD_OrgasmManager>
 /;
 UD_UserInputScript                  Property UDUI           auto
 
@@ -99,6 +107,7 @@ zadxlibs2                           property libsx2         auto
 
 ;/  Variable: UDmain
     This is main script of Unforgiving Devices, which contains most important functions and propertiest filled with references to other scripts
+    
     See <UnforgivingDevicesMain>
 /;
 UnforgivingDevicesMain Property UDmain Hidden

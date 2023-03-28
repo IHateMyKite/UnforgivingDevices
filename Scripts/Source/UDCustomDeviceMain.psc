@@ -165,34 +165,47 @@ Bool            Property UD_EquipMutex              = False auto hidden
 Bool            Property Ready                      = False auto hidden
 
 Event OnInit()
-    While !UDPatcher.ready
-        Utility.WaitMenuMode(0.1)
-    EndWhile
-    if UDmain.TraceAllowed()
-        UDmain.Log("UDPatcher ready!",0)
+    Utility.waitMenuMode(2.0)
+    if CheckSubModules()
+        registerEvents()
+        ready = True
+        registerForSingleUpdate(5.0)
+        if UDmain.TraceAllowed()
+            UDmain.Log("UDCustomDeviceMain ready!",0)
+        endif
+    else
+        ready = False
     endif
-    While !UDCD_NPCM.ready
-        Utility.WaitMenuMode(0.1)
-    EndWhile
-    if UDmain.TraceAllowed()    
-        UDmain.Log("UDCD_NPCM ready!",0)
-    endif
-    While !UDEM.ready
-        Utility.WaitMenuMode(0.1)
-    endwhile
-    if UDmain.TraceAllowed()
-        UDmain.Log("UDEM ready!",0)
-    endif
-
-    registerEvents()
-    
-    registerForSingleUpdate(5.0)
     RegisterForSingleUpdateGameTime(1.0)
-    if UDmain.TraceAllowed()
-        UDmain.Log("UDCustomDeviceMain ready!",0)
-    endif
-    ready = True
 EndEvent
+
+Bool Function CheckSubModules()
+    Bool    loc_cond = False
+    Int     loc_elapsedTime = 0
+    while !loc_cond && loc_elapsedTime < 15
+        loc_cond = True
+        loc_cond = loc_cond && UDPatcher.ready
+        loc_cond = loc_cond && UDCD_NPCM.ready
+        loc_cond = loc_cond && UDEM.ready
+        
+        if !loc_cond
+            Utility.Wait(1.0)
+            loc_elapsedTime += 1
+        endif
+    endwhile
+    
+    ;check for fatal error
+    if !loc_cond
+        UDmain.ShowMessageBox("!!FATAL ERROR!!\nError loading Unforgiving devices. One or more of the modules are not ready. Please contact developers on LL or GitHub")
+        ;Dumb info to console, use GInfo to skip ConsoleUtil installation check
+        GInfo("!!FATAL ERROR!! = Error loading Unforgiving devices. One or more of the modules are not ready. Please contact developrs on LL or GitHub")
+        GInfo("UDPatcher="+UDPatcher.ready)
+        GInfo("UDCD_NPCM="+UDCD_NPCM.ready)
+        GInfo("UDEM="+UDEM.ready)
+        return False
+    endif
+    return true
+EndFunction
 
 bool Property ZAZAnimationsInstalled = false auto hidden
 Function Update()
