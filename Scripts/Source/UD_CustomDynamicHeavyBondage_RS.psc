@@ -37,10 +37,10 @@ EndFunction
 Function onDeviceMenuInitPost(bool[] aControlFilter)
     parent.onDeviceMenuInitPost(aControlFilter)
     
-    if _tied; && !WearerFreeHands()
+    if _tied && CanUntie()
         UDCDmain.currentDeviceMenu_switch1 = True
     endif
-    if !_tied && WearerFreeHands()
+    if !_tied && CanTie() && WearerFreeHands()
         UDCDmain.currentDeviceMenu_switch2 = True
     endif
     UDCDmain.currentDeviceMenu_allowSpecialMenu = True
@@ -49,10 +49,10 @@ EndFunction
 Function onDeviceMenuInitPostWH(bool[] aControlFilter)
     parent.onDeviceMenuInitPostWH(aControlFilter)
     
-    if _tied
+    if _tied && CanUntie()
         UDCDmain.currentDeviceMenu_switch1 = True
     endif
-    if !_tied && (WearerFreeHands() || HelperFreeHands())
+    if !_tied && CanTie() && (WearerFreeHands() || HelperFreeHands())
         UDCDmain.currentDeviceMenu_switch2 = True
     endif
     UDCDmain.currentDeviceMenu_allowSpecialMenu = True
@@ -166,11 +166,13 @@ EndFunction
 
 ;requires override
 bool Function canBeActivated()
-    return false
+    return !IsTiedUp() && CanTie() && (getRelativeElapsedCooldownTime() >= 0.5)
 EndFunction
 
 Function activateDevice()
-    TieUp()
+    if CanTie() 
+        TieUp()
+    endif
 EndFunction
 
 Bool Function IsTiedUp()
@@ -206,6 +208,7 @@ Function onRemoveDevicePost(Actor akActor)
     Untie()
     parent.onRemoveDevicePost(akActor)
 EndFunction
+
 ;======================================================================
 ;Place new override functions here, do not forget to check override functions in parent if its not base script (UD_CustomDevice_RenderScript)
 ;======================================================================
@@ -213,7 +216,12 @@ Function OnTiedUp()
 EndFunction
 Function OnUntied()
 EndFunction
-
+Bool Function CanTie()
+    return true
+EndFunction
+Bool Function CanUntie()
+    return true
+EndFunction
 ;============================================================================================================================
 ;unused override function, theese are from base script. Extending different script means you also have to add their overrride functions                                                
 ;theese function should be on every object instance, as not having them may cause multiple function calls to default class

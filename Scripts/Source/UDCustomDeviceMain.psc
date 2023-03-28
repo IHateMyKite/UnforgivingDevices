@@ -652,7 +652,7 @@ Function StopMinigame(Actor akActor, Bool abWaitForStop)
 EndFunction
 
 Function AddInvisibleArmbinder(Actor akActor)
-    if !akActor.getItemCount(UDlibs.InvisibleArmbinder)
+    if !akActor.getItemCount(UDlibs.InvisibleArmbinder) && !akActor.wornhaskeyword(libs.zad_DeviousHeavyBondage)
         akActor.EquipItem(UDlibs.InvisibleArmbinder,false,true)
         CheckHardcoreDisabler(akActor)
         libs.StartBoundEffects(akActor)
