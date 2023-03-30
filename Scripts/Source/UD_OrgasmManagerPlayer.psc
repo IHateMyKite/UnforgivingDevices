@@ -182,6 +182,9 @@ Event OnKeyUp(Int KeyCode, Float HoldTime)
     endif
 EndEvent
 
+String[] _HornyAnimDefs
+Int _ActorConstraints = -1
+
 ;=======================================
 ;ORGASM RESIST LOOP
 ;=======================================
@@ -212,9 +215,17 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     
     ;UDCDMain.DisableActor(akActor,true)
     UDCDMain.StartMinigameDisable(akActor)
-    String[] animationArray = UDmain.UDAM.GetHornyAnimEvents(akActor)
-    If animationArray.Length > 0
-        UDmain.UDAM.StartSoloAnimation(akActor, animationArray[Utility.RandomInt(0, animationArray.Length - 1)])
+    Int loc_constraints = UDmain.UDAM.GetActorConstraintsInt(akActor, abUseCache = False)
+    If _ActorConstraints != loc_constraints
+        _ActorConstraints = loc_constraints
+        _HornyAnimDefs = UDmain.UDAM.GetHornyAnimDefs(akActor)
+    EndIf
+    If _HornyAnimDefs.Length > 0
+        Actor[] loc_actors = new Actor[1]
+        loc_actors[0] = akActor
+        UDmain.UDAM.PlayAnimationByDef(_HornyAnimDefs[Utility.RandomInt(0, _HornyAnimDefs.Length - 1)], loc_actors)
+    Else
+        UDmain.Warning("UD_OrgasmManagerPlayer::FocusOrgasmResistMinigame() Can't find animations for the horny actor")
     EndIf
 
     UDCDMain.sendHUDUpdateEvent(true,true,true,true)

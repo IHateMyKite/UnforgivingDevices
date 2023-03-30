@@ -890,7 +890,7 @@ Event resetAnimationsPage()
         UDAM_TestQuery_Type_Index = 1
     EndIf
     If UDAM_TestQuery_Keyword_List.Length == 0
-        UDAM_TestQuery_Keyword_List = new String[36]
+        UDAM_TestQuery_Keyword_List = new String[37]
         UDAM_TestQuery_Keyword_List[0] = ".zad_DeviousBoots"
         UDAM_TestQuery_Keyword_List[1] = ".zad_DeviousPlug"
         UDAM_TestQuery_Keyword_List[2] = ".zad_DeviousBelt"
@@ -927,6 +927,7 @@ Event resetAnimationsPage()
         UDAM_TestQuery_Keyword_List[33] = ".horny"
         UDAM_TestQuery_Keyword_List[34] = ".edged"
         UDAM_TestQuery_Keyword_List[35] = ".orgasm"
+        UDAM_TestQuery_Keyword_List[36] = ".spectator"
         UDAM_TestQuery_Keyword_Index = 0
     EndIf
     If UDAM_TestQuery_PlayerArms_List.Length == 0
@@ -1598,27 +1599,25 @@ Function OptionSelectAnimations(int option)
         If UDAM_TestQuery_Type_Index == 1 && !LastHelper
             ShowMessage("First you need to choose a helper. Hover your crosshair over an NPC in the game and make sure its name appears in the 'Helper' option above")
         Else
-            If ShowMessage("FOR DEBUG ONLY! It is impossible to stop the animation, only switch to another one! Animation will start if you press ACCEPT and close menu.", True)
+            If ShowMessage("FOR DEBUG ONLY! To stop animation use command 'Stop animation' in this menu. Animation will start if you press ACCEPT and close menu.", True)
                 closeMCM()
                 If LastHelper && UDAM_TestQuery_Type_Index == 1
                     Actor[] actors = new Actor[2]
                     actors[0] = Game.GetPlayer()
                     actors[1] = LastHelper
-                    Int[] constr = new Int[2]
-                    constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int)
-                    constr[1] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_HelperArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_HelperLegs_Index] + 256 * (UDAM_TestQuery_HelperMittens as Int)
-                    UDAM.PlayAnimationByDef(val, actors, constr)
+                    Int constrA1 = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int)
+                    Int constrA2 = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_HelperArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_HelperLegs_Index] + 256 * (UDAM_TestQuery_HelperMittens as Int)
+                    UDAM.PlayAnimationByDef(val, actors, False, True, constrA1, constrA2)
                 Else
                     Actor[] actors = new Actor[1]
                     actors[0] = Game.GetPlayer()
-                    Int[] constr = new Int[1]
-                    constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int)
-                    UDAM.PlayAnimationByDef(val, actors, constr)
+                    Int constr = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int)
+                    UDAM.PlayAnimationByDef(val, actors, False, True, constr)
                 EndIf
             EndIf
         EndIf
     ElseIf option == UDAM_TestQuery_StopAnimation_T
-        ShowMessage("Lets try to stop animation")
+        ShowMessage("Lets try to stop animation", False)
         UDAM.StopAnimation(Game.GetPlayer(), LastHelper)
         closeMCM()
     ElseIf option == UD_UseSingleStruggleKeyword_T

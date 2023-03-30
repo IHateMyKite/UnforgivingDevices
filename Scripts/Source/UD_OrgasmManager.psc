@@ -982,7 +982,7 @@ EndFunction
 /;
 Int Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_OrgasmManager::PlayOrgasmAnimation() akActor = " + akActor + ", aiDuration = " + aiDuration)
+        UDmain.Log("UD_OrgasmManager::PlayOrgasmAnimation() akActor = " + akActor + ", aiDuration = " + aiDuration, 3)
     EndIf
     if !aiDuration
         return 0 ;error
@@ -1007,9 +1007,15 @@ Int Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
     UDCDmain.DisableActor(akActor,loc_isPlayer)
     
     if loc_is3Dloaded
-        String[] animationArray = UDmain.UDAM.GetOrgasmAnimEvents(akActor)
-        If animationArray.Length > 0
-            UDmain.UDAM.StartSoloAnimation(akActor, animationArray[Utility.RandomInt(0, animationArray.Length - 1)], abDisableActor = False)
+        ; updating ActorConstraintsInt
+        UDmain.UDAM.GetActorConstraintsInt(akActor, abUseCache = False)
+        String[] loc_animationArray = UDmain.UDAM.GetOrgasmAnimDefs(akActor)
+        If loc_animationArray.Length > 0
+            Actor[] loc_actors = new Actor[1]
+            loc_actors[0] = akActor
+            UDmain.UDAM.PlayAnimationByDef(loc_animationArray[Utility.RandomInt(0, loc_animationArray.Length - 1)], loc_actors, abDisableActors = False)
+        Else
+            UDmain.Warning("UD_OrgasmManager::PlayOrgasmAnimation() Can't find orgasm animations for the actor")
         EndIf
     endif
     
