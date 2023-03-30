@@ -456,6 +456,8 @@ Int UD_DeviceLvlLocks_S
 Int UD_PreventMasterLock_T
 Int UD_MandatoryCrit_T
 Int UD_CritDurationAdjust_S
+Int UD_MinigameDrainMult_S
+Int UD_InitialDrainDelay_S
 
 Int UD_KeyDurability_S
 Int UD_HardcoreAccess_T
@@ -546,6 +548,10 @@ Event resetCustomBondagePage()
      
     UD_UseDDdifficulty_T = addToggleOption("Use DD difficulty:", UDCDmain.UD_UseDDdifficulty,UD_LockMenu_flag)
     AddTextOption("Key modifier:", Math.floor((UDCDmain.CalculateKeyModifier())*100 + 0.5) + " %",OPTION_FLAG_DISABLED)
+    
+    UD_MinigameDrainMult_S = addSliderOption("Minigame drain multplier", UDCDmain.UD_MinigameDrainMult * 100, "{1} %", UD_LockMenu_flag)
+    UD_InitialDrainDelay_S = addSliderOption("Initial drain delay", UDCDmain.UD_InitialDrainDelay, "{0} s", UD_LockMenu_flag)
+    
 EndEvent
 
 int UD_OrgasmUpdateTime_S
@@ -1863,6 +1869,16 @@ Function OnOptionSliderOpenCustomBondage(int option)
         SetSliderDialogDefaultValue(5.0)
         SetSliderDialogRange(0, 20)
         SetSliderDialogInterval(1)
+    ElseIf option == UD_MinigameDrainMult_S
+        SetSliderDialogStartValue(UDCDmain.UD_MinigameDrainMult * 100)
+        SetSliderDialogDefaultValue(100)
+        SetSliderDialogRange(20, 500)
+        SetSliderDialogInterval(10)
+    ElseIf option == UD_InitialDrainDelay_S
+        SetSliderDialogStartValue(UDCDmain.UD_InitialDrainDelay)
+        SetSliderDialogDefaultValue(0)
+        SetSliderDialogRange(0, 5.0)
+        SetSliderDialogInterval(1)
     endif
 EndFunction
 
@@ -2185,6 +2201,12 @@ Function OnOptionSliderAcceptCustomBondage(int option, float value)
     elseif option == UD_KeyDurability_S
         UDCDmain.UD_KeyDurability = Round(value)
         SetSliderOptionValue(UD_KeyDurability_S, UDCDmain.UD_KeyDurability, "{0}")
+    ElseIf option == UD_MinigameDrainMult_S
+        UDCDmain.UD_MinigameDrainMult = value / 100
+        SetSliderOptionValue(UD_MinigameDrainMult_S, UDCDmain.UD_MinigameDrainMult * 100, "{1} %")
+    ElseIf option == UD_InitialDrainDelay_S
+        UDCDmain.UD_InitialDrainDelay = Round(value)
+        SetSliderOptionValue(UD_InitialDrainDelay_S, UDCDmain.UD_InitialDrainDelay, "{0} s")
     endif
 EndFunction
 
@@ -3147,6 +3169,10 @@ Function CustomBondagePageInfo(int option)
         SetInfoText("How many times can be key used to unlock the restrains lock before it gets destroyed. Set this to 0 to make keys indestructible\nDefault: 5")
     elseif option == UD_HardcoreAccess_T
         SetInfoText("Toggling this on will make all devices with accessibility less then 90% inaccessible\nDefault: False")
+    ElseIf option == UD_MinigameDrainMult_S
+        SetInfoText("Stat drain multiplier during mini-game. Default: 100 %")
+    ElseIf option == UD_InitialDrainDelay_S
+        SetInfoText("Initial stat drain delay during mini-game. Default: 0.0 s")
     Endif
 EndFunction
 
@@ -3479,6 +3505,8 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetFloatValue(strFile, "CritDurationAdjust", UDCDmain.UD_CritDurationAdjust)
     JsonUtil.SetIntValue(strFile, "KeyDurability", UDCDmain.UD_KeyDurability)
     JsonUtil.SetIntValue(strFile, "HardcoreAccess", UDCDmain.UD_HardcoreAccess as Int)
+    JsonUtil.SetFloatValue(strFile, "MinigameDrainMult", UDCDmain.UD_MinigameDrainMult)
+    JsonUtil.SetFloatValue(strFile, "InitialDrainDelay", UDCDmain.UD_InitialDrainDelay)
     
     ;ABADON
     JsonUtil.SetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
@@ -3629,6 +3657,8 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UD_CritDurationAdjust = JsonUtil.GetFloatValue(strFile, "CritDurationAdjust", UDCDmain.UD_CritDurationAdjust)
     UDCDmain.UD_KeyDurability = JsonUtil.GetIntValue(strFile, "KeyDurability", UDCDmain.UD_KeyDurability)
     UDCDmain.UD_HardcoreAccess = JsonUtil.GetIntValue(strFile, "HardcoreAccess", UDCDmain.UD_HardcoreAccess as Int)
+    UDCDmain.UD_MinigameDrainMult = JsonUtil.GetFloatValue(strFile, "MinigameDrainMult", UDCDmain.UD_MinigameDrainMult)
+    UDCDmain.UD_InitialDrainDelay = JsonUtil.GetFloatValue(strFile, "InitialDrainDelay", UDCDmain.UD_InitialDrainDelay)
     
     ;ABADON
     AbadonQuest.final_finisher_set = JsonUtil.GetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
