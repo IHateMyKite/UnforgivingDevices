@@ -24,9 +24,13 @@ LeveledItem Property LIL_AllEnchCirclet auto
 FormList Property UD_BlackGooDropList auto
 
 Event OnInit()
-    Utility.wait(Utility.randomFloat(1.0,3.0))
-    Process()
+    Utility.waitMenuMode(1.0)
+    RegisterForSingleUpdate(30)
     Ready = true
+EndEvent
+
+Event OnUpdate()
+    Process()
 EndEvent
 
 Function Update()
