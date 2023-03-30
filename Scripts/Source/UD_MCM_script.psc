@@ -3454,7 +3454,6 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetFloatValue(strFile, "VibrationMultiplier", UDCDmain.UD_VibrationMultiplier)
     JsonUtil.SetFloatValue(strFile, "ArousalMultiplier", UDCDmain.UD_ArousalMultiplier)
     JsonUtil.SetFloatValue(strFile, "OrgasmResistence", UDOM.UD_OrgasmResistence)
-    JsonUtil.SetIntValue(strFile, "OrgasmArousalThreshold", UDOM.UD_OrgasmArousalThreshold)
     JsonUtil.SetIntValue(strFile, "LockpicksPerMinigame", UDCDmain.UD_LockpicksPerMinigame as Int)
     JsonUtil.SetIntValue(strFile, "UseOrgasmWidget", UDOM.UD_UseOrgasmWidget as Int)
     JsonUtil.SetFloatValue(strFile, "OrgasmUpdateTime", UDOM.UD_OrgasmUpdateTime)
@@ -3605,7 +3604,6 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UD_VibrationMultiplier = JsonUtil.GetFloatValue(strFile, "VibrationMultiplier", UDCDmain.UD_VibrationMultiplier)
     UDCDmain.UD_ArousalMultiplier = JsonUtil.GetFloatValue(strFile, "ArousalMultiplier", UDCDmain.UD_ArousalMultiplier)
     UDOM.UD_OrgasmResistence = JsonUtil.GetFloatValue(strFile, "OrgasmResistence", UDOM.UD_OrgasmResistence)
-    UDOM.UD_OrgasmArousalThreshold = JsonUtil.GetIntValue(strFile, "OrgasmArousalThreshold", UDOM.UD_OrgasmArousalThreshold)
     UDCDmain.UD_LockpicksPerMinigame = JsonUtil.GetIntValue(strFile, "LockpicksPerMinigame", UDCDmain.UD_LockpicksPerMinigame)
     UDOM.UD_UseOrgasmWidget = JsonUtil.GetIntValue(strFile, "UseOrgasmWidget", UDOM.UD_UseOrgasmWidget as Int)
     UDOM.UD_OrgasmUpdateTime = JsonUtil.GetFloatValue(strFile, "OrgasmUpdateTime", UDOM.UD_OrgasmUpdateTime)
@@ -3770,7 +3768,6 @@ Function ResetToDefaults()
     UDCDmain.UD_VibrationMultiplier     = 0.1
     UDCDmain.UD_ArousalMultiplier       = 0.025
     UDOM.UD_OrgasmResistence            = 3.5
-    UDOM.UD_OrgasmArousalThreshold      = 95
     UDCDmain.UD_LockpicksPerMinigame    = 2
     UDOM.UD_UseOrgasmWidget             = true
     UDOM.UD_OrgasmUpdateTime            = 0.5

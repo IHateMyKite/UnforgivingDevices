@@ -8,7 +8,7 @@ My goal with this mod is to make custom devices with custom behavier. My vision 
 
 This are all examples of what I want to archieve in this mod (not what is currently in this mod yet).
 
-# Documantation
+# Documentation
 
 Link: https://ihatemykite.github.io/Documentation/index.html#
 

@@ -110,19 +110,21 @@ UD_StaticNPCSlots Function GetNthStaticSlots(Int aiId)
 EndFunction
 
 Event OnInit()
-    Utility.wait(0.1)
+    Utility.WaitMenuMode(2.5)
     UD_Slots = GetNumAliases()
     int index = 0
     while index < UD_Slots
         UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
-        while !loc_slot.ready
-            Utility.wait(0.1)
+        float loc_time = 0
+        while !loc_slot.ready && loc_time < 7.0
+            Utility.WaitMenuMode(0.5)
+            loc_time += 0.5
         endwhile
-        if UDmain.TraceAllowed()
-            UDmain.Log(self + "::OnInit() - NPCslot["+ index +"] ready!")
+        if loc_time >= 7.0
+            UDmain.Error(self + "::OnInit() - NPCslot["+ index +"] - ERROR initializing npc slot!")
         endif
         index += 1
-        Utility.wait(0.05)
+        Utility.WaitMenuMode(0.05)
     endwhile
     registerForSingleUpdate(10.0)
     Ready = True
