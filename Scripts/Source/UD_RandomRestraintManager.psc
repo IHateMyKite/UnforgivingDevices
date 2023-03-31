@@ -10,6 +10,10 @@ UnforgivingDevicesMain Property UDmain
 EndProperty
 zadlibs Property libs auto
 
+Formlist Property UD_AbadonDeviceList_HeavyBondageWeak auto
+Formlist Property UD_AbadonDeviceList_HeavyBondage auto
+Formlist Property UD_AbadonDeviceList_HeavyBondageHard auto
+
 zadDeviceLists Property zadDL auto
 
 int Property UD_RandomDevice_GlobalFilter = 0xFFFFFFFF auto
