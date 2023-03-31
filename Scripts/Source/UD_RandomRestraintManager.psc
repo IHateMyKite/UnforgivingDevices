@@ -10,38 +10,6 @@ UnforgivingDevicesMain Property UDmain
 EndProperty
 zadlibs Property libs auto
 
-;maybe remove these formlists later, with switch to LL they are not needed?
-FormList Property UD_RandomDeviceList_PiercingVag auto      ;0
-FormList Property UD_RandomDeviceList_PiercingNipple auto   ;1
-FormList Property UD_RandomDeviceList_PlugVaginal auto      ;2
-FormList Property UD_RandomDeviceList_PlugAnal auto         ;3
-
-Formlist Property UD_RandomDeviceList_HeavyBondage auto     ;4
-;no formlist for harnesses
-;no formlist for corsets
-Formlist Property UD_RandomDeviceList_Hood auto             ;7
-
-Formlist Property UD_RandomDeviceList_Collar auto           ;8
-Formlist Property UD_RandomDeviceList_Gag auto              ;9
-Formlist Property UD_RandomDeviceList_Blindfold auto        ;10
-Formlist Property UD_RandomDeviceList_Boots auto            ;11
-
-Formlist Property UD_RandomDeviceList_ArmCuffs auto         ;12
-Formlist Property UD_RandomDeviceList_LegCuffs auto         ;13
-FormList Property UD_RandomDeviceList_Suit auto             ;14
-FormList Property UD_RandomDeviceList_Gloves auto           ;15
-
-Formlist Property UD_RandomDeviceList_Bra auto              ;16
-Formlist Property UD_RandomDeviceList_Belt auto             ;17
-
-;unimplemented
-Formlist Property UD_RandomDeviceList_HeavyBondageWeak auto
-Formlist Property UD_RandomDeviceList_HeavyBondage_Suit auto
-Formlist Property UD_RandomDeviceList_HeavyBondageHard auto
-Formlist Property UD_AbadonDeviceList_HeavyBondageWeak auto
-Formlist Property UD_AbadonDeviceList_HeavyBondage auto
-Formlist Property UD_AbadonDeviceList_HeavyBondageHard auto
-
 zadDeviceLists Property zadDL auto
 
 int Property UD_RandomDevice_GlobalFilter = 0xFFFFFFFF auto
@@ -129,54 +97,6 @@ Function FillOutCheckKeywords()
 
     UD_CheckKeywords.addForm(libs.zad_DeviousBra)                ;iIndex = 16
     UD_CheckKeywords.addForm(libs.zad_DeviousBelt)               ;iIndex = 17
-EndFunction
-
-Armor Function getRandomDeviceByKeyword(Actor akActor,Keyword kwKeyword)
-    Armor res = none
-    if kwKeyword == libs.zad_DeviousCollar 
-        res = getRandomFormFromFormlist(UD_RandomDeviceList_Collar) as Armor
-    elseif kwKeyword == libs.zad_DeviousArmCuffs
-        res = getRandomFormFromFormlist(UD_RandomDeviceList_ArmCuffs) as Armor
-    elseif kwKeyword == libs.zad_DeviousLegCuffs
-        res = getRandomFormFromFormlist(UD_RandomDeviceList_LegCuffs) as Armor
-    elseif kwKeyword == libs.zad_DeviousGag
-        res = getRandomFormFromFormlist(UD_RandomDeviceList_Gag) as Armor
-    elseif kwKeyword == libs.zad_DeviousBoots
-        res = getRandomFormFromFormlist(UD_RandomDeviceList_Boots) as Armor
-    elseif kwKeyword == libs.zad_DeviousBlindfold
-        res = getRandomFormFromFormlist(UD_RandomDeviceList_Blindfold) as Armor
-    elseif kwKeyword == libs.zad_DeviousBra
-        res = getRandomFormFromFormlist(UD_RandomDeviceList_Bra) as Armor
-    elseif kwKeyword == libs.zad_DeviousBelt
-        res = getRandomFormFromFormlist(UD_RandomDeviceList_Belt) as Armor
-    elseif kwKeyword == libs.zad_DeviousHeavyBondage
-        if akActor.wornhaskeyword(libs.zad_DeviousSuit)
-            res = getRandomFormFromFormlist(UD_RandomDeviceList_HeavyBondage) as Armor
-        else
-            if Utility.randomInt(0,1)
-                res = getRandomFormFromFormlist(UD_RandomDeviceList_HeavyBondage) as Armor
-            else
-                res = getRandomFormFromFormlist(UD_RandomDeviceList_HeavyBondage_Suit) as Armor
-            endif
-        endif
-    elseif kwKeyword == libs.zad_DeviousSuit
-        if !akActor.wornhaskeyword(libs.zad_DeviousSuit)
-            res = getRandomFormFromFormlist(UD_RandomDeviceList_Suit) as Armor
-        endif
-    elseif kwKeyword == libs.zad_DeviousPlugVaginal
-        res = getRandomFormFromFormlist(UD_RandomDeviceList_PlugVaginal) as Armor
-    elseif kwKeyword == libs.zad_DeviousPlugAnal
-        res = getRandomFormFromFormlist(UD_RandomDeviceList_PlugAnal) as Armor
-    elseif kwKeyword == libs.zad_DeviousPiercingsVaginal
-        res = getRandomFormFromFormlist(UD_RandomDeviceList_PiercingVag) as Armor
-    elseif kwKeyword == libs.zad_DeviousPiercingsNipple
-        res = getRandomFormFromFormlist(UD_RandomDeviceList_PiercingNipple) as Armor
-    elseif kwKeyword == libs.zad_DeviousGloves
-        res = getRandomFormFromFormlist(UD_RandomDeviceList_Gloves) as Armor
-    elseif kwKeyword == libs.zad_DeviousHood
-        res = getRandomFormFromFormlist(UD_RandomDeviceList_Hood) as Armor
-    endif
-    return res
 EndFunction
 
 Armor Function getRandomDeviceByKeyword_LL(Actor akActor,Keyword kwKeyword)
