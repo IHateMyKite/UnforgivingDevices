@@ -900,7 +900,10 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,in
     bool loc_actorinminigame = UDCDmain.actorInMinigame(akActor)
     if loc_actorinminigame
         StorageUtil.SetIntValue(akActor,"UD_OrgasmInMinigame_Flag",1)
-        UDCDMain.getMinigameDevice(akActor).StopMinigame()
+        UD_CustomDevice_RenderScript loc_device = UDCDMain.getMinigameDevice(akActor)
+        if loc_device
+            loc_device.StopMinigame()
+        endif
     endif
     
     UpdateBaseOrgasmVals(akActor, UD_OrgasmArousalReduceDuration, -5.0, 0.0, -1.0*iDecreaseArousalBy)

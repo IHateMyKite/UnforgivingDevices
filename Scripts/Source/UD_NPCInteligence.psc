@@ -271,7 +271,7 @@ EndState
 
 State Disabled
     Event OnUpdate()
-        RegisterForSingleUpdate(3*UD_UpdateTime)
+        RegisterForSingleUpdate(6*UD_UpdateTime)
     EndEvent
     Function Evaluate()
     EndFunction
