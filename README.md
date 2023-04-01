@@ -49,7 +49,7 @@ Only sources are required for the UD to compile correctly. If mod is required, i
 
 # Compiling scripts
 
-You can compile papyrus files by running [BUILD.bat](https://github.com/IHateMyKite/UnforgivingDevices/blob/main/Scripts/BUILD.bat) which is in Scripts folder. It is required that you have git installed. Will probably only work on windows. If you only want to compile single file, you can check my [tutorial about using notepad++](https://github.com/IHateMyKite/UnforgivingDevices/wiki/Developer-Guide#notepad)
+You can compile all papyrus scripts by running [BUILD.bat](https://github.com/IHateMyKite/UnforgivingDevices/blob/main/Scripts/BUILD_ALL.bat) which is in Scripts folder. It is required that you have git installed. Will probably only work on windows. If you only want to compile single file, you can either run [BUILD_ONE.bat](https://github.com/IHateMyKite/UnforgivingDevices/blob/main/Scripts/BUILD_ONE.bat) or check my [tutorial about using notepad++](https://github.com/IHateMyKite/UnforgivingDevices/wiki/Developer-Guide#notepad)
 
 # Development tools (WIP)
 https://ihatemykite.github.io/
