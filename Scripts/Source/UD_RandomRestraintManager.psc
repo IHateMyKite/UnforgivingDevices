@@ -1,3 +1,6 @@
+;/  File: UD_RandomRestraintManager
+    Contains functionality for getting random devices from Leveled Lists or Form Lists
+/;
 Scriptname UD_RandomRestraintManager extends Quest  
 
 import UnforgivingDevicesMain
@@ -10,12 +13,78 @@ UnforgivingDevicesMain Property UDmain
 EndProperty
 zadlibs Property libs auto
 
+;/  Group: Abadon Form Lists
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+;/  Variable: UD_AbadonDeviceList_HeavyBondageWeak
+
+    Form List filled with all weak abadon devices
+/;
 Formlist Property UD_AbadonDeviceList_HeavyBondageWeak auto
+
+;/  Variable: UD_AbadonDeviceList_HeavyBondage
+
+    Form List filled with all normal abadon devices
+/;
 Formlist Property UD_AbadonDeviceList_HeavyBondage auto
+
+;/  Variable: UD_AbadonDeviceList_HeavyBondageHard
+
+    Form List filled with all hard abadon devices
+/;
 Formlist Property UD_AbadonDeviceList_HeavyBondageHard auto
 
 zadDeviceLists Property zadDL auto
 
+;/  Group: Config
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+;/  Variable: UD_RandomDevice_GlobalFilter
+
+    Filter used for disabling certain devices from being randomely choosen
+    
+    *IS CHANGED USING MCM. READ ONLY!*
+    
+    BitDetails:
+    
+    ---Code
+        0b = zad_DeviousPiercingsVaginal
+        1b = zad_DeviousPiercingsNipple
+        2b = zad_DeviousPlugVaginal
+        3b = zad_DeviousPlugAnal
+        
+        4b = zad_DeviousHeavyBondage
+        5b = zad_deviousHarness
+        6b = zad_DeviousCorset
+        7b = zad_deviousHood
+        
+        8b = zad_DeviousCollar
+        9b=  zad_DeviousGag
+        10b= zad_DeviousBlindfold
+        11b= zad_DeviousBoots
+        
+        12b= zad_DeviousArmCuffs
+        13b= zad_DeviousLegCuffs
+        14b= zad_DeviousSuit
+        15b= zad_DeviousGloves
+        
+        16b= zad_DeviousBra
+        17b= zad_DeviousBelt
+    ---
+    
+    Example:
+    
+    ---Code
+        ;Disables hoods and suits from being randomely choosen
+        UD_RandomDevice_GlobalFilter -> 0xFFFFBFBF
+    ---
+/;
 int Property UD_RandomDevice_GlobalFilter = 0xFFFFFFFF auto
 
 Function StartMutex()
@@ -31,30 +100,6 @@ EndFunction
 
 bool _mutex = false
 
-;DO NOT MODIFY
-
-;0b = zad_DeviousPiercingsVaginal
-;1b = zad_DeviousPiercingsNipple
-;2b = zad_DeviousPlugVaginal
-;3b = zad_DeviousPlugAnal
-
-;4b = zad_DeviousHeavyBondage
-;5b = zad_deviousHarness
-;6b = zad_DeviousCorset
-;7b = zad_deviousHood
-
-;8b = zad_DeviousCollar
-;9b=  zad_DeviousGag
-;10b= zad_DeviousBlindfold
-;11b= zad_DeviousBoots
-
-;12b= zad_DeviousArmCuffs
-;13b= zad_DeviousLegCuffs
-;14b= zad_DeviousSuit
-;15b= zad_DeviousGloves
-
-;16b= zad_DeviousBra
-;17b= zad_DeviousBelt
 
 FormList Property UD_CheckKeywords auto
 FormList Property SuitableKeywords auto
@@ -75,6 +120,12 @@ Function Update()
         UDmain.Log("Refilled Keywords formlist")
     endif
 EndFunction
+
+;/  Group: Random Functions
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 
 Function FillOutCheckKeywords()
     UD_CheckKeywords.revert()
@@ -103,28 +154,40 @@ Function FillOutCheckKeywords()
     UD_CheckKeywords.addForm(libs.zad_DeviousBelt)               ;iIndex = 17
 EndFunction
 
-Armor Function getRandomDeviceByKeyword_LL(Actor akActor,Keyword kwKeyword)
+
+;/  Function: getRandomDeviceByKeyword_LL
+
+    Parameters:
+
+        akActor     - Actor to check random on. Device will not be locked on, but this function will return none if actor already have device with akKeyword
+        akKeyword   - Keyword which will random device have
+        
+    Returns:
+    
+        Random device with *akKeyword*, or *none* in case of error
+/;
+Armor Function getRandomDeviceByKeyword_LL(Actor akActor,Keyword akKeyword)
     LeveledItem LL = none
     Armor res = none
-    if akActor.wornhaskeyword(kwKeyword)            ; excessive check, useful when a lot of additions happening and script load is heavy
+    if akActor.wornhaskeyword(akKeyword)            ; excessive check, useful when a lot of additions happening and script load is heavy
         return none
-    elseif kwKeyword == libs.zad_DeviousCollar 
+    elseif akKeyword == libs.zad_DeviousCollar 
         LL = zadDL.zad_dev_collars
-    elseif kwKeyword == libs.zad_DeviousArmCuffs
+    elseif akKeyword == libs.zad_DeviousArmCuffs
         LL = zadDL.zad_dev_armcuffs
-    elseif kwKeyword == libs.zad_DeviousLegCuffs
+    elseif akKeyword == libs.zad_DeviousLegCuffs
         LL = zadDL.zad_dev_legcuffs
-    elseif kwKeyword == libs.zad_DeviousGag
+    elseif akKeyword == libs.zad_DeviousGag
         LL = zadDL.zad_dev_gags
-    elseif kwKeyword == libs.zad_DeviousBoots
+    elseif akKeyword == libs.zad_DeviousBoots
         LL = zadDL.zad_dev_boots
-    elseif kwKeyword == libs.zad_DeviousBlindfold
+    elseif akKeyword == libs.zad_DeviousBlindfold
         LL = zadDL.zad_dev_blindfolds
-    elseif kwKeyword == libs.zad_DeviousBra
+    elseif akKeyword == libs.zad_DeviousBra
         LL = zadDL.zad_dev_chastitybras
-    elseif kwKeyword == libs.zad_DeviousBelt
+    elseif akKeyword == libs.zad_DeviousBelt
         LL = zadDL.zad_dev_chastitybelts
-    elseif kwKeyword == libs.zad_DeviousHeavyBondage
+    elseif akKeyword == libs.zad_DeviousHeavyBondage
         if akActor.wornhaskeyword(libs.zad_DeviousSuit)
             LL = zadDL.zad_dev_heavyrestraints
         else
@@ -134,7 +197,7 @@ Armor Function getRandomDeviceByKeyword_LL(Actor akActor,Keyword kwKeyword)
                 LL = zadDL.zad_dev_heavyrestraints
             endif
         endif
-    elseif kwKeyword == libs.zad_DeviousSuit
+    elseif akKeyword == libs.zad_DeviousSuit
         if !akActor.wornhaskeyword(libs.zad_DeviousHeavyBondage)
             LL = zadDL.zad_dev_suits                                ; can use any suit, including straitjackets
         else
@@ -151,21 +214,21 @@ Armor Function getRandomDeviceByKeyword_LL(Actor akActor,Keyword kwKeyword)
                 LL = zadDL.zad_dev_suits_formaldresses
             endif
         endif
-    elseif kwKeyword == libs.zad_DeviousPlugVaginal
+    elseif akKeyword == libs.zad_DeviousPlugVaginal
         LL = zadDL.zad_dev_plugs_vaginal
-    elseif kwKeyword == libs.zad_DeviousPlugAnal
+    elseif akKeyword == libs.zad_DeviousPlugAnal
         LL = zadDL.zad_dev_plugs_anal
-    elseif kwKeyword == libs.zad_DeviousPiercingsVaginal
+    elseif akKeyword == libs.zad_DeviousPiercingsVaginal
         LL = zadDL.zad_dev_piercings_vaginal
-    elseif kwKeyword == libs.zad_DeviousPiercingsNipple
+    elseif akKeyword == libs.zad_DeviousPiercingsNipple
         LL = zadDL.zad_dev_piercings_nipple
-    elseif kwKeyword == libs.zad_DeviousGloves
+    elseif akKeyword == libs.zad_DeviousGloves
         LL = zadDL.zad_dev_gloves
-    elseif kwKeyword == libs.zad_DeviousHood
+    elseif akKeyword == libs.zad_DeviousHood
         LL = zadDL.zad_dev_hoods
-    elseif kwKeyword == libs.zad_DeviousCorset && !akActor.wornhaskeyword(libs.zad_DeviousHarness)
+    elseif akKeyword == libs.zad_DeviousCorset && !akActor.wornhaskeyword(libs.zad_DeviousHarness)
         LL = zadDL.zad_dev_corsets
-    elseif kwKeyword == libs.zad_DeviousHarness && !akActor.wornhaskeyword(libs.zad_DeviousCorset)
+    elseif akKeyword == libs.zad_DeviousHarness && !akActor.wornhaskeyword(libs.zad_DeviousCorset)
         LL = zadDL.zad_dev_harnesses
     else
         return none
@@ -237,73 +300,147 @@ Armor Function GetRandomDevice(LeveledItem akDeviceList)
 EndFunction
 
 ;PC frier 8000
-Armor Function getRandomSuitableRestrain(Actor akActor,Int iPrefSwitch = 0xffffffff)
-    if UDmain.TraceAllowed()    
+
+;/  Function: getRandomSuitableRestrain
+
+    Parameters:
+
+        akActor         - Actor to check random device on
+        aiPrefSwitch    - Filter for setting which devices can be choosen. This value gets ANDed with <UD_RandomDevice_GlobalFilter>. See <UD_RandomDevice_GlobalFilter> for more info
+        
+    Returns:
+    
+        Random device based on *aiPrefSwitch*
+/;
+Armor Function getRandomSuitableRestrain(Actor akActor,Int aiPrefSwitch = 0xffffffff)
+    if UDmain.TraceAllowed()
         UDmain.Log("getRandomSuitableRestrain called for " + GetActorName(akActor),3)
     endif
-    iPrefSwitch = Math.LogicalAnd(iPrefSwitch,UD_RandomDevice_GlobalFilter)
+    aiPrefSwitch = Math.LogicalAnd(aiPrefSwitch,UD_RandomDevice_GlobalFilter)
     Armor res = none
-    Keyword selected_keyword = getRandomSuitableKeyword(akActor,iPrefSwitch)
+    Keyword selected_keyword = getRandomSuitableKeyword(akActor,aiPrefSwitch)
     if !selected_keyword
         return none
     endif
     return getRandomDeviceByKeyword_LL(akActor,selected_keyword)
 EndFunction
 
-bool Function LockAnyRandomRestrain(Actor akActor,int iNumber = 1,bool bForce = false)
-    if iNumber < 1
-        iNumber = 1
+;/  Function: LockAnyRandomRestrain
+
+    Choose any random suitable device and locks it on actor. Is still affected by <UD_RandomDevice_GlobalFilter>
+
+    Parameters:
+
+        akActor     - Actor to lock device on
+        aiNumber    - Number of random devices to lock on
+        abForce     - If device should be force locked
+        
+    Returns:
+    
+        True if at least one device was locked on
+/;
+bool Function LockAnyRandomRestrain(Actor akActor,int aiNumber = 1,bool abForce = false)
+    if aiNumber < 1
+        aiNumber = 1
     endif
 
     bool loc_res = false
     
-    while iNumber
-        iNumber -= 1
-        loc_res = LockRandomRestrain(akActor,bForce) || loc_res
+    while aiNumber
+        aiNumber -= 1
+        loc_res = LockRandomRestrain(akActor,abForce) || loc_res
     endwhile
     
     return loc_res
 EndFunction
 
-Armor Function LockRandomRestrain(Actor akActor,Bool force = false,Int iPrefSwitch = 0xffffffff)
+;/  Function: LockRandomRestrain
+
+    Locks exactly one random device
+
+    Parameters:
+
+        akActor         - Actor to lock device on
+        abForce         - If device should be force locked
+        aiPrefSwitch    - Filter to specify which exact devices can be locked on. See <UD_RandomDevice_GlobalFilter> for more info
+        
+    Returns:
+    
+        Inventory device of device that is locked on, or *none* in case of error
+        
+    See:
+    
+        <LockAllSuitableRestrains>, <LockAnyRandomRestrain>
+/;
+Armor Function LockRandomRestrain(Actor akActor,Bool abForce = false,Int aiPrefSwitch = 0xffffffff)
     if UDmain.TraceAllowed()    
         UDmain.Log("LockRandomRestrain called for " + GetActorName(akActor))
     endif
-    iPrefSwitch = Math.LogicalAnd(iPrefSwitch,UD_RandomDevice_GlobalFilter)
-    Armor device = none
-    Keyword selected_keyword = getRandomSuitableKeyword(akActor,iPrefSwitch)
-    if !selected_keyword
+    
+                aiPrefSwitch            = Math.LogicalAnd(aiPrefSwitch,UD_RandomDevice_GlobalFilter)
+    Armor       loc_device              = none
+    Keyword     loc_selected_keyword    = getRandomSuitableKeyword(akActor,aiPrefSwitch)
+    
+    if !loc_selected_keyword
         UDmain.Log("No suitable keyword found. Skipping!")
         return none
     endif
-    if UDmain.TraceAllowed()    
-        UDmain.Log("Selected keyword: " + selected_keyword)
+    
+    if UDmain.TraceAllowed()
+        UDmain.Log("Selected keyword: " + loc_selected_keyword)
     endif
-    device = getRandomDeviceByKeyword_LL(akActor, selected_keyword);switch to LL is here
-    if device
-        if UDmain.TraceAllowed()        
-            UDmain.Log("Selected device: " + device.getName())
+    
+    loc_device = getRandomDeviceByKeyword_LL(akActor, loc_selected_keyword);switch to LL is here
+    
+    if loc_device
+        if UDmain.TraceAllowed()
+            UDmain.Log("Selected device: " + loc_device.getName())
         endif
         
-        if libs.lockdevice(akActor,device,force)
-            return device
+        if libs.lockdevice(akActor,loc_device,abForce)
+            return loc_device
         else
             return none
         endif
     else
         return none
     endif
+    
     return none
 EndFunction
 
-int Function LockAllSuitableRestrains(Actor akActor,Bool force = false,Int iPrefSwitch = 0xffffffff)
-    if UDmain.TraceAllowed()    
-        UDmain.Log("LockAllSuitableRestrains called for " + akActor.getActorBase().getName(),2)
+;/  Function: LockAllSuitableRestrains
+
+    Locks all suitable random devices.
+
+    Parameters:
+
+        akActor         - Actor to lock devices on
+        abForce         - If device should be force locked
+        aiPrefSwitch    - Filter to specify which exact devices can be locked on. See <UD_RandomDevice_GlobalFilter> for more info
+        
+    Returns:
+    
+        How many devices were locked on
+        
+    See:
+    
+        <LockRandomRestrain>, <LockAnyRandomRestrain>
+/;
+int Function LockAllSuitableRestrains(Actor akActor,Bool abForce = false,Int aiPrefSwitch = 0xffffffff)
+    if !akActor
+        UDmain.Error(self + "::LockAllSuitableRestrains() - Passed akActor is none!")
+        return 0
     endif
-    iPrefSwitch = Math.LogicalAnd(iPrefSwitch,UD_RandomDevice_GlobalFilter)
-    Form[] loc_keywords = getAllSuitableKeywords(akActor,iPrefSwitch)
+
+    if UDmain.TraceAllowed()    
+        UDmain.Log("LockAllSuitableRestrains called for " + UDmain.GetActorName(akActor),2)
+    endif
+            aiPrefSwitch    = Math.LogicalAnd(aiPrefSwitch,UD_RandomDevice_GlobalFilter)
+    Form[]  loc_keywords    = getAllSuitableKeywords(akActor,aiPrefSwitch)
+    
     if !loc_keywords
-        if UDmain.TraceAllowed()        
+        if UDmain.TraceAllowed()
             UDmain.Log("No suitable keyword found. Skipping!")
         endif
         return 0
@@ -312,16 +449,16 @@ int Function LockAllSuitableRestrains(Actor akActor,Bool force = false,Int iPref
         UDmain.Log("Selected keyword: " + loc_keywords,2)
     endif
     
-    Armor device = none
-    int loc_i = 0
-    int loc_res = 0
+    Armor   loc_device  = none
+    int     loc_i       = 0
+    int     loc_res     = 0
     while loc_i < loc_keywords.length
-        device = getRandomDeviceByKeyword_LL(akActor,loc_keywords[loc_i] as Keyword)
-        if device
+        loc_device = getRandomDeviceByKeyword_LL(akActor,loc_keywords[loc_i] as Keyword)
+        if loc_device
             if UDmain.TraceAllowed()            
-                UDmain.Log("Selected device: " + device.getName(),2)
+                UDmain.Log("Selected device: " + loc_device.getName(),2)
             endif
-            if libs.lockdevice(akActor,device,force)
+            if libs.lockdevice(akActor,loc_device,abForce)
                 loc_res += 1
             endif
         endif
@@ -330,48 +467,33 @@ int Function LockAllSuitableRestrains(Actor akActor,Bool force = false,Int iPref
     return loc_res
 EndFunction
 
+;/  Function: LockAllSuitableRestrains
 
-bool Function lockRandomDeviceFromFormList(Actor akActor,Formlist list,bool force = False)
-    Armor device = getRandomFormFromFormlist(list) as Armor
-    if device
-        libs.lockdevice(akActor,device,force)
+    Locks random device from passed formlist
+
+    Parameters:
+
+        akActor         - Actor to lock devices on
+        akList          - Form list from which will be device choosen
+        abForce         - If device should be force locked
+        
+    Returns:
+    
+        True if device was locked on
+/;
+bool Function lockRandomDeviceFromFormList(Actor akActor,Formlist akList,bool abForce = False)
+    Armor loc_device = getRandomFormFromFormlist(akList) as Armor
+    if loc_device
+        libs.lockdevice(akActor,loc_device,abForce)
         return True
     else
         return False
     endif
 EndFunction
 
-Form Function getRandomFormFromFormlist(Formlist list)
-    int iter = Utility.randomInt(0,list.GetSize() - 1)
-    return list.getAt(iter)
-EndFunction
-
-Armor Function getRandomFormFromLeveledlist(LeveledItem argList) ;this function is redundant, easier to use zadDL.GetRandomDevice
-    if !argList ;wrong leveledlist, exit
-        UDmain.Error("getRandomFormFromLeveledlist(), argList = none!")
-        return none
-    endif
-    LeveledItem loc_list = argList
-    while True
-        if UDmain.TraceAllowed()
-            UDmain.Log("getRandomFormFromLeveledlist(), Proccesing " + loc_list)
-        endif
-        int loc_size = loc_list.GetNumForms()
-        if loc_size > 0
-            int loc_iter = Utility.randomInt(0,loc_size - 1)
-            Form loc_selectedForm = loc_list.GetNthForm(loc_iter)
-            if loc_selectedForm as Armor
-                return loc_selectedForm as Armor
-            elseif loc_selectedForm as LeveledItem
-                loc_list = loc_selectedForm as LeveledItem
-            else
-                ;wrong form found, exit
-                return none
-            endif
-        else
-            return none ;empty leveledlist, exit
-        endif
-    endwhile
+Form Function getRandomFormFromFormlist(Formlist akList)
+    int loc_i = Utility.randomInt(0,akList.GetSize() - 1)
+    return akList.getAt(loc_i)
 EndFunction
 
 ;VEEEEEEEEEEEEEEEEEEEEEEEEEEEEERY SLOW
