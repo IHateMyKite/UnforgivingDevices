@@ -490,8 +490,8 @@ Event resetCustomBondagePage()
     UD_AllowArmTie_T = addToggleOption("Arm tie", UDCDmain.UD_AllowArmTie,UD_LockMenu_flag)
     UD_AllowLegTie_T = addToggleOption("Leg tie", UDCDmain.UD_AllowLegTie,UD_LockMenu_flag)
     
-    addEmptyOption()
-    addEmptyOption()
+    UD_MinigameDrainMult_S = addSliderOption("Drain multiplier", Round(UDCDmain.UD_MinigameDrainMult * 100), "{1} %", UD_LockMenu_flag)
+    UD_InitialDrainDelay_S = addSliderOption("Initial drain delay", UDCDmain.UD_InitialDrainDelay, "{0} s", UD_LockMenu_flag)
     
     ;SKILL
     AddHeaderOption("Skill setting")
@@ -548,10 +548,6 @@ Event resetCustomBondagePage()
      
     UD_UseDDdifficulty_T = addToggleOption("Use DD difficulty:", UDCDmain.UD_UseDDdifficulty,UD_LockMenu_flag)
     AddTextOption("Key modifier:", Math.floor((UDCDmain.CalculateKeyModifier())*100 + 0.5) + " %",OPTION_FLAG_DISABLED)
-    
-    UD_MinigameDrainMult_S = addSliderOption("Minigame drain multplier", UDCDmain.UD_MinigameDrainMult * 100, "{1} %", UD_LockMenu_flag)
-    UD_InitialDrainDelay_S = addSliderOption("Initial drain delay", UDCDmain.UD_InitialDrainDelay, "{0} s", UD_LockMenu_flag)
-    
 EndEvent
 
 int UD_OrgasmUpdateTime_S
@@ -1870,14 +1866,14 @@ Function OnOptionSliderOpenCustomBondage(int option)
         SetSliderDialogRange(0, 20)
         SetSliderDialogInterval(1)
     ElseIf option == UD_MinigameDrainMult_S
-        SetSliderDialogStartValue(UDCDmain.UD_MinigameDrainMult * 100)
+        SetSliderDialogStartValue(Round(UDCDmain.UD_MinigameDrainMult * 100))
         SetSliderDialogDefaultValue(100)
-        SetSliderDialogRange(20, 500)
-        SetSliderDialogInterval(10)
+        SetSliderDialogRange(10, 500)
+        SetSliderDialogInterval(5)
     ElseIf option == UD_InitialDrainDelay_S
         SetSliderDialogStartValue(UDCDmain.UD_InitialDrainDelay)
         SetSliderDialogDefaultValue(0)
-        SetSliderDialogRange(0, 5.0)
+        SetSliderDialogRange(0, 10.0)
         SetSliderDialogInterval(1)
     endif
 EndFunction
@@ -2866,6 +2862,12 @@ Function CustomBondagePageDefault(int option)
     elseif option == UD_HardcoreAccess_T
         UDCDmain.UD_HardcoreAccess = False
         SetToggleOptionValue(UD_HardcoreAccess_T, UDCDmain.UD_HardcoreAccess)
+    ElseIf option == UD_MinigameDrainMult_S
+        UDCDmain.UD_MinigameDrainMult = 1
+        SetSliderOptionValue(UD_MinigameDrainMult_S, UDCDmain.UD_MinigameDrainMult * 100, "{1} %")
+    ElseIf option == UD_InitialDrainDelay_S
+        UDCDmain.UD_InitialDrainDelay = 0
+        SetSliderOptionValue(UD_InitialDrainDelay_S, UDCDmain.UD_InitialDrainDelay, "{0} s")
     Endif
 EndFunction
 
@@ -3170,9 +3172,9 @@ Function CustomBondagePageInfo(int option)
     elseif option == UD_HardcoreAccess_T
         SetInfoText("Toggling this on will make all devices with accessibility less then 90% inaccessible\nDefault: False")
     ElseIf option == UD_MinigameDrainMult_S
-        SetInfoText("Stat drain multiplier during mini-game. Default: 100 %")
+        SetInfoText("Stat drain multiplier during mini-game. Affects how long will minigame last. The bigger this value is, the more stats will be drain and minigame will then end sooner\nDefault: 100 %")
     ElseIf option == UD_InitialDrainDelay_S
-        SetInfoText("Initial stat drain delay during mini-game. Default: 0.0 s")
+        SetInfoText("Initial stat drain delay during mini-game.\nDefault: 0 s")
     Endif
 EndFunction
 

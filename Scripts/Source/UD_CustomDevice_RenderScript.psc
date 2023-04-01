@@ -2618,15 +2618,19 @@ Function setWidgetVal(float val, bool force = false)
 EndFunction
 
 Function setMainWidgetAppearance(Int aiColor1, Int aiColor2 = -1, Int aiFlashColor = -1, String asIconName = "")
-    UDmain.UDWC.Meter_SetColor("device-main", aiColor1, aiColor2, aiFlashColor)
-    If asIconName != ""
-        UDMain.UDWC.Meter_SetIcon("device-main", asIconName)
-    EndIf
+    if (WearerIsPlayer() || HelperIsPlayer())
+        UDmain.UDWC.Meter_SetColor("device-main", aiColor1, aiColor2, aiFlashColor)
+        If asIconName != ""
+            UDMain.UDWC.Meter_SetIcon("device-main", asIconName)
+        EndIf
+    endif
 EndFunction
 
 Function setConditionWidgetAppearance(Int aiColor1, Int aiColor2 = -1, Int aiFlashColor = -1)
-    UDmain.UDWC.Meter_SetColor("device-condition", aiColor1, aiColor2, aiFlashColor)
-;    UDMain.UDWC.Meter_SetIcon("device-condition", "icon-meter-condition")
+    if (WearerIsPlayer() || HelperIsPlayer())
+        UDmain.UDWC.Meter_SetColor("device-condition", aiColor1, aiColor2, aiFlashColor)
+    ;    UDMain.UDWC.Meter_SetIcon("device-condition", "icon-meter-condition")
+    endif
 EndFunction
 
 Function showWidget(Bool abUpdate = true, Bool abUpdateColor = true)
@@ -4550,7 +4554,7 @@ Function minigame()
     float     loc_dmg              = (_durability_damage_mod + UD_durability_damage_add)*fCurrentUpdateTime*UD_DamageMult
     float     loc_condmult         = 1.0 + _condition_mult_add
     bool      loc_updatewidget     = loc_PlayerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
-    Float     loc_ElapsedTime = 0.0
+    Float     loc_ElapsedTime      = 0.0
     Bool      loc_DamageDevice     = UD_damage_device
     
     while current_device_health > 0.0 && !_StopMinigame
@@ -4564,12 +4568,14 @@ Function minigame()
                 ;stop minigame if NPC is in combat
                 StopMinigame()
             else
-                if (loc_ElapsedTime > UDCDMain.UD_InitialDrainDelay) && !ProccesAV(fCurrentUpdateTime)
-                    StopMinigame()
-                endif
-                if hasHelper()
-                    if (loc_ElapsedTime > UDCDMain.UD_InitialDrainDelay) && !ProccesAVHelper(fCurrentUpdateTime)
+                if !UDCDMain.UD_InitialDrainDelay || (loc_ElapsedTime > UDCDMain.UD_InitialDrainDelay)
+                    if !ProccesAV(fCurrentUpdateTime)
                         StopMinigame()
+                    endif
+                    if hasHelper()
+                        if !ProccesAVHelper(fCurrentUpdateTime)
+                            StopMinigame()
+                        endif
                     endif
                 endif
             endif
@@ -4770,7 +4776,7 @@ EndFunction
 Function MinigameStarter()
     bool    loc_canShowHUD      = canShowHUD()
     bool    loc_haveplayer      = PlayerInMinigame()
-    bool    loc_updatewidget    = UD_UseWidget && UDCDmain.UD_UseWidget && loc_haveplayer
+    bool    loc_updatewidget    = loc_haveplayer && UD_UseWidget && UDCDmain.UD_UseWidget
     bool    loc_is3DLoaded      = loc_haveplayer || UDmain.ActorInCloseRange(wearer)
     
     
