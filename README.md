@@ -10,7 +10,11 @@ This are all examples of what I want to archieve in this mod (not what is curren
 
 # Documentation
 
+I only update documentation manually once in the while, so the information on the website might not allways up to date
+
 Link: https://ihatemykite.github.io/Documentation/index.html#
+
+Documentation can be generated localy by running [BUILDDOCU.bat](https://github.com/IHateMyKite/UnforgivingDevices/blob/main/docs/BUILDDOCU.bat) which is located in docs folder. Git is required for it to work
 
 # Nightly build
 
@@ -43,9 +47,9 @@ Only sources are required for the UD to compile correctly. If mod is required, i
 | Animation Pack [SE] | iiw2012     | https://github.com/iiw2012/UDAnimationsSE        |
 | Unforgiving Skyrim  | kurotatsu77 | https://github.com/kurotatsu77/UnforgivingSkyrim |
 
-# Binary files
+# Compiling scripts
 
-For compiling the source files, use the https://www.nexusmods.com/skyrimspecialedition/mods/23852 or https://www.nexusmods.com/skyrim/mods/96339/
+You can compile papyrus files by running [BUILD.bat](https://github.com/IHateMyKite/UnforgivingDevices/blob/main/Scripts/BUILD.bat) which is in Scripts folder. It is required that you have git installed. Will probably only work on windows. If you only want to compile single file, you can check my [tutorial about using notepad++](https://github.com/IHateMyKite/UnforgivingDevices/wiki/Developer-Guide#notepad)
 
 # Development tools (WIP)
 https://ihatemykite.github.io/
