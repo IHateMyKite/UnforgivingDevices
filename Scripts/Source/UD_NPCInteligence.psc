@@ -4,11 +4,11 @@ import UnforgivingDevicesMain
 
 ;Device priorities
 ; Vibrator      = 15 (40 when vibrating)
-; Abadon plug   = 20 (45 when vibrating)
 ; Other         = 25
 ; Gag           = 26
 ; Blindfold     = 27
 ; Hood          = 30
+; Abadon plug   = 32 (+25 when vibrating)
 ; Belt          = 35
 ; HB            = 75
 
