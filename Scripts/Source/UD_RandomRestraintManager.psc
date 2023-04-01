@@ -434,7 +434,7 @@ int Function LockAllSuitableRestrains(Actor akActor,Bool abForce = false,Int aiP
     endif
 
     if UDmain.TraceAllowed()    
-        UDmain.Log("LockAllSuitableRestrains called for " + UDmain.GetActorName(akActor),2)
+        UDmain.Log("LockAllSuitableRestrains called for " + GetActorName(akActor),2)
     endif
             aiPrefSwitch    = Math.LogicalAnd(aiPrefSwitch,UD_RandomDevice_GlobalFilter)
     Form[]  loc_keywords    = getAllSuitableKeywords(akActor,aiPrefSwitch)
