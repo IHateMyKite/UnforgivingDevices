@@ -526,7 +526,7 @@ Function CheckVibrators()
             ;check if vib is activtaed and not registered
             if UD_ActiveVibrators.Find(UD_equipedCustomDevices[i]) < 0
                 if loc_vib.IsVibrating()
-                    UDmain.Error(self + "::CheckVibrators - Found unregistered active vibrator , registering " + loc_vib.GetDeviceName())
+                    UDmain.Warning(self + "::CheckVibrators - Found unregistered active vibrator , registering " + loc_vib.GetDeviceName())
                     if RegisterVibrator(loc_vib)
                         loc_Error = True
                     endif
@@ -2281,7 +2281,9 @@ Function CleanOrgasmUpdate()
     endif
     
     ;end mutex
-    akActor.RemoveFromFaction(UDOM.OrgasmCheckLoopFaction)
+    if akActor
+        akActor.RemoveFromFaction(UDOM.OrgasmCheckLoopFaction)
+    endif
 EndFunction
 
 
