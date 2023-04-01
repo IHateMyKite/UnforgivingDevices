@@ -1,6 +1,6 @@
 if not exist "Documentation" mkdir Documentation
 cd ..
-git clone --quiet https://github.com/IHateMyKite/PAPYRUS
+if not exist "PAPYRUS" git clone https://github.com/IHateMyKite/PAPYRUS
 cd PAPYRUS
 git pull
 cd "Natural Docs"
