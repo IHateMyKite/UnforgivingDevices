@@ -467,7 +467,7 @@ int Function LockAllSuitableRestrains(Actor akActor,Bool abForce = false,Int aiP
     return loc_res
 EndFunction
 
-;/  Function: LockAllSuitableRestrains
+;/  Function: lockRandomDeviceFromFormList
 
     Locks random device from passed formlist
 

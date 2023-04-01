@@ -60,7 +60,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     endif
     
     ;Allways lock random devices. only lock basic devices, so actor doesn look like clown
-    if UDCDmain.UDmain.UDRRM.LockAllSuitableRestrains(akTarget, false,iPrefSwitch = 0x38E0F) ;did we managed to add some restraints?
+    if UDCDmain.UDmain.UDRRM.LockAllSuitableRestrains(akTarget, false, 0x38E0F) ;did we managed to add some restraints?
         if GActorIsPlayer(akTarget)
             UDCDmain.UDmain.Print("Black goo smacks you and transforms into restraint!")
         else
