@@ -252,7 +252,7 @@ EndEvent
 String _lastPage
 Event OnPageReset(string page)
     if !UDmain.IsEnabled()
-        AddHeaderOption("Unforgiving devices is updating...")
+        AddHeaderOption("Unforgiving devices is updating or disabled...")
         return
     endif
     
