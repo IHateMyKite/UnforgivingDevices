@@ -652,10 +652,16 @@ Function StopMinigame(Actor akActor, Bool abWaitForStop)
 EndFunction
 
 Function AddInvisibleArmbinder(Actor akActor)
-    if !akActor.getItemCount(UDlibs.InvisibleArmbinder) && !akActor.wornhaskeyword(libs.zad_DeviousHeavyBondage)
-        akActor.EquipItem(UDlibs.InvisibleArmbinder,false,true)
-        CheckHardcoreDisabler(akActor)
-        libs.StartBoundEffects(akActor)
+    if !akActor.getItemCount(UDlibs.InvisibleArmbinder)
+        if akActor.wornhaskeyword(libs.zad_DeviousHeavyBondage)
+            ;actor already have HB equipped, only add the invisible HB, but not equip it
+            akActor.AddItem(UDlibs.InvisibleArmbinder,1)
+        else
+            ;actor dont have HB, equip it (which will also add it) and start idle animation
+            akActor.EquipItem(UDlibs.InvisibleArmbinder,false,true)
+            CheckHardcoreDisabler(akActor)
+            libs.StartBoundEffects(akActor)
+        endif
     endif
 EndFunction
 
@@ -690,8 +696,14 @@ EndFunction
 
 Function AddInvisibleHobble(Actor akActor)
     if !akActor.getItemCount(UDlibs.InvisibleHobble)
-        akActor.EquipItem(UDlibs.InvisibleHobble,false,true)
-        libs.StartBoundEffects(akActor)
+        if akActor.wornhaskeyword(libs.zad_deviousHobbleSkirt)
+            ;actor already have hobble skirt equipped, only add the invisible hobble, but not equip it
+            akActor.AddItem(UDlibs.InvisibleHobble,1)
+        else
+            ;actor dont have hobble skirt, equip it (which will also add it) and start idle animation
+            akActor.EquipItem(UDlibs.InvisibleHobble,false,true)
+            libs.StartBoundEffects(akActor)
+        endif
     endif
 EndFunction
 
