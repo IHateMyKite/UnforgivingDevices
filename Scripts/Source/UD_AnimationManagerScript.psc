@@ -174,6 +174,7 @@ Function StopAnimation(Actor akActor, Actor akHelper = None, Bool abEnableActors
         UnlockAnimatingActor(akActor, abEnableActors)
         ; restoring HH if it was removed in StartPairAnimation
         _RestoreHeelEffect(akActor)
+        Debug.SendAnimationEvent(akActor, "AnimObjectUnequip")
         Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
     endif
     
@@ -184,6 +185,7 @@ Function StopAnimation(Actor akActor, Actor akHelper = None, Bool abEnableActors
         UnlockAnimatingActor(akHelper, abEnableActors)
         ; restoring HH if it was removed in StartPairAnimation
         _RestoreHeelEffect(akHelper)
+        Debug.SendAnimationEvent(akHelper, "AnimObjectUnequip")
         Debug.SendAnimationEvent(akHelper, "IdleForceDefaultState")
         _RestoreActorPosition(akHelper)
     EndIf
@@ -440,11 +442,10 @@ EndFunction
 ; Function to start animation according to the specified definition from json
 ; asAnimDef                      animation definition from json, should be in format <file_name>:<path_in_file>
 ; akActors                       actors who will participate
-; aaiActorConstraints            actors' constraints. If array is empty then called GetActorConstraintsInt function
 ; abContinueAnimation            flag that the animation continues with already locked actors
-Bool Function PlayAnimationByDef(String asAnimDef, Actor[] aakActors, Int[] aaiActorConstraints, Bool abContinueAnimation = False, Bool abDisableActors = True)
+Bool Function PlayAnimationByDef(String asAnimDef, Actor[] aakActors, Bool abContinueAnimation = False, Bool abDisableActors = True, Int aiConstraintsOverrideA1 = -1, Int aiConstraintsOverrideA2 = -1)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::PlayAnimationByDef() asAnimDef = " + asAnimDef + ", aakActors = " + aakActors + ", aaiActorConstraints = " + aaiActorConstraints + ", abContinueAnimation = " + abContinueAnimation + ", abDisableActors = " + abDisableActors, 3)
+        UDmain.Log("UD_AnimationManagerScript::PlayAnimationByDef() asAnimDef = " + asAnimDef + ", aakActors = " + aakActors + ", abContinueAnimation = " + abContinueAnimation + ", abDisableActors = " + abDisableActors + ", aiConstraintsOverrideA1 = " + aiConstraintsOverrideA1 + ", aiConstraintsOverrideA2 = " + aiConstraintsOverrideA2, 3)
     EndIf
     
     Int part_index = StringUtil.Find(asAnimDef, ":")
@@ -458,11 +459,13 @@ Bool Function PlayAnimationByDef(String asAnimDef, Actor[] aakActors, Int[] aaiA
     
     Int k = 0
     While k < aakActors.Length
-        Int actor_constraints = 0
-        If aaiActorConstraints.Length > k
-            actor_constraints = aaiActorConstraints[k]
+        Int actor_constraints
+        If aiConstraintsOverrideA1 >= 0 && k == 0
+            actor_constraints = aiConstraintsOverrideA1
+        ElseIf aiConstraintsOverrideA2 >= 0 && k == 1
+            actor_constraints = aiConstraintsOverrideA2
         Else
-            actor_constraints = GetActorConstraintsInt(aakActors[k], False)
+            actor_constraints = GetActorConstraintsInt(aakActors[k])
         EndIf
         String anim_var_path = path + ".A" + (k + 1)
         ; checking if it has variations
@@ -690,7 +693,9 @@ String[] Function GetAnimationsFromDB(String sType, String[] sKeywords, String s
                     Else
                         result_temp[currentIndex] = JsonUtil.GetPathStringValue(file, anim_path + sAttribute)
                     EndIf
-                    currentIndex += 1
+                    If result_temp[currentIndex] != ""
+                        currentIndex += 1
+                    EndIf
                     If currentIndex >= 128
                         UDMain.Warning("UD_AnimationManagerScript::GetAnimationsFromDB() Reached maximum array size!")
                         Return result_temp
@@ -751,22 +756,21 @@ EndFunction
 ; asKeyword                 - device keyword to struggle from. Should starts with "."
 ; akActor                   - wearer of the device
 ; akHelper                  - optional helper
-; abReuseConstraintsCache    - flag to reuse cache in GetActorConstraintsInt function
 ; return                    - array of strings with animation paths in DB
-String[] Function GetStruggleAnimationsByKeyword(String asKeyword, Actor akActor, Actor akHelper = None, Bool abReuseConstraintsCache = False)
+String[] Function GetStruggleAnimationsByKeyword(String asKeyword, Actor akActor, Actor akHelper = None)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword() asKeyword = " + asKeyword + ", akActor = " + akActor + ", akHelper = " + akHelper + ", abReuseConstraintsCache = " + abReuseConstraintsCache, 3)
+        UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword() asKeyword = " + asKeyword + ", akActor = " + akActor + ", akHelper = " + akHelper, 3)
     EndIf
     String[] asKwd = new String[1]
     asKwd[0] = asKeyword
     If akHelper == None
         Int[] aActorConstraints = new Int[1]
-        aActorConstraints[0] = GetActorConstraintsInt(akActor, abReuseConstraintsCache)
+        aActorConstraints[0] = GetActorConstraintsInt(akActor)
         Return GetAnimationsFromDB(".solo", asKwd, "", aActorConstraints)
     Else
         Int[] aActorConstraints = new Int[2]
-        aActorConstraints[0] = GetActorConstraintsInt(akActor, abReuseConstraintsCache)
-        aActorConstraints[1] = GetActorConstraintsInt(akHelper, abReuseConstraintsCache)
+        aActorConstraints[0] = GetActorConstraintsInt(akActor)
+        aActorConstraints[1] = GetActorConstraintsInt(akHelper)
         Return GetAnimationsFromDB(".paired", asKwd, "", aActorConstraints)
     EndIf
 EndFunction
@@ -776,21 +780,20 @@ EndFunction
 ; akKeyword                 - list of keyword to filter animations. Every element should starts with "."
 ; akActor                   - wearer of the device
 ; akHelper                  - optional helper
-; abReuseConstraintsCache    - flag to reuse cache in GetActorConstraintsInt function
 ; return                    - array of strings with animation paths in DB
-String[] Function GetStruggleAnimationsByKeywordsList(String[] asKeywords, Actor akActor, Actor akHelper = None, Bool abReuseConstraintsCache = False)
+String[] Function GetStruggleAnimationsByKeywordsList(String[] asKeywords, Actor akActor, Actor akHelper = None)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword() asKeywords = " + asKeywords + ", akActor = " + akActor + ", akHelper = " + akHelper + ", abReuseConstraintsCache = " + abReuseConstraintsCache, 3)
+        UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimationsByKeyword() asKeywords = " + asKeywords + ", akActor = " + akActor + ", akHelper = " + akHelper, 3)
     EndIf
 
     If akHelper == None
         Int[] aActorConstraints = new Int[1]
-        aActorConstraints[0] = GetActorConstraintsInt(akActor, abReuseConstraintsCache)
+        aActorConstraints[0] = GetActorConstraintsInt(akActor)
         Return GetAnimationsFromDB(".solo", asKeywords, "", aActorConstraints)
     Else
         Int[] aActorConstraints = new Int[2]
-        aActorConstraints[0] = GetActorConstraintsInt(akActor, abReuseConstraintsCache)
-        aActorConstraints[1] = GetActorConstraintsInt(akHelper, abReuseConstraintsCache)
+        aActorConstraints[0] = GetActorConstraintsInt(akActor)
+        aActorConstraints[1] = GetActorConstraintsInt(akHelper)
         Return GetAnimationsFromDB(".paired", asKeywords, "", aActorConstraints)
     EndIf
 EndFunction
@@ -799,9 +802,22 @@ EndFunction
 ; Filters and returns horny animations for given actor
 ; akActor           - actor
 ; return            - string array with found animation events names
-String[] Function GetHornyAnimEvents(Actor akActor)
+String[] Function GetHornyAnimEvents(Actor akActor, Bool abUseConstraintsIntCache = True)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetHornyAnimEvents() akActor = " + akActor, 3)
+    EndIf
+
+    Int[] aActorConstraints = new Int[1]
+    aActorConstraints[0] = GetActorConstraintsInt(akActor, abUseConstraintsIntCache)
+    String[] sKeywords = new String[1]
+    sKeywords[0] = ".horny"
+    
+    Return GetAnimationsFromDB(".solo", sKeywords, ".A1.anim", aActorConstraints)
+EndFunction
+
+String[] Function GetHornyAnimDefs(Actor akActor)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::GetHornyAnimDefs() akActor = " + akActor, 3)
     EndIf
 
     Int[] aActorConstraints = new Int[1]
@@ -809,25 +825,22 @@ String[] Function GetHornyAnimEvents(Actor akActor)
     String[] sKeywords = new String[1]
     sKeywords[0] = ".horny"
     
-    String[] anims = GetAnimationsFromDB(".solo", sKeywords, ".A1.anim", aActorConstraints)
-
-    Return anims
+    Return GetAnimationsFromDB(".solo", sKeywords, "", aActorConstraints)
 EndFunction
 
 ; Function GetOrgasmAnimEvents
 ; Filters and returns orgasm animations for given actor (with enabled UD_OrgasmAnimation it returns horny animations too)
 ; akActor           - actor
 ; return            - string array with found animation events names
-String[] Function GetOrgasmAnimEvents(Actor akActor)
+String[] Function GetOrgasmAnimEvents(Actor akActor, Bool abUseConstraintsIntCache = True)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetOrgasmAnimEvents() akActor = " + akActor, 3)
     EndIf
 
     Int[] aActorConstraints = new Int[1]
-    aActorConstraints[0] = GetActorConstraintsInt(akActor)
+    aActorConstraints[0] = GetActorConstraintsInt(akActor, abUseConstraintsIntCache)
     String[] sKeywords
-    Bool loc_useHornyAnim = (UDmain.UDOM.UD_OrgasmAnimation == 1)
-    if loc_useHornyAnim
+    if (UDmain.UDOM.UD_OrgasmAnimation == 1)
         sKeywords = new String[2]
         sKeywords[0] = ".orgasm"
         sKeywords[1] = ".horny"
@@ -835,28 +848,61 @@ String[] Function GetOrgasmAnimEvents(Actor akActor)
         sKeywords = new String[1]
         sKeywords[0] = ".orgasm"
     endif
-    String[] anims = GetAnimationsFromDB(".solo", sKeywords, ".A1.anim", aActorConstraints)
+    Return GetAnimationsFromDB(".solo", sKeywords, ".A1.anim", aActorConstraints)
+EndFunction
 
-    Return anims
+String[] Function GetOrgasmAnimDefs(Actor akActor)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::GetOrgasmAnimDefs() akActor = " + akActor, 3)
+    EndIf
+
+    Int[] aActorConstraints = new Int[1]
+    aActorConstraints[0] = GetActorConstraintsInt(akActor)
+    String[] sKeywords = new String[1]
+    if (UDmain.UDOM.UD_OrgasmAnimation == 1)
+        sKeywords = new String[2]
+        sKeywords[0] = ".orgasm"
+        sKeywords[1] = ".horny"
+    else
+        sKeywords = new String[1]
+        sKeywords[0] = ".orgasm"
+    endif
+    
+    Return GetAnimationsFromDB(".solo", sKeywords, "", aActorConstraints)
 EndFunction
 
 ; Function GetEdgedAnimEvents
 ; Filters and returns edge animations for given actor
 ; akActor           - actor
 ; return            - string array with found animation events names
-String[] Function GetEdgedAnimEvents(Actor akActor)
+String[] Function GetEdgedAnimEvents(Actor akActor, Bool abUseConstraintsIntCache = True)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetEdgedAnimEvents() akActor = " + akActor, 3)
     EndIf
 
     Int[] aActorConstraints = new Int[1]
-    aActorConstraints[0] = GetActorConstraintsInt(akActor)
+    aActorConstraints[0] = GetActorConstraintsInt(akActor, abUseConstraintsIntCache)
     String[] sKeywords = new String[1]
     sKeywords[0] = ".edged"
 
     String[] anims = GetAnimationsFromDB(".solo", sKeywords, ".A1.anim", aActorConstraints)
 
     Return anims
+EndFunction
+
+String[] Function GetEdgedAnimDefs(Actor akActor)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::GetEdgedAnimDefs() akActor = " + akActor, 3)
+    EndIf
+
+    Int[] aActorConstraints = new Int[1]
+    aActorConstraints[0] = GetActorConstraintsInt(akActor)
+    String[] sKeywords = new String[1]
+    sKeywords[0] = ".edged"
+    
+    String[] anim_defs = GetAnimationsFromDB(".solo", sKeywords, "", aActorConstraints)
+
+    Return anim_defs
 EndFunction
 
 ; Function GetAnimDefAttribute
@@ -936,7 +982,7 @@ EndFunction
 ; All                               - 1111 1111 1111 / 0x0FFF / 4095
 ; All (without HB)                  - 1001 0000 0011 / 0x0903 / 2307
 ; == All enable constrain value is 0x0FFF or 4095
-Int Function GetActorConstraintsInt(Actor akActor, Bool abUseCache = False)
+Int Function GetActorConstraintsInt(Actor akActor, Bool abUseCache = True)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetActorConstraintsInt() akActor = " + akActor + ", abUseCache = " + abUseCache, 3)
     EndIf
@@ -944,7 +990,7 @@ Int Function GetActorConstraintsInt(Actor akActor, Bool abUseCache = False)
         Return 0
     EndIf
 	Int result = 0
-    If abUseCache && StorageUtil.HasIntValue(akActor, "UD_ActorConstraintsInt")
+    If abUseCache && StorageUtil.HasIntValue(akActor, "UD_ActorConstraintsInt") && (StorageUtil.GetIntValue(akActor, "UD_ActorConstraintsInt_Invalid", 0) == 0)
         Return StorageUtil.GetIntValue(akActor, "UD_ActorConstraintsInt")
     EndIf
     If akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirt) && !akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirtRelaxed)
@@ -980,8 +1026,19 @@ Int Function GetActorConstraintsInt(Actor akActor, Bool abUseCache = False)
 	If akActor.WornHasKeyword(libs.zad_DeviousGag)
 		result += 2048
 	EndIf
+    StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt_Invalid", 0)
     StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt", result)
     Return result
+EndFunction
+
+Function InvalidateActorConstraintsInt(Actor akActor)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_AnimationManagerScript::InvalidateActorConstraintsInt() akActor = " + akActor, 3)
+    EndIf
+    If akActor == None
+        Return
+    EndIf
+    StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt_Invalid", 1)
 EndFunction
 
 ; Function GetHeavyBondageKeyword

@@ -1,11 +1,40 @@
+;/  File: UD_PatchInit
+
+    Script used for initializing patches. Should be used on all patches to make loading safer. Also provide additional features like adding quest keyword and generic keys.
+   
+    Extending this script with new screipt allow user to create new abadon suits.
+/;
 Scriptname UD_PatchInit extends Quest
 
 import unforgivingDevicesMain
 
-String      Property UD_PatchSource     = "error"           auto
+;/  Group: Important properties
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+;/  Variable: UD_PatchSource
+    
+    Source of patch .esp. Need to have also extension. *Allways have to be filled!!*
+    
+    Example:
+        If this script in on quest in the patch *UnforgivingDevices Some Patch.esp* then the UD_PatchSource will be *UnforgivingDevices Some Patch.esp*
+/;
+String      Property UD_PatchSource     = "error"           auto ;
+
+;/  Variable: UD_PatchName
+    
+    Name of the patch. This is only used in case of error, so user can know what patch have issue
+/;
 String      Property UD_PatchName       = "UnNamedPatch"    auto
-Formlist    Property KeywordFormList                        auto
+
+;/  Variable: QuestKeywords
+    
+    Array of quest keywords which will be injected to main pool of quest keywords. All quest related ekywords from patched mod should be added there
+/;
 Keyword[]   Property QuestKeywords                          auto
+
 UnforgivingDevicesMain  _udmain
 Quest                   _udquest ;kept for possible future optimization
 
@@ -48,43 +77,83 @@ UDCustomDeviceMain Property UDCDmain hidden
     EndFunction
 EndProperty
 
-;Armor arrays
-Armor[] Property UD_PatchRandomDeviceList_ArmCuffs          auto
-Armor[] Property UD_PatchRandomDeviceList_LegCuffs          auto
-Armor[] Property UD_PatchRandomDeviceList_Collar            auto
-Armor[] Property UD_PatchRandomDeviceList_Boots             auto
-Armor[] Property UD_PatchRandomDeviceList_Belt              auto
-Armor[] Property UD_PatchRandomDeviceList_Bra               auto
-Armor[] Property UD_PatchRandomDeviceList_Gag               auto
-Armor[] Property UD_PatchRandomDeviceList_Hood              auto
-Armor[] Property UD_PatchRandomDeviceList_Blindfold         auto
+;/  Group: Custom Abadon Suit
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 
-Armor[] Property UD_PatchRandomDeviceList_HeavyBondageWeak  auto
-Armor[] Property UD_PatchRandomDeviceList_HeavyBondage      auto
-Armor[] Property UD_PatchRandomDeviceList_HeavyBondage_Suit auto
-Armor[] Property UD_PatchRandomDeviceList_HeavyBondageHard  auto
-
-Armor[] Property UD_PatchRandomDeviceList_Suit              auto    ;9
-Armor[] Property UD_PatchRandomDeviceList_PlugVaginal       auto    ;10
-Armor[] Property UD_PatchRandomDeviceList_PlugAnal          auto    ;11
-Armor[] Property UD_PatchRandomDeviceList_PiercingVag       auto    ;12
-Armor[] Property UD_PatchRandomDeviceList_PiercingNipple    auto    ;13
-Armor[] Property UD_PatchRandomDeviceList_Gloves            auto    ;14
-
-
-;String[] Property UD_CustomAbadonSuitEvent                  auto
 
 ;Max 5 custom suits per patch for now. In case more are needed, other quest with UD_PatchInit will have to be created
+
+;/  Variable: UD_CustomAbadonSuitEvent_1
+    
+    Name of event for custom abadon suit. Should be allways made in such so its impossible that other patch uses same named event!!
+    
+    Example: UD_Patch_NameOfThePatch_NameOfTheSuit
+/;
 String  Property UD_CustomAbadonSuitEvent_1                         auto
+
+;/  Variable: UD_CustomAbadonSuitEvent_1
+    
+    Name of event for custom abadon suit. Should be allways made in such so its impossible that other patch uses same named event!!
+    
+    Example: UD_Patch_NameOfThePatch_NameOfTheSuit
+/;
 String  Property UD_CustomAbadonSuitEvent_2                         auto
+
+;/  Variable: UD_CustomAbadonSuitEvent_3
+    
+    Name of event for custom abadon suit. Should be allways made in such so its impossible that other patch uses same named event!!
+    
+    Example: UD_Patch_NameOfThePatch_NameOfTheSuit
+/;
 String  Property UD_CustomAbadonSuitEvent_3                         auto
+
+;/  Variable: UD_CustomAbadonSuitEvent_4
+    
+    Name of event for custom abadon suit. Should be allways made in such so its impossible that other patch uses same named event!!
+    
+    Example: UD_Patch_NameOfThePatch_NameOfTheSuit
+/;
 String  Property UD_CustomAbadonSuitEvent_4                         auto
+
+;/  Variable: UD_CustomAbadonSuitEvent_5
+    
+    Name of event for custom abadon suit. Should be allways made in such so its impossible that other patch uses same named event!!
+    
+    Example: UD_Patch_NameOfThePatch_NameOfTheSuit
+/;
 String  Property UD_CustomAbadonSuitEvent_5                         auto
 
+;/  Variable: UD_CustomAbadonSuitName_1
+    
+    Name of the custom abadon suit, which shows in MCM. UD_CustomAbadonSuitName_X corresponds to the UD_CustomAbadonSuitEvent_X
+/;
 String  Property UD_CustomAbadonSuitName_1      = "UnNamedSuit"     auto
+
+;/  Variable: UD_CustomAbadonSuitName_2
+    
+    Name of the custom abadon suit, which shows in MCM. UD_CustomAbadonSuitName_X corresponds to the UD_CustomAbadonSuitEvent_X
+/;
 String  Property UD_CustomAbadonSuitName_2      = "UnNamedSuit"     auto
+
+;/  Variable: UD_CustomAbadonSuitName_3
+    
+    Name of the custom abadon suit, which shows in MCM. UD_CustomAbadonSuitName_X corresponds to the UD_CustomAbadonSuitEvent_X
+/;
 String  Property UD_CustomAbadonSuitName_3      = "UnNamedSuit"     auto
+
+;/  Variable: UD_CustomAbadonSuitName_4
+    
+    Name of the custom abadon suit, which shows in MCM. UD_CustomAbadonSuitName_X corresponds to the UD_CustomAbadonSuitEvent_X
+/;
 String  Property UD_CustomAbadonSuitName_4      = "UnNamedSuit"     auto
+
+;/  Variable: UD_CustomAbadonSuitName_5
+    
+    Name of the custom abadon suit, which shows in MCM. UD_CustomAbadonSuitName_X corresponds to the UD_CustomAbadonSuitEvent_X
+/;
 String  Property UD_CustomAbadonSuitName_5      = "UnNamedSuit"     auto
 
 ;keys which should be taken by UD as generic. Theese cays can be destroyed (either by failing unlock, or by using the key too many times)
@@ -162,25 +231,6 @@ EndFunction
 Function ProcessLists()
     UDCDmain.InjectQuestKeywords(QuestKeywords)
     UDCDmain.InjectGenericKeys(UD_GenericKeys)
-    ProccesRandomDevices(UD_PatchRandomDeviceList_ArmCuffs,UDRRM.UD_RandomDeviceList_ArmCuffs)
-    ProccesRandomDevices(UD_PatchRandomDeviceList_LegCuffs,UDRRM.UD_RandomDeviceList_LegCuffs)
-    ProccesRandomDevices(UD_PatchRandomDeviceList_Collar,UDRRM.UD_RandomDeviceList_Collar)
-    ProccesRandomDevices(UD_PatchRandomDeviceList_Boots,UDRRM.UD_RandomDeviceList_Boots)
-    ProccesRandomDevices(UD_PatchRandomDeviceList_Belt,UDRRM.UD_RandomDeviceList_Belt)
-    ProccesRandomDevices(UD_PatchRandomDeviceList_Bra,UDRRM.UD_RandomDeviceList_Bra)
-    ProccesRandomDevices(UD_PatchRandomDeviceList_Gag,UDRRM.UD_RandomDeviceList_Gag)
-    ProccesRandomDevices(UD_PatchRandomDeviceList_Hood,UDRRM.UD_RandomDeviceList_Hood)
-    ProccesRandomDevices(UD_PatchRandomDeviceList_Blindfold,UDRRM.UD_RandomDeviceList_Blindfold)
-    ProccesRandomDevices(UD_PatchRandomDeviceList_HeavyBondageWeak,UDRRM.UD_RandomDeviceList_HeavyBondageWeak)
-    ProccesRandomDevices(UD_PatchRandomDeviceList_HeavyBondage,UDRRM.UD_RandomDeviceList_HeavyBondage)
-    ProccesRandomDevices(UD_PatchRandomDeviceList_HeavyBondage_Suit,UDRRM.UD_RandomDeviceList_HeavyBondage_Suit)
-    ProccesRandomDevices(UD_PatchRandomDeviceList_HeavyBondageHard,UDRRM.UD_RandomDeviceList_HeavyBondageHard)
-    ProccesRandomDevices(UD_PatchRandomDeviceList_Suit,UDRRM.UD_RandomDeviceList_Suit)
-    ProccesRandomDevices(UD_PatchRandomDeviceList_PlugVaginal,UDRRM.UD_RandomDeviceList_PlugVaginal)
-    ProccesRandomDevices(UD_PatchRandomDeviceList_PlugAnal,UDRRM.UD_RandomDeviceList_PlugAnal)
-    ProccesRandomDevices(UD_PatchRandomDeviceList_PiercingVag,UDRRM.UD_RandomDeviceList_PiercingVag)
-    ProccesRandomDevices(UD_PatchRandomDeviceList_PiercingNipple,UDRRM.UD_RandomDeviceList_PiercingNipple)
-    ProccesRandomDevices(UD_PatchRandomDeviceList_Gloves,UDRRM.UD_RandomDeviceList_Gloves)
 EndFunction
 
 Bool    _updateSuitMutex    = False
@@ -210,5 +260,41 @@ Function RegisterCustomAbadonSuitEvent(String asEvent,String asSuitName)
 EndFunction
 
 ;OVERRIDE NEEDED
+
+;/  Function: EquipSuit
+
+    This function is called if actor is about to be locked in custom abadon suit.
+    
+    This function have to be overrided by extended script, and the event have to be filtered.
+
+    Parameters:
+
+        akActor         - Actor that will be locked in abadon suit
+        asEventName     - Name of event, which is equivalent to UD_CustomAbadonSuitEvent_X on one of the patches
+        
+    _Example_:
+        --- Code
+        Scriptname MyCustomPatchScript extends UD_PatchInit
+
+        UD_CustomAbadonSuitEvent_1  -> "MyCustomAbadonSuit1"
+        UD_CustomAbadonSuitName_1   -> "My Custom Abadon Suit 1"
+        
+        UD_CustomAbadonSuitEvent_2  -> "MyCustomAbadonSuit2"
+        UD_CustomAbadonSuitName_2   -> "My Custom Abadon Suit 2"
+
+        Function EquipSuit(Actor akActor,String asEventName)
+            Utility.wait(0.01) ;wait for menu to close
+            UDmain.UDCDmain.DisableActor(akActor)
+            if asEventName == "MyCustomAbadonSuit1"
+                ;Lock some devices ...
+                libs.LockDevice(akActor,...)
+            elseif asEventName == "MyCustomAbadonSuit2"
+                ;Lock some other devices ...
+                libs.LockDevice(akActor,...)
+            endif
+            UDmain.UDCDmain.EnableActor(akActor)
+        EndFunction
+        ---
+/;
 Function EquipSuit(Actor akActor,String asEventName)
 EndFunction

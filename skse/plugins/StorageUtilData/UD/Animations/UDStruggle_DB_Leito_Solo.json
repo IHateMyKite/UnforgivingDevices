@@ -1,0 +1,231 @@
+{
+	"conditions" : {
+		"json" : "..\\..\\..\\SLAnims\\json\\AnimationsByLeito.json"
+	},
+	"solo" : {
+		"zad_DeviousAnkleShackles" : [
+			
+		], 
+		"zad_DeviousHobbleSkirtRelaxed" : [
+			
+		], 
+		"zad_DeviousHobbleSkirt" : [
+			
+		], 
+		"zad_DeviousCuffsFront" : [
+			
+		], 
+		"zad_DeviousArmbinder" : [
+			
+		], 
+		"zad_DeviousArmbinderElbow" : [
+			
+		], 
+		"zad_DeviousElbowTie" : [
+			
+		], 
+		"zad_DeviousStraitJacket" : [
+			
+		], 
+		"zad_DeviousYoke" : [
+			
+		], 
+		"zad_DeviousYokeBB" : [
+			
+		], 
+		"zad_DeviousPetSuit" : [
+			
+		], 
+		"zad_DeviousHood" : [
+			
+		], 
+		"zad_DeviousGag" : [
+			
+		], 
+		"zad_DeviousBlindfold" : [
+			
+		], 
+		"zad_DeviousCollar" : [
+			
+		], 
+		"zad_DeviousBra" : [
+			
+		], 
+		"zad_DeviousPiercingsNipple" : [
+			
+		], 
+		"zad_DeviousClamps" : [
+			
+		], 
+		"zad_DeviousCorset" : [
+			
+		], 
+		"zad_DeviousHarness" : [
+			
+		], 
+		"zad_DeviousSuit" : [
+			
+		], 
+		"zad_DeviousBelt" : [
+			
+		], 
+		"zad_DeviousPlug" : [
+			{
+				"A1" : {
+					"anim" : [ "Leito_f_solo_dildo_anal_A1_S1", "Leito_f_solo_dildo_anal_A1_S2", "Leito_f_solo_dildo_anal_A1_S3" ], 
+					"req" : 0, 
+					"opt" : 2307
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : [ "Leito_f_solo_dildo_anal_A1_S1", "Leito_f_solo_dildo_anal_A1_S2", "Leito_f_solo_dildo_anal_A1_S3", "Leito_f_solo_dildo_anal_A1_S4" ], 
+					"req" : 0, 
+					"opt" : 2304
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : [ "Leito_f_solo_dildo_anal_A1_S1", "Leito_f_solo_dildo_anal_A1_S2", "Leito_f_solo_dildo_anal_A1_S3", "Leito_f_solo_dildo_anal_A1_S4", "Leito_f_solo_dildo_anal_A1_S5" ], 
+					"req" : 0, 
+					"opt" : 2307
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : [ "Leito_f_solo_dildo_vag_A1_S1", "Leito_f_solo_dildo_vag_A1_S2", "Leito_f_solo_dildo_vag_A1_S3" ], 
+					"req" : 0, 
+					"opt" : 2304
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : [ "Leito_f_solo_dildo_vag_A1_S1", "Leito_f_solo_dildo_vag_A1_S2", "Leito_f_solo_dildo_vag_A1_S3", "Leito_f_solo_dildo_vag_A1_S4" ], 
+					"req" : 0, 
+					"opt" : 2304
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"zad_DeviousPlugVaginal" : [
+			{
+				"A1" : {
+					"anim" : [ "Leito_f_solo_dildo_anal_A1_S1", "Leito_f_solo_dildo_anal_A1_S2", "Leito_f_solo_dildo_anal_A1_S3" ], 
+					"req" : 0, 
+					"opt" : 2307
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : [ "Leito_f_solo_dildo_anal_A1_S1", "Leito_f_solo_dildo_anal_A1_S2", "Leito_f_solo_dildo_anal_A1_S3", "Leito_f_solo_dildo_anal_A1_S4" ], 
+					"req" : 0, 
+					"opt" : 2304
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : [ "Leito_f_solo_dildo_anal_A1_S1", "Leito_f_solo_dildo_anal_A1_S2", "Leito_f_solo_dildo_anal_A1_S3", "Leito_f_solo_dildo_anal_A1_S4", "Leito_f_solo_dildo_anal_A1_S5" ], 
+					"req" : 0, 
+					"opt" : 2307
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : [ "Leito_f_solo_dildo_vag_A1_S1", "Leito_f_solo_dildo_vag_A1_S2", "Leito_f_solo_dildo_vag_A1_S3" ], 
+					"req" : 0, 
+					"opt" : 2304
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : [ "Leito_f_solo_dildo_vag_A1_S1", "Leito_f_solo_dildo_vag_A1_S2", "Leito_f_solo_dildo_vag_A1_S3", "Leito_f_solo_dildo_vag_A1_S4" ], 
+					"req" : 0, 
+					"opt" : 2304
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"zad_DeviousPlugAnal" : [
+			{
+				"A1" : {
+					"anim" : [ "Leito_f_solo_dildo_anal_A1_S1", "Leito_f_solo_dildo_anal_A1_S2", "Leito_f_solo_dildo_anal_A1_S3" ], 
+					"req" : 0, 
+					"opt" : 2307
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : [ "Leito_f_solo_dildo_anal_A1_S1", "Leito_f_solo_dildo_anal_A1_S2", "Leito_f_solo_dildo_anal_A1_S3", "Leito_f_solo_dildo_anal_A1_S4" ], 
+					"req" : 0, 
+					"opt" : 2304
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : [ "Leito_f_solo_dildo_anal_A1_S1", "Leito_f_solo_dildo_anal_A1_S2", "Leito_f_solo_dildo_anal_A1_S3", "Leito_f_solo_dildo_anal_A1_S4", "Leito_f_solo_dildo_anal_A1_S5" ], 
+					"req" : 0, 
+					"opt" : 2307
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : [ "Leito_f_solo_dildo_vag_A1_S1", "Leito_f_solo_dildo_vag_A1_S2", "Leito_f_solo_dildo_vag_A1_S3" ], 
+					"req" : 0, 
+					"opt" : 2304
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : [ "Leito_f_solo_dildo_vag_A1_S1", "Leito_f_solo_dildo_vag_A1_S2", "Leito_f_solo_dildo_vag_A1_S3", "Leito_f_solo_dildo_vag_A1_S4" ], 
+					"req" : 0, 
+					"opt" : 2304
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"zad_DeviousPiercingsVaginal" : [
+			
+		], 
+		"zad_DeviousBondageMittens" : [
+			
+		], 
+		"zad_DeviousArmCuffs" : [
+			
+		], 
+		"zad_DeviousGloves" : [
+			
+		], 
+		"zad_DeviousBoots" : [
+			
+		], 
+		"zad_DeviousLegCuffs" : [
+			
+		], 
+		"horny" : [
+			
+		], 
+		"edged" : [
+			
+		], 
+		"orgasm" : [
+			{
+				"A1" : {
+					"anim" : [ "Leito_f_solo_dildo_anal_A1_S1", "Leito_f_solo_dildo_anal_A1_S2", "Leito_f_solo_dildo_anal_A1_S3", "Leito_f_solo_dildo_anal_A1_S4", "Leito_f_solo_dildo_anal_A1_S5" ], 
+					"req" : 0, 
+					"opt" : 2307
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : [ "Leito_f_solo_dildo_vag_A1_S1", "Leito_f_solo_dildo_vag_A1_S2", "Leito_f_solo_dildo_vag_A1_S3", "Leito_f_solo_dildo_vag_A1_S4", "Leito_f_solo_dildo_vag_A1_S5" ], 
+					"req" : 0, 
+					"opt" : 2304
+				}, 
+				"lewd" : 0 
+			}
+		], 
+		"spectator" : [
+			
+		]
+	}
+}

@@ -130,6 +130,7 @@ String Property _UpdateBaseOrgasmValEventName   = "UD_UpdateBaseOrgasmVal"  auto
 bool Property Ready auto conditional
 
 Event OnInit()
+    Utility.waitMenuMode(0.5)
     RegisterModEvents()
     Ready = true
 EndEvent
@@ -899,7 +900,10 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,in
     bool loc_actorinminigame = UDCDmain.actorInMinigame(akActor)
     if loc_actorinminigame
         StorageUtil.SetIntValue(akActor,"UD_OrgasmInMinigame_Flag",1)
-        UDCDMain.getMinigameDevice(akActor).StopMinigame()
+        UD_CustomDevice_RenderScript loc_device = UDCDMain.getMinigameDevice(akActor)
+        if loc_device
+            loc_device.StopMinigame()
+        endif
     endif
     
     UpdateBaseOrgasmVals(akActor, UD_OrgasmArousalReduceDuration, -5.0, 0.0, -1.0*iDecreaseArousalBy)
@@ -981,7 +985,7 @@ EndFunction
 /;
 Int Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_OrgasmManager::PlayOrgasmAnimation() akActor = " + akActor + ", aiDuration = " + aiDuration)
+        UDmain.Log("UD_OrgasmManager::PlayOrgasmAnimation() akActor = " + akActor + ", aiDuration = " + aiDuration, 3)
     EndIf
     if !aiDuration
         return 0 ;error
@@ -1006,9 +1010,15 @@ Int Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
     UDCDmain.DisableActor(akActor,loc_isPlayer)
     
     if loc_is3Dloaded
-        String[] animationArray = UDmain.UDAM.GetOrgasmAnimEvents(akActor)
-        If animationArray.Length > 0
-            UDmain.UDAM.StartSoloAnimation(akActor, animationArray[Utility.RandomInt(0, animationArray.Length - 1)], abDisableActor = False)
+        ; updating ActorConstraintsInt
+        UDmain.UDAM.GetActorConstraintsInt(akActor, abUseCache = False)
+        String[] loc_animationArray = UDmain.UDAM.GetOrgasmAnimDefs(akActor)
+        If loc_animationArray.Length > 0
+            Actor[] loc_actors = new Actor[1]
+            loc_actors[0] = akActor
+            UDmain.UDAM.PlayAnimationByDef(loc_animationArray[Utility.RandomInt(0, loc_animationArray.Length - 1)], loc_actors, abDisableActors = False)
+        Else
+            UDmain.Warning("UD_OrgasmManager::PlayOrgasmAnimation() Can't find orgasm animations for the actor")
         EndIf
     endif
     

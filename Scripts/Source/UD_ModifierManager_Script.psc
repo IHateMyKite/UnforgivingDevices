@@ -194,8 +194,8 @@ EndFunction
 
 Function Procces_LootGold_Remove(UD_CustomDevice_RenderScript argDevice)
     Actor akActor = argDevice.getWearer()
-    if !argDevice.WearerIsPlayer()
-        return ;do nothing if wearer is not player. Added as way to make mod harder, as this can make getting money very easy
+    if argDevice.GetWearer().IsDead()
+        return ;do nothing if wearer is dead. Added as way to make mod harder, as this can make getting money very easy
     endif
     
     if argDevice.zad_DestroyOnRemove || argDevice.hasModifier("DOR") || !akActor.isDead()

@@ -165,7 +165,7 @@ Bool            Property UD_EquipMutex              = False auto hidden
 Bool            Property Ready                      = False auto hidden
 
 Event OnInit()
-    Utility.waitMenuMode(2.0)
+    Utility.waitMenuMode(1.0)
     if CheckSubModules()
         registerEvents()
         ready = True
@@ -189,7 +189,7 @@ Bool Function CheckSubModules()
         loc_cond = loc_cond && UDEM.ready
         
         if !loc_cond
-            Utility.Wait(1.0)
+            Utility.WaitMenuMode(1.0)
             loc_elapsedTime += 1
         endif
     endwhile
@@ -1037,6 +1037,8 @@ Function startScript(UD_CustomDevice_RenderScript oref)
     elseif isRegistered(oref.getWearer())
         registerDevice(oref)
     endif
+    ; invalidate constraintsInt for the actor to update it on the next call
+    UDAM.InvalidateActorConstraintsInt(oref.getWearer())
 EndFunction
 
 Function endScript(UD_CustomDevice_RenderScript oref)
@@ -1047,6 +1049,8 @@ Function endScript(UD_CustomDevice_RenderScript oref)
     if isRegistered(oref.getWearer())
         unregisterDevice(oref)
     endif
+    ; invalidate constraintsInt for the actor to update it on the next call
+    UDAM.InvalidateActorConstraintsInt(oref.getWearer())
 EndFunction
 
 Function RegisterGlobalKeys()
