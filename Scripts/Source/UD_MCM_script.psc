@@ -294,7 +294,7 @@ Function resetAbadonPage()
     AddHeaderOption("$UD_H_ABADONPLUGSETTINGS")
     addEmptyOption()
 
-    preset_M = AddMenuOption("$UD_PRESET:", presetList[preset])
+    preset_M = AddMenuOption("$UD_PRESET", presetList[preset])
     UseAnalVariant_T = addToggleOption("$UD_ANALVARIANT", AbadonQuest.UseAnalVariant,AbadonQuestFlag)
     
     max_difficulty_S = AddSliderOption("$UD_MAXDIFFICULTY", AbadonQuest.max_difficulty, "{0}",FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
