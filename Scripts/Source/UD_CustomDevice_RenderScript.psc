@@ -2618,15 +2618,19 @@ Function setWidgetVal(float val, bool force = false)
 EndFunction
 
 Function setMainWidgetAppearance(Int aiColor1, Int aiColor2 = -1, Int aiFlashColor = -1, String asIconName = "")
-    UDmain.UDWC.Meter_SetColor("device-main", aiColor1, aiColor2, aiFlashColor)
-    If asIconName != ""
-        UDMain.UDWC.Meter_SetIcon("device-main", asIconName)
-    EndIf
+    if (WearerIsPlayer() || HelperIsPlayer())
+        UDmain.UDWC.Meter_SetColor("device-main", aiColor1, aiColor2, aiFlashColor)
+        If asIconName != ""
+            UDMain.UDWC.Meter_SetIcon("device-main", asIconName)
+        EndIf
+    endif
 EndFunction
 
 Function setConditionWidgetAppearance(Int aiColor1, Int aiColor2 = -1, Int aiFlashColor = -1)
-    UDmain.UDWC.Meter_SetColor("device-condition", aiColor1, aiColor2, aiFlashColor)
-;    UDMain.UDWC.Meter_SetIcon("device-condition", "icon-meter-condition")
+    if (WearerIsPlayer() || HelperIsPlayer())
+        UDmain.UDWC.Meter_SetColor("device-condition", aiColor1, aiColor2, aiFlashColor)
+    ;    UDMain.UDWC.Meter_SetIcon("device-condition", "icon-meter-condition")
+    endif
 EndFunction
 
 Function showWidget(Bool abUpdate = true, Bool abUpdateColor = true)
@@ -4550,6 +4554,7 @@ Function minigame()
     float     loc_dmg              = (_durability_damage_mod + UD_durability_damage_add)*fCurrentUpdateTime*UD_DamageMult
     float     loc_condmult         = 1.0 + _condition_mult_add
     bool      loc_updatewidget     = loc_PlayerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
+    Float     loc_ElapsedTime      = 0.0
     Bool      loc_DamageDevice     = UD_damage_device
     
     while current_device_health > 0.0 && !_StopMinigame
@@ -4563,12 +4568,14 @@ Function minigame()
                 ;stop minigame if NPC is in combat
                 StopMinigame()
             else
-                if !ProccesAV(fCurrentUpdateTime)
-                    StopMinigame()
-                endif
-                if hasHelper()
-                    if !ProccesAVHelper(fCurrentUpdateTime)
+                if !UDCDMain.UD_InitialDrainDelay || (loc_ElapsedTime > UDCDMain.UD_InitialDrainDelay)
+                    if !ProccesAV(fCurrentUpdateTime)
                         StopMinigame()
+                    endif
+                    if hasHelper()
+                        if !ProccesAVHelper(fCurrentUpdateTime)
+                            StopMinigame()
+                        endif
                     endif
                 endif
             endif
@@ -4648,9 +4655,10 @@ Function minigame()
         if !_StopMinigame && !_PauseMinigame
             Utility.wait(fCurrentUpdateTime)
             tick_b += 1
+            loc_ElapsedTime += fCurrentUpdateTime
         endif
     endwhile
-    
+
     _MinigameMainLoopON = false
     
     if loc_PlayerInMinigame
@@ -4706,7 +4714,7 @@ Function minigame()
     EndIf
 
     if UDmain.TraceAllowed()
-        UDmain.Log(getDeviceHeader() + "::minigame() - Minigame ended",1)
+        UDmain.Log(getDeviceHeader() + "::minigame() - Minigame ended after " + loc_ElapsedTime + " s", 1)
     endif
     
     ;wait for paralled threads to end
@@ -4768,7 +4776,7 @@ EndFunction
 Function MinigameStarter()
     bool    loc_canShowHUD      = canShowHUD()
     bool    loc_haveplayer      = PlayerInMinigame()
-    bool    loc_updatewidget    = UD_UseWidget && UDCDmain.UD_UseWidget && loc_haveplayer
+    bool    loc_updatewidget    = loc_haveplayer && UD_UseWidget && UDCDmain.UD_UseWidget
     bool    loc_is3DLoaded      = loc_haveplayer || UDmain.ActorInCloseRange(wearer)
     
     
@@ -5307,9 +5315,9 @@ endFunction
 
 bool Function ProccesAV(float fUpdateTime)
     if UD_drain_stats
-        Float loc_staminadrain = UD_minigame_stamina_drain
-        Float loc_healthdrain = UD_minigame_heal_drain
-        Float loc_magickahdrain = UD_minigame_magicka_drain
+        Float loc_staminadrain = UD_minigame_stamina_drain * UDCDMain.UD_MinigameDrainMult
+        Float loc_healthdrain = UD_minigame_heal_drain * UDCDMain.UD_MinigameDrainMult
+        Float loc_magickahdrain = UD_minigame_magicka_drain * UDCDMain.UD_MinigameDrainMult
         if loc_staminadrain > 0.0
             if Wearer.getAV("Stamina") <= 0
                 stopMinigame()
@@ -5340,9 +5348,9 @@ EndFunction
 
 bool Function ProccesAVHelper(float fUpdateTime)
     if UD_drain_stats_helper && _minigameHelper
-        Float loc_staminadrain = UD_minigame_stamina_drain_helper
-        Float loc_healthdrain = UD_minigame_heal_drain_helper
-        Float loc_magickahdrain = UD_minigame_magicka_drain_helper
+        Float loc_staminadrain = UD_minigame_stamina_drain_helper * UDCDMain.UD_MinigameDrainMult
+        Float loc_healthdrain = UD_minigame_heal_drain_helper * UDCDMain.UD_MinigameDrainMult
+        Float loc_magickahdrain = UD_minigame_magicka_drain_helper * UDCDMain.UD_MinigameDrainMult
         if loc_staminadrain > 0.0
             if _minigameHelper.getAV("Stamina") <= 0
                 stopMinigame()

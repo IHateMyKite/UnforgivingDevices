@@ -54,7 +54,6 @@ ObjectReference     _LockPickContainer
 
 bool    Property UD_HardcoreMode                    = true  auto hidden
 
-;keys
 Int     Property Stamina_meter_Keycode              = 32    auto hidden
 int     property StruggleKey_Keycode                = 52    auto hidden
 Int     Property Magicka_meter_Keycode              = 30    auto hidden
@@ -80,6 +79,8 @@ Int     Property UD_BlackGooRareDeviceChance        = 10    auto hidden
 Bool    Property UD_PreventMasterLock               = False auto hidden
 Int     Property UD_KeyDurability                   = 5     auto hidden ;how many times can be key used before it gets destroyed
 Bool    Property UD_HardcoreAccess                  = False auto hidden ;if true, device accessibility can be only either 0 or 1. If number is less then 0.90, it will be 0
+Float   Property UD_MinigameDrainMult               = 1.0   Auto Hidden ; minigame drain multiplier
+Float   Property UD_InitialDrainDelay               = 0.0   Auto Hidden ; minigame timespan that is free from drain
 
 ;Lvl scalling
 Float   Property UD_DeviceLvlHealth                 = 0.025 auto hidden

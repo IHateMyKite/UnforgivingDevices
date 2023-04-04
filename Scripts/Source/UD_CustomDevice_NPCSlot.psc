@@ -2638,7 +2638,7 @@ Function StartMinigameAVCheckLoop(UD_CustomDevice_RenderScript akDevice)
     int handle = ModEvent.Create(loc_EventName)
     if (handle)
         _Send_MinigameAVCheck_Package_device = akDevice
-        RegisterForModEvent(loc_EventName, "_Receive_MinigameCritloop")
+        RegisterForModEvent(loc_EventName, "_Receive_MinigameAVCheckLoop")
         ModEvent.Send(handle)
         
         ;block
@@ -2657,7 +2657,7 @@ Function StartMinigameAVCheckLoop(UD_CustomDevice_RenderScript akDevice)
     endif
     UnRegisterForModEvent(loc_EventName)
 EndFunction
-Function _Receive_MinigameCritloop()
+Function _Receive_MinigameAVCheckLoop()
     UD_CustomDevice_RenderScript loc_device = _Send_MinigameAVCheck_Package_device
     _Send_MinigameAVCheck_Package_device    = none
     _MinigameAVCheck_Received               = true
@@ -2666,21 +2666,25 @@ Function _Receive_MinigameCritloop()
     
     float loc_CurrentUpdateTime             = UDmain.UD_baseUpdateTime
     Bool  loc_HaveHelper                    = loc_device.hasHelper()
-
+    Float loc_ElapsedTime                   = 0.0
+    
     ;process
     while loc_device.IsMinigameLoopRunning()
         if !loc_device.isPaused()
-            if !loc_device.ProccesAV(loc_CurrentUpdateTime)
-                loc_device.StopMinigame()
-            endif
-            if loc_HaveHelper
-                if !loc_device.ProccesAVHelper(loc_CurrentUpdateTime)
+            if UDCDMain.UD_InitialDrainDelay == 0 || (loc_ElapsedTime > UDCDMain.UD_InitialDrainDelay)
+                if !loc_device.ProccesAV(loc_CurrentUpdateTime)
                     loc_device.StopMinigame()
+                endif
+                if loc_HaveHelper
+                    if !loc_device.ProccesAVHelper(loc_CurrentUpdateTime)
+                        loc_device.StopMinigame()
+                    endif
                 endif
             endif
         endif
         if loc_device.IsMinigameLoopRunning()
             Utility.Wait(loc_CurrentUpdateTime)
+            loc_ElapsedTime += loc_CurrentUpdateTime
         endif
     endwhile
     
