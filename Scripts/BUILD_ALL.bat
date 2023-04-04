@@ -1,6 +1,8 @@
 @echo off
+echo **Steping to mode root directory
 cd ..
-echo ===Copy paprus sources repository from GitHub===
-if not exist "PAPYRUS" (echo ===Repository not present, clonning=== & git clone https://github.com/IHateMyKite/PAPYRUS) else (echo ===Updating papyrus script sources=== & git pull) 
+echo **Checking PAPYRUS sources and tools from GitHub
+if not exist "PAPYRUS" (echo **Sources not present, clonning from GitHub & git clone https://github.com/IHateMyKite/PAPYRUS) else (echo **PAPYRUS Folder already present, skipping...)
 cd PAPYRUS
+echo **Starting compilation of all PAPYRUS scripts
 BUILD & PAUSE
