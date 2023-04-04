@@ -10,8 +10,8 @@ string Function addInfoString(string str = "")
     return parent.addInfoString(str)
 EndFunction
 
-bool Function canBeActivated()
-    return !IsTiedUp() && UDCDMain.UD_AllowArmTie && WearerFreeHands() && getRelativeElapsedCooldownTime() >= 0.5
+bool Function CanTie()
+    return UDCDMain.UD_AllowArmTie && WearerFreeHands()
 EndFunction
 
 Function OnTiedUp()
@@ -186,4 +186,7 @@ float Function getStruggleOrgasmRate()
 EndFunction
 Float[] Function GetCurrentMinigameExpression()
 	return parent.GetCurrentMinigameExpression()
+EndFunction
+bool Function canBeActivated()
+    return parent.canBeActivated()
 EndFunction

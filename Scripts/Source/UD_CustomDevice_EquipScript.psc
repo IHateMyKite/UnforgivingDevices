@@ -231,8 +231,12 @@ Function OnRemoveDevice(actor akActor)
     endif
         
     if !akActor.isDead()
-        UDCDmain.UpdateInvisibleArmbinder(akActor)
-        UDCDmain.UpdateInvisibleHobble(akActor)
+        if deviceRendered.hasKeyword(libs.zad_DeviousHeavyBondage)
+            UDCDmain.UpdateInvisibleArmbinder(akActor)
+        endif
+        if deviceRendered.hasKeyword(libs.zad_DeviousHobbleSkirt)
+            UDCDmain.UpdateInvisibleHobble(akActor)
+        endif
     endif
     
     if deviceRendered.hasKeyword(libs.zad_DeviousGag)
@@ -759,14 +763,19 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
     
     _locked = true
     
-    ;close menu, as it will otherwise cause issue with locking of RD
-    ;if UDmain.ActorIsPlayer(akActor) && UDmain.IsMenuOpen()
-    ;    CloseMenu()
-    ;endif
+    Bool loc_haveHBkwd = deviceRendered.HasKeyword(libs.zad_DeviousHeavyBondage)
+    Bool loc_haveHSkwd = deviceRendered.hasKeyword(libs.zad_DeviousHobbleSkirt)
+    ;in case device is hobble skirt, unequip the invisible hobble, so it doesn't cause issue
+    ;will be reequipúped after device is unlocked
+    if loc_haveHSkwd
+        UDCDmain.UnequipInvisibleHobble(akActor)
+    endif
     
-    ;if abUseMutex
-    ;    Utility.wait(0.05)
-    ;endif
+    ;in case device is heavy bondage, unequip the invisible hobble, so it doesn't cause issue
+    ;will be reequipúped after device is unlocked
+    if loc_haveHBkwd
+        UDCDmain.UnequipInvisibleArmbinder(akActor)
+    endif
     
     akActor.EquipItem(DeviceRendered, true, true)
     
@@ -833,8 +842,6 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
     libs.SendDeviceEquippedEvent(deviceName, akActor)
     libs.SendDeviceEquippedEventVerbose(deviceInventory, zad_DeviousDevice, akActor)
     
-    Bool loc_haveHBkwd = deviceRendered.HasKeyword(libs.zad_DeviousHeavyBondage)
-    
     if UDmain.ActorIsPlayer(akActor) && !akActor.IsOnMount() && UDmain.IsMenuOpen()
         ; make it visible for the player in case the menu is open
         akActor.QueueNiNodeUpdate()
@@ -842,7 +849,7 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
         ; prevent a bug with straitjackets and elbowbinders not hiding NPC hands when equipping these items.        
         akActor.UpdateWeight(0)
     EndIf    
-    if !UDmain.ActorIsPlayer(akActor) && (loc_haveHBkwd || deviceRendered.HasKeyword(libs.zad_DeviousHobbleSkirt))
+    if !UDmain.ActorIsPlayer(akActor) && (loc_haveHBkwd || loc_haveHSkwd)
         libs.RepopulateNpcs()
     EndIf
     
@@ -862,7 +869,7 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
             akActor.SetOutfit(libs.zadEmptyOutfit, false)
         endIf
     endif
-    if CanApplyBoundEffect(akActor,loc_haveHBkwd) 
+    if CanApplyBoundEffect(akActor,loc_haveHBkwd,loc_haveHSkwd) 
         libs.StartBoundEffects(akActor)
     endif
 EndEvent
@@ -958,42 +965,47 @@ Function unlockDevice(Actor akActor)
     StorageUtil.UnSetIntValue(akActor, "UD_ignoreEvent" + deviceInventory)
 EndFunction
 
-bool Function CanApplyBoundEffect(Actor akActor,bool abHaveHB = False) 
+bool Function CanApplyBoundEffect(Actor akActor,bool abHaveHB = False, bool abHaveHS = False) 
     bool loc_res = false
     loc_res = loc_res || abHaveHB || deviceRendered.haskeyword(libs.zad_DeviousHeavyBondage)
-    loc_res = loc_res || deviceRendered.haskeyword(libs.zad_DeviousHobbleSkirt)
+    loc_res = loc_res || abHaveHS || deviceRendered.haskeyword(libs.zad_DeviousHobbleSkirt)
     loc_res = loc_res || deviceRendered.haskeyword(libs.zad_DeviousPonyGear)
     return loc_res
 EndFunction
 
-
 bool Function CheckConflict(Actor akActor)
     if akActor.wornhaskeyword(libs.zad_DeviousHeavyBondage) && (zad_DeviousDevice == libs.zad_DeviousHeavyBondage)
+        Bool loc_res = False
         ;check invisible armbinder
         if UDCDMain.HaveInvisibleArmbinderEquiped(akActor)
             UDCDmain.UnequipInvisibleArmbinder(akActor)
             if !akActor.wornhaskeyword(libs.zad_DeviousHeavyBondage)
                 ;actor already have invisible armbinder and heavy bondage equipped
-                return false
+                loc_res = false
             else
                 ;actor already have heavy bondage and IA
-                return true
+                loc_res = true
             endif
+            UDCDmain.EquipInvisibleArmbinder(akActor)
         endif
+        return loc_res
     endif
     
-    if akActor.wornhaskeyword(libs.zad_DeviousHobbleSkirt) && (zad_DeviousDevice == libs.zad_DeviousHobbleSkirt)
+    if akActor.wornhaskeyword(libs.zad_DeviousHobbleSkirt) && deviceRendered.hasKeyword(libs.zad_DeviousHobbleSkirt)
+        Bool loc_res = False
         ;check invisible hobble
         if UDCDMain.HaveInvisibleHobbleEquiped(akActor)
             UDCDmain.UnequipInvisibleHobble(akActor)
             if !akActor.wornhaskeyword(libs.zad_DeviousHobbleSkirt)
                 ;actor already have invisible hobble and hobble skirt equipped
-                return false
+                loc_res = false
             else
                 ;actor already have hobble skirt and IH
-                return true
+                loc_res = true
             endif
+            UDCDmain.EquipInvisibleHobble(akActor)
         endif
+        return loc_res
     endif
     return true
 EndFunction
