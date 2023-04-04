@@ -464,27 +464,42 @@ Bool Function IsEnabled()
     return !_Disabled && !_Updating && ready
 EndFunction
 
+;Previous sattes of scripts, so they are returned to correct state
+
+String _State_UDNPCM
+String _State_UDAI
+String _State_UDOMNPC
+String _State_UDOMPlayer
+
 ;/  Function: DISABLE
 
     Disables mod, preventing any periodicall updates and interactions
 /;
 Function DISABLE()
     _Disabled = True
+    
+    ;Save previous states
+    _State_UDNPCM       = UDNPCM.GetState()
+    _State_UDAI         = UDAI.GetState()
+    _State_UDOMNPC      = UDOMNPC.GetState()
+    _State_UDOMPlayer   = UDOMPlayer.GetState()
+    
     UDNPCM.GoToState("Disabled") ;disable NPC manager, disabling all device updates
     UDAI.GoToState("Disabled") ;disable AI updates
     UDOMNPC.GoToState("Disabled") ;disable orgasm updates
     UDOMPlayer.GoToState("Disabled") ;disable orgasm updates
 EndFunction
+
 ;/  Function: ENABLE
 
     Reenable mod from disabled state. See <DISABLE>
 /;
 Function ENABLE()
     _Disabled = False
-    UDNPCM.GoToState("")
-    UDAI.GoToState("")
-    UDOMNPC.GoToState("")
-    UDOMPlayer.GoToState("")
+    UDNPCM.GoToState(_State_UDNPCM)
+    UDAI.GoToState(_State_UDAI)
+    UDOMNPC.GoToState(_State_UDOMNPC)
+    UDOMPlayer.GoToState(_State_UDOMPlayer)
 EndFunction
 
 Function OnGameReload()
