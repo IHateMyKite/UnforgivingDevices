@@ -82,7 +82,7 @@ Bool    Property UD_HardcoreAccess                  = False auto hidden ;if true
 Float   Property UD_MinigameDrainMult               = 1.0   Auto Hidden ; minigame drain multiplier
 Float   Property UD_InitialDrainDelay               = 0.0   Auto Hidden ; minigame timespan that is free from drain
 
-;Lvl scalling
+;Lvl scaling
 Float   Property UD_DeviceLvlHealth                 = 0.025 auto hidden
 Float   Property UD_DeviceLvlLockpick               = 0.5   auto hidden
 Int     Property UD_DeviceLvlLocks                  = 5     auto hidden
@@ -117,8 +117,8 @@ Message         Property StruggleMessage                    auto
 Message         Property StruggleMessageNPC                 auto
 Message         Property DetailsMessage                     auto
 Message         Property VibDetailsMessage                  auto
-Message         Property ControlablePlugVibMessage          auto
-Message         Property ControlablePlugModMessage          auto
+Message         Property ControllablePlugVibMessage          auto
+Message         Property ControllablePlugModMessage          auto
 
 Message         Property DefaultLockMenuMessage             auto
 Message         Property DefaultLockMenuMessageWH           auto
@@ -199,7 +199,7 @@ Bool Function CheckSubModules()
     if !loc_cond
         UDmain.ShowMessageBox("!!FATAL ERROR!!\nError loading Unforgiving devices. One or more of the modules are not ready. Please contact developers on LL or GitHub")
         ;Dumb info to console, use GInfo to skip ConsoleUtil installation check
-        GInfo("!!FATAL ERROR!! = Error loading Unforgiving devices. One or more of the modules are not ready. Please contact developrs on LL or GitHub")
+        GInfo("!!FATAL ERROR!! = Error loading Unforgiving devices. One or more of the modules are not ready. Please contact developers on LL or GitHub")
         GInfo("UDPatcher="+UDPatcher.ready)
         GInfo("UDCD_NPCM="+UDCD_NPCM.ready)
         GInfo("UDEM="+UDEM.ready)
@@ -457,7 +457,7 @@ EndFunction
     Parameters:
 
         akActor     - Actor to disable
-        aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
+        aiIsPlayer  - If actor is player. Is optional and intended to fasten up the function as there will be not need to check if actor is player if this value 1
 /;
 Function DisableActor(Actor akActor,int aiIsPlayer = -1)
     if UDmain.TraceAllowed()    
@@ -473,7 +473,7 @@ EndFunction
     Parameters:
 
         akActor     - Actor to update
-        aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
+        aiIsPlayer  - If actor is player. Is optional and intended to fasten up the function as there will be not need to check if actor is player if this value 1
 /;
 Function UpdateDisabledActor(Actor akActor,int aiIsPlayer = -1)
     if UDmain.TraceAllowed()    
@@ -489,7 +489,7 @@ EndFunction
     Parameters:
 
         akActor     - Actor to enable
-        aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
+        aiIsPlayer  - If actor is player. Is optional and intended to fasten up the function as there will be not need to check if actor is player if this value 1
 /;
 Function EnableActor(Actor akActor,int aiIsPlayer = -1)
     if UDmain.TraceAllowed()    
@@ -505,7 +505,7 @@ EndFunction
     Parameters:
 
         akActor     - Actor to disable
-        aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
+        aiIsPlayer  - If actor is player. Is optional and intended to fasten up the function as there will be not need to check if actor is player if this value 1
 /;
 Function StartMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
     akActor.AddToFaction(BussyFaction)
@@ -527,7 +527,7 @@ EndFunction
     Parameters:
 
         akActor     - Actor to update
-        aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
+        aiIsPlayer  - If actor is player. Is optional and intended to fasten up the function as there will be not need to check if actor is player if this value 1
 /;
 Function UpdateMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
     if akActor.IsInFaction(BussyFaction)
@@ -548,7 +548,7 @@ EndFunction
     Parameters:
 
         akActor     - Actor to enable
-        aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
+        aiIsPlayer  - If actor is player. Is optional and intended to fasten up the function as there will be not need to check if actor is player if this value 1
 /;
 Function EndMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
     akActor.RemoveFromFaction(BussyFaction)
@@ -639,7 +639,7 @@ EndFunction
     Parameters:
 
         akActor         - Actor to process
-        abWaitForStop   - Function will ba blocked untill minigame fully stops
+        abWaitForStop   - Function will ba blocked until minigame fully stops
 /;
 Function StopMinigame(Actor akActor, Bool abWaitForStop)
     if !akActor
