@@ -15,10 +15,6 @@ Event OnUpdate()
 EndEvent
 
 Function Update()
-    if UD_DAR && !libs.isAnimating(Game.GetPlayer())
-        ;DCLog("Forcing IdleForceDefaultState to player")
-        ;EvaluateAA(Game.GetPlayer())
-    endif
 EndFunction
 
 Function EvaluateAA(actor akActor)
@@ -56,17 +52,15 @@ Function EvaluateAA(actor akActor)
             EndIf
             ApplyBCPerks(akActor)
             Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
+            
+            int animSet     = SelectAnimationSet(akActor)
+            int animState   = GetSecondaryAAState(akActor)
+            if animState != 1 && animState != 2 && animSet != 6
+                akActor.SetAnimationVariableInt("FNIS_abc_h2h_LocomotionPose", animSet + 1)
+            endIf
         endif
     endif
     StorageUtil.UnSetIntValue(akActor,"DDStartBoundEffectQue")
-EndFunction
-
-Int Function SelectAnimationSet(actor akActor)
-    if UD_DAR
-        return 0
-    else
-        return parent.SelectAnimationSet(akActor)
-    endif
 EndFunction
 
 Function Maintenance_ABC()
