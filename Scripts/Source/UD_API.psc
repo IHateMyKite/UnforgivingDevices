@@ -1,7 +1,7 @@
 ;   File: UD_API
 ;   This is mod interface for Unforgiving Devices. 
 ;   
-;   It should be prefered to use these functions instead of functions from modules, as it will be backward compatible
+;   It should be preferred to use these functions instead of functions from modules, as it will be backward compatible
 scriptname UD_API extends Quest
 
 import UnforgivingDevicesMain
@@ -15,7 +15,7 @@ Quest                               Property UD_UtilityQuest    auto
 ; Group: Modules
 
 ;/  Variable: UDCDmain
-    This module contains funtions for manipulating devices.
+    This module contains functions for manipulating devices.
     
     See <UDCustomDeviceMain>
 /;
@@ -106,7 +106,7 @@ zadxlibs                            property libsx          auto
 zadxlibs2                           property libsx2         auto
 
 ;/  Variable: UDmain
-    This is main script of Unforgiving Devices, which contains most important functions and propertiest filled with references to other scripts
+    This is main script of Unforgiving Devices, which contains most important functions and properties filled with references to other scripts
     
     See <UnforgivingDevicesMain>
 /;
@@ -227,7 +227,7 @@ EndProperty
 ;   int      |   Round                           |   (float value)
 ;            |   closeMenu                       |   ()
 ;            |   closeLockpickMenu               |   ()
-;   string   |   getPlugsVibrationStrengthString |   (int strenght)
+;   string   |   getPlugsVibrationStrengthString |   (int strength)
 ;   float    |   getMaxActorValue                |   (Actor akActor,string akValue, float perc_part = 1.0)
 ;   float    |   getCurrentActorValuePerc        |   (Actor akActor,string akValue)
 ;   bool     |   ModInstalled                    |   (string sModFileName)
@@ -259,7 +259,7 @@ EndFunction
 
 ;/  Function: TraceAllowed
 
-    Allways use this function first beffore calling Log function!
+    Always use this function first before calling Log function!
     
     Otherwise performance can be greatly affected for users which don't use Papyrus logging
 
@@ -291,7 +291,7 @@ EndFunction
     Parameters:
 
         asMsg   - Message which should be printed to Papyrus log.
-        aiLevel - (optional) Level of imporatance for message. Is used for filtering messages based on MCM setting. 1 means most important message and 5 least important message
+        aiLevel - (optional) Level of importance for message. Is used for filtering messages based on MCM setting. 1 means most important message and 5 least important message
 /;
         Function Log(String asMsg, int aiLevel = 1)
     UDmain.Log(asMsg,aiLevel)
@@ -317,7 +317,7 @@ EndFunction
     Parameters:
 
         asMsg   - Message which should be printed to Console
-        aiLevel - (optional) Level of imporatance for message. Is used for filtering messages based on MCM setting. 1 means most important message and 5 least important message
+        aiLevel - (optional) Level of importance for message. Is used for filtering messages based on MCM setting. 1 means most important message and 5 least important message
         abLog   - (optional) Set to true if the message should be also added to Papyrus log
 /;
         Function Print(String asMsg,int aiLevel = 1,bool abLog = false)
@@ -356,7 +356,7 @@ EndFunction
 
     Prints one line of info message to console and Papyrus log
     
-    This function is intended to be only ussed for debugging
+    This function is intended to be only used for debugging
     
     Parameters:
 
@@ -451,7 +451,7 @@ EndFunction
 
 ;/  Function: IsMenuOpen
 
-    This function check if any menu is open. It is much faster then its UI couterpart
+    This function check if any menu is open. It is much faster than its UI counterpart
 
     Returns:
 
@@ -493,9 +493,9 @@ EndFunction
 ;  UD_CustomDevice_RenderScript   getDeviceByInventory(Armor deviceInventory)       ;returns first device which have connected corresponding Inventory Device
 ;  UD_CustomDevice_RenderScript   getDeviceByRender(Armor deviceRendered)   ;returns first device which have connected corresponding Render Device
 ;  UD_CustomDevice_RenderScript   getHeavyBondageDevice()                   ;returns heavy bondage (hand restrain) device
-;  UD_CustomDevice_RenderScript   getFirstDeviceByKeyword(keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)   ;returs first device by keywords
+;  UD_CustomDevice_RenderScript   getFirstDeviceByKeyword(keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)   ;returns first device by keywords
 ;  UD_CustomDevice_RenderScript   getLastDeviceByKeyword(keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)    ;returns last device containing keyword
-;  UD_CustomDevice_RenderScript   getDeviceByKeyword(keyword akKeyword)     ;returs first device by keywords
+;  UD_CustomDevice_RenderScript   getDeviceByKeyword(keyword akKeyword)     ;returns first device by keywords
 ;  UD_CustomDevice_RenderScript[] getAllDevicesByKeyword(keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)                                        ;returns array of all device containing keyword in their render device
 ;  UD_CustomDevice_RenderScript[] getAllActivableDevicesByKeyword(bool bCheckCondition, keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)         ;returns array of all device containing keyword in their render device
 ;  int                            getNumberOfDevicesWithKeyword(keyword kw1,keyword kw2 = none,keyword kw3 = none, int mod = 0)                                 ;returns number of all device containing keyword in their render device
@@ -537,7 +537,7 @@ EndFunction
         abMessage - (optional) Message will be printed to left upper corner if enabled
     Returns:
 
-        True if actor was succefully registered
+        True if actor was successfully registered
 /;
 bool    Function    RegisterNPC(Actor akActor,bool abMessage = false)
     return UDNPCM.RegisterNPC(akActor,abMessage)
@@ -553,7 +553,7 @@ EndFunction
         abMessage - (optional) Message will be printed to left upper corner if enabled
     Returns:
 
-        True if actor was succefully unregistered
+        True if actor was successfully unregistered
 /;
 bool    Function    UnregisterNPC(Actor akActor,bool abMessage = false)
     return UDNPCM.UnregisterNPC(akActor,abMessage)
@@ -787,7 +787,7 @@ EndFunction
 
     Returns:
 
-        Return actors current orgasm resistence
+        Return actors current orgasm resistance
 /;
 Float   Function    GetOrgasmResist(Actor akActor, Int aiMode = 0)
     if aiMode == 0
@@ -804,7 +804,7 @@ EndFunction
 
     Returns:
 
-        Return actors current orgasm resistence multiplier
+        Return actors current orgasm resistance multiplier
 /;
 Float   Function    GetOrgasmResistMultiplier(Actor akActor)
     return UDmain.GetUDOM(akActor).getActorOrgasmResistMultiplier(akActor)
@@ -864,7 +864,7 @@ EndFunction
 
 ;/  Function: UpdateOrgasmRate
 
-    NOTE: The value will be not changed back. Allways change the value back to original values !!!!!
+    NOTE: The value will be not changed back. Always change the value back to original values !!!!!
     WARNING: Both afOrgasmRate and afForcing are recalculated for storage. Because of that, precision is 0.01. All smaller information will be lost.
     
     Parameters:
@@ -882,7 +882,7 @@ EndFunction
 
 ;/  Function: UpdateArousalRate
 
-    NOTE: The value will be not changed back. Allways change the value back to original values !!!!!
+    NOTE: The value will be not changed back. Always change the value back to original values !!!!!
     WARNING: afArousalRate is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
     
     Parameters:
@@ -899,7 +899,7 @@ EndFunction
 
 ;/  Function: UpdateOrgasmRateMultiplier
 
-    NOTE: The value will be not changed back. Allways change the value back to original values !!!!!
+    NOTE: The value will be not changed back. Always change the value back to original values !!!!!
     WARNING: afOrgasmRateMultiplier is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
     
     Parameters:
@@ -914,21 +914,21 @@ Float   Function    UpdateOrgasmRateMultiplier(Actor akActor ,float afOrgasmRate
     return UDmain.GetUDOM(akActor).UpdateOrgasmRateMultiplier(akActor, afOrgasmRateMultiplier)
 EndFunction
 
-;updates orgasm rate resistence. The value will be not changed back. Allways change the value back to original values !!!!!
+;updates orgasm rate resistance. The value will be not changed back. Always change the value back to original values !!!!!
 ;WARNING: afOrgasmResist is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
 
 ;/  Function: UpdateOrgasmResist
 
-    NOTE: The value will be not changed back. Allways change the value back to original values !!!!!
+    NOTE: The value will be not changed back. Always change the value back to original values !!!!!
     WARNING: afOrgasmResist is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
     
     Parameters:
         akActor         - Actors whose value will be updated
-        afOrgasmResist  - By how much should be orgasm resistence updated. Can be both positive and negative
+        afOrgasmResist  - By how much should be orgasm resistance updated. Can be both positive and negative
 
     Returns:
 
-        Return actors new orgasm resistence after update
+        Return actors new orgasm resistance after update
 /;
 Float   Function    UpdateOrgasmResist(Actor akActor ,float afOrgasmResist)
     return UDmain.GetUDOM(akActor).UpdateOrgasmResist(akActor ,afOrgasmResist)
@@ -936,16 +936,16 @@ EndFunction
 
 ;/  Function: UpdateOrgasmResistMultiplier
 
-    NOTE: The value will be not changed back. Allways change the value back to original values !!!!!
+    NOTE: The value will be not changed back. Always change the value back to original values !!!!!
     WARNING: afOrgasmResistMultiplier is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
     
     Parameters:
         akActor                     - Actors whose value will be updated
-        afOrgasmResistMultiplier    - By how much should be orgasm resistence multiplier updated. Can be both positive and negative
+        afOrgasmResistMultiplier    - By how much should be orgasm resistance multiplier updated. Can be both positive and negative
 
     Returns:
 
-        Return actors new orgasm resistence multiplier after update
+        Return actors new orgasm resistance multiplier after update
 /;
 Float   Function    UpdateOrgasmResistMultiplier(Actor akActor ,float afOrgasmResistMultiplier)
     return UDmain.GetUDOM(akActor).UpdateOrgasmResistMultiplier(akActor, afOrgasmResistMultiplier)
@@ -953,7 +953,7 @@ EndFunction
 
 ;/  Function: UpdateArousalRateMultiplier
 
-    NOTE: The value will be not changed back. Allways change the value back to original values !!!!!
+    NOTE: The value will be not changed back. Always change the value back to original values !!!!!
     WARNING: afArousalRateMultiplier is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
     
     Parameters:
@@ -970,7 +970,7 @@ EndFunction
 
 ;/  Function: UpdatetActorOrgasmCapacity
 
-    NOTE: The value will be not changed back. Allways change the value back to original values !!!!!
+    NOTE: The value will be not changed back. Always change the value back to original values !!!!!
     
     Parameters:
         akActor     - Actors whose value will be updated
@@ -986,7 +986,7 @@ EndFunction
 
 ;/  Function: Orgasm
 
-    NOTE: The value will be not changed back. Allways change the value back to original values !!!!!
+    NOTE: The value will be not changed back. Always change the value back to original values !!!!!
     WARNING: Some animations might look weird if duration is different then 20 seconds
 
     Parameters:
@@ -995,7 +995,7 @@ EndFunction
         aiDuration          - How long will actor orgasm
         aiArousalDecrease   - By how much will be arousal decreased over time. Duration is set in MCM
         aiForce             - 0 = Self caused orgasm, 2 = Forced orgasm , 1 = Something between
-        abBlocking          - If function should be blocked untill orgasm fully start
+        abBlocking          - If function should be blocked until orgasm fully start
 
     Returns:
 

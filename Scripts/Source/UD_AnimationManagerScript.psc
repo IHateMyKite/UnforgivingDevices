@@ -413,7 +413,7 @@ Function UnlockAnimatingActor(Actor akActor, Bool abEnableActor = True)
             EndIf
         Else
             ; if akActor is a NPC lets hope it has enough AI to equip shield
-            ; because I don't want to check its outfit for having shiled.
+            ; because I don't want to check its outfit for having shield.
         EndIf
         StorageUtil.UnsetFormValue(akActor, "UD_EquippedShield")
     EndIf
@@ -605,14 +605,14 @@ EndFunction
 
 ; Function GetAnimationsFromDB
 ; This function returns an array of animations found by the given criteria
-; As an alternative (when sAttribute == "") it returns paths to animation definitions in fson files (formatted as <json_file>:<path_in_file>)
+; As an alternative (when sAttribute == "") it returns paths to animation definitions in json files (formatted as <json_file>:<path_in_file>)
 ; sType                 - type of the animations needed (solo, paired or anything defined in json files as root object). 
 ;                         Value should starts with '.' because papyrus sometimes replaces the first character with a capital one.
 ; sKeywords             - animation keywords (device keywords or any other strings like "horny" to define animation). Value should 
 ;                         starts with '.' because papyrus sometimes replaces the first character with a capital one.
 ; sAttribute            - attribute of animation which should be returned
 ; aActorConstraints[]   - array with constraints for the participating actors as bit mask (see func. GetActorConstraints)
-; return                - array of strings with attributes values. If sAttribute is not set then funtion resturns paths to animation definitions in fson files 
+; return                - array of strings with attributes values. If sAttribute is not set then function returns paths to animation definitions in json files 
 ;                         (formatted as <json_file>:<path_in_file>)
 ;
 ; JSON file syntax
@@ -641,7 +641,7 @@ EndFunction
 ;                       "opt" : 0                                           Optional constraints for the second actor (animation shouldn't be picked if actor has constraints not defined by this bit-mask)
 ;                   }
 ;               ],
-;               "lewd" : 0,                                             Rate of lewdiness
+;               "lewd" : 0,                                             Rate of lewdness
 ;               "aggr" : 1,                                             Rate of aggressiveness (from akHelper towards akActor). Could be negative
 ;           },
 ;           ...
@@ -738,7 +738,7 @@ EndFunction
 
 Bool Function _CheckConstraints(String sFile, String sObjPath, Int iActorConstraints)
 ; checking that the actor has constraints suitable for the specified animation
-; iActorConstraints      - actor contraints
+; iActorConstraints      - actor constraints
 ; anim_reqConstr         - animation required constraints (animation shouldn't be picked if player doesn't have all required constraints)
 ; anim_optConstr         - animation optional constraints (animation shouldn't be picked if player has constraints not defined by this bit-mask)
 
@@ -1085,7 +1085,7 @@ Function _RemoveHeelEffect(Actor akActor, Bool abRemoveHDT = true, Bool abRemove
             UpdateNiOPosition = True
             overrideKeys = NiOverride.GetNodeTransformKeys(akActor, false, isRealFemale, "NPC")
         EndIf
-        ; calculation of the resulting shift from all modificators
+        ; calculation of the resulting shift from all modifications
         Int i = overrideKeys.Length
         Float[] shift_sum = new Float[3]
         While i > 0
@@ -1142,7 +1142,7 @@ EndFunction
 Function _Apply3rdPersonCamera(Bool abDismount = True)
     ; taken from zadLibs.psc
     int cameraOld = Game.GetCameraState()
-    if cameraOld == 3 ;free camera, don't do anything, else the cameara can get broekn
+    if cameraOld == 3 ;free camera, don't do anything, else the camera can get broken
     
     ElseIf cameraOld == 8 || cameraOld == 9 || cameraOld ==  7 ;;; 8 / 9 are third person. 7 is tween menu.
     
