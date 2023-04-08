@@ -117,8 +117,8 @@ Message         Property StruggleMessage                    auto
 Message         Property StruggleMessageNPC                 auto
 Message         Property DetailsMessage                     auto
 Message         Property VibDetailsMessage                  auto
-Message         Property ControlablePlugVibMessage          auto
-Message         Property ControlablePlugModMessage          auto
+Message         Property controllablePlugVibMessage          auto
+Message         Property controllablePlugModMessage          auto
 
 Message         Property DefaultLockMenuMessage             auto
 Message         Property DefaultLockMenuMessageWH           auto

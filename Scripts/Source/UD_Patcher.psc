@@ -204,7 +204,7 @@ Function patchPlug(UD_CustomPlug_RenderScript device)
     if device as UD_CustomInflatablePlug_RenderScript
         (device as UD_CustomInflatablePlug_RenderScript).UD_PumpDifficulty = Utility.randomInt(50,100)
         (device as UD_CustomInflatablePlug_RenderScript).UD_DeflateRate = Utility.randomInt(150,250)
-    elseif device as UD_ControlablePlug_RenderScript
+    elseif device as UD_controllablePlug_RenderScript
         device.UD_VibDuration = Utility.randomInt(450,750)
         device.UD_Cooldown = Round(Utility.randomInt(300,420)/fRange(loc_currentmult,0.5,2.0))
     else

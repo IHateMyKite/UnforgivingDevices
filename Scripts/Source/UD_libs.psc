@@ -84,8 +84,8 @@ EndFunction
 Armor Property AbadonPlug auto
 Armor Property AbadonPlugAnal auto
 Armor Property LittleHelper auto
-Armor Property ControlablePlugVag auto
-Armor Property ControlablePlugAnal auto
+Armor Property controllablePlugVag auto
+Armor Property controllablePlugAnal auto
 Armor Property CursedInflatablePlugAnal auto
 Armor Property InflatablePlugAnal auto
 Armor Property InflatablePlugVag auto
