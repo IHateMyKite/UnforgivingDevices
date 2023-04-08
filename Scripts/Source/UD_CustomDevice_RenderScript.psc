@@ -5752,14 +5752,14 @@ Function addStruggleExhaustion(Actor akWearer, Actor akHelper)
         UDmain.Log("UD_CustomDevice_RenderScript::addStruggleExhaustion("+getDeviceHeader()+") called")
     endif
     if UD_applyExhastionEffect
-        UDlibs.StruggleExhaustionSpell.SetNthEffectMagnitude(0, UDCDmain.UD_StruggleExhaustionMagnitude*Utility.randomFloat(0.75,1.25))
-        UDlibs.StruggleExhaustionSpell.SetNthEffectDuration(0, Round(UDCDmain.UD_StruggleExhaustionDuration*_exhaustion_mult*Utility.randomFloat(0.75,1.25)))
+        UDlibs.StruggleExhaustionSpell.SetNthEffectMagnitude(0, UDCDmain.UD_StruggleExhaustionMagnitude*UDCDmain.UD_MinigameExhMagnitudeMult*Utility.randomFloat(0.75,1.25))
+        UDlibs.StruggleExhaustionSpell.SetNthEffectDuration(0, Round(UDCDmain.UD_StruggleExhaustionDuration*UDCDmain.UD_MinigameExhDurationMult*_exhaustion_mult*Utility.randomFloat(0.75,1.25)))
         UDlibs.StruggleExhaustionSpell.cast(akWearer)
     endif
     if akHelper && UD_applyExhastionEffectHelper
         UDCDmain.ResetHelperCD(akHelper,akWearer,UDCDmain.UD_MinigameHelpXPBase)
-        UDlibs.StruggleExhaustionSpell.SetNthEffectMagnitude(0, UDCDmain.UD_StruggleExhaustionMagnitude*Utility.randomFloat(0.75,1.25))
-        UDlibs.StruggleExhaustionSpell.SetNthEffectDuration(0, Round(UDCDmain.UD_StruggleExhaustionDuration*_exhaustion_mult_helper*Utility.randomFloat(0.75,1.25)))
+        UDlibs.StruggleExhaustionSpell.SetNthEffectMagnitude(0, UDCDmain.UD_StruggleExhaustionMagnitude*UDCDmain.UD_MinigameExhMagnitudeMult*Utility.randomFloat(0.75,1.25))
+        UDlibs.StruggleExhaustionSpell.SetNthEffectDuration(0, Round(UDCDmain.UD_StruggleExhaustionDuration*UDCDmain.UD_MinigameExhDurationMult*_exhaustion_mult_helper*Utility.randomFloat(0.75,1.25)))
         UDlibs.StruggleExhaustionSpell.cast(akHelper)
     endif
 EndFunction
