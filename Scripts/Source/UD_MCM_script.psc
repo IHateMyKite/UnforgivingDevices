@@ -458,9 +458,10 @@ Int UD_MandatoryCrit_T
 Int UD_CritDurationAdjust_S
 Int UD_MinigameDrainMult_S
 Int UD_InitialDrainDelay_S
-
 Int UD_KeyDurability_S
 Int UD_HardcoreAccess_T
+Int UD_MinigameExhDurationMult_S
+Int UD_MinigameExhMagnitudeMult_S
 
 Event resetCustomBondagePage()
     UpdateLockMenuFlag()
@@ -482,7 +483,7 @@ Event resetCustomBondagePage()
     UD_CooldownMultiplier_S = addSliderOption("$UD_COOLDOWNMULTIPLIER",Round(UDCDmain.UD_CooldownMultiplier*100), "{0} %",UD_LockMenu_flag)
     
     UD_PreventMasterLock_T = addToggleOption("$UD_PREVENTMASTERLOCK",UDCDmain.UD_PreventMasterLock,UD_LockMenu_flag)
-    UD_LockpickMinigameNum_S = addSliderOption("$UD_PREVENTMASTERLOCK",UDCDmain.UD_LockpicksPerMinigame, "{0}",UD_LockMenu_flag)
+    UD_LockpickMinigameNum_S = addSliderOption("$UD_LOCKPICKMINIGAMENUM",UDCDmain.UD_LockpicksPerMinigame, "{0}",UD_LockMenu_flag)
     
     UD_KeyDurability_S = addSliderOption("$UD_KEYDURABILITY",UDCDmain.UD_KeyDurability, "{0}",UD_LockMenu_flag)
     UD_HardcoreAccess_T = addToggleOption("$UD_HARDCOREACCESS", UDCDmain.UD_HardcoreAccess,UD_LockMenu_flag)
@@ -492,6 +493,13 @@ Event resetCustomBondagePage()
     
     UD_MinigameDrainMult_S = addSliderOption("$UD_MINIGAMEDRAINMULT", Round(UDCDmain.UD_MinigameDrainMult * 100), "{1} %", UD_LockMenu_flag)
     UD_InitialDrainDelay_S = addSliderOption("$UD_INITIALDRAINDELAY", UDCDmain.UD_InitialDrainDelay, "{0} s", UD_LockMenu_flag)
+    
+    ;MINIGAME EXHAUSTION
+    AddHeaderOption("$UD_H_MINIEXHAUS")
+    addEmptyOption()
+    
+    UD_MinigameExhDurationMult_S     = addSliderOption("$UD_MINIEXHAUSDUR", Round(UDCDmain.UD_MinigameExhDurationMult * 100), "{0} %", UD_LockMenu_flag)
+    UD_MinigameExhMagnitudeMult_S    = addSliderOption("$UD_MINIEXHAUSMAG", Round(UDCDmain.UD_MinigameExhMagnitudeMult * 100), "{0} %", UD_LockMenu_flag)
     
     ;SKILL
     AddHeaderOption("$UD_H_SKILLSETTING")
@@ -512,7 +520,7 @@ Event resetCustomBondagePage()
     ;HARDCORE SWIMMING
     AddHeaderOption("$UD_UNFORGIVING_SWIMMING")
     AddEmptyOption()
-    UD_hardcore_swimming_T = addToggleOption("$UD_UNFORGIVING_SWIMMING", UDSS.UD_hardcore_swimming,UD_LockMenu_flag)    
+    UD_hardcore_swimming_T = addToggleOption("$UD_HARDCORESWIMMING", UDSS.UD_hardcore_swimming,UD_LockMenu_flag)    
     UD_hardcore_swimming_difficulty_M = AddMenuOption("$UD_HARDCORESWIMMINGDIFFICULTY", difficultyList[UDSS.UD_hardcore_swimming_difficulty],FlagSwitchOr(UD_Swimming_flag,UD_LockMenu_flag))
     
     ;CRITS
@@ -1875,6 +1883,16 @@ Function OnOptionSliderOpenCustomBondage(int option)
         SetSliderDialogDefaultValue(0)
         SetSliderDialogRange(0, 10.0)
         SetSliderDialogInterval(1)
+    ElseIf option == UD_MinigameExhDurationMult_S
+        SetSliderDialogStartValue(Round(UDCDmain.UD_MinigameExhDurationMult * 100))
+        SetSliderDialogDefaultValue(100)
+        SetSliderDialogRange(100, 5000)
+        SetSliderDialogInterval(100)
+    ElseIf option == UD_MinigameExhMagnitudeMult_S
+        SetSliderDialogStartValue(Round(UDCDmain.UD_MinigameExhMagnitudeMult * 100))
+        SetSliderDialogDefaultValue(100)
+        SetSliderDialogRange(25, 200)
+        SetSliderDialogInterval(5)
     endif
 EndFunction
 
@@ -2203,6 +2221,12 @@ Function OnOptionSliderAcceptCustomBondage(int option, float value)
     ElseIf option == UD_InitialDrainDelay_S
         UDCDmain.UD_InitialDrainDelay = Round(value)
         SetSliderOptionValue(UD_InitialDrainDelay_S, UDCDmain.UD_InitialDrainDelay, "{0} s")
+    ElseIf option == UD_MinigameExhDurationMult_S
+        UDCDmain.UD_MinigameExhDurationMult = value / 100.0
+        SetSliderOptionValue(UD_MinigameExhDurationMult_S, UDCDmain.UD_MinigameExhDurationMult * 100.0, "{0} %")
+    ElseIf option == UD_MinigameExhMagnitudeMult_S
+        UDCDmain.UD_MinigameExhMagnitudeMult = value / 100.0
+        SetSliderOptionValue(UD_MinigameExhMagnitudeMult_S, UDCDmain.UD_MinigameExhMagnitudeMult * 100.0, "{0} %")
     endif
 EndFunction
 
@@ -2868,6 +2892,12 @@ Function CustomBondagePageDefault(int option)
     ElseIf option == UD_InitialDrainDelay_S
         UDCDmain.UD_InitialDrainDelay = 0
         SetSliderOptionValue(UD_InitialDrainDelay_S, UDCDmain.UD_InitialDrainDelay, "{0} s")
+    ElseIf option == UD_MinigameExhDurationMult_S
+        UDCDmain.UD_MinigameExhDurationMult = 1.0
+        SetSliderOptionValue(UD_MinigameExhDurationMult_S, UDCDmain.UD_MinigameExhDurationMult * 100, "{0} %")
+    ElseIf option == UD_MinigameExhMagnitudeMult_S
+        UDCDmain.UD_MinigameExhMagnitudeMult = 1.0
+        SetSliderOptionValue(UD_MinigameExhMagnitudeMult_S, UDCDmain.UD_MinigameExhMagnitudeMult * 100, "{0} %")
     Endif
 EndFunction
 
@@ -3124,11 +3154,11 @@ Function CustomBondagePageInfo(int option)
     elseif(option == UD_UseDDdifficulty_T)
         SetInfoText("$UD_USEDDDIFFICULTY_INFO")
     elseif(option == UD_hardcore_swimming_T)
-        SetInfoText("$UD_HARDCORESWIMMINGDIFFICULTY_INFO")
+        SetInfoText("$UD_HARDCORESWIMMING_INFO")
     elseif(option == UD_hardcore_swimming_difficulty_M)
         SetInfoText("$UD_HARDCORESWIMMINGDIFFICULTY_INFO")
     elseif option == UD_LockpickMinigameNum_S
-        SetInfoText("$UD_PREVENTMASTERLOCK_INFO")
+        SetInfoText("$UD_LOCKPICKMINIGAMENUM_INFO")
     elseif option == UD_BaseDeviceSkillIncrease_S
         SetInfoText("$UD_BASEDEVICESKILLINCREASE_INFO")
     elseif option == UD_SkillEfficiency_S
@@ -3175,6 +3205,10 @@ Function CustomBondagePageInfo(int option)
         SetInfoText("$UD_MINIGAMEDRAINMULT_INFO")
     ElseIf option == UD_InitialDrainDelay_S
         SetInfoText("$UD_INITIALDRAINDELAY_INFO")
+    ElseIf option == UD_MinigameExhDurationMult_S
+        SetInfoText("$UD_MINIEXHAUSDUR_INFO")
+    ElseIf option == UD_MinigameExhMagnitudeMult_S
+        SetInfoText("$UD_MINIEXHAUSMAG_INFO")
     Endif
 EndFunction
 
@@ -3509,6 +3543,8 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "HardcoreAccess", UDCDmain.UD_HardcoreAccess as Int)
     JsonUtil.SetFloatValue(strFile, "MinigameDrainMult", UDCDmain.UD_MinigameDrainMult)
     JsonUtil.SetFloatValue(strFile, "InitialDrainDelay", UDCDmain.UD_InitialDrainDelay)
+    JsonUtil.SetFloatValue(strFile, "MinigameExhDurationMult", UDCDmain.UD_MinigameExhDurationMult)
+    JsonUtil.SetFloatValue(strFile, "MinigameExhMagnitudeMult", UDCDmain.UD_MinigameExhMagnitudeMult)
     
     ;ABADON
     JsonUtil.SetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
@@ -3661,6 +3697,9 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UD_HardcoreAccess = JsonUtil.GetIntValue(strFile, "HardcoreAccess", UDCDmain.UD_HardcoreAccess as Int)
     UDCDmain.UD_MinigameDrainMult = JsonUtil.GetFloatValue(strFile, "MinigameDrainMult", UDCDmain.UD_MinigameDrainMult)
     UDCDmain.UD_InitialDrainDelay = JsonUtil.GetFloatValue(strFile, "InitialDrainDelay", UDCDmain.UD_InitialDrainDelay)
+    UDCDmain.UD_MinigameExhDurationMult     = JsonUtil.GetFloatValue(strFile, "MinigameExhDurationMult", UDCDmain.UD_MinigameExhDurationMult)
+    UDCDmain.UD_MinigameExhMagnitudeMult    = JsonUtil.GetFloatValue(strFile, "MinigameExhMagnitudeMult", UDCDmain.UD_MinigameExhMagnitudeMult)
+    
     
     ;ABADON
     AbadonQuest.final_finisher_set = JsonUtil.GetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
@@ -3825,6 +3864,10 @@ Function ResetToDefaults()
     UDCDmain.UD_CritDurationAdjust      = 0.0
     UDCDmain.UD_KeyDurability           = 5
     UDCDmain.UD_HardcoreAccess          = False
+    UDCDmain.UD_MinigameDrainMult       = 1.0
+    UDCDmain.UD_InitialDrainDelay       = 0
+    UDCDmain.UD_MinigameExhDurationMult = 1.0
+    UDCDmain.UD_MinigameExhMagnitudeMult= 1.0
     
     ;ABADON
     AbadonQuest.final_finisher_set      = true

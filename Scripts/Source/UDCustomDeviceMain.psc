@@ -81,6 +81,8 @@ Int     Property UD_KeyDurability                   = 5     auto hidden ;how man
 Bool    Property UD_HardcoreAccess                  = False auto hidden ;if true, device accessibility can be only either 0 or 1. If number is less then 0.90, it will be 0
 Float   Property UD_MinigameDrainMult               = 1.0   Auto Hidden ; minigame drain multiplier
 Float   Property UD_InitialDrainDelay               = 0.0   Auto Hidden ; minigame timespan that is free from drain
+Float   Property UD_MinigameExhDurationMult         = 1.0   Auto Hidden ; multiplier for minigame exhaustion duration
+Float   Property UD_MinigameExhMagnitudeMult        = 1.0   Auto Hidden ; multiplier for minigame exhaustion magnitude
 
 ;Lvl scalling
 Float   Property UD_DeviceLvlHealth                 = 0.025 auto hidden
