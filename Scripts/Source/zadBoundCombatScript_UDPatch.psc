@@ -24,13 +24,19 @@ Function EvaluateAA(actor akActor)
     StorageUtil.SetIntValue(akActor,"DDStartBoundEffectQue",1)
     
     bool loc_paralysis = false
-    while akActor.getAV("Paralysis")
+    while akActor.getAV("Paralysis") && !akActor.isDead()
         loc_paralysis = true
         Utility.wait(1.0) ;wait for actors paralysis to worn out first, because it can cause issue if idle is set when paralysed
     endwhile
     
+    if akActor.isDead()
+        StorageUtil.UnSetIntValue(akActor,"DDStartBoundEffectQue")
+        return
+    endif
+    
+    ;wait some time so actor have enaught time to get from standing up animation
     if loc_paralysis
-        Utility.wait(8.0)
+        Utility.wait(4.0)
     endif
     
     if !UD_DAR
@@ -61,6 +67,17 @@ Function EvaluateAA(actor akActor)
         endif
     endif
     StorageUtil.UnSetIntValue(akActor,"DDStartBoundEffectQue")
+EndFunction
+
+Function ClearAA(actor akActor)
+    while StorageUtil.GetIntValue(akActor,"DDStartBoundEffectQue",0)
+        Utility.wait(1.0)
+    endwhile
+    if !UD_DAR
+        parent.ClearAA(akActor)
+    else
+        akActor.SetAnimationVariableInt("FNIS_abc_h2h_LocomotionPose", 0)
+    endif
 EndFunction
 
 Function Maintenance_ABC()

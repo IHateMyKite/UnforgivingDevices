@@ -82,8 +82,6 @@ UD_ModifierManager_Script           Property UDMOM          auto
     Meaning: User Input
     
     This module contains functionality for getting user input
-    
-    See <UD_OrgasmManager>
 /;
 UD_UserInputScript                  Property UDUI           auto
 
@@ -175,6 +173,8 @@ EndProperty
     Meaning: Random Restrain Manager
     
     This module contains functionality for locking random devices on actors
+    
+    See: <UD_RandomRestraintManager>
 /;
 UD_RandomRestraintManager Property UDRRM Hidden
     UD_RandomRestraintManager Function get()
@@ -986,7 +986,9 @@ EndFunction
 
 ;/  Function: Orgasm
 
-    NOTE: The value will be not changed back. Allways change the value back to original values !!!!!
+
+    Starts orgasm for passes actor, including all effects and animations.
+    
     WARNING: Some animations might look weird if duration is different then 20 seconds
 
     Parameters:
@@ -996,10 +998,6 @@ EndFunction
         aiArousalDecrease   - By how much will be arousal decreased over time. Duration is set in MCM
         aiForce             - 0 = Self caused orgasm, 2 = Forced orgasm , 1 = Something between
         abBlocking          - If function should be blocked untill orgasm fully start
-
-    Returns:
-
-        Return actors new orgasm capacity after update
 /;
         Function    Orgasm(Actor akActor,int aiDuration,int aiArousalDecrease = 10,int aiForce = 0, bool abBlocking = true)
     UDmain.GetUDOM(akActor).startOrgasm(akActor,aiDuration,aiArousalDecrease,aiForce, abBlocking)

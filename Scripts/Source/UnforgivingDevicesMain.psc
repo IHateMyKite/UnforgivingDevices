@@ -819,9 +819,10 @@ int Property LogLevel = 0 auto
 /;
 Function Log(String asMsg, int aiLevel = 1)
     if (iRange(aiLevel,1,3) <= LogLevel) || DebugMod
-        debug.trace("[UD," + aiLevel + ",T="+Utility.GetCurrentRealTime()+"]: " + asMsg)
+        string loc_msg = "[UD," + aiLevel + ",T="+Utility.GetCurrentRealTime()+"]: " + asMsg
+        debug.trace(loc_msg)
         if ConsoleUtilInstalled && UDGV.UDG_ConsoleLog.Value  ;print to console
-            ConsoleUtil.PrintMessage("[UD," + aiLevel + ",T="+Utility.GetCurrentRealTime()+"]: " + asMsg)
+            ConsoleUtil.PrintMessage(loc_msg)
         endif
     endif
 EndFunction
@@ -871,9 +872,10 @@ EndFunction
         asMsg   - Error message information
 /;
 Function Error(String asMsg)
-    debug.trace("[UD,!ERROR!,T="+Utility.GetCurrentRealTime()+"]: " + asMsg)
+    string loc_msg = "[UD,!ERROR!,T="+Utility.GetCurrentRealTime()+"]: " + asMsg
+    debug.trace(loc_msg)
     if ConsoleUtilInstalled ;print to console
-        ConsoleUtil.PrintMessage("[UD,!ERROR!,T="+Utility.GetCurrentRealTime()+"]: " + asMsg)
+        ConsoleUtil.PrintMessage(loc_msg)
     endif
 EndFunction
 
@@ -891,7 +893,7 @@ Function Warning(String asMsg)
     string loc_msg = "[UD,WARNING,T="+Utility.GetCurrentRealTime()+"]: " + asMsg
     debug.trace(loc_msg)
     if ConsoleUtilInstalled ;print to console
-        ConsoleUtil.PrintMessage(asMsg)
+        ConsoleUtil.PrintMessage(loc_msg)
     endif
 EndFunction
 
