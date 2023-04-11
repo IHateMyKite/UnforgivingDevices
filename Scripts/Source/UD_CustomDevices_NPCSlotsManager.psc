@@ -112,17 +112,24 @@ EndFunction
 Event OnInit()
     Utility.WaitMenuMode(2.5)
     UD_Slots = GetNumAliases()
-    int index = 0
+    int     index = 0
+    float   loc_time = 0.0
+    UD_CustomDevice_NPCSlot loc_slot = none
     while index < UD_Slots
-        UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
-        float loc_time = 0
-        while !loc_slot.ready && loc_time < 7.0
-            Utility.WaitMenuMode(0.5)
-            loc_time += 0.5
-        endwhile
-        if loc_time >= 7.0
-            UDmain.Error(self + "::OnInit() - NPCslot["+ index +"] - ERROR initializing npc slot!")
+        loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
+        if loc_slot
+            loc_time = 0.0
+            while !loc_slot.ready && loc_time < 1.5
+                Utility.WaitMenuMode(0.5)
+                loc_time += 0.5
+            endwhile
+            if loc_time >= 1.5
+                GError(self + "::OnInit() - NPCslot["+ index +"] - ERROR initializing npc slot!")
+            endif
+        else
+            GError(self + "::OnInit() - NPCslot["+ index +"] - alias is recognized as NPC slot!")
         endif
+        GInfo(self + "::OnInit() - NPCslot["+ index +"] - slot checked!")
         index += 1
         Utility.WaitMenuMode(0.05)
     endwhile

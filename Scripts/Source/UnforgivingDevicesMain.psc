@@ -425,7 +425,17 @@ Bool Function CheckSubModules()
     ;check for fatal error
     if !loc_cond
         _FatalError = True
-        ShowMessageBox("!!FATAL ERROR!!\nError loading Unforgiving devices. One or more of the modules are not ready. Please contact developers on LL or GitHub")
+        ShowSingleMessageBox("!!FATAL ERROR!!\nError loading Unforgiving devices. One or more of the modules are not ready. Please contact developers on LL or GitHub")
+        
+        String loc_modules = "--MODULES--\n"
+        loc_modules += "UDlibs="+UDlibs.ready + "\n"
+        loc_modules += "UDCDmain="+UDCDmain.ready + "\n"
+        loc_modules += "config="+config.ready + "\n"
+        loc_modules += "ItemManager="+ItemManager.ready + "\n"
+        loc_modules += "UDLLP="+UDLLP.ready + "\n"
+        loc_modules += "UDOM="+UDOM.ready + "\n"
+        ShowMessageBox(loc_modules)
+        
         ;Dumb info to console, use GInfo to skip ConsoleUtil installation check
         GInfo("!!FATAL ERROR!! = Error loading Unforgiving devices. One or more of the modules are not ready. Please contact developrs on LL or GitHub")
         GInfo("UDlibs="+UDlibs.ready)

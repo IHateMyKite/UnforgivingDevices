@@ -142,6 +142,7 @@ Bool Function IsBlocked()
     loc_res = loc_res || _MinigameCritLoop_ON
     return loc_res
 EndFunction
+
 ;update other variables
 Function UpdateSlot(Bool abUpdateSkill = true)
     ArousalSkillMult = UDCDmain.getArousalSkillMult(getActor())
