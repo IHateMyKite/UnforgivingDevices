@@ -192,7 +192,6 @@ Function endDeviceManipulation()
 EndFunction
 
 Event OnInit()
-    Utility.waitMenuMode(0.6)
     UD_equipedCustomDevices = UDCDMain.MakeNewDeviceSlots()
     UD_ActiveVibrators      = UDCDMain.MakeNewDeviceSlots()
     Ready = True

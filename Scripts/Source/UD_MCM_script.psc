@@ -149,18 +149,15 @@ EndFunction
 
 bool Property Ready = False Auto
 Event OnConfigInit()
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         UDmain.Log("MCM init started")
     endif
     
-    Update()
+    device_flag         = OPTION_FLAG_NONE
+    UD_autocrit_flag    = OPTION_FLAG_DISABLED
+    fix_flag            = OPTION_FLAG_NONE
+    UD_Horny_f          = OPTION_FLAG_NONE
     
-    setAbadonPreset(1)
-    
-    device_flag = OPTION_FLAG_NONE
-    UD_autocrit_flag = OPTION_FLAG_DISABLED
-    fix_flag = OPTION_FLAG_NONE
-    UD_Horny_f = OPTION_FLAG_NONE
     if AbadonQuest.final_finisher_set
         abadon_flag_2 = OPTION_FLAG_NONE
     else
@@ -170,9 +167,17 @@ Event OnConfigInit()
     UD_LockMenu_flag = OPTION_FLAG_NONE
     
     actorIndex = 10
-    UDmain.Info("MCM Ready")
+    
+    RegisterForSingleUpdate(10.0)
+    
     Ready = True
 EndEvent
+
+Function OnUpdate()
+    Update()
+    setAbadonPreset(1)
+    UDmain.Info("MCM Ready")
+EndFunction
 
 Function Update()
     LoadConfigPages()

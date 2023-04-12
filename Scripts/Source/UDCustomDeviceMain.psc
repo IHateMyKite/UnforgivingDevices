@@ -29,7 +29,6 @@ UD_Patcher Property UDPatcher auto
 UD_DialogueMain Property UDDmain auto
 UD_CustomDevices_NPCSlotsManager Property UDCD_NPCM auto
 UD_ExpressionManager Property UDEM auto
-;UD_OrgasmManager Property UDOM auto 
 UD_UserInputScript Property UDUI hidden
     UD_UserInputScript Function get()
         return UDmain.UDUI
@@ -168,7 +167,6 @@ Bool            Property UD_EquipMutex              = False auto hidden
 Bool            Property Ready                      = False auto hidden
 
 Event OnInit()
-    Utility.waitMenuMode(1.0)
     if CheckSubModules()
         registerEvents()
         ready = True

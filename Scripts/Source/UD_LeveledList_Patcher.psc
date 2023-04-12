@@ -24,13 +24,16 @@ LeveledItem Property LIL_AllEnchCirclet auto
 FormList Property UD_BlackGooDropList auto
 
 Event OnInit()
-    Utility.waitMenuMode(1.0)
     RegisterForSingleUpdate(30)
     Ready = true
 EndEvent
 
 Event OnUpdate()
-    Process()
+    if UDmain.UDReady()
+        Process()
+    else
+        RegisterForSingleUpdate(30)
+    endif
 EndEvent
 
 Function Update()

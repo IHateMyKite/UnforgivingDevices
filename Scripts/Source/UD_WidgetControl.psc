@@ -265,11 +265,10 @@ Bool Function SingletonCheck()
 EndFunction
 
 Event OnInit()
-    Utility.waitMenuMode(4.0)
     if !SingletonCheck()
         return
     endif
-    RegisterForSingleUpdate(3) ;maintenance update
+    RegisterForSingleUpdate(6) ;maintenance update
 EndEvent
 
 Event OnUpdate()

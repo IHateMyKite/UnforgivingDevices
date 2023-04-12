@@ -81,14 +81,17 @@ EndProperty
 bool Property Ready = false auto
 
 Event OnInit()
-    Utility.waitMenuMode(2.5)
     RegisterForSingleUpdate(10.0) ;update expression manager on init
     Ready = true
 EndEvent
 
 ;on init update
 Event OnUpdate()
-    Update()
+    if UDmain.UDReady()
+        Update()
+    else
+        RegisterForSingleUpdate(30.0)
+    endif
 EndEvent
 
 Function Update()

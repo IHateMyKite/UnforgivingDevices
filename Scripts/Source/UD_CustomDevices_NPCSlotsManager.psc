@@ -110,7 +110,6 @@ UD_StaticNPCSlots Function GetNthStaticSlots(Int aiId)
 EndFunction
 
 Event OnInit()
-    Utility.WaitMenuMode(2.5)
     UD_Slots = GetNumAliases()
     int     index = 0
     float   loc_time = 0.0

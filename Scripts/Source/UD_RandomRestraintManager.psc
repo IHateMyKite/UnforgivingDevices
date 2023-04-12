@@ -107,16 +107,21 @@ FormList Property SuitableKeywords auto
 bool ready = false
 
 Event onInit()
-    FillOutCheckKeywords()
-    if UDmain.TraceAllowed()    
-        UDmain.Log("-UDRRM initiated-")
-    endif
     ready = True
+    RegisterForSingleupdate(15.0)
+EndEvent
+
+Event OnUpdate()
+    if UDmain.UDReady()
+        FillOutCheckKeywords()
+    else
+        RegisterForSingleupdate(30.0)
+    endif
 EndEvent
 
 Function Update()
     FillOutCheckKeywords()
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         UDmain.Log("Refilled Keywords formlist")
     endif
 EndFunction
