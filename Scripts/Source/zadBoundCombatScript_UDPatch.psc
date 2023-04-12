@@ -2,9 +2,17 @@ Scriptname zadBoundCombatScript_UDPatch Extends zadBoundCombatScript Hidden
 
 import UnforgivingDevicesMain
 
-Bool Property UD_DAR = false auto
+Bool Property UD_DAR = false auto hidden
 
-UnforgivingDevicesMain Property UDmain auto
+UnforgivingDevicesMain _UDmain
+UnforgivingDevicesMain Property UDmain hidden
+    UnforgivingDevicesMain Function Get()
+        if !_UDmain
+            _UDmain = GetUDMain()
+        endif
+        return _UDmain
+    EndFunction
+EndProperty
 
 ;is not used by parent script, no sin here
 Function OnInit()

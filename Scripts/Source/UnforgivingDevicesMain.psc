@@ -372,8 +372,6 @@ EndFunction
 
 Event OnInit()
     Player = Game.GetPlayer()
-    
-    Utility.waitmenumode(3.0)
     Print("Installing Unforgiving Devices...")
     if zadbq.modVersion
         ;DD is already installed when UD is installed
@@ -393,6 +391,16 @@ Event OnInit()
         DISABLE() ;disable UD
     endif
 EndEvent
+
+;/  Function: GetUDMain
+
+    Returns:
+
+        Returns singleton of UnforgivingDevicesMain script from main mod
+/;
+UnforgivingDevicesMain Function GetUDMain() Global
+    return GetMeMyForm(0x005901,"UnforgivingDevices.esp") as UnforgivingDevicesMain
+EndFunction
 
 ;/  Function: CheckSubModules
 
