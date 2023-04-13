@@ -57,9 +57,14 @@ Function EvaluateAA(actor akActor)
         if !UD_DAR
             parent.EvaluateAA(akActor)
         else
-            libs.UpdateControls()
+            if akActor == libs.playerRef
+                libs.UpdateControls()
+            endIf
+            
+            ClearAA(akActor)
+            
             If !HasCompatibleDevice(akActor)
-                Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
+                ResetExternalAA(akActor)
                 RemoveBCPerks(akActor)
             Else
                 if akActor.IsWeaponDrawn()
@@ -71,8 +76,8 @@ Function EvaluateAA(actor akActor)
                         timeout += 1
                     EndWhile
                 EndIf
+                
                 ApplyBCPerks(akActor)
-                Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
                 
                 int animSet     = SelectAnimationSet(akActor)
                 int animState   = GetSecondaryAAState(akActor)
@@ -80,10 +85,12 @@ Function EvaluateAA(actor akActor)
                     akActor.SetAnimationVariableInt("FNIS_abc_h2h_LocomotionPose", animSet + 1)
                 endIf
             endif
+            
+            Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
         endif
         StorageUtil.UnSetIntValue(akActor,"DDStartBoundEffectQue")
     else
-        Utility.wait(30.0)
+        Utility.wait(5.0)
         int loc_handle = ModEvent.Create("DelayEvaluateAA")
         ModEvent.PushForm(loc_handle,akActor)
         ModEvent.Send(loc_handle)
@@ -92,16 +99,10 @@ EndFunction
 
 Function ClearAA(actor akActor)
     if UDmain.UDReady()
-        while StorageUtil.GetIntValue(akActor,"DDStartBoundEffectQue",0)
-            Utility.wait(1.0)
-        endwhile
-        if !UD_DAR
-            parent.ClearAA(akActor)
-        else
-            akActor.SetAnimationVariableInt("FNIS_abc_h2h_LocomotionPose", 0)
-        endif
+        ;allways clear animation variables
+        parent.ClearAA(akActor)
     else
-        Utility.wait(30.0)
+        Utility.wait(5.0)
         int loc_handle = ModEvent.Create("DelayEvaluateAA")
         ModEvent.PushForm(loc_handle,akActor)
         ModEvent.Send(loc_handle)
@@ -110,10 +111,10 @@ EndFunction
 
 Function Maintenance_ABC()
     if !UD_DAR
-        if UDmain.UDReady()
+        if UDmain.UDReady() && !UDmain.IsUpdating()
             parent.Maintenance_ABC()
         else
-            Utility.wait(30.0)
+            Utility.wait(5.0)
             int loc_handle = ModEvent.Create("DelayMaintenance_ABC")
             ModEvent.Send(loc_handle)
         endif
@@ -122,10 +123,10 @@ EndFunction
 
 Function CONFIG_ABC()
     if !UD_DAR
-        if UDmain.UDReady()
+        if UDmain.UDReady() && !UDmain.IsUpdating()
             parent.CONFIG_ABC()
         else
-            Utility.wait(30.0)
+            Utility.wait(5.0)
             int loc_handle = ModEvent.Create("DelayCONFIG_ABC")
             ModEvent.Send(loc_handle)
         endif
@@ -134,10 +135,10 @@ EndFunction
 
 Function UpdateValues()
     if !UD_DAR
-        if UDmain.UDReady()
+        if UDmain.UDReady() && !UDmain.IsUpdating()
             parent.UpdateValues()
         else
-            Utility.wait(30.0)
+            Utility.wait(5.0)
             int loc_handle = ModEvent.Create("DelayUpdateValues")
             ModEvent.Send(loc_handle)
         endif
