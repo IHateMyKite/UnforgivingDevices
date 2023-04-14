@@ -433,29 +433,6 @@ UD_CustomDevice_RenderScript[] Function MakeNewDeviceSlots()
     return new UD_CustomDevice_RenderScript[25]
 EndFunction
 
-;/  Function: SendLoadConfig
-
-    Forces JSON config file to be reloaded
-/;
-Function SendLoadConfig()
-    RegisterForModEvent("UD_LoadConfig","LoadConfig")
-    
-    int handle = ModEvent.Create("UD_LoadConfig")
-    if (handle)
-        ModEvent.Send(handle)
-    endif
-
-    UnRegisterForModEvent("UD_LoadConfig")
-EndFunction
-
-Function LoadConfig()
-    UDmain.config.ResetToDefaults()
-    if UDmain.config.getAutoLoad()
-        UDmain.config.LoadFromJSON(UDmain.config.File)
-        GInfo("MCM Config loaded!")
-    endif
-EndFunction
-
 ;/  Function: DisableActor
 
     Wrapper of function <StartMinigameDisable>
@@ -1217,7 +1194,7 @@ bool loc_init = false
 ;update the devices once per UD_UpdateTime
 Event onUpdate()
     if !loc_init
-        LoadConfig()
+        ;LoadConfig()
         RegisterGlobalKeys()
         if UDmain.DebugMod
             UDmain.Player.addItem(UDlibs.AbadonPlug,1)

@@ -372,7 +372,7 @@ EndFunction
 
 Event OnInit()
     Player = Game.GetPlayer()
-    Print("Installing Unforgiving Devices...")
+    ;Print("Installing Unforgiving Devices...")
     if zadbq.modVersion
         ;DD is already installed when UD is installed
         ;UD will not correctly replace DD script when they are already set update
@@ -419,15 +419,12 @@ Bool Function CheckSubModules()
         loc_cond = True
         loc_cond = loc_cond && UDlibs.ready
         loc_cond = loc_cond && UDCDmain.ready
-        loc_cond = loc_cond && config.ready
         loc_cond = loc_cond && ItemManager.ready
         loc_cond = loc_cond && UDLLP.ready
         loc_cond = loc_cond && UDOM.ready
         
-        if !loc_cond
-            Utility.WaitMenuMode(1.0)
-            loc_elapsedTime += 1
-        endif
+        Utility.WaitMenuMode(1.0)
+        loc_elapsedTime += 1
     endwhile
     
     ;check for fatal error
@@ -438,7 +435,6 @@ Bool Function CheckSubModules()
         String loc_modules = "--MODULES--\n"
         loc_modules += "UDlibs="+UDlibs.ready + "\n"
         loc_modules += "UDCDmain="+UDCDmain.ready + "\n"
-        loc_modules += "config="+config.ready + "\n"
         loc_modules += "ItemManager="+ItemManager.ready + "\n"
         loc_modules += "UDLLP="+UDLLP.ready + "\n"
         loc_modules += "UDOM="+UDOM.ready + "\n"
@@ -448,7 +444,6 @@ Bool Function CheckSubModules()
         GInfo("!!FATAL ERROR!! = Error loading Unforgiving devices. One or more of the modules are not ready. Please contact developrs on LL or GitHub")
         GInfo("UDlibs="+UDlibs.ready)
         GInfo("UDCDmain="+UDCDmain.ready)
-        GInfo("config="+config.ready)
         GInfo("ItemManager="+ItemManager.ready)
         GInfo("UDLLP="+UDLLP.ready)
         GInfo("UDOM="+UDOM.ready)
