@@ -27,14 +27,6 @@ UD_OrgasmManager Property UDOM
 EndProperty
 
 bool Property UD_StartThirdPersonAnimation_Switch = true auto
-bool _installing = false
-Function OnInit()
-    _installing = true
-    while !UDCDMain.Ready
-        Utility.waitMenuMode(5.0)
-    endwhile
-    _installing = false
-EndFunction
 
 Function LockDevice_Paralel(actor akActor, armor deviceInventory, bool force = false)
     UDCDmain.LockDeviceParalel(akActor,deviceInventory,force)

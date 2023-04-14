@@ -47,30 +47,36 @@ import UnforgivingDevicesMain
 
 UnforgivingDevicesMain Property UDmain auto
 
-String[]     Property UD_MenuList                               auto hidden
-bool[]       Property UD_MenuListID                             auto hidden
-string       Property UD_LastMenuOpened             = "none"    auto hidden
-Bool         Property UD_MenuOpened                 = false     auto hidden
+String[]        Property UD_MenuList                                auto hidden
+bool[]          Property UD_MenuListID                              auto hidden
+string          Property UD_LastMenuOpened              = "none"    auto hidden
+Bool            Property UD_MenuOpened                  = False     auto hidden
+Bool            Property Ready                          = False     auto hidden
 
 Bool Function IsMenuOpen(Int aiID)
     return UD_MenuListID[aiID]
 EndFunction
 
 Event OnInit()
-    Utility.waitMenuMode(0.5)
-    InitMenuArr()
-    RegisterMenuEvents()
+    RegisterForSingleUpdate(20.0)
 EndEvent
+
+Function OnUpdate()
+    if UDmain.WaitForReady()
+        Update()
+    endif
+EndFunction
 
 Function Update()
     InitMenuArr()
     UnregisterMenuEvents()
     RegisterMenuEvents()
+    Ready = True
 EndFunction
 
 Function InitMenuArr()
-    UD_MenuList     = new String[21]
-    UD_MenuListID    = new bool[21]
+    UD_MenuList         = new String[21]
+    UD_MenuListID       = new bool[21]
     
     UD_MenuList[00] = "ContainerMenu"
     UD_MenuList[01] = "Lockpicking Menu"
