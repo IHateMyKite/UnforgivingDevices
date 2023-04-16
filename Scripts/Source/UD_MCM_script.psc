@@ -251,9 +251,11 @@ Function Update()
     UD_IconVariant_EffOrgasmList[2] = "$Variant 3"
     
     UD_MinigameLockpickSkillAdjust_ML = new String[3]
-    UD_MinigameLockpickSkillAdjust_ML[0] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT75"
-    UD_MinigameLockpickSkillAdjust_ML[1] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT50"
-    UD_MinigameLockpickSkillAdjust_ML[2] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT00"
+    UD_MinigameLockpickSkillAdjust_ML[0] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT100"
+    UD_MinigameLockpickSkillAdjust_ML[1] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT90"
+    UD_MinigameLockpickSkillAdjust_ML[2] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT75"
+    UD_MinigameLockpickSkillAdjust_ML[3] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT50"
+    UD_MinigameLockpickSkillAdjust_ML[4] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT00"
 
     libs = UDCDmain.libs as zadlibs_UDPatch
 EndFunction
@@ -518,6 +520,9 @@ Event resetCustomBondagePage()
     UD_PreventMasterLock_T = addToggleOption("$UD_PREVENTMASTERLOCK",UDCDmain.UD_PreventMasterLock,UD_LockMenu_flag)
     UD_LockpickMinigameNum_S = addSliderOption("$UD_LOCKPICKMINIGAMENUM",UDCDmain.UD_LockpicksPerMinigame, "{0}",UD_LockMenu_flag)
     
+    UD_MinigameLockpickSkillAdjust_M = AddMenuOption("$UD_MINIGAMELOCKPICKSKILLADJUST", UD_MinigameLockpickSkillAdjust_ML[UDCDmain.UD_MinigameLockpickSkillAdjust],UD_LockMenu_flag)
+    addEmptyOption()
+    
     UD_KeyDurability_S = addSliderOption("$UD_KEYDURABILITY",UDCDmain.UD_KeyDurability, "{0}",UD_LockMenu_flag)
     UD_HardcoreAccess_T = addToggleOption("$UD_HARDCOREACCESS", UDCDmain.UD_HardcoreAccess,UD_LockMenu_flag)
     
@@ -527,8 +532,6 @@ Event resetCustomBondagePage()
     UD_MinigameDrainMult_S = addSliderOption("$UD_MINIGAMEDRAINMULT", Round(UDCDmain.UD_MinigameDrainMult * 100), "{1} %", UD_LockMenu_flag)
     UD_InitialDrainDelay_S = addSliderOption("$UD_INITIALDRAINDELAY", UDCDmain.UD_InitialDrainDelay, "{0} s", UD_LockMenu_flag)
     
-    UD_MinigameLockpickSkillAdjust_M = AddMenuOption("$UD_MINIGAMELOCKPICKSKILLADJUST", UD_MinigameLockpickSkillAdjust_ML[UDCDmain.UD_MinigameLockpickSkillAdjust],UD_LockMenu_flag)
-    addEmptyOption()
     
     ;MINIGAME EXHAUSTION
     AddHeaderOption("$UD_H_MINIEXHAUS")
@@ -2468,7 +2471,7 @@ Function OnOptionMenuOpenCustomBondage(int option)
     elseif (option == UD_MinigameLockpickSkillAdjust_M)
         SetMenuDialogOptions(UD_MinigameLockpickSkillAdjust_ML)
         SetMenuDialogStartIndex(UDCDmain.UD_MinigameLockpickSkillAdjust)
-        SetMenuDialogDefaultIndex(0)
+        SetMenuDialogDefaultIndex(2)
     endif
 EndFunction
 
@@ -2941,7 +2944,7 @@ Function CustomBondagePageDefault(int option)
         UDCDmain.UD_MinigameExhMagnitudeMult = 1.0
         SetSliderOptionValue(UD_MinigameExhMagnitudeMult_S, UDCDmain.UD_MinigameExhMagnitudeMult * 100, "{0} %")
     elseif (option == UD_MinigameLockpickSkillAdjust_M)
-        UDCDmain.UD_MinigameLockpickSkillAdjust = 0
+        UDCDmain.UD_MinigameLockpickSkillAdjust = 2
         SetMenuOptionValue(UD_MinigameLockpickSkillAdjust_M, UD_MinigameLockpickSkillAdjust_ML[UDCDmain.UD_MinigameLockpickSkillAdjust])
         forcePageReset()
     Endif
@@ -3593,6 +3596,8 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetFloatValue(strFile, "InitialDrainDelay", UDCDmain.UD_InitialDrainDelay)
     JsonUtil.SetFloatValue(strFile, "MinigameExhDurationMult", UDCDmain.UD_MinigameExhDurationMult)
     JsonUtil.SetFloatValue(strFile, "MinigameExhMagnitudeMult", UDCDmain.UD_MinigameExhMagnitudeMult)
+    JsonUtil.SetIntValue(strFile, "MinigameLockpickSkillAdjust", UDCDmain.UD_MinigameLockpickSkillAdjust)
+    
     
     ;ABADON
     JsonUtil.SetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
@@ -3747,7 +3752,7 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UD_InitialDrainDelay = JsonUtil.GetFloatValue(strFile, "InitialDrainDelay", UDCDmain.UD_InitialDrainDelay)
     UDCDmain.UD_MinigameExhDurationMult     = JsonUtil.GetFloatValue(strFile, "MinigameExhDurationMult", UDCDmain.UD_MinigameExhDurationMult)
     UDCDmain.UD_MinigameExhMagnitudeMult    = JsonUtil.GetFloatValue(strFile, "MinigameExhMagnitudeMult", UDCDmain.UD_MinigameExhMagnitudeMult)
-    
+    UDCDmain.UD_MinigameLockpickSkillAdjust = JsonUtil.GetIntValue(strFile, "MinigameLockpickSkillAdjust", UDCDmain.UD_MinigameLockpickSkillAdjust)
     
     ;ABADON
     AbadonQuest.final_finisher_set = JsonUtil.GetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
@@ -3916,6 +3921,7 @@ Function ResetToDefaults()
     UDCDmain.UD_InitialDrainDelay       = 0
     UDCDmain.UD_MinigameExhDurationMult = 1.0
     UDCDmain.UD_MinigameExhMagnitudeMult= 1.0
+    UDCDmain.UD_MinigameLockpickSkillAdjust = 2
     
     ;ABADON
     AbadonQuest.final_finisher_set      = true
