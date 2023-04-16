@@ -250,7 +250,7 @@ Function Update()
     UD_IconVariant_EffOrgasmList[1] = "$Variant 2"
     UD_IconVariant_EffOrgasmList[2] = "$Variant 3"
     
-    UD_MinigameLockpickSkillAdjust_ML = new String[3]
+    UD_MinigameLockpickSkillAdjust_ML = new String[5]
     UD_MinigameLockpickSkillAdjust_ML[0] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT100"
     UD_MinigameLockpickSkillAdjust_ML[1] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT90"
     UD_MinigameLockpickSkillAdjust_ML[2] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT75"
@@ -1934,8 +1934,8 @@ Function OnOptionSliderOpenCustomBondage(int option)
     elseif option == UD_LockpickMinigameDuration_S
         SetSliderDialogStartValue(UDCDmain.UD_LockpickMinigameDuration)
         SetSliderDialogDefaultValue(20)
-        SetSliderDialogRange(10, 120)
-        SetSliderDialogInterval(10)
+        SetSliderDialogRange(0, 120)
+        SetSliderDialogInterval(5)
     endif
 EndFunction
 

@@ -5830,37 +5830,43 @@ Function lockpickDevice()
                     getWearer().removeItem(UDCDmain.Lockpick,helperGivedLockpicks,True,getHelper())
                 endif
             endif
+            
             Int loc_difficulty = GetNthLockDifficulty(_MinigameSelectedLockID)
             UDCDmain.ReadyLockPickContainer(loc_difficulty,Wearer)
             UDCDmain.startLockpickMinigame()
             
-            float loc_elapsedTime = 0.0
-            float loc_maxtime = (UDCDMain.UD_LockpickMinigameDuration as Float) - (loc_difficulty/100.0)*0.5*UDCDMain.UD_LockpickMinigameDuration
-            bool loc_msgshown = false
-            while (!UDCDmain.LockpickMinigameOver) && loc_elapsedTime <= loc_maxtime
-                Utility.WaitMenuMode(0.05)
-                loc_elapsedTime += 0.05
-                
-                if !loc_msgshown && loc_elapsedTime > loc_maxtime*0.75 ;only 25% time left, warn player
-                    if Utility.randomInt(0,1)
-                        UDmain.Print("Your hands are sweating")
-                    else
-                        UDmain.Print("Your hands starting to tremble")
+            float loc_elapsedTime   = 0.0
+            float loc_maxtime       = 0.0
+            if UDCDMain.UD_LockpickMinigameDuration > 0
+                loc_maxtime = (UDCDMain.UD_LockpickMinigameDuration as Float) - (loc_difficulty/100.0)*0.5*UDCDMain.UD_LockpickMinigameDuration
+                bool loc_msgshown = false
+                while (!UDCDmain.LockpickMinigameOver) && loc_elapsedTime <= loc_maxtime
+                    Utility.WaitMenuMode(0.05)
+                    loc_elapsedTime += 0.05
+                    
+                    if !loc_msgshown && loc_elapsedTime > loc_maxtime*0.75 ;only 25% time left, warn player
+                        if Utility.randomInt(0,1)
+                            UDmain.Print("Your hands are sweating")
+                        else
+                            UDmain.Print("Your hands starting to tremble")
+                        endif
+                        loc_msgshown = true
                     endif
-                    loc_msgshown = true
-                endif
-            endwhile
-        
+                endwhile
+            endif
+            
             result = UDCDmain.lockpickMinigameResult     ;first we fetch lockpicking result
             UDCDmain.DeleteLockPickContainer()           ;then we remove the container so IsLocked is not called on None
             
-            if loc_elapsedTime >= loc_maxtime
-                if UDmain.IsLockpickingMenuOpen()
-                    closeLockpickMenu()
+            if UDCDMain.UD_LockpickMinigameDuration > 0
+                if loc_elapsedTime >= loc_maxtime
+                    if UDmain.IsLockpickingMenuOpen()
+                        closeLockpickMenu()
+                    endif
+                    UDmain.Print("You lost focus and broke the lockpick!")
+                    result = 2
+                    getWearer().removeItem(UDCDmain.Lockpick,1)
                 endif
-                UDmain.Print("You lost focus and broke the lockpick!")
-                result = 2
-                getWearer().removeItem(UDCDmain.Lockpick,1)
             endif
             
             if hasHelper()
