@@ -44,8 +44,12 @@ Event OnInit()
 EndEvent
 
 Event OnUpdate()
-    Evaluate()
-    RegisterForSingleUpdate(UD_UpdateTime)
+    if UDmain.IsEnabled()
+        Evaluate()
+        RegisterForSingleUpdate(UD_UpdateTime)
+    else
+        RegisterForSingleUpdate(30.0)
+    endif
 EndEvent
 
 Function Evaluate()

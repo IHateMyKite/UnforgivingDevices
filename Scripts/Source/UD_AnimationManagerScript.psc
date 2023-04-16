@@ -50,12 +50,16 @@ Bool _UseUnsafeLogging = False
 ;============================================================
 
 Function OnInit()
-    RegisterForSingleUpdate(5.0)
+    RegisterForSingleUpdate(10.0)
     Ready = True
 EndFunction
 
 Function OnUpdate()
-    Update()
+    if UDmain.UDReady()
+        Update()
+    else
+        RegisterForSingleUpdate(20.0)
+    endif
 EndFunction
 
 Function Update()

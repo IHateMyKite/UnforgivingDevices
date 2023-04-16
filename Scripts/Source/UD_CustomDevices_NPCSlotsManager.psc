@@ -110,7 +110,6 @@ UD_StaticNPCSlots Function GetNthStaticSlots(Int aiId)
 EndFunction
 
 Event OnInit()
-    Utility.WaitMenuMode(2.5)
     UD_Slots = GetNumAliases()
     int     index = 0
     float   loc_time = 0.0
@@ -129,7 +128,6 @@ Event OnInit()
         else
             GError(self + "::OnInit() - NPCslot["+ index +"] - alias is recognized as NPC slot!")
         endif
-        GInfo(self + "::OnInit() - NPCslot["+ index +"] - slot checked!")
         index += 1
         Utility.WaitMenuMode(0.05)
     endwhile

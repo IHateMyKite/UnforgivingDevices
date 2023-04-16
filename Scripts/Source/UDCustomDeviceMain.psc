@@ -29,7 +29,6 @@ UD_Patcher Property UDPatcher auto
 UD_DialogueMain Property UDDmain auto
 UD_CustomDevices_NPCSlotsManager Property UDCD_NPCM auto
 UD_ExpressionManager Property UDEM auto
-;UD_OrgasmManager Property UDOM auto 
 UD_UserInputScript Property UDUI hidden
     UD_UserInputScript Function get()
         return UDmain.UDUI
@@ -168,7 +167,6 @@ Bool            Property UD_EquipMutex              = False auto hidden
 Bool            Property Ready                      = False auto hidden
 
 Event OnInit()
-    Utility.waitMenuMode(1.0)
     if CheckSubModules()
         registerEvents()
         ready = True
@@ -433,29 +431,6 @@ EndFunction
 /;
 UD_CustomDevice_RenderScript[] Function MakeNewDeviceSlots()
     return new UD_CustomDevice_RenderScript[25]
-EndFunction
-
-;/  Function: SendLoadConfig
-
-    Forces JSON config file to be reloaded
-/;
-Function SendLoadConfig()
-    RegisterForModEvent("UD_LoadConfig","LoadConfig")
-    
-    int handle = ModEvent.Create("UD_LoadConfig")
-    if (handle)
-        ModEvent.Send(handle)
-    endif
-
-    UnRegisterForModEvent("UD_LoadConfig")
-EndFunction
-
-Function LoadConfig()
-    UDmain.config.ResetToDefaults()
-    if UDmain.config.getAutoLoad()
-        UDmain.config.LoadFromJSON(UDmain.config.File)
-        GInfo("MCM Config loaded!")
-    endif
 EndFunction
 
 ;/  Function: DisableActor
@@ -1219,7 +1194,7 @@ bool loc_init = false
 ;update the devices once per UD_UpdateTime
 Event onUpdate()
     if !loc_init
-        LoadConfig()
+        ;LoadConfig()
         RegisterGlobalKeys()
         if UDmain.DebugMod
             UDmain.Player.addItem(UDlibs.AbadonPlug,1)

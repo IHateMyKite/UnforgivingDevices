@@ -59,8 +59,10 @@ Event OnUpdate()
         float loc_timePassed = Utility.GetCurrentGameTime() - _LastUpdateTime
         UpdateModifiers(loc_timePassed)
         _LastUpdateTime = Utility.GetCurrentGameTime()
+        RegisterForSingleUpdate(UDCDmain.UD_UpdateTime)
+    else
+        RegisterForSingleUpdate(30.0)
     endif
-    RegisterForSingleUpdate(UDCDmain.UD_UpdateTime)
 EndEvent
 
 float _LastUpdateTime_Hour = 0.0 ;last time the update happened in days

@@ -32,7 +32,12 @@ Event OnInit()
 EndEvent
 
 Event OnUpdate()
-    Process()
+    if UDmain.IsEnabled()
+        Process()
+    else
+        ; mod is still not installed, wait another minute
+        RegisterForSingleUpdate(60.0)
+    endif
 EndEvent
 Function Update()
     Process()

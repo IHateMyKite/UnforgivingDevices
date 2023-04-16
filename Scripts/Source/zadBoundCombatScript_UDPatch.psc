@@ -2,12 +2,26 @@ Scriptname zadBoundCombatScript_UDPatch Extends zadBoundCombatScript Hidden
 
 import UnforgivingDevicesMain
 
-Bool Property UD_DAR = false auto
+Bool Property UD_DAR = false auto hidden
+
+UnforgivingDevicesMain _UDmain
+UnforgivingDevicesMain Property UDmain hidden
+    UnforgivingDevicesMain Function Get()
+        if !_UDmain
+            _UDmain = GetUDMain()
+        endif
+        return _UDmain
+    EndFunction
+EndProperty
 
 ;is not used by parent script, no sin here
 Function OnInit()
-    Utility.waitMenuMode(2.0) ;wait few moments, so computer doesn't explode
-    RegisterForSingleUpdate(10.0)
+    RegisterForSingleUpdate(30.0)
+    RegisterForModEvent("DelayEvaluateAA","EvaluateAA")
+    RegisterForModEvent("DelayClearAA","ClearAA")
+    RegisterForModEvent("DelayMaintenance_ABC","Maintenance_ABC")
+    RegisterForModEvent("DelayCONFIG_ABC","CONFIG_ABC")
+    RegisterForModEvent("DelayUpdateValues","UpdateValues")
 EndFunction
 
 Event OnUpdate()
@@ -18,82 +32,115 @@ Function Update()
 EndFunction
 
 Function EvaluateAA(actor akActor)
-    if StorageUtil.GetIntValue(akActor,"DDStartBoundEffectQue",0)
-        return
-    endif
-    StorageUtil.SetIntValue(akActor,"DDStartBoundEffectQue",1)
-    
-    bool loc_paralysis = false
-    while akActor.getAV("Paralysis") && !akActor.isDead()
-        loc_paralysis = true
-        Utility.wait(1.0) ;wait for actors paralysis to worn out first, because it can cause issue if idle is set when paralysed
-    endwhile
-    
-    if akActor.isDead()
-        StorageUtil.UnSetIntValue(akActor,"DDStartBoundEffectQue")
-        return
-    endif
-    
-    ;wait some time so actor have enaught time to get from standing up animation
-    if loc_paralysis
-        Utility.wait(4.0)
-    endif
-    
-    if !UD_DAR
-        parent.EvaluateAA(akActor)
-    else
-        libs.UpdateControls()
-        If !HasCompatibleDevice(akActor)
-            Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
-            RemoveBCPerks(akActor)
-        Else
-            if akActor.IsWeaponDrawn()
-                akActor.SheatheWeapon()
-                ; Wait for users with flourish sheathe animations.
-                int timeout=0
-                while akActor.IsWeaponDrawn() && timeout <= 45 ;  Wait 4.5 seconds at most before giving up and proceeding.
-                    Utility.Wait(0.1)
-                    timeout += 1
-                EndWhile
-            EndIf
-            ApplyBCPerks(akActor)
-            Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
-            
-            int animSet     = SelectAnimationSet(akActor)
-            int animState   = GetSecondaryAAState(akActor)
-            if animState != 1 && animState != 2 && animSet != 6
-                akActor.SetAnimationVariableInt("FNIS_abc_h2h_LocomotionPose", animSet + 1)
-            endIf
+    if UDmain.UDReady()
+        if StorageUtil.GetIntValue(akActor,"DDStartBoundEffectQue",0)
+            return
         endif
+        StorageUtil.SetIntValue(akActor,"DDStartBoundEffectQue",1)
+        
+        bool loc_paralysis = false
+        while akActor.getAV("Paralysis") && !akActor.isDead()
+            loc_paralysis = true
+            Utility.wait(1.0) ;wait for actors paralysis to worn out first, because it can cause issue if idle is set when paralysed
+        endwhile
+        
+        if akActor.isDead()
+            StorageUtil.UnSetIntValue(akActor,"DDStartBoundEffectQue")
+            return
+        endif
+        
+        ;wait some time so actor have enaught time to get from standing up animation
+        if loc_paralysis
+            Utility.wait(4.0)
+        endif
+        
+        if !UD_DAR
+            parent.EvaluateAA(akActor)
+        else
+            if akActor == libs.playerRef
+                libs.UpdateControls()
+            endIf
+            
+            ClearAA(akActor)
+            
+            If !HasCompatibleDevice(akActor)
+                ResetExternalAA(akActor)
+                RemoveBCPerks(akActor)
+            Else
+                if akActor.IsWeaponDrawn()
+                    akActor.SheatheWeapon()
+                    ; Wait for users with flourish sheathe animations.
+                    int timeout=0
+                    while akActor.IsWeaponDrawn() && timeout <= 45 ;  Wait 4.5 seconds at most before giving up and proceeding.
+                        Utility.Wait(0.1)
+                        timeout += 1
+                    EndWhile
+                EndIf
+                
+                ApplyBCPerks(akActor)
+                
+                int animSet     = SelectAnimationSet(akActor)
+                int animState   = GetSecondaryAAState(akActor)
+                if animState != 1 && animState != 2 && animSet != 6
+                    akActor.SetAnimationVariableInt("FNIS_abc_h2h_LocomotionPose", animSet + 1)
+                endIf
+            endif
+            
+            Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
+        endif
+        StorageUtil.UnSetIntValue(akActor,"DDStartBoundEffectQue")
+    else
+        Utility.wait(5.0)
+        int loc_handle = ModEvent.Create("DelayEvaluateAA")
+        ModEvent.PushForm(loc_handle,akActor)
+        ModEvent.Send(loc_handle)
     endif
-    StorageUtil.UnSetIntValue(akActor,"DDStartBoundEffectQue")
 EndFunction
 
 Function ClearAA(actor akActor)
-    while StorageUtil.GetIntValue(akActor,"DDStartBoundEffectQue",0)
-        Utility.wait(1.0)
-    endwhile
-    if !UD_DAR
+    if UDmain.UDReady()
+        ;allways clear animation variables
         parent.ClearAA(akActor)
     else
-        akActor.SetAnimationVariableInt("FNIS_abc_h2h_LocomotionPose", 0)
+        Utility.wait(5.0)
+        int loc_handle = ModEvent.Create("DelayEvaluateAA")
+        ModEvent.PushForm(loc_handle,akActor)
+        ModEvent.Send(loc_handle)
     endif
 EndFunction
 
 Function Maintenance_ABC()
     if !UD_DAR
-        parent.Maintenance_ABC()
+        if UDmain.UDReady() && !UDmain.IsUpdating()
+            parent.Maintenance_ABC()
+        else
+            Utility.wait(5.0)
+            int loc_handle = ModEvent.Create("DelayMaintenance_ABC")
+            ModEvent.Send(loc_handle)
+        endif
     endif
 EndFunction
 
 Function CONFIG_ABC()
     if !UD_DAR
-        parent.CONFIG_ABC()
+        if UDmain.UDReady() && !UDmain.IsUpdating()
+            parent.CONFIG_ABC()
+        else
+            Utility.wait(5.0)
+            int loc_handle = ModEvent.Create("DelayCONFIG_ABC")
+            ModEvent.Send(loc_handle)
+        endif
     endif
 EndFunction
 
-Function UpdateValues() 
+Function UpdateValues()
     if !UD_DAR
-        parent.UpdateValues()
+        if UDmain.UDReady() && !UDmain.IsUpdating()
+            parent.UpdateValues()
+        else
+            Utility.wait(5.0)
+            int loc_handle = ModEvent.Create("DelayUpdateValues")
+            ModEvent.Send(loc_handle)
+        endif
     endif
 EndFunction

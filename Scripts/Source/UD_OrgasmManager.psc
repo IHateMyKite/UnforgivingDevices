@@ -130,7 +130,6 @@ String Property _UpdateBaseOrgasmValEventName   = "UD_UpdateBaseOrgasmVal"  auto
 bool Property Ready auto conditional
 
 Event OnInit()
-    Utility.waitMenuMode(0.5)
     RegisterModEvents()
     Ready = true
 EndEvent
