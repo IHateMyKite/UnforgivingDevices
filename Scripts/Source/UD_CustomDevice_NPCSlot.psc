@@ -908,7 +908,6 @@ Function orgasm()
     if UDmain.UD_OrgasmExhaustion
         AddOrgasmExhaustion()
     endif
-    int size = UD_equipedCustomDevices.length
     int i = 0
     while UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i].isReady()
