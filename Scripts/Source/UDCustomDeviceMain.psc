@@ -82,6 +82,7 @@ Float   Property UD_MinigameDrainMult               = 1.0   Auto Hidden ; miniga
 Float   Property UD_InitialDrainDelay               = 0.0   Auto Hidden ; minigame timespan that is free from drain
 Float   Property UD_MinigameExhDurationMult         = 1.0   Auto Hidden ; multiplier for minigame exhaustion duration
 Float   Property UD_MinigameExhMagnitudeMult        = 1.0   Auto Hidden ; multiplier for minigame exhaustion magnitude
+Int     Property UD_MinigameLockpickSkillAdjust     = 0     Auto Hidden ; index from list of possible options. 0 = 75%, 1 = 50%, 2 = 0%
 
 ;Lvl scalling
 Float   Property UD_DeviceLvlHealth                 = 0.025 auto hidden
@@ -2329,6 +2330,12 @@ Function startLockpickMinigame()
         PO3_SKSEFunctions.PreventActorDetection(UDmain.Player)
     endif
     
+    if UD_MinigameLockpickSkillAdjust == 0
+        UDmain.Player.AddPerk(UDlibs.LockpickPerk25)
+    elseif UD_MinigameLockpickSkillAdjust == 1
+        UDmain.Player.AddPerk(UDlibs.LockpickPerk50)
+    endif
+    
     lockpicknum = UDmain.Player.GetItemCount(Lockpick)
     
     if lockpicknum >= UD_LockpicksPerMinigame
@@ -2383,6 +2390,10 @@ Event OnMenuClose(String MenuName)
         UDmain.Log("Lockpick minigame closed, lockpicks returned: " + (lockpicknum - usedLockpicks) + " ; Result: " + LockpickMinigameResult,1)
     endif
     UDmain.Player.AddItem(Lockpick, lockpicknum - usedLockpicks, True)
+    
+    UDmain.Player.RemovePerk(UDlibs.LockpickPerk25)
+    UDmain.Player.RemovePerk(UDlibs.LockpickPerk50)
+    
     LockpickMinigameOver = True
     UnregisterForAllMenus()
 EndEvent

@@ -249,6 +249,11 @@ Function Update()
     UD_IconVariant_EffOrgasmList[0] = "$Variant 1"
     UD_IconVariant_EffOrgasmList[1] = "$Variant 2"
     UD_IconVariant_EffOrgasmList[2] = "$Variant 3"
+    
+    UD_MinigameLockpickSkillAdjust_ML = new String[3]
+    UD_MinigameLockpickSkillAdjust_ML[0] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT75"
+    UD_MinigameLockpickSkillAdjust_ML[1] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT50"
+    UD_MinigameLockpickSkillAdjust_ML[2] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT00"
 
     libs = UDCDmain.libs as zadlibs_UDPatch
 EndFunction
@@ -489,7 +494,8 @@ Int UD_KeyDurability_S
 Int UD_HardcoreAccess_T
 Int UD_MinigameExhDurationMult_S
 Int UD_MinigameExhMagnitudeMult_S
-
+Int UD_MinigameLockpickSkillAdjust_M
+String[] UD_MinigameLockpickSkillAdjust_ML
 Event resetCustomBondagePage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -520,6 +526,9 @@ Event resetCustomBondagePage()
     
     UD_MinigameDrainMult_S = addSliderOption("$UD_MINIGAMEDRAINMULT", Round(UDCDmain.UD_MinigameDrainMult * 100), "{1} %", UD_LockMenu_flag)
     UD_InitialDrainDelay_S = addSliderOption("$UD_INITIALDRAINDELAY", UDCDmain.UD_InitialDrainDelay, "{0} s", UD_LockMenu_flag)
+    
+    UD_MinigameLockpickSkillAdjust_M = AddMenuOption("$UD_MINIGAMELOCKPICKSKILLADJUST", UD_MinigameLockpickSkillAdjust_ML[UDCDmain.UD_MinigameLockpickSkillAdjust],UD_LockMenu_flag)
+    addEmptyOption()
     
     ;MINIGAME EXHAUSTION
     AddHeaderOption("$UD_H_MINIEXHAUS")
@@ -854,7 +863,6 @@ Event resetUIWidgetPage()
     UD_WidgetReset_T = AddTextOption("$UD_WIDGETRESET", "$-CLICK-")
 EndEvent
 
-
 UD_AnimationManagerScript Property UDAM Hidden
     UD_AnimationManagerScript Function Get()
         return UDmain.UDAM
@@ -1144,7 +1152,6 @@ Event resetAnimationsPage()
     EndWhile
     
 EndEvent
-
 
 int[] registered_devices_T
 int[] NPCSlots_T
@@ -2458,6 +2465,10 @@ Function OnOptionMenuOpenCustomBondage(int option)
         SetMenuDialogOptions(criteffectList)
         SetMenuDialogStartIndex(UDCDmain.UD_CritEffect)
         SetMenuDialogDefaultIndex(2)
+    elseif (option == UD_MinigameLockpickSkillAdjust_M)
+        SetMenuDialogOptions(UD_MinigameLockpickSkillAdjust_ML)
+        SetMenuDialogStartIndex(UDCDmain.UD_MinigameLockpickSkillAdjust)
+        SetMenuDialogDefaultIndex(0)
     endif
 EndFunction
 
@@ -2572,6 +2583,10 @@ Function OnOptionMenuAcceptCustomBondage(int option, int index)
     elseif option == UD_CritEffect_M
         UDCDmain.UD_CritEffect = index
         SetMenuOptionValue(UD_CritEffect_M, criteffectList[UDCDmain.UD_CritEffect])
+        forcePageReset()
+    elseif (option == UD_MinigameLockpickSkillAdjust_M)
+        UDCDmain.UD_MinigameLockpickSkillAdjust = index
+        SetMenuOptionValue(UD_MinigameLockpickSkillAdjust_M, UD_MinigameLockpickSkillAdjust_ML[UDCDmain.UD_MinigameLockpickSkillAdjust])
         forcePageReset()
     endIf
 EndFunction
@@ -2925,6 +2940,10 @@ Function CustomBondagePageDefault(int option)
     ElseIf option == UD_MinigameExhMagnitudeMult_S
         UDCDmain.UD_MinigameExhMagnitudeMult = 1.0
         SetSliderOptionValue(UD_MinigameExhMagnitudeMult_S, UDCDmain.UD_MinigameExhMagnitudeMult * 100, "{0} %")
+    elseif (option == UD_MinigameLockpickSkillAdjust_M)
+        UDCDmain.UD_MinigameLockpickSkillAdjust = 0
+        SetMenuOptionValue(UD_MinigameLockpickSkillAdjust_M, UD_MinigameLockpickSkillAdjust_ML[UDCDmain.UD_MinigameLockpickSkillAdjust])
+        forcePageReset()
     Endif
 EndFunction
 
@@ -3236,6 +3255,8 @@ Function CustomBondagePageInfo(int option)
         SetInfoText("$UD_MINIEXHAUSDUR_INFO")
     ElseIf option == UD_MinigameExhMagnitudeMult_S
         SetInfoText("$UD_MINIEXHAUSMAG_INFO")
+    elseif (option == UD_MinigameLockpickSkillAdjust_M)
+        SetInfoText("$UD_MINIGAMELOCKPICKSKILLADJUST_INFO")
     Endif
 EndFunction
 
