@@ -5835,7 +5835,7 @@ Function lockpickDevice()
             UDCDmain.startLockpickMinigame()
             
             float loc_elapsedTime = 0.0
-            float loc_maxtime = 20.0 - (loc_difficulty/100.0)*10.0
+            float loc_maxtime = (UDCDMain.UD_LockpickMinigameDuration as Float) - (loc_difficulty/100.0)*0.5*UDCDMain.UD_LockpickMinigameDuration
             bool loc_msgshown = false
             while (!UDCDmain.LockpickMinigameOver) && loc_elapsedTime <= loc_maxtime
                 Utility.WaitMenuMode(0.05)

@@ -83,6 +83,7 @@ Float   Property UD_InitialDrainDelay               = 0.0   Auto Hidden ; miniga
 Float   Property UD_MinigameExhDurationMult         = 1.0   Auto Hidden ; multiplier for minigame exhaustion duration
 Float   Property UD_MinigameExhMagnitudeMult        = 1.0   Auto Hidden ; multiplier for minigame exhaustion magnitude
 Int     Property UD_MinigameLockpickSkillAdjust     = 2     Auto Hidden ; index from list of possible options. 0 = 100%, 1 = 90%, 2 = 75%, 3 = 50%, 4 = 0%
+Int     Property UD_LockpickMinigameDuration        = 20    Auto Hidden ;duration of lockpick minigame. After this time passe, minigame will close itself and fail. This value is adjusted by difficulty of lock
 
 ;Lvl scalling
 Float   Property UD_DeviceLvlHealth                 = 0.025 auto hidden
