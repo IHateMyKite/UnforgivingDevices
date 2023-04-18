@@ -249,6 +249,13 @@ Function Update()
     UD_IconVariant_EffOrgasmList[0] = "$Variant 1"
     UD_IconVariant_EffOrgasmList[1] = "$Variant 2"
     UD_IconVariant_EffOrgasmList[2] = "$Variant 3"
+    
+    UD_MinigameLockpickSkillAdjust_ML = new String[5]
+    UD_MinigameLockpickSkillAdjust_ML[0] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT100"
+    UD_MinigameLockpickSkillAdjust_ML[1] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT90"
+    UD_MinigameLockpickSkillAdjust_ML[2] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT75"
+    UD_MinigameLockpickSkillAdjust_ML[3] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT50"
+    UD_MinigameLockpickSkillAdjust_ML[4] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT00"
 
     libs = UDCDmain.libs as zadlibs_UDPatch
 EndFunction
@@ -489,7 +496,9 @@ Int UD_KeyDurability_S
 Int UD_HardcoreAccess_T
 Int UD_MinigameExhDurationMult_S
 Int UD_MinigameExhMagnitudeMult_S
-
+Int UD_MinigameLockpickSkillAdjust_M
+String[] UD_MinigameLockpickSkillAdjust_ML
+Int UD_LockpickMinigameDuration_S
 Event resetCustomBondagePage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -512,6 +521,9 @@ Event resetCustomBondagePage()
     UD_PreventMasterLock_T = addToggleOption("$UD_PREVENTMASTERLOCK",UDCDmain.UD_PreventMasterLock,UD_LockMenu_flag)
     UD_LockpickMinigameNum_S = addSliderOption("$UD_LOCKPICKMINIGAMENUM",UDCDmain.UD_LockpicksPerMinigame, "{0}",UD_LockMenu_flag)
     
+    UD_MinigameLockpickSkillAdjust_M    = AddMenuOption("$UD_MINIGAMELOCKPICKSKILLADJUST", UD_MinigameLockpickSkillAdjust_ML[UDCDmain.UD_MinigameLockpickSkillAdjust],UD_LockMenu_flag)
+    UD_LockpickMinigameDuration_S       = addSliderOption("$UD_LOCKPICKMINIGAMEDURATION",UDCDmain.UD_LockpickMinigameDuration, "{0} s",UD_LockMenu_flag)
+    
     UD_KeyDurability_S = addSliderOption("$UD_KEYDURABILITY",UDCDmain.UD_KeyDurability, "{0}",UD_LockMenu_flag)
     UD_HardcoreAccess_T = addToggleOption("$UD_HARDCOREACCESS", UDCDmain.UD_HardcoreAccess,UD_LockMenu_flag)
     
@@ -520,6 +532,7 @@ Event resetCustomBondagePage()
     
     UD_MinigameDrainMult_S = addSliderOption("$UD_MINIGAMEDRAINMULT", Round(UDCDmain.UD_MinigameDrainMult * 100), "{1} %", UD_LockMenu_flag)
     UD_InitialDrainDelay_S = addSliderOption("$UD_INITIALDRAINDELAY", UDCDmain.UD_InitialDrainDelay, "{0} s", UD_LockMenu_flag)
+    
     
     ;MINIGAME EXHAUSTION
     AddHeaderOption("$UD_H_MINIEXHAUS")
@@ -854,7 +867,6 @@ Event resetUIWidgetPage()
     UD_WidgetReset_T = AddTextOption("$UD_WIDGETRESET", "$-CLICK-")
 EndEvent
 
-
 UD_AnimationManagerScript Property UDAM Hidden
     UD_AnimationManagerScript Function Get()
         return UDmain.UDAM
@@ -1144,7 +1156,6 @@ Event resetAnimationsPage()
     EndWhile
     
 EndEvent
-
 
 int[] registered_devices_T
 int[] NPCSlots_T
@@ -1920,6 +1931,11 @@ Function OnOptionSliderOpenCustomBondage(int option)
         SetSliderDialogDefaultValue(100)
         SetSliderDialogRange(25, 200)
         SetSliderDialogInterval(5)
+    elseif option == UD_LockpickMinigameDuration_S
+        SetSliderDialogStartValue(UDCDmain.UD_LockpickMinigameDuration)
+        SetSliderDialogDefaultValue(20)
+        SetSliderDialogRange(0, 120)
+        SetSliderDialogInterval(5)
     endif
 EndFunction
 
@@ -2254,6 +2270,9 @@ Function OnOptionSliderAcceptCustomBondage(int option, float value)
     ElseIf option == UD_MinigameExhMagnitudeMult_S
         UDCDmain.UD_MinigameExhMagnitudeMult = value / 100.0
         SetSliderOptionValue(UD_MinigameExhMagnitudeMult_S, UDCDmain.UD_MinigameExhMagnitudeMult * 100.0, "{0} %")
+    elseif option == UD_LockpickMinigameDuration_S
+        UDCDmain.UD_LockpickMinigameDuration = Round(value)
+        SetSliderOptionValue(UD_LockpickMinigameDuration_S, UDCDmain.UD_LockpickMinigameDuration, "{0} s")
     endif
 EndFunction
 
@@ -2458,6 +2477,10 @@ Function OnOptionMenuOpenCustomBondage(int option)
         SetMenuDialogOptions(criteffectList)
         SetMenuDialogStartIndex(UDCDmain.UD_CritEffect)
         SetMenuDialogDefaultIndex(2)
+    elseif (option == UD_MinigameLockpickSkillAdjust_M)
+        SetMenuDialogOptions(UD_MinigameLockpickSkillAdjust_ML)
+        SetMenuDialogStartIndex(UDCDmain.UD_MinigameLockpickSkillAdjust)
+        SetMenuDialogDefaultIndex(2)
     endif
 EndFunction
 
@@ -2468,7 +2491,6 @@ Function OnOptionMenuOpenCustomOrgasm(int option)
         SetMenuDialogDefaultIndex(0)
     endif
 EndFunction
-
 
 Function OnOptionMenuOpenUIWidget(int option)
     if (option == UD_IconsAnchor_M)
@@ -2572,6 +2594,10 @@ Function OnOptionMenuAcceptCustomBondage(int option, int index)
     elseif option == UD_CritEffect_M
         UDCDmain.UD_CritEffect = index
         SetMenuOptionValue(UD_CritEffect_M, criteffectList[UDCDmain.UD_CritEffect])
+        forcePageReset()
+    elseif (option == UD_MinigameLockpickSkillAdjust_M)
+        UDCDmain.UD_MinigameLockpickSkillAdjust = index
+        SetMenuOptionValue(UD_MinigameLockpickSkillAdjust_M, UD_MinigameLockpickSkillAdjust_ML[UDCDmain.UD_MinigameLockpickSkillAdjust])
         forcePageReset()
     endIf
 EndFunction
@@ -2925,6 +2951,13 @@ Function CustomBondagePageDefault(int option)
     ElseIf option == UD_MinigameExhMagnitudeMult_S
         UDCDmain.UD_MinigameExhMagnitudeMult = 1.0
         SetSliderOptionValue(UD_MinigameExhMagnitudeMult_S, UDCDmain.UD_MinigameExhMagnitudeMult * 100, "{0} %")
+    elseif (option == UD_MinigameLockpickSkillAdjust_M)
+        UDCDmain.UD_MinigameLockpickSkillAdjust = 2
+        SetMenuOptionValue(UD_MinigameLockpickSkillAdjust_M, UD_MinigameLockpickSkillAdjust_ML[UDCDmain.UD_MinigameLockpickSkillAdjust])
+        forcePageReset()
+    elseif option == UD_LockpickMinigameDuration_S
+        UDCDmain.UD_LockpickMinigameDuration = 20
+        SetSliderOptionValue(UD_LockpickMinigameDuration_S, UDCDmain.UD_LockpickMinigameDuration, "{0} s")
     Endif
 EndFunction
 
@@ -3236,6 +3269,10 @@ Function CustomBondagePageInfo(int option)
         SetInfoText("$UD_MINIEXHAUSDUR_INFO")
     ElseIf option == UD_MinigameExhMagnitudeMult_S
         SetInfoText("$UD_MINIEXHAUSMAG_INFO")
+    elseif (option == UD_MinigameLockpickSkillAdjust_M)
+        SetInfoText("$UD_MINIGAMELOCKPICKSKILLADJUST_INFO")
+    elseif option == UD_LockpickMinigameDuration_S
+        SetInfoText("$UD_LOCKPICKMINIGAMEDURATION_INFO")
     Endif
 EndFunction
 
@@ -3572,6 +3609,8 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetFloatValue(strFile, "InitialDrainDelay", UDCDmain.UD_InitialDrainDelay)
     JsonUtil.SetFloatValue(strFile, "MinigameExhDurationMult", UDCDmain.UD_MinigameExhDurationMult)
     JsonUtil.SetFloatValue(strFile, "MinigameExhMagnitudeMult", UDCDmain.UD_MinigameExhMagnitudeMult)
+    JsonUtil.SetIntValue(strFile, "MinigameLockpickSkillAdjust", UDCDmain.UD_MinigameLockpickSkillAdjust)
+    JsonUtil.SetIntValue(strFile, "LockpickMinigameDuration", UDCDmain.UD_LockpickMinigameDuration)
     
     ;ABADON
     JsonUtil.SetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
@@ -3693,39 +3732,41 @@ Function LoadFromJSON(string strFile)
         UD_autocrit_flag = OPTION_FLAG_DISABLED
     endif
     
-    UDCDmain.UD_AutoCritChance = JsonUtil.GetIntValue(strFile, "AutoCritChance", UDCDmain.UD_AutoCritChance)
-    UDCDmain.UD_VibrationMultiplier = JsonUtil.GetFloatValue(strFile, "VibrationMultiplier", UDCDmain.UD_VibrationMultiplier)
-    UDCDmain.UD_ArousalMultiplier = JsonUtil.GetFloatValue(strFile, "ArousalMultiplier", UDCDmain.UD_ArousalMultiplier)
-    UDOM.UD_OrgasmResistence = JsonUtil.GetFloatValue(strFile, "OrgasmResistence", UDOM.UD_OrgasmResistence)
-    UDCDmain.UD_LockpicksPerMinigame = JsonUtil.GetIntValue(strFile, "LockpicksPerMinigame", UDCDmain.UD_LockpicksPerMinigame)
-    UDOM.UD_UseOrgasmWidget = JsonUtil.GetIntValue(strFile, "UseOrgasmWidget", UDOM.UD_UseOrgasmWidget as Int)
-    UDOM.UD_OrgasmUpdateTime = JsonUtil.GetFloatValue(strFile, "OrgasmUpdateTime", UDOM.UD_OrgasmUpdateTime)
-    UDOM.UD_OrgasmAnimation = JsonUtil.GetIntValue(strFile, "OrgasmAnimation", UDOM.UD_OrgasmAnimation)
-    UDOM.UD_HornyAnimation = JsonUtil.GetIntValue(strFile, "HornyAnimation", UDOM.UD_HornyAnimation as Int)
-    UDOM.UD_HornyAnimationDuration = JsonUtil.GetIntValue(strFile, "HornyAnimationDuration", UDOM.UD_HornyAnimationDuration)
-    UDCDmain.UD_CooldownMultiplier = JsonUtil.GetFloatValue(strFile, "CooldownMultiplier", UDCDmain.UD_CooldownMultiplier)
-    UDCDMain.UD_SkillEfficiency = JsonUtil.GetIntValue(strFile, "SkillEfficiency", UDCDmain.UD_SkillEfficiency)
-    UDCDmain.UD_CritEffect      = JsonUtil.GetIntValue(strFile, "CritEffect", UDCDmain.UD_CritEffect)
-    UDCDmain.UD_HardcoreMode    = JsonUtil.GetIntValue(strFile, "HardcoreMode", UDCDmain.UD_HardcoreMode as Int)
-    UDCDmain.UD_AllowArmTie     = JsonUtil.GetIntValue(strFile, "AllowArmTie", UDCDmain.UD_AllowArmTie as Int)
-    UDCDmain.UD_AllowLegTie     = JsonUtil.GetIntValue(strFile, "AllowLegTie", UDCDmain.UD_AllowLegTie as Int)
-    UDCDmain.UD_MinigameHelpCd  = JsonUtil.GetIntValue(strFile, "MinigameHelpCD",UDCDmain.UD_MinigameHelpCd)
-    UDCDmain.UD_MinigameHelpCD_PerLVL   = JsonUtil.GetIntValue(strFile, "MinigameHelpCD_PerLVL", Round(UDCDmain.UD_MinigameHelpCD_PerLVL))
-    UDCDmain.UD_MinigameHelpXPBase      = JsonUtil.GetIntValue(strFile, "MinigameHelpXPBase", UDCDmain.UD_MinigameHelpXPBase)
+    UDCDmain.UD_AutoCritChance              = JsonUtil.GetIntValue(strFile, "AutoCritChance", UDCDmain.UD_AutoCritChance)
+    UDCDmain.UD_VibrationMultiplier         = JsonUtil.GetFloatValue(strFile, "VibrationMultiplier", UDCDmain.UD_VibrationMultiplier)
+    UDCDmain.UD_ArousalMultiplier           = JsonUtil.GetFloatValue(strFile, "ArousalMultiplier", UDCDmain.UD_ArousalMultiplier)
+    UDOM.UD_OrgasmResistence                = JsonUtil.GetFloatValue(strFile, "OrgasmResistence", UDOM.UD_OrgasmResistence)
+    UDCDmain.UD_LockpicksPerMinigame        = JsonUtil.GetIntValue(strFile, "LockpicksPerMinigame", UDCDmain.UD_LockpicksPerMinigame)
+    UDOM.UD_UseOrgasmWidget                 = JsonUtil.GetIntValue(strFile, "UseOrgasmWidget", UDOM.UD_UseOrgasmWidget as Int)
+    UDOM.UD_OrgasmUpdateTime                = JsonUtil.GetFloatValue(strFile, "OrgasmUpdateTime", UDOM.UD_OrgasmUpdateTime)
+    UDOM.UD_OrgasmAnimation                 = JsonUtil.GetIntValue(strFile, "OrgasmAnimation", UDOM.UD_OrgasmAnimation)
+    UDOM.UD_HornyAnimation                  = JsonUtil.GetIntValue(strFile, "HornyAnimation", UDOM.UD_HornyAnimation as Int)
+    UDOM.UD_HornyAnimationDuration          = JsonUtil.GetIntValue(strFile, "HornyAnimationDuration", UDOM.UD_HornyAnimationDuration)
+    UDCDmain.UD_CooldownMultiplier          = JsonUtil.GetFloatValue(strFile, "CooldownMultiplier", UDCDmain.UD_CooldownMultiplier)
+    UDCDMain.UD_SkillEfficiency             = JsonUtil.GetIntValue(strFile, "SkillEfficiency", UDCDmain.UD_SkillEfficiency)
+    UDCDmain.UD_CritEffect                  = JsonUtil.GetIntValue(strFile, "CritEffect", UDCDmain.UD_CritEffect)
+    UDCDmain.UD_HardcoreMode                = JsonUtil.GetIntValue(strFile, "HardcoreMode", UDCDmain.UD_HardcoreMode as Int)
+    UDCDmain.UD_AllowArmTie                 = JsonUtil.GetIntValue(strFile, "AllowArmTie", UDCDmain.UD_AllowArmTie as Int)
+    UDCDmain.UD_AllowLegTie                 = JsonUtil.GetIntValue(strFile, "AllowLegTie", UDCDmain.UD_AllowLegTie as Int)
+    UDCDmain.UD_MinigameHelpCd              = JsonUtil.GetIntValue(strFile, "MinigameHelpCD",UDCDmain.UD_MinigameHelpCd)
+    UDCDmain.UD_MinigameHelpCD_PerLVL       = JsonUtil.GetIntValue(strFile, "MinigameHelpCD_PerLVL", Round(UDCDmain.UD_MinigameHelpCD_PerLVL))
+    UDCDmain.UD_MinigameHelpXPBase          = JsonUtil.GetIntValue(strFile, "MinigameHelpXPBase", UDCDmain.UD_MinigameHelpXPBase)
     UDCDMain.UD_DeviceLvlHealth             = JsonUtil.GetFloatValue(strFile, "DeviceLvlHealth", UDCDMain.UD_DeviceLvlHealth*100)/100
     UDCDMain.UD_DeviceLvlLockpick           = JsonUtil.GetFloatValue(strFile, "DeviceLvlLockpick", UDCDMain.UD_DeviceLvlLockpick)
     UDCDMain.UD_DeviceLvlLocks              = JsonUtil.GetIntValue(strFile, "DeviceLvlLocks", UDCDMain.UD_DeviceLvlLocks)
     UDCDmain.UD_PreventMasterLock           = JsonUtil.GetIntValue(strFile, "PreventMasterLock", UDCDmain.UD_PreventMasterLock as Int)
-    UDOM.UD_OrgasmArousalReduce = JsonUtil.GetIntValue(strFile, "PostOrgasmArousalReduce", UDOM.UD_OrgasmArousalReduce)
-    UDOM.UD_OrgasmArousalReduceDuration = JsonUtil.GetIntValue(strFile, "PostOrgasmArousalReduce_Duration", UDOM.UD_OrgasmArousalReduceDuration)
-    UDCDmain.UD_MandatoryCrit = JsonUtil.GetIntValue(strFile, "MandatoryCrit", UDCDmain.UD_MandatoryCrit as Int)
-    UDCDmain.UD_CritDurationAdjust = JsonUtil.GetFloatValue(strFile, "CritDurationAdjust", UDCDmain.UD_CritDurationAdjust)
-    UDCDmain.UD_KeyDurability = JsonUtil.GetIntValue(strFile, "KeyDurability", UDCDmain.UD_KeyDurability)
-    UDCDmain.UD_HardcoreAccess = JsonUtil.GetIntValue(strFile, "HardcoreAccess", UDCDmain.UD_HardcoreAccess as Int)
-    UDCDmain.UD_MinigameDrainMult = JsonUtil.GetFloatValue(strFile, "MinigameDrainMult", UDCDmain.UD_MinigameDrainMult)
-    UDCDmain.UD_InitialDrainDelay = JsonUtil.GetFloatValue(strFile, "InitialDrainDelay", UDCDmain.UD_InitialDrainDelay)
+    UDOM.UD_OrgasmArousalReduce             = JsonUtil.GetIntValue(strFile, "PostOrgasmArousalReduce", UDOM.UD_OrgasmArousalReduce)
+    UDOM.UD_OrgasmArousalReduceDuration     = JsonUtil.GetIntValue(strFile, "PostOrgasmArousalReduce_Duration", UDOM.UD_OrgasmArousalReduceDuration)
+    UDCDmain.UD_MandatoryCrit               = JsonUtil.GetIntValue(strFile, "MandatoryCrit", UDCDmain.UD_MandatoryCrit as Int)
+    UDCDmain.UD_CritDurationAdjust          = JsonUtil.GetFloatValue(strFile, "CritDurationAdjust", UDCDmain.UD_CritDurationAdjust)
+    UDCDmain.UD_KeyDurability               = JsonUtil.GetIntValue(strFile, "KeyDurability", UDCDmain.UD_KeyDurability)
+    UDCDmain.UD_HardcoreAccess              = JsonUtil.GetIntValue(strFile, "HardcoreAccess", UDCDmain.UD_HardcoreAccess as Int)
+    UDCDmain.UD_MinigameDrainMult           = JsonUtil.GetFloatValue(strFile, "MinigameDrainMult", UDCDmain.UD_MinigameDrainMult)
+    UDCDmain.UD_InitialDrainDelay           = JsonUtil.GetFloatValue(strFile, "InitialDrainDelay", UDCDmain.UD_InitialDrainDelay)
     UDCDmain.UD_MinigameExhDurationMult     = JsonUtil.GetFloatValue(strFile, "MinigameExhDurationMult", UDCDmain.UD_MinigameExhDurationMult)
     UDCDmain.UD_MinigameExhMagnitudeMult    = JsonUtil.GetFloatValue(strFile, "MinigameExhMagnitudeMult", UDCDmain.UD_MinigameExhMagnitudeMult)
+    UDCDmain.UD_MinigameLockpickSkillAdjust = JsonUtil.GetIntValue(strFile, "MinigameLockpickSkillAdjust", UDCDmain.UD_MinigameLockpickSkillAdjust)
+    UDCDmain.UD_LockpickMinigameDuration    = JsonUtil.GetIntValue(strFile, "LockpickMinigameDuration", UDCDmain.UD_LockpickMinigameDuration)
     
     
     ;ABADON
@@ -3895,6 +3936,7 @@ Function ResetToDefaults()
     UDCDmain.UD_InitialDrainDelay       = 0
     UDCDmain.UD_MinigameExhDurationMult = 1.0
     UDCDmain.UD_MinigameExhMagnitudeMult= 1.0
+    UDCDmain.UD_MinigameLockpickSkillAdjust = 2
     
     ;ABADON
     AbadonQuest.final_finisher_set      = true

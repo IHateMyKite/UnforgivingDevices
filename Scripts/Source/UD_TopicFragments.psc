@@ -120,8 +120,6 @@ Function HelpPrecheck(ObjectReference akSpeakerRef)
     if (getCurrentActorValuePerc(akActor,"Stamina") < 0.9)
         UDDM.NPCTired = True
     endif
-    
-    GInfo("UDDM.NPCTired="+UDDM.NPCTired)
 EndFunction
 
 Function SetHelpPrice_0G(ObjectReference akSpeakerRef) ;Free
@@ -152,7 +150,8 @@ Function PayAndHelp(ObjectReference akSpeakerRef)
         Game.GetPlayer().RemoveItem(UDCDMain.UDlibs.Gold,Round(MoneyForHelp.Value),false,akSpeakerRef) ;move the gold to the speaker
         MoneyForHelp.Value = 0 ;reset
     endif
-    
+    UDCDmain.EnableActor(akSpeakerRef as Actor)
+    UDCDmain.EnableActor(Game.GetPlayer())
     if UDCDMain.UDDmain.SelectedDevice
         UDCDmain.OpenHelpDeviceMenu(UDCDMain.UDDmain.SelectedDevice,akSpeakerRef as Actor,False,True)
         UDCDMain.UDDmain.SelectedDevice = none
@@ -174,6 +173,8 @@ Function ChooseDeviceAndCheck(ObjectReference akSpeakerRef)
         if loc_device
             UDCDmain.UDDmain.SelectedDevice = loc_device
             ValidDevice.Value = 0 ;Player choose device
+            UDCDmain.DisableActor(akSpeakerRef as Actor)
+            UDCDmain.DisableActor(Game.GetPlayer())
             return
         else
             ValidDevice.Value = 2 ;Player didnt choose device

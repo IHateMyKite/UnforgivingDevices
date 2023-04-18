@@ -1358,7 +1358,6 @@ EndFunction
 int Function getModifierParamNum(string modifier)
     string[] loc_params = getModifierAllParam(modifier)
     if !loc_params
-        UDmain.Error(getDeviceHeader() + " -> getModifierParamNum -> "+ modifier +" have no parameters!")
         return 0
     else
         return getModifierAllParam(modifier).length
@@ -1367,11 +1366,11 @@ EndFunction
 
 Int Function getModifierIntParam(string modifier,int index = 0,int default_value = 0)
     string[] loc_params = getModifierAllParam(modifier)
-    if (index - 1) > loc_params.length    
-        UDmain.Error(getDeviceHeader() + " -> getModifierIntParam -> Wrong index passed for "+ modifier +"!")
+    if !loc_params
+        UDmain.Warning(getDeviceHeader() + "::getModifierIntParam("+modifier+","+index+","+default_value+") - modifier have no parameters")
         return default_value
-    elseif loc_params.length == 0
-        UDmain.Error(getDeviceHeader() + " -> getModifierIntParam -> modifier "+modifier+" have no parameters!")
+    elseif index > (loc_params.length - 1)
+        UDmain.Warning(getDeviceHeader() + "::getModifierIntParam("+modifier+","+index+","+default_value+") - Passed index out of range, returning default value" + default_value)
         return default_value
     else
         return loc_params[index] as Int
@@ -1380,11 +1379,11 @@ EndFunction
 
 Float Function getModifierFloatParam(string modifier,int index = 0,float default_value = 0.0)
     string[] loc_params = getModifierAllParam(modifier)
-    if (index - 1) > loc_params.length    
-        UDmain.Error(getDeviceHeader() + " -> getModifierFloatParam -> Wrong index passed for "+ modifier +"!")
+    if !loc_params
+        UDmain.Warning(getDeviceHeader() + "::getModifierIntParam("+modifier+","+index+","+default_value+") - modifier have no parameters")
         return default_value
-    elseif loc_params.length == 0
-        UDmain.Error(getDeviceHeader() + " -> getModifierFloatParam -> modifier "+modifier+" have no parameters!")
+    elseif index > (loc_params.length - 1)
+        UDmain.Warning(getDeviceHeader() + "::getModifierIntParam("+modifier+","+index+","+default_value+") - Passed index out of range, returning default value" + default_value)
         return default_value
     else
         return loc_params[index] as Float
@@ -1393,11 +1392,11 @@ EndFunction
 
 String Function getModifierParam(string modifier,int index = 0,string default_value = "ERROR")
     string[] loc_params = getModifierAllParam(modifier)
-    if (index - 1) > loc_params.length    
-        UDmain.Error(getDeviceHeader() + " -> getModifierParam -> Wrong index passed for "+ modifier +"!")
+    if !loc_params
+        UDmain.Warning(getDeviceHeader() + "::getModifierIntParam("+modifier+","+index+","+default_value+") - modifier have no parameters")
         return default_value
-    elseif loc_params.length == 0
-        UDmain.Error(getDeviceHeader() + " -> getModifierParam -> modifier "+modifier+" have no parameters!")
+    elseif index > (loc_params.length - 1)
+        UDmain.Warning(getDeviceHeader() + "::getModifierIntParam("+modifier+","+index+","+default_value+") - Passed index out of range, returning default value" + default_value)
         return default_value
     else
         return loc_params[index]
@@ -5646,11 +5645,13 @@ Function ShowLockDetails()
         Bool loc_ShowShield = True
         if IsNthLockUnlocked(loc_lockId)
             loc_res += "UNLOCKED\n"
-            loc_ShowDiff   = False
-            loc_ShowAcc    = False
-            loc_ShowShield = False
+            loc_ShowDiff    = False
+            loc_ShowAcc     = False
+            loc_ShowShield  = False
         elseif IsNthLockJammed(loc_lockId)
             loc_res += "JAMMED\n"
+            Float loc_RepairProgress = GetNthLockRepairProgress(loc_lockId)
+            loc_res += "Repair progress: "+ FormatString(loc_RepairProgress,1) + " %\n"
         elseif IsNthLockTimeLocked(loc_lockId) && GetNthLockTimeLock(loc_lockId)
             loc_res += "TIME LOCKED\n"
             loc_res += "Timelock: "+ GetNthLockTimeLock(loc_lockId) + " hours\n"
@@ -5677,6 +5678,7 @@ Function ShowLockDetails()
             Int loc_diff = GetNthLockDifficulty(loc_lockId)
             loc_res += "Difficulty: "+ _GetLockpickLevelString(GetLockpickLevel(-1,loc_diff)) + " ("+loc_diff+ ")\n"
         endif
+        
         UDmain.ShowMessageBox(loc_res)
         ;Utility.wait(0.05)
     endwhile
@@ -5828,37 +5830,43 @@ Function lockpickDevice()
                     getWearer().removeItem(UDCDmain.Lockpick,helperGivedLockpicks,True,getHelper())
                 endif
             endif
+            
             Int loc_difficulty = GetNthLockDifficulty(_MinigameSelectedLockID)
             UDCDmain.ReadyLockPickContainer(loc_difficulty,Wearer)
             UDCDmain.startLockpickMinigame()
             
-            float loc_elapsedTime = 0.0
-            float loc_maxtime = 20.0 - (loc_difficulty/100.0)*10.0
-            bool loc_msgshown = false
-            while (!UDCDmain.LockpickMinigameOver) && loc_elapsedTime <= loc_maxtime
-                Utility.WaitMenuMode(0.05)
-                loc_elapsedTime += 0.05
-                
-                if !loc_msgshown && loc_elapsedTime > loc_maxtime*0.75 ;only 25% time left, warn player
-                    if Utility.randomInt(0,1)
-                        UDmain.Print("Your hands are sweating")
-                    else
-                        UDmain.Print("Your hands starting to tremble")
+            float loc_elapsedTime   = 0.0
+            float loc_maxtime       = 0.0
+            if UDCDMain.UD_LockpickMinigameDuration > 0
+                loc_maxtime = (UDCDMain.UD_LockpickMinigameDuration as Float) - (loc_difficulty/100.0)*0.5*UDCDMain.UD_LockpickMinigameDuration
+                bool loc_msgshown = false
+                while (!UDCDmain.LockpickMinigameOver) && loc_elapsedTime <= loc_maxtime
+                    Utility.WaitMenuMode(0.05)
+                    loc_elapsedTime += 0.05
+                    
+                    if !loc_msgshown && loc_elapsedTime > loc_maxtime*0.75 ;only 25% time left, warn player
+                        if Utility.randomInt(0,1)
+                            UDmain.Print("Your hands are sweating")
+                        else
+                            UDmain.Print("Your hands starting to tremble")
+                        endif
+                        loc_msgshown = true
                     endif
-                    loc_msgshown = true
-                endif
-            endwhile
-        
+                endwhile
+            endif
+            
             result = UDCDmain.lockpickMinigameResult     ;first we fetch lockpicking result
             UDCDmain.DeleteLockPickContainer()           ;then we remove the container so IsLocked is not called on None
             
-            if loc_elapsedTime >= loc_maxtime
-                if UDmain.IsLockpickingMenuOpen()
-                    closeLockpickMenu()
+            if UDCDMain.UD_LockpickMinigameDuration > 0
+                if loc_elapsedTime >= loc_maxtime
+                    if UDmain.IsLockpickingMenuOpen()
+                        closeLockpickMenu()
+                    endif
+                    UDmain.Print("You lost focus and broke the lockpick!")
+                    result = 2
+                    getWearer().removeItem(UDCDmain.Lockpick,1)
                 endif
-                UDmain.Print("You lost focus and broke the lockpick!")
-                result = 2
-                getWearer().removeItem(UDCDmain.Lockpick,1)
             endif
             
             if hasHelper()

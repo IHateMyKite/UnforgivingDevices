@@ -82,6 +82,8 @@ Float   Property UD_MinigameDrainMult               = 1.0   Auto Hidden ; miniga
 Float   Property UD_InitialDrainDelay               = 0.0   Auto Hidden ; minigame timespan that is free from drain
 Float   Property UD_MinigameExhDurationMult         = 1.0   Auto Hidden ; multiplier for minigame exhaustion duration
 Float   Property UD_MinigameExhMagnitudeMult        = 1.0   Auto Hidden ; multiplier for minigame exhaustion magnitude
+Int     Property UD_MinigameLockpickSkillAdjust     = 2     Auto Hidden ; index from list of possible options. 0 = 100%, 1 = 90%, 2 = 75%, 3 = 50%, 4 = 0%
+Int     Property UD_LockpickMinigameDuration        = 20    Auto Hidden ;duration of lockpick minigame. After this time passe, minigame will close itself and fail. This value is adjusted by difficulty of lock
 
 ;Lvl scalling
 Float   Property UD_DeviceLvlHealth                 = 0.025 auto hidden
@@ -2329,6 +2331,8 @@ Function startLockpickMinigame()
         PO3_SKSEFunctions.PreventActorDetection(UDmain.Player)
     endif
     
+    _ApplyLockpickSkillMult(UDmain.Player)
+    
     lockpicknum = UDmain.Player.GetItemCount(Lockpick)
     
     if lockpicknum >= UD_LockpicksPerMinigame
@@ -2383,9 +2387,32 @@ Event OnMenuClose(String MenuName)
         UDmain.Log("Lockpick minigame closed, lockpicks returned: " + (lockpicknum - usedLockpicks) + " ; Result: " + LockpickMinigameResult,1)
     endif
     UDmain.Player.AddItem(Lockpick, lockpicknum - usedLockpicks, True)
+    
+    _RemoveLockpickSkillMult(UDmain.Player)
+    
     LockpickMinigameOver = True
     UnregisterForAllMenus()
 EndEvent
+
+Function _ApplyLockpickSkillMult(Actor akActor)
+    if UD_MinigameLockpickSkillAdjust == 0
+        akActor.AddPerk(UDlibs.LockpickPerk00)
+    elseif UD_MinigameLockpickSkillAdjust == 1
+        akActor.AddPerk(UDlibs.LockpickPerk10)
+    elseif UD_MinigameLockpickSkillAdjust == 2
+        akActor.AddPerk(UDlibs.LockpickPerk25)
+    elseif UD_MinigameLockpickSkillAdjust == 3
+        akActor.AddPerk(UDlibs.LockpickPerk50)
+    endif
+EndFunction
+
+Function _RemoveLockpickSkillMult(Actor akActor)
+    akActor.RemovePerk(UDlibs.LockpickPerk00)
+    akActor.RemovePerk(UDlibs.LockpickPerk10)
+    akActor.RemovePerk(UDlibs.LockpickPerk25)
+    akActor.RemovePerk(UDlibs.LockpickPerk50)
+EndFunction
+
 
 ;/  Function: GetHeavyBondageKeyword
 

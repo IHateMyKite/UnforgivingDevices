@@ -253,3 +253,9 @@ Keyword Property WoodedWeapon auto
 
 ;actor in this faction will be taken as registered in static NPC slot
 Faction Property StaticNPC auto
+
+;perks which reduce skill gain. Used to reduce skill gained from device lockpick minigames 
+Perk Property LockpickPerk00 auto ;reduce gain by 100%, no skill will be gained
+Perk Property LockpickPerk10 auto ;reduce gain by 90%
+Perk Property LockpickPerk25 auto ;reduce gain by 75%
+Perk Property LockpickPerk50 auto ;reduce gain by 50%

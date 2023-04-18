@@ -42,11 +42,7 @@ EndProperty
 
 bool Property Ready = false auto Hidden
 Function OnInit()
-    Ready = true
-    _LastUpdateTime = Utility.GetCurrentGameTime()
-    _LastUpdateTime_Hour = Utility.GetCurrentGameTime()
-    RegisterForSingleUpdate(20.0) ;start update loop, 5 s
-    RegisterForSingleUpdateGameTime(1.0) ;start update loop, 1 game hour
+    RegisterForSingleUpdate(20.0)
 EndFunction
 
 Function Update()
@@ -55,13 +51,21 @@ EndFunction
 
 float _LastUpdateTime = 0.0
 Event OnUpdate()
-    if UDmain.IsEnabled()
-        float loc_timePassed = Utility.GetCurrentGameTime() - _LastUpdateTime
-        UpdateModifiers(loc_timePassed)
-        _LastUpdateTime = Utility.GetCurrentGameTime()
-        RegisterForSingleUpdate(UDCDmain.UD_UpdateTime)
+    if !Ready
+        Ready = true
+        _LastUpdateTime         = Utility.GetCurrentGameTime()
+        _LastUpdateTime_Hour    = Utility.GetCurrentGameTime()
+        RegisterForSingleUpdate(30.0) ;start update loop, 5 s
+        RegisterForSingleUpdateGameTime(1.0) ;start update loop, 1 game hour
     else
-        RegisterForSingleUpdate(30.0)
+        if UDmain.IsEnabled()
+            float loc_timePassed = Utility.GetCurrentGameTime() - _LastUpdateTime
+            UpdateModifiers(loc_timePassed)
+            _LastUpdateTime = Utility.GetCurrentGameTime()
+            RegisterForSingleUpdate(UDCDmain.UD_UpdateTime)
+        else
+            RegisterForSingleUpdate(30.0)
+        endif
     endif
 EndEvent
 
@@ -160,10 +164,7 @@ Function Procces_MAH_Hour(UD_CustomDevice_RenderScript argDevice,float argMult)
     endif
     int loc_chance = Round(argDevice.getModifierIntParam("MAH",0)*(UDPatcher.UD_MAHMod/100.0))
     int loc_number = argDevice.getModifierIntParam("MAH",1,1)
-    if UDmain.TraceAllowed()
-        UDMain.Log(argDevice.getDeviceHeader()+"MAH found, proccesing. C="+loc_chance+",N="+loc_number,1)
-    endif
-    ManifestDevices(argDevice.GetWearer(),argDevice.getDeviceName() ,loc_chance,loc_number)    
+    ManifestDevices(argDevice.GetWearer(),argDevice.getDeviceName() ,loc_chance,loc_number)
 EndFunction
 
 Function Procces__L_CHEAP_Hour(UD_CustomDevice_RenderScript argDevice,float argMult)
@@ -185,12 +186,9 @@ Function Procces_MAO_Orgasm(UD_CustomDevice_RenderScript argDevice)
     endif
     if !argDevice.hasModifier("MAO")
         return
-    endif    
+    endif
     int loc_chance = Round(argDevice.getModifierIntParam("MAO",0)*(UDPatcher.UD_MAOMod/100.0))
     int loc_number = argDevice.getModifierIntParam("MAO",1,1)
-    if UDmain.TraceAllowed()
-        UDMain.Log(argDevice.getDeviceHeader()+"MAO found, proccesing. C="+loc_chance+",N="+loc_number,1)
-    endif
     ManifestDevices(argDevice.GetWearer(),argDevice.getDeviceName() ,loc_chance,loc_number)
 EndFunction
 
