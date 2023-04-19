@@ -264,7 +264,7 @@ Function LoadConfig()
     ResetToDefaults()
     if getAutoLoad()
         LoadFromJSON(UDmain.config.File)
-        GInfo("MCM setting loaded from saved config file!")
+        GInfo("$MCM setting loaded from saved config file!")
     endif
 EndFunction
 
@@ -280,13 +280,13 @@ String _lastPage
 Event OnPageReset(string page)
     if !UDmain.IsEnabled() && Ready
         setCursorFillMode(LEFT_TO_RIGHT)
-        AddHeaderOption("Unforgiving devices is updating or disabled...")
+        AddHeaderOption("$Unforgiving devices is updating or disabled...")
         return
     endif
     
     if !Ready
         setCursorFillMode(LEFT_TO_RIGHT)
-        AddHeaderOption("MCM menu is not loaded!")
+        AddHeaderOption("$MCM menu is not loaded!")
         return
     endif
     
