@@ -4,6 +4,10 @@ import UnforgivingDevicesMain
 
 Function InitPost()
     UD_DeviceType = "Suit"
+    ;check if device is suit, and it that case chenge the keyword to hobble skirt
+    If deviceRendered.HasKeyword(libs.zad_DeviousHobbleSkirt)
+        UD_DeviceKeyword = libs.zad_DeviousHobbleSkirt
+    EndIf
 EndFunction
 
 float Function getAccesibility()

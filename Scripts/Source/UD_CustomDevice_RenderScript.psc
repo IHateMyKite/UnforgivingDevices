@@ -1,4 +1,7 @@
+;   File: UD_CustomDevice_RenderScript
+;   This is the core script of all unforgiving devices. In case you want to ceate new device, you have to use this script or make new one which extends this script
 Scriptname UD_CustomDevice_RenderScript extends ObjectReference  
+
 import UnforgivingDevicesMain
 import UD_NPCInteligence
 ;bit maps used to code simple values to reduce memory size of script
@@ -110,7 +113,7 @@ int _deviceControlBitMap_12 = 0x0A078000
 int _deviceControlBitMap_13 = 0x00000000
 
 Function Debug_LogBitMaps(String argTitle = "BITMASK")
-    libSafeCheck()
+    _libSafeCheck()
     debug.trace("===================== "+getDeviceName() +" / "+ argTitle +" =====================")
     debug.trace("_deviceControlBitMap_1 : "+_deviceControlBitMap_1 +",b: "+IntToBit(_deviceControlBitMap_1 ))
     debug.trace("_deviceControlBitMap_2 : "+_deviceControlBitMap_2 +",b: "+IntToBit(_deviceControlBitMap_2 ))
@@ -136,12 +139,64 @@ EndFunction
 ;=============================================================
 
 ;--------------------------------PUBLIC PROPERTIES----------------------------
-;-------------------------------------------------------
-;-------!!!!!!!!!!!!ALWAYS FILL!!!!!!!!!!!!!!!----------
-Armor       Property DeviceInventory                auto    ;device inventory
+
+;/  Group: Required Values
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+;/  Variable: DeviceInventory
+    *This property have to be allways filled with relevant inventory device!!*
+/;
+Armor       Property DeviceInventory                auto
+
+;/  Variable: libs
+    *Reference to zadlibs, should be allways filled!!*
+/;
 zadlibs     Property libs                           auto
-;---------------------OPTIONAL--------------------------
+
+
+;/  Group: Optional Values
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
 Key         Property zad_deviceKey                  auto
+
+;/  Variable: UD_DeviceKeyword
+    Main keyword of device. In case this is not filled, it will be taken from Inventory Device
+/;
+Keyword  Property UD_DeviceKeyword                              auto hidden ;keyword of this device for better manipulation. Is taken from ID
+
+;/  Variable: DeviceRendered
+    Link to device the script is currently on. In case this is not filled, it will be taken from Inventory Device
+/;
+Armor    Property DeviceRendered                                auto hidden ;Is taken from ID
+
+
+String[] Property UD_DeviceStruggleKeywords                     auto Hidden ;keywords (as string array) used to filter struggle animations
+
+;/  Variable: UD_ActiveEffectName
+    Name of active effect. Defaultly set to "Share"
+    
+    Do not change this if you use existing script
+    
+    Only change this if creating new script type with new active effect
+/;
+string   Property UD_ActiveEffectName           = "Share"       auto hidden ;name of active effect
+
+;/  Variable: UD_DeviceType
+    Name of the device type. Only used in details, so user can distinguish various device types
+/;
+string   Property UD_DeviceType                 = "Generic"     auto hidden ;name of the device type
+
+;/  Variable: UD_DeviceKeyword_Minor
+    Minor device keyword. Only used by animations
+    
+    In most cases, there is not need to chenge this, as the framework will take the keyword automatically based on main keyword
+/;
 Keyword     Property UD_DeviceKeyword_Minor                 ;minor keyword of this device. Currently only used for HB
     Keyword Function get()
         if _DeviceKeyword_Minor
@@ -171,7 +226,29 @@ Keyword     Property UD_DeviceKeyword_Minor                 ;minor keyword of th
     EndFunction
 EndProperty
 
+;/  Group: Customization
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
 ;MAIN VALUES
+;/  Variable: UD_Level
+    Level of device. Defaultly 1.
+    
+    Special values:
+    
+    --- Code
+    |====================================================================|
+    |   UD_Level    |           Meaning                                  |
+    |====================================================================|
+    |    -1     =     will be set to wearer level with +-25% difference  |
+    |    -2     =     will be set to wearer level with  +25% difference  |
+    |    -3     =     will be set to wearer level with  -25% difference  |
+    |====================================================================|
+    ---
+    
+/;
 Int         Property UD_Level                                               ;Device level
     int Function get()
         return _level
@@ -182,6 +259,22 @@ Int         Property UD_Level                                               ;Dev
         current_device_health = UD_Health
     EndFunction
 EndProperty
+
+
+;/  Variable: UD_durability_damage_base
+    Base durability damage per second of device
+    
+    This is not exact value of what will be used in minigame, but instead just base value which is then moded using other minigame values
+    
+    *This value is bitcoded, and thus have limited range and precision!*
+    
+    --- Code
+        Default value  =       1.00
+        Min. Value     =       0.00
+        Max. Value     =      40.00
+        Precision      =       0.01
+    ---
+/;
 float       Property UD_durability_damage_base                              ;durability dmg per second of struggling, range 0.00 - 40.00, precision 0.01 (4000 values)
     Function set(float fVal)
         startBitMapMutexCheck()
@@ -193,6 +286,19 @@ float       Property UD_durability_damage_base                              ;dur
         return decodeBit(_deviceControlBitMap_7,12,0)/100.0
     EndFunction
 EndProperty
+
+;/  Variable: UD_base_stat_drain
+    How many points of stats (helth, stamina, magicka) are reduced per second of minigame. This is only base values, which is later moded with minigame values
+    
+    *This value is bitcoded, and thus have limited range and precision!*
+    
+    --- Code
+        Default value  =       8.00
+        Min. Value     =       1.00
+        Max. Value     =      31.00
+        Precision      =       1.00
+    ---
+/;
 float       Property UD_base_stat_drain                                     ;stamina drain for second of struggling, range 1 - 31, decimal point not used
     Function set(float fVal)
         startBitMapMutexCheck()
@@ -204,17 +310,21 @@ float       Property UD_base_stat_drain                                     ;sta
         return decodeBit(_deviceControlBitMap_6,5,27)
     EndFunction
 EndProperty
-float       Property UD_ResistMagicka                                       ;magicka resistence. Needs to be applied to minigame to work!
-    Function set(float fVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_7 = codeBit(_deviceControlBitMap_7,Round(fRange(5.0 + fVal,0.0,10.0)*100),10,12)
-        endBitMapMutexCheck()
-    EndFunction
+
+;/  Variable: UD_ResistPhysical
+    Physical resistence of device. Reduces effectiveness of normal and despair minigame Value bigger then 100% will cause device to be healed
     
-    float Function get()
-        return (decodeBit(_deviceControlBitMap_7,10,12)/100.0) - 5.0
-    EndFunction
-EndProperty
+    *This value is bitcoded, and thus have limited range and precision!*
+    
+    --- Code
+        Default value  =       0.00
+        Min. Value     =      -5.00
+        Max. Value     =       5.23
+        Precision      =       0.01
+    ---
+    
+    See: <UD_ResistMagicka>, <UD_WeaponHitResist>
+/;
 float       Property UD_ResistPhysical                                      ;physical resistence. Needs to be applied to minigame to work!
     Function set(float fVal)
         startBitMapMutexCheck3()
@@ -226,6 +336,47 @@ float       Property UD_ResistPhysical                                      ;phy
         return (decodeBit(_deviceControlBitMap_11,10,20)/100.0) - 5.0
     EndFunction
 EndProperty
+
+;/  Variable: UD_ResistMagicka
+    Magick resistence of device. Reduces effectiveness of magick minigame. Value bigger then 100% will cause device to be healed
+    
+    *This value is bitcoded, and thus have limited range and precision!*
+    
+    --- Code
+        Default value  =       0.00
+        Min. Value     =      -5.00
+        Max. Value     =       5.23
+        Precision      =       0.01
+    ---
+    
+    See: <UD_ResistPhysical>
+/;
+float       Property UD_ResistMagicka                                       ;magicka resistence. Needs to be applied to minigame to work!
+    Function set(float fVal)
+        startBitMapMutexCheck()
+        _deviceControlBitMap_7 = codeBit(_deviceControlBitMap_7,Round(fRange(5.0 + fVal,0.0,10.0)*100),10,12)
+        endBitMapMutexCheck()
+    EndFunction
+    
+    float Function get()
+        return (decodeBit(_deviceControlBitMap_7,10,12)/100.0) - 5.0
+    EndFunction
+EndProperty
+
+;/  Variable: UD_WeaponHitResist
+    Physical resistence of device when hit with weapon attack. If set to 5.23, it will be set on init to <UD_PhysicalResist>. Value bigger then 100% will cause device to be healed
+    
+    *This value is bitcoded, and thus have limited range and precision!*
+    
+    --- Code
+        Default value  =       0.00
+        Min. Value     =      -5.00
+        Max. Value     =       5.23
+        Precision      =       0.01
+    ---
+    
+    See: <UD_ResistPhysical>, <UD_ResistMagicka>
+/;
 float       Property UD_WeaponHitResist                                     ;physical resistence to physical attack
     Function set(float fVal)
         startBitMapMutexCheck3()
@@ -237,6 +388,7 @@ float       Property UD_WeaponHitResist                                     ;phy
         return (decodeBit(_deviceControlBitMap_11,10,0)/100.0) - 5.0
     EndFunction
 EndProperty
+
 float       Property UD_SpellHitResist                                      ;!!!UNUSED!!!
     Function set(float fVal)
         startBitMapMutexCheck3()
@@ -248,6 +400,19 @@ float       Property UD_SpellHitResist                                      ;!!!
         return (decodeBit(_deviceControlBitMap_11,10,10)/100.0) - 5.0
     EndFunction
 EndProperty
+
+;/  Variable: UD_CutChance
+    Have nothing to do with chance. Determinate how much cutting progress is added on every key press
+    
+    *This value is bitcoded, and thus have limited range and precision!*
+    
+    --- Code
+        Default value  =       0.00
+        Min. Value     =       0.00
+        Max. Value     =     100.00
+        Precision      =       1.00
+    ---
+/;
 float       Property UD_CutChance                                           ;chance of cutting device every 1s of minigame, 0.0 is uncuttable
     Function set(float fVal)
         startBitMapMutexCheck()
@@ -259,6 +424,19 @@ float       Property UD_CutChance                                           ;cha
         return decodeBit(_deviceControlBitMap_6,7,20)
     EndFunction
 EndProperty
+
+;/  Variable: UD_StruggleCritMul
+    Crit multiplier. Determinate how much are crits effective.
+    
+    *This value is bitcoded, and thus have limited range and precision!*
+    
+    --- Code
+        Default value  =       3.75
+        Min. Value     =       0.00
+        Max. Value     =     255.00
+        Precision      =       0.25
+    ---
+/;
 float       Property UD_StruggleCritMul                                     ;crit multiplier applied on crit, step = 0.25, max 255, default 3.75x
     Function set(float fVal)
         startBitMapMutexCheck3()
@@ -270,6 +448,19 @@ float       Property UD_StruggleCritMul                                     ;cri
         return decodeBit(_deviceControlBitMap_12,10,15)/4.0
     EndFunction
 EndProperty
+
+;/  Variable: UD_StruggleCritDuration
+    Duration of crit
+    
+    *This value is bitcoded, and thus have limited range and precision!*
+    
+    --- Code
+        Default value  =       1.0
+        Min. Value     =       0.5
+        Max. Value     =       1.2
+        Precision      =       0.1
+    ---
+/;
 float       Property UD_StruggleCritDuration                                ;crit time, the lower this value, the more faster player needs to press button, range 0.5-1.2, step 0.1 (7 values)
     Function set(float fVal)
         startBitMapMutexCheck3()
@@ -281,6 +472,18 @@ float       Property UD_StruggleCritDuration                                ;cri
         return decodeBit(_deviceControlBitMap_12,3,25)/10.0 + 0.5
     EndFunction
 EndProperty
+
+;/  Variable: UD_StruggleCritChance
+    Chance for crit to happen every second
+    
+    *This value is bitcoded, and thus have limited range and precision!*
+    
+    --- Code
+        Default value  =        15
+        Min. Value     =         0
+        Max. Value     =       100
+    ---
+/;
 int         Property UD_StruggleCritChance                                  ;chance of random crit happening once per second of struggling, range 0-100
     Function set(int iVal)
         startBitMapMutexCheck()
@@ -293,43 +496,123 @@ int         Property UD_StruggleCritChance                                  ;cha
     EndFunction
 EndProperty
 
-int         Property UD_Cooldown                    = 0             auto    ;Device cooldown, in minutes. Device will activate itself on after this time (if it can), zero or negative value will disable this feature
-Float       Property UD_DefaultHealth               = 100.0         auto    ;default max device durability on first level, for now always 100
+;/  Variable: UD_Cooldown
+    Device cooldown, in minutes. Device will activate itself on after this time (if it can)
+    
+    Zero or negative value will disable this feature (device cant activate itself)
+/;
+int         Property UD_Cooldown                    = 0             auto
+
+;/  Variable: UD_DefaultHealth
+    Device durability on first level. It is used as base, which will be increased with device level.
+/;
+Float       Property UD_DefaultHealth               = 100.0         auto
+
+;/  Variable: UD_Modifiers
+    Array of modifiers. Check modifier wiki page for more info <https://github.com/IHateMyKite/UnforgivingDevices/wiki/Modifiers>
+/;
 string[]    Property UD_Modifiers                                   auto    ;modifiers
-Message     Property UD_MessageDeviceInteraction                    auto    ;messagebox that is shown when player click on device in inventory
-Message     Property UD_MessageDeviceInteractionWH                  auto    ;messagebox that is shown when player click on device in NPC inventory
-Message     Property UD_SpecialMenuInteraction                      auto    ;messagebox that is shown when player select Special from device menu
-Message     Property UD_SpecialMenuInteractionWH                    auto    ;messagebox that is shown when player select Special from device menu when helping/getting help
-LeveledItem Property UD_OnDestroyItemList                           auto    ;items received when device is unlocked (only when device have DestroyOnRemove)
+
+;/  Variable: UD_MessageDeviceInteraction
+    Message that is show when opening device menu. If not set, it will be set automatically by UD.
+/;
+Message     Property UD_MessageDeviceInteraction                    auto
+
+;/  Variable: UD_MessageDeviceInteractionWH
+    Message that is show when opening device menu with helper. If not set, it will be set automatically by UD.
+/;
+Message     Property UD_MessageDeviceInteractionWH                  auto
+
+;/  Variable: UD_SpecialMenuInteraction
+    Message that is show when opening special menu. Is by default empty, and unused on base script. Have to be used by extending script
+/;
+Message     Property UD_SpecialMenuInteraction                      auto
+
+;/  Variable: UD_SpecialMenuInteractionWH
+    Message that is show when opening special menu with helper. Is by default empty, and unused on base script. Have to be used by extending script
+/;
+Message     Property UD_SpecialMenuInteractionWH                    auto
+
+;/  Variable: UD_OnDestroyItemList
+    LeveledItem list that is added to wearer when device is unlocked.
+    
+    *Should be primarily used only when device have DestroyOnRemove flag, so it can't be used to generate items infinitely*
+/;
+LeveledItem Property UD_OnDestroyItemList                           auto
+
+;/  Variable: UD_DeviceAbilities
+    Array of abilities which will be added to wearer when device is equipped. Works as alternative to using enchantments.
+    
+    Check <UD_DeviceAbilities_Flags> for flags
+/;
 Form[]      Property UD_DeviceAbilities                             auto    ;array of abilities which are added on actor when device is equipped
 
-;array of flags for abilities which are added on actor when device is equipped
-;00 - 01    = 02b (0000 0000 0000 0000 0000 0000 0000 00XX)(0x0003), ;Should device ability be added when device is locked ?
-;               = 00  -> Ability will be added for all NPCs and Player
-;               = 01  -> Ability will be added only for NPC
-;               = 10  -> Ability will be added only for Player
-;               = 11  -> Ability will be not added on when device is locked
-;02 - 31    = 30b (XXXX XXXX XXXX XXXX XXXX XXXX XXXX XX00)(0xFFFFFFFC), ;Unused
+;/  Variable: UD_DeviceAbilities_Flags
+    Flags for previous property. Every ability should have also flag (so both arrays have same length)
+    
+    *Length of this array have to be identical to <UD_DeviceAbilities>*
+    
+    Current Values:
+    --- Code
+        ;Should device ability be added when device is locked ?
+        00 - 01    = 02b (0000 0000 0000 0000 0000 0000 0000 00XX)(0x0003)
+                       = 0x00  -> Ability will be added for all NPCs and Player
+                       = 0x01  -> Ability will be added only for NPC
+                       = 0x10  -> Ability will be added only for Player
+                       = 0x11  -> Ability will be not added on when device is locked
+        ;Unused
+        02 - 31    = 30b (XXXX XXXX XXXX XXXX XXXX XXXX XXXX XX00)(0xFFFFFFFC)
+    ---
+    
+    See: <UD_DeviceAbilities>
+/;
 Int[]       Property UD_DeviceAbilities_Flags                       auto
 
-;Array of bit mapped locks.
-; 0 -  3 =  4b (0000 0000 0000 0000 0000 0000 0000 XXXX)(0x0000000F), State of lock
-;                                                                       000X = 1 when lock is unlocked, 0 when locked
-;                                                                       00X0 = 1 when lock is jammed, 0 when not
-;                                                                       0X00 = 1 when lock is using time lock
-;                                                                       X000 = 1 when locks time lock will auto unlock lock, or 0 to just allow user to manipulate the device after the time passes 
-;                                                                              (so if the time is 2 hours, the user will not be able to manipulate the lock for 2 hours. If this is 1, it will unlock itself after this time. If its 0, it will just allow wearer to manipulate the lock)
-; 4 -  7 =  4b (0000 0000 0000 0000 0000 0000 XXXX 0000)(0x000000F0), Numbe of locks shields (how many times needs to lock to be unlocked before being "removed")
-; 8 - 14 =  7b (0000 0000 0000 0000 0XXX XXXX 0000 0000)(0x00007F00), Lock accessibility (in %, should be from 0 to 100)
-;15 - 22 =  8b (0000 0000 0XXX XXXX X000 0000 0000 0000)(0x007F8000), Locks difficulty (from 0 to 255)
-;23 - 29 =  7b (00XX XXXX X000 0000 0000 0000 0000 0000)(0x3F800000), Lock time in hours. Every hour, this value gets reduced by 1. When reduced to 0, will unlock the lock
-;30 - 31 =  2b (XX00 0000 0000 0000 0000 0000 0000 0000)(0xC0000000), Unused, can be used by creators for special use
+;/  Variable: UD_LockList
+    Array of bit mapped locks.
+    
+    *Length of this array have to be identical to <UD_LockNameList>*
+    
+    Current Values:
+    --- Code
+         0 -  3 =  4b (0000 0000 0000 0000 0000 0000 0000 XXXX)(0x0000000F), State of lock
+                                                                               000X = 1 when lock is unlocked, 0 when locked
+                                                                               00X0 = 1 when lock is jammed, 0 when not
+                                                                               0X00 = 1 when lock is using time lock
+                                                                               X000 = 1 when locks time lock will auto unlock lock, or 0 to just allow user to manipulate the device after the time passes 
+                                                                                      (so if the time is 2 hours, the user will not be able to manipulate the lock for 2 hours. If this is 1, it will unlock itself after this time. If its 0, it will just allow wearer to manipulate the lock)
+         4 -  7 =  4b (0000 0000 0000 0000 0000 0000 XXXX 0000)(0x000000F0), Number of lock shields (how many times needs to lock to be unlocked before being "removed")
+         8 - 14 =  7b (0000 0000 0000 0000 0XXX XXXX 0000 0000)(0x00007F00), Lock accessibility (in %, should be from 0 to 100)
+        15 - 22 =  8b (0000 0000 0XXX XXXX X000 0000 0000 0000)(0x007F8000), Locks difficulty (from 0 to 255)
+        23 - 29 =  7b (00XX XXXX X000 0000 0000 0000 0000 0000)(0x3F800000), Lock time in hours. Every hour, this value gets reduced by 1. When reduced to 0, will unlock the lock
+        30 - 31 =  2b (XX00 0000 0000 0000 0000 0000 0000 0000)(0xC0000000), Unused, can be used by creators for special use
+    ---
+    
+    Use lock creation tool in case you want to make your job easier: <https://ihatemykite.github.io/LockBitcoder.html>
+    
+    See: <UD_LockNameList>
+/;
 Int[]       Property UD_LockList                                    auto
 
-;Name of the locks. Needs to correspond to the same locks in the UD_LockList. IF not used, the name will be generated from difficulty and accessiblity
+;/  Variable: UD_LockNameList
+    Name of the locks. If not used, the name will be generated from difficulty and accessiblity
+    
+    *Length of this array have to be identical to <UD_LockList>*
+    
+    See: <UD_LockList>
+/;
 String[]    Property UD_LockNameList                                auto
 
-; === READ ONLY VARIABLES ===
+
+;/  Group: Ready Only
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+;/  Variable: IsUnlocked
+    Is true if device is unlocked
+/;
 bool        Property IsUnlocked                                     Hidden
     Function set(bool bVal)
         ;can't be changed externally
@@ -338,17 +621,29 @@ bool        Property IsUnlocked                                     Hidden
         return _IsUnlocked
     EndFunction
 EndProperty
-Float       Property UD_Health                                      Hidden ;default max health. Is increased with device LVL. Every level increase health by 2.5%
+
+;/  Variable: UD_Health
+    Default max health with current device level
+/;
+Float       Property UD_Health                                      Hidden 
     Float Function get()
         return UD_DefaultHealth + (UD_Level - 1)*UDCDmain.UD_DeviceLvlHealth*UD_DefaultHealth
     EndFunction
 EndProperty
-int         Property UD_Locks                                       Hidden ;number of locks
+
+;/  Variable: UD_Locks
+    Number of locks
+/;
+int         Property UD_Locks                                       Hidden
     int Function get()
         return GetLockNumber()
     EndFunction
 EndProperty
-int         Property UD_JammedLocks                                 Hidden ;jammed locks, max is 31
+
+;/  Variable: UD_JammedLocks
+    Number of jammed locks
+/;
+int         Property UD_JammedLocks                                 Hidden
     int Function get()
         return GetJammedLocks()
     EndFunction
@@ -431,11 +726,6 @@ UD_AnimationManagerScript   Property UDAM       Hidden ;animation libs
     EndFunction 
 EndProperty
 
-String[] Property UD_DeviceStruggleKeywords                     auto Hidden ;keywords (as string array) used to filter struggle animations
-Armor    Property DeviceRendered                                auto hidden ;Is taken from ID
-Keyword  Property UD_DeviceKeyword                              auto hidden ;keyword of this device for better manipulation. Is taken from ID
-string   Property UD_ActiveEffectName           = "Share"       auto hidden ;name of active effect
-string   Property UD_DeviceType                 = "Generic"     auto hidden ;name of the device type
 bool     Property _StopMinigame                 = False         auto hidden ;control variable for stopping minigame. Made as not bitcoded value to reduce proccessing lag
 bool     Property _PauseMinigame                = False         auto hidden ;control variable for pausing minigame. Made as not bitcoded value to reduce proccessing lag
 bool     Property _MinigameMainLoopON           = False         auto hidden
@@ -1074,27 +1364,68 @@ EndProperty
 ;=============================================================
 ;=============================================================
 
-;returns current device wearer
+;/  Group: Generic methods
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+;/  Function: isReady
+    Returns:
+
+        True if device is fully initialized (this is done before device is locked)
+/;
+bool Function isReady()
+    return Ready
+EndFunction
+
+;/  Function: getWearer
+    Returns:
+
+        current device wearer
+/;
 Actor Function getWearer()
     return Wearer
 EndFunction
 
-;returns current device wearers name
+;/  Function: getWearerName
+    Returns:
+
+        current device wearer name
+/;
 String Function getWearerName()
     return GetActorName(Wearer)
 EndFunction
 
-;sets current helper
+;/  Function: setHelper
+    Parameters:
+
+        akActor  - actor to set as helper. Use none to reset helper
+
+    Returns:
+
+        set current device helper
+/;
 Function setHelper(Actor akActor)
     _minigameHelper = akActor
 EndFunction
 
-;returns current minigame helper
+;/  Function: getHelper
+    Returns:
+
+        current device helper. Returns none if no helper is set
+/;
 Actor Function getHelper()
     return _minigameHelper
 EndFunction
 
 ;returns current device helper name (only when Device Menu WH is open or in minigame with helper)
+
+;/  Function: getHelperName
+    Returns:
+
+        current device helper name. Returns "ERROR" if no helper is set
+/;
 String Function getHelperName()
     if _minigameHelper
         return getActorName(_minigameHelper)
@@ -1104,34 +1435,39 @@ String Function getHelperName()
 EndFunction
 
 ;returns if wearer/helper is registered in register
+
+;/  Function: WearerIsRegistered
+    Returns:
+
+        True if wearer is registered
+/;
 bool Function WearerIsRegistered()
     return UDCDmain.isRegistered(Wearer)
 EndFunction 
+
+;/  Function: HelperIsRegistered
+    Returns:
+
+        True if helper is registered. Returns false if helper is not set
+/;
 bool Function HelperIsRegistered()
     return UDCDmain.isRegistered(getHelper())
 EndFunction 
 
-;returns true if device wearer is player
+;/  Function: WearerIsPlayer
+    Returns:
+
+        True if wearer is player
+/;
 bool Function WearerIsPlayer()
     return Wearer == UDmain.Player
 EndFunction
 
-;returns true if device wearer is current follower
-bool Function WearerIsFollower()
-    return UDmain.ActorIsFollower(getWearer())
-EndFunction
+;/  Function: WearerIsPlayer
+    Returns:
 
-;returns true if player is taking part in minigame (either as wearer or helper)
-bool Function PlayerInMinigame()
-    return (WearerIsPlayer() || HelperIsPlayer()) && _MinigameON
-EndFunction
-
-;returns true if device currently have helper
-bool Function hasHelper()
-    return _minigameHelper
-EndFunction
-
-;returns true if current device helper is player
+        True if helper is player. Returns false if helper is not set
+/;
 bool Function HelperIsPlayer()
     if _minigameHelper
         return _minigameHelper == UDmain.Player
@@ -1139,7 +1475,20 @@ bool Function HelperIsPlayer()
     return false
 EndFunction
 
-;returns true if current device helper is player follower
+;/  Function: WearerIsFollower
+    Returns:
+
+        True if wearer is follower
+/;
+bool Function WearerIsFollower()
+    return UDmain.ActorIsFollower(getWearer())
+EndFunction
+
+;/  Function: HelperIsFollower
+    Returns:
+
+        True if helper is follower. Returns false if helper is not set
+/;
 bool Function HelperIsFollower()
     if _minigameHelper
         return UDmain.ActorIsFollower(_minigameHelper)
@@ -1147,11 +1496,46 @@ bool Function HelperIsFollower()
     return false
 EndFunction
 
-;returns true if device is fully initialized (this is done before device is locked)
-;only used for benchmark, don't use
-bool Function isReady()
-    return Ready
+;/  Function: PlayerInMinigame
+    Returns:
+
+        true if player is taking part in minigame (either as wearer or helper)
+/;
+bool Function PlayerInMinigame()
+    return (WearerIsPlayer() || HelperIsPlayer()) && _MinigameON
 EndFunction
+
+;/  Function: hasHelper
+    Returns:
+
+        true if devie have set helper
+/;
+bool Function hasHelper()
+    return _minigameHelper
+EndFunction
+
+;/  Function: getDeviceHeader
+    Returns:
+
+        device header in format -> $DeviceName ($WearerName)
+/;
+string Function getDeviceHeader()
+    if hasHelper()
+        return (getDeviceName() + "(W="+getWearerName()+",H="+getHelperName()+")")
+    else
+        return (getDeviceName() + "("+getWearerName()+")")
+    endif
+EndFunction
+
+;/  Function: getDeviceName
+    Returns:
+
+        device name
+/;
+String Function getDeviceName()
+    return deviceInventory.getName()
+EndFunction
+
 
 Event OnInit()
     current_device_health = UD_Health
@@ -1163,7 +1547,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
     if (akNewContainer as Actor) && !akOldContainer && !IsUnlocked && !Ready
         Actor loc_actor = akNewContainer as Actor
         if !loc_actor.isDead()
-            Init(loc_actor)
+            _Init(loc_actor)
         endif
     endif
     
@@ -1177,18 +1561,215 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
     endif
 EndEvent
 
-;returns device header in format -> $DeviceName ($WearerName)
-string Function getDeviceHeader()
-    if hasHelper()
-        return (getDeviceName() + "(W="+getWearerName()+",H="+getHelperName()+")")
+;post equip function
+Function _Init(Actor akActor)
+    _libSafeCheck()
+
+    if !akActor
+        UDmain.Error("!Aborting Init called for "+getDeviceName()+" because actor is none!!")
+        akActor.removeItem(deviceRendered,1,True)
+        return
+    endif
+
+    Wearer = akActor
+    
+    ;Utility.wait(0.05) ;wait for menus to be closed
+    
+    UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
+    
+    if IsUnlocked 
+        UDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because device is already unlocked!!")
+        return 
+    endif
+    
+    if akActor.getItemCount(deviceInventory) == 0
+        UDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because no inventory device is present!")
+        return
+    endif
+
+    ;update now if deviceRendered isn't filled yet, otherwise update on end
+    ;deviceRendered should be filled to make the init faster
+    if !deviceRendered || !UD_DeviceKeyword
+        updateValuesFromInventoryScript()
+    endif
+
+    ;add DOR modifier
+    if zad_DestroyOnRemove && !hasModifier("DOR")
+        addModifier("DOR")
+    endif
+    
+    if akActor.getItemCount(deviceRendered) > 1
+        UDmain.Error("!Aborting Init("+ getDeviceHeader() + " because device is already present!")
+        akActor.removeItem(deviceRendered,akActor.getItemCount(deviceRendered) - 1,true)
+        return
+    endif
+    
+    bool loc_isplayer = (akActor == UDmain.Player)
+    if loc_slot ;ignore additional check if actor is not registered
+        float loc_time = 0.0
+        while loc_time <= 2.0 && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
+            ;if loc_isplayer
+            ;    Utility.wait(0.05)
+            ;else
+                Utility.waitMenuMode(0.05)
+            ;endif
+            loc_time += 0.05
+        endwhile
+        
+        if loc_time >= 1.0
+            UDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because equip failed - timeout")
+            return
+        endif
+    endif
+    if UDmain.TraceAllowed()
+        UDmain.Log("Init(called for " + getDeviceHeader(),1)
+    endif
+    
+    ;MUTEX START
+    ;mutex check because some mods equips items too fast at once, making it possible to have equipped 2 of the same item
+    if loc_slot
+        if loc_slot.getDeviceByRender(deviceRendered)
+            UDmain.Error("!Aborting Init("+ getDeviceHeader() +") because device is already registered!")
+            akActor.removeItem(deviceRendered,akActor.getItemCount(deviceRendered) - 1,true)
+            return
+        endif
+        _StartInitMutex()
+    endif
+    
+    if UDmain.TraceAllowed()
+        UDmain.Log("Registering device: " + getDeviceHeader(),1)
+    endif
+    
+    GoToState("UpdatePaused")
+    
+    UDCDmain.startScript(self)
+    
+    if loc_slot
+        _EndInitMutex()
+    endif
+
+    ;MUTEX END
+    
+    if deviceRendered
+        updateValuesFromInventoryScript()
+    endif
+
+    if deviceRendered.hasKeyword(UDlibs.PatchedDevice) ;patched device
+        if UDmain.TraceAllowed()
+            UDmain.Log("Patching device " + deviceInventory.getName(),2)
+        endif
+        patchDevice()
     else
-        return (getDeviceName() + "("+getWearerName()+")")
+        if UD_WeaponHitResist == 5.23
+            UD_WeaponHitResist = UD_ResistPhysical
+        endif
+        if UD_SpellHitResist == 5.23
+            UD_SpellHitResist = UD_ResistMagicka
+        endif
+    endif
+    
+    _ValidateLocks() ;validate locks
+    
+    if deviceRendered.hasKeyword(libs.zad_DeviousBelt) || deviceRendered.hasKeyword(libs.zad_DeviousBra)
+        libs.Aroused.SetActorExposureRate(akActor, libs.GetModifiedRate(akActor))    
+    endif
+    
+    if UD_Level < 1
+        int loc_level = akActor.GetLevel()
+        if UD_Level == -1 ;random value in +- 25% range from wearer level
+            UD_Level = Round(Utility.randomFloat(fRange(loc_level*0.75,1.0,100.0),fRange(loc_level*1.25,1.0,100.0)))
+        elseif UD_Level == -2 ;random value in + 25% range from wearer level
+            UD_Level = Round(Utility.randomFloat(fRange(loc_level,1.0,100.0),fRange(loc_level*1.25,1.0,100.0)))
+        elseif UD_Level == -3 ;random value in - 25% range from wearer level
+            UD_Level = Round(Utility.randomFloat(fRange(loc_level*0.75,1.0,100.0),fRange(loc_level,1.0,100.0)))
+        else ;same level as wearer
+            UD_Level = loc_level
+        endif
+    endif
+    
+    current_device_health = UD_Health ;repairs device to max durability on equip
+    
+    safeCheck()
+    
+    _OnInitLevelUpdate()
+    
+    UDCDmain.CheckHardcoreDisabler(getWearer())
+    
+    InitPost()
+
+    if UD_Cooldown > 0
+        resetCooldown(1.0)
+    endif
+    
+    ;Add abilities
+    int loc_abilityId = UD_DeviceAbilities.length
+    while loc_abilityId
+        loc_abilityId -= 1
+        Int loc_filter = Math.LogicalAnd(UD_DeviceAbilities_Flags[loc_abilityId],0x00000003)
+        if loc_filter == 0x00
+            AddAbilityToWearer(loc_abilityId)
+        elseif loc_filter == 0x01 && !loc_isplayer
+            AddAbilityToWearer(loc_abilityId)
+        elseif loc_filter == 0x10 && loc_isplayer
+            AddAbilityToWearer(loc_abilityId)
+        else
+            ;DO NOT ADD
+        endif
+    endwhile
+    
+    
+    if UDmain.TraceAllowed()
+        UDmain.Log(DeviceInventory.getName() + " fully locked on " + getWearerName(),1)
+    endif
+    
+    Ready = True
+    
+    if UDCDmain.isRegistered(getWearer())
+        Update(1/24/60) ;1 minute update
+    endif
+    
+    GoToState("")
+    
+    InitPostPost() ;called after everything else. Can add some followup interaction immidiatly after device is equipped (activate device, start vib, etc...)
+EndFunction
+
+Function _StartInitMutex()
+    While UDCDmain.UD_EquipMutex
+        Utility.WaitMenuMode(0.1)
+    EndWhile
+    UDCDmain.UD_EquipMutex = True
+    if UDmain.TraceAllowed()
+        UDmain.Log("Mutexed and proccesing " + getDeviceHeader(),2)
     endif
 EndFunction
 
-;returns device name
-String Function getDeviceName()
-    return deviceInventory.getName()
+Function _EndInitMutex()
+    if UDmain.TraceAllowed()
+        UDmain.Log("Mutex ended for " + getDeviceHeader(),2)
+    endif
+    UDCDmain.UD_EquipMutex = False
+EndFunction
+
+;This function is called after the devices level is set and patched. Should be used for some level related adjustments
+Function _OnInitLevelUpdate()
+    ;increase all locks shields by the delta calculated from level
+    if HaveLocks() && UDCDMain.UD_DeviceLvlLocks
+        Int loc_shieldDelta = (UD_Level - 1)/UDCDMain.UD_DeviceLvlLocks
+        Int[] loc_shields = UDCDMain.DistributeLockShields(GetLockNumber(),loc_shieldDelta)
+        Int loc_i = GetLockNumber()
+        while loc_i
+            loc_i -= 1
+            DecreaseLockShield(loc_i,-1*loc_shields[loc_i]) ;increase all locks shields by loc_shields[loc_i]
+        endwhile
+    endif
+EndFunction
+
+Function _libSafeCheck()
+    if !UDmain
+        Quest UDquest = Game.getFormFromFile(0x00005901,"UnforgivingDevices.esp") as Quest
+        UDmain = UDquest as UnforgivingDevicesMain 
+    endif
+    libs = UDmain.libs
 EndFunction
 
 ;returns inventory device script, SCRIPT NEED TO BE ALWAYS DELEATED AFTER USING WITH script.delete() !!!
@@ -1231,16 +1812,7 @@ Function updateValuesFromInventoryScript()
         zad_JammLockChance = temp.LockJamChance
         UD_DeviceKeyword = temp.zad_deviousDevice
         DeviceRendered = temp.DeviceRendered
-        If UD_DeviceKeyword == libs.zad_DeviousSuit
-            If deviceRendered.HasKeyword(libs.zad_DeviousHobbleSkirt)
-                UD_DeviceKeyword = libs.zad_DeviousHobbleSkirt
-            EndIf
-        EndIf
-        UD_DeviceStruggleKeywords = UDCDMain.GetDeviceStruggleKeywords(DeviceRendered)
         temp.delete()
-    endif
-    if zad_DestroyOnRemove && !hasModifier("DOR")
-        addModifier("DOR")
     endif
 EndFunction
 
@@ -1256,12 +1828,36 @@ EndFunction
 ;==============================================================================================
 ;==============================================================================================
 
-bool Function addModifier(string modifier,string param = "")
-    if !hasModifier(modifier)
-        if param != ""
-            UD_Modifiers = PapyrusUtil.PushString(UD_Modifiers, modifier + ";" + param)
+;/  Group: Modifiers
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+;/  Function: addModifier
+    Parameters:
+
+        asModifier  - Name of modifier to add
+        asParam     - Comma separated list of parameters
+
+    Returns:
+
+        true if modifiers was succesfully added
+        
+    Example:
+    
+    ---Code
+        ; Add new modifier called LootGold
+        ; Modifiers parameters are 100 , 0 and 8
+        addModifier("LootGold","100,0,8")
+    ---
+/;
+bool Function addModifier(string asModifier,string asParam = "")
+    if !hasModifier(asModifier)
+        if asParam != ""
+            UD_Modifiers = PapyrusUtil.PushString(UD_Modifiers, asModifier + ";" + asParam)
         else
-            UD_Modifiers = PapyrusUtil.PushString(UD_Modifiers, modifier)
+            UD_Modifiers = PapyrusUtil.PushString(UD_Modifiers, asModifier)
         endif
         return true
     else
@@ -1269,25 +1865,43 @@ bool Function addModifier(string modifier,string param = "")
     endif
 EndFunction
 
-bool Function removeModifier(string modifier)
-    if hasModifier(modifier)
-        UD_Modifiers = PapyrusUtil.RemoveString(UD_Modifiers, getModifier(modifier))
+;/  Function: removeModifier
+    Parameters:
+
+        asModifier  - Name of modifier to remove
+
+    Returns:
+
+        true if modifiers was succesfully removed
+/;
+bool Function removeModifier(string asModifier)
+    if hasModifier(asModifier)
+        UD_Modifiers = PapyrusUtil.RemoveString(UD_Modifiers, getModifier(asModifier))
         return true
     else
         return false
     endif
 EndFunction
 
-bool Function hasModifier(string modifier)
-    int iIndex = UD_Modifiers.length
-    while iIndex
-        iIndex -= 1
-        if StringUtil.find(UD_Modifiers[iIndex],";") != -1
-            if StringUtil.Substring(UD_Modifiers[iIndex], 0, StringUtil.find(UD_Modifiers[iIndex],";")) == modifier
+;/  Function: hasModifier
+    Parameters:
+
+        asModifier  - Name of modifier to check
+
+    Returns:
+
+        true if modifiers is present on the device
+/;
+bool Function hasModifier(string asModifier)
+    int loc_Index = UD_Modifiers.length
+    while loc_Index
+        loc_Index -= 1
+        if StringUtil.find(UD_Modifiers[loc_Index],";") != -1
+            if StringUtil.Substring(UD_Modifiers[loc_Index], 0, StringUtil.find(UD_Modifiers[loc_Index],";")) == asModifier
                 return true
             endif
         else    
-            if UD_Modifiers[iIndex] == modifier
+            if UD_Modifiers[loc_Index] == asModifier
                 return True
             endif
         endif
@@ -1295,20 +1909,29 @@ bool Function hasModifier(string modifier)
     return false
 EndFunction
 
-String Function GetModifierHeader(String rawModifier)
-    if StringUtil.find(rawModifier,";") != -1
-        return StringUtil.Substring(rawModifier, 0, StringUtil.find(rawModifier,";"))
+String Function GetModifierHeader(String asRawModifier)
+    if StringUtil.find(asRawModifier,";") != -1
+        return StringUtil.Substring(asRawModifier, 0, StringUtil.find(asRawModifier,";"))
     else    
-        return rawModifier
+        return asRawModifier
     endif
 EndFunction
 
-String[] Function getModifierAllParam(string modifier)
-    int iIndex = getModifierIndex(modifier)
-    if iIndex != -1
-        String[] sRes = StringUtil.split(UD_Modifiers[iIndex],";")
-        if sRes.length > 1
-            return StringUtil.split(sRes[1],",")
+;/  Function: getModifierAllParam
+    Parameters:
+
+        asModifier  - Name of modifier
+
+    Returns:
+
+        Array of all parameters or none in case of error
+/;
+String[] Function getModifierAllParam(string asModifier)
+    int loc_Index = getModifierIndex(asModifier)
+    if loc_Index != -1
+        String[] loc_Res = StringUtil.split(UD_Modifiers[loc_Index],";")
+        if loc_Res.length > 1
+            return StringUtil.split(loc_Res[1],",")
         else
             return none
         endif
@@ -1317,30 +1940,43 @@ String[] Function getModifierAllParam(string modifier)
     endif
 EndFunction
 
-string Function getModifier(string modifier)
-    if hasModifier(modifier)
-        return UD_Modifiers[getModifierIndex(modifier)]
+string Function getModifier(string asModifier)
+    if hasModifier(asModifier)
+        return UD_Modifiers[getModifierIndex(asModifier)]
     else
         return "ERROR"
     endif
 EndFunction
 
-int Function getModifierIndex(string modifier)
-    int iIndex = UD_Modifiers.length
-    while iIndex
-        iIndex -= 1
-        if StringUtil.find(UD_Modifiers[iIndex],modifier) != -1
-            return iIndex
+int Function getModifierIndex(string asModifier)
+    int loc_Index = UD_Modifiers.length
+    while loc_Index
+        loc_Index -= 1
+        if StringUtil.find(UD_Modifiers[loc_Index],asModifier) != -1
+            return loc_Index
         endif
     endwhile
     return -1
 EndFunction
 
-bool Function editStringModifier(string modifier,int index, string newValue)
-    String[] param = getModifierAllParam(modifier)
-    if param
-        param[index] = newValue
-        UD_Modifiers[getModifierIndex(modifier)] = modifier + ";" + PapyrusUtil.StringJoin(param,",")
+;/  Function: editStringModifier
+    Change one parameter value
+
+    Parameters:
+
+        asModifier  - Name of modifier
+        aiIndex     - Index of parameter to change
+        asNewValue  - New value of parameter
+
+    Returns:
+
+        True if operation was succesfull
+/;
+bool Function editStringModifier(string asModifier,int aiIndex, string asNewValue)
+    String[] loc_param = getModifierAllParam(asModifier)
+    if loc_param
+        loc_param[aiIndex] = asNewValue
+        UD_Modifiers[getModifierIndex(asModifier)] = asModifier + ";" + PapyrusUtil.StringJoin(loc_param,",")
         return true
     else
         return false
@@ -1355,64 +1991,146 @@ bool Function modifierHaveParams(string modifier)
     endif
 EndFunction
 
-int Function getModifierParamNum(string modifier)
-    string[] loc_params = getModifierAllParam(modifier)
+;/  Function: getModifierParamNum
+    Parameters:
+
+        asModifier  - Name of modifier
+
+    Returns:
+
+        Number of parameters. Returns 0 in case of error
+/;
+int Function getModifierParamNum(string asModifier)
+    string[] loc_params = getModifierAllParam(asModifier)
     if !loc_params
         return 0
     else
-        return getModifierAllParam(modifier).length
+        return getModifierAllParam(asModifier).length
     endif
 EndFunction
 
-Int Function getModifierIntParam(string modifier,int index = 0,int default_value = 0)
-    string[] loc_params = getModifierAllParam(modifier)
+;/  Function: getModifierIntParam
+    Parameters:
+
+        asModifier      - Name of modifier
+        aiIndex         - Index of parameter
+        aiDefaultValue  - Defualt value in case of error
+
+    Returns:
+
+        Int value of Nth parameter of modifier
+/;
+Int Function getModifierIntParam(string asModifier,int aiIndex = 0,int aiDefaultValue = 0)
+    string[] loc_params = getModifierAllParam(asModifier)
     if !loc_params
-        UDmain.Warning(getDeviceHeader() + "::getModifierIntParam("+modifier+","+index+","+default_value+") - modifier have no parameters")
-        return default_value
-    elseif index > (loc_params.length - 1)
-        UDmain.Warning(getDeviceHeader() + "::getModifierIntParam("+modifier+","+index+","+default_value+") - Passed index out of range, returning default value" + default_value)
-        return default_value
+        UDmain.Warning(getDeviceHeader() + "::getModifierIntParam("+asModifier+","+aiIndex+","+aiDefaultValue+") - modifier have no parameters")
+        return aiDefaultValue
+    elseif aiIndex > (loc_params.length - 1)
+        UDmain.Warning(getDeviceHeader() + "::getModifierIntParam("+asModifier+","+aiIndex+","+aiDefaultValue+") - Passed index out of range, returning default value" + aiDefaultValue)
+        return aiDefaultValue
     else
-        return loc_params[index] as Int
+        return loc_params[aiIndex] as Int
     endif
 EndFunction
 
-Float Function getModifierFloatParam(string modifier,int index = 0,float default_value = 0.0)
-    string[] loc_params = getModifierAllParam(modifier)
+;/  Function: getModifierFloatParam
+    Parameters:
+
+        asModifier      - Name of modifier
+        aiIndex         - Index of parameter
+        afDefaultValue  - Defualt value in case of error
+
+    Returns:
+
+        Float value of Nth parameter of modifier
+/;
+Float Function getModifierFloatParam(string asModifier,int aiIndex = 0,Float afDefaultValue = 0.0)
+    string[] loc_params = getModifierAllParam(asModifier)
     if !loc_params
-        UDmain.Warning(getDeviceHeader() + "::getModifierIntParam("+modifier+","+index+","+default_value+") - modifier have no parameters")
-        return default_value
-    elseif index > (loc_params.length - 1)
-        UDmain.Warning(getDeviceHeader() + "::getModifierIntParam("+modifier+","+index+","+default_value+") - Passed index out of range, returning default value" + default_value)
-        return default_value
+        UDmain.Warning(getDeviceHeader() + "::getModifierFloatParam("+asModifier+","+aiIndex+","+afDefaultValue+") - modifier have no parameters")
+        return afDefaultValue
+    elseif aiIndex > (loc_params.length - 1)
+        UDmain.Warning(getDeviceHeader() + "::getModifierFloatParam("+asModifier+","+aiIndex+","+afDefaultValue+") - Passed index out of range, returning default value" + afDefaultValue)
+        return afDefaultValue
     else
-        return loc_params[index] as Float
+        return loc_params[aiIndex] as Float
     endif
 EndFunction
 
-String Function getModifierParam(string modifier,int index = 0,string default_value = "ERROR")
-    string[] loc_params = getModifierAllParam(modifier)
+;/  Function: getModifierParam
+    Parameters:
+
+        asModifier      - Name of modifier
+        aiIndex         - Index of parameter
+        afDefaultValue  - Defualt value in case of error
+
+    Returns:
+
+        Value of Nth parameter of modifier
+/;
+String Function getModifierParam(string asModifier,int aiIndex = 0,String asDefaultValue = "ERROR")
+    string[] loc_params = getModifierAllParam(asModifier)
     if !loc_params
-        UDmain.Warning(getDeviceHeader() + "::getModifierIntParam("+modifier+","+index+","+default_value+") - modifier have no parameters")
-        return default_value
-    elseif index > (loc_params.length - 1)
-        UDmain.Warning(getDeviceHeader() + "::getModifierIntParam("+modifier+","+index+","+default_value+") - Passed index out of range, returning default value" + default_value)
-        return default_value
+        UDmain.Warning(getDeviceHeader() + "::getModifierFloatParam("+asModifier+","+aiIndex+","+asDefaultValue+") - modifier have no parameters")
+        return asDefaultValue
+    elseif aiIndex > (loc_params.length - 1)
+        UDmain.Warning(getDeviceHeader() + "::getModifierFloatParam("+asModifier+","+aiIndex+","+asDefaultValue+") - Passed index out of range, returning default value" + asDefaultValue)
+        return asDefaultValue
     else
-        return loc_params[index]
+        return loc_params[aiIndex]
     endif
 EndFunction
 
-Function setModifierIntParam(string modifier,int value,int index = 0)
-    editStringModifier(modifier,index,value)
+
+;/  Function: setModifierIntParam
+    Change one int parameter value. Is wrapper of <editStringModifier> method
+
+    Parameters:
+
+        asModifier  - Name of modifier
+        aiValue     - New value of parameter
+        aiIndex     - Index of parameter to change
+        
+    Returns:
+
+        True if operation was succesfull
+/;
+Bool Function setModifierIntParam(string asModifier,int aiValue,int aiIndex = 0)
+    return editStringModifier(asModifier,aiIndex,aiValue)
 EndFunction
 
-Function setModifierFloatParam(string modifier,float value,int index = 0)
-    editStringModifier(modifier,index,value)
+;/  Function: setModifierFloatParam
+    Change one Float parameter value. Is wrapper of <editStringModifier> method
+
+    Parameters:
+
+        asModifier  - Name of modifier
+        afValue     - New value of parameter
+        aiIndex     - Index of parameter to change
+        
+    Returns:
+
+        True if operation was succesfull
+/;
+Bool Function setModifierFloatParam(string asModifier,Float afValue,int aiIndex = 0)
+    return editStringModifier(asModifier,aiIndex,afValue)
 EndFunction
 
-Function setModifierParam(string modifier, string value,int index = 0)
-    editStringModifier(modifier,index,value)
+;/  Function: setModifierParam
+    Change one string parameter value. Is wrapper of <editStringModifier> method
+
+    Parameters:
+
+        asModifier  - Name of modifier
+        asValue     - New value of parameter
+        aiIndex     - Index of parameter to change
+        
+    Returns:
+
+        True if operation was succesfull
+/;
+Bool Function setModifierParam(string asModifier, string asValue,int aiIndex = 0)
+    return editStringModifier(asModifier,aiIndex,asValue)
 EndFunction
 
 ;==============================================================================================
@@ -1422,44 +2140,54 @@ EndFunction
 ;==============================================================================================
 ;==============================================================================================
 ;==============================================================================================
-; === API ===
-;============
-;====GETTERS====
-; Bool      HaveLocks()                                 = return true if device have locks
-; Bool      HaveLockedLocks()                           = return true if any of the locks is not unlocked
-; Bool      HaveLockpickableLocks()                      = returns true if device have at least one lock which can be lockpicked
-; Int       GetLockedLocks()                            = return number of currently locked locks or 0 if there is error
-; Int       GetJammedLocks()                            = return number of currently jammed locks or 0 if there is error
-; String[]  GetLockList()                               = return string array of lock names. This is what is shown to player when selecting lock, or return none in case of error
-; Int       UserSelectLock()                            = open the list of locks for user. Returns index of selected lock, or -1 in case that user either backed out or there was error
-; Bool      IsValidLock(Int aiLock)                     = return true if passed lock is in valid format
-; Int       GetLockNumber()                             = returns number of locks on the device or 0 if device have no locks
-; Int       GetNthLock(Int aiLockIndex)                 = This function returns the Nth lock, or error value if no locks are on device
-; String    GetNthLockName(Int aiLockIndex)             = returns Nth locks name
-; Bool      IsNthLockUnlocked(Int aiLockIndex)          = returns true if the Nth lock is unlocked, or false if no Nth lock exist or is invalid
-; Bool      IsNthLockJammed(Int aiLockIndex)            = returns true if the Nth lock is jammed, or false if no Nth lock exist or is invalid
-; Bool      IsNthLockTimeLocked(Int aiLockIndex)        = returns true if the Nth lock is time locked, or false if no Nth lock exist or is invalid
-; Bool      IsNthLockAutoTimeLocked(Int aiLockIndex)    = returns true if the Nth lock is time locked with auto unlock, or false if no Nth lock exist or is invalid
-; Int       GetNthLockShields(Int aiLockIndex)          = returns number of shields of the Nth lock, or 0 if no Nth lock exist or is invalid
-; Int       GetNthLockAccessibility(Int aiLockIndex)    = returns accessibility of the Nth lock in %, or 0 if no Nth lock exist or is invalid
-; Int       GetNthLockDifficulty(Int aiLockIndex)       = returns difficutly of the Nth lock, or 0 if no Nth lock exist or is invalid. Difficulty is in range from 0 to 255 (classic skyrim lockpick difficulty distribution)
-; Int       GetNthLockTimeLock(Int aiLockIndex)         = returns number of remaining hours from time lock of the Nth lock, or 0 if no Nth lock exist or is invalid
-; Float     GetNthLockRepairProgress(Int aiLockIndex)   = returns Nth locks repair progress in absolute value
-;====SETTERS====
-; Bool      UnlockNthLock(Int aiLockIndex, Bool abUnlock = True)    = sets lock unlock status. If the operation was succesfull, returns true; argument abUnlock can be set to either true or false, depending if lock should be unlocked, or locked
-; Int       UnlockAllLocks(Bool abUnlock = True)                    = Lock/unlock all locks, returns number of locks affected
-; Bool      JammNthLock(Int aiLockIndex, Bool abJamm = True)        = sets lock jammed status. If the operation was succesfull, returns true; argument abJamm can be set to either true or false, depending if lock should be jammed, or unjammed
-; Int       JammAllLocks(Bool abJamm = True)                        = Jamm/unjamm all locks, returns number of locks affected
-; Bool      JammRandomLock()                                        = TODO
-; Int       DecreaseLockShield(Int aiLockIndex, Int aiShieldDecrease = 1, Bool abAutoUnlock = False)    = decrease locks shiled by aiShieldDecrease, returns remaining number of shields
-; Bool      UpdateLockAccessibility(Int aiLockIndex, Int aiAccessibilityDelta)  = Update the lock accessibility by aiAccessibilityDelta. If the operation was succesfull, returns true
-; Bool      UpdateLockDifficulty(Int aiLockIndex, Int aiDifficultyDelta, Bool abNoKeyDiff = True)    = Update the lock difficulty by aiDifficultyDelta. If the operation was succesfull, returns true; if abNoKeyDiff is True, lock difficulty can't be "Key required" after the update (capped difficulty at 100 = master lock)
-; Int       UpdateLockTimeLock(Int aiLockIndex, Int aiTimeLockDelta)    = Update the lock time lock by aiTimeLockDelta. Returns new time lock value, or 0 in case of error
-; Bool      UpdateAllLocksTimeLock(Int aiTimeLockDelta)                 = Update all locked locks timelock by aiTimeLockDelta, returns true if at least one lock was updated, or false if there was either error or no locked lock
-; Float     UpdateNthLockRepairProgress(Int aiLockIndex, Float afValue) = Updates Nth locks repair progress by afValue and returns new value
-;====UTILITY====
-; Int       CreateLock(Int aiDifficulty, Int aiAccess, Int aiShields, String asName, Int aiTimelock = 0, Bool abAdd = False)   = creates lock from passed arguments ;if abAdd is True, the lock will also be automatically added to the list of locks
-; Int       AddLock(Int aiLock, String asName = "", Bool abNoCreate = False)    = Adds lock to lock list, if abNoCreate is true, the lock will not be added if no locks already exist on device (aka, only if device had locks before), Return index of the added lock. In case of error, returns -1
+
+
+;/  Group: Lock Methods
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+;/ About: Lock API
+---Code
+====GETTERS====
+ Bool      HaveLocks()                                 = return true if device have locks
+ Bool      HaveLockedLocks()                           = return true if any of the locks is not unlocked
+ Bool      HaveLockpickableLocks()                      = returns true if device have at least one lock which can be lockpicked
+ Int       GetLockedLocks()                            = return number of currently locked locks or 0 if there is error
+ Int       GetJammedLocks()                            = return number of currently jammed locks or 0 if there is error
+ String[]  GetLockList()                               = return string array of lock names. This is what is shown to player when selecting lock, or return none in case of error
+ Int       UserSelectLock()                            = open the list of locks for user. Returns index of selected lock, or -1 in case that user either backed out or there was error
+ Bool      IsValidLock(Int aiLock)                     = return true if passed lock is in valid format
+ Int       GetLockNumber()                             = returns number of locks on the device or 0 if device have no locks
+ Int       GetNthLock(Int aiLockIndex)                 = This function returns the Nth lock, or error value if no locks are on device
+ String    GetNthLockName(Int aiLockIndex)             = returns Nth locks name
+ Bool      IsNthLockUnlocked(Int aiLockIndex)          = returns true if the Nth lock is unlocked, or false if no Nth lock exist or is invalid
+ Bool      IsNthLockJammed(Int aiLockIndex)            = returns true if the Nth lock is jammed, or false if no Nth lock exist or is invalid
+ Bool      IsNthLockTimeLocked(Int aiLockIndex)        = returns true if the Nth lock is time locked, or false if no Nth lock exist or is invalid
+ Bool      IsNthLockAutoTimeLocked(Int aiLockIndex)    = returns true if the Nth lock is time locked with auto unlock, or false if no Nth lock exist or is invalid
+ Int       GetNthLockShields(Int aiLockIndex)          = returns number of shields of the Nth lock, or 0 if no Nth lock exist or is invalid
+ Int       GetNthLockAccessibility(Int aiLockIndex)    = returns accessibility of the Nth lock in %, or 0 if no Nth lock exist or is invalid
+ Int       GetNthLockDifficulty(Int aiLockIndex)       = returns difficutly of the Nth lock, or 0 if no Nth lock exist or is invalid. Difficulty is in range from 0 to 255 (classic skyrim lockpick difficulty distribution)
+ Int       GetNthLockTimeLock(Int aiLockIndex)         = returns number of remaining hours from time lock of the Nth lock, or 0 if no Nth lock exist or is invalid
+ Float     GetNthLockRepairProgress(Int aiLockIndex)   = returns Nth locks repair progress in absolute value
+====SETTERS====
+ Bool      UnlockNthLock(Int aiLockIndex, Bool abUnlock = True)    = sets lock unlock status. If the operation was succesfull, returns true; argument abUnlock can be set to either true or false, depending if lock should be unlocked, or locked
+ Int       UnlockAllLocks(Bool abUnlock = True)                    = Lock/unlock all locks, returns number of locks affected
+ Bool      JammNthLock(Int aiLockIndex, Bool abJamm = True)        = sets lock jammed status. If the operation was succesfull, returns true; argument abJamm can be set to either true or false, depending if lock should be jammed, or unjammed
+ Int       JammAllLocks(Bool abJamm = True)                        = Jamm/unjamm all locks, returns number of locks affected
+ Bool      JammRandomLock()                                        = TODO
+ Int       DecreaseLockShield(Int aiLockIndex, Int aiShieldDecrease = 1, Bool abAutoUnlock = False)    = decrease locks shiled by aiShieldDecrease, returns remaining number of shields
+ Bool      UpdateLockAccessibility(Int aiLockIndex, Int aiAccessibilityDelta)  = Update the lock accessibility by aiAccessibilityDelta. If the operation was succesfull, returns true
+ Bool      UpdateLockDifficulty(Int aiLockIndex, Int aiDifficultyDelta, Bool abNoKeyDiff = True)    = Update the lock difficulty by aiDifficultyDelta. If the operation was succesfull, returns true; if abNoKeyDiff is True, lock difficulty can't be "Key required" after the update (capped difficulty at 100 = master lock)
+ Int       UpdateLockTimeLock(Int aiLockIndex, Int aiTimeLockDelta)    = Update the lock time lock by aiTimeLockDelta. Returns new time lock value, or 0 in case of error
+ Bool      UpdateAllLocksTimeLock(Int aiTimeLockDelta)                 = Update all locked locks timelock by aiTimeLockDelta, returns true if at least one lock was updated, or false if there was either error or no locked lock
+ Float     UpdateNthLockRepairProgress(Int aiLockIndex, Float afValue) = Updates Nth locks repair progress by afValue and returns new value
+====UTILITY====
+ Int       CreateLock(Int aiDifficulty, Int aiAccess, Int aiShields, String asName, Int aiTimelock = 0, Bool abAdd = False)   = creates lock from passed arguments ;if abAdd is True, the lock will also be automatically added to the list of locks
+ Int       AddLock(Int aiLock, String asName = "", Bool abNoCreate = False)    = Adds lock to lock list, if abNoCreate is true, the lock will not be added if no locks already exist on device (aka, only if device had locks before), Return index of the added lock. In case of error, returns -1
+---
+/;
 
 Function _ValidateLocks()
     if HaveLocks()
@@ -2101,272 +2829,45 @@ EndFunction
 ;==============================================================================================
 ;==============================================================================================
 
+;/  Group: Minigame
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+;/  Function: getDurabilityDmgMod
+    This value might not be correct. It is only updated when device menu is opened and minigame starts
+
+    Returns:
+
+        Device durability dmg after after difficulty is applied
+/;
 float Function getDurabilityDmgMod()
     return _durability_damage_mod
 EndFunction
 
-Function StartInitMutex()
-    While UDCDmain.UD_EquipMutex
-        Utility.WaitMenuMode(0.1)
-    EndWhile
-    UDCDmain.UD_EquipMutex = True
-    if UDmain.TraceAllowed()
-        UDmain.Log("Mutexed and proccesing " + getDeviceHeader(),2)
-    endif
+;/  Function: updateDifficulty
+    Update device difficulty. Updates return value of <getDurabilityDmgMod>. Validate jammed locks
+/;
+Function updateDifficulty()
+    _durability_damage_mod = UD_durability_damage_base*UDCDmain.getStruggleDifficultyModifier()*(1.0 + _getLockMinigameModifier())
+    ValidateJammedLocks()
 EndFunction
 
-Function EndInitMutex()
-    if UDmain.TraceAllowed()
-        UDmain.Log("Mutex ended for " + getDeviceHeader(),2)
-    endif
-    UDCDmain.UD_EquipMutex = False
-EndFunction
+;/  Function: getElapsedCooldownTime
+    Returns:
 
-;post equip function
-Function Init(Actor akActor)
-    libSafeCheck()
-
-    if !akActor
-        UDmain.Error("!Aborting Init called for "+getDeviceName()+" because actor is none!!")
-        akActor.removeItem(deviceRendered,1,True)
-        return
-    endif
-
-    Wearer = akActor
-    
-    ;Utility.wait(0.05) ;wait for menus to be closed
-    
-    UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
-    
-    if IsUnlocked 
-        UDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because device is already unlocked!!")
-        return 
-    endif
-    
-    if akActor.getItemCount(deviceInventory) == 0
-        UDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because no inventory device is present!")
-        return
-    endif
-
-    ;update now if deviceRendered isn't filled yet, otherwise update on end
-    ;deviceRendered should be filled to make the init faster
-    if !deviceRendered || !UD_DeviceKeyword
-        updateValuesFromInventoryScript()
-    endif
-
-    if akActor.getItemCount(deviceRendered) > 1
-        UDmain.Error("!Aborting Init("+ getDeviceHeader() + " because device is already present!")
-        akActor.removeItem(deviceRendered,akActor.getItemCount(deviceRendered) - 1,true)
-        return
-    endif
-    
-    bool loc_isplayer = (akActor == UDmain.Player)
-    if loc_slot ;ignore additional check if actor is not registered
-        float loc_time = 0.0
-        while loc_time <= 2.0 && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
-            ;if loc_isplayer
-            ;    Utility.wait(0.05)
-            ;else
-                Utility.waitMenuMode(0.05)
-            ;endif
-            loc_time += 0.05
-        endwhile
-        
-        if loc_time >= 1.0
-            UDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because equip failed - timeout")
-            return
-        endif
-    endif
-    if UDmain.TraceAllowed()
-        UDmain.Log("Init(called for " + getDeviceHeader(),1)
-    endif
-    
-    ;MUTEX START
-    ;mutex check because some mods equips items too fast at once, making it possible to have equipped 2 of the same item
-    if loc_slot
-        if loc_slot.getDeviceByRender(deviceRendered)
-            UDmain.Error("!Aborting Init("+ getDeviceHeader() +") because device is already registered!")
-            akActor.removeItem(deviceRendered,akActor.getItemCount(deviceRendered) - 1,true)
-            return
-        endif
-        StartInitMutex()
-    endif
-    
-    if UDmain.TraceAllowed()
-        UDmain.Log("Registering device: " + getDeviceHeader(),1)
-    endif
-    
-    GoToState("UpdatePaused")
-    
-    UDCDmain.startScript(self)
-    
-    if loc_slot
-        EndInitMutex()
-    endif
-
-    ;MUTEX END
-    
-    if deviceRendered
-        updateValuesFromInventoryScript()
-    endif
-
-    if deviceRendered.hasKeyword(UDlibs.PatchedDevice) ;patched device
-        if UDmain.TraceAllowed()
-            UDmain.Log("Patching device " + deviceInventory.getName(),2)
-        endif
-        patchDevice()
-    else
-        if UD_WeaponHitResist == 5.23
-            UD_WeaponHitResist = UD_ResistPhysical
-        endif
-        if UD_SpellHitResist == 5.23
-            UD_SpellHitResist = UD_ResistMagicka
-        endif
-    endif
-    
-    _ValidateLocks() ;validate locks
-    
-    if deviceRendered.hasKeyword(libs.zad_DeviousBelt) || deviceRendered.hasKeyword(libs.zad_DeviousBra)
-        libs.Aroused.SetActorExposureRate(akActor, libs.GetModifiedRate(akActor))    
-    endif
-    
-    if UD_Level < 1
-        int loc_level = akActor.GetLevel()
-        if UD_Level == -1 ;random value in +- 25% range from wearer level
-            UD_Level = Round(Utility.randomFloat(fRange(loc_level*0.75,1.0,100.0),fRange(loc_level*1.25,1.0,100.0)))
-        elseif UD_Level == -2 ;random value in + 25% range from wearer level
-            UD_Level = Round(Utility.randomFloat(fRange(loc_level,1.0,100.0),fRange(loc_level*1.25,1.0,100.0)))
-        elseif UD_Level == -3 ;random value in - 25% range from wearer level
-            UD_Level = Round(Utility.randomFloat(fRange(loc_level*0.75,1.0,100.0),fRange(loc_level,1.0,100.0)))
-        else ;same level as wearer
-            UD_Level = loc_level
-        endif
-    endif
-    
-    current_device_health = UD_Health ;repairs device to max durability on equip
-    
-    safeCheck()
-    
-    OnInitLevelUpdate()
-    
-    UDCDmain.CheckHardcoreDisabler(getWearer())
-    
-    InitPost()
-
-    if UD_Cooldown > 0
-        resetCooldown(1.0)
-    endif
-    
-    ;Add abilities
-    int loc_abilityId = UD_DeviceAbilities.length
-    while loc_abilityId
-        loc_abilityId -= 1
-        Int loc_filter = Math.LogicalAnd(UD_DeviceAbilities_Flags[loc_abilityId],0x00000003)
-        if loc_filter == 0x00
-            AddAbilityToWearer(loc_abilityId)
-        elseif loc_filter == 0x01 && !loc_isplayer
-            AddAbilityToWearer(loc_abilityId)
-        elseif loc_filter == 0x10 && loc_isplayer
-            AddAbilityToWearer(loc_abilityId)
-        else
-            ;DO NOT ADD
-        endif
-    endwhile
-    
-    
-    if UDmain.TraceAllowed()
-        UDmain.Log(DeviceInventory.getName() + " fully locked on " + getWearerName(),1)
-    endif
-    
-    Ready = True
-    
-    if UDCDmain.isRegistered(getWearer())
-        Update(1/24/60) ;1 minute update
-    endif
-    
-    GoToState("")
-    
-    InitPostPost() ;called after everything else. Can add some followup interaction immidiatly after device is equipped (activate device, start vib, etc...)
-EndFunction
-
-;This function is called after the devices level is set and patched. Should be used for some level related adjustments
-Function OnInitLevelUpdate()
-    ;increase all locks shields by the delta calculated from level
-    if HaveLocks() && UDCDMain.UD_DeviceLvlLocks
-        Int loc_shieldDelta = (UD_Level - 1)/UDCDMain.UD_DeviceLvlLocks
-        Int[] loc_shields = UDCDMain.DistributeLockShields(GetLockNumber(),loc_shieldDelta)
-        Int loc_i = GetLockNumber()
-        while loc_i
-            loc_i -= 1
-            DecreaseLockShield(loc_i,-1*loc_shields[loc_i]) ;increase all locks shields by loc_shields[loc_i]
-        endwhile
-    endif
-EndFunction
-
-Function removeDevice(actor akActor)
-    if _removeDeviceCalled
-        return
-    endif
-    _removeDeviceCalled = True
-    
-    GoToState("UpdatePaused")
-    
-    ;remove ID
-    if zad_DestroyOnRemove || hasModifier("DOR")
-        akActor.RemoveItem(deviceInventory, 1, true)
-    EndIf
-    
-    if !akActor.isDead()
-        if !IsUnlocked
-            _IsUnlocked = True
-            current_device_health = 0.0
-            UDCDmain.updateLastOpenedDeviceOnRemove(self)
-            StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
-            if wearer.isinfaction(UDCDmain.minigamefaction)
-                wearer.removefromfaction(UDCDmain.minigamefaction)
-                StorageUtil.UnSetFormValue(Wearer, "UD_currentMinigameDevice")
-            endif
-        endif
-    endif
-    
-    if UDmain.TraceAllowed()
-        UDmain.Log("removeDevice() called for " + getDeviceHeader(),1)
-    endif
-    
-    OnRemoveDevicePre(akActor)
-    
-    if UDCDmain.isRegistered(akActor)
-        UDCDmain.endScript(self)
-    endif
-    
-    RemoveAllAbilities(akActor)
-    
-    if deviceRendered.hasKeyword(libs.zad_DeviousBelt) || deviceRendered.hasKeyword(libs.zad_DeviousBra)
-        libs.Aroused.SetActorExposureRate(akActor, libs.GetOriginalRate(akActor))
-        StorageUtil.UnSetFloatValue(akActor, "zad.StoredExposureRate")
-    endif
-    
-    UDmain.UDMOM.Procces_UpdateModifiers_Remove(self) ;update modifiers
-    
-    if UD_OnDestroyItemList
-        if UDmain.TraceAllowed()
-            UDmain.Log("Items from LIL " + UD_OnDestroyItemList + " added to actor " + GetWearername(),3)
-        endif
-        akActor.addItem(UD_OnDestroyItemList)
-    endif
-    StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
-    
-    onRemoveDevicePost(akActor)
-    
-    _isRemoved = True
-EndFunction
-
-;elapsed time for cooldown in minutes
+        elapsed time for cooldown in minutes
+/;
 float Function getElapsedCooldownTime()
     return _updateTimePassed
 EndFunction
 
-;0.0 - 1.0 for _currentRndCooldown
+;/  Function: getRelativeElapsedCooldownTime
+    Returns:
+
+       Relative elapsed cooldown untill next activation
+/;
 float Function getRelativeElapsedCooldownTime()
     if UD_Cooldown > 0
         return _updateTimePassed/_currentRndCooldown
@@ -2395,6 +2896,12 @@ Function Update(float timePassed)
     OnUpdatePost(timePassed)
 EndFunction
 
+;/  Function: resetCooldown
+    Reset cooldown
+    Parameters:
+
+        afMult  - Multiplier for next cooldown. Setting this to 2.0 for example will increase cooldown after reset to 2x
+/;
 Function resetCooldown(Float afMult)
     _updateTimePassed = 0.0
     _currentRndCooldown = Round(CalculateCooldown()*afMult)
@@ -2403,8 +2910,18 @@ EndFunction
 Function UpdateCooldown()
 EndFunction
 
-int Function CalculateCooldown(Float fMult = 1.0)
-    return iRange(Round(fMult*UD_Cooldown*Utility.randomFloat(0.75,1.25)*UDCDmain.UD_CooldownMultiplier),5,24*60*60*10)
+;/  Function: CalculateCooldown
+    Calculate cooldown based on MCM setting and passed multiplier. This method contains RNG and calling it multiple times will get you different results
+    Parameters:
+
+        afMult  - Multiplier for cooldown. Setting this to 2.0 for example will increase cooldown 2x
+        
+    Returns:
+
+       Calculated cooldown
+/;
+int Function CalculateCooldown(Float afMult = 1.0)
+    return iRange(Round(afMult*UD_Cooldown*Utility.randomFloat(0.75,1.25)*UDCDmain.UD_CooldownMultiplier),5,24*60*60*10)
 EndFunction
 
 ;like Update function, but called only once per hour
@@ -2417,25 +2934,6 @@ Function UpdateHour(float mult)
     UpdateAllLocksTimeLock(-1*Round(mult),True) ;update timed locks
 EndFunction
 
-Function libSafeCheck()
-    if !UDmain
-        Quest UDquest = Game.getFormFromFile(0x00005901,"UnforgivingDevices.esp") as Quest
-        UDmain = UDquest as UnforgivingDevicesMain 
-    endif
-    libs = UDmain.libs
-EndFunction
-
-;check if all properties are set
-;main purpose of this is so patching devices is not such pain in the ass
-Function safeCheck()
-    if !UD_MessageDeviceInteraction
-        UD_MessageDeviceInteraction = UDCDmain.DefaultInteractionDeviceMessage
-    endif
-    if !UD_MessageDeviceInteractionWH
-        UD_MessageDeviceInteractionWH = UDCDmain.DefaultInteractionDeviceMessageWH
-    endif
-EndFunction
-
 float Function _getLockMinigameModifier()
     Int loc_Locks = GetLockNumber()
     if loc_Locks
@@ -2446,31 +2944,37 @@ float Function _getLockMinigameModifier()
     endif
 EndFunction
 
-Function updateDifficulty()
-    _durability_damage_mod = UD_durability_damage_base*UDCDmain.getStruggleDifficultyModifier()*(1.0 + _getLockMinigameModifier())
-    ValidateJammedLocks()
-EndFunction
+;/  Function: getRelativeDurability
+    Returns:
 
-Function patchDevice()
-    UDCDmain.UDPatcher.patchGeneric(self)
-EndFunction
-
+       Relative health of device from 0.0 to 1.0. When at max value -> 1.0
+/;
 float Function getRelativeDurability()
     return current_device_health/UD_Health
 EndFunction 
 
+;/  Function: getRelativeCuttingProgress
+    Returns:
+
+       Relative cutting progress from 0.0 to 1.0
+/;
 float Function getRelativeCuttingProgress()
     return _CuttingProgress/100.0
 EndFunction
 
 float Function _GetRelativeLockRepairProgress(Int aiLockIndex)
-    return GetNthLockRepairProgress(aiLockIndex)/getLockDurability()
+    return GetNthLockRepairProgress(aiLockIndex)/_getLockDurability()
 EndFunction
 
-float Function getLockDurability()
+float Function _getLockDurability()
     return 100.0
 EndFunction
 
+;/  Function: getRelativeLocks
+    Returns:
+
+       Relative number of still lcoked locks. Returns 1.0 if all locks are locked
+/;
 Float Function getRelativeLocks()
     if UD_Locks
         return (UD_CurrentLocks as Float)/UD_Locks
@@ -2487,7 +2991,7 @@ EndFunction
 ;5 = Master
 ;6 = Requires Key
 ;1 = Novice, 25 = Apprentice, 50 = Adept,75 = Expert,100 = Master,255 = Requires Key, range 1-255
-int Function getLockpickLevel(Int aiLockIndex, Int aiDiff = 0)
+int Function _getLockpickLevel(Int aiLockIndex, Int aiDiff = 0)
     Int loc_difficulty = 1
     if aiDiff > 0
         loc_difficulty = aiDiff
@@ -2588,10 +3092,20 @@ int Function getLockAccesChance(Int aiLockID, bool checkTelekinesis = true)
     return loc_res
 EndFunction
 
+;/  Function: WearerHaveTelekinesis
+    Returns:
+
+       True if wearer have learned telekinesis spell
+/;
 Bool Function WearerHaveTelekinesis()
     return Wearer.hasspell(UDlibs.TelekinesisSpell)
 EndFunction
 
+;/  Function: WearerHaveTelekinesis
+    Returns:
+
+       True if helper have learned telekinesis spell
+/;
 Bool Function HelperHaveTelekinesis()
     if !hasHelper()
         return false
@@ -2599,7 +3113,7 @@ Bool Function HelperHaveTelekinesis()
     return getHelper().hasspell(UDlibs.TelekinesisSpell)
 EndFunction
 
-int Function GetTelekinesisLockModifier()
+int Function _GetTelekinesisLockModifier()
     int loc_res = 0
     if WearerHaveTelekinesis()
         loc_res += 15
@@ -2612,10 +3126,28 @@ int Function GetTelekinesisLockModifier()
     return loc_res
 EndFunction
 
-Function setWidgetVal(float val, bool force = false)
-    UDmain.UDWC.Meter_SetFillPercent("device-main", val * 100.0, force)
+;/  Function: setWidgetVal
+    Change value of main device widget
+    
+    Parameters:
+
+        afVal  - New widget meter value
+        abForce - If value should be forced (no change animation)
+/;
+Function setWidgetVal(float afVal, bool abForce = false)
+    UDmain.UDWC.Meter_SetFillPercent("device-main", afVal * 100.0, abForce)
 EndFunction
 
+;/  Function: setMainWidgetAppearance
+    Update apparance of main device widget (durability, rapir progress, etc...)
+    
+    Parameters:
+
+        aiColor1        - Main color
+        aiColor2        - Secondary color
+        aiFlashColor    - Flash color
+        asIconName      - Icon
+/;
 Function setMainWidgetAppearance(Int aiColor1, Int aiColor2 = -1, Int aiFlashColor = -1, String asIconName = "")
     if (WearerIsPlayer() || HelperIsPlayer())
         UDmain.UDWC.Meter_SetColor("device-main", aiColor1, aiColor2, aiFlashColor)
@@ -2625,6 +3157,15 @@ Function setMainWidgetAppearance(Int aiColor1, Int aiColor2 = -1, Int aiFlashCol
     endif
 EndFunction
 
+;/  Function: setConditionWidgetAppearance
+    Update apparance of secondary device widget (condition)
+    
+    Parameters:
+
+        aiColor1        - Main color
+        aiColor2        - Secondary color
+        aiFlashColor    - Flash color
+/;
 Function setConditionWidgetAppearance(Int aiColor1, Int aiColor2 = -1, Int aiFlashColor = -1)
     if (WearerIsPlayer() || HelperIsPlayer())
         UDmain.UDWC.Meter_SetColor("device-condition", aiColor1, aiColor2, aiFlashColor)
@@ -2632,6 +3173,14 @@ Function setConditionWidgetAppearance(Int aiColor1, Int aiColor2 = -1, Int aiFla
     endif
 EndFunction
 
+;/  Function: showWidget
+    Toggle on main widget, and secondary widget if the flag is set
+    
+    Parameters:
+
+        abUpdate        - If widget value should be updated first
+        abUpdateColor   - If widget color should be updated first
+/;
 Function showWidget(Bool abUpdate = true, Bool abUpdateColor = true)
     if abUpdate
         updateWidget(true)
@@ -2645,16 +3194,28 @@ Function showWidget(Bool abUpdate = true, Bool abUpdateColor = true)
     EndIf
 EndFunction
 
+;/  Function: showWidget
+    Hide both widgets
+/;
 Function hideWidget()
     UDmain.UDWC.Meter_SetVisible("device-main", False)
     UDmain.UDWC.Meter_SetVisible("device-condition", False)
 EndFunction
 
-Function decreaseDurabilityAndCheckUnlock(float value,float cond_mult = 1.0,Bool abCheckCondition = True)
+;/  Function: decreaseDurabilityAndCheckUnlock
+    Decrease device durability and unlock device if durability reaches 0. Also reduced condition based on dealth durability damage
+    
+    Parameters:
+
+        afValue             - By how much will be durability reduced. This is final value and no modofiers will be applied
+        afCondMult          - Condition damange multiplier
+        abCheckCondition    - If condition level should be updated
+/;
+Function decreaseDurabilityAndCheckUnlock(float afValue,float afCondMult = 1.0,Bool abCheckCondition = True)
     if current_device_health > 0.0
-        current_device_health = fRange(current_device_health - value,0.0,UD_Health)
-        _total_durability_drain += value*cond_mult
-        if abCheckCondition && current_device_health > 0 && cond_mult != 0.0
+        current_device_health = fRange(current_device_health - afValue,0.0,UD_Health)
+        _total_durability_drain += afValue*afCondMult
+        if abCheckCondition && current_device_health > 0 && afCondMult != 0.0
             updateCondition()
         endif
     endif
@@ -2664,10 +3225,22 @@ Function decreaseDurabilityAndCheckUnlock(float value,float cond_mult = 1.0,Bool
     endif
 EndFunction
 
+;/  Function: getDurability
+    Returns:
+
+       Current device durability/health
+/;
 float Function getDurability()
     return current_device_health
 EndFunction
 
+;/  Function: getMaxDurability
+    Returns:
+
+       Maximum device durability/health
+       
+    See: <UD_Health>
+/;
 float Function getMaxDurability()
     return UD_Health
 EndFunction
@@ -3521,7 +4094,7 @@ bool Function lockpickMinigame(Bool abSilent = False)
     UD_RegenMag_Health = 0.5
     UD_RegenMag_Magicka = 0.5
     _customMinigameCritChance = getLockAccesChance(_MinigameSelectedLockID, false)
-    _customMinigameCritDuration = 0.8 - getLockpickLevel(_MinigameSelectedLockID)*0.02
+    _customMinigameCritDuration = 0.8 - _getLockpickLevel(_MinigameSelectedLockID)*0.02
     _minMinigameStatSP = 0.8
     
     if minigamePostcheck(abSilent)
@@ -3570,8 +4143,8 @@ bool Function repairLocksMinigame(Bool abSilent = False)
     UD_damage_device = False
     UD_minigame_canCrit = False
 
-    _customMinigameCritChance = 5 + (4 - getLockpickLevel(_MinigameSelectedLockID))*5
-    _customMinigameCritDuration = 0.8 - getLockpickLevel(_MinigameSelectedLockID)*0.02
+    _customMinigameCritChance = 5 + (4 - _getLockpickLevel(_MinigameSelectedLockID))*5
+    _customMinigameCritDuration = 0.8 - _getLockpickLevel(_MinigameSelectedLockID)*0.02
     UD_MinigameMult1 = getAccesibility() + UDCDMain.getActorSmithingSkillsPerc(getWearer())*0.5
     if wearerFreeHands()
         UD_MinigameMult1 += 0.5
@@ -3666,7 +4239,7 @@ bool Function keyMinigame(Bool abSilent = False)
     UD_RegenMag_Health = 0.5
     UD_RegenMag_Magicka = 0.5
     _customMinigameCritChance = getLockAccesChance(_MinigameSelectedLockID, false)
-    _customMinigameCritDuration = 0.85 - getLockpickLevel(_MinigameSelectedLockID)*0.025
+    _customMinigameCritDuration = 0.85 - _getLockpickLevel(_MinigameSelectedLockID)*0.025
     _minMinigameStatSP = 0.6
     
     
@@ -3899,13 +4472,13 @@ bool Function repairLocksMinigameWH(Actor akHelper)
     UD_damage_device = False
     UD_minigame_canCrit = False
     
-    _customMinigameCritChance = 10 + (4 - getLockpickLevel(_MinigameSelectedLockID))*5
+    _customMinigameCritChance = 10 + (4 - _getLockpickLevel(_MinigameSelectedLockID))*5
     UD_MinigameMult1 = getAccesibility() + 0.35*(UDCDMain.getActorSmithingSkillsPerc(getWearer()) + UDCDMain.getActorSmithingSkillsPerc(getHelper()))
     UD_RegenMag_Magicka = 0.5
     UD_RegenMag_Health = 0.5
     UD_RegenMagHelper_Magicka = 0.75
     UD_RegenMagHelper_Health = 0.75
-    _customMinigameCritDuration = 0.85 - getLockpickLevel(_MinigameSelectedLockID)*0.015
+    _customMinigameCritDuration = 0.85 - _getLockpickLevel(_MinigameSelectedLockID)*0.015
     _minMinigameStatSP = 0.8
     
     if wearerFreeHands()
@@ -4024,7 +4597,7 @@ bool Function keyMinigameWH(Actor akHelper)
     UD_RegenMagHelper_Magicka = 0.75
     UD_RegenMagHelper_Health = 0.75
     _customMinigameCritChance = getLockAccesChance(_MinigameSelectedLockID, false)
-    _customMinigameCritDuration = 0.9 - getLockpickLevel(_MinigameSelectedLockID)*0.03
+    _customMinigameCritDuration = 0.9 - _getLockpickLevel(_MinigameSelectedLockID)*0.03
     _minMinigameStatSP = 0.6
     
     if minigamePostcheck()
@@ -4851,6 +5424,10 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
         keywordsList = new String[1]
         keywordsList[0] = "." + UD_DeviceKeyword_Minor.GetString()
     Else
+        ;add struggle keyword for animations if its not loaded
+        if !UD_DeviceStruggleKeywords
+            UD_DeviceStruggleKeywords = UDCDMain.GetDeviceStruggleKeywords(DeviceRendered)
+        endif
         keywordsList = UD_DeviceStruggleKeywords
     EndIf
     
@@ -5167,7 +5744,7 @@ Function SpecialButtonPressed(float fMult = 1.0)
                     UD_MinigameMult1 += 0.25
                 endif
             else
-                _customMinigameCritChance += GetTelekinesisLockModifier()
+                _customMinigameCritChance += _GetTelekinesisLockModifier()
             endif
         endif
     endif
@@ -5194,7 +5771,7 @@ Function SpecialButtonReleased(float fHoldTime)
                     UD_MinigameMult1 -= 0.25
                 endif
             else
-                _customMinigameCritChance -= GetTelekinesisLockModifier()
+                _customMinigameCritChance -= _GetTelekinesisLockModifier()
             endif
         endif
     endif
@@ -5676,7 +6253,7 @@ Function ShowLockDetails()
         endif
         if loc_ShowDiff
             Int loc_diff = GetNthLockDifficulty(loc_lockId)
-            loc_res += "Difficulty: "+ _GetLockpickLevelString(GetLockpickLevel(-1,loc_diff)) + " ("+loc_diff+ ")\n"
+            loc_res += "Difficulty: "+ _GetLockpickLevelString(_getLockpickLevel(-1,loc_diff)) + " ("+loc_diff+ ")\n"
         endif
         
         UDmain.ShowMessageBox(loc_res)
@@ -5798,8 +6375,8 @@ EndFunction
 ;repair lock by progress_add
 Function repairLock(float progress_add = 1.0)
     Float loc_RepairProgress = UpdateNthLockRepairProgress(_MinigameSelectedLockID,progress_add*UDCDmain.getStruggleDifficultyModifier())
-    if loc_RepairProgress >= getLockDurability()
-        loc_RepairProgress = UpdateNthLockRepairProgress(_MinigameSelectedLockID,-1*getLockDurability()) ;reset value
+    if loc_RepairProgress >= _getLockDurability()
+        loc_RepairProgress = UpdateNthLockRepairProgress(_MinigameSelectedLockID,-1*_getLockDurability()) ;reset value
         JammNthLock(_MinigameSelectedLockID, False)
         if !GetJammedLocks()
             libs.UnJamLock(Wearer,UD_DeviceKeyword)
@@ -5888,7 +6465,7 @@ Function lockpickDevice()
             endif
             UnPauseMinigame()
         else
-            if Utility.randomInt(1,99) >= getLockpickLevel(_MinigameSelectedLockID)*15
+            if Utility.randomInt(1,99) >= _getLockpickLevel(_MinigameSelectedLockID)*15
                 result = 1
             else
                 result = 2
@@ -6590,6 +7167,79 @@ Float[] Function GetCurrentMinigameExpression()
             return UDmain.UDEM.GetPrebuildExpression_Happy1()
         endif
     endif
+EndFunction
+
+;check if all properties are set
+;main purpose of this is so patching devices is not such pain in the ass
+Function safeCheck()
+    if !UD_MessageDeviceInteraction
+        UD_MessageDeviceInteraction = UDCDmain.DefaultInteractionDeviceMessage
+    endif
+    if !UD_MessageDeviceInteractionWH
+        UD_MessageDeviceInteractionWH = UDCDmain.DefaultInteractionDeviceMessageWH
+    endif
+EndFunction
+
+Function removeDevice(actor akActor)
+    if _removeDeviceCalled
+        return
+    endif
+    _removeDeviceCalled = True
+    
+    GoToState("UpdatePaused")
+    
+    ;remove ID
+    if zad_DestroyOnRemove || hasModifier("DOR")
+        akActor.RemoveItem(deviceInventory, 1, true)
+    EndIf
+    
+    if !akActor.isDead()
+        if !IsUnlocked
+            _IsUnlocked = True
+            current_device_health = 0.0
+            UDCDmain.updateLastOpenedDeviceOnRemove(self)
+            StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
+            if wearer.isinfaction(UDCDmain.minigamefaction)
+                wearer.removefromfaction(UDCDmain.minigamefaction)
+                StorageUtil.UnSetFormValue(Wearer, "UD_currentMinigameDevice")
+            endif
+        endif
+    endif
+    
+    if UDmain.TraceAllowed()
+        UDmain.Log("removeDevice() called for " + getDeviceHeader(),1)
+    endif
+    
+    OnRemoveDevicePre(akActor)
+    
+    if UDCDmain.isRegistered(akActor)
+        UDCDmain.endScript(self)
+    endif
+    
+    RemoveAllAbilities(akActor)
+    
+    if deviceRendered.hasKeyword(libs.zad_DeviousBelt) || deviceRendered.hasKeyword(libs.zad_DeviousBra)
+        libs.Aroused.SetActorExposureRate(akActor, libs.GetOriginalRate(akActor))
+        StorageUtil.UnSetFloatValue(akActor, "zad.StoredExposureRate")
+    endif
+    
+    UDmain.UDMOM.Procces_UpdateModifiers_Remove(self) ;update modifiers
+    
+    if UD_OnDestroyItemList
+        if UDmain.TraceAllowed()
+            UDmain.Log("Items from LIL " + UD_OnDestroyItemList + " added to actor " + GetWearername(),3)
+        endif
+        akActor.addItem(UD_OnDestroyItemList)
+    endif
+    StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
+    
+    onRemoveDevicePost(akActor)
+    
+    _isRemoved = True
+EndFunction
+
+Function patchDevice()
+    UDCDmain.UDPatcher.patchGeneric(self)
 EndFunction
 
 ;-------------------------------------------------------------------------------------
