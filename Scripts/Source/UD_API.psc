@@ -90,6 +90,8 @@ UD_UserInputScript                  Property UDUI           auto
     Meaning: Animation Manager
     
     This module contains functionality for manipulating animations
+    
+    See <UD_AnimationManager>
 /;
 UD_AnimationManagerScript           Property UDAM           auto
 
