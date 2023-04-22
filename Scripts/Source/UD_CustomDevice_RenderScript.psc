@@ -4856,13 +4856,13 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
     
     If _minigameHelper
         If _StruggleAnimationDefPairArray.Length == 0
-            _StruggleAnimationDefPairArray = UDAM.GetStruggleAnimationsByKeywordsList(keywordsList, Wearer, _minigameHelper)
+            _StruggleAnimationDefPairArray = UDAM.GetStruggleAnimDefsByKeywordsList(keywordsList, Wearer, _minigameHelper)
         EndIf
         If _StruggleAnimationDefPairArray.Length == 0
             ; if actor has heavy bondage then try to get paired animation for it
             Keyword heavyBondage = UDAM.GetHeavyBondageKeyword(_ActorsConstraints[0])
             If heavyBondage != None
-                _StruggleAnimationDefPairArray = UDAM.GetStruggleAnimationsByKeyword("." + heavyBondage.GetString(), Wearer, _minigameHelper)
+                _StruggleAnimationDefPairArray = UDAM.GetStruggleAnimDefsByKeyword("." + heavyBondage.GetString(), Wearer, _minigameHelper)
             EndIf            
         EndIf
         If _StruggleAnimationDefPairArray.Length > 0
@@ -4941,20 +4941,20 @@ EndFunction
 
 String[] Function _GetSoloStruggleAnimation(String[] asKeywords, Actor akActor, Int aiConstraints)
     String[] result
-    result = UDAM.GetStruggleAnimationsByKeywordsList(asKeywords, akActor, None)
+    result = UDAM.GetStruggleAnimDefsByKeywordsList(asKeywords, akActor, None)
     If result.Length == 0
         ; if actor has heavy bondage then try to get solo animation for it
         Keyword heavyBondage = UDAM.GetHeavyBondageKeyword(aiConstraints)
         If heavyBondage != None
-            result = UDAM.GetStruggleAnimationsByKeyword("." + heavyBondage.GetString(), akActor, None)
+            result = UDAM.GetStruggleAnimDefsByKeyword("." + heavyBondage.GetString(), akActor, None)
         EndIf
     EndIf
     If result.Length == 0
-        result = UDAM.GetStruggleAnimationsByKeyword(".zad_DeviousGloves", akActor, None)
+        result = UDAM.GetStruggleAnimDefsByKeyword(".zad_DeviousGloves", akActor, None)
     EndIf
     If result.Length == 0
         ; horny animation is our last hope!
-        result = UDAM.GetStruggleAnimationsByKeyword(".horny", akActor, None)
+        result = UDAM.GetStruggleAnimDefsByKeyword(".horny", akActor, None)
     EndIf
     Return result
 EndFunction
