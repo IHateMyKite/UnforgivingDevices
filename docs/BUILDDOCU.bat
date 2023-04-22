@@ -7,7 +7,7 @@ if not exist "PAPYRUS" (echo **Repository not present, clonning from GitHub & gi
 cd "Natural Docs"
 echo **Starting generation of documentation
 NaturalDocs.exe ../GeneratedDocu
-robocopy ../GeneratedDocu/Media ../../docs/Documentation/other/Media /E /NDL /NFL /NJH /nc /ns /np
+robocopy ../GeneratedDocu/Import ../../docs/Documentation/other/Import /E /NDL /NFL /NJH /nc /ns /np
 @RD /S /Q "../GeneratedDocu/Working Data"
 echo **Documentation generated!
 PAUSE
