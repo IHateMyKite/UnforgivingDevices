@@ -4,6 +4,7 @@ Scriptname UDCustomDeviceMain extends Quest  conditional
 
 import UnforgivingDevicesMain
 import UD_NPCInteligence
+import UD_CustomDevice_RenderScript
 
 Spell Property SwimPenaltySpell auto
 UnforgivingDevicesMain Property UDmain auto
@@ -1461,11 +1462,11 @@ Function OpenHelpDeviceMenu(UD_CustomDevice_RenderScript akDevice,Actor akHelper
 
         bool[] loc_arrcontrol; = new bool[30]
         if !loc_cond 
-            loc_arrcontrol = Utility.CreateBoolArray(30,True)
+            loc_arrcontrol = CreateControlArrayTrue()
             loc_arrcontrol[15] = false
             loc_arrcontrol[16] = false
         else
-            loc_arrcontrol = new bool[30]
+            loc_arrcontrol = CreateControlArrayFalse()
             ;tying and repairing doesn't sound like helping
             ;allow for now, will have to add some switch later which will determinate if player can be dick to NPC or not
             ;loc_arrcontrol[06] = true
