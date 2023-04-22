@@ -179,7 +179,7 @@ Armor    Property DeviceRendered                                auto hidden ;Is 
 String[] Property UD_DeviceStruggleKeywords                     auto Hidden ;keywords (as string array) used to filter struggle animations
 
 ;/  Variable: UD_ActiveEffectName
-    Name of active effect. Defaultly set to "Share"
+    Name of active effect. By default set to "Share"
     
     Do not change this if you use existing script
     
@@ -195,7 +195,7 @@ string   Property UD_DeviceType                 = "Generic"     auto hidden ;nam
 ;/  Variable: UD_DeviceKeyword_Minor
     Minor device keyword. Only used by animations
     
-    In most cases, there is not need to chenge this, as the framework will take the keyword automatically based on main keyword
+    In most cases, there is no need to change this, as the framework will take the keyword automatically based on main keyword
 /;
 Keyword     Property UD_DeviceKeyword_Minor                 ;minor keyword of this device. Currently only used for HB
     Keyword Function get()
@@ -234,7 +234,7 @@ EndProperty
 
 ;MAIN VALUES
 ;/  Variable: UD_Level
-    Level of device. Defaultly 1.
+    Level of device. By default set to 1.
     
     Special values:
     
@@ -288,7 +288,7 @@ float       Property UD_durability_damage_base                              ;dur
 EndProperty
 
 ;/  Variable: UD_base_stat_drain
-    How many points of stats (helth, stamina, magicka) are reduced per second of minigame. This is only base values, which is later moded with minigame values
+    How many points of stats (health, stamina, magicka) are reduced per second of minigame. This is only base values, which is later moded with minigame values
     
     *This value is bitcoded, and thus have limited range and precision!*
     
