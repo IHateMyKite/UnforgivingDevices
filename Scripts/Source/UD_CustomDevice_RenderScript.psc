@@ -148,12 +148,12 @@ EndFunction
 /;
 
 ;/  Variable: DeviceInventory
-    *This property have to be allways filled with relevant inventory device!!*
+    *This property have to be always filled with relevant inventory device!!*
 /;
 Armor       Property DeviceInventory                auto
 
 ;/  Variable: libs
-    *Reference to zadlibs, should be allways filled!!*
+    *Reference to zadlibs, should be always filled!!*
 /;
 zadlibs     Property libs                           auto
 
@@ -339,7 +339,7 @@ float       Property UD_ResistPhysical                                      ;phy
 EndProperty
 
 ;/  Variable: UD_ResistMagicka
-    Magick resistence of device. Reduces effectiveness of magick minigame. Value bigger then 100% will cause device to be healed
+    Magic resistence of device. Reduces effectiveness of magic minigame. Value bigger then 100% will cause device to be healed
     
     *This value is bitcoded, and thus have limited range and precision!*
     
@@ -3133,9 +3133,9 @@ EndFunction
 ;/  About: Control Array
     Control array is used for filtering menu options. The value is inverted. So if you want to disable one of the options, you have to change nth value to True
     
-    Defaultly all array values are False, so if you create the array, you can only disable options that you don't want, while ignoring other options
+    All array values are set to False by default, so if you create the array, you can only disable options that you don't want, while ignoring other options
     
-    *Allways needs to have size 18!!*
+    *Always needs to have size 18!!*
     
     Values:
     
@@ -3915,7 +3915,7 @@ EndFunction
 ;/  Function: getRelativeCondition
     Returns:
 
-        Get relative condition of device. Always in range from 0.0 to max device health
+        Get relative condition of device. Always in range from 0.0 to 1.0
 /;
 float Function getRelativeCondition()
     return (UD_Health - _total_durability_drain)/UD_Health
@@ -4090,7 +4090,7 @@ EndFunction
 ;/  Function: getModResistPhysical
     Parameters:
 
-        afBase      - Bse of resistence (for example 1.0=100%)
+        afBase      - Base of resistence (for example 1.0=100%)
         afCondMod   - Condition modifier. Change value by (10% + afCondMod) per condition level
         
     Returns:
@@ -4104,12 +4104,12 @@ EndFunction
 ;/  Function: getModResistMagicka
     Parameters:
 
-        afBase      - Bse of resistence (for example 1.0=100%)
+        afBase      - Base of resistence (for example 1.0=100%)
         afCondMod   - Condition modifier. Change value by (10% + afCondMod) per condition level
         
     Returns:
 
-        Magick damage multiplier
+        Magic damage multiplier
 /;
 float Function getModResistMagicka(float afBase = 1.0,float afCondMod = 0.0)
     return (afBase - UD_ResistMagicka + (0.1 + afCondMod)*UD_Condition)
