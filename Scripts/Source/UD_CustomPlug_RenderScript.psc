@@ -53,9 +53,9 @@ bool Function struggleMinigame(int type = -1, Bool abSilent = False)
     return true
 EndFunction
 
-bool Function struggleMinigameWH(Actor akSource)
+bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
     if isSentient() || !WearerFreeHands(True)
-        return forceOutPlugMinigameWH(akSource)
+        return forceOutPlugMinigameWH(akHelper)
     else
         unlockRestrain()
         if WearerIsPlayer()

@@ -4115,6 +4115,11 @@ float Function getModResistMagicka(float afBase = 1.0,float afCondMod = 0.0)
     return (afBase - UD_ResistMagicka + (0.1 + afCondMod)*UD_Condition)
 EndFunction
 
+;/  Function: getHelperAgilitySkills
+    Returns:
+
+        Absolute value of agility skill of helper or 0.0 if device have not helper
+/;
 float Function getHelperAgilitySkills()
     if hasHelper()
         return UDCDMain.GetAgilitySkill(getHelper())
@@ -4123,6 +4128,11 @@ float Function getHelperAgilitySkills()
     endif
 EndFunction
 
+;/  Function: getHelperAgilitySkillsPerc
+    Returns:
+
+        Relative agility skill of helper or 0.0 if device have not helper. As it is hard to pinpoint maximum value, virtual value 100 is choosen. Because of that, it is possible that this value can be more then 1.0.
+/;
 float Function getHelperAgilitySkillsPerc()
     if hasHelper()
         return UDCDMain.getActorAgilitySkillsPerc(getHelper())
@@ -4131,6 +4141,11 @@ float Function getHelperAgilitySkillsPerc()
     endif
 EndFunction
 
+;/  Function: getHelperStrengthSkills
+    Returns:
+
+        Absolute value of strength skill of helper or 0.0 if device have not helper
+/;
 float Function getHelperStrengthSkills()
     if hasHelper()
         return UDCDMain.GetStrengthSkill(getHelper())
@@ -4139,6 +4154,11 @@ float Function getHelperStrengthSkills()
     endif
 EndFunction
 
+;/  Function: getHelperStrengthSkillsPerc
+    Returns:
+
+        Relative strength skill of helper or 0.0 if device have not helper. As it is hard to pinpoint maximum value, virtual value 100 is choosen. Because of that, it is possible that this value can be more then 1.0.
+/;
 float Function getHelperStrengthSkillsPerc()
     if hasHelper()
         return UDCDMain.getActorStrengthSkillsPerc(getHelper())
@@ -4147,6 +4167,11 @@ float Function getHelperStrengthSkillsPerc()
     endif
 EndFunction
 
+;/  Function: getHelperMagickSkills
+    Returns:
+
+        Absolute value of magic skill of helper or 0.0 if device have not helper
+/;
 float Function getHelperMagickSkills()
     if hasHelper()
         return UDCDMain.GetMagickSkill(getHelper())
@@ -4155,6 +4180,11 @@ float Function getHelperMagickSkills()
     endif
 EndFunction
 
+;/  Function: getHelperMagickSkillsPerc
+    Returns:
+
+        Relative magic skill of helper or 0.0 if device have not helper. As it is hard to pinpoint maximum value, virtual value 100 is choosen. Because of that, it is possible that this value can be more then 1.0.
+/;
 float Function getHelperMagickSkillsPerc()
     if hasHelper()
         return UDCDMain.getActorMagickSkillsPerc(getHelper())
@@ -4163,19 +4193,62 @@ float Function getHelperMagickSkillsPerc()
     endif
 EndFunction
 
-;Checks for SOLO struggle minigames
+;/  Function: StruggleMinigameAllowed
+    Parameters:
+
+        afAccesibility  - External accessibility. Use this if you already have value of accessibility, so the framework don't have to calculate it again. Will calculate the accessibility if this is less then 0.0
+
+        
+    Returns:
+
+        True if struggle minigame is allowed. Doesn't check actor stats
+/;
 Bool Function StruggleMinigameAllowed(Float afAccesibility)
     return canBeStruggled(afAccesibility)
 EndFunction
 
+;/  Function: CuttingMinigameAllowed
+    Parameters:
+
+        afAccesibility  - External accessibility. Use this if you already have value of accessibility, so the framework don't have to calculate it again. Will calculate the accessibility if this is less then 0.0
+
+        
+    Returns:
+
+        True if cutting minigame is allowed. Doesn't check actor stats
+/;
 Bool Function CuttingMinigameAllowed(Float afAccesibility)
     return canBeCutted() && afAccesibility
 EndFunction
 
-;returns Nth lock control variable which contain information about minigames which are allowed for passed lock
-; 0b = lockpick minigame
-; 1b = key unlock minigame
-; 2b = lcok repair minigame
+;/  Function: NthLockMinigamesAllowed
+    Parameters:
+
+        aiLockID        - ID of lock to check
+        afAccesibility  - External accessibility. Use this if you already have value of accessibility, so the framework don't have to calculate it again. Will calculate the accessibility if this is less then 0.0
+        
+    Returns:
+
+        Bit coded value.
+        ---Code
+            0x00000001 = lockpick minigame allowed
+            0x00000002 = key unlock minigame allowed
+            0x00000004 = locok repair minigame allowed
+        ---
+        
+        
+    Example:
+        ---Code
+            ;check second lock. Accessibility is 50%
+            Int loc_res = NthLockMinigamesAllowed(1,0.5)
+            
+            ;do something if the lock can be unlocked or repaired
+            if Math.LogicalAnd(loc_res,0x00000006)
+                ;something
+            endif
+        ---
+    
+/;
 Int  Function NthLockMinigamesAllowed(Int aiLockID, Float afAccesibility)
     if IsNthLockUnlocked(aiLockID)
         return 0x0 ;lock is unlocked, no minigame slould be allowed
@@ -4215,6 +4288,34 @@ EndFunction
 ; 0b = at least 1 lock can be lockpicked
 ; 1b = at least 1 lock can be unlocked with key
 ; 2b = at least 1 lock can be repaired
+
+;/  Function: LockMinigameAllowed
+    Parameters:
+
+        afAccesibility  - External accessibility. Use this if you already have value of accessibility, so the framework don't have to calculate it again. Will calculate the accessibility if this is less then 0.0
+        
+    Returns:
+
+        Bit coded value.
+        ---Code
+            0x00000001 = At least one lock have lockpick minigame allowed
+            0x00000002 = At least one lock have key unlock minigame allowed
+            0x00000004 = At least one lock have locok repair minigame allowed
+        ---
+        
+        
+    Example:
+        ---Code
+            ;check all locks, calculate accessibility
+            Int loc_res = LockMinigameAllowed(1)
+            
+            ;do something if the any of the locks can be unlocked
+            if Math.LogicalAnd(loc_res, 0x00000002)
+                ;something
+            endif
+        ---
+    
+/;
 Int Function LockMinigameAllowed(Float afAccesibility)
     Int loc_LockNum = GetLockNumber()
     int loc_res = 0x0
@@ -4226,28 +4327,38 @@ Int Function LockMinigameAllowed(Float afAccesibility)
     return loc_res
 EndFunction
 
+;/  Function: struggleMinigame
+    Starts struggle minigame. This function include all checks and is safew to be called at all times.
 
-;==============================================================================================
-;==============================================================================================
-;==============================================================================================
-;                   |-------------------------------------------------------|                  
-;                   | __  __ _____ _   _ _____ _____          __  __ ______ |                  
-;                   ||  \/  |_   _| \ | |_   _/ ____|   /\   |  \/  |  ____||                  
-;                   || \  / | | | |  \| | | || |  __   /  \  | \  / | |__   |                  
-;                   || |\/| | | | | . ` | | || | |_ | / /\ \ | |\/| |  __|  |                  
-;                   || |  | |_| |_| |\  |_| || |__| |/ ____ \| |  | | |____ |                  
-;                   ||_|  |_|_____|_| \_|_____\_____/_/    \_\_|  |_|______||                  
-;                   |-------------------------------------------------------|                  
-;==============================================================================================
-;==============================================================================================
-;==============================================================================================
 
-bool Function struggleMinigame(int iType = -1, Bool abSilent = False)
-    if iType == -1
-        iType = UDCDmain.StruggleMessage.show()
+        ---Code
+            |==========================================|
+            |  aiType  |          Minigame             |
+            |==========================================|
+            |    0     |  Normal struggle minigame     |
+            |    1     |  Desperate struggle minigame  |
+            |    2     |  Magic struggle minigame      |
+            |    3     |  Slow struggle minigame       |
+            |    4     |  Don't start minigame         |
+            |    5     |  Useless struggle minigame    |
+            |==========================================|
+        ---
+
+    Parameters:
+
+        aiType      - Type of minigame. If -1, function will open message box in which player can select which minigame struggleMinigame be started
+        abSilent    - If messages should be printed
+
+    Returns:
+
+        True if struggle minigame started and ended
+/;
+bool Function struggleMinigame(int aiType = -1, Bool abSilent = False)
+    if aiType == -1
+        aiType = UDCDmain.StruggleMessage.show()
     endif
 
-    if iType == 4
+    if aiType == 4
         return false
     endif
     
@@ -4256,9 +4367,9 @@ bool Function struggleMinigame(int iType = -1, Bool abSilent = False)
     endif
     
     resetMinigameValues()
-    setMinigameWidgetVar((iType != 5), True, True, 0xffbd00, -1, -1, "icon-meter-struggle")
+    setMinigameWidgetVar((aiType != 5), True, True, 0xffbd00, -1, -1, "icon-meter-struggle")
     
-    if iType == 0 ;normal
+    if aiType == 0 ;normal
         UD_minigame_stamina_drain = UD_base_stat_drain*0.75 + getMaxActorValue(Wearer,"Stamina",0.035)
         UD_durability_damage_add = 1.25*(_durability_damage_mod*UDCDMain.getActorAgilitySkillsPerc(getWearer()))
         UD_DamageMult *= getModResistPhysical(1.0,0.3)
@@ -4267,7 +4378,7 @@ bool Function struggleMinigame(int iType = -1, Bool abSilent = False)
         UD_RegenMag_Magicka = 0.4
         UD_RegenMag_Health = 0.4
         _minMinigameStatSP = 0.25
-    elseif iType == 1 ;desperate
+    elseif aiType == 1 ;desperate
         UD_minigame_stamina_drain = UD_base_stat_drain*1.1
         UD_minigame_heal_drain = 0.5*UD_base_stat_drain + getMaxActorValue(Wearer,"Health",0.06)
         UD_durability_damage_add = 1.0*(_durability_damage_mod*((5.0 - 5.0*getRelativeDurability()) + UDCDMain.getActorStrengthSkillsPerc(getWearer())));UDmain.getMaxActorValue(Wearer,"Health",0.02);*getModResistPhysical()
@@ -4277,7 +4388,7 @@ bool Function struggleMinigame(int iType = -1, Bool abSilent = False)
         UD_RegenMag_Magicka = 0.5
         _minMinigameStatSP = 0.2
         _minMinigameStatHP = 0.4
-    elseif iType == 2 ;magick
+    elseif aiType == 2 ;magick
         UD_minigame_stamina_drain = 0.65*UD_base_stat_drain
         UD_minigame_magicka_drain = 0.75*UD_base_stat_drain + getMaxActorValue(Wearer,"Magicka",0.05)
         UD_durability_damage_add = 1.0*(_durability_damage_mod*UDCDMain.getActorMagickSkillsPerc(getWearer()))
@@ -4287,7 +4398,7 @@ bool Function struggleMinigame(int iType = -1, Bool abSilent = False)
         UD_RegenMag_Health = 0.8
         _minMinigameStatSP = 0.4
         _minMinigameStatMP = 0.7
-    elseif iType == 3 ;slow
+    elseif aiType == 3 ;slow
         UD_durability_damage_add = 0.0
         UD_applyExhastionEffect = False
         UD_minigame_canCrit = False
@@ -4296,7 +4407,7 @@ bool Function struggleMinigame(int iType = -1, Bool abSilent = False)
         UD_RegenMag_Stamina = 0.7
         UD_RegenMag_Health = 0.8
         UD_RegenMag_Magicka = 0.7
-    elseif iType == 5 ;useless struggle
+    elseif aiType == 5 ;useless struggle
         UD_damage_device = False
         UD_drain_stats = False
         UD_applyExhastionEffect = False
@@ -4308,7 +4419,7 @@ bool Function struggleMinigame(int iType = -1, Bool abSilent = False)
         return false
     endif
         
-    _struggleGame_Subtype = iType
+    _struggleGame_Subtype = aiType
 
     bool loc_minigamecheck = minigamePostcheck(abSilent)
     if loc_minigamecheck
@@ -4321,6 +4432,17 @@ bool Function struggleMinigame(int iType = -1, Bool abSilent = False)
     endif
 EndFunction
 
+;/  Function: lockpickMinigame
+    Starts lockpick minigame. This function include all checks and is safew to be called at all times.
+
+    Parameters:
+
+        abSilent    - If messages should be printed
+
+    Returns:
+
+        True if lockpick minigame started and ended
+/;
 bool Function lockpickMinigame(Bool abSilent = False)
     if !minigamePrecheck(abSilent)
         return false
@@ -4373,6 +4495,17 @@ bool Function lockpickMinigame(Bool abSilent = False)
     endif
 EndFunction
 
+;/  Function: repairLocksMinigame
+    Starts lock repair minigame. This function include all checks and is safew to be called at all times.
+
+    Parameters:
+
+        abSilent    - If messages should be printed
+
+    Returns:
+
+        True if lock repair minigame started and ended
+/;
 bool Function repairLocksMinigame(Bool abSilent = False)
     if !minigamePrecheck(abSilent)
         return false
@@ -4434,6 +4567,17 @@ bool Function repairLocksMinigame(Bool abSilent = False)
     endif
 EndFunction
 
+;/  Function: cuttingMinigame
+    Starts cutting minigame. This function include all checks and is safew to be called at all times.
+
+    Parameters:
+
+        abSilent    - If messages should be printed
+
+    Returns:
+
+        True if cutting minigame started and ended
+/;
 bool Function cuttingMinigame(Bool abSilent = False)
     if !minigamePrecheck(abSilent)
         return false
@@ -4464,6 +4608,17 @@ bool Function cuttingMinigame(Bool abSilent = False)
     endif
 EndFunction
 
+;/  Function: keyMinigame
+    Starts unlock minigame. This function include all checks and is safew to be called at all times.
+
+    Parameters:
+
+        abSilent    - If messages should be printed
+
+    Returns:
+
+        True if unlock minigame started and ended
+/;
 bool Function keyMinigame(Bool abSilent = False)
     if !minigamePrecheck(abSilent)
         return false
@@ -4519,8 +4674,36 @@ bool Function keyMinigame(Bool abSilent = False)
     endif
 EndFunction
 
+
 ;With Help minigames
-bool Function struggleMinigameWH(Actor akHelper)
+
+;/  Function: struggleMinigameWH
+    Starts struggle minigame with helper. This function include all checks and is safew to be called at all times.
+
+
+        ---Code
+            |==========================================|
+            |  aiType  |          Minigame             |
+            |==========================================|
+            |    0     |  Normal struggle minigame     |
+            |    1     |  Desperate struggle minigame  |
+            |    2     |  Magic struggle minigame      |
+            |    3     |  Slow struggle minigame       |
+            |    4     |  Don't start minigame         |
+            |    5     |  Useless struggle minigame    |
+            |==========================================|
+        ---
+
+    Parameters:
+
+        akHelper    - Actor who will be used as helper
+        aiType      - Type of minigame. If -1, function will open message box in which player can select which minigame struggleMinigame be started
+
+    Returns:
+
+        True if struggle minigame with helper started and ended
+/;
+bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
     int type = -1
     if type == -1
         type = UDCDmain.StruggleMessageNPC.show()
@@ -4639,6 +4822,17 @@ bool Function struggleMinigameWH(Actor akHelper)
     
 EndFunction
 
+;/  Function: lockpickMinigameWH
+    Starts lockpick minigame with helper. This function include all checks and is safew to be called at all times.
+
+    Parameters:
+
+        akHelper    - Actor who will be used as helper
+
+    Returns:
+
+        True if lockpick minigame with helper started and ended
+/;
 bool Function lockpickMinigameWH(Actor akHelper)
     if !minigamePrecheck()
         return false
@@ -4698,6 +4892,17 @@ bool Function lockpickMinigameWH(Actor akHelper)
     endif
 EndFunction
 
+;/  Function: repairLocksMinigameWH
+    Starts lock repair minigame with helper. This function include all checks and is safew to be called at all times.
+
+    Parameters:
+
+        akHelper    - Actor who will be used as helper
+
+    Returns:
+
+        True if lock repair minigame with helper started and ended
+/;
 bool Function repairLocksMinigameWH(Actor akHelper)
     setHelper(akHelper)
     
@@ -4772,6 +4977,17 @@ bool Function repairLocksMinigameWH(Actor akHelper)
     endif
 EndFunction
 
+;/  Function: cuttingMinigameWH
+    Starts cutting minigame with helper. This function include all checks and is safew to be called at all times.
+
+    Parameters:
+
+        akHelper    - Actor who will be used as helper
+
+    Returns:
+
+        True if cutting minigame with helper started and ended
+/;
 bool Function cuttingMinigameWH(Actor akHelper)
     setHelper(akHelper)
     
@@ -4815,6 +5031,17 @@ bool Function cuttingMinigameWH(Actor akHelper)
     endif
 EndFunction
 
+;/  Function: keyMinigameWH
+    Starts unlock minigame with helper. This function include all checks and is safew to be called at all times.
+
+    Parameters:
+
+        akHelper    - Actor who will be used as helper
+
+    Returns:
+
+        True if unlock minigame with helper started and ended
+/;
 bool Function keyMinigameWH(Actor akHelper)
     setHelper(akHelper)
     
@@ -4877,6 +5104,13 @@ bool Function keyMinigameWH(Actor akHelper)
     endif
 EndFunction
 
+;/  Function: tightUpDevice
+    Tighten up device
+
+    Parameters:
+
+        akSource    - Actor who will tighten the device
+/;
 Function tightUpDevice(Actor akSource)
     if WearerIsPlayer()
         UDmain.Print(GetActorName(akSource) + " tighted your " + getDeviceName() + " !",1)
@@ -4892,6 +5126,13 @@ Function tightUpDevice(Actor akSource)
     endif
 EndFunction
 
+;/  Function: repairDevice
+    Repair device. Doesn't include check. Should be only called if <canBeRepaired> passes
+
+    Parameters:
+
+        akSource    - Actor who will tighten the device
+/;
 Function repairDevice(Actor akSource)
     if WearerIsPlayer()
         UDmain.Print(GetActorName(akSource) + " repaired your " + getDeviceName() + " !",1)
@@ -4928,7 +5169,15 @@ Function repairDevice(Actor akSource)
     akSource.removeItem(UDlibs.SteelIngot,2) ;remove 2 ingots
 EndFunction
 
-;reset minigames variables
+;/  Group: Minigame Creation
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+;/  Function: resetMinigameValues
+    Resets all minigame variables to default value
+/;
 Function resetMinigameValues()
     _struggleGame_Subtype = -1
     UD_durability_damage_add = 0
@@ -4972,120 +5221,273 @@ Function resetMinigameValues()
     _MinigameSelectedLockID = -1
 EndFunction
 
-;set minigame offensive variables
-Function setMinigameOffensiveVar(bool dmgDevice,float dpsAdd = 0.0,float condMultAdd = 0.0, bool canCrit = false,float dmg_mult = 1.0)
-    UD_damage_device = dmgDevice
-    UD_durability_damage_add = dpsAdd
-    _condition_mult_add = condMultAdd
-    UD_minigame_canCrit = canCrit
-    UD_DamageMult = dmg_mult
+;/  Function: setMinigameOffensiveVar
+    Sets minigame offensive variables
+
+    Parameters:
+
+        abDmgDevice     - If device can be damaged
+        abDpsAdd        - Durability damage added to base damage
+        abCondMultAdd   - Condition multiplier added to base condition multiplier
+        abCanCrit       - If device can be critted. Toggling this off disables crits from occuring
+        abDmgMult       - Durability damage multiplier
+/;
+Function setMinigameOffensiveVar(bool abDmgDevice,float abDpsAdd = 0.0,float abCondMultAdd = 0.0, bool abCanCrit = false,float abDmgMult = 1.0)
+    UD_damage_device            = abDmgDevice
+    UD_durability_damage_add    = abDpsAdd
+    _condition_mult_add         = abCondMultAdd
+    UD_minigame_canCrit         = abCanCrit
+    UD_DamageMult               = abDmgMult
 EndFunction
 
-Function setMinigameDefaultCritVar(bool bDefaultCrit = true,bool bCritReg = true,bool bCritRegHelper = true)
-    UD_minigame_canCrit = bDefaultCrit
-    UD_minigame_critRegen = bCritReg
-    UD_minigame_critRegen_helper = bCritRegHelper
+;/  Function: setMinigameDefaultCritVar
+    Sets minigame offensive variables
+
+    Parameters:
+
+        abDefaultCrit       - If device can be critted. Toggling this off disables crits from occuring. Same option as abCanCrit from <setMinigameOffensiveVar>
+        abCritReg           - If landing crit should regen some of the wearer stats
+        abCritRegHelper     - If landing crit should regen some of the helper stats
+/;
+Function setMinigameDefaultCritVar(bool abDefaultCrit = true,bool abCritReg = true,bool abCritRegHelper = true)
+    UD_minigame_canCrit             = abDefaultCrit
+    UD_minigame_critRegen           = abCritReg
+    UD_minigame_critRegen_helper    = abCritRegHelper
 EndFunction
 
-Function setMinigameCustomCrit(int iCrit_c,float fCrit_d = 0.75,float fCrit_m = 1.0)
-    UD_minigame_canCrit = False
-    _customMinigameCritChance = iCrit_c
-    _customMinigameCritDuration = fCrit_d
-    _customMinigameCritMult = fCrit_m
+;/  Function: setMinigameCustomCrit
+    Sets minigame custom crit variables.
+    
+    *This should never be called before <setMinigameDefaultCritVar> and <setMinigameOffensiveVar> !*
+
+    Parameters:
+
+        aiCritChance        - Chance for crit to happen every second
+        afCritDuration      - Duration of crit
+        afCritMult          - Crit multiplier
+/;
+Function setMinigameCustomCrit(int aiCritChance,float afCritDuration = 0.75,float afCritMult = 1.0)
+    UD_minigame_canCrit         = False
+    _customMinigameCritChance   = aiCritChance
+    _customMinigameCritDuration = afCritDuration
+    _customMinigameCritMult     = afCritMult
 EndFunction
 
 ;set minigame min stats 0.0-1.0
-Function setMinigameMinStats(float fSp,float fHp = 0.0,float fMp = 0.0)
-    _minMinigameStatSP = fSp
-    _minMinigameStatHP = fHp
-    _minMinigameStatMP = fMp
+
+;/  Function: setMinigameMinStats
+    Sets minigame minimum values
+    
+    Parameters:
+
+        afSp    - Minimum stamina as relative value (0.0-1.0)
+        afHp    - Minimum health as relative value (0.0-1.0)
+        afMp    - Minimum magicka as relative value (0.0-1.0)
+/;
+Function setMinigameMinStats(float afSp,float afHp = 0.0,float afMp = 0.0)
+    _minMinigameStatSP = afSp
+    _minMinigameStatHP = afHp
+    _minMinigameStatMP = afMp
 EndFunction
 
-;set minigame lockpick variables
-Function setMinigameLockVar(bool needReach,float repairMult = 1.0)
-    ;UD_NeedLockReach = needReach
-    UD_MinigameMult1 = repairMult
+;/  Function: setMinigameDmgMult
+    Sets minigame damage multiplier. Does same thing as abDmgMult from <setMinigameOffensiveVar>
+    
+    Parameters:
+
+        afVal    - Minigame damage multiplier
+/;
+Function setMinigameDmgMult(float afVal)
+    UD_DamageMult = afVal
 EndFunction
 
-;set minigame dmg multiplier
-Function setMinigameDmgMult(float val)
-    UD_DamageMult = val
-EndFunction
+;/  Function: setMinigameMult
+    Sets minigame Nth multiplier. Does same thing as abDmgMult from <setMinigameOffensiveVar>
+    
+    ---Code
+        |==========================================|
+        |  aiMultIndx   |      Multiplier          |
+        |==========================================|
+        |       0       |  Damage multiplier       |
+        |       1       |  Custom multiplier 1     |
+        |       2       |  Custom multiplier 2     |
+        |       3       |  Custom multiplier 3     |
+        |==========================================|
+    ---
+    
+    Parameters:
 
-;set minigame dmg multiplier
-Function setMinigameMult(int iMultIndx,float fMult)
-    if iMultIndx == 0 
-        UD_DamageMult = fMult
-    elseif iMultIndx == 1
-        UD_MinigameMult1 = fMult
-    elseif iMultIndx == 2
-        UD_MinigameMult2 = fMult
-    elseif iMultIndx == 3
-        UD_MinigameMult3 = fMult
+        aiMultIndx  - Index of multiplier
+        afMult      - New value
+/;
+Function setMinigameMult(int aiMultIndx,float afValue)
+    if aiMultIndx == 0 
+        UD_DamageMult = afValue
+    elseif aiMultIndx == 1
+        UD_MinigameMult1 = afValue
+    elseif aiMultIndx == 2
+        UD_MinigameMult2 = afValue
+    elseif aiMultIndx == 3
+        UD_MinigameMult3 = afValue
     endif    
 EndFunction
 
-;set minigame wearer variables
-Function setMinigameWearerVar(bool drainPlayer,float staminaDrain = 10.0,float healthDrain = 0.0,float magickaDrain = 0.0)
-    UD_drain_stats = drainPlayer
-    UD_minigame_stamina_drain = staminaDrain
-    UD_minigame_heal_drain = healthDrain
-    UD_minigame_magicka_drain = magickaDrain
+;/  Function: setMinigameMult
+    Gets minigame Nth multiplier
+    
+    ---Code
+        |==========================================|
+        |  aiMultIndx   |      Multiplier          |
+        |==========================================|
+        |       0       |  Damage multiplier       |
+        |       1       |  Custom multiplier 1     |
+        |       2       |  Custom multiplier 2     |
+        |       3       |  Custom multiplier 3     |
+        |==========================================|
+    ---
+    
+    Parameters:
+
+        aiMultIndx  - Index of multiplier
+        
+    Returns:
+        
+        Multiplier value
+/;
+float Function getMinigameMult(int aiMultIndx)
+    if aiMultIndx == 0 
+        return UD_DamageMult
+    elseif aiMultIndx == 1
+        return UD_MinigameMult1
+    elseif aiMultIndx == 2
+        return UD_MinigameMult2
+    elseif aiMultIndx == 3
+        return UD_MinigameMult3
+    endif
 EndFunction
 
-Function setMinigameHelperVar(bool drainHelper,float staminaDrain = 10.0,float healthDrain = 0.0,float magickaDrain = 0.0)
-    UD_drain_stats_helper = drainHelper
-    UD_minigame_stamina_drain_helper = staminaDrain
-    UD_minigame_heal_drain_helper = healthDrain
-    UD_minigame_magicka_drain_helper = magickaDrain
+;/  Function: setMinigameWearerVar
+    Sets minigame wearer values
+    
+    New values should use UD_base_stat_drain as base
+    
+    Parameters:
+
+        abDrainPlayer   - If player stats should be drain while in minigame
+        afStaminaDrain  - stamina drain per second of minigame
+        afHealthDrain   - health drain per second of minigame
+        afMagickaDrain  - magicka drain per second of minigame
+        
+    Example:
+    
+    ---Code
+        ;calculate new stamina drain as 75% of base device drain + 3.5% of wearer maximum stamina
+        Float loc_staminaDrain = (UD_base_stat_drain*0.75 + getMaxActorValue(GetWearer(),"Stamina",0.035))
+        
+        ;sets the wearer values
+        setMinigameWearerVar(True,loc_staminaDrain)
+    ---
+/;
+Function setMinigameWearerVar(bool abDrainPlayer,float afStaminaDrain = 10.0,float afHealthDrain = 0.0,float afMagickaDrain = 0.0)
+    UD_drain_stats              = abDrainPlayer
+    UD_minigame_stamina_drain   = afStaminaDrain
+    UD_minigame_heal_drain      = afHealthDrain
+    UD_minigame_magicka_drain   = afMagickaDrain
 EndFunction
 
-;set minigame effect variables
-Function setMinigameEffectVar(bool alloworgasm = True,bool allowexhaustion = True,float exhaustion_m = 1.0)
-    UD_applyExhastionEffect = allowexhaustion
-    _exhaustion_mult = exhaustion_m
+;/  Function: setMinigameWearerVar
+    Sets minigame helper values
+    
+    New values should use UD_base_stat_drain as base
+    
+    Parameters:
+
+        abDrainHelper   - If helper stats should be drain while in minigame
+        afStaminaDrain  - stamina drain per second of minigame
+        afHealthDrain   - health drain per second of minigame
+        afMagickaDrain  - magicka drain per second of minigame
+        
+    Example:
+    
+    ---Code
+        ;calculate drain values
+        Float loc_StaminaDrain = (UD_base_stat_drain*0.75 + getMaxActorValue(GetHelper(),"Stamina",0.035))
+        Float loc_HeatlhDrain  = (UD_base_stat_drain*0.25)
+        Float loc_MagickaDrain = (UD_base_stat_drain*1.25 + getMaxActorValue(GetHelper(),"Stamina",0.050))
+        
+        ;sets the wearer values
+        setMinigameWearerVar(True,loc_StaminaDrain,loc_HeatlhDrain,loc_MagickaDrain)
+    ---
+/;
+Function setMinigameHelperVar(bool abDrainHelper,float afStaminaDrain = 10.0,float afHealthDrain = 0.0,float afMagickaDrain = 0.0)
+    UD_drain_stats_helper               = abDrainHelper
+    UD_minigame_stamina_drain_helper    = afStaminaDrain
+    UD_minigame_heal_drain_helper       = afHealthDrain
+    UD_minigame_magicka_drain_helper    = afMagickaDrain
 EndFunction
 
-;set minigame effect variables
-Function setMinigameEffectHelperVar(bool alloworgasm = True,bool allowexhaustion = True,float exhaustion_m = 1.0)
-    UD_applyExhastionEffectHelper = allowexhaustion
-    _exhaustion_mult_helper = exhaustion_m
+;/  Function: setMinigameEffectVar
+    Sets minigame exhaustion effect values for wearer
+    
+    Parameters:
+
+        abUnused1           - Unused
+        abAllowExhaustion   - If minigame can apply exhaustion after minigame ends
+        afExhaustionMult    - Exhaustion duration multiplier
+/;
+Function setMinigameEffectVar(bool abUnused1 = True,bool abAllowExhaustion = True,float afExhaustionMult = 1.0)
+    UD_applyExhastionEffect = abAllowExhaustion
+    _exhaustion_mult        = afExhaustionMult
+EndFunction
+
+;/  Function: setMinigameEffectHelperVar
+    Sets minigame exhaustion effect values for helper
+    
+    Parameters:
+
+        abUnused1           - Unused
+        abAllowExhaustion   - If minigame can apply exhaustion after minigame ends
+        afExhaustionMult    - Exhaustion duration multiplier
+/;
+Function setMinigameEffectHelperVar(bool abUnused1 = True,bool abAllowExhaustion = True,float afExhaustionMult = 1.0)
+    UD_applyExhastionEffectHelper   = abAllowExhaustion
+    _exhaustion_mult_helper         = afExhaustionMult
 EndFunction
 
 ;set minigame widget variables
+
+;/  Function: setMinigameEffectVar
+    Sets minigame widget appearance values
+    
+    Parameters:
+
+        abUseWidget         - If widget should be used
+        abWidgetAutoColor   - If widget color should be calculated based on condition. When enabled, color setting will be ignored
+        abWidgetUpdate      - IF widget value should be updated on every minigame tick. In case this is turned off, the value can be changed only using <setWidgetVal>
+        aiColor1            - Widget main color
+        aiColor2            - Widget secondary value
+        aiFlashColor        - Widget flash color
+        asIconName          - Widget icon name
+        
+    Example:
+    ---Code
+        ;shows widget
+        ;widget color will change based on condition
+        ;widget value will not be updated. Value have to be changed with setWidgetVal
+        ;Color is ignored as abWidgetAutoColor is True
+        ;icon next to widget will be "icon-meter-cut"
+        self.setMinigameWidgetVar(True, True, False, -1, -1, -1, "icon-meter-cut")
+    ---
+/;
 Function setMinigameWidgetVar(Bool abUseWidget = False, Bool abWidgetAutoColor = True, Bool abWidgetUpdate = True, Int aiColor1 = -1, Int aiColor2 = -1, Int aiFlashColor = -1, String asIconName = "")
-    UD_useWidget = abUseWidget
-    UD_WidgetAutoColor = abWidgetAutoColor
-    UD_AllowWidgetUpdate = abWidgetUpdate
+    UD_useWidget            = abUseWidget
+    UD_WidgetAutoColor      = abWidgetAutoColor
+    UD_AllowWidgetUpdate    = abWidgetUpdate
     
     setMainWidgetAppearance(aiColor1, aiColor2, aiFlashColor, asIconName)
 EndFunction
 
-;returns current type of minigame played
-; 0 = no minigame is playing
-; 1 = struggle
-; 2 = cutting
-; 3 = lockpick
-; 4 = key unlocking
-; 5 = lock repair
-int Function getMinigameType()
-    if !_MinigameON
-        return 0
-    endif
-    if _StruggleGameON
-        return 1
-    elseif _CuttingGameON
-        return 2
-    elseif _LockpickGameON
-        return 3
-    elseif _KeyGameON
-        return 4
-    elseif _RepairLocksMinigameON
-        return 5
-    endif
-EndFunction
-
-Function UnsetMinigameDevice()
+Function _UnsetMinigameDevice()
     if PlayerInMinigame()
         UDCDmain.resetCurrentMinigameDevice()
     else
@@ -5096,38 +5498,29 @@ Function UnsetMinigameDevice()
     endif
 EndFunction
 
-;returns current subtype of struggle minigame played
-;-1 = no struggle minigame
-; 0 = normal
-; 1 = desperate
-; 2 = magick
-; 3 = slow
-; 5 = useless struggle
+;/  Function: getStruggleMinigameSubType
+    Returns:
+    
+        ---Code
+            -1 => no struggle minigame
+             0 => normal
+             1 => desperate
+             2 => magick
+             3 => slow
+             5 => useless struggle
+        ---
+/;
 int Function getStruggleMinigameSubType()
     return _struggleGame_Subtype
 EndFunction
 
-;returns current minigame multiplier for iMultIndx
-; iMultIndx = 0 -> UD_DamageMult
-; iMultIndx = 1 -> UD_MinigameMult1
-; iMultIndx = 2 -> UD_MinigameMult2
-; iMultIndx = 3 -> UD_MinigameMult3
-float Function getMinigameMult(int iMultIndx)
-    if iMultIndx == 0 
-        return UD_DamageMult
-    elseif iMultIndx == 1
-        return UD_MinigameMult1
-    elseif iMultIndx == 2
-        return UD_MinigameMult2
-    elseif iMultIndx == 3
-        return UD_MinigameMult3
-    endif
-EndFunction
-
-;Stops minigame
-;setting argument abWaitForStop to true will block the functionu ntill minigame ends
+;/  Function: getStruggleMinigameSubType
+    Stops minigame
+    
+    Setting argument abWaitForStop to true will block the functionu ntill minigame ends
+/;
 Function StopMinigame(Bool abWaitForStop = False)
-    UnsetMinigameDevice()
+    _UnsetMinigameDevice()
     _StopMinigame = True
     _PauseMinigame = False
     while abWaitForStop && IsMinigameOn()
@@ -5135,35 +5528,68 @@ Function StopMinigame(Bool abWaitForStop = False)
     endwhile
 EndFunction
 
-;pauses minigame. This stops main loop from processing (decreasing stats, crits, etc..). Minigame can be still stoped while in this state with StopMinigame()
+;/  Function: PauseMinigame
+    Pauses minigame
+    
+    This stops main loop from processing (decreasing stats, crits, etc..)
+    
+    Minigame can be still stoped while in this state with StopMinigame()
+/;
 Function PauseMinigame()
     if _MinigameON
         _PauseMinigame = True
     endif
 EndFunction
 
-;Unpauses minigame
+;/  Function: UnPauseMinigame
+    UnPauses minigame
+/;
 Function UnPauseMinigame()
     if _MinigameON
         _PauseMinigame = False
     endif
 EndFunction
 
-;returns true if device is in minigame
+;/  Function: IsMinigameOn
+    Return:
+    
+        True if device have minigame going on
+/;
 bool Function IsMinigameOn()
     return _MinigameON
 EndFunction
 
-;returns true if minigame main loop is running
+;/  Function: IsMinigameLoopRunning
+    Return:
+    
+        True if main minigame loop is running
+/;
 bool Function IsMinigameLoopRunning()
     return _MinigameMainLoopON
 EndFunction
 
-;returns true if devices minigame is currently paused
+;/  Function: IsPaused
+    Return:
+    
+        True if minigame is paused
+/;
 bool Function IsPaused()
     return _PauseMinigame
 EndFunction
 
+
+
+;/  Function: minigamePostcheck
+    Check wearer and helper minimum stats
+
+    Parameters:
+    
+        abSilent - If message should be shown if function fails
+    
+    Return:
+    
+        True both wearer and helper have required stats
+/;
 bool Function minigamePostcheck(Bool abSilent = False)
     If UDmain.TraceAllowed()
         UDmain.Log("minigamePostcheck called for " + getDeviceHeader() + " abSilent="+abSilent)
@@ -5191,6 +5617,22 @@ bool Function minigamePostcheck(Bool abSilent = False)
     return true
 EndFunction
 
+;/  Function: minigamePrecheck
+    Check wearer and helper for following
+    
+    - Wearer/Helper is not in minigame
+    - Device have not ongoing minigame
+    - Wearer/Helper is not animating
+    - Wearer/Helper is not dead/disabled/in scene
+
+    Parameters:
+    
+        abSilent - If message should be shown if function fails
+    
+    Return:
+    
+        True if all conditions are met
+/;
 bool Function minigamePrecheck(Bool abSilent = False)
     If UDmain.TraceAllowed()
         UDmain.Log("minigamePrecheck called for " + getDeviceHeader() + " abSilent="+abSilent)
@@ -5572,7 +6014,7 @@ Function minigame()
         UDmain.Error(getDeviceHeader() + "::minigame() - Minigame paralel thread timeout! _deviceControlBitMap_1 = " + IntToBit(_deviceControlBitMap_1))
     endif
     
-    MinigameVarReset()
+    _MinigameVarReset()
     
     OnMinigameEnd()
     
@@ -5715,7 +6157,7 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
             ; start new animation
                 _StruggleAnimationDefPairLastIndex = anim_index
                 _animationDef = _StruggleAnimationDefPairArray[anim_index]
-                If UDAM.PlayAnimationByDef(_animationDef, ActorArray2(Wearer, _minigameHelper), bContinueAnimation, abDisableActors = False)
+                If UDAM.PlayAnimationByDef(_animationDef, _ActorArray2(Wearer, _minigameHelper), bContinueAnimation, abDisableActors = False)
                     result[0] = _StruggleAnimationDefPairArray.Length
                     result[1] = _StruggleAnimationDefPairArray.Length
                 EndIf
@@ -5744,7 +6186,7 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
                     ; start new animation
                     _StruggleAnimationDefActorLastIndex = anim_index
                     _animationDef = _StruggleAnimationDefActorArray[anim_index]
-                    If UDAM.PlayAnimationByDef(_animationDef, ActorArray1(Wearer), bContinueAnimation, abDisableActors = False)
+                    If UDAM.PlayAnimationByDef(_animationDef, _ActorArray1(Wearer), bContinueAnimation, abDisableActors = False)
                         result[0] = _StruggleAnimationDefActorArray.Length
                     EndIf
                 Else
@@ -5759,7 +6201,7 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
                     ; start new animation
                     _StruggleAnimationDefHelperLastIndex = anim_index
                     _animationDef = _StruggleAnimationDefHelperArray[anim_index]
-                    If UDAM.PlayAnimationByDef(_animationDef, ActorArray1(_minigameHelper), bContinueAnimation, abDisableActors = False)
+                    If UDAM.PlayAnimationByDef(_animationDef, _ActorArray1(_minigameHelper), bContinueAnimation, abDisableActors = False)
                         result[1] = _StruggleAnimationDefHelperArray.Length
                     EndIf
                 Else
@@ -5774,7 +6216,7 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
         EndIf
         If _StruggleAnimationDefActorArray.Length > 0
             _animationDef = _StruggleAnimationDefActorArray[Utility.RandomInt(0, _StruggleAnimationDefActorArray.Length - 1)]
-            If UDAM.PlayAnimationByDef(_animationDef, ActorArray1(Wearer), bContinueAnimation, abDisableActors = False)
+            If UDAM.PlayAnimationByDef(_animationDef, _ActorArray1(Wearer), bContinueAnimation, abDisableActors = False)
                 result[0] = _StruggleAnimationDefActorArray.Length
             EndIf
         EndIf
@@ -5802,26 +6244,26 @@ String[] Function _GetSoloStruggleAnimation(String[] asKeywords, Actor akActor, 
     Return result
 EndFunction
 
-Actor[] Function ActorArray1(Actor actor1)
+Actor[] Function _ActorArray1(Actor actor1)
     Actor[] arr = new Actor[1]
     arr[0] = actor1
     Return arr
 EndFunction
 
-Actor[] Function ActorArray2(Actor actor1, Actor actor2)
+Actor[] Function _ActorArray2(Actor actor1, Actor actor2)
     Actor[] arr = new Actor[2]
     arr[0] = actor1
     arr[1] = actor2
     Return arr
 EndFunction
 
-Int[] Function IntArray1(Int i1)
+Int[] Function _IntArray1(Int i1)
     Int[] arr = new Int[1]
     arr[0] = i1
     Return arr
 EndFunction
 
-Function MinigameVarReset()
+Function _MinigameVarReset()
     if Wearer
         Wearer.RemoveFromFaction(UDCDmain.MinigameFaction)
     endif
@@ -5830,23 +6272,21 @@ Function MinigameVarReset()
         _minigameHelper.RemoveFromFaction(UDCDmain.MinigameFaction)
     endif
     
-    UnsetMinigameDevice()
+    _UnsetMinigameDevice()
     
     _MinigameON = False
 EndFunction
 
 ;https://en.uesp.net/wiki/Skyrim:Leveling
-Function advanceSkill(float fMult)
+Function advanceSkill(float afMult)
     if !PlayerInMinigame()
         return
     endif
     
-    float loc_mult     = 1.0
+    float loc_mult     = afMult
     
-    if WearerIsPlayer()
-        loc_mult = 1.0
-    else
-        loc_mult = 0.75
+    if !WearerIsPlayer()
+        loc_mult *= 0.75
     endif
     
     if _StruggleGameON
@@ -5857,30 +6297,18 @@ Function advanceSkill(float fMult)
             loc_type = _struggleGame_Subtype
         endif
         if loc_type == 0
-            Game.AdvanceSkill("Pickpocket" ,loc_mult*(0.5*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/8.10)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+            Game.AdvanceSkill("Pickpocket" ,loc_mult*(0.5*UDCDmain.UD_BaseDeviceSkillIncrease/8.10)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
         elseif loc_type == 1 
-            Game.AdvanceSkill("TwoHanded"  ,loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/5.95)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+            Game.AdvanceSkill("TwoHanded"  ,loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease/5.95)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
         elseif loc_type == 2
-            Game.AdvanceSkill("Destruction",loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/1.35)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+            Game.AdvanceSkill("Destruction",loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease/1.35)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
         endif
     elseif _RepairLocksMinigameON
-        Game.AdvanceSkill("Smithing" , loc_mult*(0.75*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/1.0)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+        Game.AdvanceSkill("Smithing" , loc_mult*(0.75*UDCDmain.UD_BaseDeviceSkillIncrease/1.0)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
     elseif _CuttingGameON
-        Game.AdvanceSkill("OneHanded", loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease*fMult/5.3)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+        Game.AdvanceSkill("OneHanded", loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease/5.3)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
     endif
-EndFunction
-
-Function drainStats(float fMod)
-    if UD_drain_stats
-        Wearer.damageAV("Stamina", UD_minigame_stamina_drain*fMod)
-        Wearer.damageAV("Health",  UD_minigame_heal_drain*fMod)
-        Wearer.damageAV("Magicka",  UD_minigame_magicka_drain*fMod)
-    endif
-    if hasHelper() && UD_drain_stats_helper
-        _minigameHelper.damageAV("Stamina", UD_minigame_stamina_drain_helper*fMod)
-        _minigameHelper.damageAV("Health",  UD_minigame_heal_drain_helper*fMod)
-        _minigameHelper.damageAV("Magicka",  UD_minigame_magicka_drain_helper*fMod)            
-    endif
+    OnAdvanceSkill(loc_mult)
 EndFunction
 
 ;function called when player fails crit (pressed wrong button)
@@ -6066,8 +6494,8 @@ Function edge()
     endif
 EndFunction
 
-Function ShockWearer(int iArousalUpdate = 50,float fHealth = 0.0, bool bCanKill = false)
-    (libs as zadlibs_UDPatch).ShockActorPatched(getWearer(),iArousalUpdate,fHealth, bCanKill)
+Function ShockWearer(int aiArousalUpdate = 50,float afHealth = 0.0, bool abCanKill = false)
+    (libs as zadlibs_UDPatch).ShockActorPatched(getWearer(),aiArousalUpdate,afHealth, abCanKill)
 EndFunction
 
 Function ShockHelper(int iArousalUpdate = 50,float fHealth = 0.0, bool bCanKill = false)
@@ -7506,6 +7934,9 @@ EndFunction
 
 Function patchDevice()
     UDCDmain.UDPatcher.patchGeneric(self)
+EndFunction
+
+Function OnAdvanceSkill(Float afMult)
 EndFunction
 
 ;-------------------------------------------------------------------------------------
