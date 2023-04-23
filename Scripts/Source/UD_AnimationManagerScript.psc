@@ -1,5 +1,5 @@
 ;   File: UD_AnimationManager
-;   Contains functions for manipulating animations.
+;   The module contains functions for manipulating animations and for working with the animation database.
 Scriptname UD_AnimationManagerScript extends Quest
 
 UnforgivingDevicesMain                 Property     UDmain                  Auto
@@ -21,27 +21,27 @@ Static                                 Property     VehicleMarkerForm       Auto
 /;
 
 ;/  Variable: Ready
-    Will be  to True once script is ready
-    toggled
-    Do not edit, *READ ONLY!*
+    Will be toggled to True once script is ready.
+    
+    Do not edit, *READ ONLY!*.
 /;
 Bool                                   Property     Ready         = False   Auto    Hidden
 
 ;/  Variable: UD_AnimationJSON_All
-    Array with all json files found in "<Data>/SKSE/Plugins/StorageUtilData/UD/Animations/" folder
+    Array with all json files found in "<Data>/SKSE/Plugins/StorageUtilData/UD/Animations/" folder.
     
-    Do not edit, *READ ONLY!*
+    Do not edit, *READ ONLY!*.
     
-    See <LoadAnimationJSONFiles>
+    See <LoadAnimationJSONFiles>.
 /;
 String[]                               Property     UD_AnimationJSON_All    Auto    Hidden
 
 ;/  Variable: UD_AnimationJSON_Inv
-    Array with files disabled by load condition
+    Array with files disabled by load condition.
     
-    Do not edit, *READ ONLY!*
+    Do not edit, *READ ONLY!*.
     
-    See <LoadAnimationJSONFiles>
+    See <LoadAnimationJSONFiles>.
 /;
 String[]                               Property     UD_AnimationJSON_Inv    Auto    Hidden
 
@@ -57,30 +57,30 @@ String[]                               Property     UD_AnimationJSON_Dis    Auto
 ;/  Variable: UD_AnimationJSON
     Array with currently used json files. Updated after <LoadAnimationJSONFiles> call.
     
-    Do not edit, *READ ONLY!*
+    Do not edit, *READ ONLY!*.
     
-    See <LoadAnimationJSONFiles>
+    See <LoadAnimationJSONFiles>.
 /;
 String[]                               Property     UD_AnimationJSON        Auto    Hidden
 
 ;/  Variable: UD_AlternateAnimation
     Enabling this will force struggle animation to randomly switch to different animation periodically. See <UD_AlternateAnimationPeriod>.
     
-    Do not edit, *READ ONLY!* Can be changed on MCM Animation page by user.
+    Do not edit, *READ ONLY!*. Configurable on MCM Animation page by user.
 /;
 Bool                                   Property     UD_AlternateAnimation       = False     Auto    Hidden
 
 ;/  Variable: UD_AlternateAnimationPeriod
     Animation is picked from an array of suitable ones with a given period. See <UD_AlternateAnimation>.
     
-    Do not edit, *READ ONLY!* Can be changed on MCM Animation page by user.
+    Do not edit, *READ ONLY!*. Configurable on MCM Animation page by user.
 /;
 Int                                    Property     UD_AlternateAnimationPeriod = 5         Auto    Hidden
 
 ;/  Variable: UD_UseSingleStruggleKeyword
     If this option is enabled, then only one (defining) device keyword will be used when filtering the struggle animation. Otherwise, all suitable keywords will be used.
     
-    Do not edit, *READ ONLY!* Can be changed on MCM Animation page by user.
+    Do not edit, *READ ONLY!*. Configurable on MCM Animation page by user.
 /;
 Bool                                   Property     UD_UseSingleStruggleKeyword = True      Auto    Hidden
 
@@ -147,16 +147,15 @@ EndFunction
 
 ;/  Function: StartSoloAnimationSequence
 
-    This function prepares the actor and starts an animation sequence for it. The animation sequence is quickly scrolls to the last animation event, which is played until the animation is interrupted from the outside (for example, by the <StopAnimation> function)
+    This function prepares the actor and starts an animation sequence for it. The animation sequence is quickly scrolls to the last animation event, which is played until the animation is interrupted from the outside (for example, by the <StopAnimation> function).
 
     Using this function, you can trigger any animation event, even defined in the middle of the sequence.
     
     Parameters:
-
-        akActor                - Target actor
-        aasAnimation           - Animation sequence (array of animation events) to play
-        abContinueAnimation    - True value means that animation is applied for already locked (and aligned) actor(s)
-        abDisableActor         - If true then actor should be disabled before the animation starts (see <UDCustomDeviceMain.psc:DisableActor>)
+        akActor                - Target actor.
+        aasAnimation           - Animation sequence (array of animation events) to play.
+        abContinueAnimation    - True value means that animation is applied for already locked (and aligned) actor(s).
+        abDisableActor         - If true then actor should be disabled before the animation starts (see <UDCustomDeviceMain.psc:DisableActor>).
         
     Returns:
         True if animation was started
@@ -207,11 +206,10 @@ EndFunction
     It is wrapper of <StartSoloAnimationSequence> function to use with single animation event.
     
     Parameters:
-
-        akActor                - Target actor
-        asAnimation            - Animation to play
-        abContinueAnimation    - True value means that animation is applied for already locked actor
-        abDisableActor         - If true then actor should be disabled before the animation starts (see <UDCustomDeviceMain.psc:DisableActor>)
+        akActor                - Target actor.
+        asAnimation            - Animation to play.
+        abContinueAnimation    - True value means that animation is applied for already locked actor.
+        abDisableActor         - If true then actor should be disabled before the animation starts (see <UDCustomDeviceMain.psc:DisableActor>).
         
     Returns:
         True if animation was started
@@ -224,22 +222,21 @@ EndFunction
 
 ;/  Function: StartPairAnimationSequence
 
-    This function prepares two actors and starts an animation sequence for them. The animation sequences is quickly scrolls to the last animation events, which are played until the animation is interrupted from the outside (for example, by the <StopAnimation> function)
+    This function prepares two actors and starts an animation sequence for them. The animation sequences is quickly scrolls to the last animation events, which are played until the animation is interrupted from the outside (for example, by the <StopAnimation> function).
 
     Using this function, you can trigger any animation events, even defined in the middle of the sequences.
     
     Parameters:
-
-        akActor                - First actor
-        akHelper               - Second actor (helper)
-        aasAnimationA1         - Animation sequence (array of animation events) to play for the first actor
-        aasAnimationA2         - Animation sequence (array of animation events) to play for the second actor
-        abAlignActors          - If true then actors should be aligned before the animation starts
-        abContinueAnimation    - True value means that animation is applied for already locked (and aligned) actors
-        abDisableActors        - If true then actorы should be disabled before the animation starts (see <UDCustomDeviceMain.psc:DisableActor>)
+        akActor                - First actor.
+        akHelper               - Second actor (helper).
+        aasAnimationA1         - Animation sequence (array of animation events) to play for the first actor.
+        aasAnimationA2         - Animation sequence (array of animation events) to play for the second actor.
+        abAlignActors          - If true then actors should be aligned before the animation starts.
+        abContinueAnimation    - True value means that animation is applied for already locked (and aligned) actors.
+        abDisableActors        - If true then actorы should be disabled before the animation starts (see <UDCustomDeviceMain.psc:DisableActor>).
         
     Returns:
-        True if animation was started
+        True if animation was started.
 /;
 Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[] aasAnimationA1, String[] aasAnimationA2, Bool abAlignActors = True, Bool abContinueAnimation = False, Bool abDisableActors = True)
     If UDmain.TraceAllowed()
@@ -362,17 +359,16 @@ EndFunction
     It is wrapper of <StartPairAnimationSequence> function to use with non-sequence animation events.
     
     Parameters:
-
-        akActor                - First actor
-        akHelper               - Second actor (helper)
-        asAnimationA1          - Animation sequence (array of animation events) to play for the first actor
-        asAnimationA2          - Animation sequence (array of animation events) to play for the second actor
-        abAlignActors          - If true then actors should be aligned before the animation starts
-        abContinueAnimation    - True value means that animation is applied for already locked (and aligned) actors
-        abDisableActors        - If true then actorы should be disabled before the animation starts (see <UDCustomDeviceMain.psc:DisableActor>)
+        akActor                - First actor.
+        akHelper               - Second actor (helper).
+        asAnimationA1          - Animation sequence (array of animation events) to play for the first actor.
+        asAnimationA2          - Animation sequence (array of animation events) to play for the second actor.
+        abAlignActors          - If true then actors should be aligned before the animation starts.
+        abContinueAnimation    - True value means that animation is applied for already locked (and aligned) actors.
+        abDisableActors        - If true then actorы should be disabled before the animation starts (see <UDCustomDeviceMain.psc:DisableActor>).
         
     Returns:
-        True if animation was started
+        True if animation was started.
 /;
 Bool Function StartPairAnimation(Actor akActor, Actor akHelper, String asAnimationA1, String asAnimationA2, Bool abAlignActors = True, Bool abContinueAnimation = False, Bool abDisableActors = True)
     String[] loc_animA1 = new String[1]
@@ -443,15 +439,14 @@ EndFunction
 
 ;/  Function: IsAnimating
 
-    Function to check if actor is in animation
+    Function to check if actor is in animation.
     
     Parameters:
-
-        akActor                - Actor
-        abBonusCheck           - Extra checking (more accurate but time consuming)
+        akActor                - Actor.
+        abBonusCheck           - Extra checking (more accurate but time consuming).
         
     Returns:
-        True if actor is currently in animation
+        True if actor is currently in animation.
 /;
 Bool Function IsAnimating(Actor akActor, Bool abBonusCheck = True)
     If StorageUtil.GetIntValue(akActor, "UD_ActorIsAnimating", 0) == 1
@@ -462,14 +457,13 @@ EndFunction
 
 ;/  Function: IsInFurniture
 
-    Function to check if actor is in animation
+    Function to check if actor is in animation.
     
     Parameters:
-
-        akActor                - Actor
+        akActor                - Actor.
         
     Returns:
-        True if actor is currently in furniture
+        True if actor is currently in furniture.
 /;
 Bool Function IsInFurniture(Actor akActor)
     Return akActor && UDMain.libsc.GetDevice(akActor)
@@ -480,9 +474,8 @@ EndFunction
     Function to lock and prepare actor to perform in animation.
     
     Parameters:
-
-        akActor               - Actor
-        abDisableActor        - Disable actor (NPC or player) controls
+        akActor               - Actor.
+        abDisableActor        - Disable actor (NPC or player) controls.
 /;
 Function LockAnimatingActor(Actor akActor, Bool abDisableActor = True)
 
@@ -527,9 +520,8 @@ EndFunction
     Function to unlock actor after animation.
     
     Parameters:
-
-        akActor               - Actor
-        abEnableActor         - Enable actor (NPC or player) controls
+        akActor               - Actor.
+        abEnableActor         - Enable actor (NPC or player) controls.
 /;
 Function UnlockAnimatingActor(Actor akActor, Bool abEnableActor = True)
 
@@ -566,9 +558,8 @@ EndFunction
     Sets the direction of the actor to the specified object.
     
     Parameters:
-
-        akActor               - Actor
-        akHeadingTarget       - The object the actor should be aimed at
+        akActor               - Actor.
+        akHeadingTarget       - The object the actor should be aimed at.
 /;
 Function SetActorHeading(Actor akActor, ObjectReference akHeadingTarget)
     If akActor == None || akHeadingTarget == None
@@ -590,12 +581,10 @@ EndFunction
     The function calculates (if necessary) and returns a bit mask with actor constraints. The calculated value is stored in the actor's local storage and used until it is explicitly invalidated.
     
     Parameters:
-
-        akActor               - Actor
-        abUseCache            - Use value stored in local storage (variable UD_ActorConstraintsInt)
+        akActor               - Actor.
+        abUseCache            - Use value stored in local storage (variable UD_ActorConstraintsInt).
         
     Returns:
-    
         Bit mask with actor constraints
         
         --- Code
@@ -667,8 +656,7 @@ EndFunction
     Function to invalidate actor's constraints bit mask in its local storage. After invalidating the value, the next <GetActorConstraintsInt> function call will result in an honest calculation of the value.
     
     Parameters:
-
-        akActor               - Actor
+        akActor               - Actor.
 /;
 Function InvalidateActorConstraintsInt(Actor akActor)
     If UDmain.TraceAllowed()
@@ -685,11 +673,10 @@ EndFunction
     Fast function to get keyword for the heavy bondage equippied on actor by its constraints int
     
     Parameters:
-
-        aiConstraints               - Actor constraints int (see <GetActorConstraintsInt>)
+        aiConstraints               - Actor constraints int (see <GetActorConstraintsInt>).
         
     Returns:
-        Zad device keyword
+        Zad device keyword.
 /;
 Keyword Function GetHeavyBondageKeyword(Int aiConstraints)
     If Math.LogicalAnd(aiConstraints, 128) == 128
@@ -723,7 +710,6 @@ EndFunction
     Function to start animation according to the specified definition from json.
     
     Parameters:
-
         asAnimDef                   - Animation definition from json, should be in format <file_name>:<path_in_file>.
         aakActors                   - Actors who will participate.
         abContinueAnimation         - Flag that the animation played with already locked actors.
@@ -910,13 +896,13 @@ EndFunction
         aasKeywords              - Animation keywords (device keywords or any other strings like "horny" to define animation). Value should starts with '.' because papyrus sometimes replaces the first character with a capital one.
         asField                  - Field of the animation which should be returned. Or empty string to return animation definitions instead.
         aaiActorConstraints      - Array with constraints for the participating actors as bit mask (see <GetActorConstraintsInt>). if the array consists of a single value, then only solo animations are searched. If there are two values in the array, then paired animations are checked and returned.
-        aiLewdMin                - minimum value in "lewd" field
-        aiLewdMin                - maximum value in "lewd" field
-        aiAggroMin               - minimum value in "aggro" field
-        aiAggroMax               - maximum value in "aggro" field
+        aiLewdMin                - minimum value in "lewd" field.
+        aiLewdMin                - maximum value in "lewd" field.
+        aiAggroMin               - minimum value in "aggro" field.
+        aiAggroMax               - maximum value in "aggro" field.
         
     Returns:
-        Array of the field "asField" values, or animation paths in DB (formatted as <json_file>:<path_in_file>) if asField == ""
+        Array of the field "asField" values, or animation paths in DB (formatted as <json_file>:<path_in_file>) if asField == "".
         
     Animation JSON file syntax:
     --- Code
@@ -1062,13 +1048,12 @@ EndFunction
     This function returns an array of struggle animations for the specified device keyword on actor with optional helper.
     
     Parameters:
-
-        asKeyword                 - Device keyword to struggle from. Should starts with "."
-        akActor                   - Wearer of the device
-        akHelper                  - Optional helper
+        asKeyword                 - Device keyword to struggle from. Should starts with ".".
+        akActor                   - Wearer of the device.
+        akHelper                  - Optional helper.
         
     Returns:
-        Array of strings with animation paths in DB (formatted as <json_file>:<path_in_file>)
+        Array of strings with animation paths in DB (formatted as <json_file>:<path_in_file>).
 /;
 String[] Function GetStruggleAnimDefsByKeyword(String asKeyword, Actor akActor, Actor akHelper = None)
     If UDmain.TraceAllowed()
@@ -1093,13 +1078,12 @@ EndFunction
     This function returns an array of struggle animations for the specified device keywords on actor with optional helper.
     
     Parameters:
-
-        aasKeywords               - Device keywords to struggle from. Each string should starts with "."
-        akActor                   - Wearer of the device
-        akHelper                  - Optional helper
+        aasKeywords               - Device keywords to struggle from. Each string should starts with ".".
+        akActor                   - Wearer of the device.
+        akHelper                  - Optional helper.
         
     Returns:
-        Array of strings with animation paths in DB (formatted as <json_file>:<path_in_file>)
+        Array of strings with animation paths in DB (formatted as <json_file>:<path_in_file>).
 /;
 String[] Function GetStruggleAnimDefsByKeywordsList(String[] aasKeywords, Actor akActor, Actor akHelper = None)
     If UDmain.TraceAllowed()
@@ -1120,15 +1104,14 @@ EndFunction
 
 ;/  Function: GetHornyAnimEvents
 
-    Filters and returns horny animation events for the given actor
+    Filters and returns horny animation events for the given actor.
     
     Parameters:
-
-        akActor                     - Actor
-        abUseConstraintsIntCache    - If True, then the actor constraints value is calculated on the spot (see <GetActorConstraintsInt>)
+        akActor                     - Actor.
+        abUseConstraintsIntCache    - If True, then the actor constraints value is calculated on the spot (see <GetActorConstraintsInt>).
         
     Returns:
-        Array of strings with animation events
+        Array of strings with animation events.
 /;
 String[] Function GetHornyAnimEvents(Actor akActor, Bool abUseConstraintsIntCache = True)
     If UDmain.TraceAllowed()
@@ -1145,14 +1128,13 @@ EndFunction
 
 ;/  Function: GetHornyAnimDefs
 
-    Filters and returns horny animations from DB for the given actor
+    Filters and returns horny animations from DB for the given actor.
     
     Parameters:
-
-        akActor                     - Actor
+        akActor                     - Actor.
         
     Returns:
-        Array of strings with animation paths in DB (formatted as <json_file>:<path_in_file>)
+        Array of strings with animation paths in DB (formatted as <json_file>:<path_in_file>).
 /;
 String[] Function GetHornyAnimDefs(Actor akActor)
     If UDmain.TraceAllowed()
@@ -1169,15 +1151,14 @@ EndFunction
 
 ;/  Function: GetOrgasmAnimEvents
 
-    Filters and returns orgasm animation events for the given actor
+    Filters and returns orgasm animation events for the given actor.
     
     Parameters:
-
-        akActor                     - Actor
-        abUseConstraintsIntCache    - If True, then the actor constraints value is calculated on the spot (see <GetActorConstraintsInt>)
+        akActor                     - Actor.
+        abUseConstraintsIntCache    - If True, then the actor constraints value is calculated on the spot (see <GetActorConstraintsInt>).
         
     Returns:
-        Array of strings with animation events
+        Array of strings with animation events.
 /;
 String[] Function GetOrgasmAnimEvents(Actor akActor, Bool abUseConstraintsIntCache = True)
     If UDmain.TraceAllowed()
@@ -1200,14 +1181,13 @@ EndFunction
 
 ;/  Function: GetOrgasmAnimDefs
 
-    Filters and returns orgasm animations from DB for the given actor
+    Filters and returns orgasm animations from DB for the given actor.
     
     Parameters:
-
-        akActor                     - Actor
+        akActor                     - Actor.
         
     Returns:
-        Array of strings with animation paths in DB (formatted as <json_file>:<path_in_file>)
+        Array of strings with animation paths in DB (formatted as <json_file>:<path_in_file>).
 /;
 String[] Function GetOrgasmAnimDefs(Actor akActor)
     If UDmain.TraceAllowed()
@@ -1231,12 +1211,11 @@ EndFunction
 
 ;/  Function: GetEdgedAnimEvents
 
-    Filters and returns edge animation events for the given actor
+    Filters and returns edge animation events for the given actor.
     
     Parameters:
-
-        akActor                     - Actor
-        abUseConstraintsIntCache    - If True, then the actor constraints value is calculated on the spot (see <GetActorConstraintsInt>)
+        akActor                     - Actor.
+        abUseConstraintsIntCache    - If True, then the actor constraints value is calculated on the spot (see <GetActorConstraintsInt>).
         
     Returns:
         Array of strings with animation events
@@ -1258,14 +1237,13 @@ EndFunction
 
 ;/  Function: GetEdgedAnimDefs
 
-    Filters and returns edge animations from DB for the given actor
+    Filters and returns edge animations from DB for the given actor.
     
     Parameters:
-
-        akActor                     - Actor
+        akActor                     - Actor.
         
     Returns:
-        Array of strings with animation paths in DB (formatted as <json_file>:<path_in_file>)
+        Array of strings with animation paths in DB (formatted as <json_file>:<path_in_file>).
 /;
 String[] Function GetEdgedAnimDefs(Actor akActor)
     If UDmain.TraceAllowed()
@@ -1287,13 +1265,12 @@ EndFunction
     Function to extract attribute (field) value from the animation definition by its path in DB.
     
     Parameters:
-
         asAnimDef                     - Animation definition path in DB (formatted as <json_file>:<path_in_file>).
         asAttrName                    - Attribute name. Must start with ".".
         asDefault                     - Default value used if no attribute was found.
         
     Returns:
-        Attribute value as string or default value specified by asDefault
+        Attribute value as string or default value specified by asDefault.
 /;
 String Function GetAnimDefAttribute(String asAnimDef, String asAttrName, String asDefault = "")
     If asAnimDef == ""
@@ -1322,7 +1299,6 @@ EndFunction
     Function to extract attribute (field) value from the animation definition by its path in DB. Same as <GetAnimDefAttribute> but for the array values.
     
     Parameters:
-
         asAnimDef                     - Animation definition path in DB (formatted as <json_file>:<path_in_file>).
         asAttrName                    - Attribute name. Must start with ".".
         

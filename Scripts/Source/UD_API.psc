@@ -197,7 +197,7 @@ EndProperty
     
     Meaning: Widget Control
     
-    This module contains functions for manipulating widgets
+    This module contains functions for manipulating widgets (see <UD_WidgetControl>).
 /;
 UD_WidgetControl                    Property UDWC                   hidden
     UD_WidgetControl Function get()

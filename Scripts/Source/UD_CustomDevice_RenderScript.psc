@@ -4837,6 +4837,9 @@ Function _CheckAndUpdateAnimationCache(Bool bClearCache = False)
     EndIf
 EndFunction
 
+;/
+    See https://github.com/iiw2012/UnforgivingDevices/wiki#animation-selection-algorithm
+/;
 Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bContinueAnimation = False)
     Int[] result = new Int[2]           ; number of found struggle animations for each actor
     String _animationDef = ""
@@ -4939,6 +4942,9 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
     Return result
 EndFunction
 
+;/
+    See https://github.com/iiw2012/UnforgivingDevices/wiki#animation-selection-algorithm
+/;
 String[] Function _GetSoloStruggleAnimation(String[] asKeywords, Actor akActor, Int aiConstraints)
     String[] result
     result = UDAM.GetStruggleAnimDefsByKeywordsList(asKeywords, akActor, None)

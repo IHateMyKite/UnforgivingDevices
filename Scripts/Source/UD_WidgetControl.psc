@@ -1,3 +1,8 @@
+;   File: UD_WidgetControl
+;   This module contains functions for manipulating widgets.
+;   It has two states: "Default" and "iWidgetInstalled".
+;   Many of the functions defined here will work differently, depending on what state the script is in.
+;   For example, status icons will not be displayed in the standard interface rendering mode, although their state will be changed and saved from API calls.
 ScriptName UD_WidgetControl extends Quest
 
 import UnforgivingDevicesMain
@@ -15,11 +20,48 @@ Int W_ICON_CLUSTER_UNSET    = -1
 Int W_ICON_CLUSTER_DEVICES  = 0
 Int W_ICON_CLUSTER_EFFECTS  = 1
 
-UnforgivingDevicesMain Property UDmain auto
+UnforgivingDevicesMain      Property UDmain             Auto
 
-;use iWantWidgets if true
+; vanilla widgets
+UD_WidgetBase[]             Property UD_VanillaWidgets  Auto
+{Vanilla meter widgets}
+
+
+;/  Group: Config
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/; 
+
+;/  Variable: Ready
+    Will be toggled to True once script is ready
+    
+    Do not edit, *READ ONLY!*
+/;
+Bool                        Property Ready = False      Auto    Hidden               
+
+;/  Variable: Ready
+
+    iWant_Widgets object. Used to interract with iWantWidgets mod.
+    
+    Do not edit, *READ ONLY!*.
+/;
+iWant_Widgets Property iWidget Hidden
+{iWidget quest}
+    iWant_Widgets Function Get()
+        return (UDmain.iWidgetQuest as iWant_Widgets)
+    EndFunction
+EndProperty
+
+
 Bool _UD_UseIWantWidget = True
-Bool                        Property UD_UseIWantWidget  Hidden
+;/  Variable: UD_UseIWantWidget
+
+    If True then UI rendered with iWantWidgets mod.
+    
+    Do not edit, *READ ONLY!*. Configurable on MCM UI Widgets page by user.
+/;
+Bool                        Property UD_UseIWantWidget          Hidden
     Bool Function Get() 
         Return _UD_UseIWantWidget
     EndFunction
@@ -31,39 +73,23 @@ Bool                        Property UD_UseIWantWidget  Hidden
     EndFunction
 EndProperty
 
-; vanilla widgets
-UD_WidgetBase[]             Property UD_VanillaWidgets Auto
-{Vanilla meter widgets}
-
-iWant_Widgets Property iWidget Hidden
-{iWidget quest}
-    iWant_Widgets Function Get()
-        return (UDmain.iWidgetQuest as iWant_Widgets)
-    EndFunction
-EndProperty
-
-;By default, auto adjust is turned off
-Bool _AutoAdjustWidget = False
-Bool Property UD_AutoAdjustWidget Hidden
-    Function Set(Bool abVal)
-        _AutoAdjustWidget = abVal
-        if !_AutoAdjustWidget
-            ; Rebuild widgets
-            InitWidgetsRequest(abMeters = True)
-        endif
-    EndFunction
-    Bool Function Get()
-        return _AutoAdjustWidget
-    EndFunction
-EndProperty
-
 ; overlay settings
 
-; vertical spacing between widgets, measured in their heights
+;/  Variable: UD_MeterVertPadding
+
+    Vertical spacing between widgets, measured in their heights.
+    
+    Do not edit, *READ ONLY!*. Configurable on MCM UI Widgets page by user.
+/;
 Float Property UD_MeterVertPadding = 1.50 Auto   Hidden
 
-; enable device icons (W_ICON_CLUSTER_DEVICES)
 Bool _UD_EnableDeviceIcons = True
+;/  Variable: UD_EnableDeviceIcons
+
+    Enable device icons (renderend in W_ICON_CLUSTER_DEVICES).
+    
+    Do not edit, *READ ONLY!*. Configurable on MCM UI Widgets page by user.
+/;
 Bool Property UD_EnableDeviceIcons Hidden
     Bool Function Get()
         Return _UD_EnableDeviceIcons
@@ -76,8 +102,13 @@ Bool Property UD_EnableDeviceIcons Hidden
     EndFunction
 EndProperty
 
-; enable (de)buffs icons (W_ICON_CLUSTER_EFFECTS)
 Bool _UD_EnableDebuffIcons = True
+;/  Variable: UD_EnableDebuffIcons
+
+    Enable (de)buffs icons (renderend in W_ICON_CLUSTER_EFFECTS).
+    
+    Do not edit, *READ ONLY!*. Configurable on MCM UI Widgets page by user.
+/;
 Bool Property UD_EnableDebuffIcons Hidden
     Bool Function Get()
         Return _UD_EnableDebuffIcons
@@ -90,8 +121,13 @@ Bool Property UD_EnableDebuffIcons Hidden
     EndFunction
 EndProperty
 
-; enable customized notifications
 Bool _UD_EnableCNotifications = True
+;/  Variable: UD_EnableCNotifications
+
+    Enable customized text notifications.
+    
+    Do not edit, *READ ONLY!*. Configurable on MCM UI Widgets page by user.
+/;
 Bool Property UD_EnableCNotifications Hidden
     Bool Function Get()
         Return _UD_EnableCNotifications
@@ -104,8 +140,13 @@ Bool Property UD_EnableCNotifications Hidden
     EndFunction
 EndProperty
 
-; notification text font size
 Int _UD_TextFontSize = 24
+;/  Variable: UD_TextFontSize
+
+    Notification text font size.
+    
+    Do not edit, *READ ONLY!*. Configurable on MCM UI Widgets page by user.
+/;
 Int Property UD_TextFontSize Hidden
     Int Function Get()
         Return _UD_TextFontSize
@@ -118,13 +159,55 @@ Int Property UD_TextFontSize Hidden
     EndFunction
 EndProperty
 
-Int                         Property    UD_TextLineLength           = 100   Auto    Hidden      ; length of line in text notification
-Int                         Property    UD_TextReadSpeed            = 20    Auto    Hidden      ; how long notification will be on the screen (symbols per second)
-Int                         Property    UD_TextOutlineShift         = 1     Auto    Hidden      ; text outline shift
-Bool                        Property    UD_FilterVibNotifications   = True  Auto    Hidden      ; remove redundant notifications from vibrators
+;/  Variable: UD_TextLineLength
+
+    The length of the text notification line (measured in characters).
+    
+    Do not edit, *READ ONLY!* Configurable on MCM UI Widgets page by user.
+/;
+Int                         Property    UD_TextLineLength           = 100   Auto    Hidden
+
+;/  Variable: UD_TextReadSpeed
+
+    Display time of text on the screen (measured in the number of characters per second).
+    
+    Do not edit, *READ ONLY!*. Configurable on MCM UI Widgets page by user.
+/;
+Int                         Property    UD_TextReadSpeed            = 20    Auto    Hidden
+
+;/  Variable: UD_TextOutlineShift
+
+    The specified shift for the stroke of text characters.
+    
+    Do not edit, *READ ONLY!*.
+/;
+Int                         Property    UD_TextOutlineShift         = 1     Auto    Hidden
+
+;/  Variable: UD_FilterVibNotifications
+
+    If True, then some redundant notifications from vibrators will be ignored.
+    
+    Do not edit, *READ ONLY!*.
+/;
+Bool                        Property    UD_FilterVibNotifications   = True  Auto    Hidden
 
 ; anchor position of the notification (see W_POSY_**** constants)
 Int _UD_TextAnchor = 1
+
+;/  Variable: UD_TextAnchor
+
+    Anchor for the text notification output area (vertical position).
+    
+    Do not edit, *READ ONLY!*. Configurable on MCM UI Widgets page by user.
+    
+    Values:
+    --- Code
+    W_POSY_BOTTOM = 0
+    W_POSY_BELOWCENTER = 1
+    W_POSY_TOP = 2
+    W_POSY_CENTER = 3
+    ---
+/;
 Int Property UD_TextAnchor Hidden
     Int Function Get()
         Return _UD_TextAnchor
@@ -137,7 +220,12 @@ Int Property UD_TextAnchor Hidden
     EndFunction
 EndProperty
 
-; vertical padding relative to anchor
+;/  Variable: UD_TextAnchor
+
+    Vertical shift of the output area relative to the anchor (see <UD_TextAnchor>).
+    
+    Do not edit, *READ ONLY!*. Configurable on MCM UI Widgets page by user.
+/;
 Int _UD_TextPadding = 0
 Int Property UD_TextPadding Hidden
     Int Function Get()
@@ -151,8 +239,14 @@ Int Property UD_TextPadding Hidden
     EndFunction
 EndProperty
 
-; status effect icon size
 Int _UD_IconsSize = 60
+
+;/  Variable: UD_IconsSize
+
+    Status effect icon size.
+    
+    Do not edit, *READ ONLY!*. Configurable on MCM UI Widgets page by user.
+/;
 Int Property UD_IconsSize Hidden
     Int Function Get()
         Return _UD_IconsSize
@@ -165,8 +259,20 @@ Int Property UD_IconsSize Hidden
     EndFunction
 EndProperty
 
-; anchor position of the icons cluster (see W_POSX_**** constants)
+; anchor horizontal position of the icons cluster (see W_POSX_**** constants)
 Int _UD_IconsAnchor = 1
+;/  Variable: UD_IconsAnchor
+
+    Anchor for the status icon area (horizontal position).
+    
+    Do not edit, *READ ONLY!*. Configurable on MCM UI Widgets page by user.
+    
+    --- Code
+    W_POSX_LEFT = 0
+    W_POSX_CENTER = 1
+    W_POSX_RIGHT = 2
+    ---
+/;
 Int Property UD_IconsAnchor Hidden
     Int Function Get()
         Return _UD_IconsAnchor
@@ -179,8 +285,13 @@ Int Property UD_IconsAnchor Hidden
     EndFunction
 EndProperty
 
-; horizontal padding relative to anchor
 Int _UD_IconsPadding = 0
+;/  Variable: UD_IconsPadding
+
+    Horizontal shift of the output area relative to the anchor (see <UD_IconsAnchor>).
+    
+    Do not edit, *READ ONLY!*. Configurable on MCM UI Widgets page by user.
+/;
 Int Property UD_IconsPadding Hidden
     Int Function Get()
         Return _UD_IconsPadding
@@ -194,6 +305,19 @@ Int Property UD_IconsPadding Hidden
 EndProperty
 
 Int _WidgetXPos = 2
+;/  Variable: UD_WidgetXPos
+
+    Anchor for the meters area (horizontal position).
+    
+    Do not edit, *READ ONLY!*. Configurable on MCM UI Widgets page by user.
+    
+    Values:
+    --- Code
+    W_POSX_LEFT = 0
+    W_POSX_CENTER = 1
+    W_POSX_RIGHT = 2
+    ---
+/;
 Int Property UD_WidgetXPos Hidden
     Function Set(Int aiVal)
         If _WidgetXPos == aiVal
@@ -215,6 +339,19 @@ Int Property UD_WidgetXPos Hidden
 EndProperty
 
 Int _WidgetYPos = 0
+;/  Variable: UD_WidgetYPos
+
+    Anchor for the meters area (vertical position).
+    
+    Do not edit, *READ ONLY!*. Configurable on MCM UI Widgets page by user.
+    
+    --- Code
+    W_POSY_BOTTOM = 0
+    W_POSY_BELOWCENTER = 1
+    W_POSY_TOP = 2
+    W_POSY_CENTER = 3
+    ---
+/;
 Int Property UD_WidgetYPos Hidden
     Function Set(Int aiVal)
         If _WidgetYPos == aiVal
@@ -235,12 +372,18 @@ Int Property UD_WidgetYPos Hidden
     EndFunction
 EndProperty
 
+;/  Variable: UD_UseDeviceConditionWidget
+
+    Indicates that an additional widget is being used for devices
+    
+    Do not edit, *READ ONLY!*.
+/;
 Bool    Property   UD_UseDeviceConditionWidget  = True  Auto    Hidden
 
+; basic dimensions of the canvas
 Int CanvasWidth = 1280
 Int CanvasHeight = 720
-
-;
+; correction for wide screens
 Float WideScreenFactor = 1.0
 ; meter's size in canvas pixels (used to calculate positions/offsets)
 Float HUDMeterWidthRef = 248.0
@@ -251,8 +394,6 @@ Float HUDMeterHeight
 ; HUD's paddings
 Float HUDPaddingX
 Float HUDPaddingY
-
-Bool Property Ready = False auto
 
 ;returns true if the module is the one assigned to UD_Main
 Bool Function SingletonCheck()
@@ -311,8 +452,25 @@ Function Update()
     EndWhile
 EndFunction
 
-; In this function, switching between different interface options is checked and processed.
-; abGameLoad        - if it called after game load
+
+;/  Group: Initialization
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/; 
+
+;/  Function: OnUIReload
+
+    In this function, the interface is reloaded:
+    - after loading the save
+    - after changing the interface rendering method: standard or using iWW
+    
+    To add initialization of your own controls, use mod event UD_AfterUIReload
+    
+    Parameters:
+
+        abGameLoad               - True if function called on game reload
+/;
 Function OnUIReload(Bool abGameLoad)
     StatusEffect_Register("dd-piercing-nipples", W_ICON_CLUSTER_DEVICES)
     StatusEffect_Register("dd-plug-vaginal", W_ICON_CLUSTER_DEVICES)
@@ -422,7 +580,6 @@ EndFunction
 
 ; Sets all settings to its default values
 Function ResetToDefault()
-    UD_AutoAdjustWidget             = False
     UD_UseIWantWidget               = True
     UD_EnableDeviceIcons            = True
     UD_EnableDebuffIcons            = True
@@ -443,6 +600,7 @@ EndFunction
 
 ; Array with slots for meter widgets
 UD_WidgetMeter_RefAlias[]           Property    MeterSlots            Auto
+{Array with slots for meter widgets}
 
 Bool _iWidget_MeterPosFix                   = True  ; enables fix for the meter setPos-setMeterPercent conflict
 
@@ -461,6 +619,7 @@ Int[]       _Text_Queue_Color                       ; notifications queue: color
 
 ; Array with slots for status effect icons
 UD_WidgetStatusEffect_RefAlias[]    Property    StatusEffectSlots     Auto
+{Array with slots for status effect icons}
 
 Int         _Widget_Icon_Inactive_Color             = 0xFFFFFF      ; Gray          Color of innactive effect
 Int         _Widget_Icon_Active0_Color              = 0xFFFF00      ; Yellow        Color of active effect with magnitude 0
@@ -478,9 +637,23 @@ EndFunction
     Widget API
 /;
 
-; Registers new meter widget
-; asName            - meter's name
-; asIcon            - icon's name
+;/  Group: Meter Widgets API
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/; 
+
+;/  Function: Meter_Register
+
+    Registers new meter widget. 
+    
+    Although this method will work even in standard render mode, but to display a new widget, you will need to switch to iWW rendering mode.
+    
+    Parameters:
+
+        asName            - Meter name
+        asIcon            - Icon's name
+/;
 Function Meter_Register(String asName, String asIcon = "")
     ;UDMain.Info("UD_WidgetControl::Meter_Register() asName = " + asName + ", asIcon = " + asIcon)
     UD_WidgetMeter_RefAlias loc_data = _GetMeter(asName)
@@ -495,11 +668,16 @@ Function Meter_Register(String asName, String asIcon = "")
     EndIf
 EndFunction
 
-; Changes meter visibility
-; asName            - meter's name
-; abVisible         - if true then become visible
-; abUpdateVisPos    - 
-Function Meter_SetVisible(String asName, Bool abVisible, Bool abUpdateVisPos = True)
+;/  Function: Meter_SetVisible
+
+    Changes meter visibility
+    
+    Parameters:
+
+        asName            - Meter name
+        abVisible         - If true then meter becomes visible
+/;
+Function Meter_SetVisible(String asName, Bool abVisible)
     UD_WidgetBase loc_widget = _GetVanillaMeter(asName)
     If loc_widget == None
         Return
@@ -511,10 +689,16 @@ Function Meter_SetVisible(String asName, Bool abVisible, Bool abUpdateVisPos = T
     endif
 EndFunction
 
-; Changes meter fill
-; asName            - meter's name
-; afValue           - value to fill the meter's bar in percents (0.0 ... 100.0)
-; abForce           - 
+;/  Function: Meter_SetFillPercent
+
+    Changes the filling of the indicator
+    
+    Parameters:
+
+        asName            - Meter name
+        afValue           - Value to fill the meter's bar in percents (0.0 ... 100.0)
+        abForce           - Instant change of the value (applied only in standard rendering mode)
+/;
 Function Meter_SetFillPercent(String asName, Float afValue, Bool abForce = false)
     UDMain.Log("UD_WidgetControl::Meter_SetFillPercent() asName = " + asName + ", afValue = " + afValue)
     UD_WidgetBase loc_widget = _GetVanillaMeter(asName)
@@ -524,11 +708,17 @@ Function Meter_SetFillPercent(String asName, Float afValue, Bool abForce = false
     loc_widget.SetPercent(afValue / 100.0, abForce)
 EndFunction
 
-; Sets meter's bar color and flash color
-; asName            - meter's name
-; aiColor           - primary color of the meter
-; aiColor2           - secondary color of the meter
-; aiFlashColor       - flash color of the meter
+;/  Function: Meter_SetColor
+
+    Sets meter's bar color and flash color
+    
+    Parameters:
+
+        asName            - Meter name
+        aiColor           - Primary color of the meter
+        aiColor2          - Secondary color of the meter
+        aiFlashColor      - Flash color of the meter
+/;
 Function Meter_SetColor(String asName, Int aiColor, Int aiColor2 = 0, Int aiFlashColor = 0xFFFFFF)
     UD_WidgetBase loc_widget = _GetVanillaMeter(asName)
     If loc_widget == None
@@ -537,8 +727,14 @@ Function Meter_SetColor(String asName, Int aiColor, Int aiColor2 = 0, Int aiFlas
     loc_widget.SetColors(aiColor, aiColor2, aiFlashColor)
 EndFunction
 
-; Makes meter to flash
-; asName        - meter's name
+;/  Function: Meter_Flash
+
+    Causes meter to flash
+    
+    Parameters:
+
+        asName            - Meter name
+/;
 Function Meter_Flash(String asName)
     UD_WidgetBase loc_widget = _GetVanillaMeter(asName)
     If loc_widget == None
@@ -547,27 +743,71 @@ Function Meter_Flash(String asName)
     loc_widget.Flash()
 EndFunction
 
-; Sets small icon next to the meter widget
-; asMeterName       - meter's name
-; asIconName        - icon's name (dds file name)
+;/  Function: Meter_SetIcon
+
+    Sets small icon next to the meter widget. Works only in iWW rendering mode.
+    
+    Parameters:
+
+        asMeterName          - Meter name
+        asIconName           - Icon file name (relative to folder "<Data>\interface\exported\widgets\iwant\widgets\library")
+/;
 Function Meter_SetIcon(String asMeterName, String asIconName)
     
 EndFunction
 
-; Print notification on screen
-; asText                - notification text
+;/  Group: Notifications API
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/; 
+
+;/  Function: Notification_Push
+
+    Adds a text notification to the queue.
+    
+    In the standard rendering mode, this notification will be displayed in the usual form at the top left corner of the screen.
+    
+    In iWW rendering mode, notifications will be displayed according to the settings of this module.
+    
+    Parameters:
+
+        asMeterName          - Meter name
+        asIconName           - Icon file name (relative to folder "<Data>\interface\exported\widgets\iwant\widgets\library")
+/;
 Function Notification_Push(String asText, Int aiColor = 0xFFFFFF)
     Debug.Notification(asText)
 EndFunction
 
-; Clear notification queue
+;/  Function: Notification_Reset
+
+    Function clears the notification queue. Works only in iWW rendering mode.
+/;
 Function Notification_Reset()
 EndFunction
 
-; Register new status effect icon (or change existing)
-; asName        - effect name (and base part of file name)
-; aiVariant     - icon variant. If equal to -1, then the previous value is kept
-; aiClusterId   - icon cluster (0 or 1 for device or effect cluster). If equal to -1, then the previous value is kept
+;/  Group: Status Effect API
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/; 
+
+;/  Function: StatusEffect_Register
+
+    Register new status effect (or change existing). Status effect will use icon from "<Data>\interface\exported\widgets\iwant\widgets\library" folder with the same name. 
+    If an icon variant is also specified (see <aiVariant> argumet), it will be added to the effect name to get the file name.
+    For example. 
+        If asName is "effect-exhaustion" and aiVariant equals 2, then file name will be "effect-exhaustion-2.dds"
+        If asName is "effect-orgasm" and aiVariant equals 0, then file name will be "effect-orgasm.dds"
+    
+    Although this method will work even in standard render mode, but to see effect from it, you will need to switch to iWW rendering mode.
+    
+    Parameters:
+
+        asName        - Effect name (and base part of the icon file name)
+        aiVariant     - Icon variant. If equal to -1, then the previous value is kept
+        aiClusterId   - Icon cluster (0 or 1 for device or effect cluster). If equal to -1, then the previous value is kept
+/;
 Function StatusEffect_Register(String asName, Int aiClusterId = -1, Int aiVariant = -1)
     ;UDMain.Info("UD_WidgetControl::StatusEffect_Register() asName = " + asName + ", aiClusterId = " + aiClusterId + ", aiVariant = " + aiVariant)
     UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName)
@@ -589,6 +829,15 @@ Function StatusEffect_Register(String asName, Int aiClusterId = -1, Int aiVarian
     EndIf
 EndFunction
 
+;/  Function: StatusEffect_Remove
+
+    Removes status effect registration.
+    
+    Although this method will work even in standard render mode, but to see effect from it, you will need to switch to iWW rendering mode.
+    
+    Parameters:
+        asName        - Effect name
+/;
 Function StatusEffect_Remove(String asName)
     UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName, abFindEmpty = False)
     If data != None
@@ -596,9 +845,16 @@ Function StatusEffect_Remove(String asName)
     EndIf
 EndFunction
 
-; Gets current icon variant of the given effect
-; asName        - effect name
-; return        - icon variant
+;/  Function: StatusEffect_GetVariant
+
+    Returns the currently used variant of the icon.
+        
+    Parameters:
+        asName        - Effect name
+        
+    Returns:
+        Icon variant or -1 if an effect with specified name was not found.
+/;
 Int Function StatusEffect_GetVariant(String asName)
     UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName, abFindEmpty = False)
     If data == None
@@ -607,9 +863,16 @@ Int Function StatusEffect_GetVariant(String asName)
     Return data.Variant
 EndFunction
 
-; Show/hide status effect icon.
-; asName            - effect name (icon name)
-; abVisible         - desired visibility state
+;/  Function: StatusEffect_SetVisible
+
+    Shows or hides status effect icon.
+    
+    Although this method will work even in standard render mode, but to see effect from it, you will need to switch to iWW rendering mode.
+    
+    Parameters:
+        asName        - Effect name
+        abVisible     - Visibility
+/;
 Function StatusEffect_SetVisible(String asName, Bool abVisible = True)
     UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName)
     If data == None 
@@ -621,10 +884,16 @@ Function StatusEffect_SetVisible(String asName, Bool abVisible = True)
     EndIf
 EndFunction
 
-; Set magnitude of the effect.
-; The color of the icon changes depending on the final value.
-; asName            - effect name (icon name)
-; aiMagnitude       - magnitude
+;/  Function: StatusEffect_SetMagnitude
+
+    Sets magnitude of the effect. The color of the icon changes depending on the value.
+    
+    Although this method will work even in standard render mode, but to see effect from it, you will need to switch to iWW rendering mode.
+    
+    Parameters:
+        asName              - Effect name
+        aiMagnitude         - Magnitude
+/;
 Function StatusEffect_SetMagnitude(String asName, Int aiMagnitude)
     UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName)
     If data == None 
@@ -633,11 +902,17 @@ Function StatusEffect_SetMagnitude(String asName, Int aiMagnitude)
     data.Magnitude = aiMagnitude
 EndFunction
 
-; Adjust magnitude by the given value.
-; The color of the icon changes depending on the final value.
-; asName                - effect name (icon name)
-; aiAdjustValue         - adjust value
-; abControlVisibility   - if true, the icon will be hidden or shown depending on the final value
+;/  Function: StatusEffect_AdjustMagnitude
+
+    Adjusts magnitude by the given value. The color of the icon changes depending on the value.
+    
+    Although this method will work even in standard render mode, but to see effect from it, you will need to switch to iWW rendering mode.
+    
+    Parameters:
+        asName                  - Effect name
+        aiAdjustValue           - Adjust value
+        abControlVisibility     - If true and magnitude is 0, then the icon will be hidden. If true and magnitude > 0, then the icon will be shown.
+/;
 Function StatusEffect_AdjustMagnitude(String asName, Int aiAdjustValue, Bool abControlVisibility = True)
     UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName)
     If data == None 
@@ -652,9 +927,16 @@ Function StatusEffect_AdjustMagnitude(String asName, Int aiAdjustValue, Bool abC
     EndIf
 EndFunction
 
-; Set icon blinking (periodic change of alpha in range 25 .. 100).
-; asName                - effect name (icon name)
-; abBlink               - blinking status
+;/  Function: StatusEffect_SetBlink
+
+    Sets icon blinking (periodic change of alpha in range 25 .. 100)
+    
+    Although this method will work even in standard render mode, but to see effect from it, you will need to switch to iWW rendering mode.
+    
+    Parameters:
+        asName                  - Effect name
+        abBlink                 - Blink
+/;
 Function StatusEffect_SetBlink(String asName, Bool abBlink = True)
     UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName)
     If data == None 
@@ -663,7 +945,12 @@ Function StatusEffect_SetBlink(String asName, Bool abBlink = True)
     data.Blinking = abBlink
 EndFunction
 
-; Resets all effects to default state
+;/  Function: StatusEffect_ResetValues
+
+    Resets all effects to default state
+    
+    Although this method will work even in standard render mode, but to see effect from it, you will need to switch to iWW rendering mode.
+/;
 Function StatusEffect_ResetValues()
     Int i = StatusEffectSlots.Length
     While i > 0
@@ -1122,7 +1409,7 @@ State iWidgetInstalled
 
     EndFunction
     
-    Function Meter_SetVisible(String asName, Bool abVisible, Bool abUpdateVisPos = True)
+    Function Meter_SetVisible(String asName, Bool abVisible)
         UD_WidgetMeter_RefAlias loc_data = _GetMeter(asName, False)
         If loc_data == None
             Return
