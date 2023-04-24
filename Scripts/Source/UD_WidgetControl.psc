@@ -40,7 +40,7 @@ UD_WidgetBase[]             Property UD_VanillaWidgets  Auto
 /;
 Bool                        Property Ready = False      Auto    Hidden               
 
-;/  Variable: Ready
+;/  Variable: iWidget
 
     iWant_Widgets object. Used to interract with iWantWidgets mod.
     

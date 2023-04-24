@@ -1,5 +1,20 @@
-;   File: UD_AnimationManager
-;   The module contains functions for manipulating animations and for working with the animation database.
+;/   File: UD_AnimationManager
+     The module contains functions for manipulating animations and for working with the animation database.
+     
+     *Used terms:*
+     
+        *Animation event* (anim. event or AnimEvent) - is the minimum unit of animation that game operates with. Custom anim. events 
+        can be created with FNIS tools and browsed in the Creation Kit's Animation window.
+
+        *Animation sequence* - a sequence of animation events. A specially created sequence in which only the first 
+        element can be explicitly called (anim event). And then only a sequential transition through the sequence is possible.
+
+        *Animation definition* (anim. def. or AnimDef) - definition of animation in json files that UDAM uses. 
+        It is a part of a json file that defines animation events for one or two actor with conditions for use 
+        (actor constraints, levels of aggression or perversity). Within a single AnimDef, animation events for actors are 
+        mutually compatible. In UDAM AnimDef is passed between functions as a string formatted like "<file_name>:<path_in_file>".
+        See example section in <GetAnimationsFromDB>.
+/;
 Scriptname UD_AnimationManagerScript extends Quest
 
 UnforgivingDevicesMain                 Property     UDmain                  Auto
@@ -48,7 +63,7 @@ String[]                               Property     UD_AnimationJSON_Inv    Auto
 ;/  Variable: UD_AnimationJSON_Dis
     Array with files disabled by user on MCM Animation page
     
-    Do not edit, *READ ONLY!*
+    Do not edit, *READ ONLY!*. Configurable on MCM Animation page by user.
     
     See <LoadAnimationJSONFiles>
 /;
@@ -904,7 +919,7 @@ EndFunction
     Returns:
         Array of the field "asField" values, or animation paths in DB (formatted as <json_file>:<path_in_file>) if asField == "".
         
-    Animation JSON file syntax:
+    *Animation JSON file syntax:*
     --- Code
     {
        "conditions": {                                                     Conditions that determine whether the file will be used 
@@ -940,6 +955,9 @@ EndFunction
        }
     }
     ---
+    string "paired.zad_DeviousArmCuffs[0]" is a path to the AnimDef defined in this example. To get full address it is needed to add file name to it. For example, "UD_Example.json:paired.zad_DeviousArmCuffs[0]"
+    
+    
 /;
 String[] Function GetAnimationsFromDB(String asType, String[] aasKeywords, String asField, Int[] aaiActorConstraints, Int aiLewdMin = 0, Int aiLewdMax = 10, Int aiAggroMin = -10, Int aiAggroMax = 10)
     If UDmain.TraceAllowed()
