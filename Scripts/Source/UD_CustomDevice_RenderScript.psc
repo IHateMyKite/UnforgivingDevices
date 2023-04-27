@@ -103,7 +103,7 @@ int _deviceControlBitMap_11 = 0x1F4FFFFF
 
 ; === _deviceControlBitMap_12 === (mutex3)
 ;00 - 07 =  8b (0000 0000 0000 0000 0000 0000 XXXX XXXX)(0x00FF), _exhaustion_mult_helper
-;15 - 24 = 10b (0000 000X XXXX XXXX X000 0000 0000 0000)(0x03FF), UD_StruggleCritMul, defualt value 4x (0x0F)
+;15 - 24 = 10b (0000 000X XXXX XXXX X000 0000 0000 0000)(0x03FF), UD_StruggleCritMul, default value 4x (0x0F)
 ;25 - 27 =  3b (0000 XXX0 0000 0000 0000 0000 0000 0000)(0x0007), UD_StruggleCritDuration, default value 1s (0x5)
 ;X  -  X =  Xb (XXXX 0000 0000 0000 0XXX XXXX 0000 0000)(0x000F), !UNUSED!
 int _deviceControlBitMap_12 = 0x0A078000
@@ -2530,7 +2530,7 @@ EndFunction
 
         asModifier      - Name of modifier
         aiIndex         - Index of parameter
-        aiDefaultValue  - Defualt value in case of error
+        aiDefaultValue  - Default value in case of error
 
     Returns:
 
@@ -2554,7 +2554,7 @@ EndFunction
 
         asModifier      - Name of modifier
         aiIndex         - Index of parameter
-        afDefaultValue  - Defualt value in case of error
+        afDefaultValue  - Default value in case of error
 
     Returns:
 
@@ -2578,7 +2578,7 @@ EndFunction
 
         asModifier      - Name of modifier
         aiIndex         - Index of parameter
-        afDefaultValue  - Defualt value in case of error
+        afDefaultValue  - Default value in case of error
 
     Returns:
 

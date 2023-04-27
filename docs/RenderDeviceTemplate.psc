@@ -486,7 +486,7 @@ Function OnDeviceLockpicked() ;called when device is lockpicked
 EndFunction
 
 ;/  Function: OnLockReached
-    *!!NO LOGNER USED!!*
+    *!!NO LONGER USED!!*
 /;
 Function OnLockReached() ;called when device lock is reached
     parent.OnLockReached()
