@@ -34,9 +34,9 @@ UD_WidgetBase[]             Property UD_VanillaWidgets  Auto
 /; 
 
 ;/  Variable: Ready
-    Will be toggled to True once script is ready
+    Will be toggled to True once script is ready.
     
-    Do not edit, *READ ONLY!*
+    Do not edit, *READ ONLY!*.
 /;
 Bool                        Property Ready = False      Auto    Hidden               
 
@@ -191,7 +191,6 @@ Int                         Property    UD_TextOutlineShift         = 1     Auto
 /;
 Bool                        Property    UD_FilterVibNotifications   = True  Auto    Hidden
 
-; anchor position of the notification (see W_POSY_**** constants)
 Int _UD_TextAnchor = 1
 
 ;/  Variable: UD_TextAnchor
@@ -374,7 +373,7 @@ EndProperty
 
 ;/  Variable: UD_UseDeviceConditionWidget
 
-    Indicates that an additional widget is being used for devices
+    Indicates that an additional widget is being used for devices.
     
     Do not edit, *READ ONLY!*.
 /;
@@ -462,14 +461,14 @@ EndFunction
 ;/  Function: OnUIReload
 
     In this function, the interface is reloaded:
-    - after loading the save
-    - after changing the interface rendering method: standard or using iWW
+    - after loading the save;
+    - after changing the interface rendering method: standard or using iWW.
     
-    To add initialization of your own controls, use mod event UD_AfterUIReload
+    To add initialization of your own controls, use mod event UD_AfterUIReload.
     
     Parameters:
 
-        abGameLoad               - True if function called on game reload
+        abGameLoad               - True if function called on game reload.
 /;
 Function OnUIReload(Bool abGameLoad)
     StatusEffect_Register("dd-piercing-nipples", W_ICON_CLUSTER_DEVICES)
@@ -548,13 +547,20 @@ Bool _InitMetersRequested = False
 Bool _InitIconsRequested = False
 Bool _InitTextRequested = False
 Bool _InitAfterLoadGame = False
-; Function for asynchronous interface rebuilding
-; The interface will be rebuilt in the next call to the OnUpdate function.
-; See functions: InitMeters, InitIcons, InitText
-; abGameLoad        - if it called after game load then all saved widgets IDs are invalid.
-; abMeters          - rebuild meter widgets
-; abIcons           - reduild icons
-; abText            - reduild notification lines
+
+;/  Function: InitWidgetsRequest
+
+    Function for asynchronous interface rebuilding. The interface will be rebuilt in the next OnUpdate function call.
+    
+    Used if the interface is rendered with iWW.
+    
+    Parameters:
+        abGameLoad        - Indicates that the function is called immediately after loading the game. 
+                            It is means that saved widget IDs from iWW are not valid and must be recreated without attempting to delete old instances.
+        abMeters          - Request to rebuild meter widgets.
+        abIcons           - Request to rebuild icons.
+        abText            - Request to rebuild notification lines.
+/;
 Function InitWidgetsRequest(Bool abGameLoad = False, Bool abMeters = False, Bool abIcons = False, Bool abText = False)
     UDmain.Log("UD_WidgetControl::InitWidgetsRequest() abGameLoad = " + abGameLoad + " , abMeters = " + abMeters + " , abIcons = " + abIcons + " , abText = " + abText, 3)
     _InitAfterLoadGame = _InitAfterLoadGame || abGameLoad
@@ -650,9 +656,8 @@ EndFunction
     Although this method will work even in standard render mode, but to display a new widget, you will need to switch to iWW rendering mode.
     
     Parameters:
-
-        asName            - Meter name
-        asIcon            - Icon's name
+        asName            - Meter name.
+        asIcon            - Icon's name.
 /;
 Function Meter_Register(String asName, String asIcon = "")
     ;UDMain.Info("UD_WidgetControl::Meter_Register() asName = " + asName + ", asIcon = " + asIcon)
@@ -670,12 +675,11 @@ EndFunction
 
 ;/  Function: Meter_SetVisible
 
-    Changes meter visibility
+    Changes meter visibility.
     
     Parameters:
-
-        asName            - Meter name
-        abVisible         - If true then meter becomes visible
+        asName            - Meter name.
+        abVisible         - If true then meter becomes visible.
 /;
 Function Meter_SetVisible(String asName, Bool abVisible)
     UD_WidgetBase loc_widget = _GetVanillaMeter(asName)
@@ -691,13 +695,12 @@ EndFunction
 
 ;/  Function: Meter_SetFillPercent
 
-    Changes the filling of the indicator
+    Changes the filling of the indicator.
     
     Parameters:
-
-        asName            - Meter name
-        afValue           - Value to fill the meter's bar in percents (0.0 ... 100.0)
-        abForce           - Instant change of the value (applied only in standard rendering mode)
+        asName            - Meter name.
+        afValue           - Value to fill the meter's bar in percents (0.0 ... 100.0).
+        abForce           - Instant change of the value (applied only in standard rendering mode).
 /;
 Function Meter_SetFillPercent(String asName, Float afValue, Bool abForce = false)
     UDMain.Log("UD_WidgetControl::Meter_SetFillPercent() asName = " + asName + ", afValue = " + afValue)
@@ -710,14 +713,13 @@ EndFunction
 
 ;/  Function: Meter_SetColor
 
-    Sets meter's bar color and flash color
+    Sets meter's bar color and flash color.
     
     Parameters:
-
-        asName            - Meter name
-        aiColor           - Primary color of the meter
-        aiColor2          - Secondary color of the meter
-        aiFlashColor      - Flash color of the meter
+        asName            - Meter name.
+        aiColor           - Primary color of the meter.
+        aiColor2          - Secondary color of the meter.
+        aiFlashColor      - Flash color of the meter.
 /;
 Function Meter_SetColor(String asName, Int aiColor, Int aiColor2 = 0, Int aiFlashColor = 0xFFFFFF)
     UD_WidgetBase loc_widget = _GetVanillaMeter(asName)
@@ -729,11 +731,10 @@ EndFunction
 
 ;/  Function: Meter_Flash
 
-    Causes meter to flash
+    Causes meter to flash.
     
     Parameters:
-
-        asName            - Meter name
+        asName            - Meter name.
 /;
 Function Meter_Flash(String asName)
     UD_WidgetBase loc_widget = _GetVanillaMeter(asName)
@@ -748,9 +749,8 @@ EndFunction
     Sets small icon next to the meter widget. Works only in iWW rendering mode.
     
     Parameters:
-
-        asMeterName          - Meter name
-        asIconName           - Icon file name (relative to folder "<Data>\interface\exported\widgets\iwant\widgets\library")
+        asMeterName          - Meter name.
+        asIconName           - Icon file name (relative to folder "<Data>\interface\exported\widgets\iwant\widgets\library").
 /;
 Function Meter_SetIcon(String asMeterName, String asIconName)
     
@@ -771,9 +771,8 @@ EndFunction
     In iWW rendering mode, notifications will be displayed according to the settings of this module.
     
     Parameters:
-
-        asMeterName          - Meter name
-        asIconName           - Icon file name (relative to folder "<Data>\interface\exported\widgets\iwant\widgets\library")
+        asText              - A text notification to be added to the queue.
+        aiColor             - color of the text (applies only if iWW is used).
 /;
 Function Notification_Push(String asText, Int aiColor = 0xFFFFFF)
     Debug.Notification(asText)
@@ -797,16 +796,15 @@ EndFunction
     Register new status effect (or change existing). Status effect will use icon from "<Data>\interface\exported\widgets\iwant\widgets\library" folder with the same name. 
     If an icon variant is also specified (see <aiVariant> argumet), it will be added to the effect name to get the file name.
     For example. 
-        If asName is "effect-exhaustion" and aiVariant equals 2, then file name will be "effect-exhaustion-2.dds"
-        If asName is "effect-orgasm" and aiVariant equals 0, then file name will be "effect-orgasm.dds"
+        If asName is "effect-exhaustion" and aiVariant equals 2, then file name will be "effect-exhaustion-2.dds".
+        If asName is "effect-orgasm" and aiVariant equals 0, then file name will be "effect-orgasm.dds".
     
     Although this method will work even in standard render mode, but to see effect from it, you will need to switch to iWW rendering mode.
     
     Parameters:
-
-        asName        - Effect name (and base part of the icon file name)
-        aiVariant     - Icon variant. If equal to -1, then the previous value is kept
-        aiClusterId   - Icon cluster (0 or 1 for device or effect cluster). If equal to -1, then the previous value is kept
+        asName        - Effect name (and base part of the icon file name).
+        aiVariant     - Icon variant. If equal to -1, then the previous value is kept.
+        aiClusterId   - Icon cluster (0 or 1 for device or effect cluster). If equal to -1, then the previous value is kept.
 /;
 Function StatusEffect_Register(String asName, Int aiClusterId = -1, Int aiVariant = -1)
     ;UDMain.Info("UD_WidgetControl::StatusEffect_Register() asName = " + asName + ", aiClusterId = " + aiClusterId + ", aiVariant = " + aiVariant)
@@ -836,7 +834,7 @@ EndFunction
     Although this method will work even in standard render mode, but to see effect from it, you will need to switch to iWW rendering mode.
     
     Parameters:
-        asName        - Effect name
+        asName        - Effect name.
 /;
 Function StatusEffect_Remove(String asName)
     UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName, abFindEmpty = False)
@@ -850,7 +848,7 @@ EndFunction
     Returns the currently used variant of the icon.
         
     Parameters:
-        asName        - Effect name
+        asName        - Effect name.
         
     Returns:
         Icon variant or -1 if an effect with specified name was not found.
@@ -870,8 +868,8 @@ EndFunction
     Although this method will work even in standard render mode, but to see effect from it, you will need to switch to iWW rendering mode.
     
     Parameters:
-        asName        - Effect name
-        abVisible     - Visibility
+        asName        - Effect name.
+        abVisible     - Visibility.
 /;
 Function StatusEffect_SetVisible(String asName, Bool abVisible = True)
     UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName)
@@ -891,8 +889,8 @@ EndFunction
     Although this method will work even in standard render mode, but to see effect from it, you will need to switch to iWW rendering mode.
     
     Parameters:
-        asName              - Effect name
-        aiMagnitude         - Magnitude
+        asName              - Effect name.
+        aiMagnitude         - Magnitude.
 /;
 Function StatusEffect_SetMagnitude(String asName, Int aiMagnitude)
     UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName)
@@ -909,8 +907,8 @@ EndFunction
     Although this method will work even in standard render mode, but to see effect from it, you will need to switch to iWW rendering mode.
     
     Parameters:
-        asName                  - Effect name
-        aiAdjustValue           - Adjust value
+        asName                  - Effect name.
+        aiAdjustValue           - Adjust value.
         abControlVisibility     - If true and magnitude is 0, then the icon will be hidden. If true and magnitude > 0, then the icon will be shown.
 /;
 Function StatusEffect_AdjustMagnitude(String asName, Int aiAdjustValue, Bool abControlVisibility = True)
@@ -929,13 +927,13 @@ EndFunction
 
 ;/  Function: StatusEffect_SetBlink
 
-    Sets icon blinking (periodic change of alpha in range 25 .. 100)
+    Sets icon blinking (periodic change of alpha in range 25 .. 100).
     
     Although this method will work even in standard render mode, but to see effect from it, you will need to switch to iWW rendering mode.
     
     Parameters:
-        asName                  - Effect name
-        abBlink                 - Blink
+        asName                  - Effect name.
+        abBlink                 - Blink.
 /;
 Function StatusEffect_SetBlink(String asName, Bool abBlink = True)
     UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName)
