@@ -772,7 +772,6 @@ UD_WidgetControl Property UDWC Hidden
 EndProperty
 
 int UD_UseIWantWidget_T
-Int UD_AutoAdjustWidget_T
 ; device widgets
 int UD_UseWidget_T
 int UD_WidgetPosX_M
@@ -810,7 +809,6 @@ Event resetUIWidgetPage()
     AddHeaderOption("$UD_H_WIDGETS")
     AddTextOption("iWantWidgets", InstallSwitch(UDmain.iWidgetInstalled), FlagSwitch(UDmain.iWidgetInstalled))
     UD_UseIWantWidget_T = AddToggleOption("$UD_USEIWANTWIDGET", UDWC.UD_UseIWantWidget, FlagSwitch(UDmain.iWidgetInstalled))
-    UD_AutoAdjustWidget_T = addToggleOption("$UD_AUTOADJUSTWIDGET", UDWC.UD_AutoAdjustWidget, FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
     ; device widgets
     AddHeaderOption("$UD_H_DEVICEWIDGETS")
     UD_UseWidget_T = addToggleOption("$UD_USEWIDGET", UDCDmain.UD_UseWidget)
@@ -1551,9 +1549,6 @@ Function OptionSelectUiWidget(int option)
         SetToggleOptionValue(UD_UseIWantWidget_T, UDWC.UD_UseIWantWidget)
         ShowMessage("$To avoid possible errors when switching between different UI modes, please save your game and then load from that save.", False, "OK")
         forcePageReset()
-    elseif (option == UD_AutoAdjustWidget_T)
-        UDWC.UD_AutoAdjustWidget = !UDWC.UD_AutoAdjustWidget
-        SetToggleOptionValue(UD_AutoAdjustWidget_T, UDWC.UD_AutoAdjustWidget)
     elseif(option == UD_UseWidget_T)
         UDCDmain.UD_UseWidget = !UDCDmain.UD_UseWidget
         SetToggleOptionValue(UD_UseWidget_T, UDCDmain.UD_UseWidget)
@@ -3387,9 +3382,7 @@ Function DDPatchPageInfo(int option)
 EndFunction
 
 Function UiWidgetPageInfo(int option)
-    if  option == UD_AutoAdjustWidget_T
-        SetInfoText("$UD_AUTOADJUSTWIDGET_INFO")
-    elseif option == UD_UseIWantWidget_T
+    if option == UD_UseIWantWidget_T
         SetInfoText("$UD_USEIWANTWIDGET_INFO")
     elseif option == UD_UseWidget_T
         SetInfoText("$UD_USEWIDGET_INFO")
@@ -3651,7 +3644,6 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetFloatValue(strFile, "PatchMult_Generic"            , UDCDmain.UDPatcher.UD_PatchMult_Generic)
     
     ;UI/WIDGET
-    JsonUtil.SetIntValue(strFile, "AutoAdjustWidget", UDWC.UD_AutoAdjustWidget as Int)
     JsonUtil.SetIntValue(strFile, "UseIWantWidget", UDWC.UD_UseIWantWidget as Int)
     JsonUtil.SetIntValue(strFile, "iWidgets_EnableDeviceIcons", UDWC.UD_EnableDeviceIcons as Int)
     JsonUtil.SetIntValue(strFile, "iWidgets_EnableEffectIcons", UDWC.UD_EnableDebuffIcons as Int)
@@ -3807,7 +3799,6 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UDPatcher.UD_PatchMult_Generic = JsonUtil.GetFloatValue(strFile, "PatchMult_Generic", UDCDmain.UDPatcher.UD_PatchMult_Generic)
     
     ;UI/WIDGET
-    UDWC.UD_AutoAdjustWidget = JsonUtil.GetIntValue(strFile, "AutoAdjustWidget", UDWC.UD_AutoAdjustWidget as Int)
     UDWC.UD_UseIWantWidget = JsonUtil.GetIntValue(strFile, "UseIWantWidget", UDWC.UD_UseIWantWidget as Int)
     UDWC.UD_EnableDeviceIcons = JsonUtil.GetIntValue(strFile, "iWidgets_EnableDeviceIcons", UDWC.UD_EnableDeviceIcons as Int)
     UDWC.UD_EnableDebuffIcons = JsonUtil.GetIntValue(strFile, "iWidgets_EnableEffectIcons", UDWC.UD_EnableDebuffIcons as Int)
@@ -3827,15 +3818,11 @@ Function LoadFromJSON(string strFile)
     UDWC.StatusEffect_Register("effect-orgasm", -1, variant)
     UDWC.UD_WidgetXPos = JsonUtil.GetIntValue(strFile, "WidgetPosX", UDWC.UD_WidgetXPos)
     UDWC.UD_WidgetYPos = JsonUtil.GetIntValue(strFile, "WidgetPosY", UDWC.UD_WidgetXPos)
-    UDWC.UD_WidgetXPos = JsonUtil.GetIntValue(strFile, "WidgetPosX", UDWC.UD_WidgetXPos)
-    UDWC.UD_WidgetYPos = JsonUtil.GetIntValue(strFile, "WidgetPosY", UDWC.UD_WidgetXPos)
     
     ;Other
     UDIM.UD_UseHoods = JsonUtil.GetIntValue(strFile, "UseHoods", UDIM.UD_UseHoods as Int)
     libs.UD_StartThirdpersonAnimation_Switch = JsonUtil.GetIntValue(strFile, "StartThirdpersonAnimation_Switch", libs.UD_StartThirdpersonAnimation_Switch as Int)
     UDSS.UD_hardcore_swimming_difficulty = JsonUtil.GetIntValue(strFile, "SwimmingDifficulty", UDSS.UD_hardcore_swimming_difficulty)
-    UDWC.UD_WidgetXPos = JsonUtil.GetIntValue(strFile, "WidgetPosX", UDWC.UD_WidgetXPos)
-    UDWC.UD_WidgetYPos = JsonUtil.GetIntValue(strFile, "WidgetPosY", UDWC.UD_WidgetXPos)
     UDmain.UDRRM.UD_RandomDevice_GlobalFilter =  JsonUtil.GetIntValue(strFile, "RandomFiler", UDmain.UDRRM.UD_RandomDevice_GlobalFilter)
     AAScript.UD_DAR =  JsonUtil.GetIntValue(strFile, "DAR", AAScript.UD_DAR as Int)
     UDCD_NPCM.UD_SlotUpdateTime =  JsonUtil.GetIntValue(strFile, "SlotUpdateTime", Round(UDCD_NPCM.UD_SlotUpdateTime))
