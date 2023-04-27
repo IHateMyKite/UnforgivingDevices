@@ -1160,7 +1160,7 @@ bool Function activateDevice(UD_CustomDevice_RenderScript akCustomDevice)
         Utility.waitMenuMode(0.15)
     endwhile
     _activateDevicePackage = akCustomDevice
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         UDmain.Log("activateDevice(" + akCustomDevice.GetDeviceHeader() + ") - Sending event",3)
     endif
     int handle = ModEvent.Create("UD_ActivateDevice")
@@ -1168,7 +1168,7 @@ bool Function activateDevice(UD_CustomDevice_RenderScript akCustomDevice)
         ModEvent.Send(handle)
         return true
     else
-        if UDmain.TraceAllowed()        
+        if UDmain.TraceAllowed()
             UDmain.Log("activateDevice(" + akCustomDevice.GetDeviceHeader() + ") - !!Sending of event failed!!",1)
         endif
         _activateDevicePackage = none
@@ -3463,6 +3463,25 @@ Float Function getArousalSkillMult(Actor akActor)
         endif
     endif
     return 1.0
+EndFunction
+
+;/  Function: addExhaustion
+    Adds struggle exhaustion to actor
+
+    Parameters:
+
+        akActor - Actor to apply effect on
+        afMult  - Effect duration multiplier
+/;
+Function addExhaustion(Actor akActor, float afMult = 1.0)
+    if UDmain.TraceAllowed()
+        UDmain.Log(self + "::addExhaustion("+akActor+","+afMult+")")
+    endif
+    if (UDmain.UDGV.UDG_MinigameExhaustion.Value == 1)
+        UDlibs.StruggleExhaustionSpell.SetNthEffectMagnitude(0, UD_StruggleExhaustionMagnitude*UD_MinigameExhMagnitudeMult*Utility.randomFloat(0.75,1.25))
+        UDlibs.StruggleExhaustionSpell.SetNthEffectDuration(0, Round(UD_StruggleExhaustionDuration*UD_MinigameExhDurationMult*afMult*Utility.randomFloat(0.75,1.25)))
+        UDlibs.StruggleExhaustionSpell.cast(akActor)
+    endif
 EndFunction
 
 Float Function getArousalSkillMultEx(Actor akActor)

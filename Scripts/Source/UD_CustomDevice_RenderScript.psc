@@ -365,7 +365,7 @@ float       Property UD_ResistMagicka                                       ;mag
 EndProperty
 
 ;/  Variable: UD_WeaponHitResist
-    Physical resistence of device when hit with weapon attack. If set to 5.23, it will be set on init to <UD_PhysicalResist>. Value bigger then 100% will cause device to be healed
+    Physical resistence of device when hit with weapon attack. If set to 5.23, it will be set on init to <UD_ResistPhysical>. Value bigger then 100% will cause device to be healed
     
     *This value is bitcoded, and thus have limited range and precision!*
     
@@ -605,7 +605,7 @@ Int[]       Property UD_LockList                                    auto
 String[]    Property UD_LockNameList                                auto
 
 
-;/  Group: Ready Only
+;/  Group: Read Only
 ===========================================================================================
 ===========================================================================================
 ===========================================================================================
@@ -1506,12 +1506,12 @@ bool Function PlayerInMinigame()
     return (WearerIsPlayer() || HelperIsPlayer()) && _MinigameON
 EndFunction
 
-;/  Function: hasHelper
+;/  Function: haveHelper
     Returns:
 
         true if devie have set helper
 /;
-bool Function hasHelper()
+bool Function haveHelper()
     return _minigameHelper
 EndFunction
 
@@ -1521,7 +1521,7 @@ EndFunction
         device header in format -> $DeviceName ($WearerName)
 /;
 string Function getDeviceHeader()
-    if hasHelper()
+    if haveHelper()
         return (getDeviceName() + "(W="+getWearerName()+",H="+getHelperName()+")")
     else
         return (getDeviceName() + "("+getWearerName()+")")
@@ -1655,6 +1655,19 @@ Function _Init(Actor akActor)
         updateValuesFromInventoryScript()
     endif
 
+    if UD_Level < 1
+        int loc_level = akActor.GetLevel()
+        if UD_Level == -1 ;random value in +- 25% range from wearer level
+            UD_Level = Round(Utility.randomFloat(fRange(loc_level*0.75,1.0,100.0),fRange(loc_level*1.25,1.0,100.0)))
+        elseif UD_Level == -2 ;random value in + 25% range from wearer level
+            UD_Level = Round(Utility.randomFloat(fRange(loc_level,1.0,100.0),fRange(loc_level*1.25,1.0,100.0)))
+        elseif UD_Level == -3 ;random value in - 25% range from wearer level
+            UD_Level = Round(Utility.randomFloat(fRange(loc_level*0.75,1.0,100.0),fRange(loc_level,1.0,100.0)))
+        else ;same level as wearer
+            UD_Level = loc_level
+        endif
+    endif
+
     if deviceRendered.hasKeyword(UDlibs.PatchedDevice) ;patched device
         if UDmain.TraceAllowed()
             UDmain.Log("Patching device " + deviceInventory.getName(),2)
@@ -1673,19 +1686,6 @@ Function _Init(Actor akActor)
     
     if deviceRendered.hasKeyword(libs.zad_DeviousBelt) || deviceRendered.hasKeyword(libs.zad_DeviousBra)
         libs.Aroused.SetActorExposureRate(akActor, libs.GetModifiedRate(akActor))    
-    endif
-    
-    if UD_Level < 1
-        int loc_level = akActor.GetLevel()
-        if UD_Level == -1 ;random value in +- 25% range from wearer level
-            UD_Level = Round(Utility.randomFloat(fRange(loc_level*0.75,1.0,100.0),fRange(loc_level*1.25,1.0,100.0)))
-        elseif UD_Level == -2 ;random value in + 25% range from wearer level
-            UD_Level = Round(Utility.randomFloat(fRange(loc_level,1.0,100.0),fRange(loc_level*1.25,1.0,100.0)))
-        elseif UD_Level == -3 ;random value in - 25% range from wearer level
-            UD_Level = Round(Utility.randomFloat(fRange(loc_level*0.75,1.0,100.0),fRange(loc_level,1.0,100.0)))
-        else ;same level as wearer
-            UD_Level = loc_level
-        endif
     endif
     
     current_device_health = UD_Health ;repairs device to max durability on equip
@@ -2077,6 +2077,264 @@ EndFunction
 bool Function helperFreeLegs()
     return _minigamehelper && !_minigamehelper.wornhaskeyword(libs.zad_deviousHobbleSkirt)
 EndFunction
+
+;/  Function: ShockWearer
+    Shocks wearer, which shortly apply shader and sound effect. Also changes arousal, and can reduce health
+
+    Parameters:
+
+        aiArousalUpdate     -  By how much will be wearer arousal increased. Can be negative to reduce wearer arousal
+        afHealth            -  By how much will be wearer health reduced. Can be only positive.
+        abCanKill           -  If this effect can kill player in case that effect will reduce more health then wearer have
+/;
+Function ShockWearer(int aiArousalUpdate = 50,float afHealth = 0.0, bool abCanKill = false)
+    (libs as zadlibs_UDPatch).ShockActorPatched(getWearer(),aiArousalUpdate,afHealth, abCanKill)
+EndFunction
+
+;/  Function: ShockHelper
+    Shocks wearer, which shortly apply shader and sound effect. Also changes arousal, and can reduce health
+
+    Parameters:
+
+        aiArousalUpdate     -  By how much will be helper arousal increased. Can be negative to reduce helper arousal
+        afHealth            -  By how much will be helper health reduced. Can be only positive.
+        abCanKill           -  If this effect can kill player in case that effect will reduce more health then helper have
+/;
+Function ShockHelper(int aiArousalUpdate = 50,float afHealth = 0.0, bool abCanKill = false)
+    if haveHelper()
+        (libs as zadlibs_UDPatch).ShockActorPatched(getHelper(),aiArousalUpdate,afHealth, abCanKill)
+    endif
+EndFunction
+
+;unlocks restrain, ALWAYS call this if you want to unlock restrain from this script
+
+;/  Function: unlockRestrain
+    Unlocks the restrain on which is this function called
+
+    Parameters:
+
+        abForceDestroy  -  If device should be destroyed. This option ignores all other device setting and modifiers
+        abWaitForRemove -  unused
+/;
+Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True)
+    if IsUnlocked
+        if UDmain.TraceAllowed()        
+            UDmain.Log("unlockRestrain()"+getDeviceHeader()+": Device is already unlocked! Aborting ",1)
+        endif
+        return
+    endif
+    _IsUnlocked = True
+    GoToState("UpdatePaused")
+    
+    if _MinigameON
+        stopMinigame()
+    endif
+    
+    if UDmain.TraceAllowed()
+        UDmain.Log("unlockRestrain() called for " + self,1)
+    endif
+
+    current_device_health = 0.0
+    if WearerIsPlayer()
+        UDCDmain.updateLastOpenedDeviceOnRemove(self)
+    endif
+
+    StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
+    
+    if (deviceInventory.hasKeyword(libs.zad_QuestItem) || deviceRendered.hasKeyword(libs.zad_QuestItem))
+        int questKw = UDCdmain.UD_QuestKeywords.getSize()
+        while questKw
+            questKw -= 1
+            if deviceInventory.hasKeyword(UDCdmain.UD_QuestKeywords.getAt(questKw) as Keyword) || deviceRendered.hasKeyword(UDCdmain.UD_QuestKeywords.getAt(questKw) as Keyword)
+                libs.RemoveQuestDevice(Wearer, deviceInventory, deviceRendered, UD_DeviceKeyword, UDCdmain.UD_QuestKeywords.getAt(questKw) as Keyword ,zad_DestroyOnRemove || hasModifier("DOR") || abForceDestroy)
+                return
+            endif
+        endwhile
+    else
+        libs.UnlockDevice(Wearer, deviceInventory, deviceRendered, UD_DeviceKeyword, zad_DestroyOnRemove || hasModifier("DOR") || abForceDestroy)
+    endif
+EndFunction
+
+;check sentient event and activets it
+function checkSentient(float mult = 1.0)
+    if isSentient()
+        if Utility.randomInt() > 75 && WearerIsPlayer()
+            startSentientDialogue(1)
+        endif
+        if Round(getModifierFloatParam("Sentient")*mult) > Utility.randomInt(1,99)
+            if UDmain.TraceAllowed()
+                UDmain.Log("Sentient device activation of : " + getDeviceHeader())
+            endif
+            UDCDmain.activateDevice(self)
+        endif
+    endif
+EndFunction
+
+;function called when wearer is hit by source weapon
+Function weaponHit(Weapon source)
+    if onWeaponHitPre(source)
+        onWeaponHitPost(source)
+    endif
+EndFunction
+
+;function called when wearer is hit by source spell
+Function spellHit(Spell source)
+    if onSpellHitPre(source)
+        onSpellHitPost(source)
+    endif
+EndFunction
+
+bool Function CooldownActivate()
+    if OnCooldownActivatePre()
+        if UDmain.TraceAllowed()
+            UDmain.Log(getDeviceHeader() + " cooldown activate",1)
+        endif
+        OnCooldownActivatePost()
+        resetCooldown(1.0)
+        return true
+    else
+        return false
+    endif
+EndFunction
+
+bool Function isNotShareActive()
+    return UD_ActiveEffectName != "Share" && UD_ActiveEffectName != "none" && UD_ActiveEffectName != ""
+EndFunction
+
+Function ValidateJammedLocks()
+    if GetJammedLocks() && UD_CurrentLocks
+        if !libs.IsLockJammed(getWearer(), UD_DeviceKeyword)
+            UDmain.CLog(getDeviceHeader() + " is unjammed but have jammed locks. Unjamming")
+            JammAllLocks(False)
+        endif
+    endif
+EndFunction
+
+Function AddAbility(Spell akAbility,Int aiFlag)
+    if akAbility && PapyrusUtil.CountForm(UD_DeviceAbilities,akAbility) == 0
+        UD_DeviceAbilities = PapyrusUtil.PushForm(UD_DeviceAbilities,akAbility)
+        UD_DeviceAbilities_Flags = PapyrusUtil.PushInt(UD_DeviceAbilities_Flags,aiFlag)
+    endif
+EndFunction
+
+Bool Function AddAbilityToWearer(Int aiIndex)
+    if aiIndex < 0 || aiIndex >= UD_DeviceAbilities.length
+        return False
+    endif
+    if !Wearer.HasSpell(UD_DeviceAbilities[aiIndex] as Spell)
+        Wearer.AddSpell(UD_DeviceAbilities[aiIndex] as Spell)
+    else
+        return false
+    endif
+EndFunction
+
+Function RemoveAllAbilities(Actor akActor)
+    int loc_abilityId = UD_DeviceAbilities.length
+    while loc_abilityId
+        loc_abilityId -= 1
+        akActor.RemoveSpell(UD_DeviceAbilities[loc_abilityId] as Spell)
+    endwhile
+EndFunction
+
+;choose the best minigame and start it. Returns false if minigame was not started
+Bool Function EvaluateNPCAI()
+    Int     loc_minigameStarted     = 0
+    Float   loc_durabilityBefore    = current_device_health
+    Int     loc_LocksBefore         = UD_CurrentLocks
+
+    updateDifficulty()
+
+    ;50% chance to first check locks, then struggle
+    if Utility.randomInt(0,1)
+        float   loc_accesibility    = 1.0
+        if !loc_minigameStarted
+            loc_accesibility        = getAccesibility()
+        endif
+        Int loc_lockMinigames
+        if !loc_minigameStarted
+            loc_lockMinigames       = LockMinigameAllowed(loc_accesibility)
+        endif
+        ;first try to unlock the device with key
+        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x2)
+            if keyMinigame(True)
+                loc_minigameStarted = 3
+            endif
+        endif
+        ;try to repair the locks then
+        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x4)
+            if repairLocksMinigame(True)
+                loc_minigameStarted = 4
+            endif
+        endif
+        ;then try to use lockpicks
+        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x1)
+            if lockpickMinigame(True)
+                loc_minigameStarted = 2
+            endif
+        endif
+        ;then try to struggle
+        if !loc_minigameStarted && StruggleMinigameAllowed(loc_accesibility)
+            Int loc_minigame = Utility.randomInt(0,2)
+            if struggleMinigame(loc_minigame, True) ;start random struggle minigame
+                loc_minigameStarted = 1
+            endif
+        endif
+        ;lastly try cutting
+        if !loc_minigameStarted && CuttingMinigameAllowed(loc_accesibility)
+            if cuttingMinigame(True)
+                loc_minigameStarted = 5
+            endif
+        endif
+    else
+        float   loc_accesibility    = 1.0
+        if !loc_minigameStarted
+            loc_accesibility        = getAccesibility()
+        endif
+        ;then try to struggle
+        if !loc_minigameStarted && StruggleMinigameAllowed(loc_accesibility)
+            Int loc_minigame = Utility.randomInt(0,2)
+            if struggleMinigame(loc_minigame, True) ;start random struggle minigame
+                loc_minigameStarted = 1
+            endif
+        endif
+        ;lastly try cutting
+        if !loc_minigameStarted && CuttingMinigameAllowed(loc_accesibility)
+            if cuttingMinigame(True)
+                loc_minigameStarted = 5
+            endif
+        endif
+        Int loc_lockMinigames
+        if !loc_minigameStarted
+            loc_lockMinigames       = LockMinigameAllowed(loc_accesibility)
+        endif
+        ;first try to unlock the device with key
+        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x2)
+            if keyMinigame(True)
+                loc_minigameStarted = 3
+            endif
+        endif
+        ;try to repair the locks then
+        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x4)
+            if repairLocksMinigame(True)
+                loc_minigameStarted = 4
+            endif
+        endif
+        ;then try to use lockpicks
+        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x1)
+            if lockpickMinigame(True)
+                loc_minigameStarted = 2
+            endif
+        endif
+    endif
+    
+    if loc_minigameStarted && UDmain.UDGV.UDG_AIMinigameInfo.Value
+        GInfo(GetDeviceHeader()+"::EvaluateNPCAI() - Stats after minigame ["+loc_minigameStarted+"] = durability reduced="+ (loc_durabilityBefore - current_device_health) + " , Locks unlocked="+ (loc_LocksBefore - UD_CurrentLocks))
+    endif
+    
+    return loc_minigameStarted
+EndFunction
+
+
 
 ;==============================================================================================
 ;==============================================================================================
@@ -3120,6 +3378,49 @@ Function _EndLockManipMutex()
     _LockManipMutex = False
 EndFunction
 
+;/  Function: AddJammedLock
+    Jams set amount of random locks
+
+    Parameters:
+
+        aiChance    - Chance of lock to be jammed
+        asMsg       - Message that will be printed (for example: "Some of the dirt got in to the locks, and jammed them!")
+        aiNumber    - Number of locks that will get jammed
+/;
+Function AddJammedLock(int aiChance = 5, string asMsg = "", int aiNumber = 1)
+    if !libs.Config.DisableLockJam
+        if Utility.randomInt(1,99) >= aiChance
+            return
+        endif
+        
+        while aiNumber && JammRandomLock()
+            aiNumber -= 1
+        endwhile
+        
+        _SetJammStatus()
+        
+        if asMsg != ""
+            UDmain.Print(asMsg,2)
+        endif
+        
+        OnLockJammed()
+    endif
+EndFunction
+
+Function _SetJammStatus()
+    libs.SendDeviceJamLockEventVerbose(deviceInventory, UD_DeviceKeyword, wearer)
+    StorageUtil.SetIntValue(wearer, "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_LockJammedStatus", 1)
+EndFunction
+
+;/  Function: areLocksJammed
+    Returns:
+        True if all locks are jammed
+/;
+bool Function areLocksJammed()
+    return UD_JammedLocks == UD_CurrentLocks
+EndFunction
+
+
 ;==============================================================================================
 ;==============================================================================================
 
@@ -3707,7 +4008,7 @@ EndFunction
 ;100 = 100% chance of reaching lock
 ;0 = 0% chance of reaching lock
 int Function getLockAccesChance(Int aiLockID, bool checkTelekinesis = true)
-    if hasHelper() && HelperFreeHands(True)
+    if haveHelper() && HelperFreeHands(True)
         return 100
     endif
     
@@ -3731,7 +4032,7 @@ int Function getLockAccesChance(Int aiLockID, bool checkTelekinesis = true)
         endif
     endif
 
-    if hasHelper()
+    if haveHelper()
         if checkTelekinesis
             if HelperHaveTelekinesis()
                 loc_res += 15
@@ -3765,7 +4066,7 @@ EndFunction
        True if helper have learned telekinesis spell
 /;
 Bool Function HelperHaveTelekinesis()
-    if !hasHelper()
+    if !haveHelper()
         return false
     endif
     return getHelper().hasspell(UDlibs.TelekinesisSpell)
@@ -3776,7 +4077,7 @@ int Function _GetTelekinesisLockModifier()
     if WearerHaveTelekinesis()
         loc_res += 15
     endif
-    if hasHelper()
+    if haveHelper()
         if HelperHaveTelekinesis()
             loc_res += 15
         endif    
@@ -3852,7 +4153,7 @@ Function showWidget(Bool abUpdate = true, Bool abUpdateColor = true)
     EndIf
 EndFunction
 
-;/  Function: showWidget
+;/  Function: hideWidget
     Hide both widgets
 /;
 Function hideWidget()
@@ -4070,10 +4371,11 @@ EndFunction
 ;mends device
 Function mendDevice(float afMult = 1.0,float afTimePassed)
     if onMendPre(afMult) && current_device_health > 0.0
-        int loc_regen = getModifierIntParam("Regen")
-        refillDurability(afTimePassed*loc_regen*(1 - 0.1*UD_condition)*afMult*UDCDmain.getStruggleDifficultyModifier())
+        int     loc_regen   = getModifierIntParam("Regen")
+        Float   loc_amount  = afTimePassed*loc_regen*(1 - 0.1*UD_condition)*afMult*UDCDmain.getStruggleDifficultyModifier()
+        refillDurability(loc_amount)
         refillCuttingProgress(afTimePassed*loc_regen)
-        onMendPost(afMult)
+        onMendPost(loc_amount)
     endif
 EndFunction
 
@@ -4121,7 +4423,7 @@ EndFunction
         Absolute value of agility skill of helper or 0.0 if device have not helper
 /;
 float Function getHelperAgilitySkills()
-    if hasHelper()
+    if haveHelper()
         return UDCDMain.GetAgilitySkill(getHelper())
     else
         return 0.0
@@ -4134,7 +4436,7 @@ EndFunction
         Relative agility skill of helper or 0.0 if device have not helper. As it is hard to pinpoint maximum value, virtual value 100 is choosen. Because of that, it is possible that this value can be more then 1.0.
 /;
 float Function getHelperAgilitySkillsPerc()
-    if hasHelper()
+    if haveHelper()
         return UDCDMain.getActorAgilitySkillsPerc(getHelper())
     else
         return 0.0
@@ -4147,7 +4449,7 @@ EndFunction
         Absolute value of strength skill of helper or 0.0 if device have not helper
 /;
 float Function getHelperStrengthSkills()
-    if hasHelper()
+    if haveHelper()
         return UDCDMain.GetStrengthSkill(getHelper())
     else
         return 0.0
@@ -4160,7 +4462,7 @@ EndFunction
         Relative strength skill of helper or 0.0 if device have not helper. As it is hard to pinpoint maximum value, virtual value 100 is choosen. Because of that, it is possible that this value can be more then 1.0.
 /;
 float Function getHelperStrengthSkillsPerc()
-    if hasHelper()
+    if haveHelper()
         return UDCDMain.getActorStrengthSkillsPerc(getHelper())
     else
         return 0.0
@@ -4173,7 +4475,7 @@ EndFunction
         Absolute value of magic skill of helper or 0.0 if device have not helper
 /;
 float Function getHelperMagickSkills()
-    if hasHelper()
+    if haveHelper()
         return UDCDMain.GetMagickSkill(getHelper())
     else
         return 0.0
@@ -4186,7 +4488,7 @@ EndFunction
         Relative magic skill of helper or 0.0 if device have not helper. As it is hard to pinpoint maximum value, virtual value 100 is choosen. Because of that, it is possible that this value can be more then 1.0.
 /;
 float Function getHelperMagickSkillsPerc()
-    if hasHelper()
+    if haveHelper()
         return UDCDMain.getActorMagickSkillsPerc(getHelper())
     else
         return 0.0
@@ -5169,6 +5471,327 @@ Function repairDevice(Actor akSource)
     akSource.removeItem(UDlibs.SteelIngot,2) ;remove 2 ingots
 EndFunction
 
+;https://en.uesp.net/wiki/Skyrim:Leveling
+
+
+;/  Function: advanceSkill
+    Advance skill based on currently ongoing minigame. Will do nothing if device is not in minigame, or if wearer/helper is not player
+
+    Parameters:
+
+        afMult    - Skill gain multiplier
+/;
+Function advanceSkill(float afMult)
+    if !PlayerInMinigame()
+        return
+    endif
+    
+    float loc_mult     = afMult
+    
+    if !WearerIsPlayer()
+        loc_mult *= 0.75
+    endif
+    
+    if _StruggleGameON
+        int loc_type = 0
+        if haveHelper()
+            loc_type = _struggleGame_Subtype_NPC
+        else
+            loc_type = _struggleGame_Subtype
+        endif
+        if loc_type == 0
+            Game.AdvanceSkill("Pickpocket" ,loc_mult*(0.5*UDCDmain.UD_BaseDeviceSkillIncrease/8.10)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+        elseif loc_type == 1 
+            Game.AdvanceSkill("TwoHanded"  ,loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease/5.95)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+        elseif loc_type == 2
+            Game.AdvanceSkill("Destruction",loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease/1.35)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+        endif
+    elseif _RepairLocksMinigameON
+        Game.AdvanceSkill("Smithing" , loc_mult*(0.75*UDCDmain.UD_BaseDeviceSkillIncrease/1.0)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+    elseif _CuttingGameON
+        Game.AdvanceSkill("OneHanded", loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease/5.3)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+    endif
+    OnAdvanceSkill(loc_mult)
+EndFunction
+
+;cut device by progress_add
+Function _cutDevice(float progress_add = 1.0)
+    _CuttingProgress += progress_add*UDCDmain.getStruggleDifficultyModifier()*UD_MinigameMult1
+    if _CuttingProgress >= 100.0
+        ;only show message fo NPC, as player can see progress progress on widget
+        if _CuttingGameON
+            if !PlayerInMinigame() && UDCDmain.AllowNPCMessage(getWearer(), True)
+                UDmain.Print(getWearerName() + " managed to cut "+getDeviceName()+" and reduce durability by big amount!",3)
+            endif
+        else
+            if !PlayerInMinigame() && UDCDmain.AllowNPCMessage(getWearer(), True)
+                UDmain.Print(getWearerName() + "s "+ getDeviceName() +" is cutted!",3)
+            endif
+        endif
+
+        float cond_dmg = 40.0*UDCDmain.getStruggleDifficultyModifier()*(1.0 + _condition_mult_add)
+        _total_durability_drain += cond_dmg
+
+        _updateCondition()
+        decreaseDurabilityAndCheckUnlock(UD_DamageMult*cond_dmg*getModResistPhysical(1.0,0.25)/7.0,0.0)
+
+        _CuttingProgress = 0.0
+        if UDmain.TraceAllowed()        
+            UDmain.Log(getDeviceHeader() + " is cutted for " + cond_dmg + "C ( " + (UD_DamageMult*cond_dmg*getModResistPhysical(1.0,0.25)/7.0) + " D) (Wearer: " + getWearerName() + ")",1)
+        endif
+        OnDeviceCutted()
+    endif
+EndFunction
+
+;repair lock by progress_add
+Function _repairLock(float progress_add = 1.0)
+    Float loc_RepairProgress = UpdateNthLockRepairProgress(_MinigameSelectedLockID,progress_add*UDCDmain.getStruggleDifficultyModifier())
+    if loc_RepairProgress >= _getLockDurability()
+        loc_RepairProgress = UpdateNthLockRepairProgress(_MinigameSelectedLockID,-1*_getLockDurability()) ;reset value
+        JammNthLock(_MinigameSelectedLockID, False)
+        if !GetJammedLocks()
+            libs.UnJamLock(Wearer,UD_DeviceKeyword)
+        endif
+        stopMinigame()
+        if WearerIsPlayer()
+            UDmain.Print("You repaired " +GetDeviceName()+"s "+UD_LockNameList[_MinigameSelectedLockID]+"! ",1)
+        elseif UDCDmain.AllowNPCMessage(Wearer, True)
+            UDmain.Print(GetWearerName() + " managed to repair " +GetDeviceName()+"s "+UD_LockNameList[_MinigameSelectedLockID],2)
+        endif
+    endif
+EndFunction
+
+;starts vannila lockpick minigame if lock is reached
+Function _lockpickDevice()
+    if _LockpickGameON && (UD_CurrentLocks - UD_JammedLocks > 0)
+        int result = 0
+        if PlayerInMinigame()
+            PauseMinigame() ;pause minigame untill lockpick minigame starts
+            int helperGivedLockpicks = 0
+            if haveHelper()
+                ;always transfere lockpicks to player
+                if WearerIsPlayer()
+                    helperGivedLockpicks = getHelper().getItemCount(UDCDmain.Lockpick)
+                    getHelper().removeItem(UDCDmain.Lockpick,helperGivedLockpicks,True,getWearer())
+                else
+                    helperGivedLockpicks = getWearer().getItemCount(UDCDmain.Lockpick)
+                    getWearer().removeItem(UDCDmain.Lockpick,helperGivedLockpicks,True,getHelper())
+                endif
+            endif
+            
+            Int loc_difficulty = GetNthLockDifficulty(_MinigameSelectedLockID)
+            UDCDmain.ReadyLockPickContainer(loc_difficulty,Wearer)
+            UDCDmain.startLockpickMinigame()
+            
+            float loc_elapsedTime   = 0.0
+            float loc_maxtime       = 0.0
+            if UDCDMain.UD_LockpickMinigameDuration > 0
+                loc_maxtime = (UDCDMain.UD_LockpickMinigameDuration as Float) - (loc_difficulty/100.0)*0.5*UDCDMain.UD_LockpickMinigameDuration
+                bool loc_msgshown = false
+                while (!UDCDmain.LockpickMinigameOver) && loc_elapsedTime <= loc_maxtime
+                    Utility.WaitMenuMode(0.05)
+                    loc_elapsedTime += 0.05
+                    
+                    if !loc_msgshown && loc_elapsedTime > loc_maxtime*0.75 ;only 25% time left, warn player
+                        if Utility.randomInt(0,1)
+                            UDmain.Print("Your hands are sweating")
+                        else
+                            UDmain.Print("Your hands starting to tremble")
+                        endif
+                        loc_msgshown = true
+                    endif
+                endwhile
+            endif
+            
+            result = UDCDmain.lockpickMinigameResult     ;first we fetch lockpicking result
+            UDCDmain.DeleteLockPickContainer()           ;then we remove the container so IsLocked is not called on None
+            
+            if UDCDMain.UD_LockpickMinigameDuration > 0
+                if loc_elapsedTime >= loc_maxtime
+                    if UDmain.IsLockpickingMenuOpen()
+                        closeLockpickMenu()
+                    endif
+                    UDmain.Print("You lost focus and broke the lockpick!")
+                    result = 2
+                    getWearer().removeItem(UDCDmain.Lockpick,1)
+                endif
+            endif
+            
+            if haveHelper()
+                if WearerIsPlayer()
+                    int lockpicks = getWearer().getItemCount(UDCDmain.Lockpick)
+                    if lockpicks >= helperGivedLockpicks
+                        getWearer().removeItem(UDCDmain.Lockpick,helperGivedLockpicks,True,getHelper())
+                    else
+                        getWearer().removeItem(UDCDmain.Lockpick,lockpicks,True,getHelper())
+                    endif
+                else
+                    int lockpicks = getHelper().getItemCount(UDCDmain.Lockpick)
+                    if lockpicks >= helperGivedLockpicks
+                        getHelper().removeItem(UDCDmain.Lockpick,helperGivedLockpicks,True,getWearer())
+                    else
+                        getHelper().removeItem(UDCDmain.Lockpick,lockpicks,True,getWearer())
+                    endif
+                endif
+            endif
+            UnPauseMinigame()
+        else
+            if Utility.randomInt(1,99) >= _getLockpickLevel(_MinigameSelectedLockID)*15
+                result = 1
+            else
+                result = 2
+                Wearer.RemoveItem(UDCDmain.Lockpick, 1, True)
+            endif
+        endif
+        if UDmain.TraceAllowed()
+            UDmain.Log("Lockpick minigame result for " + getWearerName() + ": " + result,2)
+        endif
+        if result == 0
+            stopMinigame()
+            _LockpickGameON = False
+        elseif result == 1 ;succes
+            Int loc_shields = GetNthLockShields(_MinigameSelectedLockID)
+            if loc_shields > 0 ;lock have shields, needs to unlock them first
+                loc_shields = DecreaseLockShield(_MinigameSelectedLockID,1)
+                if loc_shields
+                    if PlayerInMinigame()
+                        UDmain.Print("You succesfully unlocked one of the locks shields! Shields: [" + loc_shields + "]",1)
+                    elseif UDCDmain.AllowNPCMessage(Wearer, True)
+                        UDmain.Print(getWearerName() + " unlocked one of the locks shields! Shields: [" + loc_shields + "]",2)
+                    endif
+                else
+                    if PlayerInMinigame()
+                        UDmain.Print("You succesfully unlocked all of the shields!",1)
+                    elseif UDCDmain.AllowNPCMessage(Wearer, True)
+                        UDmain.Print(getWearerName() + " unlocked all of the shields!",2)
+                    endif
+                endif
+            else ;no more shields on device, unlock the lock
+                UnlockNthLock(_MinigameSelectedLockID)
+                if PlayerInMinigame()
+                    UDmain.Print("You succesfully unlocked the "+UD_LockNameList[_MinigameSelectedLockID]+"!",1)
+                elseif UDCDmain.AllowNPCMessage(Wearer, True)
+                    UDmain.Print(getWearerName() + " unlocked one of the "+UD_LockNameList[_MinigameSelectedLockID]+"!",2)
+                endif
+                onLockUnlocked(True)
+                stopMinigame() ;stop minigame, as player needs to select next lock manually
+            endif
+            if UD_CurrentLocks == 0 && UD_JammedLocks == 0 ;device gets unlocked
+                if PlayerInMinigame()
+                    UDmain.Print("You succesfully unlocked the last lock and removed the "+GetDeviceName()+"!",1)
+                elseif UDCDmain.AllowNPCMessage(Wearer, True)
+                    UDmain.Print(getWearerName() + " unlocked last lock and removed the "+GetDeviceName()+"!",2)
+                endif
+                unlockRestrain()
+                stopMinigame()
+                _LockpickGameON = False
+                OnDeviceLockpicked()
+            elseif UD_CurrentLocks == UD_JammedLocks ;device have no more free locks
+                stopMinigame()
+                _LockpickGameON = False
+                _SetJammStatus()
+            endif
+        elseif result == 2 ;failure
+            if Utility.randomInt() <= zad_JammLockChance*UDCDmain.CalculateKeyModifier() && !libs.Config.DisableLockJam
+                if PlayerInMinigame()
+                    UDmain.Print("Your lockpick jammed the lock!",1)
+                elseif UDCDmain.AllowNPCMessage(Wearer, True)
+                    UDmain.Print(getWearerName() + "s "+getDeviceName()+" lock gets jammed!",3)
+                endif
+                
+                JammNthLock(_MinigameSelectedLockID)
+                _SetJammStatus()
+                stopMinigame()
+                _LockpickGameON = False
+                OnLockJammed()
+            else
+                int loc_lockpicks = getWearer().GetItemCount(libs.Lockpick)
+                if haveHelper()
+                    loc_lockpicks += getHelper().GetItemCount(libs.Lockpick)
+                endif
+                if loc_lockpicks == 0
+                    stopMinigame()
+                    _LockpickGameON = False
+                endif
+            endif
+        endif
+    endif
+EndFunction
+
+;unlock one of the locks if lock is reached
+Function _keyUnlockDevice()
+    UnlockNthLock(_MinigameSelectedLockID)
+    
+    stopMinigame()
+    
+    if PlayerInMinigame()
+        UDmain.Print("You managed to unlock "+GetDeviceName()+"s "+GetNthLockName(_MinigameSelectedLockID)+"!",1)
+    elseif UDCDmain.AllowNPCMessage(Wearer, True)
+        UDmain.Print(getWearerName() + " managed to unlock "+GetDeviceName()+"s "+GetNthLockName(_MinigameSelectedLockID)+"!",2)
+    endif
+    
+    if zad_DestroyKey
+        if _minigameHelper && _minigameHelper.GetItemCount(zad_deviceKey)
+            _minigameHelper.RemoveItem(zad_deviceKey,1) ;first remove helper key
+        else
+            Wearer.RemoveItem(zad_deviceKey,1) ;then remove wearer key
+        endif
+    elseif UDCDMain.KeyIsGeneric(zad_deviceKey) && UDCDmain.UD_KeyDurability > 0
+        if _minigameHelper && _minigameHelper.GetItemCount(zad_deviceKey)
+            UDCDMain.ReduceKeyDurability(_minigameHelper, zad_DeviceKey)
+        else
+            Int loc_dur = UDCDMain.ReduceKeyDurability(Wearer, zad_DeviceKey)
+            if !loc_dur
+                if PlayerInMinigame()
+                    UDmain.Print("Key "+ zad_DeviceKey.GetName() +" gets destroyed",1)
+                elseif UDCDmain.AllowNPCMessage(Wearer, True)
+                    UDmain.Print(getWearerName() + "'s key "+ zad_DeviceKey.GetName() +" gets destroyed",1)
+                endif
+            else
+                if PlayerInMinigame()
+                    UDmain.Print("Remaining durability of key " + zad_DeviceKey.GetName() + " = [" + loc_dur+"]",2)
+                endif
+            endif
+        endif
+    endif
+    
+    if UD_CurrentLocks == 0
+        unlockRestrain()
+        OnDeviceUnlockedWithKey()
+    else
+        onLockUnlocked(false)
+    endif
+EndFunction
+
+;adds struggle debuff to Wearer and Helper
+
+;/  Function: addStruggleExhaustion
+    Adds struggle exhaustion to wearer and helper
+/;
+Function addStruggleExhaustion()
+    if UDmain.TraceAllowed()
+        UDmain.Log("UD_CustomDevice_RenderScript::addStruggleExhaustion("+getDeviceHeader()+") called")
+    endif
+    if UD_applyExhastionEffect
+        UDCDmain.AddExhaustion(Wearer,_exhaustion_mult)
+        if _minigameHelper
+            UDCDmain.AddExhaustion(_minigameHelper,_exhaustion_mult_helper)
+            UDCDmain.ResetHelperCD(_minigameHelper,Wearer,UDCDmain.UD_MinigameHelpXPBase)
+        endif
+    endif
+EndFunction
+
+;/  Function: startSentientDialogue
+    Shows random sentient dialogue by device
+
+    Parameters:
+
+        aiType    - unused
+/;
+Function startSentientDialogue(int aiType = 1)
+    UDCDmain.sendSentientDialogueEvent(UD_DeviceType,aiType)
+EndFunction
+
 ;/  Group: Minigame Creation
 ===========================================================================================
 ===========================================================================================
@@ -5604,7 +6227,7 @@ bool Function minigamePostcheck(Bool abSilent = False)
             endif
         endif
         return false
-    elseif hasHelper() && !checkMinAV(_minigameHelper)
+    elseif haveHelper() && !checkMinAV(_minigameHelper)
         if !abSilent
             if HelperIsPlayer() ;message related to player helper
                 UDmain.Print("You are too exhausted and can't help "+getWearerName()+".",1)
@@ -5675,7 +6298,7 @@ bool Function minigamePrecheck(Bool abSilent = False)
         return false
     endif
     
-    if hasHelper()
+    if haveHelper()
         if (UDAM.isAnimating(_minigameHelper))
             if !abSilent
                 GWarning("Can't start minigame for " + getDeviceHeader() + " because helper is already in minigame!")
@@ -5733,6 +6356,12 @@ EndFunction
 ;==============================================================================================
 ;==============================================================================================
 
+
+;/  Function: minigame
+    Starts minigame on device. Should be only used if both <minigamePrecheck> and <minigamePostcheck> were OK
+    
+    This function will block thread for duration of minigame
+/;
 Function minigame()
     if current_device_health <= 0 ;device is already unlocked (somehow)
         UnlockRestrain()
@@ -5852,7 +6481,7 @@ Function minigame()
                     if !ProccesAV(fCurrentUpdateTime)
                         StopMinigame()
                     endif
-                    if hasHelper()
+                    if haveHelper()
                         if !ProccesAVHelper(fCurrentUpdateTime)
                             StopMinigame()
                         endif
@@ -5888,7 +6517,7 @@ Function minigame()
             ;check non struggle minigames
             if !loc_PlayerInMinigame
                 if _CuttingGameON
-                    cutDevice(fCurrentUpdateTime*UD_CutChance/5.0)
+                    _cutDevice(fCurrentUpdateTime*UD_CutChance/5.0)
                 endif
             endif
             
@@ -6277,40 +6906,6 @@ Function _MinigameVarReset()
     _MinigameON = False
 EndFunction
 
-;https://en.uesp.net/wiki/Skyrim:Leveling
-Function advanceSkill(float afMult)
-    if !PlayerInMinigame()
-        return
-    endif
-    
-    float loc_mult     = afMult
-    
-    if !WearerIsPlayer()
-        loc_mult *= 0.75
-    endif
-    
-    if _StruggleGameON
-        int loc_type = 0
-        if HasHelper()
-            loc_type = _struggleGame_Subtype_NPC
-        else
-            loc_type = _struggleGame_Subtype
-        endif
-        if loc_type == 0
-            Game.AdvanceSkill("Pickpocket" ,loc_mult*(0.5*UDCDmain.UD_BaseDeviceSkillIncrease/8.10)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
-        elseif loc_type == 1 
-            Game.AdvanceSkill("TwoHanded"  ,loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease/5.95)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
-        elseif loc_type == 2
-            Game.AdvanceSkill("Destruction",loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease/1.35)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
-        endif
-    elseif _RepairLocksMinigameON
-        Game.AdvanceSkill("Smithing" , loc_mult*(0.75*UDCDmain.UD_BaseDeviceSkillIncrease/1.0)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
-    elseif _CuttingGameON
-        Game.AdvanceSkill("OneHanded", loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease/5.3)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
-    endif
-    OnAdvanceSkill(loc_mult)
-EndFunction
-
 ;function called when player fails crit (pressed wrong button)
 Function critFailure()
     if (UD_minigame_stamina_drain > 0.0)
@@ -6351,7 +6946,7 @@ Function critFailure()
             JammNthLock(_MinigameSelectedLockID)
             ;UD_JammedLocks += 1
             
-            SetJammStatus()
+            _SetJammStatus()
             stopMinigame()
             _KeyGameON = False
             OnLockJammed()
@@ -6395,13 +6990,13 @@ Function critDevice()
                 decreaseDurabilityAndCheckUnlock(UD_StruggleCritMul*(_durability_damage_mod + UD_durability_damage_add)*getModResistPhysical(1.0,0.25)*UD_DamageMult)
             endif
         elseif _LockpickGameON
-            lockpickDevice()
+            _lockpickDevice()
         elseif _KeyGameON
-            keyUnlockDevice()
+            _keyUnlockDevice()
         elseif _CuttingGameON
-            cutDevice(UD_StruggleCritMul*UD_CutChance/3.0)
+            _cutDevice(UD_StruggleCritMul*UD_CutChance/3.0)
         elseif _RepairLocksMinigameON
-            repairLock(15.0*UD_MinigameMult1)
+            _repairLock(15.0*UD_MinigameMult1)
         endif
         
         OnCritDevicePost()
@@ -6422,12 +7017,12 @@ EndFunction
 ;function called when player press special button
 Function SpecialButtonPressed(float fMult = 1.0)
     if _CuttingGameON
-        cutDevice(fMult*UD_CutChance/12.5)
+        _cutDevice(fMult*UD_CutChance/12.5)
     elseif _KeyGameON || _LockpickGameON || _RepairLocksMinigameON
         if !_usingTelekinesis
             _usingTelekinesis = true
             UD_minigame_magicka_drain = 0.5*UD_base_stat_drain + Wearer.getBaseAV("Magicka")*0.02
-            if HasHelper()
+            if haveHelper()
                 UD_minigame_magicka_drain_helper = 0.5*UD_base_stat_drain + _minigameHelper.getBaseAV("Magicka")*0.02
             endif
             if _RepairLocksMinigameON
@@ -6494,65 +7089,12 @@ Function edge()
     endif
 EndFunction
 
-Function ShockWearer(int aiArousalUpdate = 50,float afHealth = 0.0, bool abCanKill = false)
-    (libs as zadlibs_UDPatch).ShockActorPatched(getWearer(),aiArousalUpdate,afHealth, abCanKill)
-EndFunction
-
-Function ShockHelper(int iArousalUpdate = 50,float fHealth = 0.0, bool bCanKill = false)
-    if hasHelper()
-        (libs as zadlibs_UDPatch).ShockActorPatched(getHelper(),iArousalUpdate,fHealth, bCanKill)
-    endif
-EndFunction
-
-;unlocks restrain, ALWAYS call this if you want to unlock restrain from this script
-Function unlockRestrain(bool forceDestroy = false,bool waitForRemove = True)
-    if IsUnlocked
-        if UDmain.TraceAllowed()        
-            UDmain.Log("unlockRestrain()"+getDeviceHeader()+": Device is already unlocked! Aborting ",1)
-        endif
-        return
-    endif
-    _IsUnlocked = True
-    GoToState("UpdatePaused")
-    
-    if _MinigameON
-        stopMinigame()
-    endif
-    
-    if UDmain.TraceAllowed()
-        UDmain.Log("unlockRestrain() called for " + self,1)
-    endif
-
-    current_device_health = 0.0
-    if WearerIsPlayer()
-        UDCDmain.updateLastOpenedDeviceOnRemove(self)
-    endif
-
-    StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
-    ;if wearer.isinfaction(UDCDmain.minigamefaction)
-    ;    wearer.removefromfaction(UDCDmain.minigamefaction)
-    ;endif
-    
-    if (deviceInventory.hasKeyword(libs.zad_QuestItem) || deviceRendered.hasKeyword(libs.zad_QuestItem))
-        int questKw = UDCdmain.UD_QuestKeywords.getSize()
-        while questKw
-            questKw -= 1
-            if deviceInventory.hasKeyword(UDCdmain.UD_QuestKeywords.getAt(questKw) as Keyword) || deviceRendered.hasKeyword(UDCdmain.UD_QuestKeywords.getAt(questKw) as Keyword)
-                libs.RemoveQuestDevice(Wearer, deviceInventory, deviceRendered, UD_DeviceKeyword, UDCdmain.UD_QuestKeywords.getAt(questKw) as Keyword ,zad_DestroyOnRemove || hasModifier("DOR") || forceDestroy)
-                return
-            endif
-        endwhile
-    else
-        libs.UnlockDevice(Wearer, deviceInventory, deviceRendered, UD_DeviceKeyword, zad_DestroyOnRemove || hasModifier("DOR") || forceDestroy)
-    endif
-EndFunction
-
 ;biggest pain in the ass. 
 Function showHUDbars(bool flashCall = True)
-    bool actorOK = (WearerIsPlayer() || HelperIsPlayer()) 
-    bool stamina = actorOK && (UD_minigame_stamina_drain == 0.0 && UD_minigame_stamina_drain_helper == 0.0)
-    bool health = actorOK && (UD_minigame_heal_drain == 0.0 && UD_minigame_heal_drain_helper == 0.0)
-    bool magicka = actorOK && (UD_minigame_magicka_drain == 0.0 && UD_minigame_magicka_drain_helper == 0.0)
+    bool actorOK    = (WearerIsPlayer() || HelperIsPlayer()) 
+    bool stamina    = actorOK && (UD_minigame_stamina_drain == 0.0 && UD_minigame_stamina_drain_helper  == 0.0)
+    bool health     = actorOK && (UD_minigame_heal_drain    == 0.0 && UD_minigame_heal_drain_helper     == 0.0)
+    bool magicka    = actorOK && (UD_minigame_magicka_drain == 0.0 && UD_minigame_magicka_drain_helper  == 0.0)
     UDCDmain.sendHUDUpdateEvent(flashCall,stamina,health,magicka)
 EndFunction
 
@@ -6651,26 +7193,15 @@ bool Function ProccesAVHelper(float fUpdateTime)
     return true
 EndFunction
 
-;function called when player clicks DETAILS button in device menu
-Function processDetails()
-    UDCDmain.currentDeviceMenu_switch1 = HaveLocks()
-    int res = UDCDmain.DetailsMessage.show()
-    if res == 0 
-        ShowBaseDetails()
-    elseif res == 1
-        ShowLockDetails()
-    elseif res == 2
-        ShowModifiers()
-    elseif res == 3
-        UDCDmain.showActorDetails(GetWearer())
-    elseif res == 4
-        showDebugInfo()
-    else
-        return
-    endif
-EndFunction
+;/  Group: Details
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 
-;show base device details
+;/  Function: minigamePrecheck
+    Shows message box with base information about device
+/;
 Function ShowBaseDetails()
     updateDifficulty()
     float loc_accesibility = getAccesibility()
@@ -6758,15 +7289,9 @@ Function ShowBaseDetails()
     UDmain.ShowMessageBox(loc_res)
 EndFunction
 
-bool Function Details_CanShowResist()
-    return true
-EndFunction 
-
-bool Function Details_CanShowHitResist()
-    return true
-EndFunction 
-
-;shows details about modifiers
+;/  Function: minigamePrecheck
+    Shows message box with all modifiers and some information about them
+/;
 Function ShowModifiers()
     string loc_res = "-Modifiers-\n"
     if !canBeStruggled() 
@@ -6846,59 +7371,10 @@ Function ShowModifiers()
     UDmain.ShowMessageBox(loc_res)
 EndFunction
 
-Function showDebugMinigameInfo()
-    string res = ""
-    res += "Wearer: " + getWearerName() + "\n"
-    if hasHelper()
-        res += "Helper: " + getHelperName() + "\n"
-    endif
-    
-    if _StruggleGameON
-        res += "Struggle type: " + _struggleGame_Subtype + "\n"
-    endif
-    res += "Damage modifier: " + Round(UD_DamageMult*100.0) + " %\n"
-    if UD_damage_device
-        res += "Base DPS: " + formatString(UD_durability_damage_base,4) + " DPS\n"
-        res += "DPS bonus: " + formatString(UD_durability_damage_add,2) + " DPS\n"
-        res += "Total DPS: " + (_durability_damage_mod + UD_durability_damage_add)*UD_DamageMult + " DPS\n"
-        res += "Total increase: " + formatString((((_durability_damage_mod + UD_durability_damage_add)*UD_DamageMult)/UD_durability_damage_base)*100 - 100.0,2) + " %\n"
-    elseif _CuttingGameON
-        res += "Cutting modifier: " + Round(UD_MinigameMult1*100.0) + " %\n"
-    else
-        res += "No DPS\n"
-    endif
-    res += "Condition dmg increase: " + Round(_condition_mult_add*100) + " %\n"
-    res += "Crits: " + UD_minigame_canCrit + "\n"
-    if UD_drain_stats
-        if UD_minigame_stamina_drain
-            res += "Stamina SPS: " + formatString(UD_minigame_stamina_drain,2) + "\n"
-        endif
-        if UD_minigame_heal_drain
-            res += "Health SPS: " + formatString(UD_minigame_heal_drain,2) + "\n"
-        endif
-        if UD_minigame_magicka_drain
-            res += "Magicka SPS: " + formatString(UD_minigame_magicka_drain,2) + "\n"    
-        endif
-    else
-        res += "Wearer doesn't loose stats\n"
-    endif
-    res += "Required stats: S = " + Round(_minMinigameStatSP*100) + " %;H = " + Round(_minMinigameStatHP*100) + " %;M = " + Round(_minMinigameStatMP*100) + " %\n"
-    
-    if UD_RegenMag_Stamina || UD_RegenMag_Health || UD_RegenMag_Magicka
-        res += "Wearer regen: S = " + Round(UD_RegenMag_Stamina*100) + " %;H = " + Round(UD_RegenMag_Health*100) + " %;M = " + Round(UD_RegenMag_Magicka*100) + " %\n"
-    endif
-    
-    if UD_RegenMagHelper_Stamina || UD_RegenMagHelper_Health || UD_RegenMagHelper_Magicka
-        res += "Wearer regen: S = " + Round(UD_RegenMagHelper_Stamina*100) + " %;H = " + Round(UD_RegenMagHelper_Health*100) + " %;M = " + Round(UD_RegenMagHelper_Magicka*100) + " %\n"
-    endif
-    if UD_applyExhastionEffect
-        res += "Exhastion mult: " + Round(_exhaustion_mult*100) + " %\n"
-    else
-        res += "No exhastion\n"
-    endif
-    UDmain.ShowMessageBox(res)
-EndFunction
 
+;/  Function: ShowLockDetails
+    Shows message box with list off all locks. Selecting lock will open message box with information about the lock
+/;
 Function ShowLockDetails()
     while True
         Int loc_lockId = UserSelectLock()
@@ -6955,7 +7431,7 @@ Function ShowLockDetails()
     endwhile
 EndFunction
 
-Function showRawModifiers()
+Function _showRawModifiers()
     int i = 0
     string res = "-RAW MODIFIERS-\n"
     while i < UD_Modifiers.length
@@ -6965,40 +7441,83 @@ Function showRawModifiers()
     UDmain.ShowMessageBox(res)
 EndFunction
 
+;/  Function: showDebugMinigameInfo
+    Shows message box with debug information about device
+/;
 Function showDebugInfo()
-    UDmain.ShowMessageBox(getDebugString())
-    showRawModifiers()
-EndFunction
-
-;returns debug string
-string Function getDebugString()
     updateDifficulty()
-    string res = ""
-    res += "- " + deviceInventory.GetName() + " -\n"
+    string loc_res = ""
+    loc_res += "- " + deviceInventory.GetName() + " -\n"
     if (zad_JammLockChance > 0)
-        res += "Lock jam chance: "+ zad_JammLockChance + " (" + Round(checkLimit(zad_JammLockChance*UDCDmain.CalculateKeyModifier(),100.0)) +") %\n"
+        loc_res += "Lock jam chance: "+ zad_JammLockChance + " (" + Round(checkLimit(zad_JammLockChance*UDCDmain.CalculateKeyModifier(),100.0)) +") %\n"
     endif
     if isNotShareActive(); && canBeActivated()
-        res += "Cooldown: "+ _currentRndCooldown +" min\n"
-        res += "Elapsed time: "+ formatString(_updateTimePassed,3) +" min ("+ formatString(getRelativeElapsedCooldownTime()*100,1) +" %)\n"
-        res += "Can be activated: " + canBeActivated() + "\n"
+        loc_res += "Cooldown: "+ _currentRndCooldown +" min\n"
+        loc_res += "Elapsed time: "+ formatString(_updateTimePassed,3) +" min ("+ formatString(getRelativeElapsedCooldownTime()*100,1) +" %)\n"
+        loc_res += "Can be activated: " + canBeActivated() + "\n"
     endif
-    res += getCritInfo()
-    return res
+    loc_res += _getCritInfo()
+    UDmain.ShowMessageBox(loc_res)
+    _showRawModifiers()
 EndFunction
 
-string Function getMendingInfo()
-    if (hasModifier("Regen"))
-        int regen = getModifierIntParam("Regen")
-        float mult = UDCDmain.getMendDifficultyModifier()
-        string res
-            res += "Mend rate: "+ regen +" ("+formatString(regen/24.0,1)+" per hour)\n"
-        return res
+;/  Function: showDebugMinigameInfo
+    Shows message box with debug information about current minigame. Have to be called after minigame starts
+/;
+Function showDebugMinigameInfo()
+    string res = ""
+    res += "Wearer: " + getWearerName() + "\n"
+    if haveHelper()
+        res += "Helper: " + getHelperName() + "\n"
     endif
-    return ""
+    
+    if _StruggleGameON
+        res += "Struggle type: " + _struggleGame_Subtype + "\n"
+    endif
+    res += "Damage modifier: " + Round(UD_DamageMult*100.0) + " %\n"
+    if UD_damage_device
+        res += "Base DPS: " + formatString(UD_durability_damage_base,4) + " DPS\n"
+        res += "DPS bonus: " + formatString(UD_durability_damage_add,2) + " DPS\n"
+        res += "Total DPS: " + (_durability_damage_mod + UD_durability_damage_add)*UD_DamageMult + " DPS\n"
+        res += "Total increase: " + formatString((((_durability_damage_mod + UD_durability_damage_add)*UD_DamageMult)/UD_durability_damage_base)*100 - 100.0,2) + " %\n"
+    elseif _CuttingGameON
+        res += "Cutting modifier: " + Round(UD_MinigameMult1*100.0) + " %\n"
+    else
+        res += "No DPS\n"
+    endif
+    res += "Condition dmg increase: " + Round(_condition_mult_add*100) + " %\n"
+    res += "Crits: " + UD_minigame_canCrit + "\n"
+    if UD_drain_stats
+        if UD_minigame_stamina_drain
+            res += "Stamina SPS: " + formatString(UD_minigame_stamina_drain,2) + "\n"
+        endif
+        if UD_minigame_heal_drain
+            res += "Health SPS: " + formatString(UD_minigame_heal_drain,2) + "\n"
+        endif
+        if UD_minigame_magicka_drain
+            res += "Magicka SPS: " + formatString(UD_minigame_magicka_drain,2) + "\n"    
+        endif
+    else
+        res += "Wearer doesn't loose stats\n"
+    endif
+    res += "Required stats: S = " + Round(_minMinigameStatSP*100) + " %;H = " + Round(_minMinigameStatHP*100) + " %;M = " + Round(_minMinigameStatMP*100) + " %\n"
+    
+    if UD_RegenMag_Stamina || UD_RegenMag_Health || UD_RegenMag_Magicka
+        res += "Wearer regen: S = " + Round(UD_RegenMag_Stamina*100) + " %;H = " + Round(UD_RegenMag_Health*100) + " %;M = " + Round(UD_RegenMag_Magicka*100) + " %\n"
+    endif
+    
+    if UD_RegenMagHelper_Stamina || UD_RegenMagHelper_Health || UD_RegenMagHelper_Magicka
+        res += "Wearer regen: S = " + Round(UD_RegenMagHelper_Stamina*100) + " %;H = " + Round(UD_RegenMagHelper_Health*100) + " %;M = " + Round(UD_RegenMagHelper_Magicka*100) + " %\n"
+    endif
+    if UD_applyExhastionEffect
+        res += "Exhastion mult: " + Round(_exhaustion_mult*100) + " %\n"
+    else
+        res += "No exhastion\n"
+    endif
+    UDmain.ShowMessageBox(res)
 EndFunction
 
-string Function getCritInfo()
+string Function _getCritInfo()
     string res = ""
     res += "Crit chance: "
     if (UD_StruggleCritChance > 0)
@@ -7019,503 +7538,14 @@ string Function getCritInfo()
     return res
 endFunction
 
-;adds struggle debuff to Wearer and Helper
-Function addStruggleExhaustion(Actor akWearer, Actor akHelper)
-    if UDmain.TraceAllowed()
-        UDmain.Log("UD_CustomDevice_RenderScript::addStruggleExhaustion("+getDeviceHeader()+") called")
-    endif
-    if UD_applyExhastionEffect
-        UDlibs.StruggleExhaustionSpell.SetNthEffectMagnitude(0, UDCDmain.UD_StruggleExhaustionMagnitude*UDCDmain.UD_MinigameExhMagnitudeMult*Utility.randomFloat(0.75,1.25))
-        UDlibs.StruggleExhaustionSpell.SetNthEffectDuration(0, Round(UDCDmain.UD_StruggleExhaustionDuration*UDCDmain.UD_MinigameExhDurationMult*_exhaustion_mult*Utility.randomFloat(0.75,1.25)))
-        UDlibs.StruggleExhaustionSpell.cast(akWearer)
-    endif
-    if akHelper && UD_applyExhastionEffectHelper
-        UDCDmain.ResetHelperCD(akHelper,akWearer,UDCDmain.UD_MinigameHelpXPBase)
-        UDlibs.StruggleExhaustionSpell.SetNthEffectMagnitude(0, UDCDmain.UD_StruggleExhaustionMagnitude*UDCDmain.UD_MinigameExhMagnitudeMult*Utility.randomFloat(0.75,1.25))
-        UDlibs.StruggleExhaustionSpell.SetNthEffectDuration(0, Round(UDCDmain.UD_StruggleExhaustionDuration*UDCDmain.UD_MinigameExhDurationMult*_exhaustion_mult_helper*Utility.randomFloat(0.75,1.25)))
-        UDlibs.StruggleExhaustionSpell.cast(akHelper)
-    endif
-EndFunction
+;/  Group: Extension functions / Override
+These functions are intended to be overriden by extending scripts.
 
-;cut device by progress_add
-Function cutDevice(float progress_add = 1.0)
-    _CuttingProgress += progress_add*UDCDmain.getStruggleDifficultyModifier()*UD_MinigameMult1
-    if _CuttingProgress >= 100.0
-        ;only show message fo NPC, as player can see progress progress on widget
-        if _CuttingGameON
-            if !PlayerInMinigame() && UDCDmain.AllowNPCMessage(getWearer(), True)
-                UDmain.Print(getWearerName() + " managed to cut "+getDeviceName()+" and reduce durability by big amount!",3)
-            endif
-        else
-            if !PlayerInMinigame() && UDCDmain.AllowNPCMessage(getWearer(), True)
-                UDmain.Print(getWearerName() + "s "+ getDeviceName() +" is cutted!",3)
-            endif
-        endif
-
-        float cond_dmg = 40.0*UDCDmain.getStruggleDifficultyModifier()*(1.0 + _condition_mult_add)
-        _total_durability_drain += cond_dmg
-
-        _updateCondition()
-        decreaseDurabilityAndCheckUnlock(UD_DamageMult*cond_dmg*getModResistPhysical(1.0,0.25)/7.0,0.0)
-
-        _CuttingProgress = 0.0
-        if UDmain.TraceAllowed()        
-            UDmain.Log(getDeviceHeader() + " is cutted for " + cond_dmg + "C ( " + (UD_DamageMult*cond_dmg*getModResistPhysical(1.0,0.25)/7.0) + " D) (Wearer: " + getWearerName() + ")",1)
-        endif
-        OnDeviceCutted()
-    endif
-EndFunction
-
-;repair lock by progress_add
-Function repairLock(float progress_add = 1.0)
-    Float loc_RepairProgress = UpdateNthLockRepairProgress(_MinigameSelectedLockID,progress_add*UDCDmain.getStruggleDifficultyModifier())
-    if loc_RepairProgress >= _getLockDurability()
-        loc_RepairProgress = UpdateNthLockRepairProgress(_MinigameSelectedLockID,-1*_getLockDurability()) ;reset value
-        JammNthLock(_MinigameSelectedLockID, False)
-        if !GetJammedLocks()
-            libs.UnJamLock(Wearer,UD_DeviceKeyword)
-        endif
-        stopMinigame()
-        if WearerIsPlayer()
-            UDmain.Print("You repaired " +GetDeviceName()+"s "+UD_LockNameList[_MinigameSelectedLockID]+"! ",1)
-        elseif UDCDmain.AllowNPCMessage(Wearer, True)
-            UDmain.Print(GetWearerName() + " managed to repair " +GetDeviceName()+"s "+UD_LockNameList[_MinigameSelectedLockID],2)
-        endif
-    endif
-EndFunction
-
-;starts vannila lockpick minigame if lock is reached
-Function lockpickDevice()
-    if _LockpickGameON && (UD_CurrentLocks - UD_JammedLocks > 0)
-        int result = 0
-        if PlayerInMinigame()
-            PauseMinigame() ;pause minigame untill lockpick minigame starts
-            int helperGivedLockpicks = 0
-            if hasHelper()
-                ;always transfere lockpicks to player
-                if WearerIsPlayer()
-                    helperGivedLockpicks = getHelper().getItemCount(UDCDmain.Lockpick)
-                    getHelper().removeItem(UDCDmain.Lockpick,helperGivedLockpicks,True,getWearer())
-                else
-                    helperGivedLockpicks = getWearer().getItemCount(UDCDmain.Lockpick)
-                    getWearer().removeItem(UDCDmain.Lockpick,helperGivedLockpicks,True,getHelper())
-                endif
-            endif
-            
-            Int loc_difficulty = GetNthLockDifficulty(_MinigameSelectedLockID)
-            UDCDmain.ReadyLockPickContainer(loc_difficulty,Wearer)
-            UDCDmain.startLockpickMinigame()
-            
-            float loc_elapsedTime   = 0.0
-            float loc_maxtime       = 0.0
-            if UDCDMain.UD_LockpickMinigameDuration > 0
-                loc_maxtime = (UDCDMain.UD_LockpickMinigameDuration as Float) - (loc_difficulty/100.0)*0.5*UDCDMain.UD_LockpickMinigameDuration
-                bool loc_msgshown = false
-                while (!UDCDmain.LockpickMinigameOver) && loc_elapsedTime <= loc_maxtime
-                    Utility.WaitMenuMode(0.05)
-                    loc_elapsedTime += 0.05
-                    
-                    if !loc_msgshown && loc_elapsedTime > loc_maxtime*0.75 ;only 25% time left, warn player
-                        if Utility.randomInt(0,1)
-                            UDmain.Print("Your hands are sweating")
-                        else
-                            UDmain.Print("Your hands starting to tremble")
-                        endif
-                        loc_msgshown = true
-                    endif
-                endwhile
-            endif
-            
-            result = UDCDmain.lockpickMinigameResult     ;first we fetch lockpicking result
-            UDCDmain.DeleteLockPickContainer()           ;then we remove the container so IsLocked is not called on None
-            
-            if UDCDMain.UD_LockpickMinigameDuration > 0
-                if loc_elapsedTime >= loc_maxtime
-                    if UDmain.IsLockpickingMenuOpen()
-                        closeLockpickMenu()
-                    endif
-                    UDmain.Print("You lost focus and broke the lockpick!")
-                    result = 2
-                    getWearer().removeItem(UDCDmain.Lockpick,1)
-                endif
-            endif
-            
-            if hasHelper()
-                if WearerIsPlayer()
-                    int lockpicks = getWearer().getItemCount(UDCDmain.Lockpick)
-                    if lockpicks >= helperGivedLockpicks
-                        getWearer().removeItem(UDCDmain.Lockpick,helperGivedLockpicks,True,getHelper())
-                    else
-                        getWearer().removeItem(UDCDmain.Lockpick,lockpicks,True,getHelper())
-                    endif
-                else
-                    int lockpicks = getHelper().getItemCount(UDCDmain.Lockpick)
-                    if lockpicks >= helperGivedLockpicks
-                        getHelper().removeItem(UDCDmain.Lockpick,helperGivedLockpicks,True,getWearer())
-                    else
-                        getHelper().removeItem(UDCDmain.Lockpick,lockpicks,True,getWearer())
-                    endif
-                endif
-            endif
-            UnPauseMinigame()
-        else
-            if Utility.randomInt(1,99) >= _getLockpickLevel(_MinigameSelectedLockID)*15
-                result = 1
-            else
-                result = 2
-                Wearer.RemoveItem(UDCDmain.Lockpick, 1, True)
-            endif
-        endif
-        if UDmain.TraceAllowed()
-            UDmain.Log("Lockpick minigame result for " + getWearerName() + ": " + result,2)
-        endif
-        if result == 0
-            stopMinigame()
-            _LockpickGameON = False
-        elseif result == 1 ;succes
-            Int loc_shields = GetNthLockShields(_MinigameSelectedLockID)
-            if loc_shields > 0 ;lock have shields, needs to unlock them first
-                loc_shields = DecreaseLockShield(_MinigameSelectedLockID,1)
-                if loc_shields
-                    if PlayerInMinigame()
-                        UDmain.Print("You succesfully unlocked one of the locks shields! Shields: [" + loc_shields + "]",1)
-                    elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                        UDmain.Print(getWearerName() + " unlocked one of the locks shields! Shields: [" + loc_shields + "]",2)
-                    endif
-                else
-                    if PlayerInMinigame()
-                        UDmain.Print("You succesfully unlocked all of the shields!",1)
-                    elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                        UDmain.Print(getWearerName() + " unlocked all of the shields!",2)
-                    endif
-                endif
-            else ;no more shields on device, unlock the lock
-                UnlockNthLock(_MinigameSelectedLockID)
-                if PlayerInMinigame()
-                    UDmain.Print("You succesfully unlocked the "+UD_LockNameList[_MinigameSelectedLockID]+"!",1)
-                elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                    UDmain.Print(getWearerName() + " unlocked one of the "+UD_LockNameList[_MinigameSelectedLockID]+"!",2)
-                endif
-                onLockUnlocked(True)
-                stopMinigame() ;stop minigame, as player needs to select next lock manually
-            endif
-            if UD_CurrentLocks == 0 && UD_JammedLocks == 0 ;device gets unlocked
-                if PlayerInMinigame()
-                    UDmain.Print("You succesfully unlocked the last lock and removed the "+GetDeviceName()+"!",1)
-                elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                    UDmain.Print(getWearerName() + " unlocked last lock and removed the "+GetDeviceName()+"!",2)
-                endif
-                unlockRestrain()
-                stopMinigame()
-                _LockpickGameON = False
-                OnDeviceLockpicked()
-            elseif UD_CurrentLocks == UD_JammedLocks ;device have no more free locks
-                stopMinigame()
-                _LockpickGameON = False
-                SetJammStatus()
-            endif
-        elseif result == 2 ;failure
-            if Utility.randomInt() <= zad_JammLockChance*UDCDmain.CalculateKeyModifier() && !libs.Config.DisableLockJam
-                if PlayerInMinigame()
-                    UDmain.Print("Your lockpick jammed the lock!",1)
-                elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                    UDmain.Print(getWearerName() + "s "+getDeviceName()+" lock gets jammed!",3)
-                endif
-                
-                JammNthLock(_MinigameSelectedLockID)
-                SetJammStatus()
-                stopMinigame()
-                _LockpickGameON = False
-                OnLockJammed()
-            else
-                int loc_lockpicks = getWearer().GetItemCount(libs.Lockpick)
-                if hasHelper()
-                    loc_lockpicks += getHelper().GetItemCount(libs.Lockpick)
-                endif
-                if loc_lockpicks == 0
-                    stopMinigame()
-                    _LockpickGameON = False
-                endif
-            endif
-        endif
-    endif
-EndFunction
-
-;unlock one of the locks if lock is reached
-Function keyUnlockDevice()
-    UnlockNthLock(_MinigameSelectedLockID)
-    
-    stopMinigame()
-    
-    if PlayerInMinigame()
-        UDmain.Print("You managed to unlock "+GetDeviceName()+"s "+GetNthLockName(_MinigameSelectedLockID)+"!",1)
-    elseif UDCDmain.AllowNPCMessage(Wearer, True)
-        UDmain.Print(getWearerName() + " managed to unlock "+GetDeviceName()+"s "+GetNthLockName(_MinigameSelectedLockID)+"!",2)
-    endif
-    
-    if zad_DestroyKey
-        if _minigameHelper && _minigameHelper.GetItemCount(zad_deviceKey)
-            _minigameHelper.RemoveItem(zad_deviceKey,1) ;first remove helper key
-        else
-            Wearer.RemoveItem(zad_deviceKey,1) ;then remove wearer key
-        endif
-    elseif UDCDMain.KeyIsGeneric(zad_deviceKey) && UDCDmain.UD_KeyDurability > 0
-        if _minigameHelper && _minigameHelper.GetItemCount(zad_deviceKey)
-            UDCDMain.ReduceKeyDurability(_minigameHelper, zad_DeviceKey)
-        else
-            Int loc_dur = UDCDMain.ReduceKeyDurability(Wearer, zad_DeviceKey)
-            if !loc_dur
-                if PlayerInMinigame()
-                    UDmain.Print("Key "+ zad_DeviceKey.GetName() +" gets destroyed",1)
-                elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                    UDmain.Print(getWearerName() + "'s key "+ zad_DeviceKey.GetName() +" gets destroyed",1)
-                endif
-            else
-                if PlayerInMinigame()
-                    UDmain.Print("Remaining durability of key " + zad_DeviceKey.GetName() + " = [" + loc_dur+"]",2)
-                endif
-            endif
-        endif
-    endif
-    
-    if UD_CurrentLocks == 0
-        unlockRestrain()
-        OnDeviceUnlockedWithKey()
-    else
-        onLockUnlocked(false)
-    endif
-EndFunction
-
-Function AddJammedLock(int iChance = 5, string strMsg = "", int iNumber = 1)
-    if !libs.Config.DisableLockJam
-        if Utility.randomInt(1,99) >= iChance
-            return
-        endif
-        
-        while iNumber && JammRandomLock()
-            iNumber -= 1
-        endwhile
-        
-        ;UD_JammedLocks += iNumber
-        
-        ;if UD_JammedLocks > UD_CurrentLocks
-        ;    UD_JammedLocks = UD_CurrentLocks
-        ;endif
-        
-        SetJammStatus()
-        
-        if strMsg != ""
-            UDmain.Print(strMsg,2)
-        endif
-        
-        OnLockJammed()
-    endif
-EndFunction
-
-Function SetJammStatus()
-    libs.SendDeviceJamLockEventVerbose(deviceInventory, UD_DeviceKeyword, wearer)
-    StorageUtil.SetIntValue(wearer, "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_LockJammedStatus", 1)
-EndFunction
-
-bool Function areLocksJammed()
-    return UD_JammedLocks == UD_CurrentLocks
-EndFunction
-
-;starts sentient dialogue
-Function startSentientDialogue(int type = 1)
-    UDCDmain.sendSentientDialogueEvent(UD_DeviceType,type)
-EndFunction
-
-;check sentient event and activets it
-function checkSentient(float mult = 1.0)
-    if isSentient()
-        if Utility.randomInt() > 75 && WearerIsPlayer()
-            startSentientDialogue(1)
-        endif
-        if Round(getModifierFloatParam("Sentient")*mult) > Utility.randomInt(1,99)
-            if UDmain.TraceAllowed()            
-                UDmain.Log("Sentient device activation of : " + getDeviceHeader())
-            endif
-            UDCDmain.activateDevice(self)
-        endif
-    endif
-EndFunction
-
-;function called when wearer is hit by source weapon
-Function weaponHit(Weapon source)
-    if onWeaponHitPre(source)
-        onWeaponHitPost(source)
-    endif
-EndFunction
-
-;function called when wearer is hit by source spell
-Function spellHit(Spell source)
-    if onSpellHitPre(source)
-        onSpellHitPost(source)
-    endif
-EndFunction
-
-bool Function CooldownActivate()
-    if OnCooldownActivatePre()
-        if UDmain.TraceAllowed()        
-            UDmain.Log(getDeviceHeader() + " cooldown activate",1)
-        endif
-        OnCooldownActivatePost()
-        resetCooldown(1.0)
-        return true
-    else
-        return false
-    endif
-EndFunction
-
-bool Function isNotShareActive()
-    return UD_ActiveEffectName != "Share" && UD_ActiveEffectName != "none" && UD_ActiveEffectName != ""
-EndFunction
-
-Function ValidateJammedLocks()
-    if GetJammedLocks() && UD_CurrentLocks
-        if !libs.IsLockJammed(getWearer(), UD_DeviceKeyword)
-            UDmain.CLog(getDeviceHeader() + " is unjammed but have jammed locks. Unjamming")
-            JammAllLocks(False)
-        endif
-    endif
-EndFunction
-
-Function AddAbility(Spell akAbility,Int aiFlag)
-    if akAbility && PapyrusUtil.CountForm(UD_DeviceAbilities,akAbility) == 0
-        UD_DeviceAbilities = PapyrusUtil.PushForm(UD_DeviceAbilities,akAbility)
-        UD_DeviceAbilities_Flags = PapyrusUtil.PushInt(UD_DeviceAbilities_Flags,aiFlag)
-    endif
-EndFunction
-
-Bool Function AddAbilityToWearer(Int aiIndex)
-    if aiIndex < 0 || aiIndex >= UD_DeviceAbilities.length
-        return False
-    endif
-    if !Wearer.HasSpell(UD_DeviceAbilities[aiIndex] as Spell)
-        Wearer.AddSpell(UD_DeviceAbilities[aiIndex] as Spell)
-    else
-        return false
-    endif
-EndFunction
-
-Function RemoveAllAbilities(Actor akActor)
-    int loc_abilityId = UD_DeviceAbilities.length
-    while loc_abilityId
-        loc_abilityId -= 1
-        akActor.RemoveSpell(UD_DeviceAbilities[loc_abilityId] as Spell)
-    endwhile
-EndFunction
-
-;Priority for AI
-Int Function GetAiPriority()
-    return 25 ;generic value
-EndFunction
-
-;choose the best minigame and start it. Returns false if minigame was not started
-Bool Function EvaluateNPCAI()
-    Int     loc_minigameStarted     = 0
-    Float   loc_durabilityBefore    = current_device_health
-    Int     loc_LocksBefore         = UD_CurrentLocks
-
-    updateDifficulty()
-
-    ;50% chance to first check locks, then struggle
-    if Utility.randomInt(0,1)
-        float   loc_accesibility    = 1.0
-        if !loc_minigameStarted
-            loc_accesibility        = getAccesibility()
-        endif
-        Int loc_lockMinigames
-        if !loc_minigameStarted
-            loc_lockMinigames       = LockMinigameAllowed(loc_accesibility)
-        endif
-        ;first try to unlock the device with key
-        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x2)
-            if keyMinigame(True)
-                loc_minigameStarted = 3
-            endif
-        endif
-        ;try to repair the locks then
-        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x4)
-            if repairLocksMinigame(True)
-                loc_minigameStarted = 4
-            endif
-        endif
-        ;then try to use lockpicks
-        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x1)
-            if lockpickMinigame(True)
-                loc_minigameStarted = 2
-            endif
-        endif
-        ;then try to struggle
-        if !loc_minigameStarted && StruggleMinigameAllowed(loc_accesibility)
-            Int loc_minigame = Utility.randomInt(0,2)
-            if struggleMinigame(loc_minigame, True) ;start random struggle minigame
-                loc_minigameStarted = 1
-            endif
-        endif
-        ;lastly try cutting
-        if !loc_minigameStarted && CuttingMinigameAllowed(loc_accesibility)
-            if cuttingMinigame(True)
-                loc_minigameStarted = 5
-            endif
-        endif
-    else
-        float   loc_accesibility    = 1.0
-        if !loc_minigameStarted
-            loc_accesibility        = getAccesibility()
-        endif
-        ;then try to struggle
-        if !loc_minigameStarted && StruggleMinigameAllowed(loc_accesibility)
-            Int loc_minigame = Utility.randomInt(0,2)
-            if struggleMinigame(loc_minigame, True) ;start random struggle minigame
-                loc_minigameStarted = 1
-            endif
-        endif
-        ;lastly try cutting
-        if !loc_minigameStarted && CuttingMinigameAllowed(loc_accesibility)
-            if cuttingMinigame(True)
-                loc_minigameStarted = 5
-            endif
-        endif
-        Int loc_lockMinigames
-        if !loc_minigameStarted
-            loc_lockMinigames       = LockMinigameAllowed(loc_accesibility)
-        endif
-        ;first try to unlock the device with key
-        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x2)
-            if keyMinigame(True)
-                loc_minigameStarted = 3
-            endif
-        endif
-        ;try to repair the locks then
-        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x4)
-            if repairLocksMinigame(True)
-                loc_minigameStarted = 4
-            endif
-        endif
-        ;then try to use lockpicks
-        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x1)
-            if lockpickMinigame(True)
-                loc_minigameStarted = 2
-            endif
-        endif
-    endif
-    
-    if loc_minigameStarted && UDmain.UDGV.UDG_AIMinigameInfo.Value
-        GInfo(GetDeviceHeader()+"::EvaluateNPCAI() - Stats after minigame ["+loc_minigameStarted+"] = durability reduced="+ (loc_durabilityBefore - current_device_health) + " , Locks unlocked="+ (loc_LocksBefore - UD_CurrentLocks))
-    endif
-    
-    return loc_minigameStarted
-EndFunction
-
-Float Function ValidateAccessibility(Float afValue)
-    if UDCDmain.UD_HardcoreAccess && afValue < 0.9
-        return 0.0
-    endif
-    return fRange(afValue,0.0,1.0)
-EndFunction
+Check <RenderDeviceTemplate> from docs folder for their default implementation.
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 
 ;--------------------------------------------------
 ;  ______      ________ _____  _____ _____  ______ 
@@ -7526,6 +7556,22 @@ EndFunction
 ; \____/   \/   |______|_|  \_\_____|_____/|______|
 ;--------------------------------------------------                                                  
 ;theese function should be on every object instance, as not having them may cause multiple function calls to default class
+
+;check if all properties are set
+;main purpose of this is so patching devices is not such pain in the ass
+Function safeCheck()
+    if !UD_MessageDeviceInteraction
+        UD_MessageDeviceInteraction = UDCDmain.DefaultInteractionDeviceMessage
+    endif
+    if !UD_MessageDeviceInteractionWH
+        UD_MessageDeviceInteractionWH = UDCDmain.DefaultInteractionDeviceMessageWH
+    endif
+EndFunction
+
+Function patchDevice()
+    UDCDmain.UDPatcher.patchGeneric(self)
+EndFunction
+
 Function activateDevice()
     if UDmain.TraceAllowed()
         UDmain.Log("Device " + DeviceInventory.getName() + " (W: " + getWearerName() + ") activated",1)
@@ -7541,7 +7587,7 @@ bool Function OnMendPre(float mult)
     return True
 EndFunction
 
-Function OnMendPost(float mult)
+Function OnMendPost(float afAmount)
 EndFunction
 
 bool Function OnCritDevicePre()
@@ -7585,7 +7631,7 @@ Function OnMinigameStart()
 EndFunction
 
 Function OnMinigameEnd()
-    if hasHelper()
+    if haveHelper()
         ;1 hour cooldown
         ;UDCDMain.ResetHelperCD(GetHelper(),GetWearer(),UDCDmain.UD_MinigameHelpXPBase)
     endif
@@ -7863,17 +7909,6 @@ Float[] Function GetCurrentMinigameExpression()
     endif
 EndFunction
 
-;check if all properties are set
-;main purpose of this is so patching devices is not such pain in the ass
-Function safeCheck()
-    if !UD_MessageDeviceInteraction
-        UD_MessageDeviceInteraction = UDCDmain.DefaultInteractionDeviceMessage
-    endif
-    if !UD_MessageDeviceInteractionWH
-        UD_MessageDeviceInteractionWH = UDCDmain.DefaultInteractionDeviceMessageWH
-    endif
-EndFunction
-
 Function removeDevice(actor akActor)
     if _removeDeviceCalled
         return
@@ -7932,11 +7967,46 @@ Function removeDevice(actor akActor)
     _isRemoved = True
 EndFunction
 
-Function patchDevice()
-    UDCDmain.UDPatcher.patchGeneric(self)
+Function OnAdvanceSkill(Float afMult)
 EndFunction
 
-Function OnAdvanceSkill(Float afMult)
+bool Function Details_CanShowResist()
+    return true
+EndFunction
+
+bool Function Details_CanShowHitResist()
+    return true
+EndFunction 
+
+Float Function ValidateAccessibility(Float afValue)
+    if UDCDmain.UD_HardcoreAccess && afValue < 0.9
+        return 0.0
+    endif
+    return fRange(afValue,0.0,1.0)
+EndFunction
+
+;function called when player clicks DETAILS button in device menu
+Function processDetails()
+    UDCDmain.currentDeviceMenu_switch1 = HaveLocks()
+    int res = UDCDmain.DetailsMessage.show()
+    if res == 0 
+        ShowBaseDetails()
+    elseif res == 1
+        ShowLockDetails()
+    elseif res == 2
+        ShowModifiers()
+    elseif res == 3
+        UDCDmain.showActorDetails(GetWearer())
+    elseif res == 4
+        showDebugInfo()
+    else
+        return
+    endif
+EndFunction
+
+;Priority for AI
+Int Function GetAiPriority()
+    return 25 ;generic value
 EndFunction
 
 ;-------------------------------------------------------------------------------------

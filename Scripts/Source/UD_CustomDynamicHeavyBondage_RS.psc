@@ -101,7 +101,7 @@ bool Function UntieMinigame(Bool abSilent = False)
         mult += 0.25
     endif
     
-    if hasHelper()
+    if haveHelper()
         setMinigameHelperVar(True,UD_base_stat_drain*0.8)
         setMinigameEffectHelperVar(True,True,1.2)    
         mult += 0.25

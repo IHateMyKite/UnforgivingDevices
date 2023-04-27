@@ -70,7 +70,7 @@ EndFunction
 float Function getAccesibility()
     float   loc_res         = 1.0
     int     loc_beltstate   = UDCDmain.ActorBelted(getWearer()) 
-    bool    loc_hashelper   = HasHelper()
+    bool    loc_haveHelper   = haveHelper()
     
     if loc_beltstate > 0 ;belted
         if loc_beltstate == 1 ;all holes belted
@@ -81,9 +81,9 @@ float Function getAccesibility()
     endif
     
     if loc_res
-        if !wearerFreeHands() && (!loc_hashelper || !HelperFreeHands())
+        if !wearerFreeHands() && (!loc_haveHelper || !HelperFreeHands())
             loc_res *= 0.25
-        elseif !wearerFreeHands(true) && (!loc_hashelper || !HelperFreeHands(true))
+        elseif !wearerFreeHands(true) && (!loc_haveHelper || !HelperFreeHands(true))
             loc_res *= 0.5
         endif
         

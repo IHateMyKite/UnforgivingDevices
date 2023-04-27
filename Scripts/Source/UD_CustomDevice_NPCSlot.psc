@@ -1081,7 +1081,6 @@ Function showDebugMenu(int slot_id)
                         endif
                     endif
                 endif
-                ;debug.messagebox(UD_equipedCustomDevices[slot_id].getDebugString())
             else
                 return
             endif
@@ -2444,7 +2443,7 @@ Function Receive_MinigameParalel()
 
     float[] loc_expression = loc_device.GetCurrentMinigameExpression()
     UDEM.ApplyExpressionRaw(akActor, loc_expression, 100,false,15)
-    if loc_device.hasHelper()
+    if loc_device.haveHelper()
         UDEM.ApplyExpressionRaw(akHelper, loc_expression, 100,false,15)
     endif
     
@@ -2538,8 +2537,8 @@ Function Receive_MinigameParalel()
         endif
     endif
     
-    if loc_is3DLoaded && (UDmain.UDGV.UDG_MinigameExhaustion.Value == 1)
-        loc_device.addStruggleExhaustion(akActor,akHelper)
+    if loc_is3DLoaded
+        loc_device.addStruggleExhaustion()
     endif
     _MinigameParalel_ON = False
 EndFunction
@@ -2664,7 +2663,7 @@ Function _Receive_MinigameAVCheckLoop()
     loc_device._MinigameParProc_4           = true
     
     float loc_CurrentUpdateTime             = UDmain.UD_baseUpdateTime
-    Bool  loc_HaveHelper                    = loc_device.hasHelper()
+    Bool  loc_HaveHelper                    = loc_device.haveHelper()
     Float loc_ElapsedTime                   = 0.0
     
     ;process
