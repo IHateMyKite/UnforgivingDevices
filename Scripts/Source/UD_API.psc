@@ -90,6 +90,8 @@ UD_UserInputScript                  Property UDUI           auto
     Meaning: Animation Manager
     
     This module contains functionality for manipulating animations
+    
+    See <UD_AnimationManager>
 /;
 UD_AnimationManagerScript           Property UDAM           auto
 
@@ -195,7 +197,7 @@ EndProperty
     
     Meaning: Widget Control
     
-    This module contains functions for manipulating widgets
+    This module contains functions for manipulating widgets (see <UD_WidgetControl>).
 /;
 UD_WidgetControl                    Property UDWC                   hidden
     UD_WidgetControl Function get()
