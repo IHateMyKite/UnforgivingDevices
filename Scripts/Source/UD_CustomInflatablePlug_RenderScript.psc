@@ -141,9 +141,9 @@ bool Function struggleMinigame(int type = -1, Bool abSilent = False)
     return true
 EndFunction
 
-bool Function struggleMinigameWH(Actor akSource)
+bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
     if isSentient() || (!WearerFreeHands(True) && !HelperFreeHands(True)) || getPlugInflateLevel() > 0
-        return forceOutPlugMinigameWH(akSource)
+        return forceOutPlugMinigameWH(akHelper)
     else
         unlockRestrain()
         if WearerIsPlayer()
@@ -179,7 +179,7 @@ bool Function inflateMinigame()
     setMinigameWidgetVar(True, True, False, 0x7c9cfb, 0x7c2cfd, -1, "icon-meter-air")
     setMinigameMinStats(0.3)
     float mult = 1.0
-    if hasHelper()
+    if haveHelper()
         setMinigameHelperVar(True,UD_base_stat_drain*0.75)
         setMinigameEffectHelperVar(True,True,0.75)    
         mult += 0.25
@@ -214,7 +214,7 @@ bool Function deflateMinigame()
     setMinigameWidgetVar(True, True, False, 0x7c9cfb, 0x7c2cfd, -1, "icon-meter-air")
     setMinigameMinStats(0.6)
     float mult = 1.0
-    if hasHelper()
+    if haveHelper()
         setMinigameHelperVar(True,UD_base_stat_drain*0.75)
         setMinigameEffectHelperVar(True,True,0.75)    
         mult += 0.15
@@ -237,7 +237,7 @@ EndFunction
 Function inflate(bool silent = false,int iInflateNum = 1)
         int currentVal = getPlugInflateLevel() + iInflateNum
         if !silent
-            if hasHelper()
+            if haveHelper()
                 if WearerIsPlayer()
                     UDmain.Print(getHelperName() + " helped you to inflate your " + getDeviceName() + "!",1)
                 elseif WearerIsFollower() && HelperIsPlayer()
@@ -273,7 +273,7 @@ EndFunction
 
 Function deflate(bool silent = False)
     if !silent
-        if hasHelper()
+        if haveHelper()
             if WearerIsPlayer()
                 UDmain.Print(getHelperName() + " helped you to deflate yours " + getDeviceName() + "!",1)
             elseif PlayerInMinigame()

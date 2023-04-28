@@ -236,7 +236,7 @@ Int Function getArousal(Actor akActor)
     endif
 EndFunction
 
-;/  Function: getArousal
+;/  Function: getActorArousal
 
     Parameters:
 

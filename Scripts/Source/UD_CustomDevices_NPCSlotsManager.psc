@@ -150,7 +150,7 @@ Function GameUpdate()
     UD_Slots = GetNumAliases()
     SlotGameUpdate()
     CheckOrgasmLoops()
-    RegisterForSingleUpdate(UDCDmain.UD_UpdateTime*2.0)
+    RegisterForSingleUpdate(10.0)
     registerForSingleUpdateGameTime(1.0)
 EndFunction
 
@@ -543,7 +543,6 @@ Function UpdateDevices(float fTimePassed)
             UpdateSlotDevices(loc_slot,fTimePassed)
         endif
         index += 1
-        Utility.waitMenuMode(0.1)
     endwhile
 EndFunction
 

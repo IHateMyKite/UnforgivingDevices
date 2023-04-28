@@ -200,7 +200,7 @@ Function Receive_MinigameParalel(Form fActor)
 
     float[] loc_expression = loc_device.GetCurrentMinigameExpression()
     UDEM.ApplyExpressionRaw(akActor, loc_expression, 100,false,15)
-    if loc_device.hasHelper()
+    if loc_device.haveHelper()
         UDEM.ApplyExpressionRaw(akHelper, loc_expression, 100,false,15)
     endif
     
@@ -294,8 +294,8 @@ Function Receive_MinigameParalel(Form fActor)
         endif
     endif
     
-    if loc_is3DLoaded && (UDmain.UDGV.UDG_MinigameExhaustion.Value == 1)
-        loc_device.addStruggleExhaustion(akActor,akHelper)
+    if loc_is3DLoaded
+        loc_device.addStruggleExhaustion()
     endif
 EndFunction
 

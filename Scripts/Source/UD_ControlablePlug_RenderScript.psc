@@ -125,7 +125,7 @@ bool Function turnOffPlugMinigame(Bool abSilent = False)
     setMinigameMinStats(0.3)
     float mult = 1.0
     
-    if hasHelper()
+    if haveHelper()
         setMinigameHelperVar(True,UD_base_stat_drain)
         setMinigameEffectHelperVar(True,True,0.75)
         mult += 0.15

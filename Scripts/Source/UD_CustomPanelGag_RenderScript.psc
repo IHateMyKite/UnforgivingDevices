@@ -103,7 +103,7 @@ bool Function removePlugMinigame(Bool abSilent = False)
     setMinigameMinStats(0.7)
     
     float mult = 1.0
-    if hasHelper()
+    if haveHelper()
         setMinigameHelperVar(True,UD_base_stat_drain*0.8)
         setMinigameEffectHelperVar(True,True,1.2)    
         mult += 0.25
@@ -163,7 +163,7 @@ EndFunction
 Function plugGag(bool silent = false)
     libs.PlugPanelgag(getWearer())
     if !silent
-        if hasHelper()
+        if haveHelper()
             if WearerIsPlayer()
                 UDmain.Print(getHelperName() +" inserted plug into your " + getDeviceName() + "!",1)
             elseif WearerIsFollower() && HelperIsPlayer()
@@ -186,7 +186,7 @@ EndFunction
 Function unplugGag(bool silent = false)
     libs.UnPlugPanelGag(getWearer())
     if !silent
-        if hasHelper()
+        if haveHelper()
             if WearerIsPlayer()
                 UDmain.Print("With " + getHelperName() +"s help you managed to remove the plug from the panel gag.",1)
             elseif WearerIsFollower() && HelperIsPlayer()
