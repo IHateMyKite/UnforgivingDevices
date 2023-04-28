@@ -549,7 +549,7 @@ EndFunction
     
     Float _UsedOrgasmRate = 0.0
     
-    Function OnUpdatePost(float afTimePassed))
+    Function OnUpdatePost(float afTimePassed)
         ;convert days to minutes
         Float loc_minutes = afTimePassed*24*60
         
@@ -574,7 +574,7 @@ EndFunction
     EndFunction
     ---
 /;
-Function OnUpdatePost(float afTimePassed))
+Function OnUpdatePost(float afTimePassed)
     parent.OnUpdatePost(afTimePassed)
 EndFunction
 
