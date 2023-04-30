@@ -1356,7 +1356,7 @@ Function _RemoveHeelEffect(Actor akActor, Bool abRemoveHDT = true, Bool abRemove
     EndIf
     if abRemoveNiOverride && slConfig.HasNiOverride
         Bool isRealFemale = (akActor.GetLeveledActorBase().GetSex() == 1)
-        bool UpdateNiOPosition = False
+        Bool UpdateNiOPosition = False
         String[] overrideKeys = NiOverride.GetNodeTransformKeys(akActor, false, isRealFemale, "NPC")
         ; removing previous override
         If overrideKeys.Find("UnforgivingDevices.esp") >= 0
@@ -1366,6 +1366,7 @@ Function _RemoveHeelEffect(Actor akActor, Bool abRemoveHDT = true, Bool abRemove
         EndIf
         ; calculation of the resulting shift from all modificators
         Int i = overrideKeys.Length
+        UDmain.Log("UD_AnimationManagerScript::_RemoveHeelEffect() akActor " + akActor + ", overrideKeys[] = " + overrideKeys, 3)
         Float[] shift_sum = new Float[3]
         While i > 0
             i -= 1
@@ -1373,8 +1374,9 @@ Function _RemoveHeelEffect(Actor akActor, Bool abRemoveHDT = true, Bool abRemove
             shift_sum[0] = shift_sum[0] - shift[0]
             shift_sum[1] = shift_sum[1] - shift[1]
             shift_sum[2] = shift_sum[2] - shift[2]
+;            UDmain.Log("UD_AnimationManagerScript::_RemoveHeelEffect() akActor " + akActor + ", shift_sum[] = " + shift_sum, 3)
         EndWhile
-        If shift_sum[0] > 0 || shift_sum[1] > 0 || shift_sum[2] > 0
+        If shift_sum[0] != 0 || shift_sum[1] != 0 || shift_sum[2] != 0
             NiOverride.AddNodeTransformPosition(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esp", shift_sum)
             UpdateNiOPosition = True
         EndIf
@@ -1385,8 +1387,11 @@ Function _RemoveHeelEffect(Actor akActor, Bool abRemoveHDT = true, Bool abRemove
     if abRemoveHDT
         Spell hdtHeelSpell = slConfig.GetHDTSpell(akActor)
         if hdtHeelSpell
+;            UDmain.Log("UD_AnimationManagerScript::_RemoveHeelEffect() akActor " + akActor + ", hdtHeelSpell = " + hdtHeelSpell, 3)
             StorageUtil.SetFormValue(akActor, "UD_AnimationManager_HDTHeelSpell", hdtHeelSpell)
             akActor.RemoveSpell(hdtHeelSpell)
+        Else
+            StorageUtil.UnsetFormValue(akActor, "UD_AnimationManager_HDTHeelSpell")
         endIf
     endIf
 EndFunction
