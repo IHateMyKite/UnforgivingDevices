@@ -6080,7 +6080,7 @@ EndFunction
 
 ;set minigame widget variables
 
-;/  Function: setMinigameEffectVar
+;/  Function: setMinigameWidgetVar
     Sets minigame widget appearance values
     
     Parameters:

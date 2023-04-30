@@ -37,7 +37,7 @@ Int     Property    CurrentVibStrength                          Hidden
         Return _currentVibStrength
     EndFunction
     Function Set(Int aiValue)
-        If aiValue < 0.5
+        If aiValue < 0
             aiValue = 0
         ElseIf aiValue > 100
             aiValue = 100
@@ -379,7 +379,9 @@ Function ForceStrength(int iStrenth)
         if !isPaused()
             UpdateVibSound()
             UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
+            UpdateArousalRate(getVibArousalRate())
         endif
+        OnVibrationStrengthUpdate()
         EndManipMutex()
     endif
 EndFunction
@@ -392,7 +394,9 @@ Function ForceModStrength(float fModifier)
         if !isPaused()
             UpdateVibSound()
             UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
+            UpdateArousalRate(getVibArousalRate())
         endif
+        OnVibrationStrengthUpdate()
         EndManipMutex()
     endif
 EndFunction
@@ -444,8 +448,10 @@ Function addVibStrength(int iValue = 1)
         CurrentVibStrength += iValue
         if !isPaused()
             UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
+            UpdateArousalRate(getVibArousalRate())
             UpdateVibSound()
         endif
+        OnVibrationStrengthUpdate()
         EndManipMutex()
     endif
 EndFunction
@@ -459,8 +465,10 @@ Function removeVibStrength(int iValue = 1)
         endif
         if !isPaused() && isVibrating()
             UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
+            UpdateArousalRate(getVibArousalRate())
             UpdateVibSound()
         endif
+        OnVibrationStrengthUpdate()
         EndManipMutex()
     endif
 EndFUnction
@@ -768,16 +776,19 @@ EndFunction
 ;======================================================================
 Function OnVibrationStart()
     UDMain.Log("UD_CustomVibratorBase_RenderScript::OnVibrationStart() " + Self + ", CurrentVibStrength = " + CurrentVibStrength, 3)
-    If WearerIsPlayer()
-        UDMain.UDWC.StatusEffect_SetMagnitude(VibrationEffectSlot, CurrentVibStrength)
-        UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, CurrentVibStrength > 0)
-    EndIf
+    OnVibrationStrengthUpdate()
 EndFunction
 Function OnVibrationEnd()
     UDMain.Log("UD_CustomVibratorBase_RenderScript::OnVibrationEnd() " + Self + ", CurrentVibStrength = " + CurrentVibStrength, 3)
     If WearerIsPlayer()
         UDMain.UDWC.StatusEffect_SetMagnitude(VibrationEffectSlot, 0)
         UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, False)
+    EndIf
+EndFunction
+Function OnVibrationStrengthUpdate()
+    If WearerIsPlayer()
+        UDMain.UDWC.StatusEffect_SetMagnitude(VibrationEffectSlot, CurrentVibStrength)
+        UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, CurrentVibStrength > 0)
     EndIf
 EndFunction
 float Function getVibOrgasmRate(float afMult = 1.0)

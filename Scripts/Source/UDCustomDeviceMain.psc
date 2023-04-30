@@ -363,7 +363,7 @@ bool Property currentDeviceMenu_switch6                 = false auto conditional
 /;
 Function resetCondVar()
     currentDeviceMenu_allowstruggling = false
-    currentDeviceMenu_allowUselessStruggling = false    
+    currentDeviceMenu_allowUselessStruggling = false
     currentDeviceMenu_allowcutting = false
     currentDeviceMenu_allowkey = false
     currentDeviceMenu_allowlockpick = false
