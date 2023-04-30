@@ -1397,8 +1397,9 @@ Function TurnOffAllVibrators()
     while UD_equipedCustomDevices[i]
         UD_CustomVibratorBase_RenderScript loc_vib = (UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript)
         if loc_vib && !(loc_vib as UD_ControlablePlug_RenderScript)
-            if loc_vib.isVibrating()
-                if UDmain.TraceAllowed()                
+            ;do not stp vibrators which are turned or forever
+            if loc_vib.isVibrating() && !loc_vib.isVibratingForever()
+                if UDmain.TraceAllowed()
                     UDmain.Log("Stoping " + UD_equipedCustomDevices[i].getDeviceName() + " on " + getSlotedNPCName())
                 endif
                 (UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript).stopVibrating()
@@ -2284,7 +2285,6 @@ Function CleanOrgasmUpdate()
     endif
 EndFunction
 
-
 Function VibrateUpdate(Int aiUpdateTime)
     int i = 0
     while UD_ActiveVibrators[i]
@@ -2301,7 +2301,7 @@ Function EndAllVibrators()
     while UD_ActiveVibrators[i]
         UD_CustomVibratorBase_RenderScript loc_vib = UD_ActiveVibrators[i] as UD_CustomVibratorBase_RenderScript
         if loc_vib
-            loc_vib.VibrateEnd(True,False)
+            loc_vib._VibrateEnd(True,False)
             UD_ActiveVibrators[i] = none
         endif
         i+=1
