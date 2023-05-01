@@ -274,7 +274,7 @@ EndFunction
 Function FreeUnusedSlots()
     int index = 0
     Int loc_Size1 = GetNumAliases() - 1
-    Int loc_Size2 = UDCD_NPCF.GetNumAliases() - 1
+    Int loc_Size2 = UDCD_NPCF.GetNumAliases()
     while index < loc_Size1 ;all aliases, excluding player
         UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
         Actor loc_actor = loc_slot.GetActor()
@@ -539,7 +539,7 @@ UD_CustomDevice_NPCSlot Function getNPCSlotByIndex(int iIndex)
 EndFunction
 
 UD_CustomDevice_NPCSlot Function getPlayerSlot()
-    return GetNthAlias(UD_Slots - 1) as UD_CustomDevice_NPCSlot
+    return GetAliasByName("NPCSlot_Player") as UD_CustomDevice_NPCSlot
 EndFunction
 
 Function UpdateDevices(float fTimePassed)

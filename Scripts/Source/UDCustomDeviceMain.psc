@@ -189,7 +189,6 @@ Bool Function CheckSubModules()
     while !loc_cond && loc_elapsedTime < 15
         loc_cond = True
         loc_cond = loc_cond && UDPatcher.ready
-        loc_cond = loc_cond && UDCD_NPCM.ready
         loc_cond = loc_cond && UDEM.ready
         
         loc_elapsedTime += 1
@@ -202,14 +201,12 @@ Bool Function CheckSubModules()
         
         String loc_modules = "--MODULES--\n"
         loc_modules += "UDPatcher="+UDPatcher.ready + "\n"
-        loc_modules += "UDCD_NPCM="+UDCD_NPCM.ready + "\n"
         loc_modules += "UDEM="+UDEM.ready + "\n"
         UDmain.ShowMessageBox(loc_modules)
         
         ;Dumb info to console, use GInfo to skip ConsoleUtil installation check
         GInfo("!!FATAL ERROR!! = Error loading Unforgiving devices. One or more of the modules are not ready. Please contact developrs on LL or GitHub")
         GInfo("UDPatcher="+UDPatcher.ready)
-        GInfo("UDCD_NPCM="+UDCD_NPCM.ready)
         GInfo("UDEM="+UDEM.ready)
         
         return False

@@ -524,11 +524,13 @@ Function OnGameReload()
         return ;mod is already updating, most likely because user saved the game while the mod was already updating
     endif
     
-    if !CheckSubModules()
+    _Updating = True
+    
+    if !CheckSubModules() || _FatalError
+        _Updating = False
         return ;Fatal error when initializing UD
     endif
     
-    _Updating = True
     DISABLE()
     
     Utility.waitMenuMode(1.5)
@@ -595,13 +597,40 @@ Function OnGameReload()
 EndFunction
 
 Event OnUpdate()
+    Init()
     Update()
 EndEvent
+
+Function Init()
+    ;start quest manually
+    UDNPCM.Start()
+    
+    ;wait for quest to get ready
+    Float loc_timeout = 0.0
+    Float loc_maxtime = 5.0
+    while !UDNPCM.Ready && loc_timeout < loc_maxtime
+        Utility.wait(0.25)
+        loc_timeout += 0.25
+    endwhile
+    if loc_timeout >= loc_maxtime
+        ;ERROR
+        GError("NPC manager can't be started!! Mod will be disabled!")
+        ShowSingleMessageBox("!!FATAL ERROR!!\nFailed to load NPC manager and its slots!! Mod will be disabled untill quest correctly starts.\n Please contact developers on LL or GitHub")
+        _FatalError = True
+    else
+        GInfo("NPC manager started successfully")
+    endif
+EndFunction
 
 Function Update()
     if !Player
         CLog("Detected that Player ref is not ready. Setting variable")
         Player = Game.GetPlayer()
+    endif
+    
+    if _FatalError
+        GError(self+"::Update() - Skipped because mod have fatal error")
+        return
     endif
     
     if !UDEM
