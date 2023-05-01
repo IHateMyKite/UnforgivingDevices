@@ -507,8 +507,10 @@ Function LockAnimatingActor(Actor akActor, Bool abDisableActor = True)
     endif
 
     If !UDmain.ActorIsPlayer(akActor)
-        akActor.SetHeadTracking(False)
         akActor.ClearLookAt()
+        akActor.SetHeadTracking(False)
+        akActor.SetAnimationVariableInt("IsNPC", 0)
+        akActor.SetAnimationVariableBool("bHeadTrackSpine", False)
     EndIf
 
     Armor shield = akActor.GetEquippedShield()
@@ -549,6 +551,8 @@ Function UnlockAnimatingActor(Actor akActor, Bool abEnableActor = True)
     
     If !UDmain.ActorIsPlayer(akActor)
         akActor.SetHeadTracking(True)
+        akActor.SetAnimationVariableInt("IsNPC", 1)
+        akActor.SetAnimationVariableBool("bHeadTrackSpine", True)
     EndIf
     
     akActor.SetVehicle(None)
