@@ -363,7 +363,7 @@ bool Property currentDeviceMenu_switch6                 = false auto conditional
 /;
 Function resetCondVar()
     currentDeviceMenu_allowstruggling = false
-    currentDeviceMenu_allowUselessStruggling = false    
+    currentDeviceMenu_allowUselessStruggling = false
     currentDeviceMenu_allowcutting = false
     currentDeviceMenu_allowkey = false
     currentDeviceMenu_allowlockpick = false
@@ -1606,7 +1606,8 @@ Function UndressArmor(Actor akActor)
         loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--BACK--")
         int loc_res = UDmain.GetUserListInput(loc_armorsnames)
         if loc_res == (loc_armorsnames.length - 3)
-            libs.strip(akActor,false)
+            UndressAllArmor(akActor)
+            ;libs.strip(akActor,false)
         elseif loc_res == (loc_armorsnames.length - 2)
             if !UDmain.ActorIsFollower(akActor) && !UDmain.ActorIsPlayer(akActor)
                 Outfit originalOutfit = akActor.GetActorBase().GetOutfit()

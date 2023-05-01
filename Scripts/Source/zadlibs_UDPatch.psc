@@ -653,15 +653,15 @@ EndFunction
 
 ; Stop vibration event on actor.
 Function StopVibrating(actor akActor)
-    if akActor.WornHasKeyword(UDCDmain.UDlibs.UnforgivingDevice) && UDCDmain.isRegistered(akActor)
-        if UDmain.TraceAllowed()        
+    if akActor.WornHasKeyword(UDlibs.UnforgivingDevice) && UDCDmain.isRegistered(akActor)
+        if UDmain.TraceAllowed()
             UDmain.Log("StopVibrating("+GetActorName(akActor)+") - using patched version: " + akActor)
         endif
         UDCDmain.StopAllVibrators(akActor)
         akActor.SetFactionRank(zadVibratorFaction, 0)
         akActor.RemoveFromFaction(zadVibratorFaction)
     else
-        if UDmain.TraceAllowed()        
+        if UDmain.TraceAllowed()
             UDmain.Log("StopVibrating("+GetActorName(akActor)+") - using default version: " + akActor)
         endif
         parent.StopVibrating(akActor)

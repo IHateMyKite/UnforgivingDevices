@@ -1010,3 +1010,18 @@ EndFunction
 Float[] Function GetCurrentMinigameExpression()
     return parent.GetCurrentMinigameExpression()
 EndFunction
+
+;/  Function: GetAiPriority
+    Returns priority for NOPC ai. The bigger, the more likely will npc try to escape this device first
+    
+    Example:
+        ---Code
+    Int Function GetAiPriority()
+        ;device have maximum priority. NPC will try to escape from it first
+        return 100
+    EndFunction
+        ---
+/;
+Int Function GetAiPriority()
+    return parent.GetAiPriority()
+EndFunction

@@ -114,8 +114,6 @@ int Function getPlugType()
     EndIf
 EndFunction
 
-
-
 bool forceOutPlugMinigame_on = false
 bool Function forceOutPlugMinigame(Bool abSilent = False)
     if !minigamePrecheck(abSilent)
