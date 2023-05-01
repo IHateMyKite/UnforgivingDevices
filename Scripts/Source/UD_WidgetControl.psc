@@ -187,12 +187,19 @@ Int                         Property    UD_TextOutlineShift         = 1     Auto
 
     If True, then some redundant notifications from vibrators will be ignored.
     
-    Do not edit, *READ ONLY!*.
+    Do not edit, *READ ONLY!*. Configurable on MCM UI Widgets page by user.
 /;
 Bool                        Property    UD_FilterVibNotifications   = True  Auto    Hidden
 
-Int _UD_TextAnchor = 1
+;/  Variable: UD_TextFadeOutTime
 
+    Text fade time.
+    
+    Do not edit, *READ ONLY!*. Configurable on MCM UI Widgets page by user.
+/;
+Float                       Property    UD_TextFadeTime             = 1.0   Auto    Hidden
+
+Int _UD_TextAnchor = 1
 ;/  Variable: UD_TextAnchor
 
     Anchor for the text notification output area (vertical position).
@@ -219,13 +226,13 @@ Int Property UD_TextAnchor Hidden
     EndFunction
 EndProperty
 
+Int _UD_TextPadding = 0
 ;/  Variable: UD_TextAnchor
 
     Vertical shift of the output area relative to the anchor (see <UD_TextAnchor>).
     
     Do not edit, *READ ONLY!*. Configurable on MCM UI Widgets page by user.
 /;
-Int _UD_TextPadding = 0
 Int Property UD_TextPadding Hidden
     Int Function Get()
         Return _UD_TextPadding
@@ -419,7 +426,8 @@ Event OnUpdate()
             return ;fatal error, do not use the module
         endif
         Ready = True
-;        OnUIReload(abGameLoad = True)
+        ; initialization on new game
+        OnUIReload(abGameLoad = False)
 ;        InitWidgetsRequest(abGameLoad = True, abMeters = True, abIcons = True, abText = True)
     EndIf
     if UDmain.IsEnabled()
@@ -436,7 +444,9 @@ Event OnUpdate()
     RegisterForSingleUpdate(30) ;maintenance update
 EndEvent
 
+
 Function Update()
+    ; initializations on game load
     OnUIReload(abGameLoad = True)
     ; upgrade version
     UD_MeterVertPadding = 1.50
@@ -471,6 +481,7 @@ EndFunction
         abGameLoad               - True if function called on game reload.
 /;
 Function OnUIReload(Bool abGameLoad)
+    UDMain.Log("UD_WidgetControl::OnUIReload() abGameLoad = " + abGameLoad)
     StatusEffect_Register("dd-piercing-nipples", W_ICON_CLUSTER_DEVICES)
     StatusEffect_Register("dd-plug-vaginal", W_ICON_CLUSTER_DEVICES)
     StatusEffect_Register("dd-piercing-clit", W_ICON_CLUSTER_DEVICES)
@@ -513,7 +524,7 @@ EndFunction
 
 ; should be called before placing widgets
 Function RefreshCanvasMetrics()
-    UDMain.Log("UD_WidgetControl::RefreshCanvasMetrics()")
+    UDMain.Log("UD_WidgetControl::RefreshCanvasMetrics()", 3)
 
     Float hud_padding = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY")
     Float hud_left = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefX")
@@ -1789,11 +1800,11 @@ State iWidgetInstalled
             Int i = _Text_LinesId.Length
             While i > 0
                 i -= 1
-                iWidget.doTransitionByTime(_Text_LinesId[i], 0, 1.0, "alpha")
-                iWidget.doTransitionByTime(_Text_LinesOutlineId[i], 0, 1.0, "alpha")
+                iWidget.doTransitionByTime(_Text_LinesId[i], 0, UD_TextFadeTime, "alpha")
+                iWidget.doTransitionByTime(_Text_LinesOutlineId[i], 0, UD_TextFadeTime, "alpha")
             EndWhile
             _Text_AnimStage = 2
-        ElseIf _Text_AnimStage == 2 && _Text_Timer >= _Text_Duration + 1.0
+        ElseIf _Text_AnimStage == 2 && _Text_Timer >= _Text_Duration + UD_TextFadeTime
             _Text_AnimStage = -1
             Int i = _Text_LinesId.Length
             While i > 0
