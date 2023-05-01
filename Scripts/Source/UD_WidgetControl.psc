@@ -419,8 +419,8 @@ Event OnUpdate()
             return ;fatal error, do not use the module
         endif
         Ready = True
-        OnUIReload(abGameLoad = True)
-        InitWidgetsRequest(abGameLoad = True, abMeters = True, abIcons = True, abText = True)
+;        OnUIReload(abGameLoad = True)
+;        InitWidgetsRequest(abGameLoad = True, abMeters = True, abIcons = True, abText = True)
     EndIf
     if UDmain.IsEnabled()
 ;        If _OnUpdateMutex
@@ -703,7 +703,6 @@ EndFunction
         abForce           - Instant change of the value (applied only in standard rendering mode).
 /;
 Function Meter_SetFillPercent(String asName, Float afValue, Bool abForce = false)
-    UDMain.Log("UD_WidgetControl::Meter_SetFillPercent() asName = " + asName + ", afValue = " + afValue)
     UD_WidgetBase loc_widget = _GetVanillaMeter(asName)
     If loc_widget == None
         Return
@@ -1058,6 +1057,9 @@ Bool _CreateIcon_Mutex = False
 Function _CreateIconWidget(UD_WidgetStatusEffect_RefAlias akData, Int aiX, Int aiY, Int aiAlpha, Bool abForceDestory = False)
 EndFunction
 
+Function _DestroyIconWidget(UD_WidgetStatusEffect_RefAlias akData)
+EndFunction
+
 Bool _FindEmptyME_Mutex = False
 
 UD_WidgetMeter_RefAlias Function _GetMeter(String asName, Bool abFindEmpty = True)
@@ -1099,17 +1101,25 @@ Bool _CreateMeter_Mutex = False
 Function _CreateMeterWidget(UD_WidgetMeter_RefAlias akData, Int aiX, Int aiY, Bool abForceDestory = False)
 EndFunction
 
+Function _DestroyMeterWidget(UD_WidgetMeter_RefAlias akData)
+EndFunction
+
 Bool _InitMetersMutex = False
 Bool _OnUpdateMutex = False
 ;Use iWidget instead
 State iWidgetInstalled
 
     Event OnBeginState()
+        UDMain.Log("UD_WidgetControl::OnBeginState() State = " + GetState(), 3)
         _Animation_LastGameTime = Utility.GetCurrentRealTime()
         RegisterForSingleUpdate(_Animation_Update)
     EndEvent
     
     Event OnUpdate()
+        if !SingletonCheck()
+            UnregisterForUpdate()
+            return
+        endif
         if UDmain.IsEnabled()
             If _OnUpdateMutex
                 Return
@@ -1135,6 +1145,25 @@ State iWidgetInstalled
         else
             RegisterForSingleUpdate(5.0)
         endif
+    EndEvent
+    
+    Event OnEndState()
+        UDMain.Log("UD_WidgetControl::OnEndState() State = " + GetState(), 3)
+        
+        Int i = MeterSlots.Length
+        While i > 0
+            i -= 1
+            If MeterSlots[i].Name != ""
+                _DestroyMeterWidget(MeterSlots[i])
+            EndIf
+        EndWhile
+        i = StatusEffectSlots.Length
+        While i > 0
+            i -= 1
+            If StatusEffectSlots[i].Name != ""
+                _DestroyIconWidget(StatusEffectSlots[i])
+            EndIf
+        EndWhile
     EndEvent
         
     Bool Function InitMeters(Bool abGameLoad = False)
@@ -1362,7 +1391,7 @@ State iWidgetInstalled
         EndIf
         _CreateMeter_Mutex = True
 
-        If (akData.Id > 0 && _iWidget_MeterPosFix) || abForceDestory
+        If akData.Id > 0 && (_iWidget_MeterPosFix || abForceDestory)
             iWidget.destroy(akData.Id)
             akData.Id = -1
         EndIf
@@ -1378,6 +1407,7 @@ State iWidgetInstalled
         
         If akData.IconId > 0
             iWidget.destroy(akData.IconId)
+            akData.IconId = -1
         EndIf
         
         If akData.IconName != ""
@@ -1390,7 +1420,19 @@ State iWidgetInstalled
         EndIf
         _CreateMeter_Mutex = False
     EndFunction
-    
+
+    Function _DestroyMeterWidget(UD_WidgetMeter_RefAlias akData)
+        UDMain.Log("UD_WidgetControl::_DestroyMeterWidget() akData = " + akData, 3)
+        If akData.IconId > 0
+            iWidget.destroy(akData.IconId)
+            akData.IconId = -1
+        EndIf
+        If akData.Id > 0
+            iWidget.destroy(akData.Id)
+            akData.Id = -1
+        EndIf
+    EndFunction
+        
     ;use to convert from hex to this sinfull way of writting colors
     Function _UpdateMeterColor(Int aiId, int aiColor, int aiColor2 = 0, int aiFlashColor = 0xFFFFFF)
         Int loc_lightR  = Math.LogicalAnd(Math.RightShift(aiColor,16),0xFF)
@@ -1526,7 +1568,7 @@ State iWidgetInstalled
         While i < len
             If StringUtil.GetNthChar(str, i) == " "
                 If UD_TextLineLength < (i - line_start)
-                    If prev_space <= line_start         ; very long word
+                    If prev_space <= line_start         ; very long word 
                         prev_space = i
                     EndIf
                     If _Text_LinesId.Length <= text_line_index
@@ -1576,13 +1618,15 @@ State iWidgetInstalled
         EndIf
         _CreateIcon_Mutex = True
 
-        If (akData.Id > 0 && (akData.Variant != akData.VariantLoaded)) || abForceDestory
+        If akData.Id > 0 && ((akData.Variant != akData.VariantLoaded) || abForceDestory)
             iWidget.destroy(akData.Id)
             akData.Id = -1
+            UDMain.Log("UD_WidgetControl::_CreateIconWidget() destroy id = " + akData.Id, 3)
         EndIf
         If akData.Id < 0
             akData.Id = iWidget.loadLibraryWidget(akData.FileName)
             akData.VariantLoaded = akData.Variant
+            UDMain.Log("UD_WidgetControl::_CreateIconWidget() loadLibraryWidget id = " + akData.Id, 3)
         EndIf
         If akData.AuxId > 0 && abForceDestory
             iWidget.destroy(akData.AuxId)
@@ -1592,6 +1636,8 @@ State iWidgetInstalled
             akData.AuxId = iWidget.loadLibraryWidget("background")
         EndIf
         akData.Alpha = aiAlpha
+        akData.Stage = -1
+        akData.Timer = 0
         
         iWidget.setSize(akData.Id, UD_IconsSize, UD_IconsSize)
         iWidget.setPos(akData.Id, aiX, aiY)
@@ -1605,6 +1651,18 @@ State iWidgetInstalled
         iWidget.setVisible(akData.AuxId, (akData.Visible && akData.Enabled) as Int)
         _SetTextRGB(akData.AuxId, 0)
         _CreateIcon_Mutex = False
+    EndFunction
+    
+    Function _DestroyIconWidget(UD_WidgetStatusEffect_RefAlias akData)
+        UDMain.Log("UD_WidgetControl::_DestroyIconWidget() akData = " + akData, 3)
+        If akData.AuxId > 0
+            iWidget.destroy(akData.AuxId)
+            akData.AuxId = -1
+        EndIf
+        If akData.Id > 0
+            iWidget.destroy(akData.Id)
+            akData.Id = -1
+        EndIf
     EndFunction
     
     Function StatusEffect_SetVisible(String asName, Bool abVisible = True)
