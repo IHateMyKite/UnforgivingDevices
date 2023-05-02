@@ -412,7 +412,7 @@ Bool Function SingletonCheck()
 EndFunction
 
 Event OnInit()
-    RegisterForSingleUpdate(12) ;maintenance update
+    RegisterForSingleUpdate(6) ;maintenance update
 EndEvent
 
 Event OnUpdate()
@@ -428,24 +428,12 @@ Event OnUpdate()
         Ready = True
         ; initialization on new game
         OnUIReload(abGameLoad = False)
-;        InitWidgetsRequest(abGameLoad = True, abMeters = True, abIcons = True, abText = True)
     EndIf
-    if UDmain.IsEnabled()
-;        If _OnUpdateMutex
-;            Return
-;        EndIf
-;        _OnUpdateMutex = True
-;        If _InitMetersRequested || _InitIconsRequested || _InitTextRequested
-;            InitWidgetsCheck(_InitAfterLoadGame)
-;            _InitAfterLoadGame = False
-;        EndIf
-;        _OnUpdateMutex = False
-    endif
     RegisterForSingleUpdate(30) ;maintenance update
 EndEvent
 
 
-Function Update()
+Function GameUpdate()
     ; initializations on game load
     OnUIReload(abGameLoad = True)
     ; upgrade version
@@ -468,6 +456,7 @@ EndFunction
 ===========================================================================================
 /; 
 
+bool _ReloadMutex = False
 ;/  Function: OnUIReload
 
     In this function, the interface is reloaded:
@@ -481,7 +470,16 @@ EndFunction
         abGameLoad               - True if function called on game reload.
 /;
 Function OnUIReload(Bool abGameLoad)
-    UDMain.Log("UD_WidgetControl::OnUIReload() abGameLoad = " + abGameLoad)
+    if _ReloadMutex
+        if UDmain.TraceAllowed()
+            UDMain.Log("UD_WidgetControl::OnUIReload() abGameLoad = " + abGameLoad + ", already reloading, aborting",3)
+        endif
+        return
+    endif
+    _ReloadMutex = True
+    if UDmain.TraceAllowed()
+        UDMain.Log("UD_WidgetControl::OnUIReload() abGameLoad = " + abGameLoad,3)
+    endif
     StatusEffect_Register("dd-piercing-nipples", W_ICON_CLUSTER_DEVICES)
     StatusEffect_Register("dd-plug-vaginal", W_ICON_CLUSTER_DEVICES)
     StatusEffect_Register("dd-piercing-clit", W_ICON_CLUSTER_DEVICES)
@@ -515,16 +513,21 @@ Function OnUIReload(Bool abGameLoad)
             i += 1
         EndWhile
     endif
+    
     Meter_SetColor("device-main", 0xFF005E, 0xFF307C, 0)
     Meter_SetColor("device-condition", 0x4df319, 0x62ff00, 0)
     Meter_SetColor("player-orgasm", 0xE727F5, 0xF775FF, 0xFF00BC)
     
     SendModEvent("UD_AfterUIReload", "", UDmain.UseiWW() as Float)
+    
+    _ReloadMutex = False
 EndFunction
 
 ; should be called before placing widgets
 Function RefreshCanvasMetrics()
-    UDMain.Log("UD_WidgetControl::RefreshCanvasMetrics()", 3)
+    if UDmain.TraceAllowed()
+        UDMain.Log("UD_WidgetControl::RefreshCanvasMetrics()", 3)
+    endif
 
     Float hud_padding = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefY")
     Float hud_left = UI.GetNumber("HUD Menu", "_root.HUDMovieBaseInstance.TopLeftRefX")
@@ -573,12 +576,14 @@ Bool _InitAfterLoadGame = False
         abText            - Request to rebuild notification lines.
 /;
 Function InitWidgetsRequest(Bool abGameLoad = False, Bool abMeters = False, Bool abIcons = False, Bool abText = False)
-    UDmain.Log("UD_WidgetControl::InitWidgetsRequest() abGameLoad = " + abGameLoad + " , abMeters = " + abMeters + " , abIcons = " + abIcons + " , abText = " + abText, 3)
-    _InitAfterLoadGame = _InitAfterLoadGame || abGameLoad
-    _InitMetersRequested = _InitMetersRequested || abMeters
-    _InitIconsRequested = _InitIconsRequested || abIcons
-    _InitTextRequested = _InitTextRequested || abText
-    RegisterForSingleUpdate(0.5)
+    if UDmain.TraceAllowed()
+        UDmain.Log("UD_WidgetControl::InitWidgetsRequest() abGameLoad = " + abGameLoad + " , abMeters = " + abMeters + " , abIcons = " + abIcons + " , abText = " + abText,3)
+    endif
+    _InitAfterLoadGame      = _InitAfterLoadGame    || abGameLoad
+    _InitMetersRequested    = _InitMetersRequested  || abMeters
+    _InitIconsRequested     = _InitIconsRequested   || abIcons
+    _InitTextRequested      = _InitTextRequested    || abText
+    _CheckInitWidgets()
 EndFunction
 
 ; Rebuild meter widgets
@@ -1023,7 +1028,9 @@ UD_WidgetBase Function _GetVanillaMeter(String asName)
             Return UD_VanillaWidgets[i]
         EndIf
     EndWhile
-    UDMain.Log("UD_WidgetControl::_GetVanillaMeter() Can't find vanilla widget with the name " + asName)
+    if UDmain.TraceAllowed()
+        UDMain.Log("UD_WidgetControl::_GetVanillaMeter() Can't find vanilla widget with the name " + asName)
+    endif
     Return None
 EndFunction
 
@@ -1115,13 +1122,19 @@ EndFunction
 Function _DestroyMeterWidget(UD_WidgetMeter_RefAlias akData)
 EndFunction
 
+Function _CheckInitWidgets()
+EndFunction
+
+Bool _InitWidgetMutex = False
 Bool _InitMetersMutex = False
 Bool _OnUpdateMutex = False
 ;Use iWidget instead
 State iWidgetInstalled
 
     Event OnBeginState()
-        UDMain.Log("UD_WidgetControl::OnBeginState() State = " + GetState(), 3)
+        if UDmain.TraceAllowed()
+            UDMain.Log("UD_WidgetControl::OnBeginState() State = " + GetState(), 3)
+        endif
         _Animation_LastGameTime = Utility.GetCurrentRealTime()
         RegisterForSingleUpdate(_Animation_Update)
     EndEvent
@@ -1136,31 +1149,43 @@ State iWidgetInstalled
                 Return
             EndIf
             _OnUpdateMutex = True
-            If _InitMetersRequested || _InitIconsRequested || _InitTextRequested
-                UnregisterForUpdate()
-                RefreshCanvasMetrics()
-                If _InitMetersRequested
-                    _InitMetersRequested = !InitMeters(_InitAfterLoadGame)
-                EndIf
-                If _InitTextRequested
-                    _InitTextRequested = !InitText(_InitAfterLoadGame)
-                EndIf
-                If _InitIconsRequested
-                    _InitIconsRequested = !InitIcons(_InitAfterLoadGame)
-                EndIf
-                _InitAfterLoadGame = False
-            EndIf
+            _CheckInitWidgets()
             _AnimateWidgets()
             RegisterForSingleUpdate(_Animation_Update)
             _OnUpdateMutex = False
         else
+            if UDmain.TraceAllowed()
+                UDmain.Log(self+"::OnUpdate - Main mod is updating - skipping",3)
+            endif
             RegisterForSingleUpdate(5.0)
         endif
     EndEvent
     
+    Function _CheckInitWidgets()
+        if _InitWidgetMutex
+            return
+        endif
+        _InitWidgetMutex = True
+        If _InitMetersRequested || _InitIconsRequested || _InitTextRequested
+            RefreshCanvasMetrics()
+            If _InitMetersRequested
+                _InitMetersRequested    = !InitMeters(_InitAfterLoadGame)
+            EndIf
+            If _InitTextRequested
+                _InitTextRequested      = !InitText(_InitAfterLoadGame)
+            EndIf
+            If _InitIconsRequested
+                _InitIconsRequested     = !InitIcons(_InitAfterLoadGame)
+            EndIf
+            _InitAfterLoadGame = False
+        EndIf
+        _InitWidgetMutex = False
+    EndFunction
+    
     Event OnEndState()
-        UDMain.Log("UD_WidgetControl::OnEndState() State = " + GetState(), 3)
-        
+        if UDmain.TraceAllowed()
+            UDMain.Log("UD_WidgetControl::OnEndState() State = " + GetState(), 3)
+        endif
         Int i = MeterSlots.Length
         While i > 0
             i -= 1
@@ -1178,7 +1203,9 @@ State iWidgetInstalled
     EndEvent
         
     Bool Function InitMeters(Bool abGameLoad = False)
-        UDMain.Log("UD_WidgetControl::InitMeters() abGameLoad = " + abGameLoad, 3)
+        if UDmain.TraceAllowed()
+            UDMain.Log("UD_WidgetControl::InitMeters() abGameLoad = " + abGameLoad, 3)
+        endif
         _InitMetersMutex = True
         Utility.Wait(0.2)                   ; waiting for the end of all UpdatePercent_***Widget calls
         If abGameLoad
@@ -1214,7 +1241,9 @@ State iWidgetInstalled
     EndFunction
     
     Bool Function InitText(Bool abGameLoad = False)
-        UDMain.Log("UD_WidgetControl::InitText() abGameLoad = " + abGameLoad, 3)
+        if UDmain.TraceAllowed()
+            UDMain.Log("UD_WidgetControl::InitText() abGameLoad = " + abGameLoad, 3)
+        endif
         If abGameLoad
         ; clearing IDs on game load since all widgets are already destroyed
             _Text_LinesId = PapyrusUtil.IntArray(0)
@@ -1260,7 +1289,9 @@ State iWidgetInstalled
     EndFunction
     
     Bool Function InitIcons(Bool abGameLoad = False)
-        UDMain.Log("UD_WidgetControl::InitIcons() abGameLoad = " + abGameLoad, 3)
+        if UDmain.TraceAllowed()
+            UDMain.Log("UD_WidgetControl::InitIcons() abGameLoad = " + abGameLoad,3)
+        endif
         If abGameLoad
         ; clearing IDs on game load since all widgets are already destroyed
             Int i = StatusEffectSlots.Length
@@ -1389,7 +1420,9 @@ State iWidgetInstalled
     EndFunction
 
     Function _CreateMeterWidget(UD_WidgetMeter_RefAlias akData, Int aiX, Int aiY, Bool abForceDestory = False)
-        UDMain.Log("UD_WidgetControl::_CreateMeterWidget() akData = " + akData + ", aiX = " + aiX + ", aiY = " + aiY + ", abForceDestory = " + abForceDestory, 3)
+        if UDmain.TraceAllowed()
+            UDMain.Log("UD_WidgetControl::_CreateMeterWidget() akData = " + akData + ", aiX = " + aiX + ", aiY = " + aiY + ", abForceDestory = " + abForceDestory, 3)
+        endif
         If akData == None || akData.Name == ""
             Return
         EndIf
@@ -1433,7 +1466,9 @@ State iWidgetInstalled
     EndFunction
 
     Function _DestroyMeterWidget(UD_WidgetMeter_RefAlias akData)
-        UDMain.Log("UD_WidgetControl::_DestroyMeterWidget() akData = " + akData, 3)
+        if UDmain.TraceAllowed()
+            UDMain.Log("UD_WidgetControl::_DestroyMeterWidget() akData = " + akData, 3)
+        endif
         If akData.IconId > 0
             iWidget.destroy(akData.IconId)
             akData.IconId = -1
@@ -1522,7 +1557,9 @@ State iWidgetInstalled
             Return
         EndIf
         If _InitMetersMutex
-            UDMain.Log("UD_WidgetControl::Meter_SetIcon() _InitMetersMutex = " + _InitMetersMutex, 3)
+            if UDmain.TraceAllowed()
+                UDMain.Log("UD_WidgetControl::Meter_SetIcon() _InitMetersMutex = " + _InitMetersMutex, 3)
+            endif
             Return
         EndIf
         If loc_data.IconName == asIconName
@@ -1616,7 +1653,9 @@ State iWidgetInstalled
     EndFunction
     
     Function _CreateIconWidget(UD_WidgetStatusEffect_RefAlias akData, Int aiX, Int aiY, Int aiAlpha, Bool abForceDestory = False)
-        UDMain.Log("UD_WidgetControl::_CreateIconWidget() akData = " + akData + ", aiX = " + aiX + ", aiY = " + aiY + ", aiAlpha = " + aiAlpha, 3)
+        if UDmain.TraceAllowed()
+            UDMain.Log("UD_WidgetControl::_CreateIconWidget() akData = " + akData + ", aiX = " + aiX + ", aiY = " + aiY + ", aiAlpha = " + aiAlpha,3)
+        endif
         If akData == None || akData.Name == ""
             Return
         EndIf
@@ -1632,12 +1671,16 @@ State iWidgetInstalled
         If akData.Id > 0 && ((akData.Variant != akData.VariantLoaded) || abForceDestory)
             iWidget.destroy(akData.Id)
             akData.Id = -1
-            UDMain.Log("UD_WidgetControl::_CreateIconWidget() destroy id = " + akData.Id, 3)
+            if UDmain.TraceAllowed()
+                UDMain.Log("UD_WidgetControl::_CreateIconWidget() destroy id = " + akData.Id,3)
+            endif
         EndIf
         If akData.Id < 0
             akData.Id = iWidget.loadLibraryWidget(akData.FileName)
             akData.VariantLoaded = akData.Variant
-            UDMain.Log("UD_WidgetControl::_CreateIconWidget() loadLibraryWidget id = " + akData.Id, 3)
+            if UDmain.TraceAllowed()
+                UDMain.Log("UD_WidgetControl::_CreateIconWidget() loadLibraryWidget id = " + akData.Id,3)
+            endif
         EndIf
         If akData.AuxId > 0 && abForceDestory
             iWidget.destroy(akData.AuxId)
@@ -1665,7 +1708,9 @@ State iWidgetInstalled
     EndFunction
     
     Function _DestroyIconWidget(UD_WidgetStatusEffect_RefAlias akData)
-        UDMain.Log("UD_WidgetControl::_DestroyIconWidget() akData = " + akData, 3)
+        if UDmain.TraceAllowed()
+            UDMain.Log("UD_WidgetControl::_DestroyIconWidget() akData = " + akData, 3)
+        endif
         If akData.AuxId > 0
             iWidget.destroy(akData.AuxId)
             akData.AuxId = -1

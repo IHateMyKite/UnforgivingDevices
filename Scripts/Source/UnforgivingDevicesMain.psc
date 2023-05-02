@@ -516,6 +516,16 @@ Function ENABLE()
 EndFunction
 
 Function OnGameReload()
+    if !_Initialized
+        if !UDNPCM.Ready
+            GWarning(self+"::OnGameReload() - Skipping because mod is not fully initialized")
+            return
+        else
+            ;user installed mod after init variable was added
+            _Initialized = True
+        endif
+    endif
+
     if _Disabled
         return ;mod is disabled, do nothing
     endif
@@ -533,7 +543,7 @@ Function OnGameReload()
     
     DISABLE()
     
-    Utility.waitMenuMode(1.5)
+    Utility.waitMenuMode(0.5)
     
     Print("Updating Unforgiving Devices, please wait...")
     
@@ -541,18 +551,14 @@ Function OnGameReload()
         Utility.waitMenuMode(2.5)
     endif
     
-    Utility.waitMenuMode(1.5)
+    Utility.waitMenuMode(0.5)
     
     CLog("OnGameReload() called! - Updating Unforgiving Devices...")
     
     ;update all scripts
     Update()
     
-    if UDWC.Ready
-        UDWC.Update()
-    else
-        Error("Can't update UDWC because the script is not ready")
-    endif
+    UDWC.GameUpdate()
     
     UDMC.Update()
     
@@ -601,6 +607,7 @@ Event OnUpdate()
     Update()
 EndEvent
 
+Bool _Initialized = False
 Function Init()
     ;start quest manually
     UDNPCM.Start()
@@ -620,6 +627,7 @@ Function Init()
     else
         GInfo("NPC manager started successfully")
     endif
+    _Initialized = True
 EndFunction
 
 Function Update()
@@ -867,6 +875,12 @@ Function Log(String asMsg, int aiLevel = 1)
             ConsoleUtil.PrintMessage(loc_msg)
         endif
     endif
+EndFunction
+
+Function LogDebug(String asMsg)
+    string loc_msg = "[UD,D,T="+Utility.GetCurrentRealTime()+"]: " + asMsg
+    debug.trace(loc_msg)
+    ConsoleUtil.PrintMessage(loc_msg)
 EndFunction
 
 ;/  Function: CLog
