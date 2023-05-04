@@ -554,7 +554,7 @@ Event resetCustomBondagePage()
     UD_MinigameHelpCd_S = addSliderOption("$UD_MINIGAMEHELPCD",UDCDmain.UD_MinigameHelpCd, "${0} min",UD_LockMenu_flag)
     UD_MinigameHelpXPBase_S = addSliderOption("$UD_MINIGAMEHELPXPBASE",UDCDmain.UD_MinigameHelpXPBase, "{0} XP",UD_LockMenu_flag)
     
-    UD_MinigameHelpCD_PerLVL_S = addSliderOption("$UD_MINIGAMEHELPCD",UDCDmain.UD_MinigameHelpCD_PerLVL, "{0} %",UD_LockMenu_flag)
+    UD_MinigameHelpCD_PerLVL_S = addSliderOption("$UD_MINIGAMEHELPAMPL",UDCDmain.UD_MinigameHelpCD_PerLVL, "{0} %",UD_LockMenu_flag)
     addEmptyOption()
     
     ;HARDCORE SWIMMING
@@ -3235,7 +3235,7 @@ Function CustomBondagePageInfo(int option)
     elseif option == UD_MinigameHelpCd_S
         SetInfoText("$UD_MINIGAMEHELPCD_INFO")
     elseif option == UD_MinigameHelpCD_PerLVL_S
-        SetInfoText("$UD_MINIGAMEHELPCD_INFO")
+        SetInfoText("$UD_MINIGAMEHELPAMPL_INFO")
     elseif option == UD_MinigameHelpXPBase_S
         SetInfoText("$UD_MINIGAMEHELPXPBASE_INFO")
     elseif option == UDCD_SpecialKey_Keycode_K

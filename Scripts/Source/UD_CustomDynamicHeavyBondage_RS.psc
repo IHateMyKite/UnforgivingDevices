@@ -59,25 +59,25 @@ Function onDeviceMenuInitPostWH(bool[] aControlFilter)
 EndFunction
 
 bool Function proccesSpecialMenu(int msgChoice)
-    bool res = parent.proccesSpecialMenu(msgChoice)
     if msgChoice == 0 ; untie
         return UntieMinigame()
     ElseIf msgChoice == 1 ; tie up
         tieUp()
         return true
-    EndIf
-    return res
+    else
+       return parent.proccesSpecialMenu(msgChoice)
+    endif
 EndFunction
 
 bool Function proccesSpecialMenuWH(Actor akSource,int msgChoice)
-    bool res = parent.proccesSpecialMenuWH(akSource,msgChoice)
     if msgChoice == 0 ; untie
         return UntieMinigame()
     ElseIf msgChoice == 1 ; tie up
         tieUp()
         return true
-    EndIf
-    return res
+    else
+        return parent.proccesSpecialMenuWH(akSource,msgChoice)
+    endif
 EndFunction
 
 bool _untieMinigameOn = false

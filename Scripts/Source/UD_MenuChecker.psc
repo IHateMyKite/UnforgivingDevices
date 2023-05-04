@@ -39,6 +39,7 @@ Scriptname UD_MenuChecker extends Quest hidden
     |    18     =     TweenMenu            |
     |    19     =     Console              |
     |    20     =     BarterMenu           |
+    |    21     =     CustomMenu (UIE)     |
     |======================================|
     ---
 /;
@@ -47,11 +48,12 @@ import UnforgivingDevicesMain
 
 UnforgivingDevicesMain Property UDmain auto
 
-String[]        Property UD_MenuList                                auto hidden
-bool[]          Property UD_MenuListID                              auto hidden
-string          Property UD_LastMenuOpened              = "none"    auto hidden
-Bool            Property UD_MenuOpened                  = False     auto hidden
-Bool            Property Ready                          = False     auto hidden
+String[]        Property UD_MenuList                                    auto hidden
+bool[]          Property UD_MenuListID                                  auto hidden
+int             Property UD_MenuListIDBit               = 0x00000000    auto hidden
+string          Property UD_LastMenuOpened              = "none"        auto hidden
+Bool            Property UD_MenuOpened                  = False         auto hidden
+Bool            Property Ready                          = False         auto hidden
 
 Bool Function IsMenuOpen(Int aiID)
     return UD_MenuListID[aiID]
@@ -75,8 +77,8 @@ Function Update()
 EndFunction
 
 Function InitMenuArr()
-    UD_MenuList         = new String[21]
-    UD_MenuListID       = new bool[21]
+    UD_MenuList         = new String[22]
+    UD_MenuListID       = new bool[22]
     
     UD_MenuList[00] = "ContainerMenu"
     UD_MenuList[01] = "Lockpicking Menu"
@@ -99,6 +101,7 @@ Function InitMenuArr()
     UD_MenuList[18] = "TweenMenu"
     UD_MenuList[19] = "Console"
     UD_MenuList[20] = "BarterMenu"
+    UD_MenuList[21] = "CustomMenu"
 EndFunction
 
 Function RegisterMenuEvents()
@@ -126,6 +129,9 @@ Event OnMenuOpen(String MenuName)
     while loc_i < UD_MenuList.length
         if UD_MenuList[loc_i] == MenuName
             UD_MenuListID[loc_i] = true
+            _StartBitMutex()
+            UD_MenuListIDBit = Math.LogicalOr(UD_MenuListIDBit,Math.LeftShift(0x1,loc_i))
+            _EndBitMutex()
             return
         endif
         loc_i += 1
@@ -147,8 +153,22 @@ Event OnMenuClose(String MenuName)
     while loc_i < UD_MenuList.length
         if UD_MenuList[loc_i] == MenuName
             UD_MenuListID[loc_i] = false
+            _StartBitMutex()
+            UD_MenuListIDBit = Math.LogicalAnd(UD_MenuListIDBit,Math.LogicalNot(Math.LeftShift(0x1,loc_i)))
+            _EndBitMutex()
             return
         endif
         loc_i += 1
     endwhile
 EndEvent
+
+bool _BitMutex = False
+Function _StartBitMutex()
+    while _BitMutex
+        Utility.waitMenuMode(0.05)
+    endwhile
+    _BitMutex = True
+EndFunction
+Function _EndBitMutex()
+    _BitMutex = False
+EndFunction

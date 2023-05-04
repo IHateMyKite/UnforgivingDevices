@@ -5127,9 +5127,8 @@ EndFunction
 
 ;/  Function: lockpickMinigameWH
     Starts lockpick minigame with helper. This function include all checks and is safew to be called at all times.
-
+    
     Parameters:
-
         akHelper    - Actor who will be used as helper
 
     Returns:
@@ -5764,20 +5763,22 @@ Function _keyUnlockDevice()
     endif
 EndFunction
 
-;adds struggle debuff to Wearer and Helper
-
 ;/  Function: addStruggleExhaustion
     Adds struggle exhaustion to wearer and helper
+    
+    Parameters:
+    
+        akHelper - minigame helper
 /;
-Function addStruggleExhaustion()
+Function addStruggleExhaustion(Actor akHelper)
     if UDmain.TraceAllowed()
         UDmain.Log("UD_CustomDevice_RenderScript::addStruggleExhaustion("+getDeviceHeader()+") called")
     endif
     if UD_applyExhastionEffect
         UDCDmain.AddExhaustion(Wearer,_exhaustion_mult)
-        if _minigameHelper
-            UDCDmain.AddExhaustion(_minigameHelper,_exhaustion_mult_helper)
-            UDCDmain.ResetHelperCD(_minigameHelper,Wearer,UDCDmain.UD_MinigameHelpXPBase)
+        if akHelper
+            UDCDmain.AddExhaustion(akHelper,_exhaustion_mult_helper)
+            UDCDmain.ResetHelperCD(akHelper,Wearer,UDCDmain.UD_MinigameHelpXPBase)
         endif
     endif
 EndFunction
@@ -6200,8 +6201,6 @@ EndFunction
 bool Function IsPaused()
     return _PauseMinigame
 EndFunction
-
-
 
 ;/  Function: minigamePostcheck
     Check wearer and helper minimum stats

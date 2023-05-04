@@ -2275,6 +2275,18 @@ Bool Function IsMenuOpen()
     return UDMC.UD_MenuOpened
 EndFunction
 
+;/  Function: IsMenuOpenRaw
+
+    This function check if any menu is open. Ignores all checks.
+
+    Returns:
+
+        True if ANY menu is open
+/;
+Bool Function IsAnyMenuOpen()
+    return UDMC.UD_MenuListIDBit
+EndFunction
+
 ;/  Function: IsMenuOpenID
 
     This function check if specific menu is open
