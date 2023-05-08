@@ -668,16 +668,6 @@ Function StopVibrating(actor akActor)
     endif
 EndFunction
 
-Bool _VibEffectMutex = false
-Function StartVibrateEffectMutex()
-    while _VibEffectMutex
-        Utility.waitMenuMode(0.01)
-    endwhile
-    _VibEffectMutex = true
-EndFunction
-Function EndVibrateEffectMutex()
-    _VibEffectMutex = false
-EndFunction
 int Function VibrateEffect(actor akActor, int vibStrength, int duration, bool teaseOnly=false, bool silent = false)
     if UDmain.TraceAllowed()    
         UDmain.Log("VibrateEffect(): " + akActor + ", " + vibStrength + ", " + duration)
