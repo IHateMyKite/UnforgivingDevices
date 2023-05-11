@@ -612,9 +612,10 @@ Function Init()
     ;start quest manually
     UDNPCM.Start()
     
-    ;wait for quest to get ready
     Float loc_timeout = 0.0
     Float loc_maxtime = 5.0
+    
+    ;wait for quest to get ready
     while !UDNPCM.Ready && loc_timeout < loc_maxtime
         Utility.wait(0.25)
         loc_timeout += 0.25
@@ -627,6 +628,23 @@ Function Init()
     else
         GInfo("NPC manager started successfully")
     endif
+    
+    ;wait for MCM to get ready
+    loc_timeout = 0.0
+    loc_maxtime = 60.0
+    while !config.Ready && loc_timeout < loc_maxtime
+        Utility.wait(1.0)
+        loc_timeout += 1.0
+    endwhile
+    if loc_timeout >= loc_maxtime
+        ;ERROR
+        GError("UD MCM can't be started!! Mod will be disabled!")
+        ShowSingleMessageBox("!!FATAL ERROR!!\nFailed to load MCM for Unforgiving Devices!! Mod will be disabled untill MCM correctly starts.\n Please contact developers on LL or GitHub")
+        _FatalError = True
+    else
+        GInfo("MCM loaded successfully")
+    endif
+    
     _Initialized = True
 EndFunction
 

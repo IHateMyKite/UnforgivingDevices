@@ -157,7 +157,7 @@ Function OnUpdate()
 EndFunction
 
 Bool Function Init()
-    if UDmain.WaitForReady() ;wait for UD to get ready first
+    ;if UDmain.WaitForReady() ;wait for UD to get ready first
         if UDmain.TraceAllowed()
             UDmain.Log("MCM init started")
         endif
@@ -182,7 +182,7 @@ Bool Function Init()
         Ready = True
         UDmain.Info("MCM Ready")
         return true
-    endif
+    ;endif
     return false
 EndFunction
 
