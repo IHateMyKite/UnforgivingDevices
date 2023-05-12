@@ -375,15 +375,14 @@ Event OnInit()
     ;Print("Installing Unforgiving Devices...")
     if zadbq.modVersion
         ;DD is already installed when UD is installed
-        ;UD will not correctly replace DD script when they are already set update
+        ;UD will not correctly replace DD script when they are already set
         ;because of that UD is incompatible with already ongoing DD moded game
         string loc_msg = "!!!!ERROR!!!!\n"
         loc_msg += "Unforgiving Devices detected that it was installed on already ongoing game. "
-        loc_msg += "Without starting fresh game, UD will not be able to use mutexes which are needed for safe run of the mod. "
-        loc_msg += "\n\n!Please consider starting new game for the best experience.!"
+        loc_msg += "Without starting fresh game, UD will not be able to correctly lock/unlock devices! "
+        loc_msg += "\n\n!Please, start a new game or clean uninstall DD and install it on the same time with UD!"
         debug.messagebox(loc_msg)
     endif
-    
 
     if CheckSubModules()
         RegisterForSingleUpdate(1.0)
@@ -546,6 +545,7 @@ Function OnGameReload()
     Utility.waitMenuMode(0.5)
     
     Print("Updating Unforgiving Devices, please wait...")
+    Info("OnGameReload() called! - Updating Unforgiving Devices...")
     
     if !Ready
         Utility.waitMenuMode(2.5)
@@ -553,53 +553,53 @@ Function OnGameReload()
     
     Utility.waitMenuMode(0.5)
     
-    CLog("OnGameReload() called! - Updating Unforgiving Devices...")
-    
-    ;update all scripts
-    Update()
-    
-    UDWC.GameUpdate()
-    
-    UDMC.Update()
-    
-    BoundCombat.Update()
-    
-    UDlibs.Update()
-    
-    UDCDMain.Update()
+    if _UpdateCheck()
+        ;update all scripts
+        Update()
+        
+        UDWC.GameUpdate()
+        
+        UDMC.Update()
+        
+        BoundCombat.Update()
+        
+        UDlibs.Update()
+        
+        UDCDMain.Update()
 
-    Config.Update()
-    
-    UDPP.Update()
-    
-    UDOMNPC.Update()  ;NPC orgasm manager
-    UDOMPlayer.Update() ;player orgasm manager
-    
-    UDEM.Update()
-    
-    UDNPCM.GameUpdate()
-    
-    UDLLP.Update()
+        Config.Update()
+        
+        UDPP.Update()
+        
+        UDOMNPC.Update()  ;NPC orgasm manager
+        UDOMPlayer.Update() ;player orgasm manager
+        
+        UDEM.Update()
+        
+        UDNPCM.GameUpdate()
+        
+        UDLLP.Update()
 
-    UDRRM.Update()
-    
-    if UDAM.Ready
-        UDAM.Update()
+        UDRRM.Update()
+        
+        if UDAM.Ready
+            UDAM.Update()
+        endif
+        
+        if UDCM.Ready
+            UDCM.Update()
+        endif
+
+        UDAbadonQuest.Update()
+        
+        Info("<=====| Unforgiving Devices updated |=====>")
+        Print("Unforgiving Devices updated")
+    else
+        Info("<=====| !!Unforgiving Devices FAILED!! |=====>")
+        Print("Unforgiving Devices update FAILED")
     endif
-    
-    if UDCM.Ready
-        UDCM.Update()
-    endif
-
-    UDAbadonQuest.Update()
-    
-    Info("<=====| Unforgiving Devices updated |=====>")
-    
     _Updating = False
     ENABLE()
-    
-    Print("Unforgiving Devices updated")
-    
 EndFunction
 
 Event OnUpdate()
@@ -698,22 +698,35 @@ Function Update()
     _CheckPatchesOrder()
     
     if !Ready
-        UD_hightPerformance = UD_hightPerformance
-        UDlibs.OrgasmExhaustionSpell.SetNthEffectDuration(0, 180) ;for backward compatibility
-        
-        RegisterForModEvent("UD_VibEvent","EventVib")
-        
-        Info("<=====| UnforgivingDevicesMain installed |=====>")
-        
-        Print("Unforgiving Devices Ready!")
-        
-        Ready = true
+            if _UpdateCheck() || _FatalError
+            UD_hightPerformance = UD_hightPerformance
+            UDlibs.OrgasmExhaustionSpell.SetNthEffectDuration(0, 180) ;for backward compatibility
+            
+            RegisterForModEvent("UD_VibEvent","EventVib")
+            
+            Info("<=====| UnforgivingDevicesMain installed |=====>")
+            
+            Print("Unforgiving Devices Ready!")
+            
+            Ready = true
+        else
+            Error("<=====| !!UnforgivingDevicesMain installation FAILED!! |=====>")
+            Print("Unforgiving Devices installation failed!")
+        endif
     endif
-    
     SendModEvent("UD_PatchUpdate") ;send update event to all patches. Will force patches to check if they are installed correctly
     
     UDCDmain.UpdateQuestKeywords()
     UDCDmain.UpdateGenericKeys()
+EndFunction
+
+;last check before mod is ready. At this point, all optional mods are checked as so, can be used.
+Bool Function _UpdateCheck()
+    Bool loc_cond = true
+    
+    loc_cond = loc_cond && (!PO3Installed || PO3_SKSEFunctions.IsScriptAttachedToForm(zadbq,"zadlibs_UDPatch")) ;ud patch script have to be pressent on zadquest
+
+    return loc_cond
 EndFunction
 
 Function _CheckOptionalMods()

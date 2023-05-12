@@ -2119,7 +2119,7 @@ EndFunction
 /;
 Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True)
     if IsUnlocked
-        if UDmain.TraceAllowed()        
+        if UDmain.TraceAllowed()
             UDmain.Log("unlockRestrain()"+getDeviceHeader()+": Device is already unlocked! Aborting ",1)
         endif
         return
@@ -6586,7 +6586,7 @@ Function minigame()
             UDmain.Print(getWearerName()+" succesfully escaped out of " + deviceInventory.GetName() + "!",2)
         endif
         if !loc_WearerIsPlayer
-            UpdateMotivation(Wearer,50) ;increase NPC motivation on failed escape
+            UpdateMotivation(Wearer,50) ;increase NPC motivation on successful escape
         endif
     else
         if loc_is3DLoaded

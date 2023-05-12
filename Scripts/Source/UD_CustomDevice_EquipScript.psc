@@ -922,22 +922,22 @@ Function unlockDevice(Actor akActor)
             loc_cond = loc_cond || libs.zadStandardKeywords.HasForm(loc_unlocktoken)
             loc_cond = loc_cond || (!DeviceRendered.HasKeyword(loc_unlocktoken) && !DeviceInventory.HasKeyword(loc_unlocktoken))
             if loc_cond
-                UDmain.Error("UnlockDevice(" +MakeDeviceHeader(akActor,deviceInventory) + ") - Caught and prevented unauthorized removal attempt of quest device!")
+                UDmain.Error(MakeDeviceHeader(akActor,deviceInventory) + "::unlockDevice() - Caught and prevented unauthorized removal attempt of quest device!")
                 loc_failure = true
             else
-                UDmain.Info("UnlockDevice(" +MakeDeviceHeader(akActor,deviceInventory) + ") - Correct token received -> unlocking quest device")
+                UDmain.Info(MakeDeviceHeader(akActor,deviceInventory) + "::unlockDevice() - Correct token received -> unlocking quest device")
             endif
         endif
     endif
     
     if !loc_failure
         akActor.unequipItem(deviceInventory, 1, true)
-        UD_CustomDevice_RenderScript device = getUDScript(akActor)
+        UD_CustomDevice_RenderScript loc_device = getUDScript(akActor)
         akActor.RemoveItem(deviceRendered, loc_RDNum, true)
-        if device
-            device.removeDevice(akActor)
+        if loc_device
+            loc_device.removeDevice(akActor)
         else
-            GError("Could not get RD script! Unlock operation on " + self)
+            UDmain.Error(MakeDeviceHeader(akActor,deviceInventory) + "::unlockDevice() - Could not get RD script! Unlock operation on " + self)
         endif
     endif
 

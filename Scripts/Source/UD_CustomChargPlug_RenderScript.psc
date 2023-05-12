@@ -90,7 +90,7 @@ float Function getVibOrgasmRate(float mult = 1.0)
     return parent.getVibOrgasmRate(mult*(1.0 + 2.0*getRelativeCharge()))
 EndFunction
 
-Function removeDevice(actor akActor)
+Function onRemoveDevicePost(Actor akActor)
     If getRelativeCharge() >= 1.0 ; Fully charged.
         ; Break down plug.
         if UD_ChargeRewardFull
@@ -115,7 +115,7 @@ Function removeDevice(actor akActor)
             endif
         endif
     EndIf
-    parent.removeDevice(akActor)
+    parent.onRemoveDevicePost(akActor)
 EndFunction
 
 int Function CalculateCooldown(Float fMult = 1.0)
@@ -229,9 +229,6 @@ Function InitPostPost()
 EndFunction
 Function OnRemoveDevicePre(Actor akActor)
     parent.OnRemoveDevicePre(akActor)
-EndFunction
-Function onRemoveDevicePost(Actor akActor)
-    parent.onRemoveDevicePost(akActor)
 EndFunction
 Function onLockUnlocked(bool lockpick = false)
     parent.onLockUnlocked(lockpick)

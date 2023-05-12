@@ -307,9 +307,11 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
                 ;ignore ID events to prevent unwanted behavier
                 StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0x110)
                 
+                Int loc_idcount = akActor.getItemCount(deviceInventory)
+                
                 ;send and receive device from event container, so inside unlock function can be called
-                akActor.removeItem(deviceInventory,1,True,UDCDmain.EventContainer_ObjRef)    
-                UDCDmain.EventContainer_ObjRef.removeItem(deviceInventory,1,True,akActor)                  
+                akActor.removeItem(deviceInventory,loc_idcount,True,UDCDmain.EventContainer_ObjRef)
+                UDCDmain.EventContainer_ObjRef.removeItem(deviceInventory,loc_idcount,True,akActor)
 
                 ;procces mutex untill device is unlocked
                 if loc_slot
