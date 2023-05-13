@@ -684,12 +684,9 @@ EndFunction
 Function _ValidateModules()
     Info(self + "::_ValidateModules() - Validating modules...")
     ;validate modules that were moved between versions
-    ;----------------------------------
-    ;!!!    EDIT AFTER ESP MERGE    !!!
-    ;----------------------------------
-    UDPP    = GetMeMyForm(0x000802,"PR155_b3fixes.esp") as UD_ParalelProcess
-    UDLLP   = GetMeMyForm(0x000800,"PR155_b3fixes.esp") as UD_LeveledList_Patcher
-    UD_LibsQuest    = GetMeMyForm(0x000801,"PR155_b3fixes.esp") as Quest
+    UDPP    = GetMeMyForm(0x0120B6,"UnforgivingDevices.esp") as UD_ParalelProcess
+    UDLLP   = GetMeMyForm(0x0120B4,"UnforgivingDevices.esp") as UD_LeveledList_Patcher
+    UD_LibsQuest    = GetMeMyForm(0x0120B5,"UnforgivingDevices.esp") as Quest
     UDlibs          = UD_LibsQuest as UD_Libs
     ItemManager     = UD_LibsQuest as UDItemManager
     UDRRM           = UD_LibsQuest as UD_RandomRestraintManager
