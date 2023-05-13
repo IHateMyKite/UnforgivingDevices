@@ -1818,10 +1818,18 @@ EndFunction
 
 Function ProccesLockMutex()
     float loc_time = 0.0
-    while loc_time <= 3.0 && (!UD_GlobalDeviceMutex_InventoryScript)
+    while loc_time <= 1.5 && (!UD_GlobalDeviceMutex_InventoryScript)
         Utility.waitMenuMode(0.1)
         loc_time += 0.1
     endwhile
+    
+    if !IsPlayer() && loc_time >= 1.5 && UDmain.IsAnyMenuOpen()
+        Utility.wait(0.01)
+        while loc_time <= 3.0 && (!UD_GlobalDeviceMutex_InventoryScript)
+            Utility.waitMenuMode(0.1)
+            loc_time += 0.1
+        endwhile
+    endif
     
     if UD_GlobalDeviceMutex_InventoryScript_Failed || loc_time >= 3.0
         UDmain.Error("LockDevicePatched("+GetSlotedNPCName()+","+UD_GlobalDeviceMutex_Device.getName()+") failed!!! ID Fail? " + UD_GlobalDeviceMutex_InventoryScript_Failed)
@@ -1832,10 +1840,18 @@ EndFunction
 
 Function ProccesUnlockMutex()
     float loc_time = 0.0
-    while loc_time <= 3.0 && (!UD_GlobalDeviceUnlockMutex_InventoryScript)
+    while loc_time <= 1.5 && (!UD_GlobalDeviceUnlockMutex_InventoryScript)
         Utility.waitMenuMode(0.1)
         loc_time += 0.1
     endwhile
+    
+    if !IsPlayer() && loc_time >= 1.5 && UDmain.IsAnyMenuOpen()
+        Utility.wait(0.01)
+        while loc_time <= 3.0 && (!UD_GlobalDeviceUnlockMutex_InventoryScript)
+            Utility.waitMenuMode(0.1)
+            loc_time += 0.1
+        endwhile
+    endif
     
     if UD_GlobalDeviceUnlockMutex_InventoryScript_Failed || loc_time >= 3.0
         UDmain.Error("UnLockDevicePatched("+GetSlotedNPCName()+","+UD_GlobalDeviceUnlockMutex_Device.getName()+") failed!!! ID Fail? " + UD_GlobalDeviceUnlockMutex_InventoryScript_Failed)
@@ -2520,15 +2536,12 @@ Function Receive_MinigameParalel()
         akHelper.setAV("MagickaRate", magickaRateHelper)
     endif
     
-    loc_device._MinigameParProc_2 = false
-    
     if loc_haveplayer
         loc_device.hideHUDbars() ;hides HUD (not realy?)
-        
-        if loc_device.WearerIsPlayer() || loc_device.HelperIsPlayer()
-            loc_device.hideWidget()
-        endif
+        loc_device.hideWidget()
     endif
+    
+    loc_device._MinigameParProc_2 = false
     
     if loc_is3DLoaded
         UDEM.ResetExpressionRaw(akActor,15)
@@ -2537,8 +2550,8 @@ Function Receive_MinigameParalel()
         endif
     endif
     
-    if loc_is3DLoaded
-        loc_device.addStruggleExhaustion()
+    if loc_is3DLoaded && (UDmain.UDGV.UDG_MinigameExhaustion.Value == 1)
+        loc_device.addStruggleExhaustion(akHelper)
     endif
     _MinigameParalel_ON = False
 EndFunction

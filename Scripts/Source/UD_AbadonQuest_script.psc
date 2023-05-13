@@ -4,7 +4,6 @@ import UnforgivingDevicesMain
 
 UDCustomDeviceMain      Property UDCDmain auto
 UnforgivingDevicesMain  Property UDmain  Auto
-UD_libs Property UDlibs  Auto  
 zadlibs Property libs auto 
 Quest   Property DragonRising auto
 
@@ -154,18 +153,18 @@ Function EquipAbadonDevices(Actor akTarget,Int aiMinDevices, Int aiMaxDevices)
             if !akTarget.wornhaskeyword(libs.zad_deviousSuit)
                 int random = Utility.randomInt(1,3)
                 if random == 1
-                    libs.LockDevice(akTarget,UDlibs.AbadonBlueArmbinder)
+                    libs.LockDevice(akTarget,UDmain.UDlibs.AbadonBlueArmbinder)
                 elseif random == 2
-                    libs.LockDevice(akTarget,UDlibs.MageBinder)
+                    libs.LockDevice(akTarget,UDmain.UDlibs.MageBinder)
                 elseif random == 3
-                    libs.LockDevice(akTarget,UDlibs.RogueBinder)
+                    libs.LockDevice(akTarget,UDmain.UDlibs.RogueBinder)
                 endif
             else
                 int random = Utility.randomInt(1,2)
                 if random == 1
-                    libs.LockDevice(akTarget,UDlibs.AbadonBlueArmbinder)
+                    libs.LockDevice(akTarget,UDmain.UDlibs.AbadonBlueArmbinder)
                 elseif random == 2
-                    libs.LockDevice(akTarget,UDlibs.RogueBinder)
+                    libs.LockDevice(akTarget,UDmain.UDlibs.RogueBinder)
                 endif
             endif
             if UDmain.ActorIsPlayer(akTarget)
@@ -175,22 +174,22 @@ Function EquipAbadonDevices(Actor akTarget,Int aiMinDevices, Int aiMaxDevices)
             if !akTarget.wornhaskeyword(libs.zad_deviousSuit)
                 int random = Utility.randomInt(1,4)
                 if random == 1
-                    libs.LockDevice(akTarget,UDlibs.AbadonWeakArmbinder)
+                    libs.LockDevice(akTarget,UDmain.UDlibs.AbadonWeakArmbinder)
                 elseif random == 2
-                    libs.LockDevice(akTarget,UDlibs.AbadonWeakStraitjacket)
+                    libs.LockDevice(akTarget,UDmain.UDlibs.AbadonWeakStraitjacket)
                 elseif random == 3
-                    libs.LockDevice(akTarget,UDlibs.AbadonWeakElbowbinder)
+                    libs.LockDevice(akTarget,UDmain.UDlibs.AbadonWeakElbowbinder)
                 elseif random == 4
-                    libs.LockDevice(akTarget,UDlibs.AbadonWeakYoke)
+                    libs.LockDevice(akTarget,UDmain.UDlibs.AbadonWeakYoke)
                 endif
             else
                 int random = Utility.randomInt(1,3)
                 if random == 1
-                    libs.LockDevice(akTarget,UDlibs.AbadonWeakArmbinder)
+                    libs.LockDevice(akTarget,UDmain.UDlibs.AbadonWeakArmbinder)
                 elseif random == 2
-                    libs.LockDevice(akTarget,UDlibs.AbadonWeakElbowbinder)
+                    libs.LockDevice(akTarget,UDmain.UDlibs.AbadonWeakElbowbinder)
                 elseif random == 3
-                    libs.LockDevice(akTarget,UDlibs.AbadonWeakYoke)
+                    libs.LockDevice(akTarget,UDmain.UDlibs.AbadonWeakYoke)
                 endif
             endif
             if UDmain.ActorIsPlayer(akTarget)

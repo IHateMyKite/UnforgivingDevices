@@ -3,7 +3,6 @@ Scriptname UD_TrapManifest_ME_Script extends activemagiceffect
 import UnforgivingDevicesMain
 
 UD_AbadonQuest_script   Property AbadonQuest    auto
-UD_libs                 Property UDlibs         auto
 UDCustomDeviceMain      Property UDCDmain       auto
 zadlibs                 Property libs           auto
 

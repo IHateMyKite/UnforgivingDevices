@@ -8,8 +8,16 @@ import UD_CustomDevice_RenderScript
 
 Spell Property SwimPenaltySpell auto
 UnforgivingDevicesMain Property UDmain auto
-UD_ParalelProcess Property UDPP auto
-UD_libs Property UDlibs auto
+UD_ParalelProcess Property UDPP hidden
+    UD_ParalelProcess Function Get()
+        return UDmain.UDPP
+    EndFunction
+EndProperty
+UD_libs Property UDlibs hidden
+    UD_libs Function Get()
+        return UDmain.UDlibs
+    EndFunction
+EndProperty
 zadlibs Property libs auto
 zadlibs_UDPatch Property libsp hidden
     zadlibs_UDPatch Function get()
@@ -1475,28 +1483,45 @@ Function OpenHelpDeviceMenu(UD_CustomDevice_RenderScript akDevice,Actor akHelper
     endif
 EndFunction
 
-float Function CalculateHelperCD(Actor akActor,Int iLevel = 0)
-    if iLevel <= 0
-        iLevel = GetHelperLVL(akActor)
+float Function _CalculateHelperCD(Actor akActor,Int aiLevel = 0)
+    if aiLevel <= 0
+        aiLevel = GetHelperLVL(akActor)
     endif
-    float loc_res = UD_MinigameHelpCd - Round((iLevel - 1)*(UD_MinigameHelpCD_PerLVL/100.0)*UD_MinigameHelpCd)
+    float loc_res = UD_MinigameHelpCd - Round((aiLevel - 1)*(UD_MinigameHelpCD_PerLVL/100.0)*UD_MinigameHelpCd)
     loc_res = fRange(loc_res,5.0,60.0*24.0) ;crop the value
     loc_res = loc_res/(60.0*24.0) ;convert to days
     return loc_res
 EndFunction
 
-int Function ResetHelperCD(Actor akHelper,Actor akHelped,Int iXP = 0)
+;/  Function: ResetHelperCD
+
+    Increases helper xp, and reset cooldown to new value
+
+    Parameters:
+
+        akHelper    - Actor whos XP will increase
+        akHelped    - Actor that is getting the help
+        aiXP        - How much XP to add
+
+    Returns:
+    
+        Helper LVL after XP is increased
+/;
+int Function ResetHelperCD(Actor akHelper,Actor akHelped,Int aiXP = 0)
+    UDMain.LogDebug("ResetHelperCD("+GetActorName(akHelper)+","+GetActorName(akHelped)+","+aiXP+") - Cooldown is " + _CalculateHelperCD(akHelper,loc_lvl))
     Int loc_lvl = 1
-    if iXP > 0
-        loc_lvl = addHelperXP(akHelper, iXP)
+    if aiXP > 0
+        loc_lvl = addHelperXP(akHelper, aiXP)
     else
         loc_lvl = GetHelperLVL(akHelper)
     endif
-    StorageUtil.SetFloatValue(akHelper,"UDNPCCD:"+akHelped,Utility.GetCurrentGameTime() + CalculateHelperCD(akHelper,loc_lvl))
+    UDMain.LogDebug("ResetHelperCD("+GetActorName(akHelper)+") - loc_lvl = " + loc_lvl)
+    StorageUtil.SetFloatValue(akHelper,"UDNPCCD:"+akHelped,Utility.GetCurrentGameTime() + _CalculateHelperCD(akHelper,loc_lvl))
+    UDMain.LogDebug("ResetHelperCD("+GetActorName(akHelper)+") - Cooldown is " + _CalculateHelperCD(akHelper,loc_lvl))
     return loc_lvl
 EndFunction
 
-Int Function CalculateHelperXpRequired(Int aiLevel)
+Int Function _CalculateHelperXpRequired(Int aiLevel)
     return Round(aiLevel*100*Math.Pow(1.03,aiLevel))
 EndFunction
 
@@ -1518,8 +1543,8 @@ int Function addHelperXP(Actor akHelper, int aiXP)
     int loc_currentLVL  = GetHelperLVL(akHelper)
     int loc_nextXP      = loc_currentXP + aiXP
     int loc_nextLVL     = loc_currentLVL
-    while loc_nextXP >= CalculateHelperXpRequired(loc_nextLVL)
-        loc_nextXP      -= CalculateHelperXpRequired(loc_nextLVL)
+    while loc_nextXP >= _CalculateHelperXpRequired(loc_nextLVL)
+        loc_nextXP      -= _CalculateHelperXpRequired(loc_nextLVL)
         loc_nextLVL     += 1
         if UDmain.ActorIsPlayer(akHelper)
             UDmain.Print("Your Helper skill level increased to " + loc_nextLVL + " !")
@@ -1551,7 +1576,7 @@ EndFunction
 float Function GetHelperLVLProgress(Actor akHelper)
     Float loc_currentXP = StorageUtil.GetIntValue(akHelper,"UDNPCXP",0)
     int loc_currentLVL = StorageUtil.GetIntValue(akHelper,"UDNPCLVL",1)
-    return loc_currentXP/CalculateHelperXpRequired(loc_currentLVL);(100.0*(loc_currentLVL))
+    return loc_currentXP/_CalculateHelperXpRequired(loc_currentLVL);(100.0*(loc_currentLVL))
 EndFunction
 
 ;/  Function: PlayerMenu
@@ -1932,12 +1957,14 @@ string Function GetHelperDetails(Actor akActor)
     string loc_res = ""
     loc_res += "--HELPER DETAILS--\n"
     loc_res += "Helper LVL: " + GetHelperLVL(akActor) +"("+Round(GetHelperLVLProgress(akActor)*100)+"%)" + "\n"
-    loc_res += "Base Cooldown: " + Round(CalculateHelperCD(akActor)*24*60) + " min\n"
-    float loc_currenttime = Utility.GetCurrentGameTime()
-    float loc_cooldowntimeHP = StorageUtil.GetFloatValue(akActor,"UDNPCCD:"+UDmain.Player,0)
-    float loc_cooldowntimePH = StorageUtil.GetFloatValue(UDmain.Player,"UDNPCCD:"+akActor,0)
-    loc_res += "Available in (H->P): " + iUnsig(Round(((loc_cooldowntimeHP - loc_currenttime)*24*60))) + " min\n"
-    loc_res += "Available in (P->H): " + iUnsig(Round(((loc_cooldowntimePH - loc_currenttime)*24*60))) + " min\n"
+    loc_res += "Base Cooldown: " + Round(_CalculateHelperCD(akActor)*24*60) + " min\n"
+    if UDmain.Player != akActor
+        float loc_currenttime = Utility.GetCurrentGameTime()
+        float loc_cooldowntimeHP = StorageUtil.GetFloatValue(akActor,"UDNPCCD:"+UDmain.Player,0)
+        float loc_cooldowntimePH = StorageUtil.GetFloatValue(UDmain.Player,"UDNPCCD:"+akActor,0)
+        loc_res += "Available in (H->P): " + iUnsig(Round(((loc_cooldowntimeHP - loc_currenttime)*24*60))) + " min\n"
+        loc_res += "Available in (P->H): " + iUnsig(Round(((loc_cooldowntimePH - loc_currenttime)*24*60))) + " min\n"
+    endif
     return loc_res
 EndFunction
 

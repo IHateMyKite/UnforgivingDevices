@@ -105,11 +105,6 @@ Function turnOffPlug()
     resetCooldown(2.0)
 EndFunction
 
-Function removeDevice(actor akActor)
-    ;turned_on = False
-    parent.removeDevice(getWearer())
-EndFunction
-
 bool turnOffPlugMinigame_on = false
 bool Function turnOffPlugMinigame(Bool abSilent = False)
     if !minigamePrecheck(abSilent)

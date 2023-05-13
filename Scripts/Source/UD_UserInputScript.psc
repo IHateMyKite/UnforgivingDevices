@@ -102,7 +102,7 @@ State Minigame
                 UDCDmain.crit = false ;remove crit to prevent multiple crits at once
             endif
         endif
-        bool loc_menuopen = UDmain.IsMenuOpen()
+        bool loc_menuopen = UDmain.IsAnyMenuOpen()
         if !loc_menuopen ;only if player is not in menu
             if KeyCode == UDCDMain.SpecialKey_Keycode
                 _specialButtonOn = true
@@ -155,7 +155,8 @@ EndState
 
 Event OnKeyDown(Int KeyCode)
     if UDmain.IsEnabled()
-        bool loc_menuopen = UDmain.IsMenuOpen()
+        ;check if any menu is open, or if message box is open
+        bool loc_menuopen = UDmain.IsAnyMenuOpen()
         if !loc_menuopen ;only if player is not in menu
             if UD_EasyGamepadMode && Game.UsingGamepad()
                 if KeyCode == UD_GamepadKey
@@ -173,7 +174,7 @@ EndEvent
 
 Event OnKeyUp(Int KeyCode, Float HoldTime)
     if UDmain.IsEnabled()
-        if !UDmain.IsMenuOpen() && !(UD_EasyGamepadMode && Game.UsingGamepad())
+        if !UDmain.IsAnyMenuOpen() && !(UD_EasyGamepadMode && Game.UsingGamepad())
             if KeyCode == UDCDMain.StruggleKey_Keycode
                 if HoldTime < 0.2
                     OpenLastDeviceMenu()

@@ -277,15 +277,12 @@ Function Receive_MinigameParalel(Form fActor)
         akHelper.setAV("MagickaRate", magickaRateHelper)
     endif
     
-    loc_device._MinigameParProc_2 = false
-    
     if loc_haveplayer
         loc_device.hideHUDbars() ;hides HUD (not realy?)
-        
-        if loc_device.WearerIsPlayer() || loc_device.HelperIsPlayer()
-            loc_device.hideWidget()
-        endif
+        loc_device.hideWidget()
     endif
+    
+    loc_device._MinigameParProc_2 = false
     
     if loc_is3DLoaded
         UDEM.ResetExpressionRaw(akActor,15)
@@ -294,8 +291,8 @@ Function Receive_MinigameParalel(Form fActor)
         endif
     endif
     
-    if loc_is3DLoaded
-        loc_device.addStruggleExhaustion()
+    if loc_is3DLoaded && (UDmain.UDGV.UDG_MinigameExhaustion.Value == 1)
+        loc_device.addStruggleExhaustion(akHelper)
     endif
 EndFunction
 

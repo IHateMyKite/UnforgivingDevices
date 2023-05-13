@@ -642,6 +642,7 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
     UD_CustomDevice_NPCSlot loc_slot        = none
     UD_MutexScript          loc_mutex       = none
     bool                    _actorselfbound = false
+    bool                    loc_isplayer    = UDmain.ActorIsPlayer(akActor)
     
     if abUseMutex
         loc_slot = UDCDmain.getNPCSlot(akActor)
@@ -673,32 +674,32 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
     int loc_rdnum = akActor.GetItemCount(deviceRendered)
     if loc_rdnum > 0    
         if UDmain.UD_WarningAllowed
-            UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - item "+ deviceRendered +" is already in inventory. Aborting")        
+            UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - item "+ deviceRendered +" is already in inventory. Aborting")
         endif
         prelock_fail = true
     EndIf
     
     if !prelock_fail
-        if loc_rdnum == 0 && akActor.WornHasKeyword(zad_DeviousDevice) && CheckConflict(akActor)    
+        if loc_rdnum == 0 && akActor.WornHasKeyword(zad_DeviousDevice) && CheckConflict(akActor)
             if UDmain.UD_WarningAllowed
-                UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device type:" + zad_DeviousDevice)        
+                UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device type:" + zad_DeviousDevice)
             endif
             StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
-            akActor.UnequipItem(deviceInventory, false, true)    
+            akActor.UnequipItem(deviceInventory, false, true)
             prelock_fail = true
-        EndIf    
+        EndIf
     endif
     
     bool silently = ShouldEquipSilently(akActor)
     
     ; check for device conflicts
     if !prelock_fail
-        If !silently && (IsEquipDeviceConflict(akActor) || IsEquipRequiredDeviceConflict(akActor))    
+        If !silently && (IsEquipDeviceConflict(akActor) || IsEquipRequiredDeviceConflict(akActor))
             if UDmain.UD_WarningAllowed
                 UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device, aborting")
             endif
             StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
-            akActor.UnequipItem(deviceInventory, false, true)    
+            akActor.UnequipItem(deviceInventory, false, true)
             prelock_fail = true
         EndIf
     endif    
@@ -780,13 +781,15 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
     akActor.EquipItem(DeviceRendered, true, true)
     
     if abUseMutex
-        ;Utility.wait(0.05)
-        int loc_ticks = 0
-        while loc_ticks <= 40 && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
-            Utility.waitMenuMode(0.05)
-            loc_ticks += 1
-        endwhile
-        if loc_ticks >= 40
+        ;check if device was equipped succesfully
+        bool loc_rdok = _CheckRD(akActor,20)
+        
+        ;in case that the equip failed and menu is open, wait for menu to close first, and then try again
+        if !loc_isplayer && !loc_rdok && UDmain.IsAnyMenuOpen()
+            Utility.wait(0.01) ;wait for menu to close
+            loc_rdok = _CheckRD(akActor,20)
+        endif
+        if !loc_rdok
             ;render device lock failed, abort
             _locked = false
             StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
@@ -874,6 +877,16 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
     endif
 EndEvent
 
+;1 tick = 0.05 s ; 20 ticks = 1 s
+Bool Function _CheckRD(Actor akActor, Int aiTicks)
+    int loc_ticks = 0
+    while loc_ticks <= aiTicks && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
+        Utility.waitMenuMode(0.05)
+        loc_ticks += 1
+    endwhile
+    return loc_ticks < aiTicks
+EndFunction
+
 Function unlockDevice(Actor akActor)
     bool loc_failure = false
     StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,0x111)
@@ -909,22 +922,22 @@ Function unlockDevice(Actor akActor)
             loc_cond = loc_cond || libs.zadStandardKeywords.HasForm(loc_unlocktoken)
             loc_cond = loc_cond || (!DeviceRendered.HasKeyword(loc_unlocktoken) && !DeviceInventory.HasKeyword(loc_unlocktoken))
             if loc_cond
-                UDmain.Error("UnlockDevice(" +MakeDeviceHeader(akActor,deviceInventory) + ") - Caught and prevented unauthorized removal attempt of quest device!")
+                UDmain.Error(MakeDeviceHeader(akActor,deviceInventory) + "::unlockDevice() - Caught and prevented unauthorized removal attempt of quest device!")
                 loc_failure = true
             else
-                UDmain.Info("UnlockDevice(" +MakeDeviceHeader(akActor,deviceInventory) + ") - Correct token received -> unlocking quest device")
+                UDmain.Info(MakeDeviceHeader(akActor,deviceInventory) + "::unlockDevice() - Correct token received -> unlocking quest device")
             endif
         endif
     endif
     
     if !loc_failure
         akActor.unequipItem(deviceInventory, 1, true)
-        UD_CustomDevice_RenderScript device = getUDScript(akActor)
+        UD_CustomDevice_RenderScript loc_device = getUDScript(akActor)
         akActor.RemoveItem(deviceRendered, loc_RDNum, true)
-        if device
-            device.removeDevice(akActor)
+        if loc_device
+            loc_device.removeDevice(akActor)
         else
-            GError("Could not get RD script! Unlock operation on " + self)
+            UDmain.Error(MakeDeviceHeader(akActor,deviceInventory) + "::unlockDevice() - Could not get RD script! Unlock operation on " + self)
         endif
     endif
 
