@@ -148,7 +148,7 @@ EndProperty
 /;
 UD_libs Property UDlibs Hidden
     UD_libs Function get()
-        return UD_Quest as UD_libs
+        return UDmain.UDlibs
     EndFunction
 EndProperty
 
@@ -160,13 +160,13 @@ EndProperty
 /;
 UD_LeveledList_Patcher Property UDLLP Hidden
     UD_LeveledList_Patcher Function get()
-        return UD_Quest as UD_LeveledList_Patcher
+        return UDmain.UDLLP
     EndFunction
 EndProperty
 
 UD_ParalelProcess Property UDPP Hidden
     UD_ParalelProcess Function get()
-        return UD_Quest as UD_ParalelProcess
+        return UDmain.UDPP
     EndFunction
 EndProperty
 
@@ -180,7 +180,7 @@ EndProperty
 /;
 UD_RandomRestraintManager Property UDRRM Hidden
     UD_RandomRestraintManager Function get()
-        return UD_Quest as UD_RandomRestraintManager
+        return UDmain.UDRRM
     EndFunction
 EndProperty
 
@@ -189,7 +189,7 @@ EndProperty
 /;
 UDItemManager Property UDItem Hidden
     UDItemManager Function get()
-        return UD_Quest as UDItemManager
+        return UDmain.ItemManager
     EndFunction
 EndProperty
 

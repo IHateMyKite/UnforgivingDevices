@@ -149,41 +149,32 @@ EndFunction
 
 bool Property Ready = False Auto
 Event OnConfigInit()
-    RegisterForSingleUpdate(10.0)
 EndEvent
 
-Function OnUpdate()
-    Init()
-EndFunction
-
 Bool Function Init()
-    ;if UDmain.WaitForReady() ;wait for UD to get ready first
-        if UDmain.TraceAllowed()
-            UDmain.Log("MCM init started")
-        endif
-        
-        device_flag         = OPTION_FLAG_NONE
-        UD_autocrit_flag    = OPTION_FLAG_DISABLED
-        fix_flag            = OPTION_FLAG_NONE
-        UD_Horny_f          = OPTION_FLAG_NONE
-        
-        if AbadonQuest.final_finisher_set
-            abadon_flag_2 = OPTION_FLAG_NONE
-        else
-            abadon_flag_2 = OPTION_FLAG_DISABLED
-        endif
-        
-        UD_LockMenu_flag = OPTION_FLAG_NONE
-        
-        actorIndex = 10
-        Update()
-        setAbadonPreset(1)
-        LoadConfig()
-        Ready = True
-        UDmain.Info("MCM Ready")
-        return true
-    ;endif
-    return false
+    if UDmain.TraceAllowed()
+        UDmain.Log("MCM init started")
+    endif
+    
+    device_flag         = OPTION_FLAG_NONE
+    UD_autocrit_flag    = OPTION_FLAG_DISABLED
+    fix_flag            = OPTION_FLAG_NONE
+    UD_Horny_f          = OPTION_FLAG_NONE
+    
+    if AbadonQuest.final_finisher_set
+        abadon_flag_2 = OPTION_FLAG_NONE
+    else
+        abadon_flag_2 = OPTION_FLAG_DISABLED
+    endif
+    
+    UD_LockMenu_flag = OPTION_FLAG_NONE
+    
+    actorIndex = 10
+    Update()
+    setAbadonPreset(1)
+    LoadConfig()
+    Ready = True
+    UDmain.LogDebug("MCM Ready")
 EndFunction
 
 Function Update()
@@ -264,7 +255,7 @@ Function LoadConfig()
     ResetToDefaults()
     if getAutoLoad()
         LoadFromJSON(UDmain.config.File)
-        GInfo("$MCM setting loaded from saved config file!")
+        GInfo("MCM setting loaded from saved config file!")
     endif
 EndFunction
 

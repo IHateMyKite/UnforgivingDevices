@@ -8,8 +8,16 @@ import UD_CustomDevice_RenderScript
 
 Spell Property SwimPenaltySpell auto
 UnforgivingDevicesMain Property UDmain auto
-UD_ParalelProcess Property UDPP auto
-UD_libs Property UDlibs auto
+UD_ParalelProcess Property UDPP hidden
+    UD_ParalelProcess Function Get()
+        return UDmain.UDPP
+    EndFunction
+EndProperty
+UD_libs Property UDlibs hidden
+    UD_libs Function Get()
+        return UDmain.UDlibs
+    EndFunction
+EndProperty
 zadlibs Property libs auto
 zadlibs_UDPatch Property libsp hidden
     zadlibs_UDPatch Function get()

@@ -6402,7 +6402,7 @@ Function minigame()
         if loc_WearerSlot
             loc_WearerSlot.Send_MinigameStarter(self)
         else
-            UDCDMain.UDPP.Send_MinigameStarter(Wearer,self)
+            UDmain.UDPP.Send_MinigameStarter(Wearer,self)
         endif
     else
         MinigameStarter()
@@ -6434,7 +6434,7 @@ Function minigame()
     if loc_WearerSlot
         loc_WearerSlot.Send_MinigameParalel(self)
     else
-        UDCDMain.UDPP.Send_MinigameParalel(Wearer,self)
+        UDmain.UDPP.Send_MinigameParalel(Wearer,self)
     endif
     
     float durability_onstart = current_device_health

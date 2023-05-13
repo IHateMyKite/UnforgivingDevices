@@ -2,13 +2,10 @@ Scriptname UDItemManager extends Quest
 
 import UnforgivingDevicesMain
 
-UD_libs Property UDlibs auto
-UDCustomDeviceMain Property UDCDmain auto
-bool Property UD_useHoods = True auto
-
-;float Property UD_waitMenuModeTime = 0.8 auto
-
-UD_AbadonQuest_script Property AbadonScript auto
+UDCustomDeviceMain      Property UDCDmain               auto
+UnforgivingDevicesMain  Property UDmain                 auto
+bool                    Property UD_useHoods = True     auto
+UD_AbadonQuest_script   Property AbadonScript           auto
 
 Bool Property Ready = False auto
 Event OnInit()
@@ -17,32 +14,32 @@ EndEvent
 
 Function lockAbadonPiercings(Actor akTarget)
     if !akTarget.wornhaskeyword(libs.zad_DeviousPiercingsVaginal)
-        libs.LockDevice(akTarget,UDlibs.AbadonPiercingVaginal)
+        libs.LockDevice(akTarget,UDmain.UDlibs.AbadonPiercingVaginal)
     endif
     if !akTarget.wornhaskeyword(libs.zad_DeviousPiercingsNipple)
-        libs.LockDevice(akTarget,UDlibs.AbadonPiercingNipple)
+        libs.LockDevice(akTarget,UDmain.UDlibs.AbadonPiercingNipple)
     endif
 EndFunction
 
 Function lockAbadonHelperPlugs(Actor akTarget)
     if !akTarget.wornhaskeyword(libs.zad_deviousPlugAnal) && !AbadonScript.UseAnalVariant
         if Utility.randomInt(0,1)
-            libs.lockdevice(akTarget,UDlibs.LittleHelper)
+            libs.lockdevice(akTarget,UDmain.UDlibs.LittleHelper)
         else
-            libs.lockdevice(akTarget,UDlibs.InflatablePlugAnal)
+            libs.lockdevice(akTarget,UDmain.UDlibs.InflatablePlugAnal)
         endif
     endif
     if !akTarget.wornhaskeyword(libs.zad_DeviousPlugVaginal)
-        libs.lockdevice(akTarget,UDlibs.InflatablePlugVag)
+        libs.lockdevice(akTarget,UDmain.UDlibs.InflatablePlugVag)
     endif
 EndFunction
 
 Function equipAbadonLatexSuit(Actor target)
     if (!target.WornhasKeyword(libs.zad_DeviousHeavyBondage))
         if Utility.randomInt(0,1)
-            libs.LockDevice(target,UDlibs.AbadonElbowbinderEbonite)
+            libs.LockDevice(target,UDmain.UDlibs.AbadonElbowbinderEbonite)
         else
-            libs.LockDevice(target,UDlibs.AbadonArmbinderEbonite)
+            libs.LockDevice(target,UDmain.UDlibs.AbadonArmbinderEbonite)
         endif
     endif
 
@@ -68,7 +65,7 @@ Function equipAbadonLatexSuit(Actor target)
     endif
 
     if (!target.WornhasKeyword(libs.zad_DeviousGag))
-        libs.LockDevice(target,UDlibs.AbadonGagTape)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonGagTape)
     endif
 
     if (!target.WornhasKeyword(libs.zad_DeviousBlindfold))
@@ -85,7 +82,7 @@ Function equipAbadonLatexSuit(Actor target)
     endif
     
     if (!target.WornhasKeyword(libs.zad_DeviousBelt))
-        libs.LockDevice(target,UDlibs.AbadonBelt)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonBelt)
     endif
     
 
@@ -94,9 +91,9 @@ EndFunction
 Function equipAbadonRestrictiveSuit(Actor target)
     if (!target.WornhasKeyword(libs.zad_DeviousHeavyBondage))    
         if Utility.randomInt(0,1)
-            libs.LockDevice(target,UDlibs.AbadonArmbinderEbonite)
+            libs.LockDevice(target,UDmain.UDlibs.AbadonArmbinderEbonite)
         else
-            libs.LockDevice(target,UDlibs.AbadonStraitjacketEbonite)
+            libs.LockDevice(target,UDmain.UDlibs.AbadonStraitjacketEbonite)
         endif
     endif
     
@@ -104,35 +101,35 @@ Function equipAbadonRestrictiveSuit(Actor target)
     lockAbadonHelperPlugs(target)
     
     if !target.wornHasKeyword(libs.zad_DeviousBoots)
-        libs.LockDevice(target,UDlibs.AbadonRestrictiveBoots)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonRestrictiveBoots)
     endif    
 
     if !target.wornHasKeyword(libs.zad_DeviousGloves)
-        libs.LockDevice(target,UDlibs.AbadonRestrictiveGloves)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonRestrictiveGloves)
     endif    
 
     if !target.wornHasKeyword(libs.zad_DeviousCollar)
-        libs.LockDevice(target,UDlibs.AbadonRestrictiveCollar)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonRestrictiveCollar)
     endif    
 
     if !target.wornHasKeyword(libs.zad_DeviousCorset)
-        libs.LockDevice(target,UDlibs.AbadonCorset)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonCorset)
     endif    
     
     if (!target.WornhasKeyword(libs.zad_DeviousBelt))
-        libs.LockDevice(target,UDlibs.AbadonBelt)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonBelt)
     endif
     
     if (!target.WornhasKeyword(libs.zad_DeviousGag))
         if Utility.randomInt(0,1)
-            libs.LockDevice(target,UDlibs.AbadonExtremeBallGag)
+            libs.LockDevice(target,UDmain.UDlibs.AbadonExtremeBallGag)
         else
-            libs.LockDevice(target,UDlibs.AbadonExtremeInflatableGag)
+            libs.LockDevice(target,UDmain.UDlibs.AbadonExtremeInflatableGag)
         endif
     endif
     
     if (!target.WornhasKeyword(libs.zad_DeviousBlindfold))
-        libs.LockDevice(target,UDlibs.AbadonBlindfold)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonBlindfold)
     endif
 
 
@@ -141,7 +138,7 @@ EndFunction
 
 Function equipAbadonRopeSuit(Actor target)
     if (!target.WornhasKeyword(libs.zad_DeviousHeavyBondage))
-        libs.LockDevice(target,UDlibs.AbadonArmbinderRope)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonArmbinderRope)
     endif
     
     lockAbadonPiercings(target)
@@ -168,43 +165,43 @@ EndFunction
 
 Function equipAbadonTransparentSuit(Actor target)
     if (!target.WornhasKeyword(libs.zad_DeviousHeavyBondage))
-        libs.LockDevice(target,UDlibs.AbadonArmbinderWhite)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonArmbinderWhite)
     endif
     
     lockAbadonPiercings(target)
     lockAbadonHelperPlugs(target)
     
     if (!target.WornhasKeyword(libs.zad_DeviousSuit))
-        libs.LockDevice(target,UDlibs.AbadonTransSuit)    
+        libs.LockDevice(target,UDmain.UDlibs.AbadonTransSuit)    
     endif
 
     if (!target.WornhasKeyword(libs.zad_DeviousBoots))
         ;if Utility.randomInt(0,1)
-            libs.LockDevice(target,UDlibs.AbadonTransBoots)
+            libs.LockDevice(target,UDmain.UDlibs.AbadonTransBoots)
         ;else
-            ;libs.LockDevice(target, UDlibs.AbadonPonyBootsWhite)
+            ;libs.LockDevice(target, UDmain.UDlibs.AbadonPonyBootsWhite)
         ;endif
     endif
     
     if (!target.WornhasKeyword(libs.zad_DeviousBlindfold))
-        libs.LockDevice(target,UDlibs.AbadonBlindfoldWhite)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonBlindfoldWhite)
     endif
     
     if (!target.WornhasKeyword(libs.zad_DeviousGag))
-        libs.LockDevice(target,UDlibs.AbadonGagTape)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonGagTape)
     endif
     
     if (!target.WornhasKeyword(libs.zad_DeviousBelt))
-        libs.LockDevice(target,UDlibs.AbadonBelt)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonBelt)
     endif
     
 EndFunction
 
 Function equipAbadonSimpleSuit(Actor target)
     if Utility.randomInt(0,1)
-        libs.LockDevice(target,UDlibs.AbadonArmbinderEbonite)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonArmbinderEbonite)
     else
-        libs.LockDevice(target,UDlibs.AbadonStraitjacketEboniteOpen)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonStraitjacketEboniteOpen)
     endif
     
     lockAbadonPiercings(target)
@@ -214,22 +211,22 @@ Function equipAbadonSimpleSuit(Actor target)
     
     if loc_subVar == 0 ;black
         if (!target.WornhasKeyword(libs.zad_DeviousLegCuffs))
-            libs.LockDevice(target,UDlibs.AbadonLegsCuffs)
+            libs.LockDevice(target,UDmain.UDlibs.AbadonLegsCuffs)
         endif
         
         if (!target.WornhasKeyword(libs.zad_DeviousArmCuffs))
-            libs.LockDevice(target,UDlibs.AbadonArmCuffs)
+            libs.LockDevice(target,UDmain.UDlibs.AbadonArmCuffs)
         endif
         
         if (!target.WornhasKeyword(libs.zad_DeviousBoots))
-            ;libs.LockDevice(target,UDlibs.AbadonTransBoots)
-            ;libs.LockDevice(target, UDlibs.AbadonPonyBootsWhite)
+            ;libs.LockDevice(target,UDmain.UDlibs.AbadonTransBoots)
+            ;libs.LockDevice(target, UDmain.UDlibs.AbadonPonyBootsWhite)
             ;libs.LockDevice(target,libsx.zadx_HR_IronBalletBootsInventory)
             libs.LockDevice(target,libsx2.zadx_leather_heels_black_Inventory) ; iron boots were total mismatch, these are much better
         endif
         
         if (!target.WornhasKeyword(libs.zad_DeviousBlindfold))
-            libs.LockDevice(target,UDlibs.AbadonBlindfold)
+            libs.LockDevice(target,UDmain.UDlibs.AbadonBlindfold)
         endif
         
         if (!target.WornhasKeyword(libs.zad_DeviousGag))
@@ -238,35 +235,35 @@ Function equipAbadonSimpleSuit(Actor target)
                 loc_rand = Utility.randomInt(1,2)
             endif
             if loc_rand == 1
-                libs.LockDevice(target,UDlibs.AbadonRingGag)
+                libs.LockDevice(target,UDmain.UDlibs.AbadonRingGag)
             else 
-                libs.LockDevice(target,UDlibs.AbadonPanelGag)
+                libs.LockDevice(target,UDmain.UDlibs.AbadonPanelGag)
             endif
         endif
         
         if (!target.WornhasKeyword(libs.zad_DeviousCollar))
             if (!target.WornhasKeyword(libs.zad_DeviousBelt))
                 if !target.WornhasKeyword(libs.zad_DeviousCorset) && !target.WornhasKeyword(libs.zad_DeviousStraitJacket)
-                    libs.LockDevice(target,UDlibs.AbadonHarness)
+                    libs.LockDevice(target,UDmain.UDlibs.AbadonHarness)
                 else
-                    libs.LockDevice(target,UDlibs.AbadonBelt)
+                    libs.LockDevice(target,UDmain.UDlibs.AbadonBelt)
                 endif
             else
-                libs.LockDevice(target,UDlibs.AbadonCuffCollar)
+                libs.LockDevice(target,UDmain.UDlibs.AbadonCuffCollar)
             endif
         endif
 
     elseif loc_subVar == 1 ;white
         if (!target.WornhasKeyword(libs.zad_DeviousBlindfold))
-            libs.LockDevice(target,UDlibs.AbadonBlindfoldWhite)
+            libs.LockDevice(target,UDmain.UDlibs.AbadonBlindfoldWhite)
         endif
         
         if (!target.WornhasKeyword(libs.zad_DeviousGag))
-            libs.LockDevice(target,UDlibs.AbadonGagTape)
+            libs.LockDevice(target,UDmain.UDlibs.AbadonGagTape)
         endif
 
         if (!target.WornhasKeyword(libs.zad_DeviousHeavyBondage))
-            libs.LockDevice(target,UDlibs.AbadonArmbinderWhite)
+            libs.LockDevice(target,UDmain.UDlibs.AbadonArmbinderWhite)
         endif
     endif
 
@@ -274,14 +271,14 @@ EndFunction
 
 Function equipAbadonYokeSuit(Actor target)
     if !target.wornHasKeyword(libs.zad_deviousHeavyBondage)
-        libs.LockDevice(target,UDlibs.AbadonYoke)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonYoke)
     endif
     
     lockAbadonPiercings(target)
     lockAbadonHelperPlugs(target)
     
     if (!target.WornhasKeyword(libs.zad_DeviousBlindfold))
-        libs.LockDevice(target,UDlibs.AbadonBlindfold)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonBlindfold)
     endif
         
     if (!target.WornhasKeyword(libs.zad_DeviousBoots))
@@ -291,13 +288,13 @@ Function equipAbadonYokeSuit(Actor target)
         elseif loc_random == 2
             libs.LockDevice(target,libsx.zadx_HR_IronBalletBootsInventory)
         elseif loc_random == 3
-            libs.LockDevice(target,UDlibs.AbadonRestrictiveBoots)
+            libs.LockDevice(target,UDmain.UDlibs.AbadonRestrictiveBoots)
         endif
     endif
 
     if (!target.WornhasKeyword(libs.zad_DeviousHood) && UD_useHoods)
         if (!target.WornhasKeyword(libs.zad_DeviousGag))
-            libs.LockDevice(target,UDlibs.AbadonGagTape)
+            libs.LockDevice(target,UDmain.UDlibs.AbadonGagTape)
         endif
                 
         libs.LockDevice(target,libsx.zadx_catsuit_gasmask_filter_black_Inventory)
@@ -311,11 +308,11 @@ Function equipAbadonYokeSuit(Actor target)
                 loc_rand = Utility.randomInt(1,2)
             endif
             if loc_rand == 1
-                libs.LockDevice(target,UDlibs.AbadonBallGag)
+                libs.LockDevice(target,UDmain.UDlibs.AbadonBallGag)
             elseif loc_rand == 2
-                libs.LockDevice(target,UDlibs.AbadonRingGag)
+                libs.LockDevice(target,UDmain.UDlibs.AbadonRingGag)
             else
-                libs.LockDevice(target,UDlibs.AbadonPanelGag)
+                libs.LockDevice(target,UDmain.UDlibs.AbadonPanelGag)
             endif
         endif
     endif
@@ -323,17 +320,17 @@ Function equipAbadonYokeSuit(Actor target)
     if (!target.WornhasKeyword(libs.zad_DeviousCollar))
         if (!target.WornhasKeyword(libs.zad_DeviousBelt))
             if (!target.WornhasKeyword(libs.zad_DeviousCorset))
-                libs.LockDevice(target,UDlibs.AbadonHarness)
+                libs.LockDevice(target,UDmain.UDlibs.AbadonHarness)
             else
-                libs.LockDevice(target,UDlibs.AbadonBelt)
+                libs.LockDevice(target,UDmain.UDlibs.AbadonBelt)
             endif
         else
-            libs.LockDevice(target,UDlibs.AbadonCuffCollar)
+            libs.LockDevice(target,UDmain.UDlibs.AbadonCuffCollar)
         endif
     endif
 
     if !target.wornHasKeyword(libs.zad_DeviousGloves)
-        libs.LockDevice(target,UDlibs.AbadonMittens)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonMittens)
     endif
     
 EndFunction
@@ -349,7 +346,7 @@ Function equipAbadonFinisherSuit(Actor target)
         libs.UnlockDeviceByKeyword(target,libs.zad_DeviousSuit)
     endif
     
-    libs.SwapDevices(target,UDlibs.AbadonCursedStraitjacket,libs.zad_DeviousHeavyBondage) ;TFuck
+    libs.SwapDevices(target,UDmain.UDlibs.AbadonCursedStraitjacket,libs.zad_DeviousHeavyBondage) ;TFuck
 
 ; unlock corset? no way, we have to punish!
 ;    if target.wornHasKeyword(libs.zad_DeviousCorset)
@@ -357,58 +354,58 @@ Function equipAbadonFinisherSuit(Actor target)
 ;    endif
 
     if target.wornHasKeyword(libs.zad_DeviousBelt) && !target.wornHasKeyword(libs.zad_DeviousCorset) && !target.wornHasKeyword(libs.zad_DeviousHarness) 
-        libs.LockDevice(target,UDlibs.AbadonCorset) ; has belt and no corset? wear it!
+        libs.LockDevice(target,UDmain.UDlibs.AbadonCorset) ; has belt and no corset? wear it!
     elseif !target.wornHasKeyword(libs.zad_DeviousBelt) && !target.wornHasKeyword(libs.zad_DeviousCorset) && !target.wornHasKeyword(libs.zad_DeviousHarness) && !target.WornhasKeyword(libs.zad_DeviousCollar) ; no belt and no corset and no harness? time to decide what we will do!
         if Utility.RandomInt(0,1) == 0
-            libs.LockDevice(target,UDlibs.AbadonHarness) ; either harness...
+            libs.LockDevice(target,UDmain.UDlibs.AbadonHarness) ; either harness...
         else    
-            libs.LockDevice(target,UDlibs.AbadonCorset)    ; ...or corset and belt combo!
-            libs.LockDevice(target,UDlibs.AbadonBelt)
+            libs.LockDevice(target,UDmain.UDlibs.AbadonCorset)    ; ...or corset and belt combo!
+            libs.LockDevice(target,UDmain.UDlibs.AbadonBelt)
         endif
     elseif !target.wornHasKeyword(libs.zad_DeviousBelt) ; last resolve, maybe add at least the belt?
-        libs.LockDevice(target,UDlibs.AbadonBelt)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonBelt)
     endif
     
-    libs.SwapDevices(target,UDlibs.AbadonBra,libs.zad_DeviousBra)
+    libs.SwapDevices(target,UDmain.UDlibs.AbadonBra,libs.zad_DeviousBra)
     
     if !target.wornHasKeyword(libs.zad_DeviousPlugAnal)
-        libs.LockDevice(target,UDlibs.CursedInflatablePlugAnal)
+        libs.LockDevice(target,UDmain.UDlibs.CursedInflatablePlugAnal)
     endif
     
     if !target.wornHasKeyword(libs.zad_DeviousBoots)
-        libs.LockDevice(target,UDlibs.AbadonBalletBoots)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonBalletBoots)
     endif
 
     if !target.WornhasKeyword(libs.zad_DeviousCollar)
-        libs.LockDevice(target,UDlibs.AbadonCuffCollar)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonCuffCollar)
     endif
     
 ;    if !target.wornHasKeyword(libs.zad_DeviousHood) && UD_useHoods
-;        libs.LockDevice(target,UDlibs.CursedAbadonGasmask)
+;        libs.LockDevice(target,UDmain.UDlibs.CursedAbadonGasmask)
 ;    endif
  
     if UD_useHoods
-        libs.SwapDevices(target,UDlibs.CursedAbadonGasmask,libs.zad_DeviousHood) ; force to wear cursed gasmask too
+        libs.SwapDevices(target,UDmain.UDlibs.CursedAbadonGasmask,libs.zad_DeviousHood) ; force to wear cursed gasmask too
     endif
    
     if !target.WornhasKeyword(libs.zad_DeviousGag)
-        libs.LockDevice(target,UDlibs.AbadonGagTape)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonGagTape)
     endif
     
     if !target.WornhasKeyword(libs.zad_DeviousBlindfold)
-        libs.LockDevice(target,UDlibs.AbadonBlindfold)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonBlindfold)
     endif
 ; and here we also add mittens and cuffs, more is better!
     if !target.WornhasKeyword(libs.zad_DeviousGloves)
-        libs.LockDevice(target,UDlibs.AbadonMittens)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonMittens)
     endif
 
     if !target.WornhasKeyword(libs.zad_DeviousArmCuffs)
-        libs.LockDevice(target,UDlibs.AbadonArmCuffs)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonArmCuffs)
     endif
 
     if !target.WornhasKeyword(libs.zad_DeviousLegCuffs)
-        libs.LockDevice(target,UDlibs.AbadonLegsCuffs)
+        libs.LockDevice(target,UDmain.UDlibs.AbadonLegsCuffs)
     endif
 EndFunction
 

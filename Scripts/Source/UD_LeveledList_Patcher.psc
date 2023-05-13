@@ -63,7 +63,7 @@ Function Process()
         LIL_AllEnchCirclet.AddForm(UD_LIL_EnchCirclet,1,1)
     endif
     if loc_patched
-    GInfo("UD_LeveledList_Patcher - Forms added to LeveledLists: " + loc_patched)
+        UDmain.Info("UD_LeveledList_Patcher - Forms added to LeveledLists: " + loc_patched)
     endif
 EndFunction
 

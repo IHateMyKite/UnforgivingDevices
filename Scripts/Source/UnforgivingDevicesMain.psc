@@ -3,8 +3,8 @@
 Scriptname UnforgivingDevicesMain extends Quest  conditional
 {Main script of Unforgiving Devices}
 
-
 Quest       Property UD_UtilityQuest    auto
+Quest       Property UD_LibsQuest       auto
 
 Actor Property Player auto hidden
 
@@ -535,11 +535,6 @@ Function OnGameReload()
     
     _Updating = True
     
-    if !CheckSubModules() || _FatalError
-        _Updating = False
-        return ;Fatal error when initializing UD
-    endif
-    
     DISABLE()
     
     Utility.waitMenuMode(0.5)
@@ -556,6 +551,12 @@ Function OnGameReload()
     if _UpdateCheck()
         ;update all scripts
         Update()
+        
+        if !CheckSubModules() || _FatalError
+            ENABLE()
+            _Updating = False
+            return ;Fatal error when initializing UD
+        endif
         
         UDWC.GameUpdate()
         
@@ -598,17 +599,19 @@ Function OnGameReload()
         Info("<=====| !!Unforgiving Devices FAILED!! |=====>")
         Print("Unforgiving Devices update FAILED")
     endif
+    
     _Updating = False
     ENABLE()
 EndFunction
 
 Event OnUpdate()
-    Init()
+    GInfo(self + "::OnUpdate() - Called")
+    _Init()
     Update()
 EndEvent
 
 Bool _Initialized = False
-Function Init()
+Function _Init()
     ;start quest manually
     UDNPCM.Start()
     
@@ -629,21 +632,8 @@ Function Init()
         GInfo("NPC manager started successfully")
     endif
     
-    ;wait for MCM to get ready
-    loc_timeout = 0.0
-    loc_maxtime = 60.0
-    while !config.Ready && loc_timeout < loc_maxtime
-        Utility.wait(1.0)
-        loc_timeout += 1.0
-    endwhile
-    if loc_timeout >= loc_maxtime
-        ;ERROR
-        GError("UD MCM can't be started!! Mod will be disabled!")
-        ShowSingleMessageBox("!!FATAL ERROR!!\nFailed to load MCM for Unforgiving Devices!! Mod will be disabled untill MCM correctly starts.\n Please contact developers on LL or GitHub")
-        _FatalError = True
-    else
-        GInfo("MCM loaded successfully")
-    endif
+    ;init mcm
+    config.Init()
     
     _Initialized = True
 EndFunction
@@ -659,46 +649,12 @@ Function Update()
         return
     endif
     
-    if !UDEM
-        Error("UDEM not loaded! Loading...")
-        UDEM = GetMeMyForm(0x156417,"UnforgivingDevices.esp") as UD_ExpressionManager
-        Error("UDEM set to "+UDEM)
-    endif
-
-    if !UDPP
-        Error("UDPP not loaded! Loading...")
-        UDPP = (self as Quest) as UD_ParalelProcess
-        Error("UDPP set to "+UDPP)
-    endif
-    
-    if !UDNPCM
-        Error("UDNPCM not loaded! Loading...")
-        UDNPCM = GetMeMyForm(0x14E7EB,"UnforgivingDevices.esp") as UD_CustomDevices_NPCSlotsManager
-        Error("UDNPCM set to "+UDNPCM)
-    endif
-    
-    if !UDMM
-        Error("UDMM not loaded! Loading...")
-        UDMM = GetMeMyForm(0x15B555,"UnforgivingDevices.esp") as UD_MutexManagerScript
-        Error("UDMM set to "+UDMM)
-    endif
-    
-    Quest loc_DDexpressionQuest = GetMeMyForm(0x000800,"Devious Devices - Integration.esm") as Quest
-    if !ZadExpressionSystemInstalled && loc_DDexpressionQuest
-        Info("ZAD Expression System detected: switching...")
-        ZadExpressionSystemInstalled = True
-        if !libs.ExpLibs
-            libs.ExpLibs = loc_DDexpressionQuest as zadexpressionlibs
-        endif
-        UDEM.GoToState("DDExpressionSystemInstalled")
-        Info("ZAD Expression System detected: DONE")
-    endif
-    
+    _ValidateModules()
     _CheckOptionalMods()
     _CheckPatchesOrder()
     
     if !Ready
-            if _UpdateCheck() || _FatalError
+        if _UpdateCheck() || _FatalError
             UD_hightPerformance = UD_hightPerformance
             UDlibs.OrgasmExhaustionSpell.SetNthEffectDuration(0, 180) ;for backward compatibility
             
@@ -712,12 +668,70 @@ Function Update()
         else
             Error("<=====| !!UnforgivingDevicesMain installation FAILED!! |=====>")
             Print("Unforgiving Devices installation failed!")
+            return
         endif
     endif
+    
     SendModEvent("UD_PatchUpdate") ;send update event to all patches. Will force patches to check if they are installed correctly
     
     UDCDmain.UpdateQuestKeywords()
     UDCDmain.UpdateGenericKeys()
+    
+    _StartModulesManual()
+EndFunction
+
+;used for validating modules forms between versions
+Function _ValidateModules()
+    Info(self + "::_ValidateModules() - Validating modules...")
+    ;validate modules that were moved between versions
+    ;----------------------------------
+    ;!!!    EDIT AFTER ESP MERGE    !!!
+    ;----------------------------------
+    UDPP    = GetMeMyForm(0x000802,"PR155_b3fixes.esp") as UD_ParalelProcess
+    UDLLP   = GetMeMyForm(0x000800,"PR155_b3fixes.esp") as UD_LeveledList_Patcher
+    UD_LibsQuest    = GetMeMyForm(0x000801,"PR155_b3fixes.esp") as Quest
+    UDlibs          = UD_LibsQuest as UD_Libs
+    ItemManager     = UD_LibsQuest as UDItemManager
+    UDRRM           = UD_LibsQuest as UD_RandomRestraintManager
+    
+    ;validate expression system
+    Quest loc_DDexpressionQuest = GetMeMyForm(0x000800,"Devious Devices - Integration.esm") as Quest
+    if !ZadExpressionSystemInstalled && loc_DDexpressionQuest
+        Info("ZAD Expression System detected: switching...")
+        ZadExpressionSystemInstalled = True
+        if !libs.ExpLibs
+            libs.ExpLibs = loc_DDexpressionQuest as zadexpressionlibs
+        endif
+        UDEM.GoToState("DDExpressionSystemInstalled")
+        Info("ZAD Expression System detected: DONE")
+    endif
+    Info(self + "::_ValidateModules() - Modules validated")
+EndFunction
+
+Function _StartModulesManual()
+    if !UDPP.IsRunning()
+        UDPP.start()
+    endif
+    
+    if !UDLLP.IsRunning()
+        UDLLP.start()
+    endif
+    
+    if !UDlibs.IsRunning()
+        UDlibs.start()
+    endif
+
+    if !UDRRM.IsRunning()
+        UDRRM.start()
+    endif
+
+    if !ItemManager.IsRunning()
+        ItemManager.start()
+    endif
+    
+    if !UDCM.IsRunning()
+        UDCM.start()
+    endif
 EndFunction
 
 ;last check before mod is ready. At this point, all optional mods are checked as so, can be used.
