@@ -1744,12 +1744,18 @@ Armor       Property UD_GlobalDeviceUnlockMutex_Device                      = no
 Keyword     Property UD_UnlockToken                                         = none      auto hidden    
 
 Function ResetMutex_Lock(Armor invDevice)
+    if UDmain.TraceAllowed()
+        UDmain.Log(self+"::ResetMutex_Lock()",2)
+    endif
     UD_GlobalDeviceMutex_inventoryScript                = false
     UD_GlobalDeviceMutex_InventoryScript_Failed         = false
     UD_GlobalDeviceMutex_Device                         = invDevice
 EndFunction
 
 Function ResetMutex_Unlock(Armor invDevice)
+    if UDmain.TraceAllowed()
+        UDmain.Log(self+"::ResetMutex_Unlock()",2)
+    endif
     UD_GlobalDeviceUnlockMutex_InventoryScript            = false
     UD_GlobalDeviceUnlockMutex_InventoryScript_Failed     = false
     UD_UnlockToken                                        = none
@@ -1786,10 +1792,19 @@ Function StartLockMutex()
     endwhile
     _LOCKDEVICE_MUTEX = true
     GoToState("UpdatePaused")
+    if UDmain.TraceAllowed()
+        UDmain.Log(self+"::StartLockMutex()",2)
+    endif
 EndFunction
 
 Function EndLockMutex()
+    if UDmain.TraceAllowed()
+        UDmain.Log(self+"::EndLockMutex()",2)
+    endif
     GoToState("")
+    UD_GlobalDeviceMutex_Device = none
+    UD_GlobalDeviceMutex_InventoryScript = false
+    UD_GlobalDeviceMutex_InventoryScript_Failed = false
     _LOCKDEVICE_MUTEX = false
 EndFunction
 
@@ -1804,10 +1819,19 @@ Function StartUnLockMutex()
     endwhile
     _UNLOCKDEVICE_MUTEX = true
     GoToState("UpdatePaused")
+    if UDmain.TraceAllowed()
+        UDmain.Log(self+"::StartUnLockMutex()",2)
+    endif
 EndFunction
 
 Function EndUnLockMutex()
+    if UDmain.TraceAllowed()
+        UDmain.Log(self+"::EndUnLockMutex()",2)
+    endif
     GoToState("")
+    UD_GlobalDeviceUnlockMutex_Device = none
+    UD_GlobalDeviceUnlockMutex_InventoryScript = false
+    UD_GlobalDeviceUnlockMutex_InventoryScript_Failed = false
     _UNLOCKDEVICE_MUTEX = false
 EndFunction
 
@@ -1815,8 +1839,10 @@ Bool Function IsUnlockMutexed(Armor invDevice)
     return UD_GlobalDeviceUnlockMutex_Device == invDevice
 EndFunction
 
-
 Function ProccesLockMutex()
+    if UDmain.TraceAllowed()
+        UDmain.Log(self+"::ProccesLockMutex()",2)
+    endif
     float loc_time = 0.0
     while loc_time <= 1.5 && (!UD_GlobalDeviceMutex_InventoryScript)
         Utility.waitMenuMode(0.1)
@@ -1824,14 +1850,18 @@ Function ProccesLockMutex()
     endwhile
     
     if !IsPlayer() && loc_time >= 1.5 && UDmain.IsAnyMenuOpen()
+        if UDmain.TraceAllowed()
+            UDmain.Log(self+"::ProccesLockMutex() - Timeout on NPC, waiting for menu to close and try again",2)
+        endif
         Utility.wait(0.01)
-        while loc_time <= 3.0 && (!UD_GlobalDeviceMutex_InventoryScript)
+        loc_time = 0.0
+        while loc_time <= 1.5 && (!UD_GlobalDeviceMutex_InventoryScript)
             Utility.waitMenuMode(0.1)
             loc_time += 0.1
         endwhile
     endif
     
-    if UD_GlobalDeviceMutex_InventoryScript_Failed || loc_time >= 3.0
+    if UD_GlobalDeviceMutex_InventoryScript_Failed || loc_time >= 1.5
         UDmain.Error("LockDevicePatched("+GetSlotedNPCName()+","+UD_GlobalDeviceMutex_Device.getName()+") failed!!! ID Fail? " + UD_GlobalDeviceMutex_InventoryScript_Failed)
     endif
     
@@ -1839,21 +1869,29 @@ Function ProccesLockMutex()
 EndFunction
 
 Function ProccesUnlockMutex()
+    if UDmain.TraceAllowed()
+        UDmain.Log(self+"::ProccesUnlockMutex()",2)
+    endif
     float loc_time = 0.0
+    bool  loc_failed = false
     while loc_time <= 1.5 && (!UD_GlobalDeviceUnlockMutex_InventoryScript)
         Utility.waitMenuMode(0.1)
         loc_time += 0.1
     endwhile
     
     if !IsPlayer() && loc_time >= 1.5 && UDmain.IsAnyMenuOpen()
+        if UDmain.TraceAllowed()
+            UDmain.Log(self+"::ProccesUnlockMutex() - Timeout on NPC, waiting for menu to close and try again",2)
+        endif
         Utility.wait(0.01)
-        while loc_time <= 3.0 && (!UD_GlobalDeviceUnlockMutex_InventoryScript)
+        loc_time = 0.0
+        while loc_time <= 1.5 && (!UD_GlobalDeviceUnlockMutex_InventoryScript)
             Utility.waitMenuMode(0.1)
             loc_time += 0.1
         endwhile
     endif
     
-    if UD_GlobalDeviceUnlockMutex_InventoryScript_Failed || loc_time >= 3.0
+    if UD_GlobalDeviceUnlockMutex_InventoryScript_Failed || loc_time >= 1.5
         UDmain.Error("UnLockDevicePatched("+GetSlotedNPCName()+","+UD_GlobalDeviceUnlockMutex_Device.getName()+") failed!!! ID Fail? " + UD_GlobalDeviceUnlockMutex_InventoryScript_Failed)
     endif
     

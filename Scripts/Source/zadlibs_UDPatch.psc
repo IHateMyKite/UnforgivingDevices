@@ -273,7 +273,7 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
         If (genericonly && deviceInventory.HasKeyWord(zad_BlockGeneric)) || deviceInventory.HasKeyWord(zad_QuestItem)
             UDmain.Error("UnlockDevice("+MakeDeviceHeader(akActor,deviceInventory)+") aborted because device is not a generic item.")
             loc_res = false
-        else                
+        else
             Armor loc_renDevice = none
             
             ;get render device, this is important as function will not work without RD
