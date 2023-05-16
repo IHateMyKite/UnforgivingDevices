@@ -7110,9 +7110,9 @@ EndFunction
 
 ;checks if Wearer clear enough of exhaustion to start struggling
 bool Function checkMaxExhaustion(Actor akActor)
-    int orgExhaust  = UDOM.GetOrgasmExhaustion(akActor)
-    int devExhaust  = UDCDMain.getMinigameExhaustion(akActor)
-    return !((UDOM.UD_OrgasmExhaustionStruggleMaxOn && (orgExhaust >= UDOM.UD_OrgasmExhaustionStruggleMax)) || (UDCDMain.UD_MinigameExhNoStruggle && (devExhaust >= UDCDMain.UD_MinigameExhNoStruggleMax)))
+    bool loc_OrgExhaust  = (UDOM.UD_OrgasmExhaustionStruggleMaxOn && (UDOM.GetOrgasmExhaustion(akActor) >= UDOM.UD_OrgasmExhaustionStruggleMax))
+    bool loc_DevExhaust  = (UDCDMain.UD_MinigameExhNoStruggle && (UDCDMain.getMinigameExhaustion(akActor) >= UDCDMain.UD_MinigameExhNoStruggleMax))
+    return !(loc_OrgExhaust || loc_DevExhaust)
 endFunction
 
 ;checks if Wearer have stats to start struggling

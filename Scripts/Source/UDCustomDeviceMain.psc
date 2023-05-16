@@ -3506,12 +3506,12 @@ Function addExhaustion(Actor akActor, float afMult = 1.0)
         UDmain.Log(self + "::addExhaustion("+akActor+","+afMult+")")
     endif
     if (UDmain.UDGV.UDG_MinigameExhaustion.Value == 1)
-        float exponent = 1.0
+        Float loc_Exponent = 1.0
         if (UD_MinigameExhExponential)
-            exponent = Math.pow(2.0, getMinigameExhaustion(akActor))
+            loc_Exponent = Math.pow(2.0, getMinigameExhaustion(akActor))
         endif
         UDlibs.StruggleExhaustionSpell.SetNthEffectMagnitude(0, UD_StruggleExhaustionMagnitude*UD_MinigameExhMagnitudeMult*Utility.randomFloat(0.75,1.25))
-        UDlibs.StruggleExhaustionSpell.SetNthEffectDuration(0, Round(UD_StruggleExhaustionDuration*UD_MinigameExhDurationMult*afMult*Utility.randomFloat(0.75,1.25)*exponent))
+        UDlibs.StruggleExhaustionSpell.SetNthEffectDuration(0, Round(UD_StruggleExhaustionDuration*UD_MinigameExhDurationMult*afMult*Utility.randomFloat(0.75,1.25)*loc_Exponent))
         UDlibs.StruggleExhaustionSpell.cast(akActor)
     endif
 EndFunction
