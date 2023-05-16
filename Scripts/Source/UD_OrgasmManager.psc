@@ -91,6 +91,20 @@ Int     Property UD_OrgasmArousalReduce             = 25    auto hidden
 /;
 Int     Property UD_OrgasmArousalReduceDuration     = 7     auto hidden
 
+;/  Variable: UD_OrgasmExhaustionStruggleMaxOn
+    If being exhausted by orgasms prevents struggling
+    
+    Do not edit, *READ ONLY!* Is set by user with MCM
+/;
+bool    Property UD_OrgasmExhaustionStruggleMaxOn   = false auto hidden
+
+;/  Variable: UD_OrgasmExhaustionStruggleMax
+    How many orgasm exhaustions are required to prevent struggling
+    
+    Do not edit, *READ ONLY!* Is set by user with MCM
+/;
+Int     Property UD_OrgasmExhaustionStruggleMax     = 6     auto hidden
+
 ;/  Variable: OrgasmFaction
     Faction to which will ba actor added for duration of orgasm
     

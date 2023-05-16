@@ -93,6 +93,9 @@ Float   Property UD_MinigameExhDurationMult         = 1.0   Auto Hidden ; multip
 Float   Property UD_MinigameExhMagnitudeMult        = 1.0   Auto Hidden ; multiplier for minigame exhaustion magnitude
 Int     Property UD_MinigameLockpickSkillAdjust     = 2     Auto Hidden ; index from list of possible options. 0 = 100%, 1 = 90%, 2 = 75%, 3 = 50%, 4 = 0%
 Int     Property UD_LockpickMinigameDuration        = 20    Auto Hidden ;duration of lockpick minigame. After this time passe, minigame will close itself and fail. This value is adjusted by difficulty of lock
+Bool    Property UD_MinigameExhExponential          = False Auto Hidden ; whether subsequent exhaustions remain on the character twice as long as the previous
+Bool    Property UD_MinigameExhNoStruggle           = False Auto Hidden ; if having exhaustions prevents further struggle
+Int     Property UD_MinigameExhNoStruggleMax        = 3     Auto Hidden ; how many exhaustions prevent further struggle
 
 ;Lvl scalling
 Float   Property UD_DeviceLvlHealth                 = 0.025 auto hidden
@@ -1522,7 +1525,7 @@ int Function ResetHelperCD(Actor akHelper,Actor akHelped,Int aiXP = 0)
 EndFunction
 
 Int Function _CalculateHelperXpRequired(Int aiLevel)
-    return Round(aiLevel*100*Math.Pow(1.03,aiLevel))
+    return Round(aiLevel*100*Math.pow(1.03,aiLevel))
 EndFunction
 
 ;/  Function: addHelperXP
@@ -3503,10 +3506,25 @@ Function addExhaustion(Actor akActor, float afMult = 1.0)
         UDmain.Log(self + "::addExhaustion("+akActor+","+afMult+")")
     endif
     if (UDmain.UDGV.UDG_MinigameExhaustion.Value == 1)
+        float exponent = 1.0
+        if (UD_MinigameExhExponential)
+            exponent = Math.pow(2.0, getMinigameExhaustion(akActor))
+        endif
         UDlibs.StruggleExhaustionSpell.SetNthEffectMagnitude(0, UD_StruggleExhaustionMagnitude*UD_MinigameExhMagnitudeMult*Utility.randomFloat(0.75,1.25))
-        UDlibs.StruggleExhaustionSpell.SetNthEffectDuration(0, Round(UD_StruggleExhaustionDuration*UD_MinigameExhDurationMult*afMult*Utility.randomFloat(0.75,1.25)))
+        UDlibs.StruggleExhaustionSpell.SetNthEffectDuration(0, Round(UD_StruggleExhaustionDuration*UD_MinigameExhDurationMult*afMult*Utility.randomFloat(0.75,1.25)*exponent))
         UDlibs.StruggleExhaustionSpell.cast(akActor)
     endif
+EndFunction
+
+;/  Function getMinigameExhaustion
+    Gets number of minigame exhaustion debuffs on actor
+
+    Parameters:
+
+        akActor - Actor to check
+/;
+Int Function getMinigameExhaustion(Actor akActor)
+    return StorageUtil.getIntValue(akActor,"UD_DeviceExhaustionNum")
 EndFunction
 
 Float Function getArousalSkillMultEx(Actor akActor)

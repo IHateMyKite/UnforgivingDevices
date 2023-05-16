@@ -7108,8 +7108,18 @@ EndFunction
 Function hideHUDbars()
 EndFunction
 
+;checks if Wearer clear enough of exhaustion to start struggling
+bool Function checkMaxExhaustion(Actor akActor)
+    int orgExhaust  = UDOM.GetOrgasmExhaustion(akActor)
+    int devExhaust  = UDCDMain.getMinigameExhaustion(akActor)
+    return !((UDOM.UD_OrgasmExhaustionStruggleMaxOn && (orgExhaust >= UDOM.UD_OrgasmExhaustionStruggleMax)) || (UDCDMain.UD_MinigameExhNoStruggle && (devExhaust >= UDCDMain.UD_MinigameExhNoStruggleMax)))
+endFunction
+
 ;checks if Wearer have stats to start struggling
 bool Function checkMinAV(Actor akActor)
+    if !checkMaxExhaustion(akActor)
+        return False
+    endif
     Float loc_staminamin  = _minMinigameStatSP
     Float loc_healthmin   = _minMinigameStatHP
     Float loc_magickahmin = _minMinigameStatMP
