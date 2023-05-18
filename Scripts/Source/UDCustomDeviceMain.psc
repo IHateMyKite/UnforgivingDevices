@@ -3523,6 +3523,17 @@ Int Function getMinigameExhaustion(Actor akActor)
     return StorageUtil.getIntValue(akActor,"UD_DeviceExhaustionNum")
 EndFunction
 
+;/  Function isMinigameExhaustedMax
+    Checks whether the actor has more than the configured amount of minigame exhaustion debuffs
+
+    Parameters:
+
+        akActor - Actor to check
+/;
+Bool Function isMinigameExhaustedMax(Actor akActor)
+    return UD_MinigameExhNoStruggleMax > 0 && (getMinigameExhaustion(akActor) >= UD_MinigameExhNoStruggleMax)
+EndFunction
+
 Float Function getArousalSkillMultEx(Actor akActor)
     UD_CustomDevice_NPCSlot loc_slot = GetNPCSlot(akActor)
     if loc_slot

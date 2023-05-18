@@ -160,7 +160,6 @@ Bool Function Init()
     UD_autocrit_flag    = OPTION_FLAG_DISABLED
     fix_flag            = OPTION_FLAG_NONE
     UD_Horny_f          = OPTION_FLAG_NONE
-    UD_OrgasmStruggle_f = OPTION_FLAG_DISABLED
     
     if AbadonQuest.final_finisher_set
         abadon_flag_2 = OPTION_FLAG_NONE
@@ -609,9 +608,7 @@ int UD_VibrationMultiplier_S
 int UD_ArousalMultiplier_S
 int UD_OrgasmArousalReduce_S
 int UD_OrgasmArousalReduceDuration_S
-int UD_OrgasmExhaustionStruggleMaxOn_T
 int UD_OrgasmExhaustionStruggleMax_S
-int UD_OrgasmStruggle_f
 
 Event resetCustomOrgasmPage()
     UpdateLockMenuFlag()
@@ -622,8 +619,7 @@ Event resetCustomOrgasmPage()
         
     UD_OrgasmUpdateTime_S   = addSliderOption("$UD_ORGASMUPDATETIME",UDOM.UD_OrgasmUpdateTime, "${1} s")
     UD_OrgasmExhaustion_T   = addToggleOption("$UD_ORGASMEXHAUSTION",UDmain.UD_OrgasmExhaustion,UD_LockMenu_flag)
-    UD_OrgasmExhaustionStruggleMaxOn_T   = addToggleOption("$UD_ORGASMEXHAUSTIONSTRUGGLEMAXON",UDOM.UD_OrgasmExhaustionStruggleMaxOn,UD_LockMenu_flag)
-    UD_OrgasmExhaustionStruggleMax_S = addSliderOption("$UD_ORGASMEXHAUSTIONSTRUGGLEMAX", UDOM.UD_OrgasmExhaustionStruggleMax, "${0} orgasms",FlagSwitchOr(UD_LockMenu_flag, UD_OrgasmStruggle_f))
+    UD_OrgasmExhaustionStruggleMax_S = addSliderOption("$UD_ORGASMEXHAUSTIONSTRUGGLEMAX", UDOM.UD_OrgasmExhaustionStruggleMax, "${0} orgasms",UD_LockMenu_flag)
     
     UD_UseOrgasmWidget_T    = addToggleOption("$UD_USEORGASMWIDGET", UDOM.UD_UseOrgasmWidget)
     UD_OrgasmResistence_S   = addSliderOption("$UD_ORGASMRESISTENCE",UDOM.UD_OrgasmResistence, "{1} Op/s",UD_LockMenu_flag)
@@ -1515,15 +1511,6 @@ Function OptionCustomOrgasm(int option)
             UD_Horny_f = OPTION_FLAG_DISABLED
         endif
         forcePageReset()
-    elseif(option == UD_OrgasmExhaustionStruggleMaxOn_T)
-        UDOM.UD_OrgasmExhaustionStruggleMaxOn = !UDOM.UD_OrgasmExhaustionStruggleMaxOn
-        SetToggleOptionValue(UD_OrgasmExhaustionStruggleMaxOn_T, UDOM.UD_OrgasmExhaustionStruggleMaxOn)
-        if UDOM.UD_OrgasmExhaustionStruggleMaxOn
-            UD_OrgasmStruggle_f = OPTION_FLAG_NONE
-        else
-            UD_OrgasmStruggle_f = OPTION_FLAG_DISABLED
-        endif
-        forcePageReset()
     endif
 EndFunction
 
@@ -1976,9 +1963,9 @@ Function OnOptionSliderOpenCustomOrgasm(int option)
         SetSliderDialogInterval(0.1)
     elseif option == UD_OrgasmExhaustionStruggleMax_S
         SetSliderDialogStartValue(UDOM.UD_OrgasmExhaustionStruggleMax)
-        SetSliderDialogDefaultValue(6.0)
-        SetSliderDialogRange(1.0,10.0)
-        SetSliderDialogInterval(1.0)
+        SetSliderDialogDefaultValue(6)
+        SetSliderDialogRange(0,10)
+        SetSliderDialogInterval(1)
     elseif option == UD_VibrationMultiplier_S
         SetSliderDialogStartValue(UDCDmain.UD_VibrationMultiplier)
         SetSliderDialogDefaultValue(0.1)
@@ -2998,8 +2985,6 @@ Function CustomOrgasmPageDefault(int option)
         SetInfoText("$UD_USEORGASMWIDGET_INFO")
     elseif option == UD_OrgasmResistence_S
         SetInfoText("$UD_ORGASMRESISTENCE_INFO")
-    elseif option == UD_OrgasmExhaustionStruggleMaxOn_T
-        SetInfoText("$UD_ORGASMEXHAUSTIONSTRUGGLEMAXON_INFO")
     elseif option == UD_OrgasmExhaustionStruggleMax_S
         SetInfoText("$UD_ORGASMEXHAUSTIONSTRUGGLEMAX_INFO")
     elseif option == UD_HornyAnimation_T
@@ -3321,8 +3306,6 @@ Function CustomOrgasmPageInfo(int option)
         SetInfoText("$UD_USEORGASMWIDGET_INFO")
     elseif option == UD_OrgasmResistence_S
         SetInfoText("$UD_ORGASMRESISTENCE_INFO")
-    elseif option == UD_OrgasmExhaustionStruggleMaxOn_T
-        SetInfoText("$UD_ORGASMEXHAUSTIONSTRUGGLEMAXON_INFO")
     elseif option == UD_OrgasmExhaustionStruggleMax_S
         SetInfoText("$UD_ORGASMEXHAUSTIONSTRUGGLEMAX_INFO")
     elseif option == UD_HornyAnimation_T
@@ -3620,7 +3603,6 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetFloatValue(strFile, "VibrationMultiplier", UDCDmain.UD_VibrationMultiplier)
     JsonUtil.SetFloatValue(strFile, "ArousalMultiplier", UDCDmain.UD_ArousalMultiplier)
     JsonUtil.SetFloatValue(strFile, "OrgasmResistence", UDOM.UD_OrgasmResistence)
-    JsonUtil.SetIntValue(strFile, "OrgasmExhaustionStruggleMaxOn", UDOM.UD_OrgasmExhaustionStruggleMaxOn as Int)
     JsonUtil.SetIntValue(strFile, "OrgasmExhaustionStruggleMax", UDOM.UD_OrgasmExhaustionStruggleMax)
     JsonUtil.SetIntValue(strFile, "LockpicksPerMinigame", UDCDmain.UD_LockpicksPerMinigame as Int)
     JsonUtil.SetIntValue(strFile, "UseOrgasmWidget", UDOM.UD_UseOrgasmWidget as Int)
@@ -3780,12 +3762,6 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UD_ArousalMultiplier           = JsonUtil.GetFloatValue(strFile, "ArousalMultiplier", UDCDmain.UD_ArousalMultiplier)
     UDOM.UD_OrgasmResistence                = JsonUtil.GetFloatValue(strFile, "OrgasmResistence", UDOM.UD_OrgasmResistence)
     UDOM.UD_OrgasmExhaustionStruggleMax     = JsonUtil.GetIntValue(strFile, "OrgasmExhaustionStruggleMax", UDOM.UD_OrgasmExhaustionStruggleMax)
-    UDOM.UD_OrgasmExhaustionStruggleMaxOn   = JsonUtil.GetIntValue(strFile, "OrgasmExhaustionStruggleMaxOn", UDOM.UD_OrgasmExhaustionStruggleMaxOn as Int)
-    if UDOM.UD_OrgasmExhaustionStruggleMaxOn
-        UD_OrgasmExhaustion_flag = OPTION_FLAG_NONE
-    else
-        UD_OrgasmExhaustion_flag = OPTION_FLAG_DISABLED
-    endif
     UDCDmain.UD_LockpicksPerMinigame        = JsonUtil.GetIntValue(strFile, "LockpicksPerMinigame", UDCDmain.UD_LockpicksPerMinigame)
     UDOM.UD_UseOrgasmWidget                 = JsonUtil.GetIntValue(strFile, "UseOrgasmWidget", UDOM.UD_UseOrgasmWidget as Int)
     UDOM.UD_OrgasmUpdateTime                = JsonUtil.GetFloatValue(strFile, "OrgasmUpdateTime", UDOM.UD_OrgasmUpdateTime)
@@ -3954,13 +3930,7 @@ Function ResetToDefaults()
     UDCDmain.UD_VibrationMultiplier     = 0.1
     UDCDmain.UD_ArousalMultiplier       = 0.025
     UDOM.UD_OrgasmResistence            = 3.5
-    UDOM.UD_OrgasmExhaustionStruggleMaxOn = false
     UDOM.UD_OrgasmExhaustionStruggleMax = 6
-    if UDOM.UD_OrgasmExhaustionStruggleMaxOn
-        UD_OrgasmExhaustion_flag = OPTION_FLAG_NONE
-    else
-        UD_OrgasmExhaustion_flag = OPTION_FLAG_DISABLED
-    endif
     UDCDmain.UD_LockpicksPerMinigame    = 2
     UDOM.UD_UseOrgasmWidget             = true
     UDOM.UD_OrgasmUpdateTime            = 0.5
