@@ -491,7 +491,7 @@ Int UD_MinigameExhMagnitudeMult_S
 Int UD_MinigameLockpickSkillAdjust_M
 String[] UD_MinigameLockpickSkillAdjust_ML
 Int UD_LockpickMinigameDuration_S
-Int UD_MinigameExhExponential_T
+Int UD_MinigameExhExponential_S
 Int UD_MinigameExhNoStruggleMax_S
 Event resetCustomBondagePage()
     UpdateLockMenuFlag()
@@ -534,7 +534,7 @@ Event resetCustomBondagePage()
     
     UD_MinigameExhDurationMult_S     = addSliderOption("$UD_MINIEXHAUSDUR", Round(UDCDmain.UD_MinigameExhDurationMult * 100), "{0} %", UD_LockMenu_flag)
     UD_MinigameExhMagnitudeMult_S    = addSliderOption("$UD_MINIEXHAUSMAG", Round(UDCDmain.UD_MinigameExhMagnitudeMult * 100), "{0} %", UD_LockMenu_flag)
-    UD_MinigameExhExponential_T      = addToggleOption("$UD_MINIEXHEXP", UDCDmain.UD_MinigameExhExponential, UD_LockMenu_flag)
+    UD_MinigameExhExponential_S      = addSliderOption("$UD_MINIEXHEXP", UDCDmain.UD_MinigameExhExponential, "{1}", UD_LockMenu_flag)
 
     addEmptyOption()
 
@@ -1489,9 +1489,6 @@ Function OptionCustomBondage(int option)
     elseif option == UD_HardcoreAccess_T
         UDCDmain.UD_HardcoreAccess = !UDCDmain.UD_HardcoreAccess
         SetToggleOptionValue(UD_HardcoreAccess_T, UDCDmain.UD_HardcoreAccess)
-    elseif option == UD_MinigameExhExponential_T
-        UDCDMain.UD_MinigameExhExponential = !UDCDMain.UD_MinigameExhExponential
-        SetToggleOptionValue(UD_MinigameExhExponential_T, UDCDmain.UD_MinigameExhExponential)
     endif
 EndFunction
 
@@ -1953,6 +1950,11 @@ Function OnOptionSliderOpenCustomBondage(int option)
         SetSliderDialogDefaultValue(2)
         SetSliderDialogRange(0, 10)
         SetSliderDialogInterval(1)
+    elseif option == UD_MinigameExhExponential_S
+        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogStartValue(UDCDmain.UD_MinigameExhExponential)
+        SetSliderDialogRange(0.1, 10)
+        SetSliderDialogInterval(0.1)
     endif
 EndFunction
 
@@ -3305,7 +3307,7 @@ Function CustomBondagePageInfo(int option)
         SetInfoText("$UD_MINIGAMELOCKPICKSKILLADJUST_INFO")
     elseif option == UD_LockpickMinigameDuration_S
         SetInfoText("$UD_LOCKPICKMINIGAMEDURATION_INFO")
-    elseif option == UD_MinigameExhExponential_T
+    elseif option == UD_MinigameExhExponential_S
         SetInfoText("$UD_MINIEXHEXP_INFO")
     elseif option == UD_MinigameExhNoStruggleMax_S
         SetInfoText("$UD_MINIEXHNOSTRUGGMAX_INFO")
@@ -3651,7 +3653,7 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetFloatValue(strFile, "MinigameExhMagnitudeMult", UDCDmain.UD_MinigameExhMagnitudeMult)
     JsonUtil.SetIntValue(strFile, "MinigameLockpickSkillAdjust", UDCDmain.UD_MinigameLockpickSkillAdjust)
     JsonUtil.SetIntValue(strFile, "LockpickMinigameDuration", UDCDmain.UD_LockpickMinigameDuration)
-    JsonUtil.SetIntValue(strFile, "MinigameExhExponential", UDCDMain.UD_MinigameExhExponential as Int)
+    JsonUtil.SetFloatValue(strFile, "MinigameExhExponential", UDCDMain.UD_MinigameExhExponential)
     JsonUtil.SetIntValue(strFile, "MinigameExhNoStruggleMax", UDCDMAIN.UD_MinigameExhNoStruggleMax as Int)
     
     ;ABADON
@@ -3815,7 +3817,7 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UD_MinigameExhMagnitudeMult    = JsonUtil.GetFloatValue(strFile, "MinigameExhMagnitudeMult", UDCDmain.UD_MinigameExhMagnitudeMult)
     UDCDmain.UD_MinigameLockpickSkillAdjust = JsonUtil.GetIntValue(strFile, "MinigameLockpickSkillAdjust", UDCDmain.UD_MinigameLockpickSkillAdjust)
     UDCDmain.UD_LockpickMinigameDuration    = JsonUtil.GetIntValue(strFile, "LockpickMinigameDuration", UDCDmain.UD_LockpickMinigameDuration)
-    UDCDMain.UD_MinigameExhExponential      = JsonUtil.GetIntValue(strFile, "MinigameExhExponential", UDCDMain.UD_MinigameExhExponential as Int)
+    UDCDMain.UD_MinigameExhExponential      = JsonUtil.GetFloatValue(strFile, "MinigameExhExponential", UDCDMain.UD_MinigameExhExponential)
     UDCDMain.UD_MinigameExhNoStruggleMax   = JsonUtil.GetIntValue(strFile, "MinigameExhNoStruggleMax", UDCDMain.UD_MinigameExhNoStruggleMax)
     
     
@@ -3989,7 +3991,7 @@ Function ResetToDefaults()
     UDCDmain.UD_MinigameExhDurationMult = 1.0
     UDCDmain.UD_MinigameExhMagnitudeMult= 1.0
     UDCDmain.UD_MinigameLockpickSkillAdjust = 2
-    UDCDMain.UD_MinigameExhExponential  = False
+    UDCDMain.UD_MinigameExhExponential  = 1.0
     UDCDMain.UD_MinigameExhNoStruggleMax= 2
     
     ;ABADON
