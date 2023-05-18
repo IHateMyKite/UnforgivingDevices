@@ -94,8 +94,7 @@ Float   Property UD_MinigameExhMagnitudeMult        = 1.0   Auto Hidden ; multip
 Int     Property UD_MinigameLockpickSkillAdjust     = 2     Auto Hidden ; index from list of possible options. 0 = 100%, 1 = 90%, 2 = 75%, 3 = 50%, 4 = 0%
 Int     Property UD_LockpickMinigameDuration        = 20    Auto Hidden ;duration of lockpick minigame. After this time passe, minigame will close itself and fail. This value is adjusted by difficulty of lock
 Bool    Property UD_MinigameExhExponential          = False Auto Hidden ; whether subsequent exhaustions remain on the character twice as long as the previous
-Bool    Property UD_MinigameExhNoStruggle           = False Auto Hidden ; if having exhaustions prevents further struggle
-Int     Property UD_MinigameExhNoStruggleMax        = 3     Auto Hidden ; how many exhaustions prevent further struggle
+Int     Property UD_MinigameExhNoStruggleMax        = 2     Auto Hidden ; how many exhaustions prevent further struggle. 0 disables this feature
 
 ;Lvl scalling
 Float   Property UD_DeviceLvlHealth                 = 0.025 auto hidden

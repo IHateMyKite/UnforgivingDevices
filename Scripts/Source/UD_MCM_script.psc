@@ -56,7 +56,6 @@ string[] property final_finisher_pref_list auto
 int lockmenu_T
 int hardcore_T
 int UD_debugmod_T
-int UD_MinigameExhNoStruggle_f
 
 int preset
 int preset_M
@@ -162,7 +161,6 @@ Bool Function Init()
     fix_flag            = OPTION_FLAG_NONE
     UD_Horny_f          = OPTION_FLAG_NONE
     UD_OrgasmStruggle_f = OPTION_FLAG_DISABLED
-    UD_MinigameExhNoStruggle_f  = OPTION_FLAG_DISABLED
     
     if AbadonQuest.final_finisher_set
         abadon_flag_2 = OPTION_FLAG_NONE
@@ -494,7 +492,6 @@ Int UD_MinigameLockpickSkillAdjust_M
 String[] UD_MinigameLockpickSkillAdjust_ML
 Int UD_LockpickMinigameDuration_S
 Int UD_MinigameExhExponential_T
-Int UD_MinigameExhNoStruggle_T
 Int UD_MinigameExhNoStruggleMax_S
 Event resetCustomBondagePage()
     UpdateLockMenuFlag()
@@ -541,8 +538,7 @@ Event resetCustomBondagePage()
 
     addEmptyOption()
 
-    UD_MinigameExhNoStruggle_T       = addToggleOption("$UD_MINIEXHNOSTRUGG", UDCDmain.UD_MinigameExhNoStruggle, UD_LockMenu_flag)
-    UD_MinigameExhNoStruggleMax_S    = addSliderOption("$UD_MINIEXHNOSTRUGGMAX", Round(UDCDmain.UD_MinigameExhNoStruggleMax), "{0}", FlagSwitchOr(UD_LockMenu_flag, UD_MinigameExhNoStruggle_f))
+    UD_MinigameExhNoStruggleMax_S    = addSliderOption("$UD_MINIEXHNOSTRUGGMAX", Round(UDCDmain.UD_MinigameExhNoStruggleMax), "{0}", UD_LockMenu_flag)
 
 
     ;SKILL
@@ -1496,15 +1492,6 @@ Function OptionCustomBondage(int option)
     elseif option == UD_MinigameExhExponential_T
         UDCDMain.UD_MinigameExhExponential = !UDCDMain.UD_MinigameExhExponential
         SetToggleOptionValue(UD_MinigameExhExponential_T, UDCDmain.UD_MinigameExhExponential)
-    elseif option == UD_MinigameExhNoStruggle_T
-        UDCDMain.UD_MinigameExhNoStruggle = !UDCDMain.UD_MinigameExhNoStruggle
-        SetToggleOptionValue(UD_MinigameExhNoStruggle_T, UDCDMain.UD_MinigameExhNoStruggle)
-        if UDCDmain.UD_MinigameExhNoStruggle
-            UD_MinigameExhNoStruggle_f = OPTION_FLAG_NONE
-        else
-            UD_MinigameExhNoStruggle_f = OPTION_FLAG_DISABLED
-        endif
-        forcePageReset()
     endif
 EndFunction
 
@@ -1963,8 +1950,8 @@ Function OnOptionSliderOpenCustomBondage(int option)
         SetSliderDialogInterval(5)
     elseif option == UD_MinigameExhNoStruggleMax_S
         SetSliderDialogStartValue(UDCDmain.UD_MinigameExhNoStruggleMax)
-        SetSliderDialogDefaultValue(3)
-        SetSliderDialogRange(1, 10)
+        SetSliderDialogDefaultValue(2)
+        SetSliderDialogRange(0, 10)
         SetSliderDialogInterval(1)
     endif
 EndFunction
@@ -3320,8 +3307,6 @@ Function CustomBondagePageInfo(int option)
         SetInfoText("$UD_LOCKPICKMINIGAMEDURATION_INFO")
     elseif option == UD_MinigameExhExponential_T
         SetInfoText("$UD_MINIEXHEXP_INFO")
-    elseif option == UD_MinigameExhNoStruggle_T
-        SetInfoText("$UD_MINIEXHNOSTRUGG_INFO")
     elseif option == UD_MinigameExhNoStruggleMax_S
         SetInfoText("$UD_MINIEXHNOSTRUGGMAX_INFO")
     Endif
@@ -3667,7 +3652,6 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "MinigameLockpickSkillAdjust", UDCDmain.UD_MinigameLockpickSkillAdjust)
     JsonUtil.SetIntValue(strFile, "LockpickMinigameDuration", UDCDmain.UD_LockpickMinigameDuration)
     JsonUtil.SetIntValue(strFile, "MinigameExhExponential", UDCDMain.UD_MinigameExhExponential as Int)
-    JsonUtil.SetIntValue(strFile, "MinigameExhNoStruggle", UDCDMAIN.UD_MinigameExhNoStruggle as Int)
     JsonUtil.SetIntValue(strFile, "MinigameExhNoStruggleMax", UDCDMAIN.UD_MinigameExhNoStruggleMax as Int)
     
     ;ABADON
@@ -3832,13 +3816,7 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UD_MinigameLockpickSkillAdjust = JsonUtil.GetIntValue(strFile, "MinigameLockpickSkillAdjust", UDCDmain.UD_MinigameLockpickSkillAdjust)
     UDCDmain.UD_LockpickMinigameDuration    = JsonUtil.GetIntValue(strFile, "LockpickMinigameDuration", UDCDmain.UD_LockpickMinigameDuration)
     UDCDMain.UD_MinigameExhExponential      = JsonUtil.GetIntValue(strFile, "MinigameExhExponential", UDCDMain.UD_MinigameExhExponential as Int)
-    UDCDMain.UD_MinigameExhNoStruggle      = JsonUtil.GetIntValue(strFile, "MinigameExhNoStruggle", UDCDMain.UD_MinigameExhNoStruggle as Int)
     UDCDMain.UD_MinigameExhNoStruggleMax   = JsonUtil.GetIntValue(strFile, "MinigameExhNoStruggleMax", UDCDMain.UD_MinigameExhNoStruggleMax)
-    if UDCDmain.UD_MinigameExhNoStruggle
-        UD_MinigameExhNoStruggle_f = OPTION_FLAG_NONE
-    else
-        UD_MinigameExhNoStruggle_f = OPTION_FLAG_DISABLED
-    endif
     
     
     ;ABADON
@@ -4012,13 +3990,7 @@ Function ResetToDefaults()
     UDCDmain.UD_MinigameExhMagnitudeMult= 1.0
     UDCDmain.UD_MinigameLockpickSkillAdjust = 2
     UDCDMain.UD_MinigameExhExponential  = False
-    UDCDMain.UD_MinigameExhNoStruggle   = False
-    UDCDMain.UD_MinigameExhNoStruggleMax= 3
-    if UDCDmain.UD_MinigameExhNoStruggle
-        UD_MinigameExhNoStruggle_f = OPTION_FLAG_NONE
-    else
-        UD_MinigameExhNoStruggle_f = OPTION_FLAG_DISABLED
-    endif
+    UDCDMain.UD_MinigameExhNoStruggleMax= 2
     
     ;ABADON
     AbadonQuest.final_finisher_set      = true
