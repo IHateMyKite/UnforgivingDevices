@@ -532,11 +532,9 @@ Event resetCustomBondagePage()
     addEmptyOption()
     
     UD_MinigameExhDurationMult_S     = addSliderOption("$UD_MINIEXHAUSDUR", Round(UDCDmain.UD_MinigameExhDurationMult * 100), "{0} %", UD_LockMenu_flag)
-    UD_MinigameExhMagnitudeMult_S    = addSliderOption("$UD_MINIEXHAUSMAG", Round(UDCDmain.UD_MinigameExhMagnitudeMult * 100), "{0} %", UD_LockMenu_flag)
     UD_MinigameExhExponential_S      = addSliderOption("$UD_MINIEXHEXP", UDCDmain.UD_MinigameExhExponential, "{1}", UD_LockMenu_flag)
 
-    addEmptyOption()
-
+    UD_MinigameExhMagnitudeMult_S    = addSliderOption("$UD_MINIEXHAUSMAG", Round(UDCDmain.UD_MinigameExhMagnitudeMult * 100), "{0} %", UD_LockMenu_flag)
     UD_MinigameExhNoStruggleMax_S    = addSliderOption("$UD_MINIEXHNOSTRUGGMAX", Round(UDCDmain.UD_MinigameExhNoStruggleMax), "{0}", UD_LockMenu_flag)
 
 
@@ -1938,8 +1936,8 @@ Function OnOptionSliderOpenCustomBondage(int option)
         SetSliderDialogRange(0, 10)
         SetSliderDialogInterval(1)
     elseif option == UD_MinigameExhExponential_S
-        SetSliderDialogDefaultValue(1.0)
         SetSliderDialogStartValue(UDCDmain.UD_MinigameExhExponential)
+        SetSliderDialogDefaultValue(1.0)
         SetSliderDialogRange(0.1, 10)
         SetSliderDialogInterval(0.1)
     endif
@@ -2287,6 +2285,9 @@ Function OnOptionSliderAcceptCustomBondage(int option, float value)
     elseif option == UD_MinigameExhNoStruggleMax_S
         UDCDMain.UD_MinigameExhNoStruggleMax = Round(value)
         SetSliderOptionValue(UD_MinigameExhNoStruggleMax_S, UDCDMain.UD_MinigameExhNoStruggleMax, "{0}")
+    elseif option == UD_MinigameExhExponential_S
+        UDCDMain.UD_MinigameExhExponential = value
+        SetSliderOptionValue(UD_MinigameExhExponential_S, UDCDMain.UD_MinigameExhExponential, "{1}")
     endif
 EndFunction
 
