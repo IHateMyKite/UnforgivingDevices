@@ -70,6 +70,7 @@ Function OnUpdate()
 EndFunction
 
 Function Update()
+    UD_MenuListIDBit = 0x00000000 ;reset menu bit map
     InitMenuArr()
     UnregisterMenuEvents()
     RegisterMenuEvents()
@@ -117,25 +118,27 @@ Function UnregisterMenuEvents()
 EndFunction
 
 Event OnMenuOpen(String MenuName)
-    if MenuName != "Console" && MenuName != "MessageBoxMenu" ;these can be opened over other menus, check them out
-        UD_LastMenuOpened = MenuName
-        UD_MenuOpened = true
-    elseif UD_LastMenuOpened == "none"
-        UD_LastMenuOpened = MenuName
-        UD_MenuOpened = true
-    endif
-    
-    Int loc_i = 0
-    while loc_i < UD_MenuList.length
-        if UD_MenuList[loc_i] == MenuName
-            UD_MenuListID[loc_i] = true
-            _StartBitMutex()
-            UD_MenuListIDBit = Math.LogicalOr(UD_MenuListIDBit,Math.LeftShift(0x1,loc_i))
-            _EndBitMutex()
-            return
+    if UDmain.UDReady()
+        if MenuName != "Console" && MenuName != "MessageBoxMenu" ;these can be opened over other menus, check them out
+            UD_LastMenuOpened = MenuName
+            UD_MenuOpened = true
+        elseif UD_LastMenuOpened == "none"
+            UD_LastMenuOpened = MenuName
+            UD_MenuOpened = true
         endif
-        loc_i += 1
-    endwhile
+        
+        Int loc_i = 0
+        while loc_i < UD_MenuList.length
+            if UD_MenuList[loc_i] == MenuName
+                UD_MenuListID[loc_i] = true
+                _StartBitMutex()
+                UD_MenuListIDBit = Math.LogicalOr(UD_MenuListIDBit,Math.LeftShift(0x1,loc_i))
+                _EndBitMutex()
+                return
+            endif
+            loc_i += 1
+        endwhile
+    endif
 EndEvent
 
 Event OnMenuClose(String MenuName)
