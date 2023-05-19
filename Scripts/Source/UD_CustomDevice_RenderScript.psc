@@ -6148,6 +6148,7 @@ Function StopMinigame(Bool abWaitForStop = False)
     _UnsetMinigameDevice()
     _StopMinigame = True
     _PauseMinigame = False
+    _EndMinigameEffect()
     while abWaitForStop && IsMinigameOn()
         Utility.waitMenuMode(0.01)
     endwhile
@@ -6162,6 +6163,7 @@ EndFunction
 /;
 Function PauseMinigame()
     if _MinigameON
+        _ToggleMinigameEffect(false)
         _PauseMinigame = True
     endif
 EndFunction
@@ -6171,6 +6173,7 @@ EndFunction
 /;
 Function UnPauseMinigame()
     if _MinigameON
+        _ToggleMinigameEffect(true)
         _PauseMinigame = False
     endif
 EndFunction
@@ -6408,6 +6411,9 @@ Function minigame()
         MinigameStarter()
     endif
     
+    if loc_PlayerInMinigame
+        UD_Native.ToggleMinigameEffect(UDMain.Player,false)
+    endif
     
     if UDmain.TraceAllowed()
         UDmain.Log("Minigame started for: " + deviceInventory.getName())    
@@ -6466,6 +6472,8 @@ Function minigame()
     Float     loc_ElapsedTime      = 0.0
     Bool      loc_DamageDevice     = UD_damage_device
     
+    _StartMinigameEffect()
+    
     while current_device_health > 0.0 && !_StopMinigame
         ;pause minigame, pause minigame need to be changed from other thread or infinite loop happens
         while _PauseMinigame && !_StopMinigame
@@ -6478,6 +6486,9 @@ Function minigame()
                 StopMinigame()
             else
                 if !UDCDMain.UD_InitialDrainDelay || (loc_ElapsedTime > UDCDMain.UD_InitialDrainDelay)
+                    if (loc_ElapsedTime == UDCDMain.UD_InitialDrainDelay) && loc_PlayerInMinigame
+                        UD_Native.ToggleMinigameEffect(UDMain.Player,true)
+                    endif
                     if !ProccesAV(fCurrentUpdateTime)
                         StopMinigame()
                     endif
@@ -6568,7 +6579,10 @@ Function minigame()
         endif
     endwhile
 
+    _EndMinigameEffect()
+
     _MinigameMainLoopON = false
+    
     
     if loc_PlayerInMinigame
         UDCDmain.MinigameKeysUnRegister()
@@ -7136,28 +7150,36 @@ bool Function ProccesAV(float fUpdateTime)
         Float loc_staminadrain = UD_minigame_stamina_drain * UDCDMain.UD_MinigameDrainMult
         Float loc_healthdrain = UD_minigame_heal_drain * UDCDMain.UD_MinigameDrainMult
         Float loc_magickahdrain = UD_minigame_magicka_drain * UDCDMain.UD_MinigameDrainMult
-        if loc_staminadrain > 0.0
-            if Wearer.getAV("Stamina") <= 0
+        bool  loc_isplayer = WearerIsPlayer()
+        if loc_isplayer
+            if !UD_Native.MinigameStatsCheck(Wearer)
                 stopMinigame()
                 return false
-            else
-                Wearer.damageAV("Stamina", loc_staminadrain*fUpdateTime)
             endif
-        endif
-        if loc_healthdrain > 0.0
-            if Wearer.getAV("Health") < loc_healthdrain*fUpdateTime + 1
-                stopMinigame()
-                return false
-            else
-                Wearer.damageAV("Health",  loc_healthdrain*fUpdateTime)
+        else
+            if loc_staminadrain > 0.0
+                if Wearer.getAV("Stamina") <= 0
+                    stopMinigame()
+                    return false
+                else
+                    Wearer.damageAV("Stamina", loc_staminadrain*fUpdateTime)
+                endif
             endif
-        endif
-        if loc_magickahdrain > 0.0
-            if Wearer.getAV("magicka") <= 0
-                stopMinigame()
-                return false
-            else
-                Wearer.damageAV("Magicka",  loc_magickahdrain*fUpdateTime)
+            if loc_healthdrain > 0.0
+                if Wearer.getAV("Health") < loc_healthdrain*fUpdateTime + 1
+                    stopMinigame()
+                    return false
+                else
+                    Wearer.damageAV("Health",  loc_healthdrain*fUpdateTime)
+                endif
+            endif
+            if loc_magickahdrain > 0.0
+                if Wearer.getAV("magicka") <= 0
+                    stopMinigame()
+                    return false
+                else
+                     Wearer.damageAV("Magicka",  loc_magickahdrain*fUpdateTime)
+                endif
             endif
         endif
     endif
@@ -7166,38 +7188,71 @@ EndFunction
 
 bool Function ProccesAVHelper(float fUpdateTime)
     if UD_drain_stats_helper && _minigameHelper
-        Float loc_staminadrain = UD_minigame_stamina_drain_helper * UDCDMain.UD_MinigameDrainMult
-        Float loc_healthdrain = UD_minigame_heal_drain_helper * UDCDMain.UD_MinigameDrainMult
+        Float loc_staminadrain  = UD_minigame_stamina_drain_helper * UDCDMain.UD_MinigameDrainMult
+        Float loc_healthdrain   = UD_minigame_heal_drain_helper * UDCDMain.UD_MinigameDrainMult
         Float loc_magickahdrain = UD_minigame_magicka_drain_helper * UDCDMain.UD_MinigameDrainMult
-        if loc_staminadrain > 0.0
-            if _minigameHelper.getAV("Stamina") <= 0
+        bool  loc_isplayer      = HelperIsPlayer()
+        if loc_isplayer
+            if !UD_Native.MinigameStatsCheck(_minigameHelper)
                 stopMinigame()
                 return false
-            else
-                _minigameHelper.damageAV("Stamina", loc_staminadrain*fUpdateTime)
             endif
-        endif    
-
-        if loc_healthdrain > 0.0
-            if _minigameHelper.getAV("Health") < loc_healthdrain*fUpdateTime + 1
-                stopMinigame()
-                return false
-            else
-                _minigameHelper.damageAV("Health", loc_healthdrain*fUpdateTime)
+        else
+            if loc_staminadrain > 0.0
+                if _minigameHelper.getAV("Stamina") <= 0
+                    stopMinigame()
+                    return false
+                else
+                    _minigameHelper.damageAV("Stamina", loc_staminadrain*fUpdateTime)
+                endif
             endif
-        endif    
-
-        if loc_magickahdrain > 0.0 
-            if _minigameHelper.getAV("magicka") <= 0
-                stopMinigame()
-                return false
-            else
-                _minigameHelper.damageAV("Magicka",  loc_magickahdrain*fUpdateTime)    
+            if loc_healthdrain > 0.0
+                if _minigameHelper.getAV("Health") < loc_healthdrain*fUpdateTime + 1
+                    stopMinigame()
+                    return false
+                else
+                    _minigameHelper.damageAV("Health", loc_healthdrain*fUpdateTime)
+                endif
             endif
-        endif    
+            if loc_magickahdrain > 0.0 
+                if _minigameHelper.getAV("magicka") <= 0
+                    stopMinigame()
+                    return false
+                else
+                    _minigameHelper.damageAV("Magicka",  loc_magickahdrain*fUpdateTime)
+                endif
+            endif
+        endif
     endif
     return true
 EndFunction
+
+Function _StartMinigameEffect()
+    if WearerIsPlayer()
+        Float loc_staminadrain  = UD_minigame_stamina_drain
+        Float loc_healthdrain   = UD_minigame_heal_drain
+        Float loc_magickahdrain = UD_minigame_magicka_drain
+        UD_Native.StartMinigameEffect(Wearer,UDCDMain.UD_MinigameDrainMult,loc_staminadrain, loc_healthdrain, loc_magickahdrain)
+    elseif HelperIsPlayer()
+        Float loc_staminadrain  = UD_minigame_stamina_drain_helper
+        Float loc_healthdrain   = UD_minigame_heal_drain_helper
+        Float loc_magickahdrain = UD_minigame_magicka_drain_helper
+        UD_Native.StartMinigameEffect(_minigameHelper,UDCDMain.UD_MinigameDrainMult,loc_staminadrain, loc_healthdrain, loc_magickahdrain)
+    endif
+EndFunction
+
+Function _EndMinigameEffect()
+    if PlayerInMinigame()
+        UD_Native.EndMinigameEffect(UDmain.Player)
+    endif
+EndFunction
+
+Function _ToggleMinigameEffect(Bool abToggle)
+    if PlayerInMinigame()
+        UD_Native.ToggleMinigameEffect(UDmain.Player,abToggle)
+    endif
+EndFunction
+
 
 ;/  Group: Details
 ===========================================================================================

@@ -1508,16 +1508,13 @@ EndFunction
         Helper LVL after XP is increased
 /;
 int Function ResetHelperCD(Actor akHelper,Actor akHelped,Int aiXP = 0)
-    UDMain.LogDebug("ResetHelperCD("+GetActorName(akHelper)+","+GetActorName(akHelped)+","+aiXP+") - Cooldown is " + _CalculateHelperCD(akHelper,loc_lvl))
     Int loc_lvl = 1
     if aiXP > 0
         loc_lvl = addHelperXP(akHelper, aiXP)
     else
         loc_lvl = GetHelperLVL(akHelper)
     endif
-    UDMain.LogDebug("ResetHelperCD("+GetActorName(akHelper)+") - loc_lvl = " + loc_lvl)
     StorageUtil.SetFloatValue(akHelper,"UDNPCCD:"+akHelped,Utility.GetCurrentGameTime() + _CalculateHelperCD(akHelper,loc_lvl))
-    UDMain.LogDebug("ResetHelperCD("+GetActorName(akHelper)+") - Cooldown is " + _CalculateHelperCD(akHelper,loc_lvl))
     return loc_lvl
 EndFunction
 
@@ -3605,7 +3602,10 @@ EndFunction
 
 ;function used for mod development
 Function DebugFunction(Actor akActor)
-    UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0xffffffff)
+    ;UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0xffffffff)
+    UD_Native.StartMinigameEffect(akActor,1.0,1.0,0.5,1.0)
+    Utility.wait(5.0)
+    UD_Native.EndMinigameEffect(akActor)
 EndFunction
 
 float _startTime = 0.0

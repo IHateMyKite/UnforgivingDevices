@@ -2721,6 +2721,9 @@ Function _Receive_MinigameAVCheckLoop()
     while loc_device.IsMinigameLoopRunning()
         if !loc_device.isPaused()
             if UDCDMain.UD_InitialDrainDelay == 0 || (loc_ElapsedTime > UDCDMain.UD_InitialDrainDelay)
+                if (loc_ElapsedTime == UDCDMain.UD_InitialDrainDelay) && loc_device.PlayerInMinigame()
+                    UD_Native.ToggleMinigameEffect(UDMain.Player,true)
+                endif
                 if !loc_device.ProccesAV(loc_CurrentUpdateTime)
                     loc_device.StopMinigame()
                 endif
