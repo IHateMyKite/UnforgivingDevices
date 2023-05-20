@@ -2716,13 +2716,14 @@ Function _Receive_MinigameAVCheckLoop()
     float loc_CurrentUpdateTime             = UDmain.UD_baseUpdateTime
     Bool  loc_HaveHelper                    = loc_device.haveHelper()
     Float loc_ElapsedTime                   = 0.0
-    
+    Bool  loc_MinigameEffectEnabled         = False
     ;process
     while loc_device.IsMinigameLoopRunning()
         if !loc_device.isPaused()
             if UDCDMain.UD_InitialDrainDelay == 0 || (loc_ElapsedTime > UDCDMain.UD_InitialDrainDelay)
-                if UDmain.UD_UseNativeFunctions && (loc_ElapsedTime == UDCDMain.UD_InitialDrainDelay) && loc_device.PlayerInMinigame()
-                    UD_Native.ToggleMinigameEffect(UDMain.Player,true)
+                if !loc_MinigameEffectEnabled
+                    loc_MinigameEffectEnabled = true
+                    loc_device._ToggleMinigameEffect(true)
                 endif
                 if !loc_device.ProccesAV(loc_CurrentUpdateTime)
                     loc_device.StopMinigame()
