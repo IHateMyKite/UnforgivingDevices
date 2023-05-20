@@ -3518,6 +3518,10 @@ EndFunction
     Parameters:
 
         akActor - Actor to check
+
+    Returns:
+
+        Number of active minigame exhaustion effects on the player
 /;
 Int Function getMinigameExhaustion(Actor akActor)
     return StorageUtil.getIntValue(akActor,"UD_DeviceExhaustionNum")
@@ -3529,6 +3533,10 @@ EndFunction
     Parameters:
 
         akActor - Actor to check
+    
+    Returns:
+
+        False if the actor has less than the set amount of minigame exhaustions, or the set amount is 0. True otherwise.
 /;
 Bool Function isMinigameExhaustedMax(Actor akActor)
     return UD_MinigameExhNoStruggleMax > 0 && (getMinigameExhaustion(akActor) >= UD_MinigameExhNoStruggleMax)
