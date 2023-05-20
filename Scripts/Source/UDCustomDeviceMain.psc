@@ -3602,10 +3602,7 @@ EndFunction
 
 ;function used for mod development
 Function DebugFunction(Actor akActor)
-    ;UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0xffffffff)
-    UD_Native.StartMinigameEffect(akActor,1.0,1.0,0.5,1.0)
-    Utility.wait(5.0)
-    UD_Native.EndMinigameEffect(akActor)
+    UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0xffffffff)
 EndFunction
 
 float _startTime = 0.0

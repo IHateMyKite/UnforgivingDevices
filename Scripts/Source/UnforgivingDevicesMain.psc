@@ -297,6 +297,7 @@ EndProperty
 
 float Property UD_LowPerformanceTime    = 1.0   autoreadonly
 float Property UD_HightPerformanceTime  = 0.25  autoreadonly
+Bool  Property UD_UseNativeFunctions    = False auto hidden ;switch for native functions
 
 ;/  Variable: UD_baseUpdateTime
 
@@ -330,7 +331,6 @@ bool Property ZadExpressionSystemInstalled = false auto hidden
 Bool Property DeviousStrikeInstalled    = False auto hidden
 Bool Property ForHimInstalled           = False auto hidden
 Bool Property PO3Installed              = False auto hidden ;https://www.nexusmods.com/skyrimspecialedition/mods/22854
-
 Bool Property AllowMenBondage           = True auto hidden
 
 bool Property Ready = False auto hidden

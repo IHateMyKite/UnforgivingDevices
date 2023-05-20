@@ -360,6 +360,7 @@ Int UD_PrintLevel_S
 Int UD_LockDebugMCM_T
 Int UD_GamepadKey_K
 int UD_EasyGamepadMode_T
+int UD_UseNativeFunctions_T
 Event resetGeneralPage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -380,7 +381,7 @@ Event resetGeneralPage()
     addEmptyOption()
     
     UD_hightPerformance_T   = addToggleOption("$UD_HIGHPERFORMANCE",UDmain.UD_hightPerformance)
-    addEmptyOption()
+    UD_UseNativeFunctions_T = addToggleOption("$UD_NATIVESWITCH",UDmain.UD_UseNativeFunctions)
     
     UD_HearingRange_S       = addSliderOption("$UD_HEARINGRANGE",UDmain.UD_HearingRange,"{0}")
     UD_PrintLevel_S         = addSliderOption("$UD_PRINTLEVEL",UDmain.UD_PrintLevel, "{0}")
@@ -1353,6 +1354,9 @@ Function OptionSelectGeneral(int option)
         UDUI.UD_EasyGamepadMode = !UDUI.UD_EasyGamepadMode
         SetToggleOptionValue(UD_EasyGamepadMode_T, UDUI.UD_EasyGamepadMode)
         forcePageReset()
+    elseif option == UD_UseNativeFunctions_T
+        UDmain.UD_UseNativeFunctions = !UDmain.UD_UseNativeFunctions
+        SetToggleOptionValue(UD_UseNativeFunctions_T, UDmain.UD_UseNativeFunctions)
     endif
 EndFunction
 
@@ -2813,6 +2817,9 @@ Function GeneralPageDefault(int option)
     elseif option == UD_EasyGamepadMode_T
         UDUI.UD_EasyGamepadMode = false
         SetToggleOptionValue(UD_EasyGamepadMode_T, UDUI.UD_EasyGamepadMode)
+    elseif(option == UD_UseNativeFunctions_T)
+        UDmain.UD_UseNativeFunctions = false
+        SetToggleOptionValue(UD_UseNativeFunctions_T, UDmain.UD_UseNativeFunctions)
     Endif
 EndFunction
 
@@ -3143,6 +3150,8 @@ Function GeneralPageInfo(int option)
         SetInfoText("$UD_LOCKDEBUGMCM_INFO")
     elseif option == UD_EasyGamepadMode_T
         SetInfoText("$UD_EASYGAMEPADMODE_INFO")
+    elseif option == UD_UseNativeFunctions_T
+        SetInfoText("$UD_NATIVESWITCH_INFO")
     Endif
 EndFunction
 
@@ -3544,6 +3553,7 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "LockDebug", UDmain.UD_LockDebugMCM as Int)
     JsonUtil.SetIntValue(strFile, "EasyGamepadMode", UDUI.UD_EasyGamepadMode as Int)
     JsonUtil.SetIntValue(strFile, "AllKeywordCheck",UDmain.UD_CheckAllKw as Int)
+    JsonUtil.SetIntValue(strFile, "UseNativeFunctions",UDmain.UD_UseNativeFunctions as Int)
 
     ;UDCDmain
     JsonUtil.SetIntValue(strFile, "Stamina_meter_Keycode", UDCDmain.Stamina_meter_Keycode)
@@ -3688,7 +3698,8 @@ Function LoadFromJSON(string strFile)
     UDmain.UD_PrintLevel = JsonUtil.GetIntValue(strFile, "PrintLevel", UDmain.UD_PrintLevel)
     UDmain.UD_LockDebugMCM = JsonUtil.GetIntValue(strFile, "LockDebug", UDmain.UD_LockDebugMCM as Int)
     UDUI.UD_EasyGamepadMode = JsonUtil.GetIntValue(strFile, "EasyGamepadMode", UDUI.UD_EasyGamepadMode as Int)
-    UDmain.UD_CheckAllKw = JsonUtil.GetIntValue("AllKeywordCheck",UDmain.UD_CheckAllKw as Int)
+    UDmain.UD_CheckAllKw = JsonUtil.GetIntValue(strFile,"AllKeywordCheck",UDmain.UD_CheckAllKw as Int)
+    UDmain.UD_UseNativeFunctions = JsonUtil.GetIntValue(strFile, "UseNativeFunctions",UDmain.UD_UseNativeFunctions as Int)
 
     ;UDCDmain
     UDCDmain.UnregisterGlobalKeys()
@@ -3847,6 +3858,7 @@ Function ResetToDefaults()
     UDmain.UD_LockDebugMCM              = False
     UDUI.UD_EasyGamepadMode             = false
     UDmain.UD_CheckAllKw                = False
+    UDmain.UD_UseNativeFunctions        = False
     
     ;UDCDmain
     UDCDmain.UnregisterGlobalKeys()

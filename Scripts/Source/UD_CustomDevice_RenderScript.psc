@@ -6411,7 +6411,7 @@ Function minigame()
         MinigameStarter()
     endif
     
-    if loc_PlayerInMinigame
+    if UDmain.UD_UseNativeFunctions && loc_PlayerInMinigame
         UD_Native.ToggleMinigameEffect(UDMain.Player,false)
     endif
     
@@ -6486,7 +6486,7 @@ Function minigame()
                 StopMinigame()
             else
                 if !UDCDMain.UD_InitialDrainDelay || (loc_ElapsedTime > UDCDMain.UD_InitialDrainDelay)
-                    if (loc_ElapsedTime == UDCDMain.UD_InitialDrainDelay) && loc_PlayerInMinigame
+                    if UDmain.UD_UseNativeFunctions && (loc_ElapsedTime == UDCDMain.UD_InitialDrainDelay) && loc_PlayerInMinigame
                         UD_Native.ToggleMinigameEffect(UDMain.Player,true)
                     endif
                     if !ProccesAV(fCurrentUpdateTime)
@@ -7151,7 +7151,7 @@ bool Function ProccesAV(float fUpdateTime)
         Float loc_healthdrain = UD_minigame_heal_drain * UDCDMain.UD_MinigameDrainMult
         Float loc_magickahdrain = UD_minigame_magicka_drain * UDCDMain.UD_MinigameDrainMult
         bool  loc_isplayer = WearerIsPlayer()
-        if loc_isplayer
+        if UDmain.UD_UseNativeFunctions && loc_isplayer
             if !UD_Native.MinigameStatsCheck(Wearer)
                 stopMinigame()
                 return false
@@ -7192,7 +7192,7 @@ bool Function ProccesAVHelper(float fUpdateTime)
         Float loc_healthdrain   = UD_minigame_heal_drain_helper * UDCDMain.UD_MinigameDrainMult
         Float loc_magickahdrain = UD_minigame_magicka_drain_helper * UDCDMain.UD_MinigameDrainMult
         bool  loc_isplayer      = HelperIsPlayer()
-        if loc_isplayer
+        if UDmain.UD_UseNativeFunctions && loc_isplayer
             if !UD_Native.MinigameStatsCheck(_minigameHelper)
                 stopMinigame()
                 return false
@@ -7228,27 +7228,29 @@ bool Function ProccesAVHelper(float fUpdateTime)
 EndFunction
 
 Function _StartMinigameEffect()
-    if WearerIsPlayer()
-        Float loc_staminadrain  = UD_minigame_stamina_drain
-        Float loc_healthdrain   = UD_minigame_heal_drain
-        Float loc_magickahdrain = UD_minigame_magicka_drain
-        UD_Native.StartMinigameEffect(Wearer,UDCDMain.UD_MinigameDrainMult,loc_staminadrain, loc_healthdrain, loc_magickahdrain)
-    elseif HelperIsPlayer()
-        Float loc_staminadrain  = UD_minigame_stamina_drain_helper
-        Float loc_healthdrain   = UD_minigame_heal_drain_helper
-        Float loc_magickahdrain = UD_minigame_magicka_drain_helper
-        UD_Native.StartMinigameEffect(_minigameHelper,UDCDMain.UD_MinigameDrainMult,loc_staminadrain, loc_healthdrain, loc_magickahdrain)
+    if UDmain.UD_UseNativeFunctions
+        if WearerIsPlayer()
+            Float loc_staminadrain  = UD_minigame_stamina_drain
+            Float loc_healthdrain   = UD_minigame_heal_drain
+            Float loc_magickahdrain = UD_minigame_magicka_drain
+            UD_Native.StartMinigameEffect(Wearer,UDCDMain.UD_MinigameDrainMult,loc_staminadrain, loc_healthdrain, loc_magickahdrain)
+        elseif HelperIsPlayer()
+            Float loc_staminadrain  = UD_minigame_stamina_drain_helper
+            Float loc_healthdrain   = UD_minigame_heal_drain_helper
+            Float loc_magickahdrain = UD_minigame_magicka_drain_helper
+            UD_Native.StartMinigameEffect(_minigameHelper,UDCDMain.UD_MinigameDrainMult,loc_staminadrain, loc_healthdrain, loc_magickahdrain)
+        endif
     endif
 EndFunction
 
 Function _EndMinigameEffect()
-    if PlayerInMinigame()
+    if UDmain.UD_UseNativeFunctions && PlayerInMinigame()
         UD_Native.EndMinigameEffect(UDmain.Player)
     endif
 EndFunction
 
 Function _ToggleMinigameEffect(Bool abToggle)
-    if PlayerInMinigame()
+    if UDmain.UD_UseNativeFunctions && PlayerInMinigame()
         UD_Native.ToggleMinigameEffect(UDmain.Player,abToggle)
     endif
 EndFunction
