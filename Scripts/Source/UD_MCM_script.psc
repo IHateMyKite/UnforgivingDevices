@@ -616,7 +616,9 @@ Event resetCustomOrgasmPage()
     addEmptyOption()
         
     UD_OrgasmUpdateTime_S   = addSliderOption("$UD_ORGASMUPDATETIME",UDOM.UD_OrgasmUpdateTime, "${1} s")
+
     UD_OrgasmExhaustion_T   = addToggleOption("$UD_ORGASMEXHAUSTION",UDmain.UD_OrgasmExhaustion,UD_LockMenu_flag)
+    addEmptyOption()
     UD_OrgasmExhaustionStruggleMax_S = addSliderOption("$UD_ORGASMEXHAUSTIONSTRUGGLEMAX", UDOM.UD_OrgasmExhaustionStruggleMax, "${0} orgasms",UD_LockMenu_flag)
     
     UD_UseOrgasmWidget_T    = addToggleOption("$UD_USEORGASMWIDGET", UDOM.UD_UseOrgasmWidget)
