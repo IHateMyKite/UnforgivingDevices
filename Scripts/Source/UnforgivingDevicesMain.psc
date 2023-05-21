@@ -555,11 +555,14 @@ Function OnGameReload()
         if !CheckSubModules() || _FatalError
             ENABLE()
             _Updating = False
+            Info("<=====| !!Unforgiving Devices FAILED!! |=====>")
+            Print("Unforgiving Devices update FAILED")
+            Info(self + "::OnGameReload() - CheckSubmodules() = " + CheckSubModules() + ";_FatalError = " + _FatalError)
             return ;Fatal error when initializing UD
         endif
-        
+
         UDWC.GameUpdate()
-        
+
         UDMC.Update()
         
         BoundCombat.Update()
@@ -706,6 +709,7 @@ Function _ValidateModules()
 EndFunction
 
 Function _StartModulesManual()
+    Info(self + "::_StartModulesManual() - Starting modules...")
     if !UDPP.IsRunning()
         UDPP.start()
     endif
@@ -729,6 +733,7 @@ Function _StartModulesManual()
     if !UDCM.IsRunning()
         UDCM.start()
     endif
+    Info(self + "::_StartModulesManual() - Started modules")
 EndFunction
 
 ;last check before mod is ready. At this point, all optional mods are checked as so, can be used.
@@ -840,6 +845,7 @@ EndFUnction
 
 Function _CheckPatchesOrder()
     int loc_it = 0
+    Info(self + "::_CheckPatchesOrder() - Checking patches order...")
     while loc_it < UD_OfficialPatches.length
         if ModInstalled(UD_OfficialPatches[loc_it])
             if !ModInstalledAfterUD(UD_OfficialPatches[loc_it])
@@ -848,6 +854,7 @@ Function _CheckPatchesOrder()
         endif
         loc_it += 1
     endwhile
+    Info(self + "::_CheckPatchesOrder() - Patches order checked")
 EndFunction
 
 ;/  Function: getDDescapeDifficulty

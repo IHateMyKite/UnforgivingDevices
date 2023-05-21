@@ -51,6 +51,7 @@ EndEvent
 ;function called on game reload (only works for player)
 Function Update()
     loc_isplayer = UDmain.ActorIsPlayer(akActor)
+    UDmain.Log("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - Update() - ActorIsPlayer: " + loc_isplayer,3)
 EndFunction
 
 Event OnUpdate()

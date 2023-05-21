@@ -490,6 +490,8 @@ Int UD_MinigameExhMagnitudeMult_S
 Int UD_MinigameLockpickSkillAdjust_M
 String[] UD_MinigameLockpickSkillAdjust_ML
 Int UD_LockpickMinigameDuration_S
+Int UD_MinigameExhExponential_S
+Int UD_MinigameExhNoStruggleMax_S
 Event resetCustomBondagePage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -530,8 +532,12 @@ Event resetCustomBondagePage()
     addEmptyOption()
     
     UD_MinigameExhDurationMult_S     = addSliderOption("$UD_MINIEXHAUSDUR", Round(UDCDmain.UD_MinigameExhDurationMult * 100), "{0} %", UD_LockMenu_flag)
+    UD_MinigameExhExponential_S      = addSliderOption("$UD_MINIEXHEXP", UDCDmain.UD_MinigameExhExponential, "{1}", UD_LockMenu_flag)
+
     UD_MinigameExhMagnitudeMult_S    = addSliderOption("$UD_MINIEXHAUSMAG", Round(UDCDmain.UD_MinigameExhMagnitudeMult * 100), "{0} %", UD_LockMenu_flag)
-    
+    UD_MinigameExhNoStruggleMax_S    = addSliderOption("$UD_MINIEXHNOSTRUGGMAX", Round(UDCDmain.UD_MinigameExhNoStruggleMax), "{0}", UD_LockMenu_flag)
+
+
     ;SKILL
     AddHeaderOption("$UD_H_SKILLSETTING")
     addEmptyOption()
@@ -600,6 +606,7 @@ int UD_VibrationMultiplier_S
 int UD_ArousalMultiplier_S
 int UD_OrgasmArousalReduce_S
 int UD_OrgasmArousalReduceDuration_S
+int UD_OrgasmExhaustionStruggleMax_S
 
 Event resetCustomOrgasmPage()
     UpdateLockMenuFlag()
@@ -609,7 +616,10 @@ Event resetCustomOrgasmPage()
     addEmptyOption()
         
     UD_OrgasmUpdateTime_S   = addSliderOption("$UD_ORGASMUPDATETIME",UDOM.UD_OrgasmUpdateTime, "${1} s")
+
     UD_OrgasmExhaustion_T   = addToggleOption("$UD_ORGASMEXHAUSTION",UDmain.UD_OrgasmExhaustion,UD_LockMenu_flag)
+    addEmptyOption()
+    UD_OrgasmExhaustionStruggleMax_S = addSliderOption("$UD_ORGASMEXHAUSTIONSTRUGGLEMAX", UDOM.UD_OrgasmExhaustionStruggleMax, "${0} orgasms",UD_LockMenu_flag)
     
     UD_UseOrgasmWidget_T    = addToggleOption("$UD_USEORGASMWIDGET", UDOM.UD_UseOrgasmWidget)
     UD_OrgasmResistence_S   = addSliderOption("$UD_ORGASMRESISTENCE",UDOM.UD_OrgasmResistence, "{1} Op/s",UD_LockMenu_flag)
@@ -1922,6 +1932,16 @@ Function OnOptionSliderOpenCustomBondage(int option)
         SetSliderDialogDefaultValue(20)
         SetSliderDialogRange(0, 120)
         SetSliderDialogInterval(5)
+    elseif option == UD_MinigameExhNoStruggleMax_S
+        SetSliderDialogStartValue(UDCDmain.UD_MinigameExhNoStruggleMax)
+        SetSliderDialogDefaultValue(2)
+        SetSliderDialogRange(0, 10)
+        SetSliderDialogInterval(1)
+    elseif option == UD_MinigameExhExponential_S
+        SetSliderDialogStartValue(UDCDmain.UD_MinigameExhExponential)
+        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogRange(0.1, 10)
+        SetSliderDialogInterval(0.1)
     endif
 EndFunction
 
@@ -1941,6 +1961,11 @@ Function OnOptionSliderOpenCustomOrgasm(int option)
         SetSliderDialogDefaultValue(0.5)
         SetSliderDialogRange(0.1,10.0)
         SetSliderDialogInterval(0.1)
+    elseif option == UD_OrgasmExhaustionStruggleMax_S
+        SetSliderDialogStartValue(UDOM.UD_OrgasmExhaustionStruggleMax)
+        SetSliderDialogDefaultValue(6)
+        SetSliderDialogRange(0,10)
+        SetSliderDialogInterval(1)
     elseif option == UD_VibrationMultiplier_S
         SetSliderDialogStartValue(UDCDmain.UD_VibrationMultiplier)
         SetSliderDialogDefaultValue(0.1)
@@ -2259,6 +2284,12 @@ Function OnOptionSliderAcceptCustomBondage(int option, float value)
     elseif option == UD_LockpickMinigameDuration_S
         UDCDmain.UD_LockpickMinigameDuration = Round(value)
         SetSliderOptionValue(UD_LockpickMinigameDuration_S, UDCDmain.UD_LockpickMinigameDuration, "{0} s")
+    elseif option == UD_MinigameExhNoStruggleMax_S
+        UDCDMain.UD_MinigameExhNoStruggleMax = Round(value)
+        SetSliderOptionValue(UD_MinigameExhNoStruggleMax_S, UDCDMain.UD_MinigameExhNoStruggleMax, "{0}")
+    elseif option == UD_MinigameExhExponential_S
+        UDCDMain.UD_MinigameExhExponential = value
+        SetSliderOptionValue(UD_MinigameExhExponential_S, UDCDMain.UD_MinigameExhExponential, "{1}")
     endif
 EndFunction
 
@@ -2272,6 +2303,9 @@ Function OnOptionSliderAcceptCustomOrgasm(int option, float value)
     elseif option == UD_OrgasmResistence_S
         UDOM.UD_OrgasmResistence = value
         SetSliderOptionValue(UD_OrgasmResistence_S, UDOM.UD_OrgasmResistence, "{1} Op/s")
+    elseif option == UD_OrgasmExhaustionStruggleMax_S
+        UDOM.UD_OrgasmExhaustionStruggleMax = Round(value)
+        SetSliderOptionValue(UD_OrgasmExhaustionStruggleMax_S, UDOM.UD_OrgasmExhaustionStruggleMax, "{0} orgasms")
     elseif option == UD_VibrationMultiplier_S
         UDCDmain.UD_VibrationMultiplier = value
         SetSliderOptionValue(UD_VibrationMultiplier_S, UDCDmain.UD_VibrationMultiplier, "{3}")
@@ -2944,7 +2978,7 @@ Function CustomBondagePageDefault(int option)
     elseif option == UD_LockpickMinigameDuration_S
         UDCDmain.UD_LockpickMinigameDuration = 20
         SetSliderOptionValue(UD_LockpickMinigameDuration_S, UDCDmain.UD_LockpickMinigameDuration, "{0} s")
-    Endif
+    endif
 EndFunction
 
 Function CustomOrgasmPageDefault(int option)
@@ -2954,6 +2988,8 @@ Function CustomOrgasmPageDefault(int option)
         SetInfoText("$UD_USEORGASMWIDGET_INFO")
     elseif option == UD_OrgasmResistence_S
         SetInfoText("$UD_ORGASMRESISTENCE_INFO")
+    elseif option == UD_OrgasmExhaustionStruggleMax_S
+        SetInfoText("$UD_ORGASMEXHAUSTIONSTRUGGLEMAX_INFO")
     elseif option == UD_HornyAnimation_T
         SetInfoText("$UD_HORNYANIMATION_INFO")
     elseif option == UD_HornyAnimationDuration_S
@@ -3259,6 +3295,10 @@ Function CustomBondagePageInfo(int option)
         SetInfoText("$UD_MINIGAMELOCKPICKSKILLADJUST_INFO")
     elseif option == UD_LockpickMinigameDuration_S
         SetInfoText("$UD_LOCKPICKMINIGAMEDURATION_INFO")
+    elseif option == UD_MinigameExhExponential_S
+        SetInfoText("$UD_MINIEXHEXP_INFO")
+    elseif option == UD_MinigameExhNoStruggleMax_S
+        SetInfoText("$UD_MINIEXHNOSTRUGGMAX_INFO")
     Endif
 EndFunction
 
@@ -3269,6 +3309,8 @@ Function CustomOrgasmPageInfo(int option)
         SetInfoText("$UD_USEORGASMWIDGET_INFO")
     elseif option == UD_OrgasmResistence_S
         SetInfoText("$UD_ORGASMRESISTENCE_INFO")
+    elseif option == UD_OrgasmExhaustionStruggleMax_S
+        SetInfoText("$UD_ORGASMEXHAUSTIONSTRUGGLEMAX_INFO")
     elseif option == UD_HornyAnimation_T
         SetInfoText("$UD_HORNYANIMATION_INFO")
     elseif option == UD_HornyAnimationDuration_S
@@ -3564,6 +3606,7 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetFloatValue(strFile, "VibrationMultiplier", UDCDmain.UD_VibrationMultiplier)
     JsonUtil.SetFloatValue(strFile, "ArousalMultiplier", UDCDmain.UD_ArousalMultiplier)
     JsonUtil.SetFloatValue(strFile, "OrgasmResistence", UDOM.UD_OrgasmResistence)
+    JsonUtil.SetIntValue(strFile, "OrgasmExhaustionStruggleMax", UDOM.UD_OrgasmExhaustionStruggleMax)
     JsonUtil.SetIntValue(strFile, "LockpicksPerMinigame", UDCDmain.UD_LockpicksPerMinigame as Int)
     JsonUtil.SetIntValue(strFile, "UseOrgasmWidget", UDOM.UD_UseOrgasmWidget as Int)
     JsonUtil.SetFloatValue(strFile, "OrgasmUpdateTime", UDOM.UD_OrgasmUpdateTime)
@@ -3595,6 +3638,8 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetFloatValue(strFile, "MinigameExhMagnitudeMult", UDCDmain.UD_MinigameExhMagnitudeMult)
     JsonUtil.SetIntValue(strFile, "MinigameLockpickSkillAdjust", UDCDmain.UD_MinigameLockpickSkillAdjust)
     JsonUtil.SetIntValue(strFile, "LockpickMinigameDuration", UDCDmain.UD_LockpickMinigameDuration)
+    JsonUtil.SetFloatValue(strFile, "MinigameExhExponential", UDCDMain.UD_MinigameExhExponential)
+    JsonUtil.SetIntValue(strFile, "MinigameExhNoStruggleMax", UDCDMAIN.UD_MinigameExhNoStruggleMax as Int)
     
     ;ABADON
     JsonUtil.SetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
@@ -3719,6 +3764,7 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UD_VibrationMultiplier         = JsonUtil.GetFloatValue(strFile, "VibrationMultiplier", UDCDmain.UD_VibrationMultiplier)
     UDCDmain.UD_ArousalMultiplier           = JsonUtil.GetFloatValue(strFile, "ArousalMultiplier", UDCDmain.UD_ArousalMultiplier)
     UDOM.UD_OrgasmResistence                = JsonUtil.GetFloatValue(strFile, "OrgasmResistence", UDOM.UD_OrgasmResistence)
+    UDOM.UD_OrgasmExhaustionStruggleMax     = JsonUtil.GetIntValue(strFile, "OrgasmExhaustionStruggleMax", UDOM.UD_OrgasmExhaustionStruggleMax)
     UDCDmain.UD_LockpicksPerMinigame        = JsonUtil.GetIntValue(strFile, "LockpicksPerMinigame", UDCDmain.UD_LockpicksPerMinigame)
     UDOM.UD_UseOrgasmWidget                 = JsonUtil.GetIntValue(strFile, "UseOrgasmWidget", UDOM.UD_UseOrgasmWidget as Int)
     UDOM.UD_OrgasmUpdateTime                = JsonUtil.GetFloatValue(strFile, "OrgasmUpdateTime", UDOM.UD_OrgasmUpdateTime)
@@ -3750,6 +3796,8 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UD_MinigameExhMagnitudeMult    = JsonUtil.GetFloatValue(strFile, "MinigameExhMagnitudeMult", UDCDmain.UD_MinigameExhMagnitudeMult)
     UDCDmain.UD_MinigameLockpickSkillAdjust = JsonUtil.GetIntValue(strFile, "MinigameLockpickSkillAdjust", UDCDmain.UD_MinigameLockpickSkillAdjust)
     UDCDmain.UD_LockpickMinigameDuration    = JsonUtil.GetIntValue(strFile, "LockpickMinigameDuration", UDCDmain.UD_LockpickMinigameDuration)
+    UDCDMain.UD_MinigameExhExponential      = JsonUtil.GetFloatValue(strFile, "MinigameExhExponential", UDCDMain.UD_MinigameExhExponential)
+    UDCDMain.UD_MinigameExhNoStruggleMax   = JsonUtil.GetIntValue(strFile, "MinigameExhNoStruggleMax", UDCDMain.UD_MinigameExhNoStruggleMax)
     
     
     ;ABADON
@@ -3885,6 +3933,7 @@ Function ResetToDefaults()
     UDCDmain.UD_VibrationMultiplier     = 0.1
     UDCDmain.UD_ArousalMultiplier       = 0.025
     UDOM.UD_OrgasmResistence            = 3.5
+    UDOM.UD_OrgasmExhaustionStruggleMax = 6
     UDCDmain.UD_LockpicksPerMinigame    = 2
     UDOM.UD_UseOrgasmWidget             = true
     UDOM.UD_OrgasmUpdateTime            = 0.5
@@ -3915,6 +3964,8 @@ Function ResetToDefaults()
     UDCDmain.UD_MinigameExhDurationMult = 1.0
     UDCDmain.UD_MinigameExhMagnitudeMult= 1.0
     UDCDmain.UD_MinigameLockpickSkillAdjust = 2
+    UDCDMain.UD_MinigameExhExponential  = 1.0
+    UDCDMain.UD_MinigameExhNoStruggleMax= 2
     
     ;ABADON
     AbadonQuest.final_finisher_set      = true

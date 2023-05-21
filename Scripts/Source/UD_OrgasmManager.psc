@@ -91,6 +91,13 @@ Int     Property UD_OrgasmArousalReduce             = 25    auto hidden
 /;
 Int     Property UD_OrgasmArousalReduceDuration     = 7     auto hidden
 
+;/  Variable: UD_OrgasmExhaustionStruggleMax
+    How many orgasm exhaustions are required to prevent struggling. Disabled if 0.
+    
+    Do not edit, *READ ONLY!* Is set by user with MCM
+/;
+Int     Property UD_OrgasmExhaustionStruggleMax     = 6     auto hidden
+
 ;/  Variable: OrgasmFaction
     Faction to which will ba actor added for duration of orgasm
     
@@ -1086,6 +1093,21 @@ EndFunction
 /;
 int Function GetOrgasmExhaustion(Actor akActor)
     return StorageUtil.getIntValue(akActor,"UD_OrgasmExhaustionNum")
+EndFunction
+
+;/  Function: isOrgasmExhaustedMax
+
+    Checks whether the number of orgasm exhaustions is over the configured limit
+
+    Parameters:
+        akActor     - Checked actor
+
+    Returns:
+
+        Whether this actor is over the limit (returns false if configured limit is 0)
+/;
+bool Function isOrgasmExhaustedMax(Actor akActor)
+    return UD_OrgasmExhaustionStruggleMax > 0 && (GetOrgasmExhaustion(akActor) >= UD_OrgasmExhaustionStruggleMax)
 EndFunction
 
 ;/  Function: UpdateBaseOrgasmVals

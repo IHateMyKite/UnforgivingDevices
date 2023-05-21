@@ -927,6 +927,7 @@ Int Property UD_OrgasmExhaustionTime = 45 auto hidden
 ;adds orgasm exhastion to slotted actor. 
 ;If actor is NPC, it will directly update orgasm values.
 ;If actor is Player, it will cast UD_OrgasmExhastion_AME magick effect
+;NOTE: THIS DOESN'T ACTUALLY DO THE LATTER
 Function AddOrgasmExhaustion()
     Actor loc_actor = GetActor()
     StorageUtil.AdjustIntValue(loc_actor,"UD_OrgasmExhaustionNum",1)
@@ -1971,6 +1972,7 @@ float[] _org_expression3
 Function InitOrgasmUpdate()
     Actor loc_actor = GetActor()
     if loc_actor
+        UDmain.Log("UD_CustomDevice_NPCSlot(" + ") - InitOrgasmUpdate() - Actor: " + GetActorName(loc_actor), 3)
         loc_actor.AddToFaction(UDOM.OrgasmCheckLoopFaction)
         InitOrgasmExpression()
         _widgetShown                = false
@@ -2107,7 +2109,7 @@ Function CalculateOrgasmProgress()
     endif
     
     _orgasmRateAnti = UDOM.CulculateAntiOrgasmRateMultiplier(_arousal)*_orgasmResistMultiplier*(_orgasmProgress*(_orgasmResistence/100.0))*_currentUpdateTime  ;edging, orgasm rate needs to be bigger then UD_OrgasmResistence, else actor will not reach orgasm
-    
+
     if !_orgasmResisting
         if _orgasmRate*_orgasmRateMultiplier > 0.0
             _orgasmProgress -= _orgasmRateAnti
