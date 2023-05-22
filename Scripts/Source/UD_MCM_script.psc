@@ -29,6 +29,11 @@ UD_NPCInteligence Property UDAI
     EndFunction
 EndProperty
 
+UD_Config         Property UDCONF hidden
+    UD_Config Function Get()
+        return UDmain.UDCONF
+    EndFunction
+EndProperty
 int max_difficulty_S
 int overaldifficulty_S ;0-3 where 3 is same as in MDS
 int eventchancemod_S
@@ -491,6 +496,8 @@ Int UD_MinigameExhMagnitudeMult_S
 Int UD_MinigameLockpickSkillAdjust_M
 String[] UD_MinigameLockpickSkillAdjust_ML
 Int UD_LockpickMinigameDuration_S
+Int UD_MinigameExhExponential_S
+Int UD_MinigameExhNoStruggleMax_S
 Event resetCustomBondagePage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -531,8 +538,12 @@ Event resetCustomBondagePage()
     addEmptyOption()
     
     UD_MinigameExhDurationMult_S     = addSliderOption("$UD_MINIEXHAUSDUR", Round(UDCDmain.UD_MinigameExhDurationMult * 100), "{0} %", UD_LockMenu_flag)
+    UD_MinigameExhExponential_S      = addSliderOption("$UD_MINIEXHEXP", UDCDmain.UD_MinigameExhExponential, "{1}", UD_LockMenu_flag)
+
     UD_MinigameExhMagnitudeMult_S    = addSliderOption("$UD_MINIEXHAUSMAG", Round(UDCDmain.UD_MinigameExhMagnitudeMult * 100), "{0} %", UD_LockMenu_flag)
-    
+    UD_MinigameExhNoStruggleMax_S    = addSliderOption("$UD_MINIEXHNOSTRUGGMAX", Round(UDCDmain.UD_MinigameExhNoStruggleMax), "{0}", UD_LockMenu_flag)
+
+
     ;SKILL
     AddHeaderOption("$UD_H_SKILLSETTING")
     addEmptyOption()
@@ -601,6 +612,7 @@ int UD_VibrationMultiplier_S
 int UD_ArousalMultiplier_S
 int UD_OrgasmArousalReduce_S
 int UD_OrgasmArousalReduceDuration_S
+int UD_OrgasmExhaustionStruggleMax_S
 
 Event resetCustomOrgasmPage()
     UpdateLockMenuFlag()
@@ -609,19 +621,22 @@ Event resetCustomOrgasmPage()
     AddHeaderOption("$UD_GENERAL")
     addEmptyOption()
         
-    UD_OrgasmUpdateTime_S   = addSliderOption("$UD_ORGASMUPDATETIME",UDOM.UD_OrgasmUpdateTime, "${1} s")
-    UD_OrgasmExhaustion_T   = addToggleOption("$UD_ORGASMEXHAUSTION",UDmain.UD_OrgasmExhaustion,UD_LockMenu_flag)
-    
-    UD_UseOrgasmWidget_T    = addToggleOption("$UD_USEORGASMWIDGET", UDOM.UD_UseOrgasmWidget)
-    UD_OrgasmResistence_S   = addSliderOption("$UD_ORGASMRESISTENCE",UDOM.UD_OrgasmResistence, "{1} Op/s",UD_LockMenu_flag)
+    UD_OrgasmUpdateTime_S   = addSliderOption("$UD_ORGASMUPDATETIME",UDCONF.UD_OrgasmUpdateTime, "${1} s")
 
-    UD_HornyAnimation_T     = addToggleOption("$UD_HORNYANIMATION", UDOM.UD_HornyAnimation)
-    UD_HornyAnimationDuration_S     = addSliderOption("$UD_HORNYANIMATIONDURATION",UDOM.UD_HornyAnimationDuration, "${0} s",UD_Horny_f)
+    UD_OrgasmExhaustion_T   = addToggleOption("$UD_ORGASMEXHAUSTION",UDmain.UD_OrgasmExhaustion,UD_LockMenu_flag)
+    addEmptyOption()
+    UD_OrgasmExhaustionStruggleMax_S = addSliderOption("$UD_ORGASMEXHAUSTIONSTRUGGLEMAX", UDCONF.UD_OrgasmExhaustionStruggleMax, "${0} orgasms",UD_LockMenu_flag)
+    
+    UD_UseOrgasmWidget_T    = addToggleOption("$UD_USEORGASMWIDGET", UDCONF.UD_UseOrgasmWidget)
+    UD_OrgasmResistence_S   = addSliderOption("$UD_ORGASMRESISTENCE",UDCONF.UD_OrgasmResistence, "{1} Op/s",UD_LockMenu_flag)
+
+    UD_HornyAnimation_T     = addToggleOption("$UD_HORNYANIMATION", UDCONF.UD_HornyAnimation)
+    UD_HornyAnimationDuration_S     = addSliderOption("$UD_HORNYANIMATIONDURATION",UDCONF.UD_HornyAnimationDuration, "${0} s",UD_Horny_f)
     
     AddHeaderOption("$UD_H_POSTORGASM")
     addEmptyOption()
-    UD_OrgasmArousalReduce_S    = addSliderOption("$UD_ORGASMAROUSALREDUCE",UDOM.UD_OrgasmArousalReduce, "${0} /s")
-    UD_OrgasmArousalReduceDuration_S = addSliderOption("$UD_ORGASMAROUSALREDUCEDURATION",UDOM.UD_OrgasmArousalReduceDuration, "${0} s")
+    UD_OrgasmArousalReduce_S    = addSliderOption("$UD_ORGASMAROUSALREDUCE",UDCONF.UD_OrgasmArousalReduce, "${0} /s")
+    UD_OrgasmArousalReduceDuration_S = addSliderOption("$UD_ORGASMAROUSALREDUCEDURATION",UDCONF.UD_OrgasmArousalReduceDuration, "${0} s")
     
     AddHeaderOption("$UD_H_VIBRATIONSETTING")
     addEmptyOption()    
@@ -746,7 +761,7 @@ Event resetDDPatchPage()
     addEmptyOption()
     
     UD_StartThirdpersonAnimation_Switch_T = addToggleOption("$UD_STARTTHIRDPERSONANIMATIONSWITCH", libs.UD_StartThirdPersonAnimation_Switch)
-    UD_OrgasmAnimation_M = AddMenuOption("$UD_ORGASMANIMATION", orgasmAnimation[UDOM.UD_OrgasmAnimation]) 
+    UD_OrgasmAnimation_M = AddMenuOption("$UD_ORGASMANIMATION", orgasmAnimation[UDCONF.UD_OrgasmAnimation]) 
     
     UD_DAR_T = addToggleOption("$UD_H_DARPATCH", AAScript.UD_DAR,FlagSwitch(AAScript))
     addEmptyOption()
@@ -1484,8 +1499,8 @@ EndFunction
 
 Function OptionCustomOrgasm(int option)
     if(option == UD_UseOrgasmWidget_T)
-        UDOM.UD_UseOrgasmWidget = !UDOM.UD_UseOrgasmWidget
-        SetToggleOptionValue(UD_UseOrgasmWidget_T, UDOM.UD_UseOrgasmWidget)
+        UDCONF.UD_UseOrgasmWidget = !UDCONF.UD_UseOrgasmWidget
+        SetToggleOptionValue(UD_UseOrgasmWidget_T, UDCONF.UD_UseOrgasmWidget)
         forcePageReset()
     elseif (option == UD_OrgasmExhaustion_T)
         UDmain.UD_OrgasmExhaustion = !UDmain.UD_OrgasmExhaustion
@@ -1497,9 +1512,9 @@ Function OptionCustomOrgasm(int option)
         SetToggleOptionValue(UD_OrgasmExhaustion_T, UDmain.UD_OrgasmExhaustion)
         forcePageReset()
     elseif(option == UD_HornyAnimation_T)
-        UDOM.UD_HornyAnimation = !UDOM.UD_HornyAnimation
-        SetToggleOptionValue(UD_HornyAnimation_T, UDOM.UD_HornyAnimation)
-        if UDOM.UD_HornyAnimation
+        UDCONF.UD_HornyAnimation = !UDCONF.UD_HornyAnimation
+        SetToggleOptionValue(UD_HornyAnimation_T, UDCONF.UD_HornyAnimation)
+        if UDCONF.UD_HornyAnimation
             UD_Horny_f = OPTION_FLAG_NONE
         else
             UD_Horny_f = OPTION_FLAG_DISABLED
@@ -1926,25 +1941,40 @@ Function OnOptionSliderOpenCustomBondage(int option)
         SetSliderDialogDefaultValue(20)
         SetSliderDialogRange(0, 120)
         SetSliderDialogInterval(5)
+    elseif option == UD_MinigameExhNoStruggleMax_S
+        SetSliderDialogStartValue(UDCDmain.UD_MinigameExhNoStruggleMax)
+        SetSliderDialogDefaultValue(2)
+        SetSliderDialogRange(0, 10)
+        SetSliderDialogInterval(1)
+    elseif option == UD_MinigameExhExponential_S
+        SetSliderDialogStartValue(UDCDmain.UD_MinigameExhExponential)
+        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogRange(0.1, 10)
+        SetSliderDialogInterval(0.1)
     endif
 EndFunction
 
 Function OnOptionSliderOpenCustomOrgasm(int option)
     if (option == UD_OrgasmUpdateTime_S)
-        SetSliderDialogStartValue(UDOM.UD_OrgasmUpdateTime)
+        SetSliderDialogStartValue(UDCONF.UD_OrgasmUpdateTime)
         SetSliderDialogDefaultValue(0.5)
         SetSliderDialogRange(0.1, 2.0)
         SetSliderDialogInterval(0.1)
     elseif (option == UD_HornyAnimationDuration_S)
-        SetSliderDialogStartValue(Round(UDOM.UD_HornyAnimationDuration))
+        SetSliderDialogStartValue(Round(UDCONF.UD_HornyAnimationDuration))
         SetSliderDialogDefaultValue(5.0)
         SetSliderDialogRange(2.0,20.0)
         SetSliderDialogInterval(1.0)
     elseif option == UD_OrgasmResistence_S
-        SetSliderDialogStartValue(UDOM.UD_OrgasmResistence)
+        SetSliderDialogStartValue(UDCONF.UD_OrgasmResistence)
         SetSliderDialogDefaultValue(0.5)
         SetSliderDialogRange(0.1,10.0)
         SetSliderDialogInterval(0.1)
+    elseif option == UD_OrgasmExhaustionStruggleMax_S
+        SetSliderDialogStartValue(UDCONF.UD_OrgasmExhaustionStruggleMax)
+        SetSliderDialogDefaultValue(6)
+        SetSliderDialogRange(0,10)
+        SetSliderDialogInterval(1)
     elseif option == UD_VibrationMultiplier_S
         SetSliderDialogStartValue(UDCDmain.UD_VibrationMultiplier)
         SetSliderDialogDefaultValue(0.1)
@@ -1956,12 +1986,12 @@ Function OnOptionSliderOpenCustomOrgasm(int option)
         SetSliderDialogRange(0.01,0.5)
         SetSliderDialogInterval(0.01)
     elseif option == UD_OrgasmArousalReduce_S
-        SetSliderDialogStartValue(UDOM.UD_OrgasmArousalReduce)
+        SetSliderDialogStartValue(UDCONF.UD_OrgasmArousalReduce)
         SetSliderDialogDefaultValue(1.0)
         SetSliderDialogRange(1.0, 100.0)
         SetSliderDialogInterval(1.0)
     elseif option == UD_OrgasmArousalReduceDuration_S
-        SetSliderDialogStartValue(UDOM.UD_OrgasmArousalReduceDuration)
+        SetSliderDialogStartValue(UDCONF.UD_OrgasmArousalReduceDuration)
         SetSliderDialogDefaultValue(1.0)
         SetSliderDialogRange(1.0, 30.0)
         SetSliderDialogInterval(1.0)
@@ -2119,7 +2149,7 @@ Function OnOptionSliderOpenDebug(int option)
     if option == OrgasmResist_S
         UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByIndex(actorIndex)
         SetSliderDialogStartValue(UDOM.getActorOrgasmResist(slot.getActor()))
-        SetSliderDialogDefaultValue(UDOM.UD_OrgasmResistence)
+        SetSliderDialogDefaultValue(UDCONF.UD_OrgasmResistence)
         SetSliderDialogRange(0.0, 10.0)
         SetSliderDialogInterval(0.1)
     elseif option == OrgasmCapacity_S
@@ -2263,19 +2293,28 @@ Function OnOptionSliderAcceptCustomBondage(int option, float value)
     elseif option == UD_LockpickMinigameDuration_S
         UDCDmain.UD_LockpickMinigameDuration = Round(value)
         SetSliderOptionValue(UD_LockpickMinigameDuration_S, UDCDmain.UD_LockpickMinigameDuration, "{0} s")
+    elseif option == UD_MinigameExhNoStruggleMax_S
+        UDCDMain.UD_MinigameExhNoStruggleMax = Round(value)
+        SetSliderOptionValue(UD_MinigameExhNoStruggleMax_S, UDCDMain.UD_MinigameExhNoStruggleMax, "{0}")
+    elseif option == UD_MinigameExhExponential_S
+        UDCDMain.UD_MinigameExhExponential = value
+        SetSliderOptionValue(UD_MinigameExhExponential_S, UDCDMain.UD_MinigameExhExponential, "{1}")
     endif
 EndFunction
 
 Function OnOptionSliderAcceptCustomOrgasm(int option, float value)
     if (option == UD_OrgasmUpdateTime_S)
-        UDOM.UD_OrgasmUpdateTime = value
-        SetSliderOptionValue(UD_OrgasmUpdateTime_S, UDOM.UD_OrgasmUpdateTime, "${1} s")
+        UDCONF.UD_OrgasmUpdateTime = value
+        SetSliderOptionValue(UD_OrgasmUpdateTime_S, UDCONF.UD_OrgasmUpdateTime, "${1} s")
     elseif (option == UD_HornyAnimationDuration_S)
-        UDOM.UD_HornyAnimationDuration = Round(value)
-        SetSliderOptionValue(UD_HornyAnimationDuration_S, UDOM.UD_HornyAnimationDuration, "${0} s")
+        UDCONF.UD_HornyAnimationDuration = Round(value)
+        SetSliderOptionValue(UD_HornyAnimationDuration_S, UDCONF.UD_HornyAnimationDuration, "${0} s")
     elseif option == UD_OrgasmResistence_S
-        UDOM.UD_OrgasmResistence = value
-        SetSliderOptionValue(UD_OrgasmResistence_S, UDOM.UD_OrgasmResistence, "{1} Op/s")
+        UDCONF.UD_OrgasmResistence = value
+        SetSliderOptionValue(UD_OrgasmResistence_S, UDCONF.UD_OrgasmResistence, "{1} Op/s")
+    elseif option == UD_OrgasmExhaustionStruggleMax_S
+        UDCONF.UD_OrgasmExhaustionStruggleMax = Round(value)
+        SetSliderOptionValue(UD_OrgasmExhaustionStruggleMax_S, UDCONF.UD_OrgasmExhaustionStruggleMax, "{0} orgasms")
     elseif option == UD_VibrationMultiplier_S
         UDCDmain.UD_VibrationMultiplier = value
         SetSliderOptionValue(UD_VibrationMultiplier_S, UDCDmain.UD_VibrationMultiplier, "{3}")
@@ -2283,11 +2322,11 @@ Function OnOptionSliderAcceptCustomOrgasm(int option, float value)
         UDCDmain.UD_ArousalMultiplier = value
         SetSliderOptionValue(UD_ArousalMultiplier_S, UDCDmain.UD_ArousalMultiplier, "{3}")
     elseif option == UD_OrgasmArousalReduce_S
-        UDOM.UD_OrgasmArousalReduce = Round(value)
-        SetSliderOptionValue(UD_OrgasmArousalReduce_S, UDOM.UD_OrgasmArousalReduce, "${0} /s")
+        UDCONF.UD_OrgasmArousalReduce = Round(value)
+        SetSliderOptionValue(UD_OrgasmArousalReduce_S, UDCONF.UD_OrgasmArousalReduce, "${0} /s")
     elseif option == UD_OrgasmArousalReduceDuration_S
-        UDOM.UD_OrgasmArousalReduceDuration = Round(value)
-        SetSliderOptionValue(UD_OrgasmArousalReduceDuration_S, UDOM.UD_OrgasmArousalReduceDuration, "${0} s")
+        UDCONF.UD_OrgasmArousalReduceDuration = Round(value)
+        SetSliderOptionValue(UD_OrgasmArousalReduceDuration_S, UDCONF.UD_OrgasmArousalReduceDuration, "${0} s")
     endIf
 EndFunction
 
@@ -2393,7 +2432,7 @@ Function OnOptionSliderAcceptDebug(int option,float value)
     elseif option == OrgasmCapacity_S
         UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByIndex(actorIndex)
         UDOM.setActorOrgasmCapacity(slot.getActor(),value)
-        SetSliderOptionValue(OrgasmCapacity_S, UDOM.GetActorOrgasmCapacity(slot.getActor()), "{0}")        
+        SetSliderOptionValue(OrgasmCapacity_S, UDOM.GetActorOrgasmCapacity(slot.getActor()), "{0}")
     endIf
 EndFunction
 
@@ -2477,7 +2516,7 @@ EndFunction
 Function OnOptionMenuOpenCustomOrgasm(int option)
     if (option == UD_OrgasmAnimation_M)
         SetMenuDialogOptions(orgasmAnimation)
-        SetMenuDialogStartIndex(UDOM.UD_OrgasmAnimation)
+        SetMenuDialogStartIndex(UDCONF.UD_OrgasmAnimation)
         SetMenuDialogDefaultIndex(0)
     endif
 EndFunction
@@ -2594,8 +2633,8 @@ EndFunction
 
 Function OnOptionMenuAcceptCustomOrgasm(int option, int index)
     if (option == UD_OrgasmAnimation_M)
-        UDOM.UD_OrgasmAnimation = index
-        SetMenuOptionValue(UD_OrgasmAnimation_M, orgasmAnimation[UDOM.UD_OrgasmAnimation])
+        UDCONF.UD_OrgasmAnimation = index
+        SetMenuOptionValue(UD_OrgasmAnimation_M, orgasmAnimation[UDCONF.UD_OrgasmAnimation])
     endIf
 EndFunction
 
@@ -2951,7 +2990,7 @@ Function CustomBondagePageDefault(int option)
     elseif option == UD_LockpickMinigameDuration_S
         UDCDmain.UD_LockpickMinigameDuration = 20
         SetSliderOptionValue(UD_LockpickMinigameDuration_S, UDCDmain.UD_LockpickMinigameDuration, "{0} s")
-    Endif
+    endif
 EndFunction
 
 Function CustomOrgasmPageDefault(int option)
@@ -2961,6 +3000,8 @@ Function CustomOrgasmPageDefault(int option)
         SetInfoText("$UD_USEORGASMWIDGET_INFO")
     elseif option == UD_OrgasmResistence_S
         SetInfoText("$UD_ORGASMRESISTENCE_INFO")
+    elseif option == UD_OrgasmExhaustionStruggleMax_S
+        SetInfoText("$UD_ORGASMEXHAUSTIONSTRUGGLEMAX_INFO")
     elseif option == UD_HornyAnimation_T
         SetInfoText("$UD_HORNYANIMATION_INFO")
     elseif option == UD_HornyAnimationDuration_S
@@ -3268,6 +3309,10 @@ Function CustomBondagePageInfo(int option)
         SetInfoText("$UD_MINIGAMELOCKPICKSKILLADJUST_INFO")
     elseif option == UD_LockpickMinigameDuration_S
         SetInfoText("$UD_LOCKPICKMINIGAMEDURATION_INFO")
+    elseif option == UD_MinigameExhExponential_S
+        SetInfoText("$UD_MINIEXHEXP_INFO")
+    elseif option == UD_MinigameExhNoStruggleMax_S
+        SetInfoText("$UD_MINIEXHNOSTRUGGMAX_INFO")
     Endif
 EndFunction
 
@@ -3278,6 +3323,8 @@ Function CustomOrgasmPageInfo(int option)
         SetInfoText("$UD_USEORGASMWIDGET_INFO")
     elseif option == UD_OrgasmResistence_S
         SetInfoText("$UD_ORGASMRESISTENCE_INFO")
+    elseif option == UD_OrgasmExhaustionStruggleMax_S
+        SetInfoText("$UD_ORGASMEXHAUSTIONSTRUGGLEMAX_INFO")
     elseif option == UD_HornyAnimation_T
         SetInfoText("$UD_HORNYANIMATION_INFO")
     elseif option == UD_HornyAnimationDuration_S
@@ -3573,13 +3620,14 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "AutoCritChance", UDCDmain.UD_AutoCritChance)
     JsonUtil.SetFloatValue(strFile, "VibrationMultiplier", UDCDmain.UD_VibrationMultiplier)
     JsonUtil.SetFloatValue(strFile, "ArousalMultiplier", UDCDmain.UD_ArousalMultiplier)
-    JsonUtil.SetFloatValue(strFile, "OrgasmResistence", UDOM.UD_OrgasmResistence)
+    JsonUtil.SetFloatValue(strFile, "OrgasmResistence", UDCONF.UD_OrgasmResistence)
+    JsonUtil.SetIntValue(strFile, "OrgasmExhaustionStruggleMax", UDCONF.UD_OrgasmExhaustionStruggleMax)
     JsonUtil.SetIntValue(strFile, "LockpicksPerMinigame", UDCDmain.UD_LockpicksPerMinigame as Int)
-    JsonUtil.SetIntValue(strFile, "UseOrgasmWidget", UDOM.UD_UseOrgasmWidget as Int)
-    JsonUtil.SetFloatValue(strFile, "OrgasmUpdateTime", UDOM.UD_OrgasmUpdateTime)
-    JsonUtil.SetIntValue(strFile, "OrgasmAnimation", UDOM.UD_OrgasmAnimation)
-    JsonUtil.SetIntValue(strFile, "HornyAnimation", UDOM.UD_HornyAnimation as Int)
-    JsonUtil.SetIntValue(strFile, "HornyAnimationDuration", UDOM.UD_HornyAnimationDuration)
+    JsonUtil.SetIntValue(strFile, "UseOrgasmWidget", UDCONF.UD_UseOrgasmWidget as Int)
+    JsonUtil.SetFloatValue(strFile, "OrgasmUpdateTime", UDCONF.UD_OrgasmUpdateTime)
+    JsonUtil.SetIntValue(strFile, "OrgasmAnimation", UDCONF.UD_OrgasmAnimation)
+    JsonUtil.SetIntValue(strFile, "HornyAnimation", UDCONF.UD_HornyAnimation as Int)
+    JsonUtil.SetIntValue(strFile, "HornyAnimationDuration", UDCONF.UD_HornyAnimationDuration)
     JsonUtil.SetFloatValue(strFile, "CooldownMultiplier", UDCDmain.UD_CooldownMultiplier)
     JsonUtil.SetIntValue(strFile, "SkillEfficiency", UDCDmain.UD_SkillEfficiency)
     JsonUtil.SetIntValue(strFile, "CritEffect", UDCDmain.UD_CritEffect)
@@ -3593,8 +3641,8 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetFloatValue(strFile, "DeviceLvlLockpick", UDCDMain.UD_DeviceLvlLockpick)
     JsonUtil.SetIntValue(strFile, "DeviceLvlLocks", UDCDMain.UD_DeviceLvlLocks)
     JsonUtil.SetIntValue(strFile, "PreventMasterLock", UDCDmain.UD_PreventMasterLock as Int)
-    JsonUtil.SetIntValue(strFile, "PostOrgasmArousalReduce", UDOM.UD_OrgasmArousalReduce)
-    JsonUtil.SetIntValue(strFile, "PostOrgasmArousalReduce_Duration", UDOM.UD_OrgasmArousalReduceDuration)
+    JsonUtil.SetIntValue(strFile, "PostOrgasmArousalReduce", UDCONF.UD_OrgasmArousalReduce)
+    JsonUtil.SetIntValue(strFile, "PostOrgasmArousalReduce_Duration", UDCONF.UD_OrgasmArousalReduceDuration)
     JsonUtil.SetIntValue(strFile, "MandatoryCrit", UDCDmain.UD_MandatoryCrit as Int)
     JsonUtil.SetFloatValue(strFile, "CritDurationAdjust", UDCDmain.UD_CritDurationAdjust)
     JsonUtil.SetIntValue(strFile, "KeyDurability", UDCDmain.UD_KeyDurability)
@@ -3605,6 +3653,8 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetFloatValue(strFile, "MinigameExhMagnitudeMult", UDCDmain.UD_MinigameExhMagnitudeMult)
     JsonUtil.SetIntValue(strFile, "MinigameLockpickSkillAdjust", UDCDmain.UD_MinigameLockpickSkillAdjust)
     JsonUtil.SetIntValue(strFile, "LockpickMinigameDuration", UDCDmain.UD_LockpickMinigameDuration)
+    JsonUtil.SetFloatValue(strFile, "MinigameExhExponential", UDCDMain.UD_MinigameExhExponential)
+    JsonUtil.SetIntValue(strFile, "MinigameExhNoStruggleMax", UDCDMAIN.UD_MinigameExhNoStruggleMax as Int)
     
     ;ABADON
     JsonUtil.SetIntValue(strFile, "AbadonForceSet", AbadonQuest.final_finisher_set as Int)
@@ -3729,13 +3779,14 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UD_AutoCritChance              = JsonUtil.GetIntValue(strFile, "AutoCritChance", UDCDmain.UD_AutoCritChance)
     UDCDmain.UD_VibrationMultiplier         = JsonUtil.GetFloatValue(strFile, "VibrationMultiplier", UDCDmain.UD_VibrationMultiplier)
     UDCDmain.UD_ArousalMultiplier           = JsonUtil.GetFloatValue(strFile, "ArousalMultiplier", UDCDmain.UD_ArousalMultiplier)
-    UDOM.UD_OrgasmResistence                = JsonUtil.GetFloatValue(strFile, "OrgasmResistence", UDOM.UD_OrgasmResistence)
+    UDCONF.UD_OrgasmResistence                = JsonUtil.GetFloatValue(strFile, "OrgasmResistence", UDCONF.UD_OrgasmResistence)
+    UDCONF.UD_OrgasmExhaustionStruggleMax     = JsonUtil.GetIntValue(strFile, "OrgasmExhaustionStruggleMax", UDCONF.UD_OrgasmExhaustionStruggleMax)
     UDCDmain.UD_LockpicksPerMinigame        = JsonUtil.GetIntValue(strFile, "LockpicksPerMinigame", UDCDmain.UD_LockpicksPerMinigame)
-    UDOM.UD_UseOrgasmWidget                 = JsonUtil.GetIntValue(strFile, "UseOrgasmWidget", UDOM.UD_UseOrgasmWidget as Int)
-    UDOM.UD_OrgasmUpdateTime                = JsonUtil.GetFloatValue(strFile, "OrgasmUpdateTime", UDOM.UD_OrgasmUpdateTime)
-    UDOM.UD_OrgasmAnimation                 = JsonUtil.GetIntValue(strFile, "OrgasmAnimation", UDOM.UD_OrgasmAnimation)
-    UDOM.UD_HornyAnimation                  = JsonUtil.GetIntValue(strFile, "HornyAnimation", UDOM.UD_HornyAnimation as Int)
-    UDOM.UD_HornyAnimationDuration          = JsonUtil.GetIntValue(strFile, "HornyAnimationDuration", UDOM.UD_HornyAnimationDuration)
+    UDCONF.UD_UseOrgasmWidget                 = JsonUtil.GetIntValue(strFile, "UseOrgasmWidget", UDCONF.UD_UseOrgasmWidget as Int)
+    UDCONF.UD_OrgasmUpdateTime                = JsonUtil.GetFloatValue(strFile, "OrgasmUpdateTime", UDCONF.UD_OrgasmUpdateTime)
+    UDCONF.UD_OrgasmAnimation                 = JsonUtil.GetIntValue(strFile, "OrgasmAnimation", UDCONF.UD_OrgasmAnimation)
+    UDCONF.UD_HornyAnimation                  = JsonUtil.GetIntValue(strFile, "HornyAnimation", UDCONF.UD_HornyAnimation as Int)
+    UDCONF.UD_HornyAnimationDuration          = JsonUtil.GetIntValue(strFile, "HornyAnimationDuration", UDCONF.UD_HornyAnimationDuration)
     UDCDmain.UD_CooldownMultiplier          = JsonUtil.GetFloatValue(strFile, "CooldownMultiplier", UDCDmain.UD_CooldownMultiplier)
     UDCDMain.UD_SkillEfficiency             = JsonUtil.GetIntValue(strFile, "SkillEfficiency", UDCDmain.UD_SkillEfficiency)
     UDCDmain.UD_CritEffect                  = JsonUtil.GetIntValue(strFile, "CritEffect", UDCDmain.UD_CritEffect)
@@ -3749,8 +3800,8 @@ Function LoadFromJSON(string strFile)
     UDCDMain.UD_DeviceLvlLockpick           = JsonUtil.GetFloatValue(strFile, "DeviceLvlLockpick", UDCDMain.UD_DeviceLvlLockpick)
     UDCDMain.UD_DeviceLvlLocks              = JsonUtil.GetIntValue(strFile, "DeviceLvlLocks", UDCDMain.UD_DeviceLvlLocks)
     UDCDmain.UD_PreventMasterLock           = JsonUtil.GetIntValue(strFile, "PreventMasterLock", UDCDmain.UD_PreventMasterLock as Int)
-    UDOM.UD_OrgasmArousalReduce             = JsonUtil.GetIntValue(strFile, "PostOrgasmArousalReduce", UDOM.UD_OrgasmArousalReduce)
-    UDOM.UD_OrgasmArousalReduceDuration     = JsonUtil.GetIntValue(strFile, "PostOrgasmArousalReduce_Duration", UDOM.UD_OrgasmArousalReduceDuration)
+    UDCONF.UD_OrgasmArousalReduce             = JsonUtil.GetIntValue(strFile, "PostOrgasmArousalReduce", UDCONF.UD_OrgasmArousalReduce)
+    UDCONF.UD_OrgasmArousalReduceDuration     = JsonUtil.GetIntValue(strFile, "PostOrgasmArousalReduce_Duration", UDCONF.UD_OrgasmArousalReduceDuration)
     UDCDmain.UD_MandatoryCrit               = JsonUtil.GetIntValue(strFile, "MandatoryCrit", UDCDmain.UD_MandatoryCrit as Int)
     UDCDmain.UD_CritDurationAdjust          = JsonUtil.GetFloatValue(strFile, "CritDurationAdjust", UDCDmain.UD_CritDurationAdjust)
     UDCDmain.UD_KeyDurability               = JsonUtil.GetIntValue(strFile, "KeyDurability", UDCDmain.UD_KeyDurability)
@@ -3761,6 +3812,8 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UD_MinigameExhMagnitudeMult    = JsonUtil.GetFloatValue(strFile, "MinigameExhMagnitudeMult", UDCDmain.UD_MinigameExhMagnitudeMult)
     UDCDmain.UD_MinigameLockpickSkillAdjust = JsonUtil.GetIntValue(strFile, "MinigameLockpickSkillAdjust", UDCDmain.UD_MinigameLockpickSkillAdjust)
     UDCDmain.UD_LockpickMinigameDuration    = JsonUtil.GetIntValue(strFile, "LockpickMinigameDuration", UDCDmain.UD_LockpickMinigameDuration)
+    UDCDMain.UD_MinigameExhExponential      = JsonUtil.GetFloatValue(strFile, "MinigameExhExponential", UDCDMain.UD_MinigameExhExponential)
+    UDCDMain.UD_MinigameExhNoStruggleMax   = JsonUtil.GetIntValue(strFile, "MinigameExhNoStruggleMax", UDCDMain.UD_MinigameExhNoStruggleMax)
     
     
     ;ABADON
@@ -3896,13 +3949,14 @@ Function ResetToDefaults()
     UDCDmain.UD_AutoCritChance          = 80
     UDCDmain.UD_VibrationMultiplier     = 0.1
     UDCDmain.UD_ArousalMultiplier       = 0.025
-    UDOM.UD_OrgasmResistence            = 3.5
+    UDCONF.UD_OrgasmResistence            = 3.5
+    UDCONF.UD_OrgasmExhaustionStruggleMax = 6
     UDCDmain.UD_LockpicksPerMinigame    = 2
-    UDOM.UD_UseOrgasmWidget             = true
-    UDOM.UD_OrgasmUpdateTime            = 0.5
-    UDOM.UD_OrgasmAnimation             = 1
-    UDOM.UD_HornyAnimation              = true
-    UDOM.UD_HornyAnimationDuration      = 5
+    UDCONF.UD_UseOrgasmWidget             = true
+    UDCONF.UD_OrgasmUpdateTime            = 0.5
+    UDCONF.UD_OrgasmAnimation             = 1
+    UDCONF.UD_HornyAnimation              = true
+    UDCONF.UD_HornyAnimationDuration      = 5
     UDCDmain.UD_CooldownMultiplier      = 1.0
     UDCDmain.UD_CritEffect              = 2
     UDCDmain.UD_HardcoreMode            = false
@@ -3916,8 +3970,8 @@ Function ResetToDefaults()
     UDCDmain.UD_DeviceLvlLockpick       = 0.5
     UDCDMain.UD_DeviceLvlLocks          = 5
     UDCDmain.UD_PreventMasterLock       = False
-    UDOM.UD_OrgasmArousalReduce         = 25
-    UDOM.UD_OrgasmArousalReduceDuration =  7
+    UDCONF.UD_OrgasmArousalReduce         = 25
+    UDCONF.UD_OrgasmArousalReduceDuration =  7
     UDCDmain.UD_MandatoryCrit           = False
     UDCDmain.UD_CritDurationAdjust      = 0.0
     UDCDmain.UD_KeyDurability           = 5
@@ -3927,6 +3981,8 @@ Function ResetToDefaults()
     UDCDmain.UD_MinigameExhDurationMult = 1.0
     UDCDmain.UD_MinigameExhMagnitudeMult= 1.0
     UDCDmain.UD_MinigameLockpickSkillAdjust = 2
+    UDCDMain.UD_MinigameExhExponential  = 1.0
+    UDCDMain.UD_MinigameExhNoStruggleMax= 2
     
     ;ABADON
     AbadonQuest.final_finisher_set      = true

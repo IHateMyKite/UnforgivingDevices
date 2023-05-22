@@ -51,12 +51,13 @@ EndEvent
 ;function called on game reload (only works for player)
 Function Update()
     loc_isplayer = UDmain.ActorIsPlayer(akActor)
+    UDmain.Log("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - Update() - ActorIsPlayer: " + loc_isplayer,3)
 EndFunction
 
 Event OnUpdate()
     if loc_isplayer && IsRunning()
-        UD_PlayerSlot.UpdateOrgasm(UDOM.UD_OrgasmUpdateTime)
-        RegisterForSingleUpdate(UDOM.UD_OrgasmUpdateTime)
+        UD_PlayerSlot.UpdateOrgasm(UDmain.UDCONF.UD_OrgasmUpdateTime)
+        RegisterForSingleUpdate(UDmain.UDCONF.UD_OrgasmUpdateTime)
     endif
 EndEvent
 

@@ -11,85 +11,17 @@ zadlibs                                 Property libs       auto
 UD_ExpressionManager                    Property UDEM       auto
 UD_CustomDevices_NPCSlotsManager        Property UDCD_NPCM  auto
 
+UD_Config Property UDCONF hidden
+    UD_Config Function Get()
+        return UDmain.UDCONF
+    EndFunction
+EndProperty
+
 zadlibs_UDPatch Property libsp
     zadlibs_UDPatch function Get()
         return UDCDmain.libsp
     endfunction
 endproperty
-
-;/  Group: Config
-===========================================================================================
-===========================================================================================
-===========================================================================================
-/;
-
-;/  Variable: UD_OrgasmResistence
-    Default orgasm resistence
-    
-    Do not edit, *READ ONLY!* Is set by user with MCM
-/;
-float   Property UD_OrgasmResistence                = 3.5   auto hidden ;orgasm rate required for actor to be able to orgasm, lower the value, the faster will orgasm rate increase stop
-
-;/  Variable: UD_UseOrgasmWidget
-    If orgasm widget should be shown
-    
-    Do not edit, *READ ONLY!* Is set by user with MCM
-/;
-bool    Property UD_UseOrgasmWidget                 = True  auto hidden
-
-;/  Variable: UD_OrgasmUpdateTime
-    Orgasm update time. Only used by Player. NPC have sepperate global variable
-    
-    Do not edit, *READ ONLY!* Is set by user with MCM
-/;
-float   Property UD_OrgasmUpdateTime                = 0.2   auto hidden
-
-;/  Variable: UD_OrgasmAnimation
-    Orgasm animation list.
-    
-    --- Code
-        0 = Only orgasm animations are used for orgasm
-        1 = Both orgasm and horny animations are used for orgasm
-    ---
-    
-    Do not edit, *READ ONLY!* Is set by user with MCM
-/;
-int     Property UD_OrgasmAnimation                 = 1     auto hidden
-
-;/  Variable: UD_OrgasmDuration
-    Duration of orgasm.
-    
-    Do not edit, *READ ONLY!* Is set by user with MCM
-/;
-int     Property UD_OrgasmDuration                  = 20    auto hidden
-
-;/  Variable: UD_HornyAnimation
-    If horny animations can play while actor is aroused
-    
-    Do not edit, *READ ONLY!* Is set by user with MCM
-/;
-bool    Property UD_HornyAnimation                  = true  auto hidden
-
-;/  Variable: UD_HornyAnimationDuration
-    Duration of horny animation. Requires <UD_HornyAnimation> to be enabled first
-    
-    Do not edit, *READ ONLY!* Is set by user with MCM
-/;
-int     Property UD_HornyAnimationDuration          = 5     auto hidden
-
-;/  Variable: UD_OrgasmArousalReduce
-    How much will be arousal rate reduced per second on orgasm
-    
-    Do not edit, *READ ONLY!* Is set by user with MCM
-/;
-Int     Property UD_OrgasmArousalReduce             = 25    auto hidden
-
-;/  Variable: UD_OrgasmArousalReduceDuration
-    How long will <UD_OrgasmArousalReduce> last
-    
-    Do not edit, *READ ONLY!* Is set by user with MCM
-/;
-Int     Property UD_OrgasmArousalReduceDuration     = 7     auto hidden
 
 ;/  Variable: OrgasmFaction
     Faction to which will ba actor added for duration of orgasm
@@ -465,7 +397,7 @@ bool _OrgasmResistManip_Mutex = false
 /;
 Float Function UpdateOrgasmResist(Actor akActor ,float orgasmResist)
     if !akActor
-        return UD_OrgasmResistence
+        return UDCONF.UD_OrgasmResistence
     endif
     if !orgasmResist
         return getActorOrgasmResist(akActor)
@@ -474,7 +406,7 @@ Float Function UpdateOrgasmResist(Actor akActor ,float orgasmResist)
         Utility.waitMenuMode(0.05)
     endwhile
     _OrgasmResistManip_Mutex = true
-    Int loc_newOrgasmResist = StorageUtil.getIntValue(akActor, "UD_OrgasmResist",Round(UD_OrgasmResistence*100)) + Round(orgasmResist*100)
+    Int loc_newOrgasmResist = StorageUtil.getIntValue(akActor, "UD_OrgasmResist",Round(UDCONF.UD_OrgasmResistence*100)) + Round(orgasmResist*100)
     StorageUtil.setIntValue(akActor, "UD_OrgasmResist",loc_newOrgasmResist)
     _OrgasmResistManip_Mutex = false
     return loc_newOrgasmResist
@@ -494,7 +426,7 @@ EndFunction
     See <GetOrgasmResist>
 /;
 float Function getActorOrgasmResist(Actor akActor)
-    return fRange(StorageUtil.getIntValue(akActor, "UD_OrgasmResist",Round(UD_OrgasmResistence*100))/100.0,0.0,100.0)
+    return fRange(StorageUtil.getIntValue(akActor, "UD_OrgasmResist",Round(UDCONF.UD_OrgasmResistence*100))/100.0,0.0,100.0)
 EndFunction
 
 ;/  Function: getActorOrgasmResistM
@@ -551,7 +483,7 @@ Function UpdateActorOrgasmProgress(Actor akActor,Float fValue,bool bUpdateWidget
     _OrgasmProgressManip_Mutex = true
     float loc_newValue = fRange(StorageUtil.GetFloatValue(akActor, "UD_OrgasmProgress",0.0) + fValue,0.0,getActorOrgasmCapacity(akActor))
     StorageUtil.SetFloatValue(akActor, "UD_OrgasmProgress",loc_newValue)
-    if bUpdateWidget && UD_UseOrgasmWidget
+    if bUpdateWidget && UDCONF.UD_UseOrgasmWidget
         UDmain.UDWC.Meter_SetFillPercent("player-orgasm", loc_newValue / getActorOrgasmCapacity(akActor) * 100.0)
     endif
     _OrgasmProgressManip_Mutex = false
@@ -651,7 +583,7 @@ EndFunction
         True if actor can orgasm
 /;
 bool Function ActorCanOrgasm(Actor akActor)
-    return (getActorOrgasmRate(akActor)*getActorOrgasmRateMultiplier(akActor) > CulculateAntiOrgasmRateMultiplier(100)*UD_OrgasmResistence*getActorOrgasmResistMultiplier(akActor))
+    return (getActorOrgasmRate(akActor)*getActorOrgasmRateMultiplier(akActor) > CulculateAntiOrgasmRateMultiplier(100)*UDCONF.UD_OrgasmResistence*getActorOrgasmResistMultiplier(akActor))
 EndFunction
 
 ;/  Function: ActorCanOrgasmHalf
@@ -668,7 +600,7 @@ EndFunction
         True if actor can orgasm
 /;
 bool Function ActorCanOrgasmHalf(Actor akActor)
-    return (getActorOrgasmRate(akActor)*getActorOrgasmRateMultiplier(akActor) > CulculateAntiOrgasmRateMultiplier(50)*UD_OrgasmResistence*getActorOrgasmResistMultiplier(akActor))
+    return (getActorOrgasmRate(akActor)*getActorOrgasmRateMultiplier(akActor) > CulculateAntiOrgasmRateMultiplier(50)*UDCONF.UD_OrgasmResistence*getActorOrgasmResistMultiplier(akActor))
 EndFunction
 
 float Function CulculateAntiOrgasmRateMultiplier(int iArousal)
@@ -905,7 +837,7 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,in
         endif
     endif
     
-    UpdateBaseOrgasmVals(akActor, UD_OrgasmArousalReduceDuration, -5.0, 0.0, -1.0*iDecreaseArousalBy)
+    UpdateBaseOrgasmVals(akActor, UDCONF.UD_OrgasmArousalReduceDuration, -5.0, 0.0, -1.0*iDecreaseArousalBy)
 
     if UDmain.TraceAllowed()
         UDmain.Log("ActorOrgasmPatched called for " + GetActorName(akActor),1)
@@ -1086,6 +1018,21 @@ EndFunction
 /;
 int Function GetOrgasmExhaustion(Actor akActor)
     return StorageUtil.getIntValue(akActor,"UD_OrgasmExhaustionNum")
+EndFunction
+
+;/  Function: isOrgasmExhaustedMax
+
+    Checks whether the number of orgasm exhaustions is over the configured limit
+
+    Parameters:
+        akActor     - Checked actor
+
+    Returns:
+
+        Whether this actor is over the limit (returns false if configured limit is 0)
+/;
+bool Function isOrgasmExhaustedMax(Actor akActor)
+    return UDCONF.UD_OrgasmExhaustionStruggleMax > 0 && (GetOrgasmExhaustion(akActor) >= UDCONF.UD_OrgasmExhaustionStruggleMax)
 EndFunction
 
 ;/  Function: UpdateBaseOrgasmVals

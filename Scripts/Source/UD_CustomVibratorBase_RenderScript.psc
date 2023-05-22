@@ -367,7 +367,7 @@ Function _UpdateVibSound()
     _StartVibSound()
 EndFunction
 
-;/  Variable: getCurrentVibStrenth
+;/  Function: getCurrentVibStrenth
     Returns:
     
         Current vibration strength
@@ -376,7 +376,7 @@ int Function getCurrentVibStrenth()
     return CurrentVibStrength
 EndFunction
 
-;/  Variable: getCurrentZadVibStrenth
+;/  Function: getCurrentZadVibStrenth
     Returns:
     
         Current vibration strength converted to Zad value. Value will be integer in range 0 to 5
@@ -385,7 +385,7 @@ int Function getCurrentZadVibStrenth()
     return Math.Ceiling(CurrentVibStrength * 0.05)
 EndFunction
 
-;/  Variable: canVibrate
+;/  Function: canVibrate
     Returns:
     
         True if device can vibrate
@@ -394,7 +394,7 @@ bool Function canVibrate()
     return (UD_VibStrength > 0) || UD_Chaos; || ((UD_Shocking ) && (UD_VibStrength > 0))
 EndFunction
 
-;/  Variable: isVibrating
+;/  Function: isVibrating
     Returns:
     
         True if device is currently vibrating
@@ -403,7 +403,7 @@ bool Function isVibrating()
     return _currentVibRemainingDuration != 0 && CurrentVibStrength > 0
 EndFunction
 
-;/  Variable: isVibratingForever
+;/  Function: isVibratingForever
     Returns:
     
         True if device is vibrating forever (<UD_VibDuration> < 0)
@@ -412,7 +412,7 @@ bool Function isVibratingForever()
     return _currentVibRemainingDuration < 0
 EndFunction
 
-;/  Variable: getRemainingVibrationDuration
+;/  Function: getRemainingVibrationDuration
     Returns:
     
         Remaining duration of vibrator. In case the vibrator is vibrating forever, the duration will be negative
@@ -421,7 +421,7 @@ int Function getRemainingVibrationDuration()
     return _currentVibRemainingDuration
 EndFunction
 
-;/  Variable: getRemainingVibrationDurationPer
+;/  Function: getRemainingVibrationDurationPer
     Returns:
     
         Remaining duration of vibrator as relative value in range 0.0 to 1.0
@@ -436,7 +436,7 @@ float Function getRemainingVibrationDurationPer()
     endif
 EndFunction
 
-;/  Variable: isPaused
+;/  Function: isPaused
     Returns:
     
         True if vibrations are currently paused
@@ -447,7 +447,7 @@ EndFunction
 
 Int _PauseTimer = 0
 
-;/  Variable: pauseVibFor
+;/  Function: pauseVibFor
     Pause device vibration for passed time
     
     Do not use this function if device is not already vibrating
@@ -468,14 +468,14 @@ Function pauseVibFor(int aiTime)
     _PauseTimer += aiTime
 EndFunction
 
-;/  Variable: stopVibrating
+;/  Function: stopVibrating
     Stops vibrator from vibrating. Function is not blocking
 /;
 Function stopVibrating()
     _currentVibRemainingDuration = 0
 EndFunction
 
-;/  Variable: stopVibrating
+;/  Function: stopVibrating
     Stops vibrator from vibrating. Function will be blocked untill vibrations end
 /;
 Function stopVibratingAndWait()
@@ -499,7 +499,7 @@ Function _EndManipMutex()
     _manipMutex = false
 EndFunction
 
-;/  Variable: ForceStrength
+;/  Function: ForceStrength
     Change vibration strength to new value, and update both orgasm rate and arousal rate
     
     Do not use this function if device is not already vibrating
@@ -523,7 +523,7 @@ Function ForceStrength(int aiStrenth)
     endif
 EndFunction
 
-;/  Variable: ForceModStrength
+;/  Function: ForceModStrength
     Change vibration strength by passed modifer. Uses <UD_VibStrength> as base
     
     Do not use this function if device is not already vibrating
@@ -547,7 +547,7 @@ Function ForceModStrength(float afModifier)
     endif
 EndFunction
 
-;/  Variable: ForceDuration
+;/  Function: ForceDuration
     Change vibration duration to passed value
     
     Do not use this function if device is not already vibrating
@@ -567,7 +567,7 @@ Function ForceDuration(int aiDuration)
     endif
 EndFunction
 
-;/  Variable: ForceModDuration
+;/  Function: ForceModDuration
     Change vibration duration by passed modifer. Uses <UD_VibDuration> as base
     
     Do not use this function if device is not already vibrating
@@ -587,7 +587,7 @@ Function ForceModDuration(float afModifier)
     endif
 EndFunction
 
-;/  Variable: addVibDuration
+;/  Function: addVibDuration
     Increase vibration duration by passed value
     
     Do not use this function if device is not already vibrating
@@ -604,7 +604,7 @@ Function addVibDuration(int aiValue = 1)
     endif
 EndFunction
 
-;/  Variable: removeVibDuration
+;/  Function: removeVibDuration
     Decrease vibration duration by passed value
     
     Do not use this function if device is not already vibrating
@@ -624,7 +624,7 @@ Function removeVibDuration(int aiValue = 1)
     endif
 EndFUnction
 
-;/  Variable: addVibStrength
+;/  Function: addVibStrength
     Increase vibration strength by passed value, and update oragsm/arousal rate
     
     Do not use this function if device is not already vibrating
@@ -647,7 +647,7 @@ Function addVibStrength(int aiValue = 1)
     endif
 EndFunction
 
-;/  Variable: removeVibStrength
+;/  Function: removeVibStrength
     Decrease vibration strength by passed value, and update oragsm/arousal rate
     
     Do not use this function if device is not already vibrating
@@ -673,7 +673,7 @@ Function removeVibStrength(int aiValue = 1)
     endif
 EndFUnction
 
-;/  Variable: forceEdgingMode
+;/  Function: forceEdgingMode
     Change current edging mode to passed value
     
     Do not use this function if device is not already vibrating
@@ -895,7 +895,7 @@ Function _VibrateEnd(Bool abUnregister = True, Bool abStop = True)
     endif
 EndFunction
 
-;/  Variable: vibrate
+;/  Function: vibrate
     Force device to vibrate. Is not blocking.
 
     Parameters:
@@ -906,7 +906,7 @@ Function vibrate(float afDurationMult = 1.0)
     _VibrateStart(afDurationMult)
 EndFunction
 
-;/  Variable: VibPauseStart
+;/  Function: VibPauseStart
     Pause device vibration. Need to be unpaused manually with <VibPauseStop>
 /;
 Function VibPauseStart()
@@ -916,7 +916,7 @@ Function VibPauseStart()
     _StopVibSound()
 EndFunction
 
-;/  Variable: VibPauseStop
+;/  Function: VibPauseStop
     Unpause device vibration. Need to be unpaused manually with <VibPauseStop>
 /;
 Function VibPauseStop()
@@ -977,7 +977,7 @@ bool Function canBeActivated()
     endif
 EndFunction
 
-;/  Variable: GetAppliedOrgasmRate
+;/  Function: GetAppliedOrgasmRate
     Returns:
     
         Applied orgasm rate by vibrator
@@ -999,7 +999,7 @@ Few functions which should be used in similiar matter as <Override>
 ;EndFunction
 ;======================================================================
 
-;/  Variable: OnVibrationStart
+;/  Function: OnVibrationStart
     Called when vibration start
 /;
 Function OnVibrationStart()
@@ -1007,7 +1007,7 @@ Function OnVibrationStart()
     OnVibrationStrengthUpdate()
 EndFunction
 
-;/  Variable: OnVibrationEnd
+;/  Function: OnVibrationEnd
     Called when vibration end
 /;
 Function OnVibrationEnd()
@@ -1018,7 +1018,7 @@ Function OnVibrationEnd()
     EndIf
 EndFunction
 
-;/  Variable: OnVibrationStrengthUpdate
+;/  Function: OnVibrationStrengthUpdate
     Called when vibration strength is changed with any of the API functions
 /;
 Function OnVibrationStrengthUpdate()
@@ -1028,7 +1028,7 @@ Function OnVibrationStrengthUpdate()
     EndIf
 EndFunction
 
-;/  Variable: getVibOrgasmRate
+;/  Function: getVibOrgasmRate
     Can be edited to adjust orgasm rate calculation formula.
     
     Default calculation formula is:
@@ -1049,7 +1049,7 @@ float Function getVibOrgasmRate(float afMult = 1.0)
     return CurrentVibStrength * afMult * UDCDmain.UD_VibrationMultiplier * UD_OrgasmMult
 EndFunction
 
-;/  Variable: getVibOrgasmRate
+;/  Function: getVibOrgasmRate
     Can be edited to adjust arousal rate calculation formula.
     
     Default calculation formula is:
@@ -1070,7 +1070,7 @@ float Function getVibArousalRate(float afMult = 1.0)
     return CurrentVibStrength * afMult * UDCDmain.UD_ArousalMultiplier * UD_ArousalMult
 EndFunction
 
-;/  Variable: PrintVibMessage_Start
+;/  Function: PrintVibMessage_Start
     Called when vibration starts. Used to show message (someones something start vibrating etc...)
 /;
 Function PrintVibMessage_Start()
@@ -1083,7 +1083,7 @@ Function PrintVibMessage_Start()
     endif
 EndFunction
 
-;/  Variable: PrintVibMessage_Start
+;/  Function: PrintVibMessage_Start
     Called when vibration ends. Used to show message (someones something ends vibrating etc...)
 /;
 Function PrintVibMessage_Stop()

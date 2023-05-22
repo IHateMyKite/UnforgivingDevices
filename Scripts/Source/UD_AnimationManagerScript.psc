@@ -1190,7 +1190,7 @@ String[] Function GetOrgasmAnimEvents(Actor akActor, Bool abUseConstraintsIntCac
     Int[] loc_constraints = new Int[1]
     loc_constraints[0] = GetActorConstraintsInt(akActor, abUseConstraintsIntCache)
     String[] loc_keywords
-    if (UDmain.UDOM.UD_OrgasmAnimation == 1)
+    if (UDmain.UDCONF.UD_OrgasmAnimation == 1)
         loc_keywords = new String[2]
         loc_keywords[0] = ".orgasm"
         loc_keywords[1] = ".horny"
@@ -1219,7 +1219,7 @@ String[] Function GetOrgasmAnimDefs(Actor akActor)
     Int[] loc_constraints = new Int[1]
     loc_constraints[0] = GetActorConstraintsInt(akActor)
     String[] loc_keywords = new String[1]
-    if (UDmain.UDOM.UD_OrgasmAnimation == 1)
+    if (UDmain.UDCONF.UD_OrgasmAnimation == 1)
         loc_keywords = new String[2]
         loc_keywords[0] = ".orgasm"
         loc_keywords[1] = ".horny"
