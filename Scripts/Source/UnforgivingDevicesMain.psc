@@ -59,7 +59,7 @@ zadclibs                            property libsc          auto
 UD_libs                             Property UDlibs         auto
 
 ;/  Variable: UDCDmain
-    This module contains funtions for manipulating devices
+    This module contains funtions for manipulating devices. See <UDCustomDeviceMain>
 /;
 UDCustomDeviceMain                  Property UDCDmain       auto
 
@@ -82,7 +82,7 @@ UDItemManager                       Property ItemManager    auto
     
     Meaning: Random Restrain Manager
     
-    This module contains functionality for locking random devices on actors
+    This module contains functionality for locking random devices on actors. See <UD_RandomRestraintManager>
 /;
 UD_RandomRestraintManager           Property UDRRM          auto
 
@@ -127,9 +127,9 @@ UD_UserInputScript                  Property UDUI           auto
 
 ;/  Variable: UDAM
     
-    Meaning: Animation mMnager
+    Meaning: Animation Manager
     
-    This module contains functionality for manipulating animations
+    This module contains functionality for manipulating animations. See <UD_AnimationManagerScript>
 /;
 UD_AnimationManagerScript           Property UDAM           auto
 
@@ -155,7 +155,7 @@ UD_UIEManager                       Property UDUIE          auto
     
     Meaning: Menu checker
     
-    This module contains functions for fastly checking if menu is open
+    This module contains functions for fastly checking if menu is open. See <UD_MenuChecker>
 /;
 UD_MenuChecker                      Property UDMC Hidden
     UD_MenuChecker Function get() 
@@ -167,7 +167,7 @@ EndProperty
     
     Meaning: Widget Control
     
-    This module contains functions for manipulating widgets
+    This module contains functions for manipulating widgets. See <UD_WidgetControl>
 /;
 UD_WidgetControl                    Property UDWC           Auto
 
@@ -175,7 +175,7 @@ UD_WidgetControl                    Property UDWC           Auto
     
     Meaning: Global Variable
     
-    This module contains properties with global variables
+    This module contains properties with global variables. See <UD_GlobalVariables>
 /;
 UD_GlobalVariables                  Property UDGV Hidden
     UD_GlobalVariables Function get()
@@ -199,6 +199,8 @@ EndProperty
     This module contains functionality for manipulating orgasm variables
     
     Only use this on NPCs!! Using it on Player might break the framework!
+    
+    See <UD_OrgasmManager>
 /;
 UD_OrgasmManager                    Property UDOMNPC        auto
 
@@ -209,20 +211,26 @@ UD_OrgasmManager                    Property UDOMNPC        auto
     This module contains functionality for manipulating orgasm variables
     
     Only use this on Player!! Using it on NPC might break the framework!
+    
+    See <UD_OrgasmManager>
 /;
 UD_OrgasmManager                    Property UDOMPlayer     auto
 
-;/  Variable: UDOM
-    
-    Meaning: Orgasm Manager
-    
-    Default Orgasm Manager. Do not use for manipulations, but only for reading MCM variables
-/;
 UD_OrgasmManager                    Property UDOM Hidden
     UD_OrgasmManager Function get()
         return UDOMNPC ;NPC one is used as main one for storring MCM values
     EndFunction
 EndProperty
+
+;/  Variable: UDCONF
+    
+    Meaning: Mod Configuration
+    
+    (should) Contains configuration variables for all Unforgiving Devices modules
+    
+    See <UD_Config>
+/;
+UD_Config Property UDCONF auto
 
 
 Package         Property UD_NPCDisablePackage           auto

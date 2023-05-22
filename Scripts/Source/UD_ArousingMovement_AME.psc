@@ -25,7 +25,7 @@ EndFunction
 
 Function UpdateTime()
     if akActor == UDmain.Player
-        _updateTime = fRange(UDOM.UD_OrgasmUpdateTime/2.0,0.2,1.0)
+        _updateTime = fRange(UDmain.UDCONF.UD_OrgasmUpdateTime/2.0,0.2,1.0)
     else
         _updateTime = 1.0
     endif
