@@ -44,14 +44,16 @@ Bool Function IsManager()
 EndFunction
 
 Bool _StaticSlotMutex = False
-
+int _slotregisterque = 0
 Function AddStaticSlot(UD_StaticNPCSlots akSlots)
+    _slotregisterque += 1
     while _StaticSlotMutex
         Utility.waitMenuMode(0.1)
     endwhile
     _StaticSlotMutex = True
     _StaticSlots = PapyrusUtil.PushForm(_StaticSlots,akSlots)
     UDMain.Info(self + "::AddStaticSlot() - Static slot added = " + akSlots + ", Total number of slots = " + _StaticSlots.length)
+    _slotregisterque -= 1
     _StaticSlotMutex = False
 EndFunction
 
@@ -80,7 +82,10 @@ Function ReregisterStaticSlots()
     if (handle)
         ModEvent.Send(handle)
     endif
-    Utility.waitMenuMode(3.0) ;wait some time for all slots to be installed
+    Utility.waitMenuMode(0.5) ;wait some time for all slots to be installed
+    while _slotregisterque
+        Utility.waitMenuMode(0.1)
+    endwhile
 EndFunction
 
 Int Function GetNumberOfStatisSlots()

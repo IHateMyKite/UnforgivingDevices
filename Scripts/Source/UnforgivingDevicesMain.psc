@@ -522,6 +522,32 @@ Function ENABLE()
     UDOMPlayer.GoToState(_State_UDOMPlayer)
 EndFunction
 
+;return true if dll will work for current version of SKSE
+bool Function NativeAllowed() global
+    ;check if dll is installed
+    if !NativeLibraryInstalled()
+        return false
+    endif
+    
+    ;check if correct skse version is installed
+    if SKSE.GetVersion() == 2
+        ;check SE
+        if SKSE.GetVersionMinor() == 0 && SKSE.GetVersionBeta() == 20
+            return true
+        endif
+        ;check AL
+        if SKSE.GetVersionMinor() == 2 && SKSE.GetVersionBeta() == 3
+            return true
+        endif
+    endif
+    return false
+EndFunction
+
+;return true if dll is present
+bool Function NativeLibraryInstalled() global
+    return (SKSE.GetPluginVersion("UDNative")) != -1
+EndFunction
+
 Function OnGameReload()
     if !_Initialized
         if !UDNPCM.Ready
@@ -545,8 +571,6 @@ Function OnGameReload()
     
     DISABLE()
     
-    Utility.waitMenuMode(0.5)
-    
     Print("Updating Unforgiving Devices, please wait...")
     Info("OnGameReload() called! - Updating Unforgiving Devices...")
     
@@ -554,7 +578,6 @@ Function OnGameReload()
         Utility.waitMenuMode(2.5)
     endif
     
-    Utility.waitMenuMode(0.5)
     
     if _UpdateCheck()
         ;update all scripts
@@ -569,8 +592,9 @@ Function OnGameReload()
             return ;Fatal error when initializing UD
         endif
 
+        
         UDWC.GameUpdate()
-
+        
         UDMC.Update()
         
         BoundCombat.Update()
@@ -593,11 +617,9 @@ Function OnGameReload()
         UDLLP.Update()
 
         UDRRM.Update()
-        
         if UDAM.Ready
             UDAM.Update()
         endif
-        
         if UDCM.Ready
             UDCM.Update()
         endif
@@ -663,6 +685,10 @@ Function Update()
     _ValidateModules()
     _CheckOptionalMods()
     _CheckPatchesOrder()
+    
+    ;check that correct SKSE version is installed first and validate the control variable
+    ;also check if dll is actually present
+    UD_UseNativeFunctions = UD_UseNativeFunctions && NativeAllowed()
     
     if !Ready
         if _UpdateCheck() || _FatalError
@@ -1187,24 +1213,6 @@ string Function IntToBit(int argInt) global
     return loc_res
 EndFunction
 
-int Function codeBit_old(int iCodedMap,int iValue,int iSize,int iIndex) global
-    if iIndex + iSize > 32
-        return 0xFFFFFFFF ;returns error value
-    endif
-    int loc_clear_mask = 0x00000001 ;mask used to clear bits which will be set
-    ;sets not shifted bit mask loc_clear_mask
-    int loc_help_bit = 0x02
-    while iSize > 1
-        iSize -= 1
-        loc_clear_mask = Math.LogicalOr(loc_clear_mask,loc_help_bit)
-        loc_help_bit = Math.LeftShift(loc_help_bit,1)
-    endwhile
-    iValue = Math.LogicalAnd(loc_clear_mask,iValue)
-    loc_clear_mask = Math.LogicalXor(Math.LeftShift(loc_clear_mask,iIndex),0xFFFFFFFF) ;shift and negate
-    int loc_clear_map = Math.LogicalAnd(iCodedMap,loc_clear_mask) ;clear maps bits with mask
-    return Math.LogicalOr(loc_clear_map,Math.LeftShift(iValue,iIndex)) ;sets bits
-endfunction
-
 ;/  Function: codeBit
 
     Parameters:
@@ -1225,6 +1233,7 @@ endfunction
         ---
 /;
 int Function codeBit(int aiCodedMap,int aiValue,int aiSize,int aiIndex) global
+    
     if aiIndex + aiSize > 32
         return 0xFFFFFFFF ;returns error value
     endif
@@ -1235,30 +1244,6 @@ int Function codeBit(int aiCodedMap,int aiValue,int aiSize,int aiIndex) global
     aiCodedMap = Math.LogicalAnd(aiCodedMap,loc_clear_mask)                     ;clear maps bits with mask
     return Math.LogicalOr(aiCodedMap,aiValue)                                 ;sets bits
 endfunction
-
-int Function decodeBit_old(int iCodedMap,int iSize,int iIndex) global
-    if iIndex + iSize > 32
-        return 0xFFFFFFFF ;returns error value
-    endif
-    
-    ;sets not shifted bit mask
-    int loc_clear_mask = 0x00000001 ;mask used to clear all not wanted bits
-    
-    ;sets not shifted bit mask loc_clear_mask
-    int loc_help_bit = 0x02
-    while iSize > 1
-        iSize -= 1
-        loc_clear_mask = Math.LogicalOr(loc_clear_mask,loc_help_bit)
-        loc_help_bit = Math.LeftShift(loc_help_bit,1)
-    endwhile    
-    
-    loc_clear_mask = Math.LeftShift(loc_clear_mask,iIndex) ;shift to index position
-    
-    int loc_res = 0x00000000 ;return value, default is int
-    loc_res = Math.LogicalAnd(iCodedMap,loc_clear_mask) ;clear maps bits with mask
-    loc_res = Math.RightShift(loc_res,iIndex) ;shift to right, so value is correct
-    return loc_res
-EndFunction
 
 ;/  Function: decodeBit
 

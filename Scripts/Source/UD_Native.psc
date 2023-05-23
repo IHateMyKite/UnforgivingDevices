@@ -10,3 +10,8 @@ bool Function MinigameStatsCheck(Actor akActor)  global native
 Function MinigameEffectUpdateHealth(Actor akActor, float afNewHealth)  global native
 Function MinigameEffectUpdateStamina(Actor akActor, float afNewStamina)  global native
 Function MinigameEffectUpdateMagicka(Actor akActor, float afNewMagicka)  global native
+
+;UTILITY
+Int Function CodeBit(int aiCodedMap,int aiValue,int aiSize,int aiIndex) global native
+Int Function DecodeBit(int aiCodedMap,int aiSize,int aiIndex) global native
+

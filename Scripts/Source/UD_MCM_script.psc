@@ -386,7 +386,7 @@ Event resetGeneralPage()
     addEmptyOption()
     
     UD_hightPerformance_T   = addToggleOption("$UD_HIGHPERFORMANCE",UDmain.UD_hightPerformance)
-    UD_UseNativeFunctions_T = addToggleOption("$UD_NATIVESWITCH",UDmain.UD_UseNativeFunctions)
+    UD_UseNativeFunctions_T = addToggleOption("$UD_NATIVESWITCH",UDmain.UD_UseNativeFunctions,FlagSwitch(NativeAllowed())) ;disabled on LE
     
     UD_HearingRange_S       = addSliderOption("$UD_HEARINGRANGE",UDmain.UD_HearingRange,"{0}")
     UD_PrintLevel_S         = addSliderOption("$UD_PRINTLEVEL",UDmain.UD_PrintLevel, "{0}")
@@ -3749,7 +3749,12 @@ Function LoadFromJSON(string strFile)
     UDmain.UD_LockDebugMCM = JsonUtil.GetIntValue(strFile, "LockDebug", UDmain.UD_LockDebugMCM as Int)
     UDUI.UD_EasyGamepadMode = JsonUtil.GetIntValue(strFile, "EasyGamepadMode", UDUI.UD_EasyGamepadMode as Int)
     UDmain.UD_CheckAllKw = JsonUtil.GetIntValue(strFile,"AllKeywordCheck",UDmain.UD_CheckAllKw as Int)
-    UDmain.UD_UseNativeFunctions = JsonUtil.GetIntValue(strFile, "UseNativeFunctions",UDmain.UD_UseNativeFunctions as Int)
+    if NativeAllowed()
+        UDmain.UD_UseNativeFunctions = JsonUtil.GetIntValue(strFile, "UseNativeFunctions",UDmain.UD_UseNativeFunctions as Int)
+    else
+        ;do not allow for LE
+        UDmain.UD_UseNativeFunctions = False
+    endif
 
     ;UDCDmain
     UDCDmain.UnregisterGlobalKeys()
