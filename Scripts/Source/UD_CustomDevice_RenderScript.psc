@@ -6447,6 +6447,8 @@ Function minigame()
     float       fCurrentUpdateTime     = UDmain.UD_baseUpdateTime
     BOOL        loc_UseInterAVCheck    = True
     
+    _StartMinigameEffect()
+    
     if loc_WearerSlot && loc_PlayerInMinigame
         loc_UseInterAVCheck = False
         loc_WearerSlot.StartMinigameAVCheckLoop(self)
@@ -6468,8 +6470,6 @@ Function minigame()
     Float     loc_ElapsedTime      = 0.0
     Bool      loc_DamageDevice     = UD_damage_device
     Bool      loc_MinigameEffectEnabled = False
-    
-    _StartMinigameEffect()
     
     while current_device_health > 0.0 && !_StopMinigame
         ;pause minigame, pause minigame need to be changed from other thread or infinite loop happens
