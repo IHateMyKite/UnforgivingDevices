@@ -522,30 +522,31 @@ Function ENABLE()
     UDOMPlayer.GoToState(_State_UDOMPlayer)
 EndFunction
 
-;return true if dll will work for current version of SKSE
+;/  Function: ENABLE
+
+    Checks if user have correct version of SKSE installed, and UDNative.dll present
+    
+    Returns:
+        true if UDNative.dll can be used without issue
+/;
 bool Function NativeAllowed() global
     ;check if dll is installed
-    if !NativeLibraryInstalled()
+    if (SKSE.GetPluginVersion("UDNative") == -1)
         return false
     endif
     
     ;check if correct skse version is installed
     if SKSE.GetVersion() == 2
-        ;check SE
+        ;is version 2.0.20 (SE)
         if SKSE.GetVersionMinor() == 0 && SKSE.GetVersionBeta() == 20
             return true
         endif
-        ;check AL
+        ;is version 2.2.3 (AR)
         if SKSE.GetVersionMinor() == 2 && SKSE.GetVersionBeta() == 3
             return true
         endif
     endif
     return false
-EndFunction
-
-;return true if dll is present
-bool Function NativeLibraryInstalled() global
-    return (SKSE.GetPluginVersion("UDNative")) != -1
 EndFunction
 
 Function OnGameReload()
