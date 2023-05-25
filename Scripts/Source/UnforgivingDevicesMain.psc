@@ -537,12 +537,14 @@ bool Function NativeAllowed() global
     
     ;check if correct skse version is installed
     if SKSE.GetVersion() == 2
+        int loc_minor = SKSE.GetVersionMinor()
+        int loc_beta  = SKSE.GetVersionBeta()
         ;is version 2.0.20 (SE)
-        if SKSE.GetVersionMinor() == 0 && SKSE.GetVersionBeta() == 20
+        if loc_minor == 0 && loc_beta == 20
             return true
         endif
-        ;is version 2.2.3 (AR)
-        if SKSE.GetVersionMinor() == 2 && SKSE.GetVersionBeta() == 3
+        ;is version 2.1.X pr 2.2.X (AE)
+        if loc_minor == 1 || loc_minor == 2
             return true
         endif
     endif
