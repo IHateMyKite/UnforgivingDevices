@@ -251,15 +251,24 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     float   loc_orgasmResistence            = getActorOrgasmResist(akActor)
     int     loc_HightSpiritMode_Duration    = -2*Round(1/UDmain.UD_baseUpdateTime)
     int     loc_HightSpiritMode_Type        = 1
+    bool    loc_useNative                   = UDmain.UD_UseNativeFunctions
+    
+    if loc_useNative
+        UD_Native.StartMinigameEffect(akActor,fRange((loc_currentOrgasmRate/loc_orgasmResistence),0.5,3.5), loc_baseDrain, 0.0, 0.0, true)
+    endif
     
     while loc_cycleON
-        if !akActor.isInFaction(OrgasmResistFaction);StorageUtil.GetIntValue(akActor,"UD_OrgasmResistMinigame_EndFlag",0)
+        if !akActor.isInFaction(OrgasmResistFaction)
             loc_cycleON = false
         endif
         
         if loc_cycleON
-            if akActor.getAV("Stamina") <= 0 ;|| akActor.getAV("magicka") <= 0
-                loc_cycleON = false
+            if loc_useNative
+                loc_cycleON = UD_Native.MinigameStatsCheck(akActor)
+            else
+                if akActor.getAV("Stamina") <= 0
+                    loc_cycleON = false
+                endif
             endif
         endif
         
@@ -305,7 +314,12 @@ Function FocusOrgasmResistMinigame(Actor akActor)
         endif
         
         if loc_cycleON
-            akActor.damageAV("Stamina", loc_StaminaRateMult*loc_baseDrain*fRange((loc_currentOrgasmRate/loc_orgasmResistence),0.5,3.5)*UDmain.UD_baseUpdateTime)
+            if loc_useNative
+                float loc_mult = loc_StaminaRateMult*fRange((loc_currentOrgasmRate/loc_orgasmResistence),0.5,3.5)
+                UD_Native.UpdateMinigameEffectMult(akActor,loc_mult)
+            else
+                akActor.damageAV("Stamina", loc_StaminaRateMult*loc_baseDrain*fRange((loc_currentOrgasmRate/loc_orgasmResistence),0.5,3.5)*UDmain.UD_baseUpdateTime)
+            endif
         endif
         
         if loc_HightSpiritMode_Duration > 0 && loc_cycleON
@@ -323,6 +337,10 @@ Function FocusOrgasmResistMinigame(Actor akActor)
             loc_tick += 1
         endif
     endwhile
+    
+    if loc_useNative
+        UD_Native.EndMinigameEffect(akActor)
+    endif
     
     akActor.setAV("StaminaRate", loc_staminaRate)
     
