@@ -7955,8 +7955,7 @@ string Function addInfoString(string str = "")
 EndFunction
 
 Function updateWidget(bool force = false)
-    if (!UDmain.UD_UseNativeFunctions || !UDmain.UseiWW() || !PlayerInMinigame())
-        GInfo("updateWidget called - durability="+current_device_health)
+    if !UDmain.UD_UseNativeFunctions
         if _StruggleGameON
             setWidgetVal(getRelativeDurability(),force)
         endif

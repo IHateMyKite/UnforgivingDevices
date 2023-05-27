@@ -68,7 +68,7 @@ Bool                        Property UD_UseIWantWidget          Hidden
     Function Set(Bool abValue)
         If _UD_UseIWantWidget != abValue
             _UD_UseIWantWidget = abValue
-            OnUIReload(abGameLoad = False)
+            UDmain.ForceUpdate()
         EndIf
     EndFunction
 EndProperty
@@ -434,6 +434,7 @@ EndEvent
 
 
 Function GameUpdate()
+    RegisterForModEvent("UDReloadUI","OnUIReload")
     ; initializations on game load
     OnUIReload(abGameLoad = True)
     ; upgrade version

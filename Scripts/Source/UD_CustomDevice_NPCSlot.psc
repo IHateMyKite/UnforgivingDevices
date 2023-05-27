@@ -2010,11 +2010,17 @@ Function InitOrgasmUpdate()
 EndFunction
 
 Function _OrgasmGameUpdate()
+    ;meter is shown, so shown it
+    if _widgetShown && IsPlayer()
+        UDmain.UDWC.Meter_SetFillPercent("player-orgasm", _orgasmProgress_p, True)
+        UDmain.UDWC.Meter_SetVisible("player-orgasm", true)
+    endif
+
     _useNativeOrgasmWidget = (IsPlayer() && UDmain.UD_UseNativeFunctions)
     if _useNativeOrgasmWidget
         _orgasmMeterSkyUi   = UDmain.UDWC._GetVanillaMeter("player-orgasm")
-        if UDmain.UDWC.UD_UseIWantWidget
-            _orgasmMeterIWW        = UDmain.UDWC._GetMeter("player-orgasm")
+        _orgasmMeterIWW     = UDmain.UDWC._GetMeter("player-orgasm")
+        if UDmain.UseIWW()
             UD_Native.AddMeterEntryIWW(UDmain.UDWC.iWidget.WidgetRoot, _orgasmMeterIWW.Id, "OrgasmMeter", _orgasmProgress_p*100.0, _orgasmratetotal, true)
         else
             UD_Native.AddMeterEntrySkyUi(_orgasmMeterSkyUi.WidgetRoot,"OrgasmMeter", _orgasmProgress_p*100.0, _orgasmratetotal, true)
@@ -2049,9 +2055,9 @@ Function UpdateOrgasm(Float afUpdateTime)
         _orgasmProgress = 0.0
         if _useNativeOrgasmWidget
             if UDmain.UDWC.UD_UseIWantWidget
-                UD_Native.SetMeterRateIWW(_orgasmMeterIWW.Id,-75.0)  ;decrease orgasm rate untill next update
+                UD_Native.SetMeterRateIWW(_orgasmMeterIWW.Id,-125.0)  ;decrease orgasm rate untill next update
             else
-                UD_Native.SetMeterRateSkyUi(_orgasmMeterSkyUi.WidgetRoot,-75.0)
+                UD_Native.SetMeterRateSkyUi(_orgasmMeterSkyUi.WidgetRoot,-125.0)
             endif
         endif
         
@@ -2168,7 +2174,7 @@ Function CalculateOrgasmProgress()
     endif
     
     if _useNativeOrgasmWidget
-        if UDmain.UDWC.UD_UseIWantWidget
+        if UDmain.UseIWW()
             UD_Native.SetMeterRateIWW(_orgasmMeterIWW.Id,_orgasmratetotal*100.0/_orgasmCapacity)
         else
             UD_Native.SetMeterRateSkyUi(_orgasmMeterSkyUi.WidgetRoot,_orgasmratetotal*100.0/_orgasmCapacity)
