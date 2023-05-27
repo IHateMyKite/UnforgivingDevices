@@ -575,12 +575,16 @@ Function OnGameReload()
     DISABLE()
     
     Print("Updating Unforgiving Devices, please wait...")
-    Info("OnGameReload() called! - Updating Unforgiving Devices...")
+    Info(self+"::OnGameReload() - Updating Unforgiving Devices...")
     
     if !Ready
         Utility.waitMenuMode(2.5)
     endif
     
+    int loc_removedmeters = UD_Native.RemoveAllMeterEntries()
+    if loc_removedmeters > 0
+        Info(self+"::OnGameReload() - Removed " + loc_removedmeters + " registered meters!")
+    endif
     
     if _UpdateCheck()
         ;update all scripts

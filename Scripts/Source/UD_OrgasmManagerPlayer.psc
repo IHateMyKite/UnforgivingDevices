@@ -211,6 +211,17 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     float loc_staminaRate     = akActor.getBaseAV("StaminaRate")
     akActor.setAV("StaminaRate", 0.0)
     
+    UD_WidgetMeter_RefAlias loc_orgasmMeterIWW      = UDmain.UDWC._GetMeter("player-orgasm")
+    UD_WidgetBase           loc_orgasmMeterSkyUi    = UDmain.UDWC._GetVanillaMeter("player-orgasm")
+    
+    if UDmain.UD_UseNativeFunctions
+        if UDmain.UseIWW()
+            UD_Native.SetMeterRateIWW(loc_orgasmMeterIWW.Id,0.0)
+        else
+            UD_Native.SetMeterRateSkyUi(loc_orgasmMeterSkyUi.WidgetRoot,0.0)
+        endif
+    endif
+    
     ;UDCDMain.DisableActor(akActor,true)
     UDCDMain.StartMinigameDisable(akActor)
     Int loc_constraints = UDmain.UDAM.GetActorConstraintsInt(akActor, abUseCache = False)
@@ -277,7 +288,15 @@ Function FocusOrgasmResistMinigame(Actor akActor)
                         loc_StaminaRateMult = 0.25
                     elseif loc_HightSpiritMode_Type == 2
                         loc_StaminaRateMult = 0.75
-                        UpdateActorOrgasmProgress(akActor,-8.0*(UDmain.UD_baseUpdateTime),true)
+                        if UDmain.UD_UseNativeFunctions
+                            if UDmain.UseIWW()
+                                UD_Native.SetMeterRateIWW(loc_orgasmMeterIWW.Id,-10)
+                            else
+                                UD_Native.SetMeterRateSkyUi(loc_orgasmMeterSkyUi.WidgetRoot,-10)
+                            endif
+                        else
+                            UpdateActorOrgasmProgress(akActor,-8.0*(UDmain.UD_baseUpdateTime),true)
+                        endif
                     elseif loc_HightSpiritMode_Type == 3
                         loc_StaminaRateMult = 0.75
                         libs.UpdateExposure(akActor,-2*iRange(Math.Floor(5*UDmain.UD_baseUpdateTime),1,10))
@@ -287,6 +306,13 @@ Function FocusOrgasmResistMinigame(Actor akActor)
                 endif
             else
                 loc_StaminaRateMult = 1.0
+                if UDmain.UD_UseNativeFunctions
+                    if UDmain.UseIWW()
+                        UD_Native.SetMeterRateIWW(loc_orgasmMeterIWW.Id,0.0)
+                    else
+                        UD_Native.SetMeterRateSkyUi(loc_orgasmMeterSkyUi.WidgetRoot,0.0)
+                    endif
+                endif
             endif
         endif
         

@@ -2173,7 +2173,7 @@ Function CalculateOrgasmProgress()
         endif
     endif
     
-    if _useNativeOrgasmWidget
+    if _useNativeOrgasmWidget && !_orgasmResisting
         if UDmain.UseIWW()
             UD_Native.SetMeterRateIWW(_orgasmMeterIWW.Id,_orgasmratetotal*100.0/_orgasmCapacity)
         else
