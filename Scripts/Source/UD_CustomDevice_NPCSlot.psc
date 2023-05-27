@@ -1966,8 +1966,8 @@ int     _edgelevel               = 0
 Int     _OrgasmExhaustionTime     = 0
 
 float   _orgasmratetotal = 0.0
-UD_WidgetMeter_RefAlias _orgasmMeter
-
+UD_WidgetMeter_RefAlias _orgasmMeterIWW
+UD_WidgetBase           _orgasmMeterSkyUi
 sslBaseExpression expression
 float[] _org_expression
 float[] _org_expression2
@@ -2010,10 +2010,15 @@ Function InitOrgasmUpdate()
 EndFunction
 
 Function _OrgasmGameUpdate()
-    _useNativeOrgasmWidget = (IsPlayer() && UDmain.UD_UseNativeFunctions && UDmain.UDWC.UD_UseIWantWidget)
+    _useNativeOrgasmWidget = (IsPlayer() && UDmain.UD_UseNativeFunctions)
     if _useNativeOrgasmWidget
-        _orgasmMeter = UDmain.UDWC._GetMeter("player-orgasm")
-        UD_Native.AddMeterEntry(UDmain.UDWC.iWidget.WidgetRoot, _orgasmMeter.Id, "OrgasmMeter", _orgasmProgress_p*100.0, _orgasmratetotal, true)
+        _orgasmMeterSkyUi   = UDmain.UDWC._GetVanillaMeter("player-orgasm")
+        if UDmain.UDWC.UD_UseIWantWidget
+            _orgasmMeterIWW        = UDmain.UDWC._GetMeter("player-orgasm")
+            UD_Native.AddMeterEntryIWW(UDmain.UDWC.iWidget.WidgetRoot, _orgasmMeterIWW.Id, "OrgasmMeter", _orgasmProgress_p*100.0, _orgasmratetotal, true)
+        else
+            UD_Native.AddMeterEntrySkyUi(_orgasmMeterSkyUi.WidgetRoot,"OrgasmMeter", _orgasmProgress_p*100.0, _orgasmratetotal, true)
+        endif
     endif
 EndFunction
 
@@ -2043,8 +2048,11 @@ Function UpdateOrgasm(Float afUpdateTime)
         
         _orgasmProgress = 0.0
         if _useNativeOrgasmWidget
-            ;UD_Native.SetMeterValue(_orgasmMeter.Id,98.0)
-            UD_Native.SetMeterRate(_orgasmMeter.Id,-75.0)  ;decrease orgasm rate untill next update
+            if UDmain.UDWC.UD_UseIWantWidget
+                UD_Native.SetMeterRateIWW(_orgasmMeterIWW.Id,-75.0)  ;decrease orgasm rate untill next update
+            else
+                UD_Native.SetMeterRateSkyUi(_orgasmMeterSkyUi.WidgetRoot,-75.0)
+            endif
         endif
         
         UDOM.ResetActorOrgasmProgress(akActor)
@@ -2130,9 +2138,14 @@ Function CalculateOrgasmProgress()
     endif
     
     if _useNativeOrgasmWidget
-        _orgasmProgress = UD_Native.GetMeterValue(_orgasmMeter.Id)/100.0*_orgasmCapacity
-        _orgasmMeter.FillPercent = Round(_orgasmProgress*100/_orgasmCapacity)
-        _orgasmRateAnti = UDOM.CulculateAntiOrgasmRateMultiplier(_arousal)*_orgasmResistMultiplier*(_orgasmProgress*(_orgasmResistence/100.0)) ;edging, orgasm rate needs to be bigger then UD_OrgasmResistence, else actor will not reach orgasm
+        if UDmain.UDWC.UD_UseIWantWidget
+            _orgasmProgress             = UD_Native.GetMeterValueIWW(_orgasmMeterIWW.Id)/100.0*_orgasmCapacity
+            _orgasmMeterIWW.FillPercent    = Round(_orgasmProgress*100/_orgasmCapacity)
+        else
+            _orgasmProgress             = UD_Native.GetMeterValueSkyUi(_orgasmMeterSkyUi.WidgetRoot)/100.0*_orgasmCapacity
+            _orgasmMeterSkyUi.SetInterPercent(Round(_orgasmProgress*100/_orgasmCapacity))
+        endif
+        _orgasmRateAnti             = UDOM.CulculateAntiOrgasmRateMultiplier(_arousal)*_orgasmResistMultiplier*(_orgasmProgress*(_orgasmResistence/100.0)) ;edging, orgasm rate needs to be bigger then UD_OrgasmResistence, else actor will not reach orgasm
     else
          _orgasmRateAnti = UDOM.CulculateAntiOrgasmRateMultiplier(_arousal)*_orgasmResistMultiplier*(_orgasmProgress*(_orgasmResistence/100.0))*_currentUpdateTime  ;edging, orgasm rate needs to be bigger then UD_OrgasmResistence, else actor will not reach orgasm
     endif
@@ -2155,7 +2168,11 @@ Function CalculateOrgasmProgress()
     endif
     
     if _useNativeOrgasmWidget
-        UD_Native.SetMeterRate(_orgasmMeter.Id,_orgasmratetotal*100.0/_orgasmCapacity)
+        if UDmain.UDWC.UD_UseIWantWidget
+            UD_Native.SetMeterRateIWW(_orgasmMeterIWW.Id,_orgasmratetotal*100.0/_orgasmCapacity)
+        else
+            UD_Native.SetMeterRateSkyUi(_orgasmMeterSkyUi.WidgetRoot,_orgasmratetotal*100.0/_orgasmCapacity)
+        endif
     endif
     
     ;proccess edge
@@ -2173,7 +2190,7 @@ Function UpdateOrgasmSecond()
     Actor akActor = GetActor()
     Bool  loc_is3dLoaded = IsPlayer() || akActor.Is3DLoaded()
     
-    _useNativeOrgasmWidget = (IsPlayer() && UDmain.UD_UseNativeFunctions && UDmain.UDWC.UD_UseIWantWidget)
+    _useNativeOrgasmWidget = (IsPlayer() && UDmain.UD_UseNativeFunctions)
     
     _orgasmRate2 = _orgasmRate
     _tick = 0

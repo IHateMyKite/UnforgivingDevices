@@ -197,6 +197,10 @@ function SetPercent(float a_percent, bool a_force = false)
     endIf
 endFunction
 
+Function SetInterPercent(float a_percent)
+    _percent = a_percent
+EndFunction
+
 function SetColors(int a_primaryColor, int a_secondaryColor = -1, int a_flashColor = -1)
     _primaryColor = a_primaryColor;
     _secondaryColor = a_secondaryColor;
