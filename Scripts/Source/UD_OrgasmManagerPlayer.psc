@@ -92,7 +92,7 @@ Function CritLoopOrgasmResist(Int iChance,Float fDifficulty)
 EndFunction
 
 Function OnCritSuccesOrgasmResist()
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         UDmain.Log("OnCritSuccesOrgasmResist() callled!")
     endif
     UDmain.Player.restoreAV("Stamina", 15)
@@ -103,13 +103,11 @@ Function OnCritFailureOrgasmResist()
     if UDmain.TraceAllowed()    
         UDmain.Log("OnCritFailureOrgasmResist() callled!")
     endif
-    ;UDmain.Player.damageAV("Stamina", 25)
     UpdateActorOrgasmProgress(UDmain.Player,getActorOrgasmRate(UDmain.Player)*2,true)
 EndFunction
 
-
 Event MinigameKeysRegister()
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         UDmain.Log("UD_OrgasmManager MinigameKeysRegister called",1)
     endif
     RegisterForKey(UDCDMain.Stamina_meter_Keycode)

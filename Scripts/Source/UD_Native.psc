@@ -15,3 +15,14 @@ Function MinigameEffectUpdateMagicka(Actor akActor, float afNewMagicka)  global 
 Int Function CodeBit(int aiCodedMap,int aiValue,int aiSize,int aiIndex) global native
 Int Function DecodeBit(int aiCodedMap,int aiSize,int aiIndex) global native
 
+;UI
+Function AddMeterEntry(string asPath, int aiId, string asName, float afBase, float afRate, bool abShow) global native
+Function RemoveMeterEntry(int aiId) global native
+Function ToggleAllMeters(bool abToggle) global native
+Function ToggleMeter(int aiId, bool abToggle) global native
+Function SetMeterRate(int aiId, float afNewRate) global native
+Function SetMeterMult(int aiId, float afNewMult) global native
+Function SetMeterValue(int aiId, float afNewValue) global native
+Float Function UpdateMeterValue(int aiId, float afDiffValue) global native
+Float Function GetMeterValue(int aiId) global native
+int Function RemoveAllMeterEntries() global native

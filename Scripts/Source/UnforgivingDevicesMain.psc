@@ -595,7 +595,6 @@ Function OnGameReload()
             return ;Fatal error when initializing UD
         endif
 
-        
         UDWC.GameUpdate()
         
         UDMC.Update()
@@ -685,6 +684,8 @@ Function Update()
         return
     endif
     
+    RegisterForModEvent("UDForceUpdate","OnGameReload")
+    
     _ValidateModules()
     _CheckOptionalMods()
     _CheckPatchesOrder()
@@ -718,6 +719,17 @@ Function Update()
     UDCDmain.UpdateGenericKeys()
     
     _StartModulesManual()
+EndFunction
+
+;/  Function: ForceUpdate
+    
+    Forces mod to update. Function is not blocking.
+/;
+Function ForceUpdate()
+    int handle = ModEvent.Create("UDForceUpdate")
+    if (handle)
+        ModEvent.Send(handle)
+    endIf
 EndFunction
 
 ;used for validating modules forms between versions

@@ -4,7 +4,13 @@ import UnforgivingDevicesMain
 
 ;Int Property rare_device_chance = 25 auto
 UD_AbadonQuest_script   Property AbadonQuest    auto
-UD_libs                 Property UDlibs         auto
+
+UD_libs                 Property UDlibs hidden
+    UD_libs Function get()
+        return UDCDMain.UDlibs
+    EndFunction
+EndProperty
+
 UDCustomDeviceMain      Property UDCDmain       auto
 zadlibs                 Property libs           auto
 

@@ -1371,6 +1371,10 @@ Function OptionSelectGeneral(int option)
         forcePageReset()
     elseif option == UD_UseNativeFunctions_T
         UDmain.UD_UseNativeFunctions = !UDmain.UD_UseNativeFunctions
+        if !UDmain.UD_UseNativeFunctions
+            UD_Native.RemoveAllMeterEntries()
+        endif
+        UDmain.ForceUpdate() ;better reload the mod
         SetToggleOptionValue(UD_UseNativeFunctions_T, UDmain.UD_UseNativeFunctions)
     endif
 EndFunction
@@ -2859,6 +2863,7 @@ Function GeneralPageDefault(int option)
     elseif(option == UD_UseNativeFunctions_T)
         UDmain.UD_UseNativeFunctions = false
         SetToggleOptionValue(UD_UseNativeFunctions_T, UDmain.UD_UseNativeFunctions)
+        UD_Native.RemoveAllMeterEntries()
     Endif
 EndFunction
 

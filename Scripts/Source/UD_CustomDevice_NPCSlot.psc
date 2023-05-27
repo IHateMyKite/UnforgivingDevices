@@ -131,6 +131,7 @@ Function GameUpdate()
         if !IsPlayer()
             UDOM.RemoveAbilities(GetActor())
         endif
+        _OrgasmGameUpdate()
         CheckVibrators()
         InitOrgasmExpression()
     endif
@@ -1954,7 +1955,6 @@ bool    _expressionApplied       = false
 float   _orgasmCapacity          = 100.0
 float   _orgasmResistence        = 2.5
 float   _orgasmProgress          = 0.0
-float   _orgasmProgress2         = 0.0
 float   _orgasmProgress_p        = 0.0
 int     _orgasms                 = 0
 int     _hornyAnimTimer          = 0
@@ -1964,6 +1964,9 @@ float   _edgeprogress            = 0.0
 int     _edgelevel               = 0
 
 Int     _OrgasmExhaustionTime     = 0
+
+float   _orgasmratetotal = 0.0
+UD_WidgetMeter_RefAlias _orgasmMeter
 
 sslBaseExpression expression
 float[] _org_expression
@@ -1994,7 +1997,6 @@ Function InitOrgasmUpdate()
         _orgasmCapacity             = UDOM.getActorOrgasmCapacity(loc_actor)
         _orgasmResistence           = UDOM.getActorOrgasmResist(loc_actor)
         _orgasmProgress             = StorageUtil.GetFloatValue(loc_actor, "UD_OrgasmProgress",0.0)
-        _orgasmProgress2            = 0.0
         _orgasmProgress_p           = _orgasmProgress/_orgasmCapacity
         _hornyAnimTimer             = 0
         _msID                       = -1
@@ -2002,6 +2004,16 @@ Function InitOrgasmUpdate()
         _actorinminigame            = UDCDMain.actorInMinigame(loc_actor)
         _edgeprogress               = UDOM.GetHornyProgress(loc_actor)
         _edgelevel                  = UDOM.GetHornyLevel(loc_actor)
+        
+        _OrgasmGameUpdate()
+    endif
+EndFunction
+
+Function _OrgasmGameUpdate()
+    _useNativeOrgasmWidget = (IsPlayer() && UDmain.UD_UseNativeFunctions && UDmain.UDWC.UD_UseIWantWidget)
+    if _useNativeOrgasmWidget
+        _orgasmMeter = UDmain.UDWC._GetMeter("player-orgasm")
+        UD_Native.AddMeterEntry(UDmain.UDWC.iWidget.WidgetRoot, _orgasmMeter.Id, "OrgasmMeter", _orgasmProgress_p*100.0, _orgasmratetotal, true)
     endif
 EndFunction
 
@@ -2012,6 +2024,7 @@ Function InitOrgasmExpression()
     _org_expression3            = UDEM.GetPrebuildExpression_Angry1()
 EndFunction
 
+bool _useNativeOrgasmWidget = false
 Function UpdateOrgasm(Float afUpdateTime)
     if !UDmain.IsEnabled()
         return
@@ -2029,9 +2042,14 @@ Function UpdateOrgasm(Float afUpdateTime)
         endif
         
         _orgasmProgress = 0.0
+        if _useNativeOrgasmWidget
+            ;UD_Native.SetMeterValue(_orgasmMeter.Id,98.0)
+            UD_Native.SetMeterRate(_orgasmMeter.Id,-75.0)  ;decrease orgasm rate untill next update
+        endif
+        
         UDOM.ResetActorOrgasmProgress(akActor)
         
-        if _widgetShown
+        if _widgetShown && !_useNativeOrgasmWidget
             _widgetShown = false
             UDmain.UDWC.Meter_SetFillPercent("player-orgasm", 0.0, True)
             UDmain.UDWC.Meter_SetVisible("player-orgasm", False)
@@ -2053,6 +2071,8 @@ Function UpdateOrgasm(Float afUpdateTime)
         
         if IsPlayer()
             Utility.wait(1.0) ;wait second, so there is time for some effects to be applied
+            _GetOrgasmVarsFromStorage()
+            CalculateOrgasmProgress()
         endif
     else
         ;check edge
@@ -2090,33 +2110,52 @@ EndFunction
 
 Function CalculateOrgasmProgress()
     Actor akActor = GetActor()
-    _orgasmProgress2 = _orgasmProgress
+    _orgasmratetotal = 0
     _orgasmResisting = akActor.isInFaction(UDOM.OrgasmResistFaction)
+    _arousal         = UDOM.getArousal(akActor)
     if _orgasmResisting
         _orgasmResisting2    = true
         _orgasmProgress      = UDOM.getActorOrgasmProgress(akActor)
     else
         if _orgasmResisting2
             _orgasmResisting2            = false
-            _arousal                     = UDOM.getArousal(akActor)
-            _orgasmRate                  = UDOM.getActorOrgasmRate(akActor)
-            _orgasmRateMultiplier        = UDOM.getActorOrgasmRateMultiplier(akActor)
-            _orgasmResistMultiplier      = UDOM.getActorOrgasmResistMultiplier(akActor)
-            _orgasms                     = UDOM.getOrgasmingCount(akActor)
-            _actorinminigame             = UDCDMain.actorInMinigame(akActor)
-            UDOM.SetActorOrgasmProgress(akActor,_orgasmProgress)
+            _GetOrgasmVarsFromStorage()
         endif
-        _orgasmProgress += _orgasmRate*_orgasmRateMultiplier*_currentUpdateTime
+        ;_orgasmProgress += _orgasmRate*_orgasmRateMultiplier*_currentUpdateTime
+        if _useNativeOrgasmWidget
+            _orgasmratetotal += _orgasmRate*_orgasmRateMultiplier
+        else
+            _orgasmProgress += _orgasmRate*_orgasmRateMultiplier*_currentUpdateTime
+        endif
     endif
     
-    _orgasmRateAnti = UDOM.CulculateAntiOrgasmRateMultiplier(_arousal)*_orgasmResistMultiplier*(_orgasmProgress*(_orgasmResistence/100.0))*_currentUpdateTime  ;edging, orgasm rate needs to be bigger then UD_OrgasmResistence, else actor will not reach orgasm
-
+    if _useNativeOrgasmWidget
+        _orgasmProgress = UD_Native.GetMeterValue(_orgasmMeter.Id)/100.0*_orgasmCapacity
+        _orgasmMeter.FillPercent = Round(_orgasmProgress*100/_orgasmCapacity)
+        _orgasmRateAnti = UDOM.CulculateAntiOrgasmRateMultiplier(_arousal)*_orgasmResistMultiplier*(_orgasmProgress*(_orgasmResistence/100.0)) ;edging, orgasm rate needs to be bigger then UD_OrgasmResistence, else actor will not reach orgasm
+    else
+         _orgasmRateAnti = UDOM.CulculateAntiOrgasmRateMultiplier(_arousal)*_orgasmResistMultiplier*(_orgasmProgress*(_orgasmResistence/100.0))*_currentUpdateTime  ;edging, orgasm rate needs to be bigger then UD_OrgasmResistence, else actor will not reach orgasm
+    endif
+    
     if !_orgasmResisting
         if _orgasmRate*_orgasmRateMultiplier > 0.0
-            _orgasmProgress -= _orgasmRateAnti
+            if _useNativeOrgasmWidget
+                _orgasmratetotal -= _orgasmRateAnti
+            else
+                _orgasmProgress -= _orgasmRateAnti
+            endif
         else
-            _orgasmProgress -= 3*_orgasmRateAnti
+            if _useNativeOrgasmWidget
+                _orgasmratetotal -= 3*_orgasmRateAnti
+            else
+                _orgasmProgress -= 3*_orgasmRateAnti
+            endif
+            
         endif
+    endif
+    
+    if _useNativeOrgasmWidget
+        UD_Native.SetMeterRate(_orgasmMeter.Id,_orgasmratetotal*100.0/_orgasmCapacity)
     endif
     
     ;proccess edge
@@ -2125,7 +2164,7 @@ Function CalculateOrgasmProgress()
     
     _orgasmProgress_p = fRange(_orgasmProgress/_orgasmCapacity,0.0,1.0) ;update relative orgasm progress
     
-    if _widgetShown && !_orgasmResisting
+    if !_useNativeOrgasmWidget && _widgetShown && !_orgasmResisting
         UDmain.UDWC.Meter_SetFillPercent("player-orgasm", _orgasmProgress_p * 100.0)
     endif
 EndFunction
@@ -2133,6 +2172,8 @@ EndFunction
 Function UpdateOrgasmSecond()
     Actor akActor = GetActor()
     Bool  loc_is3dLoaded = IsPlayer() || akActor.Is3DLoaded()
+    
+    _useNativeOrgasmWidget = (IsPlayer() && UDmain.UD_UseNativeFunctions && UDmain.UDWC.UD_UseIWantWidget)
     
     _orgasmRate2 = _orgasmRate
     _tick = 0
@@ -2152,13 +2193,7 @@ Function UpdateOrgasmSecond()
     endif
     
     if !_orgasmResisting
-        _arousal                 = UDOM.getArousal(akActor)
-        _orgasmRate              = UDOM.getActorOrgasmRate(akActor)
-        _orgasmRateMultiplier    = UDOM.getActorOrgasmRateMultiplier(akActor)
-        _orgasmResistMultiplier  = UDOM.getActorOrgasmResistMultiplier(akActor)
-        _orgasms                 = UDOM.getOrgasmingCount(akActor)
-        _actorinminigame         = UDCDMain.actorInMinigame(akActor)
-        UDOM.SetActorOrgasmProgress(akActor,_orgasmProgress)
+        _GetOrgasmVarsFromStorage()
     endif
     
     if loc_is3dLoaded
@@ -2206,6 +2241,16 @@ Function UpdateOrgasmSecond()
     if _tickS && _tickS % 15
         ;Update
     endif
+EndFunction
+
+Function _GetOrgasmVarsFromStorage()
+    Actor akActor = GetActor()
+    _orgasmRate              = UDOM.getActorOrgasmRate(akActor)
+    _orgasmRateMultiplier    = UDOM.getActorOrgasmRateMultiplier(akActor)
+    _orgasmResistMultiplier  = UDOM.getActorOrgasmResistMultiplier(akActor)
+    _orgasms                 = UDOM.getOrgasmingCount(akActor)
+    _actorinminigame         = UDCDMain.actorInMinigame(akActor)
+    UDOM.SetActorOrgasmProgress(akActor,_orgasmProgress)
 EndFunction
 
 Function UpdateHornyExpression()
