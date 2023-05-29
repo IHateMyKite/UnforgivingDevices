@@ -2018,13 +2018,7 @@ Function _OrgasmGameUpdate()
 
     _useNativeOrgasmWidget = (IsPlayer() && UDmain.UD_UseNativeFunctions)
     if _useNativeOrgasmWidget
-        _orgasmMeterSkyUi   = UDmain.UDWC._GetVanillaMeter("player-orgasm")
-        _orgasmMeterIWW     = UDmain.UDWC._GetMeter("player-orgasm")
-        if UDmain.UseIWW()
-            UD_Native.AddMeterEntryIWW(UDmain.UDWC.iWidget.WidgetRoot, _orgasmMeterIWW.Id, "OrgasmMeter", _orgasmProgress_p*100.0, _orgasmratetotal, true)
-        else
-            UD_Native.AddMeterEntrySkyUi(_orgasmMeterSkyUi.WidgetRoot,"OrgasmMeter", _orgasmProgress_p*100.0, _orgasmratetotal, true)
-        endif
+        UDmain.UDWC.RegisterNativeMeterEntry("player-orgasm",_orgasmProgress_p*100.0,_orgasmratetotal, true)
     endif
 EndFunction
 
@@ -2054,11 +2048,7 @@ Function UpdateOrgasm(Float afUpdateTime)
         
         _orgasmProgress = 0.0
         if _useNativeOrgasmWidget
-            if UDmain.UDWC.UD_UseIWantWidget
-                UD_Native.SetMeterRateIWW(_orgasmMeterIWW.Id,-125.0)  ;decrease orgasm rate untill next update
-            else
-                UD_Native.SetMeterRateSkyUi(_orgasmMeterSkyUi.WidgetRoot,-125.0)
-            endif
+            UDmain.UDWC.SetNativeMeterRate("player-orgasm",-125.0)
         endif
         
         UDOM.ResetActorOrgasmProgress(akActor)
@@ -2144,16 +2134,11 @@ Function CalculateOrgasmProgress()
     endif
     
     if _useNativeOrgasmWidget
-        if UDmain.UDWC.UD_UseIWantWidget
-            _orgasmProgress             = UD_Native.GetMeterValueIWW(_orgasmMeterIWW.Id)/100.0*_orgasmCapacity
-            _orgasmMeterIWW.FillPercent    = Round(_orgasmProgress*100/_orgasmCapacity)
-        else
-            _orgasmProgress             = UD_Native.GetMeterValueSkyUi(_orgasmMeterSkyUi.WidgetRoot)/100.0*_orgasmCapacity
-            _orgasmMeterSkyUi.SetInterPercent(Round(_orgasmProgress*100/_orgasmCapacity))
-        endif
-        _orgasmRateAnti             = UDOM.CulculateAntiOrgasmRateMultiplier(_arousal)*_orgasmResistMultiplier*(_orgasmProgress*(_orgasmResistence/100.0)) ;edging, orgasm rate needs to be bigger then UD_OrgasmResistence, else actor will not reach orgasm
+        _orgasmProgress  = UDmain.UDWC.GetNativeMeterValue("player-orgasm")
+        UDmain.UDWC.SetMeterInterValue("player-orgasm",_orgasmProgress*100/_orgasmCapacity)
+        _orgasmRateAnti  = UDOM.CulculateAntiOrgasmRateMultiplier(_arousal)*_orgasmResistMultiplier*(_orgasmProgress*(_orgasmResistence/100.0)) ;edging, orgasm rate needs to be bigger then UD_OrgasmResistence, else actor will not reach orgasm
     else
-         _orgasmRateAnti = UDOM.CulculateAntiOrgasmRateMultiplier(_arousal)*_orgasmResistMultiplier*(_orgasmProgress*(_orgasmResistence/100.0))*_currentUpdateTime  ;edging, orgasm rate needs to be bigger then UD_OrgasmResistence, else actor will not reach orgasm
+        _orgasmRateAnti  = UDOM.CulculateAntiOrgasmRateMultiplier(_arousal)*_orgasmResistMultiplier*(_orgasmProgress*(_orgasmResistence/100.0))*_currentUpdateTime  ;edging, orgasm rate needs to be bigger then UD_OrgasmResistence, else actor will not reach orgasm
     endif
     
     if !_orgasmResisting
@@ -2174,11 +2159,7 @@ Function CalculateOrgasmProgress()
     endif
     
     if _useNativeOrgasmWidget && !_orgasmResisting
-        if UDmain.UseIWW()
-            UD_Native.SetMeterRateIWW(_orgasmMeterIWW.Id,_orgasmratetotal*100.0/_orgasmCapacity)
-        else
-            UD_Native.SetMeterRateSkyUi(_orgasmMeterSkyUi.WidgetRoot,_orgasmratetotal*100.0/_orgasmCapacity)
-        endif
+        UDmain.UDWC.SetNativeMeterRate("player-orgasm",_orgasmratetotal*100.0/_orgasmCapacity)
     endif
     
     ;proccess edge

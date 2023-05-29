@@ -4174,11 +4174,8 @@ EndFunction
 Function decreaseDurabilityAndCheckUnlock(float afValue,float afCondMult = 1.0,Bool abCheckCondition = True)
     if current_device_health > 0.0
         if UDmain.UD_UseNativeFunctions && PlayerInMinigame() && UD_damage_device
-            if UDmain.UseiWW()
-                current_device_health = UD_Health*UD_Native.UpdateMeterValueIWW(UDmain.UDWC._GetMeter("device-main").Id,-1.0*afValue)/100.0
-            else
-                current_device_health = UD_Health*UD_Native.UpdateMeterValueSkyUi(UDmain.UDWC._GetVanillaMeter("device-main").WidgetRoot,-1.0*afValue)/100.0
-            endif
+            ;update and fetch value from native meter
+            current_device_health = UDmain.UDWC.UpdateNativeMeterValue("device-main",-1.0*afValue)*UD_Health/100.0
         else
             current_device_health = current_device_health - afValue
         endif
@@ -4190,11 +4187,8 @@ EndFunction
 
 Function _DecreaseCondition(Float afCondition, Float afMult, bool abCheckCondition)
     if UDmain.UD_UseNativeFunctions && PlayerInMinigame() && UD_damage_device
-        if UDmain.UseiWW()
-            _total_durability_drain = UD_Health*(1.0 - UD_Native.UpdateMeterValueIWW(UDmain.UDWC._GetMeter("device-condition").Id,-1.0*afCondition*afMult)/100.0)
-        else
-            _total_durability_drain = UD_Health*(1.0 - UD_Native.UpdateMeterValueSkyUi(UDmain.UDWC._GetVanillaMeter("device-condition").WidgetRoot,-1.0*afCondition*afMult)/100.0)
-        endif
+        ;update fetch value from native meter
+        _total_durability_drain = UDmain.UDWC.UpdateNativeMeterValue("device-condition",-1.0*afCondition*afMult)*UD_Health/100.0
     else
         _total_durability_drain += afCondition*afMult
     endif
@@ -4328,11 +4322,7 @@ Function _updateCondition(bool decrease = True)
     if decrease
         while (_total_durability_drain >= loc_health) && !IsUnlocked && UD_condition < 4
             if PlayerInMinigame() && UDmain.UD_UseNativeFunctions && UD_damage_device
-                if UDmain.UseiWW()
-                    UD_Native.SetMeterValueIWW(UDmain.UDWC._GetMeter("device-condition").Id,100)
-                else
-                    UD_Native.SetMeterValueSkyUi(UDmain.UDWC._GetVanillaMeter("device-condition").WidgetRoot,100)
-                endif
+                UDmain.UDWC.SetNativeMeterValue("device-condition",100)
                 _total_durability_drain = 0
             else
                 _total_durability_drain -= loc_health
@@ -6504,29 +6494,15 @@ Function minigame()
     
     bool      loc_useNativeMeter   = PlayerInMinigame() && UDmain.UD_UseNativeFunctions
     bool      loc_useIWW           = UDmain.UseiWW()
-    UD_WidgetMeter_RefAlias loc_durabilitymeterIWW = UDmain.UDWC._GetMeter("device-main")
-    UD_WidgetMeter_RefAlias loc_conditionmeterIWW  = UDmain.UDWC._GetMeter("device-condition")
-    
-    UD_WidgetBase loc_durabilitymeterSkyUi  = UDmain.UDWC._GetVanillaMeter("device-main")
-    UD_WidgetBase loc_conditionmeterSkyUi   = UDmain.UDWC._GetVanillaMeter("device-condition")
+
     ;register native meters
     if loc_useNativeMeter
         if loc_DamageDevice
-            if loc_useIWW
-                UD_Native.AddMeterEntryIWW(UDmain.UDWC.iWidget.WidgetRoot, loc_durabilitymeterIWW.Id, "DurabilityMeter", getRelativeDurability()*100.0, -1.0*loc_dmgnotimemult, true)
-                UD_Native.SetMeterMultIWW(loc_durabilitymeterIWW.Id,UD_DamageMult)
-            else
-                UD_Native.AddMeterEntrySkyUi(loc_durabilitymeterSkyUi.WidgetRoot, "DurabilityMeter", getRelativeDurability()*100.0, -1.0*loc_dmgnotimemult, true)
-                UD_Native.SetMeterMultSkyUi(loc_durabilitymeterSkyUi.WidgetRoot,UD_DamageMult)
-            endif
+            UDmain.UDWC.RegisterNativeMeterEntry("device-main",getRelativeDurability()*100.0,-1.0*loc_dmgnotimemult,true)
+            UDmain.UDWC.SetNativeMeterMult("device-main",UD_DamageMult)
             if loc_condmult != 0.0
-                if loc_useIWW
-                    UD_Native.AddMeterEntryIWW(UDmain.UDWC.iWidget.WidgetRoot, loc_conditionmeterIWW.Id, "ConditionMeter", getRelativeCondition()*100.0, -1.0*loc_dmgnotimemult, true)
-                    UD_Native.SetMeterMultIWW(loc_conditionmeterIWW.Id,loc_condmult)
-                else
-                    UD_Native.AddMeterEntrySkyUi(loc_conditionmeterSkyUi.WidgetRoot, "ConditionMeter", getRelativeCondition()*100.0, -1.0*loc_dmgnotimemult, true)
-                    UD_Native.SetMeterMultSkyUi(loc_conditionmeterSkyUi.WidgetRoot,loc_condmult)
-                endif
+                UDmain.UDWC.RegisterNativeMeterEntry("device-condition",getRelativeCondition()*100.0,-1.0*loc_dmgnotimemult,true)
+                UDmain.UDWC.SetNativeMeterMult("device-condition",loc_condmult)
             endif
         endif
     endif
@@ -6568,18 +6544,11 @@ Function minigame()
             ;reduce device durability
             if loc_DamageDevice
                 if loc_useNativeMeter
+                    ;native meter used. Calculation is done in skse plugin, so just fetch the value and recalculate it
                     float loc_health = UD_Health
-                    if loc_useIWW
-                        current_device_health   = loc_health*UD_Native.GetMeterValueIWW(loc_durabilitymeterIWW.Id)/100.0
-                    else
-                        current_device_health   = loc_health*UD_Native.GetMeterValueSkyUi(loc_durabilitymeterSkyUi.WidgetRoot)/100.0
-                    endif
+                    current_device_health = UDmain.UDWC.GetNativeMeterValue("device-main")*loc_health/100.0
                     if loc_condmult != 0.0
-                        if loc_useIWW
-                            _total_durability_drain = loc_health*(1.0 - UD_Native.GetMeterValueIWW(loc_conditionmeterIWW.Id)/100.0)
-                        else
-                            _total_durability_drain = loc_health*(1.0 - UD_Native.GetMeterValueSkyUi(loc_conditionmeterSkyUi.WidgetRoot)/100.0)
-                        endif
+                        _total_durability_drain = (1.0 - UDmain.UDWC.GetNativeMeterValue("device-condition")/100.0)*loc_health
                         _updateCondition()
                     endif
                     _CheckUnlock()
@@ -6665,13 +6634,8 @@ Function minigame()
     
     ;remove registered meters
     if loc_useNativeMeter
-        if loc_UseIWW
-            UD_Native.RemoveMeterEntryIWW(loc_durabilitymeterIWW.Id)
-            UD_Native.RemoveMeterEntryIWW(loc_conditionmeterIWW.Id)
-        else
-            UD_Native.RemoveMeterEntrySkyUi(loc_durabilitymeterSkyUi.WidgetRoot)
-            UD_Native.RemoveMeterEntrySkyUi(loc_conditionmeterSkyUi.WidgetRoot)
-        endif
+        UDmain.UDWC.UnregisterNativeMeterEntry("device-main")
+        UDmain.UDWC.UnregisterNativeMeterEntry("device-condition")
     endif
     
     

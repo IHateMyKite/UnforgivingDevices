@@ -211,15 +211,8 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     float loc_staminaRate     = akActor.getBaseAV("StaminaRate")
     akActor.setAV("StaminaRate", 0.0)
     
-    UD_WidgetMeter_RefAlias loc_orgasmMeterIWW      = UDmain.UDWC._GetMeter("player-orgasm")
-    UD_WidgetBase           loc_orgasmMeterSkyUi    = UDmain.UDWC._GetVanillaMeter("player-orgasm")
-    
     if UDmain.UD_UseNativeFunctions
-        if UDmain.UseIWW()
-            UD_Native.SetMeterRateIWW(loc_orgasmMeterIWW.Id,0.0)
-        else
-            UD_Native.SetMeterRateSkyUi(loc_orgasmMeterSkyUi.WidgetRoot,0.0)
-        endif
+        UDmain.UDWC.SetNativeMeterRate("player-orgasm",0.0)
     endif
     
     ;UDCDMain.DisableActor(akActor,true)
@@ -289,11 +282,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
                     elseif loc_HightSpiritMode_Type == 2
                         loc_StaminaRateMult = 0.75
                         if UDmain.UD_UseNativeFunctions
-                            if UDmain.UseIWW()
-                                UD_Native.SetMeterRateIWW(loc_orgasmMeterIWW.Id,-10)
-                            else
-                                UD_Native.SetMeterRateSkyUi(loc_orgasmMeterSkyUi.WidgetRoot,-10)
-                            endif
+                            UDmain.UDWC.SetNativeMeterRate("player-orgasm",-10.0)
                         else
                             UpdateActorOrgasmProgress(akActor,-8.0*(UDmain.UD_baseUpdateTime),true)
                         endif
@@ -307,11 +296,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
             else
                 loc_StaminaRateMult = 1.0
                 if UDmain.UD_UseNativeFunctions
-                    if UDmain.UseIWW()
-                        UD_Native.SetMeterRateIWW(loc_orgasmMeterIWW.Id,0.0)
-                    else
-                        UD_Native.SetMeterRateSkyUi(loc_orgasmMeterSkyUi.WidgetRoot,0.0)
-                    endif
+                    UDmain.UDWC.SetNativeMeterRate("player-orgasm",0.0)
                 endif
             endif
         endif

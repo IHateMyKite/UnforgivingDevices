@@ -48,11 +48,6 @@ UD_AnimationManagerScript Property UDAM hidden
         return UDmain.UDAM
     EndFunction
 EndProperty
-Package Property NPCDisablePackage Hidden
-    Package Function Get()
-        return libs.SexLab.Config.DoNothing
-    EndFunction
-EndProperty
 
 
 int                 OSLLoadOrderRelative    = 0
