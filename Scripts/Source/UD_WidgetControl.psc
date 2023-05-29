@@ -789,6 +789,171 @@ Function Meter_SetIcon(String asMeterName, String asIconName)
     
 EndFunction
 
+;/  Function: Meter_SetInterValue
+    Changes meter internal value without updating its widget
+    
+    Parameters:
+        asMeter  - meter name/alias (for example device-main)
+        afValue  - New meter value
+/;
+Function Meter_SetInterValue(string asMeter,Float afValue)
+    _GetVanillaMeter(asMeter).SetInterPercent(afValue)
+EndFunction
+
+;/  Function: Meter_RegisterNative
+    Register meter to be used with native library
+    
+    Use <Meter_UnRegisterNative> to unregister registered meter
+    
+    *Native library is required!!*
+    
+    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
+    
+    Parameters:
+        asMeter  - meter name/alias (for example device-main)
+        afValue  - inital value that meter will be forced to. Have to be in range from 0.0 to 100.0
+        afRate   - inital rate that meter will use to update its value. Rate is in value per second. Can be both positive and negative
+        abToggle - if meter be toggled on or off after initiazation
+/;
+Function Meter_RegisterNative(string asMeter,float afValue,float afRate,bool abToggle = true)
+    UD_Native.AddMeterEntrySkyUi(_GetVanillaMeter(asMeter).WidgetRoot,asMeter, afValue, afRate, abToggle)
+EndFunction
+
+;/  Function: Meter_UnRegisterNative
+    Unregister registered meter from native library
+    
+    *Native library is required!!*
+    
+    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
+    
+    Parameters:
+        asMeter  - meter name/alias (for example device-main)
+/;
+Function Meter_UnregisterNative(string asMeter)
+    UD_Native.RemoveMeterEntrySkyUi(_GetVanillaMeter(asMeter).WidgetRoot)
+EndFunction
+
+;/  Function: Meter_UnRegisterNative
+    Unregister all registered meters from native library
+    
+    *Native library is required!!*
+    
+    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
+    
+    Returns:
+        Number of unregistered meters
+/;
+Int Function Meter_UnregisterAllNative()
+    UD_Native.RemoveAllMeterEntries()
+EndFunction
+
+;/  Function: Meter_ToggleNative
+    Toggle native meter, stopping it from updating its value.
+    
+    Meter have to be first registered with <Meter_RegisterNative> before this function can be used
+    
+    *Native library is required!!*
+    
+    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
+    
+    Parameters:
+        asMeter  - meter name/alias (for example device-main)
+        abToggle - *True*=Meter update will enabled OK,*False*=Meter update will be disabled
+/;
+Function Meter_ToggleNative(string asMeter,bool abToggle)
+    UD_Native.ToggleMeterSkyUi(_GetVanillaMeter(asMeter).WidgetRoot,abToggle)
+EndFunction
+
+;/  Function: Meter_SetNativeRate
+    Set the rate of the registered native meter to new value
+    
+    Meter have to be first registered with <Meter_RegisterNative> before this function can be used
+    
+    *Native library is required!!*
+    
+    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
+    
+    Parameters:
+        asMeter  - meter name/alias (for example device-main)
+        afRate   - new rate that meter will use to update its value. Rate is in value per second. Can be both positive and negative
+/;
+Function Meter_SetNativeRate(string asMeter,float afRate)
+    UD_Native.SetMeterRateSkyUi(_GetVanillaMeter(asMeter).WidgetRoot,afRate)
+EndFunction
+
+;/  Function: Meter_SetNativeMult
+    Set the multiplier of the registered native meter to new value
+    
+    Meter have to be first registered with <Meter_RegisterNative> before this function can be used
+    
+    *Native library is required!!*
+    
+    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
+    
+    Parameters:
+        asMeter  - meter name/alias (for example device-main)
+        afMult   - new multiplier for meter rate
+/;
+Function Meter_SetNativeMult(string asMeter,float afMult)
+    UD_Native.SetMeterMultSkyUi(_GetVanillaMeter(asMeter).WidgetRoot,afMult)
+EndFunction
+
+;/  Function: Meter_GetNativeValue
+    Get the rate of the registered native meter
+    
+    Meter have to be first registered with <Meter_RegisterNative> before this function can be used
+    
+    *Native library is required!!*
+    
+    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
+    
+    Parameters:
+        asMeter  - meter name/alias (for example device-main)
+    
+    Returns:
+        current value of the meter. Is always in range from 0.0 to 100.0!
+/;
+Float Function Meter_GetNativeValue(string asMeter)
+    return UD_Native.GetMeterValueSkyUi(_GetVanillaMeter(asMeter).WidgetRoot)
+EndFunction
+
+;/  Function: Meter_SetNativeValue
+    Set the value of the registered native meter to new value
+    
+    Meter have to be first registered with <Meter_RegisterNative> before this function can be used
+    
+    *Native library is required!!*
+    
+    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
+    
+    Parameters:
+        asMeter  - meter name/alias (for example device-main)
+        afValue  - New meter value
+/;
+Function Meter_SetNativeValue(string asMeter, Float afValue)
+    return UD_Native.SetMeterValueSkyUi(_GetVanillaMeter(asMeter).WidgetRoot,afValue)
+EndFunction
+
+;/  Function: Meter_UpdateNativeValue
+    Updates value of registered meter
+    
+    Meter have to be first registered with <Meter_RegisterNative> before this function can be used
+    
+    *Native library is required!!*
+    
+    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
+    
+    Parameters:
+        asMeter  - meter name/alias (for example device-main)
+        afDiff   - By how much should be value updated
+        
+    Returns:
+        New updated value
+/;
+Float Function Meter_UpdateNativeValue(string asMeter,Float afDiff)
+    return UD_Native.UpdateMeterValueSkyUi(_GetVanillaMeter(asMeter).WidgetRoot,afDiff)
+EndFunction
+
 ;/  Group: Notifications API
 ===========================================================================================
 ===========================================================================================
@@ -988,111 +1153,6 @@ Function StatusEffect_ResetValues()
         i -= 1
         StatusEffectSlots[i].SoftReset()
     EndWhile
-EndFunction
-
-;/  Function: AddNativeMeterEntry
-    Register meter to be used with native library
-    
-    Parameters:
-        asMeter  - meter name/alias (for example device-main)
-        afValue  - inital value that meter will be forced to. Have to be in range from 0.0 to 100.0
-        afRate   - inital rate that meter will use to update its value. Rate is in value per second. Can be both positive and negative
-        abToggle - if meter be toggled on or off after initiazation
-/;
-Function RegisterNativeMeterEntry(string asMeter,float afValue,float afRate,bool abToggle = true)
-    UD_Native.AddMeterEntrySkyUi(_GetVanillaMeter(asMeter).WidgetRoot,asMeter, afValue, afRate, abToggle)
-EndFunction
-
-;/  Function: UnregisterNativeMeterEntry
-    Unregister meter from native library
-    
-    Parameters:
-        asMeter  - meter name/alias (for example device-main)
-/;
-Function UnregisterNativeMeterEntry(string asMeter)
-    UD_Native.RemoveMeterEntrySkyUi(_GetVanillaMeter(asMeter).WidgetRoot)
-EndFunction
-
-;/  Function: ToggleNativeMeter
-    Toggle native meter, stopping it from updating its value
-    
-    Parameters:
-        asMeter  - meter name/alias (for example device-main)
-        abToggle - *True*=Meter update will enabled OK,*False*=Meter update will be disabled
-/;
-Function ToggleNativeMeter(string asMeter,bool abToggle)
-    UD_Native.ToggleMeterSkyUi(_GetVanillaMeter(asMeter).WidgetRoot,abToggle)
-EndFunction
-
-;/  Function: SetNativeMeterRate
-    Set the rate of the registered native meter to new value
-    
-    Parameters:
-        asMeter  - meter name/alias (for example device-main)
-        afRate   - new rate that meter will use to update its value. Rate is in value per second. Can be both positive and negative
-/;
-Function SetNativeMeterRate(string asMeter,float afRate)
-    UD_Native.SetMeterRateSkyUi(_GetVanillaMeter(asMeter).WidgetRoot,afRate)
-EndFunction
-
-;/  Function: SetNativeMeterMult
-    Set the multiplier of the registered native meter to new value
-    
-    Parameters:
-        asMeter  - meter name/alias (for example device-main)
-        afMult   - new multiplier for meter rate
-/;
-Function SetNativeMeterMult(string asMeter,float afMult)
-    UD_Native.SetMeterMultSkyUi(_GetVanillaMeter(asMeter).WidgetRoot,afMult)
-EndFunction
-
-;/  Function: GetNativeMeterValue
-    Get the rate of the registered native meter
-    
-    Parameters:
-        asMeter  - meter name/alias (for example device-main)
-    
-    Returns:
-        current value of the meter. Is always in range from 0.0 to 100.0!
-/;
-Float Function GetNativeMeterValue(string asMeter)
-    return UD_Native.GetMeterValueSkyUi(_GetVanillaMeter(asMeter).WidgetRoot)
-EndFunction
-
-;/  Function: SetNativeMeterValue
-    Set the value of the registered native meter to new value
-    
-    Parameters:
-        asMeter  - meter name/alias (for example device-main)
-        afValue  - New meter value
-/;
-Function SetNativeMeterValue(string asMeter, Float afValue)
-    return UD_Native.SetMeterValueSkyUi(_GetVanillaMeter(asMeter).WidgetRoot,afValue)
-EndFunction
-
-;/  Function: UpdateNativeMeterValue
-    Updates value of registered meter
-    
-    Parameters:
-        asMeter  - meter name/alias (for example device-main)
-        afDiff   - By how much should be value updated
-        
-    Returns:
-        New updated value
-/;
-Float Function UpdateNativeMeterValue(string asMeter,Float afDiff)
-    return UD_Native.UpdateMeterValueSkyUi(_GetVanillaMeter(asMeter).WidgetRoot,afDiff)
-EndFunction
-
-;/  Function: SetNativeMeterRate
-    Changes meter internal value without updating its widget
-    
-    Parameters:
-        asMeter  - meter name/alias (for example device-main)
-        afValue  - New meter value
-/;
-Function SetMeterInterValue(string asMeter,Float afValue)
-    _GetVanillaMeter(asMeter).SetInterPercent(afValue)
 EndFunction
 
 ; Show all enabled (!) widgets with test animations for the short time
@@ -1701,6 +1761,42 @@ State iWidgetInstalled
         _SetIconRGB(loc_data.IconId, 0)
     EndFunction
    
+    Function Meter_SetInterValue(string asMeter,Float afValue)
+        _GetMeter(asMeter).FillPercent = Round(afValue)
+    EndFunction
+    
+    Function Meter_RegisterNative(string asMeter,float afValue,float afRate,bool abToggle = true)
+        UD_Native.AddMeterEntryIWW(iWidget.WidgetRoot,_GetMeter(asMeter).id,asMeter, afValue, afRate, abToggle)
+    EndFunction
+    
+    Function Meter_UnregisterNative(string asMeter)
+        UD_Native.RemoveMeterEntryIWW(_GetMeter(asMeter).id)
+    EndFunction
+    
+    Function Meter_ToggleNative(string asMeter,bool abToggle)
+        UD_Native.ToggleMeterSkyUi(_GetMeter(asMeter).id,abToggle)
+    EndFunction
+    
+    Function Meter_SetNativeRate(string asMeter,float afRate)
+        UD_Native.SetMeterRateIWW(_GetMeter(asMeter).id,afRate)
+    EndFunction
+    
+    Function Meter_SetNativeMult(string asMeter,float afMult)
+        UD_Native.SetMeterMultIWW(_GetMeter(asMeter).id,afMult)
+    EndFunction
+    
+    Float Function Meter_GetNativeValue(string asMeter)
+        return UD_Native.GetMeterValueIWW(_GetMeter(asMeter).id)
+    EndFunction
+
+    Function Meter_SetNativeValue(string asMeter, Float afValue)
+        UD_Native.SetMeterValueIWW(_GetMeter(asMeter).id,afValue)
+    EndFunction
+
+    Float Function Meter_UpdateNativeValue(string asMeter,Float afDiff)
+        return UD_Native.UpdateMeterValueIWW(_GetMeter(asMeter).id,afDiff)
+    EndFunction
+   
     ; quickly push a string into array and leave the function
     Function Notification_Push(String asText, Int aiColor = 0xFFFFFF)
         If asText == ""
@@ -2014,42 +2110,6 @@ State iWidgetInstalled
             EndIf
             i += 1
         EndWhile
-    EndFunction
-    
-    Function RegisterNativeMeterEntry(string asMeter,float afValue,float afRate,bool abToggle = true)
-        UD_Native.AddMeterEntryIWW(iWidget.WidgetRoot,_GetMeter(asMeter).id,asMeter, afValue, afRate, abToggle)
-    EndFunction
-    
-    Function UnregisterNativeMeterEntry(string asMeter)
-        UD_Native.RemoveMeterEntryIWW(_GetMeter(asMeter).id)
-    EndFunction
-    
-    Function ToggleNativeMeter(string asMeter,bool abToggle)
-        UD_Native.ToggleMeterSkyUi(_GetMeter(asMeter).id,abToggle)
-    EndFunction
-    
-    Function SetNativeMeterRate(string asMeter,float afRate)
-        UD_Native.SetMeterRateIWW(_GetMeter(asMeter).id,afRate)
-    EndFunction
-    
-    Function SetNativeMeterMult(string asMeter,float afMult)
-        UD_Native.SetMeterMultIWW(_GetMeter(asMeter).id,afMult)
-    EndFunction
-    
-    Float Function GetNativeMeterValue(string asMeter)
-        return UD_Native.GetMeterValueIWW(_GetMeter(asMeter).id)
-    EndFunction
-
-    Function SetNativeMeterValue(string asMeter, Float afValue)
-        UD_Native.SetMeterValueIWW(_GetMeter(asMeter).id,afValue)
-    EndFunction
-
-    Float Function UpdateNativeMeterValue(string asMeter,Float afDiff)
-        return UD_Native.UpdateMeterValueIWW(_GetMeter(asMeter).id,afDiff)
-    EndFunction
-
-    Function SetMeterInterValue(string asMeter,Float afValue)
-        _GetMeter(asMeter).FillPercent = Round(afValue)
     EndFunction
 
     Function TestWidgets()

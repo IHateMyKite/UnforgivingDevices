@@ -305,6 +305,17 @@ EndProperty
 
 float Property UD_LowPerformanceTime    = 1.0   autoreadonly
 float Property UD_HightPerformanceTime  = 0.25  autoreadonly
+
+;/  Variable: UD_UseNativeFunctions
+
+    If true, SKSE plugin native functions will be used
+    
+    This variable is automatically switched to false if user have not met conditions to use the plugin
+    
+    This variable is set with MCM
+    
+    Do not edit, *READ ONLY!*. Configurable on MCM *Generic* page by user.
+/;
 Bool  Property UD_UseNativeFunctions    = False auto hidden ;switch for native functions
 
 ;/  Variable: UD_baseUpdateTime
@@ -581,7 +592,7 @@ Function OnGameReload()
         Utility.waitMenuMode(2.5)
     endif
     
-    int loc_removedmeters = UD_Native.RemoveAllMeterEntries()
+    int loc_removedmeters = UDWC.Meter_UnregisterAllNative()
     if loc_removedmeters > 0
         Info(self+"::OnGameReload() - Removed " + loc_removedmeters + " registered meters!")
     endif

@@ -2018,7 +2018,7 @@ Function _OrgasmGameUpdate()
 
     _useNativeOrgasmWidget = (IsPlayer() && UDmain.UD_UseNativeFunctions)
     if _useNativeOrgasmWidget
-        UDmain.UDWC.RegisterNativeMeterEntry("player-orgasm",_orgasmProgress_p*100.0,_orgasmratetotal, true)
+        UDmain.UDWC.Meter_RegisterNative("player-orgasm",_orgasmProgress_p*100.0,_orgasmratetotal, true)
     endif
 EndFunction
 
@@ -2048,7 +2048,7 @@ Function UpdateOrgasm(Float afUpdateTime)
         
         _orgasmProgress = 0.0
         if _useNativeOrgasmWidget
-            UDmain.UDWC.SetNativeMeterRate("player-orgasm",-125.0)
+            UDmain.UDWC.Meter_SetNativeRate("player-orgasm",-125.0)
         endif
         
         UDOM.ResetActorOrgasmProgress(akActor)
@@ -2134,8 +2134,8 @@ Function CalculateOrgasmProgress()
     endif
     
     if _useNativeOrgasmWidget
-        _orgasmProgress  = UDmain.UDWC.GetNativeMeterValue("player-orgasm")/100.0*_orgasmCapacity
-        UDmain.UDWC.SetMeterInterValue("player-orgasm",_orgasmProgress*100/_orgasmCapacity)
+        _orgasmProgress  = UDmain.UDWC.Meter_GetNativeValue("player-orgasm")/100.0*_orgasmCapacity
+        UDmain.UDWC.Meter_SetInterValue("player-orgasm",_orgasmProgress*100/_orgasmCapacity)
         _orgasmRateAnti  = UDOM.CulculateAntiOrgasmRateMultiplier(_arousal)*_orgasmResistMultiplier*(_orgasmProgress*(_orgasmResistence/100.0)) ;edging, orgasm rate needs to be bigger then UD_OrgasmResistence, else actor will not reach orgasm
     else
         _orgasmRateAnti  = UDOM.CulculateAntiOrgasmRateMultiplier(_arousal)*_orgasmResistMultiplier*(_orgasmProgress*(_orgasmResistence/100.0))*_currentUpdateTime  ;edging, orgasm rate needs to be bigger then UD_OrgasmResistence, else actor will not reach orgasm
@@ -2159,7 +2159,7 @@ Function CalculateOrgasmProgress()
     endif
     
     if _useNativeOrgasmWidget && !_orgasmResisting
-        UDmain.UDWC.SetNativeMeterRate("player-orgasm",_orgasmratetotal*100.0/_orgasmCapacity)
+        UDmain.UDWC.Meter_SetNativeRate("player-orgasm",_orgasmratetotal*100.0/_orgasmCapacity)
     endif
     
     ;proccess edge
