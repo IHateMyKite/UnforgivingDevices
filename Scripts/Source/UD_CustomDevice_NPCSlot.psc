@@ -2134,7 +2134,7 @@ Function CalculateOrgasmProgress()
     endif
     
     if _useNativeOrgasmWidget
-        _orgasmProgress  = UDmain.UDWC.GetNativeMeterValue("player-orgasm")
+        _orgasmProgress  = UDmain.UDWC.GetNativeMeterValue("player-orgasm")/100.0*_orgasmCapacity
         UDmain.UDWC.SetMeterInterValue("player-orgasm",_orgasmProgress*100/_orgasmCapacity)
         _orgasmRateAnti  = UDOM.CulculateAntiOrgasmRateMultiplier(_arousal)*_orgasmResistMultiplier*(_orgasmProgress*(_orgasmResistence/100.0)) ;edging, orgasm rate needs to be bigger then UD_OrgasmResistence, else actor will not reach orgasm
     else
