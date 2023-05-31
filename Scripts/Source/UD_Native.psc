@@ -12,7 +12,7 @@ bool    Function MinigameStatsCheck         (Actor akActor)                     
         Function MinigameEffectUpdateStamina(Actor akActor, float afNewStamina) global native
         Function MinigameEffectUpdateMagicka(Actor akActor, float afNewMagicka) global native
 
-;UTILITY
+;===UTILITY===
 Int     Function CodeBit                    (int aiCodedMap,int aiValue,int aiSize,int aiIndex) global native
 Int     Function DecodeBit                  (int aiCodedMap,int aiSize,int aiIndex)             global native
 
@@ -39,3 +39,8 @@ Float   Function GetMeterValueIWW           (int aiId)                          
         Function SetMeterValueSkyUi         (string asPath, float afNewValue)   global native
 Float   Function UpdateMeterValueSkyUi      (string asPath, float afDiffValue)  global native
 Float   Function GetMeterValueSkyUi         (string asPath)                     global native
+
+;===Inventory===
+Form[]  Function GetInventoryDevices        (Actor akActor, bool abWorn)        global native
+Form[]  Function GetRenderDevices           (Actor akActor, bool abWorn)        global native
+Weapon  Function GetSharpestWeapon          (Actor akActor)                     global native

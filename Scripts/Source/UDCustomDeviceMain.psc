@@ -2228,27 +2228,31 @@ EndFunction
         Weapong with most damage
 /;
 Weapon Function getSharpestWeapon(Actor akActor)
-    Weapon loc_bestWeapon = none
-    if isRegistered(akActor)
-        UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(akActor)
-        loc_bestWeapon = loc_slot.UD_BestWeapon
+    if UDmain.UD_UseNativeFunctions
+        return UD_Native.GetSharpestWeapon(akActor)
     else
-        int loc_i = akActor.GetNumItems()
-        while loc_i
-            loc_i -= 1
-            Weapon loc_weapon = akActor.GetNthForm(loc_i) as Weapon
-            if loc_weapon
-                if isSharp(loc_weapon)
-                    if !loc_bestWeapon
-                        loc_bestWeapon = loc_weapon
-                    elseif (loc_weapon.getBaseDamage() > loc_bestWeapon.GetBaseDamage())
-                        loc_bestWeapon = loc_weapon
+        Weapon loc_bestWeapon = none
+        if isRegistered(akActor)
+            UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(akActor)
+            loc_bestWeapon = loc_slot.UD_BestWeapon
+        else
+            int loc_i = akActor.GetNumItems()
+            while loc_i
+                loc_i -= 1
+                Weapon loc_weapon = akActor.GetNthForm(loc_i) as Weapon
+                if loc_weapon
+                    if isSharp(loc_weapon)
+                        if !loc_bestWeapon
+                            loc_bestWeapon = loc_weapon
+                        elseif (loc_weapon.getBaseDamage() > loc_bestWeapon.GetBaseDamage())
+                            loc_bestWeapon = loc_weapon
+                        endif
                     endif
                 endif
-            endif
-        endwhile
+            endwhile
+        endif
+        return loc_bestWeapon
     endif
-    return loc_bestWeapon
 EndFunction
 
 ;/  Function: isSharp

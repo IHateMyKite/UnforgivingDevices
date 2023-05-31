@@ -556,16 +556,16 @@ Armor Function GetWornDevicePatched(Actor akActor, Keyword kw)
     endif
     
     Armor loc_result = none
-    Int loc_FormIndex = akActor.GetNumItems()
-    While loc_FormIndex
-        loc_FormIndex -= 1
-        Form loc_Form = akActor.GetNthForm(loc_FormIndex)
-        If loc_Form.HasKeyword(zad_InventoryDevice) && (akActor.IsEquipped(loc_Form) || akActor != playerRef)
-            zadEquipScript loc_tmpZRef = akActor.placeAtMe(loc_Form, abInitiallyDisabled = true) as zadEquipScript
+    if UDmain.UD_UseNativeFunctions && akActor == playerRef
+        Form[] loc_devices = UD_Native.GetInventoryDevices(akActor,true)
+        int loc_i
+        while loc_i
+            loc_i -= 1
+            zadEquipScript loc_tmpZRef = akActor.placeAtMe(loc_devices[loc_i], abInitiallyDisabled = true) as zadEquipScript
             if loc_tmpZRef
-                Armor loc_deviceInventory = loc_tmpZRef.deviceInventory
-                Armor loc_deviceRendered = loc_tmpZRef.deviceRendered
-                Keyword loc_DeviceKeyword = loc_tmpZRef.zad_DeviousDevice
+                Armor loc_deviceInventory   = loc_tmpZRef.deviceInventory
+                Armor loc_deviceRendered    = loc_tmpZRef.deviceRendered
+                Keyword loc_DeviceKeyword   = loc_tmpZRef.zad_DeviousDevice
                 if akActor.GetItemCount(loc_deviceRendered) && (loc_DeviceKeyword == kw || (UDmain.UD_CheckAllKw && loc_deviceRendered.haskeyword(kw)))
                     loc_tmpZRef.delete()
                     return loc_deviceInventory
@@ -574,8 +574,29 @@ Armor Function GetWornDevicePatched(Actor akActor, Keyword kw)
             if loc_tmpZRef
                 loc_tmpZRef.delete()
             endif
-        EndIf
-    EndWhile
+        endwhile
+    else
+        Int loc_FormIndex = akActor.GetNumItems()
+        While loc_FormIndex
+            loc_FormIndex -= 1
+            Form loc_Form = akActor.GetNthForm(loc_FormIndex)
+            If loc_Form.HasKeyword(zad_InventoryDevice) && (akActor.IsEquipped(loc_Form) || akActor != playerRef)
+                zadEquipScript loc_tmpZRef = akActor.placeAtMe(loc_Form, abInitiallyDisabled = true) as zadEquipScript
+                if loc_tmpZRef
+                    Armor loc_deviceInventory = loc_tmpZRef.deviceInventory
+                    Armor loc_deviceRendered = loc_tmpZRef.deviceRendered
+                    Keyword loc_DeviceKeyword = loc_tmpZRef.zad_DeviousDevice
+                    if akActor.GetItemCount(loc_deviceRendered) && (loc_DeviceKeyword == kw || (UDmain.UD_CheckAllKw && loc_deviceRendered.haskeyword(kw)))
+                        loc_tmpZRef.delete()
+                        return loc_deviceInventory
+                    endif
+                endif
+                if loc_tmpZRef
+                    loc_tmpZRef.delete()
+                endif
+            EndIf
+        EndWhile
+    endif
     return none
 EndFunction
 
