@@ -23,3 +23,7 @@ EndFunction
 
 Function _UpdateOrgasmExhaustion(Int aiUpdateTime)
 EndFunction
+
+Actor Function GetActor()
+    return UDmain.Player
+EndFunction

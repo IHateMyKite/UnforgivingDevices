@@ -923,9 +923,9 @@ Int Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
     endif
     if StorageUtil.GetIntValue(akActor,"UD_OrgasmDuration",0)
         Int loc_duration = Round(aiDuration*0.35)
-        StorageUtil.AdjustIntValue(akActor,"UD_OrgasmDuration",loc_duration) ;incfrease current orgasm animation by 50%
+        StorageUtil.AdjustIntValue(akActor,"UD_OrgasmDuration",loc_duration) ;incfrease current orgasm animation by 35%
         Utility.wait(loc_duration)
-        return 2 ;animation prolonged, but not player
+        return 2 ;animation prolonged, but not played
     else
         StorageUtil.SetIntValue(akActor,"UD_OrgasmDuration",aiDuration)
     endif
