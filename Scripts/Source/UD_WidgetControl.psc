@@ -1583,7 +1583,9 @@ State iWidgetInstalled
         If asText == ""
             Return
         EndIf
-        If !UD_EnableCNotifications
+        
+        ;check if IWW text is enabled or if menu is open (IWW doesn't work when menu is open)
+        If !UD_EnableCNotifications || UDmain.IsAnyMenuOpen()
             Debug.Notification(asText)
             Return
         EndIf
