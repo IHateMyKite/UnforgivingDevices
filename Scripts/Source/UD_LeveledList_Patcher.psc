@@ -2,7 +2,6 @@ Scriptname UD_LeveledList_Patcher extends Quest
 
 import UnforgivingDevicesMain
 
-UD_libs Property UDlibs auto
 UnforgivingDevicesMain Property UDmain auto
 bool Property Ready = false auto
 

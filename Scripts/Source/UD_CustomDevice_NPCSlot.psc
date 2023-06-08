@@ -131,6 +131,7 @@ Function GameUpdate()
         if !IsPlayer()
             UDOM.RemoveAbilities(GetActor())
         endif
+        _OrgasmGameUpdate()
         CheckVibrators()
         InitOrgasmExpression()
     endif
@@ -550,49 +551,77 @@ Function removeLostRenderDevices()
         UDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+")")
     endif
     Actor _currentSlotedActor = getActor()
-    int iItem = _currentSlotedActor.GetNumItems()
     Form[] loc_toRemove
-    while iItem
-        iItem -= 1
-        if UDmain.TraceAllowed()        
-            UDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+"): Proccesing form " + _currentSlotedActor.GetNthForm(iItem))
-        endif
-        Armor ArmorDevice = _currentSlotedActor.GetNthForm(iItem) as Armor
-        
-        if ArmorDevice ;is armor (optimalization)
-            if UDmain.TraceAllowed()            
-                UDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+"): Proccesing armor " + ArmorDevice)
+    ;check if faster native function should be not used instead
+    if UDmain.UD_UseNativeFunctions
+        int loc_deviceId = 0
+        Form[] loc_devices = UD_Native.GetRenderDevices(_currentSlotedActor,false)
+        while loc_deviceId < loc_devices.length
+            Armor ArmorDevice = loc_devices[loc_deviceId] as Armor
+            ;get script and check if player have inventory device
+            Armor loc_RenDevice = ArmorDevice
+            Armor loc_InvDevice = UDCDmain.getStoredInventoryDevice(loc_RenDevice)
+            bool loc_cond = !UDCDmain.CheckRenderDeviceEquipped(_currentSlotedActor,loc_RenDevice)
+            if  loc_cond
+                loc_toRemove = PapyrusUtil.PushForm(loc_toRemove, ArmorDevice)
+                UDmain.Print("Lost device found: " + loc_InvDevice.getName() + " removed!")
+            else
+                if !getDeviceByRender(loc_RenDevice)
+                    UDmain.Print("Found unregistred device "+loc_InvDevice.getName()+" , registering")
+                    UD_CustomDevice_RenderScript loc_device = UDCDmain.getDeviceScriptByRender(GetActor(),loc_RenDevice)
+                    if loc_device
+                        RegisterDevice(loc_device,false)
+                        UDmain.Print(loc_device.getDeviceHeader() + " registered")
+                    else
+                        UDmain.Print("Can't get device. Aborting.")
+                    endif
+                endif
             endif
-            if ArmorDevice.haskeyword(UDCDmain.UDlibs.UnforgivingDevice) ;is render device
-                ;get script and check if player have inventory device
-                Armor loc_RenDevice = ArmorDevice
-                Armor loc_InvDevice = UDCDmain.getStoredInventoryDevice(loc_RenDevice)
-                if UDmain.TraceAllowed()                
-                    UDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+"): Proccesing device " + loc_InvDevice.getName())
+            loc_deviceId += 1
+        endwhile
+    else
+        int iItem = _currentSlotedActor.GetNumItems()
+        while iItem
+            iItem -= 1
+            if UDmain.TraceAllowed()        
+                UDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+"): Proccesing form " + _currentSlotedActor.GetNthForm(iItem))
+            endif
+            Armor ArmorDevice = _currentSlotedActor.GetNthForm(iItem) as Armor
+            
+            if ArmorDevice ;is armor (optimalization)
+                if UDmain.TraceAllowed()            
+                    UDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+"): Proccesing armor " + ArmorDevice)
                 endif
-                bool loc_cond = !UDCDmain.CheckRenderDeviceEquipped(_currentSlotedActor,loc_RenDevice)
-                if UDmain.TraceAllowed()                
-                    UDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+"): " + loc_InvDevice.getName() + ", cond: " + loc_cond)
-                endif
-                if  loc_cond
-                    loc_toRemove = PapyrusUtil.PushForm(loc_toRemove, ArmorDevice)
-                    UDmain.Print("Lost device found: " + loc_InvDevice.getName() + " removed!")
-                else
-                    if !getDeviceByRender(loc_RenDevice)
-                        UDmain.Print("Found unregistred device "+loc_InvDevice.getName()+" , registering")
-                        UD_CustomDevice_RenderScript loc_device = UDCDmain.getDeviceScriptByRender(GetActor(),loc_RenDevice)
-                        if loc_device
-                            RegisterDevice(loc_device,false)
-                            UDmain.Print(loc_device.getDeviceHeader() + " registered")
-                        else
-                            UDmain.Print("Can't get device. Aborting.")
+                if ArmorDevice.haskeyword(UDCDmain.UDlibs.UnforgivingDevice) ;is render device
+                    ;get script and check if player have inventory device
+                    Armor loc_RenDevice = ArmorDevice
+                    Armor loc_InvDevice = UDCDmain.getStoredInventoryDevice(loc_RenDevice)
+                    if UDmain.TraceAllowed()                
+                        UDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+"): Proccesing device " + loc_InvDevice.getName())
+                    endif
+                    bool loc_cond = !UDCDmain.CheckRenderDeviceEquipped(_currentSlotedActor,loc_RenDevice)
+                    if UDmain.TraceAllowed()                
+                        UDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+"): " + loc_InvDevice.getName() + ", cond: " + loc_cond)
+                    endif
+                    if  loc_cond
+                        loc_toRemove = PapyrusUtil.PushForm(loc_toRemove, ArmorDevice)
+                        UDmain.Print("Lost device found: " + loc_InvDevice.getName() + " removed!")
+                    else
+                        if !getDeviceByRender(loc_RenDevice)
+                            UDmain.Print("Found unregistred device "+loc_InvDevice.getName()+" , registering")
+                            UD_CustomDevice_RenderScript loc_device = UDCDmain.getDeviceScriptByRender(GetActor(),loc_RenDevice)
+                            if loc_device
+                                RegisterDevice(loc_device,false)
+                                UDmain.Print(loc_device.getDeviceHeader() + " registered")
+                            else
+                                UDmain.Print("Can't get device. Aborting.")
+                            endif
                         endif
                     endif
                 endif
             endif
-        endif
-    endwhile
-    
+        endwhile
+    endif
     int loc_toRemoveNum = loc_toRemove.length
     
     while loc_toRemoveNum
@@ -1653,7 +1682,7 @@ Function regainDevices()
     int loc_slotmask = 0x80000000;_currentSlotedActor.GetNumItems()
     while loc_slotmask
         loc_slotmask = Math.RightShift(loc_slotmask,1)
-        Armor ArmorDevice = _currentSlotedActor.GetWornForm(loc_slotmask) as Armor;GetNthForm(iItem) as Armor
+        Armor ArmorDevice = _currentSlotedActor.GetWornForm(loc_slotmask) as Armor
         if ArmorDevice
             if ArmorDevice.hasKeyword(UDCDmain.UDlibs.UnforgivingDevice)
                 ;render device with custom script -> register
@@ -1675,47 +1704,55 @@ EndFunction
 
 
 Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer)
-    if akBaseItem as Weapon
-        Weapon loc_weapon = akBaseItem as Weapon
-        if UDCDmain.isSharp(loc_weapon)
-            if !_BestWeapon || (_BestWeapon.getBaseDamage() < loc_weapon.GetBaseDamage())
-                _BestWeapon = loc_weapon
+    if !UDmain.UD_UseNativeFunctions
+        if akBaseItem as Weapon
+            Weapon loc_weapon = akBaseItem as Weapon
+            if UDCDmain.isSharp(loc_weapon)
+                if !_BestWeapon || (_BestWeapon.getBaseDamage() < loc_weapon.GetBaseDamage())
+                    _BestWeapon = loc_weapon
+                endif
             endif
-        endif
-    endIf
+        endIf
+    endif
 endEvent
 
 Event OnItemRemoved(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer)
-    if akBaseItem as Weapon
-        Weapon loc_weapon = akBaseItem as Weapon
-        if (loc_weapon == _BestWeapon) && _BestWeapon
-            if getActor().getItemCount(loc_weapon) == 0
-                _BestWeapon = GetBestWeapon() ;find the next best weapon
+    if !UDmain.UD_UseNativeFunctions
+        if akBaseItem as Weapon
+            Weapon loc_weapon = akBaseItem as Weapon
+            if (loc_weapon == _BestWeapon) && _BestWeapon
+                if getActor().getItemCount(loc_weapon) == 0
+                    _BestWeapon = GetBestWeapon() ;find the next best weapon
+                endif
             endif
-        endif
-    endIf
+        endIf
+    endif
 endEvent
 
 Weapon Function GetBestWeapon()
-    int loc_i = getActor().GetNumItems()
-    Weapon loc_res = none
-    if getActor().GetItemCount(_BestWeapon)
-        loc_res = _BestWeapon
-    endif
-    while loc_i
-        loc_i -= 1
-        Weapon loc_weapon = getActor().GetNthForm(loc_i) as Weapon
-        if loc_weapon
-            if UDCDmain.isSharp(loc_weapon)
-                if !loc_res
-                    loc_res = loc_weapon
-                elseif (loc_weapon.getBaseDamage() > loc_res.GetBaseDamage())
-                    loc_res = loc_weapon
+    if UDmain.UD_UseNativeFunctions
+        return UD_Native.GetSharpestWeapon(getActor())
+    else
+        int loc_i = getActor().GetNumItems()
+        Weapon loc_res = none
+        if getActor().GetItemCount(_BestWeapon)
+            loc_res = _BestWeapon
+        endif
+        while loc_i
+            loc_i -= 1
+            Weapon loc_weapon = getActor().GetNthForm(loc_i) as Weapon
+            if loc_weapon
+                if UDCDmain.isSharp(loc_weapon)
+                    if !loc_res
+                        loc_res = loc_weapon
+                    elseif (loc_weapon.getBaseDamage() > loc_res.GetBaseDamage())
+                        loc_res = loc_weapon
+                    endif
                 endif
             endif
-        endif
-    endwhile
-    return loc_res
+        endwhile
+        return loc_res
+    endif
 EndFunction
 
 Function UpdateSkills()
@@ -1958,7 +1995,6 @@ bool    _expressionApplied       = false
 float   _orgasmCapacity          = 100.0
 float   _orgasmResistence        = 2.5
 float   _orgasmProgress          = 0.0
-float   _orgasmProgress2         = 0.0
 float   _orgasmProgress_p        = 0.0
 int     _orgasms                 = 0
 int     _hornyAnimTimer          = 0
@@ -1969,6 +2005,9 @@ int     _edgelevel               = 0
 
 Int     _OrgasmExhaustionTime     = 0
 
+float   _orgasmratetotal = 0.0
+UD_WidgetMeter_RefAlias _orgasmMeterIWW
+UD_WidgetBase           _orgasmMeterSkyUi
 sslBaseExpression expression
 float[] _org_expression
 float[] _org_expression2
@@ -1998,7 +2037,6 @@ Function InitOrgasmUpdate()
         _orgasmCapacity             = UDOM.getActorOrgasmCapacity(loc_actor)
         _orgasmResistence           = UDOM.getActorOrgasmResist(loc_actor)
         _orgasmProgress             = StorageUtil.GetFloatValue(loc_actor, "UD_OrgasmProgress",0.0)
-        _orgasmProgress2            = 0.0
         _orgasmProgress_p           = _orgasmProgress/_orgasmCapacity
         _hornyAnimTimer             = 0
         _msID                       = -1
@@ -2006,6 +2044,21 @@ Function InitOrgasmUpdate()
         _actorinminigame            = UDCDMain.actorInMinigame(loc_actor)
         _edgeprogress               = UDOM.GetHornyProgress(loc_actor)
         _edgelevel                  = UDOM.GetHornyLevel(loc_actor)
+        
+        _OrgasmGameUpdate()
+    endif
+EndFunction
+
+Function _OrgasmGameUpdate()
+    ;meter is shown, so shown it
+    if _widgetShown && IsPlayer()
+        UDmain.UDWC.Meter_SetFillPercent("player-orgasm", _orgasmProgress_p, True)
+        UDmain.UDWC.Meter_SetVisible("player-orgasm", true)
+    endif
+
+    _useNativeOrgasmWidget = (IsPlayer() && UDmain.UD_UseNativeFunctions)
+    if _useNativeOrgasmWidget
+        UDmain.UDWC.Meter_RegisterNative("player-orgasm",_orgasmProgress_p*100.0,_orgasmratetotal, true)
     endif
 EndFunction
 
@@ -2016,6 +2069,7 @@ Function InitOrgasmExpression()
     _org_expression3            = UDEM.GetPrebuildExpression_Angry1()
 EndFunction
 
+bool _useNativeOrgasmWidget = false
 Function UpdateOrgasm(Float afUpdateTime)
     if !UDmain.IsEnabled()
         return
@@ -2033,9 +2087,13 @@ Function UpdateOrgasm(Float afUpdateTime)
         endif
         
         _orgasmProgress = 0.0
+        if _useNativeOrgasmWidget
+            UDmain.UDWC.Meter_SetNativeRate("player-orgasm",-125.0)
+        endif
+        
         UDOM.ResetActorOrgasmProgress(akActor)
         
-        if _widgetShown
+        if _widgetShown && !_useNativeOrgasmWidget
             _widgetShown = false
             UDmain.UDWC.Meter_SetFillPercent("player-orgasm", 0.0, True)
             UDmain.UDWC.Meter_SetVisible("player-orgasm", False)
@@ -2057,6 +2115,8 @@ Function UpdateOrgasm(Float afUpdateTime)
         
         if IsPlayer()
             Utility.wait(1.0) ;wait second, so there is time for some effects to be applied
+            _GetOrgasmVarsFromStorage()
+            CalculateOrgasmProgress()
         endif
     else
         ;check edge
@@ -2094,33 +2154,52 @@ EndFunction
 
 Function CalculateOrgasmProgress()
     Actor akActor = GetActor()
-    _orgasmProgress2 = _orgasmProgress
+    _orgasmratetotal = 0
     _orgasmResisting = akActor.isInFaction(UDOM.OrgasmResistFaction)
+    _arousal         = UDOM.getArousal(akActor)
     if _orgasmResisting
         _orgasmResisting2    = true
         _orgasmProgress      = UDOM.getActorOrgasmProgress(akActor)
     else
         if _orgasmResisting2
             _orgasmResisting2            = false
-            _arousal                     = UDOM.getArousal(akActor)
-            _orgasmRate                  = UDOM.getActorOrgasmRate(akActor)
-            _orgasmRateMultiplier        = UDOM.getActorOrgasmRateMultiplier(akActor)
-            _orgasmResistMultiplier      = UDOM.getActorOrgasmResistMultiplier(akActor)
-            _orgasms                     = UDOM.getOrgasmingCount(akActor)
-            _actorinminigame             = UDCDMain.actorInMinigame(akActor)
-            UDOM.SetActorOrgasmProgress(akActor,_orgasmProgress)
+            _GetOrgasmVarsFromStorage()
         endif
-        _orgasmProgress += _orgasmRate*_orgasmRateMultiplier*_currentUpdateTime
+        ;_orgasmProgress += _orgasmRate*_orgasmRateMultiplier*_currentUpdateTime
+        if _useNativeOrgasmWidget
+            _orgasmratetotal += _orgasmRate*_orgasmRateMultiplier
+        else
+            _orgasmProgress += _orgasmRate*_orgasmRateMultiplier*_currentUpdateTime
+        endif
     endif
     
-    _orgasmRateAnti = UDOM.CulculateAntiOrgasmRateMultiplier(_arousal)*_orgasmResistMultiplier*(_orgasmProgress*(_orgasmResistence/100.0))*_currentUpdateTime  ;edging, orgasm rate needs to be bigger then UD_OrgasmResistence, else actor will not reach orgasm
-
+    if _useNativeOrgasmWidget
+        _orgasmProgress  = UDmain.UDWC.Meter_GetNativeValue("player-orgasm")/100.0*_orgasmCapacity
+        UDmain.UDWC.Meter_SetInterValue("player-orgasm",_orgasmProgress*100/_orgasmCapacity)
+        _orgasmRateAnti  = UDOM.CulculateAntiOrgasmRateMultiplier(_arousal)*_orgasmResistMultiplier*(_orgasmProgress*(_orgasmResistence/100.0)) ;edging, orgasm rate needs to be bigger then UD_OrgasmResistence, else actor will not reach orgasm
+    else
+        _orgasmRateAnti  = UDOM.CulculateAntiOrgasmRateMultiplier(_arousal)*_orgasmResistMultiplier*(_orgasmProgress*(_orgasmResistence/100.0))*_currentUpdateTime  ;edging, orgasm rate needs to be bigger then UD_OrgasmResistence, else actor will not reach orgasm
+    endif
+    
     if !_orgasmResisting
         if _orgasmRate*_orgasmRateMultiplier > 0.0
-            _orgasmProgress -= _orgasmRateAnti
+            if _useNativeOrgasmWidget
+                _orgasmratetotal -= _orgasmRateAnti
+            else
+                _orgasmProgress -= _orgasmRateAnti
+            endif
         else
-            _orgasmProgress -= 3*_orgasmRateAnti
+            if _useNativeOrgasmWidget
+                _orgasmratetotal -= 3*_orgasmRateAnti
+            else
+                _orgasmProgress -= 3*_orgasmRateAnti
+            endif
+            
         endif
+    endif
+    
+    if _useNativeOrgasmWidget && !_orgasmResisting
+        UDmain.UDWC.Meter_SetNativeRate("player-orgasm",_orgasmratetotal*100.0/_orgasmCapacity)
     endif
     
     ;proccess edge
@@ -2129,7 +2208,7 @@ Function CalculateOrgasmProgress()
     
     _orgasmProgress_p = fRange(_orgasmProgress/_orgasmCapacity,0.0,1.0) ;update relative orgasm progress
     
-    if _widgetShown && !_orgasmResisting
+    if !_useNativeOrgasmWidget && _widgetShown && !_orgasmResisting
         UDmain.UDWC.Meter_SetFillPercent("player-orgasm", _orgasmProgress_p * 100.0)
     endif
 EndFunction
@@ -2137,6 +2216,8 @@ EndFunction
 Function UpdateOrgasmSecond()
     Actor akActor = GetActor()
     Bool  loc_is3dLoaded = IsPlayer() || akActor.Is3DLoaded()
+    
+    _useNativeOrgasmWidget = (IsPlayer() && UDmain.UD_UseNativeFunctions)
     
     _orgasmRate2 = _orgasmRate
     _tick = 0
@@ -2156,13 +2237,7 @@ Function UpdateOrgasmSecond()
     endif
     
     if !_orgasmResisting
-        _arousal                 = UDOM.getArousal(akActor)
-        _orgasmRate              = UDOM.getActorOrgasmRate(akActor)
-        _orgasmRateMultiplier    = UDOM.getActorOrgasmRateMultiplier(akActor)
-        _orgasmResistMultiplier  = UDOM.getActorOrgasmResistMultiplier(akActor)
-        _orgasms                 = UDOM.getOrgasmingCount(akActor)
-        _actorinminigame         = UDCDMain.actorInMinigame(akActor)
-        UDOM.SetActorOrgasmProgress(akActor,_orgasmProgress)
+        _GetOrgasmVarsFromStorage()
     endif
     
     if loc_is3dLoaded
@@ -2210,6 +2285,16 @@ Function UpdateOrgasmSecond()
     if _tickS && _tickS % 15
         ;Update
     endif
+EndFunction
+
+Function _GetOrgasmVarsFromStorage()
+    Actor akActor = GetActor()
+    _orgasmRate              = UDOM.getActorOrgasmRate(akActor)
+    _orgasmRateMultiplier    = UDOM.getActorOrgasmRateMultiplier(akActor)
+    _orgasmResistMultiplier  = UDOM.getActorOrgasmResistMultiplier(akActor)
+    _orgasms                 = UDOM.getOrgasmingCount(akActor)
+    _actorinminigame         = UDCDMain.actorInMinigame(akActor)
+    UDOM.SetActorOrgasmProgress(akActor,_orgasmProgress)
 EndFunction
 
 Function UpdateHornyExpression()

@@ -4173,13 +4173,31 @@ EndFunction
 /;
 Function decreaseDurabilityAndCheckUnlock(float afValue,float afCondMult = 1.0,Bool abCheckCondition = True)
     if current_device_health > 0.0
-        current_device_health = fRange(current_device_health - afValue,0.0,UD_Health)
-        _total_durability_drain += afValue*afCondMult
-        if abCheckCondition && current_device_health > 0 && afCondMult != 0.0
-            _updateCondition()
+        if UDmain.UD_UseNativeFunctions && PlayerInMinigame() && UD_damage_device
+            ;update and fetch value from native meter
+            current_device_health = UDmain.UDWC.Meter_UpdateNativeValue("device-main",-1.0*afValue)*UD_Health/100.0
+        else
+            current_device_health = current_device_health - afValue
         endif
+        _DecreaseCondition(afValue,afCondMult,abCheckCondition)
     endif
     
+    _CheckUnlock()
+EndFunction
+
+Function _DecreaseCondition(Float afCondition, Float afMult, bool abCheckCondition)
+    if UDmain.UD_UseNativeFunctions && PlayerInMinigame() && UD_damage_device
+        ;update fetch value from native meter
+        _total_durability_drain = UDmain.UDWC.Meter_UpdateNativeValue("device-condition",-1.0*afCondition*afMult)*UD_Health/100.0
+    else
+        _total_durability_drain += afCondition*afMult
+    endif
+    if abCheckCondition && current_device_health > 0 && afMult != 0.0
+        _updateCondition()
+    endif
+EndFunction
+
+Function _CheckUnlock()
     if current_device_health <= 0.0 && !IsUnlocked
         unlockRestrain()
     endif
@@ -4303,7 +4321,12 @@ Function _updateCondition(bool decrease = True)
     Float loc_health = UD_Health
     if decrease
         while (_total_durability_drain >= loc_health) && !IsUnlocked && UD_condition < 4
-            _total_durability_drain -= loc_health
+            if PlayerInMinigame() && UDmain.UD_UseNativeFunctions && UD_damage_device
+                UDmain.UDWC.Meter_SetNativeValue("device-condition",100)
+                _total_durability_drain = 0
+            else
+                _total_durability_drain -= loc_health
+            endif
             UD_condition += 1
             if WearerIsPlayer()
                 UDmain.Print("You feel that "+getDeviceName()+" condition have decreased!",2)
@@ -4332,10 +4355,6 @@ Function _updateCondition(bool decrease = True)
             UDmain.Print(GetWearerName() + " managed to destroy " + getDeviceName() + "!",2)
         endif
         unlockRestrain(True)
-    else
-        ;if UDmain.UDWC.UD_UseDeviceConditionWidget && PlayerInMinigame() && UDCDmain.UD_UseWidget && UD_UseWidget; && UD_AllowWidgetUpdate
-        ;    UDmain.UDWC.Meter_SetFillPercent("device-condition", getRelativeCondition() * 100.0)
-        ;endif
     endif
 EndFunction
 
@@ -6464,12 +6483,33 @@ Function minigame()
 
     _PauseMinigame = False
     
-    float     loc_dmg              = (_durability_damage_mod + UD_durability_damage_add)*fCurrentUpdateTime*UD_DamageMult
+    float     loc_dmgnotimemult    = (_durability_damage_mod + UD_durability_damage_add)
+    float     loc_dmg              = loc_dmgnotimemult*fCurrentUpdateTime*UD_DamageMult
     float     loc_condmult         = 1.0 + _condition_mult_add
-    bool      loc_updatewidget     = loc_PlayerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
+    bool      loc_showwidget       = loc_PlayerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget
+    bool      loc_updatewidget     = loc_showwidget && UD_AllowWidgetUpdate
     Float     loc_ElapsedTime      = 0.0
     Bool      loc_DamageDevice     = UD_damage_device
     Bool      loc_MinigameEffectEnabled = False
+    
+    bool      loc_useNativeMeter   = PlayerInMinigame() && UDmain.UD_UseNativeFunctions
+    bool      loc_useIWW           = UDmain.UseiWW()
+
+    ;register native meters
+    if loc_useNativeMeter
+        if loc_DamageDevice
+            UDmain.UDWC.Meter_RegisterNative("device-main",getRelativeDurability()*100.0,-1.0*loc_dmgnotimemult,true)
+            UDmain.UDWC.Meter_SetNativeMult("device-main",UD_DamageMult)
+            if loc_condmult != 0.0
+                UDmain.UDWC.Meter_RegisterNative("device-condition",getRelativeCondition()*100.0,-1.0*loc_dmgnotimemult,true)
+                UDmain.UDWC.Meter_SetNativeMult("device-condition",loc_condmult)
+            endif
+        endif
+    endif
+    
+    if loc_showwidget
+        showWidget()
+    endif
     
     while current_device_health > 0.0 && !_StopMinigame
         ;pause minigame, pause minigame need to be changed from other thread or infinite loop happens
@@ -6503,7 +6543,18 @@ Function minigame()
             OnMinigameTick(fCurrentUpdateTime)
             ;reduce device durability
             if loc_DamageDevice
-                decreaseDurabilityAndCheckUnlock(loc_dmg,loc_condmult)
+                if loc_useNativeMeter
+                    ;native meter used. Calculation is done in skse plugin, so just fetch the value and recalculate it
+                    float loc_health = UD_Health
+                    current_device_health = UDmain.UDWC.Meter_GetNativeValue("device-main")*loc_health/100.0
+                    if loc_condmult != 0.0
+                        _total_durability_drain = (1.0 - UDmain.UDWC.Meter_GetNativeValue("device-condition")/100.0)*loc_health
+                        _updateCondition()
+                    endif
+                    _CheckUnlock()
+                else
+                    decreaseDurabilityAndCheckUnlock(loc_dmg,loc_condmult)
+                endif
             endif
             ;update widget
             if loc_updatewidget
@@ -6580,6 +6631,12 @@ Function minigame()
     _EndMinigameEffect()
 
     _MinigameMainLoopON = false
+    
+    ;remove registered meters
+    if loc_useNativeMeter
+        UDmain.UDWC.Meter_UnregisterNative("device-main")
+        UDmain.UDWC.Meter_UnregisterNative("device-condition")
+    endif
     
     
     if loc_PlayerInMinigame
@@ -6697,7 +6754,6 @@ EndFunction
 Function MinigameStarter()
     bool    loc_canShowHUD      = canShowHUD()
     bool    loc_haveplayer      = PlayerInMinigame()
-    bool    loc_updatewidget    = loc_haveplayer && UD_UseWidget && UDCDmain.UD_UseWidget
     bool    loc_is3DLoaded      = loc_haveplayer || UDmain.ActorInCloseRange(wearer)
     
     
@@ -6716,9 +6772,6 @@ Function MinigameStarter()
     _MinigameParProc_1 = false
     
     ;shows bars
-    if loc_updatewidget
-        showWidget()
-    endif
     if loc_canShowHUD
         showHUDbars()
     endif
@@ -7002,11 +7055,13 @@ Function critDevice()
         endif
     
         if UD_damage_device && _StruggleGameON
+            float loc_critdmg
             if getStruggleMinigameSubType() == 2 
-                decreaseDurabilityAndCheckUnlock(UD_StruggleCritMul*(_durability_damage_mod + UD_durability_damage_add)*getModResistMagicka(1.0,0.25)*UD_DamageMult)
+                loc_critdmg = UD_StruggleCritMul*(_durability_damage_mod + UD_durability_damage_add)*getModResistMagicka(1.0,0.25)*UD_DamageMult
             else
-                decreaseDurabilityAndCheckUnlock(UD_StruggleCritMul*(_durability_damage_mod + UD_durability_damage_add)*getModResistPhysical(1.0,0.25)*UD_DamageMult)
+                loc_critdmg = UD_StruggleCritMul*(_durability_damage_mod + UD_durability_damage_add)*getModResistPhysical(1.0,0.25)*UD_DamageMult
             endif
+            decreaseDurabilityAndCheckUnlock(loc_critdmg)
         elseif _LockpickGameON
             _lockpickDevice()
         elseif _KeyGameON
@@ -7864,17 +7919,21 @@ string Function addInfoString(string str = "")
 EndFunction
 
 Function updateWidget(bool force = false)
-    if _StruggleGameON
-        setWidgetVal(getRelativeDurability(),force)
-    elseif _CuttingGameON
+    if !UDmain.UD_UseNativeFunctions
+        if _StruggleGameON
+            setWidgetVal(getRelativeDurability(),force)
+        endif
+        
+        ;update condition widget
+        If UDmain.UDWC.UD_UseDeviceConditionWidget
+            UDmain.UDWC.Meter_SetFillPercent("device-condition", getRelativeCondition() * 100.0)
+        endif
+    endif
+    
+    if _CuttingGameON
         setWidgetVal(getRelativeCuttingProgress(),force)
     elseif _RepairLocksMinigameON
         setWidgetVal(_GetRelativeLockRepairProgress(_MinigameSelectedLockID),force)
-    endif
-    
-    ;update condition widget
-    If UDmain.UDWC.UD_UseDeviceConditionWidget
-        UDmain.UDWC.Meter_SetFillPercent("device-condition", getRelativeCondition() * 100.0)
     endif
 EndFunction
 
