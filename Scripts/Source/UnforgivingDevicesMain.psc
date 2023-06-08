@@ -305,6 +305,17 @@ EndProperty
 
 float Property UD_LowPerformanceTime    = 1.0   autoreadonly
 float Property UD_HightPerformanceTime  = 0.25  autoreadonly
+
+;/  Variable: UD_UseNativeFunctions
+
+    If true, SKSE plugin native functions will be used
+    
+    This variable is automatically switched to false if user have not met conditions to use the plugin
+    
+    This variable is set with MCM
+    
+    Do not edit, *READ ONLY!*. Configurable on MCM *Generic* page by user.
+/;
 Bool  Property UD_UseNativeFunctions    = False auto hidden ;switch for native functions
 
 ;/  Variable: UD_baseUpdateTime
@@ -575,12 +586,16 @@ Function OnGameReload()
     DISABLE()
     
     Print("Updating Unforgiving Devices, please wait...")
-    Info("OnGameReload() called! - Updating Unforgiving Devices...")
+    Info(self+"::OnGameReload() - Updating Unforgiving Devices...")
     
     if !Ready
         Utility.waitMenuMode(2.5)
     endif
     
+    int loc_removedmeters = UDWC.Meter_UnregisterAllNative()
+    if loc_removedmeters > 0
+        Info(self+"::OnGameReload() - Removed " + loc_removedmeters + " registered meters!")
+    endif
     
     if _UpdateCheck()
         ;update all scripts
@@ -595,7 +610,6 @@ Function OnGameReload()
             return ;Fatal error when initializing UD
         endif
 
-        
         UDWC.GameUpdate()
         
         UDMC.Update()
@@ -685,6 +699,8 @@ Function Update()
         return
     endif
     
+    RegisterForModEvent("UDForceUpdate","OnGameReload")
+    
     _ValidateModules()
     _CheckOptionalMods()
     _CheckPatchesOrder()
@@ -718,6 +734,17 @@ Function Update()
     UDCDmain.UpdateGenericKeys()
     
     _StartModulesManual()
+EndFunction
+
+;/  Function: ForceUpdate
+    
+    Forces mod to update. Function is not blocking.
+/;
+Function ForceUpdate()
+    int handle = ModEvent.Create("UDForceUpdate")
+    if (handle)
+        ModEvent.Send(handle)
+    endIf
 EndFunction
 
 ;used for validating modules forms between versions

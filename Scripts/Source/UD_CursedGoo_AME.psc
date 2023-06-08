@@ -1,15 +1,17 @@
 Scriptname UD_CursedGoo_AME extends activemagiceffect  
 
 UDCustomDeviceMain Property UDCDmain auto
-UD_Libs Property UDlibs auto
+
+UD_libs Property UDlibs auto hidden
+
 zadlibs Property libs auto
 Event OnEffectStart(Actor akTarget, Actor akCaster)
     if !UDCDMain.UDmain.ActorIsValidForUD(akTarget)
         return ;non valid actor, return
     endif
     UDCDmain.DisableActor(akTarget)
-    libs = UDCDmain.libs
-    UDlibs = UDCDmain.UDlibs
+    libs    = UDCDmain.libs
+    UDlibs  = UDCDmain.UDlibs
     UDlibs.Update()
     libs.LockDevice(akTarget,UDlibs.PunisherPiercing)
     libs.LockDevice(akTarget,UDlibs.AbadonSuit)

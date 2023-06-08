@@ -1372,6 +1372,7 @@ Function OptionSelectGeneral(int option)
     elseif option == UD_UseNativeFunctions_T
         UDmain.UD_UseNativeFunctions = !UDmain.UD_UseNativeFunctions
         SetToggleOptionValue(UD_UseNativeFunctions_T, UDmain.UD_UseNativeFunctions)
+        UDmain.ForceUpdate() ;better reload the mod
     endif
 EndFunction
 
@@ -2859,6 +2860,7 @@ Function GeneralPageDefault(int option)
     elseif(option == UD_UseNativeFunctions_T)
         UDmain.UD_UseNativeFunctions = false
         SetToggleOptionValue(UD_UseNativeFunctions_T, UDmain.UD_UseNativeFunctions)
+        UDmain.ForceUpdate() ;better reload the mod
     Endif
 EndFunction
 

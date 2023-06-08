@@ -92,7 +92,7 @@ Function CritLoopOrgasmResist(Int iChance,Float fDifficulty)
 EndFunction
 
 Function OnCritSuccesOrgasmResist()
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         UDmain.Log("OnCritSuccesOrgasmResist() callled!")
     endif
     UDmain.Player.restoreAV("Stamina", 15)
@@ -103,13 +103,11 @@ Function OnCritFailureOrgasmResist()
     if UDmain.TraceAllowed()    
         UDmain.Log("OnCritFailureOrgasmResist() callled!")
     endif
-    ;UDmain.Player.damageAV("Stamina", 25)
     UpdateActorOrgasmProgress(UDmain.Player,getActorOrgasmRate(UDmain.Player)*2,true)
 EndFunction
 
-
 Event MinigameKeysRegister()
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         UDmain.Log("UD_OrgasmManager MinigameKeysRegister called",1)
     endif
     RegisterForKey(UDCDMain.Stamina_meter_Keycode)
@@ -213,6 +211,10 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     float loc_staminaRate     = akActor.getBaseAV("StaminaRate")
     akActor.setAV("StaminaRate", 0.0)
     
+    if UDmain.UD_UseNativeFunctions
+        UDmain.UDWC.Meter_SetNativeRate("player-orgasm",0.0)
+    endif
+    
     ;UDCDMain.DisableActor(akActor,true)
     UDCDMain.StartMinigameDisable(akActor)
     Int loc_constraints = UDmain.UDAM.GetActorConstraintsInt(akActor, abUseCache = False)
@@ -279,7 +281,11 @@ Function FocusOrgasmResistMinigame(Actor akActor)
                         loc_StaminaRateMult = 0.25
                     elseif loc_HightSpiritMode_Type == 2
                         loc_StaminaRateMult = 0.75
-                        UpdateActorOrgasmProgress(akActor,-8.0*(UDmain.UD_baseUpdateTime),true)
+                        if UDmain.UD_UseNativeFunctions
+                            UDmain.UDWC.Meter_SetNativeRate("player-orgasm",-10.0)
+                        else
+                            UpdateActorOrgasmProgress(akActor,-8.0*(UDmain.UD_baseUpdateTime),true)
+                        endif
                     elseif loc_HightSpiritMode_Type == 3
                         loc_StaminaRateMult = 0.75
                         libs.UpdateExposure(akActor,-2*iRange(Math.Floor(5*UDmain.UD_baseUpdateTime),1,10))
@@ -289,6 +295,9 @@ Function FocusOrgasmResistMinigame(Actor akActor)
                 endif
             else
                 loc_StaminaRateMult = 1.0
+                if UDmain.UD_UseNativeFunctions
+                    UDmain.UDWC.Meter_SetNativeRate("player-orgasm",0.0)
+                endif
             endif
         endif
         
