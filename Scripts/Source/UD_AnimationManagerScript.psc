@@ -636,11 +636,8 @@ Int Function GetActorConstraintsInt(Actor akActor, Bool abUseCache = True)
     Int result = 0
 
     if UDmain.UD_UseNativeFunctions
-        UDCDmain.StartRecordTime()
         result = UD_Native.GetActorConstrains(akActor)
-        UDCDmain.FinishRecordTime("Native time")
     else
-        UDCDmain.StartRecordTime()
         If akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirt) && !akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirtRelaxed)
             result += 1
         EndIf
@@ -674,7 +671,6 @@ Int Function GetActorConstraintsInt(Actor akActor, Bool abUseCache = True)
         If akActor.WornHasKeyword(libs.zad_DeviousGag)
             result += 2048
         EndIf
-        UDCDmain.FinishRecordTime("Normal time")
     endif
     StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt_Invalid", 0)
     StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt", result)
