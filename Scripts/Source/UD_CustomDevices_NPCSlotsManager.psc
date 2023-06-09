@@ -141,15 +141,16 @@ Event OnInit()
 EndEvent
 
 Function GameUpdate()
-    ; === Check player slot ===
-    UD_CustomDevice_NPCSlot loc_playerslot = GetPlayerSlot()
-    ;Player is not swet to reference, set it and init it
-    if loc_playerslot.GetActor() != UDmain.Player
-        loc_playerslot.ForceRefTo(UDmain.Player)
-        loc_playerslot.OnInit()
-    endif
-    ; ==== check static slots ====
+    ; === Manager only ===
     if IsManager()
+        ; === Check player slot ===
+        UD_CustomDevice_NPCSlot loc_playerslot = GetPlayerSlot()
+        ;Player is not swet to reference, set it and init it
+        if loc_playerslot.GetActor() != UDmain.Player
+            loc_playerslot.ForceRefTo(UDmain.Player)
+            loc_playerslot.OnInit()
+        endif
+        ; ==== check static slots ====
         ReregisterStaticSlots()
         Int loc_slotsnum = _StaticSlots.length
         Int loc_y = 0

@@ -757,7 +757,7 @@ Sound Function _getVibrationSound()
 EndFunction
 
 bool Property VibLoopOn = false auto hidden
-Function _VibrateStart(float fDurationMult = 1.0)
+Function _VibrateStart(float afDurationMult = 1.0)
     ;mutex
     if VibLoopOn
         return
@@ -781,7 +781,7 @@ Function _VibrateStart(float fDurationMult = 1.0)
     OnVibrationStart()
     
     if _forceDuration == 0
-        _currentVibRemainingDuration = Round(UD_VibDuration*fDurationMult)
+        _currentVibRemainingDuration = Round(UD_VibDuration*afDurationMult)
     else
         _currentVibRemainingDuration = _forceDuration
     endif
@@ -848,6 +848,9 @@ Function VibrateUpdate(Int aiUpdateTime)
             
             if isVibrating() && !_paused
                 _ProccesVibEdge()
+                if !libs.IsVibrating(GetWearer())
+                    libs.SetVibrating(GetWearer(), 1) ;set vibration factino to one for compatibility
+                endif
             endif
             
             if isVibrating() && !_paused
@@ -872,6 +875,10 @@ Function _VibrateEnd(Bool abUnregister = True, Bool abStop = True)
     if abStop
         _removeOrgasmRate()
         _removeArousalRate()
+        
+        if libs.IsVibrating(GetWearer())
+            libs.StopVibrating(GetWearer()) ;remove from vibration faction
+        endif
     endif
     
     _StopVibSound()

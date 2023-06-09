@@ -562,6 +562,15 @@ bool Function NativeAllowed() global
     return false
 EndFunction
 
+;/  Function: IsSpecialEdition
+    
+    Returns:
+        true if correct skyrim version is Special Edition (also AE and VR)
+/;
+Bool Function IsSpecialEdition() global
+    return SKSE.GetVersion() == 2
+EndFunction
+
 Function OnGameReload()
     if !_Initialized
         if !UDNPCM.Ready
@@ -1046,6 +1055,7 @@ Function Error(String asMsg)
     if ConsoleUtilInstalled ;print to console
         ConsoleUtil.PrintMessage(loc_msg)
     endif
+    debug.notification("UD ERROR - check console")
 EndFunction
 
 ;/  Function: Warning
