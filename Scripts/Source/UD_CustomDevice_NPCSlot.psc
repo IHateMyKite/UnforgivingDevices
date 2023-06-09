@@ -1951,16 +1951,20 @@ Function InitArousalUpdate()
 EndFunction
 
 Function UpdateArousal(Int aiUpdateTime)
-    Actor   loc_actor = GetActor()
-    Float   loc_arousalRate =   UDOM.getArousalRateM(loc_actor)*aiUpdateTime
-            _dfArousal      +=  loc_arousalRate - Math.Floor(loc_arousalRate)   ;increase total float point difference
-    Int     loc_arousal     =   Math.Floor(loc_arousalRate) + Math.Floor(_dfArousal)
-            _dfArousal      -=  Math.Floor(_dfArousal)                          ;decrease total float point difference by whole number
+    Actor   loc_actor       = GetActor()
+    if loc_actor
+        Float   loc_arousalRate =   UDOM.getArousalRateM(loc_actor)*aiUpdateTime
+                _dfArousal      +=  loc_arousalRate - Math.Floor(loc_arousalRate)   ;increase total float point difference
+        Int     loc_arousal     =   Math.Floor(loc_arousalRate) + Math.Floor(_dfArousal)
+                _dfArousal      -=  Math.Floor(_dfArousal)                          ;decrease total float point difference by whole number
 
-    if loc_arousal != 0
-        loc_actor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.UpdateArousal(loc_actor ,loc_arousal))
+        if loc_arousal != 0
+            loc_actor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.UpdateArousal(loc_actor ,loc_arousal))
+        else
+            loc_actor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.getActorArousal(loc_actor))
+        endif
     else
-        loc_actor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.getActorArousal(loc_actor))
+        UDmain.Error(self + "::Cant update arousal  because sloted actor is none!")
     endif
 EndFunction
 

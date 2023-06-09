@@ -731,6 +731,11 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
         EndIf
     endif
     
+    ;check if render device have render device keyword! If not, the device was not patched correctly!
+    if !DeviceRendered.hasKeyword(UDmain.UDlibs.UnforgivingDevice)
+        prelock_fail = true
+        UDmain.Error(MakeDeviceHeader(akActor,deviceInventory) + " can't be locked because its patched incorrectly!!!! Check patch order and try to lock the device again!")
+    endif
     
     if prelock_fail
         if abUseMutex
@@ -766,6 +771,7 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
     
     Bool loc_haveHBkwd = deviceRendered.HasKeyword(libs.zad_DeviousHeavyBondage)
     Bool loc_haveHSkwd = deviceRendered.hasKeyword(libs.zad_DeviousHobbleSkirt)
+    
     ;in case device is hobble skirt, unequip the invisible hobble, so it doesn't cause issue
     ;will be reequipúped after device is unlocked
     if loc_haveHSkwd

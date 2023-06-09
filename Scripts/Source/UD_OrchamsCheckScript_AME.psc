@@ -56,8 +56,12 @@ EndFunction
 
 Event OnUpdate()
     if loc_isplayer && IsRunning()
-        UD_PlayerSlot.UpdateOrgasm(UDmain.UDCONF.UD_OrgasmUpdateTime)
-        RegisterForSingleUpdate(UDmain.UDCONF.UD_OrgasmUpdateTime)
+        if UDmain.UDReady()
+            UD_PlayerSlot.UpdateOrgasm(UDmain.UDCONF.UD_OrgasmUpdateTime)
+            RegisterForSingleUpdate(UDmain.UDCONF.UD_OrgasmUpdateTime)
+        else
+            RegisterForSingleUpdate(2.0)
+        endif
     endif
 EndEvent
 

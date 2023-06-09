@@ -33,8 +33,12 @@ EndEvent
 
 Event OnUpdate()
     if loc_isplayer && IsRunning()
-        UD_PlayerSlot.UpdateArousal(1)
-        registerForSingleUpdate(1.0)
+        if UDmain.UDReady()
+            UD_PlayerSlot.UpdateArousal(1)
+            registerForSingleUpdate(1.0)
+        else
+            registerForSingleUpdate(2.0)
+        endif
     endif
 EndEvent
 
