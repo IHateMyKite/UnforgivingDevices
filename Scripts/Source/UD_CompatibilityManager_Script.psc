@@ -27,7 +27,7 @@ bool    _OrdinatorCompatibilityApplied      = false
 ;============================================================
 
 Event OnInit()
-    RegisterForSingleUpdate(12.0)
+    RegisterForSingleUpdate(45.0)
     Ready = true
 EndEvent
 
@@ -58,8 +58,6 @@ Function Process()
         GInfo("Ordinator compatibility patch uninstalled")
     endif
 EndFunction
-
-
 
 ;============================================================
 ;========================ORDINATOR===========================

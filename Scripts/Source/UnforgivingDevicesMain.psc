@@ -495,7 +495,20 @@ Bool Function IsEnabled()
     return !_Disabled && !_Updating && ready
 EndFunction
 
-;Previous sattes of scripts, so they are returned to correct state
+;/  Function: PrintModStatus
+
+    Returns:
+
+        Print information about mod status in console
+/;
+Function PrintModStatus()
+    GError("Disabled="+_Disabled)
+    GError("Updating="+_Updating)
+    GError("ready="+ready)
+    GError("FatalError="+_FatalError)
+EndFunction
+
+;Previous states of scripts, so they are returned to correct state
 
 String _State_UDNPCM
 String _State_UDAI

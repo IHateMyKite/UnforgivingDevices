@@ -277,6 +277,7 @@ Event OnPageReset(string page)
     if !UDmain.IsEnabled() && Ready
         setCursorFillMode(LEFT_TO_RIGHT)
         AddHeaderOption("$Unforgiving devices is updating or disabled...")
+        UDmain.PrintModStatus()
         return
     endif
     
