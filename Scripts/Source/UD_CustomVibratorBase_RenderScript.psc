@@ -229,7 +229,7 @@ Function _ShowVibDetails()
     loc_res += "Vib mode: " + _getEdgingModeString(UD_EdgingMode) + "\n"
     loc_res += "Shocking: " + UD_Shocking + "\n"
     loc_res += "Status --> "
-    if isVibrating() && !isPaused()
+    if isVibrating() && !isVibPaused()
         loc_res += "ON\n"
         loc_res += "Current vib strength: " + getCurrentVibStrenth() + "\n"
 
@@ -248,7 +248,7 @@ Function _ShowVibDetails()
         elseif _currentEdgingMode == 2
             loc_res += "Random\n"
         endif
-    elseif isPaused()
+    elseif isVibPaused()
         loc_res += "PAUSED\n"
     else
         loc_res += "OFF\n"
@@ -436,12 +436,12 @@ float Function getRemainingVibrationDurationPer()
     endif
 EndFunction
 
-;/  Function: isPaused
+;/  Function: isVibPaused
     Returns:
     
         True if vibrations are currently paused
 /;
-bool Function isPaused()
+bool Function isVibPaused()
     return _paused
 EndFunction
 
@@ -513,7 +513,7 @@ Function ForceStrength(int aiStrenth)
     if isVibrating()
         _StartManipMutex()
         CurrentVibStrength = _forceStrength
-        if !isPaused()
+        if !isVibPaused()
             _UpdateVibSound()
             _UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
             _UpdateArousalRate(getVibArousalRate())
@@ -537,7 +537,7 @@ Function ForceModStrength(float afModifier)
     if isVibrating()
         _StartManipMutex()
         CurrentVibStrength = _forceStrength
-        if !isPaused()
+        if !isVibPaused()
             _UpdateVibSound()
             _UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
             _UpdateArousalRate(getVibArousalRate())
@@ -637,7 +637,7 @@ Function addVibStrength(int aiValue = 1)
     if isVibrating()
         _StartManipMutex()
         CurrentVibStrength += aiValue
-        if !isPaused()
+        if !isVibPaused()
             _UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
             _UpdateArousalRate(getVibArousalRate())
             _UpdateVibSound()
@@ -663,7 +663,7 @@ Function removeVibStrength(int aiValue = 1)
         if CurrentVibStrength == 0
             stopVibrating()
         endif
-        if !isPaused() && isVibrating()
+        if !isVibPaused() && isVibrating()
             _UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
             _UpdateArousalRate(getVibArousalRate())
             _UpdateVibSound()

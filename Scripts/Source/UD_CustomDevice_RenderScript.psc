@@ -7089,55 +7089,59 @@ EndFunction
 
 ;function called when player press special button
 Function SpecialButtonPressed(float fMult = 1.0)
-    if _CuttingGameON
-        _cutDevice(fMult*UD_CutChance/12.5)
-    elseif _KeyGameON || _LockpickGameON || _RepairLocksMinigameON
-        if !_usingTelekinesis
-            _usingTelekinesis = true
-            UD_minigame_magicka_drain = 0.5*UD_base_stat_drain + Wearer.getBaseAV("Magicka")*0.02
-            if haveHelper()
-                UD_minigame_magicka_drain_helper = 0.5*UD_base_stat_drain + _minigameHelper.getBaseAV("Magicka")*0.02
-            endif
-            if _RepairLocksMinigameON
-                if WearerHaveTelekinesis()
-                    UD_MinigameMult1 += 0.25
+    if !IsPaused() && !IsUnlocked
+        if _CuttingGameON
+            _cutDevice(fMult*UD_CutChance/12.5)
+        elseif _KeyGameON || _LockpickGameON || _RepairLocksMinigameON
+            if !_usingTelekinesis
+                _usingTelekinesis = true
+                UD_minigame_magicka_drain = 0.5*UD_base_stat_drain + Wearer.getBaseAV("Magicka")*0.02
+                if haveHelper()
+                    UD_minigame_magicka_drain_helper = 0.5*UD_base_stat_drain + _minigameHelper.getBaseAV("Magicka")*0.02
                 endif
-                if HelperHaveTelekinesis()
-                    UD_MinigameMult1 += 0.25
+                if _RepairLocksMinigameON
+                    if WearerHaveTelekinesis()
+                        UD_MinigameMult1 += 0.25
+                    endif
+                    if HelperHaveTelekinesis()
+                        UD_MinigameMult1 += 0.25
+                    endif
+                else
+                    _customMinigameCritChance += _GetTelekinesisLockModifier()
                 endif
-            else
-                _customMinigameCritChance += _GetTelekinesisLockModifier()
             endif
         endif
-    endif
 
-    onSpecialButtonPressed(fMult)
-    
-    if UDCDmain.UD_useWidget && UD_UseWidget
-        updateWidget()
+        onSpecialButtonPressed(fMult)
+        
+        if UDCDmain.UD_useWidget && UD_UseWidget
+            updateWidget()
+        endif
     endif
 EndFunction
 
 ;function called when player release special button
 Function SpecialButtonReleased(float fHoldTime)
-    if _KeyGameON || _LockpickGameON
-        if _usingTelekinesis
-            _usingTelekinesis = false
-            UD_minigame_magicka_drain = 0
-            UD_minigame_magicka_drain_helper = 0
-            if _RepairLocksMinigameON
-                if WearerHaveTelekinesis()
-                    UD_MinigameMult1 -= 0.25
+    if !IsPaused() && !IsUnlocked
+        if _KeyGameON || _LockpickGameON
+            if _usingTelekinesis
+                _usingTelekinesis = false
+                UD_minigame_magicka_drain = 0
+                UD_minigame_magicka_drain_helper = 0
+                if _RepairLocksMinigameON
+                    if WearerHaveTelekinesis()
+                        UD_MinigameMult1 -= 0.25
+                    endif
+                    if HelperHaveTelekinesis()
+                        UD_MinigameMult1 -= 0.25
+                    endif
+                else
+                    _customMinigameCritChance -= _GetTelekinesisLockModifier()
                 endif
-                if HelperHaveTelekinesis()
-                    UD_MinigameMult1 -= 0.25
-                endif
-            else
-                _customMinigameCritChance -= _GetTelekinesisLockModifier()
             endif
         endif
+        onSpecialButtonReleased(fHoldTime)
     endif
-    onSpecialButtonReleased(fHoldTime)
 EndFunction
 
 ;function called when wearer orgasms, 

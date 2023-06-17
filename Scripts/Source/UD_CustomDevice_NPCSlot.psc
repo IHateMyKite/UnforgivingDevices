@@ -532,7 +532,7 @@ Function CheckVibrators()
                     if RegisterVibrator(loc_vib)
                         loc_Error = True
                     endif
-                elseif !loc_vib.IsVibrating() && !loc_vib.IsPaused() && loc_vib.UD_VibDuration == -1
+                elseif !loc_vib.IsVibrating() && !loc_vib.isVibPaused() && loc_vib.UD_VibDuration == -1
                     loc_vib.Vibrate()
                 endif
             endif

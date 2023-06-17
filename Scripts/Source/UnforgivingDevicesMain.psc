@@ -614,14 +614,16 @@ Function OnGameReload()
         Utility.waitMenuMode(2.5)
     endif
     
-    int loc_removedmeters = UDWC.Meter_UnregisterAllNative()
-    if loc_removedmeters > 0
-        Info(self+"::OnGameReload() - Removed " + loc_removedmeters + " registered meters!")
-    endif
-    
     if _UpdateCheck()
         ;update all scripts
         Update()
+        
+        if UD_UseNativeFunctions
+            int loc_removedmeters = UDWC.Meter_UnregisterAllNative()
+            if loc_removedmeters > 0
+                Info(self+"::OnGameReload() - Removed " + loc_removedmeters + " registered meters!")
+            endif
+        endif
         
         if !CheckSubModules() || _FatalError
             ENABLE()
