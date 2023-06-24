@@ -6494,15 +6494,16 @@ Function minigame()
     
     bool      loc_useNativeMeter   = PlayerInMinigame() && UDmain.UD_UseNativeFunctions
     bool      loc_useIWW           = UDmain.UseiWW()
-
+    float     loc_health           = UD_Health
+    
     ;register native meters
     if loc_useNativeMeter
         if loc_DamageDevice
             UDmain.UDWC.Meter_RegisterNative("device-main",getRelativeDurability()*100.0,-1.0*loc_dmgnotimemult,true)
-            UDmain.UDWC.Meter_SetNativeMult("device-main",UD_DamageMult)
+            UDmain.UDWC.Meter_SetNativeMult("device-main",UD_DamageMult*100.0/loc_health)
             if loc_condmult != 0.0
                 UDmain.UDWC.Meter_RegisterNative("device-condition",getRelativeCondition()*100.0,-1.0*loc_dmgnotimemult,true)
-                UDmain.UDWC.Meter_SetNativeMult("device-condition",loc_condmult)
+                UDmain.UDWC.Meter_SetNativeMult("device-condition",loc_condmult*100.0/loc_health)
             endif
         endif
     endif
@@ -6545,7 +6546,7 @@ Function minigame()
             if loc_DamageDevice
                 if loc_useNativeMeter
                     ;native meter used. Calculation is done in skse plugin, so just fetch the value and recalculate it
-                    float loc_health = UD_Health
+                    
                     current_device_health = UDmain.UDWC.Meter_GetNativeValue("device-main")*loc_health/100.0
                     if loc_condmult != 0.0
                         _total_durability_drain = (1.0 - UDmain.UDWC.Meter_GetNativeValue("device-condition")/100.0)*loc_health

@@ -7,9 +7,6 @@ bool Property UD_hardcore_swimming = True auto
 int Property UD_hardcore_swimming_difficulty = 1 auto
 Spell Property SwimPenaltySpell auto
 
-;float Property updateTime = 2.5 auto
-float Property fastUpdateTime = 0.25 auto
-
 bool Property startedSwimming = False auto
 bool Property drowning = False auto
 
@@ -21,14 +18,18 @@ Event OnInit()
 EndEvent
 
 Event OnUpdate()
-    if libs.playerRef.wornhaskeyword(libs.zad_deviousheavybondage) && UD_hardcore_swimming
-        if libs.playerRef.isSwimming(); && !SpellActivated
-            SpellActivated = True
-            SwimPenaltySpell.cast(libs.playerRef, libs.playerRef)
-            while SpellActivated
-                Utility.wait(1.0)
-            endwhile
+    if UDmain.IsEnabled()
+        if libs.playerRef.wornhaskeyword(libs.zad_deviousheavybondage) && UD_hardcore_swimming
+            if libs.playerRef.isSwimming(); && !SpellActivated
+                SpellActivated = True
+                SwimPenaltySpell.cast(libs.playerRef, libs.playerRef)
+                while SpellActivated
+                    Utility.wait(1.0)
+                endwhile
+            endif
         endif
+        registerforsingleupdate(1.0)
+    else
+        registerforsingleupdate(3.0)
     endif
-    registerforsingleupdate(1.0)
 EndEvent

@@ -475,7 +475,7 @@ Function stopVibrating()
     _currentVibRemainingDuration = 0
 EndFunction
 
-;/  Function: stopVibrating
+;/  Function: stopVibratingAndWait
     Stops vibrator from vibrating. Function will be blocked untill vibrations end
 /;
 Function stopVibratingAndWait()

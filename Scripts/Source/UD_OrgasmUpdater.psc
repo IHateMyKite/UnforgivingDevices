@@ -41,7 +41,7 @@ Event OnUpdate()
         Evaluate()
         RegisterForSingleUpdate(UD_UpdateTime)
     else
-        RegisterForSingleUpdate(30.0)
+        RegisterForSingleUpdate(2.0)
     endif
 EndEvent
 
