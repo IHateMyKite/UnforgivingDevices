@@ -7,6 +7,8 @@ bool Property UD_hardcore_swimming = True auto
 int Property UD_hardcore_swimming_difficulty = 1 auto
 Spell Property SwimPenaltySpell auto
 
+float Property fastUpdateTime = 0.25 auto
+
 bool Property startedSwimming = False auto
 bool Property drowning = False auto
 
