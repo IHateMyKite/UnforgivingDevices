@@ -20,8 +20,7 @@ bool                    Property drowning = False                       auto
 bool                    Property SpellActivated = False                 auto
 
 Event OnInit()
-    Utility.wait(10.0)
-    registerforsingleupdate(0.2)
+    registerforsingleupdate(60.0)
 EndEvent
 
 Event OnUpdate()
