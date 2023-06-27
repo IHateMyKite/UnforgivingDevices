@@ -584,6 +584,16 @@ Bool Function IsSpecialEdition() global
     return SKSE.GetVersion() == 2
 EndFunction
 
+int _updatecounter = 0
+Function _ResetUpdateCounter()
+    _updatecounter = 0
+    Info("Update progress: 0 %%")
+EndFunction
+Function _IncrementUpdateCounter()
+    _updatecounter += 1
+    Info("Update progress: " + (Round(100.0*_updatecounter/19)) + " %%")
+EndFunction
+
 Function OnGameReload()
     if !_Initialized
         if !UDNPCM.Ready
@@ -615,8 +625,11 @@ Function OnGameReload()
     endif
     
     if _UpdateCheck()
+        _ResetUpdateCounter()
+    
         ;update all scripts
         Update()
+        _IncrementUpdateCounter()
         
         if UD_UseNativeFunctions
             int loc_removedmeters = UDWC.Meter_UnregisterAllNative()
@@ -624,6 +637,7 @@ Function OnGameReload()
                 Info(self+"::OnGameReload() - Removed " + loc_removedmeters + " registered meters!")
             endif
         endif
+        _IncrementUpdateCounter()
         
         if !CheckSubModules() || _FatalError
             ENABLE()
@@ -633,39 +647,56 @@ Function OnGameReload()
             Info(self + "::OnGameReload() - CheckSubmodules() = " + CheckSubModules() + ";_FatalError = " + _FatalError)
             return ;Fatal error when initializing UD
         endif
-
+        _IncrementUpdateCounter()
+        
         UDWC.GameUpdate()
+        _IncrementUpdateCounter()
         
         UDMC.Update()
+        _IncrementUpdateCounter()
         
         BoundCombat.Update()
+        _IncrementUpdateCounter()
         
         UDlibs.Update()
+        _IncrementUpdateCounter()
         
         UDCDMain.Update()
-
+        _IncrementUpdateCounter()
+        
         Config.Update()
+        _IncrementUpdateCounter()
         
         UDPP.Update()
+        _IncrementUpdateCounter()
         
         UDOMNPC.Update()  ;NPC orgasm manager
+        _IncrementUpdateCounter()
         UDOMPlayer.Update() ;player orgasm manager
+        _IncrementUpdateCounter()
         
         UDEM.Update()
+        _IncrementUpdateCounter()
         
         UDNPCM.GameUpdate()
+        _IncrementUpdateCounter()
         
         UDLLP.Update()
-
+        _IncrementUpdateCounter()
+        
         UDRRM.Update()
+        _IncrementUpdateCounter()
         if UDAM.Ready
             UDAM.Update()
         endif
+        _IncrementUpdateCounter()
         if UDCM.Ready
             UDCM.Update()
         endif
-
+        _IncrementUpdateCounter()
+        
         UDAbadonQuest.Update()
+        _IncrementUpdateCounter()
         
         Info("<=====| Unforgiving Devices updated |=====>")
         Print("Unforgiving Devices updated")
@@ -693,7 +724,7 @@ Function _Init()
     Float loc_maxtime = 5.0
     
     ;wait for quest to get ready
-    while !UDNPCM.Ready && loc_timeout < loc_maxtime
+    while !UDNPCM.Ready && loc_timeout <= loc_maxtime
         Utility.wait(0.25)
         loc_timeout += 0.25
     endwhile
