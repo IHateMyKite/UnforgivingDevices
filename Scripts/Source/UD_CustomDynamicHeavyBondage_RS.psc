@@ -2,8 +2,10 @@ Scriptname UD_CustomDynamicHeavyBondage_RS extends UD_CustomDevice_RenderScript
 
 import UnforgivingDevicesMain
 
+float   Property UD_UntieDifficulty = 100.0 auto
+float   Property UD_UntieDmg        = 4.0   auto
+
 bool _tied = false
-float Property UD_UntieDifficulty = 100.0 auto
 float _untieProgress = 0.0
 
 Function InitPost()
@@ -103,15 +105,28 @@ bool Function UntieMinigame(Bool abSilent = False)
     
     if haveHelper()
         setMinigameHelperVar(True,UD_base_stat_drain*0.8)
-        setMinigameEffectHelperVar(True,True,1.2)    
+        setMinigameEffectHelperVar(True,True,1.2)
         mult += 0.25
     endif
+    
     setMinigameMult(1,mult)
     
     if minigamePreCheck(abSilent)
+        bool loc_UseNativeMeters = UDmain.UD_UseNativeFunctions && (WearerIsPlayer() || HelperIsPlayer())
+        GInfo("minigamePreCheck ok loc_UseNativeMeters="+loc_UseNativeMeters)
+        if loc_UseNativeMeters
+            GInfo("Starting native meters: up="+getRelativeUntieProgress())
+            UDmain.UDWC.Meter_RegisterNative("device-main",getRelativeUntieProgress()*100.0,UD_UntieDmg*UDCDmain.getStruggleDifficultyModifier(),true)
+            UDmain.UDWC.Meter_SetNativeMult("device-main",mult*100.0/UD_UntieDifficulty)
+        endif
+        
         _untieMinigameOn = True
         minigame()
         _untieMinigameOn = False
+        
+        if loc_UseNativeMeters
+            UDmain.UDWC.Meter_UnregisterNative("device-main")
+        endif
         return true
     else
         return false
@@ -120,7 +135,12 @@ EndFunction
 
 Function OnMinigameTick(Float abUpdateTime)
     if _untieMinigameOn
-        _untieProgress = fRange(_untieProgress + 5.0*UDCDmain.getStruggleDifficultyModifier()*abUpdateTime*getMinigameMult(1),0.0,UD_UntieDifficulty)
+        if UDmain.UD_UseNativeFunctions && PlayerInMinigame()
+            UDmain.UDWC.Meter_SetNativeMult("device-main",getMinigameMult(1)*100.0/UD_UntieDifficulty)
+            _untieProgress = UDmain.UDWC.Meter_GetNativeValue("device-main")*UD_UntieDifficulty/100.0
+        else
+            _untieProgress = fRange(_untieProgress + UD_UntieDmg*UDCDmain.getStruggleDifficultyModifier()*abUpdateTime*getMinigameMult(1),0.0,UD_UntieDifficulty)
+        endif
         if _untieProgress >= UD_UntieDifficulty
             stopMinigame()
         endif
@@ -130,7 +150,11 @@ EndFunction
 
 bool Function OnCritDevicePre()
     if _untieMinigameOn
-        _untieProgress = fRange(_untieProgress + 12.0*UDCDmain.getStruggleDifficultyModifier()*getMinigameMult(1),0.0,UD_UntieDifficulty)
+        if UDmain.UD_UseNativeFunctions && PlayerInMinigame()
+            _untieProgress = UDmain.UDWC.Meter_UpdateNativeValue("device-main",3*UD_UntieDmg*UDCDmain.getStruggleDifficultyModifier())*UD_UntieDifficulty/100.0
+        else
+            _untieProgress = fRange(_untieProgress + 3*UD_UntieDmg*UDCDmain.getStruggleDifficultyModifier()*getMinigameMult(1),0.0,UD_UntieDifficulty)
+        endif
         if _untieProgress >= UD_UntieDifficulty
             stopMinigame()
         endif
@@ -142,7 +166,12 @@ EndFunction
 
 Function OnCritFailure()
     if _untieMinigameOn
-        _untieProgress =  fRange(_untieProgress - UD_UntieDifficulty*0.075,0.0,UD_UntieDifficulty)
+        if UDmain.UD_UseNativeFunctions && PlayerInMinigame()
+            _untieProgress = UDmain.UDWC.Meter_UpdateNativeValue("device-main",-1.0*UD_UntieDifficulty*0.25)*UD_UntieDifficulty/100.0
+        else
+            _untieProgress =  fRange(_untieProgress - UD_UntieDifficulty*0.075,0.0,UD_UntieDifficulty)
+        endif
+        
     endif
     parent.OnCritFailure()
 EndFunction
@@ -151,14 +180,16 @@ Function OnMinigameEnd() ;called when minigame end
     if _untieMinigameOn
         if _untieProgress >= UD_UntieDifficulty
             untie()
-        endif   
+        endif
     endif  
     parent.OnMinigameEnd() 
 EndFunction
 
 Function updateWidget(bool force = false)
     if _untieMinigameOn
-        setWidgetVal(_untieProgress/UD_UntieDifficulty,force)    
+        if !UDmain.UD_UseNativeFunctions
+            setWidgetVal(_untieProgress/UD_UntieDifficulty,force)
+        endif
     else
         parent.updateWidget(force)
     endif
@@ -184,7 +215,7 @@ Function TieUp()
         if WearerIsPlayer()
             UDmain.Print(getDeviceName() + " is tying you up!")
         elseif UDCDmain.AllowNPCMessage(getWearer())
-            UDmain.Print(getWearerName() + "s " + getDeviceName() + " is tying them!")    
+            UDmain.Print(getWearerName() + "s " + getDeviceName() + " is tying them!")
         endif
         _tied = true
         if isMinigameOn()

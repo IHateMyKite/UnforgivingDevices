@@ -941,9 +941,9 @@ Int Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
     int loc_isPlayer = UDmain.ActorIsPlayer(akActor) as Int
     if loc_isPlayer
         UDmain.UDUI.GoToState("UIDisabled") ;disable UI
+        UDMain.UDWC.StatusEffect_SetBlink("effect-orgasm", True)
     endif
     
-    UDMain.UDWC.StatusEffect_SetBlink("effect-orgasm", True)
     Bool loc_is3Dloaded = akActor.Is3DLoaded()
     
     UDCDmain.DisableActor(akActor,loc_isPlayer)
@@ -972,7 +972,10 @@ Int Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
         loc_elapsedtime += 1
     endwhile
     
-    UDMain.UDWC.StatusEffect_SetBlink("effect-orgasm", False)
+    if loc_isPlayer
+        UDMain.UDWC.StatusEffect_SetBlink("effect-orgasm", False)
+    endif
+    
     StorageUtil.UnsetIntValue(akActor,"UD_OrgasmDuration")
     
     if loc_is3Dloaded

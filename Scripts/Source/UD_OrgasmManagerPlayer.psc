@@ -357,8 +357,13 @@ Function FocusOrgasmResistMinigame(Actor akActor)
         _PlayerOrgasmResist_MinigameOn = false
     endif
 
+    Int loc_toggle  = 0x0
+    if !GetOrgasmInMinigame(akActor)
+        ;wearer is not orgasming, stop animation
+        loc_toggle += 0x1
+    endif
     if !UDmain.UDOM.isOrgasming(akActor)
-        UDmain.UDAM.StopAnimation(akActor) ;ends animation
+        UDmain.UDAM.StopAnimation(akActor, none, abEnableActors = False, aiToggle = loc_toggle)
     endif
     
     akActor.RemoveFromFaction(UDCDmain.MinigameFaction)

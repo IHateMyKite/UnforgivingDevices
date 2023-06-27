@@ -44,3 +44,6 @@ Float   Function GetMeterValueSkyUi         (string asPath)                     
 Form[]  Function GetInventoryDevices        (Actor akActor, bool abWorn)        global native
 Form[]  Function GetRenderDevices           (Actor akActor, bool abWorn)        global native
 Weapon  Function GetSharpestWeapon          (Actor akActor)                     global native
+
+;===Animation===
+Int     Function GetActorConstrains         (Actor akActor)                     global native

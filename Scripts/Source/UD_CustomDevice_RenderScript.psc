@@ -1563,6 +1563,16 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
     endif
 EndEvent
 
+;1 tick = 0.05 s ; 20 ticks = 1 s
+Bool Function _CheckRD(Actor akActor, Int aiTicks)
+    int loc_ticks = 0
+    while loc_ticks <= aiTicks && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
+        Utility.waitMenuMode(0.05)
+        loc_ticks += 1
+    endwhile
+    return loc_ticks < aiTicks
+EndFunction
+
 ;post equip function
 Function _Init(Actor akActor)
     _libSafeCheck()
@@ -1574,8 +1584,6 @@ Function _Init(Actor akActor)
     endif
 
     Wearer = akActor
-    
-    ;Utility.wait(0.05) ;wait for menus to be closed
     
     UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
     
@@ -1608,17 +1616,17 @@ Function _Init(Actor akActor)
     
     bool loc_isplayer = (akActor == UDmain.Player)
     if loc_slot ;ignore additional check if actor is not registered
-        float loc_time = 0.0
-        while loc_time <= 2.0 && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
-            ;if loc_isplayer
-            ;    Utility.wait(0.05)
-            ;else
-                Utility.waitMenuMode(0.05)
-            ;endif
-            loc_time += 0.05
-        endwhile
+        int loc_timeoutticks = Round(UDmain.UDGV.UD_LockTimeoutRD/0.05)
         
-        if loc_time >= 1.0
+        bool loc_rdok = _CheckRD(akActor,loc_timeoutticks)
+        
+        ;in case that the equip failed and menu is open, wait for menu to close first, and then try again
+        if !loc_isplayer && !loc_rdok && UDmain.IsAnyMenuOpen()
+            Utility.wait(0.01) ;wait for menu to close
+            loc_rdok = _CheckRD(akActor,loc_timeoutticks)
+        endif
+        
+        if !loc_rdok
             UDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because equip failed - timeout")
             return
         endif
@@ -6494,15 +6502,16 @@ Function minigame()
     
     bool      loc_useNativeMeter   = PlayerInMinigame() && UDmain.UD_UseNativeFunctions
     bool      loc_useIWW           = UDmain.UseiWW()
-
+    float     loc_health           = UD_Health
+    
     ;register native meters
     if loc_useNativeMeter
         if loc_DamageDevice
             UDmain.UDWC.Meter_RegisterNative("device-main",getRelativeDurability()*100.0,-1.0*loc_dmgnotimemult,true)
-            UDmain.UDWC.Meter_SetNativeMult("device-main",UD_DamageMult)
+            UDmain.UDWC.Meter_SetNativeMult("device-main",UD_DamageMult*100.0/loc_health)
             if loc_condmult != 0.0
                 UDmain.UDWC.Meter_RegisterNative("device-condition",getRelativeCondition()*100.0,-1.0*loc_dmgnotimemult,true)
-                UDmain.UDWC.Meter_SetNativeMult("device-condition",loc_condmult)
+                UDmain.UDWC.Meter_SetNativeMult("device-condition",loc_condmult*100.0/loc_health)
             endif
         endif
     endif
@@ -6545,7 +6554,7 @@ Function minigame()
             if loc_DamageDevice
                 if loc_useNativeMeter
                     ;native meter used. Calculation is done in skse plugin, so just fetch the value and recalculate it
-                    float loc_health = UD_Health
+                    
                     current_device_health = UDmain.UDWC.Meter_GetNativeValue("device-main")*loc_health/100.0
                     if loc_condmult != 0.0
                         _total_durability_drain = (1.0 - UDmain.UDWC.Meter_GetNativeValue("device-condition")/100.0)*loc_health
@@ -7089,55 +7098,59 @@ EndFunction
 
 ;function called when player press special button
 Function SpecialButtonPressed(float fMult = 1.0)
-    if _CuttingGameON
-        _cutDevice(fMult*UD_CutChance/12.5)
-    elseif _KeyGameON || _LockpickGameON || _RepairLocksMinigameON
-        if !_usingTelekinesis
-            _usingTelekinesis = true
-            UD_minigame_magicka_drain = 0.5*UD_base_stat_drain + Wearer.getBaseAV("Magicka")*0.02
-            if haveHelper()
-                UD_minigame_magicka_drain_helper = 0.5*UD_base_stat_drain + _minigameHelper.getBaseAV("Magicka")*0.02
-            endif
-            if _RepairLocksMinigameON
-                if WearerHaveTelekinesis()
-                    UD_MinigameMult1 += 0.25
+    if !IsPaused() && !IsUnlocked
+        if _CuttingGameON
+            _cutDevice(fMult*UD_CutChance/12.5)
+        elseif _KeyGameON || _LockpickGameON || _RepairLocksMinigameON
+            if !_usingTelekinesis
+                _usingTelekinesis = true
+                UD_minigame_magicka_drain = 0.5*UD_base_stat_drain + Wearer.getBaseAV("Magicka")*0.02
+                if haveHelper()
+                    UD_minigame_magicka_drain_helper = 0.5*UD_base_stat_drain + _minigameHelper.getBaseAV("Magicka")*0.02
                 endif
-                if HelperHaveTelekinesis()
-                    UD_MinigameMult1 += 0.25
+                if _RepairLocksMinigameON
+                    if WearerHaveTelekinesis()
+                        UD_MinigameMult1 += 0.25
+                    endif
+                    if HelperHaveTelekinesis()
+                        UD_MinigameMult1 += 0.25
+                    endif
+                else
+                    _customMinigameCritChance += _GetTelekinesisLockModifier()
                 endif
-            else
-                _customMinigameCritChance += _GetTelekinesisLockModifier()
             endif
         endif
-    endif
 
-    onSpecialButtonPressed(fMult)
-    
-    if UDCDmain.UD_useWidget && UD_UseWidget
-        updateWidget()
+        onSpecialButtonPressed(fMult)
+        
+        if UDCDmain.UD_useWidget && UD_UseWidget
+            updateWidget()
+        endif
     endif
 EndFunction
 
 ;function called when player release special button
 Function SpecialButtonReleased(float fHoldTime)
-    if _KeyGameON || _LockpickGameON
-        if _usingTelekinesis
-            _usingTelekinesis = false
-            UD_minigame_magicka_drain = 0
-            UD_minigame_magicka_drain_helper = 0
-            if _RepairLocksMinigameON
-                if WearerHaveTelekinesis()
-                    UD_MinigameMult1 -= 0.25
+    if !IsPaused() && !IsUnlocked
+        if _KeyGameON || _LockpickGameON
+            if _usingTelekinesis
+                _usingTelekinesis = false
+                UD_minigame_magicka_drain = 0
+                UD_minigame_magicka_drain_helper = 0
+                if _RepairLocksMinigameON
+                    if WearerHaveTelekinesis()
+                        UD_MinigameMult1 -= 0.25
+                    endif
+                    if HelperHaveTelekinesis()
+                        UD_MinigameMult1 -= 0.25
+                    endif
+                else
+                    _customMinigameCritChance -= _GetTelekinesisLockModifier()
                 endif
-                if HelperHaveTelekinesis()
-                    UD_MinigameMult1 -= 0.25
-                endif
-            else
-                _customMinigameCritChance -= _GetTelekinesisLockModifier()
             endif
         endif
+        onSpecialButtonReleased(fHoldTime)
     endif
-    onSpecialButtonReleased(fHoldTime)
 EndFunction
 
 ;function called when wearer orgasms, 

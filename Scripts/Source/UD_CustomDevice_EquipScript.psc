@@ -787,29 +787,39 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
     akActor.EquipItem(DeviceRendered, true, true)
     
     if abUseMutex
+        int loc_timeoutticks = Round(UDmain.UDGV.UD_LockTimeoutID/0.05)
         ;check if device was equipped succesfully
-        bool loc_rdok = _CheckRD(akActor,20)
+        bool loc_rdok = _CheckRD(akActor,loc_timeoutticks)
         
         ;in case that the equip failed and menu is open, wait for menu to close first, and then try again
         if !loc_isplayer && !loc_rdok && UDmain.IsAnyMenuOpen()
             Utility.wait(0.01) ;wait for menu to close
-            loc_rdok = _CheckRD(akActor,20)
+            loc_rdok = _CheckRD(akActor,loc_timeoutticks)
         endif
         if !loc_rdok
-            ;render device lock failed, abort
-            _locked = false
-            StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
-            akActor.UnequipItem(deviceInventory, false, true)
-            if DestroyOnRemove
-                akActor.RemoveItem(deviceInventory,1,true)
-            endif
-            akActor.removeItem(DeviceRendered,1,true)
             Armor loc_conflictDevice = UDCDmain.GetConflictDevice(akActor,deviceRendered)
-            UDmain.Error("LockDevice("+getDeviceName()+","+GetActorName(akActor)+") failed. Render device is not equipped - conflict with " + loc_conflictDevice)
-            if UDmain.ActorIsPlayer(akActor)
-                UDmain.Print(getDeviceName() + " can't be equipped because of device conflict")
-            elseif UDCDmain.UDmain.ActorInCloseRange(akActor)
-                UDmain.Print(MakeDeviceHeader(akActor,deviceInventory) + " can't be equipped because of device conflict")
+            if !loc_conflictDevice.haskeyword(libs.zad_Lockable)
+                akActor.unequipItem(loc_conflictDevice)
+                Utility.waitmenumode(0.25)
+                akActor.equipitem(deviceRendered, true, true)
+                loc_rdok = _CheckRD(akActor,loc_timeoutticks/2)
+            endif
+            if !loc_rdok
+                ;render device lock failed, abort
+                _locked = false
+                StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
+                akActor.UnequipItem(deviceInventory, false, true)
+                if DestroyOnRemove
+                    akActor.RemoveItem(deviceInventory,1,true)
+                endif
+                akActor.removeItem(DeviceRendered,1,true)
+                
+                UDmain.Error("LockDevice("+getDeviceName()+","+GetActorName(akActor)+") failed. Render device is not equipped - conflict with " + loc_conflictDevice)
+                if UDmain.ActorIsPlayer(akActor)
+                    UDmain.Print(getDeviceName() + " can't be equipped because of device conflict")
+                elseif UDCDmain.UDmain.ActorInCloseRange(akActor)
+                    UDmain.Print(MakeDeviceHeader(akActor,deviceInventory) + " can't be equipped because of device conflict")
+                endif
             endif
         endif
         if loc_slot
