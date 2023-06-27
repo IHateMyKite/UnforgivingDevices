@@ -2800,14 +2800,16 @@ UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armo
         UDmain.Error("getDeviceScriptByRender("+GetActorName(akActor)+") - Actor doesn't have render device!")
         return none
     endif
-    UD_CustomDevice_RenderScript result = none
+    
     while _transfereMutex
         Utility.waitMenuMode(0.05)
     endwhile
     
     _transfereMutex = True
     
-    if UDmain.TraceAllowed()    
+    UD_CustomDevice_RenderScript result = none
+    
+    if UDmain.TraceAllowed()
         UDmain.Log("getDeviceScriptByRender called for " + akDeviceRendered + "("+getActorName(akActor)+")")
     endif
     
@@ -2816,26 +2818,27 @@ UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armo
     akActor.removeItem(akDeviceRendered,1,True,TransfereContainer_ObjRef)
     TransfereContainer_ObjRef.removeItem(akDeviceRendered,1,True,akActor)
     akActor.equipItem(akDeviceRendered,True,True)
+    
     float loc_time = 0.0
-    bool loc_isplayer = UDmain.ActorIsPlayer(akActor)
-
     while !_transferedDevice && loc_time <= 4.0
         Utility.waitMenuMode(0.05)
         loc_time += 0.05
     endwhile
     
-    if loc_time >= 4.0 && !_transferedDevice        
+    if loc_time >= 4.0 && !_transferedDevice
         UDmain.Error("getDeviceScriptByRender timeout for " + akDeviceRendered + "("+getActorName(akActor)+")")
     endif
     
     result = _transferedDevice
     _transferedDevice = none
-    _transfereMutex = False
+    
     if akActor != libs.playerRef
         if akDeviceRendered.haskeyword(libs.zad_deviousheavybondage)
             akActor.UpdateWeight(0)
         endif
     endif
+    
+    _transfereMutex = False
     return result
 EndFunction
 

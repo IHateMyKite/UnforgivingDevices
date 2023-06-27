@@ -57,8 +57,6 @@ UD_CustomDevice_RenderScript[]          Property UD_ActiveVibrators         hidd
     EndFunction
 EndProperty
 
-Form[] Property UD_BodySlots auto hidden
-
 UD_CustomDevice_RenderScript _handRestrain = none
 UD_CustomDevice_RenderScript Property UD_HandRestrain Hidden
     UD_CustomDevice_RenderScript Function get()
@@ -158,21 +156,17 @@ Function UpdateSlot(Bool abUpdateSkill = true)
     endif
 EndFunction
 
-Function UpdateBodySlots()
-    int loc_i = 0
-    Actor loc_actor = GetActor()
+Form[] Function GetBodySlots()
+    int     loc_i       = 0
+    Actor   loc_actor   = GetActor()
+    Form[]  loc_slots   = new form[32]
+    
     while loc_i < 32
-        UD_BodySlots[loc_i] = loc_actor.GetWornForm(Math.LeftShift(0x1,loc_i))
+        loc_slots[loc_i] = loc_actor.GetWornForm(Math.LeftShift(0x1,loc_i))
         loc_i += 1
     endwhile
-EndFunction
-
-Form Function getSlotForm(int aiSlot)
-    if UD_BodySlots
-        return UD_BodySlots[aiSlot]
-    else
-        return none
-    endif
+    
+    return loc_slots
 EndFunction
 
 bool _DeviceManipMutex = false
@@ -484,26 +478,25 @@ Function fix()
         UDCDMain.UDEM.ResetExpressionRaw(getActor(),100)
     elseif loc_res == 3 ;unequip slot
         UDmain.Print("[UD] Loading slots...")
-        UpdateBodySlots()
-        UDmain.Print("[UD] Slots loaded")
-        if UD_BodySlots
+        Form[] loc_slots = GetBodySlots()
+        UDmain.Print("[UD] Slots loaded.")
+        if loc_slots
             int loc_i = 0
             string[] loc_list
             while loc_i < 32
                 String loc_string = "[" +(30 + loc_i) + "] "
-                if UD_BodySlots[loc_i].getName()
-                    loc_string += UD_BodySlots[loc_i].getName() ;armor have name, use it
+                if loc_slots[loc_i].getName()
+                    loc_string += loc_slots[loc_i].getName() ;armor have name, use it
                 else
-                    loc_string += UD_BodySlots[loc_i] ;armor doesn't have name, show editor ID
-                    if UD_BodySlots[loc_i].HasKeyWord(UDmain.UDlibs.UnforgivingDevice)
+                    loc_string += loc_slots[loc_i] ;armor doesn't have name, show editor ID
+                    if loc_slots[loc_i].HasKeyWord(UDmain.UDlibs.UnforgivingDevice)
                         loc_string += " (UD)"
-                    elseif UD_BodySlots[loc_i].HasKeyWord(libs.zad_Lockable)
+                    elseif loc_slots[loc_i].HasKeyWord(libs.zad_Lockable)
                         loc_string += " (DD)"
-                    elseif UD_BodySlots[loc_i] == libs.DevicesUnderneath.zad_DeviceHider
+                    elseif loc_slots[loc_i] == libs.DevicesUnderneath.zad_DeviceHider
                         loc_string += " (HIDER)" 
                     endif
                 endif
-                
                 
                 loc_list = PapyrusUtil.PushString(loc_list,loc_string)
                 loc_i += 1
@@ -511,7 +504,14 @@ Function fix()
             loc_list = PapyrusUtil.PushString(loc_list,"-BACK-")
             int loc_slot = UDMain.GetUserListInput(loc_list)
             if loc_slot >= 0 && loc_slot < 32
-                getActor().unequipItem(UD_BodySlots[loc_slot])
+                ;armor is device, do some additional shit
+                if loc_slots[loc_slot].HasKeyWord(UDmain.UDlibs.UnforgivingDevice)
+                    Armor loc_ID = StorageUtil.GetFormValue(loc_slots[loc_slot],"UD_InventoryDevice",none) as Armor
+                    getActor().removeitem(loc_slots[loc_slot],getActor().getItemCount(loc_slots[loc_slot]))
+                    libs.unlockDevice(getActor(),loc_ID,loc_slots[loc_slot] as Armor)
+                else ;normal armor, only unequip
+                    getActor().unequipItem(loc_slots[loc_slot])
+                endif
             endif
         endif
     endif
