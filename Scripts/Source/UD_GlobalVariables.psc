@@ -141,3 +141,16 @@ GlobalVariable Property UDG_MinigameProfiling  auto
     Default = *0*
 /;
 GlobalVariable Property UDG_AIMinigameInfo  auto
+
+
+
+;/  Group: Internal Constants
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+;constants used for lock/unlock mutexes
+Float Property UD_LockTimeoutID         = 1.0 autoreadonly
+Float Property UD_LockTimeoutRD         = 2.0 autoreadonly
+Float Property UD_MutexTimeout          = 3.5 autoreadonly

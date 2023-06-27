@@ -1563,6 +1563,16 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
     endif
 EndEvent
 
+;1 tick = 0.05 s ; 20 ticks = 1 s
+Bool Function _CheckRD(Actor akActor, Int aiTicks)
+    int loc_ticks = 0
+    while loc_ticks <= aiTicks && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
+        Utility.waitMenuMode(0.05)
+        loc_ticks += 1
+    endwhile
+    return loc_ticks < aiTicks
+EndFunction
+
 ;post equip function
 Function _Init(Actor akActor)
     _libSafeCheck()
@@ -1574,8 +1584,6 @@ Function _Init(Actor akActor)
     endif
 
     Wearer = akActor
-    
-    ;Utility.wait(0.05) ;wait for menus to be closed
     
     UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
     
@@ -1608,17 +1616,17 @@ Function _Init(Actor akActor)
     
     bool loc_isplayer = (akActor == UDmain.Player)
     if loc_slot ;ignore additional check if actor is not registered
-        float loc_time = 0.0
-        while loc_time <= 2.0 && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
-            ;if loc_isplayer
-            ;    Utility.wait(0.05)
-            ;else
-                Utility.waitMenuMode(0.05)
-            ;endif
-            loc_time += 0.05
-        endwhile
+        int loc_timeoutticks = Round(UDmain.UDGV.UD_LockTimeoutRD/0.05)
         
-        if loc_time >= 1.0
+        bool loc_rdok = _CheckRD(akActor,loc_timeoutticks)
+        
+        ;in case that the equip failed and menu is open, wait for menu to close first, and then try again
+        if !loc_isplayer && !loc_rdok && UDmain.IsAnyMenuOpen()
+            Utility.wait(0.01) ;wait for menu to close
+            loc_rdok = _CheckRD(akActor,loc_timeoutticks)
+        endif
+        
+        if !loc_rdok
             UDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because equip failed - timeout")
             return
         endif

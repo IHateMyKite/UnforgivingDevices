@@ -1760,9 +1760,9 @@ bool Function CheckRenderDeviceEquipped(Actor akActor, Armor akRendDevice)
             return false
         endif
         if Math.LogicalAnd(loc_mask,loc_devicemask)
-            Form loc_armor = akActor.GetWornForm(loc_mask)
+            Armor loc_armor = akActor.GetWornForm(loc_mask) as Armor
             if loc_armor ;check if there is anything in slot
-                if (loc_armor as Armor) == akRendDevice
+                if loc_armor == akRendDevice
                     return true ;render device is equipped
                 else
                     return false ;render device is unequipped

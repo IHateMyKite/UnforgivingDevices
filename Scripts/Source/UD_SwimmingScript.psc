@@ -1,18 +1,23 @@
 Scriptname UD_SwimmingScript extends Quest  
 
-UnforgivingDevicesMain                  Property UDmain     auto
+UnforgivingDevicesMain _udmain
+UnforgivingDevicesMain  Property UDmain hidden
+    UnforgivingDevicesMain Function get()
+        if !_udmain
+            _udmain = UnforgivingDevicesMain.GetUDMain()
+        endif
+        return _udmain
+    EndFunction
+EndProperty
 
-zadlibs Property libs auto
-bool Property UD_hardcore_swimming = True auto
-int Property UD_hardcore_swimming_difficulty = 1 auto
-Spell Property SwimPenaltySpell auto
-
-float Property fastUpdateTime = 0.25 auto
-
-bool Property startedSwimming = False auto
-bool Property drowning = False auto
-
-bool Property SpellActivated = False auto
+zadlibs                 Property libs                                   auto
+bool                    Property UD_hardcore_swimming = True            auto
+int                     Property UD_hardcore_swimming_difficulty = 1    auto
+Spell                   Property SwimPenaltySpell                       auto
+float                   Property fastUpdateTime = 0.25                  auto
+bool                    Property startedSwimming = False                auto
+bool                    Property drowning = False                       auto
+bool                    Property SpellActivated = False                 auto
 
 Event OnInit()
     Utility.wait(10.0)
