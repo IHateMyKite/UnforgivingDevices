@@ -1000,19 +1000,22 @@ EndFunction
 ;UNUSED
 ;call devices function edge() when player get edged
 Function OnEdge(string eventName, string strArg, float numArg, Form sender)
-    if strArg != UDmain.Player.getActorBase().getName()
-        int random = Utility.randomInt(1,3)
-        if random == 1
-            UDMain.UDWC.Notification_Push(strArg + " gets denied just before reaching the orgasm!")
-        elseif random == 2
-            UDMain.UDWC.Notification_Push(strArg + " screams as they are edged just before climax!")
-        elseif random == 3
-            UDMain.UDWC.Notification_Push(strArg + " is edged!")
+    UD_CustomDevice_NPCSlot loc_slot = UDCD_NPCM.getNPCSlotByActorName(strArg)
+    if loc_slot
+        Actor loc_actor = loc_slot.getActor()
+        if !loc_slot.isPlayer() && UDmain.ActorInCloseRange(loc_actor)
+            if strArg != UDmain.Player.getActorBase().getName()
+                int random = Utility.randomInt(1,3)
+                if random == 1
+                    UDMain.UDWC.Notification_Push(strArg + " gets denied just before reaching the orgasm!")
+                elseif random == 2
+                    UDMain.UDWC.Notification_Push(strArg + " screams as they are edged just before climax!")
+                elseif random == 3
+                    UDMain.UDWC.Notification_Push(strArg + " is edged!")
+                endif
+            endif
         endif
-    endif
-    UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByActorName(strArg)
-    if slot
-        slot.edge()
+        loc_slot.edge()
     endif
 EndFunction
 

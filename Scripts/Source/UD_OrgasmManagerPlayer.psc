@@ -362,7 +362,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
         ;wearer is not orgasming, stop animation
         loc_toggle += 0x1
     endif
-    if !UDmain.UDOM.isOrgasming(akActor)
+    if loc_toggle
         UDmain.UDAM.StopAnimation(akActor, none, abEnableActors = False, aiToggle = loc_toggle)
     endif
     
