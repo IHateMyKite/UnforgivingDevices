@@ -53,18 +53,18 @@ UD_CustomDevice_NPCSlot _lastLockSlot  = none
 UD_MutexScript          _lastLockMutex = none
 Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force = false)
     if !deviceInventory
-        UDmain.Error("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - none passed as deviceInventory")
+        UDmain.Warning("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - none passed as deviceInventory")
         return false
     endif
     if !akActor
-        UDmain.Error("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - none passed as akActor")
+        UDmain.Warning("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - none passed as akActor")
         return false
     endif
     if !deviceInventory.haskeyword(zad_inventoryDevice)
         UDmain.Warning("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - passed armor is not devious device. Aborting!")
         return false
     endif
-    if !UDmain.ActorIsValidForUD(akActor)        
+    if !UDmain.ActorIsValidForUD(akActor)
         UDmain.Warning("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") is not valid actor or dead! Aborting")
         return false
     endif
@@ -182,6 +182,7 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
     if UDmain.TraceAllowed()
         UDmain.Log("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - ended",3)
     endif
+    
     UDmain.UDNPCM.GotoState("")
     if !UDmain.ActorIsPlayer(akActor)
         StorageUtil.AdjustIntValue(akActor,"UDLockOperations",-1) ;decrease number of lock operations for NPC. Is used by NPC manager before NPC is register with auto scan
@@ -224,11 +225,11 @@ EndFunction
 
 Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRendered = none, keyword zad_DeviousDevice = none, bool destroyDevice = false, bool genericonly = false)
     if !akActor
-        UDmain.Error("UnlockDevice called for none actor!")
+        UDmain.Warning("UnlockDevice called for none actor!")
         return false
     endif
     if !deviceInventory
-        UDmain.Error("None passed to UnlockDevice as deviceInventory. Aborting!")
+        UDmain.Warning("None passed to UnlockDevice as deviceInventory. Aborting!")
         return false
     endif
     if !deviceInventory.haskeyword(zad_inventoryDevice)
@@ -354,11 +355,11 @@ EndFunction
 ;modified version of RemoveQuestDevice from zadlibs. This version makes use of registered devices from UD,making unequip procces for NPC safer and faster
 Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRendered, keyword zad_DeviousDevice, keyword RemovalToken, bool destroyDevice=false, bool skipMutex=false)
     If !deviceInventory.HasKeyword(zad_QuestItem) && !deviceRendered.HasKeyword(zad_QuestItem)
-        UDmain.Error("RemoveQuestDevice("+getActorName(akActor)+") aborted for " + deviceInventory.GetName() + " because it's not a quest item.")
+        UDmain.Warning("RemoveQuestDevice("+getActorName(akActor)+") aborted for " + deviceInventory.GetName() + " because it's not a quest item.")
         return
     EndIf
     If (!RemovalToken || zadStandardKeywords.HasForm(RemovalToken) || !(deviceInventory.HasKeyword(RemovalToken) || deviceRendered.HasKeyword(RemovalToken)))
-        UDmain.Error("RemoveQuestDevice("+getActorName(akActor)+") called for " + deviceInventory.GetName() + " with invalid removal token. Aborted.")
+        UDmain.Warning("RemoveQuestDevice("+getActorName(akActor)+") called for " + deviceInventory.GetName() + " with invalid removal token. Aborted.")
         return
     EndIf    
     if !deviceInventory.haskeyword(zad_inventoryDevice)
