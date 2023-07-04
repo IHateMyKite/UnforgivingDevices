@@ -196,6 +196,28 @@ EndEvent
 Event OnPlayerLoadGame()
 EndEvent
 
+Event OnLoad()
+    _ValidateOutfit()
+endEvent
+
+Event OnUnload()
+endEvent
+
+;check if device was not replaced by outfit
+Function _ValidateOutfit()
+    int loc_i = 0
+    Actor loc_actor = GetActor()
+    while UD_equipedCustomDevices[loc_i]
+        UD_CustomDevice_RenderScript loc_device = UD_equipedCustomDevices[loc_i]
+        ;check if device is equipped, if not, equip it
+        if !loc_actor.isEquipped(loc_device.deviceRendered) 
+            loc_actor.equipitem(loc_device.deviceRendered, true, true)
+            UDmain.Info("Equipping unequipped device " + loc_device.getDeviceName() + " for " + GetSlotedNPCName())
+        endif
+        loc_i += 1
+    endwhile
+EndFunction
+
 UD_CustomDevice_RenderScript Function GetUserSelectedDevice()
     String[] loc_devicesString = getSlotsStringA()
     loc_devicesString = PapyrusUtil.PushString(loc_devicesString,"--BACK--")

@@ -52,7 +52,7 @@ Function AddStaticSlot(UD_StaticNPCSlots akSlots)
     endwhile
     _StaticSlotMutex = True
     _StaticSlots = PapyrusUtil.PushForm(_StaticSlots,akSlots)
-    UDMain.Info(self + "::AddStaticSlot() - Static slot added = " + akSlots + ", Total number of slots = " + _StaticSlots.length)
+    ;UDMain.Info(self + "::AddStaticSlot() - Static slot added = " + akSlots + ", Total number of slots = " + _StaticSlots.length)
     _slotregisterque -= 1
     _StaticSlotMutex = False
 EndFunction

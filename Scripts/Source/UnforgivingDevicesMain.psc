@@ -596,7 +596,7 @@ EndFunction
 
 Function OnGameReload()
     if !_Initialized
-        if !UDNPCM.Ready
+        if !UDNPCM.Ready || !config.ready
             GWarning(self+"::OnGameReload() - Skipping because mod is not fully initialized")
             return
         else
@@ -613,16 +613,16 @@ Function OnGameReload()
         return ;mod is already updating, most likely because user saved the game while the mod was already updating
     endif
     
+    if !Ready
+        return ;mod is not ready yet, not update will happen
+    endif
+    
     _Updating = True
     
     DISABLE()
     
     Print("Updating Unforgiving Devices, please wait...")
     Info(self+"::OnGameReload() - Updating Unforgiving Devices...")
-    
-    if !Ready
-        Utility.waitMenuMode(2.5)
-    endif
     
     if _UpdateCheck()
         _ResetUpdateCounter()
@@ -686,10 +686,12 @@ Function OnGameReload()
         
         UDRRM.Update()
         _IncrementUpdateCounter()
+        
         if UDAM.Ready
             UDAM.Update()
         endif
         _IncrementUpdateCounter()
+        
         if UDCM.Ready
             UDCM.Update()
         endif
