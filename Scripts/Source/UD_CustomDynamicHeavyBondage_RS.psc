@@ -113,9 +113,7 @@ bool Function UntieMinigame(Bool abSilent = False)
     
     if minigamePreCheck(abSilent)
         bool loc_UseNativeMeters = UDmain.UD_UseNativeFunctions && (WearerIsPlayer() || HelperIsPlayer())
-        GInfo("minigamePreCheck ok loc_UseNativeMeters="+loc_UseNativeMeters)
         if loc_UseNativeMeters
-            GInfo("Starting native meters: up="+getRelativeUntieProgress())
             UDmain.UDWC.Meter_RegisterNative("device-main",getRelativeUntieProgress()*100.0,UD_UntieDmg*UDCDmain.getStruggleDifficultyModifier(),true)
             UDmain.UDWC.Meter_SetNativeMult("device-main",mult*100.0/UD_UntieDifficulty)
         endif

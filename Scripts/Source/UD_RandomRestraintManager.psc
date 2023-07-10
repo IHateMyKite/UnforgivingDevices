@@ -107,8 +107,10 @@ FormList Property SuitableKeywords auto
 bool ready = false
 
 Event onInit()
-    ready = True
-    RegisterForSingleupdate(15.0)
+    if IsRunning()
+        ready = True
+        RegisterForSingleupdate(15.0)
+    endif
 EndEvent
 
 Event OnUpdate()

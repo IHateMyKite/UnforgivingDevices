@@ -9,7 +9,9 @@ UD_AbadonQuest_script   Property AbadonScript           auto
 
 Bool Property Ready = False auto
 Event OnInit()
-    Ready = True
+    if IsRunning()
+        Ready = True
+    endif
 EndEvent
 
 Function lockAbadonPiercings(Actor akTarget)

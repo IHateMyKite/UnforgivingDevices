@@ -177,7 +177,7 @@ Bool Function Init()
     actorIndex = 10
     Update()
     setAbadonPreset(1)
-    LoadConfig()
+    LoadConfig(false)
     Ready = True
     UDmain.LogDebug("MCM Ready")
 EndFunction
@@ -256,8 +256,10 @@ Function Update()
     libs = UDCDmain.libs as zadlibs_UDPatch
 EndFunction
 
-Function LoadConfig()
-    ResetToDefaults()
+Function LoadConfig(Bool abResetToDef = True)
+    if abResetToDef
+        ResetToDefaults()
+    endif
     if getAutoLoad()
         LoadFromJSON(UDmain.config.File)
         GInfo("MCM setting loaded from saved config file!")
@@ -277,13 +279,24 @@ Event OnPageReset(string page)
     if !UDmain.IsEnabled() && Ready
         setCursorFillMode(LEFT_TO_RIGHT)
         AddHeaderOption("$Unforgiving devices is updating or disabled...")
-        UDmain.PrintModStatus()
+        AddEmptyOption()
+        
+        AddTextOption("Mod ready",UDmain.Ready)
+        AddTextOption("MCM ready",Ready)
+        AddTextOption("Mod updating",UDmain.IsUpdating())
+        AddTextOption("Mod disabled",UDmain._Disabled)
         return
     endif
     
     if !Ready
         setCursorFillMode(LEFT_TO_RIGHT)
         AddHeaderOption("$MCM menu is not loaded!")
+        AddEmptyOption()
+        
+        AddTextOption("Mod ready",UDmain.Ready)
+        AddTextOption("MCM ready",Ready)
+        AddTextOption("Mod updating",UDmain.IsUpdating())
+        AddTextOption("Mod disabled",UDmain._Disabled)
         return
     endif
     

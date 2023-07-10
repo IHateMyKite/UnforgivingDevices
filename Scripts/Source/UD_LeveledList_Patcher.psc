@@ -23,8 +23,10 @@ LeveledItem Property LIL_AllEnchCirclet auto
 FormList Property UD_BlackGooDropList auto
 
 Event OnInit()
-    RegisterForSingleUpdate(30)
-    Ready = true
+    if IsRunning()
+        RegisterForSingleUpdate(30)
+        Ready = true
+    endif
 EndEvent
 
 Event OnUpdate()
@@ -36,6 +38,7 @@ Event OnUpdate()
 EndEvent
 
 Function Update()
+    ResetQuest(self)
     Process()
 EndFunction
 

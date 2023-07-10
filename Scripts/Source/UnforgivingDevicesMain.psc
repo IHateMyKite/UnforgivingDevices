@@ -433,12 +433,9 @@ EndFunction
 Bool Function CheckSubModules()
     Bool    loc_cond = False
     Int     loc_elapsedTime = 0
-    while !loc_cond && loc_elapsedTime < 20
+    while !loc_cond && loc_elapsedTime < 10
         loc_cond = True
-        loc_cond = loc_cond && UDlibs.ready
         loc_cond = loc_cond && UDCDmain.ready
-        loc_cond = loc_cond && ItemManager.ready
-        loc_cond = loc_cond && UDLLP.ready
         loc_cond = loc_cond && UDOM.ready
         
         Utility.WaitMenuMode(1.0)
@@ -451,19 +448,13 @@ Bool Function CheckSubModules()
         ShowSingleMessageBox("!!FATAL ERROR!!\nError loading Unforgiving devices. One or more of the modules are not ready. Please contact developers on LL or GitHub")
         
         String loc_modules = "--MODULES--\n"
-        loc_modules += "UDlibs="+UDlibs.ready + "\n"
         loc_modules += "UDCDmain="+UDCDmain.ready + "\n"
-        loc_modules += "ItemManager="+ItemManager.ready + "\n"
-        loc_modules += "UDLLP="+UDLLP.ready + "\n"
         loc_modules += "UDOM="+UDOM.ready + "\n"
         ShowMessageBox(loc_modules)
         
         ;Dumb info to console, use GInfo to skip ConsoleUtil installation check
         GInfo("!!FATAL ERROR!! = Error loading Unforgiving devices. One or more of the modules are not ready. Please contact developrs on LL or GitHub")
-        GInfo("UDlibs="+UDlibs.ready)
         GInfo("UDCDmain="+UDCDmain.ready)
-        GInfo("ItemManager="+ItemManager.ready)
-        GInfo("UDLLP="+UDLLP.ready)
         GInfo("UDOM="+UDOM.ready)
         return False
     endif
@@ -730,7 +721,7 @@ Function _Init()
         Utility.wait(0.25)
         loc_timeout += 0.25
     endwhile
-    if loc_timeout >= loc_maxtime
+    if !UDNPCM.Ready
         ;ERROR
         GError("NPC manager can't be started!! Mod will be disabled!")
         ShowSingleMessageBox("!!FATAL ERROR!!\nFailed to load NPC manager and its slots!! Mod will be disabled untill quest correctly starts.\n Please contact developers on LL or GitHub")
@@ -769,7 +760,6 @@ Function Update()
     if !Ready
         if _UpdateCheck() || _FatalError
             UD_hightPerformance = UD_hightPerformance
-            UDlibs.OrgasmExhaustionSpell.SetNthEffectDuration(0, 180) ;for backward compatibility
             
             RegisterForModEvent("UD_VibEvent","EventVib")
             
@@ -861,7 +851,7 @@ EndFunction
 Bool Function _UpdateCheck()
     Bool loc_cond = true
     
-    loc_cond = loc_cond && (!PO3Installed || PO3_SKSEFunctions.IsScriptAttachedToForm(zadbq,"zadlibs_UDPatch")) ;ud patch script have to be pressent on zadquest
+    loc_cond = loc_cond && (!PO3Installed || PO3_SKSEFunctions.IsScriptAttachedToForm(zadbq,"zadlibs_UDPatch")) ;ud patch script have to be pressent on zad quest
 
     return loc_cond
 EndFunction
@@ -977,6 +967,25 @@ Function _CheckPatchesOrder()
     endwhile
     Info(self + "::_CheckPatchesOrder() - Patches order checked")
 EndFunction
+
+;/  Function: ResetQuest
+    Resets the quest. Note that the quest will not be fully reset if it have Run Once flag
+    Function will be blocked untill quest is fully reset
+
+    Parameters:
+
+        akQuest   - Quest to reset
+/;
+Function ResetQuest(Quest akQuest) global
+    akQuest.Stop()
+    Utility.wait(0.1)
+    akQuest.Start()
+    int loc_tick = 0
+    while akQuest.IsStarting() && loc_tick < 10
+        Utility.waitMenuMode(0.1)
+        loc_tick += 1
+    endwhile
+EndFUnction
 
 ;/  Function: getDDescapeDifficulty
 
@@ -1392,8 +1401,8 @@ EndFunction
     Parameters:
 
         aiValue      - Value to be truncated
-        afMin        - Minimum value
-        afMax        - Maximum value
+        aiMin        - Minimum value
+        aiMax        - Maximum value
 
     Returns:
 
@@ -1883,7 +1892,7 @@ EndFunction
 
     Parameters:
 
-        apList  - String array of list elements which will be shown in menu
+        arrList  - String array of list elements which will be shown in menu
 
     Returns:
 
