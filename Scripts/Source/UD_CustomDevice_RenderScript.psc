@@ -208,11 +208,14 @@ Keyword     Property UD_DeviceKeyword_Minor                 ;minor keyword of th
                 if !_DeviceKeyword_Minor
                     UDmain.Error("UD_DeviceKeyword_Minor - Could not find minor keyword!")
                 endif
-            elseif UD_DeviceKeyword == libs.zad_deviousHobbleSkirt
+            elseif UD_DeviceKeyword == libs.zad_deviousSuit
+                ;check hobble skirt
                 if DeviceRendered.HasKeyword(libs.zad_DeviousHobbleSkirtRelaxed)
                     _DeviceKeyword_Minor = libs.zad_DeviousHobbleSkirtRelaxed
-                else
+                elseif DeviceRendered.HasKeyword(libs.zad_DeviousHobbleSkirt)
                     _DeviceKeyword_Minor = libs.zad_deviousHobbleSkirt
+                else
+                    _DeviceKeyword_Minor = UD_DeviceKeyword
                 endif
             else
                 _DeviceKeyword_Minor = UD_DeviceKeyword

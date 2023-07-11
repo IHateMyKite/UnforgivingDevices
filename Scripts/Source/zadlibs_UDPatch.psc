@@ -541,18 +541,20 @@ Armor Function GetWornDevicePatched(Actor akActor, Keyword kw)
         return none
     endif
     if !akActor.wornHasKeyword(kw)
-        if UDmain.TraceAllowed()
-            UDmain.Log("GetWornDevice("+GetActorName(akActor)+")(UDP) - actor have no keyword equipped= " + kw)
-        endif
+        UDmain.Warning("GetWornDevice("+GetActorName(akActor)+") - actor have no keyword equipped= " + kw)
         return none
     endif
     if UDmain.TraceAllowed()
-        UDmain.Log("GetWornDevice("+GetActorName(akActor)+","+kw+")(UDP)",3)
+        UDmain.Log("GetWornDevice("+GetActorName(akActor)+","+kw+")",3)
     endif
-    if UDCDmain.UDCD_NPCM.isRegistered(akActor)
-        UD_CustomDevice_NPCSlot slot = UDCDmain.UDCD_NPCM.getNPCSlotByActor(akActor)
+    if UDmain.UDNPCM.isRegistered(akActor)
+        UD_CustomDevice_NPCSlot slot = UDmain.UDNPCM.getNPCSlotByActor(akActor)
         if slot.deviceAlreadyRegisteredKw(kw,UDmain.UD_CheckAllKw)
-            return slot.getFirstDeviceByKeyword(kw).deviceInventory
+            UD_CustomDevice_RenderScript loc_device = slot.getFirstDeviceByKeyword(kw)
+            if loc_device
+                Armor loc_id = loc_device.deviceInventory
+                return loc_id
+            endif
         endif
     endif
     
