@@ -47,3 +47,6 @@ Weapon  Function GetSharpestWeapon          (Actor akActor)                     
 
 ;===Animation===
 Int     Function GetActorConstrains         (Actor akActor)                     global native
+
+;===Skill===
+Int     Function CalculateSkillFromPerks    (Actor akActor,Formlist akList,Int aiIncrease)      global native
