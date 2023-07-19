@@ -4455,7 +4455,7 @@ EndFunction
 /;
 float Function getHelperAgilitySkills()
     if haveHelper()
-        return UDCDMain.GetAgilitySkill(getHelper())
+        return UDMain.UDSKILL.GetAgilitySkill(getHelper())
     else
         return 0.0
     endif
@@ -4468,7 +4468,7 @@ EndFunction
 /;
 float Function getHelperAgilitySkillsPerc()
     if haveHelper()
-        return UDCDMain.getActorAgilitySkillsPerc(getHelper())
+        return UDMain.UDSKILL.getActorAgilitySkillsPerc(getHelper())
     else
         return 0.0
     endif
@@ -4481,7 +4481,7 @@ EndFunction
 /;
 float Function getHelperStrengthSkills()
     if haveHelper()
-        return UDCDMain.GetStrengthSkill(getHelper())
+        return UDMain.UDSKILL.GetStrengthSkill(getHelper())
     else
         return 0.0
     endif
@@ -4494,7 +4494,7 @@ EndFunction
 /;
 float Function getHelperStrengthSkillsPerc()
     if haveHelper()
-        return UDCDMain.getActorStrengthSkillsPerc(getHelper())
+        return UDMain.UDSKILL.getActorStrengthSkillsPerc(getHelper())
     else
         return 0.0
     endif
@@ -4507,7 +4507,7 @@ EndFunction
 /;
 float Function getHelperMagickSkills()
     if haveHelper()
-        return UDCDMain.GetMagickSkill(getHelper())
+        return UDMain.UDSKILL.GetMagickSkill(getHelper())
     else
         return 0.0
     endif
@@ -4520,7 +4520,7 @@ EndFunction
 /;
 float Function getHelperMagickSkillsPerc()
     if haveHelper()
-        return UDCDMain.getActorMagickSkillsPerc(getHelper())
+        return UDMain.UDSKILL.getActorMagickSkillsPerc(getHelper())
     else
         return 0.0
     endif
@@ -4704,7 +4704,7 @@ bool Function struggleMinigame(int aiType = -1, Bool abSilent = False)
     
     if aiType == 0 ;normal
         UD_minigame_stamina_drain = UD_base_stat_drain*0.75 + getMaxActorValue(Wearer,"Stamina",0.035)
-        UD_durability_damage_add = 1.25*(_durability_damage_mod*UDCDMain.getActorAgilitySkillsPerc(getWearer()))
+        UD_durability_damage_add = 1.25*(_durability_damage_mod*UDMain.UDSKILL.getActorAgilitySkillsPerc(getWearer()))
         UD_DamageMult *= getModResistPhysical(1.0,0.3)
         _exhaustion_mult = 0.5
         _condition_mult_add = -0.9
@@ -4714,7 +4714,7 @@ bool Function struggleMinigame(int aiType = -1, Bool abSilent = False)
     elseif aiType == 1 ;desperate
         UD_minigame_stamina_drain = UD_base_stat_drain*1.1
         UD_minigame_heal_drain = 0.5*UD_base_stat_drain + getMaxActorValue(Wearer,"Health",0.06)
-        UD_durability_damage_add = 1.0*(_durability_damage_mod*((5.0 - 5.0*getRelativeDurability()) + UDCDMain.getActorStrengthSkillsPerc(getWearer())));UDmain.getMaxActorValue(Wearer,"Health",0.02);*getModResistPhysical()
+        UD_durability_damage_add = 1.0*(_durability_damage_mod*((5.0 - 5.0*getRelativeDurability()) + UDMain.UDSKILL.getActorStrengthSkillsPerc(getWearer())));UDmain.getMaxActorValue(Wearer,"Health",0.02);*getModResistPhysical()
         UD_DamageMult *= getModResistPhysical(1.0,0.2)
         _condition_mult_add = -0.5
         _exhaustion_mult = 1.6
@@ -4724,7 +4724,7 @@ bool Function struggleMinigame(int aiType = -1, Bool abSilent = False)
     elseif aiType == 2 ;magick
         UD_minigame_stamina_drain = 0.65*UD_base_stat_drain
         UD_minigame_magicka_drain = 0.75*UD_base_stat_drain + getMaxActorValue(Wearer,"Magicka",0.05)
-        UD_durability_damage_add = 1.0*(_durability_damage_mod*UDCDMain.getActorMagickSkillsPerc(getWearer()))
+        UD_durability_damage_add = 1.0*(_durability_damage_mod*UDMain.UDSKILL.getActorMagickSkillsPerc(getWearer()))
         UD_DamageMult *= getModResistMagicka(1.0,0.3)
         _condition_mult_add = 1.5
         _exhaustion_mult = 1.2
@@ -4877,7 +4877,7 @@ bool Function repairLocksMinigame(Bool abSilent = False)
 
     _customMinigameCritChance = 5 + (4 - _getLockpickLevel(_MinigameSelectedLockID))*5
     _customMinigameCritDuration = 0.8 - _getLockpickLevel(_MinigameSelectedLockID)*0.02
-    UD_MinigameMult1 = getAccesibility() + UDCDMain.getActorSmithingSkillsPerc(getWearer())*0.5
+    UD_MinigameMult1 = getAccesibility() + UDmain.UDSKILL.getActorSmithingSkillsPerc(getWearer())*0.5
     if wearerFreeHands()
         UD_MinigameMult1 += 0.5
         _customMinigameCritChance += 15
@@ -4929,8 +4929,8 @@ bool Function cuttingMinigame(Bool abSilent = False)
     if minigamePostcheck(abSilent)
         float loc_BaseMult = UDCDmain.getActorCuttingWeaponMultiplier(getWearer())
         
-        UD_MinigameMult1 = loc_BaseMult + UDCDmain.getActorCuttingSkillsPerc(getWearer())
-        UD_DamageMult = loc_BaseMult + UDCDmain.getActorCuttingSkillsPerc(getWearer())
+        UD_MinigameMult1 = loc_BaseMult + UDmain.UDSKILL.getActorCuttingSkillsPerc(getWearer())
+        UD_DamageMult = loc_BaseMult + UDmain.UDSKILL.getActorCuttingSkillsPerc(getWearer())
         
         _CuttingGameON = True
         minigame()
@@ -5060,7 +5060,7 @@ bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
         UD_durability_damage_add = 0.0
         UD_minigame_stamina_drain = UD_base_stat_drain*0.75 + getMaxActorValue(Wearer,"Stamina",0.03)
         UD_minigame_stamina_drain_helper = UD_base_stat_drain*0.5 + getMaxActorValue(_minigameHelper,"Stamina",0.03)
-        UD_durability_damage_add = 1.0*_durability_damage_mod*(0.25 + 2.5*(UDCDMain.getActorAgilitySkillsPerc(getWearer()) + getHelperAgilitySkillsPerc()))
+        UD_durability_damage_add = 1.0*_durability_damage_mod*(0.25 + 2.5*(UDmain.UDSKILL.getActorAgilitySkillsPerc(getWearer()) + getHelperAgilitySkillsPerc()))
         UD_DamageMult = getModResistPhysical(1.0,0.35)*getAccesibility()
         
         if HelperFreeHands(True)
@@ -5080,7 +5080,7 @@ bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
         UD_minigame_heal_drain = 0.5*UD_base_stat_drain + getMaxActorValue(Wearer,"Health",0.05)
         UD_minigame_heal_drain_helper = 0.5*UD_base_stat_drain + getMaxActorValue(_minigameHelper,"Health",0.05)
         
-        UD_durability_damage_add = 1.0*_durability_damage_mod*((5.0 - 5.0*getRelativeDurability()) + UDCDMain.getActorStrengthSkillsPerc(getWearer()) + getHelperStrengthSkillsPerc())
+        UD_durability_damage_add = 1.0*_durability_damage_mod*((5.0 - 5.0*getRelativeDurability()) + UDmain.UDSKILL.getActorStrengthSkillsPerc(getWearer()) + getHelperStrengthSkillsPerc())
         UD_DamageMult = getModResistPhysical(1.0,0.15)*getAccesibility()
 
         if HelperFreeHands(True)
@@ -5101,7 +5101,7 @@ bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
         UD_minigame_magicka_drain = 0.7*UD_base_stat_drain + getMaxActorValue(Wearer,"Magicka",0.05)
         UD_minigame_magicka_drain_helper = UD_base_stat_drain + getMaxActorValue(Wearer,"Magicka",0.05)
         UD_DamageMult = getModResistMagicka(1.0,0.3)*getAccesibility()
-        UD_durability_damage_add = 2.0*_durability_damage_mod*(UDCDMain.getActorMagickSkillsPerc(getWearer()) + getHelperMagickSkillsPerc())
+        UD_durability_damage_add = 2.0*_durability_damage_mod*(UDmain.UDSKILL.getActorMagickSkillsPerc(getWearer()) + getHelperMagickSkillsPerc())
         
         if HelperFreeHands(True)
             UD_DamageMult += 0.5
@@ -5276,7 +5276,7 @@ bool Function repairLocksMinigameWH(Actor akHelper)
     UD_minigame_canCrit = False
     
     _customMinigameCritChance = 10 + (4 - _getLockpickLevel(_MinigameSelectedLockID))*5
-    UD_MinigameMult1 = getAccesibility() + 0.35*(UDCDMain.getActorSmithingSkillsPerc(getWearer()) + UDCDMain.getActorSmithingSkillsPerc(getHelper()))
+    UD_MinigameMult1 = getAccesibility() + 0.35*(UDmain.UDSKILL.getActorSmithingSkillsPerc(getWearer()) + UDmain.UDSKILL.getActorSmithingSkillsPerc(getHelper()))
     UD_RegenMag_Magicka = 0.5
     UD_RegenMag_Health = 0.5
     UD_RegenMagHelper_Magicka = 0.75
@@ -5344,7 +5344,7 @@ bool Function cuttingMinigameWH(Actor akHelper)
         float loc_BaseMult = UDCDmain.getActorCuttingWeaponMultiplier(getWearer())
         float loc_BaseMultHelperAdd = UDCDmain.getActorCuttingWeaponMultiplier(getHelper()) - 1.0
         
-        UD_DamageMult = loc_BaseMult + loc_BaseMultHelperAdd + UDCDmain.getActorCuttingSkillsPerc(getWearer()) + UDCDmain.getActorCuttingSkillsPerc(getHelper())
+        UD_DamageMult = loc_BaseMult + loc_BaseMultHelperAdd + UDmain.UDSKILL.getActorCuttingSkillsPerc(getWearer()) + UDmain.UDSKILL.getActorCuttingSkillsPerc(getHelper())
         UD_MinigameMult1 = UD_DamageMult;loc_BaseMult + loc_BaseMultHelper + UDCDmain.getActorCuttingSkillsPerc(getWearer()) + UDCDmain.getActorCuttingSkillsPerc(getHelper())
         
         if HelperFreeHands(True)
@@ -7801,7 +7801,7 @@ EndFunction
 Function OnMinigameTick1()
     if getStruggleMinigameSubType() == 1
         ;UD_DamageMult = getAccesibility()*getModResistPhysical(1.0,0.1) + (1.0 - getRelativeDurability())
-        UD_durability_damage_add = (5.0 - 5.0*getRelativeDurability()) + UDCDMain.getActorStrengthSkillsPerc(getWearer()) + getHelperStrengthSkillsPerc()
+        UD_durability_damage_add = (5.0 - 5.0*getRelativeDurability()) + UDmain.UDSKILL.getActorStrengthSkillsPerc(getWearer()) + getHelperStrengthSkillsPerc()
         UD_durability_damage_add *= _durability_damage_mod
     endif
 EndFunction
