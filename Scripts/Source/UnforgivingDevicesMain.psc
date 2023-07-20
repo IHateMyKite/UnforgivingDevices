@@ -350,7 +350,8 @@ bool Property ZadExpressionSystemInstalled = false auto hidden
 Bool Property DeviousStrikeInstalled    = False auto hidden
 Bool Property ForHimInstalled           = False auto hidden
 Bool Property PO3Installed              = False auto hidden ;https://www.nexusmods.com/skyrimspecialedition/mods/22854
-Bool Property AllowMenBondage           = True auto hidden
+Bool Property ImprovedCameraInstalled   = False auto hidden
+Bool Property AllowMenBondage           = True  auto hidden
 
 bool Property Ready = False auto hidden
 
@@ -950,6 +951,12 @@ Function _CheckOptionalMods()
         PO3Installed = True
     else
         PO3Installed = False
+    endif
+    
+    if SKSE.GetPluginVersion("ImprovedCameraSE.dll") != 1
+        ImprovedCameraInstalled = true
+    else
+        ImprovedCameraInstalled = false
     endif
     
 EndFUnction

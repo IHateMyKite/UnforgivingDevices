@@ -2421,20 +2421,24 @@ EndFunction
         true if modifiers is present on the device
 /;
 bool Function hasModifier(string asModifier)
-    int loc_Index = UD_Modifiers.length
-    while loc_Index
-        loc_Index -= 1
-        if StringUtil.find(UD_Modifiers[loc_Index],";") != -1
-            if StringUtil.Substring(UD_Modifiers[loc_Index], 0, StringUtil.find(UD_Modifiers[loc_Index],";")) == asModifier
-                return true
+    if UDmain.UD_UseNativeFunctions
+        return UD_Native.hasModifier(UD_Modifiers,asModifier)
+    else
+        int loc_Index = UD_Modifiers.length
+        while loc_Index
+            loc_Index -= 1
+            if StringUtil.find(UD_Modifiers[loc_Index],";") != -1
+                if StringUtil.Substring(UD_Modifiers[loc_Index], 0, StringUtil.find(UD_Modifiers[loc_Index],";")) == asModifier
+                    return true
+                endif
+            else    
+                if UD_Modifiers[loc_Index] == asModifier
+                    return True
+                endif
             endif
-        else    
-            if UD_Modifiers[loc_Index] == asModifier
-                return True
-            endif
-        endif
-    endwhile
-    return false
+        endwhile
+        return false
+    endif
 EndFunction
 
 String Function GetModifierHeader(String asRawModifier)
@@ -2455,16 +2459,20 @@ EndFunction
         Array of all parameters or none in case of error
 /;
 String[] Function getModifierAllParam(string asModifier)
-    int loc_Index = getModifierIndex(asModifier)
-    if loc_Index != -1
-        String[] loc_Res = StringUtil.split(UD_Modifiers[loc_Index],";")
-        if loc_Res.length > 1
-            return StringUtil.split(loc_Res[1],",")
+    if UDmain.UD_UseNativeFunctions
+        return UD_Native.getModifierAllParam(UD_Modifiers,asModifier)
+    else
+        int loc_Index = getModifierIndex(asModifier)
+        if loc_Index != -1
+            String[] loc_Res = StringUtil.split(UD_Modifiers[loc_Index],";")
+            if loc_Res.length > 1
+                return StringUtil.split(loc_Res[1],",")
+            else
+                return none
+            endif
         else
             return none
         endif
-    else
-        return none
     endif
 EndFunction
 
@@ -2477,14 +2485,18 @@ string Function getModifier(string asModifier)
 EndFunction
 
 int Function getModifierIndex(string asModifier)
-    int loc_Index = UD_Modifiers.length
-    while loc_Index
-        loc_Index -= 1
-        if StringUtil.find(UD_Modifiers[loc_Index],asModifier) != -1
-            return loc_Index
-        endif
-    endwhile
-    return -1
+    if UDmain.UD_UseNativeFunctions
+        return UD_Native.getModifierIndex(UD_Modifiers,asModifier)
+    else
+        int loc_Index = UD_Modifiers.length
+        while loc_Index
+            loc_Index -= 1
+            if StringUtil.find(UD_Modifiers[loc_Index],asModifier) != -1
+                return loc_Index
+            endif
+        endwhile
+        return -1
+    endif
 EndFunction
 
 ;/  Function: editStringModifier
@@ -2511,11 +2523,15 @@ bool Function editStringModifier(string asModifier,int aiIndex, string asNewValu
     endif
 EndFunction
 
-bool Function modifierHaveParams(string modifier)
-    if StringUtil.find(getModifier(modifier),";") != -1
-        return true
+bool Function modifierHaveParams(string asModifier)
+    if UDmain.UD_UseNativeFunctions
+        return UD_Native.modifierHaveParams(UD_Modifiers,asModifier)
     else
-        return false
+        if StringUtil.find(getModifier(asModifier),";") != -1
+            return true
+        else
+            return false
+        endif
     endif
 EndFunction
 
@@ -2529,11 +2545,15 @@ EndFunction
         Number of parameters. Returns 0 in case of error
 /;
 int Function getModifierParamNum(string asModifier)
-    string[] loc_params = getModifierAllParam(asModifier)
-    if !loc_params
-        return 0
+    if UDmain.UD_UseNativeFunctions
+        return UD_Native.getModifierParamNum(UD_Modifiers,asModifier)
     else
-        return getModifierAllParam(asModifier).length
+        string[] loc_params = getModifierAllParam(asModifier)
+        if !loc_params
+            return 0
+        else
+            return getModifierAllParam(asModifier).length
+        endif
     endif
 EndFunction
 

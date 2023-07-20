@@ -50,3 +50,10 @@ Int     Function GetActorConstrains         (Actor akActor)                     
 
 ;===Skill===
 Int     Function CalculateSkillFromPerks    (Actor akActor,Formlist akList,Int aiIncrease)      global native
+
+;===Modifiers===
+Bool    Function HasModifier                (String[] aaModifiers, String asModName)            global native
+Int     Function GetModifierIndex           (String[] aaModifiers, String asModName)            global native
+Bool    Function ModifierHaveParams         (String[] aaModifiers, String asModName)            global native
+String[] Function getModifierAllParam       (String[] aaModifiers, String asModName)            global native
+Int     Function GetModifierParamNum        (String[] aaModifiers, String asModName)            global native

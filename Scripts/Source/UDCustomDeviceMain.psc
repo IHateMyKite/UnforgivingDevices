@@ -448,9 +448,6 @@ EndFunction
         aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
 /;
 Function DisableActor(Actor akActor,int aiIsPlayer = -1)
-    if UDmain.TraceAllowed()    
-        UDmain.Log("DisableActor("+getActorName(akActor) + ")",2)
-    endif
     StartMinigameDisable(akActor,aiIsPlayer)
 EndFunction
 
@@ -464,9 +461,6 @@ EndFunction
         aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
 /;
 Function UpdateDisabledActor(Actor akActor,int aiIsPlayer = -1)
-    if UDmain.TraceAllowed()    
-        UDmain.Log("UpdateDisabledActor("+getActorName(akActor) + ")",2)
-    endif
     UpdateMinigameDisable(akActor,aiIsPlayer)
 EndFunction
 
@@ -480,9 +474,6 @@ EndFunction
         aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
 /;
 Function EnableActor(Actor akActor,int aiIsPlayer = -1)
-    if UDmain.TraceAllowed()    
-        UDmain.Log("EnableActor("+getActorName(akActor)+")",2)
-    endif
     EndMinigameDisable(akActor,aiIsPlayer)
 EndFunction
 
@@ -496,6 +487,9 @@ EndFunction
         aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
 /;
 Function StartMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
+    if UDmain.TraceAllowed()
+        UDmain.Log("StartMinigameDisable("+getActorName(akActor) + ")",2)
+    endif
     akActor.AddToFaction(BussyFaction)
     if aiIsPlayer == 1 || UDmain.ActorIsPlayer(akActor)
         UpdatePlayerControl()
@@ -518,6 +512,9 @@ EndFunction
         aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
 /;
 Function UpdateMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
+    if UDmain.TraceAllowed()    
+        UDmain.Log("UpdateMinigameDisable("+getActorName(akActor)+")",2)
+    endif
     if akActor.IsInFaction(BussyFaction)
         if aiIsPlayer == 1 || UDmain.ActorIsPlayer(akActor)
             UpdatePlayerControl()
@@ -539,6 +536,9 @@ EndFunction
         aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
 /;
 Function EndMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
+    if UDmain.TraceAllowed()    
+        UDmain.Log("EndMinigameDisable("+getActorName(akActor)+")",2)
+    endif
     akActor.RemoveFromFaction(BussyFaction)
     if aiIsPlayer == 1 || UDmain.ActorIsPlayer(akActor)
         libsp.ProcessPlayerControls(false)
@@ -565,9 +565,9 @@ Bool Function IsBussy(Actor akActor)
 EndFunction
 
 Function UpdatePlayerControl()
-    Game.EnablePlayerControls(abMovement = true, abFighting = false, abSneaking = false, abMenu = False, abActivate = false)
+    Game.EnablePlayerControls(abMovement = !UDmain.ImprovedCameraInstalled, abFighting = false, abCamSwitch = !UDmain.ImprovedCameraInstalled, abSneaking = false, abMenu = False, abActivate = false)
     Utility.waitMenuMode(0.05)
-    Game.DisablePlayerControls(abMovement = False, abMenu = True)
+    Game.DisablePlayerControls(abMovement = False, abCamSwitch = UDmain.ImprovedCameraInstalled, abMenu = True)
 EndFunction
 
 Function CheckHardcoreDisabler(Actor akActor)
