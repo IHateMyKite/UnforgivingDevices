@@ -583,7 +583,16 @@ Function _ResetUpdateCounter()
 EndFunction
 Function _IncrementUpdateCounter()
     _updatecounter += 1
-    Info("Update progress: " + (Round(100.0*_updatecounter/19)) + " %%")
+    Info("Update progress: " + GetUpdateProgress() + " %%")
+EndFunction
+
+;/  Function: GetUpdateProgress
+    
+    Returns:
+        Current update progress of the mod. It is whole number from 0 to 100, where mod is full ready on 100
+/;
+int Function GetUpdateProgress()
+    return (Round(100.0*_updatecounter/19))
 EndFunction
 
 Function OnGameReload()
@@ -632,8 +641,8 @@ Function OnGameReload()
         _IncrementUpdateCounter()
         
         if !CheckSubModules() || _FatalError
-            ENABLE()
             _Updating = False
+            ENABLE()
             Info("<=====| !!Unforgiving Devices FAILED!! |=====>")
             Print("Unforgiving Devices update FAILED")
             Info(self + "::OnGameReload() - CheckSubmodules() = " + CheckSubModules() + ";_FatalError = " + _FatalError)

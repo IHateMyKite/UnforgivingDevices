@@ -33,10 +33,12 @@ Function activateDevice()
 
         if (loc_plug as UD_CustomVibratorBase_RenderScript)
             UD_CustomVibratorBase_RenderScript loc_vibrator = loc_plug as UD_CustomVibratorBase_RenderScript
-            if WearerIsPLayer() && (!loc_vibrator.canVibrate() || !UDMain.UDWC.UD_FilterVibNotifications)
-                UDmain.Print(getDeviceName() + " activates "+ loc_plug.getDeviceName() +"!",2)
-            elseif UDmain.ActorInCloseRange(getWearer())
-                UDmain.Print(getWearerName() + "s "+ getDeviceName() +" activates their "+loc_plug.getDeviceName()+"!",2)
+            if (!loc_vibrator.canVibrate() || !UDMain.UDWC.UD_FilterVibNotifications)
+                if WearerIsPlayer()
+                    UDmain.Print(getDeviceName() + " activates "+ loc_plug.getDeviceName() +"!",2)
+                elseif UDmain.ActorInCloseRange(getWearer())
+                    UDmain.Print(getWearerName() + "s "+ getDeviceName() +" activates their "+loc_plug.getDeviceName()+"!",2)
+                endif
             endif
             if loc_vibrator.canVibrate()
                 if !loc_vibrator.isVibrating()

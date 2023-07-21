@@ -285,6 +285,7 @@ Event OnPageReset(string page)
         AddTextOption("MCM ready",Ready)
         AddTextOption("Mod updating",UDmain.IsUpdating())
         AddTextOption("Mod disabled",UDmain._Disabled)
+        AddTextOption("Update progress",UDmain.GetUpdateProgress())
         return
     endif
     

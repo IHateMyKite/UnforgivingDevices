@@ -230,8 +230,6 @@ Function Update()
     ResetUI()
     registerAllEvents()
     
-    UDPP.RegisterEvents()
-    
     CheckHardcoreDisabler(UDmain.Player)
     
     SetArousalPerks()
