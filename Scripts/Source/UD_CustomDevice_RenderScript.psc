@@ -7260,7 +7260,7 @@ bool Function ProccesAV(float fUpdateTime)
         Float loc_magickahdrain = UD_minigame_magicka_drain * UDCDMain.UD_MinigameDrainMult
         bool  loc_isplayer = WearerIsPlayer()
         if UDmain.UD_UseNativeFunctions && loc_isplayer
-            if !UD_Native.MinigameStatsCheck(Wearer)
+            if !UD_Native.MinigameStatsCheck(Wearer,loc_staminadrain > 0.0, loc_healthdrain  > 0.0, loc_magickahdrain  > 0.0)
                 stopMinigame()
                 return false
             endif
@@ -7301,7 +7301,7 @@ bool Function ProccesAVHelper(float fUpdateTime)
         Float loc_magickahdrain = UD_minigame_magicka_drain_helper * UDCDMain.UD_MinigameDrainMult
         bool  loc_isplayer      = HelperIsPlayer()
         if UDmain.UD_UseNativeFunctions && loc_isplayer
-            if !UD_Native.MinigameStatsCheck(_minigameHelper)
+            if !UD_Native.MinigameStatsCheck(_minigameHelper,loc_staminadrain  > 0.0, loc_healthdrain  > 0.0, loc_magickahdrain  > 0.0)
                 stopMinigame()
                 return false
             endif

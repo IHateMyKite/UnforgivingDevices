@@ -6,8 +6,7 @@ Scriptname UD_Native hidden
 bool    Function IsMinigameEffectOn         (Actor akActor)                     global native
         Function UpdateMinigameEffectMult   (Actor akActor, float afNewMult)    global native
         Function ToggleMinigameEffect       (Actor akActor, bool abToggle)      global native ;abToggle = true -> enabled, abToggle = false -> disabled
-bool    Function MinigameStatsCheck         (Actor akActor)                     global native
-
+bool    Function MinigameStatsCheck         (Actor akActor, bool abStamina, bool abHealth, bool abMagicka)                      global native
         Function MinigameEffectUpdateHealth (Actor akActor, float afNewHealth)  global native
         Function MinigameEffectUpdateStamina(Actor akActor, float afNewStamina) global native
         Function MinigameEffectUpdateMagicka(Actor akActor, float afNewMagicka) global native
@@ -21,7 +20,7 @@ int     Function RemoveAllMeterEntries()                                        
         Function ToggleAllMeters            (bool abToggle)                     global native
 
 ;iWantWidget meters
-        Function AddMeterEntryIWW           (string asPath, int aiId, string asName, float afBase, float afRate, bool abShow) global native
+        Function AddMeterEntryIWW           (string asPath, int aiId, string asName, float afBase, float afRate, bool abShow)   global native
         Function RemoveMeterEntryIWW        (int aiId)                          global native
         Function ToggleMeterIWW             (int aiId, bool abToggle)           global native
         Function SetMeterRateIWW            (int aiId, float afNewRate)         global native
@@ -31,7 +30,7 @@ Float   Function UpdateMeterValueIWW        (int aiId, float afDiffValue)       
 Float   Function GetMeterValueIWW           (int aiId)                          global native
 
 ;SkyUi meters
-        Function AddMeterEntrySkyUi         (string asPath, string asName, float afBase, float afRate, bool abShow) global native
+        Function AddMeterEntrySkyUi         (string asPath, string asName, float afBase, float afRate, bool abShow)             global native
         Function RemoveMeterEntrySkyUi      (string asPath)                     global native
         Function ToggleMeterSkyUi           (string asPath, bool abToggle)      global native
         Function SetMeterRateSkyUi          (string asPath, float afNewRate)    global native
