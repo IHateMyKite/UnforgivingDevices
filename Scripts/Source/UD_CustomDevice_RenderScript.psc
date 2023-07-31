@@ -6669,7 +6669,6 @@ Function minigame()
         UDmain.UDWC.Meter_UnregisterNative("device-condition")
     endif
     
-    
     if loc_PlayerInMinigame
         UDCDmain.MinigameKeysUnRegister()
     endif

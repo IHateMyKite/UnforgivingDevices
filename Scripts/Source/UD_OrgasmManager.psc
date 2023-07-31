@@ -862,7 +862,7 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,in
     bool loc_cond       = loc_is3Dloaded && UDmain.ActorInCloseRange(akActor)
     
     if loc_actorinminigame
-        Int loc_res = PlayOrgasmAnimation(akActor,iDuration)
+        Int loc_res = PlayOrgasmAnimation(akActor,iDuration,true)
         if loc_res == 1
             StorageUtil.UnsetIntValue(akActor,"UD_OrgasmInMinigame_Flag")
         endif
@@ -922,7 +922,7 @@ EndFunction
 
         1 in case of sucess. 0 in case of failure
 /;
-Int Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
+Int Function PlayOrgasmAnimation(Actor akActor,int aiDuration, bool abContinue = false)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_OrgasmManager::PlayOrgasmAnimation() akActor = " + akActor + ", aiDuration = " + aiDuration, 3)
     EndIf
@@ -955,7 +955,7 @@ Int Function PlayOrgasmAnimation(Actor akActor,int aiDuration)
         If loc_animationArray.Length > 0
             Actor[] loc_actors = new Actor[1]
             loc_actors[0] = akActor
-            UDmain.UDAM.PlayAnimationByDef(loc_animationArray[Utility.RandomInt(0, loc_animationArray.Length - 1)], loc_actors, abDisableActors = False)
+            UDmain.UDAM.PlayAnimationByDef(loc_animationArray[Utility.RandomInt(0, loc_animationArray.Length - 1)], loc_actors, abDisableActors = False, abContinueAnimation = abContinue)
         Else
             UDmain.Warning("UD_OrgasmManager::PlayOrgasmAnimation() Can't find orgasm animations for the actor")
         EndIf

@@ -1340,6 +1340,8 @@ Function resetOtherPage()
     AddTextOption("powerofthree's Papyrus Extender",InstallSwitch(UDmain.PO3Installed),FlagSwitch(UDmain.PO3Installed))
     addEmptyOption()
 
+    AddTextOption("Improved Camera",InstallSwitch(UDmain.ImprovedCameraInstalled),FlagSwitch(UDmain.ImprovedCameraInstalled))
+    addEmptyOption()
 EndFunction
 
 String Function InstallSwitch(Bool abSwitch)
