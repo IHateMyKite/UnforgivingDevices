@@ -5796,8 +5796,6 @@ EndFunction
 Function _keyUnlockDevice()
     UnlockNthLock(_MinigameSelectedLockID)
     
-    stopMinigame()
-    
     if PlayerInMinigame()
         UDmain.Print("You managed to unlock "+GetDeviceName()+"s "+GetNthLockName(_MinigameSelectedLockID)+"!",1)
     elseif UDCDmain.AllowNPCMessage(Wearer, True)
@@ -5810,6 +5808,7 @@ Function _keyUnlockDevice()
         else
             Wearer.RemoveItem(zad_deviceKey,1) ;then remove wearer key
         endif
+        stopMinigame()
     elseif UDCDMain.KeyIsGeneric(zad_deviceKey) && UDCDmain.UD_KeyDurability > 0
         if _minigameHelper && _minigameHelper.GetItemCount(zad_deviceKey)
             UDCDMain.ReduceKeyDurability(_minigameHelper, zad_DeviceKey)
@@ -5821,12 +5820,40 @@ Function _keyUnlockDevice()
                 elseif UDCDmain.AllowNPCMessage(Wearer, True)
                     UDmain.Print(getWearerName() + "'s key "+ zad_DeviceKey.GetName() +" gets destroyed",1)
                 endif
+                stopMinigame()
             else
                 if PlayerInMinigame()
                     UDmain.Print("Remaining durability of key " + zad_DeviceKey.GetName() + " = [" + loc_dur+"]",2)
                 endif
+                
+                ;select next lock
+                if (WearerIsPlayer() || HelperIsPlayer()) && !(UD_CurrentLocks == 0 && UD_JammedLocks == 0)
+                    Int loc_SelectedLock = 0
+                    Bool loc_cond = False
+                    while !loc_cond
+                        loc_cond = true
+                        loc_SelectedLock = UserSelectLock()
+                        if loc_SelectedLock < 0
+                            loc_cond = true
+                            stopMinigame()
+                        else
+                            loc_cond = loc_cond && !IsNthLockUnlocked(loc_SelectedLock)
+                            loc_cond = loc_cond && !IsNthLockJammed(loc_SelectedLock)
+                            loc_cond = loc_cond && (!IsNthLockTimeLocked(loc_SelectedLock) || !GetNthLockTimeLock(loc_SelectedLock))
+                            if loc_cond
+                                _MinigameSelectedLockID = loc_SelectedLock
+                                _customMinigameCritChance   = getLockAccesChance(_MinigameSelectedLockID, false)
+                                _customMinigameCritDuration = 0.85 - _getLockpickLevel(_MinigameSelectedLockID)*0.025
+                            endif
+                        endif
+                    endwhile
+                else
+                    stopMinigame()
+                endif
             endif
         endif
+    else
+        stopMinigame()
     endif
     
     if UD_CurrentLocks == 0
