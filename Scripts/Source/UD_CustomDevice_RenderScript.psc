@@ -5724,7 +5724,31 @@ Function _lockpickDevice()
                     UDmain.Print(getWearerName() + " unlocked one of the "+UD_LockNameList[_MinigameSelectedLockID]+"!",2)
                 endif
                 onLockUnlocked(True)
-                stopMinigame() ;stop minigame, as player needs to select next lock manually
+                
+                ;select next lock
+                if (WearerIsPlayer() || HelperIsPlayer()) && !(UD_CurrentLocks == 0 && UD_JammedLocks == 0)
+                    Int loc_SelectedLock = 0
+                    Bool loc_cond = False
+                    while !loc_cond
+                        loc_cond = true
+                        loc_SelectedLock = UserSelectLock()
+                        if loc_SelectedLock < 0
+                            loc_cond = true
+                            stopMinigame() ;stop minigame, as player needs to select next lock manually
+                        else
+                            loc_cond = loc_cond && !IsNthLockUnlocked(loc_SelectedLock)
+                            loc_cond = loc_cond && !IsNthLockJammed(loc_SelectedLock)
+                            loc_cond = loc_cond && (!IsNthLockTimeLocked(loc_SelectedLock) || !GetNthLockTimeLock(loc_SelectedLock))
+                            if loc_cond
+                                _MinigameSelectedLockID = loc_SelectedLock
+                                _customMinigameCritChance   = getLockAccesChance(_MinigameSelectedLockID, false)
+                                _customMinigameCritDuration = 0.8 - _getLockpickLevel(_MinigameSelectedLockID)*0.03
+                            endif
+                        endif
+                    endwhile
+                else
+                    stopMinigame() ;stop minigame, as player needs to select next lock manually
+                endif
             endif
             if UD_CurrentLocks == 0 && UD_JammedLocks == 0 ;device gets unlocked
                 if PlayerInMinigame()
@@ -6214,6 +6238,7 @@ EndFunction
 Function PauseMinigame()
     if _MinigameON
         _ToggleMinigameEffect(false)
+        SpecialButtonReleased(0.0)
         _PauseMinigame = True
     endif
 EndFunction
@@ -7118,17 +7143,23 @@ Function critDevice()
 EndFunction
 
 ;function called when player press special button
-Function SpecialButtonPressed(float fMult = 1.0)
+Function SpecialButtonPressed(float afMult = 1.0)
     if !IsPaused() && !IsUnlocked
         if _CuttingGameON
-            _cutDevice(fMult*UD_CutChance/12.5)
+            _cutDevice(afMult*UD_CutChance/12.5)
         elseif _KeyGameON || _LockpickGameON || _RepairLocksMinigameON
             if !_usingTelekinesis
                 _usingTelekinesis = true
+                
+                if UDmain.UD_UseNativeFunctions
+                    UD_Native.MinigameEffectUpdateMagicka(UDmain.Player,0.5*UD_base_stat_drain + UDmain.Player.getBaseAV("Magicka")*0.02)
+                endif
+                
                 UD_minigame_magicka_drain = 0.5*UD_base_stat_drain + Wearer.getBaseAV("Magicka")*0.02
                 if haveHelper()
                     UD_minigame_magicka_drain_helper = 0.5*UD_base_stat_drain + _minigameHelper.getBaseAV("Magicka")*0.02
                 endif
+                
                 if _RepairLocksMinigameON
                     if WearerHaveTelekinesis()
                         UD_MinigameMult1 += 0.25
@@ -7142,7 +7173,7 @@ Function SpecialButtonPressed(float fMult = 1.0)
             endif
         endif
 
-        onSpecialButtonPressed(fMult)
+        onSpecialButtonPressed(afMult)
         
         if UDCDmain.UD_useWidget && UD_UseWidget
             updateWidget()
@@ -7151,13 +7182,18 @@ Function SpecialButtonPressed(float fMult = 1.0)
 EndFunction
 
 ;function called when player release special button
-Function SpecialButtonReleased(float fHoldTime)
+Function SpecialButtonReleased(float afHoldTime)
     if !IsPaused() && !IsUnlocked
-        if _KeyGameON || _LockpickGameON
+        if _KeyGameON || _LockpickGameON || _RepairLocksMinigameON
             if _usingTelekinesis
                 _usingTelekinesis = false
                 UD_minigame_magicka_drain = 0
                 UD_minigame_magicka_drain_helper = 0
+                
+                if UDmain.UD_UseNativeFunctions
+                    UD_Native.MinigameEffectSetMagicka(UDmain.Player,0.0)
+                endif
+                
                 if _RepairLocksMinigameON
                     if WearerHaveTelekinesis()
                         UD_MinigameMult1 -= 0.25
@@ -7170,19 +7206,19 @@ Function SpecialButtonReleased(float fHoldTime)
                 endif
             endif
         endif
-        onSpecialButtonReleased(fHoldTime)
+        onSpecialButtonReleased(afHoldTime)
     endif
 EndFunction
 
 ;function called when wearer orgasms, 
 ; sexlab - True if orgasms is created by sexlab, False if created by DD
-Function orgasm(bool sexlab = false)
-    if OnOrgasmPre(sexlab)
+Function orgasm(bool abSexlab = false)
+    if OnOrgasmPre(abSexlab)
         if _MinigameON
-            OnMinigameOrgasm(sexlab)
+            OnMinigameOrgasm(abSexlab)
             OnMinigameOrgasmPost()
         endif
-        OnOrgasmPost(sexlab)
+        OnOrgasmPost(abSexlab)
     endif
 EndFunction
 
@@ -7197,12 +7233,12 @@ Function edge()
 EndFunction
 
 ;biggest pain in the ass. 
-Function showHUDbars(bool flashCall = True)
+Function showHUDbars(bool abFlashCall = True)
     bool actorOK    = (WearerIsPlayer() || HelperIsPlayer()) 
     bool stamina    = actorOK && (UD_minigame_stamina_drain == 0.0 && UD_minigame_stamina_drain_helper  == 0.0)
     bool health     = actorOK && (UD_minigame_heal_drain    == 0.0 && UD_minigame_heal_drain_helper     == 0.0)
     bool magicka    = actorOK && (UD_minigame_magicka_drain == 0.0 && UD_minigame_magicka_drain_helper  == 0.0)
-    UDCDmain.sendHUDUpdateEvent(flashCall,stamina,health,magicka)
+    UDCDmain.sendHUDUpdateEvent(abFlashCall,stamina,health,magicka)
 EndFunction
 
 ;does shit

@@ -7,9 +7,12 @@ bool    Function IsMinigameEffectOn         (Actor akActor)                     
         Function UpdateMinigameEffectMult   (Actor akActor, float afNewMult)    global native
         Function ToggleMinigameEffect       (Actor akActor, bool abToggle)      global native ;abToggle = true -> enabled, abToggle = false -> disabled
 bool    Function MinigameStatsCheck         (Actor akActor, bool abStamina, bool abHealth, bool abMagicka)                      global native
-        Function MinigameEffectUpdateHealth (Actor akActor, float afNewHealth)  global native
-        Function MinigameEffectUpdateStamina(Actor akActor, float afNewStamina) global native
-        Function MinigameEffectUpdateMagicka(Actor akActor, float afNewMagicka) global native
+        Function MinigameEffectSetHealth    (Actor akActor, float afNewHealth)  global native
+        Function MinigameEffectSetStamina   (Actor akActor, float afNewStamina) global native
+        Function MinigameEffectSetMagicka   (Actor akActor, float afNewMagicka) global native
+        Function MinigameEffectUpdateHealth (Actor akActor, float afHealth)     global native
+        Function MinigameEffectUpdateStamina(Actor akActor, float afStamina)    global native
+        Function MinigameEffectUpdateMagicka(Actor akActor, float afMagicka)    global native
 
 ;===UTILITY===
 Int     Function CodeBit                    (int aiCodedMap,int aiValue,int aiSize,int aiIndex) global native
