@@ -239,7 +239,7 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
     if deviceRendered
         if !deviceRendered.haskeyword(zad_lockable) && !deviceRendered.haskeyword(zad_DeviousPlug)
             UDmain.Warning("UnlockDevice("+MakeDeviceHeader(akActor,deviceInventory)+") - passed deviceRendered("+deviceRendered+") is not devious device. Aborting!")
-            return false
+            deviceRendered = none
         endif
     endif
     
@@ -369,7 +369,7 @@ Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRen
     if deviceRendered
         if !deviceRendered.haskeyword(zad_lockable) && !deviceRendered.haskeyword(zad_DeviousPlug)
             UDmain.Warning("UnlockDevice("+MakeDeviceHeader(akActor,deviceInventory)+") - passed deviceRendered("+deviceRendered+") is not devious device. Aborting!")
-            return
+            deviceRendered = none
         endif
     endif
     
@@ -541,18 +541,20 @@ Armor Function GetWornDevicePatched(Actor akActor, Keyword kw)
         return none
     endif
     if !akActor.wornHasKeyword(kw)
-        if UDmain.TraceAllowed()
-            UDmain.Log("GetWornDevice("+GetActorName(akActor)+")(UDP) - actor have no keyword equipped= " + kw)
-        endif
+        UDmain.Warning("GetWornDevice("+GetActorName(akActor)+") - actor have no keyword equipped= " + kw)
         return none
     endif
     if UDmain.TraceAllowed()
-        UDmain.Log("GetWornDevice("+GetActorName(akActor)+","+kw+")(UDP)",3)
+        UDmain.Log("GetWornDevice("+GetActorName(akActor)+","+kw+")",3)
     endif
-    if UDCDmain.UDCD_NPCM.isRegistered(akActor)
-        UD_CustomDevice_NPCSlot slot = UDCDmain.UDCD_NPCM.getNPCSlotByActor(akActor)
+    if UDmain.UDNPCM.isRegistered(akActor)
+        UD_CustomDevice_NPCSlot slot = UDmain.UDNPCM.getNPCSlotByActor(akActor)
         if slot.deviceAlreadyRegisteredKw(kw,UDmain.UD_CheckAllKw)
-            return slot.getFirstDeviceByKeyword(kw).deviceInventory
+            UD_CustomDevice_RenderScript loc_device = slot.getFirstDeviceByKeyword(kw)
+            if loc_device
+                Armor loc_id = loc_device.deviceInventory
+                return loc_id
+            endif
         endif
     endif
     
@@ -697,8 +699,8 @@ int Function VibrateEffect(actor akActor, int vibStrength, int duration, bool te
         UDmain.Log("VibrateEffect(): " + akActor + ", " + vibStrength + ", " + duration)
     endif
     ;prevent too short vibs. Can cause issue with orgasm system
-    if duration >= 0 && duration < 5
-        duration = 5
+    if duration >= 0 && duration < 10
+        duration = 10
     endif
     
     if akActor.WornHasKeyword(UDlibs.UnforgivingDevice) && UDCDmain.isRegistered(akActor)

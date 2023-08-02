@@ -193,6 +193,7 @@ Bool Function StartSoloAnimationSequence(Actor akActor, String[] aasAnimation, B
         EndIf
         LockAnimatingActor(akActor, abDisableActor)
     EndIf
+
     ; in case it called just after paired animation (for example, during orgasm ending)
     akActor.SetVehicle(None)
 
@@ -1435,6 +1436,12 @@ EndFunction
 
 ; abDismount should not be used with group animations since they are using "mount"
 Function _Apply3rdPersonCamera(Bool abDismount = True)
+    if UDmain.ImprovedCameraInstalled
+        Game.ForceThirdPerson()
+        Game.DisablePlayerControls(false, false, true, false, false, false, false)
+        return
+    endif
+
     ; taken from zadLibs.psc
     int cameraOld = Game.GetCameraState()
     if cameraOld == 3 ;free camera, don't do anything, else the cameara can get broekn

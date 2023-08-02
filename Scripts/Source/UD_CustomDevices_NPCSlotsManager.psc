@@ -68,6 +68,7 @@ EndFunction
 
 Function ResetStaticSlots()
     _StaticSlots = Utility.CreateFormArray(0)
+    _slotregisterque = 0
 EndFunction
 
 Function RegisterStaticEvents()
@@ -82,8 +83,8 @@ Function ReregisterStaticSlots()
     if (handle)
         ModEvent.Send(handle)
     endif
-    Utility.waitMenuMode(0.5) ;wait some time for all slots to be installed
-    while _slotregisterque
+    Utility.waitMenuMode(0.25) ;wait some time so event is sent and received
+    while _slotregisterque > 0
         Utility.waitMenuMode(0.1)
     endwhile
 EndFunction

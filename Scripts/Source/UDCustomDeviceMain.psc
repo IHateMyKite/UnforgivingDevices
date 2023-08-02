@@ -230,8 +230,6 @@ Function Update()
     ResetUI()
     registerAllEvents()
     
-    UDPP.RegisterEvents()
-    
     CheckHardcoreDisabler(UDmain.Player)
     
     SetArousalPerks()
@@ -448,9 +446,6 @@ EndFunction
         aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
 /;
 Function DisableActor(Actor akActor,int aiIsPlayer = -1)
-    if UDmain.TraceAllowed()    
-        UDmain.Log("DisableActor("+getActorName(akActor) + ")",2)
-    endif
     StartMinigameDisable(akActor,aiIsPlayer)
 EndFunction
 
@@ -464,9 +459,6 @@ EndFunction
         aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
 /;
 Function UpdateDisabledActor(Actor akActor,int aiIsPlayer = -1)
-    if UDmain.TraceAllowed()    
-        UDmain.Log("UpdateDisabledActor("+getActorName(akActor) + ")",2)
-    endif
     UpdateMinigameDisable(akActor,aiIsPlayer)
 EndFunction
 
@@ -480,9 +472,6 @@ EndFunction
         aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
 /;
 Function EnableActor(Actor akActor,int aiIsPlayer = -1)
-    if UDmain.TraceAllowed()    
-        UDmain.Log("EnableActor("+getActorName(akActor)+")",2)
-    endif
     EndMinigameDisable(akActor,aiIsPlayer)
 EndFunction
 
@@ -496,6 +485,9 @@ EndFunction
         aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
 /;
 Function StartMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
+    if UDmain.TraceAllowed()
+        UDmain.Log("StartMinigameDisable("+getActorName(akActor) + ")",2)
+    endif
     akActor.AddToFaction(BussyFaction)
     if aiIsPlayer == 1 || UDmain.ActorIsPlayer(akActor)
         UpdatePlayerControl()
@@ -518,6 +510,9 @@ EndFunction
         aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
 /;
 Function UpdateMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
+    if UDmain.TraceAllowed()    
+        UDmain.Log("UpdateMinigameDisable("+getActorName(akActor)+")",2)
+    endif
     if akActor.IsInFaction(BussyFaction)
         if aiIsPlayer == 1 || UDmain.ActorIsPlayer(akActor)
             UpdatePlayerControl()
@@ -539,6 +534,9 @@ EndFunction
         aiIsPlayer  - If actor is player. Is optional and inteded to fasten up the function as there will be not need to check if actor is player if this value 1
 /;
 Function EndMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
+    if UDmain.TraceAllowed()    
+        UDmain.Log("EndMinigameDisable("+getActorName(akActor)+")",2)
+    endif
     akActor.RemoveFromFaction(BussyFaction)
     if aiIsPlayer == 1 || UDmain.ActorIsPlayer(akActor)
         libsp.ProcessPlayerControls(false)
@@ -565,9 +563,9 @@ Bool Function IsBussy(Actor akActor)
 EndFunction
 
 Function UpdatePlayerControl()
-    Game.EnablePlayerControls(abMovement = true, abFighting = false, abSneaking = false, abMenu = False, abActivate = false)
+    Game.EnablePlayerControls(abMovement = !UDmain.ImprovedCameraInstalled, abFighting = false, abCamSwitch = !UDmain.ImprovedCameraInstalled, abSneaking = false, abMenu = False, abActivate = false)
     Utility.waitMenuMode(0.05)
-    Game.DisablePlayerControls(abMovement = False, abMenu = True)
+    Game.DisablePlayerControls(abMovement = False, abCamSwitch = UDmain.ImprovedCameraInstalled, abMenu = True)
 EndFunction
 
 Function CheckHardcoreDisabler(Actor akActor)
@@ -1884,16 +1882,16 @@ Function showActorDetails(Actor akActor)
                     loc_res += "Magicka skill: " + Round(loc_slot.MagickSkill) + "\n"
                     loc_res += "Cutting skill: " + Round(loc_slot.CuttingSkill) + "\n"
                 else
-                    loc_res += "Agility skill: " + Round(getAgilitySkill(akActor)) + "\n"
-                    loc_res += "Strength skill: " + Round(getStrengthSkill(akActor)) + "\n"
-                    loc_res += "Magicka skill: " + Round(getMagickSkill(akActor)) + "\n"
-                    loc_res += "Cutting skill: " + Round(getCuttingSkill(akActor)) + "\n"
+                    loc_res += "Agility skill: " + Round(UDmain.UDSKILL.getAgilitySkill(akActor)) + "\n"
+                    loc_res += "Strength skill: " + Round(UDmain.UDSKILL.getStrengthSkill(akActor)) + "\n"
+                    loc_res += "Magicka skill: " + Round(UDmain.UDSKILL.getMagickSkill(akActor)) + "\n"
+                    loc_res += "Cutting skill: " + Round(UDmain.UDSKILL.getCuttingSkill(akActor)) + "\n"
                 endif
             else
-                loc_res += "Agility skill: " + Round(getAgilitySkill(akActor)) + "\n"
-                loc_res += "Strength skill: " + Round(getStrengthSkill(akActor)) + "\n"
-                loc_res += "Magicka skill: " + Round(getMagickSkill(akActor)) + "\n"
-                loc_res += "Cutting skill: " + Round(getCuttingSkill(akActor)) + "\n"
+                loc_res += "Agility skill: " + Round(UDmain.UDSKILL.getAgilitySkill(akActor)) + "\n"
+                loc_res += "Strength skill: " + Round(UDmain.UDSKILL.getStrengthSkill(akActor)) + "\n"
+                loc_res += "Magicka skill: " + Round(UDmain.UDSKILL.getMagickSkill(akActor)) + "\n"
+                loc_res += "Cutting skill: " + Round(UDmain.UDSKILL.getCuttingSkill(akActor)) + "\n"
             endif
             UDmain.ShowMessageBox(loc_res)
         elseif loc_option == 2 ;arousal/orgasm details
@@ -1970,226 +1968,6 @@ EndFunction
 ;-Used to return absolute and relative skill values which are used by some minigames
 
 Int Property UD_SkillEfficiency = 1 auto ;% increase per one skill point
-
-;/  Function: GetAgilitySkill
-
-    Parameters:
-
-        akActor         - Actor to check
-        
-    Returns:
-
-        Actors agility skill
-/;
-float Function GetAgilitySkill(Actor akActor)
-    UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(akActor)
-    if loc_slot
-        return loc_slot.AgilitySkill
-    else
-        return getActorAgilitySkills(akActor)
-    endif
-EndFunction
-
-float Function getActorAgilitySkills(Actor akActor)
-    float loc_result = 0.0
-    loc_result += akActor.GetActorValue("Pickpocket")
-    loc_result += GetPerkSkill(akActor,UD_AgilityPerks,10)
-    return loc_result
-EndFunction
-
-;/  Function: getActorAgilitySkillsPerc
-
-    Parameters:
-
-        akActor         - Actor to check
-        
-    Returns:
-
-        Actors agility skill as modifier value. Depends on MCM setting and amount of skill
-/;
-float Function getActorAgilitySkillsPerc(Actor akActor)
-    return GetAgilitySkill(akActor)*UD_SkillEfficiency/100.0
-EndFunction
-
-;/  Function: GetStrengthSkill
-
-    Parameters:
-
-        akActor         - Actor to check
-        
-    Returns:
-
-        Actors strength skill
-/;
-float Function GetStrengthSkill(Actor akActor)
-    UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(akActor)
-    if loc_slot
-        return loc_slot.StrengthSkill
-    else
-        return getActorStrengthSkills(akActor)
-    endif
-EndFunction
-
-float Function getActorStrengthSkills(Actor akActor)
-    float loc_result = 0.0
-    loc_result += akActor.GetActorValue("TwoHanded")
-    loc_result += GetPerkSkill(akActor,UD_StrengthPerks,10)
-    return loc_result
-EndFunction
-
-;/  Function: getActorStrengthSkillsPerc
-
-    Parameters:
-
-        akActor         - Actor to check
-        
-    Returns:
-
-        Actors strength skill as modifier value. Depends on MCM setting and amount of skill
-/;
-float Function getActorStrengthSkillsPerc(Actor akActor)
-    return GetStrengthSkill(akActor)*UD_SkillEfficiency/100.0
-EndFunction
-
-;/  Function: GetMagickSkill
-
-    Parameters:
-
-        akActor         - Actor to check
-        
-    Returns:
-
-        Actors magick skill
-/;
-float Function GetMagickSkill(Actor akActor)
-    UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(akActor)
-    if loc_slot
-        return loc_slot.MagickSkill
-    else
-        return getActorMagickSkills(akActor)
-    endif
-EndFunction
-
-float Function getActorMagickSkills(Actor akActor)
-    float loc_result = 0.0
-    loc_result += akActor.GetActorValue("Destruction")
-    loc_result += GetPerkSkill(akActor,UD_MagickPerks,10)
-    return loc_result
-EndFunction
-
-;/  Function: getActorMagickSkillsPerc
-
-    Parameters:
-
-        akActor         - Actor to check
-        
-    Returns:
-
-        Actors magick skill as modifier value. Depends on MCM setting and amount of skill
-/;
-float Function getActorMagickSkillsPerc(Actor akActor)
-    return GetMagickSkill(akActor)*UD_SkillEfficiency/100.0
-EndFunction
-
-;/  Function: GetCuttingSkill
-
-    Parameters:
-
-        akActor         - Actor to check
-        
-    Returns:
-
-        Actors cutting skill
-/;
-float Function GetCuttingSkill(Actor akActor)
-    UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(akActor)
-    if loc_slot
-        return loc_slot.CuttingSkill
-    else
-        return getActorCuttingSkills(akActor)
-    endif
-EndFunction
-
-float Function getActorCuttingSkills(Actor akActor)
-    float loc_result = 0.0
-    loc_result += akActor.GetActorValue("OneHanded")
-    return loc_result
-EndFunction
-
-;/  Function: getActorCuttingSkillsPerc
-
-    Parameters:
-
-        akActor         - Actor to check
-        
-    Returns:
-
-        Actors cutting skill as modifier value. Depends on MCM setting and amount of skill
-/;
-float Function getActorCuttingSkillsPerc(Actor akActor)
-    return GetCuttingSkill(akActor)*UD_SkillEfficiency/100.0
-EndFunction
-
-;/  Function: GetCuttingSkill
-
-    Parameters:
-
-        akActor         - Actor to check
-        
-    Returns:
-
-        Actors smithing skill
-/;
-float Function GetSmithingSkill(Actor akActor)
-    UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(akActor)
-    if loc_slot
-        return loc_slot.SmithingSkill
-    else
-        return getActorSmithingSkills(akActor)
-    endif
-EndFunction
-
-float Function getActorSmithingSkills(Actor akActor)
-    float loc_result = 0.0
-    loc_result += akActor.GetActorValue("Smithing")
-    
-    return loc_result
-EndFunction
-
-;/  Function: getActorSmithingSkillsPerc
-
-    Parameters:
-
-        akActor         - Actor to check
-        
-    Returns:
-
-        Actors smithing skill as modifier value. Depends on MCM setting and amount of skill
-/;
-float Function getActorSmithingSkillsPerc(Actor akActor)
-    return GetSmithingSkill(akActor)*UD_SkillEfficiency/100.0
-EndFunction
-
-int Function GetPerkSkill(Actor akActor, Formlist akPerkList, int aiSkillPerPerk = 10)
-    if !akActor
-        UDmain.Error("GetPerkSkill - actor is none")
-        return 0
-    endif
-    if !akPerkList
-        UDmain.Error("GetPerkSkill("+getActorName(akActor)+") - akPerkList is none")
-        return 0
-    endif
-    int loc_size = akPerkList.getSize()
-    int loc_res = 0
-    while loc_size
-        loc_size -= 1
-        Perk loc_perk = akPerkList.GetAt(loc_size) as Perk
-        if akActor.hasperk(loc_perk)
-            loc_res += aiSkillPerPerk
-        endif
-    endwhile
-    return loc_res
-EndFunction
 
 ;/  Function: getActorCuttingWeaponMultiplier
 

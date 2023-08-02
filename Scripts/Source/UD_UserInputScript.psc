@@ -28,14 +28,14 @@ bool _gamepadButtonOn = false
 
 Event keyUnregister(string eventName = "none", string strArg = "", float numArg = 0.0, Form sender = none)
     if UDmain.TraceAllowed()    
-        UDmain.Log("UDCustomHeavyBondageMain OnKeyUnregister called",1)
+        UDmain.Log("UD_UserInputScript::keyUnregister called",1)
     endif
     UnregisterForAllKeys()
 EndEvent
 
 Event MinigameKeysRegister()
     if UDmain.TraceAllowed()    
-        UDmain.Log("UDCustomDevicemain MinigameKeysRegister called",1)
+        UDmain.Log("UD_UserInputScript::MinigameKeysRegister called",1)
     endif
     RegisterForKey(UDCDMain.Stamina_meter_Keycode)
     RegisterForKey(UDCDMain.SpecialKey_Keycode)
@@ -45,7 +45,7 @@ EndEvent
 
 Event MinigameKeysUnregister()
     if UDmain.TraceAllowed()    
-        UDmain.Log("UDCustomDevicemain MinigameKeysUnregister called",1)
+        UDmain.Log("UD_UserInputScript::MinigameKeysUnregister called",1)
     endif
     if !KeyIsUsedGlobaly(UDCDMain.Stamina_meter_Keycode)
         UnregisterForKey(UDCDMain.Stamina_meter_Keycode)
@@ -62,7 +62,7 @@ EndEvent
 
 Function RegisterGlobalKeys()
     if UDmain.TraceAllowed()    
-        UDmain.Log("RegisterGlobalKeys")
+        UDmain.Log("UD_UserInputScript::RegisterGlobalKeys")
     endif
     RegisterForKey(UDCDMain.StruggleKey_Keycode)
     RegisterForKey(UDCDMain.PlayerMenu_KeyCode)
@@ -73,7 +73,7 @@ EndFunction
 
 Function UnregisterGlobalKeys()
     if UDmain.TraceAllowed()    
-        UDmain.Log("UnregisterGlobalKeys")
+        UDmain.Log("UD_UserInputScript::UnregisterGlobalKeys")
     endif
     UnRegisterForKey(UDCDMain.StruggleKey_Keycode)
     UnRegisterForKey(UDCDMain.PlayerMenu_KeyCode)

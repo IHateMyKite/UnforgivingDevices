@@ -350,7 +350,8 @@ bool Property ZadExpressionSystemInstalled = false auto hidden
 Bool Property DeviousStrikeInstalled    = False auto hidden
 Bool Property ForHimInstalled           = False auto hidden
 Bool Property PO3Installed              = False auto hidden ;https://www.nexusmods.com/skyrimspecialedition/mods/22854
-Bool Property AllowMenBondage           = True auto hidden
+Bool Property ImprovedCameraInstalled   = False auto hidden
+Bool Property AllowMenBondage           = True  auto hidden
 
 bool Property Ready = False auto hidden
 
@@ -582,7 +583,16 @@ Function _ResetUpdateCounter()
 EndFunction
 Function _IncrementUpdateCounter()
     _updatecounter += 1
-    Info("Update progress: " + (Round(100.0*_updatecounter/19)) + " %%")
+    Info("Update progress: " + GetUpdateProgress() + " %%")
+EndFunction
+
+;/  Function: GetUpdateProgress
+    
+    Returns:
+        Current update progress of the mod. It is whole number from 0 to 100, where mod is full ready on 100
+/;
+int Function GetUpdateProgress()
+    return (Round(100.0*_updatecounter/19))
 EndFunction
 
 Function OnGameReload()
@@ -631,8 +641,8 @@ Function OnGameReload()
         _IncrementUpdateCounter()
         
         if !CheckSubModules() || _FatalError
-            ENABLE()
             _Updating = False
+            ENABLE()
             Info("<=====| !!Unforgiving Devices FAILED!! |=====>")
             Print("Unforgiving Devices update FAILED")
             Info(self + "::OnGameReload() - CheckSubmodules() = " + CheckSubModules() + ";_FatalError = " + _FatalError)
@@ -950,6 +960,12 @@ Function _CheckOptionalMods()
         PO3Installed = True
     else
         PO3Installed = False
+    endif
+    
+    if SKSE.GetPluginVersion("ImprovedCameraSE.dll") != 1
+        ImprovedCameraInstalled = true
+    else
+        ImprovedCameraInstalled = false
     endif
     
 EndFUnction

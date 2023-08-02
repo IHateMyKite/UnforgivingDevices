@@ -285,6 +285,7 @@ Event OnPageReset(string page)
         AddTextOption("MCM ready",Ready)
         AddTextOption("Mod updating",UDmain.IsUpdating())
         AddTextOption("Mod disabled",UDmain._Disabled)
+        AddTextOption("Update progress",UDmain.GetUpdateProgress())
         return
     endif
     
@@ -1339,6 +1340,8 @@ Function resetOtherPage()
     AddTextOption("powerofthree's Papyrus Extender",InstallSwitch(UDmain.PO3Installed),FlagSwitch(UDmain.PO3Installed))
     addEmptyOption()
 
+    AddTextOption("Improved Camera",InstallSwitch(UDmain.ImprovedCameraInstalled),FlagSwitch(UDmain.ImprovedCameraInstalled))
+    addEmptyOption()
 EndFunction
 
 String Function InstallSwitch(Bool abSwitch)

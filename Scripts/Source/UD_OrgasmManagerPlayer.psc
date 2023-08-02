@@ -266,7 +266,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
         
         if loc_cycleON
             if loc_useNative
-                loc_cycleON = UD_Native.MinigameStatsCheck(akActor)
+                loc_cycleON = UD_Native.MinigameStatsCheck(akActor,true,false,false)
             else
                 if akActor.getAV("Stamina") <= 0
                     loc_cycleON = false

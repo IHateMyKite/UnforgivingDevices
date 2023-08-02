@@ -119,6 +119,10 @@ EndFunction
 
 Event OnMenuOpen(String MenuName)
     if UDmain.UDReady()
+        if UDmain.TraceAllowed()
+            UDmain.Log("OnMenuOpenPre - " + MenuName + ", bit="+ UD_MenuListIDBit,3)
+        endif
+        
         if MenuName != "Console" && MenuName != "MessageBoxMenu" ;these can be opened over other menus, check them out
             UD_LastMenuOpened = MenuName
             UD_MenuOpened = true
@@ -134,6 +138,9 @@ Event OnMenuOpen(String MenuName)
                 _StartBitMutex()
                 UD_MenuListIDBit = Math.LogicalOr(UD_MenuListIDBit,Math.LeftShift(0x1,loc_i))
                 _EndBitMutex()
+                if UDmain.TraceAllowed()
+                    UDmain.Log("OnMenuOpenPost - " + MenuName + ", bit="+ UD_MenuListIDBit,3)
+                endif
                 return
             endif
             loc_i += 1
@@ -142,27 +149,38 @@ Event OnMenuOpen(String MenuName)
 EndEvent
 
 Event OnMenuClose(String MenuName)
-    if MenuName != "Console" && MenuName != "MessageBoxMenu" ;these can be opened over other menus, check them out
-        UD_MenuOpened = false
-        if UD_LastMenuOpened == MenuName
+    if UDmain.UDReady()
+        if UDmain.TraceAllowed()
+            UDmain.Log("OnMenuClosePre - " + MenuName + ", bit="+ UD_MenuListIDBit,3)
+        endif
+        
+        Utility.waitMenuMode(0.1) ;wait small time so it cant happen that the close event will be sent before open event is processed
+        
+        if MenuName != "Console" && MenuName != "MessageBoxMenu" ;these can be opened over other menus, check them out
+            UD_MenuOpened = false
+            if UD_LastMenuOpened == MenuName
+                UD_LastMenuOpened = "none"
+            endif
+        elseif UD_LastMenuOpened == "Console" || UD_LastMenuOpened == "MessageBoxMenu" ;only reset state if no other menu was used before
+            UD_MenuOpened = false
             UD_LastMenuOpened = "none"
         endif
-    elseif UD_LastMenuOpened == "Console" || UD_LastMenuOpened == "MessageBoxMenu" ;only reset state if no other menu was used before
-        UD_MenuOpened = false
-        UD_LastMenuOpened = "none"
+        
+        Int loc_i = 0
+        while loc_i < UD_MenuList.length
+            if UD_MenuList[loc_i] == MenuName
+                UD_MenuListID[loc_i] = false
+                _StartBitMutex()
+                UD_MenuListIDBit = Math.LogicalAnd(UD_MenuListIDBit,Math.LogicalNot(Math.LeftShift(0x1,loc_i)))
+                _EndBitMutex()
+                if UDmain.TraceAllowed()
+                    UDmain.Log("OnMenuClosePost - " + MenuName + ", bit="+ UD_MenuListIDBit,3)
+                endif
+                return
+            endif
+            loc_i += 1
+        endwhile
     endif
-    
-    Int loc_i = 0
-    while loc_i < UD_MenuList.length
-        if UD_MenuList[loc_i] == MenuName
-            UD_MenuListID[loc_i] = false
-            _StartBitMutex()
-            UD_MenuListIDBit = Math.LogicalAnd(UD_MenuListIDBit,Math.LogicalNot(Math.LeftShift(0x1,loc_i)))
-            _EndBitMutex()
-            return
-        endif
-        loc_i += 1
-    endwhile
 EndEvent
 
 bool _BitMutex = False

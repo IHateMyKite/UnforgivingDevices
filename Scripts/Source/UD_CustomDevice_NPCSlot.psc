@@ -1088,9 +1088,12 @@ Function showDebugMenu(int slot_id)
             elseif res == 1 ;repair dur
                 UD_equipedCustomDevices[slot_id].decreaseDurabilityAndCheckUnlock(-10.0)
             elseif res == 2 ;repatch
-                UD_equipedCustomDevices[slot_id].patchDevice()
-                ;UDCDmain.UDPatcher.safecheckAnimations(UD_equipedCustomDevices[slot_id],True)
-                ;UD_equipedCustomDevices[slot_id].safeCheckAnimations()
+                if UD_equipedCustomDevices[slot_id].deviceRendered.hasKeyword(UDmain.UDlibs.PatchedDevice) ;patched device
+                    
+                    UD_equipedCustomDevices[slot_id].patchDevice()
+                else
+                    UDmain.Print("Cant repatch device as device is not patched")
+                endif
                 return
             elseif res == 3 ;unlock
                 UD_equipedCustomDevices[slot_id].unlockRestrain()
