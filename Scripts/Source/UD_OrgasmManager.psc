@@ -11,17 +11,25 @@ zadlibs                                 Property libs       auto
 UD_ExpressionManager                    Property UDEM       auto
 UD_CustomDevices_NPCSlotsManager        Property UDCD_NPCM  auto
 
+UD_Config _udconf
 UD_Config Property UDCONF hidden
     UD_Config Function Get()
-        return UDmain.UDCONF
+        if !_udconf
+            _udconf = UDmain.UDCONF
+        endif
+        return _udconf
     EndFunction
 EndProperty
 
-zadlibs_UDPatch Property libsp
-    zadlibs_UDPatch function Get()
-        return UDCDmain.libsp
-    endfunction
-endproperty
+zadlibs_UDPatch _libsp
+zadlibs_UDPatch Property libsp hidden
+    zadlibs_UDPatch Function get()
+        if !_libsp
+            _libsp = UDmain.libsp
+        endif
+        return _libsp
+    EndFunction
+EndProperty
 
 ;/  Variable: OrgasmFaction
     Faction to which will ba actor added for duration of orgasm

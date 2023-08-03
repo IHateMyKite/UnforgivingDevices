@@ -4,41 +4,64 @@ import UnforgivingDevicesMain
 import UD_NPCInteligence
 
 UDCustomDeviceMain Property UDCDmain auto
-UnforgivingDevicesMain Property UDmain 
+
+UnforgivingDevicesMain _udmain
+UnforgivingDevicesMain Property UDmain
     UnforgivingDevicesMain Function get()
-        return UDCDmain.UDmain
-    EndFunction    
+        if !_udmain
+            _udmain = UnforgivingDevicesMain.GetUDmain()
+        endif
+        return _udmain
+    EndFunction
 EndProperty
+
 UD_CustomDevices_NPCSlotsmanager Property UDNPCM hidden
     UD_CustomDevices_NPCSlotsmanager Function get()
         return GetOwningQuest() as UD_CustomDevices_NPCSlotsmanager
     EndFunction
 EndProperty
+
+zadlibs_UDPatch _libs
 zadlibs_UDPatch Property libs hidden
     zadlibs_UDPatch Function get()
-        return UDmain.libsp
+        if !_libs
+            _libs = UDmain.libsp
+        endif
+        return _libs
     EndFunction
 EndProperty
 
+UD_OrgasmManager _udom
 UD_OrgasmManager Property UDOM Hidden
     UD_OrgasmManager Function get()
-        if IsPlayer()
-            return UDmain.UDOMPlayer
-        else
-            return UDmain.UDOMNPC
+        if !_udom
+            if IsPlayer()
+                _udom = UDmain.UDOMPlayer
+            else
+                _udom = UDmain.UDOMNPC
+            endif
         endif
+        return _udom
     EndFunction
 EndProperty
 
+UD_ExpressionManager _udem
 UD_ExpressionManager Property UDEM Hidden
     UD_ExpressionManager Function get()
-        return UDmain.UDEM
+        if !_udem
+            _udem = UDmain.UDEM
+        endif
+        return _udem
     EndFunction
 EndProperty
 
+UD_Config _udconf
 UD_Config Property UDCONF hidden
     UD_Config Function Get()
-        return UDmain.UDCONF
+        if !_udconf
+            _udconf = UDmain.UDCONF
+        endif
+        return _udconf
     EndFunction
 EndProperty
 
@@ -1727,31 +1750,30 @@ Function regainDevices()
     _regainMutex = False
 EndFunction
 
-
 Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer)
-    if !UDmain.UD_UseNativeFunctions
-        if akBaseItem as Weapon
+    if akBaseItem as Weapon
+        if !UDmain.UD_UseNativeFunctions
             Weapon loc_weapon = akBaseItem as Weapon
             if UDCDmain.isSharp(loc_weapon)
                 if !_BestWeapon || (_BestWeapon.getBaseDamage() < loc_weapon.GetBaseDamage())
                     _BestWeapon = loc_weapon
                 endif
             endif
-        endIf
-    endif
+        endif
+    endIf
 endEvent
 
 Event OnItemRemoved(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer)
-    if !UDmain.UD_UseNativeFunctions
-        if akBaseItem as Weapon
+    if akBaseItem as Weapon
+        if !UDmain.UD_UseNativeFunctions
             Weapon loc_weapon = akBaseItem as Weapon
             if (loc_weapon == _BestWeapon) && _BestWeapon
                 if getActor().getItemCount(loc_weapon) == 0
                     _BestWeapon = GetBestWeapon() ;find the next best weapon
                 endif
             endif
-        endIf
-    endif
+        endif
+    endIf
 endEvent
 
 Weapon Function GetBestWeapon()
