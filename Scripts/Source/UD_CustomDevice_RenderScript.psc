@@ -2254,6 +2254,8 @@ Bool Function EvaluateNPCAI()
     Float   loc_durabilityBefore    = current_device_health
     Int     loc_LocksBefore         = UD_CurrentLocks
 
+    SetHelper(none)
+
     updateDifficulty()
 
     ;50% chance to first check locks, then struggle
@@ -3517,25 +3519,29 @@ Bool[] Function CreateControlArrayTrue() Global
 EndFunction
 
 
-Function _filterControl(bool[] aControlFilter)
-    UDCDmain.currentDeviceMenu_allowstruggling          = UDCDmain.currentDeviceMenu_allowstruggling        &&  !aControlFilter[00]
-    UDCDmain.currentDeviceMenu_allowUselessStruggling   = UDCDmain.currentDeviceMenu_allowUselessStruggling &&  !aControlFilter[01]
-    UDCDmain.currentDeviceMenu_allowcutting             = UDCDmain.currentDeviceMenu_allowcutting           &&  !aControlFilter[02]
-    UDCDmain.currentDeviceMenu_allowkey                 = UDCDmain.currentDeviceMenu_allowkey               &&  !aControlFilter[03]
-    UDCDmain.currentDeviceMenu_allowlockpick            = UDCDmain.currentDeviceMenu_allowlockpick          &&  !aControlFilter[04]
-    UDCDmain.currentDeviceMenu_allowlockrepair          = UDCDmain.currentDeviceMenu_allowlockrepair        &&  !aControlFilter[05]
-    UDCDmain.currentDeviceMenu_allowTighten             = UDCDmain.currentDeviceMenu_allowTighten           &&  !aControlFilter[06]
-    UDCDmain.currentDeviceMenu_allowRepair              = UDCDmain.currentDeviceMenu_allowRepair            &&  !aControlFilter[07]
-    UDCDmain.currentDeviceMenu_switch1                  = UDCDmain.currentDeviceMenu_switch1                &&  !aControlFilter[08]
-    UDCDmain.currentDeviceMenu_switch2                  = UDCDmain.currentDeviceMenu_switch2                &&  !aControlFilter[09]
-    UDCDmain.currentDeviceMenu_switch3                  = UDCDmain.currentDeviceMenu_switch3                &&  !aControlFilter[10]
-    UDCDmain.currentDeviceMenu_switch4                  = UDCDmain.currentDeviceMenu_switch4                &&  !aControlFilter[11]
-    UDCDmain.currentDeviceMenu_switch5                  = UDCDmain.currentDeviceMenu_switch5                &&  !aControlFilter[12]
-    UDCDmain.currentDeviceMenu_switch6                  = UDCDmain.currentDeviceMenu_switch6                &&  !aControlFilter[13]
-    UDCDmain.currentDeviceMenu_allowCommand             = UDCDmain.currentDeviceMenu_allowCommand           &&  !aControlFilter[14]
-    UDCDmain.currentDeviceMenu_allowDetails             = UDCDmain.currentDeviceMenu_allowDetails           &&  !aControlFilter[15]
-    UDCDmain.currentDeviceMenu_allowSpecialMenu         = UDCDmain.currentDeviceMenu_allowSpecialMenu       &&  !aControlFilter[16]
-    UDCDmain.currentDeviceMenu_allowLockMenu            = UDCDmain.currentDeviceMenu_allowLockMenu          &&  !aControlFilter[17]
+Function _filterControl(bool[] aControlFilter, Bool abReadOnly = False)
+    if (!abReadOnly)
+        UDCDmain.currentDeviceMenu_allowstruggling          = UDCDmain.currentDeviceMenu_allowstruggling        &&  !aControlFilter[00]
+        UDCDmain.currentDeviceMenu_allowUselessStruggling   = UDCDmain.currentDeviceMenu_allowUselessStruggling &&  !aControlFilter[01]
+        UDCDmain.currentDeviceMenu_allowcutting             = UDCDmain.currentDeviceMenu_allowcutting           &&  !aControlFilter[02]
+        UDCDmain.currentDeviceMenu_allowkey                 = UDCDmain.currentDeviceMenu_allowkey               &&  !aControlFilter[03]
+        UDCDmain.currentDeviceMenu_allowlockpick            = UDCDmain.currentDeviceMenu_allowlockpick          &&  !aControlFilter[04]
+        UDCDmain.currentDeviceMenu_allowlockrepair          = UDCDmain.currentDeviceMenu_allowlockrepair        &&  !aControlFilter[05]
+        UDCDmain.currentDeviceMenu_allowTighten             = UDCDmain.currentDeviceMenu_allowTighten           &&  !aControlFilter[06]
+        UDCDmain.currentDeviceMenu_allowRepair              = UDCDmain.currentDeviceMenu_allowRepair            &&  !aControlFilter[07]
+        UDCDmain.currentDeviceMenu_switch1                  = UDCDmain.currentDeviceMenu_switch1                &&  !aControlFilter[08]
+        UDCDmain.currentDeviceMenu_switch2                  = UDCDmain.currentDeviceMenu_switch2                &&  !aControlFilter[09]
+        UDCDmain.currentDeviceMenu_switch3                  = UDCDmain.currentDeviceMenu_switch3                &&  !aControlFilter[10]
+        UDCDmain.currentDeviceMenu_switch4                  = UDCDmain.currentDeviceMenu_switch4                &&  !aControlFilter[11]
+        UDCDmain.currentDeviceMenu_switch5                  = UDCDmain.currentDeviceMenu_switch5                &&  !aControlFilter[12]
+        UDCDmain.currentDeviceMenu_switch6                  = UDCDmain.currentDeviceMenu_switch6                &&  !aControlFilter[13]
+        UDCDmain.currentDeviceMenu_allowCommand             = UDCDmain.currentDeviceMenu_allowCommand           &&  !aControlFilter[14]
+        UDCDmain.currentDeviceMenu_allowDetails             = UDCDmain.currentDeviceMenu_allowDetails           &&  !aControlFilter[15]
+        UDCDmain.currentDeviceMenu_allowSpecialMenu         = UDCDmain.currentDeviceMenu_allowSpecialMenu       &&  !aControlFilter[16]
+        UDCDmain.currentDeviceMenu_allowLockMenu            = UDCDmain.currentDeviceMenu_allowLockMenu          &&  !aControlFilter[17]
+    else
+        UDCDmain.currentDeviceMenu_allowDetails             = UDCDmain.currentDeviceMenu_allowDetails           &&  !aControlFilter[15]
+    endif
 EndFunction
 
 Function _deviceMenuInit(bool[] aaControl)
@@ -3613,11 +3619,12 @@ Function DeviceMenu(bool[] aaControl)
     if UDmain.TraceAllowed()
         UDmain.Log(getDeviceHeader()+" DeviceMenu() called , aaControl = "+aaControl,2)
     endif
-        
+    
     GoToState("UpdatePaused")
     
     bool _break = False
     while !_break
+        setHelper(none)
         _deviceMenuInit(aaControl)
         Int msgChoice = UD_MessageDeviceInteraction.Show()
         StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
@@ -3667,63 +3674,66 @@ EndFunction
 Function _deviceMenuInitWH(Actor akSource,bool[] aaControl)
     ;updates difficulty
     setHelper(akSource)
-    updateDifficulty()
+    
     UDCDmain.resetCondVar()
     
-    bool    loc_freehands_wearer     = WearerFreeHands(true,False)
-    bool    loc_freehands_helper     = HelperFreeHands(true)
-    float   loc_accesibility         = getAccesibility()
-    ;int     loc_lockacces            = getLockAccesChance()
-    
-    ;help struggle
-    if canBeStruggled(loc_accesibility)
-        UDCDmain.currentDeviceMenu_allowstruggling = True
-    endif
-
-    if HaveAccesibleLock()
-        Int loc_lockMinigame = LockMinigameAllowed(loc_accesibility)
-        ;key unlock
-        if Math.LogicalAnd(loc_lockMinigame,0x2)
-            UDCDmain.currentDeviceMenu_allowkey = True
-        endif
+    if (akSource)
+        updateDifficulty()
+        bool    loc_freehands_wearer     = WearerFreeHands(true,False)
+        bool    loc_freehands_helper     = HelperFreeHands(true)
+        float   loc_accesibility         = getAccesibility()
+        ;int     loc_lockacces            = getLockAccesChance()
         
-        ;lockpicking
-        if Math.LogicalAnd(loc_lockMinigame,0x1)
-            if (wearer.getItemCount(UDCDmain.Lockpick) || akSource.getItemCount(UDCDmain.Lockpick))
-                UDCDmain.currentDeviceMenu_allowlockpick = True
+        ;help struggle
+        if canBeStruggled(loc_accesibility)
+            UDCDmain.currentDeviceMenu_allowstruggling = True
+        endif
+
+        if HaveAccesibleLock()
+            Int loc_lockMinigame = LockMinigameAllowed(loc_accesibility)
+            ;key unlock
+            if Math.LogicalAnd(loc_lockMinigame,0x2)
+                UDCDmain.currentDeviceMenu_allowkey = True
+            endif
+            
+            ;lockpicking
+            if Math.LogicalAnd(loc_lockMinigame,0x1)
+                if (wearer.getItemCount(UDCDmain.Lockpick) || akSource.getItemCount(UDCDmain.Lockpick))
+                    UDCDmain.currentDeviceMenu_allowlockpick = True
+                endif
+            endif
+
+            ;lock repair
+            if Math.LogicalAnd(loc_lockMinigame,0x4)
+                UDCDmain.currentDeviceMenu_allowlockrepair = True
             endif
         endif
-
-        ;lock repair
-        if Math.LogicalAnd(loc_lockMinigame,0x4)
-            UDCDmain.currentDeviceMenu_allowlockrepair = True
-        endif
-    endif
-    
-    ;cutting
-    if canBeCutted()
-        UDCDmain.currentDeviceMenu_allowcutting = True
-    endif
         
-    if !loc_freehands_wearer && loc_freehands_helper
-        UDCDmain.currentDeviceMenu_allowTighten = True
-    endif
-    
-    if !loc_freehands_wearer && loc_freehands_helper && canBeRepaired(akSource)
-        UDCDmain.currentDeviceMenu_allowRepair = True
-    endif
-    
-    if (UDCDmain.currentDeviceMenu_allowkey || UDCDmain.currentDeviceMenu_allowlockpick || UDCDmain.currentDeviceMenu_allowlockrepair)
-        UDCDmain.currentDeviceMenu_allowLockMenu = true
-    endif
-    
-    if WearerIsFollower() && !WearerIsPlayer()
-        UDCDmain.currentDeviceMenu_allowCommand = True
+        ;cutting
+        if canBeCutted()
+            UDCDmain.currentDeviceMenu_allowcutting = True
+        endif
+            
+        if !loc_freehands_wearer && loc_freehands_helper
+            UDCDmain.currentDeviceMenu_allowTighten = True
+        endif
+        
+        if !loc_freehands_wearer && loc_freehands_helper && canBeRepaired(akSource)
+            UDCDmain.currentDeviceMenu_allowRepair = True
+        endif
+        
+        if (UDCDmain.currentDeviceMenu_allowkey || UDCDmain.currentDeviceMenu_allowlockpick || UDCDmain.currentDeviceMenu_allowlockrepair)
+            UDCDmain.currentDeviceMenu_allowLockMenu = true
+        endif
+        
+        if WearerIsFollower() && !WearerIsPlayer()
+            UDCDmain.currentDeviceMenu_allowCommand = True
+        endif
     endif
     
     ;override function
     onDeviceMenuInitPostWH(aaControl)
-    _filterControl(aaControl)
+    _filterControl(aaControl,akSource == none)
     UDCdmain.CheckAndDisableSpecialMenu()
 EndFunction
 
@@ -3753,15 +3763,21 @@ Function DeviceMenuWH(Actor akSource,bool[] aaControl)
     if UDmain.TraceAllowed()
         UDmain.Log(getDeviceHeader() + " DeviceMenuWH() called, aaControl = "+aaControl,2)
     endif
-
+    
     GoToState("UpdatePaused")
     
     bool _break = False
     while !_break
-        _deviceMenuInitWH(akSource,aaControl)
-        Int msgChoice = UD_MessageDeviceInteractionWH.Show()
         StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
         StorageUtil.UnSetIntValue(akSource, "UD_ignoreEvent" + deviceInventory)
+
+        if _MinigameOn
+            UDmain.Print("You can't access this device when wearer is struggling")
+            akSource = none
+        endif
+
+        _deviceMenuInitWH(akSource,aaControl)
+        Int msgChoice = UD_MessageDeviceInteractionWH.Show()
         if msgChoice == 0        ;help struggle
             _break = struggleMinigameWH(akSource)
         elseif msgChoice == 1    ;lockpick
