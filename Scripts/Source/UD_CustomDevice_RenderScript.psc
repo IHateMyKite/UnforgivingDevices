@@ -5737,7 +5737,7 @@ Function _lockpickDevice()
                 if PlayerInMinigame()
                     UDmain.Print("You succesfully unlocked the "+UD_LockNameList[_MinigameSelectedLockID]+"!",1)
                 elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                    UDmain.Print(getWearerName() + " unlocked one of the "+UD_LockNameList[_MinigameSelectedLockID]+"!",2)
+                    UDmain.Print(getWearerName() + " unlocked the "+UD_LockNameList[_MinigameSelectedLockID]+" on device "+GetDeviceName()+"!",2)
                 endif
                 onLockUnlocked(True)
                 
