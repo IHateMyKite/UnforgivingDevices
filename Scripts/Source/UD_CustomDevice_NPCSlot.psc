@@ -404,21 +404,25 @@ Function sortSlots(bool mutex = true)
     if mutex
         startDeviceManipulation()
     endif
+    int counted = 0
     int i = 0
-    while i < UD_equipedCustomDevices.length - 1
-        if UD_equipedCustomDevices[i] == none && UD_equipedCustomDevices[i + 1]
-            UD_equipedCustomDevices[i] = UD_equipedCustomDevices[i + 1]
-            UD_equipedCustomDevices[i + 1] = none
+    while i < UD_equipedCustomDevices.length
+        if UD_equipedCustomDevices[i]
+            UD_equipedCustomDevices[counted] = UD_equipedCustomDevices[i]
+            counted += 1
         endif
-        
-        ;sorted
-        if UD_equipedCustomDevices[i] == none && UD_equipedCustomDevices[i + 1] == none
-            endDeviceManipulation()
-            return
-        endif
-        
         i+=1
     endwhile
+
+    i = counted
+    while i < UD_equipedCustomDevices.length
+        UD_equipedCustomDevices[i] = none
+        i+=1
+    endwhile
+
+    ; Just to be safe, set _iUsedSlots to the correct count
+    _iUsedSlots = counted
+
     if mutex
         endDeviceManipulation()
     endif
@@ -769,7 +773,8 @@ int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool s
     ;    return res
     ;endif    
     
-    if isScriptRunning() && sort
+    ; Only sort slots if at least one device is unregistered and there are still used slots
+    if res > 0 && isScriptRunning() && sort
         sortSlots(mutex)
     endif
     
