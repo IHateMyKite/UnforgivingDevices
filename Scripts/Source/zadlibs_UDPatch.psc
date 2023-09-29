@@ -238,7 +238,7 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
     endif
     if deviceRendered
         if !deviceRendered.haskeyword(zad_lockable) && !deviceRendered.haskeyword(zad_DeviousPlug)
-            UDmain.Warning("UnlockDevice("+MakeDeviceHeader(akActor,deviceInventory)+") - passed deviceRendered("+deviceRendered+") is not devious device. Aborting!")
+            UDmain.Warning("UnlockDevice("+MakeDeviceHeader(akActor,deviceInventory)+") - passed deviceRendered("+deviceRendered+") is not devious device.")
             deviceRendered = none
         endif
     endif
@@ -247,7 +247,7 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
         StorageUtil.AdjustIntValue(akActor,"UDLockOperations",1) ;increase number of lock operations for NPC. Is used by NPC manager before NPC is register with auto scan
     endif
     
-    bool                    loc_res     = False ;return value
+    bool loc_res     = False ;return value
     
     if UDmain.TraceAllowed()
         UDmain.Log("UnlockDevice("+akActor+","+deviceInventory+","+deviceRendered+","+zad_DeviousDevice+","+destroyDevice+","+genericonly+")",1)
@@ -282,7 +282,7 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
                 loc_renDevice = deviceRendered
             else
                 loc_renDevice = UDCDmain.getStoredRenderDevice(deviceInventory)
-                if loc_renDevice
+                if !loc_renDevice
                     loc_renDevice = GetRenderedDevice(deviceInventory)
                 endif
             endif

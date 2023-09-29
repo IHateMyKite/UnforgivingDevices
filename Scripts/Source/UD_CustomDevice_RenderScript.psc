@@ -518,6 +518,12 @@ Float       Property UD_DefaultHealth               = 100.0         auto
 /;
 string[]    Property UD_Modifiers                                   auto    ;modifiers
 
+Alias[]     Property UD_ModifiersRef          auto
+String[]    Property UD_ModifiersDataStr      auto
+Form[]      Property UD_ModifiersDataForm1    auto
+Form[]      Property UD_ModifiersDataForm2    auto
+Form[]      Property UD_ModifiersDataForm3    auto
+
 ;/  Variable: UD_MessageDeviceInteraction
     Message that is show when opening device menu. If not set, it will be set automatically by UD.
 /;
@@ -1608,7 +1614,7 @@ Function _Init(Actor akActor)
 
     ;add DOR modifier
     if zad_DestroyOnRemove && !hasModifier("DOR")
-        addModifier("DOR")
+        ;addModifier("DOR") - TODO
     endif
     
     if akActor.getItemCount(deviceRendered) > 1
@@ -2364,11 +2370,18 @@ EndFunction
 ===========================================================================================
 /;
 
+UD_Modifier Function GetNthModifier(Int aiIndex)
+    return UD_ModifiersRef[aiIndex] as UD_Modifier
+EndFunction
+
 ;/  Function: addModifier
     Parameters:
 
-        asModifier  - Name of modifier to add
+        akModifier  - Name of modifier to add
         asParam     - Comma separated list of parameters
+        akForm1     - Modifier form 1
+        akForm2     - Modifier form 2
+        akForm3     - Modifier form 3
 
     Returns:
 
@@ -2379,16 +2392,16 @@ EndFunction
     ---Code
         ; Add new modifier called LootGold
         ; Modifiers parameters are 100 , 0 and 8
-        addModifier("LootGold","100,0,8")
+        ; TODO
     ---
 /;
-bool Function addModifier(string asModifier,string asParam = "")
-    if !hasModifier(asModifier)
-        if asParam != ""
-            UD_Modifiers = PapyrusUtil.PushString(UD_Modifiers, asModifier + ";" + asParam)
-        else
-            UD_Modifiers = PapyrusUtil.PushString(UD_Modifiers, asModifier)
-        endif
+bool Function addModifier(UD_Modifier akModifier,string asParam = "", Form akForm1, Form akForm2, Form akForm3)
+    if !hasModifier(akModifier)
+        UD_ModifiersRef         = PapyrusUtil.PushAlias (UD_ModifiersRef        ,akModifier)
+        UD_ModifiersDataStr     = PapyrusUtil.PushString(UD_ModifiersDataStr    ,asParam)
+        UD_ModifiersDataForm1   = PapyrusUtil.PushForm  (UD_ModifiersDataForm1  ,akForm1)
+        UD_ModifiersDataForm2   = PapyrusUtil.PushForm  (UD_ModifiersDataForm2  ,akForm2)
+        UD_ModifiersDataForm3   = PapyrusUtil.PushForm  (UD_ModifiersDataForm3  ,akForm3)
         return true
     else
         return false
@@ -2398,15 +2411,40 @@ EndFunction
 ;/  Function: removeModifier
     Parameters:
 
-        asModifier  - Name of modifier to remove
+        akModifier  - Name of modifier to remove
 
     Returns:
 
         true if modifiers was succesfully removed
 /;
-bool Function removeModifier(string asModifier)
-    if hasModifier(asModifier)
-        UD_Modifiers = PapyrusUtil.RemoveString(UD_Modifiers, getModifier(asModifier))
+bool Function removeModifier(UD_Modifier akModifier)
+    if hasModifier(akModifier)
+        int loc_i               = 0
+        int loc_size            = UD_ModifiersRef.length
+        int loc_removed_indx    = UD_ModifiersRef.find(akModifier)
+        
+        Alias[]     loc_tmp_modifiers
+        String[]    loc_tmp_modifiers_str
+        Form[]      loc_tmp_modifiers_f1
+        Form[]      loc_tmp_modifiers_f2
+        Form[]      loc_tmp_modifiers_f3
+        
+        while loc_i < loc_size
+            if (loc_i != loc_removed_indx)
+                loc_tmp_modifiers       = PapyrusUtil.PushAlias (loc_tmp_modifiers      ,UD_ModifiersRef        [loc_i])
+                loc_tmp_modifiers_str   = PapyrusUtil.PushString(loc_tmp_modifiers_str  ,UD_ModifiersDataStr    [loc_i])
+                loc_tmp_modifiers_f1    = PapyrusUtil.PushForm  (loc_tmp_modifiers_f1   ,UD_ModifiersDataForm1  [loc_i])
+                loc_tmp_modifiers_f2    = PapyrusUtil.PushForm  (loc_tmp_modifiers_f2   ,UD_ModifiersDataForm2  [loc_i])
+                loc_tmp_modifiers_f3    = PapyrusUtil.PushForm  (loc_tmp_modifiers_f3   ,UD_ModifiersDataForm3  [loc_i])
+            endif
+            loc_i += 1
+        endwhile
+        
+        UD_ModifiersRef         = loc_tmp_modifiers
+        UD_ModifiersDataStr     = loc_tmp_modifiers_str
+        UD_ModifiersDataForm1   = loc_tmp_modifiers_f1
+        UD_ModifiersDataForm2   = loc_tmp_modifiers_f2
+        UD_ModifiersDataForm3   = loc_tmp_modifiers_f3
         return true
     else
         return false
@@ -2422,33 +2460,28 @@ EndFunction
 
         true if modifiers is present on the device
 /;
-bool Function hasModifier(string asModifier)
-    if UDmain.UD_UseNativeFunctions
-        return UD_Native.hasModifier(UD_Modifiers,asModifier)
-    else
-        int loc_Index = UD_Modifiers.length
-        while loc_Index
-            loc_Index -= 1
-            if StringUtil.find(UD_Modifiers[loc_Index],";") != -1
-                if StringUtil.Substring(UD_Modifiers[loc_Index], 0, StringUtil.find(UD_Modifiers[loc_Index],";")) == asModifier
-                    return true
-                endif
-            else    
-                if UD_Modifiers[loc_Index] == asModifier
-                    return True
-                endif
-            endif
-        endwhile
-        return false
-    endif
+bool Function hasModifier(String asModifier)
+    int loc_Index = UD_ModifiersRef.length
+    while loc_Index
+        loc_Index -= 1
+        if (GetNthModifier(loc_Index).NameAlias == asModifier)
+            return true
+        endif
+    endwhile
+    return false
 EndFunction
 
-String Function GetModifierHeader(String asRawModifier)
-    if StringUtil.find(asRawModifier,";") != -1
-        return StringUtil.Substring(asRawModifier, 0, StringUtil.find(asRawModifier,";"))
-    else    
-        return asRawModifier
-    endif
+;/  Function: hasModifierRef
+    Parameters:
+
+        akModifier  - Modifier alias
+
+    Returns:
+
+        true if modifiers is present on the device
+/;
+bool Function hasModifierRef(UD_Modifier akModifier)
+    return (UD_ModifiersRef.find(akModifier) >= 0)
 EndFunction
 
 ;/  Function: getModifierAllParam
@@ -2461,44 +2494,31 @@ EndFunction
         Array of all parameters or none in case of error
 /;
 String[] Function getModifierAllParam(string asModifier)
-    if UDmain.UD_UseNativeFunctions
-        return UD_Native.getModifierAllParam(UD_Modifiers,asModifier)
+    int loc_Index = getModifierIndex(asModifier)
+    if loc_Index != -1
+        return StringUtil.split(UD_ModifiersDataStr,",")
     else
-        int loc_Index = getModifierIndex(asModifier)
-        if loc_Index != -1
-            String[] loc_Res = StringUtil.split(UD_Modifiers[loc_Index],";")
-            if loc_Res.length > 1
-                return StringUtil.split(loc_Res[1],",")
-            else
-                return none
-            endif
-        else
-            return none
-        endif
+        return none
     endif
 EndFunction
 
-string Function getModifier(string asModifier)
+UD_Modifier Function getModifier(string asModifier)
     if hasModifier(asModifier)
-        return UD_Modifiers[getModifierIndex(asModifier)]
+        return UD_ModifiersRef[getModifierIndex(asModifier)] as UD_Modifier
     else
-        return "ERROR"
+        return none
     endif
 EndFunction
 
 int Function getModifierIndex(string asModifier)
-    if UDmain.UD_UseNativeFunctions
-        return UD_Native.getModifierIndex(UD_Modifiers,asModifier)
-    else
-        int loc_Index = UD_Modifiers.length
-        while loc_Index
-            loc_Index -= 1
-            if StringUtil.find(UD_Modifiers[loc_Index],asModifier) != -1
-                return loc_Index
-            endif
-        endwhile
-        return -1
-    endif
+    int loc_Index = UD_ModifiersRef.length
+    while loc_Index
+        loc_Index -= 1
+        if (GetNthModifier(loc_Index).NameAlias == asModifier)
+            return loc_Index
+        endif
+    endwhile
+    return -1
 EndFunction
 
 ;/  Function: editStringModifier
@@ -2518,7 +2538,7 @@ bool Function editStringModifier(string asModifier,int aiIndex, string asNewValu
     String[] loc_param = getModifierAllParam(asModifier)
     if loc_param
         loc_param[aiIndex] = asNewValue
-        UD_Modifiers[getModifierIndex(asModifier)] = asModifier + ";" + PapyrusUtil.StringJoin(loc_param,",")
+        UD_ModifiersDataStr[getModifierIndex(asModifier)] = PapyrusUtil.StringJoin(loc_param,",")
         return true
     else
         return false
@@ -2526,14 +2546,10 @@ bool Function editStringModifier(string asModifier,int aiIndex, string asNewValu
 EndFunction
 
 bool Function modifierHaveParams(string asModifier)
-    if UDmain.UD_UseNativeFunctions
-        return UD_Native.modifierHaveParams(UD_Modifiers,asModifier)
+    if UD_ModifiersDataStr[getModifierIndex(asModifier)] != ""
+        return true
     else
-        if StringUtil.find(getModifier(asModifier),";") != -1
-            return true
-        else
-            return false
-        endif
+        return false
     endif
 EndFunction
 
@@ -2554,7 +2570,7 @@ int Function getModifierParamNum(string asModifier)
         if !loc_params
             return 0
         else
-            return getModifierAllParam(asModifier).length
+            return loc_params.length
         endif
     endif
 EndFunction

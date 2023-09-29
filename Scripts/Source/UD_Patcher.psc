@@ -324,43 +324,43 @@ EndFunction
 
 Function checkSentientModifier(UD_CustomDevice_RenderScript device,int chance,float modifier)
     if Utility.randomInt(1,99) < chance && DeviceCanHaveModes(device)
-        device.addModifier("Sentient",Utility.randomInt(Math.ceiling(5*modifier),Math.ceiling(35*modifier)))
+        ;device.addModifier("Sentient",Utility.randomInt(Math.ceiling(5*modifier),Math.ceiling(35*modifier))) - TODO
     endif
 EndFunction
 
 Function checkMendingModifier(UD_CustomDevice_RenderScript device,int chance,float modifier)
     if Utility.randomInt(1,99) < chance && DeviceCanHaveModes(device)
-        device.addModifier("Regen",formatString(120*modifier*Utility.randomFloat(0.5,2.0),1))
+        ;device.addModifier("Regen",formatString(120*modifier*Utility.randomFloat(0.5,2.0),1))
     endif
 EndFunction
 
 Function checkLooseModifier(UD_CustomDevice_RenderScript device,int chance,float rand_start = 0.0,float rand_end = 1.0)
     if Utility.randomInt(1,99) < chance; && DeviceCanHaveModes(device)
-        device.addModifier("Loose",formatString(Utility.randomFloat(rand_start,rand_end),2))
+        ;device.addModifier("Loose",formatString(Utility.randomFloat(rand_start,rand_end),2)) - TODO
     endif
 EndFunction
 
 Function checkMAHModifier(UD_CustomDevice_RenderScript device,int chance,int rand_start_c = 0,int rand_end_c = 100,int rand_start_d = 1,int rand_end_d = 1)
     if Utility.randomInt(1,99) < Round(chance*UD_MAHChanceMod/100) && DeviceCanHaveModes(device)
-        device.addModifier("MAH",Round(Utility.randomInt(rand_start_c,rand_end_c)*UD_MAHMod/100) + "," + Utility.randomInt(rand_start_d,rand_end_d))
+        ;device.addModifier("MAH",Round(Utility.randomInt(rand_start_c,rand_end_c)*UD_MAHMod/100) + "," + Utility.randomInt(rand_start_d,rand_end_d)) - TODO
     endif
 EndFunction
 
 Function checkMAOModifier(UD_CustomDevice_RenderScript device,int chance,int rand_start_c = 0,int rand_end_c = 100,int rand_start_d = 1,int rand_end_d = 1)
     if Utility.randomInt(1,99) < Round(chance*UD_MAOChanceMod/100) && DeviceCanHaveModes(device)
-        device.addModifier("MAO",Round(Utility.randomInt(rand_start_c,rand_end_c)*UD_MAOMod/100) + "," + Utility.randomInt(rand_start_d,rand_end_d))
+        ;device.addModifier("MAO",Round(Utility.randomInt(rand_start_c,rand_end_c)*UD_MAOMod/100) + "," + Utility.randomInt(rand_start_d,rand_end_d)) - TODO
     endif
 EndFunction
 
 Function checkHealModifier(UD_CustomDevice_RenderScript device,int chance,int rand_start_d = 25,int rand_end_d = 50)
     if Utility.randomInt(1,99) < chance && DeviceCanHaveModes(device)
-        device.addModifier("_HEAL",Utility.randomInt(rand_start_d,rand_end_d))
+        ;device.addModifier("_HEAL",Utility.randomInt(rand_start_d,rand_end_d))  - TODO
     endif
 EndFunction
 
 Function checkLCheapModifier(UD_CustomDevice_RenderScript device,int chance,int rand_start_d = 5,int rand_end_d = 20)
     if Utility.randomInt(1,99) < chance && DeviceCanHaveModes(device)
-        device.addModifier("_L_CHEAP",Utility.randomInt(rand_start_d,rand_end_d))
+        ;device.addModifier("_L_CHEAP",Utility.randomInt(rand_start_d,rand_end_d)) - TODO
     endif
 EndFunction
 
@@ -419,7 +419,7 @@ Function checkInventoryScript(UD_CustomDevice_RenderScript device,int argControl
     endif
     
     if device.UD_durability_damage_base == 0.0
-        device.removeModifier("Loose")
+        ;device.removeModifier("Loose") - TODO
     endif
     
     if Math.LogicalAnd(argControlVar,0x02)

@@ -1793,7 +1793,7 @@ Armor Function GetConflictDevice(Actor akActor, Armor rendDevice)
                 endif
             endif
         endif
-        loc_mask = Math.LeftShift(loc_mask,1)
+        loc_mask *= 2
     endwhile
     return none ;device is not equipped
 EndFunction
@@ -1842,7 +1842,7 @@ int Function CheckRenderDeviceConflict(Actor akActor, Armor akRendDevice)
                 ;slot if empty, continue
             endif
         endif
-        loc_mask = Math.LeftShift(loc_mask,1)
+        loc_mask *= 2
     endwhile
     return 0 ;slots are empty, lock should succes
 EndFunction
