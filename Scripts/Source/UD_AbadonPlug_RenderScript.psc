@@ -261,7 +261,7 @@ Function abadonorgasm(float mult = 1.0)
         elseif WearerIsFollower() && GetWearer().Is3DLoaded()
             UDmain.Print(getWearerName()+"s orgasm is making Abadon Plug to regain its strength!")
         endif
-        mendDevice(1.0,1.0/24.0)
+        refillDurability(10.0 + AbadonQuestScript.overaldifficulty*10.0)
     endif
     
     if finisherOn

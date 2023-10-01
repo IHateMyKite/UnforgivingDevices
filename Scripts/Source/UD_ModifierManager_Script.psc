@@ -41,12 +41,22 @@ UD_Libs Property UDLibs
 EndProperty
 
 bool Property Ready = false auto Hidden
+
+;saved modifier storages
+Form[] _modifierstorages
+int Function AddModifierStorage(UD_ModifierStorage akStorage)
+    if !akStorage
+        return -1
+    endif
+    _modifierstorages = PapyrusUtil.PushForm(_modifierstorages,akStorage as Form)
+    return _modifierstorages.length
+EndFunction
+
 Function OnInit()
     RegisterForSingleUpdate(20.0)
 EndFunction
 
 Function Update()
-
 EndFunction
 
 float _LastUpdateTime = 0.0
@@ -84,7 +94,7 @@ EndEvent
 ;                            receive modifier update events
 ;====================================================================================
 
-Function UpdateModifiers(float argTimePassed)
+Function UpdateModifiers(float aiTimePassed)
     int loc_i = 0
     while loc_i < UDNPCM.UD_Slots
         UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getNPCSlotByIndex(loc_i)
@@ -93,7 +103,7 @@ Function UpdateModifiers(float argTimePassed)
             int loc_x = 0
             while loc_devices[loc_x]
                 if !loc_devices[loc_x].isMinigameOn() ;not update device which are in minigame
-                    Procces_UpdateModifiers(loc_devices[loc_x],argTimePassed)
+                    Procces_UpdateModifiers(loc_devices[loc_x],aiTimePassed)
                 endif
                 loc_x += 1
             endwhile
@@ -102,7 +112,7 @@ Function UpdateModifiers(float argTimePassed)
     endwhile
 EndFunction
 
-Function UpdateModifiers_Hour(float argMult)
+Function UpdateModifiers_Hour(float afMult)
     int loc_i = 0
     while loc_i < UDNPCM.UD_Slots
         UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getNPCSlotByIndex(loc_i)
@@ -110,7 +120,7 @@ Function UpdateModifiers_Hour(float argMult)
             UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
             int loc_x = 0
             while loc_devices[loc_x]
-                Procces_UpdateModifiers_Hour(loc_devices[loc_x],argMult)
+                Procces_UpdateModifiers_Hour(loc_devices[loc_x],afMult)
                 loc_x += 1
             endwhile
         endif
@@ -118,8 +128,8 @@ Function UpdateModifiers_Hour(float argMult)
     endwhile
 EndFunction
 
-Function UpdateModifiers_Orgasm(UD_CustomDevice_NPCSlot argSlot)
-    UD_CustomDevice_NPCSlot loc_slot = argSlot
+Function UpdateModifiers_Orgasm(UD_CustomDevice_NPCSlot akSlot)
+    UD_CustomDevice_NPCSlot loc_slot = akSlot
     if loc_slot.isUsed() && !loc_slot.isDead() && loc_slot.isScriptRunning()
         UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
         int loc_x = 0
@@ -133,22 +143,51 @@ EndFunction
 ;                            Procces modifiers groups
 ;====================================================================================
 
-Function Procces_UpdateModifiers(UD_CustomDevice_RenderScript argDevice,float argTimePassed)
-    argDevice.updateMend(argTimePassed) ;Regen, _HEAL
-    ;...
+Function Procces_UpdateModifiers(UD_CustomDevice_RenderScript akDevice,float aiTimePassed)
+    int loc_modid = akDevice.UD_ModifiersRef.length
+    while loc_modid 
+        loc_modid -= 1
+        UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
+        loc_mod.TimeUpdateSecond(akDevice,aiTimePassed,akDevice.UD_ModifiersDataStr[loc_modid],akDevice.UD_ModifiersDataForm1[loc_modid],akDevice.UD_ModifiersDataForm2[loc_modid],akDevice.UD_ModifiersDataForm3[loc_modid])
+    endwhile
 EndFunction
 
-Function Procces_UpdateModifiers_Hour(UD_CustomDevice_RenderScript argDevice,float argMult)
-    Procces_MAH_Hour(argDevice,argMult) ;MAH
-    Procces__L_CHEAP_Hour(argDevice,argMult) ;_L_CHEAP
+Function Procces_UpdateModifiers_Hour(UD_CustomDevice_RenderScript akDevice,float afMult)
+    int loc_modid = akDevice.UD_ModifiersRef.length
+    while loc_modid 
+        loc_modid -= 1
+        UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
+        loc_mod.TimeUpdateHour(akDevice,afMult,akDevice.UD_ModifiersDataStr[loc_modid],akDevice.UD_ModifiersDataForm1[loc_modid],akDevice.UD_ModifiersDataForm2[loc_modid],akDevice.UD_ModifiersDataForm3[loc_modid])
+    endwhile
+    ;Procces_MAH_Hour(argDevice,argMult) ;MAH
+    ;Procces__L_CHEAP_Hour(argDevice,argMult) ;_L_CHEAP
 EndFunction
 
-Function Procces_UpdateModifiers_Orgasm(UD_CustomDevice_RenderScript argDevice)
-    Procces_MAO_Orgasm(argDevice) ;MAO
+Function Procces_UpdateModifiers_Orgasm(UD_CustomDevice_RenderScript akDevice)
+    int loc_modid = akDevice.UD_ModifiersRef.length
+    while loc_modid 
+        loc_modid -= 1
+        UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
+        loc_mod.Orgasm(akDevice,akDevice.UD_ModifiersDataStr[loc_modid],akDevice.UD_ModifiersDataForm1[loc_modid],akDevice.UD_ModifiersDataForm2[loc_modid],akDevice.UD_ModifiersDataForm3[loc_modid])
+    endwhile
 EndFunction
 
-Function Procces_UpdateModifiers_Remove(UD_CustomDevice_RenderScript argDevice) ;directly accesed from device
-    Procces_LootGold_Remove(argDevice) ;LootGold
+Function Procces_UpdateModifiers_Added(UD_CustomDevice_RenderScript akDevice) ;directly accesed from device
+    int loc_modid = akDevice.UD_ModifiersRef.length
+    while loc_modid 
+        loc_modid -= 1
+        UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
+        loc_mod.DeviceLocked(akDevice,akDevice.UD_ModifiersDataStr[loc_modid],akDevice.UD_ModifiersDataForm1[loc_modid],akDevice.UD_ModifiersDataForm2[loc_modid],akDevice.UD_ModifiersDataForm3[loc_modid])
+    endwhile
+EndFunction
+
+Function Procces_UpdateModifiers_Remove(UD_CustomDevice_RenderScript akDevice) ;directly accesed from device
+    int loc_modid = akDevice.UD_ModifiersRef.length
+    while loc_modid 
+        loc_modid -= 1
+        UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
+        loc_mod.DeviceUnlocked(akDevice,akDevice.UD_ModifiersDataStr[loc_modid],akDevice.UD_ModifiersDataForm1[loc_modid],akDevice.UD_ModifiersDataForm2[loc_modid],akDevice.UD_ModifiersDataForm3[loc_modid])
+    endwhile
 EndFunction
 
 ;====================================================================================

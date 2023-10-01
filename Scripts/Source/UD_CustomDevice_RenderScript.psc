@@ -1745,6 +1745,7 @@ Function _Init(Actor akActor)
     
     if UDCDmain.isRegistered(getWearer())
         Update(1/24/60) ;1 minute update
+        UDmain.UDMOM.Procces_UpdateModifiers_Added(self) ;call DeviceLocked on modifiers
     endif
     
     GoToState("")
@@ -4365,9 +4366,6 @@ EndFunction
         afTimePassed    - Time in days. By how much time should be device mended. Use time related functions like <ConvertTimeHours> to make calculations safer
 /;
 Function updateMend(float afTimePassed)
-    if getRelativeDurability() < 1.0 && hasModifier("Regen")
-        mendDevice(1.0,afTimePassed)
-    endif
     if hasModifier("_HEAL")
         if WearerIsRegistered()
             UD_CustomDevice_RenderScript[] loc_devices = UDCDmain.getNPCDevices(getWearer())
@@ -4448,17 +4446,6 @@ string Function getConditionString()
         return "Bad"
     else
         return "Destroyed"
-    endif
-EndFunction
-
-;mends device
-Function mendDevice(float afMult = 1.0,float afTimePassed)
-    if onMendPre(afMult) && current_device_health > 0.0
-        int     loc_regen   = getModifierIntParam("Regen")
-        Float   loc_amount  = afTimePassed*loc_regen*(1 - 0.1*UD_condition)*afMult*UDCDmain.getStruggleDifficultyModifier()
-        refillDurability(loc_amount)
-        refillCuttingProgress(afTimePassed*loc_regen)
-        onMendPost(loc_amount)
     endif
 EndFunction
 
@@ -7558,82 +7545,106 @@ EndFunction
     Shows message box with all modifiers and some information about them
 /;
 Function ShowModifiers()
-    string loc_res = "-Modifiers-\n"
-    if !canBeStruggled() 
-        loc_res += "!Impossible to struggle from!\n"
+    ;string loc_res = "-Modifiers-\n"
+    ;if !canBeStruggled() 
+    ;    loc_res += "!Impossible to struggle from!\n"
+    ;endif
+    ;
+    
+    int         loc_i = 0
+    string[]    loc_list
+    while loc_i < UD_ModifiersRef.length
+        UD_Modifier loc_mod = (UD_ModifiersRef[loc_i] as UD_Modifier)
+        ;loc_res += (loc_mod.NameFull + "\n")
+        loc_list = PapyrusUtil.PushString(loc_list,loc_mod.NameFull)
+        loc_i   += 1
+    endwhile
+    
+    loc_list = PapyrusUtil.PushString(loc_list,"==BACK==")
+    
+    int loc_res = UDmain.GetUserListInput(loc_list)
+    
+    if loc_res == (loc_list.length - 1)
+        return ;user selected ==BACK==
     endif
     
-    if (haveRegen())
-        loc_res += ("Regeneration ("+ formatString(getModifierIntParam("Regen")/24.0,1) +"/h)\n")
-    endif
-    if hasModifier("_HEAL")
-        loc_res += "Healer ("+  formatString(getModifierIntParam("_HEAL")/24.0,1) +"/h)\n"
-    endif
-    if hasModifier("DOR")
-        loc_res += "Destroy on unlock\n"
-    endif
+    UD_Modifier loc_mod = (UD_ModifiersRef[loc_res] as UD_Modifier)
+    loc_mod.ShowDetails(self,UD_ModifiersDataStr[loc_res],UD_ModifiersDataForm1[loc_res],UD_ModifiersDataForm2[loc_res],UD_ModifiersDataForm3[loc_res])
     
-    if hasModifier("MAH")
-        loc_res += "Random manifest (" + getModifierIntParam("MAH",0) +" %)\n"
-    endif
+    ;TODO
     
-    if hasModifier("MAO")
-        loc_res += "Orgasm manifest (" + getModifierIntParam("MAO",0) +" %)\n"
-    endif
+    ;if (haveRegen())
+    ;    loc_res += ("Regeneration ("+ formatString(getModifierIntParam("Regen")/24.0,1) +"/h)\n")
+    ;endif
+    ;if hasModifier("_HEAL")
+    ;    loc_res += "Healer ("+  formatString(getModifierIntParam("_HEAL")/24.0,1) +"/h)\n"
+    ;endif
+    ;if hasModifier("DOR")
+    ;    loc_res += "Destroy on unlock\n"
+    ;endif
+    ;
+    ;if hasModifier("MAH")
+    ;    loc_res += "Random manifest (" + getModifierIntParam("MAH",0) +" %)\n"
+    ;endif
+    ;
+    ;if hasModifier("MAO")
+    ;    loc_res += "Orgasm manifest (" + getModifierIntParam("MAO",0) +" %)\n"
+    ;endif
+    ;
+    ;if hasModifier("_L_CHEAP")
+    ;    loc_res += "Cheap locks (" + getModifierIntParam("_L_CHEAP",0) +" %)\n"
+    ;endif
     
-    if hasModifier("_L_CHEAP")
-        loc_res += "Cheap locks (" + getModifierIntParam("_L_CHEAP",0) +" %)\n"
-    endif
+    ;if UD_OnDestroyItemList
+    ;    loc_res += "Contains Items\n"
+    ;endif
     
-    if UD_OnDestroyItemList
-        loc_res += "Contains Items\n"
-    endif    
-    if hasModifier("LootGold")
-        int loc_lootgold_mod = getModifierIntParam("LootGold",2,0)
-        int loc_min     = getModifierIntParam("LootGold",0,10) ;base value
-        if getModifierParamNum("LootGold") > 1
-            int loc_max     = getModifierIntParam("LootGold",1,0) ;base value
-            int loc_min2    = loc_min
-            int loc_max2    = loc_max
-            if loc_max2 < loc_min2
-                loc_max2 = loc_min2
-            endif
-            float loc_lootgold_mod_param = 0.0
-            if loc_lootgold_mod == 0
-                ;nothink
-            elseif loc_lootgold_mod == 1 ;increase % gold based on level per parameter
-                loc_lootgold_mod_param  = getModifierFloatParam("LootGold",3,0.05)
-                loc_min2                = Round(loc_min*(1.0 + loc_lootgold_mod_param*UD_Level))
-                loc_max2                = Round(loc_max*(1.0 + loc_lootgold_mod_param*UD_Level))
-            elseif loc_lootgold_mod == 2 ;increase ABS gold based on level per parameter
-                loc_lootgold_mod_param  = getModifierFloatParam("LootGold",3,10.0)
-                loc_min2                = Round(loc_min + (loc_lootgold_mod_param*UD_Level))
-                loc_max2                = Round(loc_max + (loc_lootgold_mod_param*UD_Level))
-            else    ;unused
-            endif
-            
-            if loc_min2 != loc_max2
-                loc_res += "Contains Gold ("+ loc_min2 +"-"+ loc_max2 +" G)\n"
-            else
-                loc_res += "Contains Gold ("+ loc_max2 +" G)\n"
-            endif
-        else
-            loc_res += "Contains Gold ("+ loc_min +" G)\n"
-        endif
-    endif    
+    ;if hasModifier("LootGold")
+    ;    int loc_lootgold_mod = getModifierIntParam("LootGold",2,0)
+    ;    int loc_min     = getModifierIntParam("LootGold",0,10) ;base value
+    ;    if getModifierParamNum("LootGold") > 1
+    ;        int loc_max     = getModifierIntParam("LootGold",1,0) ;base value
+    ;        int loc_min2    = loc_min
+    ;        int loc_max2    = loc_max
+    ;        if loc_max2 < loc_min2
+    ;            loc_max2 = loc_min2
+    ;        endif
+    ;        float loc_lootgold_mod_param = 0.0
+    ;        if loc_lootgold_mod == 0
+    ;            ;nothink
+    ;        elseif loc_lootgold_mod == 1 ;increase % gold based on level per parameter
+    ;            loc_lootgold_mod_param  = getModifierFloatParam("LootGold",3,0.05)
+    ;            loc_min2                = Round(loc_min*(1.0 + loc_lootgold_mod_param*UD_Level))
+    ;            loc_max2                = Round(loc_max*(1.0 + loc_lootgold_mod_param*UD_Level))
+    ;        elseif loc_lootgold_mod == 2 ;increase ABS gold based on level per parameter
+    ;            loc_lootgold_mod_param  = getModifierFloatParam("LootGold",3,10.0)
+    ;            loc_min2                = Round(loc_min + (loc_lootgold_mod_param*UD_Level))
+    ;            loc_max2                = Round(loc_max + (loc_lootgold_mod_param*UD_Level))
+    ;        else    ;unused
+    ;        endif
+    ;        
+    ;        if loc_min2 != loc_max2
+    ;            loc_res += "Contains Gold ("+ loc_min2 +"-"+ loc_max2 +" G)\n"
+    ;        else
+    ;            loc_res += "Contains Gold ("+ loc_max2 +" G)\n"
+    ;        endif
+    ;    else
+    ;        loc_res += "Contains Gold ("+ loc_min +" G)\n"
+    ;    endif
+    ;endif
 
-    if (isSentient())
-        loc_res += "Sentient (" + formatString(getModifierFloatParam("Sentient"),1) +" %)\n"
-    Endif
+    ;if (isSentient())
+    ;    loc_res += "Sentient (" + formatString(getModifierFloatParam("Sentient"),1) +" %)\n"
+    ;Endif
+    ;
+    ;if (isLoose())
+    ;    loc_res += "Loose (" + formatString(getModifierFloatParam("Loose")*100,1) +" %)\n"
+    ;Endif
     
-    if (isLoose())
-        loc_res += "Loose (" + formatString(getModifierFloatParam("Loose")*100,1) +" %)\n"
-    Endif
-    
-    if deviceRendered.hasKeyword(UDlibs.PatchedDevice)
-        loc_res += "Patched device ("+Round(UDCDmain.UDPatcher.GetPatchDifficulty(self)*100.0)+" %)\n"
-    endif
-    UDmain.ShowMessageBox(loc_res)
+    ;if deviceRendered.hasKeyword(UDlibs.PatchedDevice)
+    ;    loc_res += "Patched device ("+Round(UDCDmain.UDPatcher.GetPatchDifficulty(self)*100.0)+" %)\n"
+    ;endif
+    ;UDmain.ShowMessageBox(loc_res)
 EndFunction
 
 
@@ -8220,6 +8231,7 @@ Function removeDevice(actor akActor)
         libs.Aroused.SetActorExposureRate(akActor, libs.GetOriginalRate(akActor))
         StorageUtil.UnSetFloatValue(akActor, "zad.StoredExposureRate")
     endif
+    
     
     UDmain.UDMOM.Procces_UpdateModifiers_Remove(self) ;update modifiers
     

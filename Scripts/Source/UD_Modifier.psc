@@ -12,13 +12,21 @@ UnforgivingDevicesMain Property UDmain Hidden
     EndFunction
 EndProperty
 
-UD_Libs _udlibs
 UD_Libs Property UDlibs Hidden
     UD_Libs Function Get()
-        if !_udlibs
-            _udlibs = UDmain.UDlibs
-        endif
-        return _udlibs
+        return UDmain.UDlibs
+    EndFunction
+EndProperty
+
+UDCustomDeviceMain Property UDCDmain Hidden
+    UDCustomDeviceMain Function Get()
+        return UDmain.UDCDmain
+    EndFunction
+EndProperty
+
+UD_CustomDevices_NPCSlotsManager Property UDNPCM
+    UD_CustomDevices_NPCSlotsManager Function get()
+        return UDmain.UDNPCM
     EndFunction
 EndProperty
 
@@ -49,7 +57,10 @@ EndEvent
 Function TimeUpdateSecond(UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
 EndFunction
 
-Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+EndFunction
+
+Function Orgasm(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
 EndFunction
 
 Function DeviceLocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
@@ -57,6 +68,19 @@ EndFunction
 
 Function DeviceUnlocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
 EndFunction
+
+Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+    String loc_msg = ""
+    
+    loc_msg += "Name: " + NameFull + "\n"
+    loc_msg += "Alias: " + NameAlias + "\n"
+    
+    loc_msg += "==Description==" + "\n"
+    loc_msg += Description
+    
+    UDmain.ShowMessageBox(loc_msg)
+EndFunction
+
 
 int Function getStringParamNum(string asDataStr) global
     string[] loc_params = getStringParamAll(asDataStr)
