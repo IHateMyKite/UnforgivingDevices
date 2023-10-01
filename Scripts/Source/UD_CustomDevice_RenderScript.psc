@@ -1613,9 +1613,9 @@ Function _Init(Actor akActor)
     endif
 
     ;add DOR modifier
-    if zad_DestroyOnRemove && !hasModifier("DOR")
+    ;if zad_DestroyOnRemove && !hasModifier("DOR")
         ;addModifier("DOR") - TODO
-    endif
+    ;endif
     
     if akActor.getItemCount(deviceRendered) > 1
         UDmain.Error("!Aborting Init("+ getDeviceHeader() + " because device is already present!")
@@ -7599,40 +7599,6 @@ Function ShowModifiers()
     ;    loc_res += "Contains Items\n"
     ;endif
     
-    ;if hasModifier("LootGold")
-    ;    int loc_lootgold_mod = getModifierIntParam("LootGold",2,0)
-    ;    int loc_min     = getModifierIntParam("LootGold",0,10) ;base value
-    ;    if getModifierParamNum("LootGold") > 1
-    ;        int loc_max     = getModifierIntParam("LootGold",1,0) ;base value
-    ;        int loc_min2    = loc_min
-    ;        int loc_max2    = loc_max
-    ;        if loc_max2 < loc_min2
-    ;            loc_max2 = loc_min2
-    ;        endif
-    ;        float loc_lootgold_mod_param = 0.0
-    ;        if loc_lootgold_mod == 0
-    ;            ;nothink
-    ;        elseif loc_lootgold_mod == 1 ;increase % gold based on level per parameter
-    ;            loc_lootgold_mod_param  = getModifierFloatParam("LootGold",3,0.05)
-    ;            loc_min2                = Round(loc_min*(1.0 + loc_lootgold_mod_param*UD_Level))
-    ;            loc_max2                = Round(loc_max*(1.0 + loc_lootgold_mod_param*UD_Level))
-    ;        elseif loc_lootgold_mod == 2 ;increase ABS gold based on level per parameter
-    ;            loc_lootgold_mod_param  = getModifierFloatParam("LootGold",3,10.0)
-    ;            loc_min2                = Round(loc_min + (loc_lootgold_mod_param*UD_Level))
-    ;            loc_max2                = Round(loc_max + (loc_lootgold_mod_param*UD_Level))
-    ;        else    ;unused
-    ;        endif
-    ;        
-    ;        if loc_min2 != loc_max2
-    ;            loc_res += "Contains Gold ("+ loc_min2 +"-"+ loc_max2 +" G)\n"
-    ;        else
-    ;            loc_res += "Contains Gold ("+ loc_max2 +" G)\n"
-    ;        endif
-    ;    else
-    ;        loc_res += "Contains Gold ("+ loc_min +" G)\n"
-    ;    endif
-    ;endif
-
     ;if (isSentient())
     ;    loc_res += "Sentient (" + formatString(getModifierFloatParam("Sentient"),1) +" %)\n"
     ;Endif
@@ -8196,12 +8162,7 @@ Function removeDevice(actor akActor)
     _removeDeviceCalled = True
     
     GoToState("UpdatePaused")
-    
-    ;remove ID
-    if zad_DestroyOnRemove || hasModifier("DOR")
-        akActor.RemoveItem(deviceInventory, 1, true)
-    EndIf
-    
+        
     if !akActor.isDead()
         if !IsUnlocked
             _IsUnlocked = True
@@ -8231,7 +8192,6 @@ Function removeDevice(actor akActor)
         libs.Aroused.SetActorExposureRate(akActor, libs.GetOriginalRate(akActor))
         StorageUtil.UnSetFloatValue(akActor, "zad.StoredExposureRate")
     endif
-    
     
     UDmain.UDMOM.Procces_UpdateModifiers_Remove(self) ;update modifiers
     

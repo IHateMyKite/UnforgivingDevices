@@ -72,8 +72,7 @@ EndFunction
 Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
     String loc_msg = ""
     
-    loc_msg += "Name: " + NameFull + "\n"
-    loc_msg += "Alias: " + NameAlias + "\n"
+    loc_msg += "Name: " + NameFull + "\n\n"
     
     loc_msg += "==Description==" + "\n"
     loc_msg += Description
