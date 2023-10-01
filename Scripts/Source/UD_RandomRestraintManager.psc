@@ -39,54 +39,6 @@ Formlist Property UD_AbadonDeviceList_HeavyBondageHard auto
 
 zadDeviceLists Property zadDL auto
 
-;/  Group: Config
-===========================================================================================
-===========================================================================================
-===========================================================================================
-/;
-
-;/  Variable: UD_RandomDevice_GlobalFilter
-
-    Filter used for disabling certain devices from being randomely choosen
-    
-    *IS CHANGED USING MCM. READ ONLY!*
-    
-    BitDetails:
-    
-    ---Code
-        0b = zad_DeviousPiercingsVaginal
-        1b = zad_DeviousPiercingsNipple
-        2b = zad_DeviousPlugVaginal
-        3b = zad_DeviousPlugAnal
-        
-        4b = zad_DeviousHeavyBondage
-        5b = zad_deviousHarness
-        6b = zad_DeviousCorset
-        7b = zad_deviousHood
-        
-        8b = zad_DeviousCollar
-        9b=  zad_DeviousGag
-        10b= zad_DeviousBlindfold
-        11b= zad_DeviousBoots
-        
-        12b= zad_DeviousArmCuffs
-        13b= zad_DeviousLegCuffs
-        14b= zad_DeviousSuit
-        15b= zad_DeviousGloves
-        
-        16b= zad_DeviousBra
-        17b= zad_DeviousBelt
-    ---
-    
-    Example:
-    
-    ---Code
-        ;Disables hoods and suits from being randomely choosen
-        UD_RandomDevice_GlobalFilter -> 0xFFFFBFBF
-    ---
-/;
-int Property UD_RandomDevice_GlobalFilter = 0xFFFFFFFF auto
-
 Function StartMutex()
     while _mutex
         Utility.waitMenuMode(0.15)
@@ -161,6 +113,41 @@ Function FillOutCheckKeywords()
     UD_CheckKeywords.addForm(libs.zad_DeviousBelt)               ;iIndex = 17
 EndFunction
 
+;/  Function: IsDeviceFiltered
+    Parameters:
+        aiIndex     - Index of device type
+    --- Code
+    |==================================|
+    |  aiIndex  |    Device type       |
+    |==================================|
+    |    00     =     PiercingsVaginal |
+    |    01     =     PiercingsNipple  |
+    |    02     =     PlugVaginal      |
+    |    03     =     PlugAnal         |
+    |    04     =     HeavyBondage     |
+    |    05     =     Harness          |
+    |    06     =     Corset           |
+    |    07     =     Hood             |
+    |    08     =     Collar           |
+    |    09     =     Gag              |
+    |    10     =     Blindfold        |
+    |    11     =     Boots            |
+    |    12     =     ArmCuffs         |
+    |    13     =     LegCuffs         |
+    |    14     =     Suit             |
+    |    15     =     Gloves           |
+    |    16     =     Bra              |
+    |    17     =     Belt             |
+    |==================================|
+    ---
+    
+    Returns:
+    
+        True if device is filtered
+/;
+Bool Function IsDeviceFiltered(Int aiIndex)
+    return Math.LogicalAnd(UDmain.UDCONF.UD_RandomDevice_GlobalFilter,Math.LeftShift(0x01,aiIndex))
+EndFunction
 
 ;/  Function: getRandomDeviceByKeyword_LL
 
@@ -323,7 +310,7 @@ Armor Function getRandomSuitableRestrain(Actor akActor,Int aiPrefSwitch = 0xffff
     if UDmain.TraceAllowed()
         UDmain.Log("getRandomSuitableRestrain called for " + GetActorName(akActor),3)
     endif
-    aiPrefSwitch = Math.LogicalAnd(aiPrefSwitch,UD_RandomDevice_GlobalFilter)
+    aiPrefSwitch = Math.LogicalAnd(aiPrefSwitch,UDmain.UDCONF.UD_RandomDevice_GlobalFilter)
     Armor res = none
     Keyword selected_keyword = getRandomSuitableKeyword(akActor,aiPrefSwitch)
     if !selected_keyword
@@ -369,7 +356,7 @@ EndFunction
 
         akActor         - Actor to lock device on
         abForce         - If device should be force locked
-        aiPrefSwitch    - Filter to specify which exact devices can be locked on. See <UD_RandomDevice_GlobalFilter> for more info
+        aiPrefSwitch    - Filter to specify which exact devices can be locked on. See <UDmain.UDCONF.UD_RandomDevice_GlobalFilter> for more info
         
     Returns:
     
@@ -384,7 +371,7 @@ Armor Function LockRandomRestrain(Actor akActor,Bool abForce = false,Int aiPrefS
         UDmain.Log("LockRandomRestrain called for " + GetActorName(akActor))
     endif
     
-                aiPrefSwitch            = Math.LogicalAnd(aiPrefSwitch,UD_RandomDevice_GlobalFilter)
+                aiPrefSwitch            = Math.LogicalAnd(aiPrefSwitch,UDmain.UDCONF.UD_RandomDevice_GlobalFilter)
     Armor       loc_device              = none
     Keyword     loc_selected_keyword    = getRandomSuitableKeyword(akActor,aiPrefSwitch)
     
@@ -424,7 +411,7 @@ EndFunction
 
         akActor         - Actor to lock devices on
         abForce         - If device should be force locked
-        aiPrefSwitch    - Filter to specify which exact devices can be locked on. See <UD_RandomDevice_GlobalFilter> for more info
+        aiPrefSwitch    - Filter to specify which exact devices can be locked on. See <UDmain.UDCONF.UD_RandomDevice_GlobalFilter> for more info
         
     Returns:
     
@@ -443,7 +430,7 @@ int Function LockAllSuitableRestrains(Actor akActor,Bool abForce = false,Int aiP
     if UDmain.TraceAllowed()    
         UDmain.Log("LockAllSuitableRestrains called for " + GetActorName(akActor),2)
     endif
-            aiPrefSwitch    = Math.LogicalAnd(aiPrefSwitch,UD_RandomDevice_GlobalFilter)
+            aiPrefSwitch    = Math.LogicalAnd(aiPrefSwitch,UDmain.UDCONF.UD_RandomDevice_GlobalFilter)
     Form[]  loc_keywords    = getAllSuitableKeywords(akActor,aiPrefSwitch)
     
     if !loc_keywords
@@ -589,9 +576,9 @@ Keyword Function getRandomSuitableKeyword(Actor akActor,int iPrefSwitch = 0xffff
     StartMutex()
     int i = 0
     SuitableKeywords.Revert()
-    iPrefSwitch = Math.LogicalAnd(iPrefSwitch,UD_RandomDevice_GlobalFilter)
+    iPrefSwitch = Math.LogicalAnd(iPrefSwitch,UDmain.UDCONF.UD_RandomDevice_GlobalFilter)
     while i < UD_CheckKeywords.getSize()
-        if !akActor.wornhaskeyword(UD_CheckKeywords.getAt(i) as Keyword) && additionCheck(akActor,i) && Math.LogicalAnd(iPrefSwitch,Math.LeftShift(0x01,i))
+        if !akActor.wornhaskeyword(UD_CheckKeywords.getAt(i) as Keyword) && _additionCheck(akActor,i) && Math.LogicalAnd(iPrefSwitch,Math.LeftShift(0x01,i))
             SuitableKeywords.AddForm(UD_CheckKeywords.getAt(i))
         endif
         i += 1
@@ -610,10 +597,10 @@ Form[] Function getAllSuitableKeywords(Actor akActor,int iPrefSwitch = 0xfffffff
     StartMutex()
     int i = 0
     SuitableKeywords.Revert()
-    iPrefSwitch = Math.LogicalAnd(iPrefSwitch,UD_RandomDevice_GlobalFilter)
+    iPrefSwitch = Math.LogicalAnd(iPrefSwitch,UDmain.UDCONF.UD_RandomDevice_GlobalFilter)
         
     while i < UD_CheckKeywords.getSize()
-        if !akActor.wornhaskeyword(UD_CheckKeywords.getAt(i) as Keyword) && additionCheck(akActor,i) && Math.LogicalAnd(iPrefSwitch,Math.LeftShift(0x01,i))
+        if !akActor.wornhaskeyword(UD_CheckKeywords.getAt(i) as Keyword) && _additionCheck(akActor,i) && Math.LogicalAnd(iPrefSwitch,Math.LeftShift(0x01,i))
             SuitableKeywords.AddForm(UD_CheckKeywords.getAt(i))
         endif
         i += 1
@@ -630,11 +617,11 @@ Form[] Function getAllSuitableKeywords(Actor akActor,int iPrefSwitch = 0xfffffff
     return loc_res
 EndFunction
 
-bool Function additionCheck(Actor akActor,int iIndex)
+bool Function _additionCheck(Actor akActor,int iIndex)
     if iIndex == 14    ;needed check for suit, checks if actor have straitjacket
         return !akActor.wornhaskeyword(libs.zad_DeviousStraitjacket)
     elseif iIndex == 7
-        return UDCDmain.UDmain.ItemManager.UD_useHoods
+        return IsDeviceFiltered(7)
     elseif iIndex == 6    ;needed check for corset, checks if actor has harness
         return !akActor.wornhaskeyword(libs.zad_DeviousHarness)
     elseif iIndex == 5    ;needed check for harness, checks if actor have corset
