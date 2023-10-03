@@ -601,76 +601,34 @@ Function removeLostRenderDevices()
     endif
     Actor _currentSlotedActor = getActor()
     Form[] loc_toRemove
+    
     ;check if faster native function should be not used instead
-    if UDmain.UD_UseNativeFunctions
-        int loc_deviceId = 0
-        Form[] loc_devices = UD_Native.GetRenderDevices(_currentSlotedActor,false)
-        while loc_deviceId < loc_devices.length
-            Armor ArmorDevice = loc_devices[loc_deviceId] as Armor
-            ;get script and check if player have inventory device
-            Armor loc_RenDevice = ArmorDevice
-            Armor loc_InvDevice = UDCDmain.getStoredInventoryDevice(loc_RenDevice)
-            bool loc_cond = !UDCDmain.CheckRenderDeviceEquipped(_currentSlotedActor,loc_RenDevice)
-            if  loc_cond
-                loc_toRemove = PapyrusUtil.PushForm(loc_toRemove, ArmorDevice)
-                UDmain.Print("Lost device found: " + loc_InvDevice.getName() + " removed!")
-            else
-                if !getDeviceByRender(loc_RenDevice)
-                    UDmain.Print("Found unregistred device "+loc_InvDevice.getName()+" , registering")
-                    UD_CustomDevice_RenderScript loc_device = UDCDmain.getDeviceScriptByRender(GetActor(),loc_RenDevice)
-                    if loc_device
-                        RegisterDevice(loc_device,false)
-                        UDmain.Print(loc_device.getDeviceHeader() + " registered")
-                    else
-                        UDmain.Print("Can't get device. Aborting.")
-                    endif
+    int loc_deviceId = 0
+    Form[] loc_devices = UD_Native.GetRenderDevices(_currentSlotedActor,false)
+    while loc_deviceId < loc_devices.length
+        Armor ArmorDevice = loc_devices[loc_deviceId] as Armor
+        ;get script and check if player have inventory device
+        Armor loc_RenDevice = ArmorDevice
+        Armor loc_InvDevice = UDCDmain.getStoredInventoryDevice(loc_RenDevice)
+        bool loc_cond = !UDCDmain.CheckRenderDeviceEquipped(_currentSlotedActor,loc_RenDevice)
+        if  loc_cond
+            loc_toRemove = PapyrusUtil.PushForm(loc_toRemove, ArmorDevice)
+            UDmain.Print("Lost device found: " + loc_InvDevice.getName() + " removed!")
+        else
+            if !getDeviceByRender(loc_RenDevice)
+                UDmain.Print("Found unregistred device "+loc_InvDevice.getName()+" , registering")
+                UD_CustomDevice_RenderScript loc_device = UDCDmain.getDeviceScriptByRender(GetActor(),loc_RenDevice)
+                if loc_device
+                    RegisterDevice(loc_device,false)
+                    UDmain.Print(loc_device.getDeviceHeader() + " registered")
+                else
+                    UDmain.Print("Can't get device. Aborting.")
                 endif
             endif
-            loc_deviceId += 1
-        endwhile
-    else
-        int iItem = _currentSlotedActor.GetNumItems()
-        while iItem
-            iItem -= 1
-            if UDmain.TraceAllowed()        
-                UDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+"): Proccesing form " + _currentSlotedActor.GetNthForm(iItem))
-            endif
-            Armor ArmorDevice = _currentSlotedActor.GetNthForm(iItem) as Armor
-            
-            if ArmorDevice ;is armor (optimalization)
-                if UDmain.TraceAllowed()            
-                    UDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+"): Proccesing armor " + ArmorDevice)
-                endif
-                if ArmorDevice.haskeyword(UDCDmain.UDlibs.UnforgivingDevice) ;is render device
-                    ;get script and check if player have inventory device
-                    Armor loc_RenDevice = ArmorDevice
-                    Armor loc_InvDevice = UDCDmain.getStoredInventoryDevice(loc_RenDevice)
-                    if UDmain.TraceAllowed()                
-                        UDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+"): Proccesing device " + loc_InvDevice.getName())
-                    endif
-                    bool loc_cond = !UDCDmain.CheckRenderDeviceEquipped(_currentSlotedActor,loc_RenDevice)
-                    if UDmain.TraceAllowed()                
-                        UDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+"): " + loc_InvDevice.getName() + ", cond: " + loc_cond)
-                    endif
-                    if  loc_cond
-                        loc_toRemove = PapyrusUtil.PushForm(loc_toRemove, ArmorDevice)
-                        UDmain.Print("Lost device found: " + loc_InvDevice.getName() + " removed!")
-                    else
-                        if !getDeviceByRender(loc_RenDevice)
-                            UDmain.Print("Found unregistred device "+loc_InvDevice.getName()+" , registering")
-                            UD_CustomDevice_RenderScript loc_device = UDCDmain.getDeviceScriptByRender(GetActor(),loc_RenDevice)
-                            if loc_device
-                                RegisterDevice(loc_device,false)
-                                UDmain.Print(loc_device.getDeviceHeader() + " registered")
-                            else
-                                UDmain.Print("Can't get device. Aborting.")
-                            endif
-                        endif
-                    endif
-                endif
-            endif
-        endwhile
-    endif
+        endif
+        loc_deviceId += 1
+    endwhile
+    
     int loc_toRemoveNum = loc_toRemove.length
     
     while loc_toRemoveNum
@@ -1757,56 +1715,8 @@ Function regainDevices()
     _regainMutex = False
 EndFunction
 
-Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer)
-    if akBaseItem as Weapon
-        if !UDmain.UD_UseNativeFunctions
-            Weapon loc_weapon = akBaseItem as Weapon
-            if UDCDmain.isSharp(loc_weapon)
-                if !_BestWeapon || (_BestWeapon.getBaseDamage() < loc_weapon.GetBaseDamage())
-                    _BestWeapon = loc_weapon
-                endif
-            endif
-        endif
-    endIf
-endEvent
-
-Event OnItemRemoved(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer)
-    if akBaseItem as Weapon
-        if !UDmain.UD_UseNativeFunctions
-            Weapon loc_weapon = akBaseItem as Weapon
-            if (loc_weapon == _BestWeapon) && _BestWeapon
-                if getActor().getItemCount(loc_weapon) == 0
-                    _BestWeapon = GetBestWeapon() ;find the next best weapon
-                endif
-            endif
-        endif
-    endIf
-endEvent
-
 Weapon Function GetBestWeapon()
-    if UDmain.UD_UseNativeFunctions
-        return UD_Native.GetSharpestWeapon(getActor())
-    else
-        int loc_i = getActor().GetNumItems()
-        Weapon loc_res = none
-        if getActor().GetItemCount(_BestWeapon)
-            loc_res = _BestWeapon
-        endif
-        while loc_i
-            loc_i -= 1
-            Weapon loc_weapon = getActor().GetNthForm(loc_i) as Weapon
-            if loc_weapon
-                if UDCDmain.isSharp(loc_weapon)
-                    if !loc_res
-                        loc_res = loc_weapon
-                    elseif (loc_weapon.getBaseDamage() > loc_res.GetBaseDamage())
-                        loc_res = loc_weapon
-                    endif
-                endif
-            endif
-        endwhile
-        return loc_res
-    endif
+    return UD_Native.GetSharpestWeapon(getActor())
 EndFunction
 
 Function UpdateSkills()
@@ -2110,7 +2020,7 @@ Function _OrgasmGameUpdate()
         UDmain.UDWC.Meter_SetVisible("player-orgasm", true)
     endif
 
-    _useNativeOrgasmWidget = (IsPlayer() && UDmain.UD_UseNativeFunctions)
+    _useNativeOrgasmWidget = IsPlayer()
     if _useNativeOrgasmWidget
         UDmain.UDWC.Meter_RegisterNative("player-orgasm",_orgasmProgress_p*100.0,_orgasmratetotal, true)
     endif
@@ -2271,7 +2181,7 @@ Function UpdateOrgasmSecond()
     Actor akActor = GetActor()
     Bool  loc_is3dLoaded = IsPlayer() || akActor.Is3DLoaded()
     
-    _useNativeOrgasmWidget = (IsPlayer() && UDmain.UD_UseNativeFunctions)
+    _useNativeOrgasmWidget = IsPlayer()
     
     _orgasmRate2 = _orgasmRate
     _tick = 0

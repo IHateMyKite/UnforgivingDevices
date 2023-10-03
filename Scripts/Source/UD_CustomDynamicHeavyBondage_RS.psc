@@ -112,7 +112,7 @@ bool Function UntieMinigame(Bool abSilent = False)
     setMinigameMult(1,mult)
     
     if minigamePreCheck(abSilent)
-        bool loc_UseNativeMeters = UDmain.UD_UseNativeFunctions && (WearerIsPlayer() || HelperIsPlayer())
+        bool loc_UseNativeMeters = (WearerIsPlayer() || HelperIsPlayer())
         if loc_UseNativeMeters
             UDmain.UDWC.Meter_RegisterNative("device-main",getRelativeUntieProgress()*100.0,UD_UntieDmg*UDCDmain.getStruggleDifficultyModifier(),true)
             UDmain.UDWC.Meter_SetNativeMult("device-main",mult*100.0/UD_UntieDifficulty)
@@ -133,7 +133,7 @@ EndFunction
 
 Function OnMinigameTick(Float abUpdateTime)
     if _untieMinigameOn
-        if UDmain.UD_UseNativeFunctions && PlayerInMinigame()
+        if PlayerInMinigame()
             UDmain.UDWC.Meter_SetNativeMult("device-main",getMinigameMult(1)*100.0/UD_UntieDifficulty)
             _untieProgress = UDmain.UDWC.Meter_GetNativeValue("device-main")*UD_UntieDifficulty/100.0
         else
@@ -148,7 +148,7 @@ EndFunction
 
 bool Function OnCritDevicePre()
     if _untieMinigameOn
-        if UDmain.UD_UseNativeFunctions && PlayerInMinigame()
+        if PlayerInMinigame()
             _untieProgress = UDmain.UDWC.Meter_UpdateNativeValue("device-main",3*UD_UntieDmg*UDCDmain.getStruggleDifficultyModifier())*UD_UntieDifficulty/100.0
         else
             _untieProgress = fRange(_untieProgress + 3*UD_UntieDmg*UDCDmain.getStruggleDifficultyModifier()*getMinigameMult(1),0.0,UD_UntieDifficulty)
@@ -164,7 +164,7 @@ EndFunction
 
 Function OnCritFailure()
     if _untieMinigameOn
-        if UDmain.UD_UseNativeFunctions && PlayerInMinigame()
+        if PlayerInMinigame()
             _untieProgress = UDmain.UDWC.Meter_UpdateNativeValue("device-main",-1.0*UD_UntieDifficulty*0.25)*UD_UntieDifficulty/100.0
         else
             _untieProgress =  fRange(_untieProgress - UD_UntieDifficulty*0.075,0.0,UD_UntieDifficulty)
@@ -184,11 +184,7 @@ Function OnMinigameEnd() ;called when minigame end
 EndFunction
 
 Function updateWidget(bool force = false)
-    if _untieMinigameOn
-        if !UDmain.UD_UseNativeFunctions
-            setWidgetVal(_untieProgress/UD_UntieDifficulty,force)
-        endif
-    else
+    if !_untieMinigameOn
         parent.updateWidget(force)
     endif
 EndFunction

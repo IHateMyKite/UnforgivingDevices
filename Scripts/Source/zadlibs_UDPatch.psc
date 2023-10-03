@@ -527,10 +527,12 @@ Armor Function GetWornRenderedDeviceByKeyword(Actor akActor, Keyword kw)
     return none
 EndFunction
 
+;TODO - remove once DDNG is dropped
 Armor Function GetWornDevice(Actor akActor, Keyword kw)
     return GetWornDevicePatched(akActor, kw)
 EndFunction
 
+;TODO - remove once DDNG is dropped
 Armor Function GetWornDevicePatched(Actor akActor, Keyword kw)
     if !akActor
         UDmain.Error("GetWornDevice - Actor is none")
@@ -559,7 +561,7 @@ Armor Function GetWornDevicePatched(Actor akActor, Keyword kw)
     endif
     
     Armor loc_result = none
-    if UDmain.UD_UseNativeFunctions && akActor == playerRef
+    if akActor == playerRef
         Form[] loc_devices = UD_Native.GetInventoryDevices(akActor,true)
         int loc_i
         while loc_i

@@ -212,9 +212,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     float loc_staminaRate     = akActor.getBaseAV("StaminaRate")
     akActor.setAV("StaminaRate", 0.0)
     
-    if UDmain.UD_UseNativeFunctions
-        UDmain.UDWC.Meter_SetNativeRate("player-orgasm",0.0)
-    endif
+    UDmain.UDWC.Meter_SetNativeRate("player-orgasm",0.0)
     
     ;UDCDMain.DisableActor(akActor,true)
     UDCDMain.StartMinigameDisable(akActor)
@@ -254,11 +252,8 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     float   loc_orgasmResistence            = getActorOrgasmResist(akActor)
     int     loc_HightSpiritMode_Duration    = -2*Round(1/UDmain.UD_baseUpdateTime)
     int     loc_HightSpiritMode_Type        = 1
-    bool    loc_useNative                   = UDmain.UD_UseNativeFunctions
-    
-    if loc_useNative
-        UD_Native.StartMinigameEffect(akActor,fRange((loc_currentOrgasmRate/loc_orgasmResistence),0.5,3.5), loc_baseDrain, 0.0, 0.0, true)
-    endif
+
+    UD_Native.StartMinigameEffect(akActor,fRange((loc_currentOrgasmRate/loc_orgasmResistence),0.5,3.5), loc_baseDrain, 0.0, 0.0, true)
     
     while loc_cycleON
         if !akActor.isInFaction(OrgasmResistFaction)
@@ -266,13 +261,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
         endif
         
         if loc_cycleON
-            if loc_useNative
-                loc_cycleON = UD_Native.MinigameStatsCheck(akActor,true,false,false)
-            else
-                if akActor.getAV("Stamina") <= 0
-                    loc_cycleON = false
-                endif
-            endif
+            loc_cycleON = UD_Native.MinigameStatsCheck(akActor,true,false,false)
         endif
         
         if loc_cycleON
@@ -282,11 +271,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
                         loc_StaminaRateMult = 0.25
                     elseif loc_HightSpiritMode_Type == 2
                         loc_StaminaRateMult = 0.75
-                        if UDmain.UD_UseNativeFunctions
-                            UDmain.UDWC.Meter_SetNativeRate("player-orgasm",-10.0)
-                        else
-                            UpdateActorOrgasmProgress(akActor,-8.0*(UDmain.UD_baseUpdateTime),true)
-                        endif
+                        UDmain.UDWC.Meter_SetNativeRate("player-orgasm",-10.0)
                     elseif loc_HightSpiritMode_Type == 3
                         loc_StaminaRateMult = 0.75
                         libs.UpdateExposure(akActor,-2*iRange(Math.Floor(5*UDmain.UD_baseUpdateTime),1,10))
@@ -296,9 +281,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
                 endif
             else
                 loc_StaminaRateMult = 1.0
-                if UDmain.UD_UseNativeFunctions
-                    UDmain.UDWC.Meter_SetNativeRate("player-orgasm",0.0)
-                endif
+                UDmain.UDWC.Meter_SetNativeRate("player-orgasm",0.0)
             endif
         endif
         
@@ -324,12 +307,8 @@ Function FocusOrgasmResistMinigame(Actor akActor)
         endif
         
         if loc_cycleON
-            if loc_useNative
-                float loc_mult = loc_StaminaRateMult*fRange((loc_currentOrgasmRate/loc_orgasmResistence),0.5,3.5)
-                UD_Native.UpdateMinigameEffectMult(akActor,loc_mult)
-            else
-                akActor.damageAV("Stamina", loc_StaminaRateMult*loc_baseDrain*fRange((loc_currentOrgasmRate/loc_orgasmResistence),0.5,3.5)*UDmain.UD_baseUpdateTime)
-            endif
+            float loc_mult = loc_StaminaRateMult*fRange((loc_currentOrgasmRate/loc_orgasmResistence),0.5,3.5)
+            UD_Native.UpdateMinigameEffectMult(akActor,loc_mult)
         endif
         
         if loc_HightSpiritMode_Duration > 0 && loc_cycleON
@@ -348,9 +327,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
         endif
     endwhile
     
-    if loc_useNative
-        UD_Native.EndMinigameEffect(akActor)
-    endif
+    UD_Native.EndMinigameEffect(akActor)
     
     akActor.setAV("StaminaRate", loc_staminaRate)
     

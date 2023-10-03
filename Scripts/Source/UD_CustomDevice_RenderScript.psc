@@ -2564,16 +2564,7 @@ EndFunction
         Number of parameters. Returns 0 in case of error
 /;
 int Function getModifierParamNum(string asModifier)
-    if UDmain.UD_UseNativeFunctions
-        return UD_Native.getModifierParamNum(UD_Modifiers,asModifier)
-    else
-        string[] loc_params = getModifierAllParam(asModifier)
-        if !loc_params
-            return 0
-        else
-            return loc_params.length
-        endif
-    endif
+    return UD_Native.getModifierParamNum(UD_Modifiers,asModifier)
 EndFunction
 
 ;/  Function: getModifierIntParam
@@ -4237,7 +4228,7 @@ EndFunction
 /;
 Function decreaseDurabilityAndCheckUnlock(float afValue,float afCondMult = 1.0,Bool abCheckCondition = True)
     if current_device_health > 0.0
-        if UDmain.UD_UseNativeFunctions && PlayerInMinigame() && UD_damage_device
+        if PlayerInMinigame() && UD_damage_device
             ;update and fetch value from native meter
             current_device_health = UDmain.UDWC.Meter_UpdateNativeValue("device-main",-1.0*afValue)*UD_Health/100.0
         else
@@ -4250,7 +4241,7 @@ Function decreaseDurabilityAndCheckUnlock(float afValue,float afCondMult = 1.0,B
 EndFunction
 
 Function _DecreaseCondition(Float afCondition, Float afMult, bool abCheckCondition)
-    if UDmain.UD_UseNativeFunctions && PlayerInMinigame() && UD_damage_device
+    if PlayerInMinigame() && UD_damage_device
         ;update fetch value from native meter
         _total_durability_drain = UDmain.UDWC.Meter_UpdateNativeValue("device-condition",-1.0*afCondition*afMult)*UD_Health/100.0
     else
@@ -4382,7 +4373,7 @@ Function _updateCondition(bool decrease = True)
     Float loc_health = UD_Health
     if decrease
         while (_total_durability_drain >= loc_health) && !IsUnlocked && UD_condition < 4
-            if PlayerInMinigame() && UDmain.UD_UseNativeFunctions && UD_damage_device
+            if PlayerInMinigame() && UD_damage_device
                 UDmain.UDWC.Meter_SetNativeValue("device-condition",100)
                 _total_durability_drain = 0
             else
@@ -6593,7 +6584,7 @@ Function minigame()
     Bool      loc_DamageDevice     = UD_damage_device
     Bool      loc_MinigameEffectEnabled = False
     
-    bool      loc_useNativeMeter   = PlayerInMinigame() && UDmain.UD_UseNativeFunctions
+    bool      loc_useNativeMeter   = PlayerInMinigame()
     bool      loc_useIWW           = UDmain.UseiWW()
     float     loc_health           = UD_Health
     
@@ -7197,9 +7188,7 @@ Function SpecialButtonPressed(float afMult = 1.0)
             if !_usingTelekinesis
                 _usingTelekinesis = true
                 
-                if UDmain.UD_UseNativeFunctions
-                    UD_Native.MinigameEffectUpdateMagicka(UDmain.Player,0.5*UD_base_stat_drain + UDmain.Player.getBaseAV("Magicka")*0.02)
-                endif
+                UD_Native.MinigameEffectUpdateMagicka(UDmain.Player,0.5*UD_base_stat_drain + UDmain.Player.getBaseAV("Magicka")*0.02)
                 
                 UD_minigame_magicka_drain = 0.5*UD_base_stat_drain + Wearer.getBaseAV("Magicka")*0.02
                 if haveHelper()
@@ -7236,9 +7225,7 @@ Function SpecialButtonReleased(float afHoldTime)
                 UD_minigame_magicka_drain = 0
                 UD_minigame_magicka_drain_helper = 0
                 
-                if UDmain.UD_UseNativeFunctions
-                    UD_Native.MinigameEffectSetMagicka(UDmain.Player,0.0)
-                endif
+                UD_Native.MinigameEffectSetMagicka(UDmain.Player,0.0)
                 
                 if _RepairLocksMinigameON
                     if WearerHaveTelekinesis()
@@ -7340,7 +7327,7 @@ bool Function ProccesAV(float fUpdateTime)
         Float loc_healthdrain = UD_minigame_heal_drain * UDCDMain.UD_MinigameDrainMult
         Float loc_magickahdrain = UD_minigame_magicka_drain * UDCDMain.UD_MinigameDrainMult
         bool  loc_isplayer = WearerIsPlayer()
-        if UDmain.UD_UseNativeFunctions && loc_isplayer
+        if loc_isplayer
             if !UD_Native.MinigameStatsCheck(Wearer,loc_staminadrain > 0.0, loc_healthdrain  > 0.0, loc_magickahdrain  > 0.0)
                 stopMinigame()
                 return false
@@ -7381,7 +7368,7 @@ bool Function ProccesAVHelper(float fUpdateTime)
         Float loc_healthdrain   = UD_minigame_heal_drain_helper * UDCDMain.UD_MinigameDrainMult
         Float loc_magickahdrain = UD_minigame_magicka_drain_helper * UDCDMain.UD_MinigameDrainMult
         bool  loc_isplayer      = HelperIsPlayer()
-        if UDmain.UD_UseNativeFunctions && loc_isplayer
+        if loc_isplayer
             if !UD_Native.MinigameStatsCheck(_minigameHelper,loc_staminadrain  > 0.0, loc_healthdrain  > 0.0, loc_magickahdrain  > 0.0)
                 stopMinigame()
                 return false
@@ -7417,29 +7404,27 @@ bool Function ProccesAVHelper(float fUpdateTime)
 EndFunction
 
 Function _StartMinigameEffect()
-    if UDmain.UD_UseNativeFunctions
-        if WearerIsPlayer()
-            Float loc_staminadrain  = UD_minigame_stamina_drain
-            Float loc_healthdrain   = UD_minigame_heal_drain
-            Float loc_magickahdrain = UD_minigame_magicka_drain
-            UD_Native.StartMinigameEffect(Wearer,UDCDMain.UD_MinigameDrainMult,loc_staminadrain, loc_healthdrain, loc_magickahdrain,false)
-        elseif HelperIsPlayer()
-            Float loc_staminadrain  = UD_minigame_stamina_drain_helper
-            Float loc_healthdrain   = UD_minigame_heal_drain_helper
-            Float loc_magickahdrain = UD_minigame_magicka_drain_helper
-            UD_Native.StartMinigameEffect(_minigameHelper,UDCDMain.UD_MinigameDrainMult,loc_staminadrain, loc_healthdrain, loc_magickahdrain,false)
-        endif
+    if WearerIsPlayer()
+        Float loc_staminadrain  = UD_minigame_stamina_drain
+        Float loc_healthdrain   = UD_minigame_heal_drain
+        Float loc_magickahdrain = UD_minigame_magicka_drain
+        UD_Native.StartMinigameEffect(Wearer,UDCDMain.UD_MinigameDrainMult,loc_staminadrain, loc_healthdrain, loc_magickahdrain,false)
+    elseif HelperIsPlayer()
+        Float loc_staminadrain  = UD_minigame_stamina_drain_helper
+        Float loc_healthdrain   = UD_minigame_heal_drain_helper
+        Float loc_magickahdrain = UD_minigame_magicka_drain_helper
+        UD_Native.StartMinigameEffect(_minigameHelper,UDCDMain.UD_MinigameDrainMult,loc_staminadrain, loc_healthdrain, loc_magickahdrain,false)
     endif
 EndFunction
 
 Function _EndMinigameEffect()
-    if UDmain.UD_UseNativeFunctions && PlayerInMinigame()
+    if PlayerInMinigame()
         UD_Native.EndMinigameEffect(UDmain.Player)
     endif
 EndFunction
 
 Function _ToggleMinigameEffect(Bool abToggle)
-    if UDmain.UD_UseNativeFunctions && PlayerInMinigame()
+    if PlayerInMinigame()
         UD_Native.ToggleMinigameEffect(UDmain.Player,abToggle)
     endif
 EndFunction
@@ -8037,17 +8022,6 @@ string Function addInfoString(string str = "")
 EndFunction
 
 Function updateWidget(bool force = false)
-    if !UDmain.UD_UseNativeFunctions
-        if _StruggleGameON
-            setWidgetVal(getRelativeDurability(),force)
-        endif
-        
-        ;update condition widget
-        If UDmain.UDWC.UD_UseDeviceConditionWidget
-            UDmain.UDWC.Meter_SetFillPercent("device-condition", getRelativeCondition() * 100.0)
-        endif
-    endif
-    
     if _CuttingGameON
         setWidgetVal(getRelativeCuttingProgress(),force)
     elseif _RepairLocksMinigameON
@@ -8304,31 +8278,9 @@ EndFunction
 
 ;internal functions, as calling them from UDmain can cause suspension
 int Function codeBit(int iCodedMap,int iValue,int iSize,int iIndex)
-    if UDmain.UD_UseNativeFunctions
-        return UD_Native.codeBit(iCodedMap,iValue,iSize,iIndex)
-    endif
-    
-    if iIndex + iSize > 32 || iSize < 1 || iIndex < 0
-        return 0xFFFFFFFF ;returns error value
-    endif
-    ;sets not shifted bit mask loc_clear_mask
-    int loc_clear_mask = (Math.LeftShift(0x1,iSize) - 1)                        ;mask used to clear bits which will be set
-    iValue = Math.LeftShift(Math.LogicalAnd(iValue,loc_clear_mask),iIndex)      ;clear value from bigger bits
-    loc_clear_mask = Math.LogicalNot(Math.LeftShift(loc_clear_mask,iIndex))     ;shift and negate
-    iCodedMap = Math.LogicalAnd(iCodedMap,loc_clear_mask)                       ;clear maps bits with mask
-    return Math.LogicalOr(iCodedMap,iValue)                                     ;sets bits
+    return UD_Native.codeBit(iCodedMap,iValue,iSize,iIndex)
 endfunction
 
 int Function decodeBit(int iCodedMap,int iSize,int iIndex)
-    if UDmain.UD_UseNativeFunctions
-        return UD_Native.decodeBit(iCodedMap,iSize,iIndex)
-    endif
-
-    if iIndex + iSize > 32
-        return 0xFFFFFFFF ;returns error value
-    endif
-    ;sets not shifted bit mask
-    iCodedMap = Math.RightShift(iCodedMap,iIndex)                           ;shift to right, so value is correct
-    iCodedMap = Math.LogicalAnd(iCodedMap,(Math.LeftShift(0x1,iSize) - 1))  ;clear maps bits with mask
-    return iCodedMap
+    return UD_Native.decodeBit(iCodedMap,iSize,iIndex)
 EndFunction

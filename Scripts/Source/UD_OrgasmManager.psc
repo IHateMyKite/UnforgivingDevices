@@ -492,14 +492,10 @@ Function UpdateActorOrgasmProgress(Actor akActor,Float afValue,bool bUpdateWidge
     float loc_newValue = fRange(StorageUtil.GetFloatValue(akActor, "UD_OrgasmProgress",0.0) + afValue,0.0,getActorOrgasmCapacity(akActor))
     StorageUtil.SetFloatValue(akActor, "UD_OrgasmProgress",loc_newValue)
     if bUpdateWidget && UDCONF.UD_UseOrgasmWidget
-        if UDmain.UD_UseNativeFunctions
-            if UDmain.UDWC.UD_UseIWantWidget
-                UD_Native.SetMeterValueIWW(UDmain.UDWC._GetMeter("player-orgasm").Id,loc_newValue / getActorOrgasmCapacity(akActor) * 100.0)
-            else
-                UD_Native.SetMeterValueSkyUi(UDmain.UDWC._GetVanillaMeter("player-orgasm").WidgetRoot,loc_newValue / getActorOrgasmCapacity(akActor) * 100.0)
-            endif
+        if UDmain.UDWC.UD_UseIWantWidget
+            UD_Native.SetMeterValueIWW(UDmain.UDWC._GetMeter("player-orgasm").Id,loc_newValue / getActorOrgasmCapacity(akActor) * 100.0)
         else
-            UDmain.UDWC.Meter_SetFillPercent("player-orgasm", loc_newValue / getActorOrgasmCapacity(akActor) * 100.0)
+            UD_Native.SetMeterValueSkyUi(UDmain.UDWC._GetVanillaMeter("player-orgasm").WidgetRoot,loc_newValue / getActorOrgasmCapacity(akActor) * 100.0)
         endif
     endif
     _OrgasmProgressManip_Mutex = false

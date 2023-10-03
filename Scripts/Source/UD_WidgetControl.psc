@@ -805,10 +805,6 @@ EndFunction
     
     Use <Meter_UnRegisterNative> to unregister registered meter
     
-    *Native library is required!!*
-    
-    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
-    
     Parameters:
         asMeter  - meter name/alias (for example device-main)
         afValue  - inital value that meter will be forced to. Have to be in range from 0.0 to 100.0
@@ -822,10 +818,6 @@ EndFunction
 ;/  Function: Meter_UnRegisterNative
     Unregister registered meter from native library
     
-    *Native library is required!!*
-    
-    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
-    
     Parameters:
         asMeter  - meter name/alias (for example device-main)
 /;
@@ -835,10 +827,6 @@ EndFunction
 
 ;/  Function: Meter_UnRegisterNative
     Unregister all registered meters from native library
-    
-    *Native library is required!!*
-    
-    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
     
     Returns:
         Number of unregistered meters
@@ -851,10 +839,6 @@ EndFunction
     Toggle native meter, stopping it from updating its value.
     
     Meter have to be first registered with <Meter_RegisterNative> before this function can be used
-    
-    *Native library is required!!*
-    
-    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
     
     Parameters:
         asMeter  - meter name/alias (for example device-main)
@@ -869,10 +853,6 @@ EndFunction
     
     Meter have to be first registered with <Meter_RegisterNative> before this function can be used
     
-    *Native library is required!!*
-    
-    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
-    
     Parameters:
         asMeter  - meter name/alias (for example device-main)
         afRate   - new rate that meter will use to update its value. Rate is in value per second. Can be both positive and negative
@@ -886,10 +866,6 @@ EndFunction
     
     Meter have to be first registered with <Meter_RegisterNative> before this function can be used
     
-    *Native library is required!!*
-    
-    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
-    
     Parameters:
         asMeter  - meter name/alias (for example device-main)
         afMult   - new multiplier for meter rate
@@ -902,10 +878,6 @@ EndFunction
     Get the rate of the registered native meter
     
     Meter have to be first registered with <Meter_RegisterNative> before this function can be used
-    
-    *Native library is required!!*
-    
-    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
     
     Parameters:
         asMeter  - meter name/alias (for example device-main)
@@ -922,10 +894,6 @@ EndFunction
     
     Meter have to be first registered with <Meter_RegisterNative> before this function can be used
     
-    *Native library is required!!*
-    
-    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
-    
     Parameters:
         asMeter  - meter name/alias (for example device-main)
         afValue  - New meter value
@@ -938,10 +906,6 @@ EndFunction
     Updates value of registered meter
     
     Meter have to be first registered with <Meter_RegisterNative> before this function can be used
-    
-    *Native library is required!!*
-    
-    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
     
     Parameters:
         asMeter  - meter name/alias (for example device-main)

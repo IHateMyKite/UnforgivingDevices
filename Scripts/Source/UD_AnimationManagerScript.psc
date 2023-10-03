@@ -634,48 +634,10 @@ Int Function GetActorConstraintsInt(Actor akActor, Bool abUseCache = True)
         Return StorageUtil.GetIntValue(akActor, "UD_ActorConstraintsInt")
     EndIf
     
-    Int result = 0
-
-    if UDmain.UD_UseNativeFunctions
-        result = UD_Native.GetActorConstrains(akActor)
-    else
-        If akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirt) && !akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirtRelaxed)
-            result += 1
-        EndIf
-        If akActor.WornHasKeyword(libs.zad_DeviousAnkleShackles) || akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirtRelaxed)
-            result += 2
-        EndIf
-        If akActor.WornHasKeyword(libs.zad_DeviousHeavyBondage)
-            If akActor.WornHasKeyword(libs.zad_DeviousElbowTie)     ; FIX: temporal fix for errors in "Devious Devices SE patch.esp". In that patch Yoke keyword was added to ElbowTie devices.
-                result += 128
-            ElseIf akActor.WornHasKeyword(libs.zad_DeviousYoke)
-                result += 4
-            ElseIf akActor.WornHasKeyword(libs.zad_DeviousCuffsFront)
-                result += 8
-            ElseIf akActor.WornHasKeyword(libs.zad_DeviousArmbinder)
-                result += 16
-            ElseIf akActor.WornHasKeyword(libs.zad_DeviousArmbinderElbow)
-                result += 32
-            ElseIf akActor.WornHasKeyword(libs.zad_DeviousPetSuit)
-                result += 64
-    ;        ElseIf akActor.WornHasKeyword(libs.zad_DeviousElbowTie)        
-    ;            result += 128
-            ElseIf akActor.WornHasKeyword(libs.zad_DeviousStraitJacket)
-                result += 512
-            ElseIf akActor.WornHasKeyword(libs.zad_DeviousYokeBB)
-                result += 1024
-            EndIf
-        EndIf
-        If akActor.WornHasKeyword(libs.zad_DeviousBondageMittens)
-            result += 256
-        EndIf
-        If akActor.WornHasKeyword(libs.zad_DeviousGag)
-            result += 2048
-        EndIf
-    endif
+    Int loc_result = UD_Native.GetActorConstrains(akActor)
     StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt_Invalid", 0)
-    StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt", result)
-    Return result
+    StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt", loc_result)
+    Return loc_result
 EndFunction
 
 ;/  Function: InvalidateActorConstraintsInt

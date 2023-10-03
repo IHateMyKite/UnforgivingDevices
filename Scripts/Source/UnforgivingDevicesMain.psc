@@ -306,18 +306,6 @@ EndProperty
 float Property UD_LowPerformanceTime    = 1.0   autoreadonly
 float Property UD_HightPerformanceTime  = 0.25  autoreadonly
 
-;/  Variable: UD_UseNativeFunctions
-
-    If true, SKSE plugin native functions will be used
-    
-    This variable is automatically switched to false if user have not met conditions to use the plugin
-    
-    This variable is set with MCM
-    
-    Do not edit, *READ ONLY!*. Configurable on MCM *Generic* page by user.
-/;
-Bool  Property UD_UseNativeFunctions    = False auto hidden ;switch for native functions
-
 ;/  Variable: UD_baseUpdateTime
 
     Returns:
@@ -632,11 +620,9 @@ Function OnGameReload()
         Update()
         _IncrementUpdateCounter()
         
-        if UD_UseNativeFunctions
-            int loc_removedmeters = UDWC.Meter_UnregisterAllNative()
-            if loc_removedmeters > 0
-                Info(self+"::OnGameReload() - Removed " + loc_removedmeters + " registered meters!")
-            endif
+        int loc_removedmeters = UDWC.Meter_UnregisterAllNative()
+        if loc_removedmeters > 0
+            Info(self+"::OnGameReload() - Removed " + loc_removedmeters + " registered meters!")
         endif
         _IncrementUpdateCounter()
         
@@ -762,10 +748,6 @@ Function Update()
     _ValidateModules()
     _CheckOptionalMods()
     _CheckPatchesOrder()
-    
-    ;check that correct SKSE version is installed first and validate the control variable
-    ;also check if dll is actually present
-    UD_UseNativeFunctions = UD_UseNativeFunctions && NativeAllowed()
     
     if !Ready
         if _UpdateCheck() || _FatalError
