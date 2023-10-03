@@ -830,7 +830,8 @@ EndFunction
 ; Main Loop
 Function VibrateUpdate(Int aiUpdateTime)
     ;lasts untill times runs out or device is removed (normally stopVibration is called, but its possible for device to be manually which doesn't stop this loop)
-    if (_currentVibRemainingDuration != 0) && isDeviceValid()
+    bool loc_endflag = false
+    if ((_currentVibRemainingDuration != 0) && !loc_endflag) && isDeviceValid()
         _ProcessPause(aiUpdateTime)
         if !_paused
             ;vibrate sound
@@ -853,9 +854,13 @@ Function VibrateUpdate(Int aiUpdateTime)
                 endif
             endif
             
-            if isVibrating() && !_paused
-                _currentVibRemainingDuration -= aiUpdateTime ;reduce timer
-                ;Utility.Wait(1.0)
+            if isVibrating() && !_paused && (_currentVibRemainingDuration > 0)
+                if (_currentVibRemainingDuration <= aiUpdateTime)
+                    loc_endflag = true
+                    _currentVibRemainingDuration = 0
+                else
+                    _currentVibRemainingDuration -= aiUpdateTime ;reduce timer
+                endif
             endif
             resetCooldown(1.0)
         endif

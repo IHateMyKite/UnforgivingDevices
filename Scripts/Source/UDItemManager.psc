@@ -4,7 +4,6 @@ import UnforgivingDevicesMain
 
 UDCustomDeviceMain      Property UDCDmain               auto
 UnforgivingDevicesMain  Property UDmain                 auto
-bool                    Property UD_useHoods = True     auto
 UD_AbadonQuest_script   Property AbadonScript           auto
 
 Bool Property Ready = False auto
@@ -74,7 +73,7 @@ Function equipAbadonLatexSuit(Actor target)
         libs.LockDevice(target,randomColorNormDevice(1,"blindfold"),True)
     endif
     
-    if (!target.WornhasKeyword(libs.zad_DeviousHood) && UD_useHoods)
+    if (!target.WornhasKeyword(libs.zad_DeviousHood) && UDmain.UDRRM.IsDeviceFiltered(7))
         int loc_random = Utility.randomInt(1,2)
         if loc_random == 1
             libs.LockDevice(target,randomColorCatsuitDevice(color,"gasmask-tube"))
@@ -294,7 +293,7 @@ Function equipAbadonYokeSuit(Actor target)
         endif
     endif
 
-    if (!target.WornhasKeyword(libs.zad_DeviousHood) && UD_useHoods)
+    if (!target.WornhasKeyword(libs.zad_DeviousHood) && UDmain.UDRRM.IsDeviceFiltered(7))
         if (!target.WornhasKeyword(libs.zad_DeviousGag))
             libs.LockDevice(target,UDmain.UDlibs.AbadonGagTape)
         endif
@@ -381,12 +380,8 @@ Function equipAbadonFinisherSuit(Actor target)
     if !target.WornhasKeyword(libs.zad_DeviousCollar)
         libs.LockDevice(target,UDmain.UDlibs.AbadonCuffCollar)
     endif
-    
-;    if !target.wornHasKeyword(libs.zad_DeviousHood) && UD_useHoods
-;        libs.LockDevice(target,UDmain.UDlibs.CursedAbadonGasmask)
-;    endif
- 
-    if UD_useHoods
+     
+    if UDmain.UDRRM.IsDeviceFiltered(7)
         libs.SwapDevices(target,UDmain.UDlibs.CursedAbadonGasmask,libs.zad_DeviousHood) ; force to wear cursed gasmask too
     endif
    
