@@ -800,7 +800,7 @@ Function _VibrateStart(float afDurationMult = 1.0)
         return
     endif
     
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         UDmain.Log("Vibrate called for " + getDeviceName() + " on " + getWearerName() + ", duration: " + _currentVibRemainingDuration + ", strength: " + CurrentVibStrength + ", edging: " + _currentEdgingMode)
     endif
     
@@ -1015,7 +1015,6 @@ Few functions which should be used in similiar matter as <Override>
     Called when vibration start
 /;
 Function OnVibrationStart()
-    UDMain.Log("UD_CustomVibratorBase_RenderScript::OnVibrationStart() " + Self + ", CurrentVibStrength = " + CurrentVibStrength, 3)
     OnVibrationStrengthUpdate()
 EndFunction
 
@@ -1023,7 +1022,6 @@ EndFunction
     Called when vibration end
 /;
 Function OnVibrationEnd()
-    UDMain.Log("UD_CustomVibratorBase_RenderScript::OnVibrationEnd() " + Self + ", CurrentVibStrength = " + CurrentVibStrength, 3)
     If WearerIsPlayer()
         UDMain.UDWC.StatusEffect_SetMagnitude(VibrationEffectSlot, 0)
         UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, False)

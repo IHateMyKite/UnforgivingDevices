@@ -1091,40 +1091,9 @@ Function showDebugMenu(int slot_id)
                 UD_equipedCustomDevices[slot_id].activateDevice()
                 return
             elseif res == 6 ;Add modifier
-                string[] loc_ModifierList = new String[9]
-                loc_ModifierList[0] = "Regen"
-                loc_ModifierList[1] = "Sentient"
-                loc_ModifierList[2] = "Loose"
-                loc_ModifierList[3] = "MAO"
-                loc_ModifierList[4] = "MAH"
-                loc_ModifierList[5] = "_HEAL"
-                loc_ModifierList[6] = "LootGold"
-                loc_ModifierList[7] = "DOR"
-                loc_ModifierList[8] = "_L_CHEAP"
-                int loc_res1 = UDMain.GetUserListInput(loc_ModifierList)
-                if loc_res1 >= 0
-                    String loc_modName = loc_ModifierList[loc_res1]
-                    String loc_param = UDMain.GetUserTextInput()
-                    
-                    ; TODO
-                    ;if !UD_equipedCustomDevices[slot_id].addModifier(loc_modName,loc_param)
-                    ;    UDmain.Print("Error! Can't add " + loc_modName)
-                    ;endif
-                endif
-                ;UD_equipedCustomDevices[slot_id].addModifier()
-                ;debug.messagebox(UD_equipedCustomDevices[slot_id].getInfoString())
+                UDmain.UDMOM.Debug_AddModifier(UD_equipedCustomDevices[slot_id])
             elseif res == 7 ;Remove modifier
-                if UD_equipedCustomDevices[slot_id].UD_ModifiersRef.length > 0
-                    ; TODO
-                    ;int loc_res = UDMain.GetUserListInput(UD_equipedCustomDevices[slot_id].UD_Modifiers)
-                    ;if loc_res >= 0
-                    ;    string loc_modRaw = UD_equipedCustomDevices[slot_id].UD_Modifiers[loc_res]
-                    ;    string loc_modHead = UD_equipedCustomDevices[slot_id].GetModifierHeader(loc_modRaw)
-                    ;    if !UD_equipedCustomDevices[slot_id].removeModifier(loc_modHead)
-                    ;        UDmain.Print("Error! Can't remove " + loc_modRaw)
-                    ;    endif
-                    ;endif
-                endif
+                UDmain.UDMOM.Debug_RemoveModifier(UD_equipedCustomDevices[slot_id])
             else
                 return
             endif

@@ -1,6 +1,7 @@
 ScriptName UD_Modifier_Heal extends UD_Modifier
 
 import UnforgivingDevicesMain
+import UDCustomDeviceMain
 
 Function TimeUpdateSecond(UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
     if akDevice.WearerIsRegistered()
@@ -11,6 +12,14 @@ Function TimeUpdateSecond(UD_CustomDevice_RenderScript akDevice, Float afTime, S
             loc_i+=1
         endwhile
     endif
+EndFunction
+
+Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
+    return (Utility.randomInt(1,100) < (5 + 10*(IsEbonite(akDevice) as Int)*PatchChanceMultiplier))
+EndFunction
+
+Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
+    akDevice.addModifier(self,Round(PatchPowerMultiplier*Utility.randomInt(25,50)))
 EndFunction
 
 Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)

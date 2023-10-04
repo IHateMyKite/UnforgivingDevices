@@ -513,11 +513,9 @@ int         Property UD_Cooldown                    = 0             auto
 /;
 Float       Property UD_DefaultHealth               = 100.0         auto
 
-;/  Variable: UD_Modifiers
-    Array of modifiers. Check modifier wiki page for more info <https://github.com/IHateMyKite/UnforgivingDevices/wiki/Modifiers>
+;/  Variable: UD_ModifiersRef
+    Arrays of modifier data. Check modifier wiki page for more info <https://github.com/IHateMyKite/UnforgivingDevices/wiki/Modifiers> (outdated)
 /;
-string[]    Property UD_Modifiers                                   auto    ;modifiers
-
 Alias[]     Property UD_ModifiersRef          auto
 String[]    Property UD_ModifiersDataStr      auto
 Form[]      Property UD_ModifiersDataForm1    auto
@@ -2175,12 +2173,12 @@ Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True)
 EndFunction
 
 ;check sentient event and activets it
-function checkSentient(float mult = 1.0)
+function checkSentient(float afMult = 1.0)
     if isSentient()
         if Utility.randomInt() > 75 && WearerIsPlayer()
             startSentientDialogue(1)
         endif
-        if Round(getModifierFloatParam("Sentient")*mult) > Utility.randomInt(1,99)
+        if Round(UD_Modifier.getStringParamFloat(GetModifierParam("SEN"))*afMult) > Utility.randomInt(1,99)
             if UDmain.TraceAllowed()
                 UDmain.Log("Sentient device activation of : " + getDeviceHeader())
             endif
@@ -2190,16 +2188,16 @@ function checkSentient(float mult = 1.0)
 EndFunction
 
 ;function called when wearer is hit by source weapon
-Function weaponHit(Weapon source)
-    if onWeaponHitPre(source)
-        onWeaponHitPost(source)
+Function weaponHit(Weapon akSource)
+    if onWeaponHitPre(akSource)
+        onWeaponHitPost(akSource)
     endif
 EndFunction
 
 ;function called when wearer is hit by source spell
-Function spellHit(Spell source)
-    if onSpellHitPre(source)
-        onSpellHitPost(source)
+Function spellHit(Spell akSource)
+    if onSpellHitPre(akSource)
+        onSpellHitPost(akSource)
     endif
 EndFunction
 
@@ -2371,6 +2369,15 @@ EndFunction
 ===========================================================================================
 /;
 
+;/  Function: GetNthModifier
+    Parameters:
+
+        aiIndex  - Index of modifier
+
+    Returns:
+
+        Nth modifier
+/;
 UD_Modifier Function GetNthModifier(Int aiIndex)
     return UD_ModifiersRef[aiIndex] as UD_Modifier
 EndFunction
@@ -2396,7 +2403,7 @@ EndFunction
         ; TODO
     ---
 /;
-bool Function addModifier(UD_Modifier akModifier,string asParam = "", Form akForm1, Form akForm2, Form akForm3)
+bool Function addModifier(UD_Modifier akModifier,string asParam = "", Form akForm1 = none, Form akForm2 = none, Form akForm3 = none)
     if !hasModifier(akModifier)
         UD_ModifiersRef         = PapyrusUtil.PushAlias (UD_ModifiersRef        ,akModifier)
         UD_ModifiersDataStr     = PapyrusUtil.PushString(UD_ModifiersDataStr    ,asParam)
@@ -2419,7 +2426,7 @@ EndFunction
         true if modifiers was succesfully removed
 /;
 bool Function removeModifier(UD_Modifier akModifier)
-    if hasModifier(akModifier)
+    if hasModifierRef(akModifier)
         int loc_i               = 0
         int loc_size            = UD_ModifiersRef.length
         int loc_removed_indx    = UD_ModifiersRef.find(akModifier)
@@ -2455,7 +2462,7 @@ EndFunction
 ;/  Function: hasModifier
     Parameters:
 
-        asModifier  - Name of modifier to check
+        asModifier  - Alias of modifier to check
 
     Returns:
 
@@ -2488,7 +2495,7 @@ EndFunction
 ;/  Function: getModifierAllParam
     Parameters:
 
-        asModifier  - Name of modifier
+        asModifier  - Alias of modifier
 
     Returns:
 
@@ -2503,6 +2510,15 @@ String[] Function getModifierAllParam(string asModifier)
     endif
 EndFunction
 
+;/  Function: getModifier
+    Parameters:
+
+        asModifier  - Alias of modifier
+
+    Returns:
+
+        Modifier or none if its not found
+/;
 UD_Modifier Function getModifier(string asModifier)
     if hasModifier(asModifier)
         return UD_ModifiersRef[getModifierIndex(asModifier)] as UD_Modifier
@@ -2511,6 +2527,32 @@ UD_Modifier Function getModifier(string asModifier)
     endif
 EndFunction
 
+;/  Function: getModifierParam
+    Parameters:
+
+        asModifier  - Alias of modifier
+
+    Returns:
+
+        Parameter string
+/;
+String Function getModifierParam(string asModifier)
+    if hasModifier(asModifier)
+        return UD_ModifiersDataStr[getModifierIndex(asModifier)]
+    else
+        return ""
+    endif
+EndFunction
+
+;/  Function: getModifierIndex
+    Parameters:
+
+        asModifier  - Alias of modifier
+
+    Returns:
+
+        Index of alias with asModifier alias, or -1 of its not found
+/;
 int Function getModifierIndex(string asModifier)
     int loc_Index = UD_ModifiersRef.length
     while loc_Index
@@ -2545,100 +2587,6 @@ bool Function editStringModifier(string asModifier,int aiIndex, string asNewValu
         return false
     endif
 EndFunction
-
-bool Function modifierHaveParams(string asModifier)
-    if UD_ModifiersDataStr[getModifierIndex(asModifier)] != ""
-        return true
-    else
-        return false
-    endif
-EndFunction
-
-;/  Function: getModifierParamNum
-    Parameters:
-
-        asModifier  - Name of modifier
-
-    Returns:
-
-        Number of parameters. Returns 0 in case of error
-/;
-int Function getModifierParamNum(string asModifier)
-    return UD_Native.getModifierParamNum(UD_Modifiers,asModifier)
-EndFunction
-
-;/  Function: getModifierIntParam
-    Parameters:
-
-        asModifier      - Name of modifier
-        aiIndex         - Index of parameter
-        aiDefaultValue  - Default value in case of error
-
-    Returns:
-
-        Int value of Nth parameter of modifier
-/;
-Int Function getModifierIntParam(string asModifier,int aiIndex = 0,int aiDefaultValue = 0)
-    string[] loc_params = getModifierAllParam(asModifier)
-    if !loc_params
-        UDmain.Warning(getDeviceHeader() + "::getModifierIntParam("+asModifier+","+aiIndex+","+aiDefaultValue+") - modifier have no parameters")
-        return aiDefaultValue
-    elseif aiIndex > (loc_params.length - 1)
-        UDmain.Warning(getDeviceHeader() + "::getModifierIntParam("+asModifier+","+aiIndex+","+aiDefaultValue+") - Passed index out of range, returning default value" + aiDefaultValue)
-        return aiDefaultValue
-    else
-        return loc_params[aiIndex] as Int
-    endif
-EndFunction
-
-;/  Function: getModifierFloatParam
-    Parameters:
-
-        asModifier      - Name of modifier
-        aiIndex         - Index of parameter
-        afDefaultValue  - Default value in case of error
-
-    Returns:
-
-        Float value of Nth parameter of modifier
-/;
-Float Function getModifierFloatParam(string asModifier,int aiIndex = 0,Float afDefaultValue = 0.0)
-    string[] loc_params = getModifierAllParam(asModifier)
-    if !loc_params
-        UDmain.Warning(getDeviceHeader() + "::getModifierFloatParam("+asModifier+","+aiIndex+","+afDefaultValue+") - modifier have no parameters")
-        return afDefaultValue
-    elseif aiIndex > (loc_params.length - 1)
-        UDmain.Warning(getDeviceHeader() + "::getModifierFloatParam("+asModifier+","+aiIndex+","+afDefaultValue+") - Passed index out of range, returning default value" + afDefaultValue)
-        return afDefaultValue
-    else
-        return loc_params[aiIndex] as Float
-    endif
-EndFunction
-
-;/  Function: getModifierParam
-    Parameters:
-
-        asModifier      - Name of modifier
-        aiIndex         - Index of parameter
-        afDefaultValue  - Default value in case of error
-
-    Returns:
-
-        Value of Nth parameter of modifier
-/;
-String Function getModifierParam(string asModifier,int aiIndex = 0,String asDefaultValue = "ERROR")
-    string[] loc_params = getModifierAllParam(asModifier)
-    if !loc_params
-        UDmain.Warning(getDeviceHeader() + "::getModifierFloatParam("+asModifier+","+aiIndex+","+asDefaultValue+") - modifier have no parameters")
-        return asDefaultValue
-    elseif aiIndex > (loc_params.length - 1)
-        UDmain.Warning(getDeviceHeader() + "::getModifierFloatParam("+asModifier+","+aiIndex+","+asDefaultValue+") - Passed index out of range, returning default value" + asDefaultValue)
-        return asDefaultValue
-    else
-        return loc_params[aiIndex]
-    endif
-EndFunction
-
 
 ;/  Function: setModifierIntParam
     Change one int parameter value. Is wrapper of <editStringModifier> method
@@ -2694,37 +2642,37 @@ EndFunction
 ;/  Function: isSentient
     Returns:
 
-        True if device have "Sentient" modifier
+        True if device have "SEN" modifier
 /;
 bool Function isSentient()
-    return hasModifier("Sentient")
+    return hasModifier("SNT")
 EndFunction
 
 ;/  Function: haveRegen
     Returns:
 
-        True if device have "Regen" modifier
+        True if device have "REG" modifier
 /;
 bool Function haveRegen()
-    return hasModifier("Regen")
+    return hasModifier("REG")
 EndFunction
 
 ;/  Function: isLoose
     Returns:
 
-        True if device have "Loose" modifier
+        True if device have "LOS" modifier
 /;
 bool Function isLoose()
-    return hasModifier("Loose")
+    return hasModifier("LOS")
 EndFunction
 
 ;/  Function: getLooseMod
     Returns:
 
-        Modifier for "Loose" modifier
+        Modifier for "LOS" modifier
 /;
 float Function getLooseMod()
-    return getModifierFloatParam("Loose")
+    return UD_Modifier.getStringParamFloat(getModifierParam("LOS"),0,0.5)
 EndFunction
 
 ;==============================================================================================
@@ -4341,30 +4289,6 @@ Function refillCuttingProgress(float afValue)
         _CuttingProgress -= afValue
         if _CuttingProgress < 0.0
             _CuttingProgress = 0.0
-        endif
-    endif
-EndFunction
-
-;/  Function: updateMend
-    Force device to be repaired if it have any related modifier (Regen,_HEAL).
-    
-    Amplitude of effect is based on time passed.
-    
-    This function is periodically called for all registered devices by NPC Manager
-
-    Parameters:
-
-        afTimePassed    - Time in days. By how much time should be device mended. Use time related functions like <ConvertTimeHours> to make calculations safer
-/;
-Function updateMend(float afTimePassed)
-    if hasModifier("_HEAL")
-        if WearerIsRegistered()
-            UD_CustomDevice_RenderScript[] loc_devices = UDCDmain.getNPCDevices(getWearer())
-            int loc_i = 0
-            while loc_devices[loc_i]
-                loc_devices[loc_i].refillDurability(afTimePassed*getModifierIntParam("_HEAL")*UDCDmain.getStruggleDifficultyModifier())
-                loc_i+=1
-            endwhile
         endif
     endif
 EndFunction
@@ -7557,45 +7481,10 @@ Function ShowModifiers()
     loc_mod.ShowDetails(self,UD_ModifiersDataStr[loc_res],UD_ModifiersDataForm1[loc_res],UD_ModifiersDataForm2[loc_res],UD_ModifiersDataForm3[loc_res])
     
     ;TODO
-    
-    ;if (haveRegen())
-    ;    loc_res += ("Regeneration ("+ formatString(getModifierIntParam("Regen")/24.0,1) +"/h)\n")
-    ;endif
-    ;if hasModifier("_HEAL")
-    ;    loc_res += "Healer ("+  formatString(getModifierIntParam("_HEAL")/24.0,1) +"/h)\n"
-    ;endif
-    ;if hasModifier("DOR")
-    ;    loc_res += "Destroy on unlock\n"
-    ;endif
-    ;
-    ;if hasModifier("MAH")
-    ;    loc_res += "Random manifest (" + getModifierIntParam("MAH",0) +" %)\n"
-    ;endif
-    ;
-    ;if hasModifier("MAO")
-    ;    loc_res += "Orgasm manifest (" + getModifierIntParam("MAO",0) +" %)\n"
-    ;endif
-    ;
-    ;if hasModifier("_L_CHEAP")
-    ;    loc_res += "Cheap locks (" + getModifierIntParam("_L_CHEAP",0) +" %)\n"
-    ;endif
-    
+      
     ;if UD_OnDestroyItemList
     ;    loc_res += "Contains Items\n"
     ;endif
-    
-    ;if (isSentient())
-    ;    loc_res += "Sentient (" + formatString(getModifierFloatParam("Sentient"),1) +" %)\n"
-    ;Endif
-    ;
-    ;if (isLoose())
-    ;    loc_res += "Loose (" + formatString(getModifierFloatParam("Loose")*100,1) +" %)\n"
-    ;Endif
-    
-    ;if deviceRendered.hasKeyword(UDlibs.PatchedDevice)
-    ;    loc_res += "Patched device ("+Round(UDCDmain.UDPatcher.GetPatchDifficulty(self)*100.0)+" %)\n"
-    ;endif
-    ;UDmain.ShowMessageBox(loc_res)
 EndFunction
 
 
@@ -7658,16 +7547,6 @@ Function ShowLockDetails()
     endwhile
 EndFunction
 
-Function _showRawModifiers()
-    int i = 0
-    string res = "-RAW MODIFIERS-\n"
-    while i < UD_Modifiers.length
-        res += UD_Modifiers[i] + "\n"
-        i += 1
-    endwhile
-    UDmain.ShowMessageBox(res)
-EndFunction
-
 ;/  Function: showDebugMinigameInfo
     Shows message box with debug information about device
 /;
@@ -7685,7 +7564,6 @@ Function showDebugInfo()
     endif
     loc_res += _getCritInfo()
     UDmain.ShowMessageBox(loc_res)
-    _showRawModifiers()
 EndFunction
 
 ;/  Function: showDebugMinigameInfo
@@ -7999,8 +7877,8 @@ Function onWeaponHitPost(Weapon source)
         decreaseDurabilityAndCheckUnlock(loc_damage*0.25*(1.0 - UD_WeaponHitResist),2.0)
         
         if HaveUnlockableLocks()
-            if hasModifier("_L_CHEAP")
-                int loc_chance = Round(getModifierIntParam("_L_CHEAP",0)*0.1)
+            if hasModifier("CLO")
+                int loc_chance = Round(UD_Modifier.getStringParamInt(GetModifierParam("CLO"),0)*0.1)
                 AddJammedLock(loc_chance)
             endif
         endif
@@ -8232,10 +8110,6 @@ State UpdatePaused
     Function Update(float timePassed)
         _updateTimePassed += (timePassed*24.0*60.0);*UDCDmain.UD_CooldownMultiplier
     EndFunction
-    
-    Function updateMend(float timePassed)
-    EndFunction
-    
     Function UpdateHour(float mult)
     EndFunction
 EndState

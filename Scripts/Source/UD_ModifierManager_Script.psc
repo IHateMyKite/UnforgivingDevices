@@ -48,8 +48,51 @@ int Function AddModifierStorage(UD_ModifierStorage akStorage)
     if !akStorage
         return -1
     endif
+    UDmain.Info("Adding modifier storage -> " + akStorage)
+    
     _modifierstorages = PapyrusUtil.PushForm(_modifierstorages,akStorage as Form)
     return _modifierstorages.length
+EndFunction
+
+int Function GetModifierStorageCount()
+    if _modifierstorages
+        return _modifierstorages.length
+    else
+        return 0
+    endif
+EndFunction
+
+UD_ModifierStorage Function GetNthModifierStorage(Int aiIndex)
+    return _modifierstorages[aiIndex] as UD_ModifierStorage
+EndFunction
+
+UD_Modifier Function GetModifier(String asAlias)
+    int loc_count = GetModifierStorageCount()
+    while loc_count
+        loc_count -= 1
+        
+        UD_ModifierStorage loc_storage = GetNthModifierStorage(loc_count)
+        Int loc_modnum = loc_storage.GetModifierNum()
+        while loc_modnum
+            loc_modnum -= 1
+            UD_Modifier loc_mod = loc_storage.GetNthModifier(loc_modnum)
+            if loc_mod && (loc_mod.NameAlias == asAlias)
+                return loc_mod
+            endif
+        endwhile
+    endwhile
+    return none
+EndFunction
+
+Function UpdateStorage()
+    UDmain.Info("Updating modifiers - Start")
+    int loc_i = 0
+    while loc_i < _modifierstorages.length
+        UDmain.Info("Updating modifiers -> " + _modifierstorages[loc_i])
+        ResetQuest(_modifierstorages[loc_i] as Quest)
+        loc_i += 1
+    endwhile
+    UDmain.Info("Updating modifiers - Done!")
 EndFunction
 
 Function OnInit()
@@ -57,7 +100,32 @@ Function OnInit()
 EndFunction
 
 Function Update()
+    ;UpdateStorage()
+    UpdateLists()
 EndFunction
+
+String[]        Property UD_ModifierList    auto hidden
+Alias[]         Property UD_ModifierListRef auto hidden
+Function UpdateLists()
+    UD_ModifierList     = Utility.CreateStringArray(0)
+    UD_ModifierListRef  = Utility.CreateAliasArray(0)
+
+    int loc_count = GetModifierStorageCount()
+    while loc_count
+        loc_count -= 1
+        UD_ModifierStorage loc_storage = GetNthModifierStorage(loc_count)
+        Int loc_modnum = loc_storage.GetModifierNum()
+        while loc_modnum
+            loc_modnum -= 1
+            UD_Modifier loc_mod = loc_storage.GetNthModifier(loc_modnum)
+            if loc_mod
+                UD_ModifierList    = PapyrusUtil.PushString(UD_ModifierList,loc_mod.NameFull)
+                UD_ModifierListRef = PapyrusUtil.PushAlias(UD_ModifierListRef,loc_mod)
+            endif
+        endwhile
+    endwhile
+EndFunction
+
 
 float _LastUpdateTime = 0.0
 Event OnUpdate()
@@ -159,8 +227,6 @@ Function Procces_UpdateModifiers_Hour(UD_CustomDevice_RenderScript akDevice,floa
         UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
         loc_mod.TimeUpdateHour(akDevice,afMult,akDevice.UD_ModifiersDataStr[loc_modid],akDevice.UD_ModifiersDataForm1[loc_modid],akDevice.UD_ModifiersDataForm2[loc_modid],akDevice.UD_ModifiersDataForm3[loc_modid])
     endwhile
-    ;Procces_MAH_Hour(argDevice,argMult) ;MAH
-    ;Procces__L_CHEAP_Hour(argDevice,argMult) ;_L_CHEAP
 EndFunction
 
 Function Procces_UpdateModifiers_Orgasm(UD_CustomDevice_RenderScript akDevice)
@@ -190,87 +256,60 @@ Function Procces_UpdateModifiers_Remove(UD_CustomDevice_RenderScript akDevice) ;
     endwhile
 EndFunction
 
-;====================================================================================
-;                            implementation of modifiers
-;====================================================================================
 
-Function Procces_MAH_Hour(UD_CustomDevice_RenderScript argDevice,float argMult)
-    if !libsp.isValidActor(argDevice.GetWearer())
-        return
-    endif    
-    if !argDevice.hasModifier("MAH")
-        return
-    endif
-    int loc_chance = Round(argDevice.getModifierIntParam("MAH",0)*(UDPatcher.UD_MAHMod/100.0))
-    int loc_number = argDevice.getModifierIntParam("MAH",1,1)
-    ManifestDevices(argDevice.GetWearer(),argDevice.getDeviceName() ,loc_chance,loc_number)
-EndFunction
+;DEBUG
 
-Function Procces__L_CHEAP_Hour(UD_CustomDevice_RenderScript argDevice,float argMult)
-    if !argDevice.HaveUnlockableLocks()
-        return
-    endif
-    if !argDevice.hasModifier("_L_CHEAP")
-        return
-    endif
-    int loc_chance = argDevice.getModifierIntParam("_L_CHEAP",0)
-    if loc_chance
-        argDevice.AddJammedLock(loc_chance)
-    endif
-EndFunction
-
-Function Procces_MAO_Orgasm(UD_CustomDevice_RenderScript argDevice)
-    if !libsp.isValidActor(argDevice.GetWearer())
-        return
-    endif
-    if !argDevice.hasModifier("MAO")
-        return
-    endif
-    int loc_chance = Round(argDevice.getModifierIntParam("MAO",0)*(UDPatcher.UD_MAOMod/100.0))
-    int loc_number = argDevice.getModifierIntParam("MAO",1,1)
-    ManifestDevices(argDevice.GetWearer(),argDevice.getDeviceName() ,loc_chance,loc_number)
-EndFunction
-
-Function Procces_LootGold_Remove(UD_CustomDevice_RenderScript argDevice)
-EndFunction
-
-int Function ManifestDevices(Actor akActor,string strSource ,int iChance,int iNumber)
-    Form[] loc_array
-    if Utility.randomInt(1,99) < iChance
-        while iNumber
-            while UDmain.UDOM.isOrgasming(akActor)
-                Utility.wait(0.1)
-            endwhile
-            iNumber -= 1
-            Armor loc_device = UDRRM.LockRandomRestrain(akActor)
-            if loc_device
-                loc_array = PapyrusUtil.PushForm(loc_array,loc_device)
-            else
-                iNumber = 0 ;end, because no more devices can be locked
+Function Debug_AddModifier(UD_CustomDevice_RenderScript akDevice)
+    string[] loc_ModifierList
+    Alias[]  loc_ModifierListRef
+    int loc_count = GetModifierStorageCount()
+    while loc_count
+        loc_count -= 1
+        UD_ModifierStorage loc_storage = GetNthModifierStorage(loc_count)
+        Int loc_modnum = loc_storage.GetModifierNum()
+        while loc_modnum
+            loc_modnum -= 1
+            UD_Modifier loc_mod = loc_storage.GetNthModifier(loc_modnum)
+            if loc_mod
+                loc_ModifierList = PapyrusUtil.PushString(loc_ModifierList,loc_mod.NameFull)
+                loc_ModifierListRef = PapyrusUtil.PushAlias(loc_ModifierListRef,loc_mod as Alias)
             endif
         endwhile
-    endif
-    if loc_array
-        if loc_array.length > 0
-            if UDmain.ActorIsPlayer(akActor)
-                UDmain.Print(strSource + " suddenly locks you in bondage restraint!",1)
-                ;/
-                string loc_str = "Devices locked: \n"
-                int i = 0
-                while i < loc_array.length
-                    loc_str += (loc_array[i] as Armor).getName() + "\n"
-                    i+= 1
-                endwhile
-                ShowMessageBox(loc_str)
-                /;
-            elseif UDCDmain.AllowNPCMessage(akActor)
-                UDmain.Print(GetActorName(akActor) + "s "+ strSource +" suddenly locks them in bondage restraint!",3)
+    endwhile
+    if loc_ModifierList
+        int loc_res1 = UDMain.GetUserListInput(loc_ModifierList)
+        if loc_res1 >= 0
+            UD_Modifier loc_mod = loc_ModifierListRef[loc_res1] as UD_Modifier
+            if !akDevice.HasModifierRef(loc_mod)
+                String      loc_param = UDMain.GetUserTextInput()
+                if !akDevice.addModifier(loc_mod,loc_param)
+                    UDmain.Print("Error! Can't add " + loc_mod.NameFull)
+                endif
+            else
+                UDmain.Print("Error! Can't add " + loc_mod.NameFull + " becausei t is already on device")
             endif
         endif
     endif
-    if loc_array
-        return loc_array.length
-    else
-        return 0
+EndFunction
+
+Function Debug_RemoveModifier(UD_CustomDevice_RenderScript akDevice)
+    if akDevice.UD_ModifiersRef.length > 0
+        string[] loc_ModifierList
+        Int loc_i = 0
+        while loc_i < akDevice.UD_ModifiersRef.length
+            UD_Modifier loc_mod = akDevice.UD_ModifiersRef[loc_i] as UD_Modifier
+            if loc_mod
+                loc_ModifierList    = PapyrusUtil.PushString(loc_ModifierList,loc_mod.NameFull)
+            endif
+            loc_i += 1
+        endwhile
+    
+        int loc_res = UDMain.GetUserListInput(loc_ModifierList)
+        if loc_res >= 0
+            UD_Modifier loc_mod = akDevice.UD_ModifiersRef[loc_res] as UD_Modifier
+            if !akDevice.removeModifier(loc_mod)
+                UDmain.Print("Error! Can't remove " + loc_mod.NameFull)
+            endif
+        endif
     endif
 EndFunction

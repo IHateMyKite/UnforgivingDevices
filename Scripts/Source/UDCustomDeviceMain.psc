@@ -3486,3 +3486,122 @@ Int[] Function DistributeLockShields(Int aiLockNum, Int aiLockShieldNum)
     
     return loc_res
 EndFunction
+
+;/  Function: ManifestDevices
+
+    Locks actor in specific number of device
+    Parameters:
+
+        akActor         - Actor to lock device on
+        asSource        - string which will be printed as source of device manifest
+        aiChance        - Chance devices will be manifested (0-100)
+
+    Returns:
+
+        Number of devices locked
+/;
+int Function ManifestDevices(Actor akActor,string asSource ,int aiChance,int aiNumber)
+    Form[] loc_array
+    if aiChance == 100 || Utility.randomInt(1,99) < aiChance
+        while aiNumber
+            while UDmain.UDOM.isOrgasming(akActor)
+                Utility.wait(0.1)
+            endwhile
+            aiNumber -= 1
+            Armor loc_device = UDmain.UDRRM.LockRandomRestrain(akActor)
+            if loc_device
+                loc_array = PapyrusUtil.PushForm(loc_array,loc_device)
+            else
+                aiNumber = 0 ;end, because no more devices can be locked
+            endif
+        endwhile
+    endif
+    if loc_array
+        if loc_array.length > 0
+            if UDmain.ActorIsPlayer(akActor)
+                UDmain.Print(asSource + " suddenly locks you in bondage restraint!",1)
+                ;/
+                string loc_str = "Devices locked: \n"
+                int i = 0
+                while i < loc_array.length
+                    loc_str += (loc_array[i] as Armor).getName() + "\n"
+                    i+= 1
+                endwhile
+                ShowMessageBox(loc_str)
+                /;
+            elseif AllowNPCMessage(akActor)
+                UDmain.Print(GetActorName(akActor) + "s "+ asSource +" suddenly locks them in bondage restraint!",3)
+            endif
+        endif
+    endif
+    if loc_array
+        return loc_array.length
+    else
+        return 0
+    endif
+EndFunction
+
+;/  Group: Device material
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+;/  Function: isEbonite
+
+    Parameters:
+
+        akDevice        - Device to check
+
+    Returns:
+
+        True if device is from ebonite or latex
+/;
+bool Function isEbonite(UD_CustomDevice_RenderScript akDevice) global
+    if (StringUtil.find(akDevice.deviceInventory.getName(),"Ebonite") != -1) || (StringUtil.find(akDevice.deviceInventory.getName(),"Latex") != -1) || (StringUtil.find(akDevice.deviceInventory.getName(),"Rubber") != -1)
+        return True
+    Else
+        Return False
+    EndIF
+EndFunction
+
+;/  Function: isSteel
+
+    Parameters:
+
+        akDevice        - Device to check
+
+    Returns:
+
+        True if device is from steel or iron
+/;
+bool Function isSteel(UD_CustomDevice_RenderScript akDevice) global
+    return (StringUtil.find(akDevice.deviceInventory.getName(),"Steel") != -1) || (StringUtil.find(akDevice.deviceInventory.getName(),"Iron") != -1)
+EndFunction
+
+;/  Function: isRope
+
+    Parameters:
+
+        akDevice        - Device to check
+
+    Returns:
+
+        True if device is from repes
+/;
+bool Function isRope(UD_CustomDevice_RenderScript akDevice) global
+    return (StringUtil.find(akDevice.deviceInventory.getName(),"Rope") != -1)
+EndFunction
+;/  Function: isSecure
+
+    Parameters:
+
+        akDevice        - Device to check
+
+    Returns:
+
+        True if device is secure (High Security)
+/;
+bool Function isSecure(UD_CustomDevice_RenderScript akDevice) global
+    return (StringUtil.find(akDevice.deviceInventory.getName(),"High Security") != -1 || StringUtil.find(akDevice.deviceInventory.getName(),"Secure") != -1)
+EndFunction

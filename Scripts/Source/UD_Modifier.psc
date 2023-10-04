@@ -11,37 +11,70 @@ UnforgivingDevicesMain Property UDmain Hidden
         return _udmain
     EndFunction
 EndProperty
-
 UD_Libs Property UDlibs Hidden
     UD_Libs Function Get()
         return UDmain.UDlibs
     EndFunction
 EndProperty
-
 UDCustomDeviceMain Property UDCDmain Hidden
     UDCustomDeviceMain Function Get()
         return UDmain.UDCDmain
     EndFunction
 EndProperty
-
 UD_CustomDevices_NPCSlotsManager Property UDNPCM
     UD_CustomDevices_NPCSlotsManager Function get()
         return UDmain.UDNPCM
     EndFunction
 EndProperty
+zadlibs Property libs
+    zadlibs Function get()
+        return UDmain.libs
+    EndFunction
+EndProperty
 
-;name of modifier
+;/  Group: Variables
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+;/  Variable: NameFull
+    Full name of the modifier which is shown to the player
+/;
 String      Property NameFull               Auto
 
-;string alias of modifier (MAO for example if full name if Manifest At Orgasm)
+;/  Variable: NameAlias
+    Short name of the modifier which is used internaly (MAO for example if full name if Manifest At Orgasm)
+/;
 String      Property NameAlias              Auto
 
-;description of modifier (shown when opening the info in menu)
+;/  Variable: Description
+    Additional info shown to player when selecting modifier on device
+/;
 String      Property Description            Auto
 
-;multiplier of modifier
-;can be changed with MCM to adjust modifier
-Float       Property Multiplier     = 1.0   Auto
+;/  Variable: Multiplier
+    Multiplier which can be used to allow user to change difficulty of modifier.
+    
+    Have to be implemented manually at a correct place
+    
+    The bigger this will, the more punishing/rewarding should modifier be
+    
+    This will affect even equipped devices
+/;
+Float       Property Multiplier                 = 1.0   Auto hidden
+
+;/  Variable: PatchPowerMultiplier
+    Multiplier which can be used to allow user to change power at which are modifiers added by patcher
+    
+    This will not affect already equipped devices
+/;
+Float       Property PatchPowerMultiplier       = 1.0   Auto hidden
+
+;/  Variable: PatchChanceMultiplier
+    Multiplier which can be used to allow user to change cahnce that modifier will be added to patched device
+/;
+Float       Property PatchChanceMultiplier      = 1.0   Auto hidden
 
 ;event hooks
 String[]    Property EventHooks             Auto
@@ -54,6 +87,12 @@ Event RegisterEvents()
     ;endwhile
 EndEvent
 
+;/  Group: Overrides
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+;- TODO
 Function TimeUpdateSecond(UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
 EndFunction
 
@@ -68,19 +107,29 @@ EndFunction
 
 Function DeviceUnlocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
 EndFunction
-
 Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
     String loc_msg = ""
     
     loc_msg += "Name: " + NameFull + "\n\n"
     
-    loc_msg += "==Description==" + "\n"
-    loc_msg += Description
+    if Description
+        loc_msg += "==Description==" + "\n"
+        loc_msg += Description
+    endif
     
     UDmain.ShowMessageBox(loc_msg)
 EndFunction
+Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
+    return false
+EndFunction
+Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
+EndFunction
 
-
+;/  Group: Utility
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 int Function getStringParamNum(string asDataStr) global
     string[] loc_params = getStringParamAll(asDataStr)
     if !loc_params
@@ -89,7 +138,6 @@ int Function getStringParamNum(string asDataStr) global
         return loc_params.length
     endif
 EndFunction
-
 String[] Function getStringParamAll(string asDataStr) global
     if asDataStr != ""
         return StringUtil.split(asDataStr,",")
@@ -97,7 +145,6 @@ String[] Function getStringParamAll(string asDataStr) global
         return Utility.CreateStringArray(0)
     endif
 EndFunction
-
 Int Function getStringParamInt(string asDataStr,int aiIndex = 0,int aiDefaultValue = 0) global
     string[] loc_params = getStringParamAll(asDataStr)
     if !loc_params
@@ -108,7 +155,6 @@ Int Function getStringParamInt(string asDataStr,int aiIndex = 0,int aiDefaultVal
         return loc_params[aiIndex] as Int
     endif
 EndFunction
-
 Float Function getStringParamFloat(string asDataStr,int aiIndex = 0,Float afDefaultValue = 0.0) global
     string[] loc_params = getStringParamAll(asDataStr)
     if !loc_params

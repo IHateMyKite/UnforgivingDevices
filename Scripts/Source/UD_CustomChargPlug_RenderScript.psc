@@ -16,9 +16,12 @@ Float   _currentCharge  = 0.0
 Function InitPost()
     parent.InitPost()
     UD_DeviceType = "Chargable Plug"
-    ;if !hasModifier("DOR")
-        ;addModifier("DOR") - TODO
-    ;endif
+    if !hasModifier("DOR")
+        UD_Modifier loc_dor = UDmain.UDMOM.GetModifier("DOR")
+        if loc_dor
+        AddModifier(loc_dor)
+        endif
+    endif
     _BaseCooldown = UD_Cooldown
 EndFunction
 

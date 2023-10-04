@@ -137,19 +137,20 @@ EndFunction
 String Property UD_NPCsPageName = "$UD_NPCSCONFIG" auto
 
 Function LoadConfigPages()
-    pages = new String[12]
-    pages[0] = "$UD_GENERAL"
-    pages[1] = "$UD_DEVICEFILTER"
-    pages[2] = "$UD_CUSTOMDEVICES"
-    pages[3] = "$UD_CUSTOMORGASM"
-    pages[4] = UD_NPCsPageName
-    pages[5] = "$UD_PATCHER"
-    pages[6] = "$UD_DDPATCH"
-    pages[7] = "$UD_ABADONPLUG"
-    pages[8] = "$UD_UIWIDGETS"
-    pages[9] = "$UD_ANIMATIONS"
-    pages[10] = "$UD_DEBUGPANEL"
-    pages[11] = "$UD_OTHER"
+    pages = new String[13]
+    pages[00] = "$UD_GENERAL"
+    pages[01] = "$UD_DEVICEFILTER"
+    pages[02] = "$UD_CUSTOMDEVICES"
+    pages[03] = "Custom Modifiers" ;TODO - add to translation file
+    pages[04] = "$UD_CUSTOMORGASM"
+    pages[05] = UD_NPCsPageName
+    pages[06] = "$UD_PATCHER"
+    pages[07] = "$UD_DDPATCH"
+    pages[08] = "$UD_ABADONPLUG"
+    pages[09] = "$UD_UIWIDGETS"
+    pages[10] = "$UD_ANIMATIONS"
+    pages[11] = "$UD_DEBUGPANEL"
+    pages[12] = "$UD_OTHER"
 EndFunction
 
 bool Property Ready = False Auto
@@ -254,6 +255,8 @@ Function Update()
     UD_MinigameLockpickSkillAdjust_ML[4] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT00"
 
     libs = UDCDmain.libs as zadlibs_UDPatch
+    
+    UD_ModifierSelected = 0
 EndFunction
 
 Function LoadConfig(Bool abResetToDef = True)
@@ -310,6 +313,8 @@ Event OnPageReset(string page)
         resetAbadonPage()
     elseif (page == "$UD_CUSTOMDEVICES")
         resetCustomBondagePage()
+    elseif (page == "Custom Modifiers")
+        resetModifiersPage()
     elseif (page == UD_NPCsPageName)
         ResetNPCsPage()
     elseif (page == "$UD_CUSTOMORGASM")
@@ -616,6 +621,45 @@ Event resetCustomBondagePage()
     AddTextOption("$UD_KEYMODIFIER", Math.floor((UDCDmain.CalculateKeyModifier())*100 + 0.5) + " %",OPTION_FLAG_DISABLED)
 EndEvent
 
+
+
+Int UD_ModifierSelected = 0
+int UD_ModifierList_M
+
+int UD_ModifierMultiplier_S
+int UD_ModifierPatchPowerMultiplier_S
+int UD_ModifierPatchChanceMultiplier_S
+
+Function resetModifiersPage()
+    UpdateLockMenuFlag()
+    setCursorFillMode(LEFT_TO_RIGHT)
+    AddHeaderOption("Custom modifiers")
+    addEmptyOption()
+    
+    UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+    
+    UD_ModifierList_M = AddMenuOption("Selected modifier: ", UDmain.UDMOM.UD_ModifierList[UD_ModifierSelected])
+    AddTextOption("Source",loc_mod.GetOwningQuest().GetName(),FlagSwitch(false))
+    addEmptyOption()
+    addEmptyOption()
+    
+    AddHeaderOption("Base details")
+    addEmptyOption()
+    
+    AddTextOption("Name",loc_mod.NameFull,FlagSwitch(false))
+    AddTextOption("Alias",loc_mod.NameAlias,FlagSwitch(false))
+    
+    AddHeaderOption("Multipliers")
+    addEmptyOption()
+    
+    UD_ModifierMultiplier_S = AddSliderOption("Strength multiplier",Round(loc_mod.Multiplier*100),"{0} %",UD_LockMenu_flag)
+    addEmptyOption()
+    
+    UD_ModifierPatchPowerMultiplier_S   = AddSliderOption("Patch Strength multiplier",Round(loc_mod.PatchPowerMultiplier*100),"{0} %",UD_LockMenu_flag)
+    UD_ModifierPatchChanceMultiplier_S  = AddSliderOption("Patch Chance multiplier",Round(loc_mod.PatchChanceMultiplier*100),"{0} %",UD_LockMenu_flag)
+    
+EndFunction
+
 int UD_OrgasmUpdateTime_S
 int UD_OrgasmAnimation_M
 int UD_UseOrgasmWidget_T
@@ -681,10 +725,6 @@ Event resetNPCsPage()
     UD_NPCSupport_T         = addToggleOption("$UD_NPCSUPPORT",UDmain.AllowNPCSupport)
 EndEvent
 
-Int UD_MAOChanceMod_S
-int UD_MAOMod_S
-Int UD_MAHChanceMod_S
-int UD_MAHMod_S
 int UD_EscapeModifier_S
 int UD_MinLocks_S
 int UD_MaxLocks_S
@@ -717,19 +757,6 @@ Event resetPatcherPage()
     
     UD_MinResistMult_S = addSliderOption("$UD_MINRESISTMULT",Round(UDCDmain.UDPatcher.UD_MinResistMult*100), "{0} %",UD_LockMenu_flag)
     UD_MaxResistMult_S = addSliderOption("$UD_MAXRESISTMULT",Round(UDCDmain.UDPatcher.UD_MaxResistMult*100), "{0} %",UD_LockMenu_flag)
-    
-    addEmptyOption()
-    addEmptyOption()
-    
-    AddHeaderOption("$UD_H_MANIFESTMODIFIERS")
-    addEmptyOption()
-    
-    UD_MAOChanceMod_S = addSliderOption("$UD_MAOCHANCEMOD",UDCDmain.UDPatcher.UD_MAOChanceMod, "{0} %",UD_LockMenu_flag)
-    UD_MAOMod_S = addSliderOption("$UD_MAOMOD",UDCDmain.UDPatcher.UD_MAOMod, "{0} %",UD_LockMenu_flag)
-    
-    UD_MAHChanceMod_S = addSliderOption("$UD_MAHCHANCEMOD",UDCDmain.UDPatcher.UD_MAHChanceMod, "{0} %",UD_LockMenu_flag)
-    UD_MAHMod_S = addSliderOption("$UD_MAHMOD",UDCDmain.UDPatcher.UD_MAHMod, "{0} %",UD_LockMenu_flag)
-    
     
     AddHeaderOption("$UD_H_DEVICEDIFFICULTYMODIFIERS")
     addEmptyOption()
@@ -1832,6 +1859,7 @@ event OnOptionSliderOpen(int option)
     OnOptionSliderOpenDebug(option)
     OnOptionSliderOpenUIWidget(option)
     OnOptionSliderOpenAnimations(option)
+    OnOptionSliderOpenModifiers(option)
 endEvent
 
 Function OnOptionSliderOpenGeneral(int option)
@@ -2026,27 +2054,7 @@ Function OnOptionSliderOpenNPCs(int option)
 EndFunction
 
 Function OnOptionSliderOpenPatcher(int option)
-    if (option == UD_MAOChanceMod_S)
-        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_MAOChanceMod)
-        SetSliderDialogDefaultValue(100.0)
-        SetSliderDialogRange(0.0, 500.0)
-        SetSliderDialogInterval(5.0)
-    elseif (option == UD_MAOMod_S)
-        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_MAOMod)
-        SetSliderDialogDefaultValue(100.0)
-        SetSliderDialogRange(0.0, 200.0)
-        SetSliderDialogInterval(5.0)
-    elseif (option == UD_MAHChanceMod_S)
-        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_MAHChanceMod)
-        SetSliderDialogDefaultValue(100.0)
-        SetSliderDialogRange(0.0, 500.0)
-        SetSliderDialogInterval(5.0)
-    elseif (option == UD_MAHMod_S)
-        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_MAHMod)
-        SetSliderDialogDefaultValue(100.0)
-        SetSliderDialogRange(0.0, 200.0)
-        SetSliderDialogInterval(5.0)
-    elseif (option == UD_PatchMult_S)
+    if (option == UD_PatchMult_S)
         SetSliderDialogStartValue(Round(UDCDmain.UDPatcher.UD_PatchMult * 100))
         SetSliderDialogDefaultValue(100.0)
         SetSliderDialogRange(10.0,300.0)
@@ -2217,6 +2225,28 @@ Function OnOptionSliderOpenAnimations(int option)
     endIf
 EndFunction
     
+Function OnOptionSliderOpenModifiers(int option)
+    if (option == UD_ModifierMultiplier_S)
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        SetSliderDialogStartValue(Round(loc_mod.Multiplier*100))
+        SetSliderDialogDefaultValue(100.0)
+        SetSliderDialogRange(0.0, 1000.0)
+        SetSliderDialogInterval(10.0)
+    elseif (option == UD_ModifierPatchPowerMultiplier_S)
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        SetSliderDialogStartValue(Round(loc_mod.PatchPowerMultiplier*100))
+        SetSliderDialogDefaultValue(100.0)
+        SetSliderDialogRange(0.0, 1000.0)
+        SetSliderDialogInterval(10.0)
+    elseif (option == UD_ModifierPatchChanceMultiplier_S)
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        SetSliderDialogStartValue(Round(loc_mod.PatchCHanceMultiplier*100))
+        SetSliderDialogDefaultValue(100.0)
+        SetSliderDialogRange(0.0, 1000.0)
+        SetSliderDialogInterval(10.0)
+    endIf
+EndFunction
+
 event OnOptionSliderAccept(int option, float value)
     OnOptionSliderAcceptGeneral(option,value)
     OnOptionSliderAcceptCustomBondage(option, value)
@@ -2227,6 +2257,7 @@ event OnOptionSliderAccept(int option, float value)
     OnOptionSliderAcceptDebug(option,value)
     OnOptionSliderAcceptUIWidget(option,value)
     OnOptionSliderAcceptAnimations(option, value)
+    OnOptionSliderAcceptModifiers(option, value)
 endEvent
 
 Function OnOptionSliderAcceptGeneral(int option, float value)
@@ -2352,19 +2383,7 @@ EndFunction
 
 Function OnOptionSliderAcceptPatcher(int option, float value)
     int loc_value = Round(value)
-    if (option == UD_MAOChanceMod_S)
-        UDCDmain.UDPatcher.UD_MAOChanceMod = loc_value
-        SetSliderOptionValue(UD_MAOChanceMod_S, UDCDmain.UDPatcher.UD_MAOChanceMod, "{0} %")
-    elseif (option == UD_MAOMod_S)
-        UDCDmain.UDPatcher.UD_MAOMod = loc_value
-        SetSliderOptionValue(UD_MAOMod_S, UDCDmain.UDPatcher.UD_MAOMod, "{0} %")
-    elseif (option == UD_MAHChanceMod_S)
-        UDCDmain.UDPatcher.UD_MAHChanceMod = loc_value
-        SetSliderOptionValue(UD_MAHChanceMod_S, UDCDmain.UDPatcher.UD_MAHChanceMod, "{0} %")
-    elseif (option == UD_MAHMod_S)
-        UDCDmain.UDPatcher.UD_MAHMod = loc_value
-        SetSliderOptionValue(UD_MAHMod_S, UDCDmain.UDPatcher.UD_MAHMod, "{0} %")
-    elseif (option == UD_PatchMult_S)
+    if (option == UD_PatchMult_S)
         UDCDmain.UDPatcher.UD_PatchMult = value/100.0
         SetSliderOptionValue(UD_PatchMult_S, Round(UDCDmain.UDPatcher.UD_PatchMult * 100), "{0} %")
     elseif (option == UD_EscapeModifier_S)
@@ -2475,6 +2494,22 @@ Function OnOptionSliderAcceptAnimations(int option, float value)
     endIf
 EndFunction
 
+Function OnOptionSliderAcceptModifiers(int option, float value)
+    if (option == UD_ModifierMultiplier_S)
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        loc_mod.Multiplier  = Round(value)/100.0
+        SetSliderOptionValue(UD_ModifierMultiplier_S, Round(value), "{0} %")
+    elseif (option == UD_ModifierPatchPowerMultiplier_S)
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        loc_mod.PatchPowerMultiplier  = Round(value)/100.0
+        SetSliderOptionValue(UD_ModifierPatchPowerMultiplier_S, Round(value), "{0} %")
+    elseif (option == UD_ModifierPatchChanceMultiplier_S)
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        loc_mod.PatchChanceMultiplier  = Round(value)/100.0
+        SetSliderOptionValue(UD_ModifierPatchChanceMultiplier_S, Round(value), "{0} %")
+    endIf
+EndFunction
+
 event OnOptionMenuOpen(int option)
     OnOptionMenuOpenDefault(option)
     OnOptionMenuOpenCustomBondage(option)
@@ -2482,6 +2517,7 @@ event OnOptionMenuOpen(int option)
     OnOptionMenuOpenAbadon(option)
     OnOptionMenuOpenUIWidget(option)
     OnOptionMenuOpenAnimations(option)
+    OnOptionMenuOpenModifiers(option)
 endEvent
 
 Function OnOptionMenuOpenDefault(int option)
@@ -2595,6 +2631,14 @@ Function OnOptionMenuOpenAnimations(Int option)
     EndIf
 EndFunction
 
+Function OnOptionMenuOpenModifiers(Int option)
+    If option == UD_ModifierList_M
+        SetMenuDialogOptions(UDmain.UDMOM.UD_ModifierList)
+        SetMenuDialogStartIndex(UD_ModifierSelected)
+        SetMenuDialogDefaultIndex(0)
+    EndIf
+EndFunction
+
 event OnOptionMenuAccept(int option, int index)
     OnOptionMenuAcceptDefault(option,index)
     OnOptionMenuAcceptCustomBondage(option,index)
@@ -2602,6 +2646,7 @@ event OnOptionMenuAccept(int option, int index)
     OnOptionMenuAcceptAbadon(option, index)
     OnOptionMenuAcceptUIWidget(option, index)
     OnOptionMenuAcceptAnimations(option, index)
+    OnOptionMenuAcceptModifiers(option, index)
 endEvent
 
 Function OnOptionMenuAcceptDefault(int option, int index)
@@ -2699,6 +2744,14 @@ Function OnOptionMenuAcceptAnimations(Int option, Int index)
     ElseIf option == UDAM_TestQuery_HelperLegs_M
         UDAM_TestQuery_HelperLegs_Index = index
         SetMenuOptionValue(option, UDAM_TestQuery_PlayerLegs_List[index])
+    EndIf
+EndFunction
+
+Function OnOptionMenuAcceptModifiers(Int option, Int index)
+    If option == UD_ModifierList_M
+        UD_ModifierSelected = index
+        SetMenuOptionValue(option, UDmain.UDMOM.UD_ModifierList[index])
+        forcePageReset()
     EndIf
 EndFunction
 
@@ -3045,14 +3098,6 @@ EndFunction
 Function PatcherPageDefault(int option)
     if  option == UD_PatchMult_S
         SetInfoText("$UD_PATCHMULT_INFO")
-    elseif option == UD_MAOChanceMod_S
-        SetInfoText("$UD_MAOCHANCEMOD_INFO")
-    elseif option == UD_MAHChanceMod_S
-        SetInfoText("$UD_MAHCHANCEMOD_INFO")
-    elseif option == UD_MAOMod_S
-        SetInfoText("$UD_MAOMOD_INFO")
-    elseif option == UD_MAHMod_S
-        SetInfoText("$UD_MAHMOD")
     elseif option == UD_EscapeModifier_S
         SetInfoText("$UD_ESCAPEMODIFIER_INFO")
     elseif option == UD_MinLocks_S
@@ -3364,14 +3409,6 @@ EndFunction
 Function PatcherPageInfo(int option)
     if  option == UD_PatchMult_S
         SetInfoText("$UD_PATCHMULT_INFO")
-    elseif option == UD_MAOChanceMod_S
-        SetInfoText("$UD_MAOCHANCEMOD_INFO")
-    elseif option == UD_MAHChanceMod_S
-        SetInfoText("$UD_MAHCHANCEMOD_INFO")
-    elseif option == UD_MAOMod_S
-        SetInfoText("$UD_MAOMOD_INFO")
-    elseif option == UD_MAHMod_S
-        SetInfoText("$UD_MAHMOD")
     elseif option == UD_EscapeModifier_S
         SetInfoText("$UD_ESCAPEMODIFIER_INFO")
     elseif option == UD_MinLocks_S
@@ -3680,10 +3717,6 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "AbadonPlugHardcore", AbadonQuest.hardcore as Int)
 
     ;PATCHER
-    JsonUtil.SetIntValue(strFile, "MAOChanceMod", UDCDmain.UDPatcher.UD_MAOChanceMod)
-    JsonUtil.SetIntValue(strFile, "MAOMod", UDCDmain.UDPatcher.UD_MAOMod)
-    JsonUtil.SetIntValue(strFile, "MAHChanceMod", UDCDmain.UDPatcher.UD_MAHChanceMod)
-    JsonUtil.SetIntValue(strFile, "MAHMod", UDCDmain.UDPatcher.UD_MAHMod)
     JsonUtil.SetIntValue(strFile, "EscapeModifier", UDCDmain.UDPatcher.UD_EscapeModifier)
     JsonUtil.SetIntValue(strFile, "MinLocks", UDCDmain.UDPatcher.UD_MinLocks)
     JsonUtil.SetIntValue(strFile, "MaxLocks", UDCDmain.UDPatcher.UD_MaxLocks)
@@ -3838,10 +3871,6 @@ Function LoadFromJSON(string strFile)
     AbadonQuest.hardcore = JsonUtil.GetIntValue(strFile, "AbadonPlugHardcore", AbadonQuest.hardcore as Int)
 
     ;PATCHER
-    UDCDmain.UDPatcher.UD_MAOChanceMod = JsonUtil.GetIntValue(strFile, "MAOChanceMod", UDCDmain.UDPatcher.UD_MAOChanceMod)
-    UDCDmain.UDPatcher.UD_MAOMod = JsonUtil.GetIntValue(strFile, "MAOMod", UDCDmain.UDPatcher.UD_MAOMod)
-    UDCDmain.UDPatcher.UD_MAHChanceMod = JsonUtil.GetIntValue(strFile, "MAHChanceMod", UDCDmain.UDPatcher.UD_MAHChanceMod)
-    UDCDmain.UDPatcher.UD_MAHMod = JsonUtil.GetIntValue(strFile, "MAHMod", UDCDmain.UDPatcher.UD_MAHMod)
     UDCDmain.UDPatcher.UD_EscapeModifier = JsonUtil.GetIntValue(strFile, "EscapeModifier", UDCDmain.UDPatcher.UD_EscapeModifier)
     UDCDmain.UDPatcher.UD_MinLocks = JsonUtil.GetIntValue(strFile, "MinLocks", UDCDmain.UDPatcher.UD_MinLocks)
     UDCDmain.UDPatcher.UD_MaxLocks = JsonUtil.GetIntValue(strFile, "MaxLocks", UDCDmain.UDPatcher.UD_MaxLocks)
@@ -3992,10 +4021,6 @@ Function ResetToDefaults()
     AbadonQuest.UseAnalVariant          = false
     
     ;PATCHER
-    UDCDmain.UDPatcher.UD_MAOChanceMod              = 100
-    UDCDmain.UDPatcher.UD_MAOMod                    = 100
-    UDCDmain.UDPatcher.UD_MAHChanceMod              = 100
-    UDCDmain.UDPatcher.UD_MAHMod                    = 100
     UDCDmain.UDPatcher.UD_EscapeModifier            = 10
     UDCDmain.UDPatcher.UD_MinLocks                  = 0
     UDCDmain.UDPatcher.UD_MaxLocks                  = 2
