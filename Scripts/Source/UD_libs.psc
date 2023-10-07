@@ -68,6 +68,9 @@ Armor Property CursedInflatablePlugAnal auto
 Armor Property InflatablePlugAnal auto
 Armor Property InflatablePlugVag auto
 
+;keyword
+Keyword Property AbadonDevice_KW auto
+
 ;hand restrains
 Armor Property AbadonArmbinder auto
 Armor Property AbadonArmbinderEbonite auto

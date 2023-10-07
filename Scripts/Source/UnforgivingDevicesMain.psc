@@ -3,6 +3,8 @@
 Scriptname UnforgivingDevicesMain extends Quest  conditional
 {Main script of Unforgiving Devices}
 
+import UD_Native
+
 Quest       Property UD_UtilityQuest    auto
 Quest       Property UD_LibsQuest       auto
 
@@ -259,7 +261,7 @@ EndProperty
         Correct UD_OrgasmManager for passed actor. There are currently 2 iterations of script, one for NPCs and one for player
 /;
 UD_OrgasmManager Function GetUDOM(Actor akActor)
-    if ActorIsPlayer(akActor)
+    if IsPlayer(akActor)
         return UDOMPlayer
     else
         return UDOMNPC
@@ -1311,114 +1313,6 @@ string Function IntToBit(int argInt) global
     return loc_res
 EndFunction
 
-;/  Function: codeBit
-
-    Parameters:
-
-        aiCodedMap   - Integer in to which should be additiona information coded
-        aiValue      - Value to be coded in to passed aiCodedMap
-        aiSize       - Size in bites of the information from aiValue
-        aiIndex      - Start index from which will be information coded on aiCodedMap. Sum of aiIndex and aiSize have to be less then 32!
-
-    Returns:
-
-        *aiCodedMap* with coded *aiValue*. Returns *0xFFFFFFFF* in case of error
-
-    _Example_:
-        --- Code
-        Int loc_map = 0x00000000                ;input value
-            loc_map = codeBit(loc_map,0xF,4,27) ;change last four bits to 1
-        ---
-/;
-int Function codeBit(int aiCodedMap,int aiValue,int aiSize,int aiIndex) global
-    
-    if aiIndex + aiSize > 32
-        return 0xFFFFFFFF ;returns error value
-    endif
-    ;sets not shifted bit mask loc_clear_mask
-    int loc_clear_mask = (Math.LeftShift(0x1,aiSize) - 1)                     ;mask used to clear bits which will be set
-    aiValue = Math.LeftShift(Math.LogicalAnd(aiValue,loc_clear_mask),aiIndex)    ;clear value from bigger bits
-    loc_clear_mask = Math.LogicalNot(Math.LeftShift(loc_clear_mask,aiIndex)) ;shift and negate
-    aiCodedMap = Math.LogicalAnd(aiCodedMap,loc_clear_mask)                     ;clear maps bits with mask
-    return Math.LogicalOr(aiCodedMap,aiValue)                                 ;sets bits
-endfunction
-
-;/  Function: decodeBit
-
-    Parameters:
-
-        aiCodedMap   - Integer from which should be information decoded
-        aiSize       - Size in bites of the information which will be decoded
-        aiIndex      - Start index from which will be information decoded from aiCodedMap. Sum of aiIndex and aiSize have to be less then 32!
-
-    Returns:
-
-        Decoded value from *iCodedMap*. Returns *0xFFFFFFFF* in case of error
-        
-    _Example_:
-        --- Code
-        Int loc_map = 0x000000F0             ;input value
-        Int loc_res = decodeBit(loc_map,4,3) ;decode value and save it to loc_res. Value in result will be 0xF = 15.
-        ---
-/;
-int Function decodeBit(int aiCodedMap,int aiSize,int aiIndex) global
-    if aiIndex + aiSize > 32
-        return 0xFFFFFFFF ;returns error value
-    endif
-    ;sets not shifted bit mask
-    aiCodedMap = Math.RightShift(aiCodedMap,aiIndex) ;shift to right, so value is correct
-    aiCodedMap = Math.LogicalAnd(aiCodedMap,(Math.LeftShift(0x1,aiSize) - 1)) ;clear maps bits with mask
-    return aiCodedMap
-EndFunction
-
-;/  Function: fRange
-
-    Truncate passed FLOAT value between two limits
-
-    Parameters:
-
-        afValue      - Value to be truncated
-        afMin        - Minimum value
-        afMax        - Maximum value
-
-    Returns:
-
-        Truncated value
-/;
-float Function fRange(float afValue,float afMin,float afMax) global
-    if afValue > afMax
-        return afMax
-    endif
-    if afValue < afMin
-        return afMin
-    endif
-    return afValue
-EndFunction
-
-;/  Function: iRange
-
-    Truncate passed INT value between two limits
-
-    Parameters:
-
-        aiValue      - Value to be truncated
-        aiMin        - Minimum value
-        aiMax        - Maximum value
-
-    Returns:
-
-        Truncated value
-/;
-int Function iRange(int aiValue,int aiMin,int aiMax) global
-    if aiValue > aiMax
-        return aiMax
-    endif
-    if aiValue < aiMin
-        return aiMin
-    endif
-    return aiValue
-EndFunction
-
 ;/  Function: iInRange
 
     Checks if passed value is in range
@@ -1518,31 +1412,6 @@ float Function checkLimit(float afValue,float afLimit) global
     else
         return afValue
     endif
-EndFunction
-
-
-;/  Function: Round
-
-    Round the FLOAT number to INT
-
-    Parameters:
-
-        afValue      - Value to be  rounded
-
-    Returns:
-
-        Rounded afValue
-
-    _Example_:
-        --- Code
-        Round(0.1) -> Returns 0
-        Round(0.4) -> Returns 0
-        Round(0.5) -> Returns 1
-        Round(0.9) -> Returns 1
-        ---
-/;
-int Function Round(float afValue) global
-    return Math.floor(afValue + 0.5)
 EndFunction
 
 ;/  Function: iUnsig
@@ -2030,65 +1899,6 @@ float Function getCurrentActorValuePerc(Actor akActor,string akValue) global
     return akActor.GetActorValuePercentage(akValue)
 EndFunction
 
-
-;/  Function: ActorIsPlayer
-
-    Parameters:
-
-        akActor   - Actor which will be checked
-
-    Returns:
-
-        True if passed akActor is player
-/;
-bool Function ActorIsPlayer(Actor akActor)
-    return akActor == Player
-EndFunction
-
-;/  Function: GActorIsPlayer
-
-    Global version of <ActorIsPlayer>. This function is generaly slower, and its non-global variant should be used instead.
-
-    Parameters:
-
-        akActor   - Actor which will be checked
-
-    Returns:
-
-        True if passed *akActor* is player
-/;
-bool Function GActorIsPlayer(Actor akActor) global
-    return akActor == Game.getPlayer()
-EndFunction
-
-;/  Function: GetActorName
-
-    Parameters:
-
-        akActor   - Actor whose name will be returned
-
-    Returns:
-
-        Name of passed actor. Returns *"ERROR:NONE"* if passed actor is none. Returns *"Unnamed X"* if actor have no name.
-/;
-string Function GetActorName(Actor akActor) global
-    if !akActor
-        return "ERROR:NONE"
-    endif
-    ActorBase loc_actorbase = akActor.GetLeveledActorBase()
-    string loc_res = loc_actorbase.getName()
-    if loc_res == "" ;actor have no name
-        if loc_actorbase.GetSex() == 0
-            loc_res = "Unnamed man"
-        elseif loc_actorbase.GetSex() == 1
-            loc_res = "Unnamed woman"
-        else
-            loc_res = "Unnamed person"
-        endif
-    endif
-    return loc_res
-EndFunction
-
 ;/  Function: ActorIsFollower
 
     Parameters:
@@ -2164,7 +1974,7 @@ int Property UD_HearingRange = 4000 auto hidden
         True if passed akActor is close to player
 /;
 bool Function ActorInCloseRange(Actor akActor)
-    if ActorIsPlayer(akActor)
+    if IsPlayer(akActor)
         return true
     endif
     float loc_distance = CalcDistance(Player,akActor)

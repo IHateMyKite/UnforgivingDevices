@@ -1,6 +1,7 @@
 Scriptname UD_AbadonWeapon_AME extends ActiveMagicEffect
 
 Import UnforgivingDevicesMain
+Import UD_Native
 
 UnforgivingDevicesMain Property UDmain auto
 

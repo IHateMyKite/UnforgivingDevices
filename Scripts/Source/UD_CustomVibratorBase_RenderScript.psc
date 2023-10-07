@@ -5,6 +5,7 @@
 Scriptname UD_CustomVibratorBase_RenderScript extends UD_CustomDevice_RenderScript  
 
 import UnforgivingDevicesMain
+import UD_Native
 
 ;Properties
 
@@ -1200,7 +1201,7 @@ bool Function OnUpdateHourPost()
 EndFunction
 Function onRemoveDevicePost(Actor akActor)
     parent.onRemoveDevicePost(akActor)
-    If UDMain.ActorIsPlayer(akActor)
+    If IsPlayer(akActor)
         UDMain.UDWC.StatusEffect_SetVisible(VibrationEffectSlot, False)
         UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, False)
     EndIf

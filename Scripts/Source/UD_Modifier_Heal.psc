@@ -2,6 +2,7 @@ ScriptName UD_Modifier_Heal extends UD_Modifier
 
 import UnforgivingDevicesMain
 import UDCustomDeviceMain
+import UD_Native
 
 Function TimeUpdateSecond(UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
     if akDevice.WearerIsRegistered()

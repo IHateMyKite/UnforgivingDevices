@@ -4,6 +4,7 @@
 Scriptname UD_RandomRestraintManager extends Quest  
 
 import UnforgivingDevicesMain
+import UD_Native
 
 UDCustomDeviceMain Property UDCDmain auto
 UnforgivingDevicesMain Property UDmain 

@@ -1,6 +1,7 @@
 ScriptName UD_Modifier_Loose extends UD_Modifier
 
 import UnforgivingDevicesMain
+import UD_Native
 
 Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
     ;TODO - make native function for easier filtering device types

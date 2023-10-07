@@ -1,5 +1,8 @@
 Scriptname UD_ArousingMovement_AME extends ActiveMagicEffect
+
 import UnforgivingDevicesMain
+import UD_Native
+
 UnforgivingDevicesMain  Property UDmain auto
 UD_OrgasmManager        Property UDOM   auto
 Actor akActor

@@ -188,7 +188,7 @@ Bool Function StartSoloAnimationSequence(Actor akActor, String[] aasAnimation, B
         Return False
     EndIf
     If !abContinueAnimation
-        If UDmain.ActorIsPlayer(akActor)
+        If UD_Native.IsPlayer(akActor)
             _Apply3rdPersonCamera(abDismount = True)
         EndIf
         LockAnimatingActor(akActor, abDisableActor)
@@ -283,7 +283,7 @@ Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[]
     EndIf
     
     If !abContinueAnimation
-        If UDmain.ActorIsPlayer(akActor) || UDmain.ActorIsPlayer(akHelper)
+        If UD_Native.IsPlayer(akActor) || UD_Native.IsPlayer(akHelper)
             _Apply3rdPersonCamera(abDismount = False)
         EndIf
         ; locking actors, disable actors control/movement
@@ -442,7 +442,7 @@ Function StopAnimation(Actor akActor, Actor akHelper = None, Bool abEnableActors
         Debug.SendAnimationEvent(akHelper, "IdleForceDefaultState")
         _RestoreActorPosition(akHelper)
     EndIf
-    If (loc_stopActor && UDmain.ActorIsPlayer(akActor)) || (loc_stopHelper && UDmain.ActorIsPlayer(akHelper))
+    If (loc_stopActor && UD_Native.IsPlayer(akActor)) || (loc_stopHelper && UD_Native.IsPlayer(akHelper))
         _RestorePlayerCamera()
     EndIf
 EndFunction
@@ -507,7 +507,7 @@ Function LockAnimatingActor(Actor akActor, Bool abDisableActor = True)
         UDCDMain.DisableActor(akActor)
     endif
 
-    If !UDmain.ActorIsPlayer(akActor)
+    If !UD_Native.IsPlayer(akActor)
         akActor.ClearLookAt()
         akActor.SetHeadTracking(False)
         akActor.SetAnimationVariableInt("IsNPC", 0)
@@ -550,7 +550,7 @@ Function UnlockAnimatingActor(Actor akActor, Bool abEnableActor = True)
         UDCDMain.EnableActor(akActor)
     endif
     
-    If !UDmain.ActorIsPlayer(akActor)
+    If !UD_Native.IsPlayer(akActor)
         akActor.SetHeadTracking(True)
         akActor.SetAnimationVariableInt("IsNPC", 1)
         akActor.SetAnimationVariableBool("bHeadTrackSpine", True)
@@ -559,7 +559,7 @@ Function UnlockAnimatingActor(Actor akActor, Bool abEnableActor = True)
     akActor.SetVehicle(None)
     
     If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
-        If UDmain.ActorIsPlayer(akActor)
+        If UD_Native.IsPlayer(akActor)
             Armor shield = StorageUtil.GetFormValue(akActor, "UD_EquippedShield") as Armor
             If shield
                 akActor.EquipItem(akActor, shield)
@@ -589,7 +589,7 @@ Function SetActorHeading(Actor akActor, ObjectReference akHeadingTarget)
     If akHeadingTarget != None
         a += akActor.GetHeadingAngle(akHeadingTarget)
     EndIf
-    If UDMain.ActorIsPlayer(akActor)
+    If UD_Native.IsPlayer(akActor)
         akActor.SetAngle(0, 0, a)
     Else
         akActor.TranslateTo(akActor.X, akActor.Y, akActor.Z, 0, 0, a, 150, 180)
@@ -1474,7 +1474,7 @@ Function _RestoreActorPosition(Actor akActor)
     Float z = StorageUtil.GetFloatValue(akActor, "UD_AnimationManager_Z", akActor.Z)
     Float a = StorageUtil.GetFloatValue(akActor, "UD_AnimationManager_A", akActor.GetAngleZ())
     
-    If UDMain.ActorIsPlayer(akActor)
+    If UD_Native.IsPlayer(akActor)
         akActor.SetPosition(x, y, z)
         akActor.SetAngle(0, 0, a)
     Else

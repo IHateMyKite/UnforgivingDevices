@@ -1,6 +1,7 @@
 Scriptname UD_ArousalCheckScript_AME extends activemagiceffect 
 
 import UnforgivingDevicesMain
+import UD_Native
 
 UDCustomDeviceMain      Property UDCDmain auto
 UnforgivingDevicesMain  Property UDmain     auto
@@ -20,7 +21,7 @@ EndProperty
 
 Event OnEffectStart(Actor akTarget, Actor akCaster)
     akActor = akTarget
-    loc_isplayer = UDmain.ActorIsPlayer(akActor)
+    loc_isplayer = UD_Native.IsPlayer(akActor)
     if !loc_isplayer
         return
     endif

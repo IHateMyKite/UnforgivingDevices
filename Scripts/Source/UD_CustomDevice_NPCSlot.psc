@@ -2,6 +2,7 @@ Scriptname UD_CustomDevice_NPCSlot  extends ReferenceAlias
 
 import UnforgivingDevicesMain
 import UD_NPCInteligence
+import UD_Native
 
 UDCustomDeviceMain Property UDCDmain auto
 
@@ -524,7 +525,7 @@ Function fix()
         endif
         UDmain.Print("[UD] Orgasm variables reseted!")
     elseif loc_res == 2 ;reset expression
-        UDCDMain.UDEM.ResetExpressionRaw(getActor(),100)
+        libs.ExpLibs.ResetExpressionRaw(getActor(),100)
     elseif loc_res == 3 ;unequip slot
         UDmain.Print("[UD] Loading slots...")
         Form[] loc_slots = GetBodySlots()
@@ -2236,17 +2237,17 @@ Function UpdateHornyExpression()
     if _orgasmRate >= _orgasmResistence*0.75 && (!_expressionApplied || _expressionUpdateTimer > 5) 
         ;init expression
         if _edgelevel == 0
-            UDEM.ApplyExpressionRaw(akActor, _org_expression, iRange(Round(_orgasmProgress),75,100),false,10)
+            libs.ExpLibs.ApplyExpressionRaw(akActor, _org_expression, iRange(Round(_orgasmProgress),75,100),false,10)
         elseif _edgelevel > 0 && _edgelevel < 3
-            UDEM.ApplyExpressionRaw(akActor, _org_expression2, 75,false,10)
+            libs.ExpLibs.ApplyExpressionRaw(akActor, _org_expression2, 75,false,10)
         else
-            UDEM.ApplyExpressionRaw(akActor, _org_expression3, 50,false,10)
+            libs.ExpLibs.ApplyExpressionRaw(akActor, _org_expression3, 50,false,10)
         endif
         
         _expressionApplied = true
         _expressionUpdateTimer = 0
     elseif _orgasmRate < _orgasmResistence*0.75 && _expressionApplied
-        UDEM.ResetExpressionRaw(akActor,10)
+        libs.ExpLibs.ResetExpressionRaw(akActor,10)
         _expressionApplied = false
     endif
     _expressionUpdateTimer += 1
@@ -2355,7 +2356,7 @@ Function CleanOrgasmUpdate()
     
     ;reset expression
     if akActor
-        UDEM.ResetExpressionRaw(akActor, 10)
+        libs.ExpLibs.ResetExpressionRaw(akActor, 10)
     endif
     
     ;end mutex
@@ -2521,9 +2522,9 @@ Function Receive_MinigameParalel()
     Send_MinigameCritLoop(loc_device)
 
     float[] loc_expression = loc_device.GetCurrentMinigameExpression()
-    UDEM.ApplyExpressionRaw(akActor, loc_expression, 100,false,15)
+    libs.ExpLibs.ApplyExpressionRaw(akActor, loc_expression, 100,false,15)
     if loc_device.haveHelper()
-        UDEM.ApplyExpressionRaw(akHelper, loc_expression, 100,false,15)
+        libs.ExpLibs.ApplyExpressionRaw(akHelper, loc_expression, 100,false,15)
     endif
     
     float loc_currentOrgasmRate     = loc_device.getStruggleOrgasmRate()
@@ -2549,9 +2550,9 @@ Function Receive_MinigameParalel()
             ;set expression every 5 second
             if loc_is3DLoaded
                 if loc_ElapsedTime1 >= 5.0
-                    UDEM.ApplyExpressionRaw(akActor, loc_expression, 100,false,15)
+                    libs.ExpLibs.ApplyExpressionRaw(akActor, loc_expression, 100,false,15)
                     if akHelper
-                        UDEM.ApplyExpressionRaw(akHelper, loc_expression, 100,false,15)
+                        libs.ExpLibs.ApplyExpressionRaw(akHelper, loc_expression, 100,false,15)
                     endif
                     loc_ElapsedTime1 = 0.0
                 endif
@@ -2607,9 +2608,9 @@ Function Receive_MinigameParalel()
     loc_device._MinigameParProc_2 = false
     
     if loc_is3DLoaded
-        UDEM.ResetExpressionRaw(akActor,15)
+        libs.ExpLibs.ResetExpressionRaw(akActor,15)
         if akHelper
-            UDEM.ResetExpressionRaw(akHelper,15)
+            libs.ExpLibs.ResetExpressionRaw(akHelper,15)
         endif
     endif
     

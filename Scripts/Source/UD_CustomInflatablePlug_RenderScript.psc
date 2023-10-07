@@ -1,6 +1,7 @@
 Scriptname UD_CustomInflatablePlug_RenderScript extends UD_CustomPlug_RenderScript  
 
 import UnforgivingDevicesMain
+import UD_Native
 
 float Property UD_PumpDifficulty    = 50.0      auto ;deflation required to deflate plug by one lvel
 float Property UD_DeflateRate       = 200.0     auto ;inflation lost per one day
@@ -566,7 +567,7 @@ Function OnRemoveDevicePre(Actor akActor)
 EndFunction
 Function onRemoveDevicePost(Actor akActor)
     parent.onRemoveDevicePost(akActor)
-    If UDMain.ActorIsPlayer(akActor)
+    If IsPlayer(akActor)
         UDMain.UDWC.StatusEffect_SetVisible(InflationEffectSlot, False)
     EndIf
 EndFunction

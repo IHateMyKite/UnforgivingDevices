@@ -3,6 +3,7 @@
 Scriptname UD_TopicFragments Extends TopicInfo Hidden conditional
 
 import UnforgivingDevicesMain
+import UD_Native
 
 UDCustomDeviceMain _UDCDmain
 UDCustomDeviceMain Property UDCDmain

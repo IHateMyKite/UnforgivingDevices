@@ -1,6 +1,7 @@
 Scriptname UD_MCM_script extends SKI_ConfigBase
 
 import UnforgivingDevicesMain
+import UD_Native
 
 ;UDAbadonPlug_Event property abadon auto
 UnforgivingDevicesMain              Property UDmain auto

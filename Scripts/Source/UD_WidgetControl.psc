@@ -6,6 +6,7 @@
 ScriptName UD_WidgetControl extends Quest
 
 import UnforgivingDevicesMain
+import UD_Native
 
 ; CONSTANTS
 Int W_POSY_BOTTOM = 0

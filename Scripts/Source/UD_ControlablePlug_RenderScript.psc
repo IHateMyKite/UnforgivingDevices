@@ -1,6 +1,7 @@
 Scriptname UD_ControlablePlug_RenderScript extends UD_CustomPlug_RenderScript  
 
 import UnforgivingDevicesMain
+import UD_Native
 
 float Property UD_DischargeRate = 1.0 auto
 

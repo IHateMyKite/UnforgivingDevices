@@ -1,6 +1,7 @@
 Scriptname UD_ReduceOrgasmResistence_AME extends activemagiceffect  
 
 import UnforgivingDevicesMain
+import UD_Native
 
 UnforgivingDevicesMain Property UDmain auto
 UD_OrgasmManager _UDOM

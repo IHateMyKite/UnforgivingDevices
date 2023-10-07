@@ -1,6 +1,7 @@
 Scriptname UD_BlackGooBallScript Extends ObjectReference
 
 import UnforgivingDevicesMain
+import UD_Native
 
 UnforgivingDevicesMain Property UDmain auto
 

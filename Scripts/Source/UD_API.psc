@@ -218,15 +218,8 @@ EndProperty
 ;==========================================================================================
 ;   string   |   IntToBit                        |   (int argInt) ;convert int to bit map string
 ;   float    |   CalcDistance                    |   (ObjectReference obj1,ObjectReference obj2)
-;   bool     |   GActorIsPlayer                  |   (Actor akActor) ;slow. Better use local ActorIsPlayer
-;   string   |   GetActorName                    |   (Actor akActor)
-;   int      |   codeBit                         |   (int iCodedMap,int iValue,int iSize,int iIndex)
-;   int      |   decodeBit                       |   (int iCodedMap,int iSize,int iIndex)
-;   float    |   fRange                          |   (float fValue,float fMin,float fMax)
-;   int      |   iRange                          |   (int iValue,int iMin,int iMax)
 ;   string   |   formatString                    |   (string str,int floatPoints)
 ;   float    |   checkLimit                      |   (float value,float limit)
-;   int      |   Round                           |   (float value)
 ;            |   closeMenu                       |   ()
 ;            |   closeLockpickMenu               |   ()
 ;   string   |   getPlugsVibrationStrengthString |   (int strenght)
@@ -366,21 +359,6 @@ EndFunction
 /;
         Function    Info(String asMsg)
     UDmain.Info(asMsg)
-EndFunction
-
-
-;/  Function: ActorIsPlayer
-
-    Parameters:
-
-        akActor   - Actor which will be checked
-
-    Returns:
-
-        True if passed akActor is player
-/;
-bool    Function    ActorIsPlayer(Actor akActor)
-    return akActor == UDmain.Player
 EndFunction
 
 ;/  Function: ActorIsFollower

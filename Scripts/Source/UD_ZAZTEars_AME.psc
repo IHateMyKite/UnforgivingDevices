@@ -1,5 +1,8 @@
-Scriptname UD_ZAZTears_AME extends activemagiceffect  
+Scriptname UD_ZAZTears_AME extends activemagiceffect
+
 import UnforgivingDevicesMain
+import UD_Native
+
 UDCustomDeviceMain Property UDCDmain auto
 UnforgivingDevicesMain Property UDmain
     UnforgivingDevicesMain Function get()

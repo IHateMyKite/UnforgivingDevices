@@ -2,6 +2,7 @@ Scriptname UD_ParalelProcess extends Quest
 
 import UnforgivingDevicesMain
 import UD_NPCInteligence
+import UD_Native
 
 UDCustomDeviceMain Property UDCDmain auto
 UnforgivingDevicesMain Property UDmain auto
@@ -199,9 +200,9 @@ Function Receive_MinigameParalel(Form fActor)
     Send_MinigameCritLoop(akActor, loc_device)
 
     float[] loc_expression = loc_device.GetCurrentMinigameExpression()
-    UDEM.ApplyExpressionRaw(akActor, loc_expression, 100,false,15)
+    libsp.ExpLibs.ApplyExpressionRaw(akActor, loc_expression, 100,false,15)
     if loc_device.haveHelper()
-        UDEM.ApplyExpressionRaw(akHelper, loc_expression, 100,false,15)
+        libsp.ExpLibs.ApplyExpressionRaw(akHelper, loc_expression, 100,false,15)
     endif
     
     float loc_currentOrgasmRate     = loc_device.getStruggleOrgasmRate()
@@ -227,9 +228,9 @@ Function Receive_MinigameParalel(Form fActor)
             ;set expression every 5 second
             if loc_is3DLoaded
                 if loc_ElapsedTime1 >= 5.0
-                    UDEM.ApplyExpressionRaw(akActor, loc_expression, 100,false,15)
+                    libsp.ExpLibs.ApplyExpressionRaw(akActor, loc_expression, 100,false,15)
                     if akHelper
-                        UDEM.ApplyExpressionRaw(akHelper, loc_expression, 100,false,15)
+                        libsp.ExpLibs.ApplyExpressionRaw(akHelper, loc_expression, 100,false,15)
                     endif
                     loc_ElapsedTime1 = 0.0
                 endif
@@ -285,9 +286,9 @@ Function Receive_MinigameParalel(Form fActor)
     loc_device._MinigameParProc_2 = false
     
     if loc_is3DLoaded
-        UDEM.ResetExpressionRaw(akActor,15)
+        libsp.ExpLibs.ResetExpressionRaw(akActor,15)
         if akHelper
-            UDEM.ResetExpressionRaw(akHelper,15)
+            libsp.ExpLibs.ResetExpressionRaw(akHelper,15)
         endif
     endif
     
@@ -461,7 +462,7 @@ Function Receive_Orgasm(Form fActor,int iForce,int bWairForReceive)
         UDmain.Log("Receive_Orgasm received for " + fActor)
     endif
     
-    bool loc_isplayer = UDmain.ActorIsPlayer(akActor)
+    bool loc_isplayer = UD_Native.IsPlayer(akActor)
     bool loc_isfollower = false
     
     if !loc_isplayer
@@ -529,11 +530,11 @@ Function Receive_Orgasm(Form fActor,int iForce,int bWairForReceive)
 
     if loc_cond
         if loc_orgasmExhaustion == 1
-            UDEM.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm2(), 75,false,80)
+            libsp.ExpLibs.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm2(), 75,false,80)
         elseif loc_orgasmExhaustion < 3
-            UDEM.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm1(), 100,false,80)
+            libsp.ExpLibs.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm1(), 100,false,80)
         else
-            UDEM.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm3(), 100,false,80)
+            libsp.ExpLibs.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm3(), 100,false,80)
         endif
     endif  
     

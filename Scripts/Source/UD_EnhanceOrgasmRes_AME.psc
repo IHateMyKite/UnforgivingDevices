@@ -1,6 +1,7 @@
 Scriptname UD_EnhanceOrgasmRes_AME extends activemagiceffect
 
 import UnforgivingDevicesMain
+import UD_Native
 
 UnforgivingDevicesMain Property UDmain auto
 

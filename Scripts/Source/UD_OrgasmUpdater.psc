@@ -1,6 +1,7 @@
 Scriptname UD_OrgasmUpdater extends Quest conditional
 
 import UnforgivingDevicesMain
+import UD_Native
 
 UnforgivingDevicesMain              Property    UDmain              auto
 UD_OrgasmManager                    Property    UDOM                auto

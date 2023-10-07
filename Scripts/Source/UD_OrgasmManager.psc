@@ -3,12 +3,12 @@
 Scriptname UD_OrgasmManager extends Quest conditional
 
 import UnforgivingDevicesMain
+import UD_Native
 
 UDCustomDeviceMain                      Property UDCDmain   auto
 UnforgivingDevicesMain                  Property UDmain     auto
 UD_libs                                 Property UDlibs     auto
 zadlibs                                 Property libs       auto
-UD_ExpressionManager                    Property UDEM       auto
 UD_CustomDevices_NPCSlotsManager        Property UDCD_NPCM  auto
 
 UD_Config _udconf
@@ -101,7 +101,7 @@ Function RemoveAbilities(Actor akActor)
 EndFunction
 
 Function CheckOrgasmCheck(Actor akActor)
-    if !UDmain.ActorIsPlayer(akActor)
+    if !IsPlayer(akActor)
         return
     endif
     if !akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
@@ -118,7 +118,7 @@ Function CheckOrgasmCheck(Actor akActor)
 EndFunction
 
 Function CheckArousalCheck(Actor akActor)
-    if !UDmain.ActorIsPlayer(akActor)
+    if !IsPlayer(akActor)
         return
     endif
     if !akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
@@ -857,7 +857,7 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,in
     
     UDmain.UDPP.Send_Orgasm(akActor,iForce,bWairForReceive = false)
     
-    bool loc_isplayer   = UDmain.ActorIsPlayer(akActor)
+    bool loc_isplayer   = IsPlayer(akActor)
     bool loc_isfollower = false
     if !loc_isplayer
         loc_isfollower  = UDmain.ActorIsFollower(akActor)
@@ -871,7 +871,7 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,in
             StorageUtil.UnsetIntValue(akActor,"UD_OrgasmInMinigame_Flag")
         endif
     elseif !loc_cond || ((akActor.IsInCombat() || akActor.IsSneaking()) && (loc_isplayer || loc_isfollower)) || (loc_isplayer && UDmain.IsAnyMenuOpen())
-        if UDmain.ActorIsPlayer(akActor)
+        if IsPlayer(akActor)
             UDmain.Print("You managed to avoid losing control over your body from orgasm!",2)
         endif
         akActor.damageAv("Stamina",50.0)
@@ -889,7 +889,7 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,in
     loc_orgasms = RemoveOrgasmFromActor(akActor)
     if loc_orgasms == 0
         if loc_cond
-            UDEM.ResetExpressionRaw(akActor,80)
+            libs.ExpLibs.ResetExpressionRaw(akActor,80)
         endif
     endif
 EndFunction
@@ -942,7 +942,7 @@ Int Function PlayOrgasmAnimation(Actor akActor,int aiDuration, bool abContinue =
         StorageUtil.SetIntValue(akActor,"UD_OrgasmDuration",aiDuration)
     endif
     
-    int loc_isPlayer = UDmain.ActorIsPlayer(akActor) as Int
+    int loc_isPlayer = IsPlayer(akActor) as Int
     if loc_isPlayer
         UDmain.UDUI.GoToState("UIDisabled") ;disable UI
         UDMain.UDWC.StatusEffect_SetBlink("effect-orgasm", True)

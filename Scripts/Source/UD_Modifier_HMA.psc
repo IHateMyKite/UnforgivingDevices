@@ -1,6 +1,7 @@
 ScriptName UD_Modifier_HMA extends UD_Modifier
 
 import UnforgivingDevicesMain
+import UD_Native
 
 Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
     int loc_chance = Round(UD_Modifier.getStringParamInt(0)*Multiplier)

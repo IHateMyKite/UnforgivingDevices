@@ -1,6 +1,7 @@
 Scriptname UD_AbadonQuest_script extends Quest Conditional 
 
 import UnforgivingDevicesMain
+import UD_Native
 
 UDCustomDeviceMain      Property UDCDmain auto
 UnforgivingDevicesMain  Property UDmain  Auto
@@ -167,7 +168,7 @@ Function EquipAbadonDevices(Actor akTarget,Int aiMinDevices, Int aiMaxDevices)
                     libs.LockDevice(akTarget,UDmain.UDlibs.RogueBinder)
                 endif
             endif
-            if UDmain.ActorIsPlayer(akTarget)
+            if IsPlayer(akTarget)
                 UDmain.ShowMessageBox("Black goo covers your body and tie your hands while changing shape to RARE bondage restraint!")
             endif
         else
@@ -192,7 +193,7 @@ Function EquipAbadonDevices(Actor akTarget,Int aiMinDevices, Int aiMaxDevices)
                     libs.LockDevice(akTarget,UDmain.UDlibs.AbadonWeakYoke)
                 endif
             endif
-            if UDmain.ActorIsPlayer(akTarget)
+            if IsPlayer(akTarget)
                 UDmain.ShowMessageBox("Black goo covers your body and tie your hands while changing shape to bondage restraint!")
             endif
         endif

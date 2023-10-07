@@ -1,6 +1,7 @@
 Scriptname UD_OrchamsCheckScript_AME extends activemagiceffect
 
 import UnforgivingDevicesMain
+import UD_Native
 
 UDCustomDeviceMain      Property UDCDmain   auto
 UD_OrgasmManager        Property UDOM       auto
@@ -27,7 +28,7 @@ bool    loc_isplayer = false
 
 Event OnEffectStart(Actor akTarget, Actor akCaster)
     akActor = akTarget
-    loc_isplayer = UDmain.ActorIsPlayer(akActor)
+    loc_isplayer = IsPlayer(akActor)
     if !loc_isplayer
         return
     endif
@@ -50,8 +51,8 @@ EndEvent
 
 ;function called on game reload (only works for player)
 Function Update()
-    loc_isplayer = UDmain.ActorIsPlayer(akActor)
-    UDmain.Log("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - Update() - ActorIsPlayer: " + loc_isplayer,3)
+    loc_isplayer = UD_Native.IsPlayer(akActor)
+    UDmain.Log("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - Update() - UD_Native.IsPlayer: " + loc_isplayer,3)
 EndFunction
 
 Event OnUpdate()

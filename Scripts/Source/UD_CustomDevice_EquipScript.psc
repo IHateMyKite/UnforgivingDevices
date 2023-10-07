@@ -2,6 +2,7 @@ Scriptname UD_CustomDevice_EquipScript extends zadequipscript
 
 import MfgConsoleFunc
 import UnforgivingDevicesMain
+import UD_Native
 
 UDCustomDeviceMain Property UDCDmain auto
 zadlibs_UDPatch Property libsp
@@ -136,12 +137,12 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
                         StorageUtil.UnSetIntValue(giver, "UD_ignoreEvent" + deviceInventory)
                         StorageUtil.UnSetIntValue(target, "UD_ignoreEvent" + deviceInventory)
                         return
-                    elseif !UDmain.ActorIsPlayer(target) && !target.getItemCount(deviceRendered) && target.getItemCount(deviceInventory)
+                    elseif !IsPlayer(target) && !target.getItemCount(deviceRendered) && target.getItemCount(deviceInventory)
                         if UDmain.TraceAllowed()                        
                             UDmain.Log("OnContainerChanged - Locking device " + deviceInventory.getName() + " to "+ target.getActorBase().getName(),1)
                         endif
                         if UDmain.ActorIsValidForUD(target)
-                            if UDmain.ActorIsPlayer(giver)
+                            if IsPlayer(giver)
                                 if !EquipDeviceMenu(target)
                                     UDmain.Print("You equip and lock " + getDeviceName() + " on " + GetActorName(target))
                                 else
@@ -285,7 +286,7 @@ Event OnUnequipped(Actor akActor)
         UDmain.Log("OnUnequipped("+MakeDeviceHeader(akActor,deviceInventory)+") - called",3)
     endif
 
-    if UDmain.IsContainerMenuOpen() && UDmain.ActorIsPlayer(akActor)
+    if UDmain.IsContainerMenuOpen() && IsPlayer(akActor)
         if UDmain.TraceAllowed()        
             UDmain.Log("OnUnequipped("+MakeDeviceHeader(akActor,deviceInventory)+") - aborted because of opened menu",3)
         endif
@@ -642,7 +643,7 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
     UD_CustomDevice_NPCSlot loc_slot        = none
     UD_MutexScript          loc_mutex       = none
     bool                    _actorselfbound = false
-    bool                    loc_isplayer    = UDmain.ActorIsPlayer(akActor)
+    bool                    loc_isplayer    = IsPlayer(akActor)
     
     if abUseMutex
         loc_slot = UDCDmain.getNPCSlot(akActor)
@@ -705,7 +706,7 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
     endif    
     
     If !silently && !prelock_fail
-        if UDmain.ActorIsPlayer(akActor);loc_lockDeviceType == 1
+        if IsPlayer(akActor);loc_lockDeviceType == 1
             if EquipDeviceMenu(akActor)
                 StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
                 akActor.UnequipItem(deviceInventory, false, true)
@@ -815,7 +816,7 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
                 akActor.removeItem(DeviceRendered,1,true)
                 
                 UDmain.Error("LockDevice("+getDeviceName()+","+GetActorName(akActor)+") failed. Render device is not equipped - conflict with " + loc_conflictDevice)
-                if UDmain.ActorIsPlayer(akActor)
+                if IsPlayer(akActor)
                     UDmain.Print(getDeviceName() + " can't be equipped because of device conflict")
                 elseif UDCDmain.UDmain.ActorInCloseRange(akActor)
                     UDmain.Print(MakeDeviceHeader(akActor,deviceInventory) + " can't be equipped because of device conflict")
@@ -861,14 +862,14 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
     libs.SendDeviceEquippedEvent(deviceName, akActor)
     libs.SendDeviceEquippedEventVerbose(deviceInventory, zad_DeviousDevice, akActor)
     
-    if UDmain.ActorIsPlayer(akActor) && !akActor.IsOnMount() && UDmain.IsMenuOpen()
+    if IsPlayer(akActor) && !akActor.IsOnMount() && UDmain.IsMenuOpen()
         ; make it visible for the player in case the menu is open
         akActor.QueueNiNodeUpdate()
-    elseif !UDmain.ActorIsPlayer(akActor) && !akActor.IsOnMount() && loc_haveHBkwd
+    elseif !IsPlayer(akActor) && !akActor.IsOnMount() && loc_haveHBkwd
         ; prevent a bug with straitjackets and elbowbinders not hiding NPC hands when equipping these items.        
         akActor.UpdateWeight(0)
     EndIf    
-    if !UDmain.ActorIsPlayer(akActor) && (loc_haveHBkwd || loc_haveHSkwd)
+    if !IsPlayer(akActor) && (loc_haveHBkwd || loc_haveHSkwd)
         libs.RepopulateNpcs()
     EndIf
     
@@ -879,7 +880,7 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
         SetLockTimer()
     EndIf
     if UDCDMain.UD_OutfitRemove
-        if !UDmain.ActorIsPlayer(akActor) && akActor.GetActorBase().IsUnique() && (deviceRendered.HasKeyword(libs.zad_DeviousSuit) || loc_haveHBkwd)
+        if !IsPlayer(akActor) && akActor.GetActorBase().IsUnique() && (deviceRendered.HasKeyword(libs.zad_DeviousSuit) || loc_haveHBkwd)
             ; We change the outfit only for unique actors because SetOutfit() seems to operate on the ActorBASE and not the actor, so changing a non-unique actors's gear would change it for ALL instances of this actor.
             Outfit originalOutfit = akActor.GetActorBase().GetOutfit()
             If originalOutfit != libs.zadEmptyOutfit
@@ -909,7 +910,7 @@ Function unlockDevice(Actor akActor)
     Int loc_RDNum = akActor.getItemCount(deviceRendered)
     if !loc_RDNum
         loc_failure = true
-        if UDmain.ActorIsPlayer(akActor)
+        if IsPlayer(akActor)
             akActor.unequipItem(deviceInventory, 1, true)
         endif
     endif
@@ -1080,5 +1081,5 @@ Function ShowDetails(Actor akActor)
 EndFunction
 
 bool Function ShouldEquipSilently(actor akActor)
-    return parent.ShouldEquipSilently(akActor) || (!UDmain.ActorIsFollower(akActor) && !UDmain.ActorIsPlayer(akActor))
+    return parent.ShouldEquipSilently(akActor) || (!UDmain.ActorIsFollower(akActor) && !IsPlayer(akActor))
 EndFunction

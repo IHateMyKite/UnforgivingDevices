@@ -3,6 +3,7 @@ Scriptname zadlibs_UDPatch extends zadlibs
 import MfgConsoleFunc
 import sslBaseExpression
 import UnforgivingDevicesMain
+import UD_Native
 
 UDCustomDeviceMain Property UDCDmain auto
 UnforgivingDevicesMain Property UDmain
@@ -69,7 +70,7 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
         return false
     endif
     
-    if !UDmain.ActorIsPlayer(akActor)
+    if !IsPlayer(akActor)
         StorageUtil.AdjustIntValue(akActor,"UDLockOperations",1) ;increase number of lock operations for NPC. Is used by NPC manager before NPC is register with auto scan
     endif
     
@@ -184,7 +185,7 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
     endif
     
     UDmain.UDNPCM.GotoState("")
-    if !UDmain.ActorIsPlayer(akActor)
+    if !IsPlayer(akActor)
         StorageUtil.AdjustIntValue(akActor,"UDLockOperations",-1) ;decrease number of lock operations for NPC. Is used by NPC manager before NPC is register with auto scan
     endif
     return loc_res
@@ -243,7 +244,7 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
         endif
     endif
     
-    if !UDmain.ActorIsPlayer(akActor)
+    if !IsPlayer(akActor)
         StorageUtil.AdjustIntValue(akActor,"UDLockOperations",1) ;increase number of lock operations for NPC. Is used by NPC manager before NPC is register with auto scan
     endif
     
@@ -346,7 +347,7 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
         UDmain.Log("UnlockDevice("+deviceInventory.getName()+") (patched) finished: "+loc_res,1)
     endif
     UDmain.UDNPCM.GotoState("")
-    if !UDmain.ActorIsPlayer(akActor)
+    if !IsPlayer(akActor)
         StorageUtil.AdjustIntValue(akActor,"UDLockOperations",-1) ;decrease number of lock operations for NPC. Is used by NPC manager before NPC is register with auto scan
     endif
     return loc_res
@@ -380,7 +381,7 @@ Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRen
     UD_CustomDevice_NPCSlot     loc_slot        = none ;NPC slot for registered NPC
     UD_MutexScript              loc_mutex       = none ;mutex used for non registered NPC
     
-    if !UDmain.ActorIsPlayer(akActor)
+    if !IsPlayer(akActor)
         StorageUtil.AdjustIntValue(akActor,"UDLockOperations",1) ;increase number of lock operations for NPC. Is used by NPC manager before NPC is register with auto scan
     endif
     
@@ -456,7 +457,7 @@ Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRen
     elseif loc_mutex
         loc_mutex.ResetUnLockMutex()
     endif
-    if !UDmain.ActorIsPlayer(akActor)
+    if !IsPlayer(akActor)
         StorageUtil.AdjustIntValue(akActor,"UDLockOperations",-1) ;decrease number of lock operations for NPC. Is used by NPC manager before NPC is register with auto scan
     endif
 EndFunction
@@ -732,7 +733,7 @@ EndFunction
 
 Function ShockActorPatched(actor akActor,int iArousalUpdate = 25,float fHealth = 0.0, bool bCanKill = false)
     bool loc_loaded = akActor.Is3DLoaded()
-    if UDmain.ActorIsPlayer(akActor)
+    if IsPlayer(akActor)
         NotifyPlayer("You squirms uncomfortably as electricity runs through your body!")
     Elseif UDmain.ActorIsFollower(akActor) && loc_loaded
         NotifyNPC(akActor.GetLeveledActorBase().GetName()+" squirms uncomfortably as electricity runs through her.")
@@ -804,41 +805,6 @@ Function UpdateExposure(actor akRef, float val, bool skipMultiplier=false)
         int newRank = Round(lastRank + val * Aroused.GetActorExposureRate(akRef))
         Aroused.SetActorExposure(akRef, newRank)
     EndIf
-EndFunction
-
-Function ApplyExpression(Actor akActor, sslBaseExpression expression, int strength, bool openMouth=false)
-    if UDmain.ZadExpressionSystemInstalled
-        parent.ApplyExpression(akActor, expression, strength, openMouth)
-        return
-    endif
-    
-    if akActor.Is3DLoaded() || UDmain.ActorIsPlayer(akActor)
-        UDCDmain.UDEM.ApplyExpression(akActor, expression, strength, openMouth,0)
-    endif
-EndFunction
-
-Function ResetExpression(actor akActor, sslBaseExpression expression)
-    if UDmain.ZadExpressionSystemInstalled
-        parent.ResetExpression(akActor, expression)
-        return
-    endif
-    UDCDmain.UDEM.ResetExpression(akActor, expression,0)
-EndFunction
-
-Function ApplyGagEffect(actor akActor) 
-    if UDmain.ZadExpressionSystemInstalled
-        parent.ApplyGagEffect(akActor)
-        return
-    endif   
-    UDCDmain.UDEM.ApplyGagEffect(akActor)
-EndFunction
-
-Function RemoveGagEffect(actor akActor)
-    if UDmain.ZadExpressionSystemInstalled
-        parent.RemoveGagEffect(akActor)
-        return
-    endif   
-    UDCDmain.UDEM.RemoveGagEffect(akActor)
 EndFunction
 
 Event StartBoundEffects(Actor akTarget)

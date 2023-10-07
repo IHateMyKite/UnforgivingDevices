@@ -1,6 +1,7 @@
 Scriptname UD_MutexScript extends ReferenceAlias
 
 import UnforgivingDevicesMain
+import UD_Native
 
 UDCustomDeviceMain Property UDCDmain auto
 

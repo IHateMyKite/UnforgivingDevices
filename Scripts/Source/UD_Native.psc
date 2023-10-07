@@ -17,6 +17,11 @@ bool    Function MinigameStatsCheck         (Actor akActor, bool abStamina, bool
 ;===UTILITY===
 Int     Function CodeBit                    (int aiCodedMap,int aiValue,int aiSize,int aiIndex) global native
 Int     Function DecodeBit                  (int aiCodedMap,int aiSize,int aiIndex)             global native
+Int     Function Round                      (Float afValue)                                     global native
+Int     Function iRange                     (Int aiValue,Int aiMin,Int aiMax)                   global native
+Float   Function fRange                     (Float afValue,Float afMin,Float afMax)             global native
+Bool    Function IsPlayer                   (Actor akActor)                                     global native
+String  Function GetActorName               (Actor akActor)                                     global native
 
 ;===UI===
 int     Function RemoveAllMeterEntries()                                        global native

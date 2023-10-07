@@ -3,6 +3,7 @@ Scriptname UD_Patcher extends Quest
 
 import UnforgivingDevicesMain
 import UDCustomDeviceMain
+import UD_Native
 
 zadlibs Property libs auto
 UDCustomDeviceMain Property UDCDmain auto

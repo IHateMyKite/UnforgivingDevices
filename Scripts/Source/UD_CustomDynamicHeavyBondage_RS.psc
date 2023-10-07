@@ -1,6 +1,7 @@
 Scriptname UD_CustomDynamicHeavyBondage_RS extends UD_CustomDevice_RenderScript
 
 import UnforgivingDevicesMain
+import UD_Native
 
 float   Property UD_UntieDifficulty = 100.0 auto
 float   Property UD_UntieDmg        = 4.0   auto

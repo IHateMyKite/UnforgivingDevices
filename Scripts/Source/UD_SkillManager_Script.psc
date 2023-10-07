@@ -1,6 +1,7 @@
 Scriptname UD_SkillManager_Script Extends Quest
 
 import UnforgivingDevicesMain
+import UD_Native
 
 UnforgivingDevicesMain Property UDmain auto
 UDCustomDeviceMain Property UDCDmain hidden

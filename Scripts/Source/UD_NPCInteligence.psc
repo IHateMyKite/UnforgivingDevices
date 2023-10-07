@@ -1,6 +1,7 @@
 Scriptname UD_NPCInteligence extends Quest
 
 import UnforgivingDevicesMain
+import UD_Native
 
 ;Device priorities
 ; Vibrator      = 15 (40 when vibrating)

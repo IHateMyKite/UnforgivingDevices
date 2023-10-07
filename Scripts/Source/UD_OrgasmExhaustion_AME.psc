@@ -14,7 +14,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     _UDOM.UpdateOrgasmResistMultiplier(_target,_appliedValue)
     _UDOM.UpdateArousalRateMultiplier(_target,_appliedValue_ARM)
     StorageUtil.AdjustIntValue(_target,"UD_OrgasmExhaustionNum",1)
-    if UDmain.ActorIsPlayer(_target)
+    if UD_Native.IsPlayer(_target)
         UDMain.UDWC.StatusEffect_AdjustMagnitude("effect-orgasm", 20)
     endif
 EndEvent
@@ -30,7 +30,7 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
     if _appliedValue || _appliedValue_ARM
         StorageUtil.AdjustIntValue(_target,"UD_OrgasmExhaustionNum",-1)
     endif
-    if UDmain.ActorIsPlayer(_target)
+    if UD_Native.IsPlayer(_target)
         UDMain.UDWC.StatusEffect_AdjustMagnitude("effect-orgasm", -20)
     endif
 EndEvent

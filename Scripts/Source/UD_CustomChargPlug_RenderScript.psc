@@ -1,6 +1,7 @@
 Scriptname UD_CustomChargPlug_RenderScript extends UD_CustomPlug_RenderScript  
 
 import UnforgivingDevicesMain
+import UD_Native
 
 Int     Property UD_MaxStrength             = 100       auto
 Int     Property UD_MaxDuration             = 90        auto

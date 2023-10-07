@@ -1,6 +1,7 @@
 Scriptname UD_CustomDevices_NPCSlotsManager extends Quest
 
 import UnforgivingDevicesMain
+import UD_Native
 
 String Property SLOTSNAME = "Error" auto
 
@@ -250,7 +251,7 @@ Function UndressSlots()
         Actor                   loc_actor   = none
         if loc_slot
             loc_actor = loc_slot.GetActor()
-            if loc_actor && loc_actor.Is3DLoaded() && !loc_slot.hasFreeHands() && !UDmain.ActorIsPlayer(loc_actor) && ((loc_Follower && UDmain.ActorIsFollower(loc_actor)) || (loc_NPC && !UDmain.ActorIsFollower(loc_actor)))
+            if loc_actor && loc_actor.Is3DLoaded() && !loc_slot.hasFreeHands() && !UD_Native.IsPlayer(loc_actor) && ((loc_Follower && UDmain.ActorIsFollower(loc_actor)) || (loc_NPC && !UDmain.ActorIsFollower(loc_actor)))
                 UDCDmain.UndressAllArmor(loc_actor)
             endif
         endif

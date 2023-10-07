@@ -8,6 +8,7 @@ UD_AbadonQuest_script Property AbadonQuestScript hidden
 EndProperty
 
 import UnforgivingDevicesMain
+import UD_Native
 
 ;const values
 float   diffuptimehours     = 4.0 ;hours

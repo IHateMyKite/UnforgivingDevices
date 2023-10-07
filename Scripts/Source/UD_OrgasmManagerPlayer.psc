@@ -1,6 +1,7 @@
 Scriptname UD_OrgasmManagerPlayer extends UD_OrgasmManager conditional
 
 import UnforgivingDevicesMain
+import UD_Native
 
 bool    _crit               = false
 bool    _specialButtonOn    = false
@@ -189,7 +190,7 @@ Int _ActorConstraints = -1
 ;=======================================
 Function FocusOrgasmResistMinigame(Actor akActor)
     if getCurrentActorValuePerc(akActor,"Stamina") < 0.75
-        if UDmain.ActorIsPlayer(akActor)
+        if IsPlayer(akActor)
             UDmain.Print("You are too exhausted!")
         endif
         return
@@ -235,7 +236,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     MinigameKeysRegister()
     
     UDmain.UDWC.Meter_SetVisible("player-orgasm", True)
-    if UDmain.ActorIsPlayer(akActor)
+    if IsPlayer(akActor)
         _PlayerOrgasmResist_MinigameOn = true
         sendOrgasmResistCritUpdateLoop(15,0.8)
     endif
@@ -331,7 +332,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     
     akActor.setAV("StaminaRate", loc_staminaRate)
     
-    if UDmain.ActorIsPlayer(akActor)
+    if IsPlayer(akActor)
         _PlayerOrgasmResist_MinigameOn = false
     endif
 

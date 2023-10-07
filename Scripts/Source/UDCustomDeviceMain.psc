@@ -5,6 +5,7 @@ Scriptname UDCustomDeviceMain extends Quest  conditional
 import UnforgivingDevicesMain
 import UD_NPCInteligence
 import UD_CustomDevice_RenderScript
+import UD_Native
 
 Spell Property SwimPenaltySpell auto
 UnforgivingDevicesMain Property UDmain auto
@@ -489,7 +490,7 @@ Function StartMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
         UDmain.Log("StartMinigameDisable("+getActorName(akActor) + ")",2)
     endif
     akActor.AddToFaction(BussyFaction)
-    if aiIsPlayer == 1 || UDmain.ActorIsPlayer(akActor)
+    if aiIsPlayer == 1 || IsPlayer(akActor)
         UpdatePlayerControl()
         Game.SetPlayerAiDriven(True)
     else
@@ -514,7 +515,7 @@ Function UpdateMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
         UDmain.Log("UpdateMinigameDisable("+getActorName(akActor)+")",2)
     endif
     if akActor.IsInFaction(BussyFaction)
-        if aiIsPlayer == 1 || UDmain.ActorIsPlayer(akActor)
+        if aiIsPlayer == 1 || IsPlayer(akActor)
             UpdatePlayerControl()
             Game.SetPlayerAiDriven(True)
         else
@@ -538,7 +539,7 @@ Function EndMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
         UDmain.Log("EndMinigameDisable("+getActorName(akActor)+")",2)
     endif
     akActor.RemoveFromFaction(BussyFaction)
-    if aiIsPlayer == 1 || UDmain.ActorIsPlayer(akActor)
+    if aiIsPlayer == 1 || IsPlayer(akActor)
         libsp.ProcessPlayerControls(false)
         Game.SetPlayerAiDriven(False)
     else
@@ -1109,7 +1110,7 @@ EndFunction
     See: <Print>
 /;
 bool Function AllowNPCMessage(Actor akActor,Bool abOnlyFollower = false)
-    if UDmain.ActorIsFollower(akActor) || UDmain.ActorIsPlayer(akActor)
+    if UDmain.ActorIsFollower(akActor) || IsPlayer(akActor)
         return true
     endif
     if !abOnlyFollower
@@ -1538,7 +1539,7 @@ int Function addHelperXP(Actor akHelper, int aiXP)
     while loc_nextXP >= _CalculateHelperXpRequired(loc_nextLVL)
         loc_nextXP      -= _CalculateHelperXpRequired(loc_nextLVL)
         loc_nextLVL     += 1
-        if UDmain.ActorIsPlayer(akHelper)
+        if IsPlayer(akHelper)
             UDmain.Print("Your Helper skill level increased to " + loc_nextLVL + " !")
         elseif AllowNPCMessage(akHelper)
             UDmain.Print(GetActorName(akHelper) + "'s helper level have increased to " + loc_nextLVL + " !")
@@ -1623,7 +1624,7 @@ Function UndressArmor(Actor akActor)
             UndressAllArmor(akActor)
             ;libs.strip(akActor,false)
         elseif loc_res == (loc_armorsnames.length - 2)
-            if !UDmain.ActorIsFollower(akActor) && !UDmain.ActorIsPlayer(akActor)
+            if !UDmain.ActorIsFollower(akActor) && !IsPlayer(akActor)
                 Outfit originalOutfit = akActor.GetActorBase().GetOutfit()
                 If originalOutfit == libs.zadEmptyOutfit
                     DressOutfit(akActor)
@@ -1700,7 +1701,7 @@ EndFunction
         akActor    - Actor whos outfit will be removed
 /;
 Function UndressOutfit(Actor akActor)
-    if !UDmain.ActorIsPlayer(akActor)
+    if !IsPlayer(akActor)
         ; We change the outfit only for unique actors because SetOutfit() seems to operate on the ActorBASE and not the actor, so changing a non-unique actors's gear would change it for ALL instances of this actor.
         Outfit originalOutfit = akActor.GetActorBase().GetOutfit()
         If originalOutfit != libs.zadEmptyOutfit
@@ -1719,7 +1720,7 @@ EndFunction
         akActor    - Actor whos outfit will be removed
 /;
 Function DressOutfit(Actor akActor)
-    if !UDmain.ActorIsPlayer(akActor)
+    if !IsPlayer(akActor)
         ; We change the outfit only for unique actors because SetOutfit() seems to operate on the ActorBASE and not the actor, so changing a non-unique actors's gear would change it for ALL instances of this actor.
         Outfit originalOutfit = akActor.GetActorBase().GetOutfit()
         If originalOutfit == libs.zadEmptyOutfit
@@ -1748,7 +1749,7 @@ bool Function CheckRenderDeviceEquipped(Actor akActor, Armor akRendDevice)
     if !akActor
         return false
     endif
-    if UDmain.ActorIsPlayer(akActor)
+    if IsPlayer(akActor)
         return akActor.isEquipped(akRendDevice) ;works fine for player, use this as its faster
     endif
     int loc_mask = 0x00000001
@@ -1865,7 +1866,7 @@ Function showActorDetails(Actor akActor)
             loc_res += "HP: " + formatString(akActor.getAV("Health"),1) + "/" +  formatString(getMaxActorValue(akActor,"Health"),1) + " ("+ Round(getCurrentActorValuePerc(akActor,"Health")*100) +" %)" +"\n"
             loc_res += "MP: " + formatString(akActor.getAV("Magicka"),1) + "/" + formatString(getMaxActorValue(akActor,"Magicka"),1) + " ( "+ Round(getCurrentActorValuePerc(akActor,"Magicka")*100) +" %)" +"\n"
             loc_res += "SP: " + formatString(akActor.getAV("Stamina"),1) + "/" +  formatString(getMaxActorValue(akActor,"Stamina"),1) + " ("+ Round(getCurrentActorValuePerc(akActor,"Stamina")*100) +" %)" +"\n"
-            if UDmain.UDAI.Enabled && !UDmain.ActorIsPlayer(akActor)
+            if UDmain.UDAI.Enabled && !IsPlayer(akActor)
                 loc_res += "Motivation: " + getMotivation(akActor) + "\n"
                 loc_res += "AI Cooldown: " + iUnsig(GetAIRemainingCooldown(akActor)) + " min\n"
             endif
@@ -1911,7 +1912,7 @@ Function showActorDetails(Actor akActor)
             loc_orgStr += "Orgasm resisting: " + Round(_UDOM.getActorOrgasmResistMultiplier(akActor)*100.0) + " %\n"
             if isRegistered(akActor)
                 loc_orgStr += "Orgasm exhaustion: " + _UDOM.GetOrgasmExhaustion(akActor) + "\n"
-                if !UDmain.ActorIsPlayer(akActor)
+                if !IsPlayer(akActor)
                     UD_CustomDevice_NPCSlot loc_slot = GetNPCSlot(akActor)
                     if loc_slot
                         loc_orgStr += "Orgasm exhaustion dur.: " + loc_slot.GetOrgasmExhaustionDuration() + " s\n"
@@ -3518,7 +3519,7 @@ int Function ManifestDevices(Actor akActor,string asSource ,int aiChance,int aiN
     endif
     if loc_array
         if loc_array.length > 0
-            if UDmain.ActorIsPlayer(akActor)
+            if IsPlayer(akActor)
                 UDmain.Print(asSource + " suddenly locks you in bondage restraint!",1)
                 ;/
                 string loc_str = "Devices locked: \n"
