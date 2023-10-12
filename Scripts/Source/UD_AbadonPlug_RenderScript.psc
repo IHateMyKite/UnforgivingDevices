@@ -489,10 +489,8 @@ EndFunction
 
 Function OnCritFailure()
     parent.OnCritFailure()
-    float loc_arousal = 10 + UDOM.getArousal(GetWearer())
-    UDOM.UpdateArousalRate(getWearer(),loc_arousal)
-    Utility.wait(3.5)
-    UDOM.UpdateArousalRate(getWearer(),-1*loc_arousal)
+    OrgasmSystem.AddOrgasmChange(GetWearer(),"AbadonPlugCritFailure", 0x324,UD_EroZones,0)
+    OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),"AbadonPlugCritFailure",9,10,1) ;set arousal rate to 10
 EndFunction
 
 Function OnCritDevicePost()

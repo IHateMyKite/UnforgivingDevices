@@ -208,9 +208,9 @@ Function Receive_MinigameParalel(Form fActor)
     float loc_currentOrgasmRate     = loc_device.getStruggleOrgasmRate()
     float loc_currentArousalRate    = loc_device.getArousalRate()
     
-    OrgasmSystem.AddOrgasmChange(akActor,"UDMinigame." + loc_device.getDeviceName(), 0,0xFFFFFFFF,loc_currentOrgasmRate,0,0,0.25)
-    
-    UDOM.UpdateArousalRate(akActor,loc_currentArousalRate)
+    string loc_orgkey = "UDMinigame." + loc_device.getDeviceName()
+    OrgasmSystem.AddOrgasmChange(akActor,loc_orgkey, 0,0xFFFFFFFF,loc_currentOrgasmRate,0,0,0.25)
+    OrgasmSystem.UpdateOrgasmChangeVar(akActor,loc_orgkey,9,loc_currentArousalRate,1)
     
     ;pause thred untill minigame end
     Float loc_UpdateTime   = 0.1
@@ -266,8 +266,7 @@ Function Receive_MinigameParalel(Form fActor)
         endif
     endwhile
     
-    OrgasmSystem.RemoveOrgasmChange(akActor,"UDMinigame." + loc_device.getDeviceName())
-    UDOM.UpdateArousalRate(akActor,-1*loc_currentArousalRate)
+    OrgasmSystem.RemoveOrgasmChange(akActor,loc_orgkey)
     
     ;returns wearer regen
     akActor.setAV("StaminaRate", staminaRate)

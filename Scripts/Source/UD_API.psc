@@ -607,7 +607,6 @@ EndFunction
 ;  RET.VAL |        FUNCTION NAME         |                 ARGUMENTS
 ;==========================================================================================
 ; TODO
-;          | UpdateBaseOrgasmVals         |  (Actor akActor, int aiDuration, float afOrgasmRate, float afForcing = 0.0, float afArousalRate = 0.0)
 ;   int    | GetOrgasmExhaustion          |  (Actor akActor)
 ;   Float  | getOrgasmRate                |  (Actor akActor, Int aiMode = 0)
 ;   Int    | GetArousal                   |  (Actor akActor)
@@ -621,13 +620,6 @@ EndFunction
 ;   Float  | GetOrgasmProgress            |  (Actor akActor)
 ;   Float  | GetOrgasmProgressPerc        |  (Actor akActor)
 ;   Float  | GetActorOrgasmCapacity       |  (Actor akActor)
-;   Float  | UpdateOrgasmRate             |  (Actor akActor ,float afOrgasmRate,float afOrgasmForcing)
-;   Float  | UpdateArousalRate            |  (Actor akActor ,float afArousalRate)
-;   Float  | UpdateOrgasmRateMultiplier   |  (Actor akActor ,float afOrgasmRateMultiplier)
-;   Float  | UpdateOrgasmResist           |  (Actor akActor ,float afOrgasmResist)
-;   Float  | UpdateOrgasmResistMultiplie  |  (Actor akActor ,float afOrgasmResistMultiplier)
-;   Float  | UpdateArousalRateMultiplier  |  (Actor akActor ,Float afArousalRateMultiplier)
-;   Int    | UpdatetActorOrgasmCapacity   |  (Actor akActor,Int aiValue)
 ;==========================================================================================
 
 ;/  Function: GetOrgasmExhaustion
@@ -689,9 +681,9 @@ EndFunction
 /;
 Float   Function    GetArousalRate(Actor akActor,int abMode = 0)
     if abMode == 0
-        return UDmain.GetUDOM(akActor).getArousalRateM(akActor)
+        return OrgasmSystem.GetOrgasmVariable(akActor,9)*OrgasmSystem.GetOrgasmVariable(akActor,10)
     else
-        return UDmain.GetUDOM(akActor).getArousalRate(akActor)
+        return OrgasmSystem.GetOrgasmVariable(akActor,9)
     endif
 EndFunction
 
@@ -764,7 +756,7 @@ EndFunction
         Return actors current arousal rate multiplier
 /;
 Float   Function    GetArousalRateMultiplier(Actor akActor)
-    return UDmain.GetUDOM(akActor).getArousalRateMultiplier(akActor)
+    return OrgasmSystem.GetOrgasmVariable(akActor,10)
 EndFunction
 
 ;/  Function: GetOrgasmProgress
@@ -805,42 +797,6 @@ EndFunction
 Float   Function    GetActorOrgasmCapacity(Actor akActor)
     return OrgasmSystem.GetOrgasmVariable(akActor,5)
 EndFunction
-
-;/  Function: UpdateArousalRate
-
-    NOTE: The value will be not changed back. Allways change the value back to original values !!!!!
-    WARNING: afArousalRate is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
-    
-    Parameters:
-        akActor         - Actors whose value will be updated
-        afArousalRate   - By how much should be arousal rate updated. Can be both positive and negative
-
-    Returns:
-
-        Return actors new arousal rate after update
-/;
-Float   Function    UpdateArousalRate(Actor akActor ,float afArousalRate)
-    return UDmain.GetUDOM(akActor).UpdateArousalRate(akActor, afArousalRate)
-EndFunction
-
-
-;/  Function: UpdateArousalRateMultiplier
-
-    NOTE: The value will be not changed back. Allways change the value back to original values !!!!!
-    WARNING: afArousalRateMultiplier is recalculated for storage. Because of that, precision is 0.01.All smaller information will be lost.
-    
-    Parameters:
-        akActor                     - Actors whose value will be updated
-        afArousalRateMultiplier     - By how much should be arousal rate multiplier updated. Can be both positive and negative
-
-    Returns:
-
-        Return actors new arousal rate multiplier after update
-/;
-Float   Function    UpdateArousalRateMultiplier(Actor akActor ,Float afArousalRateMultiplier)
-    return UDmain.GetUDOM(akActor).UpdateArousalRateMultiplier(akActor, afArousalRateMultiplier)
-EndFunction
-
 
 ;/  Function: Orgasm
 

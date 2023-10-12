@@ -974,7 +974,7 @@ Function AddOrgasmExhaustion()
     ;    _OrgasmExhaustionTime = UD_OrgasmExhaustionTime ;increase exhaustion to 1 minute
     ;endif
     OrgasmSystem.AddOrgasmChange(loc_actor,"OrgasmExhaustion",0x3C24,0xFFFFFFFF, 0, afOrgasmResistenceMult = 0.35)
-    ;UDOM.UpdateArousalRateMultiplier(loc_actor,-0.1)
+    OrgasmSystem.UpdateOrgasmChangeVar(loc_actor,"OrgasmExhaustion",10,-0.1,2)
 EndFunction
 
 Function _UpdateOrgasmExhaustion(Int aiUpdateTime)
@@ -1889,16 +1889,8 @@ EndFunction
 Function UpdateArousal(Int aiUpdateTime)
     Actor   loc_actor       = GetActor()
     if loc_actor
-        Float   loc_arousalRate =   UDOM.getArousalRateM(loc_actor)*aiUpdateTime
-                _dfArousal      +=  loc_arousalRate - Math.Floor(loc_arousalRate)   ;increase total float point difference
-        Int     loc_arousal     =   Math.Floor(loc_arousalRate) + Math.Floor(_dfArousal)
-                _dfArousal      -=  Math.Floor(_dfArousal)                          ;decrease total float point difference by whole number
-
-        if loc_arousal != 0
-            loc_actor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.UpdateArousal(loc_actor ,loc_arousal))
-        else
-            loc_actor.SetFactionRank(UDOM.ArousalCheckLoopFaction,UDOM.getActorArousal(loc_actor))
-        endif
+        libs.Aroused.SetActorExposure(loc_actor, Round(OrgasmSystem.GetOrgasmVariable(loc_actor,8)))
+        ;UDOM.UpdateArousal(loc_actor ,Round(OrgasmSystem.GetOrgasmVariable(8)))
     else
         UDmain.Error(self + "::Cant update arousal  because sloted actor is none!")
     endif
@@ -2493,8 +2485,9 @@ Function Receive_MinigameParalel()
     float loc_currentOrgasmRate     = loc_device.getStruggleOrgasmRate()
     float loc_currentArousalRate    = loc_device.getArousalRate()
     
-    OrgasmSystem.AddOrgasmChange(akActor,"UDMinigame." + loc_device.getDeviceName(), 0,0x00000200,loc_currentOrgasmRate,0,0,0.25)
-    UDOM.UpdateArousalRate(akActor,loc_currentArousalRate)
+    string loc_orgkey = "UDMinigame." + loc_device.getDeviceName()
+    OrgasmSystem.AddOrgasmChange(akActor,loc_orgkey, 0,0x00000200,loc_currentOrgasmRate,0,0,0.25)
+    OrgasmSystem.UpdateOrgasmChangeVar(akActor,loc_orgkey,9,loc_currentArousalRate,1)
     
     ;pause thred untill minigame end
     Float loc_UpdateTime   = 0.1
@@ -2550,8 +2543,7 @@ Function Receive_MinigameParalel()
         endif
     endwhile
     
-    OrgasmSystem.RemoveOrgasmChange(akActor,"UDMinigame." + loc_device.getDeviceName())
-    UDOM.UpdateArousalRate(akActor,-1*loc_currentArousalRate)
+    OrgasmSystem.RemoveOrgasmChange(akActor,loc_orgkey)
     
     ;returns wearer regen
     akActor.setAV("StaminaRate", staminaRate)

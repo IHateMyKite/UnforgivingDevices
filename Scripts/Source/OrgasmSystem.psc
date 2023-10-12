@@ -2,12 +2,19 @@ Scriptname OrgasmSystem hidden
 
 ;   enum OrgasmVariable : uint8_t
 ;   {
-;       vOrgasmRate                 = 1,
-;       vOrgasmRateMult             = 2,
-;       vOrgasmResistence           = 3,
-;       vOrgasmResistenceMult       = 4,
-;       vOrgasmCapacity             = 5,
-;       vOrgasmForcing              = 6
+;       vNone                       =  0,
+;       vOrgasmRate                 =  1,
+;       vOrgasmRateMult             =  2,
+;       vOrgasmResistence           =  3,
+;       vOrgasmResistenceMult       =  4,
+;       vOrgasmCapacity             =  5,
+;       vOrgasmForcing              =  6,
+;       vElapsedTime                =  7,
+;       vArousal                    =  8,
+;       vArousalRate                =  9,
+;       vArousalRateMult            = 10,
+;
+;       vLast
 ;   };
 
 ;   enum OrgasmUpdateType : uint8_t
@@ -31,7 +38,7 @@ Scriptname OrgasmSystem hidden
 ;       //7-15  = reserved
 ;       //16-31 = Duration (seconds)
 ;   };
-Bool    Function AddOrgasmChange( Actor akActor, String askey, Int aiMod,Int aiEroZones, Float afOrgasmRate, Float afOrgasmRateMult = 0.0, Float afOrgasmForcing = 0.0, Float afOrgasmCapacity = 0.0, Float afOrgasmResistence = 0.0, Float afOrgasmResistenceMult = 0.0) global native
+Bool    Function AddOrgasmChange( Actor akActor, String askey, Int aiMod,Int aiEroZones, Float afOrgasmRate = 0.0, Float afOrgasmRateMult = 0.0, Float afOrgasmForcing = 0.0, Float afOrgasmCapacity = 0.0, Float afOrgasmResistence = 0.0, Float afOrgasmResistenceMult = 0.0) global native
 Bool    Function RemoveOrgasmChange(Actor akActor, String asKey)                    global native
 
 

@@ -18,12 +18,9 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     ;_UDOM.UpdateOrgasmRateMultiplier(_target,_appliedValue*0.5)
     _key = self
     OrgasmSystem.AddOrgasmChange(_target,_key,0,0,0,afOrgasmRateMult = _appliedValue*0.5,afOrgasmResistenceMult = -1*_appliedValue)
-    _UDOM.UpdateArousalRate(_target,5.0)
+    OrgasmSystem.UpdateOrgasmChangeVar(_target,_key,9,5.0,1)
 EndEvent
 
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
     OrgasmSystem.RemoveOrgasmChange(_target,_key)
-    ;_UDOM.UpdateOrgasmResistMultiplier(_target,_appliedValue)
-    ;_UDOM.UpdateOrgasmRateMultiplier(_target,-1*_appliedValue*0.5)
-    _UDOM.UpdateArousalRate(_target,-5.0)
 EndEvent

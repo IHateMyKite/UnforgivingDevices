@@ -701,12 +701,7 @@ Function forceEdgingMode(int aiMode)
 EndFunction
 
 Function _UpdateOrgasmRate(float fOrgasmRate,float fOrgasmForcing)
-    if isVibrating()
-        _removeOrgasmRate()
-        if isVibrating()
-            _setOrgasmRate(fOrgasmRate,fOrgasmForcing)
-        endif
-    endif
+    _setOrgasmRate(fOrgasmRate,fOrgasmForcing)
 EndFunction
 
 Function _setOrgasmRate(float fOrgasmRate,float fOrgasmForcing)
@@ -722,23 +717,17 @@ Function _removeOrgasmRate()
 EndFunction
 
 Function _UpdateArousalRate(float fArousalRate)
-    _removeArousalRate()
     _setArousalRate(fArousalRate)
 EndFunction
 
 Function _setArousalRate(float fArousalRate)
-    if fArousalRate != _appliedArousalRate 
-        _appliedArousalRate = fArousalRate
-        UDOM.UpdateArousalRate(getWearer() ,fArousalRate)
+    if isVibrating()
+        OrgasmSystem.UpdateOrgasmChangeVar(getWearer(),UD_OrgasmChangeMainKey,9,fArousalRate,1)
     endif
 EndFunction
 
 Function _removeArousalRate()
-    if _appliedArousalRate != 0
-        float loc_appliedArousalRate = _appliedArousalRate
-        _appliedArousalRate = 0
-        UDOM.UpdateArousalRate(getWearer() ,-1*loc_appliedArousalRate)
-    endif
+    OrgasmSystem.UpdateOrgasmChangeVar(getWearer(),UD_OrgasmChangeMainKey,9,0,1)
 EndFunction
 
 Sound Function _getVibrationSound()
