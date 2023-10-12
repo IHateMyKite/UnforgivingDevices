@@ -14,7 +14,7 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     String loc_msg = ""
     
     loc_msg += "=== " + NameFull + " ===\n"
-    loc_msg += "Power: " + UD_Modifier.getStringParamInt(aiDataStr,0,0) + "\n"
+    loc_msg += "Power: " + UD_Native.GetStringParamInt(aiDataStr,0,0) + "\n"
 
     loc_msg += "===Description===\n"
     loc_msg += Description + "\n"

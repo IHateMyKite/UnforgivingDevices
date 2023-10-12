@@ -1871,7 +1871,7 @@ Function showActorDetails(Actor akActor)
                 loc_res += "AI Cooldown: " + iUnsig(GetAIRemainingCooldown(akActor)) + " min\n"
             endif
             loc_res += "Arousal: " + _UDOM.getArousal(akActor) + "\n"
-            loc_res += "Orgasm progress: " + formatString(_UDOM.getOrgasmProgressPerc(akActor) * 100,2) + " %\n"
+            loc_res += "Orgasm progress: " + formatString(OrgasmSystem.GetOrgasmProgress(akActor,1) * 100,2) + " %\n"
             UDmain.ShowMessageBox(loc_res)
         elseif loc_option == 1 ;skills
             String loc_res = "--SKILL DETAILS--\n"
@@ -1904,12 +1904,12 @@ Function showActorDetails(Actor akActor)
             loc_orgStr += "Arousal: " + _UDOM.getArousal(akActor) + "\n"
             loc_orgStr += "Arousal Rate(M): " + Math.Ceiling(_UDOM.getArousalRateM(akActor)) + "\n"
             loc_orgStr += "Arousal Rate Mult: " + Round(_UDOM.getArousalRateMultiplier(akActor)*100) + " %\n"
-            loc_orgStr += "Orgasm capacity: " + Round(_UDOM.getActorOrgasmCapacity(akActor)) + "\n"
-            loc_orgStr += "Orgasm resistance(M): " + FormatString(_UDOM.getActorOrgasmResistM(akActor),1) + "\n"
-            loc_orgStr += "Orgasm progress: " + formatString(_UDOM.getOrgasmProgressPerc(akActor) * 100,2) + " %\n"
-            loc_orgStr += "Orgasm rate: " + formatString(_UDOM.getActorAfterMultOrgasmRate(akActor),2) + " - " + formatString(_UDOM.getActorAfterMultAntiOrgasmRate(akActor),2) + " Op/s\n"
-            loc_orgStr += "Orgasm mult: " + Round(_UDOM.getActorOrgasmRateMultiplier(akActor)*100.0) + " %\n"
-            loc_orgStr += "Orgasm resisting: " + Round(_UDOM.getActorOrgasmResistMultiplier(akActor)*100.0) + " %\n"
+            loc_orgStr += "Orgasm capacity: " + Round(OrgasmSystem.GetOrgasmVariable(akActor,5)) + "\n"
+            loc_orgStr += "Orgasm resistance(M): " + FormatString(OrgasmSystem.GetOrgasmVariable(akActor,3)*OrgasmSystem.GetOrgasmVariable(akActor,4),1) + "\n"
+            loc_orgStr += "Orgasm progress: " + formatString(OrgasmSystem.GetOrgasmProgress(akActor,1) * 100,2) + " %\n"
+            loc_orgStr += "Orgasm rate: " + formatString(OrgasmSystem.GetOrgasmVariable(akActor,1),2) + " - " + formatString(OrgasmSystem.GetAntiOrgasmRate(akActor),2) + " Op/s\n"
+            loc_orgStr += "Orgasm mult: " + Round(OrgasmSystem.GetOrgasmVariable(akActor,2)*100.0) + " %\n"
+            loc_orgStr += "Orgasm resisting: " + Round(OrgasmSystem.GetOrgasmVariable(akActor,3)*100.0) + " %\n"
             if isRegistered(akActor)
                 loc_orgStr += "Orgasm exhaustion: " + _UDOM.GetOrgasmExhaustion(akActor) + "\n"
                 if !IsPlayer(akActor)

@@ -5,6 +5,12 @@ import UnforgivingDevicesMain
 Function InitPost()
     parent.InitPost()
     UD_DeviceType = "Piercing"
+    if UD_DeviceKeyword == libs.zad_deviousPiercingsNipple
+        UD_EroZones = Math.LogicalOr(UD_EroZones,0x00000040)
+    endif
+    if UD_DeviceKeyword == libs.zad_deviousPiercingsVaginal
+        UD_EroZones = Math.LogicalOr(UD_EroZones,0x00000004)
+    endif
 EndFunction
 
 Function patchDevice()
@@ -198,5 +204,5 @@ float Function getStruggleOrgasmRate()
     return parent.getStruggleOrgasmRate()
 EndFunction
 Float[] Function GetCurrentMinigameExpression()
-	return parent.GetCurrentMinigameExpression()
+    return parent.GetCurrentMinigameExpression()
 EndFunction

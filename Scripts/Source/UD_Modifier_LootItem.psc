@@ -11,9 +11,9 @@ Function DeviceUnlocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr,
     Actor loc_actor = akDevice.GetWearer()
     
     if loc_actor && (akForm1 || akForm2 || akForm3)
-        int loc_num1 = Round(UD_Modifier.getStringParamInt(aiDataStr,0,0)*Multiplier)
-        int loc_num2 = Round(UD_Modifier.getStringParamInt(aiDataStr,1,0)*Multiplier)
-        int loc_num3 = Round(UD_Modifier.getStringParamInt(aiDataStr,2,0)*Multiplier)
+        int loc_num1 = Round(UD_Native.GetStringParamInt(aiDataStr,0,0)*Multiplier)
+        int loc_num2 = Round(UD_Native.GetStringParamInt(aiDataStr,1,0)*Multiplier)
+        int loc_num3 = Round(UD_Native.GetStringParamInt(aiDataStr,2,0)*Multiplier)
 
         if akForm1 && loc_num1 > 0
             loc_actor.addItem(akForm1,loc_num1)
@@ -35,15 +35,15 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     loc_msg += "=== " + NameFull + " ===\n"
     
     if akForm1
-        loc_msg += "Item = " + akForm1 + " x" + Round(UD_Modifier.getStringParamInt(aiDataStr,0,0)*Multiplier) + "\n"
+        loc_msg += "Item = " + akForm1 + " x" + Round(UD_Native.GetStringParamInt(aiDataStr,0,0)*Multiplier) + "\n"
     endif
     
     if akForm2
-        loc_msg += "Item = " + akForm2 + " x" + Round(UD_Modifier.getStringParamInt(aiDataStr,1,0)*Multiplier) + "\n"
+        loc_msg += "Item = " + akForm2 + " x" + Round(UD_Native.GetStringParamInt(aiDataStr,1,0)*Multiplier) + "\n"
     endif
     
     if akForm3
-        loc_msg += "Item = " + akForm3 + " x" + Round(UD_Modifier.getStringParamInt(aiDataStr,2,0)*Multiplier) + "\n"
+        loc_msg += "Item = " + akForm3 + " x" + Round(UD_Native.GetStringParamInt(aiDataStr,2,0)*Multiplier) + "\n"
     endif
     
     loc_msg += "===Description===\n"

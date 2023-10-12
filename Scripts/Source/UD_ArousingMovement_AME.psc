@@ -21,6 +21,7 @@ Function OnEffectStart(Actor akTarget, Actor akCaster)
         _lastX = akActor.GetPositionX()
         _lastY = akActor.GetPositionY()
         _previousCell = akActor.GetParentCell()
+        OrgasmSystem.AddOrgasmChange(akActor,"ArousingMovement", 0,0x00000014,0,afOrgasmForcing = 0.2)
         UpdateTime()
         RegisterForSingleUpdate(_updateTime)
     endif
@@ -49,7 +50,7 @@ Event OnUpdate()
     endif
     loc_distance = iRange(loc_distance,0,1000)
     if loc_distance
-        UDOM.UpdateBaseOrgasmVals(akActor, Math.Ceiling(_updateTime), loc_distance*_magnitude/100, 0.2, loc_distance*_magnitude/100)
+        OrgasmSystem.UpdateOrgasmChangeVar(akActor,"ArousingMovement", 1,loc_distance*_magnitude/100,1)
     endif
     _lastX = akActor.GetPositionX()
     _lastY = akActor.GetPositionY()
@@ -59,6 +60,7 @@ EndEvent
 
 Function OnEffectFinish(Actor akTarget, Actor akCaster)
     GoToState("Finished")
+    OrgasmSystem.RemoveOrgasmChange(akActor,"ArousingMovement")
     _finished = true
 EndFunction
 

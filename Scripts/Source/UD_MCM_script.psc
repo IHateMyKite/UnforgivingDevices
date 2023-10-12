@@ -1223,7 +1223,7 @@ Event resetDebugPage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
     AddHeaderOption("$UD_H_DEVICE_SLOTS")
-    AddHeaderOption("$UD_H_NPC SLOTS")    
+    AddHeaderOption("$UD_H_NPC SLOTS")
     int i = 0
     
     UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByIndex(actorIndex)
@@ -1279,9 +1279,9 @@ Event resetDebugPage()
             elseif i == 17
                 AddTextOption("$UD_DEVICES", slot.getNumberOfRegisteredDevices() ,OPTION_FLAG_DISABLED)
             elseif i == 18
-                OrgasmResist_S          = addSliderOption("$UD_ORGASMRESIST",UDOM.getActorOrgasmResist(slot.getActor()), "{1}")
+                OrgasmResist_S          = addSliderOption("$UD_ORGASMRESIST",OrgasmSystem.GetOrgasmVariable(slot.getActor(),3), "{1}",OPTION_FLAG_DISABLED)
             elseif i == 19
-                OrgasmCapacity_S        = addSliderOption("$UD_ORGASMCAPACITY",UDOM.getActorOrgasmCapacity(slot.getActor()), "{0}")
+                OrgasmCapacity_S        = addSliderOption("$UD_ORGASMCAPACITY",OrgasmSystem.GetOrgasmVariable(slot.getActor(),5), "{0}",OPTION_FLAG_DISABLED)
             elseif i == 20
                 unlockAll_T             = AddTextOption("$UD_UNLOCK_ALL", "$CLICK" ,FlagSwitchAnd(UD_LockMenu_flag,FlagSwitch(!UDmain.UD_LockDebugMCM)))
             elseif i == 21
@@ -2168,19 +2168,6 @@ Function OnOptionSliderOpenAbadon(int option)
 EndFunction
 
 Function OnOptionSliderOpenDebug(int option)
-    if option == OrgasmResist_S
-        UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByIndex(actorIndex)
-        SetSliderDialogStartValue(UDOM.getActorOrgasmResist(slot.getActor()))
-        SetSliderDialogDefaultValue(UDCONF.UD_OrgasmResistence)
-        SetSliderDialogRange(0.0, 10.0)
-        SetSliderDialogInterval(0.1)
-    elseif option == OrgasmCapacity_S
-        UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByIndex(actorIndex)
-        SetSliderDialogStartValue(UDOM.getActorOrgasmCapacity(slot.getActor()))
-        SetSliderDialogDefaultValue(100.0)
-        SetSliderDialogRange(10.0, 500.0)
-        SetSliderDialogInterval(5.0)
-    endIf
 EndFunction
 
 Function OnOptionSliderOpenUIWidget(Int option)
@@ -2455,15 +2442,6 @@ Function OnOptionSliderAcceptAbadon(int option, float value)
 EndFunction
 
 Function OnOptionSliderAcceptDebug(int option,float value)
-    if option == OrgasmResist_S
-        UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByIndex(actorIndex)
-        UDOM.setActorOrgasmResist(slot.getActor(),value)
-        SetSliderOptionValue(OrgasmResist_S, UDOM.GetActorOrgasmResist(slot.getActor()), "{1}")
-    elseif option == OrgasmCapacity_S
-        UD_CustomDevice_NPCSlot slot = UDCD_NPCM.getNPCSlotByIndex(actorIndex)
-        UDOM.setActorOrgasmCapacity(slot.getActor(),value)
-        SetSliderOptionValue(OrgasmCapacity_S, UDOM.GetActorOrgasmCapacity(slot.getActor()), "{0}")
-    endIf
 EndFunction
 
 Function OnOptionSliderAcceptUIWidget(Int option, Float value)

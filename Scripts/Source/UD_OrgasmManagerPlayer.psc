@@ -94,14 +94,14 @@ Function OnCritSuccesOrgasmResist()
         UDmain.Log("OnCritSuccesOrgasmResist() callled!")
     endif
     UDmain.Player.restoreAV("Stamina", 15)
-    UpdateActorOrgasmProgress(UDmain.Player,-10,true)
+    OrgasmSystem.AddOrgasmChange(UDmain.Player,"OrgasmResist.CritS",0x32C,0x00000200,-25)
 EndFunction
 
 Function OnCritFailureOrgasmResist()
     if UDmain.TraceAllowed()    
         UDmain.Log("OnCritFailureOrgasmResist() callled!")
     endif
-    UpdateActorOrgasmProgress(UDmain.Player,getActorOrgasmRate(UDmain.Player)*2,true)
+    OrgasmSystem.AddOrgasmChange(UDmain.Player,"OrgasmResist.CritF",0x12C,0x00000200,35)
 EndFunction
 
 Event MinigameKeysRegister()
@@ -203,7 +203,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
         return
     endif
     
-    if !(getActorAfterMultOrgasmRate(akActor) > 0)
+    if (OrgasmSystem.GetOrgasmVariable(akActor,1)*OrgasmSystem.GetOrgasmVariable(akActor,2) <= 0.0)
         return
     endif
     
@@ -213,7 +213,8 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     float loc_staminaRate     = akActor.getBaseAV("StaminaRate")
     akActor.setAV("StaminaRate", 0.0)
     
-    UDmain.UDWC.Meter_SetNativeRate("player-orgasm",0.0)
+    OrgasmSystem.AddOrgasmChange(akActor,"OrgasmResistMinigame",0,0x00000200,0.0,afOrgasmResistence = 2.5, afOrgasmResistenceMult = 0.75)
+    ;UDmain.UDWC.Meter_SetNativeRate("player-orgasm",0.0)
     
     ;UDCDMain.DisableActor(akActor,true)
     UDCDMain.StartMinigameDisable(akActor)
@@ -246,11 +247,11 @@ Function FocusOrgasmResistMinigame(Actor akActor)
         loc_baseDrain += 2.5
     endif
     
-    float   loc_currentOrgasmRate           = getActorOrgasmRate(akActor)
+    float   loc_currentOrgasmRate           = OrgasmSystem.GetOrgasmVariable(akActor,1)
     bool    loc_cycleON                     = true
     int     loc_tick                        = 0
     float   loc_StaminaRateMult             = 1.0
-    float   loc_orgasmResistence            = getActorOrgasmResist(akActor)
+    float   loc_orgasmResistence            = OrgasmSystem.GetOrgasmVariable(akActor,3)
     int     loc_HightSpiritMode_Duration    = -2*Round(1/UDmain.UD_baseUpdateTime)
     int     loc_HightSpiritMode_Type        = 1
 
@@ -287,8 +288,8 @@ Function FocusOrgasmResistMinigame(Actor akActor)
         endif
         
         if loc_tick*UDmain.UD_baseUpdateTime >= 1.0 && loc_cycleON
-            loc_currentOrgasmRate       = getActorOrgasmRate(akActor)
-            loc_orgasmResistence        = getActorOrgasmResist(akActor)
+            loc_currentOrgasmRate       = OrgasmSystem.GetOrgasmVariable(akActor,1)
+            loc_orgasmResistence        = OrgasmSystem.GetOrgasmVariable(akActor,3)
             if loc_HightSpiritMode_Duration == 0
                 if Utility.randomInt() <= 40 
                     loc_HightSpiritMode_Type = Utility.randomInt(1,3)
@@ -331,6 +332,8 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     UD_Native.EndMinigameEffect(akActor)
     
     akActor.setAV("StaminaRate", loc_staminaRate)
+    
+    OrgasmSystem.RemoveOrgasmChange(akActor,"OrgasmResistMinigame")
     
     if IsPlayer(akActor)
         _PlayerOrgasmResist_MinigameOn = false

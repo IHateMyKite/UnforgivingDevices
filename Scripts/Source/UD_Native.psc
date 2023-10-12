@@ -59,8 +59,11 @@ Int     Function GetActorConstrains         (Actor akActor)                     
 Int     Function CalculateSkillFromPerks    (Actor akActor,Formlist akList,Int aiIncrease)      global native
 
 ;===Modifiers===
-Bool    Function HasModifier                (String[] aaModifiers, String asModName)            global native
-Int     Function GetModifierIndex           (String[] aaModifiers, String asModName)            global native
-Bool    Function ModifierHaveParams         (String[] aaModifiers, String asModName)            global native
-String[] Function getModifierAllParam       (String[] aaModifiers, String asModName)            global native
-Int     Function GetModifierParamNum        (String[] aaModifiers, String asModName)            global native
+String[]    Function GetModifierAllParam    (String asParam)                                                global native
+Int         Function GetStringParamInt      (String asParam,Int aiIndex = 0,Int     aiDefaultValue = 0  )   global native
+Float       Function GetStringParamFloat    (String asParam,Int aiIndex = 0,Float   afDefaultValue = 0.0)   global native
+String      Function GetStringParamString   (String asParam,Int aiIndex = 0,String  asDefaultValue = "" )   global native
+
+;===ActorSlotManager===
+Bool        Function RegisterSlotQuest(Quest akQuest)   global native
+Actor[]     Function GetRegisteredActors()              global native

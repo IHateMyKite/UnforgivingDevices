@@ -29,7 +29,7 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     String loc_msg = ""
     
     loc_msg += "=== " + NameFull + " ===\n"
-    loc_msg += "Strength: " + iRange(Round(UD_Modifier.getStringParamFloat(aiDataStr,0,0.0)*100.0),0,100) + " %\n"
+    loc_msg += "Strength: " + iRange(Round(UD_Native.GetStringParamFloat(aiDataStr,0,0.0)*100.0),0,100) + " %\n"
 
     loc_msg += "===Description===\n"
     loc_msg += Description + "\n"

@@ -919,6 +919,20 @@ Float Function Meter_UpdateNativeValue(string asMeter,Float afDiff)
     return UD_Native.UpdateMeterValueSkyUi(_GetVanillaMeter(asMeter).WidgetRoot,afDiff)
 EndFunction
 
+
+;/  Function: Meter_LinkActorOrgasm
+    TODO
+/;
+Function Meter_LinkActorOrgasm(Actor akActor, String asMeter)
+    OrgasmSystem.LinkActorToMeter(akActor,_GetVanillaMeter(asMeter),0,0)
+EndFunction
+
+;/  Function: Meter_UnlinkActorOrgasm
+    TODO
+/;
+Function Meter_UnlinkActorOrgasm(Actor akActor)
+    OrgasmSystem.UnlinkActorFromMeter(akActor)
+EndFunction
 ;/  Group: Notifications API
 ===========================================================================================
 ===========================================================================================
@@ -1762,6 +1776,10 @@ State iWidgetInstalled
         return UD_Native.UpdateMeterValueIWW(_GetMeter(asMeter).id,afDiff)
     EndFunction
    
+    Function Meter_LinkActorOrgasm(Actor akActor, String asMeter)
+        OrgasmSystem.LinkActorToMeter(akActor,iWidget.WidgetRoot,1,_GetMeter(asMeter).id)
+    EndFunction
+    
     ; quickly push a string into array and leave the function
     Function Notification_Push(String asText, Int aiColor = 0xFFFFFF)
         If asText == ""

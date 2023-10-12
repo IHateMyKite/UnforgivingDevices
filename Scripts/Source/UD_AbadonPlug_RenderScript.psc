@@ -312,7 +312,7 @@ int Function getOrgasmCout()
 EndFunction
 
 Function onUpdatePre(float timePassed)
-    setModifierIntParam("LootGold",10 +  Math.floor(20.0*getTotalStrenght()*(0.5*(1 + AbadonQuestScript.overaldifficulty))))
+    setModifierIntParam("LG",10 +  Math.floor(20.0*getTotalStrenght()*(0.5*(1 + AbadonQuestScript.overaldifficulty))))
 EndFunction
 
 Function updateVibrationParam()

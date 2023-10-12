@@ -7,7 +7,7 @@ Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, Str
     if !akDevice.HaveUnlockableLocks()
         return
     endif
-    int loc_chance = Round(UD_Modifier.getStringParamInt(aiDataStr,0)*Multiplier)
+    int loc_chance = Round(UD_Native.GetStringParamInt(aiDataStr,0)*Multiplier)
     if loc_chance
         akDevice.AddJammedLock(loc_chance)
     endif
@@ -25,7 +25,7 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     String loc_msg = ""
     
     loc_msg += "=== " + NameFull + " ===\n"
-    loc_msg += "Chance: " + iRange(Round(UD_Modifier.getStringParamInt(aiDataStr,0,0)*Multiplier),0,100) + " % per hour\n"
+    loc_msg += "Chance: " + iRange(Round(UD_Native.GetStringParamInt(aiDataStr,0,0)*Multiplier),0,100) + " % per hour\n"
 
     loc_msg += "===Description===\n"
     loc_msg += Description + "\n"

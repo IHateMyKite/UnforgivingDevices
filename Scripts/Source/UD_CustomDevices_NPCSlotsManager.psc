@@ -139,10 +139,12 @@ Event OnInit()
         Utility.WaitMenuMode(0.05)
     endwhile
     registerForSingleUpdate(10.0)
+    UD_Native.RegisterSlotQuest(self as Quest)
     Ready = True
 EndEvent
 
 Function GameUpdate()
+    UD_Native.RegisterSlotQuest(self as Quest)
     ; === Manager only ===
     if IsManager()
         ; === Check player slot ===

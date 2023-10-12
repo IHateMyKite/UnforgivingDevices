@@ -2172,7 +2172,7 @@ function checkSentient(float afMult = 1.0)
         if Utility.randomInt() > 75 && WearerIsPlayer()
             startSentientDialogue(1)
         endif
-        if Round(UD_Modifier.getStringParamFloat(GetModifierParam("SEN"))*afMult) > Utility.randomInt(1,99)
+        if Round(UD_Native.GetStringParamFloat(GetModifierParam("SEN"))*afMult) > Utility.randomInt(1,99)
             if UDmain.TraceAllowed()
                 UDmain.Log("Sentient device activation of : " + getDeviceHeader())
             endif
@@ -2666,7 +2666,7 @@ EndFunction
         Modifier for "LOS" modifier
 /;
 float Function getLooseMod()
-    return UD_Modifier.getStringParamFloat(getModifierParam("LOS"),0,0.5)
+    return UD_Native.GetStringParamFloat(getModifierParam("LOS"),0,0.5)
 EndFunction
 
 ;==============================================================================================
@@ -7866,7 +7866,7 @@ Function onWeaponHitPost(Weapon source)
         
         if HaveUnlockableLocks()
             if hasModifier("CLO")
-                int loc_chance = Round(UD_Modifier.getStringParamInt(GetModifierParam("CLO"),0)*0.1)
+                int loc_chance = Round(UD_Native.GetStringParamInt(GetModifierParam("CLO"),0)*0.1)
                 AddJammedLock(loc_chance)
             endif
         endif

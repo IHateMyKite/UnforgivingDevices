@@ -7,6 +7,15 @@ Float Property UD_PlugRemovePressMult = 0.3 autoreadonly
 Function InitPost()
     parent.InitPost()
     UD_DeviceType = "Plug"
+    
+    int loc_type = getPlugType()
+    if loc_type == 0
+        UD_EroZones = Math.LogicalOr(UD_EroZones,0x00000001) ;vaginal
+    elseif loc_type == 1
+        UD_EroZones = Math.LogicalOr(UD_EroZones,0x00000080) ;anal
+    else 
+        UD_EroZones = Math.LogicalOr(UD_EroZones,0x00000081) ;both
+    endif
 EndFunction
 
 Function safeCheck()

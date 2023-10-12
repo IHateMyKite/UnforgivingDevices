@@ -4,8 +4,8 @@ import UnforgivingDevicesMain
 import UD_Native
 
 Function Orgasm(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
-    int loc_chance = Round(UD_Modifier.getStringParamInt(0)*Multiplier)
-    int loc_number = UD_Modifier.getStringParamInt(1,1)
+    int loc_chance = Round(UD_Native.GetStringParamInt(0)*Multiplier)
+    int loc_number = UD_Native.GetStringParamInt(1,1)
     UDCDmain.ManifestDevices(akDevice.GetWearer(),akDevice.getDeviceName(),loc_chance,loc_number)
 EndFunction
 
@@ -32,8 +32,8 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     String loc_msg = ""
     
     loc_msg += "=== " + NameFull + " ===\n"
-    loc_msg += "Chance: " + iRange(Round(UD_Modifier.getStringParamInt(aiDataStr,0)*Multiplier),0,100) + " %\n"
-    loc_msg += "Devices: " + UD_Modifier.getStringParamInt(aiDataStr,1,1) + "\n"
+    loc_msg += "Chance: " + iRange(Round(UD_Native.GetStringParamInt(aiDataStr,0)*Multiplier),0,100) + " %\n"
+    loc_msg += "Devices: " + UD_Native.GetStringParamInt(aiDataStr,1,1) + "\n"
 
     loc_msg += "===Description===\n"
     loc_msg += Description + "\n"

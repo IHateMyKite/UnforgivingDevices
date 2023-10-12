@@ -630,7 +630,9 @@ Function InflateAnalPlug(actor akActor, int amount = 1)
     else
         currentVal = iRange(amount,2,5)
     endif
-    UDOM.UpdateBaseOrgasmVals(akActor,5,7.5*currentVal,0.5,3.5*currentVal)
+    
+    OrgasmSystem.AddOrgasmChange(akActor,"AnalPlugInflate", 0x060C,0x0180, 7.5*currentVal,afOrgasmForcing = 0.5)
+    ;UDOM.UpdateBaseOrgasmVals(akActor,5,7.5*currentVal,0.5,3.5*currentVal)
     SendInflationEvent(akActor, False, True, currentval)
 EndFunction
 
@@ -659,7 +661,8 @@ Function InflateVaginalPlug(actor akActor, int amount = 1)
         currentVal = iRange(amount,2,5)
     endif
     
-    UDOM.UpdateBaseOrgasmVals(akActor,5,12.5*currentVal,0.5,5*currentVal)
+    OrgasmSystem.AddOrgasmChange(akActor,"VaginalPlugInflate", 0x060C,0x0003, 13.5*currentVal,afOrgasmForcing = 0.5)
+    ;UDOM.UpdateBaseOrgasmVals(akActor,5,12.5*currentVal,0.5,5*currentVal)
     SendInflationEvent(akActor, True, True, currentval)
 EndFunction
 
