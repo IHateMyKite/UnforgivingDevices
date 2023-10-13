@@ -29,7 +29,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
         Formlist loc_formlist = none
         Armor device = none
 
-        Int loc_arousal = UDCDmain.UDmain.UDOM.getArousal(akTarget)
+        Int loc_arousal = Round(UDCDmain.UDmain.UDOM.getArousal(akTarget))
         int random = Round(Utility.randomInt(1,100) + (loc_arousal/5))
         
         if random > 90

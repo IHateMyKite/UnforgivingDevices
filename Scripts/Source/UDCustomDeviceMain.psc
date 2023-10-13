@@ -1901,7 +1901,7 @@ Function showActorDetails(Actor akActor)
             loc_orgStr += "State: " + _UDOM.GetHornyLevelString(akActor) + "\n"
             loc_orgStr += "Horny progress: " + Round(_UDOM.GetRelativeHornyProgress(akActor)*100.0) + " %\n"
             loc_orgStr += "Active vibrators: " + GetActivatedVibrators(akActor) + "(S="+StorageUtil.GetIntValue(akActor,"UD_ActiveVib_Strength",0)+")" + "\n"
-            loc_orgStr += "Arousal: " + OrgasmSystem.GetOrgasmVariable(akActor,8) + "\n"
+            loc_orgStr += "Arousal: " + FormatString(OrgasmSystem.GetOrgasmVariable(akActor,8),1) + "\n"
             loc_orgStr += "Arousal Rate(M): " + FormatString(OrgasmSystem.GetOrgasmVariable(akActor,9)*OrgasmSystem.GetOrgasmVariable(akActor,10),1) + "\n"
             loc_orgStr += "Arousal Rate Mult: " + Round(OrgasmSystem.GetOrgasmVariable(akActor,10)*100) + " %\n"
             loc_orgStr += "Orgasm capacity: " + Round(OrgasmSystem.GetOrgasmVariable(akActor,5)) + "\n"

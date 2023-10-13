@@ -489,7 +489,7 @@ EndFunction
 
 Function OnCritFailure()
     parent.OnCritFailure()
-    OrgasmSystem.AddOrgasmChange(GetWearer(),"AbadonPlugCritFailure", 0x324,UD_EroZones,0)
+    OrgasmSystem.AddOrgasmChange(GetWearer(),"AbadonPlugCritFailure", 0x30024,UD_EroZones,0)
     OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),"AbadonPlugCritFailure",9,10,1) ;set arousal rate to 10
 EndFunction
 

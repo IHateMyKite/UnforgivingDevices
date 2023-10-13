@@ -47,7 +47,7 @@ int     Property     UD_EdgingMode          = -1        auto
 ;/  Variable: UD_EdgingThreshold
     How big orgasm progress needs to be for vibrator to stop vibrating if <UD_EdgingMode> is 1
 /;
-float   Property     UD_EdgingThreshold     = 0.75      auto
+float   Property     UD_EdgingThreshold     = 0.95      auto
 
 ;/  Variable: UD_Shocking
     Vibrator will also shock actor when vibrate is called
@@ -182,6 +182,10 @@ Function InitPost()
             UD_EdgingMode = 0
         endif
     endif
+    
+    if (UD_EroZones == 0x00000000) 
+        UD_EroZones = 0x00000200 ;default ero zone
+    endif
 EndFunction
 
 Int Function GetAiPriority()
@@ -250,7 +254,7 @@ Function _ShowVibDetails()
             loc_res += "Rem. duration: " + "INF" + " s\n"
         endif
         loc_res += "Arousal rate: " + FormatString(getVibArousalRate(),2) + " A/s\n"
-        loc_res += "Orgasm rate: " + FormatString(_appliedOrgasmRate,2) + " Op/s\n"
+        loc_res += "Orgasm rate: " + FormatString(GetAppliedOrgasmRate(),2) + " Op/s\n"
         loc_res += "Current vib mode: "
         if _currentEdgingMode == 0
             loc_res += "Normal\n"
@@ -706,12 +710,16 @@ EndFunction
 
 Function _setOrgasmRate(float fOrgasmRate,float fOrgasmForcing)
     if isVibrating()
+        _appliedOrgasmRate = fOrgasmRate
+        _appliedForcing = fOrgasmForcing
         OrgasmSystem.UpdateOrgasmChangeVar(getWearer(),UD_OrgasmChangeMainKey,1,fOrgasmRate,1)
         OrgasmSystem.UpdateOrgasmChangeVar(getWearer(),UD_OrgasmChangeMainKey,6,fOrgasmForcing,1)
     endif
 EndFunction
 
 Function _removeOrgasmRate()
+    _appliedOrgasmRate = 0.0
+    _appliedForcing = 0.0
     OrgasmSystem.UpdateOrgasmChangeVar(getWearer(),UD_OrgasmChangeMainKey,1,0.0,1)
     OrgasmSystem.UpdateOrgasmChangeVar(getWearer(),UD_OrgasmChangeMainKey,6,0.0,1)
 EndFunction
@@ -722,12 +730,14 @@ EndFunction
 
 Function _setArousalRate(float fArousalRate)
     if isVibrating()
+        UDmain.Info("_setArousalRate = " + fArousalRate)
+        _appliedArousalRate = fArousalRate
         OrgasmSystem.UpdateOrgasmChangeVar(getWearer(),UD_OrgasmChangeMainKey,9,fArousalRate,1)
     endif
 EndFunction
 
 Function _removeArousalRate()
-    OrgasmSystem.UpdateOrgasmChangeVar(getWearer(),UD_OrgasmChangeMainKey,9,0,1)
+    OrgasmSystem.UpdateOrgasmChangeVar(getWearer(),UD_OrgasmChangeMainKey,9,0.0,1)
 EndFunction
 
 Sound Function _getVibrationSound()
@@ -807,6 +817,9 @@ Function _VibrateStart(float afDurationMult = 1.0)
     _StartVibSound()
     
     OrgasmSystem.AddOrgasmChange(GetWearer(),UD_OrgasmChangeMainKey, iRange(_currentEdgingMode,0,2),UD_EroZones,afOrgasmRate = getVibOrgasmRate(),afOrgasmForcing = 1.0)
+    
+    OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),UD_OrgasmChangeMainKey,13,UD_EdgingThreshold,1)
+    OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),UD_OrgasmChangeMainKey,11,3.0,1)
     
     _setArousalRate(getVibArousalRate())
     
@@ -949,25 +962,25 @@ Function _ProcessPause(Int aiUpdateTime)
 EndFunction
 
 Function _ProccesVibEdge()
-    if isVibrating() && !_paused
-        if _currentEdgingMode == 1
-            ;if UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
-            ;    if WearerIsPlayer() && !UDMain.UDWC.UD_FilterVibNotifications
-            ;        UDmain.Print(getDeviceName() + " suddenly stops vibrating!",3)
-            ;    endif
-            ;    pauseVibFor(10)
-            ;endif
-        elseif _currentEdgingMode == 2
-            ;if UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
-            ;    if Utility.randomInt() < iRange(CurrentVibStrength, 40 , 80)
-            ;        if WearerIsPlayer() && !UDMain.UDWC.UD_FilterVibNotifications
-            ;            UDmain.Print(getDeviceName() + " suddenly stops vibrating!",3)
-            ;        endif
-            ;        pauseVibFor(Utility.randomInt(30,60))
-            ;    endif
-            ;endif
-        endif
-    endif
+    ;if isVibrating() && !_paused
+    ;    if _currentEdgingMode == 1
+    ;        ;if UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
+    ;        ;    if WearerIsPlayer() && !UDMain.UDWC.UD_FilterVibNotifications
+    ;        ;        UDmain.Print(getDeviceName() + " suddenly stops vibrating!",3)
+    ;        ;    endif
+    ;        ;    pauseVibFor(10)
+    ;        ;endif
+    ;    elseif _currentEdgingMode == 2
+    ;        ;if UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
+    ;        ;    if Utility.randomInt() < iRange(CurrentVibStrength, 40 , 80)
+    ;        ;        if WearerIsPlayer() && !UDMain.UDWC.UD_FilterVibNotifications
+    ;        ;            UDmain.Print(getDeviceName() + " suddenly stops vibrating!",3)
+    ;        ;        endif
+    ;        ;        pauseVibFor(Utility.randomInt(30,60))
+    ;        ;    endif
+    ;        ;endif
+    ;    endif
+    ;endif
 EndFunction
 
 Function onRemoveDevicePre(Actor akActor)
@@ -990,7 +1003,7 @@ EndFunction
         Applied orgasm rate by vibrator
 /;
 Float Function GetAppliedOrgasmRate()
-    return _appliedOrgasmRate
+    return OrgasmSystem.GetOrgasmChangeVar(GetWearer(),UD_OrgasmChangeMainKey,1)
 EndFunction
 
 ;/  Group: Vibrator Override

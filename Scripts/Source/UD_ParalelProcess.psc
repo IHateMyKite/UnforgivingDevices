@@ -209,7 +209,7 @@ Function Receive_MinigameParalel(Form fActor)
     float loc_currentArousalRate    = loc_device.getArousalRate()
     
     string loc_orgkey = "UDMinigame." + loc_device.getDeviceName()
-    OrgasmSystem.AddOrgasmChange(akActor,loc_orgkey, 0,0xFFFFFFFF,loc_currentOrgasmRate,0,0,0.25)
+    OrgasmSystem.AddOrgasmChange(akActor,loc_orgkey, 0,0x00000200,loc_currentOrgasmRate,0,0,0.25)
     OrgasmSystem.UpdateOrgasmChangeVar(akActor,loc_orgkey,9,loc_currentArousalRate,1)
     
     ;pause thred untill minigame end

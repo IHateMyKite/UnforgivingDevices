@@ -94,14 +94,14 @@ Function OnCritSuccesOrgasmResist()
         UDmain.Log("OnCritSuccesOrgasmResist() callled!")
     endif
     UDmain.Player.restoreAV("Stamina", 15)
-    OrgasmSystem.AddOrgasmChange(UDmain.Player,"OrgasmResist.CritS",0x32C,0x00000200,-25)
+    OrgasmSystem.AddOrgasmChange(UDmain.Player,"OrgasmResist.CritS",0x3002C,0x00000200,-25)
 EndFunction
 
 Function OnCritFailureOrgasmResist()
     if UDmain.TraceAllowed()    
         UDmain.Log("OnCritFailureOrgasmResist() callled!")
     endif
-    OrgasmSystem.AddOrgasmChange(UDmain.Player,"OrgasmResist.CritF",0x12C,0x00000200,35)
+    OrgasmSystem.AddOrgasmChange(UDmain.Player,"OrgasmResist.CritF",0x1002C,0x00000200,35)
 EndFunction
 
 Event MinigameKeysRegister()
@@ -213,7 +213,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     float loc_staminaRate     = akActor.getBaseAV("StaminaRate")
     akActor.setAV("StaminaRate", 0.0)
     
-    OrgasmSystem.AddOrgasmChange(akActor,"OrgasmResistMinigame",0,0x00000200,0.0,afOrgasmResistence = 2.5, afOrgasmResistenceMult = 0.75)
+    OrgasmSystem.AddOrgasmChange(akActor,"OrgasmResistMinigame",0,0x00020000,0.0,afOrgasmResistence = 2.5, afOrgasmResistenceMult = 0.75)
     ;UDmain.UDWC.Meter_SetNativeRate("player-orgasm",0.0)
     
     ;UDCDMain.DisableActor(akActor,true)

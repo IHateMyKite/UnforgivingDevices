@@ -158,7 +158,7 @@ EndFunction
 
 ;/  Function: getArousal
 
-    Faster version of <getActorArousal> which uses faction.
+    Faster and more accurate version of <getActorArousal> which uses faction.
 
     Parameters:
 
@@ -168,12 +168,8 @@ EndFunction
 
         Current actor arousal
 /;
-Int Function getArousal(Actor akActor)
-    if akActor.isInFaction(ArousalCheckLoopFaction)
-        return akActor.GetFactionRank(ArousalCheckLoopFaction)
-    else
-        return getActorArousal(akActor)
-    endif
+float Function getArousal(Actor akActor)
+    return OrgasmSystem.GetOrgasmVariable(akActor,8)
 EndFunction
 
 ;/  Function: getActorArousal
@@ -497,8 +493,8 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,in
     endif
     
     ;add it only for 5s
-    OrgasmSystem.AddOrgasmChange(akActor,"PostOrgasm", 0x070C,0xFFFFFFFF, -10.0, afOrgasmRateMult = -0.25, afOrgasmResistence = 1.0, afOrgasmResistenceMult = 0.25)
-    ;UpdateBaseOrgasmVals(akActor, UDCONF.UD_OrgasmArousalReduceDuration, -5.0, 0.0, -1.0*iDecreaseArousalBy)
+    OrgasmSystem.AddOrgasmChange(akActor,"PostOrgasm", 0xF000C,0xFFFFFFFF, -10.0, afOrgasmRateMult = -0.25, afOrgasmResistence = 1.0, afOrgasmResistenceMult = 0.25)
+    OrgasmSystem.UpdateOrgasmChangeVar(akActor,"PostOrgasm", 9, -10, 1)
 
     if UDmain.TraceAllowed()
         UDmain.Log("ActorOrgasmPatched called for " + GetActorName(akActor),1)

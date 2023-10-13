@@ -973,7 +973,7 @@ Function AddOrgasmExhaustion()
     ;if _OrgasmExhaustionTime == 0
     ;    _OrgasmExhaustionTime = UD_OrgasmExhaustionTime ;increase exhaustion to 1 minute
     ;endif
-    OrgasmSystem.AddOrgasmChange(loc_actor,"OrgasmExhaustion",0x3C24,0xFFFFFFFF, 0, afOrgasmResistenceMult = 0.35)
+    OrgasmSystem.AddOrgasmChange(loc_actor,"OrgasmExhaustion",0x300C24,0xFFFFFFFF, 0, afOrgasmResistenceMult = 0.35)
     OrgasmSystem.UpdateOrgasmChangeVar(loc_actor,"OrgasmExhaustion",10,-0.1,2)
 EndFunction
 
@@ -1889,7 +1889,7 @@ EndFunction
 Function UpdateArousal(Int aiUpdateTime)
     Actor   loc_actor       = GetActor()
     if loc_actor
-        libs.Aroused.SetActorExposure(loc_actor, Round(OrgasmSystem.GetOrgasmVariable(loc_actor,8)))
+        ;libs.Aroused.SetActorExposure(loc_actor, Round(OrgasmSystem.GetOrgasmVariable(loc_actor,8)))
         ;UDOM.UpdateArousal(loc_actor ,Round(OrgasmSystem.GetOrgasmVariable(8)))
     else
         UDmain.Error(self + "::Cant update arousal  because sloted actor is none!")
@@ -1913,7 +1913,7 @@ float   _orgasmRate2             = 0.0
 float   _orgasmRateAnti          = 0.0
 float   _orgasmResistMultiplier  = 1.0
 float   _orgasmRateMultiplier    = 1.0
-int     _arousal                 = 0
+float   _arousal                 = 0.0
 int     _tick                    = 1
 int     _tickS                   = 0
 int     _expressionUpdateTimer   = 0
@@ -1954,7 +1954,7 @@ Function InitOrgasmUpdate()
         _orgasmRateAnti             = 0.0
         _orgasmResistMultiplier     = OrgasmSystem.GetOrgasmVariable(loc_actor,4)
         _orgasmRateMultiplier       = OrgasmSystem.GetOrgasmVariable(loc_actor,2)
-        _arousal                    = UDOM.getArousal(loc_actor)
+        _arousal                    = OrgasmSystem.GetOrgasmVariable(loc_actor,8)
         _forcing                    = OrgasmSystem.GetOrgasmVariable(loc_actor,6)
         _tick                       = 1
         _tickS                      = 0
@@ -2093,7 +2093,7 @@ Function CalculateOrgasmProgress()
     _orgasmratetotal    = OrgasmSystem.GetOrgasmVariable(akActor,1)*OrgasmSystem.GetOrgasmVariable(akActor,2)
     _orgasmRateAnti     = OrgasmSystem.GetAntiOrgasmRate(akActor)
     _orgasmResisting    = akActor.isInFaction(UDOM.OrgasmResistFaction)
-    _arousal            = UDOM.getArousal(akActor)
+    _arousal            = OrgasmSystem.GetOrgasmVariable(akActor,8)
     if _orgasmResisting
         _orgasmResisting2    = true
     else
@@ -2138,7 +2138,7 @@ Function UpdateOrgasmSecond()
             ;start moaning sound again. Not play when actor orgasms
             if _msID == -1 && !_orgasms && !_actorinminigame
                 _msID = libs.MoanSound.Play(akActor)
-                Sound.SetInstanceVolume(_msID, fRange(_orgasmProgress_p*2.0,0.75,1.0)*libs.GetMoanVolume(akActor,_arousal))
+                Sound.SetInstanceVolume(_msID, fRange(_orgasmProgress_p*2.0,0.75,1.0)*libs.GetMoanVolume(akActor,Round(_arousal)))
             endif
         else
             ;disable moaning sound when orgasm rate is too low
@@ -2200,7 +2200,7 @@ Function UpdateHornyExpression()
         
         _expressionApplied = true
         _expressionUpdateTimer = 0
-    elseif _orgasmRate < _orgasmResistence*0.75 && _expressionApplied
+    elseif _orgasmRate < _orgasmResistence*0.75 && (_orgasmProgress_p < 0.3) && _expressionApplied
         libs.ExpLibs.ResetExpressionRaw(akActor,10)
         _expressionApplied = false
     endif
@@ -2257,7 +2257,7 @@ Function SendOrgasmEvent()
     if loc_id
         ModEvent.PushForm(loc_id, GetActor())
         ModEvent.PushFloat(loc_id, _orgasmRate)
-        ModEvent.PushInt(loc_id, _arousal)
+        ModEvent.PushInt(loc_id, Round(_arousal))
         ModEvent.PushInt(loc_id, _edgelevel)
         ModEvent.PushFloat(loc_id, _forcing)
         ModEvent.Send(loc_id)
@@ -2266,7 +2266,7 @@ Function SendOrgasmEvent()
     if loc_handle
         ModEvent.PushForm(loc_handle, UDOM)         ;Event source (zadlibs), in case that some other mode might call this function from different place
         ModEvent.PushForm(loc_handle, GetActor())      ;Actor
-        ModEvent.PushInt(loc_handle, _arousal)   ;Arousal after orgasm
+        ModEvent.PushInt(loc_handle, Round(_arousal))   ;Arousal after orgasm
         ModEvent.Send(loc_handle)
     endif
 EndFunction
@@ -2277,7 +2277,7 @@ Function SendEdgeEvent()
     if loc_id
         ModEvent.PushForm(loc_id, GetActor())
         ModEvent.PushFloat(loc_id, _orgasmRate)
-        ModEvent.PushInt(loc_id,    _arousal)
+        ModEvent.PushInt(loc_id,    Round(_arousal))
         ModEvent.PushInt(loc_id, _edgelevel)
         ModEvent.PushFloat(loc_id, _forcing)
         ModEvent.Send(loc_id)

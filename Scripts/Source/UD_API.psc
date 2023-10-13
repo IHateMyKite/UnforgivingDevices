@@ -665,8 +665,8 @@ EndFunction
 
         Return actors current arousal
 /;
-Int     Function    GetArousal(Actor akActor)
-    return UDmain.GetUDOM(akActor).getArousal(akActor)
+Float     Function    GetArousal(Actor akActor)
+    return OrgasmSystem.GetOrgasmProgress(akActor,8)
 EndFunction
 
 ;/  Function: GetArousalRate
