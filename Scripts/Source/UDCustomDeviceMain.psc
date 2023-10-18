@@ -1382,7 +1382,7 @@ Function NPCMenu(Actor akActor)
         HelpNPC(UDmain.Player,akActor,false)
     elseif loc_res == 6
         UndressArmor(akActor)
-        akActor.UpdateWeight(0)
+        ;akActor.UpdateWeight(0)
     elseif loc_res == 10
         DebugFunction(akActor)
     elseif loc_res == 7
@@ -1617,23 +1617,10 @@ Function UndressArmor(Actor akActor)
             loc_mask = Math.LeftShift(loc_mask,1)
         endwhile
         loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--ALL--")
-        loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--TOGGLE OUTFIT--")
         loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--BACK--")
         int loc_res = UDmain.GetUserListInput(loc_armorsnames)
-        if loc_res == (loc_armorsnames.length - 3)
+        if loc_res == (loc_armorsnames.length - 2)
             UndressAllArmor(akActor)
-            ;libs.strip(akActor,false)
-        elseif loc_res == (loc_armorsnames.length - 2)
-            if !UDmain.ActorIsFollower(akActor) && !IsPlayer(akActor)
-                Outfit originalOutfit = akActor.GetActorBase().GetOutfit()
-                If originalOutfit == libs.zadEmptyOutfit
-                    DressOutfit(akActor)
-                else
-                    UndressOutfit(akActor)
-                endif
-            else
-                GInfo("TOGGLE OUTFIT can't be used for player or follower!")
-            endif
         elseif loc_res < (loc_armorsnames.length - 3) && loc_res >= 0
             akActor.unequipItem(loc_armors[loc_res], abSilent = true)
         else
@@ -1690,50 +1677,6 @@ Function UndressAllArmor(Actor akActor)
     endif
 EndFunction
 
-;/  Function: UndressOutfit
-
-    Replace NPC outfit. Should only be used for non-follower actors. Might cause issues with NPC overhaul mods
-
-    If NPC is using armor which it have in inventory, this function will remove it when changing outfit
-
-    Parameters:
-
-        akActor    - Actor whos outfit will be removed
-/;
-Function UndressOutfit(Actor akActor)
-    if !IsPlayer(akActor)
-        ; We change the outfit only for unique actors because SetOutfit() seems to operate on the ActorBASE and not the actor, so changing a non-unique actors's gear would change it for ALL instances of this actor.
-        Outfit originalOutfit = akActor.GetActorBase().GetOutfit()
-        If originalOutfit != libs.zadEmptyOutfit
-            StorageUtil.SetFormValue(akActor.GetActorBase(), "zad_OriginalOutfit", originalOutfit)
-            akActor.SetOutfit(libs.zadEmptyOutfit, false)
-        EndIf
-    endIf
-EndFunction
-
-;/  Function: DressOutfit
-
-    Undo <UndressOutfit>
-
-    Parameters:
-
-        akActor    - Actor whos outfit will be removed
-/;
-Function DressOutfit(Actor akActor)
-    if !IsPlayer(akActor)
-        ; We change the outfit only for unique actors because SetOutfit() seems to operate on the ActorBASE and not the actor, so changing a non-unique actors's gear would change it for ALL instances of this actor.
-        Outfit originalOutfit = akActor.GetActorBase().GetOutfit()
-        If originalOutfit == libs.zadEmptyOutfit
-            Outfit loc_oldOutfit = StorageUtil.GetFormValue(akActor.GetActorBase(), "zad_OriginalOutfit", none) as OutFit
-            if loc_oldOutfit
-                akActor.SetOutfit(loc_oldOutfit, false)
-            else
-                UDmain.Error("DressOutfit("+GetActorName(akActor)+")No saved default outfit for found!")
-            endif
-        EndIf
-    endIf
-EndFunction
-
 ;/  Function: CheckRenderDeviceEquipped
 
     Function made as replacemant for akActor.isEquipped, because that function doesn't work for NPCs
@@ -1742,7 +1685,7 @@ EndFunction
 
     Parameters:
 
-        akActor         - Actor whos outfit will be removed
+        akActor         - Actor who will be checked
         akRendDevice    - *Render* device
 /;
 bool Function CheckRenderDeviceEquipped(Actor akActor, Armor akRendDevice)
@@ -1805,7 +1748,7 @@ EndFunction
 
     Parameters:
 
-        akActor         - Actor whos outfit will be removed
+        akActor         - Actor whos conflict will be checked
         akRendDevice    - *Render* device
         
     Returns:
@@ -1870,7 +1813,7 @@ Function showActorDetails(Actor akActor)
                 loc_res += "Motivation: " + getMotivation(akActor) + "\n"
                 loc_res += "AI Cooldown: " + iUnsig(GetAIRemainingCooldown(akActor)) + " min\n"
             endif
-            loc_res += "Arousal: " + _UDOM.getArousal(akActor) + "\n"
+            loc_res += "Arousal: " + FormatString(OrgasmSystem.GetOrgasmVariable(akActor,8),1) + "\n"
             loc_res += "Orgasm progress: " + formatString(OrgasmSystem.GetOrgasmProgress(akActor,1) * 100,2) + " %\n"
             UDmain.ShowMessageBox(loc_res)
         elseif loc_option == 1 ;skills

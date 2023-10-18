@@ -493,8 +493,8 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,in
     endif
     
     ;add it only for 5s
-    OrgasmSystem.AddOrgasmChange(akActor,"PostOrgasm", 0xF000C,0xFFFFFFFF, -10.0, afOrgasmRateMult = -0.25, afOrgasmResistence = 1.0, afOrgasmResistenceMult = 0.25)
-    OrgasmSystem.UpdateOrgasmChangeVar(akActor,"PostOrgasm", 9, -10, 1)
+    ;OrgasmSystem.AddOrgasmChange(akActor,"PostOrgasm", 0xF000C,0xFFFFFFFF, -10.0, afOrgasmRateMult = -0.25, afOrgasmResistence = 1.0, afOrgasmResistenceMult = 0.25)
+    ;OrgasmSystem.UpdateOrgasmChangeVar(akActor,"PostOrgasm", 9, -10, 1)
 
     if UDmain.TraceAllowed()
         UDmain.Log("ActorOrgasmPatched called for " + GetActorName(akActor),1)

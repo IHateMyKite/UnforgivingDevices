@@ -879,16 +879,6 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
     If TimedUnlock
         SetLockTimer()
     EndIf
-    if UDCDMain.UD_OutfitRemove
-        if !IsPlayer(akActor) && akActor.GetActorBase().IsUnique() && (deviceRendered.HasKeyword(libs.zad_DeviousSuit) || loc_haveHBkwd)
-            ; We change the outfit only for unique actors because SetOutfit() seems to operate on the ActorBASE and not the actor, so changing a non-unique actors's gear would change it for ALL instances of this actor.
-            Outfit originalOutfit = akActor.GetActorBase().GetOutfit()
-            If originalOutfit != libs.zadEmptyOutfit
-                StorageUtil.SetFormValue(akActor.GetActorBase(), "zad_OriginalOutfit", originalOutfit)
-            EndIf
-            akActor.SetOutfit(libs.zadEmptyOutfit, false)
-        endIf
-    endif
     if CanApplyBoundEffect(akActor,loc_haveHBkwd,loc_haveHSkwd) 
         libs.StartBoundEffects(akActor)
     endif
@@ -977,19 +967,11 @@ Function unlockDevice(Actor akActor)
         UnsetStoredDevice(akActor)
         
         libs.SendDeviceRemovalEvent(libs.LookupDeviceType(zad_DeviousDevice), akActor)
-        libs.SendDeviceRemovedEventVerbose(deviceInventory, zad_DeviousDevice, akActor)    
+        libs.SendDeviceRemovedEventVerbose(deviceInventory, zad_DeviousDevice, akActor)
         
         If CanApplyBoundEffect(akActor) 
             libs.StopBoundEffects(akActor)
-        EndIf        
-        
-        if akActor != libs.PlayerRef && akActor.GetActorBase().IsUnique() && (deviceRendered.HasKeyword(libs.zad_DeviousSuit) && !akActor.WornHasKeyword(libs.zad_DeviousHeavyBondage)) || (deviceRendered.HasKeyword(libs.zad_DeviousHeavyBondage) && !akActor.WornHasKeyword(libs.zad_DeviousSuit))
-            Outfit OriginalOutfit = StorageUtil.GetFormValue(akActor.GetActorBase(), "zad_OriginalOutfit") As Outfit
-            If OriginalOutfit
-                akActor.SetOutfit(OriginalOutfit, false)
-            EndIf
-            StorageUtil.UnSetFormValue(akActor.GetActorBase(), "zad_OriginalOutfit")
-        endIf
+        EndIf
     endif
     
     StorageUtil.UnSetIntValue(akActor, "UD_ignoreEvent" + deviceInventory)

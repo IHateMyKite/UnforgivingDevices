@@ -77,7 +77,6 @@ String Property      UD_OrgasmChangeMainKey                     hidden
     EndFunction
 EndProperty
 
-
 ; Manual properties
 String  _VibrationEffectSlot
 String  Property     VibrationEffectSlot                        Hidden
@@ -119,9 +118,6 @@ int     _forceStrength                  =   -1
 int     _forceDuration                  =   0
 int     _currentEdgingMode              =   -1
 int     _forceEdgingMode                =   -1
-float   _appliedOrgasmRate              =   0.0
-float   _appliedArousalRate             =   0.0
-float   _appliedForcing                 =   0.0
 int     _vsID                           =   -1           ;current sound ID used to play vib sounds
 bool    _paused                         =   false        ;on if vibrator is paused
 
@@ -530,7 +526,7 @@ Function ForceStrength(int aiStrenth)
         CurrentVibStrength = _forceStrength
         if !isVibPaused()
             _UpdateVibSound()
-            _UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
+            _UpdateOrgasmRate(getVibOrgasmRate(),1.0)
             _UpdateArousalRate(getVibArousalRate())
         endif
         OnVibrationStrengthUpdate()
@@ -554,7 +550,7 @@ Function ForceModStrength(float afModifier)
         CurrentVibStrength = _forceStrength
         if !isVibPaused()
             _UpdateVibSound()
-            _UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
+            _UpdateOrgasmRate(getVibOrgasmRate(),1.0)
             _UpdateArousalRate(getVibArousalRate())
         endif
         OnVibrationStrengthUpdate()
@@ -653,7 +649,7 @@ Function addVibStrength(int aiValue = 1)
         _StartManipMutex()
         CurrentVibStrength += aiValue
         if !isVibPaused()
-            _UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
+            _UpdateOrgasmRate(getVibOrgasmRate(),1.0)
             _UpdateArousalRate(getVibArousalRate())
             _UpdateVibSound()
         endif
@@ -679,7 +675,7 @@ Function removeVibStrength(int aiValue = 1)
             stopVibrating()
         endif
         if !isVibPaused() && isVibrating()
-            _UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
+            _UpdateOrgasmRate(getVibOrgasmRate(),1.0)
             _UpdateArousalRate(getVibArousalRate())
             _UpdateVibSound()
         endif
@@ -710,16 +706,12 @@ EndFunction
 
 Function _setOrgasmRate(float fOrgasmRate,float fOrgasmForcing)
     if isVibrating()
-        _appliedOrgasmRate = fOrgasmRate
-        _appliedForcing = fOrgasmForcing
         OrgasmSystem.UpdateOrgasmChangeVar(getWearer(),UD_OrgasmChangeMainKey,1,fOrgasmRate,1)
         OrgasmSystem.UpdateOrgasmChangeVar(getWearer(),UD_OrgasmChangeMainKey,6,fOrgasmForcing,1)
     endif
 EndFunction
 
 Function _removeOrgasmRate()
-    _appliedOrgasmRate = 0.0
-    _appliedForcing = 0.0
     OrgasmSystem.UpdateOrgasmChangeVar(getWearer(),UD_OrgasmChangeMainKey,1,0.0,1)
     OrgasmSystem.UpdateOrgasmChangeVar(getWearer(),UD_OrgasmChangeMainKey,6,0.0,1)
 EndFunction
@@ -730,8 +722,6 @@ EndFunction
 
 Function _setArousalRate(float fArousalRate)
     if isVibrating()
-        UDmain.Info("_setArousalRate = " + fArousalRate)
-        _appliedArousalRate = fArousalRate
         OrgasmSystem.UpdateOrgasmChangeVar(getWearer(),UD_OrgasmChangeMainKey,9,fArousalRate,1)
     endif
 EndFunction

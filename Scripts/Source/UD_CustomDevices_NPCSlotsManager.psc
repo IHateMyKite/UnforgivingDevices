@@ -205,7 +205,6 @@ Event OnUpdate()
                 if IsManager() && UDmain.AllowNPCSupport
                     scanSlots()
                 endif
-                UndressSlots()
                 _UpdateTimePassed2 = 0.0
             endif
         endif
@@ -240,23 +239,6 @@ Function UpdateSlots()
         index -= 1
         UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
         UpdateSlot(loc_slot)
-    endwhile
-EndFunction
-
-Function UndressSlots()
-    Bool loc_NPC        = UDmain.UDGV.UDG_UndressNPC.Value
-    Bool loc_Follower   = UDmain.UDGV.UDG_UndressFollower.Value
-    int index = UD_Slots ;all aliases
-    while index
-        index -= 1
-        UD_CustomDevice_NPCSlot loc_slot    = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
-        Actor                   loc_actor   = none
-        if loc_slot
-            loc_actor = loc_slot.GetActor()
-            if loc_actor && loc_actor.Is3DLoaded() && !loc_slot.hasFreeHands() && !UD_Native.IsPlayer(loc_actor) && ((loc_Follower && UDmain.ActorIsFollower(loc_actor)) || (loc_NPC && !UDmain.ActorIsFollower(loc_actor)))
-                UDCDmain.UndressAllArmor(loc_actor)
-            endif
-        endif
     endwhile
 EndFunction
 

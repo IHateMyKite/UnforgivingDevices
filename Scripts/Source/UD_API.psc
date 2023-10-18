@@ -814,7 +814,7 @@ EndFunction
         abBlocking          - If function should be blocked untill orgasm fully start
 /;
         Function    Orgasm(Actor akActor,int aiDuration,int aiArousalDecrease = 10,int aiForce = 0, bool abBlocking = true)
-    UDmain.GetUDOM(akActor).startOrgasm(akActor,aiDuration,aiArousalDecrease,aiForce, abBlocking)
+    ;UDmain.GetUDOM(akActor).startOrgasm(akActor,aiDuration,aiArousalDecrease,aiForce, abBlocking)
 EndFUnction
 
 ;/  Group: Input

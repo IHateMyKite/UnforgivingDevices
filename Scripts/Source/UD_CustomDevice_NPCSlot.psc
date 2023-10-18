@@ -1887,13 +1887,13 @@ Function InitArousalUpdate()
 EndFunction
 
 Function UpdateArousal(Int aiUpdateTime)
-    Actor   loc_actor       = GetActor()
-    if loc_actor
-        ;libs.Aroused.SetActorExposure(loc_actor, Round(OrgasmSystem.GetOrgasmVariable(loc_actor,8)))
-        ;UDOM.UpdateArousal(loc_actor ,Round(OrgasmSystem.GetOrgasmVariable(8)))
-    else
-        UDmain.Error(self + "::Cant update arousal  because sloted actor is none!")
-    endif
+    ;Actor   loc_actor       = GetActor()
+    ;if loc_actor
+    ;    ;libs.Aroused.SetActorExposure(loc_actor, Round(OrgasmSystem.GetOrgasmVariable(loc_actor,8)))
+    ;    ;UDOM.UpdateArousal(loc_actor ,Round(OrgasmSystem.GetOrgasmVariable(8)))
+    ;else
+    ;    UDmain.Error(self + "::Cant update arousal  because sloted actor is none!")
+    ;endif
 EndFunction
 
 Function CleanArousalUpdate()
@@ -1983,7 +1983,9 @@ Function _OrgasmGameUpdate()
     ;    ;UDmain.UDWC.Meter_SetFillPercent("player-orgasm", _orgasmProgress_p, True)
     ;    ;UDmain.UDWC.Meter_SetVisible("player-orgasm", true)
     ;endif
-
+    
+    RegisterForModEvent("ORS_ActorOrgasm", "ORSOrgasm")
+    
     _useNativeOrgasmWidget = IsPlayer()
     if _useNativeOrgasmWidget
         UDmain.UDWC.Meter_RegisterNative("player-orgasm",0.0,0.0, true)
@@ -2007,10 +2009,46 @@ Function UpdateOrgasm(Float afUpdateTime)
         return
     endif
     _currentUpdateTime = afUpdateTime
+    
     Actor akActor = GetActor()
+    
     CalculateOrgasmProgress()
-    ;check orgasm
-    if _orgasmProgress_p > 0.99
+    
+    ;check edge
+    ;if _edgeprogress >= 3.0*_orgasmCapacity
+    ;    _edgelevel       = UDOM.UpdateHornyLevel(akActor,1) ;increase edge level by 1
+    ;    _edgeprogress    = 0.0
+    ;    UDOM.SetHornyProgress(akActor,0.0)
+    ;    if IsPlayer()
+    ;        if _edgelevel == 1
+    ;            UDmain.Print("You feel incredibly horny")
+    ;        elseif _edgelevel == 2
+    ;            UDmain.Print("You want to cum")
+    ;        elseif _edgelevel == 3
+    ;            UDmain.Print("You want to cum badly")
+    ;        elseif _edgelevel == 4
+    ;            UDmain.Print("You would do anything for orgasm")
+    ;        elseif _edgelevel > 4
+    ;            UDmain.Print("Unending pleasure is driving you crazy!")
+    ;        endif
+    ;    endif
+    ;    SendEdgeEvent()
+    ;;elseif _edgelevel > 0 && _edgeprogress <= _orgasmCapacity/3.0
+    ;;    _edgelevel       = UDOM.UpdateHornyLevel(akActor,-1) ;decrease edge level by 1
+    ;;    _edgeprogress    = 0.0
+    ;;    UDOM.SetHornyProgress(akActor,0.0)
+    ;endif
+    
+    if _tick * afUpdateTime >= 1.0
+        UpdateOrgasmSecond()
+        _UpdateOrgasmExhaustion(Round(afUpdateTime))
+    endif
+    _tick += 1
+EndFunction
+
+Function ORSOrgasm(String asEventName, String asUnused, Float afUnused, Form akActorF)
+    Actor akActor = akActorF as Actor
+    if (GetActor() == akActor)
         if UDmain.TraceAllowed()
             UDmain.Log("Starting orgasm for " + getActorName(akActor))
         endif
@@ -2019,11 +2057,12 @@ Function UpdateOrgasm(Float afUpdateTime)
         endif
         
         _orgasmProgress = 0.0
-        ;if _useNativeOrgasmWidget
-        ;    UDmain.UDWC.Meter_SetNativeRate("player-orgasm",-125.0)
-        ;endif
         
-        OrgasmSystem.ResetOrgasmProgress(akActor)
+        if IsPlayer()
+            ;Utility.wait(1.0) ;wait second, so there is time for some effects to be applied
+            _GetOrgasmVarsFromStorage()
+            CalculateOrgasmProgress()
+        endif
         
         if _widgetShown && !_useNativeOrgasmWidget
             _widgetShown = false
@@ -2044,45 +2083,9 @@ Function UpdateOrgasm(Float afUpdateTime)
         endif
         
         SendOrgasmEvent()
-        UDOM.startOrgasm(akActor,UDCONF.UD_OrgasmDuration,UDCONF.UD_OrgasmArousalReduce,_force,true)
-        
-        if IsPlayer()
-            Utility.wait(1.0) ;wait second, so there is time for some effects to be applied
-            _GetOrgasmVarsFromStorage()
-            CalculateOrgasmProgress()
-        endif
-    else
-        ;check edge
-        if _edgeprogress >= 3.0*_orgasmCapacity
-            _edgelevel       = UDOM.UpdateHornyLevel(akActor,1) ;increase edge level by 1
-            _edgeprogress    = 0.0
-            UDOM.SetHornyProgress(akActor,0.0)
-            if IsPlayer()
-                if _edgelevel == 1
-                    UDmain.Print("You feel incredibly horny")
-                elseif _edgelevel == 2
-                    UDmain.Print("You want to cum")
-                elseif _edgelevel == 3
-                    UDmain.Print("You want to cum badly")
-                elseif _edgelevel == 4
-                    UDmain.Print("You would do anything for orgasm")
-                elseif _edgelevel > 4
-                    UDmain.Print("Unending pleasure is driving you crazy!")
-                endif
-            endif
-            SendEdgeEvent()
-        ;elseif _edgelevel > 0 && _edgeprogress <= _orgasmCapacity/3.0
-        ;    _edgelevel       = UDOM.UpdateHornyLevel(akActor,-1) ;decrease edge level by 1
-        ;    _edgeprogress    = 0.0
-        ;    UDOM.SetHornyProgress(akActor,0.0)
-        endif
+        UDOM.ActorOrgasm(akActor,UDCONF.UD_OrgasmDuration,UDCONF.UD_OrgasmArousalReduce,_force)
+        ;UDOM.startOrgasm(akActor,UDCONF.UD_OrgasmDuration,UDCONF.UD_OrgasmArousalReduce,_force,true)
     endif
-    
-    if _tick * afUpdateTime >= 1.0
-        UpdateOrgasmSecond()
-        _UpdateOrgasmExhaustion(Round(afUpdateTime))
-    endif
-    _tick += 1
 EndFunction
 
 Function CalculateOrgasmProgress()
@@ -2095,10 +2098,10 @@ Function CalculateOrgasmProgress()
     _orgasmResisting    = akActor.isInFaction(UDOM.OrgasmResistFaction)
     _arousal            = OrgasmSystem.GetOrgasmVariable(akActor,8)
     if _orgasmResisting
-        _orgasmResisting2    = true
+        _orgasmResisting2       = true
     else
         if _orgasmResisting2
-            _orgasmResisting2            = false
+            _orgasmResisting2   = false
             _GetOrgasmVarsFromStorage()
         endif
     endif
@@ -2117,6 +2120,7 @@ Function UpdateOrgasmSecond()
     _orgasmRate2 = _orgasmRate
     _tick = 0
     _tickS += 1
+    
     ;if _edgelevel > 0
     ;    _edgeprogress = UDOM.UpdateHornyProgress(akActor,-1.0*(100.0 - _arousal)/100.0)
     ;elseif _edgelevel < 0

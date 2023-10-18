@@ -62,3 +62,5 @@ Float   Function GetAntiOrgasmRate(Actor akActor)                               
 
         Function LinkActorToMeter(Actor akActor, String asPath,Int aiType,Int aiId) global native
         Function UnlinkActorFromMeter(Actor akActor)                                global native
+        
+String  Function MakeUniqueKey(Actor akActor,String asBase)                         global native
