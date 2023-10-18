@@ -158,7 +158,7 @@ bool Property Ready = False Auto
 Event OnConfigInit()
 EndEvent
 
-Bool Function Init()
+Function Init()
     if UDmain.TraceAllowed()
         UDmain.Log("MCM init started")
     endif
@@ -265,7 +265,7 @@ Function LoadConfig(Bool abResetToDef = True)
         ResetToDefaults()
     endif
     if getAutoLoad()
-        LoadFromJSON(UDmain.config.File)
+        LoadFromJSON(File)
         GInfo("MCM setting loaded from saved config file!")
     endif
 EndFunction
