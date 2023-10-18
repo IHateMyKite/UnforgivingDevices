@@ -34,11 +34,11 @@ Function sendOrgasmResistCritUpdateLoop(Int iChance,Float fDifficulty)
     endif
 EndFunction
 
-Function CritLoopOrgasmResist(Int iChance,Float fDifficulty)
+Function CritLoopOrgasmResist(Int aiChance,Float afDifficulty)
     string loc_meter = "none"
     bool loc_sendCrit = false
     while _PlayerOrgasmResist_MinigameOn
-        if Utility.randomInt(1,100) <= iChance
+        if Utility.randomInt(1,100) <= aiChance
             if !UDCDmain.UD_AutoCrit
                 if Utility.randomInt(0,1)
                     loc_meter = "S"
@@ -52,7 +52,7 @@ Function CritLoopOrgasmResist(Int iChance,Float fDifficulty)
                 else
                     OnCritFailureOrgasmResist()
                 endif
-                return    
+                return
             endif
         endif    
         if loc_sendCrit
@@ -61,7 +61,6 @@ Function CritLoopOrgasmResist(Int iChance,Float fDifficulty)
             if (loc_meter == "S")
                 if UDCDmain.UD_CritEffect == 2 || UDCDmain.UD_CritEffect == 1
                     UDlibs.GreenCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player)
-                    Utility.wait(0.3)
                 endif
                 if UDCDmain.UD_CritEffect == 2 || UDCDmain.UD_CritEffect == 0
                     UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartStaminaBlinking")
@@ -69,7 +68,6 @@ Function CritLoopOrgasmResist(Int iChance,Float fDifficulty)
             elseif (loc_meter == "M")
                 if UDCDmain.UD_CritEffect == 2 || UDCDmain.UD_CritEffect == 1
                     UDlibs.BlueCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player)
-                    Utility.wait(0.3)
                 endif
                 if UDCDmain.UD_CritEffect == 2 || UDCDmain.UD_CritEffect == 0
                     UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartMagickaBlinking")
@@ -77,11 +75,10 @@ Function CritLoopOrgasmResist(Int iChance,Float fDifficulty)
             elseif (loc_meter == "R")
                 if UDCDmain.UD_CritEffect == 2 || UDCDmain.UD_CritEffect == 1
                     UDlibs.RedCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player)
-                    Utility.wait(0.3)
                 endif
             endif
             
-            Utility.wait(fDifficulty)
+            Utility.wait(fRange(afDifficulty + UDCDMain.UD_CritDurationAdjust,0.25,2.0))
             _crit = False
             loc_meter = "none"
             _crit_meter = "none"
@@ -130,40 +127,44 @@ EndEvent
 
 Event OnKeyDown(Int KeyCode)
     if !UDmain.IsMenuOpen() ;only if player is not in menu
-        bool loc_crit = _crit ;help variable to reduce lag
+        bool   loc_crit = _crit ;help variable to reduce lag
+        string loc_meter = _crit_meter
         if _PlayerOrgasmResist_MinigameOn
             if KeyCode == UDCDmain.SpecialKey_Keycode
                 _specialButtonOn = true
                 return
             endif
             if (loc_crit) && !UDCDmain.UD_AutoCrit
-                if _crit_meter == "S" && KeyCode == UDCDmain.Stamina_meter_Keycode
+                if (loc_meter == "S") && (KeyCode == UDCDmain.Stamina_meter_Keycode)
                     _crit = False
-                    loc_crit = False
+                    _crit_meter = "none"
                     OnCritSuccesOrgasmResist()
                     return
-                elseif _crit_meter == "M" && KeyCode == UDCDmain.Magicka_meter_Keycode
+                elseif (loc_meter == "M") && (KeyCode == UDCDmain.Magicka_meter_Keycode)
                     _crit = False
-                    loc_crit = False
+                    _crit_meter = "none"
                     OnCritSuccesOrgasmResist()
                     return
-                elseif KeyCode == UDCDmain.Magicka_meter_Keycode || KeyCode == UDCDmain.Stamina_meter_Keycode
+                elseif (KeyCode == UDCDmain.Magicka_meter_Keycode) || (KeyCode == UDCDmain.Stamina_meter_Keycode)
                     _crit = False
-                    loc_crit = False
+                    _crit_meter = "none"
                     OnCritFailureOrgasmResist()
+                    return
                 elseif KeyCode == UDCDmain.ActionKey_Keycode
                     UDmain.Player.removeFromFaction(OrgasmResistFaction)
                     _crit = false
+                    _crit_meter = "none"
                     return 
                 endif
             endif
             if KeyCode == UDCDmain.ActionKey_Keycode
                 UDmain.Player.removeFromFaction(OrgasmResistFaction)
                 _crit = false
+                _crit_meter = "none"
                 return
             elseif (KeyCode == UDCDmain.Stamina_meter_Keycode || KeyCode == UDCDmain.Magicka_meter_Keycode) && !UDCDmain.UD_AutoCrit
                 _crit = False
-                loc_crit = False
+                _crit_meter = "none"
                 OnCritFailureOrgasmResist()
                 return
             endif
