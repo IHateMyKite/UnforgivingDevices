@@ -1370,6 +1370,10 @@ Function resetOtherPage()
 
     AddTextOption("Improved Camera",InstallSwitch(UDmain.ImprovedCameraInstalled),FlagSwitch(UDmain.ImprovedCameraInstalled))
     addEmptyOption()
+    
+    AddTextOption("Experience",InstallSwitch(UDmain.ExperienceInstalled),FlagSwitch(UDmain.ExperienceInstalled))
+    addEmptyOption()
+    
 EndFunction
 
 String Function InstallSwitch(Bool abSwitch)

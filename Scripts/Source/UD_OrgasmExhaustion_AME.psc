@@ -13,7 +13,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     _appliedValue_ARM = -0.1
     _UDOM = UDmain.GetUDOM(_target)
     _key = OrgasmSystem.MakeUniqueKey(_target,"OrgasmExhaustionME")
-    OrgasmSystem.AddOrgasmChange(_target,_key,0,0xFFFFFFFF,afOrgasmRateMult = -0.1, afOrgasmResistenceMult = 0.35)
+    OrgasmSystem.AddOrgasmChange(_target,_key,0,0x00000200,afOrgasmRateMult = -0.1, afOrgasmResistenceMult = 0.35)
     OrgasmSystem.UpdateOrgasmChangeVar(_target,_key,10,_appliedValue_ARM,1)
     
     StorageUtil.AdjustIntValue(_target,"UD_OrgasmExhaustionNum",1)

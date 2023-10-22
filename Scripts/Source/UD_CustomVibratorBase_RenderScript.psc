@@ -367,7 +367,7 @@ Function _StartVibSound()
 EndFunction
 
 Function _StopVibSound()
-    if _vsID != -1 && getWearer().is3DLoaded()
+    if _vsID != -1
         Sound.StopInstance(_vsID)
     endif
     _vsID = -1
@@ -952,25 +952,6 @@ Function _ProcessPause(Int aiUpdateTime)
 EndFunction
 
 Function _ProccesVibEdge()
-    ;if isVibrating() && !_paused
-    ;    if _currentEdgingMode == 1
-    ;        ;if UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
-    ;        ;    if WearerIsPlayer() && !UDMain.UDWC.UD_FilterVibNotifications
-    ;        ;        UDmain.Print(getDeviceName() + " suddenly stops vibrating!",3)
-    ;        ;    endif
-    ;        ;    pauseVibFor(10)
-    ;        ;endif
-    ;    elseif _currentEdgingMode == 2
-    ;        ;if UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
-    ;        ;    if Utility.randomInt() < iRange(CurrentVibStrength, 40 , 80)
-    ;        ;        if WearerIsPlayer() && !UDMain.UDWC.UD_FilterVibNotifications
-    ;        ;            UDmain.Print(getDeviceName() + " suddenly stops vibrating!",3)
-    ;        ;        endif
-    ;        ;        pauseVibFor(Utility.randomInt(30,60))
-    ;        ;    endif
-    ;        ;endif
-    ;    endif
-    ;endif
 EndFunction
 
 Function onRemoveDevicePre(Actor akActor)

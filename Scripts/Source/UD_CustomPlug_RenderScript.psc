@@ -4,18 +4,38 @@ import UnforgivingDevicesMain
 
 Float Property UD_PlugRemovePressMult = 0.3 autoreadonly
 
+String Property UD_ArMovKey
+    String Function Get()
+        return ("ArMov."+GetDeviceName())
+    EndFUnction
+EndProperty
+
 Function InitPost()
     parent.InitPost()
     UD_DeviceType = "Plug"
     
+    string loc_AMKey = UD_ArMovKey
+    
     int loc_type = getPlugType()
+    float loc_orate = 0.0
+    float loc_arate = 0.0
     if loc_type == 0
         UD_EroZones = Math.LogicalOr(UD_EroZones,0x00000001) ;vaginal
+        loc_orate = 0.7
+        loc_arate = 0.5
     elseif loc_type == 1
         UD_EroZones = Math.LogicalOr(UD_EroZones,0x00000080) ;anal
+        loc_orate = 0.4
+        loc_arate = 0.3
     else 
         UD_EroZones = Math.LogicalOr(UD_EroZones,0x00000081) ;both
+        loc_orate = 1.2
+        loc_arate = 1.0
     endif
+    
+    OrgasmSystem.AddOrgasmChange(GetWearer(),loc_AMKey,0x40,UD_EroZones)
+    OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),loc_AMKey,1,loc_orate,1)
+    OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),loc_AMKey,9,loc_arate,1)
 EndFunction
 
 Function safeCheck()
@@ -321,6 +341,7 @@ Function OnRemoveDevicePre(Actor akActor)
     parent.OnRemoveDevicePre(akActor)
 EndFunction
 Function onRemoveDevicePost(Actor akActor)
+    OrgasmSystem.RemoveOrgasmChange(GetWearer(),UD_ArMovKey)
     parent.onRemoveDevicePost(akActor)
 EndFunction
 Function onLockUnlocked(bool lockpick = false)

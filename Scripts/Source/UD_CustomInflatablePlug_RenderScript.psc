@@ -342,6 +342,9 @@ Function inflatePlug(int increase)
         UDmain.UDWC.StatusEffect_SetMagnitude(InflationEffectSlot, _inflateLevel * 20)
     EndIf
     
+    OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),UD_ArMovKey,1,0.25,2)
+    OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),UD_ArMovKey,9,0.25,2)
+    
     deflateprogress = 0.0
     OnInflated()
 EndFunction
@@ -361,6 +364,9 @@ Function deflatePlug(int decrease)
     If WearerIsPlayer()
         UDmain.UDWC.StatusEffect_SetMagnitude(InflationEffectSlot, _inflateLevel * 20)
     EndIf
+    
+    OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),UD_ArMovKey,1,-0.25,2)
+    OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),UD_ArMovKey,9,-0.25,2)
     
     deflateprogress = 0.0
     OnDeflated()

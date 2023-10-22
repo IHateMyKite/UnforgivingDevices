@@ -329,14 +329,7 @@ Function SetSlotTo(Actor akActor)
 
     akActor.addToFaction(UDCDmain.RegisteredNPCFaction)
 
-    if IsPlayer()
-        UDOM.CheckOrgasmCheck(akActor)
-        UDOM.CheckArousalCheck(akActor)
-    else
-        InitOrgasmUpdate()
-        akActor.AddToFaction(UDOM.ArousalCheckLoopFaction)
-        akActor.AddToFaction(UDOM.OrgasmCheckLoopFaction)
-    endif
+    InitOrgasmUpdate()
 
     UpdateSlot(false)
 
@@ -490,38 +483,28 @@ Function fix()
         
         _DeviceManipMutex = false
         
-        if IsPlayer()
-            UDOM.CheckArousalCheck(getActor())
-            UDOM.CheckOrgasmCheck(getActor())
-        endif
         UDmain.Print("[UD] loops checked!")
         
         UDmain.Print("[UD] General fixes done!")
     elseif loc_res == 1 ;reset orgasm var
-        StorageUtil.UnsetFloatValue(getActor(), "UD_OrgasmRate")
-        StorageUtil.UnsetFloatValue(getActor(), "UD_OrgasmForcing")
-        StorageUtil.UnsetFloatValue(getActor(), "UD_OrgasmResistMultiplier")
-        StorageUtil.UnsetFloatValue(getActor(), "UD_OrgasmRateMultiplier")
-        StorageUtil.UnsetFloatValue(getActor(), "UD_ArousalRate")
-        StorageUtil.UnsetFloatValue(getActor(), "UD_ArousalRateM")
-        StorageUtil.UnsetIntValue(getActor(), "UD_OrgasmRate")
-        StorageUtil.UnsetIntValue(getActor(), "UD_OrgasmForcing")
-        StorageUtil.UnsetIntValue(getActor(), "UD_OrgasmResistMultiplier")
-        StorageUtil.UnsetIntValue(getActor(), "UD_OrgasmRateMultiplier")
-        StorageUtil.UnsetIntValue(getActor(), "UD_ArousalRate")
-        StorageUtil.UnsetIntValue(getActor(), "UD_ArousalRateM")
-        StorageUtil.UnsetIntValue(getActor(), "UD_OrgasmExhaustion")
-        StorageUtil.UnsetIntValue(getActor(), "UD_ActiveVib_Strength")
-        StorageUtil.UnsetIntValue(getActor(), "UD_ActiveVib")
-        StorageUtil.UnsetIntValue(getActor(), "UD_OrgasmExhaustionNum")
-        StorageUtil.UnsetIntValue(getActor(),"UD_OrgasmInMinigame_Flag")
-        StorageUtil.UnsetIntValue(getActor(),"UD_OrgasmDuration")
+        string[] loc_list = OrgasmSystem.GetAllOrgasmChanges(GetActor())
+        loc_list = PapyrusUtil.PushString(loc_list,"-ALL-")
+        loc_list = PapyrusUtil.PushString(loc_list,"-BACK-")
+        
+        int loc_ores = UDMain.GetUserListInput(loc_list)
+        
+        if loc_ores >= 0 
+            if loc_ores == (loc_list.length - 1)
+                ; DO NOTHING
+            elseif loc_ores == (loc_list.length - 2)
+                OrgasmSystem.RemoveAllOrgasmChanges(GetActor())
+            else
+                OrgasmSystem.RemoveOrgasmChange(GetActor(),loc_list[loc_ores])
+            endif
+        endif
         if IsPlayer()
             GetActor().DispelSpell(UDmain.UDlibs.ArousalCheckAbilitySpell)
-            GetActor().AddSpell(UDmain.UDlibs.ArousalCheckAbilitySpell,true)
-            
             GetActor().DispelSpell(UDmain.UDlibs.OrgasmCheckAbilitySpell)
-            GetActor().AddSpell(UDmain.UDlibs.OrgasmCheckAbilitySpell,true)
         endif
         UDmain.Print("[UD] Orgasm variables reseted!")
     elseif loc_res == 2 ;reset expression
@@ -578,7 +561,7 @@ Function CheckVibrators()
             ;check if vib is activtaed and not registered
             if UD_ActiveVibrators.Find(UD_equipedCustomDevices[i]) < 0
                 if loc_vib.IsVibrating()
-                    UDmain.Warning(self + "::CheckVibrators - Found unregistered active vibrator , registering " + loc_vib.GetDeviceName())
+                    ;UDmain.Warning(self + "::CheckVibrators - Found unregistered active vibrator , registering " + loc_vib.GetDeviceName())
                     if RegisterVibrator(loc_vib)
                         loc_Error = True
                     endif
@@ -969,28 +952,13 @@ Int Property UD_OrgasmExhaustionTime = 45 auto hidden
 ;NOTE: THIS DOESN'T ACTUALLY DO THE LATTER
 Function AddOrgasmExhaustion()
     Actor loc_actor = GetActor()
-    ;StorageUtil.AdjustIntValue(loc_actor,"UD_OrgasmExhaustionNum",1)
-    ;if _OrgasmExhaustionTime == 0
-    ;    _OrgasmExhaustionTime = UD_OrgasmExhaustionTime ;increase exhaustion to 1 minute
-    ;endif
-    OrgasmSystem.AddOrgasmChange(loc_actor,"OrgasmExhaustion",0x300C24,0xFFFFFFFF, 0, afOrgasmResistenceMult = 0.35)
-    OrgasmSystem.UpdateOrgasmChangeVar(loc_actor,"OrgasmExhaustion",10,-0.1,2)
+    ;Exhaustion to NPCs for 30 second
+    String loc_key = OrgasmSystem.MakeUniqueKey(loc_actor,"OrgasmExhaustion")
+    OrgasmSystem.AddOrgasmChange(loc_actor,loc_key,0x64000C,0x00000200, afOrgasmRateMult = -0.1, afOrgasmResistenceMult = 0.35)
+    OrgasmSystem.UpdateOrgasmChangeVar(loc_actor,loc_key,10,-0.15,1)
 EndFunction
 
 Function _UpdateOrgasmExhaustion(Int aiUpdateTime)
-    ;Actor loc_actor = GetActor()
-    ;Int loc_exhaustions = StorageUtil.GetIntValue(loc_actor,"UD_OrgasmExhaustionNum",0)
-    ;if _OrgasmExhaustionTime > 0 && loc_exhaustions
-    ;    _OrgasmExhaustionTime -= aiUpdateTime
-    ;    if _OrgasmExhaustionTime <= 0
-    ;        _OrgasmExhaustionTime = UD_OrgasmExhaustionTime ;increase exhaustion to 1 minute
-    ;        StorageUtil.AdjustIntValue(loc_actor,"UD_OrgasmExhaustionNum",-1)
-    ;        OrgasmSystem.UpdateOrgasmChangeVar(akActor,"OrgasmExhaustion",4,-0.35,2)
-    ;        UDOM.UpdateArousalRateMultiplier(loc_actor,0.1)
-    ;    endif
-    ;else
-    ;    OrgasmSystem.RemoveOrgasmChange(akActor,"OrgasmExhaustion")
-    ;endif
 EndFunction
 
 ;returns remaining duration of orgasm duration. Will allways return 0 if actor is player
@@ -1883,7 +1851,7 @@ EndFunction
 Float _dfArousal = 0.0
 
 Function InitArousalUpdate()
-    GetActor().AddToFaction(UDOM.ArousalCheckLoopFaction)
+    ;GetActor().AddToFaction(UDOM.ArousalCheckLoopFaction)
 EndFunction
 
 Function UpdateArousal(Int aiUpdateTime)
@@ -1898,29 +1866,21 @@ EndFunction
 
 Function CleanArousalUpdate()
     if GetActor()
-        GetActor().RemoveFromFaction(UDOM.ArousalCheckLoopFaction)
+        ;GetActor().RemoveFromFaction(UDOM.ArousalCheckLoopFaction)
     endif
 EndFunction
 
 ;Orgasm update
 float   _currentUpdateTime       = 1.0
-bool    _widgetShown             = false
-bool    _forceStop               = false
 bool    _actorinminigame         = false
 float   _forcing                 = 0.0
 float   _orgasmRate              = 0.0
-float   _orgasmRate2             = 0.0
-float   _orgasmRateAnti          = 0.0
 float   _orgasmResistMultiplier  = 1.0
-float   _orgasmRateMultiplier    = 1.0
 float   _arousal                 = 0.0
 int     _tick                    = 1
 int     _tickS                   = 0
-int     _expressionUpdateTimer   = 0
 bool    _orgasmResisting         = false
-bool    _orgasmResisting2        = false
 bool    _expressionApplied       = false
-float   _orgasmCapacity          = 100.0
 float   _orgasmResistence        = 2.5
 float   _orgasmProgress          = 0.0
 float   _orgasmProgress_p        = 0.0
@@ -1933,7 +1893,6 @@ int     _edgelevel               = 0
 
 Int     _OrgasmExhaustionTime     = 0
 
-float   _orgasmratetotal = 0.0
 UD_WidgetMeter_RefAlias _orgasmMeterIWW
 UD_WidgetBase           _orgasmMeterSkyUi
 sslBaseExpression expression
@@ -1945,24 +1904,15 @@ Function InitOrgasmUpdate()
     Actor loc_actor = GetActor()
     if loc_actor
         ;UDmain.Log("UD_CustomDevice_NPCSlot(" + ") - InitOrgasmUpdate() - Actor: " + GetActorName(loc_actor), 3)
-        loc_actor.AddToFaction(UDOM.OrgasmCheckLoopFaction)
         InitOrgasmExpression()
-        _widgetShown                = false
-        _forceStop                  = false
         _orgasmRate                 = 0.0
-        _orgasmRate2                = 0.0
-        _orgasmRateAnti             = 0.0
         _orgasmResistMultiplier     = OrgasmSystem.GetOrgasmVariable(loc_actor,4)
-        _orgasmRateMultiplier       = OrgasmSystem.GetOrgasmVariable(loc_actor,2)
         _arousal                    = OrgasmSystem.GetOrgasmVariable(loc_actor,8)
         _forcing                    = OrgasmSystem.GetOrgasmVariable(loc_actor,6)
         _tick                       = 1
         _tickS                      = 0
-        _expressionUpdateTimer      = 0
         _orgasmResisting            = loc_actor.isInFaction(UDOM.OrgasmResistFaction)
-        _orgasmResisting2           = false
         _expressionApplied          = false
-        _orgasmCapacity             = OrgasmSystem.GetOrgasmVariable(loc_actor,5)
         _orgasmResistence           = OrgasmSystem.GetOrgasmVariable(loc_actor,3)
         _orgasmProgress             = OrgasmSystem.GetOrgasmProgress(loc_actor)
         _orgasmProgress_p           = OrgasmSystem.GetOrgasmProgress(loc_actor,1)
@@ -1970,7 +1920,6 @@ Function InitOrgasmUpdate()
         _msID                       = -1
         _orgasms                    = 0
         _actorinminigame            = UDCDMain.actorInMinigame(loc_actor)
-        _edgeprogress               = UDOM.GetHornyProgress(loc_actor)
         _edgelevel                  = UDOM.GetHornyLevel(loc_actor)
         
         _OrgasmGameUpdate()
@@ -1978,21 +1927,13 @@ Function InitOrgasmUpdate()
 EndFunction
 
 Function _OrgasmGameUpdate()
-    ;meter is shown, so shown it
-    ;if _widgetShown && IsPlayer()
-    ;    ;UDmain.UDWC.Meter_SetFillPercent("player-orgasm", _orgasmProgress_p, True)
-    ;    ;UDmain.UDWC.Meter_SetVisible("player-orgasm", true)
-    ;endif
-    
     RegisterForModEvent("ORS_ActorOrgasm", "ORSOrgasm")
+    RegisterForModEvent("ORS_ExpressionUpdate", "ORSExpressionUpdate")
+    RegisterForModEvent("ORS_LinkedWidgetUpdate", "ORSLinkedWidgetUpdate")
     
-    _useNativeOrgasmWidget = IsPlayer()
-    if _useNativeOrgasmWidget
+    if IsPlayer()
         UDmain.UDWC.Meter_RegisterNative("player-orgasm",0.0,0.0, true)
-        if _widgetShown
-            UDmain.UDWC.Meter_SetVisible("player-orgasm", true)
-            UDmain.UDWC.Meter_LinkActorOrgasm(GetActor(),"player-orgasm")
-        endif
+        UDmain.UDWC.Meter_LinkActorOrgasm(GetActor(),"player-orgasm")
     endif
 EndFunction
 
@@ -2003,7 +1944,6 @@ Function InitOrgasmExpression()
     _org_expression3            = UDEM.GetPrebuildExpression_Angry1()
 EndFunction
 
-bool _useNativeOrgasmWidget = false
 Function UpdateOrgasm(Float afUpdateTime)
     if !UDmain.IsEnabled()
         return
@@ -2013,31 +1953,6 @@ Function UpdateOrgasm(Float afUpdateTime)
     Actor akActor = GetActor()
     
     CalculateOrgasmProgress()
-    
-    ;check edge
-    ;if _edgeprogress >= 3.0*_orgasmCapacity
-    ;    _edgelevel       = UDOM.UpdateHornyLevel(akActor,1) ;increase edge level by 1
-    ;    _edgeprogress    = 0.0
-    ;    UDOM.SetHornyProgress(akActor,0.0)
-    ;    if IsPlayer()
-    ;        if _edgelevel == 1
-    ;            UDmain.Print("You feel incredibly horny")
-    ;        elseif _edgelevel == 2
-    ;            UDmain.Print("You want to cum")
-    ;        elseif _edgelevel == 3
-    ;            UDmain.Print("You want to cum badly")
-    ;        elseif _edgelevel == 4
-    ;            UDmain.Print("You would do anything for orgasm")
-    ;        elseif _edgelevel > 4
-    ;            UDmain.Print("Unending pleasure is driving you crazy!")
-    ;        endif
-    ;    endif
-    ;    SendEdgeEvent()
-    ;;elseif _edgelevel > 0 && _edgeprogress <= _orgasmCapacity/3.0
-    ;;    _edgelevel       = UDOM.UpdateHornyLevel(akActor,-1) ;decrease edge level by 1
-    ;;    _edgeprogress    = 0.0
-    ;;    UDOM.SetHornyProgress(akActor,0.0)
-    ;endif
     
     if _tick * afUpdateTime >= 1.0
         UpdateOrgasmSecond()
@@ -2057,20 +1972,6 @@ Function ORSOrgasm(String asEventName, String asUnused, Float afUnused, Form akA
         endif
         
         _orgasmProgress = 0.0
-        
-        if IsPlayer()
-            ;Utility.wait(1.0) ;wait second, so there is time for some effects to be applied
-            _GetOrgasmVarsFromStorage()
-            CalculateOrgasmProgress()
-        endif
-        
-        if _widgetShown && !_useNativeOrgasmWidget
-            _widgetShown = false
-            ;UDmain.UDWC.Meter_SetFillPercent("player-orgasm", 0.0, True)
-            UDmain.UDWC.Meter_SetVisible("player-orgasm", False)
-            UDmain.UDWC.Meter_UnlinkActorOrgasm(GetActor())
-        endif
-        
         _hornyAnimTimer  = -45 ;cooldown
         
         Int _force = 0
@@ -2084,60 +1985,33 @@ Function ORSOrgasm(String asEventName, String asUnused, Float afUnused, Form akA
         
         SendOrgasmEvent()
         UDOM.ActorOrgasm(akActor,UDCONF.UD_OrgasmDuration,UDCONF.UD_OrgasmArousalReduce,_force)
-        ;UDOM.startOrgasm(akActor,UDCONF.UD_OrgasmDuration,UDCONF.UD_OrgasmArousalReduce,_force,true)
     endif
 EndFunction
 
 Function CalculateOrgasmProgress()
     Actor akActor = GetActor()
     
+    _orgasmRate         = OrgasmSystem.GetOrgasmVariable(akActor,1)
     _orgasmProgress     = OrgasmSystem.GetOrgasmProgress(akActor)
     _orgasmProgress_p   = OrgasmSystem.GetOrgasmProgress(akActor,1) ;update relative orgasm progress
-    _orgasmratetotal    = OrgasmSystem.GetOrgasmVariable(akActor,1)*OrgasmSystem.GetOrgasmVariable(akActor,2)
-    _orgasmRateAnti     = OrgasmSystem.GetAntiOrgasmRate(akActor)
     _orgasmResisting    = akActor.isInFaction(UDOM.OrgasmResistFaction)
     _arousal            = OrgasmSystem.GetOrgasmVariable(akActor,8)
-    if _orgasmResisting
-        _orgasmResisting2       = true
-    else
-        if _orgasmResisting2
-            _orgasmResisting2   = false
-            _GetOrgasmVarsFromStorage()
-        endif
-    endif
+    _orgasmResistence   = OrgasmSystem.GetOrgasmVariable(akActor,3)
+    _orgasmResistMultiplier  = OrgasmSystem.GetOrgasmVariable(akActor,4)
+    _forcing            = OrgasmSystem.GetOrgasmVariable(akActor,6)
     
-    ;proccess edge
-    ;_edgeprogress = UDOM.UpdateHornyProgress(akActor, fUnsig((_orgasmRate*_orgasmRateMultiplier - _orgasmRateAnti)*_currentUpdateTime))
-    ;_edgelevel    = UDOM.GetHornyLevel(akActor)
+    _orgasms                 = UDOM.getOrgasmingCount(akActor)
+    _actorinminigame         = UDCDMain.actorInMinigame(akActor)
 EndFunction
 
 Function UpdateOrgasmSecond()
     Actor akActor = GetActor()
     Bool  loc_is3dLoaded = IsPlayer() || akActor.Is3DLoaded()
     
-    _useNativeOrgasmWidget = IsPlayer()
-    
-    _orgasmRate2 = _orgasmRate
     _tick = 0
     _tickS += 1
     
-    ;if _edgelevel > 0
-    ;    _edgeprogress = UDOM.UpdateHornyProgress(akActor,-1.0*(100.0 - _arousal)/100.0)
-    ;elseif _edgelevel < 0
-    ;    _edgeprogress = UDOM.UpdateHornyProgress(akActor,1.0*(100.0 - _arousal)/100.0)
-    ;endif
-    
-    _orgasmCapacity              = OrgasmSystem.GetOrgasmVariable(akActor,5)
-    _orgasmResistence            = OrgasmSystem.GetOrgasmVariable(akActor,3)
-    _forcing                     = OrgasmSystem.GetOrgasmVariable(akActor,6)
-    
-    if !_orgasmResisting
-        _GetOrgasmVarsFromStorage()
-    endif
-    
     if loc_is3dLoaded
-        UpdateHornyExpression()
-        
         if (_orgasmRate > 0.5*_orgasmResistMultiplier*_orgasmResistence) 
             ;start moaning sound again. Not play when actor orgasms
             if _msID == -1 && !_orgasms && !_actorinminigame
@@ -2154,19 +2028,6 @@ Function UpdateOrgasmSecond()
         
         ;can play horny animation ?
         UpdateOrgasmHornyAnimation()
-        
-        if UDCONF.UD_UseOrgasmWidget && IsPlayer()
-            if (_widgetShown && _orgasmProgress_p < 0.025) ;|| (loc_widgetShown)
-                UDmain.UDWC.Meter_SetVisible("player-orgasm", False)
-                UDmain.UDWC.Meter_UnlinkActorOrgasm(GetActor())
-                _widgetShown = false
-            elseif !_widgetShown && _orgasmProgress_p >= 0.025
-                ;UDmain.UDWC.Meter_SetFillPercent("player-orgasm", _orgasmProgress_p * 100.0, True)
-                UDmain.UDWC.Meter_SetVisible("player-orgasm", True)
-                UDmain.UDWC.Meter_LinkActorOrgasm(GetActor(),"player-orgasm")
-                _widgetShown = true
-            endif
-        endif
     else
         ;stop moan sound if actor is out of range
         if _msID != -1
@@ -2174,25 +2035,20 @@ Function UpdateOrgasmSecond()
             _msID = -1
         endif
     endif
-    if _tickS && _tickS % 15
-        ;Update
+EndFunction
+
+Function ORSExpressionUpdate(String asEventName, String asUnused, Float afMod, Form akActorF)
+    if (GetActor() != (akActorF as Actor))
+        return
     endif
-EndFunction
-
-Function _GetOrgasmVarsFromStorage()
-    Actor akActor = GetActor()
-    _orgasmRate              = OrgasmSystem.GetOrgasmVariable(akActor,1)
-    _orgasmRateMultiplier    = OrgasmSystem.GetOrgasmVariable(akActor,2)
-    _orgasmResistMultiplier  = OrgasmSystem.GetOrgasmVariable(akActor,4)
-    _orgasms                 = UDOM.getOrgasmingCount(akActor)
-    _actorinminigame         = UDCDMain.actorInMinigame(akActor)
-    ;UDOM.SetActorOrgasmProgress(akActor,_orgasmProgress)
-EndFunction
-
-Function UpdateHornyExpression()
-    Actor akActor = GetActor()
+    
+    Actor akActor = akActorF as Actor
+    
+    
+    
     ;expression
-    if _orgasmRate >= _orgasmResistence*0.75 && (!_expressionApplied || _expressionUpdateTimer > 5) 
+    if afMod == 0.0
+        GInfo("ORSExpressionUpdate("+GetActorName(akActor)+") setting")
         ;init expression
         if _edgelevel == 0
             libs.ExpLibs.ApplyExpressionRaw(akActor, _org_expression, iRange(Round(_orgasmProgress),75,100),false,10)
@@ -2201,14 +2057,25 @@ Function UpdateHornyExpression()
         else
             libs.ExpLibs.ApplyExpressionRaw(akActor, _org_expression3, 50,false,10)
         endif
-        
-        _expressionApplied = true
-        _expressionUpdateTimer = 0
-    elseif _orgasmRate < _orgasmResistence*0.75 && (_orgasmProgress_p < 0.3) && _expressionApplied
+    else
+        GInfo("ORSExpressionUpdate("+GetActorName(akActor)+") resetting")
         libs.ExpLibs.ResetExpressionRaw(akActor,10)
-        _expressionApplied = false
     endif
-    _expressionUpdateTimer += 1
+EndFunction
+
+Function ORSLinkedWidgetUpdate(String asEventName, String asUnused, Float afMod, Form akActorF)
+    if (GetActor() != (akActorF as Actor))
+        return
+    endif
+    
+    Actor akActor = akActorF as Actor
+    if UDCONF.UD_UseOrgasmWidget
+        if afMod == 0.0
+            UDmain.UDWC.Meter_SetVisible("player-orgasm", True)
+        else
+            UDmain.UDWC.Meter_SetVisible("player-orgasm", False)
+        endif
+    endif
 EndFunction
 
 String[] _HornyAnimDefs
@@ -2309,19 +2176,13 @@ Function CleanOrgasmUpdate()
     
     ;hide widget
     UDmain.UDWC.Meter_UnlinkActorOrgasm(akActor)
-    ;if _widgetShown
-    ;    UDmain.UDWC.Meter_SetVisible("player-orgasm", False)
-    ;endif
-    
+
     ;reset expression
     if akActor
         libs.ExpLibs.ResetExpressionRaw(akActor, 10)
     endif
     
     ;end mutex
-    if akActor
-        akActor.RemoveFromFaction(UDOM.OrgasmCheckLoopFaction)
-    endif
 EndFunction
 
 Function VibrateUpdate(Int aiUpdateTime)

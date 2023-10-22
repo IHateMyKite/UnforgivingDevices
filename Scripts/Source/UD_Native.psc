@@ -22,6 +22,7 @@ Int     Function iRange                     (Int aiValue,Int aiMin,Int aiMax)   
 Float   Function fRange                     (Float afValue,Float afMin,Float afMax)             global native
 Bool    Function IsPlayer                   (Actor akActor)                                     global native
 String  Function GetActorName               (Actor akActor)                                     global native
+Int     Function FloatToInt                 (Float afValue)                                     global native
 
 ;===UI===
 int     Function RemoveAllMeterEntries()                                        global native

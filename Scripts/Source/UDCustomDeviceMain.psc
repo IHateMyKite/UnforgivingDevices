@@ -1621,7 +1621,7 @@ Function UndressArmor(Actor akActor)
         int loc_res = UDmain.GetUserListInput(loc_armorsnames)
         if loc_res == (loc_armorsnames.length - 2)
             UndressAllArmor(akActor)
-        elseif loc_res < (loc_armorsnames.length - 3) && loc_res >= 0
+        elseif loc_res < (loc_armorsnames.length - 2) && loc_res >= 0
             akActor.unequipItem(loc_armors[loc_res], abSilent = true)
         else
             return ;exit undress menu
@@ -1849,19 +1849,20 @@ Function showActorDetails(Actor akActor)
             loc_orgStr += "Arousal Rate Mult: " + Round(OrgasmSystem.GetOrgasmVariable(akActor,10)*100) + " %\n"
             loc_orgStr += "Orgasm capacity: " + Round(OrgasmSystem.GetOrgasmVariable(akActor,5)) + "\n"
             loc_orgStr += "Orgasm resistance(M): " + FormatString(OrgasmSystem.GetOrgasmVariable(akActor,3)*OrgasmSystem.GetOrgasmVariable(akActor,4),1) + "\n"
+            loc_orgStr += "Orgasm resisting: " + Round(OrgasmSystem.GetOrgasmVariable(akActor,4)*100.0) + " %\n"
             loc_orgStr += "Orgasm progress: " + formatString(OrgasmSystem.GetOrgasmProgress(akActor,1) * 100,2) + " %\n"
             loc_orgStr += "Orgasm rate: " + formatString(OrgasmSystem.GetOrgasmVariable(akActor,1),2) + " - " + formatString(OrgasmSystem.GetAntiOrgasmRate(akActor),2) + " Op/s\n"
             loc_orgStr += "Orgasm mult: " + Round(OrgasmSystem.GetOrgasmVariable(akActor,2)*100.0) + " %\n"
-            loc_orgStr += "Orgasm resisting: " + Round(OrgasmSystem.GetOrgasmVariable(akActor,3)*100.0) + " %\n"
-            if isRegistered(akActor)
-                loc_orgStr += "Orgasm exhaustion: " + _UDOM.GetOrgasmExhaustion(akActor) + "\n"
-                if !IsPlayer(akActor)
-                    UD_CustomDevice_NPCSlot loc_slot = GetNPCSlot(akActor)
-                    if loc_slot
-                        loc_orgStr += "Orgasm exhaustion dur.: " + loc_slot.GetOrgasmExhaustionDuration() + " s\n"
-                    endif
-                endif
-            endif
+            
+            ;if isRegistered(akActor)
+            ;    loc_orgStr += "Orgasm exhaustion: " + _UDOM.GetOrgasmExhaustion(akActor) + "\n"
+            ;    if !IsPlayer(akActor)
+            ;        UD_CustomDevice_NPCSlot loc_slot = GetNPCSlot(akActor)
+            ;        if loc_slot
+            ;            loc_orgStr += "Orgasm exhaustion dur.: " + loc_slot.GetOrgasmExhaustionDuration() + " s\n"
+            ;        endif
+            ;    endif
+            ;endif
             UDmain.ShowMessageBox(loc_orgStr)
         elseif loc_option == 3 ;Helper details
             ShowHelperDetails(akActor)

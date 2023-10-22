@@ -12,8 +12,8 @@ float _appliedValue = 0.0
 Event OnEffectStart(Actor akTarget, Actor akCaster)
     _target = akTarget
     _appliedValue = fRange(GetMagnitude()/100.0,0.01,10.0)
-    _key = OrgasmSystem.MakeUniqueKey(_target,"orgasmResistReduceME")
-    OrgasmSystem.AddOrgasmChange(_target,_key,0,0,0,afOrgasmRateMult = _appliedValue*0.5,afOrgasmResistenceMult = -1*_appliedValue)
+    _key = OrgasmSystem.MakeUniqueKey(_target,"OrgasmResistReduceME")
+    OrgasmSystem.AddOrgasmChange(_target,_key,0,0x00000200,0,afOrgasmRateMult = _appliedValue*0.5,afOrgasmResistenceMult = -1*_appliedValue)
     OrgasmSystem.UpdateOrgasmChangeVar(_target,_key,9,5.0,1)
 EndEvent
 

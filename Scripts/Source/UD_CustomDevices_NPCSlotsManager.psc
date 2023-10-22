@@ -166,7 +166,6 @@ Function GameUpdate()
     endif
     UD_Slots = GetNumAliases()
     SlotGameUpdate()
-    CheckOrgasmLoops()
     RegisterForSingleUpdate(10.0)
     registerForSingleUpdateGameTime(1.0)
 EndFunction
@@ -178,14 +177,6 @@ Function SlotGameUpdate()
         loc_slot.GameUpdate()
         index += 1
     endwhile
-EndFunction
-
-Function CheckOrgasmLoops()
-    if IsManager()
-        UD_CustomDevice_NPCSlot loc_slot = GetPlayerSlot()
-        UDOM.CheckArousalCheck(loc_slot.getActor())
-        UDOM.CheckOrgasmCheck(loc_slot.getActor())
-    endif
 EndFunction
 
 Event OnUpdate()
@@ -211,7 +202,6 @@ Event OnUpdate()
         removeDeadNPCs()
         _UpdateTimePassed += UDCDmain.UD_UpdateTime
         if _UpdateTimePassed >= UD_HeavySlotUpdateTime
-            CheckOrgasmLoops()
             UpdateSlots() ;update slots, this only update variables, not devices
             _UpdateTimePassed = 0.0
         endif
@@ -295,9 +285,7 @@ EndFunction
 Function initPlayerSlot()
     if IsManager()
         getPlayerSlot().ForceRefTo(UDmain.Player)
-        UDOM.CheckOrgasmCheck(UDmain.Player)
-        UDOM.CheckArousalCheck(UDmain.Player)
-        if UDmain.TraceAllowed()    
+        if UDmain.TraceAllowed()
             UDmain.Log("PlayerSlot ready!")
         endif
     endif

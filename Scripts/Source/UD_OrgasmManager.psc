@@ -38,9 +38,6 @@ EndProperty
 /;
 Faction Property OrgasmFaction              auto
 
-Faction Property OrgasmCheckLoopFaction     auto
-Faction Property ArousalCheckLoopFaction    auto
-
 ;/  Variable: OrgasmResistFaction
     Faction to which will ba actor added if they are in resist orgasm minigame
     
@@ -97,40 +94,6 @@ Function RemoveAbilities(Actor akActor)
     if akActor
         akActor.RemoveSpell(UDlibs.OrgasmCheckAbilitySpell)
         akActor.RemoveSpell(UDlibs.ArousalCheckAbilitySpell)
-    endif
-EndFunction
-
-Function CheckOrgasmCheck(Actor akActor)
-    if !IsPlayer(akActor)
-        return
-    endif
-    if !akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
-        StartOrgasmCheckLoop(akActor)
-    endif
-    if !akActor.hasSpell(UDlibs.OrgasmCheckAbilitySpell)
-        if akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
-            akActor.DispelSpell(UDlibs.OrgasmCheckSpell)
-            StartOrgasmCheckLoop(akActor)
-        else
-            StartOrgasmCheckLoop(akActor)
-        endif
-    endif
-EndFunction
-
-Function CheckArousalCheck(Actor akActor)
-    if !IsPlayer(akActor)
-        return
-    endif
-    if !akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
-        StartArousalCheckLoop(akActor)
-    endif
-    if !akActor.hasSpell(UDlibs.ArousalCheckAbilitySpell)
-        if akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
-            akActor.DispelSpell(UDlibs.ArousalCheckSpell)
-            StartArousalCheckLoop(akActor)
-        else
-            StartArousalCheckLoop(akActor)
-        endif
     endif
 EndFunction
 

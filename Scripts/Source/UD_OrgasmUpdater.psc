@@ -74,10 +74,10 @@ Function EvaluateSlots(UD_CustomDevices_NPCSlotsManager akSlots, Int aiUpdateTim
         UD_CustomDevice_NPCSlot loc_Slot = akSlots.getNPCSlotByIndex(loc_id)
         if SlotOrgasmUpdateEnabled(loc_Slot)
             UpdateVibrators(loc_Slot,aiUpdateTime)
-            if !loc_Slot.IsPlayer()
+            ;if !loc_Slot.IsPlayer()
                 UpdateArousal(loc_Slot,aiUpdateTime)
                 UpdateOrgasm(loc_Slot,aiUpdateTime)
-            endif
+            ;endif
         endif
     endwhile
 EndFUnction

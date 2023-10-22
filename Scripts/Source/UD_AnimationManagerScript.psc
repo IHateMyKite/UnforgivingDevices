@@ -630,13 +630,13 @@ Int Function GetActorConstraintsInt(Actor akActor, Bool abUseCache = True)
         Return 0
     EndIf
     
-    If abUseCache && StorageUtil.HasIntValue(akActor, "UD_ActorConstraintsInt") && (StorageUtil.GetIntValue(akActor, "UD_ActorConstraintsInt_Invalid", 0) == 0)
-        Return StorageUtil.GetIntValue(akActor, "UD_ActorConstraintsInt")
-    EndIf
+    ;If abUseCache && StorageUtil.HasIntValue(akActor, "UD_ActorConstraintsInt") && (StorageUtil.GetIntValue(akActor, "UD_ActorConstraintsInt_Invalid", 0) == 0)
+    ;    Return StorageUtil.GetIntValue(akActor, "UD_ActorConstraintsInt")
+    ;EndIf
     
     Int loc_result = UD_Native.GetActorConstrains(akActor)
-    StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt_Invalid", 0)
-    StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt", loc_result)
+    ;StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt_Invalid", 0)
+    ;StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt", loc_result)
     Return loc_result
 EndFunction
 
@@ -654,7 +654,7 @@ Function InvalidateActorConstraintsInt(Actor akActor)
     If akActor == None
         Return
     EndIf
-    StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt_Invalid", 1)
+    ;StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt_Invalid", 1)
 EndFunction
 
 ;/  Function: GetHeavyBondageKeyword

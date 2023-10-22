@@ -924,7 +924,7 @@ EndFunction
     TODO
 /;
 Function Meter_LinkActorOrgasm(Actor akActor, String asMeter)
-    OrgasmSystem.LinkActorToMeter(akActor,_GetVanillaMeter(asMeter),0,0)
+    OrgasmSystem.LinkActorToMeter(akActor,_GetVanillaMeter(asMeter).WidgetRoot,0,0)
 EndFunction
 
 ;/  Function: Meter_UnlinkActorOrgasm

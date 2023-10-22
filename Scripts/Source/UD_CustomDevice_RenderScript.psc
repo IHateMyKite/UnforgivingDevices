@@ -6667,6 +6667,11 @@ Function minigame()
         if !loc_WearerIsPlayer
             UpdateMotivation(Wearer,50) ;increase NPC motivation on successful escape
         endif
+        
+        if UDmain.ExperienceInstalled && PlayerInMinigame()
+            Experience.addexperience(6.0,true)
+        endif
+        
     else
         if loc_is3DLoaded
             libs.pant(Wearer)

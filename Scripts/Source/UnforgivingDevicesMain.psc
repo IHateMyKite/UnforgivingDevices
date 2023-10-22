@@ -341,6 +341,7 @@ Bool Property DeviousStrikeInstalled    = False auto hidden
 Bool Property ForHimInstalled           = False auto hidden
 Bool Property PO3Installed              = False auto hidden ;https://www.nexusmods.com/skyrimspecialedition/mods/22854
 Bool Property ImprovedCameraInstalled   = False auto hidden
+Bool Property ExperienceInstalled       = False auto hidden
 Bool Property AllowMenBondage           = True  auto hidden
 
 bool Property Ready = False auto hidden
@@ -953,6 +954,12 @@ Function _CheckOptionalMods()
         ImprovedCameraInstalled = true
     else
         ImprovedCameraInstalled = false
+    endif
+    
+    if SKSE.GetPluginVersion("Experience.dll") != 1
+        ExperienceInstalled = true
+    else
+        ExperienceInstalled = false
     endif
     
 EndFUnction

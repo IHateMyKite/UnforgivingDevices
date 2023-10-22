@@ -169,9 +169,9 @@ Function patchBelt(UD_CustomBelt_RenderScript device)
         device.UD_ResistMagicka = Utility.randomFloat(-0.1,0.1)
     endif
     
-    if device as UD_CustomCrotchDevice_RenderScript
-        device.AddAbility(UDlibs.ArousingMovement,0)
-    endif
+    ;if device as UD_CustomCrotchDevice_RenderScript
+        ;device.AddAbility(UDlibs.ArousingMovement,0)
+    ;endif
 
     patchFinish(device,0x0F,loc_currentmult,11)
 EndFunction
@@ -183,7 +183,7 @@ Function patchPlug(UD_CustomPlug_RenderScript device)
     ;device.UD_Locks = 0
     device.UD_durability_damage_base = Utility.randomFloat(10.0,20.0)/loc_currentmult
     device.UD_VibDuration = Math.Floor(Utility.randomInt(45,80)*fRange(loc_currentmult,0.5,5.0))
-    device.UD_OrgasmMult  = Utility.randomFloat(0.75,1.5)*fRange(loc_currentmult,0.7,1.0)
+    device.UD_OrgasmMult  = Utility.randomFloat(0.9,1.1)*fRange(loc_currentmult,0.7,1.0)
     device.UD_ArousalMult = Utility.randomFloat(0.5,1.5)*fRange(loc_currentmult,1.0,5.0)
     device.UD_Cooldown = Round(Utility.randomInt(120,240)/fRange(loc_currentmult,0.5,2.0))
     
@@ -265,7 +265,7 @@ Function patchPiercing(UD_CustomPiercing_RenderScript device)
         device.UD_ArousalMult = Utility.randomFloat(1.5,2.0)*fRange(loc_currentmult,1.0,3.0)
     elseif device.UD_DeviceKeyword == libs.zad_DeviousPiercingsVaginal
         loc_type = 1
-        device.UD_OrgasmMult  = Utility.randomFloat(1.5,2.5)*fRange(loc_currentmult,0.8,3.0)
+        device.UD_OrgasmMult  = Utility.randomFloat(0.9,1.3)*fRange(loc_currentmult,0.8,3.0)
     endif
 
     device.UD_ResistPhysical = 0.75
