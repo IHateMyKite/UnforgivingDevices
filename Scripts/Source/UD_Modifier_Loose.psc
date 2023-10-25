@@ -22,7 +22,7 @@ Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
 EndFunction
 
 Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
-    akDevice.addModifier(self,formatString(fRange(Utility.randomFloat(0.10,0.50)*PatchPowerMultiplier,0.0,1.0),2))
+    akDevice.addModifier(self,FormatFloat(fRange(Utility.randomFloat(0.10,0.50)*PatchPowerMultiplier,0.0,1.0),2))
 EndFunction
 
 Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)

@@ -372,51 +372,67 @@ int Function removeOrgasmFromActor(Actor akActor)
     return loc_count
 EndFunction
 
-Int Function     UpdateHornyLevel(Actor akActor, Int aiValue)
-    Int loc_val = GetHornyLevel(akActor)
-    if aiValue
-        loc_val = iRange(loc_val + aiValue,-5,5)
-        SetHornyLevel(akActor, loc_val)
-        return loc_val
-    else
-        return loc_val
-    endif
-EndFunction
+;Int Function     UpdateHornyLevel(Actor akActor, Int aiValue)
+;    Int loc_val = GetHornyLevel(akActor)
+;    if aiValue
+;        loc_val = iRange(loc_val + aiValue,-5,5)
+;        SetHornyLevel(akActor, loc_val)
+;        return loc_val
+;    else
+;        return loc_val
+;    endif
+;EndFunction
 
-Function     SetHornyLevel(Actor akActor, Int aiValue)
-    StorageUtil.SetIntValue(akActor,"UD_HornyLevel",iRange(aiValue,-5,5))
-EndFunction
+;Function     SetHornyLevel(Actor akActor, Int aiValue)
+;    StorageUtil.SetIntValue(akActor,"UD_HornyLevel",iRange(aiValue,-5,5))
+;EndFunction
 
-Int Function GetHornyLevel(Actor akActor)
-    return StorageUtil.GetIntValue(akActor,"UD_HornyLevel",0)
-EndFunction
+;Int Function GetHornyLevel(Actor akActor)
+;    return StorageUtil.GetIntValue(akActor,"UD_HornyLevel",0)
+;EndFunction
 
 String Function GetHornyLevelString(Actor akActor)
-    Int loc_edgeLevel = StorageUtil.GetIntValue(akActor,"UD_HornyLevel",0)
+    float loc_HornyLevel = OrgasmSystem.GetOrgasmVariable(akActor,8)
     string loc_res
-    if loc_edgeLevel == -5
+    
+    if fInRange(loc_HornyLevel,0.0,40.0)
         loc_res = "Going crazy"
-    elseif loc_edgeLevel == -4
-        loc_res = "Climaxing nonstop"
-    elseif loc_edgeLevel == -3
-        loc_res = "Can't stop cumming"
-    elseif loc_edgeLevel == -2
-        loc_res = "Very exhausted"
-    elseif loc_edgeLevel == -1
+    elseif fInRange(loc_HornyLevel,40.0,85.0)
         loc_res = "Exhausted"
-    elseif loc_edgeLevel == 0
+    elseif fInRange(loc_HornyLevel,85.0,115.0)
         loc_res = "Normal"
-    elseif loc_edgeLevel == 1
+    elseif fInRange(loc_HornyLevel,115.0,200.0)
         loc_res = "Horny"
-    elseif loc_edgeLevel == 2
+    elseif fInRange(loc_HornyLevel,200.0,275.0)
         loc_res = "Very Horny"
-    elseif loc_edgeLevel == 3
+    elseif fInRange(loc_HornyLevel,275.0,325.0)
         loc_res = "Increadibly horny"
-    elseif loc_edgeLevel == 4
+    else 
         loc_res = "Wants to cum badly"
-    elseif loc_edgeLevel == 5
-        loc_res = "Driven mad with pleasure"
     endif
+    ;if fInRange(loc_HornyLevel,0.0,25.0)
+    ;    loc_res = "Going crazy"
+    ;elseif fInRange(loc_HornyLevel,25.0,50.0)
+    ;    loc_res = "Climaxing nonstop"
+    ;elseif fInRange(loc_HornyLevel,50.0,75.0)
+    ;    loc_res = "Can't stop cumming"
+    ;elseif fInRange(loc_HornyLevel,75.0,100.0)
+    ;    loc_res = "Very exhausted"
+    ;elseif loc_HornyLevel == -1
+    ;    loc_res = "Exhausted"
+    ;elseif loc_HornyLevel == 0
+    ;    loc_res = "Normal"
+    ;elseif loc_HornyLevel == 1
+    ;    loc_res = "Horny"
+    ;elseif loc_HornyLevel == 2
+    ;    loc_res = "Very Horny"
+    ;elseif loc_HornyLevel == 3
+    ;    loc_res = "Increadibly horny"
+    ;elseif loc_HornyLevel == 4
+    ;    loc_res = "Wants to cum badly"
+    ;elseif loc_HornyLevel == 5
+    ;    loc_res = "Driven mad with pleasure"
+    ;endif
     return loc_res
 EndFunction
 

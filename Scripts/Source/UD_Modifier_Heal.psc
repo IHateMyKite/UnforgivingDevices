@@ -27,7 +27,7 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     String loc_msg = ""
     
     loc_msg += "=== " + NameFull + " ===\n"
-    loc_msg += "Healing: " + formatString(UD_Native.GetStringParamInt(aiDataStr)/24.0,1) + " per hour\n"
+    loc_msg += "Healing: " + FormatFloat(UD_Native.GetStringParamInt(aiDataStr)/24.0,1) + " per hour\n"
     loc_msg += "===Description===\n"
     loc_msg += Description + "\n"
     

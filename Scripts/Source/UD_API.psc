@@ -218,8 +218,7 @@ EndProperty
 ;==========================================================================================
 ;   string   |   IntToBit                        |   (int argInt) ;convert int to bit map string
 ;   float    |   CalcDistance                    |   (ObjectReference obj1,ObjectReference obj2)
-;   string   |   formatString                    |   (string str,int floatPoints)
-;   float    |   checkLimit                      |   (float value,float limit)
+;   string   |   FormatFloat                    |   (string str,int floatPoints)
 ;            |   closeMenu                       |   ()
 ;            |   closeLockpickMenu               |   ()
 ;   string   |   getPlugsVibrationStrengthString |   (int strenght)
@@ -229,7 +228,6 @@ EndProperty
 ;   bool     |   ModInstalledAfterUD             |   (string sModFileName)
 ;   string   |   MakeDeviceHeader                |   (Actor akActor,Armor invDevice)
 ;   Int      |   iUnsig                          |   (Int iValue)
-;   Float    |   fUnsig                          |   (Int iValue)
 ;            |   ShowMessageBox                  |   (string strText)
 ;            |   DCLog                           |   (String msg) ;only use for debugging
 ;            |   GInfo                           |   (String msg)

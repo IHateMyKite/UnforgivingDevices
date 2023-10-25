@@ -6,11 +6,9 @@ Event OnInit()
     InitOrgasmUpdate()
 EndEvent
 
-Function update(float fTimePassed)
-    if UDCDmain.UD_HardcoreMode
-        UDCDmain.CheckHardcoreDisabler(UDmain.Player)
-    endif
-    parent.update(fTimePassed)
+Function GameUpdate()
+    RegisterForModEvent("UD_HMTweenMenu","OpenTweenMenu")
+    parent.GameUpdate()
 EndFunction
 
 bool Function isPlayer()
@@ -27,3 +25,7 @@ EndFunction
 Actor Function GetActor()
     return UDmain.Player
 EndFunction
+
+Event OpenTweenMenu(String asEventName, String asUnused, Float afUnused, Form akUnused)
+    UDCDmain.getHeavyBondageDevice(UDmain.Player).deviceMenu(new Bool[30])
+EndEvent

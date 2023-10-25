@@ -1704,7 +1704,7 @@ Function _Init(Actor akActor)
     
     _OnInitLevelUpdate()
     
-    UDCDmain.CheckHardcoreDisabler(getWearer())
+    ;UDCDmain.CheckHardcoreDisabler(getWearer())
     
     InitPost()
 
@@ -6739,7 +6739,7 @@ Function minigame()
     
     ;debug message
     if UDmain.DebugMod && UD_damage_device && durability_onstart != current_device_health && loc_WearerIsPlayer
-        UDmain.Print("[Debug] Durability reduced: "+ formatString(durability_onstart - current_device_health,3) + "\n",1)
+        UDmain.Print("[Debug] Durability reduced: "+ FormatFloat(durability_onstart - current_device_health,3) + "\n",1)
     endif
 EndFunction
 
@@ -7369,8 +7369,8 @@ Function ShowBaseDetails()
     loc_res += "- " + deviceInventory.GetName() + " -\n"
     loc_res += "Level: " + UD_Level + "\n"
     loc_res += "Type: " + UD_DeviceType + "\n"
-    loc_res += ("Device health: " + formatString(current_device_health,1)+"/"+ formatString(UD_Health,1)+ "\n")
-    loc_res += "Condition: " + getConditionString() + " ("+formatString(getRelativeCondition()*100,1)+"%)\n"
+    loc_res += ("Device health: " + FormatFloat(current_device_health,1)+"/"+ FormatFloat(UD_Health,1)+ "\n")
+    loc_res += "Condition: " + getConditionString() + " ("+FormatFloat(getRelativeCondition()*100,1)+"%)\n"
     loc_res += "Accesibility: " + Round(100.0*loc_accesibility) + "%\n"
     
     loc_res += "Difficutly: "
@@ -7426,12 +7426,12 @@ Function ShowBaseDetails()
     
     if UDmain.UDGV.UDG_ShowCritVars.Value
         loc_res += "Crit chance: "+UD_StruggleCritChance+" %\n"
-        loc_res += "Crit duration: "+formatString(UD_StruggleCritDuration,1)+" s\n"
-        loc_res += "Crit mult: "+formatString(UD_StruggleCritMul*100,1)+" %\n"
+        loc_res += "Crit duration: "+FormatFloat(UD_StruggleCritDuration,1)+" s\n"
+        loc_res += "Crit mult: "+FormatFloat(UD_StruggleCritMul*100,1)+" %\n"
     endif
     
     if canBeCutted()
-        loc_res += "Cut chance: " + formatString(UD_CutChance,1) + " %\n"
+        loc_res += "Cut chance: " + FormatFloat(UD_CutChance,1) + " %\n"
     else
         loc_res += "Cut chance: Uncuttable\n"
     endif
@@ -7507,7 +7507,7 @@ Function ShowLockDetails()
         elseif IsNthLockJammed(loc_lockId)
             loc_res += "JAMMED\n"
             Float loc_RepairProgress = GetNthLockRepairProgress(loc_lockId)
-            loc_res += "Repair progress: "+ FormatString(loc_RepairProgress,1) + " %\n"
+            loc_res += "Repair progress: "+ FormatFloat(loc_RepairProgress,1) + " %\n"
         elseif IsNthLockTimeLocked(loc_lockId) && GetNthLockTimeLock(loc_lockId)
             loc_res += "TIME LOCKED\n"
             loc_res += "Timelock: "+ GetNthLockTimeLock(loc_lockId) + " hours\n"
@@ -7548,11 +7548,11 @@ Function showDebugInfo()
     string loc_res = ""
     loc_res += "- " + deviceInventory.GetName() + " -\n"
     if (zad_JammLockChance > 0)
-        loc_res += "Lock jam chance: "+ zad_JammLockChance + " (" + Round(checkLimit(zad_JammLockChance*UDCDmain.CalculateKeyModifier(),100.0)) +") %\n"
+        loc_res += "Lock jam chance: "+ zad_JammLockChance + " (" + Round(fRange(zad_JammLockChance*UDCDmain.CalculateKeyModifier(),0.0,100.0)) +") %\n"
     endif
     if isNotShareActive(); && canBeActivated()
         loc_res += "Cooldown: "+ _currentRndCooldown +" min\n"
-        loc_res += "Elapsed time: "+ formatString(_updateTimePassed,3) +" min ("+ formatString(getRelativeElapsedCooldownTime()*100,1) +" %)\n"
+        loc_res += "Elapsed time: "+ FormatFloat(_updateTimePassed,3) +" min ("+ FormatFloat(getRelativeElapsedCooldownTime()*100,1) +" %)\n"
         loc_res += "Can be activated: " + canBeActivated() + "\n"
     endif
     loc_res += _getCritInfo()
@@ -7574,10 +7574,10 @@ Function showDebugMinigameInfo()
     endif
     res += "Damage modifier: " + Round(UD_DamageMult*100.0) + " %\n"
     if UD_damage_device
-        res += "Base DPS: " + formatString(UD_durability_damage_base,4) + " DPS\n"
-        res += "DPS bonus: " + formatString(UD_durability_damage_add,2) + " DPS\n"
+        res += "Base DPS: " + FormatFloat(UD_durability_damage_base,4) + " DPS\n"
+        res += "DPS bonus: " + FormatFloat(UD_durability_damage_add,2) + " DPS\n"
         res += "Total DPS: " + (_durability_damage_mod + UD_durability_damage_add)*UD_DamageMult + " DPS\n"
-        res += "Total increase: " + formatString((((_durability_damage_mod + UD_durability_damage_add)*UD_DamageMult)/UD_durability_damage_base)*100 - 100.0,2) + " %\n"
+        res += "Total increase: " + FormatFloat((((_durability_damage_mod + UD_durability_damage_add)*UD_DamageMult)/UD_durability_damage_base)*100 - 100.0,2) + " %\n"
     elseif _CuttingGameON
         res += "Cutting modifier: " + Round(UD_MinigameMult1*100.0) + " %\n"
     else
@@ -7587,13 +7587,13 @@ Function showDebugMinigameInfo()
     res += "Crits: " + UD_minigame_canCrit + "\n"
     if UD_drain_stats
         if UD_minigame_stamina_drain
-            res += "Stamina SPS: " + formatString(UD_minigame_stamina_drain,2) + "\n"
+            res += "Stamina SPS: " + FormatFloat(UD_minigame_stamina_drain,2) + "\n"
         endif
         if UD_minigame_heal_drain
-            res += "Health SPS: " + formatString(UD_minigame_heal_drain,2) + "\n"
+            res += "Health SPS: " + FormatFloat(UD_minigame_heal_drain,2) + "\n"
         endif
         if UD_minigame_magicka_drain
-            res += "Magicka SPS: " + formatString(UD_minigame_magicka_drain,2) + "\n"    
+            res += "Magicka SPS: " + FormatFloat(UD_minigame_magicka_drain,2) + "\n"    
         endif
     else
         res += "Wearer doesn't loose stats\n"
@@ -7624,7 +7624,7 @@ string Function _getCritInfo()
         res += "never\n"
         return res
     endif
-    res += "Crit: " + formatString(UD_StruggleCritMul,1) + " x\n"
+    res += "Crit: " + FormatFloat(UD_StruggleCritMul,1) + " x\n"
     res += "Crit difficulty: "
     if UD_StruggleCritDuration >= 1
         res += "Easy\n"

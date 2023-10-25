@@ -249,8 +249,8 @@ Function _ShowVibDetails()
         else
             loc_res += "Rem. duration: " + "INF" + " s\n"
         endif
-        loc_res += "Arousal rate: " + FormatString(getVibArousalRate(),2) + " A/s\n"
-        loc_res += "Orgasm rate: " + FormatString(GetAppliedOrgasmRate(),2) + " Op/s\n"
+        loc_res += "Arousal rate: " + FormatFloat(getVibArousalRate(),2) + " A/s\n"
+        loc_res += "Orgasm rate: " + FormatFloat(GetAppliedOrgasmRate(),2) + " Op/s\n"
         loc_res += "Current vib mode: "
         if _currentEdgingMode == 0
             loc_res += "Normal\n"

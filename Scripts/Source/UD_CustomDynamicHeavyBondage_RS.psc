@@ -18,7 +18,7 @@ string Function addInfoString(string str = "")
     str = parent.addInfoString(str)
     str += "Tied up?: " + _tied + "\n"
     if _tied
-        str += "Untie progress: " + FormatString(getRelativeUntieProgress()*100.0,1) + " %\n"
+        str += "Untie progress: " + FormatFloat(getRelativeUntieProgress()*100.0,1) + " %\n"
     endif
     return str
 EndFunction

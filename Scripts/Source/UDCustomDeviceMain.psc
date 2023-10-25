@@ -222,6 +222,7 @@ EndFunction
 
 bool Property ZAZAnimationsInstalled = false auto hidden
 Function Update()
+    UD_Native.SyncControlSetting(UD_HardcoreMode)
 
     RegisterForSingleUpdate(2*UD_UpdateTime)
     
@@ -231,7 +232,7 @@ Function Update()
     ResetUI()
     registerAllEvents()
     
-    CheckHardcoreDisabler(UDmain.Player)
+    ;CheckHardcoreDisabler(UDmain.Player)
     
     SetArousalPerks()
 
@@ -491,8 +492,7 @@ Function StartMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
     endif
     akActor.AddToFaction(BussyFaction)
     if aiIsPlayer == 1 || IsPlayer(akActor)
-        UpdatePlayerControl()
-        Game.SetPlayerAiDriven(True)
+        ;Game.SetPlayerAiDriven(True)
     else
         ActorUtil.AddPackageOverride(akActor, UDmain.UD_NPCDisablePackage, 100, 1)
         akActor.EvaluatePackage()
@@ -516,8 +516,7 @@ Function UpdateMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
     endif
     if akActor.IsInFaction(BussyFaction)
         if aiIsPlayer == 1 || IsPlayer(akActor)
-            UpdatePlayerControl()
-            Game.SetPlayerAiDriven(True)
+            ;Game.SetPlayerAiDriven(True)
         else
             akActor.SetDontMove(True)
             akActor.EvaluatePackage()
@@ -540,7 +539,7 @@ Function EndMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
     endif
     akActor.RemoveFromFaction(BussyFaction)
     if aiIsPlayer == 1 || IsPlayer(akActor)
-        libsp.ProcessPlayerControls(false)
+        ;libsp.ProcessPlayerControls(false)
         Game.SetPlayerAiDriven(False)
     else
         ActorUtil.RemovePackageOverride(akActor, UDmain.UD_NPCDisablePackage)
@@ -563,32 +562,26 @@ Bool Function IsBussy(Actor akActor)
     return akActor.IsInFaction(BussyFaction)
 EndFunction
 
-Function UpdatePlayerControl()
-    Game.EnablePlayerControls(abMovement = !UDmain.ImprovedCameraInstalled, abFighting = false, abCamSwitch = !UDmain.ImprovedCameraInstalled, abSneaking = false, abMenu = False, abActivate = false)
-    Utility.waitMenuMode(0.05)
-    Game.DisablePlayerControls(abMovement = False, abCamSwitch = UDmain.ImprovedCameraInstalled, abMenu = True)
-EndFunction
-
 Function CheckHardcoreDisabler(Actor akActor)
     if UD_HardcoreMode
-        if !UDmain.Player.HasSpell(UDlibs.HardcoreDisableSpell) && UDmain.Player.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW) 
-            UDmain.Player.DispelSpell(UDlibs.HardcoreDisableSpell)
-        endif
-        if UDmain.Player.wornhaskeyword(libs.zad_deviousHeavyBondage) && !UDmain.Player.HasSpell(UDlibs.HardcoreDisableSpell)
-            bool loc_applyeffect = false
-            if UDmain.Player.wornhaskeyword(UDlibs.InvisibleHBKW)
-                loc_applyeffect = true ;player have invisible heavy bondage (from cuffs)
-            else
-                ;only apply if heavy bondage device is UD
-                UD_CustomDevice_RenderScript loc_hbdevice = GetHeavyBondageDevice(UDmain.Player)
-                if loc_hbdevice
-                    loc_applyeffect = true
-                endif
-            endif
-            if loc_applyeffect
-                UDmain.Player.AddSpell(UDlibs.HardcoreDisableSpell,false)
-            endif
-        endif
+        ;if !UDmain.Player.HasSpell(UDlibs.HardcoreDisableSpell) && UDmain.Player.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW) 
+        ;    UDmain.Player.DispelSpell(UDlibs.HardcoreDisableSpell)
+        ;endif
+        ;if UDmain.Player.wornhaskeyword(libs.zad_deviousHeavyBondage) && !UDmain.Player.HasSpell(UDlibs.HardcoreDisableSpell)
+        ;    bool loc_applyeffect = false
+        ;    if UDmain.Player.wornhaskeyword(UDlibs.InvisibleHBKW)
+        ;        loc_applyeffect = true ;player have invisible heavy bondage (from cuffs)
+        ;    else
+        ;        ;only apply if heavy bondage device is UD
+        ;        UD_CustomDevice_RenderScript loc_hbdevice = GetHeavyBondageDevice(UDmain.Player)
+        ;        if loc_hbdevice
+        ;            loc_applyeffect = true
+        ;        endif
+        ;    endif
+        ;    if loc_applyeffect
+        ;        UDmain.Player.AddSpell(UDlibs.HardcoreDisableSpell,false)
+        ;    endif
+        ;endif
     endif
 EndFunction
 
@@ -1806,15 +1799,15 @@ Function showActorDetails(Actor akActor)
             Race loc_race = akActor.getActorBase().GetRace()
             loc_res += "Race: " + loc_race.GetName() + "\n"
             loc_res += "LVL: " + akActor.GetLevel() + "\n"
-            loc_res += "HP: " + formatString(akActor.getAV("Health"),1) + "/" +  formatString(getMaxActorValue(akActor,"Health"),1) + " ("+ Round(getCurrentActorValuePerc(akActor,"Health")*100) +" %)" +"\n"
-            loc_res += "MP: " + formatString(akActor.getAV("Magicka"),1) + "/" + formatString(getMaxActorValue(akActor,"Magicka"),1) + " ( "+ Round(getCurrentActorValuePerc(akActor,"Magicka")*100) +" %)" +"\n"
-            loc_res += "SP: " + formatString(akActor.getAV("Stamina"),1) + "/" +  formatString(getMaxActorValue(akActor,"Stamina"),1) + " ("+ Round(getCurrentActorValuePerc(akActor,"Stamina")*100) +" %)" +"\n"
+            loc_res += "HP: " + FormatFloat(akActor.getAV("Health"),1) + "/" +  FormatFloat(getMaxActorValue(akActor,"Health"),1) + " ("+ Round(getCurrentActorValuePerc(akActor,"Health")*100) +" %)" +"\n"
+            loc_res += "MP: " + FormatFloat(akActor.getAV("Magicka"),1) + "/" + FormatFloat(getMaxActorValue(akActor,"Magicka"),1) + " ( "+ Round(getCurrentActorValuePerc(akActor,"Magicka")*100) +" %)" +"\n"
+            loc_res += "SP: " + FormatFloat(akActor.getAV("Stamina"),1) + "/" +  FormatFloat(getMaxActorValue(akActor,"Stamina"),1) + " ("+ Round(getCurrentActorValuePerc(akActor,"Stamina")*100) +" %)" +"\n"
             if UDmain.UDAI.Enabled && !IsPlayer(akActor)
                 loc_res += "Motivation: " + getMotivation(akActor) + "\n"
                 loc_res += "AI Cooldown: " + iUnsig(GetAIRemainingCooldown(akActor)) + " min\n"
             endif
-            loc_res += "Arousal: " + FormatString(OrgasmSystem.GetOrgasmVariable(akActor,8),1) + "\n"
-            loc_res += "Orgasm progress: " + formatString(OrgasmSystem.GetOrgasmProgress(akActor,1) * 100,2) + " %\n"
+            loc_res += "Arousal: " + FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,8),1) + "\n"
+            loc_res += "Orgasm progress: " + FormatFloat(OrgasmSystem.GetOrgasmProgress(akActor,1) * 100,2) + " %\n"
             UDmain.ShowMessageBox(loc_res)
         elseif loc_option == 1 ;skills
             String loc_res = "--SKILL DETAILS--\n"
@@ -1842,16 +1835,16 @@ Function showActorDetails(Actor akActor)
             string loc_orgStr = ""
             loc_orgStr += "--ORGASM DETAILS--\n"
             loc_orgStr += "State: " + _UDOM.GetHornyLevelString(akActor) + "\n"
-            loc_orgStr += "Horny progress: " + Round(_UDOM.GetRelativeHornyProgress(akActor)*100.0) + " %\n"
+            loc_orgStr += "Horny level: " + FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,14),2) + "\n"
             loc_orgStr += "Active vibrators: " + GetActivatedVibrators(akActor) + "(S="+StorageUtil.GetIntValue(akActor,"UD_ActiveVib_Strength",0)+")" + "\n"
-            loc_orgStr += "Arousal: " + FormatString(OrgasmSystem.GetOrgasmVariable(akActor,8),1) + "\n"
-            loc_orgStr += "Arousal Rate(M): " + FormatString(OrgasmSystem.GetOrgasmVariable(akActor,9)*OrgasmSystem.GetOrgasmVariable(akActor,10),1) + "\n"
+            loc_orgStr += "Arousal: " + FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,8),1) + "\n"
+            loc_orgStr += "Arousal Rate(M): " + FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,9)*OrgasmSystem.GetOrgasmVariable(akActor,10),1) + "\n"
             loc_orgStr += "Arousal Rate Mult: " + Round(OrgasmSystem.GetOrgasmVariable(akActor,10)*100) + " %\n"
             loc_orgStr += "Orgasm capacity: " + Round(OrgasmSystem.GetOrgasmVariable(akActor,5)) + "\n"
-            loc_orgStr += "Orgasm resistance(M): " + FormatString(OrgasmSystem.GetOrgasmVariable(akActor,3)*OrgasmSystem.GetOrgasmVariable(akActor,4),1) + "\n"
+            loc_orgStr += "Orgasm resistance(M): " + FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,3)*OrgasmSystem.GetOrgasmVariable(akActor,4),1) + "\n"
             loc_orgStr += "Orgasm resisting: " + Round(OrgasmSystem.GetOrgasmVariable(akActor,4)*100.0) + " %\n"
-            loc_orgStr += "Orgasm progress: " + formatString(OrgasmSystem.GetOrgasmProgress(akActor,1) * 100,2) + " %\n"
-            loc_orgStr += "Orgasm rate: " + formatString(OrgasmSystem.GetOrgasmVariable(akActor,1),2) + " - " + formatString(OrgasmSystem.GetAntiOrgasmRate(akActor),2) + " Op/s\n"
+            loc_orgStr += "Orgasm progress: " + FormatFloat(OrgasmSystem.GetOrgasmProgress(akActor,1) * 100,2) + " %\n"
+            loc_orgStr += "Orgasm rate: " + FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,1),2) + " - " + FormatFloat(OrgasmSystem.GetAntiOrgasmRate(akActor),2) + " Op/s\n"
             loc_orgStr += "Orgasm mult: " + Round(OrgasmSystem.GetOrgasmVariable(akActor,2)*100.0) + " %\n"
             
             ;if isRegistered(akActor)
@@ -1871,7 +1864,7 @@ Function showActorDetails(Actor akActor)
             string loc_otherStr = "--OTHER--\n"
             if loc_sharpestWeapon
                 loc_otherStr += "Sharpest weapon: " + loc_sharpestWeapon.getName() + "\n"
-                loc_otherStr += "Cutting multiplier: " + FormatString(loc_sharpestWeapon.getBaseDamage()*2.5,1) + " %\n"
+                loc_otherStr += "Cutting multiplier: " + FormatFloat(loc_sharpestWeapon.getBaseDamage()*2.5,1) + " %\n"
             else
                 loc_otherStr += "Sharpest weapon: NONE\n"
                 loc_otherStr += "Cutting multiplier: 0 %\n"

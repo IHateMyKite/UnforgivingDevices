@@ -378,7 +378,7 @@ Function masturbate()
         libs.SexLab.StartSex(Positions, libs.SexLab.GetAnimationsByTag(1, "Solo", "F", true),none,CenterOn = none, AllowBed = true, Hook = "UD") ;it just works
         last_time_masturbate = Utility.GetCurrentGameTime()
     else
-        debug.messagebox("You are too weak from last time.\nYou can masturbate again in "+ UDmain.formatString((AbadonQuestScript.masturbate_cd/24.0 - (Utility.GetCurrentGameTime() - last_time_masturbate))*24,1) + " hours")
+        debug.messagebox("You are too weak from last time.\nYou can masturbate again in "+ UDmain.FormatFloat((AbadonQuestScript.masturbate_cd/24.0 - (Utility.GetCurrentGameTime() - last_time_masturbate))*24,1) + " hours")
     endif
 EndFunction
 /;
@@ -512,7 +512,7 @@ EndFunction
 
 string Function addInfoString(string str = "")
     str = parent.addInfoString(str)
-    str += "(AP) Strength: " + formatString(abadonPlugDiff,1) + " (~"+Math.floor(relativeStrength()*100.0)+" %)" + "\n"
+    str += "(AP) Strength: " + FormatFloat(abadonPlugDiff,1) + " (~"+Math.floor(relativeStrength()*100.0)+" %)" + "\n"
     str += "(AP) Hunger: "+ Math.floor(100.0 - plug_hunger) + " %\n"
     str += "(AP) Orgasms fed: "+ orgasm_cout +"\n"
     str += "(AP) Finisher?: "+ finisherOn +"\n"

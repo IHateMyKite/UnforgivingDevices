@@ -20,6 +20,9 @@ Int     Function DecodeBit                  (int aiCodedMap,int aiSize,int aiInd
 Int     Function Round                      (Float afValue)                                     global native
 Int     Function iRange                     (Int aiValue,Int aiMin,Int aiMax)                   global native
 Float   Function fRange                     (Float afValue,Float afMin,Float afMax)             global native
+Bool    Function iInRange                   (Int afValue,Int afMin,Int afMax)                   global native
+Bool    Function fInRange                   (Float afValue,Float afMin,Float afMax)             global native
+String  Function FormatFloat                (Float afValue,Int afFloatPoints)                   global native
 Bool    Function IsPlayer                   (Actor akActor)                                     global native
 String  Function GetActorName               (Actor akActor)                                     global native
 Int     Function FloatToInt                 (Float afValue)                                     global native
@@ -68,3 +71,6 @@ String      Function GetStringParamString   (String asParam,Int aiIndex = 0,Stri
 ;===ActorSlotManager===
 Bool        Function RegisterSlotQuest(Quest akQuest)   global native
 Actor[]     Function GetRegisteredActors()              global native
+
+;===PlayerControl===
+            Function SyncControlSetting(bool abHardcoreMode) global native

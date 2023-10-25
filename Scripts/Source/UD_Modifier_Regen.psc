@@ -31,14 +31,14 @@ Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
         loc_addmult = 1.0
     endif
 
-    akDevice.addModifier(self,formatString(120*PatchPowerMultiplier*Utility.randomFloat(0.5 + loc_addmult,2.0 + loc_addmult),1))
+    akDevice.addModifier(self,FormatFloat(120*PatchPowerMultiplier*Utility.randomFloat(0.5 + loc_addmult,2.0 + loc_addmult),1))
 EndFunction
 
 Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
     String loc_msg = ""
     
     loc_msg += "=== " + NameFull + " ===\n"
-    loc_msg += "Regen: " + formatString(UD_Native.GetStringParamInt(aiDataStr)*Multiplier/24.0,1) + " per hour\n"
+    loc_msg += "Regen: " + FormatFloat(UD_Native.GetStringParamInt(aiDataStr)*Multiplier/24.0,1) + " per hour\n"
     loc_msg += "===Description===\n"
     loc_msg += Description + "\n"
     

@@ -550,7 +550,7 @@ bool Function NativeAllowed() global
         if loc_minor == 0 && loc_beta == 20
             return true
         endif
-        ;is version 2.1.X pr 2.2.X (AE)
+        ;is version 2.1.X or 2.2.X (AE)
         if loc_minor == 1 || loc_minor == 2
             return true
         endif
@@ -1320,107 +1320,6 @@ string Function IntToBit(int argInt) global
     return loc_res
 EndFunction
 
-;/  Function: iInRange
-
-    Checks if passed value is in range
-
-    Parameters:
-
-        aiValue      - Value to be checked
-        aiMin        - Minimum value
-        aiMax        - Maximum value
-
-    Returns:
-
-        False if value is less then minimum or more then maximum
-/;
-Bool Function iInRange(int aiValue,int aiMin,int aiMax) global
-    if aiValue > aiMax
-        return false
-    endif
-    if aiValue < aiMin
-        return false
-    endif
-    return true
-EndFunction
-
-;/  Function: fInRange
-
-    Checks if passed value is in range
-
-    Parameters:
-
-        afValue      - Value to be checked
-        afMin        - Minimum value
-        afMax        - Maximum value
-
-    Returns:
-
-        False if value is less then minimum or more then maximum
-/;
-Bool Function fInRange(float afValue,float afMin,float afMax) global
-    if afValue > afMax
-        return false
-    endif
-    if afValue < afMin
-        return false
-    endif
-    return true
-EndFunction
-
-;/  Function: formatString
-
-    Formats float stored in string, so it can show only passed number of floating points
-
-    Parameters:
-
-        asValue         - Number which will be formated
-        afFloatPoints   - Number of floating points to show
-
-    Returns:
-
-        Formated number in string
-
-    _Example_:
-        --- Code
-        Float   loc_number      = 1.2345                            ;input value
-        String  loc_formated    = formatString(loc_number,2)        ;formats number so it only shows 2 decimal points
-        Print(loc_formated)                                         ;Will print 1.23 only
-        ---
-/;
-string Function formatString(string asValue,int afFloatPoints) global
-    int loc_floatPoint =  StringUtil.find(asValue,".")
-    if (loc_floatPoint < 0)
-        return asValue
-    endif
-    if ((afFloatPoints + loc_floatPoint + 1) > StringUtil.getLength(asValue))
-        return asValue
-    else
-        return StringUtil.Substring(asValue, 0, loc_floatPoint + afFloatPoints + 1)
-    endif
-EndFunction
-
-;/  Function: checkLimit
-
-    Truncate passed value only in positive direction
-
-    Parameters:
-
-        afValue      - Value to be checked
-        afLimit      - Number limit
-
-    Returns:
-
-        Returns truncated number so it is never more then afLimit
-/;
-float Function checkLimit(float afValue,float afLimit) global
-    if afValue > afLimit
-        return afLimit
-    else
-        return afValue
-    endif
-EndFunction
-
 ;/  Function: iUnsig
 
     Truncate negative values from passed INT
@@ -1449,28 +1348,6 @@ Int Function iUnsig(Int aiValue) global
     return aiValue
 EndFunction
 
-;/  Function: fUnsig
-
-    Truncate negative values from passed FLOAT
-
-    Parameters:
-
-        afValue     - Value to be truncated
-
-    Returns:
-
-        Truncated value
-
-    _Example_:
-
-    See <iUnsig>
-/;
-Float Function fUnsig(float afValue) global
-    if afValue < 0.0
-        return 0.0
-    endif
-    return afValue
-EndFunction
 
 ;/  Function: ConvertTime
 
@@ -2258,6 +2135,18 @@ EndFunction
 /;
 Bool Function IsMenuOpenID(int aiID)
     return UDMC.isMenuOpen(iRange(aiID,0,UDMC.UD_MenuListID.length))
+EndFunction
+
+;/  Function: GetOpenMenuMap
+
+    Get bit coded currently opened menus
+
+    Returns:
+
+        Bit coded menus
+/;
+Int Function GetOpenMenuMap()
+    return UDMC.UD_MenuListIDBit
 EndFunction
 
 ;/  Function: IsContainerMenuOpen

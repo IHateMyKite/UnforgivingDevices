@@ -1400,7 +1400,6 @@ EndFunction
 Function _Apply3rdPersonCamera(Bool abDismount = True)
     if UDmain.ImprovedCameraInstalled
         Game.ForceThirdPerson()
-        Game.DisablePlayerControls(false, false, true, false, false, false, false)
         return
     endif
 

@@ -518,7 +518,7 @@ Function fix()
             string[] loc_list
             while loc_i < 32
                 String loc_string = "[" +(30 + loc_i) + "] "
-                if loc_slots[loc_i].getName()
+                if loc_slots[loc_i] && loc_slots[loc_i].getName()
                     loc_string += loc_slots[loc_i].getName() ;armor have name, use it
                 else
                     loc_string += loc_slots[loc_i] ;armor doesn't have name, show editor ID
@@ -1097,7 +1097,7 @@ Function updateDeviceHour(float fMult)
 EndFunction
 
 Function updateHour(float fMult)
-    UpdateMotivationToDef(GetActor(),10) ;decrease/increase motivation so it will finally reach default 100
+    UpdateMotivationToDef(GetActor(),20) ;decrease/increase motivation so it will finally reach default 100
 EndFunction
 
 ;returns first device which have connected corresponding Inventory Device
@@ -1920,7 +1920,6 @@ Function InitOrgasmUpdate()
         _msID                       = -1
         _orgasms                    = 0
         _actorinminigame            = UDCDMain.actorInMinigame(loc_actor)
-        _edgelevel                  = UDOM.GetHornyLevel(loc_actor)
         
         _OrgasmGameUpdate()
     endif
