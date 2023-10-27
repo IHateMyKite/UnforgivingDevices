@@ -19,24 +19,26 @@ UD_ModifierManager_Script Property UDMOM Hidden
     EndFunction
 EndProperty
 
-Float       Property UD_PatchMult           =  1.0     auto ;global patch multiplier, applies to all devices
-int         Property UD_EscapeModifier      =   10     auto
-Int         Property UD_MinLocks            =    0    auto
-Int         Property UD_MaxLocks            =    2    auto
+Float       Property UD_PatchMult           =  1.0    auto hidden ;global patch multiplier, applies to all devices
+int         Property UD_EscapeModifier      =   10    auto hidden
+Int         Property UD_MinLocks            =    0    auto hidden
+Int         Property UD_MaxLocks            =    2    auto hidden
 
 ;difficulty multipliers
-Float Property UD_PatchMult_HeavyBondage        = 1.0 auto
-Float Property UD_PatchMult_Gag                 = 1.0 auto
-Float Property UD_PatchMult_Blindfold           = 1.0 auto
-Float Property UD_PatchMult_ChastityBra         = 1.0 auto
-Float Property UD_PatchMult_ChastityBelt        = 1.0 auto
-Float Property UD_PatchMult_Plug                = 1.0 auto
-Float Property UD_PatchMult_Piercing            = 1.0 auto
-Float Property UD_PatchMult_Hood                = 1.0 auto
-Float Property UD_PatchMult_Generic             = 1.0 auto
+Float Property UD_PatchMult_HeavyBondage        = 1.0 auto hidden
+Float Property UD_PatchMult_Gag                 = 1.0 auto hidden
+Float Property UD_PatchMult_Blindfold           = 1.0 auto hidden
+Float Property UD_PatchMult_ChastityBra         = 1.0 auto hidden
+Float Property UD_PatchMult_ChastityBelt        = 1.0 auto hidden
+Float Property UD_PatchMult_Plug                = 1.0 auto hidden
+Float Property UD_PatchMult_Piercing            = 1.0 auto hidden
+Float Property UD_PatchMult_Hood                = 1.0 auto hidden
+Float Property UD_PatchMult_Generic             = 1.0 auto hidden
 
-Float Property UD_MinResistMult =   -1.0 auto
-Float Property UD_MaxResistMult =    1.0 auto
+Float Property UD_MinResistMult =   -1.0 auto hidden
+Float Property UD_MaxResistMult =    1.0 auto hidden
+
+Bool  Property UD_TimedLocks    = True   auto hidden
 
 Bool Property Ready = False auto
 Event OnInit()
@@ -390,7 +392,11 @@ Function GenerateLocks(UD_CustomDevice_RenderScript akDevice, Int aiType, Int ai
     endif
     
     if !akDevice.HaveLocks()
-        Int loc_timelock = Utility.randomInt(0,2) ;random timelock, to force player in to being longer locked in akDevice
+        Int loc_timelock = 0
+        if UD_TimedLocks
+            Utility.randomInt(0,2) ;random timelock, to force player in to being longer locked in akDevice
+        endif
+        
         if aiType == 0 ;generic
             Int[] loc_lockShields = UDCDMain.DistributeLockShields(4,Utility.randomInt(UD_MinLocks,UD_MaxLocks))
             akDevice.CreateLock(aiDifficulty, 75, loc_lockShields[0], "Left lock 1", loc_timelock, True)

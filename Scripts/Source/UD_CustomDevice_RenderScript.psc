@@ -7871,7 +7871,7 @@ Function onWeaponHitPost(Weapon source)
         
         if HaveUnlockableLocks()
             if hasModifier("CLO")
-                int loc_chance = Round(UD_Native.GetStringParamInt(GetModifierParam("CLO"),0)*0.1)
+                int loc_chance = Round(UD_Native.GetStringParamFloat(GetModifierParam("CLO"),0)*0.1)
                 AddJammedLock(loc_chance)
             endif
         endif

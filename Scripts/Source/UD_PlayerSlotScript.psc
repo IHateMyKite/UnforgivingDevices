@@ -7,7 +7,8 @@ Event OnInit()
 EndEvent
 
 Function GameUpdate()
-    RegisterForModEvent("UD_HMTweenMenu","OpenTweenMenu")
+    UD_Native.RegisterForHMTweenMenu(self)
+    ;RegisterForModEvent("UD_HMTweenMenu","OpenTweenMenu")
     parent.GameUpdate()
 EndFunction
 
@@ -26,6 +27,11 @@ Actor Function GetActor()
     return UDmain.Player
 EndFunction
 
-Event OpenTweenMenu(String asEventName, String asUnused, Float afUnused, Form akUnused)
-    UDCDmain.getHeavyBondageDevice(UDmain.Player).deviceMenu(new Bool[30])
+Event UDEvent_OnHMTweenMenuOpen()
+    if !UDmain.IsAnyMenuOpen()
+        UD_CustomDevice_RenderScript loc_hb = UDCDmain.getHeavyBondageDevice(UDmain.Player)
+        if loc_hb
+            loc_hb.deviceMenu(new Bool[30])
+        endif
+    endif
 EndEvent

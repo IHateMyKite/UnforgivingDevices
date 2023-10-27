@@ -1926,7 +1926,9 @@ Function InitOrgasmUpdate()
 EndFunction
 
 Function _OrgasmGameUpdate()
-    RegisterForModEvent("ORS_ActorOrgasm", "ORSOrgasm")
+    ;RegisterForModEvent("ORS_ActorOrgasm", "ORSOrgasm")
+    UD_Native.RegisterForOrgasmEvent_Ref(self)
+    
     RegisterForModEvent("ORS_ExpressionUpdate", "ORSExpressionUpdate")
     RegisterForModEvent("ORS_LinkedWidgetUpdate", "ORSLinkedWidgetUpdate")
     
@@ -1960,8 +1962,7 @@ Function UpdateOrgasm(Float afUpdateTime)
     _tick += 1
 EndFunction
 
-Function ORSOrgasm(String asEventName, String asUnused, Float afUnused, Form akActorF)
-    Actor akActor = akActorF as Actor
+Function UDEvent_OnActorOrgasm(Actor akActor, float afOrgasmRate, float afArousal)
     if (GetActor() == akActor)
         if UDmain.TraceAllowed()
             UDmain.Log("Starting orgasm for " + getActorName(akActor))
@@ -1969,6 +1970,8 @@ Function ORSOrgasm(String asEventName, String asUnused, Float afUnused, Form akA
         if _orgasmResisting
             akActor.RemoveFromFaction(UDOM.OrgasmResistFaction)
         endif
+        
+        UDMain.Info("UDEvent_OnActorOrgasm("+GetActorName(akActor)+","+afOrgasmRate+","+afArousal+")")
         
         _orgasmProgress = 0.0
         _hornyAnimTimer  = -45 ;cooldown
@@ -2043,11 +2046,9 @@ Function ORSExpressionUpdate(String asEventName, String asUnused, Float afMod, F
     
     Actor akActor = akActorF as Actor
     
-    
-    
     ;expression
     if afMod == 0.0
-        GInfo("ORSExpressionUpdate("+GetActorName(akActor)+") setting")
+        ;GInfo("ORSExpressionUpdate("+GetActorName(akActor)+") setting")
         ;init expression
         if _edgelevel == 0
             libs.ExpLibs.ApplyExpressionRaw(akActor, _org_expression, iRange(Round(_orgasmProgress),75,100),false,10)
@@ -2057,7 +2058,7 @@ Function ORSExpressionUpdate(String asEventName, String asUnused, Float afMod, F
             libs.ExpLibs.ApplyExpressionRaw(akActor, _org_expression3, 50,false,10)
         endif
     else
-        GInfo("ORSExpressionUpdate("+GetActorName(akActor)+") resetting")
+        ;GInfo("ORSExpressionUpdate("+GetActorName(akActor)+") resetting")
         libs.ExpLibs.ResetExpressionRaw(akActor,10)
     endif
 EndFunction

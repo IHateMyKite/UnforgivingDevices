@@ -852,6 +852,11 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
         return
     endif
     
+    ;close menu if actor equipped hand restrain and hardcore mode is om
+    if (IsPlayer(akActor) && UDmain.IsInventoryMenuOpen() && loc_haveHBkwd && UDCDmain.UD_HardcoreMode)
+        CloseMenu()
+    endif
+    
     OnEquippedPre(akActor, silent=silently)
     
     if akActor == libs.PlayerRef ; Store equipped devices for faster generic calls.

@@ -6,13 +6,13 @@ import UD_Native
 
 Function TimeUpdateSecond(UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
     if akDevice.getRelativeDurability() < 1.0
-        mendDevice(akDevice,UD_Native.GetStringParamInt(aiDataStr),1.0,afTime)
+        mendDevice(akDevice,UD_Native.GetStringParamFloat(aiDataStr),1.0,afTime)
     endif
 EndFunction
 
-Function mendDevice(UD_CustomDevice_RenderScript akDevice, Int aiStrength,float afMult = 1.0,float afTimePassed)
+Function mendDevice(UD_CustomDevice_RenderScript akDevice, Float afStrength,float afMult = 1.0,float afTimePassed)
     if akDevice.onMendPre(afMult) && akDevice.GetRelativeDurability() > 0.0
-        int     loc_regen   = Round(aiStrength*Multiplier)
+        Float   loc_regen   = (afStrength*Multiplier)
         Float   loc_amount  = afTimePassed*loc_regen*(1 - 0.1*akDevice.UD_condition)*afMult*UDCDmain.getStruggleDifficultyModifier()
         akDevice.refillDurability(loc_amount)
         akDevice.refillCuttingProgress(afTimePassed*loc_regen)
@@ -38,7 +38,7 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     String loc_msg = ""
     
     loc_msg += "=== " + NameFull + " ===\n"
-    loc_msg += "Regen: " + FormatFloat(UD_Native.GetStringParamInt(aiDataStr)*Multiplier/24.0,1) + " per hour\n"
+    loc_msg += "Regen: " + FormatFloat(UD_Native.GetStringParamFloat(aiDataStr)*Multiplier/24.0,1) + " per hour\n"
     loc_msg += "===Description===\n"
     loc_msg += Description + "\n"
     
