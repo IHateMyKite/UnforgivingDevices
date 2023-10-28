@@ -1449,7 +1449,7 @@ Function OpenHelpDeviceMenu(UD_CustomDevice_RenderScript akDevice,Actor akHelper
             endif
         endif
         
-        if UDmain.GetUDOM(akDevice.getWearer()).GetOrgasmingCount(akDevice.getWearer()) ||  UDmain.GetUDOM(akHelper).GetOrgasmingCount(akHelper) ;actor is orgasming, prevent help
+        if OrgasmSystem.GetOrgasmingCount(akDevice.getWearer()) || OrgasmSystem.GetOrgasmingCount(akHelper) ;actor is orgasming, prevent help
             loc_cond = false
             abAllowCommand = false
         endif

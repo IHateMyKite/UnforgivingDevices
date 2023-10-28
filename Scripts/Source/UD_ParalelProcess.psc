@@ -414,12 +414,12 @@ EndFunction
 ;starter
 bool _OrgasmStarter_Received = false
 
-Function Send_Orgasm(Actor akActor, int iForce, bool bWairForReceive = false)
+Function Send_Orgasm(Actor akActor, bool abWairForReceive = false)
     if !akActor
         UDmain.Error("Send_Orgasm wrong arg received!")
     endif
     
-    if bWairForReceive
+    if abWairForReceive
         Start_OrgasmMutex()
         _OrgasmStarter_Received = false
     endif
@@ -428,12 +428,11 @@ Function Send_Orgasm(Actor akActor, int iForce, bool bWairForReceive = false)
     int handle = ModEvent.Create("UDOrgasmParalel")
     if (handle)
         ModEvent.PushForm(handle, akActor)
-        ModEvent.PushInt(handle, iForce)
-        ModEvent.PushInt(handle, bWairForReceive as int)
+        ModEvent.PushInt(handle, abWairForReceive as int)
         ModEvent.Send(handle)
         
         ;block
-        if bWairForReceive
+        if abWairForReceive
             float loc_TimeOut = 0.0
             while !_OrgasmStarter_Received && loc_TimeOut <= 1.0
                 loc_TimeOut += 0.05
@@ -449,13 +448,13 @@ Function Send_Orgasm(Actor akActor, int iForce, bool bWairForReceive = false)
     else
         UDmain.Error("Send_Orgasm UDmain.Error!")
     endif
-    if bWairForReceive
+    if abWairForReceive
         End_OrgasmMutex()
     endif
 EndFunction
-Function Receive_Orgasm(Form fActor,int iForce,int bWairForReceive)
+Function Receive_Orgasm(Form fActor,int abWairForReceive)
     Actor akActor = fActor as Actor
-    if bWairForReceive
+    if abWairForReceive
         _OrgasmStarter_Received = true
     endif
     if UDmain.TraceAllowed()
@@ -477,20 +476,30 @@ Function Receive_Orgasm(Form fActor,int iForce,int bWairForReceive)
     ;            MESSAGE
     ;===========================
 
+    float loc_forcing = OrgasmSystem.GetOrgasmVariable(akActor,6)
+    int loc_force = 0
+    if loc_forcing < 0.5
+        loc_force = 0
+    elseif loc_forcing < 1.0
+        loc_force = 1
+    else
+        loc_force = 2
+    endif
+
     bool loc_applytears = false
-    if iForce == 0
+    if loc_force == 0
         if loc_isplayer
             UDmain.Print("You have brought yourself to orgasm",2)
         elseif loc_cond
             UDmain.Print(getActorName(akActor) + " have brought "+GetPronounceSelf(akActor)+" to orgasm",3)
         endif
-    elseif iForce == 1
+    elseif loc_force == 1
         if loc_isplayer
             UDmain.Print("You are cumming!",2)
         elseif loc_cond
             UDmain.Print(getActorName(akActor) + " is cumming!",3)
         endif
-    elseif iForce > 1
+    elseif loc_force > 1
         if loc_orgasmExhaustion >= 6
             loc_applytears = true
             if loc_isplayer
@@ -528,16 +537,6 @@ Function Receive_Orgasm(Form fActor,int iForce,int bWairForReceive)
         endif
     endif
 
-    if loc_cond
-        if loc_orgasmExhaustion == 1
-            libsp.ExpLibs.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm2(), 75,false,80)
-        elseif loc_orgasmExhaustion < 3
-            libsp.ExpLibs.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm1(), 100,false,80)
-        else
-            libsp.ExpLibs.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm3(), 100,false,80)
-        endif
-    endif  
-    
     if loc_applytears && loc_cond
         UDCDmain.ApplyTearsEffect(akActor)
     endif

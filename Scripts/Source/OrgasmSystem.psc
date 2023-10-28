@@ -73,3 +73,14 @@ String  Function MakeUniqueKey(Actor akActor,String asBase)                     
 
 String[] Function GetAllOrgasmChanges(Actor akActor)                                global native
 Int     Function RemoveAllOrgasmChanges(Actor akActor)                              global native
+
+bool    Function IsOrgasming(Actor akActor)                                         global native
+int     Function GetOrgasmingCount(Actor akActor)                                   global native
+
+        Function ForceOrgasm(Actor akActor)                                         global native ;mainly for compatibility with mods which use different aproach
+
+;Events
+        Function RegisterForOrgasmEvent_Ref(ReferenceAlias akRefAlias)              global native
+        Function RegisterForOrgasmEvent_Form(Form akForm)                           global native
+        Function RegisterForExpressionUpdate_Ref(ReferenceAlias akRefAlias)         global native
+        Function RegisterForExpressionUpdate_Form(Form akForm)                      global native

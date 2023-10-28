@@ -78,5 +78,3 @@ Actor[]     Function GetRegisteredActors()              global native
             
  ;===Events===
             Function RegisterForHMTweenMenu(ReferenceAlias akRefAlias)      global native
-            Function RegisterForOrgasmEvent_Ref(ReferenceAlias akRefAlias)  global native
-            Function RegisterForOrgasmEvent_Form(Form akForm)               global native

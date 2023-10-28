@@ -790,7 +790,9 @@ Function ActorOrgasm(actor akActor, int setArousalTo=-1, int vsID=-1)
         loc_newArousal = 75
     endif
     ;ActorOrgasmPatched(akActor,20,loc_newArousal)
-    UDmain.GetUDOM(akActor).ActorOrgasm(akActor,20,loc_newArousal)
+    UDmain.UDNPCM.RegisterNPC(akActor,true) ;orgasm system will not work if actor is not registered, so register the actor first, and hope there is free slot ;)
+    OrgasmSystem.ForceOrgasm(akActor)
+    UDmain.GetUDOM(akActor).ActorOrgasm(akActor)
 EndFunction
 
 Function UpdateExposure(actor akRef, float val, bool skipMultiplier=false)
