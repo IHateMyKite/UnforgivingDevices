@@ -1987,22 +1987,24 @@ Function ORSEvent_OnExpressionUpdate(Actor akActor, int aType, float afOrgasmRat
         return
     endif
     
+    ;UDMain.Info("UDEvent_OnActorOrgasm("+GetActorName(akActor)+","+aType+","+afOrgasmRate+","+afArousal+","+afHornyLevel+")")
+    
     ;expression
     if aType == 0
         ;init expression
-        if fInRange(afHornyLevel,100.0,300.0)
-            libs.ExpLibs.ApplyExpressionRaw(akActor, _org_expression,  Round(afArousal),false,10) ;happy
-        elseif afHornyLevel > 300.0
-            libs.ExpLibs.ApplyExpressionRaw(akActor, _org_expression2, Round(afArousal),false,10) ;horny
+        if fInRange(afHornyLevel,100.0,200.0)
+            libs.ExpLibs.ApplyExpressionRaw(akActor, _org_expression,  Round(afArousal),false,10) ;horny
+        elseif afHornyLevel > 200.0
+            libs.ExpLibs.ApplyExpressionRaw(akActor, _org_expression2, Round(afArousal),false,10) ;happy
         else
             libs.ExpLibs.ApplyExpressionRaw(akActor, _org_expression3, Round(afArousal),false,10) ;angry
         endif
     elseif aType == 1
         libs.ExpLibs.ResetExpressionRaw(akActor,10)
     elseif aType == 2
-        if afHornyLevel > 250.0
-            libs.ExpLibs.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm2(), iRange(Round(afHornyLevel/4.0),60,100),false,80)
-        elseif afHornyLevel < 100.0
+        if fInRange(afHornyLevel,100.0,200.0)
+            libs.ExpLibs.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm2(), 100,false,80)
+        elseif afHornyLevel > 200.0
             libs.ExpLibs.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm1(), 100,false,80)
         else
             libs.ExpLibs.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm3(), iRange(Round(afHornyLevel/4.0),40,100),false,80)
