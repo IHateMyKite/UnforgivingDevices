@@ -1622,27 +1622,20 @@ Function regainDevices()
     _regainMutex = True
     
     ;super complex shit
-    int removedDevices = removeWrongWearerDevices()
-    int loc_slotmask = 0x80000000;_currentSlotedActor.GetNumItems()
-    while loc_slotmask
-        loc_slotmask = Math.RightShift(loc_slotmask,1)
-        Armor ArmorDevice = _currentSlotedActor.GetWornForm(loc_slotmask) as Armor
-        if ArmorDevice
-            if ArmorDevice.hasKeyword(UDCDmain.UDlibs.UnforgivingDevice)
-                ;render device with custom script -> register
-                if !deviceAlreadyRegisteredRender(ArmorDevice)
-                    UD_CustomDevice_RenderScript script = UDCDmain.getDeviceScriptByRender(_currentSlotedActor,ArmorDevice)
-                    if _currentSlotedActor.getItemCount(script.DeviceInventory) && _currentSlotedActor.getItemCount(script.DeviceRendered)
-                        if registerDevice(script)
-                            if UDmain.TraceAllowed()
-                                UDmain.Log("UD_CustomDevice_NPCSlot,"+ self +"/ Device "+ script.getDeviceName() + " succesfully registered!",2)
-                            endif
-                        endif
-                    endif
-                endif
-            endif
-        endif
+    ;int removedDevices = removeWrongWearerDevices()
+    
+    Armor[] loc_devices = zadNativeFunctions.GetDevices(_currentSlotedActor,1,true)
+    UDmain.Info("Registering " + loc_devices.length + " devices")
+    
+    int loc_toregister = UD_Native.SendRegisterDeviceScriptEvent(_currentSlotedActor,loc_devices)
+    
+    ;wait for all devices to get registered
+    float loc_timeout = 3.0
+    while (_iUsedSlots != loc_toregister) && (loc_timeout > 0.0)
+        Utility.waitMenuMode(0.1)
+        loc_timeout -= 0.1
     endwhile
+    
     _regainMutex = False
 EndFunction
 
@@ -1992,22 +1985,22 @@ Function ORSEvent_OnExpressionUpdate(Actor akActor, int aType, float afOrgasmRat
     ;expression
     if aType == 0
         ;init expression
-        if fInRange(afHornyLevel,100.0,200.0)
-            libs.ExpLibs.ApplyExpressionRaw(akActor, _org_expression,  Round(afArousal),false,10) ;horny
+        if fInRange(afHornyLevel,75.0,200.0)
+            libs.ExpLibs.ApplyExpressionRaw(akActor, _org_expression2,  iRange(Round(afArousal),40,100),false,10) ;horny
         elseif afHornyLevel > 200.0
-            libs.ExpLibs.ApplyExpressionRaw(akActor, _org_expression2, Round(afArousal),false,10) ;happy
+            libs.ExpLibs.ApplyExpressionRaw(akActor, _org_expression,   iRange(Round(afArousal),40,100),false,10) ;happy
         else
-            libs.ExpLibs.ApplyExpressionRaw(akActor, _org_expression3, Round(afArousal),false,10) ;angry
+            libs.ExpLibs.ApplyExpressionRaw(akActor, _org_expression3,  iRange(Round(afArousal),40,100),false,10) ;angry
         endif
     elseif aType == 1
         libs.ExpLibs.ResetExpressionRaw(akActor,10)
     elseif aType == 2
-        if fInRange(afHornyLevel,100.0,200.0)
-            libs.ExpLibs.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm2(), 100,false,80)
+        if fInRange(afHornyLevel,75.0,200.0)
+            libs.ExpLibs.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm2(), iRange(Round(afHornyLevel/2.0),50,100),false,80)
         elseif afHornyLevel > 200.0
-            libs.ExpLibs.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm1(), 100,false,80)
+            libs.ExpLibs.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm1(), iRange(Round(afHornyLevel/4.0),50,100),false,80)
         else
-            libs.ExpLibs.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm3(), iRange(Round(afHornyLevel/4.0),40,100),false,80)
+            libs.ExpLibs.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm3(), iRange(Round(afHornyLevel),50,100),false,80)
         endif
     elseif aType == 3
         libs.ExpLibs.ResetExpressionRaw(akActor,80)

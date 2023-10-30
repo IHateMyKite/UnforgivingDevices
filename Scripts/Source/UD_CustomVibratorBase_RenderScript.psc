@@ -785,7 +785,13 @@ Function _VibrateStart(float afDurationMult = 1.0)
     endif
     
     if UD_Shocking
-        ShockWearer(Utility.randomInt(50,90),25)
+        int loc_arousalchange = 0
+        if DeviceRendered.haskeyword(libs.zad_EffectElectroStim)
+            loc_arousalchange = -50 ;increase arousal by 30
+        else
+            loc_arousalchange = 30 ;decrease arousal by 30
+        endif
+        ShockWearer(loc_arousalchange,25)
     endif
     
     if !isVibrating() ;not vib, error and return

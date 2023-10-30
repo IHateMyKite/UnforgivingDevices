@@ -734,7 +734,7 @@ int Function VibrateEffect(actor akActor, int vibStrength, int duration, bool te
     endif
 EndFunction
 
-Function ShockActorPatched(actor akActor,int iArousalUpdate = 25,float fHealth = 0.0, bool bCanKill = false)
+Function ShockActorPatched(actor akActor,int aiArousalUpdate = 25,float afHealth = 0.0, bool abCanKill = false)
     bool loc_loaded = akActor.Is3DLoaded()
     if IsPlayer(akActor)
         NotifyPlayer("You squirms uncomfortably as electricity runs through your body!")
@@ -748,16 +748,19 @@ Function ShockActorPatched(actor akActor,int iArousalUpdate = 25,float fHealth =
             UDCDmain.ApplyTearsEffect(akActor)
         endif
     endif
-    float loc_health = fRange(fHealth,0.0,1000.0)
+    float loc_health = fRange(afHealth,0.0,1000.0)
     
     if loc_health
-        if akActor.getAV("Health") > loc_health || bCanKill
+        if abCanKill || (akActor.getAV("Health") > loc_health)
             akActor.damageAV("Health", loc_health)
         endif
     endif
-    if iArousalUpdate
-        int loc_arousalUpdate = iRange(Utility.randomInt(Round(0.75*iArousalUpdate),Round(0.5*iArousalUpdate)),-100,100)
-        Aroused.UpdateActorExposure(akActor, loc_arousalUpdate)
+    if aiArousalUpdate
+        String loc_key = OrgasmSystem.MakeUniqueKEy(akActor,"ShockEffect")
+        OrgasmSystem.AddOrgasmChange(akActor,loc_key,0x80024,0x200,-2.0)
+        OrgasmSystem.UpdateOrgasmChangeVar(akActor,loc_key,9,-1.0*(aiArousalUpdate/8.0),1)
+        ;int loc_arousalUpdate = iRange(Utility.randomInt(Round(0.75*aiArousalUpdate),Round(0.5*aiArousalUpdate)),-100,100)
+        ;Aroused.UpdateActorExposure(akActor, loc_arousalUpdate)
     endif
 EndFunction
 

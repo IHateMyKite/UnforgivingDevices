@@ -78,3 +78,6 @@ Actor[]     Function GetRegisteredActors()              global native
             
  ;===Events===
             Function RegisterForHMTweenMenu(ReferenceAlias akRefAlias)      global native
+            
+            
+Int         Function SendRegisterDeviceScriptEvent(Actor akActor, Armor[] akRenderDevices) global native

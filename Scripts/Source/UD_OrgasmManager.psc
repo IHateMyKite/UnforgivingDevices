@@ -290,25 +290,7 @@ bool Function isOrgasming(Actor akActor)
 EndFunction
 
 String Function GetHornyLevelString(Actor akActor)
-    float loc_HornyLevel = OrgasmSystem.GetOrgasmVariable(akActor,8)
-    string loc_res
-    
-    if fInRange(loc_HornyLevel,0.0,40.0)
-        loc_res = "Going crazy"
-    elseif fInRange(loc_HornyLevel,40.0,85.0)
-        loc_res = "Exhausted"
-    elseif fInRange(loc_HornyLevel,85.0,115.0)
-        loc_res = "Normal"
-    elseif fInRange(loc_HornyLevel,115.0,200.0)
-        loc_res = "Horny"
-    elseif fInRange(loc_HornyLevel,200.0,275.0)
-        loc_res = "Very Horny"
-    elseif fInRange(loc_HornyLevel,275.0,325.0)
-        loc_res = "Increadibly horny"
-    else 
-        loc_res = "Wants to cum badly"
-    endif
-    return loc_res
+    return OrgasmSystem.GetHornyStatus(akActor)
 EndFunction
 
 Function ActorOrgasm(actor akActor)

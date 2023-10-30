@@ -8093,6 +8093,12 @@ EndFunction
 ;-------------------------------------------------------------------------------------
 ;-------------------------------------------------------------------------------------
 
+
+Function RegisterDevice(Actor akActor,Armor akInvDevice, Armor akRenDevice)
+    ;UDmain.Info(self + ":: Register device called - " + GetActorName(akActor) + " , " + akInvDevice)
+    UD_WearerSlot.registerDevice(self)
+EndFunction
+
 State UpdatePaused
     Function Update(float timePassed)
         _updateTimePassed += (timePassed*24.0*60.0);*UDCDmain.UD_CooldownMultiplier

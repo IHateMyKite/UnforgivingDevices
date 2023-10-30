@@ -52,11 +52,11 @@ Scriptname OrgasmSystem hidden
    };
 
 /;
-Bool    Function AddOrgasmChange( Actor akActor, String askey, Int aiMod,Int aiEroZones, Float afOrgasmRate = 0.0, Float afOrgasmRateMult = 0.0, Float afOrgasmForcing = 0.0, Float afOrgasmCapacity = 0.0, Float afOrgasmResistence = 0.0, Float afOrgasmResistenceMult = 0.0) global native
+Bool    Function AddOrgasmChange(Actor akActor, String askey, Int aiMod,Int aiEroZones, Float afOrgasmRate = 0.0, Float afOrgasmRateMult = 0.0, Float afOrgasmForcing = 0.0, Float afOrgasmCapacity = 0.0, Float afOrgasmResistence = 0.0, Float afOrgasmResistenceMult = 0.0) global native
 Bool    Function RemoveOrgasmChange(Actor akActor, String asKey)                    global native
 
 
-Bool    Function UpdateOrgasmChangeVar(Actor akActor, String asKey, Int aiVariable, Float afValue, Int aiUpdateType) global native
+Bool    Function UpdateOrgasmChangeVar(Actor akActor, String asKey, Int aiVariable, Float afValue, Int aiUpdateType = 1) global native
 Float   Function GetOrgasmChangeVar(Actor akActor, String asKey, Int aiVariable)    global native
 Bool    Function HaveOrgasmChange(Actor akActor, String asKey)                      global native
 
@@ -78,6 +78,8 @@ bool    Function IsOrgasming(Actor akActor)                                     
 int     Function GetOrgasmingCount(Actor akActor)                                   global native
 
         Function ForceOrgasm(Actor akActor)                                         global native ;mainly for compatibility with mods which use different aproach
+
+String  Function GetHornyStatus(Actor akActor)                                      global native
 
 ;Events
         Function RegisterForOrgasmEvent_Ref(ReferenceAlias akRefAlias)              global native
