@@ -186,7 +186,7 @@ Armor Function getRandomDeviceByKeyword_LL(Actor akActor,Keyword akKeyword)
         if akActor.wornhaskeyword(libs.zad_DeviousSuit)
             LL = zadDL.zad_dev_heavyrestraints
         else
-            if Utility.randomInt(0,1)
+            if RandomInt(0,1)
                 LL = zadDL.zad_dev_suits_straitjackets
             else
                 LL = zadDL.zad_dev_heavyrestraints
@@ -196,7 +196,7 @@ Armor Function getRandomDeviceByKeyword_LL(Actor akActor,Keyword akKeyword)
         if !akActor.wornhaskeyword(libs.zad_DeviousHeavyBondage)
             LL = zadDL.zad_dev_suits                                ; can use any suit, including straitjackets
         else
-            int rnd_suit = Utility.randomInt(0,4)                   ; can solve this by adding leveled list without SJs...
+            int rnd_suit = RandomInt(0,4)                   ; can solve this by adding leveled list without SJs...
             if rnd_suit == 0                                        ; but this should be good enough
                 LL = zadDL.zad_dev_suits_catsuits
             elseif rnd_suit == 1
@@ -264,7 +264,7 @@ Armor Function GetRandomDevice(LeveledItem akDeviceList)
 
     Form loc_prevForm               = akDeviceList
 
-    loc_form = akDeviceList.GetNthForm(Utility.RandomInt(0, loc_size))
+    loc_form = akDeviceList.GetNthForm(RandomInt(0, loc_size))
     LeveledItem loc_nestedLL        = loc_form As LeveledItem
     Armor       loc_armor           = loc_form As Armor
     Int         loc_stepsBacks      = UD_MaxStepBacksLeveledItem
@@ -273,7 +273,7 @@ Armor Function GetRandomDevice(LeveledItem akDeviceList)
         loc_size = loc_nestedLL.GetNumForms() - 1
         if loc_size > 0
             loc_prevForm = loc_form
-            loc_form = loc_nestedLL.GetNthForm(Utility.RandomInt(0, loc_size))
+            loc_form = loc_nestedLL.GetNthForm(RandomInt(0, loc_size))
             Utility.waitMenuMode(0.01) ;little wait time in case of error
         else
             ;empty LeveledList entered, do step back
@@ -487,7 +487,7 @@ bool Function lockRandomDeviceFromFormList(Actor akActor,Formlist akList,bool ab
 EndFunction
 
 Form Function getRandomFormFromFormlist(Formlist akList)
-    int loc_i = Utility.randomInt(0,akList.GetSize() - 1)
+    int loc_i = RandomInt(0,akList.GetSize() - 1)
     return akList.getAt(loc_i)
 EndFunction
 
@@ -520,7 +520,7 @@ Form Function getRandomFormFromFormlistFilter(Formlist list,Keyword[] kwaFilter,
     endwhile
     
     if loc_filteredDevice > 0
-        int iter = Utility.randomInt(0,loc_deviceArray.length - 1)
+        int iter = RandomInt(0,loc_deviceArray.length - 1)
         return loc_deviceArray[iter]
     else
         return none
@@ -586,7 +586,7 @@ Keyword Function getRandomSuitableKeyword(Actor akActor,int iPrefSwitch = 0xffff
     endwhile
     Keyword loc_res = none
     if SuitableKeywords.getSize() > 0
-        loc_res = SuitableKeywords.getAt(Utility.randomInt(0,SuitableKeywords.getSize() - 1)) as Keyword
+        loc_res = SuitableKeywords.getAt(RandomInt(0,SuitableKeywords.getSize() - 1)) as Keyword
     else
         loc_res = none
     endif

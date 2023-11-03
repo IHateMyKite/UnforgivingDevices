@@ -1,5 +1,7 @@
 Scriptname UD_CustomPanelGag_RenderScript extends UD_CustomGag_RenderScript  
 
+import UD_Native
+
 float Property UD_RemovePlugDifficulty = 100.0 auto
 ;MiscObject Property UD_GagPanelPlug Auto
 
@@ -126,7 +128,7 @@ EndFunction
 float removePlugProgress = 0.0
 Function OnMinigameTick(Float abUpdateTime)
     if removePlugMinigame_on
-        removePlugProgress += Utility.randomFloat(1.5,6.0)*UDCDmain.getStruggleDifficultyModifier()*abUpdateTime*getMinigameMult(1)
+        removePlugProgress += RandomFloat(1.5,6.0)*UDCDmain.getStruggleDifficultyModifier()*abUpdateTime*getMinigameMult(1)
         if removePlugProgress > UD_RemovePlugDifficulty
             stopMinigame()
             removePlug()
@@ -138,7 +140,7 @@ EndFunction
 
 bool Function OnCritDevicePre()
     if removePlugMinigame_on
-        removePlugProgress += Utility.randomFloat(5.0,10.0)*UDCDmain.getStruggleDifficultyModifier()*getMinigameMult(1)
+        removePlugProgress += RandomFloat(5.0,10.0)*UDCDmain.getStruggleDifficultyModifier()*getMinigameMult(1)
         if removePlugProgress > UD_RemovePlugDifficulty
             stopMinigame()
             removePlug()

@@ -26,6 +26,8 @@ String  Function FormatFloat                (Float afValue,Int afFloatPoints)   
 Bool    Function IsPlayer                   (Actor akActor)                                     global native
 String  Function GetActorName               (Actor akActor)                                     global native
 Int     Function FloatToInt                 (Float afValue)                                     global native
+Float   Function RandomFloat                (Float afMin = 0.0, Float afMax = 99.99)            global native
+Int     Function RandomInt                  (Int aiMin = 0, Int aiMax = 99)                     global native
 
 ;===UI===
 int     Function RemoveAllMeterEntries()                                        global native
@@ -81,3 +83,5 @@ Actor[]     Function GetRegisteredActors()              global native
             
             
 Int         Function SendRegisterDeviceScriptEvent(Actor akActor, Armor[] akRenderDevices) global native
+            Function SendMinigameThreadEvents(Actor akActor, Armor akRenderDevice, Int aiMode) global native
+            Function SendRemoveRenderDeviceEvent(Actor akActor, Armor akRenderDevice) global native

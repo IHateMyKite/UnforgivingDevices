@@ -22,10 +22,10 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     if !akTarget.wornhaskeyword(libs.zad_deviousheavybondage)
         UDCDmain.DisableActor(akTarget)
         Int loc_arousal = Round(UDCDmain.UDmain.UDOM.getArousal(akTarget))
-        if Utility.randomInt(1,99) < Round(UDCDMain.UD_BlackGooRareDeviceChance*fRange(loc_arousal/50,1.0,2.0))
+        if RandomInt(1,99) < Round(UDCDMain.UD_BlackGooRareDeviceChance*fRange(loc_arousal/50,1.0,2.0))
             ;rare devices, drop more loot and goo
             if !akTarget.wornhaskeyword(libs.zad_deviousSuit)
-                int random = Utility.randomInt(1,3)
+                int random = RandomInt(1,3)
                 if random == 1
                     libs.LockDevice(akTarget,UDlibs.AbadonBlueArmbinder)
                 elseif random == 2
@@ -34,7 +34,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
                     libs.LockDevice(akTarget,UDlibs.RogueBinder)
                 endif
             else
-                int random = Utility.randomInt(1,2)
+                int random = RandomInt(1,2)
                 if random == 1
                     libs.LockDevice(akTarget,UDlibs.AbadonBlueArmbinder)
                 elseif random == 2
@@ -46,7 +46,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
             endif
         else
             if !akTarget.wornhaskeyword(libs.zad_deviousSuit)
-                int random = Utility.randomInt(1,4)
+                int random = RandomInt(1,4)
                 if random == 1
                     libs.LockDevice(akTarget,UDlibs.AbadonWeakArmbinder)
                 elseif random == 2
@@ -57,7 +57,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
                     libs.LockDevice(akTarget,UDlibs.AbadonWeakYoke)
                 endif
             else
-                int random = Utility.randomInt(1,3)
+                int random = RandomInt(1,3)
                 if random == 1
                     libs.LockDevice(akTarget,UDlibs.AbadonWeakArmbinder)
                 elseif random == 2
@@ -72,7 +72,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
         endif
         UDCDmain.EnableActor(akTarget)
     endif
-    int loc_devicenum = Utility.randomInt(0,iRange(Round(GetMagnitude()),1,20))
+    int loc_devicenum = RandomInt(0,iRange(Round(GetMagnitude()),1,20))
     UDCDmain.UDmain.UDRRM.LockAnyRandomRestrain(akTarget,loc_devicenum)
 EndEvent
 

@@ -167,13 +167,13 @@ Function randomEquipHandRestrain()
         if relativeStrength() < 0.4
             loc_formlist = UDmain.UDRRM.UD_AbadonDeviceList_HeavyBondageWeak
         elseif relativeStrength() < 0.8
-            if Utility.randomInt(1,99) > 25
+            if RandomInt(1,99) > 25
                 loc_formlist = UDmain.UDRRM.UD_AbadonDeviceList_HeavyBondage
             else
                 loc_formlist = UDmain.UDRRM.UD_AbadonDeviceList_HeavyBondageWeak
             endif
         else
-            if Utility.randomInt(1,99) > 75
+            if RandomInt(1,99) > 75
                 loc_formlist = UDmain.UDRRM.UD_AbadonDeviceList_HeavyBondageHard
             else
                 loc_formlist = UDmain.UDRRM.UD_AbadonDeviceList_HeavyBondage
@@ -251,7 +251,7 @@ Function abadonorgasm(float mult = 1.0)
     endif
     
     if nextDeviceManifest < Utility.GetCurrentGameTime()
-        if Utility.randomInt() <=  Math.floor(handRestrainChance())
+        if RandomInt() <=  Math.floor(handRestrainChance())
             equipRandomRestrain()
         endif
     endif
@@ -296,7 +296,7 @@ Function OnOrgasmPost(bool sexlab = false)
             plug_hunger = 100.0
         endif
         decreaseDurabilityAndCheckUnlock(15.0)
-        if Utility.randomInt() > 60
+        if RandomInt() > 60
             if WearerIsPlayer()
                 UDmain.Print("You feel black goo dropping from your pussy!")
             endif
@@ -500,7 +500,7 @@ Function OnCritDevicePost()
         if !isUnlocked
             BeltCheck()
             if !getWearer().wornhaskeyword(libs.zad_deviousHeavyBondage)
-                ;if Utility.randomInt() < iRange(Round(relativeStrength()*100),25 + AbadonQuestScript.overaldifficulty*12,75) ;50% - 100% chance of getting tied
+                ;if RandomInt() < iRange(Round(relativeStrength()*100),25 + AbadonQuestScript.overaldifficulty*12,75) ;50% - 100% chance of getting tied
                     randomEquipHandRestrain()
                 ;endif
             endif

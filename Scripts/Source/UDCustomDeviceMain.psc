@@ -220,7 +220,6 @@ Bool Function CheckSubModules()
     return true
 EndFunction
 
-bool Property ZAZAnimationsInstalled = false auto hidden
 Function Update()
     UD_Native.SyncControlSetting(UD_HardcoreMode)
 
@@ -1140,7 +1139,7 @@ bool Function activateDevice(UD_CustomDevice_RenderScript akCustomDevice)
         int loc_num = getActiveDevicesNum(akCustomDevice.getWearer())
         if loc_num > 0
             UD_CustomDevice_RenderScript[] loc_device_arr = getActiveDevices(akCustomDevice.getWearer())
-            UD_CustomDevice_RenderScript loc_device = loc_device_arr[Utility.randomInt(0,loc_num - 1)]
+            UD_CustomDevice_RenderScript loc_device = loc_device_arr[RandomInt(0,loc_num - 1)]
             if akCustomDevice.WearerIsPlayer()
                 UDmain.Print("Your " + akCustomDevice.getDeviceName() + " activates " + loc_device.getDeviceName() + " !!", 2)
             endif
@@ -1239,10 +1238,10 @@ Float   Property UD_CritDurationAdjust  = 0.0           auto hidden
 
 Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string strArg, float difficulty)
     string meter
-    if Utility.randomInt(1,100) <= chance
+    if RandomInt(1,100) <= chance
         if strArg != "NPC" && strArg != "Auto"
             if strArg == "random"
-                if Utility.randomInt(0,1)
+                if RandomInt(0,1)
                     meter = "S"
                 else
                     meter = "M"
@@ -1251,15 +1250,15 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
                 meter = strArg
             endif
         elseif strArg == "Auto" ;auto crits
-            if Utility.randomInt() <= UD_AutoCritChance ;npc reacted
+            if RandomInt() <= UD_AutoCritChance ;npc reacted
                 device.critDevice() ;succes
             else
                 device.critFailure() ;failure
             endif
             return
         elseif strArg == "NPC"
-            if Utility.randomInt() > 30 ;npc reacted
-                float randomResponceTime = Utility.randomFloat(0.4,0.95) ;random reaction time
+            if RandomInt() > 30 ;npc reacted
+                float randomResponceTime = RandomFloat(0.4,0.95) ;random reaction time
                 if randomResponceTime <= difficulty
                     device.critDevice() ;succes
                 else
@@ -3097,7 +3096,7 @@ endfunction
 
     Apply tears overlay to *akActor*
 
-    Note: Requires both SlaveTats and ZaZAnimationPack to work
+    Note: Requires SlaveTats to work
 
     Parameters:
 
@@ -3108,11 +3107,9 @@ endfunction
         True if operation was succesfull
 /;
 bool Function ApplyTearsEffect(Actor akActor)
-    if UDmain.ZaZAnimationPackInstalled && UDmain.SlaveTatsInstalled
-        if akActor.Is3DLoaded() && !akActor.HasMagicEffectWithKeyword(UDlibs.ZAZTears_KW)
-            UDlibs.ZAZTearsSpell.cast(akActor)
-            return true
-        endif
+    if akActor.Is3DLoaded() && !akActor.HasMagicEffectWithKeyword(UDlibs.ZAZTears_KW)
+        UDlibs.ZAZTearsSpell.cast(akActor)
+        return true
     endif
     return false
 EndFUnction
@@ -3121,7 +3118,7 @@ EndFUnction
 
     Apply drool overlay to *akActor*
 
-    Note: Requires both SlaveTats and ZaZAnimationPack to work
+    Note: Requires SlaveTats to work
 
     Parameters:
 
@@ -3131,12 +3128,10 @@ EndFUnction
 
         True if operation was succesfull
 /;
-bool Function ApplyDroolEffect(Actor akActor) ;works only for player
-    if UDmain.ZaZAnimationPackInstalled && UDmain.SlaveTatsInstalled
-        if akActor.Is3DLoaded() && !akActor.HasMagicEffectWithKeyword(UDlibs.ZAZDrool_KW)
-            UDlibs.ZAZDroolSpell.cast(akActor)
-            return true
-        endif
+bool Function ApplyDroolEffect(Actor akActor)
+    if akActor.Is3DLoaded() && !akActor.HasMagicEffectWithKeyword(UDlibs.ZAZDrool_KW)
+        UDlibs.ZAZDroolSpell.cast(akActor)
+        return true
     endif
     return false
 EndFUnction
@@ -3197,8 +3192,8 @@ Function addExhaustion(Actor akActor, float afMult = 1.0)
     endif
     if (UDmain.UDGV.UDG_MinigameExhaustion.Value == 1)
         Float loc_Exponent = Math.pow(UD_MinigameExhExponential, getMinigameExhaustion(akActor))
-        UDlibs.StruggleExhaustionSpell.SetNthEffectMagnitude(0, UD_StruggleExhaustionMagnitude*UD_MinigameExhMagnitudeMult*Utility.randomFloat(0.75,1.25))
-        UDlibs.StruggleExhaustionSpell.SetNthEffectDuration(0, Round(UD_StruggleExhaustionDuration*UD_MinigameExhDurationMult*afMult*Utility.randomFloat(0.75,1.25)*loc_Exponent))
+        UDlibs.StruggleExhaustionSpell.SetNthEffectMagnitude(0, UD_StruggleExhaustionMagnitude*UD_MinigameExhMagnitudeMult*RandomFloat(0.75,1.25))
+        UDlibs.StruggleExhaustionSpell.SetNthEffectDuration(0, Round(UD_StruggleExhaustionDuration*UD_MinigameExhDurationMult*afMult*RandomFloat(0.75,1.25)*loc_Exponent))
         UDlibs.StruggleExhaustionSpell.cast(akActor)
     endif
 EndFunction
@@ -3418,7 +3413,7 @@ Int[] Function DistributeLockShields(Int aiLockNum, Int aiLockShieldNum)
     Int[] loc_res = Utility.CreateIntArray(aiLockNum)
 
     While aiLockShieldNum
-        loc_res[Utility.RandomInt(0,loc_res.length - 1)] = loc_res[Utility.RandomInt(0,loc_res.length - 1)] + 1 ;add one shield to random lock
+        loc_res[RandomInt(0,loc_res.length - 1)] = loc_res[RandomInt(0,loc_res.length - 1)] + 1 ;add one shield to random lock
         aiLockShieldNum -= 1
     endwhile
     
@@ -3440,7 +3435,7 @@ EndFunction
 /;
 int Function ManifestDevices(Actor akActor,string asSource ,int aiChance,int aiNumber)
     Form[] loc_array
-    if aiChance == 100 || Utility.randomInt(1,99) < aiChance
+    if aiChance == 100 || RandomInt(1,99) < aiChance
         while aiNumber
             while UDmain.UDOM.isOrgasming(akActor)
                 Utility.wait(0.1)

@@ -330,7 +330,6 @@ EndProperty
 zadConfig   Property DDconfig                   auto
 String[]    Property UD_OfficialPatches         auto
 
-bool Property ZaZAnimationPackInstalled = false auto hidden
 ;zbfBondageShell Property ZAZBS auto
 bool Property OSLArousedInstalled       = false auto hidden
 bool Property ConsoleUtilInstalled      = false auto hidden
@@ -410,6 +409,16 @@ EndEvent
 /;
 UnforgivingDevicesMain Function GetUDMain() Global
     return GetMeMyForm(0x005901,"UnforgivingDevices.esp") as UnforgivingDevicesMain
+EndFunction
+
+;/  Function: GetZadLibs
+
+    Returns:
+
+        Returns singleton of zadlibs script from dd
+/;
+zadlibs Function GetZadLibs() Global
+    return GetMeMyForm(0x00F624,"Devious Devices - Integration.esm") as zadlibs
 EndFunction
 
 ;/  Function: CheckSubModules
@@ -857,15 +866,6 @@ EndFunction
 Function _CheckOptionalMods()
     UDNPCM.ResetIncompatibleFactionArray() ;reset incomatible scan factions
     
-    If ModInstalled("ZaZAnimationPack.esm")
-        ZaZAnimationPackInstalled = True
-        if TraceAllowed()
-            Log("Zaz animation pack detected!")
-        endif
-    else
-        ZaZAnimationPackInstalled = False
-    endif
-    
     if ModInstalled("OSLAroused.esp")
         OSLArousedInstalled = True
         if TraceAllowed()
@@ -929,7 +929,7 @@ Function _CheckOptionalMods()
             Log("Devious Strike detected!")
         endif
         ;2 Factions, as it looks like that the formID changes between versions
-        UDNPCM.AddScanIncompatibleFaction(GetMeMyForm(0x000801,"Devious Strike.esp") as Faction) 
+        UDNPCM.AddScanIncompatibleFaction(GetMeMyForm(0x000801,"Devious Strike.esp") as Faction)
         UDNPCM.AddScanIncompatibleFaction(GetMeMyForm(0x005930,"Devious Strike.esp") as Faction)
     else
         DeviousStrikeInstalled = false
@@ -1200,7 +1200,7 @@ EndFunction
         afMax     - Maximum blocking time
 /;
 Function WaitRandomTime(Float afMin = 0.1, Float afMax = 1.0) Global
-    Utility.wait(Utility.randomFloat(afMin,afMax))
+    Utility.wait(RandomFloat(afMin,afMax))
 EndFunction
 
 ;/  Function: WaitMenuRandomTime
@@ -1208,7 +1208,7 @@ EndFunction
     Same as <WaitRandomTime>, but will also work if menus are open
 /;
 Function WaitMenuRandomTime(Float afMin = 0.1, Float afMax = 1.0) Global
-    Utility.waitMenuMode(Utility.randomFloat(afMin,afMax))
+    Utility.waitMenuMode(RandomFloat(afMin,afMax))
 EndFunction
 
 ;/  Function: CalcDistance

@@ -122,9 +122,9 @@ Function AbadonEquipSuit(Actor target,int suit)
     UnforgivingDevicesMain.closeMenu()
     if suit == 0
         if _CustomSets
-            suit = Utility.randomInt(1,UDmain.config.final_finisher_pref_list.length - 1 + _CustomSets)
+            suit = RandomInt(1,UDmain.config.final_finisher_pref_list.length - 1 + _CustomSets)
         else
-            suit = Utility.randomInt(1,UDmain.config.final_finisher_pref_list.length - 1)
+            suit = RandomInt(1,UDmain.config.final_finisher_pref_list.length - 1)
         endif
     endif
     if suit == 1
@@ -149,10 +149,10 @@ Function EquipAbadonDevices(Actor akTarget,Int aiMinDevices, Int aiMaxDevices)
     if !akTarget.wornhaskeyword(libs.zad_deviousheavybondage)
         UDCDmain.DisableActor(akTarget)
         Int loc_arousal = Round(UDmain.UDOM.getArousal(akTarget))
-        if Utility.randomInt(1,99) < Round(UDCDMain.UD_BlackGooRareDeviceChance*fRange(loc_arousal/50,1.0,2.0))
+        if RandomInt(1,99) < Round(UDCDMain.UD_BlackGooRareDeviceChance*fRange(loc_arousal/50,1.0,2.0))
             ;rare devices, drop more loot and goo
             if !akTarget.wornhaskeyword(libs.zad_deviousSuit)
-                int random = Utility.randomInt(1,3)
+                int random = RandomInt(1,3)
                 if random == 1
                     libs.LockDevice(akTarget,UDmain.UDlibs.AbadonBlueArmbinder)
                 elseif random == 2
@@ -161,7 +161,7 @@ Function EquipAbadonDevices(Actor akTarget,Int aiMinDevices, Int aiMaxDevices)
                     libs.LockDevice(akTarget,UDmain.UDlibs.RogueBinder)
                 endif
             else
-                int random = Utility.randomInt(1,2)
+                int random = RandomInt(1,2)
                 if random == 1
                     libs.LockDevice(akTarget,UDmain.UDlibs.AbadonBlueArmbinder)
                 elseif random == 2
@@ -173,7 +173,7 @@ Function EquipAbadonDevices(Actor akTarget,Int aiMinDevices, Int aiMaxDevices)
             endif
         else
             if !akTarget.wornhaskeyword(libs.zad_deviousSuit)
-                int random = Utility.randomInt(1,4)
+                int random = RandomInt(1,4)
                 if random == 1
                     libs.LockDevice(akTarget,UDmain.UDlibs.AbadonWeakArmbinder)
                 elseif random == 2
@@ -184,7 +184,7 @@ Function EquipAbadonDevices(Actor akTarget,Int aiMinDevices, Int aiMaxDevices)
                     libs.LockDevice(akTarget,UDmain.UDlibs.AbadonWeakYoke)
                 endif
             else
-                int random = Utility.randomInt(1,3)
+                int random = RandomInt(1,3)
                 if random == 1
                     libs.LockDevice(akTarget,UDmain.UDlibs.AbadonWeakArmbinder)
                 elseif random == 2
@@ -199,6 +199,6 @@ Function EquipAbadonDevices(Actor akTarget,Int aiMinDevices, Int aiMaxDevices)
         endif
         UDCDmain.EnableActor(akTarget)
     endif
-    int loc_devicenum = Utility.randomInt(aiMinDevices,aiMaxDevices)
+    int loc_devicenum = RandomInt(aiMinDevices,aiMaxDevices)
     UDmain.UDRRM.LockAnyRandomRestrain(akTarget,loc_devicenum)
 EndFunction

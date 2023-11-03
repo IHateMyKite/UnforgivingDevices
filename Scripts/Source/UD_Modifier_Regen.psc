@@ -21,7 +21,7 @@ Function mendDevice(UD_CustomDevice_RenderScript akDevice, Float afStrength,floa
 EndFunction
 
 Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    return akDevice.CanBeStruggled() && (Utility.randomInt(1,100) < (25 + 25*(IsEbonite(akDevice) as Int))*PatchChanceMultiplier)
+    return akDevice.CanBeStruggled() && (RandomInt(1,100) < (25 + 25*(IsEbonite(akDevice) as Int))*PatchChanceMultiplier)
 EndFunction
 
 Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
@@ -31,7 +31,7 @@ Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
         loc_addmult = 1.0
     endif
 
-    akDevice.addModifier(self,FormatFloat(120*PatchPowerMultiplier*Utility.randomFloat(0.5 + loc_addmult,2.0 + loc_addmult),1))
+    akDevice.addModifier(self,FormatFloat(120*PatchPowerMultiplier*RandomFloat(0.5 + loc_addmult,2.0 + loc_addmult),1))
 EndFunction
 
 Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)

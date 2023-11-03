@@ -1353,9 +1353,6 @@ Function resetOtherPage()
     AddHeaderOption("$UD_H_OPTIONAL_MODS")
     addEmptyOption()
     
-    AddTextOption("$Zaz animation pack installed",InstallSwitch(UDmain.ZaZAnimationPackInstalled),FlagSwitch(UDmain.ZaZAnimationPackInstalled))
-    addEmptyOption()
-    
     AddTextOption("$ConsoleUtil installed",InstallSwitch(UDmain.ConsoleUtilInstalled),FlagSwitch(UDmain.ConsoleUtilInstalled))
     addEmptyOption()
     

@@ -21,11 +21,11 @@ Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
     ;loc_res = loc_res || (akDevice.UD_DeviceKeyword == libs.zad_DeviousBelt)
     loc_res = loc_res || (akDevice.UD_DeviceKeyword == libs.zad_DeviousPiercingsNipple)
     ;loc_res = loc_res || (akDevice.UD_DeviceKeyword == libs.zad_DeviousHarness)
-    return loc_res && (Utility.randomInt(1,100) < 30*PatchChanceMultiplier)
+    return loc_res && (RandomInt(1,100) < 30*PatchChanceMultiplier)
 EndFunction
 
 Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
-    akDevice.addModifier(self,iRange(Round(Utility.randomInt(2,8)*PatchPowerMultiplier),0,100) + "," + Utility.randomInt(1,3))
+    akDevice.addModifier(self,iRange(Round(RandomInt(2,8)*PatchPowerMultiplier),0,100) + "," + RandomInt(1,3))
 EndFunction
 
 Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)

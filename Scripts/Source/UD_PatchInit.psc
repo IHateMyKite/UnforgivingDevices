@@ -7,6 +7,7 @@
 Scriptname UD_PatchInit extends Quest
 
 import unforgivingDevicesMain
+import UD_Native
 
 ;/  Group: Important properties
 ===========================================================================================
@@ -160,7 +161,7 @@ String  Property UD_CustomAbadonSuitName_5      = "UnNamedSuit"     auto
 Key[]   Property UD_GenericKeys                                     auto
 
 Event onInit()
-    Utility.wait(Utility.randomFloat(1.0,2.0))
+    Utility.wait(RandomFloat(1.0,2.0))
     ProcessLists()
     Update()
     RegisterForModEvent("UD_PatchUpdate", "UpdateEvent")

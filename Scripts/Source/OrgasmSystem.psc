@@ -51,6 +51,21 @@ Scriptname OrgasmSystem hidden
         //16-31 = Duration (seconds)
    };
 
+    enum EroZone : uint32_t
+    {
+        eNone                   = 0x00000000,
+        eVagina1                = 0x00000001,
+        eVagina2                = 0x00000002,
+        eClitoris               = 0x00000004,
+        ePenis1                 = 0x00000008,
+        ePenis2                 = 0x00000010,
+        ePenis3                 = 0x00000020,
+        eNipples                = 0x00000040,
+        eAnal1                  = 0x00000080,
+        eAnal2                  = 0x00000100,
+        eDefault                = 0x00000200    //when you dont care about ero zones
+    };
+
 /;
 Bool    Function AddOrgasmChange(Actor akActor, String askey, Int aiMod,Int aiEroZones, Float afOrgasmRate = 0.0, Float afOrgasmRateMult = 0.0, Float afOrgasmForcing = 0.0, Float afOrgasmCapacity = 0.0, Float afOrgasmResistence = 0.0, Float afOrgasmResistenceMult = 0.0) global native
 Bool    Function RemoveOrgasmChange(Actor akActor, String asKey)                    global native

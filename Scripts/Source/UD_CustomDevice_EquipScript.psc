@@ -163,15 +163,20 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
                         if UDmain.TraceAllowed()                        
                             UDmain.Log("Removing device from dead actor " + deviceInventory.getName() + " on "+ giver.getActorBase().getName(),1)
                         endif
-                        UD_CustomDevice_RenderScript device = getUDScript(giver)
-                        if device
-                            device.removeDevice(giver)
-                            if DestroyOnRemove
-                                target.removeItem(deviceInventory,1,True)
-                            endif
-                            giver.removeItem(deviceRendered,1,True)
-                            return
+                        UD_Native.SendRemoveRenderDeviceEvent(giver,deviceRendered)
+                        if DestroyOnRemove
+                            target.removeItem(deviceInventory,1,True)
                         endif
+                        giver.removeItem(deviceRendered,1,True)
+                        ;UD_CustomDevice_RenderScript device = getUDScript(giver)
+                        ;if device
+                        ;    device.removeDevice(giver)
+                        ;    if DestroyOnRemove
+                        ;        target.removeItem(deviceInventory,1,True)
+                        ;    endif
+                        ;    giver.removeItem(deviceRendered,1,True)
+                        ;    return
+                        ;endif
                     else
                         if UDmain.TraceAllowed()                        
                             UDmain.Log("Removing ID device" + deviceInventory.getName() + " on "+ giver.getActorBase().getName(),1)
@@ -654,7 +659,7 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
                 loc_slot.ResetMutex_Lock(deviceInventory)
             endif
         else
-            Utility.waitMenuMode(Utility.randomFloat(0.05,0.15)) ;make thread to wait random time, because in some cases bunch of devices can be equipped at once (like when they are par of outfit)
+            Utility.waitMenuMode(RandomFloat(0.05,0.15)) ;make thread to wait random time, because in some cases bunch of devices can be equipped at once (like when they are par of outfit)
             if !UDMM.IsDeviceMutexed(akActor,deviceInventory)
                 _actorselfbound = true
                 if UDmain.TraceAllowed()
@@ -944,13 +949,14 @@ Function unlockDevice(Actor akActor)
     
     if !loc_failure
         akActor.unequipItem(deviceInventory, 1, true)
-        UD_CustomDevice_RenderScript loc_device = getUDScript(akActor)
+        UD_Native.SendRemoveRenderDeviceEvent(akActor,deviceRendered)
+        ;UD_CustomDevice_RenderScript loc_device = getUDScript(akActor)
         akActor.RemoveItem(deviceRendered, loc_RDNum, true)
-        if loc_device
-            loc_device.removeDevice(akActor)
-        else
-            UDmain.Error(MakeDeviceHeader(akActor,deviceInventory) + "::unlockDevice() - Could not get RD script! Unlock operation on " + self)
-        endif
+        ;if loc_device
+        ;    loc_device.removeDevice(akActor)
+        ;else
+        ;    UDmain.Error(MakeDeviceHeader(akActor,deviceInventory) + "::unlockDevice() - Could not get RD script! Unlock operation on " + self)
+        ;endif
     endif
 
     if loc_slot
@@ -974,9 +980,9 @@ Function unlockDevice(Actor akActor)
         libs.SendDeviceRemovalEvent(libs.LookupDeviceType(zad_DeviousDevice), akActor)
         libs.SendDeviceRemovedEventVerbose(deviceInventory, zad_DeviousDevice, akActor)
         
-        If CanApplyBoundEffect(akActor) 
-            libs.StopBoundEffects(akActor)
-        EndIf
+        ;If CanApplyBoundEffect(akActor) 
+        ;    libs.StopBoundEffects(akActor)
+        ;EndIf
     endif
     
     StorageUtil.UnSetIntValue(akActor, "UD_ignoreEvent" + deviceInventory)

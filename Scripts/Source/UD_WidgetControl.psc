@@ -833,7 +833,7 @@ EndFunction
         Number of unregistered meters
 /;
 Int Function Meter_UnregisterAllNative()
-    UD_Native.RemoveAllMeterEntries()
+    return UD_Native.RemoveAllMeterEntries()
 EndFunction
 
 ;/  Function: Meter_ToggleNative
@@ -1142,7 +1142,7 @@ Function TestWidgets()
     While i < len
         If UD_VanillaWidgets[i] != None
             UD_VanillaWidgets[i].Show(true)
-            UD_VanillaWidgets[i].SetPercent(Utility.RandomFloat(0.0, 1.0), False)
+            UD_VanillaWidgets[i].SetPercent(RandomFloat(0.0, 1.0), False)
         EndIf
         i += 1
     EndWhile
@@ -2106,7 +2106,7 @@ State iWidgetInstalled
             loc_dataIcon = StatusEffectSlots[i]
             If loc_dataIcon.Name != ""
                 loc_dataIcon.StartTest()
-                StatusEffect_SetMagnitude(loc_dataIcon.Name, Utility.RandomInt(1, 100))
+                StatusEffect_SetMagnitude(loc_dataIcon.Name, RandomInt(1, 100))
                 StatusEffect_SetVisible(loc_dataIcon.Name, True)
                 StatusEffect_SetBlink(loc_dataIcon.Name, True)
             EndIf
@@ -2120,7 +2120,7 @@ State iWidgetInstalled
             If loc_dataMeter.Name != ""
                 loc_dataMeter.StartTest()
                 Meter_SetVisible(loc_dataMeter.Name, True)
-                Meter_SetFillPercent(loc_dataMeter.Name, Utility.RandomInt(1, 100))
+                Meter_SetFillPercent(loc_dataMeter.Name, RandomInt(1, 100))
             EndIf
             i += 1
         EndWhile

@@ -763,7 +763,7 @@ Function _VibrateStart(float afDurationMult = 1.0)
     resetCooldown(1.0)
 
     if UD_Chaos ;chaos plug, ignore forced strength
-        CurrentVibStrength = Utility.randomInt(15,100)
+        CurrentVibStrength = RandomInt(15,100)
     elseif _forceStrength < 0
         CurrentVibStrength = UD_VibStrength ;auto set variables from properties
     else ;use forced strength
@@ -845,8 +845,8 @@ Function VibrateUpdate(Int aiUpdateTime)
             endif
             
             if UD_Chaos && isVibrating() && !_paused
-                if Utility.randomInt() < UD_Chaos
-                    ForceStrength(Utility.randomInt(15,95))
+                if RandomInt() < UD_Chaos
+                    ForceStrength(RandomInt(15,95))
                 endif
             endif
             

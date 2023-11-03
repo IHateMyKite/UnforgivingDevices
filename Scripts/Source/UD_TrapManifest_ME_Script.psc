@@ -12,7 +12,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
         return ;non valid actor, return
     endif
     ;25 % chance of locking random abadon suit
-    if Utility.randomInt(1,100) > 75
+    if RandomInt(1,100) > 75
         AbadonQuest.AbadonEquipSuit(akTarget,0)
         if IsPlayer(akTarget)
             UDCDmain.UDmain.Print("Black goo smacks you and transforms into variety of restrains!")
@@ -30,7 +30,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
         Armor device = none
 
         Int loc_arousal = Round(UDCDmain.UDmain.UDOM.getArousal(akTarget))
-        int random = Round(Utility.randomInt(1,100) + (loc_arousal/5))
+        int random = Round(RandomInt(1,100) + (loc_arousal/5))
         
         if random > 90
             loc_formlist = UDCDmain.UDmain.UDRRM.UD_AbadonDeviceList_HeavyBondageHard

@@ -378,14 +378,14 @@ EndFunction
 
 Function OnMinigameTick(Float abUpdateTime)
     if inflateMinigame_on
-        inflateprogress += Utility.randomFloat(8.2,12.0)*UDCDmain.getStruggleDifficultyModifier()*UDmain.UD_baseUpdateTime*getMinigameMult(1)
+        inflateprogress += RandomFloat(8.2,12.0)*UDCDmain.getStruggleDifficultyModifier()*UDmain.UD_baseUpdateTime*getMinigameMult(1)
         if inflateprogress > UD_PumpDifficulty
             stopMinigame()
         endif    
     endif
     
     if deflateMinigame_on
-        deflateprogress += Utility.randomFloat(3.5,8.0)*UDCDmain.getStruggleDifficultyModifier()*UDmain.UD_baseUpdateTime*getMinigameMult(1)
+        deflateprogress += RandomFloat(3.5,8.0)*UDCDmain.getStruggleDifficultyModifier()*UDmain.UD_baseUpdateTime*getMinigameMult(1)
         if deflateprogress > UD_PumpDifficulty
             stopMinigame()
         endif    
@@ -421,12 +421,12 @@ EndFunction
 
 bool Function OnCritDevicePre()
     if inflateMinigame_on
-        inflateprogress += Utility.randomFloat(20.2,30.0)*UDCDmain.getStruggleDifficultyModifier()*getMinigameMult(1)
+        inflateprogress += RandomFloat(20.2,30.0)*UDCDmain.getStruggleDifficultyModifier()*getMinigameMult(1)
         if inflateprogress >= UD_PumpDifficulty
             stopMinigame()
         endif    
     elseif deflateMinigame_on
-        deflateprogress += Utility.randomFloat(15.5,25.0)*UDCDmain.getStruggleDifficultyModifier()*getMinigameMult(1)
+        deflateprogress += RandomFloat(15.5,25.0)*UDCDmain.getStruggleDifficultyModifier()*getMinigameMult(1)
         if deflateprogress >= UD_PumpDifficulty
             stopMinigame()
         endif
@@ -455,7 +455,7 @@ EndFunction
 
 Function onUpdatePost(float timePassed)
     if getPlugInflateLevel() > 0
-        deflateprogress += timePassed*UD_DeflateRate*Utility.randomFloat(0.75,1.25)*UDCDmain.getStruggleDifficultyModifier()
+        deflateprogress += timePassed*UD_DeflateRate*RandomFloat(0.75,1.25)*UDCDmain.getStruggleDifficultyModifier()
         if deflateprogress > UD_PumpDifficulty
             if WearerIsPlayer()
                 UDmain.Print("You feel that your "+getDeviceName()+" lost some of its pressure",2)

@@ -37,12 +37,7 @@ Bool Function LockDevice(actor akActor, armor deviceInventory, bool force = fals
     if UDmain.TraceAllowed()    
         UDmain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory)+")",3)
     endif
-    if UDCDmain.UDmain.UD_zadlibs_ParalelProccesing
-        LockDevice_Paralel(akActor, deviceInventory, force)
-        return true
-    else
-        return LockDevicePatched(akActor, deviceInventory, force)
-    endif
+    return LockDevicePatched(akActor, deviceInventory, force)
 EndFunction
 
 bool Function isMutexed(Actor akActor,Armor invDevice)
@@ -79,21 +74,13 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
         UDmain.UDNPCM.GotoState("UpdatePaused")
         
         UD_CustomDevice_NPCSlot loc_slot = none
-        ;if _lastLockSlot && (_lastLockSlot.GetActor() == akActor)
-        ;    loc_slot = _lastLockSlot
-        ;else
-            loc_slot = UDCDmain.getNPCSlot(akActor)
-        ;endif
+        loc_slot = UDCDmain.getNPCSlot(akActor)
         UD_MutexScript          loc_mutex = none
         
         if loc_slot
             loc_slot.StartLockMutex()
         else
-            ;if _lastLockMutex && (_lastLockMutex.GetActor() == akActor) && !_lastLockMutex.IsLockMutexed()
-            ;    loc_mutex = _lastLockMutex
-            ;else
-                loc_mutex = UDMM.WaitForFreeAndSet_Lock(akActor,deviceInventory)
-            ;endif
+            loc_mutex = UDMM.WaitForFreeAndSet_Lock(akActor,deviceInventory)
         endif
         
         ;_lastLockSlot  = loc_slot
@@ -282,10 +269,7 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
             if deviceRendered
                 loc_renDevice = deviceRendered
             else
-                loc_renDevice = UDCDmain.getStoredRenderDevice(deviceInventory)
-                if !loc_renDevice
-                    loc_renDevice = GetRenderedDevice(deviceInventory)
-                endif
+                loc_renDevice = GetRenderedDevice(deviceInventory)
             endif
             
             ;check if actor actually have render device. Without RD, unlock function will not work
@@ -296,10 +280,10 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
                     ;is already set by WaitForFreeAndSet_Unlock
                 endif
                 
-                if UDmain.TraceAllowed()    
+                if UDmain.TraceAllowed()
                     if loc_slot
                         UDmain.Log("UnlockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - NPC slot: " + loc_slot,1)
-                    elseif loc_mutex    
+                    elseif loc_mutex
                         UDmain.Log("UnlockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - mutex: " + loc_mutex,1)
                     else
                         UDmain.Log("UnlockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - no mutex",1)
@@ -611,12 +595,12 @@ Function InflateAnalPlug(actor akActor, int amount = 1)
     If !akActor.WornHasKeyword(zad_kw_InflatablePlugAnal)
         ; nothing to do
         return
-    EndIf    
+    EndIf
     int currentVal = 0
     If akActor == PlayerRef
         currentVal = zadInflatablePlugStateAnal.GetValueInt()
         ; only increase the value up to 5, but make it count as an inflation event even if it's maximum inflated
-        if currentVal < 5            
+        if currentVal < 5
             currentVal += amount
             if currentVal > 5
                 currentVal = 5
@@ -631,8 +615,9 @@ Function InflateAnalPlug(actor akActor, int amount = 1)
         currentVal = iRange(amount,2,5)
     endif
     
-    OrgasmSystem.AddOrgasmChange(akActor,"AnalPlugInflate", 0x6000C,0x0180, 7.5*currentVal,afOrgasmForcing = 0.5)
-    ;UDOM.UpdateBaseOrgasmVals(akActor,5,7.5*currentVal,0.5,3.5*currentVal)
+    string loc_key = OrgasmSystem.MakeUniqueKey(akActor,"AnalPlugInflate")
+    OrgasmSystem.AddOrgasmChange(akActor,loc_key, 0x6000C,0x0180, 7.5*currentVal,afOrgasmForcing = 0.5)
+    OrgasmSystem.UpdateOrgasmChangeVar(akActor,loc_key,9,3.0*currentVal,1)
     SendInflationEvent(akActor, False, True, currentval)
 EndFunction
 
@@ -646,7 +631,7 @@ Function InflateVaginalPlug(actor akActor, int amount = 1)
     If akActor == PlayerRef
         currentVal = zadInflatablePlugStateVaginal.GetValueInt()
         ; only increase the value up to 5, but make it count as an inflation event even if it's maximum inflated
-        if currentVal < 5                        
+        if currentVal < 5
             currentVal += amount
             if currentVal > 5
                 currentVal = 5
@@ -661,8 +646,9 @@ Function InflateVaginalPlug(actor akActor, int amount = 1)
         currentVal = iRange(amount,2,5)
     endif
     
-    OrgasmSystem.AddOrgasmChange(akActor,"VaginalPlugInflate", 0x6000C,0x0003, 13.5*currentVal,afOrgasmForcing = 0.5)
-    ;UDOM.UpdateBaseOrgasmVals(akActor,5,12.5*currentVal,0.5,5*currentVal)
+    string loc_key = OrgasmSystem.MakeUniqueKey(akActor,"VaginalPlugInflate")
+    OrgasmSystem.AddOrgasmChange(akActor,loc_key, 0x6000C,0x0003, 13.5*currentVal,afOrgasmForcing = 0.5)
+    OrgasmSystem.UpdateOrgasmChangeVar(akActor,loc_key,9,6.0*currentVal,1)
     SendInflationEvent(akActor, True, True, currentval)
 EndFunction
 
@@ -677,7 +663,7 @@ String Function AnimSwitchKeyword(actor akActor, string idleName)
     EndIf
     
     If anims.Length > 0
-        Return anims[Utility.RandomInt(0, anims.Length - 1)]
+        Return anims[RandomInt(0, anims.Length - 1)]
     Else
         return parent.AnimSwitchKeyword(akActor, idleName)
     EndIf
@@ -713,7 +699,7 @@ int Function VibrateEffect(actor akActor, int vibStrength, int duration, bool te
         int loc_vibNum = UDCDmain.getActivableVibratorNum(akActor)
         if loc_vibNum > 0
             UD_CustomDevice_RenderScript[] loc_usableVibrators = UDCDmain.getActivableVibrators(akActor)
-            UD_CustomVibratorBase_RenderScript loc_selectedVib = loc_usableVibrators[Utility.randomInt(0,loc_vibNum - 1)] as UD_CustomVibratorBase_RenderScript
+            UD_CustomVibratorBase_RenderScript loc_selectedVib = loc_usableVibrators[RandomInt(0,loc_vibNum - 1)] as UD_CustomVibratorBase_RenderScript
             if UDmain.TraceAllowed()            
                 UDmain.Log("VibrateEffect("+GetActorName(akActor)+") - selected vib:" + loc_selectedVib,1)
             endif
@@ -744,7 +730,7 @@ Function ShockActorPatched(actor akActor,int aiArousalUpdate = 25,float afHealth
     ShockEffect.RemoteCast(akActor, akActor, akActor)
     
     if loc_loaded
-        if Utility.randomInt(1,99) < 40
+        if RandomInt(1,99) < 40
             UDCDmain.ApplyTearsEffect(akActor)
         endif
     endif
@@ -759,7 +745,7 @@ Function ShockActorPatched(actor akActor,int aiArousalUpdate = 25,float afHealth
         String loc_key = OrgasmSystem.MakeUniqueKEy(akActor,"ShockEffect")
         OrgasmSystem.AddOrgasmChange(akActor,loc_key,0x80024,0x200,-2.0)
         OrgasmSystem.UpdateOrgasmChangeVar(akActor,loc_key,9,-1.0*(aiArousalUpdate/8.0),1)
-        ;int loc_arousalUpdate = iRange(Utility.randomInt(Round(0.75*aiArousalUpdate),Round(0.5*aiArousalUpdate)),-100,100)
+        ;int loc_arousalUpdate = iRange(RandomInt(Round(0.75*aiArousalUpdate),Round(0.5*aiArousalUpdate)),-100,100)
         ;Aroused.UpdateActorExposure(akActor, loc_arousalUpdate)
     endif
 EndFunction
@@ -795,7 +781,7 @@ Function ActorOrgasm(actor akActor, int setArousalTo=-1, int vsID=-1)
     ;ActorOrgasmPatched(akActor,20,loc_newArousal)
     UDmain.UDNPCM.RegisterNPC(akActor,true) ;orgasm system will not work if actor is not registered, so register the actor first, and hope there is free slot ;)
     OrgasmSystem.ForceOrgasm(akActor)
-    UDmain.GetUDOM(akActor).ActorOrgasm(akActor)
+    UDmain.GetUDOM(akActor).ActorOrgasm(akActor,OrgasmSystem.GetOrgasmingCount(akActor))
 EndFunction
 
 Function UpdateExposure(actor akRef, float val, bool skipMultiplier=false)

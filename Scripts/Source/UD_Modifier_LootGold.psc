@@ -37,7 +37,7 @@ Function DeviceUnlocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr,
             else    ;unused
             endif
             
-            int randomNum = Utility.randomInt(goldNumMin2,goldNumMax2)
+            int randomNum = RandomInt(goldNumMin2,goldNumMax2)
             if randomNum > 0
                 loc_actor.addItem(UDlibs.Gold,randomNum)
             endif

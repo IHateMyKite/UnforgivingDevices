@@ -14,11 +14,11 @@ Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, Str
 EndFunction
 
 Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    return (akDevice.GetLockNumber() > 0) && (Utility.randomInt(1,100) < Round(25*PatchChanceMultiplier))
+    return (akDevice.GetLockNumber() > 0) && (RandomInt(1,100) < Round(25*PatchChanceMultiplier))
 EndFunction
 
 Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
-    akDevice.addModifier(self,iRange(Round(Utility.randomInt(5,15)*PatchPowerMultiplier),0,100))
+    akDevice.addModifier(self,iRange(Round(RandomInt(5,15)*PatchPowerMultiplier),0,100))
 EndFunction
 
 Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)

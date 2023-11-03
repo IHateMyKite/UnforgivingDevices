@@ -39,16 +39,16 @@ Function CritLoopOrgasmResist(Int aiChance,Float afDifficulty)
     string loc_meter = "none"
     bool loc_sendCrit = false
     while _PlayerOrgasmResist_MinigameOn
-        if Utility.randomInt(1,100) <= aiChance
+        if RandomInt(1,100) <= aiChance
             if !UDCDmain.UD_AutoCrit
-                if Utility.randomInt(0,1)
+                if RandomInt(0,1)
                     loc_meter = "S"
                 else
                     loc_meter = "M"
                 endif
                 loc_sendCrit = true
             else ;auto crits
-                if Utility.randomInt() <= UDCDmain.UD_AutoCritChance
+                if RandomInt() <= UDCDmain.UD_AutoCritChance
                     OnCritSuccesOrgasmResist()
                 else
                     OnCritFailureOrgasmResist()
@@ -94,14 +94,14 @@ Function OnCritSuccesOrgasmResist()
         UDmain.Log("OnCritSuccesOrgasmResist() callled!")
     endif
     UDmain.Player.restoreAV("Stamina", 10)
-    OrgasmSystem.AddOrgasmChange(UDmain.Player,"OrgasmResist.CritS",0x30024,0x00000200,afOrgasmResistenceMult = 0.5)
+    OrgasmSystem.AddOrgasmChange(UDmain.Player,"OrgasmResist.CritS",0x30024,0x00000200,afOrgasmResistenceMult = 5.0)
 EndFunction
 
 Function OnCritFailureOrgasmResist()
     if UDmain.TraceAllowed()    
         UDmain.Log("OnCritFailureOrgasmResist() callled!")
     endif
-    OrgasmSystem.AddOrgasmChange(UDmain.Player,"OrgasmResist.CritF",0x30024,0x00000200,afOrgasmRateMult = 1.0)
+    OrgasmSystem.AddOrgasmChange(UDmain.Player,"OrgasmResist.CritF",0x30024,0x00000200,afOrgasmRateMult = 2.0)
 EndFunction
 
 Event MinigameKeysRegister()
@@ -224,7 +224,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
     If _HornyAnimDefs.Length > 0
         Actor[] loc_actors = new Actor[1]
         loc_actors[0] = akActor
-        UDmain.UDAM.PlayAnimationByDef(_HornyAnimDefs[Utility.RandomInt(0, _HornyAnimDefs.Length - 1)], loc_actors)
+        UDmain.UDAM.PlayAnimationByDef(_HornyAnimDefs[RandomInt(0, _HornyAnimDefs.Length - 1)], loc_actors)
     Else
         UDmain.Warning("UD_OrgasmManagerPlayer::FocusOrgasmResistMinigame() Can't find animations for the horny actor")
     EndIf
@@ -270,10 +270,10 @@ Function FocusOrgasmResistMinigame(Actor akActor)
                     if loc_HightSpiritMode_Type == 1
                         loc_StaminaRateMult = 0.5
                     elseif loc_HightSpiritMode_Type == 2
-                        loc_StaminaRateMult = 1.5
-                        OrgasmSystem.UpdateOrgasmChangeVar(akActor,"OrgasmResistMinigame",3,3.5,1)
-                    elseif loc_HightSpiritMode_Type == 3
                         loc_StaminaRateMult = 1.25
+                        OrgasmSystem.UpdateOrgasmChangeVar(akActor,"OrgasmResistMinigame",3,5.0,2)
+                    elseif loc_HightSpiritMode_Type == 3
+                        loc_StaminaRateMult = 1.5
                         OrgasmSystem.UpdateOrgasmChangeVar(akActor,"OrgasmResistMinigame",9,-6.0,1)
                     endif
                 else
@@ -290,8 +290,8 @@ Function FocusOrgasmResistMinigame(Actor akActor)
             loc_currentOrgasmRate       = OrgasmSystem.GetOrgasmVariable(akActor,1)
             loc_orgasmResistence        = OrgasmSystem.GetOrgasmVariable(akActor,3)
             if loc_HightSpiritMode_Duration == 0
-                if Utility.randomInt() <= 40 
-                    loc_HightSpiritMode_Type = Utility.randomInt(1,3)
+                if RandomInt() <= 40 
+                    loc_HightSpiritMode_Type = RandomInt(1,3)
                     if loc_HightSpiritMode_Type == 1 ;RED
                         UDmain.UDWC.Meter_SetColor("player-orgasm", 0xff0000, 0xff00d8, 0xFF00BC)
                     elseif loc_HightSpiritMode_Type == 2 ;GREEN
@@ -299,7 +299,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
                     elseif loc_HightSpiritMode_Type == 3 ;BLUE
                         UDmain.UDWC.Meter_SetColor("player-orgasm", 0x2e40d8, 0x2e40d8, 0xFF00BC)
                     endif
-                    loc_HightSpiritMode_Duration += Utility.randomInt(3,6)*Round(1/UDmain.UD_baseUpdateTime)
+                    loc_HightSpiritMode_Duration += RandomInt(3,6)*Round(1/UDmain.UD_baseUpdateTime)
                 endif
             endif
             loc_tick = 0
@@ -316,7 +316,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
             loc_HightSpiritMode_Duration -= 1
             if loc_HightSpiritMode_Duration == 0
                 UDmain.UDWC.Meter_SetColor("player-orgasm", 0xE727F5, 0xF775FF,0xFF00BC)
-                loc_HightSpiritMode_Duration -= Utility.randomInt(3,4)*Round(1/UDmain.UD_baseUpdateTime)
+                loc_HightSpiritMode_Duration -= RandomInt(3,4)*Round(1/UDmain.UD_baseUpdateTime)
             endif
         elseif loc_HightSpiritMode_Duration < 0
             loc_HightSpiritMode_Duration += 1

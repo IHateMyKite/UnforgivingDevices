@@ -17,6 +17,8 @@
 /;
 Scriptname UD_AnimationManagerScript extends Quest
 
+import UD_Native
+
 UnforgivingDevicesMain                 Property     UDmain                  Auto
 UDCustomDeviceMain                     Property     UDCDmain                        Hidden
     UDCustomDeviceMain Function Get()
@@ -747,7 +749,7 @@ Bool Function PlayAnimationByDef(String asAnimDef, Actor[] aakActors, Bool abCon
                 EndIf
             EndWhile
             If anim_var_path_array.Length > 0
-                actor_animVars[k] = anim_var_path_array[Utility.RandomInt(0, anim_var_path_array.Length - 1)]
+                actor_animVars[k] = anim_var_path_array[RandomInt(0, anim_var_path_array.Length - 1)]
             Else
                 UDmain.Warning("UD_AnimationManagerScript::PlayAnimationByDef() Can't find valid animation variant in def " + asAnimDef +" for actor with constraints " + actor_constraints)
                 Return False

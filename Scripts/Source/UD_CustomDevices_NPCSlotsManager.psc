@@ -212,7 +212,7 @@ EndEvent
 Event OnUpdateGameTime()
     if UDmain.UDReady()
         if !UDmain.UD_DisableUpdate
-            Utility.wait(Utility.randomFloat(2.0,4.0))
+            Utility.wait(randomFloat(2.0,4.0))
             float currentgametime = Utility.GetCurrentGameTime()
             float mult = 24.0*(currentgametime - LastUpdateTime_Hour) ;multiplier for how much more then 1 hour have passed, ex: for 2.5 hours passed without update, the mult will be 2.5
             UpdateSlotsHour(mult)

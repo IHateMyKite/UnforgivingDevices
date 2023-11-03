@@ -293,17 +293,15 @@ String Function GetHornyLevelString(Actor akActor)
     return OrgasmSystem.GetHornyStatus(akActor)
 EndFunction
 
-Function ActorOrgasm(actor akActor)
+Function ActorOrgasm(actor akActor, Int aiOrgasms)
     if !akActor
         return
     endif
 
-    Int loc_orgasms = OrgasmSystem.GetOrgasmingCount(akActor)
-
     UDmain.UDPP.Send_Orgasm(akActor,abWairForReceive = false)
 
     ;check if actor is not already orgasming. If yes, then skip all checks
-    if (loc_orgasms > 1) 
+    if (aiOrgasms > 1) 
         return
     endif
     
@@ -387,7 +385,7 @@ Int Function PlayOrgasmAnimation(Actor akActor)
         If loc_animationArray.Length > 0
             Actor[] loc_actors = new Actor[1]
             loc_actors[0] = akActor
-            UDmain.UDAM.PlayAnimationByDef(loc_animationArray[Utility.RandomInt(0, loc_animationArray.Length - 1)], loc_actors, abDisableActors = true)
+            UDmain.UDAM.PlayAnimationByDef(loc_animationArray[RandomInt(0, loc_animationArray.Length - 1)], loc_actors, abDisableActors = true)
         Else
             UDmain.Warning("UD_OrgasmManager::PlayOrgasmAnimation() Can't find orgasm animations for the actor")
         EndIf
@@ -426,7 +424,7 @@ Function OnEdge(string eventName, string strArg, float numArg, Form sender)
         Actor loc_actor = loc_slot.getActor()
         if !loc_slot.isPlayer() && UDmain.ActorInCloseRange(loc_actor)
             if strArg != UDmain.Player.getActorBase().getName()
-                int random = Utility.randomInt(1,3)
+                int random = RandomInt(1,3)
                 if random == 1
                     UDMain.UDWC.Notification_Push(strArg + " gets denied just before reaching the orgasm!")
                 elseif random == 2
