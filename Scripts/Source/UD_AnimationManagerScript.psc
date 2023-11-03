@@ -1399,7 +1399,21 @@ EndFunction
 ; abDismount should not be used with group animations since they are using "mount"
 Function _Apply3rdPersonCamera(Bool abDismount = True)
     if UDmain.ImprovedCameraInstalled
+        ;UDmain.Log("UD_AnimationManagerScript::_Apply3rdPersonCamera() ImprovedCameraInstalled = true, CameraState = " + Game.GetCameraState())
+        ; 0 - first person; 3 - free camera; 9 - third person; 10 - On a horse
+        ; TODO: need more tests with free camera
         Game.ForceThirdPerson()
+        
+        If (abDismount && UDMain.Player.IsOnMount())
+            UDMain.Player.Dismount()
+            int timeout = 0
+            while UDMain.Player.IsOnMount() && timeout <= 30; Wait for dismount to complete
+                Utility.Wait(0.1)
+                timeout += 1
+            EndWhile
+            ;UDmain.Log("UD_AnimationManagerScript::_Apply3rdPersonCamera() Dismount waiting, IsOnMount = " + UDMain.Player.IsOnMount() + ", timeout = " + timeout)
+        EndIf
+
         return
     endif
 
