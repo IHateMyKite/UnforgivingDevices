@@ -8,6 +8,12 @@ My goal with this mod is to make custom devices with custom behavier. My vision 
 
 This are all examples of what I want to archieve in this mod (not what is currently in this mod yet).
 
+# Development discussion
+
+Furthere mod discussion is moved to new discord for Devious Devices NG. It is required that user have valid Lovers Labs account, and validate it by posting screenshot (more info on said discord)
+
+Link: https://discord.com/invite/VCkBRbJ6sb
+
 # Documentation
 
 I only update documentation manually once in the while, so the information on the website might not allways up to date
