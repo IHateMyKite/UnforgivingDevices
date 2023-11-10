@@ -3052,15 +3052,10 @@ int Function getGaggedLevel(Actor akActor)
 EndFunction
 
 Armor Function GetRenderDevice(Armor akInventoryDevice)
-    Armor loc_res = none
     if akInventoryDevice
-        if akInventoryDevice.haskeyword(libs.zad_inventoryDevice)
-            zadEquipScript _tmpObjRef = (TransfereContainer_ObjRef.placeAtMe(akInventoryDevice) as zadequipscript)
-            loc_res = _tmpObjRef.deviceRendered
-            _tmpObjRef.delete()
-        endif
+        return libs.GetRenderedDevice(akInventoryDevice)
     endif
-    return loc_res
+    return none
 EndFunction
 
 Function SetArousalPerks()

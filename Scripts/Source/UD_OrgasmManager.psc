@@ -380,7 +380,7 @@ Int Function PlayOrgasmAnimation(Actor akActor)
     
     if loc_is3Dloaded
         ; updating ActorConstraintsInt
-        UDmain.UDAM.GetActorConstraintsInt(akActor, abUseCache = False)
+        ;UDmain.UDAM.GetActorConstraintsInt(akActor, abUseCache = False)
         String[] loc_animationArray = UDmain.UDAM.GetOrgasmAnimDefs(akActor)
         If loc_animationArray.Length > 0
             Actor[] loc_actors = new Actor[1]

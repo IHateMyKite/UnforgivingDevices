@@ -699,6 +699,7 @@ Int                     _StruggleAnimationDefHelperLastIndex    = -1
 Int                     _PlayerLastConstraints                  = 0
 Int                     _HelperLastConstraints                  = 0
 Int[]                   _ActorsConstraints
+Float                   _RealTimeLocked = 0.0
 
 ;---------------------------------------PRIVATE PROPERTIES----------------------------------------
 UnforgivingDevicesMain      Property UDmain     hidden ;main libs
@@ -1737,6 +1738,8 @@ Function _Init(Actor akActor)
         UDmain.Log(DeviceInventory.getName() + " fully locked on " + getWearerName(),1)
     endif
     
+    ResetRealTimeLockedTime()
+    
     Ready = True
     
     if UDCDmain.isRegistered(getWearer())
@@ -2346,7 +2349,13 @@ Bool Function EvaluateNPCAI()
     return loc_minigameStarted
 EndFunction
 
+Float Function GetRealTimeLockedTime()
+    return _RealTimeLocked - Game.GetRealHoursPassed()
+EndFunction
 
+Function ResetRealTimeLockedTime()
+    _RealTimeLocked = Game.GetRealHoursPassed()
+EndFunction
 
 ;==============================================================================================
 ;==============================================================================================
@@ -3503,38 +3512,43 @@ Function _deviceMenuInit(bool[] aaControl)
     setHelper(none)
     UDCDmain.resetCondVar()
 
-    bool        loc_isloose             = isLoose()
-    bool        loc_freehands           = WearerFreeHands()
-    float       loc_accesibility        = getAccesibility()
-    
-    ;normal struggle
-    if StruggleMinigameAllowed(loc_accesibility); && (loc_isloose || loc_freehands)
-        UDCDmain.currentDeviceMenu_allowstruggling = True
-    else
-        UDCDmain.currentDeviceMenu_allowUselessStruggling = True
-    endif
-    
-    if HaveLocks() && HaveAccesibleLock() ;check if device have locks, and if they can be currently accessed
-        Int loc_lockMinigames = LockMinigameAllowed(loc_accesibility)
-        if Math.LogicalAnd(loc_lockMinigames,0x1)
-            UDCDmain.currentDeviceMenu_allowlockpick = True
+    if Udmain.UDMOM.GetModifierState_MinigameAllowed(self)
+        bool        loc_isloose             = isLoose()
+        bool        loc_freehands           = WearerFreeHands()
+        float       loc_accesibility        = getAccesibility()
+        
+        ;normal struggle
+        if StruggleMinigameAllowed(loc_accesibility); && (loc_isloose || loc_freehands)
+            UDCDmain.currentDeviceMenu_allowstruggling = True
+        else
+            UDCDmain.currentDeviceMenu_allowUselessStruggling = True
         endif
-        if Math.LogicalAnd(loc_lockMinigames,0x2)
-            UDCDmain.currentDeviceMenu_allowkey = True
+        
+        if HaveLocks() && HaveAccesibleLock() ;check if device have locks, and if they can be currently accessed
+            Int loc_lockMinigames = LockMinigameAllowed(loc_accesibility)
+            if Math.LogicalAnd(loc_lockMinigames,0x1)
+                UDCDmain.currentDeviceMenu_allowlockpick = True
+            endif
+            if Math.LogicalAnd(loc_lockMinigames,0x2)
+                UDCDmain.currentDeviceMenu_allowkey = True
+            endif
+            if Math.LogicalAnd(loc_lockMinigames,0x4)
+                UDCDmain.currentDeviceMenu_allowlockrepair = True
+            endif
         endif
-        if Math.LogicalAnd(loc_lockMinigames,0x4)
-            UDCDmain.currentDeviceMenu_allowlockrepair = True
+        
+        ;cutting
+        if CuttingMinigameAllowed(loc_accesibility)
+            UDCDmain.currentDeviceMenu_allowcutting = True
         endif
-    endif
-    
-    ;cutting
-    if CuttingMinigameAllowed(loc_accesibility)
-        UDCDmain.currentDeviceMenu_allowcutting = True
-    endif
-    
-    ;Check if Lock menu button should be present in menu
-    if (UDCDmain.currentDeviceMenu_allowkey || UDCDmain.currentDeviceMenu_allowlockpick || UDCDmain.currentDeviceMenu_allowlockrepair)
-        UDCDmain.currentDeviceMenu_allowLockMenu = true
+        
+        ;Check if Lock menu button should be present in menu
+        if (UDCDmain.currentDeviceMenu_allowkey || UDCDmain.currentDeviceMenu_allowlockpick || UDCDmain.currentDeviceMenu_allowlockrepair)
+            UDCDmain.currentDeviceMenu_allowLockMenu = true
+        endif
+        
+        ;override function
+        onDeviceMenuInitPost(aaControl)
     endif
     
     ;sets last opened device
@@ -3542,8 +3556,6 @@ Function _deviceMenuInit(bool[] aaControl)
         UDCDmain.setLastOpenedDevice(self)
     endif
     
-    ;override function
-    onDeviceMenuInitPost(aaControl)
     _filterControl(aaControl)
     UDCdmain.CheckAndDisableSpecialMenu()
 EndFunction
@@ -3635,37 +3647,45 @@ Function _deviceMenuInitWH(Actor akSource,bool[] aaControl)
         bool    loc_freehands_wearer     = WearerFreeHands(true,False)
         bool    loc_freehands_helper     = HelperFreeHands(true)
         float   loc_accesibility         = getAccesibility()
-        
-        ;help struggle
-        if canBeStruggled(loc_accesibility)
-            UDCDmain.currentDeviceMenu_allowstruggling = True
-        endif
-
-        if HaveAccesibleLock()
-            Int loc_lockMinigame = LockMinigameAllowed(loc_accesibility)
-            ;key unlock
-            if Math.LogicalAnd(loc_lockMinigame,0x2)
-                UDCDmain.currentDeviceMenu_allowkey = True
+        if Udmain.UDMOM.GetModifierState_MinigameAllowed(self)
+            ;help struggle
+            if canBeStruggled(loc_accesibility)
+                UDCDmain.currentDeviceMenu_allowstruggling = True
             endif
             
-            ;lockpicking
-            if Math.LogicalAnd(loc_lockMinigame,0x1)
-                if (wearer.getItemCount(UDCDmain.Lockpick) || akSource.getItemCount(UDCDmain.Lockpick))
-                    UDCDmain.currentDeviceMenu_allowlockpick = True
+            if HaveAccesibleLock()
+                Int loc_lockMinigame = LockMinigameAllowed(loc_accesibility)
+                ;key unlock
+                if Math.LogicalAnd(loc_lockMinigame,0x2)
+                    UDCDmain.currentDeviceMenu_allowkey = True
+                endif
+                
+                ;lockpicking
+                if Math.LogicalAnd(loc_lockMinigame,0x1)
+                    if (wearer.getItemCount(UDCDmain.Lockpick) || akSource.getItemCount(UDCDmain.Lockpick))
+                        UDCDmain.currentDeviceMenu_allowlockpick = True
+                    endif
+                endif
+
+                ;lock repair
+                if Math.LogicalAnd(loc_lockMinigame,0x4)
+                    UDCDmain.currentDeviceMenu_allowlockrepair = True
                 endif
             endif
-
-            ;lock repair
-            if Math.LogicalAnd(loc_lockMinigame,0x4)
-                UDCDmain.currentDeviceMenu_allowlockrepair = True
+            
+            ;cutting
+            if canBeCutted()
+                UDCDmain.currentDeviceMenu_allowcutting = True
             endif
+            
+            if (UDCDmain.currentDeviceMenu_allowkey || UDCDmain.currentDeviceMenu_allowlockpick || UDCDmain.currentDeviceMenu_allowlockrepair)
+                UDCDmain.currentDeviceMenu_allowLockMenu = true
+            endif
+            
+            ;override function
+            onDeviceMenuInitPostWH(aaControl)
         endif
         
-        ;cutting
-        if canBeCutted()
-            UDCDmain.currentDeviceMenu_allowcutting = True
-        endif
-            
         if !loc_freehands_wearer && loc_freehands_helper
             UDCDmain.currentDeviceMenu_allowTighten = True
         endif
@@ -3674,17 +3694,11 @@ Function _deviceMenuInitWH(Actor akSource,bool[] aaControl)
             UDCDmain.currentDeviceMenu_allowRepair = True
         endif
         
-        if (UDCDmain.currentDeviceMenu_allowkey || UDCDmain.currentDeviceMenu_allowlockpick || UDCDmain.currentDeviceMenu_allowlockrepair)
-            UDCDmain.currentDeviceMenu_allowLockMenu = true
-        endif
-        
         if WearerIsFollower() && !WearerIsPlayer()
             UDCDmain.currentDeviceMenu_allowCommand = True
         endif
     endif
     
-    ;override function
-    onDeviceMenuInitPostWH(aaControl)
     _filterControl(aaControl,akSource == none)
     UDCdmain.CheckAndDisableSpecialMenu()
 EndFunction
@@ -8247,6 +8261,8 @@ Function _MinigameParalelThread()
     Float loc_ElapsedTime2 = 0.0
     Float loc_ElapsedTime3 = 0.0
     
+    Udmain.UDMOM.Procces_UpdateModifiers_MinigameStarted(self)
+    
     while IsMinigameLoopRunning()
         if !isPaused()
             ;set expression every 5 second
@@ -8306,6 +8322,8 @@ Function _MinigameParalelThread()
         hideWidget()
     endif
     
+    Udmain.UDMOM.Procces_UpdateModifiers_MinigameEnded(self)
+    
     _MinigameParProc_2 = false
     
     if loc_is3DLoaded
@@ -8321,7 +8339,7 @@ Function _MinigameParalelThread()
 EndFunction
 
 Function _MinigameAVCheckLoopThread()
-    _MinigameParProc_4           = true
+    _MinigameParProc_4 = true
     
     ;UDmain.Info("_MinigameAVCheckLoopThread")
     

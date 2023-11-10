@@ -256,9 +256,63 @@ Function Procces_UpdateModifiers_Remove(UD_CustomDevice_RenderScript akDevice) ;
     endwhile
 EndFunction
 
+Bool Function GetModifierState_MinigameAllowed(UD_CustomDevice_RenderScript akDevice) ;directly accesed from device
+    int loc_modid = akDevice.UD_ModifiersRef.length
+    while loc_modid 
+        loc_modid -= 1
+        UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
+        if !loc_mod.MinigameAllowed(akDevice,akDevice.UD_ModifiersDataStr[loc_modid],akDevice.UD_ModifiersDataForm1[loc_modid],akDevice.UD_ModifiersDataForm2[loc_modid],akDevice.UD_ModifiersDataForm3[loc_modid])
+            return false
+        endif
+    endwhile
+    return true
+EndFunction
+
+Function Procces_UpdateModifiers_MinigameStarted(UD_CustomDevice_RenderScript akDevice) ;directly accesed from device
+    UD_CustomDevice_NPCSlot loc_slot = akDevice.UD_WearerSlot
+    if !loc_slot || !loc_slot.isUsed() || loc_slot.isDead() || !loc_slot.isScriptRunning()
+        return
+    endif
+    
+    int i = 0
+    UD_CustomDevice_RenderScript loc_device = loc_slot.UD_equipedCustomDevices[i]
+    
+    while loc_device
+        int loc_modid = loc_device.UD_ModifiersRef.length
+        while loc_modid 
+            loc_modid -= 1
+            UD_Modifier loc_mod = (loc_device.UD_ModifiersRef[loc_modid] as UD_Modifier)
+            loc_mod.MinigameStarted(loc_device,akDevice,loc_device.UD_ModifiersDataStr[loc_modid],loc_device.UD_ModifiersDataForm1[loc_modid],loc_device.UD_ModifiersDataForm2[loc_modid],loc_device.UD_ModifiersDataForm3[loc_modid])
+        endwhile
+        
+        i+=1
+        loc_device = loc_slot.UD_equipedCustomDevices[i]
+    endwhile
+EndFunction
+
+Function Procces_UpdateModifiers_MinigameEnded(UD_CustomDevice_RenderScript akDevice) ;directly accesed from device
+    UD_CustomDevice_NPCSlot loc_slot = akDevice.UD_WearerSlot
+    if !loc_slot || !loc_slot.isUsed() || loc_slot.isDead() || !loc_slot.isScriptRunning()
+        return
+    endif
+    
+    int i = 0
+    UD_CustomDevice_RenderScript loc_device = loc_slot.UD_equipedCustomDevices[i]
+    
+    while loc_device
+        int loc_modid = loc_device.UD_ModifiersRef.length
+        while loc_modid 
+            loc_modid -= 1
+            UD_Modifier loc_mod = (loc_device.UD_ModifiersRef[loc_modid] as UD_Modifier)
+            loc_mod.MinigameEnded(loc_device,akDevice,loc_device.UD_ModifiersDataStr[loc_modid],loc_device.UD_ModifiersDataForm1[loc_modid],loc_device.UD_ModifiersDataForm2[loc_modid],loc_device.UD_ModifiersDataForm3[loc_modid])
+        endwhile
+        
+        i+=1
+        loc_device = loc_slot.UD_equipedCustomDevices[i]
+    endwhile
+EndFunction
 
 ;DEBUG
-
 Function Debug_AddModifier(UD_CustomDevice_RenderScript akDevice)
     string[] loc_ModifierList
     Alias[]  loc_ModifierListRef

@@ -168,15 +168,6 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
                             target.removeItem(deviceInventory,1,True)
                         endif
                         giver.removeItem(deviceRendered,1,True)
-                        ;UD_CustomDevice_RenderScript device = getUDScript(giver)
-                        ;if device
-                        ;    device.removeDevice(giver)
-                        ;    if DestroyOnRemove
-                        ;        target.removeItem(deviceInventory,1,True)
-                        ;    endif
-                        ;    giver.removeItem(deviceRendered,1,True)
-                        ;    return
-                        ;endif
                     else
                         if UDmain.TraceAllowed()                        
                             UDmain.Log("Removing ID device" + deviceInventory.getName() + " on "+ giver.getActorBase().getName(),1)
@@ -980,9 +971,9 @@ Function unlockDevice(Actor akActor)
         libs.SendDeviceRemovalEvent(libs.LookupDeviceType(zad_DeviousDevice), akActor)
         libs.SendDeviceRemovedEventVerbose(deviceInventory, zad_DeviousDevice, akActor)
         
-        ;If CanApplyBoundEffect(akActor) 
-        ;    libs.StopBoundEffects(akActor)
-        ;EndIf
+        If CanApplyBoundEffect(akActor) 
+            libs.StopBoundEffects(akActor)
+        EndIf
     endif
     
     StorageUtil.UnSetIntValue(akActor, "UD_ignoreEvent" + deviceInventory)

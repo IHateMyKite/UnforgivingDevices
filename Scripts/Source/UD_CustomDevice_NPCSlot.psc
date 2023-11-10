@@ -816,7 +816,6 @@ bool FUnction deviceAlreadyRegisteredRender(Armor deviceRendered)
         i+=1
     endwhile
     return false
-    
 EndFunction
 
 Function removeAllDevices()
@@ -844,7 +843,7 @@ Function removeUnusedDevices()
                 loc_device.getWearer().removeItem(loc_device.deviceRendered)
             endif
             UD_equipedCustomDevices[i] = none
-            if UDmain.TraceAllowed()            
+            if UDmain.TraceAllowed()
                 UDmain.Log(loc_device.getDeviceName() + " is unused, removing from " + getSlotedNPCName(),2)
             endif
             _iUsedSlots -= 1

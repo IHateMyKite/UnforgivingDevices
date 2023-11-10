@@ -429,9 +429,9 @@ Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRen
             if destroyDevice
                 akActor.RemoveItem(deviceInventory, 1, true)
             EndIf
-        else    
-                
-        endif        
+        else
+
+        endif
     else
         parent.RemoveQuestDevice(akActor, deviceInventory, deviceRendered, zad_DeviousDevice, RemovalToken, destroyDevice, skipMutex) ;actor not registered
     endif
@@ -774,14 +774,14 @@ Function PlayThirdPersonAnimation(actor akActor, string animation, int duration,
 EndFunction
 
 Function ActorOrgasm(actor akActor, int setArousalTo=-1, int vsID=-1)
-    int loc_newArousal = 100 - setArousalTo
-    if setArousalTo == -1
-        loc_newArousal = 75
-    endif
+    ;int loc_newArousal = 100 - setArousalTo
+    ;if setArousalTo == -1
+    ;    loc_newArousal = 75
+    ;endif
     ;ActorOrgasmPatched(akActor,20,loc_newArousal)
     UDmain.UDNPCM.RegisterNPC(akActor,true) ;orgasm system will not work if actor is not registered, so register the actor first, and hope there is free slot ;)
     OrgasmSystem.ForceOrgasm(akActor)
-    UDmain.GetUDOM(akActor).ActorOrgasm(akActor,OrgasmSystem.GetOrgasmingCount(akActor))
+    ;UDmain.GetUDOM(akActor).ActorOrgasm(akActor,OrgasmSystem.GetOrgasmingCount(akActor))
 EndFunction
 
 Function UpdateExposure(actor akRef, float val, bool skipMultiplier=false)
@@ -809,79 +809,14 @@ Event StartBoundEffectsPatched(Actor akTarget)
     parent.StartBoundEffects(akTarget)
 EndEvent
 
-Armor Function GetRenderedDevice(armor device)
-    if device.haskeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
-        Armor loc_res = StorageUtil.GetFormValue(device, "UD_RenderDevice", none) as Armor
-        if loc_res
-            if UDmain.TraceAllowed()        
-                UDmain.Log("GetRenderedDevice(patched)("+device.getName()+")called, returning " + loc_res,2)
-            endif
-            return loc_res
-        endif
-    endif
-    return parent.GetRenderedDevice(device)
-EndFunction
-
 Function UpdateControls()
     ProcessPlayerControls(true) ;only update when player is not in minigame
 EndFunction
 
-Bool _ProcessPlayerControlsMutex = False
-Function StartProcessPlayerControlsMutex()
-    while _ProcessPlayerControlsMutex
-        Utility.waitMenuMode(0.1)
-    endwhile
-    _ProcessPlayerControlsMutex = True
-EndFunction
-Function EndProcessPlayerControlsMutex()
-    _ProcessPlayerControlsMutex = False
-EndFunction
 Function ProcessPlayerControls(bool abCheckMinigame = true)
-    if UDmain.TraceAllowed()
-        UDMain.Log("ProcessPlayerControls",3)
-    endif
-    ;if (!abCheckMinigame || !UDCDmain.PlayerInMinigame())
-    ;    StartProcessPlayerControlsMutex()
-    ;    ; Centralized control management function.
-    ;    bool movement   = true
-    ;    bool fighting   = true
-    ;    bool sneaking   = true
-    ;    bool menu       = true
-    ;
-    ;    ;check hardcore mode
-    ;    if UDmain.Player.HasSpell(UDlibs.HardcoreDisableSpell)
-    ;        menu = false
-    ;    else
-    ;        menu = true
-    ;    endif
-    ;
-    ;    bool activate = true
-    ;    int cameraState = Game.GetCameraState()
-    ;    if playerRef.WornHasKeyword(zad_DeviousBlindfold) && (config.BlindfoldMode == 1 || config.BlindfoldMode == 0) && (cameraState == 8 || cameraState == 9)
-    ;        movement = false
-    ;        sneaking = false
-    ;    EndIf
-    ;
-    ;    if IsBound(playerRef)
-    ;        If playerRef.WornHasKeyword(zad_BoundCombatDisableKick)
-    ;            fighting = false
-    ;        Else
-    ;            fighting = config.UseBoundCombat
-    ;        Endif
-    ;    EndIf
-    ;    if playerRef.WornHasKeyword(zad_DeviousPetSuit)
-    ;        sneaking = false
-    ;    EndIf
-    ;    if playerRef.WornHasKeyword(zad_DeviousPonyGear)
-    ;        sneaking = false
-    ;    EndIf
-    ;    Game.DisablePlayerControls(abMovement = !movement, abFighting = !fighting, abSneaking = !sneaking, abMenu = !menu, abActivate = !activate)    
-    ;    Game.EnablePlayerControls(abMovement = movement, abFighting = fighting, abSneaking = sneaking, abMenu = menu, abActivate = activate) 
-    ;    EndProcessPlayerControlsMutex()
-    ;endif
 EndFunction
 
-function stripweapons(actor a, bool unequiponly = true)        
+function stripweapons(actor a, bool unequiponly = true)
     int i = 2
     Spell spl
     Weapon weap
