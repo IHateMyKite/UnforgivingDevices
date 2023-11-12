@@ -2350,7 +2350,7 @@ Bool Function EvaluateNPCAI()
 EndFunction
 
 Float Function GetRealTimeLockedTime()
-    return _RealTimeLocked - Game.GetRealHoursPassed()
+    return Game.GetRealHoursPassed() - _RealTimeLocked
 EndFunction
 
 Function ResetRealTimeLockedTime()

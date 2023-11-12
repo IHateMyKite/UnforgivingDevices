@@ -208,12 +208,12 @@ Bool Function StartSoloAnimationSequence(Actor akActor, String[] aasAnimation, B
         EndIf
     EndWhile
     
-    If !abContinueAnimation
-        ; unequipping the shield again after starting the animation
-        If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
-            akActor.UnequipItemSlot(39)
-        EndIf
-    EndIf
+    ;If !abContinueAnimation
+    ;    ; unequipping the shield again after starting the animation
+    ;    If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
+    ;        akActor.UnequipItemSlot(39)
+    ;    EndIf
+    ;EndIf
     Return True
 EndFunction
 
@@ -357,15 +357,15 @@ Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[]
         akHelper.TranslateToRef(vehicleMarkerRef, 200.0)
     EndIf
     
-    If !abContinueAnimation
-        ; unequipping the shield again after starting the animation
-        If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
-            akActor.UnequipItemSlot(39)
-        EndIf
-        If StorageUtil.HasFormValue(akHelper, "UD_EquippedShield")
-            akHelper.UnequipItemSlot(39)
-        EndIf
-    EndIf
+    ;If !abContinueAnimation
+    ;    ; unequipping the shield again after starting the animation
+    ;    If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
+    ;        akActor.UnequipItemSlot(39)
+    ;    EndIf
+    ;    If StorageUtil.HasFormValue(akHelper, "UD_EquippedShield")
+    ;        akHelper.UnequipItemSlot(39)
+    ;    EndIf
+    ;EndIf
     
     Return True
 EndFunction
@@ -516,13 +516,13 @@ Function LockAnimatingActor(Actor akActor, Bool abDisableActor = True)
         akActor.SetAnimationVariableBool("bHeadTrackSpine", False)
     EndIf
 
-    Armor shield = akActor.GetEquippedShield()
-    If shield
-        StorageUtil.SetFormValue(akActor, "UD_EquippedShield", shield)
-        akActor.UnequipItemSlot(39)
-    Else
-        StorageUtil.UnsetFormValue(akActor, "UD_EquippedShield")
-    EndIf
+    ;Armor shield = akActor.GetEquippedShield()
+    ;If shield
+    ;    StorageUtil.SetFormValue(akActor, "UD_EquippedShield", shield)
+    ;    akActor.UnequipItemSlot(39)
+    ;Else
+    ;    StorageUtil.UnsetFormValue(akActor, "UD_EquippedShield")
+    ;EndIf
     
     if akActor.IsWeaponDrawn()
         akActor.SheatheWeapon()
@@ -560,18 +560,18 @@ Function UnlockAnimatingActor(Actor akActor, Bool abEnableActor = True)
     
     akActor.SetVehicle(None)
     
-    If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
-        If UD_Native.IsPlayer(akActor)
-            Armor shield = StorageUtil.GetFormValue(akActor, "UD_EquippedShield") as Armor
-            If shield
-                akActor.EquipItem(akActor, shield)
-            EndIf
-        Else
-            ; if akActor is a NPC lets hope it has enough AI to equip shield
-            ; because I don't want to check its outfit for having shiled.
-        EndIf
-        StorageUtil.UnsetFormValue(akActor, "UD_EquippedShield")
-    EndIf
+    ;If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
+    ;    If UD_Native.IsPlayer(akActor)
+    ;        Armor shield = StorageUtil.GetFormValue(akActor, "UD_EquippedShield") as Armor
+    ;        If shield
+    ;            akActor.EquipItem(akActor, shield)
+    ;        EndIf
+    ;    Else
+    ;        ; if akActor is a NPC lets hope it has enough AI to equip shield
+    ;        ; because I don't want to check its outfit for having shiled.
+    ;    EndIf
+    ;    StorageUtil.UnsetFormValue(akActor, "UD_EquippedShield")
+    ;EndIf
 
 EndFunction
 

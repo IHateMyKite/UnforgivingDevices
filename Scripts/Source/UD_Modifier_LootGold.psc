@@ -10,7 +10,7 @@ Function DeviceUnlocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr,
     
     Actor loc_actor = akDevice.GetWearer()
     
-    if !loc_actor
+    if !loc_actor || !IsPlayer(loc_actor) ;should only work for player
         return
     endif
     

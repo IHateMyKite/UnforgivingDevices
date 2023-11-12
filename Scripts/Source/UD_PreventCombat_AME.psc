@@ -35,18 +35,18 @@ Function Evaluate()
     ;_target.setAV("aggression",0)
     _target.stopCombat()
     Actor akActor = _target
-    Weapon loc_weaponleft = akActor.GetEquippedWeapon(true)
-    Weapon loc_weaponright = akActor.GetEquippedWeapon(true)
-    Armor loc_shield = akActor.GetEquippedShield()
-    if loc_weaponleft
-        akActor.unequipItem(loc_weaponleft)
-    endif
-    if loc_weaponright
-        akActor.unequipItem(loc_weaponright)
-    endif
-    if loc_shield
-        akActor.unequipItem(loc_shield)
-    endif
+    ;Weapon loc_weaponleft = akActor.GetEquippedWeapon(true)
+    ;Weapon loc_weaponright = akActor.GetEquippedWeapon(true)
+    ;Armor loc_shield = akActor.GetEquippedShield()
+    ;if loc_weaponleft
+    ;    akActor.unequipItem(loc_weaponleft)
+    ;endif
+    ;if loc_weaponright
+    ;    akActor.unequipItem(loc_weaponright)
+    ;endif
+    ;if loc_shield
+    ;    akActor.unequipItem(loc_shield)
+    ;endif
 EndFunction
 
 Event OnEffectFinish(Actor akTarget, Actor akCaster)

@@ -15,7 +15,7 @@ Bool Function MinigameAllowed(UD_CustomDevice_RenderScript akModDevice, String a
     Bool loc_cond = loc_WearerGold > loc_gold
     
     if !loc_cond && IsPlayer(akModDevice.GetWearer())
-        UDmain.Info("You dont have enaugh gold to pay the device!")
+        UDmain.Print("You dont have enough gold to pay the device!")
     endif
     
     return loc_cond
