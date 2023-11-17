@@ -108,7 +108,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
         endif
         
         if akNewContainer == UDCDmain.EventContainer_ObjRef && giver
-            if UDmain.TraceAllowed()            
+            if UDmain.TraceAllowed()
                 UDmain.Log(" Device " + deviceInventory.getName() + " send to Event Container! Waiting for device to return to inventory!",3)
             endif
             while !deviceReturned
@@ -160,7 +160,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
                     endif
                 else
                     if giver.getItemCount(deviceRendered); && DestroyOnRemove
-                        if UDmain.TraceAllowed()                        
+                        if UDmain.TraceAllowed()
                             UDmain.Log("Removing device from dead actor " + deviceInventory.getName() + " on "+ giver.getActorBase().getName(),1)
                         endif
                         UD_Native.SendRemoveRenderDeviceEvent(giver,deviceRendered)
@@ -625,7 +625,7 @@ int Function EquipFilterStraitjacket(actor akActor, bool silent=false)
     return 0
 EndFunction
 
-string Function getDeviceName()
+string Function GetDeviceName()
     return deviceInventory.getName()
 EndFunction
 
@@ -867,7 +867,7 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
         ; make it visible for the player in case the menu is open
         akActor.QueueNiNodeUpdate()
     elseif !IsPlayer(akActor) && !akActor.IsOnMount() && loc_haveHBkwd
-        ; prevent a bug with straitjackets and elbowbinders not hiding NPC hands when equipping these items.        
+        ; prevent a bug with straitjackets and elbowbinders not hiding NPC hands when equipping these items.
         akActor.UpdateWeight(0)
     EndIf    
     if !IsPlayer(akActor) && (loc_haveHBkwd || loc_haveHSkwd)
@@ -880,7 +880,7 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
     If TimedUnlock
         SetLockTimer()
     EndIf
-    if CanApplyBoundEffect(akActor,loc_haveHBkwd,loc_haveHSkwd) 
+    if CanApplyBoundEffect(akActor,loc_haveHBkwd,loc_haveHSkwd)
         libs.StartBoundEffects(akActor)
     endif
 EndEvent

@@ -454,7 +454,7 @@ Bool Function CheckSubModules()
         ShowMessageBox(loc_modules)
         
         ;Dumb info to console, use GInfo to skip ConsoleUtil installation check
-        GInfo("!!FATAL ERROR!! = Error loading Unforgiving devices. One or more of the modules are not ready. Please contact developrs on LL or GitHub")
+        GInfo("!!FATAL ERROR!! = Error loading Unforgiving devices. One or more of the modules are not ready. Please contact developers on LL or GitHub")
         GInfo("UDCDmain="+UDCDmain.ready)
         GInfo("UDOM="+UDOM.ready)
         return False

@@ -1771,8 +1771,8 @@ Function ProccesLockMutex()
     endif
     float loc_time = 0.0
     while loc_time <= UDmain.UDGV.UD_MutexTimeout && (!UD_GlobalDeviceMutex_InventoryScript)
-        Utility.waitMenuMode(0.1)
-        loc_time += 0.1
+        Utility.waitMenuMode(0.01)
+        loc_time += 0.01
     endwhile
     
     if !IsPlayer() && loc_time >= UDmain.UDGV.UD_MutexTimeout && UDmain.IsAnyMenuOpen()
@@ -1782,8 +1782,8 @@ Function ProccesLockMutex()
         Utility.wait(0.01)
         loc_time = 0.0
         while loc_time <= UDmain.UDGV.UD_MutexTimeout && (!UD_GlobalDeviceMutex_InventoryScript)
-            Utility.waitMenuMode(0.1)
-            loc_time += 0.1
+            Utility.waitMenuMode(0.01)
+            loc_time += 0.01
         endwhile
     endif
     
@@ -1801,8 +1801,8 @@ Function ProccesUnlockMutex()
     float loc_time = 0.0
     bool  loc_failed = false
     while loc_time <= UDmain.UDGV.UD_MutexTimeout && (!UD_GlobalDeviceUnlockMutex_InventoryScript)
-        Utility.waitMenuMode(0.1)
-        loc_time += 0.1
+        Utility.waitMenuMode(0.01)
+        loc_time += 0.01
     endwhile
     
     if !IsPlayer() && loc_time >= UDmain.UDGV.UD_MutexTimeout && UDmain.IsAnyMenuOpen()
@@ -1812,8 +1812,8 @@ Function ProccesUnlockMutex()
         Utility.wait(0.01)
         loc_time = 0.0
         while loc_time <= UDmain.UDGV.UD_MutexTimeout && (!UD_GlobalDeviceUnlockMutex_InventoryScript)
-            Utility.waitMenuMode(0.1)
-            loc_time += 0.1
+            Utility.waitMenuMode(0.01)
+            loc_time += 0.01
         endwhile
     endif
     

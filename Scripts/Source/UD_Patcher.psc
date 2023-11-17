@@ -80,14 +80,14 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
     if device.deviceRendered.hasKeyword(libs.zad_DeviousArmbinder)
         device.UD_durability_damage_base = fRange(RandomFloat(0.7,1.0)/loc_currentmult,0.05,100.0)
         device.UD_CutChance = fRange(RandomFloat(5.0,10.0)/loc_currentmult,1.0,50.0)
-        if isSteel(device)
+        if isSteel(device.deviceInventory)
             device.UD_CutChance = 0
         endif
         loc_type = 15
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousArmbinderElbow)
         device.UD_durability_damage_base = fRange(RandomFloat(0.65,0.8)/loc_currentmult,0.05,100.0)
         device.UD_CutChance = fRange(RandomFloat(3.0,8.0)/loc_currentmult,1.0,50.0)
-        if isSteel(device)
+        if isSteel(device.deviceInventory)
             device.UD_CutChance = 0
         endif
         loc_type = 16
@@ -95,7 +95,7 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
         device.UD_durability_damage_base = fRange(RandomFloat(0.7,0.9)/loc_currentmult,0.05,100.0)
         device.UD_CutChance = fRange(RandomFloat(2.0,8.0)/loc_currentmult,1.0,50.0)
         sentientModChance = 75
-        if isSteel(device)
+        if isSteel(device.deviceInventory)
             device.UD_CutChance = 0
         endif
         loc_type = 17
@@ -160,13 +160,13 @@ Function patchBelt(UD_CustomBelt_RenderScript device)
     
     device.UD_Cooldown = Round(RandomInt(140,200)/fRange(loc_currentmult,0.5,2.0))
     ;materials
-    if isEbonite(device)
+    if isEbonite(device.deviceInventory)
         device.UD_ResistPhysical = RandomFloat(-0.25,0.7)
         device.UD_ResistMagicka = RandomFloat(0.25,0.5)
     elseif (StringUtil.find(device.deviceInventory.getName(),"Leather") != -1)
         device.UD_ResistPhysical = RandomFloat(-0.4,0.1)
         device.UD_ResistMagicka = RandomFloat(-0.5,0.5)
-    elseif isRope(device)
+    elseif isRope(device.deviceInventory)
         device.UD_ResistPhysical = RandomFloat(-0.5,0.0)
         device.UD_ResistMagicka = RandomFloat(-0.1,0.1)
     endif
@@ -387,14 +387,14 @@ Function GenerateLocks(UD_CustomDevice_RenderScript akDevice, Int aiType, Int ai
         return
     endif
     
-    if isRope(akDevice)
+    if isRope(akDevice.deviceInventory)
         return ;rope device can't have locks!
     endif
     
     if !akDevice.HaveLocks()
         Int loc_timelock = 0
         if UD_TimedLocks
-            RandomInt(0,2) ;random timelock, to force player in to being longer locked in akDevice
+            loc_timelock = RandomInt(0,2) ;random timelock, to force player in to being longer locked in akDevice
         endif
         
         if aiType == 0 ;generic
@@ -459,7 +459,7 @@ Function GenerateLocks(UD_CustomDevice_RenderScript akDevice, Int aiType, Int ai
             akDevice.CreateLock(aiDifficulty, 15, loc_lockShields[1], "Back lock", loc_timelock, True)
         elseif aiType == 15 || aiType == 16 ;Armbinder or Elbowbinder
             Int[] loc_lockShields = UDCDMain.DistributeLockShields(2,RandomInt(UD_MinLocks,UD_MaxLocks))
-            if isSteel(akDevice)
+            if isSteel(akDevice.deviceInventory)
                 akDevice.CreateLock(aiDifficulty, 15, loc_lockShields[0], "Left cuff lock", loc_timelock, True)
                 akDevice.CreateLock(aiDifficulty, 15, loc_lockShields[1], "Right cuff lock", loc_timelock, True)
             else
@@ -467,7 +467,7 @@ Function GenerateLocks(UD_CustomDevice_RenderScript akDevice, Int aiType, Int ai
                 akDevice.CreateLock(aiDifficulty, 0, loc_lockShields[1], "Right shoulder lock", loc_timelock, True)
             endif
         elseif aiType == 17 ;Straitjacket
-            if isSteel(akDevice)
+            if isSteel(akDevice.deviceInventory)
                 Int[] loc_lockShields = UDCDMain.DistributeLockShields(2,RandomInt(UD_MinLocks,UD_MaxLocks))
                 akDevice.CreateLock(aiDifficulty, 15, loc_lockShields[0], "Left cuff lock", loc_timelock, True)
                 akDevice.CreateLock(aiDifficulty, 15, loc_lockShields[1], "Right cuff lock", loc_timelock, True)
@@ -498,7 +498,7 @@ Function GenerateLocks(UD_CustomDevice_RenderScript akDevice, Int aiType, Int ai
             akDevice.CreateLock(aiDifficulty, 25, loc_lockShields[3], "Right lock 2", loc_timelock, True)
         endif
         
-        if isSecure(akDevice)
+        if isSecure(akDevice.deviceInventory)
             Int loc_lockNum = akDevice.GetLockNumber()
             while loc_lockNum
                 loc_lockNum -= 1

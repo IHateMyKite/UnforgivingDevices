@@ -1551,17 +1551,26 @@ EndEvent
 
 ;OnContainerChanged is very important event. It is used to determinate if render device have been equipped (OnEquipped only works for player)
 ;it is also used for retrieving device (this) script
+bool _initiated = false
+Int _VMHandle1 = 0x00000000
+Int _VMHandle2 = 0x00000000
 Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldContainer)
-    if (akNewContainer as Actor) && !akOldContainer && !IsUnlocked && !Ready
+    if (akNewContainer as Actor) && !akOldContainer && !_initiated && !IsUnlocked && !Ready
+        _initiated = true
         Actor loc_actor = akNewContainer as Actor
         if !loc_actor.isDead()
-            _Init(loc_actor)
+            if loc_actor.GetItemCount(DeviceRendered) <= 1
+                _Init(loc_actor)
+            else
+                UDmain.Error("More then one "+GetDeviceName()+" detected on " + GetActorName(loc_actor) + " - removing")
+                loc_actor.RemoveItem(DeviceRendered,1)
+            endif
         endif
     endif
     
     if UDmain
         if (akOldContainer == UDCDmain.TransfereContainer_ObjRef)
-            if UDmain.TraceAllowed()            
+            if UDmain.TraceAllowed()
                 UDmain.Log("Device " + getDeviceHeader() + " transfered to transfer container!",2)
             endif
             UDCDmain._transferedDevice = self
@@ -1581,6 +1590,22 @@ EndFunction
 
 ;post equip function
 Function _Init(Actor akActor)
+    if !deviceRendered
+        deviceRendered = zadNativeFunctions.GetRenderDevice(deviceInventory)
+    endif
+
+    Wearer = akActor
+
+    Int loc_setvmres = SetVMHandle(akActor,deviceRendered)
+    
+    if loc_setvmres != 0
+        UDmain.Error("Cant set VMHandle for " + GetDeviceHeader() + " - Return code = " + loc_setvmres)
+        akActor.removeItem(deviceRendered,1)
+        return
+    else
+        UDMain.Info("Device " + GetDeviceHeader() + " set with VMHandle " + _VMHandle1 + " + " + _VMHandle2)
+    endif
+
     _libSafeCheck()
 
     if !akActor
@@ -1589,8 +1614,6 @@ Function _Init(Actor akActor)
         return
     endif
 
-    Wearer = akActor
-    
     UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
     
     if IsUnlocked 
@@ -1815,19 +1838,14 @@ EndFunction
 ;    -jamm lock chance
 ;    -!!!device rendered!!!
 Function updateValuesFromInventoryScript()
-    UD_CustomDevice_EquipScript temp = getInventoryScript()
-    if temp
-        if !zad_deviceKey
-            zad_deviceKey = temp.deviceKey
-        endif
-        zad_KeyBreakChance = temp.KeyBreakChance
-        zad_DestroyOnRemove = temp.DestroyOnRemove
-        zad_DestroyKey = temp.DestroyKey
-        zad_JammLockChance = temp.LockJamChance
-        UD_DeviceKeyword = temp.zad_deviousDevice
-        DeviceRendered = temp.DeviceRendered
-        temp.delete()
+    if !zad_deviceKey
+        zad_deviceKey = zadNativeFunctions.GetPropertyForm(deviceInventory,"deviceKey") as Key;temp.deviceKey
     endif
+    zad_KeyBreakChance = zadNativeFunctions.GetPropertyFloat(deviceInventory,"KeyBreakChance");temp.KeyBreakChance
+    zad_DestroyOnRemove = zadNativeFunctions.GetPropertyBool(deviceInventory,"DestroyOnRemove");temp.DestroyOnRemove
+    zad_DestroyKey = zadNativeFunctions.GetPropertyBool(deviceInventory,"DestroyKey");temp.DestroyKey
+    zad_JammLockChance = zadNativeFunctions.GetPropertyFloat(deviceInventory,"LockJamChance");temp.LockJamChance
+    UD_DeviceKeyword = zadNativeFunctions.GetPropertyForm(deviceInventory,"zad_deviousDevice") as Keyword;temp.zad_deviousDevice
 EndFunction
 
 Bool Function _ParalelProcessRunning()
@@ -2132,7 +2150,7 @@ EndFunction
 Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True)
     if IsUnlocked
         if UDmain.TraceAllowed()
-            UDmain.Log("unlockRestrain()"+getDeviceHeader()+": Device is already unlocked! Aborting ",1)
+            UDmain.Log("unlockRestrain("+getDeviceHeader()+") - Device is already unlocked! Aborting ",1)
         endif
         return
     endif
@@ -5081,7 +5099,7 @@ bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
         _exhaustion_mult = 1.5
         _exhaustion_mult_helper = 0.75
         _minMinigameStatSP = 0.25
-        _minMinigameStatMP = 0.6        
+        _minMinigameStatMP = 0.6
     elseif type == 3 ;slow
         UD_durability_damage_add = 0.0
         UD_applyExhastionEffect = False
@@ -5818,10 +5836,10 @@ EndFunction
         akHelper - minigame helper
 /;
 Function addStruggleExhaustion(Actor akHelper)
-    if UDmain.TraceAllowed()
-        UDmain.Log("UD_CustomDevice_RenderScript::addStruggleExhaustion("+getDeviceHeader()+") called")
-    endif
     if UD_applyExhastionEffect
+        if UDmain.TraceAllowed()
+            UDmain.Log("UD_CustomDevice_RenderScript::addStruggleExhaustion("+getDeviceHeader()+") called")
+        endif
         UDCDmain.AddExhaustion(Wearer,_exhaustion_mult)
         if akHelper
             UDCDmain.AddExhaustion(akHelper,_exhaustion_mult_helper)
@@ -6451,35 +6469,17 @@ Function minigame()
         _minigameHelper.AddToFaction(UDCDmain.MinigameFaction)
     endif
     
-    ;if loc_is3DLoaded
-    ;    
-    ;    ;if loc_WearerSlot
-    ;    ;    loc_WearerSlot.Send_MinigameStarter(self)
-    ;    ;else
-    ;    ;    UDmain.UDPP.Send_MinigameStarter(Wearer,self)
-    ;    ;endif
-    ;else
-    ;    _MinigameStarterThread()
-    ;endif
-    
     if UDmain.TraceAllowed()
         UDmain.Log("Minigame started for: " + deviceInventory.getName())    
     endif
     
     _MinigameMainLoopON = true
     
-    ;if loc_WearerSlot
-    ;    loc_WearerSlot.Send_MinigameParalel(self)
-    ;else
-    ;    UDmain.UDPP.Send_MinigameParalel(Wearer,self)
-    ;endif
-    
     float durability_onstart = current_device_health
     
     Bool loc_UseInterAVCheck = True
     if loc_WearerSlot && loc_PlayerInMinigame
         loc_UseInterAVCheck = False
-        ;loc_WearerSlot.StartMinigameAVCheckLoop(self)
     else
         loc_UseInterAVCheck = True
     endif
@@ -8091,7 +8091,6 @@ State UpdatePaused
     EndFunction
 EndState
 
-
 ;native events
 Function RegisterDevice(Actor akActor,Armor akInvDevice, Armor akRenDevice)
     ;UDmain.Info(self + ":: Register device called - " + GetActorName(akActor) + " , " + akInvDevice)
@@ -8099,8 +8098,6 @@ Function RegisterDevice(Actor akActor,Armor akInvDevice, Armor akRenDevice)
 EndFunction
 
 Function _SendMinigameThreads(bool abStarter, bool abCritLoop, bool abParalelThread, bool abAVLoop)
-    ;todo
-    
     int loc_mode = 0x0
     if abStarter
         loc_mode += 1
@@ -8115,7 +8112,17 @@ Function _SendMinigameThreads(bool abStarter, bool abCritLoop, bool abParalelThr
         loc_mode += 8
     endif
     
-    SendMinigameThreadEvents(GetWearer(),DeviceRendered,loc_mode)
+    Int loc_res = SendMinigameThreadEvents(GetWearer(),DeviceRendered,_VMHandle1,_VMHandle2,loc_mode)
+    
+    if loc_res > 0
+        if loc_res == 3
+            String loc_msg = "!!FATAL ERROR!!\nError finding script for device "+GetDeviceName()+". This likely mean that you installed patch incorrectly! Please close the game, and check you load order!"
+            UDmain.Error(loc_msg)
+            UDMain.ShowMessageBox(loc_msg)
+        else
+            UDmain.Error("Could not start minigame thread. Return code => " + loc_res)
+        endif
+    endif
 EndFunction
 
 Function _MinigameStarterThread()
@@ -8123,7 +8130,11 @@ Function _MinigameStarterThread()
     bool    loc_haveplayer      = PlayerInMinigame()
     bool    loc_is3DLoaded      = loc_haveplayer || UDmain.ActorInCloseRange(wearer)
     
-    ;UDmain.Info("_MinigameStarterThread")
+    if UDmain.TraceAllowed()
+        UDmain.Log("_MinigameStarterThread("+GetDeviceHeader()+")")
+    endif
+    
+    _MinigameParProc_1 = true
     
     UDCDMain.StartMinigameDisable(Wearer)
     if _minigameHelper
@@ -8151,59 +8162,15 @@ Function _MinigameStarterThread()
     endif
 EndFunction
 
-Function _MinigameCritLoopThread()
-    Actor akActor                           = GetWearer()
-    
-    _MinigameParProc_3           = true
-    
-    ;UDmain.Info("_MinigameCritLoopThread")
-    
-    Bool loc_playerInMinigame               = PlayerInMinigame()
-    Bool loc_is3DLoaded                     = akActor.Is3DLoaded() || loc_playerInMinigame
-
-    Float loc_elapsedTime = 0.0
-    Float loc_updateTime  = 0.25
-    string critType = "random"
-    if !loc_playerInMinigame
-        loc_updateTime = 1.0
-        critType = "NPC"
-    elseif UDCDmain.UD_AutoCrit
-        critType = "Auto"
-    endif
-    
-    if loc_playerInMinigame
-        Utility.Wait(0.5) ;wait little time before starting crits
-    endif
-    
-    ;process
-    while IsMinigameLoopRunning()
-        if !isPaused() && (!loc_is3DLoaded || !UDmain.IsMenuOpen())
-            ;check crit every 1 s
-            if loc_elapsedTime >= 1.0
-                if UD_minigame_canCrit
-                    UDCDmain.StruggleCritCheck(self,UD_StruggleCritChance,critType,UD_StruggleCritDuration)
-                elseif _customMinigameCritChance
-                    UDCDmain.StruggleCritCheck(self,_customMinigameCritChance,critType,_customMinigameCritDuration)
-                endif
-                loc_elapsedTime = 0.0
-            endif
-        endif
-        if IsMinigameLoopRunning()
-            Utility.Wait(loc_updateTime)
-            loc_elapsedTime += loc_updateTime
-        endif
-    endwhile
-    
-    _MinigameParProc_3 = false
-EndFunction
-
 Function _MinigameParalelThread()
     Actor     akActor       = GetWearer()
     Actor     akHelper      = getHelper()
     
     _MinigameParProc_2 = true
     
-    ;UDmain.Info("_MinigameParalelThread")
+    if UDmain.TraceAllowed()
+        UDmain.Log("_MinigameParalelThread("+GetDeviceHeader()+")")
+    endif
     
     ;process
     bool      loc_haveplayer    = PlayerInMinigame()
@@ -8338,10 +8305,60 @@ Function _MinigameParalelThread()
     endif
 EndFunction
 
+Function _MinigameCritLoopThread()
+    Actor akActor                           = GetWearer()
+    
+    _MinigameParProc_3           = true
+    
+    if UDmain.TraceAllowed()
+        UDmain.Log("_MinigameCritLoopThread("+GetDeviceHeader()+")")
+    endif
+    
+    Bool loc_playerInMinigame               = PlayerInMinigame()
+    Bool loc_is3DLoaded                     = akActor.Is3DLoaded() || loc_playerInMinigame
+
+    Float loc_elapsedTime = 0.0
+    Float loc_updateTime  = 0.25
+    string critType = "random"
+    if !loc_playerInMinigame
+        loc_updateTime = 1.0
+        critType = "NPC"
+    elseif UDCDmain.UD_AutoCrit
+        critType = "Auto"
+    endif
+    
+    if loc_playerInMinigame
+        Utility.Wait(0.5) ;wait little time before starting crits
+    endif
+    
+    ;process
+    while IsMinigameLoopRunning()
+        if !isPaused() && (!loc_is3DLoaded || !UDmain.IsMenuOpen())
+            ;check crit every 1 s
+            if loc_elapsedTime >= 1.0
+                if UD_minigame_canCrit
+                    UDCDmain.StruggleCritCheck(self,UD_StruggleCritChance,critType,UD_StruggleCritDuration)
+                elseif _customMinigameCritChance
+                    UDCDmain.StruggleCritCheck(self,_customMinigameCritChance,critType,_customMinigameCritDuration)
+                endif
+                loc_elapsedTime = 0.0
+            endif
+        endif
+        if IsMinigameLoopRunning()
+            Utility.Wait(loc_updateTime)
+            loc_elapsedTime += loc_updateTime
+        endif
+    endwhile
+    
+    _MinigameParProc_3 = false
+EndFunction
+
 Function _MinigameAVCheckLoopThread()
     _MinigameParProc_4 = true
     
-    ;UDmain.Info("_MinigameAVCheckLoopThread")
+    if UDmain.TraceAllowed()
+        UDmain.Log("_MinigameAVCheckLoopThread("+GetDeviceHeader()+")")
+    endif
     
     float loc_CurrentUpdateTime             = UDmain.UD_baseUpdateTime
     Bool  loc_HaveHelper                    = haveHelper()

@@ -343,7 +343,7 @@ Function finisher(actor akActor,int orgasms = 5)
     if(!finisherOn);mutex check
         finisherOn = True
         
-        if UDmain.TraceAllowed()        
+        if UDmain.TraceAllowed()
             UDmain.Log(getWearerName() + " finisher() called for " + orgasms + " orgasms")
         endif
         
