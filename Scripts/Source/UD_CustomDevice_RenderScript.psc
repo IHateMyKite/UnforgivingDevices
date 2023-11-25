@@ -183,7 +183,19 @@ Keyword  Property UD_DeviceKeyword                              auto hidden ;key
 ;/  Variable: DeviceRendered
     Link to device the script is currently on. In case this is not filled, it will be taken from Inventory Device
 /;
-Armor    Property DeviceRendered                                auto hidden ;Is taken from ID
+Armor    _DeviceRendered
+Armor    Property DeviceRendered                                hidden ;Is taken from ID
+    Armor Function Get()
+        if !_DeviceRendered
+            _DeviceRendered = zadNativeFunctions.GetRenderDevice(deviceInventory)
+        endif
+        return _DeviceRendered
+    EndFunction
+    
+    Function Set(Armor akDevice)
+        _DeviceRendered = akDevice
+    EndFunction
+EndProperty
 
 
 String[] Property UD_DeviceStruggleKeywords                     auto Hidden ;keywords (as string array) used to filter struggle animations
@@ -291,9 +303,7 @@ EndProperty
 /;
 float       Property UD_durability_damage_base                              ;durability dmg per second of struggling, range 0.00 - 40.00, precision 0.01 (4000 values)
     Function set(float fVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_7 = CodeBit(_deviceControlBitMap_7,Round(fRange(fVal,0.0,40.0)*100),12,0)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_7",Round(fRange(fVal,0.0,40.0)*100),12,0)
     EndFunction
     
     float Function get()
@@ -315,9 +325,7 @@ EndProperty
 /;
 float       Property UD_base_stat_drain                                     ;stamina drain for second of struggling, range 1 - 31, decimal point not used
     Function set(float fVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_6 = CodeBit(_deviceControlBitMap_6,Round(fRange(fVal,1.0,31.0)),5,27)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_6",Round(fRange(fVal,1.0,31.0)),5,27)
     EndFunction
     
     float Function get()
@@ -341,9 +349,7 @@ EndProperty
 /;
 float       Property UD_ResistPhysical                                      ;physical resistence. Needs to be applied to minigame to work!
     Function set(float fVal)
-        ;;startBitMapMutexCheck3()
-        _deviceControlBitMap_11 = CodeBit(_deviceControlBitMap_11,Round(fRange(5.0 + fVal,0.0,10.0)*100),10,20)
-        ;;endBitMapMutexCheck3()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_11",Round(fRange(5.0 + fVal,0.0,10.0)*100),10,20)
     EndFunction
     
     float Function get()
@@ -367,9 +373,7 @@ EndProperty
 /;
 float       Property UD_ResistMagicka                                       ;magicka resistence. Needs to be applied to minigame to work!
     Function set(float fVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_7 = CodeBit(_deviceControlBitMap_7,Round(fRange(5.0 + fVal,0.0,10.0)*100),10,12)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_7",Round(fRange(5.0 + fVal,0.0,10.0)*100),10,12)
     EndFunction
     
     float Function get()
@@ -394,7 +398,7 @@ EndProperty
 float       Property UD_WeaponHitResist                                     ;physical resistence to physical attack
     Function set(float fVal)
         ;;startBitMapMutexCheck3()
-        _deviceControlBitMap_11 = CodeBit(_deviceControlBitMap_11,Round(fRange(5.0 + fVal,0.0,10.0)*100),10,0)
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_11",Round(fRange(5.0 + fVal,0.0,10.0)*100),10,0)
         ;;endBitMapMutexCheck3()
     EndFunction
     
@@ -405,9 +409,7 @@ EndProperty
 
 float       Property UD_SpellHitResist                                      ;!!!UNUSED!!!
     Function set(float fVal)
-        ;;startBitMapMutexCheck3()
-        _deviceControlBitMap_11 = CodeBit(_deviceControlBitMap_11,Round(fRange(5.0 + fVal,0.0,10.0)*100),10,10)
-        ;;endBitMapMutexCheck3()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_11",Round(fRange(5.0 + fVal,0.0,10.0)*100),10,10)
     EndFunction
     
     float Function get()
@@ -429,9 +431,7 @@ EndProperty
 /;
 float       Property UD_CutChance                                           ;chance of cutting device every 1s of minigame, 0.0 is uncuttable
     Function set(float fVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_6 = CodeBit(_deviceControlBitMap_6,Round(fRange(fVal,0.0,100.0)),7,20)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_6",Round(fRange(fVal,0.0,100.0)),7,20)
     EndFunction
     
     float Function get()
@@ -453,9 +453,7 @@ EndProperty
 /;
 float       Property UD_StruggleCritMul                                     ;crit multiplier applied on crit, step = 0.25, max 255, default 3.75x
     Function set(float fVal)
-        ;;startBitMapMutexCheck3()
-        _deviceControlBitMap_12 = CodeBit(_deviceControlBitMap_12,Round(fRange(fVal,0.0,255.0)*4),10,15)
-        ;;endBitMapMutexCheck3()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_12",Round(fRange(fVal,0.0,255.0)*4),10,15)
     EndFunction
     
     float Function get()
@@ -477,9 +475,7 @@ EndProperty
 /;
 float       Property UD_StruggleCritDuration                                ;crit time, the lower this value, the more faster player needs to press button, range 0.5-1.2, step 0.1 (7 values)
     Function set(float fVal)
-        ;;startBitMapMutexCheck3()
-        _deviceControlBitMap_12 = CodeBit(_deviceControlBitMap_12,Round((fRange(fVal,0.5,1.2) - 0.5)*10),3,25)
-        ;;endBitMapMutexCheck3()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_12",Round((fRange(fVal,0.5,1.2) - 0.5)*10),3,25)
     EndFunction
     
     float Function get()
@@ -500,9 +496,7 @@ EndProperty
 /;
 int         Property UD_StruggleCritChance                                  ;chance of random crit happening once per second of struggling, range 0-100
     Function set(int iVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_6 = CodeBit(_deviceControlBitMap_6,iRange(iVal,0,100),7,0)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_6",iRange(iVal,0,100),7,0)
     EndFunction
     
     int Function get()
@@ -755,20 +749,16 @@ EndProperty
 
 bool    Property zad_DestroyKey                     Hidden
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,19)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,19)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,19))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,19)
     EndFunction
 endproperty
 float   Property zad_JammLockChance                 hidden ;chance of jamming lock
     Function set(float fVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_3 = CodeBit(_deviceControlBitMap_3,Round(fRange(fVal,0.0,100.0)),8,16)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_3",Round(fRange(fVal,0.0,100.0)),8,16)
     EndFunction
     
     float Function get()
@@ -777,9 +767,7 @@ float   Property zad_JammLockChance                 hidden ;chance of jamming lo
 endproperty
 float   Property zad_KeyBreakChance                 hidden ;chance of breaking the key
     Function set(float fVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_3 = CodeBit(_deviceControlBitMap_3,Round(fRange(fVal,0.0,100.0)),8,24)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_3",Round(fRange(fVal,0.0,100.0)),8,24)
     EndFunction
     
     float Function get()
@@ -793,9 +781,7 @@ int     Property UD_CurrentLocks                    Hidden ;how many locked lock
 endproperty
 int     Property UD_condition                       Hidden ;0 - new , 4 - broke
     Function set(int iVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_5 = CodeBit(_deviceControlBitMap_5,iRange(iVal,0,4),3,12)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_5",iRange(iVal,0,4),3,12)
     EndFunction
     
     int Function get()
@@ -804,306 +790,250 @@ int     Property UD_condition                       Hidden ;0 - new , 4 - broke
 endproperty
 bool    Property _isRemoved                         hidden
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,26)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,26)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,26))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,26)
     EndFunction
 EndProperty
 bool    Property _StruggleGameON                    Hidden
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,0)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,0)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,0))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,0)
     EndFunction
 endproperty
 bool    Property _LockpickGameON                    Hidden
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,1)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,1)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,1))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,1)
     EndFunction
 endproperty
 bool    Property _CuttingGameON                     Hidden
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,2)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,2)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,2))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,2)
     EndFunction
 endproperty
 bool    Property _KeyGameON                         Hidden
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,3)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,3)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,3))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,3)
     EndFunction
 endproperty
 bool    Property _RepairLocksMinigameON             Hidden
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,4)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,4)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,4))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,4)
     EndFunction
 endproperty
 bool    Property _critLoop_On                       Hidden
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,7)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,7)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,7))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,7)
     EndFunction
 EndProperty
 bool    Property UD_drain_stats                     Hidden ;if player will loose stats while struggling
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,9)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,9)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,9))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,9)
     EndFunction
 endproperty
 bool    Property UD_drain_stats_helper              Hidden ;if player will loose stats while struggling
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,10)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,10)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,10))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,10)
     EndFunction
 endproperty
 bool    Property UD_damage_device                   Hidden ;if device can be damaged
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,11)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,11)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,11))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,11)
     EndFunction
 endproperty
 bool    Property UD_applyExhastionEffect            Hidden ;applies debuff after mnigame ends
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,12)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,12)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,12))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,12)
     EndFunction
 endproperty
 bool    Property UD_applyExhastionEffectHelper      Hidden ;applies debuff after minigame ends
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,13)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,13)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,13))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,13)
     EndFunction
 endproperty
 bool    Property UD_minigame_canCrit                Hidden ;if crits can appear
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,14)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,14)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,14))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,14)
     EndFunction
 endproperty
 bool    Property UD_useWidget                       Hidden ;determinate if widget will be shown
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,15)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,15)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,15))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,15)
     EndFunction
 endproperty
 bool    Property UD_WidgetAutoColor                 Hidden
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,16)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,16)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,16))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,16)
     EndFunction
 endproperty
 bool    Property Ready                              Hidden
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,17)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,17)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,17))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,17)
     EndFunction
 endproperty
 bool    Property zad_DestroyOnRemove                Hidden
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,18)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,18)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,18))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,18)
     EndFunction
 endproperty
 bool    Property _MinigameON                        Hidden 
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,21)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,21)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,21))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,21)
     EndFunction
 EndProperty
 bool    Property _MinigameParProc_4                 Hidden
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,22)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,22)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,22))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,22)
     EndFunction
 EndProperty
 bool    Property _removeDeviceCalled                Hidden 
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,23)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,23)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,23))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,23)
     EndFunction
 EndProperty
 bool    Property UD_minigame_critRegen              Hidden
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,24)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,24)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,24))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,24)
     EndFunction
 EndProperty
 bool    Property UD_minigame_critRegen_helper       Hidden
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,25)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,25)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,25))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,25)
     EndFunction
 EndProperty
 bool    Property _MinigameParProc_2                 Hidden
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,27)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,27)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,27))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,27)
     EndFunction
 EndProperty
 bool    Property _MinigameParProc_1                 Hidden
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,28)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,28)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,28))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,28)
     EndFunction
 EndProperty
 bool    Property _MinigameParProc_3                 Hidden
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,30)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,30)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,30))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,30)
     EndFunction
 EndProperty
 bool    Property _usingTelekinesis                  Hidden
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,29)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,29)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,29))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,29)
     EndFunction
 EndProperty
 bool    Property UD_AllowWidgetUpdate               Hidden
     Function set(bool bVal)
-        ;startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = CodeBit(_deviceControlBitMap_1,bVal as Int,1,31)
-        ;endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,31)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,31))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,31)
     EndFunction
 EndProperty
 float   Property UD_minigame_stamina_drain          Hidden ;stamina drain for second of struggling
     Function set(float fVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_2 = CodeBit(_deviceControlBitMap_2,Round(fRange(fVal,0.0,200.0)),8,0)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_2",Round(fRange(fVal,0.0,200.0)),8,0)
     EndFunction
     
     float Function get()
@@ -1112,9 +1042,7 @@ float   Property UD_minigame_stamina_drain          Hidden ;stamina drain for se
 endproperty
 float   Property UD_minigame_magicka_drain          Hidden ;magicka drain for second of struggling
     Function set(float fVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_2 = CodeBit(_deviceControlBitMap_2,Round(fRange(fVal,0.0,200.0)),8,8)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_2",Round(fRange(fVal,0.0,200.0)),8,8)
     EndFunction
     
     float Function get()
@@ -1123,31 +1051,25 @@ float   Property UD_minigame_magicka_drain          Hidden ;magicka drain for se
 endproperty
 float   Property UD_minigame_heal_drain             Hidden ;health drain for second of struggling
     Function set(float fVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_2 = CodeBit(_deviceControlBitMap_2,Round(fRange(fVal,0.0,200.0)),8,16)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_2",Round(fRange(fVal,0.0,200.0)),8,16)
     EndFunction
     
     float Function get()
-        return UD_Native.DecodeBit(_deviceControlBitMap_2,8,16);Math.LogicalAnd(_deviceControlBitMap_2,Math.LeftShift(0xFF,16)) as Float
+        return UD_Native.DecodeBit(_deviceControlBitMap_2,8,16)
     EndFunction
 endproperty
 float   Property UD_minigame_stamina_drain_helper   Hidden ;stamina drain for second of struggling
     Function set(float fVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_2 = CodeBit(_deviceControlBitMap_2,Round(fRange(fVal,0.0,200.0)),8,24)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_2",Round(fRange(fVal,0.0,200.0)),8,24)
     EndFunction
     
     float Function get()
-        return UD_Native.DecodeBit(_deviceControlBitMap_2,8,24);Math.LogicalAnd(_deviceControlBitMap_2,Math.LeftShift(0xFF,16)) as Float
+        return UD_Native.DecodeBit(_deviceControlBitMap_2,8,24)
     EndFunction
 endproperty
 float   Property UD_minigame_magicka_drain_helper   Hidden ;magicka drain for second of struggling
     Function set(float fVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_3 = CodeBit(_deviceControlBitMap_3,Round(fRange(fVal,0.0,200.0)),8,0)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_3",Round(fRange(fVal,0.0,200.0)),8,0)
     EndFunction
     
     float Function get()
@@ -1156,9 +1078,7 @@ float   Property UD_minigame_magicka_drain_helper   Hidden ;magicka drain for se
 endproperty
 float   Property UD_minigame_heal_drain_helper      Hidden ;health drain for second of struggling
     Function set(float fVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_3 = CodeBit(_deviceControlBitMap_3,Round(fRange(fVal,0.0,200.0)),8,8)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_3",Round(fRange(fVal,0.0,200.0)),8,8)
     EndFunction
     
     float Function get()
@@ -1167,9 +1087,7 @@ float   Property UD_minigame_heal_drain_helper      Hidden ;health drain for sec
 endproperty
 float   Property UD_RegenMag_Stamina                Hidden ;stats regeneration when struggling, 0.0 means that helper will not regen stats, 1.0 will make stats regen like normaly, range 0.01,1.0 with step 0.01. Lesser then 0.01 -> 0.0
     Function set(float fVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_4 = CodeBit(_deviceControlBitMap_4,Round(fRange(fVal,0.0,1.0)*100),7,0)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_4",Round(fRange(fVal,0.0,1.0)*100),7,0)
     EndFunction
     
     float Function get()
@@ -1178,9 +1096,7 @@ float   Property UD_RegenMag_Stamina                Hidden ;stats regeneration w
 endproperty
 float   Property UD_RegenMag_Health                 Hidden ;stats regeneration when struggling, 0.0 means that helper will not regen stats, 1.0 will make stats regen like normaly, range 0.01,1.0 with step 0.01. Lesser then 0.01 -> 0.0
     Function set(float fVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_4 = CodeBit(_deviceControlBitMap_4,Round(fRange(fVal,0.0,1.0)*100),7,7)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_4",Round(fRange(fVal,0.0,1.0)*100),7,7)
     EndFunction
     
     float Function get()
@@ -1189,9 +1105,7 @@ float   Property UD_RegenMag_Health                 Hidden ;stats regeneration w
 endproperty
 float   Property UD_RegenMag_Magicka                Hidden ;stats regeneration when struggling, 0.0 means that helper will not regen stats, 1.0 will make stats regen like normaly, range 0.01,1.0 with step 0.01. Lesser then 0.01 -> 0.0
     Function set(float fVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_4 = CodeBit(_deviceControlBitMap_4,Round(fRange(fVal,0.0,1.0)*100),7,14)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_4",Round(fRange(fVal,0.0,1.0)*100),7,14)
     EndFunction
     
     float Function get()
@@ -1200,9 +1114,7 @@ float   Property UD_RegenMag_Magicka                Hidden ;stats regeneration w
 endproperty
 float   Property UD_RegenMagHelper_Stamina          Hidden ;stats regeneration when struggling, 0.0 means that helper will not regen stats, 1.0 will make stats regen like normaly, range 0.01,1.0 with step 0.01. Lesser then 0.01 -> 0.0
     Function set(float fVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_8 = CodeBit(_deviceControlBitMap_8,Round(fRange(fVal,0.0,1.0)*100),7,0)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_8",Round(fRange(fVal,0.0,1.0)*100),7,0)
     EndFunction
     
     float Function get()
@@ -1211,9 +1123,7 @@ float   Property UD_RegenMagHelper_Stamina          Hidden ;stats regeneration w
 EndProperty
 float   Property UD_RegenMagHelper_Health           Hidden ;stats regeneration when struggling, 0.0 means that helper will not regen stats, 1.0 will make stats regen like normaly, range 0.01,1.0 with step 0.01. Lesser then 0.01 -> 0.0
     Function set(float fVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_8 = CodeBit(_deviceControlBitMap_8,Round(fRange(fVal,0.0,1.0)*100),7,7)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_8",Round(fRange(fVal,0.0,1.0)*100),7,7)
     EndFunction
     
     float Function get()
@@ -1222,9 +1132,7 @@ float   Property UD_RegenMagHelper_Health           Hidden ;stats regeneration w
 EndProperty
 float   Property UD_RegenMagHelper_Magicka          Hidden ;stats regeneration when struggling, 0.0 means that helper will not regen stats, 1.0 will make stats regen like normaly, range 0.01,1.0 with step 0.01. Lesser then 0.01 -> 0.0
     Function set(float fVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_8 = CodeBit(_deviceControlBitMap_8,Round(fRange(fVal,0.0,1.0)*100),7,14)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_8",Round(fRange(fVal,0.0,1.0)*100),7,14)
     EndFunction
     
     float Function get()
@@ -1233,9 +1141,7 @@ float   Property UD_RegenMagHelper_Magicka          Hidden ;stats regeneration w
 EndProperty
 int     Property _customMinigameCritChance          Hidden
     Function set(int iVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_8 = CodeBit(_deviceControlBitMap_8,iRange(iVal,0,100),7,21)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_8",iRange(iVal,0,100),7,21)
     EndFunction
     
     int Function get()
@@ -1244,9 +1150,7 @@ int     Property _customMinigameCritChance          Hidden
 EndProperty
 float   Property _customMinigameCritDuration        Hidden
     Function set(float fVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_9 = CodeBit(_deviceControlBitMap_9,Round(fRange(fVal,0.4,2.0)*100),7,0)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_9",Round(fRange(fVal,0.4,2.0)*100),7,0)
     EndFunction
     
     float Function get()
@@ -1255,9 +1159,7 @@ float   Property _customMinigameCritDuration        Hidden
 EndProperty
 float   Property _customMinigameCritMult            Hidden
     Function set(float fVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_9 = CodeBit(_deviceControlBitMap_9,Round(fRange(fVal,0.25,1000.0)*4),12,7)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_9",Round(fRange(fVal,0.25,1000.0)*4),12,7)
     EndFunction
     
     float Function get()
@@ -1266,9 +1168,7 @@ float   Property _customMinigameCritMult            Hidden
 EndProperty
 float   Property _CuttingProgress                   Hidden ;cutting progress, 0-100, step 0.025
     Function set(float fVal)
-        ;;startBitMapMutexCheck3()
-        _deviceControlBitMap_13 = CodeBit(_deviceControlBitMap_13,Round(fRange(fVal,0.0,100.0)*40),12,0)
-        ;;endBitMapMutexCheck3()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_13",Round(fRange(fVal,0.0,100.0)*40),12,0)
     EndFunction
     
     float Function get()
@@ -1277,9 +1177,7 @@ float   Property _CuttingProgress                   Hidden ;cutting progress, 0-
 EndProperty
 float   Property _minMinigameStatHP                 Hidden
     Function set(float fVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_9 = CodeBit(_deviceControlBitMap_9,Round(fRange(fVal,0.0,1.0)*100),7,19)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_9",Round(fRange(fVal,0.0,1.0)*100),7,19)
     EndFunction
     
     float Function get()
@@ -1288,9 +1186,7 @@ float   Property _minMinigameStatHP                 Hidden
 EndProperty
 float   Property _minMinigameStatMP                 Hidden
     Function set(float fVal)
-        ;;startBitMapMutexCheck3()
-        _deviceControlBitMap_10 = CodeBit(_deviceControlBitMap_10,Round(fRange(fVal,0.0,1.0)*100),7,0)
-        ;;endBitMapMutexCheck3()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_10",Round(fRange(fVal,0.0,1.0)*100),7,0)
     EndFunction
     
     float Function get()
@@ -1299,9 +1195,7 @@ float   Property _minMinigameStatMP                 Hidden
 EndProperty
 float   Property _minMinigameStatSP                 Hidden
     Function set(float fVal)
-        ;;startBitMapMutexCheck3()
-        _deviceControlBitMap_10 = CodeBit(_deviceControlBitMap_10,Round(fRange(fVal,0.0,1.0)*100),7,7)
-        ;;endBitMapMutexCheck3()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_10",Round(fRange(fVal,0.0,1.0)*100),7,7)
     EndFunction
     
     float Function get()
@@ -1310,9 +1204,7 @@ float   Property _minMinigameStatSP                 Hidden
 EndProperty
 float   Property _condition_mult_add                Hidden ;how much is increased condition dmg (10% increase condition dmg by 10%), step = 0.1, max 25.6
     Function set(float fVal)
-        ;;startBitMapMutexCheck3()
-        _deviceControlBitMap_10 = CodeBit(_deviceControlBitMap_10,Round(fRange(fVal,0.0,25.6)*10),8,14)
-        ;;endBitMapMutexCheck3()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_10",Round(fRange(fVal,0.0,25.6)*10),8,14)
     EndFunction
     
     float Function get()
@@ -1321,9 +1213,7 @@ float   Property _condition_mult_add                Hidden ;how much is increase
 EndProperty
 float   Property _exhaustion_mult                   Hidden ;multiplier for duration of debuff, step = 0.25, max 64
     Function set(float fVal)
-        ;;startBitMapMutexCheck3()
-        _deviceControlBitMap_10 = CodeBit(_deviceControlBitMap_10,Round(fRange(fVal,0.0,64.0)*4),8,22)
-        ;;endBitMapMutexCheck3()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_10",Round(fRange(fVal,0.0,64.0)*4),8,22)
     EndFunction
     
     float Function get()
@@ -1332,9 +1222,7 @@ float   Property _exhaustion_mult                   Hidden ;multiplier for durat
 EndProperty
 float   Property _exhaustion_mult_helper            Hidden ;multiplier for duration of debuff, step = 0.25, max 64
     Function set(float fVal)
-        ;;startBitMapMutexCheck3()
-        _deviceControlBitMap_12 = CodeBit(_deviceControlBitMap_12,Round(fRange(fVal,0.0,64.0)*4),8,0)
-        ;;endBitMapMutexCheck3()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_12",Round(fRange(fVal,0.0,64.0)*4),8,0)
     EndFunction
     
     float Function get()
@@ -1343,9 +1231,7 @@ float   Property _exhaustion_mult_helper            Hidden ;multiplier for durat
 EndProperty
 int     Property _struggleGame_Subtype              Hidden
     Function set(int iVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_7 = CodeBit(_deviceControlBitMap_7,iRange(iVal,0,7),3,25)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_7",iRange(iVal,0,7),3,25)
     EndFunction
     
     int Function get()
@@ -1354,9 +1240,7 @@ int     Property _struggleGame_Subtype              Hidden
 EndProperty
 int     Property _struggleGame_Subtype_NPC          Hidden
     Function set(int iVal)
-        ;startBitMapMutexCheck()
-        _deviceControlBitMap_7 = CodeBit(_deviceControlBitMap_7,iRange(iVal,0,7),3,28)
-        ;endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_7",iRange(iVal,0,7),3,28)
     EndFunction
     
     int Function get()
@@ -1590,21 +1474,7 @@ EndFunction
 
 ;post equip function
 Function _Init(Actor akActor)
-    if !deviceRendered
-        deviceRendered = zadNativeFunctions.GetRenderDevice(deviceInventory)
-    endif
-
     Wearer = akActor
-
-    Int loc_setvmres = SetVMHandle(akActor,deviceRendered)
-    
-    if loc_setvmres != 0
-        UDmain.Error("Cant set VMHandle for " + GetDeviceHeader() + " - Return code = " + loc_setvmres)
-        akActor.removeItem(deviceRendered,1)
-        return
-    else
-        UDMain.Info("Device " + GetDeviceHeader() + " set with VMHandle " + _VMHandle1 + " + " + _VMHandle2)
-    endif
 
     _libSafeCheck()
 
@@ -6693,7 +6563,6 @@ Function minigame()
         if UDmain.ExperienceInstalled && PlayerInMinigame()
             Experience.addexperience(6.0,true)
         endif
-        
     else
         if loc_is3DLoaded
             libs.pant(Wearer)
@@ -6970,7 +6839,9 @@ EndFunction
 
 Function _MinigameVarReset()
     if Wearer
+        UDmain.Log("Removing from faction - before" + Wearer.getFactionRank(UDCDmain.MinigameFaction))
         Wearer.RemoveFromFaction(UDCDmain.MinigameFaction)
+        UDmain.Log("Removing from faction - after" + Wearer.getFactionRank(UDCDmain.MinigameFaction))
     endif
     
     if _minigameHelper

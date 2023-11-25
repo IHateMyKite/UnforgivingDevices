@@ -892,7 +892,7 @@ Function _CheckOptionalMods()
         ShowMessageBox("--!ERROR!--\nUD can't detect UIExtensions. Without this mod, some features of Unforgiving Devices will not work as intended. Please be warned.")
     endif
     
-    if ConsoleUtil.GetVersion()
+    if PluginInstalled("ConsoleUtilSSE.dll")
         ConsoleUtilInstalled = True
         if TraceAllowed()
             Log("ConsoleUtil detected!")
@@ -944,24 +944,23 @@ Function _CheckOptionalMods()
         ForHimInstalled = false
     endif
     
-    if PO3_SKSEFunctions.GetPapyrusExtenderVersion()
+    if PluginInstalled("po3_PapyrusExtender.dll")
         PO3Installed = True
     else
         PO3Installed = False
     endif
     
-    if SKSE.GetPluginVersion("ImprovedCameraSE.dll") != 1
+    if PluginInstalled("ImprovedCameraSE.dll")
         ImprovedCameraInstalled = true
     else
         ImprovedCameraInstalled = false
     endif
     
-    if SKSE.GetPluginVersion("Experience.dll") != 1
+    if PluginInstalled("Experience.dll")
         ExperienceInstalled = true
     else
         ExperienceInstalled = false
     endif
-    
 EndFUnction
 
 Function _CheckPatchesOrder()
