@@ -86,9 +86,9 @@ Actor[]     Function GetRegisteredActors()              global native
 Int         Function SendRegisterDeviceScriptEvent(Actor akActor, Armor[] akRenderDevices) global native
 Int         Function SendMinigameThreadEvents(Actor akActor, Armor akRenderDevice, Int aiHandle1,Int aiHandle2, Int aiMode) global native
 Int         Function SendRemoveRenderDeviceEvent(Actor akActor, Armor akRenderDevice) global native
-Int         Function SetVMHandle(Actor akActor, Armor akRenderDevice) global native
 Int         Function SetBitMapData(Int aiHandle1,Int aiHandle2,Armor akRenDev,String asName,Int aiValue, Int aiSize, Int aiOff) global native
-
+            Function UpdateVMHandles() global native
+            
 ; ===Materials===
 Bool Function IsSteel   (Armor akArmor) global native
 Bool Function IsEbonite (Armor akArmor) global native
