@@ -816,37 +816,31 @@ EndFunction
 Function ProcessPlayerControls(bool abCheckMinigame = true)
 EndFunction
 
-function stripweapons(actor a, bool unequiponly = true)
-    int i = 2
-    Spell spl
-    Weapon weap
-    Armor sh
-    While i > 0
-        i -= 1
-        if i == 0
-            Utility.WaitMenuMode(1.0) ;edited so devices lock also when in menu, to save time
-        EndIf
-        spl = a.getEquippedSpell(1)
-        if spl
-            a.unequipSpell(spl, 1)
-        endIf
-        weap = a.GetEquippedWeapon(true)
-        if weap
-            a.unequipItem(weap, false, true)
-        endIf
-        sh = a.GetEquippedShield()
-        if sh
-            a.unequipItem(sh, false, true)
-        endIf
-        spl = a.getEquippedSpell(0)
-        if spl
-            a.unequipSpell(spl, 0)
-        endIf
-        weap = a.GetEquippedWeapon(false)
-        if weap
-            a.unequipItem(weap, false, true)
-        endIf
-    EndWhile
+function stripweapons(actor akActor, bool abUnequiponly = true)
+    Spell loc_spell1 = akActor.getEquippedSpell(1)
+    if loc_spell1
+        akActor.unequipSpell(loc_spell1, 1)
+    endIf
+    
+    Spell loc_spell2 = akActor.getEquippedSpell(0)
+    if loc_spell2
+        akActor.unequipSpell(loc_spell2, 0)
+    endIf
+    
+    Form loc_weap1 = akActor.GetEquippedObject(0)
+    if loc_weap1
+        akActor.unequipItem(loc_weap1, false, true)
+    endIf
+    
+    Form loc_weap2 = akActor.GetEquippedObject(1)
+    if loc_weap2
+        akActor.unequipItem(loc_weap2, false, true)
+    endIf
+    
+    Armor loc_shield = akActor.GetEquippedShield()
+    if loc_shield
+        akActor.unequipItem(loc_shield, false, true)
+    endIf
 endfunction
 
 Function RepopulateNpcs()

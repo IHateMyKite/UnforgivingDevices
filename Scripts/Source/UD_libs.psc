@@ -154,7 +154,7 @@ Armor Property OrgasmResistRing auto
 Ingredient Property BlackGoo auto
 Ingredient Property AncientSeed auto
 MiscObject Property AbadonGem auto
-  
+
 ;keywords
 Keyword Property QuestDevice auto
 Keyword Property AbadonPlugkw auto

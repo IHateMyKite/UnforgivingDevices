@@ -1655,8 +1655,8 @@ Function UndressAllArmor(Actor akActor)
         loc_armornum -= 1
         akActor.unequipItem(loc_armors[loc_armornum], abSilent = true)
     endwhile
-    Weapon  loc_weap1   = akActor.GetEquippedWeapon(abLeftHand = false)
-    Weapon  loc_weap2   = akActor.GetEquippedWeapon(abLeftHand = True)
+    Form  loc_weap1   = akActor.GetEquippedObject(0)
+    Form  loc_weap2   = akActor.GetEquippedObject(1)
     Armor   loc_shield  = akActor.GetEquippedShield()
     if loc_weap1
         akActor.unequipItem(loc_weap1, abSilent = true)

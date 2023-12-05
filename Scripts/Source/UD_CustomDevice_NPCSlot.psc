@@ -2068,7 +2068,7 @@ EndFunction
 ;Event UDOrgasm(Form akActor,Float afOrgasmRate,Int aiArousal,Int aiEdgeLevel,Float afForcing)
 Function SendOrgasmEvent()
     SendModEvent("DeviceActorOrgasm", GetActor().GetLeveledActorBase().GetName())
-    Int loc_handle = ModEvent.Create("DeviceActorOrgasmExp")
+    Int loc_handle = ModEvent.Create("DeviceActorOrgasmEx")
     if loc_handle
         ModEvent.PushForm(loc_handle, UDOM)         ;Event source (zadlibs), in case that some other mode might call this function from different place
         ModEvent.PushForm(loc_handle, GetActor())      ;Actor
@@ -2079,7 +2079,7 @@ EndFunction
 
 Function SendEdgeEvent()
     SendModEvent("DeviceEdgedActor", GetActor().GetLeveledActorBase().GetName())
-    Int loc_handle = ModEvent.Create("DeviceActorEdgeExp")
+    Int loc_handle = ModEvent.Create("DeviceActorEdgeEx")
     if loc_handle
         ModEvent.PushForm(loc_handle, UDOM)         ;Event source (zadlibs), in case that some other mode might call this function from different place
         ModEvent.PushForm(loc_handle, GetActor())      ;Actor
