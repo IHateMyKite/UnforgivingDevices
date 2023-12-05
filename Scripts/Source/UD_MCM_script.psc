@@ -746,6 +746,7 @@ int UD_PatchMult_Hood_S
 int UD_PatchMult_Generic_S
 int UD_MinResistMult_S
 int UD_MaxResistMult_S
+int UD_TimedLocks_T
 
 Event resetPatcherPage()
     UpdateLockMenuFlag()
@@ -762,6 +763,9 @@ Event resetPatcherPage()
     
     UD_MinResistMult_S = addSliderOption("$UD_MINRESISTMULT",Round(UDCDmain.UDPatcher.UD_MinResistMult*100), "{0} %",UD_LockMenu_flag)
     UD_MaxResistMult_S = addSliderOption("$UD_MAXRESISTMULT",Round(UDCDmain.UDPatcher.UD_MaxResistMult*100), "{0} %",UD_LockMenu_flag)
+    
+    UD_TimedLocks_T    = addToggleOption("Timed locks", UDCDmain.UDPatcher.UD_TimedLocks)
+    addEmptyOption()
     
     AddHeaderOption("$UD_H_DEVICEDIFFICULTYMODIFIERS")
     addEmptyOption()
@@ -1387,6 +1391,7 @@ EndFunction
 
 event OnOptionSelect(int option)
     OptionSelectGeneral(option)
+    OptionSelectPatcher(option)
     OptionSelectModifiers(option)
     OptionSelectFilter(option)
     OptionCustomBondage(option)
@@ -1420,6 +1425,13 @@ Function OptionSelectGeneral(int option)
         UDUI.UD_EasyGamepadMode = !UDUI.UD_EasyGamepadMode
         SetToggleOptionValue(UD_EasyGamepadMode_T, UDUI.UD_EasyGamepadMode)
         forcePageReset()
+    endif
+EndFunction
+
+Function OptionSelectPatcher(int option)
+    if(option == UD_TimedLocks_T)
+        UDCDmain.UDPatcher.UD_TimedLocks = !UDCDmain.UDPatcher.UD_TimedLocks
+        SetToggleOptionValue(UD_TimedLocks_T, UDCDmain.UDPatcher.UD_TimedLocks)
     endif
 EndFunction
 
@@ -2845,7 +2857,7 @@ Event OnOptionDefault(int option)
     elseif (_lastPage == UD_NPCsPageName)
         NPCsPageDefault(option)
     elseif (_lastPage == "$UD_PATCHER")
-        ;PatcherPageDefault(option) ;TODO. Will winish later, as doing this is pain in the ass
+        PatcherPageDefault(option)
     elseif (_lastPage == "$UD_DDPATCH")
         ;DDPatchPageDefault(option) ;TODO. Will winish later, as doing this is pain in the ass
     elseif (_lastPage == "$UD_DEBUGPANEL")
@@ -3090,18 +3102,20 @@ EndFunction
 
 Function PatcherPageDefault(int option)
     if  option == UD_PatchMult_S
-        SetInfoText("$UD_PATCHMULT_INFO")
+        ;SetInfoText("$UD_PATCHMULT_INFO")
     elseif option == UD_EscapeModifier_S
-        SetInfoText("$UD_ESCAPEMODIFIER_INFO")
+        ;SetInfoText("$UD_ESCAPEMODIFIER_INFO")
     elseif option == UD_MinLocks_S
-        SetInfoText("$UD_MINLOCKS_INFO")
+        ;SetInfoText("$UD_MINLOCKS_INFO")
     elseif option == UD_MaxLocks_S
-        SetInfoText("$UD_MAXLOCKS_INFO")
+        ;SetInfoText("$UD_MAXLOCKS_INFO")
     elseif option == UD_MinResistMult_S
-        SetInfoText("$UD_MINRESISTMULT_INFO")
+        ;SetInfoText("$UD_MINRESISTMULT_INFO")
     elseif option == UD_MaxResistMult_S
-        SetInfoText("$UD_MAXRESISTMULT_INFO")
-    elseif option == UD_MaxResistMult_S
+        ;SetInfoText("$UD_MAXRESISTMULT_INFO")
+    elseif option == UD_TimedLocks_T
+        UDCDmain.UDPatcher.UD_TimedLocks = false
+        SetToggleOptionValue(UD_TimedLocks_T, UDCDmain.UDPatcher.UD_TimedLocks)
     endif
 EndFunction
 
@@ -3412,7 +3426,8 @@ Function PatcherPageInfo(int option)
         SetInfoText("$UD_MINRESISTMULT_INFO")
     elseif option == UD_MaxResistMult_S
         SetInfoText("$UD_MAXRESISTMULT_INFO")
-    elseif option == UD_MaxResistMult_S
+    elseif option == UD_TimedLocks_T
+        SetInfoText("If patched devices can have timed locks")
     endif
 EndFunction
 
@@ -3725,6 +3740,7 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetFloatValue(strFile, "PatchMult_Plug"            , UDCDmain.UDPatcher.UD_PatchMult_Plug)
     JsonUtil.SetFloatValue(strFile, "PatchMult_Piercing"        , UDCDmain.UDPatcher.UD_PatchMult_Piercing)
     JsonUtil.SetFloatValue(strFile, "PatchMult_Generic"            , UDCDmain.UDPatcher.UD_PatchMult_Generic)
+    JsonUtil.SetIntValue(strFile, "TimedLocks", UDCDmain.UDPatcher.UD_TimedLocks as Int)
     
     ;UI/WIDGET
     JsonUtil.SetIntValue(strFile, "UseIWantWidget", UDWC.UD_UseIWantWidget as Int)
@@ -3878,6 +3894,7 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UDPatcher.UD_PatchMult_Plug = JsonUtil.GetFloatValue(strFile, "PatchMult_Plug", UDCDmain.UDPatcher.UD_PatchMult_Plug)
     UDCDmain.UDPatcher.UD_PatchMult_Piercing = JsonUtil.GetFloatValue(strFile, "PatchMult_Piercing", UDCDmain.UDPatcher.UD_PatchMult_Piercing)
     UDCDmain.UDPatcher.UD_PatchMult_Generic = JsonUtil.GetFloatValue(strFile, "PatchMult_Generic", UDCDmain.UDPatcher.UD_PatchMult_Generic)
+    UDCDmain.UDPatcher.UD_TimedLocks = JsonUtil.GetIntValue(strFile, "TimedLocks", UDCDmain.UDPatcher.UD_TimedLocks as Int)
     
     ;UI/WIDGET
     UDWC.UD_UseIWantWidget = JsonUtil.GetIntValue(strFile, "UseIWantWidget", UDWC.UD_UseIWantWidget as Int)
