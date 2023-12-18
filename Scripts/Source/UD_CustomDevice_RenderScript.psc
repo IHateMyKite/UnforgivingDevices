@@ -6839,9 +6839,7 @@ EndFunction
 
 Function _MinigameVarReset()
     if Wearer
-        UDmain.Log("Removing from faction - before" + Wearer.getFactionRank(UDCDmain.MinigameFaction))
         Wearer.RemoveFromFaction(UDCDmain.MinigameFaction)
-        UDmain.Log("Removing from faction - after" + Wearer.getFactionRank(UDCDmain.MinigameFaction))
     endif
     
     if _minigameHelper

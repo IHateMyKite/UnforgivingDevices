@@ -55,8 +55,8 @@ Float   Function UpdateMeterValueSkyUi      (string asPath, float afDiffValue)  
 Float   Function GetMeterValueSkyUi         (string asPath)                     global native
 
 ;===Inventory===
-Form[]  Function GetInventoryDevices        (Actor akActor, bool abWorn)        global native
-Form[]  Function GetRenderDevices           (Actor akActor, bool abWorn)        global native
+Armor[] Function GetInventoryDevices        (Actor akActor, bool abWorn)        global native
+Armor[] Function GetRenderDevices           (Actor akActor, bool abWorn)        global native
 Weapon  Function GetSharpestWeapon          (Actor akActor)                     global native
 
 ;===Animation===

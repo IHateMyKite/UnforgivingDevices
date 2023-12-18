@@ -79,6 +79,8 @@ Function RegisterModEvents()
     RegisterForModEvent("DeviceEdgedActor", "OnEdge")
     RegisterForModEvent("HookOrgasmStart", "OnSexlabOrgasmStart")
     RegisterForModEvent("SexLabOrgasmSeparate", "OnSexlabSepOrgasmStart")
+    OrgasmSystem.RegisterForExpressionUpdate_Form(self)
+    OrgasmSystem.RegisterForOrgasmEvent_Form(self)
     RegisterForModEvent(_UpdateBaseOrgasmValEventName, "Receive_UpdateBaseOrgasmVals")
 EndFunction
 
@@ -293,6 +295,41 @@ String Function GetHornyLevelString(Actor akActor)
     return OrgasmSystem.GetHornyStatus(akActor)
 EndFunction
 
+Function ORSEvent_OnActorOrgasm(Actor akActor, float afOrgasmRate, float afArousal, float afHornyLevel, int aiOrgasmCount)
+    if UDmain.TraceAllowed()
+        UDmain.Log("Starting orgasm for " + getActorName(akActor))
+    endif
+    UDMain.Info("OM::ORSEvent_OnActorOrgasm("+GetActorName(akActor)+","+afOrgasmRate+","+afArousal+","+afHornyLevel+","+aiOrgasmCount+")")
+    
+    if akActor.isInFaction(OrgasmResistFaction)
+        akActor.RemoveFromFaction(OrgasmResistFaction)
+    endif
+    
+    SendOrgasmEvent(akActor)
+    ActorOrgasm(akActor,aiOrgasmCount)
+EndFunction
+
+Function SendOrgasmEvent(Actor akActor)
+    SendModEvent("DeviceActorOrgasm", akActor.GetLeveledActorBase().GetName())
+    Int loc_handle = ModEvent.Create("DeviceActorOrgasmEx")
+    if loc_handle
+        ModEvent.PushForm(loc_handle, self)         ;Event source (zadlibs), in case that some other mode might call this function from different place
+        ModEvent.PushForm(loc_handle, akActor)      ;Actor
+        ModEvent.PushInt(loc_handle, Round(OrgasmSystem.GetOrgasmVariable(akActor,8)))   ;Arousal after orgasm
+        ModEvent.Send(loc_handle)
+    endif
+EndFunction
+
+Function SendEdgeEvent(Actor akActor)
+    SendModEvent("DeviceEdgedActor", akActor.GetLeveledActorBase().GetName())
+    Int loc_handle = ModEvent.Create("DeviceActorEdgeEx")
+    if loc_handle
+        ModEvent.PushForm(loc_handle, self)         ;Event source (zadlibs), in case that some other mode might call this function from different place
+        ModEvent.PushForm(loc_handle, akActor)      ;Actor
+        ModEvent.Send(loc_handle)
+    endif
+EndFunction
+
 Function ActorOrgasm(actor akActor, Int aiOrgasms)
     if !akActor
         return
@@ -435,6 +472,34 @@ Function OnEdge(string eventName, string strArg, float numArg, Form sender)
             endif
         endif
         loc_slot.edge()
+    endif
+EndFunction
+
+Function ORSEvent_OnExpressionUpdate(Actor akActor, int aType, float afOrgasmRate, float afArousal, float afHornyLevel)
+    ;UDMain.Info("UDEvent_OnActorOrgasm("+GetActorName(akActor)+","+aType+","+afOrgasmRate+","+afArousal+","+afHornyLevel+")")
+    
+    ;expression
+    if aType == 0
+        ;init expression
+        if fInRange(afHornyLevel,75.0,200.0)
+            libs.ExpLibs.ApplyExpressionRaw(akActor, UDmain.UDEM.GetPrebuildExpression_Happy1(),  iRange(Round(afArousal),40,100),false,10) ;happy
+        elseif afHornyLevel > 200.0
+            libs.ExpLibs.ApplyExpressionRaw(akActor, UDmain.UDEM.GetPrebuildExpression_Horny1(),  iRange(Round(afArousal),40,100),false,10);horny
+        else
+            libs.ExpLibs.ApplyExpressionRaw(akActor, UDmain.UDEM.GetPrebuildExpression_Angry1(),  iRange(Round(afArousal),40,100),false,10) ;angry
+        endif
+    elseif aType == 1
+        libs.ExpLibs.ResetExpressionRaw(akActor,10)
+    elseif aType == 2
+        if fInRange(afHornyLevel,75.0,200.0)
+            libs.ExpLibs.ApplyExpressionRaw(akActor, UDmain.UDEM.GetPrebuildExpression_Orgasm2(), iRange(Round(afHornyLevel/2.0),50,100),false,80)
+        elseif afHornyLevel > 200.0
+            libs.ExpLibs.ApplyExpressionRaw(akActor, UDmain.UDEM.GetPrebuildExpression_Orgasm1(), iRange(Round(afHornyLevel/4.0),50,100),false,80)
+        else
+            libs.ExpLibs.ApplyExpressionRaw(akActor, UDmain.UDEM.GetPrebuildExpression_Orgasm3(), iRange(Round(afHornyLevel),50,100),false,80)
+        endif
+    elseif aType == 3
+        libs.ExpLibs.ResetExpressionRaw(akActor,80)
     endif
 EndFunction
 

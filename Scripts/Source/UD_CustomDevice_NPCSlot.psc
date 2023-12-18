@@ -45,17 +45,6 @@ UD_OrgasmManager Property UDOM Hidden
         return _udom
     EndFunction
 EndProperty
-
-UD_ExpressionManager _udem
-UD_ExpressionManager Property UDEM Hidden
-    UD_ExpressionManager Function get()
-        if !_udem
-            _udem = UDmain.UDEM
-        endif
-        return _udem
-    EndFunction
-EndProperty
-
 UD_Config _udconf
 UD_Config Property UDCONF hidden
     UD_Config Function Get()
@@ -155,7 +144,6 @@ Function GameUpdate()
         endif
         _OrgasmGameUpdate()
         CheckVibrators()
-        InitOrgasmExpression()
     endif
 EndFunction
 
@@ -588,9 +576,9 @@ Function removeLostRenderDevices()
     
     ;check if faster native function should be not used instead
     int loc_deviceId = 0
-    Form[] loc_devices = UD_Native.GetRenderDevices(_currentSlotedActor,false)
+    Armor[] loc_devices = UD_Native.GetRenderDevices(_currentSlotedActor,false)
     while loc_deviceId < loc_devices.length
-        Armor ArmorDevice = loc_devices[loc_deviceId] as Armor
+        Armor ArmorDevice = loc_devices[loc_deviceId]
         ;get script and check if player have inventory device
         Armor loc_RenDevice = ArmorDevice
         Armor loc_InvDevice = UDCDmain.getStoredInventoryDevice(loc_RenDevice)
@@ -1872,7 +1860,6 @@ float[] _org_expression3
 Function InitOrgasmUpdate()
     Actor loc_actor = GetActor()
     if loc_actor
-        InitOrgasmExpression()
         _tick                       = 1
         _tickS                      = 0
         _hornyAnimTimer             = 0
@@ -1885,20 +1872,12 @@ EndFunction
 
 Function _OrgasmGameUpdate()
     OrgasmSystem.RegisterForOrgasmEvent_Ref(self)
-    OrgasmSystem.RegisterForExpressionUpdate_Ref(self)
     RegisterForModEvent("ORS_LinkedWidgetUpdate", "ORSLinkedWidgetUpdate")
     
     if IsPlayer()
         UDmain.UDWC.Meter_RegisterNative("player-orgasm",0.0,0.0, true)
         UDmain.UDWC.Meter_LinkActorOrgasm(GetActor(),"player-orgasm")
     endif
-EndFunction
-
-;this reassign slots arousal expression. Should be be used on every game reload to update the expressions to last version
-Function InitOrgasmExpression()
-    _org_expression             = UDEM.GetPrebuildExpression_Horny1()
-    _org_expression2            = UDEM.GetPrebuildExpression_Happy1()
-    _org_expression3            = UDEM.GetPrebuildExpression_Angry1()
 EndFunction
 
 Function UpdateOrgasm(Float afUpdateTime)
@@ -1920,19 +1899,7 @@ EndFunction
 
 Function ORSEvent_OnActorOrgasm(Actor akActor, float afOrgasmRate, float afArousal, float afHornyLevel, int aiOrgasmCount)
     if (GetActor() == akActor)
-        if UDmain.TraceAllowed()
-            UDmain.Log("Starting orgasm for " + getActorName(akActor))
-        endif
-        UDMain.Info("UDEvent_OnActorOrgasm("+GetActorName(akActor)+","+afOrgasmRate+","+afArousal+","+afHornyLevel+","+aiOrgasmCount+")")
-        
-        if akActor.isInFaction(UDOM.OrgasmResistFaction)
-            akActor.RemoveFromFaction(UDOM.OrgasmResistFaction)
-        endif
-        
         _hornyAnimTimer  = -45 ;cooldown
-        
-        SendOrgasmEvent()
-        UDOM.ActorOrgasm(akActor,aiOrgasmCount)
     endif
 EndFunction
 
@@ -1971,38 +1938,6 @@ Function UpdateOrgasmSecond()
             Sound.StopInstance(_msID)
             _msID = -1
         endif
-    endif
-EndFunction
-
-Function ORSEvent_OnExpressionUpdate(Actor akActor, int aType, float afOrgasmRate, float afArousal, float afHornyLevel)
-    if (GetActor() != akActor)
-        return
-    endif
-    
-    ;UDMain.Info("UDEvent_OnActorOrgasm("+GetActorName(akActor)+","+aType+","+afOrgasmRate+","+afArousal+","+afHornyLevel+")")
-    
-    ;expression
-    if aType == 0
-        ;init expression
-        if fInRange(afHornyLevel,75.0,200.0)
-            libs.ExpLibs.ApplyExpressionRaw(akActor, _org_expression2,  iRange(Round(afArousal),40,100),false,10) ;horny
-        elseif afHornyLevel > 200.0
-            libs.ExpLibs.ApplyExpressionRaw(akActor, _org_expression,   iRange(Round(afArousal),40,100),false,10) ;happy
-        else
-            libs.ExpLibs.ApplyExpressionRaw(akActor, _org_expression3,  iRange(Round(afArousal),40,100),false,10) ;angry
-        endif
-    elseif aType == 1
-        libs.ExpLibs.ResetExpressionRaw(akActor,10)
-    elseif aType == 2
-        if fInRange(afHornyLevel,75.0,200.0)
-            libs.ExpLibs.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm2(), iRange(Round(afHornyLevel/2.0),50,100),false,80)
-        elseif afHornyLevel > 200.0
-            libs.ExpLibs.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm1(), iRange(Round(afHornyLevel/4.0),50,100),false,80)
-        else
-            libs.ExpLibs.ApplyExpressionRaw(akActor, UDEM.GetPrebuildExpression_Orgasm3(), iRange(Round(afHornyLevel),50,100),false,80)
-        endif
-    elseif aType == 3
-        libs.ExpLibs.ResetExpressionRaw(akActor,80)
     endif
 EndFunction
 
@@ -2062,28 +1997,6 @@ FUnction UpdateOrgasmHornyAnimation()
                 _hornyAnimTimer += 1
             endif
         endif
-    endif
-EndFunction
-
-;Event UDOrgasm(Form akActor,Float afOrgasmRate,Int aiArousal,Int aiEdgeLevel,Float afForcing)
-Function SendOrgasmEvent()
-    SendModEvent("DeviceActorOrgasm", GetActor().GetLeveledActorBase().GetName())
-    Int loc_handle = ModEvent.Create("DeviceActorOrgasmEx")
-    if loc_handle
-        ModEvent.PushForm(loc_handle, UDOM)         ;Event source (zadlibs), in case that some other mode might call this function from different place
-        ModEvent.PushForm(loc_handle, GetActor())      ;Actor
-        ModEvent.PushInt(loc_handle, Round(OrgasmSystem.GetOrgasmVariable(GetActor(),8)))   ;Arousal after orgasm
-        ModEvent.Send(loc_handle)
-    endif
-EndFunction
-
-Function SendEdgeEvent()
-    SendModEvent("DeviceEdgedActor", GetActor().GetLeveledActorBase().GetName())
-    Int loc_handle = ModEvent.Create("DeviceActorEdgeEx")
-    if loc_handle
-        ModEvent.PushForm(loc_handle, UDOM)         ;Event source (zadlibs), in case that some other mode might call this function from different place
-        ModEvent.PushForm(loc_handle, GetActor())      ;Actor
-        ModEvent.Send(loc_handle)
     endif
 EndFunction
 
