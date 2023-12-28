@@ -1608,12 +1608,18 @@ Function UndressArmor(Actor akActor)
             endif
             loc_mask = Math.LeftShift(loc_mask,1)
         endwhile
-        loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--ALL--")
+        loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--STRIP--")
+        loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--UN-STRIP--")
+        loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--UNDRESS-ALL--")
         loc_armorsnames = PapyrusUtil.PushString(loc_armorsnames,"--BACK--")
         int loc_res = UDmain.GetUserListInput(loc_armorsnames)
         if loc_res == (loc_armorsnames.length - 2)
             UndressAllArmor(akActor)
-        elseif loc_res < (loc_armorsnames.length - 2) && loc_res >= 0
+        elseif loc_res == (loc_armorsnames.length - 3)
+            zadNativeFunctions.SetActorStripped(akActor,false)
+        elseif loc_res == (loc_armorsnames.length - 4)
+            zadNativeFunctions.SetActorStripped(akActor,true)
+        elseif loc_res < (loc_armorsnames.length - 3) && loc_res >= 0
             akActor.unequipItem(loc_armors[loc_res], abSilent = true)
         else
             return ;exit undress menu

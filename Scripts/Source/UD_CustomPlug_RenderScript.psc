@@ -282,9 +282,11 @@ Function OnOrgasmPost(bool sexlab = false) ;called on wearer orgasm. Is only cal
 EndFunction
 Function OnMinigameStart() ;called when minigame start
     parent.OnMinigameStart()
+    zadNativeFunctions.SetActorStripped(GetWearer(),true,0x4) ;hide body armor
 EndFunction
 Function OnMinigameEnd() ;called when minigame end
     parent.OnMinigameEnd()
+    zadNativeFunctions.SetActorStripped(GetWearer(),false)    ;show body armor
 EndFunction
 Function OnMinigameTick(Float abUpdateTime) ;called on every tick of minigame. Uses MCM performance setting
     parent.OnMinigameTick(abUpdateTime)
