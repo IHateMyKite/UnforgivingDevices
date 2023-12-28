@@ -78,21 +78,21 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
     int loc_control = 0x0F
     
     if device.deviceRendered.hasKeyword(libs.zad_DeviousArmbinder)
-        device.UD_durability_damage_base = fRange(RandomFloat(0.7,1.0)/loc_currentmult,0.05,100.0)
+        device.UD_durability_damage_base = fRange(RandomFloat(0.7,1.0)/loc_currentmult,0.03,100.0)
         device.UD_CutChance = fRange(RandomFloat(5.0,10.0)/loc_currentmult,1.0,50.0)
         if isSteel(device.deviceInventory)
             device.UD_CutChance = 0
         endif
         loc_type = 15
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousArmbinderElbow)
-        device.UD_durability_damage_base = fRange(RandomFloat(0.65,0.8)/loc_currentmult,0.05,100.0)
+        device.UD_durability_damage_base = fRange(RandomFloat(0.65,0.8)/loc_currentmult,0.03,100.0)
         device.UD_CutChance = fRange(RandomFloat(3.0,8.0)/loc_currentmult,1.0,50.0)
         if isSteel(device.deviceInventory)
             device.UD_CutChance = 0
         endif
         loc_type = 16
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousStraitJacket)
-        device.UD_durability_damage_base = fRange(RandomFloat(0.7,0.9)/loc_currentmult,0.05,100.0)
+        device.UD_durability_damage_base = fRange(RandomFloat(0.7,0.9)/loc_currentmult,0.03,100.0)
         device.UD_CutChance = fRange(RandomFloat(2.0,8.0)/loc_currentmult,1.0,50.0)
         sentientModChance = 75
         if isSteel(device.deviceInventory)
@@ -100,18 +100,18 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
         endif
         loc_type = 17
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousCuffsFront)
-        device.UD_durability_damage_base = fRange(RandomFloat(0.3,0.8)/loc_currentmult,0.05,100.0)
+        device.UD_durability_damage_base = fRange(RandomFloat(0.3,0.8)/loc_currentmult,0.03,100.0)
         loc_type = 19
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousYoke) || device.deviceRendered.hasKeyword(libs.zad_DeviousYokeBB)
-        device.UD_durability_damage_base = fRange(RandomFloat(0.1,0.25)/loc_currentmult,0.05,100.0)
+        device.UD_durability_damage_base = fRange(RandomFloat(0.1,0.25)/loc_currentmult,0.03,100.0)
         loc_type = 18
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousElbowTie)
-        device.UD_durability_damage_base = RandomFloat(0.05,0.1)
+        device.UD_durability_damage_base = RandomFloat(0.03,0.1)
         device.UD_StruggleCritChance = RandomInt(3,5)
         device.UD_StruggleCritMul = RandomFloat(150.0,255.0)
         loc_type = 22
     elseif device.deviceRendered.hasKeyword(libs.zad_DeviousPetSuit)
-        device.UD_durability_damage_base = fRange(RandomFloat(0.9,1.4)/loc_currentmult,0.05,100.0)
+        device.UD_durability_damage_base = fRange(RandomFloat(0.9,1.4)/loc_currentmult,0.03,100.0)
         device.UD_CutChance = fRange(RandomFloat(2.0,5.0)/loc_currentmult,1.0,50.0)
         sentientModChance = 75
         loc_type = 21
@@ -120,9 +120,9 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
     endif
     
     ;materials
-    if (StringUtil.find(device.deviceInventory.getName(),"High Security") != -1 || StringUtil.find(device.deviceInventory.getName(),"Secure") != -1)
-        device.UD_durability_damage_base = fRange(device.UD_durability_damage_base/4.0,0.05,100.0)
-        device.UD_StruggleCritDuration = 0.5
+    if isSecure(device.DeviceInventory)
+        device.UD_durability_damage_base = fRange(device.UD_durability_damage_base/(2.0*loc_currentmult),0.03,100.0)
+        device.UD_StruggleCritDuration = 0.65
         device.UD_ResistPhysical = RandomFloat(0.5,0.9)
         device.UD_ResistMagicka = RandomFloat(-0.3,1.0)
     endif
@@ -134,7 +134,7 @@ Function patchBlindfold(UD_CustomBlindfold_RenderScript device)
     Float loc_currentmult = UD_PatchMult_Blindfold*UD_PatchMult*GetPatchDifficulty(device)
     patchDefaultValues(device,loc_currentmult)
     ;materials
-    if StringUtil.find(device.deviceInventory.getName(),"Extreme") != -1 || (StringUtil.find(device.deviceInventory.getName(),"High Security") != -1 || StringUtil.find(device.deviceInventory.getName(),"Secure") != -1)
+    if isSecure(device.DeviceInventory)
         ;device.UD_Locks = UD_MinLocks
         device.UD_ResistPhysical = RandomFloat(0.4,0.8)
         device.UD_ResistMagicka = RandomFloat(0.2,1.0)
@@ -163,7 +163,7 @@ Function patchBelt(UD_CustomBelt_RenderScript device)
     if isEbonite(device.deviceInventory)
         device.UD_ResistPhysical = RandomFloat(-0.25,0.7)
         device.UD_ResistMagicka = RandomFloat(0.25,0.5)
-    elseif (StringUtil.find(device.deviceInventory.getName(),"Leather") != -1)
+    elseif IsLeather(device.deviceInventory)
         device.UD_ResistPhysical = RandomFloat(-0.4,0.1)
         device.UD_ResistMagicka = RandomFloat(-0.5,0.5)
     elseif isRope(device.deviceInventory)

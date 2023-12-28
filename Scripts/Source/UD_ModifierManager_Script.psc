@@ -133,6 +133,7 @@ Event OnUpdate()
         Ready = true
         _LastUpdateTime         = Utility.GetCurrentGameTime()
         _LastUpdateTime_Hour    = Utility.GetCurrentGameTime()
+        Update()
         RegisterForSingleUpdate(30.0) ;start update loop, 5 s
         RegisterForSingleUpdateGameTime(1.0) ;start update loop, 1 game hour
     else

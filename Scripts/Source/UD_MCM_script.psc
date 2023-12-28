@@ -657,11 +657,11 @@ Function resetModifiersPage()
     AddHeaderOption("Multipliers")
     addEmptyOption()
     
-    UD_ModifierMultiplier_S = AddSliderOption("Strength multiplier",loc_mod.Multiplier,"{1}",UD_LockMenu_flag)
+    UD_ModifierMultiplier_S = AddSliderOption("Strength multiplier",loc_mod.Multiplier,"{1} x",UD_LockMenu_flag)
     addEmptyOption()
     
-    UD_ModifierPatchPowerMultiplier_S   = AddSliderOption("Patch Strength multiplier",loc_mod.PatchPowerMultiplier,"{1}",UD_LockMenu_flag)
-    UD_ModifierPatchChanceMultiplier_S  = AddSliderOption("Patch Chance multiplier",loc_mod.PatchChanceMultiplier,"{1}",UD_LockMenu_flag)
+    UD_ModifierPatchPowerMultiplier_S   = AddSliderOption("Patch Strength multiplier",loc_mod.PatchPowerMultiplier,"{1} x",UD_LockMenu_flag)
+    UD_ModifierPatchChanceMultiplier_S  = AddSliderOption("Patch Chance multiplier",loc_mod.PatchChanceMultiplier,"{1} x",UD_LockMenu_flag)
     
 EndFunction
 
@@ -755,7 +755,7 @@ Event resetPatcherPage()
     AddHeaderOption("$UD_H_MAINVALUES")
     addEmptyOption()
         
-    UD_PatchMult_S = addSliderOption("$UD_PATCHMULT",Round(UDCDmain.UDPatcher.UD_PatchMult * 100), "{0} %",UD_LockMenu_flag)
+    UD_PatchMult_S = addSliderOption("$UD_PATCHMULT",UDCDmain.UDPatcher.UD_PatchMult, "{1} x",UD_LockMenu_flag)
     UD_EscapeModifier_S = addSliderOption("$UD_ESCAPEMODIFIER",UDCDmain.UDPatcher.UD_EscapeModifier, "{0}",UD_LockMenu_flag)
     
     UD_MinLocks_S = addSliderOption("$UD_MINLOCKS",UDCDmain.UDPatcher.UD_MinLocks, "{0}",UD_LockMenu_flag)
@@ -770,19 +770,19 @@ Event resetPatcherPage()
     AddHeaderOption("$UD_H_DEVICEDIFFICULTYMODIFIERS")
     addEmptyOption()
     
-    UD_PatchMult_HeavyBondage_S = addSliderOption("$UD_USEHEAVYBONDAGE",Round(UDCDmain.UDPatcher.UD_PatchMult_HeavyBondage * 100), "{0} %",UD_LockMenu_flag)
-    UD_PatchMult_Blindfold_S = addSliderOption("$UD_BLINDFOLD",Round(UDCDmain.UDPatcher.UD_PatchMult_Blindfold * 100), "{0} %",UD_LockMenu_flag)
+    UD_PatchMult_HeavyBondage_S = addSliderOption("$UD_USEHEAVYBONDAGE",UDCDmain.UDPatcher.UD_PatchMult_HeavyBondage, "{1} x",UD_LockMenu_flag)
+    UD_PatchMult_Blindfold_S = addSliderOption("$UD_BLINDFOLD",UDCDmain.UDPatcher.UD_PatchMult_Blindfold, "{1} x",UD_LockMenu_flag)
     
-    UD_PatchMult_Gag_S = addSliderOption("$UD_GAG",Round(UDCDmain.UDPatcher.UD_PatchMult_Gag * 100), "{0} %",UD_LockMenu_flag)
-    UD_PatchMult_Hood_S = addSliderOption("$UD_HOOD",Round(UDCDmain.UDPatcher.UD_PatchMult_Hood * 100), "{0} %",UD_LockMenu_flag)
+    UD_PatchMult_Gag_S = addSliderOption("$UD_GAG",UDCDmain.UDPatcher.UD_PatchMult_Gag, "{1} x",UD_LockMenu_flag)
+    UD_PatchMult_Hood_S = addSliderOption("$UD_HOOD",UDCDmain.UDPatcher.UD_PatchMult_Hood, "{1} x",UD_LockMenu_flag)
     
-    UD_PatchMult_ChastityBelt_S = addSliderOption("$UD_CHASTITYBELT",Round(UDCDmain.UDPatcher.UD_PatchMult_ChastityBelt * 100), "{0} %",UD_LockMenu_flag)
-    UD_PatchMult_ChastityBra_S = addSliderOption("$UD_CHASTITYBRA",Round(UDCDmain.UDPatcher.UD_PatchMult_ChastityBra * 100), "{0} %",UD_LockMenu_flag)
+    UD_PatchMult_ChastityBelt_S = addSliderOption("$UD_CHASTITYBELT",UDCDmain.UDPatcher.UD_PatchMult_ChastityBelt, "{1} x",UD_LockMenu_flag)
+    UD_PatchMult_ChastityBra_S = addSliderOption("$UD_CHASTITYBRA",UDCDmain.UDPatcher.UD_PatchMult_ChastityBra, "{1} x",UD_LockMenu_flag)
     
-    UD_PatchMult_Plug_S = addSliderOption("$UD_PLUG",Round(UDCDmain.UDPatcher.UD_PatchMult_Plug * 100), "{0} %",UD_LockMenu_flag)
-    UD_PatchMult_Piercing_S = addSliderOption("$UD_PIERCING",Round(UDCDmain.UDPatcher.UD_PatchMult_Piercing * 100), "{0} %",UD_LockMenu_flag)
+    UD_PatchMult_Plug_S = addSliderOption("$UD_PLUG",UDCDmain.UDPatcher.UD_PatchMult_Plug, "{1} x",UD_LockMenu_flag)
+    UD_PatchMult_Piercing_S = addSliderOption("$UD_PIERCING",UDCDmain.UDPatcher.UD_PatchMult_Piercing, "{1} x",UD_LockMenu_flag)
     
-    UD_PatchMult_Generic_S = addSliderOption("$UD_GENERIC",Round(UDCDmain.UDPatcher.UD_PatchMult_Generic * 100), "{0} %",UD_LockMenu_flag)
+    UD_PatchMult_Generic_S = addSliderOption("$UD_GENERIC",UDCDmain.UDPatcher.UD_PatchMult_Generic, "{1} x",UD_LockMenu_flag)
     addEmptyOption()
 EndEvent
 
@@ -2082,10 +2082,10 @@ EndFunction
 
 Function OnOptionSliderOpenPatcher(int option)
     if (option == UD_PatchMult_S)
-        SetSliderDialogStartValue(Round(UDCDmain.UDPatcher.UD_PatchMult * 100))
-        SetSliderDialogDefaultValue(100.0)
-        SetSliderDialogRange(10.0,300.0)
-        SetSliderDialogInterval(10.0)
+        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_PatchMult)
+        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogRange(0.3,10.0)
+        SetSliderDialogInterval(0.1)
     elseif (option == UD_EscapeModifier_S)
         SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_EscapeModifier)
         SetSliderDialogDefaultValue(10.0)
@@ -2112,50 +2112,50 @@ Function OnOptionSliderOpenPatcher(int option)
         SetSliderDialogRange(Round(UDCDmain.UDPatcher.UD_MinResistMult * 100),200.0)
         SetSliderDialogInterval(10.0)
     elseif (option == UD_PatchMult_HeavyBondage_S)
-        SetSliderDialogStartValue(Round(UDCDmain.UDPatcher.UD_PatchMult_HeavyBondage * 100))
-        SetSliderDialogDefaultValue(100.0)
-        SetSliderDialogRange(30.0,300.0)
-        SetSliderDialogInterval(10.0)
+        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_PatchMult_HeavyBondage)
+        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogRange(0.3,10.0)
+        SetSliderDialogInterval(0.1)
     elseif (option == UD_PatchMult_Blindfold_S)
-        SetSliderDialogStartValue(Round(UDCDmain.UDPatcher.UD_PatchMult_Blindfold * 100))
-        SetSliderDialogDefaultValue(100.0)
-        SetSliderDialogRange(30.0,300.0)
-        SetSliderDialogInterval(10.0)
+        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_PatchMult_Blindfold)
+        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogRange(0.3,10.0)
+        SetSliderDialogInterval(0.1)
     elseif (option == UD_PatchMult_Gag_S)
-        SetSliderDialogStartValue(Round(UDCDmain.UDPatcher.UD_PatchMult_Gag * 100))
-        SetSliderDialogDefaultValue(100.0)
-        SetSliderDialogRange(30.0,300.0)
-        SetSliderDialogInterval(10.0)
+        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_PatchMult_Gag)
+        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogRange(0.3,10.0)
+        SetSliderDialogInterval(0.1)
     elseif (option == UD_PatchMult_Hood_S)
-        SetSliderDialogStartValue(Round(UDCDmain.UDPatcher.UD_PatchMult_Hood * 100))
-        SetSliderDialogDefaultValue(100.0)
-        SetSliderDialogRange(30.0,300.0)
-        SetSliderDialogInterval(10.0)
+        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_PatchMult_Hood)
+        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogRange(0.3,10.0)
+        SetSliderDialogInterval(0.1)
     elseif (option == UD_PatchMult_ChastityBelt_S)
-        SetSliderDialogStartValue(Round(UDCDmain.UDPatcher.UD_PatchMult_ChastityBelt * 100))
-        SetSliderDialogDefaultValue(100.0)
-        SetSliderDialogRange(30.0,300.0)
-        SetSliderDialogInterval(10.0)
+        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_PatchMult_ChastityBelt)
+        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogRange(0.3,10.0)
+        SetSliderDialogInterval(0.1)
     elseif (option == UD_PatchMult_ChastityBra_S)
-        SetSliderDialogStartValue(Round(UDCDmain.UDPatcher.UD_PatchMult_ChastityBra * 100))
-        SetSliderDialogDefaultValue(100.0)
-        SetSliderDialogRange(30.0,300.0)
-        SetSliderDialogInterval(10.0)
+        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_PatchMult_ChastityBra)
+        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogRange(0.3,10.0)
+        SetSliderDialogInterval(0.1)
     elseif (option == UD_PatchMult_Plug_S)
-        SetSliderDialogStartValue(Round(UDCDmain.UDPatcher.UD_PatchMult_Plug * 100))
-        SetSliderDialogDefaultValue(100.0)
-        SetSliderDialogRange(30.0,300.0)
-        SetSliderDialogInterval(10.0)
+        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_PatchMult_Plug)
+        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogRange(0.3,10.0)
+        SetSliderDialogInterval(0.1)
     elseif (option == UD_PatchMult_Piercing_S)
-        SetSliderDialogStartValue(Round(UDCDmain.UDPatcher.UD_PatchMult_Piercing * 100))
-        SetSliderDialogDefaultValue(100.0)
-        SetSliderDialogRange(30.0,300.0)
-        SetSliderDialogInterval(10.0)
+        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_PatchMult_Piercing)
+        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogRange(0.3,10.0)
+        SetSliderDialogInterval(0.1)
     elseif (option == UD_PatchMult_Generic_S)
-        SetSliderDialogStartValue(Round(UDCDmain.UDPatcher.UD_PatchMult_Generic * 100))
-        SetSliderDialogDefaultValue(100.0)
-        SetSliderDialogRange(30.0,300.0)
-        SetSliderDialogInterval(10.0)
+        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_PatchMult_Generic)
+        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogRange(0.3,10.0)
+        SetSliderDialogInterval(0.1)
     endif
 EndFunction
 
@@ -2398,8 +2398,8 @@ EndFunction
 Function OnOptionSliderAcceptPatcher(int option, float value)
     int loc_value = Round(value)
     if (option == UD_PatchMult_S)
-        UDCDmain.UDPatcher.UD_PatchMult = value/100.0
-        SetSliderOptionValue(UD_PatchMult_S, Round(UDCDmain.UDPatcher.UD_PatchMult * 100), "{0} %")
+        UDCDmain.UDPatcher.UD_PatchMult = value
+        SetSliderOptionValue(UD_PatchMult_S, UDCDmain.UDPatcher.UD_PatchMult, "{1} x")
     elseif (option == UD_EscapeModifier_S)
         UDCDmain.UDPatcher.UD_EscapeModifier = Round(value)
         SetSliderOptionValue(UD_EscapeModifier_S, UDCDmain.UDPatcher.UD_EscapeModifier, "{0}")
@@ -2416,32 +2416,32 @@ Function OnOptionSliderAcceptPatcher(int option, float value)
         UDCDmain.UDPatcher.UD_MaxResistMult = value/100.0
         SetSliderOptionValue(UD_MaxResistMult_S, Round(UDCDmain.UDPatcher.UD_MaxResistMult * 100), "{0} %")
     elseif (option == UD_PatchMult_HeavyBondage_S)
-        UDCDmain.UDPatcher.UD_PatchMult_HeavyBondage = value/100.0
-        SetSliderOptionValue(UD_PatchMult_HeavyBondage_S, Round(UDCDmain.UDPatcher.UD_PatchMult_HeavyBondage * 100), "{0} %")
+        UDCDmain.UDPatcher.UD_PatchMult_HeavyBondage = value
+        SetSliderOptionValue(UD_PatchMult_HeavyBondage_S, UDCDmain.UDPatcher.UD_PatchMult_HeavyBondage, "{1} x")
     elseif (option == UD_PatchMult_Blindfold_S)
-        UDCDmain.UDPatcher.UD_PatchMult_Blindfold = value/100.0
-        SetSliderOptionValue(UD_PatchMult_Blindfold_S, Round(UDCDmain.UDPatcher.UD_PatchMult_Blindfold * 100), "{0} %")
+        UDCDmain.UDPatcher.UD_PatchMult_Blindfold = value
+        SetSliderOptionValue(UD_PatchMult_Blindfold_S, UDCDmain.UDPatcher.UD_PatchMult_Blindfold, "{1} x")
     elseif (option == UD_PatchMult_Gag_S)
-        UDCDmain.UDPatcher.UD_PatchMult_Gag = value/100.0
-        SetSliderOptionValue(UD_PatchMult_Gag_S, Round(UDCDmain.UDPatcher.UD_PatchMult_Gag * 100), "{0} %")
+        UDCDmain.UDPatcher.UD_PatchMult_Gag = value
+        SetSliderOptionValue(UD_PatchMult_Gag_S, UDCDmain.UDPatcher.UD_PatchMult_Gag, "{1} x")
     elseif (option == UD_PatchMult_Hood_S)
-        UDCDmain.UDPatcher.UD_PatchMult_Hood = value/100.0
-        SetSliderOptionValue(UD_PatchMult_Hood_S, Round(UDCDmain.UDPatcher.UD_PatchMult_Hood * 100), "{0} %")
+        UDCDmain.UDPatcher.UD_PatchMult_Hood = value
+        SetSliderOptionValue(UD_PatchMult_Hood_S, UDCDmain.UDPatcher.UD_PatchMult_Hood, "{1} x")
     elseif (option == UD_PatchMult_ChastityBelt_S)
-        UDCDmain.UDPatcher.UD_PatchMult_ChastityBelt = value/100.0
-        SetSliderOptionValue(UD_PatchMult_ChastityBelt_S, Round(UDCDmain.UDPatcher.UD_PatchMult_ChastityBelt * 100), "{0} %")
+        UDCDmain.UDPatcher.UD_PatchMult_ChastityBelt = value
+        SetSliderOptionValue(UD_PatchMult_ChastityBelt_S, UDCDmain.UDPatcher.UD_PatchMult_ChastityBelt, "{1} x")
     elseif (option == UD_PatchMult_ChastityBra_S)
-        UDCDmain.UDPatcher.UD_PatchMult_ChastityBra = value/100.0
-        SetSliderOptionValue(UD_PatchMult_ChastityBra_S, Round(UDCDmain.UDPatcher.UD_PatchMult_ChastityBra * 100), "{0} %")
+        UDCDmain.UDPatcher.UD_PatchMult_ChastityBra = value
+        SetSliderOptionValue(UD_PatchMult_ChastityBra_S, UDCDmain.UDPatcher.UD_PatchMult_ChastityBra, "{1} x")
     elseif (option == UD_PatchMult_Plug_S)
-        UDCDmain.UDPatcher.UD_PatchMult_Plug = value/100.0
-        SetSliderOptionValue(UD_PatchMult_Plug_S, Round(UDCDmain.UDPatcher.UD_PatchMult_Plug * 100), "{0} %")
+        UDCDmain.UDPatcher.UD_PatchMult_Plug = value
+        SetSliderOptionValue(UD_PatchMult_Plug_S, UDCDmain.UDPatcher.UD_PatchMult_Plug, "{1} x")
     elseif (option == UD_PatchMult_Piercing_S)
-        UDCDmain.UDPatcher.UD_PatchMult_Piercing = value/100.0
-        SetSliderOptionValue(UD_PatchMult_Piercing_S, Round(UDCDmain.UDPatcher.UD_PatchMult_Piercing * 100), "{0} %")
+        UDCDmain.UDPatcher.UD_PatchMult_Piercing = value
+        SetSliderOptionValue(UD_PatchMult_Piercing_S, UDCDmain.UDPatcher.UD_PatchMult_Piercing, "{1} x")
     elseif (option == UD_PatchMult_Generic_S)
-        UDCDmain.UDPatcher.UD_PatchMult_Generic = value/100.0
-        SetSliderOptionValue(UD_PatchMult_Generic_S, Round(UDCDmain.UDPatcher.UD_PatchMult_Generic * 100), "{0} %")
+        UDCDmain.UDPatcher.UD_PatchMult_Generic = value
+        SetSliderOptionValue(UD_PatchMult_Generic_S, UDCDmain.UDPatcher.UD_PatchMult_Generic, "{1} x")
     endif
 EndFunction
 
@@ -2503,15 +2503,15 @@ Function OnOptionSliderAcceptModifiers(int option, float value)
     if (option == UD_ModifierMultiplier_S)
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
         loc_mod.Multiplier  = value
-        SetSliderOptionValue(UD_ModifierMultiplier_S, Round(value), "{1}")
+        SetSliderOptionValue(UD_ModifierMultiplier_S, value, "{1} x")
     elseif (option == UD_ModifierPatchPowerMultiplier_S)
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
         loc_mod.PatchPowerMultiplier  = value
-        SetSliderOptionValue(UD_ModifierPatchPowerMultiplier_S, Round(value), "{1}")
+        SetSliderOptionValue(UD_ModifierPatchPowerMultiplier_S, value, "{1} x")
     elseif (option == UD_ModifierPatchChanceMultiplier_S)
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
         loc_mod.PatchChanceMultiplier  = value
-        SetSliderOptionValue(UD_ModifierPatchChanceMultiplier_S, Round(value), "{1}")
+        SetSliderOptionValue(UD_ModifierPatchChanceMultiplier_S, value, "{1} x")
     endIf
 EndFunction
 
@@ -3200,6 +3200,8 @@ Event OnOptionHighlight(int option)
         GeneralPageInfo(option)
     elseif (_lastPage == "$UD_DEVICEFILTER")
         FilterPageInfo(option)
+    elseif (_lastPage == "Custom Modifiers")
+        ModifierPageInfo(option)
     elseif (_lastPage == "$UD_ABADONPLUG")
         AbadanPageInfo(option)
     elseif (_lastPage == "$UD_CUSTOMDEVICES")
@@ -3294,6 +3296,16 @@ Function FilterPageInfo(int option)
         SetInfoText("$UD_USESUITS_INFO")
     elseif option == UD_RandomFilter_T ;this option will be deleted
         SetInfoText("$UD_RANDOMFILTER_INFO")
+    endif
+EndFunction
+
+Function ModifierPageInfo(int option)
+    if(option == UD_ModifierMultiplier_S)
+        SetInfoText("Strength multiplier for specific modifier. Is applied to all modifiers of selected type")
+    elseif(option == UD_ModifierPatchChanceMultiplier_S)
+        SetInfoText("Multiplier for chance of modifier being added to patched device")
+    elseif(option == UD_ModifierPatchPowerMultiplier_S)
+        SetInfoText("Patched strength multiplier for specific modifier. Is applied to modifier of this type when it is patched. It is used only once when device is patched. After that, this value cant be changed")
     endif
 EndFunction
 

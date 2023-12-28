@@ -230,7 +230,7 @@ Armor Function getRandomDeviceByKeyword_LL(Actor akActor,Keyword akKeyword)
     endif
 
     if LL
-        int tries = 10                        ; 10 attempts
+        int tries = 4                        ; 3 attempts
         while tries > 0            
             res = GetRandomDevice(LL)
             if res
@@ -238,7 +238,6 @@ Armor Function getRandomDeviceByKeyword_LL(Actor akActor,Keyword akKeyword)
                     return res
                 endif
                 tries -= 1                        ; else we go and try to get another device
-                Utility.wait(0.1)                 ; small delay to ensure better random
             else
                 return none
             endif
