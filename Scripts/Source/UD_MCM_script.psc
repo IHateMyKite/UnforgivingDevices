@@ -1379,6 +1379,8 @@ Function resetOtherPage()
     AddTextOption("Experience",InstallSwitch(UDmain.ExperienceInstalled),FlagSwitch(UDmain.ExperienceInstalled))
     addEmptyOption()
     
+    AddTextOption("Skyrim Souls",InstallSwitch(UDmain.SkyrimSoulsInstalled),FlagSwitch(UDmain.SkyrimSoulsInstalled))
+    addEmptyOption()
 EndFunction
 
 String Function InstallSwitch(Bool abSwitch)

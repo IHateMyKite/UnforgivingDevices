@@ -1687,57 +1687,22 @@ EndFunction
         akRendDevice    - *Render* device
 /;
 bool Function CheckRenderDeviceEquipped(Actor akActor, Armor akRendDevice)
-    if !akActor
-        return false
+    Armor loc_res = UD_Native.CheckArmorEquipped(akActor,akRendDevice)
+    if loc_res && !_IsDevice(loc_res)
+        akActor.unequipItem(loc_res)
+        akActor.equipItem(akRendDevice)
+        loc_res = UD_Native.CheckArmorEquipped(akActor,akRendDevice)
     endif
-    if IsPlayer(akActor)
-        return akActor.isEquipped(akRendDevice) ;works fine for player, use this as its faster
-    endif
-    int loc_mask = 0x00000001
-    int loc_devicemask = akRendDevice.GetSlotMask()
-    while loc_mask < 0x80000000
-        if loc_mask > loc_devicemask
-            return false
-        endif
-        if Math.LogicalAnd(loc_mask,loc_devicemask)
-            Armor loc_armor = akActor.GetWornForm(loc_mask) as Armor
-            if loc_armor ;check if there is anything in slot
-                if loc_armor == akRendDevice
-                    return true ;render device is equipped
-                else
-                    return false ;render device is unequipped
-                endif
-            endif
-        endif
-        loc_mask = Math.LeftShift(loc_mask,1)
-    endwhile
-    return false ;device is not equipped
+    return loc_res == none
+EndFunction
+
+bool Function _IsDevice(Armor akArmor)
+    return akArmor.HasKeyword(libs.zad_Lockable) || akArmor.haskeyword(libs.zad_DeviousPlug)
 EndFunction
 
 ;returns conflicting device, should be only used after equipitem function fails
-Armor Function GetConflictDevice(Actor akActor, Armor rendDevice)
-    if !akActor
-        return none
-    endif
-    int loc_mask = 0x00000001
-    int loc_devicemask = rendDevice.GetSlotMask()
-    while loc_mask < 0x80000000
-        if loc_mask > loc_devicemask
-            return none
-        endif
-        if Math.LogicalAnd(loc_mask,loc_devicemask)
-            Armor loc_armor = akActor.GetWornForm(loc_mask) as Armor
-            if loc_armor ;check if there is anything in slot
-                if loc_armor == rendDevice
-                    return none ;render device is equipped
-                else
-                    return loc_armor ;;render device is unequipped
-                endif
-            endif
-        endif
-        loc_mask *= 2
-    endwhile
-    return none ;device is not equipped
+Armor Function GetConflictDevice(Actor akActor, Armor akRendDevice)
+    return UD_Native.CheckArmorEquipped(akActor,akRendDevice)
 EndFunction
 
 ;/  Function: CheckRenderDeviceConflict
@@ -1766,27 +1731,14 @@ int Function CheckRenderDeviceConflict(Actor akActor, Armor akRendDevice)
     if !akActor
         return 3
     endif
-    int loc_mask = 0x00000001
-    int loc_devicemask = akRendDevice.GetSlotMask()
-    while loc_mask < 0x80000000
-        if loc_mask > loc_devicemask
-            return 0 ;slots are empty, lock should succes
-        endif
-        if Math.LogicalAnd(loc_mask,loc_devicemask)
-            Form loc_armor = akActor.GetWornForm(loc_mask)
-            if loc_armor ;check if there is anything in slot
-                if (loc_armor as Armor) == akRendDevice
-                    return 1 ;same render device is already equipped
-                elseif loc_armor.haskeyword(libs.zad_Lockable)
-                    return 2 ;slot already occupied
-                endif
-            else
-                ;slot if empty, continue
-            endif
-        endif
-        loc_mask *= 2
-    endwhile
-    return 0 ;slots are empty, lock should succes
+    
+    Armor loc_res = UD_Native.CheckArmorEquipped(akActor,akRendDevice)
+    if loc_res == akRendDevice
+        return 1 ;same render device is already equipped
+    elseif _IsDevice(loc_res)
+        return 2 ;slot already occupied
+    endif
+    return 0
 EndFunction
 
 Message Property UD_ActorDetailsOptions auto

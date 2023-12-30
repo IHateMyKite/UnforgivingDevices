@@ -462,6 +462,8 @@ Function fix()
             getActor().SetDontMove(False)
         endif
         
+        getActor().SetAnimationVariableInt("FNIS_abc_h2h_LocomotionPose", 0)
+        
         UDmain.UDAM.StopAnimation(getActor(), none, abEnableActors = True)
         
         getActor().RemoveFromFaction(libs.zadAnimatingFaction)
@@ -470,8 +472,6 @@ Function fix()
         UDCDmain.libs.StartBoundEffects(getActor())
         
         _DeviceManipMutex = false
-        
-        UDmain.Print("[UD] loops checked!")
         
         UDmain.Print("[UD] General fixes done!")
     elseif loc_res == 1 ;reset orgasm var
@@ -1763,7 +1763,7 @@ Function ProccesLockMutex()
         loc_time += 0.01
     endwhile
     
-    if !IsPlayer() && loc_time >= UDmain.UDGV.UD_MutexTimeout && UDmain.IsAnyMenuOpen()
+    if UDmain.IsAnyMenuOpenRT() && loc_time >= UDmain.UDGV.UD_MutexTimeout && !IsPlayer()
         if UDmain.TraceAllowed()
             UDmain.Log(self+"::ProccesLockMutex() - Timeout on NPC, waiting for menu to close and try again",2)
         endif
@@ -1793,7 +1793,7 @@ Function ProccesUnlockMutex()
         loc_time += 0.01
     endwhile
     
-    if !IsPlayer() && loc_time >= UDmain.UDGV.UD_MutexTimeout && UDmain.IsAnyMenuOpen()
+    if UDmain.IsAnyMenuOpenRT() && loc_time >= UDmain.UDGV.UD_MutexTimeout && !IsPlayer()
         if UDmain.TraceAllowed()
             UDmain.Log(self+"::ProccesUnlockMutex() - Timeout on NPC, waiting for menu to close and try again",2)
         endif

@@ -29,6 +29,7 @@ Int     Function FloatToInt                 (Float afValue)                     
 Float   Function RandomFloat                (Float afMin = 0.0, Float afMax = 99.99)            global native
 Int     Function RandomInt                  (Int aiMin = 0, Int aiMax = 99)                     global native
 Bool    Function PluginInstalled            (string asName)                                     global native
+Armor   Function CheckArmorEquipped         (Actor akActor, Armor akArmor)                      global native
 
 ;===UI===
 int     Function RemoveAllMeterEntries()                                        global native
@@ -95,3 +96,6 @@ Bool Function IsEbonite (Armor akArmor) global native
 Bool Function IsRope    (Armor akArmor) global native
 Bool Function IsSecure  (Armor akArmor) global native
 Bool Function IsLeather (Armor akArmor) global native
+
+; ===Diagnosis===
+Int Function CheckPatchedDevices() global native

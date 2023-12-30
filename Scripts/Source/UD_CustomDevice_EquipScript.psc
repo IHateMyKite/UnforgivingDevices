@@ -789,7 +789,7 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
         bool loc_rdok = _CheckRD(akActor,loc_timeoutticks)
         
         ;in case that the equip failed and menu is open, wait for menu to close first, and then try again
-        if !loc_isplayer && !loc_rdok && UDmain.IsAnyMenuOpen()
+        if !loc_isplayer && !loc_rdok && UDmain.IsAnyMenuOpenRT() && UDmain
             Utility.wait(0.01) ;wait for menu to close
             loc_rdok = _CheckRD(akActor,loc_timeoutticks)
         endif

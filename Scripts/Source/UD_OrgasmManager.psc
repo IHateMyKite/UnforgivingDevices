@@ -376,7 +376,7 @@ Function ActorOrgasm(actor akActor, Int aiOrgasms)
         akActor.damageAv("Stamina",50.0)
         akActor.damageAv("Magicka",50.0)
     elseif akActor.GetCurrentScene() || akActor.IsInFaction(libsp.Sexlab.AnimatingFaction)
-        if UDmain.TraceAllowed()    
+        if UDmain.TraceAllowed()
             UDmain.Log("ActorOrgasmPatched - sexlab animation detected - not playing animation for " + GetActorName(akActor),2)
         endif
     else

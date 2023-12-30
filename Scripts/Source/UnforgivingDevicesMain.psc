@@ -341,6 +341,7 @@ Bool Property ForHimInstalled           = False auto hidden
 Bool Property PO3Installed              = False auto hidden ;https://www.nexusmods.com/skyrimspecialedition/mods/22854
 Bool Property ImprovedCameraInstalled   = False auto hidden
 Bool Property ExperienceInstalled       = False auto hidden
+Bool Property SkyrimSoulsInstalled      = False auto hidden
 Bool Property AllowMenBondage           = True  auto hidden
 
 bool Property Ready = False auto hidden
@@ -961,20 +962,30 @@ Function _CheckOptionalMods()
     else
         ExperienceInstalled = false
     endif
+    
+    if PluginInstalled("SkyrimSoulsRE.dll")
+        SkyrimSoulsInstalled = true
+    else
+        SkyrimSoulsInstalled = false
+    endif
 EndFUnction
 
 Function _CheckPatchesOrder()
-    int loc_it = 0
-    Info(self + "::_CheckPatchesOrder() - Checking patches order...")
-    while loc_it < UD_OfficialPatches.length
-        if ModInstalled(UD_OfficialPatches[loc_it])
-            if !ModInstalledAfterUD(UD_OfficialPatches[loc_it])
-                debug.messagebox("--!ERROR!--\nUD detected that patch "+ UD_OfficialPatches[loc_it] +" is loaded before main mod! Patch always needs to be loaded after main mod or it will not work!!! Please change the load order, and reload save.")
-            endif
-        endif
-        loc_it += 1
-    endwhile
-    Info(self + "::_CheckPatchesOrder() - Patches order checked")
+    Int loc_issues = UD_Native.CheckPatchedDevices()
+    if loc_issues > 0
+        debug.messagebox("--!ERROR!--\nUD detected that "+ loc_issues +" device/s are patched incorrectly! Check SKSE log for more info. Please update your load order, and try to load the game again.")
+    endif
+    ;int loc_it = 0
+    ;Info(self + "::_CheckPatchesOrder() - Checking patches order...")
+    ;while loc_it < UD_OfficialPatches.length
+    ;    if ModInstalled(UD_OfficialPatches[loc_it])
+    ;        if !ModInstalledAfterUD(UD_OfficialPatches[loc_it])
+    ;            debug.messagebox("--!ERROR!--\nUD detected that patch "+ UD_OfficialPatches[loc_it] +" is loaded before main mod! Patch always needs to be loaded after main mod or it will not work!!! Please change the load order, and reload save.")
+    ;        endif
+    ;    endif
+    ;    loc_it += 1
+    ;endwhile
+    ;Info(self + "::_CheckPatchesOrder() - Patches order checked")
 EndFunction
 
 ;/  Function: ResetQuest
@@ -2118,6 +2129,18 @@ EndFunction
 /;
 Bool Function IsAnyMenuOpen()
     return UDMC.UD_MenuListIDBit
+EndFunction
+
+;/  Function: IsAnyMenuOpenRT
+
+    This function check if any menu is open. Should be used only in relevance to runtime waits (Wait x WaitMenuMode)
+
+    Returns:
+
+        True if ANY menu is open and SkyrimSoulsInstalled is not installed
+/;
+Bool Function IsAnyMenuOpenRT()
+    return UDMC.UD_MenuListIDBit && !SkyrimSoulsInstalled
 EndFunction
 
 ;/  Function: IsMenuOpenID

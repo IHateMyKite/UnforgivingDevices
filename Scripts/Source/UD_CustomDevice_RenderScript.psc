@@ -1462,11 +1462,11 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
     endif
 EndEvent
 
-;1 tick = 0.05 s ; 20 ticks = 1 s
+;1 tick = 0.1 s ; 20 ticks = 2 s
 Bool Function _CheckRD(Actor akActor, Int aiTicks)
     int loc_ticks = 0
     while loc_ticks <= aiTicks && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
-        Utility.waitMenuMode(0.05)
+        Utility.waitMenuMode(0.1)
         loc_ticks += 1
     endwhile
     return loc_ticks < aiTicks
@@ -1515,18 +1515,24 @@ Function _Init(Actor akActor)
     
     bool loc_isplayer = (akActor == UDmain.Player)
     if loc_slot ;ignore additional check if actor is not registered
-        int loc_timeoutticks = Round(UDmain.UDGV.UD_LockTimeoutRD/0.05)
+        int loc_timeoutticks = Round(UDmain.UDGV.UD_LockTimeoutRD/0.1)
         
         bool loc_rdok = _CheckRD(akActor,loc_timeoutticks)
         
         ;in case that the equip failed and menu is open, wait for menu to close first, and then try again
-        if !loc_isplayer && !loc_rdok && UDmain.IsAnyMenuOpen()
+        if !loc_isplayer && !loc_rdok && UDmain.IsAnyMenuOpenRT()
             Utility.wait(0.01) ;wait for menu to close
             loc_rdok = _CheckRD(akActor,loc_timeoutticks)
         endif
         
+        ;if !loc_rdok
+        ;    Armor loc_conflict = UDCDmain.GetConflictDevice(akActor, DeviceRendered)
+        ;    if loc_conflict && loc_conflict.hasKeyword(libs.zad_)
+        ;    
+        ;    endif
+        ;endif
         if !loc_rdok
-            UDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because equip failed - timeout")
+            UDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because equip failed - timeout. Conflicting Device = " + UDCDmain.GetConflictDevice(akActor, DeviceRendered))
             return
         endif
     endif
@@ -6967,7 +6973,7 @@ Function SpecialButtonPressed(float afMult = 1.0)
         if _CuttingGameON
             _cutDevice(afMult*UD_CutChance/12.5)
         elseif _KeyGameON || _LockpickGameON || _RepairLocksMinigameON
-            if !_usingTelekinesis
+            if (WearerHaveTelekinesis() || HelperHaveTelekinesis()) && !_usingTelekinesis
                 _usingTelekinesis = true
                 
                 UD_Native.MinigameEffectUpdateMagicka(UDmain.Player,0.5*UD_base_stat_drain + UDmain.Player.getBaseAV("Magicka")*0.02)
