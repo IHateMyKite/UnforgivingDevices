@@ -1881,7 +1881,7 @@ Function _OrgasmGameUpdate()
 EndFunction
 
 Function UpdateOrgasm(Float afUpdateTime)
-    if !UDmain.IsEnabled()
+    if !UDmain.IsEnabled() || (UD_Native.GetCameraState() == 3)
         return
     endif
     _currentUpdateTime = afUpdateTime

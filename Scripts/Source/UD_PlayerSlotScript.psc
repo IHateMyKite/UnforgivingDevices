@@ -29,7 +29,7 @@ Actor Function GetActor()
 EndFunction
 
 Event UDEvent_OnHMTweenMenuOpen()
-    if !UDmain.IsAnyMenuOpen()
+    if (UD_Native.GetCameraState() != 3) && !UDmain.IsAnyMenuOpen()
         UD_CustomDevice_RenderScript loc_hb = UDCDmain.getHeavyBondageDevice(UDmain.Player)
         if loc_hb
             loc_hb.deviceMenu(new Bool[30])

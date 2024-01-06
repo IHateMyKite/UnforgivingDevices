@@ -482,7 +482,7 @@ EndFunction
 
     Returns:
 
-        True if mod is not updating, not disabled and is ready
+        True if mod is not updating, not disabled and is ready. Free camera should also be not used
 /;
 Bool Function IsEnabled()
     return !_Disabled && !_Updating && ready

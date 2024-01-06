@@ -94,6 +94,9 @@ EndFunction
 
 State Minigame
     Event OnKeyDown(Int KeyCode)
+        if (UD_Native.GetCameraState() == 3)
+            return
+        endif
         ;help variables to reduce lag
         bool     _crit                    = UDCDmain.crit 
         string   _selected_crit_meter     = UDCDmain.selected_crit_meter
@@ -154,7 +157,7 @@ State Minigame
 EndState
 
 Event OnKeyDown(Int KeyCode)
-    if UDmain.IsEnabled()
+    if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
         ;check if any menu is open, or if message box is open
         bool loc_menuopen = UDmain.IsAnyMenuOpen()
         if !loc_menuopen ;only if player is not in menu
@@ -173,7 +176,7 @@ Event OnKeyDown(Int KeyCode)
 EndEvent
 
 Event OnKeyUp(Int KeyCode, Float HoldTime)
-    if UDmain.IsEnabled()
+    if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
         if !UDmain.IsAnyMenuOpen() && !(UD_EasyGamepadMode && Game.UsingGamepad())
             if KeyCode == UDCDMain.StruggleKey_Keycode
                 if HoldTime < 0.2

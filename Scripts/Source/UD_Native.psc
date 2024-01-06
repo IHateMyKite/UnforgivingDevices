@@ -77,8 +77,25 @@ Bool        Function RegisterSlotQuest(Quest akQuest)   global native
 Actor[]     Function GetRegisteredActors()              global native
 
 ;===PlayerControl===
-            Function SyncControlSetting(bool abHardcoreMode) global native
-            
+            Function SyncControlSetting(bool abHardcoreMode)    global native
+;/
+    Camera states...
+    kError          =   -1
+    kFirstPerson    =    0
+    kAutoVanity     =    1
+    kVATS           =    2
+    kFree           =    3
+    kIronSight,     =    4
+    kFurniture      =    5
+    kPCTransition   =    6
+    kTween          =    7
+    kAnimated       =    8
+    kThirdPerson    =    9
+    kMount          =   10
+    kBleedout       =   11
+    kDragon         =   12
+/;
+Int         Function GetCameraState()                           global native
             
  ;===Events===
             Function RegisterForHMTweenMenu(ReferenceAlias akRefAlias)      global native

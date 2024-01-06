@@ -38,11 +38,11 @@ Event OnUpdate()
         Ready = True
         InitSlots()
     endif
-    if UDmain.IsEnabled()
+    if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
         Evaluate()
         RegisterForSingleUpdate(UD_UpdateTime)
     else
-        RegisterForSingleUpdate(2.0)
+        RegisterForSingleUpdate(5.0)
     endif
 EndEvent
 

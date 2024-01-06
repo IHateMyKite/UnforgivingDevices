@@ -137,7 +137,7 @@ Event OnUpdate()
         RegisterForSingleUpdate(30.0) ;start update loop, 5 s
         RegisterForSingleUpdateGameTime(1.0) ;start update loop, 1 game hour
     else
-        if UDmain.IsEnabled()
+        if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
             float loc_timePassed = Utility.GetCurrentGameTime() - _LastUpdateTime
             UpdateModifiers(loc_timePassed)
             _LastUpdateTime = Utility.GetCurrentGameTime()
@@ -150,7 +150,7 @@ EndEvent
 
 float _LastUpdateTime_Hour = 0.0 ;last time the update happened in days
 Event OnUpdateGameTime()
-    if UDmain.IsEnabled()
+    if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
         float loc_currentgametime = Utility.GetCurrentGameTime()
         float loc_mult = 24.0*(loc_currentgametime - _LastUpdateTime_Hour) ;time multiplier
         UpdateModifiers_Hour(loc_mult)
