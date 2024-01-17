@@ -313,6 +313,11 @@ bool Property currentDeviceMenu_allowLockMenu           = false auto conditional
 /;
 bool Property currentDeviceMenu_allowSpecialMenu        = false auto conditional hidden
 
+;/  Variable: currentDeviceMenu_allowEscape
+
+    Conditional variable intended to be used by conditions on messages
+/;
+bool Property currentDeviceMenu_allowEscape             = false auto conditional hidden
 
 ;switches for special menu, allows only six buttons
 
@@ -371,6 +376,7 @@ Function resetCondVar()
     currentDeviceMenu_allowlockrepair = false
     currentDeviceMenu_allowTighten = false
     currentDeviceMenu_allowRepair = false
+    currentDeviceMenu_allowEscape = false
     
     currentDeviceMenu_switch1 = false
     currentDeviceMenu_switch2 = false
@@ -1999,10 +2005,7 @@ EndFunction
 Function startLockpickMinigame()
     LockpickMinigameOver = false
     
-    if UDmain.PO3Installed
-        _PO3PEDetection = UDmain.UDGV.UDG_PO3PEDetection.Value
-        PO3_SKSEFunctions.PreventActorDetection(UDmain.Player)
-    endif
+    UD_Native.ToggleDetection(false)
     
     _ApplyLockpickSkillMult(UDmain.Player)
     
@@ -2022,14 +2025,6 @@ Function startLockpickMinigame()
     
     RegisterForMenu("Lockpicking Menu")
     
-    if UDmain.PO3Installed
-        while _PO3PEDetection && PO3_SKSEFunctions.IsDetectedByAnyone(UDmain.Player)
-            Utility.wait(0.05)
-        endwhile
-    elseif UDmain.ConsoleUtilInstalled
-        ConsoleUtil.ExecuteCommand("ToggleDetection")
-    endif
-    
     _LockPickContainer.activate(UDmain.Player)
 EndFunction
 
@@ -2037,11 +2032,7 @@ EndFunction
 bool Property LockpickMinigameOver      = false auto hidden
 int  Property LockpickMinigameResult    = 0     auto hidden
 Event OnMenuClose(String MenuName)
-    if _PO3PEDetection && UDmain.PO3Installed
-        PO3_SKSEFunctions.ResetActorDetection(UDmain.Player)
-    elseif UDmain.ConsoleUtilInstalled
-        ConsoleUtil.ExecuteCommand("ToggleDetection")
-    endif
+    UD_Native.ToggleDetection(true)
     
     int remainingLockpicks = UDmain.Player.GetItemCount(Lockpick)
     

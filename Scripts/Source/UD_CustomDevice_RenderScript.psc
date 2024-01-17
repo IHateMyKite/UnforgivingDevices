@@ -2048,6 +2048,8 @@ Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True)
 
     StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
     
+    StorageUtil.UnSetIntValue(Wearer, "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus")
+    
     if (deviceInventory.hasKeyword(libs.zad_QuestItem) || deviceRendered.hasKeyword(libs.zad_QuestItem))
         int questKw = UDCdmain.UD_QuestKeywords.getSize()
         while questKw
@@ -3441,6 +3443,10 @@ Function _deviceMenuInit(bool[] aaControl)
             UDCDmain.currentDeviceMenu_allowLockMenu = true
         endif
         
+        if StorageUtil.GetIntValue(GetWearer(), "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus", 0)
+            UDCDmain.currentDeviceMenu_allowEscape = true
+        endif
+        
         ;override function
         onDeviceMenuInitPost(aaControl)
     endif
@@ -3497,7 +3503,10 @@ Function DeviceMenu(bool[] aaControl)
             _break = cuttingMinigame()
         elseif msgChoice == 4     ;special menu
             _break = _specialMenu()
-        elseif msgChoice == 5     ;details
+        elseif msgChoice == 5     ;escape
+            UnlockRestrain()
+            _break = true
+        elseif msgChoice == 6     ;details
             processDetails()        
         else
             _break = True         ;exit
@@ -3576,6 +3585,10 @@ Function _deviceMenuInitWH(Actor akSource,bool[] aaControl)
                 UDCDmain.currentDeviceMenu_allowLockMenu = true
             endif
             
+            if StorageUtil.GetIntValue(GetWearer(), "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus", 0)
+                UDCDmain.currentDeviceMenu_allowEscape = true
+            endif
+            
             ;override function
             onDeviceMenuInitPostWH(aaControl)
         endif
@@ -3648,7 +3661,7 @@ Function DeviceMenuWH(Actor akSource,bool[] aaControl)
             _break = _specialMenuWH(akSource)
         elseif msgChoice == 4    ;tighten up
             tightUpDevice(akSource)
-            _break = true
+            _break = false
         elseif msgChoice == 5    ;repair
             repairDevice(akSource)
             _break = true
@@ -3656,8 +3669,11 @@ Function DeviceMenuWH(Actor akSource,bool[] aaControl)
             aaControl = CreateControlArrayFalse()
             DeviceMenu(aaControl)
             _break = True
-        elseif msgChoice == 7    ;details
-            processDetails()        
+        elseif msgChoice == 7     ;escape
+            UnlockRestrain()
+            _break = true
+        elseif msgChoice == 8    ;details
+            processDetails()
         else
             _break = True        ;exit
         endif
@@ -5454,18 +5470,18 @@ EndFunction
 ;starts vannila lockpick minigame if lock is reached
 Function _lockpickDevice()
     if _LockpickGameON && (UD_CurrentLocks - UD_JammedLocks > 0)
-        int result = 0
+        int loc_result = 0
         if PlayerInMinigame()
             PauseMinigame() ;pause minigame untill lockpick minigame starts
-            int helperGivedLockpicks = 0
+            int loc_helperGivedLockpicks = 0
             if haveHelper()
                 ;always transfere lockpicks to player
                 if WearerIsPlayer()
-                    helperGivedLockpicks = getHelper().getItemCount(UDCDmain.Lockpick)
-                    getHelper().removeItem(UDCDmain.Lockpick,helperGivedLockpicks,True,getWearer())
+                    loc_helperGivedLockpicks = getHelper().getItemCount(UDCDmain.Lockpick)
+                    getHelper().removeItem(UDCDmain.Lockpick,loc_helperGivedLockpicks,True,getWearer())
                 else
-                    helperGivedLockpicks = getWearer().getItemCount(UDCDmain.Lockpick)
-                    getWearer().removeItem(UDCDmain.Lockpick,helperGivedLockpicks,True,getHelper())
+                    loc_helperGivedLockpicks = getWearer().getItemCount(UDCDmain.Lockpick)
+                    getWearer().removeItem(UDCDmain.Lockpick,loc_helperGivedLockpicks,True,getHelper())
                 endif
             endif
             
@@ -5476,11 +5492,11 @@ Function _lockpickDevice()
             float loc_elapsedTime   = 0.0
             float loc_maxtime       = 0.0
             if UDCDMain.UD_LockpickMinigameDuration > 0
-                loc_maxtime = (UDCDMain.UD_LockpickMinigameDuration as Float) - (loc_difficulty/100.0)*0.5*UDCDMain.UD_LockpickMinigameDuration
+                loc_maxtime = (UDCDMain.UD_LockpickMinigameDuration as Float) - fRange((loc_difficulty/100.0)*0.5,0.0,1.75)*UDCDMain.UD_LockpickMinigameDuration
                 bool loc_msgshown = false
                 while (!UDCDmain.LockpickMinigameOver) && loc_elapsedTime <= loc_maxtime
-                    Utility.WaitMenuMode(0.05)
-                    loc_elapsedTime += 0.05
+                    Utility.WaitMenuMode(0.1)
+                    loc_elapsedTime += 0.1
                     
                     if !loc_msgshown && loc_elapsedTime > loc_maxtime*0.75 ;only 25% time left, warn player
                         if RandomInt(0,1)
@@ -5493,7 +5509,7 @@ Function _lockpickDevice()
                 endwhile
             endif
             
-            result = UDCDmain.lockpickMinigameResult     ;first we fetch lockpicking result
+            loc_result = UDCDmain.lockpickMinigameResult     ;first we fetch lockpicking result
             UDCDmain.DeleteLockPickContainer()           ;then we remove the container so IsLocked is not called on None
             
             if UDCDMain.UD_LockpickMinigameDuration > 0
@@ -5502,7 +5518,7 @@ Function _lockpickDevice()
                         closeLockpickMenu()
                     endif
                     UDmain.Print("You lost focus and broke the lockpick!")
-                    result = 2
+                    loc_result = 2
                     getWearer().removeItem(UDCDmain.Lockpick,1)
                 endif
             endif
@@ -5510,15 +5526,15 @@ Function _lockpickDevice()
             if haveHelper()
                 if WearerIsPlayer()
                     int lockpicks = getWearer().getItemCount(UDCDmain.Lockpick)
-                    if lockpicks >= helperGivedLockpicks
-                        getWearer().removeItem(UDCDmain.Lockpick,helperGivedLockpicks,True,getHelper())
+                    if lockpicks >= loc_helperGivedLockpicks
+                        getWearer().removeItem(UDCDmain.Lockpick,loc_helperGivedLockpicks,True,getHelper())
                     else
                         getWearer().removeItem(UDCDmain.Lockpick,lockpicks,True,getHelper())
                     endif
                 else
                     int lockpicks = getHelper().getItemCount(UDCDmain.Lockpick)
-                    if lockpicks >= helperGivedLockpicks
-                        getHelper().removeItem(UDCDmain.Lockpick,helperGivedLockpicks,True,getWearer())
+                    if lockpicks >= loc_helperGivedLockpicks
+                        getHelper().removeItem(UDCDmain.Lockpick,loc_helperGivedLockpicks,True,getWearer())
                     else
                         getHelper().removeItem(UDCDmain.Lockpick,lockpicks,True,getWearer())
                     endif
@@ -5527,19 +5543,19 @@ Function _lockpickDevice()
             UnPauseMinigame()
         else
             if RandomInt(1,99) >= _getLockpickLevel(_MinigameSelectedLockID)*15
-                result = 1
+                loc_result = 1
             else
-                result = 2
+                loc_result = 2
                 Wearer.RemoveItem(UDCDmain.Lockpick, 1, True)
             endif
         endif
         if UDmain.TraceAllowed()
-            UDmain.Log("Lockpick minigame result for " + getWearerName() + ": " + result,2)
+            UDmain.Log("Lockpick minigame result for " + getWearerName() + ": " + loc_result,2)
         endif
-        if result == 0
+        if loc_result == 0
             stopMinigame()
             _LockpickGameON = False
-        elseif result == 1 ;succes
+        elseif loc_result == 1 ;succes
             Int loc_shields = GetNthLockShields(_MinigameSelectedLockID)
             if loc_shields > 0 ;lock have shields, needs to unlock them first
                 loc_shields = DecreaseLockShield(_MinigameSelectedLockID,1)
@@ -5605,7 +5621,7 @@ Function _lockpickDevice()
                 _LockpickGameON = False
                 _SetJammStatus()
             endif
-        elseif result == 2 ;failure
+        elseif loc_result == 2 ;failure
             if RandomInt() <= zad_JammLockChance*UDCDmain.CalculateKeyModifier() && !libs.Config.DisableLockJam
                 if PlayerInMinigame()
                     UDmain.Print("Your lockpick jammed the lock!",1)
@@ -7760,6 +7776,9 @@ EndFunction
 Function updateWidget(bool force = false)
     if _CuttingGameON
         setWidgetVal(getRelativeCuttingProgress(),force)
+        If UDmain.UDWC.UD_UseDeviceConditionWidget
+            UDmain.UDWC.Meter_SetFillPercent("device-condition", GetRelativeDurability()*100.0, True)
+        EndIf
     elseif _RepairLocksMinigameON
         setWidgetVal(_GetRelativeLockRepairProgress(_MinigameSelectedLockID),force)
     endif

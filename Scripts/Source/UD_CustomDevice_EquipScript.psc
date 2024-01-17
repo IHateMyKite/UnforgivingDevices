@@ -1036,7 +1036,7 @@ bool Function EquipDeviceMenu(Actor akActor)
                 Choice = libs.zad_DD_OnPutOnDevice.Show()
             EndIf
             If Choice == 1
-                StorageUtil.SetIntValue(akActor, "zad_Equipped" + libs.LookupDeviceType(zad_DeviousDevice) + "_ManipulatedStatus", 1)                    
+                StorageUtil.SetIntValue(akActor, "zad_Equipped" + libs.LookupDeviceType(zad_DeviousDevice) + "_ManipulatedStatus", 1)
             EndIf
         EndIf
         return false
