@@ -852,6 +852,10 @@ Function _StartModulesManual()
     if !UDCM.IsRunning()
         UDCM.start()
     endif
+    
+    if !UDWC.IsRunning()
+        UDWC.start()
+    endif
     Info(self + "::_StartModulesManual() - Started modules")
 EndFunction
 

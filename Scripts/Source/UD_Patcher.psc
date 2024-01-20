@@ -530,22 +530,39 @@ EndFunction
 
 ;check resist, so it can never bee too big or too low
 Function CheckResist(UD_CustomDevice_RenderScript device)
+    if UD_MinResistMult == UD_MaxResistMult
+        device.UD_ResistPhysical = UD_MinResistMult/2
+        device.UD_ResistMagicka  = UD_MaxResistMult/2
+        return
+    endif
     Float loc_ResistMult = device.UD_ResistPhysical + device.UD_ResistMagicka
     if loc_ResistMult > UD_MaxResistMult
         Bool loc_randomResist = RandomInt(0,1)
         Float loc_dRes = loc_ResistMult - UD_MaxResistMult
         if loc_randomResist ;Decrease physical resist
             device.UD_ResistPhysical -= loc_dRes ;decrease resist by min ammount
+            if device.UD_ResistPhysical < UD_MinResistMult
+                device.UD_ResistPhysical = UD_MinResistMult
+            endif
         else    ;Decrease magickal resist
             device.UD_ResistMagicka  -= loc_dRes ;decrease resist by min ammount
+            if device.UD_ResistMagicka < UD_MinResistMult
+                device.UD_ResistMagicka = UD_MinResistMult
+            endif
         endif
     elseif loc_ResistMult < UD_MinResistMult
         Bool loc_randomResist = RandomInt(0,1)
         Float loc_dRes = UD_MinResistMult - loc_ResistMult
         if loc_randomResist ;Increase physical resist
-            device.UD_ResistPhysical += loc_dRes ;decrease resist by min ammount
+            device.UD_ResistPhysical += loc_dRes ;increase resist by min ammount
+            if device.UD_ResistPhysical > UD_MaxResistMult
+                device.UD_ResistPhysical = UD_MaxResistMult
+            endif
         else    ;Decrease magickal resist
-            device.UD_ResistMagicka  += loc_dRes ;decrease resist by min ammount
+            device.UD_ResistMagicka  += loc_dRes ;increase resist by min ammount
+            if device.UD_ResistMagicka > UD_MaxResistMult
+                device.UD_ResistMagicka = UD_MaxResistMult
+            endif
         endif
     endif
 EndFunction

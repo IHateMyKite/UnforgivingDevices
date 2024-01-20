@@ -14,10 +14,10 @@ import UD_Native
 ;02 = 1b, _CuttingGameON
 ;03 = 1b, _KeyGameON
 ;04 = 1b, _RepairLocksMinigameON
-;05 = 1b, UNUSED
-;06 = 1b, UNUSED
+;05 = 1b, UD_useWidgetSec
+;06 = 1b, UD_WidgetAutoColorSec
 ;07 = 1b, _critLoop_On
-;08 = 1b, UNUSED
+;08 = 1b, UD_AllowWidgetUpdateSec
 ;09 = 1b, UD_drain_stats
 ;10 = 1b, UD_drain_stats_helper
 ;11 = 1b, UD_damage_device
@@ -1031,6 +1031,34 @@ bool    Property UD_AllowWidgetUpdate               Hidden
         return UD_Native.DecodeBit(_deviceControlBitMap_1,1,31)
     EndFunction
 EndProperty
+Bool Property UD_useWidgetSec hidden
+    Function set(bool bVal)
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,5)
+    EndFunction
+    
+    bool Function get()
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,5)
+    EndFunction
+EndProperty
+Bool Property UD_WidgetAutoColorSec hidden
+    Function set(bool bVal)
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,6)
+    EndFunction
+    
+    bool Function get()
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,6)
+    EndFunction
+EndProperty
+Bool Property UD_AllowWidgetUpdateSec hidden
+    Function set(bool bVal)
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,8)
+    EndFunction
+    
+    bool Function get()
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,8)
+    EndFunction
+EndProperty
+
 float   Property UD_minigame_stamina_drain          Hidden ;stamina drain for second of struggling
     Function set(float fVal)
         SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_2",Round(fRange(fVal,0.0,200.0)),8,0)
@@ -4021,6 +4049,18 @@ Function setWidgetVal(float afVal, bool abForce = false)
     UDmain.UDWC.Meter_SetFillPercent("device-main", afVal * 100.0, abForce)
 EndFunction
 
+;/  Function: setSecWidgetVal
+    Change value of secundary device widget (condition)
+    
+    Parameters:
+
+        afVal  - New widget meter value
+        abForce - If value should be forced (no change animation)
+/;
+Function setSecWidgetVal(float afVal, bool abForce = false)
+    UDmain.UDWC.Meter_SetFillPercent("device-condition", afVal * 100.0, abForce)
+EndFunction
+
 ;/  Function: setMainWidgetAppearance
     Update apparance of main device widget (durability, rapir progress, etc...)
     
@@ -4040,7 +4080,7 @@ Function setMainWidgetAppearance(Int aiColor1, Int aiColor2 = -1, Int aiFlashCol
     endif
 EndFunction
 
-;/  Function: setConditionWidgetAppearance
+;/  Function: setSecWidgetAppearance
     Update apparance of secondary device widget (condition)
     
     Parameters:
@@ -4049,9 +4089,12 @@ EndFunction
         aiColor2        - Secondary color
         aiFlashColor    - Flash color
 /;
-Function setConditionWidgetAppearance(Int aiColor1, Int aiColor2 = -1, Int aiFlashColor = -1)
+Function setSecWidgetAppearance(Int aiColor1, Int aiColor2 = -1, Int aiFlashColor = -1, String asIconName = "")
     if (WearerIsPlayer() || HelperIsPlayer())
         UDmain.UDWC.Meter_SetColor("device-condition", aiColor1, aiColor2, aiFlashColor)
+        If asIconName != ""
+            UDMain.UDWC.Meter_SetIcon("device-condition", asIconName)
+        EndIf
     ;    UDMain.UDWC.Meter_SetIcon("device-condition", "icon-meter-condition")
     endif
 EndFunction
@@ -4065,14 +4108,20 @@ EndFunction
         abUpdateColor   - If widget color should be updated first
 /;
 Function showWidget(Bool abUpdate = true, Bool abUpdateColor = true)
-    if abUpdate
-        updateWidget(true)
+    bool loc_useWidget      = UD_useWidget
+    bool loc_useWidgetSec   = UD_useWidgetSec
+    if loc_useWidget || loc_useWidgetSec
+        if abUpdate
+            updateWidget(true)
+        endif
+        if abUpdateColor
+            updateWidgetColor()
+        endif
     endif
-    if abUpdateColor
-        updateWidgetColor()
+    if loc_useWidget
+        UDmain.UDWC.Meter_SetVisible("device-main", True)
     endif
-    UDmain.UDWC.Meter_SetVisible("device-main", True)
-    If UDmain.UDWC.UD_UseDeviceConditionWidget
+    If loc_useWidgetSec
         UDmain.UDWC.Meter_SetVisible("device-condition", True)
     EndIf
 EndFunction
@@ -4576,7 +4625,8 @@ bool Function struggleMinigame(int aiType = -1, Bool abSilent = False)
     endif
     
     resetMinigameValues()
-    setMinigameWidgetVar((aiType != 5), True, True, 0xffbd00, -1, -1, "icon-meter-struggle")
+    setMinigameWidgetVar((aiType != 5), False, False, 0xFF0000, 0x00FF00, -1, "icon-meter-struggle")
+    setSecWidgetVar((aiType < 3), True, False, -1, -1, -1, "icon-meter-condition")
     
     if aiType == 0 ;normal
         UD_minigame_stamina_drain = UD_base_stat_drain*0.75 + getMaxActorValue(Wearer,"Stamina",0.035)
@@ -4744,7 +4794,7 @@ bool Function repairLocksMinigame(Bool abSilent = False)
     endif
     
     resetMinigameValues()
-    setMinigameWidgetVar(True, True, False, 0xffbd00, -1, -1, "icon-meter-repair")
+    setMinigameWidgetVar(True, False, False, 0xffbd00, 0xffbd00, -1, "icon-meter-repair")
     
     _MinigameSelectedLockID = loc_SelectedLock
     UD_minigame_stamina_drain = UD_base_stat_drain*1.25
@@ -4793,7 +4843,8 @@ bool Function cuttingMinigame(Bool abSilent = False)
     endif
 
     resetMinigameValues()
-    setMinigameWidgetVar(True, True, False, 0xffbd00, -1, -1, "icon-meter-cut")
+    setMinigameWidgetVar(True, False, False, 0x4496C6, 0xffbd00, 0x4496C6, "icon-meter-cut")
+    setSecWidgetVar(True, True, False, -1, -1, -1, "icon-meter-struggle")
     
     UD_damage_device = False
     UD_minigame_stamina_drain = UD_base_stat_drain + getMaxActorValue(Wearer,"Stamina",0.04)
@@ -4930,7 +4981,8 @@ bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
     endif
     
     resetMinigameValues()
-    setMinigameWidgetVar(True, True, True, 0xffbd00, -1, -1, "icon-meter-struggle")
+    setMinigameWidgetVar(True, False, False, 0xFF0000, 0x00FF00, -1, "icon-meter-struggle")
+    setSecWidgetVar(True, True, False, -1, -1, -1, "icon-meter-condition")
     
     if type == 0 ;normal
         UD_durability_damage_add = 0.0
@@ -5142,7 +5194,7 @@ bool Function repairLocksMinigameWH(Actor akHelper)
     endif
     
     resetMinigameValues()
-    setMinigameWidgetVar(True, True, False, 0xffbd00, -1, -1, "icon-meter-repair")
+    setMinigameWidgetVar(True, False, False, 0xffbd00, -1, -1, "icon-meter-repair")
     
     _MinigameSelectedLockID = loc_SelectedLock
     
@@ -5204,12 +5256,13 @@ bool Function cuttingMinigameWH(Actor akHelper)
     endif
     
     resetMinigameValues()
-    setMinigameWidgetVar(True, True, False, 0xffbd00, -1, -1, "icon-meter-cut")
+    setMinigameWidgetVar(True, False, False, 0x4496C6, 0xffbd00, 0x4496C6, "icon-meter-cut")
+    setSecWidgetVar(True, True, False, -1, -1, -1, "icon-meter-struggle")
     
     UD_damage_device = False
     UD_minigame_stamina_drain = UD_base_stat_drain + getMaxActorValue(Wearer,"Stamina",0.04)
     UD_minigame_stamina_drain_helper = UD_base_stat_drain*1.25 + getMaxActorValue(Wearer,"Stamina",0.04)
-    UD_minigame_heal_drain = UD_base_stat_drain*0.75 + getMaxActorValue(Wearer,"Health",0.02)    
+    UD_minigame_heal_drain = UD_base_stat_drain*0.75 + getMaxActorValue(Wearer,"Health",0.02)
     UD_RegenMag_Magicka = 0.5
     UD_RegenMag_Health = 0.5
     UD_RegenMagHelper_Magicka = 0.75
@@ -5801,6 +5854,9 @@ Function resetMinigameValues()
     _usingTelekinesis = false
     UD_AllowWidgetUpdate = true
     _MinigameSelectedLockID = -1
+    UD_useWidgetSec             = false
+    UD_WidgetAutoColorSec       = false
+    UD_AllowWidgetUpdateSec     = false
 EndFunction
 
 ;/  Function: setMinigameOffensiveVar
@@ -6067,6 +6123,37 @@ Function setMinigameWidgetVar(Bool abUseWidget = False, Bool abWidgetAutoColor =
     UD_AllowWidgetUpdate    = abWidgetUpdate
     
     setMainWidgetAppearance(aiColor1, aiColor2, aiFlashColor, asIconName)
+EndFunction
+
+;/  Function: setSecWidgetVar
+    Sets secundary minigame widget appearance values
+    
+    Parameters:
+
+        abUseWidget         - If widget should be used
+        abWidgetAutoColor   - If widget color should be calculated based on condition. When enabled, color setting will be ignored
+        abWidgetUpdate      - IF widget value should be updated on every minigame tick. In case this is turned off, the value can be changed only using <setWidgetVal>
+        aiColor1            - Widget main color
+        aiColor2            - Widget secondary value
+        aiFlashColor        - Widget flash color
+        asIconName          - Widget icon name
+        
+    Example:
+    ---Code
+        ;shows widget
+        ;widget color will change based on condition
+        ;widget value will not be updated. Value have to be changed with setWidgetVal
+        ;Color is ignored as abWidgetAutoColor is True
+        ;icon next to widget will be "icon-meter-cut"
+        self.setSecWidgetVar(True, True, False, -1, -1, -1, "icon-meter-cut")
+    ---
+/;
+Function setSecWidgetVar(Bool abUseWidget = False, Bool abWidgetAutoColor = True, Bool abWidgetUpdate = True, Int aiColor1 = -1, Int aiColor2 = -1, Int aiFlashColor = -1, String asIconName = "")
+    UD_useWidgetSec            = abUseWidget
+    UD_WidgetAutoColorSec      = abWidgetAutoColor
+    UD_AllowWidgetUpdateSec    = abWidgetUpdate
+    
+    setSecWidgetAppearance(aiColor1, aiColor2, aiFlashColor, asIconName)
 EndFunction
 
 Function _UnsetMinigameDevice()
@@ -6410,8 +6497,9 @@ Function minigame()
     float     loc_dmgnotimemult    = (_durability_damage_mod + UD_durability_damage_add)
     float     loc_dmg              = loc_dmgnotimemult*fCurrentUpdateTime*UD_DamageMult
     float     loc_condmult         = 1.0 + _condition_mult_add
-    bool      loc_showwidget       = loc_PlayerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget
-    bool      loc_updatewidget     = loc_showwidget && UD_AllowWidgetUpdate
+    bool      loc_showwidget       = loc_PlayerInMinigame && UDCDmain.UD_UseWidget && (UD_UseWidget || UD_UseWidgetSec)
+    bool      loc_updatewidget     = loc_showwidget && (UD_AllowWidgetUpdate || UD_AllowWidgetUpdateSec)
+    bool      loc_updatewidgetcolor= loc_showwidget && (UD_WidgetAutoColor   || UD_WidgetAutoColorSec)
     Float     loc_ElapsedTime      = 0.0
     Bool      loc_DamageDevice     = UD_damage_device
     Bool      loc_MinigameEffectEnabled = False
@@ -6484,6 +6572,8 @@ Function minigame()
             ;update widget
             if loc_updatewidget
                 updateWidget()
+            endif
+            if loc_updatewidgetcolor
                 updateWidgetColor()
             endif
         endif
@@ -6496,7 +6586,7 @@ Function minigame()
             loc_DamageDevice     = UD_damage_device
             
             if loc_PlayerInMinigame
-                loc_updatewidget     = UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
+                loc_updatewidget     = UDCDmain.UD_UseWidget && (UD_UseWidget || UD_UseWidgetSec) && UD_AllowWidgetUpdate
             endif
             
             ;check non struggle minigames
@@ -6565,6 +6655,10 @@ Function minigame()
     
     if loc_PlayerInMinigame
         UDCDmain.MinigameKeysUnRegister()
+        ;close lockpick menu if lockpick minigame was for some reason stopped
+        if _LockpickGameON && UDmain.IsLockpickingMenuOpen()
+            closeLockpickMenu()
+        endif
     endif
     
     if loc_StartedAnimation
@@ -6581,9 +6675,9 @@ Function minigame()
         if !loc_WearerIsPlayer
             UpdateMotivation(Wearer,50) ;increase NPC motivation on successful escape
         endif
-        
+        advanceSkill(15.0)
         if UDmain.ExperienceInstalled && PlayerInMinigame()
-            Experience.addexperience(6.0,true)
+            Experience.addexperience(UD_Level*RandomFloat(1.0,2.0),true)
         endif
     else
         if loc_is3DLoaded
@@ -6598,10 +6692,11 @@ Function minigame()
         elseif UDCDmain.AllowNPCMessage(GetWearer(), true)
             UDmain.Print(getWearerName()+" is too exhausted to continue struggling",1)
         endif
-        if !loc_WearerIsPlayer
-            UpdateMotivation(Wearer,-5) ;decrease NPC motivation on failed escape
+        if loc_ElapsedTime >= 2.0
+            if !loc_WearerIsPlayer
+                UpdateMotivation(Wearer,-5) ;decrease NPC motivation on failed escape
+            endif
         endif
-        advanceSkill(10.0)
     endif
 
     ;remove disalbe from helper (can be done earlier as no devices were changed)
@@ -6971,7 +7066,7 @@ Function critDevice()
         OnCritDevicePost()
         Bool loc_playerInMinigame = PlayerInMinigame()
         if Wearer && (loc_playerInMinigame || Wearer.Is3DLoaded())
-            if loc_playerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget
+            if loc_playerInMinigame && UDCDmain.UD_UseWidget && (UD_UseWidget || UD_UseWidgetSec)
                 updateWidget()
             endif
             if loc_playerInMinigame || UDmain.ActorInCloseRange(wearer)
@@ -6979,7 +7074,7 @@ Function critDevice()
             endif
         endif
         
-        advanceSkill(4.0)
+        advanceSkill(5.0)
     endif
 EndFunction
 
@@ -7014,7 +7109,7 @@ Function SpecialButtonPressed(float afMult = 1.0)
 
         onSpecialButtonPressed(afMult)
         
-        if UDCDmain.UD_useWidget && UD_UseWidget
+        if UDCDmain.UD_useWidget && (UD_UseWidget || UD_UseWidgetSec)
             updateWidget()
         endif
     endif
@@ -7776,18 +7871,16 @@ EndFunction
 Function updateWidget(bool force = false)
     if _CuttingGameON
         setWidgetVal(getRelativeCuttingProgress(),force)
-        If UDmain.UDWC.UD_UseDeviceConditionWidget
-            UDmain.UDWC.Meter_SetFillPercent("device-condition", GetRelativeDurability()*100.0, True)
-        EndIf
+        setSecWidgetVal(GetRelativeDurability(), force)
     elseif _RepairLocksMinigameON
         setWidgetVal(_GetRelativeLockRepairProgress(_MinigameSelectedLockID),force)
     endif
 EndFunction
 
 Function updateWidgetColor()
-    if UD_WidgetAutoColor && !UDmain.UseiWW()
+    if UD_WidgetAutoColor; && !UDmain.UseiWW()
         if UD_Condition == 0
-            setMainWidgetAppearance(0x4df319, 0x62ff00)
+            setMainWidgetAppearance(0x4da319, 0x62ff00)
         elseif UD_Condition == 1
             setMainWidgetAppearance(0xafba24, 0x4da319)
         elseif UD_Condition == 2
@@ -7797,23 +7890,26 @@ Function updateWidgetColor()
         else
             setMainWidgetAppearance(0x5a1515, 0xdc1515)
         endif
-    elseif UD_WidgetAutoColor
-        setMainWidgetAppearance(0xFF307C, 0xFF005E)
+    ;elseif UD_WidgetAutoColor
+    ;    setMainWidgetAppearance(0xFF307C, 0xFF005E)
     endif
 
-    If UDmain.UDWC.UD_UseDeviceConditionWidget
+    If UD_WidgetAutoColorSec; && !UDmain.UseiWW()
         if UD_Condition == 0
-            setConditionWidgetAppearance(0x4df319, 0x62ff00)
+            setSecWidgetAppearance(0x4da319, 0x62ff00)
         elseif UD_Condition == 1
-            setConditionWidgetAppearance(0xafba24, 0x4da319)
+            setSecWidgetAppearance(0xafba24, 0x4da319)
         elseif UD_Condition == 2
-            setConditionWidgetAppearance(0xe37418, 0xafba24)
+            setSecWidgetAppearance(0xe37418, 0xafba24)
         elseif UD_Condition == 3
-            setConditionWidgetAppearance(0xdc1515, 0xe37418)
+            setSecWidgetAppearance(0xdc1515, 0xe37418)
         else
-            setConditionWidgetAppearance(0x5a1515, 0xdc1515)
+            setSecWidgetAppearance(0x5a1515, 0xdc1515)
         endif
+    ;elseif UD_WidgetAutoColorSec
+    ;    setSecWidgetAppearance(0xFF307C, 0xFF005E)
     endif
+    
 EndFunction
 
 bool Function proccesSpecialMenu(int msgChoice)
@@ -8093,7 +8189,7 @@ Function _MinigameParalelThread()
     endif
     
     bool loc_canShowHUD     = canShowHUD()
-    bool loc_updatewidget   = UD_UseWidget && UDCDmain.UD_UseWidget && loc_haveplayer
+    bool loc_updatewidget   = (UD_UseWidget || UD_UseWidgetSec) && UDCDmain.UD_UseWidget && loc_haveplayer
     
     ;Send_MinigameCritLoop(akActor, self) TODO
 
@@ -8141,17 +8237,17 @@ Function _MinigameParalelThread()
                 if loc_ElapsedTime2 >= 2.0
                     if loc_canShowHUD
                         showHUDbars(False)
-                    endif         
+                    endif
                     if loc_updatewidget
-                        showWidget(True, False)
+                        showWidget(False, False)
                     endif
                     loc_ElapsedTime2 = 0.0
                 endif
                 ;advance skill every 3 second
                 if loc_ElapsedTime3 >= 1.0
-                    advanceSkill(1.0)
+                    advanceSkill(loc_ElapsedTime3)
                     if loc_is3DLoaded
-                        loc_updatewidget    = UD_UseWidget && UDCDmain.UD_UseWidget && loc_haveplayer
+                        loc_updatewidget    = (UD_UseWidget || UD_UseWidgetSec) && UDCDmain.UD_UseWidget && loc_haveplayer
                         loc_canShowHUD      = canShowHUD()
                     endif
                     loc_ElapsedTime3    = 0.0

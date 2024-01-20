@@ -514,8 +514,8 @@ Function OnUIReload(Bool abGameLoad)
             i -= 1
             UD_VanillaWidgets[i].Hide(True)
         EndWhile
-        Meter_Register("device-main", "icon-meter-struggle")
         Meter_Register("player-orgasm", "icon-meter-orgasm")
+        Meter_Register("device-main", "icon-meter-struggle")
         Meter_Register("device-condition", "icon-meter-condition")
         InitWidgetsRequest(abGameLoad = abGameLoad, abMeters = True, abIcons = True, abText = True)
     else

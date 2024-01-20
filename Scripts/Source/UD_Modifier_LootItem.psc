@@ -11,9 +11,9 @@ Function DeviceUnlocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr,
     Actor loc_actor = akDevice.GetWearer()
     
     if loc_actor && (akForm1 || akForm2 || akForm3)
-        int loc_num1 = Round(UD_Native.GetStringParamInt(aiDataStr,0,0)*Multiplier)
-        int loc_num2 = Round(UD_Native.GetStringParamInt(aiDataStr,1,0)*Multiplier)
-        int loc_num3 = Round(UD_Native.GetStringParamInt(aiDataStr,2,0)*Multiplier)
+        int loc_num1 = Round(UD_Native.GetStringParamInt(aiDataStr,0,1)*Multiplier)
+        int loc_num2 = Round(UD_Native.GetStringParamInt(aiDataStr,1,1)*Multiplier)
+        int loc_num3 = Round(UD_Native.GetStringParamInt(aiDataStr,2,1)*Multiplier)
 
         if akForm1 && loc_num1 > 0
             loc_actor.addItem(akForm1,loc_num1)
