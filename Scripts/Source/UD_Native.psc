@@ -37,7 +37,7 @@ int     Function RemoveAllMeterEntries()                                        
         Function ToggleAllMeters            (bool abToggle)                     global native
 
 ;iWantWidget meters
-        Function AddMeterEntryIWW           (string asPath, int aiId, string asName, float afBase, float afRate, bool abShow)   global native
+        Function AddMeterEntryIWW           (string asPath, int aiId, string asName, int aiFormula, float afBase, float afRate, bool abShow)   global native
         Function RemoveMeterEntryIWW        (int aiId)                          global native
         Function ToggleMeterIWW             (int aiId, bool abToggle)           global native
         Function SetMeterRateIWW            (int aiId, float afNewRate)         global native
@@ -47,7 +47,7 @@ Float   Function UpdateMeterValueIWW        (int aiId, float afDiffValue)       
 Float   Function GetMeterValueIWW           (int aiId)                          global native
 
 ;SkyUi meters
-        Function AddMeterEntrySkyUi         (string asPath, string asName, float afBase, float afRate, bool abShow)             global native
+        Function AddMeterEntrySkyUi         (string asPath, string asName, int aiFormula, float afBase, float afRate, bool abShow)             global native
         Function RemoveMeterEntrySkyUi      (string asPath)                     global native
         Function ToggleMeterSkyUi           (string asPath, bool abToggle)      global native
         Function SetMeterRateSkyUi          (string asPath, float afNewRate)    global native
@@ -97,6 +97,9 @@ Actor[]     Function GetRegisteredActors()              global native
     kDragon         =   12
 /;
 Int         Function GetCameraState()                           global native
+Bool        Function RegisterDeviceCallback(Int aiHandle1, Int aiHandle2,Armor akDevice, Int aiDxKeycode, String asCallbackFun) global native
+Bool        Function UnregisterDeviceCallbacks(Int aiHandle1, Int aiHandle2,Armor akDevice) global native
+            Function UnregisterAllDeviceCallbacks() global native
             
  ;===Events===
             Function RegisterForHMTweenMenu(ReferenceAlias akRefAlias)      global native

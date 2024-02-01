@@ -111,7 +111,9 @@ int _deviceControlBitMap_12 = 0x0A078000
 
 ; === _deviceControlBitMap_13 === (mutex3)
 ;00 - 11 = 12b (0000 0000 0000 0000 0000 XXXX XXXX XXXX)(0x0000 0FFF), _CuttingProgress
-;12 - 31 =  8b (XXXX XXXX XXXX XXXX XXXX 0000 0000 0000)(0xFFFF F000), !UNUSED!
+;12 - 15 =  4b (XXXX XXXX XXXX XXXX XXXX 0000 0000 0000)(0x0000 F000), !UNUSED!
+;16 - 23 =  8b (XXXX XXXX XXXX XXXX XXXX 0000 0000 0000)(0x00FF 0000), UD_WidgetFormula
+;24 - 31 =  8b (XXXX XXXX XXXX XXXX XXXX 0000 0000 0000)(0xFF00 0000), UD_WidgetFormulaSec
 int _deviceControlBitMap_13 = 0x00000000
 
 Function Debug_LogBitMaps(String argTitle = "BITMASK")
@@ -1273,6 +1275,52 @@ int     Property _struggleGame_Subtype_NPC          Hidden
     
     int Function get()
         return UD_Native.DecodeBit(_deviceControlBitMap_7,3,28)
+    EndFunction
+EndProperty
+
+;/  Variable: UD_WidgetFormula
+    Formula used by native widget
+    0 = Linear
+    1 = Linear repeating (saw)
+    
+    *This value is bitcoded, and thus have limited range and precision!*
+    
+    --- Code
+        Default value  =         0
+        Min. Value     =         0
+        Max. Value     =       255
+    ---
+/;
+int         Property _WidgetFormula hidden  ;chance of random crit happening once per second of struggling, range 0-100
+    Function set(int iVal)
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_13",iRange(iVal,0,255),8,16)
+    EndFunction
+    
+    int Function get()
+        return UD_Native.DecodeBit(_deviceControlBitMap_13,8,16)
+    EndFunction
+EndProperty
+
+;/  Variable: UD_WidgetFormulaSec
+    Formula used by second native widget
+    0 = Linear
+    1 = Linear repeating (saw)
+    
+    *This value is bitcoded, and thus have limited range and precision!*
+    
+    --- Code
+        Default value  =         0
+        Min. Value     =         0
+        Max. Value     =       255
+    ---
+/;
+int         Property _WidgetFormulaSec hidden  ;chance of random crit happening once per second of struggling, range 0-100
+    Function set(int iVal)
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_13",iRange(iVal,0,255),8,24)
+    EndFunction
+    
+    int Function get()
+        return UD_Native.DecodeBit(_deviceControlBitMap_13,8,24)
     EndFunction
 EndProperty
 
@@ -4846,6 +4894,8 @@ bool Function cuttingMinigame(Bool abSilent = False)
     setMinigameWidgetVar(True, False, False, 0x4496C6, 0xffbd00, 0x4496C6, "icon-meter-cut")
     setSecWidgetVar(True, True, False, -1, -1, -1, "icon-meter-struggle")
     
+
+    
     UD_damage_device = False
     UD_minigame_stamina_drain = UD_base_stat_drain + getMaxActorValue(Wearer,"Stamina",0.04)
     UD_minigame_heal_drain = UD_base_stat_drain/2+ getMaxActorValue(Wearer,"Health",0.01)
@@ -4859,6 +4909,12 @@ bool Function cuttingMinigame(Bool abSilent = False)
         UD_MinigameMult1 = loc_BaseMult + UDmain.UDSKILL.getActorCuttingSkillsPerc(getWearer())
         UD_DamageMult = loc_BaseMult + UDmain.UDSKILL.getActorCuttingSkillsPerc(getWearer())
         
+        ;register native meters
+        if WearerIsPlayer()
+            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,fRange(100.0 - 1.5*UD_CutChance,30.0,100.0),true)
+        endif
+    
+        UD_Native.RegisterDeviceCallback(_VMHandle1,_VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_CuttingMG_SKPress")
         _CuttingGameON = True
         minigame()
         _CuttingGameON = False
@@ -5495,7 +5551,7 @@ Function _cutDevice(float progress_add = 1.0)
         decreaseDurabilityAndCheckUnlock(UD_DamageMult*cond_dmg*getModResistPhysical(1.0,0.25)/7.0,0.0)
 
         _CuttingProgress = 0.0
-        if UDmain.TraceAllowed()        
+        if UDmain.TraceAllowed()
             UDmain.Log(getDeviceHeader() + " is cutted for " + cond_dmg + "C ( " + (UD_DamageMult*cond_dmg*getModResistPhysical(1.0,0.25)/7.0) + " D) (Wearer: " + getWearerName() + ")",1)
         endif
         OnDeviceCutted()
@@ -6117,10 +6173,11 @@ EndFunction
         self.setMinigameWidgetVar(True, True, False, -1, -1, -1, "icon-meter-cut")
     ---
 /;
-Function setMinigameWidgetVar(Bool abUseWidget = False, Bool abWidgetAutoColor = True, Bool abWidgetUpdate = True, Int aiColor1 = -1, Int aiColor2 = -1, Int aiFlashColor = -1, String asIconName = "")
+Function setMinigameWidgetVar(Bool abUseWidget = False, Bool abWidgetAutoColor = True, Bool abWidgetUpdate = True, Int aiColor1 = -1, Int aiColor2 = -1, Int aiFlashColor = -1, String asIconName = "", int aiFormula = 0)
     UD_useWidget            = abUseWidget
     UD_WidgetAutoColor      = abWidgetAutoColor
     UD_AllowWidgetUpdate    = abWidgetUpdate
+    _WidgetFormula        = aiFormula
     
     setMainWidgetAppearance(aiColor1, aiColor2, aiFlashColor, asIconName)
 EndFunction
@@ -6148,11 +6205,11 @@ EndFunction
         self.setSecWidgetVar(True, True, False, -1, -1, -1, "icon-meter-cut")
     ---
 /;
-Function setSecWidgetVar(Bool abUseWidget = False, Bool abWidgetAutoColor = True, Bool abWidgetUpdate = True, Int aiColor1 = -1, Int aiColor2 = -1, Int aiFlashColor = -1, String asIconName = "")
+Function setSecWidgetVar(Bool abUseWidget = False, Bool abWidgetAutoColor = True, Bool abWidgetUpdate = True, Int aiColor1 = -1, Int aiColor2 = -1, Int aiFlashColor = -1, String asIconName = "", int aiFormula = 0)
     UD_useWidgetSec            = abUseWidget
     UD_WidgetAutoColorSec      = abWidgetAutoColor
     UD_AllowWidgetUpdateSec    = abWidgetUpdate
-    
+    _WidgetFormulaSec        = aiFormula
     setSecWidgetAppearance(aiColor1, aiColor2, aiFlashColor, asIconName)
 EndFunction
 
@@ -6511,10 +6568,12 @@ Function minigame()
     ;register native meters
     if loc_useNativeMeter
         if loc_DamageDevice
-            UDmain.UDWC.Meter_RegisterNative("device-main",getRelativeDurability()*100.0,-1.0*loc_dmgnotimemult,true)
-            UDmain.UDWC.Meter_SetNativeMult("device-main",UD_DamageMult*100.0/loc_health)
-            if loc_condmult != 0.0
-                UDmain.UDWC.Meter_RegisterNative("device-condition",getRelativeCondition()*100.0,-1.0*loc_dmgnotimemult,true)
+            if UD_UseWidget
+                UDmain.UDWC.Meter_RegisterNative("device-main",_WidgetFormula,getRelativeDurability()*100.0,-1.0*loc_dmgnotimemult,true)
+                UDmain.UDWC.Meter_SetNativeMult("device-main",UD_DamageMult*100.0/loc_health)
+            endif
+            if loc_condmult != 0.0 && UD_UseWidgetSec
+                UDmain.UDWC.Meter_RegisterNative("device-condition",_WidgetFormulaSec,getRelativeCondition()*100.0,-1.0*loc_dmgnotimemult,true)
                 UDmain.UDWC.Meter_SetNativeMult("device-condition",loc_condmult*100.0/loc_health)
             endif
         endif
@@ -6655,6 +6714,7 @@ Function minigame()
     
     if loc_PlayerInMinigame
         UDCDmain.MinigameKeysUnRegister()
+        UD_Native.UnregisterDeviceCallbacks(_VMHandle1,_VMHandle2,DeviceRendered)
         ;close lockpick menu if lockpick minigame was for some reason stopped
         if _LockpickGameON && UDmain.IsLockpickingMenuOpen()
             closeLockpickMenu()
@@ -7081,9 +7141,7 @@ EndFunction
 ;function called when player press special button
 Function SpecialButtonPressed(float afMult = 1.0)
     if !IsPaused() && !IsUnlocked
-        if _CuttingGameON
-            _cutDevice(afMult*UD_CutChance/12.5)
-        elseif _KeyGameON || _LockpickGameON || _RepairLocksMinigameON
+        if _KeyGameON || _LockpickGameON || _RepairLocksMinigameON
             if (WearerHaveTelekinesis() || HelperHaveTelekinesis()) && !_usingTelekinesis
                 _usingTelekinesis = true
                 
@@ -7870,7 +7928,7 @@ EndFunction
 
 Function updateWidget(bool force = false)
     if _CuttingGameON
-        setWidgetVal(getRelativeCuttingProgress(),force)
+        ;setWidgetVal(getRelativeCuttingProgress(),force)
         setSecWidgetVal(GetRelativeDurability(), force)
     elseif _RepairLocksMinigameON
         setWidgetVal(_GetRelativeLockRepairProgress(_MinigameSelectedLockID),force)
@@ -8134,6 +8192,8 @@ Function _MinigameStarterThread()
     if loc_haveplayer
         UDCDmain.setCurrentMinigameDevice(self)
         UDCDmain.MinigameKeysRegister()
+        UD_Native.RegisterDeviceCallback(_VMHandle1,_VMHandle2,deviceRendered,UDCDMain.Stamina_meter_Keycode,"_MG_CKSPress")
+        UD_Native.RegisterDeviceCallback(_VMHandle1,_VMHandle2,deviceRendered,UDCDMain.Magicka_meter_Keycode,"_MG_CKMPress")
     else
         StorageUtil.SetFormValue(Wearer, "UD_currentMinigameDevice", deviceRendered)
     endif
@@ -8382,4 +8442,45 @@ Function _MinigameAVCheckLoopThread()
     endwhile
     
     _MinigameParProc_4 = false
+EndFunction
+
+Function _CuttingMG_SKPress()
+    Float loc_val = UDmain.UDWC.Meter_GetNativeValue("device-main")
+    UDmain.UDWC.Meter_SetNativeValue("device-main",0.0)
+    if loc_val >= fRange(100.0 - UD_CutChance*2.0,0.0,94.0)
+        UDlibs.RedCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player) ;show to player that they cutted device in right time by using shader effect
+        _cutDevice(UD_DamageMult*UD_CutChance*4.0/(100.1-loc_val))
+    endif
+EndFunction
+
+Function _MG_CKSPress()
+    bool     loc_crit                    = UDCDmain.crit 
+    string   loc_selected_crit_meter     = UDCDmain.selected_crit_meter
+    if (loc_crit) && !UDCDMain.UD_AutoCrit
+        if loc_selected_crit_meter == "S"
+            UDCDmain.crit = False
+            critDevice()
+        else
+            UDCDmain.crit = False
+            critFailure()
+        endif
+    else
+        critFailure()
+    endif
+EndFunction
+
+Function _MG_CKMPress()
+    bool     loc_crit                    = UDCDmain.crit 
+    string   loc_selected_crit_meter     = UDCDmain.selected_crit_meter
+    if (loc_crit) && !UDCDMain.UD_AutoCrit
+        if loc_selected_crit_meter == "M"
+            UDCDmain.crit = False
+            critDevice()
+        else
+            UDCDmain.crit = False
+            critFailure()
+        endif
+    else
+        critFailure()
+    endif
 EndFunction

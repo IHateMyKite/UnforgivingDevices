@@ -812,8 +812,8 @@ EndFunction
         afRate   - inital rate that meter will use to update its value. Rate is in value per second. Can be both positive and negative
         abToggle - if meter be toggled on or off after initiazation
 /;
-Function Meter_RegisterNative(string asMeter,float afValue,float afRate,bool abToggle = true)
-    UD_Native.AddMeterEntrySkyUi(_GetVanillaMeter(asMeter).WidgetRoot,asMeter, afValue, afRate, abToggle)
+Function Meter_RegisterNative(string asMeter,int aiFormula,float afValue,float afRate,bool abToggle = true)
+    UD_Native.AddMeterEntrySkyUi(_GetVanillaMeter(asMeter).WidgetRoot,asMeter, aiFormula, afValue, afRate, abToggle)
 EndFunction
 
 ;/  Function: Meter_UnRegisterNative
@@ -1744,8 +1744,8 @@ State iWidgetInstalled
         _GetMeter(asMeter).FillPercent = Round(afValue)
     EndFunction
     
-    Function Meter_RegisterNative(string asMeter,float afValue,float afRate,bool abToggle = true)
-        UD_Native.AddMeterEntryIWW(iWidget.WidgetRoot,_GetMeter(asMeter).id,asMeter, afValue, afRate, abToggle)
+    Function Meter_RegisterNative(string asMeter,int aiFormula,float afValue,float afRate,bool abToggle = true)
+        UD_Native.AddMeterEntryIWW(iWidget.WidgetRoot,_GetMeter(asMeter).id,asMeter, aiFormula, afValue, afRate, abToggle)
     EndFunction
     
     Function Meter_UnregisterNative(string asMeter)

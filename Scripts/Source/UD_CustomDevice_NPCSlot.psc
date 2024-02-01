@@ -1875,7 +1875,7 @@ Function _OrgasmGameUpdate()
     RegisterForModEvent("ORS_LinkedWidgetUpdate", "ORSLinkedWidgetUpdate")
     
     if IsPlayer()
-        UDmain.UDWC.Meter_RegisterNative("player-orgasm",0.0,0.0, true)
+        UDmain.UDWC.Meter_RegisterNative("player-orgasm",0,0.0,0.0, true)
         UDmain.UDWC.Meter_LinkActorOrgasm(GetActor(),"player-orgasm")
     endif
 EndFunction

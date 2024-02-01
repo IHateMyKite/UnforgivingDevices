@@ -115,7 +115,7 @@ bool Function UntieMinigame(Bool abSilent = False)
     if minigamePreCheck(abSilent)
         bool loc_UseNativeMeters = (WearerIsPlayer() || HelperIsPlayer())
         if loc_UseNativeMeters
-            UDmain.UDWC.Meter_RegisterNative("device-main",getRelativeUntieProgress()*100.0,UD_UntieDmg*UDCDmain.getStruggleDifficultyModifier(),true)
+            UDmain.UDWC.Meter_RegisterNative("device-main",0,getRelativeUntieProgress()*100.0,UD_UntieDmg*UDCDmain.getStruggleDifficultyModifier(),true)
             UDmain.UDWC.Meter_SetNativeMult("device-main",mult*100.0/UD_UntieDifficulty)
         endif
         

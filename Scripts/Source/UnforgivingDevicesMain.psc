@@ -766,7 +766,7 @@ Function Update()
     _CheckPatchesOrder()
     
     if !Ready
-        if _UpdateCheck() || _FatalError
+        if _UpdateCheck() && !_FatalError
             UD_hightPerformance = UD_hightPerformance
             
             RegisterForModEvent("UD_VibEvent","EventVib")

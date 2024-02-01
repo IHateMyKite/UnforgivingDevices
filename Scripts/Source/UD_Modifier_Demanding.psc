@@ -12,7 +12,13 @@ Bool Function MinigameAllowed(UD_CustomDevice_RenderScript akModDevice, String a
     Int loc_gold = CalculateGold(aiDataStr,akModDevice.UD_Level,false)
     Int loc_WearerGold = akModDevice.GetWearer().GetItemCount(UDLibs.Gold)
     
-    Bool loc_cond = loc_WearerGold > loc_gold
+    Actor loc_helper   = akModDevice.GetHelper()
+    Int loc_HelperGold = 0
+    if loc_helper
+        loc_HelperGold = loc_helper.GetItemCount(UDLibs.Gold)
+    endif
+    
+    Bool loc_cond = loc_WearerGold > loc_gold || loc_HelperGold > loc_gold
     
     if !loc_cond && IsPlayer(akModDevice.GetWearer())
         UDmain.Print("You dont have enough gold to pay the device!")
@@ -24,7 +30,18 @@ EndFunction
 Function MinigameStarted(UD_CustomDevice_RenderScript akModDevice, UD_CustomDevice_RenderScript akMinigameDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
     if akModDevice == akMinigameDevice
         if akModDevice.GetRealTimeLockedTime() < 0.5
-            akMinigameDevice.GetWearer().RemoveItem(UDlibs.Gold,CalculateGold(aiDataStr,akModDevice.UD_Level))
+            Int loc_Gold = CalculateGold(aiDataStr,akModDevice.UD_Level)
+            
+            if akModDevice.GetWearer().GetItemCount(UDLibs.Gold) >= loc_Gold
+                akMinigameDevice.GetWearer().RemoveItem(UDlibs.Gold,loc_Gold)
+                return
+            endif
+            
+            Actor loc_helper   = akModDevice.GetHelper()
+            if loc_helper && (loc_helper.GetItemCount(UDLibs.Gold) >= loc_Gold)
+                loc_helper.RemoveItem(UDlibs.Gold,loc_Gold)
+                return
+            endif
         endif
     endif
 EndFunction

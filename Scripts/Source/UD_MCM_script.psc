@@ -1660,7 +1660,7 @@ Function OptionSelectUiWidget(int option)
         while !UDWC.Ready
             Utility.WaitMenuMode(0.5)
         endwhile
-        UDmain.UDWC.Meter_RegisterNative("player-orgasm",0.0,0.0, true)
+        UDmain.UDWC.Meter_RegisterNative("player-orgasm",0,0.0,0.0, true)
         UDmain.UDWC.Meter_LinkActorOrgasm(Game.GetPlayer(),"player-orgasm")
         UDmain.Print("UI reset done!")
     endif
