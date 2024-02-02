@@ -8,6 +8,12 @@ UnforgivingDevicesMain  Property UDmain  Auto
 zadlibs Property libs auto 
 Quest   Property DragonRising auto
 
+UD_libs                 Property UDlibs hidden
+    UD_libs Function get()
+        return UDCDMain.UDlibs
+    EndFunction
+EndProperty
+
 ;const values
 int     property overaldifficulty   = 1     auto ;0-2 where 3 is same as in MDS
 float   property max_difficulty     = 100.0 auto
@@ -116,6 +122,85 @@ String[] Property UD_AbadonSuitNames
     EndFunction
 EndProperty
 
+Int _NextHandRestrain = 0
+Function AbadonGooEffect(Actor akTarget)
+    if !UDmain.ActorIsValidForUD(akTarget)
+        return ;non valid actor, return
+    endif
+    Float loc_arousal = UDmain.UDOM.getArousal(akTarget)
+    if !akTarget.wornhaskeyword(libs.zad_deviousheavybondage)
+        UDCDmain.DisableActor(akTarget)
+        if RandomInt(1,99) < Round(UDCDMain.UD_BlackGooRareDeviceChance*fRange(loc_arousal/50.0,1.0,2.0))
+            ;rare devices, drop more loot and goo
+            if !akTarget.wornhaskeyword(libs.zad_deviousSuit)
+                int random = RandomInt(1,3)
+                if random == 1
+                    libs.LockDevice(akTarget,UDlibs.AbadonBlueArmbinder)
+                elseif random == 2
+                    libs.LockDevice(akTarget,UDlibs.MageBinder)
+                elseif random == 3
+                    libs.LockDevice(akTarget,UDlibs.RogueBinder)
+                endif
+            else
+                int random = RandomInt(1,2)
+                if random == 1
+                    libs.LockDevice(akTarget,UDlibs.AbadonBlueArmbinder)
+                elseif random == 2
+                    libs.LockDevice(akTarget,UDlibs.RogueBinder)
+                endif
+            endif
+            if IsPlayer(akTarget)
+                UDmain.ShowMessageBox("Black goo covers your body and tie your hands while changing shape to RARE bondage restraint!")
+            endif
+        else
+            int random = _NextHandRestrain
+            if !akTarget.wornhaskeyword(libs.zad_deviousSuit)
+                if random == 0
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakArmbinder)
+                elseif random == 1
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakElbowbinder)
+                elseif random == 2
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakYoke)
+                elseif random == 3
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakStraitjacket)
+                elseif random == 4
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakBoxbinder)
+                endif
+                
+            else
+                if random == 0 || random == 3
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakArmbinder)
+                elseif random == 1 
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakElbowbinder)
+                elseif random == 2 || random == 4
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakYoke)
+                endif
+            endif
+            _NextHandRestrain += 1
+            if _NextHandRestrain > 4
+                _NextHandRestrain = 0 ;loop
+            endif
+            if IsPlayer(akTarget)
+                UDmain.ShowMessageBox("Black goo covers your body and tie your hands while changing shape to bondage restraint!")
+            endif
+        endif
+        
+        ;chance to lock plugs and belt
+        if RandomInt(1,99) < Round(25.0*fRange(loc_arousal/25.0,1.0,3.5))
+            UDmain.ItemManager.lockAbadonHelperPlugs(akTarget)
+            if (!akTarget.WornhasKeyword(libs.zad_DeviousBelt))
+                ;choose one random chastity device
+                if RandomInt(0,1)
+                    libs.LockDevice(akTarget,UDlibs.AbadonHarness)
+                else
+                    libs.LockDevice(akTarget,UDlibs.AbadonBelt)
+                endif
+            endif
+            
+        endif
+        UDCDmain.EnableActor(akTarget)
+    endif
+EndFunction
 
 Function AbadonEquipSuit(Actor target,int suit)
     UDCDmain.DisableActor(target)

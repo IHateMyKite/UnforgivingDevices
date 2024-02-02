@@ -34,7 +34,6 @@ Bool                         _PlayerSlotReady               = false
 Float                        _LastUpdateTime                = 0.0
 Float                        _UpdateTimePassed              = 0.0
 Float                        _UpdateTimePassed2             = 0.0
-float                        LastUpdateTime_Hour            = 0.0 ;last time the update happened in days
 Form[]                       _ScanInCompatibilityFactions
 
 ;Static slots used by quests
@@ -213,11 +212,8 @@ Event OnUpdateGameTime()
     if UDmain.UDReady()
         if !UDmain.UD_DisableUpdate
             Utility.wait(randomFloat(2.0,4.0))
-            float currentgametime = Utility.GetCurrentGameTime()
-            float mult = 24.0*(currentgametime - LastUpdateTime_Hour) ;multiplier for how much more then 1 hour have passed, ex: for 2.5 hours passed without update, the mult will be 2.5
-            UpdateSlotsHour(mult)
-            UpdateDevicesHour(mult)
-            LastUpdateTime_Hour = Utility.GetCurrentGameTime()
+            UpdateSlotsHour()
+            UpdateDevicesHour()
         endif
     endif
     registerForSingleUpdateGameTime(1.0)
@@ -539,25 +535,25 @@ Function UpdateSlotDevices(UD_CustomDevice_NPCSlot akSlot, Float afTimePassed)
     endif
 EndFunction
 
-Function UpdateDevicesHour(float fMult)
+Function UpdateDevicesHour()
     int index = UD_Slots
     while index
         index -= 1
         UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
         if loc_slot.isScriptRunning() && loc_slot.isUsed() && loc_slot.canUpdate()
-            loc_slot.updateDeviceHour(fMult)
+            loc_slot.updateDeviceHour()
         endif
         Utility.waitMenuMode(0.1)
     endwhile
 EndFunction
 
-Function UpdateSlotsHour(float fMult)
+Function UpdateSlotsHour()
     int index = UD_Slots
     while index
         index -= 1
         UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
         if loc_slot.isUsed()
-            loc_slot.updateHour(fMult)
+            loc_slot.updateHour()
         endif
         Utility.waitMenuMode(0.1)
     endwhile

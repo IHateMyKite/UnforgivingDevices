@@ -15,8 +15,6 @@ Function OnEffectStart(Actor akTarget, Actor akCaster)
         return ;actor is already tied
     endif
     
-
-    
     int loc_chance = iRange(Round(GetMagnitude()),0,100)
     if RandomInt(1,99) < loc_chance
         if UDmain.TraceAllowed()

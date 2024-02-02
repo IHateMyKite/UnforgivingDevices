@@ -127,7 +127,7 @@ Int   Property UD_AITimer           = 2     auto hidden
 State UpdatePaused
     Function update(float fTimePassed)
     EndFunction
-    Function updateDeviceHour(float fMult)
+    Function updateDeviceHour()
     EndFunction
     Function UpdateSlot(Bool abUpdateSkill = true)
     EndFunction
@@ -1064,17 +1064,17 @@ Function DeviceUpdate(UD_CustomDevice_RenderScript akDevice,Float afTimePassed)
     endif
 EndFunction
 
-Function updateDeviceHour(float fMult)
+Function updateDeviceHour()
     int i = 0
     while UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i].isReady()
-            UD_equipedCustomDevices[i].updateHour(fMult)
+            UD_equipedCustomDevices[i].updateHour()
         endif
         i+=1
     endwhile
 EndFunction
 
-Function updateHour(float fMult)
+Function updateHour()
     UpdateMotivationToDef(GetActor(),20) ;decrease/increase motivation so it will finally reach default 100
 EndFunction
 

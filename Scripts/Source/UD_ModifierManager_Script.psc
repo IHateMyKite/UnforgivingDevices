@@ -115,13 +115,14 @@ Function UpdateLists()
         loc_count -= 1
         UD_ModifierStorage loc_storage = GetNthModifierStorage(loc_count)
         Int loc_modnum = loc_storage.GetModifierNum()
-        while loc_modnum
-            loc_modnum -= 1
-            UD_Modifier loc_mod = loc_storage.GetNthModifier(loc_modnum)
+        Int loc_i = 0
+        while loc_i < loc_modnum
+            UD_Modifier loc_mod = loc_storage.GetNthModifier(loc_i)
             if loc_mod
                 UD_ModifierList    = PapyrusUtil.PushString(UD_ModifierList,loc_mod.NameFull)
                 UD_ModifierListRef = PapyrusUtil.PushAlias(UD_ModifierListRef,loc_mod)
             endif
+            loc_modnum += 1
         endwhile
     endwhile
 EndFunction
@@ -151,9 +152,7 @@ EndEvent
 float _LastUpdateTime_Hour = 0.0 ;last time the update happened in days
 Event OnUpdateGameTime()
     if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
-        float loc_currentgametime = Utility.GetCurrentGameTime()
-        float loc_mult = 24.0*(loc_currentgametime - _LastUpdateTime_Hour) ;time multiplier
-        UpdateModifiers_Hour(loc_mult)
+        UpdateModifiers_Hour()
     endif
     _LastUpdateTime_Hour = Utility.GetCurrentGameTime()
     RegisterForSingleUpdateGameTime(1.0)
@@ -171,7 +170,7 @@ Function UpdateModifiers(float aiTimePassed)
             UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
             int loc_x = 0
             while loc_devices[loc_x]
-                if !loc_devices[loc_x].isMinigameOn() ;not update device which are in minigame
+                if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked ;not update device which are in minigame
                     Procces_UpdateModifiers(loc_devices[loc_x],aiTimePassed)
                 endif
                 loc_x += 1
@@ -181,7 +180,7 @@ Function UpdateModifiers(float aiTimePassed)
     endwhile
 EndFunction
 
-Function UpdateModifiers_Hour(float afMult)
+Function UpdateModifiers_Hour()
     int loc_i = 0
     while loc_i < UDNPCM.UD_Slots
         UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getNPCSlotByIndex(loc_i)
@@ -189,7 +188,9 @@ Function UpdateModifiers_Hour(float afMult)
             UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
             int loc_x = 0
             while loc_devices[loc_x]
-                Procces_UpdateModifiers_Hour(loc_devices[loc_x],afMult)
+                if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked
+                    Procces_UpdateModifiers_Hour(loc_devices[loc_x])
+                endif
                 loc_x += 1
             endwhile
         endif
@@ -203,7 +204,9 @@ Function UpdateModifiers_Orgasm(UD_CustomDevice_NPCSlot akSlot)
         UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
         int loc_x = 0
         while loc_devices[loc_x]
-            Procces_UpdateModifiers_Orgasm(loc_devices[loc_x])
+            if !loc_devices[loc_x].IsUnlocked
+                Procces_UpdateModifiers_Orgasm(loc_devices[loc_x])
+            endif
             loc_x += 1
         endwhile
     endif
@@ -221,12 +224,13 @@ Function Procces_UpdateModifiers(UD_CustomDevice_RenderScript akDevice,float aiT
     endwhile
 EndFunction
 
-Function Procces_UpdateModifiers_Hour(UD_CustomDevice_RenderScript akDevice,float afMult)
-    int loc_modid = akDevice.UD_ModifiersRef.length
+Function Procces_UpdateModifiers_Hour(UD_CustomDevice_RenderScript akDevice)
+    int loc_modid  = akDevice.UD_ModifiersRef.length
+    Float loc_mult = akDevice.ResetLastHourUpdateMod()
     while loc_modid 
         loc_modid -= 1
         UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
-        loc_mod.TimeUpdateHour(akDevice,afMult,akDevice.UD_ModifiersDataStr[loc_modid],akDevice.UD_ModifiersDataForm1[loc_modid],akDevice.UD_ModifiersDataForm2[loc_modid],akDevice.UD_ModifiersDataForm3[loc_modid])
+        loc_mod.TimeUpdateHour(akDevice,loc_mult,akDevice.UD_ModifiersDataStr[loc_modid],akDevice.UD_ModifiersDataForm1[loc_modid],akDevice.UD_ModifiersDataForm2[loc_modid],akDevice.UD_ModifiersDataForm3[loc_modid])
     endwhile
 EndFunction
 

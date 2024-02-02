@@ -696,6 +696,13 @@ Int                     _PlayerLastConstraints                  = 0
 Int                     _HelperLastConstraints                  = 0
 Int[]                   _ActorsConstraints
 Float                   _RealTimeLocked = 0.0
+Float                   _GameTimeLocked = 0.0
+bool                    _initiated = false
+Int                     _VMHandle1 = 0x00000000
+Int                     _VMHandle2 = 0x00000000
+
+Float                   _LastHourUpdateTime
+Float                   _LastHourUpdateTimeMod
 
 ;---------------------------------------PRIVATE PROPERTIES----------------------------------------
 UnforgivingDevicesMain      Property UDmain     hidden ;main libs
@@ -1511,9 +1518,6 @@ EndEvent
 
 ;OnContainerChanged is very important event. It is used to determinate if render device have been equipped (OnEquipped only works for player)
 ;it is also used for retrieving device (this) script
-bool _initiated = false
-Int _VMHandle1 = 0x00000000
-Int _VMHandle2 = 0x00000000
 Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldContainer)
     if (akNewContainer as Actor) && !akOldContainer && !_initiated && !IsUnlocked && !Ready
         _initiated = true
@@ -1713,7 +1717,7 @@ Function _Init(Actor akActor)
         UDmain.Log(DeviceInventory.getName() + " fully locked on " + getWearerName(),1)
     endif
     
-    ResetRealTimeLockedTime()
+    _ResetTimers()
     
     Ready = True
     
@@ -2321,12 +2325,43 @@ Bool Function EvaluateNPCAI()
     return loc_minigameStarted
 EndFunction
 
+;in hours
 Float Function GetRealTimeLockedTime()
     return Game.GetRealHoursPassed() - _RealTimeLocked
 EndFunction
 
 Function ResetRealTimeLockedTime()
     _RealTimeLocked = Game.GetRealHoursPassed()
+EndFunction
+
+;in days
+Float Function GetGameTimeLockedTime()
+    return Utility.GetCurrentGameTime() - _GameTimeLocked
+EndFunction
+
+Function ResetGameTimeLockedTime()
+    _GameTimeLocked = Utility.GetCurrentGameTime()
+EndFunction
+
+Function _ResetTimers()
+    ResetRealTimeLockedTime()
+    ResetGameTimeLockedTime()
+    _LastHourUpdateTime     = Utility.GetCurrentGameTime()
+    _LastHourUpdateTimeMod  = Utility.GetCurrentGameTime()
+EndFunction
+
+Float Function ResetLastHourUpdate()
+    Float loc_time = Utility.GetCurrentGameTime()
+    Float loc_hours = (loc_time - _LastHourUpdateTime)*24.0
+    _LastHourUpdateTime = loc_time
+    return loc_hours
+EndFunction
+
+Float Function ResetLastHourUpdateMod()
+    Float loc_time = Utility.GetCurrentGameTime()
+    Float loc_hours = (loc_time - _LastHourUpdateTimeMod)*24.0
+    _LastHourUpdateTimeMod = loc_time
+    return loc_hours
 EndFunction
 
 ;==============================================================================================
@@ -2478,7 +2513,7 @@ EndFunction
 String[] Function getModifierAllParam(string asModifier)
     int loc_Index = getModifierIndex(asModifier)
     if loc_Index != -1
-        return StringUtil.split(UD_ModifiersDataStr,",")
+        return StringUtil.split(UD_ModifiersDataStr[loc_Index],",")
     else
         return none
     endif
@@ -3885,12 +3920,13 @@ EndFunction
 
 ;like Update function, but called only once per hour
 ;mult -> multiplier which identifies how many hours have passed (1.5 hours -> mult = 1.5)
-Function UpdateHour(float mult)
+Function UpdateHour()
+    Float loc_mult = ResetLastHourUpdate()
     if OnUpdateHourPre()
         if OnUpdateHourPost()
         endif
     endif
-    UpdateAllLocksTimeLock(-1*Round(mult),True) ;update timed locks
+    UpdateAllLocksTimeLock(-1*Round(loc_mult),True) ;update timed locks
 EndFunction
 
 float Function _getLockMinigameModifier()
@@ -4673,6 +4709,7 @@ bool Function struggleMinigame(int aiType = -1, Bool abSilent = False)
     endif
     
     resetMinigameValues()
+    
     setMinigameWidgetVar((aiType != 5), False, False, 0xFF0000, 0x00FF00, -1, "icon-meter-struggle")
     setSecWidgetVar((aiType < 3), True, False, -1, -1, -1, "icon-meter-condition")
     
@@ -4710,7 +4747,6 @@ bool Function struggleMinigame(int aiType = -1, Bool abSilent = False)
         UD_applyExhastionEffect = False
         UD_minigame_canCrit = False
         UD_DamageMult *= 0.08*getModResistPhysical()
-        _condition_mult_add = -1.0
         UD_RegenMag_Stamina = 0.7
         UD_RegenMag_Health = 0.8
         UD_RegenMag_Magicka = 0.7
@@ -6619,7 +6655,7 @@ Function minigame()
                     ;native meter used. Calculation is done in skse plugin, so just fetch the value and recalculate it
                     
                     current_device_health = UDmain.UDWC.Meter_GetNativeValue("device-main")*loc_health/100.0
-                    if loc_condmult != 0.0
+                    if loc_condmult != 0.0 && UD_UseWidgetSec
                         _total_durability_drain = (1.0 - UDmain.UDWC.Meter_GetNativeValue("device-condition")/100.0)*loc_health
                         _updateCondition()
                     endif
@@ -7479,6 +7515,9 @@ Function ShowBaseDetails()
             loc_res += "Cooldown: NONE\n"
         endif
     endif
+    
+    loc_res += "Locked for: " + FormatFloat(GetGameTimeLockedTime()*24.0,1) + " h\n"
+    
     loc_res += addInfoString()
     UDmain.ShowMessageBox(loc_res)
 EndFunction
@@ -8135,7 +8174,7 @@ State UpdatePaused
     Function Update(float timePassed)
         _updateTimePassed += (timePassed*24.0*60.0);*UDCDmain.UD_CooldownMultiplier
     EndFunction
-    Function UpdateHour(float mult)
+    Function UpdateHour()
     EndFunction
 EndState
 

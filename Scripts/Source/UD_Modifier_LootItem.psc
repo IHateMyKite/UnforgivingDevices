@@ -1,3 +1,23 @@
+;/  File: UD_Modifier_LootItem
+    Once unlocked, actor will be rewarded with items
+
+    NameFull: Loot Item
+    NameAlias: LI
+
+    Parameters:
+        0 = (optional) Number of items filled in Form1 received, Int
+        1 = (optional) Number of items filled in Form2 received, Int
+        3 = (optional) Number of items filled in Form3 received, Int
+        
+    Form arguments:
+        Form1 - Item the actor will receive
+        Form2 - Item the actor will receive
+        Form3 - Item the actor will receive
+        
+    Example:
+        1       = Reward actor with 1x Form1,Form2,Form3 (if filled)
+        1,2,3   = Reward actor with 1x Form1, 2x Form2, 3x Form3 (if filled)
+/;
 ScriptName UD_Modifier_LootItem extends UD_Modifier
 
 import UnforgivingDevicesMain

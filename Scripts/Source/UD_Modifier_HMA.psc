@@ -4,8 +4,8 @@ import UnforgivingDevicesMain
 import UD_Native
 
 Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
-    int loc_chance = Round(UD_Native.GetStringParamInt(0)*Multiplier)
-    int loc_number = UD_Native.GetStringParamInt(1,1)
+    int loc_chance = Round(UD_Native.GetStringParamInt(aiDataStr,0)*Multiplier)
+    int loc_number = UD_Native.GetStringParamInt(aiDataStr,1,1)
     UDCDmain.ManifestDevices(akDevice.GetWearer(),akDevice.getDeviceName(),loc_chance,loc_number)
 EndFunction
 
