@@ -117,11 +117,11 @@ float Function getAccesibility()
         endif
         
         if getWearer().wornhaskeyword(libs.zad_DeviousHobbleSkirt)
-            loc_res *= 0.7
+            loc_res *= 0.25
         elseif getWearer().wornhaskeyword(libs.zad_DeviousHobbleSkirtRelaxed)
-            loc_res *= 0.8
+            loc_res *= 0.5
         elseif getWearer().wornhaskeyword(libs.zad_DeviousSuit)
-            loc_res *= 0.9
+            loc_res *= 0.65
         endif
     endif
     

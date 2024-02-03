@@ -96,10 +96,11 @@ Actor[]     Function GetRegisteredActors()              global native
     kBleedout       =   11
     kDragon         =   12
 /;
-Int         Function GetCameraState()                           global native
+Int         Function GetCameraState() global native
 Bool        Function RegisterDeviceCallback(Int aiHandle1, Int aiHandle2,Armor akDevice, Int aiDxKeycode, String asCallbackFun) global native
 Bool        Function UnregisterDeviceCallbacks(Int aiHandle1, Int aiHandle2,Armor akDevice) global native
             Function UnregisterAllDeviceCallbacks() global native
+Bool        Function AddDeviceCallbackArgument(int aiDxKeycode, int aiType, string asArgStr, Form akArgForm) global native
             
  ;===Events===
             Function RegisterForHMTweenMenu(ReferenceAlias akRefAlias)      global native

@@ -8,6 +8,7 @@
         0 = (optional) Type of monitored value
             0 - Hours
             1 - Orgasms
+           -1 - Device have already evolved
             Default = 0
         1 = (optional) Amount of value required to evolve
             Hours -> Float
@@ -81,7 +82,7 @@ Function Evolve(UD_CustomDevice_RenderScript akDevice, Form akForm1, Form akForm
         endif
         
     endif
-    akDevice.editStringModifier(NameAlias,1,-1)
+    akDevice.editStringModifier(NameAlias,0,-1)
     akDevice.unlockRestrain(true)
     if loc_device
         libs.LockDevice(loc_actor,loc_device)

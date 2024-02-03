@@ -30,6 +30,12 @@ Function DeviceUnlocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr,
     
     Actor loc_actor = akDevice.GetWearer()
     
+    ;check if device didnt evolve
+    String[] loc_evl = akDevice.getModifierAllParam("EVL")
+    if (loc_evl && loc_evl[0] == -1) 
+        return
+    endif
+    
     if loc_actor && (akForm1 || akForm2 || akForm3)
         int loc_num1 = Round(UD_Native.GetStringParamInt(aiDataStr,0,1)*Multiplier)
         int loc_num2 = Round(UD_Native.GetStringParamInt(aiDataStr,1,1)*Multiplier)
