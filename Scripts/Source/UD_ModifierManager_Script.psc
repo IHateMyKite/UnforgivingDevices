@@ -110,20 +110,21 @@ Function UpdateLists()
     UD_ModifierList     = Utility.CreateStringArray(0)
     UD_ModifierListRef  = Utility.CreateAliasArray(0)
 
-    int loc_count = GetModifierStorageCount()
-    while loc_count
-        loc_count -= 1
-        UD_ModifierStorage loc_storage = GetNthModifierStorage(loc_count)
+    Int loc_i1      = 0
+    int loc_count   = GetModifierStorageCount()
+    while loc_i1 < loc_count
+        UD_ModifierStorage loc_storage = GetNthModifierStorage(loc_i1)
         Int loc_modnum = loc_storage.GetModifierNum()
-        Int loc_i = 0
-        while loc_i < loc_modnum
-            UD_Modifier loc_mod = loc_storage.GetNthModifier(loc_i)
+        Int loc_i2 = 0
+        while loc_i2 < loc_modnum
+            UD_Modifier loc_mod = loc_storage.GetNthModifier(loc_i2)
             if loc_mod
                 UD_ModifierList    = PapyrusUtil.PushString(UD_ModifierList,loc_mod.NameFull)
                 UD_ModifierListRef = PapyrusUtil.PushAlias(UD_ModifierListRef,loc_mod)
             endif
-            loc_modnum += 1
+            loc_i2 += 1
         endwhile
+        loc_i1 += 1
     endwhile
 EndFunction
 
