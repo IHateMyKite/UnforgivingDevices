@@ -65,8 +65,8 @@ Function equipAbadonLatexSuit(Actor target)
     endif
 
     if (!target.WornhasKeyword(libs.zad_DeviousBelt) && UDmain.UDRRM.IsDeviceFiltered(17))
-        if (!target.WornhasKeyword(libs.zad_DeviousCollar)) && (!target.WornhasKeyword(libs.zad_DeviousCorset))
-            libs.LockDevice(target,UDmain.UDlibs.AbadonHarness)
+        if (!target.WornhasKeyword(libs.zad_DeviousCorset)) && UDmain.UDRRM.IsDeviceFiltered(5)
+            libs.LockDevice(target,UDmain.UDlibs.AbadonHarness) ;ebonite harness will look better with catsuit, so try it first
         else
             libs.LockDevice(target,UDmain.UDlibs.AbadonBelt)
         endif
@@ -75,7 +75,6 @@ Function equipAbadonLatexSuit(Actor target)
     if (!target.WornhasKeyword(libs.zad_DeviousBlindfold) && UDmain.UDRRM.IsDeviceFiltered(10))
         libs.LockDevice(target,UDmain.UDlibs.AbadonBlindfold)
     endif
-    
     
     if (UDmain.UDRRM.IsDeviceFiltered(7) && !target.WornhasKeyword(libs.zad_DeviousHood)) && (UDmain.UDRRM.IsDeviceFiltered(9) && !target.WornhasKeyword(libs.zad_DeviousGag))
         if RandomInt(0,1)
@@ -245,9 +244,22 @@ Function equipAbadonSimpleSuit(Actor target)
     endif
     
     if (!target.WornhasKeyword(libs.zad_DeviousBelt) && UDmain.UDRRM.IsDeviceFiltered(17))
-        if !target.WornhasKeyword(libs.zad_DeviousCorset) && !target.WornhasKeyword(libs.zad_DeviousCollar)
+        bool loc_useharness = false
+        bool loc_usebelt    = true
+        
+        if !target.WornhasKeyword(libs.zad_DeviousCorset) && UDmain.UDRRM.IsDeviceFiltered(5)
+            loc_useharness = true
+        endif
+        
+        if loc_useharness && loc_usebelt
+            if RandomInt(0,1)
+                libs.LockDevice(target,UDmain.UDlibs.AbadonHarness)
+            else
+                libs.LockDevice(target,UDmain.UDlibs.AbadonBelt)
+            endif
+        elseif loc_useharness
             libs.LockDevice(target,UDmain.UDlibs.AbadonHarness)
-        else
+        elseif loc_usebelt
             libs.LockDevice(target,UDmain.UDlibs.AbadonBelt)
         endif
     elseif (!target.WornhasKeyword(libs.zad_DeviousCollar) && UDmain.UDRRM.IsDeviceFiltered(8))
@@ -301,9 +313,22 @@ Function equipAbadonYokeSuit(Actor target)
     endif
     
     if (!target.WornhasKeyword(libs.zad_DeviousBelt) && UDmain.UDRRM.IsDeviceFiltered(17))
-        if !target.WornhasKeyword(libs.zad_DeviousCorset) && !target.WornhasKeyword(libs.zad_DeviousCollar)
+        bool loc_useharness = false
+        bool loc_usebelt    = true
+        
+        if !target.WornhasKeyword(libs.zad_DeviousCorset) && UDmain.UDRRM.IsDeviceFiltered(5)
+            loc_useharness = true
+        endif
+        
+        if loc_useharness && loc_usebelt
+            if RandomInt(0,1)
+                libs.LockDevice(target,UDmain.UDlibs.AbadonHarness)
+            else
+                libs.LockDevice(target,UDmain.UDlibs.AbadonBelt)
+            endif
+        elseif loc_useharness
             libs.LockDevice(target,UDmain.UDlibs.AbadonHarness)
-        else
+        elseif loc_usebelt
             libs.LockDevice(target,UDmain.UDlibs.AbadonBelt)
         endif
     elseif (!target.WornhasKeyword(libs.zad_DeviousCollar) && UDmain.UDRRM.IsDeviceFiltered(8))

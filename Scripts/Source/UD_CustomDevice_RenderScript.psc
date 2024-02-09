@@ -698,11 +698,21 @@ Int[]                   _ActorsConstraints
 Float                   _RealTimeLocked = 0.0
 Float                   _GameTimeLocked = 0.0
 bool                    _initiated = false
+Float                   _LastHourUpdateTime
+Float                   _LastHourUpdateTimeMod
 Int                     _VMHandle1 = 0x00000000
 Int                     _VMHandle2 = 0x00000000
 
-Float                   _LastHourUpdateTime
-Float                   _LastHourUpdateTimeMod
+Int Property            VMHandle1 hidden
+    Int Function Get()
+        return _VMHandle1
+    EndFunction
+EndProperty
+Int Property            VMHandle2 hidden
+    Int Function Get()
+        return _VMHandle2
+    EndFunction
+EndProperty
 
 ;---------------------------------------PRIVATE PROPERTIES----------------------------------------
 UnforgivingDevicesMain      Property UDmain     hidden ;main libs
@@ -4930,8 +4940,6 @@ bool Function cuttingMinigame(Bool abSilent = False)
     setMinigameWidgetVar(True, False, False, 0x4496C6, 0xffbd00, 0x4496C6, "icon-meter-cut")
     setSecWidgetVar(True, True, False, -1, -1, -1, "icon-meter-struggle")
     
-
-    
     UD_damage_device = False
     UD_minigame_stamina_drain = UD_base_stat_drain + getMaxActorValue(Wearer,"Stamina",0.04)
     UD_minigame_heal_drain = UD_base_stat_drain/2+ getMaxActorValue(Wearer,"Health",0.01)
@@ -4947,11 +4955,14 @@ bool Function cuttingMinigame(Bool abSilent = False)
         
         ;register native meters
         if WearerIsPlayer()
-            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,fRange(100.0 - UD_CutChance,30.0,100.0),true)
+            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,fRange(150.0 - 10*UD_CutChance,80.0,150.0),true)
         endif
     
         UD_Native.RegisterDeviceCallback(_VMHandle1,_VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_CuttingMG_SKPress")
-        UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,UDmain.UDWC._GetMeter("device-main").id as String, none)
+        
+        string loc_param = UDmain.UDWC.GetMeterIdentifier("device-main")
+        UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
+        
         _CuttingGameON = True
         minigame()
         _CuttingGameON = False
@@ -5354,14 +5365,13 @@ bool Function cuttingMinigameWH(Actor akHelper)
     
     UD_damage_device = False
     UD_minigame_stamina_drain = UD_base_stat_drain + getMaxActorValue(Wearer,"Stamina",0.04)
-    UD_minigame_stamina_drain_helper = UD_base_stat_drain*1.25 + getMaxActorValue(Wearer,"Stamina",0.04)
+    UD_minigame_stamina_drain_helper = UD_base_stat_drain*1.25 + getMaxActorValue(akHelper,"Stamina",0.04)
     UD_minigame_heal_drain = UD_base_stat_drain*0.75 + getMaxActorValue(Wearer,"Health",0.02)
     UD_RegenMag_Magicka = 0.5
-    UD_RegenMag_Health = 0.5
     UD_RegenMagHelper_Magicka = 0.75
     UD_RegenMagHelper_Health = 0.75
-    _minMinigameStatSP = 0.8
-    _minMinigameStatHP = 0.5
+    _minMinigameStatSP = 0.7
+    _minMinigameStatHP = 0.4
     if minigamePostcheck()
         float loc_BaseMult = UDCDmain.getActorCuttingWeaponMultiplier(getWearer())
         float loc_BaseMultHelperAdd = UDCDmain.getActorCuttingWeaponMultiplier(getHelper()) - 1.0
@@ -5374,6 +5384,16 @@ bool Function cuttingMinigameWH(Actor akHelper)
         elseif HelperFreeHands()
             UD_MinigameMult1 += 0.15
         endif
+    
+        ;register native meters
+        if WearerIsPlayer()
+            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,fRange(125.0 - 15*UD_CutChance,75.0,125.0),true)
+        endif
+    
+        UD_Native.RegisterDeviceCallback(_VMHandle1,_VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_CuttingMG_SKPress")
+        
+        string loc_param = UDmain.UDWC.GetMeterIdentifier("device-main")
+        UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
     
         _CuttingGameON = True
         minigame()
@@ -5581,11 +5601,11 @@ Function _cutDevice(float progress_add = 1.0)
             endif
         endif
 
-        float cond_dmg = 30.0*UDCDmain.getStruggleDifficultyModifier()*(1.0 + _condition_mult_add)
+        float cond_dmg = 40.0*UDCDmain.getStruggleDifficultyModifier()*(1.0 + _condition_mult_add)
         _total_durability_drain += cond_dmg
 
         _updateCondition()
-        decreaseDurabilityAndCheckUnlock(UD_DamageMult*cond_dmg/7.0,0.0)
+        decreaseDurabilityAndCheckUnlock(UD_DamageMult*cond_dmg/6.0,0.0)
 
         _CuttingProgress = 0.0
         if UDmain.TraceAllowed()
@@ -8485,15 +8505,9 @@ Function _MinigameAVCheckLoopThread()
 EndFunction
 
 Function _CuttingMG_SKPress(Float afValue)
-    UDmain.Info("_CuttingMG_SKPress called")
-    Float loc_val   = afValue ;UDmain.UDWC.Meter_GetNativeValue("device-main")
-    ;Float loc_rate  = fRange(100.0 - UD_CutChance,30.0,100.0)/60.0 ;per frame increase
-    ;loc_val -= loc_rate*3 ; lets say that it takes 3 frames for game to send event after user press the button
-    
-    ;UDmain.UDWC.Meter_SetNativeValue("device-main",0.0)
-    if loc_val >= fRange(100.0 - Math.Pow(UD_CutChance,1.2)*2.0,0.0,95.0)
+    if afValue >= fRange(100.0 - Math.Pow(UD_CutChance,1.2)*2.0,0.0,96.0)
         UDlibs.RedCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player) ;show to player that they cutted device in right time by using shader effect
-        _cutDevice(Math.Pow(UD_CutChance,1.2)*3.0/(100.1-loc_val))
+        _cutDevice(Math.Pow(UD_CutChance,1.2)*3.0/(100.1-afValue))
     endif
 EndFunction
 

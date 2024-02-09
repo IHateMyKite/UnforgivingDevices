@@ -15,22 +15,26 @@ bool    Function MinigameStatsCheck         (Actor akActor, bool abStamina, bool
         Function MinigameEffectUpdateMagicka(Actor akActor, float afMagicka)    global native
 
 ;===UTILITY===
-Int     Function CodeBit                    (int aiCodedMap,int aiValue,int aiSize,int aiIndex) global native
-Int     Function DecodeBit                  (int aiCodedMap,int aiSize,int aiIndex)             global native
-Int     Function Round                      (Float afValue)                                     global native
-Int     Function iRange                     (Int aiValue,Int aiMin,Int aiMax)                   global native
-Float   Function fRange                     (Float afValue,Float afMin,Float afMax)             global native
-Bool    Function iInRange                   (Int afValue,Int afMin,Int afMax)                   global native
-Bool    Function fInRange                   (Float afValue,Float afMin,Float afMax)             global native
-String  Function FormatFloat                (Float afValue,Int afFloatPoints)                   global native
-Bool    Function IsPlayer                   (Actor akActor)                                     global native
-String  Function GetActorName               (Actor akActor)                                     global native
-Int     Function FloatToInt                 (Float afValue)                                     global native
-Float   Function RandomFloat                (Float afMin = 0.0, Float afMax = 99.99)            global native
-Int     Function RandomInt                  (Int aiMin = 0, Int aiMax = 99)                     global native
-Bool    Function PluginInstalled            (string asName)                                     global native
-Armor   Function CheckArmorEquipped         (Actor akActor, Armor akArmor)                      global native
-        Function ToggleDetection            (Bool a_val)                                        global native
+Int         Function CodeBit                    (int aiCodedMap,int aiValue,int aiSize,int aiIndex)             global native
+Int         Function DecodeBit                  (int aiCodedMap,int aiSize,int aiIndex)                         global native
+Int         Function Round                      (Float afValue)                                                 global native
+Int         Function iRange                     (Int aiValue,Int aiMin,Int aiMax)                               global native
+Float       Function fRange                     (Float afValue,Float afMin,Float afMax)                         global native
+Bool        Function iInRange                   (Int afValue,Int afMin,Int afMax)                               global native
+Bool        Function fInRange                   (Float afValue,Float afMin,Float afMax)                         global native
+String      Function FormatFloat                (Float afValue,Int afFloatPoints)                               global native
+Bool        Function IsPlayer                   (Actor akActor)                                                 global native
+String      Function GetActorName               (Actor akActor)                                                 global native
+Int         Function FloatToInt                 (Float afValue)                                                 global native
+Float       Function RandomFloat                (Float afMin = 0.0, Float afMax = 99.99)                        global native
+Int         Function RandomInt                  (Int aiMin = 0, Int aiMax = 99)                                 global native
+Bool        Function PluginInstalled            (string asName)                                                 global native
+Armor       Function CheckArmorEquipped         (Actor akActor, Armor akArmor)                                  global native
+            Function ToggleDetection            (Bool a_val)                                                    global native
+String[]    Function GetStringParamAll          (String asParam)                                                global native
+Int         Function GetStringParamInt          (String asParam,Int aiIndex = 0,Int     aiDefaultValue = 0  )   global native
+Float       Function GetStringParamFloat        (String asParam,Int aiIndex = 0,Float   afDefaultValue = 0.0)   global native
+String      Function GetStringParamString       (String asParam,Int aiIndex = 0,String  asDefaultValue = "" )   global native
 
 ;===UI===
 int     Function RemoveAllMeterEntries()                                        global native
@@ -66,12 +70,6 @@ Int     Function GetActorConstrains         (Actor akActor)                     
 
 ;===Skill===
 Int     Function CalculateSkillFromPerks    (Actor akActor,Formlist akList,Int aiIncrease)      global native
-
-;===Modifiers===
-String[]    Function GetModifierAllParam    (String asParam)                                                global native
-Int         Function GetStringParamInt      (String asParam,Int aiIndex = 0,Int     aiDefaultValue = 0  )   global native
-Float       Function GetStringParamFloat    (String asParam,Int aiIndex = 0,Float   afDefaultValue = 0.0)   global native
-String      Function GetStringParamString   (String asParam,Int aiIndex = 0,String  asDefaultValue = "" )   global native
 
 ;===ActorSlotManager===
 Bool        Function RegisterSlotQuest(Quest akQuest)   global native

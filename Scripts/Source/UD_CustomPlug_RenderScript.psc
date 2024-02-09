@@ -151,13 +151,26 @@ bool Function forceOutPlugMinigame(Bool abSilent = False)
     resetMinigameValues()
     
     setMinigameOffensiveVar(False,0.0,0.0,True)
+    setMinigameDmgMult(Math.Pow(getAccesibility(),2.0))
     setMinigameWearerVar(True,UD_base_stat_drain + getMaxActorValue(getWearer(),"Stamina",0.05))
     setMinigameEffectVar(True,True,1.25)
-    setMinigameWidgetVar(True, True, False, -1, -1, -1, "icon-meter-pull")
+    setMinigameWidgetVar(True, False, False, 0xC343C7, 0xFF00EF, 0xC343C7, "icon-meter-pull")
+    setSecWidgetVar(True, True, False, -1, -1, -1, "icon-meter-struggle")
+    
     setMinigameMinStats(0.8)
-    setMinigameDmgMult(getAccesibility())
+    
     
     if minigamePostcheck(abSilent)
+        ;register native meters
+        if WearerIsPlayer()
+            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,125.0,true)
+        endif
+    
+        UD_Native.RegisterDeviceCallback(VMHandle1,VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_ForceOutMG_SKPress")
+        
+        string loc_param = UDmain.UDWC.GetMeterIdentifier("device-main")
+        UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
+        
         forceOutPlugMinigame_on = True
         minigame()
         forceOutPlugMinigame_on = False
@@ -175,15 +188,26 @@ Bool Function forceOutPlugMinigameWH(Actor akHelper,Bool abSilent = False)
     
     setHelper(akHelper)
     setMinigameOffensiveVar(False,0.0,0.0,True)
-    setMinigameDmgMult(getAccesibility()*2.0)
-    setMinigameWearerVar(True,UD_base_stat_drain         + getMaxActorValue(getWearer(),"Stamina",0.025))
-    setMinigameHelperVar(True,UD_base_stat_drain*0.25     + getMaxActorValue(getWearer(),"Stamina",0.025))
+    setMinigameDmgMult(Math.Pow(getAccesibility(),2.0))
+    setMinigameWearerVar(True,UD_base_stat_drain          + getMaxActorValue(getWearer(),"Stamina",0.025))
+    setMinigameHelperVar(True,UD_base_stat_drain*0.25     + getMaxActorValue(GetHelper(),"Stamina",0.025))
     setMinigameEffectVar(True,True,1.25)
     setMinigameEffectHelperVar(False,False)
-    setMinigameWidgetVar(True, True, False, -1, -1, -1, "icon-meter-pull")
+    setMinigameWidgetVar(True, False, False, 0xC343C7, 0xFF00EF, 0xC343C7, "icon-meter-pull")
+    setSecWidgetVar(True, True, False, -1, -1, -1, "icon-meter-struggle")
     setMinigameMinStats(0.8)
     
     if minigamePostcheck(abSilent)
+        ;register native meters
+        if PlayerInMinigame()
+            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,100.0,true)
+        endif
+
+        UD_Native.RegisterDeviceCallback(VMHandle1,VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_ForceOutMG_SKPress")
+        
+        string loc_param = UDmain.UDWC.GetMeterIdentifier("device-main")
+        UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
+    
         forceOutPlugMinigame_on = True
         minigame()
         forceOutPlugMinigame_on = False
@@ -196,23 +220,15 @@ EndFunction
 
 Function updateWidget(bool force = false)
     if forceOutPlugMinigame_on
-        setWidgetVal(getRelativeDurability(),force)
+        setSecWidgetVal(getRelativeDurability(),force)
     else
         parent.updateWidget(force)
     endif
 EndFunction
 
-Function onSpecialButtonPressed(float fMult)
-    if forceOutPlugMinigame_on
-        decreaseDurabilityAndCheckUnlock(fMult*getDurabilityDmgMod()*UD_PlugRemovePressMult,0.0)
-    else
-        parent.onSpecialButtonPressed(fMult)
-    endif
-EndFunction
-
 Function OnCritDevicePost()
     if forceOutPlugMinigame_on
-        decreaseDurabilityAndCheckUnlock(getDurabilityDmgMod()*UD_StruggleCritMul,0.0)
+        decreaseDurabilityAndCheckUnlock(getMinigameMult(0)*getDurabilityDmgMod()*UD_StruggleCritMul,0.0)
     else
         parent.OnCritDevicePost()
     endif
@@ -228,10 +244,20 @@ EndFunction
 
 Function OnMinigameTick1() ;called every 1s of minigame
     if forceOutPlugMinigame_on && !PlayerInMinigame()
-        decreaseDurabilityAndCheckUnlock(getDurabilityDmgMod()*4.0*UD_PlugRemovePressMult,0.0) ;simulate 4 presses per second
+        decreaseDurabilityAndCheckUnlock(getMinigameMult(0)*getDurabilityDmgMod()*4.0*0.5,0.0) ;simulate 4 presses per second
     endif
     parent.OnMinigameTick1()
 EndFunction
+
+Event _ForceOutMG_SKPress(Float afValue)
+    if afValue >= 20.0
+        decreaseDurabilityAndCheckUnlock(getMinigameMult(0)*Math.Pow(afValue*getDurabilityDmgMod()/40.0,2.5)/20.0,0.0)
+    else
+        refillDurability(10.0)
+    endif
+    
+    UpdateWidget()
+EndEvent
 
 ;======================================================================
 ;Place new override functions here, do not forget to check override functions in parent if its not base script (UD_CustomDevice_RenderScript)
@@ -383,5 +409,8 @@ int Function getArousalRate()
     return parent.getArousalRate()
 EndFunction
 Float[] Function GetCurrentMinigameExpression()
-	return parent.GetCurrentMinigameExpression()
+    return parent.GetCurrentMinigameExpression()
+EndFunction
+Function onSpecialButtonPressed(float fMult)
+        parent.onSpecialButtonPressed(fMult)
 EndFunction

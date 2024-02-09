@@ -1827,7 +1827,7 @@ Function showActorDetails(Actor akActor)
             string loc_otherStr = "--OTHER--\n"
             if loc_sharpestWeapon
                 loc_otherStr += "Sharpest weapon: " + loc_sharpestWeapon.getName() + "\n"
-                loc_otherStr += "Cutting multiplier: " + FormatFloat(loc_sharpestWeapon.getBaseDamage()*2.5,1) + " %\n"
+                loc_otherStr += "Cutting bonus: " + FormatFloat(getActorCuttingWeaponMultiplier(akActor)*100.0 - 100.0,0) + " %\n"
             else
                 loc_otherStr += "Sharpest weapon: NONE\n"
                 loc_otherStr += "Cutting multiplier: 0 %\n"
@@ -1892,6 +1892,8 @@ Float Function getActorCuttingWeaponMultiplier(Actor akActor)
     if loc_bestWeapon
         loc_res += loc_bestWeapon.getBaseDamage()*0.025
     endif
+    
+    loc_res = Math.Pow(loc_res,1.5)
     
     return fRange(loc_res,1.0,3.0)
 EndFunction

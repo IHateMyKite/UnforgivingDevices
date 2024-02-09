@@ -36,7 +36,7 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     int goldNumMin = Round(UD_Native.GetStringParamInt(aiDataStr,0,0)*Multiplier)
     int goldMode   = Round(UD_Native.GetStringParamInt(aiDataStr,2,0)*Multiplier)
     
-    if UD_Native.GetModifierAllParam(aiDataStr).length > 1
+    if UD_Native.GetStringParamAll(aiDataStr).length > 1
         int goldNumMax = Round(UD_Native.GetStringParamInt(aiDataStr,1,0)*Multiplier)
         if goldNumMax < goldNumMin
             goldNumMax = goldNumMin
@@ -83,7 +83,7 @@ Int Function CalculateGold(String aiDataStr,int aiLevel, Bool abRandom = true)
     int goldNumMin = Round(UD_Native.GetStringParamInt(aiDataStr,0,0)*Multiplier)
     int goldMode   = Round(UD_Native.GetStringParamInt(aiDataStr,2,0)*Multiplier)
     
-    if UD_Native.GetModifierAllParam(aiDataStr).length > 1
+    if UD_Native.GetStringParamAll(aiDataStr).length > 1
         int goldNumMax = Round(UD_Native.GetStringParamInt(aiDataStr,1,0)*Multiplier)
         if goldNumMax < goldNumMin
             goldNumMax = goldNumMin

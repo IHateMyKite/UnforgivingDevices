@@ -85,12 +85,23 @@ bool Function forceOutAbadonPlugMinigame(Bool abSilent = False)
     resetMinigameValues()
     
     setMinigameOffensiveVar(False,0.0,0.0,True)
+    setMinigameDmgMult(Math.Pow(getAccesibility(),1.25))
     setMinigameWearerVar(True,UD_base_stat_drain)
     setMinigameEffectVar(True,True,1.25)
-    setMinigameWidgetVar(True, True, False, -1, -1, -1, "icon-meter-pull")
-    setMinigameMinStats(0.8)
+    setMinigameWidgetVar(True, False, False, 0x00FF22, 0xFF00EF, 0x00FF22, "icon-meter-pull")
+    setSecWidgetVar(True, True, False, -1, -1, -1, "icon-meter-struggle")
     
     if minigamePostcheck(abSilent)
+        ;register native meters
+        if WearerIsPlayer()
+            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,150.0,true)
+        endif
+    
+        UD_Native.RegisterDeviceCallback(VMHandle1,VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_ForceOutAbadonMG_SKPress")
+        
+        string loc_param = UDmain.UDWC.GetMeterIdentifier("device-main")
+        UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
+        
         _forceOutAbadonPlugMinigame_on = True
         minigame()
         _forceOutAbadonPlugMinigame_on = False
@@ -108,15 +119,26 @@ bool Function forceOutAbadonPlugMinigameWH(Actor akHelper, Bool abSilent = False
     
     setHelper(akHelper)
     setMinigameOffensiveVar(False,0.0,0.0,True)
-    setMinigameDmgMult(1.5)
+    setMinigameDmgMult(Math.Pow(getAccesibility(),1.0))
     setMinigameWearerVar(True,UD_base_stat_drain)
     setMinigameHelperVar(True,UD_base_stat_drain*0.25)
     setMinigameEffectVar(True,True,1.25)
     setMinigameEffectHelperVar(False,False)
-    setMinigameWidgetVar(True, True, False, -1, -1, -1, "icon-meter-pull")
+    setMinigameWidgetVar(True, False, False, 0x00FF22, 0xFF00EF, 0x00FF22, "icon-meter-pull")
+    setSecWidgetVar(True, True, False, -1, -1, -1, "icon-meter-struggle")
     setMinigameMinStats(0.8)
     
     if minigamePostcheck(abSilent)
+        ;register native meters
+        if PlayerInMinigame()
+            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,125.0,true)
+        endif
+
+        UD_Native.RegisterDeviceCallback(VMHandle1,VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_ForceOutAbadonMG_SKPress")
+        
+        string loc_param = UDmain.UDWC.GetMeterIdentifier("device-main")
+        UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
+        
         _forceOutAbadonPlugMinigame_on = True
         minigame()
         _forceOutAbadonPlugMinigame_on = False
@@ -130,11 +152,11 @@ EndFunction
 Float Function getButtonPressDamage()
     int loc_difficulty = AbadonQuestScript.overaldifficulty
     if loc_difficulty == 0
-        return 0.4
+        return 0.5
     elseif loc_difficulty == 1
         return 0.25
     elseif loc_difficulty == 2
-        return 0.05
+        return 0.1
     endif
 EndFunction
 
@@ -409,6 +431,15 @@ Function BeltCheck()
     endif
 EndFunction
 
+Event _ForceOutAbadonMG_SKPress(Float afValue)
+    if afValue >= 30.0
+        decreaseDurabilityAndCheckUnlock(getMinigameMult(0)*fRange(Math.Pow(afValue/50.0,4.0),0.75,10.0)*getButtonPressDamage()*0.25,0.0)
+    else
+        refillDurability(5.0 + AbadonQuestScript.overaldifficulty*2.5)
+    endif
+    UpdateWidget()
+EndEvent
+
 ;======================================================================
 ;                                OVERRIDES
 ;======================================================================
@@ -448,7 +479,7 @@ EndFunction
 
 Function updateWidget(bool force = false)
     if _forceOutAbadonPlugMinigame_on
-        setWidgetVal(getRelativeDurability(),force)    
+        setSecWidgetVal(getRelativeDurability(),force)
     else
         parent.updateWidget(force)
     endif
@@ -480,11 +511,7 @@ Function onRemoveDevicePost(Actor akActor)
 EndFunction
 
 Function onSpecialButtonPressed(float fMult)
-    if _forceOutAbadonPlugMinigame_on
-        decreaseDurabilityAndCheckUnlock(getButtonPressDamage()*getAccesibility(),0.0)
-    else
-        parent.onSpecialButtonPressed(fMult)
-    endif
+    parent.onSpecialButtonPressed(fMult)
 EndFunction
 
 Function OnCritFailure()

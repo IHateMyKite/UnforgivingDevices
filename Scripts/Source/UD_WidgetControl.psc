@@ -1196,6 +1196,26 @@ UD_WidgetBase Function _GetVanillaMeter(String asName)
     Return None
 EndFunction
 
+;/  Function: GetMeterIdentifier
+
+    Returns unique meter identifier. The identifier changes based on used widget system
+    
+    Parameters:
+        asName                  - Meter name.
+        
+    Returns:
+        Meter identifier. Is always made up of 2 values
+        
+        First value determinate which widget system is used. Currently either SkyUi (0) or IWantWidgets (1)
+        
+        Second value is identifier. For SkyUi, it is path. For IWantWidgets, it is widget id
+        
+        
+/;
+String Function GetMeterIdentifier(String asName)
+    Return ("0,"+_GetVanillaMeter(asName).WidgetRoot)
+EndFunction
+
 Bool _FindEmptySE_Mutex = False
 
 UD_WidgetStatusEffect_RefAlias Function _GetStatusEffect(String asName, Bool abFindEmpty = True)
@@ -2157,6 +2177,10 @@ State iWidgetInstalled
             i += 1
         EndWhile
         
+    EndFunction
+    
+    String Function GetMeterIdentifier(String asName)
+        Return ("1,"+_GetMeter(asName).id)
     EndFunction
     
 EndState        ; iWidgetInstalled

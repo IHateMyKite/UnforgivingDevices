@@ -437,7 +437,7 @@ Int Function PlayOrgasmAnimation(Actor akActor)
     endif
     
     if loc_is3Dloaded
-        UDmain.UDAM.StopAnimation(akActor, abEnableActors = False)
+        UDmain.UDAM.StopAnimation(akActor, abEnableActors = True)
     endif
     
     if loc_isPlayer

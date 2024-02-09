@@ -185,8 +185,8 @@ Function AbadonGooEffect(Actor akTarget)
             endif
         endif
         
-        ;chance to lock plugs and belt
-        if RandomInt(1,99) < Round(25.0*fRange(loc_arousal/25.0,1.0,3.5))
+        ;chance to lock plugs and belt. Only works if player first finished abadon quest (as some plugs can evolve in to abadon plug)
+        if IsCompleted() && RandomInt(1,99) < Round(15.0*fRange(loc_arousal/25.0,1.0,3.5))
             UDmain.ItemManager.lockAbadonHelperPlugs(akTarget)
             if (!akTarget.WornhasKeyword(libs.zad_DeviousBelt))
                 ;choose one random chastity device
@@ -196,7 +196,6 @@ Function AbadonGooEffect(Actor akTarget)
                     libs.LockDevice(akTarget,UDlibs.AbadonBelt)
                 endif
             endif
-            
         endif
         UDCDmain.EnableActor(akTarget)
     endif
