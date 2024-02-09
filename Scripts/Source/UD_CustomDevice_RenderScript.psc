@@ -5091,7 +5091,7 @@ bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
     if type == 0 ;normal
         UD_durability_damage_add = 0.0
         UD_minigame_stamina_drain = UD_base_stat_drain*0.75 + getMaxActorValue(Wearer,"Stamina",0.03)
-        UD_minigame_stamina_drain_helper = UD_base_stat_drain*0.5 + getMaxActorValue(_minigameHelper,"Stamina",0.03)
+        UD_minigame_stamina_drain_helper = UD_base_stat_drain*0.5 + getMaxActorValue(akHelper,"Stamina",0.03)
         UD_durability_damage_add = 1.0*_durability_damage_mod*(0.25 + 2.5*(UDmain.UDSKILL.getActorAgilitySkillsPerc(getWearer()) + getHelperAgilitySkillsPerc()))
         UD_DamageMult = getModResistPhysical(1.0,0.35)*getAccesibility()
         
@@ -5110,7 +5110,7 @@ bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
         UD_minigame_stamina_drain = UD_base_stat_drain
         UD_minigame_stamina_drain_helper = UD_base_stat_drain*0.95
         UD_minigame_heal_drain = 0.5*UD_base_stat_drain + getMaxActorValue(Wearer,"Health",0.05)
-        UD_minigame_heal_drain_helper = 0.5*UD_base_stat_drain + getMaxActorValue(_minigameHelper,"Health",0.05)
+        UD_minigame_heal_drain_helper = 0.5*UD_base_stat_drain + getMaxActorValue(akHelper,"Health",0.05)
         
         UD_durability_damage_add = 1.0*_durability_damage_mod*((5.0 - 5.0*getRelativeDurability()) + UDmain.UDSKILL.getActorStrengthSkillsPerc(getWearer()) + getHelperStrengthSkillsPerc())
         UD_DamageMult = getModResistPhysical(1.0,0.15)*getAccesibility()
@@ -5131,7 +5131,7 @@ bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
         UD_minigame_stamina_drain = 0.5*UD_base_stat_drain
         UD_minigame_stamina_drain_helper = 0.4*UD_base_stat_drain
         UD_minigame_magicka_drain = 0.7*UD_base_stat_drain + getMaxActorValue(Wearer,"Magicka",0.05)
-        UD_minigame_magicka_drain_helper = UD_base_stat_drain + getMaxActorValue(Wearer,"Magicka",0.05)
+        UD_minigame_magicka_drain_helper = UD_base_stat_drain + getMaxActorValue(akHelper,"Magicka",0.05)
         UD_DamageMult = getModResistMagicka(1.0,0.3)*getAccesibility()
         UD_durability_damage_add = 2.0*_durability_damage_mod*(UDmain.UDSKILL.getActorMagickSkillsPerc(getWearer()) + getHelperMagickSkillsPerc())
         
@@ -5302,7 +5302,7 @@ bool Function repairLocksMinigameWH(Actor akHelper)
     
     _MinigameSelectedLockID = loc_SelectedLock
     
-    UD_minigame_stamina_drain = UD_base_stat_drain*1.25 
+    UD_minigame_stamina_drain = UD_base_stat_drain*1.25
     UD_minigame_stamina_drain_helper = UD_base_stat_drain
     UD_damage_device = False
     UD_minigame_canCrit = False
