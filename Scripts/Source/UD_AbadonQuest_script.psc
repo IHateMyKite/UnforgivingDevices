@@ -122,7 +122,7 @@ String[] Property UD_AbadonSuitNames
     EndFunction
 EndProperty
 
-Int _NextHandRestrain = 0
+Int _LastHandRestrain = 0
 Function AbadonGooEffect(Actor akTarget)
     if !UDmain.ActorIsValidForUD(akTarget)
         return ;non valid actor, return
@@ -153,7 +153,15 @@ Function AbadonGooEffect(Actor akTarget)
                 UDmain.ShowMessageBox("Black goo covers your body and tie your hands while changing shape to RARE bondage restraint!")
             endif
         else
-            int random = _NextHandRestrain
+            int random = RandomInt(1,4)
+            if _LastHandRestrain == random
+                if random < 4
+                    random += 1
+                elseif random > 0
+                    random -= 1
+                endif
+            endif
+            _LastHandRestrain = random
             if !akTarget.wornhaskeyword(libs.zad_deviousSuit)
                 if random == 0
                     libs.LockDevice(akTarget,UDlibs.AbadonWeakArmbinder)
@@ -176,17 +184,14 @@ Function AbadonGooEffect(Actor akTarget)
                     libs.LockDevice(akTarget,UDlibs.AbadonWeakYoke)
                 endif
             endif
-            _NextHandRestrain += 1
-            if _NextHandRestrain > 4
-                _NextHandRestrain = 0 ;loop
-            endif
+            _LastHandRestrain = random
             if IsPlayer(akTarget)
                 UDmain.ShowMessageBox("Black goo covers your body and tie your hands while changing shape to bondage restraint!")
             endif
         endif
         
         ;chance to lock plugs and belt. Only works if player first finished abadon quest (as some plugs can evolve in to abadon plug)
-        if IsCompleted() && RandomInt(1,99) < Round(15.0*fRange(loc_arousal/25.0,1.0,3.5))
+        if RandomInt(1,99) < Round(15.0*fRange(loc_arousal/25.0,1.0,3.5))
             UDmain.ItemManager.lockAbadonHelperPlugs(akTarget)
             if (!akTarget.WornhasKeyword(libs.zad_DeviousBelt))
                 ;choose one random chastity device

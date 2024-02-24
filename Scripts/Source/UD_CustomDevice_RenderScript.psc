@@ -634,7 +634,11 @@ EndProperty
 /;
 Float       Property UD_Health                                      Hidden 
     Float Function get()
-        return UD_DefaultHealth + (UD_Level - 1)*UDCDmain.UD_DeviceLvlHealth*UD_DefaultHealth
+        if !UD_HealthScalingDisabled
+            return UD_DefaultHealth + (UD_Level - 1)*UDCDmain.UD_DeviceLvlHealth*UD_DefaultHealth
+        else
+            return UD_DefaultHealth
+        endif
     EndFunction
 EndProperty
 
@@ -700,8 +704,8 @@ Float                   _GameTimeLocked = 0.0
 bool                    _initiated = false
 Float                   _LastHourUpdateTime
 Float                   _LastHourUpdateTimeMod
-Int                     _VMHandle1 = 0x00000000
-Int                     _VMHandle2 = 0x00000000
+Int                     _VMHandle1      = 0x00000000
+Int                     _VMHandle2      = 0x00000000
 
 Int Property            VMHandle1 hidden
     Int Function Get()
@@ -1341,6 +1345,17 @@ int         Property _WidgetFormulaSec hidden  ;chance of random crit happening 
     EndFunction
 EndProperty
 
+Bool    Property UD_HealthScalingDisabled Hidden
+    Function set(Bool bVal)
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,20)
+        ResetHealth()
+    EndFunction
+    
+    Bool Function get()
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,20)
+    EndFunction
+EndProperty
+
 ;=============================================================
 ;=============================================================
 ;=============================================================
@@ -1523,8 +1538,12 @@ EndFunction
 
 
 Event OnInit()
-    current_device_health = UD_Health
+    ResetHealth()
 EndEvent
+
+Function ResetHealth()
+    current_device_health = UD_Health
+EndFunction
 
 ;OnContainerChanged is very important event. It is used to determinate if render device have been equipped (OnEquipped only works for player)
 ;it is also used for retrieving device (this) script
@@ -1692,7 +1711,7 @@ Function _Init(Actor akActor)
         libs.Aroused.SetActorExposureRate(akActor, libs.GetModifiedRate(akActor))    
     endif
     
-    current_device_health = UD_Health ;repairs device to max durability on equip
+    ResetHealth() ;repairs device to max durability on equip
     
     safeCheck()
     
@@ -5668,7 +5687,7 @@ Function _lockpickDevice()
                         if RandomInt(0,1)
                             UDmain.Print("Your hands are sweating")
                         else
-                            UDmain.Print("Your hands starting to tremble")
+                            UDmain.Print("Your hands are starting to tremble")
                         endif
                         loc_msgshown = true
                     endif
@@ -5706,7 +5725,6 @@ Function _lockpickDevice()
                     endif
                 endif
             endif
-            UnPauseMinigame()
         else
             if RandomInt(1,99) >= _getLockpickLevel(_MinigameSelectedLockID)*15
                 loc_result = 1
@@ -5738,6 +5756,7 @@ Function _lockpickDevice()
                         UDmain.Print(getWearerName() + " unlocked all of the shields!",2)
                     endif
                 endif
+                UnPauseMinigame()
             else ;no more shields on device, unlock the lock
                 UnlockNthLock(_MinigameSelectedLockID)
                 if PlayerInMinigame()
@@ -5748,7 +5767,7 @@ Function _lockpickDevice()
                 onLockUnlocked(True)
                 
                 ;select next lock
-                if (WearerIsPlayer() || HelperIsPlayer()) && !(UD_CurrentLocks == 0 && UD_JammedLocks == 0)
+                if PlayerInMinigame() && !(UD_CurrentLocks == 0 && UD_JammedLocks == 0)
                     Int loc_SelectedLock = 0
                     Bool loc_cond = False
                     while !loc_cond
@@ -5768,6 +5787,7 @@ Function _lockpickDevice()
                             endif
                         endif
                     endwhile
+                    UnPauseMinigame()
                 else
                     stopMinigame() ;stop minigame, as player needs to select next lock manually
                 endif
@@ -5808,6 +5828,8 @@ Function _lockpickDevice()
                 if loc_lockpicks == 0
                     stopMinigame()
                     _LockpickGameON = False
+                elseif PlayerInMinigame()
+                    UnPauseMinigame()
                 endif
             endif
         endif
@@ -6321,8 +6343,8 @@ EndFunction
 /;
 Function PauseMinigame()
     if _MinigameON
-        _ToggleMinigameEffect(false)
         SpecialButtonReleased(0.0)
+        _ToggleMinigameEffect(false)
         _PauseMinigame = True
     endif
 EndFunction
@@ -6822,10 +6844,15 @@ Function minigame()
     endif
 
     ;Wait for device to get fully removed
-    while IsUnlocked && !_isRemoved
+    Int loc_removetimer = 100
+    while IsUnlocked && !_isRemoved && loc_removetimer > 0
+        loc_removetimer -= 1
         Utility.waitMenuMode(0.1)
     endwhile
-
+    if loc_removetimer <= 0
+        UDMain.Error("No remove device event received. Skipping...")
+    endif
+    
     ;remove disable from wearer
     If !UDOM.GetOrgasmInMinigame(Wearer)
         UDCDMain.EndMinigameDisable(Wearer,loc_WearerIsPlayer as Int)
@@ -8505,6 +8532,9 @@ Function _MinigameAVCheckLoopThread()
 EndFunction
 
 Function _CuttingMG_SKPress(Float afValue)
+    if IsPaused()
+        return
+    endif
     if afValue >= fRange(100.0 - Math.Pow(UD_CutChance,1.2)*2.0,0.0,96.0)
         UDlibs.RedCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player) ;show to player that they cutted device in right time by using shader effect
         _cutDevice(Math.Pow(UD_CutChance,1.2)*3.0/(100.1-afValue))
@@ -8514,6 +8544,9 @@ EndFunction
 Function _MG_CKSPress()
     bool     loc_crit                    = UDCDmain.crit 
     string   loc_selected_crit_meter     = UDCDmain.selected_crit_meter
+    if IsPaused()
+        return
+    endif
     if (loc_crit) && !UDCDMain.UD_AutoCrit
         if loc_selected_crit_meter == "S"
             UDCDmain.crit = False
@@ -8530,6 +8563,9 @@ EndFunction
 Function _MG_CKMPress()
     bool     loc_crit                    = UDCDmain.crit 
     string   loc_selected_crit_meter     = UDCDmain.selected_crit_meter
+    if IsPaused()
+        return
+    endif
     if (loc_crit) && !UDCDMain.UD_AutoCrit
         if loc_selected_crit_meter == "M"
             UDCDmain.crit = False

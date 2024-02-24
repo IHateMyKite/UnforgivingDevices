@@ -152,11 +152,11 @@ EndFunction
 Float Function getButtonPressDamage()
     int loc_difficulty = AbadonQuestScript.overaldifficulty
     if loc_difficulty == 0
-        return 0.5
+        return 1.0
     elseif loc_difficulty == 1
-        return 0.25
+        return 0.6
     elseif loc_difficulty == 2
-        return 0.1
+        return 0.3
     endif
 EndFunction
 

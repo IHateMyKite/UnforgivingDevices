@@ -29,7 +29,7 @@ EndFunction
 
 Function lockAbadonHelperPlugs(Actor akTarget)
     if !akTarget.wornhaskeyword(libs.zad_deviousPlugAnal) && !AbadonScript.UseAnalVariant && UDmain.UDRRM.IsDeviceFiltered(3)
-        if RandomInt(0,1)
+        if AbadonScript.IsCompleted() && RandomInt(0,1) ;only equip helper plug if abadon quest was completed
             libs.lockdevice(akTarget,UDmain.UDlibs.LittleHelper)
         else
             libs.lockdevice(akTarget,UDmain.UDlibs.InflatablePlugAnal)

@@ -35,6 +35,7 @@ String[]    Function GetStringParamAll          (String asParam)                
 Int         Function GetStringParamInt          (String asParam,Int aiIndex = 0,Int     aiDefaultValue = 0  )   global native
 Float       Function GetStringParamFloat        (String asParam,Int aiIndex = 0,Float   afDefaultValue = 0.0)   global native
 String      Function GetStringParamString       (String asParam,Int aiIndex = 0,String  asDefaultValue = "" )   global native
+Armor       Function GetRandomDevice            (LeveledItem akDeviceList)                                      global native
 
 ;===UI===
 int     Function RemoveAllMeterEntries()                                        global native
@@ -102,8 +103,6 @@ Bool        Function AddDeviceCallbackArgument(int aiDxKeycode, int aiType, stri
             
  ;===Events===
             Function RegisterForHMTweenMenu(ReferenceAlias akRefAlias)      global native
-            
-            
 Int         Function SendRegisterDeviceScriptEvent(Actor akActor, Armor[] akRenderDevices) global native
 Int         Function SendMinigameThreadEvents(Actor akActor, Armor akRenderDevice, Int aiHandle1,Int aiHandle2, Int aiMode) global native
 Int         Function SendRemoveRenderDeviceEvent(Actor akActor, Armor akRenderDevice) global native

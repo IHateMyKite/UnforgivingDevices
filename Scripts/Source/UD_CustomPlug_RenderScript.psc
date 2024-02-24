@@ -36,6 +36,8 @@ Function InitPost()
     OrgasmSystem.AddOrgasmChange(GetWearer(),loc_AMKey,0x40,UD_EroZones)
     OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),loc_AMKey,1,loc_orate,1)
     OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),loc_AMKey,9,loc_arate,1)
+    
+    UD_HealthScalingDisabled = True
 EndFunction
 
 Function safeCheck()
