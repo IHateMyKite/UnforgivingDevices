@@ -4974,13 +4974,13 @@ bool Function cuttingMinigame(Bool abSilent = False)
         
         ;register native meters
         if WearerIsPlayer()
-            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,fRange(150.0 - 10*UD_CutChance,80.0,150.0),true)
+            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,fRange(170.0 - 7.0*UD_CutChance,100.0,170.0),true)
+                
+            UD_Native.RegisterDeviceCallback(_VMHandle1,_VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_CuttingMG_SKPress")
+            
+            string loc_param = UDmain.UDWC.GetMeterIdentifier("device-main")
+            UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
         endif
-    
-        UD_Native.RegisterDeviceCallback(_VMHandle1,_VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_CuttingMG_SKPress")
-        
-        string loc_param = UDmain.UDWC.GetMeterIdentifier("device-main")
-        UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
         
         _CuttingGameON = True
         minigame()
@@ -5405,15 +5405,14 @@ bool Function cuttingMinigameWH(Actor akHelper)
         endif
     
         ;register native meters
-        if WearerIsPlayer()
-            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,fRange(125.0 - 15*UD_CutChance,75.0,125.0),true)
+        if PlayerInMinigame()
+            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,fRange(150.0 - 9.0*UD_CutChance,100.0,150.0),true)
+            
+            UD_Native.RegisterDeviceCallback(_VMHandle1,_VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_CuttingMG_SKPress")
+            
+            string loc_param = UDmain.UDWC.GetMeterIdentifier("device-main")
+            UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
         endif
-    
-        UD_Native.RegisterDeviceCallback(_VMHandle1,_VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_CuttingMG_SKPress")
-        
-        string loc_param = UDmain.UDWC.GetMeterIdentifier("device-main")
-        UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
-    
         _CuttingGameON = True
         minigame()
         _CuttingGameON = False
