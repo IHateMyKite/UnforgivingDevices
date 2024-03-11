@@ -5,6 +5,7 @@
 Scriptname UD_CustomVibratorBase_RenderScript extends UD_CustomDevice_RenderScript  
 
 import UnforgivingDevicesMain
+import UD_Native
 
 ;Properties
 
@@ -46,7 +47,7 @@ int     Property     UD_EdgingMode          = -1        auto
 ;/  Variable: UD_EdgingThreshold
     How big orgasm progress needs to be for vibrator to stop vibrating if <UD_EdgingMode> is 1
 /;
-float   Property     UD_EdgingThreshold     = 0.75      auto
+float   Property     UD_EdgingThreshold     = 0.95      auto
 
 ;/  Variable: UD_Shocking
     Vibrator will also shock actor when vibrate is called
@@ -66,6 +67,15 @@ int     Property     UD_Chaos               = 0         auto
     If value is not filled, or none, the default DD vibration sound will be used
 /;
 Sound   Property     UD_VibSound                        auto
+
+
+Int     Property     UD_EroZones            = 0         auto
+
+String Property      UD_OrgasmChangeMainKey                     hidden
+    String Function Get()
+        return ("UDVibrator."+GetDeviceName())
+    EndFunction
+EndProperty
 
 ; Manual properties
 String  _VibrationEffectSlot
@@ -108,9 +118,6 @@ int     _forceStrength                  =   -1
 int     _forceDuration                  =   0
 int     _currentEdgingMode              =   -1
 int     _forceEdgingMode                =   -1
-float   _appliedOrgasmRate              =   0.0
-float   _appliedArousalRate             =   0.0
-float   _appliedForcing                 =   0.0
 int     _vsID                           =   -1           ;current sound ID used to play vib sounds
 bool    _paused                         =   false        ;on if vibrator is paused
 
@@ -170,6 +177,10 @@ Function InitPost()
         else
             UD_EdgingMode = 0
         endif
+    endif
+    
+    if (UD_EroZones == 0x00000000) 
+        UD_EroZones = 0x00000200 ;default ero zone
     endif
 EndFunction
 
@@ -238,8 +249,8 @@ Function _ShowVibDetails()
         else
             loc_res += "Rem. duration: " + "INF" + " s\n"
         endif
-        loc_res += "Arousal rate: " + FormatString(getVibArousalRate(),2) + " A/s\n"
-        loc_res += "Orgasm rate: " + FormatString(_appliedOrgasmRate,2) + " Op/s\n"
+        loc_res += "Arousal rate: " + FormatFloat(getVibArousalRate(),2) + " A/s\n"
+        loc_res += "Orgasm rate: " + FormatFloat(GetAppliedOrgasmRate(),2) + " Op/s\n"
         loc_res += "Current vib mode: "
         if _currentEdgingMode == 0
             loc_res += "Normal\n"
@@ -356,7 +367,7 @@ Function _StartVibSound()
 EndFunction
 
 Function _StopVibSound()
-    if _vsID != -1 && getWearer().is3DLoaded()
+    if _vsID != -1
         Sound.StopInstance(_vsID)
     endif
     _vsID = -1
@@ -515,7 +526,7 @@ Function ForceStrength(int aiStrenth)
         CurrentVibStrength = _forceStrength
         if !isVibPaused()
             _UpdateVibSound()
-            _UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
+            _UpdateOrgasmRate(getVibOrgasmRate(),1.0)
             _UpdateArousalRate(getVibArousalRate())
         endif
         OnVibrationStrengthUpdate()
@@ -539,7 +550,7 @@ Function ForceModStrength(float afModifier)
         CurrentVibStrength = _forceStrength
         if !isVibPaused()
             _UpdateVibSound()
-            _UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
+            _UpdateOrgasmRate(getVibOrgasmRate(),1.0)
             _UpdateArousalRate(getVibArousalRate())
         endif
         OnVibrationStrengthUpdate()
@@ -638,7 +649,7 @@ Function addVibStrength(int aiValue = 1)
         _StartManipMutex()
         CurrentVibStrength += aiValue
         if !isVibPaused()
-            _UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
+            _UpdateOrgasmRate(getVibOrgasmRate(),1.0)
             _UpdateArousalRate(getVibArousalRate())
             _UpdateVibSound()
         endif
@@ -664,7 +675,7 @@ Function removeVibStrength(int aiValue = 1)
             stopVibrating()
         endif
         if !isVibPaused() && isVibrating()
-            _UpdateOrgasmRate(getVibOrgasmRate(),_appliedForcing)
+            _UpdateOrgasmRate(getVibOrgasmRate(),1.0)
             _UpdateArousalRate(getVibArousalRate())
             _UpdateVibSound()
         endif
@@ -690,52 +701,33 @@ Function forceEdgingMode(int aiMode)
 EndFunction
 
 Function _UpdateOrgasmRate(float fOrgasmRate,float fOrgasmForcing)
-    if isVibrating()
-        _removeOrgasmRate()
-        if isVibrating()
-            _setOrgasmRate(fOrgasmRate,fOrgasmForcing)
-        endif
-    endif
+    _setOrgasmRate(fOrgasmRate,fOrgasmForcing)
 EndFunction
 
 Function _setOrgasmRate(float fOrgasmRate,float fOrgasmForcing)
-    if (fOrgasmRate != _appliedOrgasmRate || fOrgasmForcing != _appliedForcing) && isVibrating()
-        _appliedOrgasmRate = fOrgasmRate
-        _appliedForcing = fOrgasmForcing
-        UDOM.UpdateOrgasmRate(getWearer(),_appliedOrgasmRate,_appliedForcing)
+    if isVibrating()
+        OrgasmSystem.UpdateOrgasmChangeVar(getWearer(),UD_OrgasmChangeMainKey,1,fOrgasmRate,1)
+        OrgasmSystem.UpdateOrgasmChangeVar(getWearer(),UD_OrgasmChangeMainKey,6,fOrgasmForcing,1)
     endif
 EndFunction
 
 Function _removeOrgasmRate()
-    if _appliedOrgasmRate != 0 || _appliedForcing != 0
-        float loc_appliedOrgasmRate = _appliedOrgasmRate
-        _appliedOrgasmRate = 0.0
-        
-        float loc_appliedForcing    = _appliedForcing
-        _appliedForcing = 0.0
-        
-        UDOM.UpdateOrgasmRate(getWearer(),-1*loc_appliedOrgasmRate,-1*loc_appliedForcing)
-    endif
+    OrgasmSystem.UpdateOrgasmChangeVar(getWearer(),UD_OrgasmChangeMainKey,1,0.0,1)
+    OrgasmSystem.UpdateOrgasmChangeVar(getWearer(),UD_OrgasmChangeMainKey,6,0.0,1)
 EndFunction
 
 Function _UpdateArousalRate(float fArousalRate)
-    _removeArousalRate()
     _setArousalRate(fArousalRate)
 EndFunction
 
 Function _setArousalRate(float fArousalRate)
-    if fArousalRate != _appliedArousalRate 
-        _appliedArousalRate = fArousalRate
-        UDOM.UpdateArousalRate(getWearer() ,fArousalRate)
+    if isVibrating()
+        OrgasmSystem.UpdateOrgasmChangeVar(getWearer(),UD_OrgasmChangeMainKey,9,fArousalRate,1)
     endif
 EndFunction
 
 Function _removeArousalRate()
-    if _appliedArousalRate != 0
-        float loc_appliedArousalRate = _appliedArousalRate
-        _appliedArousalRate = 0
-        UDOM.UpdateArousalRate(getWearer() ,-1*loc_appliedArousalRate)
-    endif
+    OrgasmSystem.UpdateOrgasmChangeVar(getWearer(),UD_OrgasmChangeMainKey,9,0.0,1)
 EndFunction
 
 Sound Function _getVibrationSound()
@@ -771,7 +763,7 @@ Function _VibrateStart(float afDurationMult = 1.0)
     resetCooldown(1.0)
 
     if UD_Chaos ;chaos plug, ignore forced strength
-        CurrentVibStrength = Utility.randomInt(15,100)
+        CurrentVibStrength = RandomInt(15,100)
     elseif _forceStrength < 0
         CurrentVibStrength = UD_VibStrength ;auto set variables from properties
     else ;use forced strength
@@ -793,14 +785,21 @@ Function _VibrateStart(float afDurationMult = 1.0)
     endif
     
     if UD_Shocking
-        ShockWearer(Utility.randomInt(50,90),25)
+        int loc_arousalchange = 0
+        if DeviceRendered.haskeyword(libs.zad_EffectElectroStim)
+            loc_arousalchange = -50 ;increase arousal by 30
+        else
+            loc_arousalchange = 30 ;decrease arousal by 30
+        endif
+        ShockWearer(loc_arousalchange,25)
     endif
     
     if !isVibrating() ;not vib, error and return
+        VibLoopOn = false
         return
     endif
     
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         UDmain.Log("Vibrate called for " + getDeviceName() + " on " + getWearerName() + ", duration: " + _currentVibRemainingDuration + ", strength: " + CurrentVibStrength + ", edging: " + _currentEdgingMode)
     endif
     
@@ -813,7 +812,11 @@ Function _VibrateStart(float afDurationMult = 1.0)
     ; Initialize Sounds
     _StartVibSound()
     
-    _setOrgasmRate(getVibOrgasmRate(),1.0)
+    OrgasmSystem.AddOrgasmChange(GetWearer(),UD_OrgasmChangeMainKey, iRange(_currentEdgingMode,0,2),UD_EroZones,afOrgasmRate = getVibOrgasmRate(),afOrgasmForcing = 1.0)
+    
+    OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),UD_OrgasmChangeMainKey,13,UD_EdgingThreshold,1)
+    OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),UD_OrgasmChangeMainKey,11,3.0,1)
+    
     _setArousalRate(getVibArousalRate())
     
     UD_CustomDevice_NPCSLot loc_slot = UD_WearerSlot
@@ -842,8 +845,8 @@ Function VibrateUpdate(Int aiUpdateTime)
             endif
             
             if UD_Chaos && isVibrating() && !_paused
-                if Utility.randomInt() < UD_Chaos
-                    ForceStrength(Utility.randomInt(15,95))
+                if RandomInt() < UD_Chaos
+                    ForceStrength(RandomInt(15,95))
                 endif
             endif
             
@@ -893,6 +896,7 @@ Function _VibrateEnd(Bool abUnregister = True, Bool abStop = True)
     endif
     
     if abStop
+        OrgasmSystem.RemoveOrgasmChange(GetWearer(),UD_OrgasmChangeMainKey)
         StorageUtil.AdjustIntValue(getWearer(),"UD_ActiveVib", -1)
         
         UDCDmain.SendModEvent("DeviceVibrateEffectStop", getWearerName(), getCurrentZadVibStrenth())
@@ -954,25 +958,6 @@ Function _ProcessPause(Int aiUpdateTime)
 EndFunction
 
 Function _ProccesVibEdge()
-    if isVibrating() && !_paused
-        if _currentEdgingMode == 1
-            if UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
-                if WearerIsPlayer() && !UDMain.UDWC.UD_FilterVibNotifications
-                    UDmain.Print(getDeviceName() + " suddenly stops vibrating!",3)
-                endif
-                pauseVibFor(10)
-            endif
-        elseif _currentEdgingMode == 2
-            if UDOM.getOrgasmProgressPerc(getWearer()) > UD_EdgingThreshold
-                if Utility.randomInt() < iRange(CurrentVibStrength, 40 , 80)
-                    if WearerIsPlayer() && !UDMain.UDWC.UD_FilterVibNotifications
-                        UDmain.Print(getDeviceName() + " suddenly stops vibrating!",3)
-                    endif
-                    pauseVibFor(Utility.randomInt(30,60))
-                endif
-            endif
-        endif
-    endif
 EndFunction
 
 Function onRemoveDevicePre(Actor akActor)
@@ -995,7 +980,7 @@ EndFunction
         Applied orgasm rate by vibrator
 /;
 Float Function GetAppliedOrgasmRate()
-    return _appliedOrgasmRate
+    return OrgasmSystem.GetOrgasmChangeVar(GetWearer(),UD_OrgasmChangeMainKey,1)
 EndFunction
 
 ;/  Group: Vibrator Override
@@ -1015,7 +1000,6 @@ Few functions which should be used in similiar matter as <Override>
     Called when vibration start
 /;
 Function OnVibrationStart()
-    UDMain.Log("UD_CustomVibratorBase_RenderScript::OnVibrationStart() " + Self + ", CurrentVibStrength = " + CurrentVibStrength, 3)
     OnVibrationStrengthUpdate()
 EndFunction
 
@@ -1023,7 +1007,6 @@ EndFunction
     Called when vibration end
 /;
 Function OnVibrationEnd()
-    UDMain.Log("UD_CustomVibratorBase_RenderScript::OnVibrationEnd() " + Self + ", CurrentVibStrength = " + CurrentVibStrength, 3)
     If WearerIsPlayer()
         UDMain.UDWC.StatusEffect_SetMagnitude(VibrationEffectSlot, 0)
         UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, False)
@@ -1202,7 +1185,7 @@ bool Function OnUpdateHourPost()
 EndFunction
 Function onRemoveDevicePost(Actor akActor)
     parent.onRemoveDevicePost(akActor)
-    If UDMain.ActorIsPlayer(akActor)
+    If IsPlayer(akActor)
         UDMain.UDWC.StatusEffect_SetVisible(VibrationEffectSlot, False)
         UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, False)
     EndIf

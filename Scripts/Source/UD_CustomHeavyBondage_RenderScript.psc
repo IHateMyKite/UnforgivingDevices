@@ -6,7 +6,6 @@ Function InitPost()
     UD_DeviceType = "Hand restraint"
     if !WearerIsPlayer(); && !WearerIsFollower()
         GetWearer().AddSpell(UDlibs.PreventCombatSpell,false)
-        libs.strip(getWearer(),false)
     endif
 EndFunction
 
@@ -28,7 +27,7 @@ float Function getAccesibility() ;return accesibility of device in range 0.0 - 1
 EndFunction
 
 ;============================================================================================================================
-;unused override function, theese are from base script. Extending different script means you also have to add their overrride functions                                                
+;unused override function, theese are from base script. Extending different script means you also have to add their overrride functions
 ;theese function should be on every object instance, as not having them may cause multiple function calls to default class
 ;more about reason here https://www.creationkit.com/index.php?title=Function_Reference, and Notes on using Parent section
 ;============================================================================================================================

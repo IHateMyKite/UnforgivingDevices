@@ -3,12 +3,12 @@
 Scriptname UD_OrgasmManager extends Quest conditional
 
 import UnforgivingDevicesMain
+import UD_Native
 
 UDCustomDeviceMain                      Property UDCDmain   auto
 UnforgivingDevicesMain                  Property UDmain     auto
 UD_libs                                 Property UDlibs     auto
 zadlibs                                 Property libs       auto
-UD_ExpressionManager                    Property UDEM       auto
 UD_CustomDevices_NPCSlotsManager        Property UDCD_NPCM  auto
 
 UD_Config _udconf
@@ -37,9 +37,6 @@ EndProperty
     Do not edit, *READ ONLY!*
 /;
 Faction Property OrgasmFaction              auto
-
-Faction Property OrgasmCheckLoopFaction     auto
-Faction Property ArousalCheckLoopFaction    auto
 
 ;/  Variable: OrgasmResistFaction
     Faction to which will ba actor added if they are in resist orgasm minigame
@@ -82,6 +79,8 @@ Function RegisterModEvents()
     RegisterForModEvent("DeviceEdgedActor", "OnEdge")
     RegisterForModEvent("HookOrgasmStart", "OnSexlabOrgasmStart")
     RegisterForModEvent("SexLabOrgasmSeparate", "OnSexlabSepOrgasmStart")
+    OrgasmSystem.RegisterForExpressionUpdate_Form(self)
+    OrgasmSystem.RegisterForOrgasmEvent_Form(self)
     RegisterForModEvent(_UpdateBaseOrgasmValEventName, "Receive_UpdateBaseOrgasmVals")
 EndFunction
 
@@ -97,40 +96,6 @@ Function RemoveAbilities(Actor akActor)
     if akActor
         akActor.RemoveSpell(UDlibs.OrgasmCheckAbilitySpell)
         akActor.RemoveSpell(UDlibs.ArousalCheckAbilitySpell)
-    endif
-EndFunction
-
-Function CheckOrgasmCheck(Actor akActor)
-    if !UDmain.ActorIsPlayer(akActor)
-        return
-    endif
-    if !akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
-        StartOrgasmCheckLoop(akActor)
-    endif
-    if !akActor.hasSpell(UDlibs.OrgasmCheckAbilitySpell)
-        if akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
-            akActor.DispelSpell(UDlibs.OrgasmCheckSpell)
-            StartOrgasmCheckLoop(akActor)
-        else
-            StartOrgasmCheckLoop(akActor)
-        endif
-    endif
-EndFunction
-
-Function CheckArousalCheck(Actor akActor)
-    if !UDmain.ActorIsPlayer(akActor)
-        return
-    endif
-    if !akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
-        StartArousalCheckLoop(akActor)
-    endif
-    if !akActor.hasSpell(UDlibs.ArousalCheckAbilitySpell)
-        if akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
-            akActor.DispelSpell(UDlibs.ArousalCheckSpell)
-            StartArousalCheckLoop(akActor)
-        else
-            StartArousalCheckLoop(akActor)
-        endif
     endif
 EndFunction
 
@@ -158,7 +123,7 @@ EndFunction
 
 ;/  Function: getArousal
 
-    Faster version of <getActorArousal> which uses faction.
+    Faster and more accurate version of <getActorArousal> which uses faction.
 
     Parameters:
 
@@ -168,12 +133,8 @@ EndFunction
 
         Current actor arousal
 /;
-Int Function getArousal(Actor akActor)
-    if akActor.isInFaction(ArousalCheckLoopFaction)
-        return akActor.GetFactionRank(ArousalCheckLoopFaction)
-    else
-        return getActorArousal(akActor)
-    endif
+float Function getArousal(Actor akActor)
+    return OrgasmSystem.GetOrgasmVariable(akActor,8)
 EndFunction
 
 ;/  Function: getActorArousal
@@ -188,84 +149,6 @@ EndFunction
 /;
 int Function getActorArousal(Actor akActor)
     return akActor.GetFactionRank(libs.Aroused.slaArousal)
-EndFunction
-
-;=============================================
-;               AROUSAL RATE
-;=============================================
-bool _ArousalRateManip_Mutex = false
-
-;/  Function: UpdateArousalRate
-
-    See <UpdateArousalRate>
-/;
-Float Function UpdateArousalRate(Actor akActor ,float fArousalRate)
-    if !akActor
-        return 0.0
-    endif
-    if !fArousalRate
-        return getArousalRate(akActor)
-    endif
-    while _ArousalRateManip_Mutex
-        Utility.waitMenuMode(0.05)
-    endwhile
-    _ArousalRateManip_Mutex = true
-    Int loc_arousalRate_Raw = Round(fArousalRate*100)
-    Float loc_newArousalRate = StorageUtil.AdjustIntValue(akActor, "UD_ArousalRate",loc_arousalRate_Raw)/100.0
-    _ArousalRateManip_Mutex = false
-    return loc_newArousalRate
-EndFunction
-
-;/  Function: getArousalRate
-
-    See <getArousalRate>
-/;
-Float Function getArousalRate(Actor akActor)
-    return StorageUtil.getIntValue(akActor, "UD_ArousalRate",0)/100.0
-EndFunction
-
-;/  Function: getArousalRateM
-
-    See <getArousalRate>
-/;
-Float Function getArousalRateM(Actor akActor)
-    return getArousalRate(akActor)*getArousalRateMultiplier(akActor)
-EndFunction
-
-;=============================================
-;           AROUSAL RATE MULTIPLIER
-;=============================================
-
-bool _ArousalRateMultManip_Mutex = false
-
-;/  Function: UpdateArousalRateMultiplier
-
-    See <UpdateArousalRateMultiplier>
-/;
-Float Function UpdateArousalRateMultiplier(Actor akActor ,float fArousalRateM)
-    if !akActor
-        return 0.0
-    endif
-    if !fArousalRateM
-        return getArousalRateMultiplier(akActor)
-    endif
-    while _ArousalRateMultManip_Mutex
-        Utility.waitMenuMode(0.05)
-    endwhile
-    _ArousalRateMultManip_Mutex = true
-    Int loc_ArousalRateMultManip_Raw = Round(fArousalRateM*100)
-    Int loc_newArousalRateM = StorageUtil.getIntValue(akActor, "UD_ArousalRateM",100) + loc_ArousalRateMultManip_Raw
-    StorageUtil.setIntValue(akActor, "UD_ArousalRateM",loc_newArousalRateM)
-    _ArousalRateMultManip_Mutex = false
-    return loc_newArousalRateM/100.0
-EndFunction
-
-;/  Function: getArousalRateMultiplier
-
-    See <getArousalRateMultiplier>
-/;
-Float Function getArousalRateMultiplier(Actor akActor)
-    return fRange(StorageUtil.getIntValue(akActor, "UD_ArousalRateM",100)/100.0,0.0,100.0)
 EndFunction
 
 Function StartArousalCheckLoop(Actor akActor)
@@ -290,291 +173,12 @@ EndFunction
 ===========================================================================================
 /;
 
-;=======================================
-;                  ORGASM RATE
-;=======================================
-bool _OrgasmRateManip_Mutex = false
-
-;/  Function: UpdateOrgasmRate
-
-    See <UpdateOrgasmRate>
-/;
-float Function UpdateOrgasmRate(Actor akActor ,float orgasmRate,float orgasmForcing)
-    if !akActor
-        return 0.0
-    endif
-    if !orgasmRate && !orgasmForcing
-        return getActorOrgasmRate(akActor)
-    endif
-    
-    while _OrgasmRateManip_Mutex
-        Utility.waitMenuMode(0.05)
-    endwhile
-    _OrgasmRateManip_Mutex = true
-    
-    Int loc_orgasmRate_Raw      = Round(orgasmRate*100)
-    Int loc_orgasmForcing_Raw   = Round(orgasmForcing*100)
-    float loc_newOrgasmRate
-    if loc_orgasmRate_Raw
-        loc_newOrgasmRate = StorageUtil.AdjustIntValue(akActor, "UD_OrgasmRate",loc_orgasmRate_Raw)/100.0
-    else
-        loc_newOrgasmRate = getActorOrgasmRate(akActor)
-    endif
-    if loc_orgasmForcing_Raw
-        StorageUtil.AdjustIntValue(akActor, "UD_OrgasmForcing",loc_orgasmForcing_Raw)
-    endif
-    
-    _OrgasmRateManip_Mutex = false
-    return loc_newOrgasmRate
-EndFunction
-
-;/  Function: getActorOrgasmRate
-
-    See <GetOrgasmRate>
-/;
-float Function getActorOrgasmRate(Actor akActor)
-    return fRange(StorageUtil.getIntValue(akActor, "UD_OrgasmRate",0)/100.0,0.0,1000.0)
-EndFunction
-
-;/  Function: getActorAfterMultOrgasmRate
-
-    See <GetOrgasmRate>
-/;
-float Function getActorAfterMultOrgasmRate(Actor akActor)
-    return getActorOrgasmRate(akActor)*getActorOrgasmRateMultiplier(akActor)
-EndFunction
-
-;/  Function: getActorAfterMultAntiOrgasmRate
-
-    See <GetAntiOrgasmRate>
-/;
-float Function getActorAfterMultAntiOrgasmRate(Actor akActor)
-    return CulculateAntiOrgasmRateMultiplier(getArousal(akActor))*getActorOrgasmResistMultiplier(akActor)*getActorOrgasmResist(akActor)
-EndFunction
-
-;/  Function: getActorOrgasmForcing
-
-    See <getActorOrgasmForcing>
-/;
-float Function getActorOrgasmForcing(Actor akActor)
-    return fRange(StorageUtil.getIntValue(akActor, "UD_OrgasmForcing",0)/100.0,0.0,1.0)
-EndFunction
-
-;=======================================
-;          ORGASM RATE MULTIPLIER
-;=======================================
-bool _OrgasmRateMultManip_Mutex = false
-
-;/  Function: UpdateOrgasmRateMultiplier
-
-    See <UpdateOrgasmRateMultiplier>
-/;
-Float Function UpdateOrgasmRateMultiplier(Actor akActor ,float orgasmRateMultiplier)
-    if !akActor
-        return 1.0
-    endif
-    if !orgasmRateMultiplier
-        return getActorOrgasmRateMultiplier(akActor)
-    endif
-    while _OrgasmRateMultManip_Mutex
-        Utility.waitMenuMode(0.05)
-    endwhile
-    _OrgasmRateMultManip_Mutex = true
-    Int loc_newOrgasmRateMult = StorageUtil.getIntValue(akActor, "UD_OrgasmRateMultiplier",100) + Round(orgasmRateMultiplier*100)
-    StorageUtil.setIntValue(akActor, "UD_OrgasmRateMultiplier",loc_newOrgasmRateMult)
-    _OrgasmRateMultManip_Mutex = false
-    return loc_newOrgasmRateMult
-EndFunction
-
-;/  Function: getActorOrgasmRateMultiplier
-
-    See <GetOrgasmRateMultiplier>
-/;
-float Function getActorOrgasmRateMultiplier(Actor akActor)
-    return fRange(StorageUtil.getIntValue(akActor, "UD_OrgasmRateMultiplier",100)/100.0,0.0,10.0)
-EndFunction
-
-;=======================================
-;              ORGASM RESISTENCE
-;=======================================
-bool _OrgasmResistManip_Mutex = false
-
-;/  Function: UpdateOrgasmResist
-
-    See <UpdateOrgasmResist>
-/;
-Float Function UpdateOrgasmResist(Actor akActor ,float orgasmResist)
-    if !akActor
-        return UDCONF.UD_OrgasmResistence
-    endif
-    if !orgasmResist
-        return getActorOrgasmResist(akActor)
-    endif
-    while _OrgasmResistManip_Mutex
-        Utility.waitMenuMode(0.05)
-    endwhile
-    _OrgasmResistManip_Mutex = true
-    Int loc_newOrgasmResist = StorageUtil.getIntValue(akActor, "UD_OrgasmResist",Round(UDCONF.UD_OrgasmResistence*100)) + Round(orgasmResist*100)
-    StorageUtil.setIntValue(akActor, "UD_OrgasmResist",loc_newOrgasmResist)
-    _OrgasmResistManip_Mutex = false
-    return loc_newOrgasmResist
-EndFunction
-
-Function setActorOrgasmResist(Actor akActor,float fValue)
-    while _OrgasmResistManip_Mutex
-        Utility.waitMenuMode(0.05)
-    endwhile
-    _OrgasmResistManip_Mutex = true
-    StorageUtil.SetIntValue(akActor, "UD_OrgasmResist",Round(fValue*100))
-    _OrgasmResistManip_Mutex = false
-EndFunction
-
-;/  Function: getActorOrgasmResist
-
-    See <GetOrgasmResist>
-/;
-float Function getActorOrgasmResist(Actor akActor)
-    return fRange(StorageUtil.getIntValue(akActor, "UD_OrgasmResist",Round(UDCONF.UD_OrgasmResistence*100))/100.0,0.0,100.0)
-EndFunction
-
-;/  Function: getActorOrgasmResistM
-
-    See <GetOrgasmResist>
-/;
-float Function getActorOrgasmResistM(Actor akActor)
-    return getActorOrgasmResist(akActor)*getActorOrgasmResistMultiplier(akActor)
-EndFunction
-
-;=======================================
-;       ORGASM RESISTENCE MULTIPLIER
-;=======================================
-bool _OrgasmResistMultManip_Mutex = false
-
-;/  Function: UpdateOrgasmResistMultiplier
-
-    See <UpdateOrgasmResistMultiplier>
-/;
-Float Function UpdateOrgasmResistMultiplier(Actor akActor ,float orgasmResistMultiplier)
-    if !akActor
-        return 1.0
-    endif
-    if !orgasmResistMultiplier
-        return getActorOrgasmResistMultiplier(akActor)
-    endif
-    while _OrgasmResistMultManip_Mutex
-        Utility.waitMenuMode(0.05)
-    endwhile
-    _OrgasmResistMultManip_Mutex = true
-    Int loc_newOrgasmResistMultiplier = StorageUtil.getIntValue(akActor, "UD_OrgasmResistMultiplier",100) + Round(orgasmResistMultiplier*100)
-    StorageUtil.setIntValue(akActor, "UD_OrgasmResistMultiplier",loc_newOrgasmResistMultiplier)
-    _OrgasmResistMultManip_Mutex = false
-    return loc_newOrgasmResistMultiplier
-EndFunction
-
-;/  Function: getActorOrgasmResistMultiplier
-
-    See <GetOrgasmResistMultiplier>
-/;
-float Function getActorOrgasmResistMultiplier(Actor akActor)
-    return fRange(StorageUtil.getIntValue(akActor, "UD_OrgasmResistMultiplier",100)/100.0,0.0,10.0)
-EndFunction
-
-;=======================================
-;              ORGASM PROGRESS
-;=======================================
-bool _OrgasmProgressManip_Mutex
-;DO NOT USE IF UPDATE LOOP IS RUNNING. Is only used by Orgasm Resist minigame
-Function UpdateActorOrgasmProgress(Actor akActor,Float afValue,bool bUpdateWidget = false)
-    while _OrgasmProgressManip_Mutex
-        Utility.waitMenuMode(0.1)
-    endwhile
-    _OrgasmProgressManip_Mutex = true
-    float loc_newValue = fRange(StorageUtil.GetFloatValue(akActor, "UD_OrgasmProgress",0.0) + afValue,0.0,getActorOrgasmCapacity(akActor))
-    StorageUtil.SetFloatValue(akActor, "UD_OrgasmProgress",loc_newValue)
-    if bUpdateWidget && UDCONF.UD_UseOrgasmWidget
-        if UDmain.UD_UseNativeFunctions
-            if UDmain.UDWC.UD_UseIWantWidget
-                UD_Native.SetMeterValueIWW(UDmain.UDWC._GetMeter("player-orgasm").Id,loc_newValue / getActorOrgasmCapacity(akActor) * 100.0)
-            else
-                UD_Native.SetMeterValueSkyUi(UDmain.UDWC._GetVanillaMeter("player-orgasm").WidgetRoot,loc_newValue / getActorOrgasmCapacity(akActor) * 100.0)
-            endif
-        else
-            UDmain.UDWC.Meter_SetFillPercent("player-orgasm", loc_newValue / getActorOrgasmCapacity(akActor) * 100.0)
-        endif
-    endif
-    _OrgasmProgressManip_Mutex = false
-EndFunction
-;DO NOT USE IF UPDATE LOOP IS RUNNING. Is only used by Orgasm Resist minigame
-Function SetActorOrgasmProgress(Actor akActor,Float fValue)
-    while _OrgasmProgressManip_Mutex
-        Utility.waitMenuMode(0.05)
-    endwhile
-    _OrgasmProgressManip_Mutex = true
-    StorageUtil.SetFloatValue(akActor, "UD_OrgasmProgress",fRange(fValue,0.0,getActorOrgasmCapacity(akActor)))
-    _OrgasmProgressManip_Mutex = false
-EndFunction
-Function ResetActorOrgasmProgress(Actor akActor)
-    StorageUtil.UnSetFloatValue(akActor, "UD_OrgasmProgress")
-EndFunction
-
-;/  Function: GetOrgasmProgress
-
-    See <getActorOrgasmProgress>
-/;
-float Function getActorOrgasmProgress(Actor akActor)
-    return StorageUtil.GetFloatValue(akActor, "UD_OrgasmProgress",0.0)
-EndFunction
-
-;/  Function: getOrgasmProgressPerc
-
-    See <getOrgasmProgressPerc>
-/;
-float Function getOrgasmProgressPerc(Actor akActor)
-    return StorageUtil.GetFloatValue(akActor, "UD_OrgasmProgress",0.0)/getActorOrgasmCapacity(akActor)
-EndFunction
-
-
-;=======================================
-;ORGASM CAPACITY
-;=======================================
-bool _OrgasmCapacity_Mutex
-
-;/  Function: UpdatetActorOrgasmCapacity
-
-    See <UpdatetActorOrgasmCapacity>
-/;
-Int Function UpdatetActorOrgasmCapacity(Actor akActor,float fValue)
-    if !akActor
-        return 100
-    endif
-    if !fValue
-        return 100
-    endif
-    while _OrgasmCapacity_Mutex
-        Utility.waitMenuMode(0.1)
-    endwhile
-    _OrgasmCapacity_Mutex = true
-    Int loc_NewOrgasmCapacity = StorageUtil.getIntValue(akActor, "UD_OrgasmCapacity",100) + Round(fValue)
-    StorageUtil.setIntValue(akActor, "UD_OrgasmCapacity",loc_NewOrgasmCapacity)
-    _OrgasmCapacity_Mutex = false
-    return loc_NewOrgasmCapacity
-EndFunction
-
-;/  Function: getActorOrgasmCapacity
-
-    See <getActorOrgasmCapacity>
-/;
+;;/  Function: getActorOrgasmCapacity
+;
+;    See <getActorOrgasmCapacity>
+;/;
 float Function getActorOrgasmCapacity(Actor akActor)
-    return StorageUtil.GetIntValue(akActor, "UD_OrgasmCapacity",100)
-EndFunction
-
-Function SetActorOrgasmCapacity(Actor akActor,float fValue)
-    while _OrgasmCapacity_Mutex
-        Utility.waitMenuMode(0.1)
-    endwhile
-    _OrgasmCapacity_Mutex = true
-    StorageUtil.setIntValue(akActor, "UD_OrgasmCapacity",Round(fValue))
-    _OrgasmCapacity_Mutex = false
+    return OrgasmSystem.GetOrgasmVariable(akActor,5)
 EndFunction
 
 ;/  Group: Orgasm
@@ -599,7 +203,7 @@ EndFunction
         True if actor can orgasm
 /;
 bool Function ActorCanOrgasm(Actor akActor)
-    return (getActorOrgasmRate(akActor)*getActorOrgasmRateMultiplier(akActor) > CulculateAntiOrgasmRateMultiplier(100)*UDCONF.UD_OrgasmResistence*getActorOrgasmResistMultiplier(akActor))
+    return (OrgasmSystem.GetOrgasmVariable(akActor,1)*OrgasmSystem.GetOrgasmVariable(akActor,2) > CulculateAntiOrgasmRateMultiplier(100)*UDCONF.UD_OrgasmResistence*OrgasmSystem.GetOrgasmVariable(akActor,4))
 EndFunction
 
 ;/  Function: ActorCanOrgasmHalf
@@ -616,7 +220,7 @@ EndFunction
         True if actor can orgasm
 /;
 bool Function ActorCanOrgasmHalf(Actor akActor)
-    return (getActorOrgasmRate(akActor)*getActorOrgasmRateMultiplier(akActor) > CulculateAntiOrgasmRateMultiplier(50)*UDCONF.UD_OrgasmResistence*getActorOrgasmResistMultiplier(akActor))
+    return (OrgasmSystem.GetOrgasmVariable(akActor,1)*OrgasmSystem.GetOrgasmVariable(akActor,2) > CulculateAntiOrgasmRateMultiplier(50)*UDCONF.UD_OrgasmResistence*OrgasmSystem.GetOrgasmVariable(akActor,4))
 EndFunction
 
 float Function CulculateAntiOrgasmRateMultiplier(int iArousal)
@@ -648,45 +252,6 @@ EndFunction
 ;=======================================
 ;ORGASM
 ;=======================================
-
-;/  Function: startOrgasm
-
-    See <Orgasm>
-/;
-Function startOrgasm(Actor akActor,int duration,int iArousalDecrease = 10,int iForce = 0, bool blocking = true)
-    if UDmain.TraceAllowed()
-        UDmain.Log("startOrgasm() for " + getActorName(akActor) + ", duration = " + duration + ",blocking = " + blocking,1)
-    endif
-    int handle = ModEvent.Create(_OrgasmEventName)
-    if (handle)
-        ModEvent.PushForm(handle, akActor)
-        ModEvent.PushInt(handle, duration)
-        ModEvent.PushInt(handle, iArousalDecrease)
-        ModEvent.PushInt(handle, iForce)
-        ModEvent.Send(handle)
-        
-        ;check for orgasm start
-        if blocking
-            float loc_time = 0.0
-            while !StorageUtil.GetIntValue(akActor,"UD_Orgasm_Evnt_Received",0) && loc_time <= 0.5
-                Utility.waitMenuMode(0.05)
-                loc_time += 0.05
-            endwhile
-            
-            if loc_time >= 0.5
-                UDmain.Error("startOrgasm("+getActorName(akActor)+") timeout!")
-            endif
-            StorageUtil.UnsetIntValue(akActor,"UD_Orgasm_Evnt_Received")
-        endif
-    endIf    
-EndFunction
-
-;will rework later
-Function Orgasm(Form fActor,int duration,int iArousalDecrease,int iForce)
-    Actor akActor = fActor as Actor
-    StorageUtil.SetIntValue(akActor,"UD_Orgasm_Evnt_Received",1)
-    ActorOrgasm(akActor,duration,iArousalDecrease,iForce)
-EndFunction
 
 ;call devices function orgasm() when player have DD orgasm
 Event OnOrgasm(string eventName, string strArg, float numArg, Form sender)
@@ -723,126 +288,60 @@ EndFunction
         True if actor is orgasming
 /;
 bool Function isOrgasming(Actor akActor)
-    return akActor.isInFaction(OrgasmFaction)
-EndFunction
-
-;/  Function: getOrgasmingCount
-
-    Number of orgasm the actor currently have (in case actor orgasm again before previous orgasm ends)
-
-    Parameters:
-        akActor - Actors who will be checked
-
-    Returns:
-
-        Number of orgasms
-/;
-Int Function getOrgasmingCount(Actor akActor)
-    if isOrgasming(akActor)
-        return akActor.GetFactionRank(OrgasmFaction)
-    else
-        return 0
-    endif
-EndFunction
-
-Int Function addOrgasmToActor(Actor akActor)
-    if !isOrgasming(akActor)
-        akActor.addToFaction(OrgasmFaction)
-        akActor.SetFactionRank(OrgasmFaction,0)
-        return 0
-    endif
-    ;akActor.ModFactionRank(OrgasmFaction,1) ;no return of new value ??
-    Int loc_res = akActor.GetFactionRank(OrgasmFaction) + 1
-    akActor.SetFactionRank(OrgasmFaction,loc_res)
-    return loc_res
-EndFunction
-
-int Function removeOrgasmFromActor(Actor akActor)
-    if !isOrgasming(akActor)
-        return 0
-    endif
-    
-    akActor.ModFactionRank(OrgasmFaction,-1)
-    int loc_count = getOrgasmingCount(akActor)
-    if loc_count == 0
-        akActor.removeFromFaction(OrgasmFaction)
-    endif
-    return loc_count
-EndFunction
-
-Int Function     UpdateHornyLevel(Actor akActor, Int aiValue)
-    Int loc_val = GetHornyLevel(akActor)
-    if aiValue
-        loc_val = iRange(loc_val + aiValue,-5,5)
-        SetHornyLevel(akActor, loc_val)
-        return loc_val
-    else
-        return loc_val
-    endif
-EndFunction
-
-Function     SetHornyLevel(Actor akActor, Int aiValue)
-    StorageUtil.SetIntValue(akActor,"UD_HornyLevel",iRange(aiValue,-5,5))
-EndFunction
-
-Int Function GetHornyLevel(Actor akActor)
-    return StorageUtil.GetIntValue(akActor,"UD_HornyLevel",0)
+    return OrgasmSystem.IsOrgasming(akActor)
 EndFunction
 
 String Function GetHornyLevelString(Actor akActor)
-    Int loc_edgeLevel = StorageUtil.GetIntValue(akActor,"UD_HornyLevel",0)
-    string loc_res
-    if loc_edgeLevel == -5
-        loc_res = "Going crazy"
-    elseif loc_edgeLevel == -4
-        loc_res = "Climaxing nonstop"
-    elseif loc_edgeLevel == -3
-        loc_res = "Can't stop cumming"
-    elseif loc_edgeLevel == -2
-        loc_res = "Very exhausted"
-    elseif loc_edgeLevel == -1
-        loc_res = "Exhausted"
-    elseif loc_edgeLevel == 0
-        loc_res = "Normal"
-    elseif loc_edgeLevel == 1
-        loc_res = "Horny"
-    elseif loc_edgeLevel == 2
-        loc_res = "Very Horny"
-    elseif loc_edgeLevel == 3
-        loc_res = "Increadibly horny"
-    elseif loc_edgeLevel == 4
-        loc_res = "Wants to cum badly"
-    elseif loc_edgeLevel == 5
-        loc_res = "Driven mad with pleasure"
-    endif
-    return loc_res
+    return OrgasmSystem.GetHornyStatus(akActor)
 EndFunction
 
-Float Function     UpdateHornyProgress(Actor akActor, Float afValue)
-    Float loc_val = GetHornyProgress(akActor)
-    if afValue
-        loc_val = loc_val + afValue
-        SetHornyProgress(akActor, loc_val)
-        return loc_val
-    else
-        return loc_val
+Function ORSEvent_OnActorOrgasm(Actor akActor, float afOrgasmRate, float afArousal, float afHornyLevel, int aiOrgasmCount)
+    if UDmain.TraceAllowed()
+        UDmain.Log("Starting orgasm for " + getActorName(akActor))
+    endif
+    UDMain.Info("OM::ORSEvent_OnActorOrgasm("+GetActorName(akActor)+","+afOrgasmRate+","+afArousal+","+afHornyLevel+","+aiOrgasmCount+")")
+    
+    if akActor.isInFaction(OrgasmResistFaction)
+        akActor.RemoveFromFaction(OrgasmResistFaction)
+    endif
+    
+    SendOrgasmEvent(akActor)
+    ActorOrgasm(akActor,aiOrgasmCount)
+EndFunction
+
+Function SendOrgasmEvent(Actor akActor)
+    SendModEvent("DeviceActorOrgasm", akActor.GetLeveledActorBase().GetName())
+    Int loc_handle = ModEvent.Create("DeviceActorOrgasmEx")
+    if loc_handle
+        ModEvent.PushForm(loc_handle, self)         ;Event source (zadlibs), in case that some other mode might call this function from different place
+        ModEvent.PushForm(loc_handle, akActor)      ;Actor
+        ModEvent.PushInt(loc_handle, Round(OrgasmSystem.GetOrgasmVariable(akActor,8)))   ;Arousal after orgasm
+        ModEvent.Send(loc_handle)
     endif
 EndFunction
 
-Function     SetHornyProgress(Actor akActor, Float afValue)
-    StorageUtil.SetFloatValue(akActor,"UD_HornyProgress",afValue)
+Function SendEdgeEvent(Actor akActor)
+    SendModEvent("DeviceEdgedActor", akActor.GetLeveledActorBase().GetName())
+    Int loc_handle = ModEvent.Create("DeviceActorEdgeEx")
+    if loc_handle
+        ModEvent.PushForm(loc_handle, self)         ;Event source (zadlibs), in case that some other mode might call this function from different place
+        ModEvent.PushForm(loc_handle, akActor)      ;Actor
+        ModEvent.Send(loc_handle)
+    endif
 EndFunction
 
-Float Function GetHornyProgress(Actor akActor)
-    return StorageUtil.GetFloatValue(akActor,"UD_HornyProgress",0.0)
-EndFunction
+Function ActorOrgasm(actor akActor, Int aiOrgasms)
+    if !akActor
+        return
+    endif
 
-Float Function GetRelativeHornyProgress(Actor akActor)
-    return StorageUtil.GetFloatValue(akActor,"UD_HornyProgress",0.0)/(3.0*GetActorOrgasmCapacity(akActor))
-EndFunction
+    UDmain.UDPP.Send_Orgasm(akActor,abWairForReceive = false)
 
-Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,int iForce = 0)
-    Int loc_orgasms = addOrgasmToActor(akActor)
+    ;check if actor is not already orgasming. If yes, then skip all checks
+    if (aiOrgasms > 1) 
+        return
+    endif
+    
     ;call stopMinigame so it get stoped before all other shit gets processed
     bool loc_actorinminigame = UDCDmain.actorInMinigame(akActor)
     if loc_actorinminigame
@@ -853,15 +352,11 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,in
         endif
     endif
     
-    UpdateBaseOrgasmVals(akActor, UDCONF.UD_OrgasmArousalReduceDuration, -5.0, 0.0, -1.0*iDecreaseArousalBy)
-
     if UDmain.TraceAllowed()
         UDmain.Log("ActorOrgasmPatched called for " + GetActorName(akActor),1)
     endif
     
-    UDmain.UDPP.Send_Orgasm(akActor,iForce,bWairForReceive = false)
-    
-    bool loc_isplayer   = UDmain.ActorIsPlayer(akActor)
+    bool loc_isplayer   = IsPlayer(akActor)
     bool loc_isfollower = false
     if !loc_isplayer
         loc_isfollower  = UDmain.ActorIsFollower(akActor)
@@ -870,48 +365,25 @@ Function ActorOrgasm(actor akActor,int iDuration, int iDecreaseArousalBy = 10,in
     bool loc_cond       = loc_is3Dloaded && UDmain.ActorInCloseRange(akActor)
     
     if loc_actorinminigame
-        Int loc_res = PlayOrgasmAnimation(akActor,iDuration,true)
+        Int loc_res = PlayOrgasmAnimation(akActor)
         if loc_res == 1
             StorageUtil.UnsetIntValue(akActor,"UD_OrgasmInMinigame_Flag")
         endif
     elseif !loc_cond || ((akActor.IsInCombat() || akActor.IsSneaking()) && (loc_isplayer || loc_isfollower)) || (loc_isplayer && UDmain.IsAnyMenuOpen())
-        if UDmain.ActorIsPlayer(akActor)
+        if IsPlayer(akActor)
             UDmain.Print("You managed to avoid losing control over your body from orgasm!",2)
         endif
         akActor.damageAv("Stamina",50.0)
         akActor.damageAv("Magicka",50.0)
-        Utility.wait(iDuration)
     elseif akActor.GetCurrentScene() || akActor.IsInFaction(libsp.Sexlab.AnimatingFaction)
-        if UDmain.TraceAllowed()    
+        if UDmain.TraceAllowed()
             UDmain.Log("ActorOrgasmPatched - sexlab animation detected - not playing animation for " + GetActorName(akActor),2)
         endif
-        Utility.wait(iDuration)
     else
-        PlayOrgasmAnimation(akActor,iDuration)
-    endif
-    
-    loc_orgasms = RemoveOrgasmFromActor(akActor)
-    if loc_orgasms == 0
-        if loc_cond
-            UDEM.ResetExpressionRaw(akActor,80)
-        endif
+        PlayOrgasmAnimation(akActor)
     endif
 EndFunction
 
-;/  Function: GetOrgasmAnimDuration
-
-    Get remaining duration of orgasm animation
-
-    Parameters:
-        akActor - Actors who will be checked
-
-    Returns:
-
-        Remaining duration of orgasm
-/;
-Int Function GetOrgasmAnimDuration(Actor akActor)
-    return StorageUtil.GetIntValue(akActor,"UD_OrgasmDuration",0)
-EndFunction
 
 Bool Function GetOrgasmInMinigame(Actor akActor)
     return StorageUtil.GetIntValue(akActor,"UD_OrgasmInMinigame_Flag",0)
@@ -930,23 +402,12 @@ EndFunction
 
         1 in case of sucess. 0 in case of failure
 /;
-Int Function PlayOrgasmAnimation(Actor akActor,int aiDuration, bool abContinue = false)
+Int Function PlayOrgasmAnimation(Actor akActor)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_OrgasmManager::PlayOrgasmAnimation() akActor = " + akActor + ", aiDuration = " + aiDuration, 3)
+        UDmain.Log("UD_OrgasmManager::PlayOrgasmAnimation() akActor = " + akActor , 3)
     EndIf
-    if !aiDuration
-        return 0 ;error
-    endif
-    if StorageUtil.GetIntValue(akActor,"UD_OrgasmDuration",0)
-        Int loc_duration = Round(aiDuration*0.35)
-        StorageUtil.AdjustIntValue(akActor,"UD_OrgasmDuration",loc_duration) ;incfrease current orgasm animation by 35%
-        Utility.wait(loc_duration)
-        return 2 ;animation prolonged, but not played
-    else
-        StorageUtil.SetIntValue(akActor,"UD_OrgasmDuration",aiDuration)
-    endif
-    
-    int loc_isPlayer = UDmain.ActorIsPlayer(akActor) as Int
+
+    int loc_isPlayer = IsPlayer(akActor) as Int
     if loc_isPlayer
         UDmain.UDUI.GoToState("UIDisabled") ;disable UI
         UDMain.UDWC.StatusEffect_SetBlink("effect-orgasm", True)
@@ -954,44 +415,31 @@ Int Function PlayOrgasmAnimation(Actor akActor,int aiDuration, bool abContinue =
     
     Bool loc_is3Dloaded = akActor.Is3DLoaded()
     
-    UDCDmain.DisableActor(akActor,loc_isPlayer)
-    
     if loc_is3Dloaded
         ; updating ActorConstraintsInt
-        UDmain.UDAM.GetActorConstraintsInt(akActor, abUseCache = False)
+        ;UDmain.UDAM.GetActorConstraintsInt(akActor, abUseCache = False)
         String[] loc_animationArray = UDmain.UDAM.GetOrgasmAnimDefs(akActor)
         If loc_animationArray.Length > 0
             Actor[] loc_actors = new Actor[1]
             loc_actors[0] = akActor
-            UDmain.UDAM.PlayAnimationByDef(loc_animationArray[Utility.RandomInt(0, loc_animationArray.Length - 1)], loc_actors, abDisableActors = False, abContinueAnimation = abContinue)
+            UDmain.UDAM.PlayAnimationByDef(loc_animationArray[RandomInt(0, loc_animationArray.Length - 1)], loc_actors, abDisableActors = true)
         Else
             UDmain.Warning("UD_OrgasmManager::PlayOrgasmAnimation() Can't find orgasm animations for the actor")
         EndIf
     endif
     
-    int loc_elapsedtime = 0
-    while loc_elapsedtime < aiDuration
-        if loc_elapsedtime && !(loc_elapsedtime % 2)
-            UDCDmain.UpdateDisabledActor(akActor,loc_isPlayer)
-        else
-            aiDuration = StorageUtil.GetIntValue(akActor,"UD_OrgasmDuration",aiDuration)
-        endif
+    while OrgasmSystem.IsOrgasming(akActor)
         Utility.wait(1.0)
-        loc_elapsedtime += 1
     endwhile
     
     if loc_isPlayer
         UDMain.UDWC.StatusEffect_SetBlink("effect-orgasm", False)
     endif
     
-    StorageUtil.UnsetIntValue(akActor,"UD_OrgasmDuration")
-    
     if loc_is3Dloaded
-        UDmain.UDAM.StopAnimation(akActor, abEnableActors = False)
+        UDmain.UDAM.StopAnimation(akActor, abEnableActors = True)
     endif
     
-    UDCDmain.EnableActor(akActor,loc_isPlayer)
-
     if loc_isPlayer
         UDmain.UDUI.GoToState("") ;enable UI
     endif
@@ -1013,7 +461,7 @@ Function OnEdge(string eventName, string strArg, float numArg, Form sender)
         Actor loc_actor = loc_slot.getActor()
         if !loc_slot.isPlayer() && UDmain.ActorInCloseRange(loc_actor)
             if strArg != UDmain.Player.getActorBase().getName()
-                int random = Utility.randomInt(1,3)
+                int random = RandomInt(1,3)
                 if random == 1
                     UDMain.UDWC.Notification_Push(strArg + " gets denied just before reaching the orgasm!")
                 elseif random == 2
@@ -1024,6 +472,34 @@ Function OnEdge(string eventName, string strArg, float numArg, Form sender)
             endif
         endif
         loc_slot.edge()
+    endif
+EndFunction
+
+Function ORSEvent_OnExpressionUpdate(Actor akActor, int aType, float afOrgasmRate, float afArousal, float afHornyLevel)
+    ;UDMain.Info("UDEvent_OnActorOrgasm("+GetActorName(akActor)+","+aType+","+afOrgasmRate+","+afArousal+","+afHornyLevel+")")
+    
+    ;expression
+    if aType == 0
+        ;init expression
+        if fInRange(afHornyLevel,75.0,200.0)
+            libs.ExpLibs.ApplyExpressionRaw(akActor, UDmain.UDEM.GetPrebuildExpression_Happy1(),  iRange(Round(afArousal),40,100),false,10) ;happy
+        elseif afHornyLevel > 200.0
+            libs.ExpLibs.ApplyExpressionRaw(akActor, UDmain.UDEM.GetPrebuildExpression_Horny1(),  iRange(Round(afArousal),40,100),false,10);horny
+        else
+            libs.ExpLibs.ApplyExpressionRaw(akActor, UDmain.UDEM.GetPrebuildExpression_Angry1(),  iRange(Round(afArousal),40,100),false,10) ;angry
+        endif
+    elseif aType == 1
+        libs.ExpLibs.ResetExpressionRaw(akActor,10)
+    elseif aType == 2
+        if fInRange(afHornyLevel,75.0,200.0)
+            libs.ExpLibs.ApplyExpressionRaw(akActor, UDmain.UDEM.GetPrebuildExpression_Orgasm2(), iRange(Round(afHornyLevel/2.0),50,100),false,80)
+        elseif afHornyLevel > 200.0
+            libs.ExpLibs.ApplyExpressionRaw(akActor, UDmain.UDEM.GetPrebuildExpression_Orgasm1(), iRange(Round(afHornyLevel/4.0),50,100),false,80)
+        else
+            libs.ExpLibs.ApplyExpressionRaw(akActor, UDmain.UDEM.GetPrebuildExpression_Orgasm3(), iRange(Round(afHornyLevel),50,100),false,80)
+        endif
+    elseif aType == 3
+        libs.ExpLibs.ResetExpressionRaw(akActor,80)
     endif
 EndFunction
 
@@ -1055,43 +531,6 @@ EndFunction
 /;
 bool Function isOrgasmExhaustedMax(Actor akActor)
     return UDCONF.UD_OrgasmExhaustionStruggleMax > 0 && (GetOrgasmExhaustion(akActor) >= UDCONF.UD_OrgasmExhaustionStruggleMax)
-EndFunction
-
-;/  Function: UpdateBaseOrgasmVals
-
-    See <UpdateBaseOrgasmVals>
-/;
-Function UpdateBaseOrgasmVals(Actor akActor, int aiDuration, float afOrgasmRate, float afForcing = 0.0, float afArousalRate = 0.0)
-    int handle = ModEvent.Create("UD_UpdateBaseOrgasmVal")
-    if (handle)
-        ModEvent.PushForm (handle , akActor)
-        ModEvent.PushInt  (handle , aiDuration)
-        ModEvent.PushFloat(handle , afOrgasmRate)
-        ModEvent.PushFloat(handle , afForcing)
-        ModEvent.PushFloat(handle , afArousalRate)
-        ModEvent.Send(handle)
-    else
-        UDmain.Error("Can't create UD_UpdateBaseOrgasmVal event!")
-    endif
-EndFunction
-
-Function Receive_UpdateBaseOrgasmVals(Form akFormActor, int aiDuration, float afOrgasmRate,float afForcing, float afArousalRate)
-    Actor akActor = akFormActor as Actor
-    if afOrgasmRate || afForcing
-        UpdateOrgasmRate(akActor,afOrgasmRate,afForcing)
-    endif
-    if afArousalRate
-        UpdateArousalRate(akActor,afArousalRate)
-    endif
-    
-    Utility.wait(aiDuration)
-    
-    if afOrgasmRate || afForcing
-        UpdateOrgasmRate(akActor,-1*afOrgasmRate,-1*afForcing)
-    endif
-    if afArousalRate
-        UpdateArousalRate(akActor,-1*afArousalRate)
-    endif
 EndFunction
 
 Function FocusOrgasmResistMinigame(Actor akActor)

@@ -37,9 +37,9 @@ Event MinigameKeysRegister()
     if UDmain.TraceAllowed()    
         UDmain.Log("UD_UserInputScript::MinigameKeysRegister called",1)
     endif
-    RegisterForKey(UDCDMain.Stamina_meter_Keycode)
+    ;RegisterForKey(UDCDMain.Stamina_meter_Keycode)
     RegisterForKey(UDCDMain.SpecialKey_Keycode)
-    RegisterForKey(UDCDMain.Magicka_meter_Keycode)
+    ;RegisterForKey(UDCDMain.Magicka_meter_Keycode)
     _specialButtonOn = false
 EndEvent
 
@@ -47,15 +47,15 @@ Event MinigameKeysUnregister()
     if UDmain.TraceAllowed()    
         UDmain.Log("UD_UserInputScript::MinigameKeysUnregister called",1)
     endif
-    if !KeyIsUsedGlobaly(UDCDMain.Stamina_meter_Keycode)
-        UnregisterForKey(UDCDMain.Stamina_meter_Keycode)
-    endif
+    ;if !KeyIsUsedGlobaly(UDCDMain.Stamina_meter_Keycode)
+    ;    UnregisterForKey(UDCDMain.Stamina_meter_Keycode)
+    ;endif
     if !KeyIsUsedGlobaly(UDCDMain.SpecialKey_Keycode)
         UnregisterForKey(UDCDMain.SpecialKey_Keycode)
     endif
-    if !KeyIsUsedGlobaly(UDCDMain.Magicka_meter_Keycode)
-        UnregisterForKey(UDCDMain.Magicka_meter_Keycode)
-    endif
+    ;if !KeyIsUsedGlobaly(UDCDMain.Magicka_meter_Keycode)
+    ;    UnregisterForKey(UDCDMain.Magicka_meter_Keycode)
+    ;endif
     _specialButtonOn = false
     _gamepadButtonOn = false
 EndEvent
@@ -94,14 +94,17 @@ EndFunction
 
 State Minigame
     Event OnKeyDown(Int KeyCode)
-        ;help variables to reduce lag
-        bool     _crit                    = UDCDmain.crit 
-        string   _selected_crit_meter     = UDCDmain.selected_crit_meter
-        if (KeyCode == UDCDMain.Stamina_meter_Keycode || KeyCode == UDCDMain.Magicka_meter_Keycode)
-            if _crit
-                UDCDmain.crit = false ;remove crit to prevent multiple crits at once
-            endif
+        if (UD_Native.GetCameraState() == 3)
+            return
         endif
+        ;help variables to reduce lag
+        ;bool     _crit                    = UDCDmain.crit 
+        ;string   _selected_crit_meter     = UDCDmain.selected_crit_meter
+        ;if (KeyCode == UDCDMain.Stamina_meter_Keycode || KeyCode == UDCDMain.Magicka_meter_Keycode)
+        ;    if _crit
+        ;        UDCDmain.crit = false ;remove crit to prevent multiple crits at once
+        ;    endif
+        ;endif
         bool loc_menuopen = UDmain.IsAnyMenuOpen()
         if !loc_menuopen ;only if player is not in menu
             if KeyCode == UDCDMain.SpecialKey_Keycode
@@ -109,24 +112,24 @@ State Minigame
                 UDCDmain.CurrentPlayerMinigameDevice.SpecialButtonPressed(1.0)
                 return
             endif
-            if (_crit) && !UDCDMain.UD_AutoCrit
-                if _selected_crit_meter == "S" && KeyCode == UDCDMain.Stamina_meter_Keycode
-                    UDCDmain.crit = False
-                    _crit = False
-                    UDCDmain.CurrentPlayerMinigameDevice.critDevice()
-                    return
-                elseif _selected_crit_meter == "M" && KeyCode == UDCDMain.Magicka_meter_Keycode
-                    UDCDmain.crit = False
-                    _crit = False
-                    UDCDmain.CurrentPlayerMinigameDevice.critDevice()
-                    return
-                elseif (KeyCode == UDCDMain.Magicka_meter_Keycode) || (KeyCode == UDCDMain.Stamina_meter_Keycode)
-                    UDCDmain.crit = False
-                    _crit = False
-                    UDCDmain.CurrentPlayerMinigameDevice.critFailure()
-                    return
-                endif
-            endif
+            ;if (_crit) && !UDCDMain.UD_AutoCrit
+            ;    if _selected_crit_meter == "S" && KeyCode == UDCDMain.Stamina_meter_Keycode
+            ;        UDCDmain.crit = False
+            ;        _crit = False
+            ;        UDCDmain.CurrentPlayerMinigameDevice.critDevice()
+            ;        return
+            ;    elseif _selected_crit_meter == "M" && KeyCode == UDCDMain.Magicka_meter_Keycode
+            ;        UDCDmain.crit = False
+            ;        _crit = False
+            ;        UDCDmain.CurrentPlayerMinigameDevice.critDevice()
+            ;        return
+            ;    elseif (KeyCode == UDCDMain.Magicka_meter_Keycode) || (KeyCode == UDCDMain.Stamina_meter_Keycode)
+            ;        UDCDmain.crit = False
+            ;        _crit = False
+            ;        UDCDmain.CurrentPlayerMinigameDevice.critFailure()
+            ;        return
+            ;    endif
+            ;endif
             if KeyCode == UDCDMain.ActionKey_Keycode
                 UDCDmain.crit = False
                 if UDCDmain.CurrentPlayerMinigameDevice
@@ -135,7 +138,6 @@ State Minigame
                 return
             elseif !UDCDMain.UD_AutoCrit && (KeyCode == UDCDMain.Stamina_meter_Keycode || KeyCode == UDCDMain.Magicka_meter_Keycode)
                 UDCDmain.crit = False
-                _crit = False
                 UDCDmain.CurrentPlayerMinigameDevice.critFailure()
                 return
             endif
@@ -154,7 +156,7 @@ State Minigame
 EndState
 
 Event OnKeyDown(Int KeyCode)
-    if UDmain.IsEnabled()
+    if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
         ;check if any menu is open, or if message box is open
         bool loc_menuopen = UDmain.IsAnyMenuOpen()
         if !loc_menuopen ;only if player is not in menu
@@ -173,7 +175,7 @@ Event OnKeyDown(Int KeyCode)
 EndEvent
 
 Event OnKeyUp(Int KeyCode, Float HoldTime)
-    if UDmain.IsEnabled()
+    if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
         if !UDmain.IsAnyMenuOpen() && !(UD_EasyGamepadMode && Game.UsingGamepad())
             if KeyCode == UDCDMain.StruggleKey_Keycode
                 if HoldTime < 0.2
@@ -228,7 +230,7 @@ Function OpenNPCMenu(Bool abOpenDeviceList)
                 bool loc_actorisregistered = UDCDmain.isRegistered(loc_actor)
                 if loc_actorisregistered
                     bool loc_actorisfollower = UDmain.ActorIsFollower(loc_actor)
-                    bool loc_actorishelpless = (!UDmain.ActorFreeHands(loc_actor) || loc_actor.getAV("paralysis") ;/|| loc_actor.GetSleepState() == 3/;) && UDmain.ActorFreeHands(UDmain.Player)
+                    bool loc_actorishelpless = loc_actorisfollower || (!UDmain.ActorFreeHands(loc_actor) || loc_actor.getAV("paralysis") ;/|| loc_actor.GetSleepState() == 3/;) && UDmain.ActorFreeHands(UDmain.Player)
                     if loc_actorisfollower || loc_actorishelpless
                         UDCDmain.HelpNPC(loc_actor,UDmain.Player,loc_actorisfollower)
                     endif

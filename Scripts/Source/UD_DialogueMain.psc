@@ -1,5 +1,7 @@
 Scriptname UD_DialogueMain extends Quest Conditional
 
+import UD_Native
+
 ReferenceAlias  Property Dummy auto 
 ReferenceAlias  Property Player auto 
 Int Property SelectedDialogue = 0 auto Conditional
@@ -38,7 +40,7 @@ Function onInit()
 EndFUnction
 
 Function spawnDummy()
-    int random = Utility.randomInt(0,3)
+    int random = RandomInt(0,3)
     if random == 0
         Dummy.GetReference().GetBaseObject().SetName("*Sound inside your head*")
     elseif random == 1

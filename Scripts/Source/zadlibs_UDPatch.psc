@@ -3,6 +3,7 @@ Scriptname zadlibs_UDPatch extends zadlibs
 import MfgConsoleFunc
 import sslBaseExpression
 import UnforgivingDevicesMain
+import UD_Native
 
 UDCustomDeviceMain Property UDCDmain auto
 UnforgivingDevicesMain Property UDmain
@@ -36,12 +37,7 @@ Bool Function LockDevice(actor akActor, armor deviceInventory, bool force = fals
     if UDmain.TraceAllowed()    
         UDmain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory)+")",3)
     endif
-    if UDCDmain.UDmain.UD_zadlibs_ParalelProccesing
-        LockDevice_Paralel(akActor, deviceInventory, force)
-        return true
-    else
-        return LockDevicePatched(akActor, deviceInventory, force)
-    endif
+    return LockDevicePatched(akActor, deviceInventory, force)
 EndFunction
 
 bool Function isMutexed(Actor akActor,Armor invDevice)
@@ -69,7 +65,7 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
         return false
     endif
     
-    if !UDmain.ActorIsPlayer(akActor)
+    if !IsPlayer(akActor)
         StorageUtil.AdjustIntValue(akActor,"UDLockOperations",1) ;increase number of lock operations for NPC. Is used by NPC manager before NPC is register with auto scan
     endif
     
@@ -78,21 +74,13 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
         UDmain.UDNPCM.GotoState("UpdatePaused")
         
         UD_CustomDevice_NPCSlot loc_slot = none
-        ;if _lastLockSlot && (_lastLockSlot.GetActor() == akActor)
-        ;    loc_slot = _lastLockSlot
-        ;else
-            loc_slot = UDCDmain.getNPCSlot(akActor)
-        ;endif
+        loc_slot = UDCDmain.getNPCSlot(akActor)
         UD_MutexScript          loc_mutex = none
         
         if loc_slot
             loc_slot.StartLockMutex()
         else
-            ;if _lastLockMutex && (_lastLockMutex.GetActor() == akActor) && !_lastLockMutex.IsLockMutexed()
-            ;    loc_mutex = _lastLockMutex
-            ;else
-                loc_mutex = UDMM.WaitForFreeAndSet_Lock(akActor,deviceInventory)
-            ;endif
+            loc_mutex = UDMM.WaitForFreeAndSet_Lock(akActor,deviceInventory)
         endif
         
         ;_lastLockSlot  = loc_slot
@@ -184,7 +172,7 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
     endif
     
     UDmain.UDNPCM.GotoState("")
-    if !UDmain.ActorIsPlayer(akActor)
+    if !IsPlayer(akActor)
         StorageUtil.AdjustIntValue(akActor,"UDLockOperations",-1) ;decrease number of lock operations for NPC. Is used by NPC manager before NPC is register with auto scan
     endif
     return loc_res
@@ -238,16 +226,16 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
     endif
     if deviceRendered
         if !deviceRendered.haskeyword(zad_lockable) && !deviceRendered.haskeyword(zad_DeviousPlug)
-            UDmain.Warning("UnlockDevice("+MakeDeviceHeader(akActor,deviceInventory)+") - passed deviceRendered("+deviceRendered+") is not devious device. Aborting!")
+            UDmain.Warning("UnlockDevice("+MakeDeviceHeader(akActor,deviceInventory)+") - passed deviceRendered("+deviceRendered+") is not devious device.")
             deviceRendered = none
         endif
     endif
     
-    if !UDmain.ActorIsPlayer(akActor)
+    if !IsPlayer(akActor)
         StorageUtil.AdjustIntValue(akActor,"UDLockOperations",1) ;increase number of lock operations for NPC. Is used by NPC manager before NPC is register with auto scan
     endif
     
-    bool                    loc_res     = False ;return value
+    bool loc_res     = False ;return value
     
     if UDmain.TraceAllowed()
         UDmain.Log("UnlockDevice("+akActor+","+deviceInventory+","+deviceRendered+","+zad_DeviousDevice+","+destroyDevice+","+genericonly+")",1)
@@ -281,10 +269,7 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
             if deviceRendered
                 loc_renDevice = deviceRendered
             else
-                loc_renDevice = UDCDmain.getStoredRenderDevice(deviceInventory)
-                if loc_renDevice
-                    loc_renDevice = GetRenderedDevice(deviceInventory)
-                endif
+                loc_renDevice = GetRenderedDevice(deviceInventory)
             endif
             
             ;check if actor actually have render device. Without RD, unlock function will not work
@@ -295,10 +280,10 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
                     ;is already set by WaitForFreeAndSet_Unlock
                 endif
                 
-                if UDmain.TraceAllowed()    
+                if UDmain.TraceAllowed()
                     if loc_slot
                         UDmain.Log("UnlockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - NPC slot: " + loc_slot,1)
-                    elseif loc_mutex    
+                    elseif loc_mutex
                         UDmain.Log("UnlockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - mutex: " + loc_mutex,1)
                     else
                         UDmain.Log("UnlockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - operation started - no mutex",1)
@@ -346,7 +331,7 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
         UDmain.Log("UnlockDevice("+deviceInventory.getName()+") (patched) finished: "+loc_res,1)
     endif
     UDmain.UDNPCM.GotoState("")
-    if !UDmain.ActorIsPlayer(akActor)
+    if !IsPlayer(akActor)
         StorageUtil.AdjustIntValue(akActor,"UDLockOperations",-1) ;decrease number of lock operations for NPC. Is used by NPC manager before NPC is register with auto scan
     endif
     return loc_res
@@ -380,7 +365,7 @@ Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRen
     UD_CustomDevice_NPCSlot     loc_slot        = none ;NPC slot for registered NPC
     UD_MutexScript              loc_mutex       = none ;mutex used for non registered NPC
     
-    if !UDmain.ActorIsPlayer(akActor)
+    if !IsPlayer(akActor)
         StorageUtil.AdjustIntValue(akActor,"UDLockOperations",1) ;increase number of lock operations for NPC. Is used by NPC manager before NPC is register with auto scan
     endif
     
@@ -444,9 +429,9 @@ Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRen
             if destroyDevice
                 akActor.RemoveItem(deviceInventory, 1, true)
             EndIf
-        else    
-                
-        endif        
+        else
+
+        endif
     else
         parent.RemoveQuestDevice(akActor, deviceInventory, deviceRendered, zad_DeviousDevice, RemovalToken, destroyDevice, skipMutex) ;actor not registered
     endif
@@ -456,7 +441,7 @@ Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRen
     elseif loc_mutex
         loc_mutex.ResetUnLockMutex()
     endif
-    if !UDmain.ActorIsPlayer(akActor)
+    if !IsPlayer(akActor)
         StorageUtil.AdjustIntValue(akActor,"UDLockOperations",-1) ;decrease number of lock operations for NPC. Is used by NPC manager before NPC is register with auto scan
     endif
 EndFunction
@@ -527,93 +512,17 @@ Armor Function GetWornRenderedDeviceByKeyword(Actor akActor, Keyword kw)
     return none
 EndFunction
 
-Armor Function GetWornDevice(Actor akActor, Keyword kw)
-    return GetWornDevicePatched(akActor, kw)
-EndFunction
-
-Armor Function GetWornDevicePatched(Actor akActor, Keyword kw)
-    if !akActor
-        UDmain.Error("GetWornDevice - Actor is none")
-        return none
-    endif
-    if !kw
-        UDmain.Error("GetWornDevice("+GetActorName(akActor)+") - keyword is none")
-        return none
-    endif
-    if !akActor.wornHasKeyword(kw)
-        UDmain.Warning("GetWornDevice("+GetActorName(akActor)+") - actor have no keyword equipped= " + kw)
-        return none
-    endif
-    if UDmain.TraceAllowed()
-        UDmain.Log("GetWornDevice("+GetActorName(akActor)+","+kw+")",3)
-    endif
-    if UDmain.UDNPCM.isRegistered(akActor)
-        UD_CustomDevice_NPCSlot slot = UDmain.UDNPCM.getNPCSlotByActor(akActor)
-        if slot.deviceAlreadyRegisteredKw(kw,UDmain.UD_CheckAllKw)
-            UD_CustomDevice_RenderScript loc_device = slot.getFirstDeviceByKeyword(kw)
-            if loc_device
-                Armor loc_id = loc_device.deviceInventory
-                return loc_id
-            endif
-        endif
-    endif
-    
-    Armor loc_result = none
-    if UDmain.UD_UseNativeFunctions && akActor == playerRef
-        Form[] loc_devices = UD_Native.GetInventoryDevices(akActor,true)
-        int loc_i
-        while loc_i
-            loc_i -= 1
-            zadEquipScript loc_tmpZRef = akActor.placeAtMe(loc_devices[loc_i], abInitiallyDisabled = true) as zadEquipScript
-            if loc_tmpZRef
-                Armor loc_deviceInventory   = loc_tmpZRef.deviceInventory
-                Armor loc_deviceRendered    = loc_tmpZRef.deviceRendered
-                Keyword loc_DeviceKeyword   = loc_tmpZRef.zad_DeviousDevice
-                if akActor.GetItemCount(loc_deviceRendered) && (loc_DeviceKeyword == kw || (UDmain.UD_CheckAllKw && loc_deviceRendered.haskeyword(kw)))
-                    loc_tmpZRef.delete()
-                    return loc_deviceInventory
-                endif
-            endif
-            if loc_tmpZRef
-                loc_tmpZRef.delete()
-            endif
-        endwhile
-    else
-        Int loc_FormIndex = akActor.GetNumItems()
-        While loc_FormIndex
-            loc_FormIndex -= 1
-            Form loc_Form = akActor.GetNthForm(loc_FormIndex)
-            If loc_Form.HasKeyword(zad_InventoryDevice) && (akActor.IsEquipped(loc_Form) || akActor != playerRef)
-                zadEquipScript loc_tmpZRef = akActor.placeAtMe(loc_Form, abInitiallyDisabled = true) as zadEquipScript
-                if loc_tmpZRef
-                    Armor loc_deviceInventory = loc_tmpZRef.deviceInventory
-                    Armor loc_deviceRendered = loc_tmpZRef.deviceRendered
-                    Keyword loc_DeviceKeyword = loc_tmpZRef.zad_DeviousDevice
-                    if akActor.GetItemCount(loc_deviceRendered) && (loc_DeviceKeyword == kw || (UDmain.UD_CheckAllKw && loc_deviceRendered.haskeyword(kw)))
-                        loc_tmpZRef.delete()
-                        return loc_deviceInventory
-                    endif
-                endif
-                if loc_tmpZRef
-                    loc_tmpZRef.delete()
-                endif
-            EndIf
-        EndWhile
-    endif
-    return none
-EndFunction
-
 ;copied and modified libs InflateAnalPlug function to make it show correct msg for npcs
 Function InflateAnalPlug(actor akActor, int amount = 1)    
     If !akActor.WornHasKeyword(zad_kw_InflatablePlugAnal)
         ; nothing to do
         return
-    EndIf    
+    EndIf
     int currentVal = 0
     If akActor == PlayerRef
         currentVal = zadInflatablePlugStateAnal.GetValueInt()
         ; only increase the value up to 5, but make it count as an inflation event even if it's maximum inflated
-        if currentVal < 5            
+        if currentVal < 5
             currentVal += amount
             if currentVal > 5
                 currentVal = 5
@@ -627,7 +536,10 @@ Function InflateAnalPlug(actor akActor, int amount = 1)
     else
         currentVal = iRange(amount,2,5)
     endif
-    UDOM.UpdateBaseOrgasmVals(akActor,5,7.5*currentVal,0.5,3.5*currentVal)
+    
+    string loc_key = OrgasmSystem.MakeUniqueKey(akActor,"AnalPlugInflate")
+    OrgasmSystem.AddOrgasmChange(akActor,loc_key, 0x6000C,0x0180, 7.5*currentVal,afOrgasmForcing = 0.5)
+    OrgasmSystem.UpdateOrgasmChangeVar(akActor,loc_key,9,3.0*currentVal,1)
     SendInflationEvent(akActor, False, True, currentval)
 EndFunction
 
@@ -641,7 +553,7 @@ Function InflateVaginalPlug(actor akActor, int amount = 1)
     If akActor == PlayerRef
         currentVal = zadInflatablePlugStateVaginal.GetValueInt()
         ; only increase the value up to 5, but make it count as an inflation event even if it's maximum inflated
-        if currentVal < 5                        
+        if currentVal < 5
             currentVal += amount
             if currentVal > 5
                 currentVal = 5
@@ -656,7 +568,9 @@ Function InflateVaginalPlug(actor akActor, int amount = 1)
         currentVal = iRange(amount,2,5)
     endif
     
-    UDOM.UpdateBaseOrgasmVals(akActor,5,12.5*currentVal,0.5,5*currentVal)
+    string loc_key = OrgasmSystem.MakeUniqueKey(akActor,"VaginalPlugInflate")
+    OrgasmSystem.AddOrgasmChange(akActor,loc_key, 0x6000C,0x0003, 13.5*currentVal,afOrgasmForcing = 0.5)
+    OrgasmSystem.UpdateOrgasmChangeVar(akActor,loc_key,9,6.0*currentVal,1)
     SendInflationEvent(akActor, True, True, currentval)
 EndFunction
 
@@ -671,7 +585,7 @@ String Function AnimSwitchKeyword(actor akActor, string idleName)
     EndIf
     
     If anims.Length > 0
-        Return anims[Utility.RandomInt(0, anims.Length - 1)]
+        Return anims[RandomInt(0, anims.Length - 1)]
     Else
         return parent.AnimSwitchKeyword(akActor, idleName)
     EndIf
@@ -699,15 +613,15 @@ int Function VibrateEffect(actor akActor, int vibStrength, int duration, bool te
         UDmain.Log("VibrateEffect(): " + akActor + ", " + vibStrength + ", " + duration)
     endif
     ;prevent too short vibs. Can cause issue with orgasm system
-    if duration >= 0 && duration < 10
-        duration = 10
+    if duration >= 0 && duration < 3
+        duration = 3
     endif
     
     if akActor.WornHasKeyword(UDlibs.UnforgivingDevice) && UDCDmain.isRegistered(akActor)
         int loc_vibNum = UDCDmain.getActivableVibratorNum(akActor)
         if loc_vibNum > 0
             UD_CustomDevice_RenderScript[] loc_usableVibrators = UDCDmain.getActivableVibrators(akActor)
-            UD_CustomVibratorBase_RenderScript loc_selectedVib = loc_usableVibrators[Utility.randomInt(0,loc_vibNum - 1)] as UD_CustomVibratorBase_RenderScript
+            UD_CustomVibratorBase_RenderScript loc_selectedVib = loc_usableVibrators[RandomInt(0,loc_vibNum - 1)] as UD_CustomVibratorBase_RenderScript
             if UDmain.TraceAllowed()            
                 UDmain.Log("VibrateEffect("+GetActorName(akActor)+") - selected vib:" + loc_selectedVib,1)
             endif
@@ -728,9 +642,9 @@ int Function VibrateEffect(actor akActor, int vibStrength, int duration, bool te
     endif
 EndFunction
 
-Function ShockActorPatched(actor akActor,int iArousalUpdate = 25,float fHealth = 0.0, bool bCanKill = false)
+Function ShockActorPatched(actor akActor,int aiArousalUpdate = 25,float afHealth = 0.0, bool abCanKill = false)
     bool loc_loaded = akActor.Is3DLoaded()
-    if UDmain.ActorIsPlayer(akActor)
+    if IsPlayer(akActor)
         NotifyPlayer("You squirms uncomfortably as electricity runs through your body!")
     Elseif UDmain.ActorIsFollower(akActor) && loc_loaded
         NotifyNPC(akActor.GetLeveledActorBase().GetName()+" squirms uncomfortably as electricity runs through her.")
@@ -738,20 +652,23 @@ Function ShockActorPatched(actor akActor,int iArousalUpdate = 25,float fHealth =
     ShockEffect.RemoteCast(akActor, akActor, akActor)
     
     if loc_loaded
-        if Utility.randomInt(1,99) < 40
+        if RandomInt(1,99) < 40
             UDCDmain.ApplyTearsEffect(akActor)
         endif
     endif
-    float loc_health = fRange(fHealth,0.0,1000.0)
+    float loc_health = fRange(afHealth,0.0,1000.0)
     
     if loc_health
-        if akActor.getAV("Health") > loc_health || bCanKill
+        if abCanKill || (akActor.getAV("Health") > loc_health)
             akActor.damageAV("Health", loc_health)
         endif
     endif
-    if iArousalUpdate
-        int loc_arousalUpdate = iRange(Utility.randomInt(Round(0.75*iArousalUpdate),Round(0.5*iArousalUpdate)),-100,100)
-        Aroused.UpdateActorExposure(akActor, loc_arousalUpdate)
+    if aiArousalUpdate
+        String loc_key = OrgasmSystem.MakeUniqueKEy(akActor,"ShockEffect")
+        OrgasmSystem.AddOrgasmChange(akActor,loc_key,0x80024,0x200,-2.0)
+        OrgasmSystem.UpdateOrgasmChangeVar(akActor,loc_key,9,-1.0*(aiArousalUpdate/8.0),1)
+        ;int loc_arousalUpdate = iRange(RandomInt(Round(0.75*aiArousalUpdate),Round(0.5*aiArousalUpdate)),-100,100)
+        ;Aroused.UpdateActorExposure(akActor, loc_arousalUpdate)
     endif
 EndFunction
 
@@ -779,12 +696,14 @@ Function PlayThirdPersonAnimation(actor akActor, string animation, int duration,
 EndFunction
 
 Function ActorOrgasm(actor akActor, int setArousalTo=-1, int vsID=-1)
-    int loc_newArousal = 100 - setArousalTo
-    if setArousalTo == -1
-        loc_newArousal = 75
-    endif
+    ;int loc_newArousal = 100 - setArousalTo
+    ;if setArousalTo == -1
+    ;    loc_newArousal = 75
+    ;endif
     ;ActorOrgasmPatched(akActor,20,loc_newArousal)
-    UDmain.GetUDOM(akActor).ActorOrgasm(akActor,20,loc_newArousal)
+    UDmain.UDNPCM.RegisterNPC(akActor,true) ;orgasm system will not work if actor is not registered, so register the actor first, and hope there is free slot ;)
+    OrgasmSystem.ForceOrgasm(akActor)
+    ;UDmain.GetUDOM(akActor).ActorOrgasm(akActor,OrgasmSystem.GetOrgasmingCount(akActor))
 EndFunction
 
 Function UpdateExposure(actor akRef, float val, bool skipMultiplier=false)
@@ -804,41 +723,6 @@ Function UpdateExposure(actor akRef, float val, bool skipMultiplier=false)
     EndIf
 EndFunction
 
-Function ApplyExpression(Actor akActor, sslBaseExpression expression, int strength, bool openMouth=false)
-    if UDmain.ZadExpressionSystemInstalled
-        parent.ApplyExpression(akActor, expression, strength, openMouth)
-        return
-    endif
-    
-    if akActor.Is3DLoaded() || UDmain.ActorIsPlayer(akActor)
-        UDCDmain.UDEM.ApplyExpression(akActor, expression, strength, openMouth,0)
-    endif
-EndFunction
-
-Function ResetExpression(actor akActor, sslBaseExpression expression)
-    if UDmain.ZadExpressionSystemInstalled
-        parent.ResetExpression(akActor, expression)
-        return
-    endif
-    UDCDmain.UDEM.ResetExpression(akActor, expression,0)
-EndFunction
-
-Function ApplyGagEffect(actor akActor) 
-    if UDmain.ZadExpressionSystemInstalled
-        parent.ApplyGagEffect(akActor)
-        return
-    endif   
-    UDCDmain.UDEM.ApplyGagEffect(akActor)
-EndFunction
-
-Function RemoveGagEffect(actor akActor)
-    if UDmain.ZadExpressionSystemInstalled
-        parent.RemoveGagEffect(akActor)
-        return
-    endif   
-    UDCDmain.UDEM.RemoveGagEffect(akActor)
-EndFunction
-
 Event StartBoundEffects(Actor akTarget)
     UDCDmain.SendStartBoundEffectEvent(akTarget)
 EndEvent
@@ -847,109 +731,38 @@ Event StartBoundEffectsPatched(Actor akTarget)
     parent.StartBoundEffects(akTarget)
 EndEvent
 
-Armor Function GetRenderedDevice(armor device)
-    if device.haskeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
-        Armor loc_res = StorageUtil.GetFormValue(device, "UD_RenderDevice", none) as Armor
-        if loc_res
-            if UDmain.TraceAllowed()        
-                UDmain.Log("GetRenderedDevice(patched)("+device.getName()+")called, returning " + loc_res,2)
-            endif
-            return loc_res
-        endif
-    endif
-    return parent.GetRenderedDevice(device)
-EndFunction
-
 Function UpdateControls()
     ProcessPlayerControls(true) ;only update when player is not in minigame
 EndFunction
 
-Bool _ProcessPlayerControlsMutex = False
-Function StartProcessPlayerControlsMutex()
-    while _ProcessPlayerControlsMutex
-        Utility.waitMenuMode(0.1)
-    endwhile
-    _ProcessPlayerControlsMutex = True
-EndFunction
-Function EndProcessPlayerControlsMutex()
-    _ProcessPlayerControlsMutex = False
-EndFunction
 Function ProcessPlayerControls(bool abCheckMinigame = true)
-    if UDmain.TraceAllowed()
-        UDMain.Log("ProcessPlayerControls",3)
-    endif
-    if (!abCheckMinigame || !UDCDmain.PlayerInMinigame())
-        StartProcessPlayerControlsMutex()
-        ; Centralized control management function.
-        bool movement   = true
-        bool fighting   = true
-        bool sneaking   = true
-        bool menu       = true
-
-        ;check hardcore mode
-        if UDmain.Player.HasSpell(UDlibs.HardcoreDisableSpell)
-            menu = false
-        else
-            menu = true
-        endif
-
-        bool activate = true
-        int cameraState = Game.GetCameraState()
-        if playerRef.WornHasKeyword(zad_DeviousBlindfold) && (config.BlindfoldMode == 1 || config.BlindfoldMode == 0) && (cameraState == 8 || cameraState == 9)
-            movement = false
-            sneaking = false
-        EndIf
-
-        if IsBound(playerRef)
-            If playerRef.WornHasKeyword(zad_BoundCombatDisableKick)
-                fighting = false
-            Else
-                fighting = config.UseBoundCombat
-            Endif
-        EndIf
-        if playerRef.WornHasKeyword(zad_DeviousPetSuit)
-            sneaking = false
-        EndIf
-        if playerRef.WornHasKeyword(zad_DeviousPonyGear)
-            sneaking = false
-        EndIf
-        Game.DisablePlayerControls(abMovement = !movement, abFighting = !fighting, abSneaking = !sneaking, abMenu = !menu, abActivate = !activate)    
-        Game.EnablePlayerControls(abMovement = movement, abFighting = fighting, abSneaking = sneaking, abMenu = menu, abActivate = activate) 
-        EndProcessPlayerControlsMutex()
-    endif
 EndFunction
 
-function stripweapons(actor a, bool unequiponly = true)        
-    int i = 2
-    Spell spl
-    Weapon weap
-    Armor sh
-    While i > 0
-        i -= 1
-        if i == 0
-            Utility.WaitMenuMode(1.0) ;edited so devices lock also when in menu, to save time
-        EndIf
-        spl = a.getEquippedSpell(1)
-        if spl
-            a.unequipSpell(spl, 1)
-        endIf
-        weap = a.GetEquippedWeapon(true)
-        if weap
-            a.unequipItem(weap, false, true)
-        endIf
-        sh = a.GetEquippedShield()
-        if sh
-            a.unequipItem(sh, false, true)
-        endIf
-        spl = a.getEquippedSpell(0)
-        if spl
-            a.unequipSpell(spl, 0)
-        endIf
-        weap = a.GetEquippedWeapon(false)
-        if weap
-            a.unequipItem(weap, false, true)
-        endIf
-    EndWhile
+function stripweapons(actor akActor, bool abUnequiponly = true)
+    Spell loc_spell1 = akActor.getEquippedSpell(1)
+    if loc_spell1
+        akActor.unequipSpell(loc_spell1, 1)
+    endIf
+    
+    Spell loc_spell2 = akActor.getEquippedSpell(0)
+    if loc_spell2
+        akActor.unequipSpell(loc_spell2, 0)
+    endIf
+    
+    Form loc_weap1 = akActor.GetEquippedObject(0)
+    if loc_weap1
+        akActor.unequipItem(loc_weap1, false, true)
+    endIf
+    
+    Form loc_weap2 = akActor.GetEquippedObject(1)
+    if loc_weap2
+        akActor.unequipItem(loc_weap2, false, true)
+    endIf
+    
+    Armor loc_shield = akActor.GetEquippedShield()
+    if loc_shield
+        akActor.unequipItem(loc_shield, false, true)
+    endIf
 endfunction
 
 Function RepopulateNpcs()

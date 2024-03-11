@@ -3,6 +3,8 @@
 Scriptname UnforgivingDevicesMain extends Quest  conditional
 {Main script of Unforgiving Devices}
 
+import UD_Native
+
 Quest       Property UD_UtilityQuest    auto
 Quest       Property UD_LibsQuest       auto
 
@@ -259,7 +261,7 @@ EndProperty
         Correct UD_OrgasmManager for passed actor. There are currently 2 iterations of script, one for NPCs and one for player
 /;
 UD_OrgasmManager Function GetUDOM(Actor akActor)
-    if ActorIsPlayer(akActor)
+    if IsPlayer(akActor)
         return UDOMPlayer
     else
         return UDOMNPC
@@ -306,18 +308,6 @@ EndProperty
 float Property UD_LowPerformanceTime    = 1.0   autoreadonly
 float Property UD_HightPerformanceTime  = 0.25  autoreadonly
 
-;/  Variable: UD_UseNativeFunctions
-
-    If true, SKSE plugin native functions will be used
-    
-    This variable is automatically switched to false if user have not met conditions to use the plugin
-    
-    This variable is set with MCM
-    
-    Do not edit, *READ ONLY!*. Configurable on MCM *Generic* page by user.
-/;
-Bool  Property UD_UseNativeFunctions    = False auto hidden ;switch for native functions
-
 ;/  Variable: UD_baseUpdateTime
 
     Returns:
@@ -340,7 +330,6 @@ EndProperty
 zadConfig   Property DDconfig                   auto
 String[]    Property UD_OfficialPatches         auto
 
-bool Property ZaZAnimationPackInstalled = false auto hidden
 ;zbfBondageShell Property ZAZBS auto
 bool Property OSLArousedInstalled       = false auto hidden
 bool Property ConsoleUtilInstalled      = false auto hidden
@@ -351,6 +340,8 @@ Bool Property DeviousStrikeInstalled    = False auto hidden
 Bool Property ForHimInstalled           = False auto hidden
 Bool Property PO3Installed              = False auto hidden ;https://www.nexusmods.com/skyrimspecialedition/mods/22854
 Bool Property ImprovedCameraInstalled   = False auto hidden
+Bool Property ExperienceInstalled       = False auto hidden
+Bool Property SkyrimSoulsInstalled      = False auto hidden
 Bool Property AllowMenBondage           = True  auto hidden
 
 bool Property Ready = False auto hidden
@@ -421,6 +412,16 @@ UnforgivingDevicesMain Function GetUDMain() Global
     return GetMeMyForm(0x005901,"UnforgivingDevices.esp") as UnforgivingDevicesMain
 EndFunction
 
+;/  Function: GetZadLibs
+
+    Returns:
+
+        Returns singleton of zadlibs script from dd
+/;
+zadlibs Function GetZadLibs() Global
+    return GetMeMyForm(0x00F624,"Devious Devices - Integration.esm") as zadlibs
+EndFunction
+
 ;/  Function: CheckSubModules
 
     This function will check all submodul scripts and returns if true if they are all ready
@@ -454,7 +455,7 @@ Bool Function CheckSubModules()
         ShowMessageBox(loc_modules)
         
         ;Dumb info to console, use GInfo to skip ConsoleUtil installation check
-        GInfo("!!FATAL ERROR!! = Error loading Unforgiving devices. One or more of the modules are not ready. Please contact developrs on LL or GitHub")
+        GInfo("!!FATAL ERROR!! = Error loading Unforgiving devices. One or more of the modules are not ready. Please contact developers on LL or GitHub")
         GInfo("UDCDmain="+UDCDmain.ready)
         GInfo("UDOM="+UDOM.ready)
         return False
@@ -481,7 +482,7 @@ EndFunction
 
     Returns:
 
-        True if mod is not updating, not disabled and is ready
+        True if mod is not updating, not disabled and is ready. Free camera should also be not used
 /;
 Bool Function IsEnabled()
     return !_Disabled && !_Updating && ready
@@ -559,7 +560,7 @@ bool Function NativeAllowed() global
         if loc_minor == 0 && loc_beta == 20
             return true
         endif
-        ;is version 2.1.X pr 2.2.X (AE)
+        ;is version 2.1.X or 2.2.X (AE)
         if loc_minor == 1 || loc_minor == 2
             return true
         endif
@@ -592,7 +593,7 @@ EndFunction
         Current update progress of the mod. It is whole number from 0 to 100, where mod is full ready on 100
 /;
 int Function GetUpdateProgress()
-    return (Round(100.0*_updatecounter/19))
+    return (Round(100.0*_updatecounter/20))
 EndFunction
 
 Function OnGameReload()
@@ -632,11 +633,9 @@ Function OnGameReload()
         Update()
         _IncrementUpdateCounter()
         
-        if UD_UseNativeFunctions
-            int loc_removedmeters = UDWC.Meter_UnregisterAllNative()
-            if loc_removedmeters > 0
-                Info(self+"::OnGameReload() - Removed " + loc_removedmeters + " registered meters!")
-            endif
+        int loc_removedmeters = UDWC.Meter_UnregisterAllNative()
+        if loc_removedmeters > 0
+            Info(self+"::OnGameReload() - Removed " + loc_removedmeters + " registered meters!")
         endif
         _IncrementUpdateCounter()
         
@@ -701,6 +700,9 @@ Function OnGameReload()
         UDAbadonQuest.Update()
         _IncrementUpdateCounter()
         
+        UDMOM.Update()
+        _IncrementUpdateCounter()
+        
         Info("<=====| Unforgiving Devices updated |=====>")
         Print("Unforgiving Devices updated")
     else
@@ -763,12 +765,8 @@ Function Update()
     _CheckOptionalMods()
     _CheckPatchesOrder()
     
-    ;check that correct SKSE version is installed first and validate the control variable
-    ;also check if dll is actually present
-    UD_UseNativeFunctions = UD_UseNativeFunctions && NativeAllowed()
-    
     if !Ready
-        if _UpdateCheck() || _FatalError
+        if _UpdateCheck() && !_FatalError
             UD_hightPerformance = UD_hightPerformance
             
             RegisterForModEvent("UD_VibEvent","EventVib")
@@ -854,6 +852,10 @@ Function _StartModulesManual()
     if !UDCM.IsRunning()
         UDCM.start()
     endif
+    
+    if !UDWC.IsRunning()
+        UDWC.start()
+    endif
     Info(self + "::_StartModulesManual() - Started modules")
 EndFunction
 
@@ -868,15 +870,6 @@ EndFunction
 
 Function _CheckOptionalMods()
     UDNPCM.ResetIncompatibleFactionArray() ;reset incomatible scan factions
-    
-    If ModInstalled("ZaZAnimationPack.esm")
-        ZaZAnimationPackInstalled = True
-        if TraceAllowed()
-            Log("Zaz animation pack detected!")
-        endif
-    else
-        ZaZAnimationPackInstalled = False
-    endif
     
     if ModInstalled("OSLAroused.esp")
         OSLArousedInstalled = True
@@ -904,7 +897,7 @@ Function _CheckOptionalMods()
         ShowMessageBox("--!ERROR!--\nUD can't detect UIExtensions. Without this mod, some features of Unforgiving Devices will not work as intended. Please be warned.")
     endif
     
-    if ConsoleUtil.GetVersion()
+    if PluginInstalled("ConsoleUtilSSE.dll")
         ConsoleUtilInstalled = True
         if TraceAllowed()
             Log("ConsoleUtil detected!")
@@ -941,7 +934,7 @@ Function _CheckOptionalMods()
             Log("Devious Strike detected!")
         endif
         ;2 Factions, as it looks like that the formID changes between versions
-        UDNPCM.AddScanIncompatibleFaction(GetMeMyForm(0x000801,"Devious Strike.esp") as Faction) 
+        UDNPCM.AddScanIncompatibleFaction(GetMeMyForm(0x000801,"Devious Strike.esp") as Faction)
         UDNPCM.AddScanIncompatibleFaction(GetMeMyForm(0x005930,"Devious Strike.esp") as Faction)
     else
         DeviousStrikeInstalled = false
@@ -956,32 +949,47 @@ Function _CheckOptionalMods()
         ForHimInstalled = false
     endif
     
-    if PO3_SKSEFunctions.GetPapyrusExtenderVersion()
+    if PluginInstalled("po3_PapyrusExtender.dll")
         PO3Installed = True
     else
         PO3Installed = False
     endif
     
-    if SKSE.GetPluginVersion("ImprovedCameraSE.dll") != 1
+    if PluginInstalled("ImprovedCameraSE.dll")
         ImprovedCameraInstalled = true
     else
         ImprovedCameraInstalled = false
     endif
     
+    if PluginInstalled("Experience.dll")
+        ExperienceInstalled = true
+    else
+        ExperienceInstalled = false
+    endif
+    
+    if PluginInstalled("SkyrimSoulsRE.dll")
+        SkyrimSoulsInstalled = true
+    else
+        SkyrimSoulsInstalled = false
+    endif
 EndFUnction
 
 Function _CheckPatchesOrder()
-    int loc_it = 0
-    Info(self + "::_CheckPatchesOrder() - Checking patches order...")
-    while loc_it < UD_OfficialPatches.length
-        if ModInstalled(UD_OfficialPatches[loc_it])
-            if !ModInstalledAfterUD(UD_OfficialPatches[loc_it])
-                debug.messagebox("--!ERROR!--\nUD detected that patch "+ UD_OfficialPatches[loc_it] +" is loaded before main mod! Patch always needs to be loaded after main mod or it will not work!!! Please change the load order, and reload save.")
-            endif
-        endif
-        loc_it += 1
-    endwhile
-    Info(self + "::_CheckPatchesOrder() - Patches order checked")
+    Int loc_issues = UD_Native.CheckPatchedDevices()
+    if loc_issues > 0
+        debug.messagebox("--!ERROR!--\nUD detected that "+ loc_issues +" device/s are patched incorrectly! Check SKSE log for more info. Please update your load order, and try to load the game again.")
+    endif
+    ;int loc_it = 0
+    ;Info(self + "::_CheckPatchesOrder() - Checking patches order...")
+    ;while loc_it < UD_OfficialPatches.length
+    ;    if ModInstalled(UD_OfficialPatches[loc_it])
+    ;        if !ModInstalledAfterUD(UD_OfficialPatches[loc_it])
+    ;            debug.messagebox("--!ERROR!--\nUD detected that patch "+ UD_OfficialPatches[loc_it] +" is loaded before main mod! Patch always needs to be loaded after main mod or it will not work!!! Please change the load order, and reload save.")
+    ;        endif
+    ;    endif
+    ;    loc_it += 1
+    ;endwhile
+    ;Info(self + "::_CheckPatchesOrder() - Patches order checked")
 EndFunction
 
 ;/  Function: ResetQuest
@@ -1206,7 +1214,7 @@ EndFunction
         afMax     - Maximum blocking time
 /;
 Function WaitRandomTime(Float afMin = 0.1, Float afMax = 1.0) Global
-    Utility.wait(Utility.randomFloat(afMin,afMax))
+    Utility.wait(RandomFloat(afMin,afMax))
 EndFunction
 
 ;/  Function: WaitMenuRandomTime
@@ -1214,7 +1222,7 @@ EndFunction
     Same as <WaitRandomTime>, but will also work if menus are open
 /;
 Function WaitMenuRandomTime(Float afMin = 0.1, Float afMax = 1.0) Global
-    Utility.waitMenuMode(Utility.randomFloat(afMin,afMax))
+    Utility.waitMenuMode(RandomFloat(afMin,afMax))
 EndFunction
 
 ;/  Function: CalcDistance
@@ -1326,240 +1334,6 @@ string Function IntToBit(int argInt) global
     return loc_res
 EndFunction
 
-;/  Function: codeBit
-
-    Parameters:
-
-        aiCodedMap   - Integer in to which should be additiona information coded
-        aiValue      - Value to be coded in to passed aiCodedMap
-        aiSize       - Size in bites of the information from aiValue
-        aiIndex      - Start index from which will be information coded on aiCodedMap. Sum of aiIndex and aiSize have to be less then 32!
-
-    Returns:
-
-        *aiCodedMap* with coded *aiValue*. Returns *0xFFFFFFFF* in case of error
-
-    _Example_:
-        --- Code
-        Int loc_map = 0x00000000                ;input value
-            loc_map = codeBit(loc_map,0xF,4,27) ;change last four bits to 1
-        ---
-/;
-int Function codeBit(int aiCodedMap,int aiValue,int aiSize,int aiIndex) global
-    
-    if aiIndex + aiSize > 32
-        return 0xFFFFFFFF ;returns error value
-    endif
-    ;sets not shifted bit mask loc_clear_mask
-    int loc_clear_mask = (Math.LeftShift(0x1,aiSize) - 1)                     ;mask used to clear bits which will be set
-    aiValue = Math.LeftShift(Math.LogicalAnd(aiValue,loc_clear_mask),aiIndex)    ;clear value from bigger bits
-    loc_clear_mask = Math.LogicalNot(Math.LeftShift(loc_clear_mask,aiIndex)) ;shift and negate
-    aiCodedMap = Math.LogicalAnd(aiCodedMap,loc_clear_mask)                     ;clear maps bits with mask
-    return Math.LogicalOr(aiCodedMap,aiValue)                                 ;sets bits
-endfunction
-
-;/  Function: decodeBit
-
-    Parameters:
-
-        aiCodedMap   - Integer from which should be information decoded
-        aiSize       - Size in bites of the information which will be decoded
-        aiIndex      - Start index from which will be information decoded from aiCodedMap. Sum of aiIndex and aiSize have to be less then 32!
-
-    Returns:
-
-        Decoded value from *iCodedMap*. Returns *0xFFFFFFFF* in case of error
-        
-    _Example_:
-        --- Code
-        Int loc_map = 0x000000F0             ;input value
-        Int loc_res = decodeBit(loc_map,4,3) ;decode value and save it to loc_res. Value in result will be 0xF = 15.
-        ---
-/;
-int Function decodeBit(int aiCodedMap,int aiSize,int aiIndex) global
-    if aiIndex + aiSize > 32
-        return 0xFFFFFFFF ;returns error value
-    endif
-    ;sets not shifted bit mask
-    aiCodedMap = Math.RightShift(aiCodedMap,aiIndex) ;shift to right, so value is correct
-    aiCodedMap = Math.LogicalAnd(aiCodedMap,(Math.LeftShift(0x1,aiSize) - 1)) ;clear maps bits with mask
-    return aiCodedMap
-EndFunction
-
-;/  Function: fRange
-
-    Truncate passed FLOAT value between two limits
-
-    Parameters:
-
-        afValue      - Value to be truncated
-        afMin        - Minimum value
-        afMax        - Maximum value
-
-    Returns:
-
-        Truncated value
-/;
-float Function fRange(float afValue,float afMin,float afMax) global
-    if afValue > afMax
-        return afMax
-    endif
-    if afValue < afMin
-        return afMin
-    endif
-    return afValue
-EndFunction
-
-;/  Function: iRange
-
-    Truncate passed INT value between two limits
-
-    Parameters:
-
-        aiValue      - Value to be truncated
-        aiMin        - Minimum value
-        aiMax        - Maximum value
-
-    Returns:
-
-        Truncated value
-/;
-int Function iRange(int aiValue,int aiMin,int aiMax) global
-    if aiValue > aiMax
-        return aiMax
-    endif
-    if aiValue < aiMin
-        return aiMin
-    endif
-    return aiValue
-EndFunction
-
-;/  Function: iInRange
-
-    Checks if passed value is in range
-
-    Parameters:
-
-        aiValue      - Value to be checked
-        aiMin        - Minimum value
-        aiMax        - Maximum value
-
-    Returns:
-
-        False if value is less then minimum or more then maximum
-/;
-Bool Function iInRange(int aiValue,int aiMin,int aiMax) global
-    if aiValue > aiMax
-        return false
-    endif
-    if aiValue < aiMin
-        return false
-    endif
-    return true
-EndFunction
-
-;/  Function: fInRange
-
-    Checks if passed value is in range
-
-    Parameters:
-
-        afValue      - Value to be checked
-        afMin        - Minimum value
-        afMax        - Maximum value
-
-    Returns:
-
-        False if value is less then minimum or more then maximum
-/;
-Bool Function fInRange(float afValue,float afMin,float afMax) global
-    if afValue > afMax
-        return false
-    endif
-    if afValue < afMin
-        return false
-    endif
-    return true
-EndFunction
-
-;/  Function: formatString
-
-    Formats float stored in string, so it can show only passed number of floating points
-
-    Parameters:
-
-        asValue         - Number which will be formated
-        afFloatPoints   - Number of floating points to show
-
-    Returns:
-
-        Formated number in string
-
-    _Example_:
-        --- Code
-        Float   loc_number      = 1.2345                            ;input value
-        String  loc_formated    = formatString(loc_number,2)        ;formats number so it only shows 2 decimal points
-        Print(loc_formated)                                         ;Will print 1.23 only
-        ---
-/;
-string Function formatString(string asValue,int afFloatPoints) global
-    int loc_floatPoint =  StringUtil.find(asValue,".")
-    if (loc_floatPoint < 0)
-        return asValue
-    endif
-    if ((afFloatPoints + loc_floatPoint + 1) > StringUtil.getLength(asValue))
-        return asValue
-    else
-        return StringUtil.Substring(asValue, 0, loc_floatPoint + afFloatPoints + 1)
-    endif
-EndFunction
-
-;/  Function: checkLimit
-
-    Truncate passed value only in positive direction
-
-    Parameters:
-
-        afValue      - Value to be checked
-        afLimit      - Number limit
-
-    Returns:
-
-        Returns truncated number so it is never more then afLimit
-/;
-float Function checkLimit(float afValue,float afLimit) global
-    if afValue > afLimit
-        return afLimit
-    else
-        return afValue
-    endif
-EndFunction
-
-
-;/  Function: Round
-
-    Round the FLOAT number to INT
-
-    Parameters:
-
-        afValue      - Value to be  rounded
-
-    Returns:
-
-        Rounded afValue
-
-    _Example_:
-        --- Code
-        Round(0.1) -> Returns 0
-        Round(0.4) -> Returns 0
-        Round(0.5) -> Returns 1
-        Round(0.9) -> Returns 1
-        ---
-/;
-int Function Round(float afValue) global
-    return Math.floor(afValue + 0.5)
-EndFunction
-
 ;/  Function: iUnsig
 
     Truncate negative values from passed INT
@@ -1588,28 +1362,6 @@ Int Function iUnsig(Int aiValue) global
     return aiValue
 EndFunction
 
-;/  Function: fUnsig
-
-    Truncate negative values from passed FLOAT
-
-    Parameters:
-
-        afValue     - Value to be truncated
-
-    Returns:
-
-        Truncated value
-
-    _Example_:
-
-    See <iUnsig>
-/;
-Float Function fUnsig(float afValue) global
-    if afValue < 0.0
-        return 0.0
-    endif
-    return afValue
-EndFunction
 
 ;/  Function: ConvertTime
 
@@ -2045,65 +1797,6 @@ float Function getCurrentActorValuePerc(Actor akActor,string akValue) global
     return akActor.GetActorValuePercentage(akValue)
 EndFunction
 
-
-;/  Function: ActorIsPlayer
-
-    Parameters:
-
-        akActor   - Actor which will be checked
-
-    Returns:
-
-        True if passed akActor is player
-/;
-bool Function ActorIsPlayer(Actor akActor)
-    return akActor == Player
-EndFunction
-
-;/  Function: GActorIsPlayer
-
-    Global version of <ActorIsPlayer>. This function is generaly slower, and its non-global variant should be used instead.
-
-    Parameters:
-
-        akActor   - Actor which will be checked
-
-    Returns:
-
-        True if passed *akActor* is player
-/;
-bool Function GActorIsPlayer(Actor akActor) global
-    return akActor == Game.getPlayer()
-EndFunction
-
-;/  Function: GetActorName
-
-    Parameters:
-
-        akActor   - Actor whose name will be returned
-
-    Returns:
-
-        Name of passed actor. Returns *"ERROR:NONE"* if passed actor is none. Returns *"Unnamed X"* if actor have no name.
-/;
-string Function GetActorName(Actor akActor) global
-    if !akActor
-        return "ERROR:NONE"
-    endif
-    ActorBase loc_actorbase = akActor.GetLeveledActorBase()
-    string loc_res = loc_actorbase.getName()
-    if loc_res == "" ;actor have no name
-        if loc_actorbase.GetSex() == 0
-            loc_res = "Unnamed man"
-        elseif loc_actorbase.GetSex() == 1
-            loc_res = "Unnamed woman"
-        else
-            loc_res = "Unnamed person"
-        endif
-    endif
-    return loc_res
-EndFunction
-
 ;/  Function: ActorIsFollower
 
     Parameters:
@@ -2179,7 +1872,7 @@ int Property UD_HearingRange = 4000 auto hidden
         True if passed akActor is close to player
 /;
 bool Function ActorInCloseRange(Actor akActor)
-    if ActorIsPlayer(akActor)
+    if IsPlayer(akActor)
         return true
     endif
     float loc_distance = CalcDistance(Player,akActor)
@@ -2442,6 +2135,18 @@ Bool Function IsAnyMenuOpen()
     return UDMC.UD_MenuListIDBit
 EndFunction
 
+;/  Function: IsAnyMenuOpenRT
+
+    This function check if any menu is open. Should be used only in relevance to runtime waits (Wait x WaitMenuMode)
+
+    Returns:
+
+        True if ANY menu is open and SkyrimSoulsInstalled is not installed
+/;
+Bool Function IsAnyMenuOpenRT()
+    return UDMC.UD_MenuListIDBit && !SkyrimSoulsInstalled
+EndFunction
+
 ;/  Function: IsMenuOpenID
 
     This function check if specific menu is open
@@ -2456,6 +2161,18 @@ EndFunction
 /;
 Bool Function IsMenuOpenID(int aiID)
     return UDMC.isMenuOpen(iRange(aiID,0,UDMC.UD_MenuListID.length))
+EndFunction
+
+;/  Function: GetOpenMenuMap
+
+    Get bit coded currently opened menus
+
+    Returns:
+
+        Bit coded menus
+/;
+Int Function GetOpenMenuMap()
+    return UDMC.UD_MenuListIDBit
 EndFunction
 
 ;/  Function: IsContainerMenuOpen

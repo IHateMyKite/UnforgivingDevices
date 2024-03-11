@@ -6,6 +6,7 @@
 ScriptName UD_WidgetControl extends Quest
 
 import UnforgivingDevicesMain
+import UD_Native
 
 ; CONSTANTS
 Int W_POSY_BOTTOM = 0
@@ -513,8 +514,8 @@ Function OnUIReload(Bool abGameLoad)
             i -= 1
             UD_VanillaWidgets[i].Hide(True)
         EndWhile
-        Meter_Register("device-main", "icon-meter-struggle")
         Meter_Register("player-orgasm", "icon-meter-orgasm")
+        Meter_Register("device-main", "icon-meter-struggle")
         Meter_Register("device-condition", "icon-meter-condition")
         InitWidgetsRequest(abGameLoad = abGameLoad, abMeters = True, abIcons = True, abText = True)
     else
@@ -805,26 +806,18 @@ EndFunction
     
     Use <Meter_UnRegisterNative> to unregister registered meter
     
-    *Native library is required!!*
-    
-    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
-    
     Parameters:
         asMeter  - meter name/alias (for example device-main)
         afValue  - inital value that meter will be forced to. Have to be in range from 0.0 to 100.0
         afRate   - inital rate that meter will use to update its value. Rate is in value per second. Can be both positive and negative
         abToggle - if meter be toggled on or off after initiazation
 /;
-Function Meter_RegisterNative(string asMeter,float afValue,float afRate,bool abToggle = true)
-    UD_Native.AddMeterEntrySkyUi(_GetVanillaMeter(asMeter).WidgetRoot,asMeter, afValue, afRate, abToggle)
+Function Meter_RegisterNative(string asMeter,int aiFormula,float afValue,float afRate,bool abToggle = true)
+    UD_Native.AddMeterEntrySkyUi(_GetVanillaMeter(asMeter).WidgetRoot,asMeter, aiFormula, afValue, afRate, abToggle)
 EndFunction
 
 ;/  Function: Meter_UnRegisterNative
     Unregister registered meter from native library
-    
-    *Native library is required!!*
-    
-    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
     
     Parameters:
         asMeter  - meter name/alias (for example device-main)
@@ -836,25 +829,17 @@ EndFunction
 ;/  Function: Meter_UnRegisterNative
     Unregister all registered meters from native library
     
-    *Native library is required!!*
-    
-    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
-    
     Returns:
         Number of unregistered meters
 /;
 Int Function Meter_UnregisterAllNative()
-    UD_Native.RemoveAllMeterEntries()
+    return UD_Native.RemoveAllMeterEntries()
 EndFunction
 
 ;/  Function: Meter_ToggleNative
     Toggle native meter, stopping it from updating its value.
     
     Meter have to be first registered with <Meter_RegisterNative> before this function can be used
-    
-    *Native library is required!!*
-    
-    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
     
     Parameters:
         asMeter  - meter name/alias (for example device-main)
@@ -869,10 +854,6 @@ EndFunction
     
     Meter have to be first registered with <Meter_RegisterNative> before this function can be used
     
-    *Native library is required!!*
-    
-    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
-    
     Parameters:
         asMeter  - meter name/alias (for example device-main)
         afRate   - new rate that meter will use to update its value. Rate is in value per second. Can be both positive and negative
@@ -886,10 +867,6 @@ EndFunction
     
     Meter have to be first registered with <Meter_RegisterNative> before this function can be used
     
-    *Native library is required!!*
-    
-    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
-    
     Parameters:
         asMeter  - meter name/alias (for example device-main)
         afMult   - new multiplier for meter rate
@@ -902,10 +879,6 @@ EndFunction
     Get the rate of the registered native meter
     
     Meter have to be first registered with <Meter_RegisterNative> before this function can be used
-    
-    *Native library is required!!*
-    
-    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
     
     Parameters:
         asMeter  - meter name/alias (for example device-main)
@@ -922,10 +895,6 @@ EndFunction
     
     Meter have to be first registered with <Meter_RegisterNative> before this function can be used
     
-    *Native library is required!!*
-    
-    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
-    
     Parameters:
         asMeter  - meter name/alias (for example device-main)
         afValue  - New meter value
@@ -939,10 +908,6 @@ EndFunction
     
     Meter have to be first registered with <Meter_RegisterNative> before this function can be used
     
-    *Native library is required!!*
-    
-    *Check with <UD_UseNativeFunctions> variable to see if SKSE plugin is installed and allowed!*
-    
     Parameters:
         asMeter  - meter name/alias (for example device-main)
         afDiff   - By how much should be value updated
@@ -954,6 +919,20 @@ Float Function Meter_UpdateNativeValue(string asMeter,Float afDiff)
     return UD_Native.UpdateMeterValueSkyUi(_GetVanillaMeter(asMeter).WidgetRoot,afDiff)
 EndFunction
 
+
+;/  Function: Meter_LinkActorOrgasm
+    TODO
+/;
+Function Meter_LinkActorOrgasm(Actor akActor, String asMeter)
+    OrgasmSystem.LinkActorToMeter(akActor,_GetVanillaMeter(asMeter).WidgetRoot,0,0)
+EndFunction
+
+;/  Function: Meter_UnlinkActorOrgasm
+    TODO
+/;
+Function Meter_UnlinkActorOrgasm(Actor akActor)
+    OrgasmSystem.UnlinkActorFromMeter(akActor)
+EndFunction
 ;/  Group: Notifications API
 ===========================================================================================
 ===========================================================================================
@@ -1163,7 +1142,7 @@ Function TestWidgets()
     While i < len
         If UD_VanillaWidgets[i] != None
             UD_VanillaWidgets[i].Show(true)
-            UD_VanillaWidgets[i].SetPercent(Utility.RandomFloat(0.0, 1.0), False)
+            UD_VanillaWidgets[i].SetPercent(RandomFloat(0.0, 1.0), False)
         EndIf
         i += 1
     EndWhile
@@ -1215,6 +1194,26 @@ UD_WidgetBase Function _GetVanillaMeter(String asName)
         UDMain.Log("UD_WidgetControl::_GetVanillaMeter() Can't find vanilla widget with the name " + asName)
     endif
     Return None
+EndFunction
+
+;/  Function: GetMeterIdentifier
+
+    Returns unique meter identifier. The identifier changes based on used widget system
+    
+    Parameters:
+        asName                  - Meter name.
+        
+    Returns:
+        Meter identifier. Is always made up of 2 values
+        
+        First value determinate which widget system is used. Currently either SkyUi (0) or IWantWidgets (1)
+        
+        Second value is identifier. For SkyUi, it is path. For IWantWidgets, it is widget id
+        
+        
+/;
+String Function GetMeterIdentifier(String asName)
+    Return ("0,"+_GetVanillaMeter(asName).WidgetRoot)
 EndFunction
 
 Bool _FindEmptySE_Mutex = False
@@ -1765,8 +1764,8 @@ State iWidgetInstalled
         _GetMeter(asMeter).FillPercent = Round(afValue)
     EndFunction
     
-    Function Meter_RegisterNative(string asMeter,float afValue,float afRate,bool abToggle = true)
-        UD_Native.AddMeterEntryIWW(iWidget.WidgetRoot,_GetMeter(asMeter).id,asMeter, afValue, afRate, abToggle)
+    Function Meter_RegisterNative(string asMeter,int aiFormula,float afValue,float afRate,bool abToggle = true)
+        UD_Native.AddMeterEntryIWW(iWidget.WidgetRoot,_GetMeter(asMeter).id,asMeter, aiFormula, afValue, afRate, abToggle)
     EndFunction
     
     Function Meter_UnregisterNative(string asMeter)
@@ -1797,6 +1796,10 @@ State iWidgetInstalled
         return UD_Native.UpdateMeterValueIWW(_GetMeter(asMeter).id,afDiff)
     EndFunction
    
+    Function Meter_LinkActorOrgasm(Actor akActor, String asMeter)
+        OrgasmSystem.LinkActorToMeter(akActor,iWidget.WidgetRoot,1,_GetMeter(asMeter).id)
+    EndFunction
+    
     ; quickly push a string into array and leave the function
     Function Notification_Push(String asText, Int aiColor = 0xFFFFFF)
         If asText == ""
@@ -2123,7 +2126,7 @@ State iWidgetInstalled
             loc_dataIcon = StatusEffectSlots[i]
             If loc_dataIcon.Name != ""
                 loc_dataIcon.StartTest()
-                StatusEffect_SetMagnitude(loc_dataIcon.Name, Utility.RandomInt(1, 100))
+                StatusEffect_SetMagnitude(loc_dataIcon.Name, RandomInt(1, 100))
                 StatusEffect_SetVisible(loc_dataIcon.Name, True)
                 StatusEffect_SetBlink(loc_dataIcon.Name, True)
             EndIf
@@ -2137,7 +2140,7 @@ State iWidgetInstalled
             If loc_dataMeter.Name != ""
                 loc_dataMeter.StartTest()
                 Meter_SetVisible(loc_dataMeter.Name, True)
-                Meter_SetFillPercent(loc_dataMeter.Name, Utility.RandomInt(1, 100))
+                Meter_SetFillPercent(loc_dataMeter.Name, RandomInt(1, 100))
             EndIf
             i += 1
         EndWhile
@@ -2174,6 +2177,10 @@ State iWidgetInstalled
             i += 1
         EndWhile
         
+    EndFunction
+    
+    String Function GetMeterIdentifier(String asName)
+        Return ("1,"+_GetMeter(asName).id)
     EndFunction
     
 EndState        ; iWidgetInstalled

@@ -1,6 +1,7 @@
 Scriptname UD_OrgasmUpdater extends Quest conditional
 
 import UnforgivingDevicesMain
+import UD_Native
 
 UnforgivingDevicesMain              Property    UDmain              auto
 UD_OrgasmManager                    Property    UDOM                auto
@@ -37,11 +38,11 @@ Event OnUpdate()
         Ready = True
         InitSlots()
     endif
-    if UDmain.IsEnabled()
+    if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
         Evaluate()
         RegisterForSingleUpdate(UD_UpdateTime)
     else
-        RegisterForSingleUpdate(2.0)
+        RegisterForSingleUpdate(5.0)
     endif
 EndEvent
 
@@ -73,10 +74,10 @@ Function EvaluateSlots(UD_CustomDevices_NPCSlotsManager akSlots, Int aiUpdateTim
         UD_CustomDevice_NPCSlot loc_Slot = akSlots.getNPCSlotByIndex(loc_id)
         if SlotOrgasmUpdateEnabled(loc_Slot)
             UpdateVibrators(loc_Slot,aiUpdateTime)
-            if !loc_Slot.IsPlayer()
+            ;if !loc_Slot.IsPlayer()
                 UpdateArousal(loc_Slot,aiUpdateTime)
                 UpdateOrgasm(loc_Slot,aiUpdateTime)
-            endif
+            ;endif
         endif
     endwhile
 EndFUnction

@@ -1,6 +1,7 @@
 Scriptname UD_MutexScript extends ReferenceAlias
 
 import UnforgivingDevicesMain
+import UD_Native
 
 UDCustomDeviceMain Property UDCDmain auto
 
@@ -83,7 +84,7 @@ Function EvaluateLockMutex()
         loc_time += 0.1
     endwhile
     
-    if loc_time >= UDmain.UDGV.UD_MutexTimeout && UDmain.IsAnyMenuOpen()
+    if loc_time >= UDmain.UDGV.UD_MutexTimeout && UDmain.IsAnyMenuOpenRT()
         Utility.wait(0.01)
         loc_time = 0.0
         while loc_time <= UDmain.UDGV.UD_MutexTimeout && (!UD_GlobalDeviceMutex_InventoryScript)
@@ -109,7 +110,7 @@ Function EvaluateUnlockMutex()
         loc_time += 0.1
     endwhile
     
-    if loc_time >= UDmain.UDGV.UD_MutexTimeout && UDmain.IsAnyMenuOpen()
+    if loc_time >= UDmain.UDGV.UD_MutexTimeout && UDmain.IsAnyMenuOpenRT()
         Utility.wait(0.01)
         loc_time = 0.0
         while loc_time <= UDmain.UDGV.UD_MutexTimeout && (!UD_GlobalDeviceUnlockMutex_InventoryScript)

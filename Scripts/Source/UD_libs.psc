@@ -68,6 +68,9 @@ Armor Property CursedInflatablePlugAnal auto
 Armor Property InflatablePlugAnal auto
 Armor Property InflatablePlugVag auto
 
+;keyword
+Keyword Property AbadonDevice_KW auto
+
 ;hand restrains
 Armor Property AbadonArmbinder auto
 Armor Property AbadonArmbinderEbonite auto
@@ -79,14 +82,16 @@ Armor Property AbadonStraitjacketEboniteOpen auto
 Armor Property AbadonArmbinderWhite auto
 Armor Property AbadonArmbinderRope auto
 Armor Property AbadonYoke auto
-
+Armor Property AbadonBoxbinder auto
 
 Armor Property AbadonWeakArmbinder auto
 Armor Property AbadonWeakStraitjacket auto
 Armor Property AbadonWeakElbowbinder auto
 Armor Property AbadonWeakYoke auto
+Armor Property AbadonWeakBoxbinder auto
 
 ;gags
+Armor Property AbadonFacemask auto
 Armor Property AbadonBallGag auto
 Armor Property AbadonPanelGag auto
 Armor Property AbadonRingGag auto
@@ -106,9 +111,12 @@ Armor Property AbadonRestrictiveCollar auto
 Armor Property AbadonGasmask auto
 Armor Property CursedAbadonGasmask auto
 ;catsuit
-Armor Property AbadonSuit auto
+Armor Property AbadonCatsuit auto
+Armor Property AbadonSuit auto ;punisher suit
 Armor Property AbadonTransSuit auto
 ;boots
+Armor Property AbadonBoots auto
+Armor Property AbadonSocks auto
 Armor Property AbadonBalletBoots auto
 Armor Property AbadonRestrictiveBoots auto
 Armor Property AbadonTransBoots auto
@@ -151,7 +159,7 @@ Armor Property OrgasmResistRing auto
 Ingredient Property BlackGoo auto
 Ingredient Property AncientSeed auto
 MiscObject Property AbadonGem auto
-  
+
 ;keywords
 Keyword Property QuestDevice auto
 Keyword Property AbadonPlugkw auto

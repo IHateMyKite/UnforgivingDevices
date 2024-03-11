@@ -1,6 +1,7 @@
 Scriptname UD_CustomGag_RenderScript extends UD_CustomDevice_RenderScript  
 
 import UnforgivingDevicesMain
+import UD_Native
 
 Function InitPost()
     UD_DeviceType = "Gag"
@@ -21,7 +22,7 @@ float Function getAccesibility()
 EndFunction
 
 bool Function OnUpdateHourPost()
-    if Utility.randomInt(1,99) < 35
+    if RandomInt(1,99) < 35
         UDCDmain.ApplyDroolEffect(GetWearer())
         if WearerIsPlayer()
             UDmain.Print("Gag is making you drool uncontrollably",3)

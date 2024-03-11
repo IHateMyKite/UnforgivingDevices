@@ -17,6 +17,8 @@
 /;
 Scriptname UD_AnimationManagerScript extends Quest
 
+import UD_Native
+
 UnforgivingDevicesMain                 Property     UDmain                  Auto
 UDCustomDeviceMain                     Property     UDCDmain                        Hidden
     UDCustomDeviceMain Function Get()
@@ -188,7 +190,7 @@ Bool Function StartSoloAnimationSequence(Actor akActor, String[] aasAnimation, B
         Return False
     EndIf
     If !abContinueAnimation
-        If UDmain.ActorIsPlayer(akActor)
+        If UD_Native.IsPlayer(akActor)
             _Apply3rdPersonCamera(abDismount = True)
         EndIf
         LockAnimatingActor(akActor, abDisableActor)
@@ -206,12 +208,12 @@ Bool Function StartSoloAnimationSequence(Actor akActor, String[] aasAnimation, B
         EndIf
     EndWhile
     
-    If !abContinueAnimation
-        ; unequipping the shield again after starting the animation
-        If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
-            akActor.UnequipItemSlot(39)
-        EndIf
-    EndIf
+    ;If !abContinueAnimation
+    ;    ; unequipping the shield again after starting the animation
+    ;    If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
+    ;        akActor.UnequipItemSlot(39)
+    ;    EndIf
+    ;EndIf
     Return True
 EndFunction
 
@@ -283,7 +285,7 @@ Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[]
     EndIf
     
     If !abContinueAnimation
-        If UDmain.ActorIsPlayer(akActor) || UDmain.ActorIsPlayer(akHelper)
+        If UD_Native.IsPlayer(akActor) || UD_Native.IsPlayer(akHelper)
             _Apply3rdPersonCamera(abDismount = False)
         EndIf
         ; locking actors, disable actors control/movement
@@ -355,15 +357,15 @@ Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[]
         akHelper.TranslateToRef(vehicleMarkerRef, 200.0)
     EndIf
     
-    If !abContinueAnimation
-        ; unequipping the shield again after starting the animation
-        If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
-            akActor.UnequipItemSlot(39)
-        EndIf
-        If StorageUtil.HasFormValue(akHelper, "UD_EquippedShield")
-            akHelper.UnequipItemSlot(39)
-        EndIf
-    EndIf
+    ;If !abContinueAnimation
+    ;    ; unequipping the shield again after starting the animation
+    ;    If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
+    ;        akActor.UnequipItemSlot(39)
+    ;    EndIf
+    ;    If StorageUtil.HasFormValue(akHelper, "UD_EquippedShield")
+    ;        akHelper.UnequipItemSlot(39)
+    ;    EndIf
+    ;EndIf
     
     Return True
 EndFunction
@@ -442,7 +444,7 @@ Function StopAnimation(Actor akActor, Actor akHelper = None, Bool abEnableActors
         Debug.SendAnimationEvent(akHelper, "IdleForceDefaultState")
         _RestoreActorPosition(akHelper)
     EndIf
-    If (loc_stopActor && UDmain.ActorIsPlayer(akActor)) || (loc_stopHelper && UDmain.ActorIsPlayer(akHelper))
+    If (loc_stopActor && UD_Native.IsPlayer(akActor)) || (loc_stopHelper && UD_Native.IsPlayer(akHelper))
         _RestorePlayerCamera()
     EndIf
 EndFunction
@@ -507,27 +509,27 @@ Function LockAnimatingActor(Actor akActor, Bool abDisableActor = True)
         UDCDMain.DisableActor(akActor)
     endif
 
-    If !UDmain.ActorIsPlayer(akActor)
+    If !UD_Native.IsPlayer(akActor)
         akActor.ClearLookAt()
         akActor.SetHeadTracking(False)
         akActor.SetAnimationVariableInt("IsNPC", 0)
         akActor.SetAnimationVariableBool("bHeadTrackSpine", False)
     EndIf
 
-    Armor shield = akActor.GetEquippedShield()
-    If shield
-        StorageUtil.SetFormValue(akActor, "UD_EquippedShield", shield)
-        akActor.UnequipItemSlot(39)
-    Else
-        StorageUtil.UnsetFormValue(akActor, "UD_EquippedShield")
-    EndIf
+    ;Armor shield = akActor.GetEquippedShield()
+    ;If shield
+    ;    StorageUtil.SetFormValue(akActor, "UD_EquippedShield", shield)
+    ;    akActor.UnequipItemSlot(39)
+    ;Else
+    ;    StorageUtil.UnsetFormValue(akActor, "UD_EquippedShield")
+    ;EndIf
     
     if akActor.IsWeaponDrawn()
         akActor.SheatheWeapon()
         ; Wait for users with flourish sheathe animations.
         int timeout=0
-        while akActor.IsWeaponDrawn() && timeout <= 70 ;  Wait 3.5 seconds at most before giving up and proceeding.
-            Utility.Wait(0.05)
+        while akActor.IsWeaponDrawn() && timeout <= 15 ;  Wait 3.0 seconds at most before giving up and proceeding.
+            Utility.Wait(0.2)
             timeout += 1
         EndWhile
     EndIf
@@ -550,7 +552,7 @@ Function UnlockAnimatingActor(Actor akActor, Bool abEnableActor = True)
         UDCDMain.EnableActor(akActor)
     endif
     
-    If !UDmain.ActorIsPlayer(akActor)
+    If !UD_Native.IsPlayer(akActor)
         akActor.SetHeadTracking(True)
         akActor.SetAnimationVariableInt("IsNPC", 1)
         akActor.SetAnimationVariableBool("bHeadTrackSpine", True)
@@ -558,18 +560,18 @@ Function UnlockAnimatingActor(Actor akActor, Bool abEnableActor = True)
     
     akActor.SetVehicle(None)
     
-    If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
-        If UDmain.ActorIsPlayer(akActor)
-            Armor shield = StorageUtil.GetFormValue(akActor, "UD_EquippedShield") as Armor
-            If shield
-                akActor.EquipItem(akActor, shield)
-            EndIf
-        Else
-            ; if akActor is a NPC lets hope it has enough AI to equip shield
-            ; because I don't want to check its outfit for having shiled.
-        EndIf
-        StorageUtil.UnsetFormValue(akActor, "UD_EquippedShield")
-    EndIf
+    ;If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
+    ;    If UD_Native.IsPlayer(akActor)
+    ;        Armor shield = StorageUtil.GetFormValue(akActor, "UD_EquippedShield") as Armor
+    ;        If shield
+    ;            akActor.EquipItem(akActor, shield)
+    ;        EndIf
+    ;    Else
+    ;        ; if akActor is a NPC lets hope it has enough AI to equip shield
+    ;        ; because I don't want to check its outfit for having shiled.
+    ;    EndIf
+    ;    StorageUtil.UnsetFormValue(akActor, "UD_EquippedShield")
+    ;EndIf
 
 EndFunction
 
@@ -589,7 +591,7 @@ Function SetActorHeading(Actor akActor, ObjectReference akHeadingTarget)
     If akHeadingTarget != None
         a += akActor.GetHeadingAngle(akHeadingTarget)
     EndIf
-    If UDMain.ActorIsPlayer(akActor)
+    If UD_Native.IsPlayer(akActor)
         akActor.SetAngle(0, 0, a)
     Else
         akActor.TranslateTo(akActor.X, akActor.Y, akActor.Z, 0, 0, a, 150, 180)
@@ -630,52 +632,14 @@ Int Function GetActorConstraintsInt(Actor akActor, Bool abUseCache = True)
         Return 0
     EndIf
     
-    If abUseCache && StorageUtil.HasIntValue(akActor, "UD_ActorConstraintsInt") && (StorageUtil.GetIntValue(akActor, "UD_ActorConstraintsInt_Invalid", 0) == 0)
-        Return StorageUtil.GetIntValue(akActor, "UD_ActorConstraintsInt")
-    EndIf
+    ;If abUseCache && StorageUtil.HasIntValue(akActor, "UD_ActorConstraintsInt") && (StorageUtil.GetIntValue(akActor, "UD_ActorConstraintsInt_Invalid", 0) == 0)
+    ;    Return StorageUtil.GetIntValue(akActor, "UD_ActorConstraintsInt")
+    ;EndIf
     
-    Int result = 0
-
-    if UDmain.UD_UseNativeFunctions
-        result = UD_Native.GetActorConstrains(akActor)
-    else
-        If akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirt) && !akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirtRelaxed)
-            result += 1
-        EndIf
-        If akActor.WornHasKeyword(libs.zad_DeviousAnkleShackles) || akActor.WornHasKeyword(libs.zad_DeviousHobbleSkirtRelaxed)
-            result += 2
-        EndIf
-        If akActor.WornHasKeyword(libs.zad_DeviousHeavyBondage)
-            If akActor.WornHasKeyword(libs.zad_DeviousElbowTie)     ; FIX: temporal fix for errors in "Devious Devices SE patch.esp". In that patch Yoke keyword was added to ElbowTie devices.
-                result += 128
-            ElseIf akActor.WornHasKeyword(libs.zad_DeviousYoke)
-                result += 4
-            ElseIf akActor.WornHasKeyword(libs.zad_DeviousCuffsFront)
-                result += 8
-            ElseIf akActor.WornHasKeyword(libs.zad_DeviousArmbinder)
-                result += 16
-            ElseIf akActor.WornHasKeyword(libs.zad_DeviousArmbinderElbow)
-                result += 32
-            ElseIf akActor.WornHasKeyword(libs.zad_DeviousPetSuit)
-                result += 64
-    ;        ElseIf akActor.WornHasKeyword(libs.zad_DeviousElbowTie)        
-    ;            result += 128
-            ElseIf akActor.WornHasKeyword(libs.zad_DeviousStraitJacket)
-                result += 512
-            ElseIf akActor.WornHasKeyword(libs.zad_DeviousYokeBB)
-                result += 1024
-            EndIf
-        EndIf
-        If akActor.WornHasKeyword(libs.zad_DeviousBondageMittens)
-            result += 256
-        EndIf
-        If akActor.WornHasKeyword(libs.zad_DeviousGag)
-            result += 2048
-        EndIf
-    endif
-    StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt_Invalid", 0)
-    StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt", result)
-    Return result
+    Int loc_result = UD_Native.GetActorConstrains(akActor)
+    ;StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt_Invalid", 0)
+    ;StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt", loc_result)
+    Return loc_result
 EndFunction
 
 ;/  Function: InvalidateActorConstraintsInt
@@ -692,7 +656,7 @@ Function InvalidateActorConstraintsInt(Actor akActor)
     If akActor == None
         Return
     EndIf
-    StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt_Invalid", 1)
+    ;StorageUtil.SetIntValue(akActor, "UD_ActorConstraintsInt_Invalid", 1)
 EndFunction
 
 ;/  Function: GetHeavyBondageKeyword
@@ -785,7 +749,7 @@ Bool Function PlayAnimationByDef(String asAnimDef, Actor[] aakActors, Bool abCon
                 EndIf
             EndWhile
             If anim_var_path_array.Length > 0
-                actor_animVars[k] = anim_var_path_array[Utility.RandomInt(0, anim_var_path_array.Length - 1)]
+                actor_animVars[k] = anim_var_path_array[RandomInt(0, anim_var_path_array.Length - 1)]
             Else
                 UDmain.Warning("UD_AnimationManagerScript::PlayAnimationByDef() Can't find valid animation variant in def " + asAnimDef +" for actor with constraints " + actor_constraints)
                 Return False
@@ -1437,8 +1401,21 @@ EndFunction
 ; abDismount should not be used with group animations since they are using "mount"
 Function _Apply3rdPersonCamera(Bool abDismount = True)
     if UDmain.ImprovedCameraInstalled
+        ;UDmain.Log("UD_AnimationManagerScript::_Apply3rdPersonCamera() ImprovedCameraInstalled = true, CameraState = " + Game.GetCameraState())
+        ; 0 - first person; 3 - free camera; 9 - third person; 10 - On a horse
+        ; TODO: need more tests with free camera
         Game.ForceThirdPerson()
-        Game.DisablePlayerControls(false, false, true, false, false, false, false)
+        
+        If (abDismount && UDMain.Player.IsOnMount())
+            UDMain.Player.Dismount()
+            int timeout = 0
+            while UDMain.Player.IsOnMount() && timeout <= 30; Wait for dismount to complete
+                Utility.Wait(0.1)
+                timeout += 1
+            EndWhile
+            ;UDmain.Log("UD_AnimationManagerScript::_Apply3rdPersonCamera() Dismount waiting, IsOnMount = " + UDMain.Player.IsOnMount() + ", timeout = " + timeout)
+        EndIf
+
         return
     endif
 
@@ -1512,7 +1489,7 @@ Function _RestoreActorPosition(Actor akActor)
     Float z = StorageUtil.GetFloatValue(akActor, "UD_AnimationManager_Z", akActor.Z)
     Float a = StorageUtil.GetFloatValue(akActor, "UD_AnimationManager_A", akActor.GetAngleZ())
     
-    If UDMain.ActorIsPlayer(akActor)
+    If UD_Native.IsPlayer(akActor)
         akActor.SetPosition(x, y, z)
         akActor.SetAngle(0, 0, a)
     Else

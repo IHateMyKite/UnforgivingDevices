@@ -1,6 +1,7 @@
 Scriptname UD_NPCInteligence extends Quest
 
 import UnforgivingDevicesMain
+import UD_Native
 
 ;Device priorities
 ; Vibrator      = 15 (40 when vibrating)
@@ -44,11 +45,11 @@ Event OnInit()
 EndEvent
 
 Event OnUpdate()
-    if UDmain.IsEnabled()
+    if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
         Evaluate()
         RegisterForSingleUpdate(UD_UpdateTime)
     else
-        RegisterForSingleUpdate(30.0)
+        RegisterForSingleUpdate(10.0)
     endif
 EndEvent
 

@@ -3,6 +3,7 @@
 Scriptname UD_TopicFragments Extends TopicInfo Hidden conditional
 
 import UnforgivingDevicesMain
+import UD_Native
 
 UDCustomDeviceMain _UDCDmain
 UDCustomDeviceMain Property UDCDmain
@@ -199,7 +200,7 @@ EndFunction
 
 Function LockRandomHandRestrain(ObjectReference akSpeakerRef)
     UDCDmain.UDmain.UDRRM.LockRandomRestrain(Game.GetPlayer(),false,0x00000010) ;lock hand restrain
-    UDCDmain.UDmain.UDRRM.LockAnyRandomRestrain(Game.GetPlayer(),Utility.randomInt(3,8),false) ;lock other random devices
+    UDCDmain.UDmain.UDRRM.LockAnyRandomRestrain(Game.GetPlayer(),RandomInt(3,8),false) ;lock other random devices
     Debug.Messagebox(GetActorName(akSpeakerRef as Actor) + " didn't like your attitude and locked you in several devices to teach you a lesson.")
     ResetCooldownNoXP(akSpeakerRef)
 EndFunction

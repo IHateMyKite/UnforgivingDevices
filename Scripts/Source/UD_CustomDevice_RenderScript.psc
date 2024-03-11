@@ -4,6 +4,7 @@ Scriptname UD_CustomDevice_RenderScript extends ObjectReference
 
 import UnforgivingDevicesMain
 import UD_NPCInteligence
+import UD_Native
 
 ;bit maps used to code simple values to reduce memory size of script
 
@@ -13,10 +14,10 @@ import UD_NPCInteligence
 ;02 = 1b, _CuttingGameON
 ;03 = 1b, _KeyGameON
 ;04 = 1b, _RepairLocksMinigameON
-;05 = 1b, UNUSED
-;06 = 1b, UNUSED
+;05 = 1b, UD_useWidgetSec
+;06 = 1b, UD_WidgetAutoColorSec
 ;07 = 1b, _critLoop_On
-;08 = 1b, UNUSED
+;08 = 1b, UD_AllowWidgetUpdateSec
 ;09 = 1b, UD_drain_stats
 ;10 = 1b, UD_drain_stats_helper
 ;11 = 1b, UD_damage_device
@@ -110,7 +111,9 @@ int _deviceControlBitMap_12 = 0x0A078000
 
 ; === _deviceControlBitMap_13 === (mutex3)
 ;00 - 11 = 12b (0000 0000 0000 0000 0000 XXXX XXXX XXXX)(0x0000 0FFF), _CuttingProgress
-;12 - 31 =  8b (XXXX XXXX XXXX XXXX XXXX 0000 0000 0000)(0xFFFF F000), !UNUSED!
+;12 - 15 =  4b (XXXX XXXX XXXX XXXX XXXX 0000 0000 0000)(0x0000 F000), !UNUSED!
+;16 - 23 =  8b (XXXX XXXX XXXX XXXX XXXX 0000 0000 0000)(0x00FF 0000), UD_WidgetFormula
+;24 - 31 =  8b (XXXX XXXX XXXX XXXX XXXX 0000 0000 0000)(0xFF00 0000), UD_WidgetFormulaSec
 int _deviceControlBitMap_13 = 0x00000000
 
 Function Debug_LogBitMaps(String argTitle = "BITMASK")
@@ -155,7 +158,15 @@ Armor       Property DeviceInventory                auto
 ;/  Variable: libs
     *Reference to zadlibs, should be always filled!!*
 /;
-zadlibs     Property libs                           auto
+zadlibs             _libs
+zadlibs     Property libs hidden
+    zadlibs Function Get()
+        if !_libs
+            _libs = GetZadLibs()
+        endif
+        return _libs
+    EndFunction
+EndProperty
 
 
 ;/  Group: Optional Values
@@ -174,7 +185,19 @@ Keyword  Property UD_DeviceKeyword                              auto hidden ;key
 ;/  Variable: DeviceRendered
     Link to device the script is currently on. In case this is not filled, it will be taken from Inventory Device
 /;
-Armor    Property DeviceRendered                                auto hidden ;Is taken from ID
+Armor    _DeviceRendered
+Armor    Property DeviceRendered                                hidden ;Is taken from ID
+    Armor Function Get()
+        if !_DeviceRendered
+            _DeviceRendered = zadNativeFunctions.GetRenderDevice(deviceInventory)
+        endif
+        return _DeviceRendered
+    EndFunction
+    
+    Function Set(Armor akDevice)
+        _DeviceRendered = akDevice
+    EndFunction
+EndProperty
 
 
 String[] Property UD_DeviceStruggleKeywords                     auto Hidden ;keywords (as string array) used to filter struggle animations
@@ -282,13 +305,11 @@ EndProperty
 /;
 float       Property UD_durability_damage_base                              ;durability dmg per second of struggling, range 0.00 - 40.00, precision 0.01 (4000 values)
     Function set(float fVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_7 = self.codeBit(_deviceControlBitMap_7,Round(fRange(fVal,0.0,40.0)*100),12,0)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_7",Round(fRange(fVal,0.0,40.0)*100),12,0)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_7,12,0)/100.0
+        return UD_Native.DecodeBit(_deviceControlBitMap_7,12,0)/100.0
     EndFunction
 EndProperty
 
@@ -306,13 +327,11 @@ EndProperty
 /;
 float       Property UD_base_stat_drain                                     ;stamina drain for second of struggling, range 1 - 31, decimal point not used
     Function set(float fVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_6 = self.codeBit(_deviceControlBitMap_6,Round(fRange(fVal,1.0,31.0)),5,27)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_6",Round(fRange(fVal,1.0,31.0)),5,27)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_6,5,27)
+        return UD_Native.DecodeBit(_deviceControlBitMap_6,5,27)
     EndFunction
 EndProperty
 
@@ -332,13 +351,11 @@ EndProperty
 /;
 float       Property UD_ResistPhysical                                      ;physical resistence. Needs to be applied to minigame to work!
     Function set(float fVal)
-        startBitMapMutexCheck3()
-        _deviceControlBitMap_11 = self.codeBit(_deviceControlBitMap_11,Round(fRange(5.0 + fVal,0.0,10.0)*100),10,20)
-        endBitMapMutexCheck3()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_11",Round(fRange(5.0 + fVal,0.0,10.0)*100),10,20)
     EndFunction
     
     float Function get()
-        return (self.decodeBit(_deviceControlBitMap_11,10,20)/100.0) - 5.0
+        return (UD_Native.DecodeBit(_deviceControlBitMap_11,10,20)/100.0) - 5.0
     EndFunction
 EndProperty
 
@@ -358,13 +375,11 @@ EndProperty
 /;
 float       Property UD_ResistMagicka                                       ;magicka resistence. Needs to be applied to minigame to work!
     Function set(float fVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_7 = self.codeBit(_deviceControlBitMap_7,Round(fRange(5.0 + fVal,0.0,10.0)*100),10,12)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_7",Round(fRange(5.0 + fVal,0.0,10.0)*100),10,12)
     EndFunction
     
     float Function get()
-        return (self.decodeBit(_deviceControlBitMap_7,10,12)/100.0) - 5.0
+        return (UD_Native.DecodeBit(_deviceControlBitMap_7,10,12)/100.0) - 5.0
     EndFunction
 EndProperty
 
@@ -384,25 +399,23 @@ EndProperty
 /;
 float       Property UD_WeaponHitResist                                     ;physical resistence to physical attack
     Function set(float fVal)
-        startBitMapMutexCheck3()
-        _deviceControlBitMap_11 = self.codeBit(_deviceControlBitMap_11,Round(fRange(5.0 + fVal,0.0,10.0)*100),10,0)
-        endBitMapMutexCheck3()
+        ;;startBitMapMutexCheck3()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_11",Round(fRange(5.0 + fVal,0.0,10.0)*100),10,0)
+        ;;endBitMapMutexCheck3()
     EndFunction
     
     float Function get()
-        return (self.decodeBit(_deviceControlBitMap_11,10,0)/100.0) - 5.0
+        return (UD_Native.DecodeBit(_deviceControlBitMap_11,10,0)/100.0) - 5.0
     EndFunction
 EndProperty
 
 float       Property UD_SpellHitResist                                      ;!!!UNUSED!!!
     Function set(float fVal)
-        startBitMapMutexCheck3()
-        _deviceControlBitMap_11 = self.codeBit(_deviceControlBitMap_11,Round(fRange(5.0 + fVal,0.0,10.0)*100),10,10)
-        endBitMapMutexCheck3()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_11",Round(fRange(5.0 + fVal,0.0,10.0)*100),10,10)
     EndFunction
     
     float Function get()
-        return (self.decodeBit(_deviceControlBitMap_11,10,10)/100.0) - 5.0
+        return (UD_Native.DecodeBit(_deviceControlBitMap_11,10,10)/100.0) - 5.0
     EndFunction
 EndProperty
 
@@ -420,13 +433,11 @@ EndProperty
 /;
 float       Property UD_CutChance                                           ;chance of cutting device every 1s of minigame, 0.0 is uncuttable
     Function set(float fVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_6 = self.codeBit(_deviceControlBitMap_6,Round(fRange(fVal,0.0,100.0)),7,20)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_6",Round(fRange(fVal,0.0,100.0)),7,20)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_6,7,20)
+        return UD_Native.DecodeBit(_deviceControlBitMap_6,7,20)
     EndFunction
 EndProperty
 
@@ -444,13 +455,11 @@ EndProperty
 /;
 float       Property UD_StruggleCritMul                                     ;crit multiplier applied on crit, step = 0.25, max 255, default 3.75x
     Function set(float fVal)
-        startBitMapMutexCheck3()
-        _deviceControlBitMap_12 = self.codeBit(_deviceControlBitMap_12,Round(fRange(fVal,0.0,255.0)*4),10,15)
-        endBitMapMutexCheck3()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_12",Round(fRange(fVal,0.0,255.0)*4),10,15)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_12,10,15)/4.0
+        return UD_Native.DecodeBit(_deviceControlBitMap_12,10,15)/4.0
     EndFunction
 EndProperty
 
@@ -468,13 +477,11 @@ EndProperty
 /;
 float       Property UD_StruggleCritDuration                                ;crit time, the lower this value, the more faster player needs to press button, range 0.5-1.2, step 0.1 (7 values)
     Function set(float fVal)
-        startBitMapMutexCheck3()
-        _deviceControlBitMap_12 = self.codeBit(_deviceControlBitMap_12,Round((fRange(fVal,0.5,1.2) - 0.5)*10),3,25)
-        endBitMapMutexCheck3()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_12",Round((fRange(fVal,0.5,1.2) - 0.5)*10),3,25)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_12,3,25)/10.0 + 0.5
+        return UD_Native.DecodeBit(_deviceControlBitMap_12,3,25)/10.0 + 0.5
     EndFunction
 EndProperty
 
@@ -491,13 +498,11 @@ EndProperty
 /;
 int         Property UD_StruggleCritChance                                  ;chance of random crit happening once per second of struggling, range 0-100
     Function set(int iVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_6 = self.codeBit(_deviceControlBitMap_6,iRange(iVal,0,100),7,0)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_6",iRange(iVal,0,100),7,0)
     EndFunction
     
     int Function get()
-        return self.decodeBit(_deviceControlBitMap_6,7,0)
+        return UD_Native.DecodeBit(_deviceControlBitMap_6,7,0)
     EndFunction
 EndProperty
 
@@ -513,10 +518,14 @@ int         Property UD_Cooldown                    = 0             auto
 /;
 Float       Property UD_DefaultHealth               = 100.0         auto
 
-;/  Variable: UD_Modifiers
-    Array of modifiers. Check modifier wiki page for more info <https://github.com/IHateMyKite/UnforgivingDevices/wiki/Modifiers>
+;/  Variable: UD_ModifiersRef
+    Arrays of modifier data. Check modifier wiki page for more info <https://github.com/IHateMyKite/UnforgivingDevices/wiki/Modifiers> (outdated)
 /;
-string[]    Property UD_Modifiers                                   auto    ;modifiers
+Alias[]     Property UD_ModifiersRef          auto
+String[]    Property UD_ModifiersDataStr      auto
+Form[]      Property UD_ModifiersDataForm1    auto
+Form[]      Property UD_ModifiersDataForm2    auto
+Form[]      Property UD_ModifiersDataForm3    auto
 
 ;/  Variable: UD_MessageDeviceInteraction
     Message that is show when opening device menu. If not set, it will be set automatically by UD.
@@ -537,13 +546,6 @@ Message     Property UD_SpecialMenuInteraction                      auto
     Message that is show when opening special menu with helper. Is by default empty, and unused on base script. Have to be used by extending script
 /;
 Message     Property UD_SpecialMenuInteractionWH                    auto
-
-;/  Variable: UD_OnDestroyItemList
-    LeveledItem list that is added to wearer when device is unlocked.
-    
-    *Should be primarily used only when device have DestroyOnRemove flag, so it can't be used to generate items infinitely*
-/;
-LeveledItem Property UD_OnDestroyItemList                           auto
 
 ;/  Variable: UD_DeviceAbilities
     Array of abilities which will be added to wearer when device is equipped. Works as alternative to using enchantments.
@@ -632,7 +634,11 @@ EndProperty
 /;
 Float       Property UD_Health                                      Hidden 
     Float Function get()
-        return UD_DefaultHealth + (UD_Level - 1)*UDCDmain.UD_DeviceLvlHealth*UD_DefaultHealth
+        if !UD_HealthScalingDisabled
+            return UD_DefaultHealth + (UD_Level - 1)*UDCDmain.UD_DeviceLvlHealth*UD_DefaultHealth
+        else
+            return UD_DefaultHealth
+        endif
     EndFunction
 EndProperty
 
@@ -693,18 +699,32 @@ Int                     _StruggleAnimationDefHelperLastIndex    = -1
 Int                     _PlayerLastConstraints                  = 0
 Int                     _HelperLastConstraints                  = 0
 Int[]                   _ActorsConstraints
+Float                   _RealTimeLocked = 0.0
+Float                   _GameTimeLocked = 0.0
+bool                    _initiated = false
+Float                   _LastHourUpdateTime
+Float                   _LastHourUpdateTimeMod
+Int                     _VMHandle1      = 0x00000000
+Int                     _VMHandle2      = 0x00000000
+
+Int Property            VMHandle1 hidden
+    Int Function Get()
+        return _VMHandle1
+    EndFunction
+EndProperty
+Int Property            VMHandle2 hidden
+    Int Function Get()
+        return _VMHandle2
+    EndFunction
+EndProperty
 
 ;---------------------------------------PRIVATE PROPERTIES----------------------------------------
 UnforgivingDevicesMain      Property UDmain     hidden ;main libs
     UnforgivingDevicesMain Function get()
         if !_udmain
-            _udquest = Game.getFormFromFile(0x00005901,"UnforgivingDevices.esp") as Quest
-            _udmain = _udquest as UnforgivingDevicesMain
+            _udmain = GetUdmain()
         endif
         return _udmain
-    EndFunction
-    Function set(UnforgivingDevicesMain akForm)
-        _udmain = akForm
     EndFunction
 EndProperty
 UD_libs                     Property UDlibs     Hidden ;device/keyword library
@@ -752,35 +772,29 @@ EndProperty
 
 bool    Property zad_DestroyKey                     Hidden
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,19)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,19)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,19))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,19)
     EndFunction
 endproperty
 float   Property zad_JammLockChance                 hidden ;chance of jamming lock
     Function set(float fVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_3 = self.codeBit(_deviceControlBitMap_3,Round(fRange(fVal,0.0,100.0)),8,16)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_3",Round(fRange(fVal,0.0,100.0)),8,16)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_3,8,16)
+        return UD_Native.DecodeBit(_deviceControlBitMap_3,8,16)
     EndFunction
 endproperty
 float   Property zad_KeyBreakChance                 hidden ;chance of breaking the key
     Function set(float fVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_3 = self.codeBit(_deviceControlBitMap_3,Round(fRange(fVal,0.0,100.0)),8,24)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_3",Round(fRange(fVal,0.0,100.0)),8,24)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_3,8,24)
+        return UD_Native.DecodeBit(_deviceControlBitMap_3,8,24)
     EndFunction
 endproperty
 int     Property UD_CurrentLocks                    Hidden ;how many locked locks remain, max is 31
@@ -790,574 +804,555 @@ int     Property UD_CurrentLocks                    Hidden ;how many locked lock
 endproperty
 int     Property UD_condition                       Hidden ;0 - new , 4 - broke
     Function set(int iVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_5 = self.codeBit(_deviceControlBitMap_5,iRange(iVal,0,4),3,12)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_5",iRange(iVal,0,4),3,12)
     EndFunction
     
     int Function get()
-        return self.decodeBit(_deviceControlBitMap_5,3,12)
+        return UD_Native.DecodeBit(_deviceControlBitMap_5,3,12)
     EndFunction
 endproperty
 bool    Property _isRemoved                         hidden
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,26)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,26)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,26))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,26)
     EndFunction
 EndProperty
 bool    Property _StruggleGameON                    Hidden
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,0)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,0)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,0))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,0)
     EndFunction
 endproperty
 bool    Property _LockpickGameON                    Hidden
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,1)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,1)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,1))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,1)
     EndFunction
 endproperty
 bool    Property _CuttingGameON                     Hidden
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,2)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,2)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,2))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,2)
     EndFunction
 endproperty
 bool    Property _KeyGameON                         Hidden
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,3)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,3)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,3))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,3)
     EndFunction
 endproperty
 bool    Property _RepairLocksMinigameON             Hidden
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,4)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,4)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,4))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,4)
     EndFunction
 endproperty
 bool    Property _critLoop_On                       Hidden
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,7)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,7)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,7))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,7)
     EndFunction
 EndProperty
 bool    Property UD_drain_stats                     Hidden ;if player will loose stats while struggling
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,9)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,9)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,9))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,9)
     EndFunction
 endproperty
 bool    Property UD_drain_stats_helper              Hidden ;if player will loose stats while struggling
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,10)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,10)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,10))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,10)
     EndFunction
 endproperty
 bool    Property UD_damage_device                   Hidden ;if device can be damaged
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,11)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,11)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,11))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,11)
     EndFunction
 endproperty
 bool    Property UD_applyExhastionEffect            Hidden ;applies debuff after mnigame ends
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,12)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,12)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,12))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,12)
     EndFunction
 endproperty
 bool    Property UD_applyExhastionEffectHelper      Hidden ;applies debuff after minigame ends
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,13)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,13)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,13))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,13)
     EndFunction
 endproperty
 bool    Property UD_minigame_canCrit                Hidden ;if crits can appear
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,14)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,14)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,14))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,14)
     EndFunction
 endproperty
 bool    Property UD_useWidget                       Hidden ;determinate if widget will be shown
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,15)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,15)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,15))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,15)
     EndFunction
 endproperty
 bool    Property UD_WidgetAutoColor                 Hidden
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,16)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,16)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,16))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,16)
     EndFunction
 endproperty
 bool    Property Ready                              Hidden
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,17)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,17)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,17))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,17)
     EndFunction
 endproperty
 bool    Property zad_DestroyOnRemove                Hidden
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,18)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,18)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,18))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,18)
     EndFunction
 endproperty
 bool    Property _MinigameON                        Hidden 
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,21)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,21)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,21))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,21)
     EndFunction
 EndProperty
 bool    Property _MinigameParProc_4                 Hidden
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,22)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,22)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,22))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,22)
     EndFunction
 EndProperty
 bool    Property _removeDeviceCalled                Hidden 
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,23)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,23)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,23))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,23)
     EndFunction
 EndProperty
 bool    Property UD_minigame_critRegen              Hidden
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,24)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,24)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,24))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,24)
     EndFunction
 EndProperty
 bool    Property UD_minigame_critRegen_helper       Hidden
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,25)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,25)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,25))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,25)
     EndFunction
 EndProperty
 bool    Property _MinigameParProc_2                 Hidden
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,27)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,27)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,27))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,27)
     EndFunction
 EndProperty
 bool    Property _MinigameParProc_1                 Hidden
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,28)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,28)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,28))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,28)
     EndFunction
 EndProperty
 bool    Property _MinigameParProc_3                 Hidden
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,30)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,30)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,30))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,30)
     EndFunction
 EndProperty
 bool    Property _usingTelekinesis                  Hidden
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,29)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,29)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,29))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,29)
     EndFunction
 EndProperty
 bool    Property UD_AllowWidgetUpdate               Hidden
     Function set(bool bVal)
-        startBitMapMutexCheck2()
-        _deviceControlBitMap_1 = self.codeBit(_deviceControlBitMap_1,bVal as Int,1,31)
-        endBitMapMutexCheck2()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,31)
     EndFunction
     
     bool Function get()
-        return Math.LogicalAnd(_deviceControlBitMap_1,Math.LeftShift(0x01,31))
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,31)
     EndFunction
 EndProperty
+Bool Property UD_useWidgetSec hidden
+    Function set(bool bVal)
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,5)
+    EndFunction
+    
+    bool Function get()
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,5)
+    EndFunction
+EndProperty
+Bool Property UD_WidgetAutoColorSec hidden
+    Function set(bool bVal)
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,6)
+    EndFunction
+    
+    bool Function get()
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,6)
+    EndFunction
+EndProperty
+Bool Property UD_AllowWidgetUpdateSec hidden
+    Function set(bool bVal)
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,8)
+    EndFunction
+    
+    bool Function get()
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,8)
+    EndFunction
+EndProperty
+
 float   Property UD_minigame_stamina_drain          Hidden ;stamina drain for second of struggling
     Function set(float fVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_2 = self.codeBit(_deviceControlBitMap_2,Round(fRange(fVal,0.0,200.0)),8,0)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_2",Round(fRange(fVal,0.0,200.0)),8,0)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_2,8,0)
+        return UD_Native.DecodeBit(_deviceControlBitMap_2,8,0)
     EndFunction
 endproperty
 float   Property UD_minigame_magicka_drain          Hidden ;magicka drain for second of struggling
     Function set(float fVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_2 = self.codeBit(_deviceControlBitMap_2,Round(fRange(fVal,0.0,200.0)),8,8)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_2",Round(fRange(fVal,0.0,200.0)),8,8)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_2,8,8)
+        return UD_Native.DecodeBit(_deviceControlBitMap_2,8,8)
     EndFunction
 endproperty
 float   Property UD_minigame_heal_drain             Hidden ;health drain for second of struggling
     Function set(float fVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_2 = self.codeBit(_deviceControlBitMap_2,Round(fRange(fVal,0.0,200.0)),8,16)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_2",Round(fRange(fVal,0.0,200.0)),8,16)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_2,8,16);Math.LogicalAnd(_deviceControlBitMap_2,Math.LeftShift(0xFF,16)) as Float
+        return UD_Native.DecodeBit(_deviceControlBitMap_2,8,16)
     EndFunction
 endproperty
 float   Property UD_minigame_stamina_drain_helper   Hidden ;stamina drain for second of struggling
     Function set(float fVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_2 = self.codeBit(_deviceControlBitMap_2,Round(fRange(fVal,0.0,200.0)),8,24)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_2",Round(fRange(fVal,0.0,200.0)),8,24)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_2,8,24);Math.LogicalAnd(_deviceControlBitMap_2,Math.LeftShift(0xFF,16)) as Float
+        return UD_Native.DecodeBit(_deviceControlBitMap_2,8,24)
     EndFunction
 endproperty
 float   Property UD_minigame_magicka_drain_helper   Hidden ;magicka drain for second of struggling
     Function set(float fVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_3 = self.codeBit(_deviceControlBitMap_3,Round(fRange(fVal,0.0,200.0)),8,0)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_3",Round(fRange(fVal,0.0,200.0)),8,0)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_3,8,0)
+        return UD_Native.DecodeBit(_deviceControlBitMap_3,8,0)
     EndFunction
 endproperty
 float   Property UD_minigame_heal_drain_helper      Hidden ;health drain for second of struggling
     Function set(float fVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_3 = self.codeBit(_deviceControlBitMap_3,Round(fRange(fVal,0.0,200.0)),8,8)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_3",Round(fRange(fVal,0.0,200.0)),8,8)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_3,8,8)
+        return UD_Native.DecodeBit(_deviceControlBitMap_3,8,8)
     EndFunction
 endproperty
 float   Property UD_RegenMag_Stamina                Hidden ;stats regeneration when struggling, 0.0 means that helper will not regen stats, 1.0 will make stats regen like normaly, range 0.01,1.0 with step 0.01. Lesser then 0.01 -> 0.0
     Function set(float fVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_4 = self.codeBit(_deviceControlBitMap_4,Round(fRange(fVal,0.0,1.0)*100),7,0)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_4",Round(fRange(fVal,0.0,1.0)*100),7,0)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_4,7,0)/100.0
+        return UD_Native.DecodeBit(_deviceControlBitMap_4,7,0)/100.0
     EndFunction
 endproperty
 float   Property UD_RegenMag_Health                 Hidden ;stats regeneration when struggling, 0.0 means that helper will not regen stats, 1.0 will make stats regen like normaly, range 0.01,1.0 with step 0.01. Lesser then 0.01 -> 0.0
     Function set(float fVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_4 = self.codeBit(_deviceControlBitMap_4,Round(fRange(fVal,0.0,1.0)*100),7,7)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_4",Round(fRange(fVal,0.0,1.0)*100),7,7)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_4,7,7)/100.0
+        return UD_Native.DecodeBit(_deviceControlBitMap_4,7,7)/100.0
     EndFunction
 endproperty
 float   Property UD_RegenMag_Magicka                Hidden ;stats regeneration when struggling, 0.0 means that helper will not regen stats, 1.0 will make stats regen like normaly, range 0.01,1.0 with step 0.01. Lesser then 0.01 -> 0.0
     Function set(float fVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_4 = self.codeBit(_deviceControlBitMap_4,Round(fRange(fVal,0.0,1.0)*100),7,14)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_4",Round(fRange(fVal,0.0,1.0)*100),7,14)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_4,7,14)/100.0
+        return UD_Native.DecodeBit(_deviceControlBitMap_4,7,14)/100.0
     EndFunction
 endproperty
 float   Property UD_RegenMagHelper_Stamina          Hidden ;stats regeneration when struggling, 0.0 means that helper will not regen stats, 1.0 will make stats regen like normaly, range 0.01,1.0 with step 0.01. Lesser then 0.01 -> 0.0
     Function set(float fVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_8 = self.codeBit(_deviceControlBitMap_8,Round(fRange(fVal,0.0,1.0)*100),7,0)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_8",Round(fRange(fVal,0.0,1.0)*100),7,0)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_8,7,0)/100.0
+        return UD_Native.DecodeBit(_deviceControlBitMap_8,7,0)/100.0
     EndFunction
 EndProperty
 float   Property UD_RegenMagHelper_Health           Hidden ;stats regeneration when struggling, 0.0 means that helper will not regen stats, 1.0 will make stats regen like normaly, range 0.01,1.0 with step 0.01. Lesser then 0.01 -> 0.0
     Function set(float fVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_8 = self.codeBit(_deviceControlBitMap_8,Round(fRange(fVal,0.0,1.0)*100),7,7)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_8",Round(fRange(fVal,0.0,1.0)*100),7,7)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_8,7,7)/100.0
+        return UD_Native.DecodeBit(_deviceControlBitMap_8,7,7)/100.0
     EndFunction
 EndProperty
 float   Property UD_RegenMagHelper_Magicka          Hidden ;stats regeneration when struggling, 0.0 means that helper will not regen stats, 1.0 will make stats regen like normaly, range 0.01,1.0 with step 0.01. Lesser then 0.01 -> 0.0
     Function set(float fVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_8 = self.codeBit(_deviceControlBitMap_8,Round(fRange(fVal,0.0,1.0)*100),7,14)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_8",Round(fRange(fVal,0.0,1.0)*100),7,14)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_8,7,14)/100.0
+        return UD_Native.DecodeBit(_deviceControlBitMap_8,7,14)/100.0
     EndFunction
 EndProperty
 int     Property _customMinigameCritChance          Hidden
     Function set(int iVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_8 = self.codeBit(_deviceControlBitMap_8,iRange(iVal,0,100),7,21)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_8",iRange(iVal,0,100),7,21)
     EndFunction
     
     int Function get()
-        return self.decodeBit(_deviceControlBitMap_8,7,21)
+        return UD_Native.DecodeBit(_deviceControlBitMap_8,7,21)
     EndFunction
 EndProperty
 float   Property _customMinigameCritDuration        Hidden
     Function set(float fVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_9 = self.codeBit(_deviceControlBitMap_9,Round(fRange(fVal,0.4,2.0)*100),7,0)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_9",Round(fRange(fVal,0.4,2.0)*100),7,0)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_9,7,0)/100.0
+        return UD_Native.DecodeBit(_deviceControlBitMap_9,7,0)/100.0
     EndFunction
 EndProperty
 float   Property _customMinigameCritMult            Hidden
     Function set(float fVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_9 = self.codeBit(_deviceControlBitMap_9,Round(fRange(fVal,0.25,1000.0)*4),12,7)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_9",Round(fRange(fVal,0.25,1000.0)*4),12,7)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_9,12,7)/4.0
+        return UD_Native.DecodeBit(_deviceControlBitMap_9,12,7)/4.0
     EndFunction
 EndProperty
 float   Property _CuttingProgress                   Hidden ;cutting progress, 0-100, step 0.025
     Function set(float fVal)
-        startBitMapMutexCheck3()
-        _deviceControlBitMap_13 = self.codeBit(_deviceControlBitMap_13,Round(fRange(fVal,0.0,100.0)*40),12,0)
-        endBitMapMutexCheck3()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_13",Round(fRange(fVal,0.0,100.0)*40),12,0)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_13,12,0)/40.0
+        return UD_Native.DecodeBit(_deviceControlBitMap_13,12,0)/40.0
     EndFunction
 EndProperty
 float   Property _minMinigameStatHP                 Hidden
     Function set(float fVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_9 = self.codeBit(_deviceControlBitMap_9,Round(fRange(fVal,0.0,1.0)*100),7,19)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_9",Round(fRange(fVal,0.0,1.0)*100),7,19)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_9,7,19)/100.0
+        return UD_Native.DecodeBit(_deviceControlBitMap_9,7,19)/100.0
     EndFunction
 EndProperty
 float   Property _minMinigameStatMP                 Hidden
     Function set(float fVal)
-        startBitMapMutexCheck3()
-        _deviceControlBitMap_10 = self.codeBit(_deviceControlBitMap_10,Round(fRange(fVal,0.0,1.0)*100),7,0)
-        endBitMapMutexCheck3()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_10",Round(fRange(fVal,0.0,1.0)*100),7,0)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_10,7,0)/100.0
+        return UD_Native.DecodeBit(_deviceControlBitMap_10,7,0)/100.0
     EndFunction
 EndProperty
 float   Property _minMinigameStatSP                 Hidden
     Function set(float fVal)
-        startBitMapMutexCheck3()
-        _deviceControlBitMap_10 = self.codeBit(_deviceControlBitMap_10,Round(fRange(fVal,0.0,1.0)*100),7,7)
-        endBitMapMutexCheck3()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_10",Round(fRange(fVal,0.0,1.0)*100),7,7)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_10,7,7)/100.0
+        return UD_Native.DecodeBit(_deviceControlBitMap_10,7,7)/100.0
     EndFunction
 EndProperty
 float   Property _condition_mult_add                Hidden ;how much is increased condition dmg (10% increase condition dmg by 10%), step = 0.1, max 25.6
     Function set(float fVal)
-        startBitMapMutexCheck3()
-        _deviceControlBitMap_10 = self.codeBit(_deviceControlBitMap_10,Round(fRange(fVal,0.0,25.6)*10),8,14)
-        endBitMapMutexCheck3()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_10",Round(fRange(fVal,0.0,25.6)*10),8,14)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_10,8,14)/4.0
+        return UD_Native.DecodeBit(_deviceControlBitMap_10,8,14)/4.0
     EndFunction
 EndProperty
 float   Property _exhaustion_mult                   Hidden ;multiplier for duration of debuff, step = 0.25, max 64
     Function set(float fVal)
-        startBitMapMutexCheck3()
-        _deviceControlBitMap_10 = self.codeBit(_deviceControlBitMap_10,Round(fRange(fVal,0.0,64.0)*4),8,22)
-        endBitMapMutexCheck3()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_10",Round(fRange(fVal,0.0,64.0)*4),8,22)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_10,8,22)/4.0
+        return UD_Native.DecodeBit(_deviceControlBitMap_10,8,22)/4.0
     EndFunction
 EndProperty
 float   Property _exhaustion_mult_helper            Hidden ;multiplier for duration of debuff, step = 0.25, max 64
     Function set(float fVal)
-        startBitMapMutexCheck3()
-        _deviceControlBitMap_12 = self.codeBit(_deviceControlBitMap_12,Round(fRange(fVal,0.0,64.0)*4),8,0)
-        endBitMapMutexCheck3()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_12",Round(fRange(fVal,0.0,64.0)*4),8,0)
     EndFunction
     
     float Function get()
-        return self.decodeBit(_deviceControlBitMap_12,8,0)/4.0
+        return UD_Native.DecodeBit(_deviceControlBitMap_12,8,0)/4.0
     EndFunction
 EndProperty
 int     Property _struggleGame_Subtype              Hidden
     Function set(int iVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_7 = self.codeBit(_deviceControlBitMap_7,iRange(iVal,0,7),3,25)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_7",iRange(iVal,0,7),3,25)
     EndFunction
     
     int Function get()
-        return self.decodeBit(_deviceControlBitMap_7,3,25)
+        return UD_Native.DecodeBit(_deviceControlBitMap_7,3,25)
     EndFunction
 EndProperty
 int     Property _struggleGame_Subtype_NPC          Hidden
     Function set(int iVal)
-        startBitMapMutexCheck()
-        _deviceControlBitMap_7 = self.codeBit(_deviceControlBitMap_7,iRange(iVal,0,7),3,28)
-        endBitMapMutexCheck()
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_7",iRange(iVal,0,7),3,28)
     EndFunction
     
     int Function get()
-        return self.decodeBit(_deviceControlBitMap_7,3,28)
+        return UD_Native.DecodeBit(_deviceControlBitMap_7,3,28)
+    EndFunction
+EndProperty
+
+;/  Variable: UD_WidgetFormula
+    Formula used by native widget
+    0 = Linear
+    1 = Linear repeating (saw)
+    
+    *This value is bitcoded, and thus have limited range and precision!*
+    
+    --- Code
+        Default value  =         0
+        Min. Value     =         0
+        Max. Value     =       255
+    ---
+/;
+int         Property _WidgetFormula hidden  ;chance of random crit happening once per second of struggling, range 0-100
+    Function set(int iVal)
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_13",iRange(iVal,0,255),8,16)
+    EndFunction
+    
+    int Function get()
+        return UD_Native.DecodeBit(_deviceControlBitMap_13,8,16)
+    EndFunction
+EndProperty
+
+;/  Variable: UD_WidgetFormulaSec
+    Formula used by second native widget
+    0 = Linear
+    1 = Linear repeating (saw)
+    
+    *This value is bitcoded, and thus have limited range and precision!*
+    
+    --- Code
+        Default value  =         0
+        Min. Value     =         0
+        Max. Value     =       255
+    ---
+/;
+int         Property _WidgetFormulaSec hidden  ;chance of random crit happening once per second of struggling, range 0-100
+    Function set(int iVal)
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_13",iRange(iVal,0,255),8,24)
+    EndFunction
+    
+    int Function get()
+        return UD_Native.DecodeBit(_deviceControlBitMap_13,8,24)
+    EndFunction
+EndProperty
+
+Bool    Property UD_HealthScalingDisabled Hidden
+    Function set(Bool bVal)
+        SetBitMapData(_VMHandle1,_VMHandle2,DeviceRendered,"_deviceControlBitMap_1",bVal as Int,1,20)
+        ResetHealth()
+    EndFunction
+    
+    Bool Function get()
+        return UD_Native.DecodeBit(_deviceControlBitMap_1,1,20)
     EndFunction
 EndProperty
 
@@ -1543,22 +1538,32 @@ EndFunction
 
 
 Event OnInit()
-    current_device_health = UD_Health
+    ResetHealth()
 EndEvent
+
+Function ResetHealth()
+    current_device_health = UD_Health
+EndFunction
 
 ;OnContainerChanged is very important event. It is used to determinate if render device have been equipped (OnEquipped only works for player)
 ;it is also used for retrieving device (this) script
 Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldContainer)
-    if (akNewContainer as Actor) && !akOldContainer && !IsUnlocked && !Ready
+    if (akNewContainer as Actor) && !akOldContainer && !_initiated && !IsUnlocked && !Ready
+        _initiated = true
         Actor loc_actor = akNewContainer as Actor
         if !loc_actor.isDead()
-            _Init(loc_actor)
+            if loc_actor.GetItemCount(DeviceRendered) <= 1
+                _Init(loc_actor)
+            else
+                UDmain.Error("More then one "+GetDeviceName()+" detected on " + GetActorName(loc_actor) + " - removing")
+                loc_actor.RemoveItem(DeviceRendered,1)
+            endif
         endif
     endif
     
     if UDmain
         if (akOldContainer == UDCDmain.TransfereContainer_ObjRef)
-            if UDmain.TraceAllowed()            
+            if UDmain.TraceAllowed()
                 UDmain.Log("Device " + getDeviceHeader() + " transfered to transfer container!",2)
             endif
             UDCDmain._transferedDevice = self
@@ -1566,11 +1571,11 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
     endif
 EndEvent
 
-;1 tick = 0.05 s ; 20 ticks = 1 s
+;1 tick = 0.1 s ; 20 ticks = 2 s
 Bool Function _CheckRD(Actor akActor, Int aiTicks)
     int loc_ticks = 0
     while loc_ticks <= aiTicks && !UDCDmain.CheckRenderDeviceEquipped(akActor, deviceRendered)
-        Utility.waitMenuMode(0.05)
+        Utility.waitMenuMode(0.1)
         loc_ticks += 1
     endwhile
     return loc_ticks < aiTicks
@@ -1578,6 +1583,8 @@ EndFunction
 
 ;post equip function
 Function _Init(Actor akActor)
+    Wearer = akActor
+
     _libSafeCheck()
 
     if !akActor
@@ -1586,8 +1593,6 @@ Function _Init(Actor akActor)
         return
     endif
 
-    Wearer = akActor
-    
     UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
     
     if IsUnlocked 
@@ -1607,9 +1612,9 @@ Function _Init(Actor akActor)
     endif
 
     ;add DOR modifier
-    if zad_DestroyOnRemove && !hasModifier("DOR")
-        addModifier("DOR")
-    endif
+    ;if zad_DestroyOnRemove && !hasModifier("DOR")
+        ;addModifier("DOR") - TODO
+    ;endif
     
     if akActor.getItemCount(deviceRendered) > 1
         UDmain.Error("!Aborting Init("+ getDeviceHeader() + " because device is already present!")
@@ -1619,18 +1624,24 @@ Function _Init(Actor akActor)
     
     bool loc_isplayer = (akActor == UDmain.Player)
     if loc_slot ;ignore additional check if actor is not registered
-        int loc_timeoutticks = Round(UDmain.UDGV.UD_LockTimeoutRD/0.05)
+        int loc_timeoutticks = Round(UDmain.UDGV.UD_LockTimeoutRD/0.1)
         
         bool loc_rdok = _CheckRD(akActor,loc_timeoutticks)
         
         ;in case that the equip failed and menu is open, wait for menu to close first, and then try again
-        if !loc_isplayer && !loc_rdok && UDmain.IsAnyMenuOpen()
+        if !loc_isplayer && !loc_rdok && UDmain.IsAnyMenuOpenRT()
             Utility.wait(0.01) ;wait for menu to close
             loc_rdok = _CheckRD(akActor,loc_timeoutticks)
         endif
         
+        ;if !loc_rdok
+        ;    Armor loc_conflict = UDCDmain.GetConflictDevice(akActor, DeviceRendered)
+        ;    if loc_conflict && loc_conflict.hasKeyword(libs.zad_)
+        ;    
+        ;    endif
+        ;endif
         if !loc_rdok
-            UDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because equip failed - timeout")
+            UDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because equip failed - timeout. Conflicting Device = " + UDCDmain.GetConflictDevice(akActor, DeviceRendered))
             return
         endif
     endif
@@ -1670,11 +1681,11 @@ Function _Init(Actor akActor)
     if UD_Level < 1
         int loc_level = akActor.GetLevel()
         if UD_Level == -1 ;random value in +- 25% range from wearer level
-            UD_Level = Round(Utility.randomFloat(fRange(loc_level*0.75,1.0,100.0),fRange(loc_level*1.25,1.0,100.0)))
+            UD_Level = Round(RandomFloat(fRange(loc_level*0.75,1.0,100.0),fRange(loc_level*1.25,1.0,100.0)))
         elseif UD_Level == -2 ;random value in + 25% range from wearer level
-            UD_Level = Round(Utility.randomFloat(fRange(loc_level,1.0,100.0),fRange(loc_level*1.25,1.0,100.0)))
+            UD_Level = Round(RandomFloat(fRange(loc_level,1.0,100.0),fRange(loc_level*1.25,1.0,100.0)))
         elseif UD_Level == -3 ;random value in - 25% range from wearer level
-            UD_Level = Round(Utility.randomFloat(fRange(loc_level*0.75,1.0,100.0),fRange(loc_level,1.0,100.0)))
+            UD_Level = Round(RandomFloat(fRange(loc_level*0.75,1.0,100.0),fRange(loc_level,1.0,100.0)))
         else ;same level as wearer
             UD_Level = loc_level
         endif
@@ -1700,13 +1711,13 @@ Function _Init(Actor akActor)
         libs.Aroused.SetActorExposureRate(akActor, libs.GetModifiedRate(akActor))    
     endif
     
-    current_device_health = UD_Health ;repairs device to max durability on equip
+    ResetHealth() ;repairs device to max durability on equip
     
     safeCheck()
     
     _OnInitLevelUpdate()
     
-    UDCDmain.CheckHardcoreDisabler(getWearer())
+    ;UDCDmain.CheckHardcoreDisabler(getWearer())
     
     InitPost()
 
@@ -1735,10 +1746,13 @@ Function _Init(Actor akActor)
         UDmain.Log(DeviceInventory.getName() + " fully locked on " + getWearerName(),1)
     endif
     
+    _ResetTimers()
+    
     Ready = True
     
     if UDCDmain.isRegistered(getWearer())
         Update(1/24/60) ;1 minute update
+        UDmain.UDMOM.Procces_UpdateModifiers_Added(self) ;call DeviceLocked on modifiers
     endif
     
     GoToState("")
@@ -1778,11 +1792,6 @@ Function _OnInitLevelUpdate()
 EndFunction
 
 Function _libSafeCheck()
-    if !UDmain
-        Quest UDquest = Game.getFormFromFile(0x00005901,"UnforgivingDevices.esp") as Quest
-        UDmain = UDquest as UnforgivingDevicesMain 
-    endif
-    libs = UDmain.libs
 EndFunction
 
 ;returns inventory device script, SCRIPT NEED TO BE ALWAYS DELEATED AFTER USING WITH script.delete() !!!
@@ -1814,19 +1823,14 @@ EndFunction
 ;    -jamm lock chance
 ;    -!!!device rendered!!!
 Function updateValuesFromInventoryScript()
-    UD_CustomDevice_EquipScript temp = getInventoryScript()
-    if temp
-        if !zad_deviceKey
-            zad_deviceKey = temp.deviceKey
-        endif
-        zad_KeyBreakChance = temp.KeyBreakChance
-        zad_DestroyOnRemove = temp.DestroyOnRemove
-        zad_DestroyKey = temp.DestroyKey
-        zad_JammLockChance = temp.LockJamChance
-        UD_DeviceKeyword = temp.zad_deviousDevice
-        DeviceRendered = temp.DeviceRendered
-        temp.delete()
+    if !zad_deviceKey
+        zad_deviceKey = zadNativeFunctions.GetPropertyForm(deviceInventory,"deviceKey") as Key;temp.deviceKey
     endif
+    zad_KeyBreakChance = zadNativeFunctions.GetPropertyFloat(deviceInventory,"KeyBreakChance");temp.KeyBreakChance
+    zad_DestroyOnRemove = zadNativeFunctions.GetPropertyBool(deviceInventory,"DestroyOnRemove");temp.DestroyOnRemove
+    zad_DestroyKey = zadNativeFunctions.GetPropertyBool(deviceInventory,"DestroyKey");temp.DestroyKey
+    zad_JammLockChance = zadNativeFunctions.GetPropertyFloat(deviceInventory,"LockJamChance");temp.LockJamChance
+    UD_DeviceKeyword = zadNativeFunctions.GetPropertyForm(deviceInventory,"zad_deviousDevice") as Keyword;temp.zad_deviousDevice
 EndFunction
 
 Bool Function _ParalelProcessRunning()
@@ -2131,7 +2135,7 @@ EndFunction
 Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True)
     if IsUnlocked
         if UDmain.TraceAllowed()
-            UDmain.Log("unlockRestrain()"+getDeviceHeader()+": Device is already unlocked! Aborting ",1)
+            UDmain.Log("unlockRestrain("+getDeviceHeader()+") - Device is already unlocked! Aborting ",1)
         endif
         return
     endif
@@ -2153,6 +2157,8 @@ Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True)
 
     StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
     
+    StorageUtil.UnSetIntValue(Wearer, "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus")
+    
     if (deviceInventory.hasKeyword(libs.zad_QuestItem) || deviceRendered.hasKeyword(libs.zad_QuestItem))
         int questKw = UDCdmain.UD_QuestKeywords.getSize()
         while questKw
@@ -2168,12 +2174,12 @@ Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True)
 EndFunction
 
 ;check sentient event and activets it
-function checkSentient(float mult = 1.0)
+function checkSentient(float afMult = 1.0)
     if isSentient()
-        if Utility.randomInt() > 75 && WearerIsPlayer()
+        if RandomInt() > 75 && WearerIsPlayer()
             startSentientDialogue(1)
         endif
-        if Round(getModifierFloatParam("Sentient")*mult) > Utility.randomInt(1,99)
+        if Round(UD_Native.GetStringParamFloat(GetModifierParam("SEN"))*afMult) > RandomInt(1,99)
             if UDmain.TraceAllowed()
                 UDmain.Log("Sentient device activation of : " + getDeviceHeader())
             endif
@@ -2183,16 +2189,16 @@ function checkSentient(float mult = 1.0)
 EndFunction
 
 ;function called when wearer is hit by source weapon
-Function weaponHit(Weapon source)
-    if onWeaponHitPre(source)
-        onWeaponHitPost(source)
+Function weaponHit(Weapon akSource)
+    if onWeaponHitPre(akSource)
+        onWeaponHitPost(akSource)
     endif
 EndFunction
 
 ;function called when wearer is hit by source spell
-Function spellHit(Spell source)
-    if onSpellHitPre(source)
-        onSpellHitPost(source)
+Function spellHit(Spell akSource)
+    if onSpellHitPre(akSource)
+        onSpellHitPost(akSource)
     endif
 EndFunction
 
@@ -2259,7 +2265,7 @@ Bool Function EvaluateNPCAI()
     updateDifficulty()
 
     ;50% chance to first check locks, then struggle
-    if Utility.randomInt(0,1)
+    if RandomInt(0,1)
         float   loc_accesibility    = 1.0
         if !loc_minigameStarted
             loc_accesibility        = getAccesibility()
@@ -2288,7 +2294,7 @@ Bool Function EvaluateNPCAI()
         endif
         ;then try to struggle
         if !loc_minigameStarted && StruggleMinigameAllowed(loc_accesibility)
-            Int loc_minigame = Utility.randomInt(0,2)
+            Int loc_minigame = RandomInt(0,2)
             if struggleMinigame(loc_minigame, True) ;start random struggle minigame
                 loc_minigameStarted = 1
             endif
@@ -2306,7 +2312,7 @@ Bool Function EvaluateNPCAI()
         endif
         ;then try to struggle
         if !loc_minigameStarted && StruggleMinigameAllowed(loc_accesibility)
-            Int loc_minigame = Utility.randomInt(0,2)
+            Int loc_minigame = RandomInt(0,2)
             if struggleMinigame(loc_minigame, True) ;start random struggle minigame
                 loc_minigameStarted = 1
             endif
@@ -2348,7 +2354,44 @@ Bool Function EvaluateNPCAI()
     return loc_minigameStarted
 EndFunction
 
+;in hours
+Float Function GetRealTimeLockedTime()
+    return Game.GetRealHoursPassed() - _RealTimeLocked
+EndFunction
 
+Function ResetRealTimeLockedTime()
+    _RealTimeLocked = Game.GetRealHoursPassed()
+EndFunction
+
+;in days
+Float Function GetGameTimeLockedTime()
+    return Utility.GetCurrentGameTime() - _GameTimeLocked
+EndFunction
+
+Function ResetGameTimeLockedTime()
+    _GameTimeLocked = Utility.GetCurrentGameTime()
+EndFunction
+
+Function _ResetTimers()
+    ResetRealTimeLockedTime()
+    ResetGameTimeLockedTime()
+    _LastHourUpdateTime     = Utility.GetCurrentGameTime()
+    _LastHourUpdateTimeMod  = Utility.GetCurrentGameTime()
+EndFunction
+
+Float Function ResetLastHourUpdate()
+    Float loc_time = Utility.GetCurrentGameTime()
+    Float loc_hours = (loc_time - _LastHourUpdateTime)*24.0
+    _LastHourUpdateTime = loc_time
+    return loc_hours
+EndFunction
+
+Float Function ResetLastHourUpdateMod()
+    Float loc_time = Utility.GetCurrentGameTime()
+    Float loc_hours = (loc_time - _LastHourUpdateTimeMod)*24.0
+    _LastHourUpdateTimeMod = loc_time
+    return loc_hours
+EndFunction
 
 ;==============================================================================================
 ;==============================================================================================
@@ -2364,11 +2407,27 @@ EndFunction
 ===========================================================================================
 /;
 
+;/  Function: GetNthModifier
+    Parameters:
+
+        aiIndex  - Index of modifier
+
+    Returns:
+
+        Nth modifier
+/;
+UD_Modifier Function GetNthModifier(Int aiIndex)
+    return UD_ModifiersRef[aiIndex] as UD_Modifier
+EndFunction
+
 ;/  Function: addModifier
     Parameters:
 
-        asModifier  - Name of modifier to add
+        akModifier  - Name of modifier to add
         asParam     - Comma separated list of parameters
+        akForm1     - Modifier form 1
+        akForm2     - Modifier form 2
+        akForm3     - Modifier form 3
 
     Returns:
 
@@ -2379,16 +2438,16 @@ EndFunction
     ---Code
         ; Add new modifier called LootGold
         ; Modifiers parameters are 100 , 0 and 8
-        addModifier("LootGold","100,0,8")
+        ; TODO
     ---
 /;
-bool Function addModifier(string asModifier,string asParam = "")
-    if !hasModifier(asModifier)
-        if asParam != ""
-            UD_Modifiers = PapyrusUtil.PushString(UD_Modifiers, asModifier + ";" + asParam)
-        else
-            UD_Modifiers = PapyrusUtil.PushString(UD_Modifiers, asModifier)
-        endif
+bool Function addModifier(UD_Modifier akModifier,string asParam = "", Form akForm1 = none, Form akForm2 = none, Form akForm3 = none)
+    if !hasModifier(akModifier)
+        UD_ModifiersRef         = PapyrusUtil.PushAlias (UD_ModifiersRef        ,akModifier)
+        UD_ModifiersDataStr     = PapyrusUtil.PushString(UD_ModifiersDataStr    ,asParam)
+        UD_ModifiersDataForm1   = PapyrusUtil.PushForm  (UD_ModifiersDataForm1  ,akForm1)
+        UD_ModifiersDataForm2   = PapyrusUtil.PushForm  (UD_ModifiersDataForm2  ,akForm2)
+        UD_ModifiersDataForm3   = PapyrusUtil.PushForm  (UD_ModifiersDataForm3  ,akForm3)
         return true
     else
         return false
@@ -2398,15 +2457,40 @@ EndFunction
 ;/  Function: removeModifier
     Parameters:
 
-        asModifier  - Name of modifier to remove
+        akModifier  - Name of modifier to remove
 
     Returns:
 
         true if modifiers was succesfully removed
 /;
-bool Function removeModifier(string asModifier)
-    if hasModifier(asModifier)
-        UD_Modifiers = PapyrusUtil.RemoveString(UD_Modifiers, getModifier(asModifier))
+bool Function removeModifier(UD_Modifier akModifier)
+    if hasModifierRef(akModifier)
+        int loc_i               = 0
+        int loc_size            = UD_ModifiersRef.length
+        int loc_removed_indx    = UD_ModifiersRef.find(akModifier)
+        
+        Alias[]     loc_tmp_modifiers
+        String[]    loc_tmp_modifiers_str
+        Form[]      loc_tmp_modifiers_f1
+        Form[]      loc_tmp_modifiers_f2
+        Form[]      loc_tmp_modifiers_f3
+        
+        while loc_i < loc_size
+            if (loc_i != loc_removed_indx)
+                loc_tmp_modifiers       = PapyrusUtil.PushAlias (loc_tmp_modifiers      ,UD_ModifiersRef        [loc_i])
+                loc_tmp_modifiers_str   = PapyrusUtil.PushString(loc_tmp_modifiers_str  ,UD_ModifiersDataStr    [loc_i])
+                loc_tmp_modifiers_f1    = PapyrusUtil.PushForm  (loc_tmp_modifiers_f1   ,UD_ModifiersDataForm1  [loc_i])
+                loc_tmp_modifiers_f2    = PapyrusUtil.PushForm  (loc_tmp_modifiers_f2   ,UD_ModifiersDataForm2  [loc_i])
+                loc_tmp_modifiers_f3    = PapyrusUtil.PushForm  (loc_tmp_modifiers_f3   ,UD_ModifiersDataForm3  [loc_i])
+            endif
+            loc_i += 1
+        endwhile
+        
+        UD_ModifiersRef         = loc_tmp_modifiers
+        UD_ModifiersDataStr     = loc_tmp_modifiers_str
+        UD_ModifiersDataForm1   = loc_tmp_modifiers_f1
+        UD_ModifiersDataForm2   = loc_tmp_modifiers_f2
+        UD_ModifiersDataForm3   = loc_tmp_modifiers_f3
         return true
     else
         return false
@@ -2416,89 +2500,106 @@ EndFunction
 ;/  Function: hasModifier
     Parameters:
 
-        asModifier  - Name of modifier to check
+        asModifier  - Alias of modifier to check
 
     Returns:
 
         true if modifiers is present on the device
 /;
-bool Function hasModifier(string asModifier)
-    if UDmain.UD_UseNativeFunctions
-        return UD_Native.hasModifier(UD_Modifiers,asModifier)
-    else
-        int loc_Index = UD_Modifiers.length
-        while loc_Index
-            loc_Index -= 1
-            if StringUtil.find(UD_Modifiers[loc_Index],";") != -1
-                if StringUtil.Substring(UD_Modifiers[loc_Index], 0, StringUtil.find(UD_Modifiers[loc_Index],";")) == asModifier
-                    return true
-                endif
-            else    
-                if UD_Modifiers[loc_Index] == asModifier
-                    return True
-                endif
-            endif
-        endwhile
-        return false
-    endif
+bool Function hasModifier(String asModifier)
+    int loc_Index = UD_ModifiersRef.length
+    while loc_Index
+        loc_Index -= 1
+        if (GetNthModifier(loc_Index).NameAlias == asModifier)
+            return true
+        endif
+    endwhile
+    return false
 EndFunction
 
-String Function GetModifierHeader(String asRawModifier)
-    if StringUtil.find(asRawModifier,";") != -1
-        return StringUtil.Substring(asRawModifier, 0, StringUtil.find(asRawModifier,";"))
-    else    
-        return asRawModifier
-    endif
+;/  Function: hasModifierRef
+    Parameters:
+
+        akModifier  - Modifier alias
+
+    Returns:
+
+        true if modifiers is present on the device
+/;
+bool Function hasModifierRef(UD_Modifier akModifier)
+    return (UD_ModifiersRef.find(akModifier) >= 0)
 EndFunction
 
 ;/  Function: getModifierAllParam
     Parameters:
 
-        asModifier  - Name of modifier
+        asModifier  - Alias of modifier
 
     Returns:
 
         Array of all parameters or none in case of error
 /;
 String[] Function getModifierAllParam(string asModifier)
-    if UDmain.UD_UseNativeFunctions
-        return UD_Native.getModifierAllParam(UD_Modifiers,asModifier)
+    int loc_Index = getModifierIndex(asModifier)
+    if loc_Index != -1
+        return StringUtil.split(UD_ModifiersDataStr[loc_Index],",")
     else
-        int loc_Index = getModifierIndex(asModifier)
-        if loc_Index != -1
-            String[] loc_Res = StringUtil.split(UD_Modifiers[loc_Index],";")
-            if loc_Res.length > 1
-                return StringUtil.split(loc_Res[1],",")
-            else
-                return none
-            endif
-        else
-            return none
-        endif
+        return none
     endif
 EndFunction
 
-string Function getModifier(string asModifier)
+;/  Function: getModifier
+    Parameters:
+
+        asModifier  - Alias of modifier
+
+    Returns:
+
+        Modifier or none if its not found
+/;
+UD_Modifier Function getModifier(string asModifier)
     if hasModifier(asModifier)
-        return UD_Modifiers[getModifierIndex(asModifier)]
+        return UD_ModifiersRef[getModifierIndex(asModifier)] as UD_Modifier
     else
-        return "ERROR"
+        return none
     endif
 EndFunction
 
-int Function getModifierIndex(string asModifier)
-    if UDmain.UD_UseNativeFunctions
-        return UD_Native.getModifierIndex(UD_Modifiers,asModifier)
+;/  Function: getModifierParam
+    Parameters:
+
+        asModifier  - Alias of modifier
+
+    Returns:
+
+        Parameter string
+/;
+String Function getModifierParam(string asModifier)
+    if hasModifier(asModifier)
+        return UD_ModifiersDataStr[getModifierIndex(asModifier)]
     else
-        int loc_Index = UD_Modifiers.length
-        while loc_Index
-            loc_Index -= 1
-            if StringUtil.find(UD_Modifiers[loc_Index],asModifier) != -1
-                return loc_Index
-            endif
-        endwhile
-        return -1
+        return ""
     endif
+EndFunction
+
+;/  Function: getModifierIndex
+    Parameters:
+
+        asModifier  - Alias of modifier
+
+    Returns:
+
+        Index of alias with asModifier alias, or -1 of its not found
+/;
+int Function getModifierIndex(string asModifier)
+    int loc_Index = UD_ModifiersRef.length
+    while loc_Index
+        loc_Index -= 1
+        if (GetNthModifier(loc_Index).NameAlias == asModifier)
+            return loc_Index
+        endif
+    endwhile
+    return -1
 EndFunction
 
 ;/  Function: editStringModifier
@@ -2518,119 +2619,12 @@ bool Function editStringModifier(string asModifier,int aiIndex, string asNewValu
     String[] loc_param = getModifierAllParam(asModifier)
     if loc_param
         loc_param[aiIndex] = asNewValue
-        UD_Modifiers[getModifierIndex(asModifier)] = asModifier + ";" + PapyrusUtil.StringJoin(loc_param,",")
+        UD_ModifiersDataStr[getModifierIndex(asModifier)] = PapyrusUtil.StringJoin(loc_param,",")
         return true
     else
         return false
     endif
 EndFunction
-
-bool Function modifierHaveParams(string asModifier)
-    if UDmain.UD_UseNativeFunctions
-        return UD_Native.modifierHaveParams(UD_Modifiers,asModifier)
-    else
-        if StringUtil.find(getModifier(asModifier),";") != -1
-            return true
-        else
-            return false
-        endif
-    endif
-EndFunction
-
-;/  Function: getModifierParamNum
-    Parameters:
-
-        asModifier  - Name of modifier
-
-    Returns:
-
-        Number of parameters. Returns 0 in case of error
-/;
-int Function getModifierParamNum(string asModifier)
-    if UDmain.UD_UseNativeFunctions
-        return UD_Native.getModifierParamNum(UD_Modifiers,asModifier)
-    else
-        string[] loc_params = getModifierAllParam(asModifier)
-        if !loc_params
-            return 0
-        else
-            return getModifierAllParam(asModifier).length
-        endif
-    endif
-EndFunction
-
-;/  Function: getModifierIntParam
-    Parameters:
-
-        asModifier      - Name of modifier
-        aiIndex         - Index of parameter
-        aiDefaultValue  - Default value in case of error
-
-    Returns:
-
-        Int value of Nth parameter of modifier
-/;
-Int Function getModifierIntParam(string asModifier,int aiIndex = 0,int aiDefaultValue = 0)
-    string[] loc_params = getModifierAllParam(asModifier)
-    if !loc_params
-        UDmain.Warning(getDeviceHeader() + "::getModifierIntParam("+asModifier+","+aiIndex+","+aiDefaultValue+") - modifier have no parameters")
-        return aiDefaultValue
-    elseif aiIndex > (loc_params.length - 1)
-        UDmain.Warning(getDeviceHeader() + "::getModifierIntParam("+asModifier+","+aiIndex+","+aiDefaultValue+") - Passed index out of range, returning default value" + aiDefaultValue)
-        return aiDefaultValue
-    else
-        return loc_params[aiIndex] as Int
-    endif
-EndFunction
-
-;/  Function: getModifierFloatParam
-    Parameters:
-
-        asModifier      - Name of modifier
-        aiIndex         - Index of parameter
-        afDefaultValue  - Default value in case of error
-
-    Returns:
-
-        Float value of Nth parameter of modifier
-/;
-Float Function getModifierFloatParam(string asModifier,int aiIndex = 0,Float afDefaultValue = 0.0)
-    string[] loc_params = getModifierAllParam(asModifier)
-    if !loc_params
-        UDmain.Warning(getDeviceHeader() + "::getModifierFloatParam("+asModifier+","+aiIndex+","+afDefaultValue+") - modifier have no parameters")
-        return afDefaultValue
-    elseif aiIndex > (loc_params.length - 1)
-        UDmain.Warning(getDeviceHeader() + "::getModifierFloatParam("+asModifier+","+aiIndex+","+afDefaultValue+") - Passed index out of range, returning default value" + afDefaultValue)
-        return afDefaultValue
-    else
-        return loc_params[aiIndex] as Float
-    endif
-EndFunction
-
-;/  Function: getModifierParam
-    Parameters:
-
-        asModifier      - Name of modifier
-        aiIndex         - Index of parameter
-        afDefaultValue  - Default value in case of error
-
-    Returns:
-
-        Value of Nth parameter of modifier
-/;
-String Function getModifierParam(string asModifier,int aiIndex = 0,String asDefaultValue = "ERROR")
-    string[] loc_params = getModifierAllParam(asModifier)
-    if !loc_params
-        UDmain.Warning(getDeviceHeader() + "::getModifierFloatParam("+asModifier+","+aiIndex+","+asDefaultValue+") - modifier have no parameters")
-        return asDefaultValue
-    elseif aiIndex > (loc_params.length - 1)
-        UDmain.Warning(getDeviceHeader() + "::getModifierFloatParam("+asModifier+","+aiIndex+","+asDefaultValue+") - Passed index out of range, returning default value" + asDefaultValue)
-        return asDefaultValue
-    else
-        return loc_params[aiIndex]
-    endif
-EndFunction
-
 
 ;/  Function: setModifierIntParam
     Change one int parameter value. Is wrapper of <editStringModifier> method
@@ -2686,37 +2680,37 @@ EndFunction
 ;/  Function: isSentient
     Returns:
 
-        True if device have "Sentient" modifier
+        True if device have "SEN" modifier
 /;
 bool Function isSentient()
-    return hasModifier("Sentient")
+    return hasModifier("SNT")
 EndFunction
 
 ;/  Function: haveRegen
     Returns:
 
-        True if device have "Regen" modifier
+        True if device have "REG" modifier
 /;
 bool Function haveRegen()
-    return hasModifier("Regen")
+    return hasModifier("REG")
 EndFunction
 
 ;/  Function: isLoose
     Returns:
 
-        True if device have "Loose" modifier
+        True if device have "LOS" modifier
 /;
 bool Function isLoose()
-    return hasModifier("Loose")
+    return hasModifier("LOS")
 EndFunction
 
 ;/  Function: getLooseMod
     Returns:
 
-        Modifier for "Loose" modifier
+        Modifier for "LOS" modifier
 /;
 float Function getLooseMod()
-    return getModifierFloatParam("Loose")
+    return UD_Native.GetStringParamFloat(getModifierParam("LOS"),0,0.5)
 EndFunction
 
 ;==============================================================================================
@@ -2836,6 +2830,10 @@ EndFunction
 ;return true if at least one lock can be accessed
 Bool Function HaveAccesibleLock()
     if HaveLocks()
+        if WearerHaveTelekinesis() || HelperHaveTelekinesis()
+            return true
+        endif
+    
         Int loc_LockNum = GetLockNumber()
         while loc_LockNum
             loc_LockNum -= 1
@@ -2973,7 +2971,7 @@ EndFunction
 Bool Function IsNthLockUnlocked(Int aiLockIndex)
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock) 
-        return self.decodeBit(loc_Lock,1,0)
+        return UD_Native.DecodeBit(loc_Lock,1,0)
     else
         return False ;return false as error value
     endif
@@ -2992,7 +2990,7 @@ EndFunction
 Bool Function IsNthLockJammed(Int aiLockIndex)
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock) 
-        return self.decodeBit(loc_Lock,1,1)
+        return UD_Native.DecodeBit(loc_Lock,1,1)
     else
         return False ;return false as error value
     endif
@@ -3002,7 +3000,7 @@ EndFunction
 Bool Function IsNthLockTimeLocked(Int aiLockIndex)
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock) 
-        return self.decodeBit(loc_Lock,1,2)
+        return UD_Native.DecodeBit(loc_Lock,1,2)
     else
         return False ;return false as error value
     endif
@@ -3012,7 +3010,7 @@ EndFunction
 Bool Function IsNthLockAutoTimeLocked(Int aiLockIndex)
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock) 
-        return self.decodeBit(loc_Lock,1,3)
+        return UD_Native.DecodeBit(loc_Lock,1,3)
     else
         return False ;return false as error value
     endif
@@ -3022,7 +3020,7 @@ EndFunction
 Int Function GetNthLockShields(Int aiLockIndex)
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock) 
-        return self.decodeBit(loc_Lock,4,4)
+        return UD_Native.DecodeBit(loc_Lock,4,4)
     else
         return 0 ;return 0 as error value
     endif
@@ -3032,7 +3030,7 @@ EndFunction
 Int Function GetNthLockAccessibility(Int aiLockIndex)
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock) 
-        return iRange(self.decodeBit(loc_Lock,7,8),0,100)
+        return iRange(UD_Native.DecodeBit(loc_Lock,7,8),0,100)
     else
         return 0 ;return 0 as error value
     endif
@@ -3042,7 +3040,7 @@ EndFunction
 Int Function GetNthLockDifficulty(Int aiLockIndex, Bool abUseLevel = True)
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock) 
-        Int loc_difficutly = self.decodeBit(loc_Lock,8,15)
+        Int loc_difficutly = UD_Native.DecodeBit(loc_Lock,8,15)
         if abUseLevel && loc_difficutly < 100
             ;increase difficulty based on device level
             if UDCDMain.UD_PreventMasterLock
@@ -3061,7 +3059,7 @@ EndFunction
 Int Function GetNthLockTimeLock(Int aiLockIndex)
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock) 
-        return self.decodeBit(loc_Lock,7,23)
+        return UD_Native.DecodeBit(loc_Lock,7,23)
     else
         return 0 ;return 0 as error value
     endif
@@ -3079,7 +3077,7 @@ Bool Function UnlockNthLock(Int aiLockIndex, Bool abUnlock = True)
     Bool loc_res  = False ;return False as error value
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock)
-        loc_Lock = self.codeBit(loc_Lock, abUnlock as Int,1,0)
+        loc_Lock = CodeBit(loc_Lock, abUnlock as Int,1,0)
         UD_LockList[aiLockIndex] = loc_Lock
         loc_res = true
     endif
@@ -3100,11 +3098,11 @@ Int Function UnlockAllLocks(Bool abUnlock = True)
         Int  loc_Lock = GetNthLock(loc_LockNum)
         if IsValidLock(loc_Lock)
             if (abUnlock && !IsNthLockUnlocked(loc_LockNum)) ;unlock lock
-                loc_Lock = self.codeBit(loc_Lock,1,1, 0)
+                loc_Lock = CodeBit(loc_Lock,1,1, 0)
                 UD_LockList[loc_LockNum] = loc_Lock
                 loc_res += 1
             elseif (!abUnlock && IsNthLockUnlocked(loc_LockNum)) ;lock lock
-                loc_Lock = self.codeBit(loc_Lock,0,1, 0)
+                loc_Lock = CodeBit(loc_Lock,0,1, 0)
                 UD_LockList[loc_LockNum] = loc_Lock
                 loc_res += 1
             endif
@@ -3121,7 +3119,7 @@ Bool Function JammNthLock(Int aiLockIndex, Bool abJamm = True)
     Bool loc_res  = False ;return False as error value
     Int  loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock)
-        loc_Lock = self.codeBit(loc_Lock, abJamm as Int,1,1)
+        loc_Lock = CodeBit(loc_Lock, abJamm as Int,1,1)
         UD_LockList[aiLockIndex] = loc_Lock
         loc_res = true
     endif
@@ -3142,11 +3140,11 @@ Int Function JammAllLocks(Bool abJamm = True)
         Int  loc_Lock = GetNthLock(loc_LockNum)
         if IsValidLock(loc_Lock)
             if (abJamm && !IsNthLockJammed(loc_LockNum)) ;jamm lock
-                loc_Lock = self.codeBit(loc_Lock,1,1, 1)
+                loc_Lock = CodeBit(loc_Lock,1,1, 1)
                 UD_LockList[loc_LockNum] = loc_Lock
                 loc_res += 1
             elseif (!abJamm && IsNthLockJammed(loc_LockNum)) ;unjamm lock
-                loc_Lock = self.codeBit(loc_Lock,0,1, 1)
+                loc_Lock = CodeBit(loc_Lock,0,1, 1)
                 UD_LockList[loc_LockNum] = loc_Lock
                 loc_res += 1
             endif
@@ -3176,9 +3174,9 @@ Bool Function JammRandomLock()
     endwhile
     
     if loc_correctLocks
-        Int loc_randomLock = loc_correctLocks[Utility.RandomInt(0, loc_correctLocks.length - 1)]
+        Int loc_randomLock = loc_correctLocks[RandomInt(0, loc_correctLocks.length - 1)]
         Int  loc_Lock = GetNthLock(loc_randomLock)
-        UD_LockList[loc_randomLock] = self.codeBit(loc_Lock,1,1, 1)
+        UD_LockList[loc_randomLock] = CodeBit(loc_Lock,1,1, 1)
         loc_res = True
     endif
     
@@ -3192,8 +3190,8 @@ Int Function DecreaseLockShield(Int aiLockIndex, Int aiShieldDecrease = 1, Bool 
     Int loc_res  = 0 ;return 0 as error value
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock)
-        Int loc_ShieldNumber = iUnsig(self.decodeBit(loc_Lock,4,4) - aiShieldDecrease)
-        loc_Lock = self.codeBit(loc_Lock, loc_ShieldNumber,4,4)
+        Int loc_ShieldNumber = iUnsig(UD_Native.DecodeBit(loc_Lock,4,4) - aiShieldDecrease)
+        loc_Lock = CodeBit(loc_Lock, loc_ShieldNumber,4,4)
         UD_LockList[aiLockIndex] = loc_Lock
         if loc_ShieldNumber
             loc_res = loc_ShieldNumber ;lock still have shields after the operation
@@ -3214,8 +3212,8 @@ Bool Function UpdateLockAccessibility(Int aiLockIndex, Int aiAccessibilityDelta)
     Bool loc_res = False ;return False as error value
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock)
-        Int loc_Accessibility = iRange(self.decodeBit(loc_Lock,7,8) + aiAccessibilityDelta,0,100)
-        loc_Lock = self.codeBit(loc_Lock, loc_Accessibility,7,8)
+        Int loc_Accessibility = iRange(UD_Native.DecodeBit(loc_Lock,7,8) + aiAccessibilityDelta,0,100)
+        loc_Lock = CodeBit(loc_Lock, loc_Accessibility,7,8)
         UD_LockList[aiLockIndex] = loc_Lock
         loc_res = true ;operation was succesfull
     endif
@@ -3230,11 +3228,11 @@ Bool Function UpdateLockDifficulty(Int aiLockIndex, Int aiDifficultyDelta, Bool 
     Bool loc_res = False ;return False as error value
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock)
-        Int loc_Difficulty = iRange(self.decodeBit(loc_Lock,8,15) + aiDifficultyDelta,0,255)
+        Int loc_Difficulty = iRange(UD_Native.DecodeBit(loc_Lock,8,15) + aiDifficultyDelta,0,255)
         if abNoKeyDiff
             loc_Difficulty = iRange(loc_Difficulty,0,100)
         endif
-        loc_Lock = self.codeBit(loc_Lock, loc_Difficulty,8,15)
+        loc_Lock = CodeBit(loc_Lock, loc_Difficulty,8,15)
         UD_LockList[aiLockIndex] = loc_Lock
         loc_res = true
     endif
@@ -3249,13 +3247,13 @@ Int Function UpdateLockTimeLock(Int aiLockIndex, Int aiTimeLockDelta)
     Int loc_res = 0 ;return 0 as error value
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock)
-        Int loc_TimeLock = iRange(self.decodeBit(loc_Lock,7,23) + aiTimeLockDelta,0,122)
-        loc_Lock = self.codeBit(loc_Lock, loc_TimeLock,7,23)
+        Int loc_TimeLock = iRange(UD_Native.DecodeBit(loc_Lock,7,23) + aiTimeLockDelta,0,122)
+        loc_Lock = CodeBit(loc_Lock, loc_TimeLock,7,23)
         UD_LockList[aiLockIndex] = loc_Lock
         loc_res = loc_TimeLock
         if !loc_res && IsNthLockAutoTimeLocked(aiLockIndex)
             ;auto unlock the lock
-            loc_Lock = self.codeBit(loc_Lock,1,1, 0)
+            loc_Lock = CodeBit(loc_Lock,1,1, 0)
             UD_LockList[aiLockIndex] = loc_Lock
         endif
     endif
@@ -3301,14 +3299,14 @@ EndFunction
 ;if abAdd is True, the lock will also be automatically added to the list of locks
 Int Function CreateLock(Int aiDifficulty, Int aiAccess, Int aiShields, String asName, Int aiTimelock = 0, Bool abAdd = False)
     Int loc_res = 0x00000000
-    loc_res = self.codeBit(loc_res, aiShields,4,4)
-    loc_res = self.codeBit(loc_res, aiAccess,7,8)
-    loc_res = self.codeBit(loc_res, aiDifficulty,8,15)
+    loc_res = CodeBit(loc_res, aiShields,4,4)
+    loc_res = CodeBit(loc_res, aiAccess,7,8)
+    loc_res = CodeBit(loc_res, aiDifficulty,8,15)
     
     ;add timelock
     if aiTimelock
-        loc_res = self.codeBit(loc_res, 1, 1, 2)
-        loc_res = self.codeBit(loc_res, aiTimelock, 7, 23)
+        loc_res = CodeBit(loc_res, 1, 1, 2)
+        loc_res = CodeBit(loc_res, aiTimelock, 7, 23)
     endif
     
     if abAdd
@@ -3423,7 +3421,7 @@ EndFunction
 /;
 Function AddJammedLock(int aiChance = 5, string asMsg = "", int aiNumber = 1)
     if !libs.Config.DisableLockJam
-        if Utility.randomInt(1,99) >= aiChance
+        if RandomInt(1,99) >= aiChance
             return
         endif
         
@@ -3550,38 +3548,47 @@ Function _deviceMenuInit(bool[] aaControl)
     setHelper(none)
     UDCDmain.resetCondVar()
 
-    bool        loc_isloose             = isLoose()
-    bool        loc_freehands           = WearerFreeHands()
-    float       loc_accesibility        = getAccesibility()
-    
-    ;normal struggle
-    if StruggleMinigameAllowed(loc_accesibility); && (loc_isloose || loc_freehands)
-        UDCDmain.currentDeviceMenu_allowstruggling = True
-    else
-        UDCDmain.currentDeviceMenu_allowUselessStruggling = True
-    endif
-    
-    if HaveLocks() && HaveAccesibleLock() ;check if device have locks, and if they can be currently accessed
-        Int loc_lockMinigames = LockMinigameAllowed(loc_accesibility)
-        if Math.LogicalAnd(loc_lockMinigames,0x1)
-            UDCDmain.currentDeviceMenu_allowlockpick = True
+    if Udmain.UDMOM.GetModifierState_MinigameAllowed(self)
+        bool        loc_isloose             = isLoose()
+        bool        loc_freehands           = WearerFreeHands()
+        float       loc_accesibility        = getAccesibility()
+        
+        ;normal struggle
+        if StruggleMinigameAllowed(loc_accesibility); && (loc_isloose || loc_freehands)
+            UDCDmain.currentDeviceMenu_allowstruggling = True
+        else
+            UDCDmain.currentDeviceMenu_allowUselessStruggling = True
         endif
-        if Math.LogicalAnd(loc_lockMinigames,0x2)
-            UDCDmain.currentDeviceMenu_allowkey = True
+        
+        if HaveLocks() && HaveAccesibleLock() ;check if device have locks, and if they can be currently accessed
+            Int loc_lockMinigames = LockMinigameAllowed(loc_accesibility)
+            if Math.LogicalAnd(loc_lockMinigames,0x1)
+                UDCDmain.currentDeviceMenu_allowlockpick = True
+            endif
+            if Math.LogicalAnd(loc_lockMinigames,0x2)
+                UDCDmain.currentDeviceMenu_allowkey = True
+            endif
+            if Math.LogicalAnd(loc_lockMinigames,0x4)
+                UDCDmain.currentDeviceMenu_allowlockrepair = True
+            endif
         endif
-        if Math.LogicalAnd(loc_lockMinigames,0x4)
-            UDCDmain.currentDeviceMenu_allowlockrepair = True
+        
+        ;cutting
+        if CuttingMinigameAllowed(loc_accesibility)
+            UDCDmain.currentDeviceMenu_allowcutting = True
         endif
-    endif
-    
-    ;cutting
-    if CuttingMinigameAllowed(loc_accesibility)
-        UDCDmain.currentDeviceMenu_allowcutting = True
-    endif
-    
-    ;Check if Lock menu button should be present in menu
-    if (UDCDmain.currentDeviceMenu_allowkey || UDCDmain.currentDeviceMenu_allowlockpick || UDCDmain.currentDeviceMenu_allowlockrepair)
-        UDCDmain.currentDeviceMenu_allowLockMenu = true
+        
+        ;Check if Lock menu button should be present in menu
+        if (UDCDmain.currentDeviceMenu_allowkey || UDCDmain.currentDeviceMenu_allowlockpick || UDCDmain.currentDeviceMenu_allowlockrepair)
+            UDCDmain.currentDeviceMenu_allowLockMenu = true
+        endif
+        
+        if StorageUtil.GetIntValue(GetWearer(), "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus", 0)
+            UDCDmain.currentDeviceMenu_allowEscape = true
+        endif
+        
+        ;override function
+        onDeviceMenuInitPost(aaControl)
     endif
     
     ;sets last opened device
@@ -3589,8 +3596,6 @@ Function _deviceMenuInit(bool[] aaControl)
         UDCDmain.setLastOpenedDevice(self)
     endif
     
-    ;override function
-    onDeviceMenuInitPost(aaControl)
     _filterControl(aaControl)
     UDCdmain.CheckAndDisableSpecialMenu()
 EndFunction
@@ -3638,7 +3643,10 @@ Function DeviceMenu(bool[] aaControl)
             _break = cuttingMinigame()
         elseif msgChoice == 4     ;special menu
             _break = _specialMenu()
-        elseif msgChoice == 5     ;details
+        elseif msgChoice == 5     ;escape
+            UnlockRestrain()
+            _break = true
+        elseif msgChoice == 6     ;details
             processDetails()        
         else
             _break = True         ;exit
@@ -3682,38 +3690,49 @@ Function _deviceMenuInitWH(Actor akSource,bool[] aaControl)
         bool    loc_freehands_wearer     = WearerFreeHands(true,False)
         bool    loc_freehands_helper     = HelperFreeHands(true)
         float   loc_accesibility         = getAccesibility()
-        ;int     loc_lockacces            = getLockAccesChance()
-        
-        ;help struggle
-        if canBeStruggled(loc_accesibility)
-            UDCDmain.currentDeviceMenu_allowstruggling = True
-        endif
-
-        if HaveAccesibleLock()
-            Int loc_lockMinigame = LockMinigameAllowed(loc_accesibility)
-            ;key unlock
-            if Math.LogicalAnd(loc_lockMinigame,0x2)
-                UDCDmain.currentDeviceMenu_allowkey = True
+        if Udmain.UDMOM.GetModifierState_MinigameAllowed(self)
+            ;help struggle
+            if canBeStruggled(loc_accesibility)
+                UDCDmain.currentDeviceMenu_allowstruggling = True
             endif
             
-            ;lockpicking
-            if Math.LogicalAnd(loc_lockMinigame,0x1)
-                if (wearer.getItemCount(UDCDmain.Lockpick) || akSource.getItemCount(UDCDmain.Lockpick))
-                    UDCDmain.currentDeviceMenu_allowlockpick = True
+            if HaveAccesibleLock()
+                Int loc_lockMinigame = LockMinigameAllowed(loc_accesibility)
+                ;key unlock
+                if Math.LogicalAnd(loc_lockMinigame,0x2)
+                    UDCDmain.currentDeviceMenu_allowkey = True
+                endif
+                
+                ;lockpicking
+                if Math.LogicalAnd(loc_lockMinigame,0x1)
+                    if (wearer.getItemCount(UDCDmain.Lockpick) || akSource.getItemCount(UDCDmain.Lockpick))
+                        UDCDmain.currentDeviceMenu_allowlockpick = True
+                    endif
+                endif
+
+                ;lock repair
+                if Math.LogicalAnd(loc_lockMinigame,0x4)
+                    UDCDmain.currentDeviceMenu_allowlockrepair = True
                 endif
             endif
-
-            ;lock repair
-            if Math.LogicalAnd(loc_lockMinigame,0x4)
-                UDCDmain.currentDeviceMenu_allowlockrepair = True
+            
+            ;cutting
+            if canBeCutted()
+                UDCDmain.currentDeviceMenu_allowcutting = True
             endif
+            
+            if (UDCDmain.currentDeviceMenu_allowkey || UDCDmain.currentDeviceMenu_allowlockpick || UDCDmain.currentDeviceMenu_allowlockrepair)
+                UDCDmain.currentDeviceMenu_allowLockMenu = true
+            endif
+            
+            if StorageUtil.GetIntValue(GetWearer(), "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus", 0)
+                UDCDmain.currentDeviceMenu_allowEscape = true
+            endif
+            
+            ;override function
+            onDeviceMenuInitPostWH(aaControl)
         endif
         
-        ;cutting
-        if canBeCutted()
-            UDCDmain.currentDeviceMenu_allowcutting = True
-        endif
-            
         if !loc_freehands_wearer && loc_freehands_helper
             UDCDmain.currentDeviceMenu_allowTighten = True
         endif
@@ -3722,17 +3741,11 @@ Function _deviceMenuInitWH(Actor akSource,bool[] aaControl)
             UDCDmain.currentDeviceMenu_allowRepair = True
         endif
         
-        if (UDCDmain.currentDeviceMenu_allowkey || UDCDmain.currentDeviceMenu_allowlockpick || UDCDmain.currentDeviceMenu_allowlockrepair)
-            UDCDmain.currentDeviceMenu_allowLockMenu = true
-        endif
-        
         if WearerIsFollower() && !WearerIsPlayer()
             UDCDmain.currentDeviceMenu_allowCommand = True
         endif
     endif
     
-    ;override function
-    onDeviceMenuInitPostWH(aaControl)
     _filterControl(aaControl,akSource == none)
     UDCdmain.CheckAndDisableSpecialMenu()
 EndFunction
@@ -3788,7 +3801,7 @@ Function DeviceMenuWH(Actor akSource,bool[] aaControl)
             _break = _specialMenuWH(akSource)
         elseif msgChoice == 4    ;tighten up
             tightUpDevice(akSource)
-            _break = true
+            _break = false
         elseif msgChoice == 5    ;repair
             repairDevice(akSource)
             _break = true
@@ -3796,8 +3809,11 @@ Function DeviceMenuWH(Actor akSource,bool[] aaControl)
             aaControl = CreateControlArrayFalse()
             DeviceMenu(aaControl)
             _break = True
-        elseif msgChoice == 7    ;details
-            processDetails()        
+        elseif msgChoice == 7     ;escape
+            UnlockRestrain()
+            _break = true
+        elseif msgChoice == 8    ;details
+            processDetails()
         else
             _break = True        ;exit
         endif
@@ -3928,17 +3944,18 @@ EndFunction
        Calculated cooldown
 /;
 int Function CalculateCooldown(Float afMult = 1.0)
-    return iRange(Round(afMult*UD_Cooldown*Utility.randomFloat(0.75,1.25)*UDCDmain.UD_CooldownMultiplier),5,24*60*60*10)
+    return iRange(Round(afMult*UD_Cooldown*RandomFloat(0.75,1.25)*UDCDmain.UD_CooldownMultiplier),5,24*60*60*10)
 EndFunction
 
 ;like Update function, but called only once per hour
 ;mult -> multiplier which identifies how many hours have passed (1.5 hours -> mult = 1.5)
-Function UpdateHour(float mult)
+Function UpdateHour()
+    Float loc_mult = ResetLastHourUpdate()
     if OnUpdateHourPre()
         if OnUpdateHourPost()
         endif
     endif
-    UpdateAllLocksTimeLock(-1*Round(mult),True) ;update timed locks
+    UpdateAllLocksTimeLock(-1*Math.Ceiling(loc_mult),True) ;update timed locks
 EndFunction
 
 float Function _getLockMinigameModifier()
@@ -4145,6 +4162,18 @@ Function setWidgetVal(float afVal, bool abForce = false)
     UDmain.UDWC.Meter_SetFillPercent("device-main", afVal * 100.0, abForce)
 EndFunction
 
+;/  Function: setSecWidgetVal
+    Change value of secundary device widget (condition)
+    
+    Parameters:
+
+        afVal  - New widget meter value
+        abForce - If value should be forced (no change animation)
+/;
+Function setSecWidgetVal(float afVal, bool abForce = false)
+    UDmain.UDWC.Meter_SetFillPercent("device-condition", afVal * 100.0, abForce)
+EndFunction
+
 ;/  Function: setMainWidgetAppearance
     Update apparance of main device widget (durability, rapir progress, etc...)
     
@@ -4164,7 +4193,7 @@ Function setMainWidgetAppearance(Int aiColor1, Int aiColor2 = -1, Int aiFlashCol
     endif
 EndFunction
 
-;/  Function: setConditionWidgetAppearance
+;/  Function: setSecWidgetAppearance
     Update apparance of secondary device widget (condition)
     
     Parameters:
@@ -4173,9 +4202,12 @@ EndFunction
         aiColor2        - Secondary color
         aiFlashColor    - Flash color
 /;
-Function setConditionWidgetAppearance(Int aiColor1, Int aiColor2 = -1, Int aiFlashColor = -1)
+Function setSecWidgetAppearance(Int aiColor1, Int aiColor2 = -1, Int aiFlashColor = -1, String asIconName = "")
     if (WearerIsPlayer() || HelperIsPlayer())
         UDmain.UDWC.Meter_SetColor("device-condition", aiColor1, aiColor2, aiFlashColor)
+        If asIconName != ""
+            UDMain.UDWC.Meter_SetIcon("device-condition", asIconName)
+        EndIf
     ;    UDMain.UDWC.Meter_SetIcon("device-condition", "icon-meter-condition")
     endif
 EndFunction
@@ -4189,14 +4221,20 @@ EndFunction
         abUpdateColor   - If widget color should be updated first
 /;
 Function showWidget(Bool abUpdate = true, Bool abUpdateColor = true)
-    if abUpdate
-        updateWidget(true)
+    bool loc_useWidget      = UD_useWidget
+    bool loc_useWidgetSec   = UD_useWidgetSec
+    if loc_useWidget || loc_useWidgetSec
+        if abUpdate
+            updateWidget(true)
+        endif
+        if abUpdateColor
+            updateWidgetColor()
+        endif
     endif
-    if abUpdateColor
-        updateWidgetColor()
+    if loc_useWidget
+        UDmain.UDWC.Meter_SetVisible("device-main", True)
     endif
-    UDmain.UDWC.Meter_SetVisible("device-main", True)
-    If UDmain.UDWC.UD_UseDeviceConditionWidget
+    If loc_useWidgetSec
         UDmain.UDWC.Meter_SetVisible("device-condition", True)
     EndIf
 EndFunction
@@ -4220,7 +4258,7 @@ EndFunction
 /;
 Function decreaseDurabilityAndCheckUnlock(float afValue,float afCondMult = 1.0,Bool abCheckCondition = True)
     if current_device_health > 0.0
-        if UDmain.UD_UseNativeFunctions && PlayerInMinigame() && UD_damage_device
+        if PlayerInMinigame() && UD_damage_device
             ;update and fetch value from native meter
             current_device_health = UDmain.UDWC.Meter_UpdateNativeValue("device-main",-1.0*afValue)*UD_Health/100.0
         else
@@ -4233,7 +4271,7 @@ Function decreaseDurabilityAndCheckUnlock(float afValue,float afCondMult = 1.0,B
 EndFunction
 
 Function _DecreaseCondition(Float afCondition, Float afMult, bool abCheckCondition)
-    if UDmain.UD_UseNativeFunctions && PlayerInMinigame() && UD_damage_device
+    if PlayerInMinigame() && UD_damage_device
         ;update fetch value from native meter
         _total_durability_drain = UDmain.UDWC.Meter_UpdateNativeValue("device-condition",-1.0*afCondition*afMult)*UD_Health/100.0
     else
@@ -4337,38 +4375,11 @@ Function refillCuttingProgress(float afValue)
     endif
 EndFunction
 
-;/  Function: updateMend
-    Force device to be repaired if it have any related modifier (Regen,_HEAL).
-    
-    Amplitude of effect is based on time passed.
-    
-    This function is periodically called for all registered devices by NPC Manager
-
-    Parameters:
-
-        afTimePassed    - Time in days. By how much time should be device mended. Use time related functions like <ConvertTimeHours> to make calculations safer
-/;
-Function updateMend(float afTimePassed)
-    if getRelativeDurability() < 1.0 && hasModifier("Regen")
-        mendDevice(1.0,afTimePassed)
-    endif
-    if hasModifier("_HEAL")
-        if WearerIsRegistered()
-            UD_CustomDevice_RenderScript[] loc_devices = UDCDmain.getNPCDevices(getWearer())
-            int loc_i = 0
-            while loc_devices[loc_i]
-                loc_devices[loc_i].refillDurability(afTimePassed*getModifierIntParam("_HEAL")*UDCDmain.getStruggleDifficultyModifier())
-                loc_i+=1
-            endwhile
-        endif
-    endif
-EndFunction
-
 Function _updateCondition(bool decrease = True)
     Float loc_health = UD_Health
     if decrease
         while (_total_durability_drain >= loc_health) && !IsUnlocked && UD_condition < 4
-            if PlayerInMinigame() && UDmain.UD_UseNativeFunctions && UD_damage_device
+            if PlayerInMinigame() && UD_damage_device
                 UDmain.UDWC.Meter_SetNativeValue("device-condition",100)
                 _total_durability_drain = 0
             else
@@ -4432,17 +4443,6 @@ string Function getConditionString()
         return "Bad"
     else
         return "Destroyed"
-    endif
-EndFunction
-
-;mends device
-Function mendDevice(float afMult = 1.0,float afTimePassed)
-    if onMendPre(afMult) && current_device_health > 0.0
-        int     loc_regen   = getModifierIntParam("Regen")
-        Float   loc_amount  = afTimePassed*loc_regen*(1 - 0.1*UD_condition)*afMult*UDCDmain.getStruggleDifficultyModifier()
-        refillDurability(loc_amount)
-        refillCuttingProgress(afTimePassed*loc_regen)
-        onMendPost(loc_amount)
     endif
 EndFunction
 
@@ -4627,14 +4627,16 @@ Int  Function NthLockMinigamesAllowed(Int aiLockID, Float afAccesibility)
         return 0x0 ;lock is time locked, no minigame is allowed!
     endif
     
-    if !GetHelper() ;no helper, check if wearer can reach the lock themself
+    bool loc_telekinesis = WearerHaveTelekinesis() || HelperHaveTelekinesis()
+    
+    if !loc_telekinesis && !GetHelper() ;no helper, check if wearer can reach the lock themself
         Int loc_Accessibility = GetNthLockAccessibility(aiLockID)
         if !loc_Accessibility
             return 0x0 ;lock is inaccessible by wearer, help of other person is needed
         endif
     endif
     Int loc_res = 0
-    if (afAccesibility > 0) ;check if device can be accessed by wearer
+    if (afAccesibility > 0) || loc_telekinesis ;check if device can be accessed by wearer
         Bool loc_Jammed = IsNthLockJammed(aiLockID)
         if !loc_Jammed
             ;key unlock
@@ -4736,7 +4738,9 @@ bool Function struggleMinigame(int aiType = -1, Bool abSilent = False)
     endif
     
     resetMinigameValues()
-    setMinigameWidgetVar((aiType != 5), True, True, 0xffbd00, -1, -1, "icon-meter-struggle")
+    
+    setMinigameWidgetVar((aiType != 5), False, False, 0xFF0000, 0x00FF00, -1, "icon-meter-struggle")
+    setSecWidgetVar((aiType < 3), True, False, -1, -1, -1, "icon-meter-condition")
     
     if aiType == 0 ;normal
         UD_minigame_stamina_drain = UD_base_stat_drain*0.75 + getMaxActorValue(Wearer,"Stamina",0.035)
@@ -4772,7 +4776,6 @@ bool Function struggleMinigame(int aiType = -1, Bool abSilent = False)
         UD_applyExhastionEffect = False
         UD_minigame_canCrit = False
         UD_DamageMult *= 0.08*getModResistPhysical()
-        _condition_mult_add = -1.0
         UD_RegenMag_Stamina = 0.7
         UD_RegenMag_Health = 0.8
         UD_RegenMag_Magicka = 0.7
@@ -4904,7 +4907,7 @@ bool Function repairLocksMinigame(Bool abSilent = False)
     endif
     
     resetMinigameValues()
-    setMinigameWidgetVar(True, True, False, 0xffbd00, -1, -1, "icon-meter-repair")
+    setMinigameWidgetVar(True, False, False, 0xffbd00, 0xffbd00, -1, "icon-meter-repair")
     
     _MinigameSelectedLockID = loc_SelectedLock
     UD_minigame_stamina_drain = UD_base_stat_drain*1.25
@@ -4953,7 +4956,8 @@ bool Function cuttingMinigame(Bool abSilent = False)
     endif
 
     resetMinigameValues()
-    setMinigameWidgetVar(True, True, False, 0xffbd00, -1, -1, "icon-meter-cut")
+    setMinigameWidgetVar(True, False, False, 0x4496C6, 0xffbd00, 0x4496C6, "icon-meter-cut")
+    setSecWidgetVar(True, True, False, -1, -1, -1, "icon-meter-struggle")
     
     UD_damage_device = False
     UD_minigame_stamina_drain = UD_base_stat_drain + getMaxActorValue(Wearer,"Stamina",0.04)
@@ -4967,6 +4971,16 @@ bool Function cuttingMinigame(Bool abSilent = False)
         
         UD_MinigameMult1 = loc_BaseMult + UDmain.UDSKILL.getActorCuttingSkillsPerc(getWearer())
         UD_DamageMult = loc_BaseMult + UDmain.UDSKILL.getActorCuttingSkillsPerc(getWearer())
+        
+        ;register native meters
+        if WearerIsPlayer()
+            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,fRange(170.0 - 7.0*UD_CutChance,100.0,170.0),true)
+                
+            UD_Native.RegisterDeviceCallback(_VMHandle1,_VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_CuttingMG_SKPress")
+            
+            string loc_param = UDmain.UDWC.GetMeterIdentifier("device-main")
+            UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
+        endif
         
         _CuttingGameON = True
         minigame()
@@ -5090,12 +5104,13 @@ bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
     endif
     
     resetMinigameValues()
-    setMinigameWidgetVar(True, True, True, 0xffbd00, -1, -1, "icon-meter-struggle")
+    setMinigameWidgetVar(True, False, False, 0xFF0000, 0x00FF00, -1, "icon-meter-struggle")
+    setSecWidgetVar(True, True, False, -1, -1, -1, "icon-meter-condition")
     
     if type == 0 ;normal
         UD_durability_damage_add = 0.0
         UD_minigame_stamina_drain = UD_base_stat_drain*0.75 + getMaxActorValue(Wearer,"Stamina",0.03)
-        UD_minigame_stamina_drain_helper = UD_base_stat_drain*0.5 + getMaxActorValue(_minigameHelper,"Stamina",0.03)
+        UD_minigame_stamina_drain_helper = UD_base_stat_drain*0.5 + getMaxActorValue(akHelper,"Stamina",0.03)
         UD_durability_damage_add = 1.0*_durability_damage_mod*(0.25 + 2.5*(UDmain.UDSKILL.getActorAgilitySkillsPerc(getWearer()) + getHelperAgilitySkillsPerc()))
         UD_DamageMult = getModResistPhysical(1.0,0.35)*getAccesibility()
         
@@ -5114,7 +5129,7 @@ bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
         UD_minigame_stamina_drain = UD_base_stat_drain
         UD_minigame_stamina_drain_helper = UD_base_stat_drain*0.95
         UD_minigame_heal_drain = 0.5*UD_base_stat_drain + getMaxActorValue(Wearer,"Health",0.05)
-        UD_minigame_heal_drain_helper = 0.5*UD_base_stat_drain + getMaxActorValue(_minigameHelper,"Health",0.05)
+        UD_minigame_heal_drain_helper = 0.5*UD_base_stat_drain + getMaxActorValue(akHelper,"Health",0.05)
         
         UD_durability_damage_add = 1.0*_durability_damage_mod*((5.0 - 5.0*getRelativeDurability()) + UDmain.UDSKILL.getActorStrengthSkillsPerc(getWearer()) + getHelperStrengthSkillsPerc())
         UD_DamageMult = getModResistPhysical(1.0,0.15)*getAccesibility()
@@ -5135,7 +5150,7 @@ bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
         UD_minigame_stamina_drain = 0.5*UD_base_stat_drain
         UD_minigame_stamina_drain_helper = 0.4*UD_base_stat_drain
         UD_minigame_magicka_drain = 0.7*UD_base_stat_drain + getMaxActorValue(Wearer,"Magicka",0.05)
-        UD_minigame_magicka_drain_helper = UD_base_stat_drain + getMaxActorValue(Wearer,"Magicka",0.05)
+        UD_minigame_magicka_drain_helper = UD_base_stat_drain + getMaxActorValue(akHelper,"Magicka",0.05)
         UD_DamageMult = getModResistMagicka(1.0,0.3)*getAccesibility()
         UD_durability_damage_add = 2.0*_durability_damage_mod*(UDmain.UDSKILL.getActorMagickSkillsPerc(getWearer()) + getHelperMagickSkillsPerc())
         
@@ -5151,7 +5166,7 @@ bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
         _exhaustion_mult = 1.5
         _exhaustion_mult_helper = 0.75
         _minMinigameStatSP = 0.25
-        _minMinigameStatMP = 0.6        
+        _minMinigameStatMP = 0.6
     elseif type == 3 ;slow
         UD_durability_damage_add = 0.0
         UD_applyExhastionEffect = False
@@ -5302,11 +5317,11 @@ bool Function repairLocksMinigameWH(Actor akHelper)
     endif
     
     resetMinigameValues()
-    setMinigameWidgetVar(True, True, False, 0xffbd00, -1, -1, "icon-meter-repair")
+    setMinigameWidgetVar(True, False, False, 0xffbd00, -1, -1, "icon-meter-repair")
     
     _MinigameSelectedLockID = loc_SelectedLock
     
-    UD_minigame_stamina_drain = UD_base_stat_drain*1.25 
+    UD_minigame_stamina_drain = UD_base_stat_drain*1.25
     UD_minigame_stamina_drain_helper = UD_base_stat_drain
     UD_damage_device = False
     UD_minigame_canCrit = False
@@ -5364,18 +5379,18 @@ bool Function cuttingMinigameWH(Actor akHelper)
     endif
     
     resetMinigameValues()
-    setMinigameWidgetVar(True, True, False, 0xffbd00, -1, -1, "icon-meter-cut")
+    setMinigameWidgetVar(True, False, False, 0x4496C6, 0xffbd00, 0x4496C6, "icon-meter-cut")
+    setSecWidgetVar(True, True, False, -1, -1, -1, "icon-meter-struggle")
     
     UD_damage_device = False
     UD_minigame_stamina_drain = UD_base_stat_drain + getMaxActorValue(Wearer,"Stamina",0.04)
-    UD_minigame_stamina_drain_helper = UD_base_stat_drain*1.25 + getMaxActorValue(Wearer,"Stamina",0.04)
-    UD_minigame_heal_drain = UD_base_stat_drain*0.75 + getMaxActorValue(Wearer,"Health",0.02)    
+    UD_minigame_stamina_drain_helper = UD_base_stat_drain*1.25 + getMaxActorValue(akHelper,"Stamina",0.04)
+    UD_minigame_heal_drain = UD_base_stat_drain*0.75 + getMaxActorValue(Wearer,"Health",0.02)
     UD_RegenMag_Magicka = 0.5
-    UD_RegenMag_Health = 0.5
     UD_RegenMagHelper_Magicka = 0.75
     UD_RegenMagHelper_Health = 0.75
-    _minMinigameStatSP = 0.8
-    _minMinigameStatHP = 0.5
+    _minMinigameStatSP = 0.7
+    _minMinigameStatHP = 0.4
     if minigamePostcheck()
         float loc_BaseMult = UDCDmain.getActorCuttingWeaponMultiplier(getWearer())
         float loc_BaseMultHelperAdd = UDCDmain.getActorCuttingWeaponMultiplier(getHelper()) - 1.0
@@ -5389,6 +5404,15 @@ bool Function cuttingMinigameWH(Actor akHelper)
             UD_MinigameMult1 += 0.15
         endif
     
+        ;register native meters
+        if PlayerInMinigame()
+            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,fRange(150.0 - 9.0*UD_CutChance,100.0,150.0),true)
+            
+            UD_Native.RegisterDeviceCallback(_VMHandle1,_VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_CuttingMG_SKPress")
+            
+            string loc_param = UDmain.UDWC.GetMeterIdentifier("device-main")
+            UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
+        endif
         _CuttingGameON = True
         minigame()
         _CuttingGameON = False
@@ -5487,7 +5511,7 @@ Function tightUpDevice(Actor akSource)
     elseif !PlayerInMinigame()
         UDmain.Print(GetActorName(akSource) + " tighted " + getWearerName() + "s " + getDeviceName() + " !",1)
     endif
-    current_device_health += Utility.randomFloat(5.0,15.0)
+    current_device_health += RandomFloat(5.0,15.0)
     if (current_device_health > UD_Health)
         current_device_health = UD_Health
         _updateCondition(False)
@@ -5511,7 +5535,7 @@ Function repairDevice(Actor akSource)
     endif
     
     ;repair durability
-    current_device_health += Utility.randomFloat(45.0,75.0)
+    current_device_health += RandomFloat(45.0,75.0)
     if (current_device_health > UD_Health)
         current_device_health = UD_Health
     endif
@@ -5599,10 +5623,10 @@ Function _cutDevice(float progress_add = 1.0)
         _total_durability_drain += cond_dmg
 
         _updateCondition()
-        decreaseDurabilityAndCheckUnlock(UD_DamageMult*cond_dmg*getModResistPhysical(1.0,0.25)/7.0,0.0)
+        decreaseDurabilityAndCheckUnlock(UD_DamageMult*cond_dmg/6.0,0.0)
 
         _CuttingProgress = 0.0
-        if UDmain.TraceAllowed()        
+        if UDmain.TraceAllowed()
             UDmain.Log(getDeviceHeader() + " is cutted for " + cond_dmg + "C ( " + (UD_DamageMult*cond_dmg*getModResistPhysical(1.0,0.25)/7.0) + " D) (Wearer: " + getWearerName() + ")",1)
         endif
         OnDeviceCutted()
@@ -5630,18 +5654,18 @@ EndFunction
 ;starts vannila lockpick minigame if lock is reached
 Function _lockpickDevice()
     if _LockpickGameON && (UD_CurrentLocks - UD_JammedLocks > 0)
-        int result = 0
+        int loc_result = 0
         if PlayerInMinigame()
             PauseMinigame() ;pause minigame untill lockpick minigame starts
-            int helperGivedLockpicks = 0
+            int loc_helperGivedLockpicks = 0
             if haveHelper()
                 ;always transfere lockpicks to player
                 if WearerIsPlayer()
-                    helperGivedLockpicks = getHelper().getItemCount(UDCDmain.Lockpick)
-                    getHelper().removeItem(UDCDmain.Lockpick,helperGivedLockpicks,True,getWearer())
+                    loc_helperGivedLockpicks = getHelper().getItemCount(UDCDmain.Lockpick)
+                    getHelper().removeItem(UDCDmain.Lockpick,loc_helperGivedLockpicks,True,getWearer())
                 else
-                    helperGivedLockpicks = getWearer().getItemCount(UDCDmain.Lockpick)
-                    getWearer().removeItem(UDCDmain.Lockpick,helperGivedLockpicks,True,getHelper())
+                    loc_helperGivedLockpicks = getWearer().getItemCount(UDCDmain.Lockpick)
+                    getWearer().removeItem(UDCDmain.Lockpick,loc_helperGivedLockpicks,True,getHelper())
                 endif
             endif
             
@@ -5651,25 +5675,33 @@ Function _lockpickDevice()
             
             float loc_elapsedTime   = 0.0
             float loc_maxtime       = 0.0
+            bool  loc_broken        = false
             if UDCDMain.UD_LockpickMinigameDuration > 0
-                loc_maxtime = (UDCDMain.UD_LockpickMinigameDuration as Float) - (loc_difficulty/100.0)*0.5*UDCDMain.UD_LockpickMinigameDuration
+                loc_maxtime = (UDCDMain.UD_LockpickMinigameDuration as Float) - fRange((loc_difficulty/100.0)*0.5,0.0,1.75)*UDCDMain.UD_LockpickMinigameDuration
                 bool loc_msgshown = false
-                while (!UDCDmain.LockpickMinigameOver) && loc_elapsedTime <= loc_maxtime
-                    Utility.WaitMenuMode(0.05)
-                    loc_elapsedTime += 0.05
+                while (!UDCDmain.LockpickMinigameOver) && loc_elapsedTime <= loc_maxtime && !loc_broken
+                    Utility.WaitMenuMode(0.1)
+                    if !UD_Native.GetLockpickVariable(9)
+                        loc_elapsedTime += 0.1
+                    endif
                     
                     if !loc_msgshown && loc_elapsedTime > loc_maxtime*0.75 ;only 25% time left, warn player
-                        if Utility.randomInt(0,1)
+                        if RandomInt(0,1)
                             UDmain.Print("Your hands are sweating")
                         else
-                            UDmain.Print("Your hands starting to tremble")
+                            UDmain.Print("Your hands are starting to tremble")
                         endif
                         loc_msgshown = true
+                    endif
+                    
+                    Int loc_destroyed = Round(UD_Native.GetLockpickVariable(8))
+                    if (loc_destroyed >= UDCDmain.UD_LockpicksPerMinigame)
+                        loc_broken = true
                     endif
                 endwhile
             endif
             
-            result = UDCDmain.lockpickMinigameResult     ;first we fetch lockpicking result
+            loc_result = UDCDmain.lockpickMinigameResult     ;first we fetch lockpicking result
             UDCDmain.DeleteLockPickContainer()           ;then we remove the container so IsLocked is not called on None
             
             if UDCDMain.UD_LockpickMinigameDuration > 0
@@ -5678,44 +5710,49 @@ Function _lockpickDevice()
                         closeLockpickMenu()
                     endif
                     UDmain.Print("You lost focus and broke the lockpick!")
-                    result = 2
+                    loc_result = 2
                     getWearer().removeItem(UDCDmain.Lockpick,1)
+                elseif loc_broken
+                    if UDmain.IsLockpickingMenuOpen()
+                        closeLockpickMenu()
+                    endif
+                    UDmain.Print("You broke all the lockpicks you had in hand!")
+                    loc_result = 2
                 endif
             endif
             
             if haveHelper()
                 if WearerIsPlayer()
                     int lockpicks = getWearer().getItemCount(UDCDmain.Lockpick)
-                    if lockpicks >= helperGivedLockpicks
-                        getWearer().removeItem(UDCDmain.Lockpick,helperGivedLockpicks,True,getHelper())
+                    if lockpicks >= loc_helperGivedLockpicks
+                        getWearer().removeItem(UDCDmain.Lockpick,loc_helperGivedLockpicks,True,getHelper())
                     else
                         getWearer().removeItem(UDCDmain.Lockpick,lockpicks,True,getHelper())
                     endif
                 else
                     int lockpicks = getHelper().getItemCount(UDCDmain.Lockpick)
-                    if lockpicks >= helperGivedLockpicks
-                        getHelper().removeItem(UDCDmain.Lockpick,helperGivedLockpicks,True,getWearer())
+                    if lockpicks >= loc_helperGivedLockpicks
+                        getHelper().removeItem(UDCDmain.Lockpick,loc_helperGivedLockpicks,True,getWearer())
                     else
                         getHelper().removeItem(UDCDmain.Lockpick,lockpicks,True,getWearer())
                     endif
                 endif
             endif
-            UnPauseMinigame()
         else
-            if Utility.randomInt(1,99) >= _getLockpickLevel(_MinigameSelectedLockID)*15
-                result = 1
+            if RandomInt(1,99) >= _getLockpickLevel(_MinigameSelectedLockID)*15
+                loc_result = 1
             else
-                result = 2
+                loc_result = 2
                 Wearer.RemoveItem(UDCDmain.Lockpick, 1, True)
             endif
         endif
         if UDmain.TraceAllowed()
-            UDmain.Log("Lockpick minigame result for " + getWearerName() + ": " + result,2)
+            UDmain.Log("Lockpick minigame result for " + getWearerName() + ": " + loc_result,2)
         endif
-        if result == 0
+        if loc_result == 0
             stopMinigame()
             _LockpickGameON = False
-        elseif result == 1 ;succes
+        elseif loc_result == 1 ;succes
             Int loc_shields = GetNthLockShields(_MinigameSelectedLockID)
             if loc_shields > 0 ;lock have shields, needs to unlock them first
                 loc_shields = DecreaseLockShield(_MinigameSelectedLockID,1)
@@ -5732,6 +5769,7 @@ Function _lockpickDevice()
                         UDmain.Print(getWearerName() + " unlocked all of the shields!",2)
                     endif
                 endif
+                UnPauseMinigame()
             else ;no more shields on device, unlock the lock
                 UnlockNthLock(_MinigameSelectedLockID)
                 if PlayerInMinigame()
@@ -5742,7 +5780,7 @@ Function _lockpickDevice()
                 onLockUnlocked(True)
                 
                 ;select next lock
-                if (WearerIsPlayer() || HelperIsPlayer()) && !(UD_CurrentLocks == 0 && UD_JammedLocks == 0)
+                if PlayerInMinigame() && !(UD_CurrentLocks == 0 && UD_JammedLocks == 0)
                     Int loc_SelectedLock = 0
                     Bool loc_cond = False
                     while !loc_cond
@@ -5762,6 +5800,7 @@ Function _lockpickDevice()
                             endif
                         endif
                     endwhile
+                    UnPauseMinigame()
                 else
                     stopMinigame() ;stop minigame, as player needs to select next lock manually
                 endif
@@ -5781,8 +5820,8 @@ Function _lockpickDevice()
                 _LockpickGameON = False
                 _SetJammStatus()
             endif
-        elseif result == 2 ;failure
-            if Utility.randomInt() <= zad_JammLockChance*UDCDmain.CalculateKeyModifier() && !libs.Config.DisableLockJam
+        elseif loc_result == 2 ;failure
+            if RandomInt() <= zad_JammLockChance*UDCDmain.CalculateKeyModifier() && !libs.Config.DisableLockJam
                 if PlayerInMinigame()
                     UDmain.Print("Your lockpick jammed the lock!",1)
                 elseif UDCDmain.AllowNPCMessage(Wearer, True)
@@ -5802,6 +5841,8 @@ Function _lockpickDevice()
                 if loc_lockpicks == 0
                     stopMinigame()
                     _LockpickGameON = False
+                elseif PlayerInMinigame()
+                    UnPauseMinigame()
                 endif
             endif
         endif
@@ -5826,46 +5867,59 @@ Function _keyUnlockDevice()
         endif
         stopMinigame()
     elseif UDCDMain.KeyIsGeneric(zad_deviceKey) && UDCDmain.UD_KeyDurability > 0
-        if _minigameHelper && _minigameHelper.GetItemCount(zad_deviceKey)
-            UDCDMain.ReduceKeyDurability(_minigameHelper, zad_DeviceKey)
+        Int loc_dur = 0
+        
+        Actor loc_KeySource = none
+        
+        ; first should be used key on NPC, then on player
+        if (!WearerIsPlayer() && Wearer.GetItemCount(zad_deviceKey) > 0)
+            loc_KeySource = GetWearer()
+        elseif (_minigameHelper && !HelperIsPlayer() && _minigameHelper.GetItemCount(zad_deviceKey) > 0)
+            loc_KeySource = GetHelper()
+        elseif PlayerInMinigame() && UDmain.Player.GetItemCount(zad_deviceKey) > 0
+            loc_KeySource = UDmain.Player
         else
-            Int loc_dur = UDCDMain.ReduceKeyDurability(Wearer, zad_DeviceKey)
-            if !loc_dur
-                if PlayerInMinigame()
-                    UDmain.Print("Key "+ zad_DeviceKey.GetName() +" gets destroyed",1)
-                elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                    UDmain.Print(getWearerName() + "'s key "+ zad_DeviceKey.GetName() +" gets destroyed",1)
-                endif
-                stopMinigame()
-            else
-                if PlayerInMinigame()
-                    UDmain.Print("Remaining durability of key " + zad_DeviceKey.GetName() + " = [" + loc_dur+"]",2)
-                endif
-                
-                ;select next lock
-                if (WearerIsPlayer() || HelperIsPlayer()) && !(UD_CurrentLocks == 0 && UD_JammedLocks == 0)
-                    Int loc_SelectedLock = 0
-                    Bool loc_cond = False
-                    while !loc_cond
+            UDmain.Error(GetDeviceHeader()+"::_keyUnlockDeviceError() - Finding actor with key failed!")
+            return
+        endif
+        
+        loc_dur = UDCDMain.ReduceKeyDurability(loc_KeySource, zad_DeviceKey)
+        
+        if !loc_dur
+            if PlayerInMinigame()
+                UDmain.Print("Key "+ zad_DeviceKey.GetName() +" gets destroyed",1)
+            elseif UDCDmain.AllowNPCMessage(Wearer, True)
+                UDmain.Print(getWearerName() + "'s key "+ zad_DeviceKey.GetName() +" gets destroyed",1)
+            endif
+            stopMinigame()
+        else
+            if PlayerInMinigame()
+                UDmain.Print("Remaining durability of key " + zad_DeviceKey.GetName() + " = [" + loc_dur+"]",2)
+            endif
+            
+            ;select next lock
+            if (WearerIsPlayer() || HelperIsPlayer()) && !(UD_CurrentLocks == 0 && UD_JammedLocks == 0)
+                Int loc_SelectedLock = 0
+                Bool loc_cond = False
+                while !loc_cond
+                    loc_cond = true
+                    loc_SelectedLock = UserSelectLock()
+                    if loc_SelectedLock < 0
                         loc_cond = true
-                        loc_SelectedLock = UserSelectLock()
-                        if loc_SelectedLock < 0
-                            loc_cond = true
-                            stopMinigame()
-                        else
-                            loc_cond = loc_cond && !IsNthLockUnlocked(loc_SelectedLock)
-                            loc_cond = loc_cond && !IsNthLockJammed(loc_SelectedLock)
-                            loc_cond = loc_cond && (!IsNthLockTimeLocked(loc_SelectedLock) || !GetNthLockTimeLock(loc_SelectedLock))
-                            if loc_cond
-                                _MinigameSelectedLockID = loc_SelectedLock
-                                _customMinigameCritChance   = getLockAccesChance(_MinigameSelectedLockID, false)
-                                _customMinigameCritDuration = 0.85 - _getLockpickLevel(_MinigameSelectedLockID)*0.025
-                            endif
+                        stopMinigame()
+                    else
+                        loc_cond = loc_cond && !IsNthLockUnlocked(loc_SelectedLock)
+                        loc_cond = loc_cond && !IsNthLockJammed(loc_SelectedLock)
+                        loc_cond = loc_cond && (!IsNthLockTimeLocked(loc_SelectedLock) || !GetNthLockTimeLock(loc_SelectedLock))
+                        if loc_cond
+                            _MinigameSelectedLockID = loc_SelectedLock
+                            _customMinigameCritChance   = getLockAccesChance(_MinigameSelectedLockID, false)
+                            _customMinigameCritDuration = 0.85 - _getLockpickLevel(_MinigameSelectedLockID)*0.025
                         endif
-                    endwhile
-                else
-                    stopMinigame()
-                endif
+                    endif
+                endwhile
+            else
+                stopMinigame()
             endif
         endif
     else
@@ -5888,10 +5942,10 @@ EndFunction
         akHelper - minigame helper
 /;
 Function addStruggleExhaustion(Actor akHelper)
-    if UDmain.TraceAllowed()
-        UDmain.Log("UD_CustomDevice_RenderScript::addStruggleExhaustion("+getDeviceHeader()+") called")
-    endif
     if UD_applyExhastionEffect
+        if UDmain.TraceAllowed()
+            UDmain.Log("UD_CustomDevice_RenderScript::addStruggleExhaustion("+getDeviceHeader()+") called")
+        endif
         UDCDmain.AddExhaustion(Wearer,_exhaustion_mult)
         if akHelper
             UDCDmain.AddExhaustion(akHelper,_exhaustion_mult_helper)
@@ -5961,6 +6015,9 @@ Function resetMinigameValues()
     _usingTelekinesis = false
     UD_AllowWidgetUpdate = true
     _MinigameSelectedLockID = -1
+    UD_useWidgetSec             = false
+    UD_WidgetAutoColorSec       = false
+    UD_AllowWidgetUpdateSec     = false
 EndFunction
 
 ;/  Function: setMinigameOffensiveVar
@@ -6221,12 +6278,44 @@ EndFunction
         self.setMinigameWidgetVar(True, True, False, -1, -1, -1, "icon-meter-cut")
     ---
 /;
-Function setMinigameWidgetVar(Bool abUseWidget = False, Bool abWidgetAutoColor = True, Bool abWidgetUpdate = True, Int aiColor1 = -1, Int aiColor2 = -1, Int aiFlashColor = -1, String asIconName = "")
+Function setMinigameWidgetVar(Bool abUseWidget = False, Bool abWidgetAutoColor = True, Bool abWidgetUpdate = True, Int aiColor1 = -1, Int aiColor2 = -1, Int aiFlashColor = -1, String asIconName = "", int aiFormula = 0)
     UD_useWidget            = abUseWidget
     UD_WidgetAutoColor      = abWidgetAutoColor
     UD_AllowWidgetUpdate    = abWidgetUpdate
+    _WidgetFormula        = aiFormula
     
     setMainWidgetAppearance(aiColor1, aiColor2, aiFlashColor, asIconName)
+EndFunction
+
+;/  Function: setSecWidgetVar
+    Sets secundary minigame widget appearance values
+    
+    Parameters:
+
+        abUseWidget         - If widget should be used
+        abWidgetAutoColor   - If widget color should be calculated based on condition. When enabled, color setting will be ignored
+        abWidgetUpdate      - IF widget value should be updated on every minigame tick. In case this is turned off, the value can be changed only using <setWidgetVal>
+        aiColor1            - Widget main color
+        aiColor2            - Widget secondary value
+        aiFlashColor        - Widget flash color
+        asIconName          - Widget icon name
+        
+    Example:
+    ---Code
+        ;shows widget
+        ;widget color will change based on condition
+        ;widget value will not be updated. Value have to be changed with setWidgetVal
+        ;Color is ignored as abWidgetAutoColor is True
+        ;icon next to widget will be "icon-meter-cut"
+        self.setSecWidgetVar(True, True, False, -1, -1, -1, "icon-meter-cut")
+    ---
+/;
+Function setSecWidgetVar(Bool abUseWidget = False, Bool abWidgetAutoColor = True, Bool abWidgetUpdate = True, Int aiColor1 = -1, Int aiColor2 = -1, Int aiFlashColor = -1, String asIconName = "", int aiFormula = 0)
+    UD_useWidgetSec            = abUseWidget
+    UD_WidgetAutoColorSec      = abWidgetAutoColor
+    UD_AllowWidgetUpdateSec    = abWidgetUpdate
+    _WidgetFormulaSec        = aiFormula
+    setSecWidgetAppearance(aiColor1, aiColor2, aiFlashColor, asIconName)
 EndFunction
 
 Function _UnsetMinigameDevice()
@@ -6280,8 +6369,8 @@ EndFunction
 /;
 Function PauseMinigame()
     if _MinigameON
-        _ToggleMinigameEffect(false)
         SpecialButtonReleased(0.0)
+        _ToggleMinigameEffect(false)
         _PauseMinigame = True
     endif
 EndFunction
@@ -6442,9 +6531,13 @@ bool Function minigamePrecheck(Bool abSilent = False)
             return false
         endif
         
-        if !libs.isValidActor(_minigameHelper)
+        if (!libs.IsValidActor(_minigameHelper))
             if !abSilent
                 GWarning("Can't start minigame for " + getDeviceHeader() + " because helper is invalid!")
+                GWarning("Is3DLoaded = " + _minigameHelper.Is3DLoaded())
+                GWarning("IsDead = " + _minigameHelper.IsDead())
+                GWarning("IsDisabled = " + _minigameHelper.IsDisabled())
+                GWarning("GetCurrentScene = " + _minigameHelper.GetCurrentScene())
                 if HelperIsPlayer()
                     UDmain.Print("You are already doing something",1)
                 elseif UDCDmain.AllowNPCMessage(_minigameHelper)
@@ -6517,20 +6610,22 @@ Function minigame()
         _minigameHelper.AddToFaction(UDCDmain.MinigameFaction)
     endif
     
-    
-    if loc_is3DLoaded
-        if loc_WearerSlot
-            loc_WearerSlot.Send_MinigameStarter(self)
-        else
-            UDmain.UDPP.Send_MinigameStarter(Wearer,self)
-        endif
-    else
-        MinigameStarter()
-    endif
-    
     if UDmain.TraceAllowed()
         UDmain.Log("Minigame started for: " + deviceInventory.getName())    
     endif
+    
+    _MinigameMainLoopON = true
+    
+    float durability_onstart = current_device_health
+    
+    Bool loc_UseInterAVCheck = True
+    if loc_WearerSlot && loc_PlayerInMinigame
+        loc_UseInterAVCheck = False
+    else
+        loc_UseInterAVCheck = True
+    endif
+    
+    _SendMinigameThreads(loc_is3DLoaded,true,true,!loc_UseInterAVCheck)
     
     Int[] hasStruggleAnimation                                  ; number of found struggle animations
     Bool   loc_StartedAnimation = False
@@ -6548,31 +6643,11 @@ Function minigame()
         endif
     endif
     
-    _MinigameMainLoopON = true
-    
-    if loc_WearerSlot
-        loc_WearerSlot.Send_MinigameParalel(self)
-    else
-        UDmain.UDPP.Send_MinigameParalel(Wearer,self)
-    endif
-    
-    float durability_onstart = current_device_health
-    
     ;main loop, ends only when character run out off stats or device losts all durability
     int         tick_b                 = 0
     int         tick_s                 = 0
     float       fCurrentUpdateTime     = UDmain.UD_baseUpdateTime
-    BOOL        loc_UseInterAVCheck    = True
-    
-    _StartMinigameEffect()
-    
-    if loc_WearerSlot && loc_PlayerInMinigame
-        loc_UseInterAVCheck = False
-        loc_WearerSlot.StartMinigameAVCheckLoop(self)
-    else
-        loc_UseInterAVCheck = True
-    endif
-    
+
     if !loc_is3DLoaded
         fCurrentUpdateTime = 1.0
     elseif !loc_PlayerInMinigame
@@ -6584,23 +6659,26 @@ Function minigame()
     float     loc_dmgnotimemult    = (_durability_damage_mod + UD_durability_damage_add)
     float     loc_dmg              = loc_dmgnotimemult*fCurrentUpdateTime*UD_DamageMult
     float     loc_condmult         = 1.0 + _condition_mult_add
-    bool      loc_showwidget       = loc_PlayerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget
-    bool      loc_updatewidget     = loc_showwidget && UD_AllowWidgetUpdate
+    bool      loc_showwidget       = loc_PlayerInMinigame && UDCDmain.UD_UseWidget && (UD_UseWidget || UD_UseWidgetSec)
+    bool      loc_updatewidget     = loc_showwidget && (UD_AllowWidgetUpdate || UD_AllowWidgetUpdateSec)
+    bool      loc_updatewidgetcolor= loc_showwidget && (UD_WidgetAutoColor   || UD_WidgetAutoColorSec)
     Float     loc_ElapsedTime      = 0.0
     Bool      loc_DamageDevice     = UD_damage_device
     Bool      loc_MinigameEffectEnabled = False
     
-    bool      loc_useNativeMeter   = PlayerInMinigame() && UDmain.UD_UseNativeFunctions
+    bool      loc_useNativeMeter   = PlayerInMinigame()
     bool      loc_useIWW           = UDmain.UseiWW()
     float     loc_health           = UD_Health
     
     ;register native meters
     if loc_useNativeMeter
         if loc_DamageDevice
-            UDmain.UDWC.Meter_RegisterNative("device-main",getRelativeDurability()*100.0,-1.0*loc_dmgnotimemult,true)
-            UDmain.UDWC.Meter_SetNativeMult("device-main",UD_DamageMult*100.0/loc_health)
-            if loc_condmult != 0.0
-                UDmain.UDWC.Meter_RegisterNative("device-condition",getRelativeCondition()*100.0,-1.0*loc_dmgnotimemult,true)
+            if UD_UseWidget
+                UDmain.UDWC.Meter_RegisterNative("device-main",_WidgetFormula,getRelativeDurability()*100.0,-1.0*loc_dmgnotimemult,true)
+                UDmain.UDWC.Meter_SetNativeMult("device-main",UD_DamageMult*100.0/loc_health)
+            endif
+            if loc_condmult != 0.0 && UD_UseWidgetSec
+                UDmain.UDWC.Meter_RegisterNative("device-condition",_WidgetFormulaSec,getRelativeCondition()*100.0,-1.0*loc_dmgnotimemult,true)
                 UDmain.UDWC.Meter_SetNativeMult("device-condition",loc_condmult*100.0/loc_health)
             endif
         endif
@@ -6646,7 +6724,7 @@ Function minigame()
                     ;native meter used. Calculation is done in skse plugin, so just fetch the value and recalculate it
                     
                     current_device_health = UDmain.UDWC.Meter_GetNativeValue("device-main")*loc_health/100.0
-                    if loc_condmult != 0.0
+                    if loc_condmult != 0.0 && UD_UseWidgetSec
                         _total_durability_drain = (1.0 - UDmain.UDWC.Meter_GetNativeValue("device-condition")/100.0)*loc_health
                         _updateCondition()
                     endif
@@ -6658,6 +6736,8 @@ Function minigame()
             ;update widget
             if loc_updatewidget
                 updateWidget()
+            endif
+            if loc_updatewidgetcolor
                 updateWidgetColor()
             endif
         endif
@@ -6670,7 +6750,7 @@ Function minigame()
             loc_DamageDevice     = UD_damage_device
             
             if loc_PlayerInMinigame
-                loc_updatewidget     = UDCDmain.UD_UseWidget && UD_UseWidget && UD_AllowWidgetUpdate
+                loc_updatewidget     = UDCDmain.UD_UseWidget && (UD_UseWidget || UD_UseWidgetSec) && UD_AllowWidgetUpdate
             endif
             
             ;check non struggle minigames
@@ -6739,6 +6819,11 @@ Function minigame()
     
     if loc_PlayerInMinigame
         UDCDmain.MinigameKeysUnRegister()
+        UD_Native.UnregisterDeviceCallbacks(_VMHandle1,_VMHandle2,DeviceRendered)
+        ;close lockpick menu if lockpick minigame was for some reason stopped
+        if _LockpickGameON && UDmain.IsLockpickingMenuOpen()
+            closeLockpickMenu()
+        endif
     endif
     
     if loc_StartedAnimation
@@ -6755,6 +6840,10 @@ Function minigame()
         if !loc_WearerIsPlayer
             UpdateMotivation(Wearer,50) ;increase NPC motivation on successful escape
         endif
+        advanceSkill(15.0)
+        if UDmain.ExperienceInstalled && PlayerInMinigame()
+            Experience.addexperience(UD_Level*RandomFloat(1.0,2.0),true)
+        endif
     else
         if loc_is3DLoaded
             libs.pant(Wearer)
@@ -6768,10 +6857,11 @@ Function minigame()
         elseif UDCDmain.AllowNPCMessage(GetWearer(), true)
             UDmain.Print(getWearerName()+" is too exhausted to continue struggling",1)
         endif
-        if !loc_WearerIsPlayer
-            UpdateMotivation(Wearer,-5) ;decrease NPC motivation on failed escape
+        if loc_ElapsedTime >= 2.0
+            if !loc_WearerIsPlayer
+                UpdateMotivation(Wearer,-5) ;decrease NPC motivation on failed escape
+            endif
         endif
-        advanceSkill(10.0)
     endif
 
     ;remove disalbe from helper (can be done earlier as no devices were changed)
@@ -6780,10 +6870,15 @@ Function minigame()
     endif
 
     ;Wait for device to get fully removed
-    while IsUnlocked && !_isRemoved
+    Int loc_removetimer = 100
+    while IsUnlocked && !_isRemoved && loc_removetimer > 0
+        loc_removetimer -= 1
         Utility.waitMenuMode(0.1)
     endwhile
-
+    if loc_removetimer <= 0
+        UDMain.Error("No remove device event received. Skipping...")
+    endif
+    
     ;remove disable from wearer
     If !UDOM.GetOrgasmInMinigame(Wearer)
         UDCDMain.EndMinigameDisable(Wearer,loc_WearerIsPlayer as Int)
@@ -6822,7 +6917,7 @@ Function minigame()
     
     ;debug message
     if UDmain.DebugMod && UD_damage_device && durability_onstart != current_device_health && loc_WearerIsPlayer
-        UDmain.Print("[Debug] Durability reduced: "+ formatString(durability_onstart - current_device_health,3) + "\n",1)
+        UDmain.Print("[Debug] Durability reduced: "+ FormatFloat(durability_onstart - current_device_health,3) + "\n",1)
     endif
 EndFunction
 
@@ -6846,38 +6941,6 @@ Function _StopMinigameAnimation()
     endif
     if loc_toggle
         UDAM.StopAnimation(Wearer, _minigameHelper, abEnableActors = False, aiToggle = loc_toggle)
-    endif
-EndFunction
-
-Function MinigameStarter()
-    bool    loc_canShowHUD      = canShowHUD()
-    bool    loc_haveplayer      = PlayerInMinigame()
-    bool    loc_is3DLoaded      = loc_haveplayer || UDmain.ActorInCloseRange(wearer)
-    
-    
-    UDCDMain.StartMinigameDisable(Wearer)
-    if _minigameHelper
-        UDCDMain.StartMinigameDisable(_minigameHelper)
-    endif
-    
-    if loc_haveplayer
-        UDCDmain.setCurrentMinigameDevice(self)
-        UDCDmain.MinigameKeysRegister()
-    else
-        StorageUtil.SetFormValue(Wearer, "UD_currentMinigameDevice", deviceRendered)
-    endif
-    
-    _MinigameParProc_1 = false
-    
-    ;shows bars
-    if loc_canShowHUD
-        showHUDbars()
-    endif
-    
-    OnMinigameStart()
-    
-    if loc_is3DLoaded
-        libsp.pant(Wearer)
     endif
 EndFunction
 
@@ -6947,7 +7010,7 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
         EndIf
         If _StruggleAnimationDefPairArray.Length > 0
         ; using paired animation
-            Int anim_index = Utility.RandomInt(0, _StruggleAnimationDefPairArray.Length - 1)
+            Int anim_index = RandomInt(0, _StruggleAnimationDefPairArray.Length - 1)
             If !bContinueAnimation || anim_index != _StruggleAnimationDefPairLastIndex
             ; start new animation
                 _StruggleAnimationDefPairLastIndex = anim_index
@@ -6976,7 +7039,7 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
             UDAM.SetActorHeading(_minigameHelper, Wearer)
             
             If _StruggleAnimationDefActorArray.Length > 0
-                Int anim_index = Utility.RandomInt(0, _StruggleAnimationDefActorArray.Length - 1)
+                Int anim_index = RandomInt(0, _StruggleAnimationDefActorArray.Length - 1)
                 If !bContinueAnimation || anim_index != _StruggleAnimationDefActorLastIndex
                     ; start new animation
                     _StruggleAnimationDefActorLastIndex = anim_index
@@ -6991,7 +7054,7 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
             EndIf
 
             If _StruggleAnimationDefHelperArray.Length > 0
-                Int anim_index = Utility.RandomInt(0, _StruggleAnimationDefHelperArray.Length - 1)
+                Int anim_index = RandomInt(0, _StruggleAnimationDefHelperArray.Length - 1)
                 If !bContinueAnimation || anim_index != _StruggleAnimationDefHelperLastIndex
                     ; start new animation
                     _StruggleAnimationDefHelperLastIndex = anim_index
@@ -7010,7 +7073,7 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
             _StruggleAnimationDefActorArray = _GetSoloStruggleAnimation(keywordsList, Wearer, _ActorsConstraints[0])
         EndIf
         If _StruggleAnimationDefActorArray.Length > 0
-            _animationDef = _StruggleAnimationDefActorArray[Utility.RandomInt(0, _StruggleAnimationDefActorArray.Length - 1)]
+            _animationDef = _StruggleAnimationDefActorArray[RandomInt(0, _StruggleAnimationDefActorArray.Length - 1)]
             If UDAM.PlayAnimationByDef(_animationDef, _ActorArray1(Wearer), bContinueAnimation, abDisableActors = False)
                 result[0] = _StruggleAnimationDefActorArray.Length
             EndIf
@@ -7105,7 +7168,7 @@ Function critFailure()
     endif    
     
     if _KeyGameON
-        if !libs.Config.DisableLockJam && UDCDMain.KeyIsGeneric(zad_deviceKey) && (Utility.randomInt() <= zad_KeyBreakChance*UDCDmain.CalculateKeyModifier())
+        if !libs.Config.DisableLockJam && UDCDMain.KeyIsGeneric(zad_deviceKey) && (RandomInt() <= zad_KeyBreakChance*UDCDmain.CalculateKeyModifier())
             if PlayerInMinigame()
                 debug.messagebox("You managed to insert the key but it snapped. Its remains also jammed the lock! You will have to find other way to escape.")
             endif
@@ -7173,7 +7236,7 @@ Function critDevice()
         OnCritDevicePost()
         Bool loc_playerInMinigame = PlayerInMinigame()
         if Wearer && (loc_playerInMinigame || Wearer.Is3DLoaded())
-            if loc_playerInMinigame && UDCDmain.UD_UseWidget && UD_UseWidget
+            if loc_playerInMinigame && UDCDmain.UD_UseWidget && (UD_UseWidget || UD_UseWidgetSec)
                 updateWidget()
             endif
             if loc_playerInMinigame || UDmain.ActorInCloseRange(wearer)
@@ -7181,22 +7244,18 @@ Function critDevice()
             endif
         endif
         
-        advanceSkill(4.0)
+        advanceSkill(5.0)
     endif
 EndFunction
 
 ;function called when player press special button
 Function SpecialButtonPressed(float afMult = 1.0)
     if !IsPaused() && !IsUnlocked
-        if _CuttingGameON
-            _cutDevice(afMult*UD_CutChance/12.5)
-        elseif _KeyGameON || _LockpickGameON || _RepairLocksMinigameON
-            if !_usingTelekinesis
+        if _KeyGameON || _LockpickGameON || _RepairLocksMinigameON
+            if (WearerHaveTelekinesis() || HelperHaveTelekinesis()) && !_usingTelekinesis
                 _usingTelekinesis = true
                 
-                if UDmain.UD_UseNativeFunctions
-                    UD_Native.MinigameEffectUpdateMagicka(UDmain.Player,0.5*UD_base_stat_drain + UDmain.Player.getBaseAV("Magicka")*0.02)
-                endif
+                UD_Native.MinigameEffectUpdateMagicka(UDmain.Player,0.5*UD_base_stat_drain + UDmain.Player.getBaseAV("Magicka")*0.02)
                 
                 UD_minigame_magicka_drain = 0.5*UD_base_stat_drain + Wearer.getBaseAV("Magicka")*0.02
                 if haveHelper()
@@ -7218,7 +7277,7 @@ Function SpecialButtonPressed(float afMult = 1.0)
 
         onSpecialButtonPressed(afMult)
         
-        if UDCDmain.UD_useWidget && UD_UseWidget
+        if UDCDmain.UD_useWidget && (UD_UseWidget || UD_UseWidgetSec)
             updateWidget()
         endif
     endif
@@ -7233,9 +7292,7 @@ Function SpecialButtonReleased(float afHoldTime)
                 UD_minigame_magicka_drain = 0
                 UD_minigame_magicka_drain_helper = 0
                 
-                if UDmain.UD_UseNativeFunctions
-                    UD_Native.MinigameEffectSetMagicka(UDmain.Player,0.0)
-                endif
+                UD_Native.MinigameEffectSetMagicka(UDmain.Player,0.0)
                 
                 if _RepairLocksMinigameON
                     if WearerHaveTelekinesis()
@@ -7337,7 +7394,7 @@ bool Function ProccesAV(float fUpdateTime)
         Float loc_healthdrain = UD_minigame_heal_drain * UDCDMain.UD_MinigameDrainMult
         Float loc_magickahdrain = UD_minigame_magicka_drain * UDCDMain.UD_MinigameDrainMult
         bool  loc_isplayer = WearerIsPlayer()
-        if UDmain.UD_UseNativeFunctions && loc_isplayer
+        if loc_isplayer
             if !UD_Native.MinigameStatsCheck(Wearer,loc_staminadrain > 0.0, loc_healthdrain  > 0.0, loc_magickahdrain  > 0.0)
                 stopMinigame()
                 return false
@@ -7378,7 +7435,7 @@ bool Function ProccesAVHelper(float fUpdateTime)
         Float loc_healthdrain   = UD_minigame_heal_drain_helper * UDCDMain.UD_MinigameDrainMult
         Float loc_magickahdrain = UD_minigame_magicka_drain_helper * UDCDMain.UD_MinigameDrainMult
         bool  loc_isplayer      = HelperIsPlayer()
-        if UDmain.UD_UseNativeFunctions && loc_isplayer
+        if loc_isplayer
             if !UD_Native.MinigameStatsCheck(_minigameHelper,loc_staminadrain  > 0.0, loc_healthdrain  > 0.0, loc_magickahdrain  > 0.0)
                 stopMinigame()
                 return false
@@ -7414,29 +7471,27 @@ bool Function ProccesAVHelper(float fUpdateTime)
 EndFunction
 
 Function _StartMinigameEffect()
-    if UDmain.UD_UseNativeFunctions
-        if WearerIsPlayer()
-            Float loc_staminadrain  = UD_minigame_stamina_drain
-            Float loc_healthdrain   = UD_minigame_heal_drain
-            Float loc_magickahdrain = UD_minigame_magicka_drain
-            UD_Native.StartMinigameEffect(Wearer,UDCDMain.UD_MinigameDrainMult,loc_staminadrain, loc_healthdrain, loc_magickahdrain,false)
-        elseif HelperIsPlayer()
-            Float loc_staminadrain  = UD_minigame_stamina_drain_helper
-            Float loc_healthdrain   = UD_minigame_heal_drain_helper
-            Float loc_magickahdrain = UD_minigame_magicka_drain_helper
-            UD_Native.StartMinigameEffect(_minigameHelper,UDCDMain.UD_MinigameDrainMult,loc_staminadrain, loc_healthdrain, loc_magickahdrain,false)
-        endif
+    if WearerIsPlayer()
+        Float loc_staminadrain  = UD_minigame_stamina_drain
+        Float loc_healthdrain   = UD_minigame_heal_drain
+        Float loc_magickahdrain = UD_minigame_magicka_drain
+        UD_Native.StartMinigameEffect(Wearer,UDCDMain.UD_MinigameDrainMult,loc_staminadrain, loc_healthdrain, loc_magickahdrain,false)
+    elseif HelperIsPlayer()
+        Float loc_staminadrain  = UD_minigame_stamina_drain_helper
+        Float loc_healthdrain   = UD_minigame_heal_drain_helper
+        Float loc_magickahdrain = UD_minigame_magicka_drain_helper
+        UD_Native.StartMinigameEffect(_minigameHelper,UDCDMain.UD_MinigameDrainMult,loc_staminadrain, loc_healthdrain, loc_magickahdrain,false)
     endif
 EndFunction
 
 Function _EndMinigameEffect()
-    if UDmain.UD_UseNativeFunctions && PlayerInMinigame()
+    if PlayerInMinigame()
         UD_Native.EndMinigameEffect(UDmain.Player)
     endif
 EndFunction
 
 Function _ToggleMinigameEffect(Bool abToggle)
-    if UDmain.UD_UseNativeFunctions && PlayerInMinigame()
+    if PlayerInMinigame()
         UD_Native.ToggleMinigameEffect(UDmain.Player,abToggle)
     endif
 EndFunction
@@ -7458,8 +7513,8 @@ Function ShowBaseDetails()
     loc_res += "- " + deviceInventory.GetName() + " -\n"
     loc_res += "Level: " + UD_Level + "\n"
     loc_res += "Type: " + UD_DeviceType + "\n"
-    loc_res += ("Device health: " + formatString(current_device_health,1)+"/"+ formatString(UD_Health,1)+ "\n")
-    loc_res += "Condition: " + getConditionString() + " ("+formatString(getRelativeCondition()*100,1)+"%)\n"
+    loc_res += ("Device health: " + FormatFloat(current_device_health,1)+"/"+ FormatFloat(UD_Health,1)+ "\n")
+    loc_res += "Condition: " + getConditionString() + " ("+FormatFloat(getRelativeCondition()*100,1)+"%)\n"
     loc_res += "Accesibility: " + Round(100.0*loc_accesibility) + "%\n"
     
     loc_res += "Difficutly: "
@@ -7515,14 +7570,14 @@ Function ShowBaseDetails()
     
     if UDmain.UDGV.UDG_ShowCritVars.Value
         loc_res += "Crit chance: "+UD_StruggleCritChance+" %\n"
-        loc_res += "Crit duration: "+formatString(UD_StruggleCritDuration,1)+" s\n"
-        loc_res += "Crit mult: "+formatString(UD_StruggleCritMul*100,1)+" %\n"
+        loc_res += "Crit duration: "+FormatFloat(UD_StruggleCritDuration,1)+" s\n"
+        loc_res += "Crit mult: "+FormatFloat(UD_StruggleCritMul*100,1)+" %\n"
     endif
     
     if canBeCutted()
-        loc_res += "Cut chance: " + formatString(UD_CutChance,1) + " %\n"
+        loc_res += "Cutting: " + FormatFloat(UD_CutChance,1) + "\n"
     else
-        loc_res += "Cut chance: Uncuttable\n"
+        loc_res += "Cutting: Uncuttable\n"
     endif
 
     if isNotShareActive()
@@ -7534,6 +7589,9 @@ Function ShowBaseDetails()
             loc_res += "Cooldown: NONE\n"
         endif
     endif
+    
+    loc_res += "Locked for: " + FormatFloat(GetGameTimeLockedTime()*24.0,2) + " h\n"
+    
     loc_res += addInfoString()
     UDmain.ShowMessageBox(loc_res)
 EndFunction
@@ -7542,82 +7600,31 @@ EndFunction
     Shows message box with all modifiers and some information about them
 /;
 Function ShowModifiers()
-    string loc_res = "-Modifiers-\n"
-    if !canBeStruggled() 
-        loc_res += "!Impossible to struggle from!\n"
+    ;string loc_res = "-Modifiers-\n"
+    ;if !canBeStruggled() 
+    ;    loc_res += "!Impossible to struggle from!\n"
+    ;endif
+    ;
+    
+    int         loc_i = 0
+    string[]    loc_list
+    while loc_i < UD_ModifiersRef.length
+        UD_Modifier loc_mod = (UD_ModifiersRef[loc_i] as UD_Modifier)
+        ;loc_res += (loc_mod.NameFull + "\n")
+        loc_list = PapyrusUtil.PushString(loc_list,loc_mod.NameFull)
+        loc_i   += 1
+    endwhile
+    
+    loc_list = PapyrusUtil.PushString(loc_list,"==BACK==")
+    
+    int loc_res = UDmain.GetUserListInput(loc_list)
+    
+    if loc_res == (loc_list.length - 1)
+        return ;user selected ==BACK==
     endif
     
-    if (haveRegen())
-        loc_res += ("Regeneration ("+ formatString(getModifierIntParam("Regen")/24.0,1) +"/h)\n")
-    endif
-    if hasModifier("_HEAL")
-        loc_res += "Healer ("+  formatString(getModifierIntParam("_HEAL")/24.0,1) +"/h)\n"
-    endif
-    if hasModifier("DOR")
-        loc_res += "Destroy on unlock\n"
-    endif
-    
-    if hasModifier("MAH")
-        loc_res += "Random manifest (" + getModifierIntParam("MAH",0) +" %)\n"
-    endif
-    
-    if hasModifier("MAO")
-        loc_res += "Orgasm manifest (" + getModifierIntParam("MAO",0) +" %)\n"
-    endif
-    
-    if hasModifier("_L_CHEAP")
-        loc_res += "Cheap locks (" + getModifierIntParam("_L_CHEAP",0) +" %)\n"
-    endif
-    
-    if UD_OnDestroyItemList
-        loc_res += "Contains Items\n"
-    endif    
-    if hasModifier("LootGold")
-        int loc_lootgold_mod = getModifierIntParam("LootGold",2,0)
-        int loc_min     = getModifierIntParam("LootGold",0,10) ;base value
-        if getModifierParamNum("LootGold") > 1
-            int loc_max     = getModifierIntParam("LootGold",1,0) ;base value
-            int loc_min2    = loc_min
-            int loc_max2    = loc_max
-            if loc_max2 < loc_min2
-                loc_max2 = loc_min2
-            endif
-            float loc_lootgold_mod_param = 0.0
-            if loc_lootgold_mod == 0
-                ;nothink
-            elseif loc_lootgold_mod == 1 ;increase % gold based on level per parameter
-                loc_lootgold_mod_param  = getModifierFloatParam("LootGold",3,0.05)
-                loc_min2                = Round(loc_min*(1.0 + loc_lootgold_mod_param*UD_Level))
-                loc_max2                = Round(loc_max*(1.0 + loc_lootgold_mod_param*UD_Level))
-            elseif loc_lootgold_mod == 2 ;increase ABS gold based on level per parameter
-                loc_lootgold_mod_param  = getModifierFloatParam("LootGold",3,10.0)
-                loc_min2                = Round(loc_min + (loc_lootgold_mod_param*UD_Level))
-                loc_max2                = Round(loc_max + (loc_lootgold_mod_param*UD_Level))
-            else    ;unused
-            endif
-            
-            if loc_min2 != loc_max2
-                loc_res += "Contains Gold ("+ loc_min2 +"-"+ loc_max2 +" G)\n"
-            else
-                loc_res += "Contains Gold ("+ loc_max2 +" G)\n"
-            endif
-        else
-            loc_res += "Contains Gold ("+ loc_min +" G)\n"
-        endif
-    endif    
-
-    if (isSentient())
-        loc_res += "Sentient (" + formatString(getModifierFloatParam("Sentient"),1) +" %)\n"
-    Endif
-    
-    if (isLoose())
-        loc_res += "Loose (" + formatString(getModifierFloatParam("Loose")*100,1) +" %)\n"
-    Endif
-    
-    if deviceRendered.hasKeyword(UDlibs.PatchedDevice)
-        loc_res += "Patched device ("+Round(UDCDmain.UDPatcher.GetPatchDifficulty(self)*100.0)+" %)\n"
-    endif
-    UDmain.ShowMessageBox(loc_res)
+    UD_Modifier loc_mod = (UD_ModifiersRef[loc_res] as UD_Modifier)
+    loc_mod.ShowDetails(self,UD_ModifiersDataStr[loc_res],UD_ModifiersDataForm1[loc_res],UD_ModifiersDataForm2[loc_res],UD_ModifiersDataForm3[loc_res])
 EndFunction
 
 
@@ -7647,7 +7654,7 @@ Function ShowLockDetails()
         elseif IsNthLockJammed(loc_lockId)
             loc_res += "JAMMED\n"
             Float loc_RepairProgress = GetNthLockRepairProgress(loc_lockId)
-            loc_res += "Repair progress: "+ FormatString(loc_RepairProgress,1) + " %\n"
+            loc_res += "Repair progress: "+ FormatFloat(loc_RepairProgress,1) + " %\n"
         elseif IsNthLockTimeLocked(loc_lockId) && GetNthLockTimeLock(loc_lockId)
             loc_res += "TIME LOCKED\n"
             loc_res += "Timelock: "+ GetNthLockTimeLock(loc_lockId) + " hours\n"
@@ -7680,16 +7687,6 @@ Function ShowLockDetails()
     endwhile
 EndFunction
 
-Function _showRawModifiers()
-    int i = 0
-    string res = "-RAW MODIFIERS-\n"
-    while i < UD_Modifiers.length
-        res += UD_Modifiers[i] + "\n"
-        i += 1
-    endwhile
-    UDmain.ShowMessageBox(res)
-EndFunction
-
 ;/  Function: showDebugMinigameInfo
     Shows message box with debug information about device
 /;
@@ -7698,16 +7695,15 @@ Function showDebugInfo()
     string loc_res = ""
     loc_res += "- " + deviceInventory.GetName() + " -\n"
     if (zad_JammLockChance > 0)
-        loc_res += "Lock jam chance: "+ zad_JammLockChance + " (" + Round(checkLimit(zad_JammLockChance*UDCDmain.CalculateKeyModifier(),100.0)) +") %\n"
+        loc_res += "Lock jam chance: "+ zad_JammLockChance + " (" + Round(fRange(zad_JammLockChance*UDCDmain.CalculateKeyModifier(),0.0,100.0)) +") %\n"
     endif
     if isNotShareActive(); && canBeActivated()
         loc_res += "Cooldown: "+ _currentRndCooldown +" min\n"
-        loc_res += "Elapsed time: "+ formatString(_updateTimePassed,3) +" min ("+ formatString(getRelativeElapsedCooldownTime()*100,1) +" %)\n"
+        loc_res += "Elapsed time: "+ FormatFloat(_updateTimePassed,3) +" min ("+ FormatFloat(getRelativeElapsedCooldownTime()*100,1) +" %)\n"
         loc_res += "Can be activated: " + canBeActivated() + "\n"
     endif
     loc_res += _getCritInfo()
     UDmain.ShowMessageBox(loc_res)
-    _showRawModifiers()
 EndFunction
 
 ;/  Function: showDebugMinigameInfo
@@ -7725,10 +7721,10 @@ Function showDebugMinigameInfo()
     endif
     res += "Damage modifier: " + Round(UD_DamageMult*100.0) + " %\n"
     if UD_damage_device
-        res += "Base DPS: " + formatString(UD_durability_damage_base,4) + " DPS\n"
-        res += "DPS bonus: " + formatString(UD_durability_damage_add,2) + " DPS\n"
+        res += "Base DPS: " + FormatFloat(UD_durability_damage_base,4) + " DPS\n"
+        res += "DPS bonus: " + FormatFloat(UD_durability_damage_add,2) + " DPS\n"
         res += "Total DPS: " + (_durability_damage_mod + UD_durability_damage_add)*UD_DamageMult + " DPS\n"
-        res += "Total increase: " + formatString((((_durability_damage_mod + UD_durability_damage_add)*UD_DamageMult)/UD_durability_damage_base)*100 - 100.0,2) + " %\n"
+        res += "Total increase: " + FormatFloat((((_durability_damage_mod + UD_durability_damage_add)*UD_DamageMult)/UD_durability_damage_base)*100 - 100.0,2) + " %\n"
     elseif _CuttingGameON
         res += "Cutting modifier: " + Round(UD_MinigameMult1*100.0) + " %\n"
     else
@@ -7738,13 +7734,13 @@ Function showDebugMinigameInfo()
     res += "Crits: " + UD_minigame_canCrit + "\n"
     if UD_drain_stats
         if UD_minigame_stamina_drain
-            res += "Stamina SPS: " + formatString(UD_minigame_stamina_drain,2) + "\n"
+            res += "Stamina SPS: " + FormatFloat(UD_minigame_stamina_drain,2) + "\n"
         endif
         if UD_minigame_heal_drain
-            res += "Health SPS: " + formatString(UD_minigame_heal_drain,2) + "\n"
+            res += "Health SPS: " + FormatFloat(UD_minigame_heal_drain,2) + "\n"
         endif
         if UD_minigame_magicka_drain
-            res += "Magicka SPS: " + formatString(UD_minigame_magicka_drain,2) + "\n"    
+            res += "Magicka SPS: " + FormatFloat(UD_minigame_magicka_drain,2) + "\n"    
         endif
     else
         res += "Wearer doesn't loose stats\n"
@@ -7775,7 +7771,7 @@ string Function _getCritInfo()
         res += "never\n"
         return res
     endif
-    res += "Crit: " + formatString(UD_StruggleCritMul,1) + " x\n"
+    res += "Crit: " + FormatFloat(UD_StruggleCritMul,1) + " x\n"
     res += "Crit difficulty: "
     if UD_StruggleCritDuration >= 1
         res += "Easy\n"
@@ -7886,7 +7882,7 @@ Function OnMinigameEnd()
     endif
     
     if isSentient() && getRelativeDurability() > 0.0
-        if Utility.randomInt() > 75 && WearerIsPlayer()
+        if RandomInt() > 75 && WearerIsPlayer()
             startSentientDialogue(0)
         endif
     endif
@@ -8021,8 +8017,8 @@ Function onWeaponHitPost(Weapon source)
         decreaseDurabilityAndCheckUnlock(loc_damage*0.25*(1.0 - UD_WeaponHitResist),2.0)
         
         if HaveUnlockableLocks()
-            if hasModifier("_L_CHEAP")
-                int loc_chance = Round(getModifierIntParam("_L_CHEAP",0)*0.1)
+            if hasModifier("CLO")
+                int loc_chance = Round(UD_Native.GetStringParamFloat(GetModifierParam("CLO"),0)*0.1)
                 AddJammedLock(loc_chance)
             endif
         endif
@@ -8044,28 +8040,18 @@ string Function addInfoString(string str = "")
 EndFunction
 
 Function updateWidget(bool force = false)
-    if !UDmain.UD_UseNativeFunctions
-        if _StruggleGameON
-            setWidgetVal(getRelativeDurability(),force)
-        endif
-        
-        ;update condition widget
-        If UDmain.UDWC.UD_UseDeviceConditionWidget
-            UDmain.UDWC.Meter_SetFillPercent("device-condition", getRelativeCondition() * 100.0)
-        endif
-    endif
-    
     if _CuttingGameON
-        setWidgetVal(getRelativeCuttingProgress(),force)
+        ;setWidgetVal(getRelativeCuttingProgress(),force)
+        setSecWidgetVal(GetRelativeDurability(), force)
     elseif _RepairLocksMinigameON
         setWidgetVal(_GetRelativeLockRepairProgress(_MinigameSelectedLockID),force)
     endif
 EndFunction
 
 Function updateWidgetColor()
-    if UD_WidgetAutoColor && !UDmain.UseiWW()
+    if UD_WidgetAutoColor; && !UDmain.UseiWW()
         if UD_Condition == 0
-            setMainWidgetAppearance(0x4df319, 0x62ff00)
+            setMainWidgetAppearance(0x4da319, 0x62ff00)
         elseif UD_Condition == 1
             setMainWidgetAppearance(0xafba24, 0x4da319)
         elseif UD_Condition == 2
@@ -8075,23 +8061,26 @@ Function updateWidgetColor()
         else
             setMainWidgetAppearance(0x5a1515, 0xdc1515)
         endif
-    elseif UD_WidgetAutoColor
-        setMainWidgetAppearance(0xFF307C, 0xFF005E)
+    ;elseif UD_WidgetAutoColor
+    ;    setMainWidgetAppearance(0xFF307C, 0xFF005E)
     endif
 
-    If UDmain.UDWC.UD_UseDeviceConditionWidget
+    If UD_WidgetAutoColorSec; && !UDmain.UseiWW()
         if UD_Condition == 0
-            setConditionWidgetAppearance(0x4df319, 0x62ff00)
+            setSecWidgetAppearance(0x4da319, 0x62ff00)
         elseif UD_Condition == 1
-            setConditionWidgetAppearance(0xafba24, 0x4da319)
+            setSecWidgetAppearance(0xafba24, 0x4da319)
         elseif UD_Condition == 2
-            setConditionWidgetAppearance(0xe37418, 0xafba24)
+            setSecWidgetAppearance(0xe37418, 0xafba24)
         elseif UD_Condition == 3
-            setConditionWidgetAppearance(0xdc1515, 0xe37418)
+            setSecWidgetAppearance(0xdc1515, 0xe37418)
         else
-            setConditionWidgetAppearance(0x5a1515, 0xdc1515)
+            setSecWidgetAppearance(0x5a1515, 0xdc1515)
         endif
+    ;elseif UD_WidgetAutoColorSec
+    ;    setSecWidgetAppearance(0xFF307C, 0xFF005E)
     endif
+    
 EndFunction
 
 bool Function proccesSpecialMenu(int msgChoice)
@@ -8151,11 +8140,11 @@ Float[] Function GetCurrentMinigameExpression()
         elseif _struggleGame_Subtype == 3 ;slow
             return UDmain.UDEM.GetPrebuildExpression_Happy1()
         else
-            return UDmain.UDEM.CreateRandomExpression(bExport = false)
+            return zadexpressionlibs.CreateRandomExpression()
         endif
     else
-        if Utility.randomInt(0,1)
-            return UDmain.UDEM.CreateRandomExpression(bExport = false)
+        if RandomInt(0,1)
+            return zadexpressionlibs.CreateRandomExpression()
         else
             return UDmain.UDEM.GetPrebuildExpression_Happy1()
         endif
@@ -8169,12 +8158,7 @@ Function removeDevice(actor akActor)
     _removeDeviceCalled = True
     
     GoToState("UpdatePaused")
-    
-    ;remove ID
-    if zad_DestroyOnRemove || hasModifier("DOR")
-        akActor.RemoveItem(deviceInventory, 1, true)
-    EndIf
-    
+        
     if !akActor.isDead()
         if !IsUnlocked
             _IsUnlocked = True
@@ -8207,12 +8191,6 @@ Function removeDevice(actor akActor)
     
     UDmain.UDMOM.Procces_UpdateModifiers_Remove(self) ;update modifiers
     
-    if UD_OnDestroyItemList
-        if UDmain.TraceAllowed()
-            UDmain.Log("Items from LIL " + UD_OnDestroyItemList + " added to actor " + GetWearername(),3)
-        endif
-        akActor.addItem(UD_OnDestroyItemList)
-    endif
     StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
     
     onRemoveDevicePost(akActor)
@@ -8270,77 +8248,359 @@ State UpdatePaused
     Function Update(float timePassed)
         _updateTimePassed += (timePassed*24.0*60.0);*UDCDmain.UD_CooldownMultiplier
     EndFunction
-    
-    Function updateMend(float timePassed)
-    EndFunction
-    
-    Function UpdateHour(float mult)
+    Function UpdateHour()
     EndFunction
 EndState
 
-;UTILITY functions NEEDED because the functions are used before UDmain are loaded
-;mainly used in initiation of properties, which load before UDCDmain (if its not filled)
-
-bool _bitmap_mutex = false ;DON'T MODIFY
-Function startBitMapMutexCheck()
-    while _bitmap_mutex
-        Utility.waitmenumode(0.01)
-    endwhile
-    _bitmap_mutex = true
-EndFunction
-Function endBitMapMutexCheck()
-    _bitmap_mutex = false
+;native events
+Function RegisterDevice(Actor akActor,Armor akInvDevice, Armor akRenDevice)
+    ;UDmain.Info(self + ":: Register device called - " + GetActorName(akActor) + " , " + akInvDevice)
+    UD_WearerSlot.registerDevice(self)
 EndFunction
 
-bool _bitmap_mutex2 = false ;DON'T MODIFY
-Function startBitMapMutexCheck2()
-    while _bitmap_mutex2
-        Utility.waitmenumode(0.01)
-    endwhile
-    _bitmap_mutex2 = true
-EndFunction
-Function endBitMapMutexCheck2()
-    _bitmap_mutex2 = false
-EndFunction
-
-bool _bitmap_mutex3 = false ;DON'T MODIFY
-Function startBitMapMutexCheck3()
-    while _bitmap_mutex3
-        Utility.waitmenumode(0.01)
-    endwhile
-    _bitmap_mutex3 = true
-EndFunction
-Function endBitMapMutexCheck3()
-    _bitmap_mutex3 = false
-EndFunction
-
-;internal functions, as calling them from UDmain can cause suspension
-int Function codeBit(int iCodedMap,int iValue,int iSize,int iIndex)
-    if UDmain.UD_UseNativeFunctions
-        return UD_Native.codeBit(iCodedMap,iValue,iSize,iIndex)
+Function _SendMinigameThreads(bool abStarter, bool abCritLoop, bool abParalelThread, bool abAVLoop)
+    int loc_mode = 0x0
+    if abStarter
+        loc_mode += 1
+    endif
+    if abCritLoop
+        loc_mode += 2
+    endif
+    if abParalelThread
+        loc_mode += 4
+    endif
+    if abAVLoop
+        loc_mode += 8
     endif
     
-    if iIndex + iSize > 32 || iSize < 1 || iIndex < 0
-        return 0xFFFFFFFF ;returns error value
+    Int loc_res = SendMinigameThreadEvents(GetWearer(),DeviceRendered,_VMHandle1,_VMHandle2,loc_mode)
+    
+    if loc_res > 0
+        if loc_res == 3
+            String loc_msg = "!!FATAL ERROR!!\nError finding script for device "+GetDeviceName()+". This likely mean that you installed patch incorrectly! Please close the game, and check you load order!"
+            UDmain.Error(loc_msg)
+            UDMain.ShowMessageBox(loc_msg)
+        else
+            UDmain.Error("Could not start minigame thread. Return code => " + loc_res)
+        endif
     endif
-    ;sets not shifted bit mask loc_clear_mask
-    int loc_clear_mask = (Math.LeftShift(0x1,iSize) - 1)                        ;mask used to clear bits which will be set
-    iValue = Math.LeftShift(Math.LogicalAnd(iValue,loc_clear_mask),iIndex)      ;clear value from bigger bits
-    loc_clear_mask = Math.LogicalNot(Math.LeftShift(loc_clear_mask,iIndex))     ;shift and negate
-    iCodedMap = Math.LogicalAnd(iCodedMap,loc_clear_mask)                       ;clear maps bits with mask
-    return Math.LogicalOr(iCodedMap,iValue)                                     ;sets bits
-endfunction
+EndFunction
 
-int Function decodeBit(int iCodedMap,int iSize,int iIndex)
-    if UDmain.UD_UseNativeFunctions
-        return UD_Native.decodeBit(iCodedMap,iSize,iIndex)
+Function _MinigameStarterThread()
+    bool    loc_canShowHUD      = canShowHUD()
+    bool    loc_haveplayer      = PlayerInMinigame()
+    bool    loc_is3DLoaded      = loc_haveplayer || UDmain.ActorInCloseRange(wearer)
+    
+    if UDmain.TraceAllowed()
+        UDmain.Log("_MinigameStarterThread("+GetDeviceHeader()+")")
     endif
+    
+    _MinigameParProc_1 = true
+    
+    UDCDMain.StartMinigameDisable(Wearer)
+    if _minigameHelper
+        UDCDMain.StartMinigameDisable(_minigameHelper)
+    endif
+    
+    if loc_haveplayer
+        UDCDmain.setCurrentMinigameDevice(self)
+        UDCDmain.MinigameKeysRegister()
+        UD_Native.RegisterDeviceCallback(_VMHandle1,_VMHandle2,deviceRendered,UDCDMain.Stamina_meter_Keycode,"_MG_CKSPress")
+        UD_Native.RegisterDeviceCallback(_VMHandle1,_VMHandle2,deviceRendered,UDCDMain.Magicka_meter_Keycode,"_MG_CKMPress")
+    else
+        StorageUtil.SetFormValue(Wearer, "UD_currentMinigameDevice", deviceRendered)
+    endif
+    
+    _MinigameParProc_1 = false
+    
+    ;shows bars
+    if loc_canShowHUD
+        showHUDbars()
+    endif
+    
+    OnMinigameStart()
+    
+    if loc_is3DLoaded
+        libsp.pant(Wearer)
+    endif
+EndFunction
 
-    if iIndex + iSize > 32
-        return 0xFFFFFFFF ;returns error value
+Function _MinigameParalelThread()
+    Actor     akActor       = GetWearer()
+    Actor     akHelper      = getHelper()
+    
+    _MinigameParProc_2 = true
+    
+    if UDmain.TraceAllowed()
+        UDmain.Log("_MinigameParalelThread("+GetDeviceHeader()+")")
     endif
-    ;sets not shifted bit mask
-    iCodedMap = Math.RightShift(iCodedMap,iIndex)                           ;shift to right, so value is correct
-    iCodedMap = Math.LogicalAnd(iCodedMap,(Math.LeftShift(0x1,iSize) - 1))  ;clear maps bits with mask
-    return iCodedMap
+    
+    ;process
+    bool      loc_haveplayer    = PlayerInMinigame()
+    bool      loc_is3DLoaded    = akActor.Is3DLoaded() || loc_haveplayer
+    
+    ;disable regen of all stats
+    float staminaRate           = akActor.getBaseAV("StaminaRate")
+    float HealRate              = akActor.getBaseAV("HealRate")
+    float magickaRate           = akActor.getBaseAV("MagickaRate")
+
+    akActor.setAV("StaminaRate", staminaRate*UD_RegenMag_Stamina)
+    akActor.setAV("HealRate", HealRate*UD_RegenMag_Health)
+    akActor.setAV("MagickaRate", magickaRate*UD_RegenMag_Magicka)
+
+    float staminaRateHelper     = 0.0
+    float HealRateHelper        = 0.0
+    float magickaRateHelper     = 0.0
+    if akHelper
+        staminaRateHelper       = akHelper.getBaseAV("StaminaRate")
+        HealRateHelper          = akHelper.getBaseAV("HealRate")
+        magickaRateHelper       = akHelper.getBaseAV("MagickaRate")
+
+        akHelper.setAV("StaminaRate", staminaRateHelper*UD_RegenMagHelper_Stamina)
+        akHelper.setAV("HealRate"    , HealRateHelper*UD_RegenMagHelper_Health)
+        akHelper.setAV("MagickaRate", magickaRateHelper*UD_RegenMagHelper_Magicka)
+    endif
+    
+    bool loc_canShowHUD     = canShowHUD()
+    bool loc_updatewidget   = (UD_UseWidget || UD_UseWidgetSec) && UDCDmain.UD_UseWidget && loc_haveplayer
+    
+    ;Send_MinigameCritLoop(akActor, self) TODO
+
+    float[] loc_expression = GetCurrentMinigameExpression()
+    libsp.ExpLibs.ApplyExpressionRaw(akActor, loc_expression, 100,false,15)
+    if haveHelper()
+        libsp.ExpLibs.ApplyExpressionRaw(akHelper, loc_expression, 100,false,15)
+    endif
+    
+    float loc_currentOrgasmRate     = getStruggleOrgasmRate()
+    float loc_currentArousalRate    = getArousalRate()
+    
+    string loc_orgkey = "UDMinigame." + getDeviceName()
+    OrgasmSystem.AddOrgasmChange(akActor,loc_orgkey, 0,0x00000200,loc_currentOrgasmRate,0,0,0.25)
+    OrgasmSystem.UpdateOrgasmChangeVar(akActor,loc_orgkey,9,loc_currentArousalRate,1)
+    
+    ;pause thred untill minigame end
+    Float loc_UpdateTime   = 0.1
+    if !loc_is3DLoaded
+        loc_UpdateTime = 3.0
+    elseif !loc_haveplayer
+        loc_UpdateTime = 1.0
+    endif
+    
+    Float loc_ElapsedTime1 = 0.0
+    Float loc_ElapsedTime2 = 0.0
+    Float loc_ElapsedTime3 = 0.0
+    
+    Udmain.UDMOM.Procces_UpdateModifiers_MinigameStarted(self)
+    
+    while IsMinigameLoopRunning()
+        if !isPaused()
+            ;set expression every 5 second
+            if loc_is3DLoaded
+                if loc_ElapsedTime1 >= 5.0
+                    libsp.ExpLibs.ApplyExpressionRaw(akActor, loc_expression, 100,false,15)
+                    if akHelper
+                        libsp.ExpLibs.ApplyExpressionRaw(akHelper, loc_expression, 100,false,15)
+                    endif
+                    loc_ElapsedTime1 = 0.0
+                endif
+            endif
+            ;update widget and HUD every 2 s
+            if loc_haveplayer
+                if loc_ElapsedTime2 >= 2.0
+                    if loc_canShowHUD
+                        showHUDbars(False)
+                    endif
+                    if loc_updatewidget
+                        showWidget(False, False)
+                    endif
+                    loc_ElapsedTime2 = 0.0
+                endif
+                ;advance skill every 3 second
+                if loc_ElapsedTime3 >= 1.0
+                    advanceSkill(loc_ElapsedTime3)
+                    if loc_is3DLoaded
+                        loc_updatewidget    = (UD_UseWidget || UD_UseWidgetSec) && UDCDmain.UD_UseWidget && loc_haveplayer
+                        loc_canShowHUD      = canShowHUD()
+                    endif
+                    loc_ElapsedTime3    = 0.0
+                endif
+            endif
+        endif
+        if IsMinigameLoopRunning()
+            Utility.wait(loc_UpdateTime)
+            loc_ElapsedTime1 += loc_UpdateTime
+            loc_ElapsedTime2 += loc_UpdateTime
+            loc_ElapsedTime3 += loc_UpdateTime
+        endif
+    endwhile
+    
+    OrgasmSystem.RemoveOrgasmChange(akActor,loc_orgkey)
+    
+    ;returns wearer regen
+    akActor.setAV("StaminaRate", staminaRate)
+    akActor.setAV("HealRate", healRate)
+    akActor.setAV("MagickaRate", magickaRate)
+    if akHelper
+        akHelper.setAV("StaminaRate", staminaRateHelper)
+        akHelper.setAV("HealRate", HealRateHelper)
+        akHelper.setAV("MagickaRate", magickaRateHelper)
+    endif
+    
+    if loc_haveplayer
+        hideHUDbars() ;hides HUD (not realy?)
+        hideWidget()
+    endif
+    
+    Udmain.UDMOM.Procces_UpdateModifiers_MinigameEnded(self)
+    
+    _MinigameParProc_2 = false
+    
+    if loc_is3DLoaded
+        libsp.ExpLibs.ResetExpressionRaw(akActor,15)
+        if akHelper
+            libsp.ExpLibs.ResetExpressionRaw(akHelper,15)
+        endif
+    endif
+    
+    if loc_is3DLoaded && (UDmain.UDGV.UDG_MinigameExhaustion.Value == 1)
+        addStruggleExhaustion(akHelper)
+    endif
+EndFunction
+
+Function _MinigameCritLoopThread()
+    Actor akActor                           = GetWearer()
+    
+    _MinigameParProc_3           = true
+    
+    if UDmain.TraceAllowed()
+        UDmain.Log("_MinigameCritLoopThread("+GetDeviceHeader()+")")
+    endif
+    
+    Bool loc_playerInMinigame               = PlayerInMinigame()
+    Bool loc_is3DLoaded                     = akActor.Is3DLoaded() || loc_playerInMinigame
+
+    Float loc_elapsedTime = 0.0
+    Float loc_updateTime  = 0.25
+    string critType = "random"
+    if !loc_playerInMinigame
+        loc_updateTime = 1.0
+        critType = "NPC"
+    elseif UDCDmain.UD_AutoCrit
+        critType = "Auto"
+    endif
+    
+    if loc_playerInMinigame
+        Utility.Wait(0.5) ;wait little time before starting crits
+    endif
+    
+    ;process
+    while IsMinigameLoopRunning()
+        if !isPaused() && (!loc_is3DLoaded || !UDmain.IsMenuOpen())
+            ;check crit every 1 s
+            if loc_elapsedTime >= 1.0
+                if UD_minigame_canCrit
+                    UDCDmain.StruggleCritCheck(self,UD_StruggleCritChance,critType,UD_StruggleCritDuration)
+                elseif _customMinigameCritChance
+                    UDCDmain.StruggleCritCheck(self,_customMinigameCritChance,critType,_customMinigameCritDuration)
+                endif
+                loc_elapsedTime = 0.0
+            endif
+        endif
+        if IsMinigameLoopRunning()
+            Utility.Wait(loc_updateTime)
+            loc_elapsedTime += loc_updateTime
+        endif
+    endwhile
+    
+    _MinigameParProc_3 = false
+EndFunction
+
+Function _MinigameAVCheckLoopThread()
+    _MinigameParProc_4 = true
+    
+    if UDmain.TraceAllowed()
+        UDmain.Log("_MinigameAVCheckLoopThread("+GetDeviceHeader()+")")
+    endif
+    
+    float loc_CurrentUpdateTime             = UDmain.UD_baseUpdateTime
+    Bool  loc_HaveHelper                    = haveHelper()
+    Float loc_ElapsedTime                   = 0.0
+    Bool  loc_MinigameEffectEnabled         = False
+    
+    _StartMinigameEffect()
+    
+    ;process
+    while IsMinigameLoopRunning()
+        if !isPaused()
+            if UDCDMain.UD_InitialDrainDelay == 0 || (loc_ElapsedTime > UDCDMain.UD_InitialDrainDelay)
+                if !loc_MinigameEffectEnabled
+                    loc_MinigameEffectEnabled = true
+                    _ToggleMinigameEffect(true)
+                endif
+                if !ProccesAV(loc_CurrentUpdateTime)
+                    StopMinigame()
+                endif
+                if loc_HaveHelper
+                    if !ProccesAVHelper(loc_CurrentUpdateTime)
+                        StopMinigame()
+                    endif
+                endif
+            endif
+        endif
+        if IsMinigameLoopRunning()
+            Utility.Wait(loc_CurrentUpdateTime)
+            loc_ElapsedTime += loc_CurrentUpdateTime
+        endif
+    endwhile
+    
+    _MinigameParProc_4 = false
+EndFunction
+
+Function _CuttingMG_SKPress(Float afValue)
+    if IsPaused()
+        return
+    endif
+    if afValue >= fRange(100.0 - Math.Pow(UD_CutChance,1.2)*2.0,0.0,96.0)
+        UDlibs.RedCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player) ;show to player that they cutted device in right time by using shader effect
+        _cutDevice(Math.Pow(UD_CutChance,1.2)*3.0/(100.1-afValue))
+    endif
+EndFunction
+
+Function _MG_CKSPress()
+    bool     loc_crit                    = UDCDmain.crit 
+    string   loc_selected_crit_meter     = UDCDmain.selected_crit_meter
+    if IsPaused()
+        return
+    endif
+    if (loc_crit) && !UDCDMain.UD_AutoCrit
+        if loc_selected_crit_meter == "S"
+            UDCDmain.crit = False
+            critDevice()
+        else
+            UDCDmain.crit = False
+            critFailure()
+        endif
+    else
+        critFailure()
+    endif
+EndFunction
+
+Function _MG_CKMPress()
+    bool     loc_crit                    = UDCDmain.crit 
+    string   loc_selected_crit_meter     = UDCDmain.selected_crit_meter
+    if IsPaused()
+        return
+    endif
+    if (loc_crit) && !UDCDMain.UD_AutoCrit
+        if loc_selected_crit_meter == "M"
+            UDCDmain.crit = False
+            critDevice()
+        else
+            UDCDmain.crit = False
+            critFailure()
+        endif
+    else
+        critFailure()
+    endif
 EndFunction

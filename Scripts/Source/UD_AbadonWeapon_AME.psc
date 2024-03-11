@@ -1,6 +1,7 @@
 Scriptname UD_AbadonWeapon_AME extends ActiveMagicEffect
 
 Import UnforgivingDevicesMain
+Import UD_Native
 
 UnforgivingDevicesMain Property UDmain auto
 
@@ -14,16 +15,14 @@ Function OnEffectStart(Actor akTarget, Actor akCaster)
         return ;actor is already tied
     endif
     
-
-    
     int loc_chance = iRange(Round(GetMagnitude()),0,100)
-    if Utility.randomInt(1,99) < loc_chance
+    if RandomInt(1,99) < loc_chance
         if UDmain.TraceAllowed()
             UDmain.Log(GetActorName(akTarget) + " hit by abadon weapon. Locking device")
         endif
         
         ;25 % chance of locking random abadon suit
-        if Utility.randomInt(1,100) > 75
+        if RandomInt(1,100) > 75
             UDmain.UDAbadonQuest.AbadonEquipSuit(akTarget,0)
             return
         endif

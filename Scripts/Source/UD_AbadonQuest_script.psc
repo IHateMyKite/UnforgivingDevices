@@ -1,11 +1,18 @@
 Scriptname UD_AbadonQuest_script extends Quest Conditional 
 
 import UnforgivingDevicesMain
+import UD_Native
 
 UDCustomDeviceMain      Property UDCDmain auto
 UnforgivingDevicesMain  Property UDmain  Auto
 zadlibs Property libs auto 
 Quest   Property DragonRising auto
+
+UD_libs                 Property UDlibs hidden
+    UD_libs Function get()
+        return UDCDMain.UDlibs
+    EndFunction
+EndProperty
 
 ;const values
 int     property overaldifficulty   = 1     auto ;0-2 where 3 is same as in MDS
@@ -115,15 +122,98 @@ String[] Property UD_AbadonSuitNames
     EndFunction
 EndProperty
 
+Int _LastHandRestrain = 0
+Function AbadonGooEffect(Actor akTarget)
+    if !UDmain.ActorIsValidForUD(akTarget)
+        return ;non valid actor, return
+    endif
+    Float loc_arousal = UDmain.UDOM.getArousal(akTarget)
+    if !akTarget.wornhaskeyword(libs.zad_deviousheavybondage)
+        UDCDmain.DisableActor(akTarget)
+        if RandomInt(1,99) < Round(UDCDMain.UD_BlackGooRareDeviceChance*fRange(loc_arousal/50.0,1.0,2.0))
+            ;rare devices, drop more loot and goo
+            if !akTarget.wornhaskeyword(libs.zad_deviousSuit)
+                int random = RandomInt(1,3)
+                if random == 1
+                    libs.LockDevice(akTarget,UDlibs.AbadonBlueArmbinder)
+                elseif random == 2
+                    libs.LockDevice(akTarget,UDlibs.MageBinder)
+                elseif random == 3
+                    libs.LockDevice(akTarget,UDlibs.RogueBinder)
+                endif
+            else
+                int random = RandomInt(1,2)
+                if random == 1
+                    libs.LockDevice(akTarget,UDlibs.AbadonBlueArmbinder)
+                elseif random == 2
+                    libs.LockDevice(akTarget,UDlibs.RogueBinder)
+                endif
+            endif
+            if IsPlayer(akTarget)
+                UDmain.ShowMessageBox("Black goo covers your body and tie your hands while changing shape to RARE bondage restraint!")
+            endif
+        else
+            int random = RandomInt(1,4)
+            if _LastHandRestrain == random
+                if random < 4
+                    random += 1
+                elseif random > 0
+                    random -= 1
+                endif
+            endif
+            _LastHandRestrain = random
+            if !akTarget.wornhaskeyword(libs.zad_deviousSuit)
+                if random == 0
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakArmbinder)
+                elseif random == 1
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakElbowbinder)
+                elseif random == 2
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakYoke)
+                elseif random == 3
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakStraitjacket)
+                elseif random == 4
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakBoxbinder)
+                endif
+                
+            else
+                if random == 0 || random == 3
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakArmbinder)
+                elseif random == 1 
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakElbowbinder)
+                elseif random == 2 || random == 4
+                    libs.LockDevice(akTarget,UDlibs.AbadonWeakYoke)
+                endif
+            endif
+            _LastHandRestrain = random
+            if IsPlayer(akTarget)
+                UDmain.ShowMessageBox("Black goo covers your body and tie your hands while changing shape to bondage restraint!")
+            endif
+        endif
+        
+        ;chance to lock plugs and belt. Only works if player first finished abadon quest (as some plugs can evolve in to abadon plug)
+        if RandomInt(1,99) < Round(15.0*fRange(loc_arousal/25.0,1.0,3.5))
+            UDmain.ItemManager.lockAbadonHelperPlugs(akTarget)
+            if (!akTarget.WornhasKeyword(libs.zad_DeviousBelt))
+                ;choose one random chastity device
+                if RandomInt(0,1)
+                    libs.LockDevice(akTarget,UDlibs.AbadonHarness)
+                else
+                    libs.LockDevice(akTarget,UDlibs.AbadonBelt)
+                endif
+            endif
+        endif
+        UDCDmain.EnableActor(akTarget)
+    endif
+EndFunction
 
 Function AbadonEquipSuit(Actor target,int suit)
     UDCDmain.DisableActor(target)
     UnforgivingDevicesMain.closeMenu()
     if suit == 0
         if _CustomSets
-            suit = Utility.randomInt(1,UDmain.config.final_finisher_pref_list.length - 1 + _CustomSets)
+            suit = RandomInt(1,UDmain.config.final_finisher_pref_list.length - 1 + _CustomSets)
         else
-            suit = Utility.randomInt(1,UDmain.config.final_finisher_pref_list.length - 1)
+            suit = RandomInt(1,UDmain.config.final_finisher_pref_list.length - 1)
         endif
     endif
     if suit == 1
@@ -147,11 +237,11 @@ EndFunction
 Function EquipAbadonDevices(Actor akTarget,Int aiMinDevices, Int aiMaxDevices)
     if !akTarget.wornhaskeyword(libs.zad_deviousheavybondage)
         UDCDmain.DisableActor(akTarget)
-        Int loc_arousal = UDmain.UDOM.getArousal(akTarget)
-        if Utility.randomInt(1,99) < Round(UDCDMain.UD_BlackGooRareDeviceChance*fRange(loc_arousal/50,1.0,2.0))
+        Int loc_arousal = Round(UDmain.UDOM.getArousal(akTarget))
+        if RandomInt(1,99) < Round(UDCDMain.UD_BlackGooRareDeviceChance*fRange(loc_arousal/50,1.0,2.0))
             ;rare devices, drop more loot and goo
             if !akTarget.wornhaskeyword(libs.zad_deviousSuit)
-                int random = Utility.randomInt(1,3)
+                int random = RandomInt(1,3)
                 if random == 1
                     libs.LockDevice(akTarget,UDmain.UDlibs.AbadonBlueArmbinder)
                 elseif random == 2
@@ -160,19 +250,19 @@ Function EquipAbadonDevices(Actor akTarget,Int aiMinDevices, Int aiMaxDevices)
                     libs.LockDevice(akTarget,UDmain.UDlibs.RogueBinder)
                 endif
             else
-                int random = Utility.randomInt(1,2)
+                int random = RandomInt(1,2)
                 if random == 1
                     libs.LockDevice(akTarget,UDmain.UDlibs.AbadonBlueArmbinder)
                 elseif random == 2
                     libs.LockDevice(akTarget,UDmain.UDlibs.RogueBinder)
                 endif
             endif
-            if UDmain.ActorIsPlayer(akTarget)
+            if IsPlayer(akTarget)
                 UDmain.ShowMessageBox("Black goo covers your body and tie your hands while changing shape to RARE bondage restraint!")
             endif
         else
             if !akTarget.wornhaskeyword(libs.zad_deviousSuit)
-                int random = Utility.randomInt(1,4)
+                int random = RandomInt(1,4)
                 if random == 1
                     libs.LockDevice(akTarget,UDmain.UDlibs.AbadonWeakArmbinder)
                 elseif random == 2
@@ -183,7 +273,7 @@ Function EquipAbadonDevices(Actor akTarget,Int aiMinDevices, Int aiMaxDevices)
                     libs.LockDevice(akTarget,UDmain.UDlibs.AbadonWeakYoke)
                 endif
             else
-                int random = Utility.randomInt(1,3)
+                int random = RandomInt(1,3)
                 if random == 1
                     libs.LockDevice(akTarget,UDmain.UDlibs.AbadonWeakArmbinder)
                 elseif random == 2
@@ -192,12 +282,12 @@ Function EquipAbadonDevices(Actor akTarget,Int aiMinDevices, Int aiMaxDevices)
                     libs.LockDevice(akTarget,UDmain.UDlibs.AbadonWeakYoke)
                 endif
             endif
-            if UDmain.ActorIsPlayer(akTarget)
+            if IsPlayer(akTarget)
                 UDmain.ShowMessageBox("Black goo covers your body and tie your hands while changing shape to bondage restraint!")
             endif
         endif
         UDCDmain.EnableActor(akTarget)
     endif
-    int loc_devicenum = Utility.randomInt(aiMinDevices,aiMaxDevices)
+    int loc_devicenum = RandomInt(aiMinDevices,aiMaxDevices)
     UDmain.UDRRM.LockAnyRandomRestrain(akTarget,loc_devicenum)
 EndFunction

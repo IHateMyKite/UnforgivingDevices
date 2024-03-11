@@ -1,6 +1,7 @@
 Scriptname UD_TrapManifest_ME_Script extends activemagiceffect  
 
 import UnforgivingDevicesMain
+import UD_Native
 
 UD_AbadonQuest_script   Property AbadonQuest    auto
 UDCustomDeviceMain      Property UDCDmain       auto
@@ -11,9 +12,9 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
         return ;non valid actor, return
     endif
     ;25 % chance of locking random abadon suit
-    if Utility.randomInt(1,100) > 75
+    if RandomInt(1,100) > 75
         AbadonQuest.AbadonEquipSuit(akTarget,0)
-        if GActorIsPlayer(akTarget)
+        if IsPlayer(akTarget)
             UDCDmain.UDmain.Print("Black goo smacks you and transforms into variety of restrains!")
         else
             UDCDmain.UDmain.Print("Black goo smacks " + GetActorName(akTarget) + " and transforms into variety of restrains!")
@@ -28,8 +29,8 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
         Formlist loc_formlist = none
         Armor device = none
 
-        Int loc_arousal = UDCDmain.UDmain.UDOM.getArousal(akTarget)
-        int random = Round(Utility.randomInt(1,100) + (loc_arousal/5))
+        Int loc_arousal = Round(UDCDmain.UDmain.UDOM.getArousal(akTarget))
+        int random = Round(RandomInt(1,100) + (loc_arousal/5))
         
         if random > 90
             loc_formlist = UDCDmain.UDmain.UDRRM.UD_AbadonDeviceList_HeavyBondageHard
@@ -49,7 +50,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
             
         UDCDMain.LockDeviceParalel(akTarget,device)
 
-        if GActorIsPlayer(akTarget)
+        if IsPlayer(akTarget)
             UDCDmain.UDmain.Print("Black goo smacks you and transforms into " + device.getName())
         else
             UDCDmain.UDmain.Print("Black goo smacks " + GetActorName(akTarget) + " and transforms into " + device.getName())
@@ -60,7 +61,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     
     ;Allways lock random devices. only lock basic devices, so actor doesn look like clown
     if UDCDmain.UDmain.UDRRM.LockAllSuitableRestrains(akTarget, false, 0x38E0F) ;did we managed to add some restraints?
-        if GActorIsPlayer(akTarget)
+        if IsPlayer(akTarget)
             UDCDmain.UDmain.Print("Black goo smacks you and transforms into restraint!")
         else
             UDCDmain.UDmain.Print("Black goo smacks " + GetActorName(akTarget) + " and transforms into restraint!")

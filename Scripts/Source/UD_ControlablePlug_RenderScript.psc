@@ -1,6 +1,7 @@
 Scriptname UD_ControlablePlug_RenderScript extends UD_CustomPlug_RenderScript  
 
 import UnforgivingDevicesMain
+import UD_Native
 
 float Property UD_DischargeRate = 1.0 auto
 
@@ -91,9 +92,9 @@ Function turnOnPlug(int strenght, int mod)
     
     selected_strenght = strenght
     if selected_strenght == 6
-        forceStrength(Utility.randomInt(1,100))
+        forceStrength(RandomInt(1,100))
     else
-        forceStrength(selected_strenght*Utility.randomInt(18,20))
+        forceStrength(selected_strenght*RandomInt(18,20))
     endif
     forceEdgingMode(selected_mod)
     UDCDmain.startVibFunction(self,true)
@@ -167,7 +168,7 @@ bool Function OnCritDevicePre()
         removeVibDuration(loc_duration)
         
         if isVibrating()
-            if Utility.randomInt() < 15 ;25% chance
+            if RandomInt() < 15 ;25% chance
                 removeVibStrength(10)
                 if WearerIsPlayer()
                     UDmain.Print("You notice that the " + getDeviceName() + " vibrates weaker than before",2)
@@ -185,7 +186,7 @@ Function OnUpdatePost(float timePassed)
     minutes_updated += timePassed*(24*60)
     if isVibrating() && selected_strenght == 6
         if minutes_updated >= 15.0
-            int loc_newStrength = Utility.randomInt(25,100)
+            int loc_newStrength = RandomInt(25,100)
             if WearerIsPlayer()
                 UDmain.Print("Your " + getDeviceName() + " changes its vibration strength!",2)
             elseif WearerIsFollower()
@@ -220,7 +221,7 @@ Function activateDevice()
             endif
             addVibStrength(10)
         endif
-        if Utility.randomInt() < 50
+        if RandomInt() < 50
             addVibDuration(300)
             if WearerIsPlayer()
                 UDmain.Print("Your controllable "+getPlugType()+" plug regains some of its charge!",2)

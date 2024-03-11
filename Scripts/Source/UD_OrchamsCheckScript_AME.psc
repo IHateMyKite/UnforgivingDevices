@@ -1,6 +1,7 @@
 Scriptname UD_OrchamsCheckScript_AME extends activemagiceffect
 
 import UnforgivingDevicesMain
+import UD_Native
 
 UDCustomDeviceMain      Property UDCDmain   auto
 UD_OrgasmManager        Property UDOM       auto
@@ -25,50 +26,50 @@ bool        _processing     = false
 ;local variables
 bool    loc_isplayer = false
 
-Event OnEffectStart(Actor akTarget, Actor akCaster)
-    akActor = akTarget
-    loc_isplayer = UDmain.ActorIsPlayer(akActor)
-    if !loc_isplayer
-        return
-    endif
-    if UDmain.TraceAllowed() ;only for player, because it works different for NPCs
-        UDmain.Log("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - OnEffectStart()",2)
-    endif
-    UD_PlayerSlot.InitOrgasmUpdate()
-    registerForSingleUpdate(0.1)
-EndEvent
+;Event OnEffectStart(Actor akTarget, Actor akCaster)
+;    akActor = akTarget
+;    loc_isplayer = IsPlayer(akActor)
+;    if !loc_isplayer
+;        return
+;    endif
+;    if UDmain.TraceAllowed() ;only for player, because it works different for NPCs
+;        UDmain.Log("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - OnEffectStart()",2)
+;    endif
+;    UD_PlayerSlot.InitOrgasmUpdate()
+;    registerForSingleUpdate(0.1)
+;EndEvent
 
-Event OnEffectFinish(Actor akTarget, Actor akCaster)
-    _finished = true
-    if UDmain.TraceAllowed() && loc_isplayer
-        UDmain.Log("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - OnEffectFinish()",1)
-    endif
-    if loc_isplayer
-        UD_PlayerSlot.CleanOrgasmUpdate()
-    endif
-EndEvent
+;Event OnEffectFinish(Actor akTarget, Actor akCaster)
+;    _finished = true
+;    if UDmain.TraceAllowed() && loc_isplayer
+;        UDmain.Log("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - OnEffectFinish()",1)
+;    endif
+;    if loc_isplayer
+;        UD_PlayerSlot.CleanOrgasmUpdate()
+;    endif
+;EndEvent
 
 ;function called on game reload (only works for player)
-Function Update()
-    loc_isplayer = UDmain.ActorIsPlayer(akActor)
-    UDmain.Log("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - Update() - ActorIsPlayer: " + loc_isplayer,3)
-EndFunction
+;Function Update()
+;    loc_isplayer = UD_Native.IsPlayer(akActor)
+;    UDmain.Log("UD_OrchamsCheckScript_AME("+GetActorName(akActor)+") - Update() - UD_Native.IsPlayer: " + loc_isplayer,3)
+;EndFunction
 
-Event OnUpdate()
-    if loc_isplayer && IsRunning()
-        if UDmain.UDReady()
-            UD_PlayerSlot.UpdateOrgasm(UDmain.UDCONF.UD_OrgasmUpdateTime)
-            RegisterForSingleUpdate(UDmain.UDCONF.UD_OrgasmUpdateTime)
-        else
-            RegisterForSingleUpdate(2.0)
-        endif
-    endif
-EndEvent
+;Event OnUpdate()
+;    if loc_isplayer && IsRunning()
+;        if UDmain.UDReady()
+;            UD_PlayerSlot.UpdateOrgasm(UDmain.UDCONF.UD_OrgasmUpdateTime)
+;            RegisterForSingleUpdate(UDmain.UDCONF.UD_OrgasmUpdateTime)
+;        else
+;            RegisterForSingleUpdate(2.0)
+;        endif
+;    endif
+;EndEvent
 
-bool Function IsRunning()
-    return !_finished
-EndFunction
-
-Event OnPlayerLoadGame()
-    Update()
-EndEvent
+;bool Function IsRunning()
+;    return !_finished
+;EndFunction
+;
+;Event OnPlayerLoadGame()
+;    Update()
+;EndEvent

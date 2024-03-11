@@ -1,4 +1,4 @@
-Scriptname UD_WidgetStatusEffect_RefAlias extends UD_WidgetBase_RefAlias  
+Scriptname UD_WidgetStatusEffect_RefAlias extends UD_WidgetBase_RefAlias
 
 Int     Property    Cluster       = -1    Auto Hidden
 Int     Property    Variant       = 0     Auto Hidden    

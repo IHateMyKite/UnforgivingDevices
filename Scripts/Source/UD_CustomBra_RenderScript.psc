@@ -1,5 +1,7 @@
 Scriptname UD_CustomBra_RenderScript extends UD_CustomDevice_RenderScript  
 
+import UD_Native
+
 Function InitPost()
     UD_DeviceType = "Chastity bra"
     UD_ActiveEffectName = "Activate Nipple Piercings"
@@ -32,7 +34,7 @@ Function activateDevice()
     int loc_num = UDCDmain.getNumberOfActivableDevicesWithKeyword(getWearer(),false,libs.zad_DeviousPiercingsNipple)
     if loc_num > 0
         UD_CustomDevice_RenderScript[] loc_piercings_arr = UDCDmain.getAllActivableDevicesByKeyword(getWearer(),false,libs.zad_DeviousPiercingsNipple)
-        UD_CustomDevice_RenderScript loc_piercings = loc_piercings_arr[Utility.randomInt(0,loc_piercings_arr.length - 1)]
+        UD_CustomDevice_RenderScript loc_piercings = loc_piercings_arr[RandomInt(0,loc_piercings_arr.length - 1)]
 
         if (loc_piercings as UD_CustomVibratorBase_RenderScript)
             UD_CustomVibratorBase_RenderScript loc_vibrator = loc_piercings as UD_CustomVibratorBase_RenderScript

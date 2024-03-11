@@ -1,6 +1,7 @@
 Scriptname UD_CustomChargPlug_RenderScript extends UD_CustomPlug_RenderScript  
 
 import UnforgivingDevicesMain
+import UD_Native
 
 Int     Property UD_MaxStrength             = 100       auto
 Int     Property UD_MaxDuration             = 90        auto
@@ -17,7 +18,10 @@ Function InitPost()
     parent.InitPost()
     UD_DeviceType = "Chargable Plug"
     if !hasModifier("DOR")
-        addModifier("DOR")
+        UD_Modifier loc_dor = UDmain.UDMOM.GetModifier("DOR")
+        if loc_dor
+        AddModifier(loc_dor)
+        endif
     endif
     _BaseCooldown = UD_Cooldown
 EndFunction

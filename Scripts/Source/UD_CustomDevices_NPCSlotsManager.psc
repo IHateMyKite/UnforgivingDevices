@@ -1,6 +1,7 @@
 Scriptname UD_CustomDevices_NPCSlotsManager extends Quest
 
 import UnforgivingDevicesMain
+import UD_Native
 
 String Property SLOTSNAME = "Error" auto
 
@@ -33,7 +34,6 @@ Bool                         _PlayerSlotReady               = false
 Float                        _LastUpdateTime                = 0.0
 Float                        _UpdateTimePassed              = 0.0
 Float                        _UpdateTimePassed2             = 0.0
-float                        LastUpdateTime_Hour            = 0.0 ;last time the update happened in days
 Form[]                       _ScanInCompatibilityFactions
 
 ;Static slots used by quests
@@ -138,10 +138,12 @@ Event OnInit()
         Utility.WaitMenuMode(0.05)
     endwhile
     registerForSingleUpdate(10.0)
+    UD_Native.RegisterSlotQuest(self as Quest)
     Ready = True
 EndEvent
 
 Function GameUpdate()
+    UD_Native.RegisterSlotQuest(self as Quest)
     ; === Manager only ===
     if IsManager()
         ; === Check player slot ===
@@ -163,7 +165,6 @@ Function GameUpdate()
     endif
     UD_Slots = GetNumAliases()
     SlotGameUpdate()
-    CheckOrgasmLoops()
     RegisterForSingleUpdate(10.0)
     registerForSingleUpdateGameTime(1.0)
 EndFunction
@@ -175,14 +176,6 @@ Function SlotGameUpdate()
         loc_slot.GameUpdate()
         index += 1
     endwhile
-EndFunction
-
-Function CheckOrgasmLoops()
-    if IsManager()
-        UD_CustomDevice_NPCSlot loc_slot = GetPlayerSlot()
-        UDOM.CheckArousalCheck(loc_slot.getActor())
-        UDOM.CheckOrgasmCheck(loc_slot.getActor())
-    endif
 EndFunction
 
 Event OnUpdate()
@@ -202,14 +195,12 @@ Event OnUpdate()
                 if IsManager() && UDmain.AllowNPCSupport
                     scanSlots()
                 endif
-                UndressSlots()
                 _UpdateTimePassed2 = 0.0
             endif
         endif
         removeDeadNPCs()
         _UpdateTimePassed += UDCDmain.UD_UpdateTime
         if _UpdateTimePassed >= UD_HeavySlotUpdateTime
-            CheckOrgasmLoops()
             UpdateSlots() ;update slots, this only update variables, not devices
             _UpdateTimePassed = 0.0
         endif
@@ -220,12 +211,9 @@ EndEvent
 Event OnUpdateGameTime()
     if UDmain.UDReady()
         if !UDmain.UD_DisableUpdate
-            Utility.wait(Utility.randomFloat(2.0,4.0))
-            float currentgametime = Utility.GetCurrentGameTime()
-            float mult = 24.0*(currentgametime - LastUpdateTime_Hour) ;multiplier for how much more then 1 hour have passed, ex: for 2.5 hours passed without update, the mult will be 2.5
-            UpdateSlotsHour(mult)
-            UpdateDevicesHour(mult)
-            LastUpdateTime_Hour = Utility.GetCurrentGameTime()
+            Utility.wait(randomFloat(2.0,4.0))
+            UpdateSlotsHour()
+            UpdateDevicesHour()
         endif
     endif
     registerForSingleUpdateGameTime(1.0)
@@ -237,23 +225,6 @@ Function UpdateSlots()
         index -= 1
         UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
         UpdateSlot(loc_slot)
-    endwhile
-EndFunction
-
-Function UndressSlots()
-    Bool loc_NPC        = UDmain.UDGV.UDG_UndressNPC.Value
-    Bool loc_Follower   = UDmain.UDGV.UDG_UndressFollower.Value
-    int index = UD_Slots ;all aliases
-    while index
-        index -= 1
-        UD_CustomDevice_NPCSlot loc_slot    = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
-        Actor                   loc_actor   = none
-        if loc_slot
-            loc_actor = loc_slot.GetActor()
-            if loc_actor && loc_actor.Is3DLoaded() && !loc_slot.hasFreeHands() && !UDmain.ActorIsPlayer(loc_actor) && ((loc_Follower && UDmain.ActorIsFollower(loc_actor)) || (loc_NPC && !UDmain.ActorIsFollower(loc_actor)))
-                UDCDmain.UndressAllArmor(loc_actor)
-            endif
-        endif
     endwhile
 EndFunction
 
@@ -310,9 +281,7 @@ EndFunction
 Function initPlayerSlot()
     if IsManager()
         getPlayerSlot().ForceRefTo(UDmain.Player)
-        UDOM.CheckOrgasmCheck(UDmain.Player)
-        UDOM.CheckArousalCheck(UDmain.Player)
-        if UDmain.TraceAllowed()    
+        if UDmain.TraceAllowed()
             UDmain.Log("PlayerSlot ready!")
         endif
     endif
@@ -566,25 +535,25 @@ Function UpdateSlotDevices(UD_CustomDevice_NPCSlot akSlot, Float afTimePassed)
     endif
 EndFunction
 
-Function UpdateDevicesHour(float fMult)
+Function UpdateDevicesHour()
     int index = UD_Slots
     while index
         index -= 1
         UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
         if loc_slot.isScriptRunning() && loc_slot.isUsed() && loc_slot.canUpdate()
-            loc_slot.updateDeviceHour(fMult)
+            loc_slot.updateDeviceHour()
         endif
         Utility.waitMenuMode(0.1)
     endwhile
 EndFunction
 
-Function UpdateSlotsHour(float fMult)
+Function UpdateSlotsHour()
     int index = UD_Slots
     while index
         index -= 1
         UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
         if loc_slot.isUsed()
-            loc_slot.updateHour(fMult)
+            loc_slot.updateHour()
         endif
         Utility.waitMenuMode(0.1)
     endwhile

@@ -1,6 +1,7 @@
 Scriptname UD_SkillManager_Script Extends Quest
 
 import UnforgivingDevicesMain
+import UD_Native
 
 UnforgivingDevicesMain Property UDmain auto
 UDCustomDeviceMain Property UDCDmain hidden
@@ -125,19 +126,6 @@ int Function GetPerkSkill(Actor akActor, Formlist akPerkList, int aiSkillPerPerk
         UDmain.Error("GetPerkSkill("+getActorName(akActor)+") - akPerkList is none")
         return 0
     endif
-    if UDmain.UD_UseNativeFunctions
-        Int loc_res = UD_Native.CalculateSkillFromPerks(akActor,akPerkList,aiSkillPerPerk)
-        return loc_res
-    else
-        int loc_size = akPerkList.getSize()
-        int loc_res = 0
-        while loc_size
-            loc_size -= 1
-            Perk loc_perk = akPerkList.GetAt(loc_size) as Perk
-            if akActor.hasperk(loc_perk)
-                loc_res += aiSkillPerPerk
-            endif
-        endwhile
-        return loc_res
-    endif
+    Int loc_res = UD_Native.CalculateSkillFromPerks(akActor,akPerkList,aiSkillPerPerk)
+    return loc_res
 EndFunction
