@@ -5675,12 +5675,15 @@ Function _lockpickDevice()
             
             float loc_elapsedTime   = 0.0
             float loc_maxtime       = 0.0
+            bool  loc_broken        = false
             if UDCDMain.UD_LockpickMinigameDuration > 0
                 loc_maxtime = (UDCDMain.UD_LockpickMinigameDuration as Float) - fRange((loc_difficulty/100.0)*0.5,0.0,1.75)*UDCDMain.UD_LockpickMinigameDuration
                 bool loc_msgshown = false
-                while (!UDCDmain.LockpickMinigameOver) && loc_elapsedTime <= loc_maxtime
+                while (!UDCDmain.LockpickMinigameOver) && loc_elapsedTime <= loc_maxtime && !loc_broken
                     Utility.WaitMenuMode(0.1)
-                    loc_elapsedTime += 0.1
+                    if !UD_Native.GetLockpickVariable(9)
+                        loc_elapsedTime += 0.1
+                    endif
                     
                     if !loc_msgshown && loc_elapsedTime > loc_maxtime*0.75 ;only 25% time left, warn player
                         if RandomInt(0,1)
@@ -5689,6 +5692,11 @@ Function _lockpickDevice()
                             UDmain.Print("Your hands are starting to tremble")
                         endif
                         loc_msgshown = true
+                    endif
+                    
+                    Int loc_destroyed = Round(UD_Native.GetLockpickVariable(8))
+                    if (loc_destroyed >= UDCDmain.UD_LockpicksPerMinigame)
+                        loc_broken = true
                     endif
                 endwhile
             endif
@@ -5704,6 +5712,12 @@ Function _lockpickDevice()
                     UDmain.Print("You lost focus and broke the lockpick!")
                     loc_result = 2
                     getWearer().removeItem(UDCDmain.Lockpick,1)
+                elseif loc_broken
+                    if UDmain.IsLockpickingMenuOpen()
+                        closeLockpickMenu()
+                    endif
+                    UDmain.Print("You broke all the lockpicks you had in hand!")
+                    loc_result = 2
                 endif
             endif
             

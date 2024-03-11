@@ -462,6 +462,8 @@ Function fix()
             getActor().SetDontMove(False)
         endif
         
+        getActor().SheatheWeapon()
+        
         getActor().SetAnimationVariableInt("FNIS_abc_h2h_LocomotionPose", 0)
         
         UDmain.UDAM.StopAnimation(getActor(), none, abEnableActors = True)

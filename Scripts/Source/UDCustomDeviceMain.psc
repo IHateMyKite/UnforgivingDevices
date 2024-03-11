@@ -2011,20 +2011,6 @@ Function startLockpickMinigame()
     
     _ApplyLockpickSkillMult(UDmain.Player)
     
-    lockpicknum = UDmain.Player.GetItemCount(Lockpick)
-    
-    if lockpicknum >= UD_LockpicksPerMinigame
-        usedLockpicks = UD_LockpicksPerMinigame
-    else
-        usedLockpicks = lockpicknum
-    endif
-    
-    UDmain.Player.RemoveItem(Lockpick, lockpicknum - usedLockpicks, True)
-    
-    if UDmain.TraceAllowed()
-        UDmain.Log("Lockpick minigame opened, lockpicks before: "+lockpicknum+" ;lockpicks taken: " + (lockpicknum - usedLockpicks) + " ;Lockpicks to use: "+ usedLockpicks,1)
-    endif
-    
     RegisterForMenu("Lockpicking Menu")
     
     _LockPickContainer.activate(UDmain.Player)
@@ -2036,23 +2022,18 @@ int  Property LockpickMinigameResult    = 0     auto hidden
 Event OnMenuClose(String MenuName)
     UD_Native.ToggleDetection(true)
     
-    int remainingLockpicks = UDmain.Player.GetItemCount(Lockpick)
-    
-    if remainingLockpicks > 0
+    Int loc_destroyed = Round(UD_Native.GetLockpickVariable(8))
+    if (loc_destroyed < UD_LockpicksPerMinigame)
         if !_LockPickContainer.IsLocked()
             LockpickMinigameResult = 1 ;player succesfully finished minigame
-        elseif remainingLockpicks == usedLockpicks
+        elseif loc_destroyed == 0
             LockpickMinigameResult = 0 ;player exited minigame before trying to pick the lock
         else
-            LockpickMinigameResult = 2 ;player aborted mnigame after breaking at least one lockpick
+            LockpickMinigameResult = 2 ;player aborted minigame after breaking at least one lockpick
         endif
     else
         LockpickMinigameResult = 2 ;player tried to lockpick the device but failed (all lockpicks broke)
     endif
-    if UDmain.TraceAllowed()
-        UDmain.Log("Lockpick minigame closed, lockpicks returned: " + (lockpicknum - usedLockpicks) + " ; Result: " + LockpickMinigameResult,1)
-    endif
-    UDmain.Player.AddItem(Lockpick, lockpicknum - usedLockpicks, True)
     
     _RemoveLockpickSkillMult(UDmain.Player)
     

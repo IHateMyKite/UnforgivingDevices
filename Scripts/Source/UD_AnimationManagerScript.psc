@@ -528,8 +528,8 @@ Function LockAnimatingActor(Actor akActor, Bool abDisableActor = True)
         akActor.SheatheWeapon()
         ; Wait for users with flourish sheathe animations.
         int timeout=0
-        while akActor.IsWeaponDrawn() && timeout <= 70 ;  Wait 3.5 seconds at most before giving up and proceeding.
-            Utility.Wait(0.05)
+        while akActor.IsWeaponDrawn() && timeout <= 15 ;  Wait 3.0 seconds at most before giving up and proceeding.
+            Utility.Wait(0.2)
             timeout += 1
         EndWhile
     EndIf

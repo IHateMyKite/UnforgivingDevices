@@ -118,3 +118,7 @@ Bool Function IsLeather (Armor akArmor) global native
 
 ; ===Diagnosis===
 Int Function CheckPatchedDevices() global native
+
+; ===Lockpick===
+Float   Function GetLockpickVariable(Int aiVariable) global native
+Bool    Function SetLockpickVariable(Int aiVariable, Float afValue)  global native
