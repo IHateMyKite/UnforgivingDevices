@@ -1505,6 +1505,15 @@ bool Function PlayerInMinigame()
     return (WearerIsPlayer() || HelperIsPlayer()) && _MinigameON
 EndFunction
 
+;/  Function: PlayerIsPresent
+    Returns:
+
+        true if player is either wearer or helper
+/;
+bool Function PlayerIsPresent()
+    return (WearerIsPlayer() || HelperIsPlayer())
+EndFunction
+
 ;/  Function: haveHelper
     Returns:
 
@@ -4185,7 +4194,7 @@ EndFunction
         asIconName      - Icon
 /;
 Function setMainWidgetAppearance(Int aiColor1, Int aiColor2 = -1, Int aiFlashColor = -1, String asIconName = "")
-    if (WearerIsPlayer() || HelperIsPlayer())
+    if PlayerIsPresent()
         UDmain.UDWC.Meter_SetColor("device-main", aiColor1, aiColor2, aiFlashColor)
         If asIconName != ""
             UDMain.UDWC.Meter_SetIcon("device-main", asIconName)
@@ -4203,7 +4212,7 @@ EndFunction
         aiFlashColor    - Flash color
 /;
 Function setSecWidgetAppearance(Int aiColor1, Int aiColor2 = -1, Int aiFlashColor = -1, String asIconName = "")
-    if (WearerIsPlayer() || HelperIsPlayer())
+    if PlayerIsPresent()
         UDmain.UDWC.Meter_SetColor("device-condition", aiColor1, aiColor2, aiFlashColor)
         If asIconName != ""
             UDMain.UDWC.Meter_SetIcon("device-condition", asIconName)
@@ -4837,7 +4846,7 @@ bool Function lockpickMinigame(Bool abSilent = False)
     
     ;lock can't be used in lockpick minigame, return
     if !loc_cond
-        if WearerIsPlayer() || HelperIsPlayer()
+        if PlayerIsPresent()
             UDmain.Print("You can't lockpick "+UD_LockNameList[loc_SelectedLock]+"!")
         endif
         return false
@@ -4900,7 +4909,7 @@ bool Function repairLocksMinigame(Bool abSilent = False)
     
     ;lock can't be used in lockpick minigame, return
     if !loc_cond
-        if WearerIsPlayer() || HelperIsPlayer()
+        if PlayerIsPresent()
             UDmain.Print("You can't repair "+UD_LockNameList[loc_SelectedLock]+"!")
         endif
         return false
@@ -5025,7 +5034,7 @@ bool Function keyMinigame(Bool abSilent = False)
     
     ;lock can't be used in lockpick minigame, return
     if !loc_cond
-        if WearerIsPlayer() || HelperIsPlayer()
+        if PlayerIsPresent()
             UDmain.Print("You can't unlock "+UD_LockNameList[loc_SelectedLock]+"!")
         endif
         return false
@@ -5222,7 +5231,7 @@ bool Function lockpickMinigameWH(Actor akHelper)
     endif
     
     Int loc_SelectedLock = 0
-    if WearerIsPlayer() || HelperIsPlayer()
+    if PlayerIsPresent()
         loc_SelectedLock = UserSelectLock()
     else
         loc_SelectedLock = SelectBestMinigameLock(0)
@@ -5238,7 +5247,7 @@ bool Function lockpickMinigameWH(Actor akHelper)
     
     ;lock can't be used in lockpick minigame, return
     if !loc_cond
-        if WearerIsPlayer() || HelperIsPlayer()
+        if PlayerIsPresent()
             UDmain.Print("You can't lockpick "+UD_LockNameList[loc_SelectedLock]+"!")
         endif
         return false
@@ -5294,7 +5303,7 @@ bool Function repairLocksMinigameWH(Actor akHelper)
     endif
     
     Int loc_SelectedLock = 0
-    if WearerIsPlayer() || HelperIsPlayer()
+    if PlayerIsPresent()
         loc_SelectedLock = UserSelectLock()
     else
         loc_SelectedLock = SelectBestMinigameLock(2)
@@ -5310,7 +5319,7 @@ bool Function repairLocksMinigameWH(Actor akHelper)
     
     ;lock can't be used in lockpick minigame, return
     if !loc_cond
-        if WearerIsPlayer() || HelperIsPlayer()
+        if PlayerIsPresent()
             UDmain.Print("You can't repair "+UD_LockNameList[loc_SelectedLock]+"!")
         endif
         return false
@@ -5442,7 +5451,7 @@ bool Function keyMinigameWH(Actor akHelper)
     endif
     
     Int loc_SelectedLock = 0
-    if WearerIsPlayer() || HelperIsPlayer()
+    if PlayerIsPresent()
         loc_SelectedLock = UserSelectLock()
     else
         loc_SelectedLock = SelectBestMinigameLock(1)
@@ -5458,7 +5467,7 @@ bool Function keyMinigameWH(Actor akHelper)
     
     ;lock can't be used in lockpick minigame, return
     if !loc_cond
-        if WearerIsPlayer() || HelperIsPlayer()
+        if PlayerIsPresent()
             UDmain.Print("You can't unlock "+UD_LockNameList[loc_SelectedLock]+"!")
         endif
         return false
@@ -5898,7 +5907,7 @@ Function _keyUnlockDevice()
             endif
             
             ;select next lock
-            if (WearerIsPlayer() || HelperIsPlayer()) && !(UD_CurrentLocks == 0 && UD_JammedLocks == 0)
+            if PlayerIsPresent() && !(UD_CurrentLocks == 0 && UD_JammedLocks == 0)
                 Int loc_SelectedLock = 0
                 Bool loc_cond = False
                 while !loc_cond
@@ -7334,7 +7343,7 @@ EndFunction
 
 ;biggest pain in the ass. 
 Function showHUDbars(bool abFlashCall = True)
-    bool actorOK    = (WearerIsPlayer() || HelperIsPlayer()) 
+    bool actorOK    = PlayerIsPresent()
     bool stamina    = actorOK && (UD_minigame_stamina_drain == 0.0 && UD_minigame_stamina_drain_helper  == 0.0)
     bool health     = actorOK && (UD_minigame_heal_drain    == 0.0 && UD_minigame_heal_drain_helper     == 0.0)
     bool magicka    = actorOK && (UD_minigame_magicka_drain == 0.0 && UD_minigame_magicka_drain_helper  == 0.0)
@@ -7353,7 +7362,7 @@ endFunction
 ;checks if Wearer have stats to start struggling
 bool Function checkMinAV(Actor akActor)
     if !checkMaxExhaustion(akActor)
-        if WearerIsPlayer() || HelperIsPlayer()
+        if PlayerIsPresent()
             UDmain.Warning("checkMinAV("+GetActorName(akActor)+") - Actor cant struggle because of exhaustions")
         endif
         return False
@@ -7363,7 +7372,7 @@ bool Function checkMinAV(Actor akActor)
     Float loc_magickahmin = _minMinigameStatMP
     if loc_staminamin > 0.0
         if (getCurrentActorValuePerc(akActor,"Stamina") < loc_staminamin)
-            if WearerIsPlayer() || HelperIsPlayer()
+            if PlayerIsPresent()
                 UDmain.Warning("checkMinAV("+GetActorName(akActor)+") - Actor cant struggle because they have no stamina. Min="+loc_staminamin)
             endif
             return False
@@ -7371,7 +7380,7 @@ bool Function checkMinAV(Actor akActor)
     endif
     if loc_healthmin > 0.0
         if (getCurrentActorValuePerc(akActor,"Health") < loc_healthmin)
-            if WearerIsPlayer() || HelperIsPlayer()
+            if PlayerIsPresent()
                 UDmain.Warning("checkMinAV("+GetActorName(akActor)+") - Actor cant struggle because they have no health. Min="+loc_healthmin)
             endif
             return False
@@ -7379,7 +7388,7 @@ bool Function checkMinAV(Actor akActor)
     endif
     if loc_magickahmin > 0.0
         if (getCurrentActorValuePerc(akActor,"magicka") < loc_magickahmin)
-            if WearerIsPlayer() || HelperIsPlayer()
+            if PlayerIsPresent()
                 UDmain.Warning("checkMinAV("+GetActorName(akActor)+") - Actor cant struggle because they have no magicka. Min="+loc_magickahmin)
             endif
             return False
