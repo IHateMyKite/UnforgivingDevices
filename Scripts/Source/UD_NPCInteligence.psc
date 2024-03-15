@@ -88,6 +88,7 @@ Bool Function SlotAIEnabled(UD_CustomDevice_NPCSlot akSlot)
     loc_cond = loc_cond && !loc_actor.IsInCombat()                          ;actor is not in combat
     loc_cond = loc_cond && !akSlot.isInMinigame()                           ;actor is not in minigame
     loc_cond = loc_cond && !loc_actor.IsInFaction(UD_AIDisableFaction)      ;actor have no AI disabled
+    loc_cond = loc_cond && !UDmain.UDCDMain.IsFollowingPlayer(loc_actor)    ;actor is not following player
     loc_cond = loc_cond && EvaluateAICooldown(loc_actor)                    ;actor have passed cooldown
     loc_cond = loc_cond && !akSlot.HaveLockingOperations()                  ;actor have no locking operations
     loc_cond = loc_cond && EvaluateAIStats(loc_actor)                       ;actor have minimum stats

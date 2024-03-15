@@ -1471,9 +1471,23 @@ Function OpenHelpDeviceMenu(UD_CustomDevice_RenderScript akDevice,Actor akHelper
             ;loc_arrcontrol[06] = true
             ;loc_arrcontrol[07] = true
         endif
+        
+        if IsPlayer(akHelper)
+            SetPlayerFollower(akDevice.getWearer(),true,1)
+            Utility.wait(1.0)
+        elseif IsPlayer(akDevice.getWearer())
+            SetPlayerFollower(akHelper,true,1)
+            Utility.wait(1.0)
+        endif
 
         loc_arrcontrol[14] = !abAllowCommand
         akDevice.deviceMenuWH(akHelper,loc_arrcontrol)
+        
+        if IsPlayer(akHelper)
+            SetPlayerFollower(akDevice.getWearer(),false,1)
+        elseif IsPlayer(akDevice.getWearer())
+            SetPlayerFollower(akHelper,false,1)
+        endif
     endif
 EndFunction
 
@@ -3399,4 +3413,64 @@ int Function ManifestDevices(Actor akActor,string asSource ,int aiChance,int aiN
     else
         return 0
     endif
+EndFunction
+
+ReferenceAlias property UD_PlayerFollowerLongAlias1 auto
+ReferenceAlias property UD_PlayerFollowerLongAlias2 auto
+Actor _playerfollower1 = none
+Actor _playerfollower2 = none
+
+;/  Function: SetPlayerFollower
+
+    Forces NPC to followe player. This also stops any packages/idles
+    Copied from ORomance
+    
+    Parameters:
+
+        akActor         - Actor which will follow player
+        abFollow        - If actor should start or stop following player
+        aiAliasIndex    - Which slot to use. By default there are 2 slots, so player can have 2 following actors at once. Valid values are 1 and 2
+/;
+function SetPlayerFollower(actor akActor, bool abFollow, int aiAliasIndex = 1) ; follower in literal sense, not combat ally
+    if IsPlayer(akActor)
+        return
+    endif
+
+    ReferenceAlias loc_alias
+    if aiAliasIndex == 1
+        loc_alias = UD_PlayerFollowerLongAlias1
+    elseif aiAliasIndex == 2
+        loc_alias = UD_PlayerFollowerLongAlias2
+    endif 
+
+    if abFollow
+        loc_alias.ForceRefTo(akActor)
+        if aiAliasIndex == 1
+            _playerfollower1 = akActor
+        elseif aiAliasIndex == 2
+            _playerfollower2 = akActor
+        endif
+    Else
+        loc_alias.clear()
+        if aiAliasIndex == 1
+            _playerfollower1 = none
+        elseif aiAliasIndex == 2
+            _playerfollower2 = none
+        endif 
+    endif
+
+    akActor.EvaluatePackage()
+EndFunction
+
+;/  Function: IsFollowingPlayer
+
+    Parameters:
+
+        akActor         - Actor to check
+        
+    Returns:
+        True if actor is following player
+/;
+Bool Function IsFollowingPlayer(Actor akActor)
+    return akActor && ((akActor == _playerfollower1) || (akActor == _playerfollower2))
 EndFunction
