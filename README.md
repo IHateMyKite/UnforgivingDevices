@@ -33,16 +33,16 @@ Link: https://github.com/IHateMyKite/UnforgivingDevices/releases/tag/NB
 Only sources are required for the UD to compile correctly. If mod is required, it means that mod is allways required for mod to work correctly, otherwise the mod is optional. You still need sources of all mods, required and optional. In case there is still error when compiling scripts, it mostly means that you don't have some optional mods for DD installed. In that case, I advice you to use following tutorial (https://github.com/IHateMyKite/UnforgivingDevices/wiki/Developer-Guide#notepad) to compile scripts without needing to install the optional mods.
 
 
-| **Name**                     | **Required to play?** | **LE**                                                                                                    | **SE**                                                                                                                                                          |
-|------------------------------|-----------------------|-----------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| SexLab                       | Yes                   | https://www.loverslab.com/files/file/150-skyrim-sexlab-sex-animation-framework-v162-updated-jun-3rd-2016/ | https://www.loverslab.com/files/file/20058-sexlab-se-sex-animation-framework-v165-110822/                                                                       |
-| SexLab Arousal               | Yes                   | https://www.loverslab.com/files/file/1421-sexlab-aroused-redux-december-05-2016/                          | https://www.loverslab.com/files/file/5482-sexlab-aroused-redux-sse-version-29/ or https://www.loverslab.com/files/file/20867-osl-aroused-arousal-reborn-sse-ae/ |
-| Devious Devices (lates beta) | Yes                   | https://www.loverslab.com/topic/69936-devious-devices-framework-developmentbeta                           | https://www.loverslab.com/topic/69936-devious-devices-framework-developmentbeta                                                                                 |
-| ConsoleUtil                  | Yes                   | https://www.nexusmods.com/skyrim/mods/66257                                                               | https://www.nexusmods.com/skyrimspecialedition/mods/24858                                                                                                       |
-| SkyUi SDK                    | Yes                   | https://github.com/schlangster/skyui/wiki#skyui-sdk                                                       | https://github.com/schlangster/skyui/wiki#skyui-sdk                                                                                                             |
-| UI Extensions                | Yes                   | https://www.nexusmods.com/skyrim/mods/57046                                                               | https://www.nexusmods.com/skyrimspecialedition/mods/17561                                                                                                       |
-| IWantWidget                  | No                    | X                                                                                                         | https://www.nexusmods.com/skyrimspecialedition/mods/36457                                                                                                       |
-| PO3 Papyrus Extender         | No                    | X                                                                                                         | https://www.nexusmods.com/skyrimspecialedition/mods/22854                                                                                                       |
+| **Name**                     | **Required to play?** | **Download link**                                                                         |
+|------------------------------|-----------------------|-------------------------------------------------------------------------------------------|
+| SexLab                       | Yes                   | https://www.loverslab.com/files/file/20058-sexlab-se-sex-animation-framework-v165-110822/ |
+| OSL Aroused (2.5+)           | Yes                   | https://www.nexusmods.com/skyrimspecialedition/mods/65454                                 |
+| Devious Devices (lates beta) | Yes                   | https://www.loverslab.com/topic/69936-devious-devices-framework-developmentbeta           |
+| ConsoleUtil                  | Yes                   | https://www.nexusmods.com/skyrimspecialedition/mods/24858                                 |
+| SkyUi SDK                    | Yes                   | https://github.com/schlangster/skyui/wiki#skyui-sdk                                       |
+| UI Extensions                | Yes                   | https://www.nexusmods.com/skyrimspecialedition/mods/17561                                 |
+| IWantWidget                  | No                    | https://www.nexusmods.com/skyrimspecialedition/mods/36457                                 |
+| PO3 Papyrus Extender         | No                    | https://www.nexusmods.com/skyrimspecialedition/mods/22854                                 |
 
 # Related repositories
 
@@ -50,9 +50,7 @@ Only sources are required for the UD to compile correctly. If mod is required, i
 |---------------------|-------------|--------------------------------------------------|
 | FOMOD               | IHateMyKite | https://github.com/IHateMyKite/UnforgivingDevices_FOMOD|
 | Native              | IHateMyKite | https://github.com/IHateMyKite/UnforgivingDevicesNative|
-| Forked OSLAroused   | IHateMyKite | https://github.com/IHateMyKite/OSLAroused        |
-| Animation Pack [LE] | iiw2012     | https://github.com/iiw2012/UDAnimationsLE        |
-| Animation Pack [SE] | iiw2012     | https://github.com/iiw2012/UDAnimationsSE        |
+| Animation Pack      | iiw2012     | https://github.com/iiw2012/UDAnimationsSE        |
 | Unforgiving Skyrim  | kurotatsu77 | https://github.com/kurotatsu77/UnforgivingSkyrim |
 
 # Compiling scripts
