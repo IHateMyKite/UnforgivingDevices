@@ -48,6 +48,14 @@ jobs:
           ls
           ls FOMOD
         
+      - name: Ready Native
+        run: |
+          cd ..
+          git clone https://github.com/IHateMyKite/UnforgivingDevicesNative NATIVE
+          (robocopy "NATIVE/SKSE" "FOMOD/1b.Native" /E /XD DELIVERY PAPYRUS .github .git /XF .gitattributes .gitignore CODE_OF_CONDUCT.md) ; if ($lastexitcode -lt 8) { $global:LASTEXITCODE = $null }
+          ls
+          ls NATIVE
+        
       - name: Zip files
         uses: thedoctor0/zip-release@0.7.1
         with:
