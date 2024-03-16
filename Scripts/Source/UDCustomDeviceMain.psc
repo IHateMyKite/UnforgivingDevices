@@ -1474,10 +1474,8 @@ Function OpenHelpDeviceMenu(UD_CustomDevice_RenderScript akDevice,Actor akHelper
         
         if IsPlayer(akHelper)
             SetPlayerFollower(akDevice.getWearer(),true,1)
-            Utility.wait(1.0)
         elseif IsPlayer(akDevice.getWearer())
             SetPlayerFollower(akHelper,true,1)
-            Utility.wait(1.0)
         endif
 
         loc_arrcontrol[14] = !abAllowCommand
