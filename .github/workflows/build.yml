@@ -52,7 +52,7 @@ jobs:
         run: |
           cd ..
           git clone https://github.com/IHateMyKite/UnforgivingDevicesNative NATIVE
-          (robocopy "NATIVE/SKSE" "FOMOD/1b.Native" /E /XD DELIVERY PAPYRUS .github .git /XF .gitattributes .gitignore CODE_OF_CONDUCT.md) ; if ($lastexitcode -lt 8) { $global:LASTEXITCODE = $null }
+          (robocopy "NATIVE/SKSE" "FOMOD/1b.Native/SKSE" /E /XD DELIVERY PAPYRUS .github .git /XF .gitattributes .gitignore CODE_OF_CONDUCT.md) ; if ($lastexitcode -lt 8) { $global:LASTEXITCODE = $null }
           ls
           ls NATIVE
           
