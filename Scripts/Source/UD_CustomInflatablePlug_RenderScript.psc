@@ -191,7 +191,9 @@ bool Function inflateMinigame()
     if minigamePostcheck()
         setMinigameMult(1,mult)
         inflateMinigame_on = True
+        UD_Events.SendEvent_DeviceMinigameBegin(self,"IflatablePlug_Inflate")
         minigame()
+        UD_Events.SendEvent_DeviceMinigameEnd(self,"IflatablePlug_Inflate")
         inflateMinigame_on = False
         return true
     else
@@ -227,7 +229,9 @@ bool Function deflateMinigame()
     
     if minigamePostcheck()
         deflateMinigame_on = True
+        UD_Events.SendEvent_DeviceMinigameBegin(self,"IflatablePlug_Deflate")
         minigame()
+        UD_Events.SendEvent_DeviceMinigameEnd(self,"IflatablePlug_Deflate")
         deflateMinigame_on = False
         return true
     else

@@ -117,7 +117,9 @@ bool Function removePlugMinigame(Bool abSilent = False)
     
     if minigamePostCheck(abSilent)
         removePlugMinigame_on = True
+        UD_Events.SendEvent_DeviceMinigameBegin(self,"PanelGag_Unplug")
         minigame()
+        UD_Events.SendEvent_DeviceMinigameEnd(self,"PanelGag_Unplug")
         removePlugMinigame_on = False
         return true
     else

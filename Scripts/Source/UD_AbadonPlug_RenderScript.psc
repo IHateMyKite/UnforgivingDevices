@@ -102,7 +102,9 @@ bool Function forceOutAbadonPlugMinigame(Bool abSilent = False)
             UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
         endif
         _forceOutAbadonPlugMinigame_on = True
+        UD_Events.SendEvent_DeviceMinigameBegin(self,"AbadonPlug_ForceOut")
         minigame()
+        UD_Events.SendEvent_DeviceMinigameEnd(self,"AbadonPlug_ForceOut")
         _forceOutAbadonPlugMinigame_on = False
         return true
     endif
@@ -139,7 +141,9 @@ bool Function forceOutAbadonPlugMinigameWH(Actor akHelper, Bool abSilent = False
         endif
         
         _forceOutAbadonPlugMinigame_on = True
+        UD_Events.SendEvent_DeviceMinigameBegin(self,"AbadonPlug_ForceOut")
         minigame()
+        UD_Events.SendEvent_DeviceMinigameEnd(self,"AbadonPlug_ForceOut")
         _forceOutAbadonPlugMinigame_on = False
         setHelper(none)
         return true
