@@ -33,16 +33,18 @@ Link: https://github.com/IHateMyKite/UnforgivingDevices/releases/tag/NB
 Only sources are required for the UD to compile correctly. If mod is required, it means that mod is allways required for mod to work correctly, otherwise the mod is optional. You still need sources of all mods, required and optional. In case there is still error when compiling scripts, it mostly means that you don't have some optional mods for DD installed. In that case, I advice you to use following tutorial (https://github.com/IHateMyKite/UnforgivingDevices/wiki/Developer-Guide#notepad) to compile scripts without needing to install the optional mods.
 
 
-| **Name**                     | **Required to play?** | **Download link**                                                                         |
-|------------------------------|-----------------------|-------------------------------------------------------------------------------------------|
-| SexLab                       | Yes                   | https://www.loverslab.com/files/file/20058-sexlab-se-sex-animation-framework-v165-110822/ |
-| OSL Aroused (2.5+)           | Yes                   | https://www.nexusmods.com/skyrimspecialedition/mods/65454                                 |
-| Devious Devices (lates beta) | Yes                   | https://www.loverslab.com/topic/69936-devious-devices-framework-developmentbeta           |
-| ConsoleUtil                  | Yes                   | https://www.nexusmods.com/skyrimspecialedition/mods/24858                                 |
-| SkyUi SDK                    | Yes                   | https://github.com/schlangster/skyui/wiki#skyui-sdk                                       |
-| UI Extensions                | Yes                   | https://www.nexusmods.com/skyrimspecialedition/mods/17561                                 |
-| IWantWidget                  | No                    | https://www.nexusmods.com/skyrimspecialedition/mods/36457                                 |
-| PO3 Papyrus Extender         | No                    | https://www.nexusmods.com/skyrimspecialedition/mods/22854                                 |
+| **Name**                   | **Required to play?**      | **Download link**                                                                         |
+|----------------------------|----------------------------|-------------------------------------------------------------------------------------------|
+| SexLab                     | Yes                        | https://www.loverslab.com/files/file/20058-sexlab-se-sex-animation-framework-v165-110822/ |
+| OSL Aroused (2.5+)         | Yes                        | https://www.nexusmods.com/skyrimspecialedition/mods/65454                                 |
+| Devious Devices 5.2        | Yes                        | https://www.loverslab.com/topic/69936-devious-devices-framework-developmentbeta           |
+|  Devious Devices NG 0.3.0+ | Yes                        | https://www.loverslab.com/files/file/29779-devious-devices-ng/                            |
+| ConsoleUtil                | Yes                        | https://www.nexusmods.com/skyrimspecialedition/mods/24858                                 |
+| UI Extensions              | Yes                        | https://www.nexusmods.com/skyrimspecialedition/mods/17561                                 |
+| IWantWidget                | No                         | https://www.nexusmods.com/skyrimspecialedition/mods/36457                                 |
+| IWantWidgets NG            | Yes, if using IWantWidgets | https://www.nexusmods.com/skyrimspecialedition/mods/96410                                 |
+| SkyrimSouls                | No                         | https://www.nexusmods.com/skyrimspecialedition/mods/15170                                 |
+| Improved Camera            | No                         | https://www.nexusmods.com/skyrimspecialedition/mods/93962                                 |
 
 # Related repositories
 
