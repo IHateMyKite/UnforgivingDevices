@@ -1720,8 +1720,6 @@ Function _Init(Actor akActor)
     
     _OnInitLevelUpdate()
     
-    ;UDCDmain.CheckHardcoreDisabler(getWearer())
-    
     InitPost()
 
     if UD_Cooldown > 0

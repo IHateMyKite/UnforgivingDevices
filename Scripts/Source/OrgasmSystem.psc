@@ -3,6 +3,7 @@
 Scriptname OrgasmSystem hidden
 
 ;/   About: OrgasmVariable
+     --- Code
      enum OrgasmVariable : uint8_t
      {
          vNone                       =  0,
@@ -28,18 +29,22 @@ Scriptname OrgasmSystem hidden
      
          vLast
      }
+     ---
 /;
 
 ;/   About: OrgasmUpdateType
+     --- Code
      enum OrgasmUpdateType : uint8_t
      {
         mSet                        = 0x1,
         mAdd                        = 0x2,
         mMultiply                   = 0x3,
      }
+     ---
 /;
 
 ;/  About: OrgasmMod
+    --- Code
     enum OrgasmMod : uint32_t
     {
          //default modes
@@ -56,9 +61,11 @@ Scriptname OrgasmSystem hidden
 
          //16-31 = Duration (seconds)
     }
+    ---
 /;
 
 ;/  About: EroZone
+    --- Code
     enum EroZone : uint32_t
     {
         eNone                   = 0x00000000,
@@ -73,6 +80,7 @@ Scriptname OrgasmSystem hidden
         eAnal2                  = 0x00000100,
         eDefault                = 0x00000200    //when you dont care about ero zones
     }
+    ---
 /;
 
 Bool    Function AddOrgasmChange(Actor akActor, String askey, Int aiMod,Int aiEroZones, Float afOrgasmRate = 0.0, Float afOrgasmRateMult = 0.0, Float afOrgasmForcing = 0.0, Float afOrgasmCapacity = 0.0, Float afOrgasmResistence = 0.0, Float afOrgasmResistenceMult = 0.0) global native
