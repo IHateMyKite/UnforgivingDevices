@@ -119,6 +119,15 @@ UD_MutexManagerScript               Property UDMM           auto
 /;
 UD_ModifierManager_Script           Property UDMOM          auto
 
+;/  Variable: UDOTM
+    
+    Meaning: Outfit Manager
+    
+    This module contains functionality for custom outfits
+/;
+UD_OutfitManager                    Property UDOTM          auto
+
+
 ;/  Variable: UDUI
     
     Meaning: User Input

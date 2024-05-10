@@ -18,26 +18,30 @@ EndEvent
 ; boots high heels
 ; boots pony
 
-Function lockAbadonPiercings(Actor akTarget)
+Int Function lockAbadonPiercings(Actor akTarget)
+    Int loc_res = 0
     if !akTarget.wornhaskeyword(libs.zad_DeviousPiercingsVaginal) && UDmain.UDRRM.IsDeviceFiltered(0)
-        libs.LockDevice(akTarget,UDmain.UDlibs.AbadonPiercingVaginal)
+        loc_res += libs.LockDevice(akTarget,UDmain.UDlibs.AbadonPiercingVaginal) as Int
     endif
     if !akTarget.wornhaskeyword(libs.zad_DeviousPiercingsNipple) && UDmain.UDRRM.IsDeviceFiltered(1)
-        libs.LockDevice(akTarget,UDmain.UDlibs.AbadonPiercingNipple)
+        loc_res += libs.LockDevice(akTarget,UDmain.UDlibs.AbadonPiercingNipple) as Int
     endif
+    return loc_res
 EndFunction
 
-Function lockAbadonHelperPlugs(Actor akTarget)
+Int Function lockAbadonHelperPlugs(Actor akTarget)
+    Int loc_res = 0
     if !akTarget.wornhaskeyword(libs.zad_deviousPlugAnal) && !AbadonScript.UseAnalVariant && UDmain.UDRRM.IsDeviceFiltered(3)
         if AbadonScript.IsCompleted() && RandomInt(0,1) ;only equip helper plug if abadon quest was completed
-            libs.lockdevice(akTarget,UDmain.UDlibs.LittleHelper)
+            loc_res += libs.lockdevice(akTarget,UDmain.UDlibs.LittleHelper) as Int
         else
-            libs.lockdevice(akTarget,UDmain.UDlibs.InflatablePlugAnal)
+            loc_res += libs.lockdevice(akTarget,UDmain.UDlibs.InflatablePlugAnal) as Int
         endif
     endif
     if !akTarget.wornhaskeyword(libs.zad_DeviousPlugVaginal) && UDmain.UDRRM.IsDeviceFiltered(2)
-        libs.lockdevice(akTarget,UDmain.UDlibs.InflatablePlugVag)
+        loc_res += libs.lockdevice(akTarget,UDmain.UDlibs.InflatablePlugVag) as Int
     endif
+    return loc_res
 EndFunction
 
 Function equipAbadonLatexSuit(Actor target)
