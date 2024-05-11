@@ -28,6 +28,7 @@ String      Function GetActorName               (Actor akActor)                 
 Int         Function FloatToInt                 (Float afValue)                                                 global native
 Float       Function RandomFloat                (Float afMin = 0.0, Float afMax = 99.99)                        global native
 Int         Function RandomInt                  (Int aiMin = 0, Int aiMax = 99)                                 global native
+Int         Function RandomIdFromDist           (Int[] aiDist)                                                  global native
 Bool        Function PluginInstalled            (string asName)                                                 global native
 Armor       Function CheckArmorEquipped         (Actor akActor, Armor akArmor)                                  global native
             Function ToggleDetection            (Bool a_val)                                                    global native

@@ -1649,7 +1649,7 @@ EndFunction
 
 ;LOCK MUTEX
 bool        Property UD_GlobalDeviceMutex_InventoryScript                   = false     auto hidden
-bool        Property UD_GlobalDeviceMutex_InventoryScript_Failed            = false     auto hidden
+Int         Property UD_GlobalDeviceMutex_InventoryScript_Failed            = 0         auto hidden
 Armor       Property UD_GlobalDeviceMutex_Device                            = none      auto hidden
 
 ;UNLOCK MUTEX
@@ -1664,7 +1664,7 @@ Function ResetMutex_Lock(Armor invDevice)
         UDmain.Log(self+"::ResetMutex_Lock()",2)
     endif
     UD_GlobalDeviceMutex_inventoryScript                = false
-    UD_GlobalDeviceMutex_InventoryScript_Failed         = false
+    UD_GlobalDeviceMutex_InventoryScript_Failed         = 0
     UD_GlobalDeviceMutex_Device                         = invDevice
 EndFunction
 
@@ -1720,7 +1720,7 @@ Function EndLockMutex()
     GoToState("")
     UD_GlobalDeviceMutex_Device = none
     UD_GlobalDeviceMutex_InventoryScript = false
-    UD_GlobalDeviceMutex_InventoryScript_Failed = false
+    UD_GlobalDeviceMutex_InventoryScript_Failed = 0
     _LOCKDEVICE_MUTEX = false
 EndFunction
 
@@ -1777,8 +1777,12 @@ Function ProccesLockMutex()
         endwhile
     endif
     
-    if UD_GlobalDeviceMutex_InventoryScript_Failed || loc_time >= UDmain.UDGV.UD_MutexTimeout
-        UDmain.Error("LockDevicePatched("+GetSlotedNPCName()+","+UD_GlobalDeviceMutex_Device.getName()+") failed!!! ID Fail? " + UD_GlobalDeviceMutex_InventoryScript_Failed)
+    if loc_time >= UDmain.UDGV.UD_MutexTimeout
+        UD_GlobalDeviceMutex_InventoryScript_Failed = 8
+    endif
+    
+    if UD_GlobalDeviceMutex_InventoryScript_Failed
+        UDCDMain.DeviceLockIssueReport(GetActor(),UD_GlobalDeviceMutex_Device,UD_GlobalDeviceMutex_InventoryScript_Failed)
     endif
     
     UD_GlobalDeviceMutex_Device = none

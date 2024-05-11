@@ -1,5 +1,6 @@
 Scriptname UD_OutfitStorage extends Quest
 
+Int Property UD_Priority = 0 Auto
 UnforgivingDevicesMain _udmain
 UnforgivingDevicesMain Property UDmain Hidden
     UnforgivingDevicesMain Function Get()
@@ -11,7 +12,7 @@ UnforgivingDevicesMain Property UDmain Hidden
 EndProperty
 
 Event OnInit()
-    RegisterForSingleUpdate(10.0)
+    RegisterForSingleUpdate(10.0 - UD_Priority*0.02)
 EndEvent
 
 Event OnUpdate()
@@ -24,4 +25,16 @@ EndFunction
 
 UD_Outfit Function GetNthOutfit(Int aiIndex)
     return self.GetNthAlias(aiIndex) as UD_Outfit
+EndFunction
+
+UD_Outfit Function GetOutfitByAlias(String asAlias)
+    int loc_i = 0
+    while loc_i < GetOutfitNum()
+        UD_Outfit loc_outfit = GetNthOutfit(loc_i)
+        if loc_outfit.NameAlias == asAlias
+            return loc_outfit
+        endif
+        loc_i += 1
+    endwhile
+    return none
 EndFunction

@@ -3472,3 +3472,52 @@ EndFunction
 Bool Function IsFollowingPlayer(Actor akActor)
     return akActor && ((akActor == _playerfollower1) || (akActor == _playerfollower2))
 EndFunction
+
+Function DeviceLockIssueReport(Actor akActor,Armor akDevice, Int aiError)
+    
+    Int     loc_severity    = 0
+    String  loc_reason      = ""
+    
+    if aiError == 0
+        ; No issue ?
+    elseif aiError == 1
+        loc_severity    = 3
+        loc_reason      = "Render device already present in inventory"
+    elseif aiError == 2
+        loc_severity    = 2
+        loc_reason      = "Wearing conflicting device type"
+    elseif aiError == 3
+        loc_severity    = 2
+        loc_reason      = "Wearing conflicting device"
+    elseif aiError == 4
+        loc_severity    = 1
+        loc_reason      = "Player refused to equip device"
+    elseif aiError == 5
+        loc_severity    = 1
+        loc_reason      = "Equip Filter activated"
+    elseif aiError == 6
+        loc_severity    = 3
+        loc_reason      = "Render device doesn't have UD keyword!"
+    elseif aiError == 7
+        loc_severity    = 3
+        loc_reason      = "Other fatal issue"
+    elseif aiError == 8
+        loc_severity    = 3
+        loc_reason      = "Mutex timeout"
+    else
+        ; Other issue ?
+    endif
+
+    if loc_severity > 0
+        if loc_severity == 1
+            UDmain.Info("Locking device failed - Actor="+GetActorName(akActor)+" Device="+akDevice.getName()+" Reason=" + loc_reason)
+        elseif loc_severity == 2
+            if UDmain.UD_WarningAllowed
+                UDmain.Warning("Locking device failed - Actor="+GetActorName(akActor)+" Device="+akDevice.getName()+" Reason=" + loc_reason)
+            endif
+        elseif loc_severity == 3
+            UDmain.Error("!!Locking device failed!! Actor="+GetActorName(akActor)+" Device="+akDevice.getName()+" Reason=" + loc_reason)
+        endif
+    endif
+
+EndFunction

@@ -1,17 +1,74 @@
 Scriptname UD_OutfitAbadon extends UD_Outfit
 
-; Abadon suits use their own plugs/piercings which require more complicated logic, so just skip this part
-Bool Function LockPlugVaginal(Actor akActor)
-EndFunction
-Bool Function LockPlugAnal(Actor akActor)
-EndFunction
-Bool Function LockPiercingVaginal(Actor akActor)
-EndFunction
-Bool Function LockPiercingNipples(Actor akActor)
+import UD_Native
+
+; Level needed for outfit to be available
+Int Property LevelNeeded = 0 Auto
+
+Bool Function Condition(Actor akActor)
+    return parent.Condition(akActor) && (akActor.GetLevel() >= LevelNeeded)
 EndFunction
 
+Bool Function LockHood(Actor akActor)
+    return parent.LockHood(akActor)
+EndFunction
+Bool Function LockGag(Actor akActor)
+    return parent.LockGag(akActor)
+EndFunction
+Bool Function LockBlidnfold(Actor akActor)
+    return parent.LockBlidnfold(akActor)
+EndFunction
+Bool Function LockCollar(Actor akActor)
+    return parent.LockCollar(akActor)
+EndFunction
+Bool Function LockSuit(Actor akActor)
+    return parent.LockSuit(akActor)
+EndFunction
+Bool Function LockBelt(Actor akActor)
+    return parent.LockBelt(akActor)
+EndFunction
+Bool Function LockBra(Actor akActor)
+    return parent.LockBra(akActor)
+EndFunction
+Bool Function LockCorsetHarness(Actor akActor)
+    return parent.LockCorsetHarness(akActor)
+EndFunction
+Bool Function LockGloves(Actor akActor)
+    return parent.LockGloves(akActor)
+EndFunction
+Bool Function LockCuffsArms(Actor akActor)
+    return parent.LockCuffsArms(akActor)
+EndFunction
+Bool Function LockHeavyBondage(Actor akActor)
+    return parent.LockHeavyBondage(akActor)
+EndFunction
+Bool Function LockBoots(Actor akActor)
+    return parent.LockBoots(akActor)
+EndFunction
+Bool Function LockCuffsLegs(Actor akActor)
+    return parent.LockCuffsLegs(akActor)
+EndFunction
+
+; Abadon suits use their own plugs/piercings which require more complicated logic, so just skip this part
+Bool Function LockPlugVaginal(Actor akActor)
+    return false
+EndFunction
+Bool Function LockPlugAnal(Actor akActor)
+    return false
+EndFunction
+Bool Function LockPiercingVaginal(Actor akActor)
+    return false
+EndFunction
+Bool Function LockPiercingNipples(Actor akActor)
+    return false
+EndFunction
+
+Bool Function LockDevicePre(Actor akActor)
+    return parent.LockDevicePre(akActor)
+EndFunction
 Int Function LockDevicePost(Actor akActor, Int aiLocked)
-    UDmain.ItemManager.lockAbadonPiercings(akActor)
-    UDmain.ItemManager.lockAbadonHelperPlugs(akActor)
-    return 0
+    int loc_res = 0
+    loc_res += UDmain.ItemManager.lockAbadonPiercings(akActor)
+    loc_res += UDmain.ItemManager.lockAbadonHelperPlugs(akActor)
+    return loc_res
 EndFunction
