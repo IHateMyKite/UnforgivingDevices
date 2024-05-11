@@ -2205,7 +2205,6 @@ Function OnOptionSliderOpenOutfit(int option)
         int loc_i = UD_OutfitDeviceSelected_S.find(option)
         if loc_i >= 0
             UD_Outfit loc_outfit = (UDOTM.UD_OutfitListRef[UD_OutfitSelected] as UD_Outfit)
-            UDMain.Info("loc_outfit="+loc_outfit+ " , type="+UD_OutfitDeviceSelectedType[loc_i] + " , index="+loc_i)
             SetSliderDialogStartValue(loc_outfit.GetRnd(UD_OutfitDeviceSelectedType[loc_i],UD_OutfitDeviceSelectedIndex[loc_i]))
             SetSliderDialogDefaultValue(50.0)
             SetSliderDialogRange(0.0, 100.0)

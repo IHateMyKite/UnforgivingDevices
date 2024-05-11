@@ -48,49 +48,8 @@ Function equipAbadonLatexSuit(Actor akActor)
     UDmain.UDOTM.LockOutfitByAlias(akActor,"UDFW_LATEX")
 EndFunction
 
-Function equipAbadonRestrictiveSuit(Actor target)
-    if (!target.WornhasKeyword(libs.zad_DeviousHeavyBondage)) && UDmain.UDRRM.IsDeviceFiltered(4)
-        if RandomInt(0,1)
-            libs.LockDevice(target,UDmain.UDlibs.AbadonArmbinderEbonite)
-        else
-            libs.LockDevice(target,UDmain.UDlibs.AbadonStraitjacketEbonite)
-        endif
-    endif
-    
-    lockAbadonPiercings(target)
-    lockAbadonHelperPlugs(target)
-    
-    if !target.wornHasKeyword(libs.zad_DeviousBoots) && UDmain.UDRRM.IsDeviceFiltered(11)
-        libs.LockDevice(target,UDmain.UDlibs.AbadonRestrictiveBoots)
-    endif
-
-    if !target.wornHasKeyword(libs.zad_DeviousGloves) && UDmain.UDRRM.IsDeviceFiltered(15)
-        libs.LockDevice(target,UDmain.UDlibs.AbadonRestrictiveGloves)
-    endif
-
-    if !target.wornHasKeyword(libs.zad_DeviousCollar) && UDmain.UDRRM.IsDeviceFiltered(8)
-        libs.LockDevice(target,UDmain.UDlibs.AbadonRestrictiveCollar)
-    endif
-
-    if !target.wornHasKeyword(libs.zad_DeviousCorset) && UDmain.UDRRM.IsDeviceFiltered(6)
-        libs.LockDevice(target,UDmain.UDlibs.AbadonCorset)
-    endif
-    
-    if (!target.WornhasKeyword(libs.zad_DeviousBelt) && UDmain.UDRRM.IsDeviceFiltered(17))
-        libs.LockDevice(target,UDmain.UDlibs.AbadonBelt)
-    endif
-    
-    if (!target.WornhasKeyword(libs.zad_DeviousGag) && UDmain.UDRRM.IsDeviceFiltered(9))
-        if RandomInt(0,1)
-            libs.LockDevice(target,UDmain.UDlibs.AbadonExtremeBallGag)
-        else
-            libs.LockDevice(target,UDmain.UDlibs.AbadonExtremeInflatableGag)
-        endif
-    endif
-    
-    if (!target.WornhasKeyword(libs.zad_DeviousBlindfold) && UDmain.UDRRM.IsDeviceFiltered(10))
-        libs.LockDevice(target,UDmain.UDlibs.AbadonBlindfold)
-    endif
+Function equipAbadonRestrictiveSuit(Actor akActor)
+    UDmain.UDOTM.LockOutfitByAlias(akActor,"UDFW_RESTR")
 EndFunction
 
 Function equipAbadonRopeSuit(Actor target)
@@ -120,38 +79,8 @@ Function equipAbadonRopeSuit(Actor target)
     libs.LockDevice(target,libsx2.zadx_rope_harness_FullTop_Inventory)
 EndFunction
 
-Function equipAbadonTransparentSuit(Actor target)
-    if (!target.WornhasKeyword(libs.zad_DeviousHeavyBondage) && UDmain.UDRRM.IsDeviceFiltered(4))
-        libs.LockDevice(target,UDmain.UDlibs.AbadonArmbinderWhite)
-    endif
-    
-    lockAbadonPiercings(target)
-    lockAbadonHelperPlugs(target)
-    
-    if (!target.WornhasKeyword(libs.zad_DeviousSuit) && UDmain.UDRRM.IsDeviceFiltered(14))
-        libs.LockDevice(target,UDmain.UDlibs.AbadonTransSuit)
-    endif
-
-    if (!target.WornhasKeyword(libs.zad_DeviousBoots) && UDmain.UDRRM.IsDeviceFiltered(11))
-        if RandomInt(0,1)
-            libs.LockDevice(target,UDmain.UDlibs.AbadonTransBoots)
-        else
-            libs.LockDevice(target, UDmain.UDlibs.AbadonPonyBootsWhite)
-        endif
-    endif
-    
-    if (!target.WornhasKeyword(libs.zad_DeviousBlindfold) && UDmain.UDRRM.IsDeviceFiltered(10))
-        libs.LockDevice(target,UDmain.UDlibs.AbadonBlindfoldWhite)
-    endif
-    
-    if (!target.WornhasKeyword(libs.zad_DeviousGag) && UDmain.UDRRM.IsDeviceFiltered(9))
-        libs.LockDevice(target,UDmain.UDlibs.AbadonGagTape)
-    endif
-    
-    if (!target.WornhasKeyword(libs.zad_DeviousBelt) && UDmain.UDRRM.IsDeviceFiltered(17))
-        libs.LockDevice(target,UDmain.UDlibs.AbadonBelt)
-    endif
-    
+Function equipAbadonTransparentSuit(Actor akActor)
+    UDmain.UDOTM.LockOutfitByAlias(akActor,"UDFW_TRANSP")
 EndFunction
 
 Function equipAbadonSimpleSuit(Actor akActor)
