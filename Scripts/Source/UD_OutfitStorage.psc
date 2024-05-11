@@ -12,6 +12,7 @@ UnforgivingDevicesMain Property UDmain Hidden
 EndProperty
 
 Event OnInit()
+    UDMain.Info(self+" - OnInit called")
     RegisterForSingleUpdate(10.0 - UD_Priority*0.02)
 EndEvent
 
@@ -37,4 +38,13 @@ UD_Outfit Function GetOutfitByAlias(String asAlias)
         loc_i += 1
     endwhile
     return none
+EndFunction
+
+Function ValidateOutfits()
+    int loc_i = 0
+    while loc_i < GetOutfitNum()
+        UD_Outfit loc_outfit = GetNthOutfit(loc_i)
+        loc_outfit.ValidateRnd()
+        loc_i += 1
+    endwhile
 EndFunction

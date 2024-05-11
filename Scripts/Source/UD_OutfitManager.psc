@@ -14,6 +14,7 @@ EndProperty
 
 Function Update()
     UpdateLists()
+    ValidateOutfits()
 EndFunction
 
 Form[] _OutfitStorages
@@ -136,4 +137,15 @@ EndFunction
 
 UD_OutfitStorage Function GetNthOutfitStorage(Int aiIndex)
     return _OutfitStorages[aiIndex] as UD_OutfitStorage
+EndFunction
+
+Function ValidateOutfits()
+    int loc_storage_id = 0
+    while loc_storage_id < _OutfitStorages.length
+        UD_OutfitStorage loc_OutfitStorage = _OutfitStorages[loc_storage_id] as UD_OutfitStorage
+        if loc_OutfitStorage
+            loc_OutfitStorage.ValidateOutfits()
+        endif
+        loc_storage_id += 1
+    endwhile
 EndFunction

@@ -709,12 +709,11 @@ Function resetOutfitPage()
     
     AddTextOption("Name",loc_outfit.NameFull,FlagSwitch(false))
     AddTextOption("Alias",loc_outfit.NameAlias,FlagSwitch(false))
-    
-    AddHeaderOption("Base setting")
-    addEmptyOption()
-    
     UD_OutfitDisable_T  = AddToggleOption("Disable?",loc_outfit.Disable)
     UD_OutfitReset_T    = AddTextOption("==Reset==", "$-PRESS-")
+    
+    addEmptyOption()
+    addEmptyOption()
     
     AddHeaderOption("Devices")
     UD_OutfitSections_M = AddMenuOption("Section: ", UD_OutfitSections_ML[UD_OutfitSectionSelected])
@@ -725,9 +724,11 @@ EndFunction
 
 Int[] UD_OutfitDeviceSelected_S
 Int[] UD_OutfitDeviceSelectedType
+Int[] UD_OutfitDeviceSelectedIndex
 Function ShowOutfitDevices(UD_Outfit akOutfit)
     UD_OutfitDeviceSelected_S = Utility.CreateIntArray(0)
     UD_OutfitDeviceSelectedType = Utility.CreateIntArray(0)
+    UD_OutfitDeviceSelectedIndex = Utility.CreateIntArray(0)
     if UD_OutfitSectionSelected == 0
         ShowOutfitDevicesFromList("Hoods",akOutfit.UD_Hood, akOutfit.UD_Hood_RND,1)
         ShowOutfitDevicesFromList("Gags",akOutfit.UD_Gag, akOutfit.UD_Gag_RND,2)
@@ -760,22 +761,14 @@ Function ShowOutfitDevicesFromList(String asSubSection, Armor[] aakList, Int[] a
     
     AddHeaderOption(asSubSection)
     addEmptyOption()
-    
-    bool loc_usernd = false
-    if aaiRnd && aaiRnd.length == aakList.length
-        loc_usernd = true
-    endif
-    
+
     int loc_i = 0
     while loc_i < aakList.length
         AddTextOption("["+loc_i+"]",aakList[loc_i].GetName())
-        if loc_usernd
-            int loc_id = AddSliderOption("Weight: ",aaiRnd[loc_i],"{0}")
-            UD_OutfitDeviceSelected_S   = PapyrusUtil.PushInt(UD_OutfitDeviceSelected_S,loc_id)
-            UD_OutfitDeviceSelectedType = PapyrusUtil.PushInt(UD_OutfitDeviceSelectedType,aiType)
-        else
-            AddTextOption("Weight: ",Round(100.0/aakList.length))
-        endif
+        int loc_id = AddSliderOption("Weight: ",aaiRnd[loc_i],"{0}")
+        UD_OutfitDeviceSelected_S   = PapyrusUtil.PushInt(UD_OutfitDeviceSelected_S,loc_id)
+        UD_OutfitDeviceSelectedType = PapyrusUtil.PushInt(UD_OutfitDeviceSelectedType,aiType)
+        UD_OutfitDeviceSelectedIndex = PapyrusUtil.PushInt(UD_OutfitDeviceSelectedIndex,loc_i)
         loc_i += 1
     endwhile
 EndFunction
@@ -1566,9 +1559,9 @@ Function OptionSelectOutfit(int option)
         loc_outfit.Disable = !loc_outfit.Disable
         SetToggleOptionValue(UD_OutfitDisable_T, loc_outfit.Disable)
     elseif option == UD_OutfitReset_T
-        if ShowMessage("Do you really want to reset the storage and all its outfits to default values?")
+        if ShowMessage("Do you really want to reset the outfit and set it to default values?")
             UD_Outfit loc_outfit = (UDOTM.UD_OutfitListRef[UD_OutfitSelected] as UD_Outfit)
-            UnforgivingDevicesMain.ResetQuest(loc_outfit.GetOwningQuest())
+            loc_outfit.Reset()
             forcePageReset()
         endif
     endif
@@ -2212,7 +2205,8 @@ Function OnOptionSliderOpenOutfit(int option)
         int loc_i = UD_OutfitDeviceSelected_S.find(option)
         if loc_i >= 0
             UD_Outfit loc_outfit = (UDOTM.UD_OutfitListRef[UD_OutfitSelected] as UD_Outfit)
-            SetSliderDialogStartValue(loc_outfit.GetRnd(UD_OutfitDeviceSelectedType[loc_i],loc_i))
+            UDMain.Info("loc_outfit="+loc_outfit+ " , type="+UD_OutfitDeviceSelectedType[loc_i] + " , index="+loc_i)
+            SetSliderDialogStartValue(loc_outfit.GetRnd(UD_OutfitDeviceSelectedType[loc_i],UD_OutfitDeviceSelectedIndex[loc_i]))
             SetSliderDialogDefaultValue(50.0)
             SetSliderDialogRange(0.0, 100.0)
             SetSliderDialogInterval(1.0)
@@ -2545,8 +2539,8 @@ Function OnOptionSliderAcceptOutfit(int option, float value)
         int loc_i = UD_OutfitDeviceSelected_S.find(option)
         if loc_i >= 0
             UD_Outfit loc_outfit = (UDOTM.UD_OutfitListRef[UD_OutfitSelected] as UD_Outfit)
-            loc_outfit.UpdateRnd(UD_OutfitDeviceSelectedType[loc_i],loc_i,Round(value))
-            SetSliderOptionValue(option, loc_outfit.GetRnd(UD_OutfitDeviceSelectedType[loc_i],loc_i), "{0}")
+            loc_outfit.UpdateRnd(UD_OutfitDeviceSelectedType[loc_i],UD_OutfitDeviceSelectedIndex[loc_i],Round(value))
+            SetSliderOptionValue(option, loc_outfit.GetRnd(UD_OutfitDeviceSelectedType[loc_i],UD_OutfitDeviceSelectedIndex[loc_i]), "{0}")
         endif
     endif
 EndFunction

@@ -316,3 +316,62 @@ Function UpdateRnd(Int aiType, Int aiIndex, Int aiNewValue)
     endif
 EndFunction
 
+Function ValidateRnd()
+    if UD_Hood && !UD_Hood_RND && (UD_Hood_RND.length != UD_Hood.length)
+        UD_Hood_RND = Utility.CreateIntArray(UD_Hood.length,Round(100.0/UD_Hood.length))
+    endif
+    if UD_Gag && !UD_Gag_RND && (UD_Gag_RND.length != UD_Gag.length)
+        UD_Gag_RND = Utility.CreateIntArray(UD_Gag.length,Round(100.0/UD_Gag.length))
+    endif
+    if UD_Blindfold && !UD_Blindfold_RND && (UD_Blindfold_RND.length != UD_Blindfold.length)
+        UD_Blindfold_RND = Utility.CreateIntArray(UD_Blindfold.length,Round(100.0/UD_Blindfold.length))
+    endif
+    if UD_Collar && !UD_Collar_RND && (UD_Collar_RND.length != UD_Collar.length)
+        UD_Collar_RND = Utility.CreateIntArray(UD_Collar.length,Round(100.0/UD_Collar.length))
+    endif
+    if UD_Suit && !UD_Suit_RND && (UD_Suit_RND.length != UD_Suit.length)
+        UD_Suit_RND = Utility.CreateIntArray(UD_Suit.length,Round(100.0/UD_Suit.length))
+    endif
+    if UD_Belt && !UD_Belt_RND && (UD_Belt_RND.length != UD_Belt.length)
+        UD_Belt_RND = Utility.CreateIntArray(UD_Belt.length,Round(100.0/UD_Belt.length))
+    endif
+    if UD_Bra && !UD_Bra_RND && (UD_Bra_RND.length != UD_Bra.length)
+        UD_Bra_RND = Utility.CreateIntArray(UD_Bra.length,Round(100.0/UD_Bra.length))
+    endif
+    if UD_CorsetHarness && !UD_CorsetHarness_RND && (UD_CorsetHarness_RND.length != UD_CorsetHarness.length)
+        UD_CorsetHarness_RND = Utility.CreateIntArray(UD_CorsetHarness.length,Round(100.0/UD_CorsetHarness.length))
+    endif
+    if UD_Gloves && !UD_Gloves_RND && (UD_Gloves_RND.length != UD_Gloves.length)
+        UD_Gloves_RND = Utility.CreateIntArray(UD_Gloves.length,Round(100.0/UD_Gloves.length))
+    endif
+    if UD_CuffsArms && !UD_CuffsArms_RND && (UD_CuffsArms_RND.length != UD_CuffsArms.length)
+        UD_CuffsArms_RND = Utility.CreateIntArray(UD_CuffsArms.length,Round(100.0/UD_CuffsArms.length))
+    endif
+    if UD_HeavyBondage && !UD_HeavyBondage_RND && (UD_HeavyBondage_RND.length != UD_HeavyBondage.length)
+        UD_HeavyBondage_RND = Utility.CreateIntArray(UD_HeavyBondage.length,Round(100.0/UD_HeavyBondage.length))
+    endif
+    if UD_Boots && !UD_Boots_RND && (UD_Boots_RND.length != UD_Boots.length)
+        UD_Boots_RND = Utility.CreateIntArray(UD_Boots.length,Round(100.0/UD_Boots.length))
+    endif
+    if UD_CuffsLegs && !UD_CuffsLegs_RND && (UD_CuffsLegs_RND.length != UD_CuffsLegs.length)
+        UD_CuffsLegs_RND = Utility.CreateIntArray(UD_CuffsLegs.length,Round(100.0/UD_CuffsLegs.length))
+    endif
+    if UD_PlugVaginal && !UD_PlugVaginal_RND && (UD_PlugVaginal_RND.length != UD_PlugVaginal.length)
+        UD_PlugVaginal_RND = Utility.CreateIntArray(UD_PlugVaginal.length,Round(100.0/UD_PlugVaginal.length))
+    endif
+    if UD_PlugAnal && !UD_PlugAnal_RND && (UD_PlugAnal_RND.length != UD_PlugAnal.length)
+        UD_PlugAnal_RND = Utility.CreateIntArray(UD_PlugAnal.length,Round(100.0/UD_PlugAnal.length))
+    endif
+    if UD_PiercingVag && !UD_PiercingVag_RND && (UD_PiercingVag_RND.length != UD_PiercingVag.length)
+        UD_PiercingVag_RND = Utility.CreateIntArray(UD_PiercingVag.length,Round(100.0/UD_PiercingVag.length))
+    endif
+    if UD_PiercingNip && !UD_PiercingNip_RND && (UD_PiercingNip_RND.length != UD_PiercingNip.length)
+        UD_PiercingNip_RND = Utility.CreateIntArray(UD_PiercingNip.length,Round(100.0/UD_PiercingNip.length))
+    endif
+EndFunction
+
+Function Reset()
+    ForceRefTo(UDmain.Player)
+    Clear()
+    ValidateRnd()
+EndFunction

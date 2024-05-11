@@ -1007,25 +1007,6 @@ float Function getMendDifficultyModifier()
     return res
 EndFunction
 
-;/  Function: SendStartBoundEffectEvent
-
-    Works as StartBoundEffects from zadlibs, but is processed paralely
-    
-    Function is not blocking
-/;
-Function SendStartBoundEffectEvent(Actor akActor)
-    int handle = ModEvent.Create("UD_SBEParalel")
-    if (handle)
-        ModEvent.PushForm(handle, akActor)
-        ModEvent.Send(handle)
-    endIf
-EndFunction
-
-Event StartBoundEffectsParalel(Form kTarget)
-    Actor akActor = kTarget as Actor
-    libsp.StartBoundEffectsPatched(akActor)
-EndEvent
-
 Function startScript(UD_CustomDevice_RenderScript oref)
     if UDmain.TraceAllowed()    
         UDmain.Log("UDCustomDeviceMain startScript() called for " + oref.getDeviceHeader(),1)
