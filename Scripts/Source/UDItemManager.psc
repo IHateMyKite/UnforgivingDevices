@@ -44,58 +44,8 @@ Int Function lockAbadonHelperPlugs(Actor akTarget)
     return loc_res
 EndFunction
 
-Function equipAbadonLatexSuit(Actor target)
-    if (!target.WornhasKeyword(libs.zad_DeviousHeavyBondage) && UDmain.UDRRM.IsDeviceFiltered(4))
-        if RandomInt(0,1)
-            libs.LockDevice(target,UDmain.UDlibs.AbadonElbowbinderEbonite)
-        else
-            libs.LockDevice(target,UDmain.UDlibs.AbadonArmbinderEbonite)
-        endif
-    endif
-
-    lockAbadonPiercings(target)
-    lockAbadonHelperPlugs(target)
-
-    if (!target.WornhasKeyword(libs.zad_DeviousSuit) && UDmain.UDRRM.IsDeviceFiltered(14))
-        libs.LockDevice(target,UDmain.UDlibs.AbadonCatsuit)
-    endif
-
-    if (!target.WornhasKeyword(libs.zad_DeviousBoots) && UDmain.UDRRM.IsDeviceFiltered(11))
-        libs.LockDevice(target,UDmain.UDlibs.AbadonSocks)
-    endif
-
-    if (!target.WornhasKeyword(libs.zad_DeviousGloves) && UDmain.UDRRM.IsDeviceFiltered(15))
-        libs.LockDevice(target,UDmain.UDlibs.AbadonMittens)
-    endif
-
-    if (!target.WornhasKeyword(libs.zad_DeviousBelt) && UDmain.UDRRM.IsDeviceFiltered(17))
-        if (!target.WornhasKeyword(libs.zad_DeviousCorset)) && UDmain.UDRRM.IsDeviceFiltered(5)
-            libs.LockDevice(target,UDmain.UDlibs.AbadonHarness) ;ebonite harness will look better with catsuit, so try it first
-        else
-            libs.LockDevice(target,UDmain.UDlibs.AbadonBelt)
-        endif
-    endif
-
-    if (!target.WornhasKeyword(libs.zad_DeviousBlindfold) && UDmain.UDRRM.IsDeviceFiltered(10))
-        libs.LockDevice(target,UDmain.UDlibs.AbadonBlindfold)
-    endif
-    
-    if (UDmain.UDRRM.IsDeviceFiltered(7) && !target.WornhasKeyword(libs.zad_DeviousHood)) && (UDmain.UDRRM.IsDeviceFiltered(9) && !target.WornhasKeyword(libs.zad_DeviousGag))
-        if RandomInt(0,1)
-            libs.LockDevice(target,UDmain.UDlibs.AbadonGagTape)
-            libs.LockDevice(target,UDmain.UDlibs.AbadonGasmask)
-        else
-            libs.LockDevice(target,UDmain.UDlibs.AbadonFacemask)
-        endif
-    else
-        if (!target.WornhasKeyword(libs.zad_DeviousHood) && UDmain.UDRRM.IsDeviceFiltered(7))
-            libs.LockDevice(target,UDmain.UDlibs.AbadonGagTape)
-            libs.LockDevice(target,UDmain.UDlibs.AbadonGasmask)
-        endif
-        if (!target.WornhasKeyword(libs.zad_DeviousGag) && UDmain.UDRRM.IsDeviceFiltered(9))
-            libs.LockDevice(target,UDmain.UDlibs.AbadonFacemask)
-        endif
-    endif
+Function equipAbadonLatexSuit(Actor akActor)
+    UDmain.UDOTM.LockOutfitByAlias(akActor,"UDFW_LATEX")
 EndFunction
 
 Function equipAbadonRestrictiveSuit(Actor target)
@@ -204,72 +154,8 @@ Function equipAbadonTransparentSuit(Actor target)
     
 EndFunction
 
-Function equipAbadonSimpleSuit(Actor target)
-    if (!target.WornhasKeyword(libs.zad_DeviousHeavyBondage) && UDmain.UDRRM.IsDeviceFiltered(4))
-        Int loc_randomhb = RandomInt(0,2)
-        if loc_randomhb == 0
-            libs.LockDevice(target,UDmain.UDlibs.AbadonArmbinderEbonite)
-        elseif loc_randomhb == 1
-            libs.LockDevice(target,UDmain.UDlibs.AbadonStraitjacketEboniteOpen)
-        elseif loc_randomhb == 2
-            libs.LockDevice(target,UDmain.UDlibs.AbadonBoxbinder)
-        endif
-    endif
-    
-    lockAbadonPiercings(target)
-    lockAbadonHelperPlugs(target)
-        
-    if (!target.WornhasKeyword(libs.zad_DeviousLegCuffs) && UDmain.UDRRM.IsDeviceFiltered(13))
-        libs.LockDevice(target,UDmain.UDlibs.AbadonLegsCuffs)
-    endif
-    
-    if (!target.WornhasKeyword(libs.zad_DeviousArmCuffs) && UDmain.UDRRM.IsDeviceFiltered(12))
-        libs.LockDevice(target,UDmain.UDlibs.AbadonArmCuffs)
-    endif
-    
-    if (!target.WornhasKeyword(libs.zad_DeviousBoots) && UDmain.UDRRM.IsDeviceFiltered(11))
-        libs.LockDevice(target,UDmain.UDlibs.AbadonBoots) ; iron boots were total mismatch, these are much better
-    endif
-    
-    if (!target.WornhasKeyword(libs.zad_DeviousBlindfold) && UDmain.UDRRM.IsDeviceFiltered(10))
-        libs.LockDevice(target,UDmain.UDlibs.AbadonBlindfold)
-    endif
-    
-    if (!target.WornhasKeyword(libs.zad_DeviousGag) && UDmain.UDRRM.IsDeviceFiltered(9))
-        int loc_rand = 1;RandomInt(1,2)
-        if UD_Native.IsPlayer(target) ;panel gag is only for player, as its buggy for NPCs
-            loc_rand = RandomInt(1,2)
-        endif
-        if loc_rand == 1
-            libs.LockDevice(target,UDmain.UDlibs.AbadonRingGag)
-        else 
-            libs.LockDevice(target,UDmain.UDlibs.AbadonPanelGag)
-        endif
-    endif
-    
-    if (!target.WornhasKeyword(libs.zad_DeviousBelt) && UDmain.UDRRM.IsDeviceFiltered(17))
-        bool loc_useharness = false
-        bool loc_usebelt    = true
-        
-        if !target.WornhasKeyword(libs.zad_DeviousCorset) && UDmain.UDRRM.IsDeviceFiltered(5)
-            loc_useharness = true
-        endif
-        
-        if loc_useharness && loc_usebelt
-            if RandomInt(0,1)
-                libs.LockDevice(target,UDmain.UDlibs.AbadonHarness)
-            else
-                libs.LockDevice(target,UDmain.UDlibs.AbadonBelt)
-            endif
-        elseif loc_useharness
-            libs.LockDevice(target,UDmain.UDlibs.AbadonHarness)
-        elseif loc_usebelt
-            libs.LockDevice(target,UDmain.UDlibs.AbadonBelt)
-        endif
-    elseif (!target.WornhasKeyword(libs.zad_DeviousCollar) && UDmain.UDRRM.IsDeviceFiltered(8))
-        libs.LockDevice(target,UDmain.UDlibs.AbadonCuffCollar)
-    endif
-
+Function equipAbadonSimpleSuit(Actor akActor)
+    UDmain.UDOTM.LockOutfitByAlias(akActor,"UDFW_SIMPLE")
 EndFunction
 
 Function equipAbadonYokeSuit(Actor target)
