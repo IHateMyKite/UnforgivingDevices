@@ -602,7 +602,7 @@ EndFunction
         Current update progress of the mod. It is whole number from 0 to 100, where mod is full ready on 100
 /;
 int Function GetUpdateProgress()
-    return (Round(100.0*_updatecounter/20))
+    return (Round(100.0*_updatecounter/21))
 EndFunction
 
 Function OnGameReload()
@@ -640,13 +640,13 @@ Function OnGameReload()
     
         ;update all scripts
         Update()
-        _IncrementUpdateCounter()
+        _IncrementUpdateCounter()   ;2
         
         int loc_removedmeters = UDWC.Meter_UnregisterAllNative()
         if loc_removedmeters > 0
             Info(self+"::OnGameReload() - Removed " + loc_removedmeters + " registered meters!")
         endif
-        _IncrementUpdateCounter()
+        _IncrementUpdateCounter()   ;2
         
         if !CheckSubModules() || _FatalError
             _Updating = False
@@ -656,61 +656,64 @@ Function OnGameReload()
             Info(self + "::OnGameReload() - CheckSubmodules() = " + CheckSubModules() + ";_FatalError = " + _FatalError)
             return ;Fatal error when initializing UD
         endif
-        _IncrementUpdateCounter()
+        _IncrementUpdateCounter()   ;3
         
         UDWC.GameUpdate()
-        _IncrementUpdateCounter()
+        _IncrementUpdateCounter()   ;4
         
         UDMC.Update()
-        _IncrementUpdateCounter()
+        _IncrementUpdateCounter()   ;5
         
         BoundCombat.Update()
-        _IncrementUpdateCounter()
+        _IncrementUpdateCounter()   ;6
         
         UDlibs.Update()
-        _IncrementUpdateCounter()
+        _IncrementUpdateCounter()   ;7
         
         UDCDMain.Update()
-        _IncrementUpdateCounter()
+        _IncrementUpdateCounter()   ;8
         
         Config.Update()
-        _IncrementUpdateCounter()
+        _IncrementUpdateCounter()   ;9
         
         UDPP.Update()
-        _IncrementUpdateCounter()
+        _IncrementUpdateCounter()   ;10
         
         UDOMNPC.Update()  ;NPC orgasm manager
-        _IncrementUpdateCounter()
+        _IncrementUpdateCounter()   ;11
         UDOMPlayer.Update() ;player orgasm manager
-        _IncrementUpdateCounter()
+        _IncrementUpdateCounter()   ;12
         
         UDEM.Update()
-        _IncrementUpdateCounter()
+        _IncrementUpdateCounter()   ;13
         
         UDNPCM.GameUpdate()
-        _IncrementUpdateCounter()
+        _IncrementUpdateCounter()   ;14
         
         UDLLP.Update()
-        _IncrementUpdateCounter()
+        _IncrementUpdateCounter()   ;15
         
         UDRRM.Update()
-        _IncrementUpdateCounter()
+        _IncrementUpdateCounter()   ;16
         
         if UDAM.Ready
             UDAM.Update()
         endif
-        _IncrementUpdateCounter()
+        _IncrementUpdateCounter()   ;17
         
         if UDCM.Ready
             UDCM.Update()
         endif
-        _IncrementUpdateCounter()
+        _IncrementUpdateCounter()   ;18
         
         UDAbadonQuest.Update()
-        _IncrementUpdateCounter()
+        _IncrementUpdateCounter()   ;19
         
         UDMOM.Update()
-        _IncrementUpdateCounter()
+        _IncrementUpdateCounter()   ;20
+        
+        UDOTM.Update()
+        _IncrementUpdateCounter()   ;21
         
         Info("<=====| Unforgiving Devices updated |=====>")
         Print("Unforgiving Devices updated")

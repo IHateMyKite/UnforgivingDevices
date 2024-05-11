@@ -12,10 +12,19 @@ UnforgivingDevicesMain Property UDmain Hidden
     EndFunction
 EndProperty
 
+Function Update()
+    UpdateLists()
+EndFunction
+
 Form[] _OutfitStorages
 int Function AddOutfitStorage(UD_OutfitStorage akStorage)
     if !akStorage
         return -1
+    endif
+    
+    ;check if storage is not already present
+    if _OutfitStorages.find(akStorage) < 0
+        return -1 
     endif
     
     UDmain.Info("UD_OutfitManager::AddOutfitStorage() - Adding outfit storage -> " + akStorage.GetName())
@@ -27,9 +36,11 @@ int Function AddOutfitStorage(UD_OutfitStorage akStorage)
     endwhile
     
     _OutfitStorages = PapyrusUtil.PushForm(_OutfitStorages,akStorage as Form)
+    
+    UpdateLists()
+    
     return _OutfitStorages.length
 EndFunction
-
 
 Bool Function LockAnyOutfit(Actor akActor)
     return LockOutfit(akActor,0)
@@ -89,4 +100,40 @@ Bool Function LockOutfitByAlias(Actor akActor, String asOutfit)
         endif
         loc_storage_id += 1
     endwhile
+EndFunction
+
+Alias[]     Property UD_OutfitListRef auto hidden
+String[]    Property UD_OutfitList    auto hidden
+Function UpdateLists()
+    UD_OutfitList     = Utility.CreateStringArray(0)
+    UD_OutfitListRef  = Utility.CreateAliasArray(0)
+
+    Int loc_i1      = 0
+    int loc_count   = GetOutfitStorageCount()
+    while loc_i1 < loc_count
+        UD_OutfitStorage loc_storage = GetNthOutfitStorage(loc_i1)
+        Int loc_outfitnum = loc_storage.GetOutfitNum()
+        Int loc_i2 = 0
+        while loc_i2 < loc_outfitnum
+            UD_Outfit loc_outfit = loc_storage.GetNthOutfit(loc_i2)
+            if loc_outfit
+                UD_OutfitList    = PapyrusUtil.PushString(UD_OutfitList,loc_outfit.NameFull)
+                UD_OutfitListRef = PapyrusUtil.PushAlias(UD_OutfitListRef,loc_outfit)
+            endif
+            loc_i2 += 1
+        endwhile
+        loc_i1 += 1
+    endwhile
+EndFunction
+
+int Function GetOutfitStorageCount()
+    if _OutfitStorages
+        return _OutfitStorages.length
+    else
+        return 0
+    endif
+EndFunction
+
+UD_OutfitStorage Function GetNthOutfitStorage(Int aiIndex)
+    return _OutfitStorages[aiIndex] as UD_OutfitStorage
 EndFunction

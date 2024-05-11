@@ -229,8 +229,90 @@ Bool Function LockRandomDevice(Actor akActor, Armor[] aakDevices, Int[] aaiRnd, 
         if akBonusCheck && loc_res.HasKeyword(akBonusCheck) && akActor.WornHasKeyword(akBonusCheck)
             return false
         endif
-        UDMain.Info("Locking device = " + loc_res.GetName())
+        ;UDMain.Info("Locking device = " + loc_res.GetName())
         return libs.LockDevice(akActor,loc_res)
     endif
     return false
 EndFunction
+
+Int Function GetRnd(Int aiType, Int aiIndex)
+    Int[] loc_rnd
+    if aiType == 1
+        loc_rnd = UD_Hood_RND
+    elseif aiType == 2
+        loc_rnd = UD_Gag_RND
+    elseif aiType == 3
+        loc_rnd = UD_Blindfold_RND
+    elseif aiType == 4
+        loc_rnd = UD_Collar_RND
+    elseif aiType == 5
+        loc_rnd = UD_Suit_RND
+    elseif aiType == 6
+        loc_rnd = UD_Belt_RND
+    elseif aiType == 7
+        loc_rnd = UD_Bra_RND
+    elseif aiType == 8
+        loc_rnd = UD_CorsetHarness_RND
+    elseif aiType == 9
+        loc_rnd = UD_Gloves_RND
+    elseif aiType == 10
+        loc_rnd = UD_CuffsArms_RND
+    elseif aiType == 11
+        loc_rnd = UD_HeavyBondage_RND
+    elseif aiType == 12
+        loc_rnd = UD_Boots_RND
+    elseif aiType == 13
+        loc_rnd = UD_CuffsLegs_RND
+    elseif aiType == 14
+        loc_rnd = UD_PlugVaginal_RND
+    elseif aiType == 15
+        loc_rnd = UD_PlugAnal_RND
+    elseif aiType == 16
+        loc_rnd = UD_PiercingVag_RND
+    elseif aiType == 17
+        loc_rnd = UD_PiercingNip_RND
+    endif
+    if loc_rnd
+        return loc_rnd[aiIndex]
+    endif
+    return -1
+EndFunction
+
+Function UpdateRnd(Int aiType, Int aiIndex, Int aiNewValue)
+    if aiType == 1
+        UD_Hood_RND[aiIndex] = aiNewValue
+    elseif aiType == 2
+        UD_Gag_RND[aiIndex] = aiNewValue
+    elseif aiType == 3
+        UD_Blindfold_RND[aiIndex] = aiNewValue
+    elseif aiType == 4
+        UD_Collar_RND[aiIndex] = aiNewValue
+    elseif aiType == 5
+        UD_Suit_RND[aiIndex] = aiNewValue
+    elseif aiType == 6
+        UD_Belt_RND[aiIndex] = aiNewValue
+    elseif aiType == 7
+        UD_Bra_RND[aiIndex] = aiNewValue
+    elseif aiType == 8
+        UD_CorsetHarness_RND[aiIndex] = aiNewValue
+    elseif aiType == 9
+        UD_Gloves_RND[aiIndex] = aiNewValue
+    elseif aiType == 10
+        UD_CuffsArms_RND[aiIndex] = aiNewValue
+    elseif aiType == 11
+        UD_HeavyBondage_RND[aiIndex] = aiNewValue
+    elseif aiType == 12
+        UD_Boots_RND[aiIndex] = aiNewValue
+    elseif aiType == 13
+        UD_CuffsLegs_RND[aiIndex] = aiNewValue
+    elseif aiType == 14
+        UD_PlugVaginal_RND[aiIndex] = aiNewValue
+    elseif aiType == 15
+        UD_PlugAnal_RND[aiIndex] = aiNewValue
+    elseif aiType == 16
+        UD_PiercingVag_RND[aiIndex] = aiNewValue
+    elseif aiType == 17
+        UD_PiercingNip_RND[aiIndex] = aiNewValue
+    endif
+EndFunction
+
