@@ -27,17 +27,20 @@ EndProperty
 ;/  Variable: NameFull
     Full name of the outfit which is shown to the player
 /;
-String  Property NameFull  = "NO NAME"   Auto
+String  Property NameFull       = "NO NAME"   Auto
 
 ;/  Variable: NameAlias
     Alias for outfit, so it can be retrieved later. *NEEDS TO BE UNIQUE!*
 /;
-String  Property NameAlias = "ERROR"     Auto
+String  Property NameAlias      = "ERROR"     Auto
 ;/  Variable: LockMessage
     Message shown when outfit is locked on player
 /;
-String Property  LockMessage = ""        Auto
-
+String Property  LockMessage    = ""        Auto
+;/  Variable: Random
+    If outfit can be randomly locked by UD
+/;
+Bool   Property  Random         = True      Auto
 
 ;/  Variable: Swap
     Bit Coded value with bits set to 1 if specific device kind should be swaped (forced). If the quest device is equipped, this will still not work
@@ -142,8 +145,10 @@ Int Function LockDevices(Actor akActor)
     return loc_res
 EndFunction
 
+; Used when selecting random outfit to equip
+; Can be edited so outfit can be randomly equipped only under certain condition (for example only if actor have certain level of some equest is completed first)
 Bool Function Condition(Actor akActor)
-    return !Disable
+    return !Disable && Random
 EndFunction
 
 Bool Function LockHood(Actor akActor)
@@ -229,10 +234,26 @@ Bool Function LockRandomDevice(Actor akActor, Armor[] aakDevices, Int[] aaiRnd, 
         if akBonusCheck && loc_res.HasKeyword(akBonusCheck) && akActor.WornHasKeyword(akBonusCheck)
             return false
         endif
-        ;UDMain.Info("Locking device = " + loc_res.GetName())
-        return libs.LockDevice(akActor,loc_res)
+        
+        ; Check if device should be swaped
+        if (Swap > 0) && (aiFilter >= 0 && Math.LogicalAnd(Swap,Math.LeftShift(0x00000001,aiFilter)) || (aiFilter2 >= 0 && Math.LogicalAnd(Swap,Math.LeftShift(0x00000001,aiFilter2))))
+            AdditionalSwapCheck(akActor,loc_res,aiFilter)
+            return libs.SwapDevices(akActor,loc_res)
+        else
+            return libs.LockDevice(akActor,loc_res)
+        endif
     endif
     return false
+EndFunction
+
+Function AdditionalSwapCheck(Actor akActor, Armor akDevice, Int aiFilter)
+    Armor loc_rd = zadNativeFunctions.GetRenderDevice(akDevice)
+    if aiFilter == 4 && loc_rd.haskeyword(libs.zad_DeviousStraitJacket) && loc_rd.haskeyword(libs.zad_DeviousSuit)
+        ; unlock suit if its equipped
+        if akActor.wornHasKeyword(libs.zad_DeviousSuit) && !akActor.wornHasKeyword(libs.zad_DeviousStraitjacket)
+            libs.UnlockDeviceByKeyword(akActor,libs.zad_DeviousSuit)
+        endif
+    endif
 EndFunction
 
 Int Function GetRnd(Int aiType, Int aiIndex)

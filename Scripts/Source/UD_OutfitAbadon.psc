@@ -48,19 +48,17 @@ EndFunction
 Bool Function LockCuffsLegs(Actor akActor)
     return parent.LockCuffsLegs(akActor)
 EndFunction
-
-; Abadon suits use their own plugs/piercings which require more complicated logic, so just skip this part
 Bool Function LockPlugVaginal(Actor akActor)
-    return false
+    return parent.LockPlugVaginal(akActor)
 EndFunction
 Bool Function LockPlugAnal(Actor akActor)
-    return false
+    return parent.LockPlugAnal(akActor)
 EndFunction
 Bool Function LockPiercingVaginal(Actor akActor)
-    return false
+    return parent.LockPiercingVaginal(akActor)
 EndFunction
 Bool Function LockPiercingNipples(Actor akActor)
-    return false
+    return parent.LockPiercingNipples(akActor)
 EndFunction
 
 Bool Function LockDevicePre(Actor akActor)
@@ -68,7 +66,11 @@ Bool Function LockDevicePre(Actor akActor)
 EndFunction
 Int Function LockDevicePost(Actor akActor, Int aiLocked)
     int loc_res = 0
-    loc_res += UDmain.ItemManager.lockAbadonPiercings(akActor)
-    loc_res += UDmain.ItemManager.lockAbadonHelperPlugs(akActor)
+    if !UD_PiercingVag || !UD_PiercingNip
+        loc_res += UDmain.ItemManager.lockAbadonPiercings(akActor)
+    endif
+    if !UD_PlugVaginal || !UD_PlugAnal
+        loc_res += UDmain.ItemManager.lockAbadonHelperPlugs(akActor)
+    endif
     return loc_res
 EndFunction

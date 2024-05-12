@@ -132,6 +132,14 @@ int Function FlagSwitch(bool bVal)
     endif
 EndFunction
 
+String Function SwitchBool(Bool abVal)
+    if abVal
+        return "True"
+    else
+        return "False"
+    endif
+EndFunction
+
 ;check if button can be used for UD
 Bool Function CheckButton(Int aiKeyCode)
     Bool loc_res = True
@@ -686,6 +694,7 @@ int UD_OutfitList_M
 
 int         UD_OutfitDisable_T
 Int         UD_OutfitReset_T
+Int         UD_OutfitEquip_T
 
 Int         UD_OutfitSectionSelected = 0
 int         UD_OutfitSections_M
@@ -709,8 +718,12 @@ Function resetOutfitPage()
     
     AddTextOption("Name",loc_outfit.NameFull,FlagSwitch(false))
     AddTextOption("Alias",loc_outfit.NameAlias,FlagSwitch(false))
-    UD_OutfitDisable_T  = AddToggleOption("Disable?",loc_outfit.Disable)
-    UD_OutfitReset_T    = AddTextOption("==Reset==", "$-PRESS-")
+    
+    UD_OutfitDisable_T  = AddToggleOption("Disabled",loc_outfit.Disable)
+    AddToggleOption("Random",loc_outfit.Random as String,FlagSwitch(false))
+    
+    UD_OutfitReset_T    = AddTextOption("==RESET==", "$-PRESS-")
+    UD_OutfitEquip_T    = AddTextOption("==EQUIP==", "$-PRESS-",FlagSwitch(UDMain.DebugMod))
     
     addEmptyOption()
     addEmptyOption()
@@ -1564,6 +1577,10 @@ Function OptionSelectOutfit(int option)
             loc_outfit.Reset()
             forcePageReset()
         endif
+    elseif option == UD_OutfitEquip_T
+        UD_Outfit loc_outfit = (UDOTM.UD_OutfitListRef[UD_OutfitSelected] as UD_Outfit)
+        closeMCM()
+        loc_outfit.LockDevices(UDMain.Player)
     endif
 EndFunction
 
