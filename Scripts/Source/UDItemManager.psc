@@ -92,7 +92,6 @@ Function equipAbadonYokeSuit(Actor akActor)
 EndFunction
 
 Function equipAbadonFinisherSuit(Actor akActor)
-    ;libs.SwapDevices(target,UDmain.UDlibs.AbadonCursedStraitjacket,libs.zad_DeviousHeavyBondage) ;TFuck
     UDmain.UDOTM.LockOutfitByAlias(akActor,"UDFW_CURSED")
 EndFunction
  

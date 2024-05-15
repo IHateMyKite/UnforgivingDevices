@@ -267,14 +267,17 @@ Function FocusOrgasmResistMinigame(Actor akActor)
         if loc_cycleON
             if _specialButtonOn
                 if loc_HightSpiritMode_Duration > 0
-                    if loc_HightSpiritMode_Type == 1
+                    if loc_HightSpiritMode_Type == 1 ;red
                         loc_StaminaRateMult = 0.5
-                    elseif loc_HightSpiritMode_Type == 2
+                        OrgasmSystem.UpdateOrgasmChangeVar(akActor,"OrgasmResistMinigame",9,-3.0,1)
+                    elseif loc_HightSpiritMode_Type == 2 ;green
                         loc_StaminaRateMult = 1.25
                         OrgasmSystem.UpdateOrgasmChangeVar(akActor,"OrgasmResistMinigame",3,5.0,2)
-                    elseif loc_HightSpiritMode_Type == 3
+                        OrgasmSystem.UpdateOrgasmChangeVar(akActor,"OrgasmResistMinigame",9,-7.5,1)
+                    elseif loc_HightSpiritMode_Type == 3 ;blue
                         loc_StaminaRateMult = 1.5
-                        OrgasmSystem.UpdateOrgasmChangeVar(akActor,"OrgasmResistMinigame",9,-6.0,1)
+                        OrgasmSystem.UpdateOrgasmChangeVar(akActor,"OrgasmResistMinigame",3,8.0,2)
+                        OrgasmSystem.UpdateOrgasmChangeVar(akActor,"OrgasmResistMinigame",9,-15.0,1)
                     endif
                 else
                     loc_StaminaRateMult = 2.0
