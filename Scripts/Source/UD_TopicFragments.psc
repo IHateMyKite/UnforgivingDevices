@@ -200,3 +200,16 @@ Function LockRandomHandRestrain(ObjectReference akSpeakerRef)
     Debug.Messagebox(GetActorName(akSpeakerRef as Actor) + " didn't like your attitude and locked you in several devices to teach you a lesson.")
     ResetCooldownNoXP(akSpeakerRef)
 EndFunction
+
+Function FeedPlayer_100G(ObjectReference akSpeakerRef)
+    Game.GetPlayer().RemoveItem(UDCDMain.UDlibs.Gold,100)
+    Form loc_food = Game.GetFormFromFile(0x000F431B,"Skyrim.esm") ; potato soup
+    Game.GetPlayer().EquipItem(loc_food,false,false)
+    Game.GetPlayer().EquipItem(loc_food,false,false)
+EndFunction
+
+Function FeedPlayer_Free(ObjectReference akSpeakerRef)
+    Form loc_food = Game.GetFormFromFile(0x000F431B,"Skyrim.esm") ; potato soup
+    Game.GetPlayer().EquipItem(loc_food,false,false)
+    Game.GetPlayer().EquipItem(loc_food,false,false)
+EndFunction

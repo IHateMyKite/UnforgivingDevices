@@ -24,7 +24,7 @@ int Function AddOutfitStorage(UD_OutfitStorage akStorage)
     endif
     
     ;check if storage is not already present
-    if _OutfitStorages.find(akStorage) < 0
+    if _OutfitStorages.find(akStorage) >= 0
         return -1 
     endif
     
