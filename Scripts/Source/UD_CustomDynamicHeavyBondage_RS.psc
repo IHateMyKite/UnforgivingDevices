@@ -120,7 +120,9 @@ bool Function UntieMinigame(Bool abSilent = False)
         endif
         
         _untieMinigameOn = True
+        UD_Events.SendEvent_DeviceMinigameBegin(self,"DHB_Untie")
         minigame()
+        UD_Events.SendEvent_DeviceMinigameEnd(self,"DHB_Untie")
         _untieMinigameOn = False
         
         if loc_UseNativeMeters

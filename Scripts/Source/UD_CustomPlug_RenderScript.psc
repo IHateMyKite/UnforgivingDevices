@@ -173,7 +173,9 @@ bool Function forceOutPlugMinigame(Bool abSilent = False)
             UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
         endif
         forceOutPlugMinigame_on = True
+        UD_Events.SendEvent_DeviceMinigameBegin(self,"Plug_ForceOut")
         minigame()
+        UD_Events.SendEvent_DeviceMinigameEnd(self,"Plug_ForceOut")
         forceOutPlugMinigame_on = False
         return true
     endif
@@ -210,7 +212,9 @@ Bool Function forceOutPlugMinigameWH(Actor akHelper,Bool abSilent = False)
             UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
         endif
         forceOutPlugMinigame_on = True
+        UD_Events.SendEvent_DeviceMinigameBegin(self,"Plug_ForceOut")
         minigame()
+        UD_Events.SendEvent_DeviceMinigameEnd(self,"Plug_ForceOut")
         forceOutPlugMinigame_on = False
         setHelper(none)
         return true

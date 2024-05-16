@@ -191,7 +191,9 @@ bool Function inflateMinigame()
     if minigamePostcheck()
         setMinigameMult(1,mult)
         inflateMinigame_on = True
+        UD_Events.SendEvent_DeviceMinigameBegin(self,"IflatablePlug_Inflate")
         minigame()
+        UD_Events.SendEvent_DeviceMinigameEnd(self,"IflatablePlug_Inflate")
         inflateMinigame_on = False
         return true
     else
@@ -227,7 +229,9 @@ bool Function deflateMinigame()
     
     if minigamePostcheck()
         deflateMinigame_on = True
+        UD_Events.SendEvent_DeviceMinigameBegin(self,"IflatablePlug_Deflate")
         minigame()
+        UD_Events.SendEvent_DeviceMinigameEnd(self,"IflatablePlug_Deflate")
         deflateMinigame_on = False
         return true
     else
@@ -317,7 +321,7 @@ EndFunction
 int Function getPlugInflateLevel()
     if WearerIsPlayer()
         If UD_DeviceKeyword == libs.zad_DeviousPlugAnal
-            return  libs.zadInflatablePlugStateAnal.GetValueInt()
+            return libs.zadInflatablePlugStateAnal.GetValueInt()
         Else
             return libs.zadInflatablePlugStateVaginal.GetValueInt()
         EndIf
@@ -346,6 +350,9 @@ Function inflatePlug(int increase)
     OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),UD_ArMovKey,9,0.25,2)
     
     deflateprogress = 0.0
+    
+    UD_Events.SendEvent_InflatablePlugInflate(self)
+    
     OnInflated()
 EndFunction
 
@@ -369,6 +376,9 @@ Function deflatePlug(int decrease)
     OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),UD_ArMovKey,9,-0.25,2)
     
     deflateprogress = 0.0
+    
+    UD_Events.SendEvent_InflatablePlugDeflate(self)
+    
     OnDeflated()
 EndFunction
 
@@ -381,14 +391,14 @@ Function OnMinigameTick(Float abUpdateTime)
         inflateprogress += RandomFloat(8.2,12.0)*UDCDmain.getStruggleDifficultyModifier()*UDmain.UD_baseUpdateTime*getMinigameMult(1)
         if inflateprogress > UD_PumpDifficulty
             stopMinigame()
-        endif    
+        endif
     endif
     
     if deflateMinigame_on
         deflateprogress += RandomFloat(3.5,8.0)*UDCDmain.getStruggleDifficultyModifier()*UDmain.UD_baseUpdateTime*getMinigameMult(1)
         if deflateprogress > UD_PumpDifficulty
             stopMinigame()
-        endif    
+        endif
     endif
     
     parent.OnMinigameTick(abUpdateTime)
@@ -471,7 +481,7 @@ EndFunction
 
 Function updateWidget(bool force = false)
     if inflateMinigame_on
-        setWidgetVal(inflateprogress/UD_PumpDifficulty,force)    
+        setWidgetVal(inflateprogress/UD_PumpDifficulty,force)
     elseif deflateMinigame_on
         setWidgetVal(deflateprogress/UD_PumpDifficulty,force)
     else

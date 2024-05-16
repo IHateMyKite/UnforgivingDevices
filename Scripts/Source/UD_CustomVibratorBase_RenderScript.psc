@@ -828,6 +828,8 @@ Function _VibrateStart(float afDurationMult = 1.0)
     ;register the vibrator to slot, so it can be periodically updated
     ;failing to register the vibrator will result in infinite vibrations
     loc_slot.RegisterVibrator(self)
+    
+    UD_Events.SendEvent_VibDeviceEffectStart(self)
 EndFunction
 
 ; Main Loop
@@ -908,6 +910,8 @@ Function _VibrateEnd(Bool abUnregister = True, Bool abStop = True)
         _forceEdgingMode = -1
         OnVibrationEnd()
         VibLoopOn = false
+        
+        UD_Events.SendEvent_VibDeviceEffectStart(self)
     endif
 EndFunction
 
@@ -1020,6 +1024,7 @@ Function OnVibrationStrengthUpdate()
     If WearerIsPlayer()
         UDMain.UDWC.StatusEffect_SetMagnitude(VibrationEffectSlot, CurrentVibStrength)
         UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, CurrentVibStrength > 0)
+        UD_Events.SendEvent_VibDeviceEffectUpdate(self)
     EndIf
 EndFunction
 

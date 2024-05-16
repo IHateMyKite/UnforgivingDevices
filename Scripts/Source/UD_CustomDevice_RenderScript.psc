@@ -1643,12 +1643,6 @@ Function _Init(Actor akActor)
             loc_rdok = _CheckRD(akActor,loc_timeoutticks)
         endif
         
-        ;if !loc_rdok
-        ;    Armor loc_conflict = UDCDmain.GetConflictDevice(akActor, DeviceRendered)
-        ;    if loc_conflict && loc_conflict.hasKeyword(libs.zad_)
-        ;    
-        ;    endif
-        ;endif
         if !loc_rdok
             UDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because equip failed - timeout. Conflicting Device = " + UDCDmain.GetConflictDevice(akActor, DeviceRendered))
             return
@@ -1726,8 +1720,6 @@ Function _Init(Actor akActor)
     
     _OnInitLevelUpdate()
     
-    ;UDCDmain.CheckHardcoreDisabler(getWearer())
-    
     InitPost()
 
     if UD_Cooldown > 0
@@ -1765,6 +1757,8 @@ Function _Init(Actor akActor)
     endif
     
     GoToState("")
+    
+    UD_Events.SendEvent_DeviceLocked(self)
     
     InitPostPost() ;called after everything else. Can add some followup interaction immidiatly after device is equipped (activate device, start vib, etc...)
 EndFunction
@@ -4805,7 +4799,9 @@ bool Function struggleMinigame(int aiType = -1, Bool abSilent = False)
     bool loc_minigamecheck = minigamePostcheck(abSilent)
     if loc_minigamecheck
         _StruggleGameON = True
+        UD_Events.SendEvent_DeviceMinigameBegin(self,"Struggle_"+aiType)
         minigame()
+        UD_Events.SendEvent_DeviceMinigameEnd(self,"Struggle_"+aiType)
         _StruggleGameON = False
         return true
     else
@@ -4868,7 +4864,9 @@ bool Function lockpickMinigame(Bool abSilent = False)
     
     if minigamePostcheck(abSilent)
         _LockpickGameON = True
+        UD_Events.SendEvent_DeviceMinigameBegin(self,"Lockpick")
         minigame()
+        UD_Events.SendEvent_DeviceMinigameEnd(self,"Lockpick")
         _LockpickGameON = False
         return true
     else
@@ -4940,7 +4938,9 @@ bool Function repairLocksMinigame(Bool abSilent = False)
     
     if minigamePostcheck(abSilent)
         _RepairLocksMinigameON = True
+        UD_Events.SendEvent_DeviceMinigameBegin(self,"RepairLock")
         minigame()
+        UD_Events.SendEvent_DeviceMinigameEnd(self,"RepairLock")
         _RepairLocksMinigameON = False
         return true
     else
@@ -4983,7 +4983,7 @@ bool Function cuttingMinigame(Bool abSilent = False)
         
         ;register native meters
         if WearerIsPlayer()
-            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,fRange(170.0 - 7.0*UD_CutChance,100.0,170.0),true)
+            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,fRange(200.0 - 5.0*UD_CutChance,125.0,200.0),true)
                 
             UD_Native.RegisterDeviceCallback(_VMHandle1,_VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_CuttingMG_SKPress")
             
@@ -4992,7 +4992,9 @@ bool Function cuttingMinigame(Bool abSilent = False)
         endif
         
         _CuttingGameON = True
+        UD_Events.SendEvent_DeviceMinigameBegin(self,"Cutting")
         minigame()
+        UD_Events.SendEvent_DeviceMinigameEnd(self,"Cutting")
         _CuttingGameON = False
         return true
     else
@@ -5058,7 +5060,9 @@ bool Function keyMinigame(Bool abSilent = False)
     
     if minigamePostcheck(abSilent)
         _KeyGameON = True
+        UD_Events.SendEvent_DeviceMinigameBegin(self,"KeyUnlock")
         minigame()
+        UD_Events.SendEvent_DeviceMinigameEnd(self,"KeyUnlock")
         _KeyGameON = False
         return true
     else
@@ -5205,7 +5209,9 @@ bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
     
     if minigamePostcheck()
         _StruggleGameON = True
+        UD_Events.SendEvent_DeviceMinigameBegin(self,"Struggle_"+aiType)
         minigame()
+        UD_Events.SendEvent_DeviceMinigameEnd(self,"Struggle_"+aiType)
         _StruggleGameON = False
         
         return true
@@ -5275,7 +5281,9 @@ bool Function lockpickMinigameWH(Actor akHelper)
     
     if minigamePostcheck()
         _LockpickGameON = True
+        UD_Events.SendEvent_DeviceMinigameBegin(self,"Lockpick")
         minigame()
+        UD_Events.SendEvent_DeviceMinigameEnd(self,"Lockpick")
         _LockpickGameON = False
         setHelper(none)
         return true
@@ -5360,7 +5368,9 @@ bool Function repairLocksMinigameWH(Actor akHelper)
     
     if minigamePostcheck()
         _RepairLocksMinigameON = True
+        UD_Events.SendEvent_DeviceMinigameBegin(self,"RepairLock")
         minigame()
+        UD_Events.SendEvent_DeviceMinigameEnd(self,"RepairLock")
         _RepairLocksMinigameON = False
         setHelper(none)
         return true
@@ -5414,8 +5424,8 @@ bool Function cuttingMinigameWH(Actor akHelper)
         endif
     
         ;register native meters
-        if PlayerInMinigame()
-            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,fRange(150.0 - 9.0*UD_CutChance,100.0,150.0),true)
+        if PlayerIsPresent()
+            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,fRange(200.0 - 7.0*UD_CutChance,125.0,200.0),true)
             
             UD_Native.RegisterDeviceCallback(_VMHandle1,_VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_CuttingMG_SKPress")
             
@@ -5423,7 +5433,9 @@ bool Function cuttingMinigameWH(Actor akHelper)
             UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
         endif
         _CuttingGameON = True
+        UD_Events.SendEvent_DeviceMinigameBegin(self,"Cutting")
         minigame()
+        UD_Events.SendEvent_DeviceMinigameEnd(self,"Cutting")
         _CuttingGameON = False
         setHelper(none)
         return true
@@ -5496,7 +5508,9 @@ bool Function keyMinigameWH(Actor akHelper)
     
     if minigamePostcheck()
         _KeyGameON = True
+        UD_Events.SendEvent_DeviceMinigameBegin(self,"KeyUnlock")
         minigame()
+        UD_Events.SendEvent_DeviceMinigameEnd(self,"KeyUnlock")
         _KeyGameON = False
         setHelper(none)
         return true
@@ -5517,7 +5531,7 @@ Function tightUpDevice(Actor akSource)
         UDmain.Print(GetActorName(akSource) + " tighted your " + getDeviceName() + " !",1)
     elseif HelperIsPlayer()
         UDmain.Print("You tighted " + getWearerName() + "s " + getDeviceName() + " !",1)
-    elseif !PlayerInMinigame()
+    elseif !PlayerIsPresent()
         UDmain.Print(GetActorName(akSource) + " tighted " + getWearerName() + "s " + getDeviceName() + " !",1)
     endif
     current_device_health += RandomFloat(5.0,15.0)
@@ -5574,14 +5588,14 @@ EndFunction
 
 
 ;/  Function: advanceSkill
-    Advance skill based on currently ongoing minigame. Will do nothing if device is not in minigame, or if wearer/helper is not player
+    Advance skill based on currently ongoing minigame. Will do nothing if wearer/helper is not player
 
     Parameters:
 
         afMult    - Skill gain multiplier
 /;
 Function advanceSkill(float afMult)
-    if !PlayerInMinigame()
+    if !PlayerIsPresent()
         return
     endif
     
@@ -6850,8 +6864,10 @@ Function minigame()
             UpdateMotivation(Wearer,50) ;increase NPC motivation on successful escape
         endif
         advanceSkill(15.0)
-        if UDmain.ExperienceInstalled && PlayerInMinigame()
-            Experience.addexperience(UD_Level*RandomFloat(1.0,2.0),true)
+        if UDmain.ExperienceInstalled && PlayerIsPresent()
+            Int loc_xp = Round(Math.Pow(UD_Level,0.8)*RandomFloat(1.0,2.0))
+            Experience.addexperience(loc_xp,true)
+            UDmain.Info("By escaping the "+GetDeviceHeader()+", you got " + loc_xp + " experience")
         endif
     else
         if loc_is3DLoaded
@@ -8205,6 +8221,8 @@ Function removeDevice(actor akActor)
     onRemoveDevicePost(akActor)
     
     _isRemoved = True
+    
+    UD_Events.SendEvent_DeviceUnlocked(self)
 EndFunction
 
 Function OnAdvanceSkill(Float afMult)
@@ -8571,8 +8589,10 @@ Function _CuttingMG_SKPress(Float afValue)
         return
     endif
     if afValue >= fRange(100.0 - Math.Pow(UD_CutChance,1.2)*2.0,0.0,96.0)
-        UDlibs.RedCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player) ;show to player that they cutted device in right time by using shader effect
-        _cutDevice(Math.Pow(UD_CutChance,1.2)*3.0/(100.1-afValue))
+        if !UDCDmain.crit
+            UDlibs.RedCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player) ;show to player that they cutted device in right time by using shader effect
+        endif
+        _cutDevice(Math.Pow(UD_CutChance,1.2)*3.0/fRange((100.1-afValue),1.0,100.0))
     endif
 EndFunction
 

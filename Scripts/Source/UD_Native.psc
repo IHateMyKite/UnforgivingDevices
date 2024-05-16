@@ -102,7 +102,7 @@ Bool        Function UnregisterDeviceCallbacks(Int aiHandle1, Int aiHandle2,Armo
             Function UnregisterAllDeviceCallbacks() global native
 Bool        Function AddDeviceCallbackArgument(int aiDxKeycode, int aiType, string asArgStr, Form akArgForm) global native
             
- ;===Events===
+; ===Papyrus delegate===
             Function RegisterForHMTweenMenu(ReferenceAlias akRefAlias)      global native
 Int         Function SendRegisterDeviceScriptEvent(Actor akActor, Armor[] akRenderDevices) global native
 Int         Function SendMinigameThreadEvents(Actor akActor, Armor akRenderDevice, Int aiHandle1,Int aiHandle2, Int aiMode) global native
