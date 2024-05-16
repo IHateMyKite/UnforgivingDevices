@@ -377,10 +377,12 @@ Function resetAbadonPage()
     final_finisher_set_T = addToggleOption("$UD_FINALFINISHERSET", AbadonQuest.final_finisher_set,UD_LockMenu_flag)
     
     difficulty_M = AddMenuOption("$UD_DIFFICULTY", difficultyList[AbadonQuest.overaldifficulty],FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
-    if AbadonQuest.final_finisher_pref >= AbadonQuest.UD_AbadonSuitNumber
-        AbadonQuest.final_finisher_pref = 0 ;turn to random if the previous suit is no longer valid
-    endif
-    final_finisher_pref_M = AddMenuOption("$UD_FINALFINISHERPREF", AbadonQuest.UD_AbadonSuitNames[AbadonQuest.final_finisher_pref],abadon_flag_2)
+    ;if AbadonQuest.final_finisher_pref >= AbadonQuest.UD_AbadonSuitNumber
+    ;    AbadonQuest.final_finisher_pref = 0 ;turn to random if the previous suit is no longer valid
+    ;endif
+    ;final_finisher_pref_M = AddMenuOption("$UD_FINALFINISHERPREF", AbadonQuest.UD_AbadonSuitNames[AbadonQuest.final_finisher_pref],abadon_flag_2)
+    addEmptyOption()
+    
     
     hardcore_T = addToggleOption("$UD_HARDCORE", AbadonQuest.hardcore,FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
     eventchancemod_S = AddSliderOption("$UD_EVENTCHANCEMOD", AbadonQuest.eventchancemod, "{0} %",FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
@@ -2825,11 +2827,11 @@ Function OnOptionMenuOpenOutfit(Int option)
     If option == UD_OutfitList_M
         SetMenuDialogOptions(UDOTM.UD_OutfitList)
         SetMenuDialogStartIndex(UD_OutfitSelected)
-        SetMenuDialogDefaultIndex(0)
+        SetMenuDialogDefaultIndex(UD_OutfitSelected)
     elseif option == UD_OutfitSections_M
         SetMenuDialogOptions(UD_OutfitSections_ML)
         SetMenuDialogStartIndex(UD_OutfitSectionSelected)
-        SetMenuDialogDefaultIndex(0)
+        SetMenuDialogDefaultIndex(UD_OutfitSectionSelected)
     EndIf
 EndFunction
 

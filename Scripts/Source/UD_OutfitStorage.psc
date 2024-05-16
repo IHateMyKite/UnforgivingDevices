@@ -12,12 +12,14 @@ UnforgivingDevicesMain Property UDmain Hidden
 EndProperty
 
 Event OnInit()
-    UDMain.Info(self+" - OnInit called")
+    UDMain.UDOTM.IncToBeRegCnt()
     RegisterForSingleUpdate(10.0 - UD_Priority*0.02)
 EndEvent
 
 Event OnUpdate()
-    UDmain.UDOTM.AddOutfitStorage(self)
+    ValidateOutfits()
+    UDMain.UDOTM.AddOutfitStorage(self)
+    UDMain.UDOTM.DecToBeRegCnt()
 EndEvent
 
 Int Function GetOutfitNum()

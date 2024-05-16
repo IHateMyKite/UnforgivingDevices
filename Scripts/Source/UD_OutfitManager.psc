@@ -12,16 +12,38 @@ UnforgivingDevicesMain Property UDmain Hidden
     EndFunction
 EndProperty
 
+Int Property ToBeRegistered = 0 auto hidden
+
+Function IncToBeRegCnt()
+    ToBeRegistered += 1
+EndFunction
+
+Function DecToBeRegCnt()
+    ToBeRegistered -= 1
+EndFunction
+
 Function Update()
+    while ToBeRegistered
+        Utility.WaitMenuMode(1.0)
+        if ToBeRegistered
+            UDMain.Info(self+"::Update() - Remaining storage to register = " + ToBeRegistered)
+        endif
+    endwhile
     UpdateLists()
     ValidateOutfits()
 EndFunction
 
 Form[] _OutfitStorages
+Bool _AddMutex = False
 int Function AddOutfitStorage(UD_OutfitStorage akStorage)
     if !akStorage
         return -1
     endif
+    
+    while _AddMutex
+        Utility.WaitMenuMode(0.01)
+    endwhile
+    _AddMutex = true
     
     ;check if storage is not already present
     if _OutfitStorages.find(akStorage) >= 0
@@ -37,10 +59,13 @@ int Function AddOutfitStorage(UD_OutfitStorage akStorage)
     endwhile
     
     _OutfitStorages = PapyrusUtil.PushForm(_OutfitStorages,akStorage as Form)
+    Int loc_res = _OutfitStorages.length
     
     UpdateLists()
     
-    return _OutfitStorages.length
+    _AddMutex = false
+    
+    return loc_res
 EndFunction
 
 Bool Function LockAnyOutfit(Actor akActor)
