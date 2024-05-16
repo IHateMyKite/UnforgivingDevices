@@ -209,28 +209,32 @@ EndFunction
 Function AbadonEquipSuit(Actor target,int suit)
     UDCDmain.DisableActor(target)
     UnforgivingDevicesMain.closeMenu()
-    if suit == 0
-        if _CustomSets
-            suit = RandomInt(1,UDmain.config.final_finisher_pref_list.length - 1 + _CustomSets)
-        else
-            suit = RandomInt(1,UDmain.config.final_finisher_pref_list.length - 1)
-        endif
-    endif
-    if suit == 1
-        UDmain.ItemManager.equipAbadonRopeSuit(target)
-    elseif suit == 2
-        UDmain.ItemManager.equipAbadonTransparentSuit(target)
-    elseif suit == 3
-        UDmain.ItemManager.equipAbadonLatexSuit(target)
-    elseif suit == 4
-        UDmain.ItemManager.equipAbadonRestrictiveSuit(target)
-    elseif suit == 5
-        UDmain.ItemManager.equipAbadonSimpleSuit(target)
-    elseif suit == 6
-        UDmain.ItemManager.equipAbadonYokeSuit(target)
-    else
-        EquipCustomAbadonSet(target,suit)
-    endif
+    ;if suit == 0
+    ;    if _CustomSets
+    ;        suit = RandomInt(1,UDmain.config.final_finisher_pref_list.length - 1 + _CustomSets)
+    ;    else
+    ;        suit = RandomInt(1,UDmain.config.final_finisher_pref_list.length - 1)
+    ;    endif
+    ;endif
+    ;if suit == 1
+    ;    UDmain.ItemManager.equipAbadonRopeSuit(target)
+    ;elseif suit == 2
+    ;    UDmain.ItemManager.equipAbadonTransparentSuit(target)
+    ;elseif suit == 3
+    ;    UDmain.ItemManager.equipAbadonLatexSuit(target)
+    ;elseif suit == 4
+    ;    UDmain.ItemManager.equipAbadonRestrictiveSuit(target)
+    ;elseif suit == 5
+    ;    UDmain.ItemManager.equipAbadonSimpleSuit(target)
+    ;elseif suit == 6
+    ;    UDmain.ItemManager.equipAbadonYokeSuit(target)
+    ;else
+    ;    EquipCustomAbadonSet(target,suit)
+    ;endif
+    
+    UDmain.UDOTM.LockAbadonOutfit(target)
+    
+    
     UDCDmain.EnableActor(target)
 EndFunction
 

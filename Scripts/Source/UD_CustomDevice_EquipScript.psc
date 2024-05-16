@@ -667,23 +667,23 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
         endif
     endif
     
-    bool prelock_fail = false
+    Int prelock_fail = 0
     int loc_rdnum = akActor.GetItemCount(deviceRendered)
     if loc_rdnum > 0    
         if UDmain.UD_WarningAllowed
             UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - item "+ deviceRendered +" is already in inventory. Aborting")
         endif
-        prelock_fail = true
+        prelock_fail = 1
     EndIf
     
     if !prelock_fail
         if loc_rdnum == 0 && akActor.WornHasKeyword(zad_DeviousDevice) && CheckConflict(akActor)
-            if UDmain.UD_WarningAllowed
-                UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device type:" + zad_DeviousDevice)
-            endif
+            ;if UDmain.UD_WarningAllowed
+            ;    UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device type:" + zad_DeviousDevice)
+            ;endif
             StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
             akActor.UnequipItem(deviceInventory, false, true)
-            prelock_fail = true
+            prelock_fail = 2
         EndIf
     endif
     
@@ -692,12 +692,12 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
     ; check for device conflicts
     if !prelock_fail
         If !silently && (IsEquipDeviceConflict(akActor) || IsEquipRequiredDeviceConflict(akActor))
-            if UDmain.UD_WarningAllowed
-                UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device, aborting")
-            endif
+            ;if UDmain.UD_WarningAllowed
+            ;    UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device, aborting")
+            ;endif
             StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
             akActor.UnequipItem(deviceInventory, false, true)
-            prelock_fail = true
+            prelock_fail = 3
         EndIf
     endif    
     
@@ -706,7 +706,7 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
             if EquipDeviceMenu(akActor)
                 StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
                 akActor.UnequipItem(deviceInventory, false, true)
-                prelock_fail = true
+                prelock_fail = 4
             endif
         ;elseif loc_lockDeviceType == 2
             ;NPC menu, TODO
@@ -721,16 +721,16 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
                 StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
                 akActor.UnequipItem(deviceInventory, false, true)
             EndIf
-            if UDmain.UD_WarningAllowed
-                UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Equip Filter activated : " + filter)
-            endif
-            prelock_fail = true
+            ;if UDmain.UD_WarningAllowed
+            ;    UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Equip Filter activated : " + filter)
+            ;endif
+            prelock_fail = 5
         EndIf
     endif
     
     ;check if render device have render device keyword! If not, the device was not patched correctly!
     if !DeviceRendered.hasKeyword(UDmain.UDlibs.UnforgivingDevice)
-        prelock_fail = true
+        prelock_fail = 6
         UDmain.Error(MakeDeviceHeader(akActor,deviceInventory) + " can't be locked because its patched incorrectly!!!! Check patch order and try to lock the device again!")
     endif
     
@@ -738,11 +738,11 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
         if abUseMutex
             if loc_slot
                 if loc_slot.isLockMutexed(deviceInventory)
-                    loc_slot.UD_GlobalDeviceMutex_InventoryScript_Failed = true
+                    loc_slot.UD_GlobalDeviceMutex_InventoryScript_Failed = prelock_fail
                     loc_slot.UD_GlobalDeviceMutex_InventoryScript = true
                 endif
             elseif loc_mutex
-                loc_mutex.UD_GlobalDeviceMutex_InventoryScript_Failed = true
+                loc_mutex.UD_GlobalDeviceMutex_InventoryScript_Failed = prelock_fail
                 loc_mutex.UD_GlobalDeviceMutex_InventoryScript = true
             endif
             
@@ -822,13 +822,13 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
         if loc_slot
             if loc_slot.isLockMutexed(deviceInventory)
                 if !_locked
-                    loc_slot.UD_GlobalDeviceMutex_InventoryScript_Failed = true
+                    loc_slot.UD_GlobalDeviceMutex_InventoryScript_Failed = 7
                 endif
                 loc_slot.UD_GlobalDeviceMutex_InventoryScript = true
             endif
         elseif loc_mutex
             if !_locked
-                loc_mutex.UD_GlobalDeviceMutex_InventoryScript_Failed = true
+                loc_mutex.UD_GlobalDeviceMutex_InventoryScript_Failed = 7
             endif
             loc_mutex.UD_GlobalDeviceMutex_InventoryScript = true
         endif

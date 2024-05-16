@@ -35,6 +35,13 @@ UD_Config         Property UDCONF hidden
         return UDmain.UDCONF
     EndFunction
 EndProperty
+
+UD_OutfitManager  Property UDOTM hidden
+    UD_OutfitManager Function Get()
+        return UDmain.UDOTM
+    EndFunction
+EndProperty
+
 int max_difficulty_S
 int overaldifficulty_S ;0-3 where 3 is same as in MDS
 int eventchancemod_S
@@ -125,6 +132,14 @@ int Function FlagSwitch(bool bVal)
     endif
 EndFunction
 
+String Function SwitchBool(Bool abVal)
+    if abVal
+        return "True"
+    else
+        return "False"
+    endif
+EndFunction
+
 ;check if button can be used for UD
 Bool Function CheckButton(Int aiKeyCode)
     Bool loc_res = True
@@ -138,20 +153,21 @@ EndFunction
 String Property UD_NPCsPageName = "$UD_NPCSCONFIG" auto
 
 Function LoadConfigPages()
-    pages = new String[13]
+    pages = new String[14]
     pages[00] = "$UD_GENERAL"
     pages[01] = "$UD_DEVICEFILTER"
     pages[02] = "$UD_CUSTOMDEVICES"
-    pages[03] = "Custom Modifiers" ;TODO - add to translation file
-    pages[04] = "$UD_CUSTOMORGASM"
-    pages[05] = UD_NPCsPageName
-    pages[06] = "$UD_PATCHER"
-    pages[07] = "$UD_DDPATCH"
-    pages[08] = "$UD_ABADONPLUG"
-    pages[09] = "$UD_UIWIDGETS"
-    pages[10] = "$UD_ANIMATIONS"
-    pages[11] = "$UD_DEBUGPANEL"
-    pages[12] = "$UD_OTHER"
+    pages[03] = "Custom Modifiers"  ;TODO - add to translation file
+    pages[04] = "Custom Outfits"    ;TODO - add to translation file
+    pages[05] = "$UD_CUSTOMORGASM"
+    pages[06] = UD_NPCsPageName
+    pages[07] = "$UD_PATCHER"
+    pages[08] = "$UD_DDPATCH"
+    pages[09] = "$UD_ABADONPLUG"
+    pages[10] = "$UD_UIWIDGETS"
+    pages[11] = "$UD_ANIMATIONS"
+    pages[12] = "$UD_DEBUGPANEL"
+    pages[13] = "$UD_OTHER"
 EndFunction
 
 bool Property Ready = False Auto
@@ -255,6 +271,13 @@ Function Update()
     UD_MinigameLockpickSkillAdjust_ML[3] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT50"
     UD_MinigameLockpickSkillAdjust_ML[4] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT00"
 
+    UD_OutfitSections_ML = new String[5]
+    UD_OutfitSections_ML[0] = "Head"
+    UD_OutfitSections_ML[1] = "Body"
+    UD_OutfitSections_ML[2] = "Hands"
+    UD_OutfitSections_ML[3] = "Legs"
+    UD_OutfitSections_ML[4] = "Toys"
+
     libs = UDCDmain.libs as zadlibs_UDPatch
     
     UD_ModifierSelected = 0
@@ -316,6 +339,8 @@ Event OnPageReset(string page)
         resetCustomBondagePage()
     elseif (page == "Custom Modifiers")
         resetModifiersPage()
+    elseif (page == "Custom Outfits")
+        resetOutfitPage()
     elseif (page == UD_NPCsPageName)
         ResetNPCsPage()
     elseif (page == "$UD_CUSTOMORGASM")
@@ -352,10 +377,12 @@ Function resetAbadonPage()
     final_finisher_set_T = addToggleOption("$UD_FINALFINISHERSET", AbadonQuest.final_finisher_set,UD_LockMenu_flag)
     
     difficulty_M = AddMenuOption("$UD_DIFFICULTY", difficultyList[AbadonQuest.overaldifficulty],FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
-    if AbadonQuest.final_finisher_pref >= AbadonQuest.UD_AbadonSuitNumber
-        AbadonQuest.final_finisher_pref = 0 ;turn to random if the previous suit is no longer valid
-    endif
-    final_finisher_pref_M = AddMenuOption("$UD_FINALFINISHERPREF", AbadonQuest.UD_AbadonSuitNames[AbadonQuest.final_finisher_pref],abadon_flag_2)
+    ;if AbadonQuest.final_finisher_pref >= AbadonQuest.UD_AbadonSuitNumber
+    ;    AbadonQuest.final_finisher_pref = 0 ;turn to random if the previous suit is no longer valid
+    ;endif
+    ;final_finisher_pref_M = AddMenuOption("$UD_FINALFINISHERPREF", AbadonQuest.UD_AbadonSuitNames[AbadonQuest.final_finisher_pref],abadon_flag_2)
+    addEmptyOption()
+    
     
     hardcore_T = addToggleOption("$UD_HARDCORE", AbadonQuest.hardcore,FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
     eventchancemod_S = AddSliderOption("$UD_EVENTCHANCEMOD", AbadonQuest.eventchancemod, "{0} %",FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
@@ -662,7 +689,103 @@ Function resetModifiersPage()
     
     UD_ModifierPatchPowerMultiplier_S   = AddSliderOption("Patch Strength multiplier",loc_mod.PatchPowerMultiplier,"{1} x",UD_LockMenu_flag)
     UD_ModifierPatchChanceMultiplier_S  = AddSliderOption("Patch Chance multiplier",loc_mod.PatchChanceMultiplier,"{1} x",UD_LockMenu_flag)
+EndFunction
+
+Int UD_OutfitSelected = 0
+int UD_OutfitList_M
+
+int         UD_OutfitDisable_T
+Int         UD_OutfitReset_T
+Int         UD_OutfitEquip_T
+
+Int         UD_OutfitSectionSelected = 0
+int         UD_OutfitSections_M
+string[]    UD_OutfitSections_ML
+
+Function resetOutfitPage()
+    UpdateLockMenuFlag()
+    setCursorFillMode(LEFT_TO_RIGHT)
+    AddHeaderOption("Custom Outfits")
+    addEmptyOption()
     
+    UD_Outfit loc_outfit = (UDOTM.UD_OutfitListRef[UD_OutfitSelected] as UD_Outfit)
+    
+    UD_OutfitList_M = AddMenuOption("Selected outfit: ", UDOTM.UD_OutfitList[UD_OutfitSelected])
+    AddTextOption("Source",loc_outfit.GetOwningQuest().GetName(),FlagSwitch(false))
+    addEmptyOption()
+    addEmptyOption()
+    
+    AddHeaderOption("Base details")
+    addEmptyOption()
+    
+    AddTextOption("Name",loc_outfit.NameFull,FlagSwitch(false))
+    AddTextOption("Alias",loc_outfit.NameAlias,FlagSwitch(false))
+    
+    UD_OutfitDisable_T  = AddToggleOption("Disabled",loc_outfit.Disable)
+    AddToggleOption("Random",loc_outfit.Random as String,FlagSwitch(false))
+    
+    UD_OutfitReset_T    = AddTextOption("==RESET==", "$-PRESS-")
+    UD_OutfitEquip_T    = AddTextOption("==EQUIP==", "$-PRESS-",FlagSwitch(UDMain.DebugMod))
+    
+    addEmptyOption()
+    addEmptyOption()
+    
+    AddHeaderOption("Devices")
+    UD_OutfitSections_M = AddMenuOption("Section: ", UD_OutfitSections_ML[UD_OutfitSectionSelected])
+    
+    ShowOutfitDevices(loc_outfit)
+    ; TODO - Show all devices locked by outfit
+EndFunction
+
+Int[] UD_OutfitDeviceSelected_S
+Int[] UD_OutfitDeviceSelectedType
+Int[] UD_OutfitDeviceSelectedIndex
+Function ShowOutfitDevices(UD_Outfit akOutfit)
+    UD_OutfitDeviceSelected_S = Utility.CreateIntArray(0)
+    UD_OutfitDeviceSelectedType = Utility.CreateIntArray(0)
+    UD_OutfitDeviceSelectedIndex = Utility.CreateIntArray(0)
+    if UD_OutfitSectionSelected == 0
+        ShowOutfitDevicesFromList("Hoods",akOutfit.UD_Hood, akOutfit.UD_Hood_RND,1)
+        ShowOutfitDevicesFromList("Gags",akOutfit.UD_Gag, akOutfit.UD_Gag_RND,2)
+        ShowOutfitDevicesFromList("Blindfold",akOutfit.UD_Blindfold, akOutfit.UD_Blindfold_RND,3)
+        ShowOutfitDevicesFromList("Collar",akOutfit.UD_Collar, akOutfit.UD_Collar_RND,4)
+    elseif UD_OutfitSectionSelected == 1
+        ShowOutfitDevicesFromList("Suit",akOutfit.UD_Suit, akOutfit.UD_Suit_RND,5)
+        ShowOutfitDevicesFromList("Belt",akOutfit.UD_Belt, akOutfit.UD_Belt_RND,6)
+        ShowOutfitDevicesFromList("Bra",akOutfit.UD_Bra, akOutfit.UD_Bra_RND,7)
+        ShowOutfitDevicesFromList("CorsetHarness",akOutfit.UD_CorsetHarness, akOutfit.UD_CorsetHarness_RND,8)
+    elseif UD_OutfitSectionSelected == 2
+        ShowOutfitDevicesFromList("Gloves",akOutfit.UD_Gloves, akOutfit.UD_Gloves_RND,9)
+        ShowOutfitDevicesFromList("Arm cuffs",akOutfit.UD_CuffsArms, akOutfit.UD_CuffsArms_RND,10)
+        ShowOutfitDevicesFromList("Heavy Bondage",akOutfit.UD_HeavyBondage, akOutfit.UD_HeavyBondage_RND,11)
+    elseif UD_OutfitSectionSelected == 3
+        ShowOutfitDevicesFromList("Boots",akOutfit.UD_Boots, akOutfit.UD_Boots_RND,12)
+        ShowOutfitDevicesFromList("Leg cuffs",akOutfit.UD_CuffsLegs, akOutfit.UD_CuffsLegs_RND,13)
+    elseif UD_OutfitSectionSelected == 4
+        ShowOutfitDevicesFromList("Plug Vaginal",akOutfit.UD_PlugVaginal, akOutfit.UD_PlugVaginal_RND,14)
+        ShowOutfitDevicesFromList("Plug Anal",akOutfit.UD_PlugAnal, akOutfit.UD_PlugAnal_RND,15)
+        ShowOutfitDevicesFromList("Piercing vaginal",akOutfit.UD_PiercingVag, akOutfit.UD_PiercingVag_RND,16)
+        ShowOutfitDevicesFromList("Piercing nipple",akOutfit.UD_PiercingNip, akOutfit.UD_PiercingNip_RND,17)
+    endif
+EndFunction
+
+Function ShowOutfitDevicesFromList(String asSubSection, Armor[] aakList, Int[] aaiRnd,Int aiType)
+    if !aakList
+        return
+    endif
+    
+    AddHeaderOption(asSubSection)
+    addEmptyOption()
+
+    int loc_i = 0
+    while loc_i < aakList.length
+        AddTextOption("["+loc_i+"]",aakList[loc_i].GetName())
+        int loc_id = AddSliderOption("Weight: ",aaiRnd[loc_i],"{0}")
+        UD_OutfitDeviceSelected_S   = PapyrusUtil.PushInt(UD_OutfitDeviceSelected_S,loc_id)
+        UD_OutfitDeviceSelectedType = PapyrusUtil.PushInt(UD_OutfitDeviceSelectedType,aiType)
+        UD_OutfitDeviceSelectedIndex = PapyrusUtil.PushInt(UD_OutfitDeviceSelectedIndex,loc_i)
+        loc_i += 1
+    endwhile
 EndFunction
 
 int UD_OrgasmUpdateTime_S
@@ -1395,6 +1518,7 @@ event OnOptionSelect(int option)
     OptionSelectGeneral(option)
     OptionSelectPatcher(option)
     OptionSelectModifiers(option)
+    OptionSelectOutfit(option)
     OptionSelectFilter(option)
     OptionCustomBondage(option)
     OptionCustomOrgasm(option)
@@ -1441,6 +1565,24 @@ Function OptionSelectModifiers(int option)
     if(option == UD_ModifierDescription_T)
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
         ShowMessage(loc_mod.Description,false,"Close")
+    endif
+EndFunction
+
+Function OptionSelectOutfit(int option)
+    if(option == UD_OutfitDisable_T)
+        UD_Outfit loc_outfit = (UDOTM.UD_OutfitListRef[UD_OutfitSelected] as UD_Outfit)
+        loc_outfit.Disable = !loc_outfit.Disable
+        SetToggleOptionValue(UD_OutfitDisable_T, loc_outfit.Disable)
+    elseif option == UD_OutfitReset_T
+        if ShowMessage("Do you really want to reset the outfit and set it to default values?")
+            UD_Outfit loc_outfit = (UDOTM.UD_OutfitListRef[UD_OutfitSelected] as UD_Outfit)
+            loc_outfit.Reset()
+            forcePageReset()
+        endif
+    elseif option == UD_OutfitEquip_T
+        UD_Outfit loc_outfit = (UDOTM.UD_OutfitListRef[UD_OutfitSelected] as UD_Outfit)
+        closeMCM()
+        loc_outfit.LockDevices(UDMain.Player)
     endif
 EndFunction
 
@@ -1890,6 +2032,7 @@ event OnOptionSliderOpen(int option)
     OnOptionSliderOpenGeneral(option)
     OnOptionSliderOpenCustomBondage(option)
     OnOptionSliderOpenCustomOrgasm(option)
+    OnOptionSliderOpenOutfit(option)
     OnOptionSliderOpenNPCs(option)
     OnOptionSliderOpenPatcher(option)
     OnOptionSliderOpenAbadon(option)
@@ -2074,6 +2217,19 @@ Function OnOptionSliderOpenCustomOrgasm(int option)
         SetSliderDialogRange(1.0, 30.0)
         SetSliderDialogInterval(1.0)
     endIf
+EndFunction
+
+Function OnOptionSliderOpenOutfit(int option)
+    if UD_OutfitDeviceSelected_S
+        int loc_i = UD_OutfitDeviceSelected_S.find(option)
+        if loc_i >= 0
+            UD_Outfit loc_outfit = (UDOTM.UD_OutfitListRef[UD_OutfitSelected] as UD_Outfit)
+            SetSliderDialogStartValue(loc_outfit.GetRnd(UD_OutfitDeviceSelectedType[loc_i],UD_OutfitDeviceSelectedIndex[loc_i]))
+            SetSliderDialogDefaultValue(50.0)
+            SetSliderDialogRange(0.0, 100.0)
+            SetSliderDialogInterval(1.0)
+        endif
+    endif
 EndFunction
 
 Function OnOptionSliderOpenNPCs(int option)
@@ -2275,6 +2431,7 @@ event OnOptionSliderAccept(int option, float value)
     OnOptionSliderAcceptGeneral(option,value)
     OnOptionSliderAcceptCustomBondage(option, value)
     OnOptionSliderAcceptCustomOrgasm(option, value)
+    OnOptionSliderAcceptOutfit(option, value)
     OnOptionSliderAcceptNPCs(option, value)
     OnOptionSliderAcceptPatcher(option, value)
     OnOptionSliderAcceptAbadon(option, value)
@@ -2300,7 +2457,7 @@ EndFunction
 Function OnOptionSliderAcceptCustomBondage(int option, float value)
     if (option == UD_UpdateTime_S)
         UDCDmain.UD_UpdateTime = value
-        SetSliderOptionValue(UD_UpdateTime_S, UDCDmain.UD_UpdateTime, "${0} s")
+        SetSliderOptionValue(UD_UpdateTime_S, UDCDmain.UD_UpdateTime, "{0} s")
     elseif option == UD_CooldownMultiplier_S
         UDCDmain.UD_CooldownMultiplier = value/100
         SetSliderOptionValue(UD_CooldownMultiplier_S, Round(UDCDmain.UD_CooldownMultiplier*100), "{0} %")
@@ -2321,7 +2478,7 @@ Function OnOptionSliderAcceptCustomBondage(int option, float value)
         SetSliderOptionValue(UD_GagPhonemModifier_S, UDCDmain.UD_GagPhonemModifier, "{0}")
     elseif option == UD_MinigameHelpCd_S
         UDCDmain.UD_MinigameHelpCd = round(value)
-        SetSliderOptionValue(UD_MinigameHelpCd_S, UDCDmain.UD_MinigameHelpCd, "${0} min")
+        SetSliderOptionValue(UD_MinigameHelpCd_S, UDCDmain.UD_MinigameHelpCd, "{0} min")
     elseif option == UD_MinigameHelpCD_PerLVL_S
         UDCDmain.UD_MinigameHelpCD_PerLVL = Round(value)
         SetSliderOptionValue(UD_MinigameHelpCD_PerLVL_S, UDCDmain.UD_MinigameHelpCD_PerLVL, "{0} %")
@@ -2339,7 +2496,7 @@ Function OnOptionSliderAcceptCustomBondage(int option, float value)
         SetSliderOptionValue(UD_DeviceLvlLocks_S, UDCDmain.UD_DeviceLvlLocks, "{0} LVLs")
     elseif option == UD_CritDurationAdjust_S
         UDCDmain.UD_CritDurationAdjust = value
-        SetSliderOptionValue(UD_CritDurationAdjust_S, UDCDmain.UD_CritDurationAdjust, "${2} s")
+        SetSliderOptionValue(UD_CritDurationAdjust_S, UDCDmain.UD_CritDurationAdjust, "{2} s")
     elseif option == UD_KeyDurability_S
         UDCDmain.UD_KeyDurability = Round(value)
         SetSliderOptionValue(UD_KeyDurability_S, UDCDmain.UD_KeyDurability, "{0}")
@@ -2370,10 +2527,10 @@ EndFunction
 Function OnOptionSliderAcceptCustomOrgasm(int option, float value)
     if (option == UD_OrgasmUpdateTime_S)
         UDCONF.UD_OrgasmUpdateTime = value
-        SetSliderOptionValue(UD_OrgasmUpdateTime_S, UDCONF.UD_OrgasmUpdateTime, "${1} s")
+        SetSliderOptionValue(UD_OrgasmUpdateTime_S, UDCONF.UD_OrgasmUpdateTime, "{1} s")
     elseif (option == UD_HornyAnimationDuration_S)
         UDCONF.UD_HornyAnimationDuration = Round(value)
-        SetSliderOptionValue(UD_HornyAnimationDuration_S, UDCONF.UD_HornyAnimationDuration, "${0} s")
+        SetSliderOptionValue(UD_HornyAnimationDuration_S, UDCONF.UD_HornyAnimationDuration, "{0} s")
     elseif option == UD_OrgasmResistence_S
         UDCONF.UD_OrgasmResistence = value
         SetSliderOptionValue(UD_OrgasmResistence_S, UDCONF.UD_OrgasmResistence, "{1} Op/s")
@@ -2388,20 +2545,31 @@ Function OnOptionSliderAcceptCustomOrgasm(int option, float value)
         SetSliderOptionValue(UD_ArousalMultiplier_S, UDCDmain.UD_ArousalMultiplier, "{3}")
     elseif option == UD_OrgasmArousalReduce_S
         UDCONF.UD_OrgasmArousalReduce = Round(value)
-        SetSliderOptionValue(UD_OrgasmArousalReduce_S, UDCONF.UD_OrgasmArousalReduce, "${0} /s")
+        SetSliderOptionValue(UD_OrgasmArousalReduce_S, UDCONF.UD_OrgasmArousalReduce, "{0} /s")
     elseif option == UD_OrgasmArousalReduceDuration_S
         UDCONF.UD_OrgasmArousalReduceDuration = Round(value)
-        SetSliderOptionValue(UD_OrgasmArousalReduceDuration_S, UDCONF.UD_OrgasmArousalReduceDuration, "${0} s")
+        SetSliderOptionValue(UD_OrgasmArousalReduceDuration_S, UDCONF.UD_OrgasmArousalReduceDuration, "{0} s")
     endIf
+EndFunction
+
+Function OnOptionSliderAcceptOutfit(int option, float value)
+    if UD_OutfitDeviceSelected_S
+        int loc_i = UD_OutfitDeviceSelected_S.find(option)
+        if loc_i >= 0
+            UD_Outfit loc_outfit = (UDOTM.UD_OutfitListRef[UD_OutfitSelected] as UD_Outfit)
+            loc_outfit.UpdateRnd(UD_OutfitDeviceSelectedType[loc_i],UD_OutfitDeviceSelectedIndex[loc_i],Round(value))
+            SetSliderOptionValue(option, loc_outfit.GetRnd(UD_OutfitDeviceSelectedType[loc_i],UD_OutfitDeviceSelectedIndex[loc_i]), "{0}")
+        endif
+    endif
 EndFunction
 
 Function OnOptionSliderAcceptNPCs(int option, float value)
     if (option == UD_AIUpdateTime_S)
         UDAI.UD_UpdateTime = Round(value)
-        SetSliderOptionValue(UD_AIUpdateTime_S, UDAI.UD_UpdateTime, "${0} s")
+        SetSliderOptionValue(UD_AIUpdateTime_S, UDAI.UD_UpdateTime, "{0} s")
     elseif option == UD_AICooldown_S
         UDAI.UD_AICooldown = Round(value)
-        SetSliderOptionValue(UD_AICooldown_S, UDAI.UD_AICooldown, "${0} min")
+        SetSliderOptionValue(UD_AICooldown_S, UDAI.UD_AICooldown, "{0} min")
     endIf
 EndFunction
 
@@ -2505,7 +2673,7 @@ EndFunction
 Function OnOptionSliderAcceptAnimations(int option, float value)
     if option == UD_AlternateAnimationPeriod_S
         UDAM.UD_AlternateAnimationPeriod = (value As Int)
-        SetSliderOptionValue(UD_AlternateAnimationPeriod_S, value, "${0} s")
+        SetSliderOptionValue(UD_AlternateAnimationPeriod_S, value, "{0} s")
     endIf
 EndFunction
 
@@ -2533,6 +2701,7 @@ event OnOptionMenuOpen(int option)
     OnOptionMenuOpenUIWidget(option)
     OnOptionMenuOpenAnimations(option)
     OnOptionMenuOpenModifiers(option)
+    OnOptionMenuOpenOutfit(option)
 endEvent
 
 Function OnOptionMenuOpenDefault(int option)
@@ -2654,6 +2823,18 @@ Function OnOptionMenuOpenModifiers(Int option)
     EndIf
 EndFunction
 
+Function OnOptionMenuOpenOutfit(Int option)
+    If option == UD_OutfitList_M
+        SetMenuDialogOptions(UDOTM.UD_OutfitList)
+        SetMenuDialogStartIndex(UD_OutfitSelected)
+        SetMenuDialogDefaultIndex(UD_OutfitSelected)
+    elseif option == UD_OutfitSections_M
+        SetMenuDialogOptions(UD_OutfitSections_ML)
+        SetMenuDialogStartIndex(UD_OutfitSectionSelected)
+        SetMenuDialogDefaultIndex(UD_OutfitSectionSelected)
+    EndIf
+EndFunction
+
 event OnOptionMenuAccept(int option, int index)
     OnOptionMenuAcceptDefault(option,index)
     OnOptionMenuAcceptCustomBondage(option,index)
@@ -2662,6 +2843,7 @@ event OnOptionMenuAccept(int option, int index)
     OnOptionMenuAcceptUIWidget(option, index)
     OnOptionMenuAcceptAnimations(option, index)
     OnOptionMenuAcceptModifiers(option, index)
+    OnOptionMenuAcceptOutfit(option, index)
 endEvent
 
 Function OnOptionMenuAcceptDefault(int option, int index)
@@ -2766,6 +2948,18 @@ Function OnOptionMenuAcceptModifiers(Int option, Int index)
     If option == UD_ModifierList_M
         UD_ModifierSelected = index
         SetMenuOptionValue(option, UDmain.UDMOM.UD_ModifierList[index])
+        forcePageReset()
+    EndIf
+EndFunction
+
+Function OnOptionMenuAcceptOutfit(Int option, Int index)
+    If option == UD_OutfitList_M
+        UD_OutfitSelected = index
+        SetMenuOptionValue(option, UDOTM.UD_OutfitList[index])
+        forcePageReset()
+    elseif option == UD_OutfitSections_M
+        UD_OutfitSectionSelected = index
+        SetMenuOptionValue(option, UD_OutfitSections_ML[index])
         forcePageReset()
     EndIf
 EndFunction

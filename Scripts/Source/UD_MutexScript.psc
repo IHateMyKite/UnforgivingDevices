@@ -12,7 +12,7 @@ UnforgivingDevicesMain Property UDmain hidden
 EndProperty
 ;LOCK
 bool    Property UD_GlobalDeviceMutex_InventoryScript                   = false     auto hidden
-bool    Property UD_GlobalDeviceMutex_InventoryScript_Failed            = false     auto hidden
+Int     Property UD_GlobalDeviceMutex_InventoryScript_Failed            = 0         auto hidden
 Armor   Property UD_GlobalDeviceMutex_Device                            = none      auto hidden
 ;UNLOCK     
 bool    Property UD_GlobalDeviceUnlockMutex_InventoryScript             = false     auto hidden
@@ -42,7 +42,7 @@ EndFunction
 
 Function ResetLockMutex()
     UD_GlobalDeviceMutex_InventoryScript             = false
-    UD_GlobalDeviceMutex_InventoryScript_Failed     = false
+    UD_GlobalDeviceMutex_InventoryScript_Failed     = 0
     UD_GlobalDeviceMutex_Device                     = none
     (GetOwningQuest() as UD_MutexManagerScript).UnMutex(GetActorRef())
     Clear()
@@ -93,12 +93,13 @@ Function EvaluateLockMutex()
         endwhile
     endif
     
-    if UD_GlobalDeviceMutex_InventoryScript_Failed
-        UDmain.Error("EvaluateLockMutex("+getActorName(GetActorRef())+","+UD_GlobalDeviceMutex_Device.getName()+") failed!!!")
-    endif
     if loc_time >= UDmain.UDGV.UD_MutexTimeout
-        UDmain.Error("EvaluateLockMutex("+getActorName(GetActorRef())+","+UD_GlobalDeviceMutex_Device.getName()+") timeout!!!")
+        UD_GlobalDeviceMutex_InventoryScript_Failed = 8
     endif
+    if UD_GlobalDeviceMutex_InventoryScript_Failed
+        UDCDMain.DeviceLockIssueReport(GetActor(),UD_GlobalDeviceMutex_Device,UD_GlobalDeviceMutex_InventoryScript_Failed)
+    endif
+
     
     UD_GlobalDeviceMutex_Device = none
 EndFunction

@@ -723,14 +723,6 @@ Function UpdateExposure(actor akRef, float val, bool skipMultiplier=false)
     EndIf
 EndFunction
 
-Event StartBoundEffects(Actor akTarget)
-    UDCDmain.SendStartBoundEffectEvent(akTarget)
-EndEvent
-
-Event StartBoundEffectsPatched(Actor akTarget)
-    parent.StartBoundEffects(akTarget)
-EndEvent
-
 Function UpdateControls()
     ProcessPlayerControls(true) ;only update when player is not in minigame
 EndFunction
