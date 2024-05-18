@@ -12,21 +12,21 @@ UnforgivingDevicesMain Property UDmain Hidden
     EndFunction
 EndProperty
 
-Int Property ToBeRegistered = 0 auto hidden
+Int _ToBeRegistered = 0
 
 Function IncToBeRegCnt()
-    ToBeRegistered += 1
+    _ToBeRegistered += 1
 EndFunction
 
 Function DecToBeRegCnt()
-    ToBeRegistered -= 1
+    _ToBeRegistered -= 1
 EndFunction
 
 Function Update()
-    while ToBeRegistered
+    while _ToBeRegistered
         Utility.WaitMenuMode(1.0)
-        if ToBeRegistered
-            UDMain.Info(self+"::Update() - Remaining storage to register = " + ToBeRegistered)
+        if _ToBeRegistered
+            UDMain.Info("UD_OutfitManager::Update() - Remaining storage to register = " + _ToBeRegistered)
         endif
     endwhile
     UpdateLists()

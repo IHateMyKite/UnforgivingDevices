@@ -12,11 +12,11 @@ UnforgivingDevicesMain Property UDmain Hidden
 EndProperty
 
 Event OnInit()
-    UDMain.UDOTM.IncToBeRegCnt()
-    RegisterForSingleUpdate(10.0 - UD_Priority*0.02)
+    RegisterForSingleUpdate(1.0 - UD_Priority*0.005)
 EndEvent
 
 Event OnUpdate()
+    UDMain.UDOTM.IncToBeRegCnt()
     ValidateOutfits()
     UDMain.UDOTM.AddOutfitStorage(self)
     UDMain.UDOTM.DecToBeRegCnt()
@@ -43,6 +43,7 @@ UD_Outfit Function GetOutfitByAlias(String asAlias)
 EndFunction
 
 Function ValidateOutfits()
+    UDMain.Info(self+"::ValidateOutfits() called")
     int loc_i = 0
     while loc_i < GetOutfitNum()
         UD_Outfit loc_outfit = GetNthOutfit(loc_i)
