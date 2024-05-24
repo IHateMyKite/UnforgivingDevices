@@ -261,13 +261,6 @@
 				"lewd" : 0 
 			}, {
 				"A1" : {
-					"anim" : "DDZazHornyA", 
-					"req" : 0, 
-					"opt" : 2306
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
 					"anim" : "DDZazHornyD", 
 					"req" : 0, 
 					"opt" : 2306
@@ -292,13 +285,6 @@
 				"lewd" : 0 
 			}, {
 				"A1" : {
-					"anim" : "DDZazHornyA", 
-					"req" : 0, 
-					"opt" : 2306
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
 					"anim" : "DDZazHornyD", 
 					"req" : 0, 
 					"opt" : 2306
@@ -318,13 +304,6 @@
 				"A1" : {
 					"anim" : "DDChestStruggle01_H", 
 					"req" : 1, 
-					"opt" : 2306
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDZazHornyA", 
-					"req" : 0, 
 					"opt" : 2306
 				}, 
 				"lewd" : 0 

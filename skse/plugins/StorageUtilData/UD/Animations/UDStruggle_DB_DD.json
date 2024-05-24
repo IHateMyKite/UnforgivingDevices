@@ -408,13 +408,6 @@
 		"zad_DeviousBra" : [
 			{
 				"A1" : {
-					"anim" : "DDZazHornyA", 
-					"req" : 0, 
-					"opt" : 2306
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
 					"anim" : "DDZazHornyD", 
 					"req" : 0, 
 					"opt" : 2306
@@ -425,13 +418,6 @@
 		"zad_DeviousPiercingsNipple" : [
 			{
 				"A1" : {
-					"anim" : "DDZazHornyA", 
-					"req" : 0, 
-					"opt" : 2306
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
 					"anim" : "DDZazHornyD", 
 					"req" : 0, 
 					"opt" : 2306
@@ -441,13 +427,6 @@
 		], 
 		"zad_DeviousClamps" : [
 			{
-				"A1" : {
-					"anim" : "DDZazHornyA", 
-					"req" : 0, 
-					"opt" : 2306
-				}, 
-				"lewd" : 0 
-			}, {
 				"A1" : {
 					"anim" : "DDZazHornyD", 
 					"req" : 0, 
