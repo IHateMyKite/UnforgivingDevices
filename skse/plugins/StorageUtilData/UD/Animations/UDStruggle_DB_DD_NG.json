@@ -24,28 +24,28 @@
 			{
 				"A1" : {
 					"anim" : "DDHobbleStruggle01_AH", 
-					"req" : 1, 
+					"req" : 529, 
 					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "DDHobbleStruggle01_BH", 
-					"req" : 1, 
+					"req" : 1025, 
 					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "DDHobbleStruggle01_EH", 
-					"req" : 1, 
+					"req" : 33, 
 					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "DDHobbleStruggle01_FH", 
-					"req" : 1, 
+					"req" : 9, 
 					"opt" : 2306
 				}, 
 				"lewd" : 0 
@@ -59,14 +59,14 @@
 			}, {
 				"A1" : {
 					"anim" : "DDHobbleStruggle01_TH", 
-					"req" : 1, 
+					"req" : 129, 
 					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "DDHobbleStruggle01_YH", 
-					"req" : 1, 
+					"req" : 5, 
 					"opt" : 2306
 				}, 
 				"lewd" : 0 
@@ -76,28 +76,28 @@
 			{
 				"A1" : {
 					"anim" : "DDHobbleStruggle01_AH", 
-					"req" : 1, 
+					"req" : 529, 
 					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "DDHobbleStruggle01_BH", 
-					"req" : 1, 
+					"req" : 1025, 
 					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "DDHobbleStruggle01_EH", 
-					"req" : 1, 
+					"req" : 33, 
 					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "DDHobbleStruggle01_FH", 
-					"req" : 1, 
+					"req" : 9, 
 					"opt" : 2306
 				}, 
 				"lewd" : 0 
@@ -111,14 +111,14 @@
 			}, {
 				"A1" : {
 					"anim" : "DDHobbleStruggle01_TH", 
-					"req" : 1, 
+					"req" : 129, 
 					"opt" : 2306
 				}, 
 				"lewd" : 0 
 			}, {
 				"A1" : {
 					"anim" : "DDHobbleStruggle01_YH", 
-					"req" : 1, 
+					"req" : 5, 
 					"opt" : 2306
 				}, 
 				"lewd" : 0 
@@ -128,21 +128,7 @@
 			
 		], 
 		"zad_DeviousArmbinder" : [
-			{
-				"A1" : {
-					"anim" : "DDArmsStruggle01", 
-					"req" : 16, 
-					"opt" : 2306
-				}, 
-				"lewd" : 0 
-			}, {
-				"A1" : {
-					"anim" : "DDArmsStruggle01_H", 
-					"req" : 17, 
-					"opt" : 2306
-				}, 
-				"lewd" : 0 
-			}
+			
 		], 
 		"zad_DeviousArmbinderElbow" : [
 			
@@ -205,7 +191,28 @@
 			}
 		], 
 		"zad_DeviousHood" : [
-			
+			{
+				"A1" : {
+					"anim" : "DDCollarStruggle01", 
+					"req" : 0, 
+					"opt" : 2306
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDCollarStruggle01_H", 
+					"req" : 1, 
+					"opt" : 2306
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDGagStruggle01", 
+					"req" : 0, 
+					"opt" : 2306
+				}, 
+				"lewd" : 0 
+			}
 		], 
 		"zad_DeviousGag" : [
 			{
@@ -516,13 +523,55 @@
 			}
 		], 
 		"zad_DeviousBondageMittens" : [
-			
+			{
+				"A1" : {
+					"anim" : "DDArmsStruggle01", 
+					"req" : 0, 
+					"opt" : 2306
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDArmsStruggle01_H", 
+					"req" : 1, 
+					"opt" : 2306
+				}, 
+				"lewd" : 0 
+			}
 		], 
 		"zad_DeviousArmCuffs" : [
-			
+			{
+				"A1" : {
+					"anim" : "DDArmsStruggle01", 
+					"req" : 0, 
+					"opt" : 2306
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDArmsStruggle01_H", 
+					"req" : 1, 
+					"opt" : 2306
+				}, 
+				"lewd" : 0 
+			}
 		], 
 		"zad_DeviousGloves" : [
-			
+			{
+				"A1" : {
+					"anim" : "DDArmsStruggle01", 
+					"req" : 0, 
+					"opt" : 2306
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDArmsStruggle01_H", 
+					"req" : 1, 
+					"opt" : 2306
+				}, 
+				"lewd" : 0 
+			}
 		], 
 		"zad_DeviousBoots" : [
 			{

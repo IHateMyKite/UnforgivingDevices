@@ -378,6 +378,13 @@
 		"zad_DeviousGag" : [
 			{
 				"A1" : {
+					"anim" : "ft_struggle_head_1", 
+					"req" : 0, 
+					"opt" : 2307
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
 					"anim" : "ft_struggle_gag_1", 
 					"req" : 0, 
 					"opt" : 2307
@@ -393,10 +400,7 @@
 					"opt" : 2307
 				}, 
 				"lewd" : 0 
-			}
-		], 
-		"zad_DeviousCollar" : [
-			{
+			}, {
 				"A1" : {
 					"anim" : "ft_struggle_head_1", 
 					"req" : 0, 
@@ -404,6 +408,9 @@
 				}, 
 				"lewd" : 0 
 			}
+		], 
+		"zad_DeviousCollar" : [
+			
 		], 
 		"zad_DeviousBra" : [
 			{
