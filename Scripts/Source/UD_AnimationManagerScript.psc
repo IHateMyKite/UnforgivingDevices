@@ -53,26 +53,44 @@ Bool                                   Property     Ready         = False   Auto
 /;
 String[]                               Property     UD_AnimationJSON_All    Auto    Hidden
 
-;/  Variable: UD_AnimationJSON_Inv
-    Array with files disabled by load condition.
+;/  Variable: UD_AnimationJSON_Status
+    Array with load statuses for the files in UD_AnimationJSON_All array.
+    Possible values:
+    0       OK
+    1       Disabled by the player
+    2       Conditions not met
+    3       Parsing errors
     
     Do not edit, *READ ONLY!*.
     
     See <LoadAnimationJSONFiles>.
 /;
-String[]                               Property     UD_AnimationJSON_Inv    Auto    Hidden
+Int[]                               Property     UD_AnimationJSON_Status    Auto    Hidden
 
-;/  Variable: UD_AnimationJSON_Dis
-    Array with files disabled by user on MCM Animation page
+;/  Variable: UD_AnimationJSON_Error
+    Array with load errors for the files in UD_AnimationJSON_All array.
+    Possible values:
+    ""              everything is OK
+    <file>          absent json or esp file from the condition
+    <json errors>   json parsing errors
     
+    Do not edit, *READ ONLY!*.
+    
+    See <LoadAnimationJSONFiles>.
+/;
+String[]                               Property     UD_AnimationJSON_Error    Auto    Hidden
+
+;/  Variable: UD_AnimationJSON_Off
+    Array (more like set) with file names disabled by the player in MCM.
+
     Do not edit, *READ ONLY!*. Configurable on MCM Animation page by user.
     
     See <LoadAnimationJSONFiles>
 /;
-String[]                               Property     UD_AnimationJSON_Dis    Auto    Hidden
+String[]                               Property     UD_AnimationJSON_Off    Auto    Hidden
 
 ;/  Variable: UD_AnimationJSON
-    Array with currently used json files. Updated after <LoadAnimationJSONFiles> call.
+    Array (more like set) with currently used json files. Updated after <LoadAnimationJSONFiles> call.
     
     Do not edit, *READ ONLY!*.
     
@@ -149,7 +167,7 @@ EndFunction
 ; Function LoadDefaultMCMSettings
 ; Load default values for properties on MCM page
 Function LoadDefaultMCMSettings()
-    UD_AnimationJSON_Dis = PapyrusUtil.StringArray(0)
+    UD_AnimationJSON_Off = PapyrusUtil.StringArray(0)
     LoadAnimationJSONFiles()
     UD_AlternateAnimation = False
     UD_AlternateAnimationPeriod = 5
@@ -820,7 +838,7 @@ EndFunction
 
     In this function, json files with animation bindings to different mod situations are checked and loaded.
     
-    During the load process, the conditions described in the "condition" field are taken into account, as well as flags from the <UD_AnimationJSON_Dis> array that the file is disabled by the user.
+    During the load process, the conditions described in the "condition" field are taken into account, as well as flags from the <UD_AnimationJSON_Off> array that the file is disabled by the user.
     
     The names of all valid files are stored in the <UD_AnimationJSON> array.
 /;
@@ -828,40 +846,44 @@ Function LoadAnimationJSONFiles()
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles()", 3)
     EndIf
-    UD_AnimationJSON_All = PapyrusUtil.ResizeStringArray(UD_AnimationJSON_All, 0)
-    UD_AnimationJSON_Inv = PapyrusUtil.ResizeStringArray(UD_AnimationJSON_Inv, 0)
+    ; enumerating all json files in folder
+    UD_AnimationJSON_All = JsonUtil.JsonInFolder("UD/Animations")
+    ; resizing arrays
     UD_AnimationJSON = PapyrusUtil.ResizeStringArray(UD_AnimationJSON, 0)
-    String[] files = JsonUtil.JsonInFolder("UD/Animations")
+    UD_AnimationJSON_Error = PapyrusUtil.ResizeStringArray(UD_AnimationJSON_Error, UD_AnimationJSON_All.Length)
+    UD_AnimationJSON_Status = PapyrusUtil.ResizeIntArray(UD_AnimationJSON_Status, UD_AnimationJSON_All.Length)
+
     Int i = 0
-    While i < files.Length
-        String file = "UD/Animations/" + files[i]
-        JsonUtil.Unload(file)
-        Bool file_is_valid = True
-        If JsonUtil.Load(file) && JsonUtil.IsGood(file)
-            String file_to_check = JsonUtil.GetPathStringValue(file, "conditions.json")
-            If file_to_check != "" && JsonUtil.JsonExists(file_to_check) == False
-                UDMain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() Load condition of the file '" + file + "' is not valid. Can't find JSON file " + file_to_check, 1)
-                file_is_valid = False
-            EndIf
-            file_to_check = JsonUtil.GetPathStringValue(file, "conditions.mod")
-            If file_to_check != "" && UnforgivingDevicesMain.ModInstalled(file_to_check) == False
-                UDMain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() Load condition of the file '" + file + "' is not valid. Can't find mod " + file_to_check, 1)
-                file_is_valid = False
-            EndIf
-        Else
-            UDMain.Warning("UD_AnimationManagerScript::LoadAnimationJSONFiles() Failed to load json file '" + file + "'")
-            UDMain.Warning("UD_AnimationManagerScript::LoadAnimationJSONFiles() Found errors: " + JsonUtil.GetErrors(file))
-            file_is_valid = False
-        EndIf
-        UD_AnimationJSON_All = PapyrusUtil.PushString(UD_AnimationJSON_All, files[i])
-        If !file_is_valid
-            UD_AnimationJSON_Inv = PapyrusUtil.PushString(UD_AnimationJSON_Inv, files[i])
-        Else
-            If UD_AnimationJSON_Dis.Find(files[i]) < 0
-                UD_AnimationJSON = PapyrusUtil.PushString(UD_AnimationJSON, files[i])
+    While i < UD_AnimationJSON_All.Length
+        String file_name = UD_AnimationJSON_All[i]
+        String file_path = "UD/Animations/" + UD_AnimationJSON_All[i]
+        ; reloading json file
+        JsonUtil.Unload(file_path)
+        If JsonUtil.Load(file_path) && JsonUtil.IsGood(file_path)
+            String json_to_check = JsonUtil.GetPathStringValue(file_path, "conditions.json")
+            String mod_to_check = JsonUtil.GetPathStringValue(file_path, "conditions.mod")
+            If json_to_check != "" && JsonUtil.JsonExists(json_to_check) == False
+                UDMain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() Load condition for the file '" + file_name + "' is not valid. Can't find JSON file " + json_to_check, 1)
+                UD_AnimationJSON_Status[i] = 2
+                UD_AnimationJSON_Error[i] = json_to_check
+            ElseIf mod_to_check != "" && UnforgivingDevicesMain.ModInstalled(mod_to_check) == False
+                UDMain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() Load condition for the file '" + file_name + "' is not valid. Can't find mod " + mod_to_check, 1)
+                UD_AnimationJSON_Status[i] = 2
+                UD_AnimationJSON_Error[i] = mod_to_check
+            ElseIf UD_AnimationJSON_Off.Find(file_name) >= 0
+                UD_AnimationJSON_Status[i] = 1
+                UDMain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() The file " + file_name + "  will not be loaded because it is toggled off in MCM'", 1)
             Else
-                UDMain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() File '" + file + "' is disabled by player", 1)
+            ; adding new name into array with files to use
+                UD_AnimationJSON_Status[i] = 0
+                UD_AnimationJSON = PapyrusUtil.PushString(UD_AnimationJSON, file_name)
             EndIf
+        Else
+            String errors = JsonUtil.GetErrors(file_path)
+            UDMain.Warning("UD_AnimationManagerScript::LoadAnimationJSONFiles() Failed to load json file '" + file_name + "'")
+            UDMain.Warning("UD_AnimationManagerScript::LoadAnimationJSONFiles() Found errors: " + errors)
+            UD_AnimationJSON_Status[i] = 3
+            UD_AnimationJSON_Error[i] = errors
         EndIf
         i += 1
     EndWhile
@@ -977,7 +999,11 @@ String[] Function GetAnimationsFromDB(String asType, String[] aasKeywords, Strin
                     If asField == ""
                         result_temp[currentIndex] = UD_AnimationJSON[i] + ":" + anim_path
                     Else
-                        result_temp[currentIndex] = JsonUtil.GetPathStringValue(file, anim_path + asField)
+                        If JsonUtil.IsPathArray(file, anim_path + asField)
+                            result_temp[currentIndex] = JsonUtil.PathStringElements(file, anim_path + asField) as String
+                        Else
+                            result_temp[currentIndex] = JsonUtil.GetPathStringValue(file, anim_path + asField)
+                        EndIf
                     EndIf
                     If result_temp[currentIndex] != ""
                         currentIndex += 1
