@@ -24,7 +24,14 @@
 			{
 				"A1" : {
 					"anim" : "DDHobbleStruggle01_AH", 
-					"req" : 529, 
+					"req" : 17, 
+					"opt" : 2306
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDHobbleStruggle01_AH", 
+					"req" : 513, 
 					"opt" : 2306
 				}, 
 				"lewd" : 0 
@@ -76,7 +83,14 @@
 			{
 				"A1" : {
 					"anim" : "DDHobbleStruggle01_AH", 
-					"req" : 529, 
+					"req" : 17, 
+					"opt" : 2306
+				}, 
+				"lewd" : 0 
+			}, {
+				"A1" : {
+					"anim" : "DDHobbleStruggle01_AH", 
+					"req" : 513, 
 					"opt" : 2306
 				}, 
 				"lewd" : 0 
