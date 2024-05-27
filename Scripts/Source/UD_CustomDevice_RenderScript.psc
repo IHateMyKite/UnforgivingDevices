@@ -8040,17 +8040,13 @@ Function onWeaponHitPost(Weapon source)
         if !loc_damage
             loc_damage = 5.0
         endif
-        
-        If canBeCutted()
-            decreaseDurabilityAndCheckUnlock(loc_damage*0.25*(1.0 - UD_WeaponHitResist),2.0)
-            
-            if HaveUnlockableLocks()
-                if hasModifier("CLO")
-                    int loc_chance = Round(UD_Native.GetStringParamFloat(GetModifierParam("CLO"),0)*0.1)
-                    AddJammedLock(loc_chance)
-                endif
+        decreaseDurabilityAndCheckUnlock(loc_damage*0.25*(1.0 - UD_WeaponHitResist),2.0)
+        if HaveUnlockableLocks()
+            if hasModifier("CLO")
+                int loc_chance = Round(UD_Native.GetStringParamFloat(GetModifierParam("CLO"),0)*0.1)
+                AddJammedLock(loc_chance)
             endif
-        EndIf
+        endif
     endif
     If !IsUnlocked
         Udmain.UDMOM.Procces_UpdateModifiers_OnWeaponHit(self, source)

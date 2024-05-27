@@ -34,6 +34,8 @@ ScriptName UD_Modifier_Evolve extends UD_Modifier
 import UnforgivingDevicesMain
 import UD_Native
 
+Explosion Property EvolveExplosion Auto
+
 Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
     int loc_type = UD_Native.GetStringParamInt(aiDataStr,0,0)
     if loc_type == 0
@@ -65,8 +67,11 @@ Function WeaponHit(UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, Strin
     int loc_type = UD_Native.GetStringParamInt(aiDataStr, 0, -1)
     if loc_type == 2
         Float loc_value = UD_Native.GetStringParamFloat(aiDataStr, 1, 0.1)
-        Float loc_damage = akWeapon.GetBaseDamage()
-        If RandomFloat(0.0, 100.0) < loc_value * loc_damage
+        Float loc_damage = iRange(akWeapon.GetBaseDamage(), 5, 100)
+        If UDmain.TraceAllowed()
+            UDmain.Log("UD_Modifier_Evolve::WeaponHit() loc_value = " + loc_value + ", loc_damage = " + loc_damage, 3)
+        EndIf
+        If RandomFloat(0.0, 10.0) < loc_value * loc_damage
             Evolve(akDevice, akForm1, akForm2, akForm3)
         EndIf
     endif
@@ -90,32 +95,52 @@ Function Evolve(UD_CustomDevice_RenderScript akDevice, Form akForm1, Form akForm
     
     Armor loc_device = none
     
-    if akForm1 || akForm2 || akForm3
-        Form[] loc_forms
-        if akForm1
-            loc_forms = PapyrusUtil.PushForm(loc_forms,akForm1)
-        endif
-        if akForm2
-            loc_forms = PapyrusUtil.PushForm(loc_forms,akForm2)
-        endif
-        if akForm3
-            loc_forms = PapyrusUtil.PushForm(loc_forms,akForm3)
-        endif
+    Form[] loc_forms
+    Int loc_i
+
+    If (akForm1 as FormList) != None
+        loc_i = (akForm1 as FormList).GetSize()
+        While loc_i > 0
+            loc_i -= 1
+            loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm1 as FormList).GetAt(loc_i))
+        EndWhile
+    ElseIf akForm1 != None
+        loc_forms = PapyrusUtil.PushForm(loc_forms, akForm1)
+    EndIf
+    
+    If (akForm2 as FormList) != None
+        loc_i = (akForm2 as FormList).GetSize()
+        While loc_i > 0
+            loc_i -= 1
+            loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm2 as FormList).GetAt(loc_i))
+        EndWhile
+    ElseIf akForm2 != None
+        loc_forms = PapyrusUtil.PushForm(loc_forms, akForm2)
+    EndIf
+    
+    If (akForm3 as FormList) != None
+        loc_i = (akForm3 as FormList).GetSize()
+        While loc_i > 0
+            loc_i -= 1
+            loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm3 as FormList).GetAt(loc_i))
+        EndWhile
+    ElseIf akForm3 != None
+        loc_forms = PapyrusUtil.PushForm(loc_forms, akForm3)
+    EndIf
         
+    if loc_forms.Length > 0
         Int loc_size = loc_forms.length
         Form loc_evolveto = loc_forms[RandomInt(0,loc_size - 1)]
         if loc_evolveto as Armor
             loc_device = loc_evolveto as Armor
-        elseif loc_evolveto as FormList
-            Formlist loc_list = loc_evolveto as FormList
-            Int loc_listsize = loc_list.GetSize()
-            loc_device = loc_list.GetAt(RandomInt(0,loc_listsize - 1)) as Armor
         endif
-        
     endif
     akDevice.editStringModifier(NameAlias,0,-1)
     akDevice.unlockRestrain(true)
     if loc_device
+        If EvolveExplosion != None
+            akDevice.GetWearer().PlaceAtMe(EvolveExplosion)
+        EndIf
         libs.LockDevice(loc_actor,loc_device)
         UDmain.Print(akDevice.GetDeviceName() + " have evolved in to " + loc_device.GetName() +"!")
     endif

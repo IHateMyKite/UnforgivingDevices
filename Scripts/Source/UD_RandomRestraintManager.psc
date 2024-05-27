@@ -662,10 +662,18 @@ bool Function ConflictNone(Actor akActor,Armor to_check)                        
 EndFunction
 
 ; Check conflicts using armor slots
+; Need RenderedDevice :( 
 Bool Function ConflictNone2(Actor akActor, Armor to_check)
     If akActor == None || to_check == None
         Return False
     EndIf
-    Int slot_mask = to_check.GetSlotMask()
+    Armor rend_to_check  = libs.GetRenderedDevice(to_check)                                     ; getting rendered device 
+    If rend_to_check == None
+        Return False
+    EndIf
+    Int slot_mask = rend_to_check.GetSlotMask()
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_RandomRestraintManager::ConflictNone2() to_check = " + to_check + ", rend_to_check = " + rend_to_check + ", slot_mask = " + slot_mask, 3)
+    EndIf
     Return akActor.GetWornForm(slot_mask) == None
 EndFunction

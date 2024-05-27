@@ -9,6 +9,7 @@
             HIT - Weapon hit (proportional to base damage)
             COND - Condition loss
             Default = HIT
+            
         1 = (optional) Amount of value required to manifest
             [HIT]       Weapon hit      -> Chance in % to evolve in proportion to the damage taken (weapon base damage) [default 0.1]
             [COND]      Condition lost  -> Chance to evolve in % after device condition loss [default 10.0]
@@ -17,6 +18,9 @@
             FIRST   - first suitable device from the list
             RANDOM  - random device from the list
             default = RANDOM
+            
+        3   (optional) Number of devices
+            default = 1
 
     Form arguments:
         Form1 - Device to manifest. In case this is formlist, random device from formlist will be used.
@@ -25,10 +29,10 @@
     In case more than one FormX is filled, random one will be choosen
 
     Example:
-        2,1     = Can manifest a device with a 10% chance after receiving 10 point damage
-        3,10    = Can manifest a device with a 10% chance after condition loss
+        HIT,1,FIRST,1         = Can manifest a device with a 10% chance after receiving 10 point damage. It chooses one first device from the list provided
+        COND,10,RANDOM,2      = Can manifest a device with a 10% chance after condition loss. It chooses two random devices from the list provided
 /;
-Scriptname UD_Modifier_DMA extends UD_Modifier
+Scriptname UD_Modifier_DMA extends UD_Modifier_Manifest
 
 import UnforgivingDevicesMain
 import UD_Native
@@ -57,9 +61,14 @@ Function WeaponHit(UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, Strin
     String loc_type = UD_Native.GetStringParamString(aiDataStr, 0, "HIT")
     if loc_type == "HIT"
         Float loc_value = UD_Native.GetStringParamFloat(aiDataStr, 1, 0.1)
-        Float loc_damage = akWeapon.GetBaseDamage()
-        If RandomFloat(0.0, 100.0) < loc_value * loc_damage
-            Manifest(akDevice, aiDataStr, akForm1, akForm2, akForm3)
+        Float loc_damage = iRange(akWeapon.GetBaseDamage(), 5, 100)
+        If UDmain.TraceAllowed()
+            UDmain.Log("UD_Modifier_DMA::WeaponHit() loc_value = " + loc_value + ", loc_damage = " + loc_damage, 3)
+        EndIf
+        If RandomFloat(0.0, 10.0) < loc_value * loc_damage
+            Bool loc_rnd = UD_Native.GetStringParamString(aiDataStr, 2, "RANDOM") == "RANDOM"
+            Int loc_count = UD_Native.GetStringParamInt(aiDataStr, 3, 1)
+            Manifest(akDevice, aiDataStr, akForm1, akForm2, akForm3, loc_rnd, loc_count)
         EndIf
     endif
 EndFunction
@@ -73,7 +82,9 @@ Function ConditionLoss(UD_CustomDevice_RenderScript akDevice, Int aiCondition, S
     ; TODO: (as an option) worse condition, better odds
         Float loc_value = UD_Native.GetStringParamFloat(aiDataStr, 1, 10.0)
         If RandomFloat(0.0, 100.0) < loc_value
-            Manifest(akDevice, aiDataStr, akForm1, akForm2, akForm3)
+            Bool loc_rnd = UD_Native.GetStringParamString(aiDataStr, 2, "RANDOM") == "RANDOM"
+            Int loc_count = UD_Native.GetStringParamInt(aiDataStr, 3, 1)
+            Manifest(akDevice, aiDataStr, akForm1, akForm2, akForm3, loc_rnd, loc_count)
         EndIf
     endif
 EndFunction
@@ -82,7 +93,7 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     String loc_msg = ""
     
     loc_msg += "=== " + NameFull + " ===\n"
-    loc_msg += "Chance: " + iRange(Round(UD_Native.GetStringParamInt(aiDataStr,0)*Multiplier),0,100) + " %\n"
+    loc_msg += "Chance: " + FormatFloat(GetStringParamFloat(aiDataStr, 1, 0.1), 2) + " %\n"
 
     loc_msg += "===Description===\n"
     loc_msg += Description + "\n"
@@ -90,43 +101,3 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     UDmain.ShowMessageBox(loc_msg)
 EndFunction
 
-Function Manifest(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
-
-    Bool loc_rnd = UD_Native.GetStringParamString(aiDataStr, 2, "RANDOM") == "RANDOM"
-    
-    Form[] loc_forms
-    Int loc_i
-
-    If (akForm1 as FormList) != None
-        loc_i = (akForm1 as FormList).GetSize()
-        While loc_i > 0
-            loc_i -= 1
-            loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm1 as FormList).GetAt(loc_i))
-        EndWhile
-    ElseIf akForm1 != None
-        loc_forms = PapyrusUtil.PushForm(loc_forms, akForm1)
-    EndIf
-    
-    If (akForm2 as FormList) != None
-        loc_i = (akForm2 as FormList).GetSize()
-        While loc_i > 0
-            loc_i -= 1
-            loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm2 as FormList).GetAt(loc_i))
-        EndWhile
-    ElseIf akForm2 != None
-        loc_forms = PapyrusUtil.PushForm(loc_forms, akForm2)
-    EndIf
-    
-    If (akForm3 as FormList) != None
-        loc_i = (akForm3 as FormList).GetSize()
-        While loc_i > 0
-            loc_i -= 1
-            loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm3 as FormList).GetAt(loc_i))
-        EndWhile
-    ElseIf akForm3 != None
-        loc_forms = PapyrusUtil.PushForm(loc_forms, akForm3)
-    EndIf
-    
-    UDCDmain.ManifestDevicesFromArray(akDevice.GetWearer(), akDevice.getDeviceName(), loc_forms, loc_rnd)
-    
-EndFunction

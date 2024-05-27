@@ -82,9 +82,9 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     String loc_msg = ""
     
     loc_msg += "==== " + NameFull + " ====\n"
-    loc_msg += "\tArmor Type: \t" + UD_Native.GetStringParamString(aiDataStr, 0, "Light") + "\n"
-    loc_msg += "\tMaterial: \t" + UD_Native.GetStringParamString(aiDataStr, 1, "Leather") + "\n"
-    loc_msg += "\tArmor Value: \t" + UD_Native.GetStringParamInt(aiDataStr, 2, 0) + "\n"
+    loc_msg += "Armor Type: \t" + UD_Native.GetStringParamString(aiDataStr, 0, "Light") + "\n"
+    loc_msg += "Material: \t" + UD_Native.GetStringParamString(aiDataStr, 1, "Leather") + "\n"
+    loc_msg += "Armor Value: \t" + UD_Native.GetStringParamInt(aiDataStr, 2, 0) + "\n"
     
     if Description
         loc_msg += "=== Description ===" + "\n"
