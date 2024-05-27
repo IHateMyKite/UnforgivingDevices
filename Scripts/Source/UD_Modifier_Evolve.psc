@@ -8,11 +8,15 @@
         0 = (optional) Type of monitored value
             0 - Hours
             1 - Orgasms
+            2 - Weapon hit (proportional to base damage)
+            3 - Condition loss
            -1 - Device have already evolved
             Default = 0
         1 = (optional) Amount of value required to evolve
             Hours -> Float
             Orgasms -> Int
+            Weapon hit -> Chance in % to evolve in proportion to the damage taken (weapon base damage) [default 0.1]
+            Condition lost -> Chance to evolve in % after device condition loss [default 10.0]
             Default = 6.0
 
     Form arguments:
@@ -51,6 +55,33 @@ Function Orgasm(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form ak
         else
             Evolve(akDevice,akForm1,akForm2,akForm3)
         endif
+    endif
+EndFunction
+
+Function WeaponHit(UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_Modifier_Evolve::WeaponHit() akDevice = " + akDevice + ", akWeapon = " + akWeapon + ", aiDataStr = " + aiDataStr, 3)
+    EndIf
+    int loc_type = UD_Native.GetStringParamInt(aiDataStr, 0, -1)
+    if loc_type == 2
+        Float loc_value = UD_Native.GetStringParamFloat(aiDataStr, 1, 0.1)
+        Float loc_damage = akWeapon.GetBaseDamage()
+        If RandomFloat(0.0, 100.0) < loc_value * loc_damage
+            Evolve(akDevice, akForm1, akForm2, akForm3)
+        EndIf
+    endif
+EndFunction
+
+Function ConditionLoss(UD_CustomDevice_RenderScript akDevice, Int aiCondition, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_Modifier_Evolve::ConditionLoss() akDevice = " + akDevice + ", aiCondition = " + aiCondition + ", aiDataStr = " + aiDataStr, 3)
+    EndIf
+    int loc_type = UD_Native.GetStringParamInt(aiDataStr, 0, -1)
+    if loc_type == 3
+    ; TODO: (as an option) worse condition, better odds
+        If RandomFloat(0.0, 100.0) < aiCondition
+            Evolve(akDevice, akForm1, akForm2, akForm3)
+        EndIf
     endif
 EndFunction
 
@@ -106,6 +137,10 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
         loc_msg += "Hours to evolve: " + FormatFloat(GetStringParamFloat(aiDataStr,1,6.0),2) + "\n"
     elseif loc_type == 1
         loc_msg += "Orgasms to evolve: " + GetStringParamInt(aiDataStr,1,3) + "\n"
+    elseif loc_type == 2
+        loc_msg += "Chance to evolve after one point of damage: " + FormatFloat(GetStringParamFloat(aiDataStr,1,0.1), 2) + "%\n"
+    elseif loc_type == 3
+        loc_msg += "Chance to evolve after condition loss: " + FormatFloat(GetStringParamFloat(aiDataStr,1,0.1), 1) + "%\n"
     endif
 
     loc_msg += "===Description===\n"
