@@ -4394,6 +4394,7 @@ Function _updateCondition(bool decrease = True)
             elseif UDCDmain.AllowNPCMessage(GetWearer(), true)
                 UDmain.Print(GetWearerName() + "s " + getDeviceName() + " condition have decreased!",3)
             endif
+            Udmain.UDMOM.Procces_UpdateModifiers_OnConditionLoss(self, UD_condition)
         endwhile
     else
         if (_total_durability_drain < 0) && !IsUnlocked
@@ -8039,15 +8040,21 @@ Function onWeaponHitPost(Weapon source)
         if !loc_damage
             loc_damage = 5.0
         endif
-        decreaseDurabilityAndCheckUnlock(loc_damage*0.25*(1.0 - UD_WeaponHitResist),2.0)
         
-        if HaveUnlockableLocks()
-            if hasModifier("CLO")
-                int loc_chance = Round(UD_Native.GetStringParamFloat(GetModifierParam("CLO"),0)*0.1)
-                AddJammedLock(loc_chance)
+        If canBeCutted()
+            decreaseDurabilityAndCheckUnlock(loc_damage*0.25*(1.0 - UD_WeaponHitResist),2.0)
+            
+            if HaveUnlockableLocks()
+                if hasModifier("CLO")
+                    int loc_chance = Round(UD_Native.GetStringParamFloat(GetModifierParam("CLO"),0)*0.1)
+                    AddJammedLock(loc_chance)
+                endif
             endif
-        endif
+        EndIf
     endif
+    If !IsUnlocked
+        Udmain.UDMOM.Procces_UpdateModifiers_OnWeaponHit(self, source)
+    EndIf
 EndFunction
 
 bool Function onSpellHitPre(Spell source)
