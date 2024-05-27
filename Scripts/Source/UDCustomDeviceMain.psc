@@ -3394,6 +3394,52 @@ int Function ManifestDevices(Actor akActor,string asSource ,int aiChance,int aiN
     endif
 EndFunction
 
+int Function ManifestDevicesFromArray(Actor akActor, String asSource, Form[] akFormArray, Bool abRandom = True, Int aiNumber = 1)
+    Form[] loc_array
+    
+    while aiNumber > 0
+        while UDmain.UDOM.isOrgasming(akActor)
+            Utility.wait(0.1)
+        endwhile
+        aiNumber -= 1
+        Armor loc_device = None
+        If abRandom
+            loc_device = UDmain.UDRRM.LockRandomDeviceFromArray(akActor, akFormArray)
+        Else
+            loc_device = UDmain.UDRRM.LockFirstDeviceFromArray(akActor, akFormArray)
+        EndIf
+        if loc_device != None
+            loc_array = PapyrusUtil.PushForm(loc_array, loc_device)
+        else
+            aiNumber = 0 ;end, because no more devices can be locked
+        endif
+    endwhile
+        
+    if loc_array
+        if loc_array.length > 0
+            if IsPlayer(akActor)
+                UDmain.Print(asSource + " suddenly locks you in bondage restraint!",1)
+                ;/
+                string loc_str = "Devices locked: \n"
+                int i = 0
+                while i < loc_array.length
+                    loc_str += (loc_array[i] as Armor).getName() + "\n"
+                    i+= 1
+                endwhile
+                ShowMessageBox(loc_str)
+                /;
+            elseif AllowNPCMessage(akActor)
+                UDmain.Print(GetActorName(akActor) + "s "+ asSource +" suddenly locks them in bondage restraint!",3)
+            endif
+        endif
+    endif
+    if loc_array
+        return loc_array.length
+    else
+        return 0
+    endif
+EndFunction
+
 ReferenceAlias property UD_PlayerFollowerLongAlias1 auto
 ReferenceAlias property UD_PlayerFollowerLongAlias2 auto
 Actor _playerfollower1 = none

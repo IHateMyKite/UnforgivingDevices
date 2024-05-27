@@ -10,9 +10,9 @@ Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, Str
 EndFunction
 
 Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    ;check if orgasm manifest is already preset
-    ;Both of these should be not present on device at the same time
-    if akDevice.HasModifier("OMA")
+    ; check if another manifest modifier is already preset
+    ; Only one of these should be not present on device at the same time
+    if akDevice.HasModifier("OMA") || akDevice.HasModifier("DMA")
         return false
     endif
 
