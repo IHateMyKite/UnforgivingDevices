@@ -981,11 +981,19 @@ Function edge()
     endwhile
 EndFunction
 
+Float _LastHistTime = 0.0
+
 Event OnHit(ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked)
     if isScriptRunning()
         if UDmain.TraceAllowed()
             UDmain.Log("OnHit("+akAggressor+","+akSource+","+akProjectile+") on " + getSlotedNPCName())
         endif
+        ; checking the delta between the current time and the time of the last hit to skip spam
+        Float loc_time = Utility.GetCurrentRealTime()
+        If loc_time - _LastHistTime < 1.0
+            Return
+        EndIf
+        _LastHistTime =  loc_time
         if akSource
             if akSource as Weapon
                 OnWeaponHit(akSource as Weapon)

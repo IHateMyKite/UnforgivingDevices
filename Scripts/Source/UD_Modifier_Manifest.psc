@@ -39,10 +39,8 @@ Function Manifest(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form 
         loc_forms = PapyrusUtil.PushForm(loc_forms, akForm3)
     EndIf
     
-    If ExplosionManifest != None
+    If UDCDmain.ManifestDevicesFromArray(akDevice.GetWearer(), akDevice.getDeviceName(), loc_forms, abRandom, aiCount) > 0 && ExplosionManifest != None
         akDevice.GetWearer().PlaceAtMe(ExplosionManifest)
     EndIf
-    
-    UDCDmain.ManifestDevicesFromArray(akDevice.GetWearer(), akDevice.getDeviceName(), loc_forms, abRandom, aiCount)
     
 EndFunction

@@ -93,6 +93,9 @@ EndEvent
 ===========================================================================================
 /;
 ;- TODO
+Function GameLoaded(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+EndFunction
+
 Function TimeUpdateSecond(UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
 EndFunction
 

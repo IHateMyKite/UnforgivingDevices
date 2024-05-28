@@ -91,8 +91,10 @@ Function ConditionLoss(UD_CustomDevice_RenderScript akDevice, Int aiCondition, S
 EndFunction
 
 Function Evolve(UD_CustomDevice_RenderScript akDevice, Form akForm1, Form akForm2, Form akForm3)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_Modifier_Evolve::Evolve() akDevice = " + akDevice + ", akForm1 = " + akForm1 + ", akForm2 = " + akForm2 + ", akForm3 = " + akForm3, 3)
+    EndIf
     Actor loc_actor = akDevice.GetWearer()
-    
     Armor loc_device = none
     
     Form[] loc_forms

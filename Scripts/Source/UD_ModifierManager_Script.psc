@@ -102,6 +102,7 @@ EndFunction
 Function Update()
     ;UpdateStorage()
     UpdateLists()
+    UpdateModifiers_Load()
 EndFunction
 
 String[]        Property UD_ModifierList    auto hidden
@@ -163,6 +164,24 @@ EndEvent
 ;                            receive modifier update events
 ;====================================================================================
 
+Function UpdateModifiers_Load()
+    int loc_i = 0
+    while loc_i < UDNPCM.UD_Slots
+        UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getNPCSlotByIndex(loc_i)
+        if loc_slot.isUsed() && !loc_slot.isDead() && loc_slot.isScriptRunning()
+            UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
+            int loc_x = 0
+            while loc_devices[loc_x]
+                if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked ;not update device which are in minigame
+                    Procces_UpdateModifiers_Load(loc_devices[loc_x])
+                endif
+                loc_x += 1
+            endwhile
+        endif
+        loc_i += 1
+    endwhile
+EndFunction
+
 Function UpdateModifiers(float aiTimePassed)
     int loc_i = 0
     while loc_i < UDNPCM.UD_Slots
@@ -215,6 +234,15 @@ EndFunction
 ;====================================================================================
 ;                            Procces modifiers groups
 ;====================================================================================
+
+Function Procces_UpdateModifiers_Load(UD_CustomDevice_RenderScript akDevice)
+    int loc_modid = akDevice.UD_ModifiersRef.length
+    while loc_modid 
+        loc_modid -= 1
+        UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
+        loc_mod.GameLoaded(akDevice,akDevice.UD_ModifiersDataStr[loc_modid],akDevice.UD_ModifiersDataForm1[loc_modid],akDevice.UD_ModifiersDataForm2[loc_modid],akDevice.UD_ModifiersDataForm3[loc_modid])
+    endwhile
+EndFunction
 
 Function Procces_UpdateModifiers(UD_CustomDevice_RenderScript akDevice,float aiTimePassed)
     int loc_modid = akDevice.UD_ModifiersRef.length
@@ -320,6 +348,9 @@ EndFunction
 
 ; Sending updates to the modifiers when a device is hit with the weapon
 Function Procces_UpdateModifiers_OnWeaponHit(UD_CustomDevice_RenderScript akDevice, Weapon akWeapon)
+    If akDevice.GetRealTimeLockedTime() < 0.0005
+        Return
+    EndIf
     int loc_modid = akDevice.UD_ModifiersRef.length
     while loc_modid 
         loc_modid -= 1
