@@ -1405,9 +1405,21 @@ EndFunction
 Function HelpNPC(Actor akVictim,Actor akHelper,bool abAllowCommand)
     UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(akVictim)
     if loc_slot
+        if IsPlayer(akHelper)
+            SetPlayerFollower(akVictim,true,2)
+        elseif IsPlayer(akVictim)
+            SetPlayerFollower(akHelper,true,2)
+        endif
+        
         UD_CustomDevice_RenderScript loc_device = loc_slot.GetUserSelectedDevice()
         if loc_device
             OpenHelpDeviceMenu(loc_device,akHelper,abAllowCommand)
+        endif
+        
+        if IsPlayer(akHelper)
+            SetPlayerFollower(akVictim,false,2)
+        elseif IsPlayer(akVictim)
+            SetPlayerFollower(akHelper,false,2)
         endif
     endif
 EndFunction

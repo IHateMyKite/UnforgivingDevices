@@ -722,7 +722,7 @@ Function resetOutfitPage()
     AddTextOption("Alias",loc_outfit.NameAlias,FlagSwitch(false))
     
     UD_OutfitDisable_T  = AddToggleOption("Disabled",loc_outfit.Disable)
-    AddToggleOption("Random",loc_outfit.Random as String,FlagSwitch(false))
+    AddTextOption("Random?",loc_outfit.Random as String,FlagSwitch(false))
     
     UD_OutfitReset_T    = AddTextOption("==RESET==", "$-PRESS-")
     UD_OutfitEquip_T    = AddTextOption("==EQUIP==", "$-PRESS-",FlagSwitch(UDMain.DebugMod))

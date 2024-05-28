@@ -6813,7 +6813,7 @@ Function minigame()
                         endif
                     endif
                     ;-- alternate animation timer--
-                    if UDAM.UD_AlternateAnimation && !(tick_s % UDAM.UD_AlternateAnimationPeriod) && tick_s
+                    if UDAM.UD_AlternateAnimation && !UDmain.ImprovedCameraInstalled && !(tick_s % UDAM.UD_AlternateAnimationPeriod) && tick_s
                         if hasStruggleAnimation[0] > 1 && !_PauseMinigame && !_StopMinigame
                         ; no need to switch to new animation if there was only one found
                             _PickAndPlayStruggleAnimation(bContinueAnimation = True)
