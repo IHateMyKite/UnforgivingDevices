@@ -36,6 +36,8 @@ import UD_Native
 
 Explosion Property EvolveExplosion Auto
 
+Float _DebugDamageMutliplier = 10.0
+
 Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
     int loc_type = UD_Native.GetStringParamInt(aiDataStr,0,0)
     if loc_type == 0
@@ -71,7 +73,7 @@ Function WeaponHit(UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, Strin
         If UDmain.TraceAllowed()
             UDmain.Log("UD_Modifier_Evolve::WeaponHit() loc_value = " + loc_value + ", loc_damage = " + loc_damage, 3)
         EndIf
-        If RandomFloat(0.0, 10.0) < loc_value * loc_damage
+        If RandomFloat(0.0, 100.0) < loc_value * loc_damage * _DebugDamageMutliplier
             Evolve(akDevice, akForm1, akForm2, akForm3)
         EndIf
     endif
@@ -83,8 +85,9 @@ Function ConditionLoss(UD_CustomDevice_RenderScript akDevice, Int aiCondition, S
     EndIf
     int loc_type = UD_Native.GetStringParamInt(aiDataStr, 0, -1)
     if loc_type == 3
+        Float loc_value = UD_Native.GetStringParamFloat(aiDataStr, 1, 10.0)
     ; TODO: (as an option) worse condition, better odds
-        If RandomFloat(0.0, 100.0) < aiCondition
+        If RandomFloat(0.0, 100.0) < loc_value * _DebugDamageMutliplier
             Evolve(akDevice, akForm1, akForm2, akForm3)
         EndIf
     endif
