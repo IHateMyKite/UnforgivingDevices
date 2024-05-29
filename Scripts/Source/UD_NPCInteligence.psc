@@ -92,6 +92,7 @@ Bool Function SlotAIEnabled(UD_CustomDevice_NPCSlot akSlot)
     loc_cond = loc_cond && EvaluateAICooldown(loc_actor)                    ;actor have passed cooldown
     loc_cond = loc_cond && !akSlot.HaveLockingOperations()                  ;actor have no locking operations
     loc_cond = loc_cond && EvaluateAIStats(loc_actor)                       ;actor have minimum stats
+    loc_cond = loc_cond && EvaluateFollowingPlayer(loc_actor)               ;actor do not follow player
     ;GInfo("SlotAIEnabled("+akSlot.GetSlotedNPCName()+")")
     ;GInfo(akSlot.isUsed() + "," + !akSlot.UD_AITimer + "," + akSlot.getNumberOfRegisteredDevices() + "," + !akSlot.GetActor().IsInCombat() + "," + !akSlot.isInMinigame() + "," + EvaluateAICooldown(loc_actor) + "," + !akSlot.HaveLockingOperations() + "," + EvaluateAIStats(loc_actor))
     return loc_cond
@@ -227,6 +228,10 @@ Bool Function EvaluateAIStats(Actor akActor) Global
         akActor.RestoreAV("Magicka",1000)
     endif
     return loc_res
+EndFunction
+
+Bool Function EvaluateFollowingPlayer(Actor akActor)
+    return !UDmain.UDCDmain.IsFollowingPlayer(akActor)
 EndFunction
 
 ;returns remaining cooldown in minutes
