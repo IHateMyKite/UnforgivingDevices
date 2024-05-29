@@ -346,8 +346,10 @@ Function Procces_UpdateModifiers_MinigameEnded(UD_CustomDevice_RenderScript akDe
     endwhile
 EndFunction
 
-; Sending updates to the modifiers when a device is hit with the weapon
-Function Procces_UpdateModifiers_OnWeaponHit(UD_CustomDevice_RenderScript akDevice, Weapon akWeapon)
+Function Procces_UpdateModifiers_WeaponHit(UD_CustomDevice_RenderScript akDevice, Weapon akWeapon)
+    if UDmain.TraceAllowed()
+        UDmain.Log("UD_ModifierManager_Script::Procces_UpdateModifiers_WeaponHit() GetRealTimeLockedTime = " + akDevice.GetRealTimeLockedTime(), 3)
+    endif
     If akDevice.GetRealTimeLockedTime() < 0.0005
         Return
     EndIf
@@ -355,17 +357,40 @@ Function Procces_UpdateModifiers_OnWeaponHit(UD_CustomDevice_RenderScript akDevi
     while loc_modid 
         loc_modid -= 1
         UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
-        loc_mod.WeaponHit(akDevice, akWeapon ,akDevice.UD_ModifiersDataStr[loc_modid],akDevice.UD_ModifiersDataForm1[loc_modid],akDevice.UD_ModifiersDataForm2[loc_modid],akDevice.UD_ModifiersDataForm3[loc_modid])
+        loc_mod.WeaponHit(akDevice, akWeapon, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid])
     endwhile
 EndFunction
 
-; Sending updates to the modifiers when a device loses its durability
-Function Procces_UpdateModifiers_OnConditionLoss(UD_CustomDevice_RenderScript akDevice, Int aiCondition)
+Function Procces_UpdateModifiers_SpellHit(UD_CustomDevice_RenderScript akDevice, Spell akSpell)
+    If akDevice.GetRealTimeLockedTime() < 0.0005
+        Return
+    EndIf
     int loc_modid = akDevice.UD_ModifiersRef.length
     while loc_modid 
         loc_modid -= 1
         UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
-        loc_mod.ConditionLoss(akDevice, aiCondition, akDevice.UD_ModifiersDataStr[loc_modid],akDevice.UD_ModifiersDataForm1[loc_modid],akDevice.UD_ModifiersDataForm2[loc_modid],akDevice.UD_ModifiersDataForm3[loc_modid])
+        loc_mod.SpellHit(akDevice, akSpell, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid])
+    endwhile
+EndFunction
+
+Function Procces_UpdateModifiers_SpellCast(UD_CustomDevice_RenderScript akDevice, Spell akSpell)
+    If akDevice.GetRealTimeLockedTime() < 0.0005
+        Return
+    EndIf
+    int loc_modid = akDevice.UD_ModifiersRef.length
+    while loc_modid 
+        loc_modid -= 1
+        UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
+        loc_mod.SpellCast(akDevice, akSpell, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid])
+    endwhile
+EndFunction
+
+Function Procces_UpdateModifiers_ConditionLoss(UD_CustomDevice_RenderScript akDevice, Int aiCondition)
+    int loc_modid = akDevice.UD_ModifiersRef.length
+    while loc_modid 
+        loc_modid -= 1
+        UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
+        loc_mod.ConditionLoss(akDevice, aiCondition, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid])
     endwhile
 EndFunction
 

@@ -124,6 +124,12 @@ EndFunction
 Function WeaponHit(UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
 EndFunction
 
+Function SpellHit(UD_CustomDevice_RenderScript akDevice, Spell akSpell, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+EndFunction
+
+Function SpellCast(UD_CustomDevice_RenderScript akDevice, Spell akSpell, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+EndFunction
+
 Function ConditionLoss(UD_CustomDevice_RenderScript akDevice, Int aiCondition, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
 EndFunction
 
@@ -139,8 +145,13 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     
     UDmain.ShowMessageBox(loc_msg)
 EndFunction
+
 Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
     return false
 EndFunction
+
 Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
+EndFunction
+
+Function RerollModifierStats(UD_CustomDevice_RenderScript akDevice, String aiDataStr)
 EndFunction

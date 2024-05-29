@@ -3548,3 +3548,17 @@ Function DeviceLockIssueReport(Actor akActor,Armor akDevice, Int aiError)
     endif
 
 EndFunction
+
+String Function GetConditionString(Int aiCondition)
+    if (aiCondition == 0)
+        return "Excellent"
+    elseif (aiCondition == 1)
+        return "Good"
+    elseif (aiCondition == 2)
+        return "Normal"
+    elseif (aiCondition == 3)
+        return "Bad"
+    else
+        return "Destroyed"
+    endif
+EndFunction

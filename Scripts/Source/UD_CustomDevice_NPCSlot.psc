@@ -144,6 +144,8 @@ Function GameUpdate()
         endif
         _OrgasmGameUpdate()
         CheckVibrators()
+;        RegisterForActorAction(1)
+;        RegisterForActorAction(2)
     endif
 EndFunction
 
@@ -166,6 +168,8 @@ Function UpdateSlot(Bool abUpdateSkill = true)
     if !GetActor().wornhaskeyword(libs.zad_deviousHeavyBondage)
         _handRestrain = none ;unreference device
     endif
+;    RegisterForActorAction(1)
+;    RegisterForActorAction(2)
 EndFunction
 
 Form[] Function GetBodySlots()
@@ -214,6 +218,41 @@ endEvent
 
 Event OnUnload()
 endEvent
+
+; ActionTypes
+; 0 - Weapon Swing (Melee weapons that are swung, also barehand)
+; 1 - Spell Cast (Spells and staves)
+; 2 - Spell Fire (Spells and staves)
+; 3 - Voice Cast
+; 4 - Voice Fire
+; 5 - Bow Draw
+; 6 - Bow Release
+; 7 - Unsheathe Begin
+; 8 - Unsheathe End
+; 9 - Sheathe Begin
+; 10 - Sheathe End
+; Slots
+; 0 - Left Hand
+; 1 - Right Hand
+; 2 - Voice
+Event OnActorAction(int actionType, Actor akActor, Form source, int slot)
+; registered in UpdateSlot(), GameUpdate()
+; unregistered in unregisterSlot()
+; 1 - Spell Cast (Spells and staves)
+; 2 - Spell Fire (Spells and staves)
+
+; Not used. May be later for better mana cost calculations of channelling spells 
+
+    If akActor != GetActor()
+        Return
+    EndIf
+    If UDmain.TraceAllowed()
+        UDmain.Log(Self + "::OnActorAction() actionType = " + actionType + ", akActor = " + akActor + ", source = " + source + ", slot = " + slot, 3)
+    EndIf
+    
+    ; TODO: call modifiers with magic use triggers
+
+EndEvent
 
 ;check if device was not replaced by outfit
 Function _ValidateOutfit()
@@ -379,6 +418,8 @@ Function unregisterSlot()
         CleanArousalUpdate()
         CleanOrgasmUpdate()
     endif
+;    UnregisterForActorAction(1)
+    UnregisterForActorAction(2)
     self.Clear()
 EndFunction
 
@@ -981,7 +1022,7 @@ Function edge()
     endwhile
 EndFunction
 
-Float _LastHistTime = 0.0
+Float _LastHitTime = 0.0
 
 Event OnHit(ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked)
     if isScriptRunning()
@@ -990,10 +1031,10 @@ Event OnHit(ObjectReference akAggressor, Form akSource, Projectile akProjectile,
         endif
         ; checking the delta between the current time and the time of the last hit to skip spam
         Float loc_time = Utility.GetCurrentRealTime()
-        If loc_time - _LastHistTime < 1.0
+        If loc_time - _LastHitTime < 1.0
             Return
         EndIf
-        _LastHistTime =  loc_time
+        _LastHitTime = loc_time
         if akSource
             if akSource as Weapon
                 OnWeaponHit(akSource as Weapon)
@@ -1016,6 +1057,22 @@ Function OnSpellHit(Spell source)
     int i = 0
     while UD_equipedCustomDevices[i]
         UD_equipedCustomDevices[i].spellHit(source)
+        i+=1
+    endwhile    
+EndFunction
+
+Function OnSpellCast(Form akSource)
+    If UDmain.TraceAllowed()
+        UDmain.Log(Self + "::OnSpellCast() akSource = " + akSource, 3)
+    EndIf
+    Spell loc_spell = akSource as Spell
+    If loc_spell == None
+        Return
+    EndIf
+    
+    int i = 0
+    while UD_equipedCustomDevices[i]
+        UD_equipedCustomDevices[i].spellCast(loc_spell)
         i+=1
     endwhile    
 EndFunction

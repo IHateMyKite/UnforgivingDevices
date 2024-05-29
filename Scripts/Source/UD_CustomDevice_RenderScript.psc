@@ -2205,6 +2205,13 @@ Function spellHit(Spell akSource)
     endif
 EndFunction
 
+;function is called when the wearer cast a spell
+Function spellCast(Spell akSource)
+    if onSpellHitPre(akSource)
+        onSpellHitPost(akSource)
+    endif
+EndFunction
+
 bool Function CooldownActivate()
     if OnCooldownActivatePre()
         if UDmain.TraceAllowed()
@@ -4394,7 +4401,7 @@ Function _updateCondition(bool decrease = True)
             elseif UDCDmain.AllowNPCMessage(GetWearer(), true)
                 UDmain.Print(GetWearerName() + "s " + getDeviceName() + " condition have decreased!",3)
             endif
-            Udmain.UDMOM.Procces_UpdateModifiers_OnConditionLoss(self, UD_condition)
+            Udmain.UDMOM.Procces_UpdateModifiers_ConditionLoss(self, UD_condition)
         endwhile
     else
         if (_total_durability_drain < 0) && !IsUnlocked
@@ -8049,16 +8056,27 @@ Function onWeaponHitPost(Weapon source)
         endif
     endif
     If !IsUnlocked
-        Udmain.UDMOM.Procces_UpdateModifiers_OnWeaponHit(self, source)
+        Udmain.UDMOM.Procces_UpdateModifiers_WeaponHit(self, source)
     EndIf
 EndFunction
 
 bool Function onSpellHitPre(Spell source)
-    return false ;currently unused
+    return True
 EndFunction
 
 Function onSpellHitPost(Spell source)
     if !IsUnlocked; && getModResistMagicka(1.0,0.25) != 1.0
+        Udmain.UDMOM.Procces_UpdateModifiers_SpellHit(self, source)
+    endif
+EndFunction
+
+bool Function onSpellCastPre(Spell source)
+    return True
+EndFunction
+
+Function onSpellCastPost(Spell source)
+    if !IsUnlocked; && getModResistMagicka(1.0,0.25) != 1.0
+        Udmain.UDMOM.Procces_UpdateModifiers_SpellCast(self, source)
     endif
 EndFunction
 
