@@ -166,8 +166,9 @@ Function LoadConfigPages()
     pages[09] = "$UD_ABADONPLUG"
     pages[10] = "$UD_UIWIDGETS"
     pages[11] = "$UD_ANIMATIONS"
-    pages[12] = "$UD_DEBUGPANEL"
-    pages[13] = "$UD_OTHER"
+    pages[12] = "$UD_ANIMATIONS_PLAYGROUND"
+    pages[13] = "$UD_DEBUGPANEL"
+    pages[14] = "$UD_OTHER"
 EndFunction
 
 bool Property Ready = False Auto
@@ -353,6 +354,8 @@ Event OnPageReset(string page)
         resetUIWidgetPage()
     elseif (page == "$UD_ANIMATIONS")
         resetAnimationsPage()
+    elseif (page == "$UD_ANIMATIONS_PLAYGROUND")
+        resetAnimationsPlaygroundPage()
     elseif (page == "$UD_DEBUGPANEL")
         resetDebugPage()
     elseif (page == "$UD_OTHER")
@@ -1053,6 +1056,7 @@ UD_AnimationManagerScript Property UDAM Hidden
 EndProperty
 
 Int UDAM_AnimationJSON_First_T
+Int UDAM_AnimationJSON_First_INFO
 Int UDAM_Reload_T
 
 Int UDAM_TestQuery_PlayerArms_M
@@ -1096,8 +1100,11 @@ Int UDAM_TestQuery_Type_Index
 
 Float UDAM_TestQuery_TimeSpan
 
-String[] UDAM_TestQuery_Results
-Int UDAM_TestQuery_Results_First_T
+String[] UDAM_TestQuery_Results_JsonPath
+String[] UDAM_TestQuery_Results_AnimEvent
+
+Int UDAM_TestQuery_Results_JsonPath_First_T
+Int UDAM_TestQuery_Results_AnimEvent_First_T
 
 Int UDAM_TestQuery_ElapsedTime_T
 
@@ -1110,6 +1117,93 @@ Actor LastHelper
 Int UD_Helper_T
 
 Event resetAnimationsPage() 
+       
+    Int flags = OPTION_FLAG_NONE
+        
+    UpdateLockMenuFlag()
+    Int rows_right = 0
+    Int rows_left = 0
+    Int json_section_pos = 0
+    
+; LEFT COLUMN
+
+    SetCursorPosition(0)
+    
+    SetCursorFillMode(TOP_TO_BOTTOM)
+    
+    AddHeaderOption("$UD_H_ANIMATIONPLAYBACKOPTIONS")
+    rows_left += 1
+    UD_AlternateAnimation_T = addToggleOption("$UD_ALTERNATEANIMATION", UDAM.UD_AlternateAnimation)
+    rows_left += 1
+    If UDAM.UD_AlternateAnimation
+        flags = OPTION_FLAG_NONE
+    Else
+        flags = OPTION_FLAG_DISABLED
+    EndIf
+    UD_AlternateAnimationPeriod_S = AddSliderOption("$UD_ALTERNATEANIMATIONPERIOD", UDAM.UD_AlternateAnimationPeriod, "${0} s", flags)
+    rows_left += 1
+    UD_UseSingleStruggleKeyword_T = AddToggleOption("$UD_USESINGLESTRUGGLEKEYWORD", UDAM.UD_UseSingleStruggleKeyword)
+    rows_left += 1
+    
+; JSONS SECTION
+    If rows_right > rows_left
+        json_section_pos = rows_right * 2
+        rows_left = rows_right
+    Else
+        json_section_pos = rows_left * 2
+        rows_right = rows_left
+    EndIf
+
+; LEFT COLUMN
+    SetCursorPosition(json_section_pos)
+    SetCursorFillMode(TOP_TO_BOTTOM)
+    AddHeaderOption("$UD_LOADEDJSONS")
+    rows_left += 1
+    Int i = 0
+    While i < UDAM.UD_AnimationJSON_All.Length
+        Bool val = False
+        flags = OPTION_FLAG_NONE
+        If UDAM.UD_AnimationJSON_Status[i] > 1
+            flags = OPTION_FLAG_DISABLED
+        Else
+            val = UDAM.UD_AnimationJSON_Status[i] == 0
+        EndIf
+        Int id = AddToggleOption(UDAM.UD_AnimationJSON_All[i], val, flags)
+        If i == 0
+            UDAM_AnimationJSON_First_T = id
+        EndIf
+        i += 1
+        rows_left += 1
+    EndWhile
+    UDAM_Reload_T =  AddTextOption("$UD_RELOADJSONS", "$-PRESS-")
+    rows_left += 1
+    
+; RIGHT COLUMN
+    SetCursorPosition(json_section_pos + 1)
+    SetCursorFillMode(TOP_TO_BOTTOM)
+    AddHeaderOption("$UD_LOADEDJSONS_STATUS")
+    rows_right += 1
+    i = 0
+    While i < UDAM.UD_AnimationJSON_All.Length
+        String status = "$UD_LOADEDJSONS_STATUS_UNKNOWN"
+        If UDAM.UD_AnimationJSON_Status[i] <= 1
+            status = "$UD_LOADEDJSONS_STATUS_READY"
+        ElseIf UDAM.UD_AnimationJSON_Status[i] == 2
+            status = "$UD_LOADEDJSONS_STATUS_CONDITION"
+        ElseIf UDAM.UD_AnimationJSON_Status[i] == 3
+            status = "$UD_LOADEDJSONS_STATUS_ERRORS"
+        EndIf
+        Int id = AddTextOption(status, "$-INFO-")
+        If i == 0
+            UDAM_AnimationJSON_First_INFO = id
+        EndIf
+        i += 1
+        rows_right += 1
+    EndWhile
+
+EndEvent
+
+Event resetAnimationsPlaygroundPage() 
 ; FIRST RUN
     If UDAM_TestQuery_Type_List.Length == 0
         UDAM_TestQuery_Type_List = new String[2]
@@ -1208,68 +1302,29 @@ Event resetAnimationsPage()
 
     SetCursorPosition(0)
     SetCursorFillMode(TOP_TO_BOTTOM)
-    
-    AddHeaderOption("$UD_H_ANIMATIONPLAYBACKOPTIONS")
+    AddHeaderOption("$UD_H_TESTANIMATIONQUERY")
     rows_left += 1
-    UD_AlternateAnimation_T = addToggleOption("$UD_ALTERNATEANIMATION", UDAM.UD_AlternateAnimation)
+    UDAM_TestQuery_Type_M = AddMenuOption("$UD_TESTQUERY", UDAM_TestQuery_Type_List[UDAM_TestQuery_Type_Index])
     rows_left += 1
-    If UDAM.UD_AlternateAnimation
-        flags = OPTION_FLAG_NONE
-    Else
-        flags = OPTION_FLAG_DISABLED
-    EndIf
-    UD_AlternateAnimationPeriod_S = AddSliderOption("$UD_ALTERNATEANIMATIONPERIOD", UDAM.UD_AlternateAnimationPeriod, "${0} s", flags)
+    UDAM_TestQuery_Keyword_M = AddMenuOption("$UD_TESTQUERY_KEYWORD", UDAM_TestQuery_Keyword_List[UDAM_TestQuery_Keyword_Index])
     rows_left += 1
-    UD_UseSingleStruggleKeyword_T = AddToggleOption("$UD_USESINGLESTRUGGLEKEYWORD", UDAM.UD_UseSingleStruggleKeyword)
-    rows_left += 1
-    
-; LEFT COLUMN
 
-    If rows_right > rows_left
-        SetCursorPosition(rows_right * 2)
-    Else
-        SetCursorPosition(rows_left * 2)
-    EndIf
-    
-    SetCursorFillMode(TOP_TO_BOTTOM)
-    AddHeaderOption("$UD_LOADEDJSONS")
+    UDAM_TestQuery_PlayerArms_M = AddMenuOption("$UD_TESTQUERY_PLAYERARMS", UDAM_TestQuery_PlayerArms_List[UDAM_TestQuery_PlayerArms_Index])
     rows_left += 1
-    Int i = 0
-    While i < UDAM.UD_AnimationJSON_All.Length
-        Bool val = False
-        flags = OPTION_FLAG_NONE
-        If (UDAM.UD_AnimationJSON_Inv.Find(UDAM.UD_AnimationJSON_All[i]) > -1)
-            flags = OPTION_FLAG_DISABLED
-        Else
-            val = (UDAM.UD_AnimationJSON_Dis.Find(UDAM.UD_AnimationJSON_All[i]) == -1)
-        EndIf
-        Int id = AddToggleOption(UDAM.UD_AnimationJSON_All[i], val, flags)
-        If i == 0
-            UDAM_AnimationJSON_First_T = id
-        EndIf
-        i += 1
-        rows_left += 1
-    EndWhile
-    UDAM_Reload_T =  AddTextOption("$UD_RELOADJSONS", "$-PRESS-")
+    UDAM_TestQuery_PlayerLegs_M = AddMenuOption("$UD_TESTQUERY_PLAYERLEGS", UDAM_TestQuery_PlayerLegs_List[UDAM_TestQuery_PlayerLegs_Index])
+    rows_left += 1
+    UDAM_TestQuery_PlayerMittens_T = AddToggleOption("$UD_TESTQUERY_PLAYERMITTENS", UDAM_TestQuery_PlayerMittens)
+    rows_left += 1
+    UDAM_TestQuery_PlayerGag_T = AddToggleOption("$UD_TESTQUERY_PLAYERGAG", UDAM_TestQuery_PlayerGag)
     rows_left += 1
     
 ; RIGHT COLUMN
 
     SetCursorPosition(1)
+    SetCursorFillMode(TOP_TO_BOTTOM)
     AddHeaderOption("$UD_H_TESTANIMATIONQUERY")
     rows_right += 1
-    UDAM_TestQuery_Type_M = AddMenuOption("$UD_TESTQUERY", UDAM_TestQuery_Type_List[UDAM_TestQuery_Type_Index])
-    rows_right += 1
-    UDAM_TestQuery_Keyword_M = AddMenuOption("$UD_TESTQUERY_KEYWORD", UDAM_TestQuery_Keyword_List[UDAM_TestQuery_Keyword_Index])
-    rows_right += 1
-
-    UDAM_TestQuery_PlayerArms_M = AddMenuOption("$UD_TESTQUERY_PLAYERARMS", UDAM_TestQuery_PlayerArms_List[UDAM_TestQuery_PlayerArms_Index])
-    rows_right += 1
-    UDAM_TestQuery_PlayerLegs_M = AddMenuOption("$UD_TESTQUERY_PLAYERLEGS", UDAM_TestQuery_PlayerLegs_List[UDAM_TestQuery_PlayerLegs_Index])
-    rows_right += 1
-    UDAM_TestQuery_PlayerMittens_T = AddToggleOption("$UD_TESTQUERY_PLAYERMITTENS", UDAM_TestQuery_PlayerMittens)
-    rows_right += 1
-    UDAM_TestQuery_PlayerGag_T = AddToggleOption("$UD_TESTQUERY_PLAYERGAG", UDAM_TestQuery_PlayerGag)
+    AddEmptyOption()
     rows_right += 1
     
     Int helper_flags = OPTION_FLAG_NONE
@@ -1281,14 +1336,15 @@ Event resetAnimationsPage()
     Else
         UD_Helper_T = AddTextOption("$UD_HELPER", "----", OPTION_FLAG_NONE)
     EndIf
+    rows_right += 1
     
-    UDAM_TestQuery_HelperArms_M = AddMenuOption("$UD_TESTQUERY_HELPERARMS", UDAM_TestQuery_PlayerArms_List[UDAM_TestQuery_HelperArms_Index], helper_flags)
+    UDAM_TestQuery_HelperArms_M = AddMenuOption("$UD_TESTQUERY_HELPERARMS", UDAM_TestQuery_PlayerArms_List[UDAM_TestQuery_HelperArms_Index])
     rows_right += 1
-    UDAM_TestQuery_HelperLegs_M = AddMenuOption("$UD_TESTQUERY_HELPERLEGS", UDAM_TestQuery_PlayerLegs_List[UDAM_TestQuery_HelperLegs_Index], helper_flags)
+    UDAM_TestQuery_HelperLegs_M = AddMenuOption("$UD_TESTQUERY_HELPERLEGS", UDAM_TestQuery_PlayerLegs_List[UDAM_TestQuery_HelperLegs_Index])
     rows_right += 1
-    UDAM_TestQuery_HelperMittens_T = AddToggleOption("$UD_TESTQUERY_HELPERMITTENS", UDAM_TestQuery_HelperMittens, helper_flags)
+    UDAM_TestQuery_HelperMittens_T = AddToggleOption("$UD_TESTQUERY_HELPERMITTENS", UDAM_TestQuery_HelperMittens)
     rows_right += 1
-    UDAM_TestQuery_HelperGag_T = AddToggleOption("$UD_TESTQUERY_HELPERGAG", UDAM_TestQuery_HelperGag, helper_flags)
+    UDAM_TestQuery_HelperGag_T = AddToggleOption("$UD_TESTQUERY_HELPERGAG", UDAM_TestQuery_HelperGag)
     rows_right += 1
     
     UDAM_TestQuery_Request_T =  AddTextOption("$UD_TESTQUERY_REQUEST", "$-PRESS-")
@@ -1311,7 +1367,7 @@ Event resetAnimationsPage()
     AddHeaderOption("$UD_H_TEST_ANIMATION_QUERY_RESULTS_FILE")
     AddHeaderOption("$UD_H_TEST_ANIMATION_QUERY_RESULTS_PATH")
     
-    AddTextOption("$UD_H_NUMBER_OF_FOUND_ANIMATIONS", UDAM_TestQuery_Results.Length, OPTION_FLAG_DISABLED)
+    AddTextOption("$UD_H_NUMBER_OF_FOUND_ANIMATIONS", UDAM_TestQuery_Results_JsonPath.Length, OPTION_FLAG_DISABLED)
     UDAM_TestQuery_ElapsedTime_T = AddTextOption("$UD_TESTQUERY_ELAPSEDTIME", (UDAM_TestQuery_TimeSpan * 1000) As Int + " ms", OPTION_FLAG_DISABLED)
     
     If LastHelper == None && UDAM_TestQuery_Type_Index == 1
@@ -1319,17 +1375,24 @@ Event resetAnimationsPage()
     Else
         flags = OPTION_FLAG_NONE
     EndIf
-    i = 0
-    While i < UDAM_TestQuery_Results.Length
-        Int part_index = StringUtil.Find(UDAM_TestQuery_Results[i], ":")
+    Int i = 0
+    While i < UDAM_TestQuery_Results_JsonPath.Length
+        String item_name = ""
+        Int part_index = StringUtil.Find(UDAM_TestQuery_Results_JsonPath[i], ":")
+;       String file_part = StringUtil.Substring(UDAM_TestQuery_Results_JsonPath[i], 0, part_index)
+;       String path_part = StringUtil.Substring(UDAM_TestQuery_Results_JsonPath[i], part_index + 1)
         If part_index > -1
-            String file_part = StringUtil.Substring(UDAM_TestQuery_Results[i], 0, part_index)
-            String path_part = StringUtil.Substring(UDAM_TestQuery_Results[i], part_index + 1)
-            AddTextOption(file_part, ":", OPTION_FLAG_DISABLED)
-            Int id = AddTextOption(path_part, "$-PLAY-", flags)
-            If i == 0
-                UDAM_TestQuery_Results_First_T = id
-            EndIf
+            item_name = StringUtil.Substring(UDAM_TestQuery_Results_JsonPath[i], 0, part_index)         ; part of the path with file name
+        Else
+            item_name = UDAM_TestQuery_Results_JsonPath[i]
+        EndIf
+        Int id = AddTextOption(item_name, "$-INFO-")
+        If i == 0
+            UDAM_TestQuery_Results_JsonPath_First_T = id
+        EndIf
+        id = AddTextOption("", "$-PLAY-")
+        If i == 0
+            UDAM_TestQuery_Results_AnimEvent_First_T = id
         EndIf
         i += 1
     EndWhile
@@ -1527,6 +1590,7 @@ event OnOptionSelect(int option)
     OptionSelectAbadon(option)
     OptionSelectUiWidget(option)
     OptionSelectAnimations(option)
+    OptionSelectAnimationsPlayground(option)
     OptionSelectDebug(option)
     OptionSelectOther(option)
 endEvent
@@ -1815,18 +1879,33 @@ Function OptionSelectAnimations(int option)
     If (option >= UDAM_AnimationJSON_First_T) && (option <= (UDAM_AnimationJSON_First_T + (UDAM.UD_AnimationJSON_All.Length - 1) * 2)) && (((option - UDAM_AnimationJSON_First_T) % 2) == 0)
         Int index = (option - UDAM_AnimationJSON_First_T) / 2
         String val = UDAM.UD_AnimationJSON_All[index]
-        If UDAM.UD_AnimationJSON_Dis.Find(val) == -1
-            UDAM.UD_AnimationJSON_Dis = PapyrusUtil.PushString(UDAM.UD_AnimationJSON_Dis, UDAM.UD_AnimationJSON_All[index])
+        If UDAM.UD_AnimationJSON_Off.Find(val) == -1
+            UDAM.UD_AnimationJSON_Off = PapyrusUtil.PushString(UDAM.UD_AnimationJSON_Off, UDAM.UD_AnimationJSON_All[index])
             SetToggleOptionValue(option, False)
         Else
-            UDAM.UD_AnimationJSON_Dis = PapyrusUtil.RemoveString(UDAM.UD_AnimationJSON_Dis, UDAM.UD_AnimationJSON_All[index])
+            UDAM.UD_AnimationJSON_Off = PapyrusUtil.RemoveString(UDAM.UD_AnimationJSON_Off, UDAM.UD_AnimationJSON_All[index])
             SetToggleOptionValue(option, True)
         EndIf
     ElseIf option == UDAM_Reload_T
         SetOptionFlags(option, OPTION_FLAG_DISABLED)
         UDAM.LoadAnimationJSONFiles()
         SetOptionFlags(option, OPTION_FLAG_NONE)
-    ElseIf option == UDAM_TestQuery_Request_T
+    Elseif option == UD_AlternateAnimation_T
+        UDAM.UD_AlternateAnimation = !UDAM.UD_AlternateAnimation
+        SetToggleOptionValue(UD_AlternateAnimation_T, UDAM.UD_AlternateAnimation)
+        If UDAM.UD_AlternateAnimation
+            SetOptionFlags(UD_AlternateAnimationPeriod_S, OPTION_FLAG_NONE)
+        Else
+            SetOptionFlags(UD_AlternateAnimationPeriod_S, OPTION_FLAG_DISABLED)
+        EndIf
+    ElseIf option == UD_UseSingleStruggleKeyword_T
+        UDAM.UD_UseSingleStruggleKeyword = !UDAM.UD_UseSingleStruggleKeyword
+        SetToggleOptionValue(UD_UseSingleStruggleKeyword_T, UDAM.UD_UseSingleStruggleKeyword)
+    EndIf
+EndFunction
+
+Function OptionSelectAnimationsPlayground(int option)
+    If option == UDAM_TestQuery_Request_T
         SetOptionFlags(option, OPTION_FLAG_DISABLED)
         Float start_time = Utility.GetCurrentRealTime()
         String[] kwds = new String[1]
@@ -1836,11 +1915,13 @@ Function OptionSelectAnimations(int option)
             Int[] constr = new Int[2]
             constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int) + 2048 * (UDAM_TestQuery_PlayerGag as Int)
             constr[1] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_HelperArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_HelperLegs_Index] + 256 * (UDAM_TestQuery_HelperMittens as Int) + 2048 * (UDAM_TestQuery_HelperGag as Int)
-            UDAM_TestQuery_Results = UDAM.GetAnimationsFromDB(anim_type, kwds, "", constr)
+            UDAM_TestQuery_Results_AnimEvent = UDAM.GetAnimationsFromDB(anim_type, kwds, ".A1.anim", constr)
+            UDAM_TestQuery_Results_JsonPath = UDAM.GetAnimationsFromDB(anim_type, kwds, "", constr)
         Else                                                                    ; .solo
             Int[] constr = new Int[1]
             constr[0] = UDAM_TestQuery_PlayerArms_Bit[UDAM_TestQuery_PlayerArms_Index] + UDAM_TestQuery_PlayerLegs_Bit[UDAM_TestQuery_PlayerLegs_Index] + 256 * (UDAM_TestQuery_PlayerMittens as Int) + 2048 * (UDAM_TestQuery_PlayerGag as Int)
-            UDAM_TestQuery_Results = UDAM.GetAnimationsFromDB(anim_type, kwds, "", constr)
+            UDAM_TestQuery_Results_AnimEvent = UDAM.GetAnimationsFromDB(anim_type, kwds, ".A1.anim", constr)
+            UDAM_TestQuery_Results_JsonPath = UDAM.GetAnimationsFromDB(anim_type, kwds, "", constr)
         EndIf
         UDAM_TestQuery_TimeSpan = Utility.GetCurrentRealTime() - start_time
         forcePageReset()
@@ -1857,17 +1938,9 @@ Function OptionSelectAnimations(int option)
     ElseIf option == UDAM_TestQuery_HelperGag_T
         UDAM_TestQuery_HelperGag = !UDAM_TestQuery_HelperGag
         SetToggleOptionValue(option, UDAM_TestQuery_HelperGag)
-    elseif option == UD_AlternateAnimation_T
-        UDAM.UD_AlternateAnimation = !UDAM.UD_AlternateAnimation
-        SetToggleOptionValue(UD_AlternateAnimation_T, UDAM.UD_AlternateAnimation)
-        If UDAM.UD_AlternateAnimation
-            SetOptionFlags(UD_AlternateAnimationPeriod_S, OPTION_FLAG_NONE)
-        Else
-            SetOptionFlags(UD_AlternateAnimationPeriod_S, OPTION_FLAG_DISABLED)
-        EndIf
-    ElseIf (option >= UDAM_TestQuery_Results_First_T) && (option <= (UDAM_TestQuery_Results_First_T + (UDAM_TestQuery_Results.Length - 1) * 2)) && (((option - UDAM_TestQuery_Results_First_T) % 2) == 0)
-        Int index = (option - UDAM_TestQuery_Results_First_T) / 2
-        String val = UDAM_TestQuery_Results[index]
+    ElseIf (option >= UDAM_TestQuery_Results_AnimEvent_First_T) && (option <= (UDAM_TestQuery_Results_AnimEvent_First_T + (UDAM_TestQuery_Results_JsonPath.Length - 1) * 2)) && (((option - UDAM_TestQuery_Results_AnimEvent_First_T) % 2) == 0)
+        Int index = (option - UDAM_TestQuery_Results_AnimEvent_First_T) / 2
+        String val = UDAM_TestQuery_Results_JsonPath[index]
         If UDAM_TestQuery_Type_Index == 1 && !LastHelper
             ShowMessage("$First you need to choose a helper. Hover your crosshair over an NPC in the game and make sure its name appears in the 'Helper' option above")
         Else
@@ -1888,13 +1961,13 @@ Function OptionSelectAnimations(int option)
                 EndIf
             EndIf
         EndIf
+    ElseIf (option >= UDAM_TestQuery_Results_JsonPath_First_T) && (option <= (UDAM_TestQuery_Results_JsonPath_First_T + (UDAM_TestQuery_Results_JsonPath.Length - 1) * 2)) && (((option - UDAM_TestQuery_Results_JsonPath_First_T) % 2) == 0)
+;        Int index = (option - UDAM_TestQuery_Results_JsonPath_First_T) / 2
+;        String val = UDAM_TestQuery_Results_JsonPath[index]
     ElseIf option == UDAM_TestQuery_StopAnimation_T
         ShowMessage("$Lets try to stop animation", False)
         UDAM.StopAnimation(Game.GetPlayer(), LastHelper)
         closeMCM()
-    ElseIf option == UD_UseSingleStruggleKeyword_T
-        UDAM.UD_UseSingleStruggleKeyword = !UDAM.UD_UseSingleStruggleKeyword
-        SetToggleOptionValue(UD_UseSingleStruggleKeyword_T, UDAM.UD_UseSingleStruggleKeyword)
     EndIf
 EndFunction
 
@@ -1999,7 +2072,6 @@ EndFunction
 
 Function OnOptionInputOpen(int option)
     OnOptionInputOpenGeneral(option)
-    OnOptionInputOpenAnimations(option)
 EndFunction
 
 Function OnOptionInputOpenGeneral(int option)
@@ -2008,13 +2080,8 @@ Function OnOptionInputOpenGeneral(int option)
     endif
 EndFunction
 
-Function OnOptionInputOpenAnimations(int option)
-
-EndFunction
-
 Function OnOptionInputAccept(int option, string value)
     OnOptionInputAcceptGeneral(option, value)
-    OnOptionInputAcceptAnimations(option, value)
 EndFunction
 
 Function OnOptionInputAcceptGeneral(int option, string value)
@@ -2022,10 +2089,6 @@ Function OnOptionInputAcceptGeneral(int option, string value)
         UDCONF.UD_RandomDevice_GlobalFilter = Math.LogicalXor(value as Int,0xFFFFFFFF)
         SetInputOptionValue(UD_RandomFilter_T, Math.LogicalXor(UDCONF.UD_RandomDevice_GlobalFilter,0xFFFFFFFF))
     endif
-EndFunction
-
-Function OnOptionInputAcceptAnimations(int option, string value)
-
 EndFunction
 
 event OnOptionSliderOpen(int option)
@@ -2699,7 +2762,7 @@ event OnOptionMenuOpen(int option)
     OnOptionMenuOpenCustomOrgasm(option)
     OnOptionMenuOpenAbadon(option)
     OnOptionMenuOpenUIWidget(option)
-    OnOptionMenuOpenAnimations(option)
+    OnOptionMenuOpenAnimationsPlayground(option)
     OnOptionMenuOpenModifiers(option)
     OnOptionMenuOpenOutfit(option)
 endEvent
@@ -2787,7 +2850,7 @@ Function OnOptionMenuOpenUIWidget(int option)
     endif
 EndFunction
 
-Function OnOptionMenuOpenAnimations(Int option)
+Function OnOptionMenuOpenAnimationsPlayground(Int option)
     If option == UDAM_TestQuery_Type_M
         SetMenuDialogOptions(UDAM_TestQuery_Type_List)
         SetMenuDialogStartIndex(UDAM_TestQuery_Type_Index)
@@ -2841,7 +2904,7 @@ event OnOptionMenuAccept(int option, int index)
     OnOptionMenuAcceptCustomOrgasm(option,index)
     OnOptionMenuAcceptAbadon(option, index)
     OnOptionMenuAcceptUIWidget(option, index)
-    OnOptionMenuAcceptAnimations(option, index)
+    OnOptionMenuAcceptAnimationsPlayground(option, index)
     OnOptionMenuAcceptModifiers(option, index)
     OnOptionMenuAcceptOutfit(option, index)
 endEvent
@@ -2914,7 +2977,7 @@ Function OnOptionMenuAcceptUIWidget(Int option, Int index)
     endif
 EndFunction
 
-Function OnOptionMenuAcceptAnimations(Int option, Int index)
+Function OnOptionMenuAcceptAnimationsPlayground(Int option, Int index)
     If option == UDAM_TestQuery_Type_M
         UDAM_TestQuery_Type_Index = index
         SetMenuOptionValue(option, UDAM_TestQuery_Type_List[index])
@@ -3425,7 +3488,9 @@ Event OnOptionHighlight(int option)
     elseif (_lastPage == "$UD_OTHER")
     
     elseif (_lastPage == "$UD_ANIMATIONS")
-        AnimationPageInfo(option)
+        AnimationPageInfo(option)  
+    elseif (_lastPage == "$UD_ANIMATIONS_PLAYGROUND")
+        AnimationPlaygroundPageInfo(option)
     endif
 EndEvent
 
@@ -3757,7 +3822,10 @@ EndFunction
 
 Function AnimationPageInfo(Int option)
     If (option >= UDAM_AnimationJSON_First_T) && (option <= (UDAM_AnimationJSON_First_T + (UDAM.UD_AnimationJSON_All.Length - 1) * 2)) && (((option - UDAM_AnimationJSON_First_T) % 2) == 0)
-        SetInfoText("$Toggle file to be loaded into animation pull. Use Reload option to apply changes.")
+        SetInfoText("$UD_JSONFILENAME_INFO")
+    ElseIf (option >= UDAM_AnimationJSON_First_INFO) && (option <= (UDAM_AnimationJSON_First_INFO + (UDAM.UD_AnimationJSON_All.Length - 1) * 2)) && (((option - UDAM_AnimationJSON_First_INFO) % 2) == 0)
+        Int loc_file_index = (option - UDAM_AnimationJSON_First_INFO) / 2
+        SetInfoText(UDAM.UD_AnimationJSON_Error[loc_file_index])
     ElseIf option == UDAM_Reload_T
         SetInfoText("$UD_RELOADJSONS_INFO")
     elseif option == UD_AlternateAnimation_T
@@ -3766,18 +3834,25 @@ Function AnimationPageInfo(Int option)
         SetInfoText("$UD_USESINGLESTRUGGLEKEYWORD_INFO")
     elseif option == UD_AlternateAnimationPeriod_S
         SetInfoText("$UD_ALTERNATEANIMATIONPERIOD_INFO")
-    ElseIf option == UDAM_TestQuery_Request_T
+    EndIf
+EndFunction
+
+Function AnimationPlaygroundPageInfo(Int option)
+    If option == UDAM_TestQuery_Request_T
         SetInfoText("$UD_TESTQUERY_INFO")
     ElseIf option == UDAM_TestQuery_StopAnimation_T
         SetInfoText("$UD_TESTQUERY_STOPANIMATION_INFO")
     ElseIf option == UDAM_TestQuery_ElapsedTime_T
         SetInfoText("")
-    ElseIf (option >= UDAM_TestQuery_Results_First_T) && (option <= (UDAM_TestQuery_Results_First_T + (UDAM_TestQuery_Results.Length - 1) * 2)) && (((option - UDAM_TestQuery_Results_First_T) % 2) == 0)
-        SetInfoText("$FOR DEBUG ONLY! It is impossible to stop the animation, only switch to another one.")
+    ElseIf (option >= UDAM_TestQuery_Results_JsonPath_First_T) && (option <= (UDAM_TestQuery_Results_JsonPath_First_T + (UDAM_TestQuery_Results_JsonPath.Length - 1) * 2)) && (((option - UDAM_TestQuery_Results_JsonPath_First_T) % 2) == 0)
+        Int index = (option - UDAM_TestQuery_Results_JsonPath_First_T) / 2
+        String val = UDAM_TestQuery_Results_JsonPath[index]
+        SetInfoText("Json path: " + UDAM_TestQuery_Results_JsonPath[index] + "\nAnim. event(s): " + UDAM_TestQuery_Results_AnimEvent[index])
     ElseIf option == UD_Helper_T
         SetInfoText("$UD_HELPER_INFO")
     EndIf
 EndFunction
+
 ;=========================================
 ;                 OTHER.     .............
 ;=========================================
@@ -3987,7 +4062,7 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "AllowMenBondage", UDmain.AllowMenBondage as Int)
     
     ; ANIMATIONS
-    JsonUtil.StringListCopy(strFile, "Anims_UserDisabledJSONs", UDAM.UD_AnimationJSON_Dis)
+    JsonUtil.StringListCopy(strFile, "Anims_UserDisabledJSONs", UDAM.UD_AnimationJSON_Off)
     JsonUtil.SetIntValue(strFile, "AlternateAnimation", UDAM.UD_AlternateAnimation as Int)
     JsonUtil.SetIntValue(strFile, "AlternateAnimationPeriod", UDAM.UD_AlternateAnimationPeriod)
     JsonUtil.SetIntValue(strFile, "UseSingleStruggleKeyword", UDAM.UD_UseSingleStruggleKeyword as Int)
@@ -4144,7 +4219,7 @@ Function LoadFromJSON(string strFile)
 
     ; ANIMATIONS
     If JsonUtil.StringListCount(strFile, "Anims_UserDisabledJSONs") > 0
-        UDAM.UD_AnimationJSON_Dis = JsonUtil.StringListToArray(strFile, "Anims_UserDisabledJSONs")
+        UDAM.UD_AnimationJSON_Off = JsonUtil.StringListToArray(strFile, "Anims_UserDisabledJSONs")
     EndIf
     UDAM.UD_AlternateAnimation = JsonUtil.GetIntValue(strFile, "AlternateAnimation", UDAM.UD_AlternateAnimation as Int) > 0
     UDAM.UD_AlternateAnimationPeriod = JsonUtil.GetIntValue(strFile, "AlternateAnimationPeriod", UDAM.UD_AlternateAnimationPeriod)
