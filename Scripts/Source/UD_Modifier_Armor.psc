@@ -12,6 +12,9 @@
 /;
 Scriptname UD_Modifier_Armor extends UD_Modifier
 
+import UnforgivingDevicesMain
+import UD_Native
+
 Function GameLoaded(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
     SetArmorValues(akDevice, aiDataStr)
 EndFunction
@@ -64,29 +67,23 @@ Function SetArmorValues(UD_CustomDevice_RenderScript akDevice, String aiDataStr)
         Return
     EndIf
     If loc_kw_material == None
-        UDmain.Error("UD_Modifier_Armor::SetArmorValues() Can't find keyword for the provided armor material. Invalid argument aiDataStr = " + aiDataStr)
-        Return
+        UDmain.Warning("UD_Modifier_Armor::SetArmorValues() Can't find keyword for the provided armor material. Invalid argument aiDataStr = " + aiDataStr)
     EndIf
     
     Armor loc_device_inventory = akDevice.DeviceInventory
     Armor loc_device_rendered = akDevice.DeviceRendered
     
-    If !loc_device_inventory.HasKeyword(loc_kw_type)
-        PO3_SKSEFunctions.AddKeywordToForm(loc_device_inventory, loc_kw_type)
-        ; what if it has another armor keyword?
+    If UDMain.PO3Installed
+        If !loc_device_rendered.HasKeyword(loc_kw_type)
+            PO3_SKSEFunctions.AddKeywordToForm(loc_device_rendered, loc_kw_type)
+            ; what if it has another armor keyword?
+        EndIf
+        If !loc_device_rendered.HasKeyword(loc_kw_material)
+            PO3_SKSEFunctions.AddKeywordToForm(loc_device_rendered, loc_kw_material)
+            ; what if it has another material keyword?
+        EndIf
     EndIf
-    If !loc_device_rendered.HasKeyword(loc_kw_type)
-        PO3_SKSEFunctions.AddKeywordToForm(loc_device_rendered, loc_kw_type)
-        ; what if it has another armor keyword?
-    EndIf
-    If !loc_device_inventory.HasKeyword(loc_kw_material)
-        PO3_SKSEFunctions.AddKeywordToForm(loc_device_inventory, loc_kw_material)
-        ; what if it has another material keyword?
-    EndIf
-    If !loc_device_rendered.HasKeyword(loc_kw_material)
-        PO3_SKSEFunctions.AddKeywordToForm(loc_device_rendered, loc_kw_material)
-        ; what if it has another material keyword?
-    EndIf
+    
     loc_device_inventory.SetArmorRating(loc_armor_value)
     loc_device_rendered.SetArmorRating(loc_armor_value)
     If loc_armor_type == "heavy"
