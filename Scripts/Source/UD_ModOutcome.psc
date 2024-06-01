@@ -79,3 +79,7 @@ Float       Property PatchChanceMultiplier      = 1.0   Auto hidden
 
 Function Outcome(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2 = None, Form akForm3 = None)
 EndFunction
+
+String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+    Return Description
+EndFunction

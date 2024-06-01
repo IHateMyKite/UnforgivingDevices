@@ -130,6 +130,10 @@ Bool Function ConditionLoss(String asNameAlias, UD_CustomDevice_RenderScript akD
     Return False
 EndFunction
 
+String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+    Return Description
+EndFunction
+
 ; NOT USED
 Bool Function Trigger(String asEventName, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Float afTriggerFloat = 0.0, Form akTriggerForm = None)
 EndFunction

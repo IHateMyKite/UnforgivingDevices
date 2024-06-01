@@ -7,7 +7,7 @@
     Parameters in DataStr:
         [0]     Int     The total damage the actor must take for the trigger to work
         
-        [1]     Int     (optional) Reset accumulated value after triggering
+        [1]     Int     (optional) Repeat
                         Default value: 0 (False)
         
         [2]     Int     (script) Cumulative damage the actor has taken so far
@@ -28,6 +28,9 @@ import UD_Native
 /;
 
 Bool Function WeaponHit(String asNameAlias, UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, String aiDataStr)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_ModTrigger_WHitValue::WeaponHit() asNameAlias = " + asNameAlias + ", akDevice = " + akDevice + ", akWeapon = " + akWeapon + ", aiDataStr = " + aiDataStr, 3)
+    EndIf
     Int loc_dmg_current = GetStringParamInt(aiDataStr, 2, 0)
     If loc_dmg_current < 0
         Return False

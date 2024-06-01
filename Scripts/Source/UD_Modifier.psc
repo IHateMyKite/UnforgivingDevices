@@ -150,6 +150,10 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     UDmain.ShowMessageBox(loc_msg)
 EndFunction
 
+String Function GetCaption(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+    Return NameFull
+EndFunction
+
 Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
     return false
 EndFunction

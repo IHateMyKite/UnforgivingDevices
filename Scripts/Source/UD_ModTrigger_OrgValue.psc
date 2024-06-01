@@ -7,7 +7,7 @@
     Parameters (DataStr):
         [0]     Int     Number of orgasms to trigger
         
-        [1]     Int     (optional) Reset accumulated value after triggering
+        [1]     Int     (optional) Repeat
                         Default value: 0 (False)
         
         [2]     Int     (script) Number of consecutive orgasms so far

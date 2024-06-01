@@ -113,8 +113,12 @@ EndFunction
 Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
     String loc_msg = ""
     
-    loc_msg += "=== " + NameFull + " ===\n"
-    loc_msg += "Something will happen when the conditions are met. \n"
+    loc_msg += "=== Conditions ===\n"
+    loc_msg += (akForm1 as UD_ModTrigger).GetDetails(akDevice, aiDataStr, akForm1, akForm2, akForm3)
+    loc_msg += "\n"
+    loc_msg += "=== Outcome ===\n"
+    loc_msg += (akForm2 as UD_ModOutcome).GetDetails(akDevice, aiDataStr, akForm1, akForm2, akForm3)
+    loc_msg += "\n"
 
     loc_msg += "===Description===\n"
     loc_msg += Description + "\n"
@@ -122,9 +126,6 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     UDmain.ShowMessageBox(loc_msg)
 EndFunction
 
-; NOT USED
-Function ProcessEvent(String asEventName, UD_ModTrigger akTrigger, UD_ModOutcome akOutcome, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Float afTriggerFloat, Form akTriggerForm, Form akOutcomeForm1, Form akOutcomeForm2 = None)
-    If akTrigger.Trigger(asEventName, akDevice, aiDataStr, afTriggerFloat, akTriggerForm) == True
-        akOutcome.Outcome(akDevice, aiDataStr, akOutcomeForm1, akOutcomeForm2)
-    EndIf
+String Function GetCaption(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+    Return (akForm1 as UD_ModTrigger).NameFull + " => " + (akForm2 as UD_ModOutcome).NameFull
 EndFunction

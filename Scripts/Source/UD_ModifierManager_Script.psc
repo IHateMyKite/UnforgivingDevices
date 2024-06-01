@@ -107,6 +107,7 @@ EndFunction
 
 String[]        Property UD_ModifierList    auto hidden
 Alias[]         Property UD_ModifierListRef auto hidden
+
 Function UpdateLists()
     UD_ModifierList     = Utility.CreateStringArray(0)
     UD_ModifierListRef  = Utility.CreateAliasArray(0)

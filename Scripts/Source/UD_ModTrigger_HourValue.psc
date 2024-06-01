@@ -7,7 +7,10 @@
     Parameters (DataStr):
         [0]     Float   Hours before triggering
         
-        [1]     Float   (script) Hours passed since last trigger                                    
+        [1]     Int     (optional) Repeat
+                        Default value: 1 (True)
+        
+        [2]     Float   (script) Hours passed since last trigger
         
     Example:
                     
@@ -24,13 +27,21 @@ import UD_Native
 /;
 
 Bool Function TimeUpdateHour(String asNameAlias, UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr)
-    Float loc_h_needed = GetStringParamFloat(aiDataStr, 0)
-    Float loc_h_passed = GetStringParamFloat(aiDataStr, 1, 0.0) + afMult
-    if loc_h_passed >= loc_h_needed
-        akDevice.editStringModifier(asNameAlias, 1, "0.0")
+    Float loc_current = GetStringParamFloat(aiDataStr, 2, 0.0)
+    If loc_current < 0.0
+        Return False
+    EndIf
+    loc_current += afMult
+    Float loc_needed = GetStringParamFloat(aiDataStr, 0)
+    If loc_current >= loc_needed
+        If GetStringParamInt(aiDataStr, 1, 0) > 0
+            akDevice.editStringModifier(asNameAlias, 2, FormatFloat(0, 2))
+        Else
+            akDevice.editStringModifier(asNameAlias, 2, FormatFloat(-1, 2))
+        EndIf
         Return True
-    else
-        akDevice.editStringModifier(asNameAlias, 1, FormatFloat(loc_h_passed, 2))
-    endif
-    Return False
+    Else 
+        akDevice.editStringModifier(asNameAlias, 2, FormatFloat(loc_current, 2))
+        Return False
+    EndIf
 EndFunction

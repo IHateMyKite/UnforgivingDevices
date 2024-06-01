@@ -7,7 +7,7 @@
     Parameters in DataStr:
         [0]     Float   Base probability on hit
         
-        [1]     Float   (optional) The weight of the base weapon damage in the final probability
+        [1]     Float   (optional) The weight of the base weapon damage in the final probability %
                         Default value: 0.0
 
     Example:
@@ -25,6 +25,9 @@ import UD_Native
 /;
 
 Bool Function WeaponHit(String asNameAlias, UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, String aiDataStr)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_ModTrigger_WHitChance::WeaponHit() asNameAlias = " + asNameAlias + ", akDevice = " + akDevice + ", akWeapon = " + akWeapon + ", aiDataStr = " + aiDataStr, 3)
+    EndIf
     Float loc_prob = GetStringParamFloat(aiDataStr, 0)
     Float loc_dmg_weight = GetStringParamFloat(aiDataStr, 1, 0.0)
     Float loc_dmg = iRange(akWeapon.GetBaseDamage(), 5, 100)

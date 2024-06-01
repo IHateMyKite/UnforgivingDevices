@@ -2628,6 +2628,9 @@ EndFunction
 bool Function editStringModifier(string asModifier,int aiIndex, string asNewValue)
     String[] loc_param = getModifierAllParam(asModifier)
     if loc_param
+        If loc_param.Length < aiIndex + 1
+            loc_param = PapyrusUtil.ResizeStringArray(loc_param, aiIndex + 1)
+        EndIf
         loc_param[aiIndex] = asNewValue
         UD_ModifiersDataStr[getModifierIndex(asModifier)] = PapyrusUtil.StringJoin(loc_param,",")
         return true
@@ -7643,8 +7646,12 @@ Function ShowModifiers()
     string[]    loc_list
     while loc_i < UD_ModifiersRef.length
         UD_Modifier loc_mod = (UD_ModifiersRef[loc_i] as UD_Modifier)
+        String loc_data = UD_ModifiersDataStr[loc_i]
+        Form loc_form1 = UD_ModifiersDataForm1[loc_i]
+        Form loc_form2 = UD_ModifiersDataForm2[loc_i]
+        Form loc_form3 = UD_ModifiersDataForm3[loc_i]
         ;loc_res += (loc_mod.NameFull + "\n")
-        loc_list = PapyrusUtil.PushString(loc_list,loc_mod.NameFull)
+        loc_list = PapyrusUtil.PushString(loc_list, loc_mod.GetCaption(Self, loc_data, loc_form1, loc_form2, loc_form3))
         loc_i   += 1
     endwhile
     

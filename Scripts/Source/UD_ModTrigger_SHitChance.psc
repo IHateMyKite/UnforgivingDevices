@@ -7,7 +7,7 @@
     Parameters in DataStr:
         [0]     Float   Base probability on hit
         
-        [1]     Float   (optional) The weight of the spell cost in the final probability
+        [1]     Float   (optional) The weight of the spell cost in the final probability %
                         Default value: 0.0
 
     Example:
