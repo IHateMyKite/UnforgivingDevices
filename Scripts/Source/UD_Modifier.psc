@@ -93,6 +93,10 @@ EndEvent
 ===========================================================================================
 /;
 ;- TODO
+Bool Function ValidateModifier(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+    Return True
+EndFunction
+
 Function GameLoaded(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
 EndFunction
 
