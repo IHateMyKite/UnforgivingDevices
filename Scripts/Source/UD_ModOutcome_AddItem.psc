@@ -34,38 +34,7 @@ import UD_Native
 
 Function Outcome(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2 = None, Form akForm3 = None)
 
-    Form[] loc_forms
-    Int loc_i
-
-    If (akForm1 as FormList) != None
-        loc_i = (akForm1 as FormList).GetSize()
-        While loc_i > 0
-            loc_i -= 1
-            loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm1 as FormList).GetAt(loc_i))
-        EndWhile
-    ElseIf akForm1 != None
-        loc_forms = PapyrusUtil.PushForm(loc_forms, akForm1)
-    EndIf
-    
-    If (akForm2 as FormList) != None
-        loc_i = (akForm2 as FormList).GetSize()
-        While loc_i > 0
-            loc_i -= 1
-            loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm2 as FormList).GetAt(loc_i))
-        EndWhile
-    ElseIf akForm2 != None
-        loc_forms = PapyrusUtil.PushForm(loc_forms, akForm2)
-    EndIf
-    
-    If (akForm3 as FormList) != None
-        loc_i = (akForm3 as FormList).GetSize()
-        While loc_i > 0
-            loc_i -= 1
-            loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm3 as FormList).GetAt(loc_i))
-        EndWhile
-    ElseIf akForm3 != None
-        loc_forms = PapyrusUtil.PushForm(loc_forms, akForm3)
-    EndIf
+    Form[] loc_forms = CombineForms(akForm1, akForm2, akForm3)
         
     If loc_forms.Length > 0
         Form loc_item = loc_forms[RandomInt(0, loc_forms.Length - 1)]

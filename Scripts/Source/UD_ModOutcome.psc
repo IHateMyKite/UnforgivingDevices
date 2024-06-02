@@ -83,3 +83,40 @@ EndFunction
 String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
     Return Description
 EndFunction
+
+Form[] Function CombineForms(Form akForm1, Form akForm2, Form akForm3)
+    Form[] loc_forms
+    Int loc_i
+
+    If (akForm1 as FormList) != None
+        loc_i = (akForm1 as FormList).GetSize()
+        While loc_i > 0
+            loc_i -= 1
+            loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm1 as FormList).GetAt(loc_i))
+        EndWhile
+    ElseIf akForm1 != None
+        loc_forms = PapyrusUtil.PushForm(loc_forms, akForm1)
+    EndIf
+    
+    If (akForm2 as FormList) != None
+        loc_i = (akForm2 as FormList).GetSize()
+        While loc_i > 0
+            loc_i -= 1
+            loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm2 as FormList).GetAt(loc_i))
+        EndWhile
+    ElseIf akForm2 != None
+        loc_forms = PapyrusUtil.PushForm(loc_forms, akForm2)
+    EndIf
+    
+    If (akForm3 as FormList) != None
+        loc_i = (akForm3 as FormList).GetSize()
+        While loc_i > 0
+            loc_i -= 1
+            loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm3 as FormList).GetAt(loc_i))
+        EndWhile
+    ElseIf akForm3 != None
+        loc_forms = PapyrusUtil.PushForm(loc_forms, akForm3)
+    EndIf
+    
+    Return loc_forms
+EndFunction
