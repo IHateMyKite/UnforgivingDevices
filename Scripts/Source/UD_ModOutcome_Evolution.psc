@@ -69,7 +69,7 @@ Function Outcome(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form a
             loc_device = loc_evolveto as Armor
         endif
     endif
-    akDevice.unlockRestrain(true)
+    akDevice.unlockRestrain(abForceDestroy = True, bEvolution = True)
     if loc_device
         If EvolveExplosion != None
             akDevice.GetWearer().PlaceAtMe(EvolveExplosion)

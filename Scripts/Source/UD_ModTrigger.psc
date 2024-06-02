@@ -102,6 +102,10 @@ Bool Function DeviceUnlocked(String asNameAlias, UD_CustomDevice_RenderScript ak
     Return False
 EndFunction
 
+Bool Function DeviceBroken(String asNameAlias, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
+    Return False
+EndFunction
+
 Bool Function MinigameAllowed(String asNameAlias, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
     return true
 EndFunction

@@ -42,6 +42,10 @@ EndProperty
 
 bool Property Ready = false auto Hidden
 
+Int _ModDeviceEvent_Locked      = 0x01
+Int _ModDeviceEvent_Unlocked    = 0x02
+Int _ModDeviceEvent_Broken      = 0x04
+
 ;saved modifier storages
 Form[] _modifierstorages
 int Function AddModifierStorage(UD_ModifierStorage akStorage)
@@ -274,6 +278,10 @@ Function Procces_UpdateModifiers_Orgasm(UD_CustomDevice_RenderScript akDevice)
 EndFunction
 
 Function Procces_UpdateModifiers_Added(UD_CustomDevice_RenderScript akDevice) ;directly accesed from device
+    Int loc_flags = StorageUtil.GetIntValue(akDevice.GetWearer(), "UD_ignoreModEvent" + akDevice.DeviceInventory)
+    If Math.LogicalAnd(loc_flags, 0x01) == 0
+        Return
+    EndIf
     int loc_modid = akDevice.UD_ModifiersRef.length
     while loc_modid 
         loc_modid -= 1
@@ -283,6 +291,10 @@ Function Procces_UpdateModifiers_Added(UD_CustomDevice_RenderScript akDevice) ;d
 EndFunction
 
 Function Procces_UpdateModifiers_Remove(UD_CustomDevice_RenderScript akDevice) ;directly accesed from device
+    Int loc_flags = StorageUtil.GetIntValue(akDevice.GetWearer(), "UD_ignoreModEvent" + akDevice.DeviceInventory)
+    If Math.LogicalAnd(loc_flags, 0x02) == 0
+        Return
+    EndIf
     int loc_modid = akDevice.UD_ModifiersRef.length
     while loc_modid 
         loc_modid -= 1

@@ -4,15 +4,18 @@
     NameFull: Loot Item
     NameAlias: LI
 
-    Parameters:
-        0 = (optional) Number of items filled in Form1 received, Int
-        1 = (optional) Number of items filled in Form2 received, Int
-        3 = (optional) Number of items filled in Form3 received, Int
-        
+    Parameters in DataStr:
+        [5]     Int     (optional) Minimum number of items
+                        Default value: 1
+        [6]     Int     (optional) Maximum number of items
+                        Default value: [5]
+        [7]     Int     (optional) Equip item (i.e. drink potion)
+                        Default value: 0 (False)
+
     Form arguments:
-        Form1 - Item the actor will receive
-        Form2 - Item the actor will receive
-        Form3 - Item the actor will receive
+        Form1 - Single item to add or FormList with items.
+        Form2 - Single item to add or FormList with items.
+        Form3 - Single item to add or FormList with items.
         
     Example:
         1       = Reward actor with 1x Form1,Form2,Form3 (if filled)

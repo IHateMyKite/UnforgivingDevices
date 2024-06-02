@@ -7,11 +7,14 @@
     Parameters in DataStr:
         [5]     Int     (optional) Number of devices
                         Default value: 1
+                        
         [6]     String  (optional) Selection method (in general or for the devices in list akForm1)
                             FIRST or F      - first suitable device from the list (akForm1, akForm2, akForm3 concatenated together)
                             RANDOM or R     - random device from the list (akForm1, akForm2, akForm3 concatenated together)
                         Default value: R
+                        
         [7]     String  (optional) Selection method for the devices in list akForm2
+        
         [8]     String  (optional) Selection method for the devices in list akForm3
 
     Form arguments:

@@ -2134,14 +2134,21 @@ EndFunction
 
         abForceDestroy  -  If device should be destroyed. This option ignores all other device setting and modifiers
         abWaitForRemove -  unused
+        abEvolution     -  If device evolved. Used in modifiers.
 /;
-Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True)
+Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True, Bool bEvolution = False)
     if IsUnlocked
         if UDmain.TraceAllowed()
             UDmain.Log("unlockRestrain("+getDeviceHeader()+") - Device is already unlocked! Aborting ",1)
         endif
         return
     endif
+
+    If bEvolution
+        Int loc_flags = StorageUtil.GetIntValue(Wearer, "UD_ignoreModEvent" + deviceInventory)
+        StorageUtil.SetIntValue(Wearer, "UD_ignoreModEvent" + deviceInventory, Math.LogicalOr(loc_flags, 0x02))         ; Unlock event
+    EndIf
+    
     _IsUnlocked = True
     GoToState("UpdatePaused")
     
@@ -2157,7 +2164,8 @@ Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True)
     if WearerIsPlayer()
         UDCDmain.updateLastOpenedDeviceOnRemove(self)
     endif
-
+    
+    
     StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
     
     StorageUtil.UnSetIntValue(Wearer, "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus")
@@ -2168,12 +2176,16 @@ Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True)
             questKw -= 1
             if deviceInventory.hasKeyword(UDCdmain.UD_QuestKeywords.getAt(questKw) as Keyword) || deviceRendered.hasKeyword(UDCdmain.UD_QuestKeywords.getAt(questKw) as Keyword)
                 libs.RemoveQuestDevice(Wearer, deviceInventory, deviceRendered, UD_DeviceKeyword, UDCdmain.UD_QuestKeywords.getAt(questKw) as Keyword ,zad_DestroyOnRemove || hasModifier("DOR") || abForceDestroy)
-                return
+                questKw = 0
             endif
         endwhile
     else
         libs.UnlockDevice(Wearer, deviceInventory, deviceRendered, UD_DeviceKeyword, zad_DestroyOnRemove || hasModifier("DOR") || abForceDestroy)
     endif
+    
+    Int loc_flags = StorageUtil.GetIntValue(Wearer, "UD_ignoreModEvent" + deviceInventory)
+    StorageUtil.SetIntValue(Wearer, "UD_ignoreModEvent" + deviceInventory, Math.LogicalAnd(loc_flags, Math.LogicalNot(0x02)))
+        
 EndFunction
 
 ;check sentient event and activets it

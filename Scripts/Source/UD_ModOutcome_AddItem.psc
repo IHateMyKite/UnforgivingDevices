@@ -5,9 +5,13 @@
     NameAlias:  AIT
 
     Parameters in DataStr:
-        [5]     Int     (optional) Number of items
+        [5]     Int     (optional) Minimum number of items
                         Default value: 1
-        [6]     Int     (optional) Equip item (i.e. drink potion)
+                        
+        [6]     Int     (optional) Maximum number of items
+                        Default value: [5]
+                        
+        [7]     Int     (optional) Equip item (i.e. drink potion)
                         Default value: 0 (False)
 
     Form arguments:
@@ -63,15 +67,20 @@ Function Outcome(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form a
         loc_forms = PapyrusUtil.PushForm(loc_forms, akForm3)
     EndIf
         
-    if loc_forms.Length > 0
-        Int loc_size = loc_forms.length
-        Form loc_item = loc_forms[RandomInt(0, loc_size - 1)]
-        Int loc_count = GetStringParamInt(aiDataStr, 5, 1)
-        Bool loc_use = GetStringParamInt(aiDataStr, 6, 0) > 0
-        akDevice.GetWearer().AddItem(loc_item, loc_count)
-        If loc_use
+    If loc_forms.Length > 0
+        Form loc_item = loc_forms[RandomInt(0, loc_forms.Length - 1)]
+        Int loc_min = GetStringParamInt(aiDataStr, 5, 1)
+        Int loc_max = GetStringParamInt(aiDataStr, 6, loc_min)
+        Bool loc_use = GetStringParamInt(aiDataStr, 7, 0) > 0
+        
+        If (loc_item As LeveledItem) != None && loc_use
             akDevice.GetWearer().EquipItem(loc_item)
+        Else
+            akDevice.GetWearer().AddItem(loc_item, RandomInt(loc_min, loc_max))
+            If loc_use
+                akDevice.GetWearer().EquipItem(loc_item)
+            EndIf
         EndIf
-    endif
+    Endif
     
 EndFunction
