@@ -26,15 +26,15 @@ import UD_Native
 ===========================================================================================
 /;
 
-Bool Function TimeUpdateHour(String asNameAlias, UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr)
+Bool Function TimeUpdateHour(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr)
     Float loc_prob = GetStringParamFloat(aiDataStr, 0)
     If GetStringParamInt(aiDataStr, 1, 0) > 0
         Float loc_hours = GetStringParamFloat(aiDataStr, 2, 0.0) + afMult
         If RandomFloat(0.0, 100.0) < loc_prob * loc_hours
-            akDevice.editStringModifier(asNameAlias, 2, "0.0")
+            akDevice.editStringModifier(akModifier.NameAlias, 2, "0.0")
             Return True
         Else
-            akDevice.editStringModifier(asNameAlias, 2, FormatFloat(loc_hours, 2))
+            akDevice.editStringModifier(akModifier.NameAlias, 2, FormatFloat(loc_hours, 2))
             Return False
         EndIf
     Else

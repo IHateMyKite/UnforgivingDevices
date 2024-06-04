@@ -2,7 +2,7 @@
     Evolution outcome
 
     NameFull: 
-    NameAlias:  OEV
+    NameAlias:  EVO
 
     Parameters:
 
@@ -22,7 +22,7 @@ import UD_Native
 
 Explosion Property EvolveExplosion Auto
 
-Function Outcome(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2 = None, Form akForm3 = None)
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2 = None, Form akForm3 = None)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_ModOutcome_Evolution::Outcome() akDevice = " + akDevice + ", akForm1 = " + akForm1 + ", akForm2 = " + akForm2 + ", akForm3 = " + akForm3, 3)
     EndIf

@@ -27,10 +27,7 @@ import UD_Native
 ===========================================================================================
 /;
 
-Bool Function WeaponHit(String asNameAlias, UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, String aiDataStr)
-    If UDmain.TraceAllowed()
-        UDmain.Log("UD_ModTrigger_WHitValue::WeaponHit() asNameAlias = " + asNameAlias + ", akDevice = " + akDevice + ", akWeapon = " + akWeapon + ", aiDataStr = " + aiDataStr, 3)
-    EndIf
+Bool Function WeaponHit(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, String aiDataStr)
     Int loc_dmg_current = GetStringParamInt(aiDataStr, 2, 0)
     If loc_dmg_current < 0
         Return False
@@ -39,13 +36,13 @@ Bool Function WeaponHit(String asNameAlias, UD_CustomDevice_RenderScript akDevic
     Int loc_dmg_needed = GetStringParamInt(aiDataStr, 0)
     If loc_dmg_current >= loc_dmg_needed
         If GetStringParamInt(aiDataStr, 1, 0) > 0
-            akDevice.editStringModifier(asNameAlias, 2, 0)
+            akDevice.editStringModifier(akModifier.NameAlias, 2, 0)
         Else
-            akDevice.editStringModifier(asNameAlias, 2, -1)
+            akDevice.editStringModifier(akModifier.NameAlias, 2, -1)
         EndIf
         Return True
     Else 
-        akDevice.editStringModifier(asNameAlias, 2, loc_dmg_current)
+        akDevice.editStringModifier(akModifier.NameAlias, 2, loc_dmg_current)
         Return False
     EndIf
 EndFunction

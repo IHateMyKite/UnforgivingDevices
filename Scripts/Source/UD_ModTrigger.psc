@@ -38,17 +38,12 @@ EndProperty
 /;
 String      Property NameFull               Auto
 
-;/  Variable: NameAlias
-    Short name of the modifier which is used internaly (MAO for example if full name if Manifest At Orgasm)
-/;
-String      Property NameAlias              Auto
-
 ;/  Variable: Description
     Additional info shown to player when selecting modifier on device
 /;
 String      Property Description            Auto
 
-;/  Variable: Multiplier
+;/  Variable: UserDifficultyMultiplier
     Multiplier which can be used to allow user to change difficulty of modifier.
     
     Have to be implemented manually at a correct place
@@ -57,7 +52,7 @@ String      Property Description            Auto
     
     This will affect even equipped devices
 /;
-Float       Property Multiplier                 = 1.0   Auto hidden
+Float       Property UserDifficultyMultiplier   = 1.0   Auto hidden
 
 ;/  Variable: PatchPowerMultiplier
     Multiplier which can be used to allow user to change power at which are modifiers added by patcher
@@ -78,66 +73,58 @@ Float       Property PatchChanceMultiplier      = 1.0   Auto hidden
 ===========================================================================================
 /;
 
-Bool Function GameLoaded(String asNameAlias, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
+Bool Function GameLoaded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
     Return False
 EndFunction
 
-Bool Function TimeUpdateSecond(String asNameAlias, UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr)
+Bool Function TimeUpdateSecond(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr)
     Return False
 EndFunction
 
-Bool Function TimeUpdateHour(String asNameAlias, UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr)
+Bool Function TimeUpdateHour(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr)
     Return False
 EndFunction
 
-Bool Function Orgasm(String asNameAlias, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
+Bool Function Orgasm(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
     Return False
 EndFunction
 
-Bool Function DeviceLocked(String asNameAlias, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
+Bool Function DeviceLocked(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
     Return False
 EndFunction
 
-Bool Function DeviceUnlocked(String asNameAlias, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
+Bool Function DeviceUnlocked(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
     Return False
 EndFunction
 
-Bool Function DeviceBroken(String asNameAlias, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
-    Return False
-EndFunction
-
-Bool Function MinigameAllowed(String asNameAlias, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
+Bool Function MinigameAllowed(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
     return true
 EndFunction
 
-Bool Function MinigameStarted(String asNameAlias, UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_RenderScript akMinigameDevice, String aiDataStr)
+Bool Function MinigameStarted(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_RenderScript akMinigameDevice, String aiDataStr)
     Return False
 EndFunction
 
-Bool Function MinigameEnded(String asNameAlias, UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_RenderScript akMinigameDevice, String aiDataStr)
+Bool Function MinigameEnded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_RenderScript akMinigameDevice, String aiDataStr)
     Return False
 EndFunction
 
-Bool Function WeaponHit(String asNameAlias, UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, String aiDataStr)
+Bool Function WeaponHit(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, String aiDataStr)
     Return False
 EndFunction
 
-Bool Function SpellHit(String asNameAlias, UD_CustomDevice_RenderScript akDevice, Spell akSpell, String aiDataStr)
+Bool Function SpellHit(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Spell akSpell, String aiDataStr)
     Return False
 EndFunction
 
-Bool Function SpellCast(String asNameAlias, UD_CustomDevice_RenderScript akDevice, Spell akSpell, String aiDataStr)
+Bool Function SpellCast(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Spell akSpell, String aiDataStr)
     Return False
 EndFunction
 
-Bool Function ConditionLoss(String asNameAlias, UD_CustomDevice_RenderScript akDevice, Int aiCondition, String aiDataStr)
+Bool Function ConditionLoss(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiCondition, String aiDataStr)
     Return False
 EndFunction
 
-String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
     Return Description
-EndFunction
-
-; NOT USED
-Bool Function Trigger(String asEventName, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Float afTriggerFloat = 0.0, Form akTriggerForm = None)
 EndFunction

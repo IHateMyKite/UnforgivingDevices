@@ -2,7 +2,7 @@
     Trigger on simple event
     
     NameFull: 
-    NameAlias: TSE
+    NameAlias: SME
     
     Parameters (DataStr):
         [0]     String  Simple event to trigger
@@ -24,17 +24,20 @@ import UD_Native
 ===========================================================================================
 /;
 
-Bool Function DeviceLocked(String asNameAlias, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
+Bool Function DeviceLocked(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
     String loc_event = GetStringParamString(aiDataStr, 0, "")
     Return (loc_event == "DL" || loc_event == "DeviceLocked")
 EndFunction
 
-Bool Function DeviceUnlocked(String asNameAlias, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
+Bool Function DeviceUnlocked(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
     String loc_event = GetStringParamString(aiDataStr, 0, "")
     Return (loc_event == "DU" || loc_event == "DeviceUnlocked")
 EndFunction
 
-Bool Function DeviceBroken(String asNameAlias, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
-    String loc_event = GetStringParamString(aiDataStr, 0, "")
-    Return (loc_event == "DB" || loc_event == "DeviceBroken")
+Bool Function ConditionLoss(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiCondition, String aiDataStr)
+    If aiCondition == 4
+        String loc_event = GetStringParamString(aiDataStr, 0, "")
+        Return (loc_event == "DB" || loc_event == "DeviceBroken")
+    EndIf
+    Return False
 EndFunction

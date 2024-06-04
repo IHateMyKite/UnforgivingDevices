@@ -24,7 +24,7 @@ import UD_Native
 ===========================================================================================
 /;
 
-Bool Function SpellHit(String asNameAlias, UD_CustomDevice_RenderScript akDevice, Spell akSpell, String aiDataStr)
+Bool Function SpellHit(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Spell akSpell, String aiDataStr)
     Float loc_prob = GetStringParamFloat(aiDataStr, 0)
     Float loc_cost_weight = GetStringParamFloat(aiDataStr, 1, 0.0)
     Float loc_cost = iRange(akSpell.GetMagickaCost(), 5, 100)

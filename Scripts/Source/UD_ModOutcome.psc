@@ -38,17 +38,12 @@ EndProperty
 /;
 String      Property NameFull               Auto
 
-;/  Variable: NameAlias
-    Short name of the modifier which is used internaly (MAO for example if full name if Manifest At Orgasm)
-/;
-String      Property NameAlias              Auto
-
 ;/  Variable: Description
     Additional info shown to player when selecting modifier on device
 /;
 String      Property Description            Auto
 
-;/  Variable: Multiplier
+;/  Variable: UserDifficultyMultiplier
     Multiplier which can be used to allow user to change difficulty of modifier.
     
     Have to be implemented manually at a correct place
@@ -57,7 +52,7 @@ String      Property Description            Auto
     
     This will affect even equipped devices
 /;
-Float       Property Multiplier                 = 1.0   Auto hidden
+Float       Property UserDifficultyMultiplier   = 1.0   Auto hidden
 
 ;/  Variable: PatchPowerMultiplier
     Multiplier which can be used to allow user to change power at which are modifiers added by patcher
@@ -77,10 +72,10 @@ Float       Property PatchChanceMultiplier      = 1.0   Auto hidden
 ===========================================================================================
 /;
 
-Function Outcome(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2 = None, Form akForm3 = None)
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2 = None, Form akForm3 = None)
 EndFunction
 
-String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
     Return Description
 EndFunction
 

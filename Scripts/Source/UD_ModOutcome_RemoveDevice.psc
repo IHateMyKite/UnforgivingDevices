@@ -9,6 +9,7 @@
                         Default value: 1
                         
         [6]     String  (optional) Selection method (in general or for the keyword in list akForm1)
+                            SELF or S       - removes self
                             FIRST or F      - first suitable keyword from the list (akForm1, akForm2, akForm3 concatenated together)
                             RANDOM or R     - random keyword from the list (akForm1, akForm2, akForm3 concatenated together)
                         Default value: R
@@ -35,5 +36,6 @@ import UD_Native
 ===========================================================================================
 /;
 
-Function Outcome(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2 = None, Form akForm3 = None)
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2 = None, Form akForm3 = None)
+
 EndFunction

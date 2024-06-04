@@ -24,9 +24,9 @@ import UD_Native
 ===========================================================================================
 /;
 
-Bool Function WeaponHit(String asNameAlias, UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, String aiDataStr)
+Bool Function WeaponHit(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, String aiDataStr)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_ModTrigger_WHitChance::WeaponHit() asNameAlias = " + asNameAlias + ", akDevice = " + akDevice + ", akWeapon = " + akWeapon + ", aiDataStr = " + aiDataStr, 3)
+        UDmain.Log("UD_ModTrigger_WHitChance::WeaponHit() akModifier = " + akModifier + ", akDevice = " + akDevice + ", akWeapon = " + akWeapon + ", aiDataStr = " + aiDataStr, 3)
     EndIf
     Float loc_prob = GetStringParamFloat(aiDataStr, 0)
     Float loc_dmg_weight = GetStringParamFloat(aiDataStr, 1, 0.0)

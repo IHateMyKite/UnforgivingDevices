@@ -24,7 +24,7 @@ import UD_Native
 ===========================================================================================
 /;
 
-Bool Function ConditionLoss(String asNameAlias, UD_CustomDevice_RenderScript akDevice, Int aiCondition, String aiDataStr)
+Bool Function ConditionLoss(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiCondition, String aiDataStr)
     Float loc_prob = GetStringParamFloat(aiDataStr, 0)
     Bool loc_proportional = GetStringParamInt(aiDataStr, 1, 0) > 0
     If loc_proportional

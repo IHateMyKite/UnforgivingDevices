@@ -26,7 +26,7 @@ import UD_Native
 ===========================================================================================
 /;
 
-Bool Function ConditionLoss(String asNameAlias, UD_CustomDevice_RenderScript akDevice, Int aiCondition, String aiDataStr)
-        Int loc_threshold = GetStringParamInt(aiDataStr, 0)
-        Return (aiCondition >= loc_threshold)
+Bool Function ConditionLoss(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiCondition, String aiDataStr)
+    Int loc_threshold = GetStringParamInt(aiDataStr, 0)
+    Return (aiCondition >= loc_threshold)
 EndFunction

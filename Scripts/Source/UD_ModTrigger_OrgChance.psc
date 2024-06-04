@@ -26,15 +26,15 @@ import UD_Native
 ===========================================================================================
 /;
 
-Bool Function Orgasm(String asNameAlias, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
+Bool Function Orgasm(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
     Float loc_prob = GetStringParamFloat(aiDataStr, 0)
     If GetStringParamInt(aiDataStr, 1, 0) > 0
         Int loc_count = GetStringParamInt(aiDataStr, 2, 0) + 1
         If RandomFloat(0.0, 100.0) < loc_prob * loc_count
-            akDevice.editStringModifier(asNameAlias, 2, 0)
+            akDevice.editStringModifier(akModifier.NameAlias, 2, 0)
             Return True
         Else
-            akDevice.editStringModifier(asNameAlias, 2, loc_count)
+            akDevice.editStringModifier(akModifier.NameAlias, 2, loc_count)
             Return False
         EndIf
     Else

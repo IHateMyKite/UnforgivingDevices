@@ -279,7 +279,7 @@ EndFunction
 
 Function Procces_UpdateModifiers_Added(UD_CustomDevice_RenderScript akDevice) ;directly accesed from device
     Int loc_flags = StorageUtil.GetIntValue(akDevice.GetWearer(), "UD_ignoreModEvent" + akDevice.DeviceInventory)
-    If Math.LogicalAnd(loc_flags, 0x01) == 0
+    If Math.LogicalAnd(loc_flags, 0x01) != 0
         Return
     EndIf
     int loc_modid = akDevice.UD_ModifiersRef.length
@@ -292,7 +292,7 @@ EndFunction
 
 Function Procces_UpdateModifiers_Remove(UD_CustomDevice_RenderScript akDevice) ;directly accesed from device
     Int loc_flags = StorageUtil.GetIntValue(akDevice.GetWearer(), "UD_ignoreModEvent" + akDevice.DeviceInventory)
-    If Math.LogicalAnd(loc_flags, 0x02) == 0
+    If Math.LogicalAnd(loc_flags, 0x02) != 0
         Return
     EndIf
     int loc_modid = akDevice.UD_ModifiersRef.length

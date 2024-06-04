@@ -27,7 +27,7 @@ import UD_Native
 ===========================================================================================
 /;
 
-Bool Function Orgasm(String asNameAlias, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
+Bool Function Orgasm(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
     Int loc_current = GetStringParamInt(aiDataStr, 2, 0)
     If loc_current < 0
         Return False
@@ -36,13 +36,13 @@ Bool Function Orgasm(String asNameAlias, UD_CustomDevice_RenderScript akDevice, 
     Int loc_needed = GetStringParamInt(aiDataStr, 0)
     If loc_current >= loc_needed
         If GetStringParamInt(aiDataStr, 1, 0) > 0
-            akDevice.editStringModifier(asNameAlias, 2, 0)
+            akDevice.editStringModifier(akModifier.NameAlias, 2, 0)
         Else
-            akDevice.editStringModifier(asNameAlias, 2, -1)
+            akDevice.editStringModifier(akModifier.NameAlias, 2, -1)
         EndIf
         Return True
     Else 
-        akDevice.editStringModifier(asNameAlias, 2, loc_current)
+        akDevice.editStringModifier(akModifier.NameAlias, 2, loc_current)
         Return False
     EndIf
 EndFunction
