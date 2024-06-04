@@ -444,22 +444,28 @@ Function StopAnimation(Actor akActor, Actor akHelper = None, Bool abEnableActors
     endif
     
     if loc_stopActor
-        UnlockAnimatingActor(akActor, abEnableActors)
         ; restoring HH if it was removed in StartPairAnimation
         _RestoreHeelEffect(akActor)
         Debug.SendAnimationEvent(akActor, "AnimObjectUnequip")
         Debug.SendAnimationEvent(akActor, "IdleForceDefaultState")
+        
+        ;unlock actor after animation stops
+        UnlockAnimatingActor(akActor, abEnableActors)
     endif
     
     If akHelper != None && loc_stopHelper
         if loc_stopActor ;only restore position if actors animation should be stopped
             _RestoreActorPosition(akActor) ;only move player if there are 2 actors, otherwise solo animation is player and there is no need to move player
         endif
-        UnlockAnimatingActor(akHelper, abEnableActors)
+        
         ; restoring HH if it was removed in StartPairAnimation
         _RestoreHeelEffect(akHelper)
         Debug.SendAnimationEvent(akHelper, "AnimObjectUnequip")
         Debug.SendAnimationEvent(akHelper, "IdleForceDefaultState")
+        
+        ;unlock actor after animation stops
+        UnlockAnimatingActor(akHelper, abEnableActors)
+        
         _RestoreActorPosition(akHelper)
     EndIf
     If (loc_stopActor && UD_Native.IsPlayer(akActor)) || (loc_stopHelper && UD_Native.IsPlayer(akHelper))
@@ -527,29 +533,22 @@ Function LockAnimatingActor(Actor akActor, Bool abDisableActor = True)
         UDCDMain.DisableActor(akActor)
     endif
 
-    If !UD_Native.IsPlayer(akActor)
-        akActor.ClearLookAt()
-        akActor.SetHeadTracking(False)
-        akActor.SetAnimationVariableInt("IsNPC", 0)
-        akActor.SetAnimationVariableBool("bHeadTrackSpine", False)
-    EndIf
-
-    ;Armor shield = akActor.GetEquippedShield()
-    ;If shield
-    ;    StorageUtil.SetFormValue(akActor, "UD_EquippedShield", shield)
-    ;    akActor.UnequipItemSlot(39)
-    ;Else
-    ;    StorageUtil.UnsetFormValue(akActor, "UD_EquippedShield")
-    ;EndIf
-    
     if akActor.IsWeaponDrawn()
         akActor.SheatheWeapon()
         ; Wait for users with flourish sheathe animations.
         int timeout=0
         while akActor.IsWeaponDrawn() && timeout <= 15 ;  Wait 3.0 seconds at most before giving up and proceeding.
+            akActor.SheatheWeapon()
             Utility.Wait(0.2)
             timeout += 1
         EndWhile
+    EndIf
+
+    If !UD_Native.IsPlayer(akActor)
+        akActor.ClearLookAt()
+        akActor.SetHeadTracking(False)
+        akActor.SetAnimationVariableInt("IsNPC", 0)
+        akActor.SetAnimationVariableBool("bHeadTrackSpine", False)
     EndIf
 EndFunction
 
@@ -577,20 +576,6 @@ Function UnlockAnimatingActor(Actor akActor, Bool abEnableActor = True)
     EndIf
     
     akActor.SetVehicle(None)
-    
-    ;If StorageUtil.HasFormValue(akActor, "UD_EquippedShield")
-    ;    If UD_Native.IsPlayer(akActor)
-    ;        Armor shield = StorageUtil.GetFormValue(akActor, "UD_EquippedShield") as Armor
-    ;        If shield
-    ;            akActor.EquipItem(akActor, shield)
-    ;        EndIf
-    ;    Else
-    ;        ; if akActor is a NPC lets hope it has enough AI to equip shield
-    ;        ; because I don't want to check its outfit for having shiled.
-    ;    EndIf
-    ;    StorageUtil.UnsetFormValue(akActor, "UD_EquippedShield")
-    ;EndIf
-
 EndFunction
 
 ;/  Function: SetActorHeading

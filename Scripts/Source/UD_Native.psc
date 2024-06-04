@@ -101,7 +101,7 @@ Bool        Function RegisterDeviceCallback(Int aiHandle1, Int aiHandle2,Armor a
 Bool        Function UnregisterDeviceCallbacks(Int aiHandle1, Int aiHandle2,Armor akDevice) global native
             Function UnregisterAllDeviceCallbacks() global native
 Bool        Function AddDeviceCallbackArgument(int aiDxKeycode, int aiType, string asArgStr, Form akArgForm) global native
-            
+
 ; ===Papyrus delegate===
             Function RegisterForHMTweenMenu(ReferenceAlias akRefAlias)      global native
 Int         Function SendRegisterDeviceScriptEvent(Actor akActor, Armor[] akRenderDevices) global native
