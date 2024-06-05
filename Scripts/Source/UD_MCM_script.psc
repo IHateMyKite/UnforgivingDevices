@@ -153,7 +153,7 @@ EndFunction
 String Property UD_NPCsPageName = "$UD_NPCSCONFIG" auto
 
 Function LoadConfigPages()
-    pages = new String[14]
+    pages = new String[15]
     pages[00] = "$UD_GENERAL"
     pages[01] = "$UD_DEVICEFILTER"
     pages[02] = "$UD_CUSTOMDEVICES"
