@@ -2637,7 +2637,10 @@ EndFunction
 
         True if operation was succesfull
 /;
-bool Function editStringModifier(string asModifier,int aiIndex, string asNewValue)
+bool Function editStringModifier(string asModifier, int aiIndex, string asNewValue)
+    If aiIndex < 0
+        Return False
+    EndIf
     String[] loc_param = getModifierAllParam(asModifier)
     if loc_param
         If loc_param.Length < aiIndex + 1

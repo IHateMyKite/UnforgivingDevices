@@ -33,7 +33,7 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     If loc_forms.Length > 0
         Quest loc_quest = loc_forms[RandomInt(0, loc_forms.length - 1)] as Quest
         If loc_quest != None
-            If !loc_quest.IsActive()
+            If !loc_quest.IsRunning()
                 loc_quest.Start()
             EndIf
             Int loc_stage = GetStringParamInt(aiDataStr, 5, -1)

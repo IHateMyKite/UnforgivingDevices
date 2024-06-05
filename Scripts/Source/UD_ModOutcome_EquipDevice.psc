@@ -37,7 +37,7 @@ Explosion Property ManifestExplosion Auto
 
 Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2 = None, Form akForm3 = None)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_ModOutcome_Manifest::Outcome() akDevice = " + akDevice + ", aiDataStr = " + aiDataStr, 3)
+        UDmain.Log("UD_ModOutcome_EquipDevice::Outcome() akDevice = " + akDevice + ", aiDataStr = " + aiDataStr, 3)
     EndIf
     
     Int loc_count = GetStringParamInt(aiDataStr, 5, 1)

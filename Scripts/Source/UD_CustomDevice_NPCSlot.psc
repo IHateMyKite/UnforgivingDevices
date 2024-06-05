@@ -144,6 +144,7 @@ Function GameUpdate()
         endif
         _OrgasmGameUpdate()
         CheckVibrators()
+        UpdateRegistrationForEvents()
 ;        RegisterForActorAction(1)
 ;        RegisterForActorAction(2)
     endif
@@ -168,6 +169,10 @@ Function UpdateSlot(Bool abUpdateSkill = true)
     if !GetActor().wornhaskeyword(libs.zad_deviousHeavyBondage)
         _handRestrain = none ;unreference device
     endif
+    UpdateRegistrationForEvents()
+EndFunction
+
+Function UpdateRegistrationForEvents(Bool abUnregister = False)
 ;    RegisterForActorAction(1)
 ;    RegisterForActorAction(2)
 EndFunction
@@ -418,8 +423,7 @@ Function unregisterSlot()
         CleanArousalUpdate()
         CleanOrgasmUpdate()
     endif
-;    UnregisterForActorAction(1)
-    UnregisterForActorAction(2)
+    UpdateRegistrationForEvents(abUnregister = True)
     self.Clear()
 EndFunction
 
@@ -1037,15 +1041,15 @@ Event OnHit(ObjectReference akAggressor, Form akSource, Projectile akProjectile,
         _LastHitTime = loc_time
         if akSource
             if akSource as Weapon
-                OnWeaponHit(akSource as Weapon)
+                OnWeaponHit(akAggressor, akSource as Weapon)
             elseif akSource as Spell
-                OnSpellHit(akSource as Spell)
+                OnSpellHit(akAggressor, akSource as Spell)
             endif
         endif
     endif
 EndEvent
 
-Function OnWeaponHit(Weapon source)
+Function OnWeaponHit(ObjectReference akAggressor, Weapon source)
     int i = 0
     while UD_equipedCustomDevices[i]
         UD_equipedCustomDevices[i].weaponHit(source)
@@ -1053,7 +1057,7 @@ Function OnWeaponHit(Weapon source)
     endwhile
 EndFunction
 
-Function OnSpellHit(Spell source)
+Function OnSpellHit(ObjectReference akAggressor, Spell source)
     int i = 0
     while UD_equipedCustomDevices[i]
         UD_equipedCustomDevices[i].spellHit(source)

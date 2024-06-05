@@ -111,6 +111,12 @@ Function ConditionLoss(UD_CustomDevice_RenderScript akDevice, Int aiCondition, S
     EndIf
 EndFunction
 
+Function StatEvent(UD_CustomDevice_RenderScript akDevice, String asStatName, Int aiStatValue, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+    If (akForm1 as UD_ModTrigger).StatEvent(Self, akDevice, asStatName, aiStatValue, aiDataStr) == True
+        (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm3, None)
+    EndIf
+EndFunction
+
 Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
     String loc_msg = ""
     
