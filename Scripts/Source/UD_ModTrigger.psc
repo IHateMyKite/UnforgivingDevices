@@ -141,73 +141,93 @@ EndFunction
     This function is used to calculate and check probability to trigger on some value change with many options
     
     Parameters:
-        akDevice                - Device with the modifier. Used to update its aiDataStr.
-        asNameAlias             - Alias of the modifier. Used to update its aiDataStr.
-        aiDataStr               - Parameters of the modifier.
-        aiValueChange           - Change of the value.
-        aiMinAccumIndex         - (index of the parameter in DataStr) Minimum accumulated value to trigger.
-        aiBaseProbIndex         - (index of the parameter in DataStr) Base probability to trigger on call.
-        aiValueProbIndex        - (index of the parameter in DataStr) Probability to trigger proportional to the value delta.
-        aiAccumProbIndex        - (index of the parameter in DataStr) Probability to trigger proportional to the accumulated value
-        aiRepeatIndex           - (index of the parameter in DataStr) Repeat flag.
-        aiAccumIndex            - (index of the parameter in DataStr) Accumulated value. Resets after trigger.
+        akDevice                - Device with the modifier. Used to update its aiDataStr
+        asNameAlias             - Alias of the modifier. Used to update its aiDataStr
+        aiDataStr               - String with modifier parameters
+        afValueAbs              - Absolute value (-1.0 if not used)
+        afValueDelta            - The change of the value (0.0 if not used)
+        afMinAccum              - Minimum accumulated value to trigger
+        afProbBase              - Base probability to trigger on call
+        afProbDelta             - Probability to trigger is proportional to the value change (afValueDelta)
+        afProbAccum             - Probability to trigger is proportional to the accumulated value
+        abRepeat                - Repeat flag
+        aiAccumParamIndex       - (index of the parameter in DataStr) Accumulated value in DataStr. Resets after trigger
         
     Returns:
         True if triggered
 /;
-Bool Function TriggerOnValueChange(UD_CustomDevice_RenderScript akDevice, String asNameAlias, String aiDataStr, Int aiValueAbs = -1, Int aiValueDelta = 0, Int aiMinAccumIndex = -1, Int aiBaseProbIndex = -1, Int aiValueProbIndex = -1, Int aiAccumProbIndex = -1, Int aiRepeatIndex = -1, Int aiAccumIndex = -1)   
-    Int loc_accum_current = 0
-    If aiAccumIndex >= 0
-        loc_accum_current = GetStringParamInt(aiDataStr, aiAccumIndex, 0)
+Bool Function TriggerOnValueDelta(UD_CustomDevice_RenderScript akDevice, String asNameAlias, String aiDataStr, Float afValueDelta, Float afMinAccum = 0.0, Float afProbBase = 100.0, Float afProbDelta = 0.0, Float afProbAccum = 0.0, Bool abRepeat = False, Int aiAccumParamIndex = -1)
+    Float loc_accum_current = 0
+    If aiAccumParamIndex >= 0
+        loc_accum_current = GetStringParamFloat(aiDataStr, aiAccumParamIndex, 0.0)
     EndIf
     If loc_accum_current < 0
         ; did it once with no repeat option
         Return False
     EndIf
-    Float loc_base_prob = 100.0
-    Float loc_value_prob = 0.0
-    Float loc_accum_prob = 0.0
-    Int loc_accum_needed = 0
-    Bool loc_repeat = False
-    
-    If aiBaseProbIndex >= 0
-        loc_base_prob = GetStringParamFloat(aiDataStr, aiBaseProbIndex, 100.0)
-    EndIf
-    If aiValueProbIndex >= 0
-        loc_value_prob = GetStringParamFloat(aiDataStr, aiValueProbIndex, 0.0)
-    EndIf
-    If aiValueProbIndex >= 0
-        loc_value_prob = GetStringParamFloat(aiDataStr, aiValueProbIndex, 0.0)
-    EndIf
-    If aiAccumProbIndex >= 0
-        loc_accum_prob = GetStringParamFloat(aiDataStr, aiAccumProbIndex, 0.0)
-    EndIf
-    If aiMinAccumIndex >= 0
-        loc_accum_needed = GetStringParamInt(aiDataStr, aiMinAccumIndex, 0)
-    EndIf
-    If aiRepeatIndex >= 0
-        loc_repeat = GetStringParamInt(aiDataStr, aiRepeatIndex, 0) > 0
-    EndIf
-    If aiValueAbs >= 0
-        loc_accum_current = aiValueAbs
-    ElseIf aiValueDelta > 0
-        loc_accum_current += aiValueDelta
-    EndIf
-    If loc_accum_current >= loc_accum_needed
-        If aiAccumIndex >= 0
-            If loc_repeat
-                akDevice.editStringModifier(asNameAlias, aiAccumIndex, 0)
+    loc_accum_current += afValueDelta
+    If loc_accum_current >= afMinAccum
+        If aiAccumParamIndex >= 0
+            If abRepeat
+                akDevice.editStringModifier(asNameAlias, aiAccumParamIndex, "0.0")
             Else
             ; did it once with no repeat option
-                akDevice.editStringModifier(asNameAlias, aiAccumIndex, -1)
+                akDevice.editStringModifier(asNameAlias, aiAccumParamIndex, "-1.0")
             EndIf
         EndIf
-        Return (RandomFloat(0.0, 100.0) < loc_base_prob + loc_value_prob * aiValueDelta + loc_accum_current * loc_accum_prob)
+        Return (RandomFloat(0.0, 100.0) < afProbBase + afProbDelta * afValueDelta + afProbAccum * loc_accum_current)
     Else 
     ; not enough accumulated value
-        If aiAccumIndex >= 0
-            akDevice.editStringModifier(asNameAlias, aiAccumIndex, loc_accum_current)
+        If aiAccumParamIndex >= 0
+            akDevice.editStringModifier(asNameAlias, aiAccumParamIndex, FormatFloat(loc_accum_current, 2))
         EndIf
+        Return False
+    EndIf
+    Return False
+EndFunction
+
+;/  Function: TriggerOnValueAbs
+
+    This function is used to calculate and check probability to trigger on some absolute value (positive, increased over time) with many options
+    
+    Parameters:
+        akDevice                - Device with the modifier. Used to update its aiDataStr
+        asNameAlias             - Alias of the modifier. Used to update its aiDataStr
+        aiDataStr               - String with modifier parameters
+        afValueAbs              - Absolute value
+        afMinValue              - Minimum value to trigger
+        afProbBase              - Base probability to trigger on call
+        afProbAccum             - Probability to trigger is proportional to the value delta since the last trigger
+        abRepeat                - Repeat flag
+        aiLastTriggerValueIndex - (index of the parameter in DataStr) Last trigger value
+        
+    Returns:
+        True if triggered
+/;
+Bool Function TriggerOnValueAbs(UD_CustomDevice_RenderScript akDevice, String asNameAlias, String aiDataStr, Float afValueAbs, Float afMinValue = 0.0, Float afProbBase = 100.0, Float afProbAccum = 0.0, Bool abRepeat = False, Int aiLastTriggerValueIndex = -1)
+    Float loc_last_trigger_value = 0
+    If aiLastTriggerValueIndex >= 0
+        loc_last_trigger_value = GetStringParamFloat(aiDataStr, aiLastTriggerValueIndex, 0.0)
+    EndIf
+    If loc_last_trigger_value < 0
+        ; did it once with no repeat option
+        Return False
+    EndIf
+
+    If loc_last_trigger_value == 0
+        loc_last_trigger_value = afValueAbs
+    EndIf
+    If afValueAbs >= afMinValue
+        If aiLastTriggerValueIndex >= 0
+            If abRepeat
+                akDevice.editStringModifier(asNameAlias, aiLastTriggerValueIndex, FormatFloat(loc_last_trigger_value, 2))
+            Else
+            ; did it once with no repeat option
+                akDevice.editStringModifier(asNameAlias, aiLastTriggerValueIndex, "-1.0")
+            EndIf
+        EndIf
+        Return (RandomFloat(0.0, 100.0) < afProbBase + afProbAccum * (afValueAbs - loc_last_trigger_value))
+    Else 
         Return False
     EndIf
     Return False

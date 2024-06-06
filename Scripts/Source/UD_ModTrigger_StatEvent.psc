@@ -1,15 +1,14 @@
 ;/  File: UD_ModTrigger_StatEvent
     Trigger on stat event
     
-    NameFull: 
-    NameAlias: SME
+    NameFull: Statistics
     
     Parameters (DataStr):
         [0]     String  Stat event to trigger
                             See https://ck.uesp.net/wiki/ListOfTrackedStats
                             Not all of those stats are working
                             
-        [1]     Int     (optional) Minimal stat delta value to trigger
+        [1]     Int     (optional) Minimum accumulated stat value to trigger
                         Default value: 0 (chance on every call)
         
         [2]     Float   (optional) Probability to trigger on event in %
@@ -39,5 +38,9 @@ Bool Function StatEvent(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     If asStatName != GetStringParamString(aiDataStr, 0, "")
         Return False
     EndIf
-    Return TriggerOnValueChange(akDevice, akModifier.NameAlias, aiDataStr, aiValueDelta = 1, aiMinAccumIndex = 1, aiBaseProbIndex = 2, aiValueProbIndex = -1, aiRepeatIndex = 3, aiAccumIndex = 4)
+    Int loc_min_value = GetStringParamInt(aiDataStr, 1, 0)
+    Float loc_prob_base = GetStringParamFloat(aiDataStr, 2, 100.0)
+    Bool loc_repeat = GetStringParamInt(aiDataStr, 3, 0) > 0
+    
+    Return TriggerOnValueAbs(akDevice, akModifier.NameAlias, aiDataStr, afValueAbs = aiStatValue, afMinValue = loc_min_value, afProbBase = loc_prob_base, abRepeat = loc_repeat, aiLastTriggerValueIndex = 4)
 EndFunction
