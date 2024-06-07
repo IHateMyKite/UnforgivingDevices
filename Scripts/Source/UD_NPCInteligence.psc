@@ -82,6 +82,7 @@ EndFunction
 Bool Function SlotAIEnabled(UD_CustomDevice_NPCSlot akSlot)
     Actor loc_actor = akSlot.GetActor()
     Bool loc_cond = true
+    loc_cond = loc_cond && !akSlot.IsDead()                                 ;actor is not dead
     loc_cond = loc_cond && akSlot.isUsed()                                  ;there is actor in slot
     loc_cond = loc_cond && !akSlot.UD_AITimer                               ;safety cooldown
     loc_cond = loc_cond && akSlot.getNumberOfRegisteredDevices()            ;actor needs to have at least one device
