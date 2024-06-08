@@ -145,8 +145,6 @@ Function GameUpdate()
         _OrgasmGameUpdate()
         CheckVibrators()
         UpdateRegistrationForEvents()
-;        RegisterForActorAction(1)
-;        RegisterForActorAction(2)
     endif
 EndFunction
 
@@ -169,7 +167,6 @@ Function UpdateSlot(Bool abUpdateSkill = true)
     if !GetActor().wornhaskeyword(libs.zad_deviousHeavyBondage)
         _handRestrain = none ;unreference device
     endif
-    UpdateRegistrationForEvents()
 EndFunction
 
 Function UpdateRegistrationForEvents(Bool abUnregister = False)
@@ -212,6 +209,7 @@ Event OnInit()
     UD_equipedCustomDevices = UDCDMain.MakeNewDeviceSlots()
     UD_ActiveVibrators      = UDCDMain.MakeNewDeviceSlots()
     Ready = True
+    UpdateRegistrationForEvents()
 EndEvent
 
 Event OnPlayerLoadGame()
@@ -241,8 +239,8 @@ endEvent
 ; 1 - Right Hand
 ; 2 - Voice
 Event OnActorAction(int actionType, Actor akActor, Form source, int slot)
-; registered in UpdateSlot(), GameUpdate()
-; unregistered in unregisterSlot()
+; registered in UpdateRegistrationForEvents(False)
+; unregistered in UpdateRegistrationForEvents(True)
 ; 1 - Spell Cast (Spells and staves)
 ; 2 - Spell Fire (Spells and staves)
 
@@ -1027,40 +1025,54 @@ Function edge()
 EndFunction
 
 Float _LastHitTime = 0.0
+Float _LastSpellConcTime = 0.0
 
 Event OnHit(ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked)
-    if isScriptRunning()
-        if UDmain.TraceAllowed()
-            UDmain.Log("OnHit("+akAggressor+","+akSource+","+akProjectile+") on " + getSlotedNPCName())
-        endif
-        ; checking the delta between the current time and the time of the last hit to skip spam
+    if !isScriptRunning()
+        Return
+    EndIf
+    If IsConcentrationSpell(akSource as Spell)
+    ; checking the delta between the current time and the time of the last hit to skip spam
         Float loc_time = Utility.GetCurrentRealTime()
-        If loc_time - _LastHitTime < 1.0
+        If loc_time - _LastSpellConcTime < 1.0
             Return
         EndIf
-        _LastHitTime = loc_time
-        if akSource
-            if akSource as Weapon
-                OnWeaponHit(akAggressor, akSource as Weapon)
-            elseif akSource as Spell
-                OnSpellHit(akAggressor, akSource as Spell)
-            endif
+        _LastSpellConcTime = loc_time
+    EndIf
+    if UDmain.TraceAllowed()
+        UDmain.Log("OnHit("+akAggressor+","+akSource+","+akProjectile+") on " + getSlotedNPCName())
+    endif
+
+    if akSource
+        if akSource as Weapon
+            Float loc_dmg = CalculatePhysDamage(akAggressor, akSource, akProjectile, abPowerAttack, abSneakAttack, abBashAttack, abHitBlocked)
+            If loc_dmg > 0.0
+                OnWeaponHit(akSource as Weapon, loc_dmg)
+            EndIf
+        elseif akSource as Spell
+            Float loc_dmg = CalculateMagDamage(akAggressor, akSource, akProjectile, abPowerAttack, abSneakAttack, abBashAttack, abHitBlocked)
+            If loc_dmg > 0.0
+                OnSpellHit(akSource as Spell, loc_dmg)
+            EndIf
+        ElseIf akSource as Enchantment
+        ; TODO
+            
         endif
     endif
 EndEvent
 
-Function OnWeaponHit(ObjectReference akAggressor, Weapon source)
+Function OnWeaponHit(Weapon source, Float afDamage = -1.0)
     int i = 0
     while UD_equipedCustomDevices[i]
-        UD_equipedCustomDevices[i].weaponHit(source)
+        UD_equipedCustomDevices[i].weaponHit(source, afDamage)
         i+=1
     endwhile
 EndFunction
 
-Function OnSpellHit(ObjectReference akAggressor, Spell source)
+Function OnSpellHit(Spell source, Float afDamage = -1.0)
     int i = 0
     while UD_equipedCustomDevices[i]
-        UD_equipedCustomDevices[i].spellHit(source)
+        UD_equipedCustomDevices[i].spellHit(source, afDamage)
         i+=1
     endwhile    
 EndFunction
@@ -2120,6 +2132,65 @@ Function EndAllVibrators()
         endif
         i+=1
     endwhile
+EndFunction
+
+Float Function CalculatePhysDamage(ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked)
+; calculation in the first approximation without taking into account difficulty and perks
+    Weapon loc_weapon = akSource as Weapon
+    If loc_weapon == None
+        Return 5.0 * (1.0 + 0.02 * GetActor().GetLevel()) * (1.0 + 0.5 * (abPowerAttack as Int))
+    ElseIf akAggressor == None && loc_weapon.GetFormID() == 0x000001F4
+    ; it's a trap!
+        Return 50.0 * (1.0 + 0.02 * GetActor().GetLevel())
+    Else
+        Float loc_base = fRange(loc_weapon.GetBaseDamage(), 5.0, 100.0)
+        Float loc_skill
+        If akAggressor as Actor != None
+            loc_skill = (akAggressor as Actor).GetActorValue(loc_weapon.GetSkill())
+        Else
+            loc_skill = GetActor().GetLevel()
+        EndIf
+        Return loc_base * (1.0 + 0.02 * loc_skill) * (1.0 + 0.5 * (abPowerAttack as Int))
+    EndIf
+EndFunction
+
+Float Function CalculateMagDamage(ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked)
+    If akSource as Spell != None
+        Spell loc_spell = akSource as Spell
+        If !loc_spell.IsHostile()
+            Return -1.0
+        EndIf
+        Int loc_i = loc_spell.GetCostliestEffectIndex()
+        MagicEffect loc_me = loc_spell.GetNthEffectMagicEffect(loc_i)
+        If (loc_me.GetAssociatedSkill() != "Destruction")
+            Return -1.0
+        EndIf
+        If !loc_me.IsEffectFlagSet(0x00000001)
+            Return -1.0
+        EndIf
+        Float loc_base = fRange(loc_spell.GetNthEffectMagnitude(loc_i), 5.0, 100.0)
+        Float loc_skill     
+        If akAggressor as Actor != None
+            loc_skill = (akAggressor as Actor).GetActorValue("Destruction")
+        Else
+            loc_skill = GetActor().GetLevel()
+        EndIf
+        Return loc_base * (1.0 + 0.02 * loc_skill)
+    ElseIf akSource as Enchantment != None
+        
+    Else
+        Return 5.0 * (1.0 + 0.02 * GetActor().GetLevel())
+    EndIf
+
+EndFunction
+
+Bool Function IsConcentrationSpell(Spell akSpell)
+    If akSpell == None
+        Return False
+    EndIf
+    Int loc_i = akSpell.GetCostliestEffectIndex()
+    MagicEffect loc_me = akSpell.GetNthEffectMagicEffect(loc_i)
+    Return loc_me.GetCastingType() == 2
 EndFunction
 
 ;===============================================================================

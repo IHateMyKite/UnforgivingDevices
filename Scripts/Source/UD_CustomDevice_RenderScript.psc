@@ -2204,16 +2204,16 @@ function checkSentient(float afMult = 1.0)
 EndFunction
 
 ;function called when wearer is hit by source weapon
-Function weaponHit(Weapon akSource)
-    if onWeaponHitPre(akSource)
-        onWeaponHitPost(akSource)
+Function weaponHit(Weapon akSource, Float afDamage = -1.0)
+    if onWeaponHitPre(akSource, afDamage)
+        onWeaponHitPost(akSource, afDamage)
     endif
 EndFunction
 
 ;function called when wearer is hit by source spell
-Function spellHit(Spell akSource)
-    if onSpellHitPre(akSource)
-        onSpellHitPost(akSource)
+Function spellHit(Spell akSource, Float afDamage = -1.0)
+    if onSpellHitPre(akSource, afDamage)
+        onSpellHitPost(akSource, afDamage)
     endif
 EndFunction
 
@@ -2564,7 +2564,25 @@ EndFunction
 String[] Function getModifierAllParam(string asModifier)
     int loc_Index = getModifierIndex(asModifier)
     if loc_Index != -1
-        return StringUtil.split(UD_ModifiersDataStr[loc_Index],",")
+        ; it skips empty positions
+;       return StringUtil.split(UD_ModifiersDataStr[loc_Index],",")
+
+        String loc_str = UD_ModifiersDataStr[loc_Index]
+        String[] loc_result
+        Int loc_from = 0
+        Int loc_to = 0
+        While loc_to >= 0
+            loc_to = StringUtil.Find(loc_str, ",", loc_from)
+            If loc_to == loc_from
+                loc_result = PapyrusUtil.PushString(loc_result, "")
+            ElseIf loc_to >= 0
+                loc_result = PapyrusUtil.PushString(loc_result, StringUtil.Substring(loc_str, loc_from, loc_to - loc_from))
+            Else
+                loc_result = PapyrusUtil.PushString(loc_result, StringUtil.Substring(loc_str, loc_from, StringUtil.GetLength(loc_str) - loc_from))
+            EndIf
+            loc_from = loc_to + 1
+        EndWhile
+        Return loc_result
     else
         return none
     endif
@@ -8054,11 +8072,11 @@ EndFunction
 Function onSpecialButtonReleased(Float fHoldTime)
 EndFunction
 
-bool Function onWeaponHitPre(Weapon source)
+bool Function onWeaponHitPre(Weapon source, Float afDamage = -1.0)
     return true
 EndFunction
 
-Function onWeaponHitPost(Weapon source)
+Function onWeaponHitPost(Weapon source, Float afDamage = -1.0)
     ;check if weapon is wooded (whips and canes have also this keyword)
     if source.haskeyword(UDlibs.WoodedWeapon)
         ;weapon is wooden, no damage should be deald
@@ -8078,17 +8096,21 @@ Function onWeaponHitPost(Weapon source)
         endif
     endif
     If !IsUnlocked
-        Udmain.UDMOM.Procces_UpdateModifiers_WeaponHit(self, source)
+        If afDamage > 0.0
+            Udmain.UDMOM.Procces_UpdateModifiers_WeaponHit(self, source, afDamage)
+        EndIf
     EndIf
 EndFunction
 
-bool Function onSpellHitPre(Spell source)
+bool Function onSpellHitPre(Spell source, Float afDamage = -1.0)
     return True
 EndFunction
 
-Function onSpellHitPost(Spell source)
+Function onSpellHitPost(Spell source, Float afDamage = -1.0)
     if !IsUnlocked; && getModResistMagicka(1.0,0.25) != 1.0
-        Udmain.UDMOM.Procces_UpdateModifiers_SpellHit(self, source)
+        If afDamage >= 0.0
+            Udmain.UDMOM.Procces_UpdateModifiers_SpellHit(self, source, afDamage)
+        EndIf
     endif
 EndFunction
 

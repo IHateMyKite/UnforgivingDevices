@@ -101,12 +101,23 @@ EndFunction
 
 Function OnInit()
     RegisterForSingleUpdate(20.0)
+    RegisterForTrackedStatsEvent()
 EndFunction
+
+; An insane number of different events that can be caught in this call. Assuming it works.
+; See https://ck.uesp.net/wiki/ListOfTrackedStats
+Event OnTrackedStatsEvent(string arStatName, int aiStatValue)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_ModifierManager_Script::OnTrackedStatsEvent() arStatName = " + arStatName + ", aiStatValue = " + aiStatValue, 3)
+    EndIf
+    UpdateModifiers_StatEvent(arStatName, aiStatValue)
+EndEvent
 
 Function Update()
     ;UpdateStorage()
     UpdateLists()
     UpdateModifiers_Load()
+    RegisterForTrackedStatsEvent()
 EndFunction
 
 String[]        Property UD_ModifierList    auto hidden
@@ -374,30 +385,27 @@ Function Procces_UpdateModifiers_MinigameEnded(UD_CustomDevice_RenderScript akDe
     endwhile
 EndFunction
 
-Function Procces_UpdateModifiers_WeaponHit(UD_CustomDevice_RenderScript akDevice, Weapon akWeapon)
-    if UDmain.TraceAllowed()
-        UDmain.Log("UD_ModifierManager_Script::Procces_UpdateModifiers_WeaponHit() GetRealTimeLockedTime = " + akDevice.GetRealTimeLockedTime(), 3)
-    endif
-    If akDevice.GetRealTimeLockedTime() < 0.0005
+Function Procces_UpdateModifiers_WeaponHit(UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, Float afDamage)
+    If akDevice.GetRealTimeLockedTime() < 0.001
         Return
     EndIf
     int loc_modid = akDevice.UD_ModifiersRef.length
     while loc_modid 
         loc_modid -= 1
         UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
-        loc_mod.WeaponHit(akDevice, akWeapon, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid])
+        loc_mod.WeaponHit(akDevice, akWeapon, afDamage, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid])
     endwhile
 EndFunction
 
-Function Procces_UpdateModifiers_SpellHit(UD_CustomDevice_RenderScript akDevice, Spell akSpell)
-    If akDevice.GetRealTimeLockedTime() < 0.0005
+Function Procces_UpdateModifiers_SpellHit(UD_CustomDevice_RenderScript akDevice, Spell akSpell, Float afDamage)
+    If akDevice.GetRealTimeLockedTime() < 0.001
         Return
     EndIf
     int loc_modid = akDevice.UD_ModifiersRef.length
     while loc_modid 
         loc_modid -= 1
         UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
-        loc_mod.SpellHit(akDevice, akSpell, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid])
+        loc_mod.SpellHit(akDevice, akSpell, afDamage, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid])
     endwhile
 EndFunction
 

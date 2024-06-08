@@ -1,5 +1,5 @@
 ;/  File: UD_ModTrigger_Orgasm
-    It triggers with a given chance after each actor's orgasm
+    It triggers with a given chance after actor's orgasm
     
     NameFull: 
     

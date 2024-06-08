@@ -36,14 +36,3 @@ Event UDEvent_OnHMTweenMenuOpen()
         endif
     endif
 EndEvent
-
-Function UpdateRegistrationForEvents(Bool abUnregister = False)
-    RegisterForTrackedStatsEvent()
-    Parent.UpdateRegistrationForEvents(abUnregister)
-EndFunction
-
-; An insane number of different events that can be caught in this call. Assuming it works.
-; See https://ck.uesp.net/wiki/ListOfTrackedStats
-Event OnTrackedStatsEvent(string arStatName, int aiStatValue)
-    
-EndEvent

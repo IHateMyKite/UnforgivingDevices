@@ -1,5 +1,5 @@
 ;/  File: UD_ModTrigger_SpellCast
-    Triggers when actor cast a spell
+    It triggers when actor cast a spell
 
     NameFull:   
 
@@ -43,6 +43,6 @@ Bool Function SpellCast(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     Float loc_min_cost = GetStringParamFloat(aiDataStr, 0, 0.0)
     Float loc_prob_base = GetStringParamFloat(aiDataStr, 1, 100.0)
     Float loc_prob_delta = GetStringParamFloat(aiDataStr, 2, 0.0)
-    Bool loc_repeat = GetStringParamInt(aiDataStr, 3, 1) > 0
+    Bool loc_repeat = GetStringParamInt(aiDataStr, 3, 0) > 0
     Return TriggerOnValueDelta(akDevice, akModifier.NameAlias, aiDataStr, afValueDelta = loc_cost, afMinAccum = loc_min_cost, afProbBase = loc_prob_base, afProbDelta = loc_prob_delta, abRepeat = loc_repeat, aiAccumParamIndex = 4)
 EndFunction

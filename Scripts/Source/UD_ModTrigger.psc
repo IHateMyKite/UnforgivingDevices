@@ -112,11 +112,11 @@ Bool Function MinigameEnded(UD_Modifier_Combo akModifier, UD_CustomDevice_Render
     Return False
 EndFunction
 
-Bool Function WeaponHit(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, String aiDataStr)
+Bool Function WeaponHit(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, Float afDamage, String aiDataStr)
     Return False
 EndFunction
 
-Bool Function SpellHit(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Spell akSpell, String aiDataStr)
+Bool Function SpellHit(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Spell akSpell, Float afDamage, String aiDataStr)
     Return False
 EndFunction
 
@@ -175,6 +175,9 @@ Bool Function TriggerOnValueDelta(UD_CustomDevice_RenderScript akDevice, String 
                 akDevice.editStringModifier(asNameAlias, aiAccumParamIndex, "-1.0")
             EndIf
         EndIf
+        If UDmain.TraceAllowed()
+            UDmain.Log(Self + "::TriggerOnValueAbs() probability = " + afProbBase + " + " + afProbDelta + " * " + afValueDelta + " + " + afProbAccum + " * " + loc_accum_current, 3)
+        EndIf
         Return (RandomFloat(0.0, 100.0) < afProbBase + afProbDelta * afValueDelta + afProbAccum * loc_accum_current)
     Else 
     ; not enough accumulated value
@@ -225,6 +228,9 @@ Bool Function TriggerOnValueAbs(UD_CustomDevice_RenderScript akDevice, String as
             ; did it once with no repeat option
                 akDevice.editStringModifier(asNameAlias, aiLastTriggerValueIndex, "-1.0")
             EndIf
+        EndIf
+        If UDmain.TraceAllowed()
+            UDmain.Log(Self + "::TriggerOnValueAbs() probability = " + afProbBase + " + " + afProbAccum + " * (" + afValueAbs + " - " + loc_last_trigger_value + ")", 3)
         EndIf
         Return (RandomFloat(0.0, 100.0) < afProbBase + afProbAccum * (afValueAbs - loc_last_trigger_value))
     Else 

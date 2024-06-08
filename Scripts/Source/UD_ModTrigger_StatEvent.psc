@@ -1,5 +1,5 @@
 ;/  File: UD_ModTrigger_StatEvent
-    Trigger on stat event
+    It triggers on the change of statistics value
     
     NameFull: Statistics
     
@@ -22,6 +22,14 @@
     Example:
         Locks Picked,10,,1      - Triggers on every 10th lock picked
         Intimidations,,10       - Triggers on intimidation with 10% probability
+        
+    Stat works:
+            asStatName                          aiStatValue
+        Quests Completed                        ??? (MS13 => 11)
+        Skill Increases                         <Actor Value IDs> (https://ck.uesp.net/wiki/ActorValueInfo_Script#Actor_Value_IDs)
+        Whiterun Bounty                         <Bounty Value>
+        Locks Picked                            <Number of locks>
+        Misc Objectives Completed               ???
 /;
 Scriptname UD_ModTrigger_StatEvent extends UD_ModTrigger
 
@@ -35,6 +43,9 @@ import UD_Native
 /;
 
 Bool Function StatEvent(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String asStatName, Int aiStatValue, String aiDataStr)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_ModTrigger_StatEvent::StatEvent() akModifier = " + akModifier + ", akDevice = " + akDevice + ", asStatName = " + asStatName + ", aiStatValue = " + aiStatValue + ", aiDataStr = " + aiDataStr, 3)
+    EndIf
     If asStatName != GetStringParamString(aiDataStr, 0, "")
         Return False
     EndIf

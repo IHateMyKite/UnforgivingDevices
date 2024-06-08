@@ -1,5 +1,5 @@
 ;/  File: UD_ModTrigger_Condition
-    It triggers with a given chance when the durability of the device is reduced
+    It triggers with a given chance when the durability of the device is worsened
     
     NameFull: 
     

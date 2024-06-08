@@ -87,14 +87,14 @@ Function MinigameEnded(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_Re
     EndIf
 EndFunction
 
-Function WeaponHit(UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
-    If (akForm1 as UD_ModTrigger).WeaponHit(Self, akDevice, akWeapon, aiDataStr) == True
+Function WeaponHit(UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, Float afDamage, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+    If (akForm1 as UD_ModTrigger).WeaponHit(Self, akDevice, akWeapon, afDamage, aiDataStr) == True
         (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm3, None)
     EndIf
 EndFunction
 
-Function SpellHit(UD_CustomDevice_RenderScript akDevice, Spell akSpell, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
-    If (akForm1 as UD_ModTrigger).SpellHit(Self, akDevice, akSpell, aiDataStr) == True
+Function SpellHit(UD_CustomDevice_RenderScript akDevice, Spell akSpell, Float afDamage, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+    If (akForm1 as UD_ModTrigger).SpellHit(Self, akDevice, akSpell, afDamage, aiDataStr) == True
         (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm3, None)
     EndIf
 EndFunction
