@@ -102,22 +102,15 @@ EndFunction
 Function OnInit()
     RegisterForSingleUpdate(20.0)
     RegisterForTrackedStatsEvent()
+    RegisterForSleep()
 EndFunction
-
-; An insane number of different events that can be caught in this call. Assuming it works.
-; See https://ck.uesp.net/wiki/ListOfTrackedStats
-Event OnTrackedStatsEvent(string arStatName, int aiStatValue)
-    If UDmain.TraceAllowed()
-        UDmain.Log("UD_ModifierManager_Script::OnTrackedStatsEvent() arStatName = " + arStatName + ", aiStatValue = " + aiStatValue, 3)
-    EndIf
-    UpdateModifiers_StatEvent(arStatName, aiStatValue)
-EndEvent
 
 Function Update()
     ;UpdateStorage()
     UpdateLists()
     UpdateModifiers_Load()
     RegisterForTrackedStatsEvent()
+    RegisterForSleep()
 EndFunction
 
 String[]        Property UD_ModifierList    auto hidden
@@ -174,6 +167,30 @@ Event OnUpdateGameTime()
     endif
     _LastUpdateTime_Hour = Utility.GetCurrentGameTime()
     RegisterForSingleUpdateGameTime(1.0)
+EndEvent
+
+; An insane number of different events that can be caught in this call. Assuming it works.
+; See https://ck.uesp.net/wiki/ListOfTrackedStats
+Event OnTrackedStatsEvent(string arStatName, int aiStatValue)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_ModifierManager_Script::OnTrackedStatsEvent() arStatName = " + arStatName + ", aiStatValue = " + aiStatValue, 3)
+    EndIf
+    UpdateModifiers_StatEvent(arStatName, aiStatValue)
+EndEvent
+
+Float _SleepStart = -1.0
+Float _SleepDesiredEnd = -1.0
+
+Event OnSleepStart(float afSleepStartTime, float afDesiredSleepEndTime)
+    _SleepStart = afSleepStartTime
+    _SleepDesiredEnd = afDesiredSleepEndTime
+EndEvent
+
+Event OnSleepStop(bool abInterrupted)
+    If _SleepStart > 0.0
+        Float loc_dur = (Utility.GetCurrentGameTime() - _SleepStart) * 24.0
+        UpdateModifiers_Sleep(loc_dur, abInterrupted)
+    EndIf
 EndEvent
 
 ;====================================================================================
@@ -260,6 +277,25 @@ Function UpdateModifiers_StatEvent(string arStatName, int aiStatValue)
             loc_x += 1
         endwhile
     endif
+EndFunction
+
+
+Function UpdateModifiers_Sleep(Float afDuration, Bool abInterrupted)
+    int loc_i = 0
+    while loc_i < UDNPCM.UD_Slots
+        UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getNPCSlotByIndex(loc_i)
+        if loc_slot.isUsed() && !loc_slot.isDead() && loc_slot.isScriptRunning()
+            UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
+            int loc_x = 0
+            while loc_devices[loc_x]
+                if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked ;not update device which are in minigame
+                    Procces_UpdateModifiers_Sleep(loc_devices[loc_x], afDuration, abInterrupted)
+                endif
+                loc_x += 1
+            endwhile
+        endif
+        loc_i += 1
+    endwhile
 EndFunction
 
 ;====================================================================================
@@ -436,6 +472,15 @@ Function Procces_UpdateModifiers_StatEvent(UD_CustomDevice_RenderScript akDevice
         loc_modid -= 1
         UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
         loc_mod.StatEvent(akDevice, asStatName, aiStatValue, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid])
+    endwhile
+EndFunction
+
+Function Procces_UpdateModifiers_Sleep(UD_CustomDevice_RenderScript akDevice, Float afDuration, Bool abInterrupted)
+    int loc_modid = akDevice.UD_ModifiersRef.length
+    while loc_modid 
+        loc_modid -= 1
+        UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
+        loc_mod.Sleep(akDevice, afDuration, abInterrupted, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid])
     endwhile
 EndFunction
 
