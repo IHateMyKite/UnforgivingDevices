@@ -93,7 +93,7 @@ Function WeaponHit(UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, Float
     EndIf
 EndFunction
 
-Function SpellHit(UD_CustomDevice_RenderScript akDevice, Spell akSpell, Float afDamage, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function SpellHit(UD_CustomDevice_RenderScript akDevice, Form akSpell, Float afDamage, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
     If (akForm1 as UD_ModTrigger).SpellHit(Self, akDevice, akSpell, afDamage, aiDataStr) == True
         (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm3, None)
     EndIf

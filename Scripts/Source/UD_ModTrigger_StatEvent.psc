@@ -25,11 +25,15 @@
         
     Stat works:
             asStatName                          aiStatValue
-        Quests Completed                        ??? (MS13 => 11)
+        Quests Completed                        (number of quests?)
         Skill Increases                         <Actor Value IDs> (https://ck.uesp.net/wiki/ActorValueInfo_Script#Actor_Value_IDs)
         Whiterun Bounty                         <Bounty Value>
         Locks Picked                            <Number of locks>
-        Misc Objectives Completed               ???
+        Misc Objectives Completed               (total number)
+        Skill Book Read                         (total number)
+        Armor Made                              (total number)
+        Dungeons Cleared                        (total number)
+        Locations Discovered                    (total number)
 /;
 Scriptname UD_ModTrigger_StatEvent extends UD_ModTrigger
 

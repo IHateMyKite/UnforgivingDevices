@@ -32,7 +32,7 @@ import UD_Native
 ===========================================================================================
 /;
 
-Bool Function SpellHit(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Spell akSpell, Float afDamage, String aiDataStr)
+Bool Function SpellHit(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Form akSpell, Float afDamage, String aiDataStr)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_ModTrigger_SpellHit::SpellHit() akModifier = " + akModifier + ", akDevice = " + akDevice + ", akSpell = " + akSpell + ", afDamage = " + afDamage + ", aiDataStr = " + aiDataStr, 3)
     EndIf

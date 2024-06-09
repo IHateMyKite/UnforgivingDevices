@@ -138,7 +138,7 @@ EndFunction
 Function WeaponHit(UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, Float afDamage, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
 EndFunction
 
-Function SpellHit(UD_CustomDevice_RenderScript akDevice, Spell akSpell, Float afDamage, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function SpellHit(UD_CustomDevice_RenderScript akDevice, Form akSpell, Float afDamage, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
 EndFunction
 
 Function SpellCast(UD_CustomDevice_RenderScript akDevice, Spell akSpell, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)

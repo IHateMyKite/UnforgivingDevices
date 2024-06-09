@@ -36,7 +36,6 @@ import UD_Native
 /;
 
 Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2 = None, Form akForm3 = None)
-    
     Actor loc_actor = akDevice.GetWearer()
     if !loc_actor || !IsPlayer(loc_actor) ;should only work for player
         return

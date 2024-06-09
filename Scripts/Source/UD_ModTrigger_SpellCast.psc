@@ -33,10 +33,6 @@ import UD_Native
 /;
 
 Bool Function SpellCast(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Spell akSpell, String aiDataStr)
-    If UDmain.TraceAllowed()
-        UDmain.Log("UD_ModTrigger_SpellCast::SpellCast() akModifier = " + akModifier + ", akDevice = " + akDevice + ", akSpell = " + akSpell + ", aiDataStr = " + aiDataStr, 3)
-    EndIf
-    
     Int loc_cost = iRange(akSpell.GetMagickaCost(), 5, 100)
     ; TODO: better cost calculation
     

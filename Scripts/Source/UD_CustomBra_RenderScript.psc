@@ -182,10 +182,10 @@ EndFunction
 Function onWeaponHitPost(Weapon source, Float afDamage = -1.0)
     parent.onWeaponHitPost(source, afDamage)
 EndFunction
-bool Function onSpellHitPre(Spell source, Float afDamage = -1.0)
+bool Function onSpellHitPre(Form source, Float afDamage = -1.0)
     return parent.onSpellHitPre(source, afDamage)
 EndFunction
-Function onSpellHitPost(Spell source, Float afDamage = -1.0)
+Function onSpellHitPost(Form source, Float afDamage = -1.0)
     parent.onSpellHitPost(source, afDamage)
 EndFunction
 string Function addInfoString(string str = "")

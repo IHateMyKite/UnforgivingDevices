@@ -1044,35 +1044,39 @@ Event OnHit(ObjectReference akAggressor, Form akSource, Projectile akProjectile,
     endif
 
     if akSource
-        if akSource as Weapon
+        If akSource as Weapon && akProjectile == None
+        ; ignoring weapons with projectile because it's their enchantment
             Float loc_dmg = CalculatePhysDamage(akAggressor, akSource, akProjectile, abPowerAttack, abSneakAttack, abBashAttack, abHitBlocked)
             If loc_dmg > 0.0
                 OnWeaponHit(akSource as Weapon, loc_dmg)
             EndIf
-        elseif akSource as Spell
+            If (akSource as Weapon).GetEnchantment() != None
+                loc_dmg = CalculateMagDamage(akAggressor, akSource, akProjectile, abPowerAttack, abSneakAttack, abBashAttack, abHitBlocked)
+                If loc_dmg > 0.0
+                    OnSpellHit((akSource as Weapon).GetEnchantment(), loc_dmg)
+                EndIf
+            EndIf
+        ElseIf akSource as Spell
             Float loc_dmg = CalculateMagDamage(akAggressor, akSource, akProjectile, abPowerAttack, abSneakAttack, abBashAttack, abHitBlocked)
             If loc_dmg > 0.0
                 OnSpellHit(akSource as Spell, loc_dmg)
             EndIf
-        ElseIf akSource as Enchantment
-        ; TODO
-            
-        endif
+        Endif
     endif
 EndEvent
 
-Function OnWeaponHit(Weapon source, Float afDamage = -1.0)
+Function OnWeaponHit(Weapon akSource, Float afDamage = -1.0)
     int i = 0
     while UD_equipedCustomDevices[i]
-        UD_equipedCustomDevices[i].weaponHit(source, afDamage)
+        UD_equipedCustomDevices[i].weaponHit(akSource, afDamage)
         i+=1
     endwhile
 EndFunction
 
-Function OnSpellHit(Spell source, Float afDamage = -1.0)
+Function OnSpellHit(Form akSource, Float afDamage = -1.0)
     int i = 0
     while UD_equipedCustomDevices[i]
-        UD_equipedCustomDevices[i].spellHit(source, afDamage)
+        UD_equipedCustomDevices[i].spellHit(akSource, afDamage)
         i+=1
     endwhile    
 EndFunction
@@ -2142,6 +2146,9 @@ Float Function CalculatePhysDamage(ObjectReference akAggressor, Form akSource, P
     ElseIf akAggressor == None && loc_weapon.GetFormID() == 0x000001F4
     ; it's a trap!
         Return 50.0 * (1.0 + 0.02 * GetActor().GetLevel())
+    ElseIf loc_weapon.GetFormID() == 0x000001F4
+    ; predator
+        Return 10.0 * (1.0 + 0.02 * (akAggressor as Actor).GetActorValue("OneHanded")) * (1.0 + 0.5 * (abPowerAttack as Int)) * (1.0 - 0.5 * (abHitBlocked as Int))
     Else
         Float loc_base = fRange(loc_weapon.GetBaseDamage(), 5.0, 100.0)
         Float loc_skill
@@ -2150,7 +2157,7 @@ Float Function CalculatePhysDamage(ObjectReference akAggressor, Form akSource, P
         Else
             loc_skill = GetActor().GetLevel()
         EndIf
-        Return loc_base * (1.0 + 0.02 * loc_skill) * (1.0 + 0.5 * (abPowerAttack as Int))
+        Return loc_base * (1.0 + 0.02 * loc_skill) * (1.0 + 0.5 * (abPowerAttack as Int)) * (1.0 - 0.5 * (abHitBlocked as Int))
     EndIf
 EndFunction
 
@@ -2177,7 +2184,20 @@ Float Function CalculateMagDamage(ObjectReference akAggressor, Form akSource, Pr
         EndIf
         Return loc_base * (1.0 + 0.02 * loc_skill)
     ElseIf akSource as Enchantment != None
-        
+        Enchantment loc_ench = akSource as Enchantment
+        If !loc_ench.IsHostile()
+            Return -1.0
+        EndIf
+        Int loc_i = loc_ench.GetCostliestEffectIndex()
+        MagicEffect loc_me = loc_ench.GetNthEffectMagicEffect(loc_i)
+        If (loc_me.GetAssociatedSkill() != "Destruction")
+            Return -1.0
+        EndIf
+        If !loc_me.IsEffectFlagSet(0x00000001)
+            Return -1.0
+        EndIf
+        Float loc_base = fRange(loc_ench.GetNthEffectMagnitude(loc_i), 5.0, 100.0)
+        Return loc_base
     Else
         Return 5.0 * (1.0 + 0.02 * GetActor().GetLevel())
     EndIf

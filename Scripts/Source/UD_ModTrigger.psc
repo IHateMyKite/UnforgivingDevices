@@ -116,7 +116,7 @@ Bool Function WeaponHit(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     Return False
 EndFunction
 
-Bool Function SpellHit(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Spell akSpell, Float afDamage, String aiDataStr)
+Bool Function SpellHit(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Form akSpell, Float afDamage, String aiDataStr)
     Return False
 EndFunction
 
@@ -171,18 +171,22 @@ Bool Function TriggerOnValueDelta(UD_CustomDevice_RenderScript akDevice, String 
     EndIf
     loc_accum_current += afValueDelta
     If loc_accum_current >= afMinAccum
-        If aiAccumParamIndex >= 0
-            If abRepeat
-                akDevice.editStringModifier(asNameAlias, aiAccumParamIndex, "0.0")
-            Else
-            ; did it once with no repeat option
-                akDevice.editStringModifier(asNameAlias, aiAccumParamIndex, "-1.0")
+        If RandomFloat(0.0, 100.0) < (afProbBase + afProbDelta * afValueDelta + afProbAccum * loc_accum_current)
+            If aiAccumParamIndex >= 0
+                If abRepeat
+                    akDevice.editStringModifier(asNameAlias, aiAccumParamIndex, "0.0")
+                Else
+                ; did it once with no repeat option
+                    akDevice.editStringModifier(asNameAlias, aiAccumParamIndex, "-1.0")
+                EndIf
             EndIf
+            Return True
+        Else
+            If aiAccumParamIndex >= 0
+                akDevice.editStringModifier(asNameAlias, aiAccumParamIndex, FormatFloat(loc_accum_current, 2))
+            EndIf
+            Return False
         EndIf
-        If UDmain.TraceAllowed()
-            UDmain.Log(Self + "::TriggerOnValueAbs() probability = " + afProbBase + " + " + afProbDelta + " * " + afValueDelta + " + " + afProbAccum + " * " + loc_accum_current, 3)
-        EndIf
-        Return (RandomFloat(0.0, 100.0) < afProbBase + afProbDelta * afValueDelta + afProbAccum * loc_accum_current)
     Else 
     ; not enough accumulated value
         If aiAccumParamIndex >= 0
@@ -225,18 +229,19 @@ Bool Function TriggerOnValueAbs(UD_CustomDevice_RenderScript akDevice, String as
         loc_last_trigger_value = afValueAbs
     EndIf
     If afValueAbs >= afMinValue
-        If aiLastTriggerValueIndex >= 0
-            If abRepeat
-                akDevice.editStringModifier(asNameAlias, aiLastTriggerValueIndex, FormatFloat(loc_last_trigger_value, 2))
-            Else
-            ; did it once with no repeat option
-                akDevice.editStringModifier(asNameAlias, aiLastTriggerValueIndex, "-1.0")
+        If RandomFloat(0.0, 100.0) < (afProbBase + afProbAccum * (afValueAbs - loc_last_trigger_value))
+            If aiLastTriggerValueIndex >= 0
+                If abRepeat
+                    akDevice.editStringModifier(asNameAlias, aiLastTriggerValueIndex, FormatFloat(loc_last_trigger_value, 2))
+                Else
+                ; did it once with no repeat option
+                    akDevice.editStringModifier(asNameAlias, aiLastTriggerValueIndex, "-1.0")
+                EndIf
             EndIf
+            Return True
+        Else
+            Return False
         EndIf
-        If UDmain.TraceAllowed()
-            UDmain.Log(Self + "::TriggerOnValueAbs() probability = " + afProbBase + " + " + afProbAccum + " * (" + afValueAbs + " - " + loc_last_trigger_value + ")", 3)
-        EndIf
-        Return (RandomFloat(0.0, 100.0) < afProbBase + afProbAccum * (afValueAbs - loc_last_trigger_value))
     Else 
         Return False
     EndIf

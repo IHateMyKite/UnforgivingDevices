@@ -189,6 +189,9 @@ EndEvent
 Event OnSleepStop(bool abInterrupted)
     If _SleepStart > 0.0
         Float loc_dur = (Utility.GetCurrentGameTime() - _SleepStart) * 24.0
+        If UDmain.TraceAllowed()
+            UDmain.Log("UD_ModifierManager_Script::OnSleepStop() Sleep was detected: duration = " + loc_dur + ", interrupted = " + abInterrupted, 3)
+        EndIf
         UpdateModifiers_Sleep(loc_dur, abInterrupted)
     EndIf
 EndEvent
@@ -302,6 +305,30 @@ EndFunction
 ;                            Procces modifiers groups
 ;====================================================================================
 
+Function ValidateModifiers(UD_CustomDevice_RenderScript akDevice)
+    int loc_count = akDevice.UD_ModifiersRef.length
+    Bool loc_error = False
+    If akDevice.UD_ModifiersDataStr.Length < loc_count
+        akDevice.UD_ModifiersDataStr = PapyrusUtil.ResizeStringArray(akDevice.UD_ModifiersDataStr, loc_count)
+        loc_error = True
+    EndIf
+    If akDevice.UD_ModifiersDataForm1.Length < loc_count
+        akDevice.UD_ModifiersDataForm1 = PapyrusUtil.ResizeFormArray(akDevice.UD_ModifiersDataForm1, loc_count)
+        loc_error = True
+    EndIf
+    If akDevice.UD_ModifiersDataForm2.Length < loc_count
+        akDevice.UD_ModifiersDataForm2 = PapyrusUtil.ResizeFormArray(akDevice.UD_ModifiersDataForm2, loc_count)
+        loc_error = True
+    EndIf
+    If akDevice.UD_ModifiersDataForm3.Length < loc_count
+        akDevice.UD_ModifiersDataForm3 = PapyrusUtil.ResizeFormArray(akDevice.UD_ModifiersDataForm3, loc_count)
+        loc_error = True
+    EndIf
+    If loc_error
+        UDmain.Warning(akDevice + " Modifier's datas were fixed during validation!")
+    EndIf
+EndFunction
+
 Function Procces_UpdateModifiers_Load(UD_CustomDevice_RenderScript akDevice)
     int loc_modid = akDevice.UD_ModifiersRef.length
     while loc_modid 
@@ -344,6 +371,7 @@ Function Procces_UpdateModifiers_Added(UD_CustomDevice_RenderScript akDevice) ;d
     If Math.LogicalAnd(loc_flags, 0x01) != 0
         Return
     EndIf
+    ValidateModifiers(akDevice)
     int loc_modid = akDevice.UD_ModifiersRef.length
     while loc_modid 
         loc_modid -= 1
@@ -433,7 +461,7 @@ Function Procces_UpdateModifiers_WeaponHit(UD_CustomDevice_RenderScript akDevice
     endwhile
 EndFunction
 
-Function Procces_UpdateModifiers_SpellHit(UD_CustomDevice_RenderScript akDevice, Spell akSpell, Float afDamage)
+Function Procces_UpdateModifiers_SpellHit(UD_CustomDevice_RenderScript akDevice, Form akSpell, Float afDamage)
     If akDevice.GetRealTimeLockedTime() < 0.001
         Return
     EndIf
@@ -446,7 +474,7 @@ Function Procces_UpdateModifiers_SpellHit(UD_CustomDevice_RenderScript akDevice,
 EndFunction
 
 Function Procces_UpdateModifiers_SpellCast(UD_CustomDevice_RenderScript akDevice, Spell akSpell)
-    If akDevice.GetRealTimeLockedTime() < 0.0005
+    If akDevice.GetRealTimeLockedTime() < 0.001
         Return
     EndIf
     int loc_modid = akDevice.UD_ModifiersRef.length

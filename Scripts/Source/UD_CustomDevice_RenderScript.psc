@@ -2211,7 +2211,8 @@ Function weaponHit(Weapon akSource, Float afDamage = -1.0)
 EndFunction
 
 ;function called when wearer is hit by source spell
-Function spellHit(Spell akSource, Float afDamage = -1.0)
+; akSource is a Spell or Enchantment
+Function spellHit(Form akSource, Float afDamage = -1.0)
     if onSpellHitPre(akSource, afDamage)
         onSpellHitPost(akSource, afDamage)
     endif
@@ -2219,8 +2220,8 @@ EndFunction
 
 ;function is called when the wearer cast a spell
 Function spellCast(Spell akSource)
-    if onSpellHitPre(akSource)
-        onSpellHitPost(akSource)
+    if onSpellCastPre(akSource)
+        onSpellCastPost(akSource)
     endif
 EndFunction
 
@@ -8082,11 +8083,8 @@ Function onWeaponHitPost(Weapon source, Float afDamage = -1.0)
         ;weapon is wooden, no damage should be deald
         return
     endif
-    if !IsUnlocked && canBeCutted()
-        float loc_damage = source.getBaseDamage()
-        if !loc_damage
-            loc_damage = 5.0
-        endif
+    if !IsUnlocked && canBeCutted() && afDamage > 0.0
+        float loc_damage = afDamage
         decreaseDurabilityAndCheckUnlock(loc_damage*0.25*(1.0 - UD_WeaponHitResist),2.0)
         if HaveUnlockableLocks()
             if hasModifier("CLO")
@@ -8102,11 +8100,11 @@ Function onWeaponHitPost(Weapon source, Float afDamage = -1.0)
     EndIf
 EndFunction
 
-bool Function onSpellHitPre(Spell source, Float afDamage = -1.0)
+bool Function onSpellHitPre(Form source, Float afDamage = -1.0)
     return True
 EndFunction
 
-Function onSpellHitPost(Spell source, Float afDamage = -1.0)
+Function onSpellHitPost(Form source, Float afDamage = -1.0)
     if !IsUnlocked; && getModResistMagicka(1.0,0.25) != 1.0
         If afDamage >= 0.0
             Udmain.UDMOM.Procces_UpdateModifiers_SpellHit(self, source, afDamage)
