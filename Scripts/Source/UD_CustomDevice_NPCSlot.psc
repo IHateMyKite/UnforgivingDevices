@@ -1026,9 +1026,13 @@ EndFunction
 
 Float _LastHitTime = 0.0
 Float _LastSpellConcTime = 0.0
+Float _LastEnchConcTime = 0.0
 
 Event OnHit(ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked)
     if !isScriptRunning()
+        Return
+    EndIf
+    If akProjectile != None
         Return
     EndIf
     If IsConcentrationSpell(akSource as Spell)
@@ -1038,26 +1042,49 @@ Event OnHit(ObjectReference akAggressor, Form akSource, Projectile akProjectile,
             Return
         EndIf
         _LastSpellConcTime = loc_time
+    ElseIf IsConcentrationEnch(akSource as Enchantment)
+        Float loc_time = Utility.GetCurrentRealTime()
+        If loc_time - _LastEnchConcTime < 1.0
+            Return
+        EndIf
+        _LastEnchConcTime = loc_time
     EndIf
-    if UDmain.TraceAllowed()
-        UDmain.Log("OnHit("+akAggressor+","+akSource+","+akProjectile+") on " + getSlotedNPCName())
-    endif
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_CustomDevice_NPCSlot::OnHit() [" + getSlotedNPCName() + "] akAggressor = " + akAggressor + ", akSource = " + akSource + ", akProjectile = " + akProjectile + ", abPowerAttack = " + abPowerAttack + ", abSneakAttack = " + abSneakAttack + ", abBashAttack = " + abBashAttack + ", abHitBlocked = " + abHitBlocked, 3)
+    EndIf
 
     if akSource
         If akSource as Weapon && akProjectile == None
         ; ignoring weapons with projectile because it's their enchantment
             Float loc_dmg = CalculatePhysDamage(akAggressor, akSource, akProjectile, abPowerAttack, abSneakAttack, abBashAttack, abHitBlocked)
+            if UDmain.TraceAllowed()
+                UDmain.Log("UD_CustomDevice_NPCSlot::OnHit() [" + getSlotedNPCName() + "] Physical damage = " + loc_dmg, 3)
+            endif
             If loc_dmg > 0.0
                 OnWeaponHit(akSource as Weapon, loc_dmg)
             EndIf
             If (akSource as Weapon).GetEnchantment() != None
                 loc_dmg = CalculateMagDamage(akAggressor, akSource, akProjectile, abPowerAttack, abSneakAttack, abBashAttack, abHitBlocked)
+                if UDmain.TraceAllowed()
+                    UDmain.Log("UD_CustomDevice_NPCSlot::OnHit() [" + getSlotedNPCName() + "] Enchantment (weapon) damage = " + loc_dmg, 3)
+                endif
                 If loc_dmg > 0.0
                     OnSpellHit((akSource as Weapon).GetEnchantment(), loc_dmg)
                 EndIf
             EndIf
         ElseIf akSource as Spell
             Float loc_dmg = CalculateMagDamage(akAggressor, akSource, akProjectile, abPowerAttack, abSneakAttack, abBashAttack, abHitBlocked)
+            If UDmain.TraceAllowed()
+                UDmain.Log("UD_CustomDevice_NPCSlot::OnHit() [" + getSlotedNPCName() + "] Spell damage = " + loc_dmg, 3)
+            EndIf
+            If loc_dmg > 0.0
+                OnSpellHit(akSource as Spell, loc_dmg)
+            EndIf
+        ElseIf akSource as Enchantment != None && akProjectile == None
+            Float loc_dmg = CalculateMagDamage(akAggressor, akSource, akProjectile, abPowerAttack, abSneakAttack, abBashAttack, abHitBlocked)
+            If UDmain.TraceAllowed()
+                UDmain.Log("UD_CustomDevice_NPCSlot::OnHit() [" + getSlotedNPCName() + "] Enchantment (staff) damage = " + loc_dmg, 3)
+            EndIf
             If loc_dmg > 0.0
                 OnSpellHit(akSource as Spell, loc_dmg)
             EndIf
@@ -2162,45 +2189,42 @@ Float Function CalculatePhysDamage(ObjectReference akAggressor, Form akSource, P
 EndFunction
 
 Float Function CalculateMagDamage(ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked)
-    If akSource as Spell != None
+    MagicEffect loc_me
+    Float loc_magn
+    If akSource as Spell
         Spell loc_spell = akSource as Spell
         If !loc_spell.IsHostile()
             Return -1.0
         EndIf
         Int loc_i = loc_spell.GetCostliestEffectIndex()
-        MagicEffect loc_me = loc_spell.GetNthEffectMagicEffect(loc_i)
-        If (loc_me.GetAssociatedSkill() != "Destruction")
-            Return -1.0
-        EndIf
-        If !loc_me.IsEffectFlagSet(0x00000001)
-            Return -1.0
-        EndIf
-        Float loc_base = fRange(loc_spell.GetNthEffectMagnitude(loc_i), 5.0, 100.0)
-        Float loc_skill     
-        If akAggressor as Actor != None
-            loc_skill = (akAggressor as Actor).GetActorValue("Destruction")
-        Else
-            loc_skill = GetActor().GetLevel()
-        EndIf
-        Return loc_base * (1.0 + 0.02 * loc_skill)
-    ElseIf akSource as Enchantment != None
+        loc_me = loc_spell.GetNthEffectMagicEffect(loc_i)
+        loc_magn = fRange(loc_spell.GetNthEffectMagnitude(loc_i), 5.0, 100.0)
+    ElseIf akSource as Enchantment
         Enchantment loc_ench = akSource as Enchantment
         If !loc_ench.IsHostile()
             Return -1.0
         EndIf
         Int loc_i = loc_ench.GetCostliestEffectIndex()
-        MagicEffect loc_me = loc_ench.GetNthEffectMagicEffect(loc_i)
-        If (loc_me.GetAssociatedSkill() != "Destruction")
-            Return -1.0
-        EndIf
-        If !loc_me.IsEffectFlagSet(0x00000001)
-            Return -1.0
-        EndIf
-        Float loc_base = fRange(loc_ench.GetNthEffectMagnitude(loc_i), 5.0, 100.0)
-        Return loc_base
+        loc_me = loc_ench.GetNthEffectMagicEffect(loc_i)
+        loc_magn = fRange(loc_ench.GetNthEffectMagnitude(loc_i), 5.0, 100.0)
     Else
         Return 5.0 * (1.0 + 0.02 * GetActor().GetLevel())
     EndIf
+    If loc_me.GetAssociatedSkill() != "Destruction"
+        Return -1.0
+    EndIf
+    If !loc_me.IsEffectFlagSet(0x00000001)
+        Return -1.0
+    EndIf
+    Float loc_skill = 0.0
+    If akSource as Spell
+        If akAggressor as Actor
+            loc_skill = (akAggressor as Actor).GetActorValue("Destruction")
+        Else
+            loc_skill = GetActor().GetLevel()
+        EndIf
+    EndIf
+    Return loc_magn * (1.0 + 0.02 * loc_skill)
 
 EndFunction
 
@@ -2210,6 +2234,15 @@ Bool Function IsConcentrationSpell(Spell akSpell)
     EndIf
     Int loc_i = akSpell.GetCostliestEffectIndex()
     MagicEffect loc_me = akSpell.GetNthEffectMagicEffect(loc_i)
+    Return loc_me.GetCastingType() == 2
+EndFunction
+
+Bool Function IsConcentrationEnch(Enchantment akEnchantment)
+    If akEnchantment == None
+        Return False
+    EndIf
+    Int loc_i = akEnchantment.GetCostliestEffectIndex()
+    MagicEffect loc_me = akEnchantment.GetNthEffectMagicEffect(loc_i)
     Return loc_me.GetCastingType() == 2
 EndFunction
 
