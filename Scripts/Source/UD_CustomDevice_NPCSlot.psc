@@ -144,7 +144,6 @@ Function GameUpdate()
         endif
         _OrgasmGameUpdate()
         CheckVibrators()
-        UpdateRegistrationForEvents()
     endif
 EndFunction
 
@@ -167,11 +166,6 @@ Function UpdateSlot(Bool abUpdateSkill = true)
     if !GetActor().wornhaskeyword(libs.zad_deviousHeavyBondage)
         _handRestrain = none ;unreference device
     endif
-EndFunction
-
-Function UpdateRegistrationForEvents(Bool abUnregister = False)
-;    RegisterForActorAction(1)
-;    RegisterForActorAction(2)
 EndFunction
 
 Form[] Function GetBodySlots()
@@ -209,7 +203,6 @@ Event OnInit()
     UD_equipedCustomDevices = UDCDMain.MakeNewDeviceSlots()
     UD_ActiveVibrators      = UDCDMain.MakeNewDeviceSlots()
     Ready = True
-    UpdateRegistrationForEvents()
 EndEvent
 
 Event OnPlayerLoadGame()
@@ -221,41 +214,6 @@ endEvent
 
 Event OnUnload()
 endEvent
-
-; ActionTypes
-; 0 - Weapon Swing (Melee weapons that are swung, also barehand)
-; 1 - Spell Cast (Spells and staves)
-; 2 - Spell Fire (Spells and staves)
-; 3 - Voice Cast
-; 4 - Voice Fire
-; 5 - Bow Draw
-; 6 - Bow Release
-; 7 - Unsheathe Begin
-; 8 - Unsheathe End
-; 9 - Sheathe Begin
-; 10 - Sheathe End
-; Slots
-; 0 - Left Hand
-; 1 - Right Hand
-; 2 - Voice
-Event OnActorAction(int actionType, Actor akActor, Form source, int slot)
-; registered in UpdateRegistrationForEvents(False)
-; unregistered in UpdateRegistrationForEvents(True)
-; 1 - Spell Cast (Spells and staves)
-; 2 - Spell Fire (Spells and staves)
-
-; Not used. May be later for better mana cost calculations of channelling spells 
-
-    If akActor != GetActor()
-        Return
-    EndIf
-    If UDmain.TraceAllowed()
-        UDmain.Log(Self + "::OnActorAction() actionType = " + actionType + ", akActor = " + akActor + ", source = " + source + ", slot = " + slot, 3)
-    EndIf
-    
-    ; TODO: call modifiers with magic use triggers
-
-EndEvent
 
 ;check if device was not replaced by outfit
 Function _ValidateOutfit()
@@ -421,7 +379,6 @@ Function unregisterSlot()
         CleanArousalUpdate()
         CleanOrgasmUpdate()
     endif
-    UpdateRegistrationForEvents(abUnregister = True)
     self.Clear()
 EndFunction
 

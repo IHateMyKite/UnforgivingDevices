@@ -101,16 +101,25 @@ EndFunction
 
 Function OnInit()
     RegisterForSingleUpdate(20.0)
-    RegisterForTrackedStatsEvent()
-    RegisterForSleep()
+    UpdateEventRegistrations()
 EndFunction
 
 Function Update()
     ;UpdateStorage()
     UpdateLists()
     UpdateModifiers_Load()
-    RegisterForTrackedStatsEvent()
-    RegisterForSleep()
+    UpdateEventRegistrations()
+EndFunction
+
+Function UpdateEventRegistrations(Bool abUnregister = False)
+    If !abUnregister
+        RegisterForTrackedStatsEvent()
+        RegisterForSleep()
+        RegisterForActorAction(0)       ; weapon swing
+        RegisterForActorAction(3)       ; voice cast
+        RegisterForActorAction(4)       ; voice fire
+    Else
+    EndIf
 EndFunction
 
 String[]        Property UD_ModifierList    auto hidden
@@ -194,6 +203,36 @@ Event OnSleepStop(bool abInterrupted)
         EndIf
         UpdateModifiers_Sleep(loc_dur, abInterrupted)
     EndIf
+EndEvent
+
+; ActionTypes
+; 0 - Weapon Swing (Melee weapons that are swung, also barehand)
+; 1 - Spell Cast (Spells and staves)
+; 2 - Spell Fire (Spells and staves)
+; 3 - Voice Cast
+; 4 - Voice Fire
+; 5 - Bow Draw
+; 6 - Bow Release
+; 7 - Unsheathe Begin
+; 8 - Unsheathe End
+; 9 - Sheathe Begin
+; 10 - Sheathe End
+; Slots
+; 0 - Left Hand
+; 1 - Right Hand
+; 2 - Voice
+Event OnActorAction(int actionType, Actor akActor, Form source, int slot)
+    UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getNPCSlotByActor(akActor)
+    If loc_slot == None
+        Return
+    EndIf
+
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_ModifierManager_Script::OnActorAction() actionType = " + actionType + ", akActor = " + akActor + ", source = " + source + ", slot = " + slot, 3)
+    EndIf
+    
+    UpdateModifiers_ActorAction(loc_slot, slot)
+
 EndEvent
 
 ;====================================================================================
@@ -282,7 +321,6 @@ Function UpdateModifiers_StatEvent(string arStatName, int aiStatValue)
     endif
 EndFunction
 
-
 Function UpdateModifiers_Sleep(Float afDuration, Bool abInterrupted)
     int loc_i = 0
     while loc_i < UDNPCM.UD_Slots
@@ -301,6 +339,20 @@ Function UpdateModifiers_Sleep(Float afDuration, Bool abInterrupted)
     endwhile
 EndFunction
 
+Function UpdateModifiers_ActorAction(UD_CustomDevice_NPCSlot akSlot, Int aiActorAction)
+    UD_CustomDevice_NPCSlot loc_slot = akSlot
+    if loc_slot.isUsed() && !loc_slot.isDead() && loc_slot.isScriptRunning()
+        UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
+        int loc_x = 0
+        while loc_devices[loc_x]
+            if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked ;not update device which are in minigame
+                Procces_UpdateModifiers_ActorAction(loc_devices[loc_x], aiActorAction)
+            endif
+            loc_x += 1
+        endwhile
+    endif
+EndFunction
+
 ;====================================================================================
 ;                            Procces modifiers groups
 ;====================================================================================
@@ -309,19 +361,19 @@ Function ValidateModifiers(UD_CustomDevice_RenderScript akDevice)
     int loc_count = akDevice.UD_ModifiersRef.length
     Bool loc_error = False
     If akDevice.UD_ModifiersDataStr.Length < loc_count
-        akDevice.UD_ModifiersDataStr = PapyrusUtil.ResizeStringArray(akDevice.UD_ModifiersDataStr, loc_count)
+        akDevice.UD_ModifiersDataStr = Utility.ResizeStringArray(akDevice.UD_ModifiersDataStr, loc_count)
         loc_error = True
     EndIf
     If akDevice.UD_ModifiersDataForm1.Length < loc_count
-        akDevice.UD_ModifiersDataForm1 = PapyrusUtil.ResizeFormArray(akDevice.UD_ModifiersDataForm1, loc_count)
+        akDevice.UD_ModifiersDataForm1 = Utility.ResizeFormArray(akDevice.UD_ModifiersDataForm1, loc_count)
         loc_error = True
     EndIf
     If akDevice.UD_ModifiersDataForm2.Length < loc_count
-        akDevice.UD_ModifiersDataForm2 = PapyrusUtil.ResizeFormArray(akDevice.UD_ModifiersDataForm2, loc_count)
+        akDevice.UD_ModifiersDataForm2 = Utility.ResizeFormArray(akDevice.UD_ModifiersDataForm2, loc_count)
         loc_error = True
     EndIf
     If akDevice.UD_ModifiersDataForm3.Length < loc_count
-        akDevice.UD_ModifiersDataForm3 = PapyrusUtil.ResizeFormArray(akDevice.UD_ModifiersDataForm3, loc_count)
+        akDevice.UD_ModifiersDataForm3 = Utility.ResizeFormArray(akDevice.UD_ModifiersDataForm3, loc_count)
         loc_error = True
     EndIf
     If loc_error
@@ -330,6 +382,7 @@ Function ValidateModifiers(UD_CustomDevice_RenderScript akDevice)
 EndFunction
 
 Function Procces_UpdateModifiers_Load(UD_CustomDevice_RenderScript akDevice)
+    ValidateModifiers(akDevice)
     int loc_modid = akDevice.UD_ModifiersRef.length
     while loc_modid 
         loc_modid -= 1
@@ -367,11 +420,11 @@ Function Procces_UpdateModifiers_Orgasm(UD_CustomDevice_RenderScript akDevice)
 EndFunction
 
 Function Procces_UpdateModifiers_Added(UD_CustomDevice_RenderScript akDevice) ;directly accesed from device
+    ValidateModifiers(akDevice)
     Int loc_flags = StorageUtil.GetIntValue(akDevice.GetWearer(), "UD_ignoreModEvent" + akDevice.DeviceInventory)
     If Math.LogicalAnd(loc_flags, 0x01) != 0
         Return
     EndIf
-    ValidateModifiers(akDevice)
     int loc_modid = akDevice.UD_ModifiersRef.length
     while loc_modid 
         loc_modid -= 1
@@ -509,6 +562,15 @@ Function Procces_UpdateModifiers_Sleep(UD_CustomDevice_RenderScript akDevice, Fl
         loc_modid -= 1
         UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
         loc_mod.Sleep(akDevice, afDuration, abInterrupted, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid])
+    endwhile
+EndFunction
+
+Function Procces_UpdateModifiers_ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction)
+    int loc_modid = akDevice.UD_ModifiersRef.length
+    while loc_modid 
+        loc_modid -= 1
+        UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
+        loc_mod.ActorAction(akDevice, aiActorAction, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid])
     endwhile
 EndFunction
 

@@ -123,6 +123,12 @@ Function Sleep(UD_CustomDevice_RenderScript akDevice, Float afDuration, Bool abI
     EndIf
 EndFunction
 
+Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+    If (akForm1 as UD_ModTrigger).ActorAction(Self, akDevice, aiActorAction, aiDataStr) == True
+        (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm3, None)
+    EndIf
+EndFunction
+
 Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
     String loc_msg = ""
     

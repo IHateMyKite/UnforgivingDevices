@@ -1,54 +1,53 @@
-;/  File: UD_ModOutcome_RemoveDevice
-    Removes device(s)
+;/  File: UD_ModOutcome_ActivateDevice
+    Activates devices
 
-    NameFull:   
-    NameAlias:  RDD
+    NameFull: 
 
     Parameters in DataStr:
-        [5]     Int     (optional) Number of positions (devices with suitable keywords) to remove
+        [5]     Int     (optional) Number of devices
                         Default value: 1
                         
-        [6]     String  (optional) Selection method (in general or for the keyword in list akForm1)
-                            SELF or S       - removes self
-                            FIRST or F      - first suitable keyword from the list (akForm1, akForm2, akForm3 concatenated together)
-                            RANDOM or R     - random keyword from the list (akForm1, akForm2, akForm3 concatenated together)
-                        Default value: SELF
+        [6]     String  (optional) Selection method (in general or for the devices in list akForm1)
+                            SELF or S       - self        
+                            FIRST or F      - first suitable device from the list (akForm1, akForm2, akForm3 concatenated together)
+                            RANDOM or R     - random device from the list (akForm1, akForm2, akForm3 concatenated together)
+                        Default value: R
                         
-        [7]     String  (optional) Selection method for the keywords in list akForm2
+        [7]     String  (optional) Selection method for the devices in list akForm2
         
-        [8]     String  (optional) Selection method for the keywords in list akForm3
+        [8]     String  (optional) Selection method for the devices in list akForm3
 
     Form arguments:
-        Form1 - Single device keyword to remove or FormList with keywords.
-        Form2 - Single device keyword to remove or FormList with keyword.
-        Form3 - Single device keyword to remove or FormList with keywords.
+        Form1 - Single device keyword to activate or FormList with keywords.
+        Form2 - Single device keyword to activate or FormList with keywords.
+        Form3 - Single device keyword to activate or FormList with keywords.
 
     Example:
+        1,FIRST     One device will be activated. The first suitable device from the list in Form1 will be selected by its keyword, 
+                    starting from the top one.
+        5,F,R       Five devices will be activated. First the matching devices will be selected from the list in Form1, and 
+                    then the remaining number will be selected randomly from the list in Form2.
 /;
-Scriptname UD_ModOutcome_RemoveDevice extends UD_ModOutcome
+Scriptname UD_ModOutcome_ActivateDevice extends UD_ModOutcome
 
 import UnforgivingDevicesMain
 import UD_Native
 
-;/  Group: Overrides
-===========================================================================================
-===========================================================================================
-===========================================================================================
-/;
+Explosion Property ManifestExplosion Auto
 
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2 = None, Form akForm3 = None)    
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2 = None, Form akForm3 = None)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_ModOutcome_RemoveDevice::Outcome() akDevice = " + akDevice + ", aiDataStr = " + aiDataStr, 3)
+        UDmain.Log("UD_ModOutcome_ActivateDevice::Outcome() akDevice = " + akDevice + ", aiDataStr = " + aiDataStr, 3)
     EndIf
     
     Int loc_count = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
     Int loc_remain = loc_count
-    String loc_method_list1 = GetStringParamString(aiDataStr, DataStrOffset + 1, "S")
+    String loc_method_list1 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
     String loc_method_list2 = GetStringParamString(aiDataStr, DataStrOffset + 2, "")
     String loc_method_list3 = GetStringParamString(aiDataStr, DataStrOffset + 3, "")
 
     If loc_method_list1 == "S" || loc_method_list1 == "SELF"
-        akDevice.unlockRestrain()
+        akDevice.activateDevice()
         Return
     EndIf
         
@@ -79,7 +78,7 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
             If loc_kw as Keyword != None
                 UD_CustomDevice_RenderScript loc_device = UDCDmain.getFirstDeviceByKeyword(akDevice.GetWearer(), loc_kw as Keyword)
                 If loc_device != None
-                    loc_device.unlockRestrain()
+                    loc_device.activateDevice()
                     loc_remain -= 1
                 EndIf
             EndIf
@@ -109,7 +108,7 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
             If loc_kw as Keyword != None
                 UD_CustomDevice_RenderScript loc_device = UDCDmain.getFirstDeviceByKeyword(akDevice.GetWearer(), loc_kw as Keyword)
                 If loc_device != None
-                    loc_device.unlockRestrain()
+                    loc_device.activateDevice()
                     loc_remain -= 1
                 EndIf
             EndIf
@@ -138,7 +137,7 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
         If loc_kw as Keyword != None
             UD_CustomDevice_RenderScript loc_device = UDCDmain.getFirstDeviceByKeyword(akDevice.GetWearer(), loc_kw as Keyword)
             If loc_device != None
-                loc_device.unlockRestrain()
+                loc_device.activateDevice()
                 loc_remain -= 1
             EndIf
         EndIf

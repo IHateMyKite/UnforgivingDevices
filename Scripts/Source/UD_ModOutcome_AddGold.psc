@@ -41,10 +41,10 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
         return
     endif
     
-    Int loc_A_min = GetStringParamInt(aiDataStr, 5, 0)
-    Int loc_A_max = GetStringParamInt(aiDataStr, 6, loc_A_min)
-    Int loc_B_min = GetStringParamInt(aiDataStr, 7, 0)
-    Int loc_B_max = GetStringParamInt(aiDataStr, 8, loc_B_min)
+    Int loc_A_min = GetStringParamInt(aiDataStr, DataStrOffset + 0, 0)
+    Int loc_A_max = GetStringParamInt(aiDataStr, DataStrOffset + 1, loc_A_min)
+    Int loc_B_min = GetStringParamInt(aiDataStr, DataStrOffset + 2, 0)
+    Int loc_B_max = GetStringParamInt(aiDataStr, DataStrOffset + 3, loc_B_min)
     
     Int loc_gold = RandomInt(loc_A_min, loc_A_max) + RandomInt(loc_B_min, loc_B_max) * akDevice.UD_Level
     

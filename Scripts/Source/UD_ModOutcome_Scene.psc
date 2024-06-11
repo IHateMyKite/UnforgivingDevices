@@ -33,7 +33,7 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     If loc_forms.Length > 0
         Scene loc_scene = loc_forms[RandomInt(0, loc_forms.length - 1)] as Scene
         If loc_scene != None
-            If GetStringParamInt(aiDataStr, 5, 0) > 0
+            If GetStringParamInt(aiDataStr, DataStrOffset + 0, 0) > 0
                 loc_scene.ForceStart()
             Else
                 loc_scene.Start()

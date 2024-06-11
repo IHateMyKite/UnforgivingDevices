@@ -66,6 +66,12 @@ Float       Property PatchPowerMultiplier       = 1.0   Auto hidden
 /;
 Float       Property PatchChanceMultiplier      = 1.0   Auto hidden
 
+
+;/  Variable: DataStrOffset
+    Index of the first parameter in DataStr used in the outcome configuration
+/;
+Int         Property DataStrOffset              = 5     AutoReadOnly Hidden
+
 ;/  Group: Overrides
 ===========================================================================================
 ===========================================================================================

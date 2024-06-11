@@ -40,11 +40,11 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
         UDmain.Log("UD_ModOutcome_EquipDevice::Outcome() akDevice = " + akDevice + ", aiDataStr = " + aiDataStr, 3)
     EndIf
     
-    Int loc_count = GetStringParamInt(aiDataStr, 5, 1)
+    Int loc_count = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
     Int loc_remain = loc_count
-    String loc_method_list1 = GetStringParamString(aiDataStr, 6, "R")
-    String loc_method_list2 = GetStringParamString(aiDataStr, 7, "")
-    String loc_method_list3 = GetStringParamString(aiDataStr, 8, "")
+    String loc_method_list1 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
+    String loc_method_list2 = GetStringParamString(aiDataStr, DataStrOffset + 2, "")
+    String loc_method_list3 = GetStringParamString(aiDataStr, DataStrOffset + 3, "")
     String loc_method = loc_method_list1
     
     Form[] loc_forms

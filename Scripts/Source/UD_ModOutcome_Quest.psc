@@ -36,7 +36,7 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
             If !loc_quest.IsRunning()
                 loc_quest.Start()
             EndIf
-            Int loc_stage = GetStringParamInt(aiDataStr, 5, -1)
+            Int loc_stage = GetStringParamInt(aiDataStr, DataStrOffset + 0, -1)
             If loc_stage >= 0
                 loc_quest.SetStage(loc_stage)
             EndIf
