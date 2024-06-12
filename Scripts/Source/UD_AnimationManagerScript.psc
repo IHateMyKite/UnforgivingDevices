@@ -525,6 +525,8 @@ Function LockAnimatingActor(Actor akActor, Bool abDisableActor = True)
         Return
     EndIf
     
+    UnforgivingDevicesMain.DisableWeapons(akActor)
+    
     StorageUtil.SetIntValue(akActor, "UD_ActorIsAnimating", 1)
     
     libs.SetAnimating(akActor, True)
@@ -532,17 +534,6 @@ Function LockAnimatingActor(Actor akActor, Bool abDisableActor = True)
     if abDisableActor
         UDCDMain.DisableActor(akActor)
     endif
-
-    if akActor.IsWeaponDrawn()
-        akActor.SheatheWeapon()
-        ; Wait for users with flourish sheathe animations.
-        int timeout=0
-        while akActor.IsWeaponDrawn() && timeout <= 15 ;  Wait 3.0 seconds at most before giving up and proceeding.
-            akActor.SheatheWeapon()
-            Utility.Wait(0.2)
-            timeout += 1
-        EndWhile
-    EndIf
 
     If !UD_Native.IsPlayer(akActor)
         akActor.ClearLookAt()
@@ -576,6 +567,8 @@ Function UnlockAnimatingActor(Actor akActor, Bool abEnableActor = True)
     EndIf
     
     akActor.SetVehicle(None)
+    
+    UnforgivingDevicesMain.EnableWeapons(akActor)
 EndFunction
 
 ;/  Function: SetActorHeading

@@ -496,11 +496,12 @@ Function StartMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
         UDmain.Log("StartMinigameDisable("+getActorName(akActor) + ")",2)
     endif
     akActor.AddToFaction(BussyFaction)
+    UnforgivingDevicesMain.DisableWeapons(akActor)
     if aiIsPlayer == 1 || IsPlayer(akActor)
         ;Game.SetPlayerAiDriven(True)
     else
-        ActorUtil.AddPackageOverride(akActor, UDmain.UD_NPCDisablePackage, 100, 1)
-        akActor.EvaluatePackage()
+        ;ActorUtil.AddPackageOverride(akActor, UDmain.UD_NPCDisablePackage, 100, 1)
+        ;akActor.EvaluatePackage()
         akActor.SetDontMove(True)
     endif
 EndFunction
@@ -523,7 +524,7 @@ Function UpdateMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
             ;Game.SetPlayerAiDriven(True)
         else
             akActor.SetDontMove(True)
-            akActor.EvaluatePackage()
+            ;akActor.EvaluatePackage()
         endif
     endif
 EndFunction
@@ -546,10 +547,11 @@ Function EndMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
         ;libsp.ProcessPlayerControls(false)
         Game.SetPlayerAiDriven(False)
     else
-        ActorUtil.RemovePackageOverride(akActor, UDmain.UD_NPCDisablePackage)
-        akActor.EvaluatePackage()
+        ;ActorUtil.RemovePackageOverride(akActor, UDmain.UD_NPCDisablePackage)
+        ;akActor.EvaluatePackage()
         akActor.SetDontMove(False)
     endif
+    UnforgivingDevicesMain.EnableWeapons(akActor)
 EndFunction
 
 ;/  Function: IsBussy
