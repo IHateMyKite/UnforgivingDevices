@@ -60,67 +60,8 @@ Event OnUpdate()
     endif
 EndEvent
 
-Int         _CustomSets     = 0
-String[]    _EquipEvent
-String[]    _SuitNames
-String[]    _PatchName ;only used for possible further optimizations
-
 Function Update()
-    _CustomSets     = 0
-    _EquipEvent     = Utility.CreateStringArray(0) ;create empty array .......
-    _SuitNames      = Utility.CreateStringArray(0) ;create empty array .......
-    _PatchName      = Utility.CreateStringArray(0) ;create empty array .......
-    _CustomSetMutex = false
-    SendModEvent("UD_AbadonSuitUpdate", "UpdateEvent") ;send update event, which should all patches get
 EndFunction
-
-Bool        _CustomSetMutex = false
-Function AddCustomAbadonSet(String asEquipEvent,String asSuitName, String asPatchName)
-    _CustomSets += 1
-    while _CustomSetMutex
-        Utility.waitMenuMode(0.01)
-    endwhile
-    _CustomSetMutex = true
-    _EquipEvent = PapyrusUtil.PushString(_EquipEvent,asEquipEvent)
-    _SuitNames  = PapyrusUtil.PushString(_SuitNames,asSuitName)
-    _PatchName  = PapyrusUtil.PushString(_PatchName,asPatchName)
-    ;UDmain.Info("Adding new custom abadon suit /" + asSuitName + " / from patch " + asPatchName)
-    _CustomSetMutex = false
-EndFunction
-Function EquipCustomAbadonSet(Actor akActor, Int aiSuitEvent)
-    Int loc_suit = aiSuitEvent - UDmain.config.final_finisher_pref_list.length
-    int loc_handle = ModEvent.Create(_EquipEvent[loc_suit])
-    if loc_handle
-        ModEvent.PushForm(loc_handle, akActor) ;actor
-        ModEvent.PushString(loc_handle, _EquipEvent[loc_suit]) ;event
-        ModEvent.Send(loc_handle)
-    endif
-EndFunction
-
-Int Property UD_AbadonSuitNumber
-    Int Function Get()
-        return UDmain.config.final_finisher_pref_list.length + _CustomSets
-    EndFunction
-EndProperty
-
-String[] Property UD_AbadonSuitList
-    String[] Function Get()
-        if _CustomSets
-            return PapyrusUtil.MergeStringArray(UDmain.config.final_finisher_pref_list,_EquipEvent)
-        else
-            return UDmain.config.final_finisher_pref_list
-        endif
-    EndFunction
-EndProperty
-String[] Property UD_AbadonSuitNames
-    String[] Function Get()
-        if _CustomSets
-            return PapyrusUtil.MergeStringArray(UDmain.config.final_finisher_pref_list,_SuitNames)
-        else
-            return UDmain.config.final_finisher_pref_list
-        endif
-    EndFunction
-EndProperty
 
 Int _LastHandRestrain = 0
 Function AbadonGooEffect(Actor akTarget)

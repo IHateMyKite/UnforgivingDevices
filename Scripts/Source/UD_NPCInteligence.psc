@@ -82,10 +82,13 @@ EndFunction
 Bool Function SlotAIEnabled(UD_CustomDevice_NPCSlot akSlot)
     Actor loc_actor = akSlot.GetActor()
     Bool loc_cond = true
+    loc_cond = loc_cond && !akSlot.IsDead()                                 ;actor is not dead
     loc_cond = loc_cond && akSlot.isUsed()                                  ;there is actor in slot
     loc_cond = loc_cond && !akSlot.UD_AITimer                               ;safety cooldown
     loc_cond = loc_cond && akSlot.getNumberOfRegisteredDevices()            ;actor needs to have at least one device
     loc_cond = loc_cond && !loc_actor.IsInCombat()                          ;actor is not in combat
+    loc_cond = loc_cond && !loc_actor.IsWeaponDrawn()                       ;actor have no weapon drawn
+    loc_cond = loc_cond && !loc_actor.IsSneaking()                          ;actor is not sneaking
     loc_cond = loc_cond && !akSlot.isInMinigame()                           ;actor is not in minigame
     loc_cond = loc_cond && !loc_actor.IsInFaction(UD_AIDisableFaction)      ;actor have no AI disabled
     loc_cond = loc_cond && !UDmain.UDCDMain.IsFollowingPlayer(loc_actor)    ;actor is not following player

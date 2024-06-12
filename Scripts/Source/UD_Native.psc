@@ -1,3 +1,4 @@
+;   File: UD_Native
 Scriptname UD_Native hidden
 
 ;===Minigame Effect===
@@ -69,6 +70,8 @@ Weapon  Function GetSharpestWeapon          (Actor akActor)                     
 
 ;===Animation===
 Int     Function GetActorConstrains         (Actor akActor)                     global native
+Bool    Function CheckWeaponDisabled        (Actor akActor)                     global native
+        Function DisableWeapons             (Actor akActor, Bool abState)       global native
 
 ;===Skill===
 Int     Function CalculateSkillFromPerks    (Actor akActor,Formlist akList,Int aiIncrease)      global native
@@ -101,7 +104,7 @@ Bool        Function RegisterDeviceCallback(Int aiHandle1, Int aiHandle2,Armor a
 Bool        Function UnregisterDeviceCallbacks(Int aiHandle1, Int aiHandle2,Armor akDevice) global native
             Function UnregisterAllDeviceCallbacks() global native
 Bool        Function AddDeviceCallbackArgument(int aiDxKeycode, int aiType, string asArgStr, Form akArgForm) global native
-            
+
 ; ===Papyrus delegate===
             Function RegisterForHMTweenMenu(ReferenceAlias akRefAlias)      global native
 Int         Function SendRegisterDeviceScriptEvent(Actor akActor, Armor[] akRenderDevices) global native

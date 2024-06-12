@@ -27,36 +27,24 @@ EndEvent
 Event OnUpdate()
     if !_finished
         Evaluate()
-        registerforsingleupdate(1.0)
+        registerforsingleupdate(2.0)
     endif
 EndEvent
 
 Function Evaluate()
     ;_target.setAV("aggression",0)
-    _target.stopCombat()
+    ;_target.stopCombat()
     Actor akActor = _target
-    ;Weapon loc_weaponleft = akActor.GetEquippedWeapon(true)
-    ;Weapon loc_weaponright = akActor.GetEquippedWeapon(true)
-    ;Armor loc_shield = akActor.GetEquippedShield()
-    ;if loc_weaponleft
-    ;    akActor.unequipItem(loc_weaponleft)
-    ;endif
-    ;if loc_weaponright
-    ;    akActor.unequipItem(loc_weaponright)
-    ;endif
-    ;if loc_shield
-    ;    akActor.unequipItem(loc_shield)
-    ;endif
 EndFunction
 
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
     ;reset prevent combat
     ;actor will be calmed untill their hands are free
     _finished = true
-    if _target.wornhaskeyword(libsp.zad_deviousheavybondage)
-        _target.removespell(UDlibs.PreventCombatSpell)
-        _target.addspell(UDlibs.PreventCombatSpell)
-    endif
+    ;if _target.wornhaskeyword(libsp.zad_deviousheavybondage)
+    ;    _target.removespell(UDlibs.PreventCombatSpell)
+    ;    _target.addspell(UDlibs.PreventCombatSpell)
+    ;endif
 EndEvent
 
 ;removed, as it was buggy

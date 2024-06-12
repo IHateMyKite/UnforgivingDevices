@@ -78,85 +78,6 @@ UDCustomDeviceMain Property UDCDmain hidden
     EndFunction
 EndProperty
 
-;/  Group: Custom Abadon Suit
-===========================================================================================
-===========================================================================================
-===========================================================================================
-/;
-
-
-;Max 5 custom suits per patch for now. In case more are needed, other quest with UD_PatchInit will have to be created
-
-;/  Variable: UD_CustomAbadonSuitEvent_1
-    
-    Name of event for custom abadon suit. Should be allways made in such so its impossible that other patch uses same named event!!
-    
-    Example: UD_Patch_NameOfThePatch_NameOfTheSuit
-/;
-String  Property UD_CustomAbadonSuitEvent_1                         auto
-
-;/  Variable: UD_CustomAbadonSuitEvent_1
-    
-    Name of event for custom abadon suit. Should be allways made in such so its impossible that other patch uses same named event!!
-    
-    Example: UD_Patch_NameOfThePatch_NameOfTheSuit
-/;
-String  Property UD_CustomAbadonSuitEvent_2                         auto
-
-;/  Variable: UD_CustomAbadonSuitEvent_3
-    
-    Name of event for custom abadon suit. Should be allways made in such so its impossible that other patch uses same named event!!
-    
-    Example: UD_Patch_NameOfThePatch_NameOfTheSuit
-/;
-String  Property UD_CustomAbadonSuitEvent_3                         auto
-
-;/  Variable: UD_CustomAbadonSuitEvent_4
-    
-    Name of event for custom abadon suit. Should be allways made in such so its impossible that other patch uses same named event!!
-    
-    Example: UD_Patch_NameOfThePatch_NameOfTheSuit
-/;
-String  Property UD_CustomAbadonSuitEvent_4                         auto
-
-;/  Variable: UD_CustomAbadonSuitEvent_5
-    
-    Name of event for custom abadon suit. Should be allways made in such so its impossible that other patch uses same named event!!
-    
-    Example: UD_Patch_NameOfThePatch_NameOfTheSuit
-/;
-String  Property UD_CustomAbadonSuitEvent_5                         auto
-
-;/  Variable: UD_CustomAbadonSuitName_1
-    
-    Name of the custom abadon suit, which shows in MCM. UD_CustomAbadonSuitName_X corresponds to the UD_CustomAbadonSuitEvent_X
-/;
-String  Property UD_CustomAbadonSuitName_1      = "UnNamedSuit"     auto
-
-;/  Variable: UD_CustomAbadonSuitName_2
-    
-    Name of the custom abadon suit, which shows in MCM. UD_CustomAbadonSuitName_X corresponds to the UD_CustomAbadonSuitEvent_X
-/;
-String  Property UD_CustomAbadonSuitName_2      = "UnNamedSuit"     auto
-
-;/  Variable: UD_CustomAbadonSuitName_3
-    
-    Name of the custom abadon suit, which shows in MCM. UD_CustomAbadonSuitName_X corresponds to the UD_CustomAbadonSuitEvent_X
-/;
-String  Property UD_CustomAbadonSuitName_3      = "UnNamedSuit"     auto
-
-;/  Variable: UD_CustomAbadonSuitName_4
-    
-    Name of the custom abadon suit, which shows in MCM. UD_CustomAbadonSuitName_X corresponds to the UD_CustomAbadonSuitEvent_X
-/;
-String  Property UD_CustomAbadonSuitName_4      = "UnNamedSuit"     auto
-
-;/  Variable: UD_CustomAbadonSuitName_5
-    
-    Name of the custom abadon suit, which shows in MCM. UD_CustomAbadonSuitName_X corresponds to the UD_CustomAbadonSuitEvent_X
-/;
-String  Property UD_CustomAbadonSuitName_5      = "UnNamedSuit"     auto
-
 ;keys which should be taken by UD as generic. Theese cays can be destroyed (either by failing unlock, or by using the key too many times)
 Key[]   Property UD_GenericKeys                                     auto
 
@@ -165,7 +86,6 @@ Event onInit()
     ProcessLists()
     Update()
     RegisterForModEvent("UD_PatchUpdate", "UpdateEvent")
-    UpdateSuit()
     UDCDmain.InjectQuestKeywords(QuestKeywords)
     UDCDmain.InjectGenericKeys(UD_GenericKeys)
 EndEvent
@@ -186,8 +106,6 @@ EndFunction
 Event UpdateEvent(string eventName, string strArg, float numArg, Form sender)
     if eventName == "UD_PatchUpdate"
         Update()
-    elseif eventName == "UD_AbadonSuitUpdate"
-        UpdateSuit()
     elseif eventName == "UD_QuestKeywordUpdate"
         UDCDmain.InjectQuestKeywords(QuestKeywords)
     elseif eventName == "UD_GenericKeyUpdate"
@@ -195,19 +113,13 @@ Event UpdateEvent(string eventName, string strArg, float numArg, Form sender)
     endif
 EndEvent
 
-Event EquipSuitEvent(Form kActor,String asEvent)
-    EquipSuit(kActor as Actor,asEvent)
-EndEvent
-
 Function Update()
     ;validate patch
     Bool loc_Installed = CheckPatchInstalled()
     if loc_Installed
-        RegisterForModEvent("UD_AbadonSuitUpdate","UpdateEvent")
         RegisterForModEvent("UD_QuestKeywordUpdate","UpdateEvent")
         RegisterForModEvent("UD_GenericKeyUpdate","UpdateEvent")
     else
-        UnregisterForModEvent("UD_AbadonSuitUpdate")
         UnregisterForModEvent("UD_QuestKeywordUpdate")
         UnregisterForModEvent("UD_GenericKeyUpdate")
     endif
@@ -232,70 +144,4 @@ EndFunction
 Function ProcessLists()
     UDCDmain.InjectQuestKeywords(QuestKeywords)
     UDCDmain.InjectGenericKeys(UD_GenericKeys)
-EndFunction
-
-Bool    _updateSuitMutex    = False
-Function UpdateSuit()
-    while _updateSuitMutex
-        Utility.waitMenuMode(0.01)
-    endwhile
-    _updateSuitMutex = True
-    
-    RegisterForModEvent("UD_AbadonSuitUpdate", "UpdateEvent")
-
-    RegisterCustomAbadonSuitEvent(UD_CustomAbadonSuitEvent_1,UD_CustomAbadonSuitName_1)
-    RegisterCustomAbadonSuitEvent(UD_CustomAbadonSuitEvent_2,UD_CustomAbadonSuitName_2)
-    RegisterCustomAbadonSuitEvent(UD_CustomAbadonSuitEvent_3,UD_CustomAbadonSuitName_3)
-    RegisterCustomAbadonSuitEvent(UD_CustomAbadonSuitEvent_4,UD_CustomAbadonSuitName_4)
-    RegisterCustomAbadonSuitEvent(UD_CustomAbadonSuitEvent_5,UD_CustomAbadonSuitName_5)
-
-    _updateSuitMutex = False
-EndFunction
-
-Function RegisterCustomAbadonSuitEvent(String asEvent,String asSuitName)
-    if asEvent
-        UnregisterForModEvent(asEvent)
-        UDmain.UDAbadonQuest.AddCustomAbadonSet(asEvent,asSuitName,UD_PatchName)
-        RegisterForModEvent(asEvent, "EquipSuitEvent")
-    endif
-EndFunction
-
-;OVERRIDE NEEDED
-
-;/  Function: EquipSuit
-
-    This function is called if actor is about to be locked in custom abadon suit.
-    
-    This function have to be overrided by extended script, and the event have to be filtered.
-
-    Parameters:
-
-        akActor         - Actor that will be locked in abadon suit
-        asEventName     - Name of event, which is equivalent to UD_CustomAbadonSuitEvent_X on one of the patches
-        
-    _Example_:
-        --- Code
-        Scriptname MyCustomPatchScript extends UD_PatchInit
-
-        UD_CustomAbadonSuitEvent_1  -> "MyCustomAbadonSuit1"
-        UD_CustomAbadonSuitName_1   -> "My Custom Abadon Suit 1"
-        
-        UD_CustomAbadonSuitEvent_2  -> "MyCustomAbadonSuit2"
-        UD_CustomAbadonSuitName_2   -> "My Custom Abadon Suit 2"
-
-        Function EquipSuit(Actor akActor,String asEventName)
-            Utility.wait(0.01) ;wait for menu to close
-            UDmain.UDCDmain.DisableActor(akActor)
-            if asEventName == "MyCustomAbadonSuit1"
-                ;Lock some devices ...
-                libs.LockDevice(akActor,...)
-            elseif asEventName == "MyCustomAbadonSuit2"
-                ;Lock some other devices ...
-                libs.LockDevice(akActor,...)
-            endif
-            UDmain.UDCDmain.EnableActor(akActor)
-        EndFunction
-        ---
-/;
-Function EquipSuit(Actor akActor,String asEventName)
 EndFunction

@@ -958,7 +958,7 @@ Event OnActivateDevice(string sDeviceName)
 EndEvent
 
 ;call devices function orgasm() when player have sexlab orgasm
-Event SexlabOrgasmStart(bool HasPlayer)               
+Event SexlabOrgasmStart(bool abHasPlayer)
     int size = UD_equipedCustomDevices.length
     int i = 0
     while UD_equipedCustomDevices[i]
@@ -1009,7 +1009,7 @@ Function OnSpellHit(Spell source)
     while UD_equipedCustomDevices[i]
         UD_equipedCustomDevices[i].spellHit(source)
         i+=1
-    endwhile    
+    endwhile
 EndFunction
 
 Function showDebugMenu(int slot_id)
