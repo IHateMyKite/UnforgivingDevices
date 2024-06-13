@@ -6,7 +6,9 @@
 
     Parameters:
         [0]     String      Armor Type          (Light, Heavy)
+        
         [1]     String      Armor Material      (Ebony, Leather, Iron, Steel, etc)
+        
         [2]     Int         Armor Value         ##
 
 /;

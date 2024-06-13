@@ -1,7 +1,7 @@
 ;/  File: UD_ModTrigger_SpellHit
     It triggers when actor is hit with a spell
 
-    NameFull:   
+    NameFull: On Spell Hit
 
     Parameters in DataStr:
         [0]     Int     (optional) Minimum accumulated damage to trigger

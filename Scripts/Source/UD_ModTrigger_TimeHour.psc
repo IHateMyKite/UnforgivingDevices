@@ -1,7 +1,7 @@
 ;/  File: UD_ModTrigger_TimeHour
     It triggers every hour with a given probability
     
-    NameFull: 
+    NameFull: Hourly Trigger
     
     Parameters (DataStr):
         [0]     Float   (optional) Hours must pass before trigger

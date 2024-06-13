@@ -1,8 +1,7 @@
 ;/  File: UD_ModOutcome_RemoveDevice
     Removes device(s)
 
-    NameFull:   
-    NameAlias:  RDD
+    NameFull: Remove Device
 
     Parameters in DataStr:
         [5]     Int     (optional) Number of positions (devices with suitable keywords) to remove
@@ -42,106 +41,16 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     EndIf
     
     Int loc_count = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
-    Int loc_remain = loc_count
     String loc_method_list1 = GetStringParamString(aiDataStr, DataStrOffset + 1, "S")
     String loc_method_list2 = GetStringParamString(aiDataStr, DataStrOffset + 2, "")
     String loc_method_list3 = GetStringParamString(aiDataStr, DataStrOffset + 3, "")
 
-    If loc_method_list1 == "S" || loc_method_list1 == "SELF"
-        akDevice.unlockRestrain()
-        Return
-    EndIf
-        
-    String loc_method = loc_method_list1
-    
-    Form[] loc_forms
-    Form loc_kw
-    Int loc_i
+    Form[] loc_devices = GetEquippedDevicesWithSelectionMethod(akDevice, loc_count, akForm1, loc_method_list1, akForm2, loc_method_list2, akForm3, loc_method_list3)
 
-    If (akForm1 as FormList) != None
-        loc_i = (akForm1 as FormList).GetSize()
-        While loc_i > 0
-            loc_i -= 1
-            loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm1 as FormList).GetAt(loc_i))
-        EndWhile
-    ElseIf akForm1 != None
-        loc_forms = PapyrusUtil.PushForm(loc_forms, akForm1)
-    EndIf
-
-    If loc_method_list2 != ""
-        While loc_forms.Length > 0 && loc_remain > 0
-            If loc_method == "R" || loc_method == "RANDOM"
-                loc_kw = loc_forms[RandomInt(0, loc_forms.Length - 1)]
-            Else
-                loc_kw = loc_forms[0]
-            EndIf
-            loc_forms = PapyrusUtil.RemoveForm(loc_forms, loc_kw)
-            If loc_kw as Keyword != None
-                UD_CustomDevice_RenderScript loc_device = UDCDmain.getFirstDeviceByKeyword(akDevice.GetWearer(), loc_kw as Keyword)
-                If loc_device != None
-                    loc_device.unlockRestrain()
-                    loc_remain -= 1
-                EndIf
-            EndIf
-        EndWhile
-        loc_forms = PapyrusUtil.ResizeFormArray(loc_forms, 0)
-        loc_method = loc_method_list2
-    EndIf
-    
-    If (akForm2 as FormList) != None
-        loc_i = (akForm2 as FormList).GetSize()
-        While loc_i > 0
-            loc_i -= 1
-            loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm2 as FormList).GetAt(loc_i))
-        EndWhile
-    ElseIf akForm2 != None
-        loc_forms = PapyrusUtil.PushForm(loc_forms, akForm2)
-    EndIf
-    
-    If loc_method_list3 != ""
-        While loc_forms.Length > 0 && loc_remain > 0
-            If loc_method == "R" || loc_method == "RANDOM"
-                loc_kw = loc_forms[RandomInt(0, loc_forms.Length - 1)]
-            Else
-                loc_kw = loc_forms[0]
-            EndIf
-            loc_forms = PapyrusUtil.RemoveForm(loc_forms, loc_kw)
-            If loc_kw as Keyword != None
-                UD_CustomDevice_RenderScript loc_device = UDCDmain.getFirstDeviceByKeyword(akDevice.GetWearer(), loc_kw as Keyword)
-                If loc_device != None
-                    loc_device.unlockRestrain()
-                    loc_remain -= 1
-                EndIf
-            EndIf
-        EndWhile
-        loc_forms = PapyrusUtil.ResizeFormArray(loc_forms, 0)
-        loc_method = loc_method_list3
-    EndIf
-    
-    If (akForm3 as FormList) != None
-        loc_i = (akForm3 as FormList).GetSize()
-        While loc_i > 0
-            loc_i -= 1
-            loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm3 as FormList).GetAt(loc_i))
-        EndWhile
-    ElseIf akForm3 != None
-        loc_forms = PapyrusUtil.PushForm(loc_forms, akForm3)
-    EndIf
-
-    While loc_forms.Length > 0 && loc_remain > 0
-        If loc_method == "R" || loc_method == "RANDOM"
-            loc_kw = loc_forms[RandomInt(0, loc_forms.Length - 1)]
-        Else
-            loc_kw = loc_forms[0]
-        EndIf
-        loc_forms = PapyrusUtil.RemoveForm(loc_forms, loc_kw)
-        If loc_kw as Keyword != None
-            UD_CustomDevice_RenderScript loc_device = UDCDmain.getFirstDeviceByKeyword(akDevice.GetWearer(), loc_kw as Keyword)
-            If loc_device != None
-                loc_device.unlockRestrain()
-                loc_remain -= 1
-            EndIf
-        EndIf
+    Int loc_i = 0
+    While loc_i < loc_devices.Length
+        (loc_devices[loc_i] as UD_CustomDevice_RenderScript).unlockRestrain()
+        loc_i += 1
     EndWhile
     
 EndFunction

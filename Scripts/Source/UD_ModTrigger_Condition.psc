@@ -1,7 +1,7 @@
 ;/  File: UD_ModTrigger_Condition
     It triggers with a given chance when the durability of the device is worsened
     
-    NameFull: 
+    NameFull: On Condition Loss
     
     Parameters (DataStr):
         [0]     Int     (optional) When the durability of a device falls below given threshold, it evolves

@@ -116,8 +116,16 @@ Function UpdateEventRegistrations(Bool abUnregister = False)
         RegisterForTrackedStatsEvent()
         RegisterForSleep()
         RegisterForActorAction(0)       ; weapon swing
+        RegisterForActorAction(1)       ; 
+        RegisterForActorAction(2)       ; 
         RegisterForActorAction(3)       ; voice cast
         RegisterForActorAction(4)       ; voice fire
+        RegisterForActorAction(5)       ; 
+        RegisterForActorAction(6)       ; 
+        RegisterForActorAction(7)       ; 
+        RegisterForActorAction(8)       ; 
+        RegisterForActorAction(9)       ; 
+        RegisterForActorAction(10)      ; 
     Else
     EndIf
 EndFunction
@@ -231,7 +239,7 @@ Event OnActorAction(int actionType, Actor akActor, Form source, int slot)
         UDmain.Log("UD_ModifierManager_Script::OnActorAction() actionType = " + actionType + ", akActor = " + akActor + ", source = " + source + ", slot = " + slot, 3)
     EndIf
     
-    UpdateModifiers_ActorAction(loc_slot, slot)
+    UpdateModifiers_ActorAction(loc_slot, actionType, source)
 
 EndEvent
 
@@ -339,14 +347,34 @@ Function UpdateModifiers_Sleep(Float afDuration, Bool abInterrupted)
     endwhile
 EndFunction
 
-Function UpdateModifiers_ActorAction(UD_CustomDevice_NPCSlot akSlot, Int aiActorAction)
+Function UpdateModifiers_ActorAction(UD_CustomDevice_NPCSlot akSlot, Int aiActorAction, Form akSource)
     UD_CustomDevice_NPCSlot loc_slot = akSlot
     if loc_slot.isUsed() && !loc_slot.isDead() && loc_slot.isScriptRunning()
         UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
         int loc_x = 0
         while loc_devices[loc_x]
             if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked ;not update device which are in minigame
-                Procces_UpdateModifiers_ActorAction(loc_devices[loc_x], aiActorAction)
+                Procces_UpdateModifiers_ActorAction(loc_devices[loc_x], aiActorAction, akSource)
+            endif
+            loc_x += 1
+        endwhile
+    endif
+EndFunction
+
+Function UpdateModifiers_KillMonitor(ObjectReference akVictim, ObjectReference akKiller, Location akLocation, Int aiCrimeStatus)
+    If akKiller as Actor == None
+        Return
+    EndIf
+    UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getNPCSlotByActor(akKiller as Actor)
+    If loc_slot == None
+        Return
+    EndIf
+    if loc_slot.isUsed() && !loc_slot.isDead() && loc_slot.isScriptRunning()
+        UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
+        int loc_x = 0
+        while loc_devices[loc_x]
+            if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked ;not update device which are in minigame
+                Procces_UpdateModifiers_KillMonitor(loc_devices[loc_x], akVictim, aiCrimeStatus)
             endif
             loc_x += 1
         endwhile
@@ -565,12 +593,21 @@ Function Procces_UpdateModifiers_Sleep(UD_CustomDevice_RenderScript akDevice, Fl
     endwhile
 EndFunction
 
-Function Procces_UpdateModifiers_ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction)
+Function Procces_UpdateModifiers_ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource)
     int loc_modid = akDevice.UD_ModifiersRef.length
     while loc_modid 
         loc_modid -= 1
         UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
-        loc_mod.ActorAction(akDevice, aiActorAction, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid])
+        loc_mod.ActorAction(akDevice, aiActorAction, akSource, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid])
+    endwhile
+EndFunction
+
+Function Procces_UpdateModifiers_KillMonitor(UD_CustomDevice_RenderScript akDevice, ObjectReference akVictim, Int aiCrimeStatus)
+    int loc_modid = akDevice.UD_ModifiersRef.length
+    while loc_modid 
+        loc_modid -= 1
+        UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
+        loc_mod.KillMonitor(akDevice, akVictim, aiCrimeStatus, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid])
     endwhile
 EndFunction
 

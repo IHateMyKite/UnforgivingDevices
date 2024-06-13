@@ -1,8 +1,7 @@
 ;/  File: UD_ModOutcome_Quest
-    Start quest and/or set stage
+    Starts quest and/or sets stage
 
-    NameFull:   
-    NameAlias:  QUE
+    NameFull: Quest
 
     Parameters in DataStr:
         [5]     Int     Stage to set 

@@ -1,8 +1,7 @@
 ;/  File: UD_ModOutcome_AddGold
     Summons gold (or any other currency)
 
-    NameFull:   
-    NameAlias:  AGL
+    NameFull: Add Gold
 
     Parameters in DataStr:
         [5]     Int     (optional) Minimum value of coefficient A (absolute value)

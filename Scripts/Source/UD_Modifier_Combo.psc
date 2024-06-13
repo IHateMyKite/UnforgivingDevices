@@ -2,8 +2,8 @@
     Something will happen when all conditions are met. 
     Use modifiers with different aliases if you want to add several CMB modifiers on the same device
 
-    NameFull: 
-    NameAlias: CMB1, CMB2, CMB3
+    NameFull: Combo
+    NameAlias: CMP1, CMP2, CMP3, CMP4, CMP5, CMN1, CMN2, CMN3, CMN4, CMN5
 
     Parameters:
         [0 .. 4]    Parameters for the trigger
@@ -123,8 +123,14 @@ Function Sleep(UD_CustomDevice_RenderScript akDevice, Float afDuration, Bool abI
     EndIf
 EndFunction
 
-Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
     If (akForm1 as UD_ModTrigger).ActorAction(Self, akDevice, aiActorAction, aiDataStr) == True
+        (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm3, None)
+    EndIf
+EndFunction
+
+Function KillMonitor(UD_CustomDevice_RenderScript akDevice, ObjectReference akVictim, Int aiCrimeStatus, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+    If (akForm1 as UD_ModTrigger).KillMonitor(Self, akDevice, akVictim, aiCrimeStatus, aiDataStr) == True
         (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm3, None)
     EndIf
 EndFunction

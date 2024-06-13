@@ -140,6 +140,10 @@ Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderSc
     Return False
 EndFunction
 
+Bool Function KillMonitor(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, ObjectReference akVictim, Int aiCrimeStatus, String aiDataStr)
+    Return False
+EndFunction
+
 String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
     Return Description
 EndFunction

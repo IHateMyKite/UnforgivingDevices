@@ -1,7 +1,7 @@
 ;/  File: UD_ModTrigger_CombatEvent
     It triggers on combat event
     
-    NameFull: 
+    NameFull: On Combat Event
     
     Parameters (DataStr):
         [0]     String  Combat event to trigger (one or several literals separated by space)
@@ -12,9 +12,9 @@
                             VF - Voice Fire
                             BD - Bow Draw
                             BR - Bow Release
-                            UB - Unsheathe Begin
+                            UB - Unsheathe Begin (doesn't fire with spells)
                             UE - Unsheathe End
-                            SB - Sheathe Begin
+                            SB - Sheathe Begin (doesn't fire with spells)
                             SE - Sheathe End
 
         [1]     Float   Base probability to trigger on event (in %)
@@ -35,6 +35,9 @@ import UD_Native
 /;
 
 Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiActorAction, String aiDataStr)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_ModTrigger_CombatEvent::ActorAction() akModifier = " + akModifier + ", akDevice = " + akDevice + ", aiActorAction = " + aiActorAction + ", aiDataStr = " + aiDataStr, 3)
+    EndIf
     String loc_event = GetStringParamString(aiDataStr, 0, "")
     If aiActorAction == 0 && StringUtil.Find(loc_event, "WS") >= 0
         Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 100.0))

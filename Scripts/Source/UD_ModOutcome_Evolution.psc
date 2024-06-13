@@ -1,8 +1,7 @@
 ;/  File: UD_ModOutcome_Evolution
-    Evolution outcome
+    Device evolves
 
-    NameFull: 
-    NameAlias:  EVO
+    NameFull: Evolution
 
     Parameters:
 

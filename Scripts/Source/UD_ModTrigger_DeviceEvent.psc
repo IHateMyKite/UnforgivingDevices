@@ -1,8 +1,7 @@
 ;/  File: UD_ModTrigger_DeviceEvent
     It triggers on device event
     
-    NameFull: 
-    NameAlias: SME
+    NameFull: On Device Event
     
     Parameters (DataStr):
         [0]     String  Device event to trigger (one or several separated by space)

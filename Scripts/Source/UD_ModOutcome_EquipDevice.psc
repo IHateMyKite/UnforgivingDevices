@@ -1,8 +1,7 @@
 ;/  File: UD_ModOutcome_EquipDevice
     Summons more devices
 
-    NameFull:   
-    NameAlias:  EDD
+    NameFull: Equip Device
 
     Parameters in DataStr:
         [5]     Int     (optional) Number of devices

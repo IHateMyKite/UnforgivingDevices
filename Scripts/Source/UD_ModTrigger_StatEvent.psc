@@ -1,7 +1,7 @@
 ;/  File: UD_ModTrigger_StatEvent
     It triggers on the change of statistics value
     
-    NameFull: Statistics
+    NameFull: On Statistics Change
     
     Parameters (DataStr):
         [0]     String  Stat event to trigger

@@ -153,7 +153,10 @@ EndFunction
 Function Sleep(UD_CustomDevice_RenderScript akDevice, Float afDuration, Bool abInterrupted, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
 EndFunction
 
-Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+EndFunction
+
+Function KillMonitor(UD_CustomDevice_RenderScript akDevice, ObjectReference akVictim, Int aiCrimeStatus, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
 EndFunction
 
 Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
@@ -178,7 +181,4 @@ Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
 EndFunction
 
 Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
-EndFunction
-
-Function RerollModifierStats(UD_CustomDevice_RenderScript akDevice, String aiDataStr)
 EndFunction

@@ -1,8 +1,7 @@
 ;/  File: UD_ModOutcome_Scene
-    Play scene
+    Plays scene
 
-    NameFull:   
-    NameAlias:  SCE
+    NameFull: Scene
 
     Parameters in DataStr:
         [5]     Int     Force 

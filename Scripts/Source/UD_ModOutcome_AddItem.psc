@@ -1,8 +1,7 @@
 ;/  File: UD_ModOutcome_AddItem
     Summons item
 
-    NameFull:   
-    NameAlias:  AIT
+    NameFull: Add Item
 
     Parameters in DataStr:
         [5]     Int     (optional) Minimum number of items

@@ -1,7 +1,7 @@
 ;/  File: UD_ModTrigger_Sleep
     It triggers with a given chance after player sleeps
     
-    NameFull: 
+    NameFull: On Sleep
     
     Parameters in DataStr:
         [0]     Int     (optional) Minimum sleep duration to trigger (in hours)

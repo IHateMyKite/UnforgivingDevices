@@ -1,7 +1,7 @@
 ;/  File: UD_ModTrigger_WeaponHit
     It triggers when actor is hit with a weapon
 
-    NameFull:   
+    NameFull: On Weapon Hit
 
     Parameters in DataStr:
         [0]     Int     (optional) Minimum accumulated damage to trigger

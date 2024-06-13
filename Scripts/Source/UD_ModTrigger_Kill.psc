@@ -1,27 +1,27 @@
-;/  File: UD_ModTrigger_Orgasm
-    It triggers with a given chance after actor's orgasm
+;/  File: UD_ModTrigger_Kill
+    Triggers on kill
     
-    NameFull: On Orgasm
+    NameFull: On Kill
     
-    Parameters (DataStr):
-        [0]     Int     (optional) Minimum number of orgasms to trigger
+    Parameters (DataStr):                            
+        [0]     Int     (optional) Minimum number of kills to trigger
                         Default value: 0
         
-        [1]     Float   (optional) Base probability to trigger (in %)
+        [1]     Float   (optional) Base probability to trigger on kill (in %)
                         Default value: 100.0%
         
-        [2]     Int     (optional) Probability to trigger that is proportional to the accumulated value (of consecutive orgasms)
+        [2]     Int     (optional) Probability to trigger that is proportional to the accumulated value (of consecutive kills)
                         Default value: 0.0%
                         
         [3]     Int     (optional) Repeat
                         Default value: 0 (False)
                         
-        [4]     Float   (script) Number of consecutive orgasms so far
-
+        [4]     Float   (script) Number of consecutive kills so far
+                        
     Example:
-        
+                    
 /;
-Scriptname UD_ModTrigger_Orgasm extends UD_ModTrigger
+Scriptname UD_ModTrigger_Kill extends UD_ModTrigger
 
 import UnforgivingDevicesMain
 import UD_Native
@@ -32,7 +32,7 @@ import UD_Native
 ===========================================================================================
 /;
 
-Bool Function Orgasm(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
+Bool Function KillMonitor(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, ObjectReference akVictim, Int aiCrimeStatus, String aiDataStr)
     Int loc_min_value = GetStringParamInt(aiDataStr, 0, 0)
     Float loc_prob_base = GetStringParamFloat(aiDataStr, 1, 100.0)
     Float loc_prob_accum = GetStringParamFloat(aiDataStr, 2, 0.0)
