@@ -3,7 +3,7 @@ ScriptName UD_Modifier_Midas extends UD_Modifier_GoldBase
 import UnforgivingDevicesMain
 import UD_Native
 
-Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
     if !akDevice
         return ;none device passed - exit
     endif

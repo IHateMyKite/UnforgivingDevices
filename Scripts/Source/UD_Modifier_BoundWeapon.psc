@@ -7,11 +7,11 @@
     Parameters:
 
     Form arguments:
-        Form1 - Bound Weapon
+        Form1 - Bound Weapon or Spell to force equip
         
-        Form2 - (optional) Spell that summons weapon specified in Form1
+        Form2 - (optional) Spell that summons bound weapon specified in Form1
         
-        Form3 - 
+        Form3 - not used
 
 /;
 Scriptname UD_Modifier_BoundWeapon extends UD_Modifier
@@ -19,7 +19,7 @@ Scriptname UD_Modifier_BoundWeapon extends UD_Modifier
 import UnforgivingDevicesMain
 import UD_Native
 
-Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_Modifier_BoundWeapon::ActorAction() akDevice = " + akDevice + ", aiActorAction = " + aiActorAction + ", akSource = " + akSource + ", aiDataStr = " + aiDataStr + ", akForm1 = " + akForm1 + ", akForm2 = " + akForm2 + ", akForm3 = " + akForm3, 3)
     EndIf
@@ -44,7 +44,7 @@ Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, F
     EndIf
 EndFunction
 
-Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
     String loc_msg = ""
     
     loc_msg += "==== " + NameFull + " ====\n"

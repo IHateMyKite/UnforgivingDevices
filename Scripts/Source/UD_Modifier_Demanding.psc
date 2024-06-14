@@ -3,7 +3,7 @@ ScriptName UD_Modifier_Demanding extends UD_Modifier_GoldBase
 import UnforgivingDevicesMain
 import UD_Native
 
-Bool Function MinigameAllowed(UD_CustomDevice_RenderScript akModDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Bool Function MinigameAllowed(UD_CustomDevice_RenderScript akModDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
     ;only pay device if user have device locked less then 1 real time hour (safeback)
     if akModDevice.GetRealTimeLockedTime() > 0.5
         return true
@@ -27,7 +27,7 @@ Bool Function MinigameAllowed(UD_CustomDevice_RenderScript akModDevice, String a
     return loc_cond
 EndFunction
 
-Function MinigameStarted(UD_CustomDevice_RenderScript akModDevice, UD_CustomDevice_RenderScript akMinigameDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function MinigameStarted(UD_CustomDevice_RenderScript akModDevice, UD_CustomDevice_RenderScript akMinigameDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
     if akModDevice == akMinigameDevice
         if akModDevice.GetRealTimeLockedTime() < 0.5
             Int loc_Gold = CalculateGold(aiDataStr,akModDevice.UD_Level)

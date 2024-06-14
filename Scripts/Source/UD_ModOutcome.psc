@@ -73,7 +73,7 @@ Float       Property PatchChanceMultiplier      = 1.0   Auto hidden
 ;/  Variable: DataStrOffset
     Index of the first parameter in DataStr used in the outcome configuration
 /;
-Int         Property DataStrOffset              = 5     AutoReadOnly Hidden
+Int         Property DataStrOffset              = 7     AutoReadOnly Hidden
 
 ;/  Group: Overrides
 ===========================================================================================
@@ -84,7 +84,7 @@ Int         Property DataStrOffset              = 5     AutoReadOnly Hidden
 Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2 = None, Form akForm3 = None)
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
     Return Description
 EndFunction
 

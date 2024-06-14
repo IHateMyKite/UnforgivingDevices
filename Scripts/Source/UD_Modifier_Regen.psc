@@ -4,7 +4,7 @@ import UnforgivingDevicesMain
 import UDCustomDeviceMain
 import UD_Native
 
-Function TimeUpdateSecond(UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function TimeUpdateSecond(UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
     if akDevice.getRelativeDurability() < 1.0
         mendDevice(akDevice,UD_Native.GetStringParamFloat(aiDataStr),1.0,afTime)
     endif
@@ -34,7 +34,7 @@ Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
     akDevice.addModifier(self,FormatFloat(120*PatchPowerMultiplier*RandomFloat(0.5 + loc_addmult,2.0 + loc_addmult),1))
 EndFunction
 
-Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
     String loc_msg = ""
     
     loc_msg += "=== " + NameFull + " ===\n"

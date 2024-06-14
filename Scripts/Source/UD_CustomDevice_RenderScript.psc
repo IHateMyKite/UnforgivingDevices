@@ -526,6 +526,7 @@ String[]    Property UD_ModifiersDataStr      auto
 Form[]      Property UD_ModifiersDataForm1    auto
 Form[]      Property UD_ModifiersDataForm2    auto
 Form[]      Property UD_ModifiersDataForm3    auto
+Form[]      Property UD_ModifiersDataForm4    auto
 
 ;/  Variable: UD_MessageDeviceInteraction
     Message that is show when opening device menu. If not set, it will be set automatically by UD.
@@ -2497,6 +2498,7 @@ bool Function removeModifier(UD_Modifier akModifier)
         Form[]      loc_tmp_modifiers_f1
         Form[]      loc_tmp_modifiers_f2
         Form[]      loc_tmp_modifiers_f3
+        Form[]      loc_tmp_modifiers_f4
         
         while loc_i < loc_size
             if (loc_i != loc_removed_indx)
@@ -2505,6 +2507,7 @@ bool Function removeModifier(UD_Modifier akModifier)
                 loc_tmp_modifiers_f1    = PapyrusUtil.PushForm  (loc_tmp_modifiers_f1   ,UD_ModifiersDataForm1  [loc_i])
                 loc_tmp_modifiers_f2    = PapyrusUtil.PushForm  (loc_tmp_modifiers_f2   ,UD_ModifiersDataForm2  [loc_i])
                 loc_tmp_modifiers_f3    = PapyrusUtil.PushForm  (loc_tmp_modifiers_f3   ,UD_ModifiersDataForm3  [loc_i])
+                loc_tmp_modifiers_f4    = PapyrusUtil.PushForm  (loc_tmp_modifiers_f4   ,UD_ModifiersDataForm4  [loc_i])
             endif
             loc_i += 1
         endwhile
@@ -2514,6 +2517,7 @@ bool Function removeModifier(UD_Modifier akModifier)
         UD_ModifiersDataForm1   = loc_tmp_modifiers_f1
         UD_ModifiersDataForm2   = loc_tmp_modifiers_f2
         UD_ModifiersDataForm3   = loc_tmp_modifiers_f3
+        UD_ModifiersDataForm4   = loc_tmp_modifiers_f4
         return true
     else
         return false
@@ -7684,8 +7688,9 @@ Function ShowModifiers()
         Form loc_form1 = UD_ModifiersDataForm1[loc_i]
         Form loc_form2 = UD_ModifiersDataForm2[loc_i]
         Form loc_form3 = UD_ModifiersDataForm3[loc_i]
+        Form loc_form4 = UD_ModifiersDataForm3[loc_i]
         ;loc_res += (loc_mod.NameFull + "\n")
-        loc_list = PapyrusUtil.PushString(loc_list, loc_mod.GetCaption(Self, loc_data, loc_form1, loc_form2, loc_form3))
+        loc_list = PapyrusUtil.PushString(loc_list, loc_mod.GetCaption(Self, loc_data, loc_form1, loc_form2, loc_form3, loc_form4))
         loc_i   += 1
     endwhile
     
@@ -7698,7 +7703,7 @@ Function ShowModifiers()
     endif
     
     UD_Modifier loc_mod = (UD_ModifiersRef[loc_res] as UD_Modifier)
-    loc_mod.ShowDetails(self,UD_ModifiersDataStr[loc_res],UD_ModifiersDataForm1[loc_res],UD_ModifiersDataForm2[loc_res],UD_ModifiersDataForm3[loc_res])
+    loc_mod.ShowDetails(self,UD_ModifiersDataStr[loc_res],UD_ModifiersDataForm1[loc_res],UD_ModifiersDataForm2[loc_res],UD_ModifiersDataForm3[loc_res],UD_ModifiersDataForm4[loc_res])
 EndFunction
 
 
