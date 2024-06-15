@@ -82,6 +82,7 @@ Float       Property PatchChanceMultiplier      = 1.0   Auto hidden
     Used as a bitmask.
     
     0x0001          - positive modifier (determines in which direction the difficulty multiplier will be used)
+    0x0002          - hidden in user interface (TODO)
     
 /;
 Int         Property Attributes                         Auto

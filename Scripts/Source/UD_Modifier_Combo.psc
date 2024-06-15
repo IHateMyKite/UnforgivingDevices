@@ -127,7 +127,7 @@ Function Sleep(UD_CustomDevice_RenderScript akDevice, Float afDuration, Bool abI
 EndFunction
 
 Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
-    If (akForm1 as UD_ModTrigger).ActorAction(Self, akDevice, aiActorAction, aiDataStr) == True
+    If (akForm1 as UD_ModTrigger).ActorAction(Self, akDevice, aiActorAction, akSource, aiDataStr) == True
         (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm3, akForm4)
     EndIf
 EndFunction

@@ -34,7 +34,7 @@ import UD_Native
 ===========================================================================================
 /;
 
-Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiActorAction, String aiDataStr)
+Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_ModTrigger_CombatEvent::ActorAction() akModifier = " + akModifier + ", akDevice = " + akDevice + ", aiActorAction = " + aiActorAction + ", aiDataStr = " + aiDataStr, 3)
     EndIf

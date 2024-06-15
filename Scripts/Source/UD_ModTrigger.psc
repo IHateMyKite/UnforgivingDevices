@@ -136,7 +136,7 @@ Bool Function Sleep(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript a
     Return False
 EndFunction
 
-Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiActorAction, String aiDataStr)
+Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr)
     Return False
 EndFunction
 
