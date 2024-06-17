@@ -3,8 +3,8 @@
 
     NameFull: Quest
 
-    Parameters in DataStr:
-        [5]     Int     Stage to set 
+    Parameters in DataStr (indices relative to DataStrOffset property):
+        [+0]    Int     Stage to set 
                         Default value: -1 (Ignore)
 
     Form arguments:

@@ -3,8 +3,8 @@
 
     NameFull: Scene
 
-    Parameters in DataStr:
-        [5]     Int     Force 
+    Parameters in DataStr (indices relative to DataStrOffset property):
+        [+0]    Int     Force 
                         Default value: 0 (False)
 
     Form arguments:

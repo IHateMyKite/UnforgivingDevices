@@ -3,14 +3,14 @@
 
     NameFull: Add Item
 
-    Parameters in DataStr:
-        [5]     Int     (optional) Minimum number of items
+    Parameters in DataStr (indices relative to DataStrOffset property):
+        [+0]    Int     (optional) Minimum number of items
                         Default value: 1
                         
-        [6]     Int     (optional) Maximum number of items
-                        Default value: [5]
+        [+1]    Int     (optional) Maximum number of items
+                        Default value: [+0]
                         
-        [7]     Int     (optional) Equip item (i.e. drink potion)
+        [+2]    Int     (optional) Equip item (i.e. drink potion)
                         Default value: 0 (False)
 
     Form arguments:

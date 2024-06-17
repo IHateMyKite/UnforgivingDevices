@@ -3,18 +3,18 @@
 
     NameFull: Add Gold
 
-    Parameters in DataStr:
-        [5]     Int     (optional) Minimum value of coefficient A (absolute value)
+    Parameters in DataStr (indices relative to DataStrOffset property):
+        [+0]    Int     (optional) Minimum value of coefficient A (absolute value)
                         Default value: 0
                         
-        [6]     Int     (optional) Maximum value of coefficient A (absolute value)
-                        Default value: [5]
+        [+1]    Int     (optional) Maximum value of coefficient A (absolute value)
+                        Default value: [+0]
                         
-        [7]     Int     (optional) Minimum value of coefficient B (proportional to level)
+        [+2]    Int     (optional) Minimum value of coefficient B (proportional to level)
                         Default value: 0
                         
-        [8]     Int     (optional) Maximum value of coefficient B (proportional to level)
-                        Default value: [7]
+        [+3]    Int     (optional) Maximum value of coefficient B (proportional to level)
+                        Default value: [+2]
 
     Form arguments:
         akForm1         If not None then it is used as currency to add

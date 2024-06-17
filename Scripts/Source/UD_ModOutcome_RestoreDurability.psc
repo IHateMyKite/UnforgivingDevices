@@ -3,21 +3,21 @@
 
     NameFull: Restore Durability
 
-    Parameters in DataStr:
-        [5]     Int     (optional) Number of positions (devices with suitable keywords) to regenerate
+    Parameters in DataStr (indices relative to DataStrOffset property):
+        [+0]    Int     (optional) Number of positions (devices with suitable keywords) to regenerate
                         Default value: 1
                         
-        [6]     String  (optional) Selection method (in general or for the keyword in list akForm1)
+        [+1]    String  (optional) Selection method (in general or for the keyword in list akForm1)
                             SELF or S       - regains its own durability
                             ALL or A        - restores the durability of all devices
                             FIRST or F      - first suitable keyword from the list (akForm1, akForm2, akForm3 concatenated together)
                             RANDOM or R     - random keyword from the list (akForm1, akForm2, akForm3 concatenated together)
                         Default value: SELF
                         
-        [7]     Float   Minimum restored durability in %
+        [+2]    Float   Minimum restored durability in %
         
-        [8]     Float   (optional) Maximum restored durability in %
-                        Default value: [7]
+        [+3]    Float   (optional) Maximum restored durability in %
+                        Default value: [+2]
 
     Form arguments:
         Form1 - Single device keyword to regenerate or FormList with keywords (may be None if SELF or ALL selection method is used).

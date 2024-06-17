@@ -3,7 +3,8 @@
 
     NameFull: Evolution
 
-    Parameters:
+    Parameters in DataStr (indices relative to DataStrOffset property):
+        
 
     Form arguments:
         Form1 - Device in to which will current device evolve. In case this is formlist, random device from formlist will be used.

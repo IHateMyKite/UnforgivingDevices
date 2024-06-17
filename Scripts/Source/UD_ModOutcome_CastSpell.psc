@@ -3,7 +3,8 @@
 
     NameFull: Cast Spell
 
-    Parameters in DataStr:
+    Parameters in DataStr (indices relative to DataStrOffset property):
+    
 
     Form arguments:
         Form1 - Spell to cast or FormLists with spells
