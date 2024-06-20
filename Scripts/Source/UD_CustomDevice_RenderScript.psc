@@ -2452,6 +2452,7 @@ EndFunction
         akForm1     - Modifier form 1
         akForm2     - Modifier form 2
         akForm3     - Modifier form 3
+        akForm4     - Modifier form 4
 
     Returns:
 
@@ -2465,13 +2466,14 @@ EndFunction
         ; TODO
     ---
 /;
-bool Function addModifier(UD_Modifier akModifier,string asParam = "", Form akForm1 = none, Form akForm2 = none, Form akForm3 = none)
+bool Function addModifier(UD_Modifier akModifier,string asParam = "", Form akForm1 = none, Form akForm2 = none, Form akForm3 = none, Form akForm4 = none)
     if !hasModifier(akModifier)
         UD_ModifiersRef         = PapyrusUtil.PushAlias (UD_ModifiersRef        ,akModifier)
         UD_ModifiersDataStr     = PapyrusUtil.PushString(UD_ModifiersDataStr    ,asParam)
         UD_ModifiersDataForm1   = PapyrusUtil.PushForm  (UD_ModifiersDataForm1  ,akForm1)
         UD_ModifiersDataForm2   = PapyrusUtil.PushForm  (UD_ModifiersDataForm2  ,akForm2)
         UD_ModifiersDataForm3   = PapyrusUtil.PushForm  (UD_ModifiersDataForm3  ,akForm3)
+        UD_ModifiersDataForm4   = PapyrusUtil.PushForm  (UD_ModifiersDataForm4  ,akForm4)
         return true
     else
         return false
