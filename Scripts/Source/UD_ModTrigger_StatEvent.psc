@@ -59,3 +59,25 @@ Bool Function StatEvent(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     
     Return TriggerOnValueAbs(akDevice, akModifier.NameAlias, aiDataStr, afValueAbs = aiStatValue, afMinValue = loc_min_value, afProbBase = loc_prob_base, abRepeat = loc_repeat, aiLastTriggerValueIndex = 4)
 EndFunction
+
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
+    String loc_event = GetStringParamString(aiDataStr, 0, "")
+    String loc_str = ""
+    loc_str += "On stat event (" + loc_event + ")"
+    loc_str += "\n"
+    loc_str += "Minimum accumulated value: " + GetStringParamInt(aiDataStr, 1, 0)
+    loc_str += "\n"
+    loc_str += "Base probability: " + FormatFloat(GetStringParamFloat(aiDataStr, 2, 100.0), 2) + "%"
+    loc_str += "\n"
+    If GetStringParamInt(aiDataStr, 3, 0) > 0
+        loc_str += "Repeat: True"
+    Else
+        loc_str += "Repeat: False"
+    EndIf
+    loc_str += "\n"
+    loc_str += "Accumulator: " + GetStringParamInt(aiDataStr, 4, 0)
+    loc_str += "\n"
+    loc_str += "(Accumulator contains stat change since the last trigger)"
+    
+    Return loc_str
+EndFunction

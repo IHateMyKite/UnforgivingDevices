@@ -7,11 +7,11 @@
         [+0]    Int     (optional) Number of positions (devices with suitable keywords) to regenerate
                         Default value: 1
                         
-        [+1]    String  (optional) Selection method (in general or for the keyword in list akForm1)
+        [+1]    String  (optional) Selection method (in general or for the keyword in list akForm3)
                             SELF or S       - regains its own durability
                             ALL or A        - restores the durability of all devices
-                            FIRST or F      - first suitable keyword from the list (akForm1, akForm2, akForm3 concatenated together)
-                            RANDOM or R     - random keyword from the list (akForm1, akForm2, akForm3 concatenated together)
+                            FIRST or F      - first suitable keyword from the list (akForm3, akForm4 concatenated together)
+                            RANDOM or R     - random keyword from the list (akForm3, akForm4 concatenated together)
                         Default value: SELF
                         
         [+2]    Float   Minimum restored durability in %
@@ -20,7 +20,7 @@
                         Default value: [+2]
 
     Form arguments:
-        Form1 - Single device keyword to regenerate or FormList with keywords (may be None if SELF or ALL selection method is used).
+        Form3 - Single device keyword to regenerate or FormList with keywords (may be None if SELF or ALL selection method is used).
 
     Example:
         
@@ -36,17 +36,17 @@ import UD_Native
 ===========================================================================================
 /;
 
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2 = None, Form akForm3 = None)    
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm3, Form akForm4 = None)    
     If UDmain.TraceAllowed()
         UDmain.Log("UD_ModOutcome_RestoreDurability::Outcome() akDevice = " + akDevice + ", aiDataStr = " + aiDataStr, 3)
     EndIf
     
     Int loc_count = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
-    String loc_method_list1 = GetStringParamString(aiDataStr, DataStrOffset + 1, "S")
+    String loc_method_list3 = GetStringParamString(aiDataStr, DataStrOffset + 1, "S")
     Float loc_min = GetStringParamFloat(aiDataStr, DataStrOffset + 2)
     Float loc_max = GetStringParamFloat(aiDataStr, DataStrOffset + 3, loc_min)
 
-    Form[] loc_devices = GetEquippedDevicesWithSelectionMethod(akDevice, loc_count, akForm1, loc_method_list1, akForm2, "", akForm3, "")
+    Form[] loc_devices = GetEquippedDevicesWithSelectionMethod(akDevice, loc_count, akForm3, loc_method_list3, akForm4, "")
 
     Int loc_i = 0
     While loc_i < loc_devices.Length
@@ -64,4 +64,25 @@ Function mendDevice(UD_CustomDevice_RenderScript akDevice, Float afStrength, flo
         akDevice.refillCuttingProgress(afTimePassed*loc_regen)
         akDevice.onMendPost(loc_amount)
     endif
+EndFunction
+
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm3, Form akForm4 = None)
+    String loc_str = ""
+    String loc_method_list3 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
+    Float loc_min = GetStringParamFloat(aiDataStr, DataStrOffset + 2)
+    Float loc_max = GetStringParamFloat(aiDataStr, DataStrOffset + 3, loc_min)
+    loc_str += "Mends device(s)"
+    loc_str += "\n"
+    loc_str += "Number of devices: "
+    If loc_method_list3 == "S"
+        loc_str += "SELF"
+    ElseIf loc_method_list3 == "A"
+        loc_str += "ALL"
+    Else
+        loc_str += GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)   
+    EndIf
+    loc_str += "\n"
+    loc_str += "Restore: " + FormatFloat(loc_min, 1) + " - " + FormatFloat(loc_max, 1)
+    
+    Return loc_str
 EndFunction

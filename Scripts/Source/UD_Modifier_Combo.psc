@@ -141,11 +141,13 @@ EndFunction
 Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
     String loc_msg = ""
     
-    loc_msg += "=== Conditions ===\n"
-    loc_msg += (akForm1 as UD_ModTrigger).GetDetails(Self, akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4)
+    loc_msg += "=== Trigger ===\n"
+    loc_msg += (akForm1 as UD_ModTrigger).GetDetails(Self, akDevice, aiDataStr)
+    loc_msg += "\n"
     loc_msg += "\n"
     loc_msg += "=== Outcome ===\n"
-    loc_msg += (akForm2 as UD_ModOutcome).GetDetails(Self, akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4)
+    loc_msg += (akForm2 as UD_ModOutcome).GetDetails(Self, akDevice, aiDataStr, akForm3, akForm4)
+    loc_msg += "\n"
     loc_msg += "\n"
 
     loc_msg += "===Description===\n"

@@ -35,9 +35,6 @@ import UD_Native
 /;
 
 Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr)
-    If UDmain.TraceAllowed()
-        UDmain.Log("UD_ModTrigger_CombatEvent::ActorAction() akModifier = " + akModifier + ", akDevice = " + akDevice + ", aiActorAction = " + aiActorAction + ", aiDataStr = " + aiDataStr, 3)
-    EndIf
     String loc_event = GetStringParamString(aiDataStr, 0, "")
     If aiActorAction == 0 && StringUtil.Find(loc_event, "WS") >= 0
         Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 100.0))
@@ -73,4 +70,82 @@ Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderSc
         Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 100.0))
     EndIf
     Return False
+EndFunction
+
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
+    String loc_event = GetStringParamString(aiDataStr, 0, "")
+    String loc_str = ""
+    Bool loc_comma = False
+    loc_str += "On combat event ("
+    If StringUtil.Find(loc_event, "WS") >= 0
+        loc_str += "Weapon Swing"
+        loc_comma = True
+    EndIf
+    If StringUtil.Find(loc_event, "SC") >= 0
+        If loc_comma 
+            loc_str += ", "
+        EndIf
+        loc_str += "Spell Cast"
+        loc_comma = True
+    EndIf
+    If StringUtil.Find(loc_event, "SF") >= 0
+        If loc_comma 
+            loc_str += ", "
+        EndIf
+        loc_str += "Spell Fire"
+        loc_comma = True
+    EndIf
+    If StringUtil.Find(loc_event, "VC") >= 0
+        If loc_comma 
+            loc_str += ", "
+        EndIf
+        loc_str += "Voice Cast"
+        loc_comma = True
+    EndIf
+    If StringUtil.Find(loc_event, "BD") >= 0
+        If loc_comma 
+            loc_str += ", "
+        EndIf
+        loc_str += "Bow Draw"
+        loc_comma = True
+    EndIf
+    If StringUtil.Find(loc_event, "BR") >= 0
+        If loc_comma 
+            loc_str += ", "
+        EndIf
+        loc_str += "Bow Release"
+        loc_comma = True
+    EndIf
+    If StringUtil.Find(loc_event, "UB") >= 0
+        If loc_comma 
+            loc_str += ", "
+        EndIf
+        loc_str += "Unsheathe Begin"
+        loc_comma = True
+    EndIf
+    If StringUtil.Find(loc_event, "UD") >= 0
+        If loc_comma 
+            loc_str += ", "
+        EndIf
+        loc_str += "Unsheathe End"
+        loc_comma = True
+    EndIf
+    If StringUtil.Find(loc_event, "SB") >= 0
+        If loc_comma 
+            loc_str += ", "
+        EndIf
+        loc_str += "Sheathe Begin"
+        loc_comma = True
+    EndIf
+    If StringUtil.Find(loc_event, "SE") >= 0
+        If loc_comma 
+            loc_str += ", "
+        EndIf
+        loc_str += "Sheathe End"
+        loc_comma = True
+    EndIf
+    loc_str += ")\n"
+    loc_str += "Base probability: " + FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 2) + "%"
+    
+    Return loc_str
 EndFunction

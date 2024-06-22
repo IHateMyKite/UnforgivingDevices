@@ -45,3 +45,31 @@ Bool Function Sleep(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript a
     Bool loc_repeat = GetStringParamInt(aiDataStr, 4, 0) > 0
     Return TriggerOnValueAbs(akDevice, akModifier.NameAlias, aiDataStr, afValueAbs = afDuration, afMinValue = loc_min_dur, afProbBase = loc_prob_base, afProbAccum = loc_prob_value, abRepeat = loc_repeat)
 EndFunction
+
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
+    Int loc_cond = GetStringParamInt(aiDataStr, 4, 0)
+    String loc_str = ""
+    loc_str += "On sleep (value is the sleep duration in hours)"
+    loc_str += "\n"
+    loc_str += "Threshold value: " + GetStringParamInt(aiDataStr, 0, 0) + " hours"
+    loc_str += "\n"
+    loc_str += "Base probability: " + FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 2) + "%"
+    loc_str += "\n"
+    loc_str += "Accumulator weight: " + FormatFloat(GetStringParamFloat(aiDataStr, 2, 0.0), 2) + "%"
+    loc_str += "\n"
+    If loc_cond == 0
+        loc_str += "Sleep condition: Any"
+    ElseIf loc_cond == 1
+        loc_str += "Sleep condition: Normal"
+    ElseIf loc_cond == 2
+        loc_str += "Sleep condition: Interrupted"
+    EndIf
+    loc_str += "\n"
+    If GetStringParamInt(aiDataStr, 4, 0) > 0
+        loc_str += "Repeat: True"
+    Else
+        loc_str += "Repeat: False"
+    EndIf
+    
+    Return loc_str
+EndFunction

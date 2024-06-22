@@ -43,3 +43,32 @@ Bool Function ConditionLoss(UD_Modifier_Combo akModifier, UD_CustomDevice_Render
     EndIf
     Return False
 EndFunction
+
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
+    String loc_event = GetStringParamString(aiDataStr, 0, "")
+    String loc_str = ""
+    Bool loc_comma = False
+    loc_str += "On device event ("
+    If StringUtil.Find(loc_event, "DL") >= 0 || StringUtil.Find(loc_event, "DeviceLocked") >= 0
+        loc_str += "Device Lock"
+        loc_comma = True
+    EndIf
+    If StringUtil.Find(loc_event, "DU") >= 0 || StringUtil.Find(loc_event, "DeviceUnlocked") >= 0
+        If loc_comma 
+            loc_str += ", "
+        EndIf
+        loc_str += "Device Unlock"
+        loc_comma = True
+    EndIf
+    If StringUtil.Find(loc_event, "DB") >= 0 || StringUtil.Find(loc_event, "DeviceBroken") >= 0
+        If loc_comma 
+            loc_str += ", "
+        EndIf
+        loc_str += "Device Broke"
+        loc_comma = True
+    EndIf
+    loc_str += ")\n"
+    loc_str += "Base probability: " + FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 2) + "%"
+    
+    Return loc_str
+EndFunction

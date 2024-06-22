@@ -1,15 +1,14 @@
-;   File: UD_Modifier_ComboPatcher
+;   File: UD_Patcher_ComboPreset
 ;   
-Scriptname UD_Modifier_ComboPatcher extends ReferenceAlias
+Scriptname UD_Patcher_ComboPreset extends ReferenceAlias
 
 import UnforgivingDevicesMain
 import UD_Native
 
-String Property DataStr_MinValues Auto
-String Property DataStr_MaxValues Auto
+String Property DataStr_Easy Auto
+String Property DataStr_Hard Auto
 String Property DataStr_Types Auto
-String Property DataStr_Positive Auto
-Int Property DataStr_Length Auto
+; Int Property DataStr_Length Auto
 
 FormList Property Form3_Variants Auto
 FormList Property Form4_Variants Auto
@@ -17,36 +16,35 @@ FormList Property Form4_Variants Auto
 Float Property MultEasing = 0.25 Auto
 
 
-Float Function BiasedRandom(Float afMultiplier = 1.0, Float afEasing = 1.0, Bool abPositive = False)
-    Float loc_mult = 1.0
-    If abPositive
-        loc_mult = Math.Pow(afMultiplier, afEasing)
-    Else
-        loc_mult = 1.0 / Math.Pow(afMultiplier, afEasing)
-    EndIf
-    Return Math.Pow(RandomFloat(0.0, 1.0), loc_mult)
+Float Function BiasedRandom(Float afMultiplier = 1.0, Float afEasing = 1.0)
+; TODO: elaborate better function
+; Now it is a bijective function [0.0; 1.0] => [0.0; 1.0]. It moves random generation left or right depending on the multiplier.
+; But there is always a chance to get the easiest or the hardest mod.
+; Maybe that is not right.
+
+    Return Math.Pow(RandomFloat(0.0, 1.0), Math.Pow(afMultiplier, afEasing))
 EndFunction
 
 String Function GetDataStr(Float afMultiplier = 1.0)
     Int i = 0
+    Int loc_size = UD_Native.GetStringParamAll(DataStr_Easy).Length
     String loc_datastr = ""
-    While i < DataStr_Length
+    While i < loc_size
         String loc_type = GetStringParamString(DataStr_Types, i, "")
-        Bool loc_pos = GetStringParamInt(DataStr_Types, i, 0) > 0
         String loc_rnd_str = ""
-        If GetStringParamString(DataStr_MinValues, i, "") != ""
-            Float loc_rnd_1 = BiasedRandom(afMultiplier, MultEasing, loc_pos)
+        If GetStringParamString(DataStr_Easy, i, "") != ""
+            Float loc_rnd_1 = BiasedRandom(afMultiplier, MultEasing)
             If loc_type == "I"
-                Int loc_min = GetStringParamInt(DataStr_MinValues, i, 0)
-                Int loc_max = GetStringParamInt(DataStr_MaxValues, i, loc_min)
+                Int loc_min = GetStringParamInt(DataStr_Easy, i, 0)
+                Int loc_max = GetStringParamInt(DataStr_Hard, i, loc_min)
                 loc_rnd_str = ((loc_rnd_1 * (loc_max - loc_min) + loc_min) as Int) as String
             ElseIf loc_type == "F"
-                Float loc_min = GetStringParamFloat(DataStr_MinValues, i, 0.0)
-                Float loc_max = GetStringParamFloat(DataStr_MaxValues, i, loc_min)
+                Float loc_min = GetStringParamFloat(DataStr_Easy, i, 0.0)
+                Float loc_max = GetStringParamFloat(DataStr_Hard, i, loc_min)
                 loc_rnd_str = FormatFloat(loc_rnd_1 * (loc_max - loc_min) + loc_min, 3)
             Else
-                String loc_val1 = GetStringParamString(DataStr_MinValues, i, "")
-                String loc_val2 = GetStringParamString(DataStr_MinValues, i, loc_val1)
+                String loc_val1 = GetStringParamString(DataStr_Easy, i, "")
+                String loc_val2 = GetStringParamString(DataStr_Hard, i, loc_val1)
                 If loc_rnd_1 > 0.5
                     loc_rnd_str = loc_val2
                 Else

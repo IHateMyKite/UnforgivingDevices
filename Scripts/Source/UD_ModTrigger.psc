@@ -1,6 +1,6 @@
 ;   File: UD_ModTrigger
 ;   This is base script of all triggers
-Scriptname UD_ModTrigger extends Form
+Scriptname UD_ModTrigger extends MiscObject
 
 import UnforgivingDevicesMain
 import UD_Native
@@ -63,11 +63,6 @@ Float       Property UserDifficultyMultiplier   = 1.0   Auto hidden
     This will not affect already equipped devices
 /;
 Float       Property PatchPowerMultiplier       = 1.0   Auto hidden
-
-;/  Variable: PatchChanceMultiplier
-    Multiplier which can be used to allow user to change cahnce that modifier will be added to patched device
-/;
-Float       Property PatchChanceMultiplier      = 1.0   Auto hidden
 
 
 ;/  Group: Overrides
@@ -144,7 +139,7 @@ Bool Function KillMonitor(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderSc
     Return False
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
     Return Description
 EndFunction
 

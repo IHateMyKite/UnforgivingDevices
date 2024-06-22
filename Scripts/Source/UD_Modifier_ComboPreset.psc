@@ -99,10 +99,37 @@ Function KillMonitor(UD_CustomDevice_RenderScript akDevice, ObjectReference akVi
     Parent.KillMonitor(akDevice, akVictim, aiCrimeStatus, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4)
 EndFunction
 
+Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
+    UD_Patcher_ComboPreset loc_patcher = ((Self as ReferenceAlias) as UD_Patcher_ComboPreset)
+    If loc_patcher == None
+        Return
+    EndIf
+    akDevice.AddModifier(Self, loc_patcher.GetDataStr(PatchPowerMultiplier), None, None, loc_patcher.GetForm3(PatchPowerMultiplier), loc_patcher.GetForm4(PatchPowerMultiplier))
+EndFunction
+
+Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
+    UD_Patcher_ComboPreset loc_patcher = ((Self as ReferenceAlias) as UD_Patcher_ComboPreset)
+    Return loc_patcher != None
+EndFunction
+
 Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
-    Parent.ShowDetails(akDevice, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4)
+    String loc_msg = ""
+    
+    loc_msg += "=== Trigger ===\n"
+    loc_msg += ModTrigger.GetDetails(Self, akDevice, aiDataStr)
+    loc_msg += "\n"
+    loc_msg += "\n"
+    loc_msg += "=== Outcome ===\n"
+    loc_msg += ModOutcome.GetDetails(Self, akDevice, aiDataStr, akForm3, akForm4)
+    loc_msg += "\n"
+    loc_msg += "\n"
+
+    loc_msg += "===Description===\n"
+    loc_msg += Description + "\n"
+
+    UDmain.ShowMessageBox(loc_msg)
 EndFunction
 
 String Function GetCaption(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
-    Return Parent.GetCaption(akDevice, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4)
+    Return NameFull
 EndFunction

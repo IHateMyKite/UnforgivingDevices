@@ -44,3 +44,18 @@ Bool Function StatEvent(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     EndIf
     Return False
 EndFunction
+
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
+    String loc_str = ""
+    loc_str += "Thief playstyle"
+    loc_str += "\n"
+    loc_str += "Prob. on bow use: " + FormatFloat(GetStringParamFloat(aiDataStr, 0, 0.0), 2) + "%"
+    loc_str += "\n"
+    loc_str += "Prob. on skill increase: " + FormatFloat(GetStringParamFloat(aiDataStr, 1, 0.0), 2) + "%"
+    loc_str += "\n"
+    loc_str += "(Marksman, Pickpocket, LockPicking, Sneak)"
+    loc_str += "\n"
+    loc_str += "Prob. on pick lock: " + FormatFloat(GetStringParamFloat(aiDataStr, 2, 0.0), 2) + "%"
+    
+    Return loc_str
+EndFunction

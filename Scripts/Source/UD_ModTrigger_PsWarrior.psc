@@ -30,6 +30,7 @@ import UD_Native
 Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr)
     If aiActorAction == 0
     ; weapon swing
+    ; TODO: check weapon type to exclude daggers and staffs
         Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 0, 0.0))
     EndIf
     Return False
@@ -49,4 +50,19 @@ Bool Function WeaponHit(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
         Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 2, 0.0))
     EndIf
     Return False
+EndFunction
+
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
+    String loc_str = ""
+    loc_str += "Warrior playstyle"
+    loc_str += "\n"
+    loc_str += "Prob. on weapon swing: " + FormatFloat(GetStringParamFloat(aiDataStr, 0, 0.0), 2) + "%"
+    loc_str += "\n"
+    loc_str += "Prob. on skill increase: " + FormatFloat(GetStringParamFloat(aiDataStr, 1, 0.0), 2) + "%"
+    loc_str += "\n"
+    loc_str += "(TwoHanded, Block, Smithing, HeavyArmor)"
+    loc_str += "\n"
+    loc_str += "Prob. on melee hit taken: " + FormatFloat(GetStringParamFloat(aiDataStr, 2, 0.0), 2) + "%"
+    
+    Return loc_str
 EndFunction

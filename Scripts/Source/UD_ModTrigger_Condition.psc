@@ -1,10 +1,10 @@
 ;/  File: UD_ModTrigger_Condition
-    It triggers with a given chance when the durability of the device is worsened
+    It triggers with a given chance when the condition of the device is worsened
     
     NameFull: On Condition Loss
     
     Parameters (DataStr):
-        [0]     Int     (optional) When the durability of a device falls below given threshold, it evolves
+        [0]     Int     (optional) Triggers when the condition of a device falls below given threshold
                             0 - "Excellent"
                             1 - "Good"
                             2 - "Normal"
@@ -50,4 +50,23 @@ Bool Function ConditionLoss(UD_Modifier_Combo akModifier, UD_CustomDevice_Render
     Float loc_prob_value = GetStringParamFloat(aiDataStr, 2, 0.0)
     Bool loc_repeat = GetStringParamInt(aiDataStr, 3, 0) > 0
     Return TriggerOnValueAbs(akDevice, akModifier.NameAlias, aiDataStr, afValueAbs = aiCondition, afMinValue = loc_min_condition, afProbBase = loc_prob_base, afProbAccum = loc_prob_value, abRepeat = loc_repeat)
+EndFunction
+
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
+    String loc_str = ""
+    loc_str += "On device condition change"
+    loc_str += "\n"
+    loc_str += "Threshold value: " + UDCDMain.GetConditionString(GetStringParamInt(aiDataStr, 0, 0))
+    loc_str += "\n"
+    loc_str += "Base probability: " + FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 2) + "%"
+    loc_str += "\n"
+    loc_str += "Cur. value weight: " + FormatFloat(GetStringParamFloat(aiDataStr, 2, 0.0), 2) + "%"
+    loc_str += "\n"
+    If GetStringParamInt(aiDataStr, 3, 0) > 0
+        loc_str += "Repeat: True"
+    Else
+        loc_str += "Repeat: False"
+    EndIf
+    
+    Return loc_str
 EndFunction

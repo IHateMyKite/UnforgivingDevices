@@ -39,3 +39,26 @@ Bool Function Orgasm(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript 
     Bool loc_repeat = GetStringParamInt(aiDataStr, 3, 0) > 0
     Return TriggerOnValueDelta(akDevice, akModifier.NameAlias, aiDataStr, afValueDelta = 1, afMinAccum = loc_min_value, afProbBase = loc_prob_base, afProbAccum = loc_prob_accum, abRepeat = loc_repeat, aiAccumParamIndex = 4)
 EndFunction
+
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
+    String loc_str = ""
+    loc_str += "On orgasm"
+    loc_str += "\n"
+    loc_str += "Threshold value: " + GetStringParamInt(aiDataStr, 0, 0)
+    loc_str += "\n"
+    loc_str += "Base probability: " + FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 2) + "%"
+    loc_str += "\n"
+    loc_str += "Accumulator weight: " + FormatFloat(GetStringParamFloat(aiDataStr, 2, 0.0), 2) + "%"
+    loc_str += "\n"
+    If GetStringParamInt(aiDataStr, 3, 0) > 0
+        loc_str += "Repeat: True"
+    Else
+        loc_str += "Repeat: False"
+    EndIf
+    loc_str += "\n"
+    loc_str += "Accumulator: " + GetStringParamInt(aiDataStr, 4, 0)
+    loc_str += "\n"
+    loc_str += "(Accumulator contains the number of consecutive orgasms)"
+    
+    Return loc_str
+EndFunction

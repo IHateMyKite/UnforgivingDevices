@@ -54,6 +54,7 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     String loc_msg = ""
     
     loc_msg += "==== " + NameFull + " ====\n"
+    loc_msg += "Weapon: " + akForm1.GetName() + "\n"
     
     if Description
         loc_msg += "=== Description ===" + "\n"

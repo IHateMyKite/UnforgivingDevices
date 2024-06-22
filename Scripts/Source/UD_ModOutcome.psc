@@ -1,6 +1,6 @@
 ;   File: UD_ModOutcome
 ;   This is base script of all outcomes
-Scriptname UD_ModOutcome extends Form
+Scriptname UD_ModOutcome extends MiscObject
 
 import UnforgivingDevicesMain
 import UD_Native
@@ -64,12 +64,6 @@ Float       Property UserDifficultyMultiplier   = 1.0   Auto hidden
 /;
 Float       Property PatchPowerMultiplier       = 1.0   Auto hidden
 
-;/  Variable: PatchChanceMultiplier
-    Multiplier which can be used to allow user to change cahnce that modifier will be added to patched device
-/;
-Float       Property PatchChanceMultiplier      = 1.0   Auto hidden
-
-
 ;/  Variable: DataStrOffset
     Index of the first parameter in DataStr used in the outcome configuration
 /;
@@ -81,14 +75,14 @@ Int         Property DataStrOffset              = 7     AutoReadOnly Hidden
 ===========================================================================================
 /;
 
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2 = None, Form akForm3 = None)
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm3, Form akForm4 = None)
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm3, Form akForm4 = None)
     Return Description
 EndFunction
 
-Form[] Function CombineForms(Form akForm1, Form akForm2, Form akForm3)
+Form[] Function CombineForms(Form akForm1, Form akForm2, Form akForm3 = None)
     Form[] loc_forms
     Int loc_i
 

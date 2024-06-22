@@ -45,3 +45,26 @@ Bool Function SpellCast(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     Bool loc_repeat = GetStringParamInt(aiDataStr, 3, 0) > 0
     Return TriggerOnValueDelta(akDevice, akModifier.NameAlias, aiDataStr, afValueDelta = loc_cost, afMinAccum = loc_min_cost, afProbBase = loc_prob_base, afProbDelta = loc_prob_delta, abRepeat = loc_repeat, aiAccumParamIndex = 4)
 EndFunction
+
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
+    String loc_str = ""
+    loc_str += "On spell cast (value is the base mana cost)"
+    loc_str += "\n"
+    loc_str += "Threshold value: " + GetStringParamInt(aiDataStr, 0, 0) + " mana"
+    loc_str += "\n"
+    loc_str += "Base probability: " + FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 2) + "%"
+    loc_str += "\n"
+    loc_str += "Value weight: " + FormatFloat(GetStringParamFloat(aiDataStr, 2, 0.0), 2) + "% per mana point"
+    loc_str += "\n"
+    If GetStringParamInt(aiDataStr, 3, 0) > 0
+        loc_str += "Repeat: True"
+    Else
+        loc_str += "Repeat: False"
+    EndIf
+    loc_str += "\n"
+    loc_str += "Accumulator: " + GetStringParamInt(aiDataStr, 4, 0) + " mana"
+    loc_str += "\n"
+    loc_str += "(Accumulator contains the total mana spent so far)"
+    
+    Return loc_str
+EndFunction
