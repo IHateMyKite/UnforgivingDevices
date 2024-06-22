@@ -30,36 +30,36 @@ ScriptName UD_Modifier_Evolve extends UD_Modifier
 import UnforgivingDevicesMain
 import UD_Native
 
-Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
     int loc_type = UD_Native.GetStringParamInt(aiDataStr,0,0)
     if loc_type == 0
         Float loc_value = UD_Native.GetStringParamFloat(aiDataStr,1,6.0) - 1.0*afMult
         if loc_value > 0
             akDevice.editStringModifier(NameAlias,1,FormatFloat(loc_value,2))
         else
-            Evolve(akDevice,akForm1,akForm2,akForm3)
+            Evolve(akDevice,akForm1,akForm2,akForm3,akForm4)
         endif
     endif
 EndFunction
 
-Function Orgasm(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function Orgasm(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
     int loc_type = UD_Native.GetStringParamInt(aiDataStr,0,0)
     if loc_type == 1
         int loc_value = UD_Native.GetStringParamInt(aiDataStr,1,3) - 1
         if loc_value > 0
             akDevice.editStringModifier(NameAlias,1,loc_value)
         else
-            Evolve(akDevice,akForm1,akForm2,akForm3)
+            Evolve(akDevice,akForm1,akForm2,akForm3,akForm4)
         endif
     endif
 EndFunction
 
-Function Evolve(UD_CustomDevice_RenderScript akDevice, Form akForm1, Form akForm2, Form akForm3)
+Function Evolve(UD_CustomDevice_RenderScript akDevice, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
     Actor loc_actor = akDevice.GetWearer()
     
     Armor loc_device = none
     
-    if akForm1 || akForm2 || akForm3
+    if akForm1 || akForm2 || akForm3 || akForm4
         Form[] loc_forms
         if akForm1
             loc_forms = PapyrusUtil.PushForm(loc_forms,akForm1)
@@ -69,6 +69,9 @@ Function Evolve(UD_CustomDevice_RenderScript akDevice, Form akForm1, Form akForm
         endif
         if akForm3
             loc_forms = PapyrusUtil.PushForm(loc_forms,akForm3)
+        endif
+        if akForm4
+            loc_forms = PapyrusUtil.PushForm(loc_forms,akForm4)
         endif
         
         Int loc_size = loc_forms.length
@@ -97,7 +100,7 @@ EndFunction
 Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
 EndFunction
 
-Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
     String loc_msg = ""
     
     loc_msg += "=== " + NameFull + " ===\n"

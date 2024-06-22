@@ -526,6 +526,7 @@ String[]    Property UD_ModifiersDataStr      auto
 Form[]      Property UD_ModifiersDataForm1    auto
 Form[]      Property UD_ModifiersDataForm2    auto
 Form[]      Property UD_ModifiersDataForm3    auto
+Form[]      Property UD_ModifiersDataForm4    auto
 
 ;/  Variable: UD_MessageDeviceInteraction
     Message that is show when opening device menu. If not set, it will be set automatically by UD.
@@ -2134,14 +2135,21 @@ EndFunction
 
         abForceDestroy  -  If device should be destroyed. This option ignores all other device setting and modifiers
         abWaitForRemove -  unused
+        abEvolution     -  If device evolved. Used in modifiers.
 /;
-Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True)
+Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True, Bool bEvolution = False)
     if IsUnlocked
         if UDmain.TraceAllowed()
             UDmain.Log("unlockRestrain("+getDeviceHeader()+") - Device is already unlocked! Aborting ",1)
         endif
         return
     endif
+
+    If bEvolution
+        Int loc_flags = StorageUtil.GetIntValue(Wearer, "UD_ignoreModEvent" + deviceInventory)
+        StorageUtil.SetIntValue(Wearer, "UD_ignoreModEvent" + deviceInventory, Math.LogicalOr(loc_flags, 0x02))         ; Unlock event
+    EndIf
+    
     _IsUnlocked = True
     GoToState("UpdatePaused")
     
@@ -2157,7 +2165,8 @@ Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True)
     if WearerIsPlayer()
         UDCDmain.updateLastOpenedDeviceOnRemove(self)
     endif
-
+    
+    
     StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
     
     StorageUtil.UnSetIntValue(Wearer, "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus")
@@ -2168,12 +2177,16 @@ Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True)
             questKw -= 1
             if deviceInventory.hasKeyword(UDCdmain.UD_QuestKeywords.getAt(questKw) as Keyword) || deviceRendered.hasKeyword(UDCdmain.UD_QuestKeywords.getAt(questKw) as Keyword)
                 libs.RemoveQuestDevice(Wearer, deviceInventory, deviceRendered, UD_DeviceKeyword, UDCdmain.UD_QuestKeywords.getAt(questKw) as Keyword ,zad_DestroyOnRemove || hasModifier("DOR") || abForceDestroy)
-                return
+                questKw = 0
             endif
         endwhile
     else
         libs.UnlockDevice(Wearer, deviceInventory, deviceRendered, UD_DeviceKeyword, zad_DestroyOnRemove || hasModifier("DOR") || abForceDestroy)
     endif
+    
+    Int loc_flags = StorageUtil.GetIntValue(Wearer, "UD_ignoreModEvent" + deviceInventory)
+    StorageUtil.SetIntValue(Wearer, "UD_ignoreModEvent" + deviceInventory, Math.LogicalAnd(loc_flags, Math.LogicalNot(0x02)))
+        
 EndFunction
 
 ;check sentient event and activets it
@@ -2192,16 +2205,24 @@ function checkSentient(float afMult = 1.0)
 EndFunction
 
 ;function called when wearer is hit by source weapon
-Function weaponHit(Weapon akSource)
-    if onWeaponHitPre(akSource)
-        onWeaponHitPost(akSource)
+Function weaponHit(Weapon akSource, Float afDamage = -1.0)
+    if onWeaponHitPre(akSource, afDamage)
+        onWeaponHitPost(akSource, afDamage)
     endif
 EndFunction
 
 ;function called when wearer is hit by source spell
-Function spellHit(Spell akSource)
-    if onSpellHitPre(akSource)
-        onSpellHitPost(akSource)
+; akSource is a Spell or Enchantment
+Function spellHit(Form akSource, Float afDamage = -1.0)
+    if onSpellHitPre(akSource, afDamage)
+        onSpellHitPost(akSource, afDamage)
+    endif
+EndFunction
+
+;function is called when the wearer cast a spell
+Function spellCast(Spell akSource)
+    if onSpellCastPre(akSource)
+        onSpellCastPost(akSource)
     endif
 EndFunction
 
@@ -2431,6 +2452,7 @@ EndFunction
         akForm1     - Modifier form 1
         akForm2     - Modifier form 2
         akForm3     - Modifier form 3
+        akForm4     - Modifier form 4
 
     Returns:
 
@@ -2444,13 +2466,14 @@ EndFunction
         ; TODO
     ---
 /;
-bool Function addModifier(UD_Modifier akModifier,string asParam = "", Form akForm1 = none, Form akForm2 = none, Form akForm3 = none)
+bool Function addModifier(UD_Modifier akModifier,string asParam = "", Form akForm1 = none, Form akForm2 = none, Form akForm3 = none, Form akForm4 = none)
     if !hasModifier(akModifier)
         UD_ModifiersRef         = PapyrusUtil.PushAlias (UD_ModifiersRef        ,akModifier)
         UD_ModifiersDataStr     = PapyrusUtil.PushString(UD_ModifiersDataStr    ,asParam)
         UD_ModifiersDataForm1   = PapyrusUtil.PushForm  (UD_ModifiersDataForm1  ,akForm1)
         UD_ModifiersDataForm2   = PapyrusUtil.PushForm  (UD_ModifiersDataForm2  ,akForm2)
         UD_ModifiersDataForm3   = PapyrusUtil.PushForm  (UD_ModifiersDataForm3  ,akForm3)
+        UD_ModifiersDataForm4   = PapyrusUtil.PushForm  (UD_ModifiersDataForm4  ,akForm4)
         return true
     else
         return false
@@ -2477,6 +2500,7 @@ bool Function removeModifier(UD_Modifier akModifier)
         Form[]      loc_tmp_modifiers_f1
         Form[]      loc_tmp_modifiers_f2
         Form[]      loc_tmp_modifiers_f3
+        Form[]      loc_tmp_modifiers_f4
         
         while loc_i < loc_size
             if (loc_i != loc_removed_indx)
@@ -2485,6 +2509,7 @@ bool Function removeModifier(UD_Modifier akModifier)
                 loc_tmp_modifiers_f1    = PapyrusUtil.PushForm  (loc_tmp_modifiers_f1   ,UD_ModifiersDataForm1  [loc_i])
                 loc_tmp_modifiers_f2    = PapyrusUtil.PushForm  (loc_tmp_modifiers_f2   ,UD_ModifiersDataForm2  [loc_i])
                 loc_tmp_modifiers_f3    = PapyrusUtil.PushForm  (loc_tmp_modifiers_f3   ,UD_ModifiersDataForm3  [loc_i])
+                loc_tmp_modifiers_f4    = PapyrusUtil.PushForm  (loc_tmp_modifiers_f4   ,UD_ModifiersDataForm4  [loc_i])
             endif
             loc_i += 1
         endwhile
@@ -2494,6 +2519,7 @@ bool Function removeModifier(UD_Modifier akModifier)
         UD_ModifiersDataForm1   = loc_tmp_modifiers_f1
         UD_ModifiersDataForm2   = loc_tmp_modifiers_f2
         UD_ModifiersDataForm3   = loc_tmp_modifiers_f3
+        UD_ModifiersDataForm4   = loc_tmp_modifiers_f4
         return true
     else
         return false
@@ -2545,7 +2571,25 @@ EndFunction
 String[] Function getModifierAllParam(string asModifier)
     int loc_Index = getModifierIndex(asModifier)
     if loc_Index != -1
-        return StringUtil.split(UD_ModifiersDataStr[loc_Index],",")
+        ; it skips empty positions
+;       return StringUtil.split(UD_ModifiersDataStr[loc_Index],",")
+
+        String loc_str = UD_ModifiersDataStr[loc_Index]
+        String[] loc_result
+        Int loc_from = 0
+        Int loc_to = 0
+        While loc_to >= 0
+            loc_to = StringUtil.Find(loc_str, ",", loc_from)
+            If loc_to == loc_from
+                loc_result = PapyrusUtil.PushString(loc_result, "")
+            ElseIf loc_to >= 0
+                loc_result = PapyrusUtil.PushString(loc_result, StringUtil.Substring(loc_str, loc_from, loc_to - loc_from))
+            Else
+                loc_result = PapyrusUtil.PushString(loc_result, StringUtil.Substring(loc_str, loc_from, StringUtil.GetLength(loc_str) - loc_from))
+            EndIf
+            loc_from = loc_to + 1
+        EndWhile
+        Return loc_result
     else
         return none
     endif
@@ -2618,9 +2662,15 @@ EndFunction
 
         True if operation was succesfull
 /;
-bool Function editStringModifier(string asModifier,int aiIndex, string asNewValue)
+bool Function editStringModifier(string asModifier, int aiIndex, string asNewValue)
+    If aiIndex < 0
+        Return False
+    EndIf
     String[] loc_param = getModifierAllParam(asModifier)
     if loc_param
+        If loc_param.Length < aiIndex + 1
+            loc_param = PapyrusUtil.ResizeStringArray(loc_param, aiIndex + 1)
+        EndIf
         loc_param[aiIndex] = asNewValue
         UD_ModifiersDataStr[getModifierIndex(asModifier)] = PapyrusUtil.StringJoin(loc_param,",")
         return true
@@ -4394,6 +4444,7 @@ Function _updateCondition(bool decrease = True)
             elseif UDCDmain.AllowNPCMessage(GetWearer(), true)
                 UDmain.Print(GetWearerName() + "s " + getDeviceName() + " condition have decreased!",3)
             endif
+            Udmain.UDMOM.Procces_UpdateModifiers_ConditionLoss(self, UD_condition)
         endwhile
     else
         if (_total_durability_drain < 0) && !IsUnlocked
@@ -7635,8 +7686,13 @@ Function ShowModifiers()
     string[]    loc_list
     while loc_i < UD_ModifiersRef.length
         UD_Modifier loc_mod = (UD_ModifiersRef[loc_i] as UD_Modifier)
+        String loc_data = UD_ModifiersDataStr[loc_i]
+        Form loc_form1 = UD_ModifiersDataForm1[loc_i]
+        Form loc_form2 = UD_ModifiersDataForm2[loc_i]
+        Form loc_form3 = UD_ModifiersDataForm3[loc_i]
+        Form loc_form4 = UD_ModifiersDataForm3[loc_i]
         ;loc_res += (loc_mod.NameFull + "\n")
-        loc_list = PapyrusUtil.PushString(loc_list,loc_mod.NameFull)
+        loc_list = PapyrusUtil.PushString(loc_list, loc_mod.GetCaption(Self, loc_data, loc_form1, loc_form2, loc_form3, loc_form4))
         loc_i   += 1
     endwhile
     
@@ -7649,7 +7705,7 @@ Function ShowModifiers()
     endif
     
     UD_Modifier loc_mod = (UD_ModifiersRef[loc_res] as UD_Modifier)
-    loc_mod.ShowDetails(self,UD_ModifiersDataStr[loc_res],UD_ModifiersDataForm1[loc_res],UD_ModifiersDataForm2[loc_res],UD_ModifiersDataForm3[loc_res])
+    loc_mod.ShowDetails(self,UD_ModifiersDataStr[loc_res],UD_ModifiersDataForm1[loc_res],UD_ModifiersDataForm2[loc_res],UD_ModifiersDataForm3[loc_res],UD_ModifiersDataForm4[loc_res])
 EndFunction
 
 
@@ -8024,23 +8080,19 @@ EndFunction
 Function onSpecialButtonReleased(Float fHoldTime)
 EndFunction
 
-bool Function onWeaponHitPre(Weapon source)
+bool Function onWeaponHitPre(Weapon source, Float afDamage = -1.0)
     return true
 EndFunction
 
-Function onWeaponHitPost(Weapon source)
+Function onWeaponHitPost(Weapon source, Float afDamage = -1.0)
     ;check if weapon is wooded (whips and canes have also this keyword)
     if source.haskeyword(UDlibs.WoodedWeapon)
         ;weapon is wooden, no damage should be deald
         return
     endif
-    if !IsUnlocked && canBeCutted()
-        float loc_damage = source.getBaseDamage()
-        if !loc_damage
-            loc_damage = 5.0
-        endif
+    if !IsUnlocked && canBeCutted() && afDamage > 0.0
+        float loc_damage = afDamage
         decreaseDurabilityAndCheckUnlock(loc_damage*0.25*(1.0 - UD_WeaponHitResist),2.0)
-        
         if HaveUnlockableLocks()
             if hasModifier("CLO")
                 int loc_chance = Round(UD_Native.GetStringParamFloat(GetModifierParam("CLO"),0)*0.1)
@@ -8048,14 +8100,32 @@ Function onWeaponHitPost(Weapon source)
             endif
         endif
     endif
+    If !IsUnlocked
+        If afDamage > 0.0
+            Udmain.UDMOM.Procces_UpdateModifiers_WeaponHit(self, source, afDamage)
+        EndIf
+    EndIf
 EndFunction
 
-bool Function onSpellHitPre(Spell source)
-    return false ;currently unused
+bool Function onSpellHitPre(Form source, Float afDamage = -1.0)
+    return True
 EndFunction
 
-Function onSpellHitPost(Spell source)
+Function onSpellHitPost(Form source, Float afDamage = -1.0)
     if !IsUnlocked; && getModResistMagicka(1.0,0.25) != 1.0
+        If afDamage >= 0.0
+            Udmain.UDMOM.Procces_UpdateModifiers_SpellHit(self, source, afDamage)
+        EndIf
+    endif
+EndFunction
+
+bool Function onSpellCastPre(Spell source)
+    return True
+EndFunction
+
+Function onSpellCastPost(Spell source)
+    if !IsUnlocked; && getModResistMagicka(1.0,0.25) != 1.0
+        Udmain.UDMOM.Procces_UpdateModifiers_SpellCast(self, source)
     endif
 EndFunction
 

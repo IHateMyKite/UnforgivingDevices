@@ -7,6 +7,7 @@
     Parameters:
         0 = (optional) Number of items filled in Form1 received, Int
         1 = (optional) Number of items filled in Form2 received, Int
+        2 = (optional) Number of items filled in Form3 received, Int
         3 = (optional) Number of items filled in Form3 received, Int
         
     Form arguments:
@@ -23,7 +24,7 @@ ScriptName UD_Modifier_LootItem extends UD_Modifier
 import UnforgivingDevicesMain
 import UD_Native
 
-Function DeviceUnlocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function DeviceUnlocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
     if !akDevice
         return ;none device passed - exit
     endif
@@ -40,6 +41,7 @@ Function DeviceUnlocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr,
         int loc_num1 = Round(UD_Native.GetStringParamInt(aiDataStr,0,1)*Multiplier)
         int loc_num2 = Round(UD_Native.GetStringParamInt(aiDataStr,1,1)*Multiplier)
         int loc_num3 = Round(UD_Native.GetStringParamInt(aiDataStr,2,1)*Multiplier)
+        int loc_num4 = Round(UD_Native.GetStringParamInt(aiDataStr,3,1)*Multiplier)
 
         if akForm1 && loc_num1 > 0
             loc_actor.addItem(akForm1,loc_num1)
@@ -52,10 +54,14 @@ Function DeviceUnlocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr,
         if akForm3 && loc_num3 > 0
             loc_actor.addItem(akForm3,loc_num3)
         endif
+        
+        if akForm4 && loc_num4 > 0
+            loc_actor.addItem(akForm4,loc_num4)
+        endif
     endif
 EndFunction
 
-Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
     String loc_msg = ""
     
     loc_msg += "=== " + NameFull + " ===\n"
@@ -70,6 +76,10 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     
     if akForm3
         loc_msg += "Item = " + akForm3 + " x" + Round(UD_Native.GetStringParamInt(aiDataStr,2,0)*Multiplier) + "\n"
+    endif
+    
+    if akForm4
+        loc_msg += "Item = " + akForm4 + " x" + Round(UD_Native.GetStringParamInt(aiDataStr,3,0)*Multiplier) + "\n"
     endif
     
     loc_msg += "===Description===\n"
