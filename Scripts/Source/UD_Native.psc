@@ -37,6 +37,11 @@ String[]    Function GetStringParamAll          (String asParam)                
 Int         Function GetStringParamInt          (String asParam,Int aiIndex = 0,Int     aiDefaultValue = 0  )   global native
 Float       Function GetStringParamFloat        (String asParam,Int aiIndex = 0,Float   afDefaultValue = 0.0)   global native
 String      Function GetStringParamString       (String asParam,Int aiIndex = 0,String  asDefaultValue = "" )   global native
+Alias       Function GetModifier                (String asModifier)                                             global native
+Int         Function GetModifierIndex           (Int aiHandle1,Int aiHandle2,Armor akRenDev,String asName)      global native
+String      Function GetModifierStringParam     (Int aiHandle1,Int aiHandle2,Armor akRenDev,String asName)      global native
+String[]    Function GetModifierStringParamAll  (Int aiHandle1,Int aiHandle2,Armor akRenDev,String asName)      global native
+Bool        Function EditModifierStringParam    (Int aiHandle1,Int aiHandle2,Armor akRenDev,String asName,Int aiIndex, String asNewvalue) global native
 Armor       Function GetRandomDevice            (LeveledItem akDeviceList)                                      global native
 
 ;===UI===
