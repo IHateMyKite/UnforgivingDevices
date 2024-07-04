@@ -754,6 +754,9 @@ Function _Init()
         GInfo("NPC manager started successfully")
     endif
     
+    ; Manually start modules, so the setting is correctly loaded from json
+    _StartModulesManual()
+    
     ;init mcm
     config.Init()
     
