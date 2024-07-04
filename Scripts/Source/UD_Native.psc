@@ -43,6 +43,8 @@ String      Function GetModifierStringParam     (Int aiHandle1,Int aiHandle2,Arm
 String[]    Function GetModifierStringParamAll  (Int aiHandle1,Int aiHandle2,Armor akRenDev,String asName)      global native
 Bool        Function EditModifierStringParam    (Int aiHandle1,Int aiHandle2,Armor akRenDev,String asName,Int aiIndex, String asNewvalue) global native
 Armor       Function GetRandomDevice            (LeveledItem akDeviceList)                                      global native
+Bool        Function IsConcentrationSpell       (Spell akSpell)                                                 global native
+Bool        Function IsConcentrationEnch        (Enchantment akEnch)                                            global native
 
 ;===UI===
 int     Function RemoveAllMeterEntries()                                        global native
