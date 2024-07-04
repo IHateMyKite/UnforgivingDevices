@@ -11,7 +11,7 @@ Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
     akDevice.addModifier(self,RandomInt(Round(5*PatchPowerMultiplier),Round(35*PatchPowerMultiplier)))
 EndFunction
 
-Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
     String loc_msg = ""
     
     loc_msg += "=== " + NameFull + " ===\n"
