@@ -496,13 +496,13 @@ Function StartMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
         UDmain.Log("StartMinigameDisable("+getActorName(akActor) + ")",2)
     endif
     akActor.AddToFaction(BussyFaction)
+    UnforgivingDevicesMain.DisableWeapons(akActor)
     if aiIsPlayer == 1 || IsPlayer(akActor)
         ;Game.SetPlayerAiDriven(True)
     else
-        ActorUtil.AddPackageOverride(akActor, UDmain.UD_NPCDisablePackage, 100, 1)
-        akActor.EvaluatePackage()
+        ;ActorUtil.AddPackageOverride(akActor, UDmain.UD_NPCDisablePackage, 100, 1)
+        ;akActor.EvaluatePackage()
         akActor.SetDontMove(True)
-        akActor.SheatheWeapon()
     endif
 EndFunction
 
@@ -524,7 +524,7 @@ Function UpdateMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
             ;Game.SetPlayerAiDriven(True)
         else
             akActor.SetDontMove(True)
-            akActor.EvaluatePackage()
+            ;akActor.EvaluatePackage()
         endif
     endif
 EndFunction
@@ -547,10 +547,11 @@ Function EndMinigameDisable(Actor akActor,Int aiIsPlayer = -1)
         ;libsp.ProcessPlayerControls(false)
         Game.SetPlayerAiDriven(False)
     else
-        ActorUtil.RemovePackageOverride(akActor, UDmain.UD_NPCDisablePackage)
-        akActor.EvaluatePackage()
+        ;ActorUtil.RemovePackageOverride(akActor, UDmain.UD_NPCDisablePackage)
+        ;akActor.EvaluatePackage()
         akActor.SetDontMove(False)
     endif
+    UnforgivingDevicesMain.EnableWeapons(akActor)
 EndFunction
 
 ;/  Function: IsBussy
@@ -565,29 +566,6 @@ EndFunction
 /;
 Bool Function IsBussy(Actor akActor)
     return akActor.IsInFaction(BussyFaction)
-EndFunction
-
-Function CheckHardcoreDisabler(Actor akActor)
-    if UD_HardcoreMode
-        ;if !UDmain.Player.HasSpell(UDlibs.HardcoreDisableSpell) && UDmain.Player.HasMagicEffectWithKeyword(UDlibs.HardcoreDisable_KW) 
-        ;    UDmain.Player.DispelSpell(UDlibs.HardcoreDisableSpell)
-        ;endif
-        ;if UDmain.Player.wornhaskeyword(libs.zad_deviousHeavyBondage) && !UDmain.Player.HasSpell(UDlibs.HardcoreDisableSpell)
-        ;    bool loc_applyeffect = false
-        ;    if UDmain.Player.wornhaskeyword(UDlibs.InvisibleHBKW)
-        ;        loc_applyeffect = true ;player have invisible heavy bondage (from cuffs)
-        ;    else
-        ;        ;only apply if heavy bondage device is UD
-        ;        UD_CustomDevice_RenderScript loc_hbdevice = GetHeavyBondageDevice(UDmain.Player)
-        ;        if loc_hbdevice
-        ;            loc_applyeffect = true
-        ;        endif
-        ;    endif
-        ;    if loc_applyeffect
-        ;        UDmain.Player.AddSpell(UDlibs.HardcoreDisableSpell,false)
-        ;    endif
-        ;endif
-    endif
 EndFunction
 
 ;/  Function: actorInMinigame
@@ -645,7 +623,6 @@ Function AddInvisibleArmbinder(Actor akActor)
         else
             ;actor dont have HB, equip it (which will also add it) and start idle animation
             akActor.EquipItem(UDlibs.InvisibleArmbinder,false,true)
-            CheckHardcoreDisabler(akActor)
             libs.StartBoundEffects(akActor)
         endif
     endif
@@ -3256,7 +3233,8 @@ EndFunction
 
 ;function used for mod development
 Function DebugFunction(Actor akActor)
-    UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0xffffffff)
+    UDmain.UDAbadonQuest.AbadonEquipSuit(akActor,0)
+    ;UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0xffffffff)
 EndFunction
 
 float _startTime = 0.0

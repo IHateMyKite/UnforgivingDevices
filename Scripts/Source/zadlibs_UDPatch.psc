@@ -731,30 +731,35 @@ Function ProcessPlayerControls(bool abCheckMinigame = true)
 EndFunction
 
 function stripweapons(actor akActor, bool abUnequiponly = true)
-    Spell loc_spell1 = akActor.getEquippedSpell(1)
-    if loc_spell1
-        akActor.unequipSpell(loc_spell1, 1)
-    endIf
+    int i = 10
     
-    Spell loc_spell2 = akActor.getEquippedSpell(0)
-    if loc_spell2
-        akActor.unequipSpell(loc_spell2, 0)
-    endIf
+    Form loc_lefthand   = none
+    Form loc_righthand  = none
     
-    Form loc_weap1 = akActor.GetEquippedObject(0)
-    if loc_weap1
-        akActor.unequipItem(loc_weap1, false, true)
-    endIf
-    
-    Form loc_weap2 = akActor.GetEquippedObject(1)
-    if loc_weap2
-        akActor.unequipItem(loc_weap2, false, true)
-    endIf
-    
-    Armor loc_shield = akActor.GetEquippedShield()
-    if loc_shield
-        akActor.unequipItem(loc_shield, false, true)
-    endIf
+    While i > 0
+        i -= 1
+        loc_lefthand = akActor.GetEquippedObject(0)
+        if loc_lefthand
+            akActor.unequipItem(loc_lefthand, false, true)
+        endif
+        if loc_lefthand as Spell
+            akActor.UnequipSpell(loc_lefthand as Spell,0)
+        endif
+        
+        loc_righthand = akActor.GetEquippedObject(1)
+        if loc_righthand
+            akActor.unequipItem(loc_righthand, false, true)
+        endif
+        if loc_righthand as Spell
+            akActor.UnequipSpell(loc_righthand as Spell,0)
+        endif
+        if loc_lefthand || loc_righthand || akActor.IsWeaponDrawn()
+            akActor.SheatheWeapon()
+            Utility.Wait(0.1)
+        else
+            return
+        endif
+    EndWhile
 endfunction
 
 Function RepopulateNpcs()

@@ -4,9 +4,9 @@ import UnforgivingDevicesMain
 
 Function InitPost()
     UD_DeviceType = "Hand restraint"
-    if !WearerIsPlayer(); && !WearerIsFollower()
-        GetWearer().AddSpell(UDlibs.PreventCombatSpell,false)
-    endif
+    ;if !WearerIsPlayer() && !WearerIsFollower()
+    ;    GetWearer().AddSpell(UDlibs.PreventCombatSpell,false)
+    ;endif
 EndFunction
 
 Int Function GetAiPriority()
@@ -18,7 +18,7 @@ Function patchDevice()
 EndFunction
 
 Function onRemoveDevicePost(Actor akActor)
-    GetWearer().RemoveSpell(UDlibs.PreventCombatSpell)
+    ;GetWearer().RemoveSpell(UDlibs.PreventCombatSpell)
     parent.onRemoveDevicePost(akActor)
 EndFunction
 
