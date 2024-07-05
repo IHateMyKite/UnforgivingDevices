@@ -23,6 +23,8 @@ Float       Property UD_PatchMult           =  1.0    auto hidden ;global patch 
 int         Property UD_EscapeModifier      =   10    auto hidden
 Int         Property UD_MinLocks            =    0    auto hidden
 Int         Property UD_MaxLocks            =    2    auto hidden
+Int         Property UD_ModsSoftCap         =    4    Auto Hidden   ; soft cap for the number of modifiers added by the patcher (the number of mods may exceed this value, as the probability of adding a mod is determined by the mod itself)
+Int         Property UD_ModsHardCap         =    99   Auto Hidden   ; hard cap for the number of modifiers added by the patcher (when this value is reached, the patcher stops adding mods)
 
 ;difficulty multipliers
 Float Property UD_PatchMult_HeavyBondage        = 1.0 auto hidden
@@ -278,21 +280,87 @@ EndFunction
 
 Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
     if DeviceCanHaveModes(akDevice)
+        Alias[] loc_valid_mods
+        Float[] loc_mod_probs
+        Int loc_modnum
         int loc_count = UDMOM.GetModifierStorageCount()
         while loc_count
             loc_count -= 1
-            
             UD_ModifierStorage loc_storage = UDMOM.GetNthModifierStorage(loc_count)
-            Int loc_modnum = loc_storage.GetModifierNum()
+            ; first run to find all valid modifiers
+            loc_modnum = loc_storage.GetModifierNum()
             while loc_modnum
                 loc_modnum -= 1
                 UD_Modifier loc_mod = loc_storage.GetNthModifier(loc_modnum)
                 if loc_mod && loc_mod.PatchChanceMultiplier > 0.0 && !akDevice.HasModifierRef(loc_mod) && loc_mod.PatchModifierCondition(akDevice)
-                    loc_mod.PatchAddModifier(akDevice)
+                    loc_valid_mods = PapyrusUtil.PushAlias(loc_valid_mods, loc_mod)
+                    ;loc_mod.PatchAddModifier(akDevice)
                 endif
             endwhile
         endwhile
+        ; second run to get probability for each valid mod
+        loc_count = 0
+        loc_modnum = 0
+        while loc_count < loc_valid_mods.Length
+            UD_Modifier loc_mod = loc_valid_mods[loc_count] As UD_Modifier
+            loc_mod_probs = PapyrusUtil.PushFloat(loc_mod_probs, loc_mod.PatchModifierProbability(akDevice, UD_ModsSoftCap, loc_valid_mods.Length))
+            loc_count += 1
+        endwhile
+        ; sorting modifiers by its probability
+        loc_valid_mods = _SortModifiers(loc_valid_mods, loc_mod_probs)
+        ; third run to add mods according to its ordered probability (100% - first) with soft and hard caps
+        loc_count = 0
+        loc_modnum = 0
+        while loc_count < loc_valid_mods.Length
+            If loc_modnum >= UD_ModsHardCap
+                Return
+            EndIf
+            UD_Modifier loc_mod = loc_valid_mods[loc_count] As UD_Modifier
+            If RandomFloat(0.0, 100.0) < loc_mod.PatchModifierProbability(akDevice, UD_ModsSoftCap, loc_valid_mods.Length)
+                loc_mod.PatchAddModifier(akDevice)
+                loc_modnum += 1
+            endif
+            loc_count += 1
+        endwhile
     endif
+EndFunction
+
+; Function for sorting an array in order according to float numbers in another array
+; 
+Alias[] Function _SortModifiers(Alias[] aakMods, Float[] aafOrder, Bool abDescending = True)
+    String[] loc_astr
+    Alias[] loc_result
+    Int loc_i = aafOrder.Length
+    While loc_i > 0
+        loc_i -= 1
+        loc_astr = PapyrusUtil.PushString(loc_astr, _FloatToString(aafOrder[loc_i], 6, 2) + "_" + loc_i)
+    EndWhile
+    loc_astr = PapyrusUtil.SortStringArray(loc_astr, abDescending)
+    loc_i = 0
+    While loc_i < aafOrder.Length
+        Int loc_pos = StringUtil.Find(loc_astr[loc_i], "_")
+        Int loc_mod_index = StringUtil.SubString(loc_astr[loc_i], loc_pos + 1) As Int
+        loc_result = PapyrusUtil.PushAlias(loc_result, aakMods[loc_mod_index])
+        loc_i += 1
+    EndWhile
+    
+    Return loc_result
+EndFunction
+
+String Function _FloatToString(Float afNumber, Int aiWidth, Int aiPrecision)
+    String loc_str = FormatFloat(afNumber, aiPrecision)
+    If afNumber < 0.0
+        loc_str = StringUtil.SubString(loc_str, 1)
+        aiWidth -= 1
+    EndIf
+    While StringUtil.GetLength(loc_str) < aiWidth
+        loc_str = "0" + loc_str
+    EndWhile
+    If afNumber < 0.0
+        Return "-" + loc_str
+    Else
+        Return loc_str
+    EndIf
 EndFunction
 
 bool Function DeviceCanHaveModes(UD_CustomDevice_RenderScript akDevice)

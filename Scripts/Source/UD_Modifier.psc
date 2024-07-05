@@ -76,17 +76,6 @@ Float       Property PatchPowerMultiplier       = 1.0   Auto hidden
 /;
 Float       Property PatchChanceMultiplier      = 1.0   Auto hidden
 
-;/  Variable: Attributes
-    
-    Additional modifier attributes to better customize their automatic generation.
-    Used as a bitmask.
-    
-    0x0001          - positive modifier (determines in which direction the difficulty multiplier will be used)
-    0x0002          - hidden in user interface (TODO)
-    
-/;
-Int         Property Attributes                         Auto
-
 ;event hooks
 String[]    Property EventHooks             Auto
 String[]    Property EventHooks_Callback    Auto
@@ -179,6 +168,10 @@ EndFunction
 
 Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
     return false
+EndFunction
+
+Float Function PatchModifierProbability(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods)
+    return 100.0 * (aiSoftCap / aiValidMods) * PatchChanceMultiplier
 EndFunction
 
 Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)

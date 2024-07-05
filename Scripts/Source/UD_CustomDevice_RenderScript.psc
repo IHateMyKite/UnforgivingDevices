@@ -2444,6 +2444,25 @@ UD_Modifier Function GetNthModifier(Int aiIndex)
     return UD_ModifiersRef[aiIndex] as UD_Modifier
 EndFunction
 
+;/  Function: GetModifierAliases
+    Parameters:
+
+    Returns:
+
+        String array with aliases of modifiers
+/;
+String[] Function GetModifierAliases()
+    ; TODO: caching?
+    String[] loc_result
+    Int loc_length = UD_ModifiersRef.Length
+    Int loc_i = 0
+    While loc_i < loc_length
+        loc_result = PapyrusUtil.PushString(loc_result, (UD_ModifiersRef[loc_i] as UD_Modifier).NameAlias)
+        loc_i += 1
+    Endwhile
+    Return loc_result
+EndFunction
+
 ;/  Function: addModifier
     Parameters:
 
