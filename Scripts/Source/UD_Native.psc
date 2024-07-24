@@ -42,48 +42,50 @@ Bool        Function IsConcentrationSpell       (Spell akSpell)                 
 Bool        Function IsConcentrationEnch        (Enchantment akEnch)                                            global native
 
 ;===UI===
-int     Function RemoveAllMeterEntries()                                        global native
-        Function ToggleAllMeters            (bool abToggle)                     global native
+int         Function RemoveAllMeterEntries()                                                                    global native
+            Function ToggleAllMeters            (bool abToggle)                                                 global native
 
 ;iWantWidget meters
-        Function AddMeterEntryIWW           (string asPath, int aiId, string asName, int aiFormula, float afBase, float afRate, bool abShow)   global native
-        Function RemoveMeterEntryIWW        (int aiId)                          global native
-        Function ToggleMeterIWW             (int aiId, bool abToggle)           global native
-        Function SetMeterRateIWW            (int aiId, float afNewRate)         global native
-        Function SetMeterMultIWW            (int aiId, float afNewMult)         global native
-        Function SetMeterValueIWW           (int aiId, float afNewValue)        global native
-Float   Function UpdateMeterValueIWW        (int aiId, float afDiffValue)       global native
-Float   Function GetMeterValueIWW           (int aiId)                          global native
+            Function AddMeterEntryIWW           (string asPath, int aiId, string asName, int aiFormula, float afBase, float afRate, bool abShow)   global native
+            Function RemoveMeterEntryIWW        (int aiId)                                                      global native
+            Function ToggleMeterIWW             (int aiId, bool abToggle)                                       global native
+            Function SetMeterRateIWW            (int aiId, float afNewRate)                                     global native
+            Function SetMeterMultIWW            (int aiId, float afNewMult)                                     global native
+            Function SetMeterValueIWW           (int aiId, float afNewValue)                                    global native
+Float       Function UpdateMeterValueIWW        (int aiId, float afDiffValue)                                   global native
+Float       Function GetMeterValueIWW           (int aiId)                                                      global native
 
 ;SkyUi meters
-        Function AddMeterEntrySkyUi         (string asPath, string asName, int aiFormula, float afBase, float afRate, bool abShow)             global native
-        Function RemoveMeterEntrySkyUi      (string asPath)                     global native
-        Function ToggleMeterSkyUi           (string asPath, bool abToggle)      global native
-        Function SetMeterRateSkyUi          (string asPath, float afNewRate)    global native
-        Function SetMeterMultSkyUi          (string asPath, float afNewMult)    global native
-        Function SetMeterValueSkyUi         (string asPath, float afNewValue)   global native
-Float   Function UpdateMeterValueSkyUi      (string asPath, float afDiffValue)  global native
-Float   Function GetMeterValueSkyUi         (string asPath)                     global native
+            Function AddMeterEntrySkyUi         (string asPath, string asName, int aiFormula, float afBase, float afRate, bool abShow)             global native
+            Function RemoveMeterEntrySkyUi      (string asPath)                                                 global native
+            Function ToggleMeterSkyUi           (string asPath, bool abToggle)                                  global native
+            Function SetMeterRateSkyUi          (string asPath, float afNewRate)                                global native
+            Function SetMeterMultSkyUi          (string asPath, float afNewMult)                                global native
+            Function SetMeterValueSkyUi         (string asPath, float afNewValue)                               global native
+Float       Function UpdateMeterValueSkyUi      (string asPath, float afDiffValue)                              global native
+Float       Function GetMeterValueSkyUi         (string asPath)                                                 global native
 
 ;===Inventory===
-Armor[] Function GetInventoryDevices        (Actor akActor, bool abWorn)        global native
-Armor[] Function GetRenderDevices           (Actor akActor, bool abWorn)        global native
-Weapon  Function GetSharpestWeapon          (Actor akActor)                     global native
+Armor[]     Function GetInventoryDevices        (Actor akActor, bool abWorn)                                    global native
+Armor[]     Function GetRenderDevices           (Actor akActor, bool abWorn)                                    global native
+Weapon      Function GetSharpestWeapon          (Actor akActor)                                                 global native
 
 ;===Animation===
-Int     Function GetActorConstrains         (Actor akActor)                     global native
-Bool    Function CheckWeaponDisabled        (Actor akActor)                     global native
-        Function DisableWeapons             (Actor akActor, Bool abState)       global native
+Int         Function GetActorConstrains        (Actor akActor)                                                  global native
+String[]    Function GetAnimationsFromJSON     (String asDef, Actor[] aaActors, Int aiConstraintsORA1, Int aiConstraintsORA2) global native
+String[]    Function GetAnimationsFromDB       (String asType, String[] aasKeywords, String asField, Int[] aaiActorConstraints, Int aiLewdMin = 0, Int aiLewdMax = 10, Int aiAggroMin = -10, Int aiAggroMax = 10) global native
+Bool        Function CheckWeaponDisabled       (Actor akActor)                                                  global native
+            Function DisableWeapons            (Actor akActor, Bool abState)                                    global native
 
 ;===Skill===
-Int     Function CalculateSkillFromPerks    (Actor akActor,Formlist akList,Int aiIncrease)      global native
+Int         Function CalculateSkillFromPerks    (Actor akActor,Formlist akList,Int aiIncrease)                  global native
 
 ;===ActorSlotManager===
-Bool        Function RegisterSlotQuest(Quest akQuest)   global native
-Actor[]     Function GetRegisteredActors()              global native
+Bool        Function RegisterSlotQuest(Quest akQuest)                                                           global native
+Actor[]     Function GetRegisteredActors()                                                                      global native
 
 ;===PlayerControl===
-            Function SyncControlSetting(bool abHardcoreMode)    global native
+            Function SyncControlSetting(bool abHardcoreMode)                                                    global native
 ;/
     Camera states...
     kError          =   -1

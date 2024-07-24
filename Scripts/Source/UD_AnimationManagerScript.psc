@@ -140,7 +140,7 @@ EndFunction
 
 Function Update()
 
-    LoadAnimationJSONFiles()
+    ;LoadAnimationJSONFiles()
     
 ;    _Benchmark()
 
@@ -168,7 +168,7 @@ EndFunction
 ; Load default values for properties on MCM page
 Function LoadDefaultMCMSettings()
     UD_AnimationJSON_Off = PapyrusUtil.StringArray(0)
-    LoadAnimationJSONFiles()
+    ;LoadAnimationJSONFiles()
     UD_AlternateAnimation = False
     UD_AlternateAnimationPeriod = 5
     UD_UseSingleStruggleKeyword = True
@@ -712,104 +712,45 @@ Bool Function PlayAnimationByDef(String asAnimDef, Actor[] aakActors, Bool abCon
         UDmain.Log("UD_AnimationManagerScript::PlayAnimationByDef() asAnimDef = " + asAnimDef + ", aakActors = " + aakActors + ", abContinueAnimation = " + abContinueAnimation + ", abDisableActors = " + abDisableActors + ", aiConstraintsOverrideA1 = " + aiConstraintsOverrideA1 + ", aiConstraintsOverrideA2 = " + aiConstraintsOverrideA2, 3)
     EndIf
     
-    Int part_index = StringUtil.Find(asAnimDef, ":")
-    If part_index < 0 
-        UDMain.Error("UD_AnimationManagerScript::PlayAnimationByDef() AnimDef has invalid format (should be <file_name>:<path_in_file>): " + asAnimDef)
-        Return False
-    EndIf
-    String file = "UD/Animations/" + StringUtil.Substring(asAnimDef, 0, part_index)
-    String path = StringUtil.Substring(asAnimDef, part_index + 1)
-    String[] actor_animVars = PapyrusUtil.StringArray(aakActors.Length)
+    String[] loc_res = UD_Native.GetAnimationsFromJSON(asAnimDef,aakActors,aiConstraintsOverrideA1,aiConstraintsOverrideA2)
     
-    Int k = 0
-    While k < aakActors.Length
-        Int actor_constraints
-        If aiConstraintsOverrideA1 >= 0 && k == 0
-            actor_constraints = aiConstraintsOverrideA1
-        ElseIf aiConstraintsOverrideA2 >= 0 && k == 1
-            actor_constraints = aiConstraintsOverrideA2
-        Else
-            actor_constraints = GetActorConstraintsInt(aakActors[k])
-        EndIf
-        String anim_var_path = path + ".A" + (k + 1)
-        ; checking if it has variations
-        Bool has_vars = JsonUtil.GetPathIntValue(file, anim_var_path + ".req", -1) == -1
-        If has_vars
-            Int var_count = JsonUtil.PathCount(file, anim_var_path)
-            String[] anim_var_path_array = PapyrusUtil.StringArray(0)                       ; array of suitable animation variants
-            While var_count > 0
-                var_count -= 1
-                If _CheckConstraints(file, anim_var_path + "[" + var_count + "]", actor_constraints)
-                    ; there are usually 1-2 suitable variants in each animation, so it will be safe to use PushString
-                    anim_var_path_array = PapyrusUtil.PushString(anim_var_path_array, anim_var_path + "[" + var_count + "]")
-                EndIf
-            EndWhile
-            If anim_var_path_array.Length > 0
-                actor_animVars[k] = anim_var_path_array[RandomInt(0, anim_var_path_array.Length - 1)]
-            Else
-                UDmain.Warning("UD_AnimationManagerScript::PlayAnimationByDef() Can't find valid animation variant in def " + asAnimDef +" for actor with constraints " + actor_constraints)
-                Return False
-            EndIf
-        ElseIf _CheckConstraints(file, anim_var_path, actor_constraints)
-            actor_animVars[k] = anim_var_path
-        Else
-            UDmain.Warning("UD_AnimationManagerScript::PlayAnimationByDef() Can't find valid animation in def " + asAnimDef +" for actor with constraints " + actor_constraints)
-            Return False
-        EndIf
-        k += 1
-    EndWhile
-
-    ; checking if it is a sequence
-    Bool is_sequence = JsonUtil.GetPathStringValue(file, actor_animVars[0] + ".anim[0]", "") != ""
-
-    If aakActors.Length == 2
-        If is_sequence
-        ; sequence animation (from sex lab animation packs)
-            String[] atemp1 = JsonUtil.PathStringElements(file, actor_animVars[0] + ".anim")
-            String[] atemp2 = JsonUtil.PathStringElements(file, actor_animVars[1] + ".anim")
-            If atemp1.Length > 0 && atemp2.Length > 0
-                StartPairAnimationSequence(aakActors[0], aakActors[1], atemp1, atemp2, True, abContinueAnimation, abDisableActors)
-                Return True
-            Else
-                UDMain.Error("UD_AnimationManagerScript::PlayAnimationByDef() animation sequence array is empty! Check file " + file + " and animDef variations: " + actor_animVars)
-                Return False
-            EndIf
-        Else
-        ; regular animation 
-            String temp1 = JsonUtil.GetPathStringValue(file, actor_animVars[0] + ".anim")
-            String temp2 = JsonUtil.GetPathStringValue(file, actor_animVars[1] + ".anim")
-            If temp1 != "" && temp2 != ""
-                StartPairAnimation(aakActors[0], aakActors[1], temp1, temp2, True, abContinueAnimation, abDisableActors)
-                Return True
-            Else
-                UDMain.Error("UD_AnimationManagerScript::PlayAnimationByDef() animation is empty! Check file " + file + " and animDef variations: " + actor_animVars)
-                Return False
-            EndIf
-        EndIf
-    ElseIf aakActors.Length == 1
-        If is_sequence
-        ; sequence animation (from sex lab animation packs)
-            String[] atemp1 = JsonUtil.PathStringElements(file, actor_animVars[0] + ".anim")
-            If atemp1.Length > 0
-                StartSoloAnimationSequence(aakActors[0], atemp1, abContinueAnimation, abDisableActors)
-                Return True
-            Else
-                UDMain.Error("UD_AnimationManagerScript::PlayAnimationByDef() animation sequence array is empty! Check file " + file + " and animDef variations: " + actor_animVars)
-                Return False
-            EndIf
-        Else
-        ; regular animation 
-            String temp1 = JsonUtil.GetPathStringValue(file, actor_animVars[0] + ".anim")
-            If temp1 != ""
-                StartSoloAnimation(aakActors[0], temp1, abContinueAnimation, abDisableActors)
-                Return True
-            Else
-                UDMain.Error("UD_AnimationManagerScript::PlayAnimationByDef() animation is empty! Check file " + file + " and animDef variations: " + actor_animVars)
-                Return False
-            EndIf
-        EndIf
-    EndIf
-    Return False
+    if loc_res[0] == "OK"
+        int loc_num = loc_res[1] as Int
+        if loc_num == -1 ;no sequence
+            if aakActors.length == 1
+                String loc_anim = loc_res[2]
+                StartSoloAnimation(aakActors[0], loc_anim, abContinueAnimation, abDisableActors)
+            elseif aakActors.length == 2
+                String loc_anim1 = loc_res[2]
+                String loc_anim2 = loc_res[3]
+                StartPairAnimation(aakActors[0], aakActors[1], loc_anim1, loc_anim2, True, abContinueAnimation, abDisableActors)
+            else
+                UDMain.Error("Incorrect number of actors")
+                return false
+            endif
+        elseif loc_num > 0 ;sequence
+            if aakActors.length == 1
+                String[] loc_anims = PapyrusUtil.SliceStringArray(loc_res,2)
+                StartSoloAnimationSequence(aakActors[0], loc_anims, abContinueAnimation, abDisableActors)
+            elseif aakActors.length == 2
+                String[] loc_anims1 = PapyrusUtil.SliceStringArray(loc_res,2,2 + (loc_num - 1))
+                String[] loc_anims2 = PapyrusUtil.SliceStringArray(loc_res,2 + loc_num,-1)
+                StartPairAnimationSequence(aakActors[0], aakActors[1], loc_anims1, loc_anims2, True, abContinueAnimation, abDisableActors)
+            else
+                UDMain.Error("Incorrect number of actors")
+                return false
+            endif
+        else
+            UDMain.Error("Invalid animation")
+            return false
+        endif
+        
+    else
+        UDMain.Error("Could not find animation -> " + loc_res[1])
+        return false
+    endif
+    
+    return true
 EndFunction
 
 ;/  Function: LoadAnimationJSONFiles
@@ -821,59 +762,7 @@ EndFunction
     The names of all valid files are stored in the <UD_AnimationJSON> array.
 /;
 Function LoadAnimationJSONFiles()
-    If UDmain.TraceAllowed()
-        UDmain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles()", 3)
-    EndIf
-    ; enumerating all json files in folder
-    UD_AnimationJSON_All = JsonUtil.JsonInFolder("UD/Animations")
-    ; resizing arrays
-    UD_AnimationJSON = PapyrusUtil.ResizeStringArray(UD_AnimationJSON, 0)
-    UD_AnimationJSON_Error = PapyrusUtil.ResizeStringArray(UD_AnimationJSON_Error, UD_AnimationJSON_All.Length)
-    UD_AnimationJSON_Status = PapyrusUtil.ResizeIntArray(UD_AnimationJSON_Status, UD_AnimationJSON_All.Length)
-
-    Int i = 0
-    While i < UD_AnimationJSON_All.Length
-        String file_name = UD_AnimationJSON_All[i]
-        String file_path = "UD/Animations/" + UD_AnimationJSON_All[i]
-        ; reloading json file
-        JsonUtil.Unload(file_path)
-        If JsonUtil.Load(file_path) && JsonUtil.IsGood(file_path)
-            String json_to_check = JsonUtil.GetPathStringValue(file_path, "conditions.json")
-            String mod_to_check = JsonUtil.GetPathStringValue(file_path, "conditions.mod")
-            If json_to_check != "" && JsonUtil.JsonExists(json_to_check) == False
-                UDMain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() Load condition for the file '" + file_name + "' is not valid. Can't find JSON file " + json_to_check, 1)
-                UD_AnimationJSON_Status[i] = 2
-                UD_AnimationJSON_Error[i] = json_to_check
-            ElseIf mod_to_check != "" && UnforgivingDevicesMain.ModInstalled(mod_to_check) == False
-                UDMain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() Load condition for the file '" + file_name + "' is not valid. Can't find mod " + mod_to_check, 1)
-                UD_AnimationJSON_Status[i] = 2
-                UD_AnimationJSON_Error[i] = mod_to_check
-            ElseIf UD_AnimationJSON_Off.Find(file_name) >= 0
-                UD_AnimationJSON_Status[i] = 1
-                UDMain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() The file " + file_name + "  will not be loaded because it is toggled off in MCM'", 1)
-            Else
-            ; adding new name into array with files to use
-                UD_AnimationJSON_Status[i] = 0
-                UD_AnimationJSON = PapyrusUtil.PushString(UD_AnimationJSON, file_name)
-            EndIf
-        Else
-            String errors = JsonUtil.GetErrors(file_path)
-            UDMain.Warning("UD_AnimationManagerScript::LoadAnimationJSONFiles() Failed to load json file '" + file_name + "'")
-            UDMain.Warning("UD_AnimationManagerScript::LoadAnimationJSONFiles() Found errors: " + errors)
-            UD_AnimationJSON_Status[i] = 3
-            UD_AnimationJSON_Error[i] = errors
-        EndIf
-        i += 1
-    EndWhile
-    
-    If UDmain.TraceAllowed()
-        If _UseUnsafeLogging
-            ; Even though when outputting long arrays, the last elements are replaced with ellipsis, sometimes CTD occurs. (It's unsafe to print more than 1000 symbols or so. That's about 14 animations)
-            UDmain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() Loaded files: " + UD_AnimationJSON, 3)
-        Else
-            UDmain.Log("UD_AnimationManagerScript::LoadAnimationJSONFiles() Loaded files: " + UD_AnimationJSON.Length, 3)
-        EndIf
-    EndIf
+    ; deprecated
 EndFunction
 
 ;/  Function: GetAnimationsFromDB
@@ -939,81 +828,9 @@ String[] Function GetAnimationsFromDB(String asType, String[] aasKeywords, Strin
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetAnimationsFromDB() asType = " + asType + ", aasKeywords = " + aasKeywords + ", asField = " + asField + ", aaiActorConstraints = " + aaiActorConstraints, 3)
     EndIf
-    String[] result_temp = new String[10]
-    Int currentIndex = 0
     
-    If UD_AnimationJSON.Length == 0
-        LoadAnimationJSONFiles()
-    EndIf
-    
-    Int h = 0
-    While h < aasKeywords.Length
-        String dict_path = asType + aasKeywords[h]
-        Int i = 0
-        While i < UD_AnimationJSON.Length
-            String file = "UD/Animations/" + UD_AnimationJSON[i]
-            Int path_count = JsonUtil.PathCount(file, dict_path)
-            Int j = 0
-            While j < path_count
-                String anim_path = dict_path + "[" + j + "]"
-                Bool check = True
-                Int k = 0
-                While check && k < aaiActorConstraints.Length
-                    String anim_var_path = anim_path + ".A" + (k + 1)
-                    ; checking if it has variants
-                    Bool has_vars = JsonUtil.GetPathIntValue(file, anim_var_path + ".req", -1) == -1
-                    If has_vars
-                        Int var_count = JsonUtil.PathCount(file, anim_var_path) - 1
-                        While var_count >= 0 && !_CheckConstraints(file, anim_var_path + "[" + var_count + "]", aaiActorConstraints[k])
-                            var_count -= 1
-                        EndWhile
-                        check = check && (var_count >= 0)
-                    Else
-                        check = check && _CheckConstraints(file, anim_var_path, aaiActorConstraints[k])
-                    EndIf
-                    k += 1
-                EndWhile
-                If check && _CheckAnimationLewd(file, anim_path, aiLewdMin, aiLewdMax) && _CheckAnimationAggro(file, anim_path, aiAggroMin, aiAggroMax)
-                    If asField == ""
-                        result_temp[currentIndex] = UD_AnimationJSON[i] + ":" + anim_path
-                    Else
-                        If JsonUtil.IsPathArray(file, anim_path + asField)
-                            result_temp[currentIndex] = JsonUtil.PathStringElements(file, anim_path + asField) as String
-                        Else
-                            result_temp[currentIndex] = JsonUtil.GetPathStringValue(file, anim_path + asField)
-                        EndIf
-                    EndIf
-                    If result_temp[currentIndex] != ""
-                        currentIndex += 1
-                    EndIf
-                    If currentIndex >= 128
-                        UDMain.Warning("UD_AnimationManagerScript::GetAnimationsFromDB() Reached maximum array size!")
-                        Return result_temp
-                    EndIf
-                    If currentIndex == result_temp.length
-                        Int new_length = result_temp.length + 10
-                        If new_length > 128 
-                            new_length = 128
-                        EndIf
-                        result_temp = Utility.ResizeStringArray(result_temp, new_length)
-                    EndIf
-                EndIf
-                j += 1
-            EndWhile
-            i += 1
-        EndWhile
-        h += 1
-    EndWhile
-    result_temp = Utility.ResizeStringArray(result_temp, currentIndex)
-    If UDmain.TraceAllowed()
-        If _UseUnsafeLogging
-            ; Even though when outputting long arrays, the last elements are replaced with ellipsis, sometimes CTD occurs. (It's unsafe to print more than 1000 symbols or so. That's about 14 animations)
-            UDmain.Log("UD_AnimationManagerScript::GetAnimationsFromDB() Animation array: " + result_temp, 3)
-        Else
-            UDmain.Log("UD_AnimationManagerScript::GetAnimationsFromDB() Animation array length: " + result_temp.Length, 3)
-        EndIf
-    EndIf
-    Return result_temp
+    String[] loc_res = UD_Native.GetAnimationsFromDB(asType,aasKeywords,asField,aaiActorConstraints,aiLewdMin,aiLewdMax,aiAggroMin,aiAggroMax)
+    return loc_res
 EndFunction
 
 Bool Function _CheckAnimationLewd(String sFile, String sObjPath, Int aiLewdMin = -10, Int aiLewdMax = 10)
@@ -1024,21 +841,6 @@ EndFunction
 Bool Function _CheckAnimationAggro(String sFile, String sObjPath, Int aiAggroMin = -10, Int aiAggroMax = 10)
     Int aggro = JsonUtil.GetPathIntValue(sFile, sObjPath + ".aggr", -100)
     Return aggro == -100 || (aggro >= aiAggroMin && aggro <= aiAggroMax)
-EndFunction
-
-Bool Function _CheckConstraints(String sFile, String sObjPath, Int iActorConstraints)
-; checking that the actor has constraints suitable for the specified animation
-; iActorConstraints      - actor contraints
-; anim_reqConstr         - animation required constraints (animation shouldn't be picked if player doesn't have all required constraints)
-; anim_optConstr         - animation optional constraints (animation shouldn't be picked if player has constraints not defined by this bit-mask)
-
-    Int anim_reqConstr = JsonUtil.GetPathIntValue(sFile, sObjPath + ".req")
-    If Math.LogicalAnd(anim_reqConstr, iActorConstraints) != anim_reqConstr
-        Return False
-    Else
-        Int anim_optConstr = JsonUtil.GetPathIntValue(sFile, sObjPath + ".opt")
-        Return Math.LogicalAnd(Math.LogicalOr(anim_optConstr, anim_reqConstr), iActorConstraints) == iActorConstraints
-    EndIf
 EndFunction
 
 ;/  Function: GetStruggleAnimDefsByKeyword

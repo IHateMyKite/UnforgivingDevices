@@ -3491,7 +3491,8 @@ Function _deviceMenuInit(bool[] aaControl)
     setHelper(none)
     UDCDmain.resetCondVar()
 
-    if Udmain.UDMOM.GetModifierState_MinigameAllowed(self)
+    Bool loc_canstrugglemods = Udmain.UDMOM.GetModifierState_MinigameAllowed(self)
+    if loc_canstrugglemods
         bool        loc_isloose             = isLoose()
         bool        loc_freehands           = WearerFreeHands()
         float       loc_accesibility        = getAccesibility()
@@ -3525,11 +3526,13 @@ Function _deviceMenuInit(bool[] aaControl)
         if (UDCDmain.currentDeviceMenu_allowkey || UDCDmain.currentDeviceMenu_allowlockpick || UDCDmain.currentDeviceMenu_allowlockrepair)
             UDCDmain.currentDeviceMenu_allowLockMenu = true
         endif
-        
-        if StorageUtil.GetIntValue(GetWearer(), "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus", 0)
-            UDCDmain.currentDeviceMenu_allowEscape = true
-        endif
-        
+    endif
+    
+    if StorageUtil.GetIntValue(GetWearer(), "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus", 0)
+        UDCDmain.currentDeviceMenu_allowEscape = true
+    endif
+    
+    if loc_canstrugglemods
         ;override function
         onDeviceMenuInitPost(aaControl)
     endif
@@ -3632,8 +3635,9 @@ Function _deviceMenuInitWH(Actor akSource,bool[] aaControl)
         updateDifficulty()
         bool    loc_freehands_wearer     = WearerFreeHands(true,False)
         bool    loc_freehands_helper     = HelperFreeHands(true)
-        float   loc_accesibility         = getAccesibility()
-        if Udmain.UDMOM.GetModifierState_MinigameAllowed(self)
+        bool    loc_canstrugglemods      = Udmain.UDMOM.GetModifierState_MinigameAllowed(self)
+        if loc_canstrugglemods
+            float   loc_accesibility         = getAccesibility()
             ;help struggle
             if canBeStruggled(loc_accesibility)
                 UDCDmain.currentDeviceMenu_allowstruggling = True
@@ -3667,11 +3671,13 @@ Function _deviceMenuInitWH(Actor akSource,bool[] aaControl)
             if (UDCDmain.currentDeviceMenu_allowkey || UDCDmain.currentDeviceMenu_allowlockpick || UDCDmain.currentDeviceMenu_allowlockrepair)
                 UDCDmain.currentDeviceMenu_allowLockMenu = true
             endif
+        endif
+        
+        if StorageUtil.GetIntValue(GetWearer(), "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus", 0)
+            UDCDmain.currentDeviceMenu_allowEscape = true
+        endif
             
-            if StorageUtil.GetIntValue(GetWearer(), "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus", 0)
-                UDCDmain.currentDeviceMenu_allowEscape = true
-            endif
-            
+        if loc_canstrugglemods
             ;override function
             onDeviceMenuInitPostWH(aaControl)
         endif
