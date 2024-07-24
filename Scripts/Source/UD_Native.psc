@@ -38,6 +38,8 @@ Int         Function GetStringParamInt          (String asParam,Int aiIndex = 0,
 Float       Function GetStringParamFloat        (String asParam,Int aiIndex = 0,Float   afDefaultValue = 0.0)   global native
 String      Function GetStringParamString       (String asParam,Int aiIndex = 0,String  asDefaultValue = "" )   global native
 Armor       Function GetRandomDevice            (LeveledItem akDeviceList)                                      global native
+Bool        Function IsConcentrationSpell       (Spell akSpell)                                                 global native
+Bool        Function IsConcentrationEnch        (Enchantment akEnch)                                            global native
 
 ;===UI===
 int     Function RemoveAllMeterEntries()                                        global native
@@ -126,3 +128,11 @@ Int Function CheckPatchedDevices() global native
 ; ===Lockpick===
 Float   Function GetLockpickVariable(Int aiVariable) global native
 Bool    Function SetLockpickVariable(Int aiVariable, Float afValue)  global native
+
+; ===Modifiers===
+Alias       Function GetModifier                (String asModifier)                                             global native
+Int         Function GetModifierIndex           (Int aiHandle1,Int aiHandle2,Armor akRenDev,String asName)      global native
+String      Function GetModifierStringParam     (Int aiHandle1,Int aiHandle2,Armor akRenDev,String asName)      global native
+String[]    Function GetModifierStringParamAll  (Int aiHandle1,Int aiHandle2,Armor akRenDev,String asName)      global native
+Bool        Function EditModifierStringParam    (Int aiHandle1,Int aiHandle2,Armor akRenDev,String asName,Int aiIndex, String asNewvalue) global native
+String[]    Function GetModifierAliases         (Int aiHandle1,Int aiHandle2,Armor akRenDev)                    global native

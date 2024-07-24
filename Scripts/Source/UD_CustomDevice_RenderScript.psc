@@ -2510,14 +2510,7 @@ EndFunction
         true if modifiers is present on the device
 /;
 bool Function hasModifier(String asModifier)
-    int loc_Index = UD_ModifiersRef.length
-    while loc_Index
-        loc_Index -= 1
-        if (GetNthModifier(loc_Index).NameAlias == asModifier)
-            return true
-        endif
-    endwhile
-    return false
+    return UD_Native.GetModifierIndex(VMHandle1,VMHandle2,deviceRendered,asModifier) != -1
 EndFunction
 
 ;/  Function: hasModifierRef
@@ -2543,29 +2536,7 @@ EndFunction
         Array of all parameters or none in case of error
 /;
 String[] Function getModifierAllParam(string asModifier)
-    int loc_Index = getModifierIndex(asModifier)
-    if loc_Index != -1
-        return StringUtil.split(UD_ModifiersDataStr[loc_Index],",")
-    else
-        return none
-    endif
-EndFunction
-
-;/  Function: getModifier
-    Parameters:
-
-        asModifier  - Alias of modifier
-
-    Returns:
-
-        Modifier or none if its not found
-/;
-UD_Modifier Function getModifier(string asModifier)
-    if hasModifier(asModifier)
-        return UD_ModifiersRef[getModifierIndex(asModifier)] as UD_Modifier
-    else
-        return none
-    endif
+    return GetModifierStringParamAll(VMHandle1,VMHandle2,deviceRendered,asModifier)
 EndFunction
 
 ;/  Function: getModifierParam
@@ -2578,31 +2549,7 @@ EndFunction
         Parameter string
 /;
 String Function getModifierParam(string asModifier)
-    if hasModifier(asModifier)
-        return UD_ModifiersDataStr[getModifierIndex(asModifier)]
-    else
-        return ""
-    endif
-EndFunction
-
-;/  Function: getModifierIndex
-    Parameters:
-
-        asModifier  - Alias of modifier
-
-    Returns:
-
-        Index of alias with asModifier alias, or -1 of its not found
-/;
-int Function getModifierIndex(string asModifier)
-    int loc_Index = UD_ModifiersRef.length
-    while loc_Index
-        loc_Index -= 1
-        if (GetNthModifier(loc_Index).NameAlias == asModifier)
-            return loc_Index
-        endif
-    endwhile
-    return -1
+    return UD_Native.GetModifierStringParam(VMHandle1,VMHandle2,deviceRendered,asModifier)
 EndFunction
 
 ;/  Function: editStringModifier
@@ -2619,14 +2566,7 @@ EndFunction
         True if operation was succesfull
 /;
 bool Function editStringModifier(string asModifier,int aiIndex, string asNewValue)
-    String[] loc_param = getModifierAllParam(asModifier)
-    if loc_param
-        loc_param[aiIndex] = asNewValue
-        UD_ModifiersDataStr[getModifierIndex(asModifier)] = PapyrusUtil.StringJoin(loc_param,",")
-        return true
-    else
-        return false
-    endif
+    return UD_Native.EditModifierStringParam(VMHandle1,VMHandle2,deviceRendered,asModifier,aiIndex,asNewValue)
 EndFunction
 
 ;/  Function: setModifierIntParam
