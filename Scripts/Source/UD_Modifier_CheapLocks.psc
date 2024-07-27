@@ -14,7 +14,11 @@ Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, Str
 EndFunction
 
 Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    return (akDevice.GetLockNumber() > 0) && (RandomInt(1,100) < Round(25*PatchChanceMultiplier))
+    Return (akDevice.GetLockNumber() > 0)
+EndFunction
+
+Float Function PatchModifierProbability(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods)
+    Return Parent.PatchModifierProbability(akDevice, aiSoftCap, aiValidMods) * 0.25
 EndFunction
 
 Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)

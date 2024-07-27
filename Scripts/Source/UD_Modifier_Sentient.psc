@@ -4,7 +4,11 @@ import UnforgivingDevicesMain
 import UD_Native
 
 Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    return (RandomInt(1,100) < (10)*PatchChanceMultiplier)
+    return True
+EndFunction
+
+Float Function PatchModifierProbability(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods)
+    Return Parent.PatchModifierProbability(akDevice, aiSoftCap, aiValidMods) * 0.10
 EndFunction
 
 Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)

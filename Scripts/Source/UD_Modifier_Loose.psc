@@ -10,14 +10,20 @@ Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
         return false
     endif
     
+    Return True
+EndFunction
+
+Float Function PatchModifierProbability(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods)
+    Float loc_base = Parent.PatchModifierProbability(akDevice, aiSoftCap, aiValidMods)
+    
     if akDevice.UD_DeviceKeyword == libs.zad_DeviousBlindfold
-        return RandomInt(1,100) < 70*PatchChanceMultiplier
+        return loc_base * 0.70
     elseif akDevice.UD_DeviceKeyword == libs.zad_DeviousGag
-        return RandomInt(1,100) < 30*PatchChanceMultiplier
+        return loc_base * 0.30
     elseif akDevice.UD_DeviceKeyword == libs.zad_DeviousHood || akDevice.isMittens()
-        return true
+        return loc_base
     else
-        return RandomInt(1,100) < 50*PatchChanceMultiplier
+        return loc_base * 0.50
     endif
 EndFunction
 

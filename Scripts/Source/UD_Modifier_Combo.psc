@@ -138,6 +138,10 @@ Function KillMonitor(UD_CustomDevice_RenderScript akDevice, ObjectReference akVi
     EndIf
 EndFunction
 
+Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
+    return false
+EndFunction
+
 Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
     String loc_msg = ""
     

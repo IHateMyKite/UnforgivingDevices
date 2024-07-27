@@ -21,7 +21,11 @@ Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
     ;loc_res = loc_res || (akDevice.UD_DeviceKeyword == libs.zad_DeviousBelt)
     loc_res = loc_res || (akDevice.UD_DeviceKeyword == libs.zad_DeviousPiercingsNipple)
     ;loc_res = loc_res || (akDevice.UD_DeviceKeyword == libs.zad_DeviousHarness)
-    return loc_res && (RandomInt(1,100) < 30*PatchChanceMultiplier)
+    return loc_res
+EndFunction
+
+Float Function PatchModifierProbability(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods)
+    Return Parent.PatchModifierProbability(akDevice, aiSoftCap, aiValidMods) * 0.30
 EndFunction
 
 Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)

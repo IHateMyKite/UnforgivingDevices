@@ -16,7 +16,11 @@ Function TimeUpdateSecond(UD_CustomDevice_RenderScript akDevice, Float afTime, S
 EndFunction
 
 Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    return (RandomInt(1,100) < (5 + 10*(IsEbonite(akDevice.deviceInventory) as Int)*PatchChanceMultiplier))
+    return True
+EndFunction
+
+Float Function PatchModifierProbability(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods)
+    Return Parent.PatchModifierProbability(akDevice, aiSoftCap, aiValidMods) * (5.0 + 10.0 * (IsEbonite(akDevice.deviceInventory) as Int)) / 100.0
 EndFunction
 
 Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)

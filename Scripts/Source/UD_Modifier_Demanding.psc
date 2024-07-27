@@ -47,7 +47,11 @@ Function MinigameStarted(UD_CustomDevice_RenderScript akModDevice, UD_CustomDevi
 EndFunction
 
 Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    return (RandomInt(0,99) < Round(6*PatchChanceMultiplier))
+    return True
+EndFunction
+
+Float Function PatchModifierProbability(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods)
+    Return Parent.PatchModifierProbability(akDevice, aiSoftCap, aiValidMods) * 0.06
 EndFunction
 
 Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)

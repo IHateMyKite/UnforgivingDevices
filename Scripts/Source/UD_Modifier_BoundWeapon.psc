@@ -16,6 +16,8 @@
 /;
 Scriptname UD_Modifier_BoundWeapon extends UD_Modifier
 
+FormList Property Patcher_BoundWeaponList Auto
+
 import UnforgivingDevicesMain
 import UD_Native
 
@@ -64,3 +66,17 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     UDmain.ShowMessageBox(loc_msg)
 EndFunction
 
+Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
+    Return akDevice.UD_DeviceType == "Gloves" || akDevice.UD_DeviceType == "Mittens" 
+EndFunction
+
+Float Function PatchModifierProbability(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods)
+    Return Parent.PatchModifierProbability(akDevice, aiSoftCap, aiValidMods) * 0.25
+EndFunction
+
+Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
+    Form loc_form
+    loc_form = Patcher_BoundWeaponList.GetAt(RandomInt(0, Patcher_BoundWeaponList.GetSize() - 1))
+            
+    akDevice.addModifier(Self, "", loc_form, None, None, None)
+EndFunction

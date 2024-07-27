@@ -280,8 +280,8 @@ EndFunction
 
 Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
     if DeviceCanHaveModes(akDevice)
-        Alias[] loc_valid_mods
-        Float[] loc_mod_probs
+        Alias[] loc_valid_mods = Utility.CreateAliasArray(0)
+        Float[] loc_mod_probs = Utility.CreateFloatArray(0)
         Int loc_modnum
         int loc_count = UDMOM.GetModifierStorageCount()
         while loc_count
@@ -295,15 +295,21 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
                 if loc_mod && loc_mod.PatchChanceMultiplier > 0.0 && !akDevice.HasModifierRef(loc_mod) && loc_mod.PatchModifierCondition(akDevice)
                     loc_valid_mods = PapyrusUtil.PushAlias(loc_valid_mods, loc_mod)
                     ;loc_mod.PatchAddModifier(akDevice)
+                    UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() First run: " + loc_mod, 3)
                 endif
             endwhile
         endwhile
+        If loc_valid_mods.Length == 0
+            Return
+        EndIf
         ; second run to get probability for each valid mod
         loc_count = 0
         loc_modnum = 0
         while loc_count < loc_valid_mods.Length
             UD_Modifier loc_mod = loc_valid_mods[loc_count] As UD_Modifier
-            loc_mod_probs = PapyrusUtil.PushFloat(loc_mod_probs, loc_mod.PatchModifierProbability(akDevice, UD_ModsSoftCap, loc_valid_mods.Length))
+            Float loc_prob = loc_mod.PatchModifierProbability(akDevice, UD_ModsSoftCap, loc_valid_mods.Length)
+            loc_mod_probs = PapyrusUtil.PushFloat(loc_mod_probs, loc_prob)
+            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Second run: " + FormatFloat(loc_prob, 2), 3)
             loc_count += 1
         endwhile
         ; sorting modifiers by its probability
@@ -328,14 +334,14 @@ EndFunction
 ; Function for sorting an array in order according to float numbers in another array
 ; 
 Alias[] Function _SortModifiers(Alias[] aakMods, Float[] aafOrder, Bool abDescending = True)
-    String[] loc_astr
-    Alias[] loc_result
+    String[] loc_astr = Utility.CreateStringArray(0)
+    Alias[] loc_result = Utility.CreateAliasArray(0)
     Int loc_i = aafOrder.Length
     While loc_i > 0
         loc_i -= 1
         loc_astr = PapyrusUtil.PushString(loc_astr, _FloatToString(aafOrder[loc_i], 6, 2) + "_" + loc_i)
     EndWhile
-    loc_astr = PapyrusUtil.SortStringArray(loc_astr, abDescending)
+    PapyrusUtil.SortStringArray(loc_astr, abDescending)
     loc_i = 0
     While loc_i < aafOrder.Length
         Int loc_pos = StringUtil.Find(loc_astr[loc_i], "_")
@@ -410,6 +416,10 @@ EndFunction
 ;------------------------
 Function checkInventoryScript(UD_CustomDevice_RenderScript device,int argControlVar = 0x0F,Float fMult = 1.0, Int aiType = 0)
     UD_CustomDevice_EquipScript inventoryScript = device.getInventoryScript()
+    
+    If inventoryScript == None
+        Return
+    EndIf
     
     if Math.LogicalAnd(argControlVar,0x01)
         device.UD_durability_damage_base = (inventoryScript.BaseEscapeChance/UD_EscapeModifier)/fRange(fMult,0.25,3.0)

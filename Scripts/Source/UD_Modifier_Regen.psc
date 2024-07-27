@@ -21,7 +21,11 @@ Function mendDevice(UD_CustomDevice_RenderScript akDevice, Float afStrength,floa
 EndFunction
 
 Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    return akDevice.CanBeStruggled() && (RandomInt(1,100) < (25 + 25*(IsEbonite(akDevice.deviceInventory) as Int))*PatchChanceMultiplier)
+    return akDevice.CanBeStruggled()
+EndFunction
+
+Float Function PatchModifierProbability(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods)
+    Return Parent.PatchModifierProbability(akDevice, aiSoftCap, aiValidMods) * (0.25 + 0.25 * (IsEbonite(akDevice.deviceInventory) as Float))
 EndFunction
 
 Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)

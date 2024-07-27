@@ -167,11 +167,21 @@ String Function GetCaption(UD_CustomDevice_RenderScript akDevice, String aiDataS
 EndFunction
 
 Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    return false
+    return False
 EndFunction
 
 Float Function PatchModifierProbability(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods)
-    return 100.0 * (aiSoftCap / aiValidMods) * PatchChanceMultiplier
+    If !PatchModifierCondition(akDevice)
+        Return 0.0
+    EndIf
+    If aiValidMods == 0
+        aiValidMods = 1
+    EndIf
+    Float loc_prob = PatchChanceMultiplier * (100.0 * aiSoftCap) / aiValidMods
+    If loc_prob > 100.0
+        Return 100.0
+    EndIf
+    Return loc_prob
 EndFunction
 
 Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)

@@ -136,7 +136,7 @@ Form Function GetForm4(Float afMultiplier = 1.0)
 EndFunction
 
 Bool Function CheckDevice(UD_CustomDevice_RenderScript akDevice)
-    Int loc_i        
+    Int loc_i
     If ForbiddenDevices != None && ForbiddenDevices.Length > 0
         loc_i = ForbiddenDevices.Length
         While loc_i > 0
