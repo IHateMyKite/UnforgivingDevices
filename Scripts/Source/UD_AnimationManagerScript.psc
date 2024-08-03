@@ -89,15 +89,6 @@ String[]                               Property     UD_AnimationJSON_Error    Au
 /;
 String[]                               Property     UD_AnimationJSON_Off    Auto    Hidden
 
-;/  Variable: UD_AnimationJSON
-    Array (more like set) with currently used json files. Updated after <LoadAnimationJSONFiles> call.
-    
-    Do not edit, *READ ONLY!*.
-    
-    See <LoadAnimationJSONFiles>.
-/;
-String[]                               Property     UD_AnimationJSON        Auto    Hidden
-
 ;/  Variable: UD_AlternateAnimation
     Enabling this will force struggle animation to randomly switch to different animation periodically. See <UD_AlternateAnimationPeriod>.
     
@@ -140,7 +131,7 @@ EndFunction
 
 Function Update()
 
-    ;LoadAnimationJSONFiles()
+    LoadAnimationJSONFiles()
     
 ;    _Benchmark()
 
@@ -168,7 +159,7 @@ EndFunction
 ; Load default values for properties on MCM page
 Function LoadDefaultMCMSettings()
     UD_AnimationJSON_Off = PapyrusUtil.StringArray(0)
-    ;LoadAnimationJSONFiles()
+    LoadAnimationJSONFiles()
     UD_AlternateAnimation = False
     UD_AlternateAnimationPeriod = 5
     UD_UseSingleStruggleKeyword = True
@@ -762,7 +753,10 @@ EndFunction
     The names of all valid files are stored in the <UD_AnimationJSON> array.
 /;
 Function LoadAnimationJSONFiles()
-    ; deprecated
+    UD_Native.SyncAnimationSetting(UD_AnimationJSON_Off)
+    UD_AnimationJSON_All = UD_Native.GetAllAnimationFiles()
+    UD_AnimationJSON_Error = UD_Native.GetAllAnimationFilesErrors()
+    UD_AnimationJSON_Status = UD_Native.GetAllAnimationFilesStatus()
 EndFunction
 
 ;/  Function: GetAnimationsFromDB

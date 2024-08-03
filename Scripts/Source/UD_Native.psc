@@ -76,6 +76,10 @@ String[]    Function GetAnimationsFromJSON     (String asDef, Actor[] aaActors, 
 String[]    Function GetAnimationsFromDB       (String asType, String[] aasKeywords, String asField, Int[] aaiActorConstraints, Int aiLewdMin = 0, Int aiLewdMax = 10, Int aiAggroMin = -10, Int aiAggroMax = 10) global native
 Bool        Function CheckWeaponDisabled       (Actor akActor)                                                  global native
             Function DisableWeapons            (Actor akActor, Bool abState)                                    global native
+String[]    Function GetAllAnimationFiles      ()                                                               global native
+String[]    Function GetAllAnimationFilesErrors()                                                               global native
+Int[]       Function GetAllAnimationFilesStatus()                                                               global native
+            Function SyncAnimationSetting      (String[] aasAnimationOff)                                       global native
 
 ;===Skill===
 Int         Function CalculateSkillFromPerks    (Actor akActor,Formlist akList,Int aiIncrease)                  global native
