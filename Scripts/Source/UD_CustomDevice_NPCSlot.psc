@@ -473,6 +473,12 @@ Function fix()
         
         UDCDmain.libs.StartBoundEffects(getActor())
         
+        ; fix current devices
+        int i = UD_equipedCustomDevices.length
+        while i
+            UD_equipedCustomDevices[i].StopMinigame()
+            i -= 1
+        endwhile
         _DeviceManipMutex = false
         
         UDmain.Print("[UD] General fixes done!")

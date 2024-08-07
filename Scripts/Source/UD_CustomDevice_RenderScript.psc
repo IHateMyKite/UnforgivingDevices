@@ -3491,7 +3491,8 @@ Function _deviceMenuInit(bool[] aaControl)
     setHelper(none)
     UDCDmain.resetCondVar()
 
-    if Udmain.UDMOM.GetModifierState_MinigameAllowed(self)
+    Bool loc_canstrugglemods = Udmain.UDMOM.GetModifierState_MinigameAllowed(self)
+    if loc_canstrugglemods
         bool        loc_isloose             = isLoose()
         bool        loc_freehands           = WearerFreeHands()
         float       loc_accesibility        = getAccesibility()
@@ -3525,11 +3526,13 @@ Function _deviceMenuInit(bool[] aaControl)
         if (UDCDmain.currentDeviceMenu_allowkey || UDCDmain.currentDeviceMenu_allowlockpick || UDCDmain.currentDeviceMenu_allowlockrepair)
             UDCDmain.currentDeviceMenu_allowLockMenu = true
         endif
-        
-        if StorageUtil.GetIntValue(GetWearer(), "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus", 0)
-            UDCDmain.currentDeviceMenu_allowEscape = true
-        endif
-        
+    endif
+    
+    if StorageUtil.GetIntValue(GetWearer(), "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus", 0)
+        UDCDmain.currentDeviceMenu_allowEscape = true
+    endif
+    
+    if loc_canstrugglemods
         ;override function
         onDeviceMenuInitPost(aaControl)
     endif
@@ -3632,8 +3635,9 @@ Function _deviceMenuInitWH(Actor akSource,bool[] aaControl)
         updateDifficulty()
         bool    loc_freehands_wearer     = WearerFreeHands(true,False)
         bool    loc_freehands_helper     = HelperFreeHands(true)
-        float   loc_accesibility         = getAccesibility()
-        if Udmain.UDMOM.GetModifierState_MinigameAllowed(self)
+        bool    loc_canstrugglemods      = Udmain.UDMOM.GetModifierState_MinigameAllowed(self)
+        if loc_canstrugglemods
+            float   loc_accesibility         = getAccesibility()
             ;help struggle
             if canBeStruggled(loc_accesibility)
                 UDCDmain.currentDeviceMenu_allowstruggling = True
@@ -3667,11 +3671,13 @@ Function _deviceMenuInitWH(Actor akSource,bool[] aaControl)
             if (UDCDmain.currentDeviceMenu_allowkey || UDCDmain.currentDeviceMenu_allowlockpick || UDCDmain.currentDeviceMenu_allowlockrepair)
                 UDCDmain.currentDeviceMenu_allowLockMenu = true
             endif
+        endif
+        
+        if StorageUtil.GetIntValue(GetWearer(), "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus", 0)
+            UDCDmain.currentDeviceMenu_allowEscape = true
+        endif
             
-            if StorageUtil.GetIntValue(GetWearer(), "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus", 0)
-                UDCDmain.currentDeviceMenu_allowEscape = true
-            endif
-            
+        if loc_canstrugglemods
             ;override function
             onDeviceMenuInitPostWH(aaControl)
         endif
@@ -6574,7 +6580,7 @@ Function minigame()
     endif
     
     if UDmain.TraceAllowed()
-        UDmain.Log("Minigame started for: " + deviceInventory.getName())    
+        UDmain.Log("Minigame started for: " + deviceInventory.getName())
     endif
     
     _MinigameMainLoopON = true
@@ -6963,9 +6969,7 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
     EndIf
     
     If _minigameHelper
-        If _StruggleAnimationDefPairArray.Length == 0
-            _StruggleAnimationDefPairArray = UDAM.GetStruggleAnimDefsByKeywordsList(keywordsList, Wearer, _minigameHelper)
-        EndIf
+        _StruggleAnimationDefPairArray = UDAM.GetStruggleAnimDefsByKeywordsList(keywordsList, Wearer, _minigameHelper)
         If _StruggleAnimationDefPairArray.Length == 0
             ; if actor has heavy bondage then try to get paired animation for it
             Keyword heavyBondage = UDAM.GetHeavyBondageKeyword(_ActorsConstraints[0])
@@ -6991,14 +6995,10 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
             EndIf
         Else
         ; using solo animation for actors
-            If _StruggleAnimationDefActorArray.Length == 0
-                _StruggleAnimationDefActorArray = _GetSoloStruggleAnimation(keywordsList, Wearer, _ActorsConstraints[0])
-            EndIf
-            If _StruggleAnimationDefHelperArray.Length == 0
-                String[] helperKeywordsList = New String[1]
-                helperKeywordsList[0] = ".spectator"
-                _StruggleAnimationDefHelperArray = _GetSoloStruggleAnimation(helperKeywordsList, _minigameHelper, _ActorsConstraints[1])
-            EndIf
+            _StruggleAnimationDefActorArray = _GetSoloStruggleAnimation(keywordsList, Wearer, _ActorsConstraints[0])
+            String[] helperKeywordsList = New String[1]
+            helperKeywordsList[0] = ".spectator"
+            _StruggleAnimationDefHelperArray = _GetSoloStruggleAnimation(helperKeywordsList, _minigameHelper, _ActorsConstraints[1])
             
             UDAM.SetActorHeading(Wearer, _minigameHelper)
             UDAM.SetActorHeading(_minigameHelper, Wearer)
@@ -7034,9 +7034,7 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
             EndIf
         EndIf
     Else
-        If _StruggleAnimationDefActorArray.Length == 0
-            _StruggleAnimationDefActorArray = _GetSoloStruggleAnimation(keywordsList, Wearer, _ActorsConstraints[0])
-        EndIf
+        _StruggleAnimationDefActorArray = _GetSoloStruggleAnimation(keywordsList, Wearer, _ActorsConstraints[0])
         If _StruggleAnimationDefActorArray.Length > 0
             _animationDef = _StruggleAnimationDefActorArray[RandomInt(0, _StruggleAnimationDefActorArray.Length - 1)]
             If UDAM.PlayAnimationByDef(_animationDef, _ActorArray1(Wearer), bContinueAnimation, abDisableActors = False)
@@ -8250,6 +8248,7 @@ Function _SendMinigameThreads(bool abStarter, bool abCritLoop, bool abParalelThr
         else
             UDmain.Error("Could not start minigame thread. Return code => " + loc_res)
         endif
+        StopMinigame()
     endif
 EndFunction
 

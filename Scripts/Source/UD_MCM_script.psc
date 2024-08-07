@@ -1880,10 +1880,12 @@ Function OptionSelectAnimations(int option)
             UDAM.UD_AnimationJSON_Off = PapyrusUtil.RemoveString(UDAM.UD_AnimationJSON_Off, UDAM.UD_AnimationJSON_All[index])
             SetToggleOptionValue(option, True)
         EndIf
+        UD_Native.SyncAnimationSetting(UDAM.UD_AnimationJSON_Off)
     ElseIf option == UDAM_Reload_T
         SetOptionFlags(option, OPTION_FLAG_DISABLED)
         UDAM.LoadAnimationJSONFiles()
         SetOptionFlags(option, OPTION_FLAG_NONE)
+        UD_Native.SyncAnimationSetting(UDAM.UD_AnimationJSON_Off)
     Elseif option == UD_AlternateAnimation_T
         UDAM.UD_AlternateAnimation = !UDAM.UD_AlternateAnimation
         SetToggleOptionValue(UD_AlternateAnimation_T, UDAM.UD_AlternateAnimation)
@@ -4207,6 +4209,7 @@ Function LoadFromJSON(string strFile)
     UDAM.UD_UseSingleStruggleKeyword = JsonUtil.GetIntValue(strFile, "UseSingleStruggleKeyword", UDAM.UD_UseSingleStruggleKeyword as Int) > 0
 
     UD_Native.SyncControlSetting(UDCDMain.UD_HardcoreMode)
+    UD_Native.SyncAnimationSetting(UDAM.UD_AnimationJSON_Off)
 EndFunction
 
 Function ResetToDefaults()
