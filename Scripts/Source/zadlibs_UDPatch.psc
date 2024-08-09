@@ -506,7 +506,7 @@ Armor Function GetWornRenderedDeviceByKeyword(Actor akActor, Keyword kw)
         UDmain.Log("GetWornRenderedDeviceByKeyword("+akActor+","+kw+") - renderDevice = " + renderDevice,3)
     endif
     
-    if renderDevice && renderDevice.HasKeyWord(zad_Lockable)
+    if renderDevice && (renderDevice.HasKeyWord(zad_Lockable) || renderDevice.HasKeyWord(zad_DeviousPlug))
         return renderDevice
     EndIf
     return none
