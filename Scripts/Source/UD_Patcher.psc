@@ -295,7 +295,7 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
                 if loc_mod && loc_mod.PatchChanceMultiplier > 0.0 && !akDevice.HasModifierRef(loc_mod) && loc_mod.PatchModifierCondition(akDevice)
                     loc_valid_mods = PapyrusUtil.PushAlias(loc_valid_mods, loc_mod)
                     ;loc_mod.PatchAddModifier(akDevice)
-                    UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() First run: " + loc_mod, 3)
+                    UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() First run: valid modifier = " + loc_mod, 3)
                 endif
             endwhile
         endwhile
@@ -309,7 +309,7 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
             UD_Modifier loc_mod = loc_valid_mods[loc_count] As UD_Modifier
             Float loc_prob = loc_mod.PatchModifierProbability(akDevice, UD_ModsSoftCap, loc_valid_mods.Length)
             loc_mod_probs = PapyrusUtil.PushFloat(loc_mod_probs, loc_prob)
-            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Second run: " + FormatFloat(loc_prob, 2), 3)
+            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Second run: probability = " + FormatFloat(loc_prob, 2) + "%", 3)
             loc_count += 1
         endwhile
         ; sorting modifiers by its probability
@@ -322,7 +322,9 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
                 Return
             EndIf
             UD_Modifier loc_mod = loc_valid_mods[loc_count] As UD_Modifier
-            If RandomFloat(0.0, 100.0) < loc_mod.PatchModifierProbability(akDevice, UD_ModsSoftCap, loc_valid_mods.Length)
+            Float loc_prob = loc_mod.PatchModifierProbability(akDevice, UD_ModsSoftCap, loc_valid_mods.Length)
+            If RandomFloat(0.0, 100.0) < loc_prob
+                UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Third run: valid modifier = " + loc_mod + ", probability = " + FormatFloat(loc_prob, 2) + "%", 3)
                 loc_mod.PatchAddModifier(akDevice)
                 loc_modnum += 1
             endif

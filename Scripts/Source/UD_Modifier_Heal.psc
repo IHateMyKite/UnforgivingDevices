@@ -20,7 +20,7 @@ Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
 EndFunction
 
 Float Function PatchModifierProbability(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods)
-    Return Parent.PatchModifierProbability(akDevice, aiSoftCap, aiValidMods) * (5.0 + 10.0 * (IsEbonite(akDevice.deviceInventory) as Int)) / 100.0
+    Return Parent.PatchModifierProbability(akDevice, aiSoftCap, aiValidMods) * (20.0 + 30.0 * (IsEbonite(akDevice.deviceInventory) as Int)) / 100.0
 EndFunction
 
 Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)

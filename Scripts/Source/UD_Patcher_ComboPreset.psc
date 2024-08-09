@@ -137,7 +137,7 @@ EndFunction
 
 Bool Function CheckDevice(UD_CustomDevice_RenderScript akDevice)
     Int loc_i
-    If ForbiddenDevices != None && ForbiddenDevices.Length > 0
+    If ForbiddenDevices.Length > 0
         loc_i = ForbiddenDevices.Length
         While loc_i > 0
             loc_i -= 1
@@ -147,14 +147,14 @@ Bool Function CheckDevice(UD_CustomDevice_RenderScript akDevice)
         EndWhile
     EndIf
         
-    If ConflictedMods != None && ConflictedMods.Length > 0
+    If ConflictedMods.Length > 0
         String[] loc_mods = akDevice.GetModifierAliases()
         If PapyrusUtil.GetMatchingString(loc_mods, ConflictedMods).Length > 0
             Return False
         EndIf
     EndIf
     
-    If PreferredDevices != None && PreferredDevices.Length > 0
+    If PreferredDevices.Length > 0
         loc_i = PreferredDevices.Length
         While loc_i > 0
             loc_i -= 1
