@@ -89,7 +89,6 @@ Bool        Function RegisterSlotQuest(Quest akQuest)                           
 Actor[]     Function GetRegisteredActors()                                                                      global native
 
 ;===PlayerControl===
-            Function SyncControlSetting(bool abHardcoreMode)                                                    global native
 ;/
     Camera states...
     kError          =   -1
@@ -112,6 +111,7 @@ Bool        Function RegisterDeviceCallback(Int aiHandle1, Int aiHandle2,Armor a
 Bool        Function UnregisterDeviceCallbacks(Int aiHandle1, Int aiHandle2,Armor akDevice) global native
             Function UnregisterAllDeviceCallbacks() global native
 Bool        Function AddDeviceCallbackArgument(int aiDxKeycode, int aiType, string asArgStr, Form akArgForm) global native
+            Function ForceUpdateControls() global native
 
 ; ===Papyrus delegate===
             Function RegisterForHMTweenMenu(ReferenceAlias akRefAlias)      global native

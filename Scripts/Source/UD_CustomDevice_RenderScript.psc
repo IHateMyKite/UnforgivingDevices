@@ -6579,6 +6579,8 @@ Function minigame()
         _minigameHelper.AddToFaction(UDCDmain.MinigameFaction)
     endif
     
+    UD_Native.ForceUpdateControls()
+    
     if UDmain.TraceAllowed()
         UDmain.Log("Minigame started for: " + deviceInventory.getName())
     endif
@@ -6621,6 +6623,8 @@ Function minigame()
         fCurrentUpdateTime = 1.0
     elseif !loc_PlayerInMinigame
         fCurrentUpdateTime = 0.25
+    else
+        fCurrentUpdateTime = 0.1 ;only for player
     endif
 
     _PauseMinigame = False
@@ -6815,24 +6819,6 @@ Function minigame()
             Experience.addexperience(loc_xp,true)
             UDmain.Info("By escaping the "+GetDeviceHeader()+", you got " + loc_xp + " experience")
         endif
-    else
-        if loc_is3DLoaded
-            libs.pant(Wearer)
-        endif
-        if loc_PlayerInMinigame
-            if _minigameHelper
-                UDmain.Print("One of you is too exhausted to continue struggling",1)
-            else
-                UDmain.Print("You are too exhausted to continue struggling",1)
-            endif
-        elseif UDCDmain.AllowNPCMessage(GetWearer(), true)
-            UDmain.Print(getWearerName()+" is too exhausted to continue struggling",1)
-        endif
-        if loc_ElapsedTime >= 2.0
-            if !loc_WearerIsPlayer
-                UpdateMotivation(Wearer,-5) ;decrease NPC motivation on failed escape
-            endif
-        endif
     endif
 
     ;remove disalbe from helper (can be done earlier as no devices were changed)
@@ -6879,6 +6865,26 @@ Function minigame()
     _MinigameVarReset()
     
     OnMinigameEnd()
+    
+    if !IsUnlocked
+        if loc_is3DLoaded
+            libs.pant(Wearer)
+        endif
+        if loc_PlayerInMinigame
+            if _minigameHelper
+                UDmain.Print("One of you is too exhausted to continue struggling",1)
+            else
+                UDmain.Print("You are too exhausted to continue struggling",1)
+            endif
+        elseif UDCDmain.AllowNPCMessage(GetWearer(), true)
+            UDmain.Print(getWearerName()+" is too exhausted to continue struggling",1)
+        endif
+        if loc_ElapsedTime >= 2.0
+            if !loc_WearerIsPlayer
+                UpdateMotivation(Wearer,-5) ;decrease NPC motivation on failed escape
+            endif
+        endif
+    endif
     
     GoToState("")
     
@@ -7095,6 +7101,8 @@ Function _MinigameVarReset()
     if _minigameHelper
         _minigameHelper.RemoveFromFaction(UDCDmain.MinigameFaction)
     endif
+    
+    UD_Native.ForceUpdateControls()
     
     _UnsetMinigameDevice()
     
@@ -7646,7 +7654,6 @@ Function ShowLockDetails()
         endif
         
         UDmain.ShowMessageBox(loc_res)
-        ;Utility.wait(0.05)
     endwhile
 EndFunction
 
@@ -8346,7 +8353,7 @@ Function _MinigameParalelThread()
     OrgasmSystem.UpdateOrgasmChangeVar(akActor,loc_orgkey,9,loc_currentArousalRate,1)
     
     ;pause thred untill minigame end
-    Float loc_UpdateTime   = 0.1
+    Float loc_UpdateTime   = 0.25
     if !loc_is3DLoaded
         loc_UpdateTime = 3.0
     elseif !loc_haveplayer
