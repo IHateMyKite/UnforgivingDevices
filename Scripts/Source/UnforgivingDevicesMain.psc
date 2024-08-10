@@ -754,6 +754,9 @@ Function _Init()
         GInfo("NPC manager started successfully")
     endif
     
+    ; Manually start modules, so the setting is correctly loaded from json
+    _StartModulesManual()
+    
     ;init mcm
     config.Init()
     
@@ -2087,6 +2090,52 @@ Bool Function ActorHaveSoS(Actor akActor)
         return false
     endif
 EndFunction
+
+;/  Function: SheatWeapons
+    Forces actor to sheathe weapon, and wait untill they do so
+
+    Use <DisableWeapons> to prevent actor from drawing the weapon again
+
+    Parameters:
+
+        akActor     - Target actor
+/;
+Function SheatWeapons(Actor akActor) global
+    akActor.SheatheWeapon()
+    while (akActor.IsWeaponDrawn())
+        Utility.wait(0.1)
+    endwhile
+EndFunction
+
+;/  Function: DisableWeapons
+    Prevents NPC (not player) from drawing weapon. Also sheaths the actor weapon if its drawn
+
+    Use <EnableWeapons> to enable weapons again
+
+    This effect is not persistent, and will be removed on game reload
+    
+    Parameters:
+
+        akActor     - Target actor
+/;
+Function DisableWeapons(Actor akActor) global
+    UD_Native.DisableWeapons(akActor,true)
+    SheatWeapons(akActor)
+EndFunction
+
+;/  Function: EnableWeapons
+    Alows NPC again to draw weapon. Does nothing to player
+
+    Does nothing if <DisableWeapons> was not called before
+    
+    Parameters:
+
+        akActor     - Target actor
+/;
+Function EnableWeapons(Actor akActor) global
+    UD_Native.DisableWeapons(akActor,false)
+EndFunction
+
 
 ;/  Group: Menu
 ===========================================================================================

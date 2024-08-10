@@ -299,8 +299,7 @@ Function ORSEvent_OnActorOrgasm(Actor akActor, float afOrgasmRate, float afArous
     if UDmain.TraceAllowed()
         UDmain.Log("Starting orgasm for " + getActorName(akActor))
     endif
-    UDMain.Info("OM::ORSEvent_OnActorOrgasm("+GetActorName(akActor)+","+afOrgasmRate+","+afArousal+","+afHornyLevel+","+aiOrgasmCount+")")
-    
+
     if akActor.isInFaction(OrgasmResistFaction)
         akActor.RemoveFromFaction(OrgasmResistFaction)
     endif

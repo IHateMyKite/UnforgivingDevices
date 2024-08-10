@@ -473,6 +473,12 @@ Function fix()
         
         UDCDmain.libs.StartBoundEffects(getActor())
         
+        ; fix current devices
+        int i = UD_equipedCustomDevices.length
+        while i
+            UD_equipedCustomDevices[i].StopMinigame()
+            i -= 1
+        endwhile
         _DeviceManipMutex = false
         
         UDmain.Print("[UD] General fixes done!")
@@ -958,7 +964,7 @@ Event OnActivateDevice(string sDeviceName)
 EndEvent
 
 ;call devices function orgasm() when player have sexlab orgasm
-Event SexlabOrgasmStart(bool HasPlayer)               
+Event SexlabOrgasmStart(bool abHasPlayer)
     int size = UD_equipedCustomDevices.length
     int i = 0
     while UD_equipedCustomDevices[i]
@@ -1078,7 +1084,7 @@ Function OnSpellCast(Form akSource)
     while UD_equipedCustomDevices[i]
         UD_equipedCustomDevices[i].spellCast(loc_spell)
         i+=1
-    endwhile    
+    endwhile
 EndFunction
 
 Function showDebugMenu(int slot_id)

@@ -2555,14 +2555,7 @@ EndFunction
         true if modifiers is present on the device
 /;
 bool Function hasModifier(String asModifier)
-    int loc_Index = UD_ModifiersRef.length
-    while loc_Index
-        loc_Index -= 1
-        if (GetNthModifier(loc_Index).NameAlias == asModifier)
-            return true
-        endif
-    endwhile
-    return false
+    return UD_Native.GetModifierIndex(VMHandle1,VMHandle2,deviceRendered,asModifier) != -1
 EndFunction
 
 ;/  Function: hasModifierRef
@@ -2588,47 +2581,7 @@ EndFunction
         Array of all parameters or none in case of error
 /;
 String[] Function getModifierAllParam(string asModifier)
-    int loc_Index = getModifierIndex(asModifier)
-    if loc_Index != -1
-        ; it skips empty positions
-;       return StringUtil.split(UD_ModifiersDataStr[loc_Index],",")
-
-        String loc_str = UD_ModifiersDataStr[loc_Index]
-        String[] loc_result
-        Int loc_from = 0
-        Int loc_to = 0
-        While loc_to >= 0
-            loc_to = StringUtil.Find(loc_str, ",", loc_from)
-            If loc_to == loc_from
-                loc_result = PapyrusUtil.PushString(loc_result, "")
-            ElseIf loc_to >= 0
-                loc_result = PapyrusUtil.PushString(loc_result, StringUtil.Substring(loc_str, loc_from, loc_to - loc_from))
-            Else
-                loc_result = PapyrusUtil.PushString(loc_result, StringUtil.Substring(loc_str, loc_from, StringUtil.GetLength(loc_str) - loc_from))
-            EndIf
-            loc_from = loc_to + 1
-        EndWhile
-        Return loc_result
-    else
-        return none
-    endif
-EndFunction
-
-;/  Function: getModifier
-    Parameters:
-
-        asModifier  - Alias of modifier
-
-    Returns:
-
-        Modifier or none if its not found
-/;
-UD_Modifier Function getModifier(string asModifier)
-    if hasModifier(asModifier)
-        return UD_ModifiersRef[getModifierIndex(asModifier)] as UD_Modifier
-    else
-        return none
-    endif
+    return GetModifierStringParamAll(VMHandle1,VMHandle2,deviceRendered,asModifier)
 EndFunction
 
 ;/  Function: getModifierParam
@@ -2641,31 +2594,7 @@ EndFunction
         Parameter string
 /;
 String Function getModifierParam(string asModifier)
-    if hasModifier(asModifier)
-        return UD_ModifiersDataStr[getModifierIndex(asModifier)]
-    else
-        return ""
-    endif
-EndFunction
-
-;/  Function: getModifierIndex
-    Parameters:
-
-        asModifier  - Alias of modifier
-
-    Returns:
-
-        Index of alias with asModifier alias, or -1 of its not found
-/;
-int Function getModifierIndex(string asModifier)
-    int loc_Index = UD_ModifiersRef.length
-    while loc_Index
-        loc_Index -= 1
-        if (GetNthModifier(loc_Index).NameAlias == asModifier)
-            return loc_Index
-        endif
-    endwhile
-    return -1
+    return UD_Native.GetModifierStringParam(VMHandle1,VMHandle2,deviceRendered,asModifier)
 EndFunction
 
 ;/  Function: editStringModifier
@@ -2681,21 +2610,9 @@ EndFunction
 
         True if operation was succesfull
 /;
-bool Function editStringModifier(string asModifier, int aiIndex, string asNewValue)
-    If aiIndex < 0
-        Return False
-    EndIf
-    String[] loc_param = getModifierAllParam(asModifier)
-    if loc_param
-        If loc_param.Length < aiIndex + 1
-            loc_param = PapyrusUtil.ResizeStringArray(loc_param, aiIndex + 1)
-        EndIf
-        loc_param[aiIndex] = asNewValue
-        UD_ModifiersDataStr[getModifierIndex(asModifier)] = PapyrusUtil.StringJoin(loc_param,",")
-        return true
-    else
-        return false
-    endif
+
+bool Function editStringModifier(string asModifier,int aiIndex, string asNewValue)
+    return UD_Native.EditModifierStringParam(VMHandle1,VMHandle2,deviceRendered,asModifier,aiIndex,asNewValue)
 EndFunction
 
 ;/  Function: setModifierIntParam
@@ -3620,7 +3537,8 @@ Function _deviceMenuInit(bool[] aaControl)
     setHelper(none)
     UDCDmain.resetCondVar()
 
-    if Udmain.UDMOM.GetModifierState_MinigameAllowed(self)
+    Bool loc_canstrugglemods = Udmain.UDMOM.GetModifierState_MinigameAllowed(self)
+    if loc_canstrugglemods
         bool        loc_isloose             = isLoose()
         bool        loc_freehands           = WearerFreeHands()
         float       loc_accesibility        = getAccesibility()
@@ -3654,11 +3572,13 @@ Function _deviceMenuInit(bool[] aaControl)
         if (UDCDmain.currentDeviceMenu_allowkey || UDCDmain.currentDeviceMenu_allowlockpick || UDCDmain.currentDeviceMenu_allowlockrepair)
             UDCDmain.currentDeviceMenu_allowLockMenu = true
         endif
-        
-        if StorageUtil.GetIntValue(GetWearer(), "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus", 0)
-            UDCDmain.currentDeviceMenu_allowEscape = true
-        endif
-        
+    endif
+    
+    if StorageUtil.GetIntValue(GetWearer(), "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus", 0)
+        UDCDmain.currentDeviceMenu_allowEscape = true
+    endif
+    
+    if loc_canstrugglemods
         ;override function
         onDeviceMenuInitPost(aaControl)
     endif
@@ -3761,8 +3681,9 @@ Function _deviceMenuInitWH(Actor akSource,bool[] aaControl)
         updateDifficulty()
         bool    loc_freehands_wearer     = WearerFreeHands(true,False)
         bool    loc_freehands_helper     = HelperFreeHands(true)
-        float   loc_accesibility         = getAccesibility()
-        if Udmain.UDMOM.GetModifierState_MinigameAllowed(self)
+        bool    loc_canstrugglemods      = Udmain.UDMOM.GetModifierState_MinigameAllowed(self)
+        if loc_canstrugglemods
+            float   loc_accesibility         = getAccesibility()
             ;help struggle
             if canBeStruggled(loc_accesibility)
                 UDCDmain.currentDeviceMenu_allowstruggling = True
@@ -3796,11 +3717,13 @@ Function _deviceMenuInitWH(Actor akSource,bool[] aaControl)
             if (UDCDmain.currentDeviceMenu_allowkey || UDCDmain.currentDeviceMenu_allowlockpick || UDCDmain.currentDeviceMenu_allowlockrepair)
                 UDCDmain.currentDeviceMenu_allowLockMenu = true
             endif
+        endif
+        
+        if StorageUtil.GetIntValue(GetWearer(), "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus", 0)
+            UDCDmain.currentDeviceMenu_allowEscape = true
+        endif
             
-            if StorageUtil.GetIntValue(GetWearer(), "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus", 0)
-                UDCDmain.currentDeviceMenu_allowEscape = true
-            endif
-            
+        if loc_canstrugglemods
             ;override function
             onDeviceMenuInitPostWH(aaControl)
         endif
@@ -6704,7 +6627,7 @@ Function minigame()
     endif
     
     if UDmain.TraceAllowed()
-        UDmain.Log("Minigame started for: " + deviceInventory.getName())    
+        UDmain.Log("Minigame started for: " + deviceInventory.getName())
     endif
     
     _MinigameMainLoopON = true
@@ -7093,9 +7016,7 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
     EndIf
     
     If _minigameHelper
-        If _StruggleAnimationDefPairArray.Length == 0
-            _StruggleAnimationDefPairArray = UDAM.GetStruggleAnimDefsByKeywordsList(keywordsList, Wearer, _minigameHelper)
-        EndIf
+        _StruggleAnimationDefPairArray = UDAM.GetStruggleAnimDefsByKeywordsList(keywordsList, Wearer, _minigameHelper)
         If _StruggleAnimationDefPairArray.Length == 0
             ; if actor has heavy bondage then try to get paired animation for it
             Keyword heavyBondage = UDAM.GetHeavyBondageKeyword(_ActorsConstraints[0])
@@ -7121,14 +7042,10 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
             EndIf
         Else
         ; using solo animation for actors
-            If _StruggleAnimationDefActorArray.Length == 0
-                _StruggleAnimationDefActorArray = _GetSoloStruggleAnimation(keywordsList, Wearer, _ActorsConstraints[0])
-            EndIf
-            If _StruggleAnimationDefHelperArray.Length == 0
-                String[] helperKeywordsList = New String[1]
-                helperKeywordsList[0] = ".spectator"
-                _StruggleAnimationDefHelperArray = _GetSoloStruggleAnimation(helperKeywordsList, _minigameHelper, _ActorsConstraints[1])
-            EndIf
+            _StruggleAnimationDefActorArray = _GetSoloStruggleAnimation(keywordsList, Wearer, _ActorsConstraints[0])
+            String[] helperKeywordsList = New String[1]
+            helperKeywordsList[0] = ".spectator"
+            _StruggleAnimationDefHelperArray = _GetSoloStruggleAnimation(helperKeywordsList, _minigameHelper, _ActorsConstraints[1])
             
             UDAM.SetActorHeading(Wearer, _minigameHelper)
             UDAM.SetActorHeading(_minigameHelper, Wearer)
@@ -7164,9 +7081,7 @@ Int[] Function _PickAndPlayStruggleAnimation(Bool bClearCache = False, Bool bCon
             EndIf
         EndIf
     Else
-        If _StruggleAnimationDefActorArray.Length == 0
-            _StruggleAnimationDefActorArray = _GetSoloStruggleAnimation(keywordsList, Wearer, _ActorsConstraints[0])
-        EndIf
+        _StruggleAnimationDefActorArray = _GetSoloStruggleAnimation(keywordsList, Wearer, _ActorsConstraints[0])
         If _StruggleAnimationDefActorArray.Length > 0
             _animationDef = _StruggleAnimationDefActorArray[RandomInt(0, _StruggleAnimationDefActorArray.Length - 1)]
             If UDAM.PlayAnimationByDef(_animationDef, _ActorArray1(Wearer), bContinueAnimation, abDisableActors = False)
@@ -8399,6 +8314,7 @@ Function _SendMinigameThreads(bool abStarter, bool abCritLoop, bool abParalelThr
         else
             UDmain.Error("Could not start minigame thread. Return code => " + loc_res)
         endif
+        StopMinigame()
     endif
 EndFunction
 

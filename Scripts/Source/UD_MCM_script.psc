@@ -153,7 +153,7 @@ EndFunction
 String Property UD_NPCsPageName = "$UD_NPCSCONFIG" auto
 
 Function LoadConfigPages()
-    pages = new String[14]
+    pages = new String[15]
     pages[00] = "$UD_GENERAL"
     pages[01] = "$UD_DEVICEFILTER"
     pages[02] = "$UD_CUSTOMDEVICES"
@@ -380,10 +380,7 @@ Function resetAbadonPage()
     final_finisher_set_T = addToggleOption("$UD_FINALFINISHERSET", AbadonQuest.final_finisher_set,UD_LockMenu_flag)
     
     difficulty_M = AddMenuOption("$UD_DIFFICULTY", difficultyList[AbadonQuest.overaldifficulty],FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
-    ;if AbadonQuest.final_finisher_pref >= AbadonQuest.UD_AbadonSuitNumber
-    ;    AbadonQuest.final_finisher_pref = 0 ;turn to random if the previous suit is no longer valid
-    ;endif
-    ;final_finisher_pref_M = AddMenuOption("$UD_FINALFINISHERPREF", AbadonQuest.UD_AbadonSuitNames[AbadonQuest.final_finisher_pref],abadon_flag_2)
+
     addEmptyOption()
     
     
@@ -919,7 +916,6 @@ zadBoundCombatScript_UDPatch Property AAScript
 EndProperty
 
 int UD_StartThirdpersonAnimation_Switch_T
-int UD_DAR_T
 Int UD_OutfitRemove_T
 Int UD_CheckAllKw_T
 Int UD_AllowMenBondage_T
@@ -940,12 +936,13 @@ Event resetDDPatchPage()
     UD_StartThirdpersonAnimation_Switch_T = addToggleOption("$UD_STARTTHIRDPERSONANIMATIONSWITCH", libs.UD_StartThirdPersonAnimation_Switch)
     UD_OrgasmAnimation_M = AddMenuOption("$UD_ORGASMANIMATION", orgasmAnimation[UDCONF.UD_OrgasmAnimation]) 
     
-    UD_DAR_T = addToggleOption("$UD_H_DARPATCH", AAScript.UD_DAR,FlagSwitch(AAScript))
+    addEmptyOption()
     addEmptyOption()
     
     AddHeaderOption("$UD_H_DEVICESETTING")
     addEmptyOption()
-    UD_OutfitRemove_T = addToggleOption("$UD_OUTFITREMOVE", UDCDmain.UD_OutfitRemove)
+    ;UD_OutfitRemove_T = addToggleOption("$UD_OUTFITREMOVE", UDCDmain.UD_OutfitRemove)
+    addEmptyOption()
     UD_AllowMenBondage_T = addToggleOption("$UD_ALLOWMENBONDAGE", UDmain.AllowMenBondage,FlagSwitch(UDmain.ForHimInstalled))
 EndEvent
 
@@ -1813,9 +1810,6 @@ Function OptionDDPatch(int option)
     if(option == UD_StartThirdpersonAnimation_Switch_T)
         libs.UD_StartThirdpersonAnimation_Switch = !libs.UD_StartThirdpersonAnimation_Switch
         SetToggleOptionValue(UD_StartThirdpersonAnimation_Switch_T, libs.UD_StartThirdpersonAnimation_Switch)
-    elseif option == UD_DAR_T
-        AAScript.UD_DAR = !AAScript.UD_DAR
-        SetToggleOptionValue(UD_DAR_T, AAScript.UD_DAR)
     elseif option == UD_OutfitRemove_T
         UDCDMain.UD_OutfitRemove = !UDCDMain.UD_OutfitRemove
         SetToggleOptionValue(UD_OutfitRemove_T, UDCDMain.UD_OutfitRemove)
@@ -1886,10 +1880,12 @@ Function OptionSelectAnimations(int option)
             UDAM.UD_AnimationJSON_Off = PapyrusUtil.RemoveString(UDAM.UD_AnimationJSON_Off, UDAM.UD_AnimationJSON_All[index])
             SetToggleOptionValue(option, True)
         EndIf
+        UD_Native.SyncAnimationSetting(UDAM.UD_AnimationJSON_Off)
     ElseIf option == UDAM_Reload_T
         SetOptionFlags(option, OPTION_FLAG_DISABLED)
         UDAM.LoadAnimationJSONFiles()
         SetOptionFlags(option, OPTION_FLAG_NONE)
+        UD_Native.SyncAnimationSetting(UDAM.UD_AnimationJSON_Off)
     Elseif option == UD_AlternateAnimation_T
         UDAM.UD_AlternateAnimation = !UDAM.UD_AlternateAnimation
         SetToggleOptionValue(UD_AlternateAnimation_T, UDAM.UD_AlternateAnimation)
@@ -2779,10 +2775,6 @@ Function OnOptionMenuOpenAbadon(int option)
         SetMenuDialogOptions(presetList)
         SetMenuDialogStartIndex(preset)
         SetMenuDialogDefaultIndex(0)
-    elseif option == final_finisher_pref_M
-        SetMenuDialogOptions(AbadonQuest.UD_AbadonSuitNames)
-        SetMenuDialogStartIndex(AbadonQuest.final_finisher_pref)
-        SetMenuDialogDefaultIndex(0)
     endif
 EndFunction
 
@@ -2921,9 +2913,6 @@ Function OnOptionMenuAcceptAbadon(int option, int index)
         setAbadonPreset(preset)
         SetMenuOptionValue(preset_M, presetList[preset])
         forcePageReset()
-    elseif (option == final_finisher_pref_M)
-        AbadonQuest.final_finisher_pref = index
-        SetMenuOptionValue(final_finisher_pref_M, AbadonQuest.UD_AbadonSuitNames[AbadonQuest.final_finisher_pref])
     endIf
 EndFunction
 
@@ -3420,9 +3409,7 @@ Function AbadanPageDefault(int option)
 EndFunction
 
 Function DDPatchPageDefault(int option)
-    if  option == UD_DAR_T
-        SetInfoText("$UD_H_DARPATCH_INFO")
-    elseif option == UD_GagPhonemModifier_S
+    if option == UD_GagPhonemModifier_S
         SetInfoText("$UD_GAGPHONEMMODIFIER_INFO")
     elseif option == UD_OutfitRemove_T
         SetInfoText("$UD_OUTFITREMOVE_INFO")
@@ -3746,9 +3733,7 @@ Function AbadanPageInfo(int option)
 EndFunction
 
 Function DDPatchPageInfo(int option)
-    if  option == UD_DAR_T
-        SetInfoText("$UD_H_DARPATCH_INFO")
-    elseif option == UD_GagPhonemModifier_S
+    if option == UD_GagPhonemModifier_S
         SetInfoText("$UD_GAGPHONEMMODIFIER_INFO")
     elseif option == UD_OutfitRemove_T
         SetInfoText("$UD_OUTFITREMOVE_INFO")
@@ -4056,7 +4041,6 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "StartThirdpersonAnimation_Switch", libs.UD_StartThirdpersonAnimation_Switch as Int)
     JsonUtil.SetIntValue(strFile, "SwimmingDifficulty", UDSS.UD_hardcore_swimming_difficulty)
     JsonUtil.SetIntValue(strFile, "RandomFiler", UDCONF.UD_RandomDevice_GlobalFilter)
-    JsonUtil.SetIntValue(strFile, "DAR", AAScript.UD_DAR as Int)
     JsonUtil.SetIntValue(strFile, "SlotUpdateTime", Round(UDCD_NPCM.UD_SlotUpdateTime))
     JsonUtil.SetIntValue(strFile, "OutfitRemove", UDCDMain.UD_OutfitRemove as Int)
     JsonUtil.SetIntValue(strFile, "AllowMenBondage", UDmain.AllowMenBondage as Int)
@@ -4212,7 +4196,6 @@ Function LoadFromJSON(string strFile)
     libs.UD_StartThirdpersonAnimation_Switch = JsonUtil.GetIntValue(strFile, "StartThirdpersonAnimation_Switch", libs.UD_StartThirdpersonAnimation_Switch as Int)
     UDSS.UD_hardcore_swimming_difficulty = JsonUtil.GetIntValue(strFile, "SwimmingDifficulty", UDSS.UD_hardcore_swimming_difficulty)
     UDCONF.UD_RandomDevice_GlobalFilter =  JsonUtil.GetIntValue(strFile, "RandomFiler", UDCONF.UD_RandomDevice_GlobalFilter)
-    AAScript.UD_DAR =  JsonUtil.GetIntValue(strFile, "DAR", AAScript.UD_DAR as Int)
     UDCD_NPCM.UD_SlotUpdateTime =  JsonUtil.GetIntValue(strFile, "SlotUpdateTime", Round(UDCD_NPCM.UD_SlotUpdateTime))
     UDCDMain.UD_OutfitRemove = JsonUtil.GetIntValue(strFile, "OutfitRemove", UDCDMain.UD_OutfitRemove as Int)
     UDmain.AllowMenBondage = JsonUtil.GetIntValue(strFile, "AllowMenBondage", UDmain.AllowMenBondage as Int)
@@ -4226,6 +4209,7 @@ Function LoadFromJSON(string strFile)
     UDAM.UD_UseSingleStruggleKeyword = JsonUtil.GetIntValue(strFile, "UseSingleStruggleKeyword", UDAM.UD_UseSingleStruggleKeyword as Int) > 0
 
     UD_Native.SyncControlSetting(UDCDMain.UD_HardcoreMode)
+    UD_Native.SyncAnimationSetting(UDAM.UD_AnimationJSON_Off)
 EndFunction
 
 Function ResetToDefaults()
@@ -4348,7 +4332,6 @@ Function ResetToDefaults()
     UDWC.UD_WidgetXPos                              = 2
     UDWC.UD_WidgetYPos                              = 0
     UDCONF.UD_RandomDevice_GlobalFilter             = 0xFFFFFFFF ;32b
-    AAScript.UD_DAR                                 =  false
     UDCD_NPCM.UD_SlotUpdateTime                     = 10.0
     UDCDMain.UD_OutfitRemove                        = True
     UDmain.AllowMenBondage                          = False
