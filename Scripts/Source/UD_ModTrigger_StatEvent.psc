@@ -23,7 +23,7 @@
         Locks Picked,10,,1      - Triggers on every 10th lock picked
         Intimidations,,10       - Triggers on intimidation with 10% probability
         
-    Stat works:
+    Stats:
             asStatName                          aiStatValue
         Quests Completed                        (number of quests?)
         Skill Increases                         <Actor Value IDs> (https://ck.uesp.net/wiki/ActorValueInfo_Script#Actor_Value_IDs)
@@ -34,6 +34,13 @@
         Armor Made                              (total number)
         Dungeons Cleared                        (total number)
         Locations Discovered                    (total number)
+        Hours Waiting                           ()
+        
+        Times Shouted                           NOT WORKING
+        Gold Found                              NOT WORKING
+        Murders                                 NOT WORKING
+        Assaults                                PROBABLY NOT WORKING
+        Bunnies Slaughtered                     NOT WORKING
 /;
 Scriptname UD_ModTrigger_StatEvent extends UD_ModTrigger
 
