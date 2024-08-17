@@ -2520,7 +2520,7 @@ Function OnOptionSliderAcceptCustomBondage(int option, float value)
         UDCDmain.UD_CooldownMultiplier = value/100
         SetSliderOptionValue(UD_CooldownMultiplier_S, Round(UDCDmain.UD_CooldownMultiplier*100), "{0} %")
     elseif (option == UD_LockpickMinigameNum_S)
-        UDCDmain.UD_LockpicksPerMinigame = Math.floor(value + 0.5)
+        UDCDmain.UD_LockpicksPerMinigame = Round(value)
         SetSliderOptionValue(UD_LockpickMinigameNum_S, UDCDmain.UD_LockpicksPerMinigame, "{0}")
     elseif (option == UD_AutoCritChance_S)
         UDCDmain.UD_AutoCritChance = round(value)

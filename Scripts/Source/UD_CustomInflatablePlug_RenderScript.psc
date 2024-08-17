@@ -589,6 +589,7 @@ Function InitPostPost()
     parent.InitPostPost()
     If WearerIsPlayer()
         UDMain.UDWC.StatusEffect_SetVisible(InflationEffectSlot)
+        UDmain.UDWC.StatusEffect_SetMagnitude(InflationEffectSlot, _inflateLevel * 20)
     EndIf
 EndFunction
 Function OnRemoveDevicePre(Actor akActor)
@@ -598,6 +599,7 @@ Function onRemoveDevicePost(Actor akActor)
     parent.onRemoveDevicePost(akActor)
     If IsPlayer(akActor)
         UDMain.UDWC.StatusEffect_SetVisible(InflationEffectSlot, False)
+        UDmain.UDWC.StatusEffect_SetMagnitude(InflationEffectSlot, _inflateLevel * 20)
     EndIf
 EndFunction
 Function onLockUnlocked(bool lockpick = false)

@@ -576,7 +576,7 @@ Function removeLostRenderDevices()
     ;endif
     
     startDeviceManipulation()
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         UDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+")")
     endif
     Actor _currentSlotedActor = getActor()
@@ -589,7 +589,7 @@ Function removeLostRenderDevices()
         Armor ArmorDevice = loc_devices[loc_deviceId]
         ;get script and check if player have inventory device
         Armor loc_RenDevice = ArmorDevice
-        Armor loc_InvDevice = UDCDmain.getStoredInventoryDevice(loc_RenDevice)
+        Armor loc_InvDevice = zadNativeFunctions.GetInventoryDevice(loc_RenDevice)
         bool loc_cond = !UDCDmain.CheckRenderDeviceEquipped(_currentSlotedActor,loc_RenDevice)
         if  loc_cond
             loc_toRemove = PapyrusUtil.PushForm(loc_toRemove, ArmorDevice)
@@ -604,6 +604,8 @@ Function removeLostRenderDevices()
                 else
                     UDmain.Print("Can't get device. Aborting.")
                 endif
+            else
+                ;UDMain.Error("removeLostRenderDevices() - Could not get script for " + loc_RenDevice)
             endif
         endif
         loc_deviceId += 1
@@ -637,6 +639,13 @@ bool Function registerDevice(UD_CustomDevice_RenderScript oref,bool mutex = true
     while i < size
         if !UD_equipedCustomDevices[i]
             UD_equipedCustomDevices[i] = oref
+            
+            ; Device is not initialized yet for some reason, so just stimulate the init function
+            if UD_equipedCustomDevices[i].IsInit() < 3
+                UD_equipedCustomDevices[i].ResetInit()
+                UD_equipedCustomDevices[i].OnContainerChanged(GetActor(),none)
+            endif
+            
             _iUsedSlots+=1
             if mutex
                 endDeviceManipulation()
@@ -1619,17 +1628,18 @@ Function regainDevices()
     ;super complex shit
     ;int removedDevices = removeWrongWearerDevices()
     
-    Armor[] loc_devices = zadNativeFunctions.GetDevices(_currentSlotedActor,1,true)
-    UDmain.Info("Registering " + loc_devices.length + " devices")
+    ;Armor[] loc_devices = zadNativeFunctions.GetDevices(_currentSlotedActor,1,true)
+    ;UDmain.Info("Registering " + loc_devices.length + " devices")
     
-    int loc_toregister = UD_Native.SendRegisterDeviceScriptEvent(_currentSlotedActor,loc_devices)
+    int loc_registered = UD_Native.RegisterDeviceScripts(_currentSlotedActor)
     
+    UDmain.Info("Registered " + loc_registered + " devices")
     ;wait for all devices to get registered
-    float loc_timeout = 3.0
-    while (_iUsedSlots != loc_toregister) && (loc_timeout > 0.0)
-        Utility.waitMenuMode(0.1)
-        loc_timeout -= 0.1
-    endwhile
+    ;float loc_timeout = 3.0
+    ;while (_iUsedSlots != loc_toregister) && (loc_timeout > 0.0)
+    ;    Utility.waitMenuMode(0.1)
+    ;    loc_timeout -= 0.1
+    ;endwhile
     
     _regainMutex = False
 EndFunction

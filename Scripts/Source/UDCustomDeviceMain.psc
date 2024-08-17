@@ -974,7 +974,7 @@ float Function getMendDifficultyModifier()
 EndFunction
 
 Function startScript(UD_CustomDevice_RenderScript oref)
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         UDmain.Log("UDCustomDeviceMain startScript() called for " + oref.getDeviceHeader(),1)
     endif
     if oref.WearerIsPlayer()
@@ -1978,8 +1978,6 @@ EndFunction
 Function startLockpickMinigame()
     LockpickMinigameOver = false
     
-    UD_Native.ToggleDetection(false)
-    
     _ApplyLockpickSkillMult(UDmain.Player)
     
     RegisterForMenu("Lockpicking Menu")
@@ -1991,8 +1989,6 @@ EndFunction
 bool Property LockpickMinigameOver      = false auto hidden
 int  Property LockpickMinigameResult    = 0     auto hidden
 Event OnMenuClose(String MenuName)
-    UD_Native.ToggleDetection(true)
-    
     Int loc_destroyed = Round(UD_Native.GetLockpickVariable(8))
     if (loc_destroyed < UD_LockpicksPerMinigame)
         if !_LockPickContainer.IsLocked()
@@ -2362,7 +2358,9 @@ Armor Function getEquippedRender(Actor akActor,keyword akKeyword)
 EndFunction
 
 UD_CustomDevice_RenderScript Property _transferedDevice = none auto hidden
+UD_CustomDevice_EquipScript Property _transferedDeviceID = none auto hidden
 bool _transfereMutex = false
+bool _transfereMutexID = false
 
 ;/  Function: getDeviceScriptByRender
 
@@ -2401,38 +2399,84 @@ UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armo
     
     _transfereMutex = True
     
+    _transferedDevice = none
     UD_CustomDevice_RenderScript result = none
     
     if UDmain.TraceAllowed()
         UDmain.Log("getDeviceScriptByRender called for " + akDeviceRendered + "("+getActorName(akActor)+")")
     endif
     
+    bool loc_res = UD_Native.GetDeviceScript(akActor,akDeviceRendered,"UDCustomDeviceMain","_transferedDevice")
+     
+    if !loc_res
+       UDMain.Error("Error getting script for " + akDeviceRendered + " on " + akActor)
+       return none
+    endif
+     
+    result = _transferedDevice
+    
     _transferedDevice = none
+        
+    _transfereMutex = False
+    return result
+EndFunction
+
+;/  Function: getDeviceInventoryScriptByID
+
+    Allow to return inventory device script from actor
+
+    *This is done by doing some black magick fuckery*
+
+    Parameters:
+        
+        akActor             - Actor that have the device equipped
+        akDeviceInventory    - *Inventory* device
+        
+    Returns:
+
+        Inventory Device script. This is not copy but actual script. In case there are multiple instances of same script, only first will be returned
+/;
+UD_CustomDevice_EquipScript Function getDeviceInventoryScriptByID(Actor akActor,Armor akDeviceInventory)
+    if !akDeviceInventory
+        UDmain.Error("getDeviceInventoryScriptByID() - deviceRendered = None!!")
+        return none
+    endif
     
-    akActor.removeItem(akDeviceRendered,1,True,TransfereContainer_ObjRef)
-    TransfereContainer_ObjRef.removeItem(akDeviceRendered,1,True,akActor)
-    akActor.equipItem(akDeviceRendered,True,True)
+    if !akActor
+        UDmain.Error("getDeviceInventoryScriptByID() - akActor = None!!")
+        return none
+    endif
     
-    float loc_time = 0.0
-    while !_transferedDevice && loc_time <= 4.0
+    if akActor.getItemCount(akDeviceInventory) <= 0
+        UDmain.Error("getDeviceInventoryScriptByID("+GetActorName(akActor)+") - Actor doesn't have inventory device!")
+        return none
+    endif
+    
+    while _transfereMutexID
         Utility.waitMenuMode(0.05)
-        loc_time += 0.05
     endwhile
     
-    if loc_time >= 4.0 && !_transferedDevice
-        UDmain.Error("getDeviceScriptByRender timeout for " + akDeviceRendered + "("+getActorName(akActor)+")")
+    _transfereMutexID = True
+    
+    _transferedDeviceID = none
+    UD_CustomDevice_EquipScript result = none
+    
+    if UDmain.TraceAllowed()
+        UDmain.Log("getDeviceInventoryScriptByID called for " + akDeviceInventory + "("+getActorName(akActor)+")")
     endif
     
-    result = _transferedDevice
-    _transferedDevice = none
-    
-    if akActor != libs.playerRef
-        if akDeviceRendered.haskeyword(libs.zad_deviousheavybondage)
-            akActor.UpdateWeight(0)
-        endif
+    bool loc_res = UD_Native.GetInventoryDeviceScript(akActor,akDeviceInventory,"UDCustomDeviceMain","_transferedDeviceID")
+     
+    if !loc_res
+       UDMain.Error("Error getting script for " + akDeviceInventory + " on " + akActor)
+       return none
     endif
+     
+    result = _transferedDeviceID
     
-    _transfereMutex = False
+    _transferedDeviceID = none
+        
+    _transfereMutexID = False
     return result
 EndFunction
 
