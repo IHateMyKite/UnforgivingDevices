@@ -4,6 +4,7 @@ import UnforgivingDevicesMain
 
 Function InitPost()
     UD_DeviceType = "Hand restraint"
+    UD_Native.ForceUpdateControls()
     ;if !WearerIsPlayer() && !WearerIsFollower()
     ;    GetWearer().AddSpell(UDlibs.PreventCombatSpell,false)
     ;endif

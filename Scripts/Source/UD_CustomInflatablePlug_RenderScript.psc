@@ -249,7 +249,7 @@ Function inflate(bool silent = false,int iInflateNum = 1)
                     UDmain.Print("You helped to inflate " + getWearerName() + "s " + getDeviceName() + "!",1)
                 elseif WearerIsFollower()
                     UDmain.Print(getHelperName() + " helped to inflate " + getWearerName() + "s " + getDeviceName() + "!",1)
-                endif            
+                endif
             else
                 if WearerIsPlayer()
                     UDmain.Print("You succesfully inflated yours " + getDeviceName(),1)
@@ -319,24 +319,10 @@ bool Function canDeflate()
 EndFunction
 
 int Function getPlugInflateLevel()
-    if WearerIsPlayer()
-        If UD_DeviceKeyword == libs.zad_DeviousPlugAnal
-            return libs.zadInflatablePlugStateAnal.GetValueInt()
-        Else
-            return libs.zadInflatablePlugStateVaginal.GetValueInt()
-        EndIf
-    else
-        return _inflateLevel
-    endif
+    return _inflateLevel
 EndFunction
 
 Function inflatePlug(int increase)
-    If UD_DeviceKeyword == libs.zad_DeviousPlugAnal
-        libs.InflateAnalPlug(getWearer(), increase)
-    Else    
-        libs.InflateVaginalPlug(getWearer(), increase)
-    EndIf
-    
     _inflateLevel += increase
     if _inflateLevel > 5
         _inflateLevel = 5
@@ -349,7 +335,28 @@ Function inflatePlug(int increase)
     OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),UD_ArMovKey,1,0.25,2)
     OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),UD_ArMovKey,9,0.25,2)
     
+    If UD_DeviceKeyword == libs.zad_DeviousPlugAnal
+        string loc_key = OrgasmSystem.MakeUniqueKey(GetWearer(),"VaginalPlugInflate")
+        OrgasmSystem.AddOrgasmChange(GetWearer(),loc_key, 0x6000C,0x0003, 13.5*_inflateLevel,afOrgasmForcing = 0.5)
+        OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),loc_key,9,6.0*_inflateLevel,1)
+    else
+        string loc_key = OrgasmSystem.MakeUniqueKey(GetWearer(),"AnalPlugInflate")
+        OrgasmSystem.AddOrgasmChange(GetWearer(),loc_key, 0x6000C,0x0180, 7.5*_inflateLevel,afOrgasmForcing = 0.5)
+        OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),loc_key,9,3.0*_inflateLevel,1)
+    endif
+
     deflateprogress = 0.0
+    
+    ; Update DD Inflation variables for player
+    if WearerIsPlayer()
+        If UD_DeviceKeyword == libs.zad_DeviousPlugAnal
+            libs.zadInflatablePlugStateAnal.SetValueInt(_inflateLevel)
+        Else    
+            libs.zadInflatablePlugStateVaginal.SetValueInt(_inflateLevel)
+        EndIf
+        libs.LastInflationAdjustmentVaginal = Utility.GetCurrentGameTime()
+    endif
+    libs.SendInflationEvent(GetWearer(), True, True, _inflateLevel)
     
     UD_Events.SendEvent_InflatablePlugInflate(self)
     
@@ -357,11 +364,6 @@ Function inflatePlug(int increase)
 EndFunction
 
 Function deflatePlug(int decrease)
-    If UD_DeviceKeyword == libs.zad_DeviousPlugAnal
-        libs.DeflateAnalPlug(getWearer(), decrease)
-    Else    
-        libs.DeflateVaginalPlug(getWearer(), decrease)
-    EndIf
     
     _inflateLevel -= decrease
     if _inflateLevel < 0
@@ -377,6 +379,17 @@ Function deflatePlug(int decrease)
     
     deflateprogress = 0.0
     
+    ; Update DD Inflation variables for player
+    if WearerIsPlayer()
+        If UD_DeviceKeyword == libs.zad_DeviousPlugAnal
+            libs.zadInflatablePlugStateAnal.SetValueInt(_inflateLevel)
+        Else    
+            libs.zadInflatablePlugStateVaginal.SetValueInt(_inflateLevel)
+        EndIf
+        libs.LastInflationAdjustmentVaginal = Utility.GetCurrentGameTime()
+    endif
+    libs.SendInflationEvent(GetWearer(), True, True, _inflateLevel)
+    
     UD_Events.SendEvent_InflatablePlugDeflate(self)
     
     OnDeflated()
@@ -388,14 +401,14 @@ EndFunction
 
 Function OnMinigameTick(Float abUpdateTime)
     if inflateMinigame_on
-        inflateprogress += RandomFloat(8.2,12.0)*UDCDmain.getStruggleDifficultyModifier()*UDmain.UD_baseUpdateTime*getMinigameMult(1)
+        inflateprogress += RandomFloat(8.2,12.0)*UDCDmain.getStruggleDifficultyModifier()*abUpdateTime*getMinigameMult(1)
         if inflateprogress > UD_PumpDifficulty
             stopMinigame()
         endif
     endif
     
     if deflateMinigame_on
-        deflateprogress += RandomFloat(3.5,8.0)*UDCDmain.getStruggleDifficultyModifier()*UDmain.UD_baseUpdateTime*getMinigameMult(1)
+        deflateprogress += RandomFloat(3.5,8.0)*UDCDmain.getStruggleDifficultyModifier()*abUpdateTime*getMinigameMult(1)
         if deflateprogress > UD_PumpDifficulty
             stopMinigame()
         endif
@@ -576,6 +589,7 @@ Function InitPostPost()
     parent.InitPostPost()
     If WearerIsPlayer()
         UDMain.UDWC.StatusEffect_SetVisible(InflationEffectSlot)
+        UDmain.UDWC.StatusEffect_SetMagnitude(InflationEffectSlot, _inflateLevel * 20)
     EndIf
 EndFunction
 Function OnRemoveDevicePre(Actor akActor)
@@ -585,6 +599,7 @@ Function onRemoveDevicePost(Actor akActor)
     parent.onRemoveDevicePost(akActor)
     If IsPlayer(akActor)
         UDMain.UDWC.StatusEffect_SetVisible(InflationEffectSlot, False)
+        UDmain.UDWC.StatusEffect_SetMagnitude(InflationEffectSlot, _inflateLevel * 20)
     EndIf
 EndFunction
 Function onLockUnlocked(bool lockpick = false)

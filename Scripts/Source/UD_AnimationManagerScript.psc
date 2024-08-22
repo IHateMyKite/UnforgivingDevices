@@ -521,7 +521,8 @@ Function LockAnimatingActor(Actor akActor, Bool abDisableActor = True)
     StorageUtil.SetIntValue(akActor, "UD_ActorIsAnimating", 1)
     
     libs.SetAnimating(akActor, True)
-
+    UD_Native.ForceUpdateControls()
+    
     if abDisableActor
         UDCDMain.DisableActor(akActor)
     endif
@@ -546,7 +547,8 @@ Function UnlockAnimatingActor(Actor akActor, Bool abEnableActor = True)
 
     StorageUtil.SetIntValue(akActor, "UD_ActorIsAnimating", 0)
     libs.SetAnimating(akActor, False)
-
+    UD_Native.ForceUpdateControls()
+    
     if abEnableActor
         UDCDMain.EnableActor(akActor)
     endif
