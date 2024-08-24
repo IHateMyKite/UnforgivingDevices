@@ -702,7 +702,7 @@ Int                     _HelperLastConstraints                  = 0
 Int[]                   _ActorsConstraints
 Float                   _RealTimeLocked = 0.0
 Float                   _GameTimeLocked = 0.0
-bool                    _initiated = false
+Int                     _initState = 0
 Float                   _LastHourUpdateTime
 Float                   _LastHourUpdateTimeMod
 Int                     _VMHandle1      = 0x00000000
@@ -1555,11 +1555,19 @@ Function ResetHealth()
     current_device_health = UD_Health
 EndFunction
 
+Int Function IsInit()
+    return _initState
+EndFunction
+
+Function ResetInit()
+    _initState = 0
+EndFunction
+
 ;OnContainerChanged is very important event. It is used to determinate if render device have been equipped (OnEquipped only works for player)
 ;it is also used for retrieving device (this) script
 Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldContainer)
-    if (akNewContainer as Actor) && !akOldContainer && !_initiated && !IsUnlocked && !Ready
-        _initiated = true
+    if (akNewContainer as Actor) && !akOldContainer && !_initState && !IsUnlocked && !Ready
+        _initState = 1
         Actor loc_actor = akNewContainer as Actor
         if !loc_actor.isDead()
             if loc_actor.GetItemCount(DeviceRendered) <= 1
@@ -1593,8 +1601,8 @@ EndFunction
 
 ;post equip function
 Function _Init(Actor akActor)
-    Wearer = akActor
-
+    Wearer      = akActor
+    _initState  = 2 ;_Init called
     _libSafeCheck()
 
     if !akActor
@@ -1653,14 +1661,16 @@ Function _Init(Actor akActor)
         UDmain.Log("Init(called for " + getDeviceHeader(),1)
     endif
     
+    _initState  = 3 ;precheck done
+    
     ;MUTEX START
     ;mutex check because some mods equips items too fast at once, making it possible to have equipped 2 of the same item
     if loc_slot
-        if loc_slot.getDeviceByRender(deviceRendered)
-            UDmain.Error("!Aborting Init("+ getDeviceHeader() +") because device is already registered!")
-            akActor.removeItem(deviceRendered,akActor.getItemCount(deviceRendered) - 1,true)
-            return
-        endif
+        ;if loc_slot.getDeviceByRender(deviceRendered)
+        ;    UDmain.Error("!Aborting Init("+ getDeviceHeader() +") because device is already registered!")
+        ;    akActor.removeItem(deviceRendered,akActor.getItemCount(deviceRendered) - 1,true)
+        ;    return
+        ;endif
         _StartInitMutex()
     endif
     
@@ -1677,6 +1687,8 @@ Function _Init(Actor akActor)
     endif
 
     ;MUTEX END
+    
+    _initState = 4 ;registered
     
     if deviceRendered
         updateValuesFromInventoryScript()
@@ -1761,7 +1773,11 @@ Function _Init(Actor akActor)
     
     UD_Events.SendEvent_DeviceLocked(self)
     
+    _initState = 5 ;Fully ready, but InitPostPost is not called
+    
     InitPostPost() ;called after everything else. Can add some followup interaction immidiatly after device is equipped (activate device, start vib, etc...)
+    
+    _initState = 6 ;Fully ready
 EndFunction
 
 Function _StartInitMutex()
@@ -2581,7 +2597,7 @@ EndFunction
         Array of all parameters or none in case of error
 /;
 String[] Function getModifierAllParam(string asModifier)
-    return GetModifierStringParamAll(VMHandle1,VMHandle2,deviceRendered,asModifier)
+    return UD_Native.GetModifierStringParamAll(VMHandle1,VMHandle2,deviceRendered,asModifier)
 EndFunction
 
 ;/  Function: getModifierParam
@@ -5711,6 +5727,7 @@ Function _lockpickDevice()
                     endif
                     
                     Int loc_destroyed = Round(UD_Native.GetLockpickVariable(8))
+                    
                     if (loc_destroyed >= UDCDmain.UD_LockpicksPerMinigame)
                         loc_broken = true
                     endif
@@ -6626,6 +6643,8 @@ Function minigame()
         _minigameHelper.AddToFaction(UDCDmain.MinigameFaction)
     endif
     
+    UD_Native.ForceUpdateControls()
+    
     if UDmain.TraceAllowed()
         UDmain.Log("Minigame started for: " + deviceInventory.getName())
     endif
@@ -6668,6 +6687,8 @@ Function minigame()
         fCurrentUpdateTime = 1.0
     elseif !loc_PlayerInMinigame
         fCurrentUpdateTime = 0.25
+    else
+        fCurrentUpdateTime = 0.1 ;only for player
     endif
 
     _PauseMinigame = False
@@ -6862,24 +6883,6 @@ Function minigame()
             Experience.addexperience(loc_xp,true)
             UDmain.Info("By escaping the "+GetDeviceHeader()+", you got " + loc_xp + " experience")
         endif
-    else
-        if loc_is3DLoaded
-            libs.pant(Wearer)
-        endif
-        if loc_PlayerInMinigame
-            if _minigameHelper
-                UDmain.Print("One of you is too exhausted to continue struggling",1)
-            else
-                UDmain.Print("You are too exhausted to continue struggling",1)
-            endif
-        elseif UDCDmain.AllowNPCMessage(GetWearer(), true)
-            UDmain.Print(getWearerName()+" is too exhausted to continue struggling",1)
-        endif
-        if loc_ElapsedTime >= 2.0
-            if !loc_WearerIsPlayer
-                UpdateMotivation(Wearer,-5) ;decrease NPC motivation on failed escape
-            endif
-        endif
     endif
 
     ;remove disalbe from helper (can be done earlier as no devices were changed)
@@ -6926,6 +6929,26 @@ Function minigame()
     _MinigameVarReset()
     
     OnMinigameEnd()
+    
+    if !IsUnlocked
+        if loc_is3DLoaded
+            libs.pant(Wearer)
+        endif
+        if loc_PlayerInMinigame
+            if _minigameHelper
+                UDmain.Print("One of you is too exhausted to continue struggling",1)
+            else
+                UDmain.Print("You are too exhausted to continue struggling",1)
+            endif
+        elseif UDCDmain.AllowNPCMessage(GetWearer(), true)
+            UDmain.Print(getWearerName()+" is too exhausted to continue struggling",1)
+        endif
+        if loc_ElapsedTime >= 2.0
+            if !loc_WearerIsPlayer
+                UpdateMotivation(Wearer,-5) ;decrease NPC motivation on failed escape
+            endif
+        endif
+    endif
     
     GoToState("")
     
@@ -7142,6 +7165,8 @@ Function _MinigameVarReset()
     if _minigameHelper
         _minigameHelper.RemoveFromFaction(UDCDmain.MinigameFaction)
     endif
+    
+    UD_Native.ForceUpdateControls()
     
     _UnsetMinigameDevice()
     
@@ -7698,7 +7723,6 @@ Function ShowLockDetails()
         endif
         
         UDmain.ShowMessageBox(loc_res)
-        ;Utility.wait(0.05)
     endwhile
 EndFunction
 
@@ -8412,7 +8436,7 @@ Function _MinigameParalelThread()
     OrgasmSystem.UpdateOrgasmChangeVar(akActor,loc_orgkey,9,loc_currentArousalRate,1)
     
     ;pause thred untill minigame end
-    Float loc_UpdateTime   = 0.1
+    Float loc_UpdateTime   = 0.25
     if !loc_is3DLoaded
         loc_UpdateTime = 3.0
     elseif !loc_haveplayer
@@ -8637,4 +8661,29 @@ Function _MG_CKMPress()
     else
         critFailure()
     endif
+EndFunction
+
+; Used to unregister device which is invalid. This can happen if render device is removed by some mod, but script is still regesitered on NPCs still. 
+; This causes script to be detached from object
+; Either way, this basically means that actor no longer wears the device. They only have it registered in npc slot, and so it can be removed
+Int _UnregisterInvalidCalled = 0
+Function _UnregisterInvalid()
+    ; Check if device was ever initiated
+    if (_initState == 0)
+        _UnregisterInvalidCalled = 2
+        return
+    endif
+    
+    if _UnregisterInvalidCalled
+        return
+    endif
+    _UnregisterInvalidCalled = 1
+    Utility.waitMenuMode(1.0)
+    UDmain.WaitForUpdated()
+    ;UDmain.Error("Device " + GetDeviceHeader() + " is invalid. Removing...")
+    removeDevice(Wearer)
+    ; Sometimes the device can be invalid, but valid script can be also present but not registered. 
+    ; Calling removeLostRenderDevices should fix the issue
+    UDCDmain.GetNPCSlot(Wearer).removeLostRenderDevices()
+    _UnregisterInvalidCalled = 2
 EndFunction

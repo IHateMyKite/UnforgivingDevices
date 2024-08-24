@@ -152,6 +152,9 @@ Function PayAndHelp(ObjectReference akSpeakerRef)
         MoneyForHelp.Value = 0 ;reset
     endif
     if UDCDMain.UDDmain.SelectedDevice
+        if UDCDMain.UDmain.Player.GetItemCount(UDCDMain.Lockpick) == 0
+            UDCDMain.UDmain.Player.AddItem(UDCDMain.Lockpick,5)
+        endif
         UDCDmain.OpenHelpDeviceMenu(UDCDMain.UDDmain.SelectedDevice,akSpeakerRef as Actor,False,True)
         UDCDMain.UDDmain.SelectedDevice = none
     else

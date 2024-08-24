@@ -89,7 +89,6 @@ Bool        Function RegisterSlotQuest(Quest akQuest)                           
 Actor[]     Function GetRegisteredActors()                                                                      global native
 
 ;===PlayerControl===
-            Function SyncControlSetting(bool abHardcoreMode)                                                    global native
 ;/
     Camera states...
     kError          =   -1
@@ -112,15 +111,19 @@ Bool        Function RegisterDeviceCallback(Int aiHandle1, Int aiHandle2,Armor a
 Bool        Function UnregisterDeviceCallbacks(Int aiHandle1, Int aiHandle2,Armor akDevice) global native
             Function UnregisterAllDeviceCallbacks() global native
 Bool        Function AddDeviceCallbackArgument(int aiDxKeycode, int aiType, string asArgStr, Form akArgForm) global native
+            Function ForceUpdateControls() global native
 
 ; ===Papyrus delegate===
             Function RegisterForHMTweenMenu(ReferenceAlias akRefAlias)      global native
 Int         Function SendRegisterDeviceScriptEvent(Actor akActor, Armor[] akRenderDevices) global native
+Int         Function RegisterDeviceScripts(Actor akActor) global native
 Int         Function SendMinigameThreadEvents(Actor akActor, Armor akRenderDevice, Int aiHandle1,Int aiHandle2, Int aiMode) global native
 Int         Function SendRemoveRenderDeviceEvent(Actor akActor, Armor akRenderDevice) global native
 Int         Function SetBitMapData(Int aiHandle1,Int aiHandle2,Armor akRenDev,String asName,Int aiValue, Int aiSize, Int aiOff) global native
             Function UpdateVMHandles() global native
-            
+Bool        Function GetDeviceScript(Actor akActor, Armor akDeviceRendered, String asScript, String asVariable) global native
+Bool        Function GetInventoryDeviceScript(Actor akActor, Armor akDeviceInventory, String asScript, String asVariable) global native
+
 ; ===Materials===
 Bool Function IsSteel   (Armor akArmor) global native
 Bool Function IsEbonite (Armor akArmor) global native

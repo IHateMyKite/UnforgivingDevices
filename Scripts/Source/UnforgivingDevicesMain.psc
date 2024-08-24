@@ -390,6 +390,26 @@ Bool Function WaitForReady()
     endif
 EndFunction
 
+;/  Function: WaitForUpdated
+
+    This function will block thread until the mod is ready and updated
+
+    Returns:
+
+        Returns true if there was error while waiting for mod to be ready and updated
+/;
+Bool Function WaitForUpdated()
+    WaitForReady()
+    while _Updating && !_FatalError
+        Utility.waitMenuMode(0.5)
+    endwhile
+    if _FatalError
+        return false
+    else
+        return true
+    endif
+EndFunction
+
 Event OnInit()
     Player = Game.GetPlayer()
     ;Print("Installing Unforgiving Devices...")
