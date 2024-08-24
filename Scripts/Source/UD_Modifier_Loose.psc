@@ -14,7 +14,7 @@ Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
 EndFunction
 
 Float Function PatchModifierProbability(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods)
-    Float loc_base = Parent.PatchModifierProbability(akDevice, aiSoftCap, aiValidMods)
+    Float loc_base = 100.0
     
     if akDevice.UD_DeviceKeyword == libs.zad_DeviousBlindfold
         return loc_base * 0.70
