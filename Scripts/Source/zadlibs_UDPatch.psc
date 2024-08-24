@@ -506,7 +506,7 @@ Armor Function GetWornRenderedDeviceByKeyword(Actor akActor, Keyword kw)
         UDmain.Log("GetWornRenderedDeviceByKeyword("+akActor+","+kw+") - renderDevice = " + renderDevice,3)
     endif
     
-    if renderDevice && renderDevice.HasKeyWord(zad_Lockable)
+    if renderDevice && (renderDevice.HasKeyWord(zad_Lockable) || renderDevice.HasKeyWord(zad_DeviousPlug))
         return renderDevice
     EndIf
     return none
@@ -518,60 +518,96 @@ Function InflateAnalPlug(actor akActor, int amount = 1)
         ; nothing to do
         return
     EndIf
-    int currentVal = 0
-    If akActor == PlayerRef
-        currentVal = zadInflatablePlugStateAnal.GetValueInt()
-        ; only increase the value up to 5, but make it count as an inflation event even if it's maximum inflated
-        if currentVal < 5
-            currentVal += amount
-            if currentVal > 5
-                currentVal = 5
-            EndIf
+    
+    UD_CustomInflatablePlug_RenderScript loc_plug = UDCDmain.getFirstDeviceByKeyword(akActor,zad_kw_InflatablePlugAnal) as UD_CustomInflatablePlug_RenderScript
+    if (loc_plug)
+        loc_plug.inflatePlug(amount)
+    else
+        int currentVal = 0
+        If akActor == PlayerRef
+            currentVal = iRange(zadInflatablePlugStateAnal.GetValueInt() + amount,0,5)
+            ; only increase the value up to 5, but make it count as an inflation event even if it's maximum inflated
             if UDmain.TraceAllowed()
-                UDmain.Log("Setting anal plug inflation to " + (currentVal),1)
+                UDmain.Log("Setting vaginal plug inflation to " + (currentVal),1)
             endif
             zadInflatablePlugStateAnal.SetValueInt(currentVal)
-        EndIf    
-        LastInflationAdjustmentAnal = Utility.GetCurrentGameTime()
-    else
-        currentVal = iRange(amount,2,5)
+            LastInflationAdjustmentAnal = Utility.GetCurrentGameTime()
+        endif
+        SendInflationEvent(akActor, False, True, currentval)
     endif
-    
-    string loc_key = OrgasmSystem.MakeUniqueKey(akActor,"AnalPlugInflate")
-    OrgasmSystem.AddOrgasmChange(akActor,loc_key, 0x6000C,0x0180, 7.5*currentVal,afOrgasmForcing = 0.5)
-    OrgasmSystem.UpdateOrgasmChangeVar(akActor,loc_key,9,3.0*currentVal,1)
-    SendInflationEvent(akActor, False, True, currentval)
 EndFunction
 
 ;copied and modified libs InflateAnalPlug function to make it show correct msg for npcs
-Function InflateVaginalPlug(actor akActor, int amount = 1)    
+Function InflateVaginalPlug(actor akActor, int amount = 1)
     If !akActor.WornHasKeyword(zad_kw_InflatablePlugVaginal)
         ; nothing to do
         return
     EndIf
-    int currentVal = 0
-    If akActor == PlayerRef
-        currentVal = zadInflatablePlugStateVaginal.GetValueInt()
-        ; only increase the value up to 5, but make it count as an inflation event even if it's maximum inflated
-        if currentVal < 5
-            currentVal += amount
-            if currentVal > 5
-                currentVal = 5
-            EndIf
+    
+    UD_CustomInflatablePlug_RenderScript loc_plug = UDCDmain.getFirstDeviceByKeyword(akActor,zad_kw_InflatablePlugVaginal) as UD_CustomInflatablePlug_RenderScript
+    if (loc_plug)
+        loc_plug.inflatePlug(amount)
+    else
+        int currentVal = 0
+        If akActor == PlayerRef
+            currentVal = iRange(zadInflatablePlugStateVaginal.GetValueInt() + amount,0,5)
+            ; only increase the value up to 5, but make it count as an inflation event even if it's maximum inflated
             if UDmain.TraceAllowed()
                 UDmain.Log("Setting vaginal plug inflation to " + (currentVal),1)
             endif
             zadInflatablePlugStateVaginal.SetValueInt(currentVal)
-        EndIf    
-        LastInflationAdjustmentVaginal = Utility.GetCurrentGameTime()
-    else
-        currentVal = iRange(amount,2,5)
+            LastInflationAdjustmentVaginal = Utility.GetCurrentGameTime()
+        endif
+        SendInflationEvent(akActor, True, True, currentval)
     endif
+EndFunction
+
+Function DeflateVaginalPlug(actor akActor, int amount = 1)
+    If !akActor.WornHasKeyword(zad_kw_InflatablePlugVaginal)
+        ; nothing to do
+        return
+    EndIf
     
-    string loc_key = OrgasmSystem.MakeUniqueKey(akActor,"VaginalPlugInflate")
-    OrgasmSystem.AddOrgasmChange(akActor,loc_key, 0x6000C,0x0003, 13.5*currentVal,afOrgasmForcing = 0.5)
-    OrgasmSystem.UpdateOrgasmChangeVar(akActor,loc_key,9,6.0*currentVal,1)
-    SendInflationEvent(akActor, True, True, currentval)
+    UD_CustomInflatablePlug_RenderScript loc_plug = UDCDmain.getFirstDeviceByKeyword(akActor,zad_kw_InflatablePlugVaginal) as UD_CustomInflatablePlug_RenderScript
+    if (loc_plug)
+        loc_plug.deflatePlug(amount)
+    else
+        int currentVal = 0
+        If akActor == PlayerRef
+            currentVal = iRange(zadInflatablePlugStateVaginal.GetValueInt() - amount,0,5)
+            ; only increase the value up to 5, but make it count as an inflation event even if it's maximum inflated
+            if UDmain.TraceAllowed()
+                UDmain.Log("Setting vaginal plug inflation to " + (currentVal),1)
+            endif
+            zadInflatablePlugStateVaginal.SetValueInt(currentVal)
+            LastInflationAdjustmentVaginal = Utility.GetCurrentGameTime()
+        endif
+        SendInflationEvent(akActor, True, False, currentval)
+    endif
+EndFunction
+
+Function DeflateAnalPlug(actor akActor, int amount = 1)
+    If !akActor.WornHasKeyword(zad_kw_InflatablePlugAnal)
+        ; nothing to do
+        return
+    EndIf
+    
+    UD_CustomInflatablePlug_RenderScript loc_plug = UDCDmain.getFirstDeviceByKeyword(akActor,zad_kw_InflatablePlugAnal) as UD_CustomInflatablePlug_RenderScript
+    if (loc_plug)
+        loc_plug.deflatePlug(amount)
+    else
+        int currentVal = 0
+        If akActor == PlayerRef
+            currentVal = iRange(zadInflatablePlugStateAnal.GetValueInt() - amount,0,5)
+            ; only increase the value up to 5, but make it count as an inflation event even if it's maximum inflated
+            if UDmain.TraceAllowed()
+                UDmain.Log("Setting vaginal plug inflation to " + (currentVal),1)
+            endif
+            zadInflatablePlugStateAnal.SetValueInt(currentVal)
+            LastInflationAdjustmentAnal = Utility.GetCurrentGameTime()
+        endif
+        SendInflationEvent(akActor, False, False, currentval)
+    endif
 EndFunction
 
 String Function AnimSwitchKeyword(actor akActor, string idleName)

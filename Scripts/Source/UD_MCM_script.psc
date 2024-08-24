@@ -1748,7 +1748,6 @@ Function OptionCustomBondage(int option)
         forcePageReset()
     elseif option == UD_HardcoreMode_T
         UDCDmain.UD_HardcoreMode = !UDCDmain.UD_HardcoreMode
-        UD_Native.SyncControlSetting(UDCDMain.UD_HardcoreMode)
         UDCDmain.RegisterForSingleUpdate(0.01)
         SetToggleOptionValue(UD_HardcoreMode_T, UDCDmain.UD_HardcoreMode)
     elseif option == UD_AllowArmTie_T
@@ -2521,7 +2520,7 @@ Function OnOptionSliderAcceptCustomBondage(int option, float value)
         UDCDmain.UD_CooldownMultiplier = value/100
         SetSliderOptionValue(UD_CooldownMultiplier_S, Round(UDCDmain.UD_CooldownMultiplier*100), "{0} %")
     elseif (option == UD_LockpickMinigameNum_S)
-        UDCDmain.UD_LockpicksPerMinigame = Math.floor(value + 0.5)
+        UDCDmain.UD_LockpicksPerMinigame = Round(value)
         SetSliderOptionValue(UD_LockpickMinigameNum_S, UDCDmain.UD_LockpicksPerMinigame, "{0}")
     elseif (option == UD_AutoCritChance_S)
         UDCDmain.UD_AutoCritChance = round(value)
@@ -4208,7 +4207,6 @@ Function LoadFromJSON(string strFile)
     UDAM.UD_AlternateAnimationPeriod = JsonUtil.GetIntValue(strFile, "AlternateAnimationPeriod", UDAM.UD_AlternateAnimationPeriod)
     UDAM.UD_UseSingleStruggleKeyword = JsonUtil.GetIntValue(strFile, "UseSingleStruggleKeyword", UDAM.UD_UseSingleStruggleKeyword as Int) > 0
 
-    UD_Native.SyncControlSetting(UDCDMain.UD_HardcoreMode)
     UD_Native.SyncAnimationSetting(UDAM.UD_AnimationJSON_Off)
 EndFunction
 
@@ -4338,9 +4336,6 @@ Function ResetToDefaults()
     
     ; Animations
     UDAM.LoadDefaultMCMSettings()
-
-
-    UD_Native.SyncControlSetting(UDCDMain.UD_HardcoreMode)
 EndFunction
 
 Function SetAutoLoad(bool bValue)
