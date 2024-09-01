@@ -46,7 +46,7 @@ EndFunction
 
 Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
 ; we are going to edit base object so it is incompatible with dynamic patching
-    return false
+    return False
 EndFunction
 
 Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)

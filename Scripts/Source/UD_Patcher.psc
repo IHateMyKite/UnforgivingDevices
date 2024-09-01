@@ -323,7 +323,7 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
             EndIf
             UD_Modifier loc_mod = loc_valid_mods[loc_count] As UD_Modifier
             Float loc_prob = loc_mod.PatchModifierProbability(akDevice, UD_ModsSoftCap, loc_valid_mods.Length)
-            If RandomFloat(0.0, 100.0) < loc_prob && loc_mod.PatchModifierCondition(akDevice)           ; last check to exclude conflicting modifiers
+            If (RandomFloat(0.0, 100.0) < loc_prob) && loc_mod.PatchModifierCondition(akDevice)           ; last check to exclude conflicting modifiers
                 UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Third run: valid modifier = " + loc_mod + ", probability = " + FormatFloat(loc_prob, 2) + "%", 3)
                 loc_mod.PatchAddModifier(akDevice)
                 loc_modnum += 1

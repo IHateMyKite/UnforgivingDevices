@@ -64,6 +64,20 @@ String      Property Description            Auto
 /;
 Float       Property Multiplier                 = 1.0   Auto hidden
 
+;/  Variable: ConcealmentPower
+
+    Value between 0 and 100
+
+    TODO:
+    
+    The degree to which the modifier resists recognition.
+    If the degree is 0, the character will easily reveal the modifier's properties.
+    If the degree of concealment is higher than the character's abilities, then 
+    information about the modifier will not be visible.
+/;
+Int         Property ConcealmentPower           = 0     Auto Hidden
+
+
 ;/  Variable: PatchPowerMultiplier
     Multiplier which can be used to allow user to change power at which are modifiers added by patcher
     
@@ -75,6 +89,11 @@ Float       Property PatchPowerMultiplier       = 1.0   Auto hidden
     Multiplier which can be used to allow user to change cahnce that modifier will be added to patched device
 /;
 Float       Property PatchChanceMultiplier      = 1.0   Auto hidden
+
+;/  Variable: PatchUserEnable
+    This flag allows the user to enable the use of this modifier in the patcher
+/;
+Bool        Property PatchUserEnable            = True  Auto Hidden
 
 ;event hooks
 String[]    Property EventHooks             Auto
@@ -152,22 +171,33 @@ EndFunction
 Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
     String loc_msg = ""
     
-    loc_msg += "Name: " + NameFull + "\n\n"
-    
-    if Description
+    If ConcealmentPower > 50
+        loc_msg += "Name: ??? \n\n"
         loc_msg += "==Description==" + "\n"
-        loc_msg += Description
-    endif
+        loc_msg += "You are unable to recognize this enchantment"
+    Else
+        loc_msg += "Name: " + NameFull + "\n\n"
+        
+        if Description
+            loc_msg += "==Description==" + "\n"
+            loc_msg += Description
+        endif
+    EndIf
     
     UDmain.ShowMessageBox(loc_msg)
 EndFunction
 
 String Function GetCaption(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
-    Return NameFull
+    ; TODO: implement proper use of the ConcealmentPower
+    If ConcealmentPower > 50
+        Return "???"
+    Else
+        Return NameFull
+    EndIf
 EndFunction
 
 Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    return False
+    return PatchUserEnable
 EndFunction
 
 Float Function PatchModifierProbability(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods)

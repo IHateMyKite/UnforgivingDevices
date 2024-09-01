@@ -362,7 +362,7 @@ Function UpdateModifiers_ActorAction(UD_CustomDevice_NPCSlot akSlot, Int aiActor
 EndFunction
 
 Function UpdateModifiers_KillMonitor(ObjectReference akVictim, ObjectReference akKiller, Location akLocation, Int aiCrimeStatus)
-    If akKiller as Actor == None
+    If akKiller as Actor == None || akVictim as Actor == None
         Return
     EndIf
     UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getNPCSlotByActor(akKiller as Actor)

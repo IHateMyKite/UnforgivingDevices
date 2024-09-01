@@ -25,22 +25,37 @@
         
     Stats:
             asStatName                          aiStatValue
-        Quests Completed                        (number of quests?)
+        Locations Discovered                    (total number)
+        Quests Completed                        (total number of completed quests)
         Skill Increases                         <Actor Value IDs> (https://ck.uesp.net/wiki/ActorValueInfo_Script#Actor_Value_IDs)
         Whiterun Bounty                         <Bounty Value>
-        Locks Picked                            <Number of locks>
+        Locks Picked                            (total number)
         Misc Objectives Completed               (total number)
         Skill Book Read                         (total number)
         Armor Made                              (total number)
         Dungeons Cleared                        (total number)
         Locations Discovered                    (total number)
-        Hours Waiting                           ()
+        Most Gold Carried                       (subj)
+        Level Increases                         (current accepted level)
+        Weapons Made                            (total number)
+        Armor Made                              (total number)
+        Pockets Picked                          (total number of items, and 1 gold counts as 1 item)
         
-        Times Shouted                           NOT WORKING
-        Gold Found                              NOT WORKING
-        Murders                                 NOT WORKING
-        Assaults                                PROBABLY NOT WORKING
-        Bunnies Slaughtered                     NOT WORKING
+        IT JUST WORKS (nope)
+        
+        Weapons Improved                        NOPE
+        Training Sessions                       NOPE
+        Potions Used                            NOPE
+        Food Eaten                              NOPE
+        Ingredients Harvested                   NOPE
+        Ingredients Eaten                       NOPE
+        Persuasions                             NOPE
+        Hours Waiting                           NOPE
+        Times Shouted                           NOPE
+        Gold Found                              NOPE
+        Murders                                 NOPE
+        Assaults                                PROBABLY NOT
+        Bunnies Slaughtered                     NOPE
 /;
 Scriptname UD_ModTrigger_StatEvent extends UD_ModTrigger
 

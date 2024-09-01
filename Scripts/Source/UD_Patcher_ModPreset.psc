@@ -1,6 +1,6 @@
-;   File: UD_Patcher_ComboPreset
+;   File: UD_Patcher_ModPreset
 ;   
-Scriptname UD_Patcher_ComboPreset extends ReferenceAlias
+Scriptname UD_Patcher_ModPreset extends ReferenceAlias
 
 import UnforgivingDevicesMain
 import UD_Native
