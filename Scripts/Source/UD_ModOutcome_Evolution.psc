@@ -7,8 +7,8 @@
         
 
     Form arguments:
-        Form3 - Device in to which will current device evolve. In case this is formlist, random device from formlist will be used.
         Form4 - Device in to which will current device evolve. In case this is formlist, random device from formlist will be used.
+        Form5 - Device in to which will current device evolve. In case this is formlist, random device from formlist will be used.
     In case more then one FormX is filled, random one will be choosen
 
     Example:
@@ -21,14 +21,14 @@ import UD_Native
 
 Explosion Property EvolveExplosion Auto
 
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm3, Form akForm4 = None)
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_ModOutcome_Evolution::Outcome() akDevice = " + akDevice + ", akForm3 = " + akForm3 + ", akForm4 = " + akForm4, 3)
+        UDmain.Log("UD_ModOutcome_Evolution::Outcome() akDevice = " + akDevice + ", akForm4 = " + akForm4 + ", akForm5 = " + akForm5, 3)
     EndIf
     Actor loc_actor = akDevice.GetWearer()
     Armor loc_device = none
     
-    Form[] loc_forms = CombineForms(akForm3, akForm4)
+    Form[] loc_forms = CombineForms(akForm4, akForm5)
         
     if loc_forms.Length > 0
         Int loc_size = loc_forms.length
@@ -47,10 +47,10 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     endif
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm3, Form akForm4 = None)
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
     String loc_str = ""
     loc_str += "Replaces device"
     loc_str += "\n"
-    loc_str += "Source: " + akForm3 + ", " + akForm4
+    loc_str += "Source: " + akForm4 + ", " + akForm5
     Return loc_str
 EndFunction

@@ -4,7 +4,7 @@ import UnforgivingDevicesMain
 import UDCustomDeviceMain
 import UD_Native
 
-Function TimeUpdateSecond(UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
+Function TimeUpdateSecond(UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     if akDevice.WearerIsRegistered()
         UD_CustomDevice_RenderScript[] loc_devices = UDCDmain.getNPCDevices(akDevice.getWearer())
         int loc_i = 0
@@ -27,7 +27,7 @@ Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
     akDevice.addModifier(self,Round(PatchPowerMultiplier*RandomInt(25,50)))
 EndFunction
 
-Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
+Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     String loc_msg = ""
     
     loc_msg += "=== " + NameFull + " ===\n"

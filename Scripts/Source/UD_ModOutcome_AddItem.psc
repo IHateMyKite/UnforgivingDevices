@@ -14,8 +14,8 @@
                         Default value: 0 (False)
 
     Form arguments:
-        Form3 - Single item to add or FormList with items.
-        Form4 - Single item to add or FormList with items.
+        Form5 - Single item to add or FormList with items.
+        Form6 - Single item to add or FormList with items.
 
     Example:
 /;
@@ -30,9 +30,9 @@ import UD_Native
 ===========================================================================================
 /;
 
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm3, Form akForm4 = None)
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
 
-    Form[] loc_forms = CombineForms(akForm3, akForm4)
+    Form[] loc_forms = CombineForms(akForm4, akForm5)
         
     If loc_forms.Length > 0
         Form loc_item = loc_forms[RandomInt(0, loc_forms.Length - 1)]
@@ -52,7 +52,7 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm3, Form akForm4 = None)
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
     String loc_str = ""
     Int loc_min = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
     Int loc_max = GetStringParamInt(aiDataStr, DataStrOffset + 1, loc_min)
@@ -61,7 +61,7 @@ String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderS
     loc_str += "\n"
     loc_str += "Number of items: " + loc_min + " - " + loc_max
     loc_str += "\n"
-    loc_str += "Source: " + akForm3 + ", " + akForm4
+    loc_str += "Source: " + akForm4 + ", " + akForm5
     loc_str += "\n"
     loc_str += "Instant use: "
     If loc_use

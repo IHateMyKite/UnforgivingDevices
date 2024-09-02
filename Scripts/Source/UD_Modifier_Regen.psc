@@ -1,12 +1,21 @@
+;/  File: UD_Modifier_Regen
+    Device will slowly repair itself
+
+    NameFull:   Regeneration
+    NameAlias:  REG
+
+    Parameters:
+        [0]     Float   Regeneration ability per game day
+/;
 ScriptName UD_Modifier_Regen extends UD_Modifier
 
 import UnforgivingDevicesMain
 import UDCustomDeviceMain
 import UD_Native
 
-Function TimeUpdateSecond(UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
+Function TimeUpdateSecond(UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     if akDevice.getRelativeDurability() < 1.0
-        mendDevice(akDevice,UD_Native.GetStringParamFloat(aiDataStr),1.0,afTime)
+        mendDevice(akDevice, UD_Native.GetStringParamFloat(aiDataStr, 0), 1.0, afTime)
     endif
 EndFunction
 
@@ -38,7 +47,7 @@ Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
     akDevice.addModifier(self,FormatFloat(120*PatchPowerMultiplier*RandomFloat(0.5 + loc_addmult,2.0 + loc_addmult),1))
 EndFunction
 
-Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
+Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     String loc_msg = ""
     
     loc_msg += "=== " + NameFull + " ===\n"

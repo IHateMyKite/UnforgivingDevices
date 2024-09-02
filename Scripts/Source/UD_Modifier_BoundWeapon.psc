@@ -1,18 +1,16 @@
 ;/  File: UD_Modifier_BoundWeapon
-    Equips weapon or spell
+    When actor unsheathes a weapon, the specified form is summoned instead
 
     NameFull:   Bound Weapon
     NameAlias:  BWE
 
     Parameters:
-
+        None
+        
     Form arguments:
-        Form1 - Bound Weapon or Spell to force equip (or FormList with possible spells/weapons)
+        Form1   Weapon/Spell/FormList   Bound Weapon or Spell to force equip (or FormList with possible spells/weapons)
         
-        Form2 - (optional) Spell that summons bound weapon specified in Form1
-        
-        Form3 - not used
-
+        Form2   Spell                  (optional) Spell that summons bound weapon specified in Form1
 /;
 Scriptname UD_Modifier_BoundWeapon extends UD_Modifier
 
@@ -21,7 +19,7 @@ FormList Property Patcher_BoundWeaponList Auto
 import UnforgivingDevicesMain
 import UD_Native
 
-Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
+Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_Modifier_BoundWeapon::ActorAction() akDevice = " + akDevice + ", aiActorAction = " + aiActorAction + ", akSource = " + akSource + ", aiDataStr = " + aiDataStr + ", akForm1 = " + akForm1 + ", akForm2 = " + akForm2 + ", akForm3 = " + akForm3, 3)
     EndIf
@@ -52,7 +50,7 @@ Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, F
     EndIf
 EndFunction
 
-Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
+Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     String loc_msg = ""
     
     loc_msg += "==== " + NameFull + " ====\n"

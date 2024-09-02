@@ -1,12 +1,25 @@
+;/  File: UD_Modifier_HMA
+    There is chance that wearer will be every hour locked in new manifested device
+
+    NameFull:   Hour Manifest
+    NameAlias:  HMA
+
+    Parameters:
+        [0]     Int     Chance to summon and lock random device (see UDCustomDeviceMain::ManifestDevices) on the wearer every hour.
+                        
+        [1]     Int     (optional) Number of devices to summon
+                        Default value: 1
+
+/;
 ScriptName UD_Modifier_HMA extends UD_Modifier
 
 import UnforgivingDevicesMain
 import UD_Native
 
-Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
+Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     int loc_chance = Round(UD_Native.GetStringParamInt(aiDataStr,0)*Multiplier)
     int loc_number = UD_Native.GetStringParamInt(aiDataStr,1,1)
-    UDCDmain.ManifestDevices(akDevice.GetWearer(),akDevice.getDeviceName(),loc_chance,loc_number)
+    UDCDmain.ManifestDevices(akDevice.GetWearer(), akDevice.getDeviceName(), loc_chance, loc_number)
 EndFunction
 
 Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
@@ -32,7 +45,7 @@ Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
     akDevice.addModifier(self,iRange(Round(RandomInt(2,8)*PatchPowerMultiplier),0,100) + "," + RandomInt(1,3))
 EndFunction
 
-Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
+Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     String loc_msg = ""
     
     loc_msg += "=== " + NameFull + " ===\n"

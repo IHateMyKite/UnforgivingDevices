@@ -23,11 +23,11 @@ import UD_Native
 ===========================================================================================
 /;
 
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm3, Form akForm4 = None)
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_ModOutcome_CastSpell::Outcome() akModifier = " + akModifier + ", akDevice = " + akDevice + ", aiDataStr = " + aiDataStr + ", akForm3 = " + akForm3 + ", akForm4 = " + akForm4, 3)
+        UDmain.Log("UD_ModOutcome_CastSpell::Outcome() akModifier = " + akModifier + ", akDevice = " + akDevice + ", aiDataStr = " + aiDataStr + ", akForm4 = " + akForm4 + ", akForm5 = " + akForm5, 3)
     EndIf
-    Form[] loc_forms = CombineForms(akForm3, akForm4)
+    Form[] loc_forms = CombineForms(akForm4, akForm5)
     If loc_forms.Length > 0
         Spell loc_spell = loc_forms[RandomInt(0, loc_forms.length - 1)] as Spell
         If loc_spell != None
@@ -36,11 +36,11 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     EndIf
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm3, Form akForm4 = None)
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
     String loc_str = ""
     loc_str += "Applies spell"
     loc_str += "\n"
-    loc_str += "Source: " + akForm3 + ", " + akForm4
+    loc_str += "Source: " + akForm4 + ", " + akForm5
     
     Return loc_str
 EndFunction

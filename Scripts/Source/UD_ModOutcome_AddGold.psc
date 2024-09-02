@@ -34,7 +34,7 @@ import UD_Native
 ===========================================================================================
 /;
 
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm3, Form akForm4 = None)
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
     Actor loc_actor = akDevice.GetWearer()
     if !loc_actor || !IsPlayer(loc_actor) ;should only work for the player
         return
@@ -48,8 +48,8 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     Int loc_gold = RandomInt(loc_A_min, loc_A_max) + RandomInt(loc_B_min, loc_B_max) * akDevice.UD_Level
     
     Form loc_currency = UDlibs.Gold
-    If akForm3 != None
-        loc_currency = akForm3
+    If akForm4 != None
+        loc_currency = akForm4
     EndIf
     
     if loc_gold > 0
@@ -58,17 +58,17 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm3, Form akForm4 = None)
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
     String loc_str = ""
     Form loc_currency = UDlibs.Gold
     Int loc_A_min = GetStringParamInt(aiDataStr, DataStrOffset + 0, 0)
     Int loc_A_max = GetStringParamInt(aiDataStr, DataStrOffset + 1, loc_A_min)
     Int loc_B_min = GetStringParamInt(aiDataStr, DataStrOffset + 2, 0)
     Int loc_B_max = GetStringParamInt(aiDataStr, DataStrOffset + 3, loc_B_min)
-    If akForm3 != None
-        loc_currency = akForm3
+    If akForm4 != None
+        loc_currency = akForm4
     EndIf
-    loc_str += "Gives currency (" + loc_currency.GetName() + ")"
+    loc_str += "Currency: " + loc_currency.GetName()
     loc_str += "\n"
     loc_str += "Amount: [" + loc_A_min + "; " + loc_A_max + "] + " + akDevice.UD_Level + " * [" + loc_B_min + "; " + loc_B_max + "]"
     

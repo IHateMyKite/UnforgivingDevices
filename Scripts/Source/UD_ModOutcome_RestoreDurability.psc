@@ -20,7 +20,7 @@
                         Default value: [+2]
 
     Form arguments:
-        Form3 - Single device keyword to regenerate or FormList with keywords (may be None if SELF or ALL selection method is used).
+        Form4           Single device keyword to regenerate or FormList with keywords (may be None if SELF or ALL selection method is used).
 
     Example:
         
@@ -36,17 +36,17 @@ import UD_Native
 ===========================================================================================
 /;
 
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm3, Form akForm4 = None)    
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)    
     If UDmain.TraceAllowed()
         UDmain.Log("UD_ModOutcome_RestoreDurability::Outcome() akDevice = " + akDevice + ", aiDataStr = " + aiDataStr, 3)
     EndIf
     
     Int loc_count = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
-    String loc_method_list3 = GetStringParamString(aiDataStr, DataStrOffset + 1, "S")
+    String loc_method_list4 = GetStringParamString(aiDataStr, DataStrOffset + 1, "S")
     Float loc_min = GetStringParamFloat(aiDataStr, DataStrOffset + 2)
     Float loc_max = GetStringParamFloat(aiDataStr, DataStrOffset + 3, loc_min)
 
-    Form[] loc_devices = GetEquippedDevicesWithSelectionMethod(akDevice, loc_count, akForm3, loc_method_list3, akForm4, "")
+    Form[] loc_devices = GetEquippedDevicesWithSelectionMethod(akDevice, loc_count, akForm4, loc_method_list4, akForm5, "")
 
     Int loc_i = 0
     While loc_i < loc_devices.Length
@@ -66,17 +66,17 @@ Function mendDevice(UD_CustomDevice_RenderScript akDevice, Float afStrength, flo
     endif
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm3, Form akForm4 = None)
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
     String loc_str = ""
-    String loc_method_list3 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
+    String loc_method_list4 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
     Float loc_min = GetStringParamFloat(aiDataStr, DataStrOffset + 2)
     Float loc_max = GetStringParamFloat(aiDataStr, DataStrOffset + 3, loc_min)
     loc_str += "Mends device(s)"
     loc_str += "\n"
     loc_str += "Number of devices: "
-    If loc_method_list3 == "S"
+    If loc_method_list4 == "S"
         loc_str += "SELF"
-    ElseIf loc_method_list3 == "A"
+    ElseIf loc_method_list4 == "A"
         loc_str += "ALL"
     Else
         loc_str += GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)   

@@ -527,6 +527,7 @@ Form[]      Property UD_ModifiersDataForm1    auto
 Form[]      Property UD_ModifiersDataForm2    auto
 Form[]      Property UD_ModifiersDataForm3    auto
 Form[]      Property UD_ModifiersDataForm4    auto
+Form[]      Property UD_ModifiersDataForm5    auto
 
 ;/  Variable: UD_MessageDeviceInteraction
     Message that is show when opening device menu. If not set, it will be set automatically by UD.
@@ -2501,7 +2502,7 @@ EndFunction
         ; TODO
     ---
 /;
-bool Function addModifier(UD_Modifier akModifier,string asParam = "", Form akForm1 = none, Form akForm2 = none, Form akForm3 = none, Form akForm4 = none)
+bool Function addModifier(UD_Modifier akModifier,string asParam = "", Form akForm1 = none, Form akForm2 = none, Form akForm3 = none, Form akForm4 = none, Form akForm5 = none)
     if !hasModifier(akModifier)
         UD_ModifiersRef         = PapyrusUtil.PushAlias (UD_ModifiersRef        ,akModifier)
         UD_ModifiersDataStr     = PapyrusUtil.PushString(UD_ModifiersDataStr    ,asParam)
@@ -2509,6 +2510,7 @@ bool Function addModifier(UD_Modifier akModifier,string asParam = "", Form akFor
         UD_ModifiersDataForm2   = PapyrusUtil.PushForm  (UD_ModifiersDataForm2  ,akForm2)
         UD_ModifiersDataForm3   = PapyrusUtil.PushForm  (UD_ModifiersDataForm3  ,akForm3)
         UD_ModifiersDataForm4   = PapyrusUtil.PushForm  (UD_ModifiersDataForm4  ,akForm4)
+        UD_ModifiersDataForm5   = PapyrusUtil.PushForm  (UD_ModifiersDataForm5  ,akForm5)
         return true
     else
         return false
@@ -2536,6 +2538,7 @@ bool Function removeModifier(UD_Modifier akModifier)
         Form[]      loc_tmp_modifiers_f2
         Form[]      loc_tmp_modifiers_f3
         Form[]      loc_tmp_modifiers_f4
+        Form[]      loc_tmp_modifiers_f5
         
         while loc_i < loc_size
             if (loc_i != loc_removed_indx)
@@ -2545,6 +2548,7 @@ bool Function removeModifier(UD_Modifier akModifier)
                 loc_tmp_modifiers_f2    = PapyrusUtil.PushForm  (loc_tmp_modifiers_f2   ,UD_ModifiersDataForm2  [loc_i])
                 loc_tmp_modifiers_f3    = PapyrusUtil.PushForm  (loc_tmp_modifiers_f3   ,UD_ModifiersDataForm3  [loc_i])
                 loc_tmp_modifiers_f4    = PapyrusUtil.PushForm  (loc_tmp_modifiers_f4   ,UD_ModifiersDataForm4  [loc_i])
+                loc_tmp_modifiers_f5    = PapyrusUtil.PushForm  (loc_tmp_modifiers_f5   ,UD_ModifiersDataForm5  [loc_i])
             endif
             loc_i += 1
         endwhile
@@ -2555,6 +2559,7 @@ bool Function removeModifier(UD_Modifier akModifier)
         UD_ModifiersDataForm2   = loc_tmp_modifiers_f2
         UD_ModifiersDataForm3   = loc_tmp_modifiers_f3
         UD_ModifiersDataForm4   = loc_tmp_modifiers_f4
+        UD_ModifiersDataForm5   = loc_tmp_modifiers_f5
         return true
     else
         return false
@@ -3420,7 +3425,7 @@ EndFunction
 
     Parameters:
 
-        aiChance    - Chance of lock to be jammed
+        aiChance    - Chance of locks to be jammed
         asMsg       - Message that will be printed (for example: "Some of the dirt got in to the locks, and jammed them!")
         aiNumber    - Number of locks that will get jammed
 /;
@@ -7649,9 +7654,10 @@ Function ShowModifiers()
         Form loc_form1 = UD_ModifiersDataForm1[loc_i]
         Form loc_form2 = UD_ModifiersDataForm2[loc_i]
         Form loc_form3 = UD_ModifiersDataForm3[loc_i]
-        Form loc_form4 = UD_ModifiersDataForm3[loc_i]
+        Form loc_form4 = UD_ModifiersDataForm4[loc_i]
+        Form loc_form5 = UD_ModifiersDataForm5[loc_i]
         ;loc_res += (loc_mod.NameFull + "\n")
-        loc_list = PapyrusUtil.PushString(loc_list, loc_mod.GetCaption(Self, loc_data, loc_form1, loc_form2, loc_form3, loc_form4))
+        loc_list = PapyrusUtil.PushString(loc_list, loc_mod.GetCaption(Self, loc_data, loc_form1, loc_form2, loc_form3, loc_form4, loc_form5))
         loc_i   += 1
     endwhile
     
@@ -7664,7 +7670,7 @@ Function ShowModifiers()
     endif
     
     UD_Modifier loc_mod = (UD_ModifiersRef[loc_res] as UD_Modifier)
-    loc_mod.ShowDetails(self,UD_ModifiersDataStr[loc_res],UD_ModifiersDataForm1[loc_res],UD_ModifiersDataForm2[loc_res],UD_ModifiersDataForm3[loc_res],UD_ModifiersDataForm4[loc_res])
+    loc_mod.ShowDetails(self,UD_ModifiersDataStr[loc_res],UD_ModifiersDataForm1[loc_res],UD_ModifiersDataForm2[loc_res],UD_ModifiersDataForm3[loc_res],UD_ModifiersDataForm4[loc_res],UD_ModifiersDataForm5[loc_res])
 EndFunction
 
 

@@ -32,7 +32,7 @@ import UD_Native
 ===========================================================================================
 /;
 
-Bool Function TimeUpdateHour(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr)
+Bool Function TimeUpdateHour(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1)
     Float loc_min_time = GetStringParamFloat(aiDataStr, 0, 0.0)
     Float loc_prob_base = GetStringParamFloat(aiDataStr, 1, 100.0)
     Float loc_prob_accum = GetStringParamFloat(aiDataStr, 2, 0.0)
@@ -40,7 +40,7 @@ Bool Function TimeUpdateHour(UD_Modifier_Combo akModifier, UD_CustomDevice_Rende
     Return TriggerOnValueDelta(akDevice, akModifier.NameAlias, aiDataStr, afValueDelta = afMult, afMinAccum = loc_min_time, afProbBase = loc_prob_base, afProbAccum = loc_prob_accum, abRepeat = loc_repeat, aiAccumParamIndex = 4)
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
     String loc_str = ""
     loc_str += "On elapsed time (hours)"
     loc_str += "\n"

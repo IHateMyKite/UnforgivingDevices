@@ -16,8 +16,8 @@
         [+2]    String  (optional) Selection method for the keywords in list akForm4
 
     Form arguments:
-        Form3 - Single device keyword to remove or FormList with keywords.
-        Form4 - Single device keyword to remove or FormList with keyword.
+        Form4 - Single device keyword to remove or FormList with keywords.
+        Form5 - Single device keyword to remove or FormList with keywords.
 
     Example:
 /;
@@ -32,16 +32,16 @@ import UD_Native
 ===========================================================================================
 /;
 
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm3, Form akForm4 = None)    
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)    
     If UDmain.TraceAllowed()
         UDmain.Log("UD_ModOutcome_RemoveDevice::Outcome() akDevice = " + akDevice + ", aiDataStr = " + aiDataStr, 3)
     EndIf
     
     Int loc_count = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
-    String loc_method_list3 = GetStringParamString(aiDataStr, DataStrOffset + 1, "S")
-    String loc_method_list4 = GetStringParamString(aiDataStr, DataStrOffset + 2, "")
+    String loc_method_list4 = GetStringParamString(aiDataStr, DataStrOffset + 1, "S")
+    String loc_method_list5 = GetStringParamString(aiDataStr, DataStrOffset + 2, "")
 
-    Form[] loc_devices = GetEquippedDevicesWithSelectionMethod(akDevice, loc_count, akForm3, loc_method_list3, akForm4, loc_method_list4)
+    Form[] loc_devices = GetEquippedDevicesWithSelectionMethod(akDevice, loc_count, akForm4, loc_method_list4, akForm5, loc_method_list5)
 
     Int loc_i = 0
     While loc_i < loc_devices.Length
@@ -51,7 +51,7 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm3, Form akForm4 = None)
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
     String loc_str = ""
     String loc_method_list3 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R") 
     loc_str += "Removes device(s)"

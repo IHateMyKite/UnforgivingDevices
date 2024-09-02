@@ -16,14 +16,14 @@
         [+2]    String  (optional) Selection method for the devices in list akForm4
 
     Form arguments:
-        Form3 - Single device keyword to activate or FormList with keywords.
         Form4 - Single device keyword to activate or FormList with keywords.
+        Form5 - Single device keyword to activate or FormList with keywords.
 
     Example:
-        1,FIRST     One device will be activated. The first suitable device from the list in Form3 will be selected by its keyword, 
+        1,FIRST     One device will be activated. The first suitable device from the list in Form4 will be selected by its keyword, 
                     starting from the top one.
-        5,F,R       Five devices will be activated. First the matching devices will be selected from the list in Form3, and 
-                    then the remaining number will be selected randomly from the list in Form4.
+        5,F,R       Five devices will be activated. First the matching devices will be selected from the list in Form4, and 
+                    then the remaining number will be selected randomly from the list in Form5.
 /;
 Scriptname UD_ModOutcome_ActivateDevice extends UD_ModOutcome
 
@@ -32,7 +32,7 @@ import UD_Native
 
 Explosion Property ManifestExplosion Auto
 
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm3, Form akForm4 = None)
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_ModOutcome_ActivateDevice::Outcome() akDevice = " + akDevice + ", aiDataStr = " + aiDataStr, 3)
     EndIf
@@ -41,7 +41,7 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     String loc_method_list3 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
     String loc_method_list4 = GetStringParamString(aiDataStr, DataStrOffset + 2, "")
 
-    Form[] loc_devices = GetEquippedDevicesWithSelectionMethod(akDevice, loc_count, akForm3, loc_method_list3, akForm4, loc_method_list4)
+    Form[] loc_devices = GetEquippedDevicesWithSelectionMethod(akDevice, loc_count, akForm4, loc_method_list3, akForm5, loc_method_list4)
 
     Int loc_i = 0
     While loc_i < loc_devices.Length
@@ -51,7 +51,7 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
 
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm3, Form akForm4 = None)
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
     String loc_str = ""
     String loc_method_list3 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R") 
     loc_str += "Activates Device(s)"

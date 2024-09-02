@@ -34,7 +34,7 @@ import UD_Native
 ===========================================================================================
 /;
 
-Bool Function Sleep(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afDuration, Bool abInterrupted, String aiDataStr)
+Bool Function Sleep(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afDuration, Bool abInterrupted, String aiDataStr, Form akForm1)
     Int loc_ending = GetStringParamInt(aiDataStr, 3, 0)
     If (loc_ending == 2 && !abInterrupted) || (loc_ending == 1 && abInterrupted)
         Return False
@@ -46,7 +46,7 @@ Bool Function Sleep(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript a
     Return TriggerOnValueAbs(akDevice, akModifier.NameAlias, aiDataStr, afValueAbs = afDuration, afMinValue = loc_min_dur, afProbBase = loc_prob_base, afProbAccum = loc_prob_value, abRepeat = loc_repeat)
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr)
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
     Int loc_cond = GetStringParamInt(aiDataStr, 4, 0)
     String loc_str = ""
     loc_str += "On sleep (value is the sleep duration in hours)"

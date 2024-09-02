@@ -1,30 +1,38 @@
 ;/  File: UD_Modifier_LootItem
-    Once unlocked, actor will be rewarded with items
+    Upon release from the device, the actor will receive items as a reward
 
-    NameFull: Loot Item
-    NameAlias: LI
+    NameFull:   Loot Item
+    NameAlias:  LI
 
     Parameters:
-        0 = (optional) Number of items filled in Form1 received, Int
-        1 = (optional) Number of items filled in Form2 received, Int
-        2 = (optional) Number of items filled in Form3 received, Int
-        3 = (optional) Number of items filled in Form3 received, Int
-        
+        [0]     Int     (optional) Number of items from Form1 to award
+                        Default value: 1
+                        
+        [1]     Int     (optional) Number of items from Form2 to award
+                        Default value: 1
+                        
+        [2]     Int     (optional) Number of items from Form3 to award
+                        Default value: 1
+                        
+        [3]     Int     (optional) Number of items from Form4 to award
+                        Default value: 1
+
     Form arguments:
-        Form1 - Item the actor will receive
-        Form2 - Item the actor will receive
-        Form3 - Item the actor will receive
+        Form1           Item the actor will receive
+        Form2           Item the actor will receive
+        Form3           Item the actor will receive
+        Form4           Item the actor will receive
         
     Example:
-        1       = Reward actor with 1x Form1,Form2,Form3 (if filled)
-        1,2,3   = Reward actor with 1x Form1, 2x Form2, 3x Form3 (if filled)
+        1               Reward actor with 1x Form1,Form2,Form3 (if filled)
+        1,2,3           Reward actor with 1x Form1, 2x Form2, 3x Form3 (if filled)
 /;
 ScriptName UD_Modifier_LootItem extends UD_Modifier
 
 import UnforgivingDevicesMain
 import UD_Native
 
-Function DeviceUnlocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
+Function DeviceUnlocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     if !akDevice
         return ;none device passed - exit
     endif
@@ -61,7 +69,7 @@ Function DeviceUnlocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr,
     endif
 EndFunction
 
-Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
+Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     String loc_msg = ""
     
     loc_msg += "=== " + NameFull + " ===\n"

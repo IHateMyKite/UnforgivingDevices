@@ -5,21 +5,23 @@
     NameAlias: EVL
 
     Parameters:
-        0 = (optional) Type of monitored value
-            0 - Hours
-            1 - Orgasms
-           -1 - Device have already evolved
-            Default = 0
-        1 = (optional) Amount of value required to evolve
-            Hours -> Float
-            Orgasms -> Int
-            Default = 6.0
+        [0]     Int     (optional) Type of monitored value
+                            0 - Hours
+                            1 - Orgasms
+                           -1 - Device have already evolved
+                        Default value: 0 (Hours)
+                        
+        [1]     Variant (optional) Amount of value required to evolve
+                            Hours -> Float
+                            Orgasms -> Int
+                        Default value: 6.0
 
     Form arguments:
-        Form1 - Device in to which will current device evolve. In case this is formlist, random device from formlist will be used.
-        Form2 - Device in to which will current device evolve. In case this is formlist, random device from formlist will be used.
-        Form3 - Device in to which will current device evolve. In case this is formlist, random device from formlist will be used.
-    In case more then one FormX is filled, random one will be choosen
+        Form1           Device in to which will current device evolve. In case this is formlist, random device from formlist will be used.
+        Form2           Device in to which will current device evolve. In case this is formlist, random device from formlist will be used.
+        Form3           Device in to which will current device evolve. In case this is formlist, random device from formlist will be used.
+        Form4           Device in to which will current device evolve. In case this is formlist, random device from formlist will be used.
+        In case more then one FormX is filled, random one will be choosen
 
     Example:
         0,24.5  = Evolves after 1 day and half a hour
@@ -30,7 +32,7 @@ ScriptName UD_Modifier_Evolve extends UD_Modifier
 import UnforgivingDevicesMain
 import UD_Native
 
-Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
+Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     int loc_type = UD_Native.GetStringParamInt(aiDataStr,0,0)
     if loc_type == 0
         Float loc_value = UD_Native.GetStringParamFloat(aiDataStr,1,6.0) - 1.0*afMult
@@ -42,7 +44,7 @@ Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, Str
     endif
 EndFunction
 
-Function Orgasm(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
+Function Orgasm(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     int loc_type = UD_Native.GetStringParamInt(aiDataStr,0,0)
     if loc_type == 1
         int loc_value = UD_Native.GetStringParamInt(aiDataStr,1,3) - 1
@@ -100,7 +102,7 @@ EndFunction
 Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
 EndFunction
 
-Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4)
+Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     String loc_msg = ""
     
     loc_msg += "=== " + NameFull + " ===\n"
