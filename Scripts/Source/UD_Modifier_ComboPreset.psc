@@ -13,8 +13,9 @@
     Form arguments:
         Form1 - Not used
         Form2 - Not used
-        Form3 - Parameter Form1 for the ModOutcome
-        Form4 - Parameter Form2 for the ModOutcome
+        Form3 - Parameter for the ModTrigger
+        Form4 - Parameter for the ModOutcome
+        Form5 - Parameter for the ModOutcome
         
     Example:
         
@@ -97,26 +98,6 @@ EndFunction
 
 Function KillMonitor(UD_CustomDevice_RenderScript akDevice, ObjectReference akVictim, Int aiCrimeStatus, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     Parent.KillMonitor(akDevice, akVictim, aiCrimeStatus, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
-EndFunction
-
-Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    UD_Patcher_ComboPreset loc_patcher = ((Self as ReferenceAlias) as UD_Patcher_ComboPreset)
-    If loc_patcher == None
-        Return False
-    EndIf
-    Return loc_patcher.CheckDevice(akDevice)
-EndFunction
-
-Float Function PatchModifierProbability(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods)
-    Return Parent.PatchModifierProbability(akDevice, aiSoftCap, aiValidMods)
-EndFunction
-
-Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
-    UD_Patcher_ComboPreset loc_patcher = ((Self as ReferenceAlias) as UD_Patcher_ComboPreset)
-    If loc_patcher == None
-        Return
-    EndIf
-    akDevice.AddModifier(Self, loc_patcher.GetDataStr(PatchPowerMultiplier), None, None, loc_patcher.GetForm3(PatchPowerMultiplier), loc_patcher.GetForm4(PatchPowerMultiplier))
 EndFunction
 
 Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)

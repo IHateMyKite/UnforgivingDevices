@@ -37,35 +37,17 @@ EndProperty
 
 
 ;/  Variable: NameFull
-    Full name of the modifier which is shown to the player
+    Full name of the trigger which is shown to the player
 /;
 String      Property NameFull               Auto
 
 ;/  Variable: Description
-    Additional info shown to player when selecting modifier on device
+    Additional info about trigger shown in the modifier description
 /;
 String      Property Description            Auto
 
-;/  Variable: UserDifficultyMultiplier
-    Multiplier which can be used to allow user to change difficulty of modifier.
-    
-    Have to be implemented manually at a correct place
-    
-    The bigger this will, the more punishing/rewarding should modifier be
-    
-    This will affect even equipped devices
-/;
-Float       Property UserDifficultyMultiplier   = 1.0   Auto hidden
 
-;/  Variable: PatchPowerMultiplier
-    Multiplier which can be used to allow user to change power at which are modifiers added by patcher
-    
-    This will not affect already equipped devices
-/;
-Float       Property PatchPowerMultiplier       = 1.0   Auto hidden
-
-
-;/  Group: Overrides
+;/  Group: Events Processing
 ===========================================================================================
 ===========================================================================================
 ===========================================================================================
@@ -139,11 +121,24 @@ Bool Function KillMonitor(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderSc
     Return False
 EndFunction
 
+;/  Group: User interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
 String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
     Return Description
 EndFunction
 
-;/  Function: TriggerOnValueChange
+
+;/  Group: Protected methods
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+;/  Function: TriggerOnValueDelta
 
     This function is used to calculate and check probability to trigger on some value change with many options
     

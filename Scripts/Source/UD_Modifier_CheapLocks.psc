@@ -50,22 +50,6 @@ Function WeaponHit(UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, Float
     akDevice.AddJammedLock(Round((loc_chance1 + loc_chance2 * afDamage) * Multiplier))
 EndFunction
 
-Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    Return (akDevice.GetLockNumber() > 0)
-EndFunction
-
-Float Function PatchModifierProbability(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods)
-    Return 25.0
-EndFunction
-
-Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
-    String loc_p1 = FormatFloat(fRange(RandomFloat(5.0, 15.0) * PatchPowerMultiplier, 0.0, 100.0), 1)
-    ; negative values to enforce 0 with some probability
-    String loc_p2 = FormatFloat(fRange(RandomFloat(-5.0, 5.0) * PatchPowerMultiplier, 0.0, 100.0), 1)
-    String loc_p3 = FormatFloat(fRange(RandomFloat(-1.0, 1.0) * PatchPowerMultiplier, 0.0, 100.0), 1)
-    akDevice.addModifier(self, loc_p1 + "," + loc_p2 + "," + loc_p3)
-EndFunction
-
 Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     String loc_msg = ""
     
@@ -78,4 +62,22 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     loc_msg += Description + "\n"
 
     UDmain.ShowMessageBox(loc_msg)
+EndFunction
+
+;/  Group: Patcher overrides
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+Bool Function PatchModifierFastCheckOverride(UD_CustomDevice_RenderScript akDevice)
+    Return (akDevice.GetLockNumber() > 0)
+EndFunction
+
+; obsolete
+Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
+    String loc_p1 = FormatFloat(fRange(RandomFloat(5.0, 15.0) * PatchPowerMultiplier, 0.0, 100.0), 1)
+    ; negative values to enforce 0 with some probability
+    String loc_p2 = FormatFloat(fRange(RandomFloat(-5.0, 5.0) * PatchPowerMultiplier, 0.0, 100.0), 1)
+    String loc_p3 = FormatFloat(fRange(RandomFloat(-1.0, 1.0) * PatchPowerMultiplier, 0.0, 100.0), 1)
+    akDevice.addModifier(self, loc_p1 + "," + loc_p2 + "," + loc_p3)
 EndFunction

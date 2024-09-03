@@ -44,15 +44,6 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     UDmain.ShowMessageBox(loc_msg)
 EndFunction
 
-Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-; we are going to edit base object so it is incompatible with dynamic patching
-    return False
-EndFunction
-
-Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
-; we are going to edit base object so it is incompatible with dynamic patching
-EndFunction
-
 Function SetArmorValues(UD_CustomDevice_RenderScript akDevice, String aiDataStr)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_Modifier_Armor::SetArmorValues() akDevice = " + akDevice + ", aiDataStr = " + aiDataStr, 3)

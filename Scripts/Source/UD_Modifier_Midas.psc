@@ -47,14 +47,13 @@ Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, Str
     endif
 EndFunction
 
-Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    return True
-EndFunction
+;/  Group: Patcher overrides
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 
-Float Function PatchModifierProbability(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods)
-    Return Parent.PatchModifierProbability(akDevice, aiSoftCap, aiValidMods) * 0.20
-EndFunction
-
+; obsolete
 Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
     int loc_A_min = iRange(Round(RandomInt(3,7)*PatchPowerMultiplier),0,100)
     int loc_A_max = iRange(Round(loc_A_min * RandomFloat(1.25,1.5)),loc_A_min,300)

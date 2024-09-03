@@ -37,7 +37,7 @@ EndProperty
 
 
 ;/  Variable: NameFull
-    Full name of the modifier which is shown to the player
+    Full name of the outcome which is shown to the player
 /;
 String      Property NameFull               Auto
 
@@ -46,42 +46,34 @@ String      Property NameFull               Auto
 /;
 String      Property Description            Auto
 
-;/  Variable: UserDifficultyMultiplier
-    Multiplier which can be used to allow user to change difficulty of modifier.
-    
-    Have to be implemented manually at a correct place
-    
-    The bigger this will, the more punishing/rewarding should modifier be
-    
-    This will affect even equipped devices
-/;
-Float       Property UserDifficultyMultiplier   = 1.0   Auto hidden
-
-;/  Variable: PatchPowerMultiplier
-    Multiplier which can be used to allow user to change power at which are modifiers added by patcher
-    
-    This will not affect already equipped devices
-/;
-Float       Property PatchPowerMultiplier       = 1.0   Auto hidden
-
 ;/  Variable: DataStrOffset
     Index of the first parameter in DataStr used in the outcome configuration
 /;
 Int         Property DataStrOffset              = 7     AutoReadOnly Hidden
 
-;/  Group: Overrides
+;/  Group: Outcome Processing
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
+EndFunction
+
+;/  Group: User Interface
 ===========================================================================================
 ===========================================================================================
 ===========================================================================================
 /;
 
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
-EndFunction
-
 String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
     Return Description
 EndFunction
 
+;/  Group: Protected methods
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 Form[] Function CombineForms(Form akForm1, Form akForm2, Form akForm3 = None)
     Form[] loc_forms
     Int loc_i
@@ -118,7 +110,6 @@ Form[] Function CombineForms(Form akForm1, Form akForm2, Form akForm3 = None)
     
     Return loc_forms
 EndFunction
-
 
 Form[] Function GetEquippedDevicesWithSelectionMethod(UD_CustomDevice_RenderScript akDevice, Int aiNumber, Form akForm1, String asSelectionMethod1 = "R", Form akForm2 = None, String asSelectionMethod2 = "", Form akForm3 = None, String asSelectionMethod3 = "")
     Form[] loc_devices

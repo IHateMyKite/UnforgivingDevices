@@ -69,14 +69,20 @@ Function MinigameStarted(UD_CustomDevice_RenderScript akModDevice, UD_CustomDevi
     endif
 EndFunction
 
-Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    return True
+;/  Group: Patcher overrides
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+Bool Function PatchModifierFastCheckOverride(UD_CustomDevice_RenderScript akDevice)
+    Return True
 EndFunction
 
-Float Function PatchModifierProbability(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods)
-    Return Parent.PatchModifierProbability(akDevice, aiSoftCap, aiValidMods) * 0.25
+Float Function PatchModifierCheckAndAddOverride(UD_CustomDevice_RenderScript akDevice)
+    Return 1.0
 EndFunction
 
+; obsolete 
 Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
     int loc_A_min = iRange(Round(RandomInt(3,7)*PatchPowerMultiplier),0,100)
     int loc_A_max = iRange(Round(loc_A_min * RandomFloat(1.25,1.5)),loc_A_min,300)

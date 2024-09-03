@@ -116,6 +116,11 @@ Bool Function ValidateModifier(UD_CustomDevice_RenderScript akDevice, String aiD
     Return True
 EndFunction
 
+;/  Group: Events Processing
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 Function GameLoaded(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
 EndFunction
 
@@ -168,6 +173,12 @@ EndFunction
 Function KillMonitor(UD_CustomDevice_RenderScript akDevice, ObjectReference akVictim, Int aiCrimeStatus, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
 EndFunction
 
+;/  Group: User Interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
 Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     String loc_msg = ""
     
@@ -196,23 +207,93 @@ String Function GetCaption(UD_CustomDevice_RenderScript akDevice, String aiDataS
     EndIf
 EndFunction
 
-Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    return PatchUserEnable
+;/  Group: Patcher
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+; Quickly check the applicability of a modifier without considering dependencies and conflicts. 
+; Used for approximate calculation of the upper limit for the number of available mods
+; Could be overriden for more accurate calculation
+Bool Function PatchModifierFastCheck(UD_CustomDevice_RenderScript akDevice)
+    If !PatchUserEnable || PatchChanceMultiplier <= 0.0
+        Return False
+    EndIf
+    UD_Patcher_ModPreset loc_preset = (Self as ReferenceAlias) as UD_Patcher_ModPreset
+    Return (loc_preset != None) && PatchModifierFastCheckOverride(akDevice)
 EndFunction
 
-Float Function PatchModifierProbability(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods)
-    If !PatchModifierCondition(akDevice)
-        Return 0.0
+; Carefully check the compatibility of the modifier and try to add it taking into account the given probabilities
+Bool Function PatchModifierCheckAndAdd(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods)
+    UD_Patcher_ModPreset loc_preset = _GetBestPatcherPreset(akDevice)
+    If loc_preset == None 
+        Return False
     EndIf
-    If aiValidMods == 0
-        aiValidMods = 1
+    Float loc_prob = loc_preset.BaseProbability * PatchChanceMultiplier
+    ; Adjust the probability with the soft limit if it is allowed in the preset settings
+    If loc_prob > 0.0 && loc_preset.IsNormalizedProbability
+        aiValidMods = UD_Native.iRange(aiValidMods, 1, 99)
+        aiSoftCap = UD_Native.iRange(aiSoftCap, 0, 99)
+        loc_prob *= (aiSoftCap as Float) / (aiValidMods as Float)
     EndIf
-    Float loc_prob = PatchChanceMultiplier * (100.0 * aiSoftCap) / aiValidMods
-    If loc_prob > 100.0
-        Return 100.0
+    
+    loc_prob *= PatchModifierCheckAndAddOverride(akDevice)
+    
+    If UD_Native.RandomFloat(0.0, 100.0) < loc_prob
+        akDevice.AddModifier(Self, loc_preset.GetDataStr(PatchPowerMultiplier), loc_preset.GetForm1(PatchPowerMultiplier), loc_preset.GetForm2(PatchPowerMultiplier), loc_preset.GetForm3(PatchPowerMultiplier), loc_preset.GetForm4(PatchPowerMultiplier), loc_preset.GetForm5(PatchPowerMultiplier))
+        Return True
+    Else
+        Return False
     EndIf
-    Return loc_prob
 EndFunction
 
-Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
+; Overrides
+Bool Function PatchModifierFastCheckOverride(UD_CustomDevice_RenderScript akDevice)
+    Return True
+EndFunction
+
+Float Function PatchModifierCheckAndAddOverride(UD_CustomDevice_RenderScript akDevice)
+    Return 1.0
+EndFunction
+
+; Private methods
+UD_Patcher_ModPreset Function _GetBestPatcherPreset(UD_CustomDevice_RenderScript akDevice)
+    UD_Patcher_ModPreset loc_preset1 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset1) as UD_Patcher_ModPreset
+    UD_Patcher_ModPreset loc_preset2 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset2) as UD_Patcher_ModPreset
+    UD_Patcher_ModPreset loc_preset3 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset3) as UD_Patcher_ModPreset
+    
+    UD_Patcher_ModPreset loc_result = None
+    Int loc_priority = -10
+    
+    If loc_preset1
+        Int loc_temp = loc_preset1.CheckDevice(akDevice)
+        If loc_temp > loc_priority
+            loc_priority = loc_temp
+            loc_result = loc_preset1
+        EndIf
+    EndIf
+    
+    If loc_preset2
+        Int loc_temp = loc_preset2.CheckDevice(akDevice)
+        If loc_temp > loc_priority
+            loc_priority = loc_temp
+            loc_result = loc_preset2
+        EndIf
+    EndIf
+    
+    If loc_preset3
+        Int loc_temp = loc_preset3.CheckDevice(akDevice)
+        If loc_temp > loc_priority
+            loc_priority = loc_temp
+            loc_result = loc_preset3
+        EndIf
+    EndIf
+    
+    If loc_priority > 0
+        Return loc_result
+    Else
+        Return None
+    EndIf
+    
 EndFunction

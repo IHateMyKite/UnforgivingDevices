@@ -1,25 +1,33 @@
 ;   File: UD_Patcher_ModPreset
 ;   
-Scriptname UD_Patcher_ModPreset extends ReferenceAlias
+Scriptname UD_Patcher_ModPreset extends ReferenceAlias Hidden
 
 import UnforgivingDevicesMain
 import UD_Native
 
-String      Property DataStr_Easy                   Auto
-String      Property DataStr_Hard                   Auto
-String      Property DataStr_Types                  Auto
+String      Property DataStr_Easy                       Auto
+String      Property DataStr_Hard                       Auto
+String      Property DataStr_Types                      Auto
 
-FormList    Property Form1_Variants                 Auto
-FormList    Property Form2_Variants                 Auto
-FormList    Property Form3_Variants                 Auto
-FormList    Property Form4_Variants                 Auto
+FormList    Property Form1_Variants                     Auto
+FormList    Property Form2_Variants                     Auto
+FormList    Property Form3_Variants                     Auto
+FormList    Property Form4_Variants                     Auto
+FormList    Property Form5_Variants                     Auto
 
-Float       Property MultEasing = 0.25              Auto
+Float       Property MultEasing                 = 0.25  Auto
+{Default value: 0.25}
 
-Keyword[]   Property PreferredDevices               Auto
-Keyword[]   Property ForbiddenDevices               Auto
-String[]    Property ConflictedMods                 Auto
+Keyword[]   Property PreferredDevices                   Auto
+Keyword[]   Property ForbiddenDevices                   Auto
+String[]    Property ConflictedMods                     Auto
 
+Float       Property BaseProbability            = 100.0 Auto
+{Default value: 25.0}
+Bool        Property IsNormalizedProbability    = True  Auto
+{Default value: True}
+
+; Obsolete before it was even born
 Float Function BiasedRandom(Float afMultiplier = 1.0, Float afEasing = 1.0)
 ; TODO: elaborate better function
 ; Now it is a bijective function [0.0; 1.0] => [0.0; 1.0]. It moves random generation left or right depending on the multiplier.
@@ -135,7 +143,16 @@ Form Function GetForm4(Float afMultiplier = 1.0)
     Return None
 EndFunction
 
-Bool Function CheckDevice(UD_CustomDevice_RenderScript akDevice)
+Form Function GetForm5(Float afMultiplier = 1.0)
+    If Form5_Variants && Form5_Variants.GetSize() > 0
+        Float loc_rnd_1 = BiasedRandom2(afMultiplier, MultEasing)
+        Int loc_i = (loc_rnd_1 * (Form5_Variants.GetSize() - 1)) as Int
+        Return Form5_Variants.GetAt(loc_i)
+    EndIf
+    Return None
+EndFunction
+
+Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice)
     Armor loc_inventory_armor = akDevice.DeviceInventory
     Int loc_i
     If ForbiddenDevices.Length > 0
@@ -143,7 +160,7 @@ Bool Function CheckDevice(UD_CustomDevice_RenderScript akDevice)
         While loc_i > 0
             loc_i -= 1
             If loc_inventory_armor.HasKeyword(ForbiddenDevices[loc_i])
-                Return False
+                Return -1       ; device is fobidden for this mod
             EndIf
         EndWhile
     EndIf
@@ -151,7 +168,7 @@ Bool Function CheckDevice(UD_CustomDevice_RenderScript akDevice)
     If ConflictedMods.Length > 0
         String[] loc_mods = akDevice.GetModifierAliases()
         If PapyrusUtil.GetMatchingString(loc_mods, ConflictedMods).Length > 0
-            Return False
+            Return -2           ; device has conflicted mod
         EndIf
     EndIf
     
@@ -159,11 +176,11 @@ Bool Function CheckDevice(UD_CustomDevice_RenderScript akDevice)
         loc_i = PreferredDevices.Length
         While loc_i > 0
             loc_i -= 1
-            If loc_inventory_armor.HasKeyword(ForbiddenDevices[loc_i])
-                Return True
+            If loc_inventory_armor.HasKeyword(PreferredDevices[loc_i])
+                Return 2        ; device is preferred for this mod
             EndIf
         EndWhile
-        Return False
+        Return 0                ; mod has prefferred devices but this device is not one of them
     EndIf
-    Return True
+    Return 1                    ; just ok
 EndFunction

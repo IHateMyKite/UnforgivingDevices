@@ -23,6 +23,8 @@ Float       Property UD_PatchMult           =  1.0    auto hidden ;global patch 
 int         Property UD_EscapeModifier      =   10    auto hidden
 Int         Property UD_MinLocks            =    0    auto hidden
 Int         Property UD_MaxLocks            =    2    auto hidden
+
+Int         Property UD_ModsMinCap          =    2    Auto Hidden   ; If the number of modifiers is lower than the specified value, we try to add more modifiers
 Int         Property UD_ModsSoftCap         =    4    Auto Hidden   ; soft cap for the number of modifiers added by the patcher (the number of mods may exceed this value, as the probability of adding a mod is determined by the mod itself)
 Int         Property UD_ModsHardCap         =    99   Auto Hidden   ; hard cap for the number of modifiers added by the patcher (when this value is reached, the patcher stops adding mods)
 
@@ -292,67 +294,39 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
             while loc_modnum
                 loc_modnum -= 1
                 UD_Modifier loc_mod = loc_storage.GetNthModifier(loc_modnum)
-                if loc_mod && loc_mod.PatchChanceMultiplier > 0.0 && !akDevice.HasModifierRef(loc_mod) && loc_mod.PatchModifierCondition(akDevice)
+                if loc_mod && loc_mod.PatchChanceMultiplier > 0.0 && !akDevice.HasModifierRef(loc_mod) && loc_mod.PatchModifierFastCheck(akDevice)
                     loc_valid_mods = PapyrusUtil.PushAlias(loc_valid_mods, loc_mod)
-                    ;loc_mod.PatchAddModifier(akDevice)
-                    UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() First run: valid modifier = " + loc_mod, 3)
+                    UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Fast check: valid modifier = " + loc_mod, 3)
                 endif
             endwhile
         endwhile
         If loc_valid_mods.Length == 0
             Return
         EndIf
-        ; second run to get probability for each valid mod
-        loc_count = 0
-        loc_modnum = 0
-        while loc_count < loc_valid_mods.Length
-            UD_Modifier loc_mod = loc_valid_mods[loc_count] As UD_Modifier
-            Float loc_prob = loc_mod.PatchModifierProbability(akDevice, UD_ModsSoftCap, loc_valid_mods.Length)
-            loc_mod_probs = PapyrusUtil.PushFloat(loc_mod_probs, loc_prob)
-            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Second run: probability = " + FormatFloat(loc_prob, 2) + "%", 3)
-            loc_count += 1
-        endwhile
-        ; sorting modifiers by its probability
-        loc_valid_mods = _SortModifiers(loc_valid_mods, loc_mod_probs)
-        ; third run to add mods according to its ordered probability (100% - first) with soft and hard caps
-        loc_count = 0
-        loc_modnum = 0
-        while loc_count < loc_valid_mods.Length
-            If loc_modnum >= UD_ModsHardCap
-                Return
-            EndIf
-            UD_Modifier loc_mod = loc_valid_mods[loc_count] As UD_Modifier
-            Float loc_prob = loc_mod.PatchModifierProbability(akDevice, UD_ModsSoftCap, loc_valid_mods.Length)
-            If (RandomFloat(0.0, 100.0) < loc_prob) && loc_mod.PatchModifierCondition(akDevice)           ; last check to exclude conflicting modifiers
-                UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Third run: valid modifier = " + loc_mod + ", probability = " + FormatFloat(loc_prob, 2) + "%", 3)
-                loc_mod.PatchAddModifier(akDevice)
-                loc_modnum += 1
-            endif
-            loc_count += 1
-        endwhile
+        ; second run to accurate check and assing valid mods
+        _AddModifiersFromArray(akDevice, loc_valid_mods, UD_ModsSoftCap, UD_ModsHardCap)
+        If loc_modnum < UD_ModsMinCap
+            ; a third run to add mods if their number does not reach the allowable minimum
+            _AddModifiersFromArray(akDevice, loc_valid_mods, UD_ModsSoftCap, UD_ModsSoftCap)
+        EndIf
     endif
 EndFunction
 
-; Function for sorting an array in order according to float numbers in another array
-; 
-Alias[] Function _SortModifiers(Alias[] aakMods, Float[] aafOrder, Bool abDescending = True)
-    String[] loc_astr = Utility.CreateStringArray(0)
-    Alias[] loc_result = Utility.CreateAliasArray(0)
-    Int loc_i = aafOrder.Length
-    While loc_i > 0
-        loc_i -= 1
-        loc_astr = PapyrusUtil.PushString(loc_astr, _FloatToString(aafOrder[loc_i], 6, 2) + "_" + loc_i)
-    EndWhile
-    PapyrusUtil.SortStringArray(loc_astr, abDescending)
-    loc_i = 0
-    While loc_i < aafOrder.Length
-        Int loc_pos = StringUtil.Find(loc_astr[loc_i], "_")
-        Int loc_mod_index = StringUtil.SubString(loc_astr[loc_i], loc_pos + 1) As Int
-        loc_result = PapyrusUtil.PushAlias(loc_result, aakMods[loc_mod_index])
-        loc_i += 1
-    EndWhile
-    
-    Return loc_result
+Int Function _AddModifiersFromArray(UD_CustomDevice_RenderScript akDevice, Alias[] aakMods, Int aiSoftCap, Int aiHardCap)
+    Int loc_count = 0
+    Int loc_modnum = 0
+    while loc_count < aakMods.Length
+        If loc_modnum >= aiHardCap
+            Return loc_modnum
+        EndIf
+        UD_Modifier loc_mod = aakMods[loc_count] As UD_Modifier
+        If !akDevice.HasModifierRef(loc_mod) && loc_mod.PatchModifierCheckAndAdd(akDevice, aiSoftCap, aakMods.Length)
+            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Added modifier = " + loc_mod, 3)
+            loc_modnum += 1
+        EndIf
+        loc_count += 1
+    endwhile
+    Return loc_modnum
 EndFunction
 
 String Function _FloatToString(Float afNumber, Int aiWidth, Int aiPrecision)

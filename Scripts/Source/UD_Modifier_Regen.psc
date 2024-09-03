@@ -29,24 +29,6 @@ Function mendDevice(UD_CustomDevice_RenderScript akDevice, Float afStrength,floa
     endif
 EndFunction
 
-Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    return akDevice.CanBeStruggled()
-EndFunction
-
-Float Function PatchModifierProbability(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods)
-    Return 100.0 * (0.20 + 0.20 * (IsEbonite(akDevice.deviceInventory) as Float))
-EndFunction
-
-Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
-    float loc_addmult = 0.0
-    
-    if IsEbonite(akDevice.deviceInventory)
-        loc_addmult = 1.0
-    endif
-
-    akDevice.addModifier(self,FormatFloat(120*PatchPowerMultiplier*RandomFloat(0.5 + loc_addmult,2.0 + loc_addmult),1))
-EndFunction
-
 Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     String loc_msg = ""
     
@@ -56,4 +38,20 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     loc_msg += Description + "\n"
     
     UDmain.ShowMessageBox(loc_msg)
+EndFunction
+
+;/  Group: Patcher overrides
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+; obsolete
+Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
+    float loc_addmult = 0.0
+    
+    if IsEbonite(akDevice.deviceInventory)
+        loc_addmult = 1.0
+    endif
+
+    akDevice.addModifier(self,FormatFloat(120*PatchPowerMultiplier*RandomFloat(0.5 + loc_addmult,2.0 + loc_addmult),1))
 EndFunction

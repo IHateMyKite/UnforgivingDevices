@@ -95,13 +95,6 @@ Function Evolve(UD_CustomDevice_RenderScript akDevice, Form akForm1, Form akForm
     endif
 EndFunction
 
-; Do not use for patched devices. Instead it have to be added manually
-Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    return false
-EndFunction
-Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
-EndFunction
-
 Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     String loc_msg = ""
     
