@@ -2480,6 +2480,22 @@ String[] Function GetModifierAliases()
     Return loc_result
 EndFunction
 
+
+Bool Function ModifiersHasTag(String asTag)
+    String loc_mod_tags = ""
+    String loc_tag = " " + asTag + " "
+    Int loc_length = UD_ModifiersRef.Length
+    Int loc_i = 0
+    While loc_i < loc_length
+        loc_mod_tags = " " + (UD_ModifiersRef[loc_i] as UD_Modifier).Tags + " "
+        If StringUtil.Find(loc_mod_tags, loc_tag) > -1
+            Return True
+        EndIf
+        loc_i += 1
+    Endwhile
+    Return False
+EndFunction
+
 ;/  Function: addModifier
     Parameters:
 

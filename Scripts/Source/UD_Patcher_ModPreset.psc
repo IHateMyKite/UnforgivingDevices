@@ -5,6 +5,8 @@ Scriptname UD_Patcher_ModPreset extends ReferenceAlias Hidden
 import UnforgivingDevicesMain
 import UD_Native
 
+String      Property DisplayName = "General Preset"     Auto
+
 String      Property DataStr_Easy                       Auto
 String      Property DataStr_Hard                       Auto
 String      Property DataStr_Types                      Auto
@@ -15,17 +17,33 @@ FormList    Property Form3_Variants                     Auto
 FormList    Property Form4_Variants                     Auto
 FormList    Property Form5_Variants                     Auto
 
-Float       Property MultEasing                 = 0.25  Auto
-{Default value: 0.25}
 
 Keyword[]   Property PreferredDevices                   Auto
 Keyword[]   Property ForbiddenDevices                   Auto
-String[]    Property ConflictedMods                     Auto
+String[]    Property ConflictedModTags                  Auto
+
+Bool        Property ApplicableToNPC            = True  Auto
+{Default value: True}
+
+Bool        Property ApplicableToPlayer         = True  Auto
+{Default value: True}
 
 Float       Property BaseProbability            = 100.0 Auto
 {Default value: 25.0}
+
 Bool        Property IsNormalizedProbability    = True  Auto
 {Default value: True}
+
+;/
+    Value: -1.0 .. 1.0
+/;
+Float       Property SeverityShift              = 0.0   Auto
+
+;/
+    Value: 0.1 .. 1.0
+/;
+Float       Property SeverityEasing             = 0.20  Auto
+{Default value: 0.20}
 
 ; Obsolete before it was even born
 Float Function BiasedRandom(Float afMultiplier = 1.0, Float afEasing = 1.0)
@@ -37,8 +55,9 @@ Float Function BiasedRandom(Float afMultiplier = 1.0, Float afEasing = 1.0)
     Return Math.Pow(RandomFloat(0.0, 1.0), Math.Pow(afMultiplier, afEasing))
 EndFunction
 
-Float Function _GetNormalRandom(Float afMu = 0.0, Float afSigma = 1.0)
 ; The Box–Muller transform to generate normally distributed numbers
+; 
+Float Function _GetNormalRandom(Float afMu = 0.0, Float afSigma = 1.0)
     While True
         Float loc_x = RandomFloat(-1.0, 1.0)
         Float loc_y = RandomFloat(-1.0, 1.0)
@@ -73,7 +92,29 @@ Float Function BiasedRandom2(Float afMultiplier = 1.0, Float afEasing = 0.25)
     EndWhile
 EndFunction
 
-String Function GetDataStr(Float afMultiplier = 1.0)
+; returns normally distributed number in interval 0.0 .. 1.0 with center on 0.5 shifted by SeverityShift/2 and sigma as SeverityEasing
+; see documentation for reference
+Float Function BiasedRandom3(Float afGlobalMuShift = 0.0, Float afGlobalSigmaMult = 1.0)
+    Float loc_mu = fRange(afGlobalMuShift, -1.0, 1.0)
+    Float loc_mu_d = fRange(SeverityShift, -1.0, 1.0)
+    Float loc_sigma = fRange(SeverityEasing * afGlobalSigmaMult, 0.01, 10.0)
+    Float loc_gauss
+    
+    If loc_mu_d > 0
+        loc_mu += (1.0 - loc_mu) * loc_mu_d
+    ElseIf loc_mu_d < 0
+        loc_mu -= (-1.0 - loc_mu) * loc_mu_d
+    EndIf
+    
+    While True
+        loc_gauss = _GetNormalRandom(loc_mu, loc_sigma)
+        If loc_gauss >= -1.0 && loc_gauss <= 1.0
+            Return (loc_gauss + 1.0) / 2.0
+        EndIf
+    EndWhile
+EndFunction
+
+String Function GetDataStr(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityEasing = 1.0)
     Int i = 0
     Int loc_size = UD_Native.GetStringParamAll(DataStr_Easy).Length
     String loc_datastr = ""
@@ -81,7 +122,7 @@ String Function GetDataStr(Float afMultiplier = 1.0)
         String loc_type = GetStringParamString(DataStr_Types, i, "")
         String loc_rnd_str = ""
         If GetStringParamString(DataStr_Easy, i, "") != ""
-            Float loc_rnd_1 = BiasedRandom2(afMultiplier, MultEasing)
+            Float loc_rnd_1 = BiasedRandom3(afGlobalSeverityShift, afGlobalSeverityEasing)
             If loc_type == "I"
                 Int loc_min = GetStringParamInt(DataStr_Easy, i, 0)
                 Int loc_max = GetStringParamInt(DataStr_Hard, i, loc_min)
@@ -107,45 +148,45 @@ String Function GetDataStr(Float afMultiplier = 1.0)
     Return loc_datastr
 EndFunction
 
-Form Function GetForm1(Float afMultiplier = 1.0)
+Form Function GetForm1(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityEasing = 1.0)
     If Form1_Variants && Form1_Variants.GetSize() > 0
-        Float loc_rnd_1 = BiasedRandom2(afMultiplier, MultEasing)
+        Float loc_rnd_1 = BiasedRandom3(afGlobalSeverityShift, afGlobalSeverityEasing)
         Int loc_i = (loc_rnd_1 * (Form1_Variants.GetSize() - 1)) as Int
         Return Form1_Variants.GetAt(loc_i)
     EndIf
     Return None
 EndFunction
 
-Form Function GetForm2(Float afMultiplier = 1.0)
+Form Function GetForm2(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityEasing = 1.0)
     If Form2_Variants && Form2_Variants.GetSize() > 0
-        Float loc_rnd_1 = BiasedRandom2(afMultiplier, MultEasing)
+        Float loc_rnd_1 = BiasedRandom3(afGlobalSeverityShift, afGlobalSeverityEasing)
         Int loc_i = (loc_rnd_1 * (Form2_Variants.GetSize() - 1)) as Int
         Return Form2_Variants.GetAt(loc_i)
     EndIf
     Return None
 EndFunction
 
-Form Function GetForm3(Float afMultiplier = 1.0)
+Form Function GetForm3(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityEasing = 1.0)
     If Form3_Variants && Form3_Variants.GetSize() > 0
-        Float loc_rnd_1 = BiasedRandom2(afMultiplier, MultEasing)
+        Float loc_rnd_1 = BiasedRandom3(afGlobalSeverityShift, afGlobalSeverityEasing)
         Int loc_i = (loc_rnd_1 * (Form3_Variants.GetSize() - 1)) as Int
         Return Form3_Variants.GetAt(loc_i)
     EndIf
     Return None
 EndFunction
 
-Form Function GetForm4(Float afMultiplier = 1.0)
+Form Function GetForm4(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityEasing = 1.0)
     If Form4_Variants && Form4_Variants.GetSize() > 0
-        Float loc_rnd_1 = BiasedRandom2(afMultiplier, MultEasing)
+        Float loc_rnd_1 = BiasedRandom3(afGlobalSeverityShift, afGlobalSeverityEasing)
         Int loc_i = (loc_rnd_1 * (Form4_Variants.GetSize() - 1)) as Int
         Return Form4_Variants.GetAt(loc_i)
     EndIf
     Return None
 EndFunction
 
-Form Function GetForm5(Float afMultiplier = 1.0)
+Form Function GetForm5(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityEasing = 1.0)
     If Form5_Variants && Form5_Variants.GetSize() > 0
-        Float loc_rnd_1 = BiasedRandom2(afMultiplier, MultEasing)
+        Float loc_rnd_1 = BiasedRandom3(afGlobalSeverityShift, afGlobalSeverityEasing)
         Int loc_i = (loc_rnd_1 * (Form5_Variants.GetSize() - 1)) as Int
         Return Form5_Variants.GetAt(loc_i)
     EndIf
@@ -153,6 +194,10 @@ Form Function GetForm5(Float afMultiplier = 1.0)
 EndFunction
 
 Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice)
+    If !FastCheckDevice(akDevice)
+        Return -3               ; fast check failed
+    EndIf
+    
     Armor loc_inventory_armor = akDevice.DeviceInventory
     Int loc_i
     If ForbiddenDevices.Length > 0
@@ -165,11 +210,14 @@ Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice)
         EndWhile
     EndIf
         
-    If ConflictedMods.Length > 0
-        String[] loc_mods = akDevice.GetModifierAliases()
-        If PapyrusUtil.GetMatchingString(loc_mods, ConflictedMods).Length > 0
-            Return -2           ; device has conflicted mod
-        EndIf
+    If ConflictedModTags.Length > 0
+        loc_i = ConflictedModTags.Length
+        While loc_i > 0
+            loc_i -= 1
+            If akDevice.ModifiersHasTag(ConflictedModTags[loc_i])
+                Return -2       ; device has conflicted mod
+            EndIf
+        EndWhile        
     EndIf
     
     If PreferredDevices.Length > 0
@@ -183,4 +231,8 @@ Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice)
         Return 0                ; mod has prefferred devices but this device is not one of them
     EndIf
     Return 1                    ; just ok
+EndFunction
+
+Bool Function FastCheckDevice(UD_CustomDevice_RenderScript akDevice)
+    Return ((UD_Native.IsPlayer(akDevice.getWearer()) && ApplicableToPlayer) || (!UD_Native.IsPlayer(akDevice.getWearer()) && ApplicableToNPC)) && BaseProbability > 0.0
 EndFunction

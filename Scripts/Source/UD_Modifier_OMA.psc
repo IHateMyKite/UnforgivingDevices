@@ -33,13 +33,3 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
 
     UDmain.ShowMessageBox(loc_msg)
 EndFunction
-
-;/  Group: Patcher overrides
-===========================================================================================
-===========================================================================================
-===========================================================================================
-/;
-; obsolete
-Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
-    akDevice.addModifier(self,iRange(Round(RandomInt(5,35)*PatchPowerMultiplier),0,100) + "," + 1)
-EndFunction

@@ -48,8 +48,3 @@ Float Function PatchModifierCheckAndAddOverride(UD_CustomDevice_RenderScript akD
         return 0.50
     endif
 EndFunction
-
-; obsolete. Replaced with UD_Patcher_ModPreset
-Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
-    akDevice.addModifier(self,FormatFloat(fRange(RandomFloat(0.10,0.50)*PatchPowerMultiplier,0.0,1.0),2))
-EndFunction

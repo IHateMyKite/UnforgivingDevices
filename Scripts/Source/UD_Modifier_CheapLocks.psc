@@ -72,12 +72,3 @@ EndFunction
 Bool Function PatchModifierFastCheckOverride(UD_CustomDevice_RenderScript akDevice)
     Return (akDevice.GetLockNumber() > 0)
 EndFunction
-
-; obsolete
-Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
-    String loc_p1 = FormatFloat(fRange(RandomFloat(5.0, 15.0) * PatchPowerMultiplier, 0.0, 100.0), 1)
-    ; negative values to enforce 0 with some probability
-    String loc_p2 = FormatFloat(fRange(RandomFloat(-5.0, 5.0) * PatchPowerMultiplier, 0.0, 100.0), 1)
-    String loc_p3 = FormatFloat(fRange(RandomFloat(-1.0, 1.0) * PatchPowerMultiplier, 0.0, 100.0), 1)
-    akDevice.addModifier(self, loc_p1 + "," + loc_p2 + "," + loc_p3)
-EndFunction

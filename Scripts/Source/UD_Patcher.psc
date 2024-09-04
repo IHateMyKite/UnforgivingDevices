@@ -28,6 +28,10 @@ Int         Property UD_ModsMinCap          =    2    Auto Hidden   ; If the num
 Int         Property UD_ModsSoftCap         =    4    Auto Hidden   ; soft cap for the number of modifiers added by the patcher (the number of mods may exceed this value, as the probability of adding a mod is determined by the mod itself)
 Int         Property UD_ModsHardCap         =    99   Auto Hidden   ; hard cap for the number of modifiers added by the patcher (when this value is reached, the patcher stops adding mods)
 
+Float       Property UD_ModGlobalProbabilityMult    = 1.0   Auto Hidden
+Float       Property UD_ModGlobalSeverityShift      = 0.0   Auto Hidden
+Float       Property UD_ModGlobalSeverityEasing     = 1.0   Auto Hidden
+
 ;difficulty multipliers
 Float Property UD_PatchMult_HeavyBondage        = 1.0 auto hidden
 Float Property UD_PatchMult_Gag                 = 1.0 auto hidden
@@ -294,7 +298,7 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
             while loc_modnum
                 loc_modnum -= 1
                 UD_Modifier loc_mod = loc_storage.GetNthModifier(loc_modnum)
-                if loc_mod && loc_mod.PatchChanceMultiplier > 0.0 && !akDevice.HasModifierRef(loc_mod) && loc_mod.PatchModifierFastCheck(akDevice)
+                if loc_mod && !akDevice.HasModifierRef(loc_mod) && loc_mod.PatchModifierFastCheck(akDevice)
                     loc_valid_mods = PapyrusUtil.PushAlias(loc_valid_mods, loc_mod)
                     UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Fast check: valid modifier = " + loc_mod, 3)
                 endif
@@ -320,7 +324,7 @@ Int Function _AddModifiersFromArray(UD_CustomDevice_RenderScript akDevice, Alias
             Return loc_modnum
         EndIf
         UD_Modifier loc_mod = aakMods[loc_count] As UD_Modifier
-        If !akDevice.HasModifierRef(loc_mod) && loc_mod.PatchModifierCheckAndAdd(akDevice, aiSoftCap, aakMods.Length)
+        If !akDevice.HasModifierRef(loc_mod) && loc_mod.PatchModifierCheckAndAdd(akDevice, aiSoftCap, aakMods.Length, UD_ModGlobalProbabilityMult, UD_ModGlobalSeverityShift, UD_ModGlobalSeverityEasing)
             UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Added modifier = " + loc_mod, 3)
             loc_modnum += 1
         EndIf

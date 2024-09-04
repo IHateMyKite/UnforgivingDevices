@@ -21,7 +21,7 @@
                         Default value: 100.0%
                         
     Example:
-                    
+
 /;
 Scriptname UD_ModTrigger_CombatEvent extends UD_ModTrigger
 

@@ -34,21 +34,3 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
 
     UDmain.ShowMessageBox(loc_msg)
 EndFunction
-
-;/  Group: Patcher overrides
-===========================================================================================
-===========================================================================================
-===========================================================================================
-/;
-Bool Function PatchModifierFastCheckOverride(UD_CustomDevice_RenderScript akDevice)
-    Return True
-EndFunction
-
-Float Function PatchModifierCheckAndAddOverride(UD_CustomDevice_RenderScript akDevice)
-    Return 1.0
-EndFunction
-
-; obsolete 
-Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
-    akDevice.addModifier(self,iRange(Round(RandomInt(2,8)*PatchPowerMultiplier),0,100) + "," + RandomInt(1,3))
-EndFunction

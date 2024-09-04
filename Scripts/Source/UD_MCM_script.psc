@@ -681,14 +681,17 @@ Function resetModifiersPage()
     UD_ModifierDescription_T = AddTextOption("Description","")
     addEmptyOption()
     
-    AddHeaderOption("Multipliers")
+    AddHeaderOption("Runtime configuration")
     addEmptyOption()
     
     UD_ModifierMultiplier_S = AddSliderOption("Strength multiplier",loc_mod.Multiplier,"{1} x",UD_LockMenu_flag)
     addEmptyOption()
     
-    UD_ModifierPatchPowerMultiplier_S   = AddSliderOption("Patch Strength multiplier",loc_mod.PatchPowerMultiplier,"{1} x",UD_LockMenu_flag)
-    UD_ModifierPatchChanceMultiplier_S  = AddSliderOption("Patch Chance multiplier",loc_mod.PatchChanceMultiplier,"{1} x",UD_LockMenu_flag)
+    AddHeaderOption("Patcher configuration")
+    addEmptyOption()
+    
+;    UD_ModifierPatchPowerMultiplier_S   = AddSliderOption("Patch Strength multiplier",loc_mod.PatchPowerMultiplier,"{1} x",UD_LockMenu_flag)
+;    UD_ModifierPatchChanceMultiplier_S  = AddSliderOption("Patch Chance multiplier",loc_mod.PatchChanceMultiplier,"{1} x",UD_LockMenu_flag)
 EndFunction
 
 Int UD_OutfitSelected = 0
@@ -877,7 +880,7 @@ Event resetPatcherPage()
     
     AddHeaderOption("$UD_H_MAINVALUES")
     addEmptyOption()
-        
+ 
     UD_PatchMult_S = addSliderOption("$UD_PATCHMULT",UDCDmain.UDPatcher.UD_PatchMult, "{1} x",UD_LockMenu_flag)
     UD_EscapeModifier_S = addSliderOption("$UD_ESCAPEMODIFIER",UDCDmain.UDPatcher.UD_EscapeModifier, "{0}",UD_LockMenu_flag)
     
@@ -2470,18 +2473,18 @@ Function OnOptionSliderOpenModifiers(int option)
         SetSliderDialogDefaultValue(1.0)
         SetSliderDialogRange(0.0, 100.0)
         SetSliderDialogInterval(0.1)
-    elseif (option == UD_ModifierPatchPowerMultiplier_S)
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
-        SetSliderDialogStartValue(loc_mod.PatchPowerMultiplier)
-        SetSliderDialogDefaultValue(1.0)
-        SetSliderDialogRange(0.0, 100.0)
-        SetSliderDialogInterval(0.1)
-    elseif (option == UD_ModifierPatchChanceMultiplier_S)
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
-        SetSliderDialogStartValue(loc_mod.PatchCHanceMultiplier)
-        SetSliderDialogDefaultValue(1.0)
-        SetSliderDialogRange(0.0, 100.0)
-        SetSliderDialogInterval(0.1)
+;    elseif (option == UD_ModifierPatchPowerMultiplier_S)
+;        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+;        SetSliderDialogStartValue(loc_mod.PatchPowerMultiplier)
+;        SetSliderDialogDefaultValue(1.0)
+;        SetSliderDialogRange(0.0, 100.0)
+;        SetSliderDialogInterval(0.1)
+;    elseif (option == UD_ModifierPatchChanceMultiplier_S)
+;        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+;        SetSliderDialogStartValue(loc_mod.PatchCHanceMultiplier)
+;        SetSliderDialogDefaultValue(1.0)
+;        SetSliderDialogRange(0.0, 100.0)
+;        SetSliderDialogInterval(0.1)
     endIf
 EndFunction
 
@@ -2740,14 +2743,14 @@ Function OnOptionSliderAcceptModifiers(int option, float value)
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
         loc_mod.Multiplier  = value
         SetSliderOptionValue(UD_ModifierMultiplier_S, value, "{1} x")
-    elseif (option == UD_ModifierPatchPowerMultiplier_S)
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
-        loc_mod.PatchPowerMultiplier  = value
-        SetSliderOptionValue(UD_ModifierPatchPowerMultiplier_S, value, "{1} x")
-    elseif (option == UD_ModifierPatchChanceMultiplier_S)
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
-        loc_mod.PatchChanceMultiplier  = value
-        SetSliderOptionValue(UD_ModifierPatchChanceMultiplier_S, value, "{1} x")
+;    elseif (option == UD_ModifierPatchPowerMultiplier_S)
+;        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+;        loc_mod.PatchPowerMultiplier  = value
+;        SetSliderOptionValue(UD_ModifierPatchPowerMultiplier_S, value, "{1} x")
+;    elseif (option == UD_ModifierPatchChanceMultiplier_S)
+;        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+;        loc_mod.PatchChanceMultiplier  = value
+;        SetSliderOptionValue(UD_ModifierPatchChanceMultiplier_S, value, "{1} x")
     endIf
 EndFunction
 
@@ -3557,10 +3560,10 @@ EndFunction
 Function ModifierPageInfo(int option)
     if(option == UD_ModifierMultiplier_S)
         SetInfoText("Strength multiplier for specific modifier. Is applied to all modifiers of selected type")
-    elseif(option == UD_ModifierPatchChanceMultiplier_S)
-        SetInfoText("Multiplier for chance of modifier being added to patched device")
-    elseif(option == UD_ModifierPatchPowerMultiplier_S)
-        SetInfoText("Patched strength multiplier for specific modifier. Is applied to modifier of this type when it is patched. It is used only once when device is patched. After that, this value cant be changed")
+;    elseif(option == UD_ModifierPatchChanceMultiplier_S)
+;        SetInfoText("Multiplier for chance of modifier being added to patched device")
+;    elseif(option == UD_ModifierPatchPowerMultiplier_S)
+;        SetInfoText("Patched strength multiplier for specific modifier. Is applied to modifier of this type when it is patched. It is used only once when device is patched. After that, this value cant be changed")
     endif
 EndFunction
 

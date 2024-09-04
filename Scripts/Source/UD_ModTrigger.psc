@@ -1,6 +1,6 @@
 ;   File: UD_ModTrigger
 ;   This is base script of all triggers
-Scriptname UD_ModTrigger extends MiscObject
+Scriptname UD_ModTrigger extends MiscObject Hidden
 
 import UnforgivingDevicesMain
 import UD_Native

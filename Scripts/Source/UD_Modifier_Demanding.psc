@@ -68,26 +68,3 @@ Function MinigameStarted(UD_CustomDevice_RenderScript akModDevice, UD_CustomDevi
         endif
     endif
 EndFunction
-
-;/  Group: Patcher overrides
-===========================================================================================
-===========================================================================================
-===========================================================================================
-/;
-Bool Function PatchModifierFastCheckOverride(UD_CustomDevice_RenderScript akDevice)
-    Return True
-EndFunction
-
-Float Function PatchModifierCheckAndAddOverride(UD_CustomDevice_RenderScript akDevice)
-    Return 1.0
-EndFunction
-
-; obsolete 
-Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
-    int loc_A_min = iRange(Round(RandomInt(3,7)*PatchPowerMultiplier),0,100)
-    int loc_A_max = iRange(Round(loc_A_min * RandomFloat(1.25,1.5)),loc_A_min,300)
-    int loc_B_min = iRange(Round(RandomInt(1,3)*PatchPowerMultiplier),0,20)
-    int loc_B_max = iRange(Round(loc_B_min * RandomFloat(1.25,1.5)),loc_B_min,60)
-    
-    akDevice.addModifier(self, loc_A_min + "," + loc_A_max + "," + loc_B_min + "," + loc_B_max)
-EndFunction

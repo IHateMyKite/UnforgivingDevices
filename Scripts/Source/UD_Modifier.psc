@@ -1,6 +1,6 @@
 ;   File: UD_Modifier
 ;   This is base scripts of all modifiers
-Scriptname UD_Modifier extends ReferenceAlias
+Scriptname UD_Modifier extends ReferenceAlias Hidden
 
 UnforgivingDevicesMain _udmain
 UnforgivingDevicesMain Property UDmain Hidden
@@ -53,6 +53,13 @@ String      Property NameAlias              Auto
 /;
 String      Property Description            Auto
 
+Int         Property ConcealmentPower  = 0  Auto
+
+;/  Variable: Description
+    Additional info shown to player when selecting modifier on device
+/;
+String      Property Tags                   Auto
+
 ;/  Variable: Multiplier
     Multiplier which can be used to allow user to change difficulty of modifier.
     
@@ -62,7 +69,7 @@ String      Property Description            Auto
     
     This will affect even equipped devices
 /;
-Float       Property Multiplier                 = 1.0   Auto hidden
+Float       Property Multiplier                 = 1.0   Auto Hidden
 
 ;/  Variable: ConcealmentPower
 
@@ -75,37 +82,6 @@ Float       Property Multiplier                 = 1.0   Auto hidden
     If the degree of concealment is higher than the character's abilities, then 
     information about the modifier will not be visible.
 /;
-Int         Property ConcealmentPower           = 0     Auto Hidden
-
-
-;/  Variable: PatchPowerMultiplier
-    Multiplier which can be used to allow user to change power at which are modifiers added by patcher
-    
-    This will not affect already equipped devices
-/;
-Float       Property PatchPowerMultiplier       = 1.0   Auto hidden
-
-;/  Variable: PatchChanceMultiplier
-    Multiplier which can be used to allow user to change cahnce that modifier will be added to patched device
-/;
-Float       Property PatchChanceMultiplier      = 1.0   Auto hidden
-
-;/  Variable: PatchUserEnable
-    This flag allows the user to enable the use of this modifier in the patcher
-/;
-Bool        Property PatchUserEnable            = True  Auto Hidden
-
-;event hooks
-String[]    Property EventHooks             Auto
-String[]    Property EventHooks_Callback    Auto
-
-Event RegisterEvents()
-    ;int i = EventHooks.length
-    ;while i
-    ;    RegisterForModEvent(EventHooks[i],EventHooks_Callback[i])
-    ;endwhile
-EndEvent
-
 ;/  Group: Overrides
 ===========================================================================================
 ===========================================================================================
@@ -217,20 +193,18 @@ EndFunction
 ; Used for approximate calculation of the upper limit for the number of available mods
 ; Could be overriden for more accurate calculation
 Bool Function PatchModifierFastCheck(UD_CustomDevice_RenderScript akDevice)
-    If !PatchUserEnable || PatchChanceMultiplier <= 0.0
-        Return False
-    EndIf
+    ; get random preset
     UD_Patcher_ModPreset loc_preset = (Self as ReferenceAlias) as UD_Patcher_ModPreset
-    Return (loc_preset != None) && PatchModifierFastCheckOverride(akDevice)
+    Return (loc_preset != None) && loc_preset.FastCheckDevice(akDevice) && PatchModifierFastCheckOverride(akDevice)
 EndFunction
 
 ; Carefully check the compatibility of the modifier and try to add it taking into account the given probabilities
-Bool Function PatchModifierCheckAndAdd(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods)
+Bool Function PatchModifierCheckAndAdd(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods, Float afGlobalProbabilityMult = 1.0, Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityEasing = 1.0)
     UD_Patcher_ModPreset loc_preset = _GetBestPatcherPreset(akDevice)
     If loc_preset == None 
         Return False
     EndIf
-    Float loc_prob = loc_preset.BaseProbability * PatchChanceMultiplier
+    Float loc_prob = loc_preset.BaseProbability
     ; Adjust the probability with the soft limit if it is allowed in the preset settings
     If loc_prob > 0.0 && loc_preset.IsNormalizedProbability
         aiValidMods = UD_Native.iRange(aiValidMods, 1, 99)
@@ -239,9 +213,10 @@ Bool Function PatchModifierCheckAndAdd(UD_CustomDevice_RenderScript akDevice, In
     EndIf
     
     loc_prob *= PatchModifierCheckAndAddOverride(akDevice)
+    loc_prob *= afGlobalProbabilityMult
     
     If UD_Native.RandomFloat(0.0, 100.0) < loc_prob
-        akDevice.AddModifier(Self, loc_preset.GetDataStr(PatchPowerMultiplier), loc_preset.GetForm1(PatchPowerMultiplier), loc_preset.GetForm2(PatchPowerMultiplier), loc_preset.GetForm3(PatchPowerMultiplier), loc_preset.GetForm4(PatchPowerMultiplier), loc_preset.GetForm5(PatchPowerMultiplier))
+        akDevice.AddModifier(Self, loc_preset.GetDataStr(afGlobalSeverityShift, afGlobalSeverityEasing), loc_preset.GetForm1(afGlobalSeverityShift, afGlobalSeverityEasing), loc_preset.GetForm2(afGlobalSeverityShift, afGlobalSeverityEasing), loc_preset.GetForm3(afGlobalSeverityShift, afGlobalSeverityEasing), loc_preset.GetForm4(afGlobalSeverityShift, afGlobalSeverityEasing), loc_preset.GetForm5(afGlobalSeverityShift, afGlobalSeverityEasing))
         Return True
     Else
         Return False

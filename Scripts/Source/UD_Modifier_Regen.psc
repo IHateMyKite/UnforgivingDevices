@@ -39,19 +39,3 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     
     UDmain.ShowMessageBox(loc_msg)
 EndFunction
-
-;/  Group: Patcher overrides
-===========================================================================================
-===========================================================================================
-===========================================================================================
-/;
-; obsolete
-Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
-    float loc_addmult = 0.0
-    
-    if IsEbonite(akDevice.deviceInventory)
-        loc_addmult = 1.0
-    endif
-
-    akDevice.addModifier(self,FormatFloat(120*PatchPowerMultiplier*RandomFloat(0.5 + loc_addmult,2.0 + loc_addmult),1))
-EndFunction

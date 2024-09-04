@@ -1,6 +1,6 @@
 ;   File: UD_ModOutcome
 ;   This is base script of all outcomes
-Scriptname UD_ModOutcome extends MiscObject
+Scriptname UD_ModOutcome extends MiscObject Hidden
 
 import UnforgivingDevicesMain
 import UD_Native

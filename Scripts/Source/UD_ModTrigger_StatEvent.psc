@@ -21,7 +21,7 @@
 
     Example:
         Locks Picked,10,,1      - Triggers on every 10th lock picked
-        Intimidations,,10       - Triggers on intimidation with 10% probability
+        Quests Completed,,10    - Triggers on completed quest with 10% probability
         
     Stats:
             asStatName                          aiStatValue
@@ -40,9 +40,9 @@
         Weapons Made                            (total number)
         Armor Made                              (total number)
         Pockets Picked                          (total number of items, and 1 gold counts as 1 item)
-        
+
         IT JUST WORKS (nope)
-        
+
         Weapons Improved                        NOPE
         Training Sessions                       NOPE
         Potions Used                            NOPE
