@@ -24,13 +24,35 @@ int         Property UD_EscapeModifier      =   10    auto hidden
 Int         Property UD_MinLocks            =    0    auto hidden
 Int         Property UD_MaxLocks            =    2    auto hidden
 
-Int         Property UD_ModsMinCap          =    2    Auto Hidden   ; If the number of modifiers is lower than the specified value, we try to add more modifiers
-Int         Property UD_ModsSoftCap         =    4    Auto Hidden   ; soft cap for the number of modifiers added by the patcher (the number of mods may exceed this value, as the probability of adding a mod is determined by the mod itself)
-Int         Property UD_ModsHardCap         =    99   Auto Hidden   ; hard cap for the number of modifiers added by the patcher (when this value is reached, the patcher stops adding mods)
+;/  Variable: UD_ModsMinCap
+    If the number of modifiers is less than the specified value, the patcher will try to add more
+/;
+Int         Property UD_ModsMinCap          =    2    Auto Hidden
 
+;/  Variable: UD_ModsSoftCap
+    Soft cap for the number of modifiers added by the patcher (the actual number of mods may slightly exceed this value)
+/;
+Int         Property UD_ModsSoftCap         =    4    Auto Hidden
+
+;/  Variable: UD_ModsHardCap
+    Hard cap for the number of modifiers added by the patcher (when this value is reached, the patcher stops adding mods)
+/;
+Int         Property UD_ModsHardCap         =    99   Auto Hidden
+
+;/  Variable: UD_ModGlobalProbabilityMult
+    Multplier that affects probability to add each modifier 
+/;
 Float       Property UD_ModGlobalProbabilityMult    = 1.0   Auto Hidden
+
+;/  Variable: UD_ModGlobalSeverityShift
+    Addition to the severity of each modifier (mathematical expectation of a random variable)
+/; 
 Float       Property UD_ModGlobalSeverityShift      = 0.0   Auto Hidden
-Float       Property UD_ModGlobalSeverityEasing     = 1.0   Auto Hidden
+
+;/  Variable: UD_ModGlobalSeverityDispMult
+    The value by which the severity dispersion of each modifier is multiplied
+/;
+Float       Property UD_ModGlobalSeverityDispMult   = 1.0   Auto Hidden
 
 ;difficulty multipliers
 Float Property UD_PatchMult_HeavyBondage        = 1.0 auto hidden
@@ -324,7 +346,7 @@ Int Function _AddModifiersFromArray(UD_CustomDevice_RenderScript akDevice, Alias
             Return loc_modnum
         EndIf
         UD_Modifier loc_mod = aakMods[loc_count] As UD_Modifier
-        If !akDevice.HasModifierRef(loc_mod) && loc_mod.PatchModifierCheckAndAdd(akDevice, aiSoftCap, aakMods.Length, UD_ModGlobalProbabilityMult, UD_ModGlobalSeverityShift, UD_ModGlobalSeverityEasing)
+        If !akDevice.HasModifierRef(loc_mod) && loc_mod.PatchModifierCheckAndAdd(akDevice, aiSoftCap, aakMods.Length, UD_ModGlobalProbabilityMult, UD_ModGlobalSeverityShift, UD_ModGlobalSeverityDispMult)
             UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Added modifier = " + loc_mod, 3)
             loc_modnum += 1
         EndIf

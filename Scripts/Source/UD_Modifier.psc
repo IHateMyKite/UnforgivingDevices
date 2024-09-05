@@ -53,7 +53,26 @@ String      Property NameAlias              Auto
 /;
 String      Property Description            Auto
 
+;/  Variable: ConcealmentPower
+
+    Value between 0 and 100
+
+    TODO:
+    
+    The degree to which the modifier resists recognition.
+    If the degree is 0, the character will easily reveal the modifier's properties.
+    If the degree of concealment is higher than the character's abilities, then 
+    information about the modifier will not be visible.
+/;
 Int         Property ConcealmentPower  = 0  Auto
+
+;/  Variable: HideInUI
+
+    TODO:
+    
+    Indicates that this modifier should be hidden in UI
+/;
+Bool        Property HideInUI       = False Auto
 
 ;/  Variable: Description
     Additional info shown to player when selecting modifier on device
@@ -71,17 +90,7 @@ String      Property Tags                   Auto
 /;
 Float       Property Multiplier                 = 1.0   Auto Hidden
 
-;/  Variable: ConcealmentPower
 
-    Value between 0 and 100
-
-    TODO:
-    
-    The degree to which the modifier resists recognition.
-    If the degree is 0, the character will easily reveal the modifier's properties.
-    If the degree of concealment is higher than the character's abilities, then 
-    information about the modifier will not be visible.
-/;
 ;/  Group: Overrides
 ===========================================================================================
 ===========================================================================================
@@ -199,7 +208,7 @@ Bool Function PatchModifierFastCheck(UD_CustomDevice_RenderScript akDevice)
 EndFunction
 
 ; Carefully check the compatibility of the modifier and try to add it taking into account the given probabilities
-Bool Function PatchModifierCheckAndAdd(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods, Float afGlobalProbabilityMult = 1.0, Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityEasing = 1.0)
+Bool Function PatchModifierCheckAndAdd(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods, Float afGlobalProbabilityMult = 1.0, Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0)
     UD_Patcher_ModPreset loc_preset = _GetBestPatcherPreset(akDevice)
     If loc_preset == None 
         Return False
@@ -216,7 +225,7 @@ Bool Function PatchModifierCheckAndAdd(UD_CustomDevice_RenderScript akDevice, In
     loc_prob *= afGlobalProbabilityMult
     
     If UD_Native.RandomFloat(0.0, 100.0) < loc_prob
-        akDevice.AddModifier(Self, loc_preset.GetDataStr(afGlobalSeverityShift, afGlobalSeverityEasing), loc_preset.GetForm1(afGlobalSeverityShift, afGlobalSeverityEasing), loc_preset.GetForm2(afGlobalSeverityShift, afGlobalSeverityEasing), loc_preset.GetForm3(afGlobalSeverityShift, afGlobalSeverityEasing), loc_preset.GetForm4(afGlobalSeverityShift, afGlobalSeverityEasing), loc_preset.GetForm5(afGlobalSeverityShift, afGlobalSeverityEasing))
+        akDevice.AddModifier(Self, loc_preset.GetDataStr(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm1(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm2(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm3(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm4(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm5(afGlobalSeverityShift, afGlobalSeverityDispersionMult))
         Return True
     Else
         Return False
@@ -271,4 +280,63 @@ UD_Patcher_ModPreset Function _GetBestPatcherPreset(UD_CustomDevice_RenderScript
         Return None
     EndIf
     
+EndFunction
+
+;/  Group: MCM
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+String[] _PresetsNames
+
+String[] Function GetPatcherPresetsNames()
+    If _PresetsNames.Length == 0
+        UD_Patcher_ModPreset loc_preset1 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset1) as UD_Patcher_ModPreset
+        UD_Patcher_ModPreset loc_preset2 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset2) as UD_Patcher_ModPreset
+        UD_Patcher_ModPreset loc_preset3 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset3) as UD_Patcher_ModPreset
+        If loc_preset1
+            _PresetsNames = PapyrusUtil.PushString(_PresetsNames, loc_preset1.DisplayName)
+        EndIf
+        If loc_preset2
+            _PresetsNames = PapyrusUtil.PushString(_PresetsNames, loc_preset2.DisplayName)
+        EndIf
+        If loc_preset3
+            _PresetsNames = PapyrusUtil.PushString(_PresetsNames, loc_preset3.DisplayName)
+        EndIf
+    EndIf
+    Return _PresetsNames
+EndFunction
+
+UD_Patcher_ModPreset Function GetPatcherPreset(Int aiIndex)
+    UD_Patcher_ModPreset loc_preset1 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset1) as UD_Patcher_ModPreset
+    UD_Patcher_ModPreset loc_preset2 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset2) as UD_Patcher_ModPreset
+    UD_Patcher_ModPreset loc_preset3 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset3) as UD_Patcher_ModPreset
+    Int loc_i = 0
+    If loc_preset1
+        If aiIndex == loc_i
+            Return loc_preset1
+        Else
+            loc_i += 1
+        EndIf
+    EndIf
+    If loc_preset2
+        If aiIndex == loc_i
+            Return loc_preset2
+        Else
+            loc_i += 1
+        EndIf
+    EndIf
+    If loc_preset3
+        If aiIndex == loc_i
+            Return loc_preset3
+        EndIf
+    EndIf
+EndFunction
+
+String _JsonObjectPath = ""
+
+Function SaveToJSON(String asFile)
+EndFunction
+
+Function LoadFromJSON(String asFile)
 EndFunction

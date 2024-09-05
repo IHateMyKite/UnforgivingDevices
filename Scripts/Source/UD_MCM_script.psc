@@ -282,6 +282,7 @@ Function Update()
     libs = UDCDmain.libs as zadlibs_UDPatch
     
     UD_ModifierSelected = 0
+    UD_ModifierPatchSelected = 0
 EndFunction
 
 Function LoadConfig(Bool abResetToDef = True)
@@ -649,49 +650,130 @@ Event resetCustomBondagePage()
     AddTextOption("$UD_KEYMODIFIER", Math.floor((UDCDmain.CalculateKeyModifier())*100 + 0.5) + " %",OPTION_FLAG_DISABLED)
 EndEvent
 
-
-
 Int UD_ModifierSelected = 0
 int UD_ModifierList_M
+
+Int UD_ModifierPatchSelected = 0
+Int UD_ModifierPatchList_M
+
+Int UD_ModsMinCap_S
+Int UD_ModsSoftCap_S
+Int UD_ModsHardCap_S
+Int UD_ModGlobalProbabilityMult_S
+Int UD_ModGlobalSeverityShift_S
+Int UD_ModGlobalSeverityDispMult_S
 
 int UD_ModifierMultiplier_S
 int UD_ModifierPatchPowerMultiplier_S
 int UD_ModifierPatchChanceMultiplier_S
 int UD_ModifierDescription_T
 
+Int UD_ModPP_ApplicableToNPC_T
+Int UD_ModPP_ApplicableToPlayer_T
+Int UD_ModPP_BaseProbability_S
+Int UD_ModPP_IsNormalizedProbability_T
+Int UD_ModPP_BaseSeverity_S
+Int UD_ModPP_SeverityDispersion_S
+
 Function resetModifiersPage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
-    AddHeaderOption("Custom modifiers")
-    addEmptyOption()
+    
+    AddHeaderOption("$UD_PATCHER_GLOBALSETTINGS")     ;  Global Patcher Settings
+    AddHeaderOption("")
+    
+    SetCursorPosition(2)
+    SetCursorFillMode(TOP_TO_BOTTOM)
+    AddHeaderOption("$UD_PATCHER_MODSNUMTOADD")       ; Number of Modifiers to Add
+    UD_ModsMinCap_S = AddSliderOption("$UD_PATCHER_MODSMIN", UDCDmain.UDPatcher.UD_ModsMinCap, "{0}", UD_LockMenu_flag)             ; No less than
+    UD_ModsSoftCap_S = AddSliderOption("$UD_PATCHER_MODSSOFTCAP", UDCDmain.UDPatcher.UD_ModsSoftCap, "{0}", UD_LockMenu_flag)           ; No more than
+    UD_ModsHardCap_S = AddSliderOption("$UD_PATCHER_MODSHARDCAP", UDCDmain.UDPatcher.UD_ModsHardCap, "{0}", UD_LockMenu_flag)               ; Hard cap
+    
+    SetCursorPosition(3)
+    SetCursorFillMode(TOP_TO_BOTTOM)
+    AddHeaderOption("$UD_PATCHER_GLOBALMODSSETTINGS")        ; Global Modifiers Settings
+    UD_ModGlobalProbabilityMult_S = AddSliderOption("$UD_PATCHER_MODSPROBMULT", UDCDmain.UDPatcher.UD_ModGlobalProbabilityMult, "{2}", UD_LockMenu_flag)        ; Probability multiplier
+    UD_ModGlobalSeverityShift_S = AddSliderOption("$UD_PATCHER_MODSSEVSHIFT", UDCDmain.UDPatcher.UD_ModGlobalSeverityShift, "{2}", UD_LockMenu_flag)            ; Severity shift
+    UD_ModGlobalSeverityDispMult_S = AddSliderOption("$UD_PATCHER_MODSSEVDISP", UDCDmain.UDPatcher.UD_ModGlobalSeverityDispMult, "{2}", UD_LockMenu_flag)      ; Severity dispersion multiplier
+    
+    SetCursorPosition(12)
+    SetCursorFillMode(LEFT_TO_RIGHT)
+    AddHeaderOption("$UD_CUSTOMMODS")         ; Custom Modifiers
+    AddHeaderOption("")
+    
+    If UDmain.UDMOM.UD_ModifierListRef.Length == 0
+        Return
+    EndIf
     
     UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
     
-    UD_ModifierList_M = AddMenuOption("Selected modifier: ", UDmain.UDMOM.UD_ModifierList[UD_ModifierSelected])
-    AddTextOption("Source",loc_mod.GetOwningQuest().GetName(),FlagSwitch(false))
-    addEmptyOption()
+    String loc_mod_name = "None"
+    
+    If loc_mod != None
+        loc_mod_name = UDmain.UDMOM.UD_ModifierList[UD_ModifierSelected]
+    EndIf
+    
+    UD_ModifierList_M = AddMenuOption("$UD_CUSTOMMOD_SELECTED", loc_mod_name)     ; Selected modifier
+    
+    If loc_mod == None
+        AddTextOption("No modifiers was found.", "", UD_LockMenu_flag)
+        AddTextOption("If it is start of the new game then you could create and reload save.", "", UD_LockMenu_flag)
+        Return
+    EndIf
+
+    AddTextOption("$UD_CUSTOMMOD_FROMSTORAGE", loc_mod.GetOwningQuest().GetName(), FlagSwitch(false))  ; Storage
+    
+    SetCursorPosition(16)
+    SetCursorFillMode(TOP_TO_BOTTOM)
+    AddHeaderOption("$UD_CUSTOMMOD_BASEDETAILS")             ; Base Details
+
+    AddTextOption("$UD_CUSTOMMOD_DETAILNAME", loc_mod.NameFull, FlagSwitch(false))              ; Name
+    AddTextOption("$UD_CUSTOMMOD_DETAILALIAS", loc_mod.NameAlias, FlagSwitch(false))             ; Alias
+    UD_ModifierDescription_T = AddTextOption("$UD_CUSTOMMOD_DETAILDESC", "")                    ; Description
+    AddTextOption("$UD_CUSTOMMOD_DETAILTAGS", loc_mod.Tags, FlagSwitch(false))                  ; Tags
+    
+    SetCursorPosition(17)
+    SetCursorFillMode(TOP_TO_BOTTOM)
+    AddHeaderOption("$UD_CUSTOMMOD_RUNTIMECONFIG")                ; Runtime Configuration
+   
+    UD_ModifierMultiplier_S = AddSliderOption("$UD_CUSTOMMOD_STRMULT", loc_mod.Multiplier, "{1} x", UD_LockMenu_flag)     ; Strength multiplier
+    
+    String[] loc_pp_names = loc_mod.GetPatcherPresetsNames()
+
+    If loc_pp_names.Length == 0
+        Return
+    EndIf
+
+    SetCursorPosition(26)
+    SetCursorFillMode(LEFT_TO_RIGHT)
+    AddHeaderOption("$UD_CUSTOMMOD_PPSCONFIG")            ; Patcher Presets Configuration
+    AddHeaderOption("")
+    
+    UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
+    String loc_mod_pp_name = "None"
+    If loc_mod_pp != None
+        loc_mod_pp_name = loc_mod_pp.DisplayName
+    EndIf
+    
+    UD_ModifierPatchList_M = AddMenuOption("$UD_CUSTOMMOD_PPSSELECTED", loc_mod_pp_name)           ; Selected patch preset:
     addEmptyOption()
     
-    AddHeaderOption("Base details")
-    addEmptyOption()
+    If loc_mod_pp == None
+        AddTextOption("Patcher presets were not found.", "", UD_LockMenu_flag)
+        AddTextOption("Either modifier has its own way with the Patcher or it's not assigned by the Patcher at all.", "", UD_LockMenu_flag)
+        Return
+    EndIf
     
-    AddTextOption("Name",loc_mod.NameFull,FlagSwitch(false))
-    AddTextOption("Alias",loc_mod.NameAlias,FlagSwitch(false))
+    AddTextOption("DataStr_Easy", loc_mod_pp.DataStr_Easy, FlagSwitch(false))
+    UD_ModPP_ApplicableToPlayer_T = addToggleOption("$UD_CUSTOMMOD_APPTOPLAYER", loc_mod_pp.ApplicableToPlayer, UD_LockMenu_flag)        ; Applicable to Player
+    AddTextOption("DataStr_Hard", loc_mod_pp.DataStr_Hard, FlagSwitch(false))
+    UD_ModPP_ApplicableToNPC_T = addToggleOption("$UD_CUSTOMMOD_APPTONPC", loc_mod_pp.ApplicableToNPC, UD_LockMenu_flag)                ; Applicable to NPCs
     
-    UD_ModifierDescription_T = AddTextOption("Description","")
-    addEmptyOption()
-    
-    AddHeaderOption("Runtime configuration")
-    addEmptyOption()
-    
-    UD_ModifierMultiplier_S = AddSliderOption("Strength multiplier",loc_mod.Multiplier,"{1} x",UD_LockMenu_flag)
-    addEmptyOption()
-    
-    AddHeaderOption("Patcher configuration")
-    addEmptyOption()
-    
-;    UD_ModifierPatchPowerMultiplier_S   = AddSliderOption("Patch Strength multiplier",loc_mod.PatchPowerMultiplier,"{1} x",UD_LockMenu_flag)
-;    UD_ModifierPatchChanceMultiplier_S  = AddSliderOption("Patch Chance multiplier",loc_mod.PatchChanceMultiplier,"{1} x",UD_LockMenu_flag)
+    UD_ModPP_BaseProbability_S = AddSliderOption("$UD_CUSTOMMOD_BASEPROB", loc_mod_pp.BaseProbability, "{0} %", UD_LockMenu_flag)                 ; Base probability
+    UD_ModPP_BaseSeverity_S = AddSliderOption("$UD_CUSTOMMOD_BASESEVERITY", loc_mod_pp.BaseSeverity, "{2}", UD_LockMenu_flag)                         ; Base severity
+    UD_ModPP_IsNormalizedProbability_T = addToggleOption("$UD_CUSTOMMOD_PROBNORM", loc_mod_pp.IsNormalizedProbability, UD_LockMenu_flag)          ; Probability is normalized
+    UD_ModPP_SeverityDispersion_S = AddSliderOption("$UD_CUSTOMMOD_SEVERITYDISP", loc_mod_pp.SeverityDispersion, "{2}", UD_LockMenu_flag)             ; Severity dispersion
+
 EndFunction
 
 Int UD_OutfitSelected = 0
@@ -1628,7 +1710,22 @@ EndFunction
 Function OptionSelectModifiers(int option)
     if(option == UD_ModifierDescription_T)
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
-        ShowMessage(loc_mod.Description,false,"Close")
+        ShowMessage(loc_mod.Description, false, "Close")
+    elseif option == UD_ModPP_ApplicableToPlayer_T
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
+        loc_mod_pp.ApplicableToPlayer = !loc_mod_pp.ApplicableToPlayer
+        SetToggleOptionValue(UD_ModPP_ApplicableToPlayer_T, loc_mod_pp.ApplicableToPlayer)
+    elseif option == UD_ModPP_ApplicableToNPC_T
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
+        loc_mod_pp.ApplicableToNPC = !loc_mod_pp.ApplicableToNPC
+        SetToggleOptionValue(UD_ModPP_ApplicableToNPC_T, loc_mod_pp.ApplicableToNPC)
+    elseif option == UD_ModPP_IsNormalizedProbability_T
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
+        loc_mod_pp.IsNormalizedProbability = !loc_mod_pp.IsNormalizedProbability
+        SetToggleOptionValue(UD_ModPP_IsNormalizedProbability_T, loc_mod_pp.IsNormalizedProbability)
     endif
 EndFunction
 
@@ -2473,18 +2570,57 @@ Function OnOptionSliderOpenModifiers(int option)
         SetSliderDialogDefaultValue(1.0)
         SetSliderDialogRange(0.0, 100.0)
         SetSliderDialogInterval(0.1)
-;    elseif (option == UD_ModifierPatchPowerMultiplier_S)
-;        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
-;        SetSliderDialogStartValue(loc_mod.PatchPowerMultiplier)
-;        SetSliderDialogDefaultValue(1.0)
-;        SetSliderDialogRange(0.0, 100.0)
-;        SetSliderDialogInterval(0.1)
-;    elseif (option == UD_ModifierPatchChanceMultiplier_S)
-;        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
-;        SetSliderDialogStartValue(loc_mod.PatchCHanceMultiplier)
-;        SetSliderDialogDefaultValue(1.0)
-;        SetSliderDialogRange(0.0, 100.0)
-;        SetSliderDialogInterval(0.1)
+    ElseIf option == UD_ModsMinCap_S
+        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_ModsMinCap)
+        SetSliderDialogDefaultValue(2)
+        SetSliderDialogRange(0, 99)
+        SetSliderDialogInterval(1)
+    ElseIf option == UD_ModsSoftCap_S
+        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_ModsSoftCap)
+        SetSliderDialogDefaultValue(4)
+        SetSliderDialogRange(0, 99)
+        SetSliderDialogInterval(1)
+    ElseIf option == UD_ModsHardCap_S
+        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_ModsHardCap)
+        SetSliderDialogDefaultValue(99)
+        SetSliderDialogRange(0, 100)
+        SetSliderDialogInterval(1)
+    ElseIf option == UD_ModGlobalProbabilityMult_S
+        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_ModGlobalProbabilityMult)
+        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogRange(0.1, 10.0)
+        SetSliderDialogInterval(0.1)
+    ElseIf option == UD_ModGlobalSeverityShift_S
+        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_ModGlobalSeverityShift)
+        SetSliderDialogDefaultValue(0.0)
+        SetSliderDialogRange(-1.0, 1.0)
+        SetSliderDialogInterval(0.01)
+    ElseIf option == UD_ModGlobalSeverityDispMult_S
+        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_ModGlobalSeverityDispMult)
+        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogRange(0.1, 10.0)
+        SetSliderDialogInterval(0.1)
+    ElseIf option == UD_ModPP_BaseProbability_S
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
+        SetSliderDialogStartValue(loc_mod_pp.BaseProbability)
+        SetSliderDialogDefaultValue(100)
+        SetSliderDialogRange(0, 100)
+        SetSliderDialogInterval(1)
+    ElseIf option == UD_ModPP_BaseSeverity_S
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
+        SetSliderDialogStartValue(loc_mod_pp.BaseSeverity)
+        SetSliderDialogDefaultValue(0.0)
+        SetSliderDialogRange(-1.0, 1.0)
+        SetSliderDialogInterval(0.01)
+    ElseIf option == UD_ModPP_SeverityDispersion_S
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
+        SetSliderDialogStartValue(loc_mod_pp.SeverityDispersion)
+        SetSliderDialogDefaultValue(0.20)
+        SetSliderDialogRange(0.01, 1.0)
+        SetSliderDialogInterval(0.01)
     endIf
 EndFunction
 
@@ -2743,14 +2879,39 @@ Function OnOptionSliderAcceptModifiers(int option, float value)
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
         loc_mod.Multiplier  = value
         SetSliderOptionValue(UD_ModifierMultiplier_S, value, "{1} x")
-;    elseif (option == UD_ModifierPatchPowerMultiplier_S)
-;        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
-;        loc_mod.PatchPowerMultiplier  = value
-;        SetSliderOptionValue(UD_ModifierPatchPowerMultiplier_S, value, "{1} x")
-;    elseif (option == UD_ModifierPatchChanceMultiplier_S)
-;        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
-;        loc_mod.PatchChanceMultiplier  = value
-;        SetSliderOptionValue(UD_ModifierPatchChanceMultiplier_S, value, "{1} x")
+    ElseIf option == UD_ModsMinCap_S
+        UDCDmain.UDPatcher.UD_ModsMinCap = Round(value)
+        SetSliderOptionValue(UD_ModsMinCap_S, value, "{0}")
+    ElseIf option == UD_ModsSoftCap_S
+        UDCDmain.UDPatcher.UD_ModsSoftCap = Round(value)
+        SetSliderOptionValue(UD_ModsSoftCap_S, value, "{0}")
+    ElseIf option == UD_ModsHardCap_S
+        UDCDmain.UDPatcher.UD_ModsHardCap = Round(value)
+        SetSliderOptionValue(UD_ModsHardCap_S, value, "{0}")
+    ElseIf option == UD_ModGlobalProbabilityMult_S
+        UDCDmain.UDPatcher.UD_ModGlobalProbabilityMult = value
+        SetSliderOptionValue(UD_ModGlobalProbabilityMult_S, value, "{2}")
+    ElseIf option == UD_ModGlobalSeverityShift_S
+        UDCDmain.UDPatcher.UD_ModGlobalSeverityShift = value
+        SetSliderOptionValue(UD_ModGlobalSeverityShift_S, value, "{2}")
+    ElseIf option == UD_ModGlobalSeverityDispMult_S
+        UDCDmain.UDPatcher.UD_ModGlobalSeverityDispMult = value
+        SetSliderOptionValue(UD_ModGlobalSeverityDispMult_S, value, "{2}")
+    ElseIf option == UD_ModPP_BaseProbability_S
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
+        loc_mod_pp.BaseProbability = value
+        SetSliderOptionValue(UD_ModPP_BaseProbability_S, value, "{0} %")
+    ElseIf option == UD_ModPP_BaseSeverity_S
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
+        loc_mod_pp.BaseSeverity = value
+        SetSliderOptionValue(UD_ModPP_BaseSeverity_S, value, "{2}")
+    ElseIf option == UD_ModPP_SeverityDispersion_S
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
+        loc_mod_pp.SeverityDispersion = value
+        SetSliderOptionValue(UD_ModPP_SeverityDispersion_S, value, "{2}")
     endIf
 EndFunction
 
@@ -2877,6 +3038,11 @@ Function OnOptionMenuOpenModifiers(Int option)
         SetMenuDialogOptions(UDmain.UDMOM.UD_ModifierList)
         SetMenuDialogStartIndex(UD_ModifierSelected)
         SetMenuDialogDefaultIndex(0)
+    ElseIf option == UD_ModifierPatchList_M
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        SetMenuDialogOptions(loc_mod.GetPatcherPresetsNames())
+        SetMenuDialogStartIndex(UD_ModifierPatchSelected)
+        SetMenuDialogDefaultIndex(0)
     EndIf
 EndFunction
 
@@ -3002,6 +3168,12 @@ Function OnOptionMenuAcceptModifiers(Int option, Int index)
     If option == UD_ModifierList_M
         UD_ModifierSelected = index
         SetMenuOptionValue(option, UDmain.UDMOM.UD_ModifierList[index])
+        UD_ModifierPatchSelected = 0
+        forcePageReset()
+    ElseIf option == UD_ModifierPatchList_M
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_ModifierPatchSelected = index
+        SetMenuOptionValue(option, loc_mod.GetPatcherPreset(UD_ModifierPatchSelected).DisplayName)
         forcePageReset()
     EndIf
 EndFunction
@@ -3559,11 +3731,25 @@ EndFunction
 
 Function ModifierPageInfo(int option)
     if(option == UD_ModifierMultiplier_S)
-        SetInfoText("Strength multiplier for specific modifier. Is applied to all modifiers of selected type")
-;    elseif(option == UD_ModifierPatchChanceMultiplier_S)
-;        SetInfoText("Multiplier for chance of modifier being added to patched device")
-;    elseif(option == UD_ModifierPatchPowerMultiplier_S)
-;        SetInfoText("Patched strength multiplier for specific modifier. Is applied to modifier of this type when it is patched. It is used only once when device is patched. After that, this value cant be changed")
+        SetInfoText("$UD_CUSTOMMOD_STRMULT_INFO")
+    ElseIf option == UD_ModsMinCap_S
+        SetInfoText("$UD_PATCHER_MODSMINCAP_INFO")
+    ElseIf option == UD_ModsSoftCap_S
+        SetInfoText("$UD_PATCHER_MODSSOFTCAP_INFO")
+    ElseIf option == UD_ModsHardCap_S
+        SetInfoText("$UD_PATCHER_MODSHARDCAP_INFO")
+    ElseIf option == UD_ModGlobalProbabilityMult_S
+        SetInfoText("$UD_PATCHER_MODGLOBALPROBMULT_INFO")
+    ElseIf option == UD_ModGlobalSeverityShift_S
+        SetInfoText("$UD_PATCHER_MODGLOBALSEVERITYSHIFT_INFO")
+    ElseIf option == UD_ModGlobalSeverityDispMult_S
+        SetInfoText("$UD_PATCHER_MODGLOBALSEVERITYDISP_INFO")
+    ElseIf option == UD_ModPP_BaseProbability_S
+        SetInfoText("$UD_MPP_BASEPROB_INFO")
+    ElseIf option == UD_ModPP_BaseSeverity_S
+        SetInfoText("$UD_MPP_BASESEVERITY_INFO")
+    ElseIf option == UD_ModPP_SeverityDispersion_S
+        SetInfoText("$UD_MPP_SEVERITYDISP_INFO")
     endif
 EndFunction
 
