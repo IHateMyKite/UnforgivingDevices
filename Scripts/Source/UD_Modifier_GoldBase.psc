@@ -3,7 +3,7 @@ ScriptName UD_Modifier_GoldBase extends UD_Modifier
 import UnforgivingDevicesMain
 import UD_Native
 
-Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     String loc_msg = ""
     
     loc_msg += "=== " + NameFull + " ===\n"
@@ -19,11 +19,12 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     loc_msg += "Currency: " + loc_currency.GetName()
     loc_msg += "\n"
     loc_msg += "Amount: [" + loc_A_min + "; " + loc_A_max + "] + " + akDevice.UD_Level + " * [" + loc_B_min + "; " + loc_B_max + "]"
-    
-    loc_msg += "===Description===\n"
+    loc_msg += "\n"
+    loc_msg += "\n"
+    loc_msg += "=== Description ===\n"
     loc_msg += Description + "\n"
 
-    UDmain.ShowMessageBox(loc_msg)
+    Return loc_msg
 EndFunction
 
 Int Function CalculateGold(String aiDataStr, int aiLevel, Bool abRandom = true)

@@ -157,7 +157,7 @@ Function LoadConfigPages()
     pages[00] = "$UD_GENERAL"
     pages[01] = "$UD_DEVICEFILTER"
     pages[02] = "$UD_CUSTOMDEVICES"
-    pages[03] = "Custom Modifiers"  ;TODO - add to translation file
+    pages[03] = "$UD_CUSTOMMODS" 
     pages[04] = "Custom Outfits"    ;TODO - add to translation file
     pages[05] = "$UD_CUSTOMORGASM"
     pages[06] = UD_NPCsPageName
@@ -339,7 +339,7 @@ Event OnPageReset(string page)
         resetAbadonPage()
     elseif (page == "$UD_CUSTOMDEVICES")
         resetCustomBondagePage()
-    elseif (page == "Custom Modifiers")
+    elseif (page == "$UD_CUSTOMMODS")
         resetModifiersPage()
     elseif (page == "Custom Outfits")
         resetOutfitPage()
@@ -675,6 +675,12 @@ Int UD_ModPP_IsNormalizedProbability_T
 Int UD_ModPP_BaseSeverity_S
 Int UD_ModPP_SeverityDispersion_S
 
+Int UD_ModifierNoModsDesc_T
+Int UD_ModifierNoPPDesc_T
+
+Int UD_ModifierVarEasyDesc_T
+Int UD_ModifierVarHardDesc_T
+
 Function resetModifiersPage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -700,27 +706,28 @@ Function resetModifiersPage()
     SetCursorFillMode(LEFT_TO_RIGHT)
     AddHeaderOption("$UD_CUSTOMMODS")         ; Custom Modifiers
     AddHeaderOption("")
-    
+
     If UDmain.UDMOM.UD_ModifierListRef.Length == 0
+        UD_ModifierNoModsDesc_T = AddTextOption("$UD_CUSTOMMOD_ERROR_NOMODS", "$-INFO-", FlagSwitch(True))      ; No modifiers found!
         Return
     EndIf
     
-    UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
-    
-    String loc_mod_name = "None"
-    
-    If loc_mod != None
-        loc_mod_name = UDmain.UDMOM.UD_ModifierList[UD_ModifierSelected]
-    EndIf
-    
-    UD_ModifierList_M = AddMenuOption("$UD_CUSTOMMOD_SELECTED", loc_mod_name)     ; Selected modifier
-    
-    If loc_mod == None
-        AddTextOption("No modifiers was found.", "", UD_LockMenu_flag)
-        AddTextOption("If it is start of the new game then you could create and reload save.", "", UD_LockMenu_flag)
-        Return
+    If UDmain.UDMOM.UD_ModifierListRef.Length <= UD_ModifierSelected
+        UDmain.Warning(Self + "Selected modifier index was outside the array")
+        UD_ModifierSelected = UDmain.UDMOM.UD_ModifierListRef.Length
     EndIf
 
+    UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+    
+    If loc_mod == None
+    ; ???
+        UDmain.Error(Self + "Selected modifier was None (index = " + UD_ModifierSelected + ")")
+        UD_ModifierSelected = 0
+        Return
+    EndIf
+    
+    UD_ModifierList_M = AddMenuOption("$UD_CUSTOMMOD_SELECTED", UDmain.UDMOM.UD_ModifierList[UD_ModifierSelected])     ; Selected modifier
+    
     AddTextOption("$UD_CUSTOMMOD_FROMSTORAGE", loc_mod.GetOwningQuest().GetName(), FlagSwitch(false))  ; Storage
     
     SetCursorPosition(16)
@@ -737,12 +744,6 @@ Function resetModifiersPage()
     AddHeaderOption("$UD_CUSTOMMOD_RUNTIMECONFIG")                ; Runtime Configuration
    
     UD_ModifierMultiplier_S = AddSliderOption("$UD_CUSTOMMOD_STRMULT", loc_mod.Multiplier, "{1} x", UD_LockMenu_flag)     ; Strength multiplier
-    
-    String[] loc_pp_names = loc_mod.GetPatcherPresetsNames()
-
-    If loc_pp_names.Length == 0
-        Return
-    EndIf
 
     SetCursorPosition(26)
     SetCursorFillMode(LEFT_TO_RIGHT)
@@ -750,23 +751,17 @@ Function resetModifiersPage()
     AddHeaderOption("")
     
     UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
-    String loc_mod_pp_name = "None"
-    If loc_mod_pp != None
-        loc_mod_pp_name = loc_mod_pp.DisplayName
-    EndIf
-    
-    UD_ModifierPatchList_M = AddMenuOption("$UD_CUSTOMMOD_PPSSELECTED", loc_mod_pp_name)           ; Selected patch preset:
-    addEmptyOption()
-    
     If loc_mod_pp == None
-        AddTextOption("Patcher presets were not found.", "", UD_LockMenu_flag)
-        AddTextOption("Either modifier has its own way with the Patcher or it's not assigned by the Patcher at all.", "", UD_LockMenu_flag)
+        UD_ModifierNoPPDesc_T = AddTextOption("$UD_CUSTOMMOD_ERROR_NOPPS", "$-INFO-", FlagSwitch(True))            ; No patcher presets found!
         Return
     EndIf
     
-    AddTextOption("DataStr_Easy", loc_mod_pp.DataStr_Easy, FlagSwitch(false))
+    UD_ModifierPatchList_M = AddMenuOption("$UD_CUSTOMMOD_PPSSELECTED", loc_mod_pp.DisplayName)           ; Selected patch preset:
+    addEmptyOption()
+    
+    UD_ModifierVarEasyDesc_T = AddTextOption("$UD_CUSTOMMOD_VAREASY", loc_mod_pp.DataStr_Easy, UD_LockMenu_flag)
     UD_ModPP_ApplicableToPlayer_T = addToggleOption("$UD_CUSTOMMOD_APPTOPLAYER", loc_mod_pp.ApplicableToPlayer, UD_LockMenu_flag)        ; Applicable to Player
-    AddTextOption("DataStr_Hard", loc_mod_pp.DataStr_Hard, FlagSwitch(false))
+    UD_ModifierVarHardDesc_T = AddTextOption("$UD_CUSTOMMOD_VARHARD", loc_mod_pp.DataStr_Hard, UD_LockMenu_flag)
     UD_ModPP_ApplicableToNPC_T = addToggleOption("$UD_CUSTOMMOD_APPTONPC", loc_mod_pp.ApplicableToNPC, UD_LockMenu_flag)                ; Applicable to NPCs
     
     UD_ModPP_BaseProbability_S = AddSliderOption("$UD_CUSTOMMOD_BASEPROB", loc_mod_pp.BaseProbability, "{0} %", UD_LockMenu_flag)                 ; Base probability
@@ -1710,7 +1705,23 @@ EndFunction
 Function OptionSelectModifiers(int option)
     if(option == UD_ModifierDescription_T)
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
-        ShowMessage(loc_mod.Description, false, "Close")
+        ShowMessage(loc_mod.Description, false, "$Close")
+    ElseIf(option == UD_ModifierNoModsDesc_T)
+        ShowMessage("$UD_CUSTOMMOD_ERROR_NOMODS_INFO", False, "$Close")
+    ElseIf(option == UD_ModifierNoPPDesc_T)
+        ShowMessage("$UD_CUSTOMMOD_ERROR_NOPPS_INFO", false, "$Close")
+    ElseIf(option == UD_ModifierVarEasyDesc_T)
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
+        ; set of argument is not complete, could break the function
+        String loc_msg = loc_mod.GetDetails(None, loc_mod_pp.DataStr_Easy, None, None, None, None, None)
+        ShowMessage(loc_msg, false, "$Close")
+    ElseIf(option == UD_ModifierVarHardDesc_T)
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
+        ; set of argument is not complete, could break the function
+        String loc_msg = loc_mod.GetDetails(None, loc_mod_pp.DataStr_Hard, None, None, None, None, None)
+        ShowMessage(loc_msg, false, "$Close")
     elseif option == UD_ModPP_ApplicableToPlayer_T
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
@@ -4238,6 +4249,22 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "AlternateAnimation", UDAM.UD_AlternateAnimation as Int)
     JsonUtil.SetIntValue(strFile, "AlternateAnimationPeriod", UDAM.UD_AlternateAnimationPeriod)
     JsonUtil.SetIntValue(strFile, "UseSingleStruggleKeyword", UDAM.UD_UseSingleStruggleKeyword as Int)
+    
+    ; MODIFIERS
+    JsonUtil.SetIntValue(strFile, "Patcher_ModsMinCap", UDCDmain.UDPatcher.UD_ModsMinCap)
+    JsonUtil.SetIntValue(strFile, "Patcher_ModsSoftCap", UDCDmain.UDPatcher.UD_ModsSoftCap)
+    JsonUtil.SetIntValue(strFile, "Patcher_ModsHardCap", UDCDmain.UDPatcher.UD_ModsHardCap)
+    JsonUtil.SetFloatValue(strFile, "Patcher_ModGlobalProbabilityMult", UDCDmain.UDPatcher.UD_ModGlobalProbabilityMult)
+    JsonUtil.SetFloatValue(strFile, "Patcher_ModGlobalSeverityShift", UDCDmain.UDPatcher.UD_ModGlobalSeverityShift)
+    JsonUtil.SetFloatValue(strFile, "Patcher_ModGlobalSeverityDispMult", UDCDmain.UDPatcher.UD_ModGlobalSeverityDispMult)
+    Int loc_i = 0
+    While loc_i < UDmain.UDMOM.UD_ModifierListRef.Length
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[loc_i] As UD_Modifier)
+        If loc_mod != None
+            loc_mod.SaveToJSON(strFile)
+        EndIf
+        loc_i += 1
+    EndWhile
 
     JsonUtil.Save(strFile, true)
 EndFunction
@@ -4397,6 +4424,23 @@ Function LoadFromJSON(string strFile)
     UDAM.UD_UseSingleStruggleKeyword = JsonUtil.GetIntValue(strFile, "UseSingleStruggleKeyword", UDAM.UD_UseSingleStruggleKeyword as Int) > 0
 
     UD_Native.SyncAnimationSetting(UDAM.UD_AnimationJSON_Off)
+    
+    ; MODIFIERS
+    UDCDmain.UDPatcher.UD_ModsMinCap = JsonUtil.GetIntValue(strFile, "Patcher_ModsMinCap", UDCDmain.UDPatcher.UD_ModsMinCap)
+    UDCDmain.UDPatcher.UD_ModsSoftCap = JsonUtil.GetIntValue(strFile, "Patcher_ModsSoftCap", UDCDmain.UDPatcher.UD_ModsSoftCap)
+    UDCDmain.UDPatcher.UD_ModsHardCap = JsonUtil.GetIntValue(strFile, "Patcher_ModsHardCap", UDCDmain.UDPatcher.UD_ModsHardCap)
+    UDCDmain.UDPatcher.UD_ModGlobalProbabilityMult = JsonUtil.GetFloatValue(strFile, "Patcher_ModGlobalProbabilityMult", UDCDmain.UDPatcher.UD_ModGlobalProbabilityMult)
+    UDCDmain.UDPatcher.UD_ModGlobalSeverityShift = JsonUtil.GetFloatValue(strFile, "Patcher_ModGlobalSeverityShift", UDCDmain.UDPatcher.UD_ModGlobalSeverityShift)
+    UDCDmain.UDPatcher.UD_ModGlobalSeverityDispMult = JsonUtil.GetFloatValue(strFile, "Patcher_ModGlobalSeverityDispMult", UDCDmain.UDPatcher.UD_ModGlobalSeverityDispMult)
+    Int loc_i = 0
+    While loc_i < UDmain.UDMOM.UD_ModifierListRef.Length
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[loc_i] As UD_Modifier)
+        If loc_mod != None
+            loc_mod.LoadFromJSON(strFile)
+        EndIf
+        loc_i += 1
+    EndWhile
+    
 EndFunction
 
 Function ResetToDefaults()

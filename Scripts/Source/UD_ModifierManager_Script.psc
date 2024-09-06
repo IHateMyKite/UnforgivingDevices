@@ -57,8 +57,8 @@ int Function AddModifierStorage(UD_ModifierStorage akStorage)
     _modifierstorages = PapyrusUtil.PushForm(_modifierstorages,akStorage as Form)
     
     ; repopulating modifiers list
-    Ready = False
-    RegisterForSingleUpdate(2.0)
+;    Ready = False
+;    RegisterForSingleUpdate(2.0)
     
     return _modifierstorages.length
 EndFunction

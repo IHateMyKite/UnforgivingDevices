@@ -50,7 +50,7 @@ Function WeaponHit(UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, Float
     akDevice.AddJammedLock(Round((loc_chance1 + loc_chance2 * afDamage) * Multiplier))
 EndFunction
 
-Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     String loc_msg = ""
     
     loc_msg += "=== " + NameFull + " ===\n"
@@ -58,10 +58,11 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
     loc_msg += "Chance per hit: " + iRange(Round(UD_Native.GetStringParamFloat(aiDataStr, 1, 0.0) * Multiplier), 0, 100) + " %\n"
     loc_msg += "Chance per dp: " + iRange(Round(UD_Native.GetStringParamFloat(aiDataStr, 2, 0.0) * Multiplier), 0, 100) + " %\n"
 
-    loc_msg += "===Description===\n"
+    loc_msg += "\n"
+    loc_msg += "=== Description ===\n"
     loc_msg += Description + "\n"
 
-    UDmain.ShowMessageBox(loc_msg)
+    Return loc_msg
 EndFunction
 
 ;/  Group: Patcher overrides

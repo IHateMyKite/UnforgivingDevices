@@ -7686,7 +7686,8 @@ Function ShowModifiers()
     endif
     
     UD_Modifier loc_mod = (UD_ModifiersRef[loc_res] as UD_Modifier)
-    loc_mod.ShowDetails(self,UD_ModifiersDataStr[loc_res],UD_ModifiersDataForm1[loc_res],UD_ModifiersDataForm2[loc_res],UD_ModifiersDataForm3[loc_res],UD_ModifiersDataForm4[loc_res],UD_ModifiersDataForm5[loc_res])
+    String loc_msg = loc_mod.GetDetails(self,UD_ModifiersDataStr[loc_res],UD_ModifiersDataForm1[loc_res],UD_ModifiersDataForm2[loc_res],UD_ModifiersDataForm3[loc_res],UD_ModifiersDataForm4[loc_res],UD_ModifiersDataForm5[loc_res])
+    UDmain.ShowMessageBox(loc_msg)
 EndFunction
 
 

@@ -28,7 +28,7 @@ EndFunction
 Function DeviceUnlocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
 EndFunction
 
-Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     String loc_msg = ""
     
     loc_msg += "==== " + NameFull + " ====\n"
@@ -40,8 +40,7 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
         loc_msg += "=== Description ===" + "\n"
         loc_msg += Description
     endif
-    
-    UDmain.ShowMessageBox(loc_msg)
+    Return loc_msg
 EndFunction
 
 Function SetArmorValues(UD_CustomDevice_RenderScript akDevice, String aiDataStr)

@@ -38,7 +38,7 @@ Bool        Property ApplicableToPlayer         = True  Auto
     Base probability of applying this modifier
 /;
 Float       Property BaseProbability            = 100.0 Auto
-{Default value: 25.0}
+{Default value: 100.0}
 
 ;/  Variable: IsNormalizedProbability
     Indicates that the probability is normalized to the allowed number of modifiers (softcap)
@@ -46,12 +46,10 @@ Float       Property BaseProbability            = 100.0 Auto
 Bool        Property IsNormalizedProbability    = True  Auto
 {Default value: True}
 
-
 ;/  Variable: BaseSeverity
     Average modifier severity (mathematical expectation of the random variable on which the configuration is generated)
 /;
 Float       Property BaseSeverity               = 0.0   Auto
-
 
 ;/  Variable: SeverityDispersion
     Severity dispersion
@@ -106,14 +104,16 @@ Float Function BiasedRandom2(Float afMultiplier = 1.0, Float afEasing = 0.25)
     EndWhile
 EndFunction
 
-; returns normally distributed number in interval 0.0 .. 1.0 with center on 0.5 shifted by BaseSeverity/2 and sigma as SeverityDispersion
+; returns normally distributed number in interval -1.0 .. 1.0 with center shifted by BaseSeverity and sigma equals to SeverityDispersion
 ; see documentation for reference
 Float Function BiasedRandom3(Float afGlobalMuShift = 0.0, Float afGlobalSigmaMult = 1.0)
     Float loc_mu = fRange(afGlobalMuShift, -1.0, 1.0)
     Float loc_mu_d = fRange(BaseSeverity, -1.0, 1.0)
     Float loc_sigma = fRange(SeverityDispersion * afGlobalSigmaMult, 0.01, 10.0)
-    Float loc_gauss
+    Float loc_nrand
     
+    ; correction on global severity shift
+    ; needs improvement because the current algorithm is not commutative
     If loc_mu_d > 0
         loc_mu += (1.0 - loc_mu) * loc_mu_d
     ElseIf loc_mu_d < 0
@@ -121,9 +121,9 @@ Float Function BiasedRandom3(Float afGlobalMuShift = 0.0, Float afGlobalSigmaMul
     EndIf
     
     While True
-        loc_gauss = _GetNormalRandom(loc_mu, loc_sigma)
-        If loc_gauss >= -1.0 && loc_gauss <= 1.0
-            Return (loc_gauss + 1.0) / 2.0
+        loc_nrand = _GetNormalRandom(loc_mu, loc_sigma)
+        If loc_nrand >= -1.0 && loc_nrand <= 1.0
+            Return loc_nrand
         EndIf
     EndWhile
 EndFunction
@@ -137,18 +137,19 @@ String Function GetDataStr(Float afGlobalSeverityShift = 0.0, Float afGlobalSeve
         String loc_rnd_str = ""
         If GetStringParamString(DataStr_Easy, i, "") != ""
             Float loc_rnd_1 = BiasedRandom3(afGlobalSeverityShift, afGlobalSeverityDispersionMult)
+            Float loc_rnd_01 = (loc_rnd_1 + 1.0) / 2.0          ; scaling to interval (0; 1)
             If loc_type == "I"
                 Int loc_min = GetStringParamInt(DataStr_Easy, i, 0)
                 Int loc_max = GetStringParamInt(DataStr_Hard, i, loc_min)
-                loc_rnd_str = ((loc_rnd_1 * (loc_max - loc_min) + loc_min) as Int) as String
+                loc_rnd_str = ((loc_rnd_01 * (loc_max - loc_min) + loc_min) as Int) as String
             ElseIf loc_type == "F"
                 Float loc_min = GetStringParamFloat(DataStr_Easy, i, 0.0)
                 Float loc_max = GetStringParamFloat(DataStr_Hard, i, loc_min)
-                loc_rnd_str = FormatFloat(loc_rnd_1 * (loc_max - loc_min) + loc_min, 3)
+                loc_rnd_str = FormatFloat(loc_rnd_01 * (loc_max - loc_min) + loc_min, 3)
             Else
                 String loc_val1 = GetStringParamString(DataStr_Easy, i, "")
                 String loc_val2 = GetStringParamString(DataStr_Hard, i, loc_val1)
-                If loc_rnd_1 > 0.5
+                If loc_rnd_01 > 0.5
                     loc_rnd_str = loc_val2
                 Else
                     loc_rnd_str = loc_val1
@@ -165,7 +166,8 @@ EndFunction
 Form Function GetForm1(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0)
     If Form1_Variants && Form1_Variants.GetSize() > 0
         Float loc_rnd_1 = BiasedRandom3(afGlobalSeverityShift, afGlobalSeverityDispersionMult)
-        Int loc_i = (loc_rnd_1 * (Form1_Variants.GetSize() - 1)) as Int
+        Float loc_rnd_01 = (loc_rnd_1 + 1.0) / 2.0          ; scaling to interval (0; 1)
+        Int loc_i = (loc_rnd_01 * (Form1_Variants.GetSize() - 1)) as Int
         Return Form1_Variants.GetAt(loc_i)
     EndIf
     Return None
@@ -174,7 +176,8 @@ EndFunction
 Form Function GetForm2(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0)
     If Form2_Variants && Form2_Variants.GetSize() > 0
         Float loc_rnd_1 = BiasedRandom3(afGlobalSeverityShift, afGlobalSeverityDispersionMult)
-        Int loc_i = (loc_rnd_1 * (Form2_Variants.GetSize() - 1)) as Int
+        Float loc_rnd_01 = (loc_rnd_1 + 1.0) / 2.0          ; scaling to interval (0; 1)
+        Int loc_i = (loc_rnd_01 * (Form2_Variants.GetSize() - 1)) as Int
         Return Form2_Variants.GetAt(loc_i)
     EndIf
     Return None
@@ -183,7 +186,8 @@ EndFunction
 Form Function GetForm3(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0)
     If Form3_Variants && Form3_Variants.GetSize() > 0
         Float loc_rnd_1 = BiasedRandom3(afGlobalSeverityShift, afGlobalSeverityDispersionMult)
-        Int loc_i = (loc_rnd_1 * (Form3_Variants.GetSize() - 1)) as Int
+        Float loc_rnd_01 = (loc_rnd_1 + 1.0) / 2.0          ; scaling to interval (0; 1)
+        Int loc_i = (loc_rnd_01 * (Form3_Variants.GetSize() - 1)) as Int
         Return Form3_Variants.GetAt(loc_i)
     EndIf
     Return None
@@ -192,7 +196,8 @@ EndFunction
 Form Function GetForm4(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0)
     If Form4_Variants && Form4_Variants.GetSize() > 0
         Float loc_rnd_1 = BiasedRandom3(afGlobalSeverityShift, afGlobalSeverityDispersionMult)
-        Int loc_i = (loc_rnd_1 * (Form4_Variants.GetSize() - 1)) as Int
+        Float loc_rnd_01 = (loc_rnd_1 + 1.0) / 2.0          ; scaling to interval (0; 1)
+        Int loc_i = (loc_rnd_01 * (Form4_Variants.GetSize() - 1)) as Int
         Return Form4_Variants.GetAt(loc_i)
     EndIf
     Return None
@@ -201,7 +206,8 @@ EndFunction
 Form Function GetForm5(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0)
     If Form5_Variants && Form5_Variants.GetSize() > 0
         Float loc_rnd_1 = BiasedRandom3(afGlobalSeverityShift, afGlobalSeverityDispersionMult)
-        Int loc_i = (loc_rnd_1 * (Form5_Variants.GetSize() - 1)) as Int
+        Float loc_rnd_01 = (loc_rnd_1 + 1.0) / 2.0          ; scaling to interval (0; 1)
+        Int loc_i = (loc_rnd_01 * (Form5_Variants.GetSize() - 1)) as Int
         Return Form5_Variants.GetAt(loc_i)
     EndIf
     Return None
@@ -252,7 +258,24 @@ Bool Function FastCheckDevice(UD_CustomDevice_RenderScript akDevice)
 EndFunction
 
 Function SaveToJSON(String asFile, String asObjectPath)
+    String loc_path = asObjectPath + "_"
+    
+    JsonUtil.SetIntValue(asFile, loc_path + "ApplicableToNPC", ApplicableToNPC As Int)
+    JsonUtil.SetIntValue(asFile, loc_path + "ApplicableToPlayer", ApplicableToPlayer As Int)
+    JsonUtil.SetFloatValue(asFile, loc_path + "BaseProbability", BaseProbability)
+    JsonUtil.SetIntValue(asFile, loc_path + "IsNormalizedProbability", IsNormalizedProbability As Int)
+    JsonUtil.SetFloatValue(asFile, loc_path + "BaseSeverity", BaseSeverity)
+    JsonUtil.SetFloatValue(asFile, loc_path + "SeverityDispersion", SeverityDispersion)
+    
 EndFunction
 
 Function LoadFromJSON(String asFile, String asObjectPath)
+    String loc_path = asObjectPath + "_"
+    
+    ApplicableToNPC = JsonUtil.GetIntValue(asFile, loc_path + "ApplicableToNPC", ApplicableToNPC As Int) != 0
+    ApplicableToPlayer = JsonUtil.GetIntValue(asFile, loc_path + "ApplicableToPlayer", ApplicableToPlayer As Int) != 0
+    BaseProbability = JsonUtil.GetFloatValue(asFile, loc_path + "BaseProbability", BaseProbability)
+    IsNormalizedProbability = JsonUtil.GetIntValue(asFile, loc_path + "IsNormalizedProbability", IsNormalizedProbability As Int) != 0
+    BaseSeverity = JsonUtil.GetFloatValue(asFile, loc_path + "BaseSeverity", BaseSeverity)
+    SeverityDispersion = JsonUtil.GetFloatValue(asFile, loc_path + "SeverityDispersion", SeverityDispersion)
 EndFunction

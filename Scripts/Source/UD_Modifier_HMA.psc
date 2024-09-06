@@ -22,15 +22,16 @@ Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, Str
     UDCDmain.ManifestDevices(akDevice.GetWearer(), akDevice.getDeviceName(), loc_chance, loc_number)
 EndFunction
 
-Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     String loc_msg = ""
     
     loc_msg += "=== " + NameFull + " ===\n"
     loc_msg += "Chance: " + iRange(Round(UD_Native.GetStringParamInt(aiDataStr,0)*Multiplier),0,100) + " %\n"
     loc_msg += "Devices: " + UD_Native.GetStringParamInt(aiDataStr,1,1) + "\n"
 
-    loc_msg += "===Description===\n"
+    loc_msg += "\n"
+    loc_msg += "=== Description ===\n"
     loc_msg += Description + "\n"
 
-    UDmain.ShowMessageBox(loc_msg)
+    Return loc_msg
 EndFunction

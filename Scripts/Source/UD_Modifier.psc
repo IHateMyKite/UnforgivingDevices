@@ -164,7 +164,7 @@ EndFunction
 ===========================================================================================
 /;
 
-Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     String loc_msg = ""
     
     If ConcealmentPower > 50
@@ -179,8 +179,7 @@ Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Fo
             loc_msg += Description
         endif
     EndIf
-    
-    UDmain.ShowMessageBox(loc_msg)
+    Return loc_msg
 EndFunction
 
 String Function GetCaption(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
@@ -331,12 +330,48 @@ UD_Patcher_ModPreset Function GetPatcherPreset(Int aiIndex)
             Return loc_preset3
         EndIf
     EndIf
+    Return None
 EndFunction
 
 String _JsonObjectPath = ""
 
 Function SaveToJSON(String asFile)
+    String loc_path = "Modifier_" + NameAlias + "_"
+    
+    JsonUtil.SetFloatValue(asFile, loc_path + "Multiplier", Multiplier)
+
+    UD_Patcher_ModPreset loc_preset1 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset1) as UD_Patcher_ModPreset
+    UD_Patcher_ModPreset loc_preset2 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset2) as UD_Patcher_ModPreset
+    UD_Patcher_ModPreset loc_preset3 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset3) as UD_Patcher_ModPreset
+    
+    If loc_preset1 != None
+        loc_preset1.SaveToJSON(asFile, loc_path + "Preset1")
+    EndIf
+    If loc_preset2 != None
+        loc_preset2.SaveToJSON(asFile, loc_path + "Preset2")
+    EndIf
+    If loc_preset3 != None
+        loc_preset3.SaveToJSON(asFile, loc_path + "Preset3")
+    EndIf
+    
 EndFunction
 
 Function LoadFromJSON(String asFile)
+    String loc_path = "Modifier_" + NameAlias + "_"
+    
+    Multiplier = JsonUtil.GetFloatValue(asFile, loc_path + "Multiplier", Multiplier)
+
+    UD_Patcher_ModPreset loc_preset1 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset1) as UD_Patcher_ModPreset
+    UD_Patcher_ModPreset loc_preset2 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset2) as UD_Patcher_ModPreset
+    UD_Patcher_ModPreset loc_preset3 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset3) as UD_Patcher_ModPreset
+    
+    If loc_preset1 != None
+        loc_preset1.LoadFromJSON(asFile, loc_path + "Preset1")
+    EndIf
+    If loc_preset2 != None
+        loc_preset2.LoadFromJSON(asFile, loc_path + "Preset2")
+    EndIf
+    If loc_preset3 != None
+        loc_preset3.LoadFromJSON(asFile, loc_path + "Preset3")
+    EndIf
 EndFunction
