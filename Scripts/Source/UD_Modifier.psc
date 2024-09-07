@@ -169,13 +169,13 @@ String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataS
     
     If ConcealmentPower > 50
         loc_msg += "Name: ??? \n\n"
-        loc_msg += "==Description==" + "\n"
+        loc_msg += "=== Description ===" + "\n"
         loc_msg += "You are unable to recognize this enchantment"
     Else
         loc_msg += "Name: " + NameFull + "\n\n"
         
         if Description
-            loc_msg += "==Description==" + "\n"
+            loc_msg += "=== Description ===" + "\n"
             loc_msg += Description
         endif
     EndIf
@@ -222,6 +222,8 @@ Bool Function PatchModifierCheckAndAdd(UD_CustomDevice_RenderScript akDevice, In
     
     loc_prob *= PatchModifierCheckAndAddOverride(akDevice)
     loc_prob *= afGlobalProbabilityMult
+    
+    UDCDmain.UDmain.Log(Self + "::PatchModifierFastCheck() final probability = " + UD_Native.FormatFloat(loc_prob, 2) + " %", 3)
     
     If UD_Native.RandomFloat(0.0, 100.0) < loc_prob
         akDevice.AddModifier(Self, loc_preset.GetDataStr(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm1(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm2(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm3(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm4(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm5(afGlobalSeverityShift, afGlobalSeverityDispersionMult))
@@ -332,8 +334,6 @@ UD_Patcher_ModPreset Function GetPatcherPreset(Int aiIndex)
     EndIf
     Return None
 EndFunction
-
-String _JsonObjectPath = ""
 
 Function SaveToJSON(String asFile)
     String loc_path = "Modifier_" + NameAlias + "_"

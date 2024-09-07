@@ -102,6 +102,13 @@ String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderS
         loc_str += "Voice Cast"
         loc_comma = True
     EndIf
+    If StringUtil.Find(loc_event, "VF") >= 0
+        If loc_comma 
+            loc_str += ", "
+        EndIf
+        loc_str += "Voice Fire"
+        loc_comma = True
+    EndIf
     If StringUtil.Find(loc_event, "BD") >= 0
         If loc_comma 
             loc_str += ", "

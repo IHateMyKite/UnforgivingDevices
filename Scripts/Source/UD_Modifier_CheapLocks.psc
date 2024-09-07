@@ -54,9 +54,9 @@ String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataS
     String loc_msg = ""
     
     loc_msg += "=== " + NameFull + " ===\n"
-    loc_msg += "Chance per hour: " + iRange(Round(UD_Native.GetStringParamFloat(aiDataStr, 0, 0.0) * Multiplier), 0, 100) + " %\n"
-    loc_msg += "Chance per hit: " + iRange(Round(UD_Native.GetStringParamFloat(aiDataStr, 1, 0.0) * Multiplier), 0, 100) + " %\n"
-    loc_msg += "Chance per dp: " + iRange(Round(UD_Native.GetStringParamFloat(aiDataStr, 2, 0.0) * Multiplier), 0, 100) + " %\n"
+    loc_msg += "Chance per hour: " + FormatFloat(fRange(UD_Native.GetStringParamFloat(aiDataStr, 0, 0.0) * Multiplier, 0.0, 100.0), 2) + " %\n"
+    loc_msg += "Chance per hit: " + FormatFloat(fRange(UD_Native.GetStringParamFloat(aiDataStr, 1, 0.0) * Multiplier, 0.0, 100.0), 2) + " %\n"
+    loc_msg += "Chance per dp: " + FormatFloat(fRange(UD_Native.GetStringParamFloat(aiDataStr, 2, 0.0) * Multiplier, 0.0, 100.0), 2) + " %\n"
 
     loc_msg += "\n"
     loc_msg += "=== Description ===\n"

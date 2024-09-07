@@ -53,16 +53,17 @@ EndFunction
 
 String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
     String loc_str = ""
-    String loc_method_list3 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R") 
+    String loc_method_list3 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
     loc_str += "Activates Device(s)"
     loc_str += "\n"
     loc_str += "Number of devices: "
-    If loc_method_list3 == "S"
+    If loc_method_list3 == "S" || loc_method_list3 == "SELF"
         loc_str += "SELF"
-    ElseIf loc_method_list3 == "A"
+    ElseIf loc_method_list3 == "A" || loc_method_list3 == "ALL"
         loc_str += "ALL"
     Else
-        loc_str += GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)   
+        loc_str += GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
+        loc_str += " (" + loc_method_list3 + ")"
     EndIf
     Return loc_str
 EndFunction

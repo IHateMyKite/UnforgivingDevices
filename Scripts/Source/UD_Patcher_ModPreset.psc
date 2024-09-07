@@ -213,8 +213,8 @@ Form Function GetForm5(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverity
     Return None
 EndFunction
 
-Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice)
-    If !FastCheckDevice(akDevice)
+Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice, Bool abNoFastCheck = False)
+    If !abNoFastCheck && !FastCheckDevice(akDevice)
         Return -3               ; fast check failed
     EndIf
     
@@ -254,7 +254,8 @@ Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice)
 EndFunction
 
 Bool Function FastCheckDevice(UD_CustomDevice_RenderScript akDevice)
-    Return ((UD_Native.IsPlayer(akDevice.getWearer()) && ApplicableToPlayer) || (!UD_Native.IsPlayer(akDevice.getWearer()) && ApplicableToNPC)) && BaseProbability > 0.0
+    Bool loc_is_player = UD_Native.IsPlayer(akDevice.getWearer())
+    Return ((loc_is_player && ApplicableToPlayer) || (!loc_is_player && ApplicableToNPC)) && BaseProbability > 0.0
 EndFunction
 
 Function SaveToJSON(String asFile, String asObjectPath)

@@ -308,30 +308,26 @@ EndFunction
 
 Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
     if DeviceCanHaveModes(akDevice)
-        Alias[] loc_valid_mods = Utility.CreateAliasArray(0)
-        Float[] loc_mod_probs = Utility.CreateFloatArray(0)
-        Int loc_modnum
-        int loc_count = UDMOM.GetModifierStorageCount()
-        while loc_count
-            loc_count -= 1
-            UD_ModifierStorage loc_storage = UDMOM.GetNthModifierStorage(loc_count)
-            ; first run to find all valid modifiers
-            loc_modnum = loc_storage.GetModifierNum()
-            while loc_modnum
-                loc_modnum -= 1
-                UD_Modifier loc_mod = loc_storage.GetNthModifier(loc_modnum)
-                if loc_mod && !akDevice.HasModifierRef(loc_mod) && loc_mod.PatchModifierFastCheck(akDevice)
-                    loc_valid_mods = PapyrusUtil.PushAlias(loc_valid_mods, loc_mod)
-                    UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Fast check: valid modifier = " + loc_mod, 3)
-                endif
-            endwhile
+        Int loc_modnum = 0
+        Int loc_i = UDMOM.UD_ModifierListRef.Length
+        Alias[] loc_valid_mods = Utility.CreateAliasArray(loc_i)
+        ; first run to find all valid modifiers
+        while loc_i
+            loc_i -= 1
+            UD_Modifier loc_mod = UDMOM.UD_ModifierListRef[loc_i] As UD_Modifier
+            if loc_mod && loc_mod.PatchModifierFastCheck(akDevice)
+                loc_valid_mods[loc_modnum] = loc_mod
+                loc_modnum += 1
+            endif
         endwhile
-        If loc_valid_mods.Length == 0
+        UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Fast check: " + loc_modnum + " mods to use.", 2)
+        If loc_modnum == 0
             Return
         EndIf
+        loc_valid_mods = Utility.ResizeAliasArray(loc_valid_mods, loc_modnum)
         ; second run to accurate check and assing valid mods
-        _AddModifiersFromArray(akDevice, loc_valid_mods, UD_ModsSoftCap, UD_ModsHardCap)
-        If loc_modnum < UD_ModsMinCap
+        Int loc_added_mods = _AddModifiersFromArray(akDevice, loc_valid_mods, UD_ModsSoftCap, UD_ModsHardCap)
+        If loc_added_mods < UD_ModsMinCap
             ; a third run to add mods if their number does not reach the allowable minimum
             _AddModifiersFromArray(akDevice, loc_valid_mods, UD_ModsSoftCap, UD_ModsSoftCap)
         EndIf
@@ -339,18 +335,18 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
 EndFunction
 
 Int Function _AddModifiersFromArray(UD_CustomDevice_RenderScript akDevice, Alias[] aakMods, Int aiSoftCap, Int aiHardCap)
-    Int loc_count = 0
+    Int loc_i = 0
     Int loc_modnum = 0
-    while loc_count < aakMods.Length
+    while loc_i < aakMods.Length
         If loc_modnum >= aiHardCap
             Return loc_modnum
         EndIf
-        UD_Modifier loc_mod = aakMods[loc_count] As UD_Modifier
+        UD_Modifier loc_mod = aakMods[loc_i] As UD_Modifier
         If !akDevice.HasModifierRef(loc_mod) && loc_mod.PatchModifierCheckAndAdd(akDevice, aiSoftCap, aakMods.Length, UD_ModGlobalProbabilityMult, UD_ModGlobalSeverityShift, UD_ModGlobalSeverityDispMult)
-            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Added modifier = " + loc_mod, 3)
+            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Added modifier = " + loc_mod, 2)
             loc_modnum += 1
         EndIf
-        loc_count += 1
+        loc_i += 1
     endwhile
     Return loc_modnum
 EndFunction
