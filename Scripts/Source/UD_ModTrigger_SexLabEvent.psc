@@ -1,30 +1,18 @@
-;/  File: UD_ModTrigger_ItemObtain
-    It triggers with a given chance after actor obtains an item
+;/  File: UD_ModTrigger_SexLabEvent
+    It triggers on sex event
     
-    NameFull: Item Obtain
+    NameFull: On Sex Event
     
     Parameters (DataStr):
-        [0]     Int     (optional) Minimun number of items to trigger
-                        Default value: 1
-        
-        [1]     Float   (optional) Base probability to trigger (in %)
-                        Default value: 100.0%
-        
-        [2]     Float   (optional) Probability to trigger that is proportional to the accumulated value (number of obtained items)
-                        Default value: 0.0%
-                        
-        [3]     Float   (optional) Reset period (in hours)
-                        Default value: -1.0 (Triggers once)
-                        
-        [6]     Float   (script) Number of obtained items so far
+        [0]     String  
 
-    Forms:
-        Form1           Item or Keyword to filter obtained items
-    
+        [1]     Float   Base probability to trigger on event (in %)
+                        Default value: 100.0%
+                        
     Example:
         
 /;
-Scriptname UD_ModTrigger_ItemObtain extends UD_ModTrigger
+Scriptname UD_ModTrigger_SexLabEvent extends UD_ModTrigger
 
 import UnforgivingDevicesMain
 import UD_Native
@@ -45,3 +33,17 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
+Bool Function SexLabEvent(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Bool[] aabTypes, Actor[] aakActors, String aiDataStr, Form akForm1)
+    Return False
+EndFunction
+
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    String loc_event = GetStringParamString(aiDataStr, 0, "")
+    String loc_str = ""
+    Bool loc_comma = False
+    loc_str += "On sex event"
+    loc_str += "\n"
+    loc_str += "Base probability: " + FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 2) + "%"
+    
+    Return loc_str
+EndFunction

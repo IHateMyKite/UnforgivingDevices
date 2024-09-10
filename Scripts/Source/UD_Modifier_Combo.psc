@@ -6,7 +6,7 @@
     NameAlias: CMP1, CMP2, CMP3, CMP4, CMP5, CMN1, CMN2, CMN3, CMN4, CMN5
     
     CMP<N>      - use these modifiers for positive effects
-    CPN<N>      - use these modifiers for negative effects
+    CMN<N>      - use these modifiers for negative effects
 
     Parameters:
         [0 .. 6]    Parameters for the trigger. See description of the selected trigger for details.
@@ -29,49 +29,63 @@ import UnforgivingDevicesMain
 import UD_Native
 
 
+;/  Group: Overrides
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 Bool Function ValidateModifier(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    Bool loc_result = True
     If (akForm1 as UD_ModTrigger) == None
         Return False
+    Else
+        loc_result = loc_result && (akForm1 as UD_ModTrigger).ValidateTrigger(akDevice, aiDataStr, akForm1)
+        EventProcessingMask = (akForm1 as UD_ModTrigger).EventProcessingMask
     EndIf
     If (akForm2 as UD_ModOutcome) == None
         Return False
     EndIf
-    Return True
+    Return loc_result
 EndFunction
 
+;/  Group: Events Processing
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 Function GameLoaded(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     If (akForm1 as UD_ModTrigger).GameLoaded(Self, akDevice, aiDataStr, akForm3) == True
-        (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm4, akForm5)
+        _DoCallOutcome(akForm2 as UD_ModOutcome, akDevice, aiDataStr, akForm4, akForm5)
     EndIf
 EndFunction
 
 Function TimeUpdateSecond(UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     If (akForm1 as UD_ModTrigger).TimeUpdateSecond(Self, akDevice, afTime, aiDataStr, akForm3) == True
-        (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm4, akForm5)
+        _DoCallOutcome(akForm2 as UD_ModOutcome, akDevice, aiDataStr, akForm4, akForm5)
     EndIf
 EndFunction
 
 Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     If (akForm1 as UD_ModTrigger).TimeUpdateHour(Self, akDevice, afMult, aiDataStr, akForm3) == True
-        (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm4, akForm5)
+        _DoCallOutcome(akForm2 as UD_ModOutcome, akDevice, aiDataStr, akForm4, akForm5)
     EndIf
 EndFunction
 
 Function Orgasm(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     If (akForm1 as UD_ModTrigger).Orgasm(Self, akDevice, aiDataStr, akForm3) == True
-        (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm4, akForm5)
+        _DoCallOutcome(akForm2 as UD_ModOutcome, akDevice, aiDataStr, akForm4, akForm5)
     EndIf
 EndFunction
 
 Function DeviceLocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     If (akForm1 as UD_ModTrigger).DeviceLocked(Self, akDevice, aiDataStr, akForm3) == True
-        (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm4, akForm5)
+        _DoCallOutcome(akForm2 as UD_ModOutcome, akDevice, aiDataStr, akForm4, akForm5)
     EndIf
 EndFunction
 
 Function DeviceUnlocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     If (akForm1 as UD_ModTrigger).DeviceUnlocked(Self, akDevice, aiDataStr, akForm3) == True
-        (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm4, akForm5)
+        _DoCallOutcome(akForm2 as UD_ModOutcome, akDevice, aiDataStr, akForm4, akForm5)
     EndIf
 EndFunction
 
@@ -81,68 +95,85 @@ EndFunction
 
 Function MinigameStarted(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_RenderScript akMinigameDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     If (akForm1 as UD_ModTrigger).MinigameStarted(Self, akDevice, akMinigameDevice, aiDataStr, akForm3) == True
-        (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm4, akForm5)
+        _DoCallOutcome(akForm2 as UD_ModOutcome, akDevice, aiDataStr, akForm4, akForm5)
     EndIf
 EndFunction
 
 Function MinigameEnded(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_RenderScript akMinigameDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     If (akForm1 as UD_ModTrigger).MinigameEnded(Self, akDevice, akMinigameDevice, aiDataStr, akForm3) == True
-        (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm4, akForm5)
+        _DoCallOutcome(akForm2 as UD_ModOutcome, akDevice, aiDataStr, akForm4, akForm5)
     EndIf
 EndFunction
 
 Function WeaponHit(UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, Float afDamage, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     If (akForm1 as UD_ModTrigger).WeaponHit(Self, akDevice, akWeapon, afDamage, aiDataStr, akForm3) == True
-        (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm4, akForm5)
+        _DoCallOutcome(akForm2 as UD_ModOutcome, akDevice, aiDataStr, akForm4, akForm5)
     EndIf
 EndFunction
 
 Function SpellHit(UD_CustomDevice_RenderScript akDevice, Form akSpell, Float afDamage, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     If (akForm1 as UD_ModTrigger).SpellHit(Self, akDevice, akSpell, afDamage, aiDataStr, akForm3) == True
-        (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm4, akForm5)
+        _DoCallOutcome(akForm2 as UD_ModOutcome, akDevice, aiDataStr, akForm4, akForm5)
     EndIf
 EndFunction
 
 Function SpellCast(UD_CustomDevice_RenderScript akDevice, Spell akSpell, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     If (akForm1 as UD_ModTrigger).SpellCast(Self, akDevice, akSpell, aiDataStr, akForm3) == True
-        (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm4, akForm5)
+        _DoCallOutcome(akForm2 as UD_ModOutcome, akDevice, aiDataStr, akForm4, akForm5)
     EndIf
 EndFunction
 
 Function ConditionLoss(UD_CustomDevice_RenderScript akDevice, Int aiCondition, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     If (akForm1 as UD_ModTrigger).ConditionLoss(Self, akDevice, aiCondition, aiDataStr, akForm3) == True
-        (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm4, akForm5)
+        _DoCallOutcome(akForm2 as UD_ModOutcome, akDevice, aiDataStr, akForm4, akForm5)
     EndIf
 EndFunction
 
 Function StatEvent(UD_CustomDevice_RenderScript akDevice, String asStatName, Int aiStatValue, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     If (akForm1 as UD_ModTrigger).StatEvent(Self, akDevice, asStatName, aiStatValue, aiDataStr, akForm3) == True
-        (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm4, akForm5)
+        _DoCallOutcome(akForm2 as UD_ModOutcome, akDevice, aiDataStr, akForm4, akForm5)
     EndIf
 EndFunction
 
 Function Sleep(UD_CustomDevice_RenderScript akDevice, Float afDuration, Bool abInterrupted, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     If (akForm1 as UD_ModTrigger).Sleep(Self, akDevice, afDuration, abInterrupted, aiDataStr, akForm3) == True
-        (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm4, akForm5)
+        _DoCallOutcome(akForm2 as UD_ModOutcome, akDevice, aiDataStr, akForm4, akForm5)
     EndIf
 EndFunction
 
 Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     If (akForm1 as UD_ModTrigger).ActorAction(Self, akDevice, aiActorAction, akSource, aiDataStr, akForm3) == True
-        (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm4, akForm5)
+        _DoCallOutcome(akForm2 as UD_ModOutcome, akDevice, aiDataStr, akForm4, akForm5)
     EndIf
 EndFunction
 
 Function KillMonitor(UD_CustomDevice_RenderScript akDevice, ObjectReference akVictim, Int aiCrimeStatus, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     If (akForm1 as UD_ModTrigger).KillMonitor(Self, akDevice, akVictim, aiCrimeStatus, aiDataStr, akForm3) == True
-        (akForm2 as UD_ModOutcome).Outcome(Self, akDevice, aiDataStr, akForm4, akForm5)
+        _DoCallOutcome(akForm2 as UD_ModOutcome, akDevice, aiDataStr, akForm4, akForm5)
     EndIf
 EndFunction
 
-Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    return false
+; Overrides
+Function OnBeforeOutcome(UD_ModOutcome akOutcome, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
 EndFunction
 
+Function OnAfterOutcome(UD_ModOutcome akOutcome, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+EndFunction
+
+; Privates
+Function _DoCallOutcome(UD_ModOutcome akOutcome, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+    OnBeforeOutcome(akOutcome, akDevice, aiDataStr, akForm4, akForm5)
+    If akOutcome
+        akOutcome.Outcome(Self, akDevice, aiDataStr, akForm4, akForm5)
+        OnAfterOutcome(akOutcome, akDevice, aiDataStr, akForm4, akForm5)
+    EndIf
+EndFunction
+
+;/  Group: User Interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     String loc_msg = ""
     

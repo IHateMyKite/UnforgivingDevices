@@ -13,6 +13,21 @@ import UnforgivingDevicesMain
 import UDCustomDeviceMain
 import UD_Native
 
+;/  Group: Overrides
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+Bool Function ValidateModifier(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    EventProcessingMask = 0x00000002
+    Return True
+EndFunction
+
+;/  Group: Events Processing
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 Function TimeUpdateSecond(UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     if akDevice.getRelativeDurability() < 1.0
         mendDevice(akDevice, UD_Native.GetStringParamFloat(aiDataStr, 0), 1.0, afTime)

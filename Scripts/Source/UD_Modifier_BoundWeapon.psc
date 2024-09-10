@@ -19,6 +19,21 @@ FormList Property Patcher_BoundWeaponList Auto
 import UnforgivingDevicesMain
 import UD_Native
 
+;/  Group: Overrides
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+Bool Function ValidateModifier(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    EventProcessingMask = 0x00004000
+    Return True
+EndFunction
+
+;/  Group: Events Processing
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_Modifier_BoundWeapon::ActorAction() akDevice = " + akDevice + ", aiActorAction = " + aiActorAction + ", akSource = " + akSource + ", aiDataStr = " + aiDataStr + ", akForm1 = " + akForm1 + ", akForm2 = " + akForm2 + ", akForm3 = " + akForm3, 3)

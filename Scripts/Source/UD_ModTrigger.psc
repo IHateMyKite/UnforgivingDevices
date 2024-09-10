@@ -46,6 +46,52 @@ String      Property NameFull               Auto
 /;
 String      Property Description            Auto
 
+;/
+    0x00000001      GameLoaded
+    0x00000002      TimeUpdateSecond
+    0x00000004      TimeUpdateHour
+    0x00000008      Orgasm
+    0x00000010      DeviceLocked
+    0x00000020      DeviceUnlocked
+    0x00000040      MinigameStarted
+    0x00000080      MinigameEnded
+    0x00000100      WeaponHit
+    0x00000200      SpellHit
+    0x00000400      SpellCast
+    0x00000800      ConditionLoss
+    0x00001000      StatEvent
+    0x00002000      Sleep
+    0x00004000      ActorAction
+    0x00008000      KillMonitor
+    0x00010000      
+    0x00020000      
+    0x00040000      
+    0x00080000      
+    0x00100000      
+    0x00200000      
+    0x00400000      
+    0x00800000      
+    0x01000000      
+    0x02000000      
+    0x04000000      
+    0x08000000      
+    0x10000000      
+    0x20000000      
+    0x40000000      <Everything else>
+    0x80000000      <All events>
+/;
+Int         Property EventProcessingMask        = 0x80000000    Auto Hidden
+
+;/  Group: Overrides
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+Bool Function ValidateTrigger(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    EventProcessingMask = 0x80000000
+    Return True
+EndFunction
 
 ;/  Group: Events Processing
 ===========================================================================================

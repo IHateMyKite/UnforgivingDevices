@@ -325,10 +325,10 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
             Return
         EndIf
         loc_valid_mods = Utility.ResizeAliasArray(loc_valid_mods, loc_modnum)
-        ; second run to accurate check and assing valid mods
+        ; second run to check and assign valid mods
         Int loc_added_mods = _AddModifiersFromArray(akDevice, loc_valid_mods, UD_ModsSoftCap, UD_ModsHardCap)
         If loc_added_mods < UD_ModsMinCap
-            ; a third run to add mods if their number does not reach the allowable minimum
+            ; a third run to add mods if their number does not reach the minimum
             _AddModifiersFromArray(akDevice, loc_valid_mods, UD_ModsSoftCap, UD_ModsSoftCap)
         EndIf
     endif

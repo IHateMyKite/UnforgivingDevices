@@ -32,6 +32,16 @@ import UD_Native
 ===========================================================================================
 /;
 
+Bool Function ValidateTrigger(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    EventProcessingMask = 0x00008000
+    Return True
+EndFunction
+
+;/  Group: Events Processing
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 Bool Function KillMonitor(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, ObjectReference akVictim, Int aiCrimeStatus, String aiDataStr, Form akForm1)
     Int loc_min_value = GetStringParamInt(aiDataStr, 0, 0)
     Float loc_prob_base = GetStringParamFloat(aiDataStr, 1, 100.0)

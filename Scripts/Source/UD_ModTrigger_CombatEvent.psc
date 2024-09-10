@@ -34,6 +34,16 @@ import UD_Native
 ===========================================================================================
 /;
 
+Bool Function ValidateTrigger(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    EventProcessingMask = 0x00004000
+    Return True
+EndFunction
+
+;/  Group: Events Processing
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr, Form akForm1)
     String loc_event = GetStringParamString(aiDataStr, 0, "")
     If aiActorAction == 0 && StringUtil.Find(loc_event, "WS") >= 0

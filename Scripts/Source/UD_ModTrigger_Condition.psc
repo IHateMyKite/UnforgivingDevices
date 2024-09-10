@@ -40,6 +40,16 @@ import UD_Native
 ===========================================================================================
 /;
 
+Bool Function ValidateTrigger(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    EventProcessingMask = 0x00000800
+    Return True
+EndFunction
+
+;/  Group: Events Processing
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 Bool Function ConditionLoss(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiCondition, String aiDataStr, Form akForm1)
     If aiCondition > 3
     ; ignoring "destroyed" state. Use UD_ModTrigger_SimpleEvent + DeviceBroken instead.

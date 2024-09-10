@@ -27,6 +27,16 @@ import UD_Native
 ===========================================================================================
 /;
 
+Bool Function ValidateTrigger(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    EventProcessingMask = Math.LogicalOr(0x00001000, 0x00004000)
+    Return True
+EndFunction
+
+;/  Group: Events Processing
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr, Form akForm1)
     If aiActorAction == 6
     ; Bow Release

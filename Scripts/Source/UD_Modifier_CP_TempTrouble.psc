@@ -1,17 +1,21 @@
-;/  File: UD_Modifier_HMA
-    There is chance that wearer will be every hour locked in new manifested device
+;/  File: UD_Modifier_CP_TempTrouble
+    
 
-    NameFull:   Hour Manifest
-    NameAlias:  HMA
+    NameFull:   Temporary Trouble
+    NameAlias:  CTT
 
     Parameters:
-        [0]     Int     Chance to summon and lock random device (see UDCustomDeviceMain::ManifestDevices) on the wearer every hour.
-                        
-        [1]     Int     (optional) Number of devices to summon
-                        Default value: 1
+        [0 .. 6]    Parameters for the trigger. See description of the selected trigger for details.
+        
+        [7 .. n]    Parameters for the outcome. See description of the selected outcome for details.
 
+    Form arguments:
+        Not used
+        
+    Example:
+        
 /;
-ScriptName UD_Modifier_HMA extends UD_Modifier
+ScriptName UD_Modifier_CP_TempTrouble extends UD_Modifier_ComboPreset
 
 import UnforgivingDevicesMain
 import UD_Native
@@ -22,7 +26,7 @@ import UD_Native
 ===========================================================================================
 /;
 Bool Function ValidateModifier(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    EventProcessingMask = 0x00000004
+    ;EventProcessingMask = 0x80000000
     Return True
 EndFunction
 
@@ -31,20 +35,22 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    int loc_chance = Round(UD_Native.GetStringParamInt(aiDataStr,0)*Multiplier)
-    int loc_number = UD_Native.GetStringParamInt(aiDataStr,1,1)
-    UDCDmain.ManifestDevices(akDevice.GetWearer(), akDevice.getDeviceName(), loc_chance, loc_number)
+Bool Function MinigameAllowed(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    Return False
 EndFunction
 
 String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     String loc_msg = ""
     
-    loc_msg += "=== " + NameFull + " ===\n"
-    loc_msg += "Chance: " + iRange(Round(UD_Native.GetStringParamInt(aiDataStr,0)*Multiplier),0,100) + " %\n"
-    loc_msg += "Devices: " + UD_Native.GetStringParamInt(aiDataStr,1,1) + "\n"
-
+    loc_msg += "=== Trigger ===\n"
+    loc_msg += ModTrigger.GetDetails(Self, akDevice, aiDataStr, akForm3)
     loc_msg += "\n"
+    loc_msg += "\n"
+    loc_msg += "=== Outcome ===\n"
+    loc_msg += ModOutcome.GetDetails(Self, akDevice, aiDataStr, akForm4, akForm5)
+    loc_msg += "\n"
+    loc_msg += "\n"
+
     loc_msg += "=== Description ===\n"
     loc_msg += Description + "\n"
 

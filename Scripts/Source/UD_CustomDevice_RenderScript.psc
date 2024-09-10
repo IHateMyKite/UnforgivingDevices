@@ -2505,6 +2505,7 @@ EndFunction
         akForm2     - Modifier form 2
         akForm3     - Modifier form 3
         akForm4     - Modifier form 4
+        akForm5     - Modifier form 5
 
     Returns:
 

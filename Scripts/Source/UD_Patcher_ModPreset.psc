@@ -213,8 +213,8 @@ Form Function GetForm5(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverity
     Return None
 EndFunction
 
-Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice, Bool abNoFastCheck = False)
-    If !abNoFastCheck && !FastCheckDevice(akDevice)
+Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice)
+    If !FastCheckDevice(akDevice)
         Return -3               ; fast check failed
     EndIf
     

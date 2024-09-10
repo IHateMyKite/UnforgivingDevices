@@ -32,6 +32,16 @@ import UD_Native
 ===========================================================================================
 /;
 
+Bool Function ValidateTrigger(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    EventProcessingMask = 0x00000004
+    Return True
+EndFunction
+
+;/  Group: Events Processing
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 Bool Function TimeUpdateHour(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1)
     Float loc_min_time = GetStringParamFloat(aiDataStr, 0, 0.0)
     Float loc_prob_base = GetStringParamFloat(aiDataStr, 1, 100.0)

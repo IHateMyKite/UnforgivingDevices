@@ -32,6 +32,16 @@ import UD_Native
 ===========================================================================================
 /;
 
+Bool Function ValidateTrigger(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    EventProcessingMask = 0x00000200
+    Return True
+EndFunction
+
+;/  Group: Events Processing
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 Bool Function SpellHit(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Form akSpell, Float afDamage, String aiDataStr, Form akForm1)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_ModTrigger_SpellHit::SpellHit() akModifier = " + akModifier + ", akDevice = " + akDevice + ", akSpell = " + akSpell + ", afDamage = " + afDamage + ", aiDataStr = " + aiDataStr, 3)

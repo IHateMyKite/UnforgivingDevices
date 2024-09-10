@@ -26,6 +26,21 @@ ScriptName UD_Modifier_Demanding extends UD_Modifier_GoldBase
 import UnforgivingDevicesMain
 import UD_Native
 
+;/  Group: Overrides
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+Bool Function ValidateModifier(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    EventProcessingMask = 0x00000040
+    Return True
+EndFunction
+
+;/  Group: Events Processing
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 Bool Function MinigameAllowed(UD_CustomDevice_RenderScript akModDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     ;only pay device if user have device locked less then 1 real time hour (safeback)
     if akModDevice.GetRealTimeLockedTime() > 0.5

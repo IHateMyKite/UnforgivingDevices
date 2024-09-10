@@ -28,10 +28,11 @@ import UD_Native
 UD_ModTrigger Property ModTrigger Auto
 UD_ModOutcome Property ModOutcome Auto
 
-Bool Function ValidateModifier(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Return True
-EndFunction
-
+;/  Group: Events Processing
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 Function GameLoaded(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     Parent.GameLoaded(akDevice, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
 EndFunction
@@ -100,6 +101,11 @@ Function KillMonitor(UD_CustomDevice_RenderScript akDevice, ObjectReference akVi
     Parent.KillMonitor(akDevice, akVictim, aiCrimeStatus, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
 EndFunction
 
+;/  Group: User Interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     String loc_msg = ""
     

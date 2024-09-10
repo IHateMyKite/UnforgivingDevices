@@ -17,6 +17,21 @@ Scriptname UD_Modifier_Armor extends UD_Modifier
 import UnforgivingDevicesMain
 import UD_Native
 
+;/  Group: Overrides
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+Bool Function ValidateModifier(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    EventProcessingMask = Math.LogicalOr(Math.LogicalOr(0x00000001, 0x00000010), 0x00000020)
+    Return True
+EndFunction
+
+;/  Group: Events Processing
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 Function GameLoaded(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     SetArmorValues(akDevice, aiDataStr)
 EndFunction
@@ -28,6 +43,11 @@ EndFunction
 Function DeviceUnlocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
 EndFunction
 
+;/  Group: User Interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     String loc_msg = ""
     
