@@ -34,13 +34,16 @@ import UD_Native
 ===========================================================================================
 ===========================================================================================
 /;
+Function Update()
+    EventProcessingMask = 0x80000000
+EndFunction
+
 Bool Function ValidateModifier(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     Bool loc_result = True
     If (akForm1 as UD_ModTrigger) == None
         Return False
     Else
         loc_result = loc_result && (akForm1 as UD_ModTrigger).ValidateTrigger(akDevice, aiDataStr, akForm1)
-        EventProcessingMask = (akForm1 as UD_ModTrigger).EventProcessingMask
     EndIf
     If (akForm2 as UD_ModOutcome) == None
         Return False
@@ -149,6 +152,18 @@ EndFunction
 
 Function KillMonitor(UD_CustomDevice_RenderScript akDevice, ObjectReference akVictim, Int aiCrimeStatus, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     If (akForm1 as UD_ModTrigger).KillMonitor(Self, akDevice, akVictim, aiCrimeStatus, aiDataStr, akForm3) == True
+        _DoCallOutcome(akForm2 as UD_ModOutcome, akDevice, aiDataStr, akForm4, akForm5)
+    EndIf
+EndFunction
+
+Function ItemAdded(UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akSourceContainer, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    If (akForm1 as UD_ModTrigger).ItemAdded(Self, akDevice, akItemForm, aiItemCount, akSourceContainer, aiDataStr, akForm3) == True
+        _DoCallOutcome(akForm2 as UD_ModOutcome, akDevice, aiDataStr, akForm4, akForm5)
+    EndIf
+EndFunction
+
+Function ItemRemoved(UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akDestContainer, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    If (akForm1 as UD_ModTrigger).ItemRemoved(Self, akDevice, akItemForm, aiItemCount, akDestContainer, aiDataStr, akForm3) == True
         _DoCallOutcome(akForm2 as UD_ModOutcome, akDevice, aiDataStr, akForm4, akForm5)
     EndIf
 EndFunction

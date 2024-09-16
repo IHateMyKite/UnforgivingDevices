@@ -20,9 +20,8 @@ import UD_Native
 ===========================================================================================
 ===========================================================================================
 /;
-Bool Function ValidateModifier(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    EventProcessingMask = 0x00000008
-    Return True
+Function Update()
+    EventProcessingMask = 0x00000004
 EndFunction
 
 ;/  Group: Events Processing

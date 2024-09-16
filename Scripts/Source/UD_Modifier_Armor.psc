@@ -22,9 +22,8 @@ import UD_Native
 ===========================================================================================
 ===========================================================================================
 /;
-Bool Function ValidateModifier(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    EventProcessingMask = Math.LogicalOr(Math.LogicalOr(0x00000001, 0x00000010), 0x00000020)
-    Return True
+Function Update()
+    EventProcessingMask = 0x00000000
 EndFunction
 
 ;/  Group: Events Processing

@@ -31,10 +31,8 @@ import UD_Native
 ===========================================================================================
 ===========================================================================================
 /;
-
-Bool Function ValidateTrigger(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
-    EventProcessingMask = 0x00008000
-    Return True
+Int Function GetEventProcessingMask()
+    Return 0x00001000
 EndFunction
 
 ;/  Group: Events Processing
@@ -60,11 +58,7 @@ String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderS
     loc_str += "\n"
     loc_str += "Accumulator weight: " + FormatFloat(GetStringParamFloat(aiDataStr, 2, 0.0), 2) + "%"
     loc_str += "\n"
-    If GetStringParamInt(aiDataStr, 3, 0) > 0
-        loc_str += "Repeat: True"
-    Else
-        loc_str += "Repeat: False"
-    EndIf
+    loc_str += "Repeat: " + InlineIfStr(GetStringParamInt(aiDataStr, 3, 0) > 0, "True", "False")
     loc_str += "\n"
     loc_str += "Accumulator: " + GetStringParamInt(aiDataStr, 4, 0)
     loc_str += "\n"

@@ -325,6 +325,7 @@ Function SetSlotTo(Actor akActor)
         regainDevices()
         CheckVibrators()
     endif
+    RegisterEmptyItemEvent()
 EndFunction
 
 Function Init()
@@ -379,6 +380,7 @@ Function unregisterSlot()
         CleanArousalUpdate()
         CleanOrgasmUpdate()
     endif
+    UnregisterAllItemEvents(True)
     self.Clear()
 EndFunction
 
@@ -1007,14 +1009,14 @@ Event OnHit(ObjectReference akAggressor, Form akSource, Projectile akProjectile,
     If akProjectile != None
         Return
     EndIf
-    If IsConcentrationSpell(akSource as Spell)
+    If UD_Native.IsConcentrationSpell(akSource as Spell)
     ; checking the delta between the current time and the time of the last hit to skip spam
         Float loc_time = Utility.GetCurrentRealTime()
         If loc_time - _LastSpellConcTime < 1.0
             Return
         EndIf
         _LastSpellConcTime = loc_time
-    ElseIf IsConcentrationEnch(akSource as Enchantment)
+    ElseIf UD_Native.IsConcentrationEnch(akSource as Enchantment)
         Float loc_time = Utility.GetCurrentRealTime()
         If loc_time - _LastEnchConcTime < 1.0
             Return
@@ -2218,6 +2220,95 @@ Bool Function IsConcentrationEnch(Enchantment akEnchantment)
     MagicEffect loc_me = akEnchantment.GetNthEffectMagicEffect(loc_i)
     Return loc_me.GetCastingType() == 2
 EndFunction
+
+
+Form[] _ItemFilter_Forms
+Int[] _ItemFilter_Refs
+
+Int Function _GetItemFilterIndex(Form akFilter)
+    Int loc_i = _ItemFilter_Forms.Length
+    While loc_i > 0
+        loc_i -= 1
+        If _ItemFilter_Forms[loc_i] == akFilter
+            Return loc_i
+        EndIf
+    EndWhile
+    Return -1
+EndFunction
+
+Function RegisterEmptyItemEvent()
+    UDmain.Log("UD_CustomDevice_NPCSlot::RegisterEmptyItemEvent() Actor = " + GetActor(), 2)
+    FormList loc_filter = (GetOwningQuest() as UD_CustomDevices_NPCSlotsManager).EmptyItemFilter
+    Self.AddInventoryEventFilter(loc_filter)
+EndFunction
+
+Function RegisterItemEvent(Form akFilter)
+    UDmain.Log("UD_CustomDevice_NPCSlot::RegisterItemEvent() Actor = " + GetActor() + " akFilter = " + akFilter, 2)
+    ; access from multiple threads is unlikely
+    Int loc_i = _GetItemFilterIndex(akFilter)
+    If loc_i < 0
+        _ItemFilter_Forms = PapyrusUtil.PushForm(_ItemFilter_Forms, akFilter)
+        _ItemFilter_Refs = PapyrusUtil.PushInt(_ItemFilter_Refs, 1)
+        Self.AddInventoryEventFilter(akFilter)
+        Return
+    EndIf
+    
+    Int loc_refs = _ItemFilter_Refs[loc_i]
+    If loc_refs == 0
+        Self.AddInventoryEventFilter(akFilter)
+    EndIf
+    _ItemFilter_Refs[loc_i] = loc_refs + 1
+EndFunction
+
+Function UnregisterItemEvent(Form akFilter)
+    UDmain.Log("UD_CustomDevice_NPCSlot::UnregisterItemEvent() Actor = " + GetActor() + " akFilter = " + akFilter, 2)
+    ; access from multiple threads is unlikely
+    Int loc_i = _GetItemFilterIndex(akFilter)
+    If loc_i < 0
+        Return
+    EndIf
+    Int loc_refs = _ItemFilter_Refs[loc_i]
+    If loc_refs == 1
+        Self.RemoveInventoryEventFilter(akFilter)
+    EndIf
+    If loc_refs < 1
+        UDmain.Warning("UD_CustomDevice_NPCSlot::UnregisterForAddItemEvent() An unnecessary call to unregister the filter " + akFilter)
+        _ItemFilter_Refs[loc_i] = 0
+    Else
+        _ItemFilter_Refs[loc_i] = _ItemFilter_Refs[loc_i] - 1
+    EndIf
+EndFunction
+
+Function UnregisterAllItemEvents(Bool abClearArray = True)
+    UDmain.Log("UD_CustomDevice_NPCSlot::UnregisterAllItemEvents() Actor = " + GetActor() + " abClearArray = " + abClearArray, 2)
+    ; access from multiple threads is unlikely
+    Int loc_i = _ItemFilter_Forms.Length
+    While loc_i > 0
+        loc_i -= 1
+        _ItemFilter_Refs[loc_i] = 0
+        Self.RemoveInventoryEventFilter(_ItemFilter_Forms[loc_i])
+    EndWhile
+    If abClearArray
+        _ItemFilter_Forms = Utility.ResizeFormArray(_ItemFilter_Forms, 0)
+        _ItemFilter_Refs = Utility.ResizeIntArray(_ItemFilter_Refs, 0)
+    EndIf
+EndFunction
+
+Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer)
+    Int loc_i = 0
+    While UD_equipedCustomDevices[loc_i]
+        Udmain.UDMOM.Procces_UpdateModifiers_ItemAdded(UD_equipedCustomDevices[loc_i], akBaseItem, aiItemCount, akSourceContainer)
+        loc_i += 1
+    EndWhile    
+EndEvent
+
+Event OnItemRemoved(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer)
+    Int loc_i = 0
+    While UD_equipedCustomDevices[loc_i]
+        Udmain.UDMOM.Procces_UpdateModifiers_ItemRemoved(UD_equipedCustomDevices[loc_i], akBaseItem, aiItemCount, akDestContainer)
+        loc_i += 1
+    EndWhile    
+EndEvent
 
 ;===============================================================================
 ;===============================================================================

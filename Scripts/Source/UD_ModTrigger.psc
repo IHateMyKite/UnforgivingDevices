@@ -47,22 +47,23 @@ String      Property NameFull               Auto
 String      Property Description            Auto
 
 ;/
-    0x00000001      GameLoaded
-    0x00000002      TimeUpdateSecond
-    0x00000004      TimeUpdateHour
-    0x00000008      Orgasm
-    0x00000010      DeviceLocked
-    0x00000020      DeviceUnlocked
-    0x00000040      MinigameStarted
-    0x00000080      MinigameEnded
-    0x00000100      WeaponHit
-    0x00000200      SpellHit
-    0x00000400      SpellCast
-    0x00000800      ConditionLoss
-    0x00001000      StatEvent
-    0x00002000      Sleep
-    0x00004000      ActorAction
-    0x00008000      KillMonitor
+    <called always> GameLoaded, DeviceLocked, DeviceUnlocked
+    0x00000001      TimeUpdateSecond
+    0x00000002      TimeUpdateHour
+    0x00000004      Orgasm
+    0x00000008      MinigameStarted
+    0x00000010      MinigameEnded
+    0x00000020      WeaponHit
+    0x00000040      SpellHit
+    0x00000080      SpellCast
+    0x00000100      ConditionLoss
+    0x00000200      StatEvent
+    0x00000400      Sleep
+    0x00000800      ActorAction
+    0x00001000      KillMonitor
+    0x00002000      
+    0x00004000      
+    0x00008000      
     0x00010000      
     0x00020000      
     0x00040000      
@@ -80,7 +81,6 @@ String      Property Description            Auto
     0x40000000      <Everything else>
     0x80000000      <All events>
 /;
-Int         Property EventProcessingMask        = 0x80000000    Auto Hidden
 
 ;/  Group: Overrides
 ===========================================================================================
@@ -89,8 +89,15 @@ Int         Property EventProcessingMask        = 0x80000000    Auto Hidden
 /;
 
 Bool Function ValidateTrigger(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
-    EventProcessingMask = 0x80000000
     Return True
+EndFunction
+
+;/
+    See UD_Modifier::EventProcessingMask
+/;
+Int Function GetEventProcessingMask()
+    ; To update this value without starting a new game
+    Return 0x80000000
 EndFunction
 
 ;/  Group: Events Processing
@@ -167,6 +174,13 @@ Bool Function KillMonitor(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderSc
     Return False
 EndFunction
 
+Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akSourceContainer, String aiDataStr, Form akForm1)
+    Return False
+EndFunction
+
+Bool Function ItemRemoved(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akDestContainer, String aiDataStr, Form akForm1)
+    Return False
+EndFunction
 ;/  Group: User interface
 ===========================================================================================
 ===========================================================================================

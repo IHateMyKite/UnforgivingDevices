@@ -1,4 +1,4 @@
-ScriptName UD_Modifier_GoldBase extends UD_Modifier
+ScriptName UD_Modifier_GoldBase extends UD_Modifier Hidden
 
 import UnforgivingDevicesMain
 import UD_Native

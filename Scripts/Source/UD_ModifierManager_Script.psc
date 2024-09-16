@@ -112,7 +112,7 @@ EndFunction
 Function Update()
     ;UpdateStorage()
     UpdateLists()
-    UpdateModifiers_Load()
+    UpdateModifiers_GameLoad()
     UpdateEventRegistrations()
 EndFunction
 
@@ -259,18 +259,12 @@ EndEvent
 ; Each modifier is registered in arrays for each event to quickly invoke when needed.
 ; Maybe make scripts on aliases for each event.
 
-UD_Modifier[]                   RegMods_GameLoaded_M
-UD_CustomDevice_RenderScript[]  RegMods_GameLoaded_D
 UD_Modifier[]                   RegMods_TimeUpdateSecond_M
 UD_CustomDevice_RenderScript[]  RegMods_TimeUpdateSecond_D
 UD_Modifier[]                   RegMods_TimeUpdateHour_M
 UD_CustomDevice_RenderScript[]  RegMods_TimeUpdateHour_D
 UD_Modifier[]                   RegMods_Orgasm_M
 UD_CustomDevice_RenderScript[]  RegMods_Orgasm_D
-UD_Modifier[]                   RegMods_DeviceLocked_M
-UD_CustomDevice_RenderScript[]  RegMods_DeviceLocked_D
-UD_Modifier[]                   RegMods_DeviceUnlocked_M
-UD_CustomDevice_RenderScript[]  RegMods_DeviceUnlocked_D
 UD_Modifier[]                   RegMods_MinigameStarted_M
 UD_CustomDevice_RenderScript[]  RegMods_MinigameStarted_D
 UD_Modifier[]                   RegMods_MinigameEnded_M
@@ -309,7 +303,7 @@ EndFunction
 ;                            receive modifier update events
 ;====================================================================================
 
-Function UpdateModifiers_Load()
+Function UpdateModifiers_GameLoad()
     Float start_time = Utility.GetCurrentRealTime()
     int loc_i = 0
     while loc_i < UDNPCM.UD_Slots
@@ -326,7 +320,7 @@ Function UpdateModifiers_Load()
         endif
         loc_i += 1
     endwhile
-    UDmain.Log("UD_ModifierManager_Script::UpdateModifiers_Load() BENCHMARK. Exec. time = " + (Utility.GetCurrentRealTime() - start_time), 3)
+    UDmain.Log("UD_ModifierManager_Script::UpdateModifiers_GameLoad() BENCHMARK. Exec. time = " + (Utility.GetCurrentRealTime() - start_time), 3)
 EndFunction
 
 Function UpdateModifiers_Seconds(float aiTimePassed)
@@ -463,7 +457,7 @@ EndFunction
 ;                            Procces modifiers groups
 ;====================================================================================
 
-Function ValidateModifiers(UD_CustomDevice_RenderScript akDevice)
+Function ValidateModifiers(UD_CustomDevice_RenderScript akDevice, Bool abGameLoad)
     int loc_count = akDevice.UD_ModifiersRef.length
     Bool loc_error = False
     If akDevice.UD_ModifiersDataStr.Length < loc_count
@@ -496,7 +490,7 @@ Function ValidateModifiers(UD_CustomDevice_RenderScript akDevice)
 EndFunction
 
 Function Procces_UpdateModifiers_GameLoad(UD_CustomDevice_RenderScript akDevice)
-    ValidateModifiers(akDevice)
+    ValidateModifiers(akDevice, True)
     int loc_modid = akDevice.UD_ModifiersRef.length
     while loc_modid 
         loc_modid -= 1
@@ -538,7 +532,7 @@ Function Procces_UpdateModifiers_Orgasm(UD_CustomDevice_RenderScript akDevice)
 EndFunction
 
 Function Procces_UpdateModifiers_Added(UD_CustomDevice_RenderScript akDevice) ;directly accesed from device
-    ValidateModifiers(akDevice)
+    ValidateModifiers(akDevice, False)
     Int loc_flags = StorageUtil.GetIntValue(akDevice.GetWearer(), "UD_ignoreModEvent" + akDevice.DeviceInventory)
     If Math.LogicalAnd(loc_flags, 0x01) != 0
         Return
@@ -698,6 +692,30 @@ Function Procces_UpdateModifiers_KillMonitor(UD_CustomDevice_RenderScript akDevi
         loc_modid -= 1
         UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
         loc_mod.KillMonitor(akDevice, akVictim, aiCrimeStatus, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid], akDevice.UD_ModifiersDataForm4[loc_modid],akDevice.UD_ModifiersDataForm5[loc_modid])
+    endwhile
+EndFunction
+
+Function Procces_UpdateModifiers_ItemAdded(UD_CustomDevice_RenderScript akDevice, Form akBaseItem, Int aiItemCount, ObjectReference akSourceContainer)
+    If akDevice.GetRealTimeLockedTime() < 0.001
+        Return
+    EndIf
+    int loc_modid = akDevice.UD_ModifiersRef.length
+    while loc_modid 
+        loc_modid -= 1
+        UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
+        loc_mod.ItemAdded(akDevice, akBaseItem, aiItemCount, akSourceContainer, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid], akDevice.UD_ModifiersDataForm4[loc_modid],akDevice.UD_ModifiersDataForm5[loc_modid])
+    endwhile
+EndFunction
+
+Function Procces_UpdateModifiers_ItemRemoved(UD_CustomDevice_RenderScript akDevice, Form akBaseItem, Int aiItemCount, ObjectReference akDestContainer)
+    If akDevice.GetRealTimeLockedTime() < 0.001
+        Return
+    EndIf
+    int loc_modid = akDevice.UD_ModifiersRef.length
+    while loc_modid 
+        loc_modid -= 1
+        UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
+        loc_mod.ItemRemoved(akDevice, akBaseItem, aiItemCount, akDestContainer, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid], akDevice.UD_ModifiersDataForm4[loc_modid],akDevice.UD_ModifiersDataForm5[loc_modid])
     endwhile
 EndFunction
 

@@ -38,9 +38,8 @@ import UD_Native
 ===========================================================================================
 /;
 
-Bool Function ValidateTrigger(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
-    EventProcessingMask = 0x80000000
-    Return True
+Int Function GetEventProcessingMask()
+    Return 0x00000000
 EndFunction
 
 ;/  Group: Events Processing

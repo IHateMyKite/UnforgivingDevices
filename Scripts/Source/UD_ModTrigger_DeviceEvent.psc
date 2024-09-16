@@ -26,9 +26,8 @@ import UD_Native
 ===========================================================================================
 /;
 
-Bool Function ValidateTrigger(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
-    EventProcessingMask = Math.LogicalOr(Math.LogicalOr(0x00000010, 0x00000020), 0x00000800)
-    Return True
+Int Function GetEventProcessingMask()
+    Return 0x00000000
 EndFunction
 
 ;/  Group: Events Processing
