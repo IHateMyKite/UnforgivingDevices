@@ -61,8 +61,8 @@ String      Property Description            Auto
     0x00000400      Sleep
     0x00000800      ActorAction
     0x00001000      KillMonitor
-    0x00002000      
-    0x00004000      
+    0x00002000      ItemsAdded
+    0x00004000      ItemRemoved
     0x00008000      
     0x00010000      
     0x00020000      

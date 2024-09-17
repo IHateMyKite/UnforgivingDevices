@@ -64,7 +64,7 @@ String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataS
     
     loc_msg += "==== " + NameFull + " ====\n"
     loc_msg += "Block Timer: \t" + FormatFloat(GetStringParamFloat(aiDataStr, 0, 0.0), 2) + " hours\n"
-    loc_msg += "Self-destruct: \t" + InlineIfStr(GetStringParamInt(aiDataStr, 1, 0) > 0, "True", "False") + " hours\n"
+    loc_msg += "Self-destruct: \t" + InlineIfStr(GetStringParamInt(aiDataStr, 1, 0) > 0, "True", "False") + "\n"
     
     if Description
         loc_msg += "=== Description ===" + "\n"

@@ -10,7 +10,7 @@
         [1]     Float   (optional) Base probability to trigger (in %) at the end of the check period if actor failed to obtain items
                         Default value: 100.0%
         
-        [2]     Float   (optional) Probability to trigger that is proportional to the accumulated value (number of obtained items)
+        [2]     Float   (optional) Probability to trigger that is proportional to the number of missing items
                         Default value: 0.0%
                         
         [3]     Float   (optional) The time given to obtain items (in hours)
@@ -19,7 +19,9 @@
         [4]     Int     (optional) Repeat
                         Default value: 0 (False)
                         
-        [6]     Float   (script) Number of obtained items so far
+        [5]     Int     (script) Number of obtained items so far
+        
+        [6]     Float   (script) Locked time by the moment of the last trigger (ingame hours)
 
     Forms:
         Form1           Item or Keyword to filter demanded items
@@ -39,7 +41,7 @@ import UD_Native
 /;
 
 Int Function GetEventProcessingMask()
-    Return 0x00000000
+    Return Math.LogicalOr(0x00000002, 0x00002000)
 EndFunction
 
 ;/  Group: Events Processing
@@ -48,3 +50,116 @@ EndFunction
 ===========================================================================================
 /;
 
+Bool Function DeviceLocked(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    UD_CustomDevice_NPCSlot loc_slot = akDevice.UD_WearerSlot
+    loc_slot.RegisterItemEvent(akForm1)
+    
+    Float loc_timer = akDevice.GetGameTimeLockedTime()
+    akDevice.editStringModifier(akModifier.NameAlias, 5, FormatFloat(loc_timer, 2))
+    
+    Return False
+EndFunction
+
+Bool Function DeviceUnlocked(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    UD_CustomDevice_NPCSlot loc_slot = akDevice.UD_WearerSlot
+    loc_slot.UnregisterItemEvent(akForm1)
+    
+    Return False
+EndFunction
+
+Bool Function TimeUpdateHour(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1)
+    Float loc_last = GetStringParamFloat(aiDataStr, 6, 0.0)
+    Float loc_period = GetStringParamFloat(aiDataStr, 3, 0.0)
+    Float loc_timer = akDevice.GetGameTimeLockedTime()
+    
+    If loc_last < 0 || (loc_period > 0 && (loc_last + loc_period) < loc_timer)
+    ; once triggered or it is not the time yet
+        Return False
+    EndIf
+    
+    Bool loc_repeat = GetStringParamInt(aiDataStr, 4, 0) > 0
+    Int loc_acc = GetStringParamInt(aiDataStr, 5, 0)
+    Int loc_min_count = GetStringParamInt(aiDataStr, 0, 1)
+    
+    If loc_acc >= loc_min_count
+        loc_acc = 0
+        If !loc_repeat
+        ; triggered once
+            loc_last = -1.0
+        Else
+            loc_last = loc_timer
+        EndIf
+        akDevice.editStringModifier(akModifier.NameAlias, 5, loc_acc as String)
+        akDevice.editStringModifier(akModifier.NameAlias, 6, FormatFloat(loc_last, 2))
+        Return False
+    EndIf
+
+    Float loc_prob1 = GetStringParamFloat(aiDataStr, 1, 100.0)
+    Float loc_prob2 = GetStringParamFloat(aiDataStr, 2, 0.0)
+    
+    If RandomFloat(0.0, 100.0) < (loc_prob1 + loc_prob2 * (loc_min_count - loc_acc))
+        loc_acc = 0
+        If !loc_repeat
+        ; triggered once
+            loc_last = -1.0
+        Else
+            loc_last = loc_timer
+        EndIf
+        akDevice.editStringModifier(akModifier.NameAlias, 5, loc_acc as String)
+        akDevice.editStringModifier(akModifier.NameAlias, 6, FormatFloat(loc_last, 2))
+        Return True
+    EndIf
+    Return False
+EndFunction
+
+Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akSourceContainer, String aiDataStr, Form akForm1)
+    If !_IsValidItem(akForm1, akItemForm)
+        Return False
+    EndIf
+
+    Int loc_acc = GetStringParamInt(aiDataStr, 5, 0)
+    Int loc_min_count = GetStringParamInt(aiDataStr, 0, 1)
+    loc_acc += aiItemCount
+    
+    Int loc_consume = aiItemCount
+    If loc_acc > loc_min_count
+        loc_consume -= loc_acc - loc_min_count
+        loc_acc = loc_min_count
+    EndIf
+    ; consume items (should it be an option?)
+    akDevice.GetWearer().RemoveItem(akItemForm, loc_consume)
+
+    akDevice.editStringModifier(akModifier.NameAlias, 5, loc_acc as String)
+    
+    Return False
+EndFunction
+
+Bool Function ItemRemoved(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akDestContainer, String aiDataStr, Form akForm1)
+    Return False
+EndFunction
+
+
+Bool Function _IsValidItem(Form akFilter, Form akItem)
+    If akFilter as FormList
+        FormList loc_fl = akFilter as FormList
+        Int loc_i = loc_fl.GetSize()
+        While loc_i > 0
+            loc_i -= 1
+            Form loc_f = loc_fl.GetAt(loc_i)
+            If loc_f as Keyword 
+                If akItem.HasKeyword(loc_f as Keyword)
+                    Return True
+                EndIf
+            Else
+                If akItem == loc_f
+                    Return True
+                EndIf
+            EndIf            
+        EndWhile
+        Return False
+    ElseIf akFilter as Keyword
+        Return akItem.HasKeyword(akFilter as Keyword)
+    Else
+        Return akItem == akFilter
+    EndIf
+EndFunction

@@ -13,16 +13,20 @@
         [2]     Float   (optional) Probability to trigger that is proportional to the accumulated value (number of obtained items)
                         Default value: 0.0%
                         
-        [3]     Float   (optional) Reset period (in hours)
-                        Default value: -1.0 (Triggers once)
+        [3]     Float   (optional) Reset period (in hours). If negative then it is triggered once
+                        Default value: -1.0 (Triggered once)
                         
-        [6]     Float   (script) Number of obtained items so far
+        [4]     Float   (script) Number of obtained items so far
+        
+        [5]     Float   (script) Locked time by the moment of the last trigger (ingame hours)
 
     Forms:
-        Form1           Item or Keyword to filter obtained items
+        Form1           FormList, Form or Keyword to filter obtained items
     
     Example:
-        
+        DataStr = 1,100,0,24        
+        Form1   = FoodSweetroll     It will be 100% triggered when wearer receives a Sweet Roll, 
+                                    but not more than once every 24 hours
 /;
 Scriptname UD_ModTrigger_ItemObtain extends UD_ModTrigger
 
@@ -36,7 +40,7 @@ import UD_Native
 /;
 
 Int Function GetEventProcessingMask()
-    Return 0x00000000
+    Return 0x00002000
 EndFunction
 
 ;/  Group: Events Processing
@@ -44,3 +48,89 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
+
+Bool Function DeviceLocked(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    UD_CustomDevice_NPCSlot loc_slot = akDevice.UD_WearerSlot
+    loc_slot.RegisterItemEvent(akForm1)
+    
+    Float loc_timer = akDevice.GetGameTimeLockedTime()
+    akDevice.editStringModifier(akModifier.NameAlias, 5, FormatFloat(loc_timer, 2))
+    
+    Return False
+EndFunction
+
+Bool Function DeviceUnlocked(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    UD_CustomDevice_NPCSlot loc_slot = akDevice.UD_WearerSlot
+    loc_slot.UnregisterItemEvent(akForm1)
+    
+    Return False
+EndFunction
+
+Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akSourceContainer, String aiDataStr, Form akForm1)
+    If !_IsValidItem(akForm1, akItemForm)
+        Return False
+    EndIf
+
+    Float loc_last = GetStringParamFloat(aiDataStr, 5, 0.0)
+    
+    If loc_last < 0.0 && loc_period < 0.0
+    ; already triggered with trigger-once settings
+        Return False
+    EndIf
+    Bool loc_result = False
+    
+    Float loc_timer = akDevice.GetGameTimeLockedTime()
+    Int loc_min_count = GetStringParamInt(aiDataStr, 0, 1)
+    Float loc_period = GetStringParamFloat(aiDataStr, 3, 0.0)
+    Int loc_acc = GetStringParamInt(aiDataStr, 4, 0)
+    
+    loc_acc += aiItemCount
+    
+    If (loc_last + loc_period) > loc_timer && loc_min_count <= loc_acc
+        Float loc_prob1 = GetStringParamFloat(aiDataStr, 1, 100.0)
+        Float loc_prob2 = GetStringParamFloat(aiDataStr, 2, 0.0)
+        If RandomFloat(0.0, 100.0) < (loc_prob1 + loc_prob2 * loc_acc)
+            loc_result = True
+            loc_acc = 0
+            loc_last = loc_timer
+            If loc_period < 0.0
+            ; triggered once
+                loc_last = -1.0
+            EndIf
+        EndIf
+    EndIf
+    akDevice.editStringModifier(akModifier.NameAlias, 4, loc_acc as String)
+    akDevice.editStringModifier(akModifier.NameAlias, 5, FormatFloat(loc_last, 2))
+    
+    Return loc_result
+EndFunction
+
+Bool Function ItemRemoved(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akDestContainer, String aiDataStr, Form akForm1)
+    Return False
+EndFunction
+
+
+Bool Function _IsValidItem(Form akFilter, Form akItem)
+    If akFilter as FormList
+        FormList loc_fl = akFilter as FormList
+        Int loc_i = loc_fl.GetSize()
+        While loc_i > 0
+            loc_i -= 1
+            Form loc_f = loc_fl.GetAt(loc_i)
+            If loc_f as Keyword 
+                If akItem.HasKeyword(loc_f as Keyword)
+                    Return True
+                EndIf
+            Else
+                If akItem == loc_f
+                    Return True
+                EndIf
+            EndIf            
+        EndWhile
+        Return False
+    ElseIf akFilter as Keyword
+        Return akItem.HasKeyword(akFilter as Keyword)
+    Else
+        Return akItem == akFilter
+    EndIf
+EndFunction
