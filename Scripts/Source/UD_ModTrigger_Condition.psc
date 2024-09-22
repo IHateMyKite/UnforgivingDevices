@@ -60,6 +60,11 @@ Bool Function ConditionLoss(UD_Modifier_Combo akModifier, UD_CustomDevice_Render
     Bool loc_repeat = GetStringParamInt(aiDataStr, 3, 0) > 0
     Return TriggerOnValueAbs(akDevice, akModifier.NameAlias, aiDataStr, afValueAbs = aiCondition, afMinValue = loc_min_condition, afProbBase = loc_prob_base, afProbAccum = loc_prob_value, abRepeat = loc_repeat)
 EndFunction
+;/  Group: User interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 
 String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
     String loc_str = ""

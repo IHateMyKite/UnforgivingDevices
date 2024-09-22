@@ -1,7 +1,7 @@
-;/  File: UD_ModOutcome_AddItem
-    Summons item
+;/  File: UD_ModOutcome_RemoveItem
+    Removes item(s) from inventory
 
-    NameFull: Add Item
+    NameFull: Remove Item
 
     Parameters in DataStr (indices relative to DataStrOffset property):
         [+0]    Int     (optional) Minimum number of items
@@ -9,17 +9,14 @@
                         
         [+1]    Int     (optional) Maximum number of items
                         Default value: [+0]
-                        
-        [+2]    Int     (optional) Equip item (i.e. drink potion)
-                        Default value: 0 (False)
 
     Form arguments:
-        Form5 - Single item to add or FormList with items.
-        Form6 - Single item to add or FormList with items.
+        Form4 - Single item to remove or FormList with items.
+        Form5 - Single item to remove or FormList with items.
 
     Example:
 /;
-Scriptname UD_ModOutcome_AddItem extends UD_ModOutcome
+Scriptname UD_ModOutcome_RemoveItem extends UD_ModOutcome
 
 import UnforgivingDevicesMain
 import UD_Native
@@ -38,16 +35,8 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
         Form loc_item = loc_forms[RandomInt(0, loc_forms.Length - 1)]
         Int loc_min = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
         Int loc_max = GetStringParamInt(aiDataStr, DataStrOffset + 1, loc_min)
-        Bool loc_use = GetStringParamInt(aiDataStr, DataStrOffset + 2, 0) > 0
         
-        If (loc_item As LeveledItem) != None && loc_use
-            akDevice.GetWearer().EquipItem(loc_item)
-        Else
-            akDevice.GetWearer().AddItem(loc_item, RandomInt(loc_min, loc_max))
-            If loc_use
-                akDevice.GetWearer().EquipItem(loc_item)
-            EndIf
-        EndIf
+        akDevice.GetWearer().RemoveItem(loc_item, RandomInt(loc_min, loc_max))
     Endif
     
 EndFunction
@@ -56,13 +45,11 @@ String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderS
     String loc_str = ""
     Int loc_min = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
     Int loc_max = GetStringParamInt(aiDataStr, DataStrOffset + 1, loc_min)
-    loc_str += "Gives item(s)"
+    loc_str += "Removes item(s)"
     loc_str += "\n"
     loc_str += "Number of items: " + loc_min + " - " + loc_max
     loc_str += "\n"
     loc_str += "Items: " + akForm4 + ", " + akForm5
-    loc_str += "\n"
-    loc_str += "Instant use: " + InlineIfStr(GetStringParamInt(aiDataStr, DataStrOffset + 2, 0) > 0, "True", "False")
     
     Return loc_str
 EndFunction

@@ -679,6 +679,7 @@ Int UD_ModifierNoModsDesc_T
 Int UD_ModifierNoPPDesc_T
 
 Int UD_ModifierVarEasyDesc_T
+Int UD_ModifierVarNormDesc_T
 Int UD_ModifierVarHardDesc_T
 
 Function resetModifiersPage()
@@ -757,12 +758,14 @@ Function resetModifiersPage()
     EndIf
     
     UD_ModifierPatchList_M = AddMenuOption("$UD_CUSTOMMOD_PPSSELECTED", loc_mod_pp.DisplayName)           ; Selected patch preset:
-    addEmptyOption()
+    AddEmptyOption()
     
     UD_ModifierVarEasyDesc_T = AddTextOption("$UD_CUSTOMMOD_VAREASY", loc_mod_pp.DataStr_Easy, UD_LockMenu_flag)
     UD_ModPP_ApplicableToPlayer_T = addToggleOption("$UD_CUSTOMMOD_APPTOPLAYER", loc_mod_pp.ApplicableToPlayer, UD_LockMenu_flag)        ; Applicable to Player
-    UD_ModifierVarHardDesc_T = AddTextOption("$UD_CUSTOMMOD_VARHARD", loc_mod_pp.DataStr_Hard, UD_LockMenu_flag)
+    UD_ModifierVarNormDesc_T = AddTextOption("$UD_CUSTOMMOD_NORMAL", loc_mod_pp.DataStr_Ground, UD_LockMenu_flag)
     UD_ModPP_ApplicableToNPC_T = addToggleOption("$UD_CUSTOMMOD_APPTONPC", loc_mod_pp.ApplicableToNPC, UD_LockMenu_flag)                ; Applicable to NPCs
+    UD_ModifierVarHardDesc_T = AddTextOption("$UD_CUSTOMMOD_VARHARD", loc_mod_pp.DataStr_Hard, UD_LockMenu_flag)
+    AddEmptyOption()
     
     UD_ModPP_BaseProbability_S = AddSliderOption("$UD_CUSTOMMOD_BASEPROB", loc_mod_pp.BaseProbability, "{0} %", UD_LockMenu_flag)                 ; Base probability
     UD_ModPP_BaseSeverity_S = AddSliderOption("$UD_CUSTOMMOD_BASESEVERITY", loc_mod_pp.BaseSeverity, "{2}", UD_LockMenu_flag)                         ; Base severity
@@ -1715,6 +1718,12 @@ Function OptionSelectModifiers(int option)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
         ; set of argument is not complete, could break the function
         String loc_msg = loc_mod.GetDetails(None, loc_mod_pp.DataStr_Easy, None, None, None, None, None)
+        ShowMessage(loc_msg, false, "$Close")
+    ElseIf(option == UD_ModifierVarNormDesc_T)
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
+        ; set of argument is not complete, could break the function
+        String loc_msg = loc_mod.GetDetails(None, loc_mod_pp.DataStr_Ground, None, None, None, None, None)
         ShowMessage(loc_msg, false, "$Close")
     ElseIf(option == UD_ModifierVarHardDesc_T)
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)

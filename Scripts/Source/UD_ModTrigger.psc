@@ -305,3 +305,41 @@ Bool Function TriggerOnValueAbs(UD_CustomDevice_RenderScript akDevice, String as
     EndIf
     Return False
 EndFunction
+
+;/  Function: _IsValidForm
+    Checks that the form fits the criteria of the specified filter
+    
+    Parameters:
+        akFilter            - filter can be specified in several ways. The filter implemented 
+                              for inventory events is taken as a basis.
+                              If akFilter is a Form then akForm is checked by direct comparison.
+                              If akFilter is a Keyword then it checks that akForm has the given keyword.
+                              If akFilter is a FormList then akForm is checked against each element of the list 
+                              in a way that depends on its type.
+                              
+        akForm              - form to check
+/;
+Bool Function _IsValidForm(Form akFilter, Form akForm)
+    If akFilter as FormList
+        FormList loc_fl = akFilter as FormList
+        Int loc_i = loc_fl.GetSize()
+        While loc_i > 0
+            loc_i -= 1
+            Form loc_f = loc_fl.GetAt(loc_i)
+            If loc_f as Keyword 
+                If akForm.HasKeyword(loc_f as Keyword)
+                    Return True
+                EndIf
+            Else
+                If akForm == loc_f
+                    Return True
+                EndIf
+            EndIf            
+        EndWhile
+        Return False
+    ElseIf akFilter as Keyword
+        Return akForm.HasKeyword(akFilter as Keyword)
+    Else
+        Return akForm == akFilter
+    EndIf
+EndFunction

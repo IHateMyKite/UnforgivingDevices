@@ -7,8 +7,22 @@ import UD_Native
 
 String      Property DisplayName = "General Preset"     Auto
 
+;/
+    Easiest settings
+/;
 String      Property DataStr_Easy                       Auto
+;/
+    Medium settings
+    Silly name to be displayed in the correct order
+/;
+String      Property DataStr_Ground                     Auto
+;/
+    Hardest settings
+/;
 String      Property DataStr_Hard                       Auto
+;/
+    Types of the pramaters
+/;
 String      Property DataStr_Types                      Auto
 
 FormList    Property Form1_Variants                     Auto
@@ -20,7 +34,16 @@ FormList    Property Form5_Variants                     Auto
 
 Keyword[]   Property PreferredDevices                   Auto
 Keyword[]   Property ForbiddenDevices                   Auto
+; obsolete
 String[]    Property ConflictedModTags                  Auto
+;/
+    Conflicted modifier tags to check on device
+/;
+String[]    Property ConflictedDeviceModTags            Auto
+;/
+    Conflicted modifier tags to check on all weared devices
+/;
+String[]    Property ConflictedGlobalModTags            Auto
 
 ;/  Variable: ApplicableToNPC
     Indicates that this modifier can be applied to devices on NPCs
@@ -130,29 +153,42 @@ EndFunction
 
 String Function GetDataStr(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0)
     Int i = 0
-    Int loc_size = UD_Native.GetStringParamAll(DataStr_Easy).Length
+    Int loc_size = UD_Native.GetStringParamAll(DataStr_Ground).Length
     String loc_datastr = ""
     While i < loc_size
         String loc_type = GetStringParamString(DataStr_Types, i, "")
         String loc_rnd_str = ""
-        If GetStringParamString(DataStr_Easy, i, "") != ""
-            Float loc_rnd_1 = BiasedRandom3(afGlobalSeverityShift, afGlobalSeverityDispersionMult)
-            Float loc_rnd_01 = (loc_rnd_1 + 1.0) / 2.0          ; scaling to interval (0; 1)
+        If GetStringParamString(DataStr_Ground, i, "") != ""
+            Float loc_rnd = BiasedRandom3(afGlobalSeverityShift, afGlobalSeverityDispersionMult)
+            Float loc_rnd_01 = (loc_rnd + 1.0) / 2.0          ; scaling to interval (0; 1)
             If loc_type == "I"
-                Int loc_min = GetStringParamInt(DataStr_Easy, i, 0)
-                Int loc_max = GetStringParamInt(DataStr_Hard, i, loc_min)
-                loc_rnd_str = ((loc_rnd_01 * (loc_max - loc_min) + loc_min) as Int) as String
-            ElseIf loc_type == "F"
-                Float loc_min = GetStringParamFloat(DataStr_Easy, i, 0.0)
-                Float loc_max = GetStringParamFloat(DataStr_Hard, i, loc_min)
-                loc_rnd_str = FormatFloat(loc_rnd_01 * (loc_max - loc_min) + loc_min, 3)
-            Else
-                String loc_val1 = GetStringParamString(DataStr_Easy, i, "")
-                String loc_val2 = GetStringParamString(DataStr_Hard, i, loc_val1)
-                If loc_rnd_01 > 0.5
-                    loc_rnd_str = loc_val2
+                Int loc_zero = GetStringParamInt(DataStr_Ground, i, 0)
+                Int loc_min = GetStringParamInt(DataStr_Easy, i, loc_zero)
+                Int loc_max = GetStringParamInt(DataStr_Hard, i, loc_zero)
+                If loc_rnd < 0
+                    loc_rnd_str = ((loc_rnd * (loc_zero - loc_min) + loc_zero) as Int) as String
                 Else
-                    loc_rnd_str = loc_val1
+                    loc_rnd_str = ((loc_rnd * (loc_max - loc_zero) + loc_zero) as Int) as String
+                EndIf
+            ElseIf loc_type == "F"
+                Float loc_zero = GetStringParamFloat(DataStr_Ground, i, 0.0)
+                Float loc_min = GetStringParamFloat(DataStr_Easy, i, loc_zero)
+                Float loc_max = GetStringParamFloat(DataStr_Hard, i, loc_zero)
+                If loc_rnd < 0
+                    loc_rnd_str = FormatFloat(loc_rnd * (loc_zero - loc_min) + loc_zero, 2)
+                Else
+                    loc_rnd_str = FormatFloat(loc_rnd * (loc_max - loc_zero) + loc_zero, 2)
+                EndIf
+            Else
+                String loc_val_0 = GetStringParamString(DataStr_Ground, i, "")
+                String loc_val_min = GetStringParamString(DataStr_Easy, i, loc_val_0)
+                String loc_val_max = GetStringParamString(DataStr_Hard, i, loc_val_0)
+                If loc_rnd < -0.33
+                    loc_rnd_str = loc_val_min
+                ElseIf loc_rnd > 0.33
+                    loc_rnd_str = loc_val_max
+                Else 
+                    loc_rnd_str = loc_val_0
                 EndIf
             EndIf
         EndIf

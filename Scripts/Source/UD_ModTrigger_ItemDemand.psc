@@ -113,7 +113,7 @@ Bool Function TimeUpdateHour(UD_Modifier_Combo akModifier, UD_CustomDevice_Rende
 EndFunction
 
 Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akSourceContainer, String aiDataStr, Form akForm1)
-    If !_IsValidItem(akForm1, akItemForm)
+    If !_IsValidForm(akForm1, akItemForm)
         Return False
     EndIf
 
@@ -138,28 +138,12 @@ Bool Function ItemRemoved(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderSc
     Return False
 EndFunction
 
+;/  Group: User interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 
-Bool Function _IsValidItem(Form akFilter, Form akItem)
-    If akFilter as FormList
-        FormList loc_fl = akFilter as FormList
-        Int loc_i = loc_fl.GetSize()
-        While loc_i > 0
-            loc_i -= 1
-            Form loc_f = loc_fl.GetAt(loc_i)
-            If loc_f as Keyword 
-                If akItem.HasKeyword(loc_f as Keyword)
-                    Return True
-                EndIf
-            Else
-                If akItem == loc_f
-                    Return True
-                EndIf
-            EndIf            
-        EndWhile
-        Return False
-    ElseIf akFilter as Keyword
-        Return akItem.HasKeyword(akFilter as Keyword)
-    Else
-        Return akItem == akFilter
-    EndIf
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    Return Description
 EndFunction
