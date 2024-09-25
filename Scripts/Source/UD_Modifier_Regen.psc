@@ -27,9 +27,9 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-Function TimeUpdateSecond(UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+Function TimeUpdateSeconds(UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     if akDevice.getRelativeDurability() < 1.0
-        mendDevice(akDevice, UD_Native.GetStringParamFloat(aiDataStr, 0), 1.0, afTime)
+        mendDevice(akDevice, UD_Native.GetStringParamFloat(aiDataStr, 0), 1.0, afHoursSinceLastCall * 24.0)
     endif
 EndFunction
 

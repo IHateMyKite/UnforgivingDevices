@@ -30,7 +30,7 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     int loc_chance = Round(UD_Native.GetStringParamInt(aiDataStr,0)*Multiplier)
     int loc_number = UD_Native.GetStringParamInt(aiDataStr,1,1)
     UDCDmain.ManifestDevices(akDevice.GetWearer(), akDevice.getDeviceName(), loc_chance, loc_number)

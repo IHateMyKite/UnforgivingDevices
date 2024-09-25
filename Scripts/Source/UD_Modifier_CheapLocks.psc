@@ -33,7 +33,7 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     if !akDevice.HaveUnlockableLocks()
         return
     endif
@@ -42,12 +42,12 @@ Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, Str
         Return
     EndIf
     Int loc_i = 0
-    While loc_i < Math.Floor(afMult)
+    While loc_i < Math.Floor(afHoursSinceLastCall)
         akDevice.AddJammedLock(Round(loc_chance_h))
         loc_i += 1
     EndWhile
-    If afMult - Math.Floor(afMult) > 0.01
-        Int loc_prob = Round((1.0 - Math.Pow(0.01 * loc_chance_h, afMult - Math.Floor(afMult))) * 100)
+    If afHoursSinceLastCall - Math.Floor(afHoursSinceLastCall) > 0.01
+        Int loc_prob = Round((1.0 - Math.Pow(0.01 * loc_chance_h, afHoursSinceLastCall - Math.Floor(afHoursSinceLastCall))) * 100)
         akDevice.AddJammedLock(loc_prob)
     EndIf
 EndFunction

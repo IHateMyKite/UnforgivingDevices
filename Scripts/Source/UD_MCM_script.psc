@@ -736,7 +736,7 @@ Function resetModifiersPage()
     AddHeaderOption("$UD_CUSTOMMOD_BASEDETAILS")             ; Base Details
 
     AddTextOption("$UD_CUSTOMMOD_DETAILNAME", loc_mod.NameFull, FlagSwitch(false))              ; Name
-    AddTextOption("$UD_CUSTOMMOD_DETAILALIAS", loc_mod.NameAlias, FlagSwitch(false))             ; Alias
+    AddTextOption("$UD_CUSTOMMOD_DETAILALIAS", loc_mod.NameAlias, FlagSwitch(false))            ; Alias
     UD_ModifierDescription_T = AddTextOption("$UD_CUSTOMMOD_DETAILDESC", "")                    ; Description
     AddTextOption("$UD_CUSTOMMOD_DETAILTAGS", loc_mod.Tags, FlagSwitch(false))                  ; Tags
     
@@ -767,11 +767,16 @@ Function resetModifiersPage()
     UD_ModifierVarHardDesc_T = AddTextOption("$UD_CUSTOMMOD_VARHARD", loc_mod_pp.DataStr_Hard, UD_LockMenu_flag)
     AddEmptyOption()
     
+    AddTextOption("$UD_CUSTOMMOD_DEVTAGS", loc_mod_pp.ConflictedDeviceModTags, UD_LockMenu_flag)
+    AddTextOption("$UD_CUSTOMMOD_GLOBTAGS", loc_mod_pp.ConflictedGlobalModTags, UD_LockMenu_flag)
+    
     UD_ModPP_BaseProbability_S = AddSliderOption("$UD_CUSTOMMOD_BASEPROB", loc_mod_pp.BaseProbability, "{0} %", UD_LockMenu_flag)                 ; Base probability
     UD_ModPP_BaseSeverity_S = AddSliderOption("$UD_CUSTOMMOD_BASESEVERITY", loc_mod_pp.BaseSeverity, "{2}", UD_LockMenu_flag)                         ; Base severity
     UD_ModPP_IsNormalizedProbability_T = addToggleOption("$UD_CUSTOMMOD_PROBNORM", loc_mod_pp.IsNormalizedProbability, UD_LockMenu_flag)          ; Probability is normalized
     UD_ModPP_SeverityDispersion_S = AddSliderOption("$UD_CUSTOMMOD_SEVERITYDISP", loc_mod_pp.SeverityDispersion, "{2}", UD_LockMenu_flag)             ; Severity dispersion
-
+    
+    
+    
 EndFunction
 
 Int UD_OutfitSelected = 0

@@ -27,12 +27,12 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-Function TimeUpdateSecond(UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+Function TimeUpdateSeconds(UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     if akDevice.WearerIsRegistered()
         UD_CustomDevice_RenderScript[] loc_devices = UDCDmain.getNPCDevices(akDevice.getWearer())
         int loc_i = 0
         while loc_devices[loc_i]
-            loc_devices[loc_i].refillDurability(afTime*UD_Native.GetStringParamFloat(aiDataStr, 0) * UDCDmain.getStruggleDifficultyModifier())
+            loc_devices[loc_i].refillDurability(afHoursSinceLastCall * 24.0 * UD_Native.GetStringParamFloat(aiDataStr, 0) * UDCDmain.getStruggleDifficultyModifier())
             loc_i+=1
         endwhile
     endif

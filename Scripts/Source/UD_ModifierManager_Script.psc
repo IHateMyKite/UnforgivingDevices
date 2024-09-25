@@ -172,8 +172,8 @@ Event OnUpdate()
         RegisterForSingleUpdateGameTime(1.0) ;start update loop, 1 game hour
     else
         if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
-            float loc_timePassed = Utility.GetCurrentGameTime() - _LastUpdateTime
-            UpdateModifiers_Seconds(loc_timePassed)
+            float loc_hours_passed = (Utility.GetCurrentGameTime() - _LastUpdateTime) / 24.0
+            UpdateModifiers_Seconds(loc_hours_passed)
             _LastUpdateTime = Utility.GetCurrentGameTime()
             RegisterForSingleUpdate(UDCDmain.UD_UpdateTime)
         else
@@ -323,7 +323,7 @@ Function UpdateModifiers_GameLoad()
     UDmain.Log("UD_ModifierManager_Script::UpdateModifiers_GameLoad() BENCHMARK. Exec. time = " + (Utility.GetCurrentRealTime() - start_time), 3)
 EndFunction
 
-Function UpdateModifiers_Seconds(float aiTimePassed)
+Function UpdateModifiers_Seconds(float afHoursPassed)
     Float start_time = Utility.GetCurrentRealTime()
     int loc_i = 0
     while loc_i < UDNPCM.UD_Slots
@@ -333,7 +333,7 @@ Function UpdateModifiers_Seconds(float aiTimePassed)
             int loc_x = 0
             while loc_devices[loc_x]
                 if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked ;not update device which are in minigame
-                    Procces_UpdateModifiers_Seconds(loc_devices[loc_x],aiTimePassed)
+                    Procces_UpdateModifiers_Seconds(loc_devices[loc_x], afHoursPassed)
                 endif
                 loc_x += 1
             endwhile
@@ -499,16 +499,12 @@ Function Procces_UpdateModifiers_GameLoad(UD_CustomDevice_RenderScript akDevice)
     endwhile
 EndFunction
 
-Function Procces_UpdateModifiers_Seconds(UD_CustomDevice_RenderScript akDevice,float aiTimePassed)
+Function Procces_UpdateModifiers_Seconds(UD_CustomDevice_RenderScript akDevice, float afHoursPassed)
     int loc_modid = akDevice.UD_ModifiersRef.length
     while loc_modid 
         loc_modid -= 1
         UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
-        If Math.LogicalAnd(loc_mod.EventProcessingMask, 0x80000002) > 0
-        ; skipping modifiers with a trivial event processing
-        ; the effect is not great: ~20% with the Player in full outfit.
-            loc_mod.TimeUpdateSecond(akDevice,aiTimePassed,akDevice.UD_ModifiersDataStr[loc_modid],akDevice.UD_ModifiersDataForm1[loc_modid],akDevice.UD_ModifiersDataForm2[loc_modid],akDevice.UD_ModifiersDataForm3[loc_modid],akDevice.UD_ModifiersDataForm4[loc_modid],akDevice.UD_ModifiersDataForm5[loc_modid])
-        EndIf
+        loc_mod.TimeUpdateSeconds(akDevice,afHoursPassed,akDevice.UD_ModifiersDataStr[loc_modid],akDevice.UD_ModifiersDataForm1[loc_modid],akDevice.UD_ModifiersDataForm2[loc_modid],akDevice.UD_ModifiersDataForm3[loc_modid],akDevice.UD_ModifiersDataForm4[loc_modid],akDevice.UD_ModifiersDataForm5[loc_modid])
     endwhile
 EndFunction
 

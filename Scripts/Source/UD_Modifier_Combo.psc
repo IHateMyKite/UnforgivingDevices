@@ -62,14 +62,14 @@ Function GameLoaded(UD_CustomDevice_RenderScript akDevice, String aiDataStr, For
     EndIf
 EndFunction
 
-Function TimeUpdateSecond(UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    If (akForm1 as UD_ModTrigger).TimeUpdateSecond(Self, akDevice, afTime, aiDataStr, akForm3) == True
+Function TimeUpdateSeconds(UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    If (akForm1 as UD_ModTrigger).TimeUpdateSeconds(Self, akDevice, afHoursSinceLastCall, aiDataStr, akForm3) == True
         _DoCallOutcome(akForm2 as UD_ModOutcome, akDevice, aiDataStr, akForm4, akForm5)
     EndIf
 EndFunction
 
-Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    If (akForm1 as UD_ModTrigger).TimeUpdateHour(Self, akDevice, afMult, aiDataStr, akForm3) == True
+Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    If (akForm1 as UD_ModTrigger).TimeUpdateHour(Self, akDevice, afHoursSinceLastCall, aiDataStr, akForm3) == True
         _DoCallOutcome(akForm2 as UD_ModOutcome, akDevice, aiDataStr, akForm4, akForm5)
     EndIf
 EndFunction

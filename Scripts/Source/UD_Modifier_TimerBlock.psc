@@ -39,13 +39,13 @@ EndFunction
 ===========================================================================================
 /;
 
-Function TimeUpdateSecond(UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+Function TimeUpdateSeconds(UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     Float loc_sp = GetStringParamFloat(aiDataStr, 0, 0.0)
     Float loc_period = GetStringParamFloat(aiDataStr, 2, 0.0)
     Int loc_destruct = GetStringParamInt(aiDataStr, 1, 0)
     
     If loc_period > loc_sp
-        akDevice.editStringModifier(NameAlias, 2, FormatFloat(loc_period + afTime, 2))
+        akDevice.editStringModifier(NameAlias, 2, FormatFloat(loc_period + afHoursSinceLastCall, 2))
         If loc_destruct > 0
             akDevice.unlockRestrain()
         EndIf

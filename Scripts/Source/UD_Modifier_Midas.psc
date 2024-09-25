@@ -40,7 +40,7 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     if !akDevice
         return ;none device passed - exit
     endif
@@ -51,7 +51,7 @@ Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, Str
         return
     endif
     
-    Float loc_gold = CalculateGold2(aiDataStr, akDevice.UD_Level) * afMult
+    Float loc_gold = CalculateGold2(aiDataStr, akDevice.UD_Level) * afHoursSinceLastCall
     if loc_gold >= 1.0
         loc_actor.addItem(UDlibs.Gold, Round(loc_gold))
     endif

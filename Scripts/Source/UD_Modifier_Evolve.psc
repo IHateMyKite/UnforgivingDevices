@@ -46,10 +46,10 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     int loc_type = UD_Native.GetStringParamInt(aiDataStr,0,0)
     if loc_type == 0
-        Float loc_value = UD_Native.GetStringParamFloat(aiDataStr,1,6.0) - 1.0*afMult
+        Float loc_value = UD_Native.GetStringParamFloat(aiDataStr,1,6.0) - 1.0*afHoursSinceLastCall
         if loc_value > 0
             akDevice.editStringModifier(NameAlias,1,FormatFloat(loc_value,2))
         else

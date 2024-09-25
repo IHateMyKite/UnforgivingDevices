@@ -1,47 +1,77 @@
-;   File: UD_Patcher_ModPreset
-;   
+;/  File: UD_Patcher_ModPreset
+    
+/;  
 Scriptname UD_Patcher_ModPreset extends ReferenceAlias Hidden
 
 import UnforgivingDevicesMain
 import UD_Native
 
+;/  Variable: DisplayName
+    Name of the preset visible on the MCM page
+/;
 String      Property DisplayName = "General Preset"     Auto
 
-;/
-    Easiest settings
+;/  Variable: DataStr_Easy
+    Easiest DataStr configuration when adding a modifier with the Patcher
 /;
 String      Property DataStr_Easy                       Auto
-;/
-    Medium settings
-    Silly name to be displayed in the correct order
+
+;/  Variable: DataStr_Ground
+    Medium DataStr configuration when adding a modifier with the Patcher
+    (Silly name to be displayed in the correct order)
 /;
 String      Property DataStr_Ground                     Auto
-;/
-    Hardest settings
+
+;/  Variable: DataStr_Hard
+    Hardest DataStr configuration when adding a modifier with the Patcher
 /;
 String      Property DataStr_Hard                       Auto
-;/
-    Types of the pramaters
+
+;/  Variable: DataStr_Types
+    Types of the parameters in configurations
 /;
 String      Property DataStr_Types                      Auto
 
+;/  Variable: Form1_Variants
+    List of possible values for the DataForm1 when adding a modifier with the Patcher.
+    The easiest options come first.
+/;
 FormList    Property Form1_Variants                     Auto
-FormList    Property Form2_Variants                     Auto
-FormList    Property Form3_Variants                     Auto
-FormList    Property Form4_Variants                     Auto
-FormList    Property Form5_Variants                     Auto
 
+;/  Variable: Form2_Variants
+    List of possible values for the DataForm1 when adding a modifier with the Patcher.
+    The easiest options come first.
+/;
+FormList    Property Form2_Variants                     Auto
+
+;/  Variable: Form3_Variants
+    List of possible values for the DataForm1 when adding a modifier with the Patcher.
+    The easiest options come first.
+/;
+FormList    Property Form3_Variants                     Auto
+
+;/  Variable: Form4_Variants
+    List of possible values for the DataForm1 when adding a modifier with the Patcher.
+    The easiest options come first.
+/;
+FormList    Property Form4_Variants                     Auto
+
+;/  Variable: Form5_Variants
+    List of possible values for the DataForm1 when adding a modifier with the Patcher.
+    The easiest options come first.
+/;
+FormList    Property Form5_Variants                     Auto
 
 Keyword[]   Property PreferredDevices                   Auto
 Keyword[]   Property ForbiddenDevices                   Auto
-; obsolete
-String[]    Property ConflictedModTags                  Auto
-;/
-    Conflicted modifier tags to check on device
+
+;/  Variable: ConflictedDeviceModTags
+    Modifier tags on the device that conflict with this preset
 /;
 String[]    Property ConflictedDeviceModTags            Auto
-;/
-    Conflicted modifier tags to check on all weared devices
+
+;/  Variable: ConflictedGlobalModTags
+    Modifier tags on all worn devices that conflict with this preset
 /;
 String[]    Property ConflictedGlobalModTags            Auto
 
@@ -266,14 +296,18 @@ Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice)
         EndWhile
     EndIf
         
-    If ConflictedModTags.Length > 0
-        loc_i = ConflictedModTags.Length
+    If ConflictedDeviceModTags.Length > 0
+        loc_i = ConflictedDeviceModTags.Length
         While loc_i > 0
             loc_i -= 1
-            If akDevice.ModifiersHasTag(ConflictedModTags[loc_i])
+            If akDevice.ModifiersHasTag(ConflictedDeviceModTags[loc_i])
                 Return -2       ; device has conflicted mod
             EndIf
         EndWhile        
+    EndIf
+    ; TODO: check tags globally (tags on all equipped devices)
+    If ConflictedGlobalModTags.Length > 0
+    
     EndIf
     
     If PreferredDevices.Length > 0

@@ -47,12 +47,12 @@ Function GameLoaded(UD_CustomDevice_RenderScript akDevice, String aiDataStr, For
     Parent.GameLoaded(akDevice, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
 EndFunction
 
-Function TimeUpdateSecond(UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Parent.TimeUpdateSecond(akDevice, afTime, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
+Function TimeUpdateSeconds(UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    Parent.TimeUpdateSeconds(akDevice, afHoursSinceLastCall, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
 EndFunction
 
-Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Parent.TimeUpdateHour(akDevice, afMult, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
+Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    Parent.TimeUpdateHour(akDevice, afHoursSinceLastCall, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
 EndFunction
 
 Function Orgasm(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
