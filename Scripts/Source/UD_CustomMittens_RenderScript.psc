@@ -5,7 +5,7 @@ Function InitPost()
 EndFunction
 
 Int Function GetAiPriority()
-    return 65 ;generic value
+    return Parent.GetAiPriority() + 40
 EndFunction
 
 ;============================================================================================================================

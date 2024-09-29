@@ -22,7 +22,7 @@ EndFunction
 
 ;Priority for AI
 Int Function GetAiPriority()
-    return 27 ;generic value
+    return Parent.GetAiPriority() + 2
 EndFunction
 
 ;============================================================================================================================

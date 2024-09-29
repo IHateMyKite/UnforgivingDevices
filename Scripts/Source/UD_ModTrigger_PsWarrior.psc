@@ -1,7 +1,7 @@
 ;/  File: UD_ModTrigger_PsWarrior
     It triggers from warrior play style
     
-    NameFull: On Combat Event
+    NameFull: Warrior Playstyle
     
     Parameters:
         [0]     Float       (optional) Probability to trigger on weapon use
@@ -14,7 +14,7 @@
                             Default value: 0.0%
                         
     Example:
-                    
+
 /;
 Scriptname UD_ModTrigger_PsWarrior extends UD_ModTrigger
 

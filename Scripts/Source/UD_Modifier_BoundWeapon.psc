@@ -14,8 +14,6 @@
 /;
 Scriptname UD_Modifier_BoundWeapon extends UD_Modifier
 
-FormList Property Patcher_BoundWeaponList Auto
-
 import UnforgivingDevicesMain
 import UD_Native
 
@@ -71,10 +69,8 @@ String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataS
     loc_msg += "==== " + NameFull + " ====\n"
     loc_msg += "Weapon: " + akForm1.GetName() + "\n"
     
-    if Description
-        loc_msg += "\n"
-        loc_msg += "=== Description ===" + "\n"
-        loc_msg += Description
-    endif
+    loc_msg += "\n"
+    loc_msg += "=== Description ===" + "\n"
+    loc_msg += Description
     Return loc_msg
 EndFunction

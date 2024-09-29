@@ -279,18 +279,19 @@ Form Function GetForm5(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverity
     Return None
 EndFunction
 
-Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice)
+Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_NPCSlot akNPCSlot = None)
     If !FastCheckDevice(akDevice)
-        Return -3               ; fast check failed
+        Return -10               ; fast check failed
     EndIf
     
     Armor loc_inventory_armor = akDevice.DeviceInventory
+    Armor loc_rendered_armor = akDevice.DeviceRendered
     Int loc_i
     If ForbiddenDevices.Length > 0
         loc_i = ForbiddenDevices.Length
         While loc_i > 0
             loc_i -= 1
-            If loc_inventory_armor.HasKeyword(ForbiddenDevices[loc_i])
+            If loc_inventory_armor.HasKeyword(ForbiddenDevices[loc_i]) || loc_rendered_armor.HasKeyword(ForbiddenDevices[loc_i])
                 Return -1       ; device is fobidden for this mod
             EndIf
         EndWhile
@@ -305,16 +306,22 @@ Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice)
             EndIf
         EndWhile        
     EndIf
-    ; TODO: check tags globally (tags on all equipped devices)
-    If ConflictedGlobalModTags.Length > 0
-    
+    ; TODO: implement HasGlobalModTag properly
+    If akNPCSlot && ConflictedGlobalModTags.Length > 0
+        loc_i = ConflictedGlobalModTags.Length
+        While loc_i > 0
+            loc_i -= 1
+            If akNPCSlot.HasGlobalModTag(ConflictedGlobalModTags[loc_i])
+                Return -3       ; wearer has device with conflicted mod
+            EndIf
+        EndWhile
     EndIf
     
     If PreferredDevices.Length > 0
         loc_i = PreferredDevices.Length
         While loc_i > 0
             loc_i -= 1
-            If loc_inventory_armor.HasKeyword(PreferredDevices[loc_i])
+            If loc_inventory_armor.HasKeyword(PreferredDevices[loc_i]) || loc_rendered_armor.HasKeyword(PreferredDevices[loc_i])
                 Return 2        ; device is preferred for this mod
             EndIf
         EndWhile

@@ -8314,9 +8314,16 @@ Function processDetails()
     endif
 EndFunction
 
+Int _AiPriority = -99
 ;Priority for AI
 Int Function GetAiPriority()
-    return 25 ;generic value
+    If _AiPriority == -99
+        _AiPriority = 25
+        If hasModifier("CMF")
+            _AiPriority -= UD_Native.GetStringParamInt(GetModifierParam("CMF"))
+        EndIf
+    EndIf
+    Return _AiPriority
 EndFunction
 
 ;-------------------------------------------------------------------------------------

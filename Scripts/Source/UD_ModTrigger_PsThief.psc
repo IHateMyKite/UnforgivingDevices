@@ -1,7 +1,7 @@
 ;/  File: UD_ModTrigger_PsThief
     It triggers from thief play style
     
-    NameFull: On Combat Event
+    NameFull: Thief Playstyle
     
     Parameters:
         [0]     Float       (optional) Probability to trigger on bow use

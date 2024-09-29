@@ -10,7 +10,7 @@
         [1]     Float   (optional) Base probability to trigger (in %)
                         Default value: 100.0%
         
-        [2]     Int     (optional) Probability to trigger is proportional to the hit damage
+        [2]     Float   (optional) Probability to trigger is proportional to the hit damage
                         Default value: 0.0%
                         
         [3]     Int     (optional) Repeat

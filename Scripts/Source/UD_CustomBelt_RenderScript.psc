@@ -8,7 +8,7 @@ Function InitPost()
 EndFunction
 
 Int Function GetAiPriority()
-    return 35
+    return Parent.GetAiPriority() + 10
 EndFunction
 
 Function patchDevice()

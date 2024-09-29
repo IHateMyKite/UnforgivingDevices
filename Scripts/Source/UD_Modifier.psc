@@ -106,7 +106,7 @@ Float       Property Multiplier                 = 1.0       Auto Hidden
     0x00000400      Sleep
     0x00000800      ActorAction
     0x00001000      KillMonitor
-    0x00002000      ItemsAdded
+    0x00002000      ItemAdded
     0x00004000      ItemRemoved
     0x00008000      
     0x00010000      
@@ -205,12 +205,12 @@ EndFunction
 
 Function ItemRemoved(UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akDestContainer, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
 EndFunction
+
 ;/  Group: User Interface
 ===========================================================================================
 ===========================================================================================
 ===========================================================================================
 /;
-
 String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     String loc_msg = ""
     
@@ -244,7 +244,7 @@ EndFunction
 ===========================================================================================
 /;
 
-; Quickly check the applicability of a modifier without considering dependencies and conflicts. 
+; Quickly checks the applicability of a modifier without considering dependencies and conflicts. 
 ; Used for approximate calculation of the upper limit for the number of available mods
 ; Could be overriden for more accurate calculation
 Bool Function PatchModifierFastCheck(UD_CustomDevice_RenderScript akDevice)

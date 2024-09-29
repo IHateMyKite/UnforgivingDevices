@@ -185,7 +185,7 @@ Function InitPost()
 EndFunction
 
 Int Function GetAiPriority()
-    Int loc_res = 15
+    Int loc_res = Parent.GetAiPriority() - 10
     if isVibrating()
         loc_res += 35
     endif

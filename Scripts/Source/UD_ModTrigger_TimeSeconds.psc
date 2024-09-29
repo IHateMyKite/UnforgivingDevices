@@ -59,7 +59,7 @@ EndFunction
 
 String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
     String loc_str = ""
-    loc_str += "On elapsed time (hours)"
+    loc_str += "On elapsed time (fast)"
     loc_str += "\n"
     loc_str += "Threshold value: " + FormatFloat(GetStringParamFloat(aiDataStr, 0, 0.0), 2) + " hours"
     loc_str += "\n"

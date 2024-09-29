@@ -24,7 +24,7 @@ EndFunction
 
 ;Priority for AI
 Int Function GetAiPriority()
-    return 30
+    return Parent.GetAiPriority() + 5
 EndFunction
 
 ;============================================================================================================================

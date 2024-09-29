@@ -2221,6 +2221,11 @@ Bool Function IsConcentrationEnch(Enchantment akEnchantment)
     Return loc_me.GetCastingType() == 2
 EndFunction
 
+;===============================================================================
+;===============================================================================
+;                             INVENTORY EVENTS
+;===============================================================================
+;===============================================================================
 
 Form[] _ItemFilter_Forms
 Int[] _ItemFilter_Refs
@@ -2309,6 +2314,28 @@ Event OnItemRemoved(Form akBaseItem, int aiItemCount, ObjectReference akItemRefe
         loc_i += 1
     EndWhile    
 EndEvent
+
+;===============================================================================
+;===============================================================================
+;                             MODIFIERS TAGS
+;===============================================================================
+;===============================================================================
+
+Function _RegisterGlobalModTags(String asTags, Bool abRegister = True)
+    ; TODO
+EndFunction
+
+Bool Function HasGlobalModTag(String asTag)
+    ; the most lazy implementation
+    Int loc_i = 0
+    While loc_i < UD_equipedCustomDevices.Length && UD_equipedCustomDevices[loc_i]
+        If UD_equipedCustomDevices[loc_i].ModifiersHasTag(asTag)
+            Return True
+        EndIf
+        loc_i += 1
+    Endwhile
+    Return False
+EndFunction
 
 ;===============================================================================
 ;===============================================================================

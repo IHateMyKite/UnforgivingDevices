@@ -30,7 +30,7 @@ float Function getAccesibility()
 EndFunction
 
 Int Function GetAiPriority()
-    return 30
+    return Parent.GetAiPriority() + 5
 EndFunction
 
 ;============================================================================================================================

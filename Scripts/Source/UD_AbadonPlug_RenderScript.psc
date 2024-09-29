@@ -61,11 +61,11 @@ Function InitPost()
 EndFunction
 
 Int Function GetAiPriority()
-    Int loc_res = 32
-    if isVibrating()
-        loc_res += 25
-    endif
-    return loc_res ;generic value
+    Return Parent.GetAiPriority() + 7
+; see UD_CustomVibratorBase_RenderScript
+;    if isVibrating()
+;        loc_res += 25
+;    endif
 EndFunction
 
 bool Function forceOutPlugMinigame(Bool abSilent = False)

@@ -80,6 +80,10 @@ Bool Function StatEvent(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     If UDmain.TraceAllowed()
         UDmain.Log("UD_ModTrigger_StatEvent::StatEvent() akModifier = " + akModifier + ", akDevice = " + akDevice + ", asStatName = " + asStatName + ", aiStatValue = " + aiStatValue + ", aiDataStr = " + aiDataStr, 3)
     EndIf
+    If asStatName == "Locks Picked" && UDCDmain.actorInMinigame(akDevice.GetWearer())
+    ; in case the wearer picks lock in minigame
+        Return False
+    EndIf
     If asStatName != GetStringParamString(aiDataStr, 0, "")
         Return False
     EndIf
@@ -87,7 +91,12 @@ Bool Function StatEvent(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     Float loc_prob_base = GetStringParamFloat(aiDataStr, 2, 100.0)
     Bool loc_repeat = GetStringParamInt(aiDataStr, 3, 0) > 0
     
-    Return TriggerOnValueAbs(akDevice, akModifier.NameAlias, aiDataStr, afValueAbs = aiStatValue, afMinValue = loc_min_value, afProbBase = loc_prob_base, abRepeat = loc_repeat, aiLastTriggerValueIndex = 4)
+    If StringUtil.Find(asStatName, "Bounty") >= 0
+        Return TriggerOnValueAbs(akDevice, akModifier.NameAlias, aiDataStr, afValueAbs = aiStatValue, afMinValue = loc_min_value, afProbBase = loc_prob_base, abRepeat = loc_repeat, aiLastTriggerValueIndex = 4)
+    Else
+        Return TriggerOnValueDelta(akDevice, akModifier.NameAlias, aiDataStr, afValueDelta = 1, afMinAccum = loc_min_value, afProbBase = loc_prob_base, abRepeat = loc_repeat, aiAccumParamIndex = 4)
+    EndIf
+    
 EndFunction
 
 String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)

@@ -1,7 +1,7 @@
 ;/  File: UD_ModTrigger_PsMage
     It triggers from mage play style
     
-    NameFull: On Combat Event
+    NameFull: Mage Playstyle
     
     Parameters:
         [0]     Float       (optional) Probability to trigger on spell use
