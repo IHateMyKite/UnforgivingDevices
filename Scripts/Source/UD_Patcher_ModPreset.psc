@@ -281,7 +281,7 @@ EndFunction
 
 Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_NPCSlot akNPCSlot = None)
     If !FastCheckDevice(akDevice)
-        Return -10               ; fast check failed
+        Return -9               ; fast check failed
     EndIf
     
     Armor loc_inventory_armor = akDevice.DeviceInventory
@@ -292,7 +292,7 @@ Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_
         While loc_i > 0
             loc_i -= 1
             If loc_inventory_armor.HasKeyword(ForbiddenDevices[loc_i]) || loc_rendered_armor.HasKeyword(ForbiddenDevices[loc_i])
-                Return -1       ; device is fobidden for this mod
+                Return -1       ; device is fobidden for this modifier
             EndIf
         EndWhile
     EndIf
@@ -302,7 +302,7 @@ Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_
         While loc_i > 0
             loc_i -= 1
             If akDevice.ModifiersHasTag(ConflictedDeviceModTags[loc_i])
-                Return -2       ; device has conflicted mod
+                Return -2       ; device has conflicted modifier
             EndIf
         EndWhile        
     EndIf
@@ -312,7 +312,7 @@ Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_
         While loc_i > 0
             loc_i -= 1
             If akNPCSlot.HasGlobalModTag(ConflictedGlobalModTags[loc_i])
-                Return -3       ; wearer has device with conflicted mod
+                Return -3       ; wearer has device with conflicted modifier
             EndIf
         EndWhile
     EndIf
@@ -322,10 +322,10 @@ Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_
         While loc_i > 0
             loc_i -= 1
             If loc_inventory_armor.HasKeyword(PreferredDevices[loc_i]) || loc_rendered_armor.HasKeyword(PreferredDevices[loc_i])
-                Return 2        ; device is preferred for this mod
+                Return 2        ; device is preferred for this modifier
             EndIf
         EndWhile
-        Return 0                ; mod has prefferred devices but this device is not one of them
+        Return 0                ; modifier has prefferred devices but this device is not one of them
     EndIf
     Return 1                    ; just ok
 EndFunction

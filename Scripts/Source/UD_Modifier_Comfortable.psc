@@ -1,5 +1,5 @@
 ;/  File: UD_Modifier_Comfortable
-    This device is extremely convenient. You almost don't want to take it off.
+    This device is extremely comfortable. You almost don't want to take it off.
 
     NameFull:   Comfortable
     NameAlias:  CMF

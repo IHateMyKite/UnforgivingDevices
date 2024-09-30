@@ -337,12 +337,14 @@ EndFunction
 Int Function _AddModifiersFromArray(UD_CustomDevice_RenderScript akDevice, Alias[] aakMods, Int aiSoftCap, Int aiHardCap)
     Int loc_i = 0
     Int loc_modnum = 0
+    UD_CustomDevice_NPCSlot loc_slot = UDCDMain.getNPCSlot(akDevice.GetWearer())
+    
     while loc_i < aakMods.Length
         If loc_modnum >= aiHardCap
             Return loc_modnum
         EndIf
         UD_Modifier loc_mod = aakMods[loc_i] As UD_Modifier
-        If !akDevice.HasModifierRef(loc_mod) && loc_mod.PatchModifierCheckAndAdd(akDevice, aiSoftCap, aakMods.Length, UD_ModGlobalProbabilityMult, UD_ModGlobalSeverityShift, UD_ModGlobalSeverityDispMult)
+        If !akDevice.HasModifierRef(loc_mod) && loc_mod.PatchModifierCheckAndAdd(akDevice, aiSoftCap, aakMods.Length, UD_ModGlobalProbabilityMult, UD_ModGlobalSeverityShift, UD_ModGlobalSeverityDispMult, loc_slot)
             UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Added modifier = " + loc_mod, 2)
             loc_modnum += 1
         EndIf

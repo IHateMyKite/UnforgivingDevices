@@ -254,8 +254,8 @@ Bool Function PatchModifierFastCheck(UD_CustomDevice_RenderScript akDevice)
 EndFunction
 
 ; Carefully check the compatibility of the modifier and try to add it taking into account the given probabilities
-Bool Function PatchModifierCheckAndAdd(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods, Float afGlobalProbabilityMult = 1.0, Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0)
-    UD_Patcher_ModPreset loc_preset = _GetBestPatcherPreset(akDevice)
+Bool Function PatchModifierCheckAndAdd(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods, Float afGlobalProbabilityMult = 1.0, Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0, UD_CustomDevice_NPCSlot akNPCSlot = None)
+    UD_Patcher_ModPreset loc_preset = _GetBestPatcherPreset(akDevice, akNPCSlot)
     If loc_preset == None 
         Return False
     EndIf
@@ -290,7 +290,7 @@ Float Function PatchModifierCheckAndAddOverride(UD_CustomDevice_RenderScript akD
 EndFunction
 
 ; Private methods
-UD_Patcher_ModPreset Function _GetBestPatcherPreset(UD_CustomDevice_RenderScript akDevice)
+UD_Patcher_ModPreset Function _GetBestPatcherPreset(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_NPCSlot akNPCSlot = None)
     UD_Patcher_ModPreset loc_preset1 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset1) as UD_Patcher_ModPreset
     UD_Patcher_ModPreset loc_preset2 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset2) as UD_Patcher_ModPreset
     UD_Patcher_ModPreset loc_preset3 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset3) as UD_Patcher_ModPreset
@@ -299,7 +299,7 @@ UD_Patcher_ModPreset Function _GetBestPatcherPreset(UD_CustomDevice_RenderScript
     Int loc_priority = -10
     
     If loc_preset1
-        Int loc_temp = loc_preset1.CheckDevice(akDevice)
+        Int loc_temp = loc_preset1.CheckDevice(akDevice, akNPCSlot)
         If loc_temp > loc_priority
             loc_priority = loc_temp
             loc_result = loc_preset1
@@ -307,7 +307,7 @@ UD_Patcher_ModPreset Function _GetBestPatcherPreset(UD_CustomDevice_RenderScript
     EndIf
     
     If loc_preset2
-        Int loc_temp = loc_preset2.CheckDevice(akDevice)
+        Int loc_temp = loc_preset2.CheckDevice(akDevice, akNPCSlot)
         If loc_temp > loc_priority
             loc_priority = loc_temp
             loc_result = loc_preset2
@@ -315,7 +315,7 @@ UD_Patcher_ModPreset Function _GetBestPatcherPreset(UD_CustomDevice_RenderScript
     EndIf
     
     If loc_preset3
-        Int loc_temp = loc_preset3.CheckDevice(akDevice)
+        Int loc_temp = loc_preset3.CheckDevice(akDevice, akNPCSlot)
         If loc_temp > loc_priority
             loc_priority = loc_temp
             loc_result = loc_preset3
