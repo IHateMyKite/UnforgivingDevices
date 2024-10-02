@@ -7649,23 +7649,23 @@ EndFunction
 
 ; very elegant idea from  https://forums.nexusmods.com/topic/8441118-convert-decimal-formid-to-hexadecimal/?do=findComment&comment=95344608
 String Function _IntToHex(Int aiDecimal, Int aiLength = -1)
-	Int loc_value = aiDecimal
-	String loc_hex = ""
+    Int loc_value = aiDecimal
+    String loc_hex = ""
     Int loc_pos = 0
 
-	While (loc_value > 0)
-		Int loc_remainder = loc_value % 16
-		loc_hex = StringUtil.GetNthChar("0123456789ABCDEF", loc_remainder) + loc_hex
-		loc_value /= 16
+    While (loc_value > 0)
+        Int loc_remainder = loc_value % 16
+        loc_hex = StringUtil.GetNthChar("0123456789ABCDEF", loc_remainder) + loc_hex
+        loc_value /= 16
         loc_pos += 1
-	EndWhile
+    EndWhile
     
     While loc_pos < aiLength
         loc_hex = "0" + loc_hex
         loc_pos += 1
     EndWhile
 
-	Return loc_hex
+    Return loc_hex
 EndFunction
 
 String Function _DetailRow(String asLeft, String asRight, String asColor = "")
