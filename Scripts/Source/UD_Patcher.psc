@@ -24,6 +24,36 @@ int         Property UD_EscapeModifier      =   10    auto hidden
 Int         Property UD_MinLocks            =    0    auto hidden
 Int         Property UD_MaxLocks            =    2    auto hidden
 
+;/  Variable: UD_ModsMinCap
+    If the number of modifiers is less than the specified value, the patcher will try to add more
+/;
+Int         Property UD_ModsMinCap          =    2    Auto Hidden
+
+;/  Variable: UD_ModsSoftCap
+    Soft cap for the number of modifiers added by the patcher (the actual number of mods may slightly exceed this value)
+/;
+Int         Property UD_ModsSoftCap         =    4    Auto Hidden
+
+;/  Variable: UD_ModsHardCap
+    Hard cap for the number of modifiers added by the patcher (when this value is reached, the patcher stops adding mods)
+/;
+Int         Property UD_ModsHardCap         =    99   Auto Hidden
+
+;/  Variable: UD_ModGlobalProbabilityMult
+    Multplier that affects probability to add each modifier 
+/;
+Float       Property UD_ModGlobalProbabilityMult    = 1.0   Auto Hidden
+
+;/  Variable: UD_ModGlobalSeverityShift
+    Addition to the severity of each modifier (mathematical expectation of a random variable)
+/; 
+Float       Property UD_ModGlobalSeverityShift      = 0.0   Auto Hidden
+
+;/  Variable: UD_ModGlobalSeverityDispMult
+    The value by which the severity dispersion of each modifier is multiplied
+/;
+Float       Property UD_ModGlobalSeverityDispMult   = 1.0   Auto Hidden
+
 ;difficulty multipliers
 Float Property UD_PatchMult_HeavyBondage        = 1.0 auto hidden
 Float Property UD_PatchMult_Gag                 = 1.0 auto hidden
@@ -278,21 +308,65 @@ EndFunction
 
 Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
     if DeviceCanHaveModes(akDevice)
-        int loc_count = UDMOM.GetModifierStorageCount()
-        while loc_count
-            loc_count -= 1
-            
-            UD_ModifierStorage loc_storage = UDMOM.GetNthModifierStorage(loc_count)
-            Int loc_modnum = loc_storage.GetModifierNum()
-            while loc_modnum
-                loc_modnum -= 1
-                UD_Modifier loc_mod = loc_storage.GetNthModifier(loc_modnum)
-                if loc_mod && loc_mod.PatchChanceMultiplier > 0.0 && !akDevice.HasModifierRef(loc_mod) && loc_mod.PatchModifierCondition(akDevice)
-                    loc_mod.PatchAddModifier(akDevice)
-                endif
-            endwhile
+        Int loc_modnum = 0
+        Int loc_i = UDMOM.UD_ModifierListRef.Length
+        Alias[] loc_valid_mods = Utility.CreateAliasArray(loc_i)
+        ; first run to find all valid modifiers
+        while loc_i
+            loc_i -= 1
+            UD_Modifier loc_mod = UDMOM.UD_ModifierListRef[loc_i] As UD_Modifier
+            if loc_mod && loc_mod.PatchModifierFastCheck(akDevice)
+                loc_valid_mods[loc_modnum] = loc_mod
+                loc_modnum += 1
+            endif
         endwhile
+        UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Fast check: " + loc_modnum + " mods to use.", 2)
+        If loc_modnum == 0
+            Return
+        EndIf
+        loc_valid_mods = Utility.ResizeAliasArray(loc_valid_mods, loc_modnum)
+        ; second run to check and assign valid mods
+        Int loc_added_mods = _AddModifiersFromArray(akDevice, loc_valid_mods, UD_ModsSoftCap, UD_ModsHardCap)
+        If loc_added_mods < UD_ModsMinCap
+            ; a third run to add mods if their number does not reach the minimum
+            _AddModifiersFromArray(akDevice, loc_valid_mods, UD_ModsSoftCap, UD_ModsSoftCap)
+        EndIf
     endif
+EndFunction
+
+Int Function _AddModifiersFromArray(UD_CustomDevice_RenderScript akDevice, Alias[] aakMods, Int aiSoftCap, Int aiHardCap)
+    Int loc_i = 0
+    Int loc_modnum = 0
+    UD_CustomDevice_NPCSlot loc_slot = UDCDMain.getNPCSlot(akDevice.GetWearer())
+    
+    while loc_i < aakMods.Length
+        If loc_modnum >= aiHardCap
+            Return loc_modnum
+        EndIf
+        UD_Modifier loc_mod = aakMods[loc_i] As UD_Modifier
+        If !akDevice.HasModifierRef(loc_mod) && loc_mod.PatchModifierCheckAndAdd(akDevice, aiSoftCap, aakMods.Length, UD_ModGlobalProbabilityMult, UD_ModGlobalSeverityShift, UD_ModGlobalSeverityDispMult, loc_slot)
+            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Added modifier = " + loc_mod, 2)
+            loc_modnum += 1
+        EndIf
+        loc_i += 1
+    endwhile
+    Return loc_modnum
+EndFunction
+
+String Function _FloatToString(Float afNumber, Int aiWidth, Int aiPrecision)
+    String loc_str = FormatFloat(afNumber, aiPrecision)
+    If afNumber < 0.0
+        loc_str = StringUtil.SubString(loc_str, 1)
+        aiWidth -= 1
+    EndIf
+    While StringUtil.GetLength(loc_str) < aiWidth
+        loc_str = "0" + loc_str
+    EndWhile
+    If afNumber < 0.0
+        Return "-" + loc_str
+    Else
+        Return loc_str
+    EndIf
 EndFunction
 
 bool Function DeviceCanHaveModes(UD_CustomDevice_RenderScript akDevice)
@@ -342,6 +416,10 @@ EndFunction
 ;------------------------
 Function checkInventoryScript(UD_CustomDevice_RenderScript device,int argControlVar = 0x0F,Float fMult = 1.0, Int aiType = 0)
     UD_CustomDevice_EquipScript inventoryScript = device.getInventoryScript()
+    
+    If inventoryScript == None
+        Return
+    EndIf
     
     if Math.LogicalAnd(argControlVar,0x01)
         device.UD_durability_damage_base = (inventoryScript.BaseEscapeChance/UD_EscapeModifier)/fRange(fMult,0.25,3.0)
