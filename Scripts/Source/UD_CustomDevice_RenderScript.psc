@@ -7498,90 +7498,199 @@ Function ShowBaseDetails()
     updateDifficulty()
     float loc_accesibility = getAccesibility()
     string loc_res = ""
-    loc_res += "- " + deviceInventory.GetName() + " -\n"
-    loc_res += "Level: " + UD_Level + "\n"
-    loc_res += "Type: " + UD_DeviceType + "\n"
-    loc_res += ("Device health: " + FormatFloat(current_device_health,1)+"/"+ FormatFloat(UD_Health,1)+ "\n")
-    loc_res += "Condition: " + getConditionString() + " ("+FormatFloat(getRelativeCondition()*100,1)+"%)\n"
-    loc_res += "Accesibility: " + Round(100.0*loc_accesibility) + "%\n"
+    String loc_color = "#CCCCCC"
+    String loc_frag = ""
+    Int loc_percent = 100
     
-    loc_res += "Difficutly: "
+    loc_res += "<font size='24'>" + deviceInventory.GetName() + "</font><br/>"
+    
+    loc_res += "<textformat tabstops='[30, 175, 225]' leading='-2'>"
+    loc_res += "<p align='left'>"
+    loc_res += "<font size='20'>"
+
+    loc_res += _DetailRow("Level:", UD_Level, "#FFFFFF")
+    loc_res += _DetailRow("Type:", UD_DeviceType, "#FFFFFF")
+    
+    loc_res += _DetailGap()
+        
+    loc_res += _DetailRow("Device health:", FormatFloat(current_device_health, 1) + "/" + FormatFloat(UD_Health, 1), _PercentToGrayscale(Round(100 * current_device_health / UD_Health)))
+    loc_res += _DetailRow("Condition:", getConditionString() + " (" + FormatFloat(getRelativeCondition() * 100, 1) + "%)", _PercentToGrayscale(Round(100 * getRelativeCondition())))
+    loc_res += _DetailRow("Accessibility:", Round(100.0 * loc_accesibility) + "%", _PercentToRainbow(Round(100 * loc_accesibility)))
+
     if (UD_durability_damage_base >= 2.5)
-        loc_res += "Very Easy\n"
+        loc_frag = "Very Easy"
+        loc_percent = 100
     elseif (UD_durability_damage_base >= 1.5)
-        loc_res += "Easy\n"
+        loc_frag = "Easy"
+        loc_percent = 83
     elseif (UD_durability_damage_base >= 0.75)
-        loc_res += "Normal\n"
+        loc_frag = "Normal"
+        loc_percent = 67
     elseif (UD_durability_damage_base >= 0.3)
-        loc_res += "Hard\n"
+        loc_frag = "Hard"
+        loc_percent = 50
     elseif (UD_durability_damage_base >= 0.05)
-        loc_res += "Very Hard\n"
+        loc_frag = "Very Hard"
+        loc_percent = 33
     elseif UD_durability_damage_base > 0
-        loc_res += "Extreme\n"
+        loc_frag = "Extreme"
+        loc_percent = 16
     else
-        loc_res += "Impossible\n"
+        loc_frag = "Impossible"
+        loc_percent = 0
     endif
+    loc_res += _DetailRow("Difficutly:", loc_frag, _PercentToRainbow(loc_percent))
     
     bool loc_showhitres = canBeCutted()
     bool loc_showstrres = canBeStruggled(loc_accesibility)
-    if loc_showstrres && !loc_showhitres
-        loc_res += "Resist: "
-        loc_res += "P = " + Round(getModResistPhysical(0.0)*-100.0) + "/XXX %/"
-        loc_res += "M = " + Round(getModResistMagicka(0.0)*-100.0) + " %\n"
-    elseif loc_showhitres && !loc_showstrres
-        loc_res += "Resist: "
-        loc_res += "P = XXX/" + Round(UD_WeaponHitResist*100.0) + "%/"
-        loc_res += "M = XXX\n"
-    elseif loc_showhitres && loc_showstrres
-        loc_res += "Resist: "
-        loc_res += "P = " + Round(getModResistPhysical(0.0)*-100.0) + "/"+Round(UD_WeaponHitResist*100.0)+" %/"
-        loc_res += "M = " + Round(getModResistMagicka(0.0)*-100.0) + " %\n"
-    elseif loc_accesibility == 0
-        loc_res += "Resist: Inescapable\n"
-    else
-        loc_res += "Resist: Indestructable\n"
-    endif
+
+    loc_res += _DetailGap()
+    
+    If loc_showstrres
+        loc_res += _DetailRow("Phys. Resist:", Round(getModResistPhysical(0.0) * -100.0) + "%", _PercentToRainbow(Round(50.0 + getModResistPhysical(0.0) * 50.0)))
+        loc_res += _DetailRow("Mag. Resist:", Round(getModResistMagicka(0.0) * -100.0) + "%", _PercentToRainbow(Round(50.0 + getModResistMagicka(0.0) * 50.0)))
+    Else
+        loc_res += _DetailRow("Phys. Resist:", "Inescapable", _PercentToRainbow(0))
+        loc_res += _DetailRow("Mag. Resist:", "Inescapable", _PercentToRainbow(0))
+    EndIf
+    If loc_showhitres
+        loc_res += _DetailRow("Cut Resist:", Round(UD_WeaponHitResist) + "%", _PercentToRainbow(Round(100 - UD_WeaponHitResist)))
+    Else
+        loc_res += _DetailRow("Cut Resist:", "Indestructable", _PercentToRainbow(0))
+    EndIf
+    
+    loc_res += _DetailGap()
     
     if HaveLocks()
-        loc_res += "Number of locks: " + GetLockedLocks() + "/" + GetLockNumber() + "\n"
-        loc_res += "Lock multiplier: " + Round((1.0 + _getLockMinigameModifier())*100.0) + " %\n"
+        loc_res += _DetailRow("Number of locks:", GetLockedLocks() + "/" + GetLockNumber(), "#FFFFFF")
+        loc_res += _DetailRow("Lock multiplier:", Round((1.0 + _getLockMinigameModifier()) * 100.0) + "%", "#FFFFFF")
+        if zad_deviceKey
+            loc_res += _DetailRow("Key:", zad_deviceKey.GetName(), "#FFFFFF")
+        else
+            loc_res += _DetailRow("Key:", "None", _PercentToGrayscale(0))
+        endif
     else
-        loc_res += "Device have no locks\n"
+        loc_res += _DetailRow("Number of locks:", "None", _PercentToGrayscale(0))
+;        loc_res += "Device have no locks"
     endif
-    
-    loc_res += "Key: "
-    if zad_deviceKey
-        loc_res += zad_deviceKey.GetName() + "\n"
-    else
-        loc_res += "None\n"
-    endif
+    loc_res += _DetailGap()
     
     if UDmain.UDGV.UDG_ShowCritVars.Value
-        loc_res += "Crit chance: "+UD_StruggleCritChance+" %\n"
-        loc_res += "Crit duration: "+FormatFloat(UD_StruggleCritDuration,1)+" s\n"
-        loc_res += "Crit mult: "+FormatFloat(UD_StruggleCritMul*100,1)+" %\n"
+        loc_res += _DetailGap()
+        loc_res += _DetailRow("Crit chance:", UD_StruggleCritChance + "%", "#FFFFFF")
+        loc_res += _DetailRow("Crit duration:", FormatFloat(UD_StruggleCritDuration, 1) + " s", "#FFFFFF")
+        loc_res += _DetailRow("Crit mult:", FormatFloat(UD_StruggleCritMul * 100, 1) + "%", "#FFFFFF")
+        loc_res += _DetailGap()
     endif
     
     if canBeCutted()
-        loc_res += "Cutting: " + FormatFloat(UD_CutChance,1) + "\n"
+        loc_res += _DetailRow("Cutting:", FormatFloat(UD_CutChance, 1) + "%", _PercentToRainbow(Round(UD_CutChance * 2)))
     else
-        loc_res += "Cutting: Uncuttable\n"
+        loc_res += _DetailRow("Cutting:", "Uncuttable", _PercentToRainbow(0))
     endif
 
     if isNotShareActive()
-        loc_res += "Active effect: " + UD_ActiveEffectName + "\n"
-        loc_res += "Can be activated: " + canBeActivated() + "\n"
+        loc_res += _DetailGap()
+        loc_res += _DetailRow("Active effect:", UD_ActiveEffectName, "#FFFFFF")
+        If canBeActivated()
+            loc_res += _DetailRow("Active effect:", canBeActivated(), _PercentToGrayscale(100))
+        Else
+            loc_res += _DetailRow("Active effect:", canBeActivated(), _PercentToGrayscale(0))
+        EndIf
         if UD_Cooldown > 0
-            loc_res += "Cooldown: " + Round(UD_Cooldown*0.75*UDCDmain.UD_CooldownMultiplier) + " - " + Round(UD_Cooldown*1.25*UDCDmain.UD_CooldownMultiplier) +" min\n"
+            loc_res += _DetailRow("Cooldown:", Round(UD_Cooldown * 0.75 * UDCDmain.UD_CooldownMultiplier) + " - " + Round(UD_Cooldown * 1.25 * UDCDmain.UD_CooldownMultiplier) + " min", _PercentToGrayscale(100))
         else
-            loc_res += "Cooldown: NONE\n"
+            loc_res += _DetailRow("Cooldown:", "None", _PercentToRainbow(0))
         endif
     endif
     
-    loc_res += "Locked for: " + FormatFloat(GetGameTimeLockedTime()*24.0,2) + " h\n"
+    loc_res += _DetailGap()
+    
+    loc_res += _DetailRow("Locked for:", FormatFloat(GetGameTimeLockedTime() * 24.0, 2) + " hours", "#FFFFFF")
+        
+    loc_res += "</font>"
+    loc_res += "</p>"
+    loc_res += "</textformat>"
     
     loc_res += addInfoString()
+    
     UDmain.ShowMessageBox(loc_res)
+EndFunction
+
+String Function _PercentToGrayscale(Int aiPercent)
+    Return _PercentToColor(aiPercent, 0x444444, 0xAAAAAA, 0xFFFFFF)
+EndFunction
+
+String Function _PercentToRainbow(Int aiPercent)
+    Return _PercentToColor(aiPercent, 0xFF00FF, 0xFFFF00, 0x00FF00)
+EndFunction
+
+String Function _PercentToColor(Int aiPercent, Int aiMin, Int aiMiddle, Int aiMax)
+    Int loc_value = aiPercent
+    If loc_value < 0
+        loc_value = 0
+    ElseIf loc_value > 100
+        loc_value = 100
+    EndIf
+    Int R
+    Int G
+    Int B
+    If loc_value <= 50
+        R  = (Math.LogicalAnd(Math.RightShift(aiMin, 16), 0xFF) * (50 - loc_value) + Math.LogicalAnd(Math.RightShift(aiMiddle, 16), 0xFF) * loc_value) / 50
+        G  = (Math.LogicalAnd(Math.RightShift(aiMin, 8), 0xFF) * (50 - loc_value) + Math.LogicalAnd(Math.RightShift(aiMiddle, 8), 0xFF) * loc_value) / 50
+        B  = (Math.LogicalAnd(Math.RightShift(aiMin, 0), 0xFF) * (50 - loc_value) + Math.LogicalAnd(Math.RightShift(aiMiddle, 0), 0xFF) * loc_value) / 50
+    Else
+        R  = (Math.LogicalAnd(Math.RightShift(aiMax, 16), 0xFF) * (loc_value - 50) + Math.LogicalAnd(Math.RightShift(aiMiddle, 16), 0xFF) * (100 - loc_value)) / 50
+        G  = (Math.LogicalAnd(Math.RightShift(aiMax, 8), 0xFF) * (loc_value - 50) + Math.LogicalAnd(Math.RightShift(aiMiddle, 8), 0xFF) * (100 - loc_value)) / 50
+        B  = (Math.LogicalAnd(Math.RightShift(aiMax, 0), 0xFF) * (loc_value - 50) + Math.LogicalAnd(Math.RightShift(aiMiddle, 0), 0xFF) * (100 - loc_value)) / 50
+    EndIf
+    Return "#" + _IntToHex(R * 0x10000 + G * 0x100 + B, 6)
+EndFunction
+
+; very elegant idea from  https://forums.nexusmods.com/topic/8441118-convert-decimal-formid-to-hexadecimal/?do=findComment&comment=95344608
+String Function _IntToHex(Int aiDecimal, Int aiLength = -1)
+	Int loc_value = aiDecimal
+	String loc_hex = ""
+    Int loc_pos = 0
+
+	While (loc_value > 0)
+		Int loc_remainder = loc_value % 16
+		loc_hex = StringUtil.GetNthChar("0123456789ABCDEF", loc_remainder) + loc_hex
+		loc_value /= 16
+        loc_pos += 1
+	EndWhile
+    
+    While loc_pos < aiLength
+        loc_hex = "0" + loc_hex
+        loc_pos += 1
+    EndWhile
+
+	Return loc_hex
+EndFunction
+
+String Function _DetailRow(String asLeft, String asRight, String asColor = "")
+    String loc_str = ""
+    loc_str += "\t"
+    loc_str += asLeft
+    loc_str += "\t"
+    If asColor != ""
+        loc_str += "<font color='" + asColor + "'>"
+    EndIf
+    loc_str += asRight
+    If asColor != ""
+        loc_str += "</font>"
+    EndIf
+    loc_str += "<br/>"
+    Return loc_str
+EndFunction
+
+String Function _DetailGap()
+    String loc_str = ""
+    loc_str += "<textformat leading='-10'>"
+    loc_str += "  "
+    loc_str += "<br/>"
+    loc_str += "</textformat>"
+    Return loc_str
 EndFunction
 
 ;/  Function: minigamePrecheck
