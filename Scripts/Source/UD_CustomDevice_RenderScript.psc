@@ -7614,7 +7614,7 @@ Function ShowBaseDetails()
     
     loc_res += addInfoString()
     
-    UDmain.ShowMessageBox(loc_res)
+    UDmain.ShowMessageBox(loc_res, abUseHTML = True)
 EndFunction
 
 String Function _PercentToGrayscale(Int aiPercent)

@@ -1738,7 +1738,9 @@ EndFunction
         ShowMessageBox(loc_text) -> This will show message box with 3 lines with their corresponding texts
         ---
 /;
-Function ShowMessageBox(string asText)
+Function ShowMessageBox(string asText, Bool abUseHTML = False)
+; TODO: line detection for HTML
+
     String[]    loc_lines = StringUtil.split(asText,"\n")
     int         loc_linesNum = loc_lines.length
     
@@ -1763,7 +1765,7 @@ Function ShowMessageBox(string asText)
         endif
         loc_iterLine = 0
         
-        ShowSingleMessageBox(loc_messagebox)
+        ShowSingleMessageBox(loc_messagebox, abUseHTML)
     endwhile
 EndFunction
 
@@ -1777,8 +1779,17 @@ EndFunction
 
         asMessage     - String to be shown in message box
 /;
-Function ShowSingleMessageBox(String asMessage)
-    debug.messagebox(asMessage)
+Function ShowSingleMessageBox(String asMessage, Bool abUseHTML = False)
+    debug.messagebox("Placeholder")
+    
+    String[] loc_args
+    loc_args = Utility.CreateStringArray(2, "")
+    loc_args[0] = asMessage
+    loc_args[1] = abUseHTML as String
+    
+    UI.InvokeStringA("MessageBoxMenu", "_root.MessageMenu" + ".SetMessage", loc_args)
+;    UI.InvokeStringA("MessageBoxMenu", "_root.MessageMenu" + ".setMessageText", loc_args)
+    
     ;wait for fucking messagebox to actually get OKd before continuing thread (holy FUCKING shit toad)
     Utility.waitMenuMode(0.3)
     while IsMessageboxOpen()
