@@ -20,7 +20,7 @@
         Form5 - Single device to manifest or FormList with devices.
 
     Example:
-        1,L         Will be called method UDCDmain::ManifestDevices with given number of devices to lock
+        1,L         Method UDCDmain::ManifestDevices will be called with given number of devices to lock
         1,FIRST     One device will be summoned. The first suitable device from the list in Form4 will be selected, 
                     starting from the top one.
         5,F,R       Five devices ill be summoned. First the matching devices will be selected from the list in Form4, and 

@@ -691,7 +691,7 @@ Function Procces_UpdateModifiers_KillMonitor(UD_CustomDevice_RenderScript akDevi
     endwhile
 EndFunction
 
-Function Procces_UpdateModifiers_ItemAdded(UD_CustomDevice_RenderScript akDevice, Form akBaseItem, Int aiItemCount, ObjectReference akSourceContainer)
+Function Procces_UpdateModifiers_ItemAdded(UD_CustomDevice_RenderScript akDevice, Form akBaseItem, Int aiItemCount, ObjectReference akSourceContainer, Bool abIsStolen)
     If akDevice.GetRealTimeLockedTime() < 0.001
         Return
     EndIf
@@ -699,7 +699,7 @@ Function Procces_UpdateModifiers_ItemAdded(UD_CustomDevice_RenderScript akDevice
     while loc_modid 
         loc_modid -= 1
         UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
-        loc_mod.ItemAdded(akDevice, akBaseItem, aiItemCount, akSourceContainer, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid], akDevice.UD_ModifiersDataForm4[loc_modid],akDevice.UD_ModifiersDataForm5[loc_modid])
+        loc_mod.ItemAdded(akDevice, akBaseItem, aiItemCount, akSourceContainer, abIsStolen, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid], akDevice.UD_ModifiersDataForm4[loc_modid],akDevice.UD_ModifiersDataForm5[loc_modid])
     endwhile
 EndFunction
 

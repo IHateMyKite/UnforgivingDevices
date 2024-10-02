@@ -111,8 +111,8 @@ Function KillMonitor(UD_CustomDevice_RenderScript akDevice, ObjectReference akVi
     Parent.KillMonitor(akDevice, akVictim, aiCrimeStatus, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
 EndFunction
 
-Function ItemAdded(UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akSourceContainer, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Parent.ItemAdded(akDevice, akItemForm, aiItemCount, akSourceContainer, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
+Function ItemAdded(UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akSourceContainer, Bool abIsStolen, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    Parent.ItemAdded(akDevice, akItemForm, aiItemCount, akSourceContainer, abIsStolen, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
 EndFunction
 
 Function ItemRemoved(UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akDestContainer, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)

@@ -2301,8 +2301,9 @@ EndFunction
 
 Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer)
     Int loc_i = 0
+    Bool loc_stolen = akItemReference.GetActorOwner() != None && akItemReference.GetActorOwner() != GetActorRef().GetActorBase()
     While UD_equipedCustomDevices[loc_i]
-        Udmain.UDMOM.Procces_UpdateModifiers_ItemAdded(UD_equipedCustomDevices[loc_i], akBaseItem, aiItemCount, akSourceContainer)
+        Udmain.UDMOM.Procces_UpdateModifiers_ItemAdded(UD_equipedCustomDevices[loc_i], akBaseItem, aiItemCount, akSourceContainer, loc_stolen)
         loc_i += 1
     EndWhile    
 EndEvent

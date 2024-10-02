@@ -16,9 +16,12 @@
         [3]     Float   (optional) Reset period (in hours). If negative then it is triggered once
                         Default value: -1.0 (Triggered once)
                         
-        [4]     Float   (script) Number of obtained items so far
+        [4]     Int     (optional) Only stolen items count
+                        Default value: 0 (False)
+                        
+        [5]     Float   (script) Number of obtained items so far
         
-        [5]     Float   (script) Locked time by the moment of the last trigger (ingame hours)
+        [6]     Float   (script) Device locked time in the moment of the last trigger (ingame hours)
 
     Forms:
         Form1           FormList, Form or Keyword to filter obtained items
@@ -66,12 +69,12 @@ Bool Function DeviceUnlocked(UD_Modifier_Combo akModifier, UD_CustomDevice_Rende
     Return False
 EndFunction
 
-Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akSourceContainer, String aiDataStr, Form akForm1)
+Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akSourceContainer, Bool abIsStolen, String aiDataStr, Form akForm1)
     If !_IsValidForm(akForm1, akItemForm)
         Return False
     EndIf
 
-    Float loc_last = GetStringParamFloat(aiDataStr, 5, 0.0)
+    Float loc_last = GetStringParamFloat(aiDataStr, 6, 0.0)
     
     If loc_last < 0.0 && loc_period < 0.0
     ; already triggered with trigger-once settings
@@ -79,10 +82,16 @@ Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     EndIf
     Bool loc_result = False
     
+    Bool loc_stolen = GetStringParamInt(aiDataStr, 4, 0) > 0
+    
+    If loc_stolen && !abIsStolen
+        Return False
+    EndIf
+    
     Float loc_timer = akDevice.GetGameTimeLockedTime()
     Int loc_min_count = GetStringParamInt(aiDataStr, 0, 1)
     Float loc_period = GetStringParamFloat(aiDataStr, 3, 0.0)
-    Int loc_acc = GetStringParamInt(aiDataStr, 4, 0)
+    Int loc_acc = GetStringParamInt(aiDataStr, 5, 0)
     
     loc_acc += aiItemCount
     
@@ -99,8 +108,8 @@ Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
             EndIf
         EndIf
     EndIf
-    akDevice.editStringModifier(akModifier.NameAlias, 4, loc_acc as String)
-    akDevice.editStringModifier(akModifier.NameAlias, 5, FormatFloat(loc_last, 2))
+    akDevice.editStringModifier(akModifier.NameAlias, 5, loc_acc as String)
+    akDevice.editStringModifier(akModifier.NameAlias, 6, FormatFloat(loc_last, 2))
     
     Return loc_result
 EndFunction

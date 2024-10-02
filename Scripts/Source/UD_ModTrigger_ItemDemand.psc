@@ -10,8 +10,8 @@
         [1]     Float   (optional) Base probability to trigger (in %) at the end of the check period if actor failed to obtain items
                         Default value: 100.0%
         
-        [2]     Float   (optional) Probability to trigger that is proportional to the number of missing items
-                        Default value: 0.0%
+        [2]     Int     (optional) Only stolen items count
+                        Default value: 0 (False)
                         
         [3]     Float   (optional) The time given to obtain items (in hours)
                         Default value: 8.0
@@ -21,7 +21,7 @@
                         
         [5]     Int     (script) Number of obtained items so far
         
-        [6]     Float   (script) Locked time by the moment of the last trigger (ingame hours)
+        [6]     Float   (script) Device locked time in the moment of the last trigger (ingame hours)
 
     Forms:
         Form1           Item or Keyword to filter demanded items
@@ -95,9 +95,8 @@ Bool Function TimeUpdateHour(UD_Modifier_Combo akModifier, UD_CustomDevice_Rende
     EndIf
 
     Float loc_prob1 = GetStringParamFloat(aiDataStr, 1, 100.0)
-    Float loc_prob2 = GetStringParamFloat(aiDataStr, 2, 0.0)
     
-    If RandomFloat(0.0, 100.0) < (loc_prob1 + loc_prob2 * (loc_min_count - loc_acc))
+    If RandomFloat(0.0, 100.0) < (loc_prob1)
         loc_acc = 0
         If !loc_repeat
         ; triggered once
@@ -112,13 +111,19 @@ Bool Function TimeUpdateHour(UD_Modifier_Combo akModifier, UD_CustomDevice_Rende
     Return False
 EndFunction
 
-Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akSourceContainer, String aiDataStr, Form akForm1)
+Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akSourceContainer, Bool abIsStolen, String aiDataStr, Form akForm1)
     If !_IsValidForm(akForm1, akItemForm)
         Return False
     EndIf
 
     Int loc_acc = GetStringParamInt(aiDataStr, 5, 0)
     Int loc_min_count = GetStringParamInt(aiDataStr, 0, 1)
+    Bool loc_stolen = GetStringParamInt(aiDataStr, 2, 0) > 0
+    
+    If loc_stolen && !abIsStolen
+        Return False
+    EndIf
+    
     loc_acc += aiItemCount
     
     Int loc_consume = aiItemCount

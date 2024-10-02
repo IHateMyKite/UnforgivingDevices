@@ -156,8 +156,8 @@ Function KillMonitor(UD_CustomDevice_RenderScript akDevice, ObjectReference akVi
     EndIf
 EndFunction
 
-Function ItemAdded(UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akSourceContainer, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    If (akForm1 as UD_ModTrigger).ItemAdded(Self, akDevice, akItemForm, aiItemCount, akSourceContainer, aiDataStr, akForm3) == True
+Function ItemAdded(UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akSourceContainer, Bool abIsStolen, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    If (akForm1 as UD_ModTrigger).ItemAdded(Self, akDevice, akItemForm, aiItemCount, akSourceContainer, abIsStolen, aiDataStr, akForm3) == True
         _DoCallOutcome(akForm2 as UD_ModOutcome, akDevice, aiDataStr, akForm4, akForm5)
     EndIf
 EndFunction
