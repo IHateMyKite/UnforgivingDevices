@@ -219,7 +219,7 @@ endEvent
 Function _ValidateOutfit()
     int loc_i = 0
     Actor loc_actor = GetActor()
-    while UD_equipedCustomDevices[loc_i]
+    while (loc_i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[loc_i]
         UD_CustomDevice_RenderScript loc_device = UD_equipedCustomDevices[loc_i]
         ;check if device is equipped, if not, equip it
         if !loc_actor.isEquipped(loc_device.deviceRendered) 
@@ -247,7 +247,7 @@ EndFunction
 String[] Function getSlotsStringA()
     String[] loc_res
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         loc_res = PapyrusUtil.PushString(loc_res,UD_equipedCustomDevices[i].getDeviceName())
         i+=1
     endwhile
@@ -281,7 +281,7 @@ EndFunction
 
 int Function GetDeviceSlotIndx(UD_CustomDevice_RenderScript device)
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i] == device
             return i
         endif
@@ -296,7 +296,7 @@ int Function GetVibratorSlotIndx(UD_CustomDevice_RenderScript akVib)
         return -1
     endif
     int i = 0
-    while UD_ActiveVibrators[i]
+    while (i < UD_ActiveVibrators.length) && UD_ActiveVibrators[i]
         if UD_ActiveVibrators[i] == akVib
             return i
         endif
@@ -704,7 +704,7 @@ int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool s
         startDeviceManipulation()
     endif
     int res = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i] == oref
             UD_equipedCustomDevices[i] = none
             _iUsedSlots-=1
@@ -731,7 +731,7 @@ EndFunction
 int Function UnregisterVibrator(UD_CustomDevice_RenderScript akVib,int i = 0,bool sort = True)
     startVibratorManipulation()
     int res = 0
-    while UD_ActiveVibrators[i]
+    while (i < UD_ActiveVibrators.length) && UD_ActiveVibrators[i]
         if UD_ActiveVibrators[i] == akVib
             UD_ActiveVibrators[i] = none
             res += 1
@@ -778,7 +778,7 @@ int Function unregisterAllDevices(int i = 0,bool mutex = true)
         startDeviceManipulation()
     endif
     int res = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         UD_equipedCustomDevices[i] = none
         _iUsedSlots-=1
         res += 1
@@ -792,7 +792,7 @@ EndFunction
 
 bool Function deviceAlreadyRegistered(Armor deviceInventory)
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i].deviceInventory == deviceInventory
             return true
         endif
@@ -803,7 +803,7 @@ EndFunction
 
 bool Function deviceAlreadyRegisteredKw(Keyword kw,Bool abCheckAllKw = false)
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if (UD_equipedCustomDevices[i].UD_DeviceKeyword == kw) || (abCheckAllKw && UD_equipedCustomDevices[i].DeviceRendered.haskeyword(kw))
             return true
         endif
@@ -814,7 +814,7 @@ EndFunction
 
 bool FUnction deviceAlreadyRegisteredRender(Armor deviceRendered)
     int i = 0
-    while UD_equipedCustomDevices[i];UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i].deviceRendered == deviceRendered
             return true
         endif
@@ -837,7 +837,7 @@ EndFunction
 Function removeUnusedDevices()
     startDeviceManipulation()
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         UD_CustomDevice_RenderScript loc_device = UD_equipedCustomDevices[i]
         bool loc_condInv  =  loc_device.getWearer().getItemCount(loc_device.deviceInventory) == 0
         bool loc_condRend =  loc_device.getWearer().getItemCount(loc_device.deviceRendered)  == 0
@@ -863,7 +863,7 @@ EndFunction
 int Function numberOfUnusedDevices()
     int res = 0
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if !UD_equipedCustomDevices[i].getWearer().IsEquipped(UD_equipedCustomDevices[i].deviceInventory) && isPlayer()
             res += 1
         endif
@@ -876,7 +876,7 @@ EndFunction
 Function replaceSlot(UD_CustomDevice_RenderScript oref, Armor inventoryDevice)
     startDeviceManipulation()
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i].deviceInventory == inventoryDevice
             UD_equipedCustomDevices[i] = oref
         endif
@@ -888,7 +888,7 @@ EndFunction
 int Function getCopiesOfDevice(UD_CustomDevice_RenderScript oref)
     int res = 0
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i].deviceInventory == oref.deviceInventory
             res += 1
         endif
@@ -901,7 +901,7 @@ EndFunction
 Function removeCopies()
     ;startDeviceManipulation()
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if i < _iUsedSlots - 1
             unregisterDevice(UD_equipedCustomDevices[i],i + 1)
         endif
@@ -913,7 +913,7 @@ EndFunction
 int Function numberOfCopies()
     int res = 0
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if i < _iUsedSlots - 1
             res += getCopiesOfDevice(UD_equipedCustomDevices[i])
         endif
@@ -924,7 +924,7 @@ EndFunction
 
 int Function debugSize()
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         i+=1
     endwhile
     return i
@@ -935,7 +935,7 @@ Function orgasm()
         AddOrgasmExhaustion()
     endif
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i].isReady()
             UD_equipedCustomDevices[i].orgasm()
             UDmain.UDMOM.Procces_UpdateModifiers_Orgasm(UD_equipedCustomDevices[i])
@@ -963,7 +963,7 @@ EndFunction
 
 Event OnActivateDevice(string sDeviceName)
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i].deviceInventory.getName() == sDeviceName && UD_equipedCustomDevices[i].isReady()
             UD_equipedCustomDevices[i].activateDevice()
             return
@@ -976,7 +976,7 @@ EndEvent
 Event SexlabOrgasmStart(bool abHasPlayer)
     int size = UD_equipedCustomDevices.length
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i].isReady()
             UD_equipedCustomDevices[i].orgasm(True)
         endif
@@ -988,7 +988,7 @@ EndEvent
 Function edge()
     int size = UD_equipedCustomDevices.length
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i].isReady()
             UD_equipedCustomDevices[i].edge()
         endif
@@ -1013,7 +1013,7 @@ EndEvent
 
 Function OnWeaponHit(Weapon source)
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         UD_equipedCustomDevices[i].weaponHit(source)
         i+=1
     endwhile
@@ -1021,14 +1021,14 @@ EndFunction
 
 Function OnSpellHit(Spell source)
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         UD_equipedCustomDevices[i].spellHit(source)
         i+=1
     endwhile
 EndFunction
 
 Function showDebugMenu(int slot_id)
-    if slot_id >= 0 && slot_id < 20 && slot_id < _iUsedSlots
+    if slot_id >= 0 && slot_id < UD_equipedCustomDevices.length && slot_id < _iUsedSlots
     UD_CustomDevice_RenderScript selectedDevice = UD_equipedCustomDevices[slot_id]
         while UD_equipedCustomDevices[slot_id] == selectedDevice && UD_equipedCustomDevices[slot_id]
             int res = UDCDmain.DebugMessage.show(UD_equipedCustomDevices[slot_id].getDurability(),UD_equipedCustomDevices[slot_id].getMaxDurability(),100.0 - UD_equipedCustomDevices[slot_id].getCondition())
@@ -1069,7 +1069,7 @@ EndFunction
 
 Function update(float fTimePassed)
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         DeviceUpdate(UD_equipedCustomDevices[i],fTimePassed)
         i+=1
     endwhile
@@ -1083,7 +1083,7 @@ EndFunction
 
 Function updateDeviceHour()
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i].isReady()
             UD_equipedCustomDevices[i].updateHour()
         endif
@@ -1098,7 +1098,7 @@ EndFunction
 ;returns first device which have connected corresponding Inventory Device
 UD_CustomDevice_RenderScript Function getDeviceByInventory(Armor deviceInventory)
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i].deviceInventory == deviceInventory
             return UD_equipedCustomDevices[i]
         endif
@@ -1110,7 +1110,7 @@ EndFunction
 ;returns first device which have connected corresponding Render Device
 UD_CustomDevice_RenderScript Function getDeviceByRender(Armor deviceRendered)
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i].deviceRendered == deviceRendered
             return UD_equipedCustomDevices[i]
         endif
@@ -1123,7 +1123,7 @@ EndFunction
 UD_CustomDevice_RenderScript Function getHeavyBondageDevice()
     int size = UD_equipedCustomDevices.length
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i].isHeavyBondage()
             return UD_equipedCustomDevices[i]
         endif
@@ -1146,7 +1146,7 @@ UD_CustomDevice_RenderScript Function getFirstDeviceByKeyword(keyword kw1,keywor
     endif
     
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if mod == 0
             if UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw1) && UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw2) && UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw3)
                 return UD_equipedCustomDevices[i]
@@ -1196,7 +1196,7 @@ UD_CustomDevice_RenderScript Function getDeviceByKeyword(keyword akKeyword)
         return none
     endif
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i].UD_DeviceKeyword == (akKeyword)
             return UD_equipedCustomDevices[i]
         endif
@@ -1221,7 +1221,7 @@ UD_CustomDevice_RenderScript[] Function getAllDevicesByKeyword(keyword kw1,keywo
     int found_devices = 0
     int size = UD_equipedCustomDevices.length
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if mod == 0
             if UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw1) && UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw2) && UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw3)
                 res[found_devices] = UD_equipedCustomDevices[i]
@@ -1254,7 +1254,7 @@ UD_CustomDevice_RenderScript[] Function getAllActivableDevicesByKeyword(bool bCh
     int found_devices = 0
     int size = UD_equipedCustomDevices.length
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if mod == 0
             if UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw1) && UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw2) && UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw3)
                 if (UD_equipedCustomDevices[i].canBeActivated() || !bCheckCondition)  && UD_equipedCustomDevices[i].isNotShareActive()
@@ -1290,7 +1290,7 @@ int Function getNumberOfDevicesWithKeyword(keyword kw1,keyword kw2 = none,keywor
     int found_devices = 0
     int size = UD_equipedCustomDevices.length
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if mod == 0
             if UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw1) && UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw2) && UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw3)
                 found_devices += 1
@@ -1320,7 +1320,7 @@ int Function getNumberOfActivableDevicesWithKeyword(bool bCheckCondition, keywor
     int found_devices = 0
     int size = UD_equipedCustomDevices.length
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if mod == 0
             if UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw1) && UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw2) && UD_equipedCustomDevices[i].deviceRendered.hasKeyword(kw3)
                 if (UD_equipedCustomDevices[i].canBeActivated() || !bCheckCondition) && UD_equipedCustomDevices[i].isNotShareActive()
@@ -1343,7 +1343,7 @@ EndFunction
 int Function getActiveDevicesNum()
     int found_devices = 0
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i].canBeActivated() && UD_equipedCustomDevices[i].isNotShareActive()
             found_devices += 1
         endif
@@ -1357,7 +1357,7 @@ UD_CustomDevice_RenderScript[] Function getActiveDevices()
     UD_CustomDevice_RenderScript[] res = UDCDMain.MakeNewDeviceSlots()
     int found_devices = 0
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i].canBeActivated() && UD_equipedCustomDevices[i].isNotShareActive()
             res[found_devices] = UD_equipedCustomDevices[i]
             found_devices += 1
@@ -1373,7 +1373,7 @@ Function TurnOffAllVibrators()
         UDmain.Log("TurnOffAllVibrators() called for " + getSlotedNPCName(),1)
     endif
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         UD_CustomVibratorBase_RenderScript loc_vib = (UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript)
         if loc_vib && !(loc_vib as UD_ControlablePlug_RenderScript)
             ;do not stp vibrators which are turned or forever
@@ -1395,7 +1395,7 @@ int Function getVibratorNum()
     endif
     int found_devices = 0
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript
             found_devices += 1
         endif
@@ -1411,7 +1411,7 @@ EndFunction
 int Function getActivableVibratorNum()
     int found_devices = 0
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         UD_CustomVibratorBase_RenderScript loc_vib = UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript
         if loc_vib
             if loc_vib.canVibrate()
@@ -1430,7 +1430,7 @@ int Function getOffVibratorNum()
     endif
     int found_devices = 0
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript
             UD_CustomVibratorBase_RenderScript loc_vibrator = (UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript)
             if loc_vibrator.CanVibrate() && !loc_vibrator.isVibrating()
@@ -1453,7 +1453,7 @@ UD_CustomDevice_RenderScript[] Function getVibrators()
     UD_CustomDevice_RenderScript[] res = UDCDmain.MakeNewDeviceSlots()
     int found_devices = 0
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript
             UD_CustomVibratorBase_RenderScript loc_vibrator = (UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript)
             ;if loc_vibrator.CanVibrate()
@@ -1480,7 +1480,7 @@ UD_CustomDevice_RenderScript[] Function getOffVibrators()
     UD_CustomDevice_RenderScript[] res = UDCDmain.MakeNewDeviceSlots()
     int found_devices = 0
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript
             if UDmain.TraceAllowed()            
                 UDmain.Log("getOffVibrators() - vibrator found: " + UD_equipedCustomDevices[i].getDeviceName(),3)
@@ -1507,7 +1507,7 @@ UD_CustomDevice_RenderScript[] Function getActivableVibrators()
     UD_CustomDevice_RenderScript[] res = UDCDmain.MakeNewDeviceSlots()
     int found_devices = 0
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript
             UD_CustomVibratorBase_RenderScript loc_vibrator = (UD_equipedCustomDevices[i] as UD_CustomVibratorBase_RenderScript)
             if loc_vibrator.CanVibrate()
@@ -1524,7 +1524,7 @@ EndFunction
 UD_CustomDevice_RenderScript Function getMinigameDevice()
     int size = UD_equipedCustomDevices.length
     int i = 0
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i].isMinigameOn()
             return UD_equipedCustomDevices[i]
         endif
@@ -1596,7 +1596,7 @@ int Function removeWrongWearerDevices()
     int res = 0
     int i = 0
     Actor _currentSlotedActor = getActor()
-    while UD_equipedCustomDevices[i]
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if (UD_equipedCustomDevices[i].getWearer() != _currentSlotedActor) || UD_equipedCustomDevices[i].isUnlocked
             res += unregisterDevice(UD_equipedCustomDevices[i],i,False)
         endif
@@ -2048,7 +2048,7 @@ EndFunction
 
 Function VibrateUpdate(Int aiUpdateTime)
     int i = 0
-    while UD_ActiveVibrators[i]
+    while (i < UD_ActiveVibrators.length) && UD_ActiveVibrators[i]
         UD_CustomVibratorBase_RenderScript loc_vib = UD_ActiveVibrators[i] as UD_CustomVibratorBase_RenderScript
         if loc_vib
             loc_vib.VibrateUpdate(aiUpdateTime)
@@ -2059,7 +2059,7 @@ EndFunction
 
 Function EndAllVibrators()
     int i = 0
-    while UD_ActiveVibrators[i]
+    while (i < UD_ActiveVibrators.length) && UD_ActiveVibrators[i]
         UD_CustomVibratorBase_RenderScript loc_vib = UD_ActiveVibrators[i] as UD_CustomVibratorBase_RenderScript
         if loc_vib
             loc_vib._VibrateEnd(True,False)
