@@ -1738,7 +1738,7 @@ EndFunction
         ShowMessageBox(loc_text) -> This will show message box with 3 lines with their corresponding texts
         ---
 /;
-Function ShowMessageBox(string asText, Bool abUseHTML = False)
+Function ShowMessageBox(string asText, Bool abHTML = False)
 ; TODO: line detection for HTML
 
     String[]    loc_lines = StringUtil.split(asText,"\n")
@@ -1765,7 +1765,7 @@ Function ShowMessageBox(string asText, Bool abUseHTML = False)
         endif
         loc_iterLine = 0
         
-        ShowSingleMessageBox(loc_messagebox, abUseHTML)
+        ShowSingleMessageBox(loc_messagebox, abHTML)
     endwhile
 EndFunction
 
@@ -1779,22 +1779,57 @@ EndFunction
 
         asMessage     - String to be shown in message box
 /;
-Function ShowSingleMessageBox(String asMessage, Bool abUseHTML = False)
-    debug.messagebox("Placeholder")
+Function ShowSingleMessageBox(String asMessage, Bool abHTML = False)
+    If !abHTML
+        Debug.MessageBox(asMessage)
+    Else
+        Debug.MessageBox("Placeholder")
     
-    String[] loc_args
-    loc_args = Utility.CreateStringArray(2, "")
-    loc_args[0] = asMessage
-    loc_args[1] = abUseHTML as String
-    
-    UI.InvokeStringA("MessageBoxMenu", "_root.MessageMenu" + ".SetMessage", loc_args)
-;    UI.InvokeStringA("MessageBoxMenu", "_root.MessageMenu" + ".setMessageText", loc_args)
-    
+        String[] loc_args
+        loc_args = Utility.CreateStringArray(2, "")
+        loc_args[0] = asMessage
+        loc_args[1] = "1"
+        
+        UI.InvokeStringA("MessageBoxMenu", "_root.MessageMenu" + ".SetMessage", loc_args)
+    EndIf
+
     ;wait for fucking messagebox to actually get OKd before continuing thread (holy FUCKING shit toad)
     Utility.waitMenuMode(0.3)
     while IsMessageboxOpen()
         Utility.waitMenuMode(0.05)
     EndWhile
+EndFunction
+
+Int Function ShowMessageBoxMenu(String asMessage, String[] aasButtons, Bool abHTML = False)
+    If !abHTML
+        Debug.MessageBox(asMessage)
+    Else
+        Debug.MessageBox("Placeholder")
+    
+        String[] loc_args
+        loc_args = Utility.CreateStringArray(2, "")
+        loc_args[0] = asMessage
+        loc_args[1] = "1"
+        
+        UI.InvokeStringA("MessageBoxMenu", "_root.MessageMenu" + ".SetMessage", loc_args)
+    EndIf
+    ; populate buttons
+    If aasButtons.Length > 0
+        Utility.waitMenuMode(0.1)
+        String[] loc_btns = new String[1]
+        loc_btns[0] = "1"
+        loc_btns = PapyrusUtil.MergeStringArray(loc_btns, aasButtons)
+        UI.InvokeStringA("MessageBoxMenu", "_root.MessageMenu" + ".setupButtons", loc_btns)
+    EndIf
+    ; wait for the player input
+    Int loc_last_btn = -2
+    Utility.waitMenuMode(0.2)
+    while UI.IsMenuOpen("MessageBoxMenu") ; IsMessageboxOpen()
+        Utility.waitMenuMode(0.05)
+        loc_last_btn = UI.GetInt("MessageBoxMenu", "_root.MessageMenu" + ".lastTabIndex")
+    EndWhile
+    GInfo("ShowMessageBoxMenu() Button = " + loc_last_btn)
+    Return loc_last_btn
 EndFunction
 
 ;/  Group: Actor
