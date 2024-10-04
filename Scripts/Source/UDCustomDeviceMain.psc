@@ -2410,6 +2410,8 @@ UD_CustomDevice_RenderScript Function getDeviceScriptByRender(Actor akActor,Armo
      
     if !loc_res
        UDMain.Error("Error getting script for " + akDeviceRendered + " on " + akActor)
+       _transfereMutex = False
+       _transferedDevice = none
        return none
     endif
      
