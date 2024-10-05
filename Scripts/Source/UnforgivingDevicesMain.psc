@@ -243,6 +243,8 @@ EndProperty
 /;
 UD_Config Property UDCONF auto
 
+UD_MenuTextFormatter                Property UDMTF          Auto
+
 
 Package         Property UD_NPCDisablePackage           auto
 
@@ -1739,34 +1741,15 @@ EndFunction
         ---
 /;
 Function ShowMessageBox(string asText, Bool abHTML = False)
-; TODO: line detection for HTML
 
-    String[]    loc_lines = StringUtil.split(asText,"\n")
-    int         loc_linesNum = loc_lines.length
+    String[] loc_pages = UDMTF.SplitMessageIntoPages(asText)
+    Int loc_i = 0
     
-    int         loc_lineLimit = 12
-    
-    int         loc_boxesNum = Math.Ceiling((loc_linesNum as float)/(loc_lineLimit as float))
-    int         loc_iterLine = 0
-    int         loc_iterBox = 0
-    
-    while loc_iterBox < (loc_boxesNum)
-        string loc_messagebox = ""
-        
-        while loc_iterLine < iRange((loc_linesNum - loc_lineLimit*loc_iterBox),0,loc_lineLimit)
-            loc_messagebox += (loc_lines[loc_iterLine + (loc_lineLimit)*loc_iterBox] + "\n")
-            loc_iterLine += 1
-        endwhile
-        
-        loc_iterBox += 1
-        
-        if loc_boxesNum > 1
-            loc_messagebox += "===PAGE " + (loc_iterBox) + "/" + (loc_boxesNum) + "===\n"
-        endif
-        loc_iterLine = 0
-        
-        ShowSingleMessageBox(loc_messagebox, abHTML)
-    endwhile
+    While loc_i < loc_pages.Length
+        ShowSingleMessageBox(loc_pages[loc_i], abHTML)
+        loc_i += 1
+    EndWhile
+
 EndFunction
 
 ;/  Function: ShowSingleMessageBox
@@ -2339,7 +2322,7 @@ EndFunction
         True if *Messagebox* menu is open
 /;
 Bool Function IsMessageboxOpen()
-    return UDMC.IsMenuOpen(13) ;I hope to god that this works
+    return UDMC.IsMenuOpen(13) || UI.IsMenuOpen("MessageBoxMenu") ;I hope to god that this works
 EndFunction
 
 
