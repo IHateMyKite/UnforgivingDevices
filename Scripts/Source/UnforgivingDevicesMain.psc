@@ -1742,10 +1742,14 @@ EndFunction
 /;
 Function ShowMessageBox(string asText, Bool abHTML = False)
 
-    String[] loc_pages = UDMTF.SplitMessageIntoPages(asText)
+    Int loc_line_limit = 12
+    If abHTML
+        loc_line_limit = 99
+    EndIf
+    String[] loc_pages = UDMTF.SplitMessageIntoPages(asText, loc_line_limit)
     Int loc_i = 0
-    
     While loc_i < loc_pages.Length
+        Log("ShowMessageBox() page = " + loc_i + ", text = " + loc_pages[loc_i], 3)
         ShowSingleMessageBox(loc_pages[loc_i], abHTML)
         loc_i += 1
     EndWhile

@@ -7511,12 +7511,12 @@ Function ShowBaseDetails()
     Int loc_i
     
     loc_res += UDMTF.Header(deviceInventory.GetName(), 4)
-    
-    loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 140, aiColumn2Width = 120)
-    loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize)
+    loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+    loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 140)
+    loc_res += UDMTF.HeaderSplit()
 
-    loc_res += UDMTF.TableRowDetails("Level:", UD_Level, UDMTF.TextColorDefault)
-    loc_res += UDMTF.TableRowDetails("Type:", UD_DeviceType, UDMTF.TextColorDefault)
+    loc_res += UDMTF.TableRowDetails("Level:", UD_Level)
+    loc_res += UDMTF.TableRowDetails("Type:", UD_DeviceType)
     
     loc_res += UDMTF.LineGap()
         
@@ -7539,9 +7539,10 @@ Function ShowBaseDetails()
     else
         loc_res += UDMTF.TableRowDetails("Difficutly:", "Impossible", UDMTF.PercentToRainbow(0))
     endif
-    
+
+    loc_res += UDMTF.PageSplit(abForce = False)
     loc_res += UDMTF.LineGap()
-    
+        
     If canBeStruggled(loc_accesibility)
         loc_res += UDMTF.TableRowDetails("Phys. Resist:", Round(getModResistPhysical(0.0) * -100.0) + "%", UDMTF.PercentToRainbow(Round(50.0 + getModResistPhysical(0.0) * 50.0)))
         loc_res += UDMTF.TableRowDetails("Mag. Resist:", Round(getModResistMagicka(0.0) * -100.0) + "%", UDMTF.PercentToRainbow(Round(50.0 + getModResistMagicka(0.0) * 50.0)))
@@ -7555,10 +7556,10 @@ Function ShowBaseDetails()
         loc_res += UDMTF.TableRowDetails("Cut Resist:", "Indestructable", UDMTF.PercentToRainbow(0))
     EndIf
     
+    loc_res += UDMTF.PageSplit(abForce = False)
     loc_res += UDMTF.LineGap()
     
     if HaveLocks()
-;        loc_res += UDMTF.TableRowDetails("Number of locks:", GetLockedLocks() + "/" + GetLockNumber(), UDMTF.TextColorDefault)
         loc_i = 0
         loc_frag = ""
         While loc_i < GetLockNumber()
@@ -7566,33 +7567,38 @@ Function ShowBaseDetails()
             loc_i += 1
         EndWhile
         loc_res += UDMTF.TableRowDetails("Have locks:", loc_frag)
-        loc_res += UDMTF.TableRowDetails("Lock multiplier:", Round((1.0 + _getLockMinigameModifier()) * 100.0) + "%", UDMTF.TextColorDefault)
+        loc_res += UDMTF.TableRowDetails("Lock multiplier:", Round((1.0 + _getLockMinigameModifier()) * 100.0) + "%")
         if zad_deviceKey
-            loc_res += UDMTF.TableRowDetails("Key:", zad_deviceKey.GetName(), UDMTF.TextColorDefault)
+            loc_res += UDMTF.TableRowDetails("Key:", zad_deviceKey.GetName())
         else
             loc_res += UDMTF.TableRowDetails("Key:", "None", UDMTF.PercentToGrayscale(0))
         endif
     else
         loc_res += UDMTF.TableRowDetails("Have locks:", "None", UDMTF.PercentToGrayscale(0))
     endif
+
+    loc_res += UDMTF.PageSplit(abForce = False)
     loc_res += UDMTF.LineGap()
-    
-    if UDmain.UDGV.UDG_ShowCritVars.Value
-        loc_res += UDMTF.TableRowDetails("Crit chance:", UD_StruggleCritChance + "%", UDMTF.TextColorDefault)
-        loc_res += UDMTF.TableRowDetails("Crit duration:", FormatFloat(UD_StruggleCritDuration, 1) + " s", UDMTF.TextColorDefault)
-        loc_res += UDMTF.TableRowDetails("Crit mult:", FormatFloat(UD_StruggleCritMul * 100, 1) + "%", UDMTF.TextColorDefault)
+
+    if UDmain.UDGV.UDG_ShowCritVars.Value    
+        loc_res += UDMTF.TableRowDetails("Crit chance:", UD_StruggleCritChance + "%")
+        loc_res += UDMTF.TableRowDetails("Crit duration:", FormatFloat(UD_StruggleCritDuration, 1) + " s")
+        loc_res += UDMTF.TableRowDetails("Crit mult:", FormatFloat(UD_StruggleCritMul * 100, 1) + "%")
+        loc_res += UDMTF.PageSplit(abForce = False)
         loc_res += UDMTF.LineGap()
     endif
-    
+
     if canBeCutted()
         loc_res += UDMTF.TableRowDetails("Cutting:", FormatFloat(UD_CutChance, 1) + "%", UDMTF.PercentToRainbow(Round(UD_CutChance * 2)))
     else
         loc_res += UDMTF.TableRowDetails("Cutting:", "Uncuttable", UDMTF.PercentToRainbow(0))
     endif
 
+    loc_res += UDMTF.PageSplit(abForce = False)
+    loc_res += UDMTF.LineGap()
+    
     if isNotShareActive()
-        loc_res += UDMTF.LineGap()
-        loc_res += UDMTF.TableRowDetails("Active effect:", UD_ActiveEffectName, UDMTF.TextColorDefault)
+        loc_res += UDMTF.TableRowDetails("Active effect:", UD_ActiveEffectName)
         If canBeActivated()
             loc_res += UDMTF.TableRowDetails("Active effect:", canBeActivated(), UDMTF.PercentToGrayscale(100))
         Else
@@ -7603,14 +7609,16 @@ Function ShowBaseDetails()
         else
             loc_res += UDMTF.TableRowDetails("Cooldown:", "None", UDMTF.PercentToRainbow(0))
         endif
+        loc_res += UDMTF.PageSplit(abForce = False)
+        loc_res += UDMTF.LineGap()
     endif
     
-    loc_res += UDMTF.LineGap()
-    
-    loc_res += UDMTF.TableRowDetails("Locked for:", FormatFloat(GetGameTimeLockedTime() * 24.0, 2) + " hours", UDMTF.TextColorDefault)
+    loc_res += UDMTF.TableRowDetails("Locked for:", FormatFloat(GetGameTimeLockedTime() * 24.0, 2) + " hours")
 
-    loc_res += UDMTF.FontEnd()
+    loc_res += UDMTF.FooterSplit()
+    
     loc_res += UDMTF.TableEnd()
+    loc_res += UDMTF.FontEnd()
         
     UDMain.ShowMessageBox(loc_res, UDMTF.GetState() == "HTML")
     
