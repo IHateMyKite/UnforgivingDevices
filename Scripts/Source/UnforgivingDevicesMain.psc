@@ -1776,7 +1776,9 @@ Function ShowSingleMessageBox(String asMessage, Bool abHTML = False)
         loc_args = Utility.CreateStringArray(2, "")
         loc_args[0] = asMessage
         loc_args[1] = "1"
-        
+                
+        UI.SetBool("MessageBoxMenu", "_root.MessageMenu" + ".MessageText.wordWrap", false)
+;        UI.SetBool("MessageBoxMenu", "_root.MessageMenu" + ".MessageText.noTranslate", false)
         UI.InvokeStringA("MessageBoxMenu", "_root.MessageMenu" + ".SetMessage", loc_args)
     EndIf
 

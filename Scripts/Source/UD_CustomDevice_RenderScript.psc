@@ -7510,6 +7510,8 @@ Function ShowBaseDetails()
     String loc_frag
     Int loc_i
     
+;    UDMTF.GoToState("")
+
     loc_res += UDMTF.Header(deviceInventory.GetName(), 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
     loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 140)
@@ -7562,10 +7564,12 @@ Function ShowBaseDetails()
     if HaveLocks()
         loc_i = 0
         loc_frag = ""
+        loc_frag += UDMTF.FontBegin(asFontFace = "$EverywhereBoldFont")
         While loc_i < GetLockNumber()
             loc_frag += UDMTF.DeviceLockIcon(IsNthLockUnlocked(loc_i), IsNthLockJammed(loc_i), IsNthLockTimeLocked(loc_i) && GetNthLockTimeLock(loc_i)) + " "
             loc_i += 1
         EndWhile
+        loc_frag += UDMTF.FontEnd()
         loc_res += UDMTF.TableRowDetails("Have locks:", loc_frag)
         loc_res += UDMTF.TableRowDetails("Lock multiplier:", Round((1.0 + _getLockMinigameModifier()) * 100.0) + "%")
         if zad_deviceKey
@@ -7598,11 +7602,11 @@ Function ShowBaseDetails()
     loc_res += UDMTF.LineGap()
     
     if isNotShareActive()
-        loc_res += UDMTF.TableRowDetails("Active effect:", UD_ActiveEffectName)
+        loc_res += UDMTF.TableRowDetails("Activation effect:", UD_ActiveEffectName)
         If canBeActivated()
-            loc_res += UDMTF.TableRowDetails("Active effect:", canBeActivated(), UDMTF.PercentToGrayscale(100))
+            loc_res += UDMTF.TableRowDetails("Controllable:", canBeActivated(), UDMTF.PercentToGrayscale(100))
         Else
-            loc_res += UDMTF.TableRowDetails("Active effect:", canBeActivated(), UDMTF.PercentToGrayscale(0))
+            loc_res += UDMTF.TableRowDetails("Controllable:", canBeActivated(), UDMTF.PercentToGrayscale(0))
         EndIf
         if UD_Cooldown > 0
             loc_res += UDMTF.TableRowDetails("Cooldown:", Round(UD_Cooldown * 0.75 * UDCDmain.UD_CooldownMultiplier) + " - " + Round(UD_Cooldown * 1.25 * UDCDmain.UD_CooldownMultiplier) + " min", UDMTF.PercentToGrayscale(100))
@@ -7616,7 +7620,6 @@ Function ShowBaseDetails()
     loc_res += UDMTF.TableRowDetails("Locked for:", FormatFloat(GetGameTimeLockedTime() * 24.0, 2) + " hours")
 
     loc_res += UDMTF.FooterSplit()
-    
     loc_res += UDMTF.TableEnd()
     loc_res += UDMTF.FontEnd()
         
@@ -7661,9 +7664,6 @@ EndFunction
 /;
 Function ShowLockDetails()
 
-
-
-
     while True
         Int loc_lockId = UserSelectLock()
         
@@ -7672,69 +7672,101 @@ Function ShowLockDetails()
         endif
         
         string loc_res = ""
-        loc_res += "Name: "+ GetNthLockName(loc_lockId)+ "\n"
-        loc_res += "Status: "
+
+        loc_res += UDMTF.Header(deviceInventory.GetName(), 4)
+        loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+        loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 140)
+        loc_res += UDMTF.HeaderSplit()
+
+        loc_res += UDMTF.TableRowDetails("Name:", GetNthLockName(loc_lockId))
         
         Bool loc_ShowDiff   = True
         Bool loc_ShowAcc    = True
         Bool loc_ShowShield = True
         if IsNthLockUnlocked(loc_lockId)
-            loc_res += "UNLOCKED\n"
             loc_ShowDiff    = False
             loc_ShowAcc     = False
             loc_ShowShield  = False
+            loc_res += UDMTF.TableRowDetails("Status:", "UNLOCKED", UDMTF.PercentToGrayscale(0))
         elseif IsNthLockJammed(loc_lockId)
-            loc_res += "JAMMED\n"
+            loc_res += UDMTF.TableRowDetails("Status:", "JAMMED", "#FF4444")
             Float loc_RepairProgress = GetNthLockRepairProgress(loc_lockId)
-            loc_res += "Repair progress: "+ FormatFloat(loc_RepairProgress,1) + " %\n"
+            loc_res += UDMTF.TableRowDetails("Repair progress:", FormatFloat(loc_RepairProgress, 1) + "%", "#FF4444")
         elseif IsNthLockTimeLocked(loc_lockId) && GetNthLockTimeLock(loc_lockId)
-            loc_res += "TIME LOCKED\n"
-            loc_res += "Timelock: "+ GetNthLockTimeLock(loc_lockId) + " hours\n"
+            loc_res += UDMTF.TableRowDetails("Status:", "TIME LOCKED", "#4444FF")
+            loc_res += UDMTF.TableRowDetails("Timelock:", GetNthLockTimeLock(loc_lockId) + " hours")
         else
-            loc_res += "LOCKED\n"
+            loc_res += UDMTF.TableRowDetails("Status:", "LOCKED", "#FFFFFF")
         endif
+        
+        loc_res += UDMTF.PageSplit(abForce = False)
+        loc_res += UDMTF.LineGap()
         
         if loc_ShowShield
             Int loc_shields = GetNthLockShields(loc_lockId)
             if loc_shields
-                loc_res += "Shields: " + loc_shields + "\n"
+                loc_res += UDMTF.TableRowDetails("Shields:", loc_shields as String)
             else
-                loc_res += "Shields: NONE\n"
+                loc_res += UDMTF.TableRowDetails("Shields:", "NONE", UDMTF.PercentToGrayscale(0))
             endif
+            loc_res += UDMTF.PageSplit(abForce = False)
+            loc_res += UDMTF.LineGap()
         endif
+
         if loc_ShowAcc
             Int loc_acc  = GetNthLockAccessibility(loc_lockId)
             Int loc_cacc = GetLockAccesChance(loc_lockId)
             
-            loc_res += "Base Access: "+_GetLockAccessibilityString(loc_acc) + " ("+ loc_acc +"%)\n"
-            loc_res += "Current Access: "+_GetLockAccessibilityString(loc_cacc)+ " ("+ loc_cacc +"%)\n"
+            loc_res += UDMTF.TableRowDetails("Base Access:", _GetLockAccessibilityString(loc_acc) + " (" + loc_acc + "%)", UDMTF.PercentToRainbow(loc_acc))
+            loc_res += UDMTF.TableRowDetails("Current Access:", _GetLockAccessibilityString(loc_cacc)+ " (" + loc_cacc + "%)", UDMTF.PercentToRainbow(loc_cacc))
+            loc_res += UDMTF.PageSplit(abForce = False)
+            loc_res += UDMTF.LineGap()
         endif
         if loc_ShowDiff
             Int loc_diff = GetNthLockDifficulty(loc_lockId)
-            loc_res += "Difficulty: "+ _GetLockpickLevelString(_getLockpickLevel(-1,loc_diff)) + " ("+loc_diff+ ")\n"
+            loc_res += UDMTF.TableRowDetails("Difficulty:", _GetLockpickLevelString(_getLockpickLevel(-1, loc_diff)) + " (" +loc_diff + ")", UDMTF.PercentToRainbow(100 - loc_diff))
+            loc_res += UDMTF.PageSplit(abForce = False)
+            loc_res += UDMTF.LineGap()
         endif
         
-        UDmain.ShowMessageBox(loc_res)
+        loc_res += UDMTF.FooterSplit()
+        loc_res += UDMTF.TableEnd()
+        loc_res += UDMTF.FontEnd()
+    
+        UDmain.ShowMessageBox(loc_res, UDMTF.GetState() == "HTML")
     endwhile
 EndFunction
 
-;/  Function: showDebugMinigameInfo
+;/  Function: showDebugInfo
     Shows message box with debug information about device
 /;
 Function showDebugInfo()
     updateDifficulty()
     string loc_res = ""
-    loc_res += "- " + deviceInventory.GetName() + " -\n"
+    
+    loc_res += UDMTF.Header(deviceInventory.GetName(), 4)
+    loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+    loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 140)
+    loc_res += UDMTF.HeaderSplit()
+
     if (zad_JammLockChance > 0)
-        loc_res += "Lock jam chance: "+ zad_JammLockChance + " (" + Round(fRange(zad_JammLockChance*UDCDmain.CalculateKeyModifier(),0.0,100.0)) +") %\n"
+        loc_res += UDMTF.TableRowDetails("Lock jam chance:", zad_JammLockChance + " (" + Round(fRange(zad_JammLockChance*UDCDmain.CalculateKeyModifier(),0.0,100.0)) +") %")
+        loc_res += UDMTF.PageSplit(abForce = False)
+        loc_res += UDMTF.LineGap()
     endif
     if isNotShareActive(); && canBeActivated()
-        loc_res += "Cooldown: "+ _currentRndCooldown +" min\n"
-        loc_res += "Elapsed time: "+ FormatFloat(_updateTimePassed,3) +" min ("+ FormatFloat(getRelativeElapsedCooldownTime()*100,1) +" %)\n"
-        loc_res += "Can be activated: " + canBeActivated() + "\n"
+        loc_res += UDMTF.TableRowDetails("Cooldown:", _currentRndCooldown +" min")
+        loc_res += UDMTF.TableRowDetails("Elapsed time:", FormatFloat(_updateTimePassed,3) +" min ("+ FormatFloat(getRelativeElapsedCooldownTime()*100,1) +"%)")
+        loc_res += UDMTF.TableRowDetails("Can be activated:", canBeActivated())
+        loc_res += UDMTF.PageSplit(abForce = False)
+        loc_res += UDMTF.LineGap()
     endif
     loc_res += _getCritInfo()
-    UDmain.ShowMessageBox(loc_res)
+    
+    loc_res += UDMTF.FooterSplit()
+    loc_res += UDMTF.TableEnd()
+    loc_res += UDMTF.FontEnd()
+    UDmain.ShowMessageBox(loc_res, UDMTF.GetState() == "HTML")
 EndFunction
 
 ;/  Function: showDebugMinigameInfo
@@ -7794,24 +7826,21 @@ Function showDebugMinigameInfo()
 EndFunction
 
 string Function _getCritInfo()
-    string res = ""
-    res += "Crit chance: "
+    string loc_res = ""
     if (UD_StruggleCritChance > 0)
-        res += UD_StruggleCritChance + " %\n"
+        loc_res += UDMTF.TableRowDetails("Crit chance:", UD_StruggleCritChance + "%")
+        loc_res += UDMTF.TableRowDetails("Crit:", FormatFloat(UD_StruggleCritMul,1) + "x") 
+        if UD_StruggleCritDuration >= 1
+            loc_res += UDMTF.TableRowDetails("Crit difficulty:", "Easy", UDMTF.PercentToRainbow(100))
+        elseif UD_StruggleCritDuration >= 0.5
+            loc_res += UDMTF.TableRowDetails("Crit difficulty:", "Normal", UDMTF.PercentToRainbow(50))
+        else
+            loc_res += UDMTF.TableRowDetails("Crit difficulty:", "Hard", UDMTF.PercentToRainbow(0))
+        endif
     else
-        res += "never\n"
-        return res
+        loc_res += UDMTF.TableRowDetails("Crit chance:", "NEVER", UDMTF.PercentToGrayscale(0))
     endif
-    res += "Crit: " + FormatFloat(UD_StruggleCritMul,1) + " x\n"
-    res += "Crit difficulty: "
-    if UD_StruggleCritDuration >= 1
-        res += "Easy\n"
-    elseif UD_StruggleCritDuration >= 0.5
-        res += "Normal\n"
-    else
-        res += "Hard\n"
-    endif
-    return res
+    return loc_res
 endFunction
 
 ;/  Group: Extension functions / Override

@@ -17,7 +17,7 @@ Int     Property CharsOnPage = 980                  Auto    Hidden
 ;===============================================================================
 ;===============================================================================
 
-String Function Header(String asHeader, Int aiPlusSize = 4, Bool abHeaderSplit = False)
+String Function Header(String asHeader, Int aiPlusSize = 4)
     Return "=== " + asHeader + " ===\n"
 EndFunction
     
@@ -41,15 +41,11 @@ String Function TextDecoration(String asText, Int aiFontSize = -1, String asFont
     Return asText
 EndFunction
 
-String Function TableRowDetails(String asLeft, String asRight, String asColor = "", Bool abLastRow = False)
-    String loc_res = asLeft + " " + asRight
-    If !abLastRow
-        loc_res += LineBreak()
-    EndIf
-    Return loc_res
+String Function TableRowDetails(String asLeft, String asRight, String asColor = "")
+    Return asLeft + " " + asRight + LineBreak()
 EndFunction
 
-String Function TableRowWide(String asCell1, String asCell2, String asCell3 = "", String asCell4 = "", Bool abLastRow = False)
+String Function TableRowWide(String asCell1, String asCell2, String asCell3 = "", String asCell4 = "")
     String loc_res = ""
     loc_res += asCell1
     If asCell2 != ""
@@ -61,18 +57,12 @@ String Function TableRowWide(String asCell1, String asCell2, String asCell3 = ""
     If asCell4 != ""
         loc_res += " " + asCell4
     EndIf
-    If !abLastRow
-        loc_res += LineBreak()
-    EndIf
+    loc_res += LineBreak()
     Return loc_res
 EndFunction
 
-String Function IsolatedRowDetail(Int aiPos1, String asText1, Int aiPos2, String asText2, String asColor2 = "", Int aiFontSize = -1, Int aiLeading = -99, Bool abLastRow = False)
-    String loc_res = asText1 + " " + asText2
-    If !abLastRow
-        loc_res += LineBreak()
-    EndIf
-    Return loc_res
+String Function IsolatedRowDetail(Int aiPos1, String asText1, Int aiPos2, String asText2, String asColor2 = "", Int aiFontSize = -1, Int aiLeading = -99)
+    Return asText1 + " " + asText2 + LineBreak()
 EndFunction
 
 String Function LineGap(Int aiLeading = -10)
@@ -121,8 +111,8 @@ String[] Function SplitMessageIntoPages(String asMessage, Int aiLines = -1)
     While loc_start < loc_lines.Length
         String[] loc_subset = PapyrusUtil.SliceStringArray(loc_lines, loc_start, aiLines)
         loc_page_txt = ""
-        loc_page_txt += TrimSubstr(PapyrusUtil.StringJoin(loc_subset, loc_delim), "\n")
-        loc_page_txt += PageFooter(loc_i, loc_total)
+        loc_page_txt += _CleanPage(PapyrusUtil.StringJoin(loc_subset, loc_delim))
+        loc_page_txt += LineBreak() + PageFooter(loc_i, loc_total)
         loc_res = PapyrusUtil.PushString(loc_res, loc_page_txt)
         
         loc_start += aiLines
@@ -149,6 +139,13 @@ String Function DeviceLockIcon(Bool abOpen, Bool abJammed, Bool abTimer)
     EndIf
     Return "C"
 EndFunction
+
+
+String Function _CleanPage(String asPage)
+    String loc_res = asPage
+    loc_res = TrimSubstr(loc_res, "\n")
+    Return loc_res
+EndFunction
     
 ;===============================================================================
 ;===============================================================================
@@ -158,16 +155,19 @@ EndFunction
 
 Auto State HTML
 
-    String Function Header(String asHeader, Int aiPlusSize = 4, Bool abHeaderSplit = False)
+    String Function Header(String asHeader, Int aiPlusSize = 4)
         String loc_res = ""
-        loc_res += "<p align='center'>"
-        loc_res += TextDecoration(asHeader, FontSize + aiPlusSize, asColor = TextColorDefault)
+        loc_res += FontBegin(FontSize + aiPlusSize, "$SkyrimSymbolsFont")
+        loc_res += "60"
+        loc_res += TextDecoration(" " + asHeader + " ", asFontFace = "$EverywhereMediumFont")
+        loc_res += "07"
+        loc_res += FontEnd()
+        loc_res += LineBreak()
+;        loc_res += "<p align='center'>"
+;        loc_res += TextDecoration(asHeader, FontSize + aiPlusSize, asColor = TextColorDefault)
 ;        loc_res += LineBreak()
 ;        loc_res += TextDecoration("4111111111113", 32, asFontFace = "$SkyrimSymbolsFont", asColor = TextColorDefault)
-        loc_res += "</p>"
-        If abHeaderSplit
-            loc_res += HeaderSplit()
-        EndIf
+;        loc_res += "</p>"
         Return loc_res
     EndFunction
 
@@ -274,7 +274,7 @@ Auto State HTML
         Return loc_res
     EndFunction
 
-    String Function TableRowDetails(String asLeft, String asRight, String asColor = "", Bool abLastRow = False)
+    String Function TableRowDetails(String asLeft, String asRight, String asColor = "")
         String loc_res = ""
 ;        loc_res += "<span align='left'>"
         loc_res += "\t" + asLeft
@@ -287,14 +287,12 @@ Auto State HTML
             loc_res += "</font>"
         EndIf
 ;        loc_res += "</span>"
-        If !abLastRow
-            loc_res += LineBreak()
-        EndIf
+        loc_res += LineBreak()
         
         Return loc_res
     EndFunction
 
-    String Function TableRowWide(String asCell1, String asCell2, String asCell3 = "", String asCell4 = "", Bool abLastRow = False)
+    String Function TableRowWide(String asCell1, String asCell2, String asCell3 = "", String asCell4 = "")
         String loc_res = ""
         loc_res += "\t" + asCell1
         If asCell2 != ""
@@ -306,14 +304,12 @@ Auto State HTML
         If asCell4 != ""
             loc_res += "\t" + asCell4
         EndIf
-        If !abLastRow
-            loc_res += LineBreak()
-        EndIf
+        loc_res += LineBreak()
         Return loc_res
     EndFunction
     
     ; all decorators are isolated inside line so it is possible to split message on pages
-    String Function IsolatedRowDetail(Int aiPos1, String asText1, Int aiPos2, String asText2, String asColor2 = "", Int aiFontSize = -1, Int aiLeading = -99, Bool abLastRow = False)
+    String Function IsolatedRowDetail(Int aiPos1, String asText1, Int aiPos2, String asText2, String asColor2 = "", Int aiFontSize = -1, Int aiLeading = -99)
         String loc_res = ""
         If aiLeading > -99
             loc_res += TableBegin(aiPos1, aiPos2, aiLeading = aiLeading)
@@ -329,18 +325,17 @@ Auto State HTML
             loc_res += FontEnd()
         EndIf
         loc_res += TableEnd()
-        ; it is always a new line at the end because of TableEnd
-        
         Return loc_res
     EndFunction
 
     String Function LineGap(Int aiLeading = -10)
-        String loc_res = ""
-        loc_res += "<textformat leading='" + (aiLeading as String) + "'>"
-        loc_res += " "                  ; some text is needed otherwise 'leading' will not work
-        loc_res += "<br/>"
-        loc_res += "</textformat>"
-        Return loc_res
+;        String loc_res = ""
+;        loc_res += "<textformat leading='" + (aiLeading as String) + "'>"
+;        loc_res += " "                  ; some text is needed otherwise 'leading' will not work
+;        loc_res += "<br/>"
+;        loc_res += "</textformat>"
+;        Return loc_res
+        Return "<gap/>"
     EndFunction
 
     String Function LineBreak()
@@ -353,7 +348,7 @@ Auto State HTML
     EndFunction
     
     String Function FooterSplit()
-        Return "<footer/><g/>"
+        Return "<footer/>"
     EndFunction
     
     String Function PageSplit(Bool abForce = True)
@@ -415,8 +410,10 @@ Auto State HTML
             loc_page_txt = ""
             While loc_j < loc_sections.Length
                 ; count lines in this section
-                Int loc_lines_in_sec = _CountSubstr(loc_sections[loc_j], "<br/>") + _CountSubstr(loc_sections[loc_j], "</p>") + 1
-                Int loc_chars_in_sec = StringUtil.GetLength(loc_sections[loc_j])
+                Int loc_gaps = _CountSubstr(loc_sections[loc_j], "<gap/>")
+                Int loc_br = _CountSubstr(loc_sections[loc_j], "<br/>")
+                Int loc_lines_in_sec = _CountSubstr(loc_sections[loc_j], "</p>") + loc_gaps / 2 + loc_br + 1
+                Int loc_chars_in_sec = StringUtil.GetLength(loc_sections[loc_j]) + loc_gaps * 41 - loc_br * 4
                 If loc_page_len > loc_chars_limit
                 ; there is no way we could print message this large!
                     loc_pages = PapyrusUtil.PushString(loc_pages, "<br/>The section is too large to output (attempting to do so will result in CTD)! Split it into several parts.<br/>")
@@ -428,7 +425,10 @@ Auto State HTML
                 If (loc_chars + loc_chars_in_sec > loc_chars_limit || loc_page_len + loc_lines_in_sec > aiLines) && loc_page_len > 0
                     ; If there are more rows than the limit and it is already a not empty page, we start filling a new page
                     ; But first we save the result of assembling the current page
-                    loc_pages = PapyrusUtil.PushString(loc_pages, loc_page_txt)
+                    loc_page_txt = _CleanPage(loc_page_txt)
+                    If StringUtil.GetLength(loc_page_txt) > 0
+                        loc_pages = PapyrusUtil.PushString(loc_pages, loc_page_txt)
+                    EndIf
                     ; clear all vars before assembling new page
                     loc_page_txt = ""
                     loc_page_len = 0
@@ -445,7 +445,10 @@ Auto State HTML
                 ; there is no way we could print message this large!
                     loc_pages = PapyrusUtil.PushString(loc_pages, "<br/>The section is too large to output (attempting to do so will result in CTD)! Split it into several parts.<br/>")
                 Else
-                    loc_pages = PapyrusUtil.PushString(loc_pages, loc_page_txt)
+                    loc_page_txt = _CleanPage(loc_page_txt)
+                    If StringUtil.GetLength(loc_page_txt) > 0
+                        loc_pages = PapyrusUtil.PushString(loc_pages, loc_page_txt)
+                    EndIf
                 EndIf
             EndIf
             loc_i += 1
@@ -455,38 +458,52 @@ Auto State HTML
         loc_i = 0
         While loc_i < loc_pages.Length
             loc_page_txt = loc_pages[loc_i]
-            loc_page_txt = TrimSubstr(loc_page_txt, loc_delim_l)
-            loc_page_txt = TrimSubstr(loc_page_txt, " ")
-;            loc_page_txt = TrimSubstr(loc_page_txt, LineGap())
-            loc_page_txt = RemoveSubstr(loc_page_txt, loc_delim_g)
-;            loc_page_txt = _RemoveDuplicates(loc_page_txt, LineGap())
-            If StringUtil.GetLength(loc_page_txt) > 0
-                loc_page_txt = loc_header + loc_page_txt + loc_footer
-                If loc_pages.Length > 1
-                    loc_page_txt += PageFooter(loc_i + 1, loc_pages.Length)
-                EndIf
-                loc_res = PapyrusUtil.PushString(loc_res, loc_page_txt)
+            loc_page_txt = loc_header + loc_page_txt + loc_footer
+            If loc_pages.Length > 1
+                loc_page_txt += PageFooter(loc_i + 1, loc_pages.Length)
             EndIf
+            loc_res = PapyrusUtil.PushString(loc_res, loc_page_txt)
             loc_i += 1
         EndWhile
-        
+
         Return loc_res
-        
+    EndFunction
+
+    String Function PageFooter(Int aiPageCurrent, Int aiPageTotal)
+        String loc_res = ""
+        loc_res += FontBegin(asFontFace = "$SkyrimSymbolsFont")
+        loc_res += "6000"
+        loc_res += TextDecoration(" Page " + aiPageCurrent + "/" + aiPageTotal + " ", asFontFace = "$EverywhereMediumFont")
+        loc_res += "0007"
+        loc_res += FontEnd()
+        Return loc_res
     EndFunction
 
     String Function DeviceLockIcon(Bool abOpen, Bool abJammed, Bool abTimer)
         If abOpen
-            Return TextDecoration(StringUtil.AsChar(183), asFontFace = "$EverywhereBoldFont", asColor = "#FFFFFF")
+            Return TextDecoration(StringUtil.AsChar(183), asColor = "#FFFFFF")
         EndIf
         If abTimer
-            Return TextDecoration(StringUtil.AsChar(164), asFontFace = "$EverywhereBoldFont", asColor = "#4444FF")
+            Return TextDecoration(StringUtil.AsChar(164), asColor = "#4444FF")
         EndIf
         If abJammed
-            Return TextDecoration(StringUtil.AsChar(164), asFontFace = "$EverywhereBoldFont", asColor = "#FF4444")
+            Return TextDecoration(StringUtil.AsChar(164), asColor = "#FF4444")
         EndIf
-        Return TextDecoration(StringUtil.AsChar(164), asFontFace = "$EverywhereBoldFont", asColor = "#FFFFFF")
+        Return TextDecoration(StringUtil.AsChar(164), asColor = "#FFFFFF")
     EndFunction
 
+    String Function _CleanPage(String asPage)
+        String loc_res = asPage
+        loc_res = RemoveSubstr(loc_res, "<g/>")
+        loc_res = TrimSubstr(loc_res, "<br/>")
+        loc_res = TrimSubstr(loc_res, " ")
+        loc_res = TrimSubstr(loc_res, LineGap())
+        loc_res = RemoveDuplicates(loc_res, "<gap/>")
+        loc_res = ReplaceSubstr(loc_res, "<gap/>", "<textformat leading='-10'> <br/></textformat>")
+        loc_res = ReplaceSubstr(loc_res, "<br/>", "\n")
+        Return loc_res
+    EndFunction
+    
 EndState
 
 ;String Function _DetailImage(String asSrc)
@@ -627,7 +644,22 @@ String Function RemoveSubstr(String asStr, String asSubstr)
     Return loc_res
 EndFunction
 
-String Function _RemoveDuplicates(String asStr, String asSubstr)
+String Function ReplaceSubstr(String asStr, String asFind, String asReplace)
+    String loc_res = asStr
+    Int loc_delta = StringUtil.GetLength(asFind)
+    Int loc_pos = StringUtil.Find(loc_res, asFind)
+    While loc_pos >= 0
+        If loc_pos == 0
+            loc_res = asReplace + StringUtil.Substring(loc_res, loc_delta)
+        ElseIf loc_pos > 0
+            loc_res = StringUtil.Substring(loc_res, 0, loc_pos) + asReplace + StringUtil.Substring(loc_res, loc_pos + loc_delta)
+        EndIf
+        loc_pos = StringUtil.Find(loc_res, asFind, loc_pos)
+    EndWhile
+    Return loc_res
+EndFunction
+
+String Function RemoveDuplicates(String asStr, String asSubstr)
     String loc_res = asStr
     Int loc_delta = StringUtil.GetLength(asSubstr)
     Int loc_pos = StringUtil.Find(loc_res, asSubstr)
