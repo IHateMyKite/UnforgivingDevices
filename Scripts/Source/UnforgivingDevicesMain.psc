@@ -1742,14 +1742,10 @@ EndFunction
 /;
 Function ShowMessageBox(string asText, Bool abHTML = False)
 
-    Int loc_line_limit = 12
-    If abHTML
-        loc_line_limit = 99
-    EndIf
-    String[] loc_pages = UDMTF.SplitMessageIntoPages(asText, loc_line_limit)
+    String[] loc_pages = UDMTF.SplitMessageIntoPages(asText)
     Int loc_i = 0
     While loc_i < loc_pages.Length
-        Log("ShowMessageBox() page = " + loc_i + ", text = " + loc_pages[loc_i], 3)
+;        Log("ShowMessageBox() page = " + loc_i + ", text = " + loc_pages[loc_i], 3)
         ShowSingleMessageBox(loc_pages[loc_i], abHTML)
         loc_i += 1
     EndWhile
@@ -1780,6 +1776,8 @@ Function ShowSingleMessageBox(String asMessage, Bool abHTML = False)
         UI.SetBool("MessageBoxMenu", "_root.MessageMenu" + ".MessageText.wordWrap", false)
 ;        UI.SetBool("MessageBoxMenu", "_root.MessageMenu" + ".MessageText.noTranslate", false)
         UI.InvokeStringA("MessageBoxMenu", "_root.MessageMenu" + ".SetMessage", loc_args)
+        
+;        UI.SetString("MessageBoxMenu", "_root.MessageMenu" + ".MessageText.htmlText", asMessage + asMessage)
     EndIf
 
     ;wait for fucking messagebox to actually get OKd before continuing thread (holy FUCKING shit toad)

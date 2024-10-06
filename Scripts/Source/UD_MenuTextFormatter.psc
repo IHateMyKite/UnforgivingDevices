@@ -7,9 +7,11 @@ String  Property TextColorDefault = "#FFFFFF"       Auto    Hidden
 
 Int     Property LinesOnPage = 12                   Auto    Hidden
 
-Int     Property LinesOnHTMLPage = 24               Auto    Hidden
+Int     Property LinesOnHTMLPage = 18               Auto    Hidden
 
-Int     Property CharsOnPage = 980                  Auto    Hidden
+Int     Property CharsOnPage = 1900                 Auto    Hidden
+
+Int     Property CharsCTD = 2047                    Auto    Hidden
 
 ;===============================================================================
 ;===============================================================================
@@ -113,6 +115,10 @@ String[] Function SplitMessageIntoPages(String asMessage, Int aiLines = -1)
         loc_page_txt = ""
         loc_page_txt += _CleanPage(PapyrusUtil.StringJoin(loc_subset, loc_delim))
         loc_page_txt += LineBreak() + PageFooter(loc_i, loc_total)
+        If StringUtil.GetLength(loc_page_txt) > CharsCTD
+        ; last check
+            loc_page_txt = "\nThe page is too large to output (attempting to do so will result in CTD)! Split it into several parts.\n"
+        EndIf
         loc_res = PapyrusUtil.PushString(loc_res, loc_page_txt)
         
         loc_start += aiLines
@@ -413,7 +419,7 @@ Auto State HTML
                 Int loc_gaps = _CountSubstr(loc_sections[loc_j], "<gap/>")
                 Int loc_br = _CountSubstr(loc_sections[loc_j], "<br/>")
                 Int loc_lines_in_sec = _CountSubstr(loc_sections[loc_j], "</p>") + loc_gaps / 2 + loc_br + 1
-                Int loc_chars_in_sec = StringUtil.GetLength(loc_sections[loc_j]) + loc_gaps * 41 - loc_br * 4
+                Int loc_chars_in_sec = StringUtil.GetLength(loc_sections[loc_j]) + loc_gaps * 24 - loc_br * 4
                 If loc_page_len > loc_chars_limit
                 ; there is no way we could print message this large!
                     loc_pages = PapyrusUtil.PushString(loc_pages, "<br/>The section is too large to output (attempting to do so will result in CTD)! Split it into several parts.<br/>")
@@ -462,6 +468,10 @@ Auto State HTML
             If loc_pages.Length > 1
                 loc_page_txt += PageFooter(loc_i + 1, loc_pages.Length)
             EndIf
+            If StringUtil.GetLength(loc_page_txt) > CharsCTD
+            ; last check
+                loc_page_txt = "<br/>The page is too large to output (attempting to do so will result in CTD)! Split it into several parts.<br/>"
+            EndIf
             loc_res = PapyrusUtil.PushString(loc_res, loc_page_txt)
             loc_i += 1
         EndWhile
@@ -499,7 +509,7 @@ Auto State HTML
         loc_res = TrimSubstr(loc_res, " ")
         loc_res = TrimSubstr(loc_res, LineGap())
         loc_res = RemoveDuplicates(loc_res, "<gap/>")
-        loc_res = ReplaceSubstr(loc_res, "<gap/>", "<textformat leading='-10'> <br/></textformat>")
+        loc_res = ReplaceSubstr(loc_res, "<gap/>", "<font size='12'> <br/></font>") ;"<textformat leading='-10'> <br/></textformat>"
         loc_res = ReplaceSubstr(loc_res, "<br/>", "\n")
         Return loc_res
     EndFunction
