@@ -15,7 +15,44 @@ Int     Property CharsCTD = 2047                    Auto    Hidden
 
 ;===============================================================================
 ;===============================================================================
-;                                    State: Default
+;                                    Config
+;===============================================================================
+;===============================================================================
+
+String[] _Modes
+String[] Function GetModes()
+    If _Modes.Length == 0
+        _Modes = Utility.CreateStringArray(2)
+        _Modes[0] = "Legacy"
+        _Modes[1] = "HTML"
+    EndIf
+    Return _Modes
+EndFunction
+
+Function SetMode(String abMode)
+    If abMode == "Legacy"
+        abMode = ""
+    EndIf
+    GoToState(abMode)
+EndFunction
+
+String Function GetMode()
+    If GetState() == ""
+        Return "Legacy"
+    EndIf
+    Return GetState()
+EndFunction
+
+Int Function GetModeIndex()
+    If GetState() == ""
+        Return 0
+    EndIf
+    Return GetModes().Find(GetState())
+EndFunction
+
+;===============================================================================
+;===============================================================================
+;                                    State: Default (Legacy)
 ;===============================================================================
 ;===============================================================================
 
@@ -114,7 +151,9 @@ String[] Function SplitMessageIntoPages(String asMessage, Int aiLines = -1)
         String[] loc_subset = PapyrusUtil.SliceStringArray(loc_lines, loc_start, aiLines)
         loc_page_txt = ""
         loc_page_txt += _CleanPage(PapyrusUtil.StringJoin(loc_subset, loc_delim))
-        loc_page_txt += LineBreak() + PageFooter(loc_i, loc_total)
+        If loc_total > 1
+            loc_page_txt += LineBreak() + PageFooter(loc_i, loc_total)
+        EndIf
         If StringUtil.GetLength(loc_page_txt) > CharsCTD
         ; last check
             loc_page_txt = "\nThe page is too large to output (attempting to do so will result in CTD)! Split it into several parts.\n"

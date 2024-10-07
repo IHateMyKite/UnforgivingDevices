@@ -42,6 +42,12 @@ UD_OutfitManager  Property UDOTM hidden
     EndFunction
 EndProperty
 
+UD_MenuTextFormatter  Property UDMTF hidden
+    UD_MenuTextFormatter Function Get()
+        return UDmain.UDMTF
+    EndFunction
+EndProperty
+
 int max_difficulty_S
 int overaldifficulty_S ;0-3 where 3 is same as in MDS
 int eventchancemod_S
@@ -980,6 +986,7 @@ Int UD_IconVariant_EffExhaustion_M
 String[] UD_IconVariant_EffExhaustionList
 Int UD_IconVariant_EffOrgasm_M
 String[] UD_IconVariant_EffOrgasmList
+Int UD_MenuTextFormatter_M
 
 Event resetUIWidgetPage()
     UpdateLockMenuFlag()
@@ -995,7 +1002,10 @@ Event resetUIWidgetPage()
     UD_UseWidget_T = addToggleOption("$UD_USEWIDGET", UDCDmain.UD_UseWidget)
     UD_WidgetPosX_M = AddMenuOption("$UD_WIDGETPOSX", widgetXList[UDWC.UD_WidgetXPos], FlagSwitch(UDCDmain.UD_UseWidget))
     UD_WidgetPosY_M = AddMenuOption("$UD_WIDGETPOSY", widgetYList[UDWC.UD_WidgetYPos], FlagSwitch(UDCDmain.UD_UseWidget))
-;    
+    ; Menus
+    AddHeaderOption("$UD_H_MENUS")
+    UD_MenuTextFormatter_M = AddMenuOption("$UD_MENUTEXTFORMATTER", UDMTF.GetMode(), FlagSwitch(True))
+
     ; RIGHT COLUMN
     SetCursorPosition(1)
     SetCursorFillMode(TOP_TO_BOTTOM)
@@ -2821,7 +2831,7 @@ Function OnOptionMenuOpenUIWidget(int option)
             variant = 0
         EndIf
         SetMenuDialogStartIndex(variant)
-        SetMenuDialogDefaultIndex(0)
+        SetMenuDialogDefaultIndex(2)
     ElseIf (option == UD_IconVariant_EffOrgasm_M)
         SetMenuDialogOptions(UD_IconVariant_EffOrgasmList)
         Int variant = UDWC.StatusEffect_GetVariant("effect-orgasm")
@@ -2829,7 +2839,7 @@ Function OnOptionMenuOpenUIWidget(int option)
             variant = 0
         EndIf
         SetMenuDialogStartIndex(variant)
-        SetMenuDialogDefaultIndex(0)
+        SetMenuDialogDefaultIndex(2)
     elseif (option == UD_WidgetPosX_M)
         SetMenuDialogOptions(widgetXList)
         SetMenuDialogStartIndex(UDWC.UD_WidgetXPos)
@@ -2837,6 +2847,11 @@ Function OnOptionMenuOpenUIWidget(int option)
     elseif (option == UD_WidgetPosY_M)
         SetMenuDialogOptions(widgetYList)
         SetMenuDialogStartIndex(UDWC.UD_WidgetYPos)
+        SetMenuDialogDefaultIndex(1)
+    elseif (option == UD_MenuTextFormatter_M)
+        String[] loc_modes = UDMTF.GetModes()
+        SetMenuDialogOptions(loc_modes)
+        SetMenuDialogStartIndex(UDMTF.GetModeIndex())
         SetMenuDialogDefaultIndex(1)
     endif
 EndFunction
@@ -2962,6 +2977,11 @@ Function OnOptionMenuAcceptUIWidget(Int option, Int index)
         UDWC.UD_WidgetYPos = index
         SetMenuOptionValue(UD_WidgetPosY_M, widgetYList[UDWC.UD_WidgetYPos])
         forcePageReset()
+    elseif (option == UD_MenuTextFormatter_M)
+        String[] loc_modes = UDMTF.GetModes()
+        UDMTF.SetMode(loc_modes[index])
+        SetMenuOptionValue(UD_MenuTextFormatter_M, loc_modes[index])
+;        forcePageReset()
     endif
 EndFunction
 
@@ -3241,10 +3261,6 @@ Function CustomBondagePageDefault(int option)
         SetInfoText("$UD_HARDCORE_SWIMMING_INFO")
     elseif(option == UD_hardcore_swimming_difficulty_M)
         SetInfoText("$UD_HARDCORESWIMMINGDIFFICULTY_INFO")
-    elseif option == UD_WidgetPosX_M
-        SetInfoText("$UD_CWIDGETPOSX_INFO")
-    elseif option == UD_WidgetPosY_M
-        SetInfoText("$UD_WIDGETPOSY_INFO")
     elseif option == UD_LockpickMinigameNum_S
         SetInfoText("$UD_PREVENTMASTERLOCK_INFO")
     elseif option == UD_BaseDeviceSkillIncrease_S
@@ -3754,6 +3770,8 @@ Function UiWidgetPageInfo(int option)
         SetInfoText("$UD_CWIDGETPOSX_INFO")
     elseif option == UD_WidgetPosY_M
         SetInfoText("$UD_WIDGETPOSY_INFO")
+    elseif option == UD_MenuTextFormatter_M
+        SetInfoText("$UD_MENUTEXTFORMATTER_INFO")
     ElseIf option == UD_TextFontSize_S
         SetInfoText("$UD_TEXTFONTSIZE_INFO")
     ElseIf option == UD_TextLineLength_S
@@ -4033,6 +4051,7 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "iWidgets_TextPadding", UDWC.UD_TextPadding)
     JsonUtil.SetIntValue(strFile, "WidgetPosX", UDWC.UD_WidgetXPos)
     JsonUtil.SetIntValue(strFile, "WidgetPosY", UDWC.UD_WidgetYPos)
+    JsonUtil.SetStringValue(strFile, "MenuTextFormatter", UDMTF.GetMode())
     JsonUtil.SetIntValue(strFile, "iWidgets_EffectExhaustion_Icon", UDWC.StatusEffect_GetVariant("effect-exhaustion"))
     JsonUtil.SetIntValue(strFile, "iWidgets_EffectOrgasm_Icon", UDWC.StatusEffect_GetVariant("effect-orgasm"))
     
@@ -4190,6 +4209,7 @@ Function LoadFromJSON(string strFile)
     UDWC.StatusEffect_Register("effect-orgasm", -1, variant)
     UDWC.UD_WidgetXPos = JsonUtil.GetIntValue(strFile, "WidgetPosX", UDWC.UD_WidgetXPos)
     UDWC.UD_WidgetYPos = JsonUtil.GetIntValue(strFile, "WidgetPosY", UDWC.UD_WidgetXPos)
+    UDMTF.SetMode(JsonUtil.GetStringValue(strFile, "MenuTextFormatter", "HTML"))
     
     ;Other
     libs.UD_StartThirdpersonAnimation_Switch = JsonUtil.GetIntValue(strFile, "StartThirdpersonAnimation_Switch", libs.UD_StartThirdpersonAnimation_Switch as Int)

@@ -7623,7 +7623,7 @@ Function ShowBaseDetails()
     loc_res += UDMTF.TableEnd()
     loc_res += UDMTF.FontEnd()
         
-    UDMain.ShowMessageBox(loc_res, UDMTF.GetState() == "HTML")
+    UDMain.ShowMessageBox(loc_res, UDMTF.GetMode() == "HTML")
     
 EndFunction
 
@@ -7733,7 +7733,7 @@ Function ShowLockDetails()
         loc_res += UDMTF.TableEnd()
         loc_res += UDMTF.FontEnd()
     
-        UDmain.ShowMessageBox(loc_res, UDMTF.GetState() == "HTML")
+        UDmain.ShowMessageBox(loc_res, UDMTF.GetMode() == "HTML")
     endwhile
 EndFunction
 
@@ -7768,7 +7768,7 @@ Function showDebugInfo()
     loc_res += UDMTF.FooterSplit()
     loc_res += UDMTF.TableEnd()
     loc_res += UDMTF.FontEnd()
-    UDmain.ShowMessageBox(loc_res, UDMTF.GetState() == "HTML")
+    UDmain.ShowMessageBox(loc_res, UDMTF.GetMode() == "HTML")
 EndFunction
 
 ;/  Function: showDebugMinigameInfo
@@ -7843,7 +7843,7 @@ Function showDebugMinigameInfo()
     loc_res += UDMTF.TableEnd()
     loc_res += UDMTF.FontEnd()
     
-    UDmain.ShowMessageBox(loc_res, UDMTF.GetState() == "HTML")
+    UDmain.ShowMessageBox(loc_res, UDMTF.GetMode() == "HTML")
 EndFunction
 
 string Function _getCritInfo()
