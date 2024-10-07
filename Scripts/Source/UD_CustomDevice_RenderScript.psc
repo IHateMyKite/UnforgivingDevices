@@ -758,7 +758,7 @@ UD_MenuTextFormatter        Property UDMTF      Hidden  ; Menu Text Formatter
         EndIf
         Return _UDMTF
     EndFunction
-EndProperty  
+EndProperty
 
 bool     Property _StopMinigame                 = False         auto hidden ;control variable for stopping minigame. Made as not bitcoded value to reduce proccessing lag
 bool     Property _PauseMinigame                = False         auto hidden ;control variable for pausing minigame. Made as not bitcoded value to reduce proccessing lag
@@ -6575,11 +6575,7 @@ Function minigame()
         UnlockRestrain()
         return
     endif
-    
-    if UDmain.DebugMod && PlayerInMinigame()
-        showDebugMinigameInfo()
-    endif
-    
+
     _MinigameON = True
     GoToState("UpdatePaused")
     
@@ -6593,6 +6589,10 @@ Function minigame()
     bool                    loc_PlayerInMinigame                = loc_WearerIsPlayer || loc_HelperIsPlayer
     Bool                    loc_is3DLoaded                      = loc_PlayerInMinigame || Wearer.Is3DLoaded()
     UD_CustomDevice_NPCSlot loc_WearerSlot                      = UD_WearerSlot
+    
+    if UDmain.DebugMod && loc_PlayerInMinigame
+        showDebugMinigameInfo()
+    endif
     
     if loc_PlayerInMinigame
         closeMenu()
@@ -7514,7 +7514,7 @@ Function ShowBaseDetails()
 
     loc_res += UDMTF.Header(deviceInventory.GetName(), 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
-    loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 140)
+    loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
     loc_res += UDMTF.HeaderSplit()
 
     loc_res += UDMTF.TableRowDetails("Level:", UD_Level)
@@ -7675,7 +7675,7 @@ Function ShowLockDetails()
 
         loc_res += UDMTF.Header(deviceInventory.GetName(), 4)
         loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
-        loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 140)
+        loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
         loc_res += UDMTF.HeaderSplit()
 
         loc_res += UDMTF.TableRowDetails("Name:", GetNthLockName(loc_lockId))
@@ -7746,18 +7746,20 @@ Function showDebugInfo()
     
     loc_res += UDMTF.Header(deviceInventory.GetName(), 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
-    loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 140)
+    loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
     loc_res += UDMTF.HeaderSplit()
 
     if (zad_JammLockChance > 0)
-        loc_res += UDMTF.TableRowDetails("Lock jam chance:", zad_JammLockChance + " (" + Round(fRange(zad_JammLockChance*UDCDmain.CalculateKeyModifier(),0.0,100.0)) +") %")
+        loc_res += UDMTF.TableRowDetails("Chance of lock jamming:", FormatFloat(zad_JammLockChance, 1) + "%", UDMTF.PercentToRainbow(Round(100 - zad_JammLockChance)))
+        Float loc_val = fRange(zad_JammLockChance * UDCDmain.CalculateKeyModifier(), 0.0, 100.0)
+        loc_res += UDMTF.TableRowDetails("With key modifier:", FormatFloat(loc_val, 1) + "%", UDMTF.PercentToRainbow(100 - Round(loc_val)))
         loc_res += UDMTF.PageSplit(abForce = False)
         loc_res += UDMTF.LineGap()
     endif
     if isNotShareActive(); && canBeActivated()
         loc_res += UDMTF.TableRowDetails("Cooldown:", _currentRndCooldown +" min")
-        loc_res += UDMTF.TableRowDetails("Elapsed time:", FormatFloat(_updateTimePassed,3) +" min ("+ FormatFloat(getRelativeElapsedCooldownTime()*100,1) +"%)")
-        loc_res += UDMTF.TableRowDetails("Can be activated:", canBeActivated())
+        loc_res += UDMTF.TableRowDetails("Elapsed time:", FormatFloat(_updateTimePassed, 3) +" min ("+ FormatFloat(getRelativeElapsedCooldownTime() * 100, 1) + "%)")
+        loc_res += UDMTF.TableRowDetails("Can be activated:", canBeActivated(), UDMTF.BoolToGrayscale(canBeActivated()))
         loc_res += UDMTF.PageSplit(abForce = False)
         loc_res += UDMTF.LineGap()
     endif
@@ -7773,56 +7775,75 @@ EndFunction
     Shows message box with debug information about current minigame. Have to be called after minigame starts
 /;
 Function showDebugMinigameInfo()
-    string res = ""
-    res += "Wearer: " + getWearerName() + "\n"
+    string loc_res = ""
+    
+    loc_res += UDMTF.Header(deviceInventory.GetName(), 4)
+    loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+    loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140, aiColumn2Width = 70, aiColumn3Width = 70)
+    loc_res += UDMTF.HeaderSplit()
+    
+    loc_res += UDMTF.TableRowDetails("Wearer:", getWearerName())
     if haveHelper()
-        res += "Helper: " + getHelperName() + "\n"
+        loc_res += UDMTF.TableRowDetails("Helper:", getHelperName())
     endif
     
+    loc_res += UDMTF.PageSplit(abForce = False)
+    loc_res += UDMTF.LineGap()
+        
     if _StruggleGameON
-        res += "Struggle type: " + _struggleGame_Subtype + "\n"
+        loc_res += UDMTF.TableRowDetails("Struggle type:", _struggleGame_Subtype)
     endif
-    res += "Damage modifier: " + Round(UD_DamageMult*100.0) + " %\n"
+    loc_res += UDMTF.TableRowDetails("Damage modifier:", Round(UD_DamageMult * 100.0) + " %")
     if UD_damage_device
-        res += "Base DPS: " + FormatFloat(UD_durability_damage_base,4) + " DPS\n"
-        res += "DPS bonus: " + FormatFloat(UD_durability_damage_add,2) + " DPS\n"
-        res += "Total DPS: " + (_durability_damage_mod + UD_durability_damage_add)*UD_DamageMult + " DPS\n"
-        res += "Total increase: " + FormatFloat((((_durability_damage_mod + UD_durability_damage_add)*UD_DamageMult)/UD_durability_damage_base)*100 - 100.0,2) + " %\n"
+        loc_res += UDMTF.TableRowDetails("Base DPS:", FormatFloat(UD_durability_damage_base,4) + " DPS")
+        loc_res += UDMTF.TableRowDetails("DPS bonus:", FormatFloat(UD_durability_damage_add,2) + " DPS")
+        loc_res += UDMTF.TableRowDetails("Total DPS:", (_durability_damage_mod + UD_durability_damage_add)*UD_DamageMult + " DPS")
+        loc_res += UDMTF.TableRowDetails("Total increase:", FormatFloat((((_durability_damage_mod + UD_durability_damage_add)*UD_DamageMult)/UD_durability_damage_base)*100 - 100.0,2) + "%")
     elseif _CuttingGameON
-        res += "Cutting modifier: " + Round(UD_MinigameMult1*100.0) + " %\n"
+        loc_res += UDMTF.TableRowDetails("Cutting modifier:", Round(UD_MinigameMult1*100.0) + "%")
     else
-        res += "No DPS\n"
+        loc_res += UDMTF.TextDecoration("No DPS", asAlign = "center") + UDMTF.LineBreak()
     endif
-    res += "Condition dmg increase: " + Round(_condition_mult_add*100) + " %\n"
-    res += "Crits: " + UD_minigame_canCrit + "\n"
+    loc_res += UDMTF.PageSplit(abForce = False)
+    loc_res += UDMTF.LineGap()
+    
+    loc_res += UDMTF.TableRowDetails("Condition dmg increase:", Round(_condition_mult_add * 100) + "%")
+    loc_res += UDMTF.TableRowDetails("Crits:", UD_minigame_canCrit)
     if UD_drain_stats
         if UD_minigame_stamina_drain
-            res += "Stamina SPS: " + FormatFloat(UD_minigame_stamina_drain,2) + "\n"
+            loc_res += UDMTF.TableRowDetails("Stamina SPS:", FormatFloat(UD_minigame_stamina_drain,2))
         endif
         if UD_minigame_heal_drain
-            res += "Health SPS: " + FormatFloat(UD_minigame_heal_drain,2) + "\n"
+            loc_res += UDMTF.TableRowDetails("Health SPS:", FormatFloat(UD_minigame_heal_drain,2))
         endif
         if UD_minigame_magicka_drain
-            res += "Magicka SPS: " + FormatFloat(UD_minigame_magicka_drain,2) + "\n"    
+            loc_res += UDMTF.TableRowDetails("Magicka SPS:", FormatFloat(UD_minigame_magicka_drain,2))
         endif
     else
-        res += "Wearer doesn't loose stats\n"
+        loc_res += UDMTF.TextDecoration("Wearer doesn't loose stats", asAlign = "center") + UDMTF.LineBreak()
     endif
-    res += "Required stats: S = " + Round(_minMinigameStatSP*100) + " %;H = " + Round(_minMinigameStatHP*100) + " %;M = " + Round(_minMinigameStatMP*100) + " %\n"
+
+    loc_res += UDMTF.PageSplit(abForce = False)
+    loc_res += UDMTF.LineGap()
     
+    loc_res += UDMTF.TableRowWide("Required stats:", "S = " + Round(_minMinigameStatSP*100) + "%", "H = " + Round(_minMinigameStatHP*100) + "%", "M = " + Round(_minMinigameStatMP*100) + "%")
     if UD_RegenMag_Stamina || UD_RegenMag_Health || UD_RegenMag_Magicka
-        res += "Wearer regen: S = " + Round(UD_RegenMag_Stamina*100) + " %;H = " + Round(UD_RegenMag_Health*100) + " %;M = " + Round(UD_RegenMag_Magicka*100) + " %\n"
+        loc_res += UDMTF.TableRowWide("Wearer regen:", "S = " + Round(UD_RegenMag_Stamina*100) + "%", "H = " + Round(UD_RegenMag_Health*100) + "%", "M = " + Round(UD_RegenMag_Magicka*100) + "%")
     endif
-    
     if UD_RegenMagHelper_Stamina || UD_RegenMagHelper_Health || UD_RegenMagHelper_Magicka
-        res += "Wearer regen: S = " + Round(UD_RegenMagHelper_Stamina*100) + " %;H = " + Round(UD_RegenMagHelper_Health*100) + " %;M = " + Round(UD_RegenMagHelper_Magicka*100) + " %\n"
+        loc_res += UDMTF.TableRowWide("Helper regen:", "S = " + Round(UD_RegenMagHelper_Stamina*100) + "%", "H = " + Round(UD_RegenMagHelper_Health*100) + "%", "M = " + Round(UD_RegenMagHelper_Magicka*100) + "%")
     endif
     if UD_applyExhastionEffect
-        res += "Exhastion mult: " + Round(_exhaustion_mult*100) + " %\n"
+        loc_res += UDMTF.TableRowDetails("Exhastion mult:", Round(_exhaustion_mult*100) + "%")
     else
-        res += "No exhastion\n"
+        loc_res += UDMTF.TableRowDetails("Exhastion mult:", "No exhastion")
     endif
-    UDmain.ShowMessageBox(res)
+    
+    loc_res += UDMTF.FooterSplit()
+    loc_res += UDMTF.TableEnd()
+    loc_res += UDMTF.FontEnd()
+    
+    UDmain.ShowMessageBox(loc_res, UDMTF.GetState() == "HTML")
 EndFunction
 
 string Function _getCritInfo()

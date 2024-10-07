@@ -51,13 +51,13 @@ String Function TableRowWide(String asCell1, String asCell2, String asCell3 = ""
     String loc_res = ""
     loc_res += asCell1
     If asCell2 != ""
-        loc_res += " " + asCell2
+        loc_res += ": " + asCell2
     EndIf
     If asCell3 != ""
-        loc_res += " " + asCell3
+        loc_res += "; " + asCell3
     EndIf
     If asCell4 != ""
-        loc_res += " " + asCell4
+        loc_res += "; " + asCell4
     EndIf
     loc_res += LineBreak()
     Return loc_res
@@ -162,11 +162,16 @@ EndFunction
 Auto State HTML
 
     String Function Header(String asHeader, Int aiPlusSize = 4)
+        Int loc_pad_len = Math.Ceiling((30 - StringUtil.GetLength(asHeader)) / 10)
+        If loc_pad_len < 0
+            loc_pad_len = 0
+        EndIf
+        String loc_pad = PapyrusUtil.StringJoin(Utility.CreateStringArray(loc_pad_len + 1, "0"), "")
         String loc_res = ""
         loc_res += FontBegin(FontSize + aiPlusSize, "$SkyrimSymbolsFont")
-        loc_res += "60"
+        loc_res += "6" + loc_pad
         loc_res += TextDecoration(" " + asHeader + " ", asFontFace = "$EverywhereMediumFont")
-        loc_res += "07"
+        loc_res += loc_pad + "7"
         loc_res += FontEnd()
         loc_res += LineBreak()
 ;        loc_res += "<p align='center'>"
@@ -533,6 +538,14 @@ EndFunction
 
 String Function PercentToRainbow(Int aiPercent)
     Return _PercentToColor(aiPercent, 0xFF00FF, 0xFFFF00, 0x00FF00)
+EndFunction
+
+String Function BoolToGrayscale(Bool abValue)
+    If abValue 
+        Return PercentToGrayscale(100)
+    Else
+        Return PercentToGrayscale(0)
+    EndIf
 EndFunction
 
 String Function _PercentToColor(Int aiPercent, Int aiMin, Int aiMiddle, Int aiMax)

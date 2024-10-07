@@ -50,6 +50,15 @@ UD_AnimationManagerScript Property UDAM hidden
     EndFunction
 EndProperty
 
+UD_MenuTextFormatter    _UDMTF
+UD_MenuTextFormatter        Property UDMTF      Hidden  ; Menu Text Formatter
+    UD_MenuTextFormatter Function Get()
+        If !_UDMTF
+            _UDMTF = UDmain.UDMTF
+        EndIf
+        Return _UDMTF
+    EndFunction
+EndProperty
 
 int                 OSLLoadOrderRelative    = 0
 int                 SLALoadOrder            = 0
@@ -1728,59 +1737,102 @@ Function showActorDetails(Actor akActor)
         endif
         UD_OrgasmManager _UDOM = UDmain.GetUDOM(akActor)
         if loc_option == 0 ;base details
-            String loc_res = "--BASE DETAILS--\n"
-            loc_res += "Name: " + akActor.GetLeveledActorBase().GetName() + "\n"
+            String loc_res = ""
+            loc_res += UDMTF.Header("Base details", 4)
+            loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+            loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
+            loc_res += UDMTF.HeaderSplit()
+    
+            loc_res += UDMTF.TableRowDetails("Name:", akActor.GetLeveledActorBase().GetName())
             Race loc_race = akActor.getActorBase().GetRace()
-            loc_res += "Race: " + loc_race.GetName() + "\n"
-            loc_res += "LVL: " + akActor.GetLevel() + "\n"
-            loc_res += "HP: " + FormatFloat(akActor.getAV("Health"),1) + "/" +  FormatFloat(getMaxActorValue(akActor,"Health"),1) + " ("+ Round(getCurrentActorValuePerc(akActor,"Health")*100) +" %)" +"\n"
-            loc_res += "MP: " + FormatFloat(akActor.getAV("Magicka"),1) + "/" + FormatFloat(getMaxActorValue(akActor,"Magicka"),1) + " ( "+ Round(getCurrentActorValuePerc(akActor,"Magicka")*100) +" %)" +"\n"
-            loc_res += "SP: " + FormatFloat(akActor.getAV("Stamina"),1) + "/" +  FormatFloat(getMaxActorValue(akActor,"Stamina"),1) + " ("+ Round(getCurrentActorValuePerc(akActor,"Stamina")*100) +" %)" +"\n"
+            loc_res += UDMTF.TableRowDetails("Race:", loc_race.GetName())
+            loc_res += UDMTF.TableRowDetails("Level:", akActor.GetLevel())
+            
+            loc_res += UDMTF.PageSplit(abForce = False)
+            loc_res += UDMTF.LineGap()
+            
+            loc_res += UDMTF.TableRowDetails("HP:", FormatFloat(akActor.getAV("Health"), 1) + "/" +  FormatFloat(getMaxActorValue(akActor, "Health"), 1) + " (" + Round(getCurrentActorValuePerc(akActor,"Health") * 100) + "%)")
+            loc_res += UDMTF.TableRowDetails("MP:", FormatFloat(akActor.getAV("Magicka"), 1) + "/" + FormatFloat(getMaxActorValue(akActor, "Magicka"), 1) + " (" + Round(getCurrentActorValuePerc(akActor,"Magicka") * 100) + "%)")
+            loc_res += UDMTF.TableRowDetails("SP:", FormatFloat(akActor.getAV("Stamina"), 1) + "/" +  FormatFloat(getMaxActorValue(akActor, "Stamina"), 1) + " (" + Round(getCurrentActorValuePerc(akActor,"Stamina") * 100) + "%)")
+            
+            loc_res += UDMTF.PageSplit(abForce = False)
+            loc_res += UDMTF.LineGap()
+        
             if UDmain.UDAI.Enabled && !IsPlayer(akActor)
-                loc_res += "Motivation: " + getMotivation(akActor) + "\n"
-                loc_res += "AI Cooldown: " + iUnsig(GetAIRemainingCooldown(akActor)) + " min\n"
+                loc_res += UDMTF.TableRowDetails("Motivation:", getMotivation(akActor))
+                loc_res += UDMTF.TableRowDetails("AI Cooldown:", iUnsig(GetAIRemainingCooldown(akActor)) + " min")
+                loc_res += UDMTF.PageSplit(abForce = False)
+                loc_res += UDMTF.LineGap()
             endif
-            loc_res += "Arousal: " + FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,8),1) + "\n"
-            loc_res += "Orgasm progress: " + FormatFloat(OrgasmSystem.GetOrgasmProgress(akActor,1) * 100,2) + " %\n"
-            UDmain.ShowMessageBox(loc_res)
+            loc_res += UDMTF.TableRowDetails("Arousal:", FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,8),1))
+            loc_res += UDMTF.TableRowDetails("Orgasm progress:", FormatFloat(OrgasmSystem.GetOrgasmProgress(akActor,1) * 100,2) + "%")
+            
+            loc_res += UDMTF.FooterSplit()
+            loc_res += UDMTF.TableEnd()
+            loc_res += UDMTF.FontEnd()
+                
+            UDMain.ShowMessageBox(loc_res, UDMTF.GetState() == "HTML")
         elseif loc_option == 1 ;skills
-            String loc_res = "--SKILL DETAILS--\n"
+            String loc_res = ""
+            loc_res += UDMTF.Header("Skill details", 4)
+            loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+            loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
+            loc_res += UDMTF.HeaderSplit()
             if IsRegistered(akActor)
                 UD_CustomDevice_NPCSlot loc_slot = GetNPCSlot(akActor)
                 if loc_slot
-                    loc_res += "Agility skill: " + Round(loc_slot.AgilitySkill) + "\n"
-                    loc_res += "Strength skill: " + Round(loc_slot.StrengthSkill) + "\n"
-                    loc_res += "Magicka skill: " + Round(loc_slot.MagickSkill) + "\n"
-                    loc_res += "Cutting skill: " + Round(loc_slot.CuttingSkill) + "\n"
+                    loc_res += UDMTF.TableRowDetails("Agility skill:", Round(loc_slot.AgilitySkill))
+                    loc_res += UDMTF.TableRowDetails("Strength skill:", Round(loc_slot.StrengthSkill))
+                    loc_res += UDMTF.TableRowDetails("Magicka skill:", Round(loc_slot.MagickSkill))
+                    loc_res += UDMTF.TableRowDetails("Cutting skill:", Round(loc_slot.CuttingSkill))
                 else
-                    loc_res += "Agility skill: " + Round(UDmain.UDSKILL.getAgilitySkill(akActor)) + "\n"
-                    loc_res += "Strength skill: " + Round(UDmain.UDSKILL.getStrengthSkill(akActor)) + "\n"
-                    loc_res += "Magicka skill: " + Round(UDmain.UDSKILL.getMagickSkill(akActor)) + "\n"
-                    loc_res += "Cutting skill: " + Round(UDmain.UDSKILL.getCuttingSkill(akActor)) + "\n"
+                    loc_res += UDMTF.TableRowDetails("Agility skill:", Round(UDmain.UDSKILL.getAgilitySkill(akActor)))
+                    loc_res += UDMTF.TableRowDetails("Strength skill:", Round(UDmain.UDSKILL.getStrengthSkill(akActor)))
+                    loc_res += UDMTF.TableRowDetails("Magicka skill:", Round(UDmain.UDSKILL.getMagickSkill(akActor)))
+                    loc_res += UDMTF.TableRowDetails("Cutting skill:", Round(UDmain.UDSKILL.getCuttingSkill(akActor)))
                 endif
             else
-                loc_res += "Agility skill: " + Round(UDmain.UDSKILL.getAgilitySkill(akActor)) + "\n"
-                loc_res += "Strength skill: " + Round(UDmain.UDSKILL.getStrengthSkill(akActor)) + "\n"
-                loc_res += "Magicka skill: " + Round(UDmain.UDSKILL.getMagickSkill(akActor)) + "\n"
-                loc_res += "Cutting skill: " + Round(UDmain.UDSKILL.getCuttingSkill(akActor)) + "\n"
+                loc_res += UDMTF.TableRowDetails("Agility skill:", Round(UDmain.UDSKILL.getAgilitySkill(akActor)))
+                loc_res += UDMTF.TableRowDetails("Strength skill:", Round(UDmain.UDSKILL.getStrengthSkill(akActor)))
+                loc_res += UDMTF.TableRowDetails("Magicka skill:", Round(UDmain.UDSKILL.getMagickSkill(akActor)))
+                loc_res += UDMTF.TableRowDetails("Cutting skill:", Round(UDmain.UDSKILL.getCuttingSkill(akActor)))
             endif
-            UDmain.ShowMessageBox(loc_res)
-        elseif loc_option == 2 ;arousal/orgasm details
-            string loc_orgStr = ""
-            loc_orgStr += "--ORGASM DETAILS--\n"
-            loc_orgStr += "State: " + _UDOM.GetHornyLevelString(akActor) + "\n"
-            loc_orgStr += "Horny level: " + FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,14),2) + "\n"
-            loc_orgStr += "Active vibrators: " + GetActivatedVibrators(akActor) + "(S="+StorageUtil.GetIntValue(akActor,"UD_ActiveVib_Strength",0)+")" + "\n"
-            loc_orgStr += "Arousal: " + FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,8),1) + "\n"
-            loc_orgStr += "Arousal Rate(M): " + FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,9)*OrgasmSystem.GetOrgasmVariable(akActor,10),1) + "\n"
-            loc_orgStr += "Arousal Rate Mult: " + Round(OrgasmSystem.GetOrgasmVariable(akActor,10)*100) + " %\n"
-            loc_orgStr += "Orgasm capacity: " + Round(OrgasmSystem.GetOrgasmVariable(akActor,5)) + "\n"
-            loc_orgStr += "Orgasm resistance(M): " + FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,3)*OrgasmSystem.GetOrgasmVariable(akActor,4),1) + "\n"
-            loc_orgStr += "Orgasm resisting: " + Round(OrgasmSystem.GetOrgasmVariable(akActor,4)*100.0) + " %\n"
-            loc_orgStr += "Orgasm progress: " + FormatFloat(OrgasmSystem.GetOrgasmProgress(akActor,1) * 100,2) + " %\n"
-            loc_orgStr += "Orgasm rate: " + FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,1),2) + " - " + FormatFloat(OrgasmSystem.GetAntiOrgasmRate(akActor),2) + " Op/s\n"
-            loc_orgStr += "Orgasm mult: " + Round(OrgasmSystem.GetOrgasmVariable(akActor,2)*100.0) + " %\n"
             
+            loc_res += UDMTF.FooterSplit()
+            loc_res += UDMTF.TableEnd()
+            loc_res += UDMTF.FontEnd()
+            
+            UDmain.ShowMessageBox(loc_res, UDMTF.GetState() == "HTML")
+        elseif loc_option == 2 ;arousal/orgasm details
+            String loc_res = ""
+            loc_res += UDMTF.Header("Orgasm details", 4)
+            loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+            loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
+            loc_res += UDMTF.HeaderSplit()
+            
+            loc_res += UDMTF.TableRowDetails("State:", _UDOM.GetHornyLevelString(akActor))
+            loc_res += UDMTF.TableRowDetails("Horny level:", FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,14),2))
+            
+            loc_res += UDMTF.TableRowDetails("Active vibrators:", GetActivatedVibrators(akActor))
+            loc_res += UDMTF.TableRowDetails("Vibrators strength:", StorageUtil.GetIntValue(akActor,"UD_ActiveVib_Strength",0))
+            
+            loc_res += UDMTF.PageSplit(abForce = False)
+            loc_res += UDMTF.LineGap()
+            
+            loc_res += UDMTF.TableRowDetails("Arousal:", FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,8),1))
+            loc_res += UDMTF.TableRowDetails("Arousal Rate(M):", FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,9)*OrgasmSystem.GetOrgasmVariable(akActor,10),1))
+            loc_res += UDMTF.TableRowDetails("Arousal Rate Mult:", Round(OrgasmSystem.GetOrgasmVariable(akActor,10)*100))
+            
+            loc_res += UDMTF.PageSplit(abForce = False)
+            loc_res += UDMTF.LineGap()
+            
+            loc_res += UDMTF.TableRowDetails("Orgasm capacity:", Round(OrgasmSystem.GetOrgasmVariable(akActor,5)))
+            loc_res += UDMTF.TableRowDetails("Orgasm resistance(M):", FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,3)*OrgasmSystem.GetOrgasmVariable(akActor,4),1))
+            loc_res += UDMTF.TableRowDetails("Orgasm resisting:", Round(OrgasmSystem.GetOrgasmVariable(akActor,4)*100.0) + "%")
+            loc_res += UDMTF.TableRowDetails("Orgasm progress:", FormatFloat(OrgasmSystem.GetOrgasmProgress(akActor,1) * 100,2) + "%")
+            loc_res += UDMTF.TableRowDetails("Orgasm rate:", FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,1),2) + " - " + FormatFloat(OrgasmSystem.GetAntiOrgasmRate(akActor),2) + " Op/s")
+            loc_res += UDMTF.TableRowDetails("Orgasm mult:", Round(OrgasmSystem.GetOrgasmVariable(akActor,2)*100.0) + "%")
+
             ;if isRegistered(akActor)
             ;    loc_orgStr += "Orgasm exhaustion: " + _UDOM.GetOrgasmExhaustion(akActor) + "\n"
             ;    if !IsPlayer(akActor)
@@ -1790,20 +1842,34 @@ Function showActorDetails(Actor akActor)
             ;        endif
             ;    endif
             ;endif
-            UDmain.ShowMessageBox(loc_orgStr)
+            
+            loc_res += UDMTF.FooterSplit()
+            loc_res += UDMTF.TableEnd()
+            loc_res += UDMTF.FontEnd()
+            
+            UDmain.ShowMessageBox(loc_res, UDMTF.GetState() == "HTML")
         elseif loc_option == 3 ;Helper details
             ShowHelperDetails(akActor)
         elseif loc_option == 4 ;other details
             Weapon loc_sharpestWeapon = getSharpestWeapon(akActor)
-            string loc_otherStr = "--OTHER--\n"
+            String loc_res = ""
+            loc_res += UDMTF.Header("Other", 4)
+            loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+            loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
+            loc_res += UDMTF.HeaderSplit()
+            
             if loc_sharpestWeapon
-                loc_otherStr += "Sharpest weapon: " + loc_sharpestWeapon.getName() + "\n"
-                loc_otherStr += "Cutting bonus: " + FormatFloat(getActorCuttingWeaponMultiplier(akActor)*100.0 - 100.0,0) + " %\n"
+                loc_res += UDMTF.TableRowDetails("Sharpest weapon:", loc_sharpestWeapon.getName())
+                loc_res += UDMTF.TableRowDetails("Cutting bonus:", FormatFloat(getActorCuttingWeaponMultiplier(akActor)*100.0 - 100.0,0) + "%")
             else
-                loc_otherStr += "Sharpest weapon: NONE\n"
-                loc_otherStr += "Cutting multiplier: 0 %\n"
+                loc_res += UDMTF.TableRowDetails("Sharpest weapon:", "NONE", UDMTF.PercentToGrayscale(0))
             endif
-            UDmain.ShowMessageBox(loc_otherStr)
+            
+            loc_res += UDMTF.FooterSplit()
+            loc_res += UDMTF.TableEnd()
+            loc_res += UDMTF.FontEnd()
+            
+            UDmain.ShowMessageBox(loc_res, UDMTF.GetState() == "HTML")
         else
             return
         endif
@@ -1814,22 +1880,32 @@ Function showActorDetails(Actor akActor)
 EndFunction
 
 Function ShowHelperDetails(Actor akActor)
-    UDmain.ShowMessageBox(GetHelperDetails(akActor))
-EndFunction
-
-string Function GetHelperDetails(Actor akActor)
-    string loc_res = ""
-    loc_res += "--HELPER DETAILS--\n"
-    loc_res += "Helper LVL: " + GetHelperLVL(akActor) +"("+Round(GetHelperLVLProgress(akActor)*100)+"%)" + "\n"
-    loc_res += "Base Cooldown: " + Round(_CalculateHelperCD(akActor)*24*60) + " min\n"
+    String loc_res = ""
+    loc_res += UDMTF.Header("Helper details", 4)
+    loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+    loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
+    loc_res += UDMTF.HeaderSplit()
+    
+    loc_res += UDMTF.TableRowDetails("Helper level:", GetHelperLVL(akActor))
+    loc_res += UDMTF.TableRowDetails("Level progress:", Round(GetHelperLVLProgress(akActor)*100) + "%")
+    loc_res += UDMTF.TableRowDetails("Base cooldown:", Round(_CalculateHelperCD(akActor)*24*60) + " min")
+                
     if UDmain.Player != akActor
+        loc_res += UDMTF.PageSplit(abForce = False)
+        loc_res += UDMTF.LineGap()
+        
         float loc_currenttime = Utility.GetCurrentGameTime()
         float loc_cooldowntimeHP = StorageUtil.GetFloatValue(akActor,"UDNPCCD:"+UDmain.Player,0)
         float loc_cooldowntimePH = StorageUtil.GetFloatValue(UDmain.Player,"UDNPCCD:"+akActor,0)
-        loc_res += "Available in (H->P): " + iUnsig(Round(((loc_cooldowntimeHP - loc_currenttime)*24*60))) + " min\n"
-        loc_res += "Available in (P->H): " + iUnsig(Round(((loc_cooldowntimePH - loc_currenttime)*24*60))) + " min\n"
+        loc_res += UDMTF.TableRowDetails("Available in (H->P):", iUnsig(Round(((loc_cooldowntimeHP - loc_currenttime)*24*60))) + " min")
+        loc_res += UDMTF.TableRowDetails("Available in (P->H):", iUnsig(Round(((loc_cooldowntimePH - loc_currenttime)*24*60))) + " min")
     endif
-    return loc_res
+    
+    loc_res += UDMTF.FooterSplit()
+    loc_res += UDMTF.TableEnd()
+    loc_res += UDMTF.FontEnd()
+    
+    UDmain.ShowMessageBox(loc_res, UDMTF.GetState() == "HTML")
 EndFunction
 
 ;///////////////////////////////////////
