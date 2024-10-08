@@ -3602,7 +3602,21 @@ Function DeviceMenu(bool[] aaControl)
     while !_break
         setHelper(none)
         _deviceMenuInit(aaControl)
-        Int msgChoice = UD_MessageDeviceInteraction.Show()
+;        Int msgChoice = UD_MessageDeviceInteraction.Show()
+        String loc_str = ""
+        loc_str += UDMTF.Header(deviceInventory.GetName(), 4)
+        ; TESTING
+        String[] loc_buttons = new String[8]
+        loc_buttons[0] = "Struggle"
+        loc_buttons[1] = "Struggle Uselessly"
+        loc_buttons[2] = "Locks"
+        loc_buttons[3] = "Cut"
+        loc_buttons[4] = "Special Menu"
+        loc_buttons[5] = "Unlock"
+        loc_buttons[6] = "Details"
+        loc_buttons[7] = "Exit"
+        
+        Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(None, loc_str, loc_buttons)
         StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
         if msgChoice == 0        ;struggle
             _break = struggleMinigame()

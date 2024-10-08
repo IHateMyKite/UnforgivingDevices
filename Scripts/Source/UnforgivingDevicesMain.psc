@@ -245,6 +245,8 @@ UD_Config Property UDCONF auto
 
 UD_MenuTextFormatter                Property UDMTF          Auto
 
+UD_MenuMsgManager                   Property UDMMM          Auto
+
 
 Package         Property UD_NPCDisablePackage           auto
 
@@ -624,7 +626,7 @@ EndFunction
         Current update progress of the mod. It is whole number from 0 to 100, where mod is full ready on 100
 /;
 int Function GetUpdateProgress()
-    return (Round(100.0*_updatecounter/21))
+    return (Round(100.0*_updatecounter/22))
 EndFunction
 
 Function OnGameReload()
@@ -736,6 +738,9 @@ Function OnGameReload()
         
         UDOTM.Update()
         _IncrementUpdateCounter()   ;21
+        
+        UDMMM.Update()
+        _IncrementUpdateCounter()   ;22
         
         Info("<=====| Unforgiving Devices updated |=====>")
         Print("Unforgiving Devices updated")
