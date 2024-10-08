@@ -1,25 +1,70 @@
 Scriptname UD_MenuTextFormatter Extends Quest
-{Script to format messages}
+{Script with functions to format text for messages}
 
+;/  Group: Config
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/; 
+
+;/  Variable: FontSize
+    Default font size
+    
+    Used in HTML mode only
+/;
 Int     Property FontSize = 20                      Auto    Hidden
 
+;/  Variable: TextColorDefault
+    Default text color
+    
+    Used in HTML mode only
+/;
 String  Property TextColorDefault = "#FFFFFF"       Auto    Hidden
 
+;/  Variable: LinesOnPage
+    The number of lines on one page. If there are more, the text will be divided into several page
+    
+    Used in Legacy mode only
+/;
 Int     Property LinesOnPage = 12                   Auto    Hidden
 
+;/  Variable: LinesOnHTMLPage
+    The number of lines on one page. If there are more, the text will be divided into several page
+    
+    Used in HTML mode only
+/;
 Int     Property LinesOnHTMLPage = 18               Auto    Hidden
 
+;/  Variable: CharsOnPage
+    Maximum number of characters per page. If there are more, the text will be divided into several page
+    
+    Used in all modes
+/;
 Int     Property CharsOnPage = 1900                 Auto    Hidden
 
+;/  Variable: CharsCTD
+    A hard limit on the number of characters in a single window. 
+    If there are more characters than this, the text will be skipped to avoid CTD
+
+    Used in all modes
+/;
 Int     Property CharsCTD = 2047                    Auto    Hidden
 
-;===============================================================================
-;===============================================================================
-;                                    Config
-;===============================================================================
-;===============================================================================
+;/  Group: Mode Control
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 
 String[] _Modes
+
+;/  Function: GetModes
+
+    The function returns all possible modes of the formatter as an array of strings
+    
+    Returns:
+        Array of strings with possible modes
+/;
 String[] Function GetModes()
     If _Modes.Length == 0
         _Modes = Utility.CreateStringArray(2)
@@ -29,6 +74,13 @@ String[] Function GetModes()
     Return _Modes
 EndFunction
 
+;/  Function: SetMode
+
+    The function sets new operation mode for the formatter
+    
+    Parameters:
+        abMode                   - New operation mode
+/;
 Function SetMode(String abMode)
     If abMode == "Legacy"
         abMode = ""
@@ -36,6 +88,13 @@ Function SetMode(String abMode)
     GoToState(abMode)
 EndFunction
 
+;/  Function: GetMode
+
+    The function returns current operation mode of the formatter
+    
+    Returns:
+        Operation mode
+/;
 String Function GetMode()
     If GetState() == ""
         Return "Legacy"
@@ -43,6 +102,13 @@ String Function GetMode()
     Return GetState()
 EndFunction
 
+;/  Function: GetModeIndex
+
+    The function returns index of the current operation mode
+    
+    Returns:
+        Operation mode index
+/;
 Int Function GetModeIndex()
     If GetState() == ""
         Return 0
@@ -56,62 +122,174 @@ EndFunction
 ;===============================================================================
 ;===============================================================================
 
-String Function Header(String asHeader, Int aiPlusSize = 4)
-    Return "=== " + asHeader + " ===\n"
-EndFunction
+;/  Group: Text Formatting
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/; 
+
+;/  Function: Header
+
+    Returns formatted header
     
+    Parameters:
+        asHeader                - Header content
+        aiPlusSize              - How much the font size is increased compared to the base font size (see <FontSize>)
+    
+    Returns:
+        String with the text fragment
+/;
+String Function Header(String asHeader, Int aiPlusSize = 4)
+    Return "=== " + asHeader + " ===" + LineBreak()
+EndFunction
+
+;/  Function: TableBegin
+
+    Returns the beginning of the table customized by the specified parameters
+    
+    Parameters:
+        aiLeftMargin            - Indentation on the left. Not always respected, because the automatic window width 
+                                  calculation in SWF does not always handle our improvised tables correctly.
+        aiColumn1Width          - Width of the first column
+        aiColumn2Width          - Width of the second column
+        aiColumn3Width          - Width of the third column
+        aiLeading               - Spacing between lines
+    
+    Returns:
+        String with the text fragment
+/;
 String Function TableBegin(Int aiLeftMargin, Int aiColumn1Width, Int aiColumn2Width = 0, Int aiColumn3Width = 0, Int aiLeading = -2)
     Return ""
 EndFunction
 
+;/  Function: TableEnd
+
+    Returns closing table tags
+    
+    Returns:
+        String with the text fragment
+/;
 String Function TableEnd()
     Return ""
 EndFunction
 
+;/  Function: FontBegin
+
+    Opening tags with customized font
+    
+    Parameters:
+        aiFontSize              - Font size. If no value is specified, the size does not change.
+        asFontFace              - Font name. If no value is specified, the font face does not change.
+        asColor                 - Color hex code. If no value is specified, the font color does not change.
+        
+    Returns:
+        String with the text fragment
+/;
 String Function FontBegin(Int aiFontSize = -1, String asFontFace = "", String asColor = "")
     Return ""
 EndFunction
 
+;/  Function: FontEnd
+
+    Returns closing font tags
+    
+    Returns:
+        String with the text fragment
+/;
 String Function FontEnd()
     Return ""
 EndFunction
 
+;/  Function: TextDecoration
+
+    Returns text decorated with specified modifiers
+    
+    Parameters:
+        asText                  - Text to print.
+        aiFontSize              - Font size. If no value is specified, the size does not change.
+        asFontFace              - Font name. If no value is specified, the font face does not change.
+        asColor                 - Color hex code. If no value is specified, the font color does not change.
+        asAlign                 - Horizontal text alignment (left, center, right). If no value is specified, the alignment does not change.
+    
+    Returns:
+        String with the text fragment
+/;
 String Function TextDecoration(String asText, Int aiFontSize = -1, String asFontFace = "", String asColor = "", String asAlign = "")
     Return asText
 EndFunction
 
+;/  Function: TableRowDetails
+
+    Returns a single row with two columns for the improvised table
+    
+    Parameters:
+        asLeft                  - Text in the first (left) column.
+        asRight                 - Text in the second (right) column.
+        asColor                 - Color of the text in the second column. If no value is specified, the font color does not change.
+    
+    Returns:
+        String with the text fragment
+/;
 String Function TableRowDetails(String asLeft, String asRight, String asColor = "")
     Return asLeft + " " + asRight + LineBreak()
 EndFunction
 
+;/  Function: TableRowWide
+
+    Returns a single row with up to four columns for the improvised table
+    
+    Parameters:
+        asCell1                 - Text in the first column.
+        asCell2                 - Text in the second column.
+        asCell3                 - Text in the third column.
+        asCell4                 - Text in the fourth column.
+    
+    Returns:
+        String with the text fragment
+/;
 String Function TableRowWide(String asCell1, String asCell2, String asCell3 = "", String asCell4 = "")
     String loc_res = ""
     loc_res += asCell1
-    If asCell2 != ""
-        loc_res += ": " + asCell2
-    EndIf
-    If asCell3 != ""
-        loc_res += "; " + asCell3
-    EndIf
-    If asCell4 != ""
-        loc_res += "; " + asCell4
-    EndIf
+    loc_res += InlineIfString(asCell2 != "", asCell2)
+    loc_res += InlineIfString(asCell3 != "", asCell3)
+    loc_res += InlineIfString(asCell4 != "", asCell4)
     loc_res += LineBreak()
     Return loc_res
 EndFunction
 
-String Function IsolatedRowDetail(Int aiPos1, String asText1, Int aiPos2, String asText2, String asColor2 = "", Int aiFontSize = -1, Int aiLeading = -99)
-    Return asText1 + " " + asText2 + LineBreak()
-EndFunction
+;/  Function: LineGap
 
-String Function LineGap(Int aiLeading = -10)
+    Returns the formatted text for displaying the narrow space between sections
+    
+    Returns:
+        String with the text fragment
+/;
+String Function LineGap()
     Return "\n"
 EndFunction
 
+;/  Function: LineBreak
+
+    Returns a line break
+    
+    Returns:
+        String with the text fragment
+/;
 String Function LineBreak()
     Return "\n"
 EndFunction
 
+;/  Function: PageSplit
+
+    Returns a page break
+    
+    Parameters:
+        abForce                 - If true, the page break will be used when rendering message. 
+                                  Otherwise, the it will be used only if necessary.
+
+    Returns:
+        String with the text fragment
+/;
 String Function PageSplit(Bool abForce = True)
     If abForce
         Return "\n\n\n\n\n\n\n\n\n\n\n\n"
@@ -120,14 +298,43 @@ String Function PageSplit(Bool abForce = True)
     EndIf
 EndFunction
 
+;/  Function: HeaderSplit
+
+    Marking the boundary of the message header. The header will be repeated on each page of the 
+    message when displayed on multiple pages
+
+    Returns:
+        String with the text fragment
+/;
 String Function HeaderSplit()
     Return ""
 EndFunction
 
+;/  Function: FooterSplit
+
+    Marking the boundary of the message footer. The footer will be repeated on each page of the 
+    message when displayed on multiple pages
+
+    Returns:
+        String with the text fragment
+/;
 String Function FooterSplit()
     Return ""
 EndFunction
 
+;/  Function: SplitMessageIntoPages
+
+    Function for dividing long message text into pages. This is also where you clean up the text, 
+    substitute replacements, add a header and footer
+    
+    Parameters:
+        asMessage                   - Message text
+        aiLines                     - Number of lines per page. If no value is specified, the default value used 
+                                      (see <LinesOnPage> and <LinesOnHTMLPage>)
+
+    Returns:
+        String array with pages
+/;
 String[] Function SplitMessageIntoPages(String asMessage, Int aiLines = -1)
     If aiLines < 0 
         aiLines = LinesOnPage
@@ -138,29 +345,32 @@ String[] Function SplitMessageIntoPages(String asMessage, Int aiLines = -1)
     String loc_delim = "\n"
     String[] loc_page_lines
     String loc_page_txt
+    String[] loc_pages
     String[] loc_res
     
-    loc_lines = StringUtil.Split(loc_txt, loc_delim)
+    loc_lines = PapyrusUtil.StringSplit(loc_txt, loc_delim)
     
-    Int loc_linesNum = loc_lines.Length
-    Int loc_start = 0
-    Int loc_i = 1
-    Int loc_total = Math.Ceiling((loc_lines.Length as Float) / (aiLines as Float))
-        
-    While loc_start < loc_lines.Length
-        String[] loc_subset = PapyrusUtil.SliceStringArray(loc_lines, loc_start, aiLines)
-        loc_page_txt = ""
-        loc_page_txt += _CleanPage(PapyrusUtil.StringJoin(loc_subset, loc_delim))
-        If loc_total > 1
-            loc_page_txt += LineBreak() + PageFooter(loc_i, loc_total)
-        EndIf
+    Int loc_line_start = 0       
+    While loc_line_start < loc_lines.Length
+        String[] loc_subset = PapyrusUtil.SliceStringArray(loc_lines, loc_line_start, loc_line_start + aiLines)
+        loc_page_txt = PapyrusUtil.StringJoin(loc_subset, loc_delim)
+        loc_page_txt = _CleanPage(loc_page_txt)
         If StringUtil.GetLength(loc_page_txt) > CharsCTD
         ; last check
             loc_page_txt = "\nThe page is too large to output (attempting to do so will result in CTD)! Split it into several parts.\n"
+        ElseIf StringUtil.GetLength(loc_page_txt) > 0
+            loc_pages = PapyrusUtil.PushString(loc_pages, loc_page_txt)
+        EndIf
+        loc_line_start += aiLines
+    EndWhile
+    
+    Int loc_i = 0
+    While loc_i < loc_pages.Length
+        loc_page_txt = loc_pages[loc_i]
+        If loc_pages.Length > 1
+            loc_page_txt += LineBreak() + PageFooter(loc_i, loc_pages.Length)
         EndIf
         loc_res = PapyrusUtil.PushString(loc_res, loc_page_txt)
-        
-        loc_start += aiLines
         loc_i += 1
     EndWhile
     
@@ -168,10 +378,33 @@ String[] Function SplitMessageIntoPages(String asMessage, Int aiLines = -1)
     
 EndFunction
 
+;/  Function: PageFooter
+
+    Adds a footer with page number
+    
+    Parameters:
+        aiPageCurrent                       - Current page number
+        aiPageTotal                         - Total number of pages
+
+    Returns:
+        String with the text fragment
+/;
 String Function PageFooter(Int aiPageCurrent, Int aiPageTotal)
-    Return "== PAGE " + aiPageCurrent + "/" + aiPageTotal + " =="
+    Return "== Page " + aiPageCurrent + "/" + aiPageTotal + " =="
 EndFunction
 
+;/  Function: DeviceLockIcon
+
+    Returns an improvised device lock indicator (icon)
+    
+    Parameters:
+        abOpen                              - The lock is open
+        abJammed                            - The lock is jammed
+        abTimer                             - The lock has timer
+
+    Returns:
+        String with the text fragment
+/;
 String Function DeviceLockIcon(Bool abOpen, Bool abJammed, Bool abTimer)
     If abOpen
         Return "O"
@@ -185,20 +418,29 @@ String Function DeviceLockIcon(Bool abOpen, Bool abJammed, Bool abTimer)
     Return "C"
 EndFunction
 
+;/  Function: _CleanPage
 
+    Final page cleanup
+    
+    Parameters:
+        asPage                              - Page text
+    
+    Returns:
+        String with the page text
+/;
 String Function _CleanPage(String asPage)
     String loc_res = asPage
     loc_res = TrimSubstr(loc_res, "\n")
+    loc_res = TrimSubstr(loc_res, " ")
     Return loc_res
 EndFunction
-    
+
+Auto State HTML
 ;===============================================================================
 ;===============================================================================
 ;                                    State: HTML
 ;===============================================================================
 ;===============================================================================
-
-Auto State HTML
 
     String Function Header(String asHeader, Int aiPlusSize = 4)
         Int loc_pad_len = Math.Ceiling((30 - StringUtil.GetLength(asHeader)) / 10)
@@ -213,11 +455,6 @@ Auto State HTML
         loc_res += loc_pad + "7"
         loc_res += FontEnd()
         loc_res += LineBreak()
-;        loc_res += "<p align='center'>"
-;        loc_res += TextDecoration(asHeader, FontSize + aiPlusSize, asColor = TextColorDefault)
-;        loc_res += LineBreak()
-;        loc_res += TextDecoration("4111111111113", 32, asFontFace = "$SkyrimSymbolsFont", asColor = TextColorDefault)
-;        loc_res += "</p>"
         Return loc_res
     EndFunction
 
@@ -273,16 +510,15 @@ Auto State HTML
     map "$SkyrimBooks_UnreadableFont" = "SkyrimBooks_Unreadable" Normal
 /;
     String Function FontBegin(Int aiFontSize = -1, String asFontFace = "", String asColor = "")
-        String loc_res = "<font"
-        If aiFontSize > 0
-            loc_res += " size='" + (aiFontSize as String) + "'"
+        Bool loc_font = aiFontSize > 0 || asColor != "" || asFontFace != ""
+        If !loc_font
+            Return ""
         EndIf
-        If asFontFace != ""
-            loc_res += " face='" + asFontFace + "'"
-        EndIf
-        If asColor != ""
-            loc_res += " color='" + asColor + "'"
-        EndIf
+        String loc_res = ""
+        loc_res += "<font"
+        loc_res += InlineIfString(aiFontSize > 0, " size='" + (aiFontSize as String) + "'")
+        loc_res += InlineIfString(asFontFace != "", " face='" + asFontFace + "'")
+        loc_res += InlineIfString(asColor != "", " color='" + asColor + "'")
         loc_res += ">"
         Return loc_res
     EndFunction
@@ -295,96 +531,38 @@ Auto State HTML
         String loc_res = ""
         Bool loc_font = aiFontSize > 0 || asColor != "" || asFontFace != ""
         If loc_font
-            loc_res += "<font"
-            If aiFontSize > 0
-                loc_res += " size='" + (aiFontSize as String) + "'"
-            EndIf
-            If asColor != ""
-                loc_res += " color='" + asColor + "'"
-            EndIf
-            If asFontFace != ""
-                loc_res += " face='" + asFontFace + "'"
-            EndIf
-            loc_res += ">"
+            loc_res += FontBegin(aiFontSize = aiFontSize, asFontFace = asFontFace, asColor = asColor)
         EndIf
-        If asAlign != ""
-            loc_res += "<span align='" + asAlign + "'>"
-        EndIf
-        
+        loc_res += InlineIfString(asAlign != "", "<span align='" + asAlign + "'>")
         loc_res += asText
-        
-        If asAlign != ""
-            loc_res += "</span>"
-        EndIf
-        
+        loc_res += InlineIfString(asAlign != "", "</span>")
         If loc_font
-            loc_res += "</font>"
+            loc_res += FontEnd()
         EndIf
-        
         Return loc_res
     EndFunction
 
     String Function TableRowDetails(String asLeft, String asRight, String asColor = "")
         String loc_res = ""
-;        loc_res += "<span align='left'>"
         loc_res += "\t" + asLeft
         loc_res += "\t"
-        If asColor != ""
-            loc_res += "<font color='" + asColor + "'>"
-        EndIf
-        loc_res += asRight
-        If asColor != ""
-            loc_res += "</font>"
-        EndIf
-;        loc_res += "</span>"
+        loc_res += TextDecoration(asRight, asColor = asColor)
         loc_res += LineBreak()
-        
         Return loc_res
     EndFunction
 
     String Function TableRowWide(String asCell1, String asCell2, String asCell3 = "", String asCell4 = "")
         String loc_res = ""
         loc_res += "\t" + asCell1
-        If asCell2 != ""
-            loc_res += "\t" + asCell2
-        EndIf
-        If asCell3 != ""
-            loc_res += "\t" + asCell3
-        EndIf
-        If asCell4 != ""
-            loc_res += "\t" + asCell4
-        EndIf
+        loc_res += InlineIfString(asCell2 != "", "\t" + asCell2)
+        loc_res += InlineIfString(asCell3 != "", "\t" + asCell3)
+        loc_res += InlineIfString(asCell4 != "", "\t" + asCell4)
         loc_res += LineBreak()
         Return loc_res
     EndFunction
-    
-    ; all decorators are isolated inside line so it is possible to split message on pages
-    String Function IsolatedRowDetail(Int aiPos1, String asText1, Int aiPos2, String asText2, String asColor2 = "", Int aiFontSize = -1, Int aiLeading = -99)
-        String loc_res = ""
-        If aiLeading > -99
-            loc_res += TableBegin(aiPos1, aiPos2, aiLeading = aiLeading)
-        Else
-            loc_res += TableBegin(aiPos1, aiPos2)
-        EndIf
-        If aiFontSize > 0
-            loc_res += FontBegin(aiFontSize)
-        EndIf
-        loc_res += "\t" + asText1
-        loc_res += "\t" + TextDecoration(asText2, asColor = asColor2)
-        If aiFontSize > 0
-            loc_res += FontEnd()
-        EndIf
-        loc_res += TableEnd()
-        Return loc_res
-    EndFunction
 
-    String Function LineGap(Int aiLeading = -10)
-;        String loc_res = ""
-;        loc_res += "<textformat leading='" + (aiLeading as String) + "'>"
-;        loc_res += " "                  ; some text is needed otherwise 'leading' will not work
-;        loc_res += "<br/>"
-;        loc_res += "</textformat>"
-;        Return loc_res
+    String Function LineGap()
+    ; On postprocessing it will be replaced with narrow line
         Return "<gap/>"
     EndFunction
 
@@ -392,8 +570,8 @@ Auto State HTML
         Return "<br/>"
     EndFunction
 
-    ; <g/> is a fake tag used to protect starting whitespace characters (such as \t) from the PapyrusUtil.StringSplit function.
     String Function HeaderSplit()
+    ; <g/> is a fake tag used to protect starting whitespace characters (such as \t) from the PapyrusUtil.StringSplit function.
         Return "<header/><g/>"
     EndFunction
     
@@ -402,6 +580,7 @@ Auto State HTML
     EndFunction
     
     String Function PageSplit(Bool abForce = True)
+    ; <g/> is a fake tag used to protect starting whitespace characters (such as \t) from the PapyrusUtil.StringSplit function.
         If abForce
             Return "<page/><g/>"
         Else
@@ -564,21 +743,57 @@ EndState
 ;    Return "<img src='" + asSrc + "' height='32' width='32' />"
 ;EndFunction
 
-;===============================================================================
-;===============================================================================
-;                                    Helpers
-;===============================================================================
-;===============================================================================
+;/  Group: Helpers
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/; 
 
+;/  Function: PercentToGrayscale
 
+    Turns the percentage into a color code on the gray scale.
+    0 corresponds to dark gray color
+    100 corresponds to white color
+    
+    Parameters:
+        aiPercent                       - Percent value
+
+    Returns:
+        Hexadecimal color code in CSS format with leading '#'
+/;
 String Function PercentToGrayscale(Int aiPercent)
     Return _PercentToColor(aiPercent, 0x444444, 0xAAAAAA, 0xFFFFFF)
 EndFunction
 
+;/  Function: PercentToRainbow
+
+    Turns the percentage into a color code on a "rainbow".
+    0 corresponds to purple color
+    50 corresponds to yellow color
+    100 corresponds to green color
+    
+    Parameters:
+        aiPercent                       - Percent value
+
+    Returns:
+        Hexadecimal color code in CSS format with leading '#'
+/;
 String Function PercentToRainbow(Int aiPercent)
     Return _PercentToColor(aiPercent, 0xFF00FF, 0xFFFF00, 0x00FF00)
 EndFunction
 
+;/  Function: BoolToGrayscale
+
+    Turns the boolean into a color code on the gray scale.
+    False corresponds to dark gray color
+    True corresponds to white color
+    
+    Parameters:
+        abValue                         - Boolean value
+
+    Returns:
+        Hexadecimal color code in CSS format with leading '#'
+/;
 String Function BoolToGrayscale(Bool abValue)
     If abValue 
         Return PercentToGrayscale(100)
@@ -735,4 +950,14 @@ String Function RemoveDuplicates(String asStr, String asSubstr)
         loc_pos = StringUtil.Find(loc_res, asSubstr, loc_prev + loc_delta)
     EndWhile
     Return loc_res
+EndFunction
+
+; The main disadvantage of the function is that it is calculated in advance for all branches, regardless of the condition
+; Use with caution
+String Function InlineIfString(Bool abCondition, String asTrue, String asFalse = "")
+    If abCondition
+        Return asTrue
+    Else
+        Return asFalse
+    EndIf
 EndFunction
