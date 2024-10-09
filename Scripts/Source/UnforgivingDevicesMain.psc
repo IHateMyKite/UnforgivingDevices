@@ -1735,6 +1735,7 @@ EndFunction
     Parameters:
 
         asText     - String of lines to be shown
+        abHTML     - Message is formatted as HTML
 
     _Example_:
         --- Code
@@ -1746,15 +1747,7 @@ EndFunction
         ---
 /;
 Function ShowMessageBox(string asText, Bool abHTML = False)
-
-    String[] loc_pages = UDMTF.SplitMessageIntoPages(asText)
-    Int loc_i = 0
-    While loc_i < loc_pages.Length
-;        Log("ShowMessageBox() page = " + loc_i + ", text = " + loc_pages[loc_i], 3)
-        ShowSingleMessageBox(loc_pages[loc_i], abHTML)
-        loc_i += 1
-    EndWhile
-
+    UDMMM.ShowMessageBox(asText, abHTML)
 EndFunction
 
 ;/  Function: ShowSingleMessageBox
@@ -1765,64 +1758,11 @@ EndFunction
 
     Parameters:
 
-        asMessage     - String to be shown in message box
+        asMessage       - String to be shown in message box
+        abHTML          - Message is formatted as HTML
 /;
 Function ShowSingleMessageBox(String asMessage, Bool abHTML = False)
-    If !abHTML
-        Debug.MessageBox(asMessage)
-    Else
-        Debug.MessageBox("Placeholder")
-    
-        String[] loc_args
-        loc_args = Utility.CreateStringArray(2, "")
-        loc_args[0] = asMessage
-        loc_args[1] = "1"
-
-        UI.SetBool("MessageBoxMenu", "_root.MessageMenu" + ".MessageText.wordWrap", false)
-;        UI.SetBool("MessageBoxMenu", "_root.MessageMenu" + ".MessageText.noTranslate", false)
-        UI.InvokeStringA("MessageBoxMenu", "_root.MessageMenu" + ".SetMessage", loc_args)
-        
-;        UI.SetString("MessageBoxMenu", "_root.MessageMenu" + ".MessageText.htmlText", asMessage + asMessage)
-    EndIf
-
-    ;wait for fucking messagebox to actually get OKd before continuing thread (holy FUCKING shit toad)
-    Utility.waitMenuMode(0.3)
-    while IsMessageboxOpen()
-        Utility.waitMenuMode(0.05)
-    EndWhile
-EndFunction
-
-Int Function ShowMessageBoxMenu(String asMessage, String[] aasButtons, Bool abHTML = False)
-    If !abHTML
-        Debug.MessageBox(asMessage)
-    Else
-        Debug.MessageBox("Placeholder")
-    
-        String[] loc_args
-        loc_args = Utility.CreateStringArray(2, "")
-        loc_args[0] = asMessage
-        loc_args[1] = "1"
-        
-        UI.SetBool("MessageBoxMenu", "_root.MessageMenu" + ".MessageText.wordWrap", false)
-        UI.InvokeStringA("MessageBoxMenu", "_root.MessageMenu" + ".SetMessage", loc_args)
-    EndIf
-    ; populate buttons
-    If aasButtons.Length > 0
-        Utility.waitMenuMode(0.1)
-        String[] loc_btns = new String[1]
-        loc_btns[0] = "1"
-        loc_btns = PapyrusUtil.MergeStringArray(loc_btns, aasButtons)
-        UI.InvokeStringA("MessageBoxMenu", "_root.MessageMenu" + ".setupButtons", loc_btns)
-    EndIf
-    ; wait for the player input
-    Int loc_last_btn = -2
-    Utility.waitMenuMode(0.2)
-    while UI.IsMenuOpen("MessageBoxMenu") ; IsMessageboxOpen()
-        Utility.waitMenuMode(0.05)
-        loc_last_btn = UI.GetInt("MessageBoxMenu", "_root.MessageMenu" + ".lastTabIndex")
-    EndWhile
-    GInfo("ShowMessageBoxMenu() Button = " + loc_last_btn)
-    Return loc_last_btn
+    UDMMM.ShowSingleMessageBox(asMessage, abHTML)
 EndFunction
 
 ;/  Group: Actor

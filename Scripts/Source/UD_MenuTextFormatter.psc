@@ -116,6 +116,12 @@ Int Function GetModeIndex()
     Return GetModes().Find(GetState())
 EndFunction
 
+
+
+Bool Function HasHtmlMarkup()
+    Return GetState() == "HTML"
+EndFunction
+
 ;===============================================================================
 ;===============================================================================
 ;                                    State: Default (Legacy)
@@ -606,6 +612,9 @@ Auto State HTML
         String loc_footer = ""
         String[] loc_pages
         String[] loc_pages2
+        
+        ; for compatibility with plain text
+        loc_txt = ReplaceSubstr(loc_txt, "\n", "<br/>")
         
         ; extract and save header
         loc_pos = StringUtil.Find(loc_txt, loc_delim_h)

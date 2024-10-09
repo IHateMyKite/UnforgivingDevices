@@ -3606,17 +3606,17 @@ Function DeviceMenu(bool[] aaControl)
         String loc_str = ""
         loc_str += UDMTF.Header(deviceInventory.GetName(), 4)
         ; TESTING
-        String[] loc_buttons = new String[8]
-        loc_buttons[0] = "Struggle"
-        loc_buttons[1] = "Struggle Uselessly"
-        loc_buttons[2] = "Locks"
-        loc_buttons[3] = "Cut"
-        loc_buttons[4] = "Special Menu"
-        loc_buttons[5] = "Unlock"
-        loc_buttons[6] = "Details"
-        loc_buttons[7] = "Exit"
+;        String[] loc_buttons = new String[8]
+;        loc_buttons[0] = "Struggle"
+;        loc_buttons[1] = "Struggle Uselessly"
+;        loc_buttons[2] = "Locks"
+;        loc_buttons[3] = "Cut"
+;        loc_buttons[4] = "Special Menu"
+;        loc_buttons[5] = "Unlock"
+;        loc_buttons[6] = "Details"
+;        loc_buttons[7] = "Exit"
         
-        Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(None, loc_str, loc_buttons)
+        Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(UD_MessageDeviceInteraction, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
         StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
         if msgChoice == 0        ;struggle
             _break = struggleMinigame()
@@ -7637,7 +7637,7 @@ Function ShowBaseDetails()
     loc_res += UDMTF.TableEnd()
     loc_res += UDMTF.FontEnd()
         
-    UDMain.ShowMessageBox(loc_res, UDMTF.GetMode() == "HTML")
+    UDMain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
     
 EndFunction
 
@@ -7747,7 +7747,7 @@ Function ShowLockDetails()
         loc_res += UDMTF.TableEnd()
         loc_res += UDMTF.FontEnd()
     
-        UDmain.ShowMessageBox(loc_res, UDMTF.GetMode() == "HTML")
+        UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
     endwhile
 EndFunction
 
@@ -7782,7 +7782,7 @@ Function showDebugInfo()
     loc_res += UDMTF.FooterSplit()
     loc_res += UDMTF.TableEnd()
     loc_res += UDMTF.FontEnd()
-    UDmain.ShowMessageBox(loc_res, UDMTF.GetMode() == "HTML")
+    UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
 EndFunction
 
 ;/  Function: showDebugMinigameInfo
@@ -7857,7 +7857,7 @@ Function showDebugMinigameInfo()
     loc_res += UDMTF.TableEnd()
     loc_res += UDMTF.FontEnd()
     
-    UDmain.ShowMessageBox(loc_res, UDMTF.GetMode() == "HTML")
+    UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
 EndFunction
 
 string Function _getCritInfo()

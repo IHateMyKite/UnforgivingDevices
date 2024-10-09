@@ -1771,7 +1771,7 @@ Function showActorDetails(Actor akActor)
             loc_res += UDMTF.TableEnd()
             loc_res += UDMTF.FontEnd()
                 
-            UDMain.ShowMessageBox(loc_res, UDMTF.GetMode() == "HTML")
+            UDMain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
         elseif loc_option == 1 ;skills
             String loc_res = ""
             loc_res += UDMTF.Header("Skill details", 4)
@@ -1802,7 +1802,7 @@ Function showActorDetails(Actor akActor)
             loc_res += UDMTF.TableEnd()
             loc_res += UDMTF.FontEnd()
             
-            UDmain.ShowMessageBox(loc_res, UDMTF.GetMode() == "HTML")
+            UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
         elseif loc_option == 2 ;arousal/orgasm details
             String loc_res = ""
             loc_res += UDMTF.Header("Orgasm details", 4)
@@ -1847,7 +1847,7 @@ Function showActorDetails(Actor akActor)
             loc_res += UDMTF.TableEnd()
             loc_res += UDMTF.FontEnd()
             
-            UDmain.ShowMessageBox(loc_res, UDMTF.GetMode() == "HTML")
+            UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
         elseif loc_option == 3 ;Helper details
             ShowHelperDetails(akActor)
         elseif loc_option == 4 ;other details
@@ -1869,7 +1869,7 @@ Function showActorDetails(Actor akActor)
             loc_res += UDMTF.TableEnd()
             loc_res += UDMTF.FontEnd()
             
-            UDmain.ShowMessageBox(loc_res, UDMTF.GetMode() == "HTML")
+            UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
         else
             return
         endif
@@ -1905,7 +1905,7 @@ Function ShowHelperDetails(Actor akActor)
     loc_res += UDMTF.TableEnd()
     loc_res += UDMTF.FontEnd()
     
-    UDmain.ShowMessageBox(loc_res, UDMTF.GetMode() == "HTML")
+    UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
 EndFunction
 
 ;///////////////////////////////////////
