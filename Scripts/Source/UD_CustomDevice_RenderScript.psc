@@ -665,6 +665,7 @@ endproperty
 UnforgivingDevicesMain  _udmain                                          ;Local variable for UDmain. Filled only once
 Quest                   _udquest                                         ;kept for possible future optimization
 UDCustomDeviceMain      _udcdmain                                        ;Local variable for UDCDmain. Filled only once
+UD_MenuTextFormatter    _UDMTF
 Keyword                 _DeviceKeyword_Minor        = none
 Actor                   Wearer                      = none               ;current device wearer reference
 Actor                   _minigameHelper             = none               ;current device helper. Is filled the moment the device menu is open
@@ -749,6 +750,14 @@ UD_AnimationManagerScript   Property UDAM       Hidden ;animation libs
     UD_AnimationManagerScript Function get()
         return UDmain.UDAM
     EndFunction 
+EndProperty
+UD_MenuTextFormatter        Property UDMTF      Hidden  ; Menu Text Formatter
+    UD_MenuTextFormatter Function Get()
+        If !_UDMTF
+            _UDMTF = UDmain.UDMTF
+        EndIf
+        Return _UDMTF
+    EndFunction
 EndProperty
 
 bool     Property _StopMinigame                 = False         auto hidden ;control variable for stopping minigame. Made as not bitcoded value to reduce proccessing lag
@@ -3593,7 +3602,21 @@ Function DeviceMenu(bool[] aaControl)
     while !_break
         setHelper(none)
         _deviceMenuInit(aaControl)
-        Int msgChoice = UD_MessageDeviceInteraction.Show()
+;        Int msgChoice = UD_MessageDeviceInteraction.Show()
+        String loc_str = ""
+        loc_str += UDMTF.Header(deviceInventory.GetName(), 4)
+        ; TESTING
+;        String[] loc_buttons = new String[8]
+;        loc_buttons[0] = "Struggle"
+;        loc_buttons[1] = "Struggle Uselessly"
+;        loc_buttons[2] = "Locks"
+;        loc_buttons[3] = "Cut"
+;        loc_buttons[4] = "Special Menu"
+;        loc_buttons[5] = "Unlock"
+;        loc_buttons[6] = "Details"
+;        loc_buttons[7] = "Exit"
+        
+        Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(UD_MessageDeviceInteraction, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
         StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
         if msgChoice == 0        ;struggle
             _break = struggleMinigame()
@@ -3619,7 +3642,7 @@ Function DeviceMenu(bool[] aaControl)
 EndFunction
 
 bool Function _lockMenu()
-    Int msgChoice = UDCDmain.DefaultLockMenuMessage.Show()
+    Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.DefaultLockMenuMessage, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
     if msgChoice == 0
         return keyMinigame()
     elseif msgChoice == 1
@@ -3633,7 +3656,7 @@ EndFunction
 
 bool Function _specialMenu()
     if UD_SpecialMenuInteraction
-        int  loc_res  = UD_SpecialMenuInteraction.show()
+        int  loc_res  = UDMain.UDMMM.ShowMessageBoxMenu(UD_SpecialMenuInteraction, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
         bool loc_res2 = proccesSpecialMenu(loc_res)
         return loc_res2
     else
@@ -3755,7 +3778,7 @@ Function DeviceMenuWH(Actor akSource,bool[] aaControl)
         endif
 
         _deviceMenuInitWH(akSource,aaControl)
-        Int msgChoice = UD_MessageDeviceInteractionWH.Show()
+        Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(UD_MessageDeviceInteractionWH, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
         if msgChoice == 0        ;help struggle
             _break = struggleMinigameWH(akSource)
         elseif msgChoice == 1    ;lockpick
@@ -3794,7 +3817,7 @@ Function DeviceMenuWH(Actor akSource,bool[] aaControl)
 EndFunction
 
 bool Function _lockMenuWH(Actor akSource)
-    Int msgChoice =  UDCDmain.DefaultLockMenuMessageWH.Show()
+    Int msgChoice =  UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.DefaultLockMenuMessageWH, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
     if msgChoice == 0
         return keyMinigameWH(akSource)
     elseif msgChoice == 1
@@ -3808,7 +3831,7 @@ EndFunction
 
 bool Function _specialMenuWH(Actor akSource)
     if UD_SpecialMenuInteractionWH
-        int  loc_res  = UD_SpecialMenuInteractionWH.show()
+        int  loc_res  = UDMain.UDMMM.ShowMessageBoxMenu(UD_SpecialMenuInteractionWH, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
         bool loc_res2 = proccesSpecialMenuWH(akSource,loc_res)
         return loc_res2
     else
@@ -4691,7 +4714,7 @@ EndFunction
 /;
 bool Function struggleMinigame(int aiType = -1, Bool abSilent = False)
     if aiType == -1
-        aiType = UDCDmain.StruggleMessage.show()
+        aiType = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.StruggleMessage, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
     endif
 
     if aiType == 4
@@ -5064,7 +5087,7 @@ EndFunction
 bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
     int type = -1
     if type == -1
-        type = UDCDmain.StruggleMessageNPC.show()
+        type = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.StruggleMessageNPC, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
     endif
 
     if type == 4
@@ -6566,11 +6589,7 @@ Function minigame()
         UnlockRestrain()
         return
     endif
-    
-    if UDmain.DebugMod && PlayerInMinigame()
-        showDebugMinigameInfo()
-    endif
-    
+
     _MinigameON = True
     GoToState("UpdatePaused")
     
@@ -6584,6 +6603,10 @@ Function minigame()
     bool                    loc_PlayerInMinigame                = loc_WearerIsPlayer || loc_HelperIsPlayer
     Bool                    loc_is3DLoaded                      = loc_PlayerInMinigame || Wearer.Is3DLoaded()
     UD_CustomDevice_NPCSlot loc_WearerSlot                      = UD_WearerSlot
+    
+    if UDmain.DebugMod && loc_PlayerInMinigame
+        showDebugMinigameInfo()
+    endif
     
     if loc_PlayerInMinigame
         closeMenu()
@@ -7496,92 +7519,122 @@ EndFunction
 /;
 Function ShowBaseDetails()
     updateDifficulty()
-    float loc_accesibility = getAccesibility()
-    string loc_res = ""
-    loc_res += "- " + deviceInventory.GetName() + " -\n"
-    loc_res += "Level: " + UD_Level + "\n"
-    loc_res += "Type: " + UD_DeviceType + "\n"
-    loc_res += ("Device health: " + FormatFloat(current_device_health,1)+"/"+ FormatFloat(UD_Health,1)+ "\n")
-    loc_res += "Condition: " + getConditionString() + " ("+FormatFloat(getRelativeCondition()*100,1)+"%)\n"
-    loc_res += "Accesibility: " + Round(100.0*loc_accesibility) + "%\n"
+    Float loc_accesibility = getAccesibility()
+    String loc_res = ""
+    String loc_frag
+    Int loc_i
     
-    loc_res += "Difficutly: "
+;    UDMTF.GoToState("")
+
+    loc_res += UDMTF.Header(deviceInventory.GetName(), 4)
+    loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+    loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
+    loc_res += UDMTF.HeaderSplit()
+
+    loc_res += UDMTF.TableRowDetails("Level:", UD_Level)
+    loc_res += UDMTF.TableRowDetails("Type:", UD_DeviceType)
+    
+    loc_res += UDMTF.LineGap()
+        
+    loc_res += UDMTF.TableRowDetails("Device health:", FormatFloat(current_device_health, 1) + "/" + FormatFloat(UD_Health, 1), UDMTF.PercentToGrayscale(Round(100 * current_device_health / UD_Health)))
+    loc_res += UDMTF.TableRowDetails("Condition:", getConditionString() + " (" + FormatFloat(getRelativeCondition() * 100, 1) + "%)", UDMTF.PercentToGrayscale(Round(100 * getRelativeCondition())))
+    loc_res += UDMTF.TableRowDetails("Accessibility:", Round(100.0 * loc_accesibility) + "%", UDMTF.PercentToRainbow(Round(100 * loc_accesibility)))
+
     if (UD_durability_damage_base >= 2.5)
-        loc_res += "Very Easy\n"
+        loc_res += UDMTF.TableRowDetails("Difficutly:", "Very Easy", UDMTF.PercentToRainbow(100))
     elseif (UD_durability_damage_base >= 1.5)
-        loc_res += "Easy\n"
+        loc_res += UDMTF.TableRowDetails("Difficutly:", "Easy", UDMTF.PercentToRainbow(83))
     elseif (UD_durability_damage_base >= 0.75)
-        loc_res += "Normal\n"
+        loc_res += UDMTF.TableRowDetails("Difficutly:", "Normal", UDMTF.PercentToRainbow(67))
     elseif (UD_durability_damage_base >= 0.3)
-        loc_res += "Hard\n"
+        loc_res += UDMTF.TableRowDetails("Difficutly:", "Hard", UDMTF.PercentToRainbow(50))
     elseif (UD_durability_damage_base >= 0.05)
-        loc_res += "Very Hard\n"
+        loc_res += UDMTF.TableRowDetails("Difficutly:", "Very Hard", UDMTF.PercentToRainbow(33))
     elseif UD_durability_damage_base > 0
-        loc_res += "Extreme\n"
+        loc_res += UDMTF.TableRowDetails("Difficutly:", "Extreme", UDMTF.PercentToRainbow(17))
     else
-        loc_res += "Impossible\n"
-    endif
-    
-    bool loc_showhitres = canBeCutted()
-    bool loc_showstrres = canBeStruggled(loc_accesibility)
-    if loc_showstrres && !loc_showhitres
-        loc_res += "Resist: "
-        loc_res += "P = " + Round(getModResistPhysical(0.0)*-100.0) + "/XXX %/"
-        loc_res += "M = " + Round(getModResistMagicka(0.0)*-100.0) + " %\n"
-    elseif loc_showhitres && !loc_showstrres
-        loc_res += "Resist: "
-        loc_res += "P = XXX/" + Round(UD_WeaponHitResist*100.0) + "%/"
-        loc_res += "M = XXX\n"
-    elseif loc_showhitres && loc_showstrres
-        loc_res += "Resist: "
-        loc_res += "P = " + Round(getModResistPhysical(0.0)*-100.0) + "/"+Round(UD_WeaponHitResist*100.0)+" %/"
-        loc_res += "M = " + Round(getModResistMagicka(0.0)*-100.0) + " %\n"
-    elseif loc_accesibility == 0
-        loc_res += "Resist: Inescapable\n"
-    else
-        loc_res += "Resist: Indestructable\n"
-    endif
-    
-    if HaveLocks()
-        loc_res += "Number of locks: " + GetLockedLocks() + "/" + GetLockNumber() + "\n"
-        loc_res += "Lock multiplier: " + Round((1.0 + _getLockMinigameModifier())*100.0) + " %\n"
-    else
-        loc_res += "Device have no locks\n"
-    endif
-    
-    loc_res += "Key: "
-    if zad_deviceKey
-        loc_res += zad_deviceKey.GetName() + "\n"
-    else
-        loc_res += "None\n"
-    endif
-    
-    if UDmain.UDGV.UDG_ShowCritVars.Value
-        loc_res += "Crit chance: "+UD_StruggleCritChance+" %\n"
-        loc_res += "Crit duration: "+FormatFloat(UD_StruggleCritDuration,1)+" s\n"
-        loc_res += "Crit mult: "+FormatFloat(UD_StruggleCritMul*100,1)+" %\n"
-    endif
-    
-    if canBeCutted()
-        loc_res += "Cutting: " + FormatFloat(UD_CutChance,1) + "\n"
-    else
-        loc_res += "Cutting: Uncuttable\n"
+        loc_res += UDMTF.TableRowDetails("Difficutly:", "Impossible", UDMTF.PercentToRainbow(0))
     endif
 
-    if isNotShareActive()
-        loc_res += "Active effect: " + UD_ActiveEffectName + "\n"
-        loc_res += "Can be activated: " + canBeActivated() + "\n"
-        if UD_Cooldown > 0
-            loc_res += "Cooldown: " + Round(UD_Cooldown*0.75*UDCDmain.UD_CooldownMultiplier) + " - " + Round(UD_Cooldown*1.25*UDCDmain.UD_CooldownMultiplier) +" min\n"
+    loc_res += UDMTF.PageSplit(abForce = False)
+    loc_res += UDMTF.LineGap()
+        
+    If canBeStruggled(loc_accesibility)
+        loc_res += UDMTF.TableRowDetails("Phys. Resist:", Round(getModResistPhysical(0.0) * -100.0) + "%", UDMTF.PercentToRainbow(Round(50.0 + getModResistPhysical(0.0) * 50.0)))
+        loc_res += UDMTF.TableRowDetails("Mag. Resist:", Round(getModResistMagicka(0.0) * -100.0) + "%", UDMTF.PercentToRainbow(Round(50.0 + getModResistMagicka(0.0) * 50.0)))
+    Else
+        loc_res += UDMTF.TableRowDetails("Phys. Resist:", "Inescapable", UDMTF.PercentToRainbow(0))
+        loc_res += UDMTF.TableRowDetails("Mag. Resist:", "Inescapable", UDMTF.PercentToRainbow(0))
+    EndIf
+    If canBeCutted()
+        loc_res += UDMTF.TableRowDetails("Cut Resist:", Round(UD_WeaponHitResist) + "%", UDMTF.PercentToRainbow(Round(100 - UD_WeaponHitResist)))
+    Else
+        loc_res += UDMTF.TableRowDetails("Cut Resist:", "Indestructable", UDMTF.PercentToRainbow(0))
+    EndIf
+    
+    loc_res += UDMTF.PageSplit(abForce = False)
+    loc_res += UDMTF.LineGap()
+    
+    if HaveLocks()
+        loc_i = 0
+        loc_frag = ""
+        loc_frag += UDMTF.FontBegin(asFontFace = "$EverywhereBoldFont")
+        While loc_i < GetLockNumber()
+            loc_frag += UDMTF.DeviceLockIcon(IsNthLockUnlocked(loc_i), IsNthLockJammed(loc_i), IsNthLockTimeLocked(loc_i) && GetNthLockTimeLock(loc_i)) + " "
+            loc_i += 1
+        EndWhile
+        loc_frag += UDMTF.FontEnd()
+        loc_res += UDMTF.TableRowDetails("Have locks:", loc_frag)
+        loc_res += UDMTF.TableRowDetails("Lock multiplier:", Round((1.0 + _getLockMinigameModifier()) * 100.0) + "%")
+        if zad_deviceKey
+            loc_res += UDMTF.TableRowDetails("Key:", zad_deviceKey.GetName())
         else
-            loc_res += "Cooldown: NONE\n"
+            loc_res += UDMTF.TableRowDetails("Key:", "None", UDMTF.PercentToGrayscale(0))
         endif
+    else
+        loc_res += UDMTF.TableRowDetails("Have locks:", "None", UDMTF.PercentToGrayscale(0))
+    endif
+
+    loc_res += UDMTF.PageSplit(abForce = False)
+    loc_res += UDMTF.LineGap()
+
+    if UDmain.UDGV.UDG_ShowCritVars.Value    
+        loc_res += UDMTF.TableRowDetails("Crit chance:", UD_StruggleCritChance + "%")
+        loc_res += UDMTF.TableRowDetails("Crit duration:", FormatFloat(UD_StruggleCritDuration, 1) + " s")
+        loc_res += UDMTF.TableRowDetails("Crit mult:", FormatFloat(UD_StruggleCritMul * 100, 1) + "%")
+        loc_res += UDMTF.PageSplit(abForce = False)
+        loc_res += UDMTF.LineGap()
+    endif
+
+    if canBeCutted()
+        loc_res += UDMTF.TableRowDetails("Cutting:", FormatFloat(UD_CutChance, 1) + "%", UDMTF.PercentToRainbow(Round(UD_CutChance * 2)))
+    else
+        loc_res += UDMTF.TableRowDetails("Cutting:", "Uncuttable", UDMTF.PercentToRainbow(0))
+    endif
+
+    loc_res += UDMTF.PageSplit(abForce = False)
+    loc_res += UDMTF.LineGap()
+    
+    if isNotShareActive()
+        loc_res += UDMTF.TableRowDetails("Activation effect:", UD_ActiveEffectName)
+        loc_res += UDMTF.TableRowDetails("Can be activated:", canBeActivated(), UDMTF.BoolToGrayscale(canBeActivated()))
+        if UD_Cooldown > 0
+            loc_res += UDMTF.TableRowDetails("Cooldown:", Round(UD_Cooldown * 0.75 * UDCDmain.UD_CooldownMultiplier) + " - " + Round(UD_Cooldown * 1.25 * UDCDmain.UD_CooldownMultiplier) + " min", UDMTF.PercentToGrayscale(100))
+        else
+            loc_res += UDMTF.TableRowDetails("Cooldown:", "None", UDMTF.PercentToRainbow(0))
+        endif
+        loc_res += UDMTF.PageSplit(abForce = False)
+        loc_res += UDMTF.LineGap()
     endif
     
-    loc_res += "Locked for: " + FormatFloat(GetGameTimeLockedTime()*24.0,2) + " h\n"
+    loc_res += UDMTF.TableRowDetails("Locked for:", FormatFloat(GetGameTimeLockedTime() * 24.0, 2) + " hours")
+
+    loc_res += UDMTF.FooterSplit()
+    loc_res += UDMTF.TableEnd()
+    loc_res += UDMTF.FontEnd()
+        
+    UDMain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
     
-    loc_res += addInfoString()
-    UDmain.ShowMessageBox(loc_res)
 EndFunction
 
 ;/  Function: minigamePrecheck
@@ -7620,6 +7673,7 @@ EndFunction
     Shows message box with list off all locks. Selecting lock will open message box with information about the lock
 /;
 Function ShowLockDetails()
+
     while True
         Int loc_lockId = UserSelectLock()
         
@@ -7628,146 +7682,196 @@ Function ShowLockDetails()
         endif
         
         string loc_res = ""
-        loc_res += "Name: "+ GetNthLockName(loc_lockId)+ "\n"
-        loc_res += "Status: "
+
+        loc_res += UDMTF.Header(deviceInventory.GetName(), 4)
+        loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+        loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
+        loc_res += UDMTF.HeaderSplit()
+
+        loc_res += UDMTF.TableRowDetails("Name:", GetNthLockName(loc_lockId))
         
         Bool loc_ShowDiff   = True
         Bool loc_ShowAcc    = True
         Bool loc_ShowShield = True
         if IsNthLockUnlocked(loc_lockId)
-            loc_res += "UNLOCKED\n"
             loc_ShowDiff    = False
             loc_ShowAcc     = False
             loc_ShowShield  = False
+            loc_res += UDMTF.TableRowDetails("Status:", "UNLOCKED", UDMTF.PercentToGrayscale(0))
         elseif IsNthLockJammed(loc_lockId)
-            loc_res += "JAMMED\n"
+            loc_res += UDMTF.TableRowDetails("Status:", "JAMMED", "#FF4444")
             Float loc_RepairProgress = GetNthLockRepairProgress(loc_lockId)
-            loc_res += "Repair progress: "+ FormatFloat(loc_RepairProgress,1) + " %\n"
+            loc_res += UDMTF.TableRowDetails("Repair progress:", FormatFloat(loc_RepairProgress, 1) + "%", "#FF4444")
         elseif IsNthLockTimeLocked(loc_lockId) && GetNthLockTimeLock(loc_lockId)
-            loc_res += "TIME LOCKED\n"
-            loc_res += "Timelock: "+ GetNthLockTimeLock(loc_lockId) + " hours\n"
+            loc_res += UDMTF.TableRowDetails("Status:", "TIME LOCKED", "#4444FF")
+            loc_res += UDMTF.TableRowDetails("Timelock:", GetNthLockTimeLock(loc_lockId) + " hours")
         else
-            loc_res += "LOCKED\n"
+            loc_res += UDMTF.TableRowDetails("Status:", "LOCKED", "#FFFFFF")
         endif
+        
+        loc_res += UDMTF.PageSplit(abForce = False)
+        loc_res += UDMTF.LineGap()
         
         if loc_ShowShield
             Int loc_shields = GetNthLockShields(loc_lockId)
             if loc_shields
-                loc_res += "Shields: " + loc_shields + "\n"
+                loc_res += UDMTF.TableRowDetails("Shields:", loc_shields as String)
             else
-                loc_res += "Shields: NONE\n"
+                loc_res += UDMTF.TableRowDetails("Shields:", "NONE", UDMTF.PercentToGrayscale(0))
             endif
+            loc_res += UDMTF.PageSplit(abForce = False)
+            loc_res += UDMTF.LineGap()
         endif
+
         if loc_ShowAcc
             Int loc_acc  = GetNthLockAccessibility(loc_lockId)
             Int loc_cacc = GetLockAccesChance(loc_lockId)
             
-            loc_res += "Base Access: "+_GetLockAccessibilityString(loc_acc) + " ("+ loc_acc +"%)\n"
-            loc_res += "Current Access: "+_GetLockAccessibilityString(loc_cacc)+ " ("+ loc_cacc +"%)\n"
+            loc_res += UDMTF.TableRowDetails("Base Access:", _GetLockAccessibilityString(loc_acc) + " (" + loc_acc + "%)", UDMTF.PercentToRainbow(loc_acc))
+            loc_res += UDMTF.TableRowDetails("Current Access:", _GetLockAccessibilityString(loc_cacc)+ " (" + loc_cacc + "%)", UDMTF.PercentToRainbow(loc_cacc))
+            loc_res += UDMTF.PageSplit(abForce = False)
+            loc_res += UDMTF.LineGap()
         endif
         if loc_ShowDiff
             Int loc_diff = GetNthLockDifficulty(loc_lockId)
-            loc_res += "Difficulty: "+ _GetLockpickLevelString(_getLockpickLevel(-1,loc_diff)) + " ("+loc_diff+ ")\n"
+            loc_res += UDMTF.TableRowDetails("Difficulty:", _GetLockpickLevelString(_getLockpickLevel(-1, loc_diff)) + " (" +loc_diff + ")", UDMTF.PercentToRainbow(100 - loc_diff))
+            loc_res += UDMTF.PageSplit(abForce = False)
+            loc_res += UDMTF.LineGap()
         endif
         
-        UDmain.ShowMessageBox(loc_res)
+        loc_res += UDMTF.FooterSplit()
+        loc_res += UDMTF.TableEnd()
+        loc_res += UDMTF.FontEnd()
+    
+        UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
     endwhile
 EndFunction
 
-;/  Function: showDebugMinigameInfo
+;/  Function: showDebugInfo
     Shows message box with debug information about device
 /;
 Function showDebugInfo()
     updateDifficulty()
     string loc_res = ""
-    loc_res += "- " + deviceInventory.GetName() + " -\n"
+    
+    loc_res += UDMTF.Header(deviceInventory.GetName(), 4)
+    loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+    loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
+    loc_res += UDMTF.HeaderSplit()
+
     if (zad_JammLockChance > 0)
-        loc_res += "Lock jam chance: "+ zad_JammLockChance + " (" + Round(fRange(zad_JammLockChance*UDCDmain.CalculateKeyModifier(),0.0,100.0)) +") %\n"
+        loc_res += UDMTF.TableRowDetails("Chance of lock jamming:", FormatFloat(zad_JammLockChance, 1) + "%", UDMTF.PercentToRainbow(Round(100 - zad_JammLockChance)))
+        Float loc_val = fRange(zad_JammLockChance * UDCDmain.CalculateKeyModifier(), 0.0, 100.0)
+        loc_res += UDMTF.TableRowDetails("With key modifier:", FormatFloat(loc_val, 1) + "%", UDMTF.PercentToRainbow(100 - Round(loc_val)))
+        loc_res += UDMTF.PageSplit(abForce = False)
+        loc_res += UDMTF.LineGap()
     endif
     if isNotShareActive(); && canBeActivated()
-        loc_res += "Cooldown: "+ _currentRndCooldown +" min\n"
-        loc_res += "Elapsed time: "+ FormatFloat(_updateTimePassed,3) +" min ("+ FormatFloat(getRelativeElapsedCooldownTime()*100,1) +" %)\n"
-        loc_res += "Can be activated: " + canBeActivated() + "\n"
+        loc_res += UDMTF.TableRowDetails("Cooldown:", _currentRndCooldown +" min")
+        loc_res += UDMTF.TableRowDetails("Elapsed time:", FormatFloat(_updateTimePassed, 3) +" min ("+ FormatFloat(getRelativeElapsedCooldownTime() * 100, 1) + "%)")
+        loc_res += UDMTF.TableRowDetails("Can be activated:", canBeActivated(), UDMTF.BoolToGrayscale(canBeActivated()))
+        loc_res += UDMTF.PageSplit(abForce = False)
+        loc_res += UDMTF.LineGap()
     endif
     loc_res += _getCritInfo()
-    UDmain.ShowMessageBox(loc_res)
+    
+    loc_res += UDMTF.FooterSplit()
+    loc_res += UDMTF.TableEnd()
+    loc_res += UDMTF.FontEnd()
+    UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
 EndFunction
 
 ;/  Function: showDebugMinigameInfo
     Shows message box with debug information about current minigame. Have to be called after minigame starts
 /;
 Function showDebugMinigameInfo()
-    string res = ""
-    res += "Wearer: " + getWearerName() + "\n"
+    string loc_res = ""
+    
+    loc_res += UDMTF.Header(deviceInventory.GetName(), 4)
+    loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+    loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140, aiColumn2Width = 70, aiColumn3Width = 70)
+    loc_res += UDMTF.HeaderSplit()
+    
+    loc_res += UDMTF.TableRowDetails("Wearer:", getWearerName())
     if haveHelper()
-        res += "Helper: " + getHelperName() + "\n"
+        loc_res += UDMTF.TableRowDetails("Helper:", getHelperName())
     endif
     
+    loc_res += UDMTF.PageSplit(abForce = False)
+    loc_res += UDMTF.LineGap()
+        
     if _StruggleGameON
-        res += "Struggle type: " + _struggleGame_Subtype + "\n"
+        loc_res += UDMTF.TableRowDetails("Struggle type:", _struggleGame_Subtype)
     endif
-    res += "Damage modifier: " + Round(UD_DamageMult*100.0) + " %\n"
+    loc_res += UDMTF.TableRowDetails("Damage modifier:", Round(UD_DamageMult * 100.0) + " %")
     if UD_damage_device
-        res += "Base DPS: " + FormatFloat(UD_durability_damage_base,4) + " DPS\n"
-        res += "DPS bonus: " + FormatFloat(UD_durability_damage_add,2) + " DPS\n"
-        res += "Total DPS: " + (_durability_damage_mod + UD_durability_damage_add)*UD_DamageMult + " DPS\n"
-        res += "Total increase: " + FormatFloat((((_durability_damage_mod + UD_durability_damage_add)*UD_DamageMult)/UD_durability_damage_base)*100 - 100.0,2) + " %\n"
+        loc_res += UDMTF.TableRowDetails("Base DPS:", FormatFloat(UD_durability_damage_base,4) + " DPS")
+        loc_res += UDMTF.TableRowDetails("DPS bonus:", FormatFloat(UD_durability_damage_add,2) + " DPS")
+        loc_res += UDMTF.TableRowDetails("Total DPS:", (_durability_damage_mod + UD_durability_damage_add)*UD_DamageMult + " DPS")
+        loc_res += UDMTF.TableRowDetails("Total increase:", FormatFloat((((_durability_damage_mod + UD_durability_damage_add)*UD_DamageMult)/UD_durability_damage_base)*100 - 100.0,2) + "%")
     elseif _CuttingGameON
-        res += "Cutting modifier: " + Round(UD_MinigameMult1*100.0) + " %\n"
+        loc_res += UDMTF.TableRowDetails("Cutting modifier:", Round(UD_MinigameMult1*100.0) + "%")
     else
-        res += "No DPS\n"
+        loc_res += UDMTF.TextDecoration("No DPS", asAlign = "center") + UDMTF.LineBreak()
     endif
-    res += "Condition dmg increase: " + Round(_condition_mult_add*100) + " %\n"
-    res += "Crits: " + UD_minigame_canCrit + "\n"
+    loc_res += UDMTF.PageSplit(abForce = False)
+    loc_res += UDMTF.LineGap()
+    
+    loc_res += UDMTF.TableRowDetails("Condition dmg increase:", Round(_condition_mult_add * 100) + "%")
+    loc_res += UDMTF.TableRowDetails("Crits:", UD_minigame_canCrit)
     if UD_drain_stats
         if UD_minigame_stamina_drain
-            res += "Stamina SPS: " + FormatFloat(UD_minigame_stamina_drain,2) + "\n"
+            loc_res += UDMTF.TableRowDetails("Stamina SPS:", FormatFloat(UD_minigame_stamina_drain,2))
         endif
         if UD_minigame_heal_drain
-            res += "Health SPS: " + FormatFloat(UD_minigame_heal_drain,2) + "\n"
+            loc_res += UDMTF.TableRowDetails("Health SPS:", FormatFloat(UD_minigame_heal_drain,2))
         endif
         if UD_minigame_magicka_drain
-            res += "Magicka SPS: " + FormatFloat(UD_minigame_magicka_drain,2) + "\n"    
+            loc_res += UDMTF.TableRowDetails("Magicka SPS:", FormatFloat(UD_minigame_magicka_drain,2))
         endif
     else
-        res += "Wearer doesn't loose stats\n"
+        loc_res += UDMTF.TextDecoration("Wearer doesn't loose stats", asAlign = "center") + UDMTF.LineBreak()
     endif
-    res += "Required stats: S = " + Round(_minMinigameStatSP*100) + " %;H = " + Round(_minMinigameStatHP*100) + " %;M = " + Round(_minMinigameStatMP*100) + " %\n"
+
+    loc_res += UDMTF.PageSplit(abForce = False)
+    loc_res += UDMTF.LineGap()
     
+    loc_res += UDMTF.TableRowWide("Required stats:", "S = " + Round(_minMinigameStatSP*100) + "%", "H = " + Round(_minMinigameStatHP*100) + "%", "M = " + Round(_minMinigameStatMP*100) + "%")
     if UD_RegenMag_Stamina || UD_RegenMag_Health || UD_RegenMag_Magicka
-        res += "Wearer regen: S = " + Round(UD_RegenMag_Stamina*100) + " %;H = " + Round(UD_RegenMag_Health*100) + " %;M = " + Round(UD_RegenMag_Magicka*100) + " %\n"
+        loc_res += UDMTF.TableRowWide("Wearer regen:", "S = " + Round(UD_RegenMag_Stamina*100) + "%", "H = " + Round(UD_RegenMag_Health*100) + "%", "M = " + Round(UD_RegenMag_Magicka*100) + "%")
     endif
-    
     if UD_RegenMagHelper_Stamina || UD_RegenMagHelper_Health || UD_RegenMagHelper_Magicka
-        res += "Wearer regen: S = " + Round(UD_RegenMagHelper_Stamina*100) + " %;H = " + Round(UD_RegenMagHelper_Health*100) + " %;M = " + Round(UD_RegenMagHelper_Magicka*100) + " %\n"
+        loc_res += UDMTF.TableRowWide("Helper regen:", "S = " + Round(UD_RegenMagHelper_Stamina*100) + "%", "H = " + Round(UD_RegenMagHelper_Health*100) + "%", "M = " + Round(UD_RegenMagHelper_Magicka*100) + "%")
     endif
     if UD_applyExhastionEffect
-        res += "Exhastion mult: " + Round(_exhaustion_mult*100) + " %\n"
+        loc_res += UDMTF.TableRowDetails("Exhastion mult:", Round(_exhaustion_mult*100) + "%")
     else
-        res += "No exhastion\n"
+        loc_res += UDMTF.TableRowDetails("Exhastion mult:", "No exhastion")
     endif
-    UDmain.ShowMessageBox(res)
+    
+    loc_res += UDMTF.FooterSplit()
+    loc_res += UDMTF.TableEnd()
+    loc_res += UDMTF.FontEnd()
+    
+    UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
 EndFunction
 
 string Function _getCritInfo()
-    string res = ""
-    res += "Crit chance: "
+    string loc_res = ""
     if (UD_StruggleCritChance > 0)
-        res += UD_StruggleCritChance + " %\n"
+        loc_res += UDMTF.TableRowDetails("Crit chance:", UD_StruggleCritChance + "%")
+        loc_res += UDMTF.TableRowDetails("Crit:", FormatFloat(UD_StruggleCritMul,1) + "x") 
+        if UD_StruggleCritDuration >= 1
+            loc_res += UDMTF.TableRowDetails("Crit difficulty:", "Easy", UDMTF.PercentToRainbow(100))
+        elseif UD_StruggleCritDuration >= 0.5
+            loc_res += UDMTF.TableRowDetails("Crit difficulty:", "Normal", UDMTF.PercentToRainbow(50))
+        else
+            loc_res += UDMTF.TableRowDetails("Crit difficulty:", "Hard", UDMTF.PercentToRainbow(0))
+        endif
     else
-        res += "never\n"
-        return res
+        loc_res += UDMTF.TableRowDetails("Crit chance:", "NEVER", UDMTF.PercentToGrayscale(0))
     endif
-    res += "Crit: " + FormatFloat(UD_StruggleCritMul,1) + " x\n"
-    res += "Crit difficulty: "
-    if UD_StruggleCritDuration >= 1
-        res += "Easy\n"
-    elseif UD_StruggleCritDuration >= 0.5
-        res += "Normal\n"
-    else
-        res += "Hard\n"
-    endif
-    return res
+    return loc_res
 endFunction
 
 ;/  Group: Extension functions / Override
@@ -8208,7 +8312,7 @@ EndFunction
 ;function called when player clicks DETAILS button in device menu
 Function processDetails()
     UDCDmain.currentDeviceMenu_switch1 = HaveLocks()
-    int res = UDCDmain.DetailsMessage.show()
+    int res = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.DetailsMessage, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
     if res == 0 
         ShowBaseDetails()
     elseif res == 1
@@ -8268,7 +8372,7 @@ Function _SendMinigameThreads(bool abStarter, bool abCritLoop, bool abParalelThr
         if loc_res == 3
             String loc_msg = "!!FATAL ERROR!!\nError finding script for device "+GetDeviceName()+". This likely mean that you installed patch incorrectly! Please close the game, and check you load order!"
             UDmain.Error(loc_msg)
-            UDMain.ShowMessageBox(loc_msg)
+            UDMain.ShowMessageBoxSafe(loc_msg)
         else
             UDmain.Error("Could not start minigame thread. Return code => " + loc_res)
         endif
