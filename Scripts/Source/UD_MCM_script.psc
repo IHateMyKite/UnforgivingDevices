@@ -48,6 +48,12 @@ UD_MenuTextFormatter  Property UDMTF hidden
     EndFunction
 EndProperty
 
+UD_MenuMsgManager  Property UDMMM hidden
+    UD_MenuMsgManager Function Get()
+        return UDmain.UDMMM
+    EndFunction
+EndProperty
+
 int max_difficulty_S
 int overaldifficulty_S ;0-3 where 3 is same as in MDS
 int eventchancemod_S
@@ -987,6 +993,7 @@ String[] UD_IconVariant_EffExhaustionList
 Int UD_IconVariant_EffOrgasm_M
 String[] UD_IconVariant_EffOrgasmList
 Int UD_MenuTextFormatter_M
+Int UD_MenuMsgManager_M
 
 Event resetUIWidgetPage()
     UpdateLockMenuFlag()
@@ -1005,6 +1012,7 @@ Event resetUIWidgetPage()
     ; Menus
     AddHeaderOption("$UD_H_MENUS")
     UD_MenuTextFormatter_M = AddMenuOption("$UD_MENUTEXTFORMATTER", UDMTF.GetMode(), FlagSwitch(True))
+    UD_MenuMsgManager_M = AddMenuOption("$UD_MENUMSGMANAGER", UDMMM.GetMode(), FlagSwitch(True))
 
     ; RIGHT COLUMN
     SetCursorPosition(1)
@@ -2853,6 +2861,11 @@ Function OnOptionMenuOpenUIWidget(int option)
         SetMenuDialogOptions(loc_modes)
         SetMenuDialogStartIndex(UDMTF.GetModeIndex())
         SetMenuDialogDefaultIndex(1)
+    elseif (option == UD_MenuMsgManager_M)
+        String[] loc_modes = UDMMM.GetModes()
+        SetMenuDialogOptions(loc_modes)
+        SetMenuDialogStartIndex(UDMMM.GetModeIndex())
+        SetMenuDialogDefaultIndex(1)
     endif
 EndFunction
 
@@ -2981,6 +2994,11 @@ Function OnOptionMenuAcceptUIWidget(Int option, Int index)
         String[] loc_modes = UDMTF.GetModes()
         UDMTF.SetMode(loc_modes[index])
         SetMenuOptionValue(UD_MenuTextFormatter_M, loc_modes[index])
+;        forcePageReset()
+    elseif (option == UD_MenuMsgManager_M)
+        String[] loc_modes = UDMMM.GetModes()
+        UDMMM.SetMode(loc_modes[index])
+        SetMenuOptionValue(UD_MenuMsgManager_M, loc_modes[index])
 ;        forcePageReset()
     endif
 EndFunction
@@ -3772,6 +3790,8 @@ Function UiWidgetPageInfo(int option)
         SetInfoText("$UD_WIDGETPOSY_INFO")
     elseif option == UD_MenuTextFormatter_M
         SetInfoText("$UD_MENUTEXTFORMATTER_INFO")
+    elseif option == UD_MenuMsgManager_M
+        SetInfoText("$UD_MENUMSGMANAGER_INFO")
     ElseIf option == UD_TextFontSize_S
         SetInfoText("$UD_TEXTFONTSIZE_INFO")
     ElseIf option == UD_TextLineLength_S
@@ -4052,6 +4072,7 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "WidgetPosX", UDWC.UD_WidgetXPos)
     JsonUtil.SetIntValue(strFile, "WidgetPosY", UDWC.UD_WidgetYPos)
     JsonUtil.SetStringValue(strFile, "MenuTextFormatter", UDMTF.GetMode())
+    JsonUtil.SetStringValue(strFile, "MenuMsgManager", UDMMM.GetMode())
     JsonUtil.SetIntValue(strFile, "iWidgets_EffectExhaustion_Icon", UDWC.StatusEffect_GetVariant("effect-exhaustion"))
     JsonUtil.SetIntValue(strFile, "iWidgets_EffectOrgasm_Icon", UDWC.StatusEffect_GetVariant("effect-orgasm"))
     
@@ -4210,6 +4231,7 @@ Function LoadFromJSON(string strFile)
     UDWC.UD_WidgetXPos = JsonUtil.GetIntValue(strFile, "WidgetPosX", UDWC.UD_WidgetXPos)
     UDWC.UD_WidgetYPos = JsonUtil.GetIntValue(strFile, "WidgetPosY", UDWC.UD_WidgetXPos)
     UDMTF.SetMode(JsonUtil.GetStringValue(strFile, "MenuTextFormatter", "HTML"))
+    UDMMM.SetMode(JsonUtil.GetStringValue(strFile, "MenuMsgManager", "PapyrusUI"))
     
     ;Other
     libs.UD_StartThirdpersonAnimation_Switch = JsonUtil.GetIntValue(strFile, "StartThirdpersonAnimation_Switch", libs.UD_StartThirdpersonAnimation_Switch as Int)

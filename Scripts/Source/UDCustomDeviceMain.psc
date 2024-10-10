@@ -212,7 +212,7 @@ Bool Function CheckSubModules()
     
     ;check for fatal error
     if !loc_cond
-        UDmain.ShowSingleMessageBox("!!FATAL ERROR!!\nError loading Unforgiving devices. One or more of the modules are not ready. Please contact developers on LL or GitHub")
+        UDmain.ShowMessageBoxSafe("!!FATAL ERROR!!\nError loading Unforgiving devices. One or more of the modules are not ready. Please contact developers on LL or GitHub")
         
         String loc_modules = "--MODULES--\n"
         loc_modules += "UDPatcher="+UDPatcher.ready + "\n"
@@ -1321,7 +1321,7 @@ Function NPCMenu(Actor akActor)
     UD_CurrentNPCMenuTargetIsInMinigame = ActorInMinigame(akActor)
     UD_CurrentNPCMenuIsPersistent       = StorageUtil.GetIntValue(akActor, "UD_ManualRegister", 0)
 
-    int loc_res = NPCDebugMenuMsg.show()
+    int loc_res = UDMain.UDMMM.ShowMessageBoxMenu(NPCDebugMenuMsg, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
     if loc_res == 0
         UDCD_NPCM.RegisterNPC(akActor,true)
     elseif loc_res == 1
@@ -1555,7 +1555,7 @@ EndFunction
     Opens Player menu
 /;
 Function PlayerMenu()
-    int loc_playerMenuRes = PlayerMenuMsg.show()
+    int loc_playerMenuRes = UDMain.UDMMM.ShowMessageBoxMenu(PlayerMenuMsg, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
     if loc_playerMenuRes == 0
         UDmain.UDOMPlayer.FocusOrgasmResistMinigame(UDmain.Player)
     elseif loc_playerMenuRes == 1
@@ -1731,7 +1731,7 @@ Message Property UD_ActorDetailsOptions auto
 
 Function showActorDetails(Actor akActor)
     while True
-        Int loc_option = UD_ActorDetailsOptions.Show()
+        Int loc_option = UDMain.UDMMM.ShowMessageBoxMenu(UD_ActorDetailsOptions, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
         if !UDmain.IsContainerMenuOpen() && !UDmain.IsInventoryMenuOpen()
             Utility.wait(0.01)
         endif
@@ -2922,7 +2922,7 @@ Int Function ShowSoulgemMessage(Actor akActor,Bool abEmpty = false)
         endif
     endif
     ;message
-    Int loc_res = UD_SoulgemSelect_MSG.Show()
+    Int loc_res = UDMain.UDMMM.ShowMessageBoxMenu(UD_SoulgemSelect_MSG, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
     if loc_res > 5
         return -1
     endif

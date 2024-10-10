@@ -228,50 +228,64 @@ EndFunction
 
 ;Show vibrator details
 Function _ShowVibDetails()
-    String loc_res = "{-" + getDeviceName() + "-}\n"
-    loc_res += "--BASE VALUES--\n"
+    String loc_res = ""
+    
+    loc_res += UDMTF.Header(getDeviceName(), 4)
+    loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+    loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
+    loc_res += UDMTF.HeaderSplit()
+
     if UD_Chaos
-        loc_res += "Vib strength: Chaos ( "+UD_Chaos+" %)\n"
+        loc_res += UDMTF.TableRowDetails("Vib strength:", "Chaos ( " + UD_Chaos + " %)")
     else
-        loc_res += "Vib strength: " + UD_VibStrength + "\n"
+        loc_res += UDMTF.TableRowDetails("Vib strength:", UD_VibStrength)
     endif
     
-    loc_res += "Vib duration: " + UD_VibDuration + "\n"
-    loc_res += "Vib mode: " + _getEdgingModeString(UD_EdgingMode) + "\n"
-    loc_res += "Shocking: " + UD_Shocking + "\n"
-    loc_res += "Status --> "
+    loc_res += UDMTF.TableRowDetails("Vib duration:", UD_VibDuration)
+    loc_res += UDMTF.TableRowDetails("Vib mode:", _getEdgingModeString(UD_EdgingMode))
+    loc_res += UDMTF.TableRowDetails("Shocking:", UD_Shocking)
+    
+    loc_res += UDMTF.PageSplit(abForce = False)
+    loc_res += UDMTF.LineGap()
+
     if isVibrating() && !isVibPaused()
-        loc_res += "ON\n"
-        loc_res += "Current vib strength: " + getCurrentVibStrenth() + "\n"
+        loc_res += UDMTF.TableRowDetails("Status:", "ON", UDMTF.PercentToRainbow(0))
+        loc_res += UDMTF.TableRowDetails("Current vib strength:", getCurrentVibStrenth(), UDMTF.PercentToRainbow(100 - getCurrentVibStrenth()))
+        String loc_frag = ""
+        if _currentEdgingMode == 0
+            loc_frag += "Normal\n"
+        elseif _currentEdgingMode == 1
+            loc_frag += "Edge\n"
+        elseif _currentEdgingMode == 2
+            loc_frag += "Random\n"
+        endif
+        loc_res += UDMTF.TableRowDetails("Current vib mode:", loc_frag)
 
         if _currentVibRemainingDuration > 0
-            loc_res += "Rem. duration: " + _currentVibRemainingDuration + " s\n"
+            loc_res += UDMTF.TableRowDetails("Rem. duration:", _currentVibRemainingDuration + " s")
         else
-            loc_res += "Rem. duration: " + "INF" + " s\n"
+            loc_res += UDMTF.TableRowDetails("Rem. duration:", "INF s", UDMTF.PercentToRainbow(0))
         endif
-        loc_res += "Arousal rate: " + FormatFloat(getVibArousalRate(),2) + " A/s\n"
-        loc_res += "Orgasm rate: " + FormatFloat(GetAppliedOrgasmRate(),2) + " Op/s\n"
-        loc_res += "Current vib mode: "
-        if _currentEdgingMode == 0
-            loc_res += "Normal\n"
-        elseif _currentEdgingMode == 1
-            loc_res += "Edge\n"
-        elseif _currentEdgingMode == 2
-            loc_res += "Random\n"
-        endif
+        loc_res += UDMTF.TableRowDetails("Arousal rate:", FormatFloat(getVibArousalRate(), 2) + " A/s")
+        loc_res += UDMTF.TableRowDetails("Orgasm rate:", FormatFloat(GetAppliedOrgasmRate(), 2) + " Op/s")
     elseif isVibPaused()
-        loc_res += "PAUSED\n"
+        loc_res += UDMTF.TableRowDetails("Status:", "PAUSED", UDMTF.PercentToRainbow(50))
     else
-        loc_res += "OFF\n"
+        loc_res += UDMTF.TableRowDetails("Status:", "OFF", UDMTF.PercentToRainbow(100))
     endif
-    UDMain.ShowMessageBox(loc_res)
+    
+    loc_res += UDMTF.FooterSplit()
+    loc_res += UDMTF.TableEnd()
+    loc_res += UDMTF.FontEnd()
+        
+    UDMain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
 EndFunction
 
 ;function called when player clicks DETAILS button in device menu
 Function processDetails()
     UDCDmain.currentDeviceMenu_switch1 = isVibrating() || canVibrate()
     UDCDmain.currentDeviceMenu_switch2 = HaveLocks()
-    int res = UDCDmain.VibDetailsMessage.show()
+    int res = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.VibDetailsMessage, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
     if res == 0 
         ShowBaseDetails()
     elseif res == 1

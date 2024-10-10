@@ -3616,7 +3616,7 @@ Function DeviceMenu(bool[] aaControl)
 ;        loc_buttons[6] = "Details"
 ;        loc_buttons[7] = "Exit"
         
-        Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(UD_MessageDeviceInteraction, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
+        Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(UD_MessageDeviceInteraction, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
         StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
         if msgChoice == 0        ;struggle
             _break = struggleMinigame()
@@ -3642,7 +3642,7 @@ Function DeviceMenu(bool[] aaControl)
 EndFunction
 
 bool Function _lockMenu()
-    Int msgChoice = UDCDmain.DefaultLockMenuMessage.Show()
+    Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.DefaultLockMenuMessage, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
     if msgChoice == 0
         return keyMinigame()
     elseif msgChoice == 1
@@ -3656,7 +3656,7 @@ EndFunction
 
 bool Function _specialMenu()
     if UD_SpecialMenuInteraction
-        int  loc_res  = UD_SpecialMenuInteraction.show()
+        int  loc_res  = UDMain.UDMMM.ShowMessageBoxMenu(UD_SpecialMenuInteraction, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
         bool loc_res2 = proccesSpecialMenu(loc_res)
         return loc_res2
     else
@@ -3778,7 +3778,7 @@ Function DeviceMenuWH(Actor akSource,bool[] aaControl)
         endif
 
         _deviceMenuInitWH(akSource,aaControl)
-        Int msgChoice = UD_MessageDeviceInteractionWH.Show()
+        Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(UD_MessageDeviceInteractionWH, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
         if msgChoice == 0        ;help struggle
             _break = struggleMinigameWH(akSource)
         elseif msgChoice == 1    ;lockpick
@@ -3817,7 +3817,7 @@ Function DeviceMenuWH(Actor akSource,bool[] aaControl)
 EndFunction
 
 bool Function _lockMenuWH(Actor akSource)
-    Int msgChoice =  UDCDmain.DefaultLockMenuMessageWH.Show()
+    Int msgChoice =  UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.DefaultLockMenuMessageWH, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
     if msgChoice == 0
         return keyMinigameWH(akSource)
     elseif msgChoice == 1
@@ -3831,7 +3831,7 @@ EndFunction
 
 bool Function _specialMenuWH(Actor akSource)
     if UD_SpecialMenuInteractionWH
-        int  loc_res  = UD_SpecialMenuInteractionWH.show()
+        int  loc_res  = UDMain.UDMMM.ShowMessageBoxMenu(UD_SpecialMenuInteractionWH, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
         bool loc_res2 = proccesSpecialMenuWH(akSource,loc_res)
         return loc_res2
     else
@@ -4714,7 +4714,7 @@ EndFunction
 /;
 bool Function struggleMinigame(int aiType = -1, Bool abSilent = False)
     if aiType == -1
-        aiType = UDCDmain.StruggleMessage.show()
+        aiType = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.StruggleMessage, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
     endif
 
     if aiType == 4
@@ -5087,7 +5087,7 @@ EndFunction
 bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
     int type = -1
     if type == -1
-        type = UDCDmain.StruggleMessageNPC.show()
+        type = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.StruggleMessageNPC, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
     endif
 
     if type == 4
@@ -7617,11 +7617,7 @@ Function ShowBaseDetails()
     
     if isNotShareActive()
         loc_res += UDMTF.TableRowDetails("Activation effect:", UD_ActiveEffectName)
-        If canBeActivated()
-            loc_res += UDMTF.TableRowDetails("Controllable:", canBeActivated(), UDMTF.PercentToGrayscale(100))
-        Else
-            loc_res += UDMTF.TableRowDetails("Controllable:", canBeActivated(), UDMTF.PercentToGrayscale(0))
-        EndIf
+        loc_res += UDMTF.TableRowDetails("Can be activated:", canBeActivated(), UDMTF.BoolToGrayscale(canBeActivated()))
         if UD_Cooldown > 0
             loc_res += UDMTF.TableRowDetails("Cooldown:", Round(UD_Cooldown * 0.75 * UDCDmain.UD_CooldownMultiplier) + " - " + Round(UD_Cooldown * 1.25 * UDCDmain.UD_CooldownMultiplier) + " min", UDMTF.PercentToGrayscale(100))
         else
@@ -8316,7 +8312,7 @@ EndFunction
 ;function called when player clicks DETAILS button in device menu
 Function processDetails()
     UDCDmain.currentDeviceMenu_switch1 = HaveLocks()
-    int res = UDCDmain.DetailsMessage.show()
+    int res = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.DetailsMessage, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
     if res == 0 
         ShowBaseDetails()
     elseif res == 1
@@ -8376,7 +8372,7 @@ Function _SendMinigameThreads(bool abStarter, bool abCritLoop, bool abParalelThr
         if loc_res == 3
             String loc_msg = "!!FATAL ERROR!!\nError finding script for device "+GetDeviceName()+". This likely mean that you installed patch incorrectly! Please close the game, and check you load order!"
             UDmain.Error(loc_msg)
-            UDMain.ShowMessageBox(loc_msg)
+            UDMain.ShowMessageBoxSafe(loc_msg)
         else
             UDmain.Error("Could not start minigame thread. Return code => " + loc_res)
         endif

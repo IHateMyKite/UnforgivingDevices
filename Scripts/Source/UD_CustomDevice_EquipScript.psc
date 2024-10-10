@@ -1050,18 +1050,31 @@ bool Function EquipDeviceMenu(Actor akActor)
 EndFunction
 
 Function ShowDetails(Actor akActor)
-    string loc_msg = ""
-    loc_msg += "-" + getDeviceName() + "-\n"
-    loc_msg += "Type: " + libs.LookupDeviceType(zad_DeviousDevice) + "\n"
+    string loc_res = ""
+    
+    loc_res += UDMain.UDMTF.Header(getDeviceName(), 4)
+    loc_res += UDMain.UDMTF.FontBegin(aiFontSize = UDMain.UDMTF.FontSize, asColor = UDMain.UDMTF.TextColorDefault)
+    loc_res += UDMain.UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
+    loc_res += UDMain.UDMTF.HeaderSplit()
+
+    loc_res += UDMain.UDMTF.TableRowDetails("Type:", libs.LookupDeviceType(zad_DeviousDevice))
+    loc_res += UDMain.UDMTF.LineGap()
+    
     if deviceInventory.hasKeyword(UDmain.UDlibs.PatchedInventoryDevice) && deviceRendered.hasKeyword(UDmain.UDlibs.PatchedDevice)
-        loc_msg += "--Patched device--\n"
-        loc_msg += "Struggle Escape chance: "    + Round(BaseEscapeChance)         +" %\n"
-        loc_msg += "Cut escape chance: "        + Round(CutDeviceEscapeChance)     +" %\n"
-        loc_msg += "Lockpick escape chance: "    + Round(LockPickEscapeChance)     +" %\n"
-        loc_msg += "Lock Access difficulty: "    + Round(LockAccessDifficulty)     +" %\n"
-        loc_msg += "Key: "    + deviceKey.getName()     +"\n"
+        loc_res += UDMain.UDMTF.TextDecoration("-- Patched device --", asAlign = "center") + UDMain.UDMTF.LineBreak()
+        loc_res += UDMain.UDMTF.LineGap()
+        loc_res += UDMain.UDMTF.TableRowDetails("Struggle escape chance:", Round(BaseEscapeChance) + "%")
+        loc_res += UDMain.UDMTF.TableRowDetails("Cut escape chance:", Round(CutDeviceEscapeChance) + "%")
+        loc_res += UDMain.UDMTF.TableRowDetails("Lockpick escape chance:", Round(LockPickEscapeChance) + "%")
+        loc_res += UDMain.UDMTF.TableRowDetails("Lock Access difficulty:", Round(LockAccessDifficulty) + "%")
+        loc_res += UDMain.UDMTF.TableRowDetails("Key:", deviceKey.getName())
     endif
-    UDmain.ShowMessageBox(loc_msg)
+    
+    loc_res += UDMain.UDMTF.FooterSplit()
+    loc_res += UDMain.UDMTF.TableEnd()
+    loc_res += UDMain.UDMTF.FontEnd()
+    
+    UDmain.ShowMessageBox(loc_res, UDMain.UDMTF.HasHtmlMarkup())
 EndFunction
 
 bool Function ShouldEquipSilently(actor akActor)

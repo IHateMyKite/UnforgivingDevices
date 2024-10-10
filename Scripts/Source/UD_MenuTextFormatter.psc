@@ -854,27 +854,6 @@ String Function _IntToHex(Int aiDecimal, Int aiLength = -1)
     Return loc_hex
 EndFunction
 
-String[] Function _SplitIntoGroups(String[] aasLines, Int aiGroup, String asDelim, String asHeader = "", String asFooter = "")
-    Int loc_i = 0
-    Int loc_start = 0
-    String[] loc_subset
-    String loc_group
-    String[] loc_res
-    
-    While loc_i < aasLines.Length
-        loc_subset = PapyrusUtil.SliceStringArray(aasLines, loc_start, aiGroup)
-        loc_group = asHeader
-        loc_group += PapyrusUtil.StringJoin(loc_subset, asDelim)
-        loc_group += asFooter
-        loc_res = PapyrusUtil.PushString(loc_res, loc_group)
-        
-        loc_start += aiGroup
-        loc_i += 1
-    EndWhile
-    
-    Return loc_res
-EndFunction 
-
 Int Function _CountSubstr(String asStr, String asSubstr)
     Int loc_start = 0
     Int loc_res = 0

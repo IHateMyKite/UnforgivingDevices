@@ -7,9 +7,9 @@ UnforgivingDevicesMain  Property UDmain                         Auto
 UD_MenuTextFormatter    Property UDMTF                          Auto
 
 String[]                Property NoButtons                      Auto Hidden
+Float[]                 Property NoValues                       Auto Hidden
 
 Message                 Property MsgTemplate                    Auto
-Message                 Property LegacyFallbackMessage          Auto
 
 Bool                    Property currentMenu_button0 = false    Auto Conditional Hidden
 Bool                    Property currentMenu_button1 = false    Auto Conditional Hidden
@@ -35,6 +35,7 @@ EndFunction
 Function Update()
     _Modes = Utility.CreateStringArray(0)
     NoButtons = Utility.CreateStringArray(0)
+    NoValues = Utility.CreateFloatArray(0)
     UnregisterMenuEvents()
     RegisterMenuEvents()
     Ready = True
@@ -65,9 +66,10 @@ String[] _Modes
 /;
 String[] Function GetModes()
     If _Modes.Length == 0
-        _Modes = Utility.CreateStringArray(2)
+        _Modes = Utility.CreateStringArray(3)
         _Modes[0] = "Legacy"
         _Modes[1] = "PapyrusUI"
+    ;   _Modes[2] = "NativeUI"
     EndIf
     Return _Modes
 EndFunction
@@ -138,7 +140,13 @@ Function ShowSingleMessageBox(String asMessage, Bool abHasHTML = False)
     If abHasHTML 
         UDMain.Warning(Self + "::ShowSingleMessageBox() Legacy Mode: Can't display HTML text properly!")
     EndIf
-    Debug.MessageBox(asMessage)
+    String loc_msg = asMessage
+    If StringUtil.GetLength(loc_msg) > 2047
+        UDMain.Warning(Self + "::ShowSingleMessageBox() Message is too long to display it on a single page!")
+        loc_msg = StringUtil.Substring(loc_msg, 0, 2000) + " [message is too long]"
+    EndIf
+    Debug.MessageBox(loc_msg)
+
     ;wait for fucking messagebox to actually get OKd before continuing thread (holy FUCKING shit toad)
     Utility.waitMenuMode(0.3)
     while IsMessageboxOpen()
@@ -146,7 +154,7 @@ Function ShowSingleMessageBox(String asMessage, Bool abHasHTML = False)
     EndWhile
 EndFunction
 
-Int Function ShowMessageBoxMenu(Message akTemplate, String asMessageOverride, String[] aasButtonsOverride, Bool abHasHTML = False)
+Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String asMessageOverride, String[] aasButtonsOverride, Bool abHasHTML = False)
 
     If abHasHTML 
         UDMain.Warning(Self + "::ShowMessageBoxMenu() Legacy Mode: Can't display HTML text properly!")
@@ -156,9 +164,9 @@ Int Function ShowMessageBoxMenu(Message akTemplate, String asMessageOverride, St
     
     If akTemplate == None
         UDMain.Error(Self + "::ShowMessageBoxMenu() Legacy Mode: akTemplate must be specified!")
-        LegacyFallbackMessage.Show()
+        Debug.MessageBox("ShowMessageBoxMenu() Legacy Mode: akTemplate must be specified!")
     Else
-        loc_last_btn = akTemplate.Show()
+        loc_last_btn = _showMsgWithValues(akTemplate, aafValues)
     EndIf
     
     Return loc_last_btn
@@ -208,15 +216,19 @@ Auto State PapyrusUI
     EndEvent
 
     Function ShowSingleMessageBox(String asMessage, Bool abHasHTML = False)
-        Bool loc_html = UDMTF.HasHtmlMarkup()
-        If !loc_html
-            Debug.MessageBox(asMessage)
+        String loc_msg = asMessage
+        If StringUtil.GetLength(loc_msg) > 2047
+            UDMain.Warning(Self + "::ShowSingleMessageBox() Message is too long to display it on a single page!")
+            loc_msg = StringUtil.Substring(loc_msg, 0, 2000) + " [message is too long]"
+        EndIf        
+        If !abHasHTML
+            Debug.MessageBox(loc_msg)
         Else
             Debug.MessageBox("Placeholder")
         
             String[] loc_args
             loc_args = Utility.CreateStringArray(2, "")
-            loc_args[0] = asMessage
+            loc_args[0] = loc_msg
             loc_args[1] = "1"
 
             UI.SetBool("MessageBoxMenu", "_root.MessageMenu" + ".MessageText.wordWrap", false)
@@ -230,7 +242,7 @@ Auto State PapyrusUI
         EndWhile
     EndFunction
 
-    Int Function ShowMessageBoxMenu(Message akTemplate, String asMessageOverride, String[] aasButtonsOverride, Bool abHasHTML = False)
+    Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String asMessageOverride, String[] aasButtonsOverride, Bool abHasHTML = False)
         
         _InjectReady = True
         _InjectMessageHTML = abHasHTML
@@ -247,7 +259,7 @@ Auto State PapyrusUI
             _initButtons(aasButtonsOverride)
             loc_last_btn = MsgTemplate.Show()
         Else
-            loc_last_btn = akTemplate.Show()
+            loc_last_btn = _showMsgWithValues(akTemplate, aafValues)
         EndIf
         
         Return loc_last_btn
@@ -267,4 +279,16 @@ Function _initButtons(String[] aasButtonsOverride)
     currentMenu_button8 = aasButtonsOverride.Length > 8 && aasButtonsOverride[8] != ""
     currentMenu_button9 = aasButtonsOverride.Length > 9 && aasButtonsOverride[9] != ""
 EndFunction
-    
+
+; get value from the array
+Float Function _gv(Float[] aafValues, Int aiIndex, Float afDefault = 0.0)
+    If aafValues.Length > aiIndex
+        Return aafValues[aiIndex]
+    Else
+        Return afDefault
+    EndIf
+EndFunction
+
+Int Function _showMsgWithValues(Message akMessage, Float[] vv)
+    Return akMessage.Show(_gv(vv, 0), _gv(vv, 1), _gv(vv, 2), _gv(vv, 3), _gv(vv, 4), _gv(vv, 5), _gv(vv, 6), _gv(vv, 7), _gv(vv, 8))
+EndFunction

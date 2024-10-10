@@ -480,7 +480,7 @@ Bool Function CheckSubModules()
     ;check for fatal error
     if !loc_cond
         _FatalError = True
-        ShowSingleMessageBox("!!FATAL ERROR!!\nError loading Unforgiving devices. One or more of the modules are not ready. Please contact developers on LL or GitHub")
+        ShowMessageBoxSafe("!!FATAL ERROR!!\nError loading Unforgiving devices. One or more of the modules are not ready. Please contact developers on LL or GitHub")
         
         String loc_modules = "--MODULES--\n"
         loc_modules += "UDCDmain="+UDCDmain.ready + "\n"
@@ -936,7 +936,7 @@ Function _CheckOptionalMods()
             Log("UIExtensions detected!")
         endif
     else
-        ShowMessageBox("--!ERROR!--\nUD can't detect UIExtensions. Without this mod, some features of Unforgiving Devices will not work as intended. Please be warned.")
+        ShowMessageBoxSafe("--!ERROR!--\nUD can't detect UIExtensions. Without this mod, some features of Unforgiving Devices will not work as intended. Please be warned.")
     endif
     
     if PluginInstalled("ConsoleUtilSSE.dll")
@@ -945,7 +945,7 @@ Function _CheckOptionalMods()
             Log("ConsoleUtil detected!")
         endif
     else
-        ShowMessageBox("--!ERROR!--\nUD can't detect ConsoleUtil. Without this mod, some features of Unforgiving Devices will not work as intended. Please be warned.")
+        ShowMessageBoxSafe("--!ERROR!--\nUD can't detect ConsoleUtil. Without this mod, some features of Unforgiving Devices will not work as intended. Please be warned.")
         ConsoleUtilInstalled = False
     endif
     
@@ -1718,33 +1718,34 @@ EndFunction
 ===========================================================================================
 /;
 
+;/  Function: ShowMessageBoxSafe
+
+    The most compatible way to show message on the screen
+
+    Parameters:
+        asText  - Message text
+/;
+Function ShowMessageBoxSafe(string asText)
+    If StringUtil.GetLength(asText) > 2047
+        Debug.MessageBox(StringUtil.Substring(asText, 0, 2000) + " [message is too long]")
+    Else
+        Debug.MessageBox(asText)
+    EndIf
+EndFunction
+
 ;/  Function: ShowMessageBox
 
-    Shows message box with passed string. This function should be only used for showing multiline strings.
+    Displays the message on the screen as a pop-up modal window.
+
+    The UDMMM module is used to render the message, which supports different text formats (plain and HTML). 
+    If rendered a long message, it can be split into several pages.
     
-    Once the number of lines is too big for message box to be shown, additiona lamssage box will be open.
-    
-    In case you want to show simple string, use instead <ShowSingleMessageBox>
-
-    Limit of lines per one message box is *12* lines!
-
-    Every line have also limited number of characters which it can show. If line is too long, it will be split to multiple lines by engine, which will break this function.
-
-    This function will be blocked until user clicks on OK button (this is not done by debug.messagebox function)
+    For more information, see <UD_MenuMsgManager>.
 
     Parameters:
 
-        asText     - String of lines to be shown
-        abHTML     - Message is formatted as HTML
-
-    _Example_:
-        --- Code
-        String loc_text = ""
-        loc_text += "Line 1\n"
-        loc_text += "Line 2\n"
-        loc_text += "Line 3\n"
-        ShowMessageBox(loc_text) -> This will show message box with 3 lines with their corresponding texts
-        ---
+        asText     - Message text
+        abHTML     - Text is formatted as HTML
 /;
 Function ShowMessageBox(string asText, Bool abHTML = False)
     UDMMM.ShowMessageBox(asText, abHTML)
@@ -1752,9 +1753,10 @@ EndFunction
 
 ;/  Function: ShowSingleMessageBox
 
-    Shows message box with passed string.
+    Displays the message on the screen as a pop-up modal window.
 
-    This function will be blocked until user clicks on OK button (this is not done by debug.messagebox function)
+    The UDMMM module is used to render the message, which supports different text formats (plain and HTML). 
+    This function does not break the text into pages, but attempts to display the message on a single page.
 
     Parameters:
 
