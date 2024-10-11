@@ -221,6 +221,10 @@ EndFunction
         String with the text fragment
 /;
 String Function TextDecoration(String asText, Int aiFontSize = -1, String asFontFace = "", String asColor = "", String asAlign = "")
+    String loc_res = ""
+    loc_res += InlineIfString(asColor != "" || asFontFace != "", StringUtil.AsChar(171))        ; decorating with quotation marks
+    loc_res += asText
+    loc_res += InlineIfString(asColor != "" || asFontFace != "", StringUtil.AsChar(187))
     Return asText
 EndFunction
 

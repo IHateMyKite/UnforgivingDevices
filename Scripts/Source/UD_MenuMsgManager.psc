@@ -190,6 +190,10 @@ Auto State PapyrusUI
                 _InjectReady = False
                 String[] loc_args
                 If _InjectMessage != ""
+                    If StringUtil.GetLength(_InjectMessage) > 2047
+                        UDMain.Warning(Self + "::OnMenuOpen() Message is too long to display it on a single page!")
+                        _InjectMessage = StringUtil.Substring(_InjectMessage, 0, 2000) + " [message is too long]"
+                    EndIf
                     loc_args = Utility.CreateStringArray(2, "")
                     loc_args[0] = _InjectMessage
                     loc_args[1] = UDMTF.InlineIfString(_InjectMessageHTML, "1", "0")

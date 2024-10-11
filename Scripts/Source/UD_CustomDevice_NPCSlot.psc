@@ -1031,6 +1031,7 @@ Function showDebugMenu(int slot_id)
     if slot_id >= 0 && slot_id < 20 && slot_id < _iUsedSlots
     UD_CustomDevice_RenderScript selectedDevice = UD_equipedCustomDevices[slot_id]
         while UD_equipedCustomDevices[slot_id] == selectedDevice && UD_equipedCustomDevices[slot_id]
+            ; TODO
             int res = UDCDmain.DebugMessage.show(UD_equipedCustomDevices[slot_id].getDurability(),UD_equipedCustomDevices[slot_id].getMaxDurability(),100.0 - UD_equipedCustomDevices[slot_id].getCondition())
             if res == 0 ;dmg dur
                 UD_equipedCustomDevices[slot_id].decreaseDurabilityAndCheckUnlock(10.0)

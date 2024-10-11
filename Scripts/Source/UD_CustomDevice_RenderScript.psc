@@ -1551,7 +1551,7 @@ EndFunction
         device name
 /;
 String Function getDeviceName()
-    return deviceInventory.getName()
+    return DeviceInventory.GetName()
 EndFunction
 
 
@@ -1622,12 +1622,12 @@ Function _Init(Actor akActor)
     UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
     
     if IsUnlocked 
-        UDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because device is already unlocked!!")
+        UDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + getDeviceName() + " because device is already unlocked!!")
         return 
     endif
     
     if akActor.getItemCount(deviceInventory) == 0
-        UDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because no inventory device is present!")
+        UDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + getDeviceName() + " because no inventory device is present!")
         return
     endif
 
@@ -1661,7 +1661,7 @@ Function _Init(Actor akActor)
         endif
         
         if !loc_rdok
-            UDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + DeviceInventory.getName() + " because equip failed - timeout. Conflicting Device = " + UDCDmain.GetConflictDevice(akActor, DeviceRendered))
+            UDmain.Error("!Aborting Init("+ getActorName(akActor) +") called for " + getDeviceName() + " because equip failed - timeout. Conflicting Device = " + UDCDmain.GetConflictDevice(akActor, DeviceRendered))
             return
         endif
     endif
@@ -1717,7 +1717,7 @@ Function _Init(Actor akActor)
 
     if deviceRendered.hasKeyword(UDlibs.PatchedDevice) ;patched device
         if UDmain.TraceAllowed()
-            UDmain.Log("Patching device " + deviceInventory.getName(),2)
+            UDmain.Log("Patching device " + getDeviceName(),2)
         endif
         patchDevice()
     else
@@ -1765,7 +1765,7 @@ Function _Init(Actor akActor)
     
     
     if UDmain.TraceAllowed()
-        UDmain.Log(DeviceInventory.getName() + " fully locked on " + getWearerName(),1)
+        UDmain.Log(getDeviceName() + " fully locked on " + getWearerName(),1)
     endif
     
     _ResetTimers()
@@ -2716,7 +2716,7 @@ EndFunction
  Bool      IsNthLockAutoTimeLocked(Int aiLockIndex)    = returns true if the Nth lock is time locked with auto unlock, or false if no Nth lock exist or is invalid
  Int       GetNthLockShields(Int aiLockIndex)          = returns number of shields of the Nth lock, or 0 if no Nth lock exist or is invalid
  Int       GetNthLockAccessibility(Int aiLockIndex)    = returns accessibility of the Nth lock in %, or 0 if no Nth lock exist or is invalid
- Int       GetNthLockDifficulty(Int aiLockIndex)       = returns difficutly of the Nth lock, or 0 if no Nth lock exist or is invalid. Difficulty is in range from 0 to 255 (classic skyrim lockpick difficulty distribution)
+ Int       GetNthLockDifficulty(Int aiLockIndex)       = returns difficulty of the Nth lock, or 0 if no Nth lock exist or is invalid. Difficulty is in range from 0 to 255 (classic skyrim lockpick difficulty distribution)
  Int       GetNthLockTimeLock(Int aiLockIndex)         = returns number of remaining hours from time lock of the Nth lock, or 0 if no Nth lock exist or is invalid
  Float     GetNthLockRepairProgress(Int aiLockIndex)   = returns Nth locks repair progress in absolute value
 ====SETTERS====
@@ -3004,20 +3004,20 @@ Int Function GetNthLockAccessibility(Int aiLockIndex)
     endif
 EndFunction
 
-;returns difficutly of the Nth lock, or 0 if no Nth lock exist or is invalid
+;returns difficulty of the Nth lock, or 0 if no Nth lock exist or is invalid
 Int Function GetNthLockDifficulty(Int aiLockIndex, Bool abUseLevel = True)
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock) 
-        Int loc_difficutly = UD_Native.DecodeBit(loc_Lock,8,15)
-        if abUseLevel && loc_difficutly < 100
+        Int loc_difficulty = UD_Native.DecodeBit(loc_Lock,8,15)
+        if abUseLevel && loc_difficulty < 100
             ;increase difficulty based on device level
             if UDCDMain.UD_PreventMasterLock
-                loc_difficutly = iRange(loc_difficutly + Round(UDCDMain.UD_DeviceLvlLockpick*(UD_Level - 1)),1,75) ;increase lockpick difficulty
+                loc_difficulty = iRange(loc_difficulty + Round(UDCDMain.UD_DeviceLvlLockpick*(UD_Level - 1)),1,75) ;increase lockpick difficulty
             else
-                loc_difficutly = iRange(loc_difficutly + Round(UDCDMain.UD_DeviceLvlLockpick*(UD_Level - 1)),1,100) ;increase lockpick difficulty
+                loc_difficulty = iRange(loc_difficulty + Round(UDCDMain.UD_DeviceLvlLockpick*(UD_Level - 1)),1,100) ;increase lockpick difficulty
             endif
         endif
-        return loc_difficutly
+        return loc_difficulty
     else
         return 0 ;return 0 as error value
     endif
@@ -3602,20 +3602,7 @@ Function DeviceMenu(bool[] aaControl)
     while !_break
         setHelper(none)
         _deviceMenuInit(aaControl)
-;        Int msgChoice = UD_MessageDeviceInteraction.Show()
-        String loc_str = ""
-        loc_str += UDMTF.Header(deviceInventory.GetName(), 4)
-        ; TESTING
-;        String[] loc_buttons = new String[8]
-;        loc_buttons[0] = "Struggle"
-;        loc_buttons[1] = "Struggle Uselessly"
-;        loc_buttons[2] = "Locks"
-;        loc_buttons[3] = "Cut"
-;        loc_buttons[4] = "Special Menu"
-;        loc_buttons[5] = "Unlock"
-;        loc_buttons[6] = "Details"
-;        loc_buttons[7] = "Exit"
-        
+        String loc_str = _GetDeviceMainMenuText()
         Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(UD_MessageDeviceInteraction, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
         StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
         if msgChoice == 0        ;struggle
@@ -3777,8 +3764,9 @@ Function DeviceMenuWH(Actor akSource,bool[] aaControl)
             akSource = none
         endif
 
-        _deviceMenuInitWH(akSource,aaControl)
-        Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(UD_MessageDeviceInteractionWH, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
+        _deviceMenuInitWH(akSource, aaControl)
+        String loc_str = _GetDeviceMainMenuText()
+        Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(UD_MessageDeviceInteractionWH, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons)
         if msgChoice == 0        ;help struggle
             _break = struggleMinigameWH(akSource)
         elseif msgChoice == 1    ;lockpick
@@ -4421,16 +4409,63 @@ EndFunction
         ---
 /;
 string Function getConditionString()
+    String loc_str = ""
+    Int loc_percent = 0
     if (UD_condition == 0)
-        return "Excellent"
+        loc_str = "Excellent"
+        loc_percent = 100
     elseif (UD_condition == 1)
-        return "Good"
+        loc_str = "Good"
+        loc_percent = 75
     elseif (UD_condition == 2)
-        return "Normal"
+        loc_str = "Normal"
+        loc_percent = 50
     elseif (UD_condition == 3)
-        return "Bad"
+        loc_str = "Bad"
+        loc_percent = 25
     else
-        return "Destroyed"
+        loc_str = "Destroyed"
+        loc_percent = 0
+    endif
+    Return UDMTF.TextDecoration(loc_str, asColor = UDMTF.PercentToRainbow(loc_percent))
+EndFunction
+
+String Function getHealthString()
+    Float loc_dur = getRelativeDurability()
+    String loc_str = ""
+    if (loc_dur >= 0.9)
+        loc_str = "Perfect"
+    elseif (loc_dur >= 0.75)
+        loc_str = "Excellent"
+    elseif (loc_dur >= 0.60)
+        loc_str = "Good"
+    elseif (loc_dur >= 0.40)
+        loc_str = "Average"
+    elseif (loc_dur >= 0.25)
+        loc_str = "Poor"
+    elseif (loc_dur >= 0.1)
+        loc_str = "Very low"
+    else
+        loc_str = "Abysmal"
+    endif
+    Return UDMTF.TextDecoration(loc_str, asColor = UDMTF.PercentToRainbow(Round(loc_dur * 100)))
+EndFunction
+
+String Function getBaseDamageString()
+    if (UD_durability_damage_base >= 2.5)
+        Return UDMTF.TextDecoration("Very easy", asColor = UDMTF.PercentToRainbow(100))
+    elseif (UD_durability_damage_base >= 1.5)
+        Return UDMTF.TextDecoration("Easy", asColor = UDMTF.PercentToRainbow(83))
+    elseif (UD_durability_damage_base >= 0.75)
+        Return UDMTF.TextDecoration("Moderately difficult", asColor = UDMTF.PercentToRainbow(67))
+    elseif (UD_durability_damage_base >= 0.3)
+        Return UDMTF.TextDecoration("Hard", asColor = UDMTF.PercentToRainbow(50))
+    elseif (UD_durability_damage_base >= 0.05)
+        Return UDMTF.TextDecoration("Very hard", asColor = UDMTF.PercentToRainbow(33))
+    elseif UD_durability_damage_base > 0
+        Return UDMTF.TextDecoration("Extremely hard", asColor = UDMTF.PercentToRainbow(17))
+    else
+        Return UDMTF.TextDecoration("Impossible", asColor = UDMTF.PercentToRainbow(0))
     endif
 EndFunction
 
@@ -4714,7 +4749,8 @@ EndFunction
 /;
 bool Function struggleMinigame(int aiType = -1, Bool abSilent = False)
     if aiType == -1
-        aiType = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.StruggleMessage, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
+        String los_msg = _GetDeviceStruggleMenuText()
+        aiType = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.StruggleMessage, UDMain.UDMMM.NoValues, los_msg, UDMain.UDMMM.NoButtons)
     endif
 
     if aiType == 4
@@ -5087,7 +5123,8 @@ EndFunction
 bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
     int type = -1
     if type == -1
-        type = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.StruggleMessageNPC, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
+        String loc_msg = _GetDeviceStruggleMenuText()
+        type = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.StruggleMessageNPC, UDMain.UDMMM.NoValues, loc_msg, UDMain.UDMMM.NoButtons)
     endif
 
     if type == 4
@@ -6622,7 +6659,7 @@ Function minigame()
     UD_Native.ForceUpdateControls()
     
     if UDmain.TraceAllowed()
-        UDmain.Log("Minigame started for: " + deviceInventory.getName())
+        UDmain.Log("Minigame started for: " + getDeviceName())
     endif
     
     _MinigameMainLoopON = true
@@ -6846,9 +6883,9 @@ Function minigame()
     ;checks if Wearer succesfully escaped device
     if IsUnlocked
         if loc_WearerIsPlayer
-            UDmain.Print("You have succesfully escaped out of " + deviceInventory.GetName() + "!",2)
+            UDmain.Print("You have succesfully escaped out of " + getDeviceName() + "!",2)
         elseif UDCDmain.AllowNPCMessage(Wearer, true)
-            UDmain.Print(getWearerName()+" succesfully escaped out of " + deviceInventory.GetName() + "!",2)
+            UDmain.Print(getWearerName()+" succesfully escaped out of " + getDeviceName() + "!",2)
         endif
         if !loc_WearerIsPlayer
             UpdateMotivation(Wearer,50) ;increase NPC motivation on successful escape
@@ -7514,6 +7551,57 @@ EndFunction
 ===========================================================================================
 /;
 
+String Function _GetDeviceMainMenuText()
+    String loc_res = ""
+    loc_res += UDMTF.Header(getDeviceName(), 4)
+    loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+;    loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
+    
+    loc_res += UDMTF.TextDecoration(UD_DeviceType + " (level " + UD_Level + ")", asAlign = "center")
+    loc_res += UDMTF.LineBreak()
+    loc_res += UDMTF.TextDecoration("Item has a " + getHealthString() + " health and in a " + getConditionString() + " condition.", asAlign = "center")
+    loc_res += UDMTF.LineBreak()
+    loc_res += UDMTF.TextDecoration("This device is " + getAccesibilityString() + " to reach, and it is " + getBaseDamageString() + " to get rid of.", asAlign = "center")
+    loc_res += UDMTF.LineBreak()
+    loc_res += UDMTF.TextDecoration("It has " + GetLockNumber() + " lock(s) (" + _GetLocksIcons() + ").", asAlign = "center")
+    loc_res += UDMTF.LineBreak()
+    loc_res += UDMTF.TextDecoration("You perceive that device is " + getResistanceString(UD_WeaponHitResist) + " to cuts.", asAlign = "center")
+    loc_res += UDMTF.LineBreak()
+    
+    loc_res += UDMTF.FontEnd()
+    
+    Return loc_res
+EndFunction
+
+String Function _GetDeviceStruggleMenuText()
+    String loc_res = ""
+    loc_res += UDMTF.Header(getDeviceName(), 4)
+    loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+;    loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
+    
+    loc_res += UDMTF.TextDecoration("You feel that device is " + getResistanceString(getModResistPhysical(0.0) * -100.0) + " to brute force.", asAlign = "center")
+    loc_res += UDMTF.LineBreak()
+    loc_res += UDMTF.TextDecoration("You sense that device is " + getResistanceString(getModResistMagicka(0.0) * -100.0) + " to magic.", asAlign = "center")
+    loc_res += UDMTF.LineBreak()
+    
+    loc_res += UDMTF.FontEnd()
+    
+    Return loc_res
+EndFunction
+
+String Function _GetLocksIcons()
+    String loc_frag = ""
+    Int loc_i = 0
+    loc_frag += UDMTF.FontBegin(asFontFace = "$EverywhereBoldFont")
+    While loc_i < GetLockNumber()
+        loc_frag += UDMTF.DeviceLockIcon(IsNthLockUnlocked(loc_i), IsNthLockJammed(loc_i), IsNthLockTimeLocked(loc_i) && GetNthLockTimeLock(loc_i))
+        loc_frag += UDMTF.InlineIfString(loc_i  < GetLockNumber() - 1, " ")
+        loc_i += 1
+    EndWhile
+    loc_frag += UDMTF.FontEnd()
+    Return loc_frag
+EndFunction
+
 ;/  Function: minigamePrecheck
     Shows message box with base information about device
 /;
@@ -7526,7 +7614,7 @@ Function ShowBaseDetails()
     
 ;    UDMTF.GoToState("")
 
-    loc_res += UDMTF.Header(deviceInventory.GetName(), 4)
+    loc_res += UDMTF.Header(getDeviceName(), 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
     loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
     loc_res += UDMTF.HeaderSplit()
@@ -7536,25 +7624,10 @@ Function ShowBaseDetails()
     
     loc_res += UDMTF.LineGap()
         
-    loc_res += UDMTF.TableRowDetails("Device health:", FormatFloat(current_device_health, 1) + "/" + FormatFloat(UD_Health, 1), UDMTF.PercentToGrayscale(Round(100 * current_device_health / UD_Health)))
+    loc_res += UDMTF.TableRowDetails("Device health:", FormatFloat(current_device_health, 1) + "/" + FormatFloat(UD_Health, 1), UDMTF.PercentToGrayscale(Round(100 * getRelativeDurability())))
     loc_res += UDMTF.TableRowDetails("Condition:", getConditionString() + " (" + FormatFloat(getRelativeCondition() * 100, 1) + "%)", UDMTF.PercentToGrayscale(Round(100 * getRelativeCondition())))
-    loc_res += UDMTF.TableRowDetails("Accessibility:", Round(100.0 * loc_accesibility) + "%", UDMTF.PercentToRainbow(Round(100 * loc_accesibility)))
-
-    if (UD_durability_damage_base >= 2.5)
-        loc_res += UDMTF.TableRowDetails("Difficutly:", "Very Easy", UDMTF.PercentToRainbow(100))
-    elseif (UD_durability_damage_base >= 1.5)
-        loc_res += UDMTF.TableRowDetails("Difficutly:", "Easy", UDMTF.PercentToRainbow(83))
-    elseif (UD_durability_damage_base >= 0.75)
-        loc_res += UDMTF.TableRowDetails("Difficutly:", "Normal", UDMTF.PercentToRainbow(67))
-    elseif (UD_durability_damage_base >= 0.3)
-        loc_res += UDMTF.TableRowDetails("Difficutly:", "Hard", UDMTF.PercentToRainbow(50))
-    elseif (UD_durability_damage_base >= 0.05)
-        loc_res += UDMTF.TableRowDetails("Difficutly:", "Very Hard", UDMTF.PercentToRainbow(33))
-    elseif UD_durability_damage_base > 0
-        loc_res += UDMTF.TableRowDetails("Difficutly:", "Extreme", UDMTF.PercentToRainbow(17))
-    else
-        loc_res += UDMTF.TableRowDetails("Difficutly:", "Impossible", UDMTF.PercentToRainbow(0))
-    endif
+    loc_res += UDMTF.TableRowDetails("Accessibility:", getAccesibilityString())
+    loc_res += UDMTF.TableRowDetails("Difficulty:", getBaseDamageString())
 
     loc_res += UDMTF.PageSplit(abForce = False)
     loc_res += UDMTF.LineGap()
@@ -7577,13 +7650,7 @@ Function ShowBaseDetails()
     
     if HaveLocks()
         loc_i = 0
-        loc_frag = ""
-        loc_frag += UDMTF.FontBegin(asFontFace = "$EverywhereBoldFont")
-        While loc_i < GetLockNumber()
-            loc_frag += UDMTF.DeviceLockIcon(IsNthLockUnlocked(loc_i), IsNthLockJammed(loc_i), IsNthLockTimeLocked(loc_i) && GetNthLockTimeLock(loc_i)) + " "
-            loc_i += 1
-        EndWhile
-        loc_frag += UDMTF.FontEnd()
+        loc_frag = _GetLocksIcons()
         loc_res += UDMTF.TableRowDetails("Have locks:", loc_frag)
         loc_res += UDMTF.TableRowDetails("Lock multiplier:", Round((1.0 + _getLockMinigameModifier()) * 100.0) + "%")
         if zad_deviceKey
@@ -7683,7 +7750,7 @@ Function ShowLockDetails()
         
         string loc_res = ""
 
-        loc_res += UDMTF.Header(deviceInventory.GetName(), 4)
+        loc_res += UDMTF.Header(getDeviceName(), 4)
         loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
         loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
         loc_res += UDMTF.HeaderSplit()
@@ -7754,7 +7821,7 @@ Function showDebugInfo()
     updateDifficulty()
     string loc_res = ""
     
-    loc_res += UDMTF.Header(deviceInventory.GetName(), 4)
+    loc_res += UDMTF.Header(getDeviceName(), 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
     loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
     loc_res += UDMTF.HeaderSplit()
@@ -7787,7 +7854,7 @@ EndFunction
 Function showDebugMinigameInfo()
     string loc_res = ""
     
-    loc_res += UDMTF.Header(deviceInventory.GetName(), 4)
+    loc_res += UDMTF.Header(getDeviceName(), 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
     loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140, aiColumn2Width = 70, aiColumn3Width = 70)
     loc_res += UDMTF.HeaderSplit()
@@ -7910,7 +7977,7 @@ EndFunction
 
 Function activateDevice()
     if UDmain.TraceAllowed()
-        UDmain.Log("Device " + DeviceInventory.getName() + " (W: " + getWearerName() + ") activated",1)
+        UDmain.Log("Device " + getDeviceName() + " (W: " + getWearerName() + ") activated",1)
     endif
     resetCooldown(1.0)
 EndFunction
@@ -8014,6 +8081,48 @@ float Function getAccesibility()
         endif
     endif
     return ValidateAccessibility(loc_res)
+EndFunction
+
+String Function getAccesibilityString()
+    Float loc_acc = getAccesibility()
+    String loc_str = ""
+    If loc_acc > 0.8
+        loc_str = "Very easy"
+    ElseIf loc_acc > 0.6
+        loc_str = "Easy"
+    ElseIf loc_acc > 0.4
+        loc_str = "Challenging"
+    ElseIf loc_acc > 0.2
+        loc_str = "Difficult"
+    ElseIf loc_acc > 0.0
+        loc_str = "Almost impossible"
+    Else
+        loc_str = "Impossible"
+    EndIf
+    Return UDMTF.TextDecoration("Impossible", asColor = UDMTF.PercentToRainbow(Round(loc_acc * 100)))
+EndFunction
+
+; afResist: -100.0 .. 100.0
+String Function getResistanceString(Float afResist)
+    String loc_str = ""
+    If afResist < -75.0
+        loc_str = "Extremely vulnerable"
+    ElseIf afResist < -50.0
+        loc_str = "Vulnerable"
+    ElseIf afResist < -25.0
+        loc_str = "Susceptible"
+    ElseIf afResist < 25.0
+        loc_str = "Not resistant"
+    ElseIf afResist < 50.0
+        loc_str = "Resistant"
+    ElseIf afResist < 75.0
+        loc_str = "Very resistant"
+    ElseIf afResist < 99.0
+        loc_str = "Almost immune"
+    Else
+        loc_str = "Immune"
+    EndIf
+    Return UDMTF.TextDecoration(loc_str, asColor = UDMTF.PercentToRainbow(Round(-afResist / 2 + 50)))
 EndFunction
 
 Function OnDeviceCutted()

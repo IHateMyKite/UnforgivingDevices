@@ -251,15 +251,7 @@ Function _ShowVibDetails()
     if isVibrating() && !isVibPaused()
         loc_res += UDMTF.TableRowDetails("Status:", "ON", UDMTF.PercentToRainbow(0))
         loc_res += UDMTF.TableRowDetails("Current vib strength:", getCurrentVibStrenth(), UDMTF.PercentToRainbow(100 - getCurrentVibStrenth()))
-        String loc_frag = ""
-        if _currentEdgingMode == 0
-            loc_frag += "Normal\n"
-        elseif _currentEdgingMode == 1
-            loc_frag += "Edge\n"
-        elseif _currentEdgingMode == 2
-            loc_frag += "Random\n"
-        endif
-        loc_res += UDMTF.TableRowDetails("Current vib mode:", loc_frag)
+        loc_res += UDMTF.TableRowDetails("Current vib mode:", _getEdgingModeString(_currentEdgingMode))
 
         if _currentVibRemainingDuration > 0
             loc_res += UDMTF.TableRowDetails("Rem. duration:", _currentVibRemainingDuration + " s")
