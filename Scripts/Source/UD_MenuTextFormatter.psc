@@ -116,17 +116,16 @@ Int Function GetModeIndex()
     Return GetModes().Find(GetState())
 EndFunction
 
+;/  Function: HasHtmlMarkup
 
-
+    Returns true if the formatted text contains HTML markup
+    
+    Returns:
+        True for HTML
+/;
 Bool Function HasHtmlMarkup()
     Return GetState() == "HTML"
 EndFunction
-
-;===============================================================================
-;===============================================================================
-;                                    State: Default (Legacy)
-;===============================================================================
-;===============================================================================
 
 ;/  Group: Text Formatting
 ===========================================================================================
@@ -181,7 +180,7 @@ EndFunction
 
 ;/  Function: FontBegin
 
-    Opening tags with customized font
+    Opening tag for the text with customized font
     
     Parameters:
         aiFontSize              - Font size. If no value is specified, the size does not change.
@@ -197,13 +196,39 @@ EndFunction
 
 ;/  Function: FontEnd
 
-    Returns closing font tags
+    Returns closing font tag
     
     Returns:
         String with the text fragment
 /;
 String Function FontEnd()
     Return ""
+EndFunction
+
+;/  Function: ParagraphBegin
+
+    Opening tag for the text in customized paragraph
+    
+    Parameters:
+        asAlign                 - Horizontal text alignment (left, center, right). If no value is specified, the alignment does not change.
+        aiLeading               - Spacing between lines. If no value is specified, the spacing does not change. 
+        
+    Returns:
+        String with the text fragment
+/;
+String Function ParagraphBegin(String asAlign = "", Int aiLeading = -99)
+    Return ""
+EndFunction
+
+;/  Function: ParagraphEnd
+
+    Returns closing paragraph tag. It has a line break at the end!
+
+    Returns:
+        String with the text fragment
+/;
+String Function ParagraphEnd()
+    Return LineBreak()
 EndFunction
 
 ;/  Function: TextDecoration
@@ -416,6 +441,7 @@ EndFunction
         String with the text fragment
 /;
 String Function DeviceLockIcon(Bool abOpen, Bool abJammed, Bool abTimer)
+; TODO: This function should be defined in a specialized script for the device text menus
     If abOpen
         Return "O"
     EndIf
@@ -425,7 +451,29 @@ String Function DeviceLockIcon(Bool abOpen, Bool abJammed, Bool abTimer)
     If abJammed
         Return "J"
     EndIf
-    Return "C"
+    Return "L"
+EndFunction
+
+;/  Function: DeviceLockIcon
+
+    Returns a legend for our improvised device lock indicators (icons)
+    
+    Returns:
+        String with the text fragment
+/;
+String Function DeviceLockLegend()
+; TODO: This function should be defined in a specialized script for the device text menus
+    String loc_res = ""
+    
+    loc_res += "L - locked;"
+    loc_res += LineBreak()
+    loc_res += "O - unlocked (open);"
+    loc_res += LineBreak()
+    loc_res += "T - with timer;"
+    loc_res += LineBreak()
+    loc_res += "J - jammed."
+    
+    Return loc_res
 EndFunction
 
 ;/  Function: _CleanPage
@@ -446,11 +494,6 @@ String Function _CleanPage(String asPage)
 EndFunction
 
 Auto State HTML
-;===============================================================================
-;===============================================================================
-;                                    State: HTML
-;===============================================================================
-;===============================================================================
 
     String Function Header(String asHeader, Int aiPlusSize = 4)
         Int loc_pad_len = Math.Ceiling((30 - StringUtil.GetLength(asHeader)) / 10)
@@ -535,6 +578,24 @@ Auto State HTML
 
     String Function FontEnd()
         Return "</font>"
+    EndFunction
+    
+    String Function ParagraphBegin(String asAlign = "", Int aiLeading = -99)
+        String loc_res = ""
+        loc_res += "<textformat"
+        loc_res += InlineIfString(aiLeading > -99, " leading='" + (aiLeading as String) + "'")
+        loc_res += ">"
+        loc_res += "<p"
+        loc_res += InlineIfString(asAlign != "", " align='" + asAlign + "'")
+        loc_res += ">"
+        Return loc_res
+    EndFunction
+    
+    String Function ParagraphEnd()
+        String loc_res = ""
+        loc_res += "</p>"
+        loc_res += "</textformat>"
+        Return loc_res
     EndFunction
 
     String Function TextDecoration(String asText, Int aiFontSize = -1, String asFontFace = "", String asColor = "", String asAlign = "")
@@ -683,14 +744,13 @@ Auto State HTML
             EndWhile
             ; append last page
             If loc_page_len > 0
+                loc_page_txt = _CleanPage(loc_page_txt)
                 If loc_page_len > loc_chars_limit
                 ; there is no way we could print message this large!
-                    loc_pages = PapyrusUtil.PushString(loc_pages, "<br/>The section is too large to output (attempting to do so will result in CTD)! Split it into several parts.<br/>")
-                Else
-                    loc_page_txt = _CleanPage(loc_page_txt)
-                    If StringUtil.GetLength(loc_page_txt) > 0
-                        loc_pages = PapyrusUtil.PushString(loc_pages, loc_page_txt)
-                    EndIf
+                    loc_page_txt = StringUtil.Substring(loc_page_txt, 0, loc_chars_limit - 20) + " [text is too long]"
+                EndIf
+                If StringUtil.GetLength(loc_page_txt) > 0
+                    loc_pages = PapyrusUtil.PushString(loc_pages, loc_page_txt)
                 EndIf
             EndIf
             loc_i += 1
@@ -738,15 +798,33 @@ Auto State HTML
         Return TextDecoration(StringUtil.AsChar(164), asColor = "#FFFFFF")
     EndFunction
 
+    String Function DeviceLockLegend()
+        String loc_res = ""
+        
+        loc_res += TextDecoration(StringUtil.AsChar(164), asColor = "#FFFFFF") + " - locked;"
+        loc_res += LineBreak()
+        loc_res += TextDecoration(StringUtil.AsChar(183), asColor = "#FFFFFF") + " - unlocked;"
+        loc_res += LineBreak()
+        loc_res += TextDecoration(StringUtil.AsChar(164), asColor = "#4444FF") + " - with timer;"
+        loc_res += LineBreak()
+        loc_res += TextDecoration(StringUtil.AsChar(164), asColor = "#FF4444") + " - jammed."
+        
+        Return loc_res
+    EndFunction
+
     String Function _CleanPage(String asPage)
+        Debug.Trace(Self + "::_CleanPage() Before: begining = " + StringUtil.Substring(asPage, 0, 100))
+        Debug.Trace(Self + "::_CleanPage() Before: ending = " + StringUtil.Substring(asPage, StringUtil.GetLength(asPage) - 100))
         String loc_res = asPage
         loc_res = RemoveSubstr(loc_res, "<g/>")
         loc_res = TrimSubstr(loc_res, "<br/>")
         loc_res = TrimSubstr(loc_res, " ")
         loc_res = TrimSubstr(loc_res, LineGap())
-        loc_res = RemoveDuplicates(loc_res, "<gap/>")
+        loc_res = RemoveDuplicates(loc_res, LineGap())
         loc_res = ReplaceSubstr(loc_res, "<gap/>", "<font size='12'> <br/></font>") ;"<textformat leading='-10'> <br/></textformat>"
         loc_res = ReplaceSubstr(loc_res, "<br/>", "\n")
+        Debug.Trace(Self + "::_CleanPage() After: begining = " + StringUtil.Substring(asPage, 0, 100))
+        Debug.Trace(Self + "::_CleanPage() After: ending = " + StringUtil.Substring(asPage, StringUtil.GetLength(asPage) - 100))
         Return loc_res
     EndFunction
     
@@ -812,6 +890,26 @@ String Function BoolToGrayscale(Bool abValue)
         Return PercentToGrayscale(100)
     Else
         Return PercentToGrayscale(0)
+    EndIf
+EndFunction
+
+;/  Function: BoolToGrayscale
+
+    Turns the boolean into a color code on the 'rainbow'.
+    False corresponds to magenta
+    True corresponds to green
+    
+    Parameters:
+        abValue                         - Boolean value
+
+    Returns:
+        Hexadecimal color code in CSS format with leading '#'
+/;
+String Function BoolToRainbow(Bool abValue)
+    If abValue 
+        Return PercentToRainbow(100)
+    Else
+        Return PercentToRainbow(0)
     EndIf
 EndFunction
 

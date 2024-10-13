@@ -542,10 +542,15 @@ EndFunction
 
 string Function addInfoString(string str = "")
     str = parent.addInfoString(str)
-    str += "(AP) Strength: " + FormatFloat(abadonPlugDiff,1) + " (~"+Math.floor(relativeStrength()*100.0)+" %)" + "\n"
-    str += "(AP) Hunger: "+ Math.floor(100.0 - plug_hunger) + " %\n"
-    str += "(AP) Orgasms fed: "+ orgasm_cout +"\n"
-    str += "(AP) Finisher?: "+ finisherOn +"\n"
+    
+    str += UDMTF.TableRowDetails("(AP) Strength:", FormatFloat(abadonPlugDiff, 1) + " (~" + Math.floor(relativeStrength() * 100.0) + " %)")
+    str += UDMTF.TableRowDetails("(AP) Hunger:", Math.floor(100.0 - plug_hunger) + " %", UDMTF.PercentToRainbow(Round(plug_hunger)))
+    str += UDMTF.TableRowDetails("(AP) Orgasms fed:", orgasm_cout)
+    str += UDMTF.TableRowDetails("(AP) Finisher?:", finisherOn)
+   
+    str += UDMTF.PageSplit(abForce = False)
+    str += UDMTF.LineGap()
+    
     return str
 EndFunction
 
