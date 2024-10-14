@@ -544,9 +544,9 @@ string Function addInfoString(string str = "")
     str = parent.addInfoString(str)
     
     str += UDMTF.TableRowDetails("(AP) Strength:", FormatFloat(abadonPlugDiff, 1) + " (~" + Math.floor(relativeStrength() * 100.0) + " %)")
-    str += UDMTF.TableRowDetails("(AP) Hunger:", Math.floor(100.0 - plug_hunger) + " %", UDMTF.PercentToRainbow(Round(plug_hunger)))
+    str += UDMTF.TableRowDetails("(AP) Hunger:", Math.floor(100.0 - plug_hunger) + " %", UDMTF.PercentToRainbow(Round(100.0 - plug_hunger)))
     str += UDMTF.TableRowDetails("(AP) Orgasms fed:", orgasm_cout)
-    str += UDMTF.TableRowDetails("(AP) Finisher?:", finisherOn)
+    str += UDMTF.TableRowDetails("(AP) Finisher:", finisherOn, UDMTF.BoolToGrayscale(finisherOn))
    
     str += UDMTF.PageSplit(abForce = False)
     str += UDMTF.LineGap()

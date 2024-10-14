@@ -33,7 +33,7 @@ Int     Property LinesOnPage = 12                   Auto    Hidden
     
     Used in HTML mode only
 /;
-Int     Property LinesOnHTMLPage = 18               Auto    Hidden
+Int     Property LinesOnHTMLPage = 16               Auto    Hidden
 
 ;/  Variable: CharsOnPage
     Maximum number of characters per page. If there are more, the text will be divided into several page
@@ -786,6 +786,7 @@ Auto State HTML
     EndFunction
 
     String Function DeviceLockIcon(Bool abOpen, Bool abJammed, Bool abTimer)
+    ; for better visual it should be used with $EverywhereBoldFont font
         If abOpen
             Return TextDecoration(StringUtil.AsChar(183), asColor = "#FFFFFF")
         EndIf
@@ -800,7 +801,7 @@ Auto State HTML
 
     String Function DeviceLockLegend()
         String loc_res = ""
-        
+        loc_res += ParagraphBegin(aiLeading = -3)
         loc_res += TextDecoration(StringUtil.AsChar(164), asColor = "#FFFFFF") + " - locked;"
         loc_res += LineBreak()
         loc_res += TextDecoration(StringUtil.AsChar(183), asColor = "#FFFFFF") + " - unlocked;"
@@ -808,6 +809,7 @@ Auto State HTML
         loc_res += TextDecoration(StringUtil.AsChar(164), asColor = "#4444FF") + " - with timer;"
         loc_res += LineBreak()
         loc_res += TextDecoration(StringUtil.AsChar(164), asColor = "#FF4444") + " - jammed."
+        loc_res += ParagraphEnd()
         
         Return loc_res
     EndFunction

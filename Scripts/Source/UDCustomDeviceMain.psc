@@ -1313,49 +1313,63 @@ Bool Property UD_CurrentNPCMenuTargetIsInMinigame   = False auto conditional hid
         akActor         - Actor to open menu on
 /;
 Function NPCMenu(Actor akActor)
+    Bool loc_break = False
     SetMessageAlias(akActor)
-    UD_CurrentNPCMenuIsFollower         = UDmain.ActorIsFollower(akActor)
-    UD_CurrentNPCMenuIsRegistered       = isRegistered(akActor)
-    UD_CurrentNPCMenuIsStatic           = akActor.IsInFaction(UDlibs.StaticNPC)
-    UD_CurrentNPCMenuTargetIsHelpless   = UDmain.ActorIsHelpless(akActor) && UDmain.ActorFreeHands(UDmain.Player)
-    UD_CurrentNPCMenuTargetIsInMinigame = ActorInMinigame(akActor)
-    UD_CurrentNPCMenuIsPersistent       = StorageUtil.GetIntValue(akActor, "UD_ManualRegister", 0)
+    
+    While !loc_break
+        UD_CurrentNPCMenuIsFollower         = UDmain.ActorIsFollower(akActor)
+        UD_CurrentNPCMenuIsRegistered       = isRegistered(akActor)
+        UD_CurrentNPCMenuIsStatic           = akActor.IsInFaction(UDlibs.StaticNPC)
+        UD_CurrentNPCMenuTargetIsHelpless   = UDmain.ActorIsHelpless(akActor) && UDmain.ActorFreeHands(UDmain.Player)
+        UD_CurrentNPCMenuTargetIsInMinigame = ActorInMinigame(akActor)
+        UD_CurrentNPCMenuIsPersistent       = StorageUtil.GetIntValue(akActor, "UD_ManualRegister", 0)
 
-    int loc_res = UDMain.UDMMM.ShowMessageBoxMenu(NPCDebugMenuMsg, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
-    if loc_res == 0
-        UDCD_NPCM.RegisterNPC(akActor,true)
-    elseif loc_res == 1
-        UDCD_NPCM.UnregisterNPC(akActor,true)
-    elseif loc_res == 2
-        StorageUtil.SetIntValue(akActor, "UD_ManualRegister", 1)
-    elseif loc_res == 3
-        StorageUtil.SetIntValue(akActor, "UD_ManualRegister", 0)
-    elseif loc_res == 4 ;Acces devices
-        HelpNPC(akActor,UDmain.Player,UDmain.ActorIsFollower(akActor))
-    elseif loc_res == 5 ; get help
-        HelpNPC(UDmain.Player,akActor,false)
-    elseif loc_res == 6
-        UndressArmor(akActor)
-        ;akActor.UpdateWeight(0)
-    elseif loc_res == 10
-        DebugFunction(akActor)
-    elseif loc_res == 7
-        akActor.openInventory(True)
-    elseif loc_res == 11
-        if !StorageUtil.GetIntValue(akActor,"UDNPCMenu_SetDontMove",0)
-            StorageUtil.SetIntValue(akActor,"UDNPCMenu_SetDontMove",1)
-            akActor.setDontMove(true)
+        int loc_res = UDMain.UDMMM.ShowMessageBoxMenu(NPCDebugMenuMsg, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
+        if loc_res == 0
+            UDCD_NPCM.RegisterNPC(akActor,true)
+        elseif loc_res == 1
+            UDCD_NPCM.UnregisterNPC(akActor,true)
+            loc_break = True
+        elseif loc_res == 2
+            StorageUtil.SetIntValue(akActor, "UD_ManualRegister", 1)
+        elseif loc_res == 3
+            StorageUtil.SetIntValue(akActor, "UD_ManualRegister", 0)
+            loc_break = True
+        elseif loc_res == 4 ;Acces devices
+            HelpNPC(akActor,UDmain.Player,UDmain.ActorIsFollower(akActor))
+;            loc_break = HelpNPC(akActor,UDmain.Player,UDmain.ActorIsFollower(akActor))
+        elseif loc_res == 5 ; get help
+            HelpNPC(UDmain.Player,akActor,false)
+;            loc_break = HelpNPC(UDmain.Player,akActor,false)
+        elseif loc_res == 6
+            UndressArmor(akActor)
+            ;akActor.UpdateWeight(0)
+            loc_break = True
+        elseif loc_res == 10
+            DebugFunction(akActor)
+        elseif loc_res == 7
+            akActor.openInventory(True)
+            loc_break = True
+        elseif loc_res == 11
+            if !StorageUtil.GetIntValue(akActor,"UDNPCMenu_SetDontMove",0)
+                StorageUtil.SetIntValue(akActor,"UDNPCMenu_SetDontMove",1)
+                akActor.setDontMove(true)
+            else
+                StorageUtil.UnSetIntValue(akActor,"UDNPCMenu_SetDontMove")
+                akActor.setDontMove(false)
+            endif
+            loc_break = True
+        elseif loc_res == 8
+            showActorDetails(akActor)
+        elseif loc_res == 9
+            getMinigameDevice(akActor).StopMinigame()
+            loc_break = True
         else
-            StorageUtil.UnSetIntValue(akActor,"UDNPCMenu_SetDontMove")
-            akActor.setDontMove(false)
+            loc_break = True
         endif
-    elseif loc_res == 8
-        showActorDetails(akActor)
-    elseif loc_res == 9
-        getMinigameDevice(akActor).StopMinigame()
-    else
-        return
-    endif
+        ; TODO: create menu loops
+        loc_break = True
+    EndWhile
 EndFunction
 
 ;/  Function: HelpNPC
@@ -1729,9 +1743,26 @@ EndFunction
 
 Message Property UD_ActorDetailsOptions auto
 
+String Function _GetActorDetailsMenuText(Actor akActor)
+    String loc_res = ""
+    loc_res += UDMTF.Header(akActor.GetLeveledActorBase().GetName(), 4)
+    loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+    loc_res += UDMTF.LineGap()
+    
+    ; TODO: Actor details
+    
+    loc_res += UDMTF.LineBreak()
+    loc_res += UDMTF.TextDecoration("Which details do you want to see?", asAlign = "center")
+    loc_res += UDMTF.LineBreak()
+    
+    loc_res += UDMTF.FontEnd()
+    Return loc_res
+EndFunction
+
 Function showActorDetails(Actor akActor)
     while True
-        Int loc_option = UDMain.UDMMM.ShowMessageBoxMenu(UD_ActorDetailsOptions, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
+        String loc_str = _GetActorDetailsMenuText(akActor)
+        Int loc_option = UDMain.UDMMM.ShowMessageBoxMenu(UD_ActorDetailsOptions, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
         if !UDmain.IsContainerMenuOpen() && !UDmain.IsInventoryMenuOpen()
             Utility.wait(0.01)
         endif

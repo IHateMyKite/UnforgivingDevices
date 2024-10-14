@@ -238,18 +238,18 @@ Function _ShowVibDetails()
     if UD_Chaos
         loc_res += UDMTF.TableRowDetails("Vib strength:", "Chaos ( " + UD_Chaos + " %)")
     else
-        loc_res += UDMTF.TableRowDetails("Vib strength:", UD_VibStrength)
+        loc_res += UDMTF.TableRowDetails("Vib strength:", UD_VibStrength, UDMTF.PercentToRainbow(100 - UD_VibStrength))
     endif
     
     loc_res += UDMTF.TableRowDetails("Vib duration:", UD_VibDuration)
     loc_res += UDMTF.TableRowDetails("Vib mode:", _getEdgingModeString(UD_EdgingMode))
-    loc_res += UDMTF.TableRowDetails("Shocking:", UD_Shocking)
+    loc_res += UDMTF.TableRowDetails("Shocking:", UD_Shocking, UDMTF.BoolToGrayscale(UD_Shocking))
     
     loc_res += UDMTF.PageSplit(abForce = False)
     loc_res += UDMTF.LineGap()
 
     if isVibrating() && !isVibPaused()
-        loc_res += UDMTF.TableRowDetails("Status:", "ON", UDMTF.PercentToRainbow(0))
+        loc_res += UDMTF.TableRowDetails("Status:", "ON", UDMTF.BoolToRainbow(False))
         loc_res += UDMTF.TableRowDetails("Current vib strength:", getCurrentVibStrenth(), UDMTF.PercentToRainbow(100 - getCurrentVibStrenth()))
         loc_res += UDMTF.TableRowDetails("Current vib mode:", _getEdgingModeString(_currentEdgingMode))
 
@@ -275,24 +275,28 @@ EndFunction
 
 ;function called when player clicks DETAILS button in device menu
 Function processDetails()
+    Bool loc_break = False
     UDCDmain.currentDeviceMenu_switch1 = isVibrating() || canVibrate()
     UDCDmain.currentDeviceMenu_switch2 = HaveLocks()
-    int res = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.VibDetailsMessage, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
-    if res == 0 
-        ShowBaseDetails()
-    elseif res == 1
-        ShowLockDetails()
-    elseif res == 2
-        _ShowVibDetails()
-    elseif res == 3
-        ShowModifiers()
-    elseif res == 4
-        UDCDmain.showActorDetails(GetWearer())
-    elseif res == 5
-        showDebugInfo()
-    else
-        return
-    endif
+    String loc_msg = _GetDeviceDetailsMenuText()
+    While !loc_break
+        int res = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.VibDetailsMessage, UDMain.UDMMM.NoValues, loc_msg, UDMain.UDMMM.NoButtons, UDMain.UDMTF.HasHtmlMarkup())
+        if res == 0 
+            ShowBaseDetails()
+        elseif res == 1
+            ShowLockDetails()
+        elseif res == 2
+            _ShowVibDetails()
+        elseif res == 3
+            ShowModifiers()
+        elseif res == 4
+            UDCDmain.showActorDetails(GetWearer())
+        elseif res == 5
+            showDebugInfo()
+        else
+            loc_break = True
+        endif
+    EndWhile
 EndFunction
 
 Function onDeviceMenuInitPost(bool[] aControlFilter)
