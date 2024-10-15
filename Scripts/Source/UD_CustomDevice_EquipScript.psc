@@ -200,7 +200,7 @@ Function openWHMenu(Actor akTarget,Actor akSource)
         if UDmain.TraceAllowed()
             UDmain.Log(" NPC menu opened for " + deviceInventory.getName() + " (" + akTarget.getActorBase().getName() + ") by " + akSource.getActorBase().getName(),1)
         endif
-        UDCDMain.OpenHelpDeviceMenu(getUDScript(akTarget),akSource,UDmain.ActorIsFollower(akTarget))
+        UDCDMain.ShowHelpDeviceMenu(getUDScript(akTarget),akSource,UDmain.ActorIsFollower(akTarget))
     endif
 EndFunction
 

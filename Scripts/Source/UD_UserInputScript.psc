@@ -225,7 +225,7 @@ Function OpenNPCMenu(Bool abOpenDeviceList)
         Actor loc_actor = loc_ref as Actor
         if !loc_actor.isDead() && UDmain.ActorIsValidForUD(loc_actor)
             if !abOpenDeviceList
-                UDCDmain.NPCMenu(loc_actor)
+                UDCDmain.ShowNPCMenu(loc_actor)
             else
                 bool loc_actorisregistered = UDCDmain.isRegistered(loc_actor)
                 if loc_actorisregistered

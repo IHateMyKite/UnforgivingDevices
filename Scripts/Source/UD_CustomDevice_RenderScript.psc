@@ -4863,6 +4863,10 @@ bool Function struggleMinigame(int aiType = -1, Bool abSilent = False)
 
     bool loc_minigamecheck = minigamePostcheck(abSilent)
     if loc_minigamecheck
+        ; TODO: It could be moved into the event handler
+        If _struggleGame_Subtype < 3
+            UDMain.UDMMM.ShowHelpMessage("StruggleGame")
+        EndIf
         _StruggleGameON = True
         UD_Events.SendEvent_DeviceMinigameBegin(self,"Struggle_"+aiType)
         minigame()
@@ -4928,6 +4932,8 @@ bool Function lockpickMinigame(Bool abSilent = False)
     _minMinigameStatSP = 0.8
     
     if minigamePostcheck(abSilent)
+        ; TODO: It could be moved into the event handler
+        UDMain.UDMMM.ShowHelpMessage("LockpickingGame")
         _LockpickGameON = True
         UD_Events.SendEvent_DeviceMinigameBegin(self,"Lockpick")
         minigame()
@@ -5002,6 +5008,8 @@ bool Function repairLocksMinigame(Bool abSilent = False)
     _minMinigameStatSP = 0.8
     
     if minigamePostcheck(abSilent)
+        ; TODO: It could be moved into the event handler
+        UDMain.UDMMM.ShowHelpMessage("RepairGame")
         _RepairLocksMinigameON = True
         UD_Events.SendEvent_DeviceMinigameBegin(self,"RepairLock")
         minigame()
@@ -5055,6 +5063,9 @@ bool Function cuttingMinigame(Bool abSilent = False)
             string loc_param = UDmain.UDWC.GetMeterIdentifier("device-main")
             UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
         endif
+        
+        ; TODO: It could be moved into the event handler
+        UDMain.UDMMM.ShowHelpMessage("CuttingGame")
         
         _CuttingGameON = True
         UD_Events.SendEvent_DeviceMinigameBegin(self,"Cutting")
@@ -5124,6 +5135,8 @@ bool Function keyMinigame(Bool abSilent = False)
     
     
     if minigamePostcheck(abSilent)
+        ; TODO: It could be moved into the event handler
+        UDMain.UDMMM.ShowHelpMessage("KeyUnlockGame")
         _KeyGameON = True
         UD_Events.SendEvent_DeviceMinigameBegin(self,"KeyUnlock")
         minigame()
@@ -7603,7 +7616,11 @@ String Function _GetDeviceLockMenuText()
     
     loc_res += UDMTF.TextDecoration("You carefully investigate device to gather information about its locks.", asAlign = "center")
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.TextDecoration("Any " + _GetLockpickLevelString(_getLockpickLevel(0), True) + " in lock picking should be able to handle them without difficulty.", asAlign = "center")
+    If _getLockpickLevel(0) > 4 && zad_deviceKey
+        loc_res += UDMTF.TextDecoration("You need a '" + zad_deviceKey.GetName() + "' to open locks.", asAlign = "center")
+    Else
+        loc_res += UDMTF.TextDecoration("Any " + _GetLockpickLevelString(_getLockpickLevel(0), True) + " in lock picking should be able to handle them without difficulty.", asAlign = "center")
+    EndIf
     loc_res += UDMTF.LineBreak()
     loc_res += UDMTF.TextDecoration(_GetLocksIcons(), asAlign = "center")
     loc_res += UDMTF.LineBreak()
@@ -7646,8 +7663,8 @@ EndFunction
 String Function _GetDeviceStruggleMenuText()
     String loc_res = ""
     loc_res += UDMTF.Header(getDeviceName(), 4)
-    loc_res += UDMTF.LineGap()
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+    loc_res += UDMTF.LineGap()
     
     loc_res += UDMTF.TextDecoration("You feel that device is " + getResistanceString(getModResistPhysical(0.0) * -100.0, True) + " to brute force.", asAlign = "center")
     loc_res += UDMTF.LineBreak()
@@ -8544,7 +8561,7 @@ Function processDetails()
         elseif res == 2
             ShowModifiers()
         elseif res == 3
-            UDCDmain.showActorDetails(GetWearer())
+            UDCDmain.ShowActorDetailsMenu(GetWearer())
         elseif res == 4
             showDebugInfo()
         else

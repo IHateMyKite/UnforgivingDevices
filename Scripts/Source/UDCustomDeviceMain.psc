@@ -165,6 +165,8 @@ Message         Property DefaultVibratorSpecialMsg          auto
 Message         Property PlayerMenuMsg                      auto
 Message         Property NPCDebugMenuMsg                    auto
 
+
+
 ObjectReference Property LockPickContainer_ObjRef           auto
 Container       Property LockPickContainer                  auto
 
@@ -1296,6 +1298,40 @@ Function SetMessageAlias(Actor akActor1,Actor akActor2 = none,zadequipscript arD
     endif
 EndFunction
 
+String Function _GetNPCMenuText(Actor akActor)
+    String loc_res = ""
+    
+    loc_res += UDMTF.Header(akActor.GetLeveledActorBase().GetName(), 4)
+    loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+    loc_res += UDMTF.LineGap()
+    
+    loc_res += UDMTF.TextDecoration("The helper has some experience interacting with devices (" + GetHelperLVL(akActor) + " level)")
+    loc_res += UDMTF.LineBreak()
+    
+    float loc_currenttime = Utility.GetCurrentGameTime()
+    float loc_cooldowntimeHP = StorageUtil.GetFloatValue(akActor, "UDNPCCD:" + UDmain.Player, 0)
+    float loc_cooldowntimePH = StorageUtil.GetFloatValue(UDmain.Player, "UDNPCCD:" + akActor, 0)
+    Int loc_v1 = iUnsig(Round(((loc_cooldowntimeHP - loc_currenttime)*24*60)))
+    Int loc_v2 = iUnsig(Round(((loc_cooldowntimePH - loc_currenttime)*24*60)))
+    If loc_v1 > 0
+        loc_res += UDMTF.TextDecoration("She'll be able to help in " + loc_v1 + " minutes")
+    Else
+        loc_res += UDMTF.TextDecoration("She is able to help right now.")
+    EndIf
+    loc_res += UDMTF.LineBreak()
+    If loc_v2 > 0
+        loc_res += UDMTF.TextDecoration("You'll be able to help in " + loc_v2 + " minutes")
+    Else
+        loc_res += UDMTF.TextDecoration("You are able to help right now.")
+    EndIf
+    loc_res += UDMTF.LineBreak()
+    
+    
+    loc_res += UDMTF.FontEnd()
+    
+    Return loc_res
+EndFunction
+
 Bool Property UD_CurrentNPCMenuIsFollower           = False auto conditional hidden
 Bool Property UD_CurrentNPCMenuIsRegistered         = False auto conditional hidden
 Bool Property UD_CurrentNPCMenuIsStatic             = False auto conditional hidden
@@ -1303,8 +1339,7 @@ Bool Property UD_CurrentNPCMenuIsPersistent         = False auto conditional hid
 Bool Property UD_CurrentNPCMenuTargetIsHelpless     = False auto conditional hidden
 Bool Property UD_CurrentNPCMenuTargetIsInMinigame   = False auto conditional hidden
 
-
-;/  Function: NPCMenu
+;/  Function: ShowNPCMenu
 
     Opends NPC menu for passed *akActor*
 
@@ -1312,7 +1347,7 @@ Bool Property UD_CurrentNPCMenuTargetIsInMinigame   = False auto conditional hid
 
         akActor         - Actor to open menu on
 /;
-Function NPCMenu(Actor akActor)
+Function ShowNPCMenu(Actor akActor)
     Bool loc_break = False
     SetMessageAlias(akActor)
     
@@ -1324,33 +1359,34 @@ Function NPCMenu(Actor akActor)
         UD_CurrentNPCMenuTargetIsInMinigame = ActorInMinigame(akActor)
         UD_CurrentNPCMenuIsPersistent       = StorageUtil.GetIntValue(akActor, "UD_ManualRegister", 0)
 
-        int loc_res = UDMain.UDMMM.ShowMessageBoxMenu(NPCDebugMenuMsg, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
-        if loc_res == 0
+        String loc_str = _GetNPCMenuText(akActor)
+        int loc_res = UDMain.UDMMM.ShowMessageBoxMenu(NPCDebugMenuMsg, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
+        if loc_res == 0                             ; Register
             UDCD_NPCM.RegisterNPC(akActor,true)
-        elseif loc_res == 1
+        elseif loc_res == 1                         ; Unregister
             UDCD_NPCM.UnregisterNPC(akActor,true)
             loc_break = True
-        elseif loc_res == 2
+        elseif loc_res == 2                         ; Make persist
             StorageUtil.SetIntValue(akActor, "UD_ManualRegister", 1)
-        elseif loc_res == 3
+        elseif loc_res == 3                         ; Undo persist
             StorageUtil.SetIntValue(akActor, "UD_ManualRegister", 0)
             loc_break = True
-        elseif loc_res == 4 ;Acces devices
+        elseif loc_res == 4                         ; View devices
             HelpNPC(akActor,UDmain.Player,UDmain.ActorIsFollower(akActor))
 ;            loc_break = HelpNPC(akActor,UDmain.Player,UDmain.ActorIsFollower(akActor))
-        elseif loc_res == 5 ; get help
+        elseif loc_res == 5                         ; Get help
             HelpNPC(UDmain.Player,akActor,false)
 ;            loc_break = HelpNPC(UDmain.Player,akActor,false)
-        elseif loc_res == 6
-            UndressArmor(akActor)
+        elseif loc_res == 6                         ; Update Outfit
+            loc_break = ShowUndressArmorMenu(akActor)
             ;akActor.UpdateWeight(0)
-            loc_break = True
-        elseif loc_res == 10
+        elseif loc_res == 10                        ; Debug functions
             DebugFunction(akActor)
-        elseif loc_res == 7
-            akActor.openInventory(True)
             loc_break = True
-        elseif loc_res == 11
+        elseif loc_res == 7                         ; Inventory
+            akActor.OpenInventory(True)
+            loc_break = True
+        elseif loc_res == 11                        ; Toggle movement
             if !StorageUtil.GetIntValue(akActor,"UDNPCMenu_SetDontMove",0)
                 StorageUtil.SetIntValue(akActor,"UDNPCMenu_SetDontMove",1)
                 akActor.setDontMove(true)
@@ -1359,8 +1395,8 @@ Function NPCMenu(Actor akActor)
                 akActor.setDontMove(false)
             endif
             loc_break = True
-        elseif loc_res == 8
-            showActorDetails(akActor)
+        elseif loc_res == 8                         ; Details
+            loc_break = ShowActorDetailsMenu(akActor)
         elseif loc_res == 9
             getMinigameDevice(akActor).StopMinigame()
             loc_break = True
@@ -1384,6 +1420,9 @@ EndFunction
         akHelper        - Actor who is helping *akVictim*
         abAllowCommand  - If player can command the NPC. Is ignored if *akVictim* is Player
         
+    Returns:
+        All outer menus must be closed
+        
     Example:
     --- Code
         HelpNPC(SomeNPC,Player,False)  -> Player can help SomeNPC, but can't command them
@@ -1391,7 +1430,8 @@ EndFunction
         HelpNPC(Player,SomeNPC,False)  -> SomeNPC can help Player
     ---
 /;
-Function HelpNPC(Actor akVictim,Actor akHelper,bool abAllowCommand)
+Bool Function HelpNPC(Actor akVictim, Actor akHelper, Bool abAllowCommand)
+    Bool loc_exit = False
     UD_CustomDevice_NPCSlot loc_slot = getNPCSlot(akVictim)
     if loc_slot
         if IsPlayer(akHelper)
@@ -1402,7 +1442,7 @@ Function HelpNPC(Actor akVictim,Actor akHelper,bool abAllowCommand)
         
         UD_CustomDevice_RenderScript loc_device = loc_slot.GetUserSelectedDevice()
         if loc_device
-            OpenHelpDeviceMenu(loc_device,akHelper,abAllowCommand)
+            loc_exit = ShowHelpDeviceMenu(loc_device,akHelper,abAllowCommand)
         endif
         
         if IsPlayer(akHelper)
@@ -1411,9 +1451,10 @@ Function HelpNPC(Actor akVictim,Actor akHelper,bool abAllowCommand)
             SetPlayerFollower(akHelper,false,2)
         endif
     endif
+    Return loc_exit
 EndFunction
 
-;/  Function: OpenHelpDeviceMenu
+;/  Function: ShowHelpDeviceMenu
 
     Opends the Device menu of specific device with helper set to *akHelper*
 
@@ -1423,8 +1464,13 @@ EndFunction
         akHelper            - Actor who is helping *akVictim*
         abAllowCommand      - If player can command the NPC. Is ignored if device wearer is Player
         abIgnoreCooldown    - If Helper cooldown should be ignored
+
+    Returns:
+        All outer menus must be closed
+        
 /;
-Function OpenHelpDeviceMenu(UD_CustomDevice_RenderScript akDevice,Actor akHelper,bool abAllowCommand,bool abIgnoreCooldown = false)
+Bool Function ShowHelpDeviceMenu(UD_CustomDevice_RenderScript akDevice, Actor akHelper, Bool abAllowCommand, Bool abIgnoreCooldown = false)
+    Bool loc_exit = False
     if akDevice && akHelper
         bool loc_cond = true
         if !abIgnoreCooldown
@@ -1461,7 +1507,9 @@ Function OpenHelpDeviceMenu(UD_CustomDevice_RenderScript akDevice,Actor akHelper
         endif
 
         loc_arrcontrol[14] = !abAllowCommand
+        ; TODO: proper 'loc_exit'
         akDevice.deviceMenuWH(akHelper,loc_arrcontrol)
+        loc_exit = True
         
         if IsPlayer(akHelper)
             SetPlayerFollower(akDevice.getWearer(),false,1)
@@ -1469,6 +1517,7 @@ Function OpenHelpDeviceMenu(UD_CustomDevice_RenderScript akDevice,Actor akHelper
             SetPlayerFollower(akHelper,false,1)
         endif
     endif
+    Return loc_exit
 EndFunction
 
 float Function _CalculateHelperCD(Actor akActor,Int aiLevel = 0)
@@ -1573,9 +1622,9 @@ Function PlayerMenu()
     if loc_playerMenuRes == 0
         UDmain.UDOMPlayer.FocusOrgasmResistMinigame(UDmain.Player)
     elseif loc_playerMenuRes == 1
-        UndressArmor(UDmain.Player)
+        ShowUndressArmorMenu(UDmain.Player)
     elseif loc_playerMenuRes == 2
-        showActorDetails(UDmain.Player)
+        ShowActorDetailsMenu(UDmain.Player)
     elseif loc_playerMenuRes == 3
         DebugFunction(UDmain.Player)
     else
@@ -1583,7 +1632,7 @@ Function PlayerMenu()
     endif
 EndFunction
 
-;/  Function: UndressArmor
+;/  Function: ShowUndressArmorMenu
 
     Opens menu with all equipped armos, allowing user to undress certain parts of the outfit
 
@@ -1591,8 +1640,10 @@ EndFunction
 
         akActor    - Actor who will be undressed
 /;
-Function UndressArmor(Actor akActor)
-    while True
+Bool Function ShowUndressArmorMenu(Actor akActor)
+    Bool loc_break = False              ; break menu loop
+    Bool loc_exit = False               ; exit all menus
+    while !loc_break && !loc_exit
         Form[] loc_armors
         String[] loc_armorsnames
         int loc_mask = 0x00000001
@@ -1622,12 +1673,14 @@ Function UndressArmor(Actor akActor)
         elseif loc_res < (loc_armorsnames.length - 3) && loc_res >= 0
             akActor.unequipItem(loc_armors[loc_res], abSilent = true)
         else
-            return ;exit undress menu
+            loc_break = True
         endif
         loc_armors = Utility.CreateFormArray(0)
         loc_armorsnames = Utility.CreateStringArray(0)
         Utility.wait(0.05)
     endwhile
+    
+    Return loc_exit
 EndFunction
 
 ;default undress mask, all slots with 0 will be skipped
@@ -1759,8 +1812,10 @@ String Function _GetActorDetailsMenuText(Actor akActor)
     Return loc_res
 EndFunction
 
-Function showActorDetails(Actor akActor)
-    while True
+Bool Function ShowActorDetailsMenu(Actor akActor)
+    Bool loc_break = False          ; break menu loop
+    Bool loc_exit = False           ; exit all menus
+    while !loc_break && !loc_exit
         String loc_str = _GetActorDetailsMenuText(akActor)
         Int loc_option = UDMain.UDMMM.ShowMessageBoxMenu(UD_ActorDetailsOptions, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
         if !UDmain.IsContainerMenuOpen() && !UDmain.IsInventoryMenuOpen()
@@ -1795,8 +1850,8 @@ Function showActorDetails(Actor akActor)
                 loc_res += UDMTF.PageSplit(abForce = False)
                 loc_res += UDMTF.LineGap()
             endif
-            loc_res += UDMTF.TableRowDetails("Arousal:", FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,8),1))
-            loc_res += UDMTF.TableRowDetails("Orgasm progress:", FormatFloat(OrgasmSystem.GetOrgasmProgress(akActor,1) * 100,2) + "%")
+            loc_res += UDMTF.TableRowDetails("Arousal:", FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor, 8), 1), UDMTF.PercentToRainbow(Round(100 - OrgasmSystem.GetOrgasmVariable(akActor, 8))))
+            loc_res += UDMTF.TableRowDetails("Orgasm progress:", FormatFloat(OrgasmSystem.GetOrgasmProgress(akActor, 1) * 100, 2) + "%", UDMTF.PercentToRainbow(Round(100 - OrgasmSystem.GetOrgasmProgress(akActor, 1) * 100)))
             
             loc_res += UDMTF.FooterSplit()
             loc_res += UDMTF.TableEnd()
@@ -1812,21 +1867,21 @@ Function showActorDetails(Actor akActor)
             if IsRegistered(akActor)
                 UD_CustomDevice_NPCSlot loc_slot = GetNPCSlot(akActor)
                 if loc_slot
-                    loc_res += UDMTF.TableRowDetails("Agility skill:", Round(loc_slot.AgilitySkill))
-                    loc_res += UDMTF.TableRowDetails("Strength skill:", Round(loc_slot.StrengthSkill))
-                    loc_res += UDMTF.TableRowDetails("Magicka skill:", Round(loc_slot.MagickSkill))
-                    loc_res += UDMTF.TableRowDetails("Cutting skill:", Round(loc_slot.CuttingSkill))
+                    loc_res += UDMTF.TableRowDetails("Agility skill:", Round(loc_slot.AgilitySkill), UDMTF.PercentToRainbow(Round(loc_slot.AgilitySkill)))
+                    loc_res += UDMTF.TableRowDetails("Strength skill:", Round(loc_slot.StrengthSkill), UDMTF.PercentToRainbow(Round(loc_slot.StrengthSkill)))
+                    loc_res += UDMTF.TableRowDetails("Magicka skill:", Round(loc_slot.MagickSkill), UDMTF.PercentToRainbow(Round(loc_slot.MagickSkill)))
+                    loc_res += UDMTF.TableRowDetails("Cutting skill:", Round(loc_slot.CuttingSkill), UDMTF.PercentToRainbow(Round(loc_slot.CuttingSkill)))
                 else
-                    loc_res += UDMTF.TableRowDetails("Agility skill:", Round(UDmain.UDSKILL.getAgilitySkill(akActor)))
-                    loc_res += UDMTF.TableRowDetails("Strength skill:", Round(UDmain.UDSKILL.getStrengthSkill(akActor)))
-                    loc_res += UDMTF.TableRowDetails("Magicka skill:", Round(UDmain.UDSKILL.getMagickSkill(akActor)))
-                    loc_res += UDMTF.TableRowDetails("Cutting skill:", Round(UDmain.UDSKILL.getCuttingSkill(akActor)))
+                    loc_res += UDMTF.TableRowDetails("Agility skill:", Round(UDmain.UDSKILL.getAgilitySkill(akActor)), UDMTF.PercentToRainbow(Round(UDmain.UDSKILL.getAgilitySkill(akActor))))
+                    loc_res += UDMTF.TableRowDetails("Strength skill:", Round(UDmain.UDSKILL.getStrengthSkill(akActor)), UDMTF.PercentToRainbow(Round(UDmain.UDSKILL.getStrengthSkill(akActor))))
+                    loc_res += UDMTF.TableRowDetails("Magicka skill:", Round(UDmain.UDSKILL.getMagickSkill(akActor)), UDMTF.PercentToRainbow(Round(UDmain.UDSKILL.getMagickSkill(akActor))))
+                    loc_res += UDMTF.TableRowDetails("Cutting skill:", Round(UDmain.UDSKILL.getCuttingSkill(akActor)), UDMTF.PercentToRainbow(Round(UDmain.UDSKILL.getCuttingSkill(akActor))))
                 endif
             else
-                loc_res += UDMTF.TableRowDetails("Agility skill:", Round(UDmain.UDSKILL.getAgilitySkill(akActor)))
-                loc_res += UDMTF.TableRowDetails("Strength skill:", Round(UDmain.UDSKILL.getStrengthSkill(akActor)))
-                loc_res += UDMTF.TableRowDetails("Magicka skill:", Round(UDmain.UDSKILL.getMagickSkill(akActor)))
-                loc_res += UDMTF.TableRowDetails("Cutting skill:", Round(UDmain.UDSKILL.getCuttingSkill(akActor)))
+                loc_res += UDMTF.TableRowDetails("Agility skill:", Round(UDmain.UDSKILL.getAgilitySkill(akActor)), UDMTF.PercentToRainbow(Round(UDmain.UDSKILL.getAgilitySkill(akActor))))
+                loc_res += UDMTF.TableRowDetails("Strength skill:", Round(UDmain.UDSKILL.getStrengthSkill(akActor)), UDMTF.PercentToRainbow(Round(UDmain.UDSKILL.getStrengthSkill(akActor))))
+                loc_res += UDMTF.TableRowDetails("Magicka skill:", Round(UDmain.UDSKILL.getMagickSkill(akActor)), UDMTF.PercentToRainbow(Round(UDmain.UDSKILL.getMagickSkill(akActor))))
+                loc_res += UDMTF.TableRowDetails("Cutting skill:", Round(UDmain.UDSKILL.getCuttingSkill(akActor)), UDMTF.PercentToRainbow(Round(UDmain.UDSKILL.getCuttingSkill(akActor))))
             endif
             
             loc_res += UDMTF.FooterSplit()
@@ -1842,15 +1897,15 @@ Function showActorDetails(Actor akActor)
             loc_res += UDMTF.HeaderSplit()
             
             loc_res += UDMTF.TableRowDetails("State:", _UDOM.GetHornyLevelString(akActor))
-            loc_res += UDMTF.TableRowDetails("Horny level:", FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,14),2))
+            loc_res += UDMTF.TableRowDetails("Horny level:", FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor, 14), 2))
             
             loc_res += UDMTF.TableRowDetails("Active vibrators:", GetActivatedVibrators(akActor))
-            loc_res += UDMTF.TableRowDetails("Vibrators strength:", StorageUtil.GetIntValue(akActor,"UD_ActiveVib_Strength",0))
+            loc_res += UDMTF.TableRowDetails("Vibrators strength:", StorageUtil.GetIntValue(akActor,"UD_ActiveVib_Strength", 0), UDMTF.PercentToRainbow(100 - StorageUtil.GetIntValue(akActor,"UD_ActiveVib_Strength", 0)))
             
             loc_res += UDMTF.PageSplit(abForce = False)
             loc_res += UDMTF.LineGap()
             
-            loc_res += UDMTF.TableRowDetails("Arousal:", FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,8),1))
+            loc_res += UDMTF.TableRowDetails("Arousal:", FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,8),1), UDMTF.PercentToRainbow(Round(100 - OrgasmSystem.GetOrgasmVariable(akActor, 8))))
             loc_res += UDMTF.TableRowDetails("Arousal Rate(M):", FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,9)*OrgasmSystem.GetOrgasmVariable(akActor,10),1))
             loc_res += UDMTF.TableRowDetails("Arousal Rate Mult:", Round(OrgasmSystem.GetOrgasmVariable(akActor,10)*100))
             
@@ -1860,7 +1915,7 @@ Function showActorDetails(Actor akActor)
             loc_res += UDMTF.TableRowDetails("Orgasm capacity:", Round(OrgasmSystem.GetOrgasmVariable(akActor,5)))
             loc_res += UDMTF.TableRowDetails("Orgasm resistance(M):", FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,3)*OrgasmSystem.GetOrgasmVariable(akActor,4),1))
             loc_res += UDMTF.TableRowDetails("Orgasm resisting:", Round(OrgasmSystem.GetOrgasmVariable(akActor,4)*100.0) + "%")
-            loc_res += UDMTF.TableRowDetails("Orgasm progress:", FormatFloat(OrgasmSystem.GetOrgasmProgress(akActor,1) * 100,2) + "%")
+            loc_res += UDMTF.TableRowDetails("Orgasm progress:", FormatFloat(OrgasmSystem.GetOrgasmProgress(akActor,1) * 100,2) + "%", UDMTF.PercentToRainbow(Round(100 - OrgasmSystem.GetOrgasmProgress(akActor, 1) * 100)))
             loc_res += UDMTF.TableRowDetails("Orgasm rate:", FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor,1),2) + " - " + FormatFloat(OrgasmSystem.GetAntiOrgasmRate(akActor),2) + " Op/s")
             loc_res += UDMTF.TableRowDetails("Orgasm mult:", Round(OrgasmSystem.GetOrgasmVariable(akActor,2)*100.0) + "%")
 
@@ -1891,9 +1946,10 @@ Function showActorDetails(Actor akActor)
             
             if loc_sharpestWeapon
                 loc_res += UDMTF.TableRowDetails("Sharpest weapon:", loc_sharpestWeapon.getName())
-                loc_res += UDMTF.TableRowDetails("Cutting bonus:", FormatFloat(getActorCuttingWeaponMultiplier(akActor)*100.0 - 100.0,0) + "%")
+                Int loc_val = Round(getActorCuttingWeaponMultiplier(akActor) * 100.0 - 100.0)
+                loc_res += UDMTF.TableRowDetails("Cutting bonus:", (loc_val as String) + "%", UDMTF.PercentToRainbow(loc_val))
             else
-                loc_res += UDMTF.TableRowDetails("Sharpest weapon:", "NONE", UDMTF.PercentToGrayscale(0))
+                loc_res += UDMTF.TableRowDetails("Sharpest weapon:", "None", UDMTF.BoolToGrayscale(False))
             endif
             
             loc_res += UDMTF.FooterSplit()
@@ -1902,12 +1958,13 @@ Function showActorDetails(Actor akActor)
             
             UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
         else
-            return
+            loc_break = True
         endif
         if !UDmain.IsContainerMenuOpen() && !UDmain.IsInventoryMenuOpen()
             Utility.wait(0.01)
         endif
     endwhile
+    Return loc_exit
 EndFunction
 
 Function ShowHelperDetails(Actor akActor)

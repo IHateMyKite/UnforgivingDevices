@@ -22,6 +22,23 @@ Bool                    Property currentMenu_button7 = false    Auto Conditional
 Bool                    Property currentMenu_button8 = false    Auto Conditional Hidden
 Bool                    Property currentMenu_button9 = false    Auto Conditional Hidden
 
+; HELP MESSAGES
+Message                 Property HelpStruggleGameMsg            Auto
+Message                 Property HelpCuttingGameMsg             Auto
+Message                 Property HelpPlugRemoveGameMsg          Auto
+Message                 Property HelpLockpickingGameMsg         Auto
+Message                 Property HelpRepairGameMsg              Auto
+Message                 Property HelpChangeIconMsg              Auto
+Message                 Property HelpChangeWidgetsPosMsg        Auto
+Message                 Property HelpActionKeyMsg               Auto
+Message                 Property HelpActionKeyHoldMsg           Auto
+Message                 Property HelpHelperMsg                  Auto
+
+Bool                    Property ShowHelpEnable = True          Auto Hidden
+Float                   Property ShowHelpDuration = 7.0         Auto Hidden
+Float                   Property ShowHelpInterval = 60.0        Auto Hidden
+Int                     Property ShowHelpMaxTimes = 3           Auto Hidden
+
 Event OnInit()
     RegisterForSingleUpdate(20.0)
 EndEvent
@@ -38,6 +55,7 @@ Function Update()
     NoValues = Utility.CreateFloatArray(0)
     UnregisterMenuEvents()
     RegisterMenuEvents()
+    RegisterModEvents()
     Ready = True
 EndFunction
 
@@ -47,6 +65,14 @@ EndFunction
 
 Function UnregisterMenuEvents()
     UnregisterForAllMenus()
+EndFunction
+
+Function RegisterModEvents(Bool abRegister = True)
+    If abRegister && ShowHelpEnable
+        RegisterForModEvent("UDEvent_DeviceMinigameBegin", "OnDeviceMinigameBegin")
+    Else
+        UnRegisterForModEvent("UDEvent_DeviceMinigameBegin")
+    EndIf
 EndFunction
 
 ;/  Group: Mode Control
@@ -114,6 +140,60 @@ Int Function GetModeIndex()
         Return 0
     EndIf
     Return GetModes().Find(GetState())
+EndFunction
+
+; Help messages
+
+Event OnDeviceMinigameBegin(String asSource, Form akFActor, String asMinigameName, Form akFHelper, Float afRelativeDurability, Form akFID, Form akFRD)
+    If asMinigameName == "Struggle_0" || asMinigameName == "Struggle_1" || asMinigameName == "Struggle_2"
+        ShowHelpMessage("StruggleGame")
+    ElseIf asMinigameName == "Lockpick"
+        ShowHelpMessage("LockpickingGame")
+    ElseIf asMinigameName == "RepairLock"
+        ShowHelpMessage("RepairGame")
+    ElseIf asMinigameName == "Cutting"
+        ShowHelpMessage("CuttingGame")
+    ElseIf asMinigameName == "KeyUnlock"
+        ShowHelpMessage("KeyUnlockGame")            ; TODO: Add message for that
+    ElseIf asMinigameName == "Plug_ForceOut" || asMinigameName == "AbadonPlug_ForceOut"
+        ShowHelpMessage("PlugRemoveGame")
+    EndIf
+EndEvent
+
+Function ShowHelpMessage(String asEventName)
+    If !ShowHelpEnable
+        Return
+    EndIf
+    Message loc_msg = None
+    If asEventName == "StruggleGame"
+        loc_msg = HelpStruggleGameMsg
+    ElseIf asEventName == "LockpickingGame"
+        loc_msg = HelpLockpickingGameMsg
+    ElseIf asEventName == "PlugRemoveGame"
+        loc_msg = HelpPlugRemoveGameMsg
+    ElseIf asEventName == "CuttingGame"
+        loc_msg = HelpCuttingGameMsg
+    ElseIf asEventName == "RepairGame"
+        loc_msg = HelpCuttingGameMsg
+    ElseIf asEventName == "KeyUnlockGame"
+    ; TODO: Add message for that
+    ElseIf asEventName == "DebuffAdded"
+        loc_msg = _GetHelpMessage(HelpChangeIconMsg, HelpChangeWidgetsPosMsg)
+    ElseIf asEventName == "DebuffRemoved"
+        loc_msg = _GetHelpMessage(HelpActionKeyHoldMsg, HelpActionKeyMsg)
+    ElseIf asEventName == "DeviceIcon"
+        loc_msg = HelpChangeWidgetsPosMsg
+    ElseIf asEventName == "DeviceLocked"
+        loc_msg = _GetHelpMessage(HelpActionKeyHoldMsg, HelpActionKeyMsg, HelpHelperMsg)
+    ElseIf asEventName == "DeviceUnlocked"
+    ; TODO: Add message for that
+    ElseIf asEventName == "Helper"
+        loc_msg = HelpHelperMsg
+    EndIf
+    If loc_msg != None
+        String loc_help_event = _GetHelpEventName(loc_msg)
+        loc_msg.ShowAsHelpMessage(loc_help_event, ShowHelpDuration, ShowHelpInterval, ShowHelpMaxTimes)
+    EndIf
 EndFunction
 
 ; State: Legacy
@@ -295,4 +375,26 @@ EndFunction
 
 Int Function _showMsgWithValues(Message akMessage, Float[] vv)
     Return akMessage.Show(_gv(vv, 0), _gv(vv, 1), _gv(vv, 2), _gv(vv, 3), _gv(vv, 4), _gv(vv, 5), _gv(vv, 6), _gv(vv, 7), _gv(vv, 8))
+EndFunction
+
+; It is just a random message for now.
+Message Function _GetHelpMessage(Message akMessage1, Message akMessage2 = None, Message akMessage3 = None, Message akMessage4 = None, Message akMessage5 = None)
+    Form[] loc_arr
+    loc_arr = PapyrusUtil.PushForm(loc_arr, akMessage1)
+    loc_arr = PapyrusUtil.PushForm(loc_arr, akMessage2)
+    loc_arr = PapyrusUtil.PushForm(loc_arr, akMessage3)
+    loc_arr = PapyrusUtil.PushForm(loc_arr, akMessage4)
+    loc_arr = PapyrusUtil.PushForm(loc_arr, akMessage5)
+    loc_arr = PapyrusUtil.RemoveForm(loc_arr, None)
+    If loc_arr.Length < 1
+        Return None
+    EndIf
+    Int loc_i = Utility.RandomInt(0, loc_arr.Length - 1)
+    Return loc_arr[loc_i] as Message
+EndFunction
+
+String Function _GetHelpEventName(Message akMessage)
+    Int loc_id = akMessage.GetFormID()
+    loc_id = loc_id % (Math.Pow(16, 4) as Int)
+    Return "UD_Help_" + (loc_id as String)
 EndFunction

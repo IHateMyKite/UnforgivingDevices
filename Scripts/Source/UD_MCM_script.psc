@@ -1422,7 +1422,7 @@ int fix_flag
 int fixBugs_T
 int rescanSlots_T
 int unlockAll_T
-int endAnimation_T
+int showDetails_T
 int actorIndex = 5
 int unregisterNPC_T
 int GlobalUpdateNPC_T
@@ -1494,7 +1494,7 @@ Event resetDebugPage()
             elseif i == 20
                 unlockAll_T             = AddTextOption("$UD_UNLOCK_ALL", "$CLICK" ,FlagSwitchAnd(UD_LockMenu_flag,FlagSwitch(!UDmain.UD_LockDebugMCM)))
             elseif i == 21
-                endAnimation_T          = AddTextOption("$UD_ENDANIMATION", "$CLICK" )
+                showDetails_T           = AddTextOption("$UD_DEBUGSHOWDETAILS", "$CLICK" )
             elseif i == 22
                 fixBugs_T               = AddTextOption("$UD_FIXBUGS", "$CLICK" ,fix_flag)
             elseif i == 23
@@ -2022,9 +2022,9 @@ Function OptionSelectDebug(int option)
     elseif unlockAll_T == option
         closeMCM()
         UDCDmain.removeAllDevices(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
-    elseif endAnimation_T == option
+    elseif showDetails_T == option
         closeMCM()
-        UDCDmain.ShowActorDetails(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
+        UDCDmain.ShowActorDetailsMenu(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
     elseif unregisterNPC_T == option
         UDCD_NPCM.unregisterNPC(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
         forcePageReset()
@@ -3463,8 +3463,8 @@ Function DebugPageDefault(int option)
         SetInfoText("$UD_FIXBUGS_INFO")
     elseif option == unlockAll_T
         SetInfoText("$UD_UNLOCK_ALL_INFO")
-    elseif option == endAnimation_T
-        SetInfoText("$UD_ENDANIMATION_INFO")
+    elseif option == showDetails_T
+        SetInfoText("$UD_DEBUGSHOWDETAILS_INFO")
     elseif option == unregisterNPC_T
         SetInfoText("$UD_UNREGISTER_NPC_INFO")
     elseif option == OrgasmCapacity_S
@@ -3831,8 +3831,8 @@ Function DebugPageInfo(int option)
         SetInfoText("$UD_FIXBUGS_INFO")
     elseif option == unlockAll_T
         SetInfoText("$UD_UNLOCK_ALL_INFO")
-    elseif option == endAnimation_T
-        SetInfoText("$UD_ENDANIMATION_INFO")
+    elseif option == showDetails_T
+        SetInfoText("$UD_DEBUGSHOWDETAILS_INFO")
     elseif option == unregisterNPC_T
         SetInfoText("$UD_UNREGISTER_NPC_INFO")
     elseif option == OrgasmCapacity_S

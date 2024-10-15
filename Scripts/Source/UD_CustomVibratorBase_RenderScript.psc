@@ -290,7 +290,7 @@ Function processDetails()
         elseif res == 3
             ShowModifiers()
         elseif res == 4
-            UDCDmain.showActorDetails(GetWearer())
+            UDCDmain.ShowActorDetailsMenu(GetWearer())
         elseif res == 5
             showDebugInfo()
         else
