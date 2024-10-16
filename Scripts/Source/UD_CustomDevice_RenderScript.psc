@@ -4863,10 +4863,6 @@ bool Function struggleMinigame(int aiType = -1, Bool abSilent = False)
 
     bool loc_minigamecheck = minigamePostcheck(abSilent)
     if loc_minigamecheck
-        ; TODO: It could be moved into the event handler
-        If _struggleGame_Subtype < 3
-            UDMain.UDMMM.ShowHelpMessage("StruggleGame")
-        EndIf
         _StruggleGameON = True
         UD_Events.SendEvent_DeviceMinigameBegin(self,"Struggle_"+aiType)
         minigame()
@@ -4932,8 +4928,6 @@ bool Function lockpickMinigame(Bool abSilent = False)
     _minMinigameStatSP = 0.8
     
     if minigamePostcheck(abSilent)
-        ; TODO: It could be moved into the event handler
-        UDMain.UDMMM.ShowHelpMessage("LockpickingGame")
         _LockpickGameON = True
         UD_Events.SendEvent_DeviceMinigameBegin(self,"Lockpick")
         minigame()
@@ -5008,8 +5002,6 @@ bool Function repairLocksMinigame(Bool abSilent = False)
     _minMinigameStatSP = 0.8
     
     if minigamePostcheck(abSilent)
-        ; TODO: It could be moved into the event handler
-        UDMain.UDMMM.ShowHelpMessage("RepairGame")
         _RepairLocksMinigameON = True
         UD_Events.SendEvent_DeviceMinigameBegin(self,"RepairLock")
         minigame()
@@ -5063,10 +5055,6 @@ bool Function cuttingMinigame(Bool abSilent = False)
             string loc_param = UDmain.UDWC.GetMeterIdentifier("device-main")
             UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
         endif
-        
-        ; TODO: It could be moved into the event handler
-        UDMain.UDMMM.ShowHelpMessage("CuttingGame")
-        
         _CuttingGameON = True
         UD_Events.SendEvent_DeviceMinigameBegin(self,"Cutting")
         minigame()
@@ -5135,8 +5123,6 @@ bool Function keyMinigame(Bool abSilent = False)
     
     
     if minigamePostcheck(abSilent)
-        ; TODO: It could be moved into the event handler
-        UDMain.UDMMM.ShowHelpMessage("KeyUnlockGame")
         _KeyGameON = True
         UD_Events.SendEvent_DeviceMinigameBegin(self,"KeyUnlock")
         minigame()

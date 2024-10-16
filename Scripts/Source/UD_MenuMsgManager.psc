@@ -34,10 +34,10 @@ Message                 Property HelpActionKeyMsg               Auto
 Message                 Property HelpActionKeyHoldMsg           Auto
 Message                 Property HelpHelperMsg                  Auto
 
-Bool                    Property ShowHelpEnable = True          Auto Hidden
+Bool                    Property ShowHelpEnable = False         Auto Hidden
 Float                   Property ShowHelpDuration = 7.0         Auto Hidden
-Float                   Property ShowHelpInterval = 60.0        Auto Hidden
-Int                     Property ShowHelpMaxTimes = 3           Auto Hidden
+Float                   Property ShowHelpInterval = 10.0        Auto Hidden
+Int                     Property ShowHelpMaxTimes = 1           Auto Hidden
 
 Event OnInit()
     RegisterForSingleUpdate(20.0)
@@ -47,6 +47,11 @@ Function OnUpdate()
     if UDmain.WaitForReady()
         Update()
     endif
+;    String loc_event = ShowHelpMessage("StruggleGame")
+;    If loc_event != ""
+;        Utility.Wait(ShowHelpDuration + 0.5)
+;        Message.ResetHelpMessage(loc_event)
+;    EndIf
 EndFunction
 
 Function Update()
@@ -69,9 +74,9 @@ EndFunction
 
 Function RegisterModEvents(Bool abRegister = True)
     If abRegister && ShowHelpEnable
-        RegisterForModEvent("UDEvent_DeviceMinigameBegin", "OnDeviceMinigameBegin")
+;        RegisterForModEvent("UDEvent_DeviceMinigameBegin", "OnDeviceMinigameBegin")
     Else
-        UnRegisterForModEvent("UDEvent_DeviceMinigameBegin")
+;        UnRegisterForModEvent("UDEvent_DeviceMinigameBegin")
     EndIf
 EndFunction
 
@@ -144,9 +149,12 @@ EndFunction
 
 ; Help messages
 
-Event OnDeviceMinigameBegin(String asSource, Form akFActor, String asMinigameName, Form akFHelper, Float afRelativeDurability, Form akFID, Form akFRD)
-    If asMinigameName == "Struggle_0" || asMinigameName == "Struggle_1" || asMinigameName == "Struggle_2"
+Event OnDeviceMinigameBegin(String asSource, Form akFActor, Form akFHelper, String asMinigameName, Float afRelativeDurability, Form akFID, Form akFRD)
+    If asMinigameName == "Struggle_0" || asMinigameName == "Struggle_1"
+        Utility.Wait(1.0)
         ShowHelpMessage("StruggleGame")
+    ElseIf asMinigameName == "Struggle_2"
+        RegisterForSingleUpdate(1.0)
     ElseIf asMinigameName == "Lockpick"
         ShowHelpMessage("LockpickingGame")
     ElseIf asMinigameName == "RepairLock"
@@ -160,9 +168,9 @@ Event OnDeviceMinigameBegin(String asSource, Form akFActor, String asMinigameNam
     EndIf
 EndEvent
 
-Function ShowHelpMessage(String asEventName)
+String Function ShowHelpMessage(String asEventName)
     If !ShowHelpEnable
-        Return
+        Return ""
     EndIf
     Message loc_msg = None
     If asEventName == "StruggleGame"
@@ -193,7 +201,9 @@ Function ShowHelpMessage(String asEventName)
     If loc_msg != None
         String loc_help_event = _GetHelpEventName(loc_msg)
         loc_msg.ShowAsHelpMessage(loc_help_event, ShowHelpDuration, ShowHelpInterval, ShowHelpMaxTimes)
+        Return loc_help_event
     EndIf
+    Return ""
 EndFunction
 
 ; State: Legacy
