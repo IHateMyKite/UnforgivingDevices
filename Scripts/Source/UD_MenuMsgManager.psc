@@ -1,5 +1,7 @@
 Scriptname UD_MenuMsgManager extends Quest Conditional
 
+import UD_Native
+
 Bool                    Property Ready = False                  Auto Hidden
 
 UnforgivingDevicesMain  Property UDmain                         Auto
@@ -235,7 +237,6 @@ Function ShowMessageBox(String asMessage, Bool abHasHTML = False)
         ShowSingleMessageBox(loc_pages[loc_i], abHasHTML)
         loc_i += 1
     EndWhile
-
 EndFunction
 
 Function ShowSingleMessageBox(String asMessage, Bool abHasHTML = False)
@@ -268,7 +269,7 @@ Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String as
         UDMain.Error(Self + "::ShowMessageBoxMenu() Legacy Mode: akTemplate must be specified!")
         Debug.MessageBox("ShowMessageBoxMenu() Legacy Mode: akTemplate must be specified!")
     Else
-        loc_last_btn = _showMsgWithValues(akTemplate, aafValues)
+        loc_last_btn = _ShowMessageboxArrayTemplate(akTemplate,asMessageOverride, aafValues, aasButtonsOverride, abGetIndex = true, abUseHTML = abHasHTML) as Int
     EndIf
     
     Return loc_last_btn
@@ -284,41 +285,6 @@ Auto State PapyrusUI
 ; State: PapyrusUI
 
     Event OnMenuOpen(String MenuName)
-        If UDmain.UDReady()
-            If MenuName != "MessageBoxMenu" 
-                Return
-            Endif
-            If _InjectReady
-                _InjectReady = False
-                String[] loc_args
-                If _InjectMessage != ""
-                    If StringUtil.GetLength(_InjectMessage) > 2047
-                        UDMain.Warning(Self + "::OnMenuOpen() Message is too long to display it on a single page!")
-                        _InjectMessage = StringUtil.Substring(_InjectMessage, 0, 2000) + " [message is too long]"
-                    EndIf
-                    loc_args = Utility.CreateStringArray(2, "")
-                    loc_args[0] = _InjectMessage
-                    loc_args[1] = UDMTF.InlineIfString(_InjectMessageHTML, "1", "0")
-                    UI.SetBool("MessageBoxMenu", "_root.MessageMenu" + ".MessageText.wordWrap", false)
-                    UI.InvokeStringA("MessageBoxMenu", "_root.MessageMenu" + ".SetMessage", loc_args)
-                    _InjectMessage = ""
-                EndIf
-                If _InjectButtons.Length > 0
-                ; TODO
-                    ; we should wait some time or something weird happens with the button focus
-                    Utility.WaitMenuMode(0.1)
-                    loc_args = Utility.CreateStringArray(_InjectButtons.Length + 1, "")
-                    loc_args[0] = "1"
-                    Int loc_i = 1
-                    While loc_i < _InjectButtons.Length + 1
-                        loc_args[loc_i] = _InjectButtons[loc_i - 1]
-                        loc_i += 1
-                    EndWhile
-                    UI.InvokeStringA("MessageBoxMenu", "_root.MessageMenu" + ".setupButtons", loc_args)
-                    _InjectButtons = Utility.CreateStringArray(0)
-                EndIf
-            EndIf
-        Endif
     EndEvent
 
     Function ShowSingleMessageBox(String asMessage, Bool abHasHTML = False)
@@ -328,33 +294,13 @@ Auto State PapyrusUI
             loc_msg = StringUtil.Substring(loc_msg, 0, 2000) + " [message is too long]"
         EndIf        
         If !abHasHTML
-            Debug.MessageBox(loc_msg)
+            _ShowMessagebox(loc_msg,"Ok", abGetIndex = true, abUseHTML = false)
         Else
-            Debug.MessageBox("Placeholder")
-        
-            String[] loc_args
-            loc_args = Utility.CreateStringArray(2, "")
-            loc_args[0] = loc_msg
-            loc_args[1] = "1"
-
-            UI.SetBool("MessageBoxMenu", "_root.MessageMenu" + ".MessageText.wordWrap", false)
-            UI.InvokeStringA("MessageBoxMenu", "_root.MessageMenu" + ".SetMessage", loc_args)
+            _ShowMessagebox(asMessage,"Ok", abGetIndex = true, abUseHTML = true)
         EndIf
-
-        ;wait for fucking messagebox to actually get OKd before continuing thread (holy FUCKING shit toad)
-        Utility.waitMenuMode(0.3)
-        while IsMessageboxOpen()
-            Utility.waitMenuMode(0.05)
-        EndWhile
     EndFunction
 
     Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String asMessageOverride, String[] aasButtonsOverride, Bool abHasHTML = False)
-        
-        _InjectReady = True
-        _InjectMessageHTML = abHasHTML
-        _InjectMessage = asMessageOverride
-        _InjectButtons = aasButtonsOverride
-        
         Int loc_last_btn = -1
         
         If akTemplate == None
@@ -362,10 +308,9 @@ Auto State PapyrusUI
             If aasButtonsOverride.Length == 0 || asMessageOverride == ""
                 UDMain.Warning(Self + "::ShowMessageBoxMenu() PapyrusUI Mode: If no message template is specified, you must explicitly set the text and menu buttons!")
             EndIf
-            _initButtons(aasButtonsOverride)
-            loc_last_btn = MsgTemplate.Show()
+            loc_last_btn = _ShowMessageboxArray(asMessageOverride,aasButtonsOverride, abGetIndex = true,abUseHTML = abHasHTML) as Int
         Else
-            loc_last_btn = _showMsgWithValues(akTemplate, aafValues)
+            loc_last_btn = _ShowMessageboxArrayTemplate(akTemplate,asMessageOverride, aafValues, aasButtonsOverride, abGetIndex = true,abUseHTML = abHasHTML) as Int
         EndIf
         
         Return loc_last_btn
@@ -399,7 +344,7 @@ Int Function _showMsgWithValues(Message akMessage, Float[] vv)
     Return akMessage.Show(_gv(vv, 0), _gv(vv, 1), _gv(vv, 2), _gv(vv, 3), _gv(vv, 4), _gv(vv, 5), _gv(vv, 6), _gv(vv, 7), _gv(vv, 8))
 EndFunction
 
-; It is just a random message for now.
+; It is just a random message for loc_now.
 Message Function _GetHelpMessage(Message akMessage1, Message akMessage2 = None, Message akMessage3 = None, Message akMessage4 = None, Message akMessage5 = None)
     Form[] loc_arr
     loc_arr = PapyrusUtil.PushForm(loc_arr, akMessage1)
@@ -420,3 +365,86 @@ String Function _GetHelpEventName(Message akMessage)
     loc_id = loc_id % (Math.Pow(16, 4) as Int)
     Return "UD_Help_" + (loc_id as String)
 EndFunction
+
+String function _ShowMessagebox(String asbodyText, String asButton1, String asButton2 = "", String asButton3 = "", String asButton4 = "", String asButton5 = "", String asButton6 = "", String asButton7 = "", String asButton8 = "", String asButton9 = "", String asButton10 = "", bool abGetIndex = false, Float afWaitInterval = 0.1, Float afTimeoutSeconds = 0.0, Bool abUseHTML = False) global
+    int loc_messageBoxId = ShowNonBlocking(asbodyText, asButton1, asButton2, asButton3, asButton4, asButton5, asButton6, asButton7, asButton8, asButton9, asButton10, abUseHTML)
+
+    ; Block and wait for the player to close the message
+    Bool loc_waiting = true
+    Float loc_startWaitTime = Utility.GetCurrentRealTime()
+    while loc_waiting && ! IsMessageResultAvailable(loc_messageBoxId)
+        Float loc_now = Utility.GetCurrentRealTime()
+        Float loc_duration = loc_now - loc_startWaitTime
+        if afTimeoutSeconds && loc_duration >= afTimeoutSeconds
+            loc_waiting = false
+        else
+            Utility.WaitMenuMode(afWaitInterval)
+        endIf
+    endWhile
+
+    if IsMessageResultAvailable(loc_messageBoxId)
+        if abGetIndex
+            return GetResultIndex(loc_messageBoxId)
+        else
+            return GetResultText(loc_messageBoxId)
+        endIf
+    else
+        return "TIMED_OUT"
+    endIf
+endFunction
+
+String function _ShowMessageboxArray(String asBodyText, String[] aasButtons, bool abGetIndex = false, Float afWaitInterval = 0.1, Float afTimeoutSeconds = 0.0, Bool abUseHTML = False) global
+    int loc_messageBoxId = ShowArrayNonBlocking(asBodyText, aasButtons, abUseHTML)
+    
+    ; Block and wait for the player to close the message
+    Bool loc_waiting = true
+    Float loc_startWaitTime = Utility.GetCurrentRealTime()
+    while loc_waiting && ! IsMessageResultAvailable(loc_messageBoxId)
+        Float loc_now = Utility.GetCurrentRealTime()
+        Float loc_duration = loc_now - loc_startWaitTime
+        if afTimeoutSeconds && loc_duration >= afTimeoutSeconds
+            loc_waiting = false
+        else
+            Utility.WaitMenuMode(afWaitInterval)
+        endIf
+    endWhile
+
+    if IsMessageResultAvailable(loc_messageBoxId)
+        if abGetIndex
+            return GetResultIndex(loc_messageBoxId)
+        else
+            return GetResultText(loc_messageBoxId)
+        endIf
+    else
+        return "TIMED_OUT"
+    endIf
+endFunction
+
+String function _ShowMessageboxArrayTemplate(Message akTemplate,String asBodyText, Float[] aafValues, String[] asButtons, bool abGetIndex = false, Float afWaitInterval = 0.1, Float afTimeoutSeconds = 0.0, Bool abUseHTML = False) global
+    int loc_messageBoxId = ShowArrayNonBlockingTemplate(akTemplate,asBodyText, aafValues, asButtons, abUseHTML)
+
+    ; Block and wait for the player to close the message
+    Bool loc_waiting = true
+    Float loc_startWaitTime = Utility.GetCurrentRealTime()
+    while loc_waiting && !IsMessageResultAvailable(loc_messageBoxId)
+        Float loc_now = Utility.GetCurrentRealTime()
+        Float loc_duration = loc_now - loc_startWaitTime
+        if afTimeoutSeconds && loc_duration >= afTimeoutSeconds
+            loc_waiting = false
+        else
+            Utility.WaitMenuMode(afWaitInterval)
+        endIf
+    endWhile
+
+    if IsMessageResultAvailable(loc_messageBoxId)
+        String loc_res
+        if abGetIndex
+            loc_res = GetResultIndex(loc_messageBoxId)
+        else
+            loc_res = GetResultText(loc_messageBoxId)
+        endIf
+        return loc_res
+    else
+        return "TIMED_OUT"
+    endIf
+endFunction

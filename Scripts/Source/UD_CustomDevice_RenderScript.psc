@@ -7801,9 +7801,8 @@ Function ShowBaseDetails()
     loc_res += UDMTF.FooterSplit()
     loc_res += UDMTF.TableEnd()
     loc_res += UDMTF.FontEnd()
-        
-    UDMain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
     
+    UDMain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
 EndFunction
 
 ;/  Function: minigamePrecheck
