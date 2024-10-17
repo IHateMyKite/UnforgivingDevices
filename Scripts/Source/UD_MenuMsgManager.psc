@@ -36,7 +36,7 @@ Message                 Property HelpHelperMsg                  Auto
 
 Bool                    Property ShowHelpEnable = False         Auto Hidden
 Float                   Property ShowHelpDuration = 7.0         Auto Hidden
-Float                   Property ShowHelpInterval = 10.0        Auto Hidden
+Float                   Property ShowHelpInterval = 60.0        Auto Hidden
 Int                     Property ShowHelpMaxTimes = 1           Auto Hidden
 
 Event OnInit()
@@ -47,11 +47,7 @@ Function OnUpdate()
     if UDmain.WaitForReady()
         Update()
     endif
-;    String loc_event = ShowHelpMessage("StruggleGame")
-;    If loc_event != ""
-;        Utility.Wait(ShowHelpDuration + 0.5)
-;        Message.ResetHelpMessage(loc_event)
-;    EndIf
+    _CheckHelpMessageQueue()
 EndFunction
 
 Function Update()
@@ -150,11 +146,8 @@ EndFunction
 ; Help messages
 
 Event OnDeviceMinigameBegin(String asSource, Form akFActor, Form akFHelper, String asMinigameName, Float afRelativeDurability, Form akFID, Form akFRD)
-    If asMinigameName == "Struggle_0" || asMinigameName == "Struggle_1"
-        Utility.Wait(1.0)
+    If asMinigameName == "Struggle_0" || asMinigameName == "Struggle_1" || asMinigameName == "Struggle_2"
         ShowHelpMessage("StruggleGame")
-    ElseIf asMinigameName == "Struggle_2"
-        RegisterForSingleUpdate(1.0)
     ElseIf asMinigameName == "Lockpick"
         ShowHelpMessage("LockpickingGame")
     ElseIf asMinigameName == "RepairLock"
@@ -168,9 +161,15 @@ Event OnDeviceMinigameBegin(String asSource, Form akFActor, Form akFHelper, Stri
     EndIf
 EndEvent
 
-String Function ShowHelpMessage(String asEventName)
+Message _HelpMessage
+String _HelpEventName
+
+Function ShowHelpMessage(String asEventName)
     If !ShowHelpEnable
-        Return ""
+        Return
+    EndIf
+    If _HelpMessage 
+        Return
     EndIf
     Message loc_msg = None
     If asEventName == "StruggleGame"
@@ -199,11 +198,24 @@ String Function ShowHelpMessage(String asEventName)
         loc_msg = HelpHelperMsg
     EndIf
     If loc_msg != None
-        String loc_help_event = _GetHelpEventName(loc_msg)
-        loc_msg.ShowAsHelpMessage(loc_help_event, ShowHelpDuration, ShowHelpInterval, ShowHelpMaxTimes)
-        Return loc_help_event
+        _HelpMessage = loc_msg
+        _HelpEventName = _GetHelpEventName(loc_msg)
+        RegisterForSingleUpdate(0.1)
     EndIf
-    Return ""
+EndFunction
+;//;
+Function _CheckHelpMessageQueue()
+    If ShowHelpEnable && _HelpMessage
+        Int loc_counter = StorageUtil.GetIntValue(_HelpMessage, "UD_HelpEvent_Counter", 0)
+        If loc_counter >= ShowHelpMaxTimes
+            Return
+        EndIf
+        StorageUtil.SetIntValue(_HelpMessage, "UD_HelpEvent_Counter", loc_counter + 1)
+        _HelpMessage.ShowAsHelpMessage("UD_HelpEvent", ShowHelpDuration, ShowHelpInterval, 1)
+        Utility.Wait(ShowHelpDuration + 0.5)
+        Message.ResetHelpMessage("UD_HelpEvent")
+        _HelpMessage = None
+    EndIf
 EndFunction
 
 ; State: Legacy

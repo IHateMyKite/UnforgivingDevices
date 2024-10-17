@@ -1796,18 +1796,95 @@ EndFunction
 
 Message Property UD_ActorDetailsOptions auto
 
+String Function _GetActorSkillString(Int aiSkill, Bool abDecotare = False)
+    String loc_str = ""
+    If aiSkill < 20
+        loc_str = "Abysmal"
+    ElseIf aiSkill < 40
+        loc_str = "Low"
+    ElseIf aiSkill < 60
+        loc_str = "Average"
+    ElseIf aiSkill < 80
+        loc_str = "High"
+    Else
+        loc_str = "Exceptional"
+    EndIf
+    If abDecotare
+        Return UDMTF.TextDecoration(loc_str, asColor = UDMTF.PercentToRainbow(aiSkill))
+    Else
+        Return loc_str
+    EndIf
+EndFunction
+
+String Function _GetActorArousalString(Int aiArousal, Bool abDecotare = False)
+    String loc_str = ""
+    If aiArousal < 20
+        loc_str = "Not"
+    ElseIf aiArousal < 40
+        loc_str = "Slightly"
+    ElseIf aiArousal < 60
+        loc_str = "Quite"
+    ElseIf aiArousal < 80
+        loc_str = "Very"
+    Else
+        loc_str = "Exremely"
+    EndIf
+    If abDecotare
+        Return UDMTF.TextDecoration(loc_str, asColor = UDMTF.PercentToRainbow(100 - aiArousal))
+    Else
+        Return loc_str
+    EndIf
+EndFunction
+
 String Function _GetActorDetailsMenuText(Actor akActor)
     String loc_res = ""
     loc_res += UDMTF.Header(akActor.GetLeveledActorBase().GetName(), 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+    loc_res += UDMTF.ParagraphBegin(asAlign = "center")
     loc_res += UDMTF.LineGap()
     
+    Int loc_agi
+    Int loc_str
+    Int loc_mag
+    Int loc_cut
+    if IsRegistered(akActor)
+        UD_CustomDevice_NPCSlot loc_slot = GetNPCSlot(akActor)
+        if loc_slot
+            loc_agi = Round(loc_slot.AgilitySkill)
+            loc_str = Round(loc_slot.StrengthSkill)
+            loc_mag = Round(loc_slot.MagickSkill)
+            loc_cut = Round(loc_slot.CuttingSkill)
+        else
+            loc_agi = Round(UDmain.UDSKILL.getAgilitySkill(akActor))
+            loc_str = Round(UDmain.UDSKILL.getStrengthSkill(akActor))
+            loc_mag = Round(UDmain.UDSKILL.getMagickSkill(akActor))
+            loc_cut = Round(UDmain.UDSKILL.getCuttingSkill(akActor))
+        endif
+    else
+        loc_agi = Round(UDmain.UDSKILL.getAgilitySkill(akActor))
+        loc_str = Round(UDmain.UDSKILL.getStrengthSkill(akActor))
+        loc_mag = Round(UDmain.UDSKILL.getMagickSkill(akActor))
+        loc_cut = Round(UDmain.UDSKILL.getCuttingSkill(akActor))
+    endif
+
     ; TODO: Actor details
+    loc_res += UDMTF.TextDecoration("Your agility skill is " + _GetActorSkillString(loc_agi, True) + ".")
+    loc_res += UDMTF.LineBreak()
+    loc_res += UDMTF.TextDecoration("You have a " + _GetActorSkillString(loc_str, True) + " strength.")
+    loc_res += UDMTF.LineBreak()
+    loc_res += UDMTF.TextDecoration("Your can handle magicka with a " + _GetActorSkillString(loc_mag, True) + " skill.")
+    loc_res += UDMTF.LineBreak()
+    loc_res += UDMTF.TextDecoration("And your cutting skill is " + _GetActorSkillString(loc_cut, True) + ".")
+    loc_res += UDMTF.LineBreak()
+    loc_res += UDMTF.LineBreak()
+    loc_res += UDMTF.TextDecoration("You're " + _GetActorArousalString(Round(OrgasmSystem.GetOrgasmVariable(akActor, 8)), True) + " aroused at the moment.")
+    loc_res += UDMTF.LineBreak()
     
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.TextDecoration("Which details do you want to see?", asAlign = "center")
+    loc_res += UDMTF.TextDecoration("What exactly do you want to check?")
     loc_res += UDMTF.LineBreak()
     
+    loc_res += UDMTF.ParagraphEnd()
     loc_res += UDMTF.FontEnd()
     Return loc_res
 EndFunction
