@@ -1324,9 +1324,8 @@ String Function _GetNPCMenuText(Actor akActor)
     Else
         loc_res += UDMTF.TextDecoration("You are able to help right now.")
     EndIf
+    
     loc_res += UDMTF.LineBreak()
-    
-    
     loc_res += UDMTF.FontEnd()
     
     Return loc_res
