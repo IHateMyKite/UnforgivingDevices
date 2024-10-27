@@ -232,7 +232,7 @@ Function _ShowVibDetails()
     
     loc_res += UDMTF.Header(getDeviceName(), 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
-    loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
+    loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
     loc_res += UDMTF.HeaderSplit()
 
     if UD_Chaos

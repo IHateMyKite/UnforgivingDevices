@@ -6902,23 +6902,25 @@ String Function _GetDeviceLockMenuText()
     String loc_res = ""
     loc_res += UDMTF.Header(getDeviceName(), 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+    loc_res += UDMTF.ParagraphBegin(asAlign = "center")
     loc_res += UDMTF.LineGap()
     
-    loc_res += UDMTF.TextDecoration("You carefully investigate device to gather information about its locks.", asAlign = "center")
+    loc_res += UDMTF.TextDecoration("You carefully investigate device to gather information about its locks.")
     loc_res += UDMTF.LineBreak()
     If _getLockpickLevel(0) > 4 && zad_deviceKey
-        loc_res += UDMTF.TextDecoration("You need a '" + zad_deviceKey.GetName() + "' to open locks.", asAlign = "center")
+        loc_res += UDMTF.TextDecoration("You need a '" + zad_deviceKey.GetName() + "' to open locks.")
     Else
-        loc_res += UDMTF.TextDecoration("Any " + _GetLockpickLevelString(_getLockpickLevel(0), True) + " in lock picking should be able to handle them without difficulty.", asAlign = "center")
+        loc_res += UDMTF.TextDecoration("Any " + _GetLockpickLevelString(_getLockpickLevel(0), True) + " in lock picking should be able to handle them.")
     EndIf
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.TextDecoration(_GetLocksIcons(), asAlign = "center")
+    loc_res += UDMTF.TextDecoration(_GetLocksIcons())
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.TextDecoration(UDMTF.DeviceLockLegend(), asAlign = "center")
+    loc_res += UDMTF.TextDecoration(UDMTF.DeviceLockLegend())
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.TextDecoration("What do you want to do with the locks?", asAlign = "center")
+    loc_res += UDMTF.TextDecoration("What do you want to do with the locks?")
     loc_res += UDMTF.LineBreak()
     
+    loc_res += UDMTF.ParagraphEnd()
     loc_res += UDMTF.FontEnd()
     Return loc_res
 EndFunction
@@ -6927,24 +6929,26 @@ String Function _GetDeviceMainMenuText()
     String loc_res = ""
     loc_res += UDMTF.Header(getDeviceName(), 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+    loc_res += UDMTF.ParagraphBegin(asAlign = "center")
     loc_res += UDMTF.LineGap()
     
-    loc_res += UDMTF.TextDecoration("Item has a " + getHealthString(True) + " health and in a " + getConditionString(True) + " condition.", asAlign = "center")
+    loc_res += UDMTF.TextDecoration("Item has a " + getHealthString(True) + " health and in a " + getConditionString(True) + " condition.")
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.TextDecoration("This device is " + getAccesibilityString(True) + " to reach, and it is " + getBaseDamageString(True) + " to get rid of.", asAlign = "center")
+    loc_res += UDMTF.TextDecoration("This device is " + getAccesibilityString(True) + " to reach, and it is " + getBaseDamageString(True) + " to get rid of.")
     loc_res += UDMTF.LineBreak()
     If HaveLocks()
-        loc_res += UDMTF.TextDecoration("It has " + UDMTF.TextDecoration(GetLockNumber(), asColor = UDMTF.PercentToRainbow(50)) + " " + UDMTF.InlineIfString(GetLockNumber() > 1, "locks", "lock"), asAlign = "center")
+        loc_res += UDMTF.TextDecoration("It has " + UDMTF.TextDecoration(GetLockNumber(), asColor = UDMTF.PercentToRainbow(50)) + " " + UDMTF.InlineIfString(GetLockNumber() > 1, "locks", "lock"))
         loc_res += UDMTF.LineBreak()
     EndIf
     If canBeCutted()
-        loc_res += UDMTF.TextDecoration("You perceive that device is " + getResistanceString(UD_WeaponHitResist, True) + " to cuts.", asAlign = "center")
+        loc_res += UDMTF.TextDecoration("You perceive that device is " + getResistanceString(UD_WeaponHitResist, True) + " to cuts.")
         loc_res += UDMTF.LineBreak()
     EndIf
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.TextDecoration("What do you want to do with this device?", asAlign = "center")
+    loc_res += UDMTF.TextDecoration("What do you want to do with this device?")
     loc_res += UDMTF.LineBreak()
     
+    loc_res += UDMTF.ParagraphEnd()
     loc_res += UDMTF.FontEnd()
     
     Return loc_res
@@ -6954,16 +6958,18 @@ String Function _GetDeviceStruggleMenuText()
     String loc_res = ""
     loc_res += UDMTF.Header(getDeviceName(), 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+    loc_res += UDMTF.ParagraphBegin(asAlign = "center")
     loc_res += UDMTF.LineGap()
     
-    loc_res += UDMTF.TextDecoration("You feel that device is " + getResistanceString(getModResistPhysical(0.0) * -100.0, True) + " to brute force.", asAlign = "center")
+    loc_res += UDMTF.TextDecoration("You feel that device is " + getResistanceString(getModResistPhysical(0.0) * -100.0, True) + " to brute force.")
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.TextDecoration("You sense that device is " + getResistanceString(getModResistMagicka(0.0) * -100.0, True) + " to magic.", asAlign = "center")
+    loc_res += UDMTF.TextDecoration("You sense that device is " + getResistanceString(getModResistMagicka(0.0) * -100.0, True) + " to magic.")
     loc_res += UDMTF.LineBreak()
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.TextDecoration("How do you want to struggle?", asAlign = "center")
+    loc_res += UDMTF.TextDecoration("How do you want to struggle?")
     loc_res += UDMTF.LineBreak()
     
+    loc_res += UDMTF.ParagraphEnd()
     loc_res += UDMTF.FontEnd()
     
     Return loc_res
@@ -6973,18 +6979,20 @@ String Function _GetDeviceDetailsMenuText()
     String loc_res = ""
     loc_res += UDMTF.Header(getDeviceName(), 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+    loc_res += UDMTF.ParagraphBegin(asAlign = "center")
     loc_res += UDMTF.LineGap()
     
-    loc_res += UDMTF.TextDecoration(UD_DeviceType + " (level " + UD_Level + ")", asAlign = "center")
+    loc_res += UDMTF.TextDecoration(UD_DeviceType + " (level " + UD_Level + ")")
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.TextDecoration("Item has a " + getHealthString(True) + " health and in a " + getConditionString(True) + " condition.", asAlign = "center")
+    loc_res += UDMTF.TextDecoration("Item has a " + getHealthString(True) + " health and in a " + getConditionString(True) + " condition.")
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.TextDecoration("Locked for " + FormatFloat(GetGameTimeLockedTime() * 24.0, 2) + " hours", asAlign = "center")
+    loc_res += UDMTF.TextDecoration("Locked for " + FormatFloat(GetGameTimeLockedTime() * 24.0, 2) + " hours")
     loc_res += UDMTF.LineBreak()
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.TextDecoration("What do you want to know about this device?", asAlign = "center")
+    loc_res += UDMTF.TextDecoration("What do you want to know about this device?")
     loc_res += UDMTF.LineBreak()
     
+    loc_res += UDMTF.ParagraphEnd()
     loc_res += UDMTF.FontEnd()
     
     Return loc_res
@@ -6999,6 +7007,7 @@ String Function _GetLocksIcons()
         loc_frag += UDMTF.InlineIfString(loc_i  < GetLockNumber() - 1, " ")
         loc_i += 1
     EndWhile
+    
     loc_frag += UDMTF.FontEnd()
     Return loc_frag
 EndFunction
@@ -7017,7 +7026,7 @@ Function ShowBaseDetails()
 
     loc_res += UDMTF.Header(getDeviceName(), 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
-    loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
+    loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
     loc_res += UDMTF.HeaderSplit()
 
     loc_res += UDMTF.TableRowDetails("Level:", UD_Level)
@@ -7157,7 +7166,7 @@ Function ShowLockDetails()
 
         loc_res += UDMTF.Header(getDeviceName(), 4)
         loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
-        loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
+        loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
         loc_res += UDMTF.HeaderSplit()
 
         loc_res += UDMTF.TableRowDetails("Name:", GetNthLockName(loc_lockId))
@@ -7233,7 +7242,7 @@ Function showDebugInfo()
     
     loc_res += UDMTF.Header(getDeviceName(), 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
-    loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
+    loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
     loc_res += UDMTF.HeaderSplit()
 
     if (zad_JammLockChance > 0)
@@ -7266,7 +7275,7 @@ Function showDebugMinigameInfo()
     
     loc_res += UDMTF.Header(getDeviceName(), 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
-    loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140, aiColumn2Width = 70, aiColumn3Width = 70)
+    loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150, aiColumn2Width = 70, aiColumn3Width = 70)
     loc_res += UDMTF.HeaderSplit()
     
     loc_res += UDMTF.TableRowDetails("Wearer:", getWearerName())

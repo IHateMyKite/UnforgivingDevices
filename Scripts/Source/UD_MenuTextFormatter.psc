@@ -511,6 +511,9 @@ Auto State HTML
         Return loc_res
     EndFunction
 
+    ; Best looking presets for Details menus:
+    ; Papyrus_UI: aiLeftMargin = 30, aiColumn1Width = 140
+    ; Native_IU:  aiLeftMargin = 50, aiColumn1Width = 160
     String Function TableBegin(Int aiLeftMargin, Int aiColumn1Width, Int aiColumn2Width = 0, Int aiColumn3Width = 0, Int aiLeading = -2)
         String loc_res = ""
         String loc_tabstops = ""
@@ -713,9 +716,9 @@ Auto State HTML
             loc_page_txt = ""
             While loc_j < loc_sections.Length
                 ; count lines in this section
-                Int loc_gaps = _CountSubstr(loc_sections[loc_j], "<gap/>")
-                Int loc_br = _CountSubstr(loc_sections[loc_j], "<br/>")
-                Int loc_lines_in_sec = _CountSubstr(loc_sections[loc_j], "</p>") + loc_gaps / 2 + loc_br + 1
+                Int loc_gaps = CountSubstr(loc_sections[loc_j], "<gap/>")
+                Int loc_br = CountSubstr(loc_sections[loc_j], "<br/>")
+                Int loc_lines_in_sec = CountSubstr(loc_sections[loc_j], "</p>") + loc_gaps / 2 + loc_br + 1
                 Int loc_chars_in_sec = StringUtil.GetLength(loc_sections[loc_j]) + loc_gaps * 24 - loc_br * 4
                 If loc_page_len > loc_chars_limit
                 ; there is no way we could print message this large!
@@ -895,7 +898,7 @@ String Function BoolToGrayscale(Bool abValue)
     EndIf
 EndFunction
 
-;/  Function: BoolToGrayscale
+;/  Function: BoolToRainbow
 
     Turns the boolean into a color code on the 'rainbow'.
     False corresponds to magenta
@@ -958,7 +961,18 @@ String Function _IntToHex(Int aiDecimal, Int aiLength = -1)
     Return loc_hex
 EndFunction
 
-Int Function _CountSubstr(String asStr, String asSubstr)
+;/  Function: CountSubstr
+
+    Counts the number of encountered substrings within a given string
+    
+    Parameters:
+        asStr                         - Given string
+        asSubstr                      - Substring
+
+    Returns:
+        Number of encountered substrings
+/;
+Int Function CountSubstr(String asStr, String asSubstr)
     Int loc_start = 0
     Int loc_res = 0
     Int loc_delta = StringUtil.GetLength(asSubstr)
@@ -973,6 +987,19 @@ Int Function _CountSubstr(String asStr, String asSubstr)
     Return loc_res
 EndFunction
 
+;/  Function: TrimSubstr
+
+    Removes substrings from the beginning and end of the specified string
+    
+    Parameters:
+        asStr                         - Given string
+        asSubstr                      - Substring
+        abBegining                    - Check the begining
+        abEnding                      - Check the end
+
+    Returns:
+        The resulting string
+/;
 String Function TrimSubstr(String asStr, String asSubstr, Bool abBegining = True, Bool abEnding = True)
     String loc_res = asStr
     Int loc_delta = StringUtil.GetLength(asSubstr)
@@ -998,6 +1025,17 @@ String Function TrimSubstr(String asStr, String asSubstr, Bool abBegining = True
     Return loc_res
 EndFunction
 
+;/  Function: RemoveSubstr
+
+    Removes substrings from the specified string
+    
+    Parameters:
+        asStr                         - Given string
+        asSubstr                      - Substring
+
+    Returns:
+        The resulting string
+/;
 String Function RemoveSubstr(String asStr, String asSubstr)
     String loc_res = asStr
     Int loc_delta = StringUtil.GetLength(asSubstr)
@@ -1013,6 +1051,18 @@ String Function RemoveSubstr(String asStr, String asSubstr)
     Return loc_res
 EndFunction
 
+;/  Function: ReplaceSubstr
+
+    Replaces one substring with another within the given string
+    
+    Parameters:
+        asStr                         - Given string
+        asFind                        - Substring to find
+        asReplace                     - Substring to replace the found substring with
+
+    Returns:
+        The resulting string
+/;
 String Function ReplaceSubstr(String asStr, String asFind, String asReplace)
     String loc_res = asStr
     Int loc_delta = StringUtil.GetLength(asFind)
@@ -1028,6 +1078,17 @@ String Function ReplaceSubstr(String asStr, String asFind, String asReplace)
     Return loc_res
 EndFunction
 
+;/  Function: RemoveDuplicates
+
+    Deletes consecutive substrings
+    
+    Parameters:
+        asStr                         - Given string
+        asFind                        - Substring to find and remove duplicates
+
+    Returns:
+        The resulting string
+/;
 String Function RemoveDuplicates(String asStr, String asSubstr)
     String loc_res = asStr
     Int loc_delta = StringUtil.GetLength(asSubstr)
@@ -1046,6 +1107,22 @@ EndFunction
 
 ; The main disadvantage of the function is that it is calculated in advance for all branches, regardless of the condition
 ; Use with caution
+
+
+;/  Function: RemoveDuplicates
+
+    Returns one of its arguments depending on the condition.
+    The main disadvantage of the function is that it is calculated in advance for all branches, regardless of the condition.
+    Use with caution
+
+    Parameters:
+        abCondition                     - Condition
+        asTrue                          - String for True condition
+        asFalse                         - String for False condition
+
+    Returns:
+        The resulting string
+/;
 String Function InlineIfString(Bool abCondition, String asTrue, String asFalse = "")
     If abCondition
         Return asTrue

@@ -1054,7 +1054,7 @@ Function ShowDetails(Actor akActor)
     
     loc_res += UDMain.UDMTF.Header(getDeviceName(), 4)
     loc_res += UDMain.UDMTF.FontBegin(aiFontSize = UDMain.UDMTF.FontSize, asColor = UDMain.UDMTF.TextColorDefault)
-    loc_res += UDMain.UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
+    loc_res += UDMain.UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
     loc_res += UDMain.UDMTF.HeaderSplit()
 
     loc_res += UDMain.UDMTF.TableRowDetails("Type:", libs.LookupDeviceType(zad_DeviousDevice))

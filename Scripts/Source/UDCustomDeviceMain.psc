@@ -1303,6 +1303,7 @@ String Function _GetNPCMenuText(Actor akActor)
     
     loc_res += UDMTF.Header(akActor.GetLeveledActorBase().GetName(), 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+    loc_res += UDMTF.ParagraphBegin(asAlign = "center")
     loc_res += UDMTF.LineGap()
     
     loc_res += UDMTF.TextDecoration("The helper has some experience interacting with devices (" + GetHelperLVL(akActor) + " level)")
@@ -1326,6 +1327,8 @@ String Function _GetNPCMenuText(Actor akActor)
     EndIf
     
     loc_res += UDMTF.LineBreak()
+    
+    loc_res += UDMTF.ParagraphEnd()
     loc_res += UDMTF.FontEnd()
     
     Return loc_res
@@ -1880,8 +1883,7 @@ String Function _GetActorDetailsMenuText(Actor akActor)
     loc_res += UDMTF.LineBreak()
     
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.TextDecoration("What exactly do you want to check?")
-    loc_res += UDMTF.LineBreak()
+    loc_res += UDMTF.TextDecoration("What do you want to know?")
     
     loc_res += UDMTF.ParagraphEnd()
     loc_res += UDMTF.FontEnd()
@@ -1902,7 +1904,7 @@ Bool Function ShowActorDetailsMenu(Actor akActor)
             String loc_res = ""
             loc_res += UDMTF.Header("Base details", 4)
             loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
-            loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
+            loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
             loc_res += UDMTF.HeaderSplit()
     
             loc_res += UDMTF.TableRowDetails("Name:", akActor.GetLeveledActorBase().GetName())
@@ -1938,7 +1940,7 @@ Bool Function ShowActorDetailsMenu(Actor akActor)
             String loc_res = ""
             loc_res += UDMTF.Header("Skill details", 4)
             loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
-            loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
+            loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
             loc_res += UDMTF.HeaderSplit()
             if IsRegistered(akActor)
                 UD_CustomDevice_NPCSlot loc_slot = GetNPCSlot(akActor)
@@ -1969,7 +1971,7 @@ Bool Function ShowActorDetailsMenu(Actor akActor)
             String loc_res = ""
             loc_res += UDMTF.Header("Orgasm details", 4)
             loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
-            loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
+            loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
             loc_res += UDMTF.HeaderSplit()
             
             loc_res += UDMTF.TableRowDetails("State:", _UDOM.GetHornyLevelString(akActor))
@@ -2017,7 +2019,7 @@ Bool Function ShowActorDetailsMenu(Actor akActor)
             String loc_res = ""
             loc_res += UDMTF.Header("Other", 4)
             loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
-            loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
+            loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
             loc_res += UDMTF.HeaderSplit()
             
             if loc_sharpestWeapon
@@ -2047,7 +2049,7 @@ Function ShowHelperDetails(Actor akActor)
     String loc_res = ""
     loc_res += UDMTF.Header("Helper details", 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
-    loc_res += UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 140)
+    loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
     loc_res += UDMTF.HeaderSplit()
     
     loc_res += UDMTF.TableRowDetails("Helper level:", GetHelperLVL(akActor))
