@@ -342,7 +342,7 @@ String Function getPlugInflateLevelString()
     Else
         loc_str = "Deflated"
     EndIf
-    Return UDMTF.TextDecoration(loc_str, asColor = UDMTF.PercentToRainbow(100 - _inflateLevel * 20))
+    Return UDMTF.Text(loc_str, asColor = UDMTF.PercentToRainbow(100 - _inflateLevel * 20))
 EndFunction
 
 Function inflatePlug(int increase)

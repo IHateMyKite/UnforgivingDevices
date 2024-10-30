@@ -451,7 +451,7 @@ String Function _GetNPCSlotFixText()
 
 
     loc_res += UDmain.UDMTF.LineBreak()
-    loc_res += UDmain.UDMTF.TextDecoration("What do you want to do?")
+    loc_res += UDmain.UDMTF.Text("What do you want to do?")
     
     loc_res += UDmain.UDMTF.ParagraphEnd()
     loc_res += UDmain.UDMTF.FontEnd()
@@ -1054,9 +1054,9 @@ String Function _GetDebugMenuText(UD_CustomDevice_RenderScript akDevice)
     loc_res += UDmain.UDMTF.ParagraphBegin(asAlign = "center")
     loc_res += UDmain.UDMTF.LineGap()
     
-    loc_res += UDmain.UDMTF.TextDecoration("Durability: " + FormatFloat(akDevice.getDurability(), 1) + "/" + FormatFloat(akDevice.getMaxDurability(), 1))
+    loc_res += UDmain.UDMTF.Text("Durability: " + FormatFloat(akDevice.getDurability(), 1) + "/" + FormatFloat(akDevice.getMaxDurability(), 1))
     loc_res += UDmain.UDMTF.LineBreak()
-    loc_res += UDmain.UDMTF.TextDecoration("Condition: " + FormatFloat(akDevice.getCondition(), 1) + "/100")
+    loc_res += UDmain.UDMTF.Text("Condition: " + FormatFloat(akDevice.getCondition(), 1) + "/100")
     loc_res += UDmain.UDMTF.LineBreak()
     
     loc_res += UDmain.UDMTF.ParagraphEnd()

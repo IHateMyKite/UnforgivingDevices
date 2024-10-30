@@ -231,7 +231,7 @@ String Function ParagraphEnd()
     Return LineBreak()
 EndFunction
 
-;/  Function: TextDecoration
+;/  Function: Text
 
     Returns text decorated with specified modifiers
     
@@ -245,7 +245,7 @@ EndFunction
     Returns:
         String with the text fragment
 /;
-String Function TextDecoration(String asText, Int aiFontSize = -1, String asFontFace = "", String asColor = "", String asAlign = "")
+String Function Text(String asText, Int aiFontSize = -1, String asFontFace = "", String asColor = "", String asAlign = "")
     String loc_res = ""
     loc_res += InlineIfString(asColor != "" || asFontFace != "", StringUtil.AsChar(171))        ; decorating with quotation marks
     loc_res += asText
@@ -504,7 +504,7 @@ Auto State HTML
         String loc_res = ""
         loc_res += FontBegin(FontSize + aiPlusSize, "$SkyrimSymbolsFont")
         loc_res += "6" + loc_pad
-        loc_res += TextDecoration(" " + asHeader + " ", asFontFace = "$EverywhereMediumFont")
+        loc_res += Text(" " + asHeader + " ", asFontFace = "$EverywhereMediumFont")
         loc_res += loc_pad + "7"
         loc_res += FontEnd()
         loc_res += LineBreak()
@@ -601,7 +601,7 @@ Auto State HTML
         Return loc_res
     EndFunction
 
-    String Function TextDecoration(String asText, Int aiFontSize = -1, String asFontFace = "", String asColor = "", String asAlign = "")
+    String Function Text(String asText, Int aiFontSize = -1, String asFontFace = "", String asColor = "", String asAlign = "")
         String loc_res = ""
         Bool loc_font = aiFontSize > 0 || asColor != "" || asFontFace != ""
         If loc_font
@@ -620,7 +620,7 @@ Auto State HTML
         String loc_res = ""
         loc_res += "\t" + asLeft
         loc_res += "\t"
-        loc_res += TextDecoration(asRight, asColor = asColor)
+        loc_res += Text(asRight, asColor = asColor)
         loc_res += LineBreak()
         Return loc_res
     EndFunction
@@ -782,7 +782,7 @@ Auto State HTML
         String loc_res = ""
         loc_res += FontBegin(asFontFace = "$SkyrimSymbolsFont")
         loc_res += "6000"
-        loc_res += TextDecoration(" Page " + aiPageCurrent + "/" + aiPageTotal + " ", asFontFace = "$EverywhereMediumFont")
+        loc_res += Text(" Page " + aiPageCurrent + "/" + aiPageTotal + " ", asFontFace = "$EverywhereMediumFont")
         loc_res += "0007"
         loc_res += FontEnd()
         Return loc_res
@@ -791,27 +791,27 @@ Auto State HTML
     String Function DeviceLockIcon(Bool abOpen, Bool abJammed, Bool abTimer)
     ; for better visual it should be used with $EverywhereBoldFont font
         If abOpen
-            Return TextDecoration(StringUtil.AsChar(183), asColor = "#FFFFFF")
+            Return Text(StringUtil.AsChar(183), asColor = "#FFFFFF")
         EndIf
         If abTimer
-            Return TextDecoration(StringUtil.AsChar(164), asColor = "#4444FF")
+            Return Text(StringUtil.AsChar(164), asColor = "#4444FF")
         EndIf
         If abJammed
-            Return TextDecoration(StringUtil.AsChar(164), asColor = "#FF4444")
+            Return Text(StringUtil.AsChar(164), asColor = "#FF4444")
         EndIf
-        Return TextDecoration(StringUtil.AsChar(164), asColor = "#FFFFFF")
+        Return Text(StringUtil.AsChar(164), asColor = "#FFFFFF")
     EndFunction
 
     String Function DeviceLockLegend()
         String loc_res = ""
         loc_res += ParagraphBegin(aiLeading = -3)
-        loc_res += TextDecoration(StringUtil.AsChar(164), asColor = "#FFFFFF") + " - locked;"
+        loc_res += Text(StringUtil.AsChar(164), asColor = "#FFFFFF") + " - locked;"
         loc_res += LineBreak()
-        loc_res += TextDecoration(StringUtil.AsChar(183), asColor = "#FFFFFF") + " - unlocked;"
+        loc_res += Text(StringUtil.AsChar(183), asColor = "#FFFFFF") + " - unlocked;"
         loc_res += LineBreak()
-        loc_res += TextDecoration(StringUtil.AsChar(164), asColor = "#4444FF") + " - with timer;"
+        loc_res += Text(StringUtil.AsChar(164), asColor = "#4444FF") + " - with timer;"
         loc_res += LineBreak()
-        loc_res += TextDecoration(StringUtil.AsChar(164), asColor = "#FF4444") + " - jammed."
+        loc_res += Text(StringUtil.AsChar(164), asColor = "#FF4444") + " - jammed."
         loc_res += ParagraphEnd()
         
         Return loc_res

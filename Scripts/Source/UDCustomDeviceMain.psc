@@ -1306,7 +1306,7 @@ String Function _GetNPCMenuText(Actor akActor)
     loc_res += UDMTF.ParagraphBegin(asAlign = "center")
     loc_res += UDMTF.LineGap()
     
-    loc_res += UDMTF.TextDecoration("The helper has some experience interacting with devices (" + GetHelperLVL(akActor) + " level)")
+    loc_res += UDMTF.Text("The helper has some experience interacting with devices (" + GetHelperLVL(akActor) + " level)")
     loc_res += UDMTF.LineBreak()
     
     float loc_currenttime = Utility.GetCurrentGameTime()
@@ -1315,15 +1315,15 @@ String Function _GetNPCMenuText(Actor akActor)
     Int loc_v1 = iUnsig(Round(((loc_cooldowntimeHP - loc_currenttime)*24*60)))
     Int loc_v2 = iUnsig(Round(((loc_cooldowntimePH - loc_currenttime)*24*60)))
     If loc_v1 > 0
-        loc_res += UDMTF.TextDecoration("She'll be able to help in " + loc_v1 + " minutes")
+        loc_res += UDMTF.Text("She'll be able to help in " + loc_v1 + " minutes")
     Else
-        loc_res += UDMTF.TextDecoration("She is able to help right now.")
+        loc_res += UDMTF.Text("She is able to help right now.")
     EndIf
     loc_res += UDMTF.LineBreak()
     If loc_v2 > 0
-        loc_res += UDMTF.TextDecoration("You'll be able to help in " + loc_v2 + " minutes")
+        loc_res += UDMTF.Text("You'll be able to help in " + loc_v2 + " minutes")
     Else
-        loc_res += UDMTF.TextDecoration("You are able to help right now.")
+        loc_res += UDMTF.Text("You are able to help right now.")
     EndIf
     
     loc_res += UDMTF.LineBreak()
@@ -1812,7 +1812,7 @@ String Function _GetActorSkillString(Int aiSkill, Bool abDecotare = False)
         loc_str = "Exceptional"
     EndIf
     If abDecotare
-        Return UDMTF.TextDecoration(loc_str, asColor = UDMTF.PercentToRainbow(aiSkill))
+        Return UDMTF.Text(loc_str, asColor = UDMTF.PercentToRainbow(aiSkill))
     Else
         Return loc_str
     EndIf
@@ -1832,7 +1832,7 @@ String Function _GetActorArousalString(Int aiArousal, Bool abDecotare = False)
         loc_str = "Exremely"
     EndIf
     If abDecotare
-        Return UDMTF.TextDecoration(loc_str, asColor = UDMTF.PercentToRainbow(100 - aiArousal))
+        Return UDMTF.Text(loc_str, asColor = UDMTF.PercentToRainbow(100 - aiArousal))
     Else
         Return loc_str
     EndIf
@@ -1870,20 +1870,20 @@ String Function _GetActorDetailsMenuText(Actor akActor)
     endif
 
     ; TODO: Actor details
-    loc_res += UDMTF.TextDecoration("Your agility skill is " + _GetActorSkillString(loc_agi, True) + ".")
+    loc_res += UDMTF.Text("Your agility skill is " + _GetActorSkillString(loc_agi, True) + ".")
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.TextDecoration("You have a " + _GetActorSkillString(loc_str, True) + " strength.")
+    loc_res += UDMTF.Text("You have a " + _GetActorSkillString(loc_str, True) + " strength.")
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.TextDecoration("Your can handle magicka with a " + _GetActorSkillString(loc_mag, True) + " skill.")
+    loc_res += UDMTF.Text("Your can handle magicka with a " + _GetActorSkillString(loc_mag, True) + " skill.")
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.TextDecoration("And your cutting skill is " + _GetActorSkillString(loc_cut, True) + ".")
+    loc_res += UDMTF.Text("And your cutting skill is " + _GetActorSkillString(loc_cut, True) + ".")
     loc_res += UDMTF.LineBreak()
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.TextDecoration("You're " + _GetActorArousalString(Round(OrgasmSystem.GetOrgasmVariable(akActor, 8)), True) + " aroused at the moment.")
+    loc_res += UDMTF.Text("You're " + _GetActorArousalString(Round(OrgasmSystem.GetOrgasmVariable(akActor, 8)), True) + " aroused at the moment.")
     loc_res += UDMTF.LineBreak()
     
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.TextDecoration("What do you want to know?")
+    loc_res += UDMTF.Text("What do you want to know?")
     
     loc_res += UDMTF.ParagraphEnd()
     loc_res += UDMTF.FontEnd()

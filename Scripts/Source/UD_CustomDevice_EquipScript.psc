@@ -1061,7 +1061,7 @@ Function ShowDetails(Actor akActor)
     loc_res += UDMain.UDMTF.LineGap()
     
     if deviceInventory.hasKeyword(UDmain.UDlibs.PatchedInventoryDevice) && deviceRendered.hasKeyword(UDmain.UDlibs.PatchedDevice)
-        loc_res += UDMain.UDMTF.TextDecoration("-- Patched device --", asAlign = "center") + UDMain.UDMTF.LineBreak()
+        loc_res += UDMain.UDMTF.Text("-- Patched device --", asAlign = "center")
         loc_res += UDMain.UDMTF.LineGap()
         loc_res += UDMain.UDMTF.TableRowDetails("Struggle escape chance:", Round(BaseEscapeChance) + "%")
         loc_res += UDMain.UDMTF.TableRowDetails("Cut escape chance:", Round(CutDeviceEscapeChance) + "%")

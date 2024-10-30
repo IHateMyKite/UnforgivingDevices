@@ -4231,7 +4231,7 @@ Function LoadFromJSON(string strFile)
     UDWC.UD_WidgetXPos = JsonUtil.GetIntValue(strFile, "WidgetPosX", UDWC.UD_WidgetXPos)
     UDWC.UD_WidgetYPos = JsonUtil.GetIntValue(strFile, "WidgetPosY", UDWC.UD_WidgetXPos)
     UDMTF.SetMode(JsonUtil.GetStringValue(strFile, "MenuTextFormatter", "HTML"))
-    UDMMM.SetMode(JsonUtil.GetStringValue(strFile, "MenuMsgManager", "PapyrusUI"))
+    UDMMM.SetMode(JsonUtil.GetStringValue(strFile, "MenuMsgManager", "Native_UI"))
     
     ;Other
     libs.UD_StartThirdpersonAnimation_Switch = JsonUtil.GetIntValue(strFile, "StartThirdpersonAnimation_Switch", libs.UD_StartThirdpersonAnimation_Switch as Int)
