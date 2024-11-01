@@ -13,11 +13,11 @@ EndFunction
 string Function addInfoString(string str = "")
     ;string res = str
     if isPlugged()
-        str += UDMTF.TableRowDetails("Plugged:", "YES", UDMTF.PercentToRainbow(0))
+        str += UDMTF.TableRowDetails("Plugged:", "YES", UDMTF.BoolToRainbow(False))
         if !wearerFreeHands(True) 
         endif
     else
-        str += UDMTF.TableRowDetails("Plugged:", "NO", UDMTF.PercentToRainbow(100))
+        str += UDMTF.TableRowDetails("Plugged:", "NO", UDMTF.BoolToRainbow(True))
     endif
     
     str += UDMTF.PageSplit(abForce = False)
