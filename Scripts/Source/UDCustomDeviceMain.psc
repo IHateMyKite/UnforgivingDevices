@@ -1620,7 +1620,7 @@ EndFunction
     Opens Player menu
 /;
 Function PlayerMenu()
-    int loc_playerMenuRes = UDMain.UDMMM.ShowMessageBoxMenu(PlayerMenuMsg, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
+    int loc_playerMenuRes = UDMain.UDMMM.ShowMessageBoxMenu(PlayerMenuMsg, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
     if loc_playerMenuRes == 0
         UDmain.UDOMPlayer.FocusOrgasmResistMinigame(UDmain.Player)
     elseif loc_playerMenuRes == 1
@@ -3088,7 +3088,7 @@ Int Function ShowSoulgemMessage(Actor akActor,Bool abEmpty = false)
         endif
     endif
     ;message
-    Int loc_res = UDMain.UDMMM.ShowMessageBoxMenu(UD_SoulgemSelect_MSG, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
+    Int loc_res = UDMain.UDMMM.ShowMessageBoxMenu(UD_SoulgemSelect_MSG, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
     if loc_res > 5
         return -1
     endif

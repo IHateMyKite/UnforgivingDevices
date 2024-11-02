@@ -269,7 +269,7 @@ Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String as
         UDMain.Error(Self + "::ShowMessageBoxMenu() Legacy Mode: akTemplate must be specified!")
         Debug.MessageBox("ShowMessageBoxMenu() Legacy Mode: akTemplate must be specified!")
     Else
-        loc_last_btn = _ShowMessageboxArrayTemplate(akTemplate,asMessageOverride, aafValues, aasButtonsOverride, abGetIndex = true, abUseHTML = abHasHTML) as Int
+        loc_last_btn = _ShowMessageboxArrayTemplate(akTemplate, asMessageOverride, aafValues, aasButtonsOverride, abGetIndex = true, abUseHTML = abHasHTML) as Int
     EndIf
     
     Return loc_last_btn

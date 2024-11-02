@@ -247,9 +247,9 @@ EndFunction
 /;
 String Function Text(String asText, Int aiFontSize = -1, String asFontFace = "", String asColor = "", String asAlign = "")
     String loc_res = ""
-    loc_res += InlineIfString(asColor != "" || asFontFace != "", StringUtil.AsChar(171))        ; decorating with quotation marks
+    loc_res += InlineIfString(asColor != "" || asFontFace != "", "[") ; StringUtil.AsChar(171))        ; decorating with quotation marks (doesn't work)
     loc_res += asText
-    loc_res += InlineIfString(asColor != "" || asFontFace != "", StringUtil.AsChar(187))
+    loc_res += InlineIfString(asColor != "" || asFontFace != "", "]") ; StringUtil.AsChar(187))
     Return asText
 EndFunction
 
@@ -403,7 +403,7 @@ String[] Function SplitMessageIntoPages(String asMessage, Int aiLines = -1)
     While loc_i < loc_pages.Length
         loc_page_txt = loc_pages[loc_i]
         If loc_pages.Length > 1
-            loc_page_txt += LineBreak() + PageFooter(loc_i, loc_pages.Length)
+            loc_page_txt += LineBreak() + PageFooter(loc_i + 1, loc_pages.Length)
         EndIf
         loc_res = PapyrusUtil.PushString(loc_res, loc_page_txt)
         loc_i += 1

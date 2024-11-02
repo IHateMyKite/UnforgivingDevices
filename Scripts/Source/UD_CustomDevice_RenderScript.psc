@@ -2950,7 +2950,9 @@ EndFunction
 
 bool Function _specialMenu()
     if UD_SpecialMenuInteraction
-        int  loc_res  = UDMain.UDMMM.ShowMessageBoxMenu(UD_SpecialMenuInteraction, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
+        String loc_str = _GetSpecialActionsMenuText()
+        
+        int  loc_res  = UDMain.UDMMM.ShowMessageBoxMenu(UD_SpecialMenuInteraction, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
         bool loc_res2 = proccesSpecialMenu(loc_res)
         return loc_res2
     else
@@ -3112,7 +3114,7 @@ Function DeviceMenuWH(Actor akSource,bool[] aaControl)
 EndFunction
 
 bool Function _lockMenuWH(Actor akSource)
-    Int msgChoice =  UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.DefaultLockMenuMessageWH, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
+    Int msgChoice =  UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.DefaultLockMenuMessageWH, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
     if msgChoice == 0
         return keyMinigameWH(akSource)
     elseif msgChoice == 1
@@ -3126,7 +3128,7 @@ EndFunction
 
 bool Function _specialMenuWH(Actor akSource)
     if UD_SpecialMenuInteractionWH
-        int  loc_res  = UDMain.UDMMM.ShowMessageBoxMenu(UD_SpecialMenuInteractionWH, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons)
+        int  loc_res  = UDMain.UDMMM.ShowMessageBoxMenu(UD_SpecialMenuInteractionWH, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
         bool loc_res2 = proccesSpecialMenuWH(akSource,loc_res)
         return loc_res2
     else
@@ -6898,6 +6900,21 @@ EndFunction
 ===========================================================================================
 /;
 
+String Function _GetSpecialActionsMenuText()
+    String loc_res = ""
+    loc_res += UDMTF.Header(getDeviceName(), 4)
+    loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+    loc_res += UDMTF.ParagraphBegin(asAlign = "center")
+    loc_res += UDMTF.LineGap()
+    
+    loc_res += UDMTF.Text("You fight the temptation to do something " + UDMTF.Text("special", asColor = UDMTF.BoolToRainbow(False)) + " with the device.")
+    loc_res += UDMTF.LineBreak()
+    
+    loc_res += UDMTF.ParagraphEnd()
+    loc_res += UDMTF.FontEnd()
+    Return loc_res
+EndFunction
+
 String Function _GetDeviceLockMenuText()
     String loc_res = ""
     loc_res += UDMTF.Header(getDeviceName(), 4)
@@ -6907,8 +6924,12 @@ String Function _GetDeviceLockMenuText()
     
     loc_res += UDMTF.Text("You carefully investigate device to gather information about its locks.")
     loc_res += UDMTF.LineBreak()
-    If _getLockpickLevel(0) > 4 && zad_deviceKey
-        loc_res += UDMTF.Text("You need a '" + zad_deviceKey.GetName() + "' to open locks.")
+    If _getLockpickLevel(0) > 4
+        If zad_deviceKey
+            loc_res += UDMTF.Text("You need a '" + zad_deviceKey.GetName() + "' to open locks.")
+        Else
+            loc_res += UDMTF.Text("This device requires a key but it is not present in our world. You are " + UDMTF.Text("doomed", asColor = UDMTF.BoolToRainbow(False)) + "!")
+        EndIf
     Else
         loc_res += UDMTF.Text("Any " + _GetLockpickLevelString(_getLockpickLevel(0), True) + " in lock picking should be able to handle them.")
     EndIf
