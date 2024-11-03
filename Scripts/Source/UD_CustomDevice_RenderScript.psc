@@ -2951,7 +2951,6 @@ EndFunction
 bool Function _specialMenu()
     if UD_SpecialMenuInteraction
         String loc_str = _GetSpecialActionsMenuText()
-        
         int  loc_res  = UDMain.UDMMM.ShowMessageBoxMenu(UD_SpecialMenuInteraction, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
         bool loc_res2 = proccesSpecialMenu(loc_res)
         return loc_res2
@@ -3042,6 +3041,9 @@ EndFunction
         akSource    - Actor who will be set to helper once the menu opens
         aaControl   - <Control Array>
         
+    Returns:
+        All outer menus must be closed
+    
     Example:
     
     --- Code
@@ -3056,15 +3058,16 @@ EndFunction
     ...
     ---
 /;
-Function DeviceMenuWH(Actor akSource,bool[] aaControl)
+Bool Function DeviceMenuWH(Actor akSource,bool[] aaControl)
     if UDmain.TraceAllowed()
         UDmain.Log(getDeviceHeader() + " DeviceMenuWH() called, aaControl = "+aaControl,2)
     endif
     
     GoToState("UpdatePaused")
     
-    bool _break = False
-    while !_break
+    Bool loc_break = False
+    Bool loc_exit = False
+    while !loc_break && !loc_exit
         StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
         StorageUtil.UnSetIntValue(akSource, "UD_ignoreEvent" + deviceInventory)
 
@@ -3077,30 +3080,39 @@ Function DeviceMenuWH(Actor akSource,bool[] aaControl)
         String loc_str = _GetDeviceMainMenuText()
         Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(UD_MessageDeviceInteractionWH, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
         if msgChoice == 0        ;help struggle
-            _break = struggleMinigameWH(akSource)
+            loc_break = struggleMinigameWH(akSource)
+            loc_exit = loc_break
         elseif msgChoice == 1    ;lockpick
-            _break = _lockMenuWH(akSource)
+            loc_break = _lockMenuWH(akSource)
+            loc_exit = loc_break
         elseif msgChoice == 2    ;help cutting
-            _break = cuttingMinigameWH(akSource)
+            loc_break = cuttingMinigameWH(akSource)
+            loc_exit = loc_break
         elseif msgChoice == 3     ;special
-            _break = _specialMenuWH(akSource)
+            loc_break = _specialMenuWH(akSource)
+            loc_exit = loc_break
         elseif msgChoice == 4    ;tighten up
             tightUpDevice(akSource)
-            _break = false
+            loc_break = False
+            loc_exit = False
         elseif msgChoice == 5    ;repair
             repairDevice(akSource)
-            _break = true
+            loc_break = True
+            loc_exit = True
         elseif msgChoice == 6    ;command
             aaControl = CreateControlArrayFalse()
             DeviceMenu(aaControl)
-            _break = True
+            loc_break = True
+            loc_exit = True
         elseif msgChoice == 7     ;escape
             UnlockRestrain()
-            _break = true
+            loc_break = True
+            loc_exit = True
         elseif msgChoice == 8    ;details
             processDetails()
         else
-            _break = True        ;exit
+            loc_break = True        ;exit
+            loc_exit = False
         endif
         
         DeviceMenuExtWH(msgChoice)
@@ -3111,10 +3123,13 @@ Function DeviceMenuWH(Actor akSource,bool[] aaControl)
     ;    UD_WearerSlot.GoToState("")
     ;Endif
     GoToState("")
+    
+    Return loc_exit
 EndFunction
 
 bool Function _lockMenuWH(Actor akSource)
-    Int msgChoice =  UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.DefaultLockMenuMessageWH, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
+    String loc_str = _GetDeviceLockMenuText()
+    Int msgChoice =  UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.DefaultLockMenuMessageWH, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
     if msgChoice == 0
         return keyMinigameWH(akSource)
     elseif msgChoice == 1
@@ -3128,7 +3143,8 @@ EndFunction
 
 bool Function _specialMenuWH(Actor akSource)
     if UD_SpecialMenuInteractionWH
-        int  loc_res  = UDMain.UDMMM.ShowMessageBoxMenu(UD_SpecialMenuInteractionWH, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
+        String loc_str = _GetSpecialActionsMenuText()
+        int  loc_res  = UDMain.UDMMM.ShowMessageBoxMenu(UD_SpecialMenuInteractionWH, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
         bool loc_res2 = proccesSpecialMenuWH(akSource,loc_res)
         return loc_res2
     else

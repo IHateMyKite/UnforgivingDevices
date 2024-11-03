@@ -59,6 +59,10 @@ Function Update()
     UnregisterMenuEvents()
     RegisterMenuEvents()
     RegisterModEvents()
+    If GetModeIndex() < 0 
+        GoToState("Papyrus_UI")
+        UDMTF.LinesOnHTMLPage = 16
+    EndIf
     Ready = True
 EndFunction
 
@@ -269,7 +273,7 @@ Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String as
         UDMain.Error(Self + "::ShowMessageBoxMenu() Legacy Mode: akTemplate must be specified!")
         Debug.MessageBox("ShowMessageBoxMenu() Legacy Mode: akTemplate must be specified!")
     Else
-        loc_last_btn = _ShowMessageboxArrayTemplate(akTemplate, asMessageOverride, aafValues, aasButtonsOverride, abGetIndex = true, abUseHTML = abHasHTML) as Int
+        loc_last_btn = _showMsgWithValues(akTemplate, aafValues)
     EndIf
     
     Return loc_last_btn
@@ -388,9 +392,9 @@ Auto State Native_UI
             loc_msg = StringUtil.Substring(loc_msg, 0, 2000) + " [message is too long]"
         EndIf        
         If !abHasHTML
-            _ShowMessagebox(loc_msg,"Ok", abGetIndex = true, abUseHTML = false)
+            _ShowMessagebox(loc_msg, "Ok", abGetIndex = true, abUseHTML = false)
         Else
-            _ShowMessagebox(asMessage,"Ok", abGetIndex = true, abUseHTML = true)
+            _ShowMessagebox(asMessage, "Ok", abGetIndex = true, abUseHTML = true)
         EndIf
     EndFunction
 
@@ -400,7 +404,7 @@ Auto State Native_UI
         If akTemplate == None
             ; TODO
             If aasButtonsOverride.Length == 0 || asMessageOverride == ""
-                UDMain.Warning(Self + "::ShowMessageBoxMenu() PapyrusUI Mode: If no message template is specified, you must explicitly set the text and menu buttons!")
+                UDMain.Warning(Self + "::ShowMessageBoxMenu() Native_UI Mode: If no message template is specified, you must explicitly set the text and menu buttons!")
             EndIf
             loc_last_btn = _ShowMessageboxArray(asMessageOverride,aasButtonsOverride, abGetIndex = true,abUseHTML = abHasHTML) as Int
         Else

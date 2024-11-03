@@ -1306,7 +1306,7 @@ String Function _GetNPCMenuText(Actor akActor)
     loc_res += UDMTF.ParagraphBegin(asAlign = "center")
     loc_res += UDMTF.LineGap()
     
-    loc_res += UDMTF.Text("The helper has some experience interacting with devices (" + GetHelperLVL(akActor) + " level)")
+    loc_res += UDMTF.Text("They have some experience interacting with devices (" + GetHelperLVL(akActor) + " level)")
     loc_res += UDMTF.LineBreak()
     
     float loc_currenttime = Utility.GetCurrentGameTime()
@@ -1315,15 +1315,15 @@ String Function _GetNPCMenuText(Actor akActor)
     Int loc_v1 = iUnsig(Round(((loc_cooldowntimeHP - loc_currenttime)*24*60)))
     Int loc_v2 = iUnsig(Round(((loc_cooldowntimePH - loc_currenttime)*24*60)))
     If loc_v1 > 0
-        loc_res += UDMTF.Text("She'll be able to help in " + loc_v1 + " minutes")
+        loc_res += UDMTF.Text("They'll be able to help you in " + UDMTF.Text(loc_v1 + " minutes", asColor = UDMTF.PercentToRainbow(50)) + ".")
     Else
-        loc_res += UDMTF.Text("She is able to help right now.")
+        loc_res += UDMTF.Text("They're able to help you " + UDMTF.Text("right now", asColor = UDMTF.BoolToRainbow(True)) + ".")
     EndIf
     loc_res += UDMTF.LineBreak()
     If loc_v2 > 0
-        loc_res += UDMTF.Text("You'll be able to help in " + loc_v2 + " minutes")
+        loc_res += UDMTF.Text("You'll be able to help them in " + UDMTF.Text(loc_v2 + " minutes", asColor = UDMTF.PercentToRainbow(50)) + ".")
     Else
-        loc_res += UDMTF.Text("You are able to help right now.")
+        loc_res += UDMTF.Text("You're able to help them " + UDMTF.Text("right now", asColor = UDMTF.BoolToRainbow(True)) + ".")
     EndIf
     
     loc_res += UDMTF.LineBreak()
@@ -1354,6 +1354,8 @@ Function ShowNPCMenu(Actor akActor)
     SetMessageAlias(akActor)
     
     While !loc_break
+        loc_break = True
+        
         UD_CurrentNPCMenuIsFollower         = UDmain.ActorIsFollower(akActor)
         UD_CurrentNPCMenuIsRegistered       = isRegistered(akActor)
         UD_CurrentNPCMenuIsStatic           = akActor.IsInFaction(UDlibs.StaticNPC)
@@ -1365,20 +1367,20 @@ Function ShowNPCMenu(Actor akActor)
         int loc_res = UDMain.UDMMM.ShowMessageBoxMenu(NPCDebugMenuMsg, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
         if loc_res == 0                             ; Register
             UDCD_NPCM.RegisterNPC(akActor,true)
+            loc_break = False
         elseif loc_res == 1                         ; Unregister
             UDCD_NPCM.UnregisterNPC(akActor,true)
             loc_break = True
         elseif loc_res == 2                         ; Make persist
             StorageUtil.SetIntValue(akActor, "UD_ManualRegister", 1)
+            loc_break = True
         elseif loc_res == 3                         ; Undo persist
             StorageUtil.SetIntValue(akActor, "UD_ManualRegister", 0)
             loc_break = True
         elseif loc_res == 4                         ; View devices
-            HelpNPC(akActor,UDmain.Player,UDmain.ActorIsFollower(akActor))
-;            loc_break = HelpNPC(akActor,UDmain.Player,UDmain.ActorIsFollower(akActor))
+            loc_break = HelpNPC(akActor,UDmain.Player,UDmain.ActorIsFollower(akActor))
         elseif loc_res == 5                         ; Get help
-            HelpNPC(UDmain.Player,akActor,false)
-;            loc_break = HelpNPC(UDmain.Player,akActor,false)
+            loc_break = HelpNPC(UDmain.Player,akActor,false)
         elseif loc_res == 6                         ; Update Outfit
             loc_break = ShowUndressArmorMenu(akActor)
             ;akActor.UpdateWeight(0)
@@ -1398,15 +1400,15 @@ Function ShowNPCMenu(Actor akActor)
             endif
             loc_break = True
         elseif loc_res == 8                         ; Details
-            loc_break = ShowActorDetailsMenu(akActor)
+            ShowActorDetailsMenu(akActor)
+            loc_break = False
         elseif loc_res == 9
             getMinigameDevice(akActor).StopMinigame()
             loc_break = True
         else
+            ; looks like it's never gets there
             loc_break = True
         endif
-        ; TODO: create menu loops
-        loc_break = True
     EndWhile
 EndFunction
 
@@ -1509,9 +1511,7 @@ Bool Function ShowHelpDeviceMenu(UD_CustomDevice_RenderScript akDevice, Actor ak
         endif
 
         loc_arrcontrol[14] = !abAllowCommand
-        ; TODO: proper 'loc_exit'
-        akDevice.deviceMenuWH(akHelper,loc_arrcontrol)
-        loc_exit = True
+        loc_exit = akDevice.deviceMenuWH(akHelper,loc_arrcontrol)
         
         if IsPlayer(akHelper)
             SetPlayerFollower(akDevice.getWearer(),false,1)
@@ -1615,23 +1615,57 @@ float Function GetHelperLVLProgress(Actor akHelper)
     return loc_currentXP/_CalculateHelperXpRequired(loc_currentLVL);(100.0*(loc_currentLVL))
 EndFunction
 
+String Function _GetPlayerMenuText()
+    
+    String loc_res = ""
+    loc_res += UDMTF.Header(UDmain.Player.GetLeveledActorBase().GetName(), 4)
+    loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+    loc_res += UDMTF.ParagraphBegin(asAlign = "center")
+    loc_res += UDMTF.LineGap()
+    
+; TODO:    
+;            loc_res += UDMTF.TableRowDetails("State:", _UDOM.GetHornyLevelString(akActor))
+;            loc_res += UDMTF.TableRowDetails("Horny level:", FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor, 14), 2))
+;            
+;            loc_res += UDMTF.TableRowDetails("Active vibrators:", GetActivatedVibrators(akActor))
+;            loc_res += UDMTF.TableRowDetails("Vibrators strength:", StorageUtil.GetIntValue(akActor,"UD_ActiveVib_Strength", 0), UDMTF.PercentToRainbow(100 - StorageUtil.GetIntValue(akActor,"UD_ActiveVib_Strength", 0)))
+    
+    loc_res += UDMTF.LineBreak()
+    loc_res += UDMTF.Text("What do you want to do?")
+    
+    loc_res += UDMTF.ParagraphEnd()
+    loc_res += UDMTF.FontEnd()
+    Return loc_res
+    
+EndFunction
+
 ;/  Function: PlayerMenu
 
     Opens Player menu
+    
+    Returns:
+        
 /;
 Function PlayerMenu()
-    int loc_playerMenuRes = UDMain.UDMMM.ShowMessageBoxMenu(PlayerMenuMsg, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
-    if loc_playerMenuRes == 0
-        UDmain.UDOMPlayer.FocusOrgasmResistMinigame(UDmain.Player)
-    elseif loc_playerMenuRes == 1
-        ShowUndressArmorMenu(UDmain.Player)
-    elseif loc_playerMenuRes == 2
-        ShowActorDetailsMenu(UDmain.Player)
-    elseif loc_playerMenuRes == 3
-        DebugFunction(UDmain.Player)
-    else
-        return
-    endif
+    Bool loc_break = False              ; break menu loop
+    while !loc_break
+        String loc_str = _GetPlayerMenuText()
+        int loc_playerMenuRes = UDMain.UDMMM.ShowMessageBoxMenu(PlayerMenuMsg, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
+        if loc_playerMenuRes == 0
+            UDmain.UDOMPlayer.FocusOrgasmResistMinigame(UDmain.Player)
+            loc_break = True
+        elseif loc_playerMenuRes == 1
+            loc_break = ShowUndressArmorMenu(UDmain.Player)
+        elseif loc_playerMenuRes == 2
+            ShowActorDetailsMenu(UDmain.Player)
+        elseif loc_playerMenuRes == 3
+            DebugFunction(UDmain.Player)
+            loc_break = True
+        else
+            loc_break = True
+        endif
+        
+    EndWhile
 EndFunction
 
 ;/  Function: ShowUndressArmorMenu
@@ -1870,16 +1904,16 @@ String Function _GetActorDetailsMenuText(Actor akActor)
     endif
 
     ; TODO: Actor details
-    loc_res += UDMTF.Text("Your agility skill is " + _GetActorSkillString(loc_agi, True) + ".")
+    loc_res += UDMTF.Text(UDMTF.InlineIfString(IsPlayer(akActor), "Your ", "Their ") + "agility skill is " + _GetActorSkillString(loc_agi, True) + ".")
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.Text("You have a " + _GetActorSkillString(loc_str, True) + " strength.")
+    loc_res += UDMTF.Text(UDMTF.InlineIfString(IsPlayer(akActor), "You ", "They ") + "have a " + _GetActorSkillString(loc_str, True) + " strength.")
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.Text("Your can handle magicka with a " + _GetActorSkillString(loc_mag, True) + " skill.")
+    loc_res += UDMTF.Text(UDMTF.InlineIfString(IsPlayer(akActor), "You ", "They ") + "can handle magicka with a " + _GetActorSkillString(loc_mag, True) + " skill.")
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.Text("And your cutting skill is " + _GetActorSkillString(loc_cut, True) + ".")
+    loc_res += UDMTF.Text("And " + UDMTF.InlineIfString(IsPlayer(akActor), "your ", "their ") + "cutting skill is " + _GetActorSkillString(loc_cut, True) + ".")
     loc_res += UDMTF.LineBreak()
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.Text("You're " + _GetActorArousalString(Round(OrgasmSystem.GetOrgasmVariable(akActor, 8)), True) + " aroused at the moment.")
+    loc_res += UDMTF.Text(UDMTF.InlineIfString(IsPlayer(akActor), "You're ", "They're ") + _GetActorArousalString(Round(OrgasmSystem.GetOrgasmVariable(akActor, 8)), True) + " aroused at the moment.")
     loc_res += UDMTF.LineBreak()
     
     loc_res += UDMTF.LineBreak()
@@ -2988,7 +3022,7 @@ EndFunction
 
         True if operation was succesfull
 /;
-bool Function ChangeSoulgemState(Actor akActor,Int aiSoulgemType,bool abState = true)
+bool Function ChangeSoulgemState(Actor akActor, Int aiSoulgemType, bool abState = true)
     if !akActor
         return false
     endif
@@ -3034,6 +3068,25 @@ bool Function ChangeSoulgemState(Actor akActor,Int aiSoulgemType,bool abState = 
     return true
 EndFunction
 
+String Function _GetSoulgemMenuText(Actor akActor)
+    
+    String loc_res = ""
+    loc_res += UDMTF.Header(akActor.GetLeveledActorBase().GetName(), 4)
+    loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
+    loc_res += UDMTF.ParagraphBegin(asAlign = "center")
+    loc_res += UDMTF.LineGap()
+
+    ; TODO: Soulgem text?
+    
+    loc_res += UDMTF.LineBreak()
+    loc_res += UDMTF.Text("Which soulgem do you want to use?")
+    
+    loc_res += UDMTF.ParagraphEnd()
+    loc_res += UDMTF.FontEnd()
+    Return loc_res
+    
+EndFunction
+
 Message Property UD_SoulgemSelect_MSG auto
 
 ;/  Function: ShowSoulgemMessage
@@ -3051,7 +3104,7 @@ Message Property UD_SoulgemSelect_MSG auto
 
         0=Petty,1=Lesser,2=Common,3=Great,4=Grand
 /;
-Int Function ShowSoulgemMessage(Actor akActor,Bool abEmpty = false)
+Int Function ShowSoulgemMessage(Actor akActor, Bool abEmpty = false)
     ;precheck
     resetCondVar()
     if !abEmpty
@@ -3088,7 +3141,8 @@ Int Function ShowSoulgemMessage(Actor akActor,Bool abEmpty = false)
         endif
     endif
     ;message
-    Int loc_res = UDMain.UDMMM.ShowMessageBoxMenu(UD_SoulgemSelect_MSG, UDMain.UDMMM.NoValues, "", UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
+    String loc_str = _GetSoulgemMenuText(akActor)
+    Int loc_res = UDMain.UDMMM.ShowMessageBoxMenu(UD_SoulgemSelect_MSG, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
     if loc_res > 5
         return -1
     endif
