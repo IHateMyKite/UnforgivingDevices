@@ -441,7 +441,6 @@ EndFunction
         String with the text fragment
 /;
 String Function DeviceLockIcon(Bool abOpen, Bool abJammed, Bool abTimer)
-; TODO: This function should be defined in a specialized script for the device text menus
     If abOpen
         Return "O"
     EndIf
@@ -462,7 +461,6 @@ EndFunction
         String with the text fragment
 /;
 String Function DeviceLockLegend()
-; TODO: This function should be defined in a specialized script for the device text menus
     String loc_res = ""
     
     loc_res += "L - locked;"

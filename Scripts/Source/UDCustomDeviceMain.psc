@@ -1623,18 +1623,19 @@ String Function _GetPlayerMenuText()
     loc_res += UDMTF.ParagraphBegin(asAlign = "center")
     loc_res += UDMTF.LineGap()
     
-; TODO:    
-;            loc_res += UDMTF.TableRowDetails("State:", _UDOM.GetHornyLevelString(akActor))
-;            loc_res += UDMTF.TableRowDetails("Horny level:", FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor, 14), 2))
-;            
-;            loc_res += UDMTF.TableRowDetails("Active vibrators:", GetActivatedVibrators(akActor))
-;            loc_res += UDMTF.TableRowDetails("Vibrators strength:", StorageUtil.GetIntValue(akActor,"UD_ActiveVib_Strength", 0), UDMTF.PercentToRainbow(100 - StorageUtil.GetIntValue(akActor,"UD_ActiveVib_Strength", 0)))
+    loc_res += UDMTF.Text("You're " + _GetActorArousalString(Round(OrgasmSystem.GetOrgasmVariable(UDmain.Player, 8)), True) + " aroused at the moment.")
+    loc_res += UDMTF.LineBreak()
+    If GetActivatedVibrators(UDmain.Player) > 0
+        loc_res += UDMTF.Text("You're currently stimulated by a " + GetActivatedVibratorsString(UDmain.Player, True) + " vibration from equipped devices.")
+        loc_res += UDMTF.LineBreak()
+    EndIf
     
     loc_res += UDMTF.LineBreak()
     loc_res += UDMTF.Text("What do you want to do?")
     
     loc_res += UDMTF.ParagraphEnd()
     loc_res += UDMTF.FontEnd()
+    
     Return loc_res
     
 EndFunction
@@ -1903,7 +1904,6 @@ String Function _GetActorDetailsMenuText(Actor akActor)
         loc_cut = Round(UDmain.UDSKILL.getCuttingSkill(akActor))
     endif
 
-    ; TODO: Actor details
     loc_res += UDMTF.Text(UDMTF.InlineIfString(IsPlayer(akActor), "Your ", "Their ") + "agility skill is " + _GetActorSkillString(loc_agi, True) + ".")
     loc_res += UDMTF.LineBreak()
     loc_res += UDMTF.Text(UDMTF.InlineIfString(IsPlayer(akActor), "You ", "They ") + "have a " + _GetActorSkillString(loc_str, True) + " strength.")
@@ -2231,6 +2231,29 @@ EndFunction
 /;
 Int Function GetActivatedVibrators(Actor akActor)
     return StorageUtil.GetIntValue(akActor,"UD_ActiveVib",0)
+EndFunction
+
+String Function GetActivatedVibratorsString(Actor akActor, Bool abDecotare = False)
+    String loc_str = ""
+    Int loc_vib = GetActivatedVibrators(akActor)
+    If loc_vib < 20
+        loc_str = "Subtle"
+    ElseIf loc_vib < 40
+        loc_str = "Weak"
+    ElseIf loc_vib < 60
+        loc_str = "Moderate"
+    ElseIf loc_vib < 80
+        loc_str = "Strong"
+    ElseIf loc_vib < 100
+        loc_str = "Extreme"
+    Else
+        loc_str = "Insane"
+    EndIf
+    If abDecotare
+        Return UDMTF.Text(loc_str, asColor = UDMTF.PercentToRainbow(100 - loc_vib))
+    Else
+        Return loc_str
+    EndIf
 EndFunction
 
 ;manipulation vars, don't tough!
@@ -3076,7 +3099,7 @@ String Function _GetSoulgemMenuText(Actor akActor)
     loc_res += UDMTF.ParagraphBegin(asAlign = "center")
     loc_res += UDMTF.LineGap()
 
-    ; TODO: Soulgem text?
+    ; TODO: PR_210: Soulgem text?
     
     loc_res += UDMTF.LineBreak()
     loc_res += UDMTF.Text("Which soulgem do you want to use?")

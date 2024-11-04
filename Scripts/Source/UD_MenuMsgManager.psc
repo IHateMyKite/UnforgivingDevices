@@ -60,7 +60,7 @@ Function Update()
     RegisterMenuEvents()
     RegisterModEvents()
     If GetModeIndex() < 0 
-        GoToState("Papyrus_UI")
+        GoToState("Native_UI")
         UDMTF.LinesOnHTMLPage = 16
     EndIf
     Ready = True
@@ -261,7 +261,7 @@ Function ShowSingleMessageBox(String asMessage, Bool abHasHTML = False)
     EndWhile
 EndFunction
 
-Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String asMessageOverride, String[] aasButtonsOverride, Bool abHasHTML = False)
+Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String asMessageOverride, String[] aasButtonsOverride, Bool abHasHTML = False, Bool abWordWrap = False)
 
     If abHasHTML 
         UDMain.Warning(Self + "::ShowMessageBoxMenu() Legacy Mode: Can't display HTML text properly!")
@@ -279,8 +279,9 @@ Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String as
     Return loc_last_btn
 EndFunction
     
-Bool        _InjectReady = False
+Bool        _InjectNeeded = False
 Bool        _InjectMessageHTML = False
+Bool        _InjectMessageWordWrap = True
 String      _InjectMessage = ""
 String[]    _InjectButtons
 
@@ -293,9 +294,10 @@ State Papyrus_UI
             If MenuName != "MessageBoxMenu" 
                 Return
             Endif
-            If _InjectReady
-                _InjectReady = False
+            If _InjectNeeded
+                _InjectNeeded = False 
                 String[] loc_args
+                                
                 If _InjectMessage != ""
                     If StringUtil.GetLength(_InjectMessage) > 2047
                         UDMain.Warning(Self + "::OnMenuOpen() Message is too long to display it on a single page!")
@@ -304,9 +306,12 @@ State Papyrus_UI
                     loc_args = Utility.CreateStringArray(2, "")
                     loc_args[0] = _InjectMessage
                     loc_args[1] = UDMTF.InlineIfString(_InjectMessageHTML, "1", "0")
-                    UI.SetBool("MessageBoxMenu", "_root.MessageMenu" + ".MessageText.wordWrap", false)
+                    UI.SetBool("MessageBoxMenu", "_root.MessageMenu" + ".MessageText.wordWrap", _InjectMessageWordWrap)
                     UI.InvokeStringA("MessageBoxMenu", "_root.MessageMenu" + ".SetMessage", loc_args)
                     _InjectMessage = ""
+                Else
+                    UI.SetBool("MessageBoxMenu", "_root.MessageMenu" + ".MessageText.wordWrap", _InjectMessageWordWrap)     ; word wrap option
+                    UI.Invoke("MessageBoxMenu", "_root.MessageMenu" + ".ResetDimensions")                                   ; recalculate window dimensions
                 EndIf
                 If _InjectButtons.Length > 0
                 ; TODO
@@ -353,12 +358,13 @@ State Papyrus_UI
         EndWhile
     EndFunction
 
-    Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String asMessageOverride, String[] aasButtonsOverride, Bool abHasHTML = False)
+    Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String asMessageOverride, String[] aasButtonsOverride, Bool abHasHTML = False, Bool abWordWrap = False)
 
-        _InjectReady = True
+        _InjectNeeded = True
         _InjectMessageHTML = abHasHTML
         _InjectMessage = asMessageOverride
         _InjectButtons = aasButtonsOverride
+        _InjectMessageWordWrap = abWordWrap
 
         Int loc_last_btn = -1
 
@@ -383,6 +389,18 @@ Auto State Native_UI
 ; State: Native_UI
 
     Event OnMenuOpen(String MenuName)
+    ; testing word wrap
+        If UDmain.UDReady()
+            If MenuName != "MessageBoxMenu" 
+                Return
+            Endif
+            If _InjectNeeded
+                _InjectNeeded = False
+                UI.SetBool("MessageBoxMenu", "_root.MessageMenu" + ".MessageText.wordWrap", _InjectMessageWordWrap)     ; word wrap option
+                UI.Invoke("MessageBoxMenu", "_root.MessageMenu" + ".ResetDimensions")                                   ; recalculate window dimensions
+            EndIf
+        Endif
+        
     EndEvent
 
     Function ShowSingleMessageBox(String asMessage, Bool abHasHTML = False)
@@ -398,7 +416,11 @@ Auto State Native_UI
         EndIf
     EndFunction
 
-    Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String asMessageOverride, String[] aasButtonsOverride, Bool abHasHTML = False)
+    Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String asMessageOverride, String[] aasButtonsOverride, Bool abHasHTML = False, Bool abWordWrap = False)
+    
+        _InjectNeeded = True
+        _InjectMessageWordWrap = abWordWrap
+        
         Int loc_last_btn = -1
         
         If akTemplate == None
