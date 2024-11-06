@@ -1325,7 +1325,11 @@ String Function _GetNPCMenuText(Actor akActor)
     Else
         loc_res += UDMTF.Text("You're able to help them " + UDMTF.Text("right now", asColor = UDMTF.BoolToRainbow(True)) + ".")
     EndIf
-    
+    loc_res += UDMTF.LineBreak()
+    loc_res += UDMTF.LineBreak()
+    loc_res += UDMTF.Text(UDMTF.InlineIfString(IsPlayer(akActor), "You're ", "They're ") + _GetActorArousalString(Round(OrgasmSystem.GetOrgasmVariable(akActor, 8)), True) + " aroused at the moment.")
+    loc_res += UDMTF.LineBreak()
+    loc_res += UDMTF.Text(UDMTF.InlineIfString(IsPlayer(akActor), "You ", "They ") + _GetActorOrgasmProgressString(Round(OrgasmSystem.GetOrgasmProgress(akActor, 1) * 100), True) + "!")
     loc_res += UDMTF.LineBreak()
     
     loc_res += UDMTF.ParagraphEnd()
@@ -1625,6 +1629,8 @@ String Function _GetPlayerMenuText()
     
     loc_res += UDMTF.Text("You're " + _GetActorArousalString(Round(OrgasmSystem.GetOrgasmVariable(UDmain.Player, 8)), True) + " aroused at the moment.")
     loc_res += UDMTF.LineBreak()
+    loc_res += UDMTF.Text("You " + _GetActorOrgasmProgressString(Round(OrgasmSystem.GetOrgasmProgress(UDmain.Player, 1) * 100), True) + "!")
+    loc_res += UDMTF.LineBreak()
     If GetActivatedVibrators(UDmain.Player) > 0
         loc_res += UDMTF.Text("You're currently stimulated by a " + GetActivatedVibratorsString(UDmain.Player, True) + " vibration from equipped devices.")
         loc_res += UDMTF.LineBreak()
@@ -1833,7 +1839,7 @@ EndFunction
 
 Message Property UD_ActorDetailsOptions auto
 
-String Function _GetActorSkillString(Int aiSkill, Bool abDecotare = False)
+String Function _GetActorSkillString(Int aiSkill, Bool abDecorate = False)
     String loc_str = ""
     If aiSkill < 20
         loc_str = "Abysmal"
@@ -1846,14 +1852,14 @@ String Function _GetActorSkillString(Int aiSkill, Bool abDecotare = False)
     Else
         loc_str = "Exceptional"
     EndIf
-    If abDecotare
+    If abDecorate
         Return UDMTF.Text(loc_str, asColor = UDMTF.PercentToRainbow(aiSkill))
     Else
         Return loc_str
     EndIf
 EndFunction
 
-String Function _GetActorArousalString(Int aiArousal, Bool abDecotare = False)
+String Function _GetActorArousalString(Int aiArousal, Bool abDecorate = False)
     String loc_str = ""
     If aiArousal < 20
         loc_str = "Not"
@@ -1866,11 +1872,33 @@ String Function _GetActorArousalString(Int aiArousal, Bool abDecotare = False)
     Else
         loc_str = "Exremely"
     EndIf
-    If abDecotare
+    If abDecorate
         Return UDMTF.Text(loc_str, asColor = UDMTF.PercentToRainbow(100 - aiArousal))
     Else
         Return loc_str
     EndIf
+EndFunction
+
+String Function _GetActorOrgasmProgressString(Int aiOrgasmProgress, Bool abDecorate = False)
+
+    String loc_str = ""
+    If aiOrgasmProgress < 20
+        loc_str = "in perfect harmony"
+    ElseIf aiOrgasmProgress < 40
+        loc_str = "have trouble concentrating"
+    ElseIf aiOrgasmProgress < 60
+        loc_str = "are loosing control"
+    ElseIf aiOrgasmProgress < 80
+        loc_str = "are barely in control"
+    Else
+        loc_str = "want to cum"
+    EndIf
+    
+    If abDecorate
+        Return UDMTF.Text(loc_str, asColor = UDMTF.PercentToRainbow(100 - aiOrgasmProgress))
+    Else
+        Return loc_str
+    EndIf    
 EndFunction
 
 String Function _GetActorDetailsMenuText(Actor akActor)
@@ -1914,6 +1942,8 @@ String Function _GetActorDetailsMenuText(Actor akActor)
     loc_res += UDMTF.LineBreak()
     loc_res += UDMTF.LineBreak()
     loc_res += UDMTF.Text(UDMTF.InlineIfString(IsPlayer(akActor), "You're ", "They're ") + _GetActorArousalString(Round(OrgasmSystem.GetOrgasmVariable(akActor, 8)), True) + " aroused at the moment.")
+    loc_res += UDMTF.LineBreak()
+    loc_res += UDMTF.Text(UDMTF.InlineIfString(IsPlayer(akActor), "You ", "They ") + _GetActorOrgasmProgressString(Round(OrgasmSystem.GetOrgasmProgress(akActor, 1) * 100), True) + "!")
     loc_res += UDMTF.LineBreak()
     
     loc_res += UDMTF.LineBreak()
@@ -1963,7 +1993,7 @@ Bool Function ShowActorDetailsMenu(Actor akActor)
                 loc_res += UDMTF.LineGap()
             endif
             loc_res += UDMTF.TableRowDetails("Arousal:", FormatFloat(OrgasmSystem.GetOrgasmVariable(akActor, 8), 1), UDMTF.PercentToRainbow(Round(100 - OrgasmSystem.GetOrgasmVariable(akActor, 8))))
-            loc_res += UDMTF.TableRowDetails("Orgasm progress:", FormatFloat(OrgasmSystem.GetOrgasmProgress(akActor, 1) * 100, 2) + "%", UDMTF.PercentToRainbow(Round(100 - OrgasmSystem.GetOrgasmProgress(akActor, 1) * 100)))
+            loc_res += UDMTF.TableRowDetails("Orgasm progress:", FormatFloat(OrgasmSystem.GetOrgasmProgress(akActor, 1) * 100, 1) + "%", UDMTF.PercentToRainbow(Round(100 - OrgasmSystem.GetOrgasmProgress(akActor, 1) * 100)))
             
             loc_res += UDMTF.FooterSplit()
             loc_res += UDMTF.TableEnd()
