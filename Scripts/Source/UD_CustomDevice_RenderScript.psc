@@ -2909,7 +2909,7 @@ Function DeviceMenu(bool[] aaControl)
         setHelper(none)
         _deviceMenuInit(aaControl)
         String loc_str = _GetDeviceMainMenuText()
-        Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(UD_MessageDeviceInteraction, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
+        Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(UD_MessageDeviceInteraction, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup(), False)
         StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
         if msgChoice == 0        ;struggle
             _break = struggleMinigame()
@@ -2936,7 +2936,7 @@ EndFunction
 
 bool Function _lockMenu()
     String loc_str = _GetDeviceLockMenuText()
-    Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.DefaultLockMenuMessage, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
+    Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.DefaultLockMenuMessage, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup(), False)
     if msgChoice == 0
         return keyMinigame()
     elseif msgChoice == 1
@@ -2951,7 +2951,7 @@ EndFunction
 bool Function _specialMenu()
     if UD_SpecialMenuInteraction
         String loc_str = _GetSpecialActionsMenuText()
-        int  loc_res  = UDMain.UDMMM.ShowMessageBoxMenu(UD_SpecialMenuInteraction, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
+        int  loc_res  = UDMain.UDMMM.ShowMessageBoxMenu(UD_SpecialMenuInteraction, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup(), False)
         bool loc_res2 = proccesSpecialMenu(loc_res)
         return loc_res2
     else
@@ -3078,7 +3078,7 @@ Bool Function DeviceMenuWH(Actor akSource,bool[] aaControl)
 
         _deviceMenuInitWH(akSource, aaControl)
         String loc_str = _GetDeviceMainMenuText()
-        Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(UD_MessageDeviceInteractionWH, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
+        Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(UD_MessageDeviceInteractionWH, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup(), False)
         if msgChoice == 0        ;help struggle
             loc_break = struggleMinigameWH(akSource)
             loc_exit = loc_break
@@ -3129,7 +3129,7 @@ EndFunction
 
 bool Function _lockMenuWH(Actor akSource)
     String loc_str = _GetDeviceLockMenuText()
-    Int msgChoice =  UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.DefaultLockMenuMessageWH, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
+    Int msgChoice =  UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.DefaultLockMenuMessageWH, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup(), False)
     if msgChoice == 0
         return keyMinigameWH(akSource)
     elseif msgChoice == 1
@@ -3144,7 +3144,7 @@ EndFunction
 bool Function _specialMenuWH(Actor akSource)
     if UD_SpecialMenuInteractionWH
         String loc_str = _GetSpecialActionsMenuText()
-        int  loc_res  = UDMain.UDMMM.ShowMessageBoxMenu(UD_SpecialMenuInteractionWH, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
+        int  loc_res  = UDMain.UDMMM.ShowMessageBoxMenu(UD_SpecialMenuInteractionWH, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup(), False)
         bool loc_res2 = proccesSpecialMenuWH(akSource,loc_res)
         return loc_res2
     else
@@ -4116,7 +4116,7 @@ EndFunction
 bool Function struggleMinigame(int aiType = -1, Bool abSilent = False)
     if aiType == -1
         String los_msg = _GetDeviceStruggleMenuText()
-        aiType = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.StruggleMessage, UDMain.UDMMM.NoValues, los_msg, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
+        aiType = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.StruggleMessage, UDMain.UDMMM.NoValues, los_msg, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup(), False)
     endif
 
     if aiType == 4
@@ -4489,7 +4489,7 @@ bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
     int type = -1
     if type == -1
         String loc_msg = _GetDeviceStruggleMenuText()
-        type = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.StruggleMessageNPC, UDMain.UDMMM.NoValues, loc_msg, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
+        type = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.StruggleMessageNPC, UDMain.UDMMM.NoValues, loc_msg, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup(), False)
     endif
 
     if type == 4
@@ -7162,7 +7162,7 @@ Function ShowBaseDetails()
     loc_res += UDMTF.TableEnd()
     loc_res += UDMTF.FontEnd()
     
-    UDMain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
+    UDMain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup(), False)
 EndFunction
 
 ;/  Function: minigamePrecheck
@@ -7276,7 +7276,7 @@ Function ShowLockDetails()
         loc_res += UDMTF.TableEnd()
         loc_res += UDMTF.FontEnd()
     
-        UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
+        UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup(), False)
     endwhile
 EndFunction
 
@@ -7311,7 +7311,7 @@ Function showDebugInfo()
     loc_res += UDMTF.FooterSplit()
     loc_res += UDMTF.TableEnd()
     loc_res += UDMTF.FontEnd()
-    UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
+    UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup(), False)
 EndFunction
 
 ;/  Function: showDebugMinigameInfo
@@ -7386,7 +7386,7 @@ Function showDebugMinigameInfo()
     loc_res += UDMTF.TableEnd()
     loc_res += UDMTF.FontEnd()
     
-    UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
+    UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup(), False)
 EndFunction
 
 string Function _getCritInfo()
@@ -7898,7 +7898,7 @@ Function processDetails()
     UDCDmain.currentDeviceMenu_switch1 = HaveLocks()
     String loc_msg = _GetDeviceDetailsMenuText()
     While !loc_break
-        int res = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.DetailsMessage, UDMain.UDMMM.NoValues, loc_msg, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
+        int res = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.DetailsMessage, UDMain.UDMMM.NoValues, loc_msg, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup(), False)
         if res == 0 
             ShowBaseDetails()
         elseif res == 1

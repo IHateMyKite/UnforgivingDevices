@@ -233,19 +233,24 @@ Bool Function IsMessageboxOpen()
     Return UI.IsMenuOpen("MessageBoxMenu")
 EndFunction
 
-Function ShowMessageBox(String asMessage, Bool abHasHTML = False)
+Function ShowMessageBox(String asMessage, Bool abHasHTML = False, Bool abWordWrap = True)
     ; SplitMessageIntoPages should be compatible with both plain and html text if more advanced mode is used
     String[] loc_pages = UDMTF.SplitMessageIntoPages(asMessage)
     Int loc_i = 0
     While loc_i < loc_pages.Length
-        ShowSingleMessageBox(loc_pages[loc_i], abHasHTML)
+        ShowSingleMessageBox(loc_pages[loc_i], abHasHTML, abWordWrap)
         loc_i += 1
     EndWhile
 EndFunction
 
-Function ShowSingleMessageBox(String asMessage, Bool abHasHTML = False)
+; abWordWrap has no effect in Legacy Mode
+; abHasHTML has no effect in Legacy Mode
+Function ShowSingleMessageBox(String asMessage, Bool abHasHTML = False, Bool abWordWrap = True)
     If abHasHTML 
-        UDMain.Warning(Self + "::ShowSingleMessageBox() Legacy Mode: Can't display HTML text properly!")
+        UDMain.Warning(Self + "::ShowSingleMessageBox() Legacy Mode: abHasHTML = True has no effect! Can't display HTML text properly!")
+    EndIf    
+    If !abWordWrap 
+        UDMain.Warning(Self + "::ShowSingleMessageBox() Legacy Mode: abWordWrap = False has no effect!")
     EndIf
     String loc_msg = asMessage
     If StringUtil.GetLength(loc_msg) > 2047
@@ -261,10 +266,12 @@ Function ShowSingleMessageBox(String asMessage, Bool abHasHTML = False)
     EndWhile
 EndFunction
 
-Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String asMessageOverride, String[] aasButtonsOverride, Bool abHasHTML = False, Bool abWordWrap = False)
-
+Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String asMessageOverride, String[] aasButtonsOverride, Bool abHasHTML = False, Bool abWordWrap = True)
     If abHasHTML 
-        UDMain.Warning(Self + "::ShowMessageBoxMenu() Legacy Mode: Can't display HTML text properly!")
+        UDMain.Warning(Self + "::ShowMessageBoxMenu() Legacy Mode: abHasHTML = True has no effect! Can't display HTML text properly!")
+    EndIf    
+    If !abWordWrap 
+        UDMain.Warning(Self + "::ShowMessageBoxMenu() Legacy Mode: abWordWrap = False has no effect!")
     EndIf
     
     Int loc_last_btn = -1
@@ -331,7 +338,7 @@ State Papyrus_UI
         Endif
     EndEvent
 
-    Function ShowSingleMessageBox(String asMessage, Bool abHasHTML = False)
+    Function ShowSingleMessageBox(String asMessage, Bool abHasHTML = False, Bool abWordWrap = True)
         String loc_msg = asMessage
         If StringUtil.GetLength(loc_msg) > 2047
             UDMain.Warning(Self + "::ShowSingleMessageBox() Message is too long to display it on a single page!")
@@ -347,8 +354,13 @@ State Papyrus_UI
             loc_args[0] = loc_msg
             loc_args[1] = "1"
 
-            UI.SetBool("MessageBoxMenu", "_root.MessageMenu" + ".MessageText.wordWrap", false)
+            UI.SetBool("MessageBoxMenu", "_root.MessageMenu" + ".MessageText.wordWrap", abWordWrap)
             UI.InvokeStringA("MessageBoxMenu", "_root.MessageMenu" + ".SetMessage", loc_args)
+        EndIf
+        
+        If !abWordWrap
+            _InjectNeeded = True
+            _InjectMessageWordWrap = False
         EndIf
 
         ;wait for fucking messagebox to actually get OKd before continuing thread (holy FUCKING shit toad)
@@ -358,7 +370,7 @@ State Papyrus_UI
         EndWhile
     EndFunction
 
-    Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String asMessageOverride, String[] aasButtonsOverride, Bool abHasHTML = False, Bool abWordWrap = False)
+    Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String asMessageOverride, String[] aasButtonsOverride, Bool abHasHTML = False, Bool abWordWrap = True)
 
         _InjectNeeded = True
         _InjectMessageHTML = abHasHTML
@@ -403,7 +415,13 @@ Auto State Native_UI
         
     EndEvent
 
-    Function ShowSingleMessageBox(String asMessage, Bool abHasHTML = False)
+    Function ShowSingleMessageBox(String asMessage, Bool abHasHTML = False, Bool abWordWrap = True)
+        ; temporal solution
+        If !abWordWrap          ; default value in swf is true, so we override it when abWordWrap = False
+            _InjectNeeded = True
+            _InjectMessageWordWrap = abWordWrap
+        EndIf
+        
         String loc_msg = asMessage
         If StringUtil.GetLength(loc_msg) > 2047
             UDMain.Warning(Self + "::ShowSingleMessageBox() Message is too long to display it on a single page!")
@@ -416,10 +434,12 @@ Auto State Native_UI
         EndIf
     EndFunction
 
-    Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String asMessageOverride, String[] aasButtonsOverride, Bool abHasHTML = False, Bool abWordWrap = False)
-    
-        _InjectNeeded = True
-        _InjectMessageWordWrap = abWordWrap
+    Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String asMessageOverride, String[] aasButtonsOverride, Bool abHasHTML = False, Bool abWordWrap = True)
+        ; temporal solution
+        If !abWordWrap          ; default value in swf is true, so we override it when abWordWrap = False
+            _InjectNeeded = True
+            _InjectMessageWordWrap = abWordWrap
+        EndIf
         
         Int loc_last_btn = -1
         

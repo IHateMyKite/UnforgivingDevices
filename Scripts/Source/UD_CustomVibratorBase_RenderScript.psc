@@ -270,7 +270,7 @@ Function _ShowVibDetails()
     loc_res += UDMTF.TableEnd()
     loc_res += UDMTF.FontEnd()
         
-    UDMain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
+    UDMain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup(), False)
 EndFunction
 
 ;function called when player clicks DETAILS button in device menu
@@ -280,7 +280,7 @@ Function processDetails()
     UDCDmain.currentDeviceMenu_switch2 = HaveLocks()
     String loc_msg = _GetDeviceDetailsMenuText()
     While !loc_break
-        int res = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.VibDetailsMessage, UDMain.UDMMM.NoValues, loc_msg, UDMain.UDMMM.NoButtons, UDMain.UDMTF.HasHtmlMarkup())
+        int res = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.VibDetailsMessage, UDMain.UDMMM.NoValues, loc_msg, UDMain.UDMMM.NoButtons, UDMain.UDMTF.HasHtmlMarkup(), False)
         if res == 0 
             ShowBaseDetails()
         elseif res == 1

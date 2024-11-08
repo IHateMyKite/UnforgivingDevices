@@ -1368,7 +1368,7 @@ Function ShowNPCMenu(Actor akActor)
         UD_CurrentNPCMenuIsPersistent       = StorageUtil.GetIntValue(akActor, "UD_ManualRegister", 0)
 
         String loc_str = _GetNPCMenuText(akActor)
-        int loc_res = UDMain.UDMMM.ShowMessageBoxMenu(NPCDebugMenuMsg, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
+        int loc_res = UDMain.UDMMM.ShowMessageBoxMenu(NPCDebugMenuMsg, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup(), False)
         if loc_res == 0                             ; Register
             UDCD_NPCM.RegisterNPC(akActor,true)
             loc_break = False
@@ -1657,7 +1657,7 @@ Function PlayerMenu()
     Bool loc_break = False              ; break menu loop
     while !loc_break
         String loc_str = _GetPlayerMenuText()
-        int loc_playerMenuRes = UDMain.UDMMM.ShowMessageBoxMenu(PlayerMenuMsg, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
+        int loc_playerMenuRes = UDMain.UDMMM.ShowMessageBoxMenu(PlayerMenuMsg, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup(), False)
         if loc_playerMenuRes == 0
             UDmain.UDOMPlayer.FocusOrgasmResistMinigame(UDmain.Player)
             loc_break = True
@@ -1959,7 +1959,7 @@ Bool Function ShowActorDetailsMenu(Actor akActor)
     Bool loc_exit = False           ; exit all menus
     while !loc_break && !loc_exit
         String loc_str = _GetActorDetailsMenuText(akActor)
-        Int loc_option = UDMain.UDMMM.ShowMessageBoxMenu(UD_ActorDetailsOptions, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
+        Int loc_option = UDMain.UDMMM.ShowMessageBoxMenu(UD_ActorDetailsOptions, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup(), False)
         if !UDmain.IsContainerMenuOpen() && !UDmain.IsInventoryMenuOpen()
             Utility.wait(0.01)
         endif
@@ -1999,7 +1999,7 @@ Bool Function ShowActorDetailsMenu(Actor akActor)
             loc_res += UDMTF.TableEnd()
             loc_res += UDMTF.FontEnd()
                 
-            UDMain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
+            UDMain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup(), False)
         elseif loc_option == 1 ;skills
             String loc_res = ""
             loc_res += UDMTF.Header("Skill details", 4)
@@ -2030,7 +2030,7 @@ Bool Function ShowActorDetailsMenu(Actor akActor)
             loc_res += UDMTF.TableEnd()
             loc_res += UDMTF.FontEnd()
             
-            UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
+            UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup(), False)
         elseif loc_option == 2 ;arousal/orgasm details
             String loc_res = ""
             loc_res += UDMTF.Header("Orgasm details", 4)
@@ -2075,7 +2075,7 @@ Bool Function ShowActorDetailsMenu(Actor akActor)
             loc_res += UDMTF.TableEnd()
             loc_res += UDMTF.FontEnd()
             
-            UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
+            UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup(), False)
         elseif loc_option == 3 ;Helper details
             ShowHelperDetails(akActor)
         elseif loc_option == 4 ;other details
@@ -2098,7 +2098,7 @@ Bool Function ShowActorDetailsMenu(Actor akActor)
             loc_res += UDMTF.TableEnd()
             loc_res += UDMTF.FontEnd()
             
-            UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
+            UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup(), False)
         else
             loc_break = True
         endif
@@ -2135,7 +2135,7 @@ Function ShowHelperDetails(Actor akActor)
     loc_res += UDMTF.TableEnd()
     loc_res += UDMTF.FontEnd()
     
-    UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup())
+    UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup(), False)
 EndFunction
 
 ;///////////////////////////////////////
@@ -3195,7 +3195,7 @@ Int Function ShowSoulgemMessage(Actor akActor, Bool abEmpty = false)
     endif
     ;message
     String loc_str = _GetSoulgemMenuText(akActor)
-    Int loc_res = UDMain.UDMMM.ShowMessageBoxMenu(UD_SoulgemSelect_MSG, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup())
+    Int loc_res = UDMain.UDMMM.ShowMessageBoxMenu(UD_SoulgemSelect_MSG, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup(), False)
     if loc_res > 5
         return -1
     endif

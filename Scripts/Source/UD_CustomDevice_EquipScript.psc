@@ -1074,7 +1074,7 @@ Function ShowDetails(Actor akActor)
     loc_res += UDMain.UDMTF.TableEnd()
     loc_res += UDMain.UDMTF.FontEnd()
     
-    UDmain.ShowMessageBox(loc_res, UDMain.UDMTF.HasHtmlMarkup())
+    UDmain.ShowMessageBox(loc_res, UDMain.UDMTF.HasHtmlMarkup(), False)
 EndFunction
 
 bool Function ShouldEquipSilently(actor akActor)

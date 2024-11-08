@@ -462,7 +462,7 @@ EndFunction
 ;fix bunch of problems
 Function fix()
     String loc_str = _GetNPCSlotFixText()
-    Int loc_res = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.UDCD_NPCM.UD_FixMenu_MSG, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMain.UDMTF.HasHtmlMarkup())
+    Int loc_res = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.UDCD_NPCM.UD_FixMenu_MSG, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMain.UDMTF.HasHtmlMarkup(), False)
     if loc_res == 0 ;general fix
         UDmain.Print("[UD] Starting general fixes")
         UDCDMain.ResetFetchFunction()
@@ -1073,7 +1073,7 @@ Function showDebugMenu(int slot_id)
             loc_vals[1] = UD_equipedCustomDevices[slot_id].getMaxDurability()
             loc_vals[2] = 100.0 - UD_equipedCustomDevices[slot_id].getCondition()
             String loc_str = _GetDebugMenuText(UD_equipedCustomDevices[slot_id])
-            Int loc_res = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.DebugMessage, loc_vals, loc_str, UDMain.UDMMM.NoButtons, UDMain.UDMTF.HasHtmlMarkup())
+            Int loc_res = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.DebugMessage, loc_vals, loc_str, UDMain.UDMMM.NoButtons, UDMain.UDMTF.HasHtmlMarkup(), False)
             if loc_res == 0 ;dmg dur
                 UD_equipedCustomDevices[slot_id].decreaseDurabilityAndCheckUnlock(10.0)
                 if UD_equipedCustomDevices[slot_id].isUnlocked

@@ -1747,8 +1747,8 @@ EndFunction
         asText     - Message text
         abHTML     - Text is formatted as HTML
 /;
-Function ShowMessageBox(string asText, Bool abHTML = False)
-    UDMMM.ShowMessageBox(asText, abHTML)
+Function ShowMessageBox(string asText, Bool abHTML = False, Bool abWordWrap = True)
+    UDMMM.ShowMessageBox(asText, abHTML, abWordWrap)
 EndFunction
 
 ;/  Function: ShowSingleMessageBox
@@ -1763,8 +1763,8 @@ EndFunction
         asMessage       - String to be shown in message box
         abHTML          - Message is formatted as HTML
 /;
-Function ShowSingleMessageBox(String asMessage, Bool abHTML = False)
-    UDMMM.ShowSingleMessageBox(asMessage, abHTML)
+Function ShowSingleMessageBox(String asMessage, Bool abHTML = False, Bool abWordWrap = True)
+    UDMMM.ShowSingleMessageBox(asMessage, abHTML, abWordWrap)
 EndFunction
 
 ;/  Group: Actor
