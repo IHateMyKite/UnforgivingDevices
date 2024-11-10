@@ -401,46 +401,22 @@ Auto State Native_UI
 ; State: Native_UI
 
     Event OnMenuOpen(String MenuName)
-    ; testing word wrap
-        If UDmain.UDReady()
-            If MenuName != "MessageBoxMenu" 
-                Return
-            Endif
-            If _InjectNeeded
-                _InjectNeeded = False
-                UI.SetBool("MessageBoxMenu", "_root.MessageMenu" + ".MessageText.wordWrap", _InjectMessageWordWrap)     ; word wrap option
-                UI.Invoke("MessageBoxMenu", "_root.MessageMenu" + ".ResetDimensions")                                   ; recalculate window dimensions
-            EndIf
-        Endif
-        
     EndEvent
 
     Function ShowSingleMessageBox(String asMessage, Bool abHasHTML = False, Bool abWordWrap = True)
-        ; temporal solution
-        If !abWordWrap          ; default value in swf is true, so we override it when abWordWrap = False
-            _InjectNeeded = True
-            _InjectMessageWordWrap = abWordWrap
-        EndIf
-        
         String loc_msg = asMessage
         If StringUtil.GetLength(loc_msg) > 2047
             UDMain.Warning(Self + "::ShowSingleMessageBox() Message is too long to display it on a single page!")
             loc_msg = StringUtil.Substring(loc_msg, 0, 2000) + " [message is too long]"
         EndIf        
         If !abHasHTML
-            _ShowMessagebox(loc_msg, "Ok", abGetIndex = true, abUseHTML = false)
+            _ShowMessagebox(loc_msg, "Ok", abGetIndex = true, abUseHTML = false, abUseWordWrap = abWordWrap)
         Else
-            _ShowMessagebox(asMessage, "Ok", abGetIndex = true, abUseHTML = true)
+            _ShowMessagebox(asMessage, "Ok", abGetIndex = true, abUseHTML = true, abUseWordWrap = abWordWrap)
         EndIf
     EndFunction
 
     Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String asMessageOverride, String[] aasButtonsOverride, Bool abHasHTML = False, Bool abWordWrap = True)
-        ; temporal solution
-        If !abWordWrap          ; default value in swf is true, so we override it when abWordWrap = False
-            _InjectNeeded = True
-            _InjectMessageWordWrap = abWordWrap
-        EndIf
-        
         Int loc_last_btn = -1
         
         If akTemplate == None
@@ -448,9 +424,9 @@ Auto State Native_UI
             If aasButtonsOverride.Length == 0 || asMessageOverride == ""
                 UDMain.Warning(Self + "::ShowMessageBoxMenu() Native_UI Mode: If no message template is specified, you must explicitly set the text and menu buttons!")
             EndIf
-            loc_last_btn = _ShowMessageboxArray(asMessageOverride,aasButtonsOverride, abGetIndex = true,abUseHTML = abHasHTML) as Int
+            loc_last_btn = _ShowMessageboxArray(asMessageOverride,aasButtonsOverride, abGetIndex = true,abUseHTML = abHasHTML, abUseWordWrap = abWordWrap) as Int
         Else
-            loc_last_btn = _ShowMessageboxArrayTemplate(akTemplate,asMessageOverride, aafValues, aasButtonsOverride, abGetIndex = true,abUseHTML = abHasHTML) as Int
+            loc_last_btn = _ShowMessageboxArrayTemplate(akTemplate,asMessageOverride, aafValues, aasButtonsOverride, abGetIndex = true,abUseHTML = abHasHTML, abUseWordWrap = abWordWrap) as Int
         EndIf
         
         Return loc_last_btn
@@ -506,8 +482,8 @@ String Function _GetHelpEventName(Message akMessage)
     Return "UD_Help_" + (loc_id as String)
 EndFunction
 
-String function _ShowMessagebox(String asbodyText, String asButton1, String asButton2 = "", String asButton3 = "", String asButton4 = "", String asButton5 = "", String asButton6 = "", String asButton7 = "", String asButton8 = "", String asButton9 = "", String asButton10 = "", bool abGetIndex = false, Float afWaitInterval = 0.1, Float afTimeoutSeconds = 0.0, Bool abUseHTML = False) global
-    int loc_messageBoxId = ShowNonBlocking(asbodyText, asButton1, asButton2, asButton3, asButton4, asButton5, asButton6, asButton7, asButton8, asButton9, asButton10, abUseHTML)
+String function _ShowMessagebox(String asbodyText, String asButton1, String asButton2 = "", String asButton3 = "", String asButton4 = "", String asButton5 = "", String asButton6 = "", String asButton7 = "", String asButton8 = "", String asButton9 = "", String asButton10 = "", bool abGetIndex = false, Float afWaitInterval = 0.1, Float afTimeoutSeconds = 0.0, Bool abUseHTML = False, Bool abUseWordWrap = True) global
+    int loc_messageBoxId = ShowNonBlocking(asbodyText, asButton1, asButton2, asButton3, asButton4, asButton5, asButton6, asButton7, asButton8, asButton9, asButton10, abUseHTML,abUseWordWrap)
 
     ; Block and wait for the player to close the message
     Bool loc_waiting = true
@@ -533,8 +509,8 @@ String function _ShowMessagebox(String asbodyText, String asButton1, String asBu
     endIf
 endFunction
 
-String function _ShowMessageboxArray(String asBodyText, String[] aasButtons, bool abGetIndex = false, Float afWaitInterval = 0.1, Float afTimeoutSeconds = 0.0, Bool abUseHTML = False) global
-    int loc_messageBoxId = ShowArrayNonBlocking(asBodyText, aasButtons, abUseHTML)
+String function _ShowMessageboxArray(String asBodyText, String[] aasButtons, bool abGetIndex = false, Float afWaitInterval = 0.1, Float afTimeoutSeconds = 0.0, Bool abUseHTML = False, Bool abUseWordWrap = True) global
+    int loc_messageBoxId = ShowArrayNonBlocking(asBodyText, aasButtons, abUseHTML, abUseWordWrap)
     
     ; Block and wait for the player to close the message
     Bool loc_waiting = true
@@ -560,8 +536,8 @@ String function _ShowMessageboxArray(String asBodyText, String[] aasButtons, boo
     endIf
 endFunction
 
-String function _ShowMessageboxArrayTemplate(Message akTemplate,String asBodyText, Float[] aafValues, String[] asButtons, bool abGetIndex = false, Float afWaitInterval = 0.1, Float afTimeoutSeconds = 0.0, Bool abUseHTML = False) global
-    int loc_messageBoxId = ShowArrayNonBlockingTemplate(akTemplate,asBodyText, aafValues, asButtons, abUseHTML)
+String function _ShowMessageboxArrayTemplate(Message akTemplate,String asBodyText, Float[] aafValues, String[] asButtons, bool abGetIndex = false, Float afWaitInterval = 0.1, Float afTimeoutSeconds = 0.0, Bool abUseHTML = False, Bool abUseWordWrap = True) global
+    int loc_messageBoxId = ShowArrayNonBlockingTemplate(akTemplate,asBodyText, aafValues, asButtons, abUseHTML, abUseWordWrap)
 
     ; Block and wait for the player to close the message
     Bool loc_waiting = true
