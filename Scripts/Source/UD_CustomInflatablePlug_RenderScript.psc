@@ -120,11 +120,16 @@ bool Function proccesSpecialMenuWH(Actor akSource,int msgChoice)
 EndFunction
 
 string Function addInfoString(string str = "")
-    ;string res = str
-    str += "Inflate level: " + getPlugInflateLevel() + "\n"
+    
+    str += UDMTF.TableRowDetails("Inflate level:", getPlugInflateLevelString(True))
     if getPlugInflateLevel() > 0
-        str += "Plug pressure: " + Math.Ceiling(100.0 - 100.0*deflateprogress/UD_PumpDifficulty) + " %\n"
+        Int loc_var = Math.Ceiling(100.0 - 100.0*deflateprogress/UD_PumpDifficulty)
+        str += UDMTF.TableRowDetails("Plug pressure:", loc_var + "%", UDMTF.PercentToRainbow(100 - loc_var))
     endif
+    
+    str += UDMTF.PageSplit(abForce = False)
+    str += UDMTF.LineGap()
+    
     return parent.addInfoString(str)
 EndFunction
 
@@ -320,6 +325,28 @@ EndFunction
 
 int Function getPlugInflateLevel()
     return _inflateLevel
+EndFunction
+
+String Function getPlugInflateLevelString(Bool abDecorate = False)
+    String loc_str = ""
+    If _inflateLevel >= 5
+        loc_str = "Bursting"
+    ElseIf _inflateLevel >= 4
+        loc_str = "Overblown"
+    ElseIf _inflateLevel >= 3
+        loc_str = "Over-inflated"
+    ElseIf _inflateLevel >= 2
+        loc_str = "Inflated"
+    ElseIf _inflateLevel >= 1
+        loc_str = "Slightly puffed up"
+    Else
+        loc_str = "Deflated"
+    EndIf
+    If abDecorate
+        Return UDMTF.Text(loc_str, asColor = UDMTF.PercentToRainbow(100 - _inflateLevel * 20))
+    Else
+        Return loc_str
+    EndIf
 EndFunction
 
 Function inflatePlug(int increase)

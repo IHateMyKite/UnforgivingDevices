@@ -440,9 +440,29 @@ Function QuickFix()
     removeUnusedDevices()
 EndFunction
 
+String Function _GetNPCSlotFixText()
+    String loc_res = ""
+    
+    loc_res += UDmain.UDMTF.Header(GetActor().GetLeveledActorBase().GetName(), 4)
+    loc_res += UDmain.UDMTF.FontBegin(aiFontSize = UDmain.UDMTF.FontSize, asColor = UDmain.UDMTF.TextColorDefault)
+    loc_res += UDmain.UDMTF.ParagraphBegin(asAlign = "center")
+    loc_res += UDmain.UDMTF.LineGap()
+; TODO
+
+
+    loc_res += UDmain.UDMTF.LineBreak()
+    loc_res += UDmain.UDMTF.Text("What do you want to do?")
+    
+    loc_res += UDmain.UDMTF.ParagraphEnd()
+    loc_res += UDmain.UDMTF.FontEnd()
+    
+    Return loc_res
+EndFunction
+
 ;fix bunch of problems
 Function fix()
-    Int loc_res = UDCDmain.UDCD_NPCM.UD_FixMenu_MSG.show()
+    String loc_str = _GetNPCSlotFixText()
+    Int loc_res = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.UDCD_NPCM.UD_FixMenu_MSG, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMain.UDMTF.HasHtmlMarkup(), False)
     if loc_res == 0 ;general fix
         UDmain.Print("[UD] Starting general fixes")
         UDCDMain.ResetFetchFunction()
@@ -1027,19 +1047,41 @@ Function OnSpellHit(Spell source)
     endwhile
 EndFunction
 
+String Function _GetDebugMenuText(UD_CustomDevice_RenderScript akDevice)
+    String loc_res = ""
+    loc_res += UDmain.UDMTF.Header(akDevice.getDeviceName(), 4)
+    loc_res += UDmain.UDMTF.FontBegin(aiFontSize = UDmain.UDMTF.FontSize, asColor = UDmain.UDMTF.TextColorDefault)
+    loc_res += UDmain.UDMTF.ParagraphBegin(asAlign = "center")
+    loc_res += UDmain.UDMTF.LineGap()
+    
+    loc_res += UDmain.UDMTF.Text("Durability: " + FormatFloat(akDevice.getDurability(), 1) + "/" + FormatFloat(akDevice.getMaxDurability(), 1))
+    loc_res += UDmain.UDMTF.LineBreak()
+    loc_res += UDmain.UDMTF.Text("Condition: " + FormatFloat(akDevice.getCondition(), 1) + "/100")
+    loc_res += UDmain.UDMTF.LineBreak()
+    
+    loc_res += UDmain.UDMTF.ParagraphEnd()
+    loc_res += UDmain.UDMTF.FontEnd()
+    Return loc_res
+EndFunction
+
 Function showDebugMenu(int slot_id)
     if slot_id >= 0 && slot_id < UD_equipedCustomDevices.length && slot_id < _iUsedSlots
     UD_CustomDevice_RenderScript selectedDevice = UD_equipedCustomDevices[slot_id]
         while UD_equipedCustomDevices[slot_id] == selectedDevice && UD_equipedCustomDevices[slot_id]
-            int res = UDCDmain.DebugMessage.show(UD_equipedCustomDevices[slot_id].getDurability(),UD_equipedCustomDevices[slot_id].getMaxDurability(),100.0 - UD_equipedCustomDevices[slot_id].getCondition())
-            if res == 0 ;dmg dur
+            Float[] loc_vals = new Float[3]
+            loc_vals[0] = UD_equipedCustomDevices[slot_id].getDurability()
+            loc_vals[1] = UD_equipedCustomDevices[slot_id].getMaxDurability()
+            loc_vals[2] = 100.0 - UD_equipedCustomDevices[slot_id].getCondition()
+            String loc_str = _GetDebugMenuText(UD_equipedCustomDevices[slot_id])
+            Int loc_res = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.DebugMessage, loc_vals, loc_str, UDMain.UDMMM.NoButtons, UDMain.UDMTF.HasHtmlMarkup(), False)
+            if loc_res == 0 ;dmg dur
                 UD_equipedCustomDevices[slot_id].decreaseDurabilityAndCheckUnlock(10.0)
                 if UD_equipedCustomDevices[slot_id].isUnlocked
                     return
                 endif
-            elseif res == 1 ;repair dur
+            elseif loc_res == 1 ;repair dur
                 UD_equipedCustomDevices[slot_id].decreaseDurabilityAndCheckUnlock(-10.0)
-            elseif res == 2 ;repatch
+            elseif loc_res == 2 ;repatch
                 if UD_equipedCustomDevices[slot_id].deviceRendered.hasKeyword(UDmain.UDlibs.PatchedDevice) ;patched device
                     
                     UD_equipedCustomDevices[slot_id].patchDevice()
@@ -1047,18 +1089,18 @@ Function showDebugMenu(int slot_id)
                     UDmain.Print("Cant repatch device as device is not patched")
                 endif
                 return
-            elseif res == 3 ;unlock
+            elseif loc_res == 3 ;unlock
                 UD_equipedCustomDevices[slot_id].unlockRestrain()
                 return
-            elseif res == 4 ;unregister
+            elseif loc_res == 4 ;unregister
                 unregisterDevice(UD_equipedCustomDevices[slot_id])
                 return
-            elseif res == 5 ;activate
+            elseif loc_res == 5 ;activate
                 UD_equipedCustomDevices[slot_id].activateDevice()
                 return
-            elseif res == 6 ;Add modifier
+            elseif loc_res == 6 ;Add modifier
                 UDmain.UDMOM.Debug_AddModifier(UD_equipedCustomDevices[slot_id])
-            elseif res == 7 ;Remove modifier
+            elseif loc_res == 7 ;Remove modifier
                 UDmain.UDMOM.Debug_RemoveModifier(UD_equipedCustomDevices[slot_id])
             else
                 return

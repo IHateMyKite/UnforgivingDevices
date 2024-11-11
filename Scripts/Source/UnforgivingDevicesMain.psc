@@ -243,6 +243,10 @@ EndProperty
 /;
 UD_Config Property UDCONF auto
 
+UD_MenuTextFormatter                Property UDMTF          Auto
+
+UD_MenuMsgManager                   Property UDMMM          Auto
+
 
 Package         Property UD_NPCDisablePackage           auto
 
@@ -476,7 +480,7 @@ Bool Function CheckSubModules()
     ;check for fatal error
     if !loc_cond
         _FatalError = True
-        ShowSingleMessageBox("!!FATAL ERROR!!\nError loading Unforgiving devices. One or more of the modules are not ready. Please contact developers on LL or GitHub")
+        ShowMessageBoxSafe("!!FATAL ERROR!!\nError loading Unforgiving devices. One or more of the modules are not ready. Please contact developers on LL or GitHub")
         
         String loc_modules = "--MODULES--\n"
         loc_modules += "UDCDmain="+UDCDmain.ready + "\n"
@@ -622,7 +626,7 @@ EndFunction
         Current update progress of the mod. It is whole number from 0 to 100, where mod is full ready on 100
 /;
 int Function GetUpdateProgress()
-    return (Round(100.0*_updatecounter/21))
+    return (Round(100.0*_updatecounter/22))
 EndFunction
 
 Function OnGameReload()
@@ -734,6 +738,9 @@ Function OnGameReload()
         
         UDOTM.Update()
         _IncrementUpdateCounter()   ;21
+        
+        UDMMM.Update()
+        _IncrementUpdateCounter()   ;22
         
         Info("<=====| Unforgiving Devices updated |=====>")
         Print("Unforgiving Devices updated")
@@ -929,7 +936,7 @@ Function _CheckOptionalMods()
             Log("UIExtensions detected!")
         endif
     else
-        ShowMessageBox("--!ERROR!--\nUD can't detect UIExtensions. Without this mod, some features of Unforgiving Devices will not work as intended. Please be warned.")
+        ShowMessageBoxSafe("--!ERROR!--\nUD can't detect UIExtensions. Without this mod, some features of Unforgiving Devices will not work as intended. Please be warned.")
     endif
     
     if PluginInstalled("ConsoleUtilSSE.dll")
@@ -938,7 +945,7 @@ Function _CheckOptionalMods()
             Log("ConsoleUtil detected!")
         endif
     else
-        ShowMessageBox("--!ERROR!--\nUD can't detect ConsoleUtil. Without this mod, some features of Unforgiving Devices will not work as intended. Please be warned.")
+        ShowMessageBoxSafe("--!ERROR!--\nUD can't detect ConsoleUtil. Without this mod, some features of Unforgiving Devices will not work as intended. Please be warned.")
         ConsoleUtilInstalled = False
     endif
     
@@ -1711,79 +1718,53 @@ EndFunction
 ===========================================================================================
 /;
 
+;/  Function: ShowMessageBoxSafe
+
+    The most compatible way to show message on the screen
+
+    Parameters:
+        asText  - Message text
+/;
+Function ShowMessageBoxSafe(string asText)
+    If StringUtil.GetLength(asText) > 2047
+        Debug.MessageBox(StringUtil.Substring(asText, 0, 2000) + " [message is too long]")
+    Else
+        Debug.MessageBox(asText)
+    EndIf
+EndFunction
+
 ;/  Function: ShowMessageBox
 
-    Shows message box with passed string. This function should be only used for showing multiline strings.
+    Displays the message on the screen as a pop-up modal window.
+
+    The UDMMM module is used to render the message, which supports different text formats (plain and HTML). 
+    If rendered a long message, it can be split into several pages.
     
-    Once the number of lines is too big for message box to be shown, additiona lamssage box will be open.
-    
-    In case you want to show simple string, use instead <ShowSingleMessageBox>
-
-    Limit of lines per one message box is *12* lines!
-
-    Every line have also limited number of characters which it can show. If line is too long, it will be split to multiple lines by engine, which will break this function.
-
-    This function will be blocked until user clicks on OK button (this is not done by debug.messagebox function)
+    For more information, see <UD_MenuMsgManager>.
 
     Parameters:
 
-        asText     - String of lines to be shown
-
-    _Example_:
-        --- Code
-        String loc_text = ""
-        loc_text += "Line 1\n"
-        loc_text += "Line 2\n"
-        loc_text += "Line 3\n"
-        ShowMessageBox(loc_text) -> This will show message box with 3 lines with their corresponding texts
-        ---
+        asText     - Message text
+        abHTML     - Text is formatted as HTML
 /;
-Function ShowMessageBox(string asText)
-    String[]    loc_lines = StringUtil.split(asText,"\n")
-    int         loc_linesNum = loc_lines.length
-    
-    int         loc_lineLimit = 12
-    
-    int         loc_boxesNum = Math.Ceiling((loc_linesNum as float)/(loc_lineLimit as float))
-    int         loc_iterLine = 0
-    int         loc_iterBox = 0
-    
-    while loc_iterBox < (loc_boxesNum)
-        string loc_messagebox = ""
-        
-        while loc_iterLine < iRange((loc_linesNum - loc_lineLimit*loc_iterBox),0,loc_lineLimit)
-            loc_messagebox += (loc_lines[loc_iterLine + (loc_lineLimit)*loc_iterBox] + "\n")
-            loc_iterLine += 1
-        endwhile
-        
-        loc_iterBox += 1
-        
-        if loc_boxesNum > 1
-            loc_messagebox += "===PAGE " + (loc_iterBox) + "/" + (loc_boxesNum) + "===\n"
-        endif
-        loc_iterLine = 0
-        
-        ShowSingleMessageBox(loc_messagebox)
-    endwhile
+Function ShowMessageBox(string asText, Bool abHTML = False, Bool abWordWrap = True)
+    UDMMM.ShowMessageBox(asText, abHTML, abWordWrap)
 EndFunction
 
 ;/  Function: ShowSingleMessageBox
 
-    Shows message box with passed string.
+    Displays the message on the screen as a pop-up modal window.
 
-    This function will be blocked until user clicks on OK button (this is not done by debug.messagebox function)
+    The UDMMM module is used to render the message, which supports different text formats (plain and HTML). 
+    This function does not break the text into pages, but attempts to display the message on a single page.
 
     Parameters:
 
-        asMessage     - String to be shown in message box
+        asMessage       - String to be shown in message box
+        abHTML          - Message is formatted as HTML
 /;
-Function ShowSingleMessageBox(String asMessage)
-    debug.messagebox(asMessage)
-    ;wait for fucking messagebox to actually get OKd before continuing thread (holy FUCKING shit toad)
-    Utility.waitMenuMode(0.3)
-    while IsMessageboxOpen()
-        Utility.waitMenuMode(0.05)
-    EndWhile
+Function ShowSingleMessageBox(String asMessage, Bool abHTML = False, Bool abWordWrap = True)
+    UDMMM.ShowSingleMessageBox(asMessage, abHTML, abWordWrap)
 EndFunction
 
 ;/  Group: Actor
@@ -1843,7 +1824,7 @@ EndFunction
         True if passed akActor is follower
 /;
 bool Function ActorIsFollower(Actor akActor)
-    ;added check for followers that are not marked as followers by normal means, to make loc_res == 4 from UDCustomDeviceMain.NPCMenu() work on them as well
+    ;added check for followers that are not marked as followers by normal means, to make loc_res == 4 from UDCustomDeviceMain.ShowNPCMenu() work on them as well
     ;yes yes, some of the followers don't have FollowerFaction assigned, DCL uses similar check for those.
     string acName = akActor.GetDisplayName()
     if acName == "Serana" || acName == "Inigo" || acName == "Sofia" || acName == "Vilja"
@@ -2293,7 +2274,7 @@ EndFunction
         True if *Messagebox* menu is open
 /;
 Bool Function IsMessageboxOpen()
-    return UDMC.IsMenuOpen(13) ;I hope to god that this works
+    return UDMC.IsMenuOpen(13) || UI.IsMenuOpen("MessageBoxMenu") ;I hope to god that this works
 EndFunction
 
 

@@ -155,7 +155,7 @@ Function PayAndHelp(ObjectReference akSpeakerRef)
         if UDCDMain.UDmain.Player.GetItemCount(UDCDMain.Lockpick) == 0
             UDCDMain.UDmain.Player.AddItem(UDCDMain.Lockpick,5)
         endif
-        UDCDmain.OpenHelpDeviceMenu(UDCDMain.UDDmain.SelectedDevice,akSpeakerRef as Actor,False,True)
+        UDCDmain.ShowHelpDeviceMenu(UDCDMain.UDDmain.SelectedDevice,akSpeakerRef as Actor,False,True)
         UDCDMain.UDDmain.SelectedDevice = none
     else
         GError("Error: Selected device is none")
