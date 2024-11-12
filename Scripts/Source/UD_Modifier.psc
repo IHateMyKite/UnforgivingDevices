@@ -1,6 +1,6 @@
 ;   File: UD_Modifier
 ;   This is base scripts of all modifiers
-Scriptname UD_Modifier extends ReferenceAlias
+Scriptname UD_Modifier extends ReferenceAlias Hidden
 
 UnforgivingDevicesMain _udmain
 UnforgivingDevicesMain Property UDmain Hidden
@@ -53,6 +53,33 @@ String      Property NameAlias              Auto
 /;
 String      Property Description            Auto
 
+;/  Variable: ConcealmentPower
+
+    Value between 0 and 100
+
+    TODO:
+    
+    The degree to which the modifier resists recognition.
+    If the degree is 0, the character will easily reveal the modifier's properties.
+    If the degree of concealment is higher than the character's abilities, then 
+    information about the modifier will not be visible.
+/;
+Int         Property ConcealmentPower  = 0  Auto
+
+;/  Variable: HideInUI
+
+    TODO:
+    
+    Indicates that this modifier should be hidden in UI
+/;
+Bool        Property HideInUI       = False Auto
+
+;/  Variable: Tags
+    An array of tags - abbreviations separated by spaces.
+    Tags bound to a modifier to specify the nature of its action to avoid conflicts with other modifiers
+/;
+String      Property Tags                   Auto
+
 ;/  Variable: Multiplier
     Multiplier which can be used to allow user to change difficulty of modifier.
     
@@ -62,76 +89,336 @@ String      Property Description            Auto
     
     This will affect even equipped devices
 /;
-Float       Property Multiplier                 = 1.0   Auto hidden
+Float       Property Multiplier                 = 1.0       Auto Hidden
 
-;/  Variable: PatchPowerMultiplier
-    Multiplier which can be used to allow user to change power at which are modifiers added by patcher
-    
-    This will not affect already equipped devices
+;/
+    <called always> GameLoaded, DeviceLocked, DeviceUnlocked
+    0x00000001      TimeUpdateSecond
+    0x00000002      TimeUpdateHour
+    0x00000004      Orgasm
+    0x00000008      MinigameStarted
+    0x00000010      MinigameEnded
+    0x00000020      WeaponHit
+    0x00000040      SpellHit
+    0x00000080      SpellCast
+    0x00000100      ConditionLoss
+    0x00000200      StatEvent
+    0x00000400      Sleep
+    0x00000800      ActorAction
+    0x00001000      KillMonitor
+    0x00002000      ItemAdded
+    0x00004000      ItemRemoved
+    0x00008000      
+    0x00010000      
+    0x00020000      
+    0x00040000      
+    0x00080000      
+    0x00100000      
+    0x00200000      
+    0x00400000      
+    0x00800000      
+    0x01000000      
+    0x02000000      
+    0x04000000      
+    0x08000000      
+    0x10000000      
+    0x20000000      
+    0x40000000      <Everything else>
+    0x80000000      <All events>
 /;
-Float       Property PatchPowerMultiplier       = 1.0   Auto hidden
-
-;/  Variable: PatchChanceMultiplier
-    Multiplier which can be used to allow user to change cahnce that modifier will be added to patched device
-/;
-Float       Property PatchChanceMultiplier      = 1.0   Auto hidden
-
-;event hooks
-String[]    Property EventHooks             Auto
-String[]    Property EventHooks_Callback    Auto
-
-Event RegisterEvents()
-    ;int i = EventHooks.length
-    ;while i
-    ;    RegisterForModEvent(EventHooks[i],EventHooks_Callback[i])
-    ;endwhile
-EndEvent
+Int         Property EventProcessingMask        = 0x80000000    Auto Hidden
 
 ;/  Group: Overrides
 ===========================================================================================
 ===========================================================================================
 ===========================================================================================
 /;
-;- TODO
-Function TimeUpdateSecond(UD_CustomDevice_RenderScript akDevice, Float afTime, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+
+; Updates Modifier on a new game start or game load
+Function Update()
 EndFunction
 
-Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+; Not used
+Bool Function ValidateModifier(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    Return True
 EndFunction
 
-Function Orgasm(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+;/  Group: Events Processing
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+Function GameLoaded(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
 EndFunction
 
-Function DeviceLocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function TimeUpdateSeconds(UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
 EndFunction
 
-Function DeviceUnlocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
 EndFunction
 
-Bool Function MinigameAllowed(UD_CustomDevice_RenderScript akModDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function Orgasm(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+EndFunction
+
+Function DeviceLocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+EndFunction
+
+Function DeviceUnlocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+EndFunction
+
+Bool Function MinigameAllowed(UD_CustomDevice_RenderScript akModDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     return true
 EndFunction
 
-Function MinigameStarted(UD_CustomDevice_RenderScript akModDevice, UD_CustomDevice_RenderScript akMinigameDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function MinigameStarted(UD_CustomDevice_RenderScript akModDevice, UD_CustomDevice_RenderScript akMinigameDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
 EndFunction
 
-Function MinigameEnded(UD_CustomDevice_RenderScript akModDevice, UD_CustomDevice_RenderScript akMinigameDevice,String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function MinigameEnded(UD_CustomDevice_RenderScript akModDevice, UD_CustomDevice_RenderScript akMinigameDevice,String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
 EndFunction
 
-Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function WeaponHit(UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, Float afDamage, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+EndFunction
+
+Function SpellHit(UD_CustomDevice_RenderScript akDevice, Form akSpell, Float afDamage, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+EndFunction
+
+Function SpellCast(UD_CustomDevice_RenderScript akDevice, Spell akSpell, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+EndFunction
+
+Function ConditionLoss(UD_CustomDevice_RenderScript akDevice, Int aiCondition, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+EndFunction
+
+Function StatEvent(UD_CustomDevice_RenderScript akDevice, String asStatName, Int aiStatValue, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+EndFunction
+
+Function Sleep(UD_CustomDevice_RenderScript akDevice, Float afDuration, Bool abInterrupted, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+EndFunction
+
+Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+EndFunction
+
+Function KillMonitor(UD_CustomDevice_RenderScript akDevice, ObjectReference akVictim, Int aiCrimeStatus, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+EndFunction
+
+Function ItemAdded(UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akSourceContainer, Bool abIsStolen, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+EndFunction
+
+Function ItemRemoved(UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akDestContainer, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+EndFunction
+
+;/  Group: User Interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     String loc_msg = ""
     
-    loc_msg += "Name: " + NameFull + "\n\n"
-    
-    if Description
-        loc_msg += "==Description==" + "\n"
-        loc_msg += Description
-    endif
-    
-    UDmain.ShowMessageBox(loc_msg)
+    If ConcealmentPower > 50
+        loc_msg += "Name: ??? \n\n"
+        loc_msg += "=== Description ===" + "\n"
+        loc_msg += "You are unable to recognize this enchantment"
+    Else
+        loc_msg += "Name: " + NameFull + "\n\n"
+        
+        if Description
+            loc_msg += "=== Description ===" + "\n"
+            loc_msg += Description
+        endif
+    EndIf
+    Return loc_msg
 EndFunction
-Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    return false
+
+String Function GetCaption(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    ; TODO: implement proper use of the ConcealmentPower
+    If ConcealmentPower > 50
+        Return "???"
+    Else
+        Return NameFull
+    EndIf
 EndFunction
-Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
+
+;/  Group: Patcher
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+
+; Quickly checks the applicability of a modifier without considering dependencies and conflicts. 
+; Used for approximate calculation of the upper limit for the number of available mods
+; Could be overriden for more accurate calculation
+Bool Function PatchModifierFastCheck(UD_CustomDevice_RenderScript akDevice)
+    ; get random preset
+    UD_Patcher_ModPreset loc_preset = (Self as ReferenceAlias) as UD_Patcher_ModPreset
+    Return (loc_preset != None) && loc_preset.FastCheckDevice(akDevice) && PatchModifierFastCheckOverride(akDevice)
+EndFunction
+
+; Carefully check the compatibility of the modifier and try to add it taking into account the given probabilities
+Bool Function PatchModifierCheckAndAdd(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods, Float afGlobalProbabilityMult = 1.0, Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0, UD_CustomDevice_NPCSlot akNPCSlot = None)
+    UD_Patcher_ModPreset loc_preset = _GetBestPatcherPreset(akDevice, akNPCSlot)
+    If loc_preset == None 
+        Return False
+    EndIf
+    Float loc_prob = loc_preset.BaseProbability
+    ; Adjust the probability with the soft limit if it is allowed in the preset settings
+    If loc_prob > 0.0 && loc_preset.IsNormalizedProbability
+        aiValidMods = UD_Native.iRange(aiValidMods, 1, 99)
+        aiSoftCap = UD_Native.iRange(aiSoftCap, 0, 99)
+        loc_prob *= (aiSoftCap as Float) / (aiValidMods as Float)
+    EndIf
+    
+    loc_prob *= PatchModifierCheckAndAddOverride(akDevice)
+    loc_prob *= afGlobalProbabilityMult
+    
+    UDCDmain.UDmain.Log(Self + "::PatchModifierFastCheck() final probability = " + UD_Native.FormatFloat(loc_prob, 2) + " %", 3)
+    
+    If UD_Native.RandomFloat(0.0, 100.0) < loc_prob
+        akDevice.AddModifier(Self, loc_preset.GetDataStr(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm1(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm2(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm3(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm4(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm5(afGlobalSeverityShift, afGlobalSeverityDispersionMult))
+        Return True
+    Else
+        Return False
+    EndIf
+EndFunction
+
+; Overrides
+Bool Function PatchModifierFastCheckOverride(UD_CustomDevice_RenderScript akDevice)
+    Return True
+EndFunction
+
+Float Function PatchModifierCheckAndAddOverride(UD_CustomDevice_RenderScript akDevice)
+    Return 1.0
+EndFunction
+
+; Private methods
+UD_Patcher_ModPreset Function _GetBestPatcherPreset(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_NPCSlot akNPCSlot = None)
+    UD_Patcher_ModPreset loc_preset1 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset1) as UD_Patcher_ModPreset
+    UD_Patcher_ModPreset loc_preset2 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset2) as UD_Patcher_ModPreset
+    UD_Patcher_ModPreset loc_preset3 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset3) as UD_Patcher_ModPreset
+    
+    UD_Patcher_ModPreset loc_result = None
+    Int loc_priority = -10
+    
+    If loc_preset1
+        Int loc_temp = loc_preset1.CheckDevice(akDevice, akNPCSlot)
+        If loc_temp > loc_priority
+            loc_priority = loc_temp
+            loc_result = loc_preset1
+        EndIf
+    EndIf
+    
+    If loc_preset2
+        Int loc_temp = loc_preset2.CheckDevice(akDevice, akNPCSlot)
+        If loc_temp > loc_priority
+            loc_priority = loc_temp
+            loc_result = loc_preset2
+        EndIf
+    EndIf
+    
+    If loc_preset3
+        Int loc_temp = loc_preset3.CheckDevice(akDevice, akNPCSlot)
+        If loc_temp > loc_priority
+            loc_priority = loc_temp
+            loc_result = loc_preset3
+        EndIf
+    EndIf
+    
+    If loc_priority > 0
+        Return loc_result
+    Else
+        Return None
+    EndIf
+    
+EndFunction
+
+;/  Group: MCM
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+String[] _PresetsNames
+
+String[] Function GetPatcherPresetsNames()
+    If _PresetsNames.Length == 0
+        UD_Patcher_ModPreset loc_preset1 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset1) as UD_Patcher_ModPreset
+        UD_Patcher_ModPreset loc_preset2 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset2) as UD_Patcher_ModPreset
+        UD_Patcher_ModPreset loc_preset3 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset3) as UD_Patcher_ModPreset
+        If loc_preset1
+            _PresetsNames = PapyrusUtil.PushString(_PresetsNames, loc_preset1.DisplayName)
+        EndIf
+        If loc_preset2
+            _PresetsNames = PapyrusUtil.PushString(_PresetsNames, loc_preset2.DisplayName)
+        EndIf
+        If loc_preset3
+            _PresetsNames = PapyrusUtil.PushString(_PresetsNames, loc_preset3.DisplayName)
+        EndIf
+    EndIf
+    Return _PresetsNames
+EndFunction
+
+UD_Patcher_ModPreset Function GetPatcherPreset(Int aiIndex)
+    UD_Patcher_ModPreset loc_preset1 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset1) as UD_Patcher_ModPreset
+    UD_Patcher_ModPreset loc_preset2 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset2) as UD_Patcher_ModPreset
+    UD_Patcher_ModPreset loc_preset3 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset3) as UD_Patcher_ModPreset
+    Int loc_i = 0
+    If loc_preset1
+        If aiIndex == loc_i
+            Return loc_preset1
+        Else
+            loc_i += 1
+        EndIf
+    EndIf
+    If loc_preset2
+        If aiIndex == loc_i
+            Return loc_preset2
+        Else
+            loc_i += 1
+        EndIf
+    EndIf
+    If loc_preset3
+        If aiIndex == loc_i
+            Return loc_preset3
+        EndIf
+    EndIf
+    Return None
+EndFunction
+
+Function SaveToJSON(String asFile)
+    String loc_path = "Modifier_" + NameAlias + "_"
+    
+    JsonUtil.SetFloatValue(asFile, loc_path + "Multiplier", Multiplier)
+
+    UD_Patcher_ModPreset loc_preset1 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset1) as UD_Patcher_ModPreset
+    UD_Patcher_ModPreset loc_preset2 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset2) as UD_Patcher_ModPreset
+    UD_Patcher_ModPreset loc_preset3 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset3) as UD_Patcher_ModPreset
+    
+    If loc_preset1 != None
+        loc_preset1.SaveToJSON(asFile, loc_path + "Preset1")
+    EndIf
+    If loc_preset2 != None
+        loc_preset2.SaveToJSON(asFile, loc_path + "Preset2")
+    EndIf
+    If loc_preset3 != None
+        loc_preset3.SaveToJSON(asFile, loc_path + "Preset3")
+    EndIf
+    
+EndFunction
+
+Function LoadFromJSON(String asFile)
+    String loc_path = "Modifier_" + NameAlias + "_"
+    
+    Multiplier = JsonUtil.GetFloatValue(asFile, loc_path + "Multiplier", Multiplier)
+
+    UD_Patcher_ModPreset loc_preset1 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset1) as UD_Patcher_ModPreset
+    UD_Patcher_ModPreset loc_preset2 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset2) as UD_Patcher_ModPreset
+    UD_Patcher_ModPreset loc_preset3 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset3) as UD_Patcher_ModPreset
+    
+    If loc_preset1 != None
+        loc_preset1.LoadFromJSON(asFile, loc_path + "Preset1")
+    EndIf
+    If loc_preset2 != None
+        loc_preset2.LoadFromJSON(asFile, loc_path + "Preset2")
+    EndIf
+    If loc_preset3 != None
+        loc_preset3.LoadFromJSON(asFile, loc_path + "Preset3")
+    EndIf
 EndFunction
