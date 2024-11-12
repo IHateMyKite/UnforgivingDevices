@@ -12,14 +12,16 @@ EndFunction
 
 string Function addInfoString(string str = "")
     ;string res = str
-    str += "Plugged: "
     if isPlugged()
-        str += "YES\n"
+        str += UDMTF.TableRowDetails("Plugged:", "YES", UDMTF.BoolToRainbow(False))
         if !wearerFreeHands(True) 
         endif
     else
-        str += "NO\n"
+        str += UDMTF.TableRowDetails("Plugged:", "NO", UDMTF.BoolToRainbow(True))
     endif
+    
+    str += UDMTF.PageSplit(abForce = False)
+    str += UDMTF.LineGap()
     
     return parent.addInfoString(str)
 EndFunction

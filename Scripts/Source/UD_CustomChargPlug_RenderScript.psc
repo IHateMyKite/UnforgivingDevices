@@ -44,7 +44,11 @@ Function onDeviceMenuInitPostWH(bool[] aControlFilter)
 EndFunction
 
 string Function addInfoString(string str = "")
-    str += "Charge: " + Round(getRelativeCharge()*100) + "% ("+Round(_currentCharge)+"/"+Round(UD_MaxCharge)+")" + "\n"
+    str += UDMTF.TableRowDetails("Charge:", Round(getRelativeCharge() * 100) + "% (" + Round(_currentCharge) + "/" + Round(UD_MaxCharge) + ")", UDMTF.PercentToRainbow(Round(getRelativeCharge() * 100)))
+   
+    str += UDMTF.PageSplit(abForce = False)
+    str += UDMTF.LineGap()
+    
     return parent.addInfoString(str)
 EndFunction
 

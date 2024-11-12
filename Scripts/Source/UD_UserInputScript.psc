@@ -97,14 +97,6 @@ State Minigame
         if (UD_Native.GetCameraState() == 3)
             return
         endif
-        ;help variables to reduce lag
-        ;bool     _crit                    = UDCDmain.crit 
-        ;string   _selected_crit_meter     = UDCDmain.selected_crit_meter
-        ;if (KeyCode == UDCDMain.Stamina_meter_Keycode || KeyCode == UDCDMain.Magicka_meter_Keycode)
-        ;    if _crit
-        ;        UDCDmain.crit = false ;remove crit to prevent multiple crits at once
-        ;    endif
-        ;endif
         bool loc_menuopen = UDmain.IsAnyMenuOpen()
         if !loc_menuopen ;only if player is not in menu
             if KeyCode == UDCDMain.SpecialKey_Keycode
@@ -112,24 +104,6 @@ State Minigame
                 UDCDmain.CurrentPlayerMinigameDevice.SpecialButtonPressed(1.0)
                 return
             endif
-            ;if (_crit) && !UDCDMain.UD_AutoCrit
-            ;    if _selected_crit_meter == "S" && KeyCode == UDCDMain.Stamina_meter_Keycode
-            ;        UDCDmain.crit = False
-            ;        _crit = False
-            ;        UDCDmain.CurrentPlayerMinigameDevice.critDevice()
-            ;        return
-            ;    elseif _selected_crit_meter == "M" && KeyCode == UDCDMain.Magicka_meter_Keycode
-            ;        UDCDmain.crit = False
-            ;        _crit = False
-            ;        UDCDmain.CurrentPlayerMinigameDevice.critDevice()
-            ;        return
-            ;    elseif (KeyCode == UDCDMain.Magicka_meter_Keycode) || (KeyCode == UDCDMain.Stamina_meter_Keycode)
-            ;        UDCDmain.crit = False
-            ;        _crit = False
-            ;        UDCDmain.CurrentPlayerMinigameDevice.critFailure()
-            ;        return
-            ;    endif
-            ;endif
             if KeyCode == UDCDMain.ActionKey_Keycode
                 UDCDmain.crit = False
                 if UDCDmain.CurrentPlayerMinigameDevice
@@ -155,19 +129,26 @@ State Minigame
     EndEvent
 EndState
 
+Float _LastPressDownTime    = 0.0
+Float _LastPressUpTime      = 0.0
+
 Event OnKeyDown(Int KeyCode)
     if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
         ;check if any menu is open, or if message box is open
         bool loc_menuopen = UDmain.IsAnyMenuOpen()
         if !loc_menuopen ;only if player is not in menu
-            if UD_EasyGamepadMode && Game.UsingGamepad()
-                if KeyCode == UD_GamepadKey
-                    ;show menu
-                    ShowGamePadMenu()
-                endif
-            else
-                if KeyCode == UDCDMain.PlayerMenu_KeyCode
-                    UDCDMain.PlayerMenu()
+            Float loc_Time = Utility.GetCurrentRealTime() - _LastPressDownTime
+            if ((loc_Time > 0.5) || (loc_Time < 0)) ;Only once per 0.5 seconds, to prevent menu opening multiple times at once
+                _LastPressDownTime = Utility.GetCurrentRealTime()
+                if UD_EasyGamepadMode && Game.UsingGamepad()
+                    if KeyCode == UD_GamepadKey
+                        ;show menu
+                        ShowGamePadMenu()
+                    endif
+                else
+                    if KeyCode == UDCDMain.PlayerMenu_KeyCode
+                        UDCDMain.PlayerMenu()
+                    endif
                 endif
             endif
         endif
@@ -177,14 +158,18 @@ EndEvent
 Event OnKeyUp(Int KeyCode, Float HoldTime)
     if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
         if !UDmain.IsAnyMenuOpen() && !(UD_EasyGamepadMode && Game.UsingGamepad())
-            if KeyCode == UDCDMain.StruggleKey_Keycode
-                if HoldTime < 0.2
-                    OpenLastDeviceMenu()
-                else
-                    OpenDeviceMenu()
+            Float loc_Time = Utility.GetCurrentRealTime() - _LastPressUpTime
+            if ((loc_Time > 0.5) || (loc_Time < 0)) ;Only once per 0.5 seconds, to prevent menu opening multiple times at once
+                _LastPressUpTime = Utility.GetCurrentRealTime()
+                if KeyCode == UDCDMain.StruggleKey_Keycode
+                    if HoldTime < 0.2
+                        OpenLastDeviceMenu()
+                    else
+                        OpenDeviceMenu()
+                    endif
+                elseif KeyCode == UDCDmain.NPCMenu_Keycode
+                    OpenNPCMenu(HoldTime > 0.2)
                 endif
-            elseif KeyCode == UDCDmain.NPCMenu_Keycode
-                OpenNPCMenu(HoldTime > 0.2)
             endif
         endif
     endif
@@ -225,7 +210,7 @@ Function OpenNPCMenu(Bool abOpenDeviceList)
         Actor loc_actor = loc_ref as Actor
         if !loc_actor.isDead() && UDmain.ActorIsValidForUD(loc_actor)
             if !abOpenDeviceList
-                UDCDmain.NPCMenu(loc_actor)
+                UDCDmain.ShowNPCMenu(loc_actor)
             else
                 bool loc_actorisregistered = UDCDmain.isRegistered(loc_actor)
                 if loc_actorisregistered

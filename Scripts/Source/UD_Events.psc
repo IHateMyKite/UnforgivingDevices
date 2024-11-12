@@ -64,7 +64,7 @@ EndFunction
     Event UDEvent_DeviceMinigameBegin is sent after the Unforgiving device minigame starts
     --- Code
     ; Prototype
-    Event UDEvent_DeviceMinigameBegin(String asSource, Form akFActor, Form akFHelper, Float afRelativeDurability, Form akFID, Form akFRD)
+    Event UDEvent_DeviceMinigameBegin(String asSource, Form akFActor, Form akFHelper, String asMinigameName, Float afRelativeDurability, Form akFID, Form akFRD)
         ;Actor on which was device minigame started
         Actor akActor   = akFActor as Actor
         
@@ -99,7 +99,7 @@ EndFunction
     Event UDEvent_DeviceMinigameEnd is sent after the Unforgiving device minigame ends
     --- Code
     ; Prototype
-    Event UDEvent_DeviceMinigameEnd(String asSource, Form akFActor, Form akFHelper, Float afRelativeDurability, Bool abIsUnlocked, Form akFID, Form akFRD)
+    Event UDEvent_DeviceMinigameEnd(String asSource, Form akFActor, Form akFHelper, String asMinigameName, Float afRelativeDurability, Bool abIsUnlocked, Form akFID, Form akFRD)
         ;Actor on which was device minigame started
         Actor akActor   = akFActor as Actor
         

@@ -16,10 +16,15 @@ EndFunction
 
 string Function addInfoString(string str = "")
     str = parent.addInfoString(str)
-    str += "Tied up?: " + _tied + "\n"
+    
+    str += UDMTF.TableRowDetails("Tied up?:", _tied, UDMTF.BoolToGrayscale(_tied))
     if _tied
-        str += "Untie progress: " + FormatFloat(getRelativeUntieProgress()*100.0,1) + " %\n"
+        str += UDMTF.TableRowDetails("Untie progress:", FormatFloat(getRelativeUntieProgress() * 100.0, 1) + "%", UDMTF.PercentToRainbow(Round(getRelativeUntieProgress() * 100)))
     endif
+    
+    str += UDMTF.PageSplit(abForce = False)
+    str += UDMTF.LineGap()
+    
     return str
 EndFunction
 

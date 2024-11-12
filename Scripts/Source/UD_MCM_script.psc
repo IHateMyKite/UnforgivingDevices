@@ -42,6 +42,18 @@ UD_OutfitManager  Property UDOTM hidden
     EndFunction
 EndProperty
 
+UD_MenuTextFormatter  Property UDMTF hidden
+    UD_MenuTextFormatter Function Get()
+        return UDmain.UDMTF
+    EndFunction
+EndProperty
+
+UD_MenuMsgManager  Property UDMMM hidden
+    UD_MenuMsgManager Function Get()
+        return UDmain.UDMMM
+    EndFunction
+EndProperty
+
 int max_difficulty_S
 int overaldifficulty_S ;0-3 where 3 is same as in MDS
 int eventchancemod_S
@@ -1068,6 +1080,8 @@ Int UD_IconVariant_EffExhaustion_M
 String[] UD_IconVariant_EffExhaustionList
 Int UD_IconVariant_EffOrgasm_M
 String[] UD_IconVariant_EffOrgasmList
+Int UD_MenuTextFormatter_M
+Int UD_MenuMsgManager_M
 
 Event resetUIWidgetPage()
     UpdateLockMenuFlag()
@@ -1083,7 +1097,11 @@ Event resetUIWidgetPage()
     UD_UseWidget_T = addToggleOption("$UD_USEWIDGET", UDCDmain.UD_UseWidget)
     UD_WidgetPosX_M = AddMenuOption("$UD_WIDGETPOSX", widgetXList[UDWC.UD_WidgetXPos], FlagSwitch(UDCDmain.UD_UseWidget))
     UD_WidgetPosY_M = AddMenuOption("$UD_WIDGETPOSY", widgetYList[UDWC.UD_WidgetYPos], FlagSwitch(UDCDmain.UD_UseWidget))
-;    
+    ; Menus
+    AddHeaderOption("$UD_H_MENUS")
+    UD_MenuTextFormatter_M = AddMenuOption("$UD_MENUTEXTFORMATTER", UDMTF.GetMode(), FlagSwitch(True))
+    UD_MenuMsgManager_M = AddMenuOption("$UD_MENUMSGMANAGER", UDMMM.GetMode(), FlagSwitch(True))
+
     ; RIGHT COLUMN
     SetCursorPosition(1)
     SetCursorFillMode(TOP_TO_BOTTOM)
@@ -1492,7 +1510,7 @@ int fix_flag
 int fixBugs_T
 int rescanSlots_T
 int unlockAll_T
-int endAnimation_T
+int showDetails_T
 int actorIndex = 5
 int unregisterNPC_T
 int GlobalUpdateNPC_T
@@ -1564,7 +1582,7 @@ Event resetDebugPage()
             elseif i == 20
                 unlockAll_T             = AddTextOption("$UD_UNLOCK_ALL", "$CLICK" ,FlagSwitchAnd(UD_LockMenu_flag,FlagSwitch(!UDmain.UD_LockDebugMCM)))
             elseif i == 21
-                endAnimation_T          = AddTextOption("$UD_ENDANIMATION", "$CLICK" )
+                showDetails_T           = AddTextOption("$UD_DEBUGSHOWDETAILS", "$CLICK" )
             elseif i == 22
                 fixBugs_T               = AddTextOption("$UD_FIXBUGS", "$CLICK" ,fix_flag)
             elseif i == 23
@@ -2129,9 +2147,9 @@ Function OptionSelectDebug(int option)
     elseif unlockAll_T == option
         closeMCM()
         UDCDmain.removeAllDevices(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
-    elseif endAnimation_T == option
+    elseif showDetails_T == option
         closeMCM()
-        UDCDmain.ShowActorDetails(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
+        UDCDmain.ShowActorDetailsMenu(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
     elseif unregisterNPC_T == option
         UDCD_NPCM.unregisterNPC(UDCD_NPCM.getNPCSlotByIndex(actorIndex).getActor())
         forcePageReset()
@@ -3010,7 +3028,7 @@ Function OnOptionMenuOpenUIWidget(int option)
             variant = 0
         EndIf
         SetMenuDialogStartIndex(variant)
-        SetMenuDialogDefaultIndex(0)
+        SetMenuDialogDefaultIndex(2)
     ElseIf (option == UD_IconVariant_EffOrgasm_M)
         SetMenuDialogOptions(UD_IconVariant_EffOrgasmList)
         Int variant = UDWC.StatusEffect_GetVariant("effect-orgasm")
@@ -3018,7 +3036,7 @@ Function OnOptionMenuOpenUIWidget(int option)
             variant = 0
         EndIf
         SetMenuDialogStartIndex(variant)
-        SetMenuDialogDefaultIndex(0)
+        SetMenuDialogDefaultIndex(2)
     elseif (option == UD_WidgetPosX_M)
         SetMenuDialogOptions(widgetXList)
         SetMenuDialogStartIndex(UDWC.UD_WidgetXPos)
@@ -3026,6 +3044,16 @@ Function OnOptionMenuOpenUIWidget(int option)
     elseif (option == UD_WidgetPosY_M)
         SetMenuDialogOptions(widgetYList)
         SetMenuDialogStartIndex(UDWC.UD_WidgetYPos)
+        SetMenuDialogDefaultIndex(1)
+    elseif (option == UD_MenuTextFormatter_M)
+        String[] loc_modes = UDMTF.GetModes()
+        SetMenuDialogOptions(loc_modes)
+        SetMenuDialogStartIndex(UDMTF.GetModeIndex())
+        SetMenuDialogDefaultIndex(1)
+    elseif (option == UD_MenuMsgManager_M)
+        String[] loc_modes = UDMMM.GetModes()
+        SetMenuDialogOptions(loc_modes)
+        SetMenuDialogStartIndex(UDMMM.GetModeIndex())
         SetMenuDialogDefaultIndex(1)
     endif
 EndFunction
@@ -3156,6 +3184,16 @@ Function OnOptionMenuAcceptUIWidget(Int option, Int index)
         UDWC.UD_WidgetYPos = index
         SetMenuOptionValue(UD_WidgetPosY_M, widgetYList[UDWC.UD_WidgetYPos])
         forcePageReset()
+    elseif (option == UD_MenuTextFormatter_M)
+        String[] loc_modes = UDMTF.GetModes()
+        UDMTF.SetMode(loc_modes[index])
+        SetMenuOptionValue(UD_MenuTextFormatter_M, loc_modes[index])
+;        forcePageReset()
+    elseif (option == UD_MenuMsgManager_M)
+        String[] loc_modes = UDMMM.GetModes()
+        UDMMM.SetMode(loc_modes[index])
+        SetMenuOptionValue(UD_MenuMsgManager_M, loc_modes[index])
+;        forcePageReset()
     endif
 EndFunction
 
@@ -3441,10 +3479,6 @@ Function CustomBondagePageDefault(int option)
         SetInfoText("$UD_HARDCORE_SWIMMING_INFO")
     elseif(option == UD_hardcore_swimming_difficulty_M)
         SetInfoText("$UD_HARDCORESWIMMINGDIFFICULTY_INFO")
-    elseif option == UD_WidgetPosX_M
-        SetInfoText("$UD_CWIDGETPOSX_INFO")
-    elseif option == UD_WidgetPosY_M
-        SetInfoText("$UD_WIDGETPOSY_INFO")
     elseif option == UD_LockpickMinigameNum_S
         SetInfoText("$UD_PREVENTMASTERLOCK_INFO")
     elseif option == UD_BaseDeviceSkillIncrease_S
@@ -3629,8 +3663,8 @@ Function DebugPageDefault(int option)
         SetInfoText("$UD_FIXBUGS_INFO")
     elseif option == unlockAll_T
         SetInfoText("$UD_UNLOCK_ALL_INFO")
-    elseif option == endAnimation_T
-        SetInfoText("$UD_ENDANIMATION_INFO")
+    elseif option == showDetails_T
+        SetInfoText("$UD_DEBUGSHOWDETAILS_INFO")
     elseif option == unregisterNPC_T
         SetInfoText("$UD_UNREGISTER_NPC_INFO")
     elseif option == OrgasmCapacity_S
@@ -3968,6 +4002,10 @@ Function UiWidgetPageInfo(int option)
         SetInfoText("$UD_CWIDGETPOSX_INFO")
     elseif option == UD_WidgetPosY_M
         SetInfoText("$UD_WIDGETPOSY_INFO")
+    elseif option == UD_MenuTextFormatter_M
+        SetInfoText("$UD_MENUTEXTFORMATTER_INFO")
+    elseif option == UD_MenuMsgManager_M
+        SetInfoText("$UD_MENUMSGMANAGER_INFO")
     ElseIf option == UD_TextFontSize_S
         SetInfoText("$UD_TEXTFONTSIZE_INFO")
     ElseIf option == UD_TextLineLength_S
@@ -4007,8 +4045,8 @@ Function DebugPageInfo(int option)
         SetInfoText("$UD_FIXBUGS_INFO")
     elseif option == unlockAll_T
         SetInfoText("$UD_UNLOCK_ALL_INFO")
-    elseif option == endAnimation_T
-        SetInfoText("$UD_ENDANIMATION_INFO")
+    elseif option == showDetails_T
+        SetInfoText("$UD_DEBUGSHOWDETAILS_INFO")
     elseif option == unregisterNPC_T
         SetInfoText("$UD_UNREGISTER_NPC_INFO")
     elseif option == OrgasmCapacity_S
@@ -4247,6 +4285,8 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "iWidgets_TextPadding", UDWC.UD_TextPadding)
     JsonUtil.SetIntValue(strFile, "WidgetPosX", UDWC.UD_WidgetXPos)
     JsonUtil.SetIntValue(strFile, "WidgetPosY", UDWC.UD_WidgetYPos)
+    JsonUtil.SetStringValue(strFile, "MenuTextFormatter", UDMTF.GetMode())
+    JsonUtil.SetStringValue(strFile, "MenuMsgManager", UDMMM.GetMode())
     JsonUtil.SetIntValue(strFile, "iWidgets_EffectExhaustion_Icon", UDWC.StatusEffect_GetVariant("effect-exhaustion"))
     JsonUtil.SetIntValue(strFile, "iWidgets_EffectOrgasm_Icon", UDWC.StatusEffect_GetVariant("effect-orgasm"))
     
@@ -4420,6 +4460,8 @@ Function LoadFromJSON(string strFile)
     UDWC.StatusEffect_Register("effect-orgasm", -1, variant)
     UDWC.UD_WidgetXPos = JsonUtil.GetIntValue(strFile, "WidgetPosX", UDWC.UD_WidgetXPos)
     UDWC.UD_WidgetYPos = JsonUtil.GetIntValue(strFile, "WidgetPosY", UDWC.UD_WidgetXPos)
+    UDMTF.SetMode(JsonUtil.GetStringValue(strFile, "MenuTextFormatter", "HTML"))
+    UDMMM.SetMode(JsonUtil.GetStringValue(strFile, "MenuMsgManager", "Native_UI"))
     
     ;Other
     libs.UD_StartThirdpersonAnimation_Switch = JsonUtil.GetIntValue(strFile, "StartThirdpersonAnimation_Switch", libs.UD_StartThirdpersonAnimation_Switch as Int)
