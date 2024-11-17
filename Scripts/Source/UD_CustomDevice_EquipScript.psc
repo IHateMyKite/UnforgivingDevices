@@ -3,6 +3,7 @@ Scriptname UD_CustomDevice_EquipScript extends zadequipscript
 import MfgConsoleFunc
 import UnforgivingDevicesMain
 import UD_Native
+import zadNativeFunctions
 
 UDCustomDeviceMain Property UDCDmain auto
 zadlibs_UDPatch Property libsp
@@ -875,7 +876,7 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
     EndIf
     
     OnEquippedPost(akActor)
-    
+    zadNativeFunctions.SetDisableUnequip(akActor as Actor,deviceInventory as Armor,true)
     ResetLockShield()
     If TimedUnlock
         SetLockTimer()
@@ -898,6 +899,7 @@ EndFunction
 Function unlockDevice(Actor akActor)
     bool loc_failure = false
     StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,0x111)
+    zadNativeFunctions.SetDisableUnequip(akActor as Actor,deviceInventory as Armor,false)
     Int loc_RDNum = akActor.getItemCount(deviceRendered)
     if !loc_RDNum
         loc_failure = true
