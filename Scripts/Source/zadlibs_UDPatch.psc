@@ -4,6 +4,7 @@ import MfgConsoleFunc
 import sslBaseExpression
 import UnforgivingDevicesMain
 import UD_Native
+import zadNativeFunctions
 
 UDCustomDeviceMain Property UDCDmain auto
 UnforgivingDevicesMain Property UDmain
@@ -37,7 +38,11 @@ Bool Function LockDevice(actor akActor, armor deviceInventory, bool force = fals
     if UDmain.TraceAllowed()    
         UDmain.Log("LockDevice("+MakeDeviceHeader(akActor,deviceInventory)+")",3)
     endif
-    return LockDevicePatched(akActor, deviceInventory, force)
+    bool result=LockDevicePatched(akActor, deviceInventory, force)
+    if result
+        zadNativeFunctions.SetDisableUnequip(akActor,deviceInventory,true)
+    Endif
+    return result
 EndFunction
 
 bool Function isMutexed(Actor akActor,Armor invDevice)
@@ -175,6 +180,9 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
     if !IsPlayer(akActor)
         StorageUtil.AdjustIntValue(akActor,"UDLockOperations",-1) ;decrease number of lock operations for NPC. Is used by NPC manager before NPC is register with auto scan
     endif
+    if loc_res
+        zadNativeFunctions.SetDisableUnequip(akActor,deviceInventory,true)
+    Endif
     return loc_res
 EndFunction
 
@@ -240,7 +248,7 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
     if UDmain.TraceAllowed()
         UDmain.Log("UnlockDevice("+akActor+","+deviceInventory+","+deviceRendered+","+zad_DeviousDevice+","+destroyDevice+","+genericonly+")",1)
     endif
-    
+    zadNativeFunctions.SetDisableUnequip(akActor,deviceInventory,false)
     if deviceInventory.hasKeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
         UDmain.UDNPCM.GotoState("UpdatePaused")
         UD_CustomDevice_NPCSlot loc_slot    = none ;NPC slot for registered NPC
