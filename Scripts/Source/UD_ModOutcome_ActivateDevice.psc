@@ -51,19 +51,22 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
 
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
-    String loc_str = ""
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
+    String loc_res = ""
+    String loc_frag = ""
+    Int loc_count = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
     String loc_method_list3 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
-    loc_str += "Activates Device(s)"
-    loc_str += "\n"
-    loc_str += "Number of devices: "
+    String loc_method_list4 = GetStringParamString(aiDataStr, DataStrOffset + 2, "")
+
     If loc_method_list3 == "S" || loc_method_list3 == "SELF"
-        loc_str += "SELF"
+        loc_frag = "SELF"
     ElseIf loc_method_list3 == "A" || loc_method_list3 == "ALL"
-        loc_str += "ALL"
+        loc_frag = "ALL"
     Else
-        loc_str += GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
-        loc_str += " (" + loc_method_list3 + ")"
+        loc_frag = loc_count As String
+        loc_frag += " (" + loc_method_list3 + ")"
     EndIf
-    Return loc_str
+    loc_res += UDmain.UDMTF.TableRowDetails("Number of devices:", loc_frag)
+;    loc_res += UDmain.UDMTF.TableRowDetails("Param:", Param)
+    Return loc_res
 EndFunction

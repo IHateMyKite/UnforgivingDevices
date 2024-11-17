@@ -11,8 +11,8 @@
         [7 .. n]    Parameters for the outcome. See description of the selected outcome for details.
 
     Form arguments:
-        Form1 - Not used
-        Form2 - Not used
+        Form1 - Not used! (Use ModTrigger instead)
+        Form2 - Not used! (Use ModOutcome instead)
         Form3 - Parameter for the ModTrigger
         Form4 - Parameter for the ModOutcome
         Form5 - Parameter for the ModOutcome
@@ -118,27 +118,38 @@ EndFunction
 Function ItemRemoved(UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akDestContainer, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     Parent.ItemRemoved(akDevice, akItemForm, aiItemCount, akDestContainer, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
 EndFunction
+
 ;/  Group: User Interface
 ===========================================================================================
 ===========================================================================================
 ===========================================================================================
 /;
 String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    String loc_msg = ""
-    
-    loc_msg += "=== Trigger ===\n"
-    loc_msg += ModTrigger.GetDetails(Self, akDevice, aiDataStr, akForm3)
-    loc_msg += "\n"
-    loc_msg += "\n"
-    loc_msg += "=== Outcome ===\n"
-    loc_msg += ModOutcome.GetDetails(Self, akDevice, aiDataStr, akForm4, akForm5)
-    loc_msg += "\n"
-    loc_msg += "\n"
+    String loc_res = ""
+    loc_res += UDmain.UDMTF.Header(NameFull, 4)
+    loc_res += UDmain.UDMTF.FontBegin(aiFontSize = UDmain.UDMTF.FontSize, asColor = UDmain.UDMTF.TextColorDefault)
+; Trigger
+    loc_res += UDmain.UDMTF.LineBreak()
+    loc_res += UDmain.UDMTF.Header("Trigger", 0)
+    loc_res += UDmain.UDMTF.LineGap()
+    loc_res += ModTrigger.GetDetails(Self, akDevice, aiDataStr, akForm3)
+; Outcome
+    loc_res += UDmain.UDMTF.LineBreak()
+    loc_res += UDmain.UDMTF.Header("Outcome", 0)
+    loc_res += UDmain.UDMTF.LineGap()
+    loc_res += ModOutcome.GetDetails(Self, akDevice, aiDataStr, akForm4, akForm5)
+; Description
+    If Description
+        loc_res += UDmain.UDMTF.LineBreak()
+        loc_res += UDmain.UDMTF.Header("Description", 0)
+        loc_res += UDmain.UDMTF.ParagraphBegin(asAlign = "center")
+        loc_res += UDmain.UDMTF.LineGap()
+        loc_res += UDmain.UDMTF.Text(Description)
+        loc_res += UDmain.UDMTF.ParagraphEnd()
+    EndIf
+    loc_res += UDmain.UDMTF.FontEnd()
 
-    loc_msg += "=== Description ===\n"
-    loc_msg += Description + "\n"
-
-    Return loc_msg
+    Return loc_res
 EndFunction
 
 String Function GetCaption(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)

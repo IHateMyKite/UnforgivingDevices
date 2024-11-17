@@ -47,21 +47,20 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    String loc_msg = ""
-    
-    loc_msg += "==== " + NameFull + " ====\n"
-    loc_msg += "Armor Type: \t" + UD_Native.GetStringParamString(aiDataStr, 0, "Light") + "\n"
-    loc_msg += "Material: \t" + UD_Native.GetStringParamString(aiDataStr, 1, "Leather") + "\n"
-    loc_msg += "Armor Value: \t\t" + UD_Native.GetStringParamInt(aiDataStr, 2, 0) + "\n"
-    
-    if Description
-        loc_msg += "=== Description ===" + "\n"
-        loc_msg += Description
-    endif
-    Return loc_msg
+String Function GetParamsTableRows(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    String loc_res = ""
+    loc_res += UDmain.UDMTF.TableRowDetails("Armor Type:", UD_Native.GetStringParamString(aiDataStr, 0, "Light"))
+    loc_res += UDmain.UDMTF.TableRowDetails("Material:", UD_Native.GetStringParamString(aiDataStr, 1, "Leather"))
+    loc_res += UDmain.UDMTF.TableRowDetails("Armor Value:", UD_Native.GetStringParamInt(aiDataStr, 2, 0))
+    Return loc_res
 EndFunction
 
+
+;/  Group: Protected Methods
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 Function SetArmorValues(UD_CustomDevice_RenderScript akDevice, String aiDataStr)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_Modifier_Armor::SetArmorValues() akDevice = " + akDevice + ", aiDataStr = " + aiDataStr, 3)
@@ -107,5 +106,5 @@ Function SetArmorValues(UD_CustomDevice_RenderScript akDevice, String aiDataStr)
         loc_device_inventory.SetWeightClass(2)
         loc_device_rendered.SetWeightClass(2)
     EndIf
-    ; TODO: modify base health of the device to make it impossible to struggle out, only to destroy
+    ; TODO PR195: modify base health of the device to make it impossible to struggle out, only to destroy
 EndFunction

@@ -22,20 +22,13 @@ Function Update()
     EventProcessingMask = 0x00000000
 EndFunction
 
-;/  Group: Events Processing
+;/  Group: User Interface
 ===========================================================================================
 ===========================================================================================
 ===========================================================================================
 /;
-String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    String loc_msg = ""
-    
-    loc_msg += "=== " + NameFull + " ===\n"
-    loc_msg += "Power: " + GetStringParamInt(aiDataStr, 0, 0) + "\n"
-
-    loc_msg += "\n"
-    loc_msg += "=== Description ===\n"
-    loc_msg += Description + "\n"
-
-    Return loc_msg
+String Function GetParamsTableRows(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    String loc_res = ""
+    loc_res += UDmain.UDMTF.TableRowDetails("Power:", GetStringParamInt(aiDataStr, 0, 0))
+    Return loc_res
 EndFunction

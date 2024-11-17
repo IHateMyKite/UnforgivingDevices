@@ -14,7 +14,7 @@
         [2]     Float   (script) Elapsed time (in-game hours)
 
     Form arguments:
-        Not used
+        Form1   Spell   Penalty spell (not implemented)
         
     Example:
         
@@ -56,19 +56,19 @@ Bool Function MinigameAllowed(UD_CustomDevice_RenderScript akDevice, String aiDa
     Float loc_sp = GetStringParamFloat(aiDataStr, 0, 0.0)
     Float loc_period = GetStringParamFloat(aiDataStr, 2, 0.0)
     
+; TODO PR195: penalty spell (electric shock for trying to struggle before the timeout expires)
+
     Return (loc_period > loc_sp)
 EndFunction
 
-String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    String loc_msg = ""
-    
-    loc_msg += "==== " + NameFull + " ====\n"
-    loc_msg += "Block Timer: \t" + FormatFloat(GetStringParamFloat(aiDataStr, 0, 0.0), 2) + " hours\n"
-    loc_msg += "Self-destruct: \t" + InlineIfStr(GetStringParamInt(aiDataStr, 1, 0) > 0, "True", "False") + "\n"
-    
-    if Description
-        loc_msg += "=== Description ===" + "\n"
-        loc_msg += Description
-    endif
-    Return loc_msg
+;/  Group: User Interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+String Function GetParamsTableRows(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    String loc_res = ""
+    loc_res += UDmain.UDMTF.TableRowDetails("Block Timer:", FormatFloat(GetStringParamFloat(aiDataStr, 0, 0.0), 2) + " hours")
+    loc_res += UDmain.UDMTF.TableRowDetails("Self-destruct:", UDmain.UDMTF.InlineIfString(GetStringParamInt(aiDataStr, 1, 0) > 0, "True", "False"))
+    Return loc_res
 EndFunction

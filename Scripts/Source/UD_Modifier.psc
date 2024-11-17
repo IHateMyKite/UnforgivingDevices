@@ -212,29 +212,59 @@ EndFunction
 ===========================================================================================
 /;
 String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    String loc_msg = ""
-    
-    If ConcealmentPower > 50
-        loc_msg += "Name: ??? \n\n"
-        loc_msg += "=== Description ===" + "\n"
-        loc_msg += "You are unable to recognize this enchantment"
-    Else
-        loc_msg += "Name: " + NameFull + "\n\n"
-        
-        if Description
-            loc_msg += "=== Description ===" + "\n"
-            loc_msg += Description
-        endif
+    String loc_res = ""
+
+    ; TODO PR195: ConcealmentPower
+    ; "You are unable to recognize this enchantment"
+
+    loc_res += UDmain.UDMTF.Header(NameFull, 4)
+    loc_res += UDmain.UDMTF.FontBegin(aiFontSize = UDmain.UDMTF.FontSize, asColor = UDmain.UDMTF.TextColorDefault)
+    If Description
+        loc_res += UDmain.UDMTF.LineBreak()
+        loc_res += UDmain.UDMTF.Text(Description, asAlign = "center")
     EndIf
-    Return loc_msg
+    loc_res += UDmain.UDMTF.Header("Parameters", 0)
+    loc_res += UDmain.UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
+    loc_res += GetParamsTableRows(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
+    loc_res += UDmain.UDMTF.TableEnd()
+    loc_res += UDmain.UDMTF.FontEnd()
+
+    Return loc_res
 EndFunction
 
 String Function GetCaption(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    ; TODO: implement proper use of the ConcealmentPower
+    ; TODO PR195: implement proper use of the ConcealmentPower
     If ConcealmentPower > 50
         Return "???"
     Else
         Return NameFull
+    EndIf
+EndFunction
+
+String Function GetParamsTableRows(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    String loc_res = ""
+;    loc_res += UDmain.UDMTF.TableRowDetails("Name:", NameFull)
+;    loc_res += UDmain.UDMTF.TableRowDetails("Param:", Param)
+    Return loc_res
+EndFunction
+
+String Function PrintForm(Form akForm)
+    String loc_res = ""
+    If akForm == None
+        Return "None"
+    ElseIf akForm as FormList
+        loc_res += "["
+        Int loc_i = 0
+        While loc_i < (akForm as FormList).GetSize()
+            If loc_i > 0
+                loc_res += ", "
+            EndIf
+            loc_res += PrintForm((akForm as FormList).GetAt(loc_i))
+        EndWhile
+        loc_res += "]"
+        Return loc_res
+    Else
+        Return akForm.GetName()
     EndIf
 EndFunction
 

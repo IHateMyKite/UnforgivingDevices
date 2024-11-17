@@ -58,19 +58,19 @@ Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, F
         If akForm2 as Spell
             akDevice.GetWearer().DispelSpell(akForm2 as Spell)
         ElseIf akForm2 as Weapon
-        ; TODO: remove weapon from inventory?
+        ; TODO PR195: remove weapon from inventory?
         EndIf
     EndIf
 EndFunction
 
-String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    String loc_msg = ""
-    
-    loc_msg += "==== " + NameFull + " ====\n"
-    loc_msg += "Weapon: " + akForm1.GetName() + "\n"
-    
-    loc_msg += "\n"
-    loc_msg += "=== Description ===" + "\n"
-    loc_msg += Description
-    Return loc_msg
+;/  Group: User Interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+String Function GetParamsTableRows(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    String loc_res = ""
+    loc_res += UDmain.UDMTF.TableRowDetails("Weapon:", PrintForm(akForm1))
+    loc_res += UDmain.UDMTF.TableRowDetails("Summon Spell:", PrintForm(akForm2))
+    Return loc_res
 EndFunction

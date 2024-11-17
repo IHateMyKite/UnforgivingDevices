@@ -22,22 +22,15 @@ Function Update()
     EventProcessingMask = 0x00000000
 EndFunction
 
-;/  Group: Events Processing
+;/  Group: User Interface
 ===========================================================================================
 ===========================================================================================
 ===========================================================================================
 /;
-String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    String loc_msg = ""
-    
-    loc_msg += "=== " + NameFull + " ===\n"
-    loc_msg += "Strength: " + iRange(Round(UD_Native.GetStringParamFloat(aiDataStr,0,0.0)*100.0),0,100) + " %\n"
-
-    loc_msg += "\n"
-    loc_msg += "=== Description ===\n"
-    loc_msg += Description + "\n"
-
-    Return loc_msg
+String Function GetParamsTableRows(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    String loc_res = ""
+    loc_res += UDmain.UDMTF.TableRowDetails("Looseness:", iRange(Round(GetStringParamFloat(aiDataStr, 0, 0.0) * 100.0), 0, 100))
+    Return loc_res
 EndFunction
 
 ;/  Group: Patcher Overrides

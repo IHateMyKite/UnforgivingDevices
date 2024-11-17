@@ -50,3 +50,15 @@ String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataS
     endif
     Return loc_msg
 EndFunction
+
+;/  Group: User Interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+String Function GetParamsTableRows(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    String loc_res = ""
+    loc_res += UDmain.UDMTF.TableRowDetails("Disable fast travel:", UDmain.UDMTF.InlineIfString(GetStringParamInt(aiDataStr, 0, 0) != 0, "True", "False"))
+    loc_res += UDmain.UDMTF.TableRowDetails("Disable waiting:", UDmain.UDMTF.InlineIfString(GetStringParamInt(aiDataStr, 1, 0) != 0, "True", "False"))
+    Return loc_res
+EndFunction

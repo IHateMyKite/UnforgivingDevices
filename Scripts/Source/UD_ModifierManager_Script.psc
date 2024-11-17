@@ -436,20 +436,40 @@ Function UpdateModifiers_KillMonitor(ObjectReference akVictim, ObjectReference a
     If akKiller as Actor == None || akVictim as Actor == None
         Return
     EndIf
-    UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getNPCSlotByActor(akKiller as Actor)
-    If loc_slot == None
-        Return
-    EndIf
-    if loc_slot.isUsed() && !loc_slot.isDead() && loc_slot.isScriptRunning()
-        UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
-        int loc_x = 0
-        while loc_devices[loc_x]
-            if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked ;not update device which are in minigame
-                Procces_UpdateModifiers_KillMonitor(loc_devices[loc_x], akVictim, aiCrimeStatus)
+    If (akKiller as Actor) == UDMain.Player
+        ; All kills in the player's group (companions and summons) are recorded on the player, and these events cannot be distinguished. 
+        ; Therefore, devices on followers should be also triggered for each allied kill.
+        int loc_i = 0
+        while loc_i < UDNPCM.UD_Slots
+            UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getNPCSlotByIndex(loc_i)
+            if loc_slot.isUsed() && !loc_slot.isDead() && loc_slot.isScriptRunning() && (loc_slot.IsPlayer() || (loc_slot.isInPlayerCell() && UDMain.ActorIsFollower(loc_slot.GetActor())))
+                UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
+                int loc_x = 0
+                while loc_devices[loc_x]
+                    if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked ;not update device which are in minigame
+                        Procces_UpdateModifiers_KillMonitor(loc_devices[loc_x], akVictim, aiCrimeStatus)
+                    endif
+                    loc_x += 1
+                endwhile
             endif
-            loc_x += 1
+            loc_i += 1
         endwhile
-    endif
+    Else
+        UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getNPCSlotByActor(akKiller as Actor)
+        If loc_slot == None
+            Return
+        EndIf
+        if loc_slot.isUsed() && !loc_slot.isDead() && loc_slot.isScriptRunning()
+            UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
+            int loc_x = 0
+            while loc_devices[loc_x]
+                if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked ;not update device which are in minigame
+                    Procces_UpdateModifiers_KillMonitor(loc_devices[loc_x], akVictim, aiCrimeStatus)
+                endif
+                loc_x += 1
+            endwhile
+        endif
+    EndIf
     UDmain.Log("UD_ModifierManager_Script::UpdateModifiers_KillMonitor() BENCHMARK. Exec. time = " + (Utility.GetCurrentRealTime() - start_time), 3)
 EndFunction
 

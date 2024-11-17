@@ -64,19 +64,17 @@ Function WeaponHit(UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, Float
     akDevice.AddJammedLock(Round((loc_chance1 + loc_chance2 * afDamage) * Multiplier))
 EndFunction
 
-String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    String loc_msg = ""
-    
-    loc_msg += "=== " + NameFull + " ===\n"
-    loc_msg += "Chance per hour: " + FormatFloat(fRange(UD_Native.GetStringParamFloat(aiDataStr, 0, 0.0) * Multiplier, 0.0, 100.0), 2) + " %\n"
-    loc_msg += "Chance per hit: " + FormatFloat(fRange(UD_Native.GetStringParamFloat(aiDataStr, 1, 0.0) * Multiplier, 0.0, 100.0), 2) + " %\n"
-    loc_msg += "Chance per dp: " + FormatFloat(fRange(UD_Native.GetStringParamFloat(aiDataStr, 2, 0.0) * Multiplier, 0.0, 100.0), 2) + " %\n"
-
-    loc_msg += "\n"
-    loc_msg += "=== Description ===\n"
-    loc_msg += Description + "\n"
-
-    Return loc_msg
+;/  Group: User Interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+String Function GetParamsTableRows(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    String loc_res = ""
+    loc_res += UDmain.UDMTF.TableRowDetails("Chance per hour:", FormatFloat(fRange(UD_Native.GetStringParamFloat(aiDataStr, 0, 0.0) * Multiplier, 0.0, 100.0), 2) + "%")
+    loc_res += UDmain.UDMTF.TableRowDetails("Chance per hit:", FormatFloat(fRange(UD_Native.GetStringParamFloat(aiDataStr, 1, 0.0) * Multiplier, 0.0, 100.0), 2) + "%")
+    loc_res += UDmain.UDMTF.TableRowDetails("Chance per dmg:", FormatFloat(fRange(UD_Native.GetStringParamFloat(aiDataStr, 2, 0.0) * Multiplier, 0.0, 100.0), 2) + "%")
+    Return loc_res
 EndFunction
 
 ;/  Group: Patcher overrides

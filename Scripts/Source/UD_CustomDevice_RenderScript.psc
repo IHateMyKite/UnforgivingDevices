@@ -7269,7 +7269,7 @@ Function ShowModifiers()
     
     UD_Modifier loc_mod = (UD_ModifiersRef[loc_res] as UD_Modifier)
     String loc_msg = loc_mod.GetDetails(self,UD_ModifiersDataStr[loc_res],UD_ModifiersDataForm1[loc_res],UD_ModifiersDataForm2[loc_res],UD_ModifiersDataForm3[loc_res],UD_ModifiersDataForm4[loc_res],UD_ModifiersDataForm5[loc_res])
-    UDmain.ShowMessageBox(loc_msg)
+    UDmain.ShowMessageBox(loc_msg, UDMain.UDMTF.HasHtmlMarkup(), True)
 EndFunction
 
 

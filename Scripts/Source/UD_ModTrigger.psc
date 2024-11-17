@@ -181,6 +181,7 @@ EndFunction
 Bool Function ItemRemoved(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akDestContainer, String aiDataStr, Form akForm1)
     Return False
 EndFunction
+
 ;/  Group: User interface
 ===========================================================================================
 ===========================================================================================
@@ -188,9 +189,26 @@ EndFunction
 /;
 
 String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
-    Return Description
+    String loc_res = ""
+    If Description
+        loc_res += UDmain.UDMTF.LineBreak()
+        loc_res += UDmain.UDMTF.Text(Description, asAlign = "center")
+    EndIf
+    loc_res += UDmain.UDMTF.Text("Parameters", asAlign = "center")
+    loc_res += UDmain.UDMTF.LineBreak()
+    loc_res += UDmain.UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
+    loc_res += GetParamsTableRows(akModifier, akDevice, aiDataStr, akForm1)
+    loc_res += UDmain.UDMTF.TableEnd()
+    loc_res += UDmain.UDMTF.FontEnd()
+    Return loc_res
 EndFunction
 
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    String loc_res = ""
+;    loc_res += UDmain.UDMTF.TableRowDetails("Name:", NameFull)
+;    loc_res += UDmain.UDMTF.TableRowDetails("Param:", Param)
+    Return loc_res
+EndFunction
 
 ;/  Group: Protected methods
 ===========================================================================================

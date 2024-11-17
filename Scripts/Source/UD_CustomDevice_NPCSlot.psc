@@ -1102,6 +1102,22 @@ Function OnSpellHit(Form akSource, Float afDamage = -1.0)
     endwhile
 EndFunction
 
+Function OnSpellCast(Form akSource)
+    If UDmain.TraceAllowed()
+        UDmain.Log(Self + "::OnSpellCast() akSource = " + akSource, 3)
+    EndIf
+    Spell loc_spell = akSource as Spell
+    If loc_spell == None
+        Return
+    EndIf
+
+    int i = 0
+    while UD_equipedCustomDevices[i]
+        UD_equipedCustomDevices[i].spellCast(loc_spell)
+        i+=1
+    endwhile
+EndFunction
+
 String Function _GetDebugMenuText(UD_CustomDevice_RenderScript akDevice)
     String loc_res = ""
     loc_res += UDmain.UDMTF.Header(akDevice.getDeviceName(), 4)

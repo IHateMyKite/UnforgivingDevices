@@ -5,13 +5,13 @@
     NameFull: Combo
     NameAlias: CMP1, CMP2, CMP3, CMP4, CMP5, CMN1, CMN2, CMN3, CMN4, CMN5
     
-    CMP<N>      - use these modifiers for positive effects
-    CMN<N>      - use these modifiers for negative effects
+    CMP*        - use these modifiers for positive effects
+    CMN*        - use these modifiers for negative effects
 
     Parameters:
-        [0 .. 6]    Parameters for the trigger. See description of the selected trigger for details.
+        [0 .. 6]    Parameters for the trigger. See description of the set trigger for details.
         
-        [7 .. n]    Parameters for the outcome. See description of the selected outcome for details.
+        [7 .. n]    Parameters for the outcome. See description of the set outcome for details.
 
     Form arguments:
         Form1       Trigger UD_ModTrigger. When it returns true the outcome will be called
@@ -190,21 +190,27 @@ EndFunction
 ===========================================================================================
 /;
 String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    String loc_msg = ""
+    String loc_res = ""
+    loc_res += UDmain.UDMTF.Header(NameFull, 4)
+    loc_res += UDmain.UDMTF.FontBegin(aiFontSize = UDmain.UDMTF.FontSize, asColor = UDmain.UDMTF.TextColorDefault)
+    If Description
+        loc_res += UDmain.UDMTF.LineBreak()
+        loc_res += UDmain.UDMTF.Text(Description, asAlign = "center")
+    EndIf
+; Trigger
+    loc_res += UDmain.UDMTF.LineBreak()
+    loc_res += UDmain.UDMTF.Header("Trigger", 0)
+    loc_res += UDmain.UDMTF.LineGap()
+    loc_res += (akForm1 as UD_ModTrigger).GetDetails(Self, akDevice, aiDataStr, akForm3)
+; Outcome
+    loc_res += UDmain.UDMTF.LineBreak()
+    loc_res += UDmain.UDMTF.Header("Outcome", 0)
+    loc_res += UDmain.UDMTF.LineGap()
+    loc_res += (akForm2 as UD_ModOutcome).GetDetails(Self, akDevice, aiDataStr, akForm4, akForm5)
     
-    loc_msg += "=== Trigger ===\n"
-    loc_msg += (akForm1 as UD_ModTrigger).GetDetails(Self, akDevice, aiDataStr, akForm3)
-    loc_msg += "\n"
-    loc_msg += "\n"
-    loc_msg += "=== Outcome ===\n"
-    loc_msg += (akForm2 as UD_ModOutcome).GetDetails(Self, akDevice, aiDataStr, akForm4, akForm5)
-    loc_msg += "\n"
-    loc_msg += "\n"
+    loc_res += UDmain.UDMTF.FontEnd()
 
-    loc_msg += "=== Description ===\n"
-    loc_msg += Description + "\n"
-
-    Return loc_msg
+    Return loc_res
 EndFunction
 
 String Function GetCaption(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)

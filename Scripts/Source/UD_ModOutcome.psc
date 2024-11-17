@@ -66,7 +66,25 @@ EndFunction
 /;
 
 String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
-    Return Description
+    String loc_res = ""
+    If Description
+        loc_res += UDmain.UDMTF.LineBreak()
+        loc_res += UDmain.UDMTF.Text(Description, asAlign = "center")
+    EndIf
+    loc_res += UDmain.UDMTF.Text("Parameters", asAlign = "center")
+    loc_res += UDmain.UDMTF.LineBreak()
+    loc_res += UDmain.UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
+    loc_res += GetParamsTableRows(akModifier, akDevice, aiDataStr, akForm4, akForm5)
+    loc_res += UDmain.UDMTF.TableEnd()
+    loc_res += UDmain.UDMTF.FontEnd()
+    Return loc_res
+EndFunction
+
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
+    String loc_res = ""
+;    loc_res += UDmain.UDMTF.TableRowDetails("Name:", NameFull)
+;    loc_res += UDmain.UDMTF.TableRowDetails("Param:", Param)
+    Return loc_res
 EndFunction
 
 ;/  Group: Protected methods
@@ -223,4 +241,18 @@ Form[] Function GetEquippedDevicesWithSelectionMethod(UD_CustomDevice_RenderScri
         EndIf
     EndWhile
     Return loc_devices
+EndFunction
+
+String Function GetSelectionMethodString(String asMethod)
+    If asMethod == "A" || asMethod == "ALL"
+        Return "All"
+    ElseIf asMethod == "S" || asMethod == "SELF"
+        Return "Self"
+    ElseIf asMethod == "R" || asMethod == "RANDOM"
+        Return "Random"
+    ElseIf asMethod == "F" || asMethod == "FIRST"
+        Return "First"
+    Else
+        Return asMethod
+    EndIf
 EndFunction

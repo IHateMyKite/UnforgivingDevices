@@ -1,13 +1,37 @@
+;/  File: UD_Modifier_GoldBase
+    Abstract class for gold-related modifiers
+
+    NameFull:   ABSTRACT!
+    NameAlias:  ABSTRACT!
+
+    Parameters:
+        [0]     Int     (optional) Minimum value of coefficient A (absolute value)
+                        Default value: 0
+                        
+        [1]     Int     (optional) Maximum value of coefficient A (absolute value)
+                        Default value: Parameter [0]
+                        
+        [2]     Int     (optional) Minimum value of coefficient B (proportional to level)
+                        Default value: 0
+                        
+        [3]     Int     (optional) Maximum value of coefficient B (proportional to level)
+                        Default value: Parameter [2]
+    
+    Example:
+        GoldVaue = A + B * <level>
+        where A and B are in ranges defined by parameters above
+/;
 ScriptName UD_Modifier_GoldBase extends UD_Modifier Hidden
 
 import UnforgivingDevicesMain
 import UD_Native
 
-String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    String loc_msg = ""
-    
-    loc_msg += "=== " + NameFull + " ===\n"
-    
+;/  Group: User Interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+String Function GetParamsTableRows(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     Form loc_currency = UDlibs.Gold
     Int loc_A_min = GetStringParamInt(aiDataStr, 0, 0)
     Int loc_A_max = GetStringParamInt(aiDataStr, 1, loc_A_min)
@@ -16,17 +40,18 @@ String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataS
     If akForm3 != None
         loc_currency = akForm3
     EndIf
-    loc_msg += "Currency: " + loc_currency.GetName()
-    loc_msg += "\n"
-    loc_msg += "Amount: [" + loc_A_min + "; " + loc_A_max + "] + " + akDevice.UD_Level + " * [" + loc_B_min + "; " + loc_B_max + "]"
-    loc_msg += "\n"
-    loc_msg += "\n"
-    loc_msg += "=== Description ===\n"
-    loc_msg += Description + "\n"
 
-    Return loc_msg
+    String loc_res = ""
+    loc_res += UDmain.UDMTF.TableRowDetails("Currency:", PrintForm(loc_currency))
+    loc_res += UDmain.UDMTF.TableRowDetails("Amount:", "[" + loc_A_min + "; " + loc_A_max + "] + " + akDevice.UD_Level + " * [" + loc_B_min + "; " + loc_B_max + "]")
+    Return loc_res
 EndFunction
 
+;/  Group: Protected Methods
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 Int Function CalculateGold(String aiDataStr, int aiLevel, Bool abRandom = true)
     ; para 0 = min
     ; para 1 = max

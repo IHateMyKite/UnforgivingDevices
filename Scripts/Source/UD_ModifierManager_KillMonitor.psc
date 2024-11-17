@@ -10,7 +10,7 @@ Event OnStoryKillActor(ObjectReference akVictim, ObjectReference akKiller, Locat
     If akKiller != None
         UDmain.Info("Killer: Name = " + akKiller.GetName() + " Reference = " + akKiller + ", Base = " + akKiller.GetBaseObject() + ", Leveled Base = " + (akKiller as Actor).GetLeveledActorBase() as ActorBase)
     EndIf
-    
+
     UDmain.UDMOM.UpdateModifiers_KillMonitor(akVictim, akKiller, akLocation, aiCrimeStatus)
     
     Stop()
