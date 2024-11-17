@@ -6,6 +6,7 @@ import UnforgivingDevicesMain
 import UD_NPCInteligence
 import UD_CustomDevice_RenderScript
 import UD_Native
+import zadNativeFunctions
 
 Spell Property SwimPenaltySpell auto
 UnforgivingDevicesMain Property UDmain auto
@@ -896,6 +897,7 @@ EndFunction
 /;
 Function LockDevice(form akActor, form akDeviceInventory, int aiForce)
     libsp.LockDevicePatched(akActor as Actor,akDeviceInventory as Armor,aiForce as Bool)
+    zadNativeFunctions.SetDisableUnequip(akActor as Actor,akDeviceInventory as Armor,true)
 EndFunction
 
 ;/  Function: LockDeviceParalel
