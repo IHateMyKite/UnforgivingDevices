@@ -369,7 +369,7 @@ Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRen
     if UDmain.TraceAllowed()
         UDmain.Log("RemoveQuestDevice("+getActorName(akActor)+") called for " + deviceInventory.GetName(),1)
     endif
-    
+    zadNativeFunctions.SetDisableUnequip(akActor,deviceInventory,false)
     UD_CustomDevice_NPCSlot     loc_slot        = none ;NPC slot for registered NPC
     UD_MutexScript              loc_mutex       = none ;mutex used for non registered NPC
     
@@ -441,6 +441,7 @@ Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRen
 
         endif
     else
+        zadNativeFunctions.SetDisableUnequip(akActor,deviceInventory,false)
         parent.RemoveQuestDevice(akActor, deviceInventory, deviceRendered, zad_DeviousDevice, RemovalToken, destroyDevice, skipMutex) ;actor not registered
     endif
     ;end mutex
