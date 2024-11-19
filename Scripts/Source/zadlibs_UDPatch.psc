@@ -259,6 +259,8 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
         if !loc_actordead
             loc_slot = UDCDmain.getNPCSlot(akActor)
             if loc_slot
+                zadNativeFunctions.SetDisableUnequip(akActor,deviceInventory,false)    
+                zadNativeFunctions.SetDisableUnequip(akActor,deviceRendered,false)
                 loc_slot.StartUnlockMutex()
             else
                 loc_mutex = UDMM.WaitForFreeAndSet_Unlock(akActor,deviceInventory)
@@ -389,6 +391,8 @@ Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRen
     if !loc_actordead
         loc_slot = UDCDmain.getNPCSlot(akActor)
         if loc_slot
+            zadNativeFunctions.SetDisableUnequip(akActor,deviceInventory,false)    
+            zadNativeFunctions.SetDisableUnequip(akActor,deviceRendered,false)
             loc_slot.StartUnlockMutex()
         else
             loc_mutex = UDMM.WaitForFreeAndSet_Unlock(akActor,deviceInventory)
@@ -412,6 +416,8 @@ Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRen
             ;questItemRemovalAuthorizationToken = RemovalToken
             
             if loc_slot
+                zadNativeFunctions.SetDisableUnequip(akActor,deviceInventory,false)    
+                zadNativeFunctions.SetDisableUnequip(akActor,deviceRendered,false)
                 loc_slot.ResetMutex_UnLock(deviceInventory) ;init slot mutex
                 loc_slot.UD_UnlockToken     = RemovalToken
             elseif loc_mutex

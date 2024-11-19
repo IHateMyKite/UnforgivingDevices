@@ -5,6 +5,7 @@ Scriptname UD_CustomDevice_RenderScript extends ObjectReference
 import UnforgivingDevicesMain
 import UD_NPCInteligence
 import UD_Native
+import zadNativeFunctions
 
 ;=============================================================
 ;=============================================================
@@ -1496,11 +1497,15 @@ Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True)
         while questKw
             questKw -= 1
             if deviceInventory.hasKeyword(UDCdmain.UD_QuestKeywords.getAt(questKw) as Keyword) || deviceRendered.hasKeyword(UDCdmain.UD_QuestKeywords.getAt(questKw) as Keyword)
+                zadNativeFunctions.SetDisableUnequip(Wearer,deviceInventory,false)    
+                zadNativeFunctions.SetDisableUnequip(Wearer,deviceRendered,false)
                 libs.RemoveQuestDevice(Wearer, deviceInventory, deviceRendered, UD_DeviceKeyword, UDCdmain.UD_QuestKeywords.getAt(questKw) as Keyword ,zad_DestroyOnRemove || hasModifier("DOR") || abForceDestroy)
                 return
             endif
         endwhile
     else
+        zadNativeFunctions.SetDisableUnequip(Wearer,deviceInventory,false)    
+        zadNativeFunctions.SetDisableUnequip(Wearer,deviceRendered,false)
         libs.UnlockDevice(Wearer, deviceInventory, deviceRendered, UD_DeviceKeyword, zad_DestroyOnRemove || hasModifier("DOR") || abForceDestroy)
     endif
 EndFunction
