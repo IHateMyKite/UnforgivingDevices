@@ -683,6 +683,7 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
             ;    UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device type:" + zad_DeviousDevice)
             ;endif
             StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
+            zadNativeFunctions.SetDisableUnequip(akActor as Actor,deviceInventory as Armor,false)
             akActor.UnequipItem(deviceInventory, false, true)
             prelock_fail = 2
         EndIf
@@ -697,6 +698,7 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
             ;    UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - Wearing conflicting device, aborting")
             ;endif
             StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
+            zadNativeFunctions.SetDisableUnequip(akActor as Actor,deviceInventory as Armor,false)
             akActor.UnequipItem(deviceInventory, false, true)
             prelock_fail = 3
         EndIf
@@ -706,6 +708,7 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
         if IsPlayer(akActor);loc_lockDeviceType == 1
             if EquipDeviceMenu(akActor)
                 StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
+                zadNativeFunctions.SetDisableUnequip(akActor as Actor,deviceInventory as Armor,false)
                 akActor.UnequipItem(deviceInventory, false, true)
                 prelock_fail = 4
             endif
@@ -720,6 +723,7 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
         if filter >= 1
             if filter == 2
                 StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
+                zadNativeFunctions.SetDisableUnequip(akActor as Actor,deviceInventory as Armor,false)
                 akActor.UnequipItem(deviceInventory, false, true)
             EndIf
             ;if UDmain.UD_WarningAllowed
@@ -797,6 +801,7 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
         if !loc_rdok
             Armor loc_conflictDevice = UDCDmain.GetConflictDevice(akActor,deviceRendered)
             if !loc_conflictDevice.haskeyword(libs.zad_Lockable)
+                zadNativeFunctions.SetDisableUnequip(akActor as Actor,loc_conflictDevice as Armor,false)
                 akActor.unequipItem(loc_conflictDevice)
                 Utility.waitmenumode(0.25)
                 akActor.equipitem(deviceRendered, true, true)
@@ -806,6 +811,7 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
                 ;render device lock failed, abort
                 _locked = false
                 StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,Math.LogicalOr(StorageUtil.GetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0),0x300))
+                zadNativeFunctions.SetDisableUnequip(akActor as Actor,deviceInventory as Armor,false)                
                 akActor.UnequipItem(deviceInventory, false, true)
                 if DestroyOnRemove
                     akActor.RemoveItem(deviceInventory,1,true)
@@ -899,11 +905,12 @@ EndFunction
 Function unlockDevice(Actor akActor)
     bool loc_failure = false
     StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory,0x111)
-    zadNativeFunctions.SetDisableUnequip(akActor as Actor,deviceInventory as Armor,false)
+    
     Int loc_RDNum = akActor.getItemCount(deviceRendered)
     if !loc_RDNum
         loc_failure = true
         if IsPlayer(akActor)
+            zadNativeFunctions.SetDisableUnequip(akActor as Actor,deviceInventory as Armor,false)
             akActor.unequipItem(deviceInventory, 1, true)
         endif
     endif
@@ -941,6 +948,7 @@ Function unlockDevice(Actor akActor)
     endif
     
     if !loc_failure
+        zadNativeFunctions.SetDisableUnequip(akActor as Actor,deviceInventory as Armor,false)
         akActor.unequipItem(deviceInventory, 1, true)
         UD_Native.SendRemoveRenderDeviceEvent(akActor,deviceRendered)
         ;UD_CustomDevice_RenderScript loc_device = getUDScript(akActor)
