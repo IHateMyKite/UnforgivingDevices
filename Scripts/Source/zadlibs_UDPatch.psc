@@ -228,6 +228,7 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
         UDmain.Warning("None passed to UnlockDevice as deviceInventory. Aborting!")
         return false
     endif
+
     if !deviceInventory.haskeyword(zad_inventoryDevice)
         UDmain.Warning("UnlockDevice("+MakeDeviceHeader(akActor,deviceInventory)+") - passed deviceInventory is not devious device. Aborting!")
         return false
@@ -248,7 +249,7 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
     if UDmain.TraceAllowed()
         UDmain.Log("UnlockDevice("+akActor+","+deviceInventory+","+deviceRendered+","+zad_DeviousDevice+","+destroyDevice+","+genericonly+")",1)
     endif
-    zadNativeFunctions.SetDisableUnequip(akActor,deviceInventory,false)
+    
     if deviceInventory.hasKeyword(UDCDmain.UDlibs.PatchedInventoryDevice)
         UDmain.UDNPCM.GotoState("UpdatePaused")
         UD_CustomDevice_NPCSlot loc_slot    = none ;NPC slot for registered NPC
@@ -309,8 +310,12 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
 
                 ;procces mutex untill device is unlocked
                 if loc_slot
+                    zadNativeFunctions.SetDisableUnequip(akActor,deviceInventory,false)    
+                    zadNativeFunctions.SetDisableUnequip(akActor,deviceRendered,false)
                     loc_slot.ProccesUnLockMutex()
                 elseif loc_mutex
+                    zadNativeFunctions.SetDisableUnequip(akActor,deviceInventory,false)    
+                    zadNativeFunctions.SetDisableUnequip(akActor,deviceRendered,false)                
                     loc_mutex.EvaluateUnLockMutex()
                 endif
                 
@@ -333,6 +338,8 @@ Bool Function UnlockDevice(actor akActor, armor deviceInventory, armor deviceRen
         endif
     else
         ;use default DD unlock function
+        zadNativeFunctions.SetDisableUnequip(akActor,deviceInventory,false)
+        zadNativeFunctions.SetDisableUnequip(akActor,deviceRendered,false)
         loc_res = parent.UnlockDevice(akActor, deviceInventory, deviceRendered, zad_DeviousDevice, destroyDevice, genericonly) ;actor not registered
     endif
     if UDmain.TraceAllowed()        
@@ -369,7 +376,7 @@ Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRen
     if UDmain.TraceAllowed()
         UDmain.Log("RemoveQuestDevice("+getActorName(akActor)+") called for " + deviceInventory.GetName(),1)
     endif
-    zadNativeFunctions.SetDisableUnequip(akActor,deviceInventory,false)
+    
     UD_CustomDevice_NPCSlot     loc_slot        = none ;NPC slot for registered NPC
     UD_MutexScript              loc_mutex       = none ;mutex used for non registered NPC
     
@@ -423,14 +430,19 @@ Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRen
             endif
             
             StorageUtil.SetIntValue(akActor, "UD_ignoreEvent" + deviceInventory, 0x110)
-            
+            zadNativeFunctions.SetDisableUnequip(akActor,deviceInventory,false)    
+            zadNativeFunctions.SetDisableUnequip(akActor,deviceRendered,false)
             akActor.removeItem(deviceInventory,1,True,UDCDmain.EventContainer_ObjRef)    
             UDCDmain.EventContainer_ObjRef.removeItem(deviceInventory,1,True,akActor)    
             
             ;procces mutex untill device is unlocked
             if loc_slot
+                zadNativeFunctions.SetDisableUnequip(akActor,deviceInventory,false)    
+                zadNativeFunctions.SetDisableUnequip(akActor,deviceRendered,false)
                 loc_slot.ProccesUnLockMutex()
             elseif loc_mutex
+                zadNativeFunctions.SetDisableUnequip(akActor,deviceInventory,false)    
+                zadNativeFunctions.SetDisableUnequip(akActor,deviceRendered,false)
                 loc_mutex.EvaluateUnLockMutex()
             endif
             
@@ -441,7 +453,8 @@ Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRen
 
         endif
     else
-        zadNativeFunctions.SetDisableUnequip(akActor,deviceInventory,false)
+        zadNativeFunctions.SetDisableUnequip(akActor,deviceInventory,false)    
+        zadNativeFunctions.SetDisableUnequip(akActor,deviceRendered,false)
         parent.RemoveQuestDevice(akActor, deviceInventory, deviceRendered, zad_DeviousDevice, RemovalToken, destroyDevice, skipMutex) ;actor not registered
     endif
     ;end mutex
