@@ -60,23 +60,17 @@ Bool Function ConditionLoss(UD_Modifier_Combo akModifier, UD_CustomDevice_Render
     Bool loc_repeat = GetStringParamInt(aiDataStr, 3, 0) > 0
     Return TriggerOnValueAbs(akDevice, akModifier.NameAlias, aiDataStr, afValueAbs = aiCondition, afMinValue = loc_min_condition, afProbBase = loc_prob_base, afProbAccum = loc_prob_value, abRepeat = loc_repeat)
 EndFunction
+
 ;/  Group: User interface
 ===========================================================================================
 ===========================================================================================
 ===========================================================================================
 /;
-
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
-    String loc_str = ""
-    loc_str += "On device condition change"
-    loc_str += "\n"
-    loc_str += "Threshold value: " + UDCDMain.GetConditionString(GetStringParamInt(aiDataStr, 0, 0))
-    loc_str += "\n"
-    loc_str += "Base probability: " + FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 2) + "%"
-    loc_str += "\n"
-    loc_str += "Cur. value weight: " + FormatFloat(GetStringParamFloat(aiDataStr, 2, 0.0), 2) + "%"
-    loc_str += "\n"
-    loc_str += "Repeat: " + InlineIfStr(GetStringParamInt(aiDataStr, 3, 0) > 0, "True", "False")
-    
-    Return loc_str
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    String loc_res = ""
+    loc_res += UDmain.UDMTF.TableRowDetails("Threshold value:", UDCDMain.GetConditionString(GetStringParamInt(aiDataStr, 0, 0)))
+    loc_res += UDmain.UDMTF.TableRowDetails("Base probability:", FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 1) + "%")
+    loc_res += UDmain.UDMTF.TableRowDetails("Cur. value weight:", FormatFloat(GetStringParamFloat(aiDataStr, 2, 0.0), 1) + "%")
+    loc_res += UDmain.UDMTF.TableRowDetails("Repeat:", InlineIfStr(GetStringParamInt(aiDataStr, 3, 0) > 0, "True", "False"))
+    Return loc_res
 EndFunction

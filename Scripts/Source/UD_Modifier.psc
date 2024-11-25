@@ -219,13 +219,18 @@ String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataS
 
     loc_res += UDmain.UDMTF.Header(NameFull, 4)
     loc_res += UDmain.UDMTF.FontBegin(aiFontSize = UDmain.UDMTF.FontSize, asColor = UDmain.UDMTF.TextColorDefault)
+    loc_res += UDmain.UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
+    loc_res += UDmain.UDMTF.HeaderSplit()
+
     If Description
         loc_res += UDmain.UDMTF.LineBreak()
         loc_res += UDmain.UDMTF.Text(Description, asAlign = "center")
     EndIf
+    loc_res += UDmain.UDMTF.LineBreak()
+    loc_res += UDmain.UDMTF.PageSplit(abForce = False)
     loc_res += UDmain.UDMTF.Header("Parameters", 0)
-    loc_res += UDmain.UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
     loc_res += GetParamsTableRows(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
+    loc_res += UDmain.UDMTF.FooterSplit()
     loc_res += UDmain.UDMTF.TableEnd()
     loc_res += UDmain.UDMTF.FontEnd()
 
@@ -248,24 +253,49 @@ String Function GetParamsTableRows(UD_CustomDevice_RenderScript akDevice, String
     Return loc_res
 EndFunction
 
-String Function PrintForm(Form akForm)
-    String loc_res = ""
-    If akForm == None
-        Return "None"
-    ElseIf akForm as FormList
-        loc_res += "["
-        Int loc_i = 0
-        While loc_i < (akForm as FormList).GetSize()
-            If loc_i > 0
-                loc_res += ", "
-            EndIf
-            loc_res += PrintForm((akForm as FormList).GetAt(loc_i))
-        EndWhile
-        loc_res += "]"
-        Return loc_res
+String Function GetSelectionMethodString(String asMethod)
+    If asMethod == "A" || asMethod == "ALL"
+        Return "All"
+    ElseIf asMethod == "S" || asMethod == "SELF"
+        Return "Self"
+    ElseIf asMethod == "R" || asMethod == "RANDOM"
+        Return "Random"
+    ElseIf asMethod == "F" || asMethod == "FIRST"
+        Return "First"
     Else
-        Return akForm.GetName()
+        Return asMethod
     EndIf
+EndFunction
+
+String Function PrintFormListSelectionDetails(Form akForm, String asMethod)
+    String loc_res = ""
+    loc_res += UDmain.UDMTF.TableRowDetails("Selected Forms:", GetSelectionMethodString(asMethod))
+    If UDmain.UDMTF.HasHtmlMarkup()
+        If akForm as FormList 
+            FormList loc_fl = akForm as FormList
+            Int loc_i = 0
+            While loc_i < loc_fl.GetSize()
+                loc_res += UDmain.UDMTF.TableRowDetails(" ", loc_fl.GetAt(loc_i).GetName())
+            EndWhile
+        ElseIf akForm
+            loc_res += UDmain.UDMTF.TableRowDetails(" ", akForm.GetName())
+        Else 
+            loc_res += UDmain.UDMTF.TableRowDetails(" ", "None")
+        EndIf
+    Else
+        If akForm as FormList 
+            FormList loc_fl = akForm as FormList
+            Int loc_i = 0
+            While loc_i < loc_fl.GetSize()
+                loc_res += UDmain.UDMTF.TableRowDetails("              ", loc_fl.GetAt(loc_i).GetName())
+            EndWhile
+        ElseIf akForm
+            loc_res += UDmain.UDMTF.TableRowDetails("              ", akForm.GetName())
+        Else 
+            loc_res += UDmain.UDMTF.TableRowDetails("              ", "None")
+        EndIf        
+    EndIf
+    Return loc_res
 EndFunction
 
 ;/  Group: Patcher

@@ -99,20 +99,19 @@ Bool Function StatEvent(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
-    String loc_event = GetStringParamString(aiDataStr, 0, "")
-    String loc_str = ""
-    loc_str += "On stat event (" + loc_event + ")"
-    loc_str += "\n"
-    loc_str += "Minimum accumulated value: " + GetStringParamInt(aiDataStr, 1, 0)
-    loc_str += "\n"
-    loc_str += "Base probability: " + FormatFloat(GetStringParamFloat(aiDataStr, 2, 100.0), 2) + "%"
-    loc_str += "\n"
-    loc_str += "Repeat: " + InlineIfStr(GetStringParamInt(aiDataStr, 3, 0) > 0, "True", "False")
-    loc_str += "\n"
-    loc_str += "Accumulator: " + GetStringParamInt(aiDataStr, 4, 0)
-    loc_str += "\n"
-    loc_str += "(Accumulator contains stat change since the last trigger)"
-    
-    Return loc_str
+;/  Group: User interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    String loc_res = ""
+    loc_res += UDmain.UDMTF.TableRowDetails("Stat name:", GetStringParamString(aiDataStr, 0, ""))
+    loc_res += UDmain.UDMTF.TableRowDetails("Minimum accumulated value:", GetStringParamInt(aiDataStr, 1, 0))
+    loc_res += UDmain.UDMTF.TableRowDetails("Base probability:", FormatFloat(GetStringParamFloat(aiDataStr, 2, 100.0), 1) + "%")
+    loc_res += UDmain.UDMTF.TableRowDetails("Repeat:", InlineIfStr(GetStringParamInt(aiDataStr, 3, 0) > 0, "True", "False"))
+    loc_res += UDmain.UDMTF.TableRowDetails("Accumulator:", GetStringParamInt(aiDataStr, 4, 0))
+    loc_res += UDmain.UDMTF.Text("(Accumulator contains stat change since the last trigger)", asAlign = "center")
+    loc_res += UDmain.UDMTF.LineBreak()
+    Return loc_res
 EndFunction

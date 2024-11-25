@@ -47,10 +47,18 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     endif
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
-    String loc_str = ""
-    loc_str += "Replaces device"
-    loc_str += "\n"
-    loc_str += "Source: " + akForm4 + ", " + akForm5
-    Return loc_str
+;/  Group: User Interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
+    String loc_res = ""
+    If akForm4
+        loc_res += PrintFormListSelectionDetails(akForm4, "R")
+    EndIf
+    If akForm5
+        loc_res += PrintFormListSelectionDetails(akForm5, "R")
+    EndIf
+    Return loc_res
 EndFunction

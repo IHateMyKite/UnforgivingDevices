@@ -60,17 +60,17 @@ Bool Function WeaponHit(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     Return False
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
-    String loc_str = ""
-    loc_str += "Warrior playstyle"
-    loc_str += "\n"
-    loc_str += "Prob. on weapon swing: " + FormatFloat(GetStringParamFloat(aiDataStr, 0, 0.0), 2) + "%"
-    loc_str += "\n"
-    loc_str += "Prob. on skill increase: " + FormatFloat(GetStringParamFloat(aiDataStr, 1, 0.0), 2) + "%"
-    loc_str += "\n"
-    loc_str += "(TwoHanded, Block, Smithing, HeavyArmor)"
-    loc_str += "\n"
-    loc_str += "Prob. on melee hit taken: " + FormatFloat(GetStringParamFloat(aiDataStr, 2, 0.0), 2) + "%"
-    
-    Return loc_str
+;/  Group: User interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    String loc_res = ""
+    loc_res += UDmain.UDMTF.TableRowDetails("Prob. on weapon swing:", FormatFloat(GetStringParamFloat(aiDataStr, 0, 0.0), 1) + "%")
+    loc_res += UDmain.UDMTF.TableRowDetails("Prob. on skill increase:", FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 1) + "%")
+    loc_res += UDmain.UDMTF.Text("(TwoHanded, Block, Smithing, HeavyArmor)", asAlign = "center")
+    loc_res += UDmain.UDMTF.LineBreak()
+    loc_res += UDmain.UDMTF.TableRowDetails("Prob. on melee hit taken:", FormatFloat(GetStringParamFloat(aiDataStr, 2, 100.0), 1) + "%")
+    Return loc_res
 EndFunction

@@ -53,31 +53,49 @@ Bool Function ConditionLoss(UD_Modifier_Combo akModifier, UD_CustomDevice_Render
     Return False
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
-    String loc_event = GetStringParamString(aiDataStr, 0, "")
+;/  Group: User interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    String loc_res = ""
+    String loc_frag = GetStringParamString(aiDataStr, 0, "")
+    If UDmain.UDMTF.HasHtmlMarkup()
+        loc_frag = GetDeviceEventString(loc_frag, "<br/> \t")
+    Else
+        loc_frag = GetDeviceEventString(loc_frag, ", ")
+    EndIf
+    loc_res += UDmain.UDMTF.TableRowDetails("Event(s):", loc_frag)
+    loc_res += UDmain.UDMTF.TableRowDetails("Base probability:", FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 1) + "%")
+    Return loc_res
+EndFunction
+
+;/  Group: Protected Methods
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+String Function GetDeviceEventString(String asAbbr, String asSep = ", ")
     String loc_str = ""
     Bool loc_comma = False
-    loc_str += "On device event ("
-    If StringUtil.Find(loc_event, "DL") >= 0 || StringUtil.Find(loc_event, "DeviceLocked") >= 0
+    If StringUtil.Find(asAbbr, "DL") >= 0 || StringUtil.Find(asAbbr, "DeviceLocked") >= 0
         loc_str += "Device Lock"
         loc_comma = True
     EndIf
-    If StringUtil.Find(loc_event, "DU") >= 0 || StringUtil.Find(loc_event, "DeviceUnlocked") >= 0
+    If StringUtil.Find(asAbbr, "DU") >= 0 || StringUtil.Find(asAbbr, "DeviceUnlocked") >= 0
         If loc_comma 
-            loc_str += ", "
+            loc_str += asSep
         EndIf
         loc_str += "Device Unlock"
         loc_comma = True
     EndIf
-    If StringUtil.Find(loc_event, "DB") >= 0 || StringUtil.Find(loc_event, "DeviceBroken") >= 0
+    If StringUtil.Find(asAbbr, "DB") >= 0 || StringUtil.Find(asAbbr, "DeviceBroken") >= 0
         If loc_comma 
-            loc_str += ", "
+            loc_str += asSep
         EndIf
         loc_str += "Device Broke"
         loc_comma = True
     EndIf
-    loc_str += ")\n"
-    loc_str += "Base probability: " + FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 2) + "%"
-    
     Return loc_str
 EndFunction

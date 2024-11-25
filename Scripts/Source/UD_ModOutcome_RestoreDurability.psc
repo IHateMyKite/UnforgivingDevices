@@ -56,6 +56,37 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     
 EndFunction
 
+;/  Group: User Interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
+    String loc_res = ""
+    String loc_frag = "" 
+    String loc_method_list4 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
+    Float loc_min = GetStringParamFloat(aiDataStr, DataStrOffset + 2)
+    Float loc_max = GetStringParamFloat(aiDataStr, DataStrOffset + 3, loc_min)   
+    If loc_method_list4 == "S"
+        loc_frag = "SELF"
+    ElseIf loc_method_list4 == "A"
+        loc_frag = "ALL"
+    Else
+        loc_frag = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)   
+    EndIf
+    loc_res += UDmain.UDMTF.TableRowDetails("Number of devices:", loc_frag)
+    If loc_method_list4 != ""
+        loc_res += PrintFormListSelectionDetails(akForm4, loc_method_list4)
+    EndIf
+    loc_res += UDmain.UDMTF.TableRowDetails("Magnitude:", FormatFloat(loc_min, 1) + " - " + FormatFloat(loc_max, 1) + "%")
+    Return loc_res
+EndFunction
+
+;/  Group: Protected methods
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 Function mendDevice(UD_CustomDevice_RenderScript akDevice, Float afStrength, float afMult = 1.0, float afTimePassed)
     if akDevice.onMendPre(afMult) && akDevice.GetRelativeDurability() > 0.0
         Float   loc_regen   = afStrength
@@ -64,25 +95,4 @@ Function mendDevice(UD_CustomDevice_RenderScript akDevice, Float afStrength, flo
         akDevice.refillCuttingProgress(afTimePassed*loc_regen)
         akDevice.onMendPost(loc_amount)
     endif
-EndFunction
-
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
-    String loc_str = ""
-    String loc_method_list4 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
-    Float loc_min = GetStringParamFloat(aiDataStr, DataStrOffset + 2)
-    Float loc_max = GetStringParamFloat(aiDataStr, DataStrOffset + 3, loc_min)
-    loc_str += "Mends device(s)"
-    loc_str += "\n"
-    loc_str += "Number of devices: "
-    If loc_method_list4 == "S"
-        loc_str += "SELF"
-    ElseIf loc_method_list4 == "A"
-        loc_str += "ALL"
-    Else
-        loc_str += GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)   
-    EndIf
-    loc_str += "\n"
-    loc_str += "Restore: " + FormatFloat(loc_min, 1) + " - " + FormatFloat(loc_max, 1)
-    
-    Return loc_str
 EndFunction

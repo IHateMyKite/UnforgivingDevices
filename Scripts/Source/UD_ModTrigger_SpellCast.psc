@@ -54,21 +54,19 @@ Bool Function SpellCast(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     Return TriggerOnValueDelta(akDevice, akModifier.NameAlias, aiDataStr, afValueDelta = loc_cost, afMinAccum = loc_min_cost, afProbBase = loc_prob_base, afProbDelta = loc_prob_delta, abRepeat = loc_repeat, aiAccumParamIndex = 4)
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
-    String loc_str = ""
-    loc_str += "On spell cast (value is the base mana cost)"
-    loc_str += "\n"
-    loc_str += "Threshold value: " + GetStringParamInt(aiDataStr, 0, 0) + " mana"
-    loc_str += "\n"
-    loc_str += "Base probability: " + FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 2) + "%"
-    loc_str += "\n"
-    loc_str += "Value weight: " + FormatFloat(GetStringParamFloat(aiDataStr, 2, 0.0), 2) + "% per mana point"
-    loc_str += "\n"
-    loc_str += "Repeat: " + InlineIfStr(GetStringParamInt(aiDataStr, 3, 0) > 0, "True", "False")
-    loc_str += "\n"
-    loc_str += "Accumulator: " + GetStringParamInt(aiDataStr, 4, 0) + " mana"
-    loc_str += "\n"
-    loc_str += "(Accumulator contains the total mana spent so far)"
-    
-    Return loc_str
+;/  Group: User interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    String loc_res = ""
+    loc_res += UDmain.UDMTF.TableRowDetails("Threshold value:", GetStringParamInt(aiDataStr, 0, 0) + " mana")
+    loc_res += UDmain.UDMTF.TableRowDetails("Base probability:", FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 1) + "%")
+    loc_res += UDmain.UDMTF.TableRowDetails("Value weight:", FormatFloat(GetStringParamFloat(aiDataStr, 2, 0.0), 1) + "% per mana point")
+    loc_res += UDmain.UDMTF.TableRowDetails("Repeat:", InlineIfStr(GetStringParamInt(aiDataStr, 3, 0) > 0, "True", "False"))
+    loc_res += UDmain.UDMTF.TableRowDetails("Accumulator:", GetStringParamInt(aiDataStr, 4, 0) + " mana")
+    loc_res += UDmain.UDMTF.Text("(Accumulator contains the total mana spent so far)", asAlign = "center")
+    loc_res += UDmain.UDMTF.LineBreak()
+    Return loc_res
 EndFunction

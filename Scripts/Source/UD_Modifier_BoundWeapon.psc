@@ -70,7 +70,7 @@ EndFunction
 /;
 String Function GetParamsTableRows(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     String loc_res = ""
-    loc_res += UDmain.UDMTF.TableRowDetails("Weapon:", PrintForm(akForm1))
-    loc_res += UDmain.UDMTF.TableRowDetails("Summon Spell:", PrintForm(akForm2))
+    loc_res += UDmain.UDMTF.TableRowDetails("Weapon:", akForm1.GetName())
+    loc_res += UDmain.UDMTF.TableRowDetails("Summon Spell:", akForm2.GetName())
     Return loc_res
 EndFunction

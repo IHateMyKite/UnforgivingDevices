@@ -32,16 +32,17 @@ EndFunction
 ===========================================================================================
 /;
 Bool Function SexLabEvent(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Bool[] aabTypes, Actor[] aakActors, String aiDataStr, Form akForm1)
+    ; TODO PR195
     Return False
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
-    String loc_event = GetStringParamString(aiDataStr, 0, "")
-    String loc_str = ""
-    Bool loc_comma = False
-    loc_str += "On sex event"
-    loc_str += "\n"
-    loc_str += "Base probability: " + FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 2) + "%"
-    
-    Return loc_str
+;/  Group: User interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    String loc_res = ""
+    loc_res += UDmain.UDMTF.TableRowDetails("Base probability:", FormatFloat(GetStringParamFloat(aiDataStr, 0, 100.0), 1) + "%")
+    Return loc_res
 EndFunction

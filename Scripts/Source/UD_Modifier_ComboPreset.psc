@@ -128,25 +128,22 @@ String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataS
     String loc_res = ""
     loc_res += UDmain.UDMTF.Header(NameFull, 4)
     loc_res += UDmain.UDMTF.FontBegin(aiFontSize = UDmain.UDMTF.FontSize, asColor = UDmain.UDMTF.TextColorDefault)
-; Trigger
+    loc_res += UDmain.UDMTF.HeaderSplit()
     loc_res += UDmain.UDMTF.LineBreak()
+    If Description
+        loc_res += UDmain.UDMTF.Text(Description, asAlign = "center")
+        loc_res += UDmain.UDMTF.LineBreak()
+    EndIf
+; Trigger
+    loc_res += UDmain.UDMTF.PageSplit(abForce = False)
     loc_res += UDmain.UDMTF.Header("Trigger", 0)
-    loc_res += UDmain.UDMTF.LineGap()
     loc_res += ModTrigger.GetDetails(Self, akDevice, aiDataStr, akForm3)
 ; Outcome
-    loc_res += UDmain.UDMTF.LineBreak()
+    loc_res += UDmain.UDMTF.PageSplit(abForce = False)
     loc_res += UDmain.UDMTF.Header("Outcome", 0)
-    loc_res += UDmain.UDMTF.LineGap()
     loc_res += ModOutcome.GetDetails(Self, akDevice, aiDataStr, akForm4, akForm5)
-; Description
-    If Description
-        loc_res += UDmain.UDMTF.LineBreak()
-        loc_res += UDmain.UDMTF.Header("Description", 0)
-        loc_res += UDmain.UDMTF.ParagraphBegin(asAlign = "center")
-        loc_res += UDmain.UDMTF.LineGap()
-        loc_res += UDmain.UDMTF.Text(Description)
-        loc_res += UDmain.UDMTF.ParagraphEnd()
-    EndIf
+    
+    loc_res += UDmain.UDMTF.FooterSplit()
     loc_res += UDmain.UDMTF.FontEnd()
 
     Return loc_res

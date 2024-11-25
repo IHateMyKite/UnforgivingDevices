@@ -824,6 +824,7 @@ Auto State HTML
         loc_res = TrimSubstr(loc_res, " ")
         loc_res = TrimSubstr(loc_res, LineGap())
         loc_res = RemoveDuplicates(loc_res, LineGap())
+        loc_res = ReplaceSubstr(loc_res, "<br/></p>", "</p>")
         loc_res = ReplaceSubstr(loc_res, "<gap/>", "<font size='12'> <br/></font>") ;"<textformat leading='-10'> <br/></textformat>"
         loc_res = ReplaceSubstr(loc_res, "<br/>", "\n")
         Debug.Trace(Self + "::_CleanPage() After: begining = " + StringUtil.Substring(asPage, 0, 100))

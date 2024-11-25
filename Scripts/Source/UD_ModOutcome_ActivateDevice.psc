@@ -38,10 +38,10 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     EndIf
     
     Int loc_count = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
-    String loc_method_list3 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
-    String loc_method_list4 = GetStringParamString(aiDataStr, DataStrOffset + 2, "")
+    String loc_method_list4 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
+    String loc_method_list5 = GetStringParamString(aiDataStr, DataStrOffset + 2, "")
 
-    Form[] loc_devices = GetEquippedDevicesWithSelectionMethod(akDevice, loc_count, akForm4, loc_method_list3, akForm5, loc_method_list4)
+    Form[] loc_devices = GetEquippedDevicesWithSelectionMethod(akDevice, loc_count, akForm4, loc_method_list4, akForm5, loc_method_list5)
 
     Int loc_i = 0
     While loc_i < loc_devices.Length
@@ -51,22 +51,32 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
 
 EndFunction
 
+;/  Group: User Interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
     String loc_res = ""
     String loc_frag = ""
     Int loc_count = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
-    String loc_method_list3 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
-    String loc_method_list4 = GetStringParamString(aiDataStr, DataStrOffset + 2, "")
+    String loc_method_list4 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
+    String loc_method_list5 = GetStringParamString(aiDataStr, DataStrOffset + 2, "")
 
-    If loc_method_list3 == "S" || loc_method_list3 == "SELF"
+    If loc_method_list4 == "S" || loc_method_list4 == "SELF"
         loc_frag = "SELF"
-    ElseIf loc_method_list3 == "A" || loc_method_list3 == "ALL"
+    ElseIf loc_method_list4 == "A" || loc_method_list4 == "ALL"
         loc_frag = "ALL"
     Else
         loc_frag = loc_count As String
-        loc_frag += " (" + loc_method_list3 + ")"
     EndIf
     loc_res += UDmain.UDMTF.TableRowDetails("Number of devices:", loc_frag)
-;    loc_res += UDmain.UDMTF.TableRowDetails("Param:", Param)
+    
+    If loc_method_list4 != "" && akForm4
+        loc_res += PrintFormListSelectionDetails(akForm4, loc_method_list4)
+    EndIf
+    If loc_method_list5 != "" && akForm5
+        loc_res += PrintFormListSelectionDetails(akForm5, loc_method_list5)
+    EndIf
     Return loc_res
 EndFunction

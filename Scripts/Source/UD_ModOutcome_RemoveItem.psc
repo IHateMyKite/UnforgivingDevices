@@ -41,15 +41,23 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
-    String loc_str = ""
+;/  Group: User Interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
+    String loc_res = ""
     Int loc_min = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
     Int loc_max = GetStringParamInt(aiDataStr, DataStrOffset + 1, loc_min)
-    loc_str += "Removes item(s)"
-    loc_str += "\n"
-    loc_str += "Number of items: " + loc_min + " - " + loc_max
-    loc_str += "\n"
-    loc_str += "Items: " + akForm4 + ", " + akForm5
-    
-    Return loc_str
+
+    loc_res += UDmain.UDMTF.TableRowDetails("Number of items:", loc_min + " - " + loc_max)
+    If akForm4
+        loc_res += PrintFormListSelectionDetails(akForm4, "R")
+    EndIf
+    If akForm5
+        loc_res += PrintFormListSelectionDetails(akForm5, "R")
+    EndIf
+    loc_res += UDmain.UDMTF.TableRowDetails("Instant use:", InlineIfStr(GetStringParamInt(aiDataStr, DataStrOffset + 2, 0) > 0, "True", "False"))
+    Return loc_res
 EndFunction

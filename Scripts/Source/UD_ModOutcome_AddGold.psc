@@ -58,8 +58,13 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
-    String loc_str = ""
+;/  Group: User Interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
+    String loc_res = ""
     Form loc_currency = UDlibs.Gold
     Int loc_A_min = GetStringParamInt(aiDataStr, DataStrOffset + 0, 0)
     Int loc_A_max = GetStringParamInt(aiDataStr, DataStrOffset + 1, loc_A_min)
@@ -68,9 +73,9 @@ String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderS
     If akForm4 != None
         loc_currency = akForm4
     EndIf
-    loc_str += "Currency: " + loc_currency.GetName()
-    loc_str += "\n"
-    loc_str += "Amount: [" + loc_A_min + "; " + loc_A_max + "] + " + akDevice.UD_Level + " * [" + loc_B_min + "; " + loc_B_max + "]"
-    
-    Return loc_str
+
+    loc_res += UDmain.UDMTF.TableRowDetails("Currency:", loc_currency.GetName())
+    loc_res += UDmain.UDMTF.TableRowDetails("Amount:", "[" + loc_A_min + "; " + loc_A_max + "] + " + akDevice.UD_Level + " * [" + loc_B_min + "; " + loc_B_max + "]")
+
+    Return loc_res
 EndFunction

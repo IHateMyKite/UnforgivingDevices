@@ -124,6 +124,9 @@ EndFunction
 ===========================================================================================
 /;
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
-    Return Description
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    String loc_res = ""
+;    loc_res += UDmain.UDMTF.TableRowDetails("Name:", NameFull)
+;    loc_res += UDmain.UDMTF.TableRowDetails("Param:", Param)
+    Return loc_res
 EndFunction

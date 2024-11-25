@@ -68,15 +68,14 @@ EndFunction
 String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
     String loc_res = ""
     If Description
-        loc_res += UDmain.UDMTF.LineBreak()
         loc_res += UDmain.UDMTF.Text(Description, asAlign = "center")
+        loc_res += UDmain.UDMTF.LineGap()
     EndIf
-    loc_res += UDmain.UDMTF.Text("Parameters", asAlign = "center")
-    loc_res += UDmain.UDMTF.LineBreak()
+;    loc_res += UDmain.UDMTF.Text("Parameters", asAlign = "center")
+;    loc_res += UDmain.UDMTF.LineBreak()
     loc_res += UDmain.UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
     loc_res += GetParamsTableRows(akModifier, akDevice, aiDataStr, akForm4, akForm5)
     loc_res += UDmain.UDMTF.TableEnd()
-    loc_res += UDmain.UDMTF.FontEnd()
     Return loc_res
 EndFunction
 
@@ -84,6 +83,51 @@ String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice
     String loc_res = ""
 ;    loc_res += UDmain.UDMTF.TableRowDetails("Name:", NameFull)
 ;    loc_res += UDmain.UDMTF.TableRowDetails("Param:", Param)
+    Return loc_res
+EndFunction
+
+String Function GetSelectionMethodString(String asMethod)
+    If asMethod == "A" || asMethod == "ALL"
+        Return "All"
+    ElseIf asMethod == "S" || asMethod == "SELF"
+        Return "Self"
+    ElseIf asMethod == "R" || asMethod == "RANDOM"
+        Return "Random"
+    ElseIf asMethod == "F" || asMethod == "FIRST"
+        Return "First"
+    Else
+        Return asMethod
+    EndIf
+EndFunction
+
+String Function PrintFormListSelectionDetails(Form akForm, String asMethod)
+    String loc_res = ""
+    loc_res += UDmain.UDMTF.TableRowDetails("Selected Forms:", GetSelectionMethodString(asMethod))
+    If UDmain.UDMTF.HasHtmlMarkup()
+        If akForm as FormList 
+            FormList loc_fl = akForm as FormList
+            Int loc_i = 0
+            While loc_i < loc_fl.GetSize()
+                loc_res += UDmain.UDMTF.TableRowDetails(" ", loc_fl.GetAt(loc_i).GetName())
+            EndWhile
+        ElseIf akForm
+            loc_res += UDmain.UDMTF.TableRowDetails(" ", akForm.GetName())
+        Else 
+            loc_res += UDmain.UDMTF.TableRowDetails(" ", "None")
+        EndIf
+    Else
+        If akForm as FormList 
+            FormList loc_fl = akForm as FormList
+            Int loc_i = 0
+            While loc_i < loc_fl.GetSize()
+                loc_res += UDmain.UDMTF.TableRowDetails("              ", loc_fl.GetAt(loc_i).GetName())
+            EndWhile
+        ElseIf akForm
+            loc_res += UDmain.UDMTF.TableRowDetails("              ", akForm.GetName())
+        Else 
+            loc_res += UDmain.UDMTF.TableRowDetails("              ", "None")
+        EndIf        
+    EndIf
     Return loc_res
 EndFunction
 
@@ -241,18 +285,4 @@ Form[] Function GetEquippedDevicesWithSelectionMethod(UD_CustomDevice_RenderScri
         EndIf
     EndWhile
     Return loc_devices
-EndFunction
-
-String Function GetSelectionMethodString(String asMethod)
-    If asMethod == "A" || asMethod == "ALL"
-        Return "All"
-    ElseIf asMethod == "S" || asMethod == "SELF"
-        Return "Self"
-    ElseIf asMethod == "R" || asMethod == "RANDOM"
-        Return "Random"
-    ElseIf asMethod == "F" || asMethod == "FIRST"
-        Return "First"
-    Else
-        Return asMethod
-    EndIf
 EndFunction

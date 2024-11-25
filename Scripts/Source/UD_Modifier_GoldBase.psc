@@ -42,7 +42,7 @@ String Function GetParamsTableRows(UD_CustomDevice_RenderScript akDevice, String
     EndIf
 
     String loc_res = ""
-    loc_res += UDmain.UDMTF.TableRowDetails("Currency:", PrintForm(loc_currency))
+    loc_res += UDmain.UDMTF.TableRowDetails("Currency:", loc_currency.GetName())
     loc_res += UDmain.UDMTF.TableRowDetails("Amount:", "[" + loc_A_min + "; " + loc_A_max + "] + " + akDevice.UD_Level + " * [" + loc_B_min + "; " + loc_B_max + "]")
     Return loc_res
 EndFunction
