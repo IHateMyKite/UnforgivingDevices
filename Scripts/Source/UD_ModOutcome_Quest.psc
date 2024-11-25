@@ -43,16 +43,6 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
-    String loc_str = ""
-    Int loc_stage = GetStringParamInt(aiDataStr, DataStrOffset + 0, -1)
-    loc_str += "Changes the status of the quest"
-    loc_str += "\n"
-    loc_str += "Quest: " + akForm4 + ", " + akForm5
-    loc_str += "Stage: " + loc_stage
-    Return loc_str
-EndFunction
-
 ;/  Group: User Interface
 ===========================================================================================
 ===========================================================================================

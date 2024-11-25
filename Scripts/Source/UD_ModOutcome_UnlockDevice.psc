@@ -51,22 +51,6 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
-    String loc_str = ""
-    String loc_method_list3 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R") 
-    loc_str += "Removes device(s)"
-    loc_str += "\n"
-    loc_str += "Number of devices: "
-    If loc_method_list3 == "S"
-        loc_str += "SELF"
-    ElseIf loc_method_list3 == "A"
-        loc_str += "ALL"
-    Else
-        loc_str += GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)   
-    EndIf
-    Return loc_str
-EndFunction
-
 ;/  Group: User Interface
 ===========================================================================================
 ===========================================================================================

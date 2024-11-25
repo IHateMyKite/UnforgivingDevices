@@ -39,21 +39,6 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     
 EndFunction
 
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
-    String loc_str = ""
-    Bool loc_force = GetStringParamInt(aiDataStr, DataStrOffset + 0, 0) > 0
-    loc_str += "Starts scene"
-    loc_str += "\n"
-    loc_str += "Scene: " + akForm4 + ", " + akForm5
-    loc_str += "Force: "
-    If loc_force
-        loc_str += "True"
-    Else
-        loc_str += "False"
-    EndIf
-    Return loc_str
-EndFunction
-
 ;/  Group: User Interface
 ===========================================================================================
 ===========================================================================================
