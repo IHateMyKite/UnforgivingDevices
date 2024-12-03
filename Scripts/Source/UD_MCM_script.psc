@@ -694,6 +694,9 @@ Int UD_ModifierVarEasyDesc_T
 Int UD_ModifierVarNormDesc_T
 Int UD_ModifierVarHardDesc_T
 
+Int UD_ModifierDeviceTags_T
+Int UD_ModifierGlobalTags_T
+
 Function resetModifiersPage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
@@ -723,6 +726,8 @@ Function resetModifiersPage()
     If UDmain.UDMOM.UD_ModifierListRef.Length == 0
         UD_ModifierNoModsDesc_T = AddTextOption("$UD_CUSTOMMOD_ERROR_NOMODS", "$-INFO-", FlagSwitch(True))      ; No modifiers found!
         Return
+    Else
+        UD_ModifierNoModsDesc_T = -1
     EndIf
     
     If UDmain.UDMOM.UD_ModifierListRef.Length <= UD_ModifierSelected
@@ -767,28 +772,35 @@ Function resetModifiersPage()
     If loc_mod_pp == None
         UD_ModifierNoPPDesc_T = AddTextOption("$UD_CUSTOMMOD_ERROR_NOPPS", "$-INFO-", FlagSwitch(True))            ; No patcher presets found!
         Return
+    Else 
+        UD_ModifierNoPPDesc_T = -1
     EndIf
     
     UD_ModifierPatchList_M = AddMenuOption("$UD_CUSTOMMOD_PPSSELECTED", loc_mod_pp.DisplayName)           ; Selected patch preset:
     AddEmptyOption()
     
-    UD_ModifierVarEasyDesc_T = AddTextOption("$UD_CUSTOMMOD_VAREASY", loc_mod_pp.DataStr_Easy, UD_LockMenu_flag)
-    UD_ModPP_ApplicableToPlayer_T = addToggleOption("$UD_CUSTOMMOD_APPTOPLAYER", loc_mod_pp.ApplicableToPlayer, UD_LockMenu_flag)        ; Applicable to Player
-    UD_ModifierVarNormDesc_T = AddTextOption("$UD_CUSTOMMOD_NORMAL", loc_mod_pp.DataStr_Ground, UD_LockMenu_flag)
-    UD_ModPP_ApplicableToNPC_T = addToggleOption("$UD_CUSTOMMOD_APPTONPC", loc_mod_pp.ApplicableToNPC, UD_LockMenu_flag)                ; Applicable to NPCs
-    UD_ModifierVarHardDesc_T = AddTextOption("$UD_CUSTOMMOD_VARHARD", loc_mod_pp.DataStr_Hard, UD_LockMenu_flag)
-    AddEmptyOption()
+    UD_ModifierVarEasyDesc_T = AddTextOption("$UD_CUSTOMMOD_VAREASY", "$-PREVIEW-", UD_LockMenu_flag)
+    AddTextOption("", loc_mod_pp.DataStr_Easy, UD_LockMenu_flag)
+    UD_ModifierVarNormDesc_T = AddTextOption("$UD_CUSTOMMOD_VARNORMAL", "$-PREVIEW-", UD_LockMenu_flag)
+    AddTextOption("", loc_mod_pp.DataStr_Ground, UD_LockMenu_flag)
+    UD_ModifierVarHardDesc_T = AddTextOption("$UD_CUSTOMMOD_VARHARD", "$-PREVIEW-", UD_LockMenu_flag)
+    AddTextOption("", loc_mod_pp.DataStr_Hard, UD_LockMenu_flag)
+
+    UD_ModifierDeviceTags_T = AddTextOption("$UD_CUSTOMMOD_DEVTAGS", "$-INFO-", UD_LockMenu_flag)
+    AddTextOption("", loc_mod_pp.ConflictedDeviceModTags, UD_LockMenu_flag)
+    UD_ModifierGlobalTags_T = AddTextOption("$UD_CUSTOMMOD_GLOBTAGS", "$-INFO-", UD_LockMenu_flag)
+    AddTextOption("", loc_mod_pp.ConflictedGlobalModTags, UD_LockMenu_flag)
     
-    AddTextOption("$UD_CUSTOMMOD_DEVTAGS", loc_mod_pp.ConflictedDeviceModTags, UD_LockMenu_flag)
-    AddTextOption("$UD_CUSTOMMOD_GLOBTAGS", loc_mod_pp.ConflictedGlobalModTags, UD_LockMenu_flag)
+    UD_ModPP_ApplicableToPlayer_T = addToggleOption("$UD_CUSTOMMOD_APPTOPLAYER", loc_mod_pp.ApplicableToPlayer, UD_LockMenu_flag)        ; Applicable to Player
+    AddEmptyOption()
+    UD_ModPP_ApplicableToNPC_T = addToggleOption("$UD_CUSTOMMOD_APPTONPC", loc_mod_pp.ApplicableToNPC, UD_LockMenu_flag)                ; Applicable to NPCs
+    AddEmptyOption()
     
     UD_ModPP_BaseProbability_S = AddSliderOption("$UD_CUSTOMMOD_BASEPROB", loc_mod_pp.BaseProbability, "{0} %", UD_LockMenu_flag)                 ; Base probability
     UD_ModPP_BaseSeverity_S = AddSliderOption("$UD_CUSTOMMOD_BASESEVERITY", loc_mod_pp.BaseSeverity, "{2}", UD_LockMenu_flag)                         ; Base severity
     UD_ModPP_IsNormalizedProbability_T = addToggleOption("$UD_CUSTOMMOD_PROBNORM", loc_mod_pp.IsNormalizedProbability, UD_LockMenu_flag)          ; Probability is normalized
     UD_ModPP_SeverityDispersion_S = AddSliderOption("$UD_CUSTOMMOD_SEVERITYDISP", loc_mod_pp.SeverityDispersion, "{2}", UD_LockMenu_flag)             ; Severity dispersion
-    
-    
-    
+
 EndFunction
 
 Int UD_OutfitSelected = 0
@@ -1741,19 +1753,19 @@ Function OptionSelectModifiers(int option)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
         ; set of argument is not complete, could break the function
         String loc_msg = loc_mod.GetDetails(None, loc_mod_pp.DataStr_Easy, None, None, None, None, None)
-        ShowMessage(loc_msg, false, "$Close")
+        UDMMM.ShowMessageBox(loc_msg, UDMTF.HasHtmlMarkup())
     ElseIf(option == UD_ModifierVarNormDesc_T)
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
         ; set of argument is not complete, could break the function
         String loc_msg = loc_mod.GetDetails(None, loc_mod_pp.DataStr_Ground, None, None, None, None, None)
-        ShowMessage(loc_msg, false, "$Close")
+        UDMMM.ShowMessageBox(loc_msg, UDMTF.HasHtmlMarkup())
     ElseIf(option == UD_ModifierVarHardDesc_T)
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
         ; set of argument is not complete, could break the function
         String loc_msg = loc_mod.GetDetails(None, loc_mod_pp.DataStr_Hard, None, None, None, None, None)
-        ShowMessage(loc_msg, false, "$Close")
+        UDMMM.ShowMessageBox(loc_msg, UDMTF.HasHtmlMarkup())
     elseif option == UD_ModPP_ApplicableToPlayer_T
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
@@ -3687,7 +3699,7 @@ Event OnOptionHighlight(int option)
         GeneralPageInfo(option)
     elseif (_lastPage == "$UD_DEVICEFILTER")
         FilterPageInfo(option)
-    elseif (_lastPage == "Custom Modifiers")
+    elseif (_lastPage == "$UD_CUSTOMMODS")
         ModifierPageInfo(option)
     elseif (_lastPage == "$UD_ABADONPLUG")
         AbadanPageInfo(option)
@@ -3792,23 +3804,42 @@ Function ModifierPageInfo(int option)
     if(option == UD_ModifierMultiplier_S)
         SetInfoText("$UD_CUSTOMMOD_STRMULT_INFO")
     ElseIf option == UD_ModsMinCap_S
-        SetInfoText("$UD_PATCHER_MODSMINCAP_INFO")
+        SetInfoText("$UD_PATCHER_MODSMIN_INFO")
     ElseIf option == UD_ModsSoftCap_S
         SetInfoText("$UD_PATCHER_MODSSOFTCAP_INFO")
     ElseIf option == UD_ModsHardCap_S
         SetInfoText("$UD_PATCHER_MODSHARDCAP_INFO")
     ElseIf option == UD_ModGlobalProbabilityMult_S
-        SetInfoText("$UD_PATCHER_MODGLOBALPROBMULT_INFO")
+        SetInfoText("$UD_PATCHER_MODSPROBMULT_INFO")
     ElseIf option == UD_ModGlobalSeverityShift_S
-        SetInfoText("$UD_PATCHER_MODGLOBALSEVERITYSHIFT_INFO")
+        SetInfoText("$UD_PATCHER_MODSSEVSHIFT_INFO")
     ElseIf option == UD_ModGlobalSeverityDispMult_S
-        SetInfoText("$UD_PATCHER_MODGLOBALSEVERITYDISP_INFO")
+        SetInfoText("$UD_PATCHER_MODSSEVDISP_INFO")
     ElseIf option == UD_ModPP_BaseProbability_S
-        SetInfoText("$UD_MPP_BASEPROB_INFO")
+        SetInfoText("$UD_CUSTOMMOD_BASEPROB_INFO")
     ElseIf option == UD_ModPP_BaseSeverity_S
-        SetInfoText("$UD_MPP_BASESEVERITY_INFO")
+        SetInfoText("$UD_CUSTOMMOD_BASESEVERITY_INFO")
     ElseIf option == UD_ModPP_SeverityDispersion_S
-        SetInfoText("$UD_MPP_SEVERITYDISP_INFO")
+        SetInfoText("$UD_CUSTOMMOD_SEVERITYDISP_INFO")
+    ElseIf option == UD_ModPP_IsNormalizedProbability_T
+        SetInfoText("$UD_CUSTOMMOD_PROBNORM_INFO")
+    ElseIf option == UD_ModifierNoModsDesc_T
+        SetInfoText("$UD_CUSTOMMOD_ERROR_NOMODS_INFO")
+    ElseIf option == UD_ModifierNoPPDesc_T
+        SetInfoText("$UD_CUSTOMMOD_ERROR_NOPPS_INFO")
+    ElseIf option == UD_ModifierVarEasyDesc_T
+
+    ElseIf option == UD_ModifierVarNormDesc_T
+
+    ElseIf option == UD_ModifierVarHardDesc_T
+
+    ElseIf option == UD_ModifierDeviceTags_T
+        SetInfoText("$UD_CUSTOMMOD_DEVTAGS_INFO")
+    ElseIf option == UD_ModifierGlobalTags_T
+        SetInfoText("$UD_CUSTOMMOD_GLOBTAGS_INFO")
+    ElseIf option == UD_ModifierDescription_T
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        SetInfoText(loc_mod.Description)
     endif
 EndFunction
 
