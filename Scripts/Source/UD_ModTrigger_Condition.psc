@@ -4,22 +4,22 @@
     NameFull: On Condition Loss
     
     Parameters (DataStr):
-        [0]     Int     (optional) Triggers when the condition of a device falls below given threshold
-                            0 - "Excellent"
-                            1 - "Good"
-                            2 - "Normal"
-                            3 - "Bad"
-                            4 - "Destroyed"
-                        Default value: 0 (Always)
+        [0]     Int         (optional) Triggers when the condition of a device falls below given threshold
+                                0 - "Excellent"
+                                1 - "Good"
+                                2 - "Normal"
+                                3 - "Bad"
+                                4 - "Destroyed"
+                            Default value: 0 (Always)
 
-        [1]     Float   (optional) Base probability to trigger on call (in %)
-                        Default value: 100.0% (Always)
+        [1]     Float       (optional) Base probability to trigger on call (in %)
+                            Default value: 100.0% (Always)
                         
-        [2]     Float   (optional) Weight of the absolute value (device condition) in total probability (in %)
-                        Default value: 0.0%
+        [2]     Float       (optional) Weight of the absolute value (device condition) in total probability (in %)
+                            Default value: 0.0%
         
-        [3]     Int     (optional) Repeat
-                        Default value: 0 (False)
+        [3]     Int         (optional) Repeat
+                            Default value: 0 (False)
 
     Example:
         1           - triggers once the condition becomes "good" or worse

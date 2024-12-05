@@ -4,27 +4,27 @@
     NameFull: Item Demand
     
     Parameters (DataStr):
-        [0]     Int     (optional) Number of items demanded
-                        Default value: 1
+        [0]     Int         (optional) Number of items demanded
+                            Default value: 1
         
-        [1]     Float   (optional) Base probability to trigger (in %) at the end of the check period if actor failed to obtain items
-                        Default value: 100.0%
+        [1]     Float       (optional) Base probability to trigger (in %) at the end of the check period if actor failed to obtain items
+                            Default value: 100.0%
         
-        [2]     Int     (optional) Only stolen items count
-                        Default value: 0 (False)
+        [2]     Int         (optional) Only stolen items count
+                            Default value: 0 (False)
                         
-        [3]     Float   (optional) The time given to obtain items (in hours)
-                        Default value: 8.0
+        [3]     Float       (optional) The time given to obtain items (in hours)
+                            Default value: 8.0
                         
-        [4]     Int     (optional) Repeat
-                        Default value: 0 (False)
+        [4]     Int         (optional) Repeat
+                            Default value: 0 (False)
                         
-        [5]     Int     (script) Number of obtained items so far
+        [5]     Int         (script) Number of obtained items so far
         
-        [6]     Float   (script) Device locked time in the moment of the last trigger (ingame hours)
+        [6]     Float       (script) Device locked time in the moment of the last trigger (ingame hours)
 
     Forms:
-        Form1           Item or Keyword to filter demanded items
+        Form1               Item or Keyword to filter demanded items
         
     Example:
         

@@ -9,16 +9,16 @@
     CMN*        - use these modifiers for negative effects
 
     Parameters:
-        [0 .. 6]    Parameters for the trigger. See description of the set trigger for details.
+        [0 .. 6]            Parameters for the trigger. See description of the set trigger for details.
         
-        [7 .. n]    Parameters for the outcome. See description of the set outcome for details.
+        [7 .. n]            Parameters for the outcome. See description of the set outcome for details.
 
     Form arguments:
-        Form1       Trigger UD_ModTrigger. When it returns true the outcome will be called
-        Form2       Outcome UD_ModOutcome
-        Form3       Parameter Form1 for the Trigger
-        Form4       Parameter Form1 for the Outcome
-        Form5       Parameter Form2 for the Outcome
+        Form1               Trigger UD_ModTrigger. When it returns true the outcome will be called
+        Form2               Outcome UD_ModOutcome
+        Form3               Parameter Form1 for the Trigger
+        Form4               Parameter Form1 for the Outcome
+        Form5               Parameter Form2 for the Outcome
         
     Example:
         
@@ -93,7 +93,11 @@ Function DeviceUnlocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr,
 EndFunction
 
 Bool Function MinigameAllowed(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    return true
+    If akForm2 as UD_ModOutcome
+        Return (akForm2 as UD_ModOutcome).MinigameAllowed(Self, akDevice, aiDataStr, akForm4, akForm5)
+    Else
+        Return True
+    EndIf
 EndFunction
 
 Function MinigameStarted(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_RenderScript akMinigameDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)

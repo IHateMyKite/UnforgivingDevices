@@ -4,13 +4,13 @@
     NameFull: On Device Event
     
     Parameters (DataStr):
-        [0]     String  Device event to trigger (one or several separated by space)
-                            DL - DeviceLocked
-                            DU - DeviceUnlocked
-                            DB - DeviceBroken
+        [0]     String      Device event to trigger (one or several separated by space)
+                                DL - DeviceLocked
+                                DU - DeviceUnlocked
+                                DB - DeviceBroken
                             
-        [1]     Float   Base probability to trigger on event (in %)
-                        Default value: 100.0%
+        [1]     Float       Base probability to trigger on event (in %)
+                            Default value: 100.0%
                               
     Example:
                     

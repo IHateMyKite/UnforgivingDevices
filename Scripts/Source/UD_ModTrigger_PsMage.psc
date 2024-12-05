@@ -6,13 +6,10 @@
     Parameters:
         [0]     Float       (optional) Probability to trigger on spell use
                             Default value: 0.0%
-        
+
         [1]     Float       (optional) Probability to trigger on skill increase (Alteration, Conjuration, Destruction, Illusion)
                             Default value: 0.0%
-                            
-        [2]     Float       (optional) ???
-                            Default value: 0.0%
-                        
+
     Example:
                     
 /;

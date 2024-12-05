@@ -4,22 +4,22 @@
     NameFull: On Combat Event
     
     Parameters (DataStr):
-        [0]     String  Combat event to trigger (one or several literals separated by space)
-                            WS - Weapon Swing
-                            SC - Spell Cast
-                            SF - Spell Fire
-                            VC - Voice Cast
-                            VF - Voice Fire
-                            BD - Bow Draw
-                            BR - Bow Release
-                            UB - Unsheathe Begin (doesn't fire with spells)
-                            UE - Unsheathe End
-                            SB - Sheathe Begin (doesn't fire with spells)
-                            SE - Sheathe End
+        [0]     String      Combat event to trigger (one or several literals separated by space)
+                                WS - Weapon Swing
+                                SC - Spell Cast
+                                SF - Spell Fire
+                                VC - Voice Cast
+                                VF - Voice Fire
+                                BD - Bow Draw
+                                BR - Bow Release
+                                UB - Unsheathe Begin (doesn't fire with spells)
+                                UE - Unsheathe End
+                                SB - Sheathe Begin (doesn't fire with spells)
+                                SE - Sheathe End
 
-        [1]     Float   Base probability to trigger on event (in %)
-                        Default value: 100.0%
-                        
+        [1]     Float       Base probability to trigger on event (in %)
+                            Default value: 100.0%
+
     Example:
 
 /;

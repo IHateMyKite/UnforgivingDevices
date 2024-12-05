@@ -4,12 +4,13 @@
     NameFull: Scene
 
     Parameters in DataStr (indices relative to DataStrOffset property):
-        [+0]    Int     Force 
-                        Default value: 0 (False)
+        [+0]    Int         Force 
+                            Default value: 0 (False)
 
     Form arguments:
-        Form4 - Scene to play or FormLists with scenes
-        Form5 - Scene to play or FormLists with scenes
+        Form4               Scene to play or FormLists with scenes
+        
+        Form5               Scene to play or FormLists with scenes
 
     Example:
 /;
@@ -23,7 +24,6 @@ import UD_Native
 ===========================================================================================
 ===========================================================================================
 /;
-
 Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
     Form[] loc_forms = CombineForms(akForm4, akForm5)
     If loc_forms.Length > 0

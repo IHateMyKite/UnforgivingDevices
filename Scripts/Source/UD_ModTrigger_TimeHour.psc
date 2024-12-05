@@ -4,19 +4,19 @@
     NameFull: Hourly Trigger
     
     Parameters (DataStr):
-        [0]     Float   (optional) Hours must pass before trigger
-                        Default value: 0.0
-        
-        [1]     Float   (optional) Base probability to trigger
-                        Default value: 100.0%
-        
-        [2]     Float   (optional) The final probability increases with each passed hour by X %
-                        Default value: 0.0%
-                        
-        [3]     Int     (optional) Repeat
-                        Default value: 1 (True)
-                        
-        [4]     Float   (script) Hours passed since last trigger
+        [0]     Float       (optional) Hours must pass before trigger
+                            Default value: 0.0
+
+        [1]     Float       (optional) Base probability to trigger
+                            Default value: 100.0%
+
+        [2]     Float       (optional) The final probability increases with each passed hour by X %
+                            Default value: 0.0%
+
+        [3]     Int         (optional) Repeat
+                            Default value: 1 (True)
+
+        [4]     Float       (script) Hours passed since last trigger
 
     Example:
                     

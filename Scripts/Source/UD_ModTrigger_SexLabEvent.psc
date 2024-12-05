@@ -1,14 +1,15 @@
 ;/  File: UD_ModTrigger_SexLabEvent
     It triggers on sex event
-    
-    NameFull: On Sex Event
-    
-    Parameters (DataStr):
-        [0]     String  
 
-        [1]     Float   Base probability to trigger on event (in %)
-                        Default value: 100.0%
-                        
+    NameFull: On Sex Event
+
+    Parameters (DataStr):
+        [0]     String      SexLab event name
+                                
+
+        [1]     Float       (optional) Base probability to trigger on event (in %)
+                            Default value: 100.0%
+
     Example:
         
 /;

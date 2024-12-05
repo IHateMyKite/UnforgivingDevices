@@ -59,12 +59,15 @@ Int         Property DataStrOffset              = 7     AutoReadOnly Hidden
 Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
 EndFunction
 
+Bool Function MinigameAllowed(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+    Return True
+EndFunction
+
 ;/  Group: User Interface
 ===========================================================================================
 ===========================================================================================
 ===========================================================================================
 /;
-
 String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
     String loc_res = ""
     If Description

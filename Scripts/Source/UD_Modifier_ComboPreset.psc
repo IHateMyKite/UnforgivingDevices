@@ -6,16 +6,16 @@
 
 
     Parameters:
-        [0 .. 6]    Parameters for the trigger. See description of the selected trigger for details.
+        [0 .. 6]            Parameters for the trigger. See description of the selected trigger for details.
         
-        [7 .. n]    Parameters for the outcome. See description of the selected outcome for details.
+        [7 .. n]            Parameters for the outcome. See description of the selected outcome for details.
 
     Form arguments:
-        Form1 - Not used! (Use ModTrigger instead)
-        Form2 - Not used! (Use ModOutcome instead)
-        Form3 - Parameter for the ModTrigger
-        Form4 - Parameter for the ModOutcome
-        Form5 - Parameter for the ModOutcome
+        Form1               Not used! (Use ModTrigger instead)
+        Form2               Not used! (Use ModOutcome instead)
+        Form3               Parameter for the ModTrigger
+        Form4               Parameter for the ModOutcome
+        Form5               Parameter for the ModOutcome
         
     Example:
         

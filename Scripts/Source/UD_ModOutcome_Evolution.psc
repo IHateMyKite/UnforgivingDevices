@@ -7,9 +7,11 @@
         None
 
     Form arguments:
-        Form4 - Device in to which will current device evolve. In case this is formlist, random device from formlist will be used.
-        Form5 - Device in to which will current device evolve. In case this is formlist, random device from formlist will be used.
-    In case more then one FormX is filled, random one will be choosen
+        Form4               Device in to which will current device evolve. In case this is formlist, random device from formlist will be used.
+
+        Form5               Device in to which will current device evolve. In case this is formlist, random device from formlist will be used.
+    
+        In case more then one FormX is filled, random one will be choosen
 
     Example:
         

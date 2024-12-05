@@ -4,27 +4,27 @@
     NameFull: Item Obtain
     
     Parameters (DataStr):
-        [0]     Int     (optional) Minimun number of items to trigger
-                        Default value: 1
+        [0]     Int         (optional) Minimun number of items to trigger
+                            Default value: 1
         
-        [1]     Float   (optional) Base probability to trigger (in %)
-                        Default value: 100.0%
+        [1]     Float       (optional) Base probability to trigger (in %)
+                            Default value: 100.0%
         
-        [2]     Float   (optional) Probability to trigger that is proportional to the accumulated value (number of obtained items)
-                        Default value: 0.0%
+        [2]     Float       (optional) Probability to trigger that is proportional to the accumulated value (number of obtained items)
+                            Default value: 0.0%
                         
-        [3]     Float   (optional) Reset period (in hours). If negative then it is triggered once
-                        Default value: -1.0 (Triggered once)
+        [3]     Float       (optional) Reset period (in hours). If negative then it is triggered once
+                            Default value: -1.0 (Triggered once)
                         
-        [4]     Int     (optional) Only stolen items count
-                        Default value: 0 (False)
+        [4]     Int         (optional) Only stolen items count
+                            Default value: 0 (False)
                         
-        [5]     Float   (script) Number of obtained items so far
+        [5]     Float       (script) Number of obtained items so far
         
-        [6]     Float   (script) Device locked time in the moment of the last trigger (ingame hours)
+        [6]     Float       (script) Device locked time in the moment of the last trigger (ingame hours)
 
     Forms:
-        Form1           FormList, Form or Keyword to filter obtained items
+        Form1               FormList, Form or Keyword to filter obtained items
     
     Example:
         DataStr = 1,100,0,24        

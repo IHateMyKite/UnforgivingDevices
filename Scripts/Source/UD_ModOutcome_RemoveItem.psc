@@ -4,15 +4,16 @@
     NameFull: Remove Item
 
     Parameters in DataStr (indices relative to DataStrOffset property):
-        [+0]    Int     (optional) Minimum number of items
-                        Default value: 1
+        [+0]    Int         (optional) Minimum number of items
+                            Default value: 1
                         
-        [+1]    Int     (optional) Maximum number of items
-                        Default value: [+0]
+        [+1]    Int         (optional) Maximum number of items
+                            Default value: [+0]
 
     Form arguments:
-        Form4 - Single item to remove or FormList with items.
-        Form5 - Single item to remove or FormList with items.
+        Form4               Single item to remove or FormList with items.
+
+        Form5               Single item to remove or FormList with items.
 
     Example:
 /;

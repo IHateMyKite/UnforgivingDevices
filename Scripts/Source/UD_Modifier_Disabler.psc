@@ -5,11 +5,11 @@
     NameAlias:  DIS
 
     Parameters:
-        [0]     Int     (optional) Disable fast travel
-                        Default value: 0
+        [0]     Int         (optional) Disable fast travel
+                            Default value: 0
         
-        [1]     Int     (optional) Disable waiting
-                        Default value: 0
+        [1]     Int         (optional) Disable waiting
+                            Default value: 0
 /;
 Scriptname UD_Modifier_Disabler extends UD_Modifier
 
@@ -31,11 +31,11 @@ EndFunction
 ===========================================================================================
 /;
 Function DeviceLocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    
+    ; TODO PR195
 EndFunction
 
 Function DeviceUnlocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    
+    ; TODO PR195
 EndFunction
 
 String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)

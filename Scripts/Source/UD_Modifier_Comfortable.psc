@@ -5,8 +5,8 @@
     NameAlias:  CMF
 
     Parameters:
-        [0]     Int     How comfortable is this device (0 - 100) in the mean of GetAiPriority()
-                        Default value: 25
+        [0]     Int         How comfortable is this device (0 - 100) in the mean of GetAiPriority()
+                            Default value: 25
 /;
 ScriptName UD_Modifier_Comfortable extends UD_Modifier
 
@@ -21,6 +21,8 @@ import UD_Native
 Function Update()
     EventProcessingMask = 0x00000000
 EndFunction
+
+; TODO PR195: Implement valid effects for the player to keep it on
 
 ;/  Group: User Interface
 ===========================================================================================

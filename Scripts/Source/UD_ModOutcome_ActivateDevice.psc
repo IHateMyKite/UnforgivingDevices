@@ -4,20 +4,21 @@
     NameFull: Activate
 
     Parameters in DataStr (indices relative to DataStrOffset property):
-        [+0]    Int     (optional) Number of devices
-                        Default value: 1
+        [+0]    Int         (optional) Number of devices
+                            Default value: 1
                         
-        [+1]    String  (optional) Selection method (in general or for the devices in list akForm3)
-                            SELF or S       - self        
-                            FIRST or F      - first suitable device from the list (akForm3, akForm4 concatenated together)
-                            RANDOM or R     - random device from the list (akForm3, akForm4 concatenated together)
-                        Default value: R
+        [+1]    String      (optional) Selection method (in general or for the devices in list akForm3)
+                                SELF or S       - self        
+                                FIRST or F      - first suitable device from the list (akForm3, akForm4 concatenated together)
+                                RANDOM or R     - random device from the list (akForm3, akForm4 concatenated together)
+                            Default value: R
                        
-        [+2]    String  (optional) Selection method for the devices in list akForm4
+        [+2]    String      (optional) Selection method for the devices in list akForm4
 
     Form arguments:
-        Form4 - Single device keyword to activate or FormList with keywords.
-        Form5 - Single device keyword to activate or FormList with keywords.
+        Form4               Single device keyword to activate or FormList with keywords.
+        
+        Form5               Single device keyword to activate or FormList with keywords.
 
     Example:
         1,FIRST     One device will be activated. The first suitable device from the list in Form4 will be selected by its keyword, 

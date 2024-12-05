@@ -4,18 +4,19 @@
     NameFull: Add Item
 
     Parameters in DataStr (indices relative to DataStrOffset property):
-        [+0]    Int     (optional) Minimum number of items
-                        Default value: 1
+        [+0]    Int         (optional) Minimum number of items
+                            Default value: 1
                         
-        [+1]    Int     (optional) Maximum number of items
-                        Default value: [+0]
+        [+1]    Int         (optional) Maximum number of items
+                            Default value: [+0]
                         
-        [+2]    Int     (optional) Equip item (i.e. drink potion)
-                        Default value: 0 (False)
+        [+2]    Int         (optional) Equip item (i.e. drink potion)
+                            Default value: 0 (False)
 
     Form arguments:
-        Form4 - Single item to add or FormList with items.
-        Form5 - Single item to add or FormList with items.
+        Form4               Single item to add or FormList with items.
+        
+        Form5               Single item to add or FormList with items.
 
     Example:
         DataStr = 1         

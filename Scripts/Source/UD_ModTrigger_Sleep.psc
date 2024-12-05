@@ -4,23 +4,22 @@
     NameFull: On Sleep
     
     Parameters in DataStr:
-        [0]     Int     (optional) Minimum sleep duration to trigger (in hours)
-                        Default value: 0 hours
-        
-        [1]     Float   (optional) Base probability to trigger (in %)
-                        Default value: 100.0%
-        
-        [2]     Int     (optional) Probability to trigger is proportional to the sleep duration
-                        Default value: 0.0%
-                        
-        [3]     Int     (optional) Normal = 1, interrupted = 2 or any = 0
-                        Default value: 0 (Any)
-                        
-        [4]     Int     (optional) Repeat
-                        Default value: 0 (False)
+        [0]     Int         (optional) Minimum sleep duration to trigger (in hours)
+                            Default value: 0 hours
+
+        [1]     Float       (optional) Base probability to trigger (in %)
+                            Default value: 100.0%
+
+        [2]     Int         (optional) Probability to trigger is proportional to the sleep duration
+                            Default value: 0.0%
+
+        [3]     Int         (optional) Normal = 1, interrupted = 2 or any = 0
+                            Default value: 0 (Any)
+
+        [4]     Int         (optional) Repeat
+                            Default value: 0 (False)
 
     Example:
-        
 
 /;
 Scriptname UD_ModTrigger_Sleep extends UD_ModTrigger

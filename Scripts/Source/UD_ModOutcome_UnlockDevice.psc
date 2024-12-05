@@ -4,20 +4,21 @@
     NameFull: Remove Device
 
     Parameters in DataStr (indices relative to DataStrOffset property):
-        [+0]    Int     (optional) Number of positions (devices with suitable keywords) to remove
-                        Default value: 1
+        [+0]    Int         (optional) Number of positions (devices with suitable keywords) to remove
+                            Default value: 1
                         
-        [+1]    String  (optional) Selection method (in general or for the keyword in list akForm3)
-                            SELF or S       - removes self
-                            FIRST or F      - first suitable keyword from the list (akForm3, akForm4 concatenated together)
-                            RANDOM or R     - random keyword from the list (akForm3, akForm4 concatenated together)
-                        Default value: SELF
+        [+1]    String      (optional) Selection method (in general or for the keyword in list akForm4)
+                                SELF or S       - removes self
+                                FIRST or F      - first suitable keyword from the list
+                                RANDOM or R     - random keyword from the list
+                            Default value: SELF
                         
-        [+2]    String  (optional) Selection method for the keywords in list akForm4
+        [+2]    String      (optional) Selection method for the keywords in list akForm5
 
     Form arguments:
-        Form4 - Single device keyword to remove or FormList with keywords.
-        Form5 - Single device keyword to remove or FormList with keywords.
+        Form4               Single device keyword to remove or FormList with keywords.
+        
+        Form5               Single device keyword to remove or FormList with keywords.
 
     Example:
 /;

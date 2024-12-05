@@ -4,19 +4,19 @@
     NameFull: On Spell Cast
 
     Parameters in DataStr:
-        [0]     Int     (optional) Minimum accumulated cost to trigger
-                        Default value: 0
-        
-        [1]     Float   (optional) Base probability to trigger (in %)
-                        Default value: 100.0%
-        
-        [2]     Int     (optional) Probability to trigger is proportional to the spell cost
-                        Default value: 0.0%
-                        
-        [3]     Int     (optional) Repeat
-                        Default value: 0 (False)
-                        
-        [4]     Float   (script) Total mana spent so far
+        [0]     Int         (optional) Minimum accumulated cost to trigger
+                            Default value: 0
+
+        [1]     Float       (optional) Base probability to trigger (in %)
+                            Default value: 100.0%
+
+        [2]     Int         (optional) Probability to trigger is proportional to the spell cost
+                            Default value: 0.0%
+
+        [3]     Int         (optional) Repeat
+                            Default value: 0 (False)
+
+        [4]     Float       (script) Total mana spent so far
 
     Example:
 

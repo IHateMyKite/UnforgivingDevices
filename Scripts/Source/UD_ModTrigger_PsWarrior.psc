@@ -6,13 +6,13 @@
     Parameters:
         [0]     Float       (optional) Probability to trigger on weapon use
                             Default value: 0.0%
-        
+
         [1]     Float       (optional) Probability to trigger on warrior skill increase (TwoHanded, Block, Smithing, HeavyArmor)
                             Default value: 0.0%
-                            
+
         [2]     Float       (optional) Probability to trigger on melee hit taken
                             Default value: 0.0%
-                        
+
     Example:
 
 /;

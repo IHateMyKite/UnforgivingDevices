@@ -4,19 +4,19 @@
     NameFull: On Spell Hit
 
     Parameters in DataStr:
-        [0]     Int     (optional) Minimum accumulated damage to trigger
-                        Default value: 0
-        
-        [1]     Float   (optional) Base probability to trigger (in %)
-                        Default value: 100.0%
-        
-        [2]     Int     (optional) Probability to trigger is proportional to the spell damage
-                        Default value: 0.0%
-                        
-        [3]     Int     (optional) Repeat
-                        Default value: 0 (False)
-                        
-        [4]     Float   (script) Total damage recieved so far
+        [0]     Int         (optional) Minimum accumulated damage to trigger
+                            Default value: 0
+
+        [1]     Float       (optional) Base probability to trigger (in %)
+                            Default value: 100.0%
+
+        [2]     Int         (optional) Probability to trigger is proportional to the spell damage
+                            Default value: 0.0%
+
+        [3]     Int         (optional) Repeat
+                            Default value: 0 (False)
+
+        [4]     Float       (script) Total damage recieved so far
 
     Example:
 

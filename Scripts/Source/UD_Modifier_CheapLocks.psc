@@ -5,14 +5,14 @@
     NameAlias:  CLO
 
     Parameters:
-        [0]     Float   (optional) Chance to get jammed lock every hour
-                        Default value: 0.0
+        [0]     Float       (optional) Chance to get jammed lock every hour
+                            Default value: 0.0
 
-        [1]     Float   (optional) Chance to get jammed lock when hit with a weapon
-                        Default value: 0.0
+        [1]     Float       (optional) Chance to get jammed lock when hit with a weapon
+                            Default value: 0.0
                         
-        [2]     Float   (optional) Chance that the lock will jam, proportional to the damage taken
-                        Default value: 0.0 per damage point
+        [2]     Float       (optional) Chance that the lock will jam, proportional to the damage taken
+                            Default value: 0.0 per damage point
 /;
 ScriptName UD_Modifier_CheapLocks extends UD_Modifier
 

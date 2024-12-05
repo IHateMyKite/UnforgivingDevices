@@ -4,8 +4,8 @@
     NameFull: Quest
 
     Parameters in DataStr (indices relative to DataStrOffset property):
-        [+0]    Int     Stage to set 
-                        Default value: -1 (Ignore)
+        [+0]    Int         Stage to set 
+                            Default value: -1 (Ignore)
 
     Form arguments:
         Form4 - Quest to start or FormLists with quests

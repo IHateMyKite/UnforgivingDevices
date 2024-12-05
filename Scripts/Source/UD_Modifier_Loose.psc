@@ -5,8 +5,8 @@
     NameAlias:  LOS
 
     Parameters:
-        [0]     Float   (optional) The accessibility of the device (0.0 - 1.0). Used to check accessibility in UD_CustomDevice_RenderScript::getAccesibility
-                        Default value: 0.0
+        [0]     Float       (optional) The accessibility of the device (0.0 - 1.0). Used to check accessibility in UD_CustomDevice_RenderScript::getAccesibility
+                            Default value: 0.0
 /;
 ScriptName UD_Modifier_Loose extends UD_Modifier
 

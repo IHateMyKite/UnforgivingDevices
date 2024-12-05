@@ -5,17 +5,17 @@
     NameAlias:  DEM
 
     Parameters:
-        [0]     Int     (optional) Minimum value of coefficient A (absolute value)
-                        Default value: 0
+        [0]     Int         (optional) Minimum value of coefficient A (absolute value)
+                            Default value: 0
                         
-        [1]     Int     (optional) Maximum value of coefficient A (absolute value)
-                        Default value: Parameter [0]
+        [1]     Int         (optional) Maximum value of coefficient A (absolute value)
+                            Default value: Parameter [0]
                         
-        [2]     Int     (optional) Minimum value of coefficient B (proportional to level)
-                        Default value: 0
+        [2]     Int         (optional) Minimum value of coefficient B (proportional to level)
+                            Default value: 0
                         
-        [3]     Int     (optional) Maximum value of coefficient B (proportional to level)
-                        Default value: Parameter [2]
+        [3]     Int         (optional) Maximum value of coefficient B (proportional to level)
+                            Default value: Parameter [2]
     
     Example:
         GoldVaue = A + B * <level>

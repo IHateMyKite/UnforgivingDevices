@@ -5,8 +5,8 @@
     NameAlias:  SNT
 
     Parameters:
-        [0]     Int     How sentient is this device (0 - 100)
-                        Default value: 0
+        [0]     Int         How sentient is this device (0 - 100)
+                            Default value: 0
 /;
 ScriptName UD_Modifier_Sentient extends UD_Modifier
 

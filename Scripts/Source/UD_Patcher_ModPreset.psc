@@ -75,6 +75,11 @@ String[]    Property ConflictedDeviceModTags            Auto
 /;
 String[]    Property ConflictedGlobalModTags            Auto
 
+;/  Variable: RequiredDeviceModTags
+    Modifier tags on the device that needed by this preset
+/;
+String[]    Property RequiredDeviceModTags              Auto
+
 ;/  Variable: ApplicableToNPC
     Indicates that this modifier can be applied to devices on NPCs
 /;
@@ -279,6 +284,25 @@ Form Function GetForm5(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverity
     Return None
 EndFunction
 
+;/  Function: CheckDevice
+
+    Checks the device for compatibility with this preset of the added modifier
+    
+    Parameters:
+        akDevice                - Device Render Script
+        akNPCSlot               - Actor's NPC slot
+    
+    Returns:
+        Check result (positive values indicate that the check has been passed)
+            -9      - fast check failed
+            -4      - device does not have the necessary tag 
+            -3      - wearer has device with conflicted modifier (global tag check failed)
+            -2      - device has conflicted modifier (device tag check failed)
+            -1      - device is forbidden for this modifier
+            0       - preset has prefferred devices but this device is not one of them
+            +1      - all checks passed
+            +2      - device is preferred for this preset
+/;
 Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_NPCSlot akNPCSlot = None)
     If !FastCheckDevice(akDevice)
         Return -9               ; fast check failed
@@ -292,11 +316,22 @@ Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_
         While loc_i > 0
             loc_i -= 1
             If loc_inventory_armor.HasKeyword(ForbiddenDevices[loc_i]) || loc_rendered_armor.HasKeyword(ForbiddenDevices[loc_i])
-                Return -1       ; device is fobidden for this modifier
+                Return -1       ; device is forbidden for this modifier
             EndIf
         EndWhile
     EndIf
-        
+
+    If RequiredDeviceModTags.Length > 0
+        loc_i = RequiredDeviceModTags.Length
+        While loc_i > 0
+            loc_i -= 1
+            If !akDevice.ModifiersHasTag(RequiredDeviceModTags[loc_i])
+            ; device does not have the necessary tag
+                Return -4
+            EndIf
+        EndWhile
+    EndIf
+
     If ConflictedDeviceModTags.Length > 0
         loc_i = ConflictedDeviceModTags.Length
         While loc_i > 0
@@ -304,7 +339,7 @@ Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_
             If akDevice.ModifiersHasTag(ConflictedDeviceModTags[loc_i])
                 Return -2       ; device has conflicted modifier
             EndIf
-        EndWhile        
+        EndWhile
     EndIf
     ; TODO: implement HasGlobalModTag properly
     If akNPCSlot && ConflictedGlobalModTags.Length > 0

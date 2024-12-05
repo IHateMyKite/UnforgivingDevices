@@ -4,20 +4,21 @@
     NameFull: Equip Device
 
     Parameters in DataStr (indices relative to DataStrOffset property):
-        [+0]    Int     (optional) Number of devices
-                        Default value: 1
+        [+0]    Int         (optional) Number of devices
+                            Default value: 1
                         
-        [+1]    String  (optional) Selection method (in general or for the devices in list akForm4)
-                            LIB or L        - random device by function UDCDmain::ManifestDevices()
-                            FIRST or F      - first suitable device from the list (akForm4, akForm5 are concatenated together)
-                            RANDOM or R     - random device from the list (akForm4, akForm5 are concatenated together)
-                        Default value: L
+        [+1]    String      (optional) Selection method (in general or for the devices in list akForm4)
+                                LIB or L        - random device selected by function UDCDmain::ManifestDevices()
+                                FIRST or F      - first suitable device from the list
+                                RANDOM or R     - random device from the list
+                            Default value: L
                         
-        [+2]    String  (optional) Selection method for the devices in list akForm4
+        [+2]    String      (optional) Selection method for the devices in list akForm5
 
     Form arguments:
-        Form4 - Single device to manifest or FormList with devices.
-        Form5 - Single device to manifest or FormList with devices.
+        Form4               Single device to manifest or FormList with devices.
+        
+        Form5               Single device to manifest or FormList with devices.
 
     Example:
         1,L         Method UDCDmain::ManifestDevices will be called with given number of devices to lock
