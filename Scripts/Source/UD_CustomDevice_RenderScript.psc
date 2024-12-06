@@ -1469,6 +1469,13 @@ Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True)
     zadNativeFunctions.SetDisableUnequip(Wearer,deviceInventory,false)    
     zadNativeFunctions.SetDisableUnequip(Wearer,deviceRendered,false)
     if IsUnlocked
+        StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
+        Wearer.UnequipItem(deviceInventory, false, true)
+        if abForceDestroy
+            if (Wearer.GetItemCount(deviceInventory) >= 1)
+                Wearer.RemoveItem(deviceInventory, 1, true)
+            endif
+        endif
         Wearer.UnequipItem(deviceRendered, false, true)
         Wearer.RemoveItem(deviceRendered, Wearer.GetItemCount(deviceRendered), true)
         if UDmain.TraceAllowed()
@@ -1502,11 +1509,13 @@ Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True)
             questKw -= 1
             if deviceInventory.hasKeyword(UDCdmain.UD_QuestKeywords.getAt(questKw) as Keyword) || deviceRendered.hasKeyword(UDCdmain.UD_QuestKeywords.getAt(questKw) as Keyword)
                 libs.RemoveQuestDevice(Wearer, deviceInventory, deviceRendered, UD_DeviceKeyword, UDCdmain.UD_QuestKeywords.getAt(questKw) as Keyword ,zad_DestroyOnRemove || hasModifier("DOR") || abForceDestroy)
+                StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
                 return
             endif
         endwhile
     else
-        libs.UnlockDevice(Wearer, deviceInventory, deviceRendered, UD_DeviceKeyword, zad_DestroyOnRemove || hasModifier("DOR") || abForceDestroy)
+        if libs.UnlockDevice(Wearer, deviceInventory, deviceRendered, UD_DeviceKeyword, zad_DestroyOnRemove || hasModifier("DOR") || abForceDestroy)
+        Endif
     endif
 EndFunction
 
