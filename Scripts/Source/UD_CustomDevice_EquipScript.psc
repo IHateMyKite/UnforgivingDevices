@@ -953,6 +953,7 @@ Function unlockDevice(Actor akActor)
         akActor.unequipItem(deviceInventory, 1, true)
         UD_Native.SendRemoveRenderDeviceEvent(akActor,deviceRendered)
         ;UD_CustomDevice_RenderScript loc_device = getUDScript(akActor)
+        akActor.unequipItem(deviceRendered, loc_RDNum, true)
         akActor.RemoveItem(deviceRendered, loc_RDNum, true)
         ;if loc_device
         ;    loc_device.removeDevice(akActor)
