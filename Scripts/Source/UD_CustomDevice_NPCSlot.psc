@@ -846,7 +846,11 @@ EndFunction
 Function removeAllDevices()
     ;startDeviceManipulation()
     StorageUtil.SetIntValue(getActor(), "UD_blockSlotUpdate",1)
+    Actor _currentSlotedActor = getActor()
     while UD_equipedCustomDevices[0]
+        if (UD_equipedCustomDevices[0].getWearer() != _currentSlotedActor) || UD_equipedCustomDevices[0].isUnlocked
+            unregisterDevice(UD_equipedCustomDevices[0],0,False)
+        endif
         UD_equipedCustomDevices[0].unlockRestrain()
     endwhile
     ;regainDevices()
