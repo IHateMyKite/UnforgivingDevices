@@ -949,6 +949,7 @@ Function unlockDevice(Actor akActor)
     
     if !loc_failure
         zadNativeFunctions.SetDisableUnequip(akActor as Actor,deviceInventory as Armor,false)
+        zadNativeFunctions.SetDisableUnequip(akActor as Actor,deviceRendered as Armor,false)
         akActor.unequipItem(deviceInventory, 1, true)
         UD_Native.SendRemoveRenderDeviceEvent(akActor,deviceRendered)
         ;UD_CustomDevice_RenderScript loc_device = getUDScript(akActor)
