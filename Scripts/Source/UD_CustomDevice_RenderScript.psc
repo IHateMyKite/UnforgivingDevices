@@ -1481,6 +1481,24 @@ Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True)
         if UDmain.TraceAllowed()
             UDmain.Log("unlockRestrain("+getDeviceHeader()+") - Device is already unlocked! Aborting ",1)
         endif
+        StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
+    
+        StorageUtil.UnSetIntValue(Wearer, "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus")
+    
+        if (deviceInventory.hasKeyword(libs.zad_QuestItem) || deviceRendered.hasKeyword(libs.zad_QuestItem))
+            int questKw = UDCdmain.UD_QuestKeywords.getSize()
+            while questKw
+                questKw -= 1
+                if deviceInventory.hasKeyword(UDCdmain.UD_QuestKeywords.getAt(questKw) as Keyword) || deviceRendered.hasKeyword(UDCdmain.UD_QuestKeywords.getAt(questKw) as Keyword)
+                    libs.RemoveQuestDevice(Wearer, deviceInventory, deviceRendered, UD_DeviceKeyword, UDCdmain.UD_QuestKeywords.getAt(questKw) as Keyword ,zad_DestroyOnRemove || hasModifier("DOR") || abForceDestroy)
+                    StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
+                    return
+                endif
+            endwhile
+        else
+            if libs.UnlockDevice(Wearer, deviceInventory, deviceRendered, UD_DeviceKeyword, zad_DestroyOnRemove || hasModifier("DOR") || abForceDestroy)
+            Endif
+        endif
         return
     endif
     _IsUnlocked = True
