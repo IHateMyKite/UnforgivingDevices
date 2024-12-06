@@ -1469,10 +1469,8 @@ Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True)
     zadNativeFunctions.SetDisableUnequip(Wearer,deviceInventory,false)    
     zadNativeFunctions.SetDisableUnequip(Wearer,deviceRendered,false)
     if IsUnlocked
-        Wearer.UnequipItem(deviceInventory, false, true)
-	     Wearer.RemoveItem(deviceInventory, Wearer.GetItemCount(deviceInventory), true)
-	     Wearer.UnequipItem(deviceRendered, false, true)
-	     Wearer.RemoveItem(deviceRendered, Wearer.GetItemCount(deviceRendered), true)
+        Wearer.UnequipItem(deviceRendered, false, true)
+        Wearer.RemoveItem(deviceRendered, Wearer.GetItemCount(deviceRendered), true)
         if UDmain.TraceAllowed()
             UDmain.Log("unlockRestrain("+getDeviceHeader()+") - Device is already unlocked! Aborting ",1)
         endif
