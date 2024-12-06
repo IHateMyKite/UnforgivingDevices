@@ -849,7 +849,7 @@ Function removeAllDevices()
     Actor _currentSlotedActor = getActor()
     while UD_equipedCustomDevices[0]
         if (UD_equipedCustomDevices[0].getWearer() != _currentSlotedActor) || UD_equipedCustomDevices[0].isUnlocked
-            unregisterDevice(UD_equipedCustomDevices[0],0,False)
+            unregisterDevice(UD_equipedCustomDevices[0],1,True)
         endif
         UD_equipedCustomDevices[0].unlockRestrain()
     endwhile
