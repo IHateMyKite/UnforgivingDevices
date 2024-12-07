@@ -5,11 +5,14 @@
     NameAlias:  ARM
 
     Parameters:
-        [0]     String      Armor Type          (Light, Heavy)
+        [0]     String      Armor Type (Light, Heavy)
         
-        [1]     String      Armor Material      (Ebony, Leather, Iron, Steel, etc)
+        [1]     String      Armor Material (Ebony, Leather, Iron, Steel, etc)
         
-        [2]     Int         Armor Value         ##
+        [2]     Int         Armor Value
+
+    Example:
+        Light,Leather,12    After equipping, the device forms gain keywords corresponding to leather light armor and armor value of 12.
 
 /;
 Scriptname UD_Modifier_Armor extends UD_Modifier

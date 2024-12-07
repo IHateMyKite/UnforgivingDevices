@@ -2,7 +2,7 @@
     This device is extremely comfortable. You almost don't want to take it off.
 
     NameFull:   Comfortable
-    NameAlias:  CMF
+    NameAlias:  COMF
 
     Parameters:
         [0]     Int         How comfortable is this device (0 - 100) in the mean of GetAiPriority()

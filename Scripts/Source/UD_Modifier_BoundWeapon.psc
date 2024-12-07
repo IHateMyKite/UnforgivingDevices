@@ -11,6 +11,9 @@
         Form1   Weapon/Spell/FormList   Bound Weapon or Spell to force equip (or FormList with possible spells/weapons)
         
         Form2   Spell                  (optional) Spell that summons bound weapon specified in Form1
+
+    Example:
+        
 /;
 Scriptname UD_Modifier_BoundWeapon extends UD_Modifier
 

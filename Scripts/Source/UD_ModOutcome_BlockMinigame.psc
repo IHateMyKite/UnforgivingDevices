@@ -1,20 +1,30 @@
 ;/  File: UD_ModOutcome_BlockMinigame
-    Blocks the mini-game until a trigger is triggered
+    Prohibits or allows attempts to escape for a specified time when a trigger occurs
 
     NameFull: Block mini-game
 
     Parameters in DataStr (indices relative to DataStrOffset property):
         [+0]    String      (optional) Initial state
-                                B   BLOCKED     - mini-game is blocked
-                                A   ALLOWED     - mini-game is allowed
-                            Default value: BLOCKED
+                                B   - mini-game is blocked
+                                A   - mini-game is allowed
+                            Default value: B (blocked)
 
-        [+1]    Int         (optional) Toggle the switch on each trigger or do it once
+        [+1]    Float       (optional) The duration of the toggled state (in hours). After the specified time has elapsed, 
+                            the mini-game will be blocked if it was allowed by a trigger.
+                                pos. values         - actual duration.
+                                non-pos. values     - toggled state is lasted forever.
+                            Default value: 0.0 (Forever)
+
+        [+2]    Int         (optional) Repeat (used only when positive duration is set)
                             Default value: 0 (False)
 
-        [+2]    String      (Script) Current state
+        [+3]    String      (Script) Current state
+
+        [+4]    Float       (Script) Last trigger timestamp (in game hours) (used only when positive duration is set)
 
     Example:
+        ,,,,,,,B,4.5,1      Mini-games are initially blocked. After each trigger, minigames are allowed for the next 4.5 hours.
+        ,,,,,,,A            Mini-games are initially allowed. After the trigger, all mini-games are permanently blocked.
 /;
 Scriptname UD_ModOutcome_BlockMinigame extends UD_ModOutcome
 
@@ -28,10 +38,12 @@ import UD_Native
 /;
 Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
     String loc_init = GetStringParamString(aiDataStr, DataStrOffset + 0, "B")
-    String loc_state = GetStringParamString(aiDataStr, DataStrOffset + 2, "")
-    Bool loc_redo = GetStringParamInt(aiDataStr, DataStrOffset + 1, 0) > 0
+    Float loc_duration = GetStringParamFloat(aiDataStr, DataStrOffset + 1, 0.0)
+    Bool loc_repeat = GetStringParamInt(aiDataStr, DataStrOffset + 2, 0) > 0
+    String loc_state = GetStringParamString(aiDataStr, DataStrOffset + 3, "")
+    Float loc_ts = GetStringParamFloat(aiDataStr, DataStrOffset + 4, 0.0)
 
-    If loc_state != "" && !loc_redo
+    If loc_state != "" && !loc_repeat
     ; done it once already
         Return
     EndIf
@@ -40,23 +52,39 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
         loc_state = loc_init
     EndIf
 
-    If loc_state == "B" || loc_state == "BLOCKED"
+    If loc_state == "B"
         loc_state = "A"
     Else
         loc_state = "B"
     EndIf
 
     akDevice.editStringModifier(akModifier.NameAlias, DataStrOffset + 2, loc_state)
+    If loc_duration > 0.0
+        akDevice.editStringModifier(akModifier.NameAlias, DataStrOffset + 1, FormatFloat(Utility.GetCurrentGameTime() * 24.0, 2))
+    EndIf
 EndFunction
 
 Bool Function MinigameAllowed(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
     String loc_init = GetStringParamString(aiDataStr, DataStrOffset + 0, "B")
-    String loc_state = GetStringParamString(aiDataStr, DataStrOffset + 2, loc_init)
-    If loc_state == "B" || loc_state == "BLOCKED"
+    Float loc_duration = GetStringParamFloat(aiDataStr, DataStrOffset + 1, 0.0)
+    Bool loc_repeat = GetStringParamInt(aiDataStr, DataStrOffset + 2, 0) > 0
+    String loc_state = GetStringParamString(aiDataStr, DataStrOffset + 3, loc_init)
+    Float loc_ts = GetStringParamFloat(aiDataStr, DataStrOffset + 4, 0.0)
+
+    Float loc_time = Utility.GetCurrentGameTime() * 24.0
+
+    If loc_ts > 0.0 && loc_duration > 0.0 && loc_time > loc_ts + loc_duration && loc_init != loc_state
+    ; toggled back to initial state by duration
+        akDevice.editStringModifier(akModifier.NameAlias, DataStrOffset + 2, loc_init)
+        loc_state = loc_init
+    EndIf
+
+    If loc_state == "B"
         Return False
     Else
         Return True
     EndIf
+
 EndFunction
 
 ;/  Group: User Interface
@@ -66,18 +94,34 @@ EndFunction
 /;
 String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
     String loc_init = GetStringParamString(aiDataStr, DataStrOffset + 0, "B")
-    String loc_state = GetStringParamString(aiDataStr, DataStrOffset + 2, loc_init)
-    Bool loc_redo = GetStringParamInt(aiDataStr, DataStrOffset + 1, 0) > 0
+    Float loc_duration = GetStringParamFloat(aiDataStr, DataStrOffset + 1, 0.0)
+    Bool loc_repeat = GetStringParamInt(aiDataStr, DataStrOffset + 2, 0) > 0
+    String loc_state = GetStringParamString(aiDataStr, DataStrOffset + 3, loc_init)
+    Float loc_ts = GetStringParamFloat(aiDataStr, DataStrOffset + 4, 0.0)
+    Float loc_time = Utility.GetCurrentGameTime() * 24.0
+
+    If loc_ts > 0.0 && loc_duration > 0.0 && loc_time > loc_ts + loc_duration && loc_init != loc_state
+    ; toggled back to initial state by duration
+        akDevice.editStringModifier(akModifier.NameAlias, DataStrOffset + 2, loc_init)
+        loc_state = loc_init
+    EndIf
 
     String loc_frag = ""
-    If loc_state == "B" || loc_state == "BLOCKED"
+    If loc_state == "B"
         loc_frag = UDmain.UDMTF.Text("BLOCKED", asColor = UDmain.UDMTF.BoolToRainbow(False))
     Else
         loc_frag = UDmain.UDMTF.Text("ALLOWED", asColor = UDmain.UDMTF.BoolToRainbow(True))
     EndIf
 
     String loc_res = ""
-    loc_res += UDmain.UDMTF.TableRowDetails("Mini-games state:", loc_frag)
-    loc_res += UDmain.UDMTF.TableRowDetails("Redo switch:", InlineIfStr(loc_redo, "True", "False"))
+    loc_res += UDmain.UDMTF.TableRowDetails("Mini-games:", loc_frag)
+    If loc_init == loc_state
+        loc_res += UDmain.UDMTF.TableRowDetails("Time left:", UDmain.UDMTF.Text("Until trigger", asColor = UDmain.UDMTF.BoolToRainbow(False)))
+    ElseIf loc_ts > 0.0 && loc_duration > 0.0
+        loc_res += UDmain.UDMTF.TableRowDetails("Time left:", UDmain.UDMTF.Text(FormatFloat(loc_ts + loc_duration - loc_time, 2) + " hours", asColor = UDmain.UDMTF.BoolToRainbow(True)))
+    Else
+        loc_res += UDmain.UDMTF.TableRowDetails("Time left:", UDmain.UDMTF.Text("Forever", asColor = UDmain.UDMTF.BoolToRainbow(True)))
+    EndIf
+    loc_res += UDmain.UDMTF.TableRowDetails("Repeat:", InlineIfStr(loc_repeat, "True", "False"))
     Return loc_res
 EndFunction
