@@ -413,7 +413,7 @@ Function RemoveQuestDevice(actor akActor, armor deviceInventory, armor deviceRen
         endif
     
         if akActor.getItemCount(loc_renDevice)
-            questItemRemovalAuthorizationToken = RemovalToken
+            ;questItemRemovalAuthorizationToken = RemovalToken
             
             if loc_slot
                 zadNativeFunctions.SetDisableUnequip(akActor,deviceInventory,false)    
