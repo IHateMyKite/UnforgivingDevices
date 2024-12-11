@@ -115,16 +115,6 @@ Float       Property BaseSeverity               = 0.0   Auto
 Float       Property SeverityDispersion         = 0.20  Auto
 {Default value: 0.20}
 
-; Obsolete before it was even born
-Float Function BiasedRandom(Float afMultiplier = 1.0, Float afEasing = 1.0)
-; TODO: elaborate better function
-; Now it is a bijective function [0.0; 1.0] => [0.0; 1.0]. It moves random generation left or right depending on the multiplier.
-; But there is always a chance to get the easiest or the hardest mod.
-; Maybe that is not right.
-
-    Return Math.Pow(RandomFloat(0.0, 1.0), Math.Pow(afMultiplier, afEasing))
-EndFunction
-
 ; The Box–Muller transform to generate normally distributed numbers
 ; 
 Float Function _GetNormalRandom(Float afMu = 0.0, Float afSigma = 1.0)
@@ -135,29 +125,6 @@ Float Function _GetNormalRandom(Float afMu = 0.0, Float afSigma = 1.0)
         If loc_s > 0 && loc_s <= 1
         ; normally distributed number
             Return (loc_x * Math.Sqrt(-2.0 * Math.Log(loc_s) / loc_s)) * afSigma + afMu
-        EndIf
-    EndWhile
-EndFunction
-
-; more natural distribution
-Float Function BiasedRandom2(Float afMultiplier = 1.0, Float afEasing = 0.25)
-    Float loc_k = 2.0
-    Float loc_mu = Math.Log(afMultiplier) / Math.Log(10)        ; [0.1; 100] -> [-1.0; 2.0]
-    loc_mu = loc_mu * 0.5 + 0.5                                 ; [-1.0; 2.0] -> [0.0; 1.5]
-    Float loc_sigma = afEasing
-    ; if the mathematical expectation is outside the interval [0; 1], then we start reducing sigma
-    If loc_mu < 0.0
-        loc_sigma = loc_sigma / (1.0 + (0.0 - loc_mu) * loc_k)
-        loc_mu = 0.0
-    ElseIf loc_mu > 1.0
-    ; If the multiplier is 100, sigma becomes 2 times smaller
-        loc_sigma = loc_sigma / (1.0 + (loc_mu - 1.0) * loc_k)
-        loc_mu = 1.0
-    EndIf
-    While True
-        Float loc_nrand = _GetNormalRandom(loc_mu, loc_sigma)
-        If loc_nrand >= 0.0 && loc_nrand <= 1.0
-            Return loc_nrand
         EndIf
     EndWhile
 EndFunction
@@ -295,11 +262,11 @@ EndFunction
     Returns:
         Check result (positive values indicate that the check has been passed)
             -9      - fast check failed
-            -4      - device does not have the necessary tag 
-            -3      - wearer has device with conflicted modifier (global tag check failed)
-            -2      - device has conflicted modifier (device tag check failed)
-            -1      - device is forbidden for this modifier
-            0       - preset has prefferred devices but this device is not one of them
+            -4      - wearer has device with conflicted modifier (global tag check failed)
+            -3      - device has conflicted modifier (device tag check failed)
+            -2      - device is forbidden for this preset
+            -1      - preset has prefferred devices but this device is not one of them
+            0       - the device has passed all the checks but does not have the required tags. But this may change when more modifiers are added
             +1      - all checks passed
             +2      - device is preferred for this preset
 /;
@@ -316,18 +283,7 @@ Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_
         While loc_i > 0
             loc_i -= 1
             If loc_inventory_armor.HasKeyword(ForbiddenDevices[loc_i]) || loc_rendered_armor.HasKeyword(ForbiddenDevices[loc_i])
-                Return -1       ; device is forbidden for this modifier
-            EndIf
-        EndWhile
-    EndIf
-
-    If RequiredDeviceModTags.Length > 0
-        loc_i = RequiredDeviceModTags.Length
-        While loc_i > 0
-            loc_i -= 1
-            If !akDevice.ModifiersHasTag(RequiredDeviceModTags[loc_i])
-            ; device does not have the necessary tag
-                Return -4
+                Return -2       ; device is forbidden for this modifier
             EndIf
         EndWhile
     EndIf
@@ -337,7 +293,7 @@ Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_
         While loc_i > 0
             loc_i -= 1
             If akDevice.ModifiersHasTag(ConflictedDeviceModTags[loc_i])
-                Return -2       ; device has conflicted modifier
+                Return -3       ; device has conflicted modifier
             EndIf
         EndWhile
     EndIf
@@ -347,22 +303,43 @@ Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_
         While loc_i > 0
             loc_i -= 1
             If akNPCSlot.HasGlobalModTag(ConflictedGlobalModTags[loc_i])
-                Return -3       ; wearer has device with conflicted modifier
+                Return -4       ; wearer has device with conflicted modifier
             EndIf
         EndWhile
     EndIf
     
+    Bool has_no_req_tag = False
+    If RequiredDeviceModTags.Length > 0
+        loc_i = RequiredDeviceModTags.Length
+        While loc_i > 0
+            loc_i -= 1
+            If !akDevice.ModifiersHasTag(RequiredDeviceModTags[loc_i])
+            ; device does not have the necessary tag
+                has_no_req_tag = True
+            EndIf
+        EndWhile
+    EndIf
+
     If PreferredDevices.Length > 0
         loc_i = PreferredDevices.Length
         While loc_i > 0
             loc_i -= 1
             If loc_inventory_armor.HasKeyword(PreferredDevices[loc_i]) || loc_rendered_armor.HasKeyword(PreferredDevices[loc_i])
-                Return 2        ; device is preferred for this modifier
+                If has_no_req_tag
+                    Return 0        ; The device has passed all the checks but does not have the required tags. But this may change when more modifiers are added
+                Else
+                    Return 2        ; device is preferred for this modifier
+                EndIf
             EndIf
         EndWhile
-        Return 0                ; modifier has prefferred devices but this device is not one of them
+        Return -1               ; modifier has prefferred devices but this device is not one of them
     EndIf
-    Return 1                    ; just ok
+
+    If has_no_req_tag
+        Return 0        ; The device has passed all the checks but does not have the required tags. But this may change when more modifiers are added
+    Else
+        Return 1        ; OK
+    EndIf
 EndFunction
 
 Bool Function FastCheckDevice(UD_CustomDevice_RenderScript akDevice)

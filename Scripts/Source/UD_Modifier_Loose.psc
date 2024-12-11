@@ -45,7 +45,7 @@ Bool Function PatchModifierFastCheckOverride(UD_CustomDevice_RenderScript akDevi
     Return True
 EndFunction
 
-Float Function PatchModifierCheckAndAddOverride(UD_CustomDevice_RenderScript akDevice)
+Float Function PatchModifierProbabilityMult(UD_CustomDevice_RenderScript akDevice)
     if akDevice.UD_DeviceKeyword == libs.zad_DeviousBlindfold
         return 0.70
     elseif akDevice.UD_DeviceKeyword == libs.zad_DeviousGag

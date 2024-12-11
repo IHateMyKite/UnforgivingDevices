@@ -198,11 +198,10 @@ String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataS
     loc_res += UDmain.UDMTF.Header(NameFull, 4)
     loc_res += UDmain.UDMTF.FontBegin(aiFontSize = UDmain.UDMTF.FontSize, asColor = UDmain.UDMTF.TextColorDefault)
     loc_res += UDmain.UDMTF.HeaderSplit()
-    loc_res += UDmain.UDMTF.LineBreak()
     If Description
-        loc_res += UDmain.UDMTF.Text(Description, asAlign = "center")
-        loc_res += UDmain.UDMTF.LineBreak()
+        loc_res += UDmain.UDMTF.Paragraph(Description, asAlign = "center")
     EndIf
+    loc_res += UDmain.UDMTF.LineGap()
 ; Trigger
     loc_res += UDmain.UDMTF.PageSplit(abForce = False)
     loc_res += UDmain.UDMTF.Header("Trigger", 0)

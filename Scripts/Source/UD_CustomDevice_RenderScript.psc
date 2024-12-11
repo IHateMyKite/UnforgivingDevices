@@ -7421,7 +7421,7 @@ Function showDebugMinigameInfo()
     elseif _CuttingGameON
         loc_res += UDMTF.TableRowDetails("Cutting modifier:", Round(UD_MinigameMult1*100.0) + "%")
     else
-        loc_res += UDMTF.Text("No DPS", asAlign = "center") + UDMTF.LineBreak()
+        loc_res += UDMTF.Paragraph("No DPS", asAlign = "center")
     endif
     loc_res += UDMTF.PageSplit(abForce = False)
     loc_res += UDMTF.LineGap()
@@ -7439,7 +7439,7 @@ Function showDebugMinigameInfo()
             loc_res += UDMTF.TableRowDetails("Magicka SPS:", FormatFloat(UD_minigame_magicka_drain,2))
         endif
     else
-        loc_res += UDMTF.Text("Wearer doesn't loose stats", asAlign = "center") + UDMTF.LineBreak()
+        loc_res += UDMTF.Paragraph("Wearer doesn't loose stats", asAlign = "center")
     endif
 
     loc_res += UDMTF.PageSplit(abForce = False)

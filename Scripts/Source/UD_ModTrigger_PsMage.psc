@@ -36,7 +36,7 @@ Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderSc
     If aiActorAction == 2
     ; Spell Fire
         If akSource as Spell
-        ; TODO: check associated skill
+        ; TODO PR195: check associated skill
         EndIf
         Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 0, 0.0))
     EndIf
@@ -60,7 +60,6 @@ String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice
     String loc_res = ""
     loc_res += UDmain.UDMTF.TableRowDetails("Prob. on spell use:", FormatFloat(GetStringParamFloat(aiDataStr, 0, 0.0), 1) + "%")
     loc_res += UDmain.UDMTF.TableRowDetails("Prob. on skill increase:", FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 1) + "%")
-    loc_res += UDmain.UDMTF.Text("(Alteration, Conjuration, Destruction, Illusion)", asAlign = "center")
-    loc_res += UDmain.UDMTF.LineBreak()
+    loc_res += UDmain.UDMTF.Paragraph("(Alteration, Conjuration, Destruction, Illusion)", asAlign = "center")
     Return loc_res
 EndFunction

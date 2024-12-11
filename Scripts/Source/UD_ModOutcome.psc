@@ -71,14 +71,12 @@ EndFunction
 String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
     String loc_res = ""
     If Description
-        loc_res += UDmain.UDMTF.Text(Description, asAlign = "center")
-        loc_res += UDmain.UDMTF.LineGap()
+        loc_res += UDmain.UDMTF.Paragraph(Description, asAlign = "center")
     EndIf
-;    loc_res += UDmain.UDMTF.Text("Parameters", asAlign = "center")
-;    loc_res += UDmain.UDMTF.LineBreak()
     loc_res += UDmain.UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
     loc_res += GetParamsTableRows(akModifier, akDevice, aiDataStr, akForm4, akForm5)
     loc_res += UDmain.UDMTF.TableEnd()
+    loc_res += UDmain.UDMTF.LineGap()
     Return loc_res
 EndFunction
 

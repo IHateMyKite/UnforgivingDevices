@@ -57,7 +57,7 @@ String      Property Description            Auto
 
     Value between 0 and 100
 
-    TODO:
+    TODO PR195:
     
     The degree to which the modifier resists recognition.
     If the degree is 0, the character will easily reveal the modifier's properties.
@@ -68,7 +68,7 @@ Int         Property ConcealmentPower  = 0  Auto
 
 ;/  Variable: HideInUI
 
-    TODO:
+    TODO PR195:
     
     Indicates that this modifier should be hidden in UI
 /;
@@ -224,9 +224,8 @@ String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataS
 
     If Description
         loc_res += UDmain.UDMTF.LineBreak()
-        loc_res += UDmain.UDMTF.Text(Description, asAlign = "center")
+        loc_res += UDmain.UDMTF.Paragraph(Description, asAlign = "center")
     EndIf
-    loc_res += UDmain.UDMTF.LineBreak()
     loc_res += UDmain.UDMTF.PageSplit(abForce = False)
     loc_res += UDmain.UDMTF.Header("Parameters", 0)
     loc_res += GetParamsTableRows(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
@@ -313,30 +312,79 @@ Bool Function PatchModifierFastCheck(UD_CustomDevice_RenderScript akDevice)
     Return (loc_preset != None) && loc_preset.FastCheckDevice(akDevice) && PatchModifierFastCheckOverride(akDevice)
 EndFunction
 
-; Carefully check the compatibility of the modifier and try to add it taking into account the given probabilities
-Bool Function PatchModifierCheckAndAdd(UD_CustomDevice_RenderScript akDevice, Int aiSoftCap, Int aiValidMods, Float afGlobalProbabilityMult = 1.0, Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0, UD_CustomDevice_NPCSlot akNPCSlot = None)
-    UD_Patcher_ModPreset loc_preset = _GetBestPatcherPreset(akDevice, akNPCSlot)
-    If loc_preset == None 
-        Return False
+
+;/  Function: PatchModifierCheckAndAdd
+
+    Checks the modifier and adds it to the device if the dice rolls successfully.
+    There are four possible outcomes
+        1. The modifier failed the test.
+        2. The modifier may pass the test if the conditions change.
+        3. The modifier passed the test, but no luck with the dice.
+        3. The modifier passed the check and was added.
+    
+    Parameters:
+        akDevice                            Device
+        afNormMult                                                
+        afGlobalProbabilityMult             
+        afGlobalSeverityShift               
+        afGlobalSeverityDispersionMult      
+        akNPCSlot                           Wearer NPCSlot
+
+    Returns:
+        -2  The modifier failed the test.
+        -1  The modifier passed the test, but no luck with the dice.
+        0   The modifier may pass the test if the conditions change.
+        1   The modifier passed the check and was added.
+/;
+Int Function PatchModifierCheckAndAdd(UD_CustomDevice_RenderScript akDevice, Float afNormMult, Float afGlobalProbabilityMult = 1.0, Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0, UD_CustomDevice_NPCSlot akNPCSlot = None)
+    UD_Patcher_ModPreset loc_preset = None
+    UD_Patcher_ModPreset loc_preset1 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset1) as UD_Patcher_ModPreset
+    UD_Patcher_ModPreset loc_preset2 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset2) as UD_Patcher_ModPreset
+    UD_Patcher_ModPreset loc_preset3 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset3) as UD_Patcher_ModPreset
+    
+    Int loc_priority = -10
+    If loc_preset1
+        Int loc_temp = loc_preset1.CheckDevice(akDevice, akNPCSlot)
+        If loc_temp > loc_priority
+            loc_priority = loc_temp
+            loc_preset = loc_preset1
+        EndIf
     EndIf
+    If loc_preset2
+        Int loc_temp = loc_preset2.CheckDevice(akDevice, akNPCSlot)
+        If loc_temp > loc_priority
+            loc_priority = loc_temp
+            loc_preset = loc_preset2
+        EndIf
+    EndIf
+    If loc_preset3
+        Int loc_temp = loc_preset3.CheckDevice(akDevice, akNPCSlot)
+        If loc_temp > loc_priority
+            loc_priority = loc_temp
+            loc_preset = loc_preset3
+        EndIf
+    EndIf
+    If loc_priority < 0 || loc_preset == None
+        Return -2                   ; The modifier failed the test
+    ElseIf loc_priority == 0
+        Return 0                    ; The modifier may pass the test if the conditions change
+    EndIf
+
     Float loc_prob = loc_preset.BaseProbability
     ; Adjust the probability with the soft limit if it is allowed in the preset settings
-    If loc_prob > 0.0 && loc_preset.IsNormalizedProbability
-        aiValidMods = UD_Native.iRange(aiValidMods, 1, 99)
-        aiSoftCap = UD_Native.iRange(aiSoftCap, 0, 99)
-        loc_prob *= (aiSoftCap as Float) / (aiValidMods as Float)
+    If loc_preset.IsNormalizedProbability
+        loc_prob *= afNormMult
     EndIf
-    
-    loc_prob *= PatchModifierCheckAndAddOverride(akDevice)
+    loc_prob *= PatchModifierProbabilityMult(akDevice)
     loc_prob *= afGlobalProbabilityMult
     
     UDCDmain.UDmain.Log(Self + "::PatchModifierFastCheck() final probability = " + UD_Native.FormatFloat(loc_prob, 2) + " %", 3)
     
     If UD_Native.RandomFloat(0.0, 100.0) < loc_prob
         akDevice.AddModifier(Self, loc_preset.GetDataStr(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm1(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm2(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm3(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm4(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm5(afGlobalSeverityShift, afGlobalSeverityDispersionMult))
-        Return True
+        Return 1                    ; The modifier passed the check and was added.
     Else
-        Return False
+        Return -1                   ; The modifier passed the test, but no luck with the random
     EndIf
 EndFunction
 
@@ -345,49 +393,8 @@ Bool Function PatchModifierFastCheckOverride(UD_CustomDevice_RenderScript akDevi
     Return True
 EndFunction
 
-Float Function PatchModifierCheckAndAddOverride(UD_CustomDevice_RenderScript akDevice)
+Float Function PatchModifierProbabilityMult(UD_CustomDevice_RenderScript akDevice)
     Return 1.0
-EndFunction
-
-; Private methods
-UD_Patcher_ModPreset Function _GetBestPatcherPreset(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_NPCSlot akNPCSlot = None)
-    UD_Patcher_ModPreset loc_preset1 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset1) as UD_Patcher_ModPreset
-    UD_Patcher_ModPreset loc_preset2 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset2) as UD_Patcher_ModPreset
-    UD_Patcher_ModPreset loc_preset3 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset3) as UD_Patcher_ModPreset
-    
-    UD_Patcher_ModPreset loc_result = None
-    Int loc_priority = -10
-    
-    If loc_preset1
-        Int loc_temp = loc_preset1.CheckDevice(akDevice, akNPCSlot)
-        If loc_temp > loc_priority
-            loc_priority = loc_temp
-            loc_result = loc_preset1
-        EndIf
-    EndIf
-    
-    If loc_preset2
-        Int loc_temp = loc_preset2.CheckDevice(akDevice, akNPCSlot)
-        If loc_temp > loc_priority
-            loc_priority = loc_temp
-            loc_result = loc_preset2
-        EndIf
-    EndIf
-    
-    If loc_preset3
-        Int loc_temp = loc_preset3.CheckDevice(akDevice, akNPCSlot)
-        If loc_temp > loc_priority
-            loc_priority = loc_temp
-            loc_result = loc_preset3
-        EndIf
-    EndIf
-    
-    If loc_priority > 0
-        Return loc_result
-    Else
-        Return None
-    EndIf
-    
 EndFunction
 
 ;/  Group: MCM

@@ -38,7 +38,7 @@ EndFunction
 Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr, Form akForm1)
     If aiActorAction == 0
     ; weapon swing
-    ; TODO: check weapon type to exclude daggers and staffs
+    ; TODO PR195: check weapon type to exclude daggers and staffs
         Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 0, 0.0))
     EndIf
     Return False
@@ -69,8 +69,7 @@ String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice
     String loc_res = ""
     loc_res += UDmain.UDMTF.TableRowDetails("Prob. on weapon swing:", FormatFloat(GetStringParamFloat(aiDataStr, 0, 0.0), 1) + "%")
     loc_res += UDmain.UDMTF.TableRowDetails("Prob. on skill increase:", FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 1) + "%")
-    loc_res += UDmain.UDMTF.Text("(TwoHanded, Block, Smithing, HeavyArmor)", asAlign = "center")
-    loc_res += UDmain.UDMTF.LineBreak()
+    loc_res += UDmain.UDMTF.Paragraph("(TwoHanded, Block, Smithing, HeavyArmor)", asAlign = "center")
     loc_res += UDmain.UDMTF.TableRowDetails("Prob. on melee hit taken:", FormatFloat(GetStringParamFloat(aiDataStr, 2, 100.0), 1) + "%")
     Return loc_res
 EndFunction

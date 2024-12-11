@@ -62,8 +62,7 @@ String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice
     String loc_res = ""
     loc_res += UDmain.UDMTF.TableRowDetails("Prob. on bow use:", FormatFloat(GetStringParamFloat(aiDataStr, 0, 0.0), 1) + "%")
     loc_res += UDmain.UDMTF.TableRowDetails("Prob. on skill increase:", FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 1) + "%")
-    loc_res += UDmain.UDMTF.Text("(Marksman, Pickpocket, LockPicking, Sneak)", asAlign = "center")
-    loc_res += UDmain.UDMTF.LineBreak()
+    loc_res += UDmain.UDMTF.Paragraph("(Marksman, Pickpocket, LockPicking, Sneak)", asAlign = "center")
     loc_res += UDmain.UDMTF.TableRowDetails("Prob. on pick lock:", FormatFloat(GetStringParamFloat(aiDataStr, 2, 100.0), 1) + "%")
     Return loc_res
 EndFunction

@@ -69,7 +69,6 @@ String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice
     loc_res += UDmain.UDMTF.TableRowDetails("Value weight:", FormatFloat(GetStringParamFloat(aiDataStr, 2, 0.0), 1) + "% per hour")
     loc_res += UDmain.UDMTF.TableRowDetails("Repeat:", InlineIfStr(GetStringParamInt(aiDataStr, 3, 0) > 0, "True", "False"))
     loc_res += UDmain.UDMTF.TableRowDetails("Accumulator:", FormatFloat(GetStringParamFloat(aiDataStr, 4, 0.0), 2) + " hours")
-    loc_res += UDmain.UDMTF.Text("(Accumulator contains hours passed since the last trigger)", asAlign = "center")
-    loc_res += UDmain.UDMTF.LineBreak()
+    loc_res += UDmain.UDMTF.Paragraph("(Accumulator contains hours passed since the last trigger)", asAlign = "center")
     Return loc_res
 EndFunction

@@ -325,31 +325,50 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
             Return
         EndIf
         loc_valid_mods = Utility.ResizeAliasArray(loc_valid_mods, loc_modnum)
+        Float loc_norm_mult = (UD_ModsSoftCap as Float) / (loc_modnum as Float)
         ; second run to check and assign valid mods
-        Int loc_added_mods = _AddModifiersFromArray(akDevice, loc_valid_mods, UD_ModsSoftCap, UD_ModsHardCap)
+        Int loc_added_mods = _AddModifiersFromArray(akDevice, loc_valid_mods, loc_norm_mult, UD_ModsHardCap)
         If loc_added_mods < UD_ModsMinCap
             ; a third run to add mods if their number does not reach the minimum
-            _AddModifiersFromArray(akDevice, loc_valid_mods, UD_ModsSoftCap, UD_ModsSoftCap)
+            _AddModifiersFromArray(akDevice, loc_valid_mods, loc_norm_mult, UD_ModsSoftCap)
         EndIf
     endif
 EndFunction
 
-Int Function _AddModifiersFromArray(UD_CustomDevice_RenderScript akDevice, Alias[] aakMods, Int aiSoftCap, Int aiHardCap)
+Int Function _AddModifiersFromArray(UD_CustomDevice_RenderScript akDevice, Alias[] aakMods, Float afNormMult, Int aiHardCap, Bool abPostponed = False)
+    If aakMods.Length == 0
+        Return 0
+    EndIf
+
     Int loc_i = 0
     Int loc_modnum = 0
+    Alias[] loc_postponed
+
     UD_CustomDevice_NPCSlot loc_slot = UDCDMain.getNPCSlot(akDevice.GetWearer())
     
-    while loc_i < aakMods.Length
+    While loc_i < aakMods.Length
         If loc_modnum >= aiHardCap
             Return loc_modnum
         EndIf
         UD_Modifier loc_mod = aakMods[loc_i] As UD_Modifier
-        If !akDevice.HasModifierRef(loc_mod) && loc_mod.PatchModifierCheckAndAdd(akDevice, aiSoftCap, aakMods.Length, UD_ModGlobalProbabilityMult, UD_ModGlobalSeverityShift, UD_ModGlobalSeverityDispMult, loc_slot)
-            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Added modifier = " + loc_mod, 2)
-            loc_modnum += 1
+        If !akDevice.HasModifierRef(loc_mod)
+            Int loc_res = loc_mod.PatchModifierCheckAndAdd(akDevice, afNormMult, UD_ModGlobalProbabilityMult, UD_ModGlobalSeverityShift, UD_ModGlobalSeverityDispMult, loc_slot)
+            If loc_res > 0
+                UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Added modifier = " + loc_mod, 2)
+                loc_modnum += 1
+            ElseIf loc_res == 0 && !abPostponed
+                ; Put off adding this modifier until last. There is still a chance that it will pass all checks.
+                ; And check that this is not the last pass so that it doesn't go into infinite recursion
+                loc_postponed = PapyrusUtil.PushAlias(loc_postponed, loc_mod)
+            EndIf
         EndIf
         loc_i += 1
-    endwhile
+    Endwhile
+
+    If !abPostponed && loc_postponed.Length > 0
+        loc_modnum += _AddModifiersFromArray(akDevice, loc_postponed, afNormMult, aiHardCap, True)
+    EndIf
+
     Return loc_modnum
 EndFunction
 

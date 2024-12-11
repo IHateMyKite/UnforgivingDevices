@@ -45,7 +45,7 @@ Bool Function SpellCast(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
         UDmain.Log("UD_ModTrigger_SpellCast::SpellCast() akModifier = " + akModifier + ", akDevice = " + akDevice + ", akSpell = " + akSpell + ", aiDataStr = " + aiDataStr, 3)
     EndIf
     Int loc_cost = iRange(akSpell.GetMagickaCost(), 5, 100)
-    ; TODO: better cost calculation
+    ; TODO PR195: better cost calculation
     
     Float loc_min_cost = GetStringParamFloat(aiDataStr, 0, 0.0)
     Float loc_prob_base = GetStringParamFloat(aiDataStr, 1, 100.0)
@@ -66,7 +66,6 @@ String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice
     loc_res += UDmain.UDMTF.TableRowDetails("Value weight:", FormatFloat(GetStringParamFloat(aiDataStr, 2, 0.0), 1) + "% per mana point")
     loc_res += UDmain.UDMTF.TableRowDetails("Repeat:", InlineIfStr(GetStringParamInt(aiDataStr, 3, 0) > 0, "True", "False"))
     loc_res += UDmain.UDMTF.TableRowDetails("Accumulator:", GetStringParamInt(aiDataStr, 4, 0) + " mana")
-    loc_res += UDmain.UDMTF.Text("(Accumulator contains the total mana spent so far)", asAlign = "center")
-    loc_res += UDmain.UDMTF.LineBreak()
+    loc_res += UDmain.UDMTF.Paragraph("(Accumulator contains the total mana spent so far)", asAlign = "center")
     Return loc_res
 EndFunction

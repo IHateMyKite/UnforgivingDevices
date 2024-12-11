@@ -231,6 +231,29 @@ String Function ParagraphEnd()
     Return LineBreak()
 EndFunction
 
+;/  Function: Paragraph
+
+    Returns text decorated with specified modifiers as a separate paragraph (with line break at the end)
+    
+    Parameters:
+        asText                  - Text to print.
+        aiFontSize              - Font size. If no value is specified, the size does not change.
+        asFontFace              - Font name. If no value is specified, the font face does not change.
+        asColor                 - Color hex code. If no value is specified, the font color does not change.
+        asAlign                 - Horizontal text alignment (left, center, right). If no value is specified, the alignment does not change.
+        aiLeading               - Spacing between lines. If no value is specified, the spacing does not change. 
+    
+    Returns:
+        String with the text fragment
+/;
+String Function Paragraph(String asText, Int aiFontSize = -1, String asFontFace = "", String asColor = "", String asAlign = "", Int aiLeading = -99)
+    String loc_res = ""
+    loc_res += ParagraphBegin(asAlign, aiLeading)
+    loc_res += Text(asText, aiFontSize, asFontFace, asColor)
+    loc_res += ParagraphEnd()
+    Return loc_res
+EndFunction
+
 ;/  Function: Text
 
     Returns text decorated with specified modifiers
@@ -245,12 +268,12 @@ EndFunction
     Returns:
         String with the text fragment
 /;
-String Function Text(String asText, Int aiFontSize = -1, String asFontFace = "", String asColor = "", String asAlign = "")
+String Function Text(String asText, Int aiFontSize = -1, String asFontFace = "", String asColor = "")
     String loc_res = ""
-    loc_res += InlineIfString(asColor != "" || asFontFace != "", "[") ; StringUtil.AsChar(171))        ; decorating with quotation marks (doesn't work)
+    loc_res += InlineIfString(asColor != "" || asFontFace != "", StringUtil.AsChar(171)) ; StringUtil.AsChar(171))
     loc_res += asText
-    loc_res += InlineIfString(asColor != "" || asFontFace != "", "]") ; StringUtil.AsChar(187))
-    Return asText
+    loc_res += InlineIfString(asColor != "" || asFontFace != "", StringUtil.AsChar(187)) ; StringUtil.AsChar(187))
+    Return loc_res
 EndFunction
 
 ;/  Function: TableRowDetails
@@ -500,12 +523,13 @@ Auto State HTML
         EndIf
         String loc_pad = PapyrusUtil.StringJoin(Utility.CreateStringArray(loc_pad_len + 1, "0"), "")
         String loc_res = ""
+        loc_res += ParagraphBegin(asAlign = "center")
         loc_res += FontBegin(FontSize + aiPlusSize, "$SkyrimSymbolsFont")
         loc_res += "6" + loc_pad
         loc_res += Text(" " + asHeader + " ", asFontFace = "$EverywhereMediumFont")
         loc_res += loc_pad + "7"
         loc_res += FontEnd()
-        loc_res += LineBreak()
+        loc_res += ParagraphEnd()
         Return loc_res
     EndFunction
 
@@ -532,16 +556,16 @@ Auto State HTML
             loc_tabstops += loc_pos as String
         EndIf
         
-        loc_res += "<textformat tabstops='[" + loc_tabstops + "]' leading='" + (aiLeading As String) + "'>"
         loc_res += "<p align='left'>"
+        loc_res += "<textformat tabstops='[" + loc_tabstops + "]' leading='" + (aiLeading As String) + "'>"
         
         Return loc_res
     EndFunction
 
     String Function TableEnd()
         String loc_res = ""
-        loc_res += "</p>"
         loc_res += "</textformat>"
+        loc_res += "</p>"
         Return loc_res
     EndFunction
     
@@ -583,31 +607,26 @@ Auto State HTML
     
     String Function ParagraphBegin(String asAlign = "", Int aiLeading = -99)
         String loc_res = ""
-        loc_res += "<textformat"
-        loc_res += InlineIfString(aiLeading > -99, " leading='" + (aiLeading as String) + "'")
-        loc_res += ">"
-        loc_res += "<p"
-        loc_res += InlineIfString(asAlign != "", " align='" + asAlign + "'")
-        loc_res += ">"
+        loc_res += "<p" + InlineIfString(asAlign != "", " align='" + asAlign + "'") + ">"
+        loc_res += "<textformat" + InlineIfString(aiLeading > -99, " leading='" + (aiLeading as String) + "'") + ">"
         Return loc_res
     EndFunction
     
     String Function ParagraphEnd()
         String loc_res = ""
-        loc_res += "</p>"
         loc_res += "</textformat>"
+        loc_res += "</p>"
         Return loc_res
     EndFunction
 
-    String Function Text(String asText, Int aiFontSize = -1, String asFontFace = "", String asColor = "", String asAlign = "")
+    ; if used with 'asAlign' then it has a line break at the end
+    String Function Text(String asText, Int aiFontSize = -1, String asFontFace = "", String asColor = "")
         String loc_res = ""
         Bool loc_font = aiFontSize > 0 || asColor != "" || asFontFace != ""
         If loc_font
             loc_res += FontBegin(aiFontSize = aiFontSize, asFontFace = asFontFace, asColor = asColor)
         EndIf
-        loc_res += InlineIfString(asAlign != "", "<span align='" + asAlign + "'>")
         loc_res += asText
-        loc_res += InlineIfString(asAlign != "", "</span>")
         If loc_font
             loc_res += FontEnd()
         EndIf
@@ -816,19 +835,21 @@ Auto State HTML
     EndFunction
 
     String Function _CleanPage(String asPage)
-        Debug.Trace(Self + "::_CleanPage() Before: begining = " + StringUtil.Substring(asPage, 0, 100))
-        Debug.Trace(Self + "::_CleanPage() Before: ending = " + StringUtil.Substring(asPage, StringUtil.GetLength(asPage) - 100))
+        Debug.Trace(Self + "::_CleanPage() Before: begining = " + StringUtil.Substring(asPage, 0, 150))
+        Debug.Trace(Self + "::_CleanPage() Before:   ending = " + StringUtil.Substring(asPage, StringUtil.GetLength(asPage) - 150))
         String loc_res = asPage
         loc_res = RemoveSubstr(loc_res, "<g/>")
         loc_res = TrimSubstr(loc_res, "<br/>")
         loc_res = TrimSubstr(loc_res, " ")
         loc_res = TrimSubstr(loc_res, LineGap())
         loc_res = RemoveDuplicates(loc_res, LineGap())
+        loc_res = ReplaceSubstr(loc_res, "<br/><p", "<p")
         loc_res = ReplaceSubstr(loc_res, "<br/></p>", "</p>")
+        loc_res = ReplaceSubstr(loc_res, "<br/></textformat></p>", "</textformat></p>")
         loc_res = ReplaceSubstr(loc_res, "<gap/>", "<font size='12'> <br/></font>") ;"<textformat leading='-10'> <br/></textformat>"
-        loc_res = ReplaceSubstr(loc_res, "<br/>", "\n")
-        Debug.Trace(Self + "::_CleanPage() After: begining = " + StringUtil.Substring(asPage, 0, 100))
-        Debug.Trace(Self + "::_CleanPage() After: ending = " + StringUtil.Substring(asPage, StringUtil.GetLength(asPage) - 100))
+;        loc_res = ReplaceSubstr(loc_res, "<br/>", "\n")
+        Debug.Trace(Self + "::_CleanPage() After: begining = " + StringUtil.Substring(loc_res, 0, 150))
+        Debug.Trace(Self + "::_CleanPage() After:   ending = " + StringUtil.Substring(loc_res, StringUtil.GetLength(loc_res) - 150))
         Return loc_res
     EndFunction
     
