@@ -45,6 +45,7 @@ Bool Function MinigameAllowed(UD_CustomDevice_RenderScript akModDevice, String a
     if akModDevice.GetRealTimeLockedTime() > 0.5
         return true
     endif
+
     ; checking max. possible value
     Int loc_gold = CalculateGold2(aiDataStr, akModDevice.UD_Level, false)
     Int loc_WearerGold = akModDevice.GetWearer().GetItemCount(UDLibs.Gold)
@@ -57,9 +58,9 @@ Bool Function MinigameAllowed(UD_CustomDevice_RenderScript akModDevice, String a
     
     Bool loc_cond = loc_WearerGold > loc_gold || loc_HelperGold > loc_gold
     
-    if !loc_cond && IsPlayer(akModDevice.GetWearer())
-        UDmain.Print("You dont have enough gold to pay the device!")
-    endif
+;    if !loc_cond && IsPlayer(akModDevice.GetWearer())
+;        UDmain.Print("You dont have enough gold to pay the device!")
+;    endif
     
     return loc_cond
 EndFunction
@@ -81,4 +82,14 @@ Function MinigameStarted(UD_CustomDevice_RenderScript akModDevice, UD_CustomDevi
             endif
         endif
     endif
+EndFunction
+
+;/  Group: User interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+; A message in the device description to explain the minigame prohibition
+String Function MinigameProhibitedMessage()
+    Return "You don't have enough gold to pay the device!"
 EndFunction

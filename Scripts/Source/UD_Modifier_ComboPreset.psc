@@ -125,14 +125,19 @@ EndFunction
 ===========================================================================================
 /;
 String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+
+    if UDmain.TraceAllowed()
+        UDmain.Log(Self + "::GetDetails() akDevice = " + akDevice + ", data_str = " + aiDataStr + ", form1 = " + akForm1 + ", form2 = " + akForm2 + ", form3 = " + akForm3 + ", form4 = " + akForm4 + ", form5 = " + akForm5)
+    endif
+
     String loc_res = ""
     loc_res += UDmain.UDMTF.Header(NameFull, 4)
     loc_res += UDmain.UDMTF.FontBegin(aiFontSize = UDmain.UDMTF.FontSize, asColor = UDmain.UDMTF.TextColorDefault)
     loc_res += UDmain.UDMTF.HeaderSplit()
     If Description
         loc_res += UDmain.UDMTF.Paragraph(Description, asAlign = "center")
+        loc_res += UDmain.UDMTF.LineGap()
     EndIf
-    loc_res += UDmain.UDMTF.LineGap()
 ; Trigger
     loc_res += UDmain.UDMTF.PageSplit(abForce = False)
     loc_res += UDmain.UDMTF.Header("Trigger", 0)

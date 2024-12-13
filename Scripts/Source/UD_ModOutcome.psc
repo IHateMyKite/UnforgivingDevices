@@ -35,7 +35,6 @@ zadlibs Property libs
     EndFunction
 EndProperty
 
-
 ;/  Variable: NameFull
     Full name of the outcome which is shown to the player
 /;
@@ -56,7 +55,7 @@ Int         Property DataStrOffset              = 7     AutoReadOnly Hidden
 ===========================================================================================
 ===========================================================================================
 /;
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
 EndFunction
 
 Bool Function MinigameAllowed(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
@@ -68,7 +67,7 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
     String loc_res = ""
     If Description
         loc_res += UDmain.UDMTF.Paragraph(Description, asAlign = "center")
@@ -80,55 +79,10 @@ String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderS
     Return loc_res
 EndFunction
 
-String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
     String loc_res = ""
 ;    loc_res += UDmain.UDMTF.TableRowDetails("Name:", NameFull)
 ;    loc_res += UDmain.UDMTF.TableRowDetails("Param:", Param)
-    Return loc_res
-EndFunction
-
-String Function GetSelectionMethodString(String asMethod)
-    If asMethod == "A" || asMethod == "ALL"
-        Return "All"
-    ElseIf asMethod == "S" || asMethod == "SELF"
-        Return "Self"
-    ElseIf asMethod == "R" || asMethod == "RANDOM"
-        Return "Random"
-    ElseIf asMethod == "F" || asMethod == "FIRST"
-        Return "First"
-    Else
-        Return asMethod
-    EndIf
-EndFunction
-
-String Function PrintFormListSelectionDetails(Form akForm, String asMethod)
-    String loc_res = ""
-    loc_res += UDmain.UDMTF.TableRowDetails("Selected Forms:", GetSelectionMethodString(asMethod))
-    If UDmain.UDMTF.HasHtmlMarkup()
-        If akForm as FormList 
-            FormList loc_fl = akForm as FormList
-            Int loc_i = 0
-            While loc_i < loc_fl.GetSize()
-                loc_res += UDmain.UDMTF.TableRowDetails(" ", loc_fl.GetAt(loc_i).GetName())
-            EndWhile
-        ElseIf akForm
-            loc_res += UDmain.UDMTF.TableRowDetails(" ", akForm.GetName())
-        Else 
-            loc_res += UDmain.UDMTF.TableRowDetails(" ", "None")
-        EndIf
-    Else
-        If akForm as FormList 
-            FormList loc_fl = akForm as FormList
-            Int loc_i = 0
-            While loc_i < loc_fl.GetSize()
-                loc_res += UDmain.UDMTF.TableRowDetails("              ", loc_fl.GetAt(loc_i).GetName())
-            EndWhile
-        ElseIf akForm
-            loc_res += UDmain.UDMTF.TableRowDetails("              ", akForm.GetName())
-        Else 
-            loc_res += UDmain.UDMTF.TableRowDetails("              ", "None")
-        EndIf        
-    EndIf
     Return loc_res
 EndFunction
 

@@ -62,7 +62,14 @@ FormList    Property Form4_Variants                     Auto
 /;
 FormList    Property Form5_Variants                     Auto
 
+;/  Variable: PreferredDevices
+    This preset is exclusive to devices with any of the specified keywords
+/;
 Keyword[]   Property PreferredDevices                   Auto
+
+;/  Variable: ForbiddenDevices
+    This preset is not compatible with devices with any of the specified keywords
+/;
 Keyword[]   Property ForbiddenDevices                   Auto
 
 ;/  Variable: ConflictedDeviceModTags

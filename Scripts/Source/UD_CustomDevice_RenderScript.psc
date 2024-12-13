@@ -7060,6 +7060,20 @@ String Function _GetDeviceMainMenuText()
         loc_res += UDMTF.Text("You perceive that device is " + getResistanceString(UD_WeaponHitResist, True) + " to cuts.")
         loc_res += UDMTF.LineBreak()
     EndIf
+
+    String[] loc_lines = UDmain.UDMOM.GetModifierState_MinigameProhibitedMessage(Self)
+    If loc_lines.Length > 0
+        Int loc_i = 0
+        While loc_i < loc_lines.Length
+            String loc_line = loc_lines[loc_i]
+            If StringUtil.GetLength(loc_line) > 0
+                loc_res += UDMTF.Text(loc_line, asColor = UDMTF.BoolToRainbow(False))
+                loc_res += UDMTF.LineBreak()
+            EndIf
+            loc_i += 1
+        EndWhile
+    EndIf
+
     loc_res += UDMTF.LineBreak()
     loc_res += UDMTF.Text("What do you want to do with this device?")
     loc_res += UDMTF.LineBreak()
@@ -7138,8 +7152,6 @@ Function ShowBaseDetails()
     String loc_frag
     Int loc_i
     
-;    UDMTF.GoToState("")
-
     loc_res += UDMTF.Header(getDeviceName(), 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
     loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
@@ -7234,7 +7246,7 @@ Function ShowBaseDetails()
     UDMain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup(), False)
 EndFunction
 
-;/  Function: minigamePrecheck
+;/  Function: ShowModifiers
     Shows message box with all modifiers and some information about them
 /;
 Function ShowModifiers()
@@ -7262,13 +7274,11 @@ Function ShowModifiers()
     loc_list = PapyrusUtil.PushString(loc_list,"==BACK==")
     
     int loc_res = UDmain.GetUserListInput(loc_list)
-    
     if loc_res == (loc_list.length - 1)
         return ;user selected ==BACK==
     endif
-    
     UD_Modifier loc_mod = (UD_ModifiersRef[loc_res] as UD_Modifier)
-    String loc_msg = loc_mod.GetDetails(self,UD_ModifiersDataStr[loc_res],UD_ModifiersDataForm1[loc_res],UD_ModifiersDataForm2[loc_res],UD_ModifiersDataForm3[loc_res],UD_ModifiersDataForm4[loc_res],UD_ModifiersDataForm5[loc_res])
+    String loc_msg = loc_mod.GetDetails(self, UD_ModifiersDataStr[loc_res], UD_ModifiersDataForm1[loc_res] as Form, UD_ModifiersDataForm2[loc_res] as Form, UD_ModifiersDataForm3[loc_res] as Form, UD_ModifiersDataForm4[loc_res] as Form, UD_ModifiersDataForm5[loc_res] as Form)
     UDmain.ShowMessageBox(loc_msg, UDMain.UDMTF.HasHtmlMarkup(), True)
 EndFunction
 

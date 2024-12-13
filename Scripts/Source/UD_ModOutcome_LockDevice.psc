@@ -34,7 +34,7 @@ import UD_Native
 
 Explosion Property ManifestExplosion Auto
 
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_ModOutcome_LockDevice::Outcome() akDevice = " + akDevice + ", aiDataStr = " + aiDataStr, 3)
     EndIf
@@ -92,7 +92,10 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+    if UDmain.TraceAllowed()
+        UDmain.Log(Self + "::GetParamsTableRows() akModifier = " + akModifier + ", akDevice = " + akDevice + ", aiDataStr = " + aiDataStr + ", akForm4 = " + akForm4 + ", akForm5 = " + akForm5)
+    endif
     String loc_res = ""
     Int loc_count = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
     String loc_method_list4 = GetStringParamString(aiDataStr, DataStrOffset + 1, "L")
@@ -100,10 +103,10 @@ String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice
 
     loc_res += UDmain.UDMTF.TableRowDetails("Number of devices:", loc_count)
     If akForm4
-        loc_res += PrintFormListSelectionDetails(akForm4, loc_method_list4)
+        loc_res += akModifier.PrintFormListSelectionDetails(akForm4, loc_method_list4)
     EndIf
     If akForm5
-        loc_res += PrintFormListSelectionDetails(akForm5, loc_method_list5)
+        loc_res += akModifier.PrintFormListSelectionDetails(akForm5, loc_method_list5)
     EndIf
     Return loc_res
 EndFunction

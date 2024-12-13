@@ -1883,7 +1883,7 @@ String Function _GetActorOrgasmProgressString(Int aiOrgasmProgress, Bool abDecor
 
     String loc_str = ""
     If aiOrgasmProgress < 20
-        loc_str = "in perfect harmony"
+        loc_str = "are in perfect harmony"
     ElseIf aiOrgasmProgress < 40
         loc_str = "have trouble concentrating"
     ElseIf aiOrgasmProgress < 60
@@ -1891,7 +1891,7 @@ String Function _GetActorOrgasmProgressString(Int aiOrgasmProgress, Bool abDecor
     ElseIf aiOrgasmProgress < 80
         loc_str = "are barely in control"
     Else
-        loc_str = "want to cum"
+        loc_str = "want to cum!"
     EndIf
     
     If abDecorate

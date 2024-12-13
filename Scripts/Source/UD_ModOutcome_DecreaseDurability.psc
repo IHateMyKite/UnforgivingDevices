@@ -38,7 +38,7 @@ import UD_Native
 ===========================================================================================
 /;
 
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)    
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)    
     If UDmain.TraceAllowed()
         UDmain.Log("UD_ModOutcome_RestoreDurability::Outcome() akDevice = " + akDevice + ", aiDataStr = " + aiDataStr, 3)
     EndIf
@@ -63,7 +63,7 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
     String loc_res = ""
     String loc_frag = "" 
     String loc_method_list4 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
@@ -78,7 +78,7 @@ String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice
     EndIf
     loc_res += UDmain.UDMTF.TableRowDetails("Number of devices:", loc_frag)
     If loc_method_list4 != ""
-        loc_res += PrintFormListSelectionDetails(akForm4, loc_method_list4)
+        loc_res += akModifier.PrintFormListSelectionDetails(akForm4, loc_method_list4)
     EndIf
     loc_res += UDmain.UDMTF.TableRowDetails("Magnitude:", FormatFloat(loc_min, 1) + " - " + FormatFloat(loc_max, 1) + "%")
     Return loc_res

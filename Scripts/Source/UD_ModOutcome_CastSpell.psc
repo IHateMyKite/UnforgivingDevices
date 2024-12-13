@@ -24,7 +24,7 @@ import UD_Native
 ===========================================================================================
 /;
 
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_ModOutcome_CastSpell::Outcome() akModifier = " + akModifier + ", akDevice = " + akDevice + ", aiDataStr = " + aiDataStr + ", akForm4 = " + akForm4 + ", akForm5 = " + akForm5, 3)
     EndIf
@@ -42,13 +42,13 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
     String loc_res = ""
     If akForm4
-        loc_res += PrintFormListSelectionDetails(akForm4, "R")
+        loc_res += akModifier.PrintFormListSelectionDetails(akForm4, "R")
     EndIf
     If akForm5
-        loc_res += PrintFormListSelectionDetails(akForm5, "R")
+        loc_res += akModifier.PrintFormListSelectionDetails(akForm5, "R")
     EndIf
     Return loc_res
 EndFunction

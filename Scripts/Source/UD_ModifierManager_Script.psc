@@ -586,6 +586,19 @@ Bool Function GetModifierState_MinigameAllowed(UD_CustomDevice_RenderScript akDe
     return true
 EndFunction
 
+String[] Function GetModifierState_MinigameProhibitedMessage(UD_CustomDevice_RenderScript akDevice) ;directly accesed from device
+    int loc_modid = akDevice.UD_ModifiersRef.length
+    String[] loc_res
+    while loc_modid 
+        loc_modid -= 1
+        UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
+        if !loc_mod.MinigameAllowed(akDevice, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid], akDevice.UD_ModifiersDataForm4[loc_modid], akDevice.UD_ModifiersDataForm5[loc_modid])
+            loc_res = PapyrusUtil.PushString(loc_res, loc_mod.MinigameProhibitedMessage())
+        endif
+    endwhile
+    return loc_res
+EndFunction
+
 Function Procces_UpdateModifiers_MinigameStarted(UD_CustomDevice_RenderScript akDevice) ;directly accesed from device
     UD_CustomDevice_NPCSlot loc_slot = akDevice.UD_WearerSlot
     if !loc_slot || !loc_slot.isUsed() || loc_slot.isDead() || !loc_slot.isScriptRunning()

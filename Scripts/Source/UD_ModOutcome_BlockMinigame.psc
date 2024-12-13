@@ -36,7 +36,7 @@ import UD_Native
 ===========================================================================================
 ===========================================================================================
 /;
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
     String loc_init = GetStringParamString(aiDataStr, DataStrOffset + 0, "B")
     Float loc_duration = GetStringParamFloat(aiDataStr, DataStrOffset + 1, 0.0)
     Bool loc_repeat = GetStringParamInt(aiDataStr, DataStrOffset + 2, 0) > 0
@@ -92,7 +92,7 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
     String loc_init = GetStringParamString(aiDataStr, DataStrOffset + 0, "B")
     Float loc_duration = GetStringParamFloat(aiDataStr, DataStrOffset + 1, 0.0)
     Bool loc_repeat = GetStringParamInt(aiDataStr, DataStrOffset + 2, 0) > 0

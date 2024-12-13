@@ -34,7 +34,7 @@ import UD_Native
 ===========================================================================================
 /;
 
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
     Actor loc_actor = akDevice.GetWearer()
     if !loc_actor || !IsPlayer(loc_actor) ;should only work for the player
         return
@@ -63,7 +63,7 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5 = None)
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
     String loc_res = ""
     Form loc_currency = UDlibs.Gold
     Int loc_A_min = GetStringParamInt(aiDataStr, DataStrOffset + 0, 0)

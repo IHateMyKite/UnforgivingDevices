@@ -128,6 +128,8 @@ Float       Property Multiplier                 = 1.0       Auto Hidden
 /;
 Int         Property EventProcessingMask        = 0x80000000    Auto Hidden
 
+Int         Property PrintFormsMax              = 3     AutoReadOnly Hidden
+
 ;/  Group: Overrides
 ===========================================================================================
 ===========================================================================================
@@ -223,8 +225,8 @@ String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataS
     loc_res += UDmain.UDMTF.HeaderSplit()
 
     If Description
-        loc_res += UDmain.UDMTF.LineBreak()
         loc_res += UDmain.UDMTF.Paragraph(Description, asAlign = "center")
+        loc_res += UDmain.UDMTF.LineGap()
     EndIf
     loc_res += UDmain.UDMTF.PageSplit(abForce = False)
     loc_res += UDmain.UDMTF.Header("Parameters", 0)
@@ -273,8 +275,13 @@ String Function PrintFormListSelectionDetails(Form akForm, String asMethod)
         If akForm as FormList 
             FormList loc_fl = akForm as FormList
             Int loc_i = 0
-            While loc_i < loc_fl.GetSize()
+            Int loc_n = loc_fl.GetSize()
+            If loc_n > PrintFormsMax 
+                loc_n = PrintFormsMax
+            EndIf
+            While loc_i < loc_n
                 loc_res += UDmain.UDMTF.TableRowDetails(" ", loc_fl.GetAt(loc_i).GetName())
+                loc_i += 1
             EndWhile
         ElseIf akForm
             loc_res += UDmain.UDMTF.TableRowDetails(" ", akForm.GetName())
@@ -285,8 +292,13 @@ String Function PrintFormListSelectionDetails(Form akForm, String asMethod)
         If akForm as FormList 
             FormList loc_fl = akForm as FormList
             Int loc_i = 0
-            While loc_i < loc_fl.GetSize()
+            Int loc_n = loc_fl.GetSize()
+            If loc_n > PrintFormsMax 
+                loc_n = PrintFormsMax
+            EndIf
+            While loc_i < loc_n
                 loc_res += UDmain.UDMTF.TableRowDetails("              ", loc_fl.GetAt(loc_i).GetName())
+                loc_i += 1
             EndWhile
         ElseIf akForm
             loc_res += UDmain.UDMTF.TableRowDetails("              ", akForm.GetName())
@@ -295,6 +307,11 @@ String Function PrintFormListSelectionDetails(Form akForm, String asMethod)
         EndIf        
     EndIf
     Return loc_res
+EndFunction
+
+; A message in the device description to explain the minigame prohibition
+String Function MinigameProhibitedMessage()
+    Return ""
 EndFunction
 
 ;/  Group: Patcher
@@ -307,9 +324,15 @@ EndFunction
 ; Used for approximate calculation of the upper limit for the number of available mods
 ; Could be overriden for more accurate calculation
 Bool Function PatchModifierFastCheck(UD_CustomDevice_RenderScript akDevice)
-    ; get random preset
-    UD_Patcher_ModPreset loc_preset = (Self as ReferenceAlias) as UD_Patcher_ModPreset
-    Return (loc_preset != None) && loc_preset.FastCheckDevice(akDevice) && PatchModifierFastCheckOverride(akDevice)
+    If !PatchModifierFastCheckOverride(akDevice)
+        Return False
+    EndIf
+
+    UD_Patcher_ModPreset loc_preset1 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset1) as UD_Patcher_ModPreset
+    UD_Patcher_ModPreset loc_preset2 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset2) as UD_Patcher_ModPreset
+    UD_Patcher_ModPreset loc_preset3 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset3) as UD_Patcher_ModPreset
+
+    Return (loc_preset1 != None && loc_preset1.FastCheckDevice(akDevice)) || (loc_preset2 != None && loc_preset2.FastCheckDevice(akDevice)) || (loc_preset3 != None && loc_preset3.FastCheckDevice(akDevice))
 EndFunction
 
 

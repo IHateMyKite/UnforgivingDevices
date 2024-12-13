@@ -200,8 +200,8 @@ String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataS
     loc_res += UDmain.UDMTF.HeaderSplit()
     If Description
         loc_res += UDmain.UDMTF.Paragraph(Description, asAlign = "center")
+        loc_res += UDmain.UDMTF.LineGap()
     EndIf
-    loc_res += UDmain.UDMTF.LineGap()
 ; Trigger
     loc_res += UDmain.UDMTF.PageSplit(abForce = False)
     loc_res += UDmain.UDMTF.Header("Trigger", 0)
