@@ -13,15 +13,15 @@
         [2]     Float       (optional) Probability to trigger that is proportional to the accumulated value (number of obtained items)
                             Default value: 0.0%
                         
-        [3]     Float       (optional) Reset period (in hours). If negative then it is triggered once
-                            Default value: -1.0 (Triggered once)
+        [3]     Float       (optional) Reset period (in hours). If negative then it triggers once
+                            Default value: -1.0 (It triggers once)
                         
         [4]     Int         (optional) Only stolen items count
                             Default value: 0 (False)
                         
         [5]     Float       (script) Number of obtained items so far
         
-        [6]     Float       (script) Device locked time in the moment of the last trigger (ingame hours)
+        [6]     Float       (script) Timestamp of the last trigger
 
     Forms:
         Form1               FormList, Form or Keyword to filter obtained items

@@ -39,25 +39,25 @@ String      Property DataStr_Types                      Auto
 FormList    Property Form1_Variants                     Auto
 
 ;/  Variable: Form2_Variants
-    List of possible values for the DataForm1 when adding a modifier with the Patcher.
+    List of possible values for the DataForm2 when adding a modifier with the Patcher.
     The easiest options come first.
 /;
 FormList    Property Form2_Variants                     Auto
 
 ;/  Variable: Form3_Variants
-    List of possible values for the DataForm1 when adding a modifier with the Patcher.
+    List of possible values for the DataForm3 when adding a modifier with the Patcher.
     The easiest options come first.
 /;
 FormList    Property Form3_Variants                     Auto
 
 ;/  Variable: Form4_Variants
-    List of possible values for the DataForm1 when adding a modifier with the Patcher.
+    List of possible values for the DataForm4 when adding a modifier with the Patcher.
     The easiest options come first.
 /;
 FormList    Property Form4_Variants                     Auto
 
 ;/  Variable: Form5_Variants
-    List of possible values for the DataForm1 when adding a modifier with the Patcher.
+    List of possible values for the DataForm5 when adding a modifier with the Patcher.
     The easiest options come first.
 /;
 FormList    Property Form5_Variants                     Auto

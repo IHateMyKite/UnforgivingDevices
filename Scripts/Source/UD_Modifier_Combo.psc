@@ -220,3 +220,8 @@ EndFunction
 String Function GetCaption(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     Return (akForm1 as UD_ModTrigger).NameFull + " => " + (akForm2 as UD_ModOutcome).NameFull
 EndFunction
+
+; A message in the device description to explain the minigame prohibition
+String Function MinigameProhibitedMessage(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    Return (akForm2 as UD_ModOutcome).MinigameProhibitedMessage(Self, akDevice, aiDataStr, akForm4, akForm5)
+EndFunction

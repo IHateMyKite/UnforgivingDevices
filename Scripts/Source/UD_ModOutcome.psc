@@ -86,6 +86,11 @@ String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice
     Return loc_res
 EndFunction
 
+; A message in the device description to explain the minigame prohibition
+String Function MinigameProhibitedMessage(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+    Return akModifier.Description
+EndFunction
+
 ;/  Group: Protected methods
 ===========================================================================================
 ===========================================================================================

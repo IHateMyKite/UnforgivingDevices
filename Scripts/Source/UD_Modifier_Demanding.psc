@@ -90,6 +90,6 @@ EndFunction
 ===========================================================================================
 /;
 ; A message in the device description to explain the minigame prohibition
-String Function MinigameProhibitedMessage()
+String Function MinigameProhibitedMessage(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     Return "You don't have enough gold to pay the device!"
 EndFunction

@@ -125,32 +125,7 @@ EndFunction
 ===========================================================================================
 /;
 String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-
-    if UDmain.TraceAllowed()
-        UDmain.Log(Self + "::GetDetails() akDevice = " + akDevice + ", data_str = " + aiDataStr + ", form1 = " + akForm1 + ", form2 = " + akForm2 + ", form3 = " + akForm3 + ", form4 = " + akForm4 + ", form5 = " + akForm5)
-    endif
-
-    String loc_res = ""
-    loc_res += UDmain.UDMTF.Header(NameFull, 4)
-    loc_res += UDmain.UDMTF.FontBegin(aiFontSize = UDmain.UDMTF.FontSize, asColor = UDmain.UDMTF.TextColorDefault)
-    loc_res += UDmain.UDMTF.HeaderSplit()
-    If Description
-        loc_res += UDmain.UDMTF.Paragraph(Description, asAlign = "center")
-        loc_res += UDmain.UDMTF.LineGap()
-    EndIf
-; Trigger
-    loc_res += UDmain.UDMTF.PageSplit(abForce = False)
-    loc_res += UDmain.UDMTF.Header("Trigger", 0)
-    loc_res += ModTrigger.GetDetails(Self, akDevice, aiDataStr, akForm3)
-; Outcome
-    loc_res += UDmain.UDMTF.PageSplit(abForce = False)
-    loc_res += UDmain.UDMTF.Header("Outcome", 0)
-    loc_res += ModOutcome.GetDetails(Self, akDevice, aiDataStr, akForm4, akForm5)
-    
-    loc_res += UDmain.UDMTF.FooterSplit()
-    loc_res += UDmain.UDMTF.FontEnd()
-
-    Return loc_res
+    Return Parent.GetDetails(akDevice, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
 EndFunction
 
 String Function GetCaption(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
