@@ -7835,7 +7835,7 @@ EndFunction
 
 Function removeDevice(actor akActor)
     if _isRemoved
-        UDCDmain.GetNPCSlot(akActor).removeLostRenderDevices()
+        UDCDmain.GetNPCSlot(akActor).QuickFix()
         return
     Endif
     if _removeDeviceCalled
