@@ -1470,6 +1470,7 @@ Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True)
         if UDmain.TraceAllowed()
             UDmain.Log("unlockRestrain("+getDeviceHeader()+") - Device is already unlocked! Aborting ",1)
         endif
+        removeDevice(Wearer)
         return
     endif
     _IsUnlocked = True
