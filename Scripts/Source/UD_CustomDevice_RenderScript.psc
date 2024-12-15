@@ -7834,6 +7834,10 @@ Float[] Function GetCurrentMinigameExpression()
 EndFunction
 
 Function removeDevice(actor akActor)
+    if _isRemoved
+        UDCDmain.GetNPCSlot(akActor).removeLostRenderDevices()
+        return
+    Endif
     if _removeDeviceCalled
         return
     endif
