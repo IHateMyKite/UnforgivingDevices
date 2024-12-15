@@ -1502,6 +1502,7 @@ Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True)
                 zadNativeFunctions.SetDisableUnequip(Wearer,deviceRendered,false)
                 libs.RemoveQuestDevice(Wearer, deviceInventory, deviceRendered, UD_DeviceKeyword, UDCdmain.UD_QuestKeywords.getAt(questKw) as Keyword ,zad_DestroyOnRemove || hasModifier("DOR") || abForceDestroy)
                 removeDevice(Wearer)
+               removeDevice(Wearer)
                 return
             endif
         endwhile
@@ -1509,6 +1510,7 @@ Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True)
         zadNativeFunctions.SetDisableUnequip(Wearer,deviceInventory,false)    
         zadNativeFunctions.SetDisableUnequip(Wearer,deviceRendered,false)
         libs.UnlockDevice(Wearer, deviceInventory, deviceRendered, UD_DeviceKeyword, zad_DestroyOnRemove || hasModifier("DOR") || abForceDestroy)
+        removeDevice(Wearer)
         removeDevice(Wearer)
     endif
 EndFunction
