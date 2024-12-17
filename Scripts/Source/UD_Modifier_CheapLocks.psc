@@ -76,12 +76,3 @@ String Function GetParamsTableRows(UD_CustomDevice_RenderScript akDevice, String
     loc_res += UDmain.UDMTF.TableRowDetails("Chance per dmg:", FormatFloat(fRange(UD_Native.GetStringParamFloat(aiDataStr, 2, 0.0) * Multiplier, 0.0, 100.0), 2) + "%")
     Return loc_res
 EndFunction
-
-;/  Group: Patcher overrides
-===========================================================================================
-===========================================================================================
-===========================================================================================
-/;
-Bool Function PatchModifierFastCheckOverride(UD_CustomDevice_RenderScript akDevice)
-    Return (akDevice.GetLockNumber() > 0)
-EndFunction

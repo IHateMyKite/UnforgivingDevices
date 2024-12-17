@@ -1525,7 +1525,7 @@ function checkSentient(float afMult = 1.0)
         if RandomInt() > 75 && WearerIsPlayer()
             startSentientDialogue(1)
         endif
-        if Round(UD_Native.GetStringParamFloat(GetModifierParam("SEN"))*afMult) > RandomInt(1,99)
+        if Round(UD_Native.GetStringParamFloat(GetModifierParam("SNT"))*afMult) > RandomInt(1,99)
             if UDmain.TraceAllowed()
                 UDmain.Log("Sentient device activation of : " + getDeviceHeader())
             endif
@@ -1793,20 +1793,32 @@ String[] Function GetModifierAliases()
     Return loc_result
 EndFunction
 
-
 Bool Function ModifiersHasTag(String asTag)
-    String loc_mod_tags = ""
-    String loc_tag = " " + asTag + " "
+    String[] loc_mod_tags = GetModifiersTags()
+    Return PapyrusUtil.CountString(loc_mod_tags, asTag) > 0
+EndFunction
+
+Bool _ModifiersTagsArrray_Update = True
+String[] _ModifiersTagsArrray
+
+String[] Function GetModifiersTags(Bool abForceUpdate = False)
+    If !_ModifiersTagsArrray_Update && !abForceUpdate
+        Return _ModifiersTagsArrray
+    EndIf
+    String[] loc_mod_tags
     Int loc_length = UD_ModifiersRef.Length
     Int loc_i = 0
     While loc_i < loc_length
-        loc_mod_tags = " " + (UD_ModifiersRef[loc_i] as UD_Modifier).Tags + " "
-        If StringUtil.Find(loc_mod_tags, loc_tag) > -1
-            Return True
-        EndIf
+        loc_mod_tags = PapyrusUtil.MergeStringArray(loc_mod_tags, (UD_ModifiersRef[loc_i] as UD_Modifier).Tags, False)
         loc_i += 1
     Endwhile
-    Return False
+    _ModifiersTagsArrray = loc_mod_tags
+    _ModifiersTagsArrray_Update = False
+    Return _ModifiersTagsArrray
+EndFunction
+
+Function ModifiersTagsUpdate()
+    _ModifiersTagsArrray_Update = True
 EndFunction
 
 ;/  Function: addModifier
@@ -2020,10 +2032,10 @@ EndFunction
 ;/  Function: isSentient
     Returns:
 
-        True if device have "SEN" modifier
+        True if device have "SNT" modifier
 /;
 bool Function isSentient()
-    return hasModifier("SNT")
+    return ModifiersHasTag("SNT")
 EndFunction
 
 ;/  Function: haveRegen
@@ -2032,7 +2044,7 @@ EndFunction
         True if device have "REG" modifier
 /;
 bool Function haveRegen()
-    return hasModifier("REG")
+    return ModifiersHasTag("REG") || ModifiersHasTag("MREG")
 EndFunction
 
 ;/  Function: isLoose
@@ -7742,6 +7754,7 @@ EndFunction
 ;this function shoul be called last, don't call this for parents
 ;use this only in case of using some kind of long function (like vibrate() function or something similiar, which could delate the initiation of device)
 Function InitPostPost()
+    ModifiersTagsUpdate()
 EndFunction
 
 Function OnRemoveDevicePre(Actor akActor)

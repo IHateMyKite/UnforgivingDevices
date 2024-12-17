@@ -160,6 +160,10 @@ Float Function BiasedRandom3(Float afGlobalMuShift = 0.0, Float afGlobalSigmaMul
     EndWhile
 EndFunction
 
+UD_Modifier Function GetModifier()
+    Return (Self as ReferenceAlias) as UD_Modifier
+EndFunction
+
 String Function GetDataStr(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0)
     Int i = 0
     Int loc_size = UD_Native.GetStringParamAll(DataStr_Ground).Length
@@ -258,30 +262,27 @@ Form Function GetForm5(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverity
     Return None
 EndFunction
 
-;/  Function: CheckDevice
-
-    Checks the device for compatibility with this preset of the added modifier
-    
-    Parameters:
-        akDevice                - Device Render Script
-        akNPCSlot               - Actor's NPC slot
-    
-    Returns:
-        Check result (positive values indicate that the check has been passed)
-            -9      - fast check failed
-            -4      - wearer has device with conflicted modifier (global tag check failed)
-            -3      - device has conflicted modifier (device tag check failed)
-            -2      - device is forbidden for this preset
-            -1      - preset has prefferred devices but this device is not one of them
-            0       - the device has passed all the checks but does not have the required tags. But this may change when more modifiers are added
-            +1      - all checks passed
-            +2      - device is preferred for this preset
+;/  Group: Patcher
+===========================================================================================
+===========================================================================================
+===========================================================================================
 /;
-Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_NPCSlot akNPCSlot = None)
-    If !FastCheckDevice(akDevice)
-        Return -9               ; fast check failed
+
+Int Function CheckWearerCompatibility(Actor akActor)
+    Bool loc_is_player = UD_Native.IsPlayer(akActor)
+    If ((loc_is_player && ApplicableToPlayer) || (!loc_is_player && ApplicableToNPC)) && BaseProbability > 0.0
+        Return 1
+    Else
+        Return -1
     EndIf
-    
+EndFunction
+
+Int Function CheckDeviceCompatibility(UD_CustomDevice_RenderScript akDevice, Bool abCheckWearer = True)
+    If abCheckWearer
+        If !CheckWearerCompatibility(akDevice.GetWearer())
+            Return -3          ; wearer is not compatible
+        EndIf
+    EndIf
     Armor loc_inventory_armor = akDevice.DeviceInventory
     Armor loc_rendered_armor = akDevice.DeviceRendered
     Int loc_i
@@ -290,39 +291,7 @@ Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_
         While loc_i > 0
             loc_i -= 1
             If loc_inventory_armor.HasKeyword(ForbiddenDevices[loc_i]) || loc_rendered_armor.HasKeyword(ForbiddenDevices[loc_i])
-                Return -2       ; device is forbidden for this modifier
-            EndIf
-        EndWhile
-    EndIf
-
-    If ConflictedDeviceModTags.Length > 0
-        loc_i = ConflictedDeviceModTags.Length
-        While loc_i > 0
-            loc_i -= 1
-            If akDevice.ModifiersHasTag(ConflictedDeviceModTags[loc_i])
-                Return -3       ; device has conflicted modifier
-            EndIf
-        EndWhile
-    EndIf
-    ; TODO: implement HasGlobalModTag properly
-    If akNPCSlot && ConflictedGlobalModTags.Length > 0
-        loc_i = ConflictedGlobalModTags.Length
-        While loc_i > 0
-            loc_i -= 1
-            If akNPCSlot.HasGlobalModTag(ConflictedGlobalModTags[loc_i])
-                Return -4       ; wearer has device with conflicted modifier
-            EndIf
-        EndWhile
-    EndIf
-    
-    Bool has_no_req_tag = False
-    If RequiredDeviceModTags.Length > 0
-        loc_i = RequiredDeviceModTags.Length
-        While loc_i > 0
-            loc_i -= 1
-            If !akDevice.ModifiersHasTag(RequiredDeviceModTags[loc_i])
-            ; device does not have the necessary tag
-                has_no_req_tag = True
+                Return -2       ; device is forbidden for this preset
             EndIf
         EndWhile
     EndIf
@@ -332,27 +301,93 @@ Int Function CheckDevice(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_
         While loc_i > 0
             loc_i -= 1
             If loc_inventory_armor.HasKeyword(PreferredDevices[loc_i]) || loc_rendered_armor.HasKeyword(PreferredDevices[loc_i])
-                If has_no_req_tag
-                    Return 0        ; The device has passed all the checks but does not have the required tags. But this may change when more modifiers are added
-                Else
-                    Return 2        ; device is preferred for this modifier
-                EndIf
+                Return 2        ; device is preferred for this preset
             EndIf
         EndWhile
-        Return -1               ; modifier has prefferred devices but this device is not one of them
+        Return -1               ; preset has prefferred devices but this device is not one of them
     EndIf
-
-    If has_no_req_tag
-        Return 0        ; The device has passed all the checks but does not have the required tags. But this may change when more modifiers are added
-    Else
-        Return 1        ; OK
-    EndIf
+    Return 1                    ; device is compatible
 EndFunction
 
-Bool Function FastCheckDevice(UD_CustomDevice_RenderScript akDevice)
-    Bool loc_is_player = UD_Native.IsPlayer(akDevice.getWearer())
-    Return ((loc_is_player && ApplicableToPlayer) || (!loc_is_player && ApplicableToNPC)) && BaseProbability > 0.0
+Int Function CheckTagsCompatibility(UD_CustomDevice_RenderScript akDevice, String[] aasDeviceModsTags, String[] aasWearerModsTags)
+    If ConflictedDeviceModTags.Length > 0 && aasDeviceModsTags.Length > 0
+        String[] loc_temp_arr = PapyrusUtil.GetMatchingString(ConflictedDeviceModTags, aasDeviceModsTags)
+        If loc_temp_arr.Length > 0 
+            Return -2           ; device has a conflicting modifier
+        endIf
+    EndIf
+
+    If ConflictedGlobalModTags.Length > 0 && aasWearerModsTags.Length > 0
+        String[] loc_temp_arr = PapyrusUtil.GetMatchingString(ConflictedGlobalModTags, aasWearerModsTags)
+        If loc_temp_arr.Length > 0 
+            Return -1           ; wearer has a devcie with conflicting modifier
+        endIf
+    EndIf
+    
+    If RequiredDeviceModTags.Length > 0
+        String[] loc_temp_arr = PapyrusUtil.GetMatchingString(RequiredDeviceModTags, aasDeviceModsTags)
+        If loc_temp_arr.Length < RequiredDeviceModTags.Length
+            Return 0            ; device does not have the necessary tag
+        endIf
+    EndIf
+
+    Return 1                    ; OK
 EndFunction
+
+Float Function GetProbability(UD_CustomDevice_RenderScript akDevice, Float afNormMult, Float afGlobalProbabilityMult)
+    Float loc_prob = BaseProbability
+    If IsNormalizedProbability
+        loc_prob *= afNormMult
+    EndIf
+    loc_prob *= afGlobalProbabilityMult
+    
+    Return loc_prob
+EndFunction
+
+Function AddModifierWithPreset(UD_CustomDevice_RenderScript akDevice, UD_Modifier akModifier, Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0)
+    akDevice.AddModifier(akModifier, GetDataStr(afGlobalSeverityShift, afGlobalSeverityDispersionMult), GetForm1(afGlobalSeverityShift, afGlobalSeverityDispersionMult), GetForm2(afGlobalSeverityShift, afGlobalSeverityDispersionMult), GetForm3(afGlobalSeverityShift, afGlobalSeverityDispersionMult), GetForm4(afGlobalSeverityShift, afGlobalSeverityDispersionMult), GetForm5(afGlobalSeverityShift, afGlobalSeverityDispersionMult))
+EndFunction
+
+UD_Patcher_ModPreset Function GetCompatiblePatcherPreset(UD_CustomDevice_RenderScript akDevice, Bool abCheckWearer = True)
+    UD_Patcher_ModPreset loc_preset = None
+    UD_Patcher_ModPreset loc_preset1 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset1) as UD_Patcher_ModPreset
+    UD_Patcher_ModPreset loc_preset2 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset2) as UD_Patcher_ModPreset
+    UD_Patcher_ModPreset loc_preset3 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset3) as UD_Patcher_ModPreset
+    
+    Int loc_priority = -10
+    If loc_preset1
+        Int loc_temp = loc_preset1.CheckDeviceCompatibility(akDevice, abCheckWearer)
+        If loc_temp > loc_priority
+            loc_priority = loc_temp
+            loc_preset = loc_preset1
+        EndIf
+    EndIf
+    If loc_preset2
+        Int loc_temp = loc_preset2.CheckDeviceCompatibility(akDevice, abCheckWearer)
+        If loc_temp > loc_priority
+            loc_priority = loc_temp
+            loc_preset = loc_preset2
+        EndIf
+    EndIf
+    If loc_preset3
+        Int loc_temp = loc_preset3.CheckDeviceCompatibility(akDevice, abCheckWearer)
+        If loc_temp > loc_priority
+            loc_priority = loc_temp
+            loc_preset = loc_preset3
+        EndIf
+    EndIf
+
+    If loc_priority < 0 || loc_preset == None
+        Return None
+    EndIf
+    Return loc_preset
+EndFunction
+
+;/  Group: MCM
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
 
 Function SaveToJSON(String asFile, String asObjectPath)
     String loc_path = asObjectPath + "_"

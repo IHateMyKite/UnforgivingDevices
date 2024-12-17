@@ -32,27 +32,3 @@ String Function GetParamsTableRows(UD_CustomDevice_RenderScript akDevice, String
     loc_res += UDmain.UDMTF.TableRowDetails("Looseness:", iRange(Round(GetStringParamFloat(aiDataStr, 0, 0.0) * 100.0), 0, 100))
     Return loc_res
 EndFunction
-
-;/  Group: Patcher Overrides
-===========================================================================================
-===========================================================================================
-===========================================================================================
-/;
-Bool Function PatchModifierFastCheckOverride(UD_CustomDevice_RenderScript akDevice)
-    if !akDevice.CanBeStruggled(1.0) || akDevice.CanBeStruggled(0.0) || akDevice.IsPlug()
-        return False
-    endif
-    Return True
-EndFunction
-
-Float Function PatchModifierProbabilityMult(UD_CustomDevice_RenderScript akDevice)
-    if akDevice.UD_DeviceKeyword == libs.zad_DeviousBlindfold
-        return 0.70
-    elseif akDevice.UD_DeviceKeyword == libs.zad_DeviousGag
-        return 0.30
-    elseif akDevice.UD_DeviceKeyword == libs.zad_DeviousHood || akDevice.isMittens()
-        return 1.0
-    else
-        return 0.50
-    endif
-EndFunction

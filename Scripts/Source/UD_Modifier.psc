@@ -75,10 +75,10 @@ Int         Property ConcealmentPower  = 0  Auto
 Bool        Property HideInUI       = False Auto
 
 ;/  Variable: Tags
-    An array of tags - abbreviations separated by spaces.
-    Tags bound to a modifier to specify the nature of its action to avoid conflicts with other modifiers
+    An array of tags
+    Tags assigned to a modifier to specify the nature of its action to avoid conflicts with other modifiers
 /;
-String      Property Tags                   Auto
+String[]    Property Tags                   Auto
 
 ;/  Variable: Multiplier
     Multiplier which can be used to allow user to change difficulty of modifier.
@@ -320,104 +320,14 @@ EndFunction
 ===========================================================================================
 /;
 
-; Quickly checks the applicability of a modifier without considering dependencies and conflicts. 
-; Used for approximate calculation of the upper limit for the number of available mods
-; Could be overriden for more accurate calculation
-Bool Function PatchModifierFastCheck(UD_CustomDevice_RenderScript akDevice)
-    If !PatchModifierFastCheckOverride(akDevice)
-        Return False
+Bool Function CheckModifierCompatibility(String[] aasForbiddenModTags)
+    If Tags.Length > 0 && aasForbiddenModTags.Length > 0
+        String[] loc_temp_arr = PapyrusUtil.GetMatchingString(Tags, aasForbiddenModTags)
+        If loc_temp_arr.Length > 0 
+            Return False           ; this modifier has a forbidden tag
+        endIf
     EndIf
-
-    UD_Patcher_ModPreset loc_preset1 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset1) as UD_Patcher_ModPreset
-    UD_Patcher_ModPreset loc_preset2 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset2) as UD_Patcher_ModPreset
-    UD_Patcher_ModPreset loc_preset3 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset3) as UD_Patcher_ModPreset
-
-    Return (loc_preset1 != None && loc_preset1.FastCheckDevice(akDevice)) || (loc_preset2 != None && loc_preset2.FastCheckDevice(akDevice)) || (loc_preset3 != None && loc_preset3.FastCheckDevice(akDevice))
-EndFunction
-
-
-;/  Function: PatchModifierCheckAndAdd
-
-    Checks the modifier and adds it to the device if the dice rolls successfully.
-    There are four possible outcomes
-        1. The modifier failed the test.
-        2. The modifier may pass the test if the conditions change.
-        3. The modifier passed the test, but no luck with the dice.
-        3. The modifier passed the check and was added.
-    
-    Parameters:
-        akDevice                            Device
-        afNormMult                                                
-        afGlobalProbabilityMult             
-        afGlobalSeverityShift               
-        afGlobalSeverityDispersionMult      
-        akNPCSlot                           Wearer NPCSlot
-
-    Returns:
-        -2  The modifier failed the test.
-        -1  The modifier passed the test, but no luck with the dice.
-        0   The modifier may pass the test if the conditions change.
-        1   The modifier passed the check and was added.
-/;
-Int Function PatchModifierCheckAndAdd(UD_CustomDevice_RenderScript akDevice, Float afNormMult, Float afGlobalProbabilityMult = 1.0, Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0, UD_CustomDevice_NPCSlot akNPCSlot = None)
-    UD_Patcher_ModPreset loc_preset = None
-    UD_Patcher_ModPreset loc_preset1 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset1) as UD_Patcher_ModPreset
-    UD_Patcher_ModPreset loc_preset2 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset2) as UD_Patcher_ModPreset
-    UD_Patcher_ModPreset loc_preset3 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset3) as UD_Patcher_ModPreset
-    
-    Int loc_priority = -10
-    If loc_preset1
-        Int loc_temp = loc_preset1.CheckDevice(akDevice, akNPCSlot)
-        If loc_temp > loc_priority
-            loc_priority = loc_temp
-            loc_preset = loc_preset1
-        EndIf
-    EndIf
-    If loc_preset2
-        Int loc_temp = loc_preset2.CheckDevice(akDevice, akNPCSlot)
-        If loc_temp > loc_priority
-            loc_priority = loc_temp
-            loc_preset = loc_preset2
-        EndIf
-    EndIf
-    If loc_preset3
-        Int loc_temp = loc_preset3.CheckDevice(akDevice, akNPCSlot)
-        If loc_temp > loc_priority
-            loc_priority = loc_temp
-            loc_preset = loc_preset3
-        EndIf
-    EndIf
-    If loc_priority < 0 || loc_preset == None
-        Return -2                   ; The modifier failed the test
-    ElseIf loc_priority == 0
-        Return 0                    ; The modifier may pass the test if the conditions change
-    EndIf
-
-    Float loc_prob = loc_preset.BaseProbability
-    ; Adjust the probability with the soft limit if it is allowed in the preset settings
-    If loc_preset.IsNormalizedProbability
-        loc_prob *= afNormMult
-    EndIf
-    loc_prob *= PatchModifierProbabilityMult(akDevice)
-    loc_prob *= afGlobalProbabilityMult
-    
-    UDCDmain.UDmain.Log(Self + "::PatchModifierFastCheck() final probability = " + UD_Native.FormatFloat(loc_prob, 2) + " %", 3)
-    
-    If UD_Native.RandomFloat(0.0, 100.0) < loc_prob
-        akDevice.AddModifier(Self, loc_preset.GetDataStr(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm1(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm2(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm3(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm4(afGlobalSeverityShift, afGlobalSeverityDispersionMult), loc_preset.GetForm5(afGlobalSeverityShift, afGlobalSeverityDispersionMult))
-        Return 1                    ; The modifier passed the check and was added.
-    Else
-        Return -1                   ; The modifier passed the test, but no luck with the random
-    EndIf
-EndFunction
-
-; Overrides
-Bool Function PatchModifierFastCheckOverride(UD_CustomDevice_RenderScript akDevice)
     Return True
-EndFunction
-
-Float Function PatchModifierProbabilityMult(UD_CustomDevice_RenderScript akDevice)
-    Return 1.0
 EndFunction
 
 ;/  Group: MCM

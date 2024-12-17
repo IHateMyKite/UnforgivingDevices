@@ -381,6 +381,7 @@ Function unregisterSlot()
         CleanOrgasmUpdate()
     endif
     UnregisterAllItemEvents(True)
+    ModifiersTagsUpdate()
     self.Clear()
 EndFunction
 
@@ -672,6 +673,7 @@ bool Function registerDevice(UD_CustomDevice_RenderScript oref,bool mutex = true
             if mutex
                 endDeviceManipulation()
             endif
+            ModifiersTagsUpdate()
             return true
         endif
         i+=1
@@ -746,6 +748,8 @@ int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool s
     if res > 0 && isScriptRunning() && sort
         sortSlots(mutex)
     endif
+
+    ModifiersTagsUpdate()
     
     return res
 EndFunction
@@ -1171,8 +1175,10 @@ Function showDebugMenu(int slot_id)
                 return
             elseif loc_res == 6 ;Add modifier
                 UDmain.UDMOM.Debug_AddModifier(UD_equipedCustomDevices[slot_id])
+                ModifiersTagsUpdate()
             elseif loc_res == 7 ;Remove modifier
                 UDmain.UDMOM.Debug_RemoveModifier(UD_equipedCustomDevices[slot_id])
+                ModifiersTagsUpdate()
             else
                 return
             endif
@@ -2347,7 +2353,7 @@ Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemRefere
     While UD_equipedCustomDevices[loc_i]
         Udmain.UDMOM.Procces_UpdateModifiers_ItemAdded(UD_equipedCustomDevices[loc_i], akBaseItem, aiItemCount, akSourceContainer, loc_stolen)
         loc_i += 1
-    EndWhile    
+    EndWhile
 EndEvent
 
 Event OnItemRemoved(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akDestContainer)
@@ -2364,20 +2370,34 @@ EndEvent
 ;===============================================================================
 ;===============================================================================
 
-Function _RegisterGlobalModTags(String asTags, Bool abRegister = True)
-    ; TODO
+Bool Function HasGlobalModTag(String asTag)
+    String[] loc_mod_tags = GetModifiersTags()
+    Return PapyrusUtil.CountString(loc_mod_tags, asTag) > 0
 EndFunction
 
-Bool Function HasGlobalModTag(String asTag)
-    ; the most lazy implementation
+Bool _ModifiersTagsArrray_Update = True
+String[] _ModifiersTagsArrray
+
+String[] Function GetModifiersTags(Bool abForceUpdate = False)
+    If !_ModifiersTagsArrray_Update && !abForceUpdate
+        Return _ModifiersTagsArrray
+    EndIf
+
+    String[] loc_mod_tags
+    Int loc_length = UD_equipedCustomDevices.Length
     Int loc_i = 0
-    While loc_i < UD_equipedCustomDevices.Length && UD_equipedCustomDevices[loc_i]
-        If UD_equipedCustomDevices[loc_i].ModifiersHasTag(asTag)
-            Return True
-        EndIf
+    While loc_i < loc_length && UD_equipedCustomDevices[loc_i]
+        loc_mod_tags = PapyrusUtil.MergeStringArray(loc_mod_tags, UD_equipedCustomDevices[loc_i].GetModifiersTags(), False)
         loc_i += 1
     Endwhile
-    Return False
+
+    _ModifiersTagsArrray = loc_mod_tags
+    _ModifiersTagsArrray_Update = False
+    Return _ModifiersTagsArrray
+EndFunction
+
+Function ModifiersTagsUpdate()
+    _ModifiersTagsArrray_Update = True
 EndFunction
 
 ;===============================================================================
