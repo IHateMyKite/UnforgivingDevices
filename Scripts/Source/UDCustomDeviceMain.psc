@@ -6,7 +6,6 @@ import UnforgivingDevicesMain
 import UD_NPCInteligence
 import UD_CustomDevice_RenderScript
 import UD_Native
-import zadNativeFunctions
 
 Spell Property SwimPenaltySpell auto
 UnforgivingDevicesMain Property UDmain auto

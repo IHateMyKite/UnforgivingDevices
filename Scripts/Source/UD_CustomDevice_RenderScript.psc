@@ -5,7 +5,6 @@ Scriptname UD_CustomDevice_RenderScript extends ObjectReference
 import UnforgivingDevicesMain
 import UD_NPCInteligence
 import UD_Native
-import zadNativeFunctions
 
 ;=============================================================
 ;=============================================================

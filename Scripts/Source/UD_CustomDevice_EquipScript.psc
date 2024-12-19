@@ -3,7 +3,6 @@ Scriptname UD_CustomDevice_EquipScript extends zadequipscript
 import MfgConsoleFunc
 import UnforgivingDevicesMain
 import UD_Native
-import zadNativeFunctions
 
 UDCustomDeviceMain Property UDCDmain auto
 zadlibs_UDPatch Property libsp
