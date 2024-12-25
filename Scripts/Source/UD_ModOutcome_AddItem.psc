@@ -19,11 +19,11 @@
         Form5               Single item to add or FormList with items.
 
     Example:
-        DataStr = 1         
+        DataStr = ,,,,,,,,1         
         DataForm4 = <Lockpick>          Adds 1 lockpick to inventory
 
-        DataStr = 0,0,1         
-        DataForm4 = <Health Potion>     Force to drink health potion from inventory
+        DataStr = ,,,,,,,0,0,1         
+        DataForm4 = <Health Potion>     Forces to drink health potion from inventory (if it exists)
 /;
 Scriptname UD_ModOutcome_AddItem extends UD_ModOutcome
 

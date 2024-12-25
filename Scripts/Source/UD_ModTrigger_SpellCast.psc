@@ -1,5 +1,5 @@
 ;/  File: UD_ModTrigger_SpellCast
-    It triggers when actor cast a spell
+    It triggers when actor casts a spell
 
     NameFull: On Spell Cast
 

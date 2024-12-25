@@ -1,5 +1,5 @@
 ;/  File: UD_ModTrigger_Sleep
-    It triggers with a given chance after player sleeps
+    It triggers with a given chance after sleep
     
     NameFull: On Sleep
     

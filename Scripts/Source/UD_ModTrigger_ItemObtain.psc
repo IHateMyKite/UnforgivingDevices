@@ -1,7 +1,7 @@
 ;/  File: UD_ModTrigger_ItemObtain
     It triggers with a given chance after actor obtains an item
     
-    NameFull: Item Obtain
+    NameFull: On Obtain Item
     
     Parameters (DataStr):
         [0]     Int         (optional) Minimun number of items to trigger

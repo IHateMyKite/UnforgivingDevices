@@ -160,10 +160,29 @@ Float Function BiasedRandom3(Float afGlobalMuShift = 0.0, Float afGlobalSigmaMul
     EndWhile
 EndFunction
 
+;/  Function: GetModifier
+
+    Returns modifier for this patcher preset. The preset is bound to the same alias as the modifier
+            
+    Returns:
+        Modifier
+/;
 UD_Modifier Function GetModifier()
     Return (Self as ReferenceAlias) as UD_Modifier
 EndFunction
 
+;/  Function: GetDataStr
+
+    Forms a string with parameters for the modifier. Takes into account global difficulty settings and difficulty variance settings.
+    It uses values from DataStr_Easy, DataStr_Ground and DataStr_Hard as references.
+    
+    Parameters:
+        afGlobalSeverityShift               - Difficulty shift.
+        afGlobalSeverityDispersionMult      - Difficulty dispersion multiplier.
+        
+    Returns:
+        String with parameters
+/;
 String Function GetDataStr(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0)
     Int i = 0
     Int loc_size = UD_Native.GetStringParamAll(DataStr_Ground).Length
@@ -212,6 +231,18 @@ String Function GetDataStr(Float afGlobalSeverityShift = 0.0, Float afGlobalSeve
     Return loc_datastr
 EndFunction
 
+;/  Function: GetForm1
+
+    Returns DataForm1 value for the modifier. Takes into account global difficulty settings and difficulty variance settings.
+    It uses values from Form1_Variants.
+    
+    Parameters:
+        afGlobalSeverityShift               - Difficulty shift.
+        afGlobalSeverityDispersionMult      - Difficulty dispersion multiplier.
+        
+    Returns:
+        Form from Form1_Variants
+/;
 Form Function GetForm1(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0)
     If Form1_Variants && Form1_Variants.GetSize() > 0
         Float loc_rnd_1 = BiasedRandom3(afGlobalSeverityShift, afGlobalSeverityDispersionMult)
@@ -222,6 +253,18 @@ Form Function GetForm1(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverity
     Return None
 EndFunction
 
+;/  Function: GetForm2
+
+    Returns DataForm2 value for the modifier. Takes into account global difficulty settings and difficulty variance settings.
+    It uses values from Form2_Variants.
+    
+    Parameters:
+        afGlobalSeverityShift               - Difficulty shift.
+        afGlobalSeverityDispersionMult      - Difficulty dispersion multiplier.
+        
+    Returns:
+        Form from Form2_Variants
+/;
 Form Function GetForm2(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0)
     If Form2_Variants && Form2_Variants.GetSize() > 0
         Float loc_rnd_1 = BiasedRandom3(afGlobalSeverityShift, afGlobalSeverityDispersionMult)
@@ -232,6 +275,18 @@ Form Function GetForm2(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverity
     Return None
 EndFunction
 
+;/  Function: GetForm3
+
+    Returns DataForm3 value for the modifier. Takes into account global difficulty settings and difficulty variance settings.
+    It uses values from Form3_Variants.
+    
+    Parameters:
+        afGlobalSeverityShift               - Difficulty shift.
+        afGlobalSeverityDispersionMult      - Difficulty dispersion multiplier.
+        
+    Returns:
+        Form from Form3_Variants
+/;
 Form Function GetForm3(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0)
     If Form3_Variants && Form3_Variants.GetSize() > 0
         Float loc_rnd_1 = BiasedRandom3(afGlobalSeverityShift, afGlobalSeverityDispersionMult)
@@ -242,6 +297,18 @@ Form Function GetForm3(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverity
     Return None
 EndFunction
 
+;/  Function: GetForm4
+
+    Returns DataForm4 value for the modifier. Takes into account global difficulty settings and difficulty variance settings.
+    It uses values from Form4_Variants.
+    
+    Parameters:
+        afGlobalSeverityShift               - Difficulty shift.
+        afGlobalSeverityDispersionMult      - Difficulty dispersion multiplier.
+        
+    Returns:
+        Form from Form4_Variants
+/;
 Form Function GetForm4(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0)
     If Form4_Variants && Form4_Variants.GetSize() > 0
         Float loc_rnd_1 = BiasedRandom3(afGlobalSeverityShift, afGlobalSeverityDispersionMult)
@@ -252,6 +319,18 @@ Form Function GetForm4(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverity
     Return None
 EndFunction
 
+;/  Function: GetForm5
+
+    Returns DataForm5 value for the modifier. Takes into account global difficulty settings and difficulty variance settings.
+    It uses values from Form5_Variants.
+    
+    Parameters:
+        afGlobalSeverityShift               - Difficulty shift.
+        afGlobalSeverityDispersionMult      - Difficulty dispersion multiplier.
+        
+    Returns:
+        Form from Form5_Variants
+/;
 Form Function GetForm5(Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0)
     If Form5_Variants && Form5_Variants.GetSize() > 0
         Float loc_rnd_1 = BiasedRandom3(afGlobalSeverityShift, afGlobalSeverityDispersionMult)
@@ -268,6 +347,17 @@ EndFunction
 ===========================================================================================
 /;
 
+;/  Function: CheckWearerCompatibility
+
+    Checks the actor against the requirements of the preset.
+    
+    Parameters:
+        akActor                             - Actor
+
+    Returns:
+        -1      - the actor does not meet the requirements
+         1      - the actor meets the requirements
+/;
 Int Function CheckWearerCompatibility(Actor akActor)
     Bool loc_is_player = UD_Native.IsPlayer(akActor)
     If ((loc_is_player && ApplicableToPlayer) || (!loc_is_player && ApplicableToNPC)) && BaseProbability > 0.0
@@ -277,6 +367,21 @@ Int Function CheckWearerCompatibility(Actor akActor)
     EndIf
 EndFunction
 
+;/  Function: CheckDeviceCompatibility
+
+    Checks the device against the requirements of the preset.
+    
+    Parameters:
+        akDevice                            - Device
+        abCheckWearer                       - To check out wearer
+
+    Returns:
+        -3      - wearer does not meet the requirements
+        -2      - device is forbidden for this preset
+        -1      - preset has prefferred devices but this device is not one of them
+         1      - device is compatible
+         2      - device is preferred for this preset
+/;
 Int Function CheckDeviceCompatibility(UD_CustomDevice_RenderScript akDevice, Bool abCheckWearer = True)
     If abCheckWearer
         If !CheckWearerCompatibility(akDevice.GetWearer())
@@ -309,7 +414,21 @@ Int Function CheckDeviceCompatibility(UD_CustomDevice_RenderScript akDevice, Boo
     Return 1                    ; device is compatible
 EndFunction
 
-Int Function CheckTagsCompatibility(UD_CustomDevice_RenderScript akDevice, String[] aasDeviceModsTags, String[] aasWearerModsTags)
+;/  Function: CheckTagsCompatibility
+
+    Checks if the preset is compatible with tags (from existing modifiers) on the device or wearer
+    
+    Parameters:
+        aasDeviceModsTags                   - tags of modifiers on this device
+        aasWearerModsTags                   - tags of all worn devices modifiers
+
+    Returns:
+        -2      - device has a conflicting modifier
+        -1      - wearer has a devcie with conflicting modifier
+         0      - device does not have the required tag
+         1      - preset is compatible
+/;
+Int Function CheckTagsCompatibility(String[] aasDeviceModsTags, String[] aasWearerModsTags)
     If ConflictedDeviceModTags.Length > 0 && aasDeviceModsTags.Length > 0
         String[] loc_temp_arr = PapyrusUtil.GetMatchingString(ConflictedDeviceModTags, aasDeviceModsTags)
         If loc_temp_arr.Length > 0 
@@ -333,6 +452,7 @@ Int Function CheckTagsCompatibility(UD_CustomDevice_RenderScript akDevice, Strin
 
     Return 1                    ; OK
 EndFunction
+
 
 Float Function GetProbability(UD_CustomDevice_RenderScript akDevice, Float afNormMult, Float afGlobalProbabilityMult)
     Float loc_prob = BaseProbability

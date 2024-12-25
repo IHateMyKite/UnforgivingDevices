@@ -1,7 +1,7 @@
 ;/  File: UD_ModOutcome_BlockMinigame
     Prohibits or allows attempts to escape for a specified time when a trigger occurs
 
-    NameFull: Block mini-game
+    NameFull: Block minigame
 
     Parameters in DataStr (indices relative to DataStrOffset property):
         [+0]    String      (optional) Initial state
@@ -23,8 +23,8 @@
         [+4]    Float       (Script) Last trigger timestamp (in game hours) (used only when positive duration is set)
 
     Example:
-        ,,,,,,,B,4.5,1      Mini-games are initially blocked. After each trigger, minigames are allowed for the next 4.5 hours.
-        ,,,,,,,A            Mini-games are initially allowed. After the trigger, all mini-games are permanently blocked.
+        ,,,,,,,B,4.5,1      Minigames are initially blocked. After each trigger, minigames are allowed for the next 4.5 hours.
+        ,,,,,,,A            Minigames are initially allowed. After the trigger, all minigames are permanently blocked.
 /;
 Scriptname UD_ModOutcome_BlockMinigame extends UD_ModOutcome
 
@@ -114,7 +114,7 @@ String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice
     EndIf
 
     String loc_res = ""
-    loc_res += UDmain.UDMTF.TableRowDetails("Mini-games:", loc_frag)
+    loc_res += UDmain.UDMTF.TableRowDetails("Minigames:", loc_frag)
     If loc_init == loc_state
         loc_res += UDmain.UDMTF.TableRowDetails("Time left:", UDmain.UDMTF.Text("Until trigger", asColor = UDmain.UDMTF.BoolToRainbow(False)))
     ElseIf loc_ts > 0.0 && loc_duration > 0.0

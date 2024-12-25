@@ -1793,17 +1793,37 @@ String[] Function GetModifierAliases()
     Return loc_result
 EndFunction
 
-Bool Function ModifiersHasTag(String asTag)
-    String[] loc_mod_tags = GetModifiersTags()
+;/  Function: ModifiersHaveTag
+
+    Checks that at least one modifier on the device has the given tag
+
+    Parameters:
+        asTag           - Tag to check
+
+    Returns:
+        Tag search result
+/;
+Bool Function ModifiersHaveTag(String asTag)
+    String[] loc_mod_tags = GetModifierTags()
     Return PapyrusUtil.CountString(loc_mod_tags, asTag) > 0
 EndFunction
 
-Bool _ModifiersTagsArrray_Update = True
-String[] _ModifiersTagsArrray
+Bool _ModifierTagsArrray_Update = True
+String[] _ModifierTagsArrray
 
-String[] Function GetModifiersTags(Bool abForceUpdate = False)
-    If !_ModifiersTagsArrray_Update && !abForceUpdate
-        Return _ModifiersTagsArrray
+;/  Function: GetModifierTags
+
+    Returns an array with all tags on the device modifiers
+
+    Parameters:
+        abForceUpdate           - The command to rebuild the internal cache
+
+    Returns:
+        Array with tags
+/;
+String[] Function GetModifierTags(Bool abForceUpdate = False)
+    If !_ModifierTagsArrray_Update && !abForceUpdate
+        Return _ModifierTagsArrray
     EndIf
     String[] loc_mod_tags
     Int loc_length = UD_ModifiersRef.Length
@@ -1812,13 +1832,23 @@ String[] Function GetModifiersTags(Bool abForceUpdate = False)
         loc_mod_tags = PapyrusUtil.MergeStringArray(loc_mod_tags, (UD_ModifiersRef[loc_i] as UD_Modifier).Tags, False)
         loc_i += 1
     Endwhile
-    _ModifiersTagsArrray = loc_mod_tags
-    _ModifiersTagsArrray_Update = False
-    Return _ModifiersTagsArrray
+    _ModifierTagsArrray = loc_mod_tags
+    _ModifierTagsArrray_Update = False
+    Return _ModifierTagsArrray
 EndFunction
 
-Function ModifiersTagsUpdate()
-    _ModifiersTagsArrray_Update = True
+;/  Function: GetModifierTags_Update
+
+    Commands to rebuild the internal cache of the GetModifierTags function
+
+    Parameters:
+        abNow           - immediate rebuilding
+/;
+Function GetModifierTags_Update(Bool abNow = False)
+    _ModifierTagsArrray_Update = True
+    If abNow
+        String[] loc_temp = GetModifierTags()
+    EndIf
 EndFunction
 
 ;/  Function: addModifier
@@ -2035,7 +2065,7 @@ EndFunction
         True if device have "SNT" modifier
 /;
 bool Function isSentient()
-    return ModifiersHasTag("SNT")
+    return ModifiersHaveTag("SNT")
 EndFunction
 
 ;/  Function: haveRegen
@@ -2044,7 +2074,7 @@ EndFunction
         True if device have "REG" modifier
 /;
 bool Function haveRegen()
-    return ModifiersHasTag("REG") || ModifiersHasTag("MREG")
+    return ModifiersHaveTag("REG") || ModifiersHaveTag("MREG")
 EndFunction
 
 ;/  Function: isLoose
@@ -7754,7 +7784,7 @@ EndFunction
 ;this function shoul be called last, don't call this for parents
 ;use this only in case of using some kind of long function (like vibrate() function or something similiar, which could delate the initiation of device)
 Function InitPostPost()
-    ModifiersTagsUpdate()
+    GetModifierTags_Update()
 EndFunction
 
 Function OnRemoveDevicePre(Actor akActor)

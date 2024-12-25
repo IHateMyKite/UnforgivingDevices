@@ -1,10 +1,10 @@
 ;/  File: UD_ModTrigger_CombatEvent
-    It triggers on combat event
+    It triggers on combat event(s)
     
     NameFull: On Combat Event
     
     Parameters (DataStr):
-        [0]     String      Combat event to trigger (one or several literals separated by space)
+        [0]     String      Combat event to trigger (one or several abbreviations separated by space)
                                 WS - Weapon Swing
                                 SC - Spell Cast
                                 SF - Spell Fire
@@ -21,7 +21,7 @@
                             Default value: 100.0%
 
     Example:
-
+        VF,25               - The trigger will be triggered when voice is used with 25% probability
 /;
 Scriptname UD_ModTrigger_CombatEvent extends UD_ModTrigger
 

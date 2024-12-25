@@ -1,7 +1,7 @@
 ;/  File: UD_ModTrigger_TimeSeconds
     It triggers every few seconds with a given probability
     
-    NameFull: Hourly Trigger
+    NameFull: Fast Trigger
     
     Parameters (DataStr):
         [0]     Float       (optional) Hours must pass before trigger

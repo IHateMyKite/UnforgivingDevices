@@ -1,7 +1,7 @@
 ;/  File: UD_ModOutcome_DecreaseDurability
     Decreases durability of the device(s)
 
-    NameFull: Restore Durability
+    NameFull: Decrease Durability
 
     Parameters in DataStr (indices relative to DataStrOffset property):
         [+0]    Int         (optional) Number of positions (devices with suitable keywords) to corrode

@@ -21,10 +21,10 @@
         Form5               Single device keyword to activate or FormList with keywords.
 
     Example:
-        1,FIRST     One device will be activated. The first suitable device from the list in Form4 will be selected by its keyword, 
-                    starting from the top one.
-        5,F,R       Five devices will be activated. First the matching devices will be selected from the list in Form4, and 
-                    then the remaining number will be selected randomly from the list in Form5.
+        ,,,,,,,1,FIRST      One device will be activated. The first suitable device from the list in Form4 will be selected by its keyword, 
+                            starting from the top one.
+        ,,,,,,,5,F,R        Five devices will be activated. First the matching devices will be selected from the list in Form4, and 
+                            then the remaining number will be selected randomly from the list in Form5.
 /;
 Scriptname UD_ModOutcome_ActivateDevice extends UD_ModOutcome
 

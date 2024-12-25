@@ -342,8 +342,8 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
     String loc_pass = "Main"                                            ; Main      - main pass to check and add the bulk of the modifiers
                                                                         ; Postpone  - pass for checking presets with a non-empty array of required tags
     loc_modnum = 0
-    String[] loc_device_mods_tags = akDevice.GetModifiersTags()         ; Tags of other modifiers on device
-    String[] loc_wearer_mods_tags = loc_slot.GetModifiersTags()         ; Tags of all modifiers on devices worn by the actor
+    String[] loc_device_mods_tags = akDevice.GetModifierTags()         ; Tags of other modifiers on device
+    String[] loc_wearer_mods_tags = loc_slot.GetModifierTags()         ; Tags of all modifiers on devices worn by the actor
 
     While loc_pass != "End" && loc_modnum < UD_ModsHardCap
         loc_i = 0
@@ -351,7 +351,7 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
             UD_Patcher_ModPreset loc_pre = loc_valid_pre[loc_i] As UD_Patcher_ModPreset
             UD_Modifier loc_mod = loc_pre.GetModifier()
             If loc_mod.CheckModifierCompatibility(loc_forbidden_tags)
-                Int loc_res = loc_pre.CheckTagsCompatibility(akDevice, loc_device_mods_tags, loc_wearer_mods_tags)
+                Int loc_res = loc_pre.CheckTagsCompatibility(loc_device_mods_tags, loc_wearer_mods_tags)
                 If loc_res > 0
                 ; add
                     Float loc_prob = loc_pre.GetProbability(akDevice, loc_norm_mult, UD_ModGlobalProbabilityMult)
@@ -381,7 +381,8 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
             loc_pass = "End"
         EndIf
     EndWhile
-
+    akDevice.GetModifierTags_Update()
+    loc_slot.GetModifierTags_Update()
 EndFunction
 
 bool Function DeviceCanHaveModes(UD_CustomDevice_RenderScript akDevice)
