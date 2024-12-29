@@ -18,7 +18,6 @@
         Form5               Parameter for the ModOutcome
         
     Example:
-        
 /;
 ScriptName UD_Modifier_ComboPreset extends UD_Modifier_Combo
 

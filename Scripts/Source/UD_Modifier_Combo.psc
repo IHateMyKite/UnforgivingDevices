@@ -2,7 +2,7 @@
     Something will happen when all conditions are met. 
     Use modifiers with different aliases if you want to add several Combo modifiers on the same device
 
-    NameFull: Combo
+    NameFull: Combo Generic
     NameAlias: CMP1, CMP2, CMP3, CMP4, CMP5, CMN1, CMN2, CMN3, CMN4, CMN5
     
     CMP*        - use these modifiers for positive effects

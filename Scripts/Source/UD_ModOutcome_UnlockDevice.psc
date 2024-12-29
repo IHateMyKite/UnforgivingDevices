@@ -1,7 +1,7 @@
 ;/  File: UD_ModOutcome_UnlockDevice
-    Removes device(s)
+    Unlocks device(s)
 
-    NameFull: Remove Device
+    NameFull: Unlock Device
 
     Parameters in DataStr (indices relative to DataStrOffset property):
         [+0]    Int         (optional) Number of positions (devices with suitable keywords) to remove
