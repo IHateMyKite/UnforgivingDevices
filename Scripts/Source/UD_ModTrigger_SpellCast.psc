@@ -10,7 +10,7 @@
         [1]     Float       (optional) Base probability to trigger (in %)
                             Default value: 100.0%
 
-        [2]     Int         (optional) Probability to trigger is proportional to the spell cost
+        [2]     Float       (optional) Probability to trigger is proportional to the spell cost
                             Default value: 0.0%
 
         [3]     Int         (optional) Repeat
@@ -41,10 +41,11 @@ EndFunction
 ===========================================================================================
 /;
 Bool Function SpellCast(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Spell akSpell, String aiDataStr, Form akForm1)
-    If UDmain.TraceAllowed()
-        UDmain.Log("UD_ModTrigger_SpellCast::SpellCast() akModifier = " + akModifier + ", akDevice = " + akDevice + ", akSpell = " + akSpell + ", aiDataStr = " + aiDataStr, 3)
-    EndIf
     Int loc_cost = iRange(akSpell.GetMagickaCost(), 5, 100)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_ModTrigger_SpellCast::SpellCast() akModifier = " + akModifier + ", akDevice = " + akDevice + ", akSpell = " + akSpell + ", aiDataStr = " + aiDataStr + ", loc_cost = " + loc_cost, 3)
+    EndIf
+    
     ; TODO PR195: better cost calculation
     
     Float loc_min_cost = GetStringParamFloat(aiDataStr, 0, 0.0)
@@ -65,7 +66,7 @@ String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice
     loc_res += UDmain.UDMTF.TableRowDetails("Base probability:", FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 1) + "%")
     loc_res += UDmain.UDMTF.TableRowDetails("Value weight:", FormatFloat(GetStringParamFloat(aiDataStr, 2, 0.0), 1) + "% per mana point")
     loc_res += UDmain.UDMTF.TableRowDetails("Repeat:", InlineIfStr(GetStringParamInt(aiDataStr, 3, 0) > 0, "True", "False"))
-    loc_res += UDmain.UDMTF.TableRowDetails("Accumulator:", GetStringParamInt(aiDataStr, 4, 0) + " mana")
+    loc_res += UDmain.UDMTF.TableRowDetails("Accumulator:", FormatFloat(GetStringParamFloat(aiDataStr, 4, 0), 0) + " mana")
     loc_res += UDmain.UDMTF.Paragraph("(Accumulator contains the total mana spent so far)", asAlign = "center")
     Return loc_res
 EndFunction

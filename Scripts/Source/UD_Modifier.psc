@@ -270,42 +270,33 @@ EndFunction
 
 String Function PrintFormListSelectionDetails(Form akForm, String asMethod)
     String loc_res = ""
-    loc_res += UDmain.UDMTF.TableRowDetails("Selected Forms:", GetSelectionMethodString(asMethod))
+    String loc_padding = " "
     If UDmain.UDMTF.HasHtmlMarkup()
-        If akForm as FormList 
-            FormList loc_fl = akForm as FormList
-            Int loc_i = 0
-            Int loc_n = loc_fl.GetSize()
-            If loc_n > PrintFormsMax 
-                loc_n = PrintFormsMax
-            EndIf
-            While loc_i < loc_n
-                loc_res += UDmain.UDMTF.TableRowDetails(" ", loc_fl.GetAt(loc_i).GetName())
-                loc_i += 1
-            EndWhile
-        ElseIf akForm
-            loc_res += UDmain.UDMTF.TableRowDetails(" ", akForm.GetName())
-        Else 
-            loc_res += UDmain.UDMTF.TableRowDetails(" ", "None")
-        EndIf
+        loc_padding = " "
     Else
-        If akForm as FormList 
-            FormList loc_fl = akForm as FormList
-            Int loc_i = 0
-            Int loc_n = loc_fl.GetSize()
-            If loc_n > PrintFormsMax 
-                loc_n = PrintFormsMax
-            EndIf
-            While loc_i < loc_n
-                loc_res += UDmain.UDMTF.TableRowDetails("              ", loc_fl.GetAt(loc_i).GetName())
-                loc_i += 1
-            EndWhile
-        ElseIf akForm
-            loc_res += UDmain.UDMTF.TableRowDetails("              ", akForm.GetName())
-        Else 
-            loc_res += UDmain.UDMTF.TableRowDetails("              ", "None")
-        EndIf        
+        loc_padding = "              "
+    EndIF
+    loc_res += UDmain.UDMTF.TableRowDetails("Selected Forms:", GetSelectionMethodString(asMethod))
+    If akForm as FormList 
+        FormList loc_fl = akForm as FormList
+        Int loc_i = 0
+        Int loc_n = loc_fl.GetSize()
+        If loc_n > PrintFormsMax
+            loc_n = PrintFormsMax
+        EndIf
+        While loc_i < loc_n
+            loc_res += UDmain.UDMTF.TableRowDetails(loc_padding, loc_fl.GetAt(loc_i).GetName())
+            loc_i += 1
+        EndWhile
+        If loc_i == 0
+            loc_res += UDmain.UDMTF.TableRowDetails(loc_padding, "<Empty List>")
+        EndIf
+    ElseIf akForm
+        loc_res += UDmain.UDMTF.TableRowDetails(loc_padding, akForm.GetName())
+    Else 
+        loc_res += UDmain.UDMTF.TableRowDetails(loc_padding, "<None>")
     EndIf
+
     Return loc_res
 EndFunction
 

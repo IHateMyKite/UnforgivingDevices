@@ -675,5 +675,6 @@ Bool Function ConflictNone2(Actor akActor, Armor to_check)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_RandomRestraintManager::ConflictNone2() to_check = " + to_check + ", rend_to_check = " + rend_to_check + ", slot_mask = " + slot_mask, 3)
     EndIf
-    Return akActor.GetWornForm(slot_mask) == None
+    Armor loc_worn = akActor.GetWornForm(slot_mask) as Armor
+    Return loc_worn == None || libs.GetDeviceKeyword(loc_worn) == None
 EndFunction

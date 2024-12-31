@@ -52,12 +52,14 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     
     Form[] loc_forms
     Int loc_i
+    Int loc_n
 
     If (akForm4 as FormList) != None
-        loc_i = (akForm4 as FormList).GetSize()
-        While loc_i > 0
-            loc_i -= 1
+        loc_n = (akForm4 as FormList).GetSize()
+        loc_i = 0
+        While loc_i < loc_n
             loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm4 as FormList).GetAt(loc_i))
+            loc_i += 1
         EndWhile
     ElseIf akForm4 != None
         loc_forms = PapyrusUtil.PushForm(loc_forms, akForm4)
@@ -70,10 +72,11 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     EndIf
     
     If (akForm5 as FormList) != None
-        loc_i = (akForm5 as FormList).GetSize()
-        While loc_i > 0
-            loc_i -= 1
+        loc_n = (akForm5 as FormList).GetSize()
+        loc_i = 0
+        While loc_i < loc_n
             loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm5 as FormList).GetAt(loc_i))
+            loc_i += 1
         EndWhile
     ElseIf akForm5 != None
         loc_forms = PapyrusUtil.PushForm(loc_forms, akForm5)
