@@ -5,6 +5,7 @@ Event OnInit()
     Game.getPlayer().addToFaction(UDCDmain.RegisteredNPCFaction)
     InitOrgasmUpdate()
     UD_Native.RegisterForHMTweenMenu(self)
+    RegisterEmptyItemEvent()
 EndEvent
 
 Function GameUpdate()
