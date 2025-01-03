@@ -305,6 +305,58 @@ String Function MinigameProhibitedMessage(UD_CustomDevice_RenderScript akDevice,
     Return ""
 EndFunction
 
+;/  Group: Global
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+Form Function GetRandomForm(Form akForm1, Form akForm2 = None, Form akForm3 = None) global
+    Form[] loc_forms = GetAllForms(akForm1, akForm2, akForm3)
+    If loc_forms.length > 0
+        Return loc_forms[UD_Native.RandomInt(0, loc_forms.length - 1)]
+    Else
+        Return None
+    EndIf
+EndFunction
+
+Form[] Function GetAllForms(Form akForm1, Form akForm2 = None, Form akForm3 = None) global
+    Form[] loc_forms
+    Int loc_i
+
+    If (akForm1 as FormList) != None
+        loc_i = (akForm1 as FormList).GetSize()
+        While loc_i > 0
+            loc_i -= 1
+            loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm1 as FormList).GetAt(loc_i))
+        EndWhile
+    ElseIf akForm1 != None
+        loc_forms = PapyrusUtil.PushForm(loc_forms, akForm1)
+    EndIf
+    
+    If (akForm2 as FormList) != None
+        loc_i = (akForm2 as FormList).GetSize()
+        While loc_i > 0
+            loc_i -= 1
+            loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm2 as FormList).GetAt(loc_i))
+        EndWhile
+    ElseIf akForm2 != None
+        loc_forms = PapyrusUtil.PushForm(loc_forms, akForm2)
+    EndIf
+    
+    If (akForm3 as FormList) != None
+        loc_i = (akForm3 as FormList).GetSize()
+        While loc_i > 0
+            loc_i -= 1
+            loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm3 as FormList).GetAt(loc_i))
+        EndWhile
+    ElseIf akForm3 != None
+        loc_forms = PapyrusUtil.PushForm(loc_forms, akForm3)
+    EndIf
+
+    Return loc_forms
+
+EndFunction
+
 ;/  Group: Patcher
 ===========================================================================================
 ===========================================================================================

@@ -7,9 +7,9 @@
         None
 
     Form arguments:
-        Form4               Device in to which will current device evolve. In case this is formlist, random device from formlist will be used.
+        Form2               Device in to which will current device evolve. In case this is formlist, random device from formlist will be used.
 
-        Form5               Device in to which will current device evolve. In case this is formlist, random device from formlist will be used.
+        Form3               Device in to which will current device evolve. In case this is formlist, random device from formlist will be used.
     
         In case more then one FormX is filled, random one will be choosen
 
@@ -23,14 +23,11 @@ import UD_Native
 
 Explosion Property EvolveExplosion Auto
 
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
-    If UDmain.TraceAllowed()
-        UDmain.Log("UD_ModOutcome_Evolution::Outcome() akDevice = " + akDevice + ", akForm4 = " + akForm4 + ", akForm5 = " + akForm5, 3)
-    EndIf
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     Actor loc_actor = akDevice.GetWearer()
     Armor loc_device = none
     
-    Form[] loc_forms = CombineForms(akForm4, akForm5)
+    Form[] loc_forms = UD_Modifier.GetAllForms(akForm2, akForm3)
         
     if loc_forms.Length > 0
         Int loc_size = loc_forms.length
@@ -54,13 +51,13 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     String loc_res = ""
-    If akForm4
-        loc_res += akModifier.PrintFormListSelectionDetails(akForm4, "R")
+    If akForm2
+        loc_res += akModifier.PrintFormListSelectionDetails(akForm2, "R")
     EndIf
-    If akForm5
-        loc_res += akModifier.PrintFormListSelectionDetails(akForm5, "R")
+    If akForm3
+        loc_res += akModifier.PrintFormListSelectionDetails(akForm3, "R")
     EndIf
     Return loc_res
 EndFunction

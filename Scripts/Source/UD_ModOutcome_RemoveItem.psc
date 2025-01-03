@@ -11,9 +11,9 @@
                             Default value: [+0]
 
     Form arguments:
-        Form4               Single item to remove or FormList with items.
+        Form2               Single item to remove or FormList with items
 
-        Form5               Single item to remove or FormList with items.
+        Form3               Single item to remove or FormList with items (a random item from the merged list will be removed)
 
     Example:
 /;
@@ -28,9 +28,8 @@ import UD_Native
 ===========================================================================================
 /;
 
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
-
-    Form[] loc_forms = CombineForms(akForm4, akForm5)
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
+    Form[] loc_forms = UD_Modifier.GetAllForms(akForm2, akForm3)
         
     If loc_forms.Length > 0
         Form loc_item = loc_forms[RandomInt(0, loc_forms.Length - 1)]
@@ -47,18 +46,17 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     String loc_res = ""
     Int loc_min = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
     Int loc_max = GetStringParamInt(aiDataStr, DataStrOffset + 1, loc_min)
 
     loc_res += UDmain.UDMTF.TableRowDetails("Number of items:", loc_min + " - " + loc_max)
-    If akForm4
-        loc_res += akModifier.PrintFormListSelectionDetails(akForm4, "R")
+    If akForm2
+        loc_res += akModifier.PrintFormListSelectionDetails(akForm2, "R")
     EndIf
-    If akForm5
-        loc_res += akModifier.PrintFormListSelectionDetails(akForm5, "R")
+    If akForm3
+        loc_res += akModifier.PrintFormListSelectionDetails(akForm3, "R")
     EndIf
-    loc_res += UDmain.UDMTF.TableRowDetails("Instant use:", InlineIfStr(GetStringParamInt(aiDataStr, DataStrOffset + 2, 0) > 0, "True", "False"))
     Return loc_res
 EndFunction

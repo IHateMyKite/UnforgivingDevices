@@ -8,9 +8,9 @@
                             Default value: 0 (False)
 
     Form arguments:
-        Form4               Scene to play or FormLists with scenes
+        Form4               Scene to play or FormLists with scenes (a random scene from the merged list will be started)
         
-        Form5               Scene to play or FormLists with scenes
+        Form5               Scene to play or FormLists with scenes (a random scene from the merged list will be started)
 
     Example:
 /;
@@ -24,8 +24,8 @@ import UD_Native
 ===========================================================================================
 ===========================================================================================
 /;
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
-    Form[] loc_forms = CombineForms(akForm4, akForm5)
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
+    Form[] loc_forms = UD_Modifier.GetAllForms(akForm2, akForm3)
     If loc_forms.Length > 0
         Scene loc_scene = loc_forms[RandomInt(0, loc_forms.length - 1)] as Scene
         If loc_scene != None
@@ -44,14 +44,14 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     String loc_res = ""
 
-    If akForm4
-        loc_res += akModifier.PrintFormListSelectionDetails(akForm4, "R")
+    If akForm2
+        loc_res += akModifier.PrintFormListSelectionDetails(akForm2, "R")
     EndIf
-    If akForm5
-        loc_res += akModifier.PrintFormListSelectionDetails(akForm5, "R")
+    If akForm3
+        loc_res += akModifier.PrintFormListSelectionDetails(akForm3, "R")
     EndIf
     loc_res += UDmain.UDMTF.TableRowDetails("Force:", InlineIfStr(GetStringParamInt(aiDataStr, DataStrOffset + 0, 0) > 0, "True", "False"))
     Return loc_res

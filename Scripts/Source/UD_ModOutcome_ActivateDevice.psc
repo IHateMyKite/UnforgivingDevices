@@ -7,18 +7,18 @@
         [+0]    Int         (optional) Number of devices
                             Default value: 1
                         
-        [+1]    String      (optional) Selection method (in general or for the devices in list akForm3)
+        [+1]    String      (optional) Selection method (in general or for the devices in list akForm2)
                                 SELF or S       - self        
-                                FIRST or F      - first suitable device from the list (akForm3, akForm4 concatenated together)
-                                RANDOM or R     - random device from the list (akForm3, akForm4 concatenated together)
+                                FIRST or F      - first suitable device from the list (akForm2, akForm3 concatenated together)
+                                RANDOM or R     - random device from the list (akForm2, akForm3 concatenated together)
                             Default value: R
                        
-        [+2]    String      (optional) Selection method for the devices in list akForm4
+        [+2]    String      (optional) Selection method for the devices in list akForm3
 
     Form arguments:
-        Form4               Single device keyword to activate or FormList with keywords.
+        Form2               Single device keyword to activate or FormList with keywords.
         
-        Form5               Single device keyword to activate or FormList with keywords.
+        Form3               Single device keyword to activate or FormList with keywords.
 
     Example:
         ,,,,,,,1,FIRST      One device will be activated. The first suitable device from the list in Form4 will be selected by its keyword, 
@@ -33,16 +33,12 @@ import UD_Native
 
 Explosion Property ManifestExplosion Auto
 
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
-    If UDmain.TraceAllowed()
-        UDmain.Log("UD_ModOutcome_ActivateDevice::Outcome() akDevice = " + akDevice + ", aiDataStr = " + aiDataStr, 3)
-    EndIf
-    
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)  
     Int loc_count = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
-    String loc_method_list4 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
-    String loc_method_list5 = GetStringParamString(aiDataStr, DataStrOffset + 2, "")
+    String loc_method_list2 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
+    String loc_method_list3 = GetStringParamString(aiDataStr, DataStrOffset + 2, "")
 
-    Form[] loc_devices = GetEquippedDevicesWithSelectionMethod(akDevice, loc_count, akForm4, loc_method_list4, akForm5, loc_method_list5)
+    Form[] loc_devices = GetEquippedDevicesWithSelectionMethod(akDevice, loc_count, akForm2, loc_method_list2, akForm3, loc_method_list3)
 
     Int loc_i = 0
     While loc_i < loc_devices.Length
@@ -57,27 +53,27 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     String loc_res = ""
     String loc_frag = ""
     Int loc_count = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
-    String loc_method_list4 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
-    String loc_method_list5 = GetStringParamString(aiDataStr, DataStrOffset + 2, "")
+    String loc_method_list2 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
+    String loc_method_list3 = GetStringParamString(aiDataStr, DataStrOffset + 2, "")
 
-    If loc_method_list4 == "S" || loc_method_list4 == "SELF"
+    If loc_method_list2 == "S" || loc_method_list2 == "SELF"
         loc_frag = "SELF"
-    ElseIf loc_method_list4 == "A" || loc_method_list4 == "ALL"
+    ElseIf loc_method_list2 == "A" || loc_method_list2 == "ALL"
         loc_frag = "ALL"
     Else
         loc_frag = loc_count As String
     EndIf
     loc_res += UDmain.UDMTF.TableRowDetails("Number of devices:", loc_frag)
     
-    If loc_method_list4 != "" && akForm4
-        loc_res += akModifier.PrintFormListSelectionDetails(akForm4, loc_method_list4)
+    If loc_method_list2 != "" || akForm2
+        loc_res += akModifier.PrintFormListSelectionDetails(akForm2, loc_method_list2)
     EndIf
-    If loc_method_list5 != "" && akForm5
-        loc_res += akModifier.PrintFormListSelectionDetails(akForm5, loc_method_list5)
+    If akForm3
+        loc_res += akModifier.PrintFormListSelectionDetails(akForm3, loc_method_list3)
     EndIf
     Return loc_res
 EndFunction

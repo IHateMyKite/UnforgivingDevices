@@ -7,11 +7,11 @@
         [+0]    Int     (optional) Number of positions (devices with suitable keywords) to regenerate
                         Default value: 1
                         
-        [+1]    String  (optional) Selection method (in general or for the keyword in list akForm4)
+        [+1]    String  (optional) Selection method (in general or for the keyword in list akForm2)
                             SELF or S       - regains its own durability
                             ALL or A        - restores the durability of all devices
-                            FIRST or F      - first suitable keyword from the list (akForm4, akForm5 concatenated together)
-                            RANDOM or R     - random keyword from the list (akForm4, akForm5 concatenated together)
+                            FIRST or F      - first suitable keyword from the list (akForm2, akForm3 concatenated together)
+                            RANDOM or R     - random keyword from the list (akForm2, akForm3 concatenated together)
                         Default value: SELF
                         
         [+2]    Float   Minimum restored durability in %
@@ -20,8 +20,8 @@
                         Default value: [+2]
 
     Form arguments:
-        Form4           Single device keyword to regenerate or FormList with keywords (may be None if SELF or ALL selection method is used).
-        Form5           Single device keyword to regenerate or FormList with keywords (may be None if SELF or ALL selection method is used).
+        Form2           Single device keyword to regenerate or FormList with keywords (may be None if SELF or ALL selection method is used).
+        Form3           Single device keyword to regenerate or FormList with keywords (may be None if SELF or ALL selection method is used).
 
     Example:
         
@@ -37,17 +37,13 @@ import UD_Native
 ===========================================================================================
 /;
 
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)    
-    If UDmain.TraceAllowed()
-        UDmain.Log("UD_ModOutcome_RestoreDurability::Outcome() akDevice = " + akDevice + ", aiDataStr = " + aiDataStr, 3)
-    EndIf
-    
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     Int loc_count = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
-    String loc_method_list4 = GetStringParamString(aiDataStr, DataStrOffset + 1, "S")
+    String loc_method_list2 = GetStringParamString(aiDataStr, DataStrOffset + 1, "S")
     Float loc_min = GetStringParamFloat(aiDataStr, DataStrOffset + 2)
     Float loc_max = GetStringParamFloat(aiDataStr, DataStrOffset + 3, loc_min)
 
-    Form[] loc_devices = GetEquippedDevicesWithSelectionMethod(akDevice, loc_count, akForm4, loc_method_list4, akForm5, "")
+    Form[] loc_devices = GetEquippedDevicesWithSelectionMethod(akDevice, loc_count, akForm2, loc_method_list2, akForm3, "")
 
     Int loc_i = 0
     While loc_i < loc_devices.Length
@@ -62,22 +58,25 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     String loc_res = ""
     String loc_frag = "" 
-    String loc_method_list4 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
+    String loc_method_list2 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
     Float loc_min = GetStringParamFloat(aiDataStr, DataStrOffset + 2)
     Float loc_max = GetStringParamFloat(aiDataStr, DataStrOffset + 3, loc_min)   
-    If loc_method_list4 == "S"
+    If loc_method_list2 == "S"
         loc_frag = "SELF"
-    ElseIf loc_method_list4 == "A"
+    ElseIf loc_method_list2 == "A"
         loc_frag = "ALL"
     Else
         loc_frag = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)   
     EndIf
     loc_res += UDmain.UDMTF.TableRowDetails("Number of devices:", loc_frag)
-    If loc_method_list4 != ""
-        loc_res += akModifier.PrintFormListSelectionDetails(akForm4, loc_method_list4)
+    If loc_method_list2 != "" || akForm2
+        loc_res += akModifier.PrintFormListSelectionDetails(akForm2, loc_method_list2)
+    EndIf
+    If akForm3
+        loc_res += akModifier.PrintFormListSelectionDetails(akForm3, "")
     EndIf
     loc_res += UDmain.UDMTF.TableRowDetails("Magnitude:", FormatFloat(loc_min, 1) + " - " + FormatFloat(loc_max, 1) + "%")
     Return loc_res

@@ -17,7 +17,7 @@
                             Default value: [+2]
 
     Form arguments:
-        Form4               If not None then it is used as currency to add
+        Form2               If not None then it is used as currency to add
         
     Example:
         GoldVaue = A + B * <level>
@@ -34,7 +34,7 @@ import UD_Native
 ===========================================================================================
 /;
 
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     Actor loc_actor = akDevice.GetWearer()
     if !loc_actor || !IsPlayer(loc_actor) ;should only work for the player
         return
@@ -48,8 +48,8 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     Int loc_gold = RandomInt(loc_A_min, loc_A_max) + RandomInt(loc_B_min, loc_B_max) * akDevice.UD_Level
     
     Form loc_currency = UDlibs.Gold
-    If akForm4 != None
-        loc_currency = akForm4
+    If akForm2 != None
+        loc_currency = akForm2
     EndIf
     
     if loc_gold > 0
@@ -63,15 +63,15 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     String loc_res = ""
     Form loc_currency = UDlibs.Gold
     Int loc_A_min = GetStringParamInt(aiDataStr, DataStrOffset + 0, 0)
     Int loc_A_max = GetStringParamInt(aiDataStr, DataStrOffset + 1, loc_A_min)
     Int loc_B_min = GetStringParamInt(aiDataStr, DataStrOffset + 2, 0)
     Int loc_B_max = GetStringParamInt(aiDataStr, DataStrOffset + 3, loc_B_min)
-    If akForm4 != None
-        loc_currency = akForm4
+    If akForm2 != None
+        loc_currency = akForm2
     EndIf
 
     loc_res += UDmain.UDMTF.TableRowDetails("Currency:", loc_currency.GetName())

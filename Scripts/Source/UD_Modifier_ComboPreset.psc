@@ -1,8 +1,8 @@
 ;/  File: UD_Modifier_ComboPreset
-    A pre-prepared Combo-based modifier to be used, for example, in a patcher
+    A modifier with pre-determined Triggers and Outcome. Bind the script to an alias and use it like any other modifier.
 
-    NameFull: 
-    NameAlias: 
+    NameFull:   
+    NameAlias:  
 
 
     Parameters:
@@ -11,11 +11,11 @@
         [7 .. n]            Parameters for the outcome. See description of the selected outcome for details.
 
     Form arguments:
-        Form1               Not used! (Use ModTrigger instead)
-        Form2               Not used! (Use ModOutcome instead)
-        Form3               Parameter for the ModTrigger
-        Form4               Parameter for the ModOutcome
-        Form5               Parameter for the ModOutcome
+        Form1               Argument for the ModTrigger
+        Form2               Argument for the ModOutcome
+        Form3               Argument for the ModOutcome
+        Form4               Not used! (Use ModTrigger property instead)
+        Form5               Not used! (Use ModOutcome property instead)
         
     Example:
 /;
@@ -33,89 +33,12 @@ UD_ModOutcome Property ModOutcome Auto
 ===========================================================================================
 ===========================================================================================
 /;
-Function Update()
-    EventProcessingMask = ModTrigger.GetEventProcessingMask()
+UD_ModTrigger Function GetTrigger(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    Return ModTrigger
 EndFunction
 
-;/  Group: Events Processing
-===========================================================================================
-===========================================================================================
-===========================================================================================
-/;
-Function GameLoaded(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Parent.GameLoaded(akDevice, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
-EndFunction
-
-Function TimeUpdateSeconds(UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Parent.TimeUpdateSeconds(akDevice, afHoursSinceLastCall, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
-EndFunction
-
-Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Parent.TimeUpdateHour(akDevice, afHoursSinceLastCall, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
-EndFunction
-
-Function Orgasm(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Parent.Orgasm(akDevice, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
-EndFunction
-
-Function DeviceLocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Parent.DeviceLocked(akDevice, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
-EndFunction
-
-Function DeviceUnlocked(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Parent.DeviceUnlocked(akDevice, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
-EndFunction
-
-Bool Function MinigameAllowed(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Return Parent.MinigameAllowed(akDevice, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
-EndFunction
-
-Function MinigameStarted(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_RenderScript akMinigameDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Parent.MinigameStarted(akDevice, akMinigameDevice, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
-EndFunction
-
-Function MinigameEnded(UD_CustomDevice_RenderScript akDevice, UD_CustomDevice_RenderScript akMinigameDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Parent.MinigameEnded(akDevice, akMinigameDevice, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
-EndFunction
-
-Function WeaponHit(UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, Float afDamage, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Parent.WeaponHit(akDevice, akWeapon, afDamage, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
-EndFunction
-
-Function SpellHit(UD_CustomDevice_RenderScript akDevice, Form akSpell, Float afDamage, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Parent.SpellHit(akDevice, akSpell, afDamage, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
-EndFunction
-
-Function SpellCast(UD_CustomDevice_RenderScript akDevice, Spell akSpell, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Parent.SpellCast(akDevice, akSpell, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
-EndFunction
-
-Function ConditionLoss(UD_CustomDevice_RenderScript akDevice, Int aiCondition, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Parent.ConditionLoss(akDevice, aiCondition, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
-EndFunction
-
-Function StatEvent(UD_CustomDevice_RenderScript akDevice, String asStatName, Int aiStatValue, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Parent.StatEvent(akDevice, asStatName, aiStatValue, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
-EndFunction
-
-Function Sleep(UD_CustomDevice_RenderScript akDevice, Float afDuration, Bool abInterrupted, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Parent.Sleep(akDevice, afDuration, abInterrupted, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
-EndFunction
-
-Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Parent.ActorAction(akDevice, aiActorAction, akSource, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
-EndFunction
-
-Function KillMonitor(UD_CustomDevice_RenderScript akDevice, ObjectReference akVictim, Int aiCrimeStatus, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Parent.KillMonitor(akDevice, akVictim, aiCrimeStatus, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
-EndFunction
-
-Function ItemAdded(UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akSourceContainer, Bool abIsStolen, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Parent.ItemAdded(akDevice, akItemForm, aiItemCount, akSourceContainer, abIsStolen, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
-EndFunction
-
-Function ItemRemoved(UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akDestContainer, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Parent.ItemRemoved(akDevice, akItemForm, aiItemCount, akDestContainer, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
+UD_ModOutcome Function GetOutcome(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    Return ModOutcome
 EndFunction
 
 ;/  Group: User Interface
@@ -123,15 +46,6 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Return Parent.GetDetails(akDevice, aiDataStr, ModTrigger, ModOutcome, akForm3, akForm4, akForm5)
-EndFunction
-
 String Function GetCaption(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     Return NameFull
-EndFunction
-
-; A message in the device description to explain the minigame prohibition
-String Function MinigameProhibitedMessage(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Return ModOutcome.MinigameProhibitedMessage(Self, akDevice, aiDataStr, akForm4, akForm5)
 EndFunction

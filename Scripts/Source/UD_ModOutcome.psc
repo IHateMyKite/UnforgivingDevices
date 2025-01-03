@@ -55,10 +55,10 @@ Int         Property DataStrOffset              = 7     AutoReadOnly Hidden
 ===========================================================================================
 ===========================================================================================
 /;
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
 EndFunction
 
-Bool Function MinigameAllowed(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+Bool Function MinigameAllowed(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     Return True
 EndFunction
 
@@ -67,19 +67,19 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+String Function GetDetails(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     String loc_res = ""
     If Description
         loc_res += UDmain.UDMTF.Paragraph(Description, asAlign = "center")
     EndIf
     loc_res += UDmain.UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
-    loc_res += GetParamsTableRows(akModifier, akDevice, aiDataStr, akForm4, akForm5)
+    loc_res += GetParamsTableRows(akModifier, akDevice, aiDataStr, akForm2, akForm3)
     loc_res += UDmain.UDMTF.TableEnd()
     loc_res += UDmain.UDMTF.LineGap()
     Return loc_res
 EndFunction
 
-String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     String loc_res = ""
 ;    loc_res += UDmain.UDMTF.TableRowDetails("Name:", NameFull)
 ;    loc_res += UDmain.UDMTF.TableRowDetails("Param:", Param)
@@ -87,7 +87,7 @@ String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice
 EndFunction
 
 ; A message in the device description to explain the minigame prohibition
-String Function MinigameProhibitedMessage(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+String Function MinigameProhibitedMessage(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     Return akModifier.Description
 EndFunction
 
@@ -96,42 +96,6 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-Form[] Function CombineForms(Form akForm1, Form akForm2, Form akForm3 = None)
-    Form[] loc_forms
-    Int loc_i
-
-    If (akForm1 as FormList) != None
-        loc_i = (akForm1 as FormList).GetSize()
-        While loc_i > 0
-            loc_i -= 1
-            loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm1 as FormList).GetAt(loc_i))
-        EndWhile
-    ElseIf akForm1 != None
-        loc_forms = PapyrusUtil.PushForm(loc_forms, akForm1)
-    EndIf
-    
-    If (akForm2 as FormList) != None
-        loc_i = (akForm2 as FormList).GetSize()
-        While loc_i > 0
-            loc_i -= 1
-            loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm2 as FormList).GetAt(loc_i))
-        EndWhile
-    ElseIf akForm2 != None
-        loc_forms = PapyrusUtil.PushForm(loc_forms, akForm2)
-    EndIf
-    
-    If (akForm3 as FormList) != None
-        loc_i = (akForm3 as FormList).GetSize()
-        While loc_i > 0
-            loc_i -= 1
-            loc_forms = PapyrusUtil.PushForm(loc_forms, (akForm3 as FormList).GetAt(loc_i))
-        EndWhile
-    ElseIf akForm3 != None
-        loc_forms = PapyrusUtil.PushForm(loc_forms, akForm3)
-    EndIf
-    
-    Return loc_forms
-EndFunction
 
 Form[] Function GetEquippedDevicesWithSelectionMethod(UD_CustomDevice_RenderScript akDevice, Int aiNumber, Form akForm1, String asSelectionMethod1 = "R", Form akForm2 = None, String asSelectionMethod2 = "", Form akForm3 = None, String asSelectionMethod3 = "")
     Form[] loc_devices

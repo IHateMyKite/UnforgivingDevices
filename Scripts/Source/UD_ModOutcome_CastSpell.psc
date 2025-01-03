@@ -7,9 +7,9 @@
         None
 
     Form arguments:
-        Form4               Spell to cast or FormLists with spells
+        Form2               Spell to cast or FormLists with spells
         
-        Form5               Spell to cast or FormLists with spells
+        Form3               Spell to cast or FormLists with spells
 
     Example:
 /;
@@ -24,11 +24,8 @@ import UD_Native
 ===========================================================================================
 /;
 
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
-    If UDmain.TraceAllowed()
-        UDmain.Log("UD_ModOutcome_CastSpell::Outcome() akModifier = " + akModifier + ", akDevice = " + akDevice + ", aiDataStr = " + aiDataStr + ", akForm4 = " + akForm4 + ", akForm5 = " + akForm5, 3)
-    EndIf
-    Form[] loc_forms = CombineForms(akForm4, akForm5)
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
+    Form[] loc_forms = UD_Modifier.GetAllForms(akForm2, akForm3)
     If loc_forms.Length > 0
         Spell loc_spell = loc_forms[RandomInt(0, loc_forms.length - 1)] as Spell
         If loc_spell != None
@@ -42,13 +39,13 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     String loc_res = ""
-    If akForm4
-        loc_res += akModifier.PrintFormListSelectionDetails(akForm4, "R")
+    If akForm2
+        loc_res += akModifier.PrintFormListSelectionDetails(akForm2, "R")
     EndIf
-    If akForm5
-        loc_res += akModifier.PrintFormListSelectionDetails(akForm5, "R")
+    If akForm3
+        loc_res += akModifier.PrintFormListSelectionDetails(akForm3, "R")
     EndIf
     Return loc_res
 EndFunction

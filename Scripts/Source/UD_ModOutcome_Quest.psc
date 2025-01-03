@@ -8,8 +8,9 @@
                             Default value: -1 (Ignore)
 
     Form arguments:
-        Form4 - Quest to start or FormLists with quests
-        Form5 - Quest to start or FormLists with quests
+        Form2 - Quest to start or FormLists with quests (a random quest from the list will be started)
+
+        Form3 - Quest to start or FormLists with quests (a random quest from the list will be started)
 
     Example:
 /;
@@ -24,20 +25,27 @@ import UD_Native
 ===========================================================================================
 /;
 
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
+    Quest loc_quest = None
+    loc_quest = UD_Modifier.GetRandomForm(akForm2) as Quest
+    If loc_quest != None
+        If !loc_quest.IsRunning()
+            loc_quest.Start()
+        EndIf
+        Int loc_stage = GetStringParamInt(aiDataStr, DataStrOffset + 0, -1)
+        If loc_stage >= 0
+            loc_quest.SetStage(loc_stage)
+        EndIf
+    EndIf
 
-    Form[] loc_forms = CombineForms(akForm4, akForm5)
-    
-    If loc_forms.Length > 0
-        Quest loc_quest = loc_forms[RandomInt(0, loc_forms.length - 1)] as Quest
-        If loc_quest != None
-            If !loc_quest.IsRunning()
-                loc_quest.Start()
-            EndIf
-            Int loc_stage = GetStringParamInt(aiDataStr, DataStrOffset + 0, -1)
-            If loc_stage >= 0
-                loc_quest.SetStage(loc_stage)
-            EndIf
+    loc_quest = UD_Modifier.GetRandomForm(akForm3) as Quest
+    If loc_quest != None
+        If !loc_quest.IsRunning()
+            loc_quest.Start()
+        EndIf
+        Int loc_stage = GetStringParamInt(aiDataStr, DataStrOffset + 0, -1)
+        If loc_stage >= 0
+            loc_quest.SetStage(loc_stage)
         EndIf
     EndIf
     
@@ -48,14 +56,14 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     String loc_res = ""
 
-    If akForm4
-        loc_res += akModifier.PrintFormListSelectionDetails(akForm4, "R")
+    If akForm2
+        loc_res += akModifier.PrintFormListSelectionDetails(akForm2, "R")
     EndIf
-    If akForm5
-        loc_res += akModifier.PrintFormListSelectionDetails(akForm5, "R")
+    If akForm3
+        loc_res += akModifier.PrintFormListSelectionDetails(akForm3, "R")
     EndIf
     loc_res += UDmain.UDMTF.TableRowDetails("Stage:", GetStringParamInt(aiDataStr, DataStrOffset + 0, -1))
     Return loc_res

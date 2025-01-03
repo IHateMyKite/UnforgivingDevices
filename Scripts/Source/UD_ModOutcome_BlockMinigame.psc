@@ -36,7 +36,7 @@ import UD_Native
 ===========================================================================================
 ===========================================================================================
 /;
-Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     String loc_init = GetStringParamString(aiDataStr, DataStrOffset + 0, "B")
     Float loc_duration = GetStringParamFloat(aiDataStr, DataStrOffset + 1, 0.0)
     Bool loc_repeat = GetStringParamInt(aiDataStr, DataStrOffset + 2, 0) > 0
@@ -64,7 +64,7 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     EndIf
 EndFunction
 
-Bool Function MinigameAllowed(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+Bool Function MinigameAllowed(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     String loc_init = GetStringParamString(aiDataStr, DataStrOffset + 0, "B")
     Float loc_duration = GetStringParamFloat(aiDataStr, DataStrOffset + 1, 0.0)
     Bool loc_repeat = GetStringParamInt(aiDataStr, DataStrOffset + 2, 0) > 0
@@ -92,7 +92,7 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm4, Form akForm5)
+String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     String loc_init = GetStringParamString(aiDataStr, DataStrOffset + 0, "B")
     Float loc_duration = GetStringParamFloat(aiDataStr, DataStrOffset + 1, 0.0)
     Bool loc_repeat = GetStringParamInt(aiDataStr, DataStrOffset + 2, 0) > 0
