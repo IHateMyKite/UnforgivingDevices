@@ -1,15 +1,53 @@
+;/  File: UD_Modifier_Demanding
+    Wearer have to pay for every escape attempt
+
+    NameFull:   Demanding
+    NameAlias:  DEM
+
+    Parameters:
+        [0]     Int         (optional) Minimum value of coefficient A (absolute value)
+                            Default value: 0
+                        
+        [1]     Int         (optional) Maximum value of coefficient A (absolute value)
+                            Default value: Parameter [0]
+                        
+        [2]     Int         (optional) Minimum value of coefficient B (proportional to level)
+                            Default value: 0
+                        
+        [3]     Int         (optional) Maximum value of coefficient B (proportional to level)
+                            Default value: Parameter [2]
+    
+    Example:
+        GoldVaue = A + B * <level>
+        where A and B are in ranges defined by parameters above
+/;
 ScriptName UD_Modifier_Demanding extends UD_Modifier_GoldBase
 
 import UnforgivingDevicesMain
 import UD_Native
 
-Bool Function MinigameAllowed(UD_CustomDevice_RenderScript akModDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+;/  Group: Overrides
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+Function Update()
+    EventProcessingMask = 0x00000008
+EndFunction
+
+;/  Group: Events Processing
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+Bool Function MinigameAllowed(UD_CustomDevice_RenderScript akModDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     ;only pay device if user have device locked less then 1 real time hour (safeback)
     if akModDevice.GetRealTimeLockedTime() > 0.5
         return true
     endif
 
-    Int loc_gold = CalculateGold(aiDataStr,akModDevice.UD_Level,false)
+    ; checking max. possible value
+    Int loc_gold = CalculateGold2(aiDataStr, akModDevice.UD_Level, false)
     Int loc_WearerGold = akModDevice.GetWearer().GetItemCount(UDLibs.Gold)
     
     Actor loc_helper   = akModDevice.GetHelper()
@@ -20,39 +58,38 @@ Bool Function MinigameAllowed(UD_CustomDevice_RenderScript akModDevice, String a
     
     Bool loc_cond = loc_WearerGold > loc_gold || loc_HelperGold > loc_gold
     
-    if !loc_cond && IsPlayer(akModDevice.GetWearer())
-        UDmain.Print("You dont have enough gold to pay the device!")
-    endif
+;    if !loc_cond && IsPlayer(akModDevice.GetWearer())
+;        UDmain.Print("You dont have enough gold to pay the device!")
+;    endif
     
     return loc_cond
 EndFunction
 
-Function MinigameStarted(UD_CustomDevice_RenderScript akModDevice, UD_CustomDevice_RenderScript akMinigameDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+Function MinigameStarted(UD_CustomDevice_RenderScript akModDevice, UD_CustomDevice_RenderScript akMinigameDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     if akModDevice == akMinigameDevice
         if akModDevice.GetRealTimeLockedTime() < 0.5
-            Int loc_Gold = CalculateGold(aiDataStr,akModDevice.UD_Level)
+            Int loc_Gold = CalculateGold2(aiDataStr, akModDevice.UD_Level)
             
             if akModDevice.GetWearer().GetItemCount(UDLibs.Gold) >= loc_Gold
-                akMinigameDevice.GetWearer().RemoveItem(UDlibs.Gold,loc_Gold)
+                akMinigameDevice.GetWearer().RemoveItem(UDlibs.Gold, loc_Gold)
                 return
             endif
             
-            Actor loc_helper   = akModDevice.GetHelper()
+            Actor loc_helper = akModDevice.GetHelper()
             if loc_helper && (loc_helper.GetItemCount(UDLibs.Gold) >= loc_Gold)
-                loc_helper.RemoveItem(UDlibs.Gold,loc_Gold)
+                loc_helper.RemoveItem(UDlibs.Gold, loc_Gold)
                 return
             endif
         endif
     endif
 EndFunction
 
-Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    return (RandomInt(0,99) < Round(6*PatchChanceMultiplier))
-EndFunction
-
-Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
-    int loc_min = iRange(Round(RandomInt(3,7)*PatchPowerMultiplier),0,100)
-    int loc_max = iRange(Round(loc_min*RandomFloat(1.25,1.5)*PatchPowerMultiplier),loc_min,300)
-    int loc_lvlinc = iRange(Round(RandomInt(1,3)*PatchPowerMultiplier),0,20)
-    akDevice.addModifier(self,loc_min + "," + loc_max + ",2," + loc_lvlinc)
+;/  Group: User interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+; A message in the device description to explain the minigame prohibition
+String Function MinigameProhibitedMessage(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    Return "You don't have enough gold to pay the device!"
 EndFunction

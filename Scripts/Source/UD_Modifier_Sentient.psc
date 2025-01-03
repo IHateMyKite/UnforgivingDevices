@@ -1,24 +1,34 @@
+;/  File: UD_Modifier_Sentient
+    Device is sentient, and can activate other devices when in danger
+
+    NameFull:   Sentient
+    NameAlias:  SNT
+
+    Parameters:
+        [0]     Int         How sentient is this device (0 - 100)
+                            Default value: 0
+/;
 ScriptName UD_Modifier_Sentient extends UD_Modifier
 
 import UnforgivingDevicesMain
 import UD_Native
 
-Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    return (RandomInt(1,100) < (10)*PatchChanceMultiplier)
+;/  Group: Overrides
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+Function Update()
+    EventProcessingMask = 0x00000000
 EndFunction
 
-Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
-    akDevice.addModifier(self,RandomInt(Round(5*PatchPowerMultiplier),Round(35*PatchPowerMultiplier)))
-EndFunction
-
-Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
-    String loc_msg = ""
-    
-    loc_msg += "=== " + NameFull + " ===\n"
-    loc_msg += "Power: " + GetStringParamInt(aiDataStr,0,0) + "\n"
-
-    loc_msg += "===Description===\n"
-    loc_msg += Description + "\n"
-
-    UDmain.ShowMessageBox(loc_msg)
+;/  Group: User Interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+String Function GetParamsTableRows(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    String loc_res = ""
+    loc_res += UDmain.UDMTF.TableRowDetails("Power:", GetStringParamInt(aiDataStr, 0, 0))
+    Return loc_res
 EndFunction

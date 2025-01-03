@@ -448,10 +448,54 @@ bool Function lockRandomDeviceFromFormList(Actor akActor,Formlist akList,bool ab
     endif
 EndFunction
 
+
+Armor Function LockFirstDeviceFromArray(Actor akActor, Form[] akFormArray, Bool abForce = False)
+    Int loc_i = akFormArray.Length
+    While loc_i > 0
+        loc_i -= 1
+        Armor loc_device = akFormArray[loc_i] As Armor
+        If loc_device != None && (abForce || ConflictNone2(akActor, loc_device))
+            If libs.lockdevice(akActor, loc_device, abForce)
+                Return loc_device
+            EndIf
+        EndIf
+    EndWhile
+    Return None
+EndFunction
+
+Armor Function LockRandomDeviceFromArray(Actor akActor, Form[] akFormArray, Bool abForce = False)
+    Form[] loc_suitable_devices
+    Int loc_i = akFormArray.Length
+    While loc_i > 0
+        loc_i -= 1
+        Armor loc_device = akFormArray[loc_i] As Armor
+        If loc_device != None && (abForce || ConflictNone2(akActor, loc_device))
+            loc_suitable_devices = PapyrusUtil.PushForm(loc_suitable_devices, loc_device)
+        EndIf
+    EndWhile
+
+    While loc_suitable_devices.Length > 0
+        Armor loc_device = getRandomFormFromArray(loc_suitable_devices) As Armor
+        If libs.lockdevice(akActor, loc_device, abForce)
+            Return loc_device
+        EndIf
+        loc_suitable_devices = PapyrusUtil.RemoveForm(loc_suitable_devices, loc_device)        
+    EndWhile
+    Return None
+EndFunction
+
+
 Form Function getRandomFormFromFormlist(Formlist akList)
     int loc_i = RandomInt(0,akList.GetSize() - 1)
     return akList.getAt(loc_i)
 EndFunction
+
+
+Form Function getRandomFormFromArray(Form[] akArray)
+    int loc_i = RandomInt(0, akArray.Length - 1)
+    return akArray[loc_i]
+EndFunction
+
 
 ;VEEEEEEEEEEEEEEEEEEEEEEEEEEEEERY SLOW
 Form Function getRandomFormFromFormlistFilter(Formlist list,Keyword[] kwaFilter,int iMode = 0)
@@ -615,4 +659,22 @@ bool Function ConflictNone(Actor akActor,Armor to_check)                        
         i += 1
     endwhile
     return true                                                                                    ; no conflicts found, good to go!
+EndFunction
+
+; Check conflicts using armor slots
+; Need RenderedDevice :( 
+Bool Function ConflictNone2(Actor akActor, Armor to_check)
+    If akActor == None || to_check == None
+        Return False
+    EndIf
+    Armor rend_to_check  = libs.GetRenderedDevice(to_check)                                     ; getting rendered device 
+    If rend_to_check == None
+        Return False
+    EndIf
+    Int slot_mask = rend_to_check.GetSlotMask()
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_RandomRestraintManager::ConflictNone2() to_check = " + to_check + ", rend_to_check = " + rend_to_check + ", slot_mask = " + slot_mask, 3)
+    EndIf
+    Armor loc_worn = akActor.GetWornForm(slot_mask) as Armor
+    Return loc_worn == None || libs.GetDeviceKeyword(loc_worn) == None
 EndFunction
