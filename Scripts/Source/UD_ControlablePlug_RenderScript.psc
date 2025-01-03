@@ -84,7 +84,11 @@ EndFunction
 Function turnOnPlug(int strenght, int mod)
     ;if !turned_on
     ;turned_on = True
-    selected_mod = mod
+    if mod != -1
+        selected_mod = mod
+    else
+        selected_mod = RandomInt(0,2)
+    endif
     
     if isVibrating()
         stopVibratingAndWait()
@@ -211,7 +215,7 @@ Function activateDevice()
         elseif UDmain.ActorInCloseRange(getWearer())
             UDmain.Print(getWearerName() + "s "+ getDeviceName() +" suddenly turns itself on!",2)
         endif
-        turnOnPlug(3,0)
+        turnOnPlug(3,-1)
     else
         if getCurrentVibStrenth() < 100
             if WearerIsPlayer()

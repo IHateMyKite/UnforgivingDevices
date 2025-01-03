@@ -6257,9 +6257,14 @@ Function minigame()
         endif
         advanceSkill(15.0)
         if UDmain.ExperienceInstalled && PlayerIsPresent()
-            Int loc_xp = Round(Math.Pow(UD_Level,0.8)*RandomFloat(1.0,2.0))
-            Experience.addexperience(loc_xp,true)
-            UDmain.Info("By escaping the "+GetDeviceHeader()+", you got " + loc_xp + " experience")
+            if Experience.GetScriptVersion() >= 3
+                Int loc_xp = Round(Math.Pow(UD_Level,0.8)*RandomFloat(1.0,2.0))
+                Experience.addexperience(loc_xp,true)
+                Experience.ShowNotification("Escaped","Device","")
+                UDmain.Info("By escaping the "+GetDeviceHeader()+", you got " + loc_xp + " experience")
+            else
+                UDMain.Error("Incompatible version of Exsperience detected. Please update the Experience to last version!")
+            endif
         endif
     endif
 

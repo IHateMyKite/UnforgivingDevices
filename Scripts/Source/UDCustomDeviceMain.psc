@@ -624,6 +624,7 @@ Function AddInvisibleArmbinder(Actor akActor)
             ;actor dont have HB, equip it (which will also add it) and start idle animation
             akActor.EquipItem(UDlibs.InvisibleArmbinder,false,true)
             libs.StartBoundEffects(akActor)
+            libs.stripweapons(akActor)
         endif
     endif
 EndFunction
