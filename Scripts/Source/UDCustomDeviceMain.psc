@@ -897,6 +897,7 @@ EndFunction
 /;
 Function LockDevice(form akActor, form akDeviceInventory, int aiForce)
     libsp.LockDevicePatched(akActor as Actor,akDeviceInventory as Armor,aiForce as Bool)
+    zadNativeFunctions.SetDisableUnequip(akActor as Actor,akDeviceInventory as Armor,true)
 EndFunction
 
 ;/  Function: LockDeviceParalel
