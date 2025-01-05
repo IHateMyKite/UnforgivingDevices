@@ -304,7 +304,6 @@ EndFunction
 ;====================================================================================
 
 Function UpdateModifiers_GameLoad()
-    Float start_time = Utility.GetCurrentRealTime()
     int loc_i = 0
     while loc_i < UDNPCM.UD_Slots
         UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getNPCSlotByIndex(loc_i)
@@ -320,11 +319,9 @@ Function UpdateModifiers_GameLoad()
         endif
         loc_i += 1
     endwhile
-    UDmain.Log("UD_ModifierManager_Script::UpdateModifiers_GameLoad() BENCHMARK. Exec. time = " + (Utility.GetCurrentRealTime() - start_time), 3)
 EndFunction
 
 Function UpdateModifiers_Seconds(float afHoursPassed)
-    Float start_time = Utility.GetCurrentRealTime()
     int loc_i = 0
     while loc_i < UDNPCM.UD_Slots
         UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getNPCSlotByIndex(loc_i)
@@ -340,11 +337,9 @@ Function UpdateModifiers_Seconds(float afHoursPassed)
         endif
         loc_i += 1
     endwhile
-    UDmain.Log("UD_ModifierManager_Script::UpdateModifiers_Seconds() BENCHMARK. Exec. time = " + (Utility.GetCurrentRealTime() - start_time), 3)
 EndFunction
 
 Function UpdateModifiers_Hour()
-    Float start_time = Utility.GetCurrentRealTime()
     int loc_i = 0
     while loc_i < UDNPCM.UD_Slots
         UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getNPCSlotByIndex(loc_i)
@@ -360,11 +355,9 @@ Function UpdateModifiers_Hour()
         endif
         loc_i += 1
     endwhile
-    UDmain.Log("UD_ModifierManager_Script::UpdateModifiers_Hour() BENCHMARK. Exec. time = " + (Utility.GetCurrentRealTime() - start_time), 3)
 EndFunction
 
 Function UpdateModifiers_Orgasm(UD_CustomDevice_NPCSlot akSlot)
-    Float start_time = Utility.GetCurrentRealTime()
     UD_CustomDevice_NPCSlot loc_slot = akSlot
     if loc_slot.isUsed() && !loc_slot.isDead() && loc_slot.isScriptRunning()
         UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
@@ -376,11 +369,9 @@ Function UpdateModifiers_Orgasm(UD_CustomDevice_NPCSlot akSlot)
             loc_x += 1
         endwhile
     endif
-    UDmain.Log("UD_ModifierManager_Script::UpdateModifiers_Orgasm() BENCHMARK. Exec. time = " + (Utility.GetCurrentRealTime() - start_time), 3)
 EndFunction
 
 Function UpdateModifiers_StatEvent(string arStatName, int aiStatValue)
-    Float start_time = Utility.GetCurrentRealTime()
     UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getPlayerSlot()
     if loc_slot.isUsed() && !loc_slot.isDead() && loc_slot.isScriptRunning()
         UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
@@ -392,11 +383,9 @@ Function UpdateModifiers_StatEvent(string arStatName, int aiStatValue)
             loc_x += 1
         endwhile
     endif
-    UDmain.Log("UD_ModifierManager_Script::UpdateModifiers_StatEvent() BENCHMARK. Exec. time = " + (Utility.GetCurrentRealTime() - start_time), 3)
 EndFunction
 
 Function UpdateModifiers_Sleep(Float afDuration, Bool abInterrupted)
-    Float start_time = Utility.GetCurrentRealTime()
     int loc_i = 0
     while loc_i < UDNPCM.UD_Slots
         UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getNPCSlotByIndex(loc_i)
@@ -412,11 +401,9 @@ Function UpdateModifiers_Sleep(Float afDuration, Bool abInterrupted)
         endif
         loc_i += 1
     endwhile
-    UDmain.Log("UD_ModifierManager_Script::UpdateModifiers_Sleep() BENCHMARK. Exec. time = " + (Utility.GetCurrentRealTime() - start_time), 3)
 EndFunction
 
 Function UpdateModifiers_ActorAction(UD_CustomDevice_NPCSlot akSlot, Int aiActorAction, Form akSource)
-    Float start_time = Utility.GetCurrentRealTime()
     UD_CustomDevice_NPCSlot loc_slot = akSlot
     if loc_slot.isUsed() && !loc_slot.isDead() && loc_slot.isScriptRunning()
         UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
@@ -428,11 +415,9 @@ Function UpdateModifiers_ActorAction(UD_CustomDevice_NPCSlot akSlot, Int aiActor
             loc_x += 1
         endwhile
     endif
-    UDmain.Log("UD_ModifierManager_Script::UpdateModifiers_ActorAction() BENCHMARK. Exec. time = " + (Utility.GetCurrentRealTime() - start_time), 3)
 EndFunction
 
 Function UpdateModifiers_KillMonitor(ObjectReference akVictim, ObjectReference akKiller, Location akLocation, Int aiCrimeStatus)
-    Float start_time = Utility.GetCurrentRealTime()
     If akKiller as Actor == None || akVictim as Actor == None
         Return
     EndIf
@@ -470,7 +455,6 @@ Function UpdateModifiers_KillMonitor(ObjectReference akVictim, ObjectReference a
             endwhile
         endif
     EndIf
-    UDmain.Log("UD_ModifierManager_Script::UpdateModifiers_KillMonitor() BENCHMARK. Exec. time = " + (Utility.GetCurrentRealTime() - start_time), 3)
 EndFunction
 
 ;====================================================================================
@@ -505,8 +489,14 @@ Function ValidateModifiers(UD_CustomDevice_RenderScript akDevice, Bool abGameLoa
         loc_error = True
     EndIf
     If loc_error
-        UDmain.Warning(akDevice + " Modifier's datas were fixed during validation!")
+        UDmain.Warning(akDevice + "::ValidateModifiers() Modifier's datas were fixed during validation!")
     EndIf
+    int loc_modid = akDevice.UD_ModifiersRef.length
+    while loc_modid 
+        loc_modid -= 1
+        UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
+        loc_mod.ValidateModifier(akDevice, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid], akDevice.UD_ModifiersDataForm4[loc_modid], akDevice.UD_ModifiersDataForm5[loc_modid])
+    endwhile
 EndFunction
 
 Function Procces_UpdateModifiers_GameLoad(UD_CustomDevice_RenderScript akDevice)

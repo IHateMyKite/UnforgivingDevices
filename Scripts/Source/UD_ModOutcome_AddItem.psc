@@ -38,10 +38,8 @@ import UD_Native
 
 Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
 
-    Form[] loc_forms = UD_Modifier.GetAllForms(akForm2, akForm3)
-        
-    If loc_forms.Length > 0
-        Form loc_item = loc_forms[RandomInt(0, loc_forms.Length - 1)]
+    Form loc_item = UD_Modifier.GetRandomForm(akForm2, akForm3)
+    If loc_item
         Int loc_min = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
         Int loc_max = GetStringParamInt(aiDataStr, DataStrOffset + 1, loc_min)
         Bool loc_use = GetStringParamInt(aiDataStr, DataStrOffset + 2, 0) > 0

@@ -62,6 +62,26 @@ Bool Function MinigameAllowed(UD_Modifier_Combo akModifier, UD_CustomDevice_Rend
     Return True
 EndFunction
 
+;/  Group: Overrides
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+; Handlers to implement additional logic that is tied to the device lifecycle. 
+; 
+Function OnDeviceLocked(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
+EndFunction
+
+; Handlers to implement additional logic that is tied to the device lifecycle. 
+; For example, unconditional deletion of all effects after device removal.
+Function OnDeviceUnlocked(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
+EndFunction
+
+; Handlers to implement additional logic that is tied to the device lifecycle.
+; 
+Function OnGameLoaded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
+EndFunction
+
 ;/  Group: User Interface
 ===========================================================================================
 ===========================================================================================

@@ -16,12 +16,6 @@ EndEvent
 
 Event OnUpdate()
     UDMOM.AddModifierStorage(self)
-    
-    Int loc_i = self.GetNumAliases()
-    While loc_i > 0
-        loc_i -= 1
-        (self.GetNthAlias(loc_i) as UD_Modifier).Update()
-    EndWhile
 EndEvent
 
 Int Function GetModifierNum()
