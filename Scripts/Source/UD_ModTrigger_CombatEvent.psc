@@ -21,7 +21,7 @@
                             Default value: 100.0%
 
     Example:
-        VF,25               - The trigger will be triggered when voice is used with 25% probability
+        VF,25               - The trigger will be triggered with 25% probability when voice is used 
 /;
 Scriptname UD_ModTrigger_CombatEvent extends UD_ModTrigger
 
@@ -80,7 +80,7 @@ String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice
     String loc_res = ""
     String loc_frag = GetStringParamString(aiDataStr, 0, "")
     If UDmain.UDMTF.HasHtmlMarkup()
-        loc_frag = GetCombatEventString(loc_frag, "<br/> \t")
+        loc_frag = GetCombatEventString(loc_frag, "<br/> \t\t")
     Else
         loc_frag = GetCombatEventString(loc_frag, ", ")
     EndIf
