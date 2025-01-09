@@ -117,27 +117,25 @@ EndFunction
 ===========================================================================================
 /;
 
-Form[] Function GetEquippedDevicesWithSelectionMethod(UD_CustomDevice_RenderScript akDevice, Int aiNumber, Form akForm1, String asSelectionMethod1 = "R", Form akForm2 = None, String asSelectionMethod2 = "", Form akForm3 = None, String asSelectionMethod3 = "")
-    Form[] loc_devices
-    Int loc_i
+UD_CustomDevice_RenderScript[] Function GetEquippedDevicesWithSelectionMethod(UD_CustomDevice_RenderScript akDevice, Int aiNumber, Form akForm1, String asSelectionMethod1 = "R", Form akForm2 = None, String asSelectionMethod2 = "", Form akForm3 = None, String asSelectionMethod3 = "")
     Actor loc_wearer = akDevice.GetWearer()
-    
-    If asSelectionMethod1 == "S" || asSelectionMethod1 == "SELF"
-        loc_devices = PapyrusUtil.PushForm(loc_devices, akDevice)
-        Return loc_devices
-    EndIf
     
     If asSelectionMethod1 == "A" || asSelectionMethod1 == "ALL"
         UD_CustomDevice_RenderScript[] loc_all_devices = UDCDmain.getNPCDevices(loc_wearer)
-        loc_i = 0
-        While loc_i < loc_all_devices.Length
-            loc_devices = PapyrusUtil.PushForm(loc_devices, loc_all_devices[loc_i])
-            loc_i += 1
-        EndWhile
+        Return loc_all_devices
+    EndIf
+
+    
+    If asSelectionMethod1 == "S" || asSelectionMethod1 == "SELF"
+        UD_CustomDevice_RenderScript[] loc_devices = new UD_CustomDevice_RenderScript[1]
+        loc_devices[0] = akDevice
         Return loc_devices
     EndIf
     
-    Int loc_remain = aiNumber        
+    UD_CustomDevice_RenderScript[] loc_devices = UDCDmain.MakeNewDeviceSlots()
+    Int loc_i
+    Int loc_index = 0
+    Int loc_remain = aiNumber
     String loc_method = asSelectionMethod1
     
     Form[] loc_forms
@@ -164,7 +162,8 @@ Form[] Function GetEquippedDevicesWithSelectionMethod(UD_CustomDevice_RenderScri
             If loc_kw as Keyword != None
                 UD_CustomDevice_RenderScript loc_device = UDCDmain.getDeviceByKeyword(loc_wearer, loc_kw as Keyword)
                 If loc_device != None
-                    loc_devices = PapyrusUtil.PushForm(loc_devices, loc_device)
+                    loc_devices[loc_index] = loc_device
+                    loc_index += 1
                     loc_remain -= 1
                 EndIf
             EndIf
@@ -194,7 +193,8 @@ Form[] Function GetEquippedDevicesWithSelectionMethod(UD_CustomDevice_RenderScri
             If loc_kw as Keyword != None
                 UD_CustomDevice_RenderScript loc_device = UDCDmain.getDeviceByKeyword(loc_wearer, loc_kw as Keyword)
                 If loc_device != None
-                    loc_devices = PapyrusUtil.PushForm(loc_devices, loc_device)
+                    loc_devices[loc_index] = loc_device
+                    loc_index += 1
                     loc_remain -= 1
                 EndIf
             EndIf
@@ -223,7 +223,8 @@ Form[] Function GetEquippedDevicesWithSelectionMethod(UD_CustomDevice_RenderScri
         If loc_kw as Keyword != None
             UD_CustomDevice_RenderScript loc_device = UDCDmain.getDeviceByKeyword(loc_wearer, loc_kw as Keyword)
             If loc_device != None
-                loc_devices = PapyrusUtil.PushForm(loc_devices, loc_device)
+                loc_devices[loc_index] = loc_device
+                loc_index += 1
                 loc_remain -= 1
             EndIf
         EndIf

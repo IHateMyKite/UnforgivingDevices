@@ -38,11 +38,13 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     String loc_method_list2 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
     String loc_method_list3 = GetStringParamString(aiDataStr, DataStrOffset + 2, "")
 
-    Form[] loc_devices = GetEquippedDevicesWithSelectionMethod(akDevice, loc_count, akForm2, loc_method_list2, akForm3, loc_method_list3)
+    UD_CustomDevice_RenderScript[] loc_devices = GetEquippedDevicesWithSelectionMethod(akDevice, loc_count, akForm2, loc_method_list2, akForm3, loc_method_list3)
 
     Int loc_i = 0
     While loc_i < loc_devices.Length
-        (loc_devices[loc_i] as UD_CustomDevice_RenderScript).activateDevice()
+        If loc_devices[loc_i]
+            loc_devices[loc_i].activateDevice()
+        EndIf
         loc_i += 1
     EndWhile
 

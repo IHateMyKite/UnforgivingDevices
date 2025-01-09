@@ -190,10 +190,10 @@ Function Sleep(UD_CustomDevice_RenderScript akDevice, Float afDuration, Bool abI
     EndIf
 EndFunction
 
-Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Int aiEquipSlot, Form akSource, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     UD_ModTrigger loc_trigger = GetTrigger(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
     UD_ModOutcome loc_outcome = GetOutcome(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
-    If loc_trigger.ActorAction(Self, akDevice, aiActorAction, akSource, aiDataStr, akForm1) == True
+    If loc_trigger.ActorAction(Self, akDevice, aiActorAction, aiEquipSlot, akSource, aiDataStr, akForm1) == True
         _DoCallOutcome(loc_outcome, akDevice, aiDataStr, akForm2, akForm3)
     EndIf
 EndFunction

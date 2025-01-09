@@ -1974,7 +1974,13 @@ EndFunction
         Array of all parameters or none in case of error
 /;
 String[] Function getModifierAllParam(string asModifier)
-    return UD_Native.GetModifierStringParamAll(VMHandle1,VMHandle2,deviceRendered,asModifier)
+    String[] loc_arr = UD_Native.GetModifierStringParamAll(VMHandle1,VMHandle2,deviceRendered,asModifier)
+    If UDmain.TraceAllowed()
+        Int loc_index = UD_Native.GetModifierIndex(VMHandle1,VMHandle2,deviceRendered,asModifier)
+        String loc_pars = UD_ModifiersDataStr[loc_index]
+        UDmain.Log(Self + "::getModifierAllParam() asModifier = " + asModifier + ", loc_index = " + loc_index + ", DataStr[i] = '" + loc_pars + "', Array = " + loc_arr, 3)
+    EndIf
+    return loc_arr
 EndFunction
 
 ;/  Function: getModifierParam

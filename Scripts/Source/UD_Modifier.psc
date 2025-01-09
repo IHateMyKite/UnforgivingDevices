@@ -154,7 +154,7 @@ EndFunction
 Function Sleep(UD_CustomDevice_RenderScript akDevice, Float afDuration, Bool abInterrupted, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
 EndFunction
 
-Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Int aiEquipSlot, Form akSource, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
 EndFunction
 
 Function KillMonitor(UD_CustomDevice_RenderScript akDevice, ObjectReference akVictim, Int aiCrimeStatus, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
@@ -312,7 +312,15 @@ Form[] Function GetAllForms(Form akForm1, Form akForm2 = None, Form akForm3 = No
     EndIf
 
     Return loc_forms
+EndFunction
 
+Bool Function IsInForms(Form akFormToFind, Form akForm1, Form akForm2 = None, Form akForm3 = None) global
+    Form[] loc_forms = GetAllForms(akForm1, akForm2, akForm3)
+    If loc_forms.length > 0
+        Return PapyrusUtil.CountForm(loc_forms, akFormToFind) > 0
+    Else
+        Return False
+    EndIf
 EndFunction
 
 ;/  Group: Patcher

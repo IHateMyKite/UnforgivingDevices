@@ -8,9 +8,11 @@
         None
         
     Form arguments:
-        Form1   Weapon/Spell/FormList   Bound Weapon or Spell to force equip (or FormList with possible spells/weapons)
+        Form1   Weapon/Spell/FormList   Bound Weapon or Spell to force equip (or FormList with possible spells/weapons) to the right hand
+
+        Form2   Weapon/Spell/FormList   Bound Weapon or Spell to force equip (or FormList with possible spells/weapons) to the left hand
         
-        Form2   Spell                  (optional) Spell that summons bound weapon specified in Form1
+        Form3   Spell                  (optional) Spell that summons bound weapon specified in Form1
 
     Example:
         
@@ -25,33 +27,49 @@ import UD_Native
 ===========================================================================================
 ===========================================================================================
 /;
-Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Int aiEquipSlot, Form akSource, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_Modifier_BoundWeapon::ActorAction() akDevice = " + akDevice + ", aiActorAction = " + aiActorAction + ", akSource = " + akSource + ", aiDataStr = " + aiDataStr + ", akForm1 = " + akForm1 + ", akForm2 = " + akForm2 + ", akForm3 = " + akForm3, 3)
+        UDmain.Log("UD_Modifier_BoundWeapon::ActorAction() akDevice = " + akDevice + ", aiActorAction = " + aiActorAction + ", aiEquipSlot = " + aiEquipSlot + ", akSource = " + akSource + ", aiDataStr = " + aiDataStr + ", akForm1 = " + akForm1 + ", akForm2 = " + akForm2 + ", akForm3 = " + akForm3, 3)
     EndIf
-    ; we effectively ignore "Unsheathe End" event that send from form(s) in akForm1
-    If aiActorAction == 8 && ((akForm1 as FormList == None && akForm1 != akSource) || (akForm1 as FormList && (akForm1 as FormList).Find(akSource) < 0))
-    ; Unsheathe End
-        If akForm2 as Spell
-            (akForm2 as Spell).Cast(akDevice.GetWearer(), akDevice.GetWearer())
-        Else
-            Form loc_form = akForm1
-            If akForm1 as FormList
-                loc_form = (akForm1 as FormList).GetAt(RandomInt(0, (akForm1 as FormList).GetSize() - 1))
-            EndIf
-            If loc_form as Spell
-                akDevice.GetWearer().EquipSpell(loc_form as Spell, 0)
-                ;akDevice.GetWearer().EquipSpell(akForm1 as Spell, 1)
-            ElseIf loc_form as Weapon
-                akDevice.GetWearer().EquipItem(loc_form as Weapon)
-            EndIf
+    If aiEquipSlot != 1
+    ; due to some internal error, events from the left hand slot never happen. But we should ignore them just in case
+        Return
+    EndIf
+    Actor loc_wearer = akDevice.GetWearer()
+    If akForm3 as Spell
+    ; if the weapon (from akForm1) is summoned with a conjuration spell
+        If aiActorAction == 8 && UD_Modifier.IsInForms(akSource, akForm1, akForm2) == False
+            (akForm3 as Spell).Cast(loc_wearer, loc_wearer)
+        ElseIf aiActorAction == 10 && UD_Modifier.IsInForms(akSource, akForm1, akForm2) == True
+            loc_wearer.DispelSpell(akForm3 as Spell)
         EndIf
-    ElseIf aiActorAction == 10 && (akForm1 == akSource || (akForm1 as FormList && (akForm1 as FormList).Find(akSource) >= 0))
-    ; Sheathe End
-        If akForm2 as Spell
-            akDevice.GetWearer().DispelSpell(akForm2 as Spell)
-        ElseIf akForm2 as Weapon
-        ; TODO PR195: remove weapon from inventory?
+    Else
+    ; we summon weapon/spell
+        If aiActorAction == 8
+        ; Unsheathe End
+        ; And we're only checking the right hand slot.
+            If akForm1 && UD_Modifier.IsInForms(akSource, akForm1) == False
+            ; Right hand
+                Form loc_form = UD_Modifier.GetRandomForm(akForm1)
+                If loc_form as Spell
+                    akDevice.GetWearer().EquipSpell(loc_form as Spell, 1)
+                ElseIf loc_form as Weapon
+                    akDevice.GetWearer().EquipItem(loc_form as Weapon)
+                EndIf            
+            ; Left hand
+                loc_form = UD_Modifier.GetRandomForm(akForm2)
+                If loc_form as Spell
+                    akDevice.GetWearer().EquipSpell(loc_form as Spell, 0)
+                ElseIf loc_form as Weapon
+                    akDevice.GetWearer().EquipItem(loc_form as Weapon)
+                EndIf
+            EndIf
+        ElseIf aiActorAction == 10
+        ; Sheathe End
+            ; TODO PR195: remove weapon from inventory?
+            ; Right hand
+            If UD_Modifier.IsInForms(akSource, akForm1) == True
+            EndIf
         EndIf
     EndIf
 EndFunction
