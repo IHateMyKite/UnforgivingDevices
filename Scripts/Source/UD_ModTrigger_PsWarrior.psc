@@ -21,21 +21,12 @@ Scriptname UD_ModTrigger_PsWarrior extends UD_ModTrigger
 import UnforgivingDevicesMain
 import UD_Native
 
-;/  Group: Overrides
-===========================================================================================
-===========================================================================================
-===========================================================================================
-/;
-Int Function GetEventProcessingMask()
-    Return Math.LogicalOr(Math.LogicalOr(0x00000800, 0x00000200), 0x00000020)
-EndFunction
-
 ;/  Group: Events Processing
 ===========================================================================================
 ===========================================================================================
 ===========================================================================================
 /;
-Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr, Form akForm1)
+Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Int aiEquipSlot, Form akSource, String aiDataStr, Form akForm1)
     If aiActorAction == 0
     ; weapon swing
     ; TODO PR195: check weapon type to exclude daggers and staffs

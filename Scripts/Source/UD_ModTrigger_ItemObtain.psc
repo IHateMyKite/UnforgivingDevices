@@ -27,7 +27,7 @@
         Form1               FormList, Form or Keyword to filter obtained items
     
     Example:
-        DataStr = 1,100,0,24        
+        DataStr = 1,100,0,24,,,        
         Form1   = FoodSweetroll     It will be 100% triggered when wearer receives a Sweet Roll, 
                                     but not more than once every 24 hours
 /;
@@ -35,16 +35,6 @@ Scriptname UD_ModTrigger_ItemObtain extends UD_ModTrigger
 
 import UnforgivingDevicesMain
 import UD_Native
-
-;/  Group: Overrides
-===========================================================================================
-===========================================================================================
-===========================================================================================
-/;
-
-Int Function GetEventProcessingMask()
-    Return 0x00002000
-EndFunction
 
 ;/  Group: Events Processing
 ===========================================================================================

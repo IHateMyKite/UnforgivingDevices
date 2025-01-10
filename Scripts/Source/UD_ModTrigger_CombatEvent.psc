@@ -21,29 +21,19 @@
                             Default value: 100.0%
 
     Example:
-        VF,25               - The trigger will be triggered when voice is used with 25% probability
+        VF,25               - The trigger will be triggered with 25% probability when voice is used 
 /;
 Scriptname UD_ModTrigger_CombatEvent extends UD_ModTrigger
 
 import UnforgivingDevicesMain
 import UD_Native
 
-;/  Group: Overrides
-===========================================================================================
-===========================================================================================
-===========================================================================================
-/;
-
-Int Function GetEventProcessingMask()
-    Return 0x00000800
-EndFunction
-
 ;/  Group: Events Processing
 ===========================================================================================
 ===========================================================================================
 ===========================================================================================
 /;
-Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr, Form akForm1)
+Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Int aiEquipSlot, Form akSource, String aiDataStr, Form akForm1)
     String loc_event = GetStringParamString(aiDataStr, 0, "")
     If aiActorAction == 0 && StringUtil.Find(loc_event, "WS") >= 0
         Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 100.0))
@@ -90,7 +80,7 @@ String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice
     String loc_res = ""
     String loc_frag = GetStringParamString(aiDataStr, 0, "")
     If UDmain.UDMTF.HasHtmlMarkup()
-        loc_frag = GetCombatEventString(loc_frag, "<br/> \t")
+        loc_frag = GetCombatEventString(loc_frag, "<br/> \t\t")
     Else
         loc_frag = GetCombatEventString(loc_frag, ", ")
     EndIf

@@ -25,12 +25,9 @@ import UD_Native
 /;
 
 Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
-    Form[] loc_forms = UD_Modifier.GetAllForms(akForm2, akForm3)
-    If loc_forms.Length > 0
-        Spell loc_spell = loc_forms[RandomInt(0, loc_forms.length - 1)] as Spell
-        If loc_spell != None
-            loc_spell.Cast(akDevice.GetWearer(), akDevice.GetWearer())
-        EndIf
+    Spell loc_spell = UD_Modifier.GetRandomForm(akForm2, akForm3) as Spell
+    If loc_spell
+        loc_spell.Cast(akDevice.GetWearer(), akDevice.GetWearer())
     EndIf
 EndFunction
 

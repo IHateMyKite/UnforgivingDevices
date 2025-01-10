@@ -91,43 +91,6 @@ String[]    Property Tags                   Auto
 /;
 Float       Property Multiplier                 = 1.0       Auto Hidden
 
-;/
-    <called always> GameLoaded, DeviceLocked, DeviceUnlocked
-    0x00000001      TimeUpdateSecond
-    0x00000002      TimeUpdateHour
-    0x00000004      Orgasm
-    0x00000008      MinigameStarted
-    0x00000010      MinigameEnded
-    0x00000020      WeaponHit
-    0x00000040      SpellHit
-    0x00000080      SpellCast
-    0x00000100      ConditionLoss
-    0x00000200      StatEvent
-    0x00000400      Sleep
-    0x00000800      ActorAction
-    0x00001000      KillMonitor
-    0x00002000      ItemAdded
-    0x00004000      ItemRemoved
-    0x00008000      
-    0x00010000      
-    0x00020000      
-    0x00040000      
-    0x00080000      
-    0x00100000      
-    0x00200000      
-    0x00400000      
-    0x00800000      
-    0x01000000      
-    0x02000000      
-    0x04000000      
-    0x08000000      
-    0x10000000      
-    0x20000000      
-    0x40000000      <Everything else>
-    0x80000000      <All events>
-/;
-Int         Property EventProcessingMask        = 0x80000000    Auto Hidden
-
 Int         Property PrintFormsMax              = 3     AutoReadOnly Hidden
 
 ;/  Group: Overrides
@@ -136,11 +99,6 @@ Int         Property PrintFormsMax              = 3     AutoReadOnly Hidden
 ===========================================================================================
 /;
 
-; Updates Modifier on a new game start or game load
-Function Update()
-EndFunction
-
-; Not used
 Bool Function ValidateModifier(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     Return True
 EndFunction
@@ -196,7 +154,7 @@ EndFunction
 Function Sleep(UD_CustomDevice_RenderScript akDevice, Float afDuration, Bool abInterrupted, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
 EndFunction
 
-Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+Function ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Int aiEquipSlot, Form akSource, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
 EndFunction
 
 Function KillMonitor(UD_CustomDevice_RenderScript akDevice, ObjectReference akVictim, Int aiCrimeStatus, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
@@ -354,7 +312,15 @@ Form[] Function GetAllForms(Form akForm1, Form akForm2 = None, Form akForm3 = No
     EndIf
 
     Return loc_forms
+EndFunction
 
+Bool Function IsInForms(Form akFormToFind, Form akForm1, Form akForm2 = None, Form akForm3 = None) global
+    Form[] loc_forms = GetAllForms(akForm1, akForm2, akForm3)
+    If loc_forms.length > 0
+        Return PapyrusUtil.CountForm(loc_forms, akFormToFind) > 0
+    Else
+        Return False
+    EndIf
 EndFunction
 
 ;/  Group: Patcher

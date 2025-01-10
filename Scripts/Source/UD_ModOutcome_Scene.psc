@@ -8,9 +8,9 @@
                             Default value: 0 (False)
 
     Form arguments:
-        Form4               Scene to play or FormLists with scenes (a random scene from the merged list will be started)
+        Form2               Scene to play or FormLists with scenes (a random scene from the merged list will be started)
         
-        Form5               Scene to play or FormLists with scenes (a random scene from the merged list will be started)
+        Form3               Scene to play or FormLists with scenes (a random scene from the merged list will be started)
 
     Example:
 /;
@@ -25,15 +25,12 @@ import UD_Native
 ===========================================================================================
 /;
 Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
-    Form[] loc_forms = UD_Modifier.GetAllForms(akForm2, akForm3)
-    If loc_forms.Length > 0
-        Scene loc_scene = loc_forms[RandomInt(0, loc_forms.length - 1)] as Scene
-        If loc_scene != None
-            If GetStringParamInt(aiDataStr, DataStrOffset + 0, 0) > 0
-                loc_scene.ForceStart()
-            Else
-                loc_scene.Start()
-            EndIf
+    Scene loc_scene = UD_Modifier.GetRandomForm(akForm2, akForm3) as Scene
+    If loc_scene
+        If GetStringParamInt(aiDataStr, DataStrOffset + 0, 0) > 0
+            loc_scene.ForceStart()
+        Else
+            loc_scene.Start()
         EndIf
     EndIf
     

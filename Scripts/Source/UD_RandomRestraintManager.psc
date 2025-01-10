@@ -454,7 +454,7 @@ Armor Function LockFirstDeviceFromArray(Actor akActor, Form[] akFormArray, Bool 
     While loc_i > 0
         loc_i -= 1
         Armor loc_device = akFormArray[loc_i] As Armor
-        If loc_device != None && (abForce || ConflictNone2(akActor, loc_device))
+        If loc_device != None && (abForce || ConflictNone(akActor, loc_device))
             If libs.lockdevice(akActor, loc_device, abForce)
                 Return loc_device
             EndIf
@@ -469,7 +469,7 @@ Armor Function LockRandomDeviceFromArray(Actor akActor, Form[] akFormArray, Bool
     While loc_i > 0
         loc_i -= 1
         Armor loc_device = akFormArray[loc_i] As Armor
-        If loc_device != None && (abForce || ConflictNone2(akActor, loc_device))
+        If loc_device != None && (abForce || ConflictNone(akActor, loc_device))
             loc_suitable_devices = PapyrusUtil.PushForm(loc_suitable_devices, loc_device)
         EndIf
     EndWhile
@@ -662,7 +662,7 @@ bool Function ConflictNone(Actor akActor,Armor to_check)                        
 EndFunction
 
 ; Check conflicts using armor slots
-; Need RenderedDevice :( 
+; Doesn't work!
 Bool Function ConflictNone2(Actor akActor, Armor to_check)
     If akActor == None || to_check == None
         Return False

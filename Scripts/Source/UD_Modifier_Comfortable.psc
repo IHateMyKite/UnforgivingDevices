@@ -13,15 +13,6 @@ ScriptName UD_Modifier_Comfortable extends UD_Modifier
 import UnforgivingDevicesMain
 import UD_Native
 
-;/  Group: Overrides
-===========================================================================================
-===========================================================================================
-===========================================================================================
-/;
-Function Update()
-    EventProcessingMask = 0x00000000
-EndFunction
-
 ; TODO PR195: Implement valid effects for the player to keep it on
 
 ;/  Group: User Interface

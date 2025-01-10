@@ -46,42 +46,6 @@ String      Property NameFull               Auto
 /;
 String      Property Description            Auto
 
-;/
-    <called always> GameLoaded, DeviceLocked, DeviceUnlocked
-    0x00000001      TimeUpdateSecond
-    0x00000002      TimeUpdateHour
-    0x00000004      Orgasm
-    0x00000008      MinigameStarted
-    0x00000010      MinigameEnded
-    0x00000020      WeaponHit
-    0x00000040      SpellHit
-    0x00000080      SpellCast
-    0x00000100      ConditionLoss
-    0x00000200      StatEvent
-    0x00000400      Sleep
-    0x00000800      ActorAction
-    0x00001000      KillMonitor
-    0x00002000      ItemsAdded
-    0x00004000      ItemRemoved
-    0x00008000      
-    0x00010000      
-    0x00020000      
-    0x00040000      
-    0x00080000      
-    0x00100000      
-    0x00200000      
-    0x00400000      
-    0x00800000      
-    0x01000000      
-    0x02000000      
-    0x04000000      
-    0x08000000      
-    0x10000000      
-    0x20000000      
-    0x40000000      <Everything else>
-    0x80000000      <All events>
-/;
-
 ;/  Group: Overrides
 ===========================================================================================
 ===========================================================================================
@@ -90,14 +54,6 @@ String      Property Description            Auto
 
 Bool Function ValidateTrigger(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
     Return True
-EndFunction
-
-;/
-    See UD_Modifier::EventProcessingMask
-/;
-Int Function GetEventProcessingMask()
-    ; To update this value without starting a new game
-    Return 0x80000000
 EndFunction
 
 ;/  Group: Events Processing
@@ -166,7 +122,7 @@ Bool Function Sleep(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript a
     Return False
 EndFunction
 
-Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Form akSource, String aiDataStr, Form akForm1)
+Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Int aiEquipSlot, Form akSource, String aiDataStr, Form akForm1)
     Return False
 EndFunction
 
@@ -243,6 +199,9 @@ Bool Function TriggerOnValueDelta(UD_CustomDevice_RenderScript akDevice, String 
         Return False
     EndIf
     loc_accum_current += afValueDelta
+    If UDmain.TraceAllowed()
+        UDmain.Log(Self + "::TriggerOnValueDelta() asNameAlias = " + asNameAlias + ", Probability = " + FormatFloat(afProbBase, 2) + "% + " + FormatFloat(afValueDelta, 2) + " * " + FormatFloat(afProbDelta, 2) + "% + " + FormatFloat(loc_accum_current, 2) + " * " + FormatFloat(afProbAccum, 2) + "%", 3)
+    EndIf
     If loc_accum_current >= afMinAccum
         If RandomFloat(0.0, 100.0) < (afProbBase + afProbDelta * afValueDelta + afProbAccum * loc_accum_current)
             If aiAccumParamIndex >= 0
@@ -301,6 +260,11 @@ Bool Function TriggerOnValueAbs(UD_CustomDevice_RenderScript akDevice, String as
     If loc_last_trigger_value == 0
         loc_last_trigger_value = afValueAbs
     EndIf
+    
+    If UDmain.TraceAllowed()
+        UDmain.Log(Self + "::TriggerOnValueDelta() asNameAlias = " + asNameAlias + ", Probability = " + FormatFloat(afProbBase, 2) + "% + (" + FormatFloat(afValueAbs, 2) + " - " + FormatFloat(loc_last_trigger_value, 2) + ") * " + FormatFloat(afProbAccum, 2) + "%", 3)
+    EndIf
+
     If afValueAbs >= afMinValue
         If RandomFloat(0.0, 100.0) < (afProbBase + afProbAccum * (afValueAbs - loc_last_trigger_value))
             If aiLastTriggerValueIndex >= 0

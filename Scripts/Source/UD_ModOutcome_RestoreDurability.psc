@@ -43,11 +43,13 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     Float loc_min = GetStringParamFloat(aiDataStr, DataStrOffset + 2)
     Float loc_max = GetStringParamFloat(aiDataStr, DataStrOffset + 3, loc_min)
 
-    Form[] loc_devices = GetEquippedDevicesWithSelectionMethod(akDevice, loc_count, akForm2, loc_method_list2, akForm3, "")
+    UD_CustomDevice_RenderScript[] loc_devices = GetEquippedDevicesWithSelectionMethod(akDevice, loc_count, akForm2, loc_method_list2, akForm3, "")
 
     Int loc_i = 0
     While loc_i < loc_devices.Length
-        mendDevice(loc_devices[loc_i] as UD_CustomDevice_RenderScript, RandomFloat(loc_min, loc_max), 1.0, 1.0)
+        If loc_devices[loc_i]
+            mendDevice(loc_devices[loc_i], RandomFloat(loc_min, loc_max), 1.0, 1.0)
+        EndIf
         loc_i += 1
     EndWhile
     

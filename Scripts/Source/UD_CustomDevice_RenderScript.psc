@@ -1974,7 +1974,13 @@ EndFunction
         Array of all parameters or none in case of error
 /;
 String[] Function getModifierAllParam(string asModifier)
-    return UD_Native.GetModifierStringParamAll(VMHandle1,VMHandle2,deviceRendered,asModifier)
+    String[] loc_arr = UD_Native.GetModifierStringParamAll(VMHandle1,VMHandle2,deviceRendered,asModifier)
+    If UDmain.TraceAllowed()
+        Int loc_index = UD_Native.GetModifierIndex(VMHandle1,VMHandle2,deviceRendered,asModifier)
+        String loc_pars = UD_ModifiersDataStr[loc_index]
+        UDmain.Log(Self + "::getModifierAllParam() asModifier = " + asModifier + ", loc_index = " + loc_index + ", DataStr[i] = '" + loc_pars + "', Array = " + loc_arr, 3)
+    EndIf
+    return loc_arr
 EndFunction
 
 ;/  Function: getModifierParam
@@ -2005,6 +2011,7 @@ EndFunction
 /;
 
 bool Function editStringModifier(string asModifier,int aiIndex, string asNewValue)
+    initStringModifier(asModifier, aiIndex)
     return UD_Native.EditModifierStringParam(VMHandle1,VMHandle2,deviceRendered,asModifier,aiIndex,asNewValue)
 EndFunction
 
@@ -2057,6 +2064,22 @@ EndFunction
 /;
 Bool Function setModifierParam(string asModifier, string asValue,int aiIndex = 0)
     return editStringModifier(asModifier,aiIndex,asValue)
+EndFunction
+
+Function initStringModifier(string asModifier, int aiLastIndex)
+    ; checking and filling absent parameters in UD_ModifiersDataStr[] item
+    String[] loc_all = getModifierAllParam(asModifier)
+    Int loc_i = loc_all.Length - 1
+    If loc_i < aiLastIndex
+        UDmain.Warning(Self + "::initStringModifier() Addressing a modifier parameter by index outside the array (modifier = " + asModifier + ", index = " + aiLastIndex + ")!")
+        Int loc_index = UD_Native.GetModifierIndex(VMHandle1,VMHandle2,deviceRendered,asModifier)
+        String loc_pars = UD_ModifiersDataStr[loc_index]
+        While loc_i < aiLastIndex
+            loc_pars += ","
+            loc_i += 1
+        EndWhile
+        UD_ModifiersDataStr[loc_index] = loc_pars
+    EndIf
 EndFunction
 
 ;/  Function: isSentient
