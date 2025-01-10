@@ -65,6 +65,11 @@ Bool Function LockDevicePatched(actor akActor, armor deviceInventory, bool force
         return false
     endif
     
+    if akActor.IsEquipped(zadNativeFunctions.GetRenderDevice(deviceInventory))
+        UDmain.Warning("LockDevicePatched("+MakeDeviceHeader(akActor,deviceInventory)+") - passed device is already equipped. Aborting!")
+        return false
+    endif
+    
     if !IsPlayer(akActor)
         StorageUtil.AdjustIntValue(akActor,"UDLockOperations",1) ;increase number of lock operations for NPC. Is used by NPC manager before NPC is register with auto scan
     endif
