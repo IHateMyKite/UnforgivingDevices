@@ -3,7 +3,7 @@
     
     NameFull: On Orgasm
     
-    Parameters (DataStr):
+    Parameters in DataStr:
         [0]     Int         (optional) Minimum number of orgasms to trigger
                             Default value: 0
 

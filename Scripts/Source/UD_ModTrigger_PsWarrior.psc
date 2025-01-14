@@ -3,7 +3,7 @@
     
     NameFull: Warrior Playstyle
     
-    Parameters:
+    Parameters in DataStr:
         [0]     Float       (optional) Probability to trigger on weapon use
                             Default value: 0.0%
 
@@ -35,18 +35,17 @@ Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderSc
     Return False
 EndFunction
 
-Bool Function StatEvent(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String asStatName, Int aiStatValue, String aiDataStr, Form akForm1)
-    If asStatName == "Skill Increases" && (aiStatValue == 7 || aiStatValue == 9 || aiStatValue == 10 || aiStatValue == 11)
-        ; TwoHanded, Block, Smithing, HeavyArmor
-        Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 0.0))
-    EndIf
-    Return False
-EndFunction
-
 Bool Function WeaponHit(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, Float afDamage, String aiDataStr, Form akForm1)
     If akWeapon && akWeapon.GetWeaponType() <= 6
     ; melee or unarmed
         Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 2, 0.0))
+    EndIf
+    Return False
+EndFunction
+
+Bool Function SkillIncreased(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String asSkill, Int aiValue, String aiDataStr, Form akForm1)
+    If asSkill == "TwoHanded" || asSkill == "Block" || asSkill == "Smithing" || asSkill == "HeavyArmor"
+        Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 0.0))
     EndIf
     Return False
 EndFunction

@@ -3,7 +3,7 @@
     
     NameFull: On Obtain Item
     
-    Parameters (DataStr):
+    Parameters in DataStr:
         [0]     Int         (optional) Minimun number of items to trigger
                             Default value: 1
         
@@ -23,7 +23,7 @@
         
         [6]     Float       (script) Timestamp of the last trigger
 
-    Forms:
+    Form arguments:
         Form1               FormList, Form or Keyword to filter obtained items
     
     Example:

@@ -4,7 +4,7 @@
     NameFull:   Cheap Locks
     NameAlias:  CLO
 
-    Parameters:
+    Parameters in DataStr:
         [0]     Float       (optional) Chance to get jammed lock every hour
                             Default value: 0.0
 

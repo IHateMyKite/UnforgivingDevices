@@ -3,7 +3,7 @@
     
     NameFull: Thief Playstyle
     
-    Parameters:
+    Parameters in DataStr:
         [0]     Float       (optional) Probability to trigger on bow use
                             Default value: 0.0%
 
@@ -35,11 +35,15 @@ Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderSc
 EndFunction
 
 Bool Function StatEvent(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String asStatName, Int aiStatValue, String aiDataStr, Form akForm1)
-    If asStatName == "Skill Increases" && (aiStatValue == 8 || aiStatValue == 13 || aiStatValue == 14 || aiStatValue == 15)
-        ; Marksman, Pickpocket, LockPicking, Sneak
-        Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 0.0))
-    ElseIf asStatName == "Locks Picked"
+    If asStatName == "Locks Picked"
         Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 2, 0.0))
+    EndIf
+    Return False
+EndFunction
+
+Bool Function SkillIncreased(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String asSkill, Int aiValue, String aiDataStr, Form akForm1)
+    If asSkill == "Marksman" || asSkill == "Pickpocket" || asSkill == "LockPicking" || asSkill == "Sneak"
+        Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 0.0))
     EndIf
     Return False
 EndFunction

@@ -3,7 +3,7 @@
     
     NameFull: Hourly Trigger
     
-    Parameters (DataStr):
+    Parameters in DataStr:
         [0]     Float       (optional) Hours must pass before trigger
                             Default value: 0.0
 

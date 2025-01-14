@@ -4,7 +4,7 @@
     NameFull:   Comfortable
     NameAlias:  COMF
 
-    Parameters:
+    Parameters in DataStr:
         [0]     Int         How comfortable is this device (0 - 100) in the mean of GetAiPriority()
                             Default value: 25
 /;

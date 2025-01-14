@@ -3,7 +3,7 @@
     
     NameFull: On Statistics Change
     
-    Parameters (DataStr):
+    Parameters in DataStr:
         [0]     String      Stat event to trigger
                                 See https://ck.uesp.net/wiki/ListOfTrackedStats
                                 Not all of those stats are working
@@ -25,9 +25,10 @@
         
     Stats:
             asStatName                          aiStatValue
+
+    WORKS:
         Locations Discovered                    (total number)
         Quests Completed                        (total number of completed quests)
-        Skill Increases                         <Actor Value IDs> (https://ck.uesp.net/wiki/ActorValueInfo_Script#Actor_Value_IDs)
         Whiterun Bounty                         <Bounty Value>
         Locks Picked                            (total number)
         Misc Objectives Completed               (total number)
@@ -40,8 +41,10 @@
         Armor Made                              (total number)
         Pockets Picked                          (total number of items, and 1 gold counts as 1 item)
 
-        IT JUST WORKS (nope)
+    WORKS BUT USELESS:
+        Skill Increases                         <Skill value> (it is useless without skill name, use UD_ModTrigger_SkillIncrease instead)
 
+    IT JUST WORKS (nope)
         Weapons Improved                        NOPE
         Training Sessions                       NOPE
         Potions Used                            NOPE

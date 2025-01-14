@@ -4,7 +4,7 @@
     NameFull:   Destroy
     NameAlias:  DOR
 
-    Parameters:
+    Parameters in DataStr:
 
 /;
 ScriptName UD_Modifier_Destroy extends UD_Modifier

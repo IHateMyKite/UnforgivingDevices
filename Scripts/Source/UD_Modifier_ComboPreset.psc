@@ -5,7 +5,7 @@
     NameAlias:  
 
 
-    Parameters:
+    Parameters in DataStr:
         [0 .. 6]            Parameters for the trigger. See description of the selected trigger for details.
         
         [7 .. n]            Parameters for the outcome. See description of the selected outcome for details.

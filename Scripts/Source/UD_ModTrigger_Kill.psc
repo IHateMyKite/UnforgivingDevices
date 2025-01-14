@@ -3,7 +3,7 @@
     
     NameFull: On Kill
     
-    Parameters (DataStr):                            
+    Parameters in DataStr:                            
         [0]     Int         (optional) Minimum number of kills to trigger
                             Default value: 0
 
@@ -16,7 +16,7 @@
         [3]     Int         (optional) Repeat
                             Default value: 0 (False)
 
-        [4]     Float       (script) Number of consecutive kills so far
+        [4]     Int         (script) Number of consecutive kills so far
 
     Example:
 

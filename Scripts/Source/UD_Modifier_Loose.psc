@@ -4,7 +4,7 @@
     NameFull:   Loose
     NameAlias:  LOS
 
-    Parameters:
+    Parameters in DataStr:
         [0]     Float       (optional) The accessibility of the device (0.0 - 1.0). Used to check accessibility in UD_CustomDevice_RenderScript::getAccesibility
                             Default value: 0.0
 /;

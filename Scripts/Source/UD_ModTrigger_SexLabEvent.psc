@@ -3,7 +3,7 @@
 
     NameFull: On Sex Event
 
-    Parameters (DataStr):
+    Parameters in DataStr:
         [0]     String      SexLab event name
                                 
 

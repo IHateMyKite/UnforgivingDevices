@@ -4,7 +4,7 @@
     NameFull:   Bound Weapon
     NameAlias:  BWE
 
-    Parameters:
+    Parameters in DataStr:
         None
         
     Form arguments:

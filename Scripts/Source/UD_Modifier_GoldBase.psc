@@ -4,7 +4,7 @@
     NameFull:   ABSTRACT!
     NameAlias:  ABSTRACT!
 
-    Parameters:
+    Parameters in DataStr:
         [0]     Int         (optional) Minimum value of coefficient A (absolute value)
                             Default value: 0
                         

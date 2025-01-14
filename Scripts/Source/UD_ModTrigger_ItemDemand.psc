@@ -3,7 +3,7 @@
     
     NameFull: Item Demand
     
-    Parameters (DataStr):
+    Parameters in DataStr:
         [0]     Int         (optional) Number of items demanded
                             Default value: 1
         
@@ -23,7 +23,7 @@
         
         [6]     Float       (script) Device locked time in the moment of the last trigger (ingame hours)
 
-    Forms:
+    Form arguments:
         Form1               Item or Keyword to filter demanded items
         
     Example:

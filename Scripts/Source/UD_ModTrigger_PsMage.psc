@@ -3,7 +3,7 @@
     
     NameFull: Mage Playstyle
     
-    Parameters:
+    Parameters in DataStr:
         [0]     Float       (optional) Probability to trigger on spell use
                             Default value: 0.0%
 
@@ -34,9 +34,8 @@ Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderSc
     Return False
 EndFunction
 
-Bool Function StatEvent(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String asStatName, Int aiStatValue, String aiDataStr, Form akForm1)
-    If asStatName == "Skill Increases" && (aiStatValue == 18 || aiStatValue == 19 || aiStatValue == 20 || aiStatValue == 21)
-        ; Alteration, Conjuration, Destruction, Illusion
+Bool Function SkillIncreased(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String asSkill, Int aiValue, String aiDataStr, Form akForm1)
+    If asSkill == "Alteration" || asSkill == "Conjuration" || asSkill == "Destruction" || asSkill == "Illusion"
         Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 0.0))
     EndIf
     Return False

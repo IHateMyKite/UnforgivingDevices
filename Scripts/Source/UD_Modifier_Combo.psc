@@ -4,7 +4,7 @@
     NameFull:
     NameAlias: 
 
-    Parameters:
+    Parameters in DataStr:
         [0 .. 6]            Parameters for the trigger. See description of the set trigger for details.
         
         [7 .. n]            Parameters for the outcome. See description of the set outcome for details.
@@ -206,6 +206,7 @@ Function KillMonitor(UD_CustomDevice_RenderScript akDevice, ObjectReference akVi
     EndIf
 EndFunction
 
+
 Function ItemAdded(UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akSourceContainer, Bool abIsStolen, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     UD_ModTrigger loc_trigger = GetTrigger(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
     UD_ModOutcome loc_outcome = GetOutcome(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
@@ -218,6 +219,22 @@ Function ItemRemoved(UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int
     UD_ModTrigger loc_trigger = GetTrigger(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
     UD_ModOutcome loc_outcome = GetOutcome(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
     If loc_trigger.ItemRemoved(Self, akDevice, akItemForm, aiItemCount, akDestContainer, aiDataStr, akForm1) == True
+        _DoCallOutcome(loc_outcome, akDevice, aiDataStr, akForm2, akForm3)
+    EndIf
+EndFunction
+
+Function SkillIncreased(UD_CustomDevice_RenderScript akDevice, String asSkill, Int aiValue, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    UD_ModTrigger loc_trigger = GetTrigger(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
+    UD_ModOutcome loc_outcome = GetOutcome(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
+    If loc_trigger.SkillIncreased(Self, akDevice, asSkill, aiValue, aiDataStr, akForm1) == True
+        _DoCallOutcome(loc_outcome, akDevice, aiDataStr, akForm2, akForm3)
+    EndIf
+EndFunction
+
+Function Stance(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afDuration, Bool[] aabStances, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    UD_ModTrigger loc_trigger = GetTrigger(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
+    UD_ModOutcome loc_outcome = GetOutcome(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
+    If loc_trigger.Stance(Self, akDevice, afDuration, aabStances, aiDataStr, akForm1) == True
         _DoCallOutcome(loc_outcome, akDevice, aiDataStr, akForm2, akForm3)
     EndIf
 EndFunction

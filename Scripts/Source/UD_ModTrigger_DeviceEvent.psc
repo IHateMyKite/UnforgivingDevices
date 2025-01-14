@@ -3,7 +3,7 @@
     
     NameFull: On Device Event
     
-    Parameters (DataStr):
+    Parameters in DataStr:
         [0]     String      Device event to trigger (one or several abbreviations separated by space)
                                 DL - Device locked
                                 DU - Device unlocked
@@ -52,7 +52,7 @@ String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice
     String loc_res = ""
     String loc_frag = GetStringParamString(aiDataStr, 0, "")
     If UDmain.UDMTF.HasHtmlMarkup()
-        loc_frag = GetDeviceEventString(loc_frag, "<br/> \t")
+        loc_frag = GetDeviceEventString(loc_frag, "<br/> \t\t")
     Else
         loc_frag = GetDeviceEventString(loc_frag, ", ")
     EndIf

@@ -4,7 +4,7 @@
     NameFull:   Disabler
     NameAlias:  DIS
 
-    Parameters:
+    Parameters in DataStr:
         [0]     Int         (optional) Disable fast travel
                             Default value: 0
         

@@ -8,7 +8,7 @@
     CMP*        - use these modifiers for positive effects
     CMN*        - use these modifiers for negative effects
 
-    Parameters:
+    Parameters in DataStr:
         [0 .. 6]            Parameters for the trigger. See description of the set trigger for details.
         
         [7 .. n]            Parameters for the outcome. See description of the set outcome for details.

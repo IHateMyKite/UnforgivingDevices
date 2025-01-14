@@ -4,7 +4,7 @@
     NameFull:   Enchantment
     NameAlias:  ENCH
 
-    Parameters:
+    Parameters in DataStr:
 
     Form arguments:
         Form1   Spell       A spell to be added to the wearer

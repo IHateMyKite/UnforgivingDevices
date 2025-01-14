@@ -4,7 +4,7 @@
     NameFull:   Armor
     NameAlias:  ARM
 
-    Parameters:
+    Parameters in DataStr:
         [0]     String      Armor Type (Light, Heavy)
         
         [1]     String      Armor Material (Ebony, Leather, Iron, Steel, etc)

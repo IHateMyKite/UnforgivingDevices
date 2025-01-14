@@ -4,7 +4,7 @@
     NameFull:   Sentient
     NameAlias:  SNT
 
-    Parameters:
+    Parameters in DataStr:
         [0]     Int         How sentient is this device (0 - 100)
                             Default value: 0
 /;

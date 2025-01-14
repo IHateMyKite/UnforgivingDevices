@@ -400,6 +400,20 @@ Function UpdateModifiers_KillMonitor(ObjectReference akVictim, ObjectReference a
     EndIf
 EndFunction
 
+Function UpdateModifiers_SkillMonitor(String asSkill, Int aiValue)
+    UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getPlayerSlot()
+    if loc_slot.isUsed() && !loc_slot.isDead() && loc_slot.isScriptRunning()
+        UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
+        int loc_x = 0
+        while loc_devices[loc_x]
+            if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked ;not update device which are in minigame
+                Procces_UpdateModifiers_SkillIncreased(loc_devices[loc_x], asSkill, aiValue)
+            endif
+            loc_x += 1
+        endwhile
+    endif
+EndFunction
+
 ;====================================================================================
 ;                            Procces modifiers groups
 ;====================================================================================
@@ -654,6 +668,15 @@ Function Procces_UpdateModifiers_KillMonitor(UD_CustomDevice_RenderScript akDevi
         loc_modid -= 1
         UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
         loc_mod.KillMonitor(akDevice, akVictim, aiCrimeStatus, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid], akDevice.UD_ModifiersDataForm4[loc_modid],akDevice.UD_ModifiersDataForm5[loc_modid])
+    endwhile
+EndFunction
+
+Function Procces_UpdateModifiers_SkillIncreased(UD_CustomDevice_RenderScript akDevice, String asSkill, Int aiValue)
+    int loc_modid = akDevice.UD_ModifiersRef.length
+    while loc_modid 
+        loc_modid -= 1
+        UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
+        loc_mod.SkillIncreased(akDevice, asSkill, aiValue, akDevice.UD_ModifiersDataStr[loc_modid], akDevice.UD_ModifiersDataForm1[loc_modid], akDevice.UD_ModifiersDataForm2[loc_modid], akDevice.UD_ModifiersDataForm3[loc_modid], akDevice.UD_ModifiersDataForm4[loc_modid],akDevice.UD_ModifiersDataForm5[loc_modid])
     endwhile
 EndFunction
 

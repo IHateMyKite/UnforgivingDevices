@@ -3,7 +3,7 @@
     
     NameFull: On Condition Loss
     
-    Parameters (DataStr):
+    Parameters in DataStr:
         [0]     Int         (optional) Triggers when the condition of a device falls below given threshold
                                 0 - "Excellent"
                                 1 - "Good"

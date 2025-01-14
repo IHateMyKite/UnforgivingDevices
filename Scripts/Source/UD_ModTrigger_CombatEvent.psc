@@ -3,7 +3,7 @@
     
     NameFull: On Combat Event
     
-    Parameters (DataStr):
+    Parameters in DataStr:
         [0]     String      Combat event to trigger (one or several abbreviations separated by space)
                                 WS - Weapon Swing
                                 SC - Spell Cast
