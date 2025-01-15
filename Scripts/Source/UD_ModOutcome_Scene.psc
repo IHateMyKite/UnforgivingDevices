@@ -26,6 +26,9 @@ import UD_Native
 /;
 Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     Scene loc_scene = UD_Modifier.GetRandomForm(akForm2, akForm3) as Scene
+    If loc_scene as UD_ModInjection_Scene
+        loc_scene = loc_scene as UD_ModInjection_Scene
+    EndIf
     If loc_scene
         If GetStringParamInt(aiDataStr, DataStrOffset + 0, 0) > 0
             loc_scene.ForceStart()
