@@ -42,6 +42,9 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     EndIf
 
     loc_quest = UD_Modifier.GetRandomForm(akForm3) as Quest
+    If loc_quest as UD_ModInjection_Quest
+        loc_quest = loc_quest as UD_ModInjection_Quest
+    EndIf
     If loc_quest != None
         If !loc_quest.IsRunning()
             loc_quest.Start()
