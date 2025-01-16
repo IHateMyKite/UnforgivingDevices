@@ -10,7 +10,7 @@
         [1]     Float       (optional) Base probability to trigger on kill (in %)
                             Default value: 100.0%
 
-        [2]     Int         (optional) Probability to trigger that is proportional to the accumulated value (of consecutive kills)
+        [2]     Float       (optional) Probability to trigger that is proportional to the accumulated value (of consecutive kills)
                             Default value: 0.0%
 
         [3]     Int         (optional) Repeat

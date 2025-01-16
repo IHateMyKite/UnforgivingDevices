@@ -80,18 +80,43 @@ Bool        Property HideInUI       = False Auto
 /;
 String[]    Property Tags                   Auto
 
-;/  Variable: Multiplier
+;/  Variable: MultProbabilities
+
     Multiplier which can be used to allow user to change difficulty of modifier.
     
     Have to be implemented manually at a correct place
     
-    The bigger this will, the more punishing/rewarding should modifier be
+    Changes all probabilities for the modifier
     
     This will affect even equipped devices
 /;
-Float       Property Multiplier                 = 1.0       Auto Hidden
+Float       Property MultProbabilities          = 1.0       Auto Hidden
 
-Int         Property PrintFormsMax              = 3     AutoReadOnly Hidden
+;/  Variable: MultInputQuantities
+
+    Multiplier which can be used to allow user to change difficulty of modifier.
+    
+    Have to be implemented manually at a correct place
+    
+    Changes all input quantitative values
+    
+    This will affect even equipped devices
+/;
+Float       Property MultInputQuantities        = 1.0       Auto Hidden
+
+;/  Variable: MultOutputQuantities
+
+    Multiplier which can be used to allow user to change difficulty of modifier.
+    
+    Have to be implemented manually at a correct place
+    
+    Changes all output quantitative values
+    
+    This will affect even equipped devices
+/;
+Float       Property MultOutputQuantities       = 1.0       Auto Hidden
+
+Int         Property PrintFormsMax              = 3         AutoReadOnly Hidden
 
 ;/  Group: Overrides
 ===========================================================================================
@@ -235,6 +260,7 @@ EndFunction
 String Function PrintFormListSelectionDetails(Form akForm, String asMethod)
     String loc_res = ""
     String loc_padding = " "
+    String loc_name = ""
     If UDmain.UDMTF.HasHtmlMarkup()
         loc_padding = " "
     Else
@@ -249,14 +275,22 @@ String Function PrintFormListSelectionDetails(Form akForm, String asMethod)
             loc_n = PrintFormsMax
         EndIf
         While loc_i < loc_n
-            loc_res += UDmain.UDMTF.TableRowDetails(loc_padding, loc_fl.GetAt(loc_i).GetName())
+            loc_name = loc_fl.GetAt(loc_i).GetName()
+            If loc_name == ""
+                loc_name = "<Unnamed form>"
+            EndIf
+            loc_res += UDmain.UDMTF.TableRowDetails(loc_padding, loc_name)
             loc_i += 1
         EndWhile
         If loc_i == 0
             loc_res += UDmain.UDMTF.TableRowDetails(loc_padding, "<Empty List>")
         EndIf
     ElseIf akForm
-        loc_res += UDmain.UDMTF.TableRowDetails(loc_padding, akForm.GetName())
+        loc_name = akForm.GetName()
+        If loc_name == ""
+            loc_name = "<Unnamed form>"
+        EndIf
+        loc_res += UDmain.UDMTF.TableRowDetails(loc_padding, loc_name)
     Else 
         loc_res += UDmain.UDMTF.TableRowDetails(loc_padding, "<None>")
     EndIf
@@ -400,7 +434,9 @@ EndFunction
 Function SaveToJSON(String asFile)
     String loc_path = "Modifier_" + NameAlias + "_"
     
-    JsonUtil.SetFloatValue(asFile, loc_path + "Multiplier", Multiplier)
+    JsonUtil.SetFloatValue(asFile, loc_path + "MultProbabilities", MultProbabilities)
+    JsonUtil.SetFloatValue(asFile, loc_path + "MultInputQuantities", MultInputQuantities)
+    JsonUtil.SetFloatValue(asFile, loc_path + "MultOutputQuantities", MultOutputQuantities)
 
     UD_Patcher_ModPreset loc_preset1 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset1) as UD_Patcher_ModPreset
     UD_Patcher_ModPreset loc_preset2 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset2) as UD_Patcher_ModPreset
@@ -421,7 +457,9 @@ EndFunction
 Function LoadFromJSON(String asFile)
     String loc_path = "Modifier_" + NameAlias + "_"
     
-    Multiplier = JsonUtil.GetFloatValue(asFile, loc_path + "Multiplier", Multiplier)
+    MultProbabilities = JsonUtil.GetFloatValue(asFile, loc_path + "MultProbabilities", MultProbabilities)
+    MultInputQuantities = JsonUtil.GetFloatValue(asFile, loc_path + "MultProbabilities", MultInputQuantities)
+    MultOutputQuantities = JsonUtil.GetFloatValue(asFile, loc_path + "MultOutputQuantities", MultOutputQuantities)
 
     UD_Patcher_ModPreset loc_preset1 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset1) as UD_Patcher_ModPreset
     UD_Patcher_ModPreset loc_preset2 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset2) as UD_Patcher_ModPreset

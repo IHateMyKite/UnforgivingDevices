@@ -19,7 +19,7 @@
         [4]     Int         (optional) Only stolen items count
                             Default value: 0 (False)
                         
-        [5]     Float       (script) Number of obtained items so far
+        [5]     Int         (script) Number of obtained items so far
         
         [6]     Float       (script) Timestamp of the last trigger
 

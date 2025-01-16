@@ -30,7 +30,7 @@
         [2]     Float       (optional) Base probability to trigger on event (in %)
                             Default value: 100.0%
 
-        [3]     Int         (optional) Probability to trigger that is proportional to the accumulated value (delta)
+        [3]     Float       (optional) Probability to trigger that is proportional to the accumulated value (delta)
                             Default value: 0.0%
 
         [4]     Int         (optional) Repeat

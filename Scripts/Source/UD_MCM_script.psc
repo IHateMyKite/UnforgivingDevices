@@ -675,7 +675,9 @@ Int UD_ModGlobalProbabilityMult_S
 Int UD_ModGlobalSeverityShift_S
 Int UD_ModGlobalSeverityDispMult_S
 
-int UD_ModifierMultiplier_S
+int UD_ModifierMultiplier1_S
+int UD_ModifierMultiplier2_S
+int UD_ModifierMultiplier3_S
 int UD_ModifierPatchPowerMultiplier_S
 int UD_ModifierPatchChanceMultiplier_S
 int UD_ModifierDescription_T
@@ -761,7 +763,9 @@ Function resetModifiersPage()
     SetCursorFillMode(TOP_TO_BOTTOM)
     AddHeaderOption("$UD_CUSTOMMOD_RUNTIMECONFIG")                ; Runtime Configuration
    
-    UD_ModifierMultiplier_S = AddSliderOption("$UD_CUSTOMMOD_STRMULT", loc_mod.Multiplier, "{1} x", UD_LockMenu_flag)     ; Strength multiplier
+    UD_ModifierMultiplier1_S = AddSliderOption("$UD_CUSTOMMOD_MULTPROB", loc_mod.MultProbabilities, "{1} x", UD_LockMenu_flag)          ; Probabilities multiplier
+    UD_ModifierMultiplier2_S = AddSliderOption("$UD_CUSTOMMOD_MULTIN", loc_mod.MultInputQuantities, "{1} x", UD_LockMenu_flag)          ; Input multiplier
+    UD_ModifierMultiplier3_S = AddSliderOption("$UD_CUSTOMMOD_MULTOUT", loc_mod.MultOutputQuantities, "{1} x", UD_LockMenu_flag)        ; Output multiplier
 
     SetCursorPosition(26)
     SetCursorFillMode(LEFT_TO_RIGHT)
@@ -2619,9 +2623,21 @@ Function OnOptionSliderOpenAnimations(int option)
 EndFunction
     
 Function OnOptionSliderOpenModifiers(int option)
-    if (option == UD_ModifierMultiplier_S)
+    if (option == UD_ModifierMultiplier1_S)
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
-        SetSliderDialogStartValue(loc_mod.Multiplier)
+        SetSliderDialogStartValue(loc_mod.MultProbabilities)
+        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogRange(0.0, 100.0)
+        SetSliderDialogInterval(0.1)
+    ElseIf (option == UD_ModifierMultiplier2_S)
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        SetSliderDialogStartValue(loc_mod.MultInputQuantities)
+        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogRange(0.0, 100.0)
+        SetSliderDialogInterval(0.1)
+    ElseIf (option == UD_ModifierMultiplier3_S)
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        SetSliderDialogStartValue(loc_mod.MultOutputQuantities)
         SetSliderDialogDefaultValue(1.0)
         SetSliderDialogRange(0.0, 100.0)
         SetSliderDialogInterval(0.1)
@@ -2930,10 +2946,18 @@ Function OnOptionSliderAcceptAnimations(int option, float value)
 EndFunction
 
 Function OnOptionSliderAcceptModifiers(int option, float value)
-    if (option == UD_ModifierMultiplier_S)
+    if (option == UD_ModifierMultiplier1_S)
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
-        loc_mod.Multiplier  = value
-        SetSliderOptionValue(UD_ModifierMultiplier_S, value, "{1} x")
+        loc_mod.MultProbabilities  = value
+        SetSliderOptionValue(UD_ModifierMultiplier1_S, value, "{1} x")
+    ElseIf (option == UD_ModifierMultiplier2_S)
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        loc_mod.MultInputQuantities  = value
+        SetSliderOptionValue(UD_ModifierMultiplier2_S, value, "{1} x")
+    ElseIf (option == UD_ModifierMultiplier3_S)
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        loc_mod.MultOutputQuantities  = value
+        SetSliderOptionValue(UD_ModifierMultiplier3_S, value, "{1} x")
     ElseIf option == UD_ModsMinCap_S
         UDCDmain.UDPatcher.UD_ModsMinCap = Round(value)
         SetSliderOptionValue(UD_ModsMinCap_S, value, "{0}")
@@ -3801,8 +3825,12 @@ Function FilterPageInfo(int option)
 EndFunction
 
 Function ModifierPageInfo(int option)
-    if(option == UD_ModifierMultiplier_S)
-        SetInfoText("$UD_CUSTOMMOD_STRMULT_INFO")
+    if(option == UD_ModifierMultiplier1_S)
+        SetInfoText("$UD_CUSTOMMOD_MULTPROB_INFO")
+    ElseIf(option == UD_ModifierMultiplier2_S)
+        SetInfoText("$UD_CUSTOMMOD_MULTIN_INFO")
+    ElseIf(option == UD_ModifierMultiplier3_S)
+        SetInfoText("$UD_CUSTOMMOD_MULTOUT_INFO")
     ElseIf option == UD_ModsMinCap_S
         SetInfoText("$UD_PATCHER_MODSMIN_INFO")
     ElseIf option == UD_ModsSoftCap_S
