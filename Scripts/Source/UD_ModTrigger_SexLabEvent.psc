@@ -24,6 +24,7 @@ import UD_Native
 ===========================================================================================
 /;
 Bool Function SexLabEvent(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Bool[] aabTypes, Actor[] aakActors, String aiDataStr, Form akForm1)
+    Float loc_prob_base = MultFloat(GetStringParamFloat(aiDataStr, 1, 100.0), akModifier.MultProbabilities)
     ; TODO PR195
     Return False
 EndFunction
@@ -34,7 +35,8 @@ EndFunction
 ===========================================================================================
 /;
 String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    Float loc_prob_base = MultFloat(GetStringParamFloat(aiDataStr, 1, 100.0), akModifier.MultProbabilities)
     String loc_res = ""
-    loc_res += UDmain.UDMTF.TableRowDetails("Base probability:", FormatFloat(GetStringParamFloat(aiDataStr, 0, 100.0), 1) + "%")
+    loc_res += UDmain.UDMTF.TableRowDetails("Base probability:", FormatFloat(loc_prob_base, 1) + "%")
     Return loc_res
 EndFunction

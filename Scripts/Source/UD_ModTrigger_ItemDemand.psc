@@ -59,7 +59,7 @@ EndFunction
 
 Bool Function TimeUpdateHour(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1)
     Float loc_last = GetStringParamFloat(aiDataStr, 6, 0.0)
-    Float loc_period = GetStringParamFloat(aiDataStr, 3, 0.0)
+    Float loc_period = MultFloat(GetStringParamFloat(aiDataStr, 3, 8.0), 1.0 / akModifier.MultInputQuantities)
     Float loc_timer = akDevice.GetGameTimeLockedTime()
     
     If loc_last < 0 || (loc_period > 0 && (loc_last + loc_period) < loc_timer)
@@ -69,7 +69,7 @@ Bool Function TimeUpdateHour(UD_Modifier_Combo akModifier, UD_CustomDevice_Rende
     
     Bool loc_repeat = GetStringParamInt(aiDataStr, 4, 0) > 0
     Int loc_acc = GetStringParamInt(aiDataStr, 5, 0)
-    Int loc_min_count = GetStringParamInt(aiDataStr, 0, 1)
+    Int loc_min_count = MultInt(GetStringParamInt(aiDataStr, 0, 1), akModifier.MultInputQuantities)
     
     If loc_acc >= loc_min_count
         loc_acc = 0
@@ -84,7 +84,7 @@ Bool Function TimeUpdateHour(UD_Modifier_Combo akModifier, UD_CustomDevice_Rende
         Return False
     EndIf
 
-    Float loc_prob1 = GetStringParamFloat(aiDataStr, 1, 100.0)
+    Float loc_prob1 = MultFloat(GetStringParamFloat(aiDataStr, 1, 100.0), akModifier.MultProbabilities)
     
     If RandomFloat(0.0, 100.0) < (loc_prob1)
         loc_acc = 0
@@ -107,7 +107,7 @@ Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     EndIf
 
     Int loc_acc = GetStringParamInt(aiDataStr, 5, 0)
-    Int loc_min_count = GetStringParamInt(aiDataStr, 0, 1)
+    Int loc_min_count = MultInt(GetStringParamInt(aiDataStr, 0, 1), akModifier.MultInputQuantities)
     Bool loc_stolen = GetStringParamInt(aiDataStr, 2, 0) > 0
     
     If loc_stolen && !abIsStolen
@@ -138,10 +138,14 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
-
 String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
     String loc_res = ""
-;    loc_res += UDmain.UDMTF.TableRowDetails("Name:", NameFull)
-;    loc_res += UDmain.UDMTF.TableRowDetails("Param:", Param)
+    loc_res += UDmain.UDMTF.TableRowDetails("Num. of items demanded:", MultInt(GetStringParamInt(aiDataStr, 0, 1), akModifier.MultInputQuantities))
+    loc_res += UDmain.UDMTF.TableRowDetails("Base probability:", FormatFloat(MultFloat(GetStringParamFloat(aiDataStr, 1, 100.0), akModifier.MultProbabilities), 1) + "%")
+    loc_res += UDmain.UDMTF.TableRowDetails("Only stolen items:", InlineIfStr(GetStringParamInt(aiDataStr, 2, 0) > 0, "True", "False"))
+    loc_res += UDmain.UDMTF.TableRowDetails("Time to get items:", FormatFloat(MultFloat(GetStringParamFloat(aiDataStr, 3, 8.0), 1.0 / akModifier.MultInputQuantities), 1) + " hours")
+    loc_res += UDmain.UDMTF.TableRowDetails("Repeat:", InlineIfStr(GetStringParamInt(aiDataStr, 4, 0) > 0, "True", "False"))
+    loc_res += UDmain.UDMTF.TableRowDetails("Items obtained:", GetStringParamInt(aiDataStr, 5, 0))
+    loc_res += UDmain.UDMTF.TableRowDetails("Timestamp:", FormatFloat(GetStringParamFloat(aiDataStr, 6, 0), 2))
     Return loc_res
 EndFunction

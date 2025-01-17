@@ -40,10 +40,10 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
         return
     endif
     
-    Int loc_A_min = GetStringParamInt(aiDataStr, DataStrOffset + 0, 0)
-    Int loc_A_max = GetStringParamInt(aiDataStr, DataStrOffset + 1, loc_A_min)
-    Int loc_B_min = GetStringParamInt(aiDataStr, DataStrOffset + 2, 0)
-    Int loc_B_max = GetStringParamInt(aiDataStr, DataStrOffset + 3, loc_B_min)
+    Int loc_A_min = MultInt(GetStringParamInt(aiDataStr, DataStrOffset + 0, 0), akModifier.MultOutputQuantities)
+    Int loc_A_max = MultInt(GetStringParamInt(aiDataStr, DataStrOffset + 1, loc_A_min), akModifier.MultOutputQuantities)
+    Int loc_B_min = MultInt(GetStringParamInt(aiDataStr, DataStrOffset + 2, 0), akModifier.MultOutputQuantities)
+    Int loc_B_max = MultInt(GetStringParamInt(aiDataStr, DataStrOffset + 3, loc_B_min), akModifier.MultOutputQuantities)
     
     Int loc_gold = RandomInt(loc_A_min, loc_A_max) + RandomInt(loc_B_min, loc_B_max) * akDevice.UD_Level
     
@@ -66,10 +66,10 @@ EndFunction
 String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     String loc_res = ""
     Form loc_currency = UDlibs.Gold
-    Int loc_A_min = GetStringParamInt(aiDataStr, DataStrOffset + 0, 0)
-    Int loc_A_max = GetStringParamInt(aiDataStr, DataStrOffset + 1, loc_A_min)
-    Int loc_B_min = GetStringParamInt(aiDataStr, DataStrOffset + 2, 0)
-    Int loc_B_max = GetStringParamInt(aiDataStr, DataStrOffset + 3, loc_B_min)
+    Int loc_A_min = MultInt(GetStringParamInt(aiDataStr, DataStrOffset + 0, 0), akModifier.MultOutputQuantities)
+    Int loc_A_max = MultInt(GetStringParamInt(aiDataStr, DataStrOffset + 1, loc_A_min), akModifier.MultOutputQuantities)
+    Int loc_B_min = MultInt(GetStringParamInt(aiDataStr, DataStrOffset + 2, 0), akModifier.MultOutputQuantities)
+    Int loc_B_max = MultInt(GetStringParamInt(aiDataStr, DataStrOffset + 3, loc_B_min), akModifier.MultOutputQuantities)
     If akForm2 != None
         loc_currency = akForm2
     EndIf

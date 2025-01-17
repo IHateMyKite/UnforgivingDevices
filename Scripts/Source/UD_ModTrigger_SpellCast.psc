@@ -39,18 +39,12 @@ import UD_Native
 /;
 Bool Function SpellCast(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Spell akSpell, String aiDataStr, Form akForm1)
     Int loc_cost = iRange(akSpell.GetMagickaCost(), 5, 100)
-    If UDmain.TraceAllowed()
-        UDmain.Log("UD_ModTrigger_SpellCast::SpellCast() akModifier = " + akModifier + ", akDevice = " + akDevice + ", akSpell = " + akSpell + ", aiDataStr = " + aiDataStr + ", loc_cost = " + loc_cost, 3)
-    EndIf
-    
-    ; TODO PR195: better cost calculation
-    
-    Int loc_min_cost = GetStringParamInt(aiDataStr, 0, 0)
-    Float loc_prob_base = GetStringParamFloat(aiDataStr, 1, 100.0)
-    Float loc_prob_delta = GetStringParamFloat(aiDataStr, 2, 0.0)
-    Float loc_prob_acc = GetStringParamFloat(aiDataStr, 3, 0.0)
+    Int loc_min_value = MultInt(GetStringParamInt(aiDataStr, 0, 0), akModifier.MultInputQuantities)
+    Float loc_prob_base = MultFloat(GetStringParamFloat(aiDataStr, 1, 100.0), akModifier.MultProbabilities)
+    Float loc_prob_delta = MultFloat(GetStringParamFloat(aiDataStr, 2, 0.0), akModifier.MultProbabilities)
+    Float loc_prob_acc = MultFloat(GetStringParamFloat(aiDataStr, 3, 0.0), akModifier.MultProbabilities)
     Bool loc_repeat = GetStringParamInt(aiDataStr, 4, 0) > 0
-    Return TriggerOnValueDelta(akDevice, akModifier.NameAlias, aiDataStr, afValueDelta = loc_cost, afMinAccum = loc_min_cost, afProbBase = loc_prob_base, afProbDelta = loc_prob_delta, afProbAccum = loc_prob_acc, abRepeat = loc_repeat, aiAccumParamIndex = 5)
+    Return TriggerOnValueDelta(akDevice, akModifier.NameAlias, aiDataStr, afValueDelta = loc_cost, afMinAccum = loc_min_value, afProbBase = loc_prob_base, afProbDelta = loc_prob_delta, afProbAccum = loc_prob_acc, abRepeat = loc_repeat, aiAccumParamIndex = 5)
 EndFunction
 
 ;/  Group: User interface
@@ -59,11 +53,15 @@ EndFunction
 ===========================================================================================
 /;
 String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    Int loc_min_value = MultInt(GetStringParamInt(aiDataStr, 0, 0), akModifier.MultInputQuantities)
+    Float loc_prob_base = MultFloat(GetStringParamFloat(aiDataStr, 1, 100.0), akModifier.MultProbabilities)
+    Float loc_prob_delta = MultFloat(GetStringParamFloat(aiDataStr, 2, 0.0), akModifier.MultProbabilities)
+    Float loc_prob_acc = MultFloat(GetStringParamFloat(aiDataStr, 3, 0.0), akModifier.MultProbabilities)
     String loc_res = ""
-    loc_res += UDmain.UDMTF.TableRowDetails("Threshold value:", GetStringParamInt(aiDataStr, 0, 0) + " mana")
-    loc_res += UDmain.UDMTF.TableRowDetails("Base probability:", FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 1) + "%")
-    loc_res += UDmain.UDMTF.TableRowDetails("Value weight:", FormatFloat(GetStringParamFloat(aiDataStr, 2, 0.0), 2) + "% of mana cost")
-    loc_res += UDmain.UDMTF.TableRowDetails("Accum weight:", FormatFloat(GetStringParamFloat(aiDataStr, 3, 0.0), 2) + "% total mana spent")
+    loc_res += UDmain.UDMTF.TableRowDetails("Threshold value:", loc_min_value + " mana")
+    loc_res += UDmain.UDMTF.TableRowDetails("Base probability:", FormatFloat(loc_prob_base, 1) + "%")
+    loc_res += UDmain.UDMTF.TableRowDetails("Value weight:", FormatFloat(loc_prob_delta, 2) + "% of mana cost")
+    loc_res += UDmain.UDMTF.TableRowDetails("Accum weight:", FormatFloat(loc_prob_acc, 2) + "% total mana spent")
     loc_res += UDmain.UDMTF.TableRowDetails("Repeat:", InlineIfStr(GetStringParamInt(aiDataStr, 4, 0) > 0, "True", "False"))
     loc_res += UDmain.UDMTF.TableRowDetails("Accumulator:", FormatFloat(GetStringParamFloat(aiDataStr, 5, 0), 0) + " mana")
     loc_res += UDmain.UDMTF.Paragraph("(Accumulator contains the total mana spent so far)", asAlign = "center")

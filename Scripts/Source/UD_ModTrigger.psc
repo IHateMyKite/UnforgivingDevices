@@ -177,6 +177,14 @@ EndFunction
 ===========================================================================================
 /;
 
+Int Function MultInt(Float afValue, Float afMult)
+    Return UD_Native.Round(afValue * afMult)
+EndFunction
+
+Float Function MultFloat(Float afValue, Float afMult)
+    Return afValue * afMult
+EndFunction
+
 ;/  Function: TriggerOnValueDelta
 
     This function is used to calculate and check probability to trigger on some value change with many options

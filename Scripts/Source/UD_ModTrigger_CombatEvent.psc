@@ -35,38 +35,40 @@ import UD_Native
 /;
 Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Int aiEquipSlot, Form akSource, String aiDataStr, Form akForm1)
     String loc_event = GetStringParamString(aiDataStr, 0, "")
+    Float loc_prob = MultFloat(GetStringParamFloat(aiDataStr, 1, 100.0), akModifier.MultInputQuantities)
+
     If aiActorAction == 0 && StringUtil.Find(loc_event, "WS") >= 0
-        Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 100.0))
+        Return (RandomFloat(0.0, 100.0) < loc_prob)
     EndIf
     If aiActorAction == 1 && StringUtil.Find(loc_event, "SC") >= 0
-        Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 100.0))
+        Return (RandomFloat(0.0, 100.0) < loc_prob)
     EndIf
     If aiActorAction == 2 && StringUtil.Find(loc_event, "SF") >= 0
-        Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 100.0))
+        Return (RandomFloat(0.0, 100.0) < loc_prob)
     EndIf
     If aiActorAction == 3 && StringUtil.Find(loc_event, "VC") >= 0
-        Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 100.0))
+        Return (RandomFloat(0.0, 100.0) < loc_prob)
     EndIf
     If aiActorAction == 4 && StringUtil.Find(loc_event, "VF") >= 0
-        Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 100.0))
+        Return (RandomFloat(0.0, 100.0) < loc_prob)
     EndIf
     If aiActorAction == 5 && StringUtil.Find(loc_event, "BD") >= 0
-        Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 100.0))
+        Return (RandomFloat(0.0, 100.0) < loc_prob)
     EndIf
     If aiActorAction == 6 && StringUtil.Find(loc_event, "BR") >= 0
-        Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 100.0))
+        Return (RandomFloat(0.0, 100.0) < loc_prob)
     EndIf
     If aiActorAction == 7 && StringUtil.Find(loc_event, "UB") >= 0
-        Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 100.0))
+        Return (RandomFloat(0.0, 100.0) < loc_prob)
     EndIf
     If aiActorAction == 8 && StringUtil.Find(loc_event, "UE") >= 0
-        Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 100.0))
+        Return (RandomFloat(0.0, 100.0) < loc_prob)
     EndIf
     If aiActorAction == 9 && StringUtil.Find(loc_event, "SB") >= 0
-        Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 100.0))
+        Return (RandomFloat(0.0, 100.0) < loc_prob)
     EndIf
     If aiActorAction == 10 && StringUtil.Find(loc_event, "SE") >= 0
-        Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 100.0))
+        Return (RandomFloat(0.0, 100.0) < loc_prob)
     EndIf
     Return False
 EndFunction
@@ -79,13 +81,14 @@ EndFunction
 String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
     String loc_res = ""
     String loc_frag = GetStringParamString(aiDataStr, 0, "")
+    Float loc_prob = MultFloat(GetStringParamFloat(aiDataStr, 1, 100.0), akModifier.MultInputQuantities)
     If UDmain.UDMTF.HasHtmlMarkup()
         loc_frag = GetCombatEventString(loc_frag, "<br/> \t\t")
     Else
         loc_frag = GetCombatEventString(loc_frag, ", ")
     EndIf
     loc_res += UDmain.UDMTF.TableRowDetails("Event(s):", loc_frag)
-    loc_res += UDmain.UDMTF.TableRowDetails("Base probability:", FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 1) + "%")
+    loc_res += UDmain.UDMTF.TableRowDetails("Base probability:", FormatFloat(loc_prob, 1) + "%")
     Return loc_res
 EndFunction
 

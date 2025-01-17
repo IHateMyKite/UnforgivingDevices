@@ -39,6 +39,11 @@ import UD_Native
 ===========================================================================================
 /;
 Bool Function Stance(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afDuration, Bool[] aabStances, String aiDataStr, Form akForm1)
+    Int loc_min_dur = MultInt(GetStringParamInt(aiDataStr, 1, 0), akModifier.MultInputQuantities)
+    Float loc_prob_acc = MultFloat(GetStringParamFloat(aiDataStr, 2, 0.0), akModifier.MultProbabilities)
+    Bool loc_reset = GetStringParamInt(aiDataStr, 3, 0) > 0
+    Bool loc_repeat = GetStringParamInt(aiDataStr, 4, 0) > 0
+    Float loc_accum = GetStringParamFloat(aiDataStr, 5, 0.0)
     ; TODO PR195: 
     ; See functions Actor.IsSprinting, Actor.IsRunning, Actor.IsSneaking, Actor.IsTrespassing, Actor.IsWeaponDrawn
 EndFunction
@@ -49,6 +54,11 @@ EndFunction
 ===========================================================================================
 /;
 String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    Int loc_min_dur = MultInt(GetStringParamInt(aiDataStr, 1, 0), akModifier.MultInputQuantities)
+    Float loc_prob_acc = MultFloat(GetStringParamFloat(aiDataStr, 2, 0.0), akModifier.MultProbabilities)
+    Bool loc_reset = GetStringParamInt(aiDataStr, 3, 0) > 0
+    Bool loc_repeat = GetStringParamInt(aiDataStr, 4, 0) > 0
+    Float loc_accum = GetStringParamFloat(aiDataStr, 5, 0.0)
     String loc_res = ""
 
     Return loc_res

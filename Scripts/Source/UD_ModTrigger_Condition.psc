@@ -15,7 +15,7 @@
         [1]     Float       (optional) Base probability to trigger on call (in %)
                             Default value: 100.0% (Always)
                         
-        [2]     Float       (optional) Weight of the absolute value (device condition) in total probability (in %)
+        [2]     Float       (optional) Probability that proportional to the absolute value (device condition) (in %)
                             Default value: 0.0%
         
         [3]     Int         (optional) Repeat
@@ -44,9 +44,9 @@ Bool Function ConditionLoss(UD_Modifier_Combo akModifier, UD_CustomDevice_Render
     ; ignoring "destroyed" state. Use UD_ModTrigger_SimpleEvent + DeviceBroken instead.
         Return False
     EndIf
-    Int loc_min_condition = GetStringParamInt(aiDataStr, 0, 0)
-    Float loc_prob_base = GetStringParamFloat(aiDataStr, 1, 100.0)
-    Float loc_prob_value = GetStringParamFloat(aiDataStr, 2, 0.0)
+    Int loc_min_condition = iRange(MultInt(GetStringParamInt(aiDataStr, 0, 0), akModifier.MultInputQuantities), 0, 4)
+    Float loc_prob_base = MultFloat(GetStringParamFloat(aiDataStr, 1, 100.0), akModifier.MultProbabilities)
+    Float loc_prob_value = MultFloat(GetStringParamFloat(aiDataStr, 2, 0.0), akModifier.MultProbabilities)
     Bool loc_repeat = GetStringParamInt(aiDataStr, 3, 0) > 0
     Return TriggerOnValueAbs(akDevice, akModifier.NameAlias, aiDataStr, afValueAbs = aiCondition, afMinValue = loc_min_condition, afProbBase = loc_prob_base, afProbAccum = loc_prob_value, abRepeat = loc_repeat)
 EndFunction
@@ -57,10 +57,13 @@ EndFunction
 ===========================================================================================
 /;
 String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    Int loc_min_condition = iRange(MultInt(GetStringParamInt(aiDataStr, 0, 0), akModifier.MultInputQuantities), 0, 4)
+    Float loc_prob_base = MultFloat(GetStringParamFloat(aiDataStr, 1, 100.0), akModifier.MultProbabilities)
+    Float loc_prob_value = MultFloat(GetStringParamFloat(aiDataStr, 2, 0.0), akModifier.MultProbabilities)
     String loc_res = ""
-    loc_res += UDmain.UDMTF.TableRowDetails("Threshold value:", UDCDMain.GetConditionString(GetStringParamInt(aiDataStr, 0, 0)))
-    loc_res += UDmain.UDMTF.TableRowDetails("Base probability:", FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 1) + "%")
-    loc_res += UDmain.UDMTF.TableRowDetails("Cur. value weight:", FormatFloat(GetStringParamFloat(aiDataStr, 2, 0.0), 1) + "%")
+    loc_res += UDmain.UDMTF.TableRowDetails("Threshold value:", UDCDMain.GetConditionString(loc_min_condition))
+    loc_res += UDmain.UDMTF.TableRowDetails("Base probability:", FormatFloat(loc_prob_base, 1) + "%")
+    loc_res += UDmain.UDMTF.TableRowDetails("Cur. value weight:", FormatFloat(loc_prob_value, 1) + "%")
     loc_res += UDmain.UDMTF.TableRowDetails("Repeat:", InlineIfStr(GetStringParamInt(aiDataStr, 3, 0) > 0, "True", "False"))
     Return loc_res
 EndFunction

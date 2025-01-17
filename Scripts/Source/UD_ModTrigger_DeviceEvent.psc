@@ -26,19 +26,22 @@ import UD_Native
 ===========================================================================================
 /;
 Bool Function DeviceLocked(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    Float loc_prob = MultFloat(GetStringParamFloat(aiDataStr, 1, 100.0), akModifier.MultInputQuantities)
     String loc_event = GetStringParamString(aiDataStr, 0, "")
-    Return StringUtil.Find(loc_event, "DL") >= 0 && (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 100.0))
+    Return StringUtil.Find(loc_event, "DL") >= 0 && (RandomFloat(0.0, 100.0) < loc_prob)
 EndFunction
 
 Bool Function DeviceUnlocked(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    Float loc_prob = MultFloat(GetStringParamFloat(aiDataStr, 1, 100.0), akModifier.MultInputQuantities)
     String loc_event = GetStringParamString(aiDataStr, 0, "")
-    Return StringUtil.Find(loc_event, "DU") >= 0 && (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 100.0))
+    Return StringUtil.Find(loc_event, "DU") >= 0 && (RandomFloat(0.0, 100.0) < loc_prob)
 EndFunction
 
 Bool Function ConditionLoss(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiCondition, String aiDataStr, Form akForm1)
     If aiCondition == 4
+        Float loc_prob = MultFloat(GetStringParamFloat(aiDataStr, 1, 100.0), akModifier.MultInputQuantities)
         String loc_event = GetStringParamString(aiDataStr, 0, "")
-        Return StringUtil.Find(loc_event, "DB") >= 0 && (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 100.0))
+        Return StringUtil.Find(loc_event, "DB") >= 0 && (RandomFloat(0.0, 100.0) < loc_prob)
     EndIf
     Return False
 EndFunction
@@ -49,6 +52,7 @@ EndFunction
 ===========================================================================================
 /;
 String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    Float loc_prob = MultFloat(GetStringParamFloat(aiDataStr, 1, 100.0), akModifier.MultInputQuantities)
     String loc_res = ""
     String loc_frag = GetStringParamString(aiDataStr, 0, "")
     If UDmain.UDMTF.HasHtmlMarkup()
@@ -57,7 +61,7 @@ String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice
         loc_frag = GetDeviceEventString(loc_frag, ", ")
     EndIf
     loc_res += UDmain.UDMTF.TableRowDetails("Event(s):", loc_frag)
-    loc_res += UDmain.UDMTF.TableRowDetails("Base probability:", FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 1) + "%")
+    loc_res += UDmain.UDMTF.TableRowDetails("Base probability:", FormatFloat(loc_prob, 1) + "%")
     Return loc_res
 EndFunction
 

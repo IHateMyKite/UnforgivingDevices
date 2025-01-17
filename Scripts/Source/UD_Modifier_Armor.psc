@@ -45,7 +45,7 @@ String Function GetParamsTableRows(UD_CustomDevice_RenderScript akDevice, String
     String loc_res = ""
     loc_res += UDmain.UDMTF.TableRowDetails("Armor Type:", UD_Native.GetStringParamString(aiDataStr, 0, "Light"))
     loc_res += UDmain.UDMTF.TableRowDetails("Material:", UD_Native.GetStringParamString(aiDataStr, 1, "Leather"))
-    loc_res += UDmain.UDMTF.TableRowDetails("Armor Value:", UD_Native.GetStringParamInt(aiDataStr, 2, 0))
+    loc_res += UDmain.UDMTF.TableRowDetails("Armor Value:", MultInt(UD_Native.GetStringParamInt(aiDataStr, 2, 0), MultOutputQuantities))
     Return loc_res
 EndFunction
 
@@ -56,12 +56,14 @@ EndFunction
 ===========================================================================================
 /;
 Function SetArmorValues(UD_CustomDevice_RenderScript akDevice, String aiDataStr)
-    If UDmain.TraceAllowed()
-        UDmain.Log("UD_Modifier_Armor::SetArmorValues() akDevice = " + akDevice + ", aiDataStr = " + aiDataStr, 3)
-    EndIf
     String loc_armor_type = UD_Native.GetStringParamString(aiDataStr, 0, "Light")
     String loc_armor_material = UD_Native.GetStringParamString(aiDataStr, 1, "Leather")
-    Int loc_armor_value = UD_Native.GetStringParamInt(aiDataStr, 2, 1)
+    Int loc_armor_value = MultInt(UD_Native.GetStringParamInt(aiDataStr, 2, 0), MultOutputQuantities)
+
+    If loc_armor_value < 1
+        UDmain.Error("UD_Modifier_Armor::SetArmorValues() Armor value is invalid. loc_armor_value = " + loc_armor_value)
+        Return
+    EndIf
     
     Keyword loc_kw_type = Keyword.GetKeyword("Armor" + loc_armor_type)
     Keyword loc_kw_material = Keyword.GetKeyword("ArmorMaterial" + loc_armor_material)

@@ -80,8 +80,8 @@ Bool Function StatEvent(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     If asStatName != GetStringParamString(aiDataStr, 0, "")
         Return False
     EndIf
-    Int loc_min_value = GetStringParamInt(aiDataStr, 1, 0)
-    Float loc_prob_base = GetStringParamFloat(aiDataStr, 2, 100.0)
+    Int loc_min_value = MultInt(GetStringParamInt(aiDataStr, 1, 0), akModifier.MultInputQuantities)
+    Float loc_prob_base = MultFloat(GetStringParamFloat(aiDataStr, 2, 100.0), akModifier.MultProbabilities)
     Bool loc_repeat = GetStringParamInt(aiDataStr, 3, 0) > 0
     
     If StringUtil.Find(asStatName, "Bounty") >= 0
@@ -98,10 +98,12 @@ EndFunction
 ===========================================================================================
 /;
 String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    Int loc_min_value = MultInt(GetStringParamInt(aiDataStr, 1, 0), akModifier.MultInputQuantities)
+    Float loc_prob_base = MultFloat(GetStringParamFloat(aiDataStr, 2, 100.0), akModifier.MultProbabilities)
     String loc_res = ""
     loc_res += UDmain.UDMTF.TableRowDetails("Stat name:", GetStringParamString(aiDataStr, 0, ""))
-    loc_res += UDmain.UDMTF.TableRowDetails("Minimum accumulated value:", GetStringParamInt(aiDataStr, 1, 0))
-    loc_res += UDmain.UDMTF.TableRowDetails("Base probability:", FormatFloat(GetStringParamFloat(aiDataStr, 2, 100.0), 1) + "%")
+    loc_res += UDmain.UDMTF.TableRowDetails("Minimum accumulated value:", loc_min_value)
+    loc_res += UDmain.UDMTF.TableRowDetails("Base probability:", FormatFloat(loc_prob_base, 1) + "%")
     loc_res += UDmain.UDMTF.TableRowDetails("Repeat:", InlineIfStr(GetStringParamInt(aiDataStr, 3, 0) > 0, "True", "False"))
     loc_res += UDmain.UDMTF.TableRowDetails("Accumulator:", GetStringParamInt(aiDataStr, 4, 0))
     loc_res += UDmain.UDMTF.Paragraph("(Accumulator contains stat change since the last trigger)", asAlign = "center")

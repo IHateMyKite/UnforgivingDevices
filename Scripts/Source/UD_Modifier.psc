@@ -118,6 +118,23 @@ Float       Property MultOutputQuantities       = 1.0       Auto Hidden
 
 Int         Property PrintFormsMax              = 3         AutoReadOnly Hidden
 
+
+Float Function GetOutputFloat(String aiDataStr, Int aiIndex)
+    Return MultFloat(UD_Native.GetStringParamFloat(aiDataStr, 0, 0.0), MultInputQuantities)
+EndFunction
+
+Int Function GetOutputInt(String aiDataStr, Int aiIndex)
+    Return MultInt(UD_Native.GetStringParamInt(aiDataStr, 0, 0), MultInputQuantities)
+EndFunction
+
+Int Function MultInt(Float afValue, Float afMult)
+    Return UD_Native.Round(afValue * afMult)
+EndFunction
+
+Float Function MultFloat(Float afValue, Float afMult)
+    Return afValue * afMult
+EndFunction
+
 ;/  Group: Overrides
 ===========================================================================================
 ===========================================================================================

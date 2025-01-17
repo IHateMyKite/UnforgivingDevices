@@ -40,8 +40,8 @@ import UD_Native
 Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     Int loc_count = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
     String loc_method_list2 = GetStringParamString(aiDataStr, DataStrOffset + 1, "S")
-    Float loc_min = GetStringParamFloat(aiDataStr, DataStrOffset + 2)
-    Float loc_max = GetStringParamFloat(aiDataStr, DataStrOffset + 3, loc_min)
+    Float loc_min = MultFloat(GetStringParamFloat(aiDataStr, DataStrOffset + 2), akModifier.MultOutputQuantities)
+    Float loc_max = MultFloat(GetStringParamFloat(aiDataStr, DataStrOffset + 3, loc_min), akModifier.MultOutputQuantities)
 
     UD_CustomDevice_RenderScript[] loc_devices = GetEquippedDevicesWithSelectionMethod(akDevice, loc_count, akForm2, loc_method_list2, akForm3, "")
 
@@ -64,8 +64,8 @@ String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice
     String loc_res = ""
     String loc_frag = "" 
     String loc_method_list2 = GetStringParamString(aiDataStr, DataStrOffset + 1, "R")
-    Float loc_min = GetStringParamFloat(aiDataStr, DataStrOffset + 2)
-    Float loc_max = GetStringParamFloat(aiDataStr, DataStrOffset + 3, loc_min)   
+    Float loc_min = MultFloat(GetStringParamFloat(aiDataStr, DataStrOffset + 2), akModifier.MultOutputQuantities)
+    Float loc_max = MultFloat(GetStringParamFloat(aiDataStr, DataStrOffset + 3, loc_min), akModifier.MultOutputQuantities)
     If loc_method_list2 == "S"
         loc_frag = "SELF"
     ElseIf loc_method_list2 == "A"

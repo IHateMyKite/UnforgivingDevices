@@ -35,7 +35,7 @@ import UD_Native
 Explosion Property ManifestExplosion Auto
 
 Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
-    Int loc_count = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
+    Int loc_count = MultInt(GetStringParamInt(aiDataStr, DataStrOffset + 0, 1), akModifier.MultOutputQuantities)
     Int loc_remain = loc_count
     String loc_method_list2 = GetStringParamString(aiDataStr, DataStrOffset + 1, "L")
     String loc_method_list3 = GetStringParamString(aiDataStr, DataStrOffset + 2, "")
@@ -93,7 +93,7 @@ EndFunction
 /;
 String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     String loc_res = ""
-    Int loc_count = GetStringParamInt(aiDataStr, DataStrOffset + 0, 1)
+    Int loc_count = MultInt(GetStringParamInt(aiDataStr, DataStrOffset + 0, 1), akModifier.MultOutputQuantities)
     String loc_method_list2 = GetStringParamString(aiDataStr, DataStrOffset + 1, "L")
     String loc_method_list3 = GetStringParamString(aiDataStr, DataStrOffset + 2, "")
 

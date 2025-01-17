@@ -29,21 +29,24 @@ import UD_Native
 Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Int aiEquipSlot, Form akSource, String aiDataStr, Form akForm1)
     If aiActorAction == 6
     ; Bow Release
-        Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 0, 0.0))
+        Float loc_prob = MultFloat(GetStringParamFloat(aiDataStr, 0, 0.0), akModifier.MultProbabilities)
+        Return (RandomFloat(0.0, 100.0) < loc_prob)
     EndIf
     Return False
 EndFunction
 
 Bool Function StatEvent(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String asStatName, Int aiStatValue, String aiDataStr, Form akForm1)
     If asStatName == "Locks Picked"
-        Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 2, 0.0))
+        Float loc_prob = MultFloat(GetStringParamFloat(aiDataStr, 2, 0.0), akModifier.MultProbabilities)
+        Return (RandomFloat(0.0, 100.0) < loc_prob)
     EndIf
     Return False
 EndFunction
 
 Bool Function SkillIncreased(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String asSkill, Int aiValue, String aiDataStr, Form akForm1)
     If asSkill == "Marksman" || asSkill == "Pickpocket" || asSkill == "LockPicking" || asSkill == "Sneak"
-        Return (RandomFloat(0.0, 100.0) < GetStringParamFloat(aiDataStr, 1, 0.0))
+        Float loc_prob = MultFloat(GetStringParamFloat(aiDataStr, 1, 0.0), akModifier.MultProbabilities)
+        Return (RandomFloat(0.0, 100.0) < loc_prob)
     EndIf
     Return False
 EndFunction
@@ -54,10 +57,13 @@ EndFunction
 ===========================================================================================
 /;
 String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
+    Float loc_prob1 = MultFloat(GetStringParamFloat(aiDataStr, 0, 0.0), akModifier.MultProbabilities)
+    Float loc_prob2 = MultFloat(GetStringParamFloat(aiDataStr, 1, 0.0), akModifier.MultProbabilities)
+    Float loc_prob3 = MultFloat(GetStringParamFloat(aiDataStr, 2, 0.0), akModifier.MultProbabilities)
     String loc_res = ""
-    loc_res += UDmain.UDMTF.TableRowDetails("Prob. on bow use:", FormatFloat(GetStringParamFloat(aiDataStr, 0, 0.0), 1) + "%")
-    loc_res += UDmain.UDMTF.TableRowDetails("Prob. on skill increase:", FormatFloat(GetStringParamFloat(aiDataStr, 1, 100.0), 1) + "%")
+    loc_res += UDmain.UDMTF.TableRowDetails("Prob. on bow use:", FormatFloat(loc_prob1, 1) + "%")
+    loc_res += UDmain.UDMTF.TableRowDetails("Prob. on skill increase:", FormatFloat(loc_prob2, 1) + "%")
     loc_res += UDmain.UDMTF.Paragraph("(Marksman, Pickpocket, LockPicking, Sneak)", asAlign = "center")
-    loc_res += UDmain.UDMTF.TableRowDetails("Prob. on pick lock:", FormatFloat(GetStringParamFloat(aiDataStr, 2, 100.0), 1) + "%")
+    loc_res += UDmain.UDMTF.TableRowDetails("Prob. on pick lock:", FormatFloat(loc_prob3, 1) + "%")
     Return loc_res
 EndFunction

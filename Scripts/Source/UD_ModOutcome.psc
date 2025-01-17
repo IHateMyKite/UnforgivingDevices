@@ -117,6 +117,14 @@ EndFunction
 ===========================================================================================
 /;
 
+Int Function MultInt(Float afValue, Float afMult)
+    Return UD_Native.Round(afValue * afMult)
+EndFunction
+
+Float Function MultFloat(Float afValue, Float afMult)
+    Return afValue * afMult
+EndFunction
+
 UD_CustomDevice_RenderScript[] Function GetEquippedDevicesWithSelectionMethod(UD_CustomDevice_RenderScript akDevice, Int aiNumber, Form akForm1, String asSelectionMethod1 = "R", Form akForm2 = None, String asSelectionMethod2 = "", Form akForm3 = None, String asSelectionMethod3 = "")
     Actor loc_wearer = akDevice.GetWearer()
     
