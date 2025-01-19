@@ -75,10 +75,10 @@ Function GameLoaded(UD_CustomDevice_RenderScript akDevice, String aiDataStr, For
     EndIf
 EndFunction
 
-Function TimeUpdateSeconds(UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+Function TimeUpdateSeconds(UD_CustomDevice_RenderScript akDevice, Float afGameHoursSinceLastCall, Float afRealSecondsSinceLastCall, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     UD_ModTrigger loc_trigger = GetTrigger(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
     UD_ModOutcome loc_outcome = GetOutcome(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
-    If loc_trigger.TimeUpdateSeconds(Self, akDevice, afHoursSinceLastCall, aiDataStr, akForm1) == True
+    If loc_trigger.TimeUpdateSeconds(Self, akDevice, afGameHoursSinceLastCall, afRealSecondsSinceLastCall, aiDataStr, akForm1) == True
         _DoCallOutcome(loc_outcome, akDevice, aiDataStr, akForm2, akForm3)
     EndIf
 EndFunction
@@ -206,7 +206,6 @@ Function KillMonitor(UD_CustomDevice_RenderScript akDevice, ObjectReference akVi
     EndIf
 EndFunction
 
-
 Function ItemAdded(UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akSourceContainer, Bool abIsStolen, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     UD_ModTrigger loc_trigger = GetTrigger(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
     UD_ModOutcome loc_outcome = GetOutcome(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
@@ -227,14 +226,6 @@ Function SkillIncreased(UD_CustomDevice_RenderScript akDevice, String asSkill, I
     UD_ModTrigger loc_trigger = GetTrigger(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
     UD_ModOutcome loc_outcome = GetOutcome(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
     If loc_trigger.SkillIncreased(Self, akDevice, asSkill, aiValue, aiDataStr, akForm1) == True
-        _DoCallOutcome(loc_outcome, akDevice, aiDataStr, akForm2, akForm3)
-    EndIf
-EndFunction
-
-Function Stance(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afDuration, Bool[] aabStances, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    UD_ModTrigger loc_trigger = GetTrigger(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
-    UD_ModOutcome loc_outcome = GetOutcome(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
-    If loc_trigger.Stance(Self, akDevice, afDuration, aabStances, aiDataStr, akForm1) == True
         _DoCallOutcome(loc_outcome, akDevice, aiDataStr, akForm2, akForm3)
     EndIf
 EndFunction

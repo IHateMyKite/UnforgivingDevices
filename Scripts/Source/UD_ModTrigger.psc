@@ -66,7 +66,7 @@ Bool Function GameLoaded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScr
     Return False
 EndFunction
 
-Bool Function TimeUpdateSeconds(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1)
+Bool Function TimeUpdateSeconds(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afGameHoursSinceLastCall, Float afRealSecondsSinceLastCall, String aiDataStr, Form akForm1)
     Return False
 EndFunction
 
@@ -139,10 +139,6 @@ Bool Function ItemRemoved(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderSc
 EndFunction
 
 Bool Function SkillIncreased(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String asSkill, Int aiValue, String aiDataStr, Form akForm1)
-    Return False
-EndFunction
-
-Bool Function Stance(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afDuration, Bool[] aabStances, String aiDataStr, Form akForm1)
     Return False
 EndFunction
 

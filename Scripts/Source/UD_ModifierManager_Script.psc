@@ -162,18 +162,21 @@ EndFunction
 
 
 float _LastUpdateTime = 0.0
+Float _LastUpdateRealTime = 0.0
 Event OnUpdate()
     if !Ready
         Ready = true
         _LastUpdateTime         = Utility.GetCurrentGameTime()
         _LastUpdateTime_Hour    = Utility.GetCurrentGameTime()
+        _LastUpdateRealTime     = Utility.GetCurrentRealTime()
         Update()
         RegisterForSingleUpdate(30.0) ;start update loop, 5 s
         RegisterForSingleUpdateGameTime(1.0) ;start update loop, 1 game hour
     else
         if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
             float loc_hours_passed = (Utility.GetCurrentGameTime() - _LastUpdateTime) / 24.0
-            UpdateModifiers_Seconds(loc_hours_passed)
+            Float loc_real_time_passed = (Utility.GetCurrentRealTime() - _LastUpdateRealTime)
+            UpdateModifiers_Seconds(loc_hours_passed, loc_real_time_passed)
             _LastUpdateTime = Utility.GetCurrentGameTime()
             RegisterForSingleUpdate(UDCDmain.UD_UpdateTime)
         else
@@ -264,7 +267,7 @@ Function UpdateModifiers_GameLoad()
     endwhile
 EndFunction
 
-Function UpdateModifiers_Seconds(float afHoursPassed)
+Function UpdateModifiers_Seconds(float afGameHoursPassed, Float afRealSecondsPassed)
     int loc_i = 0
     while loc_i < UDNPCM.UD_Slots
         UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getNPCSlotByIndex(loc_i)
@@ -273,7 +276,7 @@ Function UpdateModifiers_Seconds(float afHoursPassed)
             int loc_x = 0
             while loc_devices[loc_x]
                 if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked ;not update device which are in minigame
-                    Procces_UpdateModifiers_Seconds(loc_devices[loc_x], afHoursPassed)
+                    Procces_UpdateModifiers_Seconds(loc_devices[loc_x], afGameHoursPassed, afRealSecondsPassed)
                 endif
                 loc_x += 1
             endwhile
@@ -466,12 +469,12 @@ Function Procces_UpdateModifiers_GameLoad(UD_CustomDevice_RenderScript akDevice)
     endwhile
 EndFunction
 
-Function Procces_UpdateModifiers_Seconds(UD_CustomDevice_RenderScript akDevice, float afHoursPassed)
+Function Procces_UpdateModifiers_Seconds(UD_CustomDevice_RenderScript akDevice, float afGameHoursPassed, Float afRealTimePassed)
     int loc_modid = akDevice.UD_ModifiersRef.length
     while loc_modid 
         loc_modid -= 1
         UD_Modifier loc_mod = (akDevice.UD_ModifiersRef[loc_modid] as UD_Modifier)
-        loc_mod.TimeUpdateSeconds(akDevice,afHoursPassed,akDevice.UD_ModifiersDataStr[loc_modid],akDevice.UD_ModifiersDataForm1[loc_modid],akDevice.UD_ModifiersDataForm2[loc_modid],akDevice.UD_ModifiersDataForm3[loc_modid],akDevice.UD_ModifiersDataForm4[loc_modid],akDevice.UD_ModifiersDataForm5[loc_modid])
+        loc_mod.TimeUpdateSeconds(akDevice, afGameHoursPassed, afRealTimePassed, akDevice.UD_ModifiersDataStr[loc_modid],akDevice.UD_ModifiersDataForm1[loc_modid],akDevice.UD_ModifiersDataForm2[loc_modid],akDevice.UD_ModifiersDataForm3[loc_modid],akDevice.UD_ModifiersDataForm4[loc_modid],akDevice.UD_ModifiersDataForm5[loc_modid])
     endwhile
 EndFunction
 
