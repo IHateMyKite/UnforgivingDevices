@@ -40,11 +40,11 @@ import UD_Native
 /;
 Bool Function TimeUpdateSeconds(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afGameHoursSinceLastCall, Float afRealSecondsSinceLastCall, String aiDataStr, Form akForm1)
     Actor loc_actor =  akDevice.GetWearer()
-    String loc_stance = GetStringParamString(aiDataStr, 1, "")
+    String loc_stance = GetStringParamString(aiDataStr, 0, "")
     Bool loc_reset = GetStringParamInt(aiDataStr, 3, 0) > 0
 
     If IsInStance(loc_actor, loc_stance)
-        Int loc_min_value = MultInt(GetStringParamInt(aiDataStr, 1, 0), akModifier.MultInputQuantities)
+        Float loc_min_value = MultFloat(GetStringParamFloat(aiDataStr, 1, 0.0), akModifier.MultInputQuantities)
         Float loc_prob_accum = MultFloat(GetStringParamFloat(aiDataStr, 2, 0.0), akModifier.MultProbabilities)
         Bool loc_repeat = GetStringParamInt(aiDataStr, 4, 0) > 0
         Float loc_accum = GetStringParamFloat(aiDataStr, 5, 0.0)
@@ -52,7 +52,10 @@ Bool Function TimeUpdateSeconds(UD_Modifier_Combo akModifier, UD_CustomDevice_Re
         Return TriggerOnValueDelta(akDevice, akModifier.NameAlias, aiDataStr, afValueDelta = afRealSecondsSinceLastCall, afMinAccum = loc_min_value, afProbBase = 0.0, afProbAccum = loc_prob_accum, abRepeat = loc_repeat, aiAccumParamIndex = 5)
     ElseIf loc_reset
     ; reseting accumulator
-        akDevice.editStringModifier(akModifier.NameAlias, 5, FormatFloat(0, 2))
+        Float loc_accum = GetStringParamFloat(aiDataStr, 5, 0.0)
+        If loc_accum > 0.0
+            akDevice.editStringModifier(akModifier.NameAlias, 5, FormatFloat(0.0, 2))
+        EndIf
     EndIf
 
     Return False
@@ -64,25 +67,25 @@ EndFunction
 ===========================================================================================
 /;
 String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1)
-    Int loc_min_value = MultInt(GetStringParamInt(aiDataStr, 1, 0), akModifier.MultInputQuantities)
+    Float loc_min_value = MultFloat(GetStringParamFloat(aiDataStr, 1, 0.0), akModifier.MultInputQuantities)
     Float loc_prob_accum = MultFloat(GetStringParamFloat(aiDataStr, 2, 0.0), akModifier.MultProbabilities)
     Bool loc_reset = GetStringParamInt(aiDataStr, 3, 0) > 0
     Bool loc_repeat = GetStringParamInt(aiDataStr, 4, 0) > 0
     Float loc_accum = GetStringParamFloat(aiDataStr, 5, 0.0)
 
     String loc_res = ""
-    String loc_frag = ""
+    String loc_frag = GetStringParamString(aiDataStr, 0, "")
     If UDmain.UDMTF.HasHtmlMarkup()
         loc_frag = GetStanceString(loc_frag, "<br/> \t\t")
     Else
         loc_frag = GetStanceString(loc_frag, ", ")
     EndIf
     loc_res += UDmain.UDMTF.TableRowDetails("Stance(s):", loc_frag)
-    loc_res += UDmain.UDMTF.TableRowDetails("Threshold duration:", loc_min_value + " s")
+    loc_res += UDmain.UDMTF.TableRowDetails("Threshold duration:", FormatFloat(loc_min_value, 1) + " s")
     loc_res += UDmain.UDMTF.TableRowDetails("Accumulator weight:", FormatFloat(loc_prob_accum, 1) + "%")
     loc_res += UDmain.UDMTF.TableRowDetails("Reset on new stance:", InlineIfStr(loc_reset, "True", "False"))
     loc_res += UDmain.UDMTF.TableRowDetails("Repeat:", InlineIfStr(loc_repeat, "True", "False"))
-    loc_res += UDmain.UDMTF.TableRowDetails("Accumulator:", GetStringParamInt(aiDataStr, 5, 0) + " s")
+    loc_res += UDmain.UDMTF.TableRowDetails("Accumulator:", FormatFloat(loc_accum, 1) + " s")
     loc_res += UDmain.UDMTF.Paragraph("(Accumulator contains total duration)", asAlign = "center")
 
     Return loc_res
@@ -94,22 +97,41 @@ EndFunction
 ===========================================================================================
 /;
 Bool Function IsInStance(Actor akActor, String asStance)
-    If StringUtil.Find(asStance, "RN") >= 0 && akActor.IsRunning() == False
+    If asStance == ""
         Return False
     EndIf
-    If StringUtil.Find(asStance, "SP") >= 0 && akActor.IsSprinting() == False
-        Return False
+    Bool loc_any_stance_given = False
+    If StringUtil.Find(asStance, "RN") >= 0 
+        If akActor.IsRunning() == False
+            Return False
+        EndIf
+        loc_any_stance_given = True
     EndIf
-    If StringUtil.Find(asStance, "SN") >= 0 && akActor.IsSneaking() == False
-        Return False
+    If StringUtil.Find(asStance, "SP") >= 0 
+        If akActor.IsSprinting() == False
+            Return False
+        EndIf
+        loc_any_stance_given = True
     EndIf
-    If StringUtil.Find(asStance, "TP") >= 0 && akActor.IsTrespassing() == False
-        Return False
+    If StringUtil.Find(asStance, "SN") >= 0 
+        If akActor.IsSneaking() == False
+            Return False
+        EndIf
+        loc_any_stance_given = True
     EndIf
-    If StringUtil.Find(asStance, "WD") >= 0 && akActor.IsWeaponDrawn() == False
-        Return False
+    If StringUtil.Find(asStance, "TP") >= 0 
+        If akActor.IsTrespassing() == False
+            Return False
+        EndIf
+        loc_any_stance_given = True
     EndIf
-    Return True
+    If StringUtil.Find(asStance, "WD") >= 0 
+        If akActor.IsWeaponDrawn() == False
+            Return False
+        EndIf
+        loc_any_stance_given = True
+    EndIf
+    Return loc_any_stance_given
 EndFunction
 
 String Function GetStanceString(String asAbbr, String asSep = ", ")

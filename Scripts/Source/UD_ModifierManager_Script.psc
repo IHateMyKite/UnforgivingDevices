@@ -178,6 +178,7 @@ Event OnUpdate()
             Float loc_real_time_passed = (Utility.GetCurrentRealTime() - _LastUpdateRealTime)
             UpdateModifiers_Seconds(loc_hours_passed, loc_real_time_passed)
             _LastUpdateTime = Utility.GetCurrentGameTime()
+            _LastUpdateRealTime = Utility.GetCurrentRealTime()
             RegisterForSingleUpdate(UDCDmain.UD_UpdateTime)
         else
             RegisterForSingleUpdate(30.0)

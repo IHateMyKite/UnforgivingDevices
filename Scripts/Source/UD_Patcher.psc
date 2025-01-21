@@ -27,7 +27,7 @@ Int         Property UD_MaxLocks            =    2    auto hidden
 ;/  Variable: UD_ModsMinCap
     If the number of modifiers is less than the specified value, the patcher will try to add more
 /;
-Int         Property UD_ModsMinCap          =    2    Auto Hidden
+Int         Property UD_ModsMinCap          =    1    Auto Hidden
 
 ;/  Variable: UD_ModsSoftCap
     Soft cap for the number of modifiers added by the patcher (the actual number of mods may slightly exceed this value)
@@ -53,6 +53,12 @@ Float       Property UD_ModGlobalSeverityShift      = 0.0   Auto Hidden
     The value by which the severity dispersion of each modifier is multiplied
 /;
 Float       Property UD_ModGlobalSeverityDispMult   = 1.0   Auto Hidden
+
+;/  Variable: UD_ModAddToTest
+    This modifier (specified by alias name) will be added to the device to be processed by the patcher.
+    After attempting to add, the value will be reset.
+/;
+String      Property UD_ModAddToTest                = ""    Auto Hidden
 
 ;difficulty multipliers
 Float Property UD_PatchMult_HeavyBondage        = 1.0 auto hidden
@@ -316,14 +322,17 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
     Alias[] loc_valid_pre = Utility.CreateAliasArray(loc_i)
     Alias[] loc_postponed_pre
     String[] loc_forbidden_tags
+    UD_Modifier loc_mod
+    UD_Patcher_ModPreset loc_pre
+
     ; TODO PR195: store forbidden tags of existing modifiers somewhere on the device to avoid conflicts when adding new modifiers later
 
     ; the first pass to find all modifier presets that are compatible with the device (cheking keywords and tags restriction from existed modifiers)
     While loc_i
         loc_i -= 1
-        UD_Modifier loc_mod = UDMOM.UD_ModifierListRef[loc_i] As UD_Modifier
+        loc_mod = UDMOM.UD_ModifierListRef[loc_i] As UD_Modifier
         If loc_mod && ((loc_mod as ReferenceAlias) as UD_Patcher_ModPreset) && loc_mod.CheckModifierCompatibility(loc_forbidden_tags)
-            UD_Patcher_ModPreset loc_pre = ((loc_mod as ReferenceAlias) as UD_Patcher_ModPreset).GetCompatiblePatcherPreset(akDevice, True)
+            loc_pre = ((loc_mod as ReferenceAlias) as UD_Patcher_ModPreset).GetCompatiblePatcherPreset(akDevice, True)
             If loc_pre
                 loc_valid_pre[loc_modnum] = loc_pre
                 loc_modnum += 1
@@ -338,18 +347,44 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
     Float loc_norm_mult = (UD_ModsSoftCap as Float) / (loc_modnum as Float)     ; multiplier to normalize probabilities for the softcap
     UD_CustomDevice_NPCSlot loc_slot = UDCDMain.getNPCSlot(akDevice.GetWearer())
 
-    ; the second pass to check tags and assign valid mods
-    String loc_pass = "Main"                                            ; Main      - main pass to check and add the bulk of the modifiers
-                                                                        ; Postpone  - pass for checking presets with a non-empty array of required tags
     loc_modnum = 0
     String[] loc_device_mods_tags = akDevice.GetModifierTags()         ; Tags of other modifiers on device
     String[] loc_wearer_mods_tags = loc_slot.GetModifierTags()         ; Tags of all modifiers on devices worn by the actor
 
+    ; adding modifier from UD_ModAddToTest if it is possible
+    If UD_ModAddToTest != ""
+        loc_mod = UDMOM.GetModifier(UD_ModAddToTest)
+        If loc_mod && ((loc_mod as ReferenceAlias) as UD_Patcher_ModPreset) && loc_mod.CheckModifierCompatibility(loc_forbidden_tags)
+            loc_pre = ((loc_mod as ReferenceAlias) as UD_Patcher_ModPreset).GetCompatiblePatcherPreset(akDevice, True)
+            If loc_pre
+                If loc_pre.CheckTagsCompatibility(loc_device_mods_tags, loc_wearer_mods_tags) > 0
+                    loc_pre.AddModifierWithPreset(akDevice, loc_mod, UD_ModGlobalSeverityShift, UD_ModGlobalSeverityDispMult)
+                    UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Added test modifier " + loc_mod)
+                    ; If this modifier preset have forbidden tags, we add them to the array to filter out all subsequent modifiers
+                    loc_forbidden_tags = PapyrusUtil.MergeStringArray(loc_forbidden_tags, loc_pre.ConflictedDeviceModTags)
+                    ; If the modifier have tags, we add them to the corresponding arrays to filter out all subsequent modifiers
+                    loc_device_mods_tags = PapyrusUtil.MergeStringArray(loc_device_mods_tags, loc_mod.Tags)
+                    loc_wearer_mods_tags = PapyrusUtil.MergeStringArray(loc_wearer_mods_tags, loc_mod.Tags)
+                    loc_modnum += 1
+                EndIf
+            EndIf
+        EndIf
+        If loc_modnum == 0
+            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Unable to add test modifier " + loc_mod)
+        EndIf
+        UD_ModAddToTest = ""
+    EndIf
+
+    ; the second pass to check tags and assign valid mods
+    String loc_pass = "Main"                                            ; Main      - main pass to check and add the bulk of the modifiers
+                                                                        ; Postpone  - pass for checking presets with a non-empty array of required tags
+    Int loc_extra_loops = 0
+
     While loc_pass != "End" && loc_modnum < UD_ModsHardCap
         loc_i = 0
         While loc_i < loc_valid_pre.Length && loc_modnum < UD_ModsHardCap
-            UD_Patcher_ModPreset loc_pre = loc_valid_pre[loc_i] As UD_Patcher_ModPreset
-            UD_Modifier loc_mod = loc_pre.GetModifier()
+            loc_pre = loc_valid_pre[loc_i] As UD_Patcher_ModPreset
+            loc_mod = loc_pre.GetModifier()
             If loc_mod.CheckModifierCompatibility(loc_forbidden_tags)
                 Int loc_res = loc_pre.CheckTagsCompatibility(loc_device_mods_tags, loc_wearer_mods_tags)
                 If loc_res > 0
@@ -357,7 +392,7 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
                     Float loc_prob = loc_pre.GetProbability(akDevice, loc_norm_mult, UD_ModGlobalProbabilityMult)
                     If UD_Native.RandomFloat(0.0, 100.0) < loc_prob
                         loc_pre.AddModifierWithPreset(akDevice, loc_mod, UD_ModGlobalSeverityShift, UD_ModGlobalSeverityDispMult)
-                        UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Added modifier = " + loc_mod, 2)
+                        UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Added modifier " + loc_mod)
                         ; If this modifier preset have forbidden tags, we add them to the array to filter out all subsequent modifiers
                         loc_forbidden_tags = PapyrusUtil.MergeStringArray(loc_forbidden_tags, loc_pre.ConflictedDeviceModTags)
                         ; If the modifier have tags, we add them to the corresponding arrays to filter out all subsequent modifiers
@@ -374,7 +409,11 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
             EndIf
             loc_i += 1
         Endwhile
-        If loc_pass == "Main" && loc_postponed_pre.Length > 0
+        If loc_pass == "Main" && loc_modnum < UD_ModsMinCap && loc_extra_loops < 2
+        ; continue to iterate while number of modifiers is below min. cap
+            loc_extra_loops += 1
+        ElseIf loc_pass == "Main" && loc_postponed_pre.Length > 0
+        ; we have minimum number of modifiers and not empty loc_postponed_pre array
             loc_pass = "Postpone"
             loc_valid_pre = loc_postponed_pre
         Else

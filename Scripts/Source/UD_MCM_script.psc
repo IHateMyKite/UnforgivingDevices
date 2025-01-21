@@ -674,6 +674,7 @@ Int UD_ModsHardCap_S
 Int UD_ModGlobalProbabilityMult_S
 Int UD_ModGlobalSeverityShift_S
 Int UD_ModGlobalSeverityDispMult_S
+Int UD_Modifier_AddToTest_T
 
 int UD_ModifierMultiplier1_S
 int UD_ModifierMultiplier2_S
@@ -766,6 +767,7 @@ Function resetModifiersPage()
     UD_ModifierMultiplier1_S = AddSliderOption("$UD_CUSTOMMOD_MULTPROB", loc_mod.MultProbabilities, "{1} x", UD_LockMenu_flag)          ; Probabilities multiplier
     UD_ModifierMultiplier2_S = AddSliderOption("$UD_CUSTOMMOD_MULTIN", loc_mod.MultInputQuantities, "{1} x", UD_LockMenu_flag)          ; Input multiplier
     UD_ModifierMultiplier3_S = AddSliderOption("$UD_CUSTOMMOD_MULTOUT", loc_mod.MultOutputQuantities, "{1} x", UD_LockMenu_flag)        ; Output multiplier
+    UD_Modifier_AddToTest_T = addToggleOption("$UD_CUSTOMMOD_ADDTOTEST", loc_mod.NameAlias == UDCDmain.UDPatcher.UD_ModAddToTest, UD_LockMenu_flag)         ; add to test in the next Patcher call
 
     SetCursorPosition(26)
     SetCursorFillMode(LEFT_TO_RIGHT)
@@ -1780,6 +1782,14 @@ Function OptionSelectModifiers(int option)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
         loc_mod_pp.ApplicableToNPC = !loc_mod_pp.ApplicableToNPC
         SetToggleOptionValue(UD_ModPP_ApplicableToNPC_T, loc_mod_pp.ApplicableToNPC)
+    elseif option == UD_Modifier_AddToTest_T
+        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        If UDCDMain.UDPatcher.UD_ModAddToTest != loc_mod.NameAlias
+            UDCDMain.UDPatcher.UD_ModAddToTest = loc_mod.NameAlias
+        Else
+            UDCDMain.UDPatcher.UD_ModAddToTest = ""
+        EndIf
+        SetToggleOptionValue(UD_Modifier_AddToTest_T, UDCDMain.UDPatcher.UD_ModAddToTest == loc_mod.NameAlias)
     elseif option == UD_ModPP_IsNormalizedProbability_T
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
@@ -3833,6 +3843,8 @@ Function ModifierPageInfo(int option)
         SetInfoText("$UD_CUSTOMMOD_MULTOUT_INFO")
     ElseIf option == UD_ModsMinCap_S
         SetInfoText("$UD_PATCHER_MODSMIN_INFO")
+    ElseIf option == UD_Modifier_AddToTest_T
+        SetInfoText("$UD_CUSTOMMOD_ADDTOTEST_INFO")
     ElseIf option == UD_ModsSoftCap_S
         SetInfoText("$UD_PATCHER_MODSSOFTCAP_INFO")
     ElseIf option == UD_ModsHardCap_S
