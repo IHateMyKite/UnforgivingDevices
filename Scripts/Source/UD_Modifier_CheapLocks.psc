@@ -1,34 +1,69 @@
+;/  File: UD_Modifier_CheapLocks
+    Devices locks can get randomely jammed over time or when wearer is attacked
+
+    NameFull:   Cheap Locks
+    NameAlias:  CLO
+
+    Parameters in DataStr:
+        [0]     Float       (optional) Chance to get jammed lock every hour
+                            Default value: 0.0%
+
+        [1]     Float       (optional) Chance to get jammed lock when hit with a weapon
+                            Default value: 0.0%
+                        
+        [2]     Float       (optional) Chance that the lock will jam, proportional to the damage taken
+                            Default value: 0.0% per damage point
+/;
 ScriptName UD_Modifier_CheapLocks extends UD_Modifier
 
 import UnforgivingDevicesMain
 import UD_Native
 
-Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afMult, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
+;/  Group: Events Processing
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     if !akDevice.HaveUnlockableLocks()
         return
     endif
-    int loc_chance = Round(UD_Native.GetStringParamInt(aiDataStr,0)*Multiplier)
-    if loc_chance
-        akDevice.AddJammedLock(loc_chance)
-    endif
+    Float loc_chance_h = MultFloat(UD_Native.GetStringParamFloat(aiDataStr, 0, 0.0), MultProbabilities)
+    If loc_chance_h <= 0.0
+        Return
+    EndIf
+    Int loc_i = 0
+    While loc_i < Math.Floor(afHoursSinceLastCall)
+        akDevice.AddJammedLock(Round(loc_chance_h))
+        loc_i += 1
+    EndWhile
+    If afHoursSinceLastCall - Math.Floor(afHoursSinceLastCall) > 0.01
+        Int loc_prob = Round((1.0 - Math.Pow(0.01 * loc_chance_h, afHoursSinceLastCall - Math.Floor(afHoursSinceLastCall))) * 100)
+        akDevice.AddJammedLock(loc_prob)
+    EndIf
 EndFunction
 
-Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    return (akDevice.GetLockNumber() > 0) && (RandomInt(1,100) < Round(25*PatchChanceMultiplier))
+Function WeaponHit(UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, Float afDamage, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    If akWeapon == None || afDamage < 0.0
+        Return
+    EndIf
+    Float loc_chance1 = MultFloat(UD_Native.GetStringParamFloat(aiDataStr, 1, 0.0), MultProbabilities)
+    Float loc_chance2 = MultFloat(UD_Native.GetStringParamFloat(aiDataStr, 2, 0.0), MultProbabilities)
+    If loc_chance1 + loc_chance2 * afDamage <= 0.0
+        Return
+    EndIf
+    akDevice.AddJammedLock(MultInt(loc_chance1 + loc_chance2 * afDamage, MultOutputQuantities))
 EndFunction
 
-Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
-    akDevice.addModifier(self,iRange(Round(RandomInt(5,15)*PatchPowerMultiplier),0,100))
-EndFunction
-
-Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
-    String loc_msg = ""
-    
-    loc_msg += "=== " + NameFull + " ===\n"
-    loc_msg += "Chance: " + iRange(Round(UD_Native.GetStringParamInt(aiDataStr,0,0)*Multiplier),0,100) + " % per hour\n"
-
-    loc_msg += "===Description===\n"
-    loc_msg += Description + "\n"
-
-    UDmain.ShowMessageBox(loc_msg)
+;/  Group: User Interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+String Function GetParamsTableRows(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    String loc_res = ""
+    loc_res += UDmain.UDMTF.TableRowDetails("Chance per hour:", FormatFloat(MultFloat(UD_Native.GetStringParamFloat(aiDataStr, 0, 0.0), MultProbabilities), 2) + "%")
+    loc_res += UDmain.UDMTF.TableRowDetails("Chance per hit:", FormatFloat(MultFloat(UD_Native.GetStringParamFloat(aiDataStr, 1, 0.0), MultProbabilities), 2) + "%")
+    loc_res += UDmain.UDMTF.TableRowDetails("Chance per dmg:", FormatFloat(MultFloat(UD_Native.GetStringParamFloat(aiDataStr, 2, 0.0), MultProbabilities), 2) + "%")
+    Return loc_res
 EndFunction
