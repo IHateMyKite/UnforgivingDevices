@@ -464,8 +464,9 @@ Float Function GetProbability(UD_CustomDevice_RenderScript akDevice, Float afNor
     Return loc_prob
 EndFunction
 
-Function AddModifierWithPreset(UD_CustomDevice_RenderScript akDevice, UD_Modifier akModifier, Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0)
-    akDevice.AddModifier(akModifier, GetDataStr(afGlobalSeverityShift, afGlobalSeverityDispersionMult), GetForm1(afGlobalSeverityShift, afGlobalSeverityDispersionMult), GetForm2(afGlobalSeverityShift, afGlobalSeverityDispersionMult), GetForm3(afGlobalSeverityShift, afGlobalSeverityDispersionMult), GetForm4(afGlobalSeverityShift, afGlobalSeverityDispersionMult), GetForm5(afGlobalSeverityShift, afGlobalSeverityDispersionMult))
+Function AddModifierWithPreset(UD_CustomDevice_RenderScript akDevice, Float afGlobalSeverityShift = 0.0, Float afGlobalSeverityDispersionMult = 1.0)
+    UD_Modifier loc_mod = GetModifier()
+    akDevice.AddModifier(loc_mod, GetDataStr(afGlobalSeverityShift, afGlobalSeverityDispersionMult), GetForm1(afGlobalSeverityShift, afGlobalSeverityDispersionMult), GetForm2(afGlobalSeverityShift, afGlobalSeverityDispersionMult), GetForm3(afGlobalSeverityShift, afGlobalSeverityDispersionMult), GetForm4(afGlobalSeverityShift, afGlobalSeverityDispersionMult), GetForm5(afGlobalSeverityShift, afGlobalSeverityDispersionMult))
 EndFunction
 
 UD_Patcher_ModPreset Function GetCompatiblePatcherPreset(UD_CustomDevice_RenderScript akDevice, Bool abCheckWearer = True)

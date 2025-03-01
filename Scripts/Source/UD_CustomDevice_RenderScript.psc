@@ -7330,15 +7330,17 @@ Function ShowModifiers()
     string[]    loc_list
     while loc_i < UD_ModifiersRef.length
         UD_Modifier loc_mod = (UD_ModifiersRef[loc_i] as UD_Modifier)
-        String loc_data = UD_ModifiersDataStr[loc_i]
-        Form loc_form1 = UD_ModifiersDataForm1[loc_i]
-        Form loc_form2 = UD_ModifiersDataForm2[loc_i]
-        Form loc_form3 = UD_ModifiersDataForm3[loc_i]
-        Form loc_form4 = UD_ModifiersDataForm4[loc_i]
-        Form loc_form5 = UD_ModifiersDataForm5[loc_i]
-        ;loc_res += (loc_mod.NameFull + "\n")
-        loc_list = PapyrusUtil.PushString(loc_list, loc_mod.GetCaption(Self, loc_data, loc_form1, loc_form2, loc_form3, loc_form4, loc_form5))
-        loc_i   += 1
+        If UDmain.DebugMod || !loc_mod.HideInUI
+            String loc_data = UD_ModifiersDataStr[loc_i]
+            Form loc_form1 = UD_ModifiersDataForm1[loc_i]
+            Form loc_form2 = UD_ModifiersDataForm2[loc_i]
+            Form loc_form3 = UD_ModifiersDataForm3[loc_i]
+            Form loc_form4 = UD_ModifiersDataForm4[loc_i]
+            Form loc_form5 = UD_ModifiersDataForm5[loc_i]
+            ;loc_res += (loc_mod.NameFull + "\n")
+            loc_list = PapyrusUtil.PushString(loc_list, loc_mod.GetCaption(Self, loc_data, loc_form1, loc_form2, loc_form3, loc_form4, loc_form5))
+        EndIf
+        loc_i += 1
     endwhile
     
     loc_list = PapyrusUtil.PushString(loc_list,"==BACK==")

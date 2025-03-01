@@ -351,15 +351,15 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
     String[] loc_device_mods_tags = akDevice.GetModifierTags()         ; Tags of other modifiers on device
     String[] loc_wearer_mods_tags = loc_slot.GetModifierTags()         ; Tags of all modifiers on devices worn by the actor
 
-    ; adding modifier from UD_ModAddToTest if it is possible
+    ; adding obligate modifier from UD_ModAddToTest if it is possible
     If UD_ModAddToTest != ""
         loc_mod = UDMOM.GetModifier(UD_ModAddToTest)
         If loc_mod && ((loc_mod as ReferenceAlias) as UD_Patcher_ModPreset) && loc_mod.CheckModifierCompatibility(loc_forbidden_tags)
             loc_pre = ((loc_mod as ReferenceAlias) as UD_Patcher_ModPreset).GetCompatiblePatcherPreset(akDevice, True)
             If loc_pre
                 If loc_pre.CheckTagsCompatibility(loc_device_mods_tags, loc_wearer_mods_tags) > 0
-                    loc_pre.AddModifierWithPreset(akDevice, loc_mod, UD_ModGlobalSeverityShift, UD_ModGlobalSeverityDispMult)
-                    UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Added test modifier " + loc_mod)
+                    loc_pre.AddModifierWithPreset(akDevice, UD_ModGlobalSeverityShift, UD_ModGlobalSeverityDispMult)
+                    UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Added obligate modifier " + loc_mod)
                     ; If this modifier preset have forbidden tags, we add them to the array to filter out all subsequent modifiers
                     loc_forbidden_tags = PapyrusUtil.MergeStringArray(loc_forbidden_tags, loc_pre.ConflictedDeviceModTags)
                     ; If the modifier have tags, we add them to the corresponding arrays to filter out all subsequent modifiers
@@ -370,56 +370,71 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
             EndIf
         EndIf
         If loc_modnum == 0
-            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Unable to add test modifier " + loc_mod)
+            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Unable to add obligate modifier " + loc_mod)
         EndIf
         UD_ModAddToTest = ""
     EndIf
 
-    ; the second pass to check tags and assign valid mods
-    String loc_pass = "Main"                                            ; Main      - main pass to check and add the bulk of the modifiers
-                                                                        ; Postpone  - pass for checking presets with a non-empty array of required tags
-    Int loc_extra_loops = 0
+    Bool loc_has_presets = True
+    While loc_has_presets && loc_modnum < UD_ModsSoftCap
 
-    While loc_pass != "End" && loc_modnum < UD_ModsHardCap
+        Float[] loc_probs = Utility.CreateFloatArray(0)                  ; array with probabilities for presets
+        Alias[] loc_pres = Utility.CreateAliasArray(0)                   ; array with aliases for presets
+        Float loc_probs_sum = 0.0
+
         loc_i = 0
+        ; run through the entire array of available presets (filtered in the first phase), 
+        ; and calculate their probabilities.
         While loc_i < loc_valid_pre.Length && loc_modnum < UD_ModsHardCap
             loc_pre = loc_valid_pre[loc_i] As UD_Patcher_ModPreset
             loc_mod = loc_pre.GetModifier()
+            ; checking compatibility of the modifier with the device
             If loc_mod.CheckModifierCompatibility(loc_forbidden_tags)
                 Int loc_res = loc_pre.CheckTagsCompatibility(loc_device_mods_tags, loc_wearer_mods_tags)
+                ; checking compatibility of the preset with existed modifiers on the device
                 If loc_res > 0
-                ; add
+                ; add preset and probability into array
                     Float loc_prob = loc_pre.GetProbability(akDevice, loc_norm_mult, UD_ModGlobalProbabilityMult)
-                    If UD_Native.RandomFloat(0.0, 100.0) < loc_prob
-                        loc_pre.AddModifierWithPreset(akDevice, loc_mod, UD_ModGlobalSeverityShift, UD_ModGlobalSeverityDispMult)
-                        UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Added modifier " + loc_mod)
-                        ; If this modifier preset have forbidden tags, we add them to the array to filter out all subsequent modifiers
-                        loc_forbidden_tags = PapyrusUtil.MergeStringArray(loc_forbidden_tags, loc_pre.ConflictedDeviceModTags)
-                        ; If the modifier have tags, we add them to the corresponding arrays to filter out all subsequent modifiers
-                        loc_device_mods_tags = PapyrusUtil.MergeStringArray(loc_device_mods_tags, loc_mod.Tags)
-                        loc_wearer_mods_tags = PapyrusUtil.MergeStringArray(loc_wearer_mods_tags, loc_mod.Tags)
-                        loc_modnum += 1
+                    If loc_prob >= 0.0
+                        loc_probs = PapyrusUtil.PushFloat(loc_probs, loc_prob)
+                        loc_pres = PapyrusUtil.PushAlias(loc_pres, loc_pre)
+                        loc_probs_sum += loc_prob
                     EndIf
-                ElseIf loc_res == 0 && loc_pass == "Main"
-                ; postpone
-                    loc_postponed_pre = PapyrusUtil.PushAlias(loc_postponed_pre, loc_pre)
-                Else
-                ; skip
                 EndIf
             EndIf
             loc_i += 1
         Endwhile
-        If loc_pass == "Main" && loc_modnum < UD_ModsMinCap && loc_extra_loops < 2
-        ; continue to iterate while number of modifiers is below min. cap
-            loc_extra_loops += 1
-        ElseIf loc_pass == "Main" && loc_postponed_pre.Length > 0
-        ; we have minimum number of modifiers and not empty loc_postponed_pre array
-            loc_pass = "Postpone"
-            loc_valid_pre = loc_postponed_pre
+
+        UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Second pass: " + loc_probs.Length + " modifiers filtered with total probability " + FormatFloat(loc_probs_sum, 2) + "%", 2)
+        ; throw a random number within the sum of obtained probabilities to select one preset from the array formed above
+        If loc_probs.Length > 0 && loc_probs_sum > 0.0
+            Float loc_rnd = UD_Native.RandomFloat(0.0, loc_probs_sum)
+            Float loc_seek_prob = 0.0
+            loc_i = 0 
+            While loc_seek_prob <= loc_rnd && loc_i < loc_probs.Length
+                loc_seek_prob += loc_probs[loc_i]
+                loc_i += 1
+            EndWhile
+            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() random seed = " + FormatFloat(loc_rnd, 2) + "; index = " + loc_i, 3)
+            loc_pre = loc_pres[loc_i - 1] As UD_Patcher_ModPreset
+            If loc_pre 
+                ; add a new modifier to the device
+                loc_pre.AddModifierWithPreset(akDevice, UD_ModGlobalSeverityShift, UD_ModGlobalSeverityDispMult)
+                UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Added modifier " + loc_mod)
+                ; If this modifier preset have forbidden tags, we add them to the array to filter out all subsequent modifiers
+                loc_forbidden_tags = PapyrusUtil.MergeStringArray(loc_forbidden_tags, loc_pre.ConflictedDeviceModTags)
+                ; If the modifier have tags, we add them to the corresponding arrays to filter out all subsequent modifiers
+                loc_device_mods_tags = PapyrusUtil.MergeStringArray(loc_device_mods_tags, loc_mod.Tags)
+                loc_wearer_mods_tags = PapyrusUtil.MergeStringArray(loc_wearer_mods_tags, loc_mod.Tags)
+                ; remove used modifier from the source array
+                loc_valid_pre = PapyrusUtil.RemoveAlias(loc_valid_pre, loc_pre)
+                loc_modnum += 1
+            EndIf
         Else
-            loc_pass = "End"
+            loc_has_presets = False
         EndIf
     EndWhile
+
     akDevice.GetModifierTags_Update()
     loc_slot.GetModifierTags_Update()
 EndFunction
