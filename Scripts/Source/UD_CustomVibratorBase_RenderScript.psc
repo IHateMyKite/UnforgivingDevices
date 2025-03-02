@@ -921,7 +921,7 @@ Function _VibrateEnd(Bool abUnregister = True, Bool abStop = True)
         OnVibrationEnd()
         VibLoopOn = false
         
-        UD_Events.SendEvent_VibDeviceEffectStart(self)
+        UD_Events.SendEvent_VibDeviceEffectEnd(self)
     endif
 EndFunction
 
