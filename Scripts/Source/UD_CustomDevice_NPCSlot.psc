@@ -875,9 +875,7 @@ Function removeUnusedDevices()
                 loc_device.removeDevice(loc_device.getWearer())
                 loc_device.getWearer().removeItem(loc_device.deviceRendered)
             endif
-            UDmain.Log(loc_device.getDeviceName() + " clearing widgets")
             loc_device.onRemoveDevicePost(loc_device.getWearer())
-            UDmain.Log(loc_device.getDeviceName() + " after clearing widgets")
             UD_equipedCustomDevices[i] = none
             if UDmain.TraceAllowed()
                 UDmain.Log(loc_device.getDeviceName() + " is unused, removing from " + getSlotedNPCName(),2)
