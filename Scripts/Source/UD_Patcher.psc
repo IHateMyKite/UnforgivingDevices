@@ -24,20 +24,15 @@ int         Property UD_EscapeModifier      =   10    auto hidden
 Int         Property UD_MinLocks            =    0    auto hidden
 Int         Property UD_MaxLocks            =    2    auto hidden
 
-;/  Variable: UD_ModsMinCap
-    If the number of modifiers is less than the specified value, the patcher will try to add more
+;/  Variable: UD_ModsMin
+    Minimum number of mods added by the Patcher
 /;
-Int         Property UD_ModsMinCap          =    1    Auto Hidden
+Int         Property UD_ModsMin             =    1    Auto Hidden
 
-;/  Variable: UD_ModsSoftCap
-    Soft cap for the number of modifiers added by the patcher (the actual number of mods may slightly exceed this value)
+;/  Variable: UD_ModsMax
+    Maximum number of mods added by the Patcher
 /;
-Int         Property UD_ModsSoftCap         =    4    Auto Hidden
-
-;/  Variable: UD_ModsHardCap
-    Hard cap for the number of modifiers added by the patcher (when this value is reached, the patcher stops adding mods)
-/;
-Int         Property UD_ModsHardCap         =    99   Auto Hidden
+Int         Property UD_ModsMax             =    4    Auto Hidden
 
 ;/  Variable: UD_ModGlobalProbabilityMult
     Multplier that affects probability to add each modifier 
@@ -344,7 +339,6 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
         Return
     EndIf
     loc_valid_pre = Utility.ResizeAliasArray(loc_valid_pre, loc_modnum)         ; array with all suitable modifier presets
-    Float loc_norm_mult = (UD_ModsSoftCap as Float) / (loc_modnum as Float)     ; multiplier to normalize probabilities for the softcap
     UD_CustomDevice_NPCSlot loc_slot = UDCDMain.getNPCSlot(akDevice.GetWearer())
 
     loc_modnum = 0
@@ -375,8 +369,11 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
         UD_ModAddToTest = ""
     EndIf
 
+    Int loc_modcap = UD_Native.RandomInt(UD_ModsMin, UD_ModsMax)
+    Float loc_norm_mult = (loc_modcap as Float) / (loc_modnum as Float)     ; a multiplier to normalize the probabilities given the number of modifiers to be added
+
     Bool loc_has_presets = True
-    While loc_has_presets && loc_modnum < UD_ModsSoftCap
+    While loc_has_presets && loc_modnum < loc_modcap
 
         Float[] loc_probs = Utility.CreateFloatArray(0)                  ; array with probabilities for presets
         Alias[] loc_pres = Utility.CreateAliasArray(0)                   ; array with aliases for presets
@@ -385,7 +382,7 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
         loc_i = 0
         ; run through the entire array of available presets (filtered in the first phase), 
         ; and calculate their probabilities.
-        While loc_i < loc_valid_pre.Length && loc_modnum < UD_ModsHardCap
+        While loc_i < loc_valid_pre.Length
             loc_pre = loc_valid_pre[loc_i] As UD_Patcher_ModPreset
             loc_mod = loc_pre.GetModifier()
             ; checking compatibility of the modifier with the device

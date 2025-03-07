@@ -668,9 +668,8 @@ int UD_ModifierList_M
 Int UD_ModifierPatchSelected = 0
 Int UD_ModifierPatchList_M
 
-Int UD_ModsMinCap_S
-Int UD_ModsSoftCap_S
-Int UD_ModsHardCap_S
+Int UD_ModsMin_S
+Int UD_ModsMax_S
 Int UD_ModGlobalProbabilityMult_S
 Int UD_ModGlobalSeverityShift_S
 Int UD_ModGlobalSeverityDispMult_S
@@ -710,9 +709,8 @@ Function resetModifiersPage()
     SetCursorPosition(2)
     SetCursorFillMode(TOP_TO_BOTTOM)
     AddHeaderOption("$UD_PATCHER_MODSNUMTOADD")       ; Number of Modifiers to Add
-    UD_ModsMinCap_S = AddSliderOption("$UD_PATCHER_MODSMIN", UDCDmain.UDPatcher.UD_ModsMinCap, "{0}", UD_LockMenu_flag)             ; No less than
-    UD_ModsSoftCap_S = AddSliderOption("$UD_PATCHER_MODSSOFTCAP", UDCDmain.UDPatcher.UD_ModsSoftCap, "{0}", UD_LockMenu_flag)           ; No more than
-    UD_ModsHardCap_S = AddSliderOption("$UD_PATCHER_MODSHARDCAP", UDCDmain.UDPatcher.UD_ModsHardCap, "{0}", UD_LockMenu_flag)               ; Hard cap
+    UD_ModsMin_S = AddSliderOption("$UD_PATCHER_MODSMIN", UDCDmain.UDPatcher.UD_ModsMin, "{0}", UD_LockMenu_flag)                   ; No less than
+    UD_ModsMax_S = AddSliderOption("$UD_PATCHER_MODSMAX", UDCDmain.UDPatcher.UD_ModsMax, "{0}", UD_LockMenu_flag)                   ; No more than
     
     SetCursorPosition(3)
     SetCursorFillMode(TOP_TO_BOTTOM)
@@ -2651,20 +2649,15 @@ Function OnOptionSliderOpenModifiers(int option)
         SetSliderDialogDefaultValue(1.0)
         SetSliderDialogRange(0.0, 100.0)
         SetSliderDialogInterval(0.1)
-    ElseIf option == UD_ModsMinCap_S
-        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_ModsMinCap)
-        SetSliderDialogDefaultValue(2)
+    ElseIf option == UD_ModsMin_S
+        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_ModsMin)
+        SetSliderDialogDefaultValue(1)
         SetSliderDialogRange(0, 99)
         SetSliderDialogInterval(1)
-    ElseIf option == UD_ModsSoftCap_S
-        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_ModsSoftCap)
+    ElseIf option == UD_ModsMax_S
+        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_ModsMax)
         SetSliderDialogDefaultValue(4)
         SetSliderDialogRange(0, 99)
-        SetSliderDialogInterval(1)
-    ElseIf option == UD_ModsHardCap_S
-        SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_ModsHardCap)
-        SetSliderDialogDefaultValue(99)
-        SetSliderDialogRange(0, 100)
         SetSliderDialogInterval(1)
     ElseIf option == UD_ModGlobalProbabilityMult_S
         SetSliderDialogStartValue(UDCDmain.UDPatcher.UD_ModGlobalProbabilityMult)
@@ -2968,15 +2961,12 @@ Function OnOptionSliderAcceptModifiers(int option, float value)
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
         loc_mod.MultOutputQuantities  = value
         SetSliderOptionValue(UD_ModifierMultiplier3_S, value, "{1} x")
-    ElseIf option == UD_ModsMinCap_S
-        UDCDmain.UDPatcher.UD_ModsMinCap = Round(value)
-        SetSliderOptionValue(UD_ModsMinCap_S, value, "{0}")
-    ElseIf option == UD_ModsSoftCap_S
-        UDCDmain.UDPatcher.UD_ModsSoftCap = Round(value)
-        SetSliderOptionValue(UD_ModsSoftCap_S, value, "{0}")
-    ElseIf option == UD_ModsHardCap_S
-        UDCDmain.UDPatcher.UD_ModsHardCap = Round(value)
-        SetSliderOptionValue(UD_ModsHardCap_S, value, "{0}")
+    ElseIf option == UD_ModsMin_S
+        UDCDmain.UDPatcher.UD_ModsMin = Round(value)
+        SetSliderOptionValue(UD_ModsMin_S, value, "{0}")
+    ElseIf option == UD_ModsMax_S
+        UDCDmain.UDPatcher.UD_ModsMax = Round(value)
+        SetSliderOptionValue(UD_ModsMax_S, value, "{0}")
     ElseIf option == UD_ModGlobalProbabilityMult_S
         UDCDmain.UDPatcher.UD_ModGlobalProbabilityMult = value
         SetSliderOptionValue(UD_ModGlobalProbabilityMult_S, value, "{2}")
@@ -3841,14 +3831,12 @@ Function ModifierPageInfo(int option)
         SetInfoText("$UD_CUSTOMMOD_MULTIN_INFO")
     ElseIf(option == UD_ModifierMultiplier3_S)
         SetInfoText("$UD_CUSTOMMOD_MULTOUT_INFO")
-    ElseIf option == UD_ModsMinCap_S
+    ElseIf option == UD_ModsMax_S
         SetInfoText("$UD_PATCHER_MODSMIN_INFO")
     ElseIf option == UD_Modifier_AddToTest_T
         SetInfoText("$UD_CUSTOMMOD_ADDTOTEST_INFO")
-    ElseIf option == UD_ModsSoftCap_S
-        SetInfoText("$UD_PATCHER_MODSSOFTCAP_INFO")
-    ElseIf option == UD_ModsHardCap_S
-        SetInfoText("$UD_PATCHER_MODSHARDCAP_INFO")
+    ElseIf option == UD_ModsMax_S
+        SetInfoText("$UD_PATCHER_MODSMAX_INFO")
     ElseIf option == UD_ModGlobalProbabilityMult_S
         SetInfoText("$UD_PATCHER_MODSPROBMULT_INFO")
     ElseIf option == UD_ModGlobalSeverityShift_S
@@ -4376,9 +4364,8 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "UseSingleStruggleKeyword", UDAM.UD_UseSingleStruggleKeyword as Int)
     
     ; MODIFIERS
-    JsonUtil.SetIntValue(strFile, "Patcher_ModsMinCap", UDCDmain.UDPatcher.UD_ModsMinCap)
-    JsonUtil.SetIntValue(strFile, "Patcher_ModsSoftCap", UDCDmain.UDPatcher.UD_ModsSoftCap)
-    JsonUtil.SetIntValue(strFile, "Patcher_ModsHardCap", UDCDmain.UDPatcher.UD_ModsHardCap)
+    JsonUtil.SetIntValue(strFile, "Patcher_ModsMin", UDCDmain.UDPatcher.UD_ModsMin)
+    JsonUtil.SetIntValue(strFile, "Patcher_ModsMax", UDCDmain.UDPatcher.UD_ModsMax)
     JsonUtil.SetFloatValue(strFile, "Patcher_ModGlobalProbabilityMult", UDCDmain.UDPatcher.UD_ModGlobalProbabilityMult)
     JsonUtil.SetFloatValue(strFile, "Patcher_ModGlobalSeverityShift", UDCDmain.UDPatcher.UD_ModGlobalSeverityShift)
     JsonUtil.SetFloatValue(strFile, "Patcher_ModGlobalSeverityDispMult", UDCDmain.UDPatcher.UD_ModGlobalSeverityDispMult)
@@ -4553,9 +4540,8 @@ Function LoadFromJSON(string strFile)
     UD_Native.SyncAnimationSetting(UDAM.UD_AnimationJSON_Off)
     
     ; MODIFIERS
-    UDCDmain.UDPatcher.UD_ModsMinCap = JsonUtil.GetIntValue(strFile, "Patcher_ModsMinCap", UDCDmain.UDPatcher.UD_ModsMinCap)
-    UDCDmain.UDPatcher.UD_ModsSoftCap = JsonUtil.GetIntValue(strFile, "Patcher_ModsSoftCap", UDCDmain.UDPatcher.UD_ModsSoftCap)
-    UDCDmain.UDPatcher.UD_ModsHardCap = JsonUtil.GetIntValue(strFile, "Patcher_ModsHardCap", UDCDmain.UDPatcher.UD_ModsHardCap)
+    UDCDmain.UDPatcher.UD_ModsMin = JsonUtil.GetIntValue(strFile, "Patcher_ModsMinCap", UDCDmain.UDPatcher.UD_ModsMin)
+    UDCDmain.UDPatcher.UD_ModsMax = JsonUtil.GetIntValue(strFile, "Patcher_ModsSoftCap", UDCDmain.UDPatcher.UD_ModsMax)
     UDCDmain.UDPatcher.UD_ModGlobalProbabilityMult = JsonUtil.GetFloatValue(strFile, "Patcher_ModGlobalProbabilityMult", UDCDmain.UDPatcher.UD_ModGlobalProbabilityMult)
     UDCDmain.UDPatcher.UD_ModGlobalSeverityShift = JsonUtil.GetFloatValue(strFile, "Patcher_ModGlobalSeverityShift", UDCDmain.UDPatcher.UD_ModGlobalSeverityShift)
     UDCDmain.UDPatcher.UD_ModGlobalSeverityDispMult = JsonUtil.GetFloatValue(strFile, "Patcher_ModGlobalSeverityDispMult", UDCDmain.UDPatcher.UD_ModGlobalSeverityDispMult)
