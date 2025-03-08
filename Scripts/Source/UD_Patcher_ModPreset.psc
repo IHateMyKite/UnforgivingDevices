@@ -106,7 +106,8 @@ Float       Property BaseProbability            = 100.0 Auto
 {Default value: 100.0}
 
 ;/  Variable: IsNormalizedProbability
-    Indicates that the probability is normalized to the allowed number of modifiers (softcap)
+    Indicates that the probability is normalized to the allowed number of modifiers.
+    If it is False and BaseProbability is 100.0 then this preset will be always selected.
 /;
 Bool        Property IsNormalizedProbability    = True  Auto
 {Default value: True}
@@ -454,11 +455,8 @@ Int Function CheckTagsCompatibility(String[] aasDeviceModsTags, String[] aasWear
 EndFunction
 
 
-Float Function GetProbability(UD_CustomDevice_RenderScript akDevice, Float afNormMult, Float afGlobalProbabilityMult)
+Float Function GetProbability(UD_CustomDevice_RenderScript akDevice, Float afGlobalProbabilityMult)
     Float loc_prob = BaseProbability
-    If IsNormalizedProbability
-        loc_prob *= afNormMult
-    EndIf
     loc_prob *= afGlobalProbabilityMult
     
     Return loc_prob

@@ -2296,7 +2296,9 @@ Function RegisterEmptyItemEvent()
 EndFunction
 
 Function RegisterItemEvent(Form akFilter)
-    UDmain.Log("UD_CustomDevice_NPCSlot::RegisterItemEvent() Actor = " + GetActor() + " akFilter = " + akFilter, 2)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_CustomDevice_NPCSlot::RegisterItemEvent() Actor = " + GetActor() + " akFilter = " + akFilter, 2)
+    EndIf
     ; access from multiple threads is unlikely
     Int loc_i = _GetItemFilterIndex(akFilter)
     If loc_i < 0
@@ -2314,7 +2316,9 @@ Function RegisterItemEvent(Form akFilter)
 EndFunction
 
 Function UnregisterItemEvent(Form akFilter)
-    UDmain.Log("UD_CustomDevice_NPCSlot::UnregisterItemEvent() Actor = " + GetActor() + " akFilter = " + akFilter, 2)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_CustomDevice_NPCSlot::UnregisterItemEvent() Actor = " + GetActor() + " akFilter = " + akFilter, 2)
+    EndIf
     ; access from multiple threads is unlikely
     Int loc_i = _GetItemFilterIndex(akFilter)
     If loc_i < 0

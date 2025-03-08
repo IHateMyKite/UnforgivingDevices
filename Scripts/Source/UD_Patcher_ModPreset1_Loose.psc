@@ -9,8 +9,8 @@ Int Function CheckDeviceCompatibility(UD_CustomDevice_RenderScript akDevice, Boo
     Return Parent.CheckDeviceCompatibility(akDevice, abCheckWearer)
 EndFunction
 
-Float Function GetProbability(UD_CustomDevice_RenderScript akDevice, Float afNormMult, Float afGlobalProbabilityMult)
-    Float loc_prob = Parent.GetProbability(akDevice, afNormMult, afGlobalProbabilityMult)
+Float Function GetProbability(UD_CustomDevice_RenderScript akDevice, Float afGlobalProbabilityMult)
+    Float loc_prob = Parent.GetProbability(akDevice, afGlobalProbabilityMult)
     If akDevice.UD_DeviceKeyword == GetModifier().libs.zad_DeviousBlindfold
         Return loc_prob * 0.70
     ElseIf akDevice.UD_DeviceKeyword == GetModifier().libs.zad_DeviousGag
