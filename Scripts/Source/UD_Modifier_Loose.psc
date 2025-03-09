@@ -1,38 +1,25 @@
+;/  File: UD_Modifier_Loose
+    Device is loose, allowing to wearer to struggle from it even when they have tied hands
+
+    NameFull:   Loose
+    NameAlias:  LOS
+
+    Parameters in DataStr:
+        [0]     Float       (optional) The accessibility of the device (0.0 - 1.0). Used to check accessibility in UD_CustomDevice_RenderScript::getAccesibility
+                            Default value: 0.0
+/;
 ScriptName UD_Modifier_Loose extends UD_Modifier
 
 import UnforgivingDevicesMain
 import UD_Native
 
-Bool Function PatchModifierCondition(UD_CustomDevice_RenderScript akDevice)
-    ;TODO - make native function for easier filtering device types
-    
-    if !akDevice.CanBeStruggled(1.0) || akDevice.CanBeStruggled(0.0) || akDevice.IsPlug()
-        return false
-    endif
-    
-    if akDevice.UD_DeviceKeyword == libs.zad_DeviousBlindfold
-        return RandomInt(1,100) < 70*PatchChanceMultiplier
-    elseif akDevice.UD_DeviceKeyword == libs.zad_DeviousGag
-        return RandomInt(1,100) < 30*PatchChanceMultiplier
-    elseif akDevice.UD_DeviceKeyword == libs.zad_DeviousHood || akDevice.isMittens()
-        return true
-    else
-        return RandomInt(1,100) < 50*PatchChanceMultiplier
-    endif
-EndFunction
-
-Function PatchAddModifier(UD_CustomDevice_RenderScript akDevice)
-    akDevice.addModifier(self,FormatFloat(fRange(RandomFloat(0.10,0.50)*PatchPowerMultiplier,0.0,1.0),2))
-EndFunction
-
-Function ShowDetails(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3)
-    String loc_msg = ""
-    
-    loc_msg += "=== " + NameFull + " ===\n"
-    loc_msg += "Strength: " + iRange(Round(UD_Native.GetStringParamFloat(aiDataStr,0,0.0)*100.0),0,100) + " %\n"
-
-    loc_msg += "===Description===\n"
-    loc_msg += Description + "\n"
-
-    UDmain.ShowMessageBox(loc_msg)
+;/  Group: User Interface
+===========================================================================================
+===========================================================================================
+===========================================================================================
+/;
+String Function GetParamsTableRows(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+    String loc_res = ""
+    loc_res += UDmain.UDMTF.TableRowDetails("Looseness:", FormatFloat(MultFloat(GetStringParamFloat(aiDataStr, 0, 0.0), MultOutputQuantities), 1) + "%")
+    Return loc_res
 EndFunction

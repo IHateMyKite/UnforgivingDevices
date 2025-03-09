@@ -185,7 +185,7 @@ Function InitPost()
 EndFunction
 
 Int Function GetAiPriority()
-    Int loc_res = 15
+    Int loc_res = Parent.GetAiPriority() - 10
     if isVibrating()
         loc_res += 35
     endif
@@ -1214,17 +1214,17 @@ EndFunction
 Function onSpecialButtonReleased(Float fHoldTime)
     parent.onSpecialButtonReleased(fHoldTime)
 EndFunction
-bool Function onWeaponHitPre(Weapon source)
-    return parent.onWeaponHitPre(source)
+bool Function onWeaponHitPre(Weapon source, Float afDamage = -1.0)
+    return parent.onWeaponHitPre(source, afDamage)
 EndFunction
-Function onWeaponHitPost(Weapon source)
-    parent.onWeaponHitPost(source)
+Function onWeaponHitPost(Weapon source, Float afDamage = -1.0)
+    parent.onWeaponHitPost(source, afDamage)
 EndFunction
-bool Function onSpellHitPre(Spell source)
-    return parent.onSpellHitPre(source)
+bool Function onSpellHitPre(Form source, Float afDamage = -1.0)
+    return parent.onSpellHitPre(source, afDamage)
 EndFunction
-Function onSpellHitPost(Spell source)
-    parent.onSpellHitPost(source)
+Function onSpellHitPost(Form source, Float afDamage = -1.0)
+    parent.onSpellHitPost(source, afDamage)
 EndFunction
 string Function addInfoString(string str = "")
     return parent.addInfoString(str)

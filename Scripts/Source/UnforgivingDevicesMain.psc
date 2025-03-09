@@ -1333,6 +1333,14 @@ string Function getPlugsVibrationStrengthString(int aiStrenght) global
     endif
 EndFunction
 
+String Function InlineIfStr(Bool abCondition, String asTrue, String asFalse)    global
+    If abCondition
+        Return asTrue
+    Else
+        Return asFalse
+    EndIf
+EndFunction
+
 ;/  Group: Math
 ===========================================================================================
 ===========================================================================================

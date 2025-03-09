@@ -29,6 +29,7 @@ Message             Property UD_FixMenu_MSG                             auto
 Int                 Property UD_Slots                       = 15        auto hidden
 Float               Property UD_SlotUpdateTime              = 10.0      auto hidden
 Bool                Property Ready                          = False     auto hidden
+FormList            Property EmptyItemFilter                            Auto
 
 Bool                         _PlayerSlotReady               = false
 Float                        _LastUpdateTime                = 0.0
