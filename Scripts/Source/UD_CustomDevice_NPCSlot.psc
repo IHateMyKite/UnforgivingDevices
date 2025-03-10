@@ -2352,6 +2352,9 @@ Function UnregisterAllItemEvents(Bool abClearArray = True)
 EndFunction
 
 Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_CustomDevice_NPCSlot::OnItemAdded() akBaseItem = " + akBaseItem + " Owner = " + akItemReference.GetActorOwner(), 3)
+    EndIf
     Int loc_i = 0
     Bool loc_stolen = akItemReference.GetActorOwner() != None && akItemReference.GetActorOwner() != GetActorRef().GetActorBase()
     While UD_equipedCustomDevices[loc_i]

@@ -24,7 +24,7 @@
         [6]     Float       (script) Timestamp of the last trigger
 
     Form arguments:
-        Form1               FormList, Form or Keyword to filter obtained items
+        Form1               Form or FormList with Forms to filter obtained items. Keywords don't work
     
     Example:
         DataStr = 1,100,0,24,,,        
@@ -60,6 +60,9 @@ Bool Function DeviceUnlocked(UD_Modifier_Combo akModifier, UD_CustomDevice_Rende
 EndFunction
 
 Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akSourceContainer, Bool abIsStolen, String aiDataStr, Form akForm1)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_ModTrigger_ItemObtain::ItemAdded() akItemForm = " + akItemForm + " abIsStolen = " + abIsStolen, 3)
+    EndIf
     If !_IsValidForm(akForm1, akItemForm)
         Return False
     EndIf
