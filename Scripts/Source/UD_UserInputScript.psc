@@ -110,10 +110,6 @@ State Minigame
                     UDCDmain.CurrentPlayerMinigameDevice.stopMinigame()
                 endif
                 return
-            elseif !UDCDMain.UD_AutoCrit && (KeyCode == UDCDMain.Stamina_meter_Keycode || KeyCode == UDCDMain.Magicka_meter_Keycode)
-                UDCDmain.crit = False
-                UDCDmain.CurrentPlayerMinigameDevice.critFailure()
-                return
             endif
         endif
     EndEvent
