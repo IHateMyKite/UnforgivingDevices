@@ -1527,7 +1527,7 @@ int fixBugs_T
 int rescanSlots_T
 int unlockAll_T
 int showDetails_T
-int actorIndex = 5
+int actorIndex = 15
 int unregisterNPC_T
 int GlobalUpdateNPC_T
 int OrgasmResist_S
