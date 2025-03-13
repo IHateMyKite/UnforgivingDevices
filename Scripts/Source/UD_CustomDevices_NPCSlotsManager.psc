@@ -26,7 +26,7 @@ EndProperty
 Quest               Property UDCD_NPCF                                  auto ;finder
 UD_OrgasmManager    Property UDOM                                       auto
 Message             Property UD_FixMenu_MSG                             auto
-Int                 Property UD_Slots                       = 15        auto hidden
+Int                 Property UD_Slots                       = 16        auto hidden
 Float               Property UD_SlotUpdateTime              = 10.0      auto hidden
 Bool                Property Ready                          = False     auto hidden
 FormList            Property EmptyItemFilter                            Auto
