@@ -219,13 +219,15 @@ endEvent
 Function _ValidateOutfit()
     int loc_i = 0
     Actor loc_actor = GetActor()
-    while (loc_i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[loc_i]
-        UD_CustomDevice_RenderScript loc_device = UD_equipedCustomDevices[loc_i]
-        ;check if device is equipped, if not, equip it
-        if !loc_actor.isEquipped(loc_device.deviceRendered) 
-            loc_actor.equipitem(loc_device.deviceRendered, true, true)
-            UDmain.Info("Equipping unequipped device " + loc_device.getDeviceName() + " for " + GetSlotedNPCName())
-        endif
+    while (loc_i < UD_equipedCustomDevices.length)
+        If UD_equipedCustomDevices[loc_i]
+            UD_CustomDevice_RenderScript loc_device = UD_equipedCustomDevices[loc_i]
+            ;check if device is equipped, if not, equip it
+            if !loc_actor.isEquipped(loc_device.deviceRendered) 
+                loc_actor.equipitem(loc_device.deviceRendered, true, true)
+                UDmain.Info("Equipping unequipped device " + loc_device.getDeviceName() + " for " + GetSlotedNPCName())
+            endif
+        EndIf
         loc_i += 1
     endwhile
 EndFunction
@@ -247,8 +249,10 @@ EndFunction
 String[] Function getSlotsStringA()
     String[] loc_res
     int i = 0
-    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
-        loc_res = PapyrusUtil.PushString(loc_res,UD_equipedCustomDevices[i].getDeviceName())
+    while (i < UD_equipedCustomDevices.length)
+        If UD_equipedCustomDevices[i]
+            loc_res = PapyrusUtil.PushString(loc_res,UD_equipedCustomDevices[i].getDeviceName())
+        EndIf
         i+=1
     endwhile
     return loc_res
@@ -281,10 +285,12 @@ EndFunction
 
 int Function GetDeviceSlotIndx(UD_CustomDevice_RenderScript device)
     int i = 0
-    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
-        if UD_equipedCustomDevices[i] == device
-            return i
-        endif
+    while (i < UD_equipedCustomDevices.length)
+        If UD_equipedCustomDevices[i]
+            if UD_equipedCustomDevices[i] == device
+                return i
+            endif
+        EndIf
         i+=1
     endwhile
     return -1
@@ -1028,9 +1034,6 @@ Float _LastEnchConcTime = 0.0
 
 Event OnHit(ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked)
     if !isScriptRunning()
-        Return
-    EndIf
-    If akProjectile != None
         Return
     EndIf
     If UD_Native.IsConcentrationSpell(akSource as Spell)
