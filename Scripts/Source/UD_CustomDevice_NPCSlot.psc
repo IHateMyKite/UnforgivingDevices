@@ -859,6 +859,14 @@ Function removeAllDevices()
     ;startDeviceManipulation()
     StorageUtil.SetIntValue(getActor(), "UD_blockSlotUpdate",1)
     while UD_equipedCustomDevices[0]
+        if UD_equipedCustomDevices[0].isUnlocked
+            Utility.waitMenuMode(0.2)
+            if UD_equipedCustomDevices[0].isUnlocked
+                removeCopies()
+                removeUnusedDevices()
+                removeLostRenderDevices()
+            endif
+        endif    
         UD_equipedCustomDevices[0].unlockRestrain()
     endwhile
     ;regainDevices()
@@ -879,6 +887,7 @@ Function removeUnusedDevices()
                 loc_device.removeDevice(loc_device.getWearer())
                 loc_device.getWearer().removeItem(loc_device.deviceRendered)
             endif
+            loc_device.onRemoveDevicePost(loc_device.getWearer())
             UD_equipedCustomDevices[i] = none
             if UDmain.TraceAllowed()
                 UDmain.Log(loc_device.getDeviceName() + " is unused, removing from " + getSlotedNPCName(),2)
