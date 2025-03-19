@@ -108,9 +108,30 @@ Float       Property BaseProbability            = 100.0 Auto
 ;/  Variable: IsNormalizedProbability
     Indicates that the probability is normalized to the allowed number of modifiers.
     If it is False and BaseProbability is 100.0 then this preset will be always selected.
+
+    Obsolete. To be deleted.
 /;
 Bool        Property IsNormalizedProbability    = True  Auto
-{Default value: True}
+{Obsolete. To be deleted.}
+
+;/  Variable: IsAbsoluteProbability
+    An indication that the above probability is absolute, i.e. it does not depend on 
+    the number of registered modifiers or the settings for the number of modifiers on the devices.
+
+    To fulfill the boundary conditions I need, the probabilities can be of two kinds: 
+        - absolute probability - the chance of a modifier appearing does not depend on the total number 
+        of registered modifiers, or the allowed number on one device.
+        - weighted (relative, normalized) probability - modifiers with this type of probability compete 
+        with each other for a chance to appear on a device. This chance naturally decreases as the number 
+        of registered modifiers increases, and directly depends on the number of possible modifiers on one device.
+
+    Boundary conditions:
+    - A modifier with an absolute probability of 100% will ALWAYS appear on suitable devices.
+    - A modifier with a weighted probability of 50% will appear 2 times less often on devices 
+    than a modifier with a weighted probability of 100%.
+/;
+Bool        Property IsAbsoluteProbability      = False  Auto
+{Default value: False}
 
 ;/  Variable: BaseSeverity
     Average modifier severity (mathematical expectation of the random variable on which the configuration is generated)
@@ -514,7 +535,7 @@ Function SaveToJSON(String asFile, String asObjectPath)
     JsonUtil.SetIntValue(asFile, loc_path + "ApplicableToNPC", ApplicableToNPC As Int)
     JsonUtil.SetIntValue(asFile, loc_path + "ApplicableToPlayer", ApplicableToPlayer As Int)
     JsonUtil.SetFloatValue(asFile, loc_path + "BaseProbability", BaseProbability)
-    JsonUtil.SetIntValue(asFile, loc_path + "IsNormalizedProbability", IsNormalizedProbability As Int)
+    JsonUtil.SetIntValue(asFile, loc_path + "IsAbsoluteProbability", IsAbsoluteProbability As Int)
     JsonUtil.SetFloatValue(asFile, loc_path + "BaseSeverity", BaseSeverity)
     JsonUtil.SetFloatValue(asFile, loc_path + "SeverityDispersion", SeverityDispersion)
     
@@ -526,7 +547,7 @@ Function LoadFromJSON(String asFile, String asObjectPath)
     ApplicableToNPC = JsonUtil.GetIntValue(asFile, loc_path + "ApplicableToNPC", ApplicableToNPC As Int) != 0
     ApplicableToPlayer = JsonUtil.GetIntValue(asFile, loc_path + "ApplicableToPlayer", ApplicableToPlayer As Int) != 0
     BaseProbability = JsonUtil.GetFloatValue(asFile, loc_path + "BaseProbability", BaseProbability)
-    IsNormalizedProbability = JsonUtil.GetIntValue(asFile, loc_path + "IsNormalizedProbability", IsNormalizedProbability As Int) != 0
+    IsAbsoluteProbability = JsonUtil.GetIntValue(asFile, loc_path + "IsAbsoluteProbability", IsAbsoluteProbability As Int) != 0
     BaseSeverity = JsonUtil.GetFloatValue(asFile, loc_path + "BaseSeverity", BaseSeverity)
     SeverityDispersion = JsonUtil.GetFloatValue(asFile, loc_path + "SeverityDispersion", SeverityDispersion)
 EndFunction

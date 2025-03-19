@@ -685,7 +685,7 @@ int UD_ModifierDescription_T
 Int UD_ModPP_ApplicableToNPC_T
 Int UD_ModPP_ApplicableToPlayer_T
 Int UD_ModPP_BaseProbability_S
-Int UD_ModPP_IsNormalizedProbability_T
+Int UD_ModPP_IsAbsoluteProbability_T
 Int UD_ModPP_BaseSeverity_S
 Int UD_ModPP_SeverityDispersion_S
 
@@ -800,9 +800,9 @@ Function resetModifiersPage()
     UD_ModPP_ApplicableToNPC_T = addToggleOption("$UD_CUSTOMMOD_APPTONPC", loc_mod_pp.ApplicableToNPC, UD_LockMenu_flag)                ; Applicable to NPCs
     AddEmptyOption()
     
-    UD_ModPP_BaseProbability_S = AddSliderOption("$UD_CUSTOMMOD_BASEPROB", loc_mod_pp.BaseProbability, "{0} %", UD_LockMenu_flag)                 ; Base probability
+    UD_ModPP_BaseProbability_S = AddSliderOption("$UD_CUSTOMMOD_BASEPROB", loc_mod_pp.BaseProbability, "{0} %", UD_LockMenu_flag)                   ; Base probability
     UD_ModPP_BaseSeverity_S = AddSliderOption("$UD_CUSTOMMOD_BASESEVERITY", loc_mod_pp.BaseSeverity, "{2}", UD_LockMenu_flag)                         ; Base severity
-    UD_ModPP_IsNormalizedProbability_T = addToggleOption("$UD_CUSTOMMOD_PROBNORM", loc_mod_pp.IsNormalizedProbability, UD_LockMenu_flag)          ; Probability is normalized
+    UD_ModPP_IsAbsoluteProbability_T = addToggleOption("$UD_CUSTOMMOD_PROBABS", loc_mod_pp.IsAbsoluteProbability, UD_LockMenu_flag)                ; Probability is absolute
     UD_ModPP_SeverityDispersion_S = AddSliderOption("$UD_CUSTOMMOD_SEVERITYDISP", loc_mod_pp.SeverityDispersion, "{2}", UD_LockMenu_flag)             ; Severity dispersion
 
 EndFunction
@@ -1788,11 +1788,11 @@ Function OptionSelectModifiers(int option)
             UDCDMain.UDPatcher.UD_ModAddToTest = ""
         EndIf
         SetToggleOptionValue(UD_Modifier_AddToTest_T, UDCDMain.UDPatcher.UD_ModAddToTest == loc_mod.NameAlias)
-    elseif option == UD_ModPP_IsNormalizedProbability_T
+    elseif option == UD_ModPP_IsAbsoluteProbability_T
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
-        loc_mod_pp.IsNormalizedProbability = !loc_mod_pp.IsNormalizedProbability
-        SetToggleOptionValue(UD_ModPP_IsNormalizedProbability_T, loc_mod_pp.IsNormalizedProbability)
+        loc_mod_pp.IsAbsoluteProbability = !loc_mod_pp.IsAbsoluteProbability
+        SetToggleOptionValue(UD_ModPP_IsAbsoluteProbability_T, loc_mod_pp.IsAbsoluteProbability)
     endif
 EndFunction
 
@@ -3849,8 +3849,8 @@ Function ModifierPageInfo(int option)
         SetInfoText("$UD_CUSTOMMOD_BASESEVERITY_INFO")
     ElseIf option == UD_ModPP_SeverityDispersion_S
         SetInfoText("$UD_CUSTOMMOD_SEVERITYDISP_INFO")
-    ElseIf option == UD_ModPP_IsNormalizedProbability_T
-        SetInfoText("$UD_CUSTOMMOD_PROBNORM_INFO")
+    ElseIf option == UD_ModPP_IsAbsoluteProbability_T
+        SetInfoText("$UD_CUSTOMMOD_PROBABS_INFO")
     ElseIf option == UD_ModifierNoModsDesc_T
         SetInfoText("$UD_CUSTOMMOD_ERROR_NOMODS_INFO")
     ElseIf option == UD_ModifierNoPPDesc_T

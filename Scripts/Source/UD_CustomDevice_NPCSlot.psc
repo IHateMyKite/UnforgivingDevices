@@ -2302,7 +2302,9 @@ Int Function _GetItemFilterIndex(Form akFilter)
 EndFunction
 
 Function RegisterEmptyItemEvent()
-    UDmain.Log("UD_CustomDevice_NPCSlot::RegisterEmptyItemEvent() Actor = " + GetActor(), 2)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_CustomDevice_NPCSlot::RegisterEmptyItemEvent() Actor = " + GetActor(), 2)
+    EndIf
     FormList loc_filter = (GetOwningQuest() as UD_CustomDevices_NPCSlotsManager).EmptyItemFilter
     Self.AddInventoryEventFilter(loc_filter)
 EndFunction
@@ -2349,7 +2351,9 @@ Function UnregisterItemEvent(Form akFilter)
 EndFunction
 
 Function UnregisterAllItemEvents(Bool abClearArray = True)
-    UDmain.Log("UD_CustomDevice_NPCSlot::UnregisterAllItemEvents() Actor = " + GetActor() + " abClearArray = " + abClearArray, 2)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_CustomDevice_NPCSlot::UnregisterAllItemEvents() Actor = " + GetActor() + " abClearArray = " + abClearArray, 2)
+    EndIf
     ; access from multiple threads is unlikely
     Int loc_i = _ItemFilter_Forms.Length
     While loc_i > 0

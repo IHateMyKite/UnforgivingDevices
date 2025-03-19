@@ -60,13 +60,13 @@ Bool Function DeviceUnlocked(UD_Modifier_Combo akModifier, UD_CustomDevice_Rende
 EndFunction
 
 Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Form akItemForm, Int aiItemCount, ObjectReference akSourceContainer, Bool abIsStolen, String aiDataStr, Form akForm1)
-    If UDmain.TraceAllowed()
-        UDmain.Log("UD_ModTrigger_ItemObtain::ItemAdded() akItemForm = " + akItemForm + " abIsStolen = " + abIsStolen, 3)
-    EndIf
     If !_IsValidForm(akForm1, akItemForm)
         Return False
     EndIf
-
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_ModTrigger_ItemObtain::ItemAdded() akItemForm = " + akItemForm + " abIsStolen = " + abIsStolen, 3)
+    EndIf
+    
     Float loc_last = GetStringParamFloat(aiDataStr, 6, 0.0)
     Float loc_period = MultFloat(GetStringParamFloat(aiDataStr, 3, -1.0), 1.0 / akModifier.MultInputQuantities)
     

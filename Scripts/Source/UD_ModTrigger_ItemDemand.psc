@@ -105,6 +105,9 @@ Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     If !_IsValidForm(akForm1, akItemForm)
         Return False
     EndIf
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_ModTrigger_ItemDemand::ItemAdded() akItemForm = " + akItemForm + " abIsStolen = " + abIsStolen, 3)
+    EndIf
 
     Int loc_acc = GetStringParamInt(aiDataStr, 5, 0)
     Int loc_min_count = MultInt(GetStringParamInt(aiDataStr, 0, 1), akModifier.MultInputQuantities)
