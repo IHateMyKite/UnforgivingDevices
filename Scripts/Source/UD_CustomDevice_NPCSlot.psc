@@ -2369,10 +2369,12 @@ EndFunction
 
 Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer)
     If UDmain.TraceAllowed()
-        UDmain.Log("UD_CustomDevice_NPCSlot::OnItemAdded() akBaseItem = " + akBaseItem + " Owner = " + akItemReference.GetActorOwner(), 3)
+        UDmain.Log("UD_CustomDevice_NPCSlot::OnItemAdded() akBaseItem = " + akBaseItem + " Owner = " + akItemReference.GetActorOwner() + ", Faction = " + akItemReference.GetFactionOwner(), 3)
     EndIf
+    Faction loc_owner_faction = akItemReference.GetFactionOwner()
+    ActorBase loc_owner_actor = akItemReference.GetActorOwner()
+    Bool loc_stolen = (loc_owner_actor != None && loc_owner_actor != GetActorRef().GetActorBase()) || (loc_owner_faction != None && !GetActorRef().IsInFaction(loc_owner_faction))
     Int loc_i = 0
-    Bool loc_stolen = akItemReference.GetActorOwner() != None && akItemReference.GetActorOwner() != GetActorRef().GetActorBase()
     While UD_equipedCustomDevices[loc_i]
         Udmain.UDMOM.Procces_UpdateModifiers_ItemAdded(UD_equipedCustomDevices[loc_i], akBaseItem, aiItemCount, akSourceContainer, loc_stolen)
         loc_i += 1

@@ -70,7 +70,7 @@ Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     Float loc_last = GetStringParamFloat(aiDataStr, 6, 0.0)
     Float loc_period = MultFloat(GetStringParamFloat(aiDataStr, 3, -1.0), 1.0 / akModifier.MultInputQuantities)
     
-    If loc_last < 0.0 && loc_period < 0.0
+    If loc_last < 0.0 && loc_period <= 0.0
     ; already triggered with trigger-once settings
         Return False
     EndIf
@@ -88,14 +88,14 @@ Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     
     loc_acc += aiItemCount
     
-    If (loc_last + loc_period) > loc_timer && loc_min_count <= loc_acc
+    If (loc_last + loc_period) <= loc_timer && loc_min_count <= loc_acc
         Float loc_prob1 = MultFloat(GetStringParamFloat(aiDataStr, 1, 100.0), akModifier.MultProbabilities)
         Float loc_prob2 = MultFloat(GetStringParamFloat(aiDataStr, 2, 0.0), akModifier.MultProbabilities)
         If RandomFloat(0.0, 100.0) < (loc_prob1 + loc_prob2 * loc_acc)
             loc_result = True
             loc_acc = 0
             loc_last = loc_timer
-            If loc_period < 0.0
+            If loc_period <= 0.0
             ; triggered once
                 loc_last = -1.0
             EndIf

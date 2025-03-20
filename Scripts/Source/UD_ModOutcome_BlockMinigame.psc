@@ -31,6 +31,9 @@ Scriptname UD_ModOutcome_BlockMinigame extends UD_ModOutcome
 import UnforgivingDevicesMain
 import UD_Native
 
+String Property ChangeToBlockedMessage Auto
+String Property ChangeToAllowedMessage Auto
+
 ;/  Group: Overrides
 ===========================================================================================
 ===========================================================================================
@@ -58,10 +61,21 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
         loc_state = "B"
     EndIf
 
-    akDevice.editStringModifier(akModifier.NameAlias, DataStrOffset + 2, loc_state)
+    akDevice.editStringModifier(akModifier.NameAlias, DataStrOffset + 3, loc_state)
     If loc_duration > 0.0
         akDevice.editStringModifier(akModifier.NameAlias, DataStrOffset + 1, FormatFloat(Utility.GetCurrentGameTime() * 24.0, 2))
     EndIf
+
+    ; print a message if the state has changed
+    String loc_msg = ""
+    If loc_state == "B" && StringUtil.GetLength(ChangeToBlockedMessage) > 0
+        loc_msg = UDmain.UDMTF.ReplaceSubstr(ChangeToBlockedMessage, "%device%", akDevice.UD_DeviceType)
+        UDmain.Print(loc_msg)
+    ElseIf loc_state == "A" && StringUtil.GetLength(ChangeToAllowedMessage) > 0
+        loc_msg = UDmain.UDMTF.ReplaceSubstr(ChangeToAllowedMessage, "%device%", akDevice.UD_DeviceType)
+        UDmain.Print(loc_msg)
+    EndIf
+    
 EndFunction
 
 Bool Function MinigameAllowed(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
@@ -75,7 +89,7 @@ Bool Function MinigameAllowed(UD_Modifier_Combo akModifier, UD_CustomDevice_Rend
 
     If loc_ts > 0.0 && loc_duration > 0.0 && loc_time > loc_ts + loc_duration && loc_init != loc_state
     ; toggled back to initial state by duration
-        akDevice.editStringModifier(akModifier.NameAlias, DataStrOffset + 2, loc_init)
+        akDevice.editStringModifier(akModifier.NameAlias, DataStrOffset + 3, loc_init)
         loc_state = loc_init
     EndIf
 
@@ -102,7 +116,7 @@ String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice
 
     If loc_ts > 0.0 && loc_duration > 0.0 && loc_time > loc_ts + loc_duration && loc_init != loc_state
     ; toggled back to initial state by duration
-        akDevice.editStringModifier(akModifier.NameAlias, DataStrOffset + 2, loc_init)
+        akDevice.editStringModifier(akModifier.NameAlias, DataStrOffset + 3, loc_init)
         loc_state = loc_init
     EndIf
 

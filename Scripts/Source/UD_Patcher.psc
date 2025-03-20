@@ -435,7 +435,7 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
                     If loc_rnd < loc_a_probs[loc_i]
                         loc_pre = loc_a_pres[loc_i] As UD_Patcher_ModPreset
                     EndIf
-                    loc_valid_pres = PapyrusUtil.RemoveAlias(loc_valid_pres, loc_a_probs[loc_i])       ; we have tried this modifier
+                    loc_valid_pres = PapyrusUtil.RemoveAlias(loc_valid_pres, loc_a_pres[loc_i])       ; we have tried this modifier
                     loc_i += 1
                 EndWhile
             EndIf
