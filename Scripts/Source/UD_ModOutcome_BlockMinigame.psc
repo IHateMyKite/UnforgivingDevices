@@ -67,13 +67,15 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     EndIf
 
     ; print a message if the state has changed
-    String loc_msg = ""
-    If loc_state == "B" && StringUtil.GetLength(ChangeToBlockedMessage) > 0
-        loc_msg = UDmain.UDMTF.ReplaceSubstr(ChangeToBlockedMessage, "%device%", akDevice.UD_DeviceType)
-        UDmain.Print(loc_msg)
-    ElseIf loc_state == "A" && StringUtil.GetLength(ChangeToAllowedMessage) > 0
-        loc_msg = UDmain.UDMTF.ReplaceSubstr(ChangeToAllowedMessage, "%device%", akDevice.UD_DeviceType)
-        UDmain.Print(loc_msg)
+    If akDevice.WearerIsPlayer()
+        String loc_msg = ""
+        If loc_state == "B" && StringUtil.GetLength(ChangeToBlockedMessage) > 0
+            loc_msg = UDmain.UDMTF.ReplaceSubstr(ChangeToBlockedMessage, "%device%", akDevice.UD_DeviceType)
+            UDmain.Print(loc_msg)
+        ElseIf loc_state == "A" && StringUtil.GetLength(ChangeToAllowedMessage) > 0
+            loc_msg = UDmain.UDMTF.ReplaceSubstr(ChangeToAllowedMessage, "%device%", akDevice.UD_DeviceType)
+            UDmain.Print(loc_msg)
+        EndIf
     EndIf
     
 EndFunction
