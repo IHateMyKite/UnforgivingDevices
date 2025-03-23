@@ -295,6 +295,8 @@ Function Update()
     
     UD_ModifierSelected = 0
     UD_ModifierPatchSelected = 0
+    
+    InitConfigPresets()
 EndFunction
 
 Function LoadConfig(Bool abResetToDef = True)
@@ -774,7 +776,7 @@ Function resetModifiersPage()
     
     UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
     If loc_mod_pp == None
-        UD_ModifierNoPPDesc_T = AddTextOption("$UD_CUSTOMMOD_ERROR_NOPPS", "$-INFO-", FlagSwitch(True))            ; No patcher presets found!
+        UD_ModifierNoPPDesc_T = AddTextOption("$UD_CUSTOMMOD_ERROR_NOPPS", "$-INFO-",FlagSwitch(false))            ; No patcher presets found!
         Return
     Else 
         UD_ModifierNoPPDesc_T = -1
@@ -783,17 +785,17 @@ Function resetModifiersPage()
     UD_ModifierPatchList_M = AddMenuOption("$UD_CUSTOMMOD_PPSSELECTED", loc_mod_pp.DisplayName)           ; Selected patch preset:
     AddEmptyOption()
     
-    UD_ModifierVarEasyDesc_T = AddTextOption("$UD_CUSTOMMOD_VAREASY", "$-PREVIEW-", UD_LockMenu_flag)
+    UD_ModifierVarEasyDesc_T = AddTextOption("$UD_CUSTOMMOD_VAREASY", "$-PREVIEW-")
     AddTextOption("", loc_mod_pp.DataStr_Easy, UD_LockMenu_flag)
-    UD_ModifierVarNormDesc_T = AddTextOption("$UD_CUSTOMMOD_VARNORMAL", "$-PREVIEW-", UD_LockMenu_flag)
+    UD_ModifierVarNormDesc_T = AddTextOption("$UD_CUSTOMMOD_VARNORMAL", "$-PREVIEW-")
     AddTextOption("", loc_mod_pp.DataStr_Ground, UD_LockMenu_flag)
-    UD_ModifierVarHardDesc_T = AddTextOption("$UD_CUSTOMMOD_VARHARD", "$-PREVIEW-", UD_LockMenu_flag)
+    UD_ModifierVarHardDesc_T = AddTextOption("$UD_CUSTOMMOD_VARHARD", "$-PREVIEW-")
     AddTextOption("", loc_mod_pp.DataStr_Hard, UD_LockMenu_flag)
 
-    UD_ModifierDeviceTags_T = AddTextOption("$UD_CUSTOMMOD_DEVTAGS", "$-INFO-", UD_LockMenu_flag)
-    AddTextOption("", loc_mod_pp.ConflictedDeviceModTags, UD_LockMenu_flag)
-    UD_ModifierGlobalTags_T = AddTextOption("$UD_CUSTOMMOD_GLOBTAGS", "$-INFO-", UD_LockMenu_flag)
-    AddTextOption("", loc_mod_pp.ConflictedGlobalModTags, UD_LockMenu_flag)
+    UD_ModifierDeviceTags_T = AddTextOption("$UD_CUSTOMMOD_DEVTAGS", "$-INFO-",FlagSwitch(false))
+    AddTextOption("", loc_mod_pp.ConflictedDeviceModTags, FlagSwitch(false))
+    UD_ModifierGlobalTags_T = AddTextOption("$UD_CUSTOMMOD_GLOBTAGS", "$-INFO-",FlagSwitch(false))
+    AddTextOption("", loc_mod_pp.ConflictedGlobalModTags, FlagSwitch(false))
     
     UD_ModPP_ApplicableToPlayer_T = addToggleOption("$UD_CUSTOMMOD_APPTOPLAYER", loc_mod_pp.ApplicableToPlayer, UD_LockMenu_flag)        ; Applicable to Player
     AddEmptyOption()
@@ -1643,16 +1645,58 @@ Function setNPCSlot(int index,string text = "NPC Slot",bool useIndex = True)
         NPCSlots_T[index] = AddTextOption(text +": ", name ,npcflag)
     endif
 EndFunction
+
 int UD_Export_T
 int UD_Import_T
 int UD_Default_T
 int UD_AutoLoad_T
+int UD_ConfigPresets_M
+int UD_ConfigPresets_T
+
+String[]    ConfigPresets
+String      SelectedPreset   = "Config.json"
+Int         SelectedPresetId = 0
+String      ConfigPath = "Data\\skse\\plugins\\StorageUtilData\\UD\\Presets"
+
+Function InitConfigPresets()
+    String[] loc_files = MiscUtil.FilesInFolder(ConfigPath,".json")
+    ConfigPresets = Utility.CreateStringArray(loc_files.length)
+    
+    UDmain.Info(loc_files)
+    
+    int loc_i = 0
+    while loc_i < ConfigPresets.length
+        ConfigPresets[loc_i] = loc_files[loc_i]
+        loc_i += 1
+    endwhile
+    
+    if !ConfigPresets || ConfigPresets.find("Default.json") == -1
+        ConfigPresets = PapyrusUtil.PushString(ConfigPresets,"Default.json")
+    endif
+    
+    UDmain.Info(ConfigPresets)
+    
+    UpdateSelectedPresetId()
+EndFunction
+
+Function UpdateSelectedPresetId()
+    SelectedPresetId = ConfigPresets.find(SelectedPreset)
+    if SelectedPresetId == -1
+        SelectedPreset = "Default.json"
+        SelectedPresetId = ConfigPresets.find(SelectedPreset)
+    endif
+EndFunction
+
 Function resetOtherPage()
     UpdateLockMenuFlag()
     setCursorFillMode(LEFT_TO_RIGHT)
     
     AddHeaderOption("$UD_H_CONFIG")
     addEmptyOption()
+    
+    UpdateSelectedPresetId()
+    UD_ConfigPresets_M = AddMenuOption("Preset: ",ConfigPresets[SelectedPresetId])
+    UD_ConfigPresets_T = AddInputOption("Create preset: ","$-PRESS-")
     
     UD_Export_T =  AddTextOption("$UD_SAVE_SETTINGS", "$-PRESS-")
     UD_Import_T = AddTextOption("$UD_LOAD_SETTINGS", "$-PRESS-")
@@ -2234,6 +2278,7 @@ EndFunction
 
 Function OnOptionInputOpen(int option)
     OnOptionInputOpenGeneral(option)
+    OnOptionInputOpenOther(option)
 EndFunction
 
 Function OnOptionInputOpenGeneral(int option)
@@ -2242,14 +2287,38 @@ Function OnOptionInputOpenGeneral(int option)
     endif
 EndFunction
 
+Function OnOptionInputOpenOther(int option)
+    if option == UD_ConfigPresets_T
+        SetInputDialogStartText("")
+    endif
+EndFunction
+
 Function OnOptionInputAccept(int option, string value)
     OnOptionInputAcceptGeneral(option, value)
+    OnOptionInputAcceptOther(option,value)
 EndFunction
 
 Function OnOptionInputAcceptGeneral(int option, string value)
     if(option == UD_RandomFilter_T)
         UDCONF.UD_RandomDevice_GlobalFilter = Math.LogicalXor(value as Int,0xFFFFFFFF)
         SetInputOptionValue(UD_RandomFilter_T, Math.LogicalXor(UDCONF.UD_RandomDevice_GlobalFilter,0xFFFFFFFF))
+    endif
+EndFunction
+
+Function OnOptionInputAcceptOther(int option, string value)
+    if(option == UD_ConfigPresets_T)
+        if value
+            if StringUtil.Find(value,".json") == -1
+                value = value + ".json"
+            endif
+            if ConfigPresets.find(value) == -1
+                ConfigPresets = PapyrusUtil.PushString(ConfigPresets,value)
+                SelectedPreset = value
+                SelectedPresetId = ConfigPresets.length - 1
+                forcePageReset()
+            endif
+        endif
+        ;SetInputOptionValue(UD_RandomFilter_T, Math.LogicalXor(UDCONF.UD_RandomDevice_GlobalFilter,0xFFFFFFFF))
     endif
 EndFunction
 
@@ -3003,6 +3072,7 @@ event OnOptionMenuOpen(int option)
     OnOptionMenuOpenAnimationsPlayground(option)
     OnOptionMenuOpenModifiers(option)
     OnOptionMenuOpenOutfit(option)
+    OnOptionMenuOpenOther(option)
 endEvent
 
 Function OnOptionMenuOpenDefault(int option)
@@ -3147,6 +3217,14 @@ Function OnOptionMenuOpenOutfit(Int option)
     EndIf
 EndFunction
 
+Function OnOptionMenuOpenOther(Int option)
+    If option == UD_ConfigPresets_M
+        SetMenuDialogOptions(ConfigPresets)
+        SetMenuDialogStartIndex(SelectedPresetId)
+        SetMenuDialogDefaultIndex(0)
+    EndIf
+EndFunction
+
 event OnOptionMenuAccept(int option, int index)
     OnOptionMenuAcceptDefault(option,index)
     OnOptionMenuAcceptCustomBondage(option,index)
@@ -3156,6 +3234,7 @@ event OnOptionMenuAccept(int option, int index)
     OnOptionMenuAcceptAnimationsPlayground(option, index)
     OnOptionMenuAcceptModifiers(option, index)
     OnOptionMenuAcceptOutfit(option, index)
+    OnOptionMenuAcceptOther(option, index)
 endEvent
 
 Function OnOptionMenuAcceptDefault(int option, int index)
@@ -3285,6 +3364,16 @@ Function OnOptionMenuAcceptOutfit(Int option, Int index)
     elseif option == UD_OutfitSections_M
         UD_OutfitSectionSelected = index
         SetMenuOptionValue(option, UD_OutfitSections_ML[index])
+        forcePageReset()
+    EndIf
+EndFunction
+
+Function OnOptionMenuAcceptOther(Int option, Int index)
+    If option == UD_ConfigPresets_M
+        SelectedPresetId    = index
+        SelectedPreset      = ConfigPresets[index]
+        SetMenuOptionValue(option, SelectedPreset)
+        LoadFromJSON(File)
         forcePageReset()
     EndIf
 EndFunction
@@ -4217,11 +4306,16 @@ EndFunction
 
 string property File hidden
     string function get()
-        return "../UD/Config.json"
+        return "./UD/Presets/" + SelectedPreset
     endFunction
 endProperty
 
 Function SaveToJSON(string strFile)
+    if !strFile
+        UDMain.Error("Incorrect config path")
+        return
+    endif
+
     JsonUtil.ClearAll(strFile)
     
     ;UDmain
@@ -4382,6 +4476,16 @@ Function SaveToJSON(string strFile)
 EndFunction
 
 Function LoadFromJSON(string strFile)
+    if !strFile
+        UDMain.Error("Incorrect config path")
+        return
+    endif
+    String loc_abspath = "Data/skse/Plugins/StorageUtilData/" + strFile
+    if !MiscUtil.FileExists(loc_abspath)
+        UDMain.Error("Cant load config " + loc_abspath + " , as the file does not exist")
+        return
+    endif
+
     ;UDmain
     UDmain.UD_hightPerformance = JsonUtil.GetIntValue(strFile, "hightPerformance", UDmain.UD_hightPerformance as Int)
     UDmain.AllowNPCSupport = JsonUtil.GetIntValue(strFile, "AllowNPCSupport", UDmain.AllowNPCSupport as Int)
