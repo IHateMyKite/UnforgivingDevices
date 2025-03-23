@@ -739,6 +739,10 @@ int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool s
             UD_equipedCustomDevices[i] = none
             _iUsedSlots-=1
             res += 1
+        ElseIf res > 0
+        ; immediately move all elements after the deleted one
+            UD_equipedCustomDevices[i - res] = UD_equipedCustomDevices[i]
+            UD_equipedCustomDevices[i] = None
         endif
         i+=1
     endwhile
@@ -751,9 +755,9 @@ int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool s
     ;endif    
     
     ; Only sort slots if at least one device is unregistered and there are still used slots
-    if res > 0 && isScriptRunning() && sort
-        sortSlots(mutex)
-    endif
+;    if res > 0 && sort
+;        sortSlots(mutex)
+;    endif
 
     GetModifierTags_Update()
     
@@ -816,6 +820,10 @@ int Function unregisterAllDevices(int i = 0,bool mutex = true)
         res += 1
         i += 1
     endwhile
+    If _iUsedSlots != 0
+        UDmain.Warning(Self + "::unregisterAllDevices() _iUsedSlots is not 0 at the end!")
+        _iUsedSlots = 0
+    EndIf
     if mutex
         endDeviceManipulation()
     endif
@@ -1763,7 +1771,8 @@ Function regainDevices()
     ;UDmain.Info("Registering " + loc_devices.length + " devices")
     
     int loc_registered = UD_Native.RegisterDeviceScripts(_currentSlotedActor)
-    
+    _iUsedSlots = loc_registered
+
     UDmain.Info("Registered " + loc_registered + " devices")
     ;wait for all devices to get registered
     ;float loc_timeout = 3.0
