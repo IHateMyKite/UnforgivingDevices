@@ -16,7 +16,10 @@
                         
         [3]     Int         (optional) Maximum value of coefficient B (proportional to level)
                             Default value: Parameter [2]
-    
+
+    Form arguments:
+        Form1               If not None then it defines a custom currency to pay
+
     Example:
         GoldVaue = A + B * <level>
         where A and B are in ranges defined by parameters above
@@ -82,5 +85,9 @@ EndFunction
 /;
 ; A message in the device description to explain the minigame prohibition
 String Function MinigameProhibitedMessage(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    Return "You don't have enough gold to pay the device!"
+    String loc_currency = "gold"
+    If akForm1
+        loc_currency = akForm1.GetName()
+    EndIf
+    Return "You don't have enough " + loc_currency + " to pay the device!"
 EndFunction

@@ -559,7 +559,12 @@ Function checkInventoryScript(UD_CustomDevice_RenderScript device,int argControl
         elseif inventoryScript.LockPickEscapeChance > 0.0
             loc_diff = RandomInt(76,80);Master
         else 
-            loc_diff = 255 ;Requires Key
+            If !device.zad_deviceKey
+                UDCDmain.UDmain.Warning("UD_Patcher::GenerateLocks() That is a bad idea to generate an impossible lock without a key! device = " + device)
+                loc_diff = RandomInt(26,80)             ; Adept - Expert - Master
+            Else
+                loc_diff = 255 ;Requires Key
+            EndIf
         endif
         
         GenerateLocks(device, aiType, loc_diff)
