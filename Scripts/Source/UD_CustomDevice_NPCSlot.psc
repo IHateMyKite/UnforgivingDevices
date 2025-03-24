@@ -219,15 +219,13 @@ endEvent
 Function _ValidateOutfit()
     int loc_i = 0
     Actor loc_actor = GetActor()
-    while (loc_i < UD_equipedCustomDevices.length)
-        If UD_equipedCustomDevices[loc_i]
-            UD_CustomDevice_RenderScript loc_device = UD_equipedCustomDevices[loc_i]
-            ;check if device is equipped, if not, equip it
-            if !loc_actor.isEquipped(loc_device.deviceRendered) 
-                loc_actor.equipitem(loc_device.deviceRendered, true, true)
-                UDmain.Info("Equipping unequipped device " + loc_device.getDeviceName() + " for " + GetSlotedNPCName())
-            endif
-        EndIf
+    while (loc_i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[loc_i]
+        UD_CustomDevice_RenderScript loc_device = UD_equipedCustomDevices[loc_i]
+        ;check if device is equipped, if not, equip it
+        if !loc_actor.isEquipped(loc_device.deviceRendered) 
+            loc_actor.equipitem(loc_device.deviceRendered, true, true)
+            UDmain.Info("Equipping unequipped device " + loc_device.getDeviceName() + " for " + GetSlotedNPCName())
+        endif
         loc_i += 1
     endwhile
 EndFunction
@@ -249,10 +247,8 @@ EndFunction
 String[] Function getSlotsStringA()
     String[] loc_res
     int i = 0
-    while (i < UD_equipedCustomDevices.length)
-        If UD_equipedCustomDevices[i]
-            loc_res = PapyrusUtil.PushString(loc_res,UD_equipedCustomDevices[i].getDeviceName())
-        EndIf
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
+        loc_res = PapyrusUtil.PushString(loc_res,UD_equipedCustomDevices[i].getDeviceName())
         i+=1
     endwhile
     return loc_res
@@ -262,7 +258,7 @@ Function ReorderSlots(UD_CustomDevice_RenderScript firstDevice)
     startDeviceManipulation()
     int loc_reorderIndx = GetDeviceSlotIndx(firstDevice)
     int i = loc_reorderIndx 
-    while i < UD_equipedCustomDevices.length
+    while (i < UD_equipedCustomDevices.length)
         if UD_equipedCustomDevices[i] && ((i + 1) != UD_equipedCustomDevices.length)
             UD_equipedCustomDevices[i] = UD_equipedCustomDevices[i + 1]
         endif
@@ -285,12 +281,10 @@ EndFunction
 
 int Function GetDeviceSlotIndx(UD_CustomDevice_RenderScript device)
     int i = 0
-    while (i < UD_equipedCustomDevices.length)
-        If UD_equipedCustomDevices[i]
-            if UD_equipedCustomDevices[i] == device
-                return i
-            endif
-        EndIf
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
+        if UD_equipedCustomDevices[i] == device
+            return i
+        endif
         i+=1
     endwhile
     return -1
@@ -733,16 +727,21 @@ int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool s
     if mutex
         startDeviceManipulation()
     endif
+    Bool loc_sort = False
     int res = 0
     while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i] == oref
             UD_equipedCustomDevices[i] = none
             _iUsedSlots-=1
             res += 1
-        ElseIf res > 0
+        ElseIf res > 0 && UD_equipedCustomDevices[i - res] == None
         ; immediately move all elements after the deleted one
             UD_equipedCustomDevices[i - res] = UD_equipedCustomDevices[i]
             UD_equipedCustomDevices[i] = None
+        Else
+        ; ???
+            UDmain.Warning(Self + "::unregisterDevice() Something wrong with UD_equipedCustomDevices array. Unexpected element value.")
+            loc_sort = True
         endif
         i+=1
     endwhile
@@ -755,9 +754,9 @@ int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool s
     ;endif    
     
     ; Only sort slots if at least one device is unregistered and there are still used slots
-;    if res > 0 && sort
-;        sortSlots(mutex)
-;    endif
+    if loc_sort
+        sortSlots(mutex)
+    endif
 
     GetModifierTags_Update()
     

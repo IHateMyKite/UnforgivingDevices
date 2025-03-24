@@ -557,21 +557,19 @@ Function Procces_UpdateModifiers_MinigameStarted(UD_CustomDevice_RenderScript ak
     endif
     
     int i = 0
-    UD_CustomDevice_RenderScript loc_device
+    UD_CustomDevice_RenderScript loc_device = loc_slot.UD_equipedCustomDevices[i]
     
-    while i < loc_slot.UD_equipedCustomDevices.Length
-        loc_device = loc_slot.UD_equipedCustomDevices[i]
-        If loc_device
-            int loc_modid = loc_device.UD_ModifiersRef.length
-            while loc_modid 
-                loc_modid -= 1
-                UD_Modifier loc_mod = (loc_device.UD_ModifiersRef[loc_modid] as UD_Modifier)
-                loc_mod.MinigameStarted(loc_device,akDevice,loc_device.UD_ModifiersDataStr[loc_modid],loc_device.UD_ModifiersDataForm1[loc_modid],loc_device.UD_ModifiersDataForm2[loc_modid],loc_device.UD_ModifiersDataForm3[loc_modid],loc_device.UD_ModifiersDataForm4[loc_modid],akDevice.UD_ModifiersDataForm5[loc_modid])
-            endwhile
-        EndIf
+    while i < loc_slot.UD_equipedCustomDevices.Length && loc_device
+        int loc_modid = loc_device.UD_ModifiersRef.length
+        while loc_modid 
+            loc_modid -= 1
+            UD_Modifier loc_mod = (loc_device.UD_ModifiersRef[loc_modid] as UD_Modifier)
+            loc_mod.MinigameStarted(loc_device,akDevice,loc_device.UD_ModifiersDataStr[loc_modid],loc_device.UD_ModifiersDataForm1[loc_modid],loc_device.UD_ModifiersDataForm2[loc_modid],loc_device.UD_ModifiersDataForm3[loc_modid],loc_device.UD_ModifiersDataForm4[loc_modid],akDevice.UD_ModifiersDataForm5[loc_modid])
+        endwhile
         i+=1
+        loc_device = loc_slot.UD_equipedCustomDevices[i]
     endwhile
-    
+
 EndFunction
 
 Function Procces_UpdateModifiers_MinigameEnded(UD_CustomDevice_RenderScript akDevice) ;directly accesed from device
@@ -581,19 +579,16 @@ Function Procces_UpdateModifiers_MinigameEnded(UD_CustomDevice_RenderScript akDe
     endif
     
     int i = 0
-    UD_CustomDevice_RenderScript loc_device
-
-    while i < loc_slot.UD_equipedCustomDevices.Length
-        loc_device = loc_slot.UD_equipedCustomDevices[i]
-        If loc_device
-            int loc_modid = loc_device.UD_ModifiersRef.length
-            while loc_modid 
-                loc_modid -= 1
-                UD_Modifier loc_mod = (loc_device.UD_ModifiersRef[loc_modid] as UD_Modifier)
-                loc_mod.MinigameEnded(loc_device,akDevice,loc_device.UD_ModifiersDataStr[loc_modid],loc_device.UD_ModifiersDataForm1[loc_modid],loc_device.UD_ModifiersDataForm2[loc_modid],loc_device.UD_ModifiersDataForm3[loc_modid],loc_device.UD_ModifiersDataForm4[loc_modid],akDevice.UD_ModifiersDataForm5[loc_modid])
-            endwhile
-        EndIf
+    UD_CustomDevice_RenderScript loc_device = loc_slot.UD_equipedCustomDevices[i]
+    while i < loc_slot.UD_equipedCustomDevices.Length && loc_device
+        int loc_modid = loc_device.UD_ModifiersRef.length
+        while loc_modid 
+            loc_modid -= 1
+            UD_Modifier loc_mod = (loc_device.UD_ModifiersRef[loc_modid] as UD_Modifier)
+            loc_mod.MinigameEnded(loc_device,akDevice,loc_device.UD_ModifiersDataStr[loc_modid],loc_device.UD_ModifiersDataForm1[loc_modid],loc_device.UD_ModifiersDataForm2[loc_modid],loc_device.UD_ModifiersDataForm3[loc_modid],loc_device.UD_ModifiersDataForm4[loc_modid],akDevice.UD_ModifiersDataForm5[loc_modid])
+        endwhile
         i+=1
+        loc_device = loc_slot.UD_equipedCustomDevices[i]
     endwhile
 
 EndFunction
@@ -735,7 +730,7 @@ Function Debug_AddModifier(UD_CustomDevice_RenderScript akDevice)
         if loc_res1 >= 0
             UD_Modifier loc_mod = loc_ModifierListRef[loc_res1] as UD_Modifier
             if !akDevice.HasModifierRef(loc_mod)
-                String      loc_param = UDMain.GetUserTextInput()
+                String loc_param = UDMain.GetUserTextInput()
                 if !akDevice.addModifier(loc_mod,loc_param)
                     UDmain.Print("Error! Can't add " + loc_mod.NameFull)
                 endif
@@ -753,7 +748,7 @@ Function Debug_RemoveModifier(UD_CustomDevice_RenderScript akDevice)
         while loc_i < akDevice.UD_ModifiersRef.length
             UD_Modifier loc_mod = akDevice.UD_ModifiersRef[loc_i] as UD_Modifier
             if loc_mod
-                loc_ModifierList    = PapyrusUtil.PushString(loc_ModifierList,loc_mod.NameFull)
+                loc_ModifierList = PapyrusUtil.PushString(loc_ModifierList,loc_mod.NameFull)
             endif
             loc_i += 1
         endwhile
