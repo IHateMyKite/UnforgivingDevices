@@ -35,19 +35,24 @@ import UD_Native
 ===========================================================================================
 /;
 Bool Function MinigameAllowed(UD_CustomDevice_RenderScript akModDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    ;only pay device if user have device locked less then 1 real time hour (safeback)
+    ;only pay device if user have device locked less then 0.5 real time hour (safeback)
     if akModDevice.GetRealTimeLockedTime() > 0.5
         return true
     endif
 
+    Form loc_currency = UDLibs.Gold
+    If akForm1
+        loc_currency = akForm1
+    EndIf
+
     ; checking max. possible value
     Int loc_gold = CalculateGold2(aiDataStr, akModDevice.UD_Level, false)
-    Int loc_WearerGold = akModDevice.GetWearer().GetItemCount(UDLibs.Gold)
+    Int loc_WearerGold = akModDevice.GetWearer().GetItemCount(loc_currency)
     
     Actor loc_helper   = akModDevice.GetHelper()
     Int loc_HelperGold = 0
     if loc_helper
-        loc_HelperGold = loc_helper.GetItemCount(UDLibs.Gold)
+        loc_HelperGold = loc_helper.GetItemCount(loc_currency)
     endif
     
     Bool loc_cond = loc_WearerGold > loc_gold || loc_HelperGold > loc_gold
@@ -60,21 +65,26 @@ Bool Function MinigameAllowed(UD_CustomDevice_RenderScript akModDevice, String a
 EndFunction
 
 Function MinigameStarted(UD_CustomDevice_RenderScript akModDevice, UD_CustomDevice_RenderScript akMinigameDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    if akModDevice == akMinigameDevice
-        if akModDevice.GetRealTimeLockedTime() < 0.5
-            Int loc_Gold = CalculateGold2(aiDataStr, akModDevice.UD_Level)
-            
-            if akModDevice.GetWearer().GetItemCount(UDLibs.Gold) >= loc_Gold
-                akMinigameDevice.GetWearer().RemoveItem(UDlibs.Gold, loc_Gold)
-                return
-            endif
-            
-            Actor loc_helper = akModDevice.GetHelper()
-            if loc_helper && (loc_helper.GetItemCount(UDLibs.Gold) >= loc_Gold)
-                loc_helper.RemoveItem(UDlibs.Gold, loc_Gold)
-                return
-            endif
-        endif
+    If akModDevice != akMinigameDevice || akModDevice.GetRealTimeLockedTime() > 0.5
+        Return
+    EndIf
+
+    Form loc_currency = UDLibs.Gold
+    If akForm1
+        loc_currency = akForm1
+    EndIf
+
+    Int loc_Gold = CalculateGold2(aiDataStr, akModDevice.UD_Level)
+    
+    if akModDevice.GetWearer().GetItemCount(loc_currency) >= loc_Gold
+        akMinigameDevice.GetWearer().RemoveItem(loc_currency, loc_Gold)
+        return
+    endif
+    
+    Actor loc_helper = akModDevice.GetHelper()
+    if loc_helper && (loc_helper.GetItemCount(loc_currency) >= loc_Gold)
+        loc_helper.RemoveItem(loc_currency, loc_Gold)
+        return
     endif
 EndFunction
 
@@ -85,7 +95,7 @@ EndFunction
 /;
 ; A message in the device description to explain the minigame prohibition
 String Function MinigameProhibitedMessage(UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
-    String loc_currency = "gold"
+    String loc_currency = UDLibs.Gold.GetName()
     If akForm1
         loc_currency = akForm1.GetName()
     EndIf

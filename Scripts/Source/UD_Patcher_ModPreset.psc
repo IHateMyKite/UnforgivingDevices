@@ -400,7 +400,7 @@ EndFunction
     Returns:
         -3      - wearer does not meet the requirements
         -2      - device is forbidden for this preset
-        -1      - preset has prefferred devices but this device is not one of them
+        -1      - preset has preferred devices but this device is not one of them
          1      - device is compatible
          2      - device is preferred for this preset
 /;
