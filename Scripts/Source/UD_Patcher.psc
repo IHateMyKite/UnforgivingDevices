@@ -441,14 +441,21 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
             EndIf
             ; if we still need to choose a preset, then choose one of those with weighted probability
             If loc_pre == None && loc_w_probs.Length > 0 && loc_w_probs_sum > 0.0 && loc_modnum < loc_modcap
-                loc_rnd = UD_Native.RandomFloat(0.0, loc_w_probs_sum)
-                loc_seek_prob = 0.0
-                loc_i = 0 
-                While loc_seek_prob <= loc_rnd && loc_i < loc_w_probs.Length
-                    loc_seek_prob += loc_w_probs[loc_i]
-                    loc_i += 1
-                EndWhile
-                loc_pre = loc_w_pres[loc_i - 1] As UD_Patcher_ModPreset
+                ; 
+                If loc_w_probs_sum > 100.0
+                    loc_rnd = UD_Native.RandomFloat(0.0, loc_w_probs_sum)
+                Else
+                    loc_rnd = UD_Native.RandomFloat(0.0, 100.0)
+                EndIf
+                If loc_rnd <= loc_w_probs_sum
+                    loc_seek_prob = 0.0
+                    loc_i = 0 
+                    While loc_seek_prob <= loc_rnd && loc_i < loc_w_probs.Length
+                        loc_seek_prob += loc_w_probs[loc_i]
+                        loc_i += 1
+                    EndWhile
+                    loc_pre = loc_w_pres[loc_i - 1] As UD_Patcher_ModPreset
+                EndIf
             EndIf
             If loc_pre 
                 ; add a new modifier to the device
@@ -468,7 +475,9 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
             EndIf
             ; do not stop the cycle until all presets with absolute probability have been tried, 
             ; even if the maximum number of modifiers on the device has been exceeded
-            If loc_a_pres.Length == 0 && loc_modnum >= loc_modcap
+            ; A separate condition to terminate the cycle when the number of modifiers with weighted 
+            ; probability no longer reaches 100% in total. It is better to stop to avoid using rare modifiers.
+            If loc_a_pres.Length == 0 && (loc_modnum >= loc_modcap || (loc_w_probs_sum < 100.0 && loc_pre == None))
                 loc_break = True
             EndIf
         EndIf
