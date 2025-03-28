@@ -406,7 +406,7 @@ EndFunction
 /;
 Int Function CheckDeviceCompatibility(UD_CustomDevice_RenderScript akDevice, Bool abCheckWearer = True)
     If abCheckWearer
-        If !CheckWearerCompatibility(akDevice.GetWearer())
+        If CheckWearerCompatibility(akDevice.GetWearer()) < 0
             Return -3          ; wearer is not compatible
         EndIf
     EndIf
