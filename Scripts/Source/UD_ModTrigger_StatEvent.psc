@@ -58,6 +58,7 @@
         Murders                                 NOPE
         Assaults                                PROBABLY NOT
         Bunnies Slaughtered                     NOPE
+        Items Stolen                            NOPE
 /;
 Scriptname UD_ModTrigger_StatEvent extends UD_ModTrigger
 

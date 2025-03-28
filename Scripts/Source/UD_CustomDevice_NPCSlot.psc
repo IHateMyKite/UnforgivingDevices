@@ -258,7 +258,7 @@ Function ReorderSlots(UD_CustomDevice_RenderScript firstDevice)
     startDeviceManipulation()
     int loc_reorderIndx = GetDeviceSlotIndx(firstDevice)
     int i = loc_reorderIndx 
-    while i < UD_equipedCustomDevices.length
+    while (i < UD_equipedCustomDevices.length)
         if UD_equipedCustomDevices[i] && ((i + 1) != UD_equipedCustomDevices.length)
             UD_equipedCustomDevices[i] = UD_equipedCustomDevices[i + 1]
         endif
@@ -727,12 +727,21 @@ int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool s
     if mutex
         startDeviceManipulation()
     endif
+    Bool loc_sort = False
     int res = 0
     while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i] == oref
             UD_equipedCustomDevices[i] = none
             _iUsedSlots-=1
             res += 1
+        ElseIf res > 0 && UD_equipedCustomDevices[i - res] == None
+        ; immediately move all elements after the deleted one
+            UD_equipedCustomDevices[i - res] = UD_equipedCustomDevices[i]
+            UD_equipedCustomDevices[i] = None
+        Else
+        ; ???
+            UDmain.Warning(Self + "::unregisterDevice() Something wrong with UD_equipedCustomDevices array. Unexpected element value.")
+            loc_sort = True
         endif
         i+=1
     endwhile
@@ -745,7 +754,7 @@ int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool s
     ;endif    
     
     ; Only sort slots if at least one device is unregistered and there are still used slots
-    if res > 0 && isScriptRunning() && sort
+    if loc_sort
         sortSlots(mutex)
     endif
 
@@ -810,6 +819,10 @@ int Function unregisterAllDevices(int i = 0,bool mutex = true)
         res += 1
         i += 1
     endwhile
+    If _iUsedSlots != 0
+        UDmain.Warning(Self + "::unregisterAllDevices() _iUsedSlots is not 0 at the end!")
+        _iUsedSlots = 0
+    EndIf
     if mutex
         endDeviceManipulation()
     endif
@@ -1037,9 +1050,6 @@ Float _LastEnchConcTime = 0.0
 
 Event OnHit(ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked)
     if !isScriptRunning()
-        Return
-    EndIf
-    If akProjectile != None
         Return
     EndIf
     If UD_Native.IsConcentrationSpell(akSource as Spell)
@@ -1760,7 +1770,8 @@ Function regainDevices()
     ;UDmain.Info("Registering " + loc_devices.length + " devices")
     
     int loc_registered = UD_Native.RegisterDeviceScripts(_currentSlotedActor)
-    
+    _iUsedSlots = loc_registered
+
     UDmain.Info("Registered " + loc_registered + " devices")
     ;wait for all devices to get registered
     ;float loc_timeout = 3.0
@@ -2299,7 +2310,9 @@ Int Function _GetItemFilterIndex(Form akFilter)
 EndFunction
 
 Function RegisterEmptyItemEvent()
-    UDmain.Log("UD_CustomDevice_NPCSlot::RegisterEmptyItemEvent() Actor = " + GetActor(), 2)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_CustomDevice_NPCSlot::RegisterEmptyItemEvent() Actor = " + GetActor(), 2)
+    EndIf
     FormList loc_filter = (GetOwningQuest() as UD_CustomDevices_NPCSlotsManager).EmptyItemFilter
     Self.AddInventoryEventFilter(loc_filter)
 EndFunction
@@ -2346,7 +2359,9 @@ Function UnregisterItemEvent(Form akFilter)
 EndFunction
 
 Function UnregisterAllItemEvents(Bool abClearArray = True)
-    UDmain.Log("UD_CustomDevice_NPCSlot::UnregisterAllItemEvents() Actor = " + GetActor() + " abClearArray = " + abClearArray, 2)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_CustomDevice_NPCSlot::UnregisterAllItemEvents() Actor = " + GetActor() + " abClearArray = " + abClearArray, 2)
+    EndIf
     ; access from multiple threads is unlikely
     Int loc_i = _ItemFilter_Forms.Length
     While loc_i > 0
@@ -2361,8 +2376,13 @@ Function UnregisterAllItemEvents(Bool abClearArray = True)
 EndFunction
 
 Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_CustomDevice_NPCSlot::OnItemAdded() akBaseItem = " + akBaseItem + " Owner = " + akItemReference.GetActorOwner() + ", Faction = " + akItemReference.GetFactionOwner(), 3)
+    EndIf
+    Faction loc_owner_faction = akItemReference.GetFactionOwner()
+    ActorBase loc_owner_actor = akItemReference.GetActorOwner()
+    Bool loc_stolen = (loc_owner_actor != None && loc_owner_actor != GetActorRef().GetActorBase()) || (loc_owner_faction != None && !GetActorRef().IsInFaction(loc_owner_faction))
     Int loc_i = 0
-    Bool loc_stolen = akItemReference.GetActorOwner() != None && akItemReference.GetActorOwner() != GetActorRef().GetActorBase()
     While UD_equipedCustomDevices[loc_i]
         Udmain.UDMOM.Procces_UpdateModifiers_ItemAdded(UD_equipedCustomDevices[loc_i], akBaseItem, aiItemCount, akSourceContainer, loc_stolen)
         loc_i += 1
