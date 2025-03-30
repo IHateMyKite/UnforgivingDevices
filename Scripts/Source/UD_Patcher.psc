@@ -27,12 +27,12 @@ Int         Property UD_MaxLocks            =    2    auto hidden
 ;/  Variable: UD_ModsMin
     Minimum number of mods added by the Patcher
 /;
-Int         Property UD_ModsMin             =    1    Auto Hidden
+Int         Property UD_ModsMin             =    0    Auto Hidden
 
 ;/  Variable: UD_ModsMax
     Maximum number of mods added by the Patcher
 /;
-Int         Property UD_ModsMax             =    4    Auto Hidden
+Int         Property UD_ModsMax             =    3    Auto Hidden
 
 ;/  Variable: UD_ModGlobalProbabilityMult
     Multplier that affects probability to add each modifier 
