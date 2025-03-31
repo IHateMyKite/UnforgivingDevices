@@ -76,7 +76,7 @@ Float _resultFloat2 = -1.0
 Int _resultInt2 = -1
 String _resultString2 = ""
 
-int Function OpenMenu(Form aForm = None, Form aReceiver = None)
+int Function OpenMenu(Form aForm = none, Form aReceiver = none)
     _resultFloat2 = -1.0
     _resultInt2 = -1
     _resultString2 = ""
@@ -137,7 +137,7 @@ EndEvent
 
 Event OnUnloadMenu(string eventName, string strArg, float numArg, Form formArg)
     Parent.OnUnloadMenu(eventName, strArg, numArg, formArg)
-    UnregisterForModEvent("UIListMenu_SelectItemText")								; Forgot to unregister?
+    UnregisterForModEvent("UIListMenu_SelectItemText")  ; Forgot to unregister?
 EndEvent
 
 int Function GetResultInt()
