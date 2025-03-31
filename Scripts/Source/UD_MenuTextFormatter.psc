@@ -387,6 +387,17 @@ String Function FooterSplit()
     Return ""
 EndFunction
 
+;/  Function: AddTag
+
+    Helper function for wrapping text in an arbitrary tag
+
+    Returns:
+        String with the text fragment
+/;
+String Function AddTag(String asTag, String asInner = "")
+    Return asInner
+EndFunction
+
 ;/  Function: SplitMessageIntoPages
 
     Function for dividing long message text into pages. This is also where you clean up the text, 
@@ -688,6 +699,14 @@ Auto State HTML
             Return "<page/><g/>"
         Else
             Return "<section/><g/>"
+        EndIf
+    EndFunction
+
+    String Function AddTag(String asTag, String asInner = "")
+        If asInner != ""
+            Return "<" + asTag + ">" + asInner + "</" + asTag + ">"
+        Else
+            Return "<" + asTag + "/>"
         EndIf
     EndFunction
     

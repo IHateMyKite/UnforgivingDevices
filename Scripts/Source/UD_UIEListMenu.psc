@@ -36,28 +36,27 @@ EndFunction
 
 ; overrides
 
-Int _entryHeight = -1                   ; height of the list item
-Int _listWidth = -1                     ; width of the list
-Int _minViewport = -1                   ; minimum height of the list, measured by the number of visible items
-Int _maxViewport = -1                   ; maximum height of the list, measured by the number of visible items
-Bool _extraFormatting = False
+Int _entryHeight = -1                   ; Height of the list item. Works only with customized listmenu-ud.swf. Default value: 22
+Int _listWidth = -1                     ; Width of the list. Default value: ~256
+Int _minViewport = -1                   ; Minimum height of the list, measured by the number of visible items. Default value: 5
+Int _maxViewport = -1                   ; Maximum height of the list, measured by the number of visible items. Default value: 15
+Bool _extraFormatting = False           ; Flag to use listmenu-ud.swf. Default value: False
 
 Function SetPropertyInt(string propertyName, int value)
-    If propertyName == "entryHeight"                        ; Works only with customized listmenu-ud.swf.
-                                                            ; Default value: 22
+    If propertyName == "entryHeight"
         _entryHeight = value
-    ElseIf propertyName == "listWidth"                      ; Default value: ~256
+    ElseIf propertyName == "listWidth"
         _listWidth = value
-    ElseIf propertyName == "minViewport"                    ; Default value: 5
+    ElseIf propertyName == "minViewport"
         _minViewport = value
-    ElseIf propertyName == "maxViewport"                    ; Default value: 15
+    ElseIf propertyName == "maxViewport"
         _maxViewport = value
     EndIf
     Parent.SetPropertyInt(propertyName, value)
 EndFunction
 
 Function SetPropertyBool(string propertyName, bool value)
-    If propertyName == "extraFormatting"                    ; Works only with customized listmenu-ud.swf. Default value: False
+    If propertyName == "extraFormatting"
         _extraFormatting = value
     EndIf
     Parent.SetPropertyBool(propertyName, value)

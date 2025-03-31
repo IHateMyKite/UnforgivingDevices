@@ -365,6 +365,7 @@ String Function _getDeviceListItem(UD_CustomDevice_RenderScript akDevice)
             loc_tags += UDMain.UDMTF.Text(loc_tags_arr[loc_j], asColor = UDMain.UDMTF.StringHashToColor(loc_tags_arr[loc_j])) + " "
             loc_j += 1
         EndWhile
+        loc_tags = UDMain.UDMTF.AddTag("ucase", loc_tags)           ; add a made-up <ucase> tag to convert this substring to uppercase in swf
         loc_str += UDMain.UDMTF.FontBegin(asFontFace = "$EverywhereFont", aiFontSize = 16)
         loc_str += UDMain.UDMTF.TableBegin(5, 180, 33, 33, 65)
         loc_str += UDMain.UDMTF.TableRowWide(loc_name, loc_acc_str, loc_health_str, loc_locks, loc_tags)
