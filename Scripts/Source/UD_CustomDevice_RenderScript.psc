@@ -7057,7 +7057,7 @@ EndFunction
 
 String Function _GetSpecialActionsMenuText()
     String loc_res = ""
-    loc_res += UDMTF.Header(getDeviceName(), 4)
+    loc_res += UDMTF.Header(getDeviceName(), UDMTF.FontSize + 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
     loc_res += UDMTF.ParagraphBegin(asAlign = "center")
     loc_res += UDMTF.LineGap()
@@ -7072,7 +7072,7 @@ EndFunction
 
 String Function _GetDeviceLockMenuText()
     String loc_res = ""
-    loc_res += UDMTF.Header(getDeviceName(), 4)
+    loc_res += UDMTF.Header(getDeviceName(), UDMTF.FontSize + 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
     loc_res += UDMTF.ParagraphBegin(asAlign = "center")
     loc_res += UDMTF.LineGap()
@@ -7089,7 +7089,7 @@ String Function _GetDeviceLockMenuText()
         loc_res += UDMTF.Text("Any " + _GetLockpickLevelString(_getLockpickLevel(0), True) + " in lock picking should be able to handle them.")
     EndIf
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.Text(_GetLocksIcons())
+    loc_res += UDMTF.Text(GetLocksIcons())
     loc_res += UDMTF.LineBreak()
     loc_res += UDMTF.Text(UDMTF.DeviceLockLegend())
     loc_res += UDMTF.LineBreak()
@@ -7103,7 +7103,7 @@ EndFunction
 
 String Function _GetDeviceMainMenuText()
     String loc_res = ""
-    loc_res += UDMTF.Header(getDeviceName(), 4)
+    loc_res += UDMTF.Header(getDeviceName(), UDMTF.FontSize + 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
     loc_res += UDMTF.ParagraphBegin(asAlign = "center")
     loc_res += UDMTF.LineGap()
@@ -7156,7 +7156,7 @@ EndFunction
 
 String Function _GetDeviceStruggleMenuText()
     String loc_res = ""
-    loc_res += UDMTF.Header(getDeviceName(), 4)
+    loc_res += UDMTF.Header(getDeviceName(), UDMTF.FontSize + 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
     loc_res += UDMTF.ParagraphBegin(asAlign = "center")
     loc_res += UDMTF.LineGap()
@@ -7177,7 +7177,7 @@ EndFunction
 
 String Function _GetDeviceDetailsMenuText()
     String loc_res = ""
-    loc_res += UDMTF.Header(getDeviceName(), 4)
+    loc_res += UDMTF.Header(getDeviceName(), UDMTF.FontSize + 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
     loc_res += UDMTF.ParagraphBegin(asAlign = "center")
     loc_res += UDMTF.LineGap()
@@ -7198,13 +7198,13 @@ String Function _GetDeviceDetailsMenuText()
     Return loc_res
 EndFunction
 
-String Function _GetLocksIcons()
+String Function GetLocksIcons(String asFontFace = "$EverywhereBoldFont", String asSeparator = " ")
     String loc_frag = ""
     Int loc_i = 0
-    loc_frag += UDMTF.FontBegin(asFontFace = "$EverywhereBoldFont")
+    loc_frag += UDMTF.FontBegin(asFontFace = asFontFace)
     While loc_i < GetLockNumber()
-        loc_frag += UDMTF.DeviceLockIcon(IsNthLockUnlocked(loc_i), IsNthLockJammed(loc_i), IsNthLockTimeLocked(loc_i) && GetNthLockTimeLock(loc_i))
-        loc_frag += UDMTF.InlineIfString(loc_i  < GetLockNumber() - 1, " ")
+        loc_frag += UDMTF.DeviceLockIcon(IsNthLockUnlocked(loc_i), IsNthLockJammed(loc_i), IsNthLockTimeLocked(loc_i) && (GetNthLockTimeLock(loc_i) > 0))
+        loc_frag += UDMTF.InlineIfString(loc_i  < GetLockNumber() - 1, asSeparator)
         loc_i += 1
     EndWhile
     
@@ -7222,7 +7222,7 @@ Function ShowBaseDetails()
     String loc_frag
     Int loc_i
     
-    loc_res += UDMTF.Header(getDeviceName(), 4)
+    loc_res += UDMTF.Header(getDeviceName(), UDMain.UDMTF.FontSize + 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
     loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
     loc_res += UDMTF.HeaderSplit()
@@ -7257,7 +7257,7 @@ Function ShowBaseDetails()
     loc_res += UDMTF.LineGap()
     
     if HaveLocks()
-        loc_frag = _GetLocksIcons()
+        loc_frag = GetLocksIcons()
         loc_res += UDMTF.TableRowDetails("Have locks:", loc_frag)
         loc_res += UDMTF.TableRowDetails("Lock multiplier:", Round((1.0 + _getLockMinigameModifier()) * 100.0) + "%")
         loc_res += UDMTF.TableRowDetails("Difficulty:", _GetLockpickLevelString(_getLockpickLevel(0), True))
@@ -7369,7 +7369,7 @@ Function ShowLockDetails()
         
         string loc_res = ""
 
-        loc_res += UDMTF.Header(getDeviceName(), 4)
+        loc_res += UDMTF.Header(getDeviceName(), UDMTF.FontSize + 4)
         loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
         loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
         loc_res += UDMTF.HeaderSplit()
@@ -7445,7 +7445,7 @@ Function showDebugInfo()
     updateDifficulty()
     string loc_res = ""
     
-    loc_res += UDMTF.Header(getDeviceName(), 4)
+    loc_res += UDMTF.Header(getDeviceName(), UDMTF.FontSize + 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
     loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
     loc_res += UDMTF.HeaderSplit()
@@ -7478,7 +7478,7 @@ EndFunction
 Function showDebugMinigameInfo()
     string loc_res = ""
     
-    loc_res += UDMTF.Header(getDeviceName(), 4)
+    loc_res += UDMTF.Header(getDeviceName(), UDMTF.FontSize + 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
     loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150, aiColumn2Width = 70, aiColumn3Width = 70)
     loc_res += UDMTF.HeaderSplit()

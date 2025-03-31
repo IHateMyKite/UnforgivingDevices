@@ -231,9 +231,9 @@ Function _ValidateOutfit()
 EndFunction
 
 UD_CustomDevice_RenderScript Function GetUserSelectedDevice()
-    String[] loc_devicesString = getSlotsStringA()
-    loc_devicesString = PapyrusUtil.PushString(loc_devicesString,"--BACK--")
-    int loc_deviceIndx = UDmain.GetUserListInput(loc_devicesString)
+    String[] loc_devicesString = getDeviceGroupsPremade()
+    loc_devicesString = PapyrusUtil.PushString(loc_devicesString, _getHeaderListItem("(CLOSE)") + ";;-1;;-10;;button;;0")
+    int loc_deviceIndx = UDmain.GetUserListInputEx(loc_devicesString, aiListWidth = 440, aiEntryHeight = 22)
     
     if loc_deviceIndx != (loc_devicesString.length - 1) && loc_deviceIndx >= 0
         UD_CustomDevice_RenderScript loc_device = UD_equipedCustomDevices[loc_deviceIndx]
@@ -246,11 +246,97 @@ EndFunction
 
 String[] Function getSlotsStringA()
     String[] loc_res
-    int i = 0
-    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
-        loc_res = PapyrusUtil.PushString(loc_res,UD_equipedCustomDevices[i].getDeviceName())
-        i+=1
+    String loc_str = ""
+    int loc_i = 0
+    while (loc_i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[loc_i]
+        loc_str = _getDeviceListItem(UD_equipedCustomDevices[loc_i])
+        loc_res = PapyrusUtil.PushString(loc_res, loc_str)
+        loc_i+=1
     endwhile
+    return loc_res
+EndFunction
+
+String Function _getDeviceListItem(UD_CustomDevice_RenderScript akDevice)
+    String loc_str = ""
+    String loc_name = akDevice.getDeviceName()
+    If StringUtil.GetLength(loc_name) > 37
+        loc_name = StringUtil.Substring(loc_name, 0, 35) + "..."
+    EndIf
+    Int loc_health = Round(100 * akDevice.getRelativeDurability())
+    String loc_health_str = UDMain.UDMTF.Text((loc_health as String) + "%", asColor = UDMain.UDMTF.PercentToGrayscale(loc_health))
+    Int loc_acc = Round(100 * akDevice.getAccesibility())
+    String loc_acc_str = UDMain.UDMTF.Text((loc_acc as String) + "%", asColor = UDMain.UDMTF.PercentToRainbow(loc_acc))
+    String loc_locks = akDevice.GetLocksIcons(asSeparator = "")
+    String[] loc_tags_arr = PapyrusUtil.RemoveDupeString(akDevice.GetModifierTags())
+    String loc_tags = ""
+    Int loc_j = 0
+    While loc_j < loc_tags_arr.Length
+        loc_tags += UDMain.UDMTF.Text(loc_tags_arr[loc_j], asColor = UDMain.UDMTF.StringHashToColor(loc_tags_arr[loc_j])) + " "
+        loc_j += 1
+    EndWhile
+    loc_str += UDMain.UDMTF.FontBegin(asFontFace = "$EverywhereFont", aiFontSize = 16)
+    loc_str += UDMain.UDMTF.TableBegin(5, 180, 33, 33, 65)
+    loc_str += UDMain.UDMTF.TableRowWide(loc_name, loc_acc_str, loc_health_str, loc_locks, loc_tags)
+    loc_str += UDMain.UDMTF.TableEnd()
+    loc_str += UDMain.UDMTF.FontEnd()
+    Return loc_str
+EndFunction
+
+String Function _getHeaderListItem(String asText)
+    String loc_str = ""
+    loc_str += UDMain.UDMTF.ParagraphBegin(asAlign = "center")
+    loc_str += UDMain.UDMTF.Text(asText, aiFontSize = 16, asFontFace = "$EverywhereBoldFont")
+    loc_str += UDMain.UDMTF.ParagraphEnd()
+    Return loc_str
+EndFunction
+
+String[] Function getDeviceGroupsPremade()
+    String[] loc_res
+    String[] loc_res_head
+    String[] loc_res_arms
+    String[] loc_res_upper
+    String[] loc_res_lower
+    String[] loc_res_legs
+
+    Int loc_slots_head =  0x0200F823    ; 0x00004000 & 0x00008000 & 0x02000000 & 0x00000001 & 0x00001000 & 0x00000020 & 0x00000002 & 0x00000800 & 0x00002000
+    Int loc_slots_arms =  0x20010058    ; 0x00000008 & 0x00000010 & 0x00000040 & 0x00010000 & 0x20000000
+    Int loc_slots_upper = 0x14200004    ; 0x00000004 & 0x00200000 & 0x10000000 & 0x04000000 
+    Int loc_slots_lower = 0x081C0400    ; 0x00040000 & 0x00080000 & 0x00100000 & 0x08000000 & 0x00000400 
+    Int loc_slots_legs =  0x00800180    ; 0x00000080 & 0x00000100 & 0x00800000 
+
+    int loc_i = 0
+    while (loc_i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[loc_i]
+        Int loc_slot = UD_equipedCustomDevices[loc_i].deviceRendered.GetSlotMask()
+        String loc_str = _getDeviceListItem(UD_equipedCustomDevices[loc_i]) + ";;-1;;" + (loc_i as String) + ";;device;;0"
+        If Math.LogicalAnd(loc_slot, loc_slots_head) > 0
+            loc_res_head = PapyrusUtil.PushString(loc_res_head, loc_str)
+        EndIf
+        If Math.LogicalAnd(loc_slot, loc_slots_arms) > 0
+            loc_res_arms = PapyrusUtil.PushString(loc_res_arms, loc_str)
+        EndIf
+        If Math.LogicalAnd(loc_slot, loc_slots_upper) > 0
+            loc_res_upper = PapyrusUtil.PushString(loc_res_upper, loc_str)
+        EndIf
+        If Math.LogicalAnd(loc_slot, loc_slots_lower) > 0
+            loc_res_lower = PapyrusUtil.PushString(loc_res_lower, loc_str)
+        EndIf
+        If Math.LogicalAnd(loc_slot, loc_slots_legs) > 0
+            loc_res_legs = PapyrusUtil.PushString(loc_res_legs, loc_str)
+        EndIf
+        loc_i += 1
+    endwhile
+
+    loc_res = PapyrusUtil.PushString(loc_res, _getHeaderListItem("--HEAD--") + ";;-1;;-2;;separator;;0")
+    loc_res = PapyrusUtil.MergeStringArray(loc_res, loc_res_head)
+    loc_res = PapyrusUtil.PushString(loc_res, _getHeaderListItem("--ARMS--") + ";;-1;;-3;;separator;;0")
+    loc_res = PapyrusUtil.MergeStringArray(loc_res, loc_res_arms)
+    loc_res = PapyrusUtil.PushString(loc_res, _getHeaderListItem("--UPPER BODY--") + ";;-1;;-4;;separator;;0")
+    loc_res = PapyrusUtil.MergeStringArray(loc_res, loc_res_upper)
+    loc_res = PapyrusUtil.PushString(loc_res, _getHeaderListItem("--LOWER BODY--") + ";;-1;;-5;;separator;;0")
+    loc_res = PapyrusUtil.MergeStringArray(loc_res, loc_res_lower)
+    loc_res = PapyrusUtil.PushString(loc_res, _getHeaderListItem("--LEGS--") + ";;-1;;-6;;separator;;0")
+    loc_res = PapyrusUtil.MergeStringArray(loc_res, loc_res_legs)
+
     return loc_res
 EndFunction
 
@@ -446,7 +532,7 @@ EndFunction
 String Function _GetNPCSlotFixText()
     String loc_res = ""
     
-    loc_res += UDmain.UDMTF.Header(GetActor().GetLeveledActorBase().GetName(), 4)
+    loc_res += UDmain.UDMTF.Header(GetActor().GetLeveledActorBase().GetName(), UDMain.UDMTF.FontSize + 4)
     loc_res += UDmain.UDMTF.FontBegin(aiFontSize = UDmain.UDMTF.FontSize, asColor = UDmain.UDMTF.TextColorDefault)
     loc_res += UDmain.UDMTF.ParagraphBegin(asAlign = "center")
     loc_res += UDmain.UDMTF.LineGap()
@@ -1133,7 +1219,7 @@ EndFunction
 
 String Function _GetDebugMenuText(UD_CustomDevice_RenderScript akDevice)
     String loc_res = ""
-    loc_res += UDmain.UDMTF.Header(akDevice.getDeviceName(), 4)
+    loc_res += UDmain.UDMTF.Header(akDevice.getDeviceName(), UDMain.UDMTF.FontSize + 4)
     loc_res += UDmain.UDMTF.FontBegin(aiFontSize = UDmain.UDMTF.FontSize, asColor = UDmain.UDMTF.TextColorDefault)
     loc_res += UDmain.UDMTF.ParagraphBegin(asAlign = "center")
     loc_res += UDmain.UDMTF.LineGap()
