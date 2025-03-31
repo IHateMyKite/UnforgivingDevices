@@ -100,6 +100,9 @@ Int     Property UD_MinigameLockpickSkillAdjust     = 2     Auto Hidden ; index 
 Int     Property UD_LockpickMinigameDuration        = 20    Auto Hidden ;duration of lockpick minigame. After this time passe, minigame will close itself and fail. This value is adjusted by difficulty of lock
 Float   Property UD_MinigameExhExponential          = 1.0   Auto Hidden ; determines how much longer subsequent exhaustions get applied for
 Int     Property UD_MinigameExhNoStruggleMax        = 2     Auto Hidden ; how many exhaustions prevent further struggle. 0 disables this feature
+Bool    Property UD_DeviceListEx                    = True  Auto Hidden ; enables extented information in device list
+Bool    Property UD_DeviceListGroups                = True  Auto Hidden ; enables groupping in device list
+Bool    Property UD_DeviceListLastOnTop             = True  Auto Hidden ; puts the last device on top
 
 ;Lvl scalling
 Float   Property UD_DeviceLvlHealth                 = 0.025 auto hidden

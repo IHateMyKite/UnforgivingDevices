@@ -56,6 +56,7 @@ UD_Config Property UDCONF hidden
 EndProperty
 
 UD_CustomDevice_RenderScript[]          Property UD_equipedCustomDevices    auto hidden
+UD_CustomDevice_RenderScript            Property UD_LastSelectedDevice      Auto Hidden
 
 UD_CustomDevice_RenderScript[] _ActiveVibrators
 UD_CustomDevice_RenderScript[]          Property UD_ActiveVibrators         hidden
@@ -231,13 +232,28 @@ Function _ValidateOutfit()
 EndFunction
 
 UD_CustomDevice_RenderScript Function GetUserSelectedDevice()
-    String[] loc_devicesString = getDeviceGroupsPremade()
+    String[] loc_devicesString
+
+    If UDCDMain.UD_DeviceListGroups
+        loc_devicesString = getDeviceGroupsPremade()
+    Else
+        loc_devicesString = getDeviceItemsPremade()
+    EndIf
     loc_devicesString = PapyrusUtil.PushString(loc_devicesString, _getHeaderListItem("(CLOSE)") + ";;-1;;-10;;button;;0")
-    int loc_deviceIndx = UDmain.GetUserListInputEx(loc_devicesString, aiListWidth = 440, aiEntryHeight = 22)
+
+    Int loc_deviceIndx = -1
+    If UDCDMain.UD_DeviceListEx
+        loc_deviceIndx = UDmain.GetUserListInputEx(loc_devicesString, aiListWidth = 440, aiEntryHeight = 22)
+    Else
+        loc_deviceIndx = UDmain.GetUserListInput(loc_devicesString, abPremade = True)
+    EndIf
     
-    if loc_deviceIndx != (loc_devicesString.length - 1) && loc_deviceIndx >= 0
+    if loc_deviceIndx < UD_equipedCustomDevices.Length && loc_deviceIndx >= 0
         UD_CustomDevice_RenderScript loc_device = UD_equipedCustomDevices[loc_deviceIndx]
-        ReorderSlots(loc_device)
+        If loc_device != None
+            UD_LastSelectedDevice = loc_device
+;            ReorderSlots(loc_device)
+        EndIf
         return loc_device
     else
         return none
@@ -246,48 +262,35 @@ EndFunction
 
 String[] Function getSlotsStringA()
     String[] loc_res
-    String loc_str = ""
+    If UDCDMain.UD_DeviceListLastOnTop && UD_LastSelectedDevice != None
+        loc_res = PapyrusUtil.PushString(loc_res, UD_LastSelectedDevice.getDeviceName())
+    EndIf
     int loc_i = 0
     while (loc_i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[loc_i]
-        loc_str = _getDeviceListItem(UD_equipedCustomDevices[loc_i])
-        loc_res = PapyrusUtil.PushString(loc_res, loc_str)
+        If !UDCDMain.UD_DeviceListLastOnTop || UD_LastSelectedDevice != UD_equipedCustomDevices[loc_i]
+            loc_res = PapyrusUtil.PushString(loc_res, UD_equipedCustomDevices[loc_i].getDeviceName())
+        EndIf
         loc_i+=1
     endwhile
     return loc_res
 EndFunction
 
-String Function _getDeviceListItem(UD_CustomDevice_RenderScript akDevice)
+String[] Function getDeviceItemsPremade()
+    String[] loc_res
     String loc_str = ""
-    String loc_name = akDevice.getDeviceName()
-    If StringUtil.GetLength(loc_name) > 37
-        loc_name = StringUtil.Substring(loc_name, 0, 35) + "..."
-    EndIf
-    Int loc_health = Round(100 * akDevice.getRelativeDurability())
-    String loc_health_str = UDMain.UDMTF.Text((loc_health as String) + "%", asColor = UDMain.UDMTF.PercentToGrayscale(loc_health))
-    Int loc_acc = Round(100 * akDevice.getAccesibility())
-    String loc_acc_str = UDMain.UDMTF.Text((loc_acc as String) + "%", asColor = UDMain.UDMTF.PercentToRainbow(loc_acc))
-    String loc_locks = akDevice.GetLocksIcons(asSeparator = "")
-    String[] loc_tags_arr = PapyrusUtil.RemoveDupeString(akDevice.GetModifierTags())
-    String loc_tags = ""
-    Int loc_j = 0
-    While loc_j < loc_tags_arr.Length
-        loc_tags += UDMain.UDMTF.Text(loc_tags_arr[loc_j], asColor = UDMain.UDMTF.StringHashToColor(loc_tags_arr[loc_j])) + " "
-        loc_j += 1
-    EndWhile
-    loc_str += UDMain.UDMTF.FontBegin(asFontFace = "$EverywhereFont", aiFontSize = 16)
-    loc_str += UDMain.UDMTF.TableBegin(5, 180, 33, 33, 65)
-    loc_str += UDMain.UDMTF.TableRowWide(loc_name, loc_acc_str, loc_health_str, loc_locks, loc_tags)
-    loc_str += UDMain.UDMTF.TableEnd()
-    loc_str += UDMain.UDMTF.FontEnd()
-    Return loc_str
-EndFunction
-
-String Function _getHeaderListItem(String asText)
-    String loc_str = ""
-    loc_str += UDMain.UDMTF.ParagraphBegin(asAlign = "center")
-    loc_str += UDMain.UDMTF.Text(asText, aiFontSize = 16, asFontFace = "$EverywhereBoldFont")
-    loc_str += UDMain.UDMTF.ParagraphEnd()
-    Return loc_str
+    int loc_i = 0
+    while (loc_i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[loc_i]
+        loc_str = _getDeviceListItem(UD_equipedCustomDevices[loc_i]) + ";;-1;;" + (loc_i as String) + ";;device;;0"
+        If UDCDMain.UD_DeviceListLastOnTop && UD_LastSelectedDevice == UD_equipedCustomDevices[loc_i]
+            String[] loc_temp_arr = new String[1]
+            loc_temp_arr[0] = loc_str
+            loc_res = PapyrusUtil.MergeStringArray(loc_temp_arr, loc_res)
+        Else
+            loc_res = PapyrusUtil.PushString(loc_res, loc_str)
+        EndIf
+        loc_i += 1
+    endwhile
+    return loc_res
 EndFunction
 
 String[] Function getDeviceGroupsPremade()
@@ -308,6 +311,9 @@ String[] Function getDeviceGroupsPremade()
     while (loc_i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[loc_i]
         Int loc_slot = UD_equipedCustomDevices[loc_i].deviceRendered.GetSlotMask()
         String loc_str = _getDeviceListItem(UD_equipedCustomDevices[loc_i]) + ";;-1;;" + (loc_i as String) + ";;device;;0"
+        If UDCDMain.UD_DeviceListLastOnTop && UD_LastSelectedDevice == UD_equipedCustomDevices[loc_i]
+            loc_res = PapyrusUtil.PushString(loc_res, loc_str)
+        EndIf
         If Math.LogicalAnd(loc_slot, loc_slots_head) > 0
             loc_res_head = PapyrusUtil.PushString(loc_res_head, loc_str)
         EndIf
@@ -338,6 +344,48 @@ String[] Function getDeviceGroupsPremade()
     loc_res = PapyrusUtil.MergeStringArray(loc_res, loc_res_legs)
 
     return loc_res
+EndFunction
+
+String Function _getDeviceListItem(UD_CustomDevice_RenderScript akDevice)
+    String loc_str = ""
+    String loc_name = akDevice.getDeviceName()
+    If UDCDMain.UD_DeviceListEx && UDMain.UDMTF.HasHtmlMarkup()
+        If StringUtil.GetLength(loc_name) > 37
+            loc_name = StringUtil.Substring(loc_name, 0, 35) + "..."
+        EndIf
+        Int loc_health = Round(100 * akDevice.getRelativeDurability())
+        String loc_health_str = UDMain.UDMTF.Text((loc_health as String) + "%", asColor = UDMain.UDMTF.PercentToGrayscale(loc_health))
+        Int loc_acc = Round(100 * akDevice.getAccesibility())               ; without helper
+        String loc_acc_str = UDMain.UDMTF.Text((loc_acc as String) + "%", asColor = UDMain.UDMTF.PercentToRainbow(loc_acc))
+        String loc_locks = akDevice.GetLocksIcons(asSeparator = "")
+        String[] loc_tags_arr = PapyrusUtil.RemoveDupeString(akDevice.GetModifierTags())
+        String loc_tags = ""
+        Int loc_j = 0
+        While loc_j < loc_tags_arr.Length
+            loc_tags += UDMain.UDMTF.Text(loc_tags_arr[loc_j], asColor = UDMain.UDMTF.StringHashToColor(loc_tags_arr[loc_j])) + " "
+            loc_j += 1
+        EndWhile
+        loc_str += UDMain.UDMTF.FontBegin(asFontFace = "$EverywhereFont", aiFontSize = 16)
+        loc_str += UDMain.UDMTF.TableBegin(5, 180, 33, 33, 65)
+        loc_str += UDMain.UDMTF.TableRowWide(loc_name, loc_acc_str, loc_health_str, loc_locks, loc_tags)
+        loc_str += UDMain.UDMTF.TableEnd()
+        loc_str += UDMain.UDMTF.FontEnd()
+    Else
+        loc_str = loc_name
+    EndIf
+    Return loc_str
+EndFunction
+
+String Function _getHeaderListItem(String asText)
+    String loc_str = ""
+    If UDCDMain.UD_DeviceListEx && UDMain.UDMTF.HasHtmlMarkup()
+        loc_str += UDMain.UDMTF.ParagraphBegin(asAlign = "center")
+        loc_str += UDMain.UDMTF.Text(asText, aiFontSize = 16, asFontFace = "$EverywhereBoldFont")
+        loc_str += UDMain.UDMTF.ParagraphEnd()
+    Else
+        loc_str = asText
+    EndIf
+    Return loc_str
 EndFunction
 
 Function ReorderSlots(UD_CustomDevice_RenderScript firstDevice)
@@ -468,6 +516,7 @@ Function unregisterSlot()
     endif
     UnregisterAllItemEvents(True)
     GetModifierTags_Update()
+    UD_LastSelectedDevice = None
     self.Clear()
 EndFunction
 
@@ -813,6 +862,9 @@ int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool s
     if mutex
         startDeviceManipulation()
     endif
+    If oref == UD_LastSelectedDevice
+        UD_LastSelectedDevice = None
+    EndIf
     int res = 0
     while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i] == oref
@@ -889,6 +941,7 @@ int Function unregisterAllDevices(int i = 0,bool mutex = true)
     if mutex
         startDeviceManipulation()
     endif
+    UD_LastSelectedDevice = None
     int res = 0
     while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         UD_equipedCustomDevices[i] = none

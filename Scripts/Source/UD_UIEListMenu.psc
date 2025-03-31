@@ -53,23 +53,23 @@ Function SetPropertyInt(string propertyName, int value)
     ElseIf propertyName == "maxViewport"                    ; Default value: 15
         _maxViewport = value
     EndIf
-	Parent.SetPropertyInt(propertyName, value)
+    Parent.SetPropertyInt(propertyName, value)
 EndFunction
 
 Function SetPropertyBool(string propertyName, bool value)
-	If propertyName == "extraFormatting"                    ; Works only with customized listmenu-ud.swf. Default value: False
-		_extraFormatting = value
-	EndIf
+    If propertyName == "extraFormatting"                    ; Works only with customized listmenu-ud.swf. Default value: False
+        _extraFormatting = value
+    EndIf
     Parent.SetPropertyBool(propertyName, value)
 EndFunction
 
 Function ResetMenu()
-	isResetting = true
+    isResetting = true
     _extraFormatting = False
     _entryHeight = -1
     _listWidth = -1
     Parent.ResetMenu()
-	isResetting = false
+    isResetting = false
 EndFunction
 
 ; No access to private fields, so we use our own
@@ -122,33 +122,33 @@ Event OnLoadMenu(string eventName, string strArg, float numArg, Form formArg)
     If _maxViewport > 0
         UI.SetInt(ROOT_MENU, MENU_ROOT + "itemList.maxViewport", _maxViewport)
     EndIf
-	Parent.OnLoadMenu(eventName, strArg, numArg, formArg)
+    Parent.OnLoadMenu(eventName, strArg, numArg, formArg)
 EndEvent
 
 Event OnSelect(string eventName, string strArg, float numArg, Form formArg)
-	_resultInt2 = strArg as int
-	_resultFloat2 = numArg
-	Unlock()
+    _resultInt2 = strArg as int
+    _resultFloat2 = numArg
+    Unlock()
 EndEvent
 
 Event OnSelectText(string eventName, string strArg, float numArg, Form formArg)
-	_resultString2 = strArg
-	; Do not unlock on this event, it's part of OnSelect sequence
+    _resultString2 = strArg
+    ; Do not unlock on this event, it's part of OnSelect sequence
 EndEvent
 
 Event OnUnloadMenu(string eventName, string strArg, float numArg, Form formArg)
     Parent.OnUnloadMenu(eventName, strArg, numArg, formArg)
-	UnregisterForModEvent("UIListMenu_SelectItemText")								; Forgot to unregister?
+    UnregisterForModEvent("UIListMenu_SelectItemText")								; Forgot to unregister?
 EndEvent
 
 int Function GetResultInt()
-	return _resultInt2
+    return _resultInt2
 EndFunction
 
 float Function GetResultFloat()
-	return _resultFloat2
+    return _resultFloat2
 EndFunction
 
 string Function GetResultString()
-	return _resultString2
+    return _resultString2
 EndFunction
