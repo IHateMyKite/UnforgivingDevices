@@ -36,8 +36,8 @@ EndFunction
 
 ; overrides
 
-Int _entryHeight = -1                   ; Height of the list item. Works only with customized listmenu-ud.swf. Default value: 22
-Int _listWidth = -1                     ; Width of the list. Default value: ~256
+Int _entryHeight = -1                   ; Height of the list item. Works only with customized listmenu-ud.swf. Default value: 25
+Int _listWidth = -1                     ; Width of the list. Works only with customized listmenu-ud.swf. Default value: ~256
 Int _minViewport = -1                   ; Minimum height of the list, measured by the number of visible items. Default value: 5
 Int _maxViewport = -1                   ; Maximum height of the list, measured by the number of visible items. Default value: 15
 Bool _extraFormatting = False           ; Flag to use listmenu-ud.swf. Default value: False
@@ -91,7 +91,7 @@ int Function OpenMenu(Form aForm = none, Form aReceiver = none)
     RegisterForModEvent("UIListMenu_SelectItem", "OnSelect")
 
     Lock()
-    If _extraFormatting
+    If _extraFormatting || (_entryHeight > 0 || _listWidth > 0)
         UI.OpenCustomMenu("listmenu-ud")
     Else
         UI.OpenCustomMenu("listmenu")
