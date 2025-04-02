@@ -2309,32 +2309,74 @@ EndFunction
 
 ;open the list of locks for user. Returns index of selected lock, or -1 in case that user either backed out or there was error
 Int Function UserSelectLock()
-    String[] loc_Locks = GetLockList()
+    If GetLockNumber() <= 0
+        Return -1
+    EndIf
     String[] loc_ResList
     int loc_i = 0
-    while loc_i < loc_Locks.length
-        loc_ResList = PapyrusUtil.PushString(loc_ResList,loc_Locks[loc_i])
-        if IsNthLockUnlocked(loc_i)
-            loc_ResList[loc_ResList.length - 1] = loc_ResList[loc_ResList.length - 1] + " [UNLOCKED]"
-        elseif IsNthLockJammed(loc_i)
-            loc_ResList[loc_ResList.length - 1] = loc_ResList[loc_ResList.length - 1] + " [JAMMED]"
-        elseif IsNthLockTimeLocked(loc_i) && GetNthLockTimeLock(loc_i)
-            loc_ResList[loc_ResList.length - 1] = loc_ResList[loc_ResList.length - 1] + " [TIMELOCK="+GetNthLockTimeLock(loc_i)+"h]"
-        else
-            loc_ResList[loc_ResList.length - 1] = loc_ResList[loc_ResList.length - 1] + " [LOCKED] | S="+GetNthLockShields(loc_i)
-        endif
+    while loc_i < GetLockNumber()
+        loc_ResList = PapyrusUtil.PushString(loc_ResList, _getLockListItem(loc_i))
         loc_i += 1
     endwhile
-    loc_ResList = PapyrusUtil.PushString(loc_ResList,"==BACK==")
-    if loc_ResList
-        Int loc_res = UDmain.GetUserListInput(loc_ResList)
-        if loc_res == (loc_ResList.length - 1)
-            return -1 ;user selected ==BACK==
-        endif
-        return loc_res
-    else
-        return -1
+    If UDCDMain.UD_DeviceListEx && UDMain.UDMTF.HasHtmlMarkup()
+        loc_ResList = PapyrusUtil.PushString(loc_ResList, UDMain.UDMTF.Paragraph("(BACK)", aiFontSize = 16, asFontFace = "$EverywhereBoldFont", asAlign = "center"))
+    Else
+        loc_ResList = PapyrusUtil.PushString(loc_ResList, "(BACK)")
+    EndIf
+    Int loc_res = -1
+    If UDCDMain.UD_DeviceListEx
+        loc_res = UDmain.GetUserListInputEx(loc_ResList, abPremade = False)
+    Else
+        loc_res = UDmain.GetUserListInput(loc_ResList, abPremade = False)
+    EndIF
+    if loc_res == (loc_ResList.length - 1)
+        return -1 ;user selected ==BACK==
     endif
+    return loc_res
+EndFunction
+
+String Function _getLockListItem(Int aiLockNum)
+    If aiLockNum < 0 || aiLockNum >= GetLockNumber()
+        Return ""
+    EndIf
+    String loc_str = ""
+    String loc_state = ""
+    Int loc_shield = 0
+    Int loc_timer = -1
+    String loc_name = GetNthLockName(aiLockNum)
+    if IsNthLockUnlocked(aiLockNum)
+        loc_state = "[UNLOCKED]"
+    elseif IsNthLockJammed(aiLockNum)
+        loc_state = "[JAMMED]"
+    elseif IsNthLockTimeLocked(aiLockNum) && GetNthLockTimeLock(aiLockNum) > 0
+        loc_state = "[TIMELOCK]"
+        loc_timer = GetNthLockTimeLock(aiLockNum)
+    else
+        loc_state = "[LOCKED]"
+    endif
+    loc_shield = GetNthLockShields(aiLockNum)
+    If UDCDMain.UD_DeviceListEx && UDMain.UDMTF.HasHtmlMarkup()
+        loc_str += UDMain.UDMTF.FontBegin(asFontFace = "$EverywhereFont", aiFontSize = 16)
+        loc_str += UDMain.UDMTF.TableBegin(5, 100, 65, 30)
+        If IsNthLockUnlocked(aiLockNum)
+            loc_state = UDMain.UDMTF.Text(loc_state, asColor = "#33FF33")
+        ElseIf IsNthLockJammed(aiLockNum)
+            loc_state = UDMain.UDMTF.Text(loc_state, asColor = "#FF3333")
+        ElseIf IsNthLockTimeLocked(aiLockNum) && GetNthLockTimeLock(aiLockNum) > 0
+            loc_state = UDMain.UDMTF.Text(loc_state, asColor = "#3333FF")
+        Else
+            loc_state = UDMain.UDMTF.Text(loc_state, asColor = "#DDDDDD")
+        EndIf
+        loc_str += UDMain.UDMTF.TableRowWide(loc_name, loc_state, UDMain.UDMTF.InlineIfString(loc_timer > 0, (loc_timer as String) + "h"), UDMain.UDMTF.InlineIfString(loc_shield > 0, (loc_shield as String) + " shield(s)"))
+        loc_str += UDMain.UDMTF.TableEnd()
+        loc_str += UDMain.UDMTF.FontEnd()
+    Else
+        loc_str += loc_name
+        loc_str += " " + loc_state
+        loc_str += UDMain.UDMTF.InlineIfString(loc_timer > 0, " | " + (loc_timer as String) + "h")
+        loc_str += UDMain.UDMTF.InlineIfString(loc_shield > 0, " | " + (loc_shield as String) + " shield(s)")
+    EndIf
+    Return loc_str
 EndFunction
 
 Function _SetMinigameLock(Int aiLockID)
