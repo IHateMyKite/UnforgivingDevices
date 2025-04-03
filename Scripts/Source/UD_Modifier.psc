@@ -224,7 +224,7 @@ String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataS
 
     loc_res += UDmain.UDMTF.Header(NameFull, 4)
     loc_res += UDmain.UDMTF.FontBegin(aiFontSize = UDmain.UDMTF.FontSize, asColor = UDmain.UDMTF.TextColorDefault)
-    loc_res += UDmain.UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
+    loc_res += UDmain.UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 160)
     loc_res += UDmain.UDMTF.HeaderSplit()
 
     If Description

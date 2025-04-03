@@ -439,6 +439,7 @@ EndFunction
 
 ;removes bullshit
 Function QuickFix()
+    sortSlots()
     removeCopies()
     removeUnusedDevices()
 EndFunction
@@ -469,6 +470,7 @@ Function fix()
     if loc_res == 0 ;general fix
         UDmain.Print("[UD] Starting general fixes")
         UDCDMain.ResetFetchFunction()
+        sortSlots()
         removeCopies()
         removeUnusedDevices()
         removeLostRenderDevices()

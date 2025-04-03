@@ -103,10 +103,10 @@ String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice
     Float loc_prob_base = MultFloat(GetStringParamFloat(aiDataStr, 2, 100.0), akModifier.MultProbabilities)
     String loc_res = ""
     loc_res += UDmain.UDMTF.TableRowDetails("Stat name:", GetStringParamString(aiDataStr, 0, ""))
-    loc_res += UDmain.UDMTF.TableRowDetails("Minimum accumulated value:", loc_min_value)
+    loc_res += UDmain.UDMTF.TableRowDetails("Minimum acc. value:", loc_min_value)
     loc_res += UDmain.UDMTF.TableRowDetails("Base probability:", FormatFloat(loc_prob_base, 1) + "%")
     loc_res += UDmain.UDMTF.TableRowDetails("Repeat:", InlineIfStr(GetStringParamInt(aiDataStr, 3, 0) > 0, "True", "False"))
-    loc_res += UDmain.UDMTF.TableRowDetails("Accumulator:", GetStringParamInt(aiDataStr, 4, 0))
+    loc_res += UDmain.UDMTF.TableRowDetails("Accumulator:", FormatFloat(GetStringParamFloat(aiDataStr, 4, 0.0), 0))
     loc_res += UDmain.UDMTF.Paragraph("(Accumulator contains stat change since the last trigger)", asAlign = "center")
     Return loc_res
 EndFunction

@@ -81,6 +81,9 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
 EndFunction
 
 Bool Function MinigameAllowed(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
+    if akDevice.GetRealTimeLockedTime() > 0.5
+        return true
+    endif
     String loc_init = GetStringParamString(aiDataStr, DataStrOffset + 0, "B")
     Float loc_duration = MultFloat(GetStringParamFloat(aiDataStr, DataStrOffset + 1, 0.0), akModifier.MultOutputQuantities)
     Bool loc_repeat = GetStringParamInt(aiDataStr, DataStrOffset + 2, 0) > 0
