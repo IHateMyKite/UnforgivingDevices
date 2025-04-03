@@ -1052,7 +1052,7 @@ EndFunction
 Function ShowDetails(Actor akActor)
     string loc_res = ""
     
-    loc_res += UDMain.UDMTF.Header(getDeviceName(), 4)
+    loc_res += UDMain.UDMTF.Header(getDeviceName(), UDMain.UDMTF.FontSize + 4)
     loc_res += UDMain.UDMTF.FontBegin(aiFontSize = UDMain.UDMTF.FontSize, asColor = UDMain.UDMTF.TextColorDefault)
     loc_res += UDMain.UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
     loc_res += UDMain.UDMTF.HeaderSplit()

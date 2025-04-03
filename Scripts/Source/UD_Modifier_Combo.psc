@@ -253,7 +253,7 @@ String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataS
     UD_ModTrigger loc_trigger = GetTrigger(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
     UD_ModOutcome loc_outcome = GetOutcome(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
     String loc_res = ""
-    loc_res += UDmain.UDMTF.Header(NameFull, 4)
+    loc_res += UDmain.UDMTF.Header(NameFull, UDMain.UDMTF.FontSize + 4)
     loc_res += UDmain.UDMTF.FontBegin(aiFontSize = UDmain.UDMTF.FontSize, asColor = UDmain.UDMTF.TextColorDefault)
     loc_res += UDmain.UDMTF.HeaderSplit()
     If Description
@@ -262,11 +262,11 @@ String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataS
     EndIf
 ; Trigger
     loc_res += UDmain.UDMTF.PageSplit(abForce = False)
-    loc_res += UDmain.UDMTF.Header("Trigger", 0)
+    loc_res += UDmain.UDMTF.Header("Trigger")
     loc_res += loc_trigger.GetDetails(Self, akDevice, aiDataStr, akForm1)
 ; Outcome
     loc_res += UDmain.UDMTF.PageSplit(abForce = False)
-    loc_res += UDmain.UDMTF.Header("Outcome", 0)
+    loc_res += UDmain.UDMTF.Header("Outcome")
     loc_res += loc_outcome.GetDetails(Self, akDevice, aiDataStr, akForm2, akForm3)
     
     loc_res += UDmain.UDMTF.FooterSplit()

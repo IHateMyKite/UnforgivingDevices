@@ -230,7 +230,7 @@ EndFunction
 Function _ShowVibDetails()
     String loc_res = ""
     
-    loc_res += UDMTF.Header(getDeviceName(), 4)
+    loc_res += UDMTF.Header(getDeviceName(), UDMTF.FontSize + 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
     loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
     loc_res += UDMTF.HeaderSplit()

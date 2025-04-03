@@ -222,7 +222,7 @@ String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataS
     ; TODO PR195: ConcealmentPower
     ; "You are unable to recognize this enchantment"
 
-    loc_res += UDmain.UDMTF.Header(NameFull, 4)
+    loc_res += UDmain.UDMTF.Header(NameFull, UDMain.UDMTF.FontSize + 4)
     loc_res += UDmain.UDMTF.FontBegin(aiFontSize = UDmain.UDMTF.FontSize, asColor = UDmain.UDMTF.TextColorDefault)
     loc_res += UDmain.UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
     loc_res += UDmain.UDMTF.HeaderSplit()
@@ -232,7 +232,7 @@ String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataS
         loc_res += UDmain.UDMTF.LineGap()
     EndIf
     loc_res += UDmain.UDMTF.PageSplit(abForce = False)
-    loc_res += UDmain.UDMTF.Header("Parameters", 0)
+    loc_res += UDmain.UDMTF.Header("Parameters")
     loc_res += GetParamsTableRows(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
     loc_res += UDmain.UDMTF.FooterSplit()
     loc_res += UDmain.UDMTF.TableEnd()

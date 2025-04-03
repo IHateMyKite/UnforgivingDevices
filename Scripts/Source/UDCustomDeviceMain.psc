@@ -100,6 +100,9 @@ Int     Property UD_MinigameLockpickSkillAdjust     = 2     Auto Hidden ; index 
 Int     Property UD_LockpickMinigameDuration        = 20    Auto Hidden ;duration of lockpick minigame. After this time passe, minigame will close itself and fail. This value is adjusted by difficulty of lock
 Float   Property UD_MinigameExhExponential          = 1.0   Auto Hidden ; determines how much longer subsequent exhaustions get applied for
 Int     Property UD_MinigameExhNoStruggleMax        = 2     Auto Hidden ; how many exhaustions prevent further struggle. 0 disables this feature
+Bool    Property UD_DeviceListEx                    = True  Auto Hidden ; enables extented information in device list
+Bool    Property UD_DeviceListGroups                = True  Auto Hidden ; enables groupping in device list
+Bool    Property UD_DeviceListLastOnTop             = True  Auto Hidden ; puts the last device on top
 
 ;Lvl scalling
 Float   Property UD_DeviceLvlHealth                 = 0.025 auto hidden
@@ -1302,7 +1305,7 @@ EndFunction
 String Function _GetNPCMenuText(Actor akActor)
     String loc_res = ""
     
-    loc_res += UDMTF.Header(akActor.GetLeveledActorBase().GetName(), 4)
+    loc_res += UDMTF.Header(akActor.GetLeveledActorBase().GetName(), UDMTF.FontSize + 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
     loc_res += UDMTF.ParagraphBegin(asAlign = "center")
     loc_res += UDMTF.LineGap()
@@ -1623,7 +1626,7 @@ EndFunction
 String Function _GetPlayerMenuText()
     
     String loc_res = ""
-    loc_res += UDMTF.Header(UDmain.Player.GetLeveledActorBase().GetName(), 4)
+    loc_res += UDMTF.Header(UDmain.Player.GetLeveledActorBase().GetName(), UDMTF.FontSize + 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
     loc_res += UDMTF.ParagraphBegin(asAlign = "center")
     loc_res += UDMTF.LineGap()
@@ -1904,7 +1907,7 @@ EndFunction
 
 String Function _GetActorDetailsMenuText(Actor akActor)
     String loc_res = ""
-    loc_res += UDMTF.Header(akActor.GetLeveledActorBase().GetName(), 4)
+    loc_res += UDMTF.Header(akActor.GetLeveledActorBase().GetName(), UDMTF.FontSize + 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
     loc_res += UDMTF.ParagraphBegin(asAlign = "center")
     loc_res += UDMTF.LineGap()
@@ -1967,7 +1970,7 @@ Bool Function ShowActorDetailsMenu(Actor akActor)
         UD_OrgasmManager _UDOM = UDmain.GetUDOM(akActor)
         if loc_option == 0 ;base details
             String loc_res = ""
-            loc_res += UDMTF.Header("Base details", 4)
+            loc_res += UDMTF.Header("Base details", UDMTF.FontSize + 4)
             loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
             loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
             loc_res += UDMTF.HeaderSplit()
@@ -2003,7 +2006,7 @@ Bool Function ShowActorDetailsMenu(Actor akActor)
             UDMain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup(), False)
         elseif loc_option == 1 ;skills
             String loc_res = ""
-            loc_res += UDMTF.Header("Skill details", 4)
+            loc_res += UDMTF.Header("Skill details", UDMTF.FontSize + 4)
             loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
             loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
             loc_res += UDMTF.HeaderSplit()
@@ -2034,7 +2037,7 @@ Bool Function ShowActorDetailsMenu(Actor akActor)
             UDmain.ShowMessageBox(loc_res, UDMTF.HasHtmlMarkup(), False)
         elseif loc_option == 2 ;arousal/orgasm details
             String loc_res = ""
-            loc_res += UDMTF.Header("Orgasm details", 4)
+            loc_res += UDMTF.Header("Orgasm details", UDMTF.FontSize + 4)
             loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
             loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
             loc_res += UDMTF.HeaderSplit()
@@ -2082,7 +2085,7 @@ Bool Function ShowActorDetailsMenu(Actor akActor)
         elseif loc_option == 4 ;other details
             Weapon loc_sharpestWeapon = getSharpestWeapon(akActor)
             String loc_res = ""
-            loc_res += UDMTF.Header("Other", 4)
+            loc_res += UDMTF.Header("Other", UDMTF.FontSize + 4)
             loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
             loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
             loc_res += UDMTF.HeaderSplit()
@@ -2112,7 +2115,7 @@ EndFunction
 
 Function ShowHelperDetails(Actor akActor)
     String loc_res = ""
-    loc_res += UDMTF.Header("Helper details", 4)
+    loc_res += UDMTF.Header("Helper details", UDMTF.FontSize + 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
     loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
     loc_res += UDMTF.HeaderSplit()
@@ -3127,7 +3130,7 @@ EndFunction
 String Function _GetSoulgemMenuText(Actor akActor)
     
     String loc_res = ""
-    loc_res += UDMTF.Header(akActor.GetLeveledActorBase().GetName(), 4)
+    loc_res += UDMTF.Header(akActor.GetLeveledActorBase().GetName(), UDMTF.FontSize + 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
     loc_res += UDMTF.ParagraphBegin(asAlign = "center")
     loc_res += UDMTF.LineGap()
