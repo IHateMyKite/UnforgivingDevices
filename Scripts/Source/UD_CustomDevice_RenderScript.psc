@@ -2318,17 +2318,14 @@ Int Function UserSelectLock()
         loc_ResList = PapyrusUtil.PushString(loc_ResList, _getLockListItem(loc_i))
         loc_i += 1
     endwhile
+    Int loc_res = -1
     If UDCDMain.UD_DeviceListEx && UDMain.UDMTF.HasHtmlMarkup()
         loc_ResList = PapyrusUtil.PushString(loc_ResList, UDMain.UDMTF.Paragraph("(BACK)", aiFontSize = 16, asFontFace = "$EverywhereBoldFont", asAlign = "center"))
-    Else
-        loc_ResList = PapyrusUtil.PushString(loc_ResList, "(BACK)")
-    EndIf
-    Int loc_res = -1
-    If UDCDMain.UD_DeviceListEx
         loc_res = UDmain.GetUserListInputEx(loc_ResList, abPremade = False)
     Else
+        loc_ResList = PapyrusUtil.PushString(loc_ResList, "(BACK)")
         loc_res = UDmain.GetUserListInput(loc_ResList, abPremade = False)
-    EndIF
+    EndIf
     if loc_res == (loc_ResList.length - 1)
         return -1 ;user selected ==BACK==
     endif
@@ -2356,8 +2353,8 @@ String Function _getLockListItem(Int aiLockNum)
     endif
     loc_shield = GetNthLockShields(aiLockNum)
     If UDCDMain.UD_DeviceListEx && UDMain.UDMTF.HasHtmlMarkup()
-        loc_str += UDMain.UDMTF.FontBegin(asFontFace = "$EverywhereFont", aiFontSize = 16)
-        loc_str += UDMain.UDMTF.TableBegin(5, 100, 65, 30)
+        loc_str += UDMain.UDMTF.FontBegin(asFontFace = "$EverywhereMediumFont", aiFontSize = 16)
+        loc_str += UDMain.UDMTF.TableBegin(5, 100, 75, 30)
         If IsNthLockUnlocked(aiLockNum)
             loc_state = UDMain.UDMTF.Text(loc_state, asColor = "#33FF33")
         ElseIf IsNthLockJammed(aiLockNum)
