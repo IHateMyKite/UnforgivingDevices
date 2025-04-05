@@ -293,6 +293,9 @@ String Function PrintFormListSelectionDetails(Form akForm, String asMethod)
             If loc_name == ""
                 loc_name = "<Unnamed form>"
             EndIf
+            If StringUtil.GetLength(loc_name) > 20
+                loc_name = StringUtil.Substring(loc_name, 0, 18) + "..."
+            EndIf
             loc_res += UDmain.UDMTF.TableRowDetails(loc_padding, loc_name)
             loc_i += 1
         EndWhile
@@ -303,6 +306,9 @@ String Function PrintFormListSelectionDetails(Form akForm, String asMethod)
         loc_name = akForm.GetName()
         If loc_name == ""
             loc_name = "<Unnamed form>"
+        EndIf
+        If StringUtil.GetLength(loc_name) > 20
+            loc_name = StringUtil.Substring(loc_name, 0, 18) + "..."
         EndIf
         loc_res += UDmain.UDMTF.TableRowDetails(loc_padding, loc_name)
     Else 

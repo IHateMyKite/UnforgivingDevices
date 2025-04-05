@@ -79,7 +79,6 @@ UD_Modifier Function GetModifier(String asAlias)
     int loc_count = GetModifierStorageCount()
     while loc_count
         loc_count -= 1
-        
         UD_ModifierStorage loc_storage = GetNthModifierStorage(loc_count)
         Int loc_modnum = loc_storage.GetModifierNum()
         while loc_modnum
@@ -91,6 +90,11 @@ UD_Modifier Function GetModifier(String asAlias)
         endwhile
     endwhile
     return none
+EndFunction
+
+UD_Modifier Function GetModifierFromStorage(Int aiStorageIndex, Int aiModIndex)
+    UD_ModifierStorage loc_storage = GetNthModifierStorage(aiStorageIndex)
+    Return loc_storage.GetNthModifier(aiModIndex)
 EndFunction
 
 Function UpdateStorage()
@@ -137,10 +141,12 @@ EndFunction
 
 String[]        Property UD_ModifierList    auto hidden
 Alias[]         Property UD_ModifierListRef auto hidden
+String[]        Property UD_ModStorageList  Auto Hidden
 
 Function UpdateLists()
     UD_ModifierList     = Utility.CreateStringArray(0)
     UD_ModifierListRef  = Utility.CreateAliasArray(0)
+    UD_ModStorageList   = Utility.CreateStringArray(0)
 
     Int loc_i1      = 0
     int loc_count   = GetModifierStorageCount()
@@ -148,6 +154,7 @@ Function UpdateLists()
         UD_ModifierStorage loc_storage = GetNthModifierStorage(loc_i1)
         Int loc_modnum = loc_storage.GetModifierNum()
         Int loc_i2 = 0
+        UD_ModStorageList = PapyrusUtil.PushString(UD_ModStorageList, loc_storage.GetName())
         while loc_i2 < loc_modnum
             UD_Modifier loc_mod = loc_storage.GetNthModifier(loc_i2)
             if loc_mod

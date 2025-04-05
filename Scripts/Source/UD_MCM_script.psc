@@ -662,8 +662,13 @@ Event resetCustomBondagePage()
     AddTextOption("$UD_KEYMODIFIER", Math.floor((UDCDmain.CalculateKeyModifier())*100 + 0.5) + " %",OPTION_FLAG_DISABLED)
 EndEvent
 
+Int UD_ModifierStorageSelected = 0
 Int UD_ModifierSelected = 0
-int UD_ModifierList_M
+Int UD_ModifierList_M
+Int UD_ModStorageList_M
+
+String[] UD_ModStorageList
+String[] UD_ModifierList
 
 Int UD_ModifierPatchSelected = 0
 Int UD_ModifierPatchList_M
@@ -730,25 +735,37 @@ Function resetModifiersPage()
     Else
         UD_ModifierNoModsDesc_T = -1
     EndIf
-    
-    If UDmain.UDMOM.UD_ModifierListRef.Length <= UD_ModifierSelected
-        UDmain.Warning(Self + "Selected modifier index was outside the array")
-        UD_ModifierSelected = UDmain.UDMOM.UD_ModifierListRef.Length
+
+    If UD_ModifierStorageSelected < 0 || UD_ModifierStorageSelected >= UDmain.UDMOM.GetModifierStorageCount()
+        UDmain.Warning(Self + "::resetModifiersPage() Selected storage index was outside the array")
+        UD_ModifierStorageSelected = 0
     EndIf
 
-    UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+    UD_ModifierStorage loc_storage = UDmain.UDMOM.GetNthModifierStorage(UD_ModifierStorageSelected)
+
+    If loc_storage == None
+    ; ???
+        UDmain.Error(Self + "::resetModifiersPage() Selected storage was None (index = " + UD_ModifierStorageSelected + ")")
+        UD_ModifierStorageSelected = 0
+        Return
+    EndIf
+    
+    If loc_storage.GetModifierNum() <= UD_ModifierSelected || UD_ModifierSelected < 0
+        UDmain.Warning(Self + "::resetModifiersPage() Selected modifier index was outside the array")
+        UD_ModifierSelected = 0
+    EndIf
+    UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
     
     If loc_mod == None
     ; ???
-        UDmain.Error(Self + "Selected modifier was None (index = " + UD_ModifierSelected + ")")
+        UDmain.Error(Self + "::resetModifiersPage() Selected modifier was None (index = " + UD_ModifierSelected + ")")
         UD_ModifierSelected = 0
         Return
     EndIf
     
-    UD_ModifierList_M = AddMenuOption("$UD_CUSTOMMOD_SELECTED", UDmain.UDMOM.UD_ModifierList[UD_ModifierSelected])     ; Selected modifier
-    
-    AddTextOption("$UD_CUSTOMMOD_FROMSTORAGE", loc_mod.GetOwningQuest().GetName(), FlagSwitch(false))  ; Storage
-    
+    UD_ModStorageList_M = AddMenuOption("$UD_MODSTORAGE_SELECTED", loc_storage.GetName())       ; Selected storage
+    UD_ModifierList_M = AddMenuOption("$UD_CUSTOMMOD_SELECTED", loc_mod.NameFull)               ; Selected modifier
+        
     SetCursorPosition(16)
     SetCursorFillMode(TOP_TO_BOTTOM)
     AddHeaderOption("$UD_CUSTOMMOD_BASEDETAILS")             ; Base Details
@@ -3124,11 +3141,16 @@ EndFunction
 
 Function OnOptionMenuOpenModifiers(Int option)
     If option == UD_ModifierList_M
-        SetMenuDialogOptions(UDmain.UDMOM.UD_ModifierList)
+        UD_ModifierStorage loc_storage = UDmain.UDMOM.GetNthModifierStorage(UD_ModifierStorageSelected)
+        SetMenuDialogOptions(loc_storage.UD_ModifierList)
         SetMenuDialogStartIndex(UD_ModifierSelected)
         SetMenuDialogDefaultIndex(0)
+    ElseIf option == UD_ModStorageList_M
+        SetMenuDialogOptions(UDmain.UDMOM.UD_ModStorageList)
+        SetMenuDialogStartIndex(UD_ModifierStorageSelected)
+        SetMenuDialogDefaultIndex(0)
     ElseIf option == UD_ModifierPatchList_M
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         SetMenuDialogOptions(loc_mod.GetPatcherPresetsNames())
         SetMenuDialogStartIndex(UD_ModifierPatchSelected)
         SetMenuDialogDefaultIndex(0)
@@ -3266,8 +3288,15 @@ EndFunction
 Function OnOptionMenuAcceptModifiers(Int option, Int index)
     If option == UD_ModifierList_M
         UD_ModifierSelected = index
-        SetMenuOptionValue(option, UDmain.UDMOM.UD_ModifierList[index])
+        UD_ModifierStorage loc_storage = UDmain.UDMOM.GetNthModifierStorage(UD_ModifierStorageSelected)
+        SetMenuOptionValue(option, loc_storage.UD_ModifierList[index])
         UD_ModifierPatchSelected = 0
+        forcePageReset()
+    ElseIf option == UD_ModStorageList_M
+        UD_ModifierStorageSelected = index
+        SetMenuOptionValue(option, UDmain.UDMOM.UD_ModStorageList[index])
+        UD_ModifierPatchSelected = 0
+        UD_ModifierSelected = 0
         forcePageReset()
     ElseIf option == UD_ModifierPatchList_M
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
