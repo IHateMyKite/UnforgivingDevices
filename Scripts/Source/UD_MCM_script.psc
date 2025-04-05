@@ -662,8 +662,13 @@ Event resetCustomBondagePage()
     AddTextOption("$UD_KEYMODIFIER", Math.floor((UDCDmain.CalculateKeyModifier())*100 + 0.5) + " %",OPTION_FLAG_DISABLED)
 EndEvent
 
+Int UD_ModifierStorageSelected = 0
 Int UD_ModifierSelected = 0
-int UD_ModifierList_M
+Int UD_ModifierList_M
+Int UD_ModStorageList_M
+
+String[] UD_ModStorageList
+String[] UD_ModifierList
 
 Int UD_ModifierPatchSelected = 0
 Int UD_ModifierPatchList_M
@@ -685,7 +690,7 @@ int UD_ModifierDescription_T
 Int UD_ModPP_ApplicableToNPC_T
 Int UD_ModPP_ApplicableToPlayer_T
 Int UD_ModPP_BaseProbability_S
-Int UD_ModPP_IsNormalizedProbability_T
+Int UD_ModPP_IsAbsoluteProbability_T
 Int UD_ModPP_BaseSeverity_S
 Int UD_ModPP_SeverityDispersion_S
 
@@ -730,25 +735,37 @@ Function resetModifiersPage()
     Else
         UD_ModifierNoModsDesc_T = -1
     EndIf
-    
-    If UDmain.UDMOM.UD_ModifierListRef.Length <= UD_ModifierSelected
-        UDmain.Warning(Self + "Selected modifier index was outside the array")
-        UD_ModifierSelected = UDmain.UDMOM.UD_ModifierListRef.Length
+
+    If UD_ModifierStorageSelected < 0 || UD_ModifierStorageSelected >= UDmain.UDMOM.GetModifierStorageCount()
+        UDmain.Warning(Self + "::resetModifiersPage() Selected storage index was outside the array")
+        UD_ModifierStorageSelected = 0
     EndIf
 
-    UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+    UD_ModifierStorage loc_storage = UDmain.UDMOM.GetNthModifierStorage(UD_ModifierStorageSelected)
+
+    If loc_storage == None
+    ; ???
+        UDmain.Error(Self + "::resetModifiersPage() Selected storage was None (index = " + UD_ModifierStorageSelected + ")")
+        UD_ModifierStorageSelected = 0
+        Return
+    EndIf
+    
+    If loc_storage.GetModifierNum() <= UD_ModifierSelected || UD_ModifierSelected < 0
+        UDmain.Warning(Self + "::resetModifiersPage() Selected modifier index was outside the array")
+        UD_ModifierSelected = 0
+    EndIf
+    UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
     
     If loc_mod == None
     ; ???
-        UDmain.Error(Self + "Selected modifier was None (index = " + UD_ModifierSelected + ")")
+        UDmain.Error(Self + "::resetModifiersPage() Selected modifier was None (index = " + UD_ModifierSelected + ")")
         UD_ModifierSelected = 0
         Return
     EndIf
     
-    UD_ModifierList_M = AddMenuOption("$UD_CUSTOMMOD_SELECTED", UDmain.UDMOM.UD_ModifierList[UD_ModifierSelected])     ; Selected modifier
-    
-    AddTextOption("$UD_CUSTOMMOD_FROMSTORAGE", loc_mod.GetOwningQuest().GetName(), FlagSwitch(false))  ; Storage
-    
+    UD_ModStorageList_M = AddMenuOption("$UD_MODSTORAGE_SELECTED", loc_storage.GetName())       ; Selected storage
+    UD_ModifierList_M = AddMenuOption("$UD_CUSTOMMOD_SELECTED", loc_mod.NameFull)               ; Selected modifier
+        
     SetCursorPosition(16)
     SetCursorFillMode(TOP_TO_BOTTOM)
     AddHeaderOption("$UD_CUSTOMMOD_BASEDETAILS")             ; Base Details
@@ -800,9 +817,9 @@ Function resetModifiersPage()
     UD_ModPP_ApplicableToNPC_T = addToggleOption("$UD_CUSTOMMOD_APPTONPC", loc_mod_pp.ApplicableToNPC, UD_LockMenu_flag)                ; Applicable to NPCs
     AddEmptyOption()
     
-    UD_ModPP_BaseProbability_S = AddSliderOption("$UD_CUSTOMMOD_BASEPROB", loc_mod_pp.BaseProbability, "{0} %", UD_LockMenu_flag)                 ; Base probability
+    UD_ModPP_BaseProbability_S = AddSliderOption("$UD_CUSTOMMOD_BASEPROB", loc_mod_pp.BaseProbability, "{0} %", UD_LockMenu_flag)                   ; Base probability
     UD_ModPP_BaseSeverity_S = AddSliderOption("$UD_CUSTOMMOD_BASESEVERITY", loc_mod_pp.BaseSeverity, "{2}", UD_LockMenu_flag)                         ; Base severity
-    UD_ModPP_IsNormalizedProbability_T = addToggleOption("$UD_CUSTOMMOD_PROBNORM", loc_mod_pp.IsNormalizedProbability, UD_LockMenu_flag)          ; Probability is normalized
+    UD_ModPP_IsAbsoluteProbability_T = addToggleOption("$UD_CUSTOMMOD_PROBABS", loc_mod_pp.IsAbsoluteProbability, UD_LockMenu_flag)                ; Probability is absolute
     UD_ModPP_SeverityDispersion_S = AddSliderOption("$UD_CUSTOMMOD_SEVERITYDISP", loc_mod_pp.SeverityDispersion, "{2}", UD_LockMenu_flag)             ; Severity dispersion
 
 EndFunction
@@ -1788,11 +1805,11 @@ Function OptionSelectModifiers(int option)
             UDCDMain.UDPatcher.UD_ModAddToTest = ""
         EndIf
         SetToggleOptionValue(UD_Modifier_AddToTest_T, UDCDMain.UDPatcher.UD_ModAddToTest == loc_mod.NameAlias)
-    elseif option == UD_ModPP_IsNormalizedProbability_T
+    elseif option == UD_ModPP_IsAbsoluteProbability_T
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
-        loc_mod_pp.IsNormalizedProbability = !loc_mod_pp.IsNormalizedProbability
-        SetToggleOptionValue(UD_ModPP_IsNormalizedProbability_T, loc_mod_pp.IsNormalizedProbability)
+        loc_mod_pp.IsAbsoluteProbability = !loc_mod_pp.IsAbsoluteProbability
+        SetToggleOptionValue(UD_ModPP_IsAbsoluteProbability_T, loc_mod_pp.IsAbsoluteProbability)
     endif
 EndFunction
 
@@ -3124,11 +3141,16 @@ EndFunction
 
 Function OnOptionMenuOpenModifiers(Int option)
     If option == UD_ModifierList_M
-        SetMenuDialogOptions(UDmain.UDMOM.UD_ModifierList)
+        UD_ModifierStorage loc_storage = UDmain.UDMOM.GetNthModifierStorage(UD_ModifierStorageSelected)
+        SetMenuDialogOptions(loc_storage.UD_ModifierList)
         SetMenuDialogStartIndex(UD_ModifierSelected)
         SetMenuDialogDefaultIndex(0)
+    ElseIf option == UD_ModStorageList_M
+        SetMenuDialogOptions(UDmain.UDMOM.UD_ModStorageList)
+        SetMenuDialogStartIndex(UD_ModifierStorageSelected)
+        SetMenuDialogDefaultIndex(0)
     ElseIf option == UD_ModifierPatchList_M
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         SetMenuDialogOptions(loc_mod.GetPatcherPresetsNames())
         SetMenuDialogStartIndex(UD_ModifierPatchSelected)
         SetMenuDialogDefaultIndex(0)
@@ -3266,8 +3288,15 @@ EndFunction
 Function OnOptionMenuAcceptModifiers(Int option, Int index)
     If option == UD_ModifierList_M
         UD_ModifierSelected = index
-        SetMenuOptionValue(option, UDmain.UDMOM.UD_ModifierList[index])
+        UD_ModifierStorage loc_storage = UDmain.UDMOM.GetNthModifierStorage(UD_ModifierStorageSelected)
+        SetMenuOptionValue(option, loc_storage.UD_ModifierList[index])
         UD_ModifierPatchSelected = 0
+        forcePageReset()
+    ElseIf option == UD_ModStorageList_M
+        UD_ModifierStorageSelected = index
+        SetMenuOptionValue(option, UDmain.UDMOM.UD_ModStorageList[index])
+        UD_ModifierPatchSelected = 0
+        UD_ModifierSelected = 0
         forcePageReset()
     ElseIf option == UD_ModifierPatchList_M
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
@@ -3849,8 +3878,8 @@ Function ModifierPageInfo(int option)
         SetInfoText("$UD_CUSTOMMOD_BASESEVERITY_INFO")
     ElseIf option == UD_ModPP_SeverityDispersion_S
         SetInfoText("$UD_CUSTOMMOD_SEVERITYDISP_INFO")
-    ElseIf option == UD_ModPP_IsNormalizedProbability_T
-        SetInfoText("$UD_CUSTOMMOD_PROBNORM_INFO")
+    ElseIf option == UD_ModPP_IsAbsoluteProbability_T
+        SetInfoText("$UD_CUSTOMMOD_PROBABS_INFO")
     ElseIf option == UD_ModifierNoModsDesc_T
         SetInfoText("$UD_CUSTOMMOD_ERROR_NOMODS_INFO")
     ElseIf option == UD_ModifierNoPPDesc_T
