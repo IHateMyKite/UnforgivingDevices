@@ -376,9 +376,12 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
         UD_ModAddToTest = ""
     EndIf
 
-    Int loc_modcap = UD_Native.RandomInt(UD_ModsMin, UD_ModsMax)
-
     Bool loc_break = False
+    Int loc_modcap = UD_Native.RandomInt(UD_ModsMin, UD_ModsMax)
+    If loc_modcap <= loc_modnum
+        loc_break = True
+    EndIf
+
     While !loc_break
 
         Float[] loc_w_probs = Utility.CreateFloatArray(0)                   ; array with weighted probabilities for presets

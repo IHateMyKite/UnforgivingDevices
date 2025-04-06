@@ -770,10 +770,10 @@ Function resetModifiersPage()
     SetCursorFillMode(TOP_TO_BOTTOM)
     AddHeaderOption("$UD_CUSTOMMOD_BASEDETAILS")             ; Base Details
 
-    AddTextOption("$UD_CUSTOMMOD_DETAILNAME", loc_mod.NameFull, FlagSwitch(false))              ; Name
-    AddTextOption("$UD_CUSTOMMOD_DETAILALIAS", loc_mod.NameAlias, FlagSwitch(false))            ; Alias
-    UD_ModifierDescription_T = AddTextOption("$UD_CUSTOMMOD_DETAILDESC", "")                    ; Description
-    AddTextOption("$UD_CUSTOMMOD_DETAILTAGS", loc_mod.Tags, FlagSwitch(false))                  ; Tags
+    AddTextOption("$UD_CUSTOMMOD_DETAILNAME", loc_mod.NameFull, FlagSwitch(true))                       ; Name
+    AddTextOption("$UD_CUSTOMMOD_DETAILALIAS", loc_mod.NameAlias, FlagSwitch(true))                     ; Alias
+    UD_ModifierDescription_T = AddTextOption("$UD_CUSTOMMOD_DETAILDESC", "$-INFO-", FlagSwitch(true))   ; Description
+    AddTextOption("$UD_CUSTOMMOD_DETAILTAGS", loc_mod.Tags, FlagSwitch(true))                           ; Tags
     
     SetCursorPosition(17)
     SetCursorFillMode(TOP_TO_BOTTOM)
@@ -3860,12 +3860,12 @@ Function ModifierPageInfo(int option)
         SetInfoText("$UD_CUSTOMMOD_MULTIN_INFO")
     ElseIf(option == UD_ModifierMultiplier3_S)
         SetInfoText("$UD_CUSTOMMOD_MULTOUT_INFO")
-    ElseIf option == UD_ModsMax_S
+    ElseIf option == UD_ModsMin_S
         SetInfoText("$UD_PATCHER_MODSMIN_INFO")
-    ElseIf option == UD_Modifier_AddToTest_T
-        SetInfoText("$UD_CUSTOMMOD_ADDTOTEST_INFO")
     ElseIf option == UD_ModsMax_S
         SetInfoText("$UD_PATCHER_MODSMAX_INFO")
+    ElseIf option == UD_Modifier_AddToTest_T
+        SetInfoText("$UD_CUSTOMMOD_ADDTOTEST_INFO")
     ElseIf option == UD_ModGlobalProbabilityMult_S
         SetInfoText("$UD_PATCHER_MODSPROBMULT_INFO")
     ElseIf option == UD_ModGlobalSeverityShift_S
