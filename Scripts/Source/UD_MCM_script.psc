@@ -162,25 +162,41 @@ Bool Function CheckButton(Int aiKeyCode)
     return loc_res
 EndFunction
 
-String Property UD_NPCsPageName = "$UD_NPCSCONFIG" auto
+String Property UD_GeneralPageName          = "$UD_GENERAL"                 AutoReadOnly Hidden
+String Property UD_DeviceFilterPageName     = "$UD_DEVICEFILTER"            AutoReadOnly Hidden
+String Property UD_CustomDevicePageName     = "$UD_CUSTOMDEVICES"           AutoReadOnly Hidden
+String Property UD_CustomModsPageName       = "$UD_CUSTOMMODS"              AutoReadOnly Hidden
+String Property UD_CustomModTagsPageName    = "$UD_CUSTOMMODS_TAGS"         AutoReadOnly Hidden
+String Property UD_CustomOutfitsPageName    = "$UD_CUSTOMOUTFITS"           AutoReadOnly Hidden
+String Property UD_CustomOrgasmPageName     = "$UD_CUSTOMORGASM"            AutoReadOnly Hidden
+String Property UD_NPCsPageName             = "$UD_NPCSCONFIG"              AutoReadOnly Hidden
+String Property UD_PatcherPageName          = "$UD_PATCHER"                 AutoReadOnly Hidden
+String Property UD_DDPatchPageName          = "$UD_DDPATCH"                 AutoReadOnly Hidden
+String Property UD_AbadonPlugPageName       = "$UD_ABADONPLUG"              AutoReadOnly Hidden
+String Property UD_UIPageName               = "$UD_UIWIDGETS"               AutoReadOnly Hidden
+String Property UD_AnimationsPageName       = "$UD_ANIMATIONS"              AutoReadOnly Hidden
+String Property UD_AnimationPlayPageName    = "$UD_ANIMATIONS_PLAYGROUND"   AutoReadOnly Hidden
+String Property UD_DebugPageName            = "$UD_DEBUGPANEL"              AutoReadOnly Hidden
+String Property UD_OtherPageName            = "$UD_OTHER"                   AutoReadOnly Hidden
 
 Function LoadConfigPages()
-    pages = new String[15]
-    pages[00] = "$UD_GENERAL"
-    pages[01] = "$UD_DEVICEFILTER"
-    pages[02] = "$UD_CUSTOMDEVICES"
-    pages[03] = "$UD_CUSTOMMODS" 
-    pages[04] = "Custom Outfits"    ;TODO - add to translation file
-    pages[05] = "$UD_CUSTOMORGASM"
-    pages[06] = UD_NPCsPageName
-    pages[07] = "$UD_PATCHER"
-    pages[08] = "$UD_DDPATCH"
-    pages[09] = "$UD_ABADONPLUG"
-    pages[10] = "$UD_UIWIDGETS"
-    pages[11] = "$UD_ANIMATIONS"
-    pages[12] = "$UD_ANIMATIONS_PLAYGROUND"
-    pages[13] = "$UD_DEBUGPANEL"
-    pages[14] = "$UD_OTHER"
+    pages = new String[16]
+    pages[00] = UD_GeneralPageName
+    pages[01] = UD_DeviceFilterPageName
+    pages[02] = UD_CustomDevicePageName
+    pages[03] = UD_CustomModsPageName
+    pages[04] = UD_CustomModTagsPageName
+    pages[05] = UD_CustomOutfitsPageName
+    pages[06] = UD_CustomOrgasmPageName
+    pages[07] = UD_NPCsPageName
+    pages[08] = UD_PatcherPageName
+    pages[09] = UD_DDPatchPageName
+    pages[10] = UD_AbadonPlugPageName
+    pages[11] = UD_UIPageName
+    pages[12] = UD_AnimationsPageName
+    pages[13] = UD_AnimationPlayPageName
+    pages[14] = UD_DebugPageName
+    pages[15] = UD_OtherPageName
 EndFunction
 
 bool Property Ready = False Auto
@@ -341,37 +357,39 @@ Event OnPageReset(string page)
         AddTextOption("Mod disabled",UDmain._Disabled)
         return
     endif
-    
+
     _lastPage = page
-    if (page == "$UD_GENERAL")
+    if (page == UD_GeneralPageName)
         resetGeneralPage()
-    elseif (page == "$UD_DEVICEFILTER")
+    elseif (page == UD_DeviceFilterPageName)
         resetFilterPage()
-    elseif (page == "$UD_ABADONPLUG")
-        resetAbadonPage()
-    elseif (page == "$UD_CUSTOMDEVICES")
+    elseif (page == UD_CustomDevicePageName)
         resetCustomBondagePage()
-    elseif (page == "$UD_CUSTOMMODS")
+    elseif (page == UD_CustomModsPageName)
         resetModifiersPage()
-    elseif (page == "Custom Outfits")
+    elseif (page == UD_CustomModTagsPageName)
+        resetModifierTagsPage()
+    elseif (page == UD_CustomOutfitsPageName)
         resetOutfitPage()
-    elseif (page == UD_NPCsPageName)
-        ResetNPCsPage()
-    elseif (page == "$UD_CUSTOMORGASM")
+    elseif (page == UD_CustomOrgasmPageName)
         resetCustomOrgasmPage()
-    elseif (page == "$UD_PATCHER")
+    elseif (page == UD_NPCsPageName)
+        resetNPCsPage()
+    elseif (page == UD_PatcherPageName)
         resetPatcherPage()
-    elseif (page == "$UD_DDPATCH")
+    elseif (page == UD_DDPatchPageName)
         resetDDPatchPage()
-    elseif (page == "$UD_UIWIDGETS")
+    elseif (page == UD_AbadonPlugPageName)
+        resetAbadonPage()
+    elseif (page == UD_UIPageName)
         resetUIWidgetPage()
-    elseif (page == "$UD_ANIMATIONS")
+    elseif (page == UD_AnimationsPageName)
         resetAnimationsPage()
-    elseif (page == "$UD_ANIMATIONS_PLAYGROUND")
+    elseif (page == UD_AnimationPlayPageName)
         resetAnimationsPlaygroundPage()
-    elseif (page == "$UD_DEBUGPANEL")
+    elseif (page == UD_DebugPageName)
         resetDebugPage()
-    elseif (page == "$UD_OTHER")
+    elseif (page == UD_OtherPageName)
         resetOtherPage()
     endif
 EndEvent
@@ -410,7 +428,7 @@ Function resetAbadonPage()
     addEmptyOption()
     
     little_finisher_chance_S = AddSliderOption("$UD_LITTLEFINISHERCHANCE", AbadonQuest.little_finisher_chance, "{1} %",FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
-    little_finisher_cooldown_S = AddSliderOption("$UD_LITTLEFINISHERCOOLDOWN", AbadonQuest.little_finisher_cooldown, "${1} hours",FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
+    little_finisher_cooldown_S = AddSliderOption("$UD_LITTLEFINISHERCOOLDOWN", AbadonQuest.little_finisher_cooldown, "{1} hours",FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
     
     min_orgasm_little_finisher_S = AddSliderOption("$UD_MINORGASMLITTLEFINISHER", AbadonQuest.min_orgasm_little_finisher, "{1}",FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
     max_orgasm_little_finisher_S = AddSliderOption("$UD_MAX_ORGASM_LITTLE_FINISHER", AbadonQuest.max_orgasm_little_finisher, "{1}",FlagSwitchOr(abadon_flag,UD_LockMenu_flag))
@@ -824,6 +842,40 @@ Function resetModifiersPage()
 
 EndFunction
 
+String[] UD_ModTags_Array
+Int UD_ModTags_StartIndex
+Int UD_ModTags_EndIndex
+Int UD_ModTags_Hint_T
+
+Function resetModifierTagsPage()
+
+    SetCursorFillMode(LEFT_TO_RIGHT)
+    AddHeaderOption("$UD_CUSTOMMOD_TAGLIST")
+    AddHeaderOption("")
+
+    UD_ModTags_Hint_T = AddTextOption("$UD_CUSTOMMOD_TAGLIST_HINT", "$-INFO-", FlagSwitch(True))
+    AddEmptyOption()
+
+    UD_ModTags_Array = UDMain.UDMOM.GetModifiersTags()
+    PapyrusUtil.SortStringArray(UD_ModTags_Array)
+    Int loc_i = 0
+    UD_ModTags_StartIndex = -1
+    While loc_i < UD_ModTags_Array.Length
+        String loc_tag = UD_ModTags_Array[loc_i]
+        Int loc_temp = AddToggleOption(loc_tag, UDCDmain.UDPatcher.IsModifierTagEnabled(loc_tag), UD_LockMenu_flag)
+        If UD_ModTags_StartIndex < 0 
+            UD_ModTags_StartIndex = loc_temp
+        EndIf
+        loc_i += 1
+    EndWhile
+    UD_ModTags_EndIndex = UD_ModTags_StartIndex + loc_i
+
+    If UDMain.TraceAllowed()
+        UDMain.Log(Self + "::resetModifierTagsPage() Tags = [\n" + PapyrusUtil.StringJoin(UD_ModTags_Array, "\n") + "\n]")
+    EndIf
+
+EndFunction
+
 Int UD_OutfitSelected = 0
 int UD_OutfitList_M
 
@@ -922,7 +974,6 @@ Function ShowOutfitDevicesFromList(String asSubSection, Armor[] aakList, Int[] a
 EndFunction
 
 int UD_OrgasmUpdateTime_S
-int UD_OrgasmAnimation_M
 int UD_UseOrgasmWidget_T
 int UD_HornyAnimation_T
 int UD_Horny_f
@@ -1052,6 +1103,7 @@ int UD_StartThirdpersonAnimation_Switch_T
 Int UD_OutfitRemove_T
 Int UD_CheckAllKw_T
 Int UD_AllowMenBondage_T
+int UD_OrgasmAnimation_M
 
 Event resetDDPatchPage()
     UpdateLockMenuFlag()
@@ -1714,24 +1766,42 @@ String Function InstallSwitch(Bool abSwitch)
 EndFunction
 
 event OnOptionSelect(int option)
-    OptionSelectGeneral(option)
-    OptionSelectPatcher(option)
-    OptionSelectModifiers(option)
-    OptionSelectOutfit(option)
-    OptionSelectFilter(option)
-    OptionCustomBondage(option)
-    OptionCustomOrgasm(option)
-    OptionSelectNPCs(option)
-    OptionDDPatch(option)
-    OptionSelectAbadon(option)
-    OptionSelectUiWidget(option)
-    OptionSelectAnimations(option)
-    OptionSelectAnimationsPlayground(option)
-    OptionSelectDebug(option)
-    OptionSelectOther(option)
+    if (_lastPage == UD_GeneralPageName)
+        OnOptionSelectGeneral(option)
+    elseif (_lastPage == UD_DeviceFilterPageName)
+        OnOptionSelectFilter(option)
+    elseif (_lastPage == UD_CustomDevicePageName)
+        OnOptionSelectCustomDevice(option)
+    elseif (_lastPage == UD_CustomModsPageName)
+        OnOptionSelectCustomMods(option)
+    elseif (_lastPage == UD_CustomModTagsPageName)
+        OnOptionSelectModTags(option)
+    elseif (_lastPage == UD_CustomOutfitsPageName)
+        OnOptionSelectOutfit(option)
+    elseif (_lastPage == UD_CustomOrgasmPageName)
+        OnOptionSelectCustomOrgasm(option)
+    elseif (_lastPage == UD_NPCsPageName)
+        OnOptionSelectNPCs(option)
+    elseif (_lastPage == UD_PatcherPageName)
+        OnOptionSelectPatcher(option)
+    elseif (_lastPage == UD_DDPatchPageName)
+        OnOptionSelectDDPatch(option)
+    elseif (_lastPage == UD_AbadonPlugPageName)
+        OnOptionSelectAbadonPlug(option)
+    elseif (_lastPage == UD_UIPageName)
+        OnOptionSelectUI(option)
+    elseif (_lastPage == UD_AnimationsPageName)
+        OnOptionSelectAnimations(option)
+    elseif (_lastPage == UD_AnimationPlayPageName)
+        OnOptionSelectAnimationPlay(option)
+    elseif (_lastPage == UD_DebugPageName)
+        OnOptionSelectDebug(option)
+    elseif (_lastPage == UD_OtherPageName)
+        OnOptionSelectOther(option)
+    endif
 endEvent
 
-Function OptionSelectGeneral(int option)
+Function OnOptionSelectGeneral(int option)
     if(option == lockmenu_T)
         UDmain.lockMCM = !UDmain.lockMCM
         SetToggleOptionValue(lockmenu_T, UDmain.lockMCM)
@@ -1754,14 +1824,14 @@ Function OptionSelectGeneral(int option)
     endif
 EndFunction
 
-Function OptionSelectPatcher(int option)
+Function OnOptionSelectPatcher(int option)
     if(option == UD_TimedLocks_T)
         UDCDmain.UDPatcher.UD_TimedLocks = !UDCDmain.UDPatcher.UD_TimedLocks
         SetToggleOptionValue(UD_TimedLocks_T, UDCDmain.UDPatcher.UD_TimedLocks)
     endif
 EndFunction
 
-Function OptionSelectModifiers(int option)
+Function OnOptionSelectCustomMods(int option)
     if(option == UD_ModifierDescription_T)
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
         ShowMessage(loc_mod.Description, false, "$Close")
@@ -1813,7 +1883,16 @@ Function OptionSelectModifiers(int option)
     endif
 EndFunction
 
-Function OptionSelectOutfit(int option)
+Function OnOptionSelectModTags(int option)
+    if (option >= UD_ModTags_StartIndex && option < UD_ModTags_EndIndex)
+        Int loc_index = option - UD_ModTags_StartIndex
+        String loc_tag = UD_ModTags_Array[loc_index]
+        UDCDMain.UDPatcher.ToggleModifierTag(loc_tag)
+        SetToggleOptionValue(option, UDCDMain.UDPatcher.IsModifierTagEnabled(loc_tag))
+    EndIf
+EndFunction
+
+Function OnOptionSelectOutfit(int option)
     if(option == UD_OutfitDisable_T)
         UD_Outfit loc_outfit = (UDOTM.UD_OutfitListRef[UD_OutfitSelected] as UD_Outfit)
         loc_outfit.Disable = !loc_outfit.Disable
@@ -1831,7 +1910,7 @@ Function OptionSelectOutfit(int option)
     endif
 EndFunction
 
-Function OptionSelectFilter(int option)
+Function OnOptionSelectFilter(int option)
     if (option == UD_UseArmCuffs_T)
         UDCONF.UD_RandomDevice_GlobalFilter = Math.LogicalXor(UDCONF.UD_RandomDevice_GlobalFilter,0x00001000)
         SetToggleOptionValue(UD_UseArmCuffs_T, Math.LogicalAnd(UDCONF.UD_RandomDevice_GlobalFilter,0x00001000))
@@ -1907,7 +1986,7 @@ Function OptionSelectFilter(int option)
     endif
 EndFunction
 
-Function OptionCustomBondage(int option)
+Function OnOptionSelectCustomDevice(int option)
     if(option == UD_hardcore_swimming_T)
         UDSS.UD_hardcore_swimming = !UDSS.UD_hardcore_swimming
         SetToggleOptionValue(UD_hardcore_swimming_T, UDSS.UD_hardcore_swimming)
@@ -1952,7 +2031,7 @@ Function OptionCustomBondage(int option)
     endif
 EndFunction
 
-Function OptionCustomOrgasm(int option)
+Function OnOptionSelectCustomOrgasm(int option)
     if(option == UD_UseOrgasmWidget_T)
         UDCONF.UD_UseOrgasmWidget = !UDCONF.UD_UseOrgasmWidget
         SetToggleOptionValue(UD_UseOrgasmWidget_T, UDCONF.UD_UseOrgasmWidget)
@@ -1978,7 +2057,7 @@ Function OptionCustomOrgasm(int option)
     endif
 EndFunction
 
-Function OptionSelectNPCs(int option)
+Function OnOptionSelectNPCs(int option)
     if(option == UD_AIEnable_T)
         UDAI.Enabled = !UDAI.Enabled
         SetToggleOptionValue(UD_AIEnable_T, UDAI.Enabled)
@@ -1989,7 +2068,7 @@ Function OptionSelectNPCs(int option)
     endif
 EndFunction
 
-Function OptionDDPatch(int option)
+Function OnOptionSelectDDPatch(int option)
     if(option == UD_StartThirdpersonAnimation_Switch_T)
         libs.UD_StartThirdpersonAnimation_Switch = !libs.UD_StartThirdpersonAnimation_Switch
         SetToggleOptionValue(UD_StartThirdpersonAnimation_Switch_T, libs.UD_StartThirdpersonAnimation_Switch)
@@ -2005,7 +2084,7 @@ Function OptionDDPatch(int option)
     endif
 EndFunction
 
-Function OptionSelectUiWidget(int option)
+Function OnOptionSelectUI(int option)
     if(option == UD_UseIWantWidget_T)
         UDWC.UD_UseIWantWidget = !UDWC.UD_UseIWantWidget
         SetToggleOptionValue(UD_UseIWantWidget_T, UDWC.UD_UseIWantWidget)
@@ -2049,7 +2128,7 @@ Function OptionSelectUiWidget(int option)
     endif
 EndFunction
 
-Function OptionSelectAnimations(int option)
+Function OnOptionSelectAnimations(int option)
     If UDAM_AnimationJSON_First_T == 0 
         Return
     EndIf
@@ -2083,7 +2162,7 @@ Function OptionSelectAnimations(int option)
     EndIf
 EndFunction
 
-Function OptionSelectAnimationsPlayground(int option)
+Function OnOptionSelectAnimationPlay(int option)
     If option == UDAM_TestQuery_Request_T
         SetOptionFlags(option, OPTION_FLAG_DISABLED)
         Float start_time = Utility.GetCurrentRealTime()
@@ -2150,7 +2229,7 @@ Function OptionSelectAnimationsPlayground(int option)
     EndIf
 EndFunction
 
-Function OptionSelectAbadon(int option)
+Function OnOptionSelectAbadonPlug(int option)
     if(option == UseAnalVariant_T)
         AbadonQuest.UseAnalVariant = !AbadonQuest.UseAnalVariant
         SetToggleOptionValue(UseAnalVariant_T, AbadonQuest.UseAnalVariant)
@@ -2181,7 +2260,7 @@ Function OptionSelectAbadon(int option)
 EndFunction
 
 int selected_device
-Function OptionSelectDebug(int option)
+Function OnOptionSelectDebug(int option)
     if fixBugs_T == option
         closeMCM()
         UDCD_NPCM.getNPCSlotByIndex(actorIndex).fix()
@@ -2230,7 +2309,7 @@ Function OptionSelectDebug(int option)
     endif
 EndFunction
 
-Function OptionSelectOther(int option)
+Function OnOptionSelectOther(int option)
     if UD_Export_T == option
         SaveToJSON(File)
         ShowMessage("$Configuration saved!",false,"OK")
@@ -2271,17 +2350,39 @@ Function OnOptionInputAcceptGeneral(int option, string value)
 EndFunction
 
 event OnOptionSliderOpen(int option)
-    OnOptionSliderOpenGeneral(option)
-    OnOptionSliderOpenCustomBondage(option)
-    OnOptionSliderOpenCustomOrgasm(option)
-    OnOptionSliderOpenOutfit(option)
-    OnOptionSliderOpenNPCs(option)
-    OnOptionSliderOpenPatcher(option)
-    OnOptionSliderOpenAbadon(option)
-    OnOptionSliderOpenDebug(option)
-    OnOptionSliderOpenUIWidget(option)
-    OnOptionSliderOpenAnimations(option)
-    OnOptionSliderOpenModifiers(option)
+    if (_lastPage == UD_GeneralPageName)
+        OnOptionSliderOpenGeneral(option)
+    elseif (_lastPage == UD_DeviceFilterPageName)
+
+    elseif (_lastPage == UD_CustomDevicePageName)
+        OnOptionSliderOpenCustomBondage(option)
+    elseif (_lastPage == UD_CustomModsPageName)
+        OnOptionSliderOpenModifiers(option)
+    elseif (_lastPage == UD_CustomModTagsPageName)
+
+    elseif (_lastPage == UD_CustomOutfitsPageName)
+        OnOptionSliderOpenOutfit(option)
+    elseif (_lastPage == UD_CustomOrgasmPageName)
+        OnOptionSliderOpenCustomOrgasm(option)
+    elseif (_lastPage == UD_NPCsPageName)
+        OnOptionSliderOpenNPCs(option)
+    elseif (_lastPage == UD_PatcherPageName)
+        OnOptionSliderOpenPatcher(option)
+    elseif (_lastPage == UD_DDPatchPageName)
+
+    elseif (_lastPage == UD_AbadonPlugPageName)
+        OnOptionSliderOpenAbadon(option)
+    elseif (_lastPage == UD_UIPageName)
+        OnOptionSliderOpenUIWidget(option)
+    elseif (_lastPage == UD_AnimationsPageName)
+        OnOptionSliderOpenAnimations(option)
+    elseif (_lastPage == UD_AnimationPlayPageName)
+
+    elseif (_lastPage == UD_DebugPageName)
+        OnOptionSliderOpenDebug(option)
+    elseif (_lastPage == UD_OtherPageName)
+
+    endif
 endEvent
 
 Function OnOptionSliderOpenGeneral(int option)
@@ -2716,17 +2817,39 @@ Function OnOptionSliderOpenModifiers(int option)
 EndFunction
 
 event OnOptionSliderAccept(int option, float value)
-    OnOptionSliderAcceptGeneral(option,value)
-    OnOptionSliderAcceptCustomBondage(option, value)
-    OnOptionSliderAcceptCustomOrgasm(option, value)
-    OnOptionSliderAcceptOutfit(option, value)
-    OnOptionSliderAcceptNPCs(option, value)
-    OnOptionSliderAcceptPatcher(option, value)
-    OnOptionSliderAcceptAbadon(option, value)
-    OnOptionSliderAcceptDebug(option,value)
-    OnOptionSliderAcceptUIWidget(option,value)
-    OnOptionSliderAcceptAnimations(option, value)
-    OnOptionSliderAcceptModifiers(option, value)
+    if (_lastPage == UD_GeneralPageName)
+        OnOptionSliderAcceptGeneral(option,value)
+    elseif (_lastPage == UD_DeviceFilterPageName)
+
+    elseif (_lastPage == UD_CustomDevicePageName)
+        OnOptionSliderAcceptCustomBondage(option, value)
+    elseif (_lastPage == UD_CustomModsPageName)
+        OnOptionSliderAcceptModifiers(option, value)
+    elseif (_lastPage == UD_CustomModTagsPageName)
+
+    elseif (_lastPage == UD_CustomOutfitsPageName)
+        OnOptionSliderAcceptOutfit(option, value)
+    elseif (_lastPage == UD_CustomOrgasmPageName)
+        OnOptionSliderAcceptCustomOrgasm(option, value)
+    elseif (_lastPage == UD_NPCsPageName)
+        OnOptionSliderAcceptNPCs(option, value)
+    elseif (_lastPage == UD_PatcherPageName)
+        OnOptionSliderAcceptPatcher(option, value)
+    elseif (_lastPage == UD_DDPatchPageName)
+
+    elseif (_lastPage == UD_AbadonPlugPageName)
+        OnOptionSliderAcceptAbadon(option, value)
+    elseif (_lastPage == UD_UIPageName)
+        OnOptionSliderAcceptUIWidget(option,value)
+    elseif (_lastPage == UD_AnimationsPageName)
+        OnOptionSliderAcceptAnimations(option, value)
+    elseif (_lastPage == UD_AnimationPlayPageName)
+
+    elseif (_lastPage == UD_DebugPageName)
+        OnOptionSliderAcceptDebug(option,value)
+    elseif (_lastPage == UD_OtherPageName)
+
+    endif
 endEvent
 
 Function OnOptionSliderAcceptGeneral(int option, float value)
@@ -3012,14 +3135,39 @@ Function OnOptionSliderAcceptModifiers(int option, float value)
 EndFunction
 
 event OnOptionMenuOpen(int option)
-    OnOptionMenuOpenDefault(option)
-    OnOptionMenuOpenCustomBondage(option)
-    OnOptionMenuOpenCustomOrgasm(option)
-    OnOptionMenuOpenAbadon(option)
-    OnOptionMenuOpenUIWidget(option)
-    OnOptionMenuOpenAnimationsPlayground(option)
-    OnOptionMenuOpenModifiers(option)
-    OnOptionMenuOpenOutfit(option)
+    if (_lastPage == UD_GeneralPageName)
+        OnOptionMenuOpenDefault(option)
+    elseif (_lastPage == UD_DeviceFilterPageName)
+
+    elseif (_lastPage == UD_CustomDevicePageName)
+        OnOptionMenuOpenCustomBondage(option)
+    elseif (_lastPage == UD_CustomModsPageName)
+        OnOptionMenuOpenModifiers(option)
+    elseif (_lastPage == UD_CustomModTagsPageName)
+
+    elseif (_lastPage == UD_CustomOutfitsPageName)
+        OnOptionMenuOpenOutfit(option)
+    elseif (_lastPage == UD_CustomOrgasmPageName)
+        OnOptionMenuOpenCustomOrgasm(option)
+    elseif (_lastPage == UD_NPCsPageName)
+        
+    elseif (_lastPage == UD_PatcherPageName)
+        
+    elseif (_lastPage == UD_DDPatchPageName)
+        OnOptionMenuOpenDDPatch(option)
+    elseif (_lastPage == UD_AbadonPlugPageName)
+        OnOptionMenuOpenAbadon(option)
+    elseif (_lastPage == UD_UIPageName)
+        OnOptionMenuOpenUIWidget(option)
+    elseif (_lastPage == UD_AnimationsPageName)
+        
+    elseif (_lastPage == UD_AnimationPlayPageName)
+        OnOptionMenuOpenAnimationsPlayground(option)
+    elseif (_lastPage == UD_DebugPageName)
+        
+    elseif (_lastPage == UD_OtherPageName)
+
+    endif
 endEvent
 
 Function OnOptionMenuOpenDefault(int option)
@@ -3058,6 +3206,10 @@ Function OnOptionMenuOpenCustomBondage(int option)
 EndFunction
 
 Function OnOptionMenuOpenCustomOrgasm(int option)
+
+EndFunction
+
+Function OnOptionMenuOpenDDPatch(int option)
     if (option == UD_OrgasmAnimation_M)
         SetMenuDialogOptions(orgasmAnimation)
         SetMenuDialogStartIndex(UDCONF.UD_OrgasmAnimation)
@@ -3170,14 +3322,39 @@ Function OnOptionMenuOpenOutfit(Int option)
 EndFunction
 
 event OnOptionMenuAccept(int option, int index)
-    OnOptionMenuAcceptDefault(option,index)
-    OnOptionMenuAcceptCustomBondage(option,index)
-    OnOptionMenuAcceptCustomOrgasm(option,index)
-    OnOptionMenuAcceptAbadon(option, index)
-    OnOptionMenuAcceptUIWidget(option, index)
-    OnOptionMenuAcceptAnimationsPlayground(option, index)
-    OnOptionMenuAcceptModifiers(option, index)
-    OnOptionMenuAcceptOutfit(option, index)
+    if (_lastPage == UD_GeneralPageName)
+        OnOptionMenuAcceptDefault(option, index)
+    elseif (_lastPage == UD_DeviceFilterPageName)
+
+    elseif (_lastPage == UD_CustomDevicePageName)
+        OnOptionMenuAcceptCustomBondage(option, index)
+    elseif (_lastPage == UD_CustomModsPageName)
+        OnOptionMenuAcceptModifiers(option, index)
+    elseif (_lastPage == UD_CustomModTagsPageName)
+
+    elseif (_lastPage == UD_CustomOutfitsPageName)
+        OnOptionMenuAcceptOutfit(option, index)
+    elseif (_lastPage == UD_CustomOrgasmPageName)
+        OnOptionMenuAcceptCustomOrgasm(option, index)
+    elseif (_lastPage == UD_NPCsPageName)
+        
+    elseif (_lastPage == UD_PatcherPageName)
+        
+    elseif (_lastPage == UD_DDPatchPageName)
+        OnOptionMenuAcceptDDPatch(option, index)
+    elseif (_lastPage == UD_AbadonPlugPageName)
+        OnOptionMenuAcceptAbadon(option, index)
+    elseif (_lastPage == UD_UIPageName)
+        OnOptionMenuAcceptUIWidget(option, index)
+    elseif (_lastPage == UD_AnimationsPageName)
+        
+    elseif (_lastPage == UD_AnimationPlayPageName)
+        OnOptionMenuAcceptAnimationsPlayground(option, index)
+    elseif (_lastPage == UD_DebugPageName)
+        
+    elseif (_lastPage == UD_OtherPageName)
+
+    endif
 endEvent
 
 Function OnOptionMenuAcceptDefault(int option, int index)
@@ -3215,6 +3392,10 @@ Function OnOptionMenuAcceptCustomBondage(int option, int index)
 EndFunction
 
 Function OnOptionMenuAcceptCustomOrgasm(int option, int index)
+
+EndFunction
+
+Function OnOptionMenuAcceptDDPatch(int option, int index)
     if (option == UD_OrgasmAnimation_M)
         UDCONF.UD_OrgasmAnimation = index
         SetMenuOptionValue(UD_OrgasmAnimation_M, orgasmAnimation[UDCONF.UD_OrgasmAnimation])
@@ -3402,27 +3583,38 @@ endEvent
 ;             DEFAULT VALUES..............
 ;=========================================
 Event OnOptionDefault(int option)
-    if (_lastPage == "$UD_GENERAL")
+    if (_lastPage == UD_GeneralPageName)
         GeneralPageDefault(option)
-    elseif (_lastPage == "$UD_DEVICEFILTER")
-        ;FilterPageDefault(option) ;TODO. Will winish later, as doing this is pain in the ass
-    elseif (_lastPage == "$UD_ABADONPLUG")
-        ;AbadanPageDefault(option) ;TODO. Will winish later, as doing this is pain in the ass
-    elseif (_lastPage == "$UD_CUSTOMDEVICES")
-        ;CustomBondagePageDefault(option) ;TODO. Will winish later, as doing this is pain in the ass
-    elseif (_lastPage == "$UD_CUSTOMORGASM")
-        ;CustomOrgasmPageDefault(option) ;TODO. Will winish later, as doing this is pain in the ass
+    elseif (_lastPage == UD_DeviceFilterPageName)
+
+    elseif (_lastPage == UD_CustomDevicePageName)
+        
+    elseif (_lastPage == UD_CustomModsPageName)
+        
+    elseif (_lastPage == UD_CustomModTagsPageName)
+
+    elseif (_lastPage == UD_CustomOutfitsPageName)
+        
+    elseif (_lastPage == UD_CustomOrgasmPageName)
+        
     elseif (_lastPage == UD_NPCsPageName)
         NPCsPageDefault(option)
-    elseif (_lastPage == "$UD_PATCHER")
+    elseif (_lastPage == UD_PatcherPageName)
         PatcherPageDefault(option)
-    elseif (_lastPage == "$UD_DDPATCH")
-        ;DDPatchPageDefault(option) ;TODO. Will winish later, as doing this is pain in the ass
-    elseif (_lastPage == "$UD_DEBUGPANEL")
-        ;DebugPageDefault(option) ;TODO. Will winish later, as doing this is pain in the ass
-    elseif (_lastPage == "$UD_OTHER")
-    elseif (_lastPage == "$UD_ANIMATIONS")
-        ; AnimationPageDefault(option)  ; copy-paste, where did you take me?!
+    elseif (_lastPage == UD_DDPatchPageName)
+
+    elseif (_lastPage == UD_AbadonPlugPageName)
+        
+    elseif (_lastPage == UD_UIPageName)
+        
+    elseif (_lastPage == UD_AnimationsPageName)
+        
+    elseif (_lastPage == UD_AnimationPlayPageName)
+        
+    elseif (_lastPage == UD_DebugPageName)
+        
+    elseif (_lastPage == UD_OtherPageName)
+
     endif
 EndEvent
 
@@ -3748,34 +3940,38 @@ EndFunction
 ;                 INFO.      .............
 ;=========================================
 Event OnOptionHighlight(int option)
-    if (_lastPage == "$UD_GENERAL")
+    if (_lastPage == UD_GeneralPageName)
         GeneralPageInfo(option)
-    elseif (_lastPage == "$UD_DEVICEFILTER")
+    elseif (_lastPage == UD_DeviceFilterPageName)
         FilterPageInfo(option)
-    elseif (_lastPage == "$UD_CUSTOMMODS")
+    elseif (_lastPage == UD_CustomDevicePageName)
+        CustomBondagePageInfo(option)
+    elseif (_lastPage == UD_CustomModsPageName)
         ModifierPageInfo(option)
-    elseif (_lastPage == "$UD_ABADONPLUG")
-        AbadanPageInfo(option)
-    elseif (_lastPage == "$UD_CUSTOMDEVICES")
-         CustomBondagePageInfo(option)
-    elseif (_lastPage == "$UD_CUSTOMORGASM")
+    elseif (_lastPage == UD_CustomModTagsPageName)
+        ModifierTagsPageInfo(option)
+    elseif (_lastPage == UD_CustomOutfitsPageName)
+        
+    elseif (_lastPage == UD_CustomOrgasmPageName)
         CustomOrgasmPageInfo(option)
     elseif (_lastPage == UD_NPCsPageName)
         NPCsPageInfo(option)
-    elseif (_lastPage == "$UD_PATCHER")
+    elseif (_lastPage == UD_PatcherPageName)
         PatcherPageInfo(option)
-    elseif (_lastPage == "$UD_DDPATCH")
+    elseif (_lastPage == UD_DDPatchPageName)
         DDPatchPageInfo(option)
-    elseif (_lastPage == "$UD_UIWIDGETS")
+    elseif (_lastPage == UD_AbadonPlugPageName)
+        AbadonPageInfo(option)
+    elseif (_lastPage == UD_UIPageName)
         UiWidgetPageInfo(option)
-    elseif (_lastPage == "$UD_DEBUGPANEL")
-        DebugPageInfo(option)
-    elseif (_lastPage == "$UD_OTHER")
-    
-    elseif (_lastPage == "$UD_ANIMATIONS")
-        AnimationPageInfo(option)  
-    elseif (_lastPage == "$UD_ANIMATIONS_PLAYGROUND")
+    elseif (_lastPage == UD_AnimationsPageName)
+        AnimationPageInfo(option)
+    elseif (_lastPage == UD_AnimationPlayPageName)
         AnimationPlaygroundPageInfo(option)
+    elseif (_lastPage == UD_DebugPageName)
+        DebugPageInfo(option)
+    elseif (_lastPage == UD_OtherPageName)
+
     endif
 EndEvent
 
@@ -3898,6 +4094,21 @@ Function ModifierPageInfo(int option)
         UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
         SetInfoText(loc_mod.Description)
     endif
+EndFunction
+
+Function ModifierTagsPageInfo(Int option)
+    if (option >= UD_ModTags_StartIndex && option < UD_ModTags_EndIndex)
+        Int loc_index = option - UD_ModTags_StartIndex
+        String loc_tag = UD_ModTags_Array[loc_index]
+        If StringUtil.GetNthChar(loc_tag, StringUtil.GetLength(loc_tag) - 1) == "-"
+            loc_tag = StringUtil.Substring(loc_tag, 0, StringUtil.GetLength(loc_tag) - 1) + "M"
+        ElseIf StringUtil.GetNthChar(loc_tag, StringUtil.GetLength(loc_tag) - 1) == "+"
+            loc_tag = StringUtil.Substring(loc_tag, 0, StringUtil.GetLength(loc_tag) - 1) + "P"
+        EndIf
+        SetInfoText("$UD_CUSTOMMOD_TAG_" + loc_tag + "_INFO")
+    ElseIf (option == UD_ModTags_Hint_T)
+        SetInfoText("$UD_CUSTOMMOD_TAGLIST_HINT_INFO")
+    EndIf
 EndFunction
 
 Function CustomBondagePageInfo(int option)
@@ -4034,7 +4245,7 @@ Function PatcherPageInfo(int option)
     endif
 EndFunction
 
-Function AbadanPageInfo(int option)
+Function AbadonPageInfo(int option)
     ;dear mother of god
     if (option == dmg_heal_T)
         SetInfoText("$UD_DMGHEAL_INFO")

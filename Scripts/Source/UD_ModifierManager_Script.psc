@@ -253,6 +253,18 @@ Event OnActorAction(Int aiActionType, Actor akActor, Form akSource, Int aiSlot)
     UpdateModifiers_ActorAction(loc_slot, aiActionType, aiSlot, akSource)
 EndEvent
 
+String[] Function GetModifiersTags()
+    Int loc_i = 0
+    String[] loc_tags = Utility.CreateStringArray(0)
+    While loc_i < UD_ModifierListRef.Length
+        UD_Modifier loc_mod = UD_ModifierListRef[loc_i] as UD_Modifier
+        loc_tags = PapyrusUtil.MergeStringArray(loc_tags, loc_mod.Tags, RemoveDupes = True)
+        loc_i += 1
+    EndWhile
+    Return loc_tags
+EndFunction
+
+
 ;====================================================================================
 ;                            receive modifier update events
 ;====================================================================================

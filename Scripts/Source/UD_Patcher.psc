@@ -32,7 +32,7 @@ Int         Property UD_ModsMin             =    0    Auto Hidden
 ;/  Variable: UD_ModsMax
     Maximum number of mods added by the Patcher
 /;
-Int         Property UD_ModsMax             =    3    Auto Hidden
+Int         Property UD_ModsMax             =    2    Auto Hidden
 
 ;/  Variable: UD_ModGlobalProbabilityMult
     Multplier that affects probability to add each modifier 
@@ -55,6 +55,8 @@ Float       Property UD_ModGlobalSeverityDispMult   = 1.0   Auto Hidden
 /;
 String      Property UD_ModAddToTest                = ""    Auto Hidden
 
+String[]    Property UD_DisabledTags                        Auto Hidden
+
 ;difficulty multipliers
 Float Property UD_PatchMult_HeavyBondage        = 1.0 auto hidden
 Float Property UD_PatchMult_Gag                 = 1.0 auto hidden
@@ -75,6 +77,23 @@ Bool Property Ready = False auto
 Event OnInit()
     Ready = True
 EndEvent
+
+Bool Function IsModifierTagEnabled(String asTag)
+    Return PapyrusUtil.CountString(UD_DisabledTags, asTag) == 0
+EndFunction
+
+Function SetModifierTag(String asTag, Bool abEnable)
+    If abEnable
+        UD_DisabledTags = PapyrusUtil.RemoveString(UD_DisabledTags, asTag)
+    Else
+        UD_DisabledTags = PapyrusUtil.PushString(UD_DisabledTags, asTag)
+    EndIf
+EndFunction
+
+Function ToggleModifierTag(String asTag)
+    Bool loc_state = IsModifierTagEnabled(asTag)
+    SetModifierTag(asTag, !loc_state)
+EndFunction
 
 Float Function GetPatchDifficulty(UD_CustomDevice_RenderScript akDevice)
     Armor akRD = akDevice.deviceRendered
@@ -321,6 +340,8 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
     UD_Modifier loc_mod
     UD_Patcher_ModPreset loc_pre
 
+    loc_forbidden_tags = PapyrusUtil.MergeStringArray(loc_forbidden_tags, UD_DisabledTags, True)
+
     ; TODO PR195: store forbidden tags of existing modifiers somewhere on the device to avoid conflicts when adding new modifiers later
 
     ; the first pass to find all modifier presets that are compatible with the device (cheking keywords and tags restriction from existed modifiers)
@@ -425,7 +446,7 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
             UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Second pass: " + loc_a_pres.Length + " modifiers filtered with total absolute probability " + FormatFloat(loc_a_probs_sum, 2) + "%", 2)
         EndIf
         If (loc_w_pres.Length + loc_a_pres.Length) == 0
-            loc_break = False
+            loc_break = True
         Else
             loc_pre = None
             Float loc_rnd = 0.0
