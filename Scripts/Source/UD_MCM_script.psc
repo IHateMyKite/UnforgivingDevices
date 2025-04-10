@@ -1684,6 +1684,7 @@ Function UpdateSelectedPresetId()
     if SelectedPresetId == -1
         SelectedPreset = "Default.json"
         SelectedPresetId = ConfigPresets.find(SelectedPreset)
+        SaveToJSON(File)
     endif
 EndFunction
 
@@ -2315,6 +2316,7 @@ Function OnOptionInputAcceptOther(int option, string value)
                 ConfigPresets = PapyrusUtil.PushString(ConfigPresets,value)
                 SelectedPreset = value
                 SelectedPresetId = ConfigPresets.length - 1
+                SaveToJSON(File)
                 forcePageReset()
             endif
         endif
