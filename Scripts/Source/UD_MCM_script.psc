@@ -862,7 +862,8 @@ Function resetModifierTagsPage()
     UD_ModTags_StartIndex = -1
     While loc_i < UD_ModTags_Array.Length
         String loc_tag = UD_ModTags_Array[loc_i]
-        Int loc_temp = AddToggleOption(loc_tag, UDCDmain.UDPatcher.IsModifierTagEnabled(loc_tag), UD_LockMenu_flag)
+        String loc_tag_case = UDMain.UDMTF.ForceCase(loc_tag, abUpperCase = True)
+        Int loc_temp = AddToggleOption(loc_tag_case, UDCDmain.UDPatcher.IsModifierTagEnabled(loc_tag), UD_LockMenu_flag)
         If UD_ModTags_StartIndex < 0 
             UD_ModTags_StartIndex = loc_temp
         EndIf
@@ -870,7 +871,7 @@ Function resetModifierTagsPage()
     EndWhile
     UD_ModTags_EndIndex = UD_ModTags_StartIndex + loc_i
 
-    If UDMain.TraceAllowed()
+    If UDMain.TraceAllowed() && False
         UDMain.Log(Self + "::resetModifierTagsPage() Tags = [\n" + PapyrusUtil.StringJoin(UD_ModTags_Array, "\n") + "\n]")
     EndIf
 

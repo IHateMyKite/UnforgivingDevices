@@ -497,6 +497,22 @@ String Function DeviceLockLegend()
     Return loc_res
 EndFunction
 
+;/  Function: ForceCase
+
+    An attempt to overcome string caching inside Papyrus and fix all characters in one case
+    
+    Parameters:
+        asString                            - Given string
+        abUpperCase                         - Character case to use
+
+    Returns:
+        String with the text fragment
+/;
+String Function ForceCase(String asString, Bool abUpperCase = True)
+    ; That is impossible without HTML
+    Return asString
+EndFunction
+
 ;/  Function: _CleanPage
 
     Final page cleanup
@@ -831,6 +847,31 @@ Auto State HTML
         loc_res += Text(StringUtil.AsChar(164), asColor = "#FF4444") + " - jammed."
         loc_res += ParagraphEnd()
         
+        Return loc_res
+    EndFunction
+
+    String Function ForceCase(String asString, Bool abUpperCase = True)
+        String loc_res = ""
+        Int loc_n = StringUtil.GetLength(asString)
+        Int loc_i = 0
+        While loc_i < loc_n
+            String loc_char = StringUtil.GetNthChar(asString, loc_i)
+            Int loc_code = StringUtil.AsOrd(loc_char)
+            If loc_code >= 65 && loc_code <= 90             ; Upper case Latin
+                If !abUpperCase
+                    loc_code += 32
+                EndIf
+                loc_res += "&#x" + _IntToHex(loc_code, 4) + ";"
+            ElseIf loc_code >= 97 && loc_code <= 122        ; Lower case Latin
+                If abUpperCase
+                    loc_code -= 32
+                EndIf
+                loc_res += "&#x" + _IntToHex(loc_code, 4) + ";"
+            Else
+                loc_res += loc_char
+            EndIf
+            loc_i += 1
+        EndWhile
         Return loc_res
     EndFunction
 
