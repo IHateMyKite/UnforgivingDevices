@@ -45,7 +45,14 @@ Bool Function _LoadMenuScripts()
     Return !loc_error
 EndFunction
 
-;open text input for user and return string
+
+;/  Function: GetUserTextInput
+
+    Open text input for user and return string
+
+    Returns:
+        User input string
+/;
 string Function GetUserTextInput()
     if Ready
         UD_TextMenu.ResetMenu()
@@ -56,12 +63,22 @@ string Function GetUserTextInput()
     endif
 EndFunction
 
-;open list of options and return selected option
-Int Function GetUserListInput(string[] aaList, Bool abPremade = False, Int aiListWidth = -1)
+;/  Function: GetUserTextInput
+
+    Open list of options for user and return selected item from it
+
+    Parameters:
+        aaList                  - List of options to choose from.
+        abPremade               - The format in which the elements of the source list are generated. If True then entries should contain explicit value for IDs and callback:
+                                    entries[i] = _entryName[i] + ";;" + _entryParent[i] + ";;" + _entryId[i] + ";;" + _entryCallback[i] + ";;" + (_entryChildren[i] as int)
+
+    Returns:
+        Index of the selected item
+/;
+Int Function GetUserListInput(string[] aaList, Bool abPremade = False)
     if Ready
         UD_ListMenu.ResetMenu()
         UD_ListMenu.SetPropertyBool("extraFormatting", False)
-        UD_ListMenu.SetPropertyInt("listWidth", aiListWidth)
         If abPremade
             ; append premade entries
             UD_ListMenu.SetPropertyStringA("appendEntries", aaList)
@@ -79,7 +96,20 @@ Int Function GetUserListInput(string[] aaList, Bool abPremade = False, Int aiLis
     endif
 EndFunction
 
-; open list of options and return selected option with extra parameters and text formatting
+;/  Function: GetUserListInputEx
+
+    Open list of options for user with extra parameters and text formatting and return selected item from it
+
+    Parameters:
+        aaList                  - List of options to choose from.
+        abPremade               - The format in which the elements of the source list are generated. If True then entries should contain explicit value for IDs and callback:
+                                    entries[i] = _entryName[i] + ";;" + _entryParent[i] + ";;" + _entryId[i] + ";;" + _entryCallback[i] + ";;" + (_entryChildren[i] as int)
+        aiListWidth             - Desired width of the list (1280 is screen width). Default value: ~256
+        aiEntryHeight           - Desired height of the item in the list. Default value: 25
+
+    Returns:
+        Index of the selected item
+/;
 Int Function GetUserListInputEx(string[] aaList, Bool abPremade = True, Int aiListWidth = -1, Int aiEntryHeight = -1)
     if Ready
         UD_ListMenu.ResetMenu()

@@ -1722,8 +1722,8 @@ EndFunction
 
         Index of selected line
 /;
-Int Function GetUserListInput(string[] arrList, Bool abPremade = False, Int aiListWidth = -1)
-    return UDUIE.GetUserListInput(arrList, abPremade, aiListWidth)
+Int Function GetUserListInput(string[] arrList, Bool abPremade = False)
+    return UDUIE.GetUserListInput(arrList, abPremade)
 EndFunction
 
 ;/  Function: GetUserDeviceListInput
@@ -1736,7 +1736,10 @@ EndFunction
 
     Parameters:
 
-        arrList  - String array of premade list elements which will be shown in menu
+        arrList                 - String array of list elements which will be shown in menu
+        abPremade               - Array items are premade entries for the list
+        aiListWidth             - Desired width of the list (1280 is screen width). If -1 then used devault value of ~256
+        aiEntryHeight           - Desired height of the item in the list. If -1 then used default value of 25
 
     Returns:
 
