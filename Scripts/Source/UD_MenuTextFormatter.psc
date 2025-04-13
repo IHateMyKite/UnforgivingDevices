@@ -275,9 +275,9 @@ EndFunction
 /;
 String Function Text(String asText, Int aiFontSize = -1, String asFontFace = "", String asColor = "")
     String loc_res = ""
-    loc_res += InlineIfString(asColor != "" || asFontFace != "", StringUtil.AsChar(171)) ; StringUtil.AsChar(171))
+    loc_res += InlineIfString(asColor != "" || asFontFace != "", "'")
     loc_res += asText
-    loc_res += InlineIfString(asColor != "" || asFontFace != "", StringUtil.AsChar(187)) ; StringUtil.AsChar(187))
+    loc_res += InlineIfString(asColor != "" || asFontFace != "", "'")
     Return loc_res
 EndFunction
 
@@ -294,7 +294,7 @@ EndFunction
         String with the text fragment
 /;
 String Function TableRowDetails(String asLeft, String asRight, String asColor = "")
-    Return asLeft + " " + asRight + LineBreak()
+    Return asLeft + " " + Text(asRight, asColor = asColor) + LineBreak()
 EndFunction
 
 ;/  Function: TableRowWide
@@ -530,6 +530,13 @@ String Function _CleanPage(String asPage)
     loc_res = TrimSubstr(loc_res, "\n")
     loc_res = TrimSubstr(loc_res, " ")
     Return loc_res
+EndFunction
+
+
+String Function AsChar(Int aiCode)
+    ; https://www.loverslab.com/topic/165197-unforgiving-devices/page/90/#findComment-7002896
+    ; Possible text encoding troubles. Use with caution!
+    Return StringUtil.AsChar(aiCode)
 EndFunction
 
 Auto State HTML
@@ -839,27 +846,27 @@ Auto State HTML
     String Function DeviceLockIcon(Bool abOpen, Bool abJammed, Bool abTimer)
     ; for better visual it should be used with $EverywhereBoldFont font
         If abOpen
-            Return Text(StringUtil.AsChar(183), asColor = "#FFFFFF")
+            Return Text(AsChar(183), asColor = "#FFFFFF")                       ; "·"
         EndIf
         If abTimer
-            Return Text(StringUtil.AsChar(164), asColor = "#4444FF")
+            Return Text(AsChar(164), asColor = "#4444FF")                       ; "¤"
         EndIf
         If abJammed
-            Return Text(StringUtil.AsChar(164), asColor = "#FF4444")
+            Return Text(AsChar(164), asColor = "#FF4444")                       ; "¤"
         EndIf
-        Return Text(StringUtil.AsChar(164), asColor = "#FFFFFF")
+        Return Text(AsChar(164), asColor = "#FFFFFF")                           ; "¤"
     EndFunction
 
     String Function DeviceLockLegend()
         String loc_res = ""
         loc_res += ParagraphBegin(aiLeading = -3)
-        loc_res += Text(StringUtil.AsChar(164), asColor = "#FFFFFF") + " - locked;"
+        loc_res += Text(AsChar(164), asColor = "#FFFFFF") + " - locked;"
         loc_res += LineBreak()
-        loc_res += Text(StringUtil.AsChar(183), asColor = "#FFFFFF") + " - unlocked;"
+        loc_res += Text(AsChar(183), asColor = "#FFFFFF") + " - unlocked;"
         loc_res += LineBreak()
-        loc_res += Text(StringUtil.AsChar(164), asColor = "#4444FF") + " - with timer;"
+        loc_res += Text(AsChar(164), asColor = "#4444FF") + " - with timer;"
         loc_res += LineBreak()
-        loc_res += Text(StringUtil.AsChar(164), asColor = "#FF4444") + " - jammed."
+        loc_res += Text(AsChar(164), asColor = "#FF4444") + " - jammed."
         loc_res += ParagraphEnd()
         
         Return loc_res
@@ -882,6 +889,12 @@ Auto State HTML
         Debug.Trace(Self + "::_CleanPage() After: begining = " + StringUtil.Substring(loc_res, 0, 150))
         Debug.Trace(Self + "::_CleanPage() After:   ending = " + StringUtil.Substring(loc_res, StringUtil.GetLength(loc_res) - 150))
         Return loc_res
+    EndFunction
+
+    String Function AsChar(Int aiCode)
+        ; https://www.loverslab.com/topic/165197-unforgiving-devices/page/90/#findComment-7002896
+        ; safe version of the StringUtil.AsChar()
+        Return "&#" + (aiCode As String) + ";"
     EndFunction
     
 EndState

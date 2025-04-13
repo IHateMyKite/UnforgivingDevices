@@ -7283,8 +7283,8 @@ Function ShowBaseDetails()
         loc_res += UDMTF.TableRowDetails("Phys. Resist:", Round(getModResistPhysical(0.0) * -100.0) + "%", UDMTF.PercentToRainbow(Round(50.0 + getModResistPhysical(0.0) * 50.0)))
         loc_res += UDMTF.TableRowDetails("Mag. Resist:", Round(getModResistMagicka(0.0) * -100.0) + "%", UDMTF.PercentToRainbow(Round(50.0 + getModResistMagicka(0.0) * 50.0)))
     Else
-        loc_res += UDMTF.TableRowDetails("Phys. Resist:", "Inescapable", UDMTF.BoolToRainbow(False))
-        loc_res += UDMTF.TableRowDetails("Mag. Resist:", "Inescapable", UDMTF.BoolToRainbow(False))
+        loc_res += UDMTF.TableRowDetails("Phys. Resist:", "Unescapable", UDMTF.BoolToRainbow(False))
+        loc_res += UDMTF.TableRowDetails("Mag. Resist:", "Unescapable", UDMTF.BoolToRainbow(False))
     EndIf
     If canBeCutted()
         loc_res += UDMTF.TableRowDetails("Cut Resist:", Round(UD_WeaponHitResist) + "%", UDMTF.PercentToRainbow(Round(100 - UD_WeaponHitResist)))
