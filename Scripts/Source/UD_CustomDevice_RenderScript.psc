@@ -166,42 +166,16 @@ EndProperty
     
     This is not exact value of what will be used in minigame, but instead just base value which is then moded using other minigame values
     
-    *This value is bitcoded, and thus have limited range and precision!*
-    
-    --- Code
-        Default value  =       1.00
-        Min. Value     =       0.00
-        Max. Value     =      40.00
-        Precision      =       0.01
-    ---
 /;
 float       Property UD_durability_damage_base   Auto;durability dmg per second of struggling, range 0.00 - 40.00, precision 0.01 (4000 values)
 
 ;/  Variable: UD_base_stat_drain
     How many points of stats (health, stamina, magicka) are reduced per second of minigame. This is only base values, which is later moded with minigame values
-    
-    *This value is bitcoded, and thus have limited range and precision!*
-    
-    --- Code
-        Default value  =       8.00
-        Min. Value     =       1.00
-        Max. Value     =      31.00
-        Precision      =       1.00
-    ---
 /;
 float       Property UD_base_stat_drain  Auto;stamina drain for second of struggling, range 1 - 31, decimal point not used
 
 ;/  Variable: UD_ResistPhysical
     Physical resistence of device. Reduces effectiveness of normal and despair minigame Value bigger then 100% will cause device to be healed
-    
-    *This value is bitcoded, and thus have limited range and precision!*
-    
-    --- Code
-        Default value  =       0.00
-        Min. Value     =      -5.00
-        Max. Value     =       5.23
-        Precision      =       0.01
-    ---
     
     See: <UD_ResistMagicka>, <UD_WeaponHitResist>
 /;
@@ -209,15 +183,6 @@ float       Property UD_ResistPhysical   Auto;physical resistence. Needs to be a
 
 ;/  Variable: UD_ResistMagicka
     Magic resistence of device. Reduces effectiveness of magic minigame. Value bigger then 100% will cause device to be healed
-    
-    *This value is bitcoded, and thus have limited range and precision!*
-    
-    --- Code
-        Default value  =       0.00
-        Min. Value     =      -5.00
-        Max. Value     =       5.23
-        Precision      =       0.01
-    ---
     
     See: <UD_ResistPhysical>
 /;
@@ -6431,9 +6396,9 @@ Function minigame()
         advanceSkill(15.0)
         if UDmain.ExperienceInstalled && PlayerIsPresent()
             if Experience.GetScriptVersion() >= 3
-                Int loc_xp = Round(Math.Pow(UD_Level,0.8)*RandomFloat(1.0,2.0))
+                Int loc_xp = Round(Math.Pow(UD_Level,0.8)*RandomFloat(1.0,2.0)) + 15
                 Experience.addexperience(loc_xp,true)
-                Experience.ShowNotification("Escaped","Device","")
+                Experience.ShowNotification("Device ","Escaped","")
                 UDmain.Info("By escaping the "+GetDeviceHeader()+", you got " + loc_xp + " experience")
             else
                 UDMain.Error("Incompatible version of Exsperience detected. Please update the Experience to last version!")
@@ -7278,7 +7243,7 @@ Function ShowBaseDetails()
 
     loc_res += UDMTF.PageSplit(abForce = False)
     loc_res += UDMTF.LineGap()
-        
+
     If canBeStruggled(loc_accesibility)
         loc_res += UDMTF.TableRowDetails("Phys. Resist:", Round(getModResistPhysical(0.0) * -100.0) + "%", UDMTF.PercentToRainbow(Round(50.0 + getModResistPhysical(0.0) * 50.0)))
         loc_res += UDMTF.TableRowDetails("Mag. Resist:", Round(getModResistMagicka(0.0) * -100.0) + "%", UDMTF.PercentToRainbow(Round(50.0 + getModResistMagicka(0.0) * 50.0)))
@@ -7286,11 +7251,17 @@ Function ShowBaseDetails()
         loc_res += UDMTF.TableRowDetails("Phys. Resist:", "Unescapable", UDMTF.BoolToRainbow(False))
         loc_res += UDMTF.TableRowDetails("Mag. Resist:", "Unescapable", UDMTF.BoolToRainbow(False))
     EndIf
-    If canBeCutted()
-        loc_res += UDMTF.TableRowDetails("Cut Resist:", Round(UD_WeaponHitResist) + "%", UDMTF.PercentToRainbow(Round(100 - UD_WeaponHitResist)))
-    Else
+    
+    if canBeCutted()
+        loc_res += UDMTF.TableRowDetails("Cutting:", FormatFloat(UD_CutChance, 1) + "%", UDMTF.PercentToRainbow(Round(UD_CutChance * 2)))
+        
+        Int loc_weaphitres = Round(UD_WeaponHitResist*100.0)
+        Int loc_weaphitres_p = 100 - (iRange(loc_weaphitres,-100,100)+100)/2 ; normalize value for possible range -300 - +300
+        loc_res += UDMTF.TableRowDetails("Cut Resist:", loc_weaphitres + "%", UDMTF.PercentToRainbow(loc_weaphitres_p))
+    else
+        loc_res += UDMTF.TableRowDetails("Cutting:", "Uncuttable", UDMTF.BoolToRainbow(False))
         loc_res += UDMTF.TableRowDetails("Cut Resist:", "Uncuttable", UDMTF.BoolToRainbow(False))
-    EndIf
+    endif
     
     loc_res += UDMTF.PageSplit(abForce = False)
     loc_res += UDMTF.LineGap()
@@ -7318,12 +7289,6 @@ Function ShowBaseDetails()
         loc_res += UDMTF.TableRowDetails("Crit mult:", FormatFloat(UD_StruggleCritMul * 100, 1) + "%")
         loc_res += UDMTF.PageSplit(abForce = False)
         loc_res += UDMTF.LineGap()
-    endif
-
-    if canBeCutted()
-        loc_res += UDMTF.TableRowDetails("Cutting:", FormatFloat(UD_CutChance, 1) + "%", UDMTF.PercentToRainbow(Round(UD_CutChance * 2)))
-    else
-        loc_res += UDMTF.TableRowDetails("Cutting:", "Uncuttable", UDMTF.BoolToRainbow(False))
     endif
 
     loc_res += UDMTF.PageSplit(abForce = False)
