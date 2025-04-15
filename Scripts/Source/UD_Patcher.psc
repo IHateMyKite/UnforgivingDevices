@@ -445,7 +445,8 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
             UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Second pass: " + loc_w_pres.Length + " modifiers filtered with total weighted probability " + FormatFloat(loc_w_probs_sum, 2) + "%", 2)
             UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Second pass: " + loc_a_pres.Length + " modifiers filtered with total absolute probability " + FormatFloat(loc_a_probs_sum, 2) + "%", 2)
         EndIf
-        If (loc_w_pres.Length + loc_a_pres.Length) == 0
+        If (loc_a_pres.Length + loc_w_pres.Length) == 0 || (loc_a_probs_sum + loc_w_probs_sum) == 0.0
+        ; there is nothing to select from
             loc_break = True
         Else
             loc_pre = None
@@ -497,11 +498,17 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
                 loc_valid_pres = PapyrusUtil.RemoveAlias(loc_valid_pres, loc_pre)
                 loc_modnum += 1
             EndIf
-            ; do not stop the cycle until all presets with absolute probability have been tried, 
-            ; even if the maximum number of modifiers on the device has been exceeded
-            ; A separate condition to terminate the cycle when the number of modifiers with weighted 
-            ; probability no longer reaches 100% in total. It is better to stop to avoid using rare modifiers.
-            If loc_a_pres.Length == 0 && (loc_modnum >= loc_modcap || (loc_w_probs_sum < 100.0 && loc_pre == None))
+
+            If loc_modnum >= UD_ModsMax
+            ; we've reached a hard limit
+                loc_break = True
+            EndIf
+            If loc_modnum >= loc_modcap && (loc_a_pres.Length == 0 || loc_a_probs_sum == 0.0)
+            ; we've reached a soft limit and all modifiers with absolute probability have been tested already
+                loc_break = True
+            EndIf
+            If loc_modnum >= UD_ModsMin && (loc_a_pres.Length == 0 || loc_a_probs_sum == 0.0) && (loc_w_probs_sum < 100.0 && loc_pre == None)
+            ; we've exceeded a minimum, all modifiers with absolute probability have been tested already and no modifier has been selected on this cycle
                 loc_break = True
             EndIf
         EndIf
