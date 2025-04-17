@@ -1,6 +1,11 @@
 Scriptname UD_MenuTextFormatter Extends Quest
 {Script with functions to format text for messages}
 
+;/
+The script is intentionally written without external dependencies except for standard libraries. 
+Therefore, there may be repetitions of some trivial methods already implemented elsewhere.
+/;
+
 ;/  Group: Config
 ===========================================================================================
 ===========================================================================================
@@ -139,12 +144,12 @@ EndFunction
     
     Parameters:
         asHeader                - Header content
-        aiPlusSize              - How much the font size is increased compared to the base font size (see <FontSize>)
+        aiFontSize              - Font size. If -1 then it doesn't change
     
     Returns:
         String with the text fragment
 /;
-String Function Header(String asHeader, Int aiPlusSize = 4)
+String Function Header(String asHeader, Int aiFontSize = -1)
     Return "=== " + asHeader + " ===" + LineBreak()
 EndFunction
 
@@ -158,12 +163,13 @@ EndFunction
         aiColumn1Width          - Width of the first column
         aiColumn2Width          - Width of the second column
         aiColumn3Width          - Width of the third column
+        aiColumn4Width          - Width of the fourth column
         aiLeading               - Spacing between lines
     
     Returns:
         String with the text fragment
 /;
-String Function TableBegin(Int aiLeftMargin, Int aiColumn1Width, Int aiColumn2Width = 0, Int aiColumn3Width = 0, Int aiLeading = -2)
+String Function TableBegin(Int aiLeftMargin, Int aiColumn1Width, Int aiColumn2Width = 0, Int aiColumn3Width = 0, Int aiColumn4Width = 0, Int aiLeading = -2)
     Return ""
 EndFunction
 
@@ -263,16 +269,15 @@ EndFunction
         aiFontSize              - Font size. If no value is specified, the size does not change.
         asFontFace              - Font name. If no value is specified, the font face does not change.
         asColor                 - Color hex code. If no value is specified, the font color does not change.
-        asAlign                 - Horizontal text alignment (left, center, right). If no value is specified, the alignment does not change.
     
     Returns:
         String with the text fragment
 /;
 String Function Text(String asText, Int aiFontSize = -1, String asFontFace = "", String asColor = "")
     String loc_res = ""
-    loc_res += InlineIfString(asColor != "" || asFontFace != "", StringUtil.AsChar(171)) ; StringUtil.AsChar(171))
+    loc_res += InlineIfString(asColor != "" || asFontFace != "", "'")
     loc_res += asText
-    loc_res += InlineIfString(asColor != "" || asFontFace != "", StringUtil.AsChar(187)) ; StringUtil.AsChar(187))
+    loc_res += InlineIfString(asColor != "" || asFontFace != "", "'")
     Return loc_res
 EndFunction
 
@@ -289,7 +294,7 @@ EndFunction
         String with the text fragment
 /;
 String Function TableRowDetails(String asLeft, String asRight, String asColor = "")
-    Return asLeft + " " + asRight + LineBreak()
+    Return asLeft + " " + Text(asRight, asColor = asColor) + LineBreak()
 EndFunction
 
 ;/  Function: TableRowWide
@@ -301,16 +306,18 @@ EndFunction
         asCell2                 - Text in the second column.
         asCell3                 - Text in the third column.
         asCell4                 - Text in the fourth column.
+        asCell5                 - Text in the fifth column.
     
     Returns:
         String with the text fragment
 /;
-String Function TableRowWide(String asCell1, String asCell2, String asCell3 = "", String asCell4 = "")
+String Function TableRowWide(String asCell1, String asCell2, String asCell3 = "", String asCell4 = "", String asCell5 = "")
     String loc_res = ""
     loc_res += asCell1
     loc_res += InlineIfString(asCell2 != "", asCell2)
     loc_res += InlineIfString(asCell3 != "", asCell3)
     loc_res += InlineIfString(asCell4 != "", asCell4)
+    loc_res += InlineIfString(asCell5 != "", asCell5)
     loc_res += LineBreak()
     Return loc_res
 EndFunction
@@ -378,6 +385,17 @@ EndFunction
 /;
 String Function FooterSplit()
     Return ""
+EndFunction
+
+;/  Function: AddTag
+
+    Helper function for wrapping text in an arbitrary tag
+
+    Returns:
+        String with the text fragment
+/;
+String Function AddTag(String asTag, String asInner = "")
+    Return asInner
 EndFunction
 
 ;/  Function: SplitMessageIntoPages
@@ -476,7 +494,7 @@ String Function DeviceLockIcon(Bool abOpen, Bool abJammed, Bool abTimer)
     Return "L"
 EndFunction
 
-;/  Function: DeviceLockIcon
+;/  Function: DeviceLockLegend
 
     Returns a legend for our improvised device lock indicators (icons)
     
@@ -514,9 +532,16 @@ String Function _CleanPage(String asPage)
     Return loc_res
 EndFunction
 
+
+String Function AsChar(Int aiCode)
+    ; https://www.loverslab.com/topic/165197-unforgiving-devices/page/90/#findComment-7002896
+    ; Possible text encoding troubles. Use with caution!
+    Return StringUtil.AsChar(aiCode)
+EndFunction
+
 Auto State HTML
 
-    String Function Header(String asHeader, Int aiPlusSize = 4)
+    String Function Header(String asHeader, Int aiFontSize = -1)
         Int loc_pad_len = Math.Ceiling((30 - StringUtil.GetLength(asHeader)) / 10)
         If loc_pad_len < 0
             loc_pad_len = 0
@@ -524,7 +549,7 @@ Auto State HTML
         String loc_pad = PapyrusUtil.StringJoin(Utility.CreateStringArray(loc_pad_len + 1, "0"), "")
         String loc_res = ""
         loc_res += ParagraphBegin(asAlign = "center")
-        loc_res += FontBegin(FontSize + aiPlusSize, "$SkyrimSymbolsFont")
+        loc_res += FontBegin(aiFontSize, "$SkyrimSymbolsFont")
         loc_res += "6" + loc_pad
         loc_res += Text(" " + asHeader + " ", asFontFace = "$EverywhereMediumFont")
         loc_res += loc_pad + "7"
@@ -536,7 +561,7 @@ Auto State HTML
     ; Best looking presets for Details menus:
     ; Papyrus_UI: aiLeftMargin = 30, aiColumn1Width = 140
     ; Native_IU:  aiLeftMargin = 50, aiColumn1Width = 160
-    String Function TableBegin(Int aiLeftMargin, Int aiColumn1Width, Int aiColumn2Width = 0, Int aiColumn3Width = 0, Int aiLeading = -2)
+    String Function TableBegin(Int aiLeftMargin, Int aiColumn1Width, Int aiColumn2Width = 0, Int aiColumn3Width = 0, Int aiColumn4Width = 0, Int aiLeading = -2)
         String loc_res = ""
         String loc_tabstops = ""
         Int loc_pos = 0
@@ -553,6 +578,11 @@ Auto State HTML
         If aiColumn3Width > 0
             loc_tabstops += ", "
             loc_pos += aiColumn3Width
+            loc_tabstops += loc_pos as String
+        EndIf
+        If aiColumn4Width > 0
+            loc_tabstops += ", "
+            loc_pos += aiColumn4Width
             loc_tabstops += loc_pos as String
         EndIf
         
@@ -619,7 +649,6 @@ Auto State HTML
         Return loc_res
     EndFunction
 
-    ; if used with 'asAlign' then it has a line break at the end
     String Function Text(String asText, Int aiFontSize = -1, String asFontFace = "", String asColor = "")
         String loc_res = ""
         Bool loc_font = aiFontSize > 0 || asColor != "" || asFontFace != ""
@@ -642,12 +671,13 @@ Auto State HTML
         Return loc_res
     EndFunction
 
-    String Function TableRowWide(String asCell1, String asCell2, String asCell3 = "", String asCell4 = "")
+    String Function TableRowWide(String asCell1, String asCell2, String asCell3 = "", String asCell4 = "", String asCell5 = "")
         String loc_res = ""
         loc_res += "\t" + asCell1
         loc_res += InlineIfString(asCell2 != "", "\t" + asCell2)
         loc_res += InlineIfString(asCell3 != "", "\t" + asCell3)
         loc_res += InlineIfString(asCell4 != "", "\t" + asCell4)
+        loc_res += InlineIfString(asCell5 != "", "\t" + asCell5)
         loc_res += LineBreak()
         Return loc_res
     EndFunction
@@ -676,6 +706,14 @@ Auto State HTML
             Return "<page/><g/>"
         Else
             Return "<section/><g/>"
+        EndIf
+    EndFunction
+
+    String Function AddTag(String asTag, String asInner = "")
+        If asInner != ""
+            Return "<" + asTag + ">" + asInner + "</" + asTag + ">"
+        Else
+            Return "<" + asTag + "/>"
         EndIf
     EndFunction
     
@@ -808,27 +846,27 @@ Auto State HTML
     String Function DeviceLockIcon(Bool abOpen, Bool abJammed, Bool abTimer)
     ; for better visual it should be used with $EverywhereBoldFont font
         If abOpen
-            Return Text(StringUtil.AsChar(183), asColor = "#FFFFFF")
+            Return Text(AsChar(183), asColor = "#FFFFFF")                       ; "·"
         EndIf
         If abTimer
-            Return Text(StringUtil.AsChar(164), asColor = "#4444FF")
+            Return Text(AsChar(164), asColor = "#4444FF")                       ; "¤"
         EndIf
         If abJammed
-            Return Text(StringUtil.AsChar(164), asColor = "#FF4444")
+            Return Text(AsChar(164), asColor = "#FF4444")                       ; "¤"
         EndIf
-        Return Text(StringUtil.AsChar(164), asColor = "#FFFFFF")
+        Return Text(AsChar(164), asColor = "#FFFFFF")                           ; "¤"
     EndFunction
 
     String Function DeviceLockLegend()
         String loc_res = ""
         loc_res += ParagraphBegin(aiLeading = -3)
-        loc_res += Text(StringUtil.AsChar(164), asColor = "#FFFFFF") + " - locked;"
+        loc_res += Text(AsChar(164), asColor = "#FFFFFF") + " - locked;"
         loc_res += LineBreak()
-        loc_res += Text(StringUtil.AsChar(183), asColor = "#FFFFFF") + " - unlocked;"
+        loc_res += Text(AsChar(183), asColor = "#FFFFFF") + " - unlocked;"
         loc_res += LineBreak()
-        loc_res += Text(StringUtil.AsChar(164), asColor = "#4444FF") + " - with timer;"
+        loc_res += Text(AsChar(164), asColor = "#4444FF") + " - with timer;"
         loc_res += LineBreak()
-        loc_res += Text(StringUtil.AsChar(164), asColor = "#FF4444") + " - jammed."
+        loc_res += Text(AsChar(164), asColor = "#FF4444") + " - jammed."
         loc_res += ParagraphEnd()
         
         Return loc_res
@@ -851,6 +889,12 @@ Auto State HTML
         Debug.Trace(Self + "::_CleanPage() After: begining = " + StringUtil.Substring(loc_res, 0, 150))
         Debug.Trace(Self + "::_CleanPage() After:   ending = " + StringUtil.Substring(loc_res, StringUtil.GetLength(loc_res) - 150))
         Return loc_res
+    EndFunction
+
+    String Function AsChar(Int aiCode)
+        ; https://www.loverslab.com/topic/165197-unforgiving-devices/page/90/#findComment-7002896
+        ; safe version of the StringUtil.AsChar()
+        Return "&#" + (aiCode As String) + ";"
     EndFunction
     
 EndState
@@ -936,6 +980,20 @@ String Function BoolToRainbow(Bool abValue)
     Else
         Return PercentToRainbow(0)
     EndIf
+EndFunction
+
+String Function StringHashToColor(String asStr)
+    Int loc_n = StringUtil.GetLength(asStr)
+    Int loc_i = 0
+    Int loc_c
+    Int loc_hash = 0x444444
+    While loc_i < loc_n
+        loc_c = StringUtil.AsOrd(StringUtil.GetNthChar(asStr, loc_i))
+        loc_hash += ((loc_c * (loc_c + 11)) % 0x100) * (Math.Pow(0x100, loc_i % 3) as Int)
+        loc_hash %= 0x1000000
+        loc_i += 1
+    EndWhile
+    Return "#" + _IntToHex(loc_hash)
 EndFunction
 
 String Function _PercentToColor(Int aiPercent, Int aiMin, Int aiMiddle, Int aiMax)

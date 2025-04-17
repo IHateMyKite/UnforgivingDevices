@@ -1100,6 +1100,9 @@ Int UD_IconVariant_EffOrgasm_M
 String[] UD_IconVariant_EffOrgasmList
 Int UD_MenuTextFormatter_M
 Int UD_MenuMsgManager_M
+Int UD_DeviceListEx_T
+Int UD_DeviceListGroups_T
+Int UD_DeviceListLastOnTop_T
 
 Event resetUIWidgetPage()
     UpdateLockMenuFlag()
@@ -1115,6 +1118,11 @@ Event resetUIWidgetPage()
     UD_UseWidget_T = addToggleOption("$UD_USEWIDGET", UDCDmain.UD_UseWidget)
     UD_WidgetPosX_M = AddMenuOption("$UD_WIDGETPOSX", widgetXList[UDWC.UD_WidgetXPos], FlagSwitch(UDCDmain.UD_UseWidget))
     UD_WidgetPosY_M = AddMenuOption("$UD_WIDGETPOSY", widgetYList[UDWC.UD_WidgetYPos], FlagSwitch(UDCDmain.UD_UseWidget))
+    ; Device List
+    AddHeaderOption("$UD_H_UIDEVICELIST")
+    UD_DeviceListEx_T = AddToggleOption("$UD_UIDEVICELIST_EX", UDCDMain.UD_DeviceListEx, FlagSwitch(True))
+    UD_DeviceListGroups_T = AddToggleOption("$UD_UIDEVICELIST_GROUPS", UDCDMain.UD_DeviceListGroups, FlagSwitch(True))
+    UD_DeviceListLastOnTop_T = AddToggleOption("$UD_UIDEVICELIST_LASTONTOP", UDCDMain.UD_DeviceListLastOnTop, FlagSwitch(True))
     ; Menus
     AddHeaderOption("$UD_H_MENUS")
     UD_MenuTextFormatter_M = AddMenuOption("$UD_MENUTEXTFORMATTER", UDMTF.GetMode(), FlagSwitch(True))
@@ -1130,7 +1138,7 @@ Event resetUIWidgetPage()
     UD_TextReadSpeed_S = addSliderOption("$UD_TEXTREADSPEED", UDWC.UD_TextReadSpeed, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableCNotifications))
     UD_FilterVibNotifications_T = AddToggleOption("$UD_FILTERVIBNOTIFICATIONS", UDWC.UD_FilterVibNotifications, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableCNotifications))
     If UDWC.UD_TextAnchor < 0 || UDWC.UD_TextAnchor > 3
-        UDMain.Warning("UD_MCM_script::resetUIWidgetPage() WTF! UDWC.UD_TextAnchor = " + UDWC.UD_TextAnchor)
+        UDMain.Warning("UD_MCM_script::resetUIWidgetPage() Unexpected value! UDWC.UD_TextAnchor = " + UDWC.UD_TextAnchor)
         UDWC.UD_TextAnchor = 1
     EndIf
     UD_TextAnchor_M = addMenuOption("$UD_TEXTANCHOR", UD_TextAnchorList[UDWC.UD_TextAnchor], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && UDWC.UD_EnableCNotifications))
@@ -1139,7 +1147,7 @@ Event resetUIWidgetPage()
     UD_EnableDebuffIcons_T = AddToggleOption("$UD_ENABLEDEBUFFICONS", UDWC.UD_EnableDebuffIcons, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget))
     UD_IconsSize_S = addSliderOption("$UD_ICONSSIZE", UDWC.UD_IconsSize, a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && (UDWC.UD_EnableDeviceIcons || UDWC.UD_EnableDebuffIcons)))
     If UDWC.UD_IconsAnchor < 0 || UDWC.UD_IconsAnchor > 2
-        UDMain.Warning("UD_MCM_script::resetUIWidgetPage() WTF! UDWC.UD_IconsAnchor = " + UDWC.UD_IconsAnchor)
+        UDMain.Warning("UD_MCM_script::resetUIWidgetPage() Unexpected value! UDWC.UD_IconsAnchor = " + UDWC.UD_IconsAnchor)
         UDWC.UD_IconsAnchor = 1
     EndIf
     UD_IconsAnchor_M = addMenuOption("$UD_ICONSANCHOR", UD_IconsAnchorList[UDWC.UD_IconsAnchor], a_flags = FlagSwitch(UDmain.iWidgetInstalled && UDWC.UD_UseIWantWidget && (UDWC.UD_EnableDeviceIcons || UDWC.UD_EnableDebuffIcons)))
@@ -2046,6 +2054,15 @@ Function OptionSelectUiWidget(int option)
     ElseIf option == UD_FilterVibNotifications_T
         UDWC.UD_FilterVibNotifications = !UDWC.UD_FilterVibNotifications
         SetToggleOptionValue(UD_FilterVibNotifications_T, UDWC.UD_FilterVibNotifications)
+    ElseIf option == UD_DeviceListEx_T
+        UDCDMain.UD_DeviceListEx = !UDCDMain.UD_DeviceListEx
+        SetToggleOptionValue(UD_DeviceListEx_T, UDCDMain.UD_DeviceListEx)
+    ElseIf option == UD_DeviceListGroups_T
+        UDCDMain.UD_DeviceListGroups = !UDCDMain.UD_DeviceListGroups
+        SetToggleOptionValue(UD_DeviceListGroups_T, UDCDMain.UD_DeviceListGroups)
+    ElseIf option == UD_DeviceListLastOnTop_T
+        UDCDMain.UD_DeviceListLastOnTop = !UDCDMain.UD_DeviceListLastOnTop
+        SetToggleOptionValue(UD_DeviceListLastOnTop_T, UDCDMain.UD_DeviceListLastOnTop)
     ElseIf option == UD_EnableCNotifications_S
         UDWC.UD_EnableCNotifications = !UDWC.UD_EnableCNotifications
         SetToggleOptionValue(UD_EnableCNotifications_S, UDWC.UD_EnableCNotifications)
@@ -4164,6 +4181,12 @@ Function UiWidgetPageInfo(int option)
         SetInfoText("$UD_TEXTREADSPEED_INFO")
     ElseIf option == UD_FilterVibNotifications_T
         SetInfoText("$UD_FILTERVIBNOTIFICATIONS_INFO")
+    ElseIf option == UD_DeviceListEx_T
+        SetInfoText("$UD_UIDEVICELIST_EX_INFO")
+    ElseIf option == UD_DeviceListGroups_T
+        SetInfoText("$UD_UIDEVICELIST_GROUPS_INFO")
+    ElseIf option == UD_DeviceListLastOnTop_T
+        SetInfoText("$UD_UIDEVICELIST_LASTONTOP_INFO")
     ElseIf option == UD_EnableCNotifications_S
         SetInfoText("$UD_ENABLECNOTIFICATIONS_INFO")
     ElseIf option == UD_EnableDeviceIcons_T
