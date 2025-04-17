@@ -626,7 +626,7 @@ EndFunction
         Current update progress of the mod. It is whole number from 0 to 100, where mod is full ready on 100
 /;
 int Function GetUpdateProgress()
-    return (Round(100.0*_updatecounter/22))
+    return (Round(100.0*_updatecounter/23))
 EndFunction
 
 Function OnGameReload()
@@ -664,7 +664,7 @@ Function OnGameReload()
     
         ;update all scripts
         Update()
-        _IncrementUpdateCounter()   ;2
+        _IncrementUpdateCounter()   ;1
         
         int loc_removedmeters = UDWC.Meter_UnregisterAllNative()
         if loc_removedmeters > 0
@@ -741,6 +741,9 @@ Function OnGameReload()
         
         UDMMM.Update()
         _IncrementUpdateCounter()   ;22
+
+        UDUIE.Update()
+        _IncrementUpdateCounter()   ;23
         
         Info("<=====| Unforgiving Devices updated |=====>")
         Print("Unforgiving Devices updated")
@@ -1732,16 +1735,42 @@ EndFunction
 
     NOTE: User needs to have UI Extensions installed for this to work!
 
+    NOTE: Premade entries format: _entryName[i] + ";;" + _entryParent[i] + ";;" + _entryId[i] + ";;" + _entryCallback[i] + ";;" + (_entryChildren[i] as int)
+
     Parameters:
 
-        arrList  - String array of list elements which will be shown in menu
+        arrList     - String array of list elements which will be shown in menu
+        abPremade   - Array items are premade entries for the list
 
     Returns:
 
         Index of selected line
 /;
-Int Function GetUserListInput(string[] arrList)
-    return UDUIE.GetUserListInput(arrList)
+Int Function GetUserListInput(string[] arrList, Bool abPremade = False)
+    return UDUIE.GetUserListInput(arrList, abPremade)
+EndFunction
+
+;/  Function: GetUserDeviceListInput
+
+    Opens device list menu and returns device index provided in a premade entry.
+
+    NOTE: User needs to have UI Extensions installed for this to work!
+
+    NOTE: Premade entries format: _entryName[i] + ";;" + _entryParent[i] + ";;" + _entryId[i] + ";;" + _entryCallback[i] + ";;" + (_entryChildren[i] as int)
+
+    Parameters:
+
+        arrList                 - String array of list elements which will be shown in menu
+        abPremade               - Array items are premade entries for the list
+        aiListWidth             - Desired width of the list (1280 is screen width). If -1 then used devault value of ~256
+        aiEntryHeight           - Desired height of the item in the list. If -1 then used default value of 25
+
+    Returns:
+
+        Index of selected line
+/;
+Int Function GetUserListInputEx(string[] arrList, Bool abPremade = True, Int aiListWidth = -1, Int aiEntryHeight = -1)
+    return UDUIE.GetUserListInputEx(arrList, abPremade, aiListWidth, aiEntryHeight)
 EndFunction
 
 ;/  Group: Output
