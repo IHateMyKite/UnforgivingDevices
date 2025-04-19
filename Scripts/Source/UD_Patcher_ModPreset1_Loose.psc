@@ -6,7 +6,7 @@ Int Function CheckDeviceCompatibility(UD_CustomDevice_RenderScript akDevice, Boo
     If !akDevice.CanBeStruggled(1.0) || akDevice.CanBeStruggled(0.0) || akDevice.IsPlug()
         Return -1
     Endif
-    If StringUtil.Find(akDevice.GetName(), "tight") >= 0
+    If StringUtil.Find(akDevice.getDeviceName(), "tight") >= 0
         Return -1
     EndIf
     Return Parent.CheckDeviceCompatibility(akDevice, abCheckWearer)

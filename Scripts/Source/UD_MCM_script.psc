@@ -811,7 +811,7 @@ Function resetModifiersPage()
     
     UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
     If loc_mod_pp == None
-        UD_ModifierNoPPDesc_T = AddTextOption("$UD_CUSTOMMOD_ERROR_NOPPS", "$-INFO-",FlagSwitch(false))            ; No patcher presets found!
+        UD_ModifierNoPPDesc_T = AddTextOption("$UD_CUSTOMMOD_ERROR_NOPPS", "$-INFO-", FlagSwitch(true))            ; No patcher presets found!
         Return
     Else 
         UD_ModifierNoPPDesc_T = -1
@@ -827,9 +827,9 @@ Function resetModifiersPage()
     UD_ModifierVarHardDesc_T = AddTextOption("$UD_CUSTOMMOD_VARHARD", "$-PREVIEW-")
     AddTextOption("", loc_mod_pp.DataStr_Hard, UD_LockMenu_flag)
 
-    UD_ModifierDeviceTags_T = AddTextOption("$UD_CUSTOMMOD_DEVTAGS", "$-INFO-",FlagSwitch(false))
+    UD_ModifierDeviceTags_T = AddTextOption("$UD_CUSTOMMOD_DEVTAGS", "$-INFO-", FlagSwitch(true))
     AddTextOption("", loc_mod_pp.ConflictedDeviceModTags, FlagSwitch(false))
-    UD_ModifierGlobalTags_T = AddTextOption("$UD_CUSTOMMOD_GLOBTAGS", "$-INFO-",FlagSwitch(false))
+    UD_ModifierGlobalTags_T = AddTextOption("$UD_CUSTOMMOD_GLOBTAGS", "$-INFO-", FlagSwitch(true))
     AddTextOption("", loc_mod_pp.ConflictedGlobalModTags, FlagSwitch(false))
     
     UD_ModPP_ApplicableToPlayer_T = addToggleOption("$UD_CUSTOMMOD_APPTOPLAYER", loc_mod_pp.ApplicableToPlayer, UD_LockMenu_flag)        ; Applicable to Player
@@ -1887,42 +1887,42 @@ EndFunction
 
 Function OnOptionSelectCustomMods(int option)
     if(option == UD_ModifierDescription_T)
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         ShowMessage(loc_mod.Description, false, "$Close")
     ElseIf(option == UD_ModifierNoModsDesc_T)
         ShowMessage("$UD_CUSTOMMOD_ERROR_NOMODS_INFO", False, "$Close")
     ElseIf(option == UD_ModifierNoPPDesc_T)
         ShowMessage("$UD_CUSTOMMOD_ERROR_NOPPS_INFO", false, "$Close")
     ElseIf(option == UD_ModifierVarEasyDesc_T)
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
         ; set of argument is not complete, could break the function
         String loc_msg = loc_mod.GetDetails(None, loc_mod_pp.DataStr_Easy, None, None, None, None, None)
         UDMMM.ShowMessageBox(loc_msg, UDMTF.HasHtmlMarkup())
     ElseIf(option == UD_ModifierVarNormDesc_T)
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
         ; set of argument is not complete, could break the function
         String loc_msg = loc_mod.GetDetails(None, loc_mod_pp.DataStr_Ground, None, None, None, None, None)
         UDMMM.ShowMessageBox(loc_msg, UDMTF.HasHtmlMarkup())
     ElseIf(option == UD_ModifierVarHardDesc_T)
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
         ; set of argument is not complete, could break the function
         String loc_msg = loc_mod.GetDetails(None, loc_mod_pp.DataStr_Hard, None, None, None, None, None)
         UDMMM.ShowMessageBox(loc_msg, UDMTF.HasHtmlMarkup())
     elseif option == UD_ModPP_ApplicableToPlayer_T
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
         loc_mod_pp.ApplicableToPlayer = !loc_mod_pp.ApplicableToPlayer
         SetToggleOptionValue(UD_ModPP_ApplicableToPlayer_T, loc_mod_pp.ApplicableToPlayer)
     elseif option == UD_ModPP_ApplicableToNPC_T
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
         loc_mod_pp.ApplicableToNPC = !loc_mod_pp.ApplicableToNPC
         SetToggleOptionValue(UD_ModPP_ApplicableToNPC_T, loc_mod_pp.ApplicableToNPC)
     elseif option == UD_Modifier_AddToTest_T
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         If UDCDMain.UDPatcher.UD_ModAddToTest != loc_mod.NameAlias
             UDCDMain.UDPatcher.UD_ModAddToTest = loc_mod.NameAlias
         Else
@@ -1930,7 +1930,7 @@ Function OnOptionSelectCustomMods(int option)
         EndIf
         SetToggleOptionValue(UD_Modifier_AddToTest_T, UDCDMain.UDPatcher.UD_ModAddToTest == loc_mod.NameAlias)
     elseif option == UD_ModPP_IsAbsoluteProbability_T
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
         loc_mod_pp.IsAbsoluteProbability = !loc_mod_pp.IsAbsoluteProbability
         SetToggleOptionValue(UD_ModPP_IsAbsoluteProbability_T, loc_mod_pp.IsAbsoluteProbability)
@@ -2839,19 +2839,19 @@ EndFunction
     
 Function OnOptionSliderOpenModifiers(int option)
     if (option == UD_ModifierMultiplier1_S)
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         SetSliderDialogStartValue(loc_mod.MultProbabilities)
         SetSliderDialogDefaultValue(1.0)
         SetSliderDialogRange(0.0, 100.0)
         SetSliderDialogInterval(0.1)
     ElseIf (option == UD_ModifierMultiplier2_S)
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         SetSliderDialogStartValue(loc_mod.MultInputQuantities)
         SetSliderDialogDefaultValue(1.0)
         SetSliderDialogRange(0.0, 100.0)
         SetSliderDialogInterval(0.1)
     ElseIf (option == UD_ModifierMultiplier3_S)
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         SetSliderDialogStartValue(loc_mod.MultOutputQuantities)
         SetSliderDialogDefaultValue(1.0)
         SetSliderDialogRange(0.0, 100.0)
@@ -2882,21 +2882,21 @@ Function OnOptionSliderOpenModifiers(int option)
         SetSliderDialogRange(0.1, 10.0)
         SetSliderDialogInterval(0.1)
     ElseIf option == UD_ModPP_BaseProbability_S
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
         SetSliderDialogStartValue(loc_mod_pp.BaseProbability)
         SetSliderDialogDefaultValue(100)
         SetSliderDialogRange(0, 100)
         SetSliderDialogInterval(1)
     ElseIf option == UD_ModPP_BaseSeverity_S
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
         SetSliderDialogStartValue(loc_mod_pp.BaseSeverity)
         SetSliderDialogDefaultValue(0.0)
         SetSliderDialogRange(-1.0, 1.0)
         SetSliderDialogInterval(0.01)
     ElseIf option == UD_ModPP_SeverityDispersion_S
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
         SetSliderDialogStartValue(loc_mod_pp.SeverityDispersion)
         SetSliderDialogDefaultValue(0.20)
@@ -3179,15 +3179,15 @@ EndFunction
 
 Function OnOptionSliderAcceptModifiers(int option, float value)
     if (option == UD_ModifierMultiplier1_S)
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         loc_mod.MultProbabilities  = value
         SetSliderOptionValue(UD_ModifierMultiplier1_S, value, "{1} x")
     ElseIf (option == UD_ModifierMultiplier2_S)
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         loc_mod.MultInputQuantities  = value
         SetSliderOptionValue(UD_ModifierMultiplier2_S, value, "{1} x")
     ElseIf (option == UD_ModifierMultiplier3_S)
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         loc_mod.MultOutputQuantities  = value
         SetSliderOptionValue(UD_ModifierMultiplier3_S, value, "{1} x")
     ElseIf option == UD_ModsMin_S
@@ -3206,17 +3206,17 @@ Function OnOptionSliderAcceptModifiers(int option, float value)
         UDCDmain.UDPatcher.UD_ModGlobalSeverityDispMult = value
         SetSliderOptionValue(UD_ModGlobalSeverityDispMult_S, value, "{2}")
     ElseIf option == UD_ModPP_BaseProbability_S
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
         loc_mod_pp.BaseProbability = value
         SetSliderOptionValue(UD_ModPP_BaseProbability_S, value, "{0} %")
     ElseIf option == UD_ModPP_BaseSeverity_S
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
         loc_mod_pp.BaseSeverity = value
         SetSliderOptionValue(UD_ModPP_BaseSeverity_S, value, "{2}")
     ElseIf option == UD_ModPP_SeverityDispersion_S
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
         loc_mod_pp.SeverityDispersion = value
         SetSliderOptionValue(UD_ModPP_SeverityDispersion_S, value, "{2}")
@@ -3577,7 +3577,7 @@ Function OnOptionMenuAcceptModifiers(Int option, Int index)
         UD_ModifierSelected = 0
         forcePageReset()
     ElseIf option == UD_ModifierPatchList_M
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         UD_ModifierPatchSelected = index
         SetMenuOptionValue(option, loc_mod.GetPatcherPreset(UD_ModifierPatchSelected).DisplayName)
         forcePageReset()
@@ -4198,7 +4198,7 @@ Function ModifierPageInfo(int option)
     ElseIf option == UD_ModifierGlobalTags_T
         SetInfoText("$UD_CUSTOMMOD_GLOBTAGS_INFO")
     ElseIf option == UD_ModifierDescription_T
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[UD_ModifierSelected] as UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         SetInfoText(loc_mod.Description)
     endif
 EndFunction
@@ -4729,7 +4729,7 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetFloatValue(strFile, "Patcher_ModGlobalSeverityDispMult", UDCDmain.UDPatcher.UD_ModGlobalSeverityDispMult)
     Int loc_i = 0
     While loc_i < UDmain.UDMOM.UD_ModifierListRef.Length
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[loc_i] As UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         If loc_mod != None
             loc_mod.SaveToJSON(strFile)
         EndIf
@@ -4915,7 +4915,7 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UDPatcher.UD_ModGlobalSeverityDispMult = JsonUtil.GetFloatValue(strFile, "Patcher_ModGlobalSeverityDispMult", UDCDmain.UDPatcher.UD_ModGlobalSeverityDispMult)
     Int loc_i = 0
     While loc_i < UDmain.UDMOM.UD_ModifierListRef.Length
-        UD_Modifier loc_mod = (UDmain.UDMOM.UD_ModifierListRef[loc_i] As UD_Modifier)
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         If loc_mod != None
             loc_mod.LoadFromJSON(strFile)
         EndIf
