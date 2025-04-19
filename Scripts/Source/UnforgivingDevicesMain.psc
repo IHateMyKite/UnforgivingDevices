@@ -1590,6 +1590,30 @@ bool Function ModInstalledAfterUD(string asModFileName) global
     return (Game.GetModByName(asModFileName) > Game.GetModByName("UnforgivingDevices.esp"))
 EndFunction
 
+;/  Function: FormFromMod
+
+    Check if given form is from the mod
+
+    Parameters:
+
+        asModFileName   - Name of mod WITH extension
+
+        akForm          - Form to check
+
+    Returns:
+
+        True if given form is from the mod
+/;
+Bool Function FormFromMod(String asModFileName, Form akForm) global
+    If !akForm 
+        Return False
+    EndIf
+    If !ModInstalled(asModFileName)
+        Return False
+    EndIf
+    Return Game.GetFormFromFile(akForm.GetFormID(), asModFileName) != None
+EndFunction
+
 ;/  Function: MakeDeviceHeader
 
     Creates string containing formated information about device worn by actor

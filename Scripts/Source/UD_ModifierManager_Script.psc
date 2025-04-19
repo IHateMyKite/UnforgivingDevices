@@ -79,7 +79,6 @@ UD_Modifier Function GetModifier(String asAlias)
     int loc_count = GetModifierStorageCount()
     while loc_count
         loc_count -= 1
-        
         UD_ModifierStorage loc_storage = GetNthModifierStorage(loc_count)
         Int loc_modnum = loc_storage.GetModifierNum()
         while loc_modnum
@@ -91,6 +90,11 @@ UD_Modifier Function GetModifier(String asAlias)
         endwhile
     endwhile
     return none
+EndFunction
+
+UD_Modifier Function GetModifierFromStorage(Int aiStorageIndex, Int aiModIndex)
+    UD_ModifierStorage loc_storage = GetNthModifierStorage(aiStorageIndex)
+    Return loc_storage.GetNthModifier(aiModIndex)
 EndFunction
 
 Function UpdateStorage()
@@ -137,10 +141,12 @@ EndFunction
 
 String[]        Property UD_ModifierList    auto hidden
 Alias[]         Property UD_ModifierListRef auto hidden
+String[]        Property UD_ModStorageList  Auto Hidden
 
 Function UpdateLists()
     UD_ModifierList     = Utility.CreateStringArray(0)
     UD_ModifierListRef  = Utility.CreateAliasArray(0)
+    UD_ModStorageList   = Utility.CreateStringArray(0)
 
     Int loc_i1      = 0
     int loc_count   = GetModifierStorageCount()
@@ -148,6 +154,7 @@ Function UpdateLists()
         UD_ModifierStorage loc_storage = GetNthModifierStorage(loc_i1)
         Int loc_modnum = loc_storage.GetModifierNum()
         Int loc_i2 = 0
+        UD_ModStorageList = PapyrusUtil.PushString(UD_ModStorageList, loc_storage.GetName())
         while loc_i2 < loc_modnum
             UD_Modifier loc_mod = loc_storage.GetNthModifier(loc_i2)
             if loc_mod
@@ -245,6 +252,18 @@ Event OnActorAction(Int aiActionType, Actor akActor, Form akSource, Int aiSlot)
     EndIf
     UpdateModifiers_ActorAction(loc_slot, aiActionType, aiSlot, akSource)
 EndEvent
+
+String[] Function GetModifiersTags()
+    Int loc_i = 0
+    String[] loc_tags = Utility.CreateStringArray(0)
+    While loc_i < UD_ModifierListRef.Length
+        UD_Modifier loc_mod = UD_ModifierListRef[loc_i] as UD_Modifier
+        loc_tags = PapyrusUtil.MergeStringArray(loc_tags, loc_mod.Tags, RemoveDupes = True)
+        loc_i += 1
+    EndWhile
+    Return loc_tags
+EndFunction
+
 
 ;====================================================================================
 ;                            receive modifier update events
@@ -559,17 +578,17 @@ Function Procces_UpdateModifiers_MinigameStarted(UD_CustomDevice_RenderScript ak
     int i = 0
     UD_CustomDevice_RenderScript loc_device = loc_slot.UD_equipedCustomDevices[i]
     
-    while loc_device
+    while i < loc_slot.UD_equipedCustomDevices.Length && loc_device
         int loc_modid = loc_device.UD_ModifiersRef.length
         while loc_modid 
             loc_modid -= 1
             UD_Modifier loc_mod = (loc_device.UD_ModifiersRef[loc_modid] as UD_Modifier)
             loc_mod.MinigameStarted(loc_device,akDevice,loc_device.UD_ModifiersDataStr[loc_modid],loc_device.UD_ModifiersDataForm1[loc_modid],loc_device.UD_ModifiersDataForm2[loc_modid],loc_device.UD_ModifiersDataForm3[loc_modid],loc_device.UD_ModifiersDataForm4[loc_modid],akDevice.UD_ModifiersDataForm5[loc_modid])
         endwhile
-        
         i+=1
         loc_device = loc_slot.UD_equipedCustomDevices[i]
     endwhile
+
 EndFunction
 
 Function Procces_UpdateModifiers_MinigameEnded(UD_CustomDevice_RenderScript akDevice) ;directly accesed from device
@@ -580,18 +599,17 @@ Function Procces_UpdateModifiers_MinigameEnded(UD_CustomDevice_RenderScript akDe
     
     int i = 0
     UD_CustomDevice_RenderScript loc_device = loc_slot.UD_equipedCustomDevices[i]
-    
-    while loc_device
+    while i < loc_slot.UD_equipedCustomDevices.Length && loc_device
         int loc_modid = loc_device.UD_ModifiersRef.length
         while loc_modid 
             loc_modid -= 1
             UD_Modifier loc_mod = (loc_device.UD_ModifiersRef[loc_modid] as UD_Modifier)
             loc_mod.MinigameEnded(loc_device,akDevice,loc_device.UD_ModifiersDataStr[loc_modid],loc_device.UD_ModifiersDataForm1[loc_modid],loc_device.UD_ModifiersDataForm2[loc_modid],loc_device.UD_ModifiersDataForm3[loc_modid],loc_device.UD_ModifiersDataForm4[loc_modid],akDevice.UD_ModifiersDataForm5[loc_modid])
         endwhile
-        
         i+=1
         loc_device = loc_slot.UD_equipedCustomDevices[i]
     endwhile
+
 EndFunction
 
 Function Procces_UpdateModifiers_WeaponHit(UD_CustomDevice_RenderScript akDevice, Weapon akWeapon, Float afDamage)
@@ -731,7 +749,7 @@ Function Debug_AddModifier(UD_CustomDevice_RenderScript akDevice)
         if loc_res1 >= 0
             UD_Modifier loc_mod = loc_ModifierListRef[loc_res1] as UD_Modifier
             if !akDevice.HasModifierRef(loc_mod)
-                String      loc_param = UDMain.GetUserTextInput()
+                String loc_param = UDMain.GetUserTextInput()
                 if !akDevice.addModifier(loc_mod,loc_param)
                     UDmain.Print("Error! Can't add " + loc_mod.NameFull)
                 endif
@@ -749,7 +767,7 @@ Function Debug_RemoveModifier(UD_CustomDevice_RenderScript akDevice)
         while loc_i < akDevice.UD_ModifiersRef.length
             UD_Modifier loc_mod = akDevice.UD_ModifiersRef[loc_i] as UD_Modifier
             if loc_mod
-                loc_ModifierList    = PapyrusUtil.PushString(loc_ModifierList,loc_mod.NameFull)
+                loc_ModifierList = PapyrusUtil.PushString(loc_ModifierList,loc_mod.NameFull)
             endif
             loc_i += 1
         endwhile
