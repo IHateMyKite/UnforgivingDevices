@@ -371,6 +371,7 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
 
     ; adding obligate modifier from UD_ModAddToTest if it is possible
     If UD_ModAddToTest != ""
+        loc_pre = None
         loc_mod = UDMOM.GetModifier(UD_ModAddToTest)
         If loc_mod && ((loc_mod as ReferenceAlias) as UD_Patcher_ModPreset) && loc_mod.CheckModifierCompatibility(loc_forbidden_tags)
             loc_pre = ((loc_mod as ReferenceAlias) as UD_Patcher_ModPreset).GetCompatiblePatcherPreset(akDevice, True)
@@ -385,13 +386,15 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
                     ; If the modifier have tags, we add them to the corresponding arrays to filter out all subsequent modifiers
                     loc_device_mods_tags = PapyrusUtil.MergeStringArray(loc_device_mods_tags, loc_mod.Tags)
                     loc_wearer_mods_tags = PapyrusUtil.MergeStringArray(loc_wearer_mods_tags, loc_mod.Tags)
-                    loc_modnum += 1
+                    loc_modnum += UD_Native.iRange(loc_pre.OccupiedSlots, 0, 99)
                     ; remove used modifier from the source array
                     loc_valid_pres = PapyrusUtil.RemoveAlias(loc_valid_pres, loc_pre)
+                Else
+                    loc_pre = None
                 EndIf
             EndIf
         EndIf
-        If loc_modnum == 0
+        If loc_pre == None
             UDCDmain.UDmain.Warning("UD_Patcher::ProcessModifiers() Unable to add obligate modifier " + loc_mod)
         EndIf
         UD_ModAddToTest = ""
@@ -399,9 +402,6 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
 
     Bool loc_break = False
     Int loc_modcap = UD_Native.RandomInt(UD_ModsMin, UD_ModsMax)
-    If loc_modcap <= loc_modnum
-        loc_break = True
-    EndIf
 
     While !loc_break
 
@@ -496,7 +496,7 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
                 loc_wearer_mods_tags = PapyrusUtil.MergeStringArray(loc_wearer_mods_tags, loc_mod.Tags)
                 ; remove used modifier from the source array
                 loc_valid_pres = PapyrusUtil.RemoveAlias(loc_valid_pres, loc_pre)
-                loc_modnum += 1
+                loc_modnum += UD_Native.iRange(loc_pre.OccupiedSlots, 0, 99)
             EndIf
 
             If loc_modnum >= UD_ModsMax

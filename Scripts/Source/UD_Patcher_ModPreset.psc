@@ -105,15 +105,6 @@ Bool        Property ApplicableToPlayer         = True  Auto
 Float       Property BaseProbability            = 100.0 Auto
 {Default value: 100.0}
 
-;/  Variable: IsNormalizedProbability
-    Indicates that the probability is normalized to the allowed number of modifiers.
-    If it is False and BaseProbability is 100.0 then this preset will be always selected.
-
-    Obsolete. To be deleted.
-/;
-Bool        Property IsNormalizedProbability    = True  Auto
-{Obsolete. To be deleted.}
-
 ;/  Variable: IsAbsoluteProbability
     An indication that the above probability is absolute, i.e. it does not depend on 
     the number of registered modifiers or the settings for the number of modifiers on the devices.
@@ -143,6 +134,12 @@ Float       Property BaseSeverity               = 0.0   Auto
 /;
 Float       Property SeverityDispersion         = 0.20  Auto
 {Default value: 0.20}
+
+;/  Variable: OccupiedSlots
+    Number of occupied slots
+/;
+Int         Property OccupiedSlots              = 1     Auto
+{Default value: 1}
 
 ; The Box–Muller transform to generate normally distributed numbers
 ; 
