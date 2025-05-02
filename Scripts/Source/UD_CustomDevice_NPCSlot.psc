@@ -301,11 +301,11 @@ String[] Function getDeviceGroupsPremade()
     String[] loc_res_lower
     String[] loc_res_legs
 
-    Int loc_slots_head =  0x0200F823    ; 0x00004000 & 0x00008000 & 0x02000000 & 0x00000001 & 0x00001000 & 0x00000020 & 0x00000002 & 0x00000800 & 0x00002000
-    Int loc_slots_arms =  0x20010058    ; 0x00000008 & 0x00000010 & 0x00000040 & 0x00010000 & 0x20000000
-    Int loc_slots_upper = 0x14200004    ; 0x00000004 & 0x00200000 & 0x10000000 & 0x04000000 
-    Int loc_slots_lower = 0x081C0400    ; 0x00040000 & 0x00080000 & 0x00100000 & 0x08000000 & 0x00000400 
-    Int loc_slots_legs =  0x00800180    ; 0x00000080 & 0x00000100 & 0x00800000 
+    Int loc_slots_head =  0x0200F823    ; 0x00004000 | 0x00008000 | 0x02000000 | 0x00000001 | 0x00001000 | 0x00000020 | 0x00000002 | 0x00000800 | 0x00002000
+    Int loc_slots_arms =  0x20010058    ; 0x00000008 | 0x00000010 | 0x00000040 | 0x00010000 | 0x20000000
+    Int loc_slots_upper = 0x14200004    ; 0x00000004 | 0x00200000 | 0x10000000 | 0x04000000 
+    Int loc_slots_lower = 0x081C0400    ; 0x00040000 | 0x00080000 | 0x00100000 | 0x08000000 | 0x00000400 
+    Int loc_slots_legs =  0x00800180    ; 0x00000080 | 0x00000100 | 0x00800000 
 
     int loc_i = 0
     while (loc_i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[loc_i]
@@ -351,7 +351,7 @@ String Function _getDeviceListItem(UD_CustomDevice_RenderScript akDevice)
     String loc_name = akDevice.getDeviceName()
     If UDCDMain.UD_DeviceListEx && UDMain.UDMTF.HasHtmlMarkup()
         If StringUtil.GetLength(loc_name) > 37
-            loc_name = StringUtil.Substring(loc_name, 0, 35) + "..."
+            loc_name = StringUtil.Substring(loc_name, 0, 36) + "..."
         EndIf
         Int loc_health = Round(100 * akDevice.getRelativeDurability())
         String loc_health_str = UDMain.UDMTF.Text((loc_health as String) + "%", asColor = UDMain.UDMTF.PercentToGrayscale(loc_health))
@@ -361,13 +361,21 @@ String Function _getDeviceListItem(UD_CustomDevice_RenderScript akDevice)
         String[] loc_tags_arr = PapyrusUtil.RemoveDupeString(akDevice.GetModifierTags())
         String loc_tags = ""
         Int loc_j = 0
+        Int loc_tags_length = 0
         While loc_j < loc_tags_arr.Length
-            loc_tags += UDMain.UDMTF.Text(loc_tags_arr[loc_j], asColor = UDMain.UDMTF.StringHashToColor(loc_tags_arr[loc_j])) + " "
+            If loc_tags_length > 0
+                loc_tags_length += 1
+                loc_tags += " "
+            EndIf
+            loc_tags_length += StringUtil.GetLength(loc_tags_arr[loc_j])
+            loc_tags += UDMain.UDMTF.Text(loc_tags_arr[loc_j], asColor = UDMain.UDMTF.StringHashToColor(loc_tags_arr[loc_j]))
             loc_j += 1
         EndWhile
-        loc_tags = UDMain.UDMTF.AddTag("ucase", loc_tags)           ; add a made-up <ucase> tag to convert this substring to uppercase in swf
+        Int loc_tags_font_size = UD_Native.iRange((22 * 16 / loc_tags_length) as Int, 10, 16)                       ; Font size: 10 .. 16. Base length: 22 symbols
+        loc_tags = UDMain.UDMTF.AddTag("ucase", loc_tags)                                                           ; decorate with a made-up <ucase> tag to convert this substring to uppercase in swf
+        loc_tags = UDMain.UDMTF.Text(loc_tags, aiFontSize = loc_tags_font_size)                                     ; change font size to avoid clipping
         loc_str += UDMain.UDMTF.FontBegin(asFontFace = "$EverywhereFont", aiFontSize = 16)
-        loc_str += UDMain.UDMTF.TableBegin(5, 180, 33, 33, 65)
+        loc_str += UDMain.UDMTF.TableBegin(5, 180, 33, 33, 70)                                                      ; 119 on the last column
         loc_str += UDMain.UDMTF.TableRowWide(loc_name, loc_acc_str, loc_health_str, loc_locks, loc_tags)
         loc_str += UDMain.UDMTF.TableEnd()
         loc_str += UDMain.UDMTF.FontEnd()
@@ -393,7 +401,7 @@ Function ReorderSlots(UD_CustomDevice_RenderScript firstDevice)
     startDeviceManipulation()
     int loc_reorderIndx = GetDeviceSlotIndx(firstDevice)
     int i = loc_reorderIndx 
-    while i < UD_equipedCustomDevices.length
+    while (i < UD_equipedCustomDevices.length)
         if UD_equipedCustomDevices[i] && ((i + 1) != UD_equipedCustomDevices.length)
             UD_equipedCustomDevices[i] = UD_equipedCustomDevices[i + 1]
         endif
@@ -575,6 +583,7 @@ EndFunction
 
 ;removes bullshit
 Function QuickFix()
+    sortSlots()
     removeCopies()
     removeUnusedDevices()
 EndFunction
@@ -605,6 +614,7 @@ Function fix()
     if loc_res == 0 ;general fix
         UDmain.Print("[UD] Starting general fixes")
         UDCDMain.ResetFetchFunction()
+        sortSlots()
         removeCopies()
         removeUnusedDevices()
         removeLostRenderDevices()
@@ -863,6 +873,7 @@ int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool s
     if mutex
         startDeviceManipulation()
     endif
+    Bool loc_sort = False
     If oref == UD_LastSelectedDevice
         UD_LastSelectedDevice = None
     EndIf
@@ -872,6 +883,14 @@ int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool s
             UD_equipedCustomDevices[i] = none
             _iUsedSlots-=1
             res += 1
+        ElseIf res > 0 && UD_equipedCustomDevices[i - res] == None
+        ; immediately move all elements after the deleted one
+            UD_equipedCustomDevices[i - res] = UD_equipedCustomDevices[i]
+            UD_equipedCustomDevices[i] = None
+        Else
+        ; ???
+            UDmain.Warning(Self + "::unregisterDevice() Something wrong with UD_equipedCustomDevices array. Unexpected element value.")
+            loc_sort = True
         endif
         i+=1
     endwhile
@@ -884,7 +903,7 @@ int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool s
     ;endif    
     
     ; Only sort slots if at least one device is unregistered and there are still used slots
-    if res > 0 && isScriptRunning() && sort
+    if loc_sort
         sortSlots(mutex)
     endif
 
@@ -950,6 +969,10 @@ int Function unregisterAllDevices(int i = 0,bool mutex = true)
         res += 1
         i += 1
     endwhile
+    If _iUsedSlots != 0
+        UDmain.Warning(Self + "::unregisterAllDevices() _iUsedSlots is not 0 at the end!")
+        _iUsedSlots = 0
+    EndIf
     if mutex
         endDeviceManipulation()
     endif
@@ -1174,69 +1197,74 @@ EndFunction
 Float _LastHitTime = 0.0
 Float _LastSpellConcTime = 0.0
 Float _LastEnchConcTime = 0.0
+Float _LastTrapHitTime = 0.0
 
 Event OnHit(ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked)
     if !isScriptRunning()
         Return
     EndIf
-    If akProjectile != None
-        Return
-    EndIf
-    If UD_Native.IsConcentrationSpell(akSource as Spell)
-    ; checking the delta between the current time and the time of the last hit to skip spam
-        Float loc_time = Utility.GetCurrentRealTime()
-        If loc_time - _LastSpellConcTime < 1.0
-            Return
-        EndIf
-        _LastSpellConcTime = loc_time
-    ElseIf UD_Native.IsConcentrationEnch(akSource as Enchantment)
-        Float loc_time = Utility.GetCurrentRealTime()
-        If loc_time - _LastEnchConcTime < 1.0
-            Return
-        EndIf
-        _LastEnchConcTime = loc_time
-    EndIf
     If UDmain.TraceAllowed()
         UDmain.Log("UD_CustomDevice_NPCSlot::OnHit() [" + getSlotedNPCName() + "] akAggressor = " + akAggressor + ", akSource = " + akSource + ", akProjectile = " + akProjectile + ", abPowerAttack = " + abPowerAttack + ", abSneakAttack = " + abSneakAttack + ", abBashAttack = " + abBashAttack + ", abHitBlocked = " + abHitBlocked, 3)
     EndIf
 
-    if akSource
-        If akSource as Weapon && akProjectile == None
-        ; ignoring weapons with projectile because it's their enchantment
-            Float loc_dmg = CalculatePhysDamage(akAggressor, akSource, akProjectile, abPowerAttack, abSneakAttack, abBashAttack, abHitBlocked)
+    If akSource as Weapon && akProjectile == None
+    ; ignoring weapons with projectile because it's their enchantment
+        Float loc_dmg = CalculatePhysDamage(akAggressor, akSource, akProjectile, abPowerAttack, abSneakAttack, abBashAttack, abHitBlocked)
+        if UDmain.TraceAllowed()
+            UDmain.Log("UD_CustomDevice_NPCSlot::OnHit() [" + getSlotedNPCName() + "] Physical damage = " + loc_dmg, 3)
+        endif
+        If IsTrapHit(akAggressor, akSource)
+        ; checking the delta between the current time and the time of the last hit to skip spam
+            Float loc_time = Utility.GetCurrentRealTime()
+            If loc_time - _LastTrapHitTime < 1.0
+                Return
+            EndIf
+            _LastTrapHitTime = loc_time
+        EndIf
+        If loc_dmg > 0.0
+            OnWeaponHit(akSource as Weapon, loc_dmg)
+        EndIf
+        If (akSource as Weapon).GetEnchantment() != None
+            loc_dmg = CalculateMagDamage(akAggressor, akSource, akProjectile, abPowerAttack, abSneakAttack, abBashAttack, abHitBlocked)
             if UDmain.TraceAllowed()
-                UDmain.Log("UD_CustomDevice_NPCSlot::OnHit() [" + getSlotedNPCName() + "] Physical damage = " + loc_dmg, 3)
+                UDmain.Log("UD_CustomDevice_NPCSlot::OnHit() [" + getSlotedNPCName() + "] Enchantment (weapon) damage = " + loc_dmg, 3)
             endif
             If loc_dmg > 0.0
-                OnWeaponHit(akSource as Weapon, loc_dmg)
+                OnSpellHit((akSource as Weapon).GetEnchantment(), loc_dmg)
             EndIf
-            If (akSource as Weapon).GetEnchantment() != None
-                loc_dmg = CalculateMagDamage(akAggressor, akSource, akProjectile, abPowerAttack, abSneakAttack, abBashAttack, abHitBlocked)
-                if UDmain.TraceAllowed()
-                    UDmain.Log("UD_CustomDevice_NPCSlot::OnHit() [" + getSlotedNPCName() + "] Enchantment (weapon) damage = " + loc_dmg, 3)
-                endif
-                If loc_dmg > 0.0
-                    OnSpellHit((akSource as Weapon).GetEnchantment(), loc_dmg)
-                EndIf
+        EndIf
+    ElseIf akSource as Spell
+        If UD_Native.IsConcentrationSpell(akSource as Spell)
+        ; checking the delta between the current time and the time of the last hit to skip spam
+            Float loc_time = Utility.GetCurrentRealTime()
+            If loc_time - _LastSpellConcTime < 1.0
+                Return
             EndIf
-        ElseIf akSource as Spell
-            Float loc_dmg = CalculateMagDamage(akAggressor, akSource, akProjectile, abPowerAttack, abSneakAttack, abBashAttack, abHitBlocked)
-            If UDmain.TraceAllowed()
-                UDmain.Log("UD_CustomDevice_NPCSlot::OnHit() [" + getSlotedNPCName() + "] Spell damage = " + loc_dmg, 3)
+            _LastSpellConcTime = loc_time
+        EndIf
+        Float loc_dmg = CalculateMagDamage(akAggressor, akSource, akProjectile, abPowerAttack, abSneakAttack, abBashAttack, abHitBlocked)
+        If UDmain.TraceAllowed()
+            UDmain.Log("UD_CustomDevice_NPCSlot::OnHit() [" + getSlotedNPCName() + "] Spell damage = " + loc_dmg, 3)
+        EndIf
+        If loc_dmg > 0.0
+            OnSpellHit(akSource as Spell, loc_dmg)
+        EndIf
+    ElseIf akSource as Enchantment != None && akProjectile == None
+        If UD_Native.IsConcentrationEnch(akSource as Enchantment)
+            Float loc_time = Utility.GetCurrentRealTime()
+            If loc_time - _LastEnchConcTime < 1.0
+                Return
             EndIf
-            If loc_dmg > 0.0
-                OnSpellHit(akSource as Spell, loc_dmg)
-            EndIf
-        ElseIf akSource as Enchantment != None && akProjectile == None
-            Float loc_dmg = CalculateMagDamage(akAggressor, akSource, akProjectile, abPowerAttack, abSneakAttack, abBashAttack, abHitBlocked)
-            If UDmain.TraceAllowed()
-                UDmain.Log("UD_CustomDevice_NPCSlot::OnHit() [" + getSlotedNPCName() + "] Enchantment (staff) damage = " + loc_dmg, 3)
-            EndIf
-            If loc_dmg > 0.0
-                OnSpellHit(akSource as Spell, loc_dmg)
-            EndIf
-        Endif
-    endif
+            _LastEnchConcTime = loc_time
+        EndIf
+        Float loc_dmg = CalculateMagDamage(akAggressor, akSource, akProjectile, abPowerAttack, abSneakAttack, abBashAttack, abHitBlocked)
+        If UDmain.TraceAllowed()
+            UDmain.Log("UD_CustomDevice_NPCSlot::OnHit() [" + getSlotedNPCName() + "] Enchantment (staff) damage = " + loc_dmg, 3)
+        EndIf
+        If loc_dmg > 0.0
+            OnSpellHit(akSource as Enchantment, loc_dmg)
+        EndIf
+    Endif
 EndEvent
 
 Function OnWeaponHit(Weapon akSource, Float afDamage = -1.0)
@@ -1900,7 +1928,8 @@ Function regainDevices()
     ;UDmain.Info("Registering " + loc_devices.length + " devices")
     
     int loc_registered = UD_Native.RegisterDeviceScripts(_currentSlotedActor)
-    
+    _iUsedSlots = loc_registered
+
     UDmain.Info("Registered " + loc_registered + " devices")
     ;wait for all devices to get registered
     ;float loc_timeout = 3.0
@@ -2342,9 +2371,9 @@ Float Function CalculatePhysDamage(ObjectReference akAggressor, Form akSource, P
     Weapon loc_weapon = akSource as Weapon
     If loc_weapon == None
         Return 5.0 * (1.0 + 0.02 * GetActor().GetLevel()) * (1.0 + 0.5 * (abPowerAttack as Int))
-    ElseIf akAggressor == None && loc_weapon.GetFormID() == 0x000001F4
+    ElseIf IsTrapHit(akAggressor, akSource)
     ; it's a trap!
-        Return 50.0 * (1.0 + 0.02 * GetActor().GetLevel())
+        Return 30.0 * (1.0 + 0.02 * GetActor().GetLevel())
     ElseIf loc_weapon.GetFormID() == 0x000001F4
     ; predator
         Return 10.0 * (1.0 + 0.02 * (akAggressor as Actor).GetActorValue("OneHanded")) * (1.0 + 0.5 * (abPowerAttack as Int)) * (1.0 - 0.5 * (abHitBlocked as Int))
@@ -2418,6 +2447,10 @@ Bool Function IsConcentrationEnch(Enchantment akEnchantment)
     Return loc_me.GetCastingType() == 2
 EndFunction
 
+Bool Function IsTrapHit(ObjectReference akAggressor, Form akSource)
+    Return (akAggressor == None && akSource.GetFormID() == 0x000001F4)
+EndFunction
+
 ;===============================================================================
 ;===============================================================================
 ;                             INVENTORY EVENTS
@@ -2439,7 +2472,9 @@ Int Function _GetItemFilterIndex(Form akFilter)
 EndFunction
 
 Function RegisterEmptyItemEvent()
-    UDmain.Log("UD_CustomDevice_NPCSlot::RegisterEmptyItemEvent() Actor = " + GetActor(), 2)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_CustomDevice_NPCSlot::RegisterEmptyItemEvent() Actor = " + GetActor(), 2)
+    EndIf
     FormList loc_filter = (GetOwningQuest() as UD_CustomDevices_NPCSlotsManager).EmptyItemFilter
     Self.AddInventoryEventFilter(loc_filter)
 EndFunction
@@ -2486,7 +2521,9 @@ Function UnregisterItemEvent(Form akFilter)
 EndFunction
 
 Function UnregisterAllItemEvents(Bool abClearArray = True)
-    UDmain.Log("UD_CustomDevice_NPCSlot::UnregisterAllItemEvents() Actor = " + GetActor() + " abClearArray = " + abClearArray, 2)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_CustomDevice_NPCSlot::UnregisterAllItemEvents() Actor = " + GetActor() + " abClearArray = " + abClearArray, 2)
+    EndIf
     ; access from multiple threads is unlikely
     Int loc_i = _ItemFilter_Forms.Length
     While loc_i > 0
@@ -2501,8 +2538,13 @@ Function UnregisterAllItemEvents(Bool abClearArray = True)
 EndFunction
 
 Event OnItemAdded(Form akBaseItem, int aiItemCount, ObjectReference akItemReference, ObjectReference akSourceContainer)
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_CustomDevice_NPCSlot::OnItemAdded() akBaseItem = " + akBaseItem + " Owner = " + akItemReference.GetActorOwner() + ", Faction = " + akItemReference.GetFactionOwner(), 3)
+    EndIf
+    Faction loc_owner_faction = akItemReference.GetFactionOwner()
+    ActorBase loc_owner_actor = akItemReference.GetActorOwner()
+    Bool loc_stolen = (loc_owner_actor != None && loc_owner_actor != GetActorRef().GetActorBase()) || (loc_owner_faction != None && !GetActorRef().IsInFaction(loc_owner_faction))
     Int loc_i = 0
-    Bool loc_stolen = akItemReference.GetActorOwner() != None && akItemReference.GetActorOwner() != GetActorRef().GetActorBase()
     While UD_equipedCustomDevices[loc_i]
         Udmain.UDMOM.Procces_UpdateModifiers_ItemAdded(UD_equipedCustomDevices[loc_i], akBaseItem, aiItemCount, akSourceContainer, loc_stolen)
         loc_i += 1

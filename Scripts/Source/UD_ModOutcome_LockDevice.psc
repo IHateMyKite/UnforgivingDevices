@@ -43,6 +43,9 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     
     If loc_method_list2 == "L" || loc_method_list2 == "LIB"
         UDCDmain.ManifestDevices(akDevice.GetWearer(), akDevice.getDeviceName(), 100, loc_count)
+        If loc_count > 0 && ManifestExplosion != None
+            akDevice.GetWearer().PlaceAtMe(ManifestExplosion)
+        EndIf
         Return
     EndIf
     

@@ -7248,8 +7248,8 @@ Function ShowBaseDetails()
         loc_res += UDMTF.TableRowDetails("Phys. Resist:", Round(getModResistPhysical(0.0) * -100.0) + "%", UDMTF.PercentToRainbow(Round(50.0 + getModResistPhysical(0.0) * 50.0)))
         loc_res += UDMTF.TableRowDetails("Mag. Resist:", Round(getModResistMagicka(0.0) * -100.0) + "%", UDMTF.PercentToRainbow(Round(50.0 + getModResistMagicka(0.0) * 50.0)))
     Else
-        loc_res += UDMTF.TableRowDetails("Phys. Resist:", "Unescapable", UDMTF.BoolToRainbow(False))
-        loc_res += UDMTF.TableRowDetails("Mag. Resist:", "Unescapable", UDMTF.BoolToRainbow(False))
+        loc_res += UDMTF.TableRowDetails("Phys. Resist:", "Not accessible", UDMTF.BoolToRainbow(False))
+        loc_res += UDMTF.TableRowDetails("Mag. Resist:", "Not accessible", UDMTF.BoolToRainbow(False))
     EndIf
     
     if canBeCutted()
@@ -7341,16 +7341,16 @@ Function ShowModifiers()
             Form loc_form3 = UD_ModifiersDataForm3[loc_i]
             Form loc_form4 = UD_ModifiersDataForm4[loc_i]
             Form loc_form5 = UD_ModifiersDataForm5[loc_i]
-            ;loc_res += (loc_mod.NameFull + "\n")
-            loc_list = PapyrusUtil.PushString(loc_list, loc_mod.GetCaption(Self, loc_data, loc_form1, loc_form2, loc_form3, loc_form4, loc_form5))
+            String loc_item = loc_mod.GetCaption(Self, loc_data, loc_form1, loc_form2, loc_form3, loc_form4, loc_form5) + ";;-1;;" + (loc_i as String) + ";;item;;0"
+            loc_list = PapyrusUtil.PushString(loc_list, loc_item)
         EndIf
         loc_i += 1
     endwhile
     
-    loc_list = PapyrusUtil.PushString(loc_list,"==BACK==")
+    loc_list = PapyrusUtil.PushString(loc_list, "(BACK);;-1;;-10;;button;;0")
     
-    int loc_res = UDmain.GetUserListInput(loc_list)
-    if loc_res == (loc_list.length - 1)
+    int loc_res = UDmain.GetUserListInput(loc_list, abPremade = True)
+    if loc_res < 0
         return ;user selected ==BACK==
     endif
     UD_Modifier loc_mod = (UD_ModifiersRef[loc_res] as UD_Modifier)

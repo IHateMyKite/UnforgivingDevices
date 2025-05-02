@@ -19,7 +19,7 @@
     Example:
         
 /;
-ScriptName UD_Modifier_Combo extends UD_Modifier
+ScriptName UD_Modifier_Combo extends UD_Modifier Hidden
 
 import UnforgivingDevicesMain
 import UD_Native
