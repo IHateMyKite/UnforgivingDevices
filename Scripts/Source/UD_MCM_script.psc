@@ -215,8 +215,8 @@ Event OnVersionUpdate(Int newVersion)
     ; Skip new game/first intall
     If CurrentVersion > 0
         If newVersion < 2
-            UDG_NPCDialogue_HelpDevice = Game.GetFormFromFile(0x014FA0, "UnforgivingDevices.esp") as GlobalVariable
-            UDG_NPCDialogue_HelpFood = Game.GetFormFromFile(0x014FA1, "UnforgivingDevices.esp") as GlobalVariable
+            UDG_NPCDialogue_HelpDevice = Game.GetFormFromFile(0x0150E4, "UnforgivingDevices.esp") as GlobalVariable
+            UDG_NPCDialogue_HelpFood = Game.GetFormFromFile(0x0150E5, "UnforgivingDevices.esp") as GlobalVariable
         EndIf
 
         Debug.Notification("Unforgiving Devices MCM updated to version "+newVersion)
