@@ -3,6 +3,11 @@ Scriptname UD_MCM_script extends SKI_ConfigBase
 import UnforgivingDevicesMain
 import UD_Native
 
+; Increment to fire OnVersionUpdate event
+Int Function GetVersion()
+	Return 2
+EndFunction
+
 ;UDAbadonPlug_Event property abadon auto
 UnforgivingDevicesMain              Property UDmain auto
 UDCustomDeviceMain                  Property UDCDmain auto
@@ -53,6 +58,9 @@ UD_MenuMsgManager  Property UDMMM hidden
         return UDmain.UDMMM
     EndFunction
 EndProperty
+
+GlobalVariable Property UDG_NPCDialogue_HelpDevice Auto; toggle for dialogue to ask NPCs for help with devices
+GlobalVariable Property UDG_NPCDialogue_HelpFood Auto; toggle for dialogue to ask NPCs for food when wearing heavy bondage
 
 int max_difficulty_S
 int overaldifficulty_S ;0-3 where 3 is same as in MDS
@@ -201,6 +209,18 @@ EndFunction
 
 bool Property Ready = False Auto
 Event OnConfigInit()
+EndEvent
+
+Event OnVersionUpdate(Int newVersion)
+    ; Skip new game/first intall
+    If CurrentVersion > 0
+        If newVersion < 2
+            UDG_NPCDialogue_HelpDevice = Game.GetFormFromFile(0x014FA0, "UnforgivingDevices.esp") as GlobalVariable
+            UDG_NPCDialogue_HelpFood = Game.GetFormFromFile(0x014FA1, "UnforgivingDevices.esp") as GlobalVariable
+        EndIf
+
+        Debug.Notification("Unforgiving Devices MCM updated to version "+newVersion)
+    EndIf
 EndEvent
 
 Function Init()
@@ -1038,6 +1058,14 @@ Event resetNPCsPage()
     addEmptyOption()
     
     UD_NPCSupport_T         = addToggleOption("$UD_NPCSUPPORT",UDmain.AllowNPCSupport)
+    AddEmptyOption()
+
+    AddHeaderOption("$UD_NPCDIALOGUE")
+    AddEmptyOption()
+
+    AddToggleOptionST("ST_NPCDIALOGUE_DEVICES", "$UD_NPCDIALOGUE_DEVICES", UDG_NPCDialogue_HelpDevice.GetValue())
+    AddEmptyOption()
+    AddToggleOptionST("ST_NPCDIALOGUE_FOOD", "$UD_NPCDIALOGUE_FOOD", UDG_NPCDialogue_HelpFood.GetValue())
 EndEvent
 
 int UD_EscapeModifier_S
@@ -3685,6 +3713,37 @@ event OnOptionKeyMapChange(int option, int keyCode, string conflictControl, stri
     endIf
 endEvent
 
+State ST_NPCDIALOGUE_DEVICES
+    Event OnSelectST()
+        Bool xor = UDG_NPCDialogue_HelpDevice.GetValue() as Bool
+        xor = !xor
+        UDG_NPCDialogue_HelpDevice.SetValue(xor as Int)
+        SetToggleOptionValueST(xor)
+    EndEvent
+    Event OnDefaultST()
+        UDG_NPCDialogue_HelpDevice.SetValue(1)
+        SetToggleOptionValueST(true)
+    EndEvent
+    Event OnHighlightST()
+        SetInfoText("$UD_NPCDIALOGUE_DEVICES_INFO")
+    EndEvent
+EndState
+
+State ST_NPCDIALOGUE_FOOD
+    Event OnSelectST()
+        Bool xor = UDG_NPCDialogue_HelpFood.GetValue() as Bool
+        xor = !xor
+        UDG_NPCDialogue_HelpFood.SetValue(xor as Int)
+        SetToggleOptionValueST(xor)
+    EndEvent
+    Event OnDefaultST()
+        UDG_NPCDialogue_HelpFood.SetValue(1)
+        SetToggleOptionValueST(true)
+    EndEvent
+    Event OnHighlightST()
+        SetInfoText("$UD_NPCDIALOGUE_FOOD_INFO")
+    EndEvent
+EndState
 
 ;=========================================
 ;             DEFAULT VALUES..............
@@ -4714,6 +4773,8 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "SlotUpdateTime", Round(UDCD_NPCM.UD_SlotUpdateTime))
     JsonUtil.SetIntValue(strFile, "OutfitRemove", UDCDMain.UD_OutfitRemove as Int)
     JsonUtil.SetIntValue(strFile, "AllowMenBondage", UDmain.AllowMenBondage as Int)
+    JsonUtil.SetIntValue(strFile, "NPCDialogue_HelpDevice", UDG_NPCDialogue_HelpDevice.GetValue() as Int)
+    JsonUtil.SetIntValue(strFile, "NPCDialogue_HelpFood", UDG_NPCDialogue_HelpFood.GetValue() as Int)
     
     ; ANIMATIONS
     JsonUtil.StringListCopy(strFile, "Anims_UserDisabledJSONs", UDAM.UD_AnimationJSON_Off)
@@ -4896,6 +4957,8 @@ Function LoadFromJSON(string strFile)
     UDCD_NPCM.UD_SlotUpdateTime =  JsonUtil.GetIntValue(strFile, "SlotUpdateTime", Round(UDCD_NPCM.UD_SlotUpdateTime))
     UDCDMain.UD_OutfitRemove = JsonUtil.GetIntValue(strFile, "OutfitRemove", UDCDMain.UD_OutfitRemove as Int)
     UDmain.AllowMenBondage = JsonUtil.GetIntValue(strFile, "AllowMenBondage", UDmain.AllowMenBondage as Int)
+    UDG_NPCDialogue_HelpDevice.SetValue(JsonUtil.GetIntValue(strFile, "NPCDialogue_HelpDevice", UDG_NPCDialogue_HelpDevice.GetValue() as Int))
+    UDG_NPCDialogue_HelpFood.SetValue(JsonUtil.GetIntValue(strFile, "NPCDialogue_HelpFood", UDG_NPCDialogue_HelpFood.GetValue() as Int))
 
     ; ANIMATIONS
     If JsonUtil.StringListCount(strFile, "Anims_UserDisabledJSONs") > 0
@@ -5047,6 +5110,8 @@ Function ResetToDefaults()
     UDCD_NPCM.UD_SlotUpdateTime                     = 10.0
     UDCDMain.UD_OutfitRemove                        = True
     UDmain.AllowMenBondage                          = False
+    UDG_NPCDialogue_HelpDevice.SetValue(1)
+    UDG_NPCDialogue_HelpFood.SetValue(1)
     
     ; Animations
     UDAM.LoadDefaultMCMSettings()
