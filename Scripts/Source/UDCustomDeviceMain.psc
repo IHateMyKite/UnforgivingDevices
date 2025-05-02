@@ -113,7 +113,6 @@ Int     Property UD_DeviceLvlLocks                  = 5     auto hidden
 float   Property UD_VibrationMultiplier             = 0.10  auto hidden
 float   Property UD_ArousalMultiplier               = 0.05  auto hidden
 
-Bool            Property UD_OutfitRemove            = True  auto hidden
 UD_PlayerSlotScript Property UD_PlayerSlot auto
 
 ;factions
