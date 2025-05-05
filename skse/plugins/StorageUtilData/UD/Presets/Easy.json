@@ -384,7 +384,7 @@
 		"alternateanimationperiod" : 5,
 		"autocrit" : 0,
 		"autocritchance" : 80,
-		"autoload" : 0,
+		"autoload" : 1,
 		"criteffect" : 2,
 		"debug mode" : 0,
 		"devicelvllocks" : 10,

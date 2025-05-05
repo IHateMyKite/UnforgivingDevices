@@ -208,6 +208,7 @@ Function Init()
     actorIndex = 10
     Update()
     setAbadonPreset(1)
+    InitConfigPresets(true)
     LoadConfig(false)
     Ready = True
     UDmain.LogDebug("MCM Ready")
@@ -296,7 +297,7 @@ Function Update()
     UD_ModifierSelected = 0
     UD_ModifierPatchSelected = 0
     
-    InitConfigPresets()
+    InitConfigPresets(false)
 EndFunction
 
 Function LoadConfig(Bool abResetToDef = True)
@@ -1665,7 +1666,7 @@ String      SelectedPreset   = "Config.json"
 Int         SelectedPresetId = 0
 String      ConfigPath = "Data\\skse\\plugins\\StorageUtilData\\UD\\Presets"
 
-Function InitConfigPresets()
+Function InitConfigPresets(Bool abInit)
     String[] loc_files = MiscUtil.FilesInFolder(ConfigPath,".json")
     ConfigPresets = Utility.CreateStringArray(loc_files.length)
     
@@ -1684,19 +1685,20 @@ Function InitConfigPresets()
     UDmain.Info(ConfigPresets)
     
     ; Find preset with autoload (if any)
-    int loc_preset = 0
-    while loc_preset < ConfigPresets.length
-        String loc_path = GetConfigPath(ConfigPresets[loc_preset])
-        Bool loc_autoload = JsonUtil.GetIntValue(loc_path, "AutoLoad", 0)
-        if loc_autoload
-            SelectedPresetId = loc_preset
-            SelectedPreset = ConfigPresets[SelectedPresetId]
-            loc_preset = ConfigPresets.length
-        else
-            loc_preset += 1
-        endif
-    endwhile
-    
+    if abInit
+        int loc_preset = 0
+        while loc_preset < ConfigPresets.length
+            String loc_path = GetConfigPath(ConfigPresets[loc_preset])
+            Bool loc_autoload = JsonUtil.GetIntValue(loc_path, "AutoLoad", 0)
+            if loc_autoload
+                SelectedPresetId = loc_preset
+                SelectedPreset = ConfigPresets[SelectedPresetId]
+                loc_preset = ConfigPresets.length
+            else
+                loc_preset += 1
+            endif
+        endwhile
+    endif
     UpdateSelectedPresetId()
 EndFunction
 
