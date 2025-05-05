@@ -27,12 +27,12 @@ Int         Property UD_MaxLocks            =    2    auto hidden
 ;/  Variable: UD_ModsMin
     Minimum number of mods added by the Patcher
 /;
-Int         Property UD_ModsMin             =    1    Auto Hidden
+Int         Property UD_ModsMin             =    0    Auto Hidden
 
 ;/  Variable: UD_ModsMax
     Maximum number of mods added by the Patcher
 /;
-Int         Property UD_ModsMax             =    4    Auto Hidden
+Int         Property UD_ModsMax             =    2    Auto Hidden
 
 ;/  Variable: UD_ModGlobalProbabilityMult
     Multplier that affects probability to add each modifier 
@@ -55,6 +55,8 @@ Float       Property UD_ModGlobalSeverityDispMult   = 1.0   Auto Hidden
 /;
 String      Property UD_ModAddToTest                = ""    Auto Hidden
 
+String[]    Property UD_DisabledTags                        Auto Hidden
+
 ;difficulty multipliers
 Float Property UD_PatchMult_HeavyBondage        = 1.0 auto hidden
 Float Property UD_PatchMult_Gag                 = 1.0 auto hidden
@@ -75,6 +77,23 @@ Bool Property Ready = False auto
 Event OnInit()
     Ready = True
 EndEvent
+
+Bool Function IsModifierTagEnabled(String asTag)
+    Return PapyrusUtil.CountString(UD_DisabledTags, asTag) == 0
+EndFunction
+
+Function SetModifierTag(String asTag, Bool abEnable)
+    If abEnable
+        UD_DisabledTags = PapyrusUtil.RemoveString(UD_DisabledTags, asTag)
+    Else
+        UD_DisabledTags = PapyrusUtil.PushString(UD_DisabledTags, asTag)
+    EndIf
+EndFunction
+
+Function ToggleModifierTag(String asTag)
+    Bool loc_state = IsModifierTagEnabled(asTag)
+    SetModifierTag(asTag, !loc_state)
+EndFunction
 
 Float Function GetPatchDifficulty(UD_CustomDevice_RenderScript akDevice)
     Armor akRD = akDevice.deviceRendered
@@ -314,11 +333,14 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
 
     Int loc_modnum = 0
     Int loc_i = UDMOM.UD_ModifierListRef.Length
-    Alias[] loc_valid_pre = Utility.CreateAliasArray(loc_i)
+    Alias[] loc_valid_pres = Utility.CreateAliasArray(loc_i)
+
     Alias[] loc_postponed_pre
     String[] loc_forbidden_tags
     UD_Modifier loc_mod
     UD_Patcher_ModPreset loc_pre
+
+    loc_forbidden_tags = PapyrusUtil.MergeStringArray(loc_forbidden_tags, UD_DisabledTags, True)
 
     ; TODO PR195: store forbidden tags of existing modifiers somewhere on the device to avoid conflicts when adding new modifiers later
 
@@ -329,7 +351,7 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
         If loc_mod && ((loc_mod as ReferenceAlias) as UD_Patcher_ModPreset) && loc_mod.CheckModifierCompatibility(loc_forbidden_tags)
             loc_pre = ((loc_mod as ReferenceAlias) as UD_Patcher_ModPreset).GetCompatiblePatcherPreset(akDevice, True)
             If loc_pre
-                loc_valid_pre[loc_modnum] = loc_pre
+                loc_valid_pres[loc_modnum] = loc_pre
                 loc_modnum += 1
             EndIf
         EndIf
@@ -340,7 +362,7 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
     If loc_modnum == 0
         Return
     EndIf
-    loc_valid_pre = Utility.ResizeAliasArray(loc_valid_pre, loc_modnum)         ; array with all suitable modifier presets
+    loc_valid_pres = Utility.ResizeAliasArray(loc_valid_pres, loc_modnum)         ; array with all suitable modifier presets
     UD_CustomDevice_NPCSlot loc_slot = UDCDMain.getNPCSlot(akDevice.GetWearer())
 
     loc_modnum = 0
@@ -349,6 +371,7 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
 
     ; adding obligate modifier from UD_ModAddToTest if it is possible
     If UD_ModAddToTest != ""
+        loc_pre = None
         loc_mod = UDMOM.GetModifier(UD_ModAddToTest)
         If loc_mod && ((loc_mod as ReferenceAlias) as UD_Patcher_ModPreset) && loc_mod.CheckModifierCompatibility(loc_forbidden_tags)
             loc_pre = ((loc_mod as ReferenceAlias) as UD_Patcher_ModPreset).GetCompatiblePatcherPreset(akDevice, True)
@@ -363,51 +386,55 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
                     ; If the modifier have tags, we add them to the corresponding arrays to filter out all subsequent modifiers
                     loc_device_mods_tags = PapyrusUtil.MergeStringArray(loc_device_mods_tags, loc_mod.Tags)
                     loc_wearer_mods_tags = PapyrusUtil.MergeStringArray(loc_wearer_mods_tags, loc_mod.Tags)
-                    loc_modnum += 1
+                    loc_modnum += UD_Native.iRange(loc_pre.OccupiedSlots, 0, 99)
+                    ; remove used modifier from the source array
+                    loc_valid_pres = PapyrusUtil.RemoveAlias(loc_valid_pres, loc_pre)
+                Else
+                    loc_pre = None
                 EndIf
             EndIf
         EndIf
-        If loc_modnum == 0
+        If loc_pre == None
             UDCDmain.UDmain.Warning("UD_Patcher::ProcessModifiers() Unable to add obligate modifier " + loc_mod)
         EndIf
         UD_ModAddToTest = ""
     EndIf
 
+    Bool loc_break = False
     Int loc_modcap = UD_Native.RandomInt(UD_ModsMin, UD_ModsMax)
 
-    Bool loc_has_presets = True
-    While loc_has_presets && loc_modnum < loc_modcap
+    While !loc_break
 
-        Float[] loc_n_probs = Utility.CreateFloatArray(0)                   ; array with normalized probabilities for presets
-        Alias[] loc_n_pres = Utility.CreateAliasArray(0)                    ; array with aliases for presets with normalized probabilities
+        Float[] loc_w_probs = Utility.CreateFloatArray(0)                   ; array with weighted probabilities for presets
         Float[] loc_a_probs = Utility.CreateFloatArray(0)                   ; array with absolute probabilities for presets
+        Alias[] loc_w_pres = Utility.CreateAliasArray(0)                    ; array with aliases for presets with weighted probabilities
         Alias[] loc_a_pres = Utility.CreateAliasArray(0)                    ; array with aliases for presets with absolute probabilities
 
-        Float loc_n_probs_sum = 0.0
+        Float loc_w_probs_sum = 0.0
         Float loc_a_probs_sum = 0.0
 
         loc_i = 0
         ; run through the entire array of available presets (filtered in the first phase), 
-        ; and calculate their probabilities.
-        While loc_i < loc_valid_pre.Length
-            loc_pre = loc_valid_pre[loc_i] As UD_Patcher_ModPreset
+        ; check their tags and calculate probabilities.
+        While loc_i < loc_valid_pres.Length
+            loc_pre = loc_valid_pres[loc_i] As UD_Patcher_ModPreset
             loc_mod = loc_pre.GetModifier()
             ; checking compatibility of the modifier with the device
             If loc_mod.CheckModifierCompatibility(loc_forbidden_tags)
-                Int loc_res = loc_pre.CheckTagsCompatibility(loc_device_mods_tags, loc_wearer_mods_tags)
                 ; checking compatibility of the preset with existed modifiers on the device
+                Int loc_res = loc_pre.CheckTagsCompatibility(loc_device_mods_tags, loc_wearer_mods_tags)
                 If loc_res > 0
                     Float loc_prob = loc_pre.GetProbability(akDevice, UD_ModGlobalProbabilityMult)
                     If loc_prob >= 0.0
                     ; add preset and probability into arrays
-                        If loc_pre.IsNormalizedProbability
-                            loc_n_probs = PapyrusUtil.PushFloat(loc_n_probs, loc_prob)
-                            loc_n_pres = PapyrusUtil.PushAlias(loc_n_pres, loc_pre)
-                            loc_n_probs_sum += loc_prob
-                        Else
+                        If loc_pre.IsAbsoluteProbability
                             loc_a_probs = PapyrusUtil.PushFloat(loc_a_probs, loc_prob)
                             loc_a_pres = PapyrusUtil.PushAlias(loc_a_pres, loc_pre)
                             loc_a_probs_sum += loc_prob
+                        Else
+                            loc_w_probs = PapyrusUtil.PushFloat(loc_w_probs, loc_prob)
+                            loc_w_pres = PapyrusUtil.PushAlias(loc_w_pres, loc_pre)
+                            loc_w_probs_sum += loc_prob
                         EndIf
                     EndIf
                 EndIf
@@ -415,41 +442,45 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
             loc_i += 1
         Endwhile
         If UDCDmain.UDmain.TraceAllowed()
-            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Second pass: " + loc_n_probs.Length + " modifiers filtered with total normalized probability " + FormatFloat(loc_n_probs_sum, 2) + "%", 2)
-            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Second pass: " + loc_a_probs.Length + " modifiers filtered with total absolute probability " + FormatFloat(loc_a_probs_sum, 2) + "%", 2)
+            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Second pass: " + loc_w_pres.Length + " modifiers filtered with total weighted probability " + FormatFloat(loc_w_probs_sum, 2) + "%", 2)
+            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Second pass: " + loc_a_pres.Length + " modifiers filtered with total absolute probability " + FormatFloat(loc_a_probs_sum, 2) + "%", 2)
         EndIf
-        If (loc_n_probs_sum + loc_a_probs_sum) == 0.0 || (loc_n_pres.Length + loc_a_pres.Length) == 0 
-            loc_has_presets = False
+        If (loc_a_pres.Length + loc_w_pres.Length) == 0 || (loc_a_probs_sum + loc_w_probs_sum) == 0.0
+        ; there is nothing to select from
+            loc_break = True
         Else
             loc_pre = None
             Float loc_rnd = 0.0
             Float loc_seek_prob = 0.0
-            ; first try to select presets with absolute probability
-            If loc_a_probs.Length > 0 && loc_a_probs_sum > 0.0
-                loc_rnd = UD_Native.RandomFloat(0.0, 100.0)           ; it is not a mistake. If any preset has 100% prob. we must pick it. Or we could miss all the presets if their sum is lower than 100.0%
-                If loc_a_probs_sum > 100.0 
-                    loc_rnd += UD_Native.RandomFloat(0.0, loc_a_probs_sum - 100.0)          ; adjustment to have a chance to hit all presets regardless of their order in the array
-                EndIf
-                If loc_rnd <= loc_a_probs_sum
-                    loc_seek_prob = 0.0
-                    loc_i = 0 
-                    While loc_seek_prob <= loc_rnd && loc_i < loc_a_probs.Length
-                        loc_seek_prob += loc_a_probs[loc_i]
-                        loc_i += 1
-                    EndWhile
-                    loc_pre = loc_a_pres[loc_i - 1] As UD_Patcher_ModPreset
-                EndIf
-            EndIf
-            ; if we still need to choose a preset, then choose one of those with normalized probability
-            If loc_pre == None && loc_n_probs.Length > 0 && loc_n_probs_sum > 0.0
-                loc_rnd = UD_Native.RandomFloat(0.0, loc_n_probs_sum)
-                loc_seek_prob = 0.0
-                loc_i = 0 
-                While loc_seek_prob <= loc_rnd && loc_i < loc_n_probs.Length
-                    loc_seek_prob += loc_n_probs[loc_i]
+            ; first, checking presets with absolute probability
+            If loc_a_pres.Length > 0
+                loc_i = 0
+                While loc_i < loc_a_probs.Length && loc_pre == None
+                    loc_rnd = UD_Native.RandomFloat(0.0, 100.0)
+                    If loc_rnd < loc_a_probs[loc_i]
+                        loc_pre = loc_a_pres[loc_i] As UD_Patcher_ModPreset
+                    EndIf
+                    loc_valid_pres = PapyrusUtil.RemoveAlias(loc_valid_pres, loc_a_pres[loc_i])       ; we have tried this modifier
                     loc_i += 1
                 EndWhile
-                loc_pre = loc_n_pres[loc_i - 1] As UD_Patcher_ModPreset
+            EndIf
+            ; if we still need to choose a preset, then choose one of those with weighted probability
+            If loc_pre == None && loc_w_probs.Length > 0 && loc_w_probs_sum > 0.0 && loc_modnum < loc_modcap
+                ; 
+                If loc_w_probs_sum > 100.0
+                    loc_rnd = UD_Native.RandomFloat(0.0, loc_w_probs_sum)
+                Else
+                    loc_rnd = UD_Native.RandomFloat(0.0, 100.0)
+                EndIf
+                If loc_rnd <= loc_w_probs_sum
+                    loc_seek_prob = 0.0
+                    loc_i = 0 
+                    While loc_seek_prob <= loc_rnd && loc_i < loc_w_probs.Length
+                        loc_seek_prob += loc_w_probs[loc_i]
+                        loc_i += 1
+                    EndWhile
+                    loc_pre = loc_w_pres[loc_i - 1] As UD_Patcher_ModPreset
+                EndIf
             EndIf
             If loc_pre 
                 ; add a new modifier to the device
@@ -464,9 +495,22 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
                 loc_device_mods_tags = PapyrusUtil.MergeStringArray(loc_device_mods_tags, loc_mod.Tags)
                 loc_wearer_mods_tags = PapyrusUtil.MergeStringArray(loc_wearer_mods_tags, loc_mod.Tags)
                 ; remove used modifier from the source array
-                loc_valid_pre = PapyrusUtil.RemoveAlias(loc_valid_pre, loc_pre)
-                loc_modnum += 1
-            EndIf            
+                loc_valid_pres = PapyrusUtil.RemoveAlias(loc_valid_pres, loc_pre)
+                loc_modnum += UD_Native.iRange(loc_pre.OccupiedSlots, 0, 99)
+            EndIf
+
+            If loc_modnum >= UD_ModsMax
+            ; we've reached a hard limit
+                loc_break = True
+            EndIf
+            If loc_modnum >= loc_modcap && (loc_a_pres.Length == 0 || loc_a_probs_sum == 0.0)
+            ; we've reached a soft limit and all modifiers with absolute probability have been tested already
+                loc_break = True
+            EndIf
+            If loc_modnum >= UD_ModsMin && (loc_a_pres.Length == 0 || loc_a_probs_sum == 0.0) && (loc_w_probs_sum < 100.0 && loc_pre == None)
+            ; we've exceeded a minimum, all modifiers with absolute probability have been tested already and no modifier has been selected on this cycle
+                loc_break = True
+            EndIf
         EndIf
     EndWhile
 
@@ -555,7 +599,12 @@ Function checkInventoryScript(UD_CustomDevice_RenderScript device,int argControl
         elseif inventoryScript.LockPickEscapeChance > 0.0
             loc_diff = RandomInt(76,80);Master
         else 
-            loc_diff = 255 ;Requires Key
+            If !device.zad_deviceKey
+                UDCDmain.UDmain.Warning("UD_Patcher::GenerateLocks() That is a bad idea to generate an impossible lock without a key! device = " + device)
+                loc_diff = RandomInt(26,80)             ; Adept - Expert - Master
+            Else
+                loc_diff = 255 ;Requires Key
+            EndIf
         endif
         
         GenerateLocks(device, aiType, loc_diff)

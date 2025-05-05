@@ -224,7 +224,7 @@ String Function GetDetails(UD_CustomDevice_RenderScript akDevice, String aiDataS
 
     loc_res += UDmain.UDMTF.Header(NameFull, UDMain.UDMTF.FontSize + 4)
     loc_res += UDmain.UDMTF.FontBegin(aiFontSize = UDmain.UDMTF.FontSize, asColor = UDmain.UDMTF.TextColorDefault)
-    loc_res += UDmain.UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
+    loc_res += UDmain.UDMTF.TableBegin(aiLeftMargin = 30, aiColumn1Width = 160)
     loc_res += UDmain.UDMTF.HeaderSplit()
 
     If Description
@@ -293,6 +293,9 @@ String Function PrintFormListSelectionDetails(Form akForm, String asMethod)
             If loc_name == ""
                 loc_name = "<Unnamed form>"
             EndIf
+            If StringUtil.GetLength(loc_name) > 20
+                loc_name = StringUtil.Substring(loc_name, 0, 18) + "..."
+            EndIf
             loc_res += UDmain.UDMTF.TableRowDetails(loc_padding, loc_name)
             loc_i += 1
         EndWhile
@@ -303,6 +306,9 @@ String Function PrintFormListSelectionDetails(Form akForm, String asMethod)
         loc_name = akForm.GetName()
         If loc_name == ""
             loc_name = "<Unnamed form>"
+        EndIf
+        If StringUtil.GetLength(loc_name) > 20
+            loc_name = StringUtil.Substring(loc_name, 0, 18) + "..."
         EndIf
         loc_res += UDmain.UDMTF.TableRowDetails(loc_padding, loc_name)
     Else 
