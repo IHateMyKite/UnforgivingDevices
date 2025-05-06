@@ -4747,7 +4747,7 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetFloatValue(strFile, "Patcher_ModGlobalSeverityDispMult", UDCDmain.UDPatcher.UD_ModGlobalSeverityDispMult)
     Int loc_i = 0
     While loc_i < UDmain.UDMOM.UD_ModifierListRef.Length
-        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
+        UD_Modifier loc_mod = UDmain.UDMOM.UD_ModifierListRef[loc_i] as UD_Modifier
         If loc_mod != None
             loc_mod.SaveToJSON(strFile)
         EndIf
