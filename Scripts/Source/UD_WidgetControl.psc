@@ -1310,6 +1310,7 @@ EndFunction
 Bool _InitWidgetMutex = False
 Bool _InitMetersMutex = False
 Bool _OnUpdateMutex = False
+Bool _TestWidgetsMutex = False
 ;Use iWidget instead
 State iWidgetInstalled
 
@@ -2118,6 +2119,11 @@ State iWidgetInstalled
     EndFunction
 
     Function TestWidgets()
+        If _TestWidgetsMutex
+            Return
+        EndIf
+        _TestWidgetsMutex = True
+
         UD_WidgetStatusEffect_RefAlias loc_dataIcon
         UD_WidgetMeter_RefAlias loc_dataMeter
         Int len = StatusEffectSlots.Length
@@ -2176,6 +2182,8 @@ State iWidgetInstalled
             EndIf
             i += 1
         EndWhile
+
+        _TestWidgetsMutex = False
         
     EndFunction
     

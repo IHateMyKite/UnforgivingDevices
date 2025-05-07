@@ -2186,6 +2186,7 @@ Function OnOptionSelectUI(int option)
         forcePageReset()
     ElseIf option == UD_WidgetTest_T
         closeMCM()
+        Utility.Wait(0.5)
         UDWC.TestWidgets()
     ElseIf option == UD_WidgetReset_T
         closeMCM()
