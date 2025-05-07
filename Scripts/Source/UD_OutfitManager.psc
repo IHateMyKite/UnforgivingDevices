@@ -76,6 +76,10 @@ Bool Function LockAbadonOutfit(Actor akActor)
     return LockOutfit(akActor,1)
 EndFunction
 
+Bool Function LockAbadonOutfitSelective(Actor akActor)
+    return LockOutfitSelect(akActor,1)
+EndFunction
+
 ; Type = 0 -> Any
 ; Type = 1 -> Abadon outfit (extends UD_OutfitAbadon)
 Bool Function LockOutfit(Actor akActor, Int aiType)
@@ -106,6 +110,51 @@ Bool Function LockOutfit(Actor akActor, Int aiType)
     
     if loc_possibleoutfits.length > 0
         UD_Outfit loc_selectedoutfit = loc_possibleoutfits[RandomInt(0,loc_possibleoutfits.length - 1)] as UD_Outfit
+        if loc_selectedoutfit
+            return loc_selectedoutfit.LockDevices(akActor)
+        endif
+    endif
+    return false
+EndFunction
+
+Bool Function LockOutfitSelect(Actor akActor, Int aiType)
+    if !_OutfitStorages
+        return false
+    endif
+
+    Alias[] loc_possibleoutfits
+    
+    int loc_storage_id = 0
+    
+    while loc_storage_id < _OutfitStorages.length
+        UD_OutfitStorage loc_OutfitStorage = _OutfitStorages[loc_storage_id] as UD_OutfitStorage
+        
+        int loc_outfit_id = 0
+        while loc_outfit_id < loc_OutfitStorage.GetOutfitNum()
+            UD_Outfit loc_outfit = loc_OutfitStorage.GetNthOutfit(loc_outfit_id)
+            if loc_outfit && ((aiType == 0) || (aiType == 1 && loc_outfit as UD_OutfitAbadon))
+                if loc_outfit.Condition(akActor)
+                    loc_possibleoutfits = PapyrusUtil.PushAlias(loc_possibleoutfits,loc_outfit)
+                endif
+            endif
+            loc_outfit_id += 1
+        endwhile
+        
+        loc_storage_id += 1
+    endwhile
+    
+    if loc_possibleoutfits.length > 0
+        String[] loc_outfits
+        Int loc_outfitId = 0
+        while loc_outfitId < loc_possibleoutfits.length
+            UD_Outfit loc_outfit = (loc_possibleoutfits[loc_outfitId] as UD_Outfit)
+            loc_outfits = PapyrusUtil.PushString(loc_outfits,loc_outfit.NameFull)
+            loc_outfitId += 1
+        endwhile
+        
+        int loc_res = UDmain.GetUserListInput(loc_outfits)
+        
+        UD_Outfit loc_selectedoutfit = loc_possibleoutfits[loc_res] as UD_Outfit
         if loc_selectedoutfit
             return loc_selectedoutfit.LockDevices(akActor)
         endif

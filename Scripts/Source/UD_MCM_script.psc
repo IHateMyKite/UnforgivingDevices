@@ -1789,14 +1789,14 @@ Function resetOtherPage()
     addEmptyOption()
     
     UpdateSelectedPresetId()
-    UD_ConfigPresets_M = AddMenuOption("Preset: ",ConfigPresets[SelectedPresetId])
-    UD_ConfigPresets_T = AddInputOption("Create preset: ","$-PRESS-")
+    UD_ConfigPresets_M = AddMenuOption("Preset: ",ConfigPresets[SelectedPresetId],UD_LockMenu_flag)
+    UD_ConfigPresets_T = AddInputOption("Create preset: ","$-PRESS-",UD_LockMenu_flag)
     
-    UD_Export_T =  AddTextOption("$UD_SAVE_SETTINGS", "$-PRESS-")
-    UD_Import_T = AddTextOption("$UD_LOAD_SETTINGS", "$-PRESS-")
+    UD_Export_T =  AddTextOption("$UD_SAVE_SETTINGS", "$-PRESS-",UD_LockMenu_flag)
+    UD_Import_T = AddTextOption("$UD_LOAD_SETTINGS", "$-PRESS-",UD_LockMenu_flag)
     
-    UD_Default_T = AddTextOption("$UD_RESET_TO_DEFAULT", "$-PRESS-")
-    UD_AutoLoad_T = AddToggleOption("$UD_AUTO_LOAD", UDmain.UD_AutoLoad)
+    UD_Default_T = AddTextOption("$UD_RESET_TO_DEFAULT", "$-PRESS-",UD_LockMenu_flag)
+    UD_AutoLoad_T = AddToggleOption("$UD_AUTO_LOAD", UDmain.UD_AutoLoad,UD_LockMenu_flag)
     
     addEmptyOption()
     addEmptyOption()
