@@ -224,6 +224,7 @@ Function Init()
     actorIndex = 10
     Update()
     setAbadonPreset(1)
+    InitConfigPresets(true)
     LoadConfig(false)
     Ready = True
     UDmain.LogDebug("MCM Ready")
@@ -312,7 +313,7 @@ Function Update()
     UD_ModifierSelected = 0
     UD_ModifierPatchSelected = 0
     
-    InitConfigPresets()
+    InitConfigPresets(false)
 EndFunction
 
 Function LoadConfig(Bool abResetToDef = True)
@@ -1129,8 +1130,7 @@ Event resetDDPatchPage()
     
     AddHeaderOption("$UD_H_DEVICESETTING")
     addEmptyOption()
-    ;UD_OutfitRemove_T = addToggleOption("$UD_OUTFITREMOVE", UDCDmain.UD_OutfitRemove)
-    addEmptyOption()
+
     UD_AllowMenBondage_T = addToggleOption("$UD_ALLOWMENBONDAGE", UDmain.AllowMenBondage,FlagSwitch(UDmain.ForHimInstalled))
 EndEvent
 
@@ -1736,7 +1736,7 @@ String      SelectedPreset   = "Config.json"
 Int         SelectedPresetId = 0
 String      ConfigPath = "Data\\skse\\plugins\\StorageUtilData\\UD\\Presets"
 
-Function InitConfigPresets()
+Function InitConfigPresets(Bool abInit)
     String[] loc_files = MiscUtil.FilesInFolder(ConfigPath,".json")
     ConfigPresets = Utility.CreateStringArray(loc_files.length)
     
@@ -1754,6 +1754,21 @@ Function InitConfigPresets()
     
     UDmain.Info(ConfigPresets)
     
+    ; Find preset with autoload (if any)
+    if abInit
+        int loc_preset = 0
+        while loc_preset < ConfigPresets.length
+            String loc_path = GetConfigPath(ConfigPresets[loc_preset])
+            Bool loc_autoload = JsonUtil.GetIntValue(loc_path, "AutoLoad", 0)
+            if loc_autoload
+                SelectedPresetId = loc_preset
+                SelectedPreset = ConfigPresets[SelectedPresetId]
+                loc_preset = ConfigPresets.length
+            else
+                loc_preset += 1
+            endif
+        endwhile
+    endif
     UpdateSelectedPresetId()
 EndFunction
 
@@ -2126,9 +2141,6 @@ Function OnOptionSelectDDPatch(int option)
     if(option == UD_StartThirdpersonAnimation_Switch_T)
         libs.UD_StartThirdpersonAnimation_Switch = !libs.UD_StartThirdpersonAnimation_Switch
         SetToggleOptionValue(UD_StartThirdpersonAnimation_Switch_T, libs.UD_StartThirdpersonAnimation_Switch)
-    elseif option == UD_OutfitRemove_T
-        UDCDMain.UD_OutfitRemove = !UDCDMain.UD_OutfitRemove
-        SetToggleOptionValue(UD_OutfitRemove_T, UDCDMain.UD_OutfitRemove)
     elseif option == UD_AllowMenBondage_T
         UDmain.AllowMenBondage = !UDmain.AllowMenBondage
         SetToggleOptionValue(UD_AllowMenBondage_T, UDmain.AllowMenBondage)
@@ -2174,6 +2186,7 @@ Function OnOptionSelectUI(int option)
         forcePageReset()
     ElseIf option == UD_WidgetTest_T
         closeMCM()
+        Utility.Wait(0.5)
         UDWC.TestWidgets()
     ElseIf option == UD_WidgetReset_T
         closeMCM()
@@ -4570,9 +4583,13 @@ EndFunction
 
 string property File hidden
     string function get()
-        return "./UD/Presets/" + SelectedPreset
+        return GetConfigPath(SelectedPreset)
     endFunction
 endProperty
+
+String Function GetConfigPath(String asName)
+    return "./UD/Presets/" + asName
+EndFunction
 
 Function SaveToJSON(string strFile)
     if !strFile
@@ -4712,8 +4729,10 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "SwimmingDifficulty", UDSS.UD_hardcore_swimming_difficulty)
     JsonUtil.SetIntValue(strFile, "RandomFiler", UDCONF.UD_RandomDevice_GlobalFilter)
     JsonUtil.SetIntValue(strFile, "SlotUpdateTime", Round(UDCD_NPCM.UD_SlotUpdateTime))
-    JsonUtil.SetIntValue(strFile, "OutfitRemove", UDCDMain.UD_OutfitRemove as Int)
     JsonUtil.SetIntValue(strFile, "AllowMenBondage", UDmain.AllowMenBondage as Int)
+    JsonUtil.SetIntValue(strFile, "AICooldown", UDAI.UD_AICooldown)
+    JsonUtil.SetIntValue(strFile, "AIUpdateTime", UDAI.UD_UpdateTime)
+    JsonUtil.SetIntValue(strFile, "AIEnabled", UDAI.Enabled as Int)
     
     ; ANIMATIONS
     JsonUtil.StringListCopy(strFile, "Anims_UserDisabledJSONs", UDAM.UD_AnimationJSON_Off)
@@ -4729,7 +4748,7 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetFloatValue(strFile, "Patcher_ModGlobalSeverityDispMult", UDCDmain.UDPatcher.UD_ModGlobalSeverityDispMult)
     Int loc_i = 0
     While loc_i < UDmain.UDMOM.UD_ModifierListRef.Length
-        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
+        UD_Modifier loc_mod = UDmain.UDMOM.UD_ModifierListRef[loc_i] as UD_Modifier
         If loc_mod != None
             loc_mod.SaveToJSON(strFile)
         EndIf
@@ -4894,9 +4913,11 @@ Function LoadFromJSON(string strFile)
     UDSS.UD_hardcore_swimming_difficulty = JsonUtil.GetIntValue(strFile, "SwimmingDifficulty", UDSS.UD_hardcore_swimming_difficulty)
     UDCONF.UD_RandomDevice_GlobalFilter =  JsonUtil.GetIntValue(strFile, "RandomFiler", UDCONF.UD_RandomDevice_GlobalFilter)
     UDCD_NPCM.UD_SlotUpdateTime =  JsonUtil.GetIntValue(strFile, "SlotUpdateTime", Round(UDCD_NPCM.UD_SlotUpdateTime))
-    UDCDMain.UD_OutfitRemove = JsonUtil.GetIntValue(strFile, "OutfitRemove", UDCDMain.UD_OutfitRemove as Int)
     UDmain.AllowMenBondage = JsonUtil.GetIntValue(strFile, "AllowMenBondage", UDmain.AllowMenBondage as Int)
-
+    UDAI.Enabled = JsonUtil.GetIntValue(strFile, "AIEnabled", UDAI.Enabled as Int)
+    UDAI.UD_AICooldown = JsonUtil.GetIntValue(strFile, "AICooldown", UDAI.UD_AICooldown)
+    UDAI.UD_UpdateTime = JsonUtil.GetIntValue(strFile, "AIUpdateTime", UDAI.UD_UpdateTime)
+    
     ; ANIMATIONS
     If JsonUtil.StringListCount(strFile, "Anims_UserDisabledJSONs") > 0
         UDAM.UD_AnimationJSON_Off = JsonUtil.StringListToArray(strFile, "Anims_UserDisabledJSONs")
@@ -4927,7 +4948,7 @@ EndFunction
 Function ResetToDefaults()
     ;UDmain
     UDmain.UD_hightPerformance          = true
-    UDmain.AllowNPCSupport              = false
+    UDmain.AllowNPCSupport              = true
     UDmain.lockMCM                      = false
     UDmain.DebugMod                     = false
     UDmain.UD_OrgasmExhaustion          = true
@@ -5045,15 +5066,27 @@ Function ResetToDefaults()
     UDWC.UD_WidgetYPos                              = 0
     UDCONF.UD_RandomDevice_GlobalFilter             = 0xFFFFFFFF ;32b
     UDCD_NPCM.UD_SlotUpdateTime                     = 10.0
-    UDCDMain.UD_OutfitRemove                        = True
     UDmain.AllowMenBondage                          = False
+    UDAI.Enabled                                    = True
+    UDAI.UD_AICooldown                              = 30
+    UDAI.UD_UpdateTime                              = 10
     
     ; Animations
     UDAM.LoadDefaultMCMSettings()
 EndFunction
 
-Function SetAutoLoad(bool bValue)
-    JsonUtil.SetIntValue(FILE, "AutoLoad", bValue as Int)
+Function SetAutoLoad(bool abValue)
+    if abValue
+        ; Reset all presets auto load, as only one preset at the time can have AutoLoad enabled
+        int loc_preset = 0
+        while loc_preset < ConfigPresets.length
+            String loc_path = GetConfigPath(ConfigPresets[loc_preset])
+            JsonUtil.SetIntValue(loc_path, "AutoLoad", abValue as Int)
+            JsonUtil.Save(loc_path, true)
+            loc_preset += 1
+        endwhile
+    endif
+    JsonUtil.SetIntValue(FILE, "AutoLoad", abValue as Int)
     JsonUtil.Save(FILE, true)
 EndFunction
 

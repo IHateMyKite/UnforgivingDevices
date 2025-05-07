@@ -83,6 +83,16 @@ Scriptname OrgasmSystem hidden
     ---
 /;
 
+;/  About: OrgasmFlag
+    --- Code
+    enum OrgasmFlag : uint32_t
+    {
+        eOfNone           = 0x00000000,
+        eOfPreventOrgasm  = 0x00000001    // Actor cant orgasm while this flag is present
+    }
+    ---
+/;
+
 Bool    Function AddOrgasmChange(Actor akActor, String askey, Int aiMod,Int aiEroZones, Float afOrgasmRate = 0.0, Float afOrgasmRateMult = 0.0, Float afOrgasmForcing = 0.0, Float afOrgasmCapacity = 0.0, Float afOrgasmResistence = 0.0, Float afOrgasmResistenceMult = 0.0) global native
 Bool    Function RemoveOrgasmChange(Actor akActor, String asKey)                    global native
 
@@ -111,6 +121,10 @@ int     Function GetOrgasmingCount(Actor akActor)                               
         Function ForceOrgasm(Actor akActor)                                         global native ;mainly for compatibility with mods which use different aproach
 
 String  Function GetHornyStatus(Actor akActor)                                      global native
+
+; See OrgasmFlag section above
+Int     Function GetOrgasmFlags(Actor akActor)                                      global native
+Bool    Function SetOrgasmFlags(Actor akActor, Int aiFlags)                         global native
 
 ;Events
         Function RegisterForOrgasmEvent_Ref(ReferenceAlias akRefAlias)              global native

@@ -478,7 +478,7 @@ Function LoadFromJSON(String asFile)
     String loc_path = "Modifier_" + NameAlias + "_"
     
     MultProbabilities = JsonUtil.GetFloatValue(asFile, loc_path + "MultProbabilities", MultProbabilities)
-    MultInputQuantities = JsonUtil.GetFloatValue(asFile, loc_path + "MultProbabilities", MultInputQuantities)
+    MultInputQuantities = JsonUtil.GetFloatValue(asFile, loc_path + "MultInputQuantities", MultInputQuantities)
     MultOutputQuantities = JsonUtil.GetFloatValue(asFile, loc_path + "MultOutputQuantities", MultOutputQuantities)
 
     UD_Patcher_ModPreset loc_preset1 = ((Self as ReferenceAlias) as UD_Patcher_ModPreset1) as UD_Patcher_ModPreset

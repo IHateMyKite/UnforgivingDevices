@@ -113,7 +113,6 @@ Int     Property UD_DeviceLvlLocks                  = 5     auto hidden
 float   Property UD_VibrationMultiplier             = 0.10  auto hidden
 float   Property UD_ArousalMultiplier               = 0.05  auto hidden
 
-Bool            Property UD_OutfitRemove            = True  auto hidden
 UD_PlayerSlotScript Property UD_PlayerSlot auto
 
 ;factions
@@ -1662,9 +1661,8 @@ Function PlayerMenu()
     while !loc_break
         String loc_str = _GetPlayerMenuText()
         int loc_playerMenuRes = UDMain.UDMMM.ShowMessageBoxMenu(PlayerMenuMsg, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup(), False)
-        if loc_playerMenuRes == 0
-            UDmain.UDOMPlayer.FocusOrgasmResistMinigame(UDmain.Player)
-            loc_break = True
+        if loc_playerMenuRes == 0 ; Action
+            loc_break = ShowActionMenu()
         elseif loc_playerMenuRes == 1
             loc_break = ShowUndressArmorMenu(UDmain.Player)
         elseif loc_playerMenuRes == 2
@@ -1729,6 +1727,62 @@ Bool Function ShowUndressArmorMenu(Actor akActor)
     
     Return loc_exit
 EndFunction
+
+;/  Function: ShowActionMenu
+
+    Opens list menu of all player actions
+/;
+Bool Function ShowActionMenu()
+    Bool loc_break = False              ; break menu loop
+    while !loc_break
+        String[] loc_actions
+        loc_actions = PapyrusUtil.PushString(loc_actions,"Improvise")
+        loc_actions = PapyrusUtil.PushString(loc_actions,"Resist orgasm")
+        loc_actions = PapyrusUtil.PushString(loc_actions,"--BACK--")
+        int loc_res = UDmain.GetUserListInput(loc_actions)
+        if loc_res == 0
+            PlayerImprovise()
+            return True
+        elseif loc_res == 1
+            UDmain.UDOMPlayer.FocusOrgasmResistMinigame(UDmain.Player)
+            return True
+        else
+            loc_break = True
+        endif
+        Utility.wait(0.05)
+    endwhile
+    Return False
+EndFunction
+
+
+
+Float _ImprovisedCooldown = 0.0
+;/  Function: PlayerImprovise
+
+    Helps player based on current condition, to help to prevent deadlocks
+/;
+Function PlayerImprovise()
+    float loc_currenttime = Utility.GetCurrentGameTime()
+    if _ImprovisedCooldown > loc_currenttime
+        ; Not ready yet, do nothing
+        UDmain.Print("You dont have any ideas yet. You should wait some more time")
+        return
+    endif
+    
+    float loc_cooldownHours = 0.0
+    
+    ; Currently only one option
+    if UDmain.Player.getItemCount(Lockpick) <= 0
+        UDmain.Player.AddItem(Lockpick,RandomInt(5,10),true)
+        UDmain.Print("You improvised and created some makeshift lockpicks from things you could find around")
+        loc_cooldownHours = 1.0
+    endif
+    
+    if loc_cooldownHours > 0.0
+        _ImprovisedCooldown = loc_currenttime + ConvertTime(loc_cooldownHours)
+    endif
+EndFunction
+
 
 ;default undress mask, all slots with 0 will be skipped
 ;By default, amulet and ring is excluded
