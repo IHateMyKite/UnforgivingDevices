@@ -16,9 +16,13 @@
         [3]     Int         (optional) Repeat
                             Default value: 0 (False)
 
-        [4]     Int         (script) Number of consecutive kills so far
+        [4]     Int         (optional) Killings: 1 - non-criminal, -1 - criminal, 0 - any
+                            Defalut value: 0 (any killings)
+
+        [5]     Int         (script) Number of consecutive kills so far
 
     Example:
+        Form1               The faction to which the victim should belong, or a form list with factions
 
 /;
 Scriptname UD_ModTrigger_Kill extends UD_ModTrigger
@@ -36,7 +40,37 @@ Bool Function KillMonitor(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderSc
     Float loc_prob_base = MultFloat(GetStringParamFloat(aiDataStr, 1, 100.0), akModifier.MultProbabilities)
     Float loc_prob_accum = MultFloat(GetStringParamFloat(aiDataStr, 2, 0.0), akModifier.MultProbabilities)
     Bool loc_repeat = GetStringParamInt(aiDataStr, 3, 0) > 0
-    Return TriggerOnValueDelta(akDevice, akModifier.NameAlias, aiDataStr, afValueDelta = 1, afMinAccum = loc_min_value, afProbBase = loc_prob_base, afProbAccum = loc_prob_accum, abRepeat = loc_repeat, aiAccumParamIndex = 4)
+    Int loc_killings = GetStringParamInt(aiDataStr, 4, 0)
+
+    ; checking crime status
+    If loc_killings < 0 && aiCrimeStatus <= 0
+        Return False
+    ElseIf loc_killings > 0 && aiCrimeStatus > 0
+        Return False
+    EndIf
+
+    ; checking victims faction
+    If (akForm1 as Faction) && (akVictim as Actor)
+        If (akVictim as Actor).GetFactionRank(akForm1 as Faction) < 0
+            Return False
+        EndIf
+    ElseIf (akForm1 as FormList) && (akVictim as Actor)
+        Int loc_i = (akForm1 as FormList).GetSize()
+        Bool loc_in_any_faction = False
+        Faction loc_faction = None
+        While loc_i > 0
+            loc_i -= 1
+            loc_faction = (akForm1 as FormList).GetAt(loc_i) as Faction
+            If (akVictim as Actor).GetFactionRank(loc_faction) > -1
+                loc_in_any_faction = True
+            EndIf
+        EndWhile
+        If !loc_in_any_faction 
+            Return False
+        EndIf
+    EndIf
+
+    Return TriggerOnValueDelta(akDevice, akModifier.NameAlias, aiDataStr, afValueDelta = 1, afMinAccum = loc_min_value, afProbBase = loc_prob_base, afProbAccum = loc_prob_accum, abRepeat = loc_repeat, aiAccumParamIndex = 5)
 EndFunction
 
 ;/  Group: User interface
