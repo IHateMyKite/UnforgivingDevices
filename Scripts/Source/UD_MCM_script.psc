@@ -4906,7 +4906,7 @@ Function LoadFromJSON(string strFile)
     variant = JsonUtil.GetIntValue(strFile, "iWidgets_EffectOrgasm_Icon", -1)
     UDWC.StatusEffect_Register("effect-orgasm", -1, variant)
     UDWC.UD_WidgetXPos = JsonUtil.GetIntValue(strFile, "WidgetPosX", UDWC.UD_WidgetXPos)
-    UDWC.UD_WidgetYPos = JsonUtil.GetIntValue(strFile, "WidgetPosY", UDWC.UD_WidgetXPos)
+    UDWC.UD_WidgetYPos = JsonUtil.GetIntValue(strFile, "WidgetPosY", UDWC.UD_WidgetYPos)
     UDMTF.SetMode(JsonUtil.GetStringValue(strFile, "MenuTextFormatter", "HTML"))
     UDMMM.SetMode(JsonUtil.GetStringValue(strFile, "MenuMsgManager", "Native_UI"))
     
@@ -4938,7 +4938,7 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UDPatcher.UD_ModGlobalSeverityDispMult = JsonUtil.GetFloatValue(strFile, "Patcher_ModGlobalSeverityDispMult", UDCDmain.UDPatcher.UD_ModGlobalSeverityDispMult)
     Int loc_i = 0
     While loc_i < UDmain.UDMOM.UD_ModifierListRef.Length
-        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
+        UD_Modifier loc_mod = UDmain.UDMOM.UD_ModifierListRef[loc_i] as UD_Modifier
         If loc_mod != None
             loc_mod.LoadFromJSON(strFile)
         EndIf
