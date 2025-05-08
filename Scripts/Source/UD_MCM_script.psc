@@ -3514,25 +3514,27 @@ EndFunction
 
 Function OnOptionMenuAcceptUIWidget(Int option, Int index)
     if option == UD_IconsAnchor_M && index >= 0 && index < 3
-        UDWC.UD_IconsAnchor = index
         SetMenuOptionValue(UD_IconsAnchor_M, UD_IconsAnchorList[index])
+        UDWC.UD_IconsAnchor = index
     ElseIf option == UD_TextAnchor_M && index >= 0 && index < 4
-        UDWC.UD_TextAnchor = index
         SetMenuOptionValue(UD_TextAnchor_M, UD_TextAnchorList[index])
+        UDWC.UD_TextAnchor = index
     ElseIf (option == UD_IconVariant_EffExhaustion_M)
-        UDWC.StatusEffect_Register("effect-exhaustion", -1, index)
         SetMenuOptionValue(UD_IconVariant_EffExhaustion_M, UD_IconVariant_EffExhaustionList[index])
+        UDWC.StatusEffect_Register("effect-exhaustion", -1, index)
     ElseIf (option == UD_IconVariant_EffOrgasm_M)
-        UDWC.StatusEffect_Register("effect-orgasm", -1, index)
         SetMenuOptionValue(UD_IconVariant_EffOrgasm_M, UD_IconVariant_EffOrgasmList[index])
+        UDWC.StatusEffect_Register("effect-orgasm", -1, index)
     elseif (option == UD_WidgetPosX_M)
+        SetMenuOptionValue(UD_WidgetPosX_M, widgetXList[index])
         UDWC.UD_WidgetXPos = index
-        SetMenuOptionValue(UD_WidgetPosX_M, widgetXList[UDWC.UD_WidgetXPos])
-        forcePageReset()
+;        ShowMessage("$UD_WIDGETS_RESET_MSG", false, "$Close")
+;        closeMCM()
     elseif (option == UD_WidgetPosY_M)
+        SetMenuOptionValue(UD_WidgetPosY_M, widgetYList[index])
         UDWC.UD_WidgetYPos = index
-        SetMenuOptionValue(UD_WidgetPosY_M, widgetYList[UDWC.UD_WidgetYPos])
-        forcePageReset()
+;        ShowMessage("$UD_WIDGETS_RESET_MSG", false, "$Close")
+;        closeMCM()
     elseif (option == UD_MenuTextFormatter_M)
         String[] loc_modes = UDMTF.GetModes()
         UDMTF.SetMode(loc_modes[index])
