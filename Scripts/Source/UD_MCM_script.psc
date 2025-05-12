@@ -1967,9 +1967,13 @@ Function OnOptionSelectOutfit(int option)
         loc_outfit.Disable = !loc_outfit.Disable
         SetToggleOptionValue(UD_OutfitDisable_T, loc_outfit.Disable)
     elseif option == UD_OutfitReset_T
-        if ShowMessage("Do you really want to reset the outfit and set it to default values?")
-            UD_Outfit loc_outfit = (UDOTM.UD_OutfitListRef[UD_OutfitSelected] as UD_Outfit)
-            loc_outfit.Reset()
+        if ShowMessage("Do you really want to reset the outfit storage and set it to default values?")
+            Alias loc_outfit    = UDOTM.UD_OutfitListRef[UD_OutfitSelected]
+            Quest loc_storage   = loc_outfit.GetOwningQuest()
+            loc_storage.Stop()
+            Utility.WaitMenuMode(1.0)
+            loc_storage.Reset()
+            ;loc_outfit.Reset()
             forcePageReset()
         endif
     elseif option == UD_OutfitEquip_T
