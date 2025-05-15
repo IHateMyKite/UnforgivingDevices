@@ -12,7 +12,7 @@
 
         Form2   Weapon/Spell/FormList   Bound Weapon or Spell to force equip (or FormList with possible spells/weapons) to the left hand
         
-        Form3   Spell                  (optional) Spell that summons bound weapon specified in Form1
+        Form3   Spell                   (optional) Spell that summons bound weapon specified in Form1
 
     Example:
         

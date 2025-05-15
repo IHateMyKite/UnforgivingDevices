@@ -8,9 +8,9 @@
                             Default value: -1 (Ignore)
 
     Form arguments:
-        Form2 - Quest to start or FormLists with quests (a random quest from the list will be started)
+        Form2               Quest to start or FormLists with quests (a random quest from the list will be started)
 
-        Form3 - Quest to start or FormLists with quests (a random quest from the list will be started)
+        Form3               Quest to start or FormLists with quests (a random quest from the list will be started)
 
     Example:
 /;

@@ -1349,7 +1349,7 @@ State iWidgetInstalled
             return
         endif
         _InitWidgetMutex = True
-        If _InitMetersRequested || _InitIconsRequested || _InitTextRequested
+        If !UDMain.IsAnyMenuOpen() && (_InitMetersRequested || _InitIconsRequested || _InitTextRequested)
             RefreshCanvasMetrics()
             If _InitMetersRequested
                 _InitMetersRequested    = !InitMeters(_InitAfterLoadGame)

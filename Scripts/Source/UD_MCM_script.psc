@@ -1789,14 +1789,14 @@ Function resetOtherPage()
     addEmptyOption()
     
     UpdateSelectedPresetId()
-    UD_ConfigPresets_M = AddMenuOption("Preset: ",ConfigPresets[SelectedPresetId])
-    UD_ConfigPresets_T = AddInputOption("Create preset: ","$-PRESS-")
+    UD_ConfigPresets_M = AddMenuOption("Preset: ",ConfigPresets[SelectedPresetId],UD_LockMenu_flag)
+    UD_ConfigPresets_T = AddInputOption("Create preset: ","$-PRESS-",UD_LockMenu_flag)
     
-    UD_Export_T =  AddTextOption("$UD_SAVE_SETTINGS", "$-PRESS-")
-    UD_Import_T = AddTextOption("$UD_LOAD_SETTINGS", "$-PRESS-")
+    UD_Export_T =  AddTextOption("$UD_SAVE_SETTINGS", "$-PRESS-",UD_LockMenu_flag)
+    UD_Import_T = AddTextOption("$UD_LOAD_SETTINGS", "$-PRESS-",UD_LockMenu_flag)
     
-    UD_Default_T = AddTextOption("$UD_RESET_TO_DEFAULT", "$-PRESS-")
-    UD_AutoLoad_T = AddToggleOption("$UD_AUTO_LOAD", UDmain.UD_AutoLoad)
+    UD_Default_T = AddTextOption("$UD_RESET_TO_DEFAULT", "$-PRESS-",UD_LockMenu_flag)
+    UD_AutoLoad_T = AddToggleOption("$UD_AUTO_LOAD", UDmain.UD_AutoLoad,UD_LockMenu_flag)
     
     addEmptyOption()
     addEmptyOption()
@@ -1967,9 +1967,13 @@ Function OnOptionSelectOutfit(int option)
         loc_outfit.Disable = !loc_outfit.Disable
         SetToggleOptionValue(UD_OutfitDisable_T, loc_outfit.Disable)
     elseif option == UD_OutfitReset_T
-        if ShowMessage("Do you really want to reset the outfit and set it to default values?")
-            UD_Outfit loc_outfit = (UDOTM.UD_OutfitListRef[UD_OutfitSelected] as UD_Outfit)
-            loc_outfit.Reset()
+        if ShowMessage("Do you really want to reset the outfit storage and set it to default values?")
+            Alias loc_outfit    = UDOTM.UD_OutfitListRef[UD_OutfitSelected]
+            Quest loc_storage   = loc_outfit.GetOwningQuest()
+            loc_storage.Stop()
+            Utility.WaitMenuMode(1.0)
+            loc_storage.Reset()
+            ;loc_outfit.Reset()
             forcePageReset()
         endif
     elseif option == UD_OutfitEquip_T
@@ -3514,25 +3518,27 @@ EndFunction
 
 Function OnOptionMenuAcceptUIWidget(Int option, Int index)
     if option == UD_IconsAnchor_M && index >= 0 && index < 3
-        UDWC.UD_IconsAnchor = index
         SetMenuOptionValue(UD_IconsAnchor_M, UD_IconsAnchorList[index])
+        UDWC.UD_IconsAnchor = index
     ElseIf option == UD_TextAnchor_M && index >= 0 && index < 4
-        UDWC.UD_TextAnchor = index
         SetMenuOptionValue(UD_TextAnchor_M, UD_TextAnchorList[index])
+        UDWC.UD_TextAnchor = index
     ElseIf (option == UD_IconVariant_EffExhaustion_M)
-        UDWC.StatusEffect_Register("effect-exhaustion", -1, index)
         SetMenuOptionValue(UD_IconVariant_EffExhaustion_M, UD_IconVariant_EffExhaustionList[index])
+        UDWC.StatusEffect_Register("effect-exhaustion", -1, index)
     ElseIf (option == UD_IconVariant_EffOrgasm_M)
-        UDWC.StatusEffect_Register("effect-orgasm", -1, index)
         SetMenuOptionValue(UD_IconVariant_EffOrgasm_M, UD_IconVariant_EffOrgasmList[index])
+        UDWC.StatusEffect_Register("effect-orgasm", -1, index)
     elseif (option == UD_WidgetPosX_M)
+        SetMenuOptionValue(UD_WidgetPosX_M, widgetXList[index])
         UDWC.UD_WidgetXPos = index
-        SetMenuOptionValue(UD_WidgetPosX_M, widgetXList[UDWC.UD_WidgetXPos])
-        forcePageReset()
+;        ShowMessage("$UD_WIDGETS_RESET_MSG", false, "$Close")
+;        closeMCM()
     elseif (option == UD_WidgetPosY_M)
+        SetMenuOptionValue(UD_WidgetPosY_M, widgetYList[index])
         UDWC.UD_WidgetYPos = index
-        SetMenuOptionValue(UD_WidgetPosY_M, widgetYList[UDWC.UD_WidgetYPos])
-        forcePageReset()
+;        ShowMessage("$UD_WIDGETS_RESET_MSG", false, "$Close")
+;        closeMCM()
     elseif (option == UD_MenuTextFormatter_M)
         String[] loc_modes = UDMTF.GetModes()
         UDMTF.SetMode(loc_modes[index])
@@ -4904,7 +4910,7 @@ Function LoadFromJSON(string strFile)
     variant = JsonUtil.GetIntValue(strFile, "iWidgets_EffectOrgasm_Icon", -1)
     UDWC.StatusEffect_Register("effect-orgasm", -1, variant)
     UDWC.UD_WidgetXPos = JsonUtil.GetIntValue(strFile, "WidgetPosX", UDWC.UD_WidgetXPos)
-    UDWC.UD_WidgetYPos = JsonUtil.GetIntValue(strFile, "WidgetPosY", UDWC.UD_WidgetXPos)
+    UDWC.UD_WidgetYPos = JsonUtil.GetIntValue(strFile, "WidgetPosY", UDWC.UD_WidgetYPos)
     UDMTF.SetMode(JsonUtil.GetStringValue(strFile, "MenuTextFormatter", "HTML"))
     UDMMM.SetMode(JsonUtil.GetStringValue(strFile, "MenuMsgManager", "Native_UI"))
     
@@ -4936,7 +4942,7 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UDPatcher.UD_ModGlobalSeverityDispMult = JsonUtil.GetFloatValue(strFile, "Patcher_ModGlobalSeverityDispMult", UDCDmain.UDPatcher.UD_ModGlobalSeverityDispMult)
     Int loc_i = 0
     While loc_i < UDmain.UDMOM.UD_ModifierListRef.Length
-        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
+        UD_Modifier loc_mod = UDmain.UDMOM.UD_ModifierListRef[loc_i] as UD_Modifier
         If loc_mod != None
             loc_mod.LoadFromJSON(strFile)
         EndIf
