@@ -1830,6 +1830,24 @@ UD_CustomDevice_RenderScript Function getMinigameDevice()
     return none
 EndFunction
 
+;returns device with biggest priority
+UD_CustomDevice_RenderScript Function getDeviceByPriority()
+    int i = 0
+    UD_CustomDevice_RenderScript loc_res = none
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
+        if !loc_res
+            loc_res = UD_equipedCustomDevices[i]
+        else
+            if UD_equipedCustomDevices[i].GetAiPriority() > loc_res.GetAiPriority()
+                loc_res = UD_equipedCustomDevices[i]
+            endif
+        endif
+        i+=1
+    endwhile
+    return loc_res
+    return none
+EndFunction
+
 bool Function hasFreeHands(bool checkGrasp = false)
     bool res = !getActor().wornhaskeyword(UDCDmain.libs.zad_deviousHeavyBondage) 
         

@@ -2572,6 +2572,26 @@ UD_CustomDevice_RenderScript Function getMinigameDevice(Actor akActor)
     endif
 EndFunction
 
+;/  Function: getDeviceByPriority
+
+    Returns device with biggest NPC AI priority
+
+    Parameters:
+        
+        akActor             - Actor to check
+        
+    Returns:
+
+        Device with biggest priority
+/;
+UD_CustomDevice_RenderScript Function getDeviceByPriority(Actor akActor)
+    if isRegistered(akActor)
+        return getNPCSlot(akActor).getDeviceByPriority()
+    else
+        return none
+    endif
+EndFunction
+
 ;/  Function: getDeviceByKeyword
 
     Utility script for fetching UD device scripts
