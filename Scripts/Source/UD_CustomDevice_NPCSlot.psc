@@ -889,7 +889,8 @@ int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool s
             UD_equipedCustomDevices[i] = None
         Else
         ; ???
-            UDmain.Warning(Self + "::unregisterDevice() Something wrong with UD_equipedCustomDevices array. Unexpected element value.")
+            ; This is intended behaviour when device is not first element in array and i = 0. Why print warning ???
+            ;UDmain.Warning(Self + "::unregisterDevice() Something wrong with UD_equipedCustomDevices array. Unexpected element value.")
             loc_sort = True
         endif
         i+=1
