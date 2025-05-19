@@ -182,13 +182,27 @@ Function OpenLastDeviceMenu()
     if lastOpenedDevice
         lastOpenedDevice.deviceMenu(new Bool[30])
     elseif libs.playerRef.wornhaskeyword(libs.zad_deviousheavybondage)
-        if !lastOpenedDevice
-            lastOpenedDevice = UDCDMain.getHeavyBondageDevice(UDmain.Player)
-        endif
+        lastOpenedDevice = UDCDMain.getHeavyBondageDevice(UDmain.Player)
         if lastOpenedDevice
             lastOpenedDevice.deviceMenu(new Bool[30])
         else
-            UDmain.Error("Can't set lastOpenedDevice")
+            lastOpenedDevice = UDCDMain.getDeviceByPriority(UDmain.Player)
+            if lastOpenedDevice
+                lastOpenedDevice.deviceMenu(new Bool[30])
+            else
+                if UDmain.UD_WarningAllowed
+                    UDMain.Warning("No device equipped. Nothing to show")
+                endif
+            endif
+        endif
+    else
+        lastOpenedDevice = UDCDMain.getDeviceByPriority(UDmain.Player)
+        if lastOpenedDevice
+            lastOpenedDevice.deviceMenu(new Bool[30])
+        else
+            if UDmain.UD_WarningAllowed
+                UDMain.Warning("No device equipped. Nothing to show")
+            endif
         endif
     endif
 EndFunction
