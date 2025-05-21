@@ -784,8 +784,8 @@ Function resetModifiersPage()
         Return
     EndIf
     
-    UD_ModStorageList_M = AddMenuOption("$UD_MODSTORAGE_SELECTED", loc_storage.GetName())       ; Selected storage
-    UD_ModifierList_M = AddMenuOption("$UD_CUSTOMMOD_SELECTED", loc_mod.NameFull)               ; Selected modifier
+    UD_ModStorageList_M = AddMenuOption("$UD_MODSTORAGE_SELECTED", loc_storage.GetName(), FlagSwitch(true))       ; Selected storage
+    UD_ModifierList_M = AddMenuOption("$UD_CUSTOMMOD_SELECTED", loc_mod.NameFull, FlagSwitch(true))               ; Selected modifier
         
     SetCursorPosition(16)
     SetCursorFillMode(TOP_TO_BOTTOM)
@@ -812,13 +812,13 @@ Function resetModifiersPage()
     
     UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
     If loc_mod_pp == None
-        UD_ModifierNoPPDesc_T = AddTextOption("$UD_CUSTOMMOD_ERROR_NOPPS", "$-INFO-", FlagSwitch(true))            ; No patcher presets found!
+        UD_ModifierNoPPDesc_T = AddTextOption("$UD_CUSTOMMOD_ERROR_NOPPS", "$-INFO-", FlagSwitch(true))                     ; No patcher presets found!
         Return
     Else 
         UD_ModifierNoPPDesc_T = -1
     EndIf
     
-    UD_ModifierPatchList_M = AddMenuOption("$UD_CUSTOMMOD_PPSSELECTED", loc_mod_pp.DisplayName)           ; Selected patch preset:
+    UD_ModifierPatchList_M = AddMenuOption("$UD_CUSTOMMOD_PPSSELECTED", loc_mod_pp.DisplayName, FlagSwitch(true))           ; Selected patch preset:
     AddEmptyOption()
     
     UD_ModifierVarEasyDesc_T = AddTextOption("$UD_CUSTOMMOD_VAREASY", "$-PREVIEW-")
@@ -833,15 +833,15 @@ Function resetModifiersPage()
     UD_ModifierGlobalTags_T = AddTextOption("$UD_CUSTOMMOD_GLOBTAGS", "$-INFO-", FlagSwitch(true))
     AddTextOption("", loc_mod_pp.ConflictedGlobalModTags, FlagSwitch(false))
     
-    UD_ModPP_ApplicableToPlayer_T = addToggleOption("$UD_CUSTOMMOD_APPTOPLAYER", loc_mod_pp.ApplicableToPlayer, UD_LockMenu_flag)        ; Applicable to Player
+    UD_ModPP_ApplicableToPlayer_T = addToggleOption("$UD_CUSTOMMOD_APPTOPLAYER", loc_mod_pp.ApplicableToPlayer, UD_LockMenu_flag)                       ; Applicable to Player
     AddEmptyOption()
-    UD_ModPP_ApplicableToNPC_T = addToggleOption("$UD_CUSTOMMOD_APPTONPC", loc_mod_pp.ApplicableToNPC, UD_LockMenu_flag)                ; Applicable to NPCs
+    UD_ModPP_ApplicableToNPC_T = addToggleOption("$UD_CUSTOMMOD_APPTONPC", loc_mod_pp.ApplicableToNPC, UD_LockMenu_flag)                                ; Applicable to NPCs
     AddEmptyOption()
     
-    UD_ModPP_BaseProbability_S = AddSliderOption("$UD_CUSTOMMOD_BASEPROB", loc_mod_pp.BaseProbability, "{0} %", UD_LockMenu_flag)                   ; Base probability
-    UD_ModPP_BaseSeverity_S = AddSliderOption("$UD_CUSTOMMOD_BASESEVERITY", loc_mod_pp.BaseSeverity, "{2}", UD_LockMenu_flag)                         ; Base severity
-    UD_ModPP_IsAbsoluteProbability_T = addToggleOption("$UD_CUSTOMMOD_PROBABS", loc_mod_pp.IsAbsoluteProbability, UD_LockMenu_flag)                ; Probability is absolute
-    UD_ModPP_SeverityDispersion_S = AddSliderOption("$UD_CUSTOMMOD_SEVERITYDISP", loc_mod_pp.SeverityDispersion, "{2}", UD_LockMenu_flag)             ; Severity dispersion
+    UD_ModPP_BaseProbability_S = AddSliderOption("$UD_CUSTOMMOD_BASEPROB", loc_mod_pp.BaseProbability, "{0} %", UD_LockMenu_flag)                       ; Base probability
+    UD_ModPP_BaseSeverity_S = AddSliderOption("$UD_CUSTOMMOD_BASESEVERITY", loc_mod_pp.BaseSeverity, "{2}", UD_LockMenu_flag)                           ; Base severity
+    UD_ModPP_IsAbsoluteProbability_T = addToggleOption("$UD_CUSTOMMOD_PROBABS", loc_mod_pp.IsAbsoluteProbability, UD_LockMenu_flag)                     ; Probability is absolute
+    UD_ModPP_SeverityDispersion_S = AddSliderOption("$UD_CUSTOMMOD_SEVERITYDISP", loc_mod_pp.SeverityDispersion, "{2}", UD_LockMenu_flag)               ; Severity dispersion
 
 EndFunction
 
@@ -851,6 +851,7 @@ Int UD_ModTags_EndIndex
 Int UD_ModTags_Hint_T
 
 Function resetModifierTagsPage()
+    UpdateLockMenuFlag()
 
     SetCursorFillMode(LEFT_TO_RIGHT)
     AddHeaderOption("$UD_CUSTOMMOD_TAGLIST")

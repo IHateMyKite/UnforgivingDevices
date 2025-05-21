@@ -2110,8 +2110,8 @@ State iWidgetInstalled
                         iWidget.doTransitionByTime(data.Id, 100, 0.5, "alpha")
                     EndIf
                     data.Stage = 1
-                ElseIf data.Stage == 1
-                    iWidget.doTransitionByTime(data.Id, data.Alpha, 0.1, "alpha")
+                Else
+                    iWidget.setTransparency(data.Id, data.Alpha)
                 EndIf
             EndIf
             i += 1
