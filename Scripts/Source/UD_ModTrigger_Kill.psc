@@ -70,6 +70,10 @@ Bool Function KillMonitor(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderSc
         EndIf
     EndIf
 
+    If RandomFloat(0.0, 100.0) < 50.0
+        PrintNotification(akDevice, ;/ reacted /;" because of your actions. You're horrified to realize you've taken someone's life.")
+    EndIf
+
     Return TriggerOnValueDelta(akDevice, akModifier.NameAlias, aiDataStr, afValueDelta = 1, afMinAccum = loc_min_value, afProbBase = loc_prob_base, afProbAccum = loc_prob_accum, abRepeat = loc_repeat, aiAccumParamIndex = 5)
 EndFunction
 

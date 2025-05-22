@@ -36,6 +36,11 @@ Bool Function Orgasm(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript 
     Float loc_prob_base = MultFloat(GetStringParamFloat(aiDataStr, 1, 100.0), akModifier.MultProbabilities)
     Float loc_prob_accum = MultFloat(GetStringParamFloat(aiDataStr, 2, 0.0), akModifier.MultProbabilities)
     Bool loc_repeat = GetStringParamInt(aiDataStr, 3, 0) > 0
+
+    If RandomFloat(0.0, 100.0) < 50.0
+        PrintNotification(akDevice, ;/ reacted /;" while you shudder in the spasms of orgasm.")
+    EndIf
+
     Return TriggerOnValueDelta(akDevice, akModifier.NameAlias, aiDataStr, afValueDelta = 1, afMinAccum = loc_min_value, afProbBase = loc_prob_base, afProbAccum = loc_prob_accum, abRepeat = loc_repeat, aiAccumParamIndex = 4)
 EndFunction
 

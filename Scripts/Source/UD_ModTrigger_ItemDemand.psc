@@ -47,6 +47,10 @@ Bool Function DeviceLocked(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderS
     Float loc_timer = akDevice.GetGameTimeLockedTime()
     akDevice.editStringModifier(akModifier.NameAlias, 5, FormatFloat(loc_timer, 2))
     
+    If RandomFloat(0.0, 100.0) < 50.0
+        PrintNotification(akDevice, ;/ reacted /;" because of the items in your inventory. An image of an " + akForm1.GetName() + " appears in front of your eyes for a second.")
+    EndIf
+    
     Return False
 EndFunction
 
@@ -62,8 +66,17 @@ Bool Function TimeUpdateHour(UD_Modifier_Combo akModifier, UD_CustomDevice_Rende
     Float loc_period = MultFloat(GetStringParamFloat(aiDataStr, 3, 8.0), 1.0 / akModifier.MultInputQuantities)
     Float loc_timer = akDevice.GetGameTimeLockedTime()
     
-    If loc_last < 0 || (loc_period > 0 && (loc_last + loc_period) < loc_timer)
-    ; once triggered or it is not the time yet
+    ; triggered once and no repeat option
+    If loc_last < 0.0
+        Return False
+    EndIf
+
+    If RandomFloat(0.0, 100.0) < 50.0
+        PrintNotification(akDevice, ;/ reacted /;" because of the items in your inventory. An image of an " + akForm1.GetName() + " appears in front of your eyes for a second.")
+    EndIf
+    
+    If loc_period > 0 && (loc_last + loc_period) < loc_timer
+    ; it is not the time yet
         Return False
     EndIf
     

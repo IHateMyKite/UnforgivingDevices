@@ -62,6 +62,9 @@ Bool Function SkillIncreased(UD_Modifier_Combo akModifier, UD_CustomDevice_Rende
     Float loc_prob_base = MultFloat(GetStringParamFloat(aiDataStr, 2, 100.0), akModifier.MultProbabilities)
     Float loc_prob_accum = MultFloat(GetStringParamFloat(aiDataStr, 3, 0.0), akModifier.MultProbabilities)
     Bool loc_repeat = GetStringParamInt(aiDataStr, 4, 0) > 0
+
+    PrintNotification(akDevice, ;/ reacted /;"in response to your new knowledge.")
+
     Return TriggerOnValueDelta(akDevice, akModifier.NameAlias, aiDataStr, afValueDelta = 1, afMinAccum = loc_min_delta, afProbBase = loc_prob_base, afProbAccum = loc_prob_accum, abRepeat = loc_repeat, aiAccumParamIndex = 5)
 EndFunction
 

@@ -49,6 +49,10 @@ Bool Function TimeUpdateSeconds(UD_Modifier_Combo akModifier, UD_CustomDevice_Re
         Bool loc_repeat = GetStringParamInt(aiDataStr, 4, 0) > 0
         Float loc_accum = GetStringParamFloat(aiDataStr, 5, 0.0)
 
+        If RandomFloat(0.0, 100.0) < 5.0
+            PrintNotification(akDevice, ;/ reacted /;"by approving the way you move.")
+        EndIf
+
         Return TriggerOnValueDelta(akDevice, akModifier.NameAlias, aiDataStr, afValueDelta = afRealSecondsSinceLastCall, afMinAccum = loc_min_value, afProbBase = 0.0, afProbAccum = loc_prob_accum, abRepeat = loc_repeat, aiAccumParamIndex = 5)
     ElseIf loc_reset
     ; reseting accumulator

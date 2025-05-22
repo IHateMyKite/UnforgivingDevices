@@ -173,6 +173,32 @@ EndFunction
 ===========================================================================================
 /;
 
+Float _LastNotificationTimestamp = -1.0
+
+Function PrintNotification(UD_CustomDevice_RenderScript akDevice, String asCondition, Int aiEffectId = -1)
+    If _LastNotificationTimestamp + 0.01 < akDevice.GetRealTimeLockedTime()
+        Return
+    EndIf
+    _LastNotificationTimestamp = akDevice.GetRealTimeLockedTime()
+
+    String loc_effect = ""
+    If aiEffectId < 0 || aiEffectId > 4
+        aiEffectId = RandomInt(1, 4)
+    EndIf
+    If aiEffectId == 0
+        loc_effect = ""
+    ElseIf aiEffectId == 1
+        loc_effect = "You feel that equipped " + akDevice.UD_DeviceType + " is getting warmer "
+    ElseIf aiEffectId == 2
+        loc_effect = "You feel an electrical tingling from the " + akDevice.UD_DeviceType + " "
+    ElseIf aiEffectId == 3
+        loc_effect = "You feel that equipped " + akDevice.UD_DeviceType + " is shifting "
+    ElseIf aiEffectId == 4
+        loc_effect = "You sence that equipped " + akDevice.UD_DeviceType + " is reacted somehow "
+    EndIf
+    UDMain.Print(loc_effect + asCondition)
+EndFunction
+
 Int Function MultInt(Float afValue, Float afMult)
     Return UD_Native.Round(afValue * afMult)
 EndFunction

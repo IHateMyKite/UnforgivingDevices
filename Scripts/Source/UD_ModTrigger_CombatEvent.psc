@@ -28,6 +28,17 @@ Scriptname UD_ModTrigger_CombatEvent extends UD_ModTrigger
 import UnforgivingDevicesMain
 import UD_Native
 
+String[] _FrequentEvents
+
+Event OnInit()
+    _FrequentEvents = Utility.CreateStringArray(0)
+    _FrequentEvents = PapyrusUtil.PushString(_FrequentEvents, "WS")
+    _FrequentEvents = PapyrusUtil.PushString(_FrequentEvents, "SC")
+    _FrequentEvents = PapyrusUtil.PushString(_FrequentEvents, "SF")
+    _FrequentEvents = PapyrusUtil.PushString(_FrequentEvents, "BD")
+    _FrequentEvents = PapyrusUtil.PushString(_FrequentEvents, "BR")
+EndEvent
+
 ;/  Group: Events Processing
 ===========================================================================================
 ===========================================================================================
@@ -36,6 +47,15 @@ import UD_Native
 Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Int aiEquipSlot, Form akSource, String aiDataStr, Form akForm1)
     String loc_event = GetStringParamString(aiDataStr, 0, "")
     Float loc_prob = MultFloat(GetStringParamFloat(aiDataStr, 1, 100.0), akModifier.MultInputQuantities)
+
+    If loc_event == ""
+        Return False
+    EndIf
+
+    Bool loc_rare_events = PapyrusUtil.CountString(_FrequentEvents, loc_event) == 0
+    If RandomFloat(0.0, 100.0) < (4.0 * (1.0 + 4.0 * (loc_rare_events As Int)))         ; 4% for the frequent events and 20% for the less common
+        PrintNotification(akDevice, ;/ reacted /;"on your actions. You should be careful when using weapons and spells.")
+    EndIf
 
     If aiActorAction == 0 && StringUtil.Find(loc_event, "WS") >= 0
         Return (RandomFloat(0.0, 100.0) < loc_prob)
