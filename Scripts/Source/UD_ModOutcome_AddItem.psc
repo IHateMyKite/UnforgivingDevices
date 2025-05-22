@@ -50,6 +50,12 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
         ; can't use absent item
             loc_use = False
         EndIf
+
+        If loc_use
+            PrintNotification(akDevice, ;/changed/; "and forced you to use an item.")
+        Else
+            PrintNotification(akDevice, ;/changed/; "and placed new item in your bag.")
+        EndIf
         
         If (loc_item As LeveledItem) != None && loc_use
             loc_wearer.EquipItem(loc_item)

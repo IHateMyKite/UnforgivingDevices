@@ -117,6 +117,39 @@ EndFunction
 ===========================================================================================
 /;
 
+Float _LastNotificationTimestamp = -1.0
+
+Function PrintNotification(UD_CustomDevice_RenderScript akDevice, String asOutcome, Int aiEffectId = -1)
+    If _LastNotificationTimestamp + 0.01 < akDevice.GetRealTimeLockedTime()
+        Return
+    EndIf
+    _LastNotificationTimestamp = akDevice.GetRealTimeLockedTime()
+
+    String loc_wearer = "Someone's "
+    If akDevice.WearerIsPlayer()
+        loc_wearer = "Yours "
+    Else
+        loc_wearer = akDevice.GetWearer().GetActorBase().GetName() + "'s "
+    EndIf
+
+    String loc_effect = ""
+    If aiEffectId < 0 || aiEffectId > 4
+        aiEffectId = RandomInt(1, 4)
+    EndIf
+    If aiEffectId == 0
+        loc_effect = ""
+    ElseIf aiEffectId == 1
+        loc_effect = loc_wearer + akDevice.UD_DeviceType + " just got warmer "
+    ElseIf aiEffectId == 2
+        loc_effect = loc_wearer + akDevice.UD_DeviceType + " has warmed up noticeably "
+    ElseIf aiEffectId == 3
+        loc_effect = loc_wearer + akDevice.UD_DeviceType + " began to emit electrical discharges "
+    ElseIf aiEffectId == 4
+        loc_effect = loc_wearer + akDevice.UD_DeviceType + " squeezed your body harder "
+    EndIf
+    UDMain.Print(loc_effect + asOutcome)
+EndFunction
+
 Int Function MultInt(Float afValue, Float afMult)
     Return UD_Native.Round(afValue * afMult)
 EndFunction

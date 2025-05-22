@@ -51,6 +51,8 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     If akForm2 != None
         loc_currency = akForm2
     EndIf
+
+    PrintNotification(akDevice, ;/changed/; "and filled your purse with coins.")
     
     if loc_gold > 0
         loc_actor.addItem(loc_currency, loc_gold)
