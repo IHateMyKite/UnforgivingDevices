@@ -2329,7 +2329,7 @@ String Function _getLockListItem(Int aiLockNum)
         Else
             loc_state = UDMain.UDMTF.Text(loc_state, asColor = "#DDDDDD")
         EndIf
-        loc_str += UDMain.UDMTF.TableRowWide(loc_name, loc_state, UDMain.UDMTF.InlineIfString(loc_timer > 0, (loc_timer as String) + "h"), UDMain.UDMTF.InlineIfString(loc_shield > 0, (loc_shield as String) + " shield(s)"))
+        loc_str += UDMain.UDMTF.TableRowWide(loc_name, loc_state, UDMain.UDMTF.InlineIfString(loc_timer > 0, (loc_timer as String) + "h"), UDMain.UDMTF.InlineIfString(!IsNthLockUnlocked(aiLockNum) && loc_shield > 0, (loc_shield as String) + " shield(s)"))
         loc_str += UDMain.UDMTF.TableEnd()
         loc_str += UDMain.UDMTF.FontEnd()
     Else
@@ -2972,6 +2972,8 @@ Function _deviceMenuInit(bool[] aaControl)
         
         if HaveLocks() && HaveAccesibleLock() ;check if device have locks, and if they can be currently accessed
             Int loc_lockMinigames = LockMinigameAllowed(loc_accesibility)
+            UDMain.Log(Self + "::_deviceMenuInit() loc_accesibility = " + loc_accesibility, 3)
+            UDMain.Log(Self + "::_deviceMenuInit() loc_lockMinigames = " + loc_lockMinigames, 3)
             if Math.LogicalAnd(loc_lockMinigames,0x1)
                 UDCDmain.currentDeviceMenu_allowlockpick = True
             endif
@@ -7085,20 +7087,40 @@ String Function _GetDeviceLockMenuText()
     loc_res += UDMTF.LineBreak()
     If _getLockpickLevel(0) > 4
         If zad_deviceKey
-            loc_res += UDMTF.Text("You need a '" + zad_deviceKey.GetName() + "' to open locks.")
+            loc_res += UDMTF.Text("You need a " + UDMTF.Text(zad_deviceKey.GetName(), asColor = UDMTF.BoolToRainbow(True)) + " to open these locks.")
         Else
             loc_res += UDMTF.Text("This device requires a key but it is not present in our world. You are " + UDMTF.Text("doomed", asColor = UDMTF.BoolToRainbow(False)) + "!")
         EndIf
     Else
         loc_res += UDMTF.Text("Any " + _GetLockpickLevelString(_getLockpickLevel(0), True) + " in lock picking should be able to handle them.")
+        If zad_deviceKey
+            loc_res += UDMTF.Text(" Or you could use a key: " + UDMTF.Text(zad_deviceKey.GetName(), asColor = UDMTF.BoolToRainbow(True)))
+        EndIf
     EndIf
     loc_res += UDMTF.LineBreak()
     loc_res += UDMTF.Text(GetLocksIcons())
     loc_res += UDMTF.LineBreak()
     loc_res += UDMTF.Text(UDMTF.DeviceLockLegend())
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.Text("What do you want to do with the locks?")
-    loc_res += UDMTF.LineBreak()
+
+    Int loc_keys_count = 0
+    If zad_deviceKey
+        loc_keys_count += GetWearer().getItemCount(zad_deviceKey)
+    EndIf
+    Int loc_lps_couns = GetWearer().getItemCount(UDCDmain.Lockpick)
+    If GetHelper()
+        loc_keys_count += GetHelper().getItemCount(zad_deviceKey)
+        loc_lps_couns += GetHelper().getItemCount(UDCDmain.Lockpick)
+    EndIf
+
+    If _getLockpickLevel(0) > 4 && loc_keys_count == 0
+        loc_res += UDMTF.Text("You can't open these locks without a proper key!", asColor = UDMTF.BoolToRainbow(False))
+        loc_res += UDMTF.LineBreak()
+    EndIf
+    If _getLockpickLevel(0) <= 4 && loc_lps_couns == 0
+        loc_res += UDMTF.Text("You have no lockpicks!", asColor = UDMTF.BoolToRainbow(False))
+        loc_res += UDMTF.LineBreak()
+    EndIf
     
     loc_res += UDMTF.ParagraphEnd()
     loc_res += UDMTF.FontEnd()

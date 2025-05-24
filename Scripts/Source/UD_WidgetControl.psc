@@ -1337,7 +1337,6 @@ State iWidgetInstalled
     EndEvent
     
     Event OnUpdate()
-        UDMain.Log("UD_WidgetControl::OnUpdate() 1", 3)
         if !SingletonCheck()
             UnregisterForUpdate()
             return
