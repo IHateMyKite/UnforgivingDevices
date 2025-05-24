@@ -439,7 +439,13 @@ Event OnUpdate()
         ; initialization on new game
         OnUIReload(abGameLoad = False)
     EndIf
-    RegisterForSingleUpdate(30) ;maintenance update
+    If GetState() != ""
+    ; yeah, that is real thing (issue #239)
+        UDMain.Warning("UD_WidgetControl::OnUpdate() Called this function from the wrong state! Let's try it again.")
+        RegisterForSingleUpdate(1)
+    Else
+        RegisterForSingleUpdate(30) ; maintenance update
+    EndIf
 EndEvent
 
 Function GameUpdate()
@@ -580,6 +586,7 @@ Bool _InitMetersRequested = False
 Bool _InitIconsRequested = False
 Bool _InitTextRequested = False
 Bool _InitAfterLoadGame = False
+Float _LastInitRequestTimestamp = 0.0
 
 ;/  Function: InitWidgetsRequest
 
@@ -602,7 +609,9 @@ Function InitWidgetsRequest(Bool abGameLoad = False, Bool abMeters = False, Bool
     _InitMetersRequested    = _InitMetersRequested  || abMeters
     _InitIconsRequested     = _InitIconsRequested   || abIcons
     _InitTextRequested      = _InitTextRequested    || abText
-    _CheckInitWidgets()
+
+    _LastInitRequestTimestamp = Utility.GetCurrentRealTime()
+;    _CheckInitWidgets()
 EndFunction
 
 ; Rebuild meter widgets
@@ -1319,10 +1328,16 @@ State iWidgetInstalled
             UDMain.Log("UD_WidgetControl::OnBeginState() State = " + GetState(), 3)
         endif
         _Animation_LastGameTime = Utility.GetCurrentRealTime()
+        UnregisterForUpdate()
         RegisterForSingleUpdate(_Animation_Update)
+        _InitWidgetMutex = False
+        _InitMetersMutex = False
+        _OnUpdateMutex = False
+        _TestWidgetsMutex = False
     EndEvent
     
     Event OnUpdate()
+        UDMain.Log("UD_WidgetControl::OnUpdate() 1", 3)
         if !SingletonCheck()
             UnregisterForUpdate()
             return
@@ -1345,6 +1360,10 @@ State iWidgetInstalled
     EndEvent
     
     Function _CheckInitWidgets()
+        If _LastInitRequestTimestamp + 0.5 > Utility.GetCurrentRealTime()
+            ; we are waiting for 0.5 sec to be sure that all requests have been executed
+                Return
+            EndIf
         if _InitWidgetMutex
             return
         endif
@@ -1615,6 +1634,9 @@ State iWidgetInstalled
                 Utility.Wait(0.05)
                 i += 1
             EndWhile
+            If _CreateMeter_Mutex
+                UDMain.Warning("UD_WidgetControl::_CreateMeterWidget() We've done waiting although mutex is still active! There're possible conflicts and overlaps in creation process.")
+            EndIf
         EndIf
         _CreateMeter_Mutex = True
 
@@ -1644,6 +1666,11 @@ State iWidgetInstalled
             iWidget.setTransparency(akData.IconId, 75)
             iWidget.setVisible(akData.IconId, akData.Visible as Int)
             _SetIconRGB(akData.IconId, 0)
+        EndIf
+        ; restoring orgasm link
+        If akData.OrgasmLink != None && akData.Visible
+            UD_Native.AddMeterEntryIWW(iWidget.WidgetRoot, akData.id, akData.Name, 0, 0.0, 0.0, true)
+            OrgasmSystem.LinkActorToMeter(akData.OrgasmLink, iWidget.WidgetRoot, 1, akData.id)
         EndIf
         _CreateMeter_Mutex = False
     EndFunction
@@ -1798,7 +1825,9 @@ State iWidgetInstalled
     EndFunction
    
     Function Meter_LinkActorOrgasm(Actor akActor, String asMeter)
-        OrgasmSystem.LinkActorToMeter(akActor,iWidget.WidgetRoot,1,_GetMeter(asMeter).id)
+        UD_WidgetMeter_RefAlias loc_data = _GetMeter(asMeter)
+        loc_data.OrgasmLink = akActor
+        OrgasmSystem.LinkActorToMeter(akActor, iWidget.WidgetRoot, 1, loc_data.id)
     EndFunction
     
     ; quickly push a string into array and leave the function
@@ -1890,6 +1919,9 @@ State iWidgetInstalled
                 Utility.Wait(0.05)
                 i += 1
             EndWhile
+            If _CreateMeter_Mutex
+                UDMain.Warning("UD_WidgetControl::_CreateIconWidget() We've done waiting although mutex is still active! There're possible conflicts and overlaps in creation process.")
+            EndIf
         EndIf
         _CreateIcon_Mutex = True
 

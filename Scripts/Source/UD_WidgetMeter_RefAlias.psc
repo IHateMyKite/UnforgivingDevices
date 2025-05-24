@@ -8,6 +8,7 @@ Int     Property    PrimaryColor    = 0         Auto Hidden
 Int     Property    SecondaryColor  = 0         Auto Hidden
 Int     Property    FlashColor      = 0         Auto Hidden
 String  Property    IconName        = ""        Auto Hidden
+Actor   Property    OrgasmLink      = None      Auto Hidden         ; link to the native orgasm lib
 
 Function Reset()
     Parent.Reset()
