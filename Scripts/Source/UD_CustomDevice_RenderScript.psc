@@ -7484,7 +7484,7 @@ Function showDebugMinigameInfo()
     
     loc_res += UDMTF.Header(getDeviceName(), UDMTF.FontSize + 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
-    loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150, aiColumn2Width = 70, aiColumn3Width = 70)
+    loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 140, aiColumn2Width = 60, aiColumn3Width = 60)
     loc_res += UDMTF.HeaderSplit()
     
     loc_res += UDMTF.TableRowDetails("Wearer:", getWearerName())
@@ -7531,12 +7531,12 @@ Function showDebugMinigameInfo()
     loc_res += UDMTF.PageSplit(abForce = False)
     loc_res += UDMTF.LineGap()
     
-    loc_res += UDMTF.TableRowWide("Required stats:", "S = " + Round(_minMinigameStatSP*100) + "%", "H = " + Round(_minMinigameStatHP*100) + "%", "M = " + Round(_minMinigameStatMP*100) + "%")
+    loc_res += UDMTF.TableRowWide("Required stats:", "S=" + Round(_minMinigameStatSP*100) + "%", "H=" + Round(_minMinigameStatHP*100) + "%", "M=" + Round(_minMinigameStatMP*100) + "%")
     if UD_RegenMag_Stamina || UD_RegenMag_Health || UD_RegenMag_Magicka
-        loc_res += UDMTF.TableRowWide("Wearer regen:", "S = " + Round(UD_RegenMag_Stamina*100) + "%", "H = " + Round(UD_RegenMag_Health*100) + "%", "M = " + Round(UD_RegenMag_Magicka*100) + "%")
+        loc_res += UDMTF.TableRowWide("Wearer regen:", "S=" + Round(UD_RegenMag_Stamina*100) + "%", "H=" + Round(UD_RegenMag_Health*100) + "%", "M=" + Round(UD_RegenMag_Magicka*100) + "%")
     endif
     if UD_RegenMagHelper_Stamina || UD_RegenMagHelper_Health || UD_RegenMagHelper_Magicka
-        loc_res += UDMTF.TableRowWide("Helper regen:", "S = " + Round(UD_RegenMagHelper_Stamina*100) + "%", "H = " + Round(UD_RegenMagHelper_Health*100) + "%", "M = " + Round(UD_RegenMagHelper_Magicka*100) + "%")
+        loc_res += UDMTF.TableRowWide("Helper regen:", "S=" + Round(UD_RegenMagHelper_Stamina*100) + "%", "H=" + Round(UD_RegenMagHelper_Health*100) + "%", "M=" + Round(UD_RegenMagHelper_Magicka*100) + "%")
     endif
     if UD_applyExhastionEffect
         loc_res += UDMTF.TableRowDetails("Exhastion mult:", Round(_exhaustion_mult*100) + "%")
