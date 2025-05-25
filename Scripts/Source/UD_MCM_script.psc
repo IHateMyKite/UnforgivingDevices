@@ -707,6 +707,7 @@ int UD_ModifierMultiplier3_S
 int UD_ModifierPatchPowerMultiplier_S
 int UD_ModifierPatchChanceMultiplier_S
 int UD_ModifierDescription_T
+Int UD_ModifierDetailTags_T
 
 Int UD_ModPP_ApplicableToNPC_T
 Int UD_ModPP_ApplicableToPlayer_T
@@ -719,11 +720,21 @@ Int UD_ModifierNoModsDesc_T
 Int UD_ModifierNoPPDesc_T
 
 Int UD_ModifierVarEasyDesc_T
+Int UD_ModifierVarEasy_T
 Int UD_ModifierVarNormDesc_T
+Int UD_ModifierVarNorm_T
 Int UD_ModifierVarHardDesc_T
+Int UD_ModifierVarHard_T
 
+Int UD_ModifierDeviceTagsDesc_T
 Int UD_ModifierDeviceTags_T
+Int UD_ModifierGlobalTagsDesc_T
 Int UD_ModifierGlobalTags_T
+
+Int UD_ModifierPreferredDevicesDesc_T
+Int UD_ModifierPreferredDevices_T
+Int UD_ModifierForbiddenDevicesDesc_T
+Int UD_ModifierForbiddenDevices_T
 
 Function resetModifiersPage()
     UpdateLockMenuFlag()
@@ -786,15 +797,17 @@ Function resetModifiersPage()
     
     UD_ModStorageList_M = AddMenuOption("$UD_MODSTORAGE_SELECTED", loc_storage.GetName(), FlagSwitch(true))       ; Selected storage
     UD_ModifierList_M = AddMenuOption("$UD_CUSTOMMOD_SELECTED", loc_mod.NameFull, FlagSwitch(true))               ; Selected modifier
+
+    String[] loc_presets_names = loc_mod.GetPatcherPresetsNames()
         
     SetCursorPosition(16)
     SetCursorFillMode(TOP_TO_BOTTOM)
     AddHeaderOption("$UD_CUSTOMMOD_BASEDETAILS")             ; Base Details
 
-    AddTextOption("$UD_CUSTOMMOD_DETAILNAME", loc_mod.NameFull, FlagSwitch(true))                       ; Name
-    AddTextOption("$UD_CUSTOMMOD_DETAILALIAS", loc_mod.NameAlias, FlagSwitch(true))                     ; Alias
-    UD_ModifierDescription_T = AddTextOption("$UD_CUSTOMMOD_DETAILDESC", "$-INFO-", FlagSwitch(true))   ; Description
-    AddTextOption("$UD_CUSTOMMOD_DETAILTAGS", loc_mod.Tags, FlagSwitch(true))                           ; Tags
+    AddTextOption("$UD_CUSTOMMOD_DETAILNAME", loc_mod.NameFull, FlagSwitch(true))                                                           ; Name
+    AddTextOption("$UD_CUSTOMMOD_DETAILALIAS", loc_mod.NameAlias, FlagSwitch(true))                                                         ; Alias
+    UD_ModifierDescription_T = AddTextOption("$UD_CUSTOMMOD_DETAILDESC", "$-INFO-", FlagSwitch(true))                                       ; Description
+    UD_ModifierDetailTags_T = AddTextOption("$UD_CUSTOMMOD_DETAILTAGS", "[" + StringArrayToString(loc_mod.Tags) + "]", FlagSwitch(true))    ; Tags
     
     SetCursorPosition(17)
     SetCursorFillMode(TOP_TO_BOTTOM)
@@ -803,35 +816,42 @@ Function resetModifiersPage()
     UD_ModifierMultiplier1_S = AddSliderOption("$UD_CUSTOMMOD_MULTPROB", loc_mod.MultProbabilities, "{1} x", UD_LockMenu_flag)          ; Probabilities multiplier
     UD_ModifierMultiplier2_S = AddSliderOption("$UD_CUSTOMMOD_MULTIN", loc_mod.MultInputQuantities, "{1} x", UD_LockMenu_flag)          ; Input multiplier
     UD_ModifierMultiplier3_S = AddSliderOption("$UD_CUSTOMMOD_MULTOUT", loc_mod.MultOutputQuantities, "{1} x", UD_LockMenu_flag)        ; Output multiplier
-    UD_Modifier_AddToTest_T = addToggleOption("$UD_CUSTOMMOD_ADDTOTEST", loc_mod.NameAlias == UDCDmain.UDPatcher.UD_ModAddToTest, UD_LockMenu_flag)         ; add to test in the next Patcher call
+    UD_Modifier_AddToTest_T = addToggleOption("$UD_CUSTOMMOD_ADDTOTEST", loc_mod.NameAlias == UDCDmain.UDPatcher.UD_ModAddToTest, FlagSwitchOr(FlagSwitch(loc_presets_names.Length > 0), UD_LockMenu_flag))         ; add to test in the next Patcher call
 
     SetCursorPosition(26)
     SetCursorFillMode(LEFT_TO_RIGHT)
     AddHeaderOption("$UD_CUSTOMMOD_PPSCONFIG")            ; Patcher Presets Configuration
     AddHeaderOption("")
-    
-    UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
-    If loc_mod_pp == None
+
+    If loc_presets_names.Length == 0
         UD_ModifierNoPPDesc_T = AddTextOption("$UD_CUSTOMMOD_ERROR_NOPPS", "$-INFO-", FlagSwitch(true))                     ; No patcher presets found!
         Return
     Else 
         UD_ModifierNoPPDesc_T = -1
     EndIf
-    
+    If UD_ModifierPatchSelected < 0 || UD_ModifierPatchSelected > loc_presets_names.Length
+        UD_ModifierPatchSelected = 0
+    EndIf
+    UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
     UD_ModifierPatchList_M = AddMenuOption("$UD_CUSTOMMOD_PPSSELECTED", loc_mod_pp.DisplayName, FlagSwitch(true))           ; Selected patch preset:
     AddEmptyOption()
     
-    UD_ModifierVarEasyDesc_T = AddTextOption("$UD_CUSTOMMOD_VAREASY", "$-PREVIEW-")
-    AddTextOption("", loc_mod_pp.DataStr_Easy, UD_LockMenu_flag)
-    UD_ModifierVarNormDesc_T = AddTextOption("$UD_CUSTOMMOD_VARNORMAL", "$-PREVIEW-")
-    AddTextOption("", loc_mod_pp.DataStr_Ground, UD_LockMenu_flag)
-    UD_ModifierVarHardDesc_T = AddTextOption("$UD_CUSTOMMOD_VARHARD", "$-PREVIEW-")
-    AddTextOption("", loc_mod_pp.DataStr_Hard, UD_LockMenu_flag)
+    UD_ModifierVarEasyDesc_T = AddTextOption("$UD_CUSTOMMOD_VAREASY", "$-PREVIEW-", FlagSwitch(true))
+    UD_ModifierVarEasy_T = AddTextOption("", loc_mod_pp.DataStr_Easy, FlagSwitch(true))
+    UD_ModifierVarNormDesc_T = AddTextOption("$UD_CUSTOMMOD_VARNORM", "$-PREVIEW-", FlagSwitch(true))
+    UD_ModifierVarNorm_T = AddTextOption("", loc_mod_pp.DataStr_Ground, FlagSwitch(true))
+    UD_ModifierVarHardDesc_T = AddTextOption("$UD_CUSTOMMOD_VARHARD", "$-PREVIEW-", FlagSwitch(true))
+    UD_ModifierVarHard_T = AddTextOption("", loc_mod_pp.DataStr_Hard, FlagSwitch(true))
 
-    UD_ModifierDeviceTags_T = AddTextOption("$UD_CUSTOMMOD_DEVTAGS", "$-INFO-", FlagSwitch(true))
-    AddTextOption("", loc_mod_pp.ConflictedDeviceModTags, FlagSwitch(false))
-    UD_ModifierGlobalTags_T = AddTextOption("$UD_CUSTOMMOD_GLOBTAGS", "$-INFO-", FlagSwitch(true))
-    AddTextOption("", loc_mod_pp.ConflictedGlobalModTags, FlagSwitch(false))
+    UD_ModifierDeviceTagsDesc_T = AddTextOption("$UD_CUSTOMMOD_DEVTAGS", "$-INFO-", FlagSwitch(true))
+    UD_ModifierDeviceTags_T = AddTextOption("", "[" + StringArrayToString(loc_mod_pp.ConflictedDeviceModTags) + "]", FlagSwitch(true))
+    UD_ModifierGlobalTagsDesc_T = AddTextOption("$UD_CUSTOMMOD_GLOBTAGS", "$-INFO-", FlagSwitch(true))
+    UD_ModifierGlobalTags_T = AddTextOption("", "[" + StringArrayToString(loc_mod_pp.ConflictedGlobalModTags) + "]", FlagSwitch(true))
+
+    UD_ModifierPreferredDevicesDesc_T = AddTextOption("$UD_CUSTOMMOD_PREFERREDDEVICES", "$-INFO-", FlagSwitch(true))
+    UD_ModifierPreferredDevices_T = AddTextOption("", "[" + KeywordArrayToString(loc_mod_pp.PreferredDevices) + "]", FlagSwitch(true))
+    UD_ModifierForbiddenDevicesDesc_T = AddTextOption("$UD_CUSTOMMOD_FORBIDDENDEVICES", "$-INFO-", FlagSwitch(true))
+    UD_ModifierForbiddenDevices_T = AddTextOption("", "[" + KeywordArrayToString(loc_mod_pp.ForbiddenDevices) + "]", FlagSwitch(true))
     
     UD_ModPP_ApplicableToPlayer_T = addToggleOption("$UD_CUSTOMMOD_APPTOPLAYER", loc_mod_pp.ApplicableToPlayer, UD_LockMenu_flag)                       ; Applicable to Player
     AddEmptyOption()
@@ -4207,16 +4227,51 @@ Function ModifierPageInfo(int option)
         SetInfoText("$UD_CUSTOMMOD_ERROR_NOMODS_INFO")
     ElseIf option == UD_ModifierNoPPDesc_T
         SetInfoText("$UD_CUSTOMMOD_ERROR_NOPPS_INFO")
+    ElseIf option == UD_ModifierDetailTags_T
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
+        SetInfoText("[" + StringArrayToString(loc_mod.Tags) + "]")
     ElseIf option == UD_ModifierVarEasyDesc_T
-
+        SetInfoText("$UD_CUSTOMMOD_VAREASY_INFO")
+    ElseIf option == UD_ModifierVarEasy_T
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
+        UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
+        SetInfoText(loc_mod_pp.DataStr_Easy)
     ElseIf option == UD_ModifierVarNormDesc_T
-
+        SetInfoText("$UD_CUSTOMMOD_VARNORM_INFO")
+    ElseIf option == UD_ModifierVarNorm_T
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
+        UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
+        SetInfoText(loc_mod_pp.DataStr_Ground)
     ElseIf option == UD_ModifierVarHardDesc_T
-
-    ElseIf option == UD_ModifierDeviceTags_T
+        SetInfoText("$UD_CUSTOMMOD_VARHARD_INFO")
+    ElseIf option == UD_ModifierVarHard_T
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
+        UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
+        SetInfoText(loc_mod_pp.DataStr_Hard)
+    ElseIf option == UD_ModifierDeviceTagsDesc_T
         SetInfoText("$UD_CUSTOMMOD_DEVTAGS_INFO")
-    ElseIf option == UD_ModifierGlobalTags_T
+    ElseIf option == UD_ModifierDeviceTags_T
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
+        UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
+        SetInfoText("[" + StringArrayToString(loc_mod_pp.ConflictedDeviceModTags) + "]")
+    ElseIf option == UD_ModifierGlobalTagsDesc_T
         SetInfoText("$UD_CUSTOMMOD_GLOBTAGS_INFO")
+    ElseIf option == UD_ModifierGlobalTags_T
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
+        UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
+        SetInfoText("[" + StringArrayToString(loc_mod_pp.ConflictedGlobalModTags) + "]")
+    ElseIf option == UD_ModifierPreferredDevicesDesc_T
+        SetInfoText("$UD_CUSTOMMOD_PREFERREDDEVICES_INFO")
+    ElseIf option == UD_ModifierPreferredDevices_T
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
+        UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
+        SetInfoText("[" + KeywordArrayToString(loc_mod_pp.PreferredDevices) + "]")
+    ElseIf option == UD_ModifierForbiddenDevicesDesc_T
+        SetInfoText("$UD_CUSTOMMOD_FORBIDDENDEVICES_INFO")
+    ElseIf option == UD_ModifierForbiddenDevices_T
+        UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
+        UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
+        SetInfoText("[" + KeywordArrayToString(loc_mod_pp.ForbiddenDevices) + "]")
     ElseIf option == UD_ModifierDescription_T
         UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
         SetInfoText(loc_mod.Description)
@@ -5100,4 +5155,21 @@ EndFunction
 bool Function GetAutoLoad()
     UDmain.UD_AutoLoad = JsonUtil.GetIntValue(FILE, "AutoLoad", UDmain.UD_AutoLoad as int)
     return UDmain.UD_AutoLoad
+EndFunction
+
+String Function KeywordArrayToString(Keyword[] aasKeywords)
+    Int loc_i = 0
+    String loc_res = ""
+    While loc_i < aasKeywords.Length
+        If loc_i > 0
+            loc_res += ", "
+        EndIf
+        loc_res += (aasKeywords[loc_i] As Keyword).GetString()
+        loc_i += 1
+    EndWhile
+    Return loc_res
+EndFunction
+
+String Function StringArrayToString(String[] aasStrings)
+    Return PapyrusUtil.StringJoin(aasStrings, ", ")
 EndFunction
