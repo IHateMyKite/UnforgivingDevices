@@ -21,7 +21,7 @@ ScriptName UD_ModOutcome_Evolution extends UD_ModOutcome
 import UnforgivingDevicesMain
 import UD_Native
 
-Explosion Property EvolveExplosion Auto
+Spell Property EvolveExplosion Auto
 
 Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     Actor loc_actor = akDevice.GetWearer()  
@@ -30,7 +30,7 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     akDevice.unlockRestrain(abForceDestroy = True, bEvolution = True)
     if loc_device
         If EvolveExplosion != None
-            akDevice.GetWearer().PlaceAtMe(EvolveExplosion)
+            EvolveExplosion.Cast(loc_actor)
         EndIf
         libs.LockDevice(loc_actor,loc_device)
         UDmain.Print(akDevice.GetDeviceName() + " have evolved into " + loc_device.GetName() +"!")
