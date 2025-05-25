@@ -19,7 +19,7 @@
         [4]     Int         (optional) Killings: 1 - non-criminal, -1 - criminal, 0 - any
                             Defalut value: 0 (any killings)
 
-        [5]     Int         (script) Number of consecutive kills so far
+        [5]     Float       (script) Number of consecutive kills so far. (-1.0 if it is triggered once with no repeat option)
 
     Example:
         Form1               The faction to which the victim should belong, or a form list with factions
@@ -70,7 +70,7 @@ Bool Function KillMonitor(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderSc
         EndIf
     EndIf
 
-    If RandomFloat(0.0, 100.0) < 50.0
+    If BaseTriggerIsActive(aiDataStr, 5) && RandomFloat(0.0, 100.0) < 50.0
         PrintNotification(akDevice, ;/ reacted /;" because of your actions. You're horrified to realize you've taken someone's life.")
     EndIf
 
@@ -86,12 +86,22 @@ String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice
     Int loc_min_value = MultInt(GetStringParamInt(aiDataStr, 0, 0), akModifier.MultInputQuantities)
     Float loc_prob_base = MultFloat(GetStringParamFloat(aiDataStr, 1, 100.0), akModifier.MultProbabilities)
     Float loc_prob_accum = MultFloat(GetStringParamFloat(aiDataStr, 2, 0.0), akModifier.MultProbabilities)
+    Int loc_killings = GetStringParamInt(aiDataStr, 4, 0)
     String loc_res = ""
+    String loc_killings_str = ""
+    If loc_killings < 0 
+        loc_killings_str = UDmain.UDMTF.Text("Criminal", asColor = UDmain.UDMTF.PercentToRainbow(0))
+    ElseIf loc_killings == 0
+        loc_killings_str = UDmain.UDMTF.Text("Any", asColor = UDmain.UDMTF.PercentToRainbow(50))
+    ElseIf loc_killings > 0
+        loc_killings_str = UDmain.UDMTF.Text("Non-Criminal", asColor = UDmain.UDMTF.PercentToRainbow(100))
+    EndIf
     loc_res += UDmain.UDMTF.TableRowDetails("Threshold value:", loc_min_value)
     loc_res += UDmain.UDMTF.TableRowDetails("Base probability:", FormatFloat(loc_prob_base, 1) + "%")
-    loc_res += UDmain.UDMTF.TableRowDetails("Accumulator weight:", FormatFloat(loc_prob_accum, 1) + "%")
+    loc_res += UDmain.UDMTF.TableRowDetails("Accumulator weight:", FormatFloat(loc_prob_accum, 2) + "%")
     loc_res += UDmain.UDMTF.TableRowDetails("Repeat:", InlineIfStr(GetStringParamInt(aiDataStr, 3, 0) > 0, "True", "False"))
-    loc_res += UDmain.UDMTF.TableRowDetails("Accumulator:", FormatFloat(GetStringParamFloat(aiDataStr, 4, 0.0), 0))
+    loc_res += UDmain.UDMTF.TableRowDetails("Killings:", loc_killings_str)
+    loc_res += UDmain.UDMTF.TableRowDetails("Accumulator:", FormatFloat(GetStringParamFloat(aiDataStr, 5, 0.0), 0))
     loc_res += UDmain.UDMTF.Paragraph("(Accumulator contains the number of consecutive kills)", asAlign = "center")
     Return loc_res
 EndFunction

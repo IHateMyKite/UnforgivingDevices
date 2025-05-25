@@ -21,7 +21,7 @@
                         
         [5]     Int         (script) Number of obtained items so far
         
-        [6]     Float       (script) Timestamp of the last trigger
+        [6]     Float       (script) Timestamp of the last trigger. (-1.0 if it is triggered once without repeat option)
 
     Form arguments:
         Form1               Form or FormList with Forms to filter obtained items. Keywords don't work
@@ -67,7 +67,8 @@ Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     If !_IsValidForm(akForm1, akItemForm)
         Return False
     EndIf
-    If UDmain.TraceAllowed()
+
+    If BaseTriggerIsActive(aiDataStr, 6) && UDmain.TraceAllowed()
         UDmain.Log("UD_ModTrigger_ItemObtain::ItemAdded() akItemForm = " + akItemForm + " abIsStolen = " + abIsStolen, 3)
     EndIf
     

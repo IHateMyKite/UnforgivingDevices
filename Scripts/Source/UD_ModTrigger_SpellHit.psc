@@ -46,7 +46,7 @@ Bool Function SpellHit(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScrip
     Float loc_prob_acc = MultFloat(GetStringParamFloat(aiDataStr, 3, 0.0), akModifier.MultProbabilities)
     Bool loc_repeat = GetStringParamInt(aiDataStr, 4, 0) > 0
 
-    If RandomFloat(0.0, 100.0) < 5.0
+    If BaseTriggerIsActive(aiDataStr, 5) && RandomFloat(0.0, 100.0) < 5.0
         PrintNotification(akDevice, ;/ reacted /;"by absorbing and recharging from the spell that affects you.")
     EndIf
 

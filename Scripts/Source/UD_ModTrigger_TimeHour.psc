@@ -37,8 +37,8 @@ Bool Function TimeUpdateHour(UD_Modifier_Combo akModifier, UD_CustomDevice_Rende
     Float loc_prob_acc = MultFloat(GetStringParamFloat(aiDataStr, 2, 0.0), akModifier.MultProbabilities)
     Bool loc_repeat = GetStringParamInt(aiDataStr, 3, 1) > 0
 
-    If RandomFloat(0.0, 100.0) < 50.0
-        PrintNotification(akDevice, "You feel that equipped " + akDevice.UD_DeviceType + " pulsing faintly and slowly, as if responding to the passage of time.")
+    If BaseTriggerIsActive(aiDataStr, 4) && RandomFloat(0.0, 100.0) < 50.0
+        PrintNotification(akDevice, "You feel that your " + akDevice.UD_DeviceType + " pulsing faintly and slowly, as if responding to the passage of time.")
     EndIf
 
     Return TriggerOnValueDelta(akDevice, akModifier.NameAlias, aiDataStr, afValueDelta = afHoursSinceLastCall, afMinAccum = loc_min_value, afProbBase = loc_prob_base, afProbAccum = loc_prob_acc, abRepeat = loc_repeat, aiAccumParamIndex = 4)

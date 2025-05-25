@@ -117,14 +117,7 @@ EndFunction
 ===========================================================================================
 /;
 
-Float _LastNotificationTimestamp = -1.0
-
 Function PrintNotification(UD_CustomDevice_RenderScript akDevice, String asOutcome, Int aiEffectId = -1)
-    If _LastNotificationTimestamp + 0.01 < akDevice.GetRealTimeLockedTime()
-        Return
-    EndIf
-    _LastNotificationTimestamp = akDevice.GetRealTimeLockedTime()
-
     String loc_wearer = "Someone's "
     If akDevice.WearerIsPlayer()
         loc_wearer = "Yours "

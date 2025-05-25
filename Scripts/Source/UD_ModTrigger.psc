@@ -173,16 +173,10 @@ EndFunction
 ===========================================================================================
 /;
 
-Float _LastNotificationTimestamp = -1.0
-
 Function PrintNotification(UD_CustomDevice_RenderScript akDevice, String asCondition, Int aiEffectId = -1)
     If akDevice.WearerIsPlayer() == False
         Return
     EndIf
-    If _LastNotificationTimestamp + 0.01 < akDevice.GetRealTimeLockedTime()
-        Return
-    EndIf
-    _LastNotificationTimestamp = akDevice.GetRealTimeLockedTime()
 
     String loc_effect = ""
     If aiEffectId < 0 || aiEffectId > 4
@@ -191,14 +185,15 @@ Function PrintNotification(UD_CustomDevice_RenderScript akDevice, String asCondi
     If aiEffectId == 0
         loc_effect = ""
     ElseIf aiEffectId == 1
-        loc_effect = "You feel that equipped " + akDevice.UD_DeviceType + " is getting warmer "
+        loc_effect = "You feel that your " + akDevice.UD_DeviceType + " is getting warmer "
     ElseIf aiEffectId == 2
         loc_effect = "You feel an electrical tingling from the " + akDevice.UD_DeviceType + " "
     ElseIf aiEffectId == 3
-        loc_effect = "You feel that equipped " + akDevice.UD_DeviceType + " is shifting "
+        loc_effect = "You feel that your " + akDevice.UD_DeviceType + " is shifting "
     ElseIf aiEffectId == 4
-        loc_effect = "You sence that equipped " + akDevice.UD_DeviceType + " is reacted somehow "
+        loc_effect = "You sense that your " + akDevice.UD_DeviceType + " is reacted somehow "
     EndIf
+    
     UDMain.Print(loc_effect + asCondition)
 EndFunction
 
@@ -324,6 +319,10 @@ Bool Function TriggerOnValueAbs(UD_CustomDevice_RenderScript akDevice, String as
         Return False
     EndIf
     Return False
+EndFunction
+
+Bool Function BaseTriggerIsActive(String aiDataStr, Int aiMemoryParamIndex)
+    Return GetStringParamFloat(aiDataStr, aiMemoryParamIndex, 0.0) >= 0.0
 EndFunction
 
 ;/  Function: _IsValidForm

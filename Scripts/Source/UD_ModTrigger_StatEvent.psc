@@ -93,7 +93,7 @@ Bool Function StatEvent(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     Bool loc_repeat = GetStringParamInt(aiDataStr, 3, 0) > 0
 
     Bool loc_rare_events = PapyrusUtil.CountString(_FrequentEvents, asStatName) == 0
-    If RandomFloat(0.0, 100.0) < (10.0 * (1.0 + 4.0 * (loc_rare_events As Int)))
+    If BaseTriggerIsActive(aiDataStr, 4) && RandomFloat(0.0, 100.0) < (10.0 * (1.0 + 4.0 * (loc_rare_events As Int)))
         PrintNotification(akDevice, ;/ reacted /;"to your actions. You try in vain to understand what caused this response.")
     EndIf
     

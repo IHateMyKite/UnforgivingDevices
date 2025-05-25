@@ -1465,6 +1465,8 @@ State iWidgetInstalled
             EndIf
             iWidget.setVisible(text_id, 0)
             iWidget.setTransparency(text_id, 0)
+            iWidget.setVisible(outline_id, 0)
+            iWidget.setTransparency(outline_id, 0)
             i += 1
         EndWhile
         _Text_AnimStage = -1

@@ -21,7 +21,7 @@
                         
         [5]     Int         (script) Number of obtained items so far
         
-        [6]     Float       (script) Device locked time in the moment of the last trigger (ingame hours)
+        [6]     Float       (script) Device locked time in the moment of the last trigger (ingame hours).  (-1.0 if it is triggered once with no repeat option)
 
     Form arguments:
         Form1               Item or Keyword to filter demanded items
@@ -46,10 +46,6 @@ Bool Function DeviceLocked(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderS
     
     Float loc_timer = akDevice.GetGameTimeLockedTime()
     akDevice.editStringModifier(akModifier.NameAlias, 5, FormatFloat(loc_timer, 2))
-    
-    If RandomFloat(0.0, 100.0) < 50.0
-        PrintNotification(akDevice, ;/ reacted /;" because of the items in your inventory. An image of an " + akForm1.GetName() + " appears in front of your eyes for a second.")
-    EndIf
     
     Return False
 EndFunction
@@ -122,10 +118,21 @@ Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
         UDmain.Log("UD_ModTrigger_ItemDemand::ItemAdded() akItemForm = " + akItemForm + " abIsStolen = " + abIsStolen, 3)
     EndIf
 
+    Float loc_last = GetStringParamFloat(aiDataStr, 6, 0.0)
+
+    ; triggered once and no repeat option
+    If loc_last < 0.0
+        Return False
+    EndIf
+
     Int loc_acc = GetStringParamInt(aiDataStr, 5, 0)
     Int loc_min_count = MultInt(GetStringParamInt(aiDataStr, 0, 1), akModifier.MultInputQuantities)
     Bool loc_stolen = GetStringParamInt(aiDataStr, 2, 0) > 0
     
+    If RandomFloat(0.0, 100.0) < 50.0
+        PrintNotification(akDevice, ;/ reacted /;" because of the items in your inventory. An image of an " + akForm1.GetName() + " appears in front of your eyes for a second.")
+    EndIf
+
     If loc_stolen && !abIsStolen
         Return False
     EndIf

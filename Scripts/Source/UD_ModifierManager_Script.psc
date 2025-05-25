@@ -183,7 +183,12 @@ Event OnUpdate()
         if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
             float loc_hours_passed = (Utility.GetCurrentGameTime() - _LastUpdateTime) / 24.0
             Float loc_real_time_passed = (Utility.GetCurrentRealTime() - _LastUpdateRealTime)
-            UpdateModifiers_Seconds(loc_hours_passed, loc_real_time_passed)
+            If loc_real_time_passed > UDCDmain.UD_UpdateTime * 2.0 || loc_real_time_passed < 0.0
+            ; In case of downtime somewhere in the menu (in the minimized state)
+                UpdateModifiers_Seconds(loc_hours_passed, UDCDmain.UD_UpdateTime)
+            Else
+                UpdateModifiers_Seconds(loc_hours_passed, loc_real_time_passed)
+            EndIf
             _LastUpdateTime = Utility.GetCurrentGameTime()
             _LastUpdateRealTime = Utility.GetCurrentRealTime()
             RegisterForSingleUpdate(UDCDmain.UD_UpdateTime)
