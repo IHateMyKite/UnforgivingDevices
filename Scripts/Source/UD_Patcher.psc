@@ -462,7 +462,7 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
             Float loc_rnd = 0.0
             Float loc_seek_prob = 0.0
             ; first, checking presets with absolute probability
-            If loc_a_pres.Length > 0
+            If loc_a_pres.Length > 0 && loc_a_probs_sum > 0.0
                 loc_i = 0
                 While loc_i < loc_a_probs.Length && loc_pre == None
                     loc_rnd = UD_Native.RandomFloat(0.0, 100.0)
