@@ -57,7 +57,7 @@ Bool Function DeviceUnlocked(UD_Modifier_Combo akModifier, UD_CustomDevice_Rende
     Return False
 EndFunction
 
-Bool Function TimeUpdateHour(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1)
+Bool Function TimeUpdateHour(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afGameHoursSinceLastCall, String aiDataStr, Form akForm1)
     Float loc_last = GetStringParamFloat(aiDataStr, 6, 0.0)
     Float loc_period = MultFloat(GetStringParamFloat(aiDataStr, 3, 8.0), 1.0 / akModifier.MultInputQuantities)
     Float loc_timer = akDevice.GetGameTimeLockedTime()

@@ -33,7 +33,7 @@ Bool Function ActorAction(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderSc
         Float loc_prob = MultFloat(GetStringParamFloat(aiDataStr, 0, 0.0), akModifier.MultProbabilities)
 
         If RandomFloat(0.0, 100.0) < 50.0
-            PrintNotification(akDevice, ;/ reacted /;" as it is happy with your behavior. For a moment, you see the silhouette of a warrior.")
+            PrintNotification(akDevice, ;/ reacted /;"because of your actions. For a moment, you see the silhouette of a warrior.")
         EndIf
 
         Return (RandomFloat(0.0, 100.0) < loc_prob)
@@ -47,7 +47,7 @@ Bool Function WeaponHit(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
         Float loc_prob = MultFloat(GetStringParamFloat(aiDataStr, 2, 0.0), akModifier.MultProbabilities)
 
         If RandomFloat(0.0, 100.0) < 50.0
-            PrintNotification(akDevice, ;/ reacted /;" as it is happy with your behavior. For a moment, you see the silhouette of a warrior.")
+            PrintNotification(akDevice, ;/ reacted /;"because of your actions. For a moment, you see the silhouette of a warrior.")
         EndIf
 
         Return (RandomFloat(0.0, 100.0) < loc_prob)
@@ -60,7 +60,7 @@ Bool Function SkillIncreased(UD_Modifier_Combo akModifier, UD_CustomDevice_Rende
         Float loc_prob = MultFloat(GetStringParamFloat(aiDataStr, 1, 0.0), akModifier.MultProbabilities)
 
         If RandomFloat(0.0, 100.0) < 50.0
-            PrintNotification(akDevice, ;/ reacted /;" as it is happy with your behavior. For a moment, you see the silhouette of a warrior.")
+            PrintNotification(akDevice, ;/ reacted /;"because of your actions. For a moment, you see the silhouette of a warrior.")
         EndIf
 
         Return (RandomFloat(0.0, 100.0) < loc_prob)

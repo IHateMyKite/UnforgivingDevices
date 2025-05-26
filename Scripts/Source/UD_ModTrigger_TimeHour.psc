@@ -31,17 +31,17 @@ import UD_Native
 ===========================================================================================
 ===========================================================================================
 /;
-Bool Function TimeUpdateHour(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1)
+Bool Function TimeUpdateHour(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afGameHoursSinceLastCall, String aiDataStr, Form akForm1)
     Float loc_min_value = MultFloat(GetStringParamInt(aiDataStr, 0, 0), akModifier.MultInputQuantities)
     Float loc_prob_base = MultFloat(GetStringParamFloat(aiDataStr, 1, 100.0), akModifier.MultProbabilities)
     Float loc_prob_acc = MultFloat(GetStringParamFloat(aiDataStr, 2, 0.0), akModifier.MultProbabilities)
     Bool loc_repeat = GetStringParamInt(aiDataStr, 3, 1) > 0
 
     If BaseTriggerIsActive(aiDataStr, 4) && RandomFloat(0.0, 100.0) < 50.0
-        PrintNotification(akDevice, "You feel that your " + akDevice.UD_DeviceType + " pulsing faintly and slowly, as if responding to the passage of time.")
+        PrintNotification(akDevice, "You feel that your " + akDevice.UD_DeviceType + " pulsing faintly and slowly, as if responding to the passage of time.", aiEffectId = 0)
     EndIf
 
-    Return TriggerOnValueDelta(akDevice, akModifier.NameAlias, aiDataStr, afValueDelta = afHoursSinceLastCall, afMinAccum = loc_min_value, afProbBase = loc_prob_base, afProbAccum = loc_prob_acc, abRepeat = loc_repeat, aiAccumParamIndex = 4)
+    Return TriggerOnValueDelta(akDevice, akModifier.NameAlias, aiDataStr, afValueDelta = afGameHoursSinceLastCall, afMinAccum = loc_min_value, afProbBase = loc_prob_base, afProbAccum = loc_prob_acc, abRepeat = loc_repeat, aiAccumParamIndex = 4)
 EndFunction
 
 ;/  Group: User interface
