@@ -234,7 +234,7 @@ float       Property UD_CutChance       Auto;chance of cutting device every 1s o
         Precision      =       0.25
     ---
 /;
-float       Property UD_StruggleCritMul Auto;crit multiplier applied on crit, step = 0.25, max 255, default 3.75x
+float       Property UD_StruggleCritMul             = 3.75          Auto ;crit multiplier applied on crit, step = 0.25, max 255, default 3.75x
 
 
 ;/  Variable: UD_StruggleCritDuration
@@ -249,7 +249,7 @@ float       Property UD_StruggleCritMul Auto;crit multiplier applied on crit, st
         Precision      =       0.1
     ---
 /;
-float       Property UD_StruggleCritDuration  Auto;crit time, the lower this value, the more faster player needs to press button, range 0.5-1.2, step 0.1 (7 values)
+float       Property UD_StruggleCritDuration        = 1.0           Auto ;crit time, the lower this value, the more faster player needs to press button, range 0.5-1.2, step 0.1 (7 values)
 
 ;/  Variable: UD_StruggleCritChance
     Chance for crit to happen every second
@@ -262,7 +262,7 @@ float       Property UD_StruggleCritDuration  Auto;crit time, the lower this val
         Max. Value     =       100
     ---
 /;
-int         Property UD_StruggleCritChance    Auto;chance of random crit happening once per second of struggling, range 0-100
+int         Property UD_StruggleCritChance          = 15            Auto ;chance of random crit happening once per second of struggling, range 0-100
 
 ;/  Variable: UD_Cooldown
     Device cooldown, in minutes. Device will activate itself on after this time (if it can)
@@ -1940,11 +1940,11 @@ EndFunction
 /;
 String[] Function getModifierAllParam(string asModifier)
     String[] loc_arr = UD_Native.GetModifierStringParamAll(VMHandle1,VMHandle2,deviceRendered,asModifier)
-    If UDmain.TraceAllowed()
-        Int loc_index = UD_Native.GetModifierIndex(VMHandle1,VMHandle2,deviceRendered,asModifier)
-        String loc_pars = UD_ModifiersDataStr[loc_index]
-        UDmain.Log(Self + "::getModifierAllParam() asModifier = " + asModifier + ", loc_index = " + loc_index + ", DataStr[i] = '" + loc_pars + "', Array = " + loc_arr, 3)
-    EndIf
+;    If UDmain.TraceAllowed()
+;        Int loc_index = UD_Native.GetModifierIndex(VMHandle1,VMHandle2,deviceRendered,asModifier)
+;        String loc_pars = UD_ModifiersDataStr[loc_index]
+;        UDmain.Log(Self + "::getModifierAllParam() asModifier = " + asModifier + ", loc_index = " + loc_index + ", DataStr[i] = '" + loc_pars + "', Array = " + loc_arr, 3)
+;    EndIf
     return loc_arr
 EndFunction
 
@@ -1975,8 +1975,11 @@ EndFunction
         True if operation was succesfull
 /;
 
-bool Function editStringModifier(string asModifier,int aiIndex, string asNewValue)
+bool Function editStringModifier(string asModifier, int aiIndex, string asNewValue)
     initStringModifier(asModifier, aiIndex)
+;    If UDmain.TraceAllowed()
+;        UDmain.Log(Self + "::editStringModifier() Mod = '" + asModifier + "', DataStr[" + aiIndex + "] := '" + asNewValue + "'", 3)
+;    EndIf
     return UD_Native.EditModifierStringParam(VMHandle1,VMHandle2,deviceRendered,asModifier,aiIndex,asNewValue)
 EndFunction
 

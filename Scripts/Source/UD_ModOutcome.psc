@@ -120,7 +120,7 @@ EndFunction
 Function PrintNotification(UD_CustomDevice_RenderScript akDevice, String asOutcome, Int aiEffectId = -1)
     String loc_wearer = "Someone's "
     If akDevice.WearerIsPlayer()
-        loc_wearer = "Yours "
+        loc_wearer = "Your "
     Else
         loc_wearer = akDevice.GetWearer().GetActorBase().GetName() + "'s "
     EndIf

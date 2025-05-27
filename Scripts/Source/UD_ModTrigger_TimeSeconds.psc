@@ -37,7 +37,7 @@ Bool Function TimeUpdateSeconds(UD_Modifier_Combo akModifier, UD_CustomDevice_Re
     Float loc_prob_acc = MultFloat(GetStringParamFloat(aiDataStr, 2, 0.0), akModifier.MultProbabilities)
     Bool loc_repeat = GetStringParamInt(aiDataStr, 3, 1) > 0
 
-    If BaseTriggerIsActive(aiDataStr, 4) && RandomFloat(0.0, 100.0) < 5.0
+    If BaseTriggerIsActive(aiDataStr, 4) && RandomFloat(0.0, 100.0) < 3.0
         PrintNotification(akDevice, "You feel that your " + akDevice.UD_DeviceType + " pulsing fast, as if responding to the passage of time.", aiEffectId = 0)
     EndIf
 

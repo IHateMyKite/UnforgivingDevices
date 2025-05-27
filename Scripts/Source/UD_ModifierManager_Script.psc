@@ -181,7 +181,7 @@ Event OnUpdate()
         RegisterForSingleUpdateGameTime(1.0) ;start update loop, 1 game hour
     else
         if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
-            float loc_hours_passed = (Utility.GetCurrentGameTime() - _LastUpdateTime) / 24.0
+            float loc_hours_passed = (Utility.GetCurrentGameTime() - _LastUpdateTime) * 24.0
             Float loc_real_time_passed = (Utility.GetCurrentRealTime() - _LastUpdateRealTime)
             If loc_real_time_passed > UDCDmain.UD_UpdateTime * 2.0 || loc_real_time_passed < 0.0
             ; In case of downtime somewhere in the menu (in the minimized state)
@@ -300,7 +300,7 @@ Function UpdateModifiers_Seconds(float afGameHoursPassed, Float afRealSecondsPas
             UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
             int loc_x = 0
             while loc_devices[loc_x]
-                if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked ;not update device which are in minigame
+                if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked && loc_devices[loc_x].IsInit() > 5       ;not update device which are in minigame
                     Procces_UpdateModifiers_Seconds(loc_devices[loc_x], afGameHoursPassed, afRealSecondsPassed)
                 endif
                 loc_x += 1
