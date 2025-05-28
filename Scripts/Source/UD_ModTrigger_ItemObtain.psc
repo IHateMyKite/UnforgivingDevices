@@ -47,7 +47,7 @@ Bool Function DeviceLocked(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderS
     loc_slot.RegisterItemEvent(akForm1)
     
     Float loc_timer = akDevice.GetGameTimeLockedTime()
-    akDevice.editStringModifier(akModifier.NameAlias, 5, FormatFloat(loc_timer, 2))
+    akDevice.editStringModifier(akModifier.NameAlias, 6, FormatFloat(loc_timer, 2))
 
     If RandomFloat(0.0, 100.0) < 50.0
         PrintNotification(akDevice, ;/ reacted /;" because of the items in your inventory. An image of an " + akForm1.GetName() + " appears in front of your eyes for a second.")
@@ -68,7 +68,7 @@ Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
         Return False
     EndIf
 
-    If BaseTriggerIsActive(aiDataStr, 6) && UDmain.TraceAllowed()
+    If UDmain.TraceAllowed()
         UDmain.Log("UD_ModTrigger_ItemObtain::ItemAdded() akItemForm = " + akItemForm + " abIsStolen = " + abIsStolen, 3)
     EndIf
     
