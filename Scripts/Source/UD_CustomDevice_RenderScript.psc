@@ -2975,8 +2975,6 @@ Function _deviceMenuInit(bool[] aaControl)
         
         if HaveLocks() && HaveAccesibleLock() ;check if device have locks, and if they can be currently accessed
             Int loc_lockMinigames = LockMinigameAllowed(loc_accesibility)
-            UDMain.Log(Self + "::_deviceMenuInit() loc_accesibility = " + loc_accesibility, 3)
-            UDMain.Log(Self + "::_deviceMenuInit() loc_lockMinigames = " + loc_lockMinigames, 3)
             if Math.LogicalAnd(loc_lockMinigames,0x1)
                 UDCDmain.currentDeviceMenu_allowlockpick = True
             endif
