@@ -181,9 +181,14 @@ Event OnUpdate()
         RegisterForSingleUpdateGameTime(1.0) ;start update loop, 1 game hour
     else
         if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
-            float loc_hours_passed = (Utility.GetCurrentGameTime() - _LastUpdateTime) / 24.0
+            float loc_hours_passed = (Utility.GetCurrentGameTime() - _LastUpdateTime) * 24.0
             Float loc_real_time_passed = (Utility.GetCurrentRealTime() - _LastUpdateRealTime)
-            UpdateModifiers_Seconds(loc_hours_passed, loc_real_time_passed)
+            If loc_real_time_passed > UDCDmain.UD_UpdateTime * 2.0 || loc_real_time_passed < 0.0
+            ; In case of downtime somewhere in the menu (in the minimized state)
+                UpdateModifiers_Seconds(loc_hours_passed, UDCDmain.UD_UpdateTime)
+            Else
+                UpdateModifiers_Seconds(loc_hours_passed, loc_real_time_passed)
+            EndIf
             _LastUpdateTime = Utility.GetCurrentGameTime()
             _LastUpdateRealTime = Utility.GetCurrentRealTime()
             RegisterForSingleUpdate(UDCDmain.UD_UpdateTime)
@@ -295,7 +300,7 @@ Function UpdateModifiers_Seconds(float afGameHoursPassed, Float afRealSecondsPas
             UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
             int loc_x = 0
             while loc_devices[loc_x]
-                if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked ;not update device which are in minigame
+                if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked && loc_devices[loc_x].IsInit() > 5       ;not update device which are in minigame
                     Procces_UpdateModifiers_Seconds(loc_devices[loc_x], afGameHoursPassed, afRealSecondsPassed)
                 endif
                 loc_x += 1
@@ -583,7 +588,7 @@ Function Procces_UpdateModifiers_MinigameStarted(UD_CustomDevice_RenderScript ak
         while loc_modid 
             loc_modid -= 1
             UD_Modifier loc_mod = (loc_device.UD_ModifiersRef[loc_modid] as UD_Modifier)
-            loc_mod.MinigameStarted(loc_device,akDevice,loc_device.UD_ModifiersDataStr[loc_modid],loc_device.UD_ModifiersDataForm1[loc_modid],loc_device.UD_ModifiersDataForm2[loc_modid],loc_device.UD_ModifiersDataForm3[loc_modid],loc_device.UD_ModifiersDataForm4[loc_modid],akDevice.UD_ModifiersDataForm5[loc_modid])
+            loc_mod.MinigameStarted(loc_device,akDevice,loc_device.UD_ModifiersDataStr[loc_modid],loc_device.UD_ModifiersDataForm1[loc_modid],loc_device.UD_ModifiersDataForm2[loc_modid],loc_device.UD_ModifiersDataForm3[loc_modid],loc_device.UD_ModifiersDataForm4[loc_modid],loc_device.UD_ModifiersDataForm5[loc_modid])
         endwhile
         i+=1
         loc_device = loc_slot.UD_equipedCustomDevices[i]
@@ -604,7 +609,7 @@ Function Procces_UpdateModifiers_MinigameEnded(UD_CustomDevice_RenderScript akDe
         while loc_modid 
             loc_modid -= 1
             UD_Modifier loc_mod = (loc_device.UD_ModifiersRef[loc_modid] as UD_Modifier)
-            loc_mod.MinigameEnded(loc_device,akDevice,loc_device.UD_ModifiersDataStr[loc_modid],loc_device.UD_ModifiersDataForm1[loc_modid],loc_device.UD_ModifiersDataForm2[loc_modid],loc_device.UD_ModifiersDataForm3[loc_modid],loc_device.UD_ModifiersDataForm4[loc_modid],akDevice.UD_ModifiersDataForm5[loc_modid])
+            loc_mod.MinigameEnded(loc_device,akDevice,loc_device.UD_ModifiersDataStr[loc_modid],loc_device.UD_ModifiersDataForm1[loc_modid],loc_device.UD_ModifiersDataForm2[loc_modid],loc_device.UD_ModifiersDataForm3[loc_modid],loc_device.UD_ModifiersDataForm4[loc_modid],loc_device.UD_ModifiersDataForm5[loc_modid])
         endwhile
         i+=1
         loc_device = loc_slot.UD_equipedCustomDevices[i]

@@ -40,10 +40,12 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
 
     UD_CustomDevice_RenderScript[] loc_devices = GetEquippedDevicesWithSelectionMethod(akDevice, loc_count, akForm2, loc_method_list2, akForm3, loc_method_list3)
 
-    if !loc_devices
-        return
-    endif
-    
+    If loc_devices.Length == 0
+        Return
+    EndIf
+
+    PrintNotification(akDevice, ;/changed/; "and unlock device on you.")
+
     Int loc_i = 0
     While loc_i < loc_devices.Length
         If loc_devices[loc_i]

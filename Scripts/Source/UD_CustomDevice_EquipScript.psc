@@ -670,9 +670,7 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
     Int prelock_fail = 0
     int loc_rdnum = akActor.GetItemCount(deviceRendered)
     if loc_rdnum > 0    
-        if UDmain.UD_WarningAllowed
-            UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - item "+ deviceRendered +" is already in inventory. Aborting")
-        endif
+        UDmain.Warning("LockDevice("+MakeDeviceHeader(akActor,deviceInventory) + ") - item "+ deviceRendered +" is already in inventory. Aborting")
         prelock_fail = 1
     EndIf
     

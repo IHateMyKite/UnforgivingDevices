@@ -439,7 +439,13 @@ Event OnUpdate()
         ; initialization on new game
         OnUIReload(abGameLoad = False)
     EndIf
-    RegisterForSingleUpdate(30) ;maintenance update
+    If GetState() != ""
+    ; yeah, that is real thing (issue #239)
+        UDMain.Warning("UD_WidgetControl::OnUpdate() Called this function from the wrong state! Let's try it again.")
+        RegisterForSingleUpdate(1)
+    Else
+        RegisterForSingleUpdate(30) ; maintenance update
+    EndIf
 EndEvent
 
 Function GameUpdate()
@@ -496,7 +502,7 @@ Function OnUIReload(Bool abGameLoad)
     endif
     _ReloadMutex = True
     if UDmain.TraceAllowed()
-        UDMain.Log("UD_WidgetControl::OnUIReload() abGameLoad = " + abGameLoad,3)
+        UDMain.Log("UD_WidgetControl::OnUIReload() abGameLoad = " + abGameLoad + ", Current State = " + GetState() + ", UseiWW = " + UDmain.UseiWW(), 3)
     endif
     StatusEffect_Register("dd-piercing-nipples", W_ICON_CLUSTER_DEVICES)
     StatusEffect_Register("dd-plug-vaginal", W_ICON_CLUSTER_DEVICES)
@@ -508,7 +514,10 @@ Function OnUIReload(Bool abGameLoad)
     StatusEffect_Register("effect-orgasm", W_ICON_CLUSTER_EFFECTS)
     
     if UDmain.UseiWW()
-        GoToState("iWidgetInstalled")
+        If GetState() != "iWidgetInstalled"
+        ; checking current state to avoid redundant OnBeginState/OnEndState calls
+            GoToState("iWidgetInstalled")
+        EndIf
         Int i = UD_VanillaWidgets.Length
         While i > 0
             i -= 1
@@ -519,7 +528,10 @@ Function OnUIReload(Bool abGameLoad)
         Meter_Register("device-condition", "icon-meter-condition")
         InitWidgetsRequest(abGameLoad = abGameLoad, abMeters = True, abIcons = True, abText = True)
     else
-        GoToState("")
+        If GetState() != ""
+        ; checking current state to avoid redundant OnBeginState/OnEndState calls
+            GoToState("")
+        EndIf
         ; arranging vanilla widgets
         Int i = 0
         Float loc_posOffset = 0.0
@@ -580,6 +592,7 @@ Bool _InitMetersRequested = False
 Bool _InitIconsRequested = False
 Bool _InitTextRequested = False
 Bool _InitAfterLoadGame = False
+Float _LastInitRequestTimestamp = 0.0
 
 ;/  Function: InitWidgetsRequest
 
@@ -596,18 +609,24 @@ Bool _InitAfterLoadGame = False
 /;
 Function InitWidgetsRequest(Bool abGameLoad = False, Bool abMeters = False, Bool abIcons = False, Bool abText = False)
     if UDmain.TraceAllowed()
-        UDmain.Log("UD_WidgetControl::InitWidgetsRequest() abGameLoad = " + abGameLoad + " , abMeters = " + abMeters + " , abIcons = " + abIcons + " , abText = " + abText,3)
+        UDmain.Log("UD_WidgetControl::InitWidgetsRequest() abGameLoad = " + abGameLoad + ", abMeters = " + abMeters + ", abIcons = " + abIcons + ", abText = " + abText,3)
     endif
     _InitAfterLoadGame      = _InitAfterLoadGame    || abGameLoad
     _InitMetersRequested    = _InitMetersRequested  || abMeters
     _InitIconsRequested     = _InitIconsRequested   || abIcons
     _InitTextRequested      = _InitTextRequested    || abText
-    _CheckInitWidgets()
+
+    _LastInitRequestTimestamp = Utility.GetCurrentRealTime()
+;    _CheckInitWidgets()
 EndFunction
 
 ; Rebuild meter widgets
 ; abGameLoad        - if it called after game load
 Bool Function InitMeters(Bool abGameLoad = False)
+EndFunction
+
+; Function to wait for creation process (suitable for fast non-critical calls)
+Bool Function _WaitFor_InitMetersMutex()
 EndFunction
 
 ; Rebuild icons
@@ -700,6 +719,9 @@ Function Meter_Register(String asName, String asIcon = "")
     If loc_data == None
         Return
     EndIf
+    loc_data.SoftReset()
+    loc_data.Id = -1
+    loc_data.IconId = -1
     Bool need_init = loc_data.IsNew
     loc_data.IsNew = False
     loc_data.IconName = asIcon
@@ -1284,6 +1306,7 @@ UD_WidgetMeter_RefAlias Function _GetMeter(String asName, Bool abFindEmpty = Tru
         While loc_index < MeterSlots.Length
             If MeterSlots[loc_index].Name == ""
                 MeterSlots[loc_index].Reset()
+                UDMain.Log("UD_WidgetMeter_RefAlias::Reset()", 3)
                 MeterSlots[loc_index].Name = asName
                 _FindEmptyME_Mutex = False
                 Return MeterSlots[loc_index]
@@ -1319,7 +1342,12 @@ State iWidgetInstalled
             UDMain.Log("UD_WidgetControl::OnBeginState() State = " + GetState(), 3)
         endif
         _Animation_LastGameTime = Utility.GetCurrentRealTime()
+        UnregisterForUpdate()
         RegisterForSingleUpdate(_Animation_Update)
+        _InitWidgetMutex = False
+        _InitMetersMutex = False
+        _OnUpdateMutex = False
+        _TestWidgetsMutex = False
     EndEvent
     
     Event OnUpdate()
@@ -1345,6 +1373,10 @@ State iWidgetInstalled
     EndEvent
     
     Function _CheckInitWidgets()
+        If _LastInitRequestTimestamp + 0.5 > Utility.GetCurrentRealTime()
+        ; we are waiting for 0.5 sec to be sure that all requests have been executed
+            Return
+        EndIf
         if _InitWidgetMutex
             return
         endif
@@ -1386,17 +1418,18 @@ State iWidgetInstalled
     EndEvent
         
     Bool Function InitMeters(Bool abGameLoad = False)
+        _InitMetersMutex = True
         if UDmain.TraceAllowed()
             UDMain.Log("UD_WidgetControl::InitMeters() abGameLoad = " + abGameLoad, 3)
         endif
-        _InitMetersMutex = True
-        Utility.Wait(0.2)                   ; waiting for the end of all UpdatePercent_***Widget calls
+;        Utility.Wait(0.2)                   ; waiting for the end of all UpdatePercent_***Widget calls
         If abGameLoad
         ; clearing all IDs without destroying
             Int i = MeterSlots.Length
             While i > 0
                 i -= 1
                 MeterSlots[i].Id = -1
+                MeterSlots[i].IconId = -1   ; added icon id
             EndWhile
         EndIf
         
@@ -1447,6 +1480,8 @@ State iWidgetInstalled
             EndIf
             iWidget.setVisible(text_id, 0)
             iWidget.setTransparency(text_id, 0)
+            iWidget.setVisible(outline_id, 0)
+            iWidget.setTransparency(outline_id, 0)
             i += 1
         EndWhile
         _Text_AnimStage = -1
@@ -1604,7 +1639,7 @@ State iWidgetInstalled
 
     Function _CreateMeterWidget(UD_WidgetMeter_RefAlias akData, Int aiX, Int aiY, Bool abForceDestory = False)
         if UDmain.TraceAllowed()
-            UDMain.Log("UD_WidgetControl::_CreateMeterWidget() akData = " + akData + ", aiX = " + aiX + ", aiY = " + aiY + ", abForceDestory = " + abForceDestory, 3)
+            UDMain.Log("UD_WidgetControl::_CreateMeterWidget() akData.Id = " + akData.Id + ", Name = " + akData.Name + ", aiX = " + aiX + ", aiY = " + aiY + ", abForceDestory = " + abForceDestory, 3)
         endif
         If akData == None || akData.Name == ""
             Return
@@ -1615,38 +1650,82 @@ State iWidgetInstalled
                 Utility.Wait(0.05)
                 i += 1
             EndWhile
+            If _CreateMeter_Mutex
+                UDMain.Warning("UD_WidgetControl::_CreateMeterWidget() We've done waiting although mutex is still active! There're possible conflicts and overlaps in creation process.")
+            EndIf
         EndIf
         _CreateMeter_Mutex = True
 
-        If akData.Id > 0 && (_iWidget_MeterPosFix || abForceDestory)
+        If akData.Id > 0 && (abForceDestory)                            ; _iWidget_MeterPosFix is obsolete probably
+            UD_Native.RemoveMeterEntryIWW(akData.Id)
             iWidget.destroy(akData.Id)
             akData.Id = -1
+        EndIf        
+        If akData.IconId > 0 && abForceDestory
+            iWidget.destroy(akData.IconId)
+            Utility.Wait(0.1)
+            akData.IconId = -1
         EndIf
+
         If akData.Id < 0
             akData.Id = iWidget.loadMeter()
             ; iWidget.setSize(akData.Id, HUDMeterHeight as Int, HUDMeterWidth as Int)
+            if UDmain.TraceAllowed()
+                UDMain.Log("UD_WidgetControl::_CreateMeterWidget() Created widget with Id = " + akData.Id, 3)
+            EndIf
             iWidget.setZoom(akData.Id, 67, 67)
         EndIf
         iWidget.setPos(akData.Id, aiX, aiY)
         iWidget.setMeterPercent(akData.Id, akData.FillPercent)
         iWidget.setVisible(akData.Id, akData.Visible as Int)
         _UpdateMeterColor(akData.Id, akData.PrimaryColor, akData.SecondaryColor, akData.FlashColor)
-        
-        If akData.IconId > 0
-            iWidget.destroy(akData.IconId)
-            akData.IconId = -1
-        EndIf
+
         
         If akData.IconName != ""
-            akData.IconId = iWidget.loadLibraryWidget(akData.IconName)
+            If akData.IconId < 0
+                akData.IconId = iWidget.loadLibraryWidget(akData.IconName)
+            EndIf
             iWidget.setSize(akData.IconId, HUDMeterHeightRef as Int, HUDMeterHeightRef as Int)
             iWidget.setPos(akData.IconId, (akData.PosX - HUDMeterWidthRef / 2 - HUDMeterHeightRef * 1.5 - 10) as Int, akData.PosY)
             iWidget.setTransparency(akData.IconId, 75)
             iWidget.setVisible(akData.IconId, akData.Visible as Int)
             _SetIconRGB(akData.IconId, 0)
         EndIf
+        ; 
+        If akData.Pending
+            UD_Native.AddMeterEntryIWW(iWidget.WidgetRoot, akData.id, akData.Name, akData.NR_Formula, akData.NR_Value, akData.NR_Rate, akData.NR_Toggle)
+            akData.Pending = False
+        EndIf
+        ; restoring orgasm link
+        If akData.OrgasmLink != None
+            if UDmain.TraceAllowed()
+                UDMain.Log("UD_WidgetControl::_CreateMeterWidget() OrgasmLink = " + akData.OrgasmLink, 3)
+            EndIf
+;            OrgasmSystem.UnlinkActorFromMeter(akData.OrgasmLink)
+            OrgasmSystem.LinkActorToMeter(akData.OrgasmLink, iWidget.WidgetRoot, 1, akData.Id)
+        EndIf
+
         _CreateMeter_Mutex = False
     EndFunction
+
+    Bool Function _WaitFor_InitMetersMutex()
+        If _InitMetersMutex && UDmain.TraceAllowed()
+            UDMain.Log("UD_WidgetControl::_WaitFor_InitMetersMutex() _InitMetersMutex = " + _InitMetersMutex, 1)
+        EndIf
+        Int i = 0
+        While i < 20 && _InitMetersMutex
+            Utility.Wait(0.05)
+            i += 1
+        EndWhile
+        If _InitMetersMutex
+            UDMain.Warning("UD_WidgetControl::_WaitFor_InitMetersMutex() We've done waiting although mutex is still active! There're possible conflicts and overlaps in creation process.")
+            Return False
+        EndIf
+        Return True
+    EndFunction
+
+;    Function _RestoreMeterWidget(UD_WidgetMeter_RefAlias akData, Int aiX, Int aiY)
+;    EndFunction
 
     Function _DestroyMeterWidget(UD_WidgetMeter_RefAlias akData)
         if UDmain.TraceAllowed()
@@ -1657,6 +1736,10 @@ State iWidgetInstalled
             akData.IconId = -1
         EndIf
         If akData.Id > 0
+            If akData.OrgasmLink
+                OrgasmSystem.UnlinkActorFromMeter(akData.OrgasmLink)
+            EndIf
+            UD_Native.RemoveMeterEntryIWW(akData.Id)
             iWidget.destroy(akData.Id)
             akData.Id = -1
         EndIf
@@ -1679,14 +1762,15 @@ State iWidgetInstalled
     EndFunction
     
     Function Meter_SetVisible(String asName, Bool abVisible)
+        if UDmain.TraceAllowed()
+            UDMain.Log("UD_WidgetControl::Meter_SetVisible() asName = " + asName + ", abVisible = " + abVisible, 3)
+        EndIf
         UD_WidgetMeter_RefAlias loc_data = _GetMeter(asName, False)
         If loc_data == None
             Return
         EndIf
         loc_data.Visible = abVisible
-        If _InitMetersMutex
-            Return
-        EndIf
+        _WaitFor_InitMetersMutex()
         iWidget.setVisible(loc_data.Id, loc_data.Visible as Int)
         iWidget.setVisible(loc_data.IconId, loc_data.Visible as Int)
     EndFunction
@@ -1698,6 +1782,7 @@ State iWidgetInstalled
         EndIf
         loc_data.FillPercent = afValue as Int
         If _InitMetersMutex
+            UDMain.Log("UD_WidgetControl::Meter_SetFillPercent() _InitMetersMutex = " + _InitMetersMutex, 3)
             Return
         EndIf
         iWidget.setMeterPercent(loc_data.Id, loc_data.FillPercent)
@@ -1717,9 +1802,7 @@ State iWidgetInstalled
         If aiFlashColor >= 0
             loc_data.FlashColor = aiFlashColor
         EndIf
-        If _InitMetersMutex
-            Return
-        EndIf
+        _WaitFor_InitMetersMutex()
         _UpdateMeterColor(loc_data.Id, loc_data.PrimaryColor, loc_data.SecondaryColor, loc_data.FlashColor)
     EndFunction
 
@@ -1728,9 +1811,7 @@ State iWidgetInstalled
         If loc_data == None
             Return
         EndIf
-        If _InitMetersMutex
-            Return
-        EndIf
+        _WaitFor_InitMetersMutex()
         iWidget.doMeterFlash(loc_data.Id)
     EndFunction
     
@@ -1739,12 +1820,7 @@ State iWidgetInstalled
         If loc_data == None
             Return
         EndIf
-        If _InitMetersMutex
-            if UDmain.TraceAllowed()
-                UDMain.Log("UD_WidgetControl::Meter_SetIcon() _InitMetersMutex = " + _InitMetersMutex, 3)
-            endif
-            Return
-        EndIf
+        _WaitFor_InitMetersMutex()
         If loc_data.IconName == asIconName
             Return
         EndIf
@@ -1766,7 +1842,21 @@ State iWidgetInstalled
     EndFunction
     
     Function Meter_RegisterNative(string asMeter,int aiFormula,float afValue,float afRate,bool abToggle = true)
-        UD_Native.AddMeterEntryIWW(iWidget.WidgetRoot,_GetMeter(asMeter).id,asMeter, aiFormula, afValue, afRate, abToggle)
+        UD_WidgetMeter_RefAlias loc_data = _GetMeter(asMeter)
+        if UDmain.TraceAllowed()
+            UDMain.Log("UD_WidgetControl::Meter_RegisterNative() asMeter = " + asMeter + ", Id = " + loc_data.Id + ", afValue = " + afValue + ", afRate = " + afRate + ", abToggle = " + abToggle, 3)
+        EndIf
+        loc_data.NR_Formula = aiFormula
+        loc_data.NR_Value   = afValue
+        loc_data.NR_Rate    = afRate
+        loc_data.NR_Toggle  = abToggle
+        If loc_data.Id < 0 || !UDMain.IsEnabled()
+        ; if the UD is not yet loaded, or the widget is not created, the binding will happen in an asynchronous call
+            loc_data.Pending = True
+            InitWidgetsRequest(abMeters = True)
+        Else
+            UD_Native.AddMeterEntryIWW(iWidget.WidgetRoot, loc_data.id, asMeter, aiFormula, afValue, afRate, abToggle)
+        EndIf
     EndFunction
     
     Function Meter_UnregisterNative(string asMeter)
@@ -1798,7 +1888,15 @@ State iWidgetInstalled
     EndFunction
    
     Function Meter_LinkActorOrgasm(Actor akActor, String asMeter)
-        OrgasmSystem.LinkActorToMeter(akActor,iWidget.WidgetRoot,1,_GetMeter(asMeter).id)
+        UD_WidgetMeter_RefAlias loc_data = _GetMeter(asMeter)
+        UDMain.Log("UD_WidgetControl::Meter_LinkActorOrgasm() asMeter = " + asMeter + ", Id = " + loc_data.Id + ", akActor = " + akActor, 3)
+        loc_data.OrgasmLink = akActor
+        If loc_data.Id < 0 || !UDMAin.IsEnabled()
+        ; if the UD is not yet loaded, or the widget is not created, the binding will happen in an asynchronous call
+            InitWidgetsRequest(abMeters = True)
+        Else
+            OrgasmSystem.LinkActorToMeter(akActor, iWidget.WidgetRoot, 1, loc_data.id)
+        EndIf
     EndFunction
     
     ; quickly push a string into array and leave the function
@@ -1890,6 +1988,9 @@ State iWidgetInstalled
                 Utility.Wait(0.05)
                 i += 1
             EndWhile
+            If _CreateMeter_Mutex
+                UDMain.Warning("UD_WidgetControl::_CreateIconWidget() We've done waiting although mutex is still active! There're possible conflicts and overlaps in creation process.")
+            EndIf
         EndIf
         _CreateIcon_Mutex = True
 
@@ -2110,8 +2211,8 @@ State iWidgetInstalled
                         iWidget.doTransitionByTime(data.Id, 100, 0.5, "alpha")
                     EndIf
                     data.Stage = 1
-                ElseIf data.Stage == 1
-                    iWidget.doTransitionByTime(data.Id, data.Alpha, 0.1, "alpha")
+                Else
+                    iWidget.setTransparency(data.Id, data.Alpha)
                 EndIf
             EndIf
             i += 1

@@ -70,7 +70,7 @@ Bool Function TimeUpdateSeconds(UD_Modifier_Combo akModifier, UD_CustomDevice_Re
     Return False
 EndFunction
 
-Bool Function TimeUpdateHour(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1)
+Bool Function TimeUpdateHour(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, Float afGameHoursSinceLastCall, String aiDataStr, Form akForm1)
     Return False
 EndFunction
 
@@ -172,6 +172,30 @@ EndFunction
 ===========================================================================================
 ===========================================================================================
 /;
+
+Function PrintNotification(UD_CustomDevice_RenderScript akDevice, String asCondition, Int aiEffectId = -1)
+    If akDevice.WearerIsPlayer() == False
+        Return
+    EndIf
+
+    String loc_effect = ""
+    If aiEffectId < 0 || aiEffectId > 4
+        aiEffectId = RandomInt(1, 4)
+    EndIf
+    If aiEffectId == 0
+        loc_effect = ""
+    ElseIf aiEffectId == 1
+        loc_effect = "You feel that your " + akDevice.UD_DeviceType + " is getting warmer "
+    ElseIf aiEffectId == 2
+        loc_effect = "You feel an electrical tingling from the " + akDevice.UD_DeviceType + " "
+    ElseIf aiEffectId == 3
+        loc_effect = "You feel that your " + akDevice.UD_DeviceType + " is shifting "
+    ElseIf aiEffectId == 4
+        loc_effect = "You sense that your " + akDevice.UD_DeviceType + " is reacted somehow "
+    EndIf
+    
+    UDMain.Print(loc_effect + asCondition)
+EndFunction
 
 Int Function MultInt(Float afValue, Float afMult)
     Return UD_Native.Round(afValue * afMult)
@@ -295,6 +319,10 @@ Bool Function TriggerOnValueAbs(UD_CustomDevice_RenderScript akDevice, String as
         Return False
     EndIf
     Return False
+EndFunction
+
+Bool Function BaseTriggerIsActive(String aiDataStr, Int aiMemoryParamIndex)
+    Return GetStringParamFloat(aiDataStr, aiMemoryParamIndex, 0.0) >= 0.0
 EndFunction
 
 ;/  Function: _IsValidForm

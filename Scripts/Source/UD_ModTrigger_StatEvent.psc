@@ -65,6 +65,13 @@ Scriptname UD_ModTrigger_StatEvent extends UD_ModTrigger
 import UnforgivingDevicesMain
 import UD_Native
 
+String[] _FrequentEvents
+
+Event OnInit()
+    _FrequentEvents = Utility.CreateStringArray(0)
+    _FrequentEvents = PapyrusUtil.PushString(_FrequentEvents, "Most Gold Carried")
+EndEvent
+
 ;/  Group: Events Processing
 ===========================================================================================
 ===========================================================================================
@@ -84,6 +91,11 @@ Bool Function StatEvent(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     Int loc_min_value = MultInt(GetStringParamInt(aiDataStr, 1, 0), akModifier.MultInputQuantities)
     Float loc_prob_base = MultFloat(GetStringParamFloat(aiDataStr, 2, 100.0), akModifier.MultProbabilities)
     Bool loc_repeat = GetStringParamInt(aiDataStr, 3, 0) > 0
+
+    Bool loc_rare_events = PapyrusUtil.CountString(_FrequentEvents, asStatName) == 0
+    If BaseTriggerIsActive(aiDataStr, 4) && RandomFloat(0.0, 100.0) < (10.0 * (1.0 + 4.0 * (loc_rare_events As Int)))
+        PrintNotification(akDevice, ;/ reacted /;"to your actions. You try in vain to understand what caused this response.")
+    EndIf
     
     If StringUtil.Find(asStatName, "Bounty") >= 0
         Return TriggerOnValueAbs(akDevice, akModifier.NameAlias, aiDataStr, afValueAbs = aiStatValue, afMinValue = loc_min_value, afProbBase = loc_prob_base, abRepeat = loc_repeat, aiLastTriggerValueIndex = 4)

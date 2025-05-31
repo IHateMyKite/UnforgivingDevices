@@ -35,6 +35,8 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
         Int loc_min = MultInt(GetStringParamInt(aiDataStr, DataStrOffset + 0, 1), akModifier.MultOutputQuantities)
         Int loc_max = MultInt(GetStringParamInt(aiDataStr, DataStrOffset + 1, loc_min), akModifier.MultOutputQuantities)
         
+        PrintNotification(akDevice, ;/changed/; "and consume some item from your bag.")
+
         akDevice.GetWearer().RemoveItem(loc_item, RandomInt(loc_min, loc_max))
     Endif
     

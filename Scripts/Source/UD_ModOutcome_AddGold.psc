@@ -44,7 +44,11 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     Int loc_A_max = MultInt(GetStringParamInt(aiDataStr, DataStrOffset + 1, loc_A_min), akModifier.MultOutputQuantities)
     Int loc_B_min = MultInt(GetStringParamInt(aiDataStr, DataStrOffset + 2, 0), akModifier.MultOutputQuantities)
     Int loc_B_max = MultInt(GetStringParamInt(aiDataStr, DataStrOffset + 3, loc_B_min), akModifier.MultOutputQuantities)
-    
+
+    If UDmain.TraceAllowed()
+        UDmain.Log("UD_ModOutcome_AddGold::Outcome() akForm2 = " + akForm2 + ", loc_A_min = " + loc_A_min + ", loc_A_max = " + loc_A_max + ", loc_B_min = " + loc_B_min + ", loc_B_max = " + loc_B_max, 3)
+    EndIf
+
     Int loc_gold = RandomInt(loc_A_min, loc_A_max) + RandomInt(loc_B_min, loc_B_max) * akDevice.UD_Level
     
     Form loc_currency = UDlibs.Gold
@@ -53,6 +57,7 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     EndIf
     
     if loc_gold > 0
+        PrintNotification(akDevice, ;/changed/; "and filled your purse with " + loc_currency.GetName())
         loc_actor.addItem(loc_currency, loc_gold)
     endif
     

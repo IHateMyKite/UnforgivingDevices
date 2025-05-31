@@ -83,10 +83,10 @@ Function TimeUpdateSeconds(UD_CustomDevice_RenderScript akDevice, Float afGameHo
     EndIf
 EndFunction
 
-Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afGameHoursSinceLastCall, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     UD_ModTrigger loc_trigger = GetTrigger(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
     UD_ModOutcome loc_outcome = GetOutcome(akDevice, aiDataStr, akForm1, akForm2, akForm3, akForm4, akForm5)
-    If loc_trigger.TimeUpdateHour(Self, akDevice, afHoursSinceLastCall, aiDataStr, akForm1) == True
+    If loc_trigger.TimeUpdateHour(Self, akDevice, afGameHoursSinceLastCall, aiDataStr, akForm1) == True
         _DoCallOutcome(loc_outcome, akDevice, aiDataStr, akForm2, akForm3)
     EndIf
 EndFunction

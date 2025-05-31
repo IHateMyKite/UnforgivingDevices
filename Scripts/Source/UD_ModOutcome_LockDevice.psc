@@ -32,7 +32,7 @@ Scriptname UD_ModOutcome_LockDevice extends UD_ModOutcome
 import UnforgivingDevicesMain
 import UD_Native
 
-Explosion Property ManifestExplosion Auto
+Spell Property ManifestExplosion Auto
 
 Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     Int loc_count = MultInt(GetStringParamInt(aiDataStr, DataStrOffset + 0, 1), akModifier.MultOutputQuantities)
@@ -84,7 +84,8 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
     loc_remain -= UDCDmain.ManifestDevicesFromArray(akDevice.GetWearer(), akDevice.getDeviceName(), loc_forms, loc_method == "R" || loc_method == "RANDOM", loc_remain)
     
     If loc_remain < loc_count && ManifestExplosion != None
-        akDevice.GetWearer().PlaceAtMe(ManifestExplosion)
+        Actor loc_actor = akDevice.GetWearer()
+        ManifestExplosion.Cast(loc_actor)
     EndIf
     
 EndFunction
