@@ -190,9 +190,7 @@ Function OpenLastDeviceMenu()
             if lastOpenedDevice
                 lastOpenedDevice.deviceMenu(new Bool[30])
             else
-                if UDmain.UD_WarningAllowed
-                    UDMain.Warning("No device equipped. Nothing to show")
-                endif
+                UDMain.Warning("No device equipped. Nothing to show")
             endif
         endif
     else
@@ -200,9 +198,7 @@ Function OpenLastDeviceMenu()
         if lastOpenedDevice
             lastOpenedDevice.deviceMenu(new Bool[30])
         else
-            if UDmain.UD_WarningAllowed
-                UDMain.Warning("No device equipped. Nothing to show")
-            endif
+            UDMain.Warning("No device equipped. Nothing to show")
         endif
     endif
 EndFunction

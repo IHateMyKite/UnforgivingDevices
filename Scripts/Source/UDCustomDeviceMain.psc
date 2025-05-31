@@ -3695,7 +3695,7 @@ EndFunction
 
 ;function used for mod development
 Function DebugFunction(Actor akActor)
-    UDmain.UDAbadonQuest.AbadonEquipSuit(akActor,0)
+    UDmain.UDAbadonQuest.AbadonEquipSuitSelective(akActor)
     ;UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0xffffffff)
 EndFunction
 
@@ -3991,9 +3991,7 @@ Function DeviceLockIssueReport(Actor akActor,Armor akDevice, Int aiError)
         if loc_severity == 1
             UDmain.Info("Locking device failed - Actor="+GetActorName(akActor)+" Device="+akDevice.getName()+" Reason=" + loc_reason)
         elseif loc_severity == 2
-            if UDmain.UD_WarningAllowed
-                UDmain.Warning("Locking device failed - Actor="+GetActorName(akActor)+" Device="+akDevice.getName()+" Reason=" + loc_reason)
-            endif
+            UDmain.Warning("Locking device failed - Actor="+GetActorName(akActor)+" Device="+akDevice.getName()+" Reason=" + loc_reason)
         elseif loc_severity == 3
             UDmain.Error("!!Locking device failed!! Actor="+GetActorName(akActor)+" Device="+akDevice.getName()+" Reason=" + loc_reason)
         endif
