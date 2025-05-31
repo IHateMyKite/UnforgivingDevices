@@ -625,6 +625,10 @@ EndFunction
 Bool Function InitMeters(Bool abGameLoad = False)
 EndFunction
 
+; Function to wait for creation process (suitable for fast non-critical calls)
+Bool Function _WaitFor_InitMetersMutex()
+EndFunction
+
 ; Rebuild icons
 ; abGameLoad        - if it called after game load
 Bool Function InitIcons(Bool abGameLoad = False)
@@ -1656,7 +1660,13 @@ State iWidgetInstalled
             UD_Native.RemoveMeterEntryIWW(akData.Id)
             iWidget.destroy(akData.Id)
             akData.Id = -1
+        EndIf        
+        If akData.IconId > 0 && abForceDestory
+            iWidget.destroy(akData.IconId)
+            Utility.Wait(0.1)
+            akData.IconId = -1
         EndIf
+
         If akData.Id < 0
             akData.Id = iWidget.loadMeter()
             ; iWidget.setSize(akData.Id, HUDMeterHeight as Int, HUDMeterWidth as Int)
@@ -1669,12 +1679,7 @@ State iWidgetInstalled
         iWidget.setMeterPercent(akData.Id, akData.FillPercent)
         iWidget.setVisible(akData.Id, akData.Visible as Int)
         _UpdateMeterColor(akData.Id, akData.PrimaryColor, akData.SecondaryColor, akData.FlashColor)
-        
-        If akData.IconId > 0 && abForceDestory
-            iWidget.destroy(akData.IconId)
-            Utility.Wait(0.1)
-            akData.IconId = -1
-        EndIf
+
         
         If akData.IconName != ""
             If akData.IconId < 0
@@ -1702,6 +1707,25 @@ State iWidgetInstalled
 
         _CreateMeter_Mutex = False
     EndFunction
+
+    Bool Function _WaitFor_InitMetersMutex()
+        If _InitMetersMutex && UDmain.TraceAllowed()
+            UDMain.Log("UD_WidgetControl::_WaitFor_InitMetersMutex() _InitMetersMutex = " + _InitMetersMutex, 1)
+        EndIf
+        Int i = 0
+        While i < 20 && _InitMetersMutex
+            Utility.Wait(0.05)
+            i += 1
+        EndWhile
+        If _InitMetersMutex
+            UDMain.Warning("UD_WidgetControl::_WaitFor_InitMetersMutex() We've done waiting although mutex is still active! There're possible conflicts and overlaps in creation process.")
+            Return False
+        EndIf
+        Return True
+    EndFunction
+
+;    Function _RestoreMeterWidget(UD_WidgetMeter_RefAlias akData, Int aiX, Int aiY)
+;    EndFunction
 
     Function _DestroyMeterWidget(UD_WidgetMeter_RefAlias akData)
         if UDmain.TraceAllowed()
@@ -1738,15 +1762,15 @@ State iWidgetInstalled
     EndFunction
     
     Function Meter_SetVisible(String asName, Bool abVisible)
+        if UDmain.TraceAllowed()
+            UDMain.Log("UD_WidgetControl::Meter_SetVisible() asName = " + asName + ", abVisible = " + abVisible, 3)
+        EndIf
         UD_WidgetMeter_RefAlias loc_data = _GetMeter(asName, False)
         If loc_data == None
             Return
         EndIf
         loc_data.Visible = abVisible
-        If _InitMetersMutex
-            UDMain.Log("UD_WidgetControl::Meter_SetVisible() _InitMetersMutex = " + _InitMetersMutex, 3)
-            Return
-        EndIf
+        _WaitFor_InitMetersMutex()
         iWidget.setVisible(loc_data.Id, loc_data.Visible as Int)
         iWidget.setVisible(loc_data.IconId, loc_data.Visible as Int)
     EndFunction
@@ -1778,10 +1802,7 @@ State iWidgetInstalled
         If aiFlashColor >= 0
             loc_data.FlashColor = aiFlashColor
         EndIf
-        If _InitMetersMutex
-            UDMain.Log("UD_WidgetControl::Meter_SetColor() _InitMetersMutex = " + _InitMetersMutex, 3)
-            Return
-        EndIf
+        _WaitFor_InitMetersMutex()
         _UpdateMeterColor(loc_data.Id, loc_data.PrimaryColor, loc_data.SecondaryColor, loc_data.FlashColor)
     EndFunction
 
@@ -1790,10 +1811,7 @@ State iWidgetInstalled
         If loc_data == None
             Return
         EndIf
-        If _InitMetersMutex
-            UDMain.Log("UD_WidgetControl::Meter_Flash() _InitMetersMutex = " + _InitMetersMutex, 3)
-            Return
-        EndIf
+        _WaitFor_InitMetersMutex()
         iWidget.doMeterFlash(loc_data.Id)
     EndFunction
     
@@ -1802,12 +1820,7 @@ State iWidgetInstalled
         If loc_data == None
             Return
         EndIf
-        If _InitMetersMutex
-            if UDmain.TraceAllowed()
-                UDMain.Log("UD_WidgetControl::Meter_SetIcon() _InitMetersMutex = " + _InitMetersMutex, 3)
-            endif
-            Return
-        EndIf
+        _WaitFor_InitMetersMutex()
         If loc_data.IconName == asIconName
             Return
         EndIf
