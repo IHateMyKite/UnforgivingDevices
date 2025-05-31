@@ -9,7 +9,9 @@ Bool    Property    Pending         = False     Auto Hidden         ; creation i
 Function Reset()
     Name = ""
     IsNew = True
+    Pending = False
 EndFunction
 
 Function SoftReset()
+    Pending = False
 EndFunction
