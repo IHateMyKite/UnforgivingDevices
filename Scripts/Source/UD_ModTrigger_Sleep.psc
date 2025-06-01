@@ -19,6 +19,8 @@
         [4]     Int         (optional) Repeat
                             Default value: 0 (False)
 
+        [5]     Float       (script) Memory
+
     Example:
 
 /;
@@ -41,7 +43,12 @@ Bool Function Sleep(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript a
     Float loc_prob_base = MultFloat(GetStringParamFloat(aiDataStr, 1, 100.0), akModifier.MultProbabilities)
     Float loc_prob_accum = MultFloat(GetStringParamFloat(aiDataStr, 2, 0.0), akModifier.MultProbabilities)
     Bool loc_repeat = GetStringParamInt(aiDataStr, 4, 0) > 0
-    Return TriggerOnValueAbs(akDevice, akModifier.NameAlias, aiDataStr, afValueAbs = afDuration, afMinValue = loc_min_dur, afProbBase = loc_prob_base, afProbAccum = loc_prob_accum, abRepeat = loc_repeat)
+
+    If BaseTriggerIsActive(aiDataStr, 5) && RandomFloat(0.0, 100.0) < 50.0
+        PrintNotification(akDevice, ;/ reacted /;" in response to your awakening from sleep.")
+    EndIf
+
+    Return TriggerOnValueAbs(akDevice, akModifier.NameAlias, aiDataStr, afValueAbs = afDuration, afMinValue = loc_min_dur, afProbBase = loc_prob_base, afProbAccum = loc_prob_accum, abRepeat = loc_repeat, aiLastTriggerValueIndex = 5)
 EndFunction
 
 ;/  Group: User interface
@@ -65,7 +72,7 @@ String Function GetParamsTableRows(UD_Modifier_Combo akModifier, UD_CustomDevice
     EndIf
     loc_res += UDmain.UDMTF.TableRowDetails("Threshold value:", loc_min_dur + " hours")
     loc_res += UDmain.UDMTF.TableRowDetails("Base probability:", FormatFloat(loc_prob_base, 1) + "%")
-    loc_res += UDmain.UDMTF.TableRowDetails("Accumulator weight:", FormatFloat(loc_prob_accum, 1) + "%")
+    loc_res += UDmain.UDMTF.TableRowDetails("Accumulator weight:", FormatFloat(loc_prob_accum, 2) + "%")
     loc_res += UDmain.UDMTF.TableRowDetails("Sleep condition:", loc_frag)
     loc_res += UDmain.UDMTF.TableRowDetails("Repeat:", InlineIfStr(GetStringParamInt(aiDataStr, 4, 0) > 0, "True", "False"))
     Return loc_res

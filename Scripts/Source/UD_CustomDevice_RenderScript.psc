@@ -234,7 +234,7 @@ float       Property UD_CutChance       Auto;chance of cutting device every 1s o
         Precision      =       0.25
     ---
 /;
-float       Property UD_StruggleCritMul Auto;crit multiplier applied on crit, step = 0.25, max 255, default 3.75x
+float       Property UD_StruggleCritMul             = 3.75          Auto ;crit multiplier applied on crit, step = 0.25, max 255, default 3.75x
 
 
 ;/  Variable: UD_StruggleCritDuration
@@ -249,7 +249,7 @@ float       Property UD_StruggleCritMul Auto;crit multiplier applied on crit, st
         Precision      =       0.1
     ---
 /;
-float       Property UD_StruggleCritDuration  Auto;crit time, the lower this value, the more faster player needs to press button, range 0.5-1.2, step 0.1 (7 values)
+float       Property UD_StruggleCritDuration        = 1.0           Auto ;crit time, the lower this value, the more faster player needs to press button, range 0.5-1.2, step 0.1 (7 values)
 
 ;/  Variable: UD_StruggleCritChance
     Chance for crit to happen every second
@@ -262,7 +262,7 @@ float       Property UD_StruggleCritDuration  Auto;crit time, the lower this val
         Max. Value     =       100
     ---
 /;
-int         Property UD_StruggleCritChance    Auto;chance of random crit happening once per second of struggling, range 0-100
+int         Property UD_StruggleCritChance          = 15            Auto ;chance of random crit happening once per second of struggling, range 0-100
 
 ;/  Variable: UD_Cooldown
     Device cooldown, in minutes. Device will activate itself on after this time (if it can)
@@ -1940,11 +1940,11 @@ EndFunction
 /;
 String[] Function getModifierAllParam(string asModifier)
     String[] loc_arr = UD_Native.GetModifierStringParamAll(VMHandle1,VMHandle2,deviceRendered,asModifier)
-    If UDmain.TraceAllowed()
-        Int loc_index = UD_Native.GetModifierIndex(VMHandle1,VMHandle2,deviceRendered,asModifier)
-        String loc_pars = UD_ModifiersDataStr[loc_index]
-        UDmain.Log(Self + "::getModifierAllParam() asModifier = " + asModifier + ", loc_index = " + loc_index + ", DataStr[i] = '" + loc_pars + "', Array = " + loc_arr, 3)
-    EndIf
+;    If UDmain.TraceAllowed()
+;        Int loc_index = UD_Native.GetModifierIndex(VMHandle1,VMHandle2,deviceRendered,asModifier)
+;        String loc_pars = UD_ModifiersDataStr[loc_index]
+;        UDmain.Log(Self + "::getModifierAllParam() asModifier = " + asModifier + ", loc_index = " + loc_index + ", DataStr[i] = '" + loc_pars + "', Array = " + loc_arr, 3)
+;    EndIf
     return loc_arr
 EndFunction
 
@@ -1975,8 +1975,11 @@ EndFunction
         True if operation was succesfull
 /;
 
-bool Function editStringModifier(string asModifier,int aiIndex, string asNewValue)
+bool Function editStringModifier(string asModifier, int aiIndex, string asNewValue)
     initStringModifier(asModifier, aiIndex)
+;    If UDmain.TraceAllowed()
+;        UDmain.Log(Self + "::editStringModifier() Mod = '" + asModifier + "', DataStr[" + aiIndex + "] := '" + asNewValue + "'", 3)
+;    EndIf
     return UD_Native.EditModifierStringParam(VMHandle1,VMHandle2,deviceRendered,asModifier,aiIndex,asNewValue)
 EndFunction
 
@@ -2329,7 +2332,7 @@ String Function _getLockListItem(Int aiLockNum)
         Else
             loc_state = UDMain.UDMTF.Text(loc_state, asColor = "#DDDDDD")
         EndIf
-        loc_str += UDMain.UDMTF.TableRowWide(loc_name, loc_state, UDMain.UDMTF.InlineIfString(loc_timer > 0, (loc_timer as String) + "h"), UDMain.UDMTF.InlineIfString(loc_shield > 0, (loc_shield as String) + " shield(s)"))
+        loc_str += UDMain.UDMTF.TableRowWide(loc_name, loc_state, UDMain.UDMTF.InlineIfString(loc_timer > 0, (loc_timer as String) + "h"), UDMain.UDMTF.InlineIfString(!IsNthLockUnlocked(aiLockNum) && loc_shield > 0, (loc_shield as String) + " shield(s)"))
         loc_str += UDMain.UDMTF.TableEnd()
         loc_str += UDMain.UDMTF.FontEnd()
     Else
@@ -7085,20 +7088,40 @@ String Function _GetDeviceLockMenuText()
     loc_res += UDMTF.LineBreak()
     If _getLockpickLevel(0) > 4
         If zad_deviceKey
-            loc_res += UDMTF.Text("You need a '" + zad_deviceKey.GetName() + "' to open locks.")
+            loc_res += UDMTF.Text("You need a " + UDMTF.Text(zad_deviceKey.GetName(), asColor = UDMTF.BoolToRainbow(True)) + " to open these locks.")
         Else
             loc_res += UDMTF.Text("This device requires a key but it is not present in our world. You are " + UDMTF.Text("doomed", asColor = UDMTF.BoolToRainbow(False)) + "!")
         EndIf
     Else
         loc_res += UDMTF.Text("Any " + _GetLockpickLevelString(_getLockpickLevel(0), True) + " in lock picking should be able to handle them.")
+        If zad_deviceKey
+            loc_res += UDMTF.Text(" Or you could use a key: " + UDMTF.Text(zad_deviceKey.GetName(), asColor = UDMTF.BoolToRainbow(True)))
+        EndIf
     EndIf
     loc_res += UDMTF.LineBreak()
     loc_res += UDMTF.Text(GetLocksIcons())
     loc_res += UDMTF.LineBreak()
     loc_res += UDMTF.Text(UDMTF.DeviceLockLegend())
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.Text("What do you want to do with the locks?")
-    loc_res += UDMTF.LineBreak()
+
+    Int loc_keys_count = 0
+    If zad_deviceKey
+        loc_keys_count += GetWearer().getItemCount(zad_deviceKey)
+    EndIf
+    Int loc_lps_couns = GetWearer().getItemCount(UDCDmain.Lockpick)
+    If GetHelper()
+        loc_keys_count += GetHelper().getItemCount(zad_deviceKey)
+        loc_lps_couns += GetHelper().getItemCount(UDCDmain.Lockpick)
+    EndIf
+
+    If _getLockpickLevel(0) > 4 && loc_keys_count == 0
+        loc_res += UDMTF.Text("You can't open these locks without a proper key!", asColor = UDMTF.BoolToRainbow(False))
+        loc_res += UDMTF.LineBreak()
+    EndIf
+    If _getLockpickLevel(0) <= 4 && loc_lps_couns == 0
+        loc_res += UDMTF.Text("You have no lockpicks!", asColor = UDMTF.BoolToRainbow(False))
+        loc_res += UDMTF.LineBreak()
+    EndIf
     
     loc_res += UDMTF.ParagraphEnd()
     loc_res += UDMTF.FontEnd()
@@ -7484,7 +7507,7 @@ Function showDebugMinigameInfo()
     
     loc_res += UDMTF.Header(getDeviceName(), UDMTF.FontSize + 4)
     loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
-    loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150, aiColumn2Width = 70, aiColumn3Width = 70)
+    loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 140, aiColumn2Width = 60, aiColumn3Width = 60)
     loc_res += UDMTF.HeaderSplit()
     
     loc_res += UDMTF.TableRowDetails("Wearer:", getWearerName())
@@ -7531,12 +7554,12 @@ Function showDebugMinigameInfo()
     loc_res += UDMTF.PageSplit(abForce = False)
     loc_res += UDMTF.LineGap()
     
-    loc_res += UDMTF.TableRowWide("Required stats:", "S = " + Round(_minMinigameStatSP*100) + "%", "H = " + Round(_minMinigameStatHP*100) + "%", "M = " + Round(_minMinigameStatMP*100) + "%")
+    loc_res += UDMTF.TableRowWide("Required stats:", "S=" + Round(_minMinigameStatSP*100) + "%", "H=" + Round(_minMinigameStatHP*100) + "%", "M=" + Round(_minMinigameStatMP*100) + "%")
     if UD_RegenMag_Stamina || UD_RegenMag_Health || UD_RegenMag_Magicka
-        loc_res += UDMTF.TableRowWide("Wearer regen:", "S = " + Round(UD_RegenMag_Stamina*100) + "%", "H = " + Round(UD_RegenMag_Health*100) + "%", "M = " + Round(UD_RegenMag_Magicka*100) + "%")
+        loc_res += UDMTF.TableRowWide("Wearer regen:", "S=" + Round(UD_RegenMag_Stamina*100) + "%", "H=" + Round(UD_RegenMag_Health*100) + "%", "M=" + Round(UD_RegenMag_Magicka*100) + "%")
     endif
     if UD_RegenMagHelper_Stamina || UD_RegenMagHelper_Health || UD_RegenMagHelper_Magicka
-        loc_res += UDMTF.TableRowWide("Helper regen:", "S = " + Round(UD_RegenMagHelper_Stamina*100) + "%", "H = " + Round(UD_RegenMagHelper_Health*100) + "%", "M = " + Round(UD_RegenMagHelper_Magicka*100) + "%")
+        loc_res += UDMTF.TableRowWide("Helper regen:", "S=" + Round(UD_RegenMagHelper_Stamina*100) + "%", "H=" + Round(UD_RegenMagHelper_Health*100) + "%", "M=" + Round(UD_RegenMagHelper_Magicka*100) + "%")
     endif
     if UD_applyExhastionEffect
         loc_res += UDMTF.TableRowDetails("Exhastion mult:", Round(_exhaustion_mult*100) + "%")

@@ -21,7 +21,7 @@
                         
         [5]     Int         (script) Number of obtained items so far
         
-        [6]     Float       (script) Timestamp of the last trigger
+        [6]     Float       (script) Timestamp of the last trigger. (-1.0 if it is triggered once without repeat option)
 
     Form arguments:
         Form1               Form or FormList with Forms to filter obtained items. Keywords don't work
@@ -47,7 +47,11 @@ Bool Function DeviceLocked(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderS
     loc_slot.RegisterItemEvent(akForm1)
     
     Float loc_timer = akDevice.GetGameTimeLockedTime()
-    akDevice.editStringModifier(akModifier.NameAlias, 5, FormatFloat(loc_timer, 2))
+    akDevice.editStringModifier(akModifier.NameAlias, 6, FormatFloat(loc_timer, 2))
+
+    If RandomFloat(0.0, 100.0) < 50.0
+        PrintNotification(akDevice, ;/ reacted /;" because of the items in your inventory. An image of an " + akForm1.GetName() + " appears in front of your eyes for a second.")
+    EndIf
     
     Return False
 EndFunction
@@ -63,6 +67,7 @@ Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     If !_IsValidForm(akForm1, akItemForm)
         Return False
     EndIf
+
     If UDmain.TraceAllowed()
         UDmain.Log("UD_ModTrigger_ItemObtain::ItemAdded() akItemForm = " + akItemForm + " abIsStolen = " + abIsStolen, 3)
     EndIf
@@ -74,6 +79,11 @@ Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     ; already triggered with trigger-once settings
         Return False
     EndIf
+    
+    If RandomFloat(0.0, 100.0) < 50.0
+        PrintNotification(akDevice, ;/ reacted /;" because of the items in your inventory. An image of an " + akForm1.GetName() + " appears in front of your eyes for a second.")
+    EndIf
+
     Bool loc_result = False
     
     Bool loc_stolen = GetStringParamInt(aiDataStr, 4, 0) > 0

@@ -358,24 +358,27 @@ String Function _getDeviceListItem(UD_CustomDevice_RenderScript akDevice)
         Int loc_acc = Round(100 * akDevice.getAccesibility())               ; without helper
         String loc_acc_str = UDMain.UDMTF.Text((loc_acc as String) + "%", asColor = UDMain.UDMTF.PercentToRainbow(loc_acc))
         String loc_locks = akDevice.GetLocksIcons(asSeparator = "")
-        String[] loc_tags_arr = PapyrusUtil.RemoveDupeString(akDevice.GetModifierTags())
+        String[] loc_tags_arr = akDevice.GetModifierTags()
         String loc_tags = ""
-        Int loc_j = 0
-        Int loc_tags_length = 0
-        While loc_j < loc_tags_arr.Length
-            If loc_tags_length > 0
-                loc_tags_length += 1
-                loc_tags += " "
-            EndIf
-            loc_tags_length += StringUtil.GetLength(loc_tags_arr[loc_j])
-            loc_tags += UDMain.UDMTF.Text(loc_tags_arr[loc_j], asColor = UDMain.UDMTF.StringHashToColor(loc_tags_arr[loc_j]))
-            loc_j += 1
-        EndWhile
-        Int loc_tags_font_size = UD_Native.iRange((22 * 16 / loc_tags_length) as Int, 10, 16)                       ; Font size: 10 .. 16. Base length: 22 symbols
-        loc_tags = UDMain.UDMTF.AddTag("ucase", loc_tags)                                                           ; decorate with a made-up <ucase> tag to convert this substring to uppercase in swf
-        loc_tags = UDMain.UDMTF.Text(loc_tags, aiFontSize = loc_tags_font_size)                                     ; change font size to avoid clipping
+        If loc_tags_arr.Length > 0
+            loc_tags_arr = PapyrusUtil.RemoveDupeString(loc_tags_arr)
+            Int loc_j = 0
+            Int loc_tags_length = 0
+            While loc_j < loc_tags_arr.Length
+                If loc_tags_length > 0
+                    loc_tags_length += 1
+                    loc_tags += " "
+                EndIf
+                loc_tags_length += StringUtil.GetLength(loc_tags_arr[loc_j])
+                loc_tags += UDMain.UDMTF.Text(loc_tags_arr[loc_j], asColor = UDMain.UDMTF.StringHashToColor(loc_tags_arr[loc_j]))
+                loc_j += 1
+            EndWhile
+            Int loc_tags_font_size = UD_Native.iRange((21 * 16 / loc_tags_length) as Int, 8, 16)                        ; Font size: 10 .. 16. Base length: 22 symbols
+            loc_tags = UDMain.UDMTF.AddTag("ucase", loc_tags)                                                           ; decorate with a made-up <ucase> tag to convert this substring to uppercase in swf
+            loc_tags = UDMain.UDMTF.Text(loc_tags, aiFontSize = loc_tags_font_size)                                     ; change font size to avoid clipping
+        EndIf
         loc_str += UDMain.UDMTF.FontBegin(asFontFace = "$EverywhereFont", aiFontSize = 16)
-        loc_str += UDMain.UDMTF.TableBegin(5, 180, 33, 33, 70)                                                      ; 119 on the last column
+        loc_str += UDMain.UDMTF.TableBegin(5, 180, 31, 31, 74)                                                          ; 119 on the last column
         loc_str += UDMain.UDMTF.TableRowWide(loc_name, loc_acc_str, loc_health_str, loc_locks, loc_tags)
         loc_str += UDMain.UDMTF.TableEnd()
         loc_str += UDMain.UDMTF.FontEnd()

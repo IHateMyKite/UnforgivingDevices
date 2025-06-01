@@ -63,7 +63,7 @@ Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDe
 
     akDevice.editStringModifier(akModifier.NameAlias, DataStrOffset + 3, loc_state)
     If loc_duration > 0.0
-        akDevice.editStringModifier(akModifier.NameAlias, DataStrOffset + 1, FormatFloat(Utility.GetCurrentGameTime() * 24.0, 2))
+        akDevice.editStringModifier(akModifier.NameAlias, DataStrOffset + 4, FormatFloat(Utility.GetCurrentGameTime() * 24.0, 2))
     EndIf
 
     ; print a message if the state has changed

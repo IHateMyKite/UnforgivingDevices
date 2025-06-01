@@ -26,6 +26,9 @@ import UD_Native
 
 Function Outcome(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScript akDevice, String aiDataStr, Form akForm2, Form akForm3)
     Spell loc_spell = UD_Modifier.GetRandomForm(akForm2, akForm3) as Spell
+
+    PrintNotification(akDevice, ;/changed/; "and cast a magic spell.")
+
     If loc_spell
         loc_spell.Cast(akDevice.GetWearer(), akDevice.GetWearer())
     EndIf

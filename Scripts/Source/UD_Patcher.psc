@@ -413,6 +413,9 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
         Float loc_w_probs_sum = 0.0
         Float loc_a_probs_sum = 0.0
 
+        String loc_extra_log1 = ""
+        String loc_extra_log2 = ""
+
         loc_i = 0
         ; run through the entire array of available presets (filtered in the first phase), 
         ; check their tags and calculate probabilities.
@@ -431,10 +434,16 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
                             loc_a_probs = PapyrusUtil.PushFloat(loc_a_probs, loc_prob)
                             loc_a_pres = PapyrusUtil.PushAlias(loc_a_pres, loc_pre)
                             loc_a_probs_sum += loc_prob
+                            If UDCDmain.UDmain.TraceAllowed()
+                                loc_extra_log1 += loc_mod.NameAlias + " "
+                            EndIf
                         Else
                             loc_w_probs = PapyrusUtil.PushFloat(loc_w_probs, loc_prob)
                             loc_w_pres = PapyrusUtil.PushAlias(loc_w_pres, loc_pre)
                             loc_w_probs_sum += loc_prob
+                            If UDCDmain.UDmain.TraceAllowed()
+                                loc_extra_log2 += loc_mod.NameAlias + " "
+                            EndIf
                         EndIf
                     EndIf
                 EndIf
@@ -442,8 +451,8 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
             loc_i += 1
         Endwhile
         If UDCDmain.UDmain.TraceAllowed()
-            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Second pass: " + loc_w_pres.Length + " modifiers filtered with total weighted probability " + FormatFloat(loc_w_probs_sum, 2) + "%", 2)
-            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Second pass: " + loc_a_pres.Length + " modifiers filtered with total absolute probability " + FormatFloat(loc_a_probs_sum, 2) + "%", 2)
+            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Second pass: " + loc_a_pres.Length + " modifiers filtered with total absolute probability " + FormatFloat(loc_a_probs_sum, 2) + "% [" + loc_extra_log1 + "]", 2)
+            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Second pass: " + loc_w_pres.Length + " modifiers filtered with total weighted probability " + FormatFloat(loc_w_probs_sum, 2) + "% [" + loc_extra_log2 + "]", 2)
         EndIf
         If (loc_a_pres.Length + loc_w_pres.Length) == 0 || (loc_a_probs_sum + loc_w_probs_sum) == 0.0
         ; there is nothing to select from
@@ -453,12 +462,16 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
             Float loc_rnd = 0.0
             Float loc_seek_prob = 0.0
             ; first, checking presets with absolute probability
-            If loc_a_pres.Length > 0
+            If loc_a_pres.Length > 0 && loc_a_probs_sum > 0.0
                 loc_i = 0
                 While loc_i < loc_a_probs.Length && loc_pre == None
                     loc_rnd = UD_Native.RandomFloat(0.0, 100.0)
                     If loc_rnd < loc_a_probs[loc_i]
                         loc_pre = loc_a_pres[loc_i] As UD_Patcher_ModPreset
+                    EndIf
+                    If UDCDmain.UDmain.TraceAllowed()
+                        loc_mod = (loc_a_pres[loc_i] As UD_Patcher_ModPreset).GetModifier()
+                        UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Testing modifier with abs. prob. [" + loc_mod.NameAlias + "]: " + FormatFloat(loc_rnd, 1) + " ? " + FormatFloat(loc_a_probs[loc_i], 1), 3)
                     EndIf
                     loc_valid_pres = PapyrusUtil.RemoveAlias(loc_valid_pres, loc_a_pres[loc_i])       ; we have tried this modifier
                     loc_i += 1
@@ -471,6 +484,9 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
                     loc_rnd = UD_Native.RandomFloat(0.0, loc_w_probs_sum)
                 Else
                     loc_rnd = UD_Native.RandomFloat(0.0, 100.0)
+                EndIf
+                If UDCDmain.UDmain.TraceAllowed()
+                    UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Testing modifiers with weighted prob.: " + FormatFloat(loc_rnd, 1) + " ? " + FormatFloat(loc_w_probs_sum, 1), 3)
                 EndIf
                 If loc_rnd <= loc_w_probs_sum
                     loc_seek_prob = 0.0

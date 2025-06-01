@@ -24,7 +24,7 @@ import UD_Native
 ===========================================================================================
 ===========================================================================================
 /;
-Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afHoursSinceLastCall, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
+Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afGameHoursSinceLastCall, String aiDataStr, Form akForm1, Form akForm2, Form akForm3, Form akForm4, Form akForm5)
     if !akDevice.HaveUnlockableLocks()
         return
     endif
@@ -33,12 +33,12 @@ Function TimeUpdateHour(UD_CustomDevice_RenderScript akDevice, Float afHoursSinc
         Return
     EndIf
     Int loc_i = 0
-    While loc_i < Math.Floor(afHoursSinceLastCall)
+    While loc_i < Math.Floor(afGameHoursSinceLastCall)
         akDevice.AddJammedLock(Round(loc_chance_h))
         loc_i += 1
     EndWhile
-    If afHoursSinceLastCall - Math.Floor(afHoursSinceLastCall) > 0.01
-        Int loc_prob = Round((1.0 - Math.Pow(0.01 * loc_chance_h, afHoursSinceLastCall - Math.Floor(afHoursSinceLastCall))) * 100)
+    If afGameHoursSinceLastCall - Math.Floor(afGameHoursSinceLastCall) > 0.01
+        Int loc_prob = Round((1.0 - Math.Pow(0.01 * loc_chance_h, afGameHoursSinceLastCall - Math.Floor(afGameHoursSinceLastCall))) * 100)
         akDevice.AddJammedLock(loc_prob)
     EndIf
 EndFunction

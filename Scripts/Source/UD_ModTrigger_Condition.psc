@@ -21,6 +21,8 @@
         [3]     Int         (optional) Repeat
                             Default value: 0 (False)
 
+        [4]     Float       (script) Memory
+
     Example:
         1           - triggers once the condition becomes "good" or worse
         0,50,0,1    - can trigger with a 50% probability each time the device deteriorates
@@ -48,7 +50,12 @@ Bool Function ConditionLoss(UD_Modifier_Combo akModifier, UD_CustomDevice_Render
     Float loc_prob_base = MultFloat(GetStringParamFloat(aiDataStr, 1, 100.0), akModifier.MultProbabilities)
     Float loc_prob_value = MultFloat(GetStringParamFloat(aiDataStr, 2, 0.0), akModifier.MultProbabilities)
     Bool loc_repeat = GetStringParamInt(aiDataStr, 3, 0) > 0
-    Return TriggerOnValueAbs(akDevice, akModifier.NameAlias, aiDataStr, afValueAbs = aiCondition, afMinValue = loc_min_condition, afProbBase = loc_prob_base, afProbAccum = loc_prob_value, abRepeat = loc_repeat)
+
+    If BaseTriggerIsActive(aiDataStr, 4)
+        PrintNotification(akDevice, ;/ reacted /;"after its condition worsened.")
+    EndIf
+
+    Return TriggerOnValueAbs(akDevice, akModifier.NameAlias, aiDataStr, afValueAbs = aiCondition, afMinValue = loc_min_condition, afProbBase = loc_prob_base, afProbAccum = loc_prob_value, abRepeat = loc_repeat, aiLastTriggerValueIndex = 4)
 EndFunction
 
 ;/  Group: User interface
