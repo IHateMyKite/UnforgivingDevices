@@ -1086,7 +1086,7 @@ EndFunction
         True if player have any Devious Device locked on
 /;
 bool function hasAnyUD()
-    return Player.wornhaskeyword(libs.zad_Lockable)
+    return Player.wornhaskeyword(libs.zad_Lockable) || Player.wornhaskeyword(libs.zad_DeviousPlug)
 endfunction
 
 Function startVibEffect(Actor akActor, int aiStrenght, int aiDuration, bool abEdge)
