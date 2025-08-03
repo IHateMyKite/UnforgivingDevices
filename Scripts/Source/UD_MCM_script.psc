@@ -694,6 +694,8 @@ String[] UD_ModifierList
 Int UD_ModifierPatchSelected = 0
 Int UD_ModifierPatchList_M
 
+Int UD_ModReset_T
+
 Int UD_ModsMin_S
 Int UD_ModsMax_S
 Int UD_ModGlobalProbabilityMult_S
@@ -797,10 +799,12 @@ Function resetModifiersPage()
     
     UD_ModStorageList_M = AddMenuOption("$UD_MODSTORAGE_SELECTED", loc_storage.GetName(), FlagSwitch(true))       ; Selected storage
     UD_ModifierList_M = AddMenuOption("$UD_CUSTOMMOD_SELECTED", loc_mod.NameFull, FlagSwitch(true))               ; Selected modifier
-
+    UD_ModReset_T = AddTextOption("==RESET==", "$-PRESS-")
+    AddEmptyOption()
+    
     String[] loc_presets_names = loc_mod.GetPatcherPresetsNames()
         
-    SetCursorPosition(16)
+    SetCursorPosition(18)
     SetCursorFillMode(TOP_TO_BOTTOM)
     AddHeaderOption("$UD_CUSTOMMOD_BASEDETAILS")             ; Base Details
 
@@ -809,7 +813,7 @@ Function resetModifiersPage()
     UD_ModifierDescription_T = AddTextOption("$UD_CUSTOMMOD_DETAILDESC", "$-INFO-", FlagSwitch(true))                                       ; Description
     UD_ModifierDetailTags_T = AddTextOption("$UD_CUSTOMMOD_DETAILTAGS", "[" + StringArrayToString(loc_mod.Tags) + "]", FlagSwitch(true))    ; Tags
     
-    SetCursorPosition(17)
+    SetCursorPosition(19)
     SetCursorFillMode(TOP_TO_BOTTOM)
     AddHeaderOption("$UD_CUSTOMMOD_RUNTIMECONFIG")                ; Runtime Configuration
    
@@ -818,7 +822,7 @@ Function resetModifiersPage()
     UD_ModifierMultiplier3_S = AddSliderOption("$UD_CUSTOMMOD_MULTOUT", loc_mod.MultOutputQuantities, "{1} x", UD_LockMenu_flag)        ; Output multiplier
     UD_Modifier_AddToTest_T = addToggleOption("$UD_CUSTOMMOD_ADDTOTEST", loc_mod.NameAlias == UDCDmain.UDPatcher.UD_ModAddToTest, FlagSwitchOr(FlagSwitch(loc_presets_names.Length > 0), UD_LockMenu_flag))         ; add to test in the next Patcher call
 
-    SetCursorPosition(26)
+    SetCursorPosition(28)
     SetCursorFillMode(LEFT_TO_RIGHT)
     AddHeaderOption("$UD_CUSTOMMOD_PPSCONFIG")            ; Patcher Presets Configuration
     AddHeaderOption("")
@@ -1970,6 +1974,16 @@ Function OnOptionSelectCustomMods(int option)
         UD_Patcher_ModPreset loc_mod_pp = loc_mod.GetPatcherPreset(UD_ModifierPatchSelected)
         loc_mod_pp.IsAbsoluteProbability = !loc_mod_pp.IsAbsoluteProbability
         SetToggleOptionValue(UD_ModPP_IsAbsoluteProbability_T, loc_mod_pp.IsAbsoluteProbability)
+    elseif option == UD_ModReset_T
+        if ShowMessage("Do you really want to reset the modifier storage and set it to default values?")
+            UD_Modifier loc_mod = UDmain.UDMOM.GetModifierFromStorage(UD_ModifierStorageSelected, UD_ModifierSelected)
+            Quest loc_storage   = loc_mod.GetOwningQuest()
+            loc_storage.Stop()
+            Utility.WaitMenuMode(1.0)
+            loc_storage.Reset()
+            ;loc_outfit.Reset()
+            forcePageReset()
+        endif
     endif
 EndFunction
 
