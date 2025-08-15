@@ -667,7 +667,7 @@ Event resetCustomBondagePage()
     UD_DeviceLvlHealth_S    = addSliderOption("$UD_DEVICELVLHEALTH",UDCDmain.UD_DeviceLvlHealth*100, "{1} %",UD_LockMenu_flag)
     UD_DeviceLvlLockpick_S  = addSliderOption("$UD_DEVICELVLLOCKPICK",UDCDmain.UD_DeviceLvlLockpick, "{1}",UD_LockMenu_flag)
     
-    UD_DeviceLvlLocks_S     = addSliderOption("$UD_DEVICELVLLOCKS",UDCDmain.UD_DeviceLvlLocks, "{0} LVLs");,UD_LockMenu_flag)
+    UD_DeviceLvlLocks_S     = addSliderOption("$UD_DEVICELVLLOCKS",UDCDmain.UD_DeviceLvlLocks, "{0} LVLs"),UD_LockMenu_flag)
     AddEmptyOption()
     
     ;DIFFICULTY

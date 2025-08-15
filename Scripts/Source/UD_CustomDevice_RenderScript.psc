@@ -3169,6 +3169,11 @@ Function _deviceMenuInitWH(Actor akSource,bool[] aaControl)
         endif
     endif
     
+    ;sets last opened device
+    if WearerIsPlayer()
+        UDCDmain.setLastOpenedDevice(self)
+    endif
+    
     _filterControl(aaControl,akSource == none)
     UDCdmain.CheckAndDisableSpecialMenu()
 EndFunction
@@ -5148,7 +5153,7 @@ Function advanceSkill(float afMult)
             Game.AdvanceSkill("Destruction",loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease/1.35)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
         endif
     elseif _RepairLocksMinigameON
-        Game.AdvanceSkill("Smithing" , loc_mult*(0.75*UDCDmain.UD_BaseDeviceSkillIncrease/1.0)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+        Game.AdvanceSkill("Smithing" , loc_mult*(0.75*UDCDmain.UD_BaseDeviceSkillIncrease/2.0)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
     elseif _CuttingGameON
         Game.AdvanceSkill("OneHanded", loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease/5.3)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
     endif
@@ -5186,6 +5191,11 @@ EndFunction
 
 ;repair lock by progress_add
 Function _repairLock(float progress_add = 1.0)
+    ; NPCs have problem reparing locks, so increase it
+    if (!PlayerInMinigame())
+      progress_add *= 2
+    endif
+
     Float loc_RepairProgress = UpdateNthLockRepairProgress(_MinigameSelectedLockID,progress_add*UDCDmain.getStruggleDifficultyModifier())
     if loc_RepairProgress >= _getLockDurability()
         loc_RepairProgress = UpdateNthLockRepairProgress(_MinigameSelectedLockID,-1*_getLockDurability()) ;reset value
@@ -8384,7 +8394,7 @@ Function _MinigameCritLoopThread()
     Float loc_updateTime  = 0.25
     string critType = "random"
     if !loc_playerInMinigame
-        loc_updateTime = 1.0
+        loc_updateTime = 0.5
         critType = "NPC"
     elseif UDCDmain.UD_AutoCrit
         critType = "Auto"
@@ -8400,11 +8410,12 @@ Function _MinigameCritLoopThread()
             ;check crit every 1 s
             if loc_elapsedTime >= 1.0
                 if UD_minigame_canCrit
-                    UDCDmain.StruggleCritCheck(self,UD_StruggleCritChance,critType,UD_StruggleCritDuration)
+                    loc_elapsedTime = UDCDmain.StruggleCritCheck(self,UD_StruggleCritChance,critType,UD_StruggleCritDuration)
                 elseif _customMinigameCritChance
-                    UDCDmain.StruggleCritCheck(self,_customMinigameCritChance,critType,_customMinigameCritDuration)
-                endif
-                loc_elapsedTime = 0.0
+                    loc_elapsedTime = UDCDmain.StruggleCritCheck(self,_customMinigameCritChance,critType,_customMinigameCritDuration)
+                else
+                    loc_elapsedTime = 0.0
+                Endif
             endif
         endif
         if IsMinigameLoopRunning()
@@ -8412,7 +8423,7 @@ Function _MinigameCritLoopThread()
             loc_elapsedTime += loc_updateTime
         endif
     endwhile
-    
+    UDCDmain.crit = False
     _MinigameParProc_3 = false
 EndFunction
 
@@ -8528,6 +8539,6 @@ Function _UnregisterInvalid()
     removeDevice(Wearer)
     ; Sometimes the device can be invalid, but valid script can be also present but not registered. 
     ; Calling removeLostRenderDevices should fix the issue
-    UDCDmain.GetNPCSlot(Wearer).removeLostRenderDevices()
+    UDCDmain.GetNPCSlot(Wearer).removeLostRenderDevices(true)
     _UnregisterInvalidCalled = 2
 EndFunction
