@@ -113,6 +113,9 @@ Int     Property UD_DeviceLvlLocks                  = 5     auto hidden
 float   Property UD_VibrationMultiplier             = 0.10  auto hidden
 float   Property UD_ArousalMultiplier               = 0.05  auto hidden
 
+int     Property UD_ExperienceGainBase              = 15  auto hidden
+float   Property UD_ExperienceGainExp               = 0.8  auto hidden
+
 UD_PlayerSlotScript Property UD_PlayerSlot auto
 
 ;factions

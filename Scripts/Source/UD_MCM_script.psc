@@ -165,6 +165,7 @@ EndFunction
 String Property UD_GeneralPageName          = "$UD_GENERAL"                 AutoReadOnly Hidden
 String Property UD_DeviceFilterPageName     = "$UD_DEVICEFILTER"            AutoReadOnly Hidden
 String Property UD_CustomDevicePageName     = "$UD_CUSTOMDEVICES"           AutoReadOnly Hidden
+String Property UD_SkillPageName            = "Skill"                       AutoReadOnly Hidden
 String Property UD_CustomModsPageName       = "$UD_CUSTOMMODS"              AutoReadOnly Hidden
 String Property UD_CustomModTagsPageName    = "$UD_CUSTOMMODS_TAGS"         AutoReadOnly Hidden
 String Property UD_CustomOutfitsPageName    = "$UD_CUSTOMOUTFITS"           AutoReadOnly Hidden
@@ -180,23 +181,24 @@ String Property UD_DebugPageName            = "$UD_DEBUGPANEL"              Auto
 String Property UD_OtherPageName            = "$UD_OTHER"                   AutoReadOnly Hidden
 
 Function LoadConfigPages()
-    pages = new String[16]
+    pages = new String[17]
     pages[00] = UD_GeneralPageName
     pages[01] = UD_DeviceFilterPageName
     pages[02] = UD_CustomDevicePageName
-    pages[03] = UD_CustomModsPageName
-    pages[04] = UD_CustomModTagsPageName
-    pages[05] = UD_CustomOutfitsPageName
-    pages[06] = UD_CustomOrgasmPageName
-    pages[07] = UD_NPCsPageName
-    pages[08] = UD_PatcherPageName
-    pages[09] = UD_DDPatchPageName
-    pages[10] = UD_AbadonPlugPageName
-    pages[11] = UD_UIPageName
-    pages[12] = UD_AnimationsPageName
-    pages[13] = UD_AnimationPlayPageName
-    pages[14] = UD_DebugPageName
-    pages[15] = UD_OtherPageName
+    pages[03] = UD_SkillPageName
+    pages[04] = UD_CustomModsPageName
+    pages[05] = UD_CustomModTagsPageName
+    pages[06] = UD_CustomOutfitsPageName
+    pages[07] = UD_CustomOrgasmPageName
+    pages[08] = UD_NPCsPageName
+    pages[09] = UD_PatcherPageName
+    pages[10] = UD_DDPatchPageName
+    pages[11] = UD_AbadonPlugPageName
+    pages[12] = UD_UIPageName
+    pages[13] = UD_AnimationsPageName
+    pages[14] = UD_AnimationPlayPageName
+    pages[15] = UD_DebugPageName
+    pages[16] = UD_OtherPageName
 EndFunction
 
 bool Property Ready = False Auto
@@ -368,6 +370,8 @@ Event OnPageReset(string page)
         resetFilterPage()
     elseif (page == UD_CustomDevicePageName)
         resetCustomBondagePage()
+    elseif (page == UD_SkillPageName)
+        resetSkillPage()
     elseif (page == UD_CustomModsPageName)
         resetModifiersPage()
     elseif (page == UD_CustomModTagsPageName)
@@ -602,7 +606,7 @@ Event resetCustomBondagePage()
     UD_PreventMasterLock_T = addToggleOption("$UD_PREVENTMASTERLOCK",UDCDmain.UD_PreventMasterLock,UD_LockMenu_flag)
     UD_LockpickMinigameNum_S = addSliderOption("$UD_LOCKPICKMINIGAMENUM",UDCDmain.UD_LockpicksPerMinigame, "{0}",UD_LockMenu_flag)
     
-    UD_MinigameLockpickSkillAdjust_M    = AddMenuOption("$UD_MINIGAMELOCKPICKSKILLADJUST", UD_MinigameLockpickSkillAdjust_ML[UDCDmain.UD_MinigameLockpickSkillAdjust],UD_LockMenu_flag)
+    addEmptyOption()
     UD_LockpickMinigameDuration_S       = addSliderOption("$UD_LOCKPICKMINIGAMEDURATION",UDCDmain.UD_LockpickMinigameDuration, "{0} s",UD_LockMenu_flag)
     
     UD_KeyDurability_S = addSliderOption("$UD_KEYDURABILITY",UDCDmain.UD_KeyDurability, "{0}",UD_LockMenu_flag)
@@ -625,14 +629,6 @@ Event resetCustomBondagePage()
     UD_MinigameExhMagnitudeMult_S    = addSliderOption("$UD_MINIEXHAUSMAG", Round(UDCDmain.UD_MinigameExhMagnitudeMult * 100), "{0} %", UD_LockMenu_flag)
     UD_MinigameExhNoStruggleMax_S    = addSliderOption("$UD_MINIEXHNOSTRUGGMAX", Round(UDCDmain.UD_MinigameExhNoStruggleMax), "{0}", UD_LockMenu_flag)
 
-
-    ;SKILL
-    AddHeaderOption("$UD_H_SKILLSETTING")
-    addEmptyOption()
-    
-    UD_BaseDeviceSkillIncrease_S = addSliderOption("$UD_BASEDEVICESKILLINCREASE",UDCDmain.UD_BaseDeviceSkillIncrease, "{0}",UD_LockMenu_flag)
-    UD_SkillEfficiency_S = addSliderOption("$UD_SKILLEFFICIENCY",UDCDmain.UD_SkillEfficiency, "{0} %",UD_LockMenu_flag)
-    
     ;HELPER SETTING
     AddHeaderOption("$UD_H_HELPINGSETTING")
     addEmptyOption()
@@ -666,8 +662,7 @@ Event resetCustomBondagePage()
     
     UD_DeviceLvlHealth_S    = addSliderOption("$UD_DEVICELVLHEALTH",UDCDmain.UD_DeviceLvlHealth*100, "{1} %",UD_LockMenu_flag)
     UD_DeviceLvlLockpick_S  = addSliderOption("$UD_DEVICELVLLOCKPICK",UDCDmain.UD_DeviceLvlLockpick, "{1}",UD_LockMenu_flag)
-    
-    UD_DeviceLvlLocks_S     = addSliderOption("$UD_DEVICELVLLOCKS",UDCDmain.UD_DeviceLvlLocks, "{0} LVLs"),UD_LockMenu_flag)
+    UD_DeviceLvlLocks_S     = addSliderOption("$UD_DEVICELVLLOCKS",UDCDmain.UD_DeviceLvlLocks, "{0} LVLs",UD_LockMenu_flag)
     AddEmptyOption()
     
     ;DIFFICULTY
@@ -681,6 +676,30 @@ Event resetCustomBondagePage()
      
     UD_UseDDdifficulty_T = addToggleOption("$UD_USEDDDIFFICULTY", UDCDmain.UD_UseDDdifficulty,UD_LockMenu_flag)
     AddTextOption("$UD_KEYMODIFIER", Math.floor((UDCDmain.CalculateKeyModifier())*100 + 0.5) + " %",OPTION_FLAG_DISABLED)
+EndEvent
+
+int UD_ExperienceGain_S = 0
+int UD_ExperienceExp_S = 0
+Event resetSkillPage()
+    UpdateLockMenuFlag()
+    setCursorFillMode(LEFT_TO_RIGHT)
+
+    ;SKILL
+    AddHeaderOption("$UD_H_SKILLSETTING")
+    addEmptyOption()
+    
+    UD_BaseDeviceSkillIncrease_S = addSliderOption("$UD_BASEDEVICESKILLINCREASE",UDCDmain.UD_BaseDeviceSkillIncrease, "{0}",UD_LockMenu_flag)
+    UD_SkillEfficiency_S = addSliderOption("$UD_SKILLEFFICIENCY",UDCDmain.UD_SkillEfficiency, "{0} %",UD_LockMenu_flag)
+    
+    UD_MinigameLockpickSkillAdjust_M    = AddMenuOption("$UD_MINIGAMELOCKPICKSKILLADJUST", UD_MinigameLockpickSkillAdjust_ML[UDCDmain.UD_MinigameLockpickSkillAdjust],UD_LockMenu_flag)
+    addEmptyOption()
+    
+    ;SKILL
+    AddHeaderOption("Experience")
+    addEmptyOption()
+    
+    UD_ExperienceGain_S = addSliderOption("Experience base gain",UDCDmain.UD_ExperienceGainBase, "{0}",FlagSwitchAnd(FlagSwitch(UDmain.ExperienceInstalled),UD_LockMenu_flag))
+    UD_ExperienceExp_S  = addSliderOption("Experience exponent",UDCDmain.UD_ExperienceGainExp, "{1}",FlagSwitchAnd(FlagSwitch(UDmain.ExperienceInstalled),UD_LockMenu_flag))
 EndEvent
 
 Int UD_ModifierStorageSelected = 0
@@ -1866,6 +1885,8 @@ event OnOptionSelect(int option)
         OnOptionSelectFilter(option)
     elseif (_lastPage == UD_CustomDevicePageName)
         OnOptionSelectCustomDevice(option)
+    elseif (_lastPage == UD_SkillPageName)
+        OnOptionSelectSkill(option)
     elseif (_lastPage == UD_CustomModsPageName)
         OnOptionSelectCustomMods(option)
     elseif (_lastPage == UD_CustomModTagsPageName)
@@ -2137,6 +2158,9 @@ Function OnOptionSelectCustomDevice(int option)
         UDCDmain.UD_HardcoreAccess = !UDCDmain.UD_HardcoreAccess
         SetToggleOptionValue(UD_HardcoreAccess_T, UDCDmain.UD_HardcoreAccess)
     endif
+EndFunction
+
+Function OnOptionSelectSkill(int option)
 EndFunction
 
 Function OnOptionSelectCustomOrgasm(int option)
@@ -2494,9 +2518,10 @@ event OnOptionSliderOpen(int option)
     if (_lastPage == UD_GeneralPageName)
         OnOptionSliderOpenGeneral(option)
     elseif (_lastPage == UD_DeviceFilterPageName)
-
     elseif (_lastPage == UD_CustomDevicePageName)
         OnOptionSliderOpenCustomBondage(option)
+    elseif (_lastPage == UD_SkillPageName)
+        OnOptionSliderOpenSkill(option)
     elseif (_lastPage == UD_CustomModsPageName)
         OnOptionSliderOpenModifiers(option)
     elseif (_lastPage == UD_CustomModTagsPageName)
@@ -2565,16 +2590,6 @@ Function OnOptionSliderOpenCustomBondage(int option)
         SetSliderDialogStartValue(UDCDmain.UD_AutoCritChance)
         SetSliderDialogDefaultValue(80.0)
         SetSliderDialogRange(1.0, 100.0)
-        SetSliderDialogInterval(1.0)
-    elseif (option == UD_BaseDeviceSkillIncrease_S)
-        SetSliderDialogStartValue(UDCDmain.UD_BaseDeviceSkillIncrease)
-        SetSliderDialogDefaultValue(35.0)
-        SetSliderDialogRange(0.0, 1000.0)
-        SetSliderDialogInterval(1.0)
-    elseif option == UD_SkillEfficiency_S
-        SetSliderDialogStartValue(UDCDmain.UD_SkillEfficiency)
-        SetSliderDialogDefaultValue(1.0)
-        SetSliderDialogRange(0.0, 10.0)
         SetSliderDialogInterval(1.0)
     elseif option == UD_GagPhonemModifier_S
         SetSliderDialogStartValue(UDCDmain.UD_GagPhonemModifier)
@@ -2655,6 +2670,30 @@ Function OnOptionSliderOpenCustomBondage(int option)
         SetSliderDialogStartValue(UDCDmain.UD_MinigameExhExponential)
         SetSliderDialogDefaultValue(1.0)
         SetSliderDialogRange(0.1, 10)
+        SetSliderDialogInterval(0.1)
+    endif
+EndFunction
+
+Function OnOptionSliderOpenSkill(int option)
+    if (option == UD_BaseDeviceSkillIncrease_S)
+        SetSliderDialogStartValue(UDCDmain.UD_BaseDeviceSkillIncrease)
+        SetSliderDialogDefaultValue(35.0)
+        SetSliderDialogRange(0.0, 1000.0)
+        SetSliderDialogInterval(1.0)
+    elseif option == UD_SkillEfficiency_S
+        SetSliderDialogStartValue(UDCDmain.UD_SkillEfficiency)
+        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogRange(0.0, 10.0)
+        SetSliderDialogInterval(1.0)
+    elseif option == UD_ExperienceGain_S
+        SetSliderDialogStartValue(UDCDmain.UD_ExperienceGainBase)
+        SetSliderDialogDefaultValue(15.0)
+        SetSliderDialogRange(0.0, 100.0)
+        SetSliderDialogInterval(1.0)
+    elseif option == UD_ExperienceExp_S
+        SetSliderDialogStartValue(UDCDmain.UD_ExperienceGainExp)
+        SetSliderDialogDefaultValue(0.8)
+        SetSliderDialogRange(0.0, 5.0)
         SetSliderDialogInterval(0.1)
     endif
 EndFunction
@@ -2964,6 +3003,8 @@ event OnOptionSliderAccept(int option, float value)
 
     elseif (_lastPage == UD_CustomDevicePageName)
         OnOptionSliderAcceptCustomBondage(option, value)
+    elseif (_lastPage == UD_SkillPageName)
+        OnOptionSliderAcceptSkill(option, value)
     elseif (_lastPage == UD_CustomModsPageName)
         OnOptionSliderAcceptModifiers(option, value)
     elseif (_lastPage == UD_CustomModTagsPageName)
@@ -3019,12 +3060,6 @@ Function OnOptionSliderAcceptCustomBondage(int option, float value)
     elseif (option == UD_AutoCritChance_S)
         UDCDmain.UD_AutoCritChance = round(value)
         SetSliderOptionValue(UD_AutoCritChance_S, UDCDmain.UD_AutoCritChance, "{0} %")
-    elseif (option == UD_BaseDeviceSkillIncrease_S)
-        UDCDmain.UD_BaseDeviceSkillIncrease = round(value)
-        SetSliderOptionValue(UD_BaseDeviceSkillIncrease_S, UDCDmain.UD_BaseDeviceSkillIncrease, "{0}")
-    elseif option == UD_SkillEfficiency_S
-        UDCDmain.UD_SkillEfficiency = round(value)
-        SetSliderOptionValue(UD_SkillEfficiency_S, UDCDmain.UD_SkillEfficiency, "{0} %")
     elseif option == UD_GagPhonemModifier_S
         UDCDmain.UD_GagPhonemModifier = round(value)
         SetSliderOptionValue(UD_GagPhonemModifier_S, UDCDmain.UD_GagPhonemModifier, "{0}")
@@ -3073,6 +3108,22 @@ Function OnOptionSliderAcceptCustomBondage(int option, float value)
     elseif option == UD_MinigameExhExponential_S
         UDCDMain.UD_MinigameExhExponential = value
         SetSliderOptionValue(UD_MinigameExhExponential_S, UDCDMain.UD_MinigameExhExponential, "{1}")
+    endif
+EndFunction
+
+Function OnOptionSliderAcceptSkill(int option, float value)
+    if (option == UD_BaseDeviceSkillIncrease_S)
+        UDCDmain.UD_BaseDeviceSkillIncrease = round(value)
+        SetSliderOptionValue(UD_BaseDeviceSkillIncrease_S, UDCDmain.UD_BaseDeviceSkillIncrease, "{0}")
+    elseif option == UD_SkillEfficiency_S
+        UDCDmain.UD_SkillEfficiency = round(value)
+        SetSliderOptionValue(UD_SkillEfficiency_S, UDCDmain.UD_SkillEfficiency, "{0} %")
+    elseif option == UD_ExperienceGain_S
+        UDCDmain.UD_ExperienceGainBase = round(value)
+        SetSliderOptionValue(UD_ExperienceGain_S, UDCDmain.UD_ExperienceGainBase, "{0}")
+    elseif option == UD_ExperienceExp_S
+        UDCDmain.UD_ExperienceGainExp = value
+        SetSliderOptionValue(UD_ExperienceExp_S, UDCDmain.UD_ExperienceGainExp, "{1}")
     endif
 EndFunction
 
@@ -3282,6 +3333,8 @@ event OnOptionMenuOpen(int option)
 
     elseif (_lastPage == UD_CustomDevicePageName)
         OnOptionMenuOpenCustomBondage(option)
+    elseif (_lastPage == UD_SkillPageName)
+        OnOptionMenuOpenSkill(option)
     elseif (_lastPage == UD_CustomModsPageName)
         OnOptionMenuOpenModifiers(option)
     elseif (_lastPage == UD_CustomModTagsPageName)
@@ -3339,7 +3392,11 @@ Function OnOptionMenuOpenCustomBondage(int option)
         SetMenuDialogOptions(criteffectList)
         SetMenuDialogStartIndex(UDCDmain.UD_CritEffect)
         SetMenuDialogDefaultIndex(2)
-    elseif (option == UD_MinigameLockpickSkillAdjust_M)
+    endif
+EndFunction
+
+Function OnOptionMenuOpenSkill(int option)
+    if (option == UD_MinigameLockpickSkillAdjust_M)
         SetMenuDialogOptions(UD_MinigameLockpickSkillAdjust_ML)
         SetMenuDialogStartIndex(UDCDmain.UD_MinigameLockpickSkillAdjust)
         SetMenuDialogDefaultIndex(2)
@@ -3477,6 +3534,8 @@ event OnOptionMenuAccept(int option, int index)
 
     elseif (_lastPage == UD_CustomDevicePageName)
         OnOptionMenuAcceptCustomBondage(option, index)
+    elseif (_lastPage == UD_SkillPageName)
+        OnOptionMenuAcceptSkill(option, index)
     elseif (_lastPage == UD_CustomModsPageName)
         OnOptionMenuAcceptModifiers(option, index)
     elseif (_lastPage == UD_CustomModTagsPageName)
@@ -3533,7 +3592,11 @@ Function OnOptionMenuAcceptCustomBondage(int option, int index)
         UDCDmain.UD_CritEffect = index
         SetMenuOptionValue(UD_CritEffect_M, criteffectList[UDCDmain.UD_CritEffect])
         forcePageReset()
-    elseif (option == UD_MinigameLockpickSkillAdjust_M)
+    endif
+EndFunction
+
+Function OnOptionMenuAcceptSkill(int option, int index)
+    if (option == UD_MinigameLockpickSkillAdjust_M)
         UDCDmain.UD_MinigameLockpickSkillAdjust = index
         SetMenuOptionValue(UD_MinigameLockpickSkillAdjust_M, UD_MinigameLockpickSkillAdjust_ML[UDCDmain.UD_MinigameLockpickSkillAdjust])
         forcePageReset()
@@ -3749,9 +3812,11 @@ Event OnOptionDefault(int option)
     elseif (_lastPage == UD_DeviceFilterPageName)
 
     elseif (_lastPage == UD_CustomDevicePageName)
-        
+
+    elseif (_lastPage == UD_SkillPageName)
+      SkillPageDefault(option)
     elseif (_lastPage == UD_CustomModsPageName)
-        
+
     elseif (_lastPage == UD_CustomModTagsPageName)
 
     elseif (_lastPage == UD_CustomOutfitsPageName)
@@ -3955,13 +4020,17 @@ Function CustomBondagePageDefault(int option)
     ElseIf option == UD_MinigameExhMagnitudeMult_S
         UDCDmain.UD_MinigameExhMagnitudeMult = 1.0
         SetSliderOptionValue(UD_MinigameExhMagnitudeMult_S, UDCDmain.UD_MinigameExhMagnitudeMult * 100, "{0} %")
-    elseif (option == UD_MinigameLockpickSkillAdjust_M)
+    ElseIf option == UD_LockpickMinigameDuration_S
+        UDCDmain.UD_LockpickMinigameDuration = 20
+        SetSliderOptionValue(UD_LockpickMinigameDuration_S, UDCDmain.UD_LockpickMinigameDuration, "{0} s")
+    endif
+EndFunction
+
+Function SkillPageDefault(int option)
+    if (option == UD_MinigameLockpickSkillAdjust_M)
         UDCDmain.UD_MinigameLockpickSkillAdjust = 2
         SetMenuOptionValue(UD_MinigameLockpickSkillAdjust_M, UD_MinigameLockpickSkillAdjust_ML[UDCDmain.UD_MinigameLockpickSkillAdjust])
         forcePageReset()
-    elseif option == UD_LockpickMinigameDuration_S
-        UDCDmain.UD_LockpickMinigameDuration = 20
-        SetSliderOptionValue(UD_LockpickMinigameDuration_S, UDCDmain.UD_LockpickMinigameDuration, "{0} s")
     endif
 EndFunction
 
@@ -4107,12 +4176,13 @@ Event OnOptionHighlight(int option)
         FilterPageInfo(option)
     elseif (_lastPage == UD_CustomDevicePageName)
         CustomBondagePageInfo(option)
+    elseif (_lastPage == UD_SkillPageName)
+        SkillPageInfo(option)
     elseif (_lastPage == UD_CustomModsPageName)
         ModifierPageInfo(option)
     elseif (_lastPage == UD_CustomModTagsPageName)
         ModifierTagsPageInfo(option)
     elseif (_lastPage == UD_CustomOutfitsPageName)
-        
     elseif (_lastPage == UD_CustomOrgasmPageName)
         CustomOrgasmPageInfo(option)
     elseif (_lastPage == UD_NPCsPageName)
@@ -4132,7 +4202,6 @@ Event OnOptionHighlight(int option)
     elseif (_lastPage == UD_DebugPageName)
         DebugPageInfo(option)
     elseif (_lastPage == UD_OtherPageName)
-
     endif
 EndEvent
 
@@ -4324,10 +4393,6 @@ Function CustomBondagePageInfo(int option)
         SetInfoText("$UD_HARDCORESWIMMINGDIFFICULTY_INFO")
     elseif option == UD_LockpickMinigameNum_S
         SetInfoText("$UD_LOCKPICKMINIGAMENUM_INFO")
-    elseif option == UD_BaseDeviceSkillIncrease_S
-        SetInfoText("$UD_BASEDEVICESKILLINCREASE_INFO")
-    elseif option == UD_SkillEfficiency_S
-        SetInfoText("$UD_SKILLEFFICIENCY_INFO")
     elseif option == UD_AutoCrit_T
         SetInfoText("$UD_AUTOCRIT_INFO")
     elseif option == UD_AutoCritChance_S
@@ -4374,8 +4439,6 @@ Function CustomBondagePageInfo(int option)
         SetInfoText("$UD_MINIEXHAUSDUR_INFO")
     ElseIf option == UD_MinigameExhMagnitudeMult_S
         SetInfoText("$UD_MINIEXHAUSMAG_INFO")
-    elseif (option == UD_MinigameLockpickSkillAdjust_M)
-        SetInfoText("$UD_MINIGAMELOCKPICKSKILLADJUST_INFO")
     elseif option == UD_LockpickMinigameDuration_S
         SetInfoText("$UD_LOCKPICKMINIGAMEDURATION_INFO")
     elseif option == UD_MinigameExhExponential_S
@@ -4383,6 +4446,16 @@ Function CustomBondagePageInfo(int option)
     elseif option == UD_MinigameExhNoStruggleMax_S
         SetInfoText("$UD_MINIEXHNOSTRUGGMAX_INFO")
     Endif
+EndFunction
+
+Function SkillPageInfo(int option)
+    if option == UD_BaseDeviceSkillIncrease_S
+        SetInfoText("$UD_BASEDEVICESKILLINCREASE_INFO")
+    elseif option == UD_SkillEfficiency_S
+        SetInfoText("$UD_SKILLEFFICIENCY_INFO")
+    elseif (option == UD_MinigameLockpickSkillAdjust_M)
+        SetInfoText("$UD_MINIGAMELOCKPICKSKILLADJUST_INFO")
+    endif
 EndFunction
 
 Function CustomOrgasmPageInfo(int option)
@@ -4702,7 +4775,6 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "UseWidget", UDCDmain.UD_UseWidget as Int)
     JsonUtil.SetIntValue(strFile, "GagPhonemModifier", UDCDmain.UD_GagPhonemModifier)
     JsonUtil.SetIntValue(strFile, "StruggleDifficulty", UDCDmain.UD_StruggleDifficulty)
-    JsonUtil.SetFloatValue(strFile, "BaseDeviceSkillIncrease", UDCDmain.UD_BaseDeviceSkillIncrease)
     JsonUtil.SetFloatValue(strFile, "DeviceUpdateTime", UDCDmain.UD_UpdateTime)
     JsonUtil.SetIntValue(strFile, "AutoCrit", UDCDmain.UD_AutoCrit as Int)
     JsonUtil.SetIntValue(strFile, "AutoCritChance", UDCDmain.UD_AutoCritChance)
@@ -4739,7 +4811,6 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetFloatValue(strFile, "InitialDrainDelay", UDCDmain.UD_InitialDrainDelay)
     JsonUtil.SetFloatValue(strFile, "MinigameExhDurationMult", UDCDmain.UD_MinigameExhDurationMult)
     JsonUtil.SetFloatValue(strFile, "MinigameExhMagnitudeMult", UDCDmain.UD_MinigameExhMagnitudeMult)
-    JsonUtil.SetIntValue(strFile, "MinigameLockpickSkillAdjust", UDCDmain.UD_MinigameLockpickSkillAdjust)
     JsonUtil.SetIntValue(strFile, "LockpickMinigameDuration", UDCDmain.UD_LockpickMinigameDuration)
     JsonUtil.SetFloatValue(strFile, "MinigameExhExponential", UDCDMain.UD_MinigameExhExponential)
     JsonUtil.SetIntValue(strFile, "MinigameExhNoStruggleMax", UDCDMAIN.UD_MinigameExhNoStruggleMax as Int)
@@ -4831,6 +4902,12 @@ Function SaveToJSON(string strFile)
         loc_i += 1
     EndWhile
 
+    ; Skill
+    JsonUtil.SetIntValue(strFile, "MinigameLockpickSkillAdjust", UDCDmain.UD_MinigameLockpickSkillAdjust)
+    JsonUtil.SetFloatValue(strFile, "BaseDeviceSkillIncrease", UDCDmain.UD_BaseDeviceSkillIncrease)
+    JsonUtil.SetIntValue(strFile, "ExperienceGain", UDCDmain.UD_ExperienceGainBase)
+    JsonUtil.SetFloatValue(strFile, "ExperienceExp", UDCDmain.UD_ExperienceGainExp)
+
     JsonUtil.Save(strFile, true)
 EndFunction
 
@@ -4877,7 +4954,6 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UD_UseWidget = JsonUtil.GetIntValue(strFile, "UseWidget", UDCDmain.UD_UseWidget as Int)
     UDCDmain.UD_GagPhonemModifier = JsonUtil.GetIntValue(strFile, "GagPhonemModifier", UDCDmain.UD_GagPhonemModifier)
     UDCDmain.UD_StruggleDifficulty = JsonUtil.GetIntValue(strFile, "StruggleDifficulty", UDCDmain.UD_StruggleDifficulty)
-    UDCDmain.UD_BaseDeviceSkillIncrease = JsonUtil.GetFloatValue(strFile, "BaseDeviceSkillIncrease", UDCDmain.UD_BaseDeviceSkillIncrease)
     UDCDmain.UD_UpdateTime = JsonUtil.GetFloatValue(strFile, "DeviceUpdateTime", UDCDmain.UD_UpdateTime)
     
     UDCDmain.UD_AutoCrit = JsonUtil.GetIntValue(strFile, "AutoCrit", UDCDmain.UD_AutoCrit as Int)
@@ -4921,7 +4997,6 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UD_InitialDrainDelay           = JsonUtil.GetFloatValue(strFile, "InitialDrainDelay", UDCDmain.UD_InitialDrainDelay)
     UDCDmain.UD_MinigameExhDurationMult     = JsonUtil.GetFloatValue(strFile, "MinigameExhDurationMult", UDCDmain.UD_MinigameExhDurationMult)
     UDCDmain.UD_MinigameExhMagnitudeMult    = JsonUtil.GetFloatValue(strFile, "MinigameExhMagnitudeMult", UDCDmain.UD_MinigameExhMagnitudeMult)
-    UDCDmain.UD_MinigameLockpickSkillAdjust = JsonUtil.GetIntValue(strFile, "MinigameLockpickSkillAdjust", UDCDmain.UD_MinigameLockpickSkillAdjust)
     UDCDmain.UD_LockpickMinigameDuration    = JsonUtil.GetIntValue(strFile, "LockpickMinigameDuration", UDCDmain.UD_LockpickMinigameDuration)
     UDCDMain.UD_MinigameExhExponential      = JsonUtil.GetFloatValue(strFile, "MinigameExhExponential", UDCDMain.UD_MinigameExhExponential)
     UDCDMain.UD_MinigameExhNoStruggleMax   = JsonUtil.GetIntValue(strFile, "MinigameExhNoStruggleMax", UDCDMain.UD_MinigameExhNoStruggleMax)
@@ -5019,6 +5094,11 @@ Function LoadFromJSON(string strFile)
         loc_i += 1
     EndWhile
     
+    ;Skill
+    UDCDmain.UD_MinigameLockpickSkillAdjust = JsonUtil.GetIntValue(strFile, "MinigameLockpickSkillAdjust", UDCDmain.UD_MinigameLockpickSkillAdjust)
+    UDCDmain.UD_BaseDeviceSkillIncrease = JsonUtil.GetFloatValue(strFile, "BaseDeviceSkillIncrease", UDCDmain.UD_BaseDeviceSkillIncrease)
+    UDCDmain.UD_ExperienceGainBase = JsonUtil.GetIntValue(strFile, "ExperienceGainBase", UDCDmain.UD_ExperienceGainBase)
+    UDCDmain.UD_ExperienceGainExp = JsonUtil.GetFloatValue(strFile, "ExperienceExp", UDCDmain.UD_ExperienceGainExp)
 EndFunction
 
 Function ResetToDefaults()
@@ -5064,7 +5144,6 @@ Function ResetToDefaults()
     UDCDmain.UD_UseWidget               = true
     UDCDmain.UD_GagPhonemModifier       = 50
     UDCDmain.UD_StruggleDifficulty      = 1
-    UDCDmain.UD_BaseDeviceSkillIncrease = 35.0
     UDCDmain.UD_UpdateTime              = 5.0
     UDCDmain.UD_AutoCrit = false
     if UDCDmain.UD_AutoCrit
@@ -5106,7 +5185,6 @@ Function ResetToDefaults()
     UDCDmain.UD_InitialDrainDelay       = 0
     UDCDmain.UD_MinigameExhDurationMult = 1.0
     UDCDmain.UD_MinigameExhMagnitudeMult= 1.0
-    UDCDmain.UD_MinigameLockpickSkillAdjust = 2
     UDCDMain.UD_MinigameExhExponential  = 1.0
     UDCDMain.UD_MinigameExhNoStruggleMax= 2
     
@@ -5149,6 +5227,12 @@ Function ResetToDefaults()
     
     ; Animations
     UDAM.LoadDefaultMCMSettings()
+    
+    ; Skill
+    UDCDmain.UD_BaseDeviceSkillIncrease = 35.0
+    UDCDmain.UD_MinigameLockpickSkillAdjust = 2
+    UDCDmain.UD_ExperienceGainBase = 15
+    UDCDmain.UD_ExperienceGainExp = 0.8
 EndFunction
 
 Function SetAutoLoad(bool abValue)

@@ -6421,7 +6421,7 @@ Function minigame()
         advanceSkill(15.0)
         if UDmain.ExperienceInstalled && PlayerIsPresent()
             if Experience.GetScriptVersion() >= 3
-                Int loc_xp = Round(Math.Pow(UD_Level,0.8)*RandomFloat(1.0,2.0)) + 15
+                Int loc_xp = UDCDmain.UD_ExperienceGainBase + Round(Math.Pow(UD_Level,UDCDmain.UD_ExperienceGainExp)*RandomFloat(1.0,2.0))
                 Experience.addexperience(loc_xp,true)
                 Experience.ShowNotification("Device ","Escaped","")
                 UDmain.Info("By escaping the "+GetDeviceHeader()+", you got " + loc_xp + " experience")
