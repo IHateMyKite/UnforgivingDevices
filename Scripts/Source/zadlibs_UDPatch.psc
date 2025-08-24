@@ -686,7 +686,7 @@ EndFunction
 Function ShockActorPatched(actor akActor,int aiArousalUpdate = 25,float afHealth = 0.0, bool abCanKill = false)
     bool loc_loaded = akActor.Is3DLoaded()
     if IsPlayer(akActor)
-        NotifyPlayer("You squirms uncomfortably as electricity runs through your body!")
+        NotifyPlayer("You squirm uncomfortably as electricity runs through your body!")
     Elseif UDmain.ActorIsFollower(akActor) && loc_loaded
         NotifyNPC(akActor.GetLeveledActorBase().GetName()+" squirms uncomfortably as electricity runs through her.")
     EndIf
