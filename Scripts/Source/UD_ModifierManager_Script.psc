@@ -52,10 +52,12 @@ int Function AddModifierStorage(UD_ModifierStorage akStorage)
     if !akStorage
         return -1
     endif
-    UDmain.Info("Adding modifier storage -> " + akStorage)
     
-    _modifierstorages = PapyrusUtil.PushForm(_modifierstorages,akStorage as Form)
-    
+    ; Only add new storage if its not already stored
+    if _modifierstorages.find(akStorage as Form) == -1
+      UDmain.Info("Adding modifier storage -> " + akStorage)
+      _modifierstorages = PapyrusUtil.PushForm(_modifierstorages,akStorage as Form)
+    endif
     ; repopulating modifiers list
 ;    Ready = False
 ;    RegisterForSingleUpdate(2.0)
@@ -108,13 +110,23 @@ Function UpdateStorage()
     UDmain.Info("Updating modifiers - Done!")
 EndFunction
 
+; Remove duplicate storages
+Function _RemoveDuplicates()
+  int loc_sizeBefore = _modifierstorages.length
+  _modifierstorages = PapyrusUtil.removedupeform(_modifierstorages)
+  if loc_sizeBefore != _modifierstorages.length
+    Int loc_diff = loc_sizeBefore - _modifierstorages.length
+    UDMain.Info("Removed " + loc_diff + " duplicate modifier storages")
+  endif
+EndFunction
+
 Function OnInit()
     RegisterForSingleUpdate(20.0)
     UpdateEventRegistrations()
 EndFunction
 
 Function Update()
-    ;UpdateStorage()
+    _RemoveDuplicates()
     UpdateLists()
     UpdateModifiers_GameLoad()
     UpdateEventRegistrations()

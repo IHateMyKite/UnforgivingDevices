@@ -102,7 +102,7 @@ Bool        Property ApplicableToPlayer         = True  Auto
 ;/  Variable: BaseProbability
     Base probability of applying this modifier
 /;
-Float       Property BaseProbability            = 100.0 Auto
+Float       Property BaseProbability            = 0.0 Auto
 {Default value: 100.0}
 
 ;/  Variable: IsAbsoluteProbability
