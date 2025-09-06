@@ -2146,14 +2146,25 @@ Function InitArousalUpdate()
     ;GetActor().AddToFaction(UDOM.ArousalCheckLoopFaction)
 EndFunction
 
+float _ArousalAccumulator = 0.0
 Function UpdateArousal(Int aiUpdateTime)
-    ;Actor   loc_actor       = GetActor()
-    ;if loc_actor
-    ;    ;libs.Aroused.SetActorExposure(loc_actor, Round(OrgasmSystem.GetOrgasmVariable(loc_actor,8)))
-    ;    ;UDOM.UpdateArousal(loc_actor ,Round(OrgasmSystem.GetOrgasmVariable(8)))
-    ;else
-    ;    UDmain.Error(self + "::Cant update arousal  because sloted actor is none!")
-    ;endif
+    if OrgasmSystem.UseArousalFallback()
+      Actor   loc_actor       = GetActor()
+        if loc_actor
+            ;Arousal rate is in default in value per frame
+            float loc_arousal = aiUpdateTime*OrgasmSystem.GetOrgasmVariable(loc_actor,9)*OrgasmSystem.GetOrgasmVariable(loc_actor,10)
+            ;UDMain.Info(self + "::UpdateArousal() - Arousal = " + loc_arousal)
+            _ArousalAccumulator += loc_arousal
+            int loc_arousalInt = Math.Floor(_ArousalAccumulator)
+            if loc_arousalInt != 0
+                ;UDMain.Info(self + "::UpdateArousal() - Increasing arousal by " + loc_arousalInt + " (Accu = "+_ArousalAccumulator+")")
+                UDOM.UpdateArousal(loc_actor ,loc_arousalInt)
+                _ArousalAccumulator -= loc_arousalInt
+            endif
+        else
+            UDmain.Error(self + "::UpdateArousal() - Cant update arousal  because sloted actor is none!")
+        endif
+    endif
 EndFunction
 
 Function CleanArousalUpdate()
