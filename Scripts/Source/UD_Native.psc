@@ -82,7 +82,9 @@ Int[]       Function GetAllAnimationFilesStatus()                               
             Function SyncAnimationSetting      (String[] aasAnimationOff)                                       global native
 
 ;===Skill===
-Int         Function CalculateSkillFromPerks    (Actor akActor,Formlist akList,Int aiIncrease)                  global native
+Int         Function CalculateSkillFromPerks    (Actor akActor,String asSkill,Int aiIncrease)                   global native
+Perk[]      Function GetPerksForSkill           (String asSkill)                                                global native
+            Function AdvanceSkillPerc           (String asSkill, Float afPerc)                                  global native
 
 ;===ActorSlotManager===
 Bool        Function RegisterSlotQuest(Quest akQuest)                                                           global native
@@ -155,3 +157,13 @@ int function ShowArrayNonBlockingTemplate(Message akMemplate, String asBodyText,
 string function GetResultText(Int MessageBoxId, Bool abDeleteResultOnAccess = true) global native
 int function GetResultIndex(Int aiMessageBoxId, Bool abDeleteResultOnAccess = true) global native
 bool function IsMessageResultAvailable(Int MessageBoxId) global native
+
+; ===Config===
+Int       Function GetIniVariableInt   (String asName, Int     aiDef)                               global native
+String    Function GetIniVariableString(String asName, String  asDef)                               global native
+Float     Function GetIniVariableFloat (String asName, Float   afDef)                               global native
+Bool      Function GetIniVariableBool  (String asName, Bool    abDef)                               global native
+Int[]     Function GetIniArrayInt      (String asName, String  asSep = ",")                         global native
+String[]  Function GetIniArrayString   (String asName, Bool    abText = true, String asSep = ",")   global native
+Float[]   Function GetIniArrayFloat    (String asName, String  asSep = ",")                         global native
+Bool[]    Function GetIniArrayBool     (String asName, String  asSep = ",")                         global native

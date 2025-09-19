@@ -5146,16 +5146,16 @@ Function advanceSkill(float afMult)
             loc_type = _struggleGame_Subtype
         endif
         if loc_type == 0
-            Game.AdvanceSkill("Pickpocket" ,loc_mult*(0.5*UDCDmain.UD_BaseDeviceSkillIncrease/8.10)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+            UDmain.UDSKILL.AdvanceAgilitySkill(loc_mult)
         elseif loc_type == 1 
-            Game.AdvanceSkill("TwoHanded"  ,loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease/5.95)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+            UDmain.UDSKILL.AdvanceStrengthSkill(loc_mult)
         elseif loc_type == 2
-            Game.AdvanceSkill("Destruction",loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease/1.35)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+            UDmain.UDSKILL.AdvanceMagickSkill(loc_mult)
         endif
     elseif _RepairLocksMinigameON
-        Game.AdvanceSkill("Smithing" , loc_mult*(0.75*UDCDmain.UD_BaseDeviceSkillIncrease/2.0)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+        UDmain.UDSKILL.AdvanceSmithingSkill(loc_mult)
     elseif _CuttingGameON
-        Game.AdvanceSkill("OneHanded", loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease/5.3)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+        UDmain.UDSKILL.AdvanceCuttingSkill(loc_mult)
     endif
     OnAdvanceSkill(loc_mult)
 EndFunction
@@ -6418,7 +6418,7 @@ Function minigame()
         if !loc_WearerIsPlayer
             UpdateMotivation(Wearer,50) ;increase NPC motivation on successful escape
         endif
-        advanceSkill(15.0)
+        advanceSkill(0.35) ; Increase skill level
         if UDmain.ExperienceInstalled && PlayerIsPresent()
             if Experience.GetScriptVersion() >= 3
                 Int loc_xp = UDCDmain.UD_ExperienceGainBase + Round(Math.Pow(UD_Level,UDCDmain.UD_ExperienceGainExp)*RandomFloat(1.0,2.0))
@@ -6825,7 +6825,7 @@ Function critDevice()
             endif
         endif
         
-        advanceSkill(5.0)
+        advanceSkill(0.15) ; Increase skill level
     endif
 EndFunction
 
@@ -8326,9 +8326,9 @@ Function _MinigameParalelThread()
                     endif
                     loc_ElapsedTime2 = 0.0
                 endif
-                ;advance skill every 3 second
+                ;advance skill every second
                 if loc_ElapsedTime3 >= 1.0
-                    advanceSkill(loc_ElapsedTime3)
+                    advanceSkill(loc_ElapsedTime3*0.05) ; Increase skill level
                     if loc_is3DLoaded
                         loc_updatewidget    = (UD_UseWidget || UD_UseWidgetSec) && UDCDmain.UD_UseWidget && loc_haveplayer
                         loc_canShowHUD      = canShowHUD()

@@ -688,7 +688,7 @@ Event resetSkillPage()
     AddHeaderOption("$UD_H_SKILLSETTING")
     addEmptyOption()
     
-    UD_BaseDeviceSkillIncrease_S = addSliderOption("$UD_BASEDEVICESKILLINCREASE",UDCDmain.UD_BaseDeviceSkillIncrease, "{0}",UD_LockMenu_flag)
+    UD_BaseDeviceSkillIncrease_S = addSliderOption("$UD_BASEDEVICESKILLINCREASE",UDCDmain.UD_BaseDeviceSkillIncrease, "{1} x",UD_LockMenu_flag)
     UD_SkillEfficiency_S = addSliderOption("$UD_SKILLEFFICIENCY",UDCDmain.UD_SkillEfficiency, "{0} %",UD_LockMenu_flag)
     
     UD_MinigameLockpickSkillAdjust_M    = AddMenuOption("$UD_MINIGAMELOCKPICKSKILLADJUST", UD_MinigameLockpickSkillAdjust_ML[UDCDmain.UD_MinigameLockpickSkillAdjust],UD_LockMenu_flag)
@@ -2677,9 +2677,9 @@ EndFunction
 Function OnOptionSliderOpenSkill(int option)
     if (option == UD_BaseDeviceSkillIncrease_S)
         SetSliderDialogStartValue(UDCDmain.UD_BaseDeviceSkillIncrease)
-        SetSliderDialogDefaultValue(35.0)
-        SetSliderDialogRange(0.0, 1000.0)
-        SetSliderDialogInterval(1.0)
+        SetSliderDialogDefaultValue(1.0)
+        SetSliderDialogRange(0.0, 100.0)
+        SetSliderDialogInterval(0.1)
     elseif option == UD_SkillEfficiency_S
         SetSliderDialogStartValue(UDCDmain.UD_SkillEfficiency)
         SetSliderDialogDefaultValue(1.0)
@@ -3113,8 +3113,8 @@ EndFunction
 
 Function OnOptionSliderAcceptSkill(int option, float value)
     if (option == UD_BaseDeviceSkillIncrease_S)
-        UDCDmain.UD_BaseDeviceSkillIncrease = round(value)
-        SetSliderOptionValue(UD_BaseDeviceSkillIncrease_S, UDCDmain.UD_BaseDeviceSkillIncrease, "{0}")
+        UDCDmain.UD_BaseDeviceSkillIncrease = value
+        SetSliderOptionValue(UD_BaseDeviceSkillIncrease_S, UDCDmain.UD_BaseDeviceSkillIncrease, "{1} x")
     elseif option == UD_SkillEfficiency_S
         UDCDmain.UD_SkillEfficiency = round(value)
         SetSliderOptionValue(UD_SkillEfficiency_S, UDCDmain.UD_SkillEfficiency, "{0} %")
@@ -5229,7 +5229,7 @@ Function ResetToDefaults()
     UDAM.LoadDefaultMCMSettings()
     
     ; Skill
-    UDCDmain.UD_BaseDeviceSkillIncrease = 35.0
+    UDCDmain.UD_BaseDeviceSkillIncrease = 1.0
     UDCDmain.UD_MinigameLockpickSkillAdjust = 2
     UDCDmain.UD_ExperienceGainBase = 15
     UDCDmain.UD_ExperienceGainExp = 0.8

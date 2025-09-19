@@ -28,14 +28,15 @@ float Function GetAgilitySkill(Actor akActor)
 EndFunction
 
 float Function getActorAgilitySkills(Actor akActor)
-    float loc_result = 0.0
-    loc_result += akActor.GetActorValue("Pickpocket")
-    loc_result += GetPerkSkill(akActor,UDCDMain.UD_AgilityPerks,10)
-    return loc_result
+    return GetSkill(akActor,"_Agility")
 EndFunction
 
 float Function getActorAgilitySkillsPerc(Actor akActor)
     return GetAgilitySkill(akActor)/100.0
+EndFunction
+
+Function AdvanceAgilitySkill(Float afValue)
+    AdvenceSkill("_Agility", afValue)
 EndFunction
 
 float Function GetStrengthSkill(Actor akActor)
@@ -48,14 +49,15 @@ float Function GetStrengthSkill(Actor akActor)
 EndFunction
 
 float Function getActorStrengthSkills(Actor akActor)
-    float loc_result = 0.0
-    loc_result += akActor.GetActorValue("TwoHanded")
-    loc_result += GetPerkSkill(akActor,UDCDMain.UD_StrengthPerks,10)
-    return loc_result
+    return GetSkill(akActor,"_Strength")
 EndFunction
 
 float Function getActorStrengthSkillsPerc(Actor akActor)
     return GetStrengthSkill(akActor)/100.0
+EndFunction
+
+Function AdvanceStrengthSkill(Float afValue)
+    AdvenceSkill("_Strength", afValue)
 EndFunction
 
 float Function GetMagickSkill(Actor akActor)
@@ -68,14 +70,15 @@ float Function GetMagickSkill(Actor akActor)
 EndFunction
 
 float Function getActorMagickSkills(Actor akActor)
-    float loc_result = 0.0
-    loc_result += akActor.GetActorValue("Destruction")
-    loc_result += GetPerkSkill(akActor,UDCDMain.UD_MagickPerks,10)
-    return loc_result
+    return GetSkill(akActor,"_Magick")
 EndFunction
 
 float Function getActorMagickSkillsPerc(Actor akActor)
     return GetMagickSkill(akActor)/100.0
+EndFunction
+
+Function AdvanceMagickSkill(Float afValue)
+    AdvenceSkill("_Magick", afValue)
 EndFunction
 
 float Function GetCuttingSkill(Actor akActor)
@@ -88,13 +91,15 @@ float Function GetCuttingSkill(Actor akActor)
 EndFunction
 
 float Function getActorCuttingSkills(Actor akActor)
-    float loc_result = 0.0
-    loc_result += akActor.GetActorValue("OneHanded")
-    return loc_result
+    return GetSkill(akActor,"_Cutting")
 EndFunction
 
 float Function getActorCuttingSkillsPerc(Actor akActor)
     return GetCuttingSkill(akActor)/100.0
+EndFunction
+
+Function AdvanceCuttingSkill(Float afValue)
+    AdvenceSkill("_Cutting", afValue)
 EndFunction
 
 float Function GetSmithingSkill(Actor akActor)
@@ -107,25 +112,60 @@ float Function GetSmithingSkill(Actor akActor)
 EndFunction
 
 float Function getActorSmithingSkills(Actor akActor)
-    float loc_result = 0.0
-    loc_result += akActor.GetActorValue("Smithing")
-    
-    return loc_result
+    return GetSkill(akActor,"_Maintenance")
 EndFunction
 
 float Function getActorSmithingSkillsPerc(Actor akActor)
     return GetSmithingSkill(akActor)/100.0
 EndFunction
 
-int Function GetPerkSkill(Actor akActor, Formlist akPerkList, int aiSkillPerPerk = 10)
-    if !akActor
-        UDmain.Error("GetPerkSkill - actor is none")
-        return 0
+Function AdvanceSmithingSkill(Float afValue)
+    AdvenceSkill("_Maintenance", afValue)
+EndFunction
+
+Int Function GetSkill(Actor akActor, String asSkill)
+    String[] loc_skills = UD_Native.GetIniArrayString("Skill.asSkills"+asSkill)
+    if loc_skills && loc_skills.length > 0
+      Int loc_res = 0
+      Int loc_spp = UD_Native.GetIniVariableInt("Skill.aiPerkSkillPoints",10)
+      Int loc_i = 0
+      while loc_i < loc_skills.length
+        loc_res += Round(akActor.GetActorValue(loc_skills[loc_i]))
+        loc_res += UD_Native.CalculateSkillFromPerks(akActor,loc_skills[loc_i],loc_spp)
+        loc_i += 1
+      endwhile
+      Bool loc_average = UD_Native.GetIniVariableBool("Skill.asSkillsPower_Average",false)
+      if loc_average
+        return loc_res/loc_skills.length
+      else
+        return loc_res
+      endif
+    else
+      return 0
     endif
-    if !akPerkList
-        UDmain.Error("GetPerkSkill("+getActorName(akActor)+") - akPerkList is none")
-        return 0
+EndFunction
+
+Function AdvenceSkill(String asSkill, Float afValue)
+  float loc_value = afValue*GetSkillMultiplier()
+  if loc_value > 0.0
+    String[] loc_skills = UD_Native.GetIniArrayString("Skill.asSkills"+asSkill)
+    if loc_skills && loc_skills.length > 0
+      Bool loc_average  = UD_Native.GetIniVariableBool("Skill.asSkillsGain_Average",false)
+      Int loc_i = 0
+      while loc_i < loc_skills.length
+        float loc_value2 = 0.0
+        if loc_average
+          loc_value2 = loc_value/loc_skills.length
+        else
+          loc_value2 = loc_value
+        endif
+        UD_Native.AdvanceSkillPerc(loc_skills[loc_i],loc_value2)
+        loc_i += 1
+      endwhile
     endif
-    Int loc_res = UD_Native.CalculateSkillFromPerks(akActor,akPerkList,aiSkillPerPerk)
-    return loc_res
+  endif
+EndFunction
+
+Float Function GetSkillMultiplier()
+  return UDCDmain.UD_BaseDeviceSkillIncrease
 EndFunction
