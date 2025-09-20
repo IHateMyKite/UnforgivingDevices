@@ -78,7 +78,7 @@ bool    Property UD_UseDDdifficulty                 = True  auto hidden
 bool    Property UD_UseWidget                       = True  auto hidden
 int     Property UD_GagPhonemModifier               = 50    auto hidden
 Int     Property UD_StruggleDifficulty              = 1     auto hidden
-float   Property UD_BaseDeviceSkillIncrease         = 35.0  auto hidden
+float   Property UD_BaseDeviceSkillIncrease         = 1.0   auto hidden
 float   Property UD_CooldownMultiplier              = 1.0   auto hidden
 Bool    Property UD_AutoCrit                        = False auto hidden
 Int     Property UD_AutoCritChance                  = 80    auto hidden
@@ -112,6 +112,9 @@ Int     Property UD_DeviceLvlLocks                  = 5     auto hidden
 ;example: if UD_VibrationMultiplier = 0.1 and vibration strength will be 100, orgasm rate will be 100*0.1 = 10 O/s 
 float   Property UD_VibrationMultiplier             = 0.10  auto hidden
 float   Property UD_ArousalMultiplier               = 0.05  auto hidden
+
+int     Property UD_ExperienceGainBase              = 15  auto hidden
+float   Property UD_ExperienceGainExp               = 0.8  auto hidden
 
 UD_PlayerSlotScript Property UD_PlayerSlot auto
 
@@ -1203,8 +1206,12 @@ Int     Property UD_CritEffect          = 2             auto hidden
 Bool    Property UD_MandatoryCrit       = False         auto hidden
 Float   Property UD_CritDurationAdjust  = 0.0           auto hidden
 
-Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string strArg, float difficulty)
+Float Function StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string strArg, float difficulty)
     string meter
+    Float loc_res = 0.0
+    Float loc_crittime = fRange(difficulty + UD_CritDurationAdjust,0.25,5.0)
+    Float loc_ElapsedTime = 0.0
+    
     if RandomInt(1,100) <= chance
         if strArg != "NPC" && strArg != "Auto"
             if strArg == "random"
@@ -1222,17 +1229,17 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
             else
                 device.critFailure() ;failure
             endif
-            return
+            return 0.0
         elseif strArg == "NPC"
-            if RandomInt() > 30 ;npc reacted
+            if RandomInt() > 10 ;npc reacted
                 float randomResponceTime = RandomFloat(0.4,0.95) ;random reaction time
                 if randomResponceTime <= difficulty
                     device.critDevice() ;succes
                 else
                     device.critFailure() ;failure
                 endif
+                return 0.0
             endif
-            return 
         endif
         
         selected_crit_meter = meter
@@ -1257,9 +1264,12 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
                 UDlibs.RedCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player)
             endif
         endif
-
-        Utility.wait(fRange(difficulty + UD_CritDurationAdjust,0.25,2.0))
-
+        
+        while (loc_ElapsedTime < loc_crittime) && crit
+          Utility.wait(0.1)
+          loc_ElapsedTime = fRange(loc_ElapsedTime + 0.1,0.0,loc_crittime)
+        endwhile
+        
         if UD_MandatoryCrit
             if crit
                 crit = False
@@ -1268,7 +1278,8 @@ Event StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string 
         endif
         crit = False
     endif
-EndEvent
+    return loc_ElapsedTime
+EndFunction
 
 bool Function registeredKeyPressed(Int KeyCode)
     if KeyCode == Stamina_meter_Keycode

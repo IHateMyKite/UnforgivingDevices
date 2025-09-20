@@ -3169,6 +3169,11 @@ Function _deviceMenuInitWH(Actor akSource,bool[] aaControl)
         endif
     endif
     
+    ;sets last opened device
+    if WearerIsPlayer()
+        UDCDmain.setLastOpenedDevice(self)
+    endif
+    
     _filterControl(aaControl,akSource == none)
     UDCdmain.CheckAndDisableSpecialMenu()
 EndFunction
@@ -4285,7 +4290,7 @@ bool Function struggleMinigame(int aiType = -1, Bool abSilent = False)
     elseif aiType == 1 ;desperate
         UD_minigame_stamina_drain = UD_base_stat_drain*1.1
         UD_minigame_heal_drain = 0.5*UD_base_stat_drain + getMaxActorValue(Wearer,"Health",0.06)
-        UD_durability_damage_add = 1.0*(_durability_damage_mod*((5.0 - 5.0*getRelativeDurability()) + UDMain.UDSKILL.getActorStrengthSkillsPerc(getWearer())));UDmain.getMaxActorValue(Wearer,"Health",0.02);*getModResistPhysical()
+        UD_durability_damage_add = 1.0*(_durability_damage_mod*((5.0 - 5.0*getRelativeDurability()) + UDMain.UDSKILL.getActorStrengthSkillsPerc(getWearer())))
         UD_DamageMult *= getModResistPhysical(1.0,0.2)
         _condition_mult_add = -0.5
         _exhaustion_mult = 1.6
@@ -4511,7 +4516,7 @@ bool Function cuttingMinigame(Bool abSilent = False)
         
         ;register native meters
         if WearerIsPlayer()
-            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,fRange(200.0 - 5.0*UD_CutChance,125.0,200.0),true)
+            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,fRange(200.0 - 5.0*UD_CutChance,150.0,200.0),true)
                 
             UD_Native.RegisterDeviceCallback(_VMHandle1,_VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_CuttingMG_SKPress")
             
@@ -4943,7 +4948,7 @@ bool Function cuttingMinigameWH(Actor akHelper)
         float loc_BaseMultHelperAdd = UDCDmain.getActorCuttingWeaponMultiplier(getHelper()) - 1.0
         
         UD_DamageMult = loc_BaseMult + loc_BaseMultHelperAdd + UDmain.UDSKILL.getActorCuttingSkillsPerc(getWearer()) + UDmain.UDSKILL.getActorCuttingSkillsPerc(getHelper())
-        UD_MinigameMult1 = UD_DamageMult;loc_BaseMult + loc_BaseMultHelper + UDCDmain.getActorCuttingSkillsPerc(getWearer()) + UDCDmain.getActorCuttingSkillsPerc(getHelper())
+        UD_MinigameMult1 = UD_DamageMult
         
         if HelperFreeHands(True)
             UD_MinigameMult1 += 0.8
@@ -4953,7 +4958,7 @@ bool Function cuttingMinigameWH(Actor akHelper)
     
         ;register native meters
         if PlayerIsPresent()
-            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,fRange(200.0 - 7.0*UD_CutChance,125.0,200.0),true)
+            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,fRange(200.0 - 7.0*UD_CutChance,150.0,200.0),true)
             
             UD_Native.RegisterDeviceCallback(_VMHandle1,_VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_CuttingMG_SKPress")
             
@@ -5141,16 +5146,16 @@ Function advanceSkill(float afMult)
             loc_type = _struggleGame_Subtype
         endif
         if loc_type == 0
-            Game.AdvanceSkill("Pickpocket" ,loc_mult*(0.5*UDCDmain.UD_BaseDeviceSkillIncrease/8.10)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+            UDmain.UDSKILL.AdvanceAgilitySkill(loc_mult)
         elseif loc_type == 1 
-            Game.AdvanceSkill("TwoHanded"  ,loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease/5.95)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+            UDmain.UDSKILL.AdvanceStrengthSkill(loc_mult)
         elseif loc_type == 2
-            Game.AdvanceSkill("Destruction",loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease/1.35)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+            UDmain.UDSKILL.AdvanceMagickSkill(loc_mult)
         endif
     elseif _RepairLocksMinigameON
-        Game.AdvanceSkill("Smithing" , loc_mult*(0.75*UDCDmain.UD_BaseDeviceSkillIncrease/1.0)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+        UDmain.UDSKILL.AdvanceSmithingSkill(loc_mult)
     elseif _CuttingGameON
-        Game.AdvanceSkill("OneHanded", loc_mult*(1.0*UDCDmain.UD_BaseDeviceSkillIncrease/5.3)/UDCDmain.getSlotArousalSkillMultEx(UD_WearerSlot))
+        UDmain.UDSKILL.AdvanceCuttingSkill(loc_mult)
     endif
     OnAdvanceSkill(loc_mult)
 EndFunction
@@ -5186,6 +5191,11 @@ EndFunction
 
 ;repair lock by progress_add
 Function _repairLock(float progress_add = 1.0)
+    ; NPCs have problem reparing locks, so increase it
+    if (!PlayerInMinigame())
+      progress_add *= 2
+    endif
+
     Float loc_RepairProgress = UpdateNthLockRepairProgress(_MinigameSelectedLockID,progress_add*UDCDmain.getStruggleDifficultyModifier())
     if loc_RepairProgress >= _getLockDurability()
         loc_RepairProgress = UpdateNthLockRepairProgress(_MinigameSelectedLockID,-1*_getLockDurability()) ;reset value
@@ -5897,7 +5907,7 @@ int Function getStruggleMinigameSubType()
     return _struggleGame_Subtype
 EndFunction
 
-;/  Function: getStruggleMinigameSubType
+;/  Function: StopMinigame
     Stops minigame
     
     Setting argument abWaitForStop to true will block the functionu ntill minigame ends
@@ -6122,6 +6132,30 @@ EndFunction
 ;==============================================================================================
 
 
+bool _fUpdateNativeMinigameMeters = false
+Function _UpdateNativeMinigameMeters()
+  bool loc_useNativeMeter = PlayerInMinigame()
+  if loc_useNativeMeter && _fUpdateNativeMinigameMeters
+    float   loc_dmgnotimemult    = (_durability_damage_mod + UD_durability_damage_add)
+    float   loc_condmult         = 1.0 + _condition_mult_add
+    float   loc_health           = UD_Health
+    
+    ;register native meters
+    if UD_damage_device
+      if UD_UseWidget
+        UDmain.UDWC.Meter_RegisterNative("device-main",_WidgetFormula,getRelativeDurability()*100.0,-1.0*loc_dmgnotimemult,true)
+        UDmain.UDWC.Meter_SetNativeMult("device-main",UD_DamageMult*100.0/loc_health)
+      endif
+      if loc_condmult != 0.0 && UD_UseWidgetSec
+        UDmain.UDWC.Meter_RegisterNative("device-condition",_WidgetFormulaSec,getRelativeCondition()*100.0,-1.0*loc_dmgnotimemult,true)
+        UDmain.UDWC.Meter_SetNativeMult("device-condition",loc_condmult*100.0/loc_health)
+      endif
+    endif
+  endif
+  _fUpdateNativeMinigameMeters = false
+EndFunction
+
+
 ;/  Function: minigame
     Starts minigame on device. Should be only used if both <minigamePrecheck> and <minigamePostcheck> were OK
     
@@ -6221,24 +6255,11 @@ Function minigame()
     Float     loc_ElapsedTime      = 0.0
     Bool      loc_DamageDevice     = UD_damage_device
     Bool      loc_MinigameEffectEnabled = False
-    
     bool      loc_useNativeMeter   = PlayerInMinigame()
-    bool      loc_useIWW           = UDmain.UseiWW()
     float     loc_health           = UD_Health
     
-    ;register native meters
-    if loc_useNativeMeter
-        if loc_DamageDevice
-            if UD_UseWidget
-                UDmain.UDWC.Meter_RegisterNative("device-main",_WidgetFormula,getRelativeDurability()*100.0,-1.0*loc_dmgnotimemult,true)
-                UDmain.UDWC.Meter_SetNativeMult("device-main",UD_DamageMult*100.0/loc_health)
-            endif
-            if loc_condmult != 0.0 && UD_UseWidgetSec
-                UDmain.UDWC.Meter_RegisterNative("device-condition",_WidgetFormulaSec,getRelativeCondition()*100.0,-1.0*loc_dmgnotimemult,true)
-                UDmain.UDWC.Meter_SetNativeMult("device-condition",loc_condmult*100.0/loc_health)
-            endif
-        endif
-    endif
+    _fUpdateNativeMinigameMeters = true
+    _UpdateNativeMinigameMeters()
     
     if loc_showwidget
         showWidget()
@@ -6289,6 +6310,7 @@ Function minigame()
                     decreaseDurabilityAndCheckUnlock(loc_dmg,loc_condmult)
                 endif
             endif
+            _UpdateNativeMinigameMeters()
             ;update widget
             if loc_updatewidget
                 updateWidget()
@@ -6396,10 +6418,10 @@ Function minigame()
         if !loc_WearerIsPlayer
             UpdateMotivation(Wearer,50) ;increase NPC motivation on successful escape
         endif
-        advanceSkill(15.0)
+        advanceSkill(0.35) ; Increase skill level
         if UDmain.ExperienceInstalled && PlayerIsPresent()
             if Experience.GetScriptVersion() >= 3
-                Int loc_xp = Round(Math.Pow(UD_Level,0.8)*RandomFloat(1.0,2.0)) + 15
+                Int loc_xp = UDCDmain.UD_ExperienceGainBase + Round(Math.Pow(UD_Level,UDCDmain.UD_ExperienceGainExp)*RandomFloat(1.0,2.0))
                 Experience.addexperience(loc_xp,true)
                 Experience.ShowNotification("Device ","Escaped","")
                 UDmain.Info("By escaping the "+GetDeviceHeader()+", you got " + loc_xp + " experience")
@@ -6803,7 +6825,7 @@ Function critDevice()
             endif
         endif
         
-        advanceSkill(5.0)
+        advanceSkill(0.15) ; Increase skill level
     endif
 EndFunction
 
@@ -7703,9 +7725,9 @@ EndFunction
 
 Function OnMinigameTick1()
     if getStruggleMinigameSubType() == 1
-        ;UD_DamageMult = getAccesibility()*getModResistPhysical(1.0,0.1) + (1.0 - getRelativeDurability())
-        UD_durability_damage_add = (5.0 - 5.0*getRelativeDurability()) + UDmain.UDSKILL.getActorStrengthSkillsPerc(getWearer()) + getHelperStrengthSkillsPerc()
-        UD_durability_damage_add *= _durability_damage_mod
+        ; Update damage add for desperate struggle
+        UD_durability_damage_add = 1.0*(_durability_damage_mod*((5.0 - 5.0*getRelativeDurability()) + UDMain.UDSKILL.getActorStrengthSkillsPerc(getWearer())))
+        _fUpdateNativeMinigameMeters = true
     endif
 EndFunction
 
@@ -8304,9 +8326,9 @@ Function _MinigameParalelThread()
                     endif
                     loc_ElapsedTime2 = 0.0
                 endif
-                ;advance skill every 3 second
+                ;advance skill every second
                 if loc_ElapsedTime3 >= 1.0
-                    advanceSkill(loc_ElapsedTime3)
+                    advanceSkill(loc_ElapsedTime3*0.05) ; Increase skill level
                     if loc_is3DLoaded
                         loc_updatewidget    = (UD_UseWidget || UD_UseWidgetSec) && UDCDmain.UD_UseWidget && loc_haveplayer
                         loc_canShowHUD      = canShowHUD()
@@ -8372,7 +8394,7 @@ Function _MinigameCritLoopThread()
     Float loc_updateTime  = 0.25
     string critType = "random"
     if !loc_playerInMinigame
-        loc_updateTime = 1.0
+        loc_updateTime = 0.5
         critType = "NPC"
     elseif UDCDmain.UD_AutoCrit
         critType = "Auto"
@@ -8388,11 +8410,12 @@ Function _MinigameCritLoopThread()
             ;check crit every 1 s
             if loc_elapsedTime >= 1.0
                 if UD_minigame_canCrit
-                    UDCDmain.StruggleCritCheck(self,UD_StruggleCritChance,critType,UD_StruggleCritDuration)
+                    loc_elapsedTime = UDCDmain.StruggleCritCheck(self,UD_StruggleCritChance,critType,UD_StruggleCritDuration)
                 elseif _customMinigameCritChance
-                    UDCDmain.StruggleCritCheck(self,_customMinigameCritChance,critType,_customMinigameCritDuration)
-                endif
-                loc_elapsedTime = 0.0
+                    loc_elapsedTime = UDCDmain.StruggleCritCheck(self,_customMinigameCritChance,critType,_customMinigameCritDuration)
+                else
+                    loc_elapsedTime = 0.0
+                Endif
             endif
         endif
         if IsMinigameLoopRunning()
@@ -8400,7 +8423,7 @@ Function _MinigameCritLoopThread()
             loc_elapsedTime += loc_updateTime
         endif
     endwhile
-    
+    UDCDmain.crit = False
     _MinigameParProc_3 = false
 EndFunction
 
@@ -8516,6 +8539,6 @@ Function _UnregisterInvalid()
     removeDevice(Wearer)
     ; Sometimes the device can be invalid, but valid script can be also present but not registered. 
     ; Calling removeLostRenderDevices should fix the issue
-    UDCDmain.GetNPCSlot(Wearer).removeLostRenderDevices()
+    UDCDmain.GetNPCSlot(Wearer).removeLostRenderDevices(true)
     _UnregisterInvalidCalled = 2
 EndFunction

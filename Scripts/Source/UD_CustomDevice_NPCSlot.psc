@@ -232,7 +232,11 @@ Function _ValidateOutfit()
 EndFunction
 
 UD_CustomDevice_RenderScript Function GetUserSelectedDevice()
+    startDeviceManipulation()
+
     String[] loc_devicesString
+
+    removeUnlocked(false)
 
     If UDCDMain.UD_DeviceListGroups
         loc_devicesString = getDeviceGroupsPremade()
@@ -248,16 +252,16 @@ UD_CustomDevice_RenderScript Function GetUserSelectedDevice()
         loc_deviceIndx = UDmain.GetUserListInput(loc_devicesString, abPremade = True)
     EndIf
     
+    UD_CustomDevice_RenderScript loc_res = none
     if loc_deviceIndx < UD_equipedCustomDevices.Length && loc_deviceIndx >= 0
         UD_CustomDevice_RenderScript loc_device = UD_equipedCustomDevices[loc_deviceIndx]
         If loc_device != None
             UD_LastSelectedDevice = loc_device
-;            ReorderSlots(loc_device)
         EndIf
-        return loc_device
-    else
-        return none
+        loc_res = loc_device
     endif
+    endDeviceManipulation()
+    return loc_res
 EndFunction
 
 String[] Function getSlotsStringA()
@@ -584,13 +588,6 @@ Function SortVibrators(bool mutex = true)
     endif
 EndFunction
 
-;removes bullshit
-Function QuickFix()
-    sortSlots()
-    removeCopies()
-    removeUnusedDevices()
-EndFunction
-
 String Function _GetNPCSlotFixText()
     String loc_res = ""
     
@@ -617,10 +614,10 @@ Function fix()
     if loc_res == 0 ;general fix
         UDmain.Print("[UD] Starting general fixes")
         UDCDMain.ResetFetchFunction()
-        sortSlots()
-        removeCopies()
-        removeUnusedDevices()
-        removeLostRenderDevices()
+        sortSlots(true)
+        removeCopies(true)
+        removeUnusedDevices(true)
+        removeLostRenderDevices(true)
 
         UDCDmain.EnableActor(getActor())
 
@@ -742,12 +739,14 @@ Function CheckVibrators()
     endwhile
 EndFunction
 
-Function removeLostRenderDevices()
+Function removeLostRenderDevices(bool abMutex)
     ;if !isPlayer()
     ;    UDmain.Print("removeLostRenderDevices doesn't work for NPCs. Skipping!",1)
     ;endif
     
-    startDeviceManipulation()
+    if abMutex
+      startDeviceManipulation()
+    endif
     if UDmain.TraceAllowed()
         UDmain.Log("removeLostRenderDevices("+getSlotedNPCName()+")")
     endif
@@ -792,7 +791,9 @@ Function removeLostRenderDevices()
         endif
         _currentSlotedActor.removeItem(loc_toRemove[loc_toRemoveNum],1,true)
     endwhile
-    endDeviceManipulation()
+    if abMutex
+      endDeviceManipulation()
+    endif
 EndFunction
 
 bool Function registerDevice(UD_CustomDevice_RenderScript oref,bool mutex = true)
@@ -876,7 +877,6 @@ int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool s
     if mutex
         startDeviceManipulation()
     endif
-    Bool loc_sort = False
     If oref == UD_LastSelectedDevice
         UD_LastSelectedDevice = None
     EndIf
@@ -884,35 +884,21 @@ int Function unregisterDevice(UD_CustomDevice_RenderScript oref,int i = 0,bool s
     while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if UD_equipedCustomDevices[i] == oref
             UD_equipedCustomDevices[i] = none
-            _iUsedSlots-=1
             res += 1
-        ElseIf res > 0 && UD_equipedCustomDevices[i - res] == None
-        ; immediately move all elements after the deleted one
-            UD_equipedCustomDevices[i - res] = UD_equipedCustomDevices[i]
-            UD_equipedCustomDevices[i] = None
-        Else
-        ; ???
-            ; This is intended behaviour when device is not first element in array and i = 0. Why print warning ???
-            ;UDmain.Warning(Self + "::unregisterDevice() Something wrong with UD_equipedCustomDevices array. Unexpected element value.")
-            loc_sort = True
         endif
         i+=1
     endwhile
+    
+    ; Only sort slots if at least one device is unregistered and there are still used slots
+    if res > 0 && sort
+        sortSlots(false)
+    endif
+    
+    GetModifierTags_Update()
+    
     if mutex
         endDeviceManipulation()
     endif
-    ;if isScriptRunning() && _iUsedSlots == 0
-        ;resetScriptState()
-    ;    return res
-    ;endif    
-    
-    ; Only sort slots if at least one device is unregistered and there are still used slots
-    if loc_sort
-        sortSlots(mutex)
-    endif
-
-    GetModifierTags_Update()
-    
     return res
 EndFunction
 
@@ -1016,27 +1002,29 @@ bool FUnction deviceAlreadyRegisteredRender(Armor deviceRendered)
     return false
 EndFunction
 
-Function removeAllDevices()
-    ;startDeviceManipulation()
+Function removeAllDevices(Bool abMutex = true)
     StorageUtil.SetIntValue(getActor(), "UD_blockSlotUpdate",1)
+    
     while UD_equipedCustomDevices[0]
         if UD_equipedCustomDevices[0].isUnlocked
             Utility.waitMenuMode(0.2)
             if UD_equipedCustomDevices[0].isUnlocked
-                removeCopies()
-                removeUnusedDevices()
-                removeLostRenderDevices()
+                removeCopies(true)
+                removeUnusedDevices(true)
+                removeLostRenderDevices(true)
+                sortSlots(true)
             endif
-        endif    
+        endif
         UD_equipedCustomDevices[0].unlockRestrain()
     endwhile
-    ;regainDevices()
+    
     StorageUtil.UnSetIntValue(getActor(), "UD_blockSlotUpdate")
-    ;endDeviceManipulation()
 EndFunction
 
-Function removeUnusedDevices()
-    startDeviceManipulation()
+Function removeUnusedDevices(bool abMutex = true)
+    if abMutex
+      startDeviceManipulation()
+    endif
     int i = 0
     while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         UD_CustomDevice_RenderScript loc_device = UD_equipedCustomDevices[i]
@@ -1057,9 +1045,10 @@ Function removeUnusedDevices()
         endif
         i+=1
     endwhile
-    endDeviceManipulation()
-    
-    sortSlots()
+    sortSlots(false)
+    if abMutex
+      endDeviceManipulation()
+    endif
 EndFunction
 
 int Function numberOfUnusedDevices()
@@ -1100,16 +1089,36 @@ int Function getCopiesOfDevice(UD_CustomDevice_RenderScript oref)
     return res
 EndFunction
 
-Function removeCopies()
-    ;startDeviceManipulation()
+Function removeCopies(bool abMutex = true)
+    if abMutex
+      startDeviceManipulation()
+    endif
     int i = 0
     while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
         if i < _iUsedSlots - 1
-            unregisterDevice(UD_equipedCustomDevices[i],i + 1)
+            unregisterDevice(UD_equipedCustomDevices[i],i + 1,true,false)
         endif
         i+=1
     endwhile
-    ;endDeviceManipulation()
+    if abMutex
+      endDeviceManipulation()
+    endif
+EndFunction
+
+Function removeUnlocked(Bool abMutex = true)
+    if abMutex
+      startDeviceManipulation()
+    endif
+    int i = 0
+    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
+        if UD_equipedCustomDevices[i].isUnlocked
+            unregisterDevice(UD_equipedCustomDevices[i],i,true,false)
+        endif
+        i+=1
+    endwhile
+    if abMutex
+      endDeviceManipulation()
+    endif
 EndFunction
 
 int Function numberOfCopies()
@@ -1909,24 +1918,6 @@ Actor Function getActor()
     return self.getActorReference()
 EndFunction
 
-int Function removeWrongWearerDevices()
-    ;startDeviceManipulation()
-    int res = 0
-    int i = 0
-    Actor _currentSlotedActor = getActor()
-    while (i < UD_equipedCustomDevices.length) && UD_equipedCustomDevices[i]
-        if (UD_equipedCustomDevices[i].getWearer() != _currentSlotedActor) || UD_equipedCustomDevices[i].isUnlocked
-            res += unregisterDevice(UD_equipedCustomDevices[i],i,False)
-        endif
-        i+=1
-    endwhile
-    ;endDeviceManipulation()
-    if res > 0
-        sortSlots()
-    endif
-    return res
-EndFunction
-
 Function resetValues()
     _iScriptState = 1
 EndFunction
@@ -1943,22 +1934,11 @@ Function regainDevices()
     endwhile
     _regainMutex = True
     
-    ;super complex shit
-    ;int removedDevices = removeWrongWearerDevices()
-    
-    ;Armor[] loc_devices = zadNativeFunctions.GetDevices(_currentSlotedActor,1,true)
-    ;UDmain.Info("Registering " + loc_devices.length + " devices")
     
     int loc_registered = UD_Native.RegisterDeviceScripts(_currentSlotedActor)
     _iUsedSlots = loc_registered
 
     UDmain.Info("Registered " + loc_registered + " devices")
-    ;wait for all devices to get registered
-    ;float loc_timeout = 3.0
-    ;while (_iUsedSlots != loc_toregister) && (loc_timeout > 0.0)
-    ;    Utility.waitMenuMode(0.1)
-    ;    loc_timeout -= 0.1
-    ;endwhile
     
     _regainMutex = False
 EndFunction
@@ -2166,14 +2146,25 @@ Function InitArousalUpdate()
     ;GetActor().AddToFaction(UDOM.ArousalCheckLoopFaction)
 EndFunction
 
+float _ArousalAccumulator = 0.0
 Function UpdateArousal(Int aiUpdateTime)
-    ;Actor   loc_actor       = GetActor()
-    ;if loc_actor
-    ;    ;libs.Aroused.SetActorExposure(loc_actor, Round(OrgasmSystem.GetOrgasmVariable(loc_actor,8)))
-    ;    ;UDOM.UpdateArousal(loc_actor ,Round(OrgasmSystem.GetOrgasmVariable(8)))
-    ;else
-    ;    UDmain.Error(self + "::Cant update arousal  because sloted actor is none!")
-    ;endif
+    if OrgasmSystem.UseArousalFallback()
+      Actor   loc_actor       = GetActor()
+        if loc_actor
+            ;Arousal rate is in default in value per frame
+            float loc_arousal = aiUpdateTime*OrgasmSystem.GetOrgasmVariable(loc_actor,9)*OrgasmSystem.GetOrgasmVariable(loc_actor,10)
+            ;UDMain.Info(self + "::UpdateArousal() - Arousal = " + loc_arousal)
+            _ArousalAccumulator += loc_arousal
+            int loc_arousalInt = Math.Floor(_ArousalAccumulator)
+            if loc_arousalInt != 0
+                ;UDMain.Info(self + "::UpdateArousal() - Increasing arousal by " + loc_arousalInt + " (Accu = "+_ArousalAccumulator+")")
+                UDOM.UpdateArousal(loc_actor ,loc_arousalInt)
+                _ArousalAccumulator -= loc_arousalInt
+            endif
+        else
+            UDmain.Error(self + "::UpdateArousal() - Cant update arousal  because sloted actor is none!")
+        endif
+    endif
 EndFunction
 
 Function CleanArousalUpdate()

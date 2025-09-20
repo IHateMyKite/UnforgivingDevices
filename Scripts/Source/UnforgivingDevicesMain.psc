@@ -2166,7 +2166,11 @@ EndFunction
 /;
 Function SheatWeapons(Actor akActor) global
     akActor.SheatheWeapon()
-    while (akActor.IsWeaponDrawn())
+    
+    bool loc_isParalysed = akActor.getAV("paralysis")
+    int loc_timeout = 30
+    while (akActor.IsWeaponDrawn() && !loc_isParalysed && loc_timeout)
+        loc_timeout -= 1
         Utility.wait(0.1)
     endwhile
 EndFunction
