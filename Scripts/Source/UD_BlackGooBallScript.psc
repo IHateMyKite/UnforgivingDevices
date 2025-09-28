@@ -23,6 +23,8 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
                 UDmain.UDAbadonQuest.AbadonEquipSuit(loc_victim,UDmain.UDAbadonQuest.final_finisher_pref)
             elseif UD_Type == 2 ;purified goo
                 UDmain.UDRRM.LockAnyRandomRestrain(loc_victim,RandomInt(UD_MinDevices, UD_MaxDevices))
+            elseif UD_Type == 3 ;selective abadon suit
+                UDmain.UDAbadonQuest.AbadonEquipSuitSelective(loc_victim)
             endif
         else
             UDmain.Error("Can't process UD_BlackGooBallScript because actor " + GetActorName(loc_victim) + " is not valid")

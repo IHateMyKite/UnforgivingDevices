@@ -126,6 +126,9 @@ String  Function GetHornyStatus(Actor akActor)                                  
 Int     Function GetOrgasmFlags(Actor akActor)                                      global native
 Bool    Function SetOrgasmFlags(Actor akActor, Int aiFlags)                         global native
 
+; If fallback arousal calculation should be used instead
+Bool    Function UseArousalFallback()                                               global native
+
 ;Events
         Function RegisterForOrgasmEvent_Ref(ReferenceAlias akRefAlias)              global native
         Function RegisterForOrgasmEvent_Form(Form akForm)                           global native
