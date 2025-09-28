@@ -6051,7 +6051,13 @@ bool Function minigamePrecheck(Bool abSilent = False)
         if !abSilent
             GWarning("Can't start minigame for " + getDeviceHeader() + " because wearer is invalid! Dead="+Wearer.IsDead() + ",Disabled="+Wearer.IsDisabled()+",Scene+"+Wearer.GetCurrentScene())
             if WearerIsPlayer()
-                UDmain.Print("You are already doing something",1)
+                if Wearer.IsDead()
+                    UDmain.Print("You can't get into a minigame, because you are currently dead.",1)  ; was:  "You are already doing something" 
+                elseif Wearer.IsDisabled()
+                    UDmain.Print("You can't get into a minigame, because you are currently disabled.",1)  ; was:  "You are already doing something"
+                else
+                    UDmain.Print("You can't get into a minigame, because you are currently in a scene: " + Wearer.GetCurrentScene() + ".",1)  ; was:  "You are already doing something" 
+                endif
             elseif UDCDmain.AllowNPCMessage(Wearer)
                 UDmain.Print(getWearerName() + " is already doing something",1)
             endif
