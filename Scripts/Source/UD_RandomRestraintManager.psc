@@ -450,15 +450,16 @@ EndFunction
 
 
 Armor Function LockFirstDeviceFromArray(Actor akActor, Form[] akFormArray, Bool abForce = False)
-    Int loc_i = akFormArray.Length
-    While loc_i > 0
-        loc_i -= 1
+    Int loc_n = akFormArray.Length
+    Int loc_i = 0
+    While loc_i < loc_n
         Armor loc_device = akFormArray[loc_i] As Armor
         If loc_device != None && (abForce || ConflictNone(akActor, loc_device))
             If libs.lockdevice(akActor, loc_device, abForce)
                 Return loc_device
             EndIf
         EndIf
+        loc_i += 1
     EndWhile
     Return None
 EndFunction
