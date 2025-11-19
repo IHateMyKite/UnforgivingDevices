@@ -1177,6 +1177,14 @@ EndFunction
 ; compilation of the code from SexLab functions
 ; there is a weak dependence on NiOverride
 Function _RestoreHeelEffect(Actor akActor)
+    ; Needs to remove existing override first because boots may have been removed during the animation.
+    if slConfig.HasNiOverride
+        Bool isRealFemale = (akActor.GetLeveledActorBase().GetSex() == 1)
+        bool UpdateNiOPosition = NiOverride.RemoveNodeTransformPosition(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esp")
+        if UpdateNiOPosition
+            NiOverride.UpdateNodeTransform(akActor, false, isRealFemale, "NPC")
+        endIf
+    endIf
     If !akActor.GetWornForm(0x00000080)
         Return
     EndIf
@@ -1190,13 +1198,6 @@ Function _RestoreHeelEffect(Actor akActor)
             akActor.AddSpell(hdtHeelSpell)
         endIf
         StorageUtil.UnsetFormValue(akActor, "UD_AnimationManager_HDTHeelSpell")
-    endIf
-    if slConfig.HasNiOverride
-        Bool isRealFemale = (akActor.GetLeveledActorBase().GetSex() == 1)
-        bool UpdateNiOPosition = NiOverride.RemoveNodeTransformPosition(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esp")
-        if UpdateNiOPosition
-            NiOverride.UpdateNodeTransform(akActor, false, isRealFemale, "NPC")
-        endIf
     endIf
 EndFunction
 
