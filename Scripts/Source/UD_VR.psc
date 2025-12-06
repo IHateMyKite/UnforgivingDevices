@@ -1,4 +1,5 @@
 Scriptname UD_VR
+; Credit to the OStim Standalone VR code that had the settings in the C++ code for third person animations.
 Bool Function VRIKFixStart() Global
     VRIK.VrikSetSetting("lockHeightToBody", 0.0)
     VRIK.VrikSetSetting("enableLeftArm", 0.0)
