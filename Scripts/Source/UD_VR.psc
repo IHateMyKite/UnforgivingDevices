@@ -13,7 +13,7 @@ Bool Function VRIKFixStart() Global
     VRIK.VrikSetSetting("lockHmdMaxThreshold", 500.0)  
     VRIK.VrikSetSetting("lockHmdSpeed", 20.0)  
     VRIK.VrikSetSetting("rotateHmdToBodySeconds", 0.0)  
-    float angle=Game.GetPlayer().GetAngleZ()*0.0174533
+    float angle=Game.GetPlayer().GetAngleZ()
     float distance=50.0
     float ZOffset=0.0
     float XOffset=Math.Sin(angle)*distance
@@ -21,6 +21,7 @@ Bool Function VRIKFixStart() Global
     VRIK.VrikSetSetting("lockPositionX",Game.GetPlayer().GetPositionX()+XOffset)
     VRIK.VrikSetSetting("lockPositionY",Game.GetPlayer().GetPositionY()+YOffset)
     VRIK.VrikSetSetting("lockPositionZ",Game.GetPlayer().GetPositionZ()+ZOffset)
+    VRIK.VrikSetSetting("lockRotationAngle",Game.GetPlayer().GetAngleZ()+180.0)
     VRIK.VrikSetSetting("lockRotation",1)
     VRIK.VrikSetSetting("lockPosition",2.0)
 EndFunction
