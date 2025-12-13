@@ -16,6 +16,7 @@ bool    Function MinigameStatsCheck         (Actor akActor, bool abStamina, bool
         Function MinigameEffectUpdateMagicka(Actor akActor, float afMagicka)    global native
 
 ;===UTILITY===
+Form[]      Function RemoveDuplicateForms       (Form[] modifier_forms)                                         global native
 Int         Function CodeBit                    (int aiCodedMap,int aiValue,int aiSize,int aiIndex)             global native
 Int         Function DecodeBit                  (int aiCodedMap,int aiSize,int aiIndex)                         global native
 Int         Function Round                      (Float afValue)                                                 global native

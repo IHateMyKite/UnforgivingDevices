@@ -353,6 +353,7 @@ Bool Property DeviousStrikeInstalled    = False auto hidden
 Bool Property ForHimInstalled           = False auto hidden
 Bool Property PO3Installed              = False auto hidden ;https://www.nexusmods.com/skyrimspecialedition/mods/22854
 Bool Property ImprovedCameraInstalled   = False auto hidden
+Bool Property VRIKInstalled             = False auto hidden
 Bool Property ExperienceInstalled       = False auto hidden
 Bool Property SkyrimSoulsInstalled      = False auto hidden
 Bool Property AllowMenBondage           = True  auto hidden
@@ -1005,7 +1006,11 @@ Function _CheckOptionalMods()
     else
         ImprovedCameraInstalled = false
     endif
-    
+    if PluginInstalled("VRIK.dll")
+        VRIKInstalled = true
+    else
+        VRIKInstalled = false
+    endif    
     if PluginInstalled("Experience.dll")
         ExperienceInstalled = true
     else
