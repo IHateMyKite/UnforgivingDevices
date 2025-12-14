@@ -1177,6 +1177,14 @@ EndFunction
 ; compilation of the code from SexLab functions
 ; there is a weak dependence on NiOverride
 Function _RestoreHeelEffect(Actor akActor)
+    ; Needs to remove existing override first because boots may have been removed during the animation.
+    if slConfig.HasNiOverride
+        Bool isRealFemale = (akActor.GetLeveledActorBase().GetSex() == 1)
+        bool UpdateNiOPosition = NiOverride.RemoveNodeTransformPosition(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esp")
+        if UpdateNiOPosition
+            NiOverride.UpdateNodeTransform(akActor, false, isRealFemale, "NPC")
+        endIf
+    endIf
     If !akActor.GetWornForm(0x00000080)
         Return
     EndIf
@@ -1191,13 +1199,6 @@ Function _RestoreHeelEffect(Actor akActor)
         endIf
         StorageUtil.UnsetFormValue(akActor, "UD_AnimationManager_HDTHeelSpell")
     endIf
-    if slConfig.HasNiOverride
-        Bool isRealFemale = (akActor.GetLeveledActorBase().GetSex() == 1)
-        bool UpdateNiOPosition = NiOverride.RemoveNodeTransformPosition(akActor, false, isRealFemale, "NPC", "UnforgivingDevices.esp")
-        if UpdateNiOPosition
-            NiOverride.UpdateNodeTransform(akActor, false, isRealFemale, "NPC")
-        endIf
-    endIf
 EndFunction
 
 ; abDismount should not be used with group animations since they are using "mount"
@@ -1206,6 +1207,9 @@ Function _Apply3rdPersonCamera(Bool abDismount = True)
         ;UDmain.Log("UD_AnimationManagerScript::_Apply3rdPersonCamera() ImprovedCameraInstalled = true, CameraState = " + Game.GetCameraState())
         ; 0 - first person; 3 - free camera; 9 - third person; 10 - On a horse
         ; TODO: need more tests with free camera
+        if UDmain.VRIKInstalled
+            UD_VR.VRIKFixStart()
+        EndIf
         Game.ForceThirdPerson()
         
         If (abDismount && UDMain.Player.IsOnMount())
@@ -1217,7 +1221,9 @@ Function _Apply3rdPersonCamera(Bool abDismount = True)
             EndWhile
             ;UDmain.Log("UD_AnimationManagerScript::_Apply3rdPersonCamera() Dismount waiting, IsOnMount = " + UDMain.Player.IsOnMount() + ", timeout = " + timeout)
         EndIf
-
+        if UDmain.VRIKInstalled
+            UD_VR.VRIKFixStart()
+        EndIf
         return
     endif
 
@@ -1231,7 +1237,13 @@ Function _Apply3rdPersonCamera(Bool abDismount = True)
         If abDismount
             UDMain.Player.Dismount()
             StorageUtil.SetIntValue(UDMain.Player, "UD_AnimationManager_RestoreCamera", 1)
+            if UDmain.VRIKInstalled
+                UD_VR.VRIKFixStart()
+            EndIf            
             Game.ForceThirdPerson()
+            if UDmain.VRIKInstalled
+                UD_VR.VRIKFixStart()
+            EndIf            
             int timeout = 0
             while UDMain.Player.IsOnMount() && timeout <= 30; Wait for dismount to complete
                 Utility.Wait(0.1)
@@ -1244,7 +1256,13 @@ Function _Apply3rdPersonCamera(Bool abDismount = True)
     
     Else
         StorageUtil.SetIntValue(UDMain.Player, "UD_AnimationManager_RestoreCamera", 1)
+        if UDmain.VRIKInstalled
+            UD_VR.VRIKFixStart()
+        EndIf        
         Game.ForceThirdPerson()
+        if UDmain.VRIKInstalled
+            UD_VR.VRIKFixStart()
+        EndIf        
     EndIf
 EndFunction
 
@@ -1254,6 +1272,9 @@ Function _RestorePlayerCamera()
     If StorageUtil.GetIntValue(player, "UD_AnimationManager_RestoreCamera", 0) == 1 && Game.GetCameraState() != 3
         StorageUtil.SetIntValue(player, "UD_AnimationManager_RestoreCamera", 0)
         Game.ForceFirstPerson()
+    EndIf
+    if UDmain.VRIKInstalled
+        UD_VR.VRIKFixEnd()
     EndIf
 EndFunction
 

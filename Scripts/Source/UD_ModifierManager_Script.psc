@@ -113,7 +113,7 @@ EndFunction
 ; Remove duplicate storages
 Function _RemoveDuplicates()
   int loc_sizeBefore = _modifierstorages.length
-  _modifierstorages = PapyrusUtil.removedupeform(_modifierstorages)
+  _modifierstorages = UD_Native.RemoveDuplicateForms(_modifierstorages)
   if loc_sizeBefore != _modifierstorages.length
     Int loc_diff = loc_sizeBefore - _modifierstorages.length
     UDMain.Info("Removed " + loc_diff + " duplicate modifier storages")
