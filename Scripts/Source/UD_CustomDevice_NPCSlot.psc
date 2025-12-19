@@ -2147,6 +2147,8 @@ Function InitArousalUpdate()
 EndFunction
 
 float _ArousalAccumulator = 0.0
+float _SlaArousal = 0.0
+float _SlaArousal2 = 0.0
 Function UpdateArousal(Int aiUpdateTime)
     if OrgasmSystem.UseArousalFallback()
       Actor   loc_actor       = GetActor()
@@ -2158,8 +2160,25 @@ Function UpdateArousal(Int aiUpdateTime)
             int loc_arousalInt = Math.Floor(_ArousalAccumulator)
             if loc_arousalInt != 0
                 ;UDMain.Info(self + "::UpdateArousal() - Increasing arousal by " + loc_arousalInt + " (Accu = "+_ArousalAccumulator+")")
-                UDOM.UpdateArousal(loc_actor ,loc_arousalInt)
                 _ArousalAccumulator -= loc_arousalInt
+                if libs.Aroused.GetVersion() >= 30100005 && libs.Aroused.GetVersion() < 40000000
+                  ; SLA Arousal is installed
+                  float loc_arousalsum = OrgasmSystem.GetOrgasmVariable(loc_actor,8)
+                  _SlaArousal = fRange(_SlaArousal + loc_arousalInt,0.0,100.0)
+                  float loc_diff = _SlaArousal - loc_arousalsum
+                  ; Try to aproximate the result
+                  _SlaArousal2 += loc_diff ; It just works
+                  int handle = ModEvent.Create("slaSetArousalEffect")
+                  ModEvent.PushForm(handle, loc_actor)
+                  ModEvent.PushString(handle, "UnforgivingDevices")
+                  ModEvent.PushFloat(handle, _SlaArousal2)   ; Init value = Value we want
+                  ModEvent.PushInt(handle, 0)       ; Timed function = None
+                  ModEvent.PushFloat(handle, 0)     ; Parameter
+                  ModEvent.PushFloat(handle, 0.0)   ; Stop at this value
+                  ModEvent.Send(handle)
+                else
+                  UDOM.UpdateArousal(loc_actor ,loc_arousalInt)
+                endif
             endif
         else
             UDmain.Error(self + "::UpdateArousal() - Cant update arousal  because sloted actor is none!")

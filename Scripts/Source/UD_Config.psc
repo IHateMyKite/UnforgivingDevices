@@ -53,7 +53,7 @@ int     Property UD_OrgasmDuration                  = 20    auto hidden
     
     Do not edit, *READ ONLY!* Is set by user with MCM
 /;
-bool    Property UD_HornyAnimation                  = true  auto hidden
+bool    Property UD_HornyAnimation                  = false  auto hidden
 
 ;/  Variable: UD_HornyAnimationDuration
     Duration of horny animation. Requires <UD_HornyAnimation> to be enabled first

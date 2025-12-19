@@ -5160,7 +5160,7 @@ Function ResetToDefaults()
     UDCONF.UD_UseOrgasmWidget             = true
     UDCONF.UD_OrgasmUpdateTime            = 0.5
     UDCONF.UD_OrgasmAnimation             = 1
-    UDCONF.UD_HornyAnimation              = true
+    UDCONF.UD_HornyAnimation              = false
     UDCONF.UD_HornyAnimationDuration      = 5
     UDCDmain.UD_CooldownMultiplier      = 1.0
     UDCDmain.UD_CritEffect              = 2
