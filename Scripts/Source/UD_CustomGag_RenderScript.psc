@@ -25,9 +25,9 @@ bool Function OnUpdateHourPost()
     if RandomInt(1,99) < 35
         UDCDmain.ApplyDroolEffect(GetWearer())
         if WearerIsPlayer()
-            UDmain.Print("Gag is making you drool uncontrollably",3)
+            UDmain.Print("Gag is making you drool uncontrollably.",3)
         elseif UDCDmain.AllowNPCMessage(getWearer())
-            UDmain.Print("Gag is making " + getWearerName() + " drool uncontrollably",3)
+            UDmain.Print("Gag is making " + getWearerName() + " drool uncontrollably.",3)
         endif
     endif
     return parent.OnUpdateHourPost()
