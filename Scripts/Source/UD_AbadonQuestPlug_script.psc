@@ -12,7 +12,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
         endif
         
         script.UD_AbadonVictim = akActor
-        debug.messagebox("After being buried for centuries the plugs hunger is immeasurable! Powerful magics cloud your mind and compel you to insert the plug. After the plug is inserted, restraints summoned by the plug latch on to you! It seems the plug does not want to be removed.")
+        debug.messagebox("After being buried for centuries the plug's hunger is immeasurable! Powerful magics cloud your mind and compel you to insert the plug. After the plug is inserted, restraints summoned by the plug latch on to you! It seems the plug does not want to be removed.")
         GetOwningQuest().SetStage(20)        
         GetOwningQuest().SetObjectiveCompleted(20)
         GetOwningQuest().SetObjectiveDisplayed(30)
