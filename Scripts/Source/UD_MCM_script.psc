@@ -798,7 +798,7 @@ Function resetModifiersPage()
 
     If loc_storage == None
     ; ???
-        UDmain.Error(Self + "::resetModifiersPage() Selected storage was None (index = " + UD_ModifierStorageSelected + ")")
+        UDmain.Error(Self + "::resetModifiersPage() Selected storage was None (index = " + UD_ModifierStorageSelected + ").")
         UD_ModifierStorageSelected = 0
         Return
     EndIf
@@ -811,7 +811,7 @@ Function resetModifiersPage()
     
     If loc_mod == None
     ; ???
-        UDmain.Error(Self + "::resetModifiersPage() Selected modifier was None (index = " + UD_ModifierSelected + ")")
+        UDmain.Error(Self + "::resetModifiersPage() Selected modifier was None (index = " + UD_ModifierSelected + ").")
         UD_ModifierSelected = 0
         Return
     EndIf
@@ -4742,7 +4742,7 @@ EndFunction
 
 Function SaveToJSON(string strFile)
     if !strFile
-        UDMain.Error("Incorrect config path")
+        UDMain.Error("Incorrect config path.")
         return
     endif
 
@@ -4913,12 +4913,12 @@ EndFunction
 
 Function LoadFromJSON(string strFile)
     if !strFile
-        UDMain.Error("Incorrect config path")
+        UDMain.Error("Incorrect config path.")
         return
     endif
     String loc_abspath = "Data/skse/Plugins/StorageUtilData/" + strFile
     if !MiscUtil.FileExists(loc_abspath)
-        UDMain.Error("Cant load config " + loc_abspath + " , as the file does not exist")
+        UDMain.Error("Can't load config " + loc_abspath + " , as the file does not exist.")
         return
     endif
 
