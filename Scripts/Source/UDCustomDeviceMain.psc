@@ -1111,7 +1111,7 @@ bool Function activateDevice(UD_CustomDevice_RenderScript akCustomDevice)
             UD_CustomDevice_RenderScript[] loc_device_arr = getActiveDevices(akCustomDevice.getWearer())
             UD_CustomDevice_RenderScript loc_device = loc_device_arr[RandomInt(0,loc_num - 1)]
             if akCustomDevice.WearerIsPlayer()
-                UDmain.Print("Your " + akCustomDevice.getDeviceName() + " activates " + loc_device.getDeviceName() + " !!", 2)
+                UDmain.Print("Your " + akCustomDevice.getDeviceName() + " activates " + loc_device.getDeviceName() + "!", 2)
             endif
             akCustomDevice = loc_device
         else
@@ -1601,9 +1601,9 @@ int Function addHelperXP(Actor akHelper, int aiXP)
         loc_nextXP      -= _CalculateHelperXpRequired(loc_nextLVL)
         loc_nextLVL     += 1
         if IsPlayer(akHelper)
-            UDmain.Print("Your Helper skill level increased to " + loc_nextLVL + " !")
+            UDmain.Print("Your helper level increased to " + loc_nextLVL + "!")
         elseif AllowNPCMessage(akHelper)
-            UDmain.Print(GetActorName(akHelper) + "'s helper level have increased to " + loc_nextLVL + " !")
+            UDmain.Print(GetActorName(akHelper) + "'s helper level increased to " + loc_nextLVL + "!")
         endif
     endwhile
     StorageUtil.SetIntValue(akHelper,"UDNPCXP",loc_nextXP)
@@ -1776,7 +1776,7 @@ Function PlayerImprovise()
     float loc_currenttime = Utility.GetCurrentGameTime()
     if _ImprovisedCooldown > loc_currenttime
         ; Not ready yet, do nothing
-        UDmain.Print("You dont have any ideas yet. You should wait some more time")
+        UDmain.Print("You dont have any ideas yet. You should wait some more time.")
         return
     endif
     
@@ -1785,7 +1785,7 @@ Function PlayerImprovise()
     ; Currently only one option
     if UDmain.Player.getItemCount(Lockpick) <= 0
         UDmain.Player.AddItem(Lockpick,RandomInt(5,10),true)
-        UDmain.Print("You improvised and created some makeshift lockpicks from things you could find around")
+        UDmain.Print("You improvised and created some makeshift lockpicks from things you could find lying around.")
         loc_cooldownHours = 1.0
     endif
     
@@ -3835,7 +3835,7 @@ int Function ManifestDevices(Actor akActor,string asSource ,int aiChance,int aiN
     if loc_array
         if loc_array.length > 0
             if IsPlayer(akActor)
-                UDmain.Print(asSource + " suddenly locks you in bondage restraint!",1)
+                UDmain.Print(asSource + " suddenly locks you in bondage restraints!",1)
                 ;/
                 string loc_str = "Devices locked: \n"
                 int i = 0
@@ -3846,7 +3846,7 @@ int Function ManifestDevices(Actor akActor,string asSource ,int aiChance,int aiN
                 ShowMessageBox(loc_str)
                 /;
             elseif AllowNPCMessage(akActor)
-                UDmain.Print(GetActorName(akActor) + "s "+ asSource +" suddenly locks them in bondage restraint!",3)
+                UDmain.Print(GetActorName(akActor) + "s "+ asSource +" suddenly locks them in bondage restraints!",3)
             endif
         endif
     endif
@@ -3881,7 +3881,7 @@ int Function ManifestDevicesFromArray(Actor akActor, String asSource, Form[] akF
     if loc_array
         if loc_array.length > 0
             if IsPlayer(akActor)
-                UDmain.Print(asSource + " suddenly locks you in bondage restraint!",1)
+                UDmain.Print(asSource + " suddenly locks you in bondage restraints!",1)
                 ;/
                 string loc_str = "Devices locked: \n"
                 int i = 0
@@ -3892,7 +3892,7 @@ int Function ManifestDevicesFromArray(Actor akActor, String asSource, Form[] akF
                 ShowMessageBox(loc_str)
                 /;
             elseif AllowNPCMessage(akActor)
-                UDmain.Print(GetActorName(akActor) + "s "+ asSource +" suddenly locks them in bondage restraint!",3)
+                UDmain.Print(GetActorName(akActor) + "s "+ asSource +" suddenly locks them in bondage restraints!",3)
             endif
         endif
     endif
