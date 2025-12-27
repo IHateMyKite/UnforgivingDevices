@@ -175,7 +175,7 @@ bool Function OnCritDevicePre()
             if RandomInt() < 15 ;25% chance
                 removeVibStrength(10)
                 if WearerIsPlayer()
-                    UDmain.Print("You notice that the " + getDeviceName() + " vibrates weaker than before",2)
+                    UDmain.Print("You notice that the " + getDeviceName() + " vibrates weaker than before.",2)
                 endif
             endif
         endif
@@ -194,7 +194,7 @@ Function OnUpdatePost(float timePassed)
             if WearerIsPlayer()
                 UDmain.Print("Your " + getDeviceName() + " changes its vibration strength!",2)
             elseif WearerIsFollower()
-                UDmain.Print(getWearerName() + "s " + getDeviceName() + " changes its vibration strength!",2)
+                UDmain.Print(getWearerName() + "'s " + getDeviceName() + " changes its vibration strength!",2)
             endif
             forceStrength(loc_newStrength)
             minutes_updated = 0.0
@@ -213,7 +213,7 @@ Function activateDevice()
         if WearerIsPlayer()
             UDmain.Print("Your "+ getDeviceName() +" suddenly turns itself on!",1)
         elseif UDmain.ActorInCloseRange(getWearer())
-            UDmain.Print(getWearerName() + "s "+ getDeviceName() +" suddenly turns itself on!",2)
+            UDmain.Print(getWearerName() + "'s "+ getDeviceName() +" suddenly turns itself on!",2)
         endif
         turnOnPlug(3,-1)
     else
@@ -221,7 +221,7 @@ Function activateDevice()
             if WearerIsPlayer()
                 UDmain.Print("Your controllable "+getPlugType()+" plug suddenly starts to vibrate stronger!",2)
             elseif UDmain.ActorInCloseRange(getWearer())            
-                UDmain.Print(getWearerName() + "s "+getDeviceName()+" suddenly starts to vibrate stronger!",3)
+                UDmain.Print(getWearerName() + "'s "+getDeviceName()+" suddenly starts to vibrate stronger!",3)
             endif
             addVibStrength(10)
         endif
@@ -230,7 +230,7 @@ Function activateDevice()
             if WearerIsPlayer()
                 UDmain.Print("Your controllable "+getPlugType()+" plug regains some of its charge!",2)
             elseif UDmain.ActorInCloseRange(getWearer())            
-                UDmain.Print(getWearerName() + "s "+getDeviceName()+" regains some of its charge!",3)
+                UDmain.Print(getWearerName() + "'s "+getDeviceName()+" regains some of its charge!",3)
             endif
         endif
     endif
