@@ -91,7 +91,7 @@ Function AbadonGooEffect(Actor akTarget)
                 endif
             endif
             if IsPlayer(akTarget)
-                UDmain.ShowMessageBox("Black goo covers your body and tie your hands while changing shape to RARE bondage restraint!")
+                UDmain.ShowMessageBox("Black goo covers your body and ties your hands together while changing shape to a RARE bondage restraint!")
             endif
         else
             int random = RandomInt(1,4)
@@ -127,11 +127,11 @@ Function AbadonGooEffect(Actor akTarget)
             endif
             _LastHandRestrain = random
             if IsPlayer(akTarget)
-                UDmain.ShowMessageBox("Black goo covers your body and tie your hands while changing shape to bondage restraint!")
+                UDmain.ShowMessageBox("Black goo covers your body and ties your hands together while changing shape to a bondage restraint!")
             endif
         endif
         
-        ;chance to lock plugs and belt. Only works if player first finished abadon quest (as some plugs can evolve in to abadon plug)
+        ;chance to lock plugs and belt. Only works if player first finished abadon quest (as some plugs can evolve into abadon plug)
         if RandomInt(1,99) < Round(15.0*fRange(loc_arousal/25.0,1.0,3.5))
             UDmain.ItemManager.lockAbadonHelperPlugs(akTarget)
             if (!akTarget.WornhasKeyword(libs.zad_DeviousBelt))
@@ -189,7 +189,7 @@ Function EquipAbadonDevices(Actor akTarget,Int aiMinDevices, Int aiMaxDevices)
                 endif
             endif
             if IsPlayer(akTarget)
-                UDmain.ShowMessageBox("Black goo covers your body and tie your hands while changing shape to RARE bondage restraint!")
+                UDmain.ShowMessageBox("Black goo covers your body and ties your hands together while changing shape to a RARE bondage restraint!")
             endif
         else
             if !akTarget.wornhaskeyword(libs.zad_deviousSuit)
@@ -214,7 +214,7 @@ Function EquipAbadonDevices(Actor akTarget,Int aiMinDevices, Int aiMaxDevices)
                 endif
             endif
             if IsPlayer(akTarget)
-                UDmain.ShowMessageBox("Black goo covers your body and tie your hands while changing shape to bondage restraint!")
+                UDmain.ShowMessageBox("Black goo covers your body and ties your hands together while changing shape to a bondage restraint!")
             endif
         endif
         UDCDmain.EnableActor(akTarget)

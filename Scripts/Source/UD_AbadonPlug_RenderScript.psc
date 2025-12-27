@@ -40,7 +40,7 @@ Function InitPost()
     if AbadonQuestScript.final_finisher_set
         AbadonQuestScript.AbadonEquipSuit(getWearer(),AbadonQuestScript.final_finisher_pref)
         if WearerIsPlayer()
-            UDmain.Print("Abadon plug has locked you in various bondage items to prevent you from removing it")
+            UDmain.Print("The Abadon Plug has locked you in various bondage items to prevent you from removing it.")
         endif
     endif
     
@@ -218,16 +218,16 @@ Function randomEquipHandRestrain()
         Armor loc_renderDevice = UDCDmain.GetRenderDevice(device)
         if WearerIsPlayer()
             if loc_renderDevice.hasKeyword(libs.zad_DeviousArmbinder)
-                debug.messagebox("Suddenly, Abadon plug starts to emit black smoke. Before you could react, smoke forces your hands helplessly behind your back and manifests into armbinder.")
+                debug.messagebox("Suddenly, the Abadon Plug starts to emit black smoke. Before you can react, smoke forces your hands helplessly behind your back and manifests into an armbinder.")
             elseif loc_renderDevice.hasKeyword(libs.zad_DeviousStraitjacket)
-                debug.messagebox("Suddenly, Abadon plug starts to emit black smoke. Before you could react, smoke forces your hands forcefully together and manifests into straitjacket.")
+                debug.messagebox("Suddenly, the Abadon Plug starts to emit black smoke. Before you can react, smoke forces your hands forcefully together and manifests into a straitjacket.")
             elseif loc_renderDevice.hasKeyword(libs.zad_DeviousArmbinderElbow)
-                debug.messagebox("Suddenly, Abadon plug starts to emit black smoke. Before you could react, smoke forces your hands painfully behind your back and manifests into elbowbinder.")
+                debug.messagebox("Suddenly, the Abadon Plug starts to emit black smoke. Before you can react, smoke forces your hands painfully behind your back and manifests into an elbowbinder.")
             elseif loc_renderDevice.hasKeyword(libs.zad_DeviousYoke)
-                debug.messagebox("Suddenly, Abadon plug starts to emit black smoke. Before you could react, smoke forces your hands away from your body and locks them into cold steel yoke.")
+                debug.messagebox("Suddenly, the Abadon Plug starts to emit black smoke. Before you can react, smoke forces your hands away from your body and locks them into a cold steel yoke.")
             endif
         else
-            UDmain.Print(getDeviceName() + " locks restraint on " + getWearerName())
+            UDmain.Print(getDeviceName() + " locks restraint on " + getWearerName() + ".")
         endif
     endif
 EndFunction
@@ -238,9 +238,9 @@ bool Function equipRandomRestrain()
         return False
     endif
     if WearerIsPlayer()
-        debug.messagebox("Suddenly, Abadon plug starts to emit black smoke. Before you could react, smoke manifests into " + device.getName() + "!")
+        debug.messagebox("Suddenly, the Abadon Plug starts to emit black smoke. Before you can react, the smoke manifests into " + device.getName() + "!")
     elseif WearerIsFollower()
-        UDmain.Print(getWearerName() + "s Abadon plug manifested " + device.getName())
+        UDmain.Print(getWearerName() + "'s Abadon Plug manifested " + device.getName() + "!")
     endif
     nextDeviceManifest = Utility.GetCurrentGameTime() + 3.5/24.0
     UDCDmain.LockDeviceParalel(GetWearer(), device ,True)
@@ -283,9 +283,9 @@ Function abadonorgasm(float mult = 1.0)
     
     if orgasm_cout % 2 && getRelativeDurability() < 1.0
         if WearerIsPlayer()
-            UDmain.Print("You feel that your orgasm is making Abadon Plug to regain its strength!")
+            UDmain.Print("Your orgasm is making the Abadon Plug regain its strength!")
         elseif WearerIsFollower() && GetWearer().Is3DLoaded()
-            UDmain.Print(getWearerName()+"s orgasm is making Abadon Plug to regain its strength!")
+            UDmain.Print(getWearerName()+"'s orgasm is making the Abadon Plug regain its strength!")
         endif
         refillDurability(10.0 + AbadonQuestScript.overaldifficulty*10.0)
     endif
@@ -300,7 +300,7 @@ Function abadonorgasm(float mult = 1.0)
                 UDmain.Print("Constant orgasms barely let you catch a breath!")
                 msg2 = true
             elseif (finisher_current_orgasms > 10 && !msg3)
-                UDmain.Print("You feel your mind breaking with every new orgasm")
+                UDmain.Print("You feel your mind breaking with every new orgasm.")
                 msg3 = true
             endif
         endif
@@ -404,7 +404,7 @@ Function masturbate()
         libs.SexLab.StartSex(Positions, libs.SexLab.GetAnimationsByTag(1, "Solo", "F", true),none,CenterOn = none, AllowBed = true, Hook = "UD") ;it just works
         last_time_masturbate = Utility.GetCurrentGameTime()
     else
-        debug.messagebox("You are too weak from last time.\nYou can masturbate again in "+ UDmain.FormatFloat((AbadonQuestScript.masturbate_cd/24.0 - (Utility.GetCurrentGameTime() - last_time_masturbate))*24,1) + " hours")
+        debug.messagebox("You are too weak from last time.\nYou can masturbate again in "+ UDmain.FormatFloat((AbadonQuestScript.masturbate_cd/24.0 - (Utility.GetCurrentGameTime() - last_time_masturbate))*24,1) + " hours.")
     endif
 EndFunction
 /;
@@ -429,7 +429,7 @@ Function BeltCheck()
         belt_used = True
         stopMinigame()
         if WearerIsPlayer()
-            UDmain.Print("Plug has locked you in a chastity belt!")
+            UDmain.Print("The Abadon Plug has locked you in a chastity belt!")
         endif
         libs.lockdevice(getWearer(),UDlibs.AbadonBelt)
     endif
@@ -569,15 +569,15 @@ Function onUpdatePost(float timePassed)
         if (abadonPlugDiff >= AbadonQuestScript.max_difficulty && !max_diff_finisher)
             max_diff_finisher = True
             if WearerIsPlayer()
-                UDmain.Print("Abadon plug have reached its full strength!")
+                UDmain.Print("The Abadon Plug has reached its full strength!")
                 if AbadonQuestScript.UD_AbadonVictim == getWearer()
                     AbadonQuestScript.SetStage(30)
                     AbadonQuestScript.SetObjectiveFailed(30)
                     AbadonQuestScript.SetObjectiveDisplayed(40)
                 endif
-                string tmp = "Despite your best efforts to remove the plug in time, you ultimately failed. Abadon plug has finally reached its full strength. It manifested and locked extremely sturdy straitjacket suit on your body that barely allows you to move your arms."
-                tmp += "You immediately tried to struggle free, but that only made the plugs inside you start vibrating furiously. You pant in pleasure as first of many orgasms that are awaiting you starts to build up."
-                tmp += "With realisation of how bad the situation you got yourself into is, you let out a scream just before a gag manifested over your mouth. Tears run down your cheeks as you uselessly try to resist the coming orgasm."
+                string tmp = "Despite your best efforts to remove the plug in time, you ultimately fail. The Abadon Plug finally reached its full strength. It manifested and locked an extremely sturdy straitjacket suit on your body that barely allows you to move your arms."
+                tmp += "You immediately try to struggle free, but that only makes the plugs inside you start vibrating furiously. You pant in pleasure as the first of many orgasms that are awaiting you starts to build up."
+                tmp += "Realizing just how bad the situation you got yourself into is, you let out a scream just before a gag manifests over your mouth. Tears run down your cheeks as you uselessly try to resist the coming orgasm."
                 debug.messagebox(tmp)
             else
                 if AbadonQuestScript.UD_AbadonVictim == getWearer()

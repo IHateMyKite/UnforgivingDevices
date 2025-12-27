@@ -139,9 +139,9 @@ bool Function struggleMinigame(int type = -1, Bool abSilent = False)
     else
         unlockRestrain()
         if WearerIsPlayer()
-            UDmain.Print("You succefully forced out " + deviceInventory.getName(),1)
+            UDmain.Print("You succefully forced out " + deviceInventory.getName() + ".",1)
         elseif UDCDmain.AllowNPCMessage(GetWearer())
-            UDmain.Print(getWearerName() + "s "+ getDeviceName() +" got removed!",1)
+            UDmain.Print(getWearerName() + "'s "+ getDeviceName() +" got removed!",1)
         endif
     endif
     return true
@@ -153,9 +153,9 @@ bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
     else
         unlockRestrain()
         if WearerIsPlayer()
-            UDmain.Print("With help of "+ getHelperName() +", you succefully forced out " + deviceInventory.getName() + " !",1)
+            UDmain.Print("With help of "+ getHelperName() +", you succefully forced out " + deviceInventory.getName() + "!",1)
         elseif UDCDmain.AllowNPCMessage(GetWearer())
-            UDmain.Print(getWearerName() + "s "+ getDeviceName() +" got removed!",1)
+            UDmain.Print(getWearerName() + "'s "+ getDeviceName() +" got removed!",1)
         endif
     endif
     return true
@@ -251,24 +251,24 @@ Function inflate(bool silent = false,int iInflateNum = 1)
                 if WearerIsPlayer()
                     UDmain.Print(getHelperName() + " helped you to inflate your " + getDeviceName() + "!",1)
                 elseif WearerIsFollower() && HelperIsPlayer()
-                    UDmain.Print("You helped to inflate " + getWearerName() + "s " + getDeviceName() + "!",1)
+                    UDmain.Print("You helped to inflate " + getWearerName() + "'s " + getDeviceName() + "!",1)
                 elseif WearerIsFollower()
-                    UDmain.Print(getHelperName() + " helped to inflate " + getWearerName() + "s " + getDeviceName() + "!",1)
+                    UDmain.Print(getHelperName() + " helped to inflate " + getWearerName() + "'s " + getDeviceName() + "!",1)
                 endif
             else
                 if WearerIsPlayer()
-                    UDmain.Print("You succesfully inflated yours " + getDeviceName(),1)
+                    UDmain.Print("You succesfully inflated your " + getDeviceName(),1)
                     
                     if currentVal == 0
                         libs.notify("Your plug is completely deflated and doesn't stimulate you very much. You could slide it out of you, if you wish. That or you could give the pump a healthy squeeze and make it more fun!", messagebox = true)
                     elseif currentVal == 1
-                        libs.notify("Your plug is a bit inflated but doesn't stimulate you too much - just enough to make you long for more. You could give the pump a healthy squeeze!", messagebox = true)
+                        libs.notify("Your plug is slightly inflated but doesn't stimulate you too much - just enough to make you long for more. You could give the pump a healthy squeeze!", messagebox = true)
                     elseif currentVal == 2
-                        libs.notify("Your plug is inflated. Its gentle movements inside you please you without causing you discomfort. You are getting more horny and wonder if you should inflate it even more?", messagebox = true)
+                        libs.notify("Your plug is inflated. Its gentle movements inside you please you without causing you discomfort. You are getting hornier and wonder if you should inflate it even more?", messagebox = true)
                     elseif currentVal == 3
-                        libs.notify("Your fairly inflated plug is impossible to ignore as it moves around inside of you, constantly pleasing you and making you more horny as you already are.", messagebox = true)
+                        libs.notify("Your fairly inflated plug is impossible to ignore as it moves around inside of you, constantly pleasing you and making you even hornier than you already are.", messagebox = true)
                     elseif currentVal == 4
-                        libs.notify("Your plug is almost inflated to capacity. You cannot move at all without shifting it around inside of you, making you squeal in an odd sensation of pleasurable pain.", messagebox = true)
+                        libs.notify("Your plug is almost inflated to capacity. You cannot move at all without it shifting around inside of you, making you squeal in an odd sensation of pleasurable pain.", messagebox = true)
                     else
                         libs.notify("Your plug is fully inflated and almost bursting inside you. It's causing you more discomfort than anything. But no matter what - you won't be able to remove it from your body anytime soon.", messagebox = true)        
                     EndIf    
@@ -285,15 +285,15 @@ Function deflate(bool silent = False)
     if !silent
         if haveHelper()
             if WearerIsPlayer()
-                UDmain.Print(getHelperName() + " helped you to deflate yours " + getDeviceName() + "!",1)
+                UDmain.Print(getHelperName() + " helped you to deflate your " + getDeviceName() + "!",1)
             elseif PlayerInMinigame()
-                UDmain.Print("You helped to deflate " + getWearerName() + "s " + getDeviceName() + "!",1)
+                UDmain.Print("You helped to deflate " + getWearerName() + "'s " + getDeviceName() + "!",1)
             endif
         else
             if WearerIsPlayer()
                 UDmain.Print("You succesfully deflated your "+getDeviceName()+" plug!",1)
             elseif PlayerInMinigame()
-                UDmain.Print(getWearerName() + "s " + getDeviceName()+ " deflated!",1)
+                UDmain.Print(getWearerName() + "'s " + getDeviceName()+ " deflated!",1)
             endif
         endif
     endif
@@ -311,14 +311,14 @@ bool Function canDeflate()
         if WearerIsPlayer()
             debug.MessageBox("Plug is already deflated")
         elseif WearerIsFollower()
-            UDmain.Print(getWearerName() + "s "+ getDeviceName() + " is already deflated",1)
+            UDmain.Print(getWearerName() + "'s "+ getDeviceName() + " is already deflated.",1)
         endif
         return False
     endif
     if WearerIsPlayer()
         debug.MessageBox("Plug is too big to be deflated at the moment!")
     elseif WearerIsFollower()
-        UDmain.Print(getWearerName() + "s "+ getDeviceName() + " is too big to be deflated at the moment!",1)
+        UDmain.Print(getWearerName() + "'s "+ getDeviceName() + " is too big to be deflated at the moment!",1)
     endif
     return False
 EndFunction
@@ -494,7 +494,7 @@ Function activateDevice()
         if WearerIsPlayer()
             UDmain.Print("Your "+ getDeviceName()+" suddenly inflates itself!",1)
         elseif WearerIsFollower()
-            UDmain.Print(getWearerName() + "s "+ getDeviceName() + " suddenly inflates itself!",3)
+            UDmain.Print(getWearerName() + "'s "+ getDeviceName() + " suddenly inflates itself!",3)
         endif
         inflatePlug(1)
     endif
@@ -508,9 +508,9 @@ Function onUpdatePost(float timePassed)
         deflateprogress += timePassed*UD_DeflateRate*RandomFloat(0.75,1.25)*UDCDmain.getStruggleDifficultyModifier()
         if deflateprogress > UD_PumpDifficulty
             if WearerIsPlayer()
-                UDmain.Print("You feel that your "+getDeviceName()+" lost some of its pressure",2)
+                UDmain.Print("You feel that your "+getDeviceName()+" lost some of its pressure.",2)
             elseif WearerIsFollower()
-                UDmain.Print(getWearerName() + "s "+ getDeviceName() + " lost some of its pressure",3)
+                UDmain.Print(getWearerName() + "'s "+ getDeviceName() + " lost some of its pressure.",3)
             endif
             resetCooldown(1.25)
             deflate(True)

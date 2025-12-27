@@ -25,7 +25,7 @@ Event OnUpdate()
     if target.isSwimming()
         if !SwimmingScript.startedSwimming
             SwimmingScript.startedSwimming = True
-            SwimmingScript.UDMain.UDWC.Notification_Push("You are having hard time swimming with your hands tied!")
+            SwimmingScript.UDMain.UDWC.Notification_Push("You are having a hard time swimming with your hands tied!")
         endif
         target.damageAV("Stamina",SwimmingScript.fastUpdateTime * 10.0*(1 + (SwimmingScript.UD_hardcore_swimming_difficulty - 1)*0.50))
         

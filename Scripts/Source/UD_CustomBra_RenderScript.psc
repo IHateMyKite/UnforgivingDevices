@@ -41,7 +41,7 @@ Function activateDevice()
             if WearerIsPlayer() && (!loc_vibrator.canVibrate() || !UDMain.UDWC.UD_FilterVibNotifications)
                 UDmain.Print(getDeviceName() + " activates your nipple piercings!")
             elseif UDmain.ActorInCloseRange(getWearer())
-                UDmain.Print(getWearerName() + "s "+ getDeviceName() +" activates their nipple piercings!")
+                UDmain.Print(getWearerName() + "'s "+ getDeviceName() +" activates their nipple piercings!")
             endif
             if loc_vibrator.canVibrate()
                 if !loc_vibrator.isVibrating()
