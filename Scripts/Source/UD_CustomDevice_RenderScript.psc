@@ -3217,7 +3217,7 @@ Bool Function DeviceMenuWH(Actor akSource,bool[] aaControl)
         StorageUtil.UnSetIntValue(akSource, "UD_ignoreEvent" + deviceInventory)
 
         if _MinigameOn
-            UDmain.Print("You can't access this device when wearer is struggling")
+            UDmain.Print("You can't access this device while the wearer is struggling.")
             akSource = none
         endif
 
@@ -3852,9 +3852,9 @@ Function _updateCondition(bool decrease = True)
             endif
             UD_condition += 1
             if WearerIsPlayer()
-                UDmain.Print("You feel that "+getDeviceName()+" condition have decreased!",2)
+                UDmain.Print("Your "+getDeviceName()+" condition has decreased!",2)
             elseif UDCDmain.AllowNPCMessage(GetWearer(), true)
-                UDmain.Print(GetWearerName() + "s " + getDeviceName() + " condition have decreased!",3)
+                UDmain.Print(GetWearerName() + "'s " + getDeviceName() + " condition has decreased!",3)
             endif
             Udmain.UDMOM.Procces_UpdateModifiers_ConditionLoss(self, UD_condition)
         endwhile
@@ -3864,9 +3864,9 @@ Function _updateCondition(bool decrease = True)
             if UD_condition > 0 
                 UD_condition -= 1
                 if WearerIsPlayer()
-                    UDmain.Print("You feel that "+getDeviceName()+" condition have increased!",1)
+                    UDmain.Print("Your "+getDeviceName()+" condition has increased!",1)
                 elseif UDCDmain.AllowNPCMessage(GetWearer(), true)
-                    UDmain.Print(GetWearerName() + "s " + getDeviceName() + " condition have increased!",3)
+                    UDmain.Print(GetWearerName() + "'s " + getDeviceName() + " condition has increased!",3)
                 endif
             endif
         endif
@@ -5061,11 +5061,11 @@ EndFunction
 /;
 Function tightUpDevice(Actor akSource)
     if WearerIsPlayer()
-        UDmain.Print(GetActorName(akSource) + " tighted your " + getDeviceName() + " !",1)
+        UDmain.Print(GetActorName(akSource) + " tightened your " + getDeviceName() + "!",1)
     elseif HelperIsPlayer()
-        UDmain.Print("You tighted " + getWearerName() + "s " + getDeviceName() + " !",1)
+        UDmain.Print("You tightened " + getWearerName() + "'s " + getDeviceName() + "!",1)
     elseif !PlayerIsPresent()
-        UDmain.Print(GetActorName(akSource) + " tighted " + getWearerName() + "s " + getDeviceName() + " !",1)
+        UDmain.Print(GetActorName(akSource) + " tightened " + getWearerName() + "'s " + getDeviceName() + "!",1)
     endif
     current_device_health += RandomFloat(5.0,15.0)
     if (current_device_health > UD_Health)
@@ -5083,11 +5083,11 @@ EndFunction
 /;
 Function repairDevice(Actor akSource)
     if WearerIsPlayer()
-        UDmain.Print(GetActorName(akSource) + " repaired your " + getDeviceName() + " !",1)
+        UDmain.Print(GetActorName(akSource) + " repaired your " + getDeviceName() + "!",1)
     elseif HelperIsPlayer()
-        UDmain.Print("You repaired " + getWearerName() + "s " + getDeviceName() + " !",1)
+        UDmain.Print("You repaired " + getWearerName() + "'s " + getDeviceName() + "!",1)
     elseif !PlayerInMinigame()
-        UDmain.Print(GetActorName(akSource) + " repaired " + getWearerName() + "s " + getDeviceName() + " !",1)
+        UDmain.Print(GetActorName(akSource) + " repaired " + getWearerName() + "'s " + getDeviceName() + "!",1)
     endif
     
     ;repair durability
@@ -5167,11 +5167,11 @@ Function _cutDevice(float progress_add = 1.0)
         ;only show message fo NPC, as player can see progress progress on widget
         if _CuttingGameON
             if !PlayerInMinigame() && UDCDmain.AllowNPCMessage(getWearer(), True)
-                UDmain.Print(getWearerName() + " managed to cut "+getDeviceName()+" and reduce durability by big amount!",3)
+                UDmain.Print(getWearerName() + " managed to cut " + getDeviceName() + " and reduce its durability by big amount!",3)
             endif
         else
             if !PlayerInMinigame() && UDCDmain.AllowNPCMessage(getWearer(), True)
-                UDmain.Print(getWearerName() + "s "+ getDeviceName() +" is cutted!",3)
+                UDmain.Print(getWearerName() + "'s "+ getDeviceName() +" is cut!",3)
             endif
         endif
 
@@ -5205,9 +5205,9 @@ Function _repairLock(float progress_add = 1.0)
         endif
         stopMinigame()
         if WearerIsPlayer()
-            UDmain.Print("You repaired " +GetDeviceName()+"s "+UD_LockNameList[_MinigameSelectedLockID]+"! ",1)
+            UDmain.Print("You repaired " +GetDeviceName()+ "'s " +UD_LockNameList[_MinigameSelectedLockID]+"!",1)
         elseif UDCDmain.AllowNPCMessage(Wearer, True)
-            UDmain.Print(GetWearerName() + " managed to repair " +GetDeviceName()+"s "+UD_LockNameList[_MinigameSelectedLockID],2)
+            UDmain.Print(GetWearerName() + " managed to repair " +GetDeviceName()+"'s "+UD_LockNameList[_MinigameSelectedLockID],2)
         endif
     endif
 EndFunction
@@ -5248,9 +5248,9 @@ Function _lockpickDevice()
                     
                     if !loc_msgshown && loc_elapsedTime > loc_maxtime*0.75 ;only 25% time left, warn player
                         if RandomInt(0,1)
-                            UDmain.Print("Your hands are sweating")
+                            UDmain.Print("Your hands are sweating.")
                         else
-                            UDmain.Print("Your hands are starting to tremble")
+                            UDmain.Print("Your hands are starting to tremble.")
                         endif
                         loc_msgshown = true
                     endif
@@ -5320,9 +5320,9 @@ Function _lockpickDevice()
                 loc_shields = DecreaseLockShield(_MinigameSelectedLockID,1)
                 if loc_shields
                     if PlayerInMinigame()
-                        UDmain.Print("You succesfully unlocked one of the locks shields! Shields: [" + loc_shields + "]",1)
+                        UDmain.Print("You succesfully unlocked one of the lock's shields! Shields: [" + loc_shields + "]",1)
                     elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                        UDmain.Print(getWearerName() + " unlocked one of the locks shields! Shields: [" + loc_shields + "]",2)
+                        UDmain.Print(getWearerName() + " unlocked one of the lock's shields! Shields: [" + loc_shields + "]",2)
                     endif
                 else
                     if PlayerInMinigame()
@@ -5371,7 +5371,7 @@ Function _lockpickDevice()
                 if PlayerInMinigame()
                     UDmain.Print("You succesfully unlocked the last lock and removed the "+GetDeviceName()+"!",1)
                 elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                    UDmain.Print(getWearerName() + " unlocked last lock and removed the "+GetDeviceName()+"!",2)
+                    UDmain.Print(getWearerName() + " succesfully unlocked the last lock and removed the "+GetDeviceName()+"!",2)
                 endif
                 unlockRestrain()
                 stopMinigame()
@@ -5387,7 +5387,7 @@ Function _lockpickDevice()
                 if PlayerInMinigame()
                     UDmain.Print("Your lockpick jammed the lock!",1)
                 elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                    UDmain.Print(getWearerName() + "s "+getDeviceName()+" lock gets jammed!",3)
+                    UDmain.Print(getWearerName() + "'s " +getDeviceName()+ " lock gets jammed!",3)
                 endif
                 
                 JammNthLock(_MinigameSelectedLockID)
@@ -5416,9 +5416,9 @@ Function _keyUnlockDevice()
     UnlockNthLock(_MinigameSelectedLockID)
     
     if PlayerInMinigame()
-        UDmain.Print("You managed to unlock "+GetDeviceName()+"s "+GetNthLockName(_MinigameSelectedLockID)+"!",1)
+        UDmain.Print("You managed to unlock "+GetDeviceName()+"'s "+GetNthLockName(_MinigameSelectedLockID)+"!",1)
     elseif UDCDmain.AllowNPCMessage(Wearer, True)
-        UDmain.Print(getWearerName() + " managed to unlock "+GetDeviceName()+"s "+GetNthLockName(_MinigameSelectedLockID)+"!",2)
+        UDmain.Print(getWearerName() + " managed to unlock "+GetDeviceName()+"'s "+GetNthLockName(_MinigameSelectedLockID)+"!",2)
     endif
     
     if zad_DestroyKey
@@ -6036,9 +6036,9 @@ bool Function minigamePrecheck(Bool abSilent = False)
         if !abSilent
             UDmain.Warning("Can't start minigame for " + getDeviceHeader() + " because wearer is already in minigame!")
             if WearerIsPlayer()
-                UDmain.Print("You are already doing something")
+                UDmain.Print("You are already doing something.")
             elseif UDCDmain.AllowNPCMessage(Wearer)
-                UDmain.Print(getWearerName() + " is already doing something")
+                UDmain.Print(getWearerName() + " is already doing something.")
             endif
         endif
         return false
@@ -6048,9 +6048,9 @@ bool Function minigamePrecheck(Bool abSilent = False)
         if !abSilent
             UDmain.Warning("Can't start minigame for " + getDeviceHeader() + " because wearer is already in animating!")
             if WearerIsPlayer()
-                UDmain.Print("You are already doing something",1)
+                UDmain.Print("You are already doing something.",1)
             elseif UDCDmain.AllowNPCMessage(Wearer)
-                UDmain.Print(getWearerName() + " is already doing something",1)
+                UDmain.Print(getWearerName() + " is already doing something.",1)
             endif
         endif
         return false
@@ -6069,7 +6069,7 @@ bool Function minigamePrecheck(Bool abSilent = False)
                     UDmain.Print("You can't get into a minigame, because you are currently in a scene: " + Wearer.GetCurrentScene() + ".",1)  ; was:  "You are already doing something" 
                 endif
             elseif UDCDmain.AllowNPCMessage(Wearer)
-                UDmain.Print(getWearerName() + " is already doing something",1)
+                UDmain.Print(getWearerName() + " is already doing something.",1)
             endif
         endif
         return false
@@ -6080,7 +6080,7 @@ bool Function minigamePrecheck(Bool abSilent = False)
             if !abSilent
                 GWarning("Can't start minigame for " + getDeviceHeader() + " because helper is already in minigame!")
                 if HelperIsPlayer()
-                    UDmain.Print("You are already doing something")
+                    UDmain.Print("You are already doing something.")
                 elseif UDCDmain.AllowNPCMessage(_minigameHelper)
                     UDmain.Print(getHelperName() + " is already doing something",1)
                 endif
@@ -6091,9 +6091,9 @@ bool Function minigamePrecheck(Bool abSilent = False)
             if !abSilent
                 GWarning("Can't start minigame for " + getDeviceHeader() + " because helper is already in minigame!")
                 if HelperIsPlayer()
-                    UDmain.Print("You are already doing something")
+                    UDmain.Print("You are already doing something.")
                 elseif UDCDmain.AllowNPCMessage(_minigameHelper)
-                    UDmain.Print(getHelperName() + " is already doing something")
+                    UDmain.Print(getHelperName() + " is already doing something.")
                 endif
             endif
             return false
@@ -6107,9 +6107,9 @@ bool Function minigamePrecheck(Bool abSilent = False)
                 GWarning("IsDisabled = " + _minigameHelper.IsDisabled())
                 GWarning("GetCurrentScene = " + _minigameHelper.GetCurrentScene())
                 if HelperIsPlayer()
-                    UDmain.Print("You are already doing something",1)
+                    UDmain.Print("You are already doing something.",1)
                 elseif UDCDmain.AllowNPCMessage(_minigameHelper)
-                    UDmain.Print(getHelperName() + " is already doing something",1)
+                    UDmain.Print(getHelperName() + " is already doing something.",1)
                 endif
             endif
             return false
@@ -6417,7 +6417,7 @@ Function minigame()
     ;checks if Wearer succesfully escaped device
     if IsUnlocked
         if loc_WearerIsPlayer
-            UDmain.Print("You have succesfully escaped out of " + getDeviceName() + "!",2)
+            UDmain.Print("You succesfully escaped out of " + getDeviceName() + "!",2)
         elseif UDCDmain.AllowNPCMessage(Wearer, true)
             UDmain.Print(getWearerName()+" succesfully escaped out of " + getDeviceName() + "!",2)
         endif
@@ -6488,12 +6488,12 @@ Function minigame()
         endif
         if loc_PlayerInMinigame
             if _minigameHelper
-                UDmain.Print("One of you is too exhausted to continue struggling",1)
+                UDmain.Print("One of you is too exhausted to continue struggling.",1)
             else
-                UDmain.Print("You are too exhausted to continue struggling",1)
+                UDmain.Print("You are too exhausted to continue struggling.",1)
             endif
         elseif UDCDmain.AllowNPCMessage(GetWearer(), true)
-            UDmain.Print(getWearerName()+" is too exhausted to continue struggling",1)
+            UDmain.Print(getWearerName()+" is too exhausted to continue struggling.",1)
         endif
         if loc_ElapsedTime >= 2.0
             if !loc_WearerIsPlayer
