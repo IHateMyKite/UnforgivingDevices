@@ -191,11 +191,11 @@ Bool Function StartSoloAnimationSequence(Actor akActor, String[] aasAnimation, B
         UDmain.Log("UD_AnimationManagerScript::StartSoloAnimationSequence() akActor = " + akActor + ", aasAnimation = " + aasAnimation + ", abContinueAnimation = " + abContinueAnimation, 3)
     EndIf
     If (aasAnimation.Length == 0 || aasAnimation[0] == "" || aasAnimation[0] == "none")
-        UDmain.Warning("UD_AnimationManagerScript::StartSoloAnimationSequence() Called animation is None, aborting")
+        UDmain.Warning("UD_AnimationManagerScript::StartSoloAnimationSequence() Called animation is None, aborting.")
         Return False
     EndIf
     If IsInFurniture(akActor)
-        UDmain.Warning("UD_AnimationManagerScript::StartSoloAnimationSequence() Cant start animation because actor is in furniture")
+        UDmain.Warning("UD_AnimationManagerScript::StartSoloAnimationSequence() Can't start animation because actor is in furniture.")
         Return False
     EndIf
     If !abContinueAnimation
@@ -270,26 +270,26 @@ Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[]
         UDmain.Log("UD_AnimationManagerScript::StartPairAnimationSequence() akActor = " + akActor + ", akHelper = " + akHelper + ", aasAnimationA1 = " + aasAnimationA1 + ", aasAnimationA2 = " + aasAnimationA2 + ", abAlignActors = " + abAlignActors + ", abContinueAnimation = " + abContinueAnimation + ", abDisableActors = " + abDisableActors, 3)
     EndIf
     If akActor == None 
-        UDmain.Error("UD_AnimationManagerScript::StartPairAnimationSequence() akActor is None, aborting")
+        UDmain.Error("UD_AnimationManagerScript::StartPairAnimationSequence() akActor is None, aborting.")
         Return False
     EndIf
     If akHelper == None
         Return StartSoloAnimationSequence(akActor, aasAnimationA1, abContinueAnimation, abDisableActors)
     EndIf
     If IsInFurniture(akActor) || IsInFurniture(akHelper)
-        UDmain.Warning("UD_AnimationManagerScript::StartSoloAnimationSequence() Cant start animation because one of actors is in furniture")
+        UDmain.Warning("UD_AnimationManagerScript::StartSoloAnimationSequence() Can't start animation because one of actors is in furniture.")
         Return False
     EndIf
     Bool a1_is_none = (aasAnimationA1.Length == 0 || aasAnimationA1[0] == "" || aasAnimationA1[0] == "none")
     Bool a2_is_none = (aasAnimationA2.Length == 0 || aasAnimationA2[0] == "" || aasAnimationA2[0] == "none")
     If a1_is_none && a2_is_none
-        UDmain.Error("UD_AnimationManagerScript::StartPairAnimationSequence() animations is None, aborting")
+        UDmain.Error("UD_AnimationManagerScript::StartPairAnimationSequence() animations is None, aborting.")
         Return False
     ElseIf a1_is_none
-        UDmain.Log("UD_AnimationManagerScript::StartPairAnimationSequence() animation for Actor 1 is None, using solo animation for the Actor 2")
+        UDmain.Log("UD_AnimationManagerScript::StartPairAnimationSequence() animation for Actor 1 is None, using solo animation for the Actor 2.")
         Return StartSoloAnimationSequence(akHelper, aasAnimationA2, abContinueAnimation, abDisableActors)
     ElseIf a2_is_none
-        UDmain.Log("UD_AnimationManagerScript::StartPairAnimationSequence() animation for Actor 2 is None, using solo animation for the Actor 1")
+        UDmain.Log("UD_AnimationManagerScript::StartPairAnimationSequence() animation for Actor 2 is None, using solo animation for the Actor 1.")
         Return StartSoloAnimationSequence(akActor, aasAnimationA1, abContinueAnimation, abDisableActors)
     EndIf
     
@@ -426,12 +426,12 @@ Function StopAnimation(Actor akActor, Actor akHelper = None, Bool abEnableActors
     
     if loc_stopActor && IsInFurniture(akActor)
         loc_stopActor = False
-        UDmain.Warning("UD_AnimationManagerScript::StartSoloAnimationSequence() Cant stop animation because actor is in furniture")
+        UDmain.Warning("UD_AnimationManagerScript::StartSoloAnimationSequence() Can't stop animation because actor is in furniture.")
     endif
     
     if loc_stopHelper && IsInFurniture(akHelper)
         loc_stopHelper = False
-        UDmain.Warning("UD_AnimationManagerScript::StartSoloAnimationSequence() Cant stop animation because helper is in furniture")
+        UDmain.Warning("UD_AnimationManagerScript::StartSoloAnimationSequence() Can't stop animation because helper is in furniture.")
     endif
     
     if loc_stopActor
