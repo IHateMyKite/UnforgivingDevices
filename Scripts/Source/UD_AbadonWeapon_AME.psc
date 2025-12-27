@@ -18,7 +18,7 @@ Function OnEffectStart(Actor akTarget, Actor akCaster)
     int loc_chance = iRange(Round(GetMagnitude()),0,100)
     if RandomInt(1,99) < loc_chance
         if UDmain.TraceAllowed()
-            UDmain.Log(GetActorName(akTarget) + " hit by abadon weapon. Locking device")
+            UDmain.Log(GetActorName(akTarget) + " hit by abadon weapon. Locking device.")
         endif
         
         ;25 % chance of locking random abadon suit
