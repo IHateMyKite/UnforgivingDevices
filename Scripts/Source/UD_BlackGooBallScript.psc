@@ -27,7 +27,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
                 UDmain.UDAbadonQuest.AbadonEquipSuitSelective(loc_victim)
             endif
         else
-            UDmain.Error("Can't process UD_BlackGooBallScript because actor " + GetActorName(loc_victim) + " is not valid")
+            UDmain.Error("Can't process UD_BlackGooBallScript because actor " + GetActorName(loc_victim) + " is not valid.")
         endif
     endif
 EndEvent
