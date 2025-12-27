@@ -15,9 +15,9 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     if RandomInt(1,100) > 75
         AbadonQuest.AbadonEquipSuit(akTarget,0)
         if IsPlayer(akTarget)
-            UDCDmain.UDmain.Print("Black goo smacks into you and transforms into variety of restrains!")
+            UDCDmain.UDmain.Print("Black goo smacks into you and transforms into a variety of restrains!")
         else
-            UDCDmain.UDmain.Print("Black goo smacks into " + GetActorName(akTarget) + " and transforms into variety of restrains!")
+            UDCDmain.UDmain.Print("Black goo smacks into " + GetActorName(akTarget) + " and transforms into a variety of restrains!")
         endif
         return
     endif
@@ -62,9 +62,9 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     ;Allways lock random devices. only lock basic devices, so actor doesn look like clown
     if UDCDmain.UDmain.UDRRM.LockAllSuitableRestrains(akTarget, false, 0x38E0F) ;did we managed to add some restraints?
         if IsPlayer(akTarget)
-            UDCDmain.UDmain.Print("Black goo smacks into you and transforms into restraints!")
+            UDCDmain.UDmain.Print("Black goo smacks into you and transforms into a variety of restraints!")
         else
-            UDCDmain.UDmain.Print("Black goo smacks into " + GetActorName(akTarget) + " and transforms into restraint!")
+            UDCDmain.UDmain.Print("Black goo smacks into " + GetActorName(akTarget) + " and transforms into a variety of restraints!")
         endif
     else
         ;placeholder for something fun to be done in case our victim is already all wrapped up... add some black goo to inventory maybe?
