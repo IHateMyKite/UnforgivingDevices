@@ -612,7 +612,7 @@ Function fix()
     String loc_str = _GetNPCSlotFixText()
     Int loc_res = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.UDCD_NPCM.UD_FixMenu_MSG, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMain.UDMTF.HasHtmlMarkup(), False)
     if loc_res == 0 ;general fix
-        UDmain.Print("[UD] Starting general fixes")
+        UDmain.Print("[UD] Starting general fixes.")
         UDCDMain.ResetFetchFunction()
         sortSlots(true)
         removeCopies(true)
@@ -671,7 +671,7 @@ Function fix()
             GetActor().DispelSpell(UDmain.UDlibs.ArousalCheckAbilitySpell)
             GetActor().DispelSpell(UDmain.UDlibs.OrgasmCheckAbilitySpell)
         endif
-        UDmain.Print("[UD] Orgasm variables reseted!")
+        UDmain.Print("[UD] Orgasm variables reset!")
     elseif loc_res == 2 ;reset expression
         libs.ExpLibs.ResetExpressionRaw(getActor(),100)
     elseif loc_res == 3 ;unequip slot
@@ -767,11 +767,11 @@ Function removeLostRenderDevices(bool abMutex)
             UDmain.Print("Lost device found: " + loc_InvDevice.getName() + " removed!")
         else
             if !getDeviceByRender(loc_RenDevice)
-                UDmain.Print("Found unregistred device "+loc_InvDevice.getName()+" , registering")
+                UDmain.Print("Found unregistred device "+loc_InvDevice.getName()+" , registering.")
                 UD_CustomDevice_RenderScript loc_device = UDCDmain.getDeviceScriptByRender(GetActor(),loc_RenDevice)
                 if loc_device
                     RegisterDevice(loc_device,false)
-                    UDmain.Print(loc_device.getDeviceHeader() + " registered")
+                    UDmain.Print(loc_device.getDeviceHeader() + " registered.")
                 else
                     UDmain.Print("Can't get device. Aborting.")
                 endif
@@ -801,7 +801,7 @@ bool Function registerDevice(UD_CustomDevice_RenderScript oref,bool mutex = true
         UDmain.Log("Starting slot device register for " + oref.getDeviceHeader() )
     endif
     if GetDeviceSlotIndx(oref) > 0
-        UDmain.Error("registerDevice("+oref.getDeviceHeader()+") is already registered")
+        UDmain.Error("registerDevice("+oref.getDeviceHeader()+") is already registered.")
         return false
     endif
     if mutex
@@ -851,11 +851,11 @@ bool Function RegisterVibrator(UD_CustomDevice_RenderScript akVib)
     endif
     if !(akVib as UD_CustomVibratorBase_RenderScript)
         ;device is not vibrator, return -1
-        UDmain.Error(self+"::RegisterVibrator("+akVib+") failed because device is not vibrator")
+        UDmain.Error(self+"::RegisterVibrator("+akVib+") failed because device is not vibrator.")
         return False
     endif
     if UD_ActiveVibrators.Find(akVib) > 0
-        UDmain.Error("RegisterVibrator("+akVib.getDeviceHeader()+") - Vibrator is already registered")
+        UDmain.Error("RegisterVibrator("+akVib.getDeviceHeader()+") - Vibrator is already registered.")
         return false
     endif
     startVibratorManipulation()
@@ -927,7 +927,7 @@ int Function unregisterDeviceByInv(Armor invDevice,int i = 0,bool sort = True,bo
     UD_CustomDevice_RenderScript loc_device = getDeviceByInventory(invDevice)
     
     if !loc_device
-        UDmain.Error("unregisterDeviceByInv("+getSlotedNPCName()+","+invDevice.getName()+") failed!! No registered device found")
+        UDmain.Error("unregisterDeviceByInv("+getSlotedNPCName()+","+invDevice.getName()+") failed!! No registered device found.")
         return res
     endif
     
@@ -940,7 +940,7 @@ int Function unregisterDeviceByRend(Armor rendDevice,int i = 0,bool sort = True,
     UD_CustomDevice_RenderScript loc_device = getDeviceByRender(rendDevice)
     
     if !loc_device
-        UDmain.Error("unregisterDeviceByRend("+getSlotedNPCName()+","+rendDevice+") failed!! No registered device found")
+        UDmain.Error("unregisterDeviceByRend("+getSlotedNPCName()+","+rendDevice+") failed!! No registered device found.")
         return res
     endif
     
@@ -1351,7 +1351,7 @@ Function showDebugMenu(int slot_id)
                     
                     UD_equipedCustomDevices[slot_id].patchDevice()
                 else
-                    UDmain.Print("Cant repatch device as device is not patched")
+                    UDmain.Print("Can't repatch device as device is not patched.")
                 endif
                 return
             elseif loc_res == 3 ;unlock
@@ -2082,7 +2082,7 @@ Function ProccesLockMutex()
     
     if UDmain.IsAnyMenuOpenRT() && loc_time >= UDmain.UDGV.UD_MutexTimeout && !IsPlayer()
         if UDmain.TraceAllowed()
-            UDmain.Log(self+"::ProccesLockMutex() - Timeout on NPC, waiting for menu to close and try again",2)
+            UDmain.Log(self+"::ProccesLockMutex() - Timeout on NPC, waiting for menu to close and try again.",2)
         endif
         Utility.wait(0.01)
         loc_time = 0.0
@@ -2116,7 +2116,7 @@ Function ProccesUnlockMutex()
     
     if UDmain.IsAnyMenuOpenRT() && loc_time >= UDmain.UDGV.UD_MutexTimeout && !IsPlayer()
         if UDmain.TraceAllowed()
-            UDmain.Log(self+"::ProccesUnlockMutex() - Timeout on NPC, waiting for menu to close and try again",2)
+            UDmain.Log(self+"::ProccesUnlockMutex() - Timeout on NPC, waiting for menu to close and try again.",2)
         endif
         Utility.wait(0.01)
         loc_time = 0.0
