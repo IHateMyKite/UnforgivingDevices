@@ -108,7 +108,7 @@ Function onRemoveDevicePost(Actor akActor)
             getWearer().AddItem(UD_ChargeRewardFull,UD_ChargeRewardNum)
         else
             if WearerIsPlayer()
-                UDmain.Print("After removing the plug from your trembling groin, the stand easily detaches",1)
+                UDmain.Print("After removing the plug from your trembling groin, the stand easily detaches.",1)
             endif
         endif
     Else
@@ -119,7 +119,7 @@ Function onRemoveDevicePost(Actor akActor)
             getWearer().AddItem(UD_ChargeRewardEmpty,UD_ChargeRewardNum)
         else
             if WearerIsPlayer()
-                UDmain.Print("Though the plug glows upon removal, it starts dimming")
+                UDmain.Print("Though the plug glows upon removal, it starts dimming.")
             endif
         endif
     EndIf
