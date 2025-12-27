@@ -831,7 +831,7 @@ Function _VibrateStart(float afDurationMult = 1.0)
     
     UD_CustomDevice_NPCSLot loc_slot = UD_WearerSlot
     if !loc_slot
-        UDmain.Warning(getDeviceHeader() + " - can't register vib function because actor is not registered")
+        UDmain.Warning(getDeviceHeader() + " - can't register vib function because actor is not registered.")
         return
     endif
     
@@ -955,7 +955,7 @@ Function VibPauseStop()
         _setArousalRate(getVibArousalRate())
         _StartVibSound()
         if WearerIsPlayer()
-            UDmain.Print(getDeviceName() + " has come back to life, arousing you once again",3)
+            UDmain.Print(getDeviceName() + " has come back to life, arousing you once again.",3)
         endif
     endif
     _PauseTimer = 0
@@ -1089,7 +1089,7 @@ Function PrintVibMessage_Start()
             UDmain.Print(getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",2)
         EndIf
     elseif UDCDmain.AllowNPCMessage(GetWearer())
-        UDmain.Print(getWearerName() + "s " + getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",3)
+        UDmain.Print(getWearerName() + "'s " + getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",3)
     endif
 EndFunction
 
@@ -1102,7 +1102,7 @@ Function PrintVibMessage_Stop()
             UDmain.Print(getDeviceName() + " stops vibrating.",2)
         EndIf
     elseif UDCDmain.AllowNPCMessage(GetWearer())
-        UDmain.Print(getWearerName() + "s " + getDeviceName() + " stops vibrating.",3)
+        UDmain.Print(getWearerName() + "'s " + getDeviceName() + " stops vibrating.",3)
     endif
 EndFunction
 
