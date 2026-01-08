@@ -1698,7 +1698,7 @@ Function _ResetTimers()
     _LastHourUpdateTimeMod  = Utility.GetCurrentGameTime()
 EndFunction
 
-Float Function ResetLastHourUpdate()
+Float Function _LastHourUpdate()
     Float loc_time = Utility.GetCurrentGameTime()
     Float loc_hours = (loc_time - _LastHourUpdateTime)*24.0
     _LastHourUpdateTime = loc_time
@@ -2114,6 +2114,7 @@ EndFunction
  Bool      IsValidLock(Int aiLock)                     = return true if passed lock is in valid format
  Int       GetLockNumber()                             = returns number of locks on the device or 0 if device have no locks
  Int       GetNthLock(Int aiLockIndex)                 = This function returns the Nth lock, or error value if no locks are on device
+ Bool      SetNthLock(Int aiLockIndex, Int aiLockValue)= This function sets the value of Nth lock, or return error value if no locks are on device
  String    GetNthLockName(Int aiLockIndex)             = returns Nth locks name
  Bool      IsNthLockUnlocked(Int aiLockIndex)          = returns true if the Nth lock is unlocked, or false if no Nth lock exist or is invalid
  Bool      IsNthLockJammed(Int aiLockIndex)            = returns true if the Nth lock is jammed, or false if no Nth lock exist or is invalid
@@ -2374,6 +2375,16 @@ Int Function GetNthLock(Int aiLockIndex)
     endif
 EndFunction
 
+;This function sets the value of Nth lock, or return error value if no locks are on device
+Bool Function SetNthLock(Int aiLockIndex, Int aiLockValue)
+    if UD_LockList && iInRange(aiLockIndex,0,UD_LockList.length - 1)
+        UD_LockList[aiLockIndex] = aiLockValue
+        return True
+    else
+        return False
+    endif
+EndFunction
+
 ;returns Nth locks name
 String Function GetNthLockName(Int aiLockIndex)
     return UD_LockNameList[aiLockIndex]
@@ -2490,7 +2501,7 @@ Bool Function UnlockNthLock(Int aiLockIndex, Bool abUnlock = True)
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock)
         loc_Lock = CodeBit(loc_Lock, abUnlock as Int,1,0)
-        UD_LockList[aiLockIndex] = loc_Lock
+        SetNthLock(aiLockIndex,loc_Lock)
         loc_res = true
     endif
     _EndLockManipMutex()
@@ -2511,11 +2522,11 @@ Int Function UnlockAllLocks(Bool abUnlock = True)
         if IsValidLock(loc_Lock)
             if (abUnlock && !IsNthLockUnlocked(loc_LockNum)) ;unlock lock
                 loc_Lock = CodeBit(loc_Lock,1,1, 0)
-                UD_LockList[loc_LockNum] = loc_Lock
+                SetNthLock(loc_LockNum,loc_Lock)
                 loc_res += 1
             elseif (!abUnlock && IsNthLockUnlocked(loc_LockNum)) ;lock lock
                 loc_Lock = CodeBit(loc_Lock,0,1, 0)
-                UD_LockList[loc_LockNum] = loc_Lock
+                SetNthLock(loc_LockNum,loc_Lock)
                 loc_res += 1
             endif
         endif
@@ -2532,7 +2543,7 @@ Bool Function JammNthLock(Int aiLockIndex, Bool abJamm = True)
     Int  loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock)
         loc_Lock = CodeBit(loc_Lock, abJamm as Int,1,1)
-        UD_LockList[aiLockIndex] = loc_Lock
+        SetNthLock(aiLockIndex,loc_Lock)
         loc_res = true
     endif
     _EndLockManipMutex()
@@ -2553,13 +2564,14 @@ Int Function JammAllLocks(Bool abJamm = True)
         if IsValidLock(loc_Lock)
             if (abJamm && !IsNthLockJammed(loc_LockNum)) ;jamm lock
                 loc_Lock = CodeBit(loc_Lock,1,1, 1)
-                UD_LockList[loc_LockNum] = loc_Lock
+                SetNthLock(loc_LockNum,loc_Lock)
                 loc_res += 1
             elseif (!abJamm && IsNthLockJammed(loc_LockNum)) ;unjamm lock
                 loc_Lock = CodeBit(loc_Lock,0,1, 1)
-                UD_LockList[loc_LockNum] = loc_Lock
+                SetNthLock(loc_LockNum,loc_Lock)
                 loc_res += 1
             endif
+            
         endif
     endwhile
     _EndLockManipMutex()
@@ -2588,7 +2600,7 @@ Bool Function JammRandomLock()
     if loc_correctLocks
         Int loc_randomLock = loc_correctLocks[RandomInt(0, loc_correctLocks.length - 1)]
         Int  loc_Lock = GetNthLock(loc_randomLock)
-        UD_LockList[loc_randomLock] = CodeBit(loc_Lock,1,1, 1)
+        SetNthLock(loc_randomLock,CodeBit(loc_Lock,1,1, 1))
         loc_res = True
     endif
     
@@ -2604,7 +2616,7 @@ Int Function DecreaseLockShield(Int aiLockIndex, Int aiShieldDecrease = 1, Bool 
     if IsValidLock(loc_Lock)
         Int loc_ShieldNumber = iUnsig(UD_Native.DecodeBit(loc_Lock,4,4) - aiShieldDecrease)
         loc_Lock = CodeBit(loc_Lock, loc_ShieldNumber,4,4)
-        UD_LockList[aiLockIndex] = loc_Lock
+        SetNthLock(aiLockIndex,loc_Lock)
         if loc_ShieldNumber
             loc_res = loc_ShieldNumber ;lock still have shields after the operation
         else
@@ -2626,7 +2638,7 @@ Bool Function UpdateLockAccessibility(Int aiLockIndex, Int aiAccessibilityDelta)
     if IsValidLock(loc_Lock)
         Int loc_Accessibility = iRange(UD_Native.DecodeBit(loc_Lock,7,8) + aiAccessibilityDelta,0,100)
         loc_Lock = CodeBit(loc_Lock, loc_Accessibility,7,8)
-        UD_LockList[aiLockIndex] = loc_Lock
+        SetNthLock(aiLockIndex,loc_Lock)
         loc_res = true ;operation was succesfull
     endif
     _EndLockManipMutex()
@@ -2645,7 +2657,7 @@ Bool Function UpdateLockDifficulty(Int aiLockIndex, Int aiDifficultyDelta, Bool 
             loc_Difficulty = iRange(loc_Difficulty,0,100)
         endif
         loc_Lock = CodeBit(loc_Lock, loc_Difficulty,8,15)
-        UD_LockList[aiLockIndex] = loc_Lock
+        SetNthLock(aiLockIndex,loc_Lock)
         loc_res = true
     endif
     _EndLockManipMutex()
@@ -2661,12 +2673,12 @@ Int Function UpdateLockTimeLock(Int aiLockIndex, Int aiTimeLockDelta)
     if IsValidLock(loc_Lock)
         Int loc_TimeLock = iRange(UD_Native.DecodeBit(loc_Lock,7,23) + aiTimeLockDelta,0,122)
         loc_Lock = CodeBit(loc_Lock, loc_TimeLock,7,23)
-        UD_LockList[aiLockIndex] = loc_Lock
+        SetNthLock(aiLockIndex,loc_Lock)
         loc_res = loc_TimeLock
         if !loc_res && IsNthLockAutoTimeLocked(aiLockIndex)
             ;auto unlock the lock
             loc_Lock = CodeBit(loc_Lock,1,1, 0)
-            UD_LockList[aiLockIndex] = loc_Lock
+            SetNthLock(aiLockIndex,loc_Lock)
         endif
     endif
     _EndLockManipMutex()
@@ -2678,6 +2690,7 @@ Bool Function UpdateAllLocksTimeLock(Int aiTimeLockDelta, Bool abCheckUnlock = T
     if !HaveLocks() || !GetLockNumber()
         return False ;device have no locks, return 0 as error value
     endif
+    UDmain.Info(getDeviceHeader()+"::UpdateAllLocksTimeLock("+aiTimeLockDelta+","+abCheckUnlock+") called")
     Int     loc_res             = 0 ;return False as error value
     Int     loc_LockNum         = GetLockNumber()
     Bool    loc_lockUnlocked    = False
@@ -3396,12 +3409,12 @@ EndFunction
 ;like Update function, but called only once per hour
 ;mult -> multiplier which identifies how many hours have passed (1.5 hours -> mult = 1.5)
 Function UpdateHour()
-    Float loc_mult = ResetLastHourUpdate()
+    Float loc_hours = _LastHourUpdate()
     if OnUpdateHourPre()
         if OnUpdateHourPost()
         endif
     endif
-    UpdateAllLocksTimeLock(-1*Math.Ceiling(loc_mult),True) ;update timed locks
+    UpdateAllLocksTimeLock(-1*Math.Ceiling(loc_hours),True) ;update timed locks
 EndFunction
 
 float Function _getLockMinigameModifier()
