@@ -600,7 +600,7 @@ Event resetCustomBondagePage()
     ;MAIN SETTING
     AddHeaderOption("$UD_H_MAINSETTING")
     addEmptyOption()
-    UD_UpdateTime_S = addSliderOption("$UD_UPDATETIME",UDCDmain.UD_UpdateTime, "${0} s")
+    UD_UpdateTime_S = addSliderOption("$UD_UPDATETIME",UDCONF.UD_UpdateTime, "${0} s")
     UD_CooldownMultiplier_S = addSliderOption("$UD_COOLDOWNMULTIPLIER",Round(UDCDmain.UD_CooldownMultiplier*100), "{0} %",UD_LockMenu_flag)
     
     UD_PreventMasterLock_T = addToggleOption("$UD_PREVENTMASTERLOCK",UDCDmain.UD_PreventMasterLock,UD_LockMenu_flag)
@@ -2572,7 +2572,7 @@ EndFunction
 
 Function OnOptionSliderOpenCustomBondage(int option)
     if (option == UD_UpdateTime_S)
-        SetSliderDialogStartValue(UDCDmain.UD_UpdateTime)
+        SetSliderDialogStartValue(UDCONF.UD_UpdateTime)
         SetSliderDialogDefaultValue(10.0)
         SetSliderDialogRange(1.0, 15.0)
         SetSliderDialogInterval(1.0)
@@ -3049,8 +3049,8 @@ EndFunction
 
 Function OnOptionSliderAcceptCustomBondage(int option, float value)
     if (option == UD_UpdateTime_S)
-        UDCDmain.UD_UpdateTime = value
-        SetSliderOptionValue(UD_UpdateTime_S, UDCDmain.UD_UpdateTime, "{0} s")
+        UDCONF.UD_UpdateTime = value
+        SetSliderOptionValue(UD_UpdateTime_S, UDCONF.UD_UpdateTime, "{0} s")
     elseif option == UD_CooldownMultiplier_S
         UDCDmain.UD_CooldownMultiplier = value/100
         SetSliderOptionValue(UD_CooldownMultiplier_S, Round(UDCDmain.UD_CooldownMultiplier*100), "{0} %")
@@ -4775,7 +4775,7 @@ Function SaveToJSON(string strFile)
     JsonUtil.SetIntValue(strFile, "UseWidget", UDCDmain.UD_UseWidget as Int)
     JsonUtil.SetIntValue(strFile, "GagPhonemModifier", UDCDmain.UD_GagPhonemModifier)
     JsonUtil.SetIntValue(strFile, "StruggleDifficulty", UDCDmain.UD_StruggleDifficulty)
-    JsonUtil.SetFloatValue(strFile, "DeviceUpdateTime", UDCDmain.UD_UpdateTime)
+    JsonUtil.SetFloatValue(strFile, "DeviceUpdateTime", UDCONF.UD_UpdateTime)
     JsonUtil.SetIntValue(strFile, "AutoCrit", UDCDmain.UD_AutoCrit as Int)
     JsonUtil.SetIntValue(strFile, "AutoCritChance", UDCDmain.UD_AutoCritChance)
     JsonUtil.SetFloatValue(strFile, "VibrationMultiplier", UDCDmain.UD_VibrationMultiplier)
@@ -4954,7 +4954,7 @@ Function LoadFromJSON(string strFile)
     UDCDmain.UD_UseWidget = JsonUtil.GetIntValue(strFile, "UseWidget", UDCDmain.UD_UseWidget as Int)
     UDCDmain.UD_GagPhonemModifier = JsonUtil.GetIntValue(strFile, "GagPhonemModifier", UDCDmain.UD_GagPhonemModifier)
     UDCDmain.UD_StruggleDifficulty = JsonUtil.GetIntValue(strFile, "StruggleDifficulty", UDCDmain.UD_StruggleDifficulty)
-    UDCDmain.UD_UpdateTime = JsonUtil.GetFloatValue(strFile, "DeviceUpdateTime", UDCDmain.UD_UpdateTime)
+    UDCONF.UD_UpdateTime = JsonUtil.GetFloatValue(strFile, "DeviceUpdateTime", UDCONF.UD_UpdateTime)
     
     UDCDmain.UD_AutoCrit = JsonUtil.GetIntValue(strFile, "AutoCrit", UDCDmain.UD_AutoCrit as Int)
     if UDCDmain.UD_AutoCrit
@@ -5102,6 +5102,9 @@ Function LoadFromJSON(string strFile)
 EndFunction
 
 Function ResetToDefaults()
+    ; CONF
+    UDCONF.UD_UpdateTime                = 5.0
+
     ;UDmain
     UDmain.UD_hightPerformance          = true
     UDmain.AllowNPCSupport              = true
@@ -5144,7 +5147,6 @@ Function ResetToDefaults()
     UDCDmain.UD_UseWidget               = true
     UDCDmain.UD_GagPhonemModifier       = 50
     UDCDmain.UD_StruggleDifficulty      = 1
-    UDCDmain.UD_UpdateTime              = 5.0
     UDCDmain.UD_AutoCrit = false
     if UDCDmain.UD_AutoCrit
         UD_autocrit_flag = OPTION_FLAG_NONE

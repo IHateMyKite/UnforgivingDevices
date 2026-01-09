@@ -632,7 +632,7 @@ EndFunction
 
 Function OnGameReload()
     if !_Initialized
-        if !UDNPCM.Ready || !config.ready
+        if !config.ready
             GWarning(self+"::OnGameReload() - Skipping because mod is not fully initialized")
             return
         else
@@ -712,7 +712,6 @@ Function OnGameReload()
         UDEM.Update()
         _IncrementUpdateCounter()   ;13
         
-        UDNPCM.GameUpdate()
         _IncrementUpdateCounter()   ;14
         
         UDLLP.Update()
@@ -734,13 +733,11 @@ Function OnGameReload()
         UDAbadonQuest.Update()
         _IncrementUpdateCounter()   ;19
         
-        UDMOM.Update()
+        ;UDMOM.Update()
         _IncrementUpdateCounter()   ;20
         
-        UDOTM.Update()
         _IncrementUpdateCounter()   ;21
         
-        UDMMM.Update()
         _IncrementUpdateCounter()   ;22
 
         UDUIE.Update()
@@ -765,26 +762,6 @@ EndEvent
 
 Bool _Initialized = False
 Function _Init()
-    ;start quest manually
-    UDNPCM.Start()
-    
-    Float loc_timeout = 0.0
-    Float loc_maxtime = 5.0
-    
-    ;wait for quest to get ready
-    while !UDNPCM.Ready && loc_timeout <= loc_maxtime
-        Utility.wait(0.25)
-        loc_timeout += 0.25
-    endwhile
-    if !UDNPCM.Ready
-        ;ERROR
-        GError("NPC manager can't be started!! Mod will be disabled!")
-        ShowSingleMessageBox("!!FATAL ERROR!!\nFailed to load NPC manager and its slots!! Mod will be disabled untill quest correctly starts.\n Please contact developers on LL or GitHub")
-        _FatalError = True
-    else
-        GInfo("NPC manager started successfully")
-    endif
-    
     ; Manually start modules, so the setting is correctly loaded from json
     _StartModulesManual()
     

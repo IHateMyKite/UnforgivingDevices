@@ -27,35 +27,27 @@ bool _specialButtonOn = false
 bool _gamepadButtonOn = false
 
 Event keyUnregister(string eventName = "none", string strArg = "", float numArg = 0.0, Form sender = none)
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         UDmain.Log("UD_UserInputScript::keyUnregister called",1)
     endif
     UnregisterForAllKeys()
 EndEvent
 
 Event MinigameKeysRegister()
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         UDmain.Log("UD_UserInputScript::MinigameKeysRegister called",1)
     endif
-    ;RegisterForKey(UDCDMain.Stamina_meter_Keycode)
     RegisterForKey(UDCDMain.SpecialKey_Keycode)
-    ;RegisterForKey(UDCDMain.Magicka_meter_Keycode)
     _specialButtonOn = false
 EndEvent
 
 Event MinigameKeysUnregister()
-    if UDmain.TraceAllowed()    
+    if UDmain.TraceAllowed()
         UDmain.Log("UD_UserInputScript::MinigameKeysUnregister called",1)
     endif
-    ;if !KeyIsUsedGlobaly(UDCDMain.Stamina_meter_Keycode)
-    ;    UnregisterForKey(UDCDMain.Stamina_meter_Keycode)
-    ;endif
     if !KeyIsUsedGlobaly(UDCDMain.SpecialKey_Keycode)
         UnregisterForKey(UDCDMain.SpecialKey_Keycode)
     endif
-    ;if !KeyIsUsedGlobaly(UDCDMain.Magicka_meter_Keycode)
-    ;    UnregisterForKey(UDCDMain.Magicka_meter_Keycode)
-    ;endif
     _specialButtonOn = false
     _gamepadButtonOn = false
 EndEvent

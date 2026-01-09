@@ -125,3 +125,12 @@ Int     Property UD_OrgasmExhaustionStruggleMax     = 6     auto hidden
     ---
 /;
 int Property UD_RandomDevice_GlobalFilter = 0xFFFFFFFF auto hidden
+
+;/  Variable: UD_UpdateTime
+    Update time used by many parts of the mod
+      * Device update time
+      * NPC/Player Slot update time
+    
+    Do not edit, *READ ONLY!* Is set by user with MCM
+/;
+float Property UD_UpdateTime = 5.0 auto

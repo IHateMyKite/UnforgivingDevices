@@ -1,71 +1,41 @@
-scriptname UD_MutexManagerScript extends Quest
-
-UDCustomDeviceMain Property UDCDmain auto
-zadlibs_UDPatch Property libsp auto 
-
+scriptname UD_MutexManagerScript extends UD_ModuleBase
 
 ;faction which contains all mutexed unregistered npcs
 Faction Property UD_MutexFaction auto
 Int _usedSlots = 0
 
-
-bool Property Ready = false auto hidden
-
-Function OnInit()
-    Ready = true
-EndFunction
-
-Function Update()
-
-EndFunction
-
-Function Mutex(Actor akActor)
+; =================
+; PRIVATE METHODS
+; =================
+Function _Mutex(Actor akActor)
     return akActor.AddToFaction(UD_MutexFaction)
 EndFunction
 
-Function UnMutex(Actor akActor)
+Function _UnMutex(Actor akActor)
     return akActor.RemoveFromFaction(UD_MutexFaction)
 EndFunction
 
-bool Function IsMutexed(Actor akActor)
+bool Function _IsMutexed(Actor akActor)
     return akActor.isinFaction(UD_MutexFaction)
 EndFunction
 
-bool Function IsLockMutexed(Actor akActor)
-    if !IsMutexed(akActor)
+bool Function _IsLockMutexed(Actor akActor)
+    if !_IsMutexed(akActor)
         return false
     endif
     UD_MutexScript loc_mutex = GetMutexSlot(akActor)
     return loc_mutex.IsLockMutexed()
 EndFunction
 
-bool Function IsUnlockMutexed(Actor akActor)
-    if !IsMutexed(akActor)
+bool Function _IsUnlockMutexed(Actor akActor)
+    if !_IsMutexed(akActor)
         return false
     endif
     UD_MutexScript loc_mutex = GetMutexSlot(akActor)
     return loc_mutex.IsUnlockMutexed()
 EndFunction
 
-bool Function IsDeviceMutexed(Actor akActor,Armor invDevice)
-    if !akActor.isinFaction(UD_MutexFaction)
-        return false
-    endif
-    return GetMutexSlot(akActor).FilterDevice(invDevice)
-EndFunction
-
-UD_MutexScript Function GetMutexSlot(Actor akActor)
-    int loc_i = GetNumAliases()
-    while loc_i
-        loc_i -= 1
-        UD_MutexScript loc_slot = GetNthAlias(loc_i) as UD_MutexScript
-        if loc_slot.FilterActor(akActor)
-            return loc_slot
-        endif
-    endwhile
-EndFunction
-
-UD_MutexScript Function GetFreeSlot()
+UD_MutexScript Function _GetFreeSlot()
     int loc_i = GetNumAliases()
     while loc_i
         loc_i -= 1
@@ -77,18 +47,23 @@ UD_MutexScript Function GetFreeSlot()
     return none
 EndFunction
 
-Function PauseUntillFree(Actor akActor)
-    while !GetFreeSlot() || IsMutexed(akActor)
+Function _PauseUntillFree(Actor akActor)
+    while !_GetFreeSlot() || _IsMutexed(akActor)
         Utility.waitMenuMode(0.5)
     endwhile
 EndFunction
 
+; =================
+; PUBLIC METHODS
+; =================
+
 UD_MutexScript Function WaitForFreeAndSet_Lock(Actor akActor,Armor invDevice)
+    WaitForReady(10.0)
     int loc_i = GetNumAliases()
     while loc_i
         loc_i -= 1
         UD_MutexScript loc_slot = GetNthAlias(loc_i) as UD_MutexScript
-        if loc_slot.IsUnused() && !IsLockMutexed(akActor)
+        if loc_slot.IsUnused() && !_IsLockMutexed(akActor)
             loc_slot.SetLockMutex(akActor,invDevice)
             return loc_slot
         endif
@@ -101,11 +76,12 @@ UD_MutexScript Function WaitForFreeAndSet_Lock(Actor akActor,Armor invDevice)
 EndFunction
 
 UD_MutexScript Function WaitForFreeAndSet_UnLock(Actor akActor,Armor invDevice)
+    WaitForReady(10.0)
     int loc_i = GetNumAliases()
     while loc_i
         loc_i -= 1
         UD_MutexScript loc_slot = GetNthAlias(loc_i) as UD_MutexScript
-        if loc_slot.IsUnused() && !IsUnlockMutexed(akActor)
+        if loc_slot.IsUnused() && !_IsUnlockMutexed(akActor)
             loc_slot.SetUnlockMutex(akActor,invDevice)
             return loc_slot
         endif
@@ -115,4 +91,24 @@ UD_MutexScript Function WaitForFreeAndSet_UnLock(Actor akActor,Armor invDevice)
         endif
     endwhile
     return none
+EndFunction
+
+UD_MutexScript Function GetMutexSlot(Actor akActor)
+    WaitForReady(10.0)
+    int loc_i = GetNumAliases()
+    while loc_i
+        loc_i -= 1
+        UD_MutexScript loc_slot = GetNthAlias(loc_i) as UD_MutexScript
+        if loc_slot.FilterActor(akActor)
+            return loc_slot
+        endif
+    endwhile
+EndFunction
+
+bool Function IsDeviceMutexed(Actor akActor,Armor invDevice)
+    WaitForReady(10.0)
+    if !akActor.isinFaction(UD_MutexFaction)
+        return false
+    endif
+    return GetMutexSlot(akActor).FilterDevice(invDevice)
 EndFunction

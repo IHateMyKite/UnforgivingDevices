@@ -14,43 +14,77 @@ UnforgivingDevicesMain Property UDmain Hidden
     EndFunction
 EndProperty
 
-Bool _Setup     = False
-Bool _Updating  = False
-Bool _Disabled  = False
+String  Property MODULE_NAME hidden
+    String Function get()
+        return self.GetName()
+    EndFunction
+EndProperty
+String  Property MODULE_ALIAS = "NOAL"    auto  ; alias
+String  Property MODULE_DESC  = ""        auto  ; description
+Int     Property MODULE_PRIO  = 0         auto  ; priority
+Quest[] Property MODULE_DEP               auto  ; dependency
 
+; control
+Bool    Property MODULE_SETUP  = true  auto
+Bool    Property MODULE_RELOAD = false auto
+
+; private variables
+Bool _SetupCalled = False
+Bool _SetupDone   = False
+Bool _ReloadCalled = False
+Bool _ReloadDone   = False
 Event OnInit()
     ;unused!
 EndEvent
 
-Function Setup()
+; =================
+; PRIVATE METHODS
+; =================
+Function _Setup()
+    _SetupCalled = True
+    UnforgivingDevicesMain.GInfo("Setting up module " + MODULE_NAME + "(" + MODULE_ALIAS + ") [" + MODULE_PRIO + "]")
     OnSetup()
-    _Setup = true
+    _SetupDone = True
 EndFunction
+
+Function _GameReload()
+    _ReloadCalled = True
+    UnforgivingDevicesMain.GInfo("Reloading module " + MODULE_NAME + "(" + MODULE_ALIAS + ") [" + MODULE_PRIO + "]")
+    OnGameReload()
+    _ReloadDone = True
+EndFunction
+
+; =================
+; PUBLIC METHODS
+; =================
+
+Bool Function IsReady()
+    return _SetupDone && (_ReloadDone || !MODULE_RELOAD)
+EndFunction
+
+Bool Function ResetModule()
+    UnforgivingDevicesMain.ResetQuest(self)
+EndFunction
+
+Function WaitForReady(Float afTimeout)
+    Float _time = 0.0
+    While !IsReady() && _time < afTimeout
+      _time += 0.25
+      Utility.WaitMenuMode(0.25)
+    EndWhile
+    if _time >= afTimeout
+      UDMain.Error("Timeout of waiting for module " + MODULE_NAME + " to be readdy!")
+    endif
+EndFUnction
+
+; =================
+; Overrides
+; =================
 
 Function OnSetup()
     ;OVERRIDE
 EndFunction
 
-Function GameUpdate()
-    _Updating = True
-    OnGameUpdate()
-    _Updating = False
-EndFunction
-
-Function OnGameUpdate()
+Function OnGameReload()
     ;OVERRIDE
-EndFunction
-
-Function Disable()
-    _Disabled = true
-EndFunction
-Function Enable()
-    _Disabled = false
-EndFunction
-
-Bool Function IsDisabled()
-    return _Disabled
-EndFunction
-Bool Function IsReady()
-    return _Updating && _Setup
 EndFunction

@@ -237,7 +237,7 @@ Bool Function CheckSubModules()
 EndFunction
 
 Function Update()
-    RegisterForSingleUpdate(2*UD_UpdateTime)
+    RegisterForSingleUpdate(2*UDMain.UDCONF.UD_UpdateTime)
     
     _activateDevicePackage = none
     _startVibFunctionPackage = none
@@ -1154,7 +1154,6 @@ EndFunction
 ;=======================================
 ;//////////////////////////////////////;
 
-float Property UD_UpdateTime = 5.0 auto
 float LastUpdateTime = 0.0
 bool loc_init = false
 ;update the devices once per UD_UpdateTime

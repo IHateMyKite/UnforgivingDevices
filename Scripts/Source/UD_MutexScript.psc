@@ -5,11 +5,18 @@ import UD_Native
 
 UDCustomDeviceMain Property UDCDmain auto
 
-UnforgivingDevicesMain Property UDmain hidden
-    UnforgivingDevicesMain Function Get()
-        return UDCDmain.UDmain
+UD_MutexManagerScript Property UD_Mutex hidden
+    UD_MutexManagerScript Function Get()
+        return (GetOwningQuest() as UD_MutexManagerScript)
     EndFunction
 EndProperty
+
+UnforgivingDevicesMain Property UDmain hidden
+    UnforgivingDevicesMain Function Get()
+        return UD_Mutex.UDMain
+    EndFunction
+EndProperty
+
 ;LOCK
 bool    Property UD_GlobalDeviceMutex_InventoryScript                   = false     auto hidden
 Int     Property UD_GlobalDeviceMutex_InventoryScript_Failed            = 0         auto hidden
@@ -26,7 +33,7 @@ Actor Function GetActor()
 EndFunction
 
 Function SetMutex(Actor akActor,Armor invDevice)
-    (GetOwningQuest() as UD_MutexManagerScript).Mutex(akActor)
+    UD_Mutex._Mutex(akActor)
     ForceRefTo(akActor)
 EndFunction
 
@@ -44,7 +51,7 @@ Function ResetLockMutex()
     UD_GlobalDeviceMutex_InventoryScript             = false
     UD_GlobalDeviceMutex_InventoryScript_Failed     = 0
     UD_GlobalDeviceMutex_Device                     = none
-    (GetOwningQuest() as UD_MutexManagerScript).UnMutex(GetActorRef())
+    UD_Mutex._UnMutex(GetActorRef())
     Clear()
 EndFunction
 
@@ -53,7 +60,7 @@ Function ResetUnlockMutex()
     UD_GlobalDeviceUnlockMutex_InventoryScript_Failed     = false
     UD_GlobalDeviceUnlockMutex_Device                     = none 
     UD_UnlockToken                                        = none
-    (GetOwningQuest() as UD_MutexManagerScript).UnMutex(GetActorRef())
+    UD_Mutex._UnMutex(GetActorRef())
     Clear()
 EndFunction
 
