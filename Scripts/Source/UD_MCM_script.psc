@@ -1160,7 +1160,7 @@ Event resetDDPatchPage()
     AddHeaderOption("$UD_GENERAL")
     addEmptyOption()
     
-    UD_GagPhonemModifier_S = addSliderOption("$UD_GAGPHONEMMODIFIER",UDCDmain.UD_GagPhonemModifier, "{0}",FlagSwitch(!UDmain.ZadExpressionSystemInstalled))
+    addEmptyOption()
     UD_CheckAllKw_T = addToggleOption("$UD_CHECKALLKW",UDmain.UD_CheckAllKw)
     
     AddHeaderOption("$UD_H_ANIMATIONSETTING")

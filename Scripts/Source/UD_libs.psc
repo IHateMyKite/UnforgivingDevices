@@ -1,8 +1,6 @@
-Scriptname UD_libs extends Quest  
+Scriptname UD_libs extends UD_ModuleBase
 
 import UnforgivingDevicesMain
-
-UnforgivingDevicesMain Property main auto
 
 ;zadlibs slots
 ;zad_DeviousHood                30
@@ -45,18 +43,6 @@ Soulgem Property FilledSoulgem_Great  auto
 Soulgem Property FilledSoulgem_Grand  auto
 
 MiscObject Property SteelIngot auto
-
-
-Bool Property Ready = False auto
-Event OnInit()
-    if IsRunning()
-        Ready = True
-    endif
-EndEvent
-
-Function Update()
-    ResetQuest(self)
-EndFunction
 
 ;plug
 Armor Property AbadonPlug auto

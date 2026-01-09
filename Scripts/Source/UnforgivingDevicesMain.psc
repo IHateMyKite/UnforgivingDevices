@@ -6,7 +6,6 @@ Scriptname UnforgivingDevicesMain extends Quest  conditional
 import UD_Native
 
 Quest       Property UD_UtilityQuest    auto
-Quest       Property UD_LibsQuest       auto
 
 Actor Property Player auto hidden
 
@@ -143,8 +142,6 @@ UD_UserInputScript                  Property UDUI           auto
     This module contains functionality for manipulating animations. See <UD_AnimationManagerScript>
 /;
 UD_AnimationManagerScript           Property UDAM           auto
-
-UD_CompatibilityManager_Script      Property UDCM           auto
 
 ;/  Variable: UDAI
     
@@ -348,7 +345,6 @@ bool Property OSLArousedInstalled       = false auto hidden
 bool Property ConsoleUtilInstalled      = false auto hidden
 bool Property SlaveTatsInstalled        = false auto hidden
 bool Property OrdinatorInstalled        = false auto hidden
-bool Property ZadExpressionSystemInstalled = false auto hidden
 Bool Property DeviousStrikeInstalled    = False auto hidden
 Bool Property ForHimInstalled           = False auto hidden
 Bool Property PO3Installed              = False auto hidden ;https://www.nexusmods.com/skyrimspecialedition/mods/22854
@@ -692,7 +688,6 @@ Function OnGameReload()
         BoundCombat.Update()
         _IncrementUpdateCounter()   ;6
         
-        UDlibs.Update()
         _IncrementUpdateCounter()   ;7
         
         UDCDMain.Update()
@@ -717,7 +712,6 @@ Function OnGameReload()
         UDLLP.Update()
         _IncrementUpdateCounter()   ;15
         
-        UDRRM.Update()
         _IncrementUpdateCounter()   ;16
         
         if UDAM.Ready
@@ -725,9 +719,6 @@ Function OnGameReload()
         endif
         _IncrementUpdateCounter()   ;17
         
-        if UDCM.Ready
-            UDCM.Update()
-        endif
         _IncrementUpdateCounter()   ;18
         
         UDAbadonQuest.Update()
@@ -831,22 +822,6 @@ Function _ValidateModules()
     ;validate modules that were moved between versions
     UDPP    = GetMeMyForm(0x0120B6,"UnforgivingDevices.esp") as UD_ParalelProcess
     UDLLP   = GetMeMyForm(0x0120B4,"UnforgivingDevices.esp") as UD_LeveledList_Patcher
-    UD_LibsQuest    = GetMeMyForm(0x0120B5,"UnforgivingDevices.esp") as Quest
-    UDlibs          = UD_LibsQuest as UD_Libs
-    ItemManager     = UD_LibsQuest as UDItemManager
-    UDRRM           = UD_LibsQuest as UD_RandomRestraintManager
-    
-    ;validate expression system
-    Quest loc_DDexpressionQuest = GetMeMyForm(0x000800,"Devious Devices - Integration.esm") as Quest
-    if !ZadExpressionSystemInstalled && loc_DDexpressionQuest
-        Info("ZAD Expression System detected: switching...")
-        ZadExpressionSystemInstalled = True
-        if !libs.ExpLibs
-            libs.ExpLibs = loc_DDexpressionQuest as zadexpressionlibs
-        endif
-        UDEM.GoToState("DDExpressionSystemInstalled")
-        Info("ZAD Expression System detected: DONE")
-    endif
     Info(self + "::_ValidateModules() - Modules validated")
 EndFunction
 
@@ -870,10 +845,6 @@ Function _StartModulesManual()
 
     if !ItemManager.IsRunning()
         ItemManager.start()
-    endif
-    
-    if !UDCM.IsRunning()
-        UDCM.start()
     endif
     
     if !UDWC.IsRunning()

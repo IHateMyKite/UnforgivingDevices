@@ -1,24 +1,13 @@
-Scriptname UDItemManager extends Quest  
+Scriptname UDItemManager extends UD_ModuleBase
 
 import UnforgivingDevicesMain
 import UD_Native
 
 UDCustomDeviceMain      Property UDCDmain               auto
-UnforgivingDevicesMain  Property UDmain                 auto
 UD_AbadonQuest_script   Property AbadonScript           auto
 
-Bool Property Ready = False auto
-Event OnInit()
-    if IsRunning()
-        Ready = True
-    endif
-EndEvent
-
-; TODO
-; boots high heels
-; boots pony
-
 Int Function lockAbadonPiercings(Actor akTarget)
+    WaitForReady(10.0)
     Int loc_res = 0
     if !akTarget.wornhaskeyword(libs.zad_DeviousPiercingsVaginal) && UDmain.UDRRM.IsDeviceFiltered(0)
         loc_res += libs.LockDevice(akTarget,UDmain.UDlibs.AbadonPiercingVaginal) as Int
@@ -30,6 +19,7 @@ Int Function lockAbadonPiercings(Actor akTarget)
 EndFunction
 
 Int Function lockAbadonHelperPlugs(Actor akTarget)
+    WaitForReady(10.0)
     Int loc_res = 0
     if !akTarget.wornhaskeyword(libs.zad_deviousPlugAnal) && !AbadonScript.UseAnalVariant && UDmain.UDRRM.IsDeviceFiltered(3)
         if AbadonScript.IsCompleted() && RandomInt(0,1) ;only equip helper plug if abadon quest was completed
@@ -45,14 +35,17 @@ Int Function lockAbadonHelperPlugs(Actor akTarget)
 EndFunction
 
 Function equipAbadonLatexSuit(Actor akActor)
+    WaitForReady(10.0)
     UDmain.UDOTM.LockOutfitByAlias(akActor,"UDFW_LATEX")
 EndFunction
 
 Function equipAbadonRestrictiveSuit(Actor akActor)
+    WaitForReady(10.0)
     UDmain.UDOTM.LockOutfitByAlias(akActor,"UDFW_RESTR")
 EndFunction
 
 Function equipAbadonRopeSuit(Actor target)
+    WaitForReady(10.0)
     if (!target.WornhasKeyword(libs.zad_DeviousHeavyBondage))
         libs.LockDevice(target,UDmain.UDlibs.AbadonArmbinderRope)
     endif
@@ -80,18 +73,22 @@ Function equipAbadonRopeSuit(Actor target)
 EndFunction
 
 Function equipAbadonTransparentSuit(Actor akActor)
+    WaitForReady(10.0)
     UDmain.UDOTM.LockOutfitByAlias(akActor,"UDFW_TRANSP")
 EndFunction
 
 Function equipAbadonSimpleSuit(Actor akActor)
+    WaitForReady(10.0)
     UDmain.UDOTM.LockOutfitByAlias(akActor,"UDFW_SIMPLE")
 EndFunction
 
 Function equipAbadonYokeSuit(Actor akActor)
+    WaitForReady(10.0)
     UDmain.UDOTM.LockOutfitByAlias(akActor,"UDFW_YOKE")
 EndFunction
 
 Function equipAbadonFinisherSuit(Actor akActor)
+    WaitForReady(10.0)
     UDmain.UDOTM.LockOutfitByAlias(akActor,"UDFW_CURSED")
 EndFunction
  

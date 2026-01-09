@@ -24,10 +24,6 @@ String  Property MODULE_DESC  = ""        auto  ; description
 Int     Property MODULE_PRIO  = 0         auto  ; priority
 Quest[] Property MODULE_DEP               auto  ; dependency
 
-; control
-Bool    Property MODULE_SETUP  = true  auto
-Bool    Property MODULE_RELOAD = false auto
-
 ; private variables
 Bool _SetupCalled = False
 Bool _SetupDone   = False
@@ -59,7 +55,7 @@ EndFunction
 ; =================
 
 Bool Function IsReady()
-    return _SetupDone && (_ReloadDone || !MODULE_RELOAD)
+    return _SetupDone && (_ReloadDone || !_ReloadCalled)
 EndFunction
 
 Bool Function ResetModule()

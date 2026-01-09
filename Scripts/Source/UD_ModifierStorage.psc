@@ -21,6 +21,7 @@ Function UpdateList()
     UD_ModifierList = Utility.CreateStringArray(0)
     Int loc_i = 0
     Int loc_n = Self.GetNumAliases()
+    UDmain.Info(self+"::UpdateList() - Aliases = " + loc_n)
     while loc_i < loc_n
         UD_Modifier loc_mod = Self.GetNthAlias(loc_i) as UD_Modifier
         UD_ModifierList = PapyrusUtil.PushString(UD_ModifierList, loc_mod.NameFull)

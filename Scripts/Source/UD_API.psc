@@ -95,8 +95,6 @@ UD_UserInputScript                  Property UDUI           auto
 /;
 UD_AnimationManagerScript           Property UDAM           auto
 
-UD_CompatibilityManager_Script      Property UDCM           auto
-
 ;zadlibs for simpler access
 ;   Variable: libs
 zadlibs                             property libs           auto 
