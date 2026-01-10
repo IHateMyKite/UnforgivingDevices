@@ -190,11 +190,7 @@ EndProperty
 ;/  Variable: UDSKILL
     This module contains functions gettings actors UD skills
 /;
-UD_SkillManager_Script              Property UDSKILL Hidden
-    UD_SkillManager_Script Function get()
-        return (UDCDmain as Quest) as UD_SkillManager_Script
-    EndFunction
-EndProperty
+UD_SkillManager_Script              Property UDSKILL auto
 
 ;/  Variable: UDOMNPC
     

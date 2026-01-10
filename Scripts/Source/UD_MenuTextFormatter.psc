@@ -1,4 +1,4 @@
-Scriptname UD_MenuTextFormatter Extends UD_MOduleBase
+Scriptname UD_MenuTextFormatter Extends UD_ModuleBase
 {Script with functions to format text for messages}
 
 ;/

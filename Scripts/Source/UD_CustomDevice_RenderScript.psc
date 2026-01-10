@@ -2690,7 +2690,7 @@ Bool Function UpdateAllLocksTimeLock(Int aiTimeLockDelta, Bool abCheckUnlock = T
     if !HaveLocks() || !GetLockNumber()
         return False ;device have no locks, return 0 as error value
     endif
-    UDmain.Info(getDeviceHeader()+"::UpdateAllLocksTimeLock("+aiTimeLockDelta+","+abCheckUnlock+") called")
+    ;UDmain.Info(getDeviceHeader()+"::UpdateAllLocksTimeLock("+aiTimeLockDelta+","+abCheckUnlock+") called")
     Int     loc_res             = 0 ;return False as error value
     Int     loc_LockNum         = GetLockNumber()
     Bool    loc_lockUnlocked    = False

@@ -1,4 +1,4 @@
-Scriptname UD_Patcher extends UD_MOduleBase
+Scriptname UD_Patcher extends UD_ModuleBase
 {Patches devices and safecheck animations}
 
 import UnforgivingDevicesMain
