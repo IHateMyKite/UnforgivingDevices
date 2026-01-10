@@ -1,4 +1,4 @@
-Scriptname UD_NPCInteligence extends Quest
+Scriptname UD_NPCInteligence extends UD_ModuleBase
 
 import UnforgivingDevicesMain
 import UD_Native
@@ -15,10 +15,8 @@ import UD_Native
 
 Int     Property UD_UpdateTime  = 10    auto
 Int     Property UD_AICooldown  = 30    auto        ;by default 30 minutes
-Bool    Property Ready          = False auto hidden
 
 UD_CustomDevices_NPCSlotsManager    Property UDNPCM auto
-UnforgivingDevicesMain              Property UDmain auto
 
 Faction                             Property UD_AIDisableFaction auto ;NPCs in this faction will have AI disabled
 
@@ -38,8 +36,7 @@ Bool Property Enabled Hidden
     EndFunction
 EndProperty
 
-Event OnInit()
-    Ready = True
+Event OnSetup()
     RegisterForModEvent("UDEvaluateNPCAI","EvaluateNPCAI")
     RegisterForSingleUpdate(2*UD_UpdateTime)
 EndEvent

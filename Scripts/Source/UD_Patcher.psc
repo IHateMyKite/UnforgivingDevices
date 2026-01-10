@@ -1,4 +1,4 @@
-Scriptname UD_Patcher extends Quest  
+Scriptname UD_Patcher extends UD_MOduleBase
 {Patches devices and safecheck animations}
 
 import UnforgivingDevicesMain
@@ -73,16 +73,13 @@ Float Property UD_MaxResistMult =    1.0 auto hidden
 
 Bool  Property UD_TimedLocks    = True   auto hidden
 
-Bool Property Ready = False auto
-Event OnInit()
-    Ready = True
-EndEvent
-
 Bool Function IsModifierTagEnabled(String asTag)
+    WaitForReady(10.0)
     Return PapyrusUtil.CountString(UD_DisabledTags, asTag) == 0
 EndFunction
 
 Function SetModifierTag(String asTag, Bool abEnable)
+    WaitForReady(10.0)
     If abEnable
         UD_DisabledTags = PapyrusUtil.RemoveString(UD_DisabledTags, asTag)
     Else
@@ -91,11 +88,12 @@ Function SetModifierTag(String asTag, Bool abEnable)
 EndFunction
 
 Function ToggleModifierTag(String asTag)
+    WaitForReady(10.0)
     Bool loc_state = IsModifierTagEnabled(asTag)
     SetModifierTag(asTag, !loc_state)
 EndFunction
 
-Float Function GetPatchDifficulty(UD_CustomDevice_RenderScript akDevice)
+Float Function _GetPatchDifficulty(UD_CustomDevice_RenderScript akDevice)
     Armor akRD = akDevice.deviceRendered
     if akRD.haskeyword(UDlibs.PatchVeryHard_KW)
         return 1.75
@@ -111,7 +109,8 @@ Float Function GetPatchDifficulty(UD_CustomDevice_RenderScript akDevice)
 EndFunction
 
 Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
-    Float   loc_currentmult = UD_PatchMult_HeavyBondage*UD_PatchMult*GetPatchDifficulty(device)
+    WaitForReady(10.0)
+    Float   loc_currentmult = UD_PatchMult_HeavyBondage*UD_PatchMult*_GetPatchDifficulty(device)
     Int     loc_type        = 0
     device.UD_CutChance = 0.0
 
@@ -177,12 +176,13 @@ Function patchHeavyBondage(UD_CustomHeavyBondage_RenderScript device)
         device.UD_ResistMagicka = RandomFloat(-0.3,1.0)
     endif
     
-    patchFinish(device,loc_control,loc_currentmult,loc_type)
+    _PatchFinish(device,loc_control,loc_currentmult,loc_type)
 EndFunction
 
 Function patchBlindfold(UD_CustomBlindfold_RenderScript device)
-    Float loc_currentmult = UD_PatchMult_Blindfold*UD_PatchMult*GetPatchDifficulty(device)
-    patchDefaultValues(device,loc_currentmult)
+    WaitForReady(10.0)
+    Float loc_currentmult = UD_PatchMult_Blindfold*UD_PatchMult*_GetPatchDifficulty(device)
+    _PatchDefaultValues(device,loc_currentmult)
     ;materials
     if isSecure(device.DeviceInventory)
         ;device.UD_Locks = UD_MinLocks
@@ -190,23 +190,25 @@ Function patchBlindfold(UD_CustomBlindfold_RenderScript device)
         device.UD_ResistMagicka = RandomFloat(0.2,1.0)
     endif
     
-    patchFinish(device,0x0F,loc_currentmult,7)
+    _PatchFinish(device,0x0F,loc_currentmult,7)
 EndFunction
 
 Function patchGag(UD_CustomGag_RenderScript device)
-    Float loc_currentmult = UD_PatchMult_Gag*UD_PatchMult*GetPatchDifficulty(device)
-    patchDefaultValues(device,loc_currentmult)
+    WaitForReady(10.0)
+    Float loc_currentmult = UD_PatchMult_Gag*UD_PatchMult*_GetPatchDifficulty(device)
+    _PatchDefaultValues(device,loc_currentmult)
     
     if device as UD_CustomPanelGag_RenderScript
         (device as UD_CustomPanelGag_RenderScript).UD_RemovePlugDifficulty = RandomInt(50,100)*loc_currentmult
     endif
 
-    patchFinish(device,0x0F,loc_currentmult,6)
+    _PatchFinish(device,0x0F,loc_currentmult,6)
 EndFunction
 
 Function patchBelt(UD_CustomBelt_RenderScript device)
-    Float loc_currentmult = UD_PatchMult_ChastityBelt*UD_PatchMult*GetPatchDifficulty(device)
-    patchDefaultValues(device,loc_currentmult)
+    WaitForReady(10.0)
+    Float loc_currentmult = UD_PatchMult_ChastityBelt*UD_PatchMult*_GetPatchDifficulty(device)
+    _PatchDefaultValues(device,loc_currentmult)
     
     device.UD_Cooldown = Round(RandomInt(140,200)/fRange(loc_currentmult,0.5,2.0))
     ;materials
@@ -225,12 +227,13 @@ Function patchBelt(UD_CustomBelt_RenderScript device)
         ;device.AddAbility(UDlibs.ArousingMovement,0)
     ;endif
 
-    patchFinish(device,0x0F,loc_currentmult,11)
+    _PatchFinish(device,0x0F,loc_currentmult,11)
 EndFunction
 
 Function patchPlug(UD_CustomPlug_RenderScript device)
-    Float loc_currentmult = UD_PatchMult_Plug*UD_PatchMult*GetPatchDifficulty(device)
-    patchDefaultValues(device,loc_currentmult)
+    WaitForReady(10.0)
+    Float loc_currentmult = UD_PatchMult_Plug*UD_PatchMult*_GetPatchDifficulty(device)
+    _PatchDefaultValues(device,loc_currentmult)
     
     ;device.UD_Locks = 0
     device.UD_durability_damage_base = RandomFloat(10.0,20.0)/loc_currentmult
@@ -255,31 +258,34 @@ Function patchPlug(UD_CustomPlug_RenderScript device)
     
     if device.zad_deviceKey ;lockable plug
         device.UD_durability_damage_base = 0.0 
-        GenerateLocks(device, 8,255)
+        _GenerateLocks(device, 8,255)
     endif
     
-    patchFinish(device,loc_control,loc_currentmult,-1)
+    _PatchFinish(device,loc_control,loc_currentmult,-1)
 EndFunction
 
 Function patchHood(UD_CustomHood_RenderScript device)
-    Float loc_currentmult = UD_PatchMult_Hood*UD_PatchMult*GetPatchDifficulty(device)
-    patchDefaultValues(device,loc_currentmult)
-    patchFinish(device,0x0F,loc_currentmult,14)
+    WaitForReady(10.0)
+    Float loc_currentmult = UD_PatchMult_Hood*UD_PatchMult*_GetPatchDifficulty(device)
+    _PatchDefaultValues(device,loc_currentmult)
+    _PatchFinish(device,0x0F,loc_currentmult,14)
 EndFunction
 
 Function patchBra(UD_CustomBra_RenderScript device)
-    Float loc_currentmult = UD_PatchMult_ChastityBra*UD_PatchMult*GetPatchDifficulty(device)
-    patchDefaultValues(device,loc_currentmult)
+    WaitForReady(10.0)
+    Float loc_currentmult = UD_PatchMult_ChastityBra*UD_PatchMult*_GetPatchDifficulty(device)
+    _PatchDefaultValues(device,loc_currentmult)
     
     device.UD_durability_damage_base *= 0.5
     
-    patchFinish(device,0x0F,loc_currentmult,12)
+    _PatchFinish(device,0x0F,loc_currentmult,12)
 EndFunction
 
 Function patchGeneric(UD_CustomDevice_RenderScript device)
-    Float loc_currentmult = UD_PatchMult_Generic*UD_PatchMult*GetPatchDifficulty(device)
+    WaitForReady(10.0)
+    Float loc_currentmult = UD_PatchMult_Generic*UD_PatchMult*_GetPatchDifficulty(device)
     Int loc_type = 0
-    patchDefaultValues(device,loc_currentmult)
+    _PatchDefaultValues(device,loc_currentmult)
 
     int loc_control = 0x0F
     if device as UD_CustomMittens_RenderScript
@@ -301,13 +307,14 @@ Function patchGeneric(UD_CustomDevice_RenderScript device)
         device.UD_Cooldown = Round(RandomInt(160,240)/fRange(loc_currentmult,0.5,2.0))
     endif
     
-    patchFinish(device,loc_control,loc_currentmult,loc_type)
+    _PatchFinish(device,loc_control,loc_currentmult,loc_type)
 EndFunction
 
 Function patchPiercing(UD_CustomPiercing_RenderScript device)
-    Float loc_currentmult = UD_PatchMult_Piercing*UD_PatchMult*GetPatchDifficulty(device)
+    WaitForReady(10.0)
+    Float loc_currentmult = UD_PatchMult_Piercing*UD_PatchMult*_GetPatchDifficulty(device)
     Int loc_type = 0
-    patchDefaultValues(device,loc_currentmult)
+    _PatchDefaultValues(device,loc_currentmult)
     ;patchStart(device)
     device.UD_VibDuration = Round(RandomInt(40,75)*fRange(loc_currentmult,0.3,5.0))
     device.UD_Cooldown = Round(RandomInt(45,90)/fRange(loc_currentmult,0.5,2.0))
@@ -323,11 +330,12 @@ Function patchPiercing(UD_CustomPiercing_RenderScript device)
     device.UD_ResistPhysical = 0.75
     device.UD_ResistMagicka = 0.1
     
-    patchFinish(device,0x0F,loc_currentmult,loc_type)
+    _PatchFinish(device,0x0F,loc_currentmult,loc_type)
 EndFunction
 
-Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
-    If !DeviceCanHaveModes(akDevice)
+Function _ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
+    WaitForReady(10.0)
+    If !_DeviceCanHaveModes(akDevice)
         Return
     EndIf
 
@@ -357,7 +365,7 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
         EndIf
     Endwhile
     If UDCDmain.UDmain.TraceAllowed()
-        UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() First pass: " + loc_modnum + " modifiers filtered.", 2)
+        UDCDmain.UDmain.Log("UD_Patcher::_ProcessModifiers() First pass: " + loc_modnum + " modifiers filtered.", 2)
     EndIf
     If loc_modnum == 0
         Return
@@ -379,7 +387,7 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
                 If loc_pre.CheckTagsCompatibility(loc_device_mods_tags, loc_wearer_mods_tags) > 0
                     loc_pre.AddModifierWithPreset(akDevice, UD_ModGlobalSeverityShift, UD_ModGlobalSeverityDispMult)
                     If UDCDmain.UDmain.TraceAllowed()
-                        UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Added obligate modifier " + loc_mod)
+                        UDCDmain.UDmain.Log("UD_Patcher::_ProcessModifiers() Added obligate modifier " + loc_mod)
                     EndIf
                     ; If this modifier preset have forbidden tags, we add them to the array to filter out all subsequent modifiers
                     loc_forbidden_tags = PapyrusUtil.MergeStringArray(loc_forbidden_tags, loc_pre.ConflictedDeviceModTags)
@@ -395,7 +403,7 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
             EndIf
         EndIf
         If loc_pre == None
-            UDCDmain.UDmain.Warning("UD_Patcher::ProcessModifiers() Unable to add obligate modifier " + loc_mod)
+            UDCDmain.UDmain.Warning("UD_Patcher::_ProcessModifiers() Unable to add obligate modifier " + loc_mod)
         EndIf
         UD_ModAddToTest = ""
     EndIf
@@ -451,8 +459,8 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
             loc_i += 1
         Endwhile
         If UDCDmain.UDmain.TraceAllowed()
-            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Second pass: " + loc_a_pres.Length + " modifiers filtered with total absolute probability " + FormatFloat(loc_a_probs_sum, 2) + "% [" + loc_extra_log1 + "]", 2)
-            UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Second pass: " + loc_w_pres.Length + " modifiers filtered with total weighted probability " + FormatFloat(loc_w_probs_sum, 2) + "% [" + loc_extra_log2 + "]", 2)
+            UDCDmain.UDmain.Log("UD_Patcher::_ProcessModifiers() Second pass: " + loc_a_pres.Length + " modifiers filtered with total absolute probability " + FormatFloat(loc_a_probs_sum, 2) + "% [" + loc_extra_log1 + "]", 2)
+            UDCDmain.UDmain.Log("UD_Patcher::_ProcessModifiers() Second pass: " + loc_w_pres.Length + " modifiers filtered with total weighted probability " + FormatFloat(loc_w_probs_sum, 2) + "% [" + loc_extra_log2 + "]", 2)
         EndIf
         If (loc_a_pres.Length + loc_w_pres.Length) == 0 || (loc_a_probs_sum + loc_w_probs_sum) == 0.0
         ; there is nothing to select from
@@ -471,7 +479,7 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
                     EndIf
                     If UDCDmain.UDmain.TraceAllowed()
                         loc_mod = (loc_a_pres[loc_i] As UD_Patcher_ModPreset).GetModifier()
-                        UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Testing modifier with abs. prob. [" + loc_mod.NameAlias + "]: " + FormatFloat(loc_rnd, 1) + " ? " + FormatFloat(loc_a_probs[loc_i], 1), 3)
+                        UDCDmain.UDmain.Log("UD_Patcher::_ProcessModifiers() Testing modifier with abs. prob. [" + loc_mod.NameAlias + "]: " + FormatFloat(loc_rnd, 1) + " ? " + FormatFloat(loc_a_probs[loc_i], 1), 3)
                     EndIf
                     loc_valid_pres = PapyrusUtil.RemoveAlias(loc_valid_pres, loc_a_pres[loc_i])       ; we have tried this modifier
                     loc_i += 1
@@ -486,7 +494,7 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
                     loc_rnd = UD_Native.RandomFloat(0.0, 100.0)
                 EndIf
                 If UDCDmain.UDmain.TraceAllowed()
-                    UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Testing modifiers with weighted prob.: " + FormatFloat(loc_rnd, 1) + " ? " + FormatFloat(loc_w_probs_sum, 1), 3)
+                    UDCDmain.UDmain.Log("UD_Patcher::_ProcessModifiers() Testing modifiers with weighted prob.: " + FormatFloat(loc_rnd, 1) + " ? " + FormatFloat(loc_w_probs_sum, 1), 3)
                 EndIf
                 If loc_rnd <= loc_w_probs_sum
                     loc_seek_prob = 0.0
@@ -503,7 +511,7 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
                 loc_pre.AddModifierWithPreset(akDevice, UD_ModGlobalSeverityShift, UD_ModGlobalSeverityDispMult)
                 loc_mod = loc_pre.GetModifier()
                 If UDCDmain.UDmain.TraceAllowed()
-                    UDCDmain.UDmain.Log("UD_Patcher::ProcessModifiers() Added modifier " + loc_mod, 2)
+                    UDCDmain.UDmain.Log("UD_Patcher::_ProcessModifiers() Added modifier " + loc_mod, 2)
                 EndIf
                 ; If this modifier preset have forbidden tags, we add them to the array to filter out all subsequent modifiers
                 loc_forbidden_tags = PapyrusUtil.MergeStringArray(loc_forbidden_tags, loc_pre.ConflictedDeviceModTags)
@@ -534,15 +542,16 @@ Function ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
     loc_slot.GetModifierTags_Update()
 EndFunction
 
-bool Function DeviceCanHaveModes(UD_CustomDevice_RenderScript akDevice)
+bool Function _DeviceCanHaveModes(UD_CustomDevice_RenderScript akDevice)
     return !akDevice.deviceRendered.haskeyword(UDlibs.PatchNoModes_KW)
 EndFunction
 
-Function patchFinish(UD_CustomDevice_RenderScript akDevice,int aiControlVar = 0x0F,Float afMult = 1.0, Int aiType = 0)
-    checkInventoryScript(akDevice,aiControlVar,afMult,aiType)
+Function _PatchFinish(UD_CustomDevice_RenderScript akDevice,int aiControlVar = 0x0F,Float afMult = 1.0, Int aiType = 0)
+    WaitForReady(10.0)
+    _CheckInventoryScript(akDevice,aiControlVar,afMult,aiType)
     
     if akDevice.UD_CutChance && (akDevice.UD_durability_damage_base || akDevice.UD_Locks)
-        CheckCutting(akDevice,35)
+        _CheckCutting(akDevice,35)
     endif
 
     if akDevice.deviceRendered.hasKeyword(libs.zad_EffectLively)
@@ -553,7 +562,7 @@ Function patchFinish(UD_CustomDevice_RenderScript akDevice,int aiControlVar = 0x
         akDevice.UD_Cooldown = Round(akDevice.UD_Cooldown*0.6)
     endif
     
-    CheckResist(akDevice) ;check resist, so it can never bee too big or too low
+    _CheckResist(akDevice) ;check resist, so it can never bee too big or too low
     
     akDevice.UD_WeaponHitResist = akDevice.UD_ResistPhysical
     int loc_random = RandomInt(0,100)
@@ -569,7 +578,7 @@ Function patchFinish(UD_CustomDevice_RenderScript akDevice,int aiControlVar = 0x
     int loc_level = akDevice.GetWearer().GetLevel()
     akDevice.UD_Level = Round(RandomFloat(fRange(loc_level*0.75,1.0,100.0),fRange(loc_level*1.25,1.0,100.0)))
     
-    ProcessModifiers(akDevice)
+    _ProcessModifiers(akDevice)
 EndFunction
 
 
@@ -579,7 +588,7 @@ EndFunction
 ;2b - LockPickEscapeChance
 ;3b - LockAccessDifficulty
 ;------------------------
-Function checkInventoryScript(UD_CustomDevice_RenderScript device,int argControlVar = 0x0F,Float fMult = 1.0, Int aiType = 0)
+Function _CheckInventoryScript(UD_CustomDevice_RenderScript device,int argControlVar = 0x0F,Float fMult = 1.0, Int aiType = 0)
     UD_CustomDevice_EquipScript inventoryScript = device.getInventoryScript()
     
     If inventoryScript == None
@@ -616,21 +625,20 @@ Function checkInventoryScript(UD_CustomDevice_RenderScript device,int argControl
             loc_diff = RandomInt(76,80);Master
         else 
             If !device.zad_deviceKey
-                UDCDmain.UDmain.Warning("UD_Patcher::GenerateLocks() That is a bad idea to generate an impossible lock without a key! device = " + device)
+                UDCDmain.UDmain.Warning("UD_Patcher::_GenerateLocks() That is a bad idea to generate an impossible lock without a key! device = " + device)
                 loc_diff = RandomInt(26,80)             ; Adept - Expert - Master
             Else
                 loc_diff = 255 ;Requires Key
             EndIf
         endif
         
-        GenerateLocks(device, aiType, loc_diff)
+        _GenerateLocks(device, aiType, loc_diff)
     endif
     
     inventoryScript.delete()
 EndFunction
 
-
-Function GenerateLocks(UD_CustomDevice_RenderScript akDevice, Int aiType, Int aiDifficulty)
+Function _GenerateLocks(UD_CustomDevice_RenderScript akDevice, Int aiType, Int aiDifficulty)
     if aiType < 0
         return
     endif
@@ -757,14 +765,14 @@ Function GenerateLocks(UD_CustomDevice_RenderScript akDevice, Int aiType, Int ai
     endif
 EndFunction
 
-Function CheckCutting(UD_CustomDevice_RenderScript device,int iChanceNone = 0)
+Function _CheckCutting(UD_CustomDevice_RenderScript device,int iChanceNone = 0)
     ;device is uncuttable
     if RandomInt(1,99) < iChanceNone
         device.UD_CutChance = 0
     endif
 EndFunction
 
-Function patchDefaultValues(UD_CustomDevice_RenderScript device,Float fMult)
+Function _PatchDefaultValues(UD_CustomDevice_RenderScript device,Float fMult)
     device.UD_base_stat_drain = RandomFloat(7.0,13.0)
     device.UD_durability_damage_base = fRange(RandomFloat(0.7,1.3)/fMult,0.05,100.0)
     device.UD_ResistPhysical = RandomFloat(-0.5,0.9)
@@ -777,7 +785,7 @@ Function patchDefaultValues(UD_CustomDevice_RenderScript device,Float fMult)
 EndFunction
 
 ;check resist, so it can never bee too big or too low
-Function CheckResist(UD_CustomDevice_RenderScript device)
+Function _CheckResist(UD_CustomDevice_RenderScript device)
     if UD_MinResistMult == UD_MaxResistMult
         device.UD_ResistPhysical = UD_MinResistMult/2
         device.UD_ResistMagicka  = UD_MaxResistMult/2

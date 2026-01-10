@@ -38,14 +38,18 @@ EndEvent
 ; =================
 Function _Setup()
     _SetupCalled = True
-    UnforgivingDevicesMain.GInfo("Setting up module " + MODULE_NAME + "(" + MODULE_ALIAS + ") [" + MODULE_PRIO + "]")
+    UnforgivingDevicesMain.GInfo("Setting up module: " + MODULE_NAME + " (" + MODULE_ALIAS + ") : [" + MODULE_PRIO + "] : {"+self+"}")
+    ;Bool loc_startRes = Start()
+    ;if loc_startRes == False
+    ;  UnforgivingDevicesMain.GError("Error Starting up modules quest: " + MODULE_NAME + " (" + MODULE_ALIAS + ") : [" + MODULE_PRIO + "] : {"+self+"}")
+    ;endif
     OnSetup()
     _SetupDone = True
 EndFunction
 
 Function _GameReload()
     _ReloadCalled = True
-    UnforgivingDevicesMain.GInfo("Reloading module " + MODULE_NAME + "(" + MODULE_ALIAS + ") [" + MODULE_PRIO + "]")
+    UnforgivingDevicesMain.GInfo("Reloading module: " + MODULE_NAME + " (" + MODULE_ALIAS + ") : [" + MODULE_PRIO + "] : {"+self+"}")
     OnGameReload()
     _ReloadDone = True
 EndFunction

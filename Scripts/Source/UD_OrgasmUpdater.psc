@@ -1,9 +1,8 @@
-Scriptname UD_OrgasmUpdater extends Quest conditional
+Scriptname UD_OrgasmUpdater extends UD_ModuleBase conditional
 
 import UnforgivingDevicesMain
 import UD_Native
 
-UnforgivingDevicesMain              Property    UDmain              auto
 UD_OrgasmManager                    Property    UDOM                auto
 UD_CustomDevices_NPCSlotsManager    Property    UDNPCM              auto
 Bool                                Property    Ready   = False     auto conditional
@@ -29,15 +28,13 @@ Int Property UD_UpdateTime  Hidden
     EndFunction
 EndProperty
 
-Event OnInit()
-    RegisterForSingleUpdate(15.0)
-EndEvent
+Function OnGameReload()
+    InitSlots()
+    RegisterForSingleUpdate(5.0)
+EndFunction
 
 Event OnUpdate()
-    if !Ready
-        Ready = True
-        InitSlots()
-    endif
+    WaitForReady(10.0)
     if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
         Evaluate()
         RegisterForSingleUpdate(UD_UpdateTime)

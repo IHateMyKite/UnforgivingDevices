@@ -1,31 +1,22 @@
-Scriptname UD_UIEManager Extends Quest
+Scriptname UD_UIEManager Extends UD_ModuleBase
 {Manager for UI Extensions mod}
 
-UnforgivingDevicesMain  Property UDmain                 auto
 Quest                   Property UD_UIEManagerQuest     auto hidden
 UD_UIEListMenu          Property UD_ListMenu            auto
 UD_UIETextInput         Property UD_TextMenu            auto
 
 Bool Property Ready = False auto
 
-Event OnInit()
+Event OnSetup()
     Ready = _LoadMenuScripts()
-    RegisterForSingleUpdate(120)
-EndEvent
-
-Event OnUpdate()
-    ;MAINTENANCE
-    RegisterForSingleUpdate(120)
 EndEvent
 
 ;Update of UD_UIEManager scirpt on game update
-Function Update()
+Function OnGameReload()
     Ready = _LoadMenuScripts()
     if Ready
         UD_ListMenu.Update()
         UD_TextMenu.Update()
-    else
-        OnInit() ;try to reinit the quest
     endif
 EndFunction
 
@@ -54,6 +45,7 @@ EndFunction
         User input string
 /;
 string Function GetUserTextInput()
+    WaitForReady(10.0)
     if Ready
         UD_TextMenu.ResetMenu()
         UD_TextMenu.OpenMenu()
@@ -76,6 +68,7 @@ EndFunction
         Index of the selected item
 /;
 Int Function GetUserListInput(string[] aaList, Bool abPremade = False)
+    WaitForReady(10.0)
     if Ready
         UD_ListMenu.ResetMenu()
         UD_ListMenu.SetPropertyBool("extraFormatting", False)
@@ -111,6 +104,7 @@ EndFunction
         Index of the selected item
 /;
 Int Function GetUserListInputEx(string[] aaList, Bool abPremade = True, Int aiListWidth = -1, Int aiEntryHeight = -1)
+    WaitForReady(10.0)
     if Ready
         UD_ListMenu.ResetMenu()
         UD_ListMenu.SetPropertyBool("extraFormatting", True)

@@ -1,4 +1,4 @@
-Scriptname UD_MenuTextFormatter Extends Quest
+Scriptname UD_MenuTextFormatter Extends UD_MOduleBase
 {Script with functions to format text for messages}
 
 ;/

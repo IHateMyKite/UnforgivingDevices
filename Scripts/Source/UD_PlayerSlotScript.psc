@@ -1,11 +1,13 @@
 Scriptname UD_PlayerSlotScript  extends UD_CustomDevice_NPCSlot
 
 Event OnInit()
+    ;UnforgivingDevicesMain.GInfo("Player init called")
     parent.OnInit()
     Game.getPlayer().addToFaction(UDCDmain.RegisteredNPCFaction)
     InitOrgasmUpdate()
     UD_Native.RegisterForHMTweenMenu(self)
     RegisterEmptyItemEvent()
+    ;UnforgivingDevicesMain.GInfo("Player initiated")
 EndEvent
 
 Function GameUpdate()

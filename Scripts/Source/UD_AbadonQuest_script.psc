@@ -60,9 +60,6 @@ Event OnUpdate()
     endif
 EndEvent
 
-Function Update()
-EndFunction
-
 Int _LastHandRestrain = 0
 Function AbadonGooEffect(Actor akTarget)
     if !UDmain.ActorIsValidForUD(akTarget)

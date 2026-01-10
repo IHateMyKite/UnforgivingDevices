@@ -15,11 +15,10 @@
         mutually compatible. In UDAM AnimDef is passed between functions as a string formatted like "<file_name>:<path_in_file>".
         See example section in <GetAnimationsFromDB>.
 /;
-Scriptname UD_AnimationManagerScript extends Quest
+Scriptname UD_AnimationManagerScript extends UD_MOduleBase
 
 import UD_Native
 
-UnforgivingDevicesMain                 Property     UDmain                  Auto
 UDCustomDeviceMain                     Property     UDCDmain                        Hidden
     UDCustomDeviceMain Function Get()
         return UDmain.UDCDmain
@@ -36,13 +35,6 @@ Static                                 Property     VehicleMarkerForm       Auto
 ===========================================================================================
 ===========================================================================================
 /;
-
-;/  Variable: Ready
-    Will be toggled to True once script is ready.
-    
-    Do not edit, *READ ONLY!*.
-/;
-Bool                                   Property     Ready         = False   Auto    Hidden
 
 ;/  Variable: UD_AnimationJSON_All
     Array with all json files found in "<Data>/SKSE/Plugins/StorageUtilData/UD/Animations/" folder.
@@ -116,20 +108,7 @@ Bool _UseUnsafeLogging = False
 ;========================FUNCTIONS===========================
 ;============================================================
 
-Function OnInit()
-    RegisterForSingleUpdate(10.0)
-    Ready = True
-EndFunction
-
-Function OnUpdate()
-    if UDmain.UDReady()
-        Update()
-    else
-        RegisterForSingleUpdate(20.0)
-    endif
-EndFunction
-
-Function Update()
+Function OnGameReload()
 
     LoadAnimationJSONFiles()
     
@@ -187,6 +166,7 @@ EndFunction
         True if animation was started
 /;
 Bool Function StartSoloAnimationSequence(Actor akActor, String[] aasAnimation, Bool abContinueAnimation = False, Bool abDisableActor = True)
+    WaitForReady(10.0)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::StartSoloAnimationSequence() akActor = " + akActor + ", aasAnimation = " + aasAnimation + ", abContinueAnimation = " + abContinueAnimation, 3)
     EndIf
@@ -242,6 +222,7 @@ EndFunction
         True if animation was started
 /;
 Bool Function StartSoloAnimation(Actor akActor, String asAnimation, Bool abContinueAnimation = False, Bool abDisableActor = True)
+    WaitForReady(10.0)
     String[] loc_anims = new String[1]
     loc_anims[0] = asAnimation
     Return StartSoloAnimationSequence(akActor, loc_anims, abContinueAnimation, abDisableActor)
@@ -266,6 +247,7 @@ EndFunction
         True if animation was started.
 /;
 Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[] aasAnimationA1, String[] aasAnimationA2, Bool abAlignActors = True, Bool abContinueAnimation = False, Bool abDisableActors = True)
+    WaitForReady(10.0)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::StartPairAnimationSequence() akActor = " + akActor + ", akHelper = " + akHelper + ", aasAnimationA1 = " + aasAnimationA1 + ", aasAnimationA2 = " + aasAnimationA2 + ", abAlignActors = " + abAlignActors + ", abContinueAnimation = " + abContinueAnimation + ", abDisableActors = " + abDisableActors, 3)
     EndIf
@@ -398,6 +380,7 @@ EndFunction
         True if animation was started.
 /;
 Bool Function StartPairAnimation(Actor akActor, Actor akHelper, String asAnimationA1, String asAnimationA2, Bool abAlignActors = True, Bool abContinueAnimation = False, Bool abDisableActors = True)
+    WaitForReady(10.0)
     String[] loc_animA1 = new String[1]
     loc_animA1[0] = asAnimationA1
     String[] loc_animA2 = new String[1]
@@ -417,6 +400,7 @@ EndFunction
         aiToggle               - Bitmask for enabling actors: 0x1 - enable first actor, 0x2 - enable second actor.
 /;
 Function StopAnimation(Actor akActor, Actor akHelper = None, Bool abEnableActors = True, Int aiToggle = 0x3)
+    WaitForReady(10.0)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::StopAnimation() akActor = " + akActor + ", akHelper = " + akHelper, 3)
     EndIf
@@ -482,6 +466,7 @@ EndFunction
         True if actor is currently in animation.
 /;
 Bool Function IsAnimating(Actor akActor, Bool abBonusCheck = True)
+    WaitForReady(10.0)
     If StorageUtil.GetIntValue(akActor, "UD_ActorIsAnimating", 0) == 1
         Return True
     EndIf
@@ -499,6 +484,7 @@ EndFunction
         True if actor is currently in furniture.
 /;
 Bool Function IsInFurniture(Actor akActor)
+    WaitForReady(10.0)
     Return akActor && UDMain.libsc.GetDevice(akActor)
 EndFunction
 
@@ -511,7 +497,7 @@ EndFunction
         abDisableActor        - Disable actor (NPC or player) controls.
 /;
 Function LockAnimatingActor(Actor akActor, Bool abDisableActor = True)
-
+    WaitForReady(10.0)
     If IsAnimating(akActor)
         Return
     EndIf
@@ -544,7 +530,7 @@ EndFunction
         abEnableActor         - Enable actor (NPC or player) controls.
 /;
 Function UnlockAnimatingActor(Actor akActor, Bool abEnableActor = True)
-
+    WaitForReady(10.0)
     StorageUtil.SetIntValue(akActor, "UD_ActorIsAnimating", 0)
     libs.SetAnimating(akActor, False)
     UD_Native.ForceUpdateControls()
@@ -573,6 +559,7 @@ EndFunction
         akHeadingTarget       - The object the actor should be aimed at.
 /;
 Function SetActorHeading(Actor akActor, ObjectReference akHeadingTarget)
+    WaitForReady(10.0)
     If akActor == None || akHeadingTarget == None
         Return
     EndIf
@@ -614,6 +601,7 @@ EndFunction
         ---
 /;
 Int Function GetActorConstraintsInt(Actor akActor, Bool abUseCache = True)
+    WaitForReady(10.0)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetActorConstraintsInt() akActor = " + akActor + ", abUseCache = " + abUseCache, 3)
     EndIf
@@ -639,6 +627,7 @@ EndFunction
         akActor               - Actor.
 /;
 Function InvalidateActorConstraintsInt(Actor akActor)
+    WaitForReady(10.0)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::InvalidateActorConstraintsInt() akActor = " + akActor, 3)
     EndIf
@@ -659,6 +648,7 @@ EndFunction
         Zad device keyword.
 /;
 Keyword Function GetHeavyBondageKeyword(Int aiConstraints)
+    WaitForReady(10.0)
     If Math.LogicalAnd(aiConstraints, 128) == 128
         Return libs.zad_DeviousElbowTie
     ElseIf Math.LogicalAnd(aiConstraints, 4) == 4
@@ -701,6 +691,7 @@ EndFunction
         True if the animations were successfully started.
 /;
 Bool Function PlayAnimationByDef(String asAnimDef, Actor[] aakActors, Bool abContinueAnimation = False, Bool abDisableActors = True, Int aiConstraintsOverrideA1 = -1, Int aiConstraintsOverrideA2 = -1)
+    WaitForReady(10.0)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::PlayAnimationByDef() asAnimDef = " + asAnimDef + ", aakActors = " + aakActors + ", abContinueAnimation = " + abContinueAnimation + ", abDisableActors = " + abDisableActors + ", aiConstraintsOverrideA1 = " + aiConstraintsOverrideA1 + ", aiConstraintsOverrideA2 = " + aiConstraintsOverrideA2, 3)
     EndIf
@@ -821,6 +812,7 @@ EndFunction
     
 /;
 String[] Function GetAnimationsFromDB(String asType, String[] aasKeywords, String asField, Int[] aaiActorConstraints, Int aiLewdMin = 0, Int aiLewdMax = 10, Int aiAggroMin = -10, Int aiAggroMax = 10)
+    WaitForReady(10.0)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetAnimationsFromDB() asType = " + asType + ", aasKeywords = " + aasKeywords + ", asField = " + asField + ", aaiActorConstraints = " + aaiActorConstraints, 3)
     EndIf
@@ -852,6 +844,7 @@ EndFunction
         Array of strings with animation paths in DB (formatted as <json_file>:<path_in_file>).
 /;
 String[] Function GetStruggleAnimDefsByKeyword(String asKeyword, Actor akActor, Actor akHelper = None)
+    WaitForReady(10.0)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimDefsByKeyword() asKeyword = " + asKeyword + ", akActor = " + akActor + ", akHelper = " + akHelper, 3)
     EndIf
@@ -882,6 +875,7 @@ EndFunction
         Array of strings with animation paths in DB (formatted as <json_file>:<path_in_file>).
 /;
 String[] Function GetStruggleAnimDefsByKeywordsList(String[] aasKeywords, Actor akActor, Actor akHelper = None)
+    WaitForReady(10.0)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetStruggleAnimDefsByKeyword() aasKeywords = " + aasKeywords + ", akActor = " + akActor + ", akHelper = " + akHelper, 3)
     EndIf
@@ -910,6 +904,7 @@ EndFunction
         Array of strings with animation events.
 /;
 String[] Function GetHornyAnimEvents(Actor akActor, Bool abUseConstraintsIntCache = True)
+    WaitForReady(10.0)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetHornyAnimEvents() akActor = " + akActor, 3)
     EndIf
@@ -933,6 +928,7 @@ EndFunction
         Array of strings with animation paths in DB (formatted as <json_file>:<path_in_file>).
 /;
 String[] Function GetHornyAnimDefs(Actor akActor)
+    WaitForReady(10.0)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetHornyAnimDefs() akActor = " + akActor, 3)
     EndIf
@@ -957,6 +953,7 @@ EndFunction
         Array of strings with animation events.
 /;
 String[] Function GetOrgasmAnimEvents(Actor akActor, Bool abUseConstraintsIntCache = True)
+    WaitForReady(10.0)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetOrgasmAnimEvents() akActor = " + akActor, 3)
     EndIf
@@ -986,6 +983,7 @@ EndFunction
         Array of strings with animation paths in DB (formatted as <json_file>:<path_in_file>).
 /;
 String[] Function GetOrgasmAnimDefs(Actor akActor)
+    WaitForReady(10.0)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetOrgasmAnimDefs() akActor = " + akActor, 3)
     EndIf
@@ -1017,6 +1015,7 @@ EndFunction
         Array of strings with animation events
 /;
 String[] Function GetEdgedAnimEvents(Actor akActor, Bool abUseConstraintsIntCache = True)
+    WaitForReady(10.0)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetEdgedAnimEvents() akActor = " + akActor, 3)
     EndIf
@@ -1042,6 +1041,7 @@ EndFunction
         Array of strings with animation paths in DB (formatted as <json_file>:<path_in_file>).
 /;
 String[] Function GetEdgedAnimDefs(Actor akActor)
+    WaitForReady(10.0)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_AnimationManagerScript::GetEdgedAnimDefs() akActor = " + akActor, 3)
     EndIf
@@ -1069,6 +1069,7 @@ EndFunction
         Attribute value as string or default value specified by asDefault.
 /;
 String Function GetAnimDefAttribute(String asAnimDef, String asAttrName, String asDefault = "")
+    WaitForReady(10.0)
     If asAnimDef == ""
         UDMain.Error("UD_AnimationManagerScript::GetAnimDefAttribute() Empty string as an AnimDef!")
         Return asDefault
@@ -1102,6 +1103,7 @@ EndFunction
         Attribute value as string array. Or empty string array if nothing was found.
 /;
 String[] Function GetAnimDefAttributeArray(String asAnimDef, String asAttrName)
+    WaitForReady(10.0)
     If asAnimDef == ""
         UDMain.Error("UD_AnimationManagerScript::GetAnimDefAttributeArray() Empty string as an AnimDef!")
         Return PapyrusUtil.StringArray(0)

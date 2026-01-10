@@ -2,7 +2,7 @@
 ;   This is mod interface for Unforgiving Devices. 
 ;   
 ;   It should be prefered to use these functions instead of functions from modules, as it will be backward compatible
-scriptname UD_API extends Quest
+scriptname UD_API extends UD_ModuleBase
 
 import UnforgivingDevicesMain
 
@@ -108,11 +108,6 @@ zadxlibs2                           property libsx2         auto
     
     See <UnforgivingDevicesMain>
 /;
-UnforgivingDevicesMain Property UDmain Hidden
-    UnforgivingDevicesMain Function get()
-        return UD_Quest as UnforgivingDevicesMain
-    EndFunction
-EndProperty
 
 ;/  Variable: UDMC
     
@@ -122,7 +117,7 @@ EndProperty
 /;
 UD_MenuChecker Property UDMC Hidden
     UD_MenuChecker Function get()
-        return UD_UtilityQuest as UD_MenuChecker
+        return UDmain.UDMC
     EndFunction
 EndProperty
 
@@ -628,7 +623,7 @@ EndFunction
         Returns actors number of current orgasm exhaustions
 /;
 Int     Function    GetOrgasmExhaustion(Actor akActor)
-    return UDmain.GetUDOM(akActor).GetOrgasmExhaustion(akActor)
+    return UD_OrgasmManager.GetOrgasmExhaustion(akActor)
 EndFunction
 
 ;/  Function: GetOrgasmRate

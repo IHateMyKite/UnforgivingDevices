@@ -1,20 +1,14 @@
-Scriptname UD_ParalelProcess extends Quest
+Scriptname UD_ParalelProcess extends UD_ModuleBase
 
 import UnforgivingDevicesMain
 import UD_NPCInteligence
 import UD_Native
 
 UDCustomDeviceMain Property UDCDmain auto
-UnforgivingDevicesMain Property UDmain auto
 
 zadlibs_UDPatch Property libsp
     zadlibs_UDPatch Function get()
         return UDmain.libs as zadlibs_UDPatch
-    EndFunction
-EndProperty
-UD_ExpressionManager Property UDEM
-    UD_ExpressionManager Function get()
-        return UDmain.UDEM
     EndFunction
 EndProperty
 UD_OrgasmManager Property UDOM
@@ -25,17 +19,11 @@ EndProperty
 
 Bool Property Ready auto
 
-Event OnInit()
+Event OnSetup()
     registerEvents()
-
-    if UDmain.TraceAllowed()
-        UDmain.Log("UD_ParalelProcess ready!",0)
-    endif
-    
-    Ready = True
 EndEvent
 
-Function Update()
+Function OnGameReload()
     UnregisterForAllModEvents()
     RegisterEvents()
 EndFunction
@@ -45,7 +33,6 @@ EndFunction
 ;==============================
 Function RegisterEvents()
     RegisterForModEvent(    "UDOrgasmParalel"        , "Receive_Orgasm"                )
-    
 EndFunction
 
 ;==============================
@@ -125,7 +112,7 @@ Function Receive_Orgasm(Form fActor,int abWairForReceive)
     endif
     bool    loc_close                   = UDmain.ActorInCloseRange(akActor)
     bool    loc_is3Dloaded              = akActor.Is3DLoaded() || loc_isplayer
-    int     loc_orgasmExhaustion        = UDOM.GetOrgasmExhaustion(akActor) + 1
+    int     loc_orgasmExhaustion        = UD_OrgasmManager.GetOrgasmExhaustion(akActor) + 1
     bool    loc_cond                    = loc_is3Dloaded && loc_close
 
     ;===========================

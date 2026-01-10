@@ -165,11 +165,7 @@ UD_UIEManager                       Property UDUIE          auto
     
     This module contains functions for fastly checking if menu is open. See <UD_MenuChecker>
 /;
-UD_MenuChecker                      Property UDMC Hidden
-    UD_MenuChecker Function get() 
-        return UD_UtilityQuest as UD_MenuChecker
-    EndFunction
-EndProperty
+UD_MenuChecker                      Property UDMC           auto
 
 ;/  Variable: UDWC
     
@@ -241,7 +237,6 @@ EndProperty
 UD_Config Property UDCONF auto
 
 UD_MenuTextFormatter                Property UDMTF          Auto
-
 UD_MenuMsgManager                   Property UDMMM          Auto
 
 
@@ -463,34 +458,6 @@ EndFunction
         Returns true if all submodules are ready and there is not error
 /;
 Bool Function CheckSubModules()
-    Bool    loc_cond = False
-    Int     loc_elapsedTime = 0
-    while !loc_cond && loc_elapsedTime < 10
-        loc_cond = True
-        loc_cond = loc_cond && UDCDmain.ready
-        loc_cond = loc_cond && UDOM.ready
-        
-        Utility.WaitMenuMode(1.0)
-        loc_elapsedTime += 1
-    endwhile
-    
-    ;check for fatal error
-    if !loc_cond
-        _FatalError = True
-        ShowMessageBoxSafe("!!FATAL ERROR!!\nError loading Unforgiving devices. One or more of the modules are not ready. Please contact developers on LL or GitHub")
-        
-        String loc_modules = "--MODULES--\n"
-        loc_modules += "UDCDmain="+UDCDmain.ready + "\n"
-        loc_modules += "UDOM="+UDOM.ready + "\n"
-        ShowMessageBox(loc_modules)
-        
-        ;Dumb info to console, use GInfo to skip ConsoleUtil installation check
-        GInfo("!!FATAL ERROR!! = Error loading Unforgiving devices. One or more of the modules are not ready. Please contact developers on LL or GitHub")
-        GInfo("UDCDmain="+UDCDmain.ready)
-        GInfo("UDOM="+UDOM.ready)
-        return False
-    endif
-    _FatalError = False
     return true && !_FatalError ;all OK
 EndFunction
 
@@ -679,49 +646,37 @@ Function OnGameReload()
         endif
         _IncrementUpdateCounter()   ;3
         
-        UDWC.GameUpdate()
         _IncrementUpdateCounter()   ;4
         
-        UDMC.Update()
         _IncrementUpdateCounter()   ;5
         
-        BoundCombat.Update()
         _IncrementUpdateCounter()   ;6
         
         _IncrementUpdateCounter()   ;7
         
-        UDCDMain.Update()
         _IncrementUpdateCounter()   ;8
         
         Config.Update()
         _IncrementUpdateCounter()   ;9
         
-        UDPP.Update()
         _IncrementUpdateCounter()   ;10
         
-        UDOMNPC.Update()  ;NPC orgasm manager
         _IncrementUpdateCounter()   ;11
-        UDOMPlayer.Update() ;player orgasm manager
+
         _IncrementUpdateCounter()   ;12
         
-        UDEM.Update()
         _IncrementUpdateCounter()   ;13
         
         _IncrementUpdateCounter()   ;14
         
-        UDLLP.Update()
         _IncrementUpdateCounter()   ;15
         
         _IncrementUpdateCounter()   ;16
         
-        if UDAM.Ready
-            UDAM.Update()
-        endif
         _IncrementUpdateCounter()   ;17
         
         _IncrementUpdateCounter()   ;18
         
-        UDAbadonQuest.Update()
         _IncrementUpdateCounter()   ;19
         
         ;UDMOM.Update()
@@ -731,7 +686,6 @@ Function OnGameReload()
         
         _IncrementUpdateCounter()   ;22
 
-        UDUIE.Update()
         _IncrementUpdateCounter()   ;23
         
         Info("<=====| Unforgiving Devices updated |=====>")
@@ -754,7 +708,6 @@ EndEvent
 Bool _Initialized = False
 Function _Init()
     ; Manually start modules, so the setting is correctly loaded from json
-    _StartModulesManual()
     
     ;init mcm
     config.Init()
@@ -775,7 +728,6 @@ Function Update()
     
     RegisterForModEvent("UDForceUpdate","OnGameReload")
     
-    _ValidateModules()
     _CheckOptionalMods()
     _CheckPatchesOrder()
     
@@ -798,11 +750,6 @@ Function Update()
     endif
     
     SendModEvent("UD_PatchUpdate") ;send update event to all patches. Will force patches to check if they are installed correctly
-    
-    UDCDmain.UpdateQuestKeywords()
-    UDCDmain.UpdateGenericKeys()
-    
-    _StartModulesManual()
 EndFunction
 
 ;/  Function: ForceUpdate
@@ -814,43 +761,6 @@ Function ForceUpdate()
     if (handle)
         ModEvent.Send(handle)
     endIf
-EndFunction
-
-;used for validating modules forms between versions
-Function _ValidateModules()
-    Info(self + "::_ValidateModules() - Validating modules...")
-    ;validate modules that were moved between versions
-    UDPP    = GetMeMyForm(0x0120B6,"UnforgivingDevices.esp") as UD_ParalelProcess
-    UDLLP   = GetMeMyForm(0x0120B4,"UnforgivingDevices.esp") as UD_LeveledList_Patcher
-    Info(self + "::_ValidateModules() - Modules validated")
-EndFunction
-
-Function _StartModulesManual()
-    Info(self + "::_StartModulesManual() - Starting modules...")
-    if !UDPP.IsRunning()
-        UDPP.start()
-    endif
-    
-    if !UDLLP.IsRunning()
-        UDLLP.start()
-    endif
-    
-    if !UDlibs.IsRunning()
-        UDlibs.start()
-    endif
-
-    if !UDRRM.IsRunning()
-        UDRRM.start()
-    endif
-
-    if !ItemManager.IsRunning()
-        ItemManager.start()
-    endif
-    
-    if !UDWC.IsRunning()
-        UDWC.start()
-    endif
-    Info(self + "::_StartModulesManual() - Started modules")
 EndFunction
 
 ;last check before mod is ready. At this point, all optional mods are checked as so, can be used.

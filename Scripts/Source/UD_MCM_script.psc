@@ -2257,10 +2257,9 @@ Function OnOptionSelectUI(int option)
         UDWC.Notification_Reset()
         UDWC.StatusEffect_ResetValues()
         UDWC.InitWidgetsRequest(abMeters = True, abIcons = True, abText = True)
-        UnforgivingDevicesMain.ResetQuest(UDWC)
-        while !UDWC.Ready
-            Utility.WaitMenuMode(0.5)
-        endwhile
+        ;UnforgivingDevicesMain.ResetQuest(UDWC)
+        OnGameReload()
+        UDWC.WaitForReady(10.0)
         UDmain.UDWC.Meter_RegisterNative("player-orgasm",0,0.0,0.0, true)
         UDmain.UDWC.Meter_LinkActorOrgasm(Game.GetPlayer(),"player-orgasm")
         UDmain.Print("UI reset done!")

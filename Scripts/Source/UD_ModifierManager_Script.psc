@@ -23,7 +23,7 @@ Function OnSetup()
     _UpdateEventRegistrations()
 EndFunction
 
-Function OnGameUpdate()
+Function OnGameReload()
     _RemoveDuplicates()
     _UpdateLists()
     _UpdateModifiers_GameLoad()
@@ -47,6 +47,10 @@ EndFunction
 
 int Function GetModifierStorageCount()
     WaitForReady(10.0)
+    return _GetModifierStorageCount()
+EndFunction
+
+int Function _GetModifierStorageCount()
     if _modifierstorages
         return _modifierstorages.length
     else
@@ -56,15 +60,19 @@ EndFunction
 
 UD_ModifierStorage Function GetNthModifierStorage(Int aiIndex)
     WaitForReady(10.0)
+    return _GetNthModifierStorage(aiIndex)
+EndFunction
+
+UD_ModifierStorage Function _GetNthModifierStorage(Int aiIndex)
     return _modifierstorages[aiIndex] as UD_ModifierStorage
 EndFunction
 
 UD_Modifier Function GetModifier(String asAlias)
     WaitForReady(10.0)
-    int loc_count = GetModifierStorageCount()
+    int loc_count = _GetModifierStorageCount()
     while loc_count
         loc_count -= 1
-        UD_ModifierStorage loc_storage = GetNthModifierStorage(loc_count)
+        UD_ModifierStorage loc_storage = _GetNthModifierStorage(loc_count)
         Int loc_modnum = loc_storage.GetModifierNum()
         while loc_modnum
             loc_modnum -= 1
@@ -79,7 +87,7 @@ EndFunction
 
 UD_Modifier Function GetModifierFromStorage(Int aiStorageIndex, Int aiModIndex)
     WaitForReady(10.0)
-    UD_ModifierStorage loc_storage = GetNthModifierStorage(aiStorageIndex)
+    UD_ModifierStorage loc_storage = _GetNthModifierStorage(aiStorageIndex)
     Return loc_storage.GetNthModifier(aiModIndex)
 EndFunction
 
@@ -133,9 +141,9 @@ Function _UpdateLists()
     UD_ModStorageList   = Utility.CreateStringArray(0)
 
     Int loc_i1      = 0
-    int loc_count   = GetModifierStorageCount()
+    int loc_count   = _GetModifierStorageCount()
     while loc_i1 < loc_count
-        UD_ModifierStorage loc_storage = GetNthModifierStorage(loc_i1)
+        UD_ModifierStorage loc_storage = _GetNthModifierStorage(loc_i1)
         Int loc_modnum = loc_storage.GetModifierNum()
         Int loc_i2 = 0
         UD_ModStorageList = PapyrusUtil.PushString(UD_ModStorageList, loc_storage.GetName())
@@ -698,10 +706,10 @@ Function Debug_AddModifier(UD_CustomDevice_RenderScript akDevice)
     WaitForReady(10.0)
     string[] loc_ModifierList
     Alias[]  loc_ModifierListRef
-    int loc_count = GetModifierStorageCount()
+    int loc_count = _GetModifierStorageCount()
     while loc_count
         loc_count -= 1
-        UD_ModifierStorage loc_storage = GetNthModifierStorage(loc_count)
+        UD_ModifierStorage loc_storage = _GetNthModifierStorage(loc_count)
         Int loc_modnum = loc_storage.GetModifierNum()
         while loc_modnum
             loc_modnum -= 1

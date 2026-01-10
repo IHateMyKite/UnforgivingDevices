@@ -1,6 +1,6 @@
 ;   File: UDCustomDeviceMain
 ;   Contains all functionality which is relevant to Custom Devices
-Scriptname UDCustomDeviceMain extends Quest  conditional
+Scriptname UDCustomDeviceMain extends UD_ModuleBase  conditional
 
 import UnforgivingDevicesMain
 import UD_NPCInteligence
@@ -8,7 +8,7 @@ import UD_CustomDevice_RenderScript
 import UD_Native
 
 Spell Property SwimPenaltySpell auto
-UnforgivingDevicesMain Property UDmain auto
+
 UD_ParalelProcess Property UDPP hidden
     UD_ParalelProcess Function Get()
         return UDmain.UDPP
@@ -189,66 +189,20 @@ Formlist        Property UD_QuestKeywords                   auto
 FormList        Property UD_HeavyBondageKeywords            auto
 
 Bool            Property UD_EquipMutex              = False auto hidden
-Bool            Property Ready                      = False auto hidden
 
-Event OnInit()
-    if CheckSubModules()
-        registerEvents()
-        ready = True
-        registerForSingleUpdate(5.0)
-        if UDmain.TraceAllowed()
-            UDmain.Log("UDCustomDeviceMain ready!",0)
-        endif
-    else
-        ready = False
-    endif
+Event OnSetup()
+    registerEvents()
     RegisterForSingleUpdateGameTime(1.0)
 EndEvent
 
-Bool Function CheckSubModules()
-    Bool    loc_cond = False
-    Int     loc_elapsedTime = 0
-    while !loc_cond && loc_elapsedTime < 15
-        loc_cond = True
-        loc_cond = loc_cond && UDPatcher.ready
-        loc_cond = loc_cond && UDEM.ready
-        
-        loc_elapsedTime += 1
-        Utility.WaitMenuMode(1.0)
-    endwhile
-    
-    ;check for fatal error
-    if !loc_cond
-        UDmain.ShowMessageBoxSafe("!!FATAL ERROR!!\nError loading Unforgiving devices. One or more of the modules are not ready. Please contact developers on LL or GitHub")
-        
-        String loc_modules = "--MODULES--\n"
-        loc_modules += "UDPatcher="+UDPatcher.ready + "\n"
-        loc_modules += "UDEM="+UDEM.ready + "\n"
-        UDmain.ShowMessageBox(loc_modules)
-        
-        ;Dumb info to console, use GInfo to skip ConsoleUtil installation check
-        GInfo("!!FATAL ERROR!! = Error loading Unforgiving devices. One or more of the modules are not ready. Please contact developrs on LL or GitHub")
-        GInfo("UDPatcher="+UDPatcher.ready)
-        GInfo("UDEM="+UDEM.ready)
-        
-        return False
-    endif
-    return true
-EndFunction
-
-Function Update()
-    RegisterForSingleUpdate(2*UDMain.UDCONF.UD_UpdateTime)
-    
+Function OnGameReload()
     _activateDevicePackage = none
     _startVibFunctionPackage = none
-    
     ResetUI()
     registerAllEvents()
-    
-    ;CheckHardcoreDisabler(UDmain.Player)
-    
     SetArousalPerks()
-
+    UpdateQuestKeywords()
+    UpdateGenericKeys()
 EndFunction
 
 ;dedicated switches to hide options from menu
@@ -1159,11 +1113,7 @@ bool loc_init = false
 ;update the devices once per UD_UpdateTime
 Event onUpdate()
     if !loc_init
-        ;LoadConfig()
         RegisterGlobalKeys()
-        if UDmain.DebugMod
-            UDmain.Player.addItem(UDlibs.AbadonPlug,1)
-        endif
         loc_init = true
     endif
 EndEvent

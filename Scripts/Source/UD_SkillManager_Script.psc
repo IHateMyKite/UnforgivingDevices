@@ -1,15 +1,13 @@
-Scriptname UD_SkillManager_Script Extends Quest
+Scriptname UD_SkillManager_Script Extends UD_ModuleBase
 
 import UnforgivingDevicesMain
 import UD_Native
 
-UnforgivingDevicesMain Property UDmain auto
 UDCustomDeviceMain Property UDCDmain hidden
     UDCustomDeviceMain Function get()
         return UDmain.UDCDmain
     EndFunction
 EndProperty
-
 
 ;///////////////////////////////////////
 ;=======================================
@@ -19,6 +17,7 @@ EndProperty
 ;-Used to return absolute and relative skill values which are used by some minigames
 
 float Function GetAgilitySkill(Actor akActor)
+    WaitForReady(10.0)
     UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
     if loc_slot
         return loc_slot.AgilitySkill
@@ -28,18 +27,22 @@ float Function GetAgilitySkill(Actor akActor)
 EndFunction
 
 float Function getActorAgilitySkills(Actor akActor)
-    return GetSkill(akActor,"_Agility")
+    WaitForReady(10.0)
+    return _GetSkill(akActor,"_Agility")
 EndFunction
 
 float Function getActorAgilitySkillsPerc(Actor akActor)
+    WaitForReady(10.0)
     return GetAgilitySkill(akActor)/100.0
 EndFunction
 
 Function AdvanceAgilitySkill(Float afValue)
-    AdvenceSkill("_Agility", afValue)
+    WaitForReady(10.0)
+    _AdvenceSkill("_Agility", afValue)
 EndFunction
 
 float Function GetStrengthSkill(Actor akActor)
+    WaitForReady(10.0)
     UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
     if loc_slot
         return loc_slot.StrengthSkill
@@ -49,18 +52,22 @@ float Function GetStrengthSkill(Actor akActor)
 EndFunction
 
 float Function getActorStrengthSkills(Actor akActor)
-    return GetSkill(akActor,"_Strength")
+    WaitForReady(10.0)
+    return _GetSkill(akActor,"_Strength")
 EndFunction
 
 float Function getActorStrengthSkillsPerc(Actor akActor)
+    WaitForReady(10.0)
     return GetStrengthSkill(akActor)/100.0
 EndFunction
 
 Function AdvanceStrengthSkill(Float afValue)
-    AdvenceSkill("_Strength", afValue)
+    WaitForReady(10.0)
+    _AdvenceSkill("_Strength", afValue)
 EndFunction
 
 float Function GetMagickSkill(Actor akActor)
+    WaitForReady(10.0)
     UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
     if loc_slot
         return loc_slot.MagickSkill
@@ -70,18 +77,22 @@ float Function GetMagickSkill(Actor akActor)
 EndFunction
 
 float Function getActorMagickSkills(Actor akActor)
-    return GetSkill(akActor,"_Magick")
+    WaitForReady(10.0)
+    return _GetSkill(akActor,"_Magick")
 EndFunction
 
 float Function getActorMagickSkillsPerc(Actor akActor)
+    WaitForReady(10.0)
     return GetMagickSkill(akActor)/100.0
 EndFunction
 
 Function AdvanceMagickSkill(Float afValue)
-    AdvenceSkill("_Magick", afValue)
+    WaitForReady(10.0)
+    _AdvenceSkill("_Magick", afValue)
 EndFunction
 
 float Function GetCuttingSkill(Actor akActor)
+    WaitForReady(10.0)
     UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
     if loc_slot
         return loc_slot.CuttingSkill
@@ -91,18 +102,22 @@ float Function GetCuttingSkill(Actor akActor)
 EndFunction
 
 float Function getActorCuttingSkills(Actor akActor)
-    return GetSkill(akActor,"_Cutting")
+    WaitForReady(10.0)
+    return _GetSkill(akActor,"_Cutting")
 EndFunction
 
 float Function getActorCuttingSkillsPerc(Actor akActor)
+    WaitForReady(10.0)
     return GetCuttingSkill(akActor)/100.0
 EndFunction
 
 Function AdvanceCuttingSkill(Float afValue)
-    AdvenceSkill("_Cutting", afValue)
+    WaitForReady(10.0)
+    _AdvenceSkill("_Cutting", afValue)
 EndFunction
 
 float Function GetSmithingSkill(Actor akActor)
+    WaitForReady(10.0)
     UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
     if loc_slot
         return loc_slot.SmithingSkill
@@ -112,18 +127,21 @@ float Function GetSmithingSkill(Actor akActor)
 EndFunction
 
 float Function getActorSmithingSkills(Actor akActor)
-    return GetSkill(akActor,"_Maintenance")
+    WaitForReady(10.0)
+    return _GetSkill(akActor,"_Maintenance")
 EndFunction
 
 float Function getActorSmithingSkillsPerc(Actor akActor)
+    WaitForReady(10.0)
     return GetSmithingSkill(akActor)/100.0
 EndFunction
 
 Function AdvanceSmithingSkill(Float afValue)
-    AdvenceSkill("_Maintenance", afValue)
+    WaitForReady(10.0)
+    _AdvenceSkill("_Maintenance", afValue)
 EndFunction
 
-Int Function GetSkill(Actor akActor, String asSkill)
+Int Function _GetSkill(Actor akActor, String asSkill)
     String[] loc_skills = UD_Native.GetIniArrayString("Skill.asSkills"+asSkill)
     if loc_skills && loc_skills.length > 0
       Int loc_res = 0
@@ -145,8 +163,8 @@ Int Function GetSkill(Actor akActor, String asSkill)
     endif
 EndFunction
 
-Function AdvenceSkill(String asSkill, Float afValue)
-  float loc_value = afValue*GetSkillMultiplier()
+Function _AdvenceSkill(String asSkill, Float afValue)
+  float loc_value = afValue*_GetSkillMultiplier()
   if loc_value > 0.0
     String[] loc_skills = UD_Native.GetIniArrayString("Skill.asSkills"+asSkill)
     if loc_skills && loc_skills.length > 0
@@ -166,6 +184,6 @@ Function AdvenceSkill(String asSkill, Float afValue)
   endif
 EndFunction
 
-Float Function GetSkillMultiplier()
+Float Function _GetSkillMultiplier()
   return UDCDmain.UD_BaseDeviceSkillIncrease
 EndFunction

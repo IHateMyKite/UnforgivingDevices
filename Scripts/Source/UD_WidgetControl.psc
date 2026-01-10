@@ -3,7 +3,7 @@
 ;   It has two states: "Default" and "iWidgetInstalled".
 ;   Many of the functions defined here will work differently, depending on what state the script is in.
 ;   For example, status icons will not be displayed in the standard interface rendering mode, although their state will be changed and saved from API calls.
-ScriptName UD_WidgetControl extends Quest
+ScriptName UD_WidgetControl extends UD_ModuleBase
 
 import UnforgivingDevicesMain
 import UD_Native
@@ -21,8 +21,6 @@ Int W_ICON_CLUSTER_UNSET    = -1
 Int W_ICON_CLUSTER_DEVICES  = 0
 Int W_ICON_CLUSTER_EFFECTS  = 1
 
-UnforgivingDevicesMain      Property UDmain             Auto
-
 ; vanilla widgets
 UD_WidgetBase[]             Property UD_VanillaWidgets  Auto
 {Vanilla meter widgets}
@@ -34,12 +32,6 @@ UD_WidgetBase[]             Property UD_VanillaWidgets  Auto
 ===========================================================================================
 /; 
 
-;/  Variable: Ready
-    Will be toggled to True once script is ready.
-    
-    Do not edit, *READ ONLY!*.
-/;
-Bool                        Property Ready = False      Auto    Hidden               
 
 ;/  Variable: iWidget
 
@@ -421,8 +413,9 @@ Bool Function SingletonCheck()
     return loc_res
 EndFunction
 
-Event OnInit()
-    RegisterForSingleUpdate(6) ;maintenance update
+Event OnSetup()
+    OnUIReload(abGameLoad = False)
+    RegisterForSingleUpdate(1) ;maintenance update
 EndEvent
 
 Event OnUpdate()
@@ -430,15 +423,6 @@ Event OnUpdate()
         UnregisterForUpdate()
         return
     endif
-    If !Ready
-        ;wait for UD to get ready first
-        if !UDmain.WaitForReady()
-            return ;fatal error, do not use the module
-        endif
-        Ready = True
-        ; initialization on new game
-        OnUIReload(abGameLoad = False)
-    EndIf
     If GetState() != ""
     ; yeah, that is real thing (issue #239)
         UDMain.Warning("UD_WidgetControl::OnUpdate() Called this function from the wrong state! Let's try it again.")
@@ -448,7 +432,7 @@ Event OnUpdate()
     EndIf
 EndEvent
 
-Function GameUpdate()
+Function OnGameReload()
     RegisterForModEvent("UDReloadUI","OnUIReload")
     ; initializations on game load
     OnUIReload(abGameLoad = True)

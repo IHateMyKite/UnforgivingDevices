@@ -1,12 +1,11 @@
 ;   File: UD_OrgasmManager
 ;   Contains functions for manipulating orgasm related variables and other manipulation functions
-Scriptname UD_OrgasmManager extends Quest conditional
+Scriptname UD_OrgasmManager extends UD_ModuleBase conditional
 
 import UnforgivingDevicesMain
 import UD_Native
 
 UDCustomDeviceMain                      Property UDCDmain   auto
-UnforgivingDevicesMain                  Property UDmain     auto
 UD_libs                                 Property UDlibs     auto
 zadlibs                                 Property libs       auto
 UD_CustomDevices_NPCSlotsManager        Property UDCD_NPCM  auto
@@ -59,16 +58,8 @@ Faction Property OrgasmResistFaction        auto
 String Property _OrgasmEventName                = "UD_Orgasm"               auto hidden
 String Property _UpdateBaseOrgasmValEventName   = "UD_UpdateBaseOrgasmVal"  auto hidden
 
-;/  Variable: Ready
-    Will be toggled to True once script is ready
-    
-    Do not edit, *READ ONLY!*
-/;
-bool Property Ready auto conditional
-
-Event OnInit()
+Event OnSetup()
     RegisterModEvents()
-    Ready = true
 EndEvent
 
 Function RegisterModEvents()
@@ -87,7 +78,7 @@ EndFunction
 
 ;used for update, transfers loop from UD_CustomDeviceMain in to this script
 ;this is only valid for player, all NPCS need to be reregistered
-Function Update()
+Function OnGameReload()
     UnregisterForAllModEvents()
     RegisterModEvents()
 EndFunction
@@ -513,7 +504,7 @@ EndFunction
 
         Number of orgasm exhaustions actor currently have
 /;
-int Function GetOrgasmExhaustion(Actor akActor)
+int Function GetOrgasmExhaustion(Actor akActor) global
     return StorageUtil.getIntValue(akActor,"UD_OrgasmExhaustionNum")
 EndFunction
 

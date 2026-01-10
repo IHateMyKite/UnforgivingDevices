@@ -1,33 +1,14 @@
-scriptname UD_ExpressionManager extends Quest
+scriptname UD_ExpressionManager extends UD_ModuleBase
 
 import MfgConsoleFunc
 import sslBaseExpression
 import UnforgivingDevicesMain
 
-UDCustomDeviceMain Property UDCDmain auto
-UnforgivingDevicesMain Property UDmain
-    UnforgivingDevicesMain Function get()
-        return UDCDmain.UDmain
-    EndFunction
-EndProperty
-
-bool Property Ready = false auto
-
-Event OnInit()
-    RegisterForSingleUpdate(10.0) ;update expression manager on init
-    Ready = true
+Event OnSetup()
+    OnGameReload()
 EndEvent
 
-;on init update
-Event OnUpdate()
-    if UDmain.UDReady()
-        Update()
-    else
-        RegisterForSingleUpdate(30.0)
-    endif
-EndEvent
-
-Function Update()
+Function OnGameReload()
     UpdatePrebuildExpressions()
 EndFunction
 

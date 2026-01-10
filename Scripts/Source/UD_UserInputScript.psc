@@ -1,8 +1,7 @@
-Scriptname UD_UserInputScript extends Quest
+Scriptname UD_UserInputScript extends UD_ModuleBase
 
 Import UnforgivingDevicesMain
 
-UnforgivingDevicesMain Property UDmain auto
 UDCustomDeviceMain Property UDCDmain
     UDCustomDeviceMain Function get()
         return UDmain.UDCDmain
@@ -27,6 +26,7 @@ bool _specialButtonOn = false
 bool _gamepadButtonOn = false
 
 Event keyUnregister(string eventName = "none", string strArg = "", float numArg = 0.0, Form sender = none)
+    WaitForReady(10.0)
     if UDmain.TraceAllowed()
         UDmain.Log("UD_UserInputScript::keyUnregister called",1)
     endif
@@ -34,6 +34,7 @@ Event keyUnregister(string eventName = "none", string strArg = "", float numArg 
 EndEvent
 
 Event MinigameKeysRegister()
+    WaitForReady(10.0)
     if UDmain.TraceAllowed()
         UDmain.Log("UD_UserInputScript::MinigameKeysRegister called",1)
     endif
@@ -42,6 +43,7 @@ Event MinigameKeysRegister()
 EndEvent
 
 Event MinigameKeysUnregister()
+    WaitForReady(10.0)
     if UDmain.TraceAllowed()
         UDmain.Log("UD_UserInputScript::MinigameKeysUnregister called",1)
     endif
@@ -53,7 +55,8 @@ Event MinigameKeysUnregister()
 EndEvent
 
 Function RegisterGlobalKeys()
-    if UDmain.TraceAllowed()    
+    WaitForReady(10.0)
+    if UDmain.TraceAllowed()
         UDmain.Log("UD_UserInputScript::RegisterGlobalKeys")
     endif
     RegisterForKey(UDCDMain.StruggleKey_Keycode)
@@ -64,7 +67,8 @@ Function RegisterGlobalKeys()
 EndFunction
 
 Function UnregisterGlobalKeys()
-    if UDmain.TraceAllowed()    
+    WaitForReady(10.0)
+    if UDmain.TraceAllowed()
         UDmain.Log("UD_UserInputScript::UnregisterGlobalKeys")
     endif
     UnRegisterForKey(UDCDMain.StruggleKey_Keycode)
@@ -75,6 +79,7 @@ Function UnregisterGlobalKeys()
 EndFunction
 
 bool Function KeyIsUsedGlobaly(int keyCode)
+    WaitForReady(10.0)
     bool loc_res = false
     loc_res = loc_res || (keyCode == UDCDMain.StruggleKey_Keycode)
     loc_res = loc_res || (keyCode == UDCDMain.PlayerMenu_KeyCode)
@@ -86,6 +91,7 @@ EndFunction
 
 State Minigame
     Event OnKeyDown(Int KeyCode)
+        WaitForReady(10.0)
         if (UD_Native.GetCameraState() == 3)
             return
         endif
@@ -107,6 +113,7 @@ State Minigame
     EndEvent
 
     Event OnKeyUp(Int KeyCode, Float HoldTime)
+        WaitForReady(10.0)
         if KeyCode == UDCDMain.SpecialKey_Keycode
             _specialButtonOn = false
             if UDCDmain.CurrentPlayerMinigameDevice
@@ -121,6 +128,7 @@ Float _LastPressDownTime    = 0.0
 Float _LastPressUpTime      = 0.0
 
 Event OnKeyDown(Int KeyCode)
+    WaitForReady(10.0)
     if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
         ;check if any menu is open, or if message box is open
         bool loc_menuopen = UDmain.IsAnyMenuOpen()
@@ -144,6 +152,7 @@ Event OnKeyDown(Int KeyCode)
 EndEvent
 
 Event OnKeyUp(Int KeyCode, Float HoldTime)
+    WaitForReady(10.0)
     if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
         if !UDmain.IsAnyMenuOpen() && !(UD_EasyGamepadMode && Game.UsingGamepad())
             Float loc_Time = Utility.GetCurrentRealTime() - _LastPressUpTime
@@ -171,6 +180,7 @@ State UIDisabled
 EndState
 
 Function OpenLastDeviceMenu()
+    WaitForReady(10.0)
     if lastOpenedDevice
         lastOpenedDevice.deviceMenu(new Bool[30])
     elseif libs.playerRef.wornhaskeyword(libs.zad_deviousheavybondage)
@@ -196,6 +206,7 @@ Function OpenLastDeviceMenu()
 EndFunction
 
 Function OpenDeviceMenu()
+    WaitForReady(10.0)
     UD_CustomDevice_RenderScript loc_device = UDCD_NPCM.getPlayerSlot().GetUserSelectedDevice()
     if loc_device
         loc_device.deviceMenu(new Bool[30])
@@ -203,6 +214,7 @@ Function OpenDeviceMenu()
 EndFunction
 
 Function OpenNPCMenu(Bool abOpenDeviceList)
+    WaitForReady(10.0)
     ObjectReference loc_ref = Game.GetCurrentCrosshairRef()
     if loc_ref as Actor
         Actor loc_actor = loc_ref as Actor
@@ -224,6 +236,7 @@ Function OpenNPCMenu(Bool abOpenDeviceList)
 EndFunction
 
 Function ShowGamePadMenu()
+    WaitForReady(10.0)
     string[] loc_options = new String[6]
     loc_options[0] = "Last Device menu"
     loc_options[1] = "Device list"
