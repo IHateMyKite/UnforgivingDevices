@@ -35,3 +35,8 @@ Function ValidateOutfits()
         loc_i += 1
     endwhile
 EndFunction
+
+Bool Function ResetModule()
+    UDMain.UDOTM.RemoveOutfitStorage(self)
+    parent.ResetModule()
+EndFunction

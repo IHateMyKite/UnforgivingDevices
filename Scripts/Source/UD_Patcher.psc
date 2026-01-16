@@ -375,7 +375,12 @@ Function _ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
 
     loc_modnum = 0
     String[] loc_device_mods_tags = akDevice.GetModifierTags()         ; Tags of other modifiers on device
-    String[] loc_wearer_mods_tags = loc_slot.GetModifierTags()         ; Tags of all modifiers on devices worn by the actor
+    String[] loc_wearer_mods_tags
+    if loc_slot
+        loc_wearer_mods_tags = loc_slot.GetModifierTags()         ; Tags of all modifiers on devices worn by the actor
+    else
+        loc_wearer_mods_tags = Utility.CreateStringArray(0)
+    endif
 
     ; adding obligate modifier from UD_ModAddToTest if it is possible
     If UD_ModAddToTest != ""
@@ -539,7 +544,9 @@ Function _ProcessModifiers(UD_CustomDevice_RenderScript akDevice)
     EndWhile
 
     akDevice.GetModifierTags_Update()
-    loc_slot.GetModifierTags_Update()
+    if loc_slot
+      loc_slot.GetModifierTags_Update()
+    endif
 EndFunction
 
 bool Function _DeviceCanHaveModes(UD_CustomDevice_RenderScript akDevice)

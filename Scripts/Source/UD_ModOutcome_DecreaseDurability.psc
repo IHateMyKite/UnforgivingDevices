@@ -97,7 +97,7 @@ EndFunction
 ===========================================================================================
 /;
 Function corrodeDevice(UD_CustomDevice_RenderScript akDevice, Float afStrength, float afMult = 1.0, float afTimePassed = 1.0)
-    Float   loc_regen   = afStrength
+    Float   loc_regen   = (afStrength/100.0)*akDevice.UD_Health
     Float   loc_amount  = afTimePassed*loc_regen*(1 - 0.1*akDevice.UD_condition)*afMult*UDCDmain.getStruggleDifficultyModifier()
     akDevice.decreaseDurabilityAndCheckUnlock(loc_amount)
 EndFunction

@@ -168,3 +168,13 @@ Int[]     Function GetIniArrayInt      (String asName, String  asSep = ",")     
 String[]  Function GetIniArrayString   (String asName, Bool    abText = true, String asSep = ",")   global native
 Float[]   Function GetIniArrayFloat    (String asName, String  asSep = ",")                         global native
 Bool[]    Function GetIniArrayBool     (String asName, String  asSep = ",")                         global native
+
+; ===Module Manager===
+Bool      Function AreModulesReady    (Bool abCheckReload)  global native
+Quest     Function GetModuleByAlias   (String asAlias)      global native
+Quest[]   Function GetModules         ()                    global native
+Quest[]   Function GetModuleDependency(Quest akModule)      global native
+Quest[]   Function GetDependantModules(Quest akModule)      global native
+          Function ResetModule        (Quest akModule)      global native
+Quest[]   Function GetModulesByScript (String asScript)     global native
+Alias[]   Function GetModulesAliasesByScript(String asScript) global native

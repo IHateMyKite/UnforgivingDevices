@@ -54,7 +54,12 @@ Bool            Property UD_MenuOpened                  = False         auto hid
 Bool            Property Ready                          = False         auto hidden
 
 Bool Function IsMenuOpen(Int aiID)
+    WaitForReady(10.0)
     return UD_MenuListID[aiID]
+EndFunction
+
+Function OnSetup()
+    OnGameReload()
 EndFunction
 
 Function OnGameReload()

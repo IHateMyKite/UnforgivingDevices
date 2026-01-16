@@ -466,8 +466,6 @@ Function OnEdge(string eventName, string strArg, float numArg, Form sender)
 EndFunction
 
 Function ORSEvent_OnExpressionUpdate(Actor akActor, int aType, float afOrgasmRate, float afArousal, float afHornyLevel)
-    ;UDMain.Info("UDEvent_OnActorOrgasm("+GetActorName(akActor)+","+aType+","+afOrgasmRate+","+afArousal+","+afHornyLevel+")")
-    
     ;expression
     if aType == 0
         ;init expression

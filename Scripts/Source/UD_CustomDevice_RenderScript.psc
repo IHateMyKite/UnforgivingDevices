@@ -167,12 +167,12 @@ EndProperty
     This is not exact value of what will be used in minigame, but instead just base value which is then moded using other minigame values
     
 /;
-float       Property UD_durability_damage_base   Auto;durability dmg per second of struggling, range 0.00 - 40.00, precision 0.01 (4000 values)
+float       Property UD_durability_damage_base = 1.0 Auto ;durability dmg per second of struggling, range 0.00 - 40.00, precision 0.01 (4000 values)
 
 ;/  Variable: UD_base_stat_drain
     How many points of stats (health, stamina, magicka) are reduced per second of minigame. This is only base values, which is later moded with minigame values
 /;
-float       Property UD_base_stat_drain  Auto;stamina drain for second of struggling, range 1 - 31, decimal point not used
+float       Property UD_base_stat_drain = 6.0 Auto ;stamina drain for second of struggling, range 1 - 31, decimal point not used
 
 ;/  Variable: UD_ResistPhysical
     Physical resistence of device. Reduces effectiveness of normal and despair minigame Value bigger then 100% will cause device to be healed
@@ -190,16 +190,7 @@ float       Property UD_ResistMagicka    Auto;magicka resistence. Needs to be ap
 
 ;/  Variable: UD_WeaponHitResist
     Physical resistence of device when hit with weapon attack. If set to 5.23, it will be set on init to <UD_ResistPhysical>. Value bigger then 100% will cause device to be healed
-    
-    *This value is bitcoded, and thus have limited range and precision!*
-    
-    --- Code
-        Default value  =       0.00
-        Min. Value     =      -5.00
-        Max. Value     =       5.23
-        Precision      =       0.01
-    ---
-    
+
     See: <UD_ResistPhysical>, <UD_ResistMagicka>
 /;
 float       Property UD_WeaponHitResist   Auto;physical resistence to physical attack
@@ -211,13 +202,10 @@ float       Property UD_SpellHitResist    Auto;!!!UNUSED!!!
 ;/  Variable: UD_CutChance
     Have nothing to do with chance. Determinate how much cutting progress is added on every key press
     
-    *This value is bitcoded, and thus have limited range and precision!*
-    
     --- Code
         Default value  =       0.00
         Min. Value     =       0.00
         Max. Value     =     100.00
-        Precision      =       1.00
     ---
 /;
 float       Property UD_CutChance       Auto;chance of cutting device every 1s of minigame, 0.0 is uncuttable
@@ -231,7 +219,6 @@ float       Property UD_CutChance       Auto;chance of cutting device every 1s o
         Default value  =       3.75
         Min. Value     =       0.00
         Max. Value     =     255.00
-        Precision      =       0.25
     ---
 /;
 float       Property UD_StruggleCritMul             = 3.75          Auto ;crit multiplier applied on crit, step = 0.25, max 255, default 3.75x
@@ -5769,7 +5756,7 @@ Function setMinigameWearerVar(bool abDrainPlayer,float afStaminaDrain = 10.0,flo
     UD_minigame_magicka_drain   = afMagickaDrain
 EndFunction
 
-;/  Function: setMinigameWearerVar
+;/  Function: setMinigameHelperVar
     Sets minigame helper values
     
     New values should use UD_base_stat_drain as base

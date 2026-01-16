@@ -21,35 +21,41 @@ String  Property MODULE_NAME hidden
 EndProperty
 String  Property MODULE_ALIAS = "NOAL"    auto  ; alias
 String  Property MODULE_DESC  = ""        auto  ; description
-Int     Property MODULE_PRIO  = 0         auto  ; priority
+Int     Property MODULE_PRIO  = 1         auto  ; priority
 Quest[] Property MODULE_DEP               auto  ; dependency
 
 ; private variables
-Bool _SetupCalled = False
-Bool _SetupDone   = False
-Bool _ReloadCalled = False
-Bool _ReloadDone   = False
+Bool _SetupCalled   = False
+Bool _SetupDone     = False
+Bool _ReloadCalled  = False
+Bool _ReloadDone    = False
+
+Bool _Initiated       = False
+Bool _SetupAfterInit  = False ; Flag to prevent multiple setups after start/reset
 Event OnInit()
-    ;unused!
+    _Initiated = True
+    _SetupAfterInit = True
+    ;UnforgivingDevicesMain.GInfo("Initiating module: " + MODULE_NAME + " (" + MODULE_ALIAS + ") : [" + MODULE_PRIO + "] : {"+self+"}")
 EndEvent
 
 ; =================
 ; PRIVATE METHODS
 ; =================
 Function _Setup()
-    _SetupCalled = True
-    UnforgivingDevicesMain.GInfo("Setting up module: " + MODULE_NAME + " (" + MODULE_ALIAS + ") : [" + MODULE_PRIO + "] : {"+self+"}")
-    ;Bool loc_startRes = Start()
-    ;if loc_startRes == False
-    ;  UnforgivingDevicesMain.GError("Error Starting up modules quest: " + MODULE_NAME + " (" + MODULE_ALIAS + ") : [" + MODULE_PRIO + "] : {"+self+"}")
-    ;endif
-    OnSetup()
-    _SetupDone = True
+    Utility.waitMenuMode(0.016)
+    if _SetupAfterInit
+        _SetupCalled = True
+        _SetupAfterInit = False
+        ;UnforgivingDevicesMain.GInfo("Setting up module: " + MODULE_NAME + " (" + MODULE_ALIAS + ") : [" + MODULE_PRIO + "] : {"+self+"}")
+        OnSetup()
+        _GameReload()
+        _SetupDone = True
+    endif
 EndFunction
 
 Function _GameReload()
     _ReloadCalled = True
-    UnforgivingDevicesMain.GInfo("Reloading module: " + MODULE_NAME + " (" + MODULE_ALIAS + ") : [" + MODULE_PRIO + "] : {"+self+"}")
+    ;UnforgivingDevicesMain.GInfo("Reloading module: " + MODULE_NAME + " (" + MODULE_ALIAS + ") : [" + MODULE_PRIO + "] : {"+self+"}")
     OnGameReload()
     _ReloadDone = True
 EndFunction
@@ -63,14 +69,14 @@ Bool Function IsReady()
 EndFunction
 
 Bool Function ResetModule()
-    UnforgivingDevicesMain.ResetQuest(self)
+    UD_Native.ResetModule(self)
 EndFunction
 
 Function WaitForReady(Float afTimeout)
     Float _time = 0.0
     While !IsReady() && _time < afTimeout
       _time += 0.25
-      Utility.WaitMenuMode(0.25)
+      Utility.Wait(0.25)
     EndWhile
     if _time >= afTimeout
       UDMain.Error("Timeout of waiting for module " + MODULE_NAME + " to be readdy!")

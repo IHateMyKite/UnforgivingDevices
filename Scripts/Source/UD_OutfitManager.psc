@@ -18,7 +18,7 @@ Function OnGameReload()
     while _ToBeRegistered
         Utility.WaitMenuMode(1.0)
         if _ToBeRegistered
-            UDMain.Info("UD_OutfitManager::Update() - Remaining storage to register = " + _ToBeRegistered)
+            ;UDMain.Info("UD_OutfitManager::Update() - Remaining storage to register = " + _ToBeRegistered)
         endif
     endwhile
     _UpdateLists()
@@ -34,21 +34,17 @@ int Function AddOutfitStorage(UD_OutfitStorage akStorage)
         return -1
     endif
     
-    while _AddMutex
-        Utility.WaitMenuMode(0.01)
-    endwhile
-    _AddMutex = true
     
     ;check if storage is not already present
     if _OutfitStorages.find(akStorage) >= 0
         return -1 
     endif
     
-    UDmain.Info("UD_OutfitManager::AddOutfitStorage() - Adding outfit storage -> " + akStorage.GetName())
+    ;UDmain.Info("UD_OutfitManager::AddOutfitStorage() - Adding outfit storage -> " + akStorage.GetName())
     int loc_i = 0
     while loc_i < akStorage.GetOutfitNum()
         UD_Outfit loc_outfit = akStorage.GetNthOutfit(loc_i)
-        UDmain.Info("\t\t-> Outfit["+loc_i+"] = " + loc_outfit.NameFull + "("+loc_outfit.NameAlias+")")
+        ;UDmain.Info("\t\t-> Outfit["+loc_i+"] = " + loc_outfit.NameFull + "("+loc_outfit.NameAlias+")")
         loc_i += 1
     endwhile
     
@@ -57,9 +53,36 @@ int Function AddOutfitStorage(UD_OutfitStorage akStorage)
     
     _UpdateLists()
     
-    _AddMutex = false
-    
     return loc_res
+EndFunction
+
+Function RemoveOutfitStorage(UD_OutfitStorage akStorage)
+    WaitForReady(10.0)
+    
+    if !akStorage
+        return
+    endif
+
+    Int loc_indx = _OutfitStorages.find(akStorage)
+
+    ;check if storage is not already present
+    if loc_indx == -1
+        return
+    endif
+
+    if loc_indx != _OutfitStorages.length - 1 && loc_indx != 0
+      Form[] loc_part1 = PapyrusUtil.SliceFormArray(_OutfitStorages,0,loc_indx - 1)
+      Form[] loc_part2 = PapyrusUtil.SliceFormArray(_OutfitStorages,loc_indx + 1,-1)
+      _OutfitStorages = PapyrusUtil.MergeFormArray(loc_part1,loc_part2,true)
+    elseif loc_indx != 0
+      _OutfitStorages = PapyrusUtil.SliceFormArray(_OutfitStorages,0,loc_indx)
+    elseif _OutfitStorages.length > 1
+      _OutfitStorages = PapyrusUtil.SliceFormArray(_OutfitStorages,1,-1)
+    else
+      _OutfitStorages = Utility.CreateFormArray(0)
+    endif
+    ;UnforgivingDevicesMain.GInfo(_OutfitStorages)
+    _UpdateLists()
 EndFunction
 
 Bool Function LockAnyOutfit(Actor akActor)

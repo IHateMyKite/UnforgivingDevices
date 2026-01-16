@@ -698,7 +698,6 @@ EndFunction
         asIcon            - Icon's name.
 /;
 Function Meter_Register(String asName, String asIcon = "")
-    ;UDMain.Info("UD_WidgetControl::Meter_Register() asName = " + asName + ", asIcon = " + asIcon)
     UD_WidgetMeter_RefAlias loc_data = _GetMeter(asName)
     If loc_data == None
         Return
@@ -990,7 +989,6 @@ EndFunction
         aiClusterId   - Icon cluster (0 or 1 for device or effect cluster). If equal to -1, then the previous value is kept.
 /;
 Function StatusEffect_Register(String asName, Int aiClusterId = -1, Int aiVariant = -1)
-    ;UDMain.Info("UD_WidgetControl::StatusEffect_Register() asName = " + asName + ", aiClusterId = " + aiClusterId + ", aiVariant = " + aiVariant)
     UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName)
     If data == None
         Return

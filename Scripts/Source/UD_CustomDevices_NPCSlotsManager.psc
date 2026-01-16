@@ -81,7 +81,6 @@ Function AddStaticSlot(UD_StaticNPCSlots akSlots)
     endwhile
     _StaticSlotMutex = True
     _StaticSlots = PapyrusUtil.PushForm(_StaticSlots,akSlots)
-    ;UDMain.Info(self + "::AddStaticSlot() - Static slot added = " + akSlots + ", Total number of slots = " + _StaticSlots.length)
     _slotregisterque -= 1
     _StaticSlotMutex = False
 EndFunction
@@ -144,7 +143,7 @@ UD_StaticNPCSlots Function GetNthStaticSlots(Int aiId)
     return none
 EndFunction
 
-Event OnSetup()
+Function OnSetup()
     UD_Slots = GetNumAliases()
     int     index = 0
     float   loc_time = 0.0
@@ -164,11 +163,19 @@ Event OnSetup()
             GError(self + "::OnInit() - NPCslot["+ index +"] - alias is recognized as NPC slot!")
         endif
         index += 1
-        Utility.WaitMenuMode(0.05)
     endwhile
+    index = 0
+    while index < UD_Slots
+        loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
+        if loc_slot
+            loc_slot.Setup()
+        endif
+        index += 1
+    endwhile
+    ;UnforgivingDevicesMain.GInfo("NPCM ready")
     registerForSingleUpdate(10.0)
     UD_Native.RegisterSlotQuest(self as Quest)
-EndEvent
+EndFunction
 
 Event OnUpdate()
     ;init player slot

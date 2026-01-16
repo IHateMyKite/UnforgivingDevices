@@ -201,10 +201,13 @@ Function endDeviceManipulation()
 EndFunction
 
 Event OnInit()
-    UD_equipedCustomDevices = UDCDMain.MakeNewDeviceSlots()
-    UD_ActiveVibrators      = UDCDMain.MakeNewDeviceSlots()
     Ready = True
 EndEvent
+
+Function Setup()
+    UD_equipedCustomDevices = UDCDMain.MakeNewDeviceSlots()
+    UD_ActiveVibrators      = UDCDMain.MakeNewDeviceSlots()
+EndFunction
 
 Event OnPlayerLoadGame()
 EndEvent
@@ -2155,11 +2158,9 @@ Function UpdateArousal(Int aiUpdateTime)
         if loc_actor
             ;Arousal rate is in default in value per frame
             float loc_arousal = aiUpdateTime*OrgasmSystem.GetOrgasmVariable(loc_actor,9)*OrgasmSystem.GetOrgasmVariable(loc_actor,10)
-            ;UDMain.Info(self + "::UpdateArousal() - Arousal = " + loc_arousal)
             _ArousalAccumulator += loc_arousal
             int loc_arousalInt = Math.Floor(_ArousalAccumulator)
             if loc_arousalInt != 0
-                ;UDMain.Info(self + "::UpdateArousal() - Increasing arousal by " + loc_arousalInt + " (Accu = "+_ArousalAccumulator+")")
                 _ArousalAccumulator -= loc_arousalInt
                 if libs.Aroused.GetVersion() >= 30100005 && libs.Aroused.GetVersion() < 40000000
                   ; SLA Arousal is installed

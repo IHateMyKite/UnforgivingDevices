@@ -33,15 +33,18 @@ EndFunction
 ;saved modifier storages
 Form[] _modifierstorages
 int Function AddModifierStorage(UD_ModifierStorage akStorage)
+    WaitForReady(10.0)
     if !akStorage
         return -1
     endif
     
     ; Only add new storage if its not already stored
     if _modifierstorages.find(akStorage as Form) == -1
-      UDmain.Info("Adding modifier storage -> " + akStorage)
+      ;UDmain.Info("Adding modifier storage -> " + akStorage)
       _modifierstorages = PapyrusUtil.PushForm(_modifierstorages,akStorage as Form)
     endif
+    
+    _UpdateLists()
     return _modifierstorages.length
 EndFunction
 

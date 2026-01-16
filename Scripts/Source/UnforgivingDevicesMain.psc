@@ -590,16 +590,6 @@ int Function GetUpdateProgress()
 EndFunction
 
 Function OnGameReload()
-    if !_Initialized
-        if !config.ready
-            GWarning(self+"::OnGameReload() - Skipping because mod is not fully initialized")
-            return
-        else
-            ;user installed mod after init variable was added
-            _Initialized = True
-        endif
-    endif
-
     if _Disabled
         return ;mod is disabled, do nothing
     endif
@@ -652,7 +642,6 @@ Function OnGameReload()
         
         _IncrementUpdateCounter()   ;8
         
-        Config.Update()
         _IncrementUpdateCounter()   ;9
         
         _IncrementUpdateCounter()   ;10
@@ -675,7 +664,6 @@ Function OnGameReload()
         
         _IncrementUpdateCounter()   ;19
         
-        ;UDMOM.Update()
         _IncrementUpdateCounter()   ;20
         
         _IncrementUpdateCounter()   ;21
@@ -704,9 +692,6 @@ EndEvent
 Bool _Initialized = False
 Function _Init()
     ; Manually start modules, so the setting is correctly loaded from json
-    
-    ;init mcm
-    config.Init()
     
     _Initialized = True
 EndFunction
