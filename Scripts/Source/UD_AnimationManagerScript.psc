@@ -1489,3 +1489,23 @@ Function _Benchmark(Int aiCycles = 10)
     UDmain.UD_PrintLevel = old_UDPrintLevel
     UDmain.LogLevel = old_UDLogLevel
 EndFunction
+
+Function OnSaveJSON(String strFile)
+    JsonUtil.StringListCopy(strFile, "Anims_UserDisabledJSONs", UD_AnimationJSON_Off)
+    JsonUtil.SetIntValue(strFile, "AlternateAnimation", UD_AlternateAnimation as Int)
+    JsonUtil.SetIntValue(strFile, "AlternateAnimationPeriod", UD_AlternateAnimationPeriod)
+    JsonUtil.SetIntValue(strFile, "UseSingleStruggleKeyword", UD_UseSingleStruggleKeyword as Int)
+EndFunction
+Function OnLoadJSON(String strFile)
+    If JsonUtil.StringListCount(strFile, "Anims_UserDisabledJSONs") > 0
+        UD_AnimationJSON_Off = JsonUtil.StringListToArray(strFile, "Anims_UserDisabledJSONs")
+    EndIf
+    UD_AlternateAnimation = JsonUtil.GetIntValue(strFile, "AlternateAnimation", UD_AlternateAnimation as Int) > 0
+    UD_AlternateAnimationPeriod = JsonUtil.GetIntValue(strFile, "AlternateAnimationPeriod", UD_AlternateAnimationPeriod)
+    UD_UseSingleStruggleKeyword = JsonUtil.GetIntValue(strFile, "UseSingleStruggleKeyword", UD_UseSingleStruggleKeyword as Int) > 0
+    
+    UD_Native.SyncAnimationSetting(UD_AnimationJSON_Off)
+EndFunction
+Function OnResetToDefault()
+    LoadDefaultMCMSettings()
+EndFunction

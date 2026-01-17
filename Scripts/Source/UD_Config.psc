@@ -1,6 +1,6 @@
 ;   File: UD_Config
 ;   (should) Contains configuration variables for all Unforgiving Devices modules
-Scriptname UD_Config Extends Quest
+Scriptname UD_Config Extends UD_ModuleBase
 
 ;/  Group: Orgasm manager Config
 ===========================================================================================
@@ -134,3 +134,43 @@ int Property UD_RandomDevice_GlobalFilter = 0xFFFFFFFF auto hidden
     Do not edit, *READ ONLY!* Is set by user with MCM
 /;
 float Property UD_UpdateTime = 5.0 auto
+
+Function OnSaveJSON(String strFile)
+    JsonUtil.SetFloatValue(strFile, "DeviceUpdateTime", UD_UpdateTime)
+    JsonUtil.SetFloatValue(strFile, "OrgasmResistence", UD_OrgasmResistence)
+    JsonUtil.SetIntValue(strFile, "OrgasmExhaustionStruggleMax", UD_OrgasmExhaustionStruggleMax)
+    JsonUtil.SetIntValue(strFile, "UseOrgasmWidget", UD_UseOrgasmWidget as Int)
+    JsonUtil.SetFloatValue(strFile, "OrgasmUpdateTime", UD_OrgasmUpdateTime)
+    JsonUtil.SetIntValue(strFile, "OrgasmAnimation", UD_OrgasmAnimation)
+    JsonUtil.SetIntValue(strFile, "HornyAnimation", UD_HornyAnimation as Int)
+    JsonUtil.SetIntValue(strFile, "HornyAnimationDuration", UD_HornyAnimationDuration)
+    JsonUtil.SetIntValue(strFile, "PostOrgasmArousalReduce", UD_OrgasmArousalReduce)
+    JsonUtil.SetIntValue(strFile, "PostOrgasmArousalReduce_Duration", UD_OrgasmArousalReduceDuration)
+    JsonUtil.SetIntValue(strFile, "RandomFiler", UD_RandomDevice_GlobalFilter)
+EndFunction
+Function OnLoadJSON(String strFile)
+    UD_UpdateTime                     = JsonUtil.GetFloatValue(strFile, "DeviceUpdateTime", UD_UpdateTime)
+    UD_UseOrgasmWidget                = JsonUtil.GetIntValue(strFile, "UseOrgasmWidget", UD_UseOrgasmWidget as Int)
+    UD_OrgasmUpdateTime               = JsonUtil.GetFloatValue(strFile, "OrgasmUpdateTime", UD_OrgasmUpdateTime)
+    UD_OrgasmAnimation                = JsonUtil.GetIntValue(strFile, "OrgasmAnimation", UD_OrgasmAnimation)
+    UD_HornyAnimation                 = JsonUtil.GetIntValue(strFile, "HornyAnimation", UD_HornyAnimation as Int)
+    UD_HornyAnimationDuration         = JsonUtil.GetIntValue(strFile, "HornyAnimationDuration", UD_HornyAnimationDuration)
+    UD_OrgasmResistence               = JsonUtil.GetFloatValue(strFile, "OrgasmResistence", UD_OrgasmResistence)
+    UD_OrgasmExhaustionStruggleMax    = JsonUtil.GetIntValue(strFile, "OrgasmExhaustionStruggleMax", UD_OrgasmExhaustionStruggleMax)
+    UD_OrgasmArousalReduce            = JsonUtil.GetIntValue(strFile, "PostOrgasmArousalReduce", UD_OrgasmArousalReduce)
+    UD_OrgasmArousalReduceDuration    = JsonUtil.GetIntValue(strFile, "PostOrgasmArousalReduce_Duration", UD_OrgasmArousalReduceDuration)
+    UD_RandomDevice_GlobalFilter      =  JsonUtil.GetIntValue(strFile, "RandomFiler", UD_RandomDevice_GlobalFilter)
+EndFunction
+Function OnResetToDefault()
+    UD_UpdateTime                   = 5.0
+    UD_OrgasmResistence             = 3.5
+    UD_OrgasmExhaustionStruggleMax  = 6
+    UD_UseOrgasmWidget              = true
+    UD_OrgasmUpdateTime             = 0.5
+    UD_OrgasmAnimation              = 1
+    UD_HornyAnimation               = false
+    UD_HornyAnimationDuration       = 5
+    UD_OrgasmArousalReduce          = 25
+    UD_OrgasmArousalReduceDuration  =  7
+    UD_RandomDevice_GlobalFilter    = 0xFFFFFFFF ;32b
+EndFunction

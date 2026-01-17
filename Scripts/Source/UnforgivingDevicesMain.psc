@@ -1,6 +1,6 @@
 ;   File: UnforgivingDevicesMain
 ;   This is main script of Unforgiving Devices, which contains most important functions and propertiest filled with references to other scripts
-Scriptname UnforgivingDevicesMain extends Quest  conditional
+Scriptname UnforgivingDevicesMain extends UD_ModuleBase  conditional
 {Main script of Unforgiving Devices}
 
 import UD_Native
@@ -21,8 +21,6 @@ zadBoundCombatScript_UDPatch Property BoundCombat Hidden
 EndProperty
 
 bool    Property UD_OrgasmExhaustion            = True  auto
-float   Property UD_OrgasmExhaustionMagnitude   = 0.0   auto
-int     Property UD_OrgasmExhaustionDuration    = 50    auto
 
 Float   Property UD_GamePadMenuWaitTime         = 0.25  auto
 
@@ -363,24 +361,6 @@ bool Function UDReady()
     return Ready
 EndFunction
 
-;/  Function: WaitForReady
-
-    This function will block thread until the mod is ready
-
-    Returns:
-
-        Returns true if there was error while waiting for mod to be ready
-/;
-Bool Function WaitForReady()
-    while !Ready && !_FatalError
-        Utility.waitMenuMode(0.5)
-    endwhile
-    if _FatalError
-        return false
-    else
-        return true
-    endif
-EndFunction
 
 ;/  Function: WaitForUpdated
 
@@ -391,18 +371,11 @@ EndFunction
         Returns true if there was error while waiting for mod to be ready and updated
 /;
 Bool Function WaitForUpdated()
-    WaitForReady()
-    while _Updating && !_FatalError
-        Utility.waitMenuMode(0.5)
-    endwhile
-    if _FatalError
-        return false
-    else
-        return true
-    endif
+    WaitForReady(10.0)
+    return true
 EndFunction
 
-Event OnInit()
+Event OnSetup()
     Player = Game.GetPlayer()
     ;Print("Installing Unforgiving Devices...")
     if zadbq.modVersion
@@ -414,12 +387,6 @@ Event OnInit()
         loc_msg += "Without starting fresh game, UD will not be able to correctly lock/unlock devices! "
         loc_msg += "\n\n!Please, start a new game or clean uninstall DD and install it on the same time with UD!"
         debug.messagebox(loc_msg)
-    endif
-
-    if CheckSubModules()
-        RegisterForSingleUpdate(1.0)
-    else
-        DISABLE() ;disable UD
     endif
 EndEvent
 
@@ -443,34 +410,6 @@ zadlibs Function GetZadLibs() Global
     return GetMeMyForm(0x00F624,"Devious Devices - Integration.esm") as zadlibs
 EndFunction
 
-;/  Function: CheckSubModules
-
-    This function will check all submodul scripts and returns if true if they are all ready
-
-    In case one or more scripts don't get ready in first 20 seconds, it will toggle mod to error state, preventing any furthere gameplay. User needs to reload the save in hope that it will fix the issue.
-    
-    Returns:
-
-        Returns true if all submodules are ready and there is not error
-/;
-Bool Function CheckSubModules()
-    return true && !_FatalError ;all OK
-EndFunction
-
-Bool Property _FatalError   = False Auto Hidden Conditional
-Bool Property _Disabled     = False Auto Hidden Conditional
-Bool Property _Updating     = False Auto Hidden Conditional
-
-;/  Function: IsUpdating
-
-    Returns:
-
-        True if mod is currently updating. Mods should be threated as disabled when this happends
-/;
-Bool Function IsUpdating()
-    return _Updating
-EndFunction
-
 ;/  Function: IsEnabled
 
     Returns:
@@ -478,20 +417,7 @@ EndFunction
         True if mod is not updating, not disabled and is ready. Free camera should also be not used
 /;
 Bool Function IsEnabled()
-    return !_Disabled && !_Updating && ready
-EndFunction
-
-;/  Function: PrintModStatus
-
-    Returns:
-
-        Print information about mod status in console
-/;
-Function PrintModStatus()
-    GError("Disabled="+_Disabled)
-    GError("Updating="+_Updating)
-    GError("ready="+ready)
-    GError("FatalError="+_FatalError)
+    return true
 EndFunction
 
 ;Previous states of scripts, so they are returned to correct state
@@ -501,38 +427,7 @@ String _State_UDAI
 String _State_UDOMNPC
 String _State_UDOMPlayer
 
-;/  Function: DISABLE
-
-    Disables mod, preventing any periodicall updates and interactions
-/;
-Function DISABLE()
-    _Disabled = True
-    
-    ;Save previous states
-    _State_UDNPCM       = UDNPCM.GetState()
-    _State_UDAI         = UDAI.GetState()
-    _State_UDOMNPC      = UDOMNPC.GetState()
-    _State_UDOMPlayer   = UDOMPlayer.GetState()
-    
-    UDNPCM.GoToState("Disabled") ;disable NPC manager, disabling all device updates
-    UDAI.GoToState("Disabled") ;disable AI updates
-    UDOMNPC.GoToState("Disabled") ;disable orgasm updates
-    UDOMPlayer.GoToState("Disabled") ;disable orgasm updates
-EndFunction
-
-;/  Function: ENABLE
-
-    Reenable mod from disabled state. See <DISABLE>
-/;
-Function ENABLE()
-    _Disabled = False
-    UDNPCM.GoToState(_State_UDNPCM)
-    UDAI.GoToState(_State_UDAI)
-    UDOMNPC.GoToState(_State_UDOMNPC)
-    UDOMPlayer.GoToState(_State_UDOMPlayer)
-EndFunction
-
-;/  Function: ENABLE
+;/  Function: NativeAllowed
 
     Checks if user have correct version of SKSE installed, and UDNative.dll present
     
@@ -590,87 +485,17 @@ int Function GetUpdateProgress()
 EndFunction
 
 Function OnGameReload()
-    if _Disabled
-        return ;mod is disabled, do nothing
-    endif
-    
-    if _Updating
-        return ;mod is already updating, most likely because user saved the game while the mod was already updating
-    endif
-    
-    if !Ready
-        return ;mod is not ready yet, not update will happen
-    endif
-    
-    _Updating = True
-    
-    DISABLE()
-    
     Print("Updating Unforgiving Devices, please wait...")
     Info(self+"::OnGameReload() - Updating Unforgiving Devices...")
     
     if _UpdateCheck()
-        _ResetUpdateCounter()
-    
         ;update all scripts
         Update()
-        _IncrementUpdateCounter()   ;1
         
         int loc_removedmeters = UDWC.Meter_UnregisterAllNative()
         if loc_removedmeters > 0
             Info(self+"::OnGameReload() - Removed " + loc_removedmeters + " registered meters!")
         endif
-        _IncrementUpdateCounter()   ;2
-        
-        if !CheckSubModules() || _FatalError
-            _Updating = False
-            ENABLE()
-            Info("<=====| !!Unforgiving Devices FAILED!! |=====>")
-            Print("Unforgiving Devices update FAILED")
-            Info(self + "::OnGameReload() - CheckSubmodules() = " + CheckSubModules() + ";_FatalError = " + _FatalError)
-            return ;Fatal error when initializing UD
-        endif
-        _IncrementUpdateCounter()   ;3
-        
-        _IncrementUpdateCounter()   ;4
-        
-        _IncrementUpdateCounter()   ;5
-        
-        _IncrementUpdateCounter()   ;6
-        
-        _IncrementUpdateCounter()   ;7
-        
-        _IncrementUpdateCounter()   ;8
-        
-        _IncrementUpdateCounter()   ;9
-        
-        _IncrementUpdateCounter()   ;10
-        
-        _IncrementUpdateCounter()   ;11
-
-        _IncrementUpdateCounter()   ;12
-        
-        _IncrementUpdateCounter()   ;13
-        
-        _IncrementUpdateCounter()   ;14
-        
-        _IncrementUpdateCounter()   ;15
-        
-        _IncrementUpdateCounter()   ;16
-        
-        _IncrementUpdateCounter()   ;17
-        
-        _IncrementUpdateCounter()   ;18
-        
-        _IncrementUpdateCounter()   ;19
-        
-        _IncrementUpdateCounter()   ;20
-        
-        _IncrementUpdateCounter()   ;21
-        
-        _IncrementUpdateCounter()   ;22
-
-        _IncrementUpdateCounter()   ;23
         
         Info("<=====| Unforgiving Devices updated |=====>")
         Print("Unforgiving Devices updated")
@@ -678,22 +503,6 @@ Function OnGameReload()
         Info("<=====| !!Unforgiving Devices FAILED!! |=====>")
         Print("Unforgiving Devices update FAILED")
     endif
-    
-    _Updating = False
-    ENABLE()
-EndFunction
-
-Event OnUpdate()
-    GInfo(self + "::OnUpdate() - Called")
-    _Init()
-    Update()
-EndEvent
-
-Bool _Initialized = False
-Function _Init()
-    ; Manually start modules, so the setting is correctly loaded from json
-    
-    _Initialized = True
 EndFunction
 
 Function Update()
@@ -702,18 +511,13 @@ Function Update()
         Player = Game.GetPlayer()
     endif
     
-    if _FatalError
-        GError(self+"::Update() - Skipped because mod have fatal error")
-        return
-    endif
-    
     RegisterForModEvent("UDForceUpdate","OnGameReload")
     
     _CheckOptionalMods()
     _CheckPatchesOrder()
     
     if !Ready
-        if _UpdateCheck() && !_FatalError
+        if _UpdateCheck()
             UD_hightPerformance = UD_hightPerformance
             
             RegisterForModEvent("UD_VibEvent","EventVib")
@@ -930,7 +734,8 @@ EndFunction
         True if player have any Devious Device locked on
 /;
 bool function hasAnyUD()
-    return Player.wornhaskeyword(libs.zad_Lockable) || Player.wornhaskeyword(libs.zad_DeviousPlug)
+    WaitForReady(10.0)
+    return Player && Player.wornhaskeyword(libs.zad_Lockable) || Player.wornhaskeyword(libs.zad_DeviousPlug)
 endfunction
 
 Function startVibEffect(Actor akActor, int aiStrenght, int aiDuration, bool abEdge)
@@ -2207,4 +2012,50 @@ EndFunction
 /;
 UD_StaticNPCSlots Function GetStaticSlots(String asName)
     return UDNPCM.GetStaticSlots(asName)
+EndFunction
+
+Function OnSaveJSON(String strFile)
+    JsonUtil.SetIntValue(strFile, "hightPerformance", UD_hightPerformance as Int)
+    JsonUtil.SetIntValue(strFile, "AllowNPCSupport", AllowNPCSupport as Int)
+    JsonUtil.SetIntValue(strFile, "lockMCM", lockMCM as Int)
+    JsonUtil.SetIntValue(strFile, "Debug mode", DebugMod as Int)
+    JsonUtil.SetIntValue(strFile, "OrgasmExhastion", UD_OrgasmExhaustion as int)
+    JsonUtil.SetIntValue(strFile, "AutoLoad", UD_AutoLoad as int)
+    JsonUtil.SetIntValue(strFile, "LogLevel", LogLevel as int)
+    JsonUtil.SetIntValue(strFile, "HearingRange", UD_HearingRange)
+    JsonUtil.SetIntValue(strFile, "WarningAllowed", UD_WarningAllowed as Int)
+    JsonUtil.SetIntValue(strFile, "PrintLevel", UD_PrintLevel)
+    JsonUtil.SetIntValue(strFile, "LockDebug", UD_LockDebugMCM as Int)
+    JsonUtil.SetIntValue(strFile, "AllKeywordCheck",UD_CheckAllKw as Int)
+    JsonUtil.SetIntValue(strFile, "AllowMenBondage", AllowMenBondage as Int)
+EndFunction
+Function OnLoadJSON(String strFile)
+    UD_hightPerformance = JsonUtil.GetIntValue(strFile, "hightPerformance", UD_hightPerformance as Int)
+    AllowNPCSupport = JsonUtil.GetIntValue(strFile, "AllowNPCSupport", AllowNPCSupport as Int)
+    lockMCM = JsonUtil.GetIntValue(strFile, "lockMCM", lockMCM as Int)
+    DebugMod = JsonUtil.GetIntValue(strFile, "Debug mode", DebugMod as Int)
+    UD_OrgasmExhaustion = JsonUtil.GetIntValue(strFile, "OrgasmExhastion", UD_OrgasmExhaustion as int)
+    UD_AutoLoad = JsonUtil.GetIntValue(strFile, "AutoLoad", UD_AutoLoad as int)
+    LogLevel = JsonUtil.GetIntValue(strFile, "LogLevel", LogLevel as int)
+    UD_HearingRange = JsonUtil.GetIntValue(strFile, "HearingRange", UD_HearingRange)
+    UD_WarningAllowed = JsonUtil.GetIntValue(strFile, "WarningAllowed", UD_WarningAllowed as Int)
+    UD_PrintLevel = JsonUtil.GetIntValue(strFile, "PrintLevel", UD_PrintLevel)
+    UD_LockDebugMCM = JsonUtil.GetIntValue(strFile, "LockDebug", UD_LockDebugMCM as Int)
+    UD_CheckAllKw = JsonUtil.GetIntValue(strFile,"AllKeywordCheck",UD_CheckAllKw as Int)
+    AllowMenBondage = JsonUtil.GetIntValue(strFile, "AllowMenBondage", AllowMenBondage as Int)
+EndFunction
+Function OnResetToDefault()
+    UD_hightPerformance          = true
+    AllowNPCSupport              = true
+    lockMCM                      = false
+    DebugMod                     = false
+    UD_OrgasmExhaustion          = true
+    UD_AutoLoad                  = false
+    LogLevel                     = 0
+    UD_HearingRange              = 4000
+    UD_WarningAllowed            = false
+    UD_PrintLevel                = 3
+    UD_LockDebugMCM              = False
+    UD_CheckAllKw                = False
+    AllowMenBondage              = False
 EndFunction

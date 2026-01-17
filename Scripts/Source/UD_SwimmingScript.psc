@@ -29,3 +29,13 @@ Event OnUpdate()
         registerforsingleupdate(3.0)
     endif
 EndEvent
+
+Function OnSaveJSON(String strFile)
+    JsonUtil.SetIntValue(strFile, "SwimmingDifficulty", UD_hardcore_swimming_difficulty)
+EndFunction
+Function OnLoadJSON(String strFile)
+    UD_hardcore_swimming_difficulty = JsonUtil.GetIntValue(strFile, "SwimmingDifficulty", UD_hardcore_swimming_difficulty)
+EndFunction
+Function OnResetToDefault()
+    UD_hardcore_swimming_difficulty = 1
+EndFunction

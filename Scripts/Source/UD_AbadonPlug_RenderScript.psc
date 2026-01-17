@@ -508,9 +508,10 @@ Function onRemoveDevicePost(Actor akActor)
         AbadonQuest.completeQuest()
     endif
     if !GetWearer().isDead()
-        if AbadonQuestScript.final_finisher_set
-            AbadonQuestScript.AbadonEquipSuit(getWearer(),AbadonQuestScript.final_finisher_pref)
-        endif
+        AbadonQuestScript.AbadonGooEffect(getWearer())
+        ;if AbadonQuestScript.final_finisher_set
+        ;    AbadonQuestScript.AbadonEquipSuit(getWearer(),AbadonQuestScript.final_finisher_pref)
+        ;endif
     endif
 EndFunction
 

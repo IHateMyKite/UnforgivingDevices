@@ -60,12 +60,28 @@ Function _GameReload()
     _ReloadDone = True
 EndFunction
 
+Function _SaveJSON(String asFile)
+    OnSaveJSON(asFile)
+EndFunction
+Function _LoadJSON(String asFile)
+    OnLoadJSON(asFile)
+EndFunction
+Function _ResetToDefault()
+    OnResetToDefault()
+EndFunction
+
 ; =================
 ; PUBLIC METHODS
 ; =================
 
 Bool Function IsReady()
     return _SetupDone && (_ReloadDone || !_ReloadCalled)
+EndFunction
+Bool Function IsInitiated()
+    return _SetupDone
+EndFunction
+Bool Function IsReloaded()
+    return _ReloadDone
 EndFunction
 
 Bool Function ResetModule()
@@ -92,5 +108,15 @@ Function OnSetup()
 EndFunction
 
 Function OnGameReload()
+    ;OVERRIDE
+EndFunction
+
+Function OnSaveJSON(String asFile)
+    ;OVERRIDE
+EndFunction
+Function OnLoadJSON(String asFile)
+    ;OVERRIDE
+EndFunction
+Function OnResetToDefault()
     ;OVERRIDE
 EndFunction

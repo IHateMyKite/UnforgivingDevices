@@ -20,7 +20,6 @@ EndProperty
 Quest               Property UDCD_NPCF                                  auto ;finder
 Message             Property UD_FixMenu_MSG                             auto
 Int                 Property UD_Slots                       = 16        auto hidden
-Float               Property UD_SlotUpdateTime              = 10.0      auto hidden
 FormList            Property EmptyItemFilter                            Auto
 
 Bool                         _PlayerSlotReady               = false

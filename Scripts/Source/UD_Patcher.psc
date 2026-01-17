@@ -222,10 +222,6 @@ Function patchBelt(UD_CustomBelt_RenderScript device)
         device.UD_ResistPhysical = RandomFloat(-0.5,0.0)
         device.UD_ResistMagicka = RandomFloat(-0.1,0.1)
     endif
-    
-    ;if device as UD_CustomCrotchDevice_RenderScript
-        ;device.AddAbility(UDlibs.ArousingMovement,0)
-    ;endif
 
     _PatchFinish(device,0x0F,loc_currentmult,11)
 EndFunction
@@ -828,4 +824,67 @@ Function _CheckResist(UD_CustomDevice_RenderScript device)
             endif
         endif
     endif
+EndFunction
+
+Function OnSaveJSON(String strFile)
+    JsonUtil.SetIntValue(strFile, "EscapeModifier", UD_EscapeModifier)
+    JsonUtil.SetIntValue(strFile, "MinLocks", UD_MinLocks)
+    JsonUtil.SetIntValue(strFile, "MaxLocks", UD_MaxLocks)
+    JsonUtil.SetIntValue(strFile, "MinResist", Round(UD_MinResistMult*100))
+    JsonUtil.SetIntValue(strFile, "MaxResist", Round(UD_MaxResistMult*100))
+    JsonUtil.SetFloatValue(strFile, "PatchMult", UD_PatchMult)
+    JsonUtil.SetFloatValue(strFile, "PatchMult_HeavyBondage"    , UD_PatchMult_HeavyBondage)
+    JsonUtil.SetFloatValue(strFile, "PatchMult_Blindfold"        , UD_PatchMult_Blindfold)
+    JsonUtil.SetFloatValue(strFile, "PatchMult_Gag"                , UD_PatchMult_Gag)
+    JsonUtil.SetFloatValue(strFile, "PatchMult_Hood"            , UD_PatchMult_Hood)
+    JsonUtil.SetFloatValue(strFile, "PatchMult_ChastityBelt"    , UD_PatchMult_ChastityBelt)
+    JsonUtil.SetFloatValue(strFile, "PatchMult_ChastityBra"        , UD_PatchMult_ChastityBra)
+    JsonUtil.SetFloatValue(strFile, "PatchMult_Plug"            , UD_PatchMult_Plug)
+    JsonUtil.SetFloatValue(strFile, "PatchMult_Piercing"        , UD_PatchMult_Piercing)
+    JsonUtil.SetFloatValue(strFile, "PatchMult_Generic"            , UD_PatchMult_Generic)
+    JsonUtil.SetIntValue(strFile, "TimedLocks", UD_TimedLocks as Int)
+    JsonUtil.SetIntValue(strFile, "Patcher_ModsMin", UD_ModsMin)
+    JsonUtil.SetIntValue(strFile, "Patcher_ModsMax", UD_ModsMax)
+    JsonUtil.SetFloatValue(strFile, "Patcher_ModGlobalProbabilityMult", UD_ModGlobalProbabilityMult)
+    JsonUtil.SetFloatValue(strFile, "Patcher_ModGlobalSeverityShift", UD_ModGlobalSeverityShift)
+    JsonUtil.SetFloatValue(strFile, "Patcher_ModGlobalSeverityDispMult", UD_ModGlobalSeverityDispMult)
+EndFunction
+Function OnLoadJSON(String strFile)
+    UD_EscapeModifier = JsonUtil.GetIntValue(strFile, "EscapeModifier", UD_EscapeModifier)
+    UD_MinLocks = JsonUtil.GetIntValue(strFile, "MinLocks", UD_MinLocks)
+    UD_MaxLocks = JsonUtil.GetIntValue(strFile, "MaxLocks", UD_MaxLocks)
+    UD_MinResistMult = JsonUtil.GetIntValue(strFile, "MinResist", Round(UD_MinResistMult*100))/100
+    UD_MaxResistMult = JsonUtil.GetIntValue(strFile, "MaxResist", Round(UD_MaxResistMult*100))/100
+    UD_PatchMult_HeavyBondage = JsonUtil.GetFloatValue(strFile, "PatchMult_HeavyBondage", UD_PatchMult_HeavyBondage)
+    UD_PatchMult_Blindfold = JsonUtil.GetFloatValue(strFile, "PatchMult_Blindfold", UD_PatchMult_Blindfold)
+    UD_PatchMult_Gag = JsonUtil.GetFloatValue(strFile, "PatchMult_Gag", UD_PatchMult_Gag)
+    UD_PatchMult_Hood = JsonUtil.GetFloatValue(strFile, "PatchMult_Hood", UD_PatchMult_Hood)
+    UD_PatchMult_ChastityBelt = JsonUtil.GetFloatValue(strFile, "PatchMult_ChastityBelt", UD_PatchMult_ChastityBelt)
+    UD_PatchMult_ChastityBra = JsonUtil.GetFloatValue(strFile, "PatchMult_ChastityBra", UD_PatchMult_ChastityBra)
+    UD_PatchMult_Plug = JsonUtil.GetFloatValue(strFile, "PatchMult_Plug", UD_PatchMult_Plug)
+    UD_PatchMult_Piercing = JsonUtil.GetFloatValue(strFile, "PatchMult_Piercing", UD_PatchMult_Piercing)
+    UD_PatchMult_Generic = JsonUtil.GetFloatValue(strFile, "PatchMult_Generic", UD_PatchMult_Generic)
+    UD_TimedLocks = JsonUtil.GetIntValue(strFile, "TimedLocks", UD_TimedLocks as Int)
+    UD_ModsMin = JsonUtil.GetIntValue(strFile, "Patcher_ModsMinCap", UD_ModsMin)
+    UD_ModsMax = JsonUtil.GetIntValue(strFile, "Patcher_ModsSoftCap", UD_ModsMax)
+    UD_ModGlobalProbabilityMult = JsonUtil.GetFloatValue(strFile, "Patcher_ModGlobalProbabilityMult", UD_ModGlobalProbabilityMult)
+    UD_ModGlobalSeverityShift = JsonUtil.GetFloatValue(strFile, "Patcher_ModGlobalSeverityShift", UD_ModGlobalSeverityShift)
+    UD_ModGlobalSeverityDispMult = JsonUtil.GetFloatValue(strFile, "Patcher_ModGlobalSeverityDispMult", UD_ModGlobalSeverityDispMult)
+EndFunction
+Function OnResetToDefault()
+    UD_EscapeModifier            = 10
+    UD_MinLocks                  = 0
+    UD_MaxLocks                  = 2
+    UD_MinResistMult             =-1.0
+    UD_MaxResistMult             = 1.0
+    UD_PatchMult                 = 1.0
+    UD_PatchMult_HeavyBondage    = 1.0
+    UD_PatchMult_Blindfold       = 1.0
+    UD_PatchMult_Gag             = 1.0
+    UD_PatchMult_Hood            = 1.0
+    UD_PatchMult_ChastityBelt    = 1.0
+    UD_PatchMult_ChastityBra     = 1.0
+    UD_PatchMult_Plug            = 1.0
+    UD_PatchMult_Piercing        = 1.0
+    UD_PatchMult_Generic         = 1.0
 EndFunction

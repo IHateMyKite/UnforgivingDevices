@@ -40,7 +40,6 @@ EndFunction
 int UD_ActionKey_K
 int UD_NPCSupport_T
 int UD_Swimming_flag
-int UD_autocrit_flag
 int UD_CHB_Stamina_meter_Keycode_K
 int UD_CHB_Magicka_meter_Keycode_K
 int UDCD_SpecialKey_Keycode_K
@@ -144,13 +143,13 @@ Function PageReset(Bool abLockMenu)
     ;CRITS
     AddHeaderOption("$UD_H_DEVICECRITS")
     AddEmptyOption()
-    UD_CritEffect_M     = AddMenuOption("$UD_CRITEFFECT", criteffectList[UDCDmain.UD_CritEffect],FlagNegate(UD_autocrit_flag))
-    UD_MandatoryCrit_T  = addToggleOption("$UD_MANDATORYCRIT", UDCDmain.UD_MandatoryCrit,FlagSwitchOr(FlagNegate(UD_autocrit_flag),FlagSwitch(!abLockMenu)))
+    UD_CritEffect_M     = AddMenuOption("$UD_CRITEFFECT", criteffectList[UDCDmain.UD_CritEffect],FlagNegate(FlagSwitch(UDCDmain.UD_AutoCrit)))
+    UD_MandatoryCrit_T  = addToggleOption("$UD_MANDATORYCRIT", UDCDmain.UD_MandatoryCrit,FlagSwitchOr(FlagNegate(FlagSwitch(UDCDmain.UD_AutoCrit)),FlagSwitch(!abLockMenu)))
     
     UD_AutoCrit_T       = addToggleOption("$UD_AUTOCRIT", UDCDmain.UD_AutoCrit,FlagSwitch(!abLockMenu))
-    UD_AutoCritChance_S = addSliderOption("$UD_AUTOCRITCHANCE",UDCDmain.UD_AutoCritChance, "{0} %",FlagSwitchOr(UD_autocrit_flag,FlagSwitch(!abLockMenu)))
+    UD_AutoCritChance_S = addSliderOption("$UD_AUTOCRITCHANCE",UDCDmain.UD_AutoCritChance, "{0} %",FlagSwitchOr(FlagSwitch(UDCDmain.UD_AutoCrit),FlagSwitch(!abLockMenu)))
     
-    UD_CritDurationAdjust_S = addSliderOption("$UD_CRITDURATIONADJUST",UDCDmain.UD_CritDurationAdjust, "${2} s",FlagSwitchOr(FlagNegate(UD_autocrit_flag),FlagSwitch(!abLockMenu)))
+    UD_CritDurationAdjust_S = addSliderOption("$UD_CRITDURATIONADJUST",UDCDmain.UD_CritDurationAdjust, "${2} s",FlagSwitchOr(FlagNegate(FlagSwitch(UDCDmain.UD_AutoCrit)),FlagSwitch(!abLockMenu)))
     AddEmptyOption()
     
     ;DEVICE LEVEL scaling
@@ -190,12 +189,6 @@ Function PageOptionSelect(Int aiOption)
         SetToggleOptionValue(UD_UseDDdifficulty_T, UDCDmain.UD_UseDDdifficulty)
     elseif aiOption == UD_AutoCrit_T
         UDCDmain.UD_AutoCrit = !UDCDmain.UD_AutoCrit
-        if UDCDmain.UD_AutoCrit
-            UD_autocrit_flag = OPTION_FLAG_NONE
-        else
-            UD_autocrit_flag = OPTION_FLAG_DISABLED
-        endif
-        
         SetToggleOptionValue(UD_AutoCrit_T, UDCDmain.UD_AutoCrit)
         forcePageReset()
     elseif aiOption == UD_HardcoreMode_T

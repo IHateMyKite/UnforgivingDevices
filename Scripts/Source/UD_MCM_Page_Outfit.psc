@@ -184,7 +184,13 @@ Function ShowOutfitDevicesFromList(String asSubSection, Armor[] aakList, Int[] a
 
     int loc_i = 0
     while loc_i < aakList.length
-        AddTextOption("["+loc_i+"]",aakList[loc_i].GetName())
+        String loc_name
+        if aakList[loc_i]
+            loc_name = aakList[loc_i].GetName()
+        else
+            loc_name = "NONE"
+        endif
+        AddTextOption("["+loc_i+"]",loc_name)
         int loc_id = AddSliderOption("Weight: ",aaiRnd[loc_i],"{0}")
         UD_OutfitDeviceSelected_S   = PapyrusUtil.PushInt(UD_OutfitDeviceSelected_S,loc_id)
         UD_OutfitDeviceSelectedType = PapyrusUtil.PushInt(UD_OutfitDeviceSelectedType,aiType)

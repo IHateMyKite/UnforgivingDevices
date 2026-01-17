@@ -178,3 +178,4 @@ Quest[]   Function GetDependantModules(Quest akModule)      global native
           Function ResetModule        (Quest akModule)      global native
 Quest[]   Function GetModulesByScript (String asScript)     global native
 Alias[]   Function GetModulesAliasesByScript(String asScript) global native
+          Function ResetAllModuleS    ()                    global native

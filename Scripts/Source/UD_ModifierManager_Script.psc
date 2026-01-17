@@ -761,3 +761,24 @@ Function Debug_RemoveModifier(UD_CustomDevice_RenderScript akDevice)
         endif
     endif
 EndFunction
+
+Function OnSaveJSON(String strFile)
+    Int loc_i = 0
+    While loc_i < UD_ModifierListRef.Length
+        UD_Modifier loc_mod = UD_ModifierListRef[loc_i] as UD_Modifier
+        If loc_mod != None
+            loc_mod.SaveToJSON(strFile)
+        EndIf
+        loc_i += 1
+    EndWhile
+EndFunction
+Function OnLoadJSON(String strFile)
+    Int loc_i = 0
+    While loc_i < UD_ModifierListRef.Length
+        UD_Modifier loc_mod = UD_ModifierListRef[loc_i] as UD_Modifier
+        If loc_mod != None
+            loc_mod.LoadFromJSON(strFile)
+        EndIf
+        loc_i += 1
+    EndWhile
+EndFunction

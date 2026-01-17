@@ -556,3 +556,10 @@ String function _ShowMessageboxArrayTemplate(Message akTemplate,String asBodyTex
         return "TIMED_OUT"
     endIf
 endFunction
+
+Function OnSaveJSON(String strFile)
+    JsonUtil.SetStringValue(strFile, "MenuMsgManager", GetMode())
+EndFunction
+Function OnLoadJSON(String strFile)
+    SetMode(JsonUtil.GetStringValue(strFile, "MenuMsgManager", "Native_UI"))
+EndFunction

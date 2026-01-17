@@ -3723,7 +3723,7 @@ EndFunction
 /;
 Function decreaseDurabilityAndCheckUnlock(float afValue,float afCondMult = 1.0,Bool abCheckCondition = True)
     if current_device_health > 0.0
-        if PlayerInMinigame() && UD_damage_device
+        if PlayerInMinigame() && UD_damage_device && IsMinigameLoopRunning()
             ;update and fetch value from native meter
             current_device_health = UDmain.UDWC.Meter_UpdateNativeValue("device-main",-1.0*afValue)*UD_Health/100.0
         else
@@ -3736,7 +3736,7 @@ Function decreaseDurabilityAndCheckUnlock(float afValue,float afCondMult = 1.0,B
 EndFunction
 
 Function _DecreaseCondition(Float afCondition, Float afMult, bool abCheckCondition)
-    if PlayerInMinigame() && UD_damage_device
+    if PlayerInMinigame() && UD_damage_device && IsMinigameLoopRunning()
         ;update fetch value from native meter
         _total_durability_drain = UDmain.UDWC.Meter_UpdateNativeValue("device-condition",-1.0*afCondition*afMult)*UD_Health/100.0
     else
@@ -8475,7 +8475,7 @@ Function _MinigameAVCheckLoopThread()
 EndFunction
 
 Function _CuttingMG_SKPress(Float afValue)
-    if IsPaused()
+    if IsPaused() || !IsMinigameLoopRunning()
         return
     endif
     if afValue >= fRange(100.0 - Math.Pow(UD_CutChance,1.2)*2.0,0.0,96.0)
@@ -8489,7 +8489,7 @@ EndFunction
 Function _MG_CKSPress()
     bool     loc_crit                    = UDCDmain.crit 
     string   loc_selected_crit_meter     = UDCDmain.selected_crit_meter
-    if IsPaused()
+    if IsPaused() || !IsMinigameLoopRunning()
         return
     endif
     if (loc_crit) && !UDCDMain.UD_AutoCrit
@@ -8508,7 +8508,7 @@ EndFunction
 Function _MG_CKMPress()
     bool     loc_crit                    = UDCDmain.crit 
     string   loc_selected_crit_meter     = UDCDmain.selected_crit_meter
-    if IsPaused()
+    if IsPaused() || !IsMinigameLoopRunning()
         return
     endif
     if (loc_crit) && !UDCDMain.UD_AutoCrit

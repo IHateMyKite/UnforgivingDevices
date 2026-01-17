@@ -140,9 +140,6 @@ EndState
 
 Function GameUpdate()
     If isUsed()
-        if !IsPlayer()
-            UDOM.RemoveAbilities(GetActor())
-        endif
         _OrgasmGameUpdate()
         CheckVibrators()
     endif
@@ -527,10 +524,7 @@ Function unregisterSlot()
     endif
     StorageUtil.UnSetIntValue(getActor(), "UD_ManualRegister")
     _iScriptState = 0
-    if IsPlayer()
-        UDOM.RemoveAbilities(getActor())
-    else
-        CleanArousalUpdate()
+    if !IsPlayer()
         CleanOrgasmUpdate()
     endif
     UnregisterAllItemEvents(True)
@@ -648,7 +642,9 @@ Function fix()
         ; fix current devices
         int i = UD_equipedCustomDevices.length
         while i
-            UD_equipedCustomDevices[i].StopMinigame()
+            if UD_equipedCustomDevices[i]
+                UD_equipedCustomDevices[i].StopMinigame()
+            endif
             i -= 1
         endwhile
         _DeviceManipMutex = false
@@ -669,10 +665,6 @@ Function fix()
             else
                 OrgasmSystem.RemoveOrgasmChange(GetActor(),loc_list[loc_ores])
             endif
-        endif
-        if IsPlayer()
-            GetActor().DispelSpell(UDmain.UDlibs.ArousalCheckAbilitySpell)
-            GetActor().DispelSpell(UDmain.UDlibs.OrgasmCheckAbilitySpell)
         endif
         UDmain.Print("[UD] Orgasm variables reset!")
     elseif loc_res == 2 ;reset expression
@@ -2146,7 +2138,6 @@ EndFunction
 Float _dfArousal = 0.0
 
 Function InitArousalUpdate()
-    ;GetActor().AddToFaction(UDOM.ArousalCheckLoopFaction)
 EndFunction
 
 float _ArousalAccumulator = 0.0
@@ -2184,12 +2175,6 @@ Function UpdateArousal(Int aiUpdateTime)
         else
             UDmain.Error(self + "::UpdateArousal() - Cant update arousal  because sloted actor is none!")
         endif
-    endif
-EndFunction
-
-Function CleanArousalUpdate()
-    if GetActor()
-        ;GetActor().RemoveFromFaction(UDOM.ArousalCheckLoopFaction)
     endif
 EndFunction
 

@@ -1249,3 +1249,10 @@ String Function InlineIfString(Bool abCondition, String asTrue, String asFalse =
         Return asFalse
     EndIf
 EndFunction
+
+Function OnSaveJSON(String strFile)
+    JsonUtil.SetStringValue(strFile, "MenuTextFormatter", GetMode())
+EndFunction
+Function OnLoadJSON(String strFile)
+    SetMode(JsonUtil.GetStringValue(strFile, "MenuTextFormatter", "HTML"))
+EndFunction

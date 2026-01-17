@@ -259,3 +259,13 @@ Function ShowGamePadMenu()
         return
     endif
 EndFunction
+
+Function OnSaveJSON(String strFile)
+    JsonUtil.SetIntValue(strFile, "EasyGamepadMode", UD_EasyGamepadMode as Int)
+EndFunction
+Function OnLoadJSON(String strFile)
+    UD_EasyGamepadMode = JsonUtil.GetIntValue(strFile, "EasyGamepadMode", UD_EasyGamepadMode as Int)
+EndFunction
+Function OnResetToDefault()
+    UD_EasyGamepadMode = false
+EndFunction

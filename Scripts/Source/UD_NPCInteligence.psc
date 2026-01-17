@@ -287,3 +287,19 @@ State Disabled
     Function Evaluate()
     EndFunction
 EndState
+
+Function OnSaveJSON(String strFile)
+    JsonUtil.SetIntValue(strFile, "AICooldown", UD_AICooldown)
+    JsonUtil.SetIntValue(strFile, "AIUpdateTime", UD_UpdateTime)
+    JsonUtil.SetIntValue(strFile, "AIEnabled", Enabled as Int)
+EndFunction
+Function OnLoadJSON(String strFile)
+    Enabled = JsonUtil.GetIntValue(strFile, "AIEnabled", Enabled as Int)
+    UD_AICooldown = JsonUtil.GetIntValue(strFile, "AICooldown", UD_AICooldown)
+    UD_UpdateTime = JsonUtil.GetIntValue(strFile, "AIUpdateTime", UD_UpdateTime)
+EndFunction
+Function OnResetToDefault()
+    Enabled       = True
+    UD_AICooldown = 30
+    UD_UpdateTime = 10
+EndFunction

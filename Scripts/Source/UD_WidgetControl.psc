@@ -2404,3 +2404,50 @@ Function TestFun2()
     iWidget.setPos(m, 720, 600)
 
 EndFunction
+
+
+Function OnSaveJSON(String strFile)
+    JsonUtil.SetIntValue(strFile, "UseIWantWidget", UD_UseIWantWidget as Int)
+    JsonUtil.SetIntValue(strFile, "iWidgets_EnableDeviceIcons", UD_EnableDeviceIcons as Int)
+    JsonUtil.SetIntValue(strFile, "iWidgets_EnableEffectIcons", UD_EnableDebuffIcons as Int)
+    JsonUtil.SetIntValue(strFile, "iWidgets_EnableCNotifications", UD_EnableCNotifications as Int)
+    JsonUtil.SetIntValue(strFile, "iWidgets_TextFontSize", UD_TextFontSize)
+    JsonUtil.SetIntValue(strFile, "iWidgets_TextLineLength", UD_TextLineLength)
+    JsonUtil.SetIntValue(strFile, "iWidgets_TextReadSpeed", UD_TextReadSpeed)
+    JsonUtil.SetIntValue(strFile, "iWidgets_FilterVibNotifications", UD_FilterVibNotifications as Int)
+    JsonUtil.SetIntValue(strFile, "iWidgets_IconsSize", UD_IconsSize)
+    JsonUtil.SetIntValue(strFile, "iWidgets_IconsAnchor", UD_IconsAnchor)
+    JsonUtil.SetIntValue(strFile, "iWidgets_IconsPadding", UD_IconsPadding)
+    JsonUtil.SetIntValue(strFile, "iWidgets_TextAnchor", UD_TextAnchor)
+    JsonUtil.SetIntValue(strFile, "iWidgets_TextPadding", UD_TextPadding)
+    JsonUtil.SetIntValue(strFile, "WidgetPosX", UD_WidgetXPos)
+    JsonUtil.SetIntValue(strFile, "WidgetPosY", UD_WidgetYPos)
+    JsonUtil.SetIntValue(strFile, "iWidgets_EffectExhaustion_Icon", StatusEffect_GetVariant("effect-exhaustion"))
+    JsonUtil.SetIntValue(strFile, "iWidgets_EffectOrgasm_Icon", StatusEffect_GetVariant("effect-orgasm"))
+EndFunction
+Function OnLoadJSON(String strFile)
+    UD_UseIWantWidget = JsonUtil.GetIntValue(strFile, "UseIWantWidget", UD_UseIWantWidget as Int)
+    UD_EnableDeviceIcons = JsonUtil.GetIntValue(strFile, "iWidgets_EnableDeviceIcons", UD_EnableDeviceIcons as Int)
+    UD_EnableDebuffIcons = JsonUtil.GetIntValue(strFile, "iWidgets_EnableEffectIcons", UD_EnableDebuffIcons as Int)
+    UD_EnableCNotifications = JsonUtil.GetIntValue(strFile, "iWidgets_EnableCNotifications", UD_EnableCNotifications as Int)
+    UD_TextFontSize = JsonUtil.GetIntValue(strFile, "iWidgets_TextFontSize", UD_TextFontSize)
+    UD_TextLineLength = JsonUtil.GetIntValue(strFile, "iWidgets_TextLineLength", UD_TextLineLength)
+    UD_TextReadSpeed = JsonUtil.GetIntValue(strFile, "iWidgets_TextReadSpeed", UD_TextReadSpeed)
+    UD_FilterVibNotifications = JsonUtil.GetIntValue(strFile, "iWidgets_FilterVibNotifications", UD_FilterVibNotifications as Int) == 1
+    UD_IconsSize = JsonUtil.GetIntValue(strFile, "iWidgets_IconsSize", UD_IconsSize)
+    UD_IconsAnchor = JsonUtil.GetIntValue(strFile, "iWidgets_IconsAnchor", UD_IconsAnchor)
+    UD_IconsPadding = JsonUtil.GetIntValue(strFile, "iWidgets_IconsPadding", UD_IconsPadding)
+    UD_TextAnchor = JsonUtil.GetIntValue(strFile, "iWidgets_TextAnchor", UD_TextAnchor)
+    UD_TextPadding = JsonUtil.GetIntValue(strFile, "iWidgets_TextPadding", UD_TextPadding)
+    Int variant = JsonUtil.GetIntValue(strFile, "iWidgets_EffectExhaustion_Icon", -1)
+    StatusEffect_Register("effect-exhaustion", -1, variant)
+    variant = JsonUtil.GetIntValue(strFile, "iWidgets_EffectOrgasm_Icon", -1)
+    StatusEffect_Register("effect-orgasm", -1, variant)
+    UD_WidgetXPos = JsonUtil.GetIntValue(strFile, "WidgetPosX", UD_WidgetXPos)
+    UD_WidgetYPos = JsonUtil.GetIntValue(strFile, "WidgetPosY", UD_WidgetYPos)
+EndFunction
+Function OnResetToDefault()
+    UD_WidgetXPos = 2
+    UD_WidgetYPos = 0
+    ResetToDefault()
+EndFunction

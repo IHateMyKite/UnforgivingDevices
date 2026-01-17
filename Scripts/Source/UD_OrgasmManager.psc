@@ -83,13 +83,6 @@ Function OnGameReload()
     RegisterModEvents()
 EndFunction
 
-Function RemoveAbilities(Actor akActor)
-    if akActor
-        akActor.RemoveSpell(UDlibs.OrgasmCheckAbilitySpell)
-        akActor.RemoveSpell(UDlibs.ArousalCheckAbilitySpell)
-    endif
-EndFunction
-
 ;/  Group: Arousal values
 ===========================================================================================
 ===========================================================================================
@@ -142,21 +135,6 @@ int Function getActorArousal(Actor akActor)
     return akActor.GetFactionRank(libs.Aroused.slaArousal)
 EndFunction
 
-Function StartArousalCheckLoop(Actor akActor)
-    if !akActor
-        UDmain.Error("None passed to StartArousalCheckLoop!!!")
-    endif
-    
-    if UDmain.TraceAllowed()    
-        UDmain.Log("StartArousalCheckLoop("+getActorName(akActor)+") called")
-    endif
-    
-    if akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
-        return
-    endif
-    
-    akActor.AddSpell(UDlibs.ArousalCheckAbilitySpell,false)
-EndFunction
 
 ;/  Group: Orgasm values
 ===========================================================================================
@@ -216,27 +194,6 @@ EndFunction
 
 float Function CulculateAntiOrgasmRateMultiplier(int iArousal)
     return fRange((Math.pow(10,fRange(100.0/iRange(iArousal,1,100),1.0,2.0) - 1.0)),1.0,100.0)
-EndFunction
-
-;///////////////////////////////////////
-;=======================================
-;ORGASM MAIN LOOP
-;=======================================
-;//////////////////////////////////////;
-
-Function StartOrgasmCheckLoop(Actor akActor)
-    if UDmain.TraceAllowed()    
-        UDmain.Log("StartOrgasmCheckLoop("+getActorName(akActor)+") called")
-    endif
-    if !akActor
-        UDmain.Error("None passed to sendOrgasmCheckLoop!!!")
-    endif
-    if akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
-        return
-    endif
-    
-    ;UDlibs.OrgasmCheckSpell.cast(akActor)
-    akActor.AddSpell(UDlibs.OrgasmCheckAbilitySpell,false)
 EndFunction
 
 ;=======================================
