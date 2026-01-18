@@ -112,11 +112,6 @@ Weapon Property UD_BestWeapon Hidden
         _BestWeapon = akWeapon
     EndFunction
 EndProperty
-float Property AgilitySkill         = 0.0   auto hidden
-float Property StrengthSkill        = 0.0   auto hidden
-float Property MagickSkill          = 0.0   auto hidden
-float Property CuttingSkill         = 0.0   auto hidden
-float Property SmithingSkill        = 0.0   auto hidden
 
 float Property ArousalSkillMult     = 1.0   auto hidden
 
@@ -133,8 +128,6 @@ State UpdatePaused
     Function UpdateSlot(Bool abUpdateSkill = true)
     EndFunction
     Function DeviceUpdate(UD_CustomDevice_RenderScript akDevice,Float afTimePassed)
-    EndFunction
-    Function UpdateSkills()
     EndFunction
 EndState
 
@@ -156,11 +149,6 @@ EndFunction
 ;update other variables
 Function UpdateSlot(Bool abUpdateSkill = true)
     ArousalSkillMult = UDCDmain.getArousalSkillMult(getActor())
-    if abUpdateSkill && (isPlayer() || isFollower())
-        ;only update skills if actor is player or follower
-        ;TODO: Add switch to allow users to also update skills for other NPCs
-        UpdateSkills()
-    endif
     if !GetActor().wornhaskeyword(libs.zad_deviousHeavyBondage)
         _handRestrain = none ;unreference device
     endif
@@ -1941,15 +1929,6 @@ EndFunction
 Weapon Function GetBestWeapon()
     return UD_Native.GetSharpestWeapon(getActor())
 EndFunction
-
-Function UpdateSkills()
-    AgilitySkill    = UDmain.UDSKILL.getActorAgilitySkills(getActor())
-    StrengthSkill   = UDmain.UDSKILL.getActorStrengthSkills(getActor())
-    MagickSkill     = UDmain.UDSKILL.getActorMagickSkills(getActor())
-    CuttingSkill    = UDmain.UDSKILL.getActorCuttingSkills(getActor())
-    SmithingSkill   = UDmain.UDSKILL.getActorSmithingSkills(getActor())
-EndFunction
-
 
 ;===============================================================================
 ;===============================================================================

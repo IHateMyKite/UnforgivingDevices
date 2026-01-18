@@ -1929,25 +1929,12 @@ String Function _GetActorDetailsMenuText(Actor akActor)
     Int loc_str
     Int loc_mag
     Int loc_cut
-    if IsRegistered(akActor)
-        UD_CustomDevice_NPCSlot loc_slot = GetNPCSlot(akActor)
-        if loc_slot
-            loc_agi = Round(loc_slot.AgilitySkill)
-            loc_str = Round(loc_slot.StrengthSkill)
-            loc_mag = Round(loc_slot.MagickSkill)
-            loc_cut = Round(loc_slot.CuttingSkill)
-        else
-            loc_agi = Round(UDmain.UDSKILL.getAgilitySkill(akActor))
-            loc_str = Round(UDmain.UDSKILL.getStrengthSkill(akActor))
-            loc_mag = Round(UDmain.UDSKILL.getMagickSkill(akActor))
-            loc_cut = Round(UDmain.UDSKILL.getCuttingSkill(akActor))
-        endif
-    else
-        loc_agi = Round(UDmain.UDSKILL.getAgilitySkill(akActor))
-        loc_str = Round(UDmain.UDSKILL.getStrengthSkill(akActor))
-        loc_mag = Round(UDmain.UDSKILL.getMagickSkill(akActor))
-        loc_cut = Round(UDmain.UDSKILL.getCuttingSkill(akActor))
-    endif
+
+    loc_agi = Round(UDmain.UDSKILL.getSkill(akActor,"AGIL"))
+    loc_str = Round(UDmain.UDSKILL.getSkill(akActor,"STRN"))
+    loc_mag = Round(UDmain.UDSKILL.getSkill(akActor,"MAGK"))
+    loc_cut = Round(UDmain.UDSKILL.getSkill(akActor,"CUTT"))
+
 
     loc_res += UDMTF.Text(UDMTF.InlineIfString(IsPlayer(akActor), "Your ", "Their ") + "agility skill is " + _GetActorSkillString(loc_agi, True) + ".")
     loc_res += UDMTF.LineBreak()
@@ -2023,25 +2010,12 @@ Bool Function ShowActorDetailsMenu(Actor akActor)
             loc_res += UDMTF.FontBegin(aiFontSize = UDMTF.FontSize, asColor = UDMTF.TextColorDefault)
             loc_res += UDMTF.TableBegin(aiLeftMargin = 40, aiColumn1Width = 150)
             loc_res += UDMTF.HeaderSplit()
-            if IsRegistered(akActor)
-                UD_CustomDevice_NPCSlot loc_slot = GetNPCSlot(akActor)
-                if loc_slot
-                    loc_res += UDMTF.TableRowDetails("Agility skill:", Round(loc_slot.AgilitySkill), UDMTF.PercentToRainbow(Round(loc_slot.AgilitySkill)))
-                    loc_res += UDMTF.TableRowDetails("Strength skill:", Round(loc_slot.StrengthSkill), UDMTF.PercentToRainbow(Round(loc_slot.StrengthSkill)))
-                    loc_res += UDMTF.TableRowDetails("Magicka skill:", Round(loc_slot.MagickSkill), UDMTF.PercentToRainbow(Round(loc_slot.MagickSkill)))
-                    loc_res += UDMTF.TableRowDetails("Cutting skill:", Round(loc_slot.CuttingSkill), UDMTF.PercentToRainbow(Round(loc_slot.CuttingSkill)))
-                else
-                    loc_res += UDMTF.TableRowDetails("Agility skill:", Round(UDmain.UDSKILL.getAgilitySkill(akActor)), UDMTF.PercentToRainbow(Round(UDmain.UDSKILL.getAgilitySkill(akActor))))
-                    loc_res += UDMTF.TableRowDetails("Strength skill:", Round(UDmain.UDSKILL.getStrengthSkill(akActor)), UDMTF.PercentToRainbow(Round(UDmain.UDSKILL.getStrengthSkill(akActor))))
-                    loc_res += UDMTF.TableRowDetails("Magicka skill:", Round(UDmain.UDSKILL.getMagickSkill(akActor)), UDMTF.PercentToRainbow(Round(UDmain.UDSKILL.getMagickSkill(akActor))))
-                    loc_res += UDMTF.TableRowDetails("Cutting skill:", Round(UDmain.UDSKILL.getCuttingSkill(akActor)), UDMTF.PercentToRainbow(Round(UDmain.UDSKILL.getCuttingSkill(akActor))))
-                endif
-            else
-                loc_res += UDMTF.TableRowDetails("Agility skill:", Round(UDmain.UDSKILL.getAgilitySkill(akActor)), UDMTF.PercentToRainbow(Round(UDmain.UDSKILL.getAgilitySkill(akActor))))
-                loc_res += UDMTF.TableRowDetails("Strength skill:", Round(UDmain.UDSKILL.getStrengthSkill(akActor)), UDMTF.PercentToRainbow(Round(UDmain.UDSKILL.getStrengthSkill(akActor))))
-                loc_res += UDMTF.TableRowDetails("Magicka skill:", Round(UDmain.UDSKILL.getMagickSkill(akActor)), UDMTF.PercentToRainbow(Round(UDmain.UDSKILL.getMagickSkill(akActor))))
-                loc_res += UDMTF.TableRowDetails("Cutting skill:", Round(UDmain.UDSKILL.getCuttingSkill(akActor)), UDMTF.PercentToRainbow(Round(UDmain.UDSKILL.getCuttingSkill(akActor))))
-            endif
+
+            loc_res += UDMTF.TableRowDetails("Agility skill:", Round(UDmain.UDSKILL.getSkill(akActor,"AGIL")), UDMTF.PercentToRainbow(Round(UDmain.UDSKILL.getSkill(akActor,"AGIL"))))
+            loc_res += UDMTF.TableRowDetails("Strength skill:", Round(UDmain.UDSKILL.getSkill(akActor,"STRN")), UDMTF.PercentToRainbow(Round(UDmain.UDSKILL.getSkill(akActor,"STRN"))))
+            loc_res += UDMTF.TableRowDetails("Magicka skill:", Round(UDmain.UDSKILL.getSkill(akActor,"MAGK")), UDMTF.PercentToRainbow(Round(UDmain.UDSKILL.getSkill(akActor,"MAGK"))))
+            loc_res += UDMTF.TableRowDetails("Cutting skill:", Round(UDmain.UDSKILL.getSkill(akActor,"CUTT")), UDMTF.PercentToRainbow(Round(UDmain.UDSKILL.getSkill(akActor,"CUTT"))))
+
             
             loc_res += UDMTF.FooterSplit()
             loc_res += UDMTF.TableEnd()

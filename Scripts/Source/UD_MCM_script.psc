@@ -225,6 +225,8 @@ Function SaveToJSON(string strFile)
         return
     endif
 
+    GInfo("Saving configuration to [" +strFile+"]")
+
     JsonUtil.ClearAll(strFile)
     
     Quest[] loc_modules = UD_Native.GetModules()
@@ -271,6 +273,8 @@ Function LoadFromJSON(string strFile)
         UDMain.Error("Can't load config " + loc_abspath + " , as the file does not exist.")
         return
     endif
+
+    GInfo("Loading configuration from [" +strFile+"]")
 
     Quest[] loc_modules = UD_Native.GetModules()
     Int loc_indx = 0

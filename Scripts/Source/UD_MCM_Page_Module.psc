@@ -38,7 +38,7 @@ Function PageReset(Bool abLockMenu)
     addEmptyOption()
     
     _Modules_M = AddMenuOption("=== Module", _Modules_List[_Modules_Id])
-    addEmptyOption()
+    AddTextOption("Modules loaded",_Modules_List.length,FlagSwitch(false))
     
     addEmptyOption()
     addEmptyOption()

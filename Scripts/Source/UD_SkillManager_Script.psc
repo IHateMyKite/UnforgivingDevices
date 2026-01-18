@@ -16,174 +16,100 @@ EndProperty
 ;//////////////////////////////////////;
 ;-Used to return absolute and relative skill values which are used by some minigames
 
-float Function GetAgilitySkill(Actor akActor)
+float Function GetSkill(Actor akActor, String asSkillAlias)
     WaitForReady(10.0)
-    UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
-    if loc_slot
-        return loc_slot.AgilitySkill
-    else
-        return getActorAgilitySkills(akActor)
-    endif
+    return _GetSkill(akActor,asSkillAlias)
+EndFunction
+float Function getSkillsPerc(Actor akActor, String asSkillAlias)
+    WaitForReady(10.0)
+    return _GetSkillPerc(akActor,asSkillAlias)
+EndFunction
+Function AdvanceSkill(Float afValue, String asSkillAlias)
+    WaitForReady(10.0)
+    _AdvenceSkill(asSkillAlias, afValue)
 EndFunction
 
-float Function getActorAgilitySkills(Actor akActor)
+Alias[] Function GetAllSkills()
     WaitForReady(10.0)
-    return _GetSkill(akActor,"_Agility")
-EndFunction
-
-float Function getActorAgilitySkillsPerc(Actor akActor)
-    WaitForReady(10.0)
-    return GetAgilitySkill(akActor)/100.0
-EndFunction
-
-Function AdvanceAgilitySkill(Float afValue)
-    WaitForReady(10.0)
-    _AdvenceSkill("_Agility", afValue)
-EndFunction
-
-float Function GetStrengthSkill(Actor akActor)
-    WaitForReady(10.0)
-    UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
-    if loc_slot
-        return loc_slot.StrengthSkill
-    else
-        return getActorStrengthSkills(akActor)
-    endif
-EndFunction
-
-float Function getActorStrengthSkills(Actor akActor)
-    WaitForReady(10.0)
-    return _GetSkill(akActor,"_Strength")
-EndFunction
-
-float Function getActorStrengthSkillsPerc(Actor akActor)
-    WaitForReady(10.0)
-    return GetStrengthSkill(akActor)/100.0
-EndFunction
-
-Function AdvanceStrengthSkill(Float afValue)
-    WaitForReady(10.0)
-    _AdvenceSkill("_Strength", afValue)
-EndFunction
-
-float Function GetMagickSkill(Actor akActor)
-    WaitForReady(10.0)
-    UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
-    if loc_slot
-        return loc_slot.MagickSkill
-    else
-        return getActorMagickSkills(akActor)
-    endif
-EndFunction
-
-float Function getActorMagickSkills(Actor akActor)
-    WaitForReady(10.0)
-    return _GetSkill(akActor,"_Magick")
-EndFunction
-
-float Function getActorMagickSkillsPerc(Actor akActor)
-    WaitForReady(10.0)
-    return GetMagickSkill(akActor)/100.0
-EndFunction
-
-Function AdvanceMagickSkill(Float afValue)
-    WaitForReady(10.0)
-    _AdvenceSkill("_Magick", afValue)
-EndFunction
-
-float Function GetCuttingSkill(Actor akActor)
-    WaitForReady(10.0)
-    UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
-    if loc_slot
-        return loc_slot.CuttingSkill
-    else
-        return getActorCuttingSkills(akActor)
-    endif
-EndFunction
-
-float Function getActorCuttingSkills(Actor akActor)
-    WaitForReady(10.0)
-    return _GetSkill(akActor,"_Cutting")
-EndFunction
-
-float Function getActorCuttingSkillsPerc(Actor akActor)
-    WaitForReady(10.0)
-    return GetCuttingSkill(akActor)/100.0
-EndFunction
-
-Function AdvanceCuttingSkill(Float afValue)
-    WaitForReady(10.0)
-    _AdvenceSkill("_Cutting", afValue)
-EndFunction
-
-float Function GetSmithingSkill(Actor akActor)
-    WaitForReady(10.0)
-    UD_CustomDevice_NPCSlot loc_slot = UDCDmain.getNPCSlot(akActor)
-    if loc_slot
-        return loc_slot.SmithingSkill
-    else
-        return getActorSmithingSkills(akActor)
-    endif
-EndFunction
-
-float Function getActorSmithingSkills(Actor akActor)
-    WaitForReady(10.0)
-    return _GetSkill(akActor,"_Maintenance")
-EndFunction
-
-float Function getActorSmithingSkillsPerc(Actor akActor)
-    WaitForReady(10.0)
-    return GetSmithingSkill(akActor)/100.0
-EndFunction
-
-Function AdvanceSmithingSkill(Float afValue)
-    WaitForReady(10.0)
-    _AdvenceSkill("_Maintenance", afValue)
-EndFunction
-
-Int Function _GetSkill(Actor akActor, String asSkill)
-    String[] loc_skills = UD_Native.GetIniArrayString("Skill.asSkills"+asSkill)
-    if loc_skills && loc_skills.length > 0
-      Int loc_res = 0
-      Int loc_spp = UD_Native.GetIniVariableInt("Skill.aiPerkSkillPoints",10)
-      Int loc_i = 0
-      while loc_i < loc_skills.length
-        loc_res += Round(akActor.GetActorValue(loc_skills[loc_i]))
-        loc_res += UD_Native.CalculateSkillFromPerks(akActor,loc_skills[loc_i],loc_spp)
+    
+    Alias[] loc_res
+    Quest[] loc_storages = UD_Native.GetModulesByScript("ud_skillstorage")
+    Int loc_i  = 0
+    while loc_i < loc_storages.length
+        UD_SkillStorage loc_storage = loc_storages[loc_i] as UD_SkillStorage
+        Alias[] loc_skills = loc_storage.GetAllSkills()
+        loc_res = PapyrusUtil.MergeAliasArray(loc_res,loc_skills)
         loc_i += 1
-      endwhile
-      Bool loc_average = UD_Native.GetIniVariableBool("Skill.asSkillsPower_Average",false)
-      if loc_average
-        return loc_res/loc_skills.length
-      else
-        return loc_res
-      endif
-    else
-      return 0
-    endif
+    endwhile
+    return loc_res
 EndFunction
 
-Function _AdvenceSkill(String asSkill, Float afValue)
-  float loc_value = afValue*_GetSkillMultiplier()
-  if loc_value > 0.0
-    String[] loc_skills = UD_Native.GetIniArrayString("Skill.asSkills"+asSkill)
-    if loc_skills && loc_skills.length > 0
-      Bool loc_average  = UD_Native.GetIniVariableBool("Skill.asSkillsGain_Average",false)
-      Int loc_i = 0
-      while loc_i < loc_skills.length
-        float loc_value2 = 0.0
-        if loc_average
-          loc_value2 = loc_value/loc_skills.length
-        else
-          loc_value2 = loc_value
+UD_Skill Function _GetSkillByAlias(String asAlias)
+    Quest[] loc_storages = UD_Native.GetModulesByScript("ud_skillstorage")
+    Int loc_i = 0
+    while loc_i < loc_storages.length
+        UD_SkillStorage loc_storage = loc_storages[loc_i] as UD_SkillStorage
+        if loc_storage
+            UD_Skill tmp_res = loc_storage.GetSkillByAlias(asAlias)
+            if tmp_res
+                return tmp_res
+            endif
         endif
-        UD_Native.AdvanceSkillPerc(loc_skills[loc_i],loc_value2)
         loc_i += 1
-      endwhile
-    endif
-  endif
+    endwhile
+    return none
 EndFunction
 
-Float Function _GetSkillMultiplier()
-  return UDCDmain.UD_BaseDeviceSkillIncrease
+Int Function _GetSkill(Actor akActor, String asSkillAlias)
+    if akActor
+        UD_Skill loc_skill = _GetSkillByAlias(asSkillAlias)
+        if loc_skill
+            return loc_skill.GetSkill(akActor)
+        endif
+    endif
+    return 0
+EndFunction
+Float Function _GetSkillPerc(Actor akActor, String asSkillAlias)
+    if akActor
+        UD_Skill loc_skill = _GetSkillByAlias(asSkillAlias)
+        if loc_skill
+            return loc_skill.GetSkillPerc(akActor)
+        endif
+    endif
+    return 0
+EndFunction
+
+
+Function _AdvenceSkill(String asSkillAlias, Float afValue)
+    UD_Skill loc_skill = _GetSkillByAlias(asSkillAlias)
+    if loc_skill
+        return loc_skill.AdvenceSkill(afValue)
+    endif
+EndFunction
+
+Function OnSaveJSON(String strFile)
+    Alias[] loc_skills = GetAllSkills()
+    if loc_skills
+        Int loc_i = 0
+        while loc_i < loc_skills.length
+            UD_Skill loc_skill = loc_skills[loc_i] as UD_Skill
+            if loc_skill
+                loc_skill.SaveJSON(strFile)
+            endif
+            loc_i += 1
+        endwhile
+    endif
+EndFunction
+Function OnLoadJSON(String strFile)
+    Alias[] loc_skills = GetAllSkills()
+    if loc_skills
+        Int loc_i = 0
+        while loc_i < loc_skills.length
+            UD_Skill loc_skill = loc_skills[loc_i] as UD_Skill
+            if loc_skill
+                loc_skill.LoadJSON(strFile)
+            endif
+            loc_i += 1
+        endwhile
+    endif
 EndFunction
