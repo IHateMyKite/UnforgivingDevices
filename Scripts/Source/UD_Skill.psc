@@ -7,7 +7,7 @@ UD_SkillManager_Script _udsm
 UD_SkillManager_Script Property UDSM hidden
     UD_SkillManager_Script Function get()
         if !_udsm
-            _udsm = (GetOwningQuest() as UD_SkillManager_Script)
+            _udsm = (GetModuleByAlias("SKILLM") as UD_SkillManager_Script)
         endif
         return _udsm
     EndFunction
@@ -56,7 +56,7 @@ Float Function GetSkillPerc(Actor akActor)
 EndFunction
 
 Function AdvenceSkill(Float afValue)
-    float loc_value = afValue*UDCDmain.UD_BaseDeviceSkillIncrease*SkillGainMult
+    float loc_value = afValue*(UDCDmain.UD_BaseDeviceSkillIncrease)*SkillGainMult
     if loc_value > 0.0
         if Skills && Skills.length > 0
             Bool loc_average  = SkillAvarage

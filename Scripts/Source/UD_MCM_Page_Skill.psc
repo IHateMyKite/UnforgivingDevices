@@ -14,7 +14,7 @@ UD_SkillManager_Script Property UDSM
     EndFunction
 EndProperty
 
-
+String[] UD_ValidSkills
 String[] UD_MinigameLockpickSkillAdjust_ML
 Function PageUpdate()
     UD_MinigameLockpickSkillAdjust_ML = new String[5]
@@ -23,9 +23,28 @@ Function PageUpdate()
     UD_MinigameLockpickSkillAdjust_ML[2] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT75"
     UD_MinigameLockpickSkillAdjust_ML[3] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT50"
     UD_MinigameLockpickSkillAdjust_ML[4] = "$UD_MINIGAMELOCKPICKSKILLADJUST_OPT00"
+    
+    UD_ValidSkills = new String[18]
+    UD_ValidSkills[ 0] = "onehanded"
+    UD_ValidSkills[ 1] = "twohanded"
+    UD_ValidSkills[ 2] = "marksman"
+    UD_ValidSkills[ 3] = "block"
+    UD_ValidSkills[ 4] = "smithing"
+    UD_ValidSkills[ 5] = "heavyarmor"
+    UD_ValidSkills[ 6] = "lightarmor"
+    UD_ValidSkills[ 7] = "pickpocket"
+    UD_ValidSkills[ 8] = "lockpicking"
+    UD_ValidSkills[ 9] = "sneak"
+    UD_ValidSkills[10] = "alchemy"
+    UD_ValidSkills[11] = "speechcraft"
+    UD_ValidSkills[12] = "alteration"
+    UD_ValidSkills[13] = "conjuration"
+    UD_ValidSkills[14] = "destruction"
+    UD_ValidSkills[15] = "illusion"
+    UD_ValidSkills[16] = "restoration"
+    UD_ValidSkills[17] = "enchanting"
 EndFunction
 
-Int UD_SkillEfficiency_S
 Int UD_MinigameLockpickSkillAdjust_M
 int UD_BaseDeviceSkillIncrease_S
 int UD_ExperienceGain_S
@@ -42,25 +61,20 @@ Int         UD_SkillPerPerk_S
 Int         UD_SkillMult_S
 Int         UD_SkillGainMult_S
 
+Int         UD_SkillList_T
+
 Function PageReset(Bool abLockMenu)
     setCursorFillMode(LEFT_TO_RIGHT)
 
+    UD_SkillList_T = AddTextOption("Skill list","--INFO--")
+    addEmptyOption()
+    
     ;SKILL
     AddHeaderOption("$UD_H_SKILLSETTING")
     addEmptyOption()
     
     UD_BaseDeviceSkillIncrease_S = addSliderOption("$UD_BASEDEVICESKILLINCREASE",UDCDmain.UD_BaseDeviceSkillIncrease, "{1} x",FlagSwitch(!abLockMenu))
-    UD_SkillEfficiency_S = addSliderOption("$UD_SKILLEFFICIENCY",UDCDmain.UD_SkillEfficiency, "{0} %",FlagSwitch(!abLockMenu))
-    
     UD_MinigameLockpickSkillAdjust_M    = AddMenuOption("$UD_MINIGAMELOCKPICKSKILLADJUST", UD_MinigameLockpickSkillAdjust_ML[UDCDmain.UD_MinigameLockpickSkillAdjust],FlagSwitch(!abLockMenu))
-    addEmptyOption()
-    
-    ;EXPERIENCE
-    AddHeaderOption("Experience")
-    addEmptyOption()
-    
-    UD_ExperienceGain_S = addSliderOption("Experience base gain",UDCDmain.UD_ExperienceGainBase, "{0}",FlagSwitchAnd(FlagSwitch(UDmain.ExperienceInstalled),FlagSwitch(!abLockMenu)))
-    UD_ExperienceExp_S  = addSliderOption("Experience exponent",UDCDmain.UD_ExperienceGainExp, "{1}",FlagSwitchAnd(FlagSwitch(UDmain.ExperienceInstalled),FlagSwitch(!abLockMenu)))
     
     ; SKILL TABLE
     AddHeaderOption("Skills setting")
@@ -111,6 +125,13 @@ Function PageReset(Bool abLockMenu)
         
         loc_i += 1
     endwhile
+    
+    ;EXPERIENCE
+    AddHeaderOption("Experience")
+    addEmptyOption()
+    
+    UD_ExperienceGain_S = addSliderOption("Experience base gain",UDCDmain.UD_ExperienceGainBase, "{0}",FlagSwitchAnd(FlagSwitch(UDmain.ExperienceInstalled),FlagSwitch(!abLockMenu)))
+    UD_ExperienceExp_S  = addSliderOption("Experience exponent",UDCDmain.UD_ExperienceGainExp, "{1}",FlagSwitchAnd(FlagSwitch(UDmain.ExperienceInstalled),FlagSwitch(!abLockMenu)))
 EndFunction
 
 Function PageOptionSelect(Int aiOption)
@@ -119,6 +140,9 @@ Function PageOptionSelect(Int aiOption)
         UD_Skill loc_skill = loc_skills[UD_SkillList_Id] as UD_Skill
         loc_skill.SkillAvarage = !loc_skill.SkillAvarage
         forcePageReset()
+    elseif (aiOption == UD_SkillList_T)
+        String loc_msg = PapyrusUtil.StringJoin(UD_ValidSkills,"\n")
+        ShowMessage(loc_msg)
     endif
 EndFunction
 
@@ -128,11 +152,6 @@ Function PageOptionSliderOpen(Int aiOption)
         SetSliderDialogDefaultValue(1.0)
         SetSliderDialogRange(0.0, 100.0)
         SetSliderDialogInterval(0.1)
-    elseif aiOption == UD_SkillEfficiency_S
-        SetSliderDialogStartValue(UDCDmain.UD_SkillEfficiency)
-        SetSliderDialogDefaultValue(1.0)
-        SetSliderDialogRange(0.0, 10.0)
-        SetSliderDialogInterval(1.0)
     elseif aiOption == UD_ExperienceGain_S
         SetSliderDialogStartValue(UDCDmain.UD_ExperienceGainBase)
         SetSliderDialogDefaultValue(15.0)
@@ -170,9 +189,6 @@ Function PageOptionSliderAccept(Int aiOption, Float afValue)
     if (aiOption == UD_BaseDeviceSkillIncrease_S)
         UDCDmain.UD_BaseDeviceSkillIncrease = afValue
         SetSliderOptionValue(UD_BaseDeviceSkillIncrease_S, UDCDmain.UD_BaseDeviceSkillIncrease, "{1} x")
-    elseif aiOption == UD_SkillEfficiency_S
-        UDCDmain.UD_SkillEfficiency = round(afValue)
-        SetSliderOptionValue(UD_SkillEfficiency_S, UDCDmain.UD_SkillEfficiency, "{0} %")
     elseif aiOption == UD_ExperienceGain_S
         UDCDmain.UD_ExperienceGainBase = round(afValue)
         SetSliderOptionValue(UD_ExperienceGain_S, UDCDmain.UD_ExperienceGainBase, "{0}")
@@ -183,16 +199,19 @@ Function PageOptionSliderAccept(Int aiOption, Float afValue)
         Alias[] loc_skills = UDSM.GetAllSkills()
         UD_Skill loc_skill = loc_skills[UD_SkillList_Id] as UD_Skill
         loc_skill.SkillPerPerk = Round(afValue)
+        SetSliderOptionValue(UD_SkillPerPerk_S, loc_skill.SkillPerPerk, "{0}")
         forcePageReset()
     elseif aiOption == UD_SkillMult_S
         Alias[] loc_skills = UDSM.GetAllSkills()
         UD_Skill loc_skill = loc_skills[UD_SkillList_Id] as UD_Skill
         loc_skill.SkillMult = afValue
+        SetSliderOptionValue(UD_SkillMult_S, loc_skill.SkillMult, "{1}")
         forcePageReset()
     elseif aiOption == UD_SkillGainMult_S
         Alias[] loc_skills = UDSM.GetAllSkills()
         UD_Skill loc_skill = loc_skills[UD_SkillList_Id] as UD_Skill
         loc_skill.SkillGainMult = afValue
+        SetSliderOptionValue(UD_SkillGainMult_S, loc_skill.SkillGainMult, "{1}")
     endif
 EndFunction
 
@@ -248,21 +267,23 @@ Function PageOptionInputAccept(Int option, String value)
                 Alias[] loc_skills = UDSM.GetAllSkills()
                 UD_Skill loc_skill = loc_skills[UD_SkillList_Id] as UD_Skill
                 if value
-                    loc_skill.Skills[loc_i] = value
+                    if UD_ValidSkills && UD_ValidSkills.find(value) != -1
+                        loc_skill.Skills[loc_i] = value
+                    else
+                        UDMain.Error("Skill [" + value + "] does not exist. Please fill in valid skill")
+                    endif
                 else
-
-                if loc_i != loc_skill.Skills.length - 1 && loc_i != 0
-                  String[] loc_part1 = PapyrusUtil.SliceStringArray(loc_skill.Skills,0,loc_i - 1)
-                  String[] loc_part2 = PapyrusUtil.SliceStringArray(loc_skill.Skills,loc_i + 1,-1)
-                  loc_skill.Skills = PapyrusUtil.MergeStringArray(loc_part1,loc_part2,true)
-                elseif loc_i != 0
-                  loc_skill.Skills = PapyrusUtil.SliceStringArray(loc_skill.Skills,0,loc_i - 1)
-                elseif loc_skill.Skills.length > 1
-                  loc_skill.Skills = PapyrusUtil.SliceStringArray(loc_skill.Skills,1,-1)
-                else
-                  loc_skill.Skills = Utility.CreateStringArray(0)
-                endif
-                
+                    if loc_i != loc_skill.Skills.length - 1 && loc_i != 0
+                      String[] loc_part1 = PapyrusUtil.SliceStringArray(loc_skill.Skills,0,loc_i - 1)
+                      String[] loc_part2 = PapyrusUtil.SliceStringArray(loc_skill.Skills,loc_i + 1,-1)
+                      loc_skill.Skills = PapyrusUtil.MergeStringArray(loc_part1,loc_part2,true)
+                    elseif loc_i != 0
+                      loc_skill.Skills = PapyrusUtil.SliceStringArray(loc_skill.Skills,0,loc_i - 1)
+                    elseif loc_skill.Skills.length > 1
+                      loc_skill.Skills = PapyrusUtil.SliceStringArray(loc_skill.Skills,1,-1)
+                    else
+                      loc_skill.Skills = Utility.CreateStringArray(0)
+                    endif
                 endif
                 forcePageReset()
             endif
@@ -282,8 +303,6 @@ EndFunction
 Function PageInfo(int aiOption)
     if aiOption == UD_BaseDeviceSkillIncrease_S
         SetInfoText("$UD_BASEDEVICESKILLINCREASE_INFO")
-    elseif aiOption == UD_SkillEfficiency_S
-        SetInfoText("$UD_SKILLEFFICIENCY_INFO")
     elseif (aiOption == UD_MinigameLockpickSkillAdjust_M)
         SetInfoText("$UD_MINIGAMELOCKPICKSKILLADJUST_INFO")
     elseif aiOption == UD_SkillAvarage_T

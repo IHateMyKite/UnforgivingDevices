@@ -2136,8 +2136,6 @@ EndFunction
 ;//////////////////////////////////////;
 ;-Used to return absolute and relative skill values which are used by some minigames
 
-Int Property UD_SkillEfficiency = 1 auto ;% increase per one skill point
-
 ;/  Function: getActorCuttingWeaponMultiplier
 
     Calculates multiplier for cutting minigame. Value is decided by weapon with sharp wapon with most dmg
@@ -3969,7 +3967,6 @@ Function OnSaveJSON(String strFile)
     JsonUtil.SetFloatValue(strFile, "ArousalMultiplier", UD_ArousalMultiplier)
     JsonUtil.SetIntValue(strFile, "LockpicksPerMinigame", UD_LockpicksPerMinigame as Int)
     JsonUtil.SetFloatValue(strFile, "CooldownMultiplier", UD_CooldownMultiplier)
-    JsonUtil.SetIntValue(strFile, "SkillEfficiency", UD_SkillEfficiency)
     JsonUtil.SetIntValue(strFile, "CritEffect", UD_CritEffect)
     JsonUtil.SetIntValue(strFile, "HardcoreMode", UD_HardcoreMode as Int)
     JsonUtil.SetIntValue(strFile, "AllowArmTie", UD_AllowArmTie as Int)
@@ -4018,7 +4015,6 @@ Function OnLoadJSON(String strFile)
     UD_ArousalMultiplier           = JsonUtil.GetFloatValue(strFile, "ArousalMultiplier", UD_ArousalMultiplier)
     UD_LockpicksPerMinigame        = JsonUtil.GetIntValue(strFile, "LockpicksPerMinigame", UD_LockpicksPerMinigame)
     UD_CooldownMultiplier          = JsonUtil.GetFloatValue(strFile, "CooldownMultiplier", UD_CooldownMultiplier)
-    UD_SkillEfficiency             = JsonUtil.GetIntValue(strFile, "SkillEfficiency", UD_SkillEfficiency)
     UD_CritEffect                  = JsonUtil.GetIntValue(strFile, "CritEffect", UD_CritEffect)
     UD_HardcoreMode                = JsonUtil.GetIntValue(strFile, "HardcoreMode", UD_HardcoreMode as Int)
     UD_AllowArmTie                 = JsonUtil.GetIntValue(strFile, "AllowArmTie", UD_AllowArmTie as Int)
@@ -4081,7 +4077,6 @@ Function OnResetToDefault()
     UD_HardcoreMode            = false
     UD_AllowArmTie             = true
     UD_AllowLegTie             = true
-    UD_SkillEfficiency         = 1
     UD_MinigameHelpCd          = 60
     UD_MinigameHelpCD_PerLVL   = 10
     UD_MinigameHelpXPBase      = 35

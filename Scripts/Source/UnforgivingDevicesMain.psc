@@ -485,20 +485,20 @@ int Function GetUpdateProgress()
 EndFunction
 
 Function OnGameReload()
-    Print("Updating Unforgiving Devices, please wait...")
+    ;Print("Updating Unforgiving Devices, please wait...")
     Info(self+"::OnGameReload() - Updating Unforgiving Devices...")
     
     if _UpdateCheck()
         ;update all scripts
         Update()
         
-        int loc_removedmeters = UDWC.Meter_UnregisterAllNative()
-        if loc_removedmeters > 0
-            Info(self+"::OnGameReload() - Removed " + loc_removedmeters + " registered meters!")
-        endif
+        ;int loc_removedmeters = UDWC.Meter_UnregisterAllNative()
+        ;if loc_removedmeters > 0
+        ;    Info(self+"::OnGameReload() - Removed " + loc_removedmeters + " registered meters!")
+        ;endif
         
-        Info("<=====| Unforgiving Devices updated |=====>")
-        Print("Unforgiving Devices updated")
+        ;Info("<=====| Unforgiving Devices updated |=====>")
+        ;Print("Unforgiving Devices updated")
     else
         Info("<=====| !!Unforgiving Devices FAILED!! |=====>")
         Print("Unforgiving Devices update FAILED")
@@ -522,9 +522,9 @@ Function Update()
             
             RegisterForModEvent("UD_VibEvent","EventVib")
             
-            Info("<=====| UnforgivingDevicesMain installed |=====>")
+            ;Info("<=====| UnforgivingDevicesMain installed |=====>")
             
-            Print("Unforgiving Devices Ready!")
+            ;Print("Unforgiving Devices Ready!")
             
             Ready = true
         else

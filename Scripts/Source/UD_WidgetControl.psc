@@ -434,6 +434,12 @@ EndEvent
 
 Function OnGameReload()
     RegisterForModEvent("UDReloadUI","OnUIReload")
+    
+    int loc_removedmeters = Meter_UnregisterAllNative()
+    if loc_removedmeters > 0
+        UDMain.Info(self+"::OnGameReload() - Removed " + loc_removedmeters + " registered meters!")
+    endif
+    
     ; initializations on game load
     OnUIReload(abGameLoad = True)
     ; upgrade version
