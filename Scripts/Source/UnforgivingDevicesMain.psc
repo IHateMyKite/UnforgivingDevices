@@ -377,7 +377,6 @@ EndFunction
 
 Event OnSetup()
     Player = Game.GetPlayer()
-    ;Print("Installing Unforgiving Devices...")
     if zadbq.modVersion
         ;DD is already installed when UD is installed
         ;UD will not correctly replace DD script when they are already set
@@ -465,76 +464,43 @@ Bool Function IsSpecialEdition() global
     return SKSE.GetVersion() == 2
 EndFunction
 
-int _updatecounter = 0
-Function _ResetUpdateCounter()
-    _updatecounter = 0
-    Info("Update progress: 0 %%")
-EndFunction
-Function _IncrementUpdateCounter()
-    _updatecounter += 1
-    Info("Update progress: " + GetUpdateProgress() + " %%")
-EndFunction
-
-;/  Function: GetUpdateProgress
-    
-    Returns:
-        Current update progress of the mod. It is whole number from 0 to 100, where mod is full ready on 100
-/;
-int Function GetUpdateProgress()
-    return (Round(100.0*_updatecounter/23))
-EndFunction
-
 Function OnGameReload()
     ;Print("Updating Unforgiving Devices, please wait...")
     Info(self+"::OnGameReload() - Updating Unforgiving Devices...")
     
-    if _UpdateCheck()
-        ;update all scripts
-        Update()
-        
-        ;int loc_removedmeters = UDWC.Meter_UnregisterAllNative()
-        ;if loc_removedmeters > 0
-        ;    Info(self+"::OnGameReload() - Removed " + loc_removedmeters + " registered meters!")
-        ;endif
-        
-        ;Info("<=====| Unforgiving Devices updated |=====>")
-        ;Print("Unforgiving Devices updated")
-    else
-        Info("<=====| !!Unforgiving Devices FAILED!! |=====>")
-        Print("Unforgiving Devices update FAILED")
-    endif
-EndFunction
-
-Function Update()
-    if !Player
-        CLog("Detected that Player ref is not ready. Setting variable")
-        Player = Game.GetPlayer()
-    endif
-    
-    RegisterForModEvent("UDForceUpdate","OnGameReload")
-    
     _CheckOptionalMods()
-    _CheckPatchesOrder()
     
-    if !Ready
-        if _UpdateCheck()
+    if _UpdateCheck()
+            ;update all scripts
+        if !Player
+            CLog("Detected that Player ref is not ready. Setting variable")
+            Player = Game.GetPlayer()
+        endif
+        
+        RegisterForModEvent("UDForceUpdate","OnGameReload")
+        
+        _CheckOptionalMods()
+        _CheckPatchesOrder()
+        
+        if !Ready
             UD_hightPerformance = UD_hightPerformance
             
             RegisterForModEvent("UD_VibEvent","EventVib")
             
-            ;Info("<=====| UnforgivingDevicesMain installed |=====>")
-            
-            ;Print("Unforgiving Devices Ready!")
-            
             Ready = true
-        else
-            Error("<=====| !!UnforgivingDevicesMain installation FAILED!! |=====>")
-            Print("Unforgiving Devices installation failed!")
-            return
         endif
+        
+        SendModEvent("UD_PatchUpdate") ;send update event to all patches. Will force patches to check if they are installed correctly
+    else
+        Info("<=====| !!Unforgiving Devices FAILED!! |=====>")
+        string loc_msg = "!!!!!!ERROR!!!!!!\n"
+        loc_msg += "Unforgiving Devices detected that it was installed before DD or on already existing save.\n"
+        loc_msg += "UnforgivingDevices.esp needs to be placed in load order after all DeviousDevices esps and mods editing them!!!!\n"
+        loc_msg += "Without starting fresh game, UD will not be able to correctly initiate its scripts!\n\n"
+        loc_msg += "!Please, update your load order and start a new game!!!"
+        loc_msg += "!UD is broken at this point, do NOT use it further!!!"
+        debug.messagebox(loc_msg)
     endif
-    
-    SendModEvent("UD_PatchUpdate") ;send update event to all patches. Will force patches to check if they are installed correctly
 EndFunction
 
 ;/  Function: ForceUpdate
@@ -558,8 +524,6 @@ Bool Function _UpdateCheck()
 EndFunction
 
 Function _CheckOptionalMods()
-    UDNPCM.ResetIncompatibleFactionArray() ;reset incomatible scan factions
-    
     if ModInstalled("OSLAroused.esp")
         OSLArousedInstalled = True
         if TraceAllowed()
@@ -619,21 +583,12 @@ Function _CheckOptionalMods()
     
     if ModInstalled("Devious Strike.esp")
         DeviousStrikeInstalled = True
-        if TraceAllowed()
-            Log("Devious Strike detected!")
-        endif
-        ;2 Factions, as it looks like that the formID changes between versions
-        UDNPCM.AddScanIncompatibleFaction(GetMeMyForm(0x000801,"Devious Strike.esp") as Faction)
-        UDNPCM.AddScanIncompatibleFaction(GetMeMyForm(0x005930,"Devious Strike.esp") as Faction)
     else
         DeviousStrikeInstalled = false
     endif
 
     if ModInstalled("Devious Devices For Him.esp")
         ForHimInstalled = True
-        if TraceAllowed()
-            Log("DD For Him detected!")
-        endif
     else
         ForHimInstalled = false
     endif
@@ -2014,6 +1969,12 @@ UD_StaticNPCSlots Function GetStaticSlots(String asName)
     return UDNPCM.GetStaticSlots(asName)
 EndFunction
 
+; Precondition for most UD related actions (animations, minigames)
+Bool Function GetActorPrecondition(Actor akActor)
+    return !akActor.IsSwimming() && !akActor.IsDead() || !akActor.IsDisabled()
+EndFunction
+
+; JSON functions override
 Function OnSaveJSON(String strFile)
     JsonUtil.SetIntValue(strFile, "hightPerformance", UD_hightPerformance as Int)
     JsonUtil.SetIntValue(strFile, "AllowNPCSupport", AllowNPCSupport as Int)

@@ -2277,9 +2277,9 @@ Int _ActorConstraints = -1
 
 FUnction UpdateOrgasmHornyAnimation()
     Actor akActor = GetActor()
-    if !_actorinminigame 
+    if !_actorinminigame
         bool loc_orgasmResisting = akActor.isInFaction(UDOM.OrgasmResistFaction)
-        if (_hornyAnimTimer == 0) && UDCONF.UD_HornyAnimation && (OrgasmSystem.GetOrgasmVariable(akActor,1) > 0.5*OrgasmSystem.GetOrgasmVariable(akActor,4)*OrgasmSystem.GetOrgasmVariable(akActor,3)) && !loc_orgasmResisting && !akActor.IsInCombat() ;orgasm progress is increasing
+        if (_hornyAnimTimer == 0) && UDCONF.UD_HornyAnimation && (OrgasmSystem.GetOrgasmVariable(akActor,1) > 0.5*OrgasmSystem.GetOrgasmVariable(akActor,4)*OrgasmSystem.GetOrgasmVariable(akActor,3)) && !loc_orgasmResisting && !akActor.IsInCombat() && !akActor.IsSneaking() && !akActor.IsSwimming() ;orgasm progress is increasing
             if !UDmain.UDAM.IsAnimating(akActor) ;start horny animation for UD_HornyAnimationDuration
                 if RandomInt(0,99) <= 10 + Round(10*(fRange(OrgasmSystem.GetOrgasmProgress(akActor),0.0,50.0)/50.0))
                     ; Requesting and selecting animation

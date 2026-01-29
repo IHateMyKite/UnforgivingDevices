@@ -316,7 +316,7 @@ Function ActorOrgasm(actor akActor, Int aiOrgasms)
         if loc_res == 1
             StorageUtil.UnsetIntValue(akActor,"UD_OrgasmInMinigame_Flag")
         endif
-    elseif !loc_cond || ((akActor.IsInCombat() || akActor.IsSneaking()) && (loc_isplayer || loc_isfollower)) || (loc_isplayer && UDmain.IsAnyMenuOpen())
+    elseif !loc_cond || ((akActor.IsInCombat() || akActor.IsSneaking()) && (loc_isplayer || loc_isfollower)) || (loc_isplayer && UDmain.IsAnyMenuOpen()) || akActor.IsSwimming()
         if IsPlayer(akActor)
             UDmain.Print("You managed to avoid losing control over your body from orgasm!",2)
         endif

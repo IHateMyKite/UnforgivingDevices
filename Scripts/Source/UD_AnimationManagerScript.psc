@@ -15,7 +15,7 @@
         mutually compatible. In UDAM AnimDef is passed between functions as a string formatted like "<file_name>:<path_in_file>".
         See example section in <GetAnimationsFromDB>.
 /;
-Scriptname UD_AnimationManagerScript extends UD_MOduleBase
+Scriptname UD_AnimationManagerScript extends UD_ModuleBase
 
 import UD_Native
 
@@ -178,6 +178,10 @@ Bool Function StartSoloAnimationSequence(Actor akActor, String[] aasAnimation, B
         UDmain.Warning("UD_AnimationManagerScript::StartSoloAnimationSequence() Can't start animation because actor is in furniture.")
         Return False
     EndIf
+    If !UDMain.GetActorPrecondition(akActor)
+        UDmain.Warning("UD_AnimationManagerScript::StartSoloAnimationSequence() Can't start animation because actor fails precondition.")
+        Return False
+    EndIf
     If !abContinueAnimation
         If UD_Native.IsPlayer(akActor)
             _Apply3rdPersonCamera(abDismount = True)
@@ -259,9 +263,14 @@ Bool Function StartPairAnimationSequence(Actor akActor, Actor akHelper, String[]
         Return StartSoloAnimationSequence(akActor, aasAnimationA1, abContinueAnimation, abDisableActors)
     EndIf
     If IsInFurniture(akActor) || IsInFurniture(akHelper)
-        UDmain.Warning("UD_AnimationManagerScript::StartSoloAnimationSequence() Can't start animation because one of actors is in furniture.")
+        UDmain.Warning("UD_AnimationManagerScript::StartPairAnimationSequence() Can't start animation because one of actors is in furniture.")
         Return False
     EndIf
+    If !UDMain.GetActorPrecondition(akActor) || !UDMain.GetActorPrecondition(akHelper)
+        UDmain.Warning("UD_AnimationManagerScript::StartPairAnimationSequence() Can't start animation because one of actors fails precondition.")
+        Return False
+    EndIf
+    
     Bool a1_is_none = (aasAnimationA1.Length == 0 || aasAnimationA1[0] == "" || aasAnimationA1[0] == "none")
     Bool a2_is_none = (aasAnimationA2.Length == 0 || aasAnimationA2[0] == "" || aasAnimationA2[0] == "none")
     If a1_is_none && a2_is_none

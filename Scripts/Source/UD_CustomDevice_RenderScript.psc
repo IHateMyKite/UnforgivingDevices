@@ -5980,7 +5980,7 @@ bool Function minigamePrecheck(Bool abSilent = False)
     endif
     
     ;Allow minigames on unloaded actors
-    if (Wearer.IsDead() || Wearer.IsDisabled() || Wearer.GetCurrentScene())
+    if (Wearer.IsDead() || Wearer.IsDisabled() || Wearer.GetCurrentScene() || Wearer.IsSwimming())
         if !abSilent
             GWarning("Can't start minigame for " + getDeviceHeader() + " because wearer is invalid! Dead="+Wearer.IsDead() + ",Disabled="+Wearer.IsDisabled()+",Scene+"+Wearer.GetCurrentScene())
             if WearerIsPlayer()
@@ -5988,6 +5988,8 @@ bool Function minigamePrecheck(Bool abSilent = False)
                     UDmain.Print("You can't get into a minigame, because you are currently dead.",1)  ; was:  "You are already doing something" 
                 elseif Wearer.IsDisabled()
                     UDmain.Print("You can't get into a minigame, because you are currently disabled.",1)  ; was:  "You are already doing something"
+                elseif Wearer.IsSwimming()
+                    UDmain.Print("You can't get into a minigame, because you are currently swimming.",1)  ; was:  "You are already doing something"
                 else
                     UDmain.Print("You can't get into a minigame, because you are currently in a scene: " + Wearer.GetCurrentScene() + ".",1)  ; was:  "You are already doing something" 
                 endif

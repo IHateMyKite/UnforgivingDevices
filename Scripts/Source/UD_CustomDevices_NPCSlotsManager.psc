@@ -51,6 +51,14 @@ Function OnGameReload()
             loc_slots.OnGameReload()
             loc_y += 1
         endwhile
+        
+        ResetIncompatibleFactionArray()
+        
+        if UDMain.DeviousStrikeInstalled
+            AddScanIncompatibleFaction(GetMeMyForm(0x000801,"Devious Strike.esp") as Faction)
+            AddScanIncompatibleFaction(GetMeMyForm(0x005930,"Devious Strike.esp") as Faction)
+        endif
+        
     endif
     UD_Slots = GetNumAliases()
     SlotGameUpdate()
