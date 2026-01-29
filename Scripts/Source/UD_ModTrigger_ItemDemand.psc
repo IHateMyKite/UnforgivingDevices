@@ -68,7 +68,7 @@ Bool Function TimeUpdateHour(UD_Modifier_Combo akModifier, UD_CustomDevice_Rende
     EndIf
 
     If RandomFloat(0.0, 100.0) < 50.0
-        PrintNotification(akDevice, ;/ reacted /;" because of the items in your inventory. An image of an " + akForm1.GetName() + " appears in front of your eyes for a second.")
+        PrintNotification(akDevice, ;/ reacted /;"because of the items in your inventory. An image of an " + akForm1.GetName() + " appears in front of your eyes for a second.")
     EndIf
     
     If loc_period > 0 && (loc_last + loc_period) < loc_timer
@@ -130,7 +130,7 @@ Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     Bool loc_stolen = GetStringParamInt(aiDataStr, 2, 0) > 0
     
     If RandomFloat(0.0, 100.0) < 50.0
-        PrintNotification(akDevice, ;/ reacted /;" because of the items in your inventory. An image of an " + akForm1.GetName() + " appears in front of your eyes for a second.")
+        PrintNotification(akDevice, ;/ reacted /;"because of the items in your inventory. An image of an " + akForm1.GetName() + " appears in front of your eyes for a second.")
     EndIf
 
     If loc_stolen && !abIsStolen

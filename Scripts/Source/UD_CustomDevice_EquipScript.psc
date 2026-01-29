@@ -144,7 +144,7 @@ Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldCo
                         if UDmain.ActorIsValidForUD(target)
                             if IsPlayer(giver)
                                 if !EquipDeviceMenu(target)
-                                    UDmain.Print("You equip and lock " + getDeviceName() + " on " + GetActorName(target))
+                                    UDmain.Print("You equip and lock " + getDeviceName() + " on " + GetActorName(target) + ".")
                                 else
                                     return
                                 endif
@@ -811,9 +811,9 @@ Event LockDevice(Actor akActor, Bool abUseMutex = True)
                 
                 UDmain.Error("LockDevice("+getDeviceName()+","+GetActorName(akActor)+") failed. Render device is not equipped - conflict with " + loc_conflictDevice)
                 if IsPlayer(akActor)
-                    UDmain.Print(getDeviceName() + " can't be equipped because of device conflict")
+                    UDmain.Print(getDeviceName() + " can't be equipped because of a device conflict.")
                 elseif UDCDmain.UDmain.ActorInCloseRange(akActor)
-                    UDmain.Print(MakeDeviceHeader(akActor,deviceInventory) + " can't be equipped because of device conflict")
+                    UDmain.Print(MakeDeviceHeader(akActor,deviceInventory) + " can't be equipped because of a device conflict.")
                 endif
             endif
         endif

@@ -50,7 +50,7 @@ Bool Function DeviceLocked(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderS
     akDevice.editStringModifier(akModifier.NameAlias, 6, FormatFloat(loc_timer, 2))
 
     If RandomFloat(0.0, 100.0) < 50.0
-        PrintNotification(akDevice, ;/ reacted /;" because of the items in your inventory. An image of an " + akForm1.GetName() + " appears in front of your eyes for a second.")
+        PrintNotification(akDevice, ;/ reacted /;"because of the items in your inventory. An image of an " + akForm1.GetName() + " appears in front of your eyes for a second.")
     EndIf
     
     Return False
@@ -81,7 +81,7 @@ Bool Function ItemAdded(UD_Modifier_Combo akModifier, UD_CustomDevice_RenderScri
     EndIf
     
     If RandomFloat(0.0, 100.0) < 50.0
-        PrintNotification(akDevice, ;/ reacted /;" because of the items in your inventory. An image of an " + akForm1.GetName() + " appears in front of your eyes for a second.")
+        PrintNotification(akDevice, ;/ reacted /;"because of the items in your inventory. An image of an " + akForm1.GetName() + " appears in front of your eyes for a second.")
     EndIf
 
     Bool loc_result = False

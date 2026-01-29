@@ -5243,9 +5243,9 @@ Function _lockpickDevice()
                 loc_shields = DecreaseLockShield(_MinigameSelectedLockID,1)
                 if loc_shields
                     if PlayerInMinigame()
-                        UDmain.Print("You succesfully unlocked one of the lock's shields! Shields: [" + loc_shields + "]",1)
+                        UDmain.Print("You succesfully unlocked one of the lock's shields! Shields remaining: [" + loc_shields + "]",1)
                     elseif UDCDmain.AllowNPCMessage(Wearer, True)
-                        UDmain.Print(getWearerName() + " unlocked one of the lock's shields! Shields: [" + loc_shields + "]",2)
+                        UDmain.Print(getWearerName() + " unlocked one of the lock's shields! Shields remaining: [" + loc_shields + "]",2)
                     endif
                 else
                     if PlayerInMinigame()
