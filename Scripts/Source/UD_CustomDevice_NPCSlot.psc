@@ -2126,7 +2126,7 @@ Function UpdateArousal(Int aiUpdateTime)
     if OrgasmSystem.UseArousalFallback()
       Actor   loc_actor       = GetActor()
         if loc_actor
-            ;Arousal rate is in default in value per frame
+            ;Arousal rate is in default in value per second
             float loc_arousal = aiUpdateTime*OrgasmSystem.GetOrgasmVariable(loc_actor,9)*OrgasmSystem.GetOrgasmVariable(loc_actor,10)
             _ArousalAccumulator += loc_arousal
             int loc_arousalInt = Math.Floor(_ArousalAccumulator)
