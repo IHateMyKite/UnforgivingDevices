@@ -3949,6 +3949,10 @@ String Function GetConditionString(Int aiCondition)
     endif
 EndFunction
 
+Event ActorDetailsCallback(Actor akActor, Actor akHelper, Armor akDevice, String asArg)
+    ShowActorDetailsMenu(akActor)
+EndEvent
+
 Function OnSaveJSON(String strFile)
     JsonUtil.SetIntValue(strFile, "Stamina_meter_Keycode", Stamina_meter_Keycode)
     JsonUtil.SetIntValue(strFile, "StruggleKey_Keycode", StruggleKey_Keycode)

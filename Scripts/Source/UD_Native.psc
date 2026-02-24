@@ -179,3 +179,10 @@ Quest[]   Function GetDependantModules(Quest akModule)      global native
 Quest[]   Function GetModulesByScript (String asScript)     global native
 Alias[]   Function GetModulesAliasesByScript(String asScript) global native
           Function ResetAllModuleS    ()                    global native
+
+; === UI ===
+Bool      Function IsMenuOpen         () global native
+Bool      Function ShowDeviceMenu     (Actor akWearer, Actor akHelper, String[] aasCallbacks) global native
+
+; === Minigame Msanager ===
+String[]  Function GetListOfMinigames (Actor akWearer, Armor akId) global native

@@ -3199,7 +3199,7 @@ EndFunction
     loc_ca[00] = False ;Enable struggle option
     
     ;open device menu where player can only select struggle option
-    someDevice.DeviceMenuWH(SomeFriendlyNPCloc_ca)
+    someDevice.DeviceMenuWH(SomeFriendlyNPC,loc_ca)
     ...
     ---
 /;
@@ -4183,6 +4183,26 @@ EndFunction
         True if struggle minigame started and ended
 /;
 bool Function struggleMinigame(int aiType = -1, Bool abSilent = False)
+    
+    ;Alias[] loc_minigames = UDmain.UDMING.GetDeviceMinigames(self)
+    ;String [] loc_minigameNames
+    ;
+    ;Int loc_i = 0
+    ;while loc_i < loc_minigames.length
+    ;    UD_Minigame loc_minigame = loc_minigames[loc_i] as UD_Minigame
+    ;    loc_minigameNames = PapyrusUtil.PushString(loc_minigameNames,loc_minigame.Name)
+    ;    loc_i += 1
+    ;endwhile
+    ;loc_minigameNames = PapyrusUtil.PushString(loc_minigameNames,"--Back--")
+    ;Int loc_id = UDmain.GetUserListInput(loc_minigameNames)
+    ;if loc_id != loc_minigameNames.length - 1 && loc_id >= 0
+    ;    UD_Minigame loc_selected = loc_minigames[loc_id] as UD_Minigame
+    ;    loc_selected.StartMinigame(self)
+    ;endif
+
+    UDMain.Info(UD_Native.GetListOfMinigames(Wearer,deviceInventory))
+    ;return false
+    
     if aiType == -1
         String los_msg = _GetDeviceStruggleMenuText()
         aiType = UDMain.UDMMM.ShowMessageBoxMenu(UDCDmain.StruggleMessage, UDMain.UDMMM.NoValues, los_msg, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup(), False)
@@ -8472,4 +8492,10 @@ Function _UnregisterInvalid()
     ; Calling removeLostRenderDevices should fix the issue
     UDCDmain.GetNPCSlot(Wearer).removeLostRenderDevices(true)
     _UnregisterInvalidCalled = 2
+EndFunction
+
+Function DeviceMenuCallback(Actor akHelper, String asArg)
+    if akHelper == none
+        DeviceMenu(new bool[30])
+    endif
 EndFunction

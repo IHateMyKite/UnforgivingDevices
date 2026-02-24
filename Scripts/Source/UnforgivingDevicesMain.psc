@@ -233,6 +233,7 @@ UD_Config Property UDCONF auto
 UD_MenuTextFormatter                Property UDMTF          Auto
 UD_MenuMsgManager                   Property UDMMM          Auto
 
+UD_Minigame_Manager                 Property UDMING         Auto 
 
 Package         Property UD_NPCDisablePackage           auto
 
@@ -1853,7 +1854,7 @@ EndFunction
         True if any menu is open
 /;
 Bool Function IsMenuOpen()
-    return UDMC.UD_MenuOpened
+    return UDMC.UD_MenuOpened || UD_Native.IsMenuOpen()
 EndFunction
 
 ;/  Function: IsMenuOpenRaw
@@ -1865,7 +1866,7 @@ EndFunction
         True if ANY menu is open
 /;
 Bool Function IsAnyMenuOpen()
-    return UDMC.UD_MenuListIDBit
+    return UDMC.UD_MenuListIDBit || UD_Native.IsMenuOpen()
 EndFunction
 
 ;/  Function: IsAnyMenuOpenRT

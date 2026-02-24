@@ -1,0 +1,6 @@
+{
+    "name": "Struggle",
+    "description": "Try to struggle out of the device by using your agility",
+    "uiobject":"UD/Minigames/StruggleDefault/index.html",
+    "script":"UD\\MinigameConfig\\StruggleDefault.lua"
+}

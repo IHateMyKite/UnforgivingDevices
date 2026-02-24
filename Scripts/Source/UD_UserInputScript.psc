@@ -207,10 +207,11 @@ EndFunction
 
 Function OpenDeviceMenu()
     WaitForReady(10.0)
-    UD_CustomDevice_RenderScript loc_device = UDCD_NPCM.getPlayerSlot().GetUserSelectedDevice()
-    if loc_device
-        loc_device.deviceMenu(new Bool[30])
-    endif
+    String[] loc_callbacks = new String[3]
+    loc_callbacks[0] = "[Take closer look]this::DeviceMenuCallback()" ; Call callback on the device script itself
+    loc_callbacks[1] = "[Actor menu]UDCD::ActorDetailsCallback()" ; Call callback on module script
+    loc_callbacks[2] = "[Exit]" ; Empty callback to exit the menu without doing anything
+    UD_Native.ShowDeviceMenu(UDMain.Player,none,loc_callbacks)
 EndFunction
 
 Function OpenNPCMenu(Bool abOpenDeviceList)
