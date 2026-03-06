@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>UnforgivingDevices</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body id="main" style="display: none;">
+    <!-- <body id="main"> -->
+        <div id="devicemenu">
+            <div id="dm_stats">
+                <table style="width:80%;">
+                    <tr >
+                        <th> Wearer: </th>
+                        <th id="dm_wearer"> None </th>
+                        <th> Helper: </th>
+                        <th id="dm_helper"> None </th>
+                    </tr>
+                    <tr>
+                        <th> Devices count: </th>
+                        <th id="dm_devcnt"> 0 </th>
+                    </tr>
+                    <tr>
+                        <th> Orgasm progress: </th>
+                        <th> <span id="dm_orgasm"> 0.0 </span> </th>
+                        <th> Arousal: </th>
+                        <th id="dm_arousal"> 0.0 </th>
+                    </tr>
+                </table>
+            </div>
+            <table id="dm_table">
+                <tr id="dm_line0">
+                    <th> Device list </th>
+                    <th colspan="2"> Details </th>
+                </tr>
+                <tr id="dm_line1">
+                    <th rowspan="4" id="dm_list" class="dm_list"></th>
+                    <th class="devicemenu_info"> 
+                        <table id="dm_detailtable" class="dm_detailtable">
+                        </table>
+                    </th>
+                    <th class="devicemenu_info" id="dm_description"/>
+                </tr>
+                <tr id="dm_line2">
+                    <th colspan="1">Actions</th>
+                    <th colspan="1">Modifiers</th>
+                </tr>
+                <tr id="dm_line3">
+                    <th class="devicemenu_info" id="dm_minigames"></th>
+                    <th class="devicemenu_info" id="dm_modifiers"></th>
+                </tr>
+            </table>
+            <table id="dm_controlmenu">
+                <tr id="dm_con_callbacks">
+                    <!-- <th class="dm_con_h"> <button id="dm_con_open" class="dm_control_dis" onclick="_OpenDevice()"> </button> </th> -->
+                    <!-- <th> <button class="dm_control"> Details </button> </th> -->
+                    <!-- <th class="dm_con_h" id="dm_con_h_exit"> <button id="dm_con_exit" class="dm_control_exit" onclick="_Exit(1)"> Exit </button> </th> -->
+                </tr>
+            </table>
+        </div>
+        <div id="dm_Detail" style="display: none;"/>
+        <script src="DeviceMenu.js"></script>
+    </body>
+</html>

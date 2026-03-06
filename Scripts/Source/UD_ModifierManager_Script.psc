@@ -1,42 +1,10 @@
-Scriptname UD_ModifierManager_Script extends Quest
+Scriptname UD_ModifierManager_Script extends UD_ModuleBase
 
 import UnforgivingDevicesMain
-
-UnforgivingDevicesMain Property UDmain auto
-
-UDCustomDeviceMain Property UDCDmain 
-    UDCustomDeviceMain Function get()
-        return UDmain.UDCDmain
-    EndFunction
-EndProperty
-
-zadlibs_UDPatch Property libsp
-    zadlibs_UDPatch Function get()
-        return UDmain.libsp
-    EndFunction
-EndProperty 
 
 UD_CustomDevices_NPCSlotsManager Property UDNPCM
     UD_CustomDevices_NPCSlotsManager Function get()
         return UDmain.UDNPCM
-    EndFunction
-EndProperty
-
-UD_Patcher Property UDPatcher 
-    UD_Patcher Function get()
-        return UDCDmain.UDPatcher
-    EndFunction
-EndProperty
-
-UD_RandomRestraintManager Property UDRRM 
-    UD_RandomRestraintManager Function get()
-        return UDmain.UDRRM
-    EndFunction
-EndProperty
-
-UD_Libs Property UDLibs 
-    UD_Libs Function get()
-        return UDmain.UDLibs
     EndFunction
 EndProperty
 
@@ -46,26 +14,46 @@ Int _ModDeviceEvent_Locked      = 0x01
 Int _ModDeviceEvent_Unlocked    = 0x02
 Int _ModDeviceEvent_Broken      = 0x04
 
+Function OnSetup()
+    _LastUpdateTime         = Utility.GetCurrentGameTime()
+    _LastUpdateTime_Hour    = Utility.GetCurrentGameTime()
+    _LastUpdateRealTime     = Utility.GetCurrentRealTime()
+    RegisterForSingleUpdateGameTime(1.0) ;start update loop, 1 game hour
+    RegisterForSingleUpdate(30.0) ;start update loop, 5 s
+    _UpdateEventRegistrations()
+EndFunction
+
+Function OnGameReload()
+    _RemoveDuplicates()
+    _UpdateLists()
+    _UpdateModifiers_GameLoad()
+    _UpdateEventRegistrations()
+EndFunction
+
 ;saved modifier storages
 Form[] _modifierstorages
 int Function AddModifierStorage(UD_ModifierStorage akStorage)
+    WaitForReady(10.0)
     if !akStorage
         return -1
     endif
     
     ; Only add new storage if its not already stored
     if _modifierstorages.find(akStorage as Form) == -1
-      UDmain.Info("Adding modifier storage -> " + akStorage)
+      ;UDmain.Info("Adding modifier storage -> " + akStorage)
       _modifierstorages = PapyrusUtil.PushForm(_modifierstorages,akStorage as Form)
     endif
-    ; repopulating modifiers list
-;    Ready = False
-;    RegisterForSingleUpdate(2.0)
     
+    _UpdateLists()
     return _modifierstorages.length
 EndFunction
 
 int Function GetModifierStorageCount()
+    WaitForReady(10.0)
+    return _GetModifierStorageCount()
+EndFunction
+
+int Function _GetModifierStorageCount()
     if _modifierstorages
         return _modifierstorages.length
     else
@@ -74,14 +62,20 @@ int Function GetModifierStorageCount()
 EndFunction
 
 UD_ModifierStorage Function GetNthModifierStorage(Int aiIndex)
+    WaitForReady(10.0)
+    return _GetNthModifierStorage(aiIndex)
+EndFunction
+
+UD_ModifierStorage Function _GetNthModifierStorage(Int aiIndex)
     return _modifierstorages[aiIndex] as UD_ModifierStorage
 EndFunction
 
 UD_Modifier Function GetModifier(String asAlias)
-    int loc_count = GetModifierStorageCount()
+    WaitForReady(10.0)
+    int loc_count = _GetModifierStorageCount()
     while loc_count
         loc_count -= 1
-        UD_ModifierStorage loc_storage = GetNthModifierStorage(loc_count)
+        UD_ModifierStorage loc_storage = _GetNthModifierStorage(loc_count)
         Int loc_modnum = loc_storage.GetModifierNum()
         while loc_modnum
             loc_modnum -= 1
@@ -95,7 +89,8 @@ UD_Modifier Function GetModifier(String asAlias)
 EndFunction
 
 UD_Modifier Function GetModifierFromStorage(Int aiStorageIndex, Int aiModIndex)
-    UD_ModifierStorage loc_storage = GetNthModifierStorage(aiStorageIndex)
+    WaitForReady(10.0)
+    UD_ModifierStorage loc_storage = _GetNthModifierStorage(aiStorageIndex)
     Return loc_storage.GetNthModifier(aiModIndex)
 EndFunction
 
@@ -120,19 +115,7 @@ Function _RemoveDuplicates()
   endif
 EndFunction
 
-Function OnInit()
-    RegisterForSingleUpdate(20.0)
-    UpdateEventRegistrations()
-EndFunction
-
-Function Update()
-    _RemoveDuplicates()
-    UpdateLists()
-    UpdateModifiers_GameLoad()
-    UpdateEventRegistrations()
-EndFunction
-
-Function UpdateEventRegistrations(Bool abUnregister = False)
+Function _UpdateEventRegistrations(Bool abUnregister = False)
     If !abUnregister
         RegisterForTrackedStatsEvent()
         RegisterForSleep()
@@ -155,15 +138,15 @@ String[]        Property UD_ModifierList    auto hidden
 Alias[]         Property UD_ModifierListRef auto hidden
 String[]        Property UD_ModStorageList  Auto Hidden
 
-Function UpdateLists()
+Function _UpdateLists()
     UD_ModifierList     = Utility.CreateStringArray(0)
     UD_ModifierListRef  = Utility.CreateAliasArray(0)
     UD_ModStorageList   = Utility.CreateStringArray(0)
 
     Int loc_i1      = 0
-    int loc_count   = GetModifierStorageCount()
+    int loc_count   = _GetModifierStorageCount()
     while loc_i1 < loc_count
-        UD_ModifierStorage loc_storage = GetNthModifierStorage(loc_i1)
+        UD_ModifierStorage loc_storage = _GetNthModifierStorage(loc_i1)
         Int loc_modnum = loc_storage.GetModifierNum()
         Int loc_i2 = 0
         UD_ModStorageList = PapyrusUtil.PushString(UD_ModStorageList, loc_storage.GetName())
@@ -179,41 +162,30 @@ Function UpdateLists()
     endwhile
 EndFunction
 
-
 float _LastUpdateTime = 0.0
 Float _LastUpdateRealTime = 0.0
 Event OnUpdate()
-    if !Ready
-        Ready = true
-        _LastUpdateTime         = Utility.GetCurrentGameTime()
-        _LastUpdateTime_Hour    = Utility.GetCurrentGameTime()
-        _LastUpdateRealTime     = Utility.GetCurrentRealTime()
-        Update()
-        RegisterForSingleUpdate(30.0) ;start update loop, 5 s
-        RegisterForSingleUpdateGameTime(1.0) ;start update loop, 1 game hour
+    if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
+        float loc_hours_passed = (Utility.GetCurrentGameTime() - _LastUpdateTime) * 24.0
+        Float loc_real_time_passed = (Utility.GetCurrentRealTime() - _LastUpdateRealTime)
+        If loc_real_time_passed > UDmain.UDCONF.UD_UpdateTime * 2.0 || loc_real_time_passed < 0.0
+        ; In case of downtime somewhere in the menu (in the minimized state)
+            _UpdateModifiers_Seconds(loc_hours_passed, UDmain.UDCONF.UD_UpdateTime)
+        Else
+            _UpdateModifiers_Seconds(loc_hours_passed, loc_real_time_passed)
+        EndIf
+        _LastUpdateTime = Utility.GetCurrentGameTime()
+        _LastUpdateRealTime = Utility.GetCurrentRealTime()
+        RegisterForSingleUpdate(UDmain.UDCONF.UD_UpdateTime)
     else
-        if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
-            float loc_hours_passed = (Utility.GetCurrentGameTime() - _LastUpdateTime) * 24.0
-            Float loc_real_time_passed = (Utility.GetCurrentRealTime() - _LastUpdateRealTime)
-            If loc_real_time_passed > UDCDmain.UD_UpdateTime * 2.0 || loc_real_time_passed < 0.0
-            ; In case of downtime somewhere in the menu (in the minimized state)
-                UpdateModifiers_Seconds(loc_hours_passed, UDCDmain.UD_UpdateTime)
-            Else
-                UpdateModifiers_Seconds(loc_hours_passed, loc_real_time_passed)
-            EndIf
-            _LastUpdateTime = Utility.GetCurrentGameTime()
-            _LastUpdateRealTime = Utility.GetCurrentRealTime()
-            RegisterForSingleUpdate(UDCDmain.UD_UpdateTime)
-        else
-            RegisterForSingleUpdate(30.0)
-        endif
+        RegisterForSingleUpdate(30.0)
     endif
 EndEvent
 
 float _LastUpdateTime_Hour = 0.0 ;last time the update happened in days
 Event OnUpdateGameTime()
     if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
-        UpdateModifiers_Hour()
+        _UpdateModifiers_Hour()
     endif
     _LastUpdateTime_Hour = Utility.GetCurrentGameTime()
     RegisterForSingleUpdateGameTime(1.0)
@@ -225,7 +197,7 @@ Event OnTrackedStatsEvent(string arStatName, int aiStatValue)
     If UDmain.TraceAllowed()
         UDmain.Log("UD_ModifierManager_Script::OnTrackedStatsEvent() arStatName = " + arStatName + ", aiStatValue = " + aiStatValue, 3)
     EndIf
-    UpdateModifiers_StatEvent(arStatName, aiStatValue)
+    _UpdateModifiers_StatEvent(arStatName, aiStatValue)
 EndEvent
 
 Float _SleepStart = -1.0
@@ -242,7 +214,7 @@ Event OnSleepStop(bool abInterrupted)
         If UDmain.TraceAllowed()
             UDmain.Log("UD_ModifierManager_Script::OnSleepStop() Sleep was detected: duration = " + loc_dur + ", interrupted = " + abInterrupted, 3)
         EndIf
-        UpdateModifiers_Sleep(loc_dur, abInterrupted)
+        _UpdateModifiers_Sleep(loc_dur, abInterrupted)
     EndIf
 EndEvent
 
@@ -267,10 +239,11 @@ Event OnActorAction(Int aiActionType, Actor akActor, Form akSource, Int aiSlot)
     If loc_slot == None
         Return
     EndIf
-    UpdateModifiers_ActorAction(loc_slot, aiActionType, aiSlot, akSource)
+    _UpdateModifiers_ActorAction(loc_slot, aiActionType, aiSlot, akSource)
 EndEvent
 
 String[] Function GetModifiersTags()
+    WaitForReady(10.0)
     Int loc_i = 0
     String[] loc_tags = Utility.CreateStringArray(0)
     While loc_i < UD_ModifierListRef.Length
@@ -286,7 +259,7 @@ EndFunction
 ;                            receive modifier update events
 ;====================================================================================
 
-Function UpdateModifiers_GameLoad()
+Function _UpdateModifiers_GameLoad()
     int loc_i = 0
     while loc_i < UDNPCM.UD_Slots
         UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getNPCSlotByIndex(loc_i)
@@ -295,7 +268,7 @@ Function UpdateModifiers_GameLoad()
             int loc_x = 0
             while loc_devices[loc_x]
                 if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked ;not update device which are in minigame
-                    Procces_UpdateModifiers_GameLoad(loc_devices[loc_x])
+                    _Procces_UpdateModifiers_GameLoad(loc_devices[loc_x])
                 endif
                 loc_x += 1
             endwhile
@@ -304,7 +277,7 @@ Function UpdateModifiers_GameLoad()
     endwhile
 EndFunction
 
-Function UpdateModifiers_Seconds(float afGameHoursPassed, Float afRealSecondsPassed)
+Function _UpdateModifiers_Seconds(float afGameHoursPassed, Float afRealSecondsPassed)
     int loc_i = 0
     while loc_i < UDNPCM.UD_Slots
         UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getNPCSlotByIndex(loc_i)
@@ -313,7 +286,7 @@ Function UpdateModifiers_Seconds(float afGameHoursPassed, Float afRealSecondsPas
             int loc_x = 0
             while loc_devices[loc_x]
                 if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked && loc_devices[loc_x].IsInit() > 5       ;not update device which are in minigame
-                    Procces_UpdateModifiers_Seconds(loc_devices[loc_x], afGameHoursPassed, afRealSecondsPassed)
+                    _Procces_UpdateModifiers_Seconds(loc_devices[loc_x], afGameHoursPassed, afRealSecondsPassed)
                 endif
                 loc_x += 1
             endwhile
@@ -322,7 +295,7 @@ Function UpdateModifiers_Seconds(float afGameHoursPassed, Float afRealSecondsPas
     endwhile
 EndFunction
 
-Function UpdateModifiers_Hour()
+Function _UpdateModifiers_Hour()
     int loc_i = 0
     while loc_i < UDNPCM.UD_Slots
         UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getNPCSlotByIndex(loc_i)
@@ -331,7 +304,7 @@ Function UpdateModifiers_Hour()
             int loc_x = 0
             while loc_devices[loc_x]
                 if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked
-                    Procces_UpdateModifiers_Hour(loc_devices[loc_x])
+                    _Procces_UpdateModifiers_Hour(loc_devices[loc_x])
                 endif
                 loc_x += 1
             endwhile
@@ -340,35 +313,21 @@ Function UpdateModifiers_Hour()
     endwhile
 EndFunction
 
-Function UpdateModifiers_Orgasm(UD_CustomDevice_NPCSlot akSlot)
-    UD_CustomDevice_NPCSlot loc_slot = akSlot
-    if loc_slot.isUsed() && !loc_slot.isDead() && loc_slot.isScriptRunning()
-        UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
-        int loc_x = 0
-        while loc_devices[loc_x]
-            if !loc_devices[loc_x].IsUnlocked
-                Procces_UpdateModifiers_Orgasm(loc_devices[loc_x])
-            endif
-            loc_x += 1
-        endwhile
-    endif
-EndFunction
-
-Function UpdateModifiers_StatEvent(string arStatName, int aiStatValue)
+Function _UpdateModifiers_StatEvent(string arStatName, int aiStatValue)
     UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getPlayerSlot()
     if loc_slot.isUsed() && !loc_slot.isDead() && loc_slot.isScriptRunning()
         UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
         int loc_x = 0
         while loc_devices[loc_x]
             if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked ;not update device which are in minigame
-                Procces_UpdateModifiers_StatEvent(loc_devices[loc_x], arStatName, aiStatValue)
+                _Procces_UpdateModifiers_StatEvent(loc_devices[loc_x], arStatName, aiStatValue)
             endif
             loc_x += 1
         endwhile
     endif
 EndFunction
 
-Function UpdateModifiers_Sleep(Float afDuration, Bool abInterrupted)
+Function _UpdateModifiers_Sleep(Float afDuration, Bool abInterrupted)
     int loc_i = 0
     while loc_i < UDNPCM.UD_Slots
         UD_CustomDevice_NPCSlot loc_slot = UDNPCM.getNPCSlotByIndex(loc_i)
@@ -377,7 +336,7 @@ Function UpdateModifiers_Sleep(Float afDuration, Bool abInterrupted)
             int loc_x = 0
             while loc_devices[loc_x]
                 if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked ;not update device which are in minigame
-                    Procces_UpdateModifiers_Sleep(loc_devices[loc_x], afDuration, abInterrupted)
+                    _Procces_UpdateModifiers_Sleep(loc_devices[loc_x], afDuration, abInterrupted)
                 endif
                 loc_x += 1
             endwhile
@@ -386,14 +345,14 @@ Function UpdateModifiers_Sleep(Float afDuration, Bool abInterrupted)
     endwhile
 EndFunction
 
-Function UpdateModifiers_ActorAction(UD_CustomDevice_NPCSlot akSlot, Int aiActorAction, Int aiEquipSlot, Form akSource)
+Function _UpdateModifiers_ActorAction(UD_CustomDevice_NPCSlot akSlot, Int aiActorAction, Int aiEquipSlot, Form akSource)
     UD_CustomDevice_NPCSlot loc_slot = akSlot
     if loc_slot.isUsed() && !loc_slot.isDead() && loc_slot.isScriptRunning()
         UD_CustomDevice_RenderScript[] loc_devices = loc_slot.UD_equipedCustomDevices
         int loc_x = 0
         while loc_devices[loc_x]
             if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked ;not update device which are in minigame
-                Procces_UpdateModifiers_ActorAction(loc_devices[loc_x], aiActorAction, aiEquipSlot, akSource)
+                _Procces_UpdateModifiers_ActorAction(loc_devices[loc_x], aiActorAction, aiEquipSlot, akSource)
             endif
             loc_x += 1
         endwhile
@@ -415,7 +374,7 @@ Function UpdateModifiers_KillMonitor(ObjectReference akVictim, ObjectReference a
                 int loc_x = 0
                 while loc_devices[loc_x]
                     if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked ;not update device which are in minigame
-                        Procces_UpdateModifiers_KillMonitor(loc_devices[loc_x], akVictim, aiCrimeStatus)
+                        _Procces_UpdateModifiers_KillMonitor(loc_devices[loc_x], akVictim, aiCrimeStatus)
                     endif
                     loc_x += 1
                 endwhile
@@ -432,7 +391,7 @@ Function UpdateModifiers_KillMonitor(ObjectReference akVictim, ObjectReference a
             int loc_x = 0
             while loc_devices[loc_x]
                 if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked ;not update device which are in minigame
-                    Procces_UpdateModifiers_KillMonitor(loc_devices[loc_x], akVictim, aiCrimeStatus)
+                    _Procces_UpdateModifiers_KillMonitor(loc_devices[loc_x], akVictim, aiCrimeStatus)
                 endif
                 loc_x += 1
             endwhile
@@ -447,7 +406,7 @@ Function UpdateModifiers_SkillMonitor(String asSkill, Int aiValue)
         int loc_x = 0
         while loc_devices[loc_x]
             if !loc_devices[loc_x].isMinigameOn() && !loc_devices[loc_x].IsUnlocked ;not update device which are in minigame
-                Procces_UpdateModifiers_SkillIncreased(loc_devices[loc_x], asSkill, aiValue)
+                _Procces_UpdateModifiers_SkillIncreased(loc_devices[loc_x], asSkill, aiValue)
             endif
             loc_x += 1
         endwhile
@@ -496,7 +455,7 @@ Function ValidateModifiers(UD_CustomDevice_RenderScript akDevice, Bool abGameLoa
     endwhile
 EndFunction
 
-Function Procces_UpdateModifiers_GameLoad(UD_CustomDevice_RenderScript akDevice)
+Function _Procces_UpdateModifiers_GameLoad(UD_CustomDevice_RenderScript akDevice)
     ValidateModifiers(akDevice, True)
     int loc_modid = akDevice.UD_ModifiersRef.length
     while loc_modid 
@@ -506,7 +465,7 @@ Function Procces_UpdateModifiers_GameLoad(UD_CustomDevice_RenderScript akDevice)
     endwhile
 EndFunction
 
-Function Procces_UpdateModifiers_Seconds(UD_CustomDevice_RenderScript akDevice, float afGameHoursPassed, Float afRealTimePassed)
+Function _Procces_UpdateModifiers_Seconds(UD_CustomDevice_RenderScript akDevice, float afGameHoursPassed, Float afRealTimePassed)
     int loc_modid = akDevice.UD_ModifiersRef.length
     while loc_modid 
         loc_modid -= 1
@@ -515,7 +474,7 @@ Function Procces_UpdateModifiers_Seconds(UD_CustomDevice_RenderScript akDevice, 
     endwhile
 EndFunction
 
-Function Procces_UpdateModifiers_Hour(UD_CustomDevice_RenderScript akDevice)
+Function _Procces_UpdateModifiers_Hour(UD_CustomDevice_RenderScript akDevice)
     int loc_modid  = akDevice.UD_ModifiersRef.length
     Float loc_mult = akDevice.ResetLastHourUpdateMod()
     while loc_modid 
@@ -674,7 +633,7 @@ Function Procces_UpdateModifiers_ConditionLoss(UD_CustomDevice_RenderScript akDe
     endwhile
 EndFunction
 
-Function Procces_UpdateModifiers_StatEvent(UD_CustomDevice_RenderScript akDevice, String asStatName, Int aiStatValue)
+Function _Procces_UpdateModifiers_StatEvent(UD_CustomDevice_RenderScript akDevice, String asStatName, Int aiStatValue)
     int loc_modid = akDevice.UD_ModifiersRef.length
     while loc_modid 
         loc_modid -= 1
@@ -683,7 +642,7 @@ Function Procces_UpdateModifiers_StatEvent(UD_CustomDevice_RenderScript akDevice
     endwhile
 EndFunction
 
-Function Procces_UpdateModifiers_Sleep(UD_CustomDevice_RenderScript akDevice, Float afDuration, Bool abInterrupted)
+Function _Procces_UpdateModifiers_Sleep(UD_CustomDevice_RenderScript akDevice, Float afDuration, Bool abInterrupted)
     int loc_modid = akDevice.UD_ModifiersRef.length
     while loc_modid 
         loc_modid -= 1
@@ -692,7 +651,7 @@ Function Procces_UpdateModifiers_Sleep(UD_CustomDevice_RenderScript akDevice, Fl
     endwhile
 EndFunction
 
-Function Procces_UpdateModifiers_ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Int aiEquipSlot, Form akSource)
+Function _Procces_UpdateModifiers_ActorAction(UD_CustomDevice_RenderScript akDevice, Int aiActorAction, Int aiEquipSlot, Form akSource)
     int loc_modid = akDevice.UD_ModifiersRef.length
     while loc_modid 
         loc_modid -= 1
@@ -701,7 +660,7 @@ Function Procces_UpdateModifiers_ActorAction(UD_CustomDevice_RenderScript akDevi
     endwhile
 EndFunction
 
-Function Procces_UpdateModifiers_KillMonitor(UD_CustomDevice_RenderScript akDevice, ObjectReference akVictim, Int aiCrimeStatus)
+Function _Procces_UpdateModifiers_KillMonitor(UD_CustomDevice_RenderScript akDevice, ObjectReference akVictim, Int aiCrimeStatus)
     int loc_modid = akDevice.UD_ModifiersRef.length
     while loc_modid 
         loc_modid -= 1
@@ -710,7 +669,7 @@ Function Procces_UpdateModifiers_KillMonitor(UD_CustomDevice_RenderScript akDevi
     endwhile
 EndFunction
 
-Function Procces_UpdateModifiers_SkillIncreased(UD_CustomDevice_RenderScript akDevice, String asSkill, Int aiValue)
+Function _Procces_UpdateModifiers_SkillIncreased(UD_CustomDevice_RenderScript akDevice, String asSkill, Int aiValue)
     int loc_modid = akDevice.UD_ModifiersRef.length
     while loc_modid 
         loc_modid -= 1
@@ -720,6 +679,7 @@ Function Procces_UpdateModifiers_SkillIncreased(UD_CustomDevice_RenderScript akD
 EndFunction
 
 Function Procces_UpdateModifiers_ItemAdded(UD_CustomDevice_RenderScript akDevice, Form akBaseItem, Int aiItemCount, ObjectReference akSourceContainer, Bool abIsStolen)
+    WaitForReady(10.0)
     If akDevice.GetRealTimeLockedTime() < 0.001
         Return
     EndIf
@@ -732,6 +692,7 @@ Function Procces_UpdateModifiers_ItemAdded(UD_CustomDevice_RenderScript akDevice
 EndFunction
 
 Function Procces_UpdateModifiers_ItemRemoved(UD_CustomDevice_RenderScript akDevice, Form akBaseItem, Int aiItemCount, ObjectReference akDestContainer)
+    WaitForReady(10.0)
     If akDevice.GetRealTimeLockedTime() < 0.001
         Return
     EndIf
@@ -745,12 +706,13 @@ EndFunction
 
 ;DEBUG
 Function Debug_AddModifier(UD_CustomDevice_RenderScript akDevice)
+    WaitForReady(10.0)
     string[] loc_ModifierList
     Alias[]  loc_ModifierListRef
-    int loc_count = GetModifierStorageCount()
+    int loc_count = _GetModifierStorageCount()
     while loc_count
         loc_count -= 1
-        UD_ModifierStorage loc_storage = GetNthModifierStorage(loc_count)
+        UD_ModifierStorage loc_storage = _GetNthModifierStorage(loc_count)
         Int loc_modnum = loc_storage.GetModifierNum()
         while loc_modnum
             loc_modnum -= 1
@@ -778,6 +740,7 @@ Function Debug_AddModifier(UD_CustomDevice_RenderScript akDevice)
 EndFunction
 
 Function Debug_RemoveModifier(UD_CustomDevice_RenderScript akDevice)
+    WaitForReady(10.0)
     if akDevice.UD_ModifiersRef.length > 0
         string[] loc_ModifierList
         Int loc_i = 0
@@ -797,4 +760,25 @@ Function Debug_RemoveModifier(UD_CustomDevice_RenderScript akDevice)
             endif
         endif
     endif
+EndFunction
+
+Function OnSaveJSON(String strFile)
+    Int loc_i = 0
+    While loc_i < UD_ModifierListRef.Length
+        UD_Modifier loc_mod = UD_ModifierListRef[loc_i] as UD_Modifier
+        If loc_mod != None
+            loc_mod.SaveToJSON(strFile)
+        EndIf
+        loc_i += 1
+    EndWhile
+EndFunction
+Function OnLoadJSON(String strFile)
+    Int loc_i = 0
+    While loc_i < UD_ModifierListRef.Length
+        UD_Modifier loc_mod = UD_ModifierListRef[loc_i] as UD_Modifier
+        If loc_mod != None
+            loc_mod.LoadFromJSON(strFile)
+        EndIf
+        loc_i += 1
+    EndWhile
 EndFunction

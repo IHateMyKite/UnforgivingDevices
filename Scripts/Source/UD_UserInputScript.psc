@@ -1,8 +1,7 @@
-Scriptname UD_UserInputScript extends Quest
+Scriptname UD_UserInputScript extends UD_ModuleBase
 
 Import UnforgivingDevicesMain
 
-UnforgivingDevicesMain Property UDmain auto
 UDCustomDeviceMain Property UDCDmain
     UDCustomDeviceMain Function get()
         return UDmain.UDCDmain
@@ -27,41 +26,37 @@ bool _specialButtonOn = false
 bool _gamepadButtonOn = false
 
 Event keyUnregister(string eventName = "none", string strArg = "", float numArg = 0.0, Form sender = none)
-    if UDmain.TraceAllowed()    
+    WaitForReady(10.0)
+    if UDmain.TraceAllowed()
         UDmain.Log("UD_UserInputScript::keyUnregister called",1)
     endif
     UnregisterForAllKeys()
 EndEvent
 
 Event MinigameKeysRegister()
-    if UDmain.TraceAllowed()    
+    WaitForReady(10.0)
+    if UDmain.TraceAllowed()
         UDmain.Log("UD_UserInputScript::MinigameKeysRegister called",1)
     endif
-    ;RegisterForKey(UDCDMain.Stamina_meter_Keycode)
     RegisterForKey(UDCDMain.SpecialKey_Keycode)
-    ;RegisterForKey(UDCDMain.Magicka_meter_Keycode)
     _specialButtonOn = false
 EndEvent
 
 Event MinigameKeysUnregister()
-    if UDmain.TraceAllowed()    
+    WaitForReady(10.0)
+    if UDmain.TraceAllowed()
         UDmain.Log("UD_UserInputScript::MinigameKeysUnregister called",1)
     endif
-    ;if !KeyIsUsedGlobaly(UDCDMain.Stamina_meter_Keycode)
-    ;    UnregisterForKey(UDCDMain.Stamina_meter_Keycode)
-    ;endif
     if !KeyIsUsedGlobaly(UDCDMain.SpecialKey_Keycode)
         UnregisterForKey(UDCDMain.SpecialKey_Keycode)
     endif
-    ;if !KeyIsUsedGlobaly(UDCDMain.Magicka_meter_Keycode)
-    ;    UnregisterForKey(UDCDMain.Magicka_meter_Keycode)
-    ;endif
     _specialButtonOn = false
     _gamepadButtonOn = false
 EndEvent
 
 Function RegisterGlobalKeys()
-    if UDmain.TraceAllowed()    
+    WaitForReady(10.0)
+    if UDmain.TraceAllowed()
         UDmain.Log("UD_UserInputScript::RegisterGlobalKeys")
     endif
     RegisterForKey(UDCDMain.StruggleKey_Keycode)
@@ -72,7 +67,8 @@ Function RegisterGlobalKeys()
 EndFunction
 
 Function UnregisterGlobalKeys()
-    if UDmain.TraceAllowed()    
+    WaitForReady(10.0)
+    if UDmain.TraceAllowed()
         UDmain.Log("UD_UserInputScript::UnregisterGlobalKeys")
     endif
     UnRegisterForKey(UDCDMain.StruggleKey_Keycode)
@@ -83,6 +79,7 @@ Function UnregisterGlobalKeys()
 EndFunction
 
 bool Function KeyIsUsedGlobaly(int keyCode)
+    WaitForReady(10.0)
     bool loc_res = false
     loc_res = loc_res || (keyCode == UDCDMain.StruggleKey_Keycode)
     loc_res = loc_res || (keyCode == UDCDMain.PlayerMenu_KeyCode)
@@ -94,6 +91,7 @@ EndFunction
 
 State Minigame
     Event OnKeyDown(Int KeyCode)
+        WaitForReady(10.0)
         if (UD_Native.GetCameraState() == 3)
             return
         endif
@@ -115,6 +113,7 @@ State Minigame
     EndEvent
 
     Event OnKeyUp(Int KeyCode, Float HoldTime)
+        WaitForReady(10.0)
         if KeyCode == UDCDMain.SpecialKey_Keycode
             _specialButtonOn = false
             if UDCDmain.CurrentPlayerMinigameDevice
@@ -129,6 +128,7 @@ Float _LastPressDownTime    = 0.0
 Float _LastPressUpTime      = 0.0
 
 Event OnKeyDown(Int KeyCode)
+    WaitForReady(10.0)
     if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
         ;check if any menu is open, or if message box is open
         bool loc_menuopen = UDmain.IsAnyMenuOpen()
@@ -152,6 +152,7 @@ Event OnKeyDown(Int KeyCode)
 EndEvent
 
 Event OnKeyUp(Int KeyCode, Float HoldTime)
+    WaitForReady(10.0)
     if UDmain.IsEnabled() && (UD_Native.GetCameraState() != 3)
         if !UDmain.IsAnyMenuOpen() && !(UD_EasyGamepadMode && Game.UsingGamepad())
             Float loc_Time = Utility.GetCurrentRealTime() - _LastPressUpTime
@@ -179,6 +180,7 @@ State UIDisabled
 EndState
 
 Function OpenLastDeviceMenu()
+    WaitForReady(10.0)
     if lastOpenedDevice
         lastOpenedDevice.deviceMenu(new Bool[30])
     elseif libs.playerRef.wornhaskeyword(libs.zad_deviousheavybondage)
@@ -204,13 +206,16 @@ Function OpenLastDeviceMenu()
 EndFunction
 
 Function OpenDeviceMenu()
-    UD_CustomDevice_RenderScript loc_device = UDCD_NPCM.getPlayerSlot().GetUserSelectedDevice()
-    if loc_device
-        loc_device.deviceMenu(new Bool[30])
-    endif
+    WaitForReady(10.0)
+    String[] loc_callbacks = new String[3]
+    loc_callbacks[0] = "[Take closer look]this::DeviceMenuCallback()" ; Call callback on the device script itself
+    loc_callbacks[1] = "[Actor menu]UDCD::ActorDetailsCallback()" ; Call callback on module script
+    loc_callbacks[2] = "[Exit]" ; Empty callback to exit the menu without doing anything
+    UD_Native.ShowDeviceMenu(UDMain.Player,none,loc_callbacks)
 EndFunction
 
 Function OpenNPCMenu(Bool abOpenDeviceList)
+    WaitForReady(10.0)
     ObjectReference loc_ref = Game.GetCurrentCrosshairRef()
     if loc_ref as Actor
         Actor loc_actor = loc_ref as Actor
@@ -232,6 +237,7 @@ Function OpenNPCMenu(Bool abOpenDeviceList)
 EndFunction
 
 Function ShowGamePadMenu()
+    WaitForReady(10.0)
     string[] loc_options = new String[6]
     loc_options[0] = "Last Device menu"
     loc_options[1] = "Device list"
@@ -253,4 +259,14 @@ Function ShowGamePadMenu()
     else
         return
     endif
+EndFunction
+
+Function OnSaveJSON(String strFile)
+    JsonUtil.SetIntValue(strFile, "EasyGamepadMode", UD_EasyGamepadMode as Int)
+EndFunction
+Function OnLoadJSON(String strFile)
+    UD_EasyGamepadMode = JsonUtil.GetIntValue(strFile, "EasyGamepadMode", UD_EasyGamepadMode as Int)
+EndFunction
+Function OnResetToDefault()
+    UD_EasyGamepadMode = false
 EndFunction

@@ -1,0 +1,100 @@
+
+* {
+    border: 1px solid black;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#main
+{
+  width: 100%;
+  height: 100%;
+}
+
+#mg_stats
+{
+    position: absolute;
+    user-select: none;
+    pointer-events:none;
+    width: 25%;
+    height: 5%;
+    top: 90%;
+    left: 50%;
+    margin-top: -2.5%;
+    margin-left: -12.5%;
+}
+
+.mg_bar
+{
+    user-select: none;
+    pointer-events:none;
+    width: 100%;
+}
+
+#mg_durability_border
+{
+    background-color: rgba(125, 0, 0, 0.9);
+    height: 50%;
+}
+
+#mg_durability
+{
+    background-color: rgba(0, 255, 0, 1.0);
+    height: 100%;
+}
+
+#mg_condition_border
+{
+    height: 50%;
+    background-color: rgba(125, 0, 0, 0.8);
+}
+
+#mg_condition
+{
+    background-color: rgba(0, 0, 255, 1.0);
+    height: 100%;
+}
+
+
+#mg_minigame
+{
+    position: absolute;
+    user-select: none;
+    pointer-events:none;
+    width: 25%;
+    height: 5%;
+    top: 75%;
+    left: 50%;
+    margin-top: -2.5%;
+    margin-left: -12.5%;
+    z-index: 1;
+    background-color: rgba(50, 0, 50, 0.9);
+}
+
+#mg_cursorborder
+{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+
+#mg_cursor
+{
+    position: absolute;
+    width: 2.5%;
+    height: 100%;
+    left: 0%;
+    margin-left: 0.0%;
+    background-color: rgba(255, 255, 0, 1.0);
+}
+
+.mg_minigamezone
+{
+    width: 10%;
+    height: 100%;
+    position: absolute;
+    background-color: rgba(0, 125, 125, 0.9);
+}

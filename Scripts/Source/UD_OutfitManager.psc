@@ -1,88 +1,108 @@
-Scriptname UD_OutfitManager extends Quest
+Scriptname UD_OutfitManager extends UD_ModuleBase
 
 import UD_Native
-
-UnforgivingDevicesMain _udmain
-UnforgivingDevicesMain Property UDmain Hidden
-    UnforgivingDevicesMain Function Get()
-        if !_udmain
-            _udmain = UnforgivingDevicesMain.GetUDMain()
-        endif
-        return _udmain
-    EndFunction
-EndProperty
 
 Int _ToBeRegistered = 0
 
 Function IncToBeRegCnt()
+    WaitForReady(10.0)
     _ToBeRegistered += 1
 EndFunction
 
 Function DecToBeRegCnt()
+    WaitForReady(10.0)
     _ToBeRegistered -= 1
 EndFunction
 
-Function Update()
+Function OnGameReload()
     while _ToBeRegistered
         Utility.WaitMenuMode(1.0)
         if _ToBeRegistered
-            UDMain.Info("UD_OutfitManager::Update() - Remaining storage to register = " + _ToBeRegistered)
+            ;UDMain.Info("UD_OutfitManager::Update() - Remaining storage to register = " + _ToBeRegistered)
         endif
     endwhile
-    UpdateLists()
-    ValidateOutfits()
+    _UpdateLists()
+    _ValidateOutfits()
 EndFunction
 
 Form[] _OutfitStorages
 Bool _AddMutex = False
 int Function AddOutfitStorage(UD_OutfitStorage akStorage)
+    WaitForReady(10.0)
+    
     if !akStorage
         return -1
     endif
     
-    while _AddMutex
-        Utility.WaitMenuMode(0.01)
-    endwhile
-    _AddMutex = true
     
     ;check if storage is not already present
     if _OutfitStorages.find(akStorage) >= 0
         return -1 
     endif
     
-    UDmain.Info("UD_OutfitManager::AddOutfitStorage() - Adding outfit storage -> " + akStorage.GetName())
+    ;UDmain.Info("UD_OutfitManager::AddOutfitStorage() - Adding outfit storage -> " + akStorage.GetName())
     int loc_i = 0
     while loc_i < akStorage.GetOutfitNum()
         UD_Outfit loc_outfit = akStorage.GetNthOutfit(loc_i)
-        UDmain.Info("\t\t-> Outfit["+loc_i+"] = " + loc_outfit.NameFull + "("+loc_outfit.NameAlias+")")
+        ;UDmain.Info("\t\t-> Outfit["+loc_i+"] = " + loc_outfit.NameFull + "("+loc_outfit.NameAlias+")")
         loc_i += 1
     endwhile
     
     _OutfitStorages = PapyrusUtil.PushForm(_OutfitStorages,akStorage as Form)
     Int loc_res = _OutfitStorages.length
     
-    UpdateLists()
-    
-    _AddMutex = false
+    _UpdateLists()
     
     return loc_res
 EndFunction
 
+Function RemoveOutfitStorage(UD_OutfitStorage akStorage)
+    WaitForReady(10.0)
+    
+    if !akStorage
+        return
+    endif
+
+    Int loc_indx = _OutfitStorages.find(akStorage)
+
+    ;check if storage is not already present
+    if loc_indx == -1
+        return
+    endif
+
+    if loc_indx != _OutfitStorages.length - 1 && loc_indx != 0
+      Form[] loc_part1 = PapyrusUtil.SliceFormArray(_OutfitStorages,0,loc_indx - 1)
+      Form[] loc_part2 = PapyrusUtil.SliceFormArray(_OutfitStorages,loc_indx + 1,-1)
+      _OutfitStorages = PapyrusUtil.MergeFormArray(loc_part1,loc_part2,true)
+    elseif loc_indx != 0
+      _OutfitStorages = PapyrusUtil.SliceFormArray(_OutfitStorages,0,loc_indx)
+    elseif _OutfitStorages.length > 1
+      _OutfitStorages = PapyrusUtil.SliceFormArray(_OutfitStorages,1,-1)
+    else
+      _OutfitStorages = Utility.CreateFormArray(0)
+    endif
+    ;UnforgivingDevicesMain.GInfo(_OutfitStorages)
+    _UpdateLists()
+EndFunction
+
 Bool Function LockAnyOutfit(Actor akActor)
-    return LockOutfit(akActor,0)
+    WaitForReady(10.0)
+    return _LockOutfit(akActor,0)
 EndFunction
 
 Bool Function LockAbadonOutfit(Actor akActor)
-    return LockOutfit(akActor,1)
+    WaitForReady(10.0)
+    return _LockOutfit(akActor,1)
 EndFunction
 
 Bool Function LockAbadonOutfitSelective(Actor akActor)
-    return LockOutfitSelect(akActor,1)
+    WaitForReady(10.0)
+    return _LockOutfitSelect(akActor,1)
 EndFunction
 
 ; Type = 0 -> Any
 ; Type = 1 -> Abadon outfit (extends UD_OutfitAbadon)
-Bool Function LockOutfit(Actor akActor, Int aiType)
+Bool Function _LockOutfit(Actor akActor, Int aiType)
     if !_OutfitStorages
         return false
     endif
@@ -117,7 +137,23 @@ Bool Function LockOutfit(Actor akActor, Int aiType)
     return false
 EndFunction
 
-Bool Function LockOutfitSelect(Actor akActor, Int aiType)
+Bool Function LockOutfitByAlias(Actor akActor, String asOutfit)
+    WaitForReady(10.0)
+    int loc_storage_id = 0
+    while loc_storage_id < _OutfitStorages.length
+        UD_OutfitStorage loc_OutfitStorage = _OutfitStorages[loc_storage_id] as UD_OutfitStorage
+        if loc_OutfitStorage
+            UD_Outfit loc_outfit = loc_OutfitStorage.GetOutfitByAlias(asOutfit)
+            
+            if loc_outfit
+                return loc_outfit.LockDevices(akActor)
+            endif
+        endif
+        loc_storage_id += 1
+    endwhile
+EndFunction
+
+Bool Function _LockOutfitSelect(Actor akActor, Int aiType)
     if !_OutfitStorages
         return false
     endif
@@ -162,31 +198,16 @@ Bool Function LockOutfitSelect(Actor akActor, Int aiType)
     return false
 EndFunction
 
-Bool Function LockOutfitByAlias(Actor akActor, String asOutfit)
-    int loc_storage_id = 0
-    while loc_storage_id < _OutfitStorages.length
-        UD_OutfitStorage loc_OutfitStorage = _OutfitStorages[loc_storage_id] as UD_OutfitStorage
-        if loc_OutfitStorage
-            UD_Outfit loc_outfit = loc_OutfitStorage.GetOutfitByAlias(asOutfit)
-            
-            if loc_outfit
-                return loc_outfit.LockDevices(akActor)
-            endif
-        endif
-        loc_storage_id += 1
-    endwhile
-EndFunction
-
 Alias[]     Property UD_OutfitListRef auto hidden
 String[]    Property UD_OutfitList    auto hidden
-Function UpdateLists()
+Function _UpdateLists()
     UD_OutfitList     = Utility.CreateStringArray(0)
     UD_OutfitListRef  = Utility.CreateAliasArray(0)
 
     Int loc_i1      = 0
-    int loc_count   = GetOutfitStorageCount()
+    int loc_count   = _GetOutfitStorageCount()
     while loc_i1 < loc_count
-        UD_OutfitStorage loc_storage = GetNthOutfitStorage(loc_i1)
+        UD_OutfitStorage loc_storage = _GetNthOutfitStorage(loc_i1)
         Int loc_outfitnum = loc_storage.GetOutfitNum()
         Int loc_i2 = 0
         while loc_i2 < loc_outfitnum
@@ -201,7 +222,7 @@ Function UpdateLists()
     endwhile
 EndFunction
 
-int Function GetOutfitStorageCount()
+int Function _GetOutfitStorageCount()
     if _OutfitStorages
         return _OutfitStorages.length
     else
@@ -209,11 +230,11 @@ int Function GetOutfitStorageCount()
     endif
 EndFunction
 
-UD_OutfitStorage Function GetNthOutfitStorage(Int aiIndex)
+UD_OutfitStorage Function _GetNthOutfitStorage(Int aiIndex)
     return _OutfitStorages[aiIndex] as UD_OutfitStorage
 EndFunction
 
-Function ValidateOutfits()
+Function _ValidateOutfits()
     int loc_storage_id = 0
     while loc_storage_id < _OutfitStorages.length
         UD_OutfitStorage loc_OutfitStorage = _OutfitStorages[loc_storage_id] as UD_OutfitStorage

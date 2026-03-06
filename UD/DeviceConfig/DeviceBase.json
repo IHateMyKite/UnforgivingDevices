@@ -1,0 +1,35 @@
+{
+    "name": "Generic Device",
+    "description": "This is generic device. It does not do anything special",
+    "script": "ud_customdevice_renderscript",
+    "variables": [
+        {
+            "type": 2,
+            "name": "UD_durability_damage_base",
+            "namedoc": "Base minigame damage",
+            "property": true,
+            "range": [0,1000]
+        },
+        {
+            "type": 2,
+            "name": "UD_base_stat_drain",
+            "namedoc": "Base minigame stat drain",
+            "property": true,
+            "range": [0,100.0]
+        },
+        {
+            "type": 2,
+            "name": "UD_ResistPhysical",
+            "namedoc": "Physical resistence",
+            "property": true,
+            "range": [0,5.0]
+        },
+        {
+            "type": 2,
+            "name": "UD_ResistMagicka",
+            "namedoc": "Magickal resistence",
+            "property": true,
+            "range": [0,5.0]
+        }
+    ]
+}

@@ -1,14 +1,4 @@
-Scriptname UD_SwimmingScript extends Quest  
-
-UnforgivingDevicesMain _udmain
-UnforgivingDevicesMain  Property UDmain hidden
-    UnforgivingDevicesMain Function get()
-        if !_udmain
-            _udmain = UnforgivingDevicesMain.GetUDMain()
-        endif
-        return _udmain
-    EndFunction
-EndProperty
+Scriptname UD_SwimmingScript extends UD_ModuleBase
 
 zadlibs                 Property libs                                   auto
 bool                    Property UD_hardcore_swimming = True            auto
@@ -19,7 +9,7 @@ bool                    Property startedSwimming = False                auto
 bool                    Property drowning = False                       auto
 bool                    Property SpellActivated = False                 auto
 
-Event OnInit()
+Event OnSetup()
     registerforsingleupdate(60.0)
 EndEvent
 
@@ -39,3 +29,13 @@ Event OnUpdate()
         registerforsingleupdate(3.0)
     endif
 EndEvent
+
+Function OnSaveJSON(String strFile)
+    JsonUtil.SetIntValue(strFile, "SwimmingDifficulty", UD_hardcore_swimming_difficulty)
+EndFunction
+Function OnLoadJSON(String strFile)
+    UD_hardcore_swimming_difficulty = JsonUtil.GetIntValue(strFile, "SwimmingDifficulty", UD_hardcore_swimming_difficulty)
+EndFunction
+Function OnResetToDefault()
+    UD_hardcore_swimming_difficulty = 1
+EndFunction

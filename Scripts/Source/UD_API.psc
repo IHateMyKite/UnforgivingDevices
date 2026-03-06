@@ -2,7 +2,7 @@
 ;   This is mod interface for Unforgiving Devices. 
 ;   
 ;   It should be prefered to use these functions instead of functions from modules, as it will be backward compatible
-scriptname UD_API extends Quest
+scriptname UD_API extends UD_ModuleBase
 
 import UnforgivingDevicesMain
 
@@ -95,8 +95,6 @@ UD_UserInputScript                  Property UDUI           auto
 /;
 UD_AnimationManagerScript           Property UDAM           auto
 
-UD_CompatibilityManager_Script      Property UDCM           auto
-
 ;zadlibs for simpler access
 ;   Variable: libs
 zadlibs                             property libs           auto 
@@ -110,11 +108,6 @@ zadxlibs2                           property libsx2         auto
     
     See <UnforgivingDevicesMain>
 /;
-UnforgivingDevicesMain Property UDmain Hidden
-    UnforgivingDevicesMain Function get()
-        return UD_Quest as UnforgivingDevicesMain
-    EndFunction
-EndProperty
 
 ;/  Variable: UDMC
     
@@ -124,7 +117,7 @@ EndProperty
 /;
 UD_MenuChecker Property UDMC Hidden
     UD_MenuChecker Function get()
-        return UD_UtilityQuest as UD_MenuChecker
+        return UDmain.UDMC
     EndFunction
 EndProperty
 
@@ -630,7 +623,7 @@ EndFunction
         Returns actors number of current orgasm exhaustions
 /;
 Int     Function    GetOrgasmExhaustion(Actor akActor)
-    return UDmain.GetUDOM(akActor).GetOrgasmExhaustion(akActor)
+    return UD_OrgasmManager.GetOrgasmExhaustion(akActor)
 EndFunction
 
 ;/  Function: GetOrgasmRate
@@ -647,9 +640,9 @@ EndFunction
 /;
 Float   Function    GetOrgasmRate(Actor akActor, Int aiMode = 0)
     if aiMode == 0
-        return OrgasmSystem.GetOrgasmProgress(akActor,1)*OrgasmSystem.GetOrgasmProgress(akActor,2)
+        return OrgasmSystem.GetOrgasmVariable(akActor,1)*OrgasmSystem.GetOrgasmVariable(akActor,2)
     else
-        return OrgasmSystem.GetOrgasmProgress(akActor,1)
+        return OrgasmSystem.GetOrgasmVariable(akActor,1)
     endif
 EndFunction
 
@@ -664,7 +657,7 @@ EndFunction
         Return actors current arousal
 /;
 Float     Function    GetArousal(Actor akActor)
-    return OrgasmSystem.GetOrgasmProgress(akActor,8)
+    return OrgasmSystem.GetOrgasmVariable(akActor,8)
 EndFunction
 
 ;/  Function: GetArousalRate
@@ -697,7 +690,7 @@ EndFunction
         Return actors orgasm forcing
 /;
 Float   Function    GetActorOrgasmForcing(Actor akActor)
-    return OrgasmSystem.GetOrgasmProgress(akActor,6)
+    return OrgasmSystem.GetOrgasmVariable(akActor,6)
 EndFunction
 
 ;/  Function: GetOrgasmRateMultiplier
@@ -710,7 +703,7 @@ EndFunction
         Return actors orgasm rate multiplier
 /;
 Float   Function    GetOrgasmRateMultiplier(Actor akActor)
-    return OrgasmSystem.GetOrgasmProgress(akActor,2)
+    return OrgasmSystem.GetOrgasmVariable(akActor,2)
 EndFunction
 
 ;/  Function: GetOrgasmResist
@@ -725,9 +718,9 @@ EndFunction
 /;
 Float   Function    GetOrgasmResist(Actor akActor, Int aiMode = 0)
     if aiMode == 0
-        return OrgasmSystem.GetOrgasmProgress(akActor,3)*OrgasmSystem.GetOrgasmProgress(akActor,4)
+        return OrgasmSystem.GetOrgasmVariable(akActor,3)*OrgasmSystem.GetOrgasmVariable(akActor,4)
     else
-        return OrgasmSystem.GetOrgasmProgress(akActor,3)
+        return OrgasmSystem.GetOrgasmVariable(akActor,3)
     endif
 EndFunction
 
@@ -741,7 +734,7 @@ EndFunction
         Return actors current orgasm resistence multiplier
 /;
 Float   Function    GetOrgasmResistMultiplier(Actor akActor)
-    return OrgasmSystem.GetOrgasmProgress(akActor,4)
+    return OrgasmSystem.GetOrgasmVariable(akActor,4)
 EndFunction
 
 ;/  Function: GetArousalRateMultiplier

@@ -9,7 +9,7 @@
     
     See: <IsMenuOpen>, <IsMenuOpenID>, <IsContainerMenuOpen>, <IsLockpickingMenuOpen>, <IsInventoryMenuOpen>, <IsMessageboxOpen>
 /;
-Scriptname UD_MenuChecker extends Quest hidden
+Scriptname UD_MenuChecker extends UD_ModuleBase hidden
 
 ;/ About: Menus ID
     --- Code
@@ -46,8 +46,6 @@ Scriptname UD_MenuChecker extends Quest hidden
 
 import UnforgivingDevicesMain
 
-UnforgivingDevicesMain Property UDmain auto
-
 String[]        Property UD_MenuList                                    auto hidden
 bool[]          Property UD_MenuListID                                  auto hidden
 int             Property UD_MenuListIDBit               = 0x00000000    auto hidden
@@ -56,25 +54,19 @@ Bool            Property UD_MenuOpened                  = False         auto hid
 Bool            Property Ready                          = False         auto hidden
 
 Bool Function IsMenuOpen(Int aiID)
+    WaitForReady(10.0)
     return UD_MenuListID[aiID]
 EndFunction
 
-Event OnInit()
-    RegisterForSingleUpdate(20.0)
-EndEvent
-
-Function OnUpdate()
-    if UDmain.WaitForReady()
-        Update()
-    endif
+Function OnSetup()
+    OnGameReload()
 EndFunction
 
-Function Update()
+Function OnGameReload()
     UD_MenuListIDBit = 0x00000000 ;reset menu bit map
     InitMenuArr()
     UnregisterMenuEvents()
     RegisterMenuEvents()
-    Ready = True
 EndFunction
 
 Function InitMenuArr()

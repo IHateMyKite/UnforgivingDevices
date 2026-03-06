@@ -1,4 +1,4 @@
-Scriptname UD_MenuTextFormatter Extends Quest
+Scriptname UD_MenuTextFormatter Extends UD_ModuleBase
 {Script with functions to format text for messages}
 
 ;/
@@ -1248,4 +1248,11 @@ String Function InlineIfString(Bool abCondition, String asTrue, String asFalse =
     Else
         Return asFalse
     EndIf
+EndFunction
+
+Function OnSaveJSON(String strFile)
+    JsonUtil.SetStringValue(strFile, "MenuTextFormatter", GetMode())
+EndFunction
+Function OnLoadJSON(String strFile)
+    SetMode(JsonUtil.GetStringValue(strFile, "MenuTextFormatter", "HTML"))
 EndFunction

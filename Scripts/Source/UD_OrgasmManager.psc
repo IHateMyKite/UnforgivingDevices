@@ -1,12 +1,11 @@
 ;   File: UD_OrgasmManager
 ;   Contains functions for manipulating orgasm related variables and other manipulation functions
-Scriptname UD_OrgasmManager extends Quest conditional
+Scriptname UD_OrgasmManager extends UD_ModuleBase conditional
 
 import UnforgivingDevicesMain
 import UD_Native
 
 UDCustomDeviceMain                      Property UDCDmain   auto
-UnforgivingDevicesMain                  Property UDmain     auto
 UD_libs                                 Property UDlibs     auto
 zadlibs                                 Property libs       auto
 UD_CustomDevices_NPCSlotsManager        Property UDCD_NPCM  auto
@@ -59,16 +58,8 @@ Faction Property OrgasmResistFaction        auto
 String Property _OrgasmEventName                = "UD_Orgasm"               auto hidden
 String Property _UpdateBaseOrgasmValEventName   = "UD_UpdateBaseOrgasmVal"  auto hidden
 
-;/  Variable: Ready
-    Will be toggled to True once script is ready
-    
-    Do not edit, *READ ONLY!*
-/;
-bool Property Ready auto conditional
-
-Event OnInit()
+Event OnSetup()
     RegisterModEvents()
-    Ready = true
 EndEvent
 
 Function RegisterModEvents()
@@ -87,16 +78,9 @@ EndFunction
 
 ;used for update, transfers loop from UD_CustomDeviceMain in to this script
 ;this is only valid for player, all NPCS need to be reregistered
-Function Update()
+Function OnGameReload()
     UnregisterForAllModEvents()
     RegisterModEvents()
-EndFunction
-
-Function RemoveAbilities(Actor akActor)
-    if akActor
-        akActor.RemoveSpell(UDlibs.OrgasmCheckAbilitySpell)
-        akActor.RemoveSpell(UDlibs.ArousalCheckAbilitySpell)
-    endif
 EndFunction
 
 ;/  Group: Arousal values
@@ -151,21 +135,6 @@ int Function getActorArousal(Actor akActor)
     return akActor.GetFactionRank(libs.Aroused.slaArousal)
 EndFunction
 
-Function StartArousalCheckLoop(Actor akActor)
-    if !akActor
-        UDmain.Error("None passed to StartArousalCheckLoop!!!")
-    endif
-    
-    if UDmain.TraceAllowed()    
-        UDmain.Log("StartArousalCheckLoop("+getActorName(akActor)+") called")
-    endif
-    
-    if akActor.HasMagicEffectWithKeyword(UDlibs.ArousalCheck_KW)
-        return
-    endif
-    
-    akActor.AddSpell(UDlibs.ArousalCheckAbilitySpell,false)
-EndFunction
 
 ;/  Group: Orgasm values
 ===========================================================================================
@@ -225,27 +194,6 @@ EndFunction
 
 float Function CulculateAntiOrgasmRateMultiplier(int iArousal)
     return fRange((Math.pow(10,fRange(100.0/iRange(iArousal,1,100),1.0,2.0) - 1.0)),1.0,100.0)
-EndFunction
-
-;///////////////////////////////////////
-;=======================================
-;ORGASM MAIN LOOP
-;=======================================
-;//////////////////////////////////////;
-
-Function StartOrgasmCheckLoop(Actor akActor)
-    if UDmain.TraceAllowed()    
-        UDmain.Log("StartOrgasmCheckLoop("+getActorName(akActor)+") called")
-    endif
-    if !akActor
-        UDmain.Error("None passed to sendOrgasmCheckLoop!!!")
-    endif
-    if akActor.HasMagicEffectWithKeyword(UDlibs.OrgasmCheck_KW)
-        return
-    endif
-    
-    ;UDlibs.OrgasmCheckSpell.cast(akActor)
-    akActor.AddSpell(UDlibs.OrgasmCheckAbilitySpell,false)
 EndFunction
 
 ;=======================================
@@ -368,7 +316,7 @@ Function ActorOrgasm(actor akActor, Int aiOrgasms)
         if loc_res == 1
             StorageUtil.UnsetIntValue(akActor,"UD_OrgasmInMinigame_Flag")
         endif
-    elseif !loc_cond || ((akActor.IsInCombat() || akActor.IsSneaking()) && (loc_isplayer || loc_isfollower)) || (loc_isplayer && UDmain.IsAnyMenuOpen())
+    elseif !loc_cond || ((akActor.IsInCombat() || akActor.IsSneaking()) && (loc_isplayer || loc_isfollower)) || (loc_isplayer && UDmain.IsAnyMenuOpen()) || akActor.IsSwimming()
         if IsPlayer(akActor)
             UDmain.Print("You managed to avoid losing control over your body from orgasm!",2)
         endif
@@ -475,8 +423,6 @@ Function OnEdge(string eventName, string strArg, float numArg, Form sender)
 EndFunction
 
 Function ORSEvent_OnExpressionUpdate(Actor akActor, int aType, float afOrgasmRate, float afArousal, float afHornyLevel)
-    ;UDMain.Info("UDEvent_OnActorOrgasm("+GetActorName(akActor)+","+aType+","+afOrgasmRate+","+afArousal+","+afHornyLevel+")")
-    
     ;expression
     if aType == 0
         ;init expression
@@ -513,7 +459,7 @@ EndFunction
 
         Number of orgasm exhaustions actor currently have
 /;
-int Function GetOrgasmExhaustion(Actor akActor)
+int Function GetOrgasmExhaustion(Actor akActor) global
     return StorageUtil.getIntValue(akActor,"UD_OrgasmExhaustionNum")
 EndFunction
 

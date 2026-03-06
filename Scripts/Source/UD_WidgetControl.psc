@@ -3,7 +3,7 @@
 ;   It has two states: "Default" and "iWidgetInstalled".
 ;   Many of the functions defined here will work differently, depending on what state the script is in.
 ;   For example, status icons will not be displayed in the standard interface rendering mode, although their state will be changed and saved from API calls.
-ScriptName UD_WidgetControl extends Quest
+ScriptName UD_WidgetControl extends UD_ModuleBase
 
 import UnforgivingDevicesMain
 import UD_Native
@@ -21,8 +21,6 @@ Int W_ICON_CLUSTER_UNSET    = -1
 Int W_ICON_CLUSTER_DEVICES  = 0
 Int W_ICON_CLUSTER_EFFECTS  = 1
 
-UnforgivingDevicesMain      Property UDmain             Auto
-
 ; vanilla widgets
 UD_WidgetBase[]             Property UD_VanillaWidgets  Auto
 {Vanilla meter widgets}
@@ -34,12 +32,6 @@ UD_WidgetBase[]             Property UD_VanillaWidgets  Auto
 ===========================================================================================
 /; 
 
-;/  Variable: Ready
-    Will be toggled to True once script is ready.
-    
-    Do not edit, *READ ONLY!*.
-/;
-Bool                        Property Ready = False      Auto    Hidden               
 
 ;/  Variable: iWidget
 
@@ -421,8 +413,9 @@ Bool Function SingletonCheck()
     return loc_res
 EndFunction
 
-Event OnInit()
-    RegisterForSingleUpdate(6) ;maintenance update
+Event OnSetup()
+    OnUIReload(abGameLoad = False)
+    RegisterForSingleUpdate(1) ;maintenance update
 EndEvent
 
 Event OnUpdate()
@@ -430,15 +423,6 @@ Event OnUpdate()
         UnregisterForUpdate()
         return
     endif
-    If !Ready
-        ;wait for UD to get ready first
-        if !UDmain.WaitForReady()
-            return ;fatal error, do not use the module
-        endif
-        Ready = True
-        ; initialization on new game
-        OnUIReload(abGameLoad = False)
-    EndIf
     If GetState() != ""
     ; yeah, that is real thing (issue #239)
         UDMain.Warning("UD_WidgetControl::OnUpdate() Called this function from the wrong state! Let's try it again.")
@@ -448,8 +432,14 @@ Event OnUpdate()
     EndIf
 EndEvent
 
-Function GameUpdate()
+Function OnGameReload()
     RegisterForModEvent("UDReloadUI","OnUIReload")
+    
+    int loc_removedmeters = Meter_UnregisterAllNative()
+    if loc_removedmeters > 0
+        UDMain.Info(self+"::OnGameReload() - Removed " + loc_removedmeters + " registered meters!")
+    endif
+    
     ; initializations on game load
     OnUIReload(abGameLoad = True)
     ; upgrade version
@@ -714,7 +704,6 @@ EndFunction
         asIcon            - Icon's name.
 /;
 Function Meter_Register(String asName, String asIcon = "")
-    ;UDMain.Info("UD_WidgetControl::Meter_Register() asName = " + asName + ", asIcon = " + asIcon)
     UD_WidgetMeter_RefAlias loc_data = _GetMeter(asName)
     If loc_data == None
         Return
@@ -1006,7 +995,6 @@ EndFunction
         aiClusterId   - Icon cluster (0 or 1 for device or effect cluster). If equal to -1, then the previous value is kept.
 /;
 Function StatusEffect_Register(String asName, Int aiClusterId = -1, Int aiVariant = -1)
-    ;UDMain.Info("UD_WidgetControl::StatusEffect_Register() asName = " + asName + ", aiClusterId = " + aiClusterId + ", aiVariant = " + aiVariant)
     UD_WidgetStatusEffect_RefAlias data = _GetStatusEffect(asName)
     If data == None
         Return
@@ -2421,4 +2409,51 @@ Function TestFun2()
     
     iWidget.setPos(m, 720, 600)
 
+EndFunction
+
+
+Function OnSaveJSON(String strFile)
+    JsonUtil.SetIntValue(strFile, "UseIWantWidget", UD_UseIWantWidget as Int)
+    JsonUtil.SetIntValue(strFile, "iWidgets_EnableDeviceIcons", UD_EnableDeviceIcons as Int)
+    JsonUtil.SetIntValue(strFile, "iWidgets_EnableEffectIcons", UD_EnableDebuffIcons as Int)
+    JsonUtil.SetIntValue(strFile, "iWidgets_EnableCNotifications", UD_EnableCNotifications as Int)
+    JsonUtil.SetIntValue(strFile, "iWidgets_TextFontSize", UD_TextFontSize)
+    JsonUtil.SetIntValue(strFile, "iWidgets_TextLineLength", UD_TextLineLength)
+    JsonUtil.SetIntValue(strFile, "iWidgets_TextReadSpeed", UD_TextReadSpeed)
+    JsonUtil.SetIntValue(strFile, "iWidgets_FilterVibNotifications", UD_FilterVibNotifications as Int)
+    JsonUtil.SetIntValue(strFile, "iWidgets_IconsSize", UD_IconsSize)
+    JsonUtil.SetIntValue(strFile, "iWidgets_IconsAnchor", UD_IconsAnchor)
+    JsonUtil.SetIntValue(strFile, "iWidgets_IconsPadding", UD_IconsPadding)
+    JsonUtil.SetIntValue(strFile, "iWidgets_TextAnchor", UD_TextAnchor)
+    JsonUtil.SetIntValue(strFile, "iWidgets_TextPadding", UD_TextPadding)
+    JsonUtil.SetIntValue(strFile, "WidgetPosX", UD_WidgetXPos)
+    JsonUtil.SetIntValue(strFile, "WidgetPosY", UD_WidgetYPos)
+    JsonUtil.SetIntValue(strFile, "iWidgets_EffectExhaustion_Icon", StatusEffect_GetVariant("effect-exhaustion"))
+    JsonUtil.SetIntValue(strFile, "iWidgets_EffectOrgasm_Icon", StatusEffect_GetVariant("effect-orgasm"))
+EndFunction
+Function OnLoadJSON(String strFile)
+    UD_UseIWantWidget = JsonUtil.GetIntValue(strFile, "UseIWantWidget", UD_UseIWantWidget as Int)
+    UD_EnableDeviceIcons = JsonUtil.GetIntValue(strFile, "iWidgets_EnableDeviceIcons", UD_EnableDeviceIcons as Int)
+    UD_EnableDebuffIcons = JsonUtil.GetIntValue(strFile, "iWidgets_EnableEffectIcons", UD_EnableDebuffIcons as Int)
+    UD_EnableCNotifications = JsonUtil.GetIntValue(strFile, "iWidgets_EnableCNotifications", UD_EnableCNotifications as Int)
+    UD_TextFontSize = JsonUtil.GetIntValue(strFile, "iWidgets_TextFontSize", UD_TextFontSize)
+    UD_TextLineLength = JsonUtil.GetIntValue(strFile, "iWidgets_TextLineLength", UD_TextLineLength)
+    UD_TextReadSpeed = JsonUtil.GetIntValue(strFile, "iWidgets_TextReadSpeed", UD_TextReadSpeed)
+    UD_FilterVibNotifications = JsonUtil.GetIntValue(strFile, "iWidgets_FilterVibNotifications", UD_FilterVibNotifications as Int) == 1
+    UD_IconsSize = JsonUtil.GetIntValue(strFile, "iWidgets_IconsSize", UD_IconsSize)
+    UD_IconsAnchor = JsonUtil.GetIntValue(strFile, "iWidgets_IconsAnchor", UD_IconsAnchor)
+    UD_IconsPadding = JsonUtil.GetIntValue(strFile, "iWidgets_IconsPadding", UD_IconsPadding)
+    UD_TextAnchor = JsonUtil.GetIntValue(strFile, "iWidgets_TextAnchor", UD_TextAnchor)
+    UD_TextPadding = JsonUtil.GetIntValue(strFile, "iWidgets_TextPadding", UD_TextPadding)
+    Int variant = JsonUtil.GetIntValue(strFile, "iWidgets_EffectExhaustion_Icon", -1)
+    StatusEffect_Register("effect-exhaustion", -1, variant)
+    variant = JsonUtil.GetIntValue(strFile, "iWidgets_EffectOrgasm_Icon", -1)
+    StatusEffect_Register("effect-orgasm", -1, variant)
+    UD_WidgetXPos = JsonUtil.GetIntValue(strFile, "WidgetPosX", UD_WidgetXPos)
+    UD_WidgetYPos = JsonUtil.GetIntValue(strFile, "WidgetPosY", UD_WidgetYPos)
+EndFunction
+Function OnResetToDefault()
+    UD_WidgetXPos = 2
+    UD_WidgetYPos = 0
+    ResetToDefault()
 EndFunction

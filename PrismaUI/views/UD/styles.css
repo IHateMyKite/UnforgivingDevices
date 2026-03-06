@@ -1,0 +1,214 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    font-size: 15px;
+    background: transparent;
+    color: #ffffff;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+#devicemenu {
+    max-width: 50%;
+    height: 900px;
+    margin: 0 auto;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#dm_stats
+{
+    height: 15%;
+    width: 100%;
+    text-align: left;
+}
+
+#dm_table
+{
+    background-color: rgba(0, 0, 0, 0.2);
+    height: 80%;
+    width: 100%;
+}
+
+#dm_list
+{
+    background-color: rgba(0, 0, 0, 0.3);
+    font-size: 15px;
+    font-weight: bold;
+    padding: 10px 0px; /* Some padding */
+    width: 25%;
+    vertical-align: top;
+}
+
+.devicemenu_info
+{
+    background-color: rgba(0, 0, 0, 0.4);
+    width: 25%;
+    height: 50%;
+    text-align:center;
+    vertical-align: top;
+}
+
+.dm_detailtable
+{
+    width: 100%;
+    text-align:left;
+    vertical-align: top;
+    text-align: center;
+}
+
+#dm_description
+{
+    vertical-align: left;
+    text-align: left;
+}
+
+.dm_det_value_h
+{
+    width: 50%;
+    vertical-align: top;
+    text-align: left;
+}
+
+.dm_det_value
+{
+    width: 50%;
+    vertical-align: top;
+    text-align: left;
+}
+
+.dm_entry
+{
+    background-color: rgba(0, 0, 0, 0.8);
+    /* background-color: #04AA6D; */
+    /* border: 1px solid green; */
+    color: white;
+    width:95%;
+    margin:auto;
+    vertical-align: top;
+    cursor: pointer; /* Pointer/hand icon */
+    font-weight: bold;
+}
+
+.dm_entry_enabled
+{
+    background-color: rgba(0, 0, 0, 0.8);
+    color: green;
+    width:95%;
+    margin:auto;
+    vertical-align: top;
+    cursor: pointer; /* Pointer/hand icon */
+    font-weight: bold;
+}
+
+.dm_entry_disabled
+{
+    background-color: rgba(0, 0, 0, 0.8);
+    color: red;
+    width:95%;
+    margin:auto;
+    vertical-align: top;
+    cursor: pointer; /* Pointer/hand icon */
+    font-weight: bold;
+}
+
+.dm_entry_selected
+{
+    background-color: rgba(0, 0, 0, 0.8);
+    /* background-color: #04AA6D; */
+    /* border: 1px solid green; */
+    color: yellow;
+    width:95%;
+    margin:auto;
+    vertical-align: top;
+    cursor: pointer; /* Pointer/hand icon */
+    font-weight: bold;
+}
+
+#dm_controlmenu
+{
+    width: 100%;
+}
+
+.dm_con_h
+{
+    width:auto;
+}
+
+.dm_control
+{
+    background-color: #04AA6D;
+    border: 1px solid black;
+    color: white;
+    width:95%;
+    margin:auto;
+    vertical-align: center;
+    cursor: pointer; /* Pointer/hand icon */
+    font-weight: bold;
+}
+
+.dm_control_ena, .dm_control_exit
+{
+    background-color: rgba(0, 0, 0, 0.8);
+    color: rgba(255, 255, 255, 0.8);
+    width:95%;
+    margin:auto;
+    vertical-align: center;
+    cursor: pointer; /* Pointer/hand icon */
+    font-weight: bold;
+}
+
+.dm_control_dis
+{
+    background-color: rgba(0, 0, 0, 0.8);
+    color: rgba(255, 128, 128, 0.8);
+    width:95%;
+    margin:auto;
+    vertical-align: center;
+    cursor: pointer; /* Pointer/hand icon */
+    font-weight: bold;
+}
+
+#dm_con_name
+{
+    color: yellow;
+}
+
+#dm_line1
+{
+    height: 50%;
+}
+
+#dm_line2
+{
+    height: 5%;
+}
+
+#dm_line3
+{
+    height: 45%;
+}
+
+#dm_Detail
+{
+    user-select: none;
+    pointer-events:none;
+    background-color: rgba(0, 0, 0, 0.9);
+    position: absolute;
+    color: yellow;
+    width:10%;
+    top:0px;
+    left:0px;
+    vertical-align: left;
+}

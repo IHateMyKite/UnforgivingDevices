@@ -1,12 +1,6 @@
-Scriptname UD_MenuMsgManager extends Quest Conditional
+Scriptname UD_MenuMsgManager extends UD_ModuleBase Conditional
 
 import UD_Native
-
-Bool                    Property Ready = False                  Auto Hidden
-
-UnforgivingDevicesMain  Property UDmain                         Auto
-
-UD_MenuTextFormatter    Property UDMTF                          Auto
 
 String[]                Property NoButtons                      Auto Hidden
 Float[]                 Property NoValues                       Auto Hidden
@@ -41,18 +35,11 @@ Float                   Property ShowHelpDuration = 7.0         Auto Hidden
 Float                   Property ShowHelpInterval = 60.0        Auto Hidden
 Int                     Property ShowHelpMaxTimes = 1           Auto Hidden
 
-Event OnInit()
-    RegisterForSingleUpdate(20.0)
+Event OnSetup()
+    OnGameReload()
 EndEvent
 
-Function OnUpdate()
-    if UDmain.WaitForReady()
-        Update()
-    endif
-    _CheckHelpMessageQueue()
-EndFunction
-
-Function Update()
+Function OnGameReload()
     _Modes = Utility.CreateStringArray(0)
     NoButtons = Utility.CreateStringArray(0)
     NoValues = Utility.CreateFloatArray(0)
@@ -61,9 +48,8 @@ Function Update()
     RegisterModEvents()
     If GetModeIndex() < 0 
         GoToState("Native_UI")
-        UDMTF.LinesOnHTMLPage = 16
+        UDMain.UDMTF.LinesOnHTMLPage = 16
     EndIf
-    Ready = True
 EndFunction
 
 Function RegisterMenuEvents()
@@ -234,8 +220,9 @@ Bool Function IsMessageboxOpen()
 EndFunction
 
 Function ShowMessageBox(String asMessage, Bool abHasHTML = False, Bool abWordWrap = True)
+    WaitForReady(10.0)
     ; SplitMessageIntoPages should be compatible with both plain and html text if more advanced mode is used
-    String[] loc_pages = UDMTF.SplitMessageIntoPages(asMessage)
+    String[] loc_pages = UDMain.UDMTF.SplitMessageIntoPages(asMessage)
     Int loc_i = 0
     While loc_i < loc_pages.Length
         ShowSingleMessageBox(loc_pages[loc_i], abHasHTML, abWordWrap)
@@ -246,6 +233,7 @@ EndFunction
 ; abWordWrap has no effect in Legacy Mode
 ; abHasHTML has no effect in Legacy Mode
 Function ShowSingleMessageBox(String asMessage, Bool abHasHTML = False, Bool abWordWrap = True)
+    WaitForReady(10.0)
     If abHasHTML 
         UDMain.Warning(Self + "::ShowSingleMessageBox() Legacy Mode: abHasHTML = True has no effect! Can't display HTML text properly!")
     EndIf    
@@ -267,6 +255,7 @@ Function ShowSingleMessageBox(String asMessage, Bool abHasHTML = False, Bool abW
 EndFunction
 
 Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String asMessageOverride, String[] aasButtonsOverride, Bool abHasHTML = False, Bool abWordWrap = True)
+    WaitForReady(10.0)
     If abHasHTML 
         UDMain.Warning(Self + "::ShowMessageBoxMenu() Legacy Mode: abHasHTML = True has no effect! Can't display HTML text properly!")
     EndIf    
@@ -312,7 +301,7 @@ State Papyrus_UI
                     EndIf
                     loc_args = Utility.CreateStringArray(2, "")
                     loc_args[0] = _InjectMessage
-                    loc_args[1] = UDMTF.InlineIfString(_InjectMessageHTML, "1", "0")
+                    loc_args[1] = UDMain.UDMTF.InlineIfString(_InjectMessageHTML, "1", "0")
                     UI.SetBool("MessageBoxMenu", "_root.MessageMenu" + ".MessageText.wordWrap", _InjectMessageWordWrap)
                     UI.InvokeStringA("MessageBoxMenu", "_root.MessageMenu" + ".SetMessage", loc_args)
                     _InjectMessage = ""
@@ -339,6 +328,7 @@ State Papyrus_UI
     EndEvent
 
     Function ShowSingleMessageBox(String asMessage, Bool abHasHTML = False, Bool abWordWrap = True)
+        WaitForReady(10.0)
         String loc_msg = asMessage
         If StringUtil.GetLength(loc_msg) > 2047
             UDMain.Warning(Self + "::ShowSingleMessageBox() Message is too long to display it on a single page!")
@@ -371,7 +361,7 @@ State Papyrus_UI
     EndFunction
 
     Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String asMessageOverride, String[] aasButtonsOverride, Bool abHasHTML = False, Bool abWordWrap = True)
-
+        WaitForReady(10.0)
         _InjectNeeded = True
         _InjectMessageHTML = abHasHTML
         _InjectMessage = asMessageOverride
@@ -404,6 +394,7 @@ Auto State Native_UI
     EndEvent
 
     Function ShowSingleMessageBox(String asMessage, Bool abHasHTML = False, Bool abWordWrap = True)
+        WaitForReady(10.0)
         String loc_msg = asMessage
         If StringUtil.GetLength(loc_msg) > 2047
             UDMain.Warning(Self + "::ShowSingleMessageBox() Message is too long to display it on a single page!")
@@ -417,6 +408,7 @@ Auto State Native_UI
     EndFunction
 
     Int Function ShowMessageBoxMenu(Message akTemplate, Float[] aafValues, String asMessageOverride, String[] aasButtonsOverride, Bool abHasHTML = False, Bool abWordWrap = True)
+        WaitForReady(10.0)
         Int loc_last_btn = -1
         
         If akTemplate == None
@@ -564,3 +556,10 @@ String function _ShowMessageboxArrayTemplate(Message akTemplate,String asBodyTex
         return "TIMED_OUT"
     endIf
 endFunction
+
+Function OnSaveJSON(String strFile)
+    JsonUtil.SetStringValue(strFile, "MenuMsgManager", GetMode())
+EndFunction
+Function OnLoadJSON(String strFile)
+    SetMode(JsonUtil.GetStringValue(strFile, "MenuMsgManager", "Native_UI"))
+EndFunction

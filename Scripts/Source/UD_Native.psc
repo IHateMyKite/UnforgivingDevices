@@ -152,12 +152,12 @@ String[]    Function GetModifierAliases         (Int aiHandle1,Int aiHandle2,Arm
 ; ===Messagebox===
 ; Copied from https://github.com/SkyrimScripting/MessageBox
 function Delete(int messageBoxId) global native
-int function ShowNonBlocking(String asBodyText, string asButton1, string asButton2 = "", string asButton3 = "", string asButton4 = "", string asButton5 = "", string asButton6 = "", string asButton7 = "", string asButton8 = "", string asButton9 = "", string asButton10 = "", bool abUseHtml = False, bool abWordWrap = True) global native
-int function ShowArrayNonBlocking(String asBodyText, String[] asButtons, Bool abUseHtml = False, bool abWordWrap = True) global native
-int function ShowArrayNonBlockingTemplate(Message akMemplate, String asBodyText, float[] afValues, string[] asButtons, bool abUseHtml = False, bool abWordWrap = True) global native
-string function GetResultText(Int MessageBoxId, Bool abDeleteResultOnAccess = true) global native
-int function GetResultIndex(Int aiMessageBoxId, Bool abDeleteResultOnAccess = true) global native
-bool function IsMessageResultAvailable(Int MessageBoxId) global native
+int     function ShowNonBlocking            (String asBodyText, string asButton1, string asButton2 = "", string asButton3 = "", string asButton4 = "", string asButton5 = "", string asButton6 = "", string asButton7 = "", string asButton8 = "", string asButton9 = "", string asButton10 = "", bool abUseHtml = False, bool abWordWrap = True) global native
+int     function ShowArrayNonBlocking       (String asBodyText, String[] asButtons, Bool abUseHtml = False, bool abWordWrap = True) global native
+int     function ShowArrayNonBlockingTemplate(Message akMemplate, String asBodyText, float[] afValues, string[] asButtons, bool abUseHtml = False, bool abWordWrap = True) global native
+string  function GetResultText              (Int MessageBoxId, Bool abDeleteResultOnAccess = true)      global native
+int     function GetResultIndex             (Int aiMessageBoxId, Bool abDeleteResultOnAccess = true)    global native
+bool    function IsMessageResultAvailable   (Int MessageBoxId)                                          global native
 
 ; ===Config===
 Int       Function GetIniVariableInt   (String asName, Int     aiDef)                               global native
@@ -168,3 +168,21 @@ Int[]     Function GetIniArrayInt      (String asName, String  asSep = ",")     
 String[]  Function GetIniArrayString   (String asName, Bool    abText = true, String asSep = ",")   global native
 Float[]   Function GetIniArrayFloat    (String asName, String  asSep = ",")                         global native
 Bool[]    Function GetIniArrayBool     (String asName, String  asSep = ",")                         global native
+
+; ===Module Manager===
+Bool      Function AreModulesReady    (Bool abCheckReload)  global native
+Quest     Function GetModuleByAlias   (String asAlias)      global native
+Quest[]   Function GetModules         ()                    global native
+Quest[]   Function GetModuleDependency(Quest akModule)      global native
+Quest[]   Function GetDependantModules(Quest akModule)      global native
+          Function ResetModule        (Quest akModule)      global native
+Quest[]   Function GetModulesByScript (String asScript)     global native
+Alias[]   Function GetModulesAliasesByScript(String asScript) global native
+          Function ResetAllModuleS    ()                    global native
+
+; === UI ===
+Bool      Function IsMenuOpen         () global native
+Bool      Function ShowDeviceMenu     (Actor akWearer, Actor akHelper, String[] aasCallbacks) global native
+
+; === Minigame Msanager ===
+String[]  Function GetListOfMinigames (Actor akWearer, Armor akId) global native

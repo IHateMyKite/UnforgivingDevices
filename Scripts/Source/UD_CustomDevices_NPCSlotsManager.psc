@@ -1,16 +1,10 @@
-Scriptname UD_CustomDevices_NPCSlotsManager extends Quest
+Scriptname UD_CustomDevices_NPCSlotsManager extends UD_ModuleBase
 
 import UnforgivingDevicesMain
 import UD_Native
 
-String Property SLOTSNAME = "Error" auto
-
-UDCustomDeviceMain      Property UDCDmain                               auto
-UnforgivingDevicesMain  Property UDmain                     hidden
-    UnforgivingDevicesMain Function get()
-        return UDCDmain.UDmain
-    EndFunction
-EndProperty
+String  Property SLOTSNAME = "Error" auto
+Faction Property RegisteredNPCFaction auto
 
 Float                   Property UD_SlotScanUpdateTime      Hidden
     Float Function get()
@@ -24,11 +18,8 @@ Float                   Property UD_HeavySlotUpdateTime     Hidden
 EndProperty
 
 Quest               Property UDCD_NPCF                                  auto ;finder
-UD_OrgasmManager    Property UDOM                                       auto
 Message             Property UD_FixMenu_MSG                             auto
 Int                 Property UD_Slots                       = 16        auto hidden
-Float               Property UD_SlotUpdateTime              = 10.0      auto hidden
-Bool                Property Ready                          = False     auto hidden
 FormList            Property EmptyItemFilter                            Auto
 
 Bool                         _PlayerSlotReady               = false
@@ -39,6 +30,50 @@ Form[]                       _ScanInCompatibilityFactions
 
 ;Static slots used by quests
 Form[] _StaticSlots
+
+Function OnGameReload()
+    UD_Native.RegisterSlotQuest(self as Quest)
+    ; === Manager only ===
+    if IsManager()
+        ; === Check player slot ===
+        UD_CustomDevice_NPCSlot loc_playerslot = GetPlayerSlot()
+        ;Player is not swet to reference, set it and init it
+        if loc_playerslot.GetActor() != UDmain.Player
+            loc_playerslot.ForceRefTo(UDmain.Player)
+            loc_playerslot.OnInit()
+        endif
+        ; ==== check static slots ====
+        ReregisterStaticSlots()
+        Int loc_slotsnum = _StaticSlots.length
+        Int loc_y = 0
+        while loc_y < loc_slotsnum
+            UD_StaticNPCSlots loc_slots = _StaticSlots[loc_y] as UD_StaticNPCSlots
+            loc_slots.OnGameReload()
+            loc_y += 1
+        endwhile
+        
+        ResetIncompatibleFactionArray()
+        
+        if UDMain.DeviousStrikeInstalled
+            AddScanIncompatibleFaction(GetMeMyForm(0x000801,"Devious Strike.esp") as Faction)
+            AddScanIncompatibleFaction(GetMeMyForm(0x005930,"Devious Strike.esp") as Faction)
+        endif
+        
+    endif
+    UD_Slots = GetNumAliases()
+    SlotGameUpdate()
+    RegisterForSingleUpdate(10.0)
+    registerForSingleUpdateGameTime(1.0)
+EndFunction
+
+Function SlotGameUpdate()
+    int index = 0
+    while index < UD_Slots
+        UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
+        loc_slot.GameUpdate()
+        index += 1
+    endwhile
+EndFunction
 
 Bool Function IsManager()
     return True
@@ -53,7 +88,6 @@ Function AddStaticSlot(UD_StaticNPCSlots akSlots)
     endwhile
     _StaticSlotMutex = True
     _StaticSlots = PapyrusUtil.PushForm(_StaticSlots,akSlots)
-    ;UDMain.Info(self + "::AddStaticSlot() - Static slot added = " + akSlots + ", Total number of slots = " + _StaticSlots.length)
     _slotregisterque -= 1
     _StaticSlotMutex = False
 EndFunction
@@ -116,7 +150,7 @@ UD_StaticNPCSlots Function GetNthStaticSlots(Int aiId)
     return none
 EndFunction
 
-Event OnInit()
+Function OnSetup()
     UD_Slots = GetNumAliases()
     int     index = 0
     float   loc_time = 0.0
@@ -136,47 +170,18 @@ Event OnInit()
             GError(self + "::OnInit() - NPCslot["+ index +"] - alias is recognized as NPC slot!")
         endif
         index += 1
-        Utility.WaitMenuMode(0.05)
     endwhile
-    registerForSingleUpdate(10.0)
-    UD_Native.RegisterSlotQuest(self as Quest)
-    Ready = True
-EndEvent
-
-Function GameUpdate()
-    UD_Native.RegisterSlotQuest(self as Quest)
-    ; === Manager only ===
-    if IsManager()
-        ; === Check player slot ===
-        UD_CustomDevice_NPCSlot loc_playerslot = GetPlayerSlot()
-        ;Player is not swet to reference, set it and init it
-        if loc_playerslot.GetActor() != UDmain.Player
-            loc_playerslot.ForceRefTo(UDmain.Player)
-            loc_playerslot.OnInit()
-        endif
-        ; ==== check static slots ====
-        ReregisterStaticSlots()
-        Int loc_slotsnum = _StaticSlots.length
-        Int loc_y = 0
-        while loc_y < loc_slotsnum
-            UD_StaticNPCSlots loc_slots = _StaticSlots[loc_y] as UD_StaticNPCSlots
-            loc_slots.GameUpdate()
-            loc_y += 1
-        endwhile
-    endif
-    UD_Slots = GetNumAliases()
-    SlotGameUpdate()
-    RegisterForSingleUpdate(10.0)
-    registerForSingleUpdateGameTime(1.0)
-EndFunction
-
-Function SlotGameUpdate()
-    int index = 0
+    index = 0
     while index < UD_Slots
-        UD_CustomDevice_NPCSlot loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
-        loc_slot.GameUpdate()
+        loc_slot = (GetNthAlias(index) as UD_CustomDevice_NPCSlot)
+        if loc_slot
+            loc_slot.Setup()
+        endif
         index += 1
     endwhile
+    ;UnforgivingDevicesMain.GInfo("NPCM ready")
+    registerForSingleUpdate(10.0)
+    UD_Native.RegisterSlotQuest(self as Quest)
 EndFunction
 
 Event OnUpdate()
@@ -191,7 +196,7 @@ Event OnUpdate()
             float loc_timePassed = Utility.GetCurrentGameTime() - _LastUpdateTime
             UpdateDevices(loc_timePassed)
             _LastUpdateTime = Utility.GetCurrentGameTime()
-            _UpdateTimePassed2 += UDCDmain.UD_UpdateTime
+            _UpdateTimePassed2 += UDMain.UDCONF.UD_UpdateTime
             if _UpdateTimePassed2 >= UD_SlotScanUpdateTime
                 if IsManager() && UDmain.AllowNPCSupport
                     scanSlots()
@@ -200,13 +205,13 @@ Event OnUpdate()
             endif
         endif
         removeDeadNPCs()
-        _UpdateTimePassed += UDCDmain.UD_UpdateTime
+        _UpdateTimePassed += UDMain.UDCONF.UD_UpdateTime
         if _UpdateTimePassed >= UD_HeavySlotUpdateTime
             UpdateSlots() ;update slots, this only update variables, not devices
             _UpdateTimePassed = 0.0
         endif
     endif
-    RegisterForSingleUpdate(UDCDmain.UD_UpdateTime)
+    RegisterForSingleUpdate(UDMain.UDCONF.UD_UpdateTime)
 EndEvent
 
 Event OnUpdateGameTime()
@@ -271,7 +276,7 @@ Function FreeUnusedSlots()
             
             ;unregister NPC if it was not found
             if !loc_found && !loc_slot.IsBlocked()
-                loc_actor.RemoveFromFaction(UDCDmain.RegisteredNPCFaction)
+                loc_actor.RemoveFromFaction(RegisteredNPCFaction)
                 loc_slot.unregisterSlot()
             endif
         endif
@@ -321,7 +326,7 @@ Function updateSlotedActors(bool debugMsg = False)
                         if currentSlotActor
                             if currentSelectedActor != currentSlotActor
                                 slot.GoToState("UpdatePaused")
-                                currentSlotActor.RemoveFromFaction(UDCDmain.RegisteredNPCFaction)
+                                currentSlotActor.RemoveFromFaction(RegisteredNPCFaction)
                                 slot.unregisterSlot()
                                 slot.SetSlotTo(currentSelectedActor)
                                 if debugMsg || UDmain.DebugMod
@@ -403,7 +408,7 @@ bool Function RegisterNPC(Actor akActor,bool debugMsg = false)
                     slot.GoToState("UpdatePaused")
                     slot.SetSlotTo(currentSelectedActor)
                     StorageUtil.SetIntValue(currentSelectedActor, "UD_ManualRegister", 1)
-                    if debugMsg || UDCDmain.UDmain.DebugMod
+                    if debugMsg || UDmain.DebugMod
                         UDmain.Print("NPC slot ["+ index +"] => " + slot.getSlotedNPCName() + " registered!",0)
                     endif
                     UDmain.Info(GetActorName(akActor) + " registered!")
@@ -470,7 +475,7 @@ int Function getNumSlots()
 EndFunction
 
 bool Function isRegistered(Actor akActor)
-    return akActor.isInFaction(UDCDmain.RegisteredNPCFaction)
+    return akActor.isInFaction(RegisteredNPCFaction)
 EndFunction
 
 UD_CustomDevice_NPCSlot Function getNPCSlotByName(string sName)
@@ -561,7 +566,7 @@ Function UpdateSlotsHour()
 EndFunction
 
 bool Function NPCAlreadyRegistred(Actor akActor)
-    return akActor.isInFaction(UDCDmain.RegisteredNPCFaction)
+    return akActor.isInFaction(RegisteredNPCFaction)
 EndFunction
 
 int Function numberOfFreeSlots()
@@ -585,13 +590,13 @@ bool Function unregisterNPC(Actor akActor,bool bDebugMsg = false)
         if !loc_slot.IsBlocked()
             loc_slot.unregisterSlot()
             StorageUtil.UnSetIntValue(akActor, "UD_blockSlotUpdate")
-            akActor.RemoveFromFaction(UDCDmain.RegisteredNPCFaction)
-            if bDebugMsg || UDCDmain.UDmain.DebugMod
+            akActor.RemoveFromFaction(RegisteredNPCFaction)
+            if bDebugMsg || UDmain.DebugMod
                 debug.notification("[UD]: NPC slot [X] = " + getActorName(akActor) + " =>  unregistered!")
             endif
             return True
         else
-            if bDebugMsg || UDCDmain.UDmain.DebugMod
+            if bDebugMsg || UDmain.DebugMod
                 debug.notification("[UD]: NPC slot [X] = " + getActorName(akActor) + " =>  slot blocked!")
             endif
             return False
@@ -604,7 +609,7 @@ State UpdatePaused
     Function UpdateSlots()
     EndFunction
     Event OnUpdate()
-        RegisterForSingleUpdate(UDCDmain.UD_UpdateTime/2)
+        RegisterForSingleUpdate(UDMain.UDCONF.UD_UpdateTime/2)
     EndEvent
     Event OnUpdateGameTime()
         RegisterForSingleUpdateGameTime(1.0)
@@ -621,7 +626,7 @@ State Disabled
     Function UpdateSlots()
     EndFunction
     Event OnUpdate()
-        RegisterForSingleUpdate(UDCDmain.UD_UpdateTime/2)
+        RegisterForSingleUpdate(UDMain.UDCONF.UD_UpdateTime/2)
     EndEvent
     Event OnUpdateGameTime()
         RegisterForSingleUpdateGameTime(1.0)

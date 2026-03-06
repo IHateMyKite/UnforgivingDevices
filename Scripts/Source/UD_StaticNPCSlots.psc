@@ -4,7 +4,7 @@ Scriptname UD_StaticNPCSlots extends UD_CustomDevices_NPCSlotsManager
 ;NPC manager, should allways be filled
 UD_CustomDevices_NPCSlotsManager Property UDNPCM hidden
     UD_CustomDevices_NPCSlotsManager Function Get()
-        return UDCDmain.UDmain.UDNPCM
+        return UDmain.UDNPCM
     EndFUnction
 EndProperty
 
@@ -31,8 +31,8 @@ Function RegisterStaticSlots()
     UDNPCM.AddStaticSlot(self)
 EndFunction
 
-Event OnInit()
+Event OnSetup()
     RegisterStaticEvents()
     RegisterStaticSlots()
-    parent.OnInit()
+    parent.OnSetup()
 EndEvent

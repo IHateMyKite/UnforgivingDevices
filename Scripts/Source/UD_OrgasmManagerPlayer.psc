@@ -196,7 +196,7 @@ Function FocusOrgasmResistMinigame(Actor akActor)
         return
     endif
     
-    if UDCDMain.actorInMinigame(akActor) || UDmain.UDAM.isAnimating(akActor)
+    if UDCDMain.actorInMinigame(akActor) || UDmain.UDAM.isAnimating(akActor) || akActor.IsSwimming()
         if akActor == UDmain.Player
             UDmain.Print("You are already busy!")
         endif

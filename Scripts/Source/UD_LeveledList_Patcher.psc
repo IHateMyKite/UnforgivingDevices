@@ -1,9 +1,6 @@
-Scriptname UD_LeveledList_Patcher extends Quest 
+Scriptname UD_LeveledList_Patcher extends UD_MOduleBase
 
 import UnforgivingDevicesMain
-
-UnforgivingDevicesMain Property UDmain auto
-bool Property Ready = false auto
 
 ;Lists to add
 LeveledItem Property UD_LIL_AncientSeed auto
@@ -22,23 +19,12 @@ LeveledItem Property LIL_AllEnchCirclet auto
 
 FormList Property UD_BlackGooDropList auto
 
-Event OnInit()
-    if IsRunning()
-        RegisterForSingleUpdate(30)
-        Ready = true
-    endif
+Event OnSetup()
+    Process()
 EndEvent
 
-Event OnUpdate()
-    if UDmain.UDReady()
-        Process()
-    else
-        RegisterForSingleUpdate(30)
-    endif
-EndEvent
-
-Function Update()
-    ResetQuest(self)
+Function OnGameReload()
+    ;ResetQuest(self)
     Process()
 EndFunction
 
@@ -65,7 +51,7 @@ Function Process()
         LIL_AllEnchCirclet.AddForm(UD_LIL_EnchCirclet,1,1)
     endif
     if loc_patched
-        UDmain.Info("UD_LeveledList_Patcher - Forms added to LeveledLists: " + loc_patched)
+        ;UDmain.Info("UD_LeveledList_Patcher - Forms added to LeveledLists: " + loc_patched)
     endif
 EndFunction
 
