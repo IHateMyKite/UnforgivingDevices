@@ -53,8 +53,8 @@ function StopMinigame(C)
     Host_StopMinigame(C['MinigameId'])
 end
 
-function OpenMinigameUI(C)
-    Host_OpenMinigameUI(C['MinigameId'])
+function OpenMinigameUI(C,callback)
+    Host_OpenMinigameUI(C['MinigameId'],callback)
 end
 
 function CloseMinigameUI(C)
@@ -141,7 +141,7 @@ function DisableRegen(C)
     UpdateVariableValue(C,"wearer::StaminaRate(A)",0.0)
     UpdateVariableValue(C,"wearer::HealRate(A)",0.0)
     UpdateVariableValue(C,"wearer::MagickaRate(A)",0.0)
-    if C['Helper'] then
+    if not IsNull(C['Helper']) then
         Log("Helper is present")
         loc_regens['Helper'] = {}
         loc_regens['Helper']['StaminaRate'] = GetVariableValue(C,"helper::StaminaRate(A)")
@@ -164,7 +164,7 @@ function EnableRegen(C)
     UpdateVariableValue(C,"wearer::HealRate(A)"    ,loc_regens['Wearer']['HealRate'])
     UpdateVariableValue(C,"wearer::MagickaRate(A)" ,loc_regens['Wearer']['MagickaRate'])
     
-    if C['Helper'] then
+    if not IsNull(C['Helper']) then
         UpdateVariableValue(C,"helper::StaminaRate(A)" ,loc_regens['Helper']['StaminaRate'])
         UpdateVariableValue(C,"helper::HealRate(A)"    ,loc_regens['Helper']['HealRate'])
         UpdateVariableValue(C,"helper::MagickaRate(A)" ,loc_regens['Helper']['MagickaRate'])
@@ -179,7 +179,7 @@ function DamageStats(C,stamina,health,magicka)
     UpdateVariableValue(C,"wearer::stamina(D)",stamina)
     UpdateVariableValue(C,"wearer::health(D)",health)
     UpdateVariableValue(C,"wearer::magicka(D)",magicka)
-    if C['Helper'] then
+    if not IsNull(C['Helper']) then
         UpdateVariableValue(C,"helper::stamina(D)",stamina)
         UpdateVariableValue(C,"helper::health(D)",health)
         UpdateVariableValue(C,"helper::magicka(D)",magicka)
@@ -191,6 +191,7 @@ function CheckStats(C,stamina,health,magicka)
         Log("ERROR: DamageStats() - Context is nil")
         return
     end
+    
     local loc_res = true
     if stamina then
         loc_res = loc_res and GetVariableValue(C,"wearer::stamina(A)") > 0.0
@@ -201,7 +202,7 @@ function CheckStats(C,stamina,health,magicka)
     if magicka then
         loc_res = loc_res and GetVariableValue(C,"wearer::magicka(A)") > 0.0
     end
-    if C['Helper'] then
+    if not IsNull(C['Helper']) then
         if stamina then
             loc_res = loc_res and GetVariableValue(C,"helper::stamina(A)") > 0.0
         end
@@ -212,6 +213,7 @@ function CheckStats(C,stamina,health,magicka)
             loc_res = loc_res and GetVariableValue(C,"helper::magicka(A)") > 0.0
         end
     end
+    return loc_res
 end
 
 -- Converts string to bool

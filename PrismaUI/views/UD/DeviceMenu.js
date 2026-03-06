@@ -159,7 +159,6 @@ function ShowDetails(event, str)
     d.innerText = str;
     d.style.setProperty("top",event.clientY-10+"px")
     d.style.setProperty("left",event.clientX+"px")
-    d.style.setProperty("position","absolutee")
     d.style.setProperty("display","inline")
 }
 

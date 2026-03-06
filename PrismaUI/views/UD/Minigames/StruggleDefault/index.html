@@ -7,10 +7,18 @@
         <link rel="stylesheet" href="styles.css">
     </head>
     <body id="main">
-        <div id="mg_container">
-            <div id="mg_base">
-                <div id="mg_durability_border"/>
-                <div id="mg_durability"/>
+        <div id="mg_minigame">
+            <div style="left:0%;" class="mg_minigamezone"></div>
+            <div style="right:0%;" class="mg_minigamezone"></div>
+            <div id="mg_cursor"></div>
+        </div>
+        
+        <div id="mg_stats">
+            <div id="mg_durability_border" class="mg_bar">
+                <div id="mg_durability" class="mg_bar"></div>
+            </div>
+            <div id="mg_condition_border" class="mg_bar">
+                <div id="mg_condition" class="mg_bar"></div>
             </div>
         </div>
         <script src="script.js"></script>
