@@ -1,0 +1,14 @@
+{
+    "name": "Desperate Struggle",
+    "description": "Try to struggle out of the device by using your strength. The less durability will device have, the faster you will escape",
+    "uiobject":"UD/Minigames/StruggleDefault/index.html",
+    "script":"UD\\MinigameConfig\\StruggleDefault.lua",
+    "config":
+    {
+        "minStamina": "0.2",
+        "minHealth": "0.5",
+        "StaminaDrain": "10.0",
+        "HealthDrain": "5.0",
+        "DamageBase": "15.0"
+    }
+}

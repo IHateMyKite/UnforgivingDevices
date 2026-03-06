@@ -233,8 +233,6 @@ UD_Config Property UDCONF auto
 UD_MenuTextFormatter                Property UDMTF          Auto
 UD_MenuMsgManager                   Property UDMMM          Auto
 
-UD_Minigame_Manager                 Property UDMING         Auto 
-
 Package         Property UD_NPCDisablePackage           auto
 
 ;UI menus

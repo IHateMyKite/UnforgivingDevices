@@ -18,9 +18,13 @@ window.InitDeviceList = (values) => {
     document.getElementById('dm_orgasm').textContent    = values.orgasm;
     
     var buttons = document.getElementById("dm_list");
-    
     while (buttons.hasChildNodes()) {
       buttons.removeChild(buttons.firstChild);
+    }
+    
+    var minigames = document.getElementById("dm_minigames");
+    while (minigames.hasChildNodes()) {
+      minigames.removeChild(minigames.firstChild);
     }
     
     for (let i = 0; i < devices.length; i++) 
@@ -114,14 +118,6 @@ function _DeviceDetails(arg) {
     document.getElementById('dm_description').textContent   = devices[arg].desc
     
     _InitValueDetails(arg)
-
-    //document.getElementById('dm_det_name').textContent      = devices[arg].name
-    //document.getElementById('dm_det_health').textContent    = devices[arg].health
-    //document.getElementById('dm_det_cond').textContent      = devices[arg].condition
-    //document.getElementById('dm_det_resphys').textContent   = devices[arg].resphys
-    //document.getElementById('dm_det_resmagk').textContent   = devices[arg].resmagk
-    //document.getElementById('dm_det_lvl').textContent       = devices[arg].level
-    
     
     console.log("_DeviceDetails("+arg+")")
     let loc_mods = document.getElementById('dm_modifiers')
@@ -129,16 +125,50 @@ function _DeviceDetails(arg) {
       loc_mods.removeChild(loc_mods.firstChild);
     }
     
-    for (let i = 0; i < devices[arg].mods.length; i++) 
+    for (let i = 0; i < devices[arg].mods.length; i++)
     {
         var loc_modbutton = document.createElement("button");
         loc_modbutton.textContent = devices[arg].mods[i].name;
         loc_modbutton.className = "dm_entry"
-        loc_modbutton.setAttribute("onmouseover","_ModDetails("+arg+","+i+")")
-        loc_modbutton.setAttribute("onmouseout","_ModDetailsReset()")
+        loc_modbutton.setAttribute("onmouseover","ShowDetails(event,\""+devices[arg].mods[i].desc+"\")")
+        loc_modbutton.setAttribute("onmouseout","HideDetails(event)")
         loc_mods.appendChild(loc_modbutton);
     }
+    
+    let loc_minigames = document.getElementById('dm_minigames')
+    while (loc_minigames.hasChildNodes()) {
+      loc_minigames.removeChild(loc_minigames.firstChild);
+    }
+    for (let i = 0; i < devices[arg].minigames.length; i++)
+    {
+        var loc_button = document.createElement("button");
+        loc_button.textContent = devices[arg].minigames[i].name;
+        if (devices[arg].minigames[i].state == 1) loc_button.className = "dm_entry_enabled"
+        else loc_button.className = "dm_entry_disabled"
+        loc_button.setAttribute("onmouseover","ShowDetails(event,\""+devices[arg].minigames[i].desc+"\")")
+        loc_button.setAttribute("onmouseout","HideDetails(event)")
+        loc_button.setAttribute("onclick","_StartMinigame("+arg+","+i+")")
+        loc_minigames.appendChild(loc_button);
+    }
 };
+
+
+function ShowDetails(event, str)
+{
+    d = document.getElementById('dm_Detail');
+    d.innerText = str;
+    d.style.setProperty("top",event.clientY-10+"px")
+    d.style.setProperty("left",event.clientX+"px")
+    d.style.setProperty("position","absolutee")
+    d.style.setProperty("display","inline")
+}
+
+function HideDetails(event)
+{
+    d = document.getElementById('dm_Detail');
+    d.innerText = "";
+    d.style.setProperty("display","none")
+}
 
 function _InitValueDetails(arg)
 {
@@ -167,25 +197,13 @@ function _InitValueDetails(arg)
         loc_values.appendChild(loc_tr);
         
     }
-    
-
 }
-
-function _ModDetails(arg1,arg2)
-{
-    
-    let loc_mod = devices[arg1].mods[arg2]
-    document.getElementById('dm_mod_name').textContent   = loc_mod.name
-    document.getElementById('dm_mod_desc').textContent   = loc_mod.desc
-};
-
-function _ModDetailsReset()
-{
-    document.getElementById('dm_mod_name').textContent   = ""
-    document.getElementById('dm_mod_desc').textContent   = ""
-}
-
 
 function _Exit(arg) {
     window.ExitMenu(arg);
 };
+
+function _StartMinigame(dev,min)
+{
+    if (devices[dev].minigames[min].state == 1) StartMinigame(dev+","+devices[dev].minigames[min].id)
+}

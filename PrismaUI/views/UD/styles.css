@@ -17,7 +17,7 @@ body {
 
 #devicemenu {
     max-width: 50%;
-    height: 800px;
+    height: 900px;
     margin: 0 auto;
     background: rgba(0, 0, 0, 0.8);
     border-radius: 12px;
@@ -101,6 +101,28 @@ body {
     font-weight: bold;
 }
 
+.dm_entry_enabled
+{
+    background-color: rgba(0, 0, 0, 0.8);
+    color: green;
+    width:95%;
+    margin:auto;
+    vertical-align: top;
+    cursor: pointer; /* Pointer/hand icon */
+    font-weight: bold;
+}
+
+.dm_entry_disabled
+{
+    background-color: rgba(0, 0, 0, 0.8);
+    color: red;
+    width:95%;
+    margin:auto;
+    vertical-align: top;
+    cursor: pointer; /* Pointer/hand icon */
+    font-weight: bold;
+}
+
 .dm_entry_selected
 {
     background-color: rgba(0, 0, 0, 0.8);
@@ -176,4 +198,17 @@ body {
 #dm_line3
 {
     height: 45%;
+}
+
+#dm_Detail
+{
+    user-select: none;
+    pointer-events:none;
+    background-color: rgba(0, 0, 0, 0.9);
+    position:absolute;
+    color: yellow;
+    width:10%;
+    top:0px;
+    left:0px;
+    vertical-align: left;
 }

@@ -376,16 +376,24 @@ bool        Property IsUnlocked                                     Hidden
     EndFunction
 EndProperty
 
+float _MaxHealth = 100.0
+bool  _MaxHealthSet = false
 ;/  Variable: UD_Health
     Default max health with current device level
 /;
 Float       Property UD_Health                                      Hidden 
     Float Function get()
-        if !UD_HealthScalingDisabled
-            return UD_DefaultHealth + (UD_Level - 1)*UDCDmain.UD_DeviceLvlHealth*UD_DefaultHealth
-        else
-            return UD_DefaultHealth
+        if !_MaxHealthSet
+            _MaxHealthSet = true
+            if !UD_HealthScalingDisabled
+                _MaxHealth = UD_DefaultHealth + (UD_Level - 1)*UDCDmain.UD_DeviceLvlHealth*UD_DefaultHealth
+            else
+                _MaxHealth = UD_DefaultHealth
+            endif
         endif
+        return _MaxHealth
+    EndFunction
+    Function set(Float afVal)
     EndFunction
 EndProperty
 
@@ -1021,6 +1029,7 @@ Function _Init(Actor akActor)
         endif
     endwhile
     
+    UD_Health = UD_Health
     
     if UDmain.TraceAllowed()
         UDmain.Log(getDeviceName() + " fully locked on " + getWearerName(),1)
@@ -4183,25 +4192,8 @@ EndFunction
         True if struggle minigame started and ended
 /;
 bool Function struggleMinigame(int aiType = -1, Bool abSilent = False)
-    
-    ;Alias[] loc_minigames = UDmain.UDMING.GetDeviceMinigames(self)
-    ;String [] loc_minigameNames
-    ;
-    ;Int loc_i = 0
-    ;while loc_i < loc_minigames.length
-    ;    UD_Minigame loc_minigame = loc_minigames[loc_i] as UD_Minigame
-    ;    loc_minigameNames = PapyrusUtil.PushString(loc_minigameNames,loc_minigame.Name)
-    ;    loc_i += 1
-    ;endwhile
-    ;loc_minigameNames = PapyrusUtil.PushString(loc_minigameNames,"--Back--")
-    ;Int loc_id = UDmain.GetUserListInput(loc_minigameNames)
-    ;if loc_id != loc_minigameNames.length - 1 && loc_id >= 0
-    ;    UD_Minigame loc_selected = loc_minigames[loc_id] as UD_Minigame
-    ;    loc_selected.StartMinigame(self)
-    ;endif
 
     UDMain.Info(UD_Native.GetListOfMinigames(Wearer,deviceInventory))
-    ;return false
     
     if aiType == -1
         String los_msg = _GetDeviceStruggleMenuText()
@@ -8148,12 +8140,18 @@ Function _SendMinigameThreads(bool abStarter, bool abCritLoop, bool abParalelThr
 EndFunction
 
 Function _MinigameStarterThread()
+    UDmain.Info("_MinigameStarterThread called")
     bool    loc_canShowHUD      = canShowHUD()
     bool    loc_haveplayer      = PlayerInMinigame()
     bool    loc_is3DLoaded      = loc_haveplayer || UDmain.ActorInCloseRange(wearer)
     
     if UDmain.TraceAllowed()
         UDmain.Log("_MinigameStarterThread("+GetDeviceHeader()+")")
+    endif
+    
+    Wearer.AddToFaction(UDCDmain.MinigameFaction)
+    if _minigameHelper
+        _minigameHelper.AddToFaction(UDCDmain.MinigameFaction)
     endif
     
     _MinigameParProc_1 = true
@@ -8498,4 +8496,24 @@ Function DeviceMenuCallback(Actor akHelper, String asArg)
     if akHelper == none
         DeviceMenu(new bool[30])
     endif
+EndFunction
+
+UD_MinigameManager _minm
+UD_MinigameManager Property UD_MINM
+    UD_MinigameManager Function get()
+        if !_minm
+            _minm = UD_MinigameManager.GetSingleton()
+        endif
+        return _minm
+    EndFunction
+EndProperty
+
+Function Lua_ReadyMinigame(Actor akHelper)
+    UD_MINM.ReadyDeviceMinigame(self,akHelper)
+EndFunction
+Function Lua_UpdateMinigameExpression(Actor akHelper)
+    UD_MINM.UpdateMinigameExpression(self,akHelper)
+EndFunction
+Function Lua_StopMinigame(Actor akHelper)
+    UD_MINM.StopDeviceMinigame(self,akHelper)
 EndFunction
