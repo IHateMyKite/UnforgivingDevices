@@ -112,11 +112,6 @@ Weapon Property UD_BestWeapon Hidden
         _BestWeapon = akWeapon
     EndFunction
 EndProperty
-float Property AgilitySkill         = 0.0   auto hidden
-float Property StrengthSkill        = 0.0   auto hidden
-float Property MagickSkill          = 0.0   auto hidden
-float Property CuttingSkill         = 0.0   auto hidden
-float Property SmithingSkill        = 0.0   auto hidden
 
 float Property ArousalSkillMult     = 1.0   auto hidden
 
@@ -134,15 +129,10 @@ State UpdatePaused
     EndFunction
     Function DeviceUpdate(UD_CustomDevice_RenderScript akDevice,Float afTimePassed)
     EndFunction
-    Function UpdateSkills()
-    EndFunction
 EndState
 
 Function GameUpdate()
     If isUsed()
-        if !IsPlayer()
-            UDOM.RemoveAbilities(GetActor())
-        endif
         _OrgasmGameUpdate()
         CheckVibrators()
     endif
@@ -159,11 +149,6 @@ EndFunction
 ;update other variables
 Function UpdateSlot(Bool abUpdateSkill = true)
     ArousalSkillMult = UDCDmain.getArousalSkillMult(getActor())
-    if abUpdateSkill && (isPlayer() || isFollower())
-        ;only update skills if actor is player or follower
-        ;TODO: Add switch to allow users to also update skills for other NPCs
-        UpdateSkills()
-    endif
     if !GetActor().wornhaskeyword(libs.zad_deviousHeavyBondage)
         _handRestrain = none ;unreference device
     endif
@@ -201,10 +186,13 @@ Function endDeviceManipulation()
 EndFunction
 
 Event OnInit()
-    UD_equipedCustomDevices = UDCDMain.MakeNewDeviceSlots()
-    UD_ActiveVibrators      = UDCDMain.MakeNewDeviceSlots()
     Ready = True
 EndEvent
+
+Function Setup()
+    UD_equipedCustomDevices = UDCDMain.MakeNewDeviceSlots()
+    UD_ActiveVibrators      = UDCDMain.MakeNewDeviceSlots()
+EndFunction
 
 Event OnPlayerLoadGame()
 EndEvent
@@ -524,10 +512,7 @@ Function unregisterSlot()
     endif
     StorageUtil.UnSetIntValue(getActor(), "UD_ManualRegister")
     _iScriptState = 0
-    if IsPlayer()
-        UDOM.RemoveAbilities(getActor())
-    else
-        CleanArousalUpdate()
+    if !IsPlayer()
         CleanOrgasmUpdate()
     endif
     UnregisterAllItemEvents(True)
@@ -645,7 +630,9 @@ Function fix()
         ; fix current devices
         int i = UD_equipedCustomDevices.length
         while i
-            UD_equipedCustomDevices[i].StopMinigame()
+            if UD_equipedCustomDevices[i]
+                UD_equipedCustomDevices[i].StopMinigame()
+            endif
             i -= 1
         endwhile
         _DeviceManipMutex = false
@@ -666,10 +653,6 @@ Function fix()
             else
                 OrgasmSystem.RemoveOrgasmChange(GetActor(),loc_list[loc_ores])
             endif
-        endif
-        if IsPlayer()
-            GetActor().DispelSpell(UDmain.UDlibs.ArousalCheckAbilitySpell)
-            GetActor().DispelSpell(UDmain.UDlibs.OrgasmCheckAbilitySpell)
         endif
         UDmain.Print("[UD] Orgasm variables reset!")
     elseif loc_res == 2 ;reset expression
@@ -1947,15 +1930,6 @@ Weapon Function GetBestWeapon()
     return UD_Native.GetSharpestWeapon(getActor())
 EndFunction
 
-Function UpdateSkills()
-    AgilitySkill    = UDmain.UDSKILL.getActorAgilitySkills(getActor())
-    StrengthSkill   = UDmain.UDSKILL.getActorStrengthSkills(getActor())
-    MagickSkill     = UDmain.UDSKILL.getActorMagickSkills(getActor())
-    CuttingSkill    = UDmain.UDSKILL.getActorCuttingSkills(getActor())
-    SmithingSkill   = UDmain.UDSKILL.getActorSmithingSkills(getActor())
-EndFunction
-
-
 ;===============================================================================
 ;===============================================================================
 ;                                    MUTEX
@@ -2143,7 +2117,6 @@ EndFunction
 Float _dfArousal = 0.0
 
 Function InitArousalUpdate()
-    ;GetActor().AddToFaction(UDOM.ArousalCheckLoopFaction)
 EndFunction
 
 float _ArousalAccumulator = 0.0
@@ -2153,13 +2126,11 @@ Function UpdateArousal(Int aiUpdateTime)
     if OrgasmSystem.UseArousalFallback()
       Actor   loc_actor       = GetActor()
         if loc_actor
-            ;Arousal rate is in default in value per frame
+            ;Arousal rate is in default in value per second
             float loc_arousal = aiUpdateTime*OrgasmSystem.GetOrgasmVariable(loc_actor,9)*OrgasmSystem.GetOrgasmVariable(loc_actor,10)
-            ;UDMain.Info(self + "::UpdateArousal() - Arousal = " + loc_arousal)
             _ArousalAccumulator += loc_arousal
             int loc_arousalInt = Math.Floor(_ArousalAccumulator)
             if loc_arousalInt != 0
-                ;UDMain.Info(self + "::UpdateArousal() - Increasing arousal by " + loc_arousalInt + " (Accu = "+_ArousalAccumulator+")")
                 _ArousalAccumulator -= loc_arousalInt
                 if libs.Aroused.GetVersion() >= 30100005 && libs.Aroused.GetVersion() < 40000000
                   ; SLA Arousal is installed
@@ -2183,12 +2154,6 @@ Function UpdateArousal(Int aiUpdateTime)
         else
             UDmain.Error(self + "::UpdateArousal() - Cant update arousal  because sloted actor is none!")
         endif
-    endif
-EndFunction
-
-Function CleanArousalUpdate()
-    if GetActor()
-        ;GetActor().RemoveFromFaction(UDOM.ArousalCheckLoopFaction)
     endif
 EndFunction
 
@@ -2312,9 +2277,9 @@ Int _ActorConstraints = -1
 
 FUnction UpdateOrgasmHornyAnimation()
     Actor akActor = GetActor()
-    if !_actorinminigame 
+    if !_actorinminigame
         bool loc_orgasmResisting = akActor.isInFaction(UDOM.OrgasmResistFaction)
-        if (_hornyAnimTimer == 0) && UDCONF.UD_HornyAnimation && (OrgasmSystem.GetOrgasmVariable(akActor,1) > 0.5*OrgasmSystem.GetOrgasmVariable(akActor,4)*OrgasmSystem.GetOrgasmVariable(akActor,3)) && !loc_orgasmResisting && !akActor.IsInCombat() ;orgasm progress is increasing
+        if (_hornyAnimTimer == 0) && UDCONF.UD_HornyAnimation && (OrgasmSystem.GetOrgasmVariable(akActor,1) > 0.5*OrgasmSystem.GetOrgasmVariable(akActor,4)*OrgasmSystem.GetOrgasmVariable(akActor,3)) && !loc_orgasmResisting && !akActor.IsInCombat() && !akActor.IsSneaking() && !akActor.IsSwimming() ;orgasm progress is increasing
             if !UDmain.UDAM.IsAnimating(akActor) ;start horny animation for UD_HornyAnimationDuration
                 if RandomInt(0,99) <= 10 + Round(10*(fRange(OrgasmSystem.GetOrgasmProgress(akActor),0.0,50.0)/50.0))
                     ; Requesting and selecting animation

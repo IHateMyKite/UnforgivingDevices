@@ -1,10 +1,10 @@
-ScriptName UD_ModifierStorage extends Quest
+ScriptName UD_ModifierStorage extends UD_ModuleBase
 
 UD_ModifierManager_Script _udmom
 UD_ModifierManager_Script Property UDMOM
     UD_ModifierManager_Script Function Get()
         if (!_udmom)
-            _udmom = UnforgivingDevicesMain.GetUDmain().UDMOM
+            _udmom = UDmain.UDMOM
         endif
         return _udmom
     EndFunction
@@ -12,11 +12,7 @@ EndProperty
 
 String[] Property UD_ModifierList Auto Hidden
 
-Event OnInit()
-    RegisterForSingleUpdate(10.0)
-EndEvent
-
-Event OnUpdate()
+Event OnSetup()
     UpdateList()
     UDMOM.AddModifierStorage(self)
 EndEvent

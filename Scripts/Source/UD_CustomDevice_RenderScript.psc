@@ -167,12 +167,12 @@ EndProperty
     This is not exact value of what will be used in minigame, but instead just base value which is then moded using other minigame values
     
 /;
-float       Property UD_durability_damage_base   Auto;durability dmg per second of struggling, range 0.00 - 40.00, precision 0.01 (4000 values)
+float       Property UD_durability_damage_base = 1.0 Auto ;durability dmg per second of struggling, range 0.00 - 40.00, precision 0.01 (4000 values)
 
 ;/  Variable: UD_base_stat_drain
     How many points of stats (health, stamina, magicka) are reduced per second of minigame. This is only base values, which is later moded with minigame values
 /;
-float       Property UD_base_stat_drain  Auto;stamina drain for second of struggling, range 1 - 31, decimal point not used
+float       Property UD_base_stat_drain = 6.0 Auto ;stamina drain for second of struggling, range 1 - 31, decimal point not used
 
 ;/  Variable: UD_ResistPhysical
     Physical resistence of device. Reduces effectiveness of normal and despair minigame Value bigger then 100% will cause device to be healed
@@ -190,16 +190,7 @@ float       Property UD_ResistMagicka    Auto;magicka resistence. Needs to be ap
 
 ;/  Variable: UD_WeaponHitResist
     Physical resistence of device when hit with weapon attack. If set to 5.23, it will be set on init to <UD_ResistPhysical>. Value bigger then 100% will cause device to be healed
-    
-    *This value is bitcoded, and thus have limited range and precision!*
-    
-    --- Code
-        Default value  =       0.00
-        Min. Value     =      -5.00
-        Max. Value     =       5.23
-        Precision      =       0.01
-    ---
-    
+
     See: <UD_ResistPhysical>, <UD_ResistMagicka>
 /;
 float       Property UD_WeaponHitResist   Auto;physical resistence to physical attack
@@ -211,13 +202,10 @@ float       Property UD_SpellHitResist    Auto;!!!UNUSED!!!
 ;/  Variable: UD_CutChance
     Have nothing to do with chance. Determinate how much cutting progress is added on every key press
     
-    *This value is bitcoded, and thus have limited range and precision!*
-    
     --- Code
         Default value  =       0.00
         Min. Value     =       0.00
         Max. Value     =     100.00
-        Precision      =       1.00
     ---
 /;
 float       Property UD_CutChance       Auto;chance of cutting device every 1s of minigame, 0.0 is uncuttable
@@ -231,7 +219,6 @@ float       Property UD_CutChance       Auto;chance of cutting device every 1s o
         Default value  =       3.75
         Min. Value     =       0.00
         Max. Value     =     255.00
-        Precision      =       0.25
     ---
 /;
 float       Property UD_StruggleCritMul             = 3.75          Auto ;crit multiplier applied on crit, step = 0.25, max 255, default 3.75x
@@ -1698,7 +1685,7 @@ Function _ResetTimers()
     _LastHourUpdateTimeMod  = Utility.GetCurrentGameTime()
 EndFunction
 
-Float Function ResetLastHourUpdate()
+Float Function _LastHourUpdate()
     Float loc_time = Utility.GetCurrentGameTime()
     Float loc_hours = (loc_time - _LastHourUpdateTime)*24.0
     _LastHourUpdateTime = loc_time
@@ -2114,6 +2101,7 @@ EndFunction
  Bool      IsValidLock(Int aiLock)                     = return true if passed lock is in valid format
  Int       GetLockNumber()                             = returns number of locks on the device or 0 if device have no locks
  Int       GetNthLock(Int aiLockIndex)                 = This function returns the Nth lock, or error value if no locks are on device
+ Bool      SetNthLock(Int aiLockIndex, Int aiLockValue)= This function sets the value of Nth lock, or return error value if no locks are on device
  String    GetNthLockName(Int aiLockIndex)             = returns Nth locks name
  Bool      IsNthLockUnlocked(Int aiLockIndex)          = returns true if the Nth lock is unlocked, or false if no Nth lock exist or is invalid
  Bool      IsNthLockJammed(Int aiLockIndex)            = returns true if the Nth lock is jammed, or false if no Nth lock exist or is invalid
@@ -2374,6 +2362,16 @@ Int Function GetNthLock(Int aiLockIndex)
     endif
 EndFunction
 
+;This function sets the value of Nth lock, or return error value if no locks are on device
+Bool Function SetNthLock(Int aiLockIndex, Int aiLockValue)
+    if UD_LockList && iInRange(aiLockIndex,0,UD_LockList.length - 1)
+        UD_LockList[aiLockIndex] = aiLockValue
+        return True
+    else
+        return False
+    endif
+EndFunction
+
 ;returns Nth locks name
 String Function GetNthLockName(Int aiLockIndex)
     return UD_LockNameList[aiLockIndex]
@@ -2490,7 +2488,7 @@ Bool Function UnlockNthLock(Int aiLockIndex, Bool abUnlock = True)
     Int loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock)
         loc_Lock = CodeBit(loc_Lock, abUnlock as Int,1,0)
-        UD_LockList[aiLockIndex] = loc_Lock
+        SetNthLock(aiLockIndex,loc_Lock)
         loc_res = true
     endif
     _EndLockManipMutex()
@@ -2511,11 +2509,11 @@ Int Function UnlockAllLocks(Bool abUnlock = True)
         if IsValidLock(loc_Lock)
             if (abUnlock && !IsNthLockUnlocked(loc_LockNum)) ;unlock lock
                 loc_Lock = CodeBit(loc_Lock,1,1, 0)
-                UD_LockList[loc_LockNum] = loc_Lock
+                SetNthLock(loc_LockNum,loc_Lock)
                 loc_res += 1
             elseif (!abUnlock && IsNthLockUnlocked(loc_LockNum)) ;lock lock
                 loc_Lock = CodeBit(loc_Lock,0,1, 0)
-                UD_LockList[loc_LockNum] = loc_Lock
+                SetNthLock(loc_LockNum,loc_Lock)
                 loc_res += 1
             endif
         endif
@@ -2532,7 +2530,7 @@ Bool Function JammNthLock(Int aiLockIndex, Bool abJamm = True)
     Int  loc_Lock = GetNthLock(aiLockIndex)
     if IsValidLock(loc_Lock)
         loc_Lock = CodeBit(loc_Lock, abJamm as Int,1,1)
-        UD_LockList[aiLockIndex] = loc_Lock
+        SetNthLock(aiLockIndex,loc_Lock)
         loc_res = true
     endif
     _EndLockManipMutex()
@@ -2553,13 +2551,14 @@ Int Function JammAllLocks(Bool abJamm = True)
         if IsValidLock(loc_Lock)
             if (abJamm && !IsNthLockJammed(loc_LockNum)) ;jamm lock
                 loc_Lock = CodeBit(loc_Lock,1,1, 1)
-                UD_LockList[loc_LockNum] = loc_Lock
+                SetNthLock(loc_LockNum,loc_Lock)
                 loc_res += 1
             elseif (!abJamm && IsNthLockJammed(loc_LockNum)) ;unjamm lock
                 loc_Lock = CodeBit(loc_Lock,0,1, 1)
-                UD_LockList[loc_LockNum] = loc_Lock
+                SetNthLock(loc_LockNum,loc_Lock)
                 loc_res += 1
             endif
+            
         endif
     endwhile
     _EndLockManipMutex()
@@ -2588,7 +2587,7 @@ Bool Function JammRandomLock()
     if loc_correctLocks
         Int loc_randomLock = loc_correctLocks[RandomInt(0, loc_correctLocks.length - 1)]
         Int  loc_Lock = GetNthLock(loc_randomLock)
-        UD_LockList[loc_randomLock] = CodeBit(loc_Lock,1,1, 1)
+        SetNthLock(loc_randomLock,CodeBit(loc_Lock,1,1, 1))
         loc_res = True
     endif
     
@@ -2604,7 +2603,7 @@ Int Function DecreaseLockShield(Int aiLockIndex, Int aiShieldDecrease = 1, Bool 
     if IsValidLock(loc_Lock)
         Int loc_ShieldNumber = iUnsig(UD_Native.DecodeBit(loc_Lock,4,4) - aiShieldDecrease)
         loc_Lock = CodeBit(loc_Lock, loc_ShieldNumber,4,4)
-        UD_LockList[aiLockIndex] = loc_Lock
+        SetNthLock(aiLockIndex,loc_Lock)
         if loc_ShieldNumber
             loc_res = loc_ShieldNumber ;lock still have shields after the operation
         else
@@ -2626,7 +2625,7 @@ Bool Function UpdateLockAccessibility(Int aiLockIndex, Int aiAccessibilityDelta)
     if IsValidLock(loc_Lock)
         Int loc_Accessibility = iRange(UD_Native.DecodeBit(loc_Lock,7,8) + aiAccessibilityDelta,0,100)
         loc_Lock = CodeBit(loc_Lock, loc_Accessibility,7,8)
-        UD_LockList[aiLockIndex] = loc_Lock
+        SetNthLock(aiLockIndex,loc_Lock)
         loc_res = true ;operation was succesfull
     endif
     _EndLockManipMutex()
@@ -2645,7 +2644,7 @@ Bool Function UpdateLockDifficulty(Int aiLockIndex, Int aiDifficultyDelta, Bool 
             loc_Difficulty = iRange(loc_Difficulty,0,100)
         endif
         loc_Lock = CodeBit(loc_Lock, loc_Difficulty,8,15)
-        UD_LockList[aiLockIndex] = loc_Lock
+        SetNthLock(aiLockIndex,loc_Lock)
         loc_res = true
     endif
     _EndLockManipMutex()
@@ -2661,12 +2660,12 @@ Int Function UpdateLockTimeLock(Int aiLockIndex, Int aiTimeLockDelta)
     if IsValidLock(loc_Lock)
         Int loc_TimeLock = iRange(UD_Native.DecodeBit(loc_Lock,7,23) + aiTimeLockDelta,0,122)
         loc_Lock = CodeBit(loc_Lock, loc_TimeLock,7,23)
-        UD_LockList[aiLockIndex] = loc_Lock
+        SetNthLock(aiLockIndex,loc_Lock)
         loc_res = loc_TimeLock
         if !loc_res && IsNthLockAutoTimeLocked(aiLockIndex)
             ;auto unlock the lock
             loc_Lock = CodeBit(loc_Lock,1,1, 0)
-            UD_LockList[aiLockIndex] = loc_Lock
+            SetNthLock(aiLockIndex,loc_Lock)
         endif
     endif
     _EndLockManipMutex()
@@ -2678,6 +2677,7 @@ Bool Function UpdateAllLocksTimeLock(Int aiTimeLockDelta, Bool abCheckUnlock = T
     if !HaveLocks() || !GetLockNumber()
         return False ;device have no locks, return 0 as error value
     endif
+    ;UDmain.Info(getDeviceHeader()+"::UpdateAllLocksTimeLock("+aiTimeLockDelta+","+abCheckUnlock+") called")
     Int     loc_res             = 0 ;return False as error value
     Int     loc_LockNum         = GetLockNumber()
     Bool    loc_lockUnlocked    = False
@@ -3396,12 +3396,12 @@ EndFunction
 ;like Update function, but called only once per hour
 ;mult -> multiplier which identifies how many hours have passed (1.5 hours -> mult = 1.5)
 Function UpdateHour()
-    Float loc_mult = ResetLastHourUpdate()
+    Float loc_hours = _LastHourUpdate()
     if OnUpdateHourPre()
         if OnUpdateHourPost()
         endif
     endif
-    UpdateAllLocksTimeLock(-1*Math.Ceiling(loc_mult),True) ;update timed locks
+    UpdateAllLocksTimeLock(-1*Math.Ceiling(loc_hours),True) ;update timed locks
 EndFunction
 
 float Function _getLockMinigameModifier()
@@ -3723,7 +3723,7 @@ EndFunction
 /;
 Function decreaseDurabilityAndCheckUnlock(float afValue,float afCondMult = 1.0,Bool abCheckCondition = True)
     if current_device_health > 0.0
-        if PlayerInMinigame() && UD_damage_device
+        if PlayerInMinigame() && UD_damage_device && IsMinigameLoopRunning()
             ;update and fetch value from native meter
             current_device_health = UDmain.UDWC.Meter_UpdateNativeValue("device-main",-1.0*afValue)*UD_Health/100.0
         else
@@ -3736,7 +3736,7 @@ Function decreaseDurabilityAndCheckUnlock(float afValue,float afCondMult = 1.0,B
 EndFunction
 
 Function _DecreaseCondition(Float afCondition, Float afMult, bool abCheckCondition)
-    if PlayerInMinigame() && UD_damage_device
+    if PlayerInMinigame() && UD_damage_device && IsMinigameLoopRunning()
         ;update fetch value from native meter
         _total_durability_drain = UDmain.UDWC.Meter_UpdateNativeValue("device-condition",-1.0*afCondition*afMult)*UD_Health/100.0
     else
@@ -4019,83 +4019,6 @@ float Function getModResistMagicka(float afBase = 1.0,float afCondMod = 0.0)
     return (afBase - UD_ResistMagicka + (0.1 + afCondMod)*UD_Condition)
 EndFunction
 
-;/  Function: getHelperAgilitySkills
-    Returns:
-
-        Absolute value of agility skill of helper or 0.0 if device have not helper
-/;
-float Function getHelperAgilitySkills()
-    if haveHelper()
-        return UDMain.UDSKILL.GetAgilitySkill(getHelper())
-    else
-        return 0.0
-    endif
-EndFunction
-
-;/  Function: getHelperAgilitySkillsPerc
-    Returns:
-
-        Relative agility skill of helper or 0.0 if device have not helper. As it is hard to pinpoint maximum value, virtual value 100 is choosen. Because of that, it is possible that this value can be more then 1.0.
-/;
-float Function getHelperAgilitySkillsPerc()
-    if haveHelper()
-        return UDMain.UDSKILL.getActorAgilitySkillsPerc(getHelper())
-    else
-        return 0.0
-    endif
-EndFunction
-
-;/  Function: getHelperStrengthSkills
-    Returns:
-
-        Absolute value of strength skill of helper or 0.0 if device have not helper
-/;
-float Function getHelperStrengthSkills()
-    if haveHelper()
-        return UDMain.UDSKILL.GetStrengthSkill(getHelper())
-    else
-        return 0.0
-    endif
-EndFunction
-
-;/  Function: getHelperStrengthSkillsPerc
-    Returns:
-
-        Relative strength skill of helper or 0.0 if device have not helper. As it is hard to pinpoint maximum value, virtual value 100 is choosen. Because of that, it is possible that this value can be more then 1.0.
-/;
-float Function getHelperStrengthSkillsPerc()
-    if haveHelper()
-        return UDMain.UDSKILL.getActorStrengthSkillsPerc(getHelper())
-    else
-        return 0.0
-    endif
-EndFunction
-
-;/  Function: getHelperMagickSkills
-    Returns:
-
-        Absolute value of magic skill of helper or 0.0 if device have not helper
-/;
-float Function getHelperMagickSkills()
-    if haveHelper()
-        return UDMain.UDSKILL.GetMagickSkill(getHelper())
-    else
-        return 0.0
-    endif
-EndFunction
-
-;/  Function: getHelperMagickSkillsPerc
-    Returns:
-
-        Relative magic skill of helper or 0.0 if device have not helper. As it is hard to pinpoint maximum value, virtual value 100 is choosen. Because of that, it is possible that this value can be more then 1.0.
-/;
-float Function getHelperMagickSkillsPerc()
-    if haveHelper()
-        return UDMain.UDSKILL.getActorMagickSkillsPerc(getHelper())
-    else
-        return 0.0
-    endif
-EndFunction
 
 ;/  Function: StruggleMinigameAllowed
     Parameters:
@@ -4280,7 +4203,7 @@ bool Function struggleMinigame(int aiType = -1, Bool abSilent = False)
     
     if aiType == 0 ;normal
         UD_minigame_stamina_drain = UD_base_stat_drain*0.75 + getMaxActorValue(Wearer,"Stamina",0.035)
-        UD_durability_damage_add = 1.25*(_durability_damage_mod*UDMain.UDSKILL.getActorAgilitySkillsPerc(getWearer()))
+        UD_durability_damage_add = 1.25*(_durability_damage_mod*UDMain.UDSKILL.getSkillsPerc(GetWearer(),"AGIL"))
         UD_DamageMult *= getModResistPhysical(1.0,0.3)
         _exhaustion_mult = 0.5
         _condition_mult_add = -0.9
@@ -4290,7 +4213,7 @@ bool Function struggleMinigame(int aiType = -1, Bool abSilent = False)
     elseif aiType == 1 ;desperate
         UD_minigame_stamina_drain = UD_base_stat_drain*1.1
         UD_minigame_heal_drain = 0.5*UD_base_stat_drain + getMaxActorValue(Wearer,"Health",0.06)
-        UD_durability_damage_add = 1.0*(_durability_damage_mod*((5.0 - 5.0*getRelativeDurability()) + UDMain.UDSKILL.getActorStrengthSkillsPerc(getWearer())))
+        UD_durability_damage_add = 1.0*(_durability_damage_mod*((5.0 - 5.0*getRelativeDurability()) + UDMain.UDSKILL.getSkillsPerc(getWearer(),"STRN")))
         UD_DamageMult *= getModResistPhysical(1.0,0.2)
         _condition_mult_add = -0.5
         _exhaustion_mult = 1.6
@@ -4300,7 +4223,7 @@ bool Function struggleMinigame(int aiType = -1, Bool abSilent = False)
     elseif aiType == 2 ;magick
         UD_minigame_stamina_drain = 0.65*UD_base_stat_drain
         UD_minigame_magicka_drain = 0.75*UD_base_stat_drain + getMaxActorValue(Wearer,"Magicka",0.05)
-        UD_durability_damage_add = 1.0*(_durability_damage_mod*UDMain.UDSKILL.getActorMagickSkillsPerc(getWearer()))
+        UD_durability_damage_add = 1.0*(_durability_damage_mod*UDMain.UDSKILL.getSkillsPerc(getWearer(),"MAGK"))
         UD_DamageMult *= getModResistMagicka(1.0,0.3)
         _condition_mult_add = 1.5
         _exhaustion_mult = 1.2
@@ -4456,7 +4379,7 @@ bool Function repairLocksMinigame(Bool abSilent = False)
 
     _customMinigameCritChance = 5 + (4 - _getLockpickLevel(_MinigameSelectedLockID))*5
     _customMinigameCritDuration = 0.8 - _getLockpickLevel(_MinigameSelectedLockID)*0.02
-    UD_MinigameMult1 = getAccesibility() + UDmain.UDSKILL.getActorSmithingSkillsPerc(getWearer())*0.5
+    UD_MinigameMult1 = getAccesibility() + UDmain.UDSKILL.getSkillsPerc(getWearer(),"MAIN")*0.5
     if wearerFreeHands()
         UD_MinigameMult1 += 0.5
         _customMinigameCritChance += 15
@@ -4511,8 +4434,8 @@ bool Function cuttingMinigame(Bool abSilent = False)
     if minigamePostcheck(abSilent)
         float loc_BaseMult = UDCDmain.getActorCuttingWeaponMultiplier(getWearer())
         
-        UD_MinigameMult1 = loc_BaseMult + UDmain.UDSKILL.getActorCuttingSkillsPerc(getWearer())
-        UD_DamageMult = loc_BaseMult + UDmain.UDSKILL.getActorCuttingSkillsPerc(getWearer())
+        UD_MinigameMult1 = loc_BaseMult + UDmain.UDSKILL.getSkillsPerc(getWearer(),"CUTT")
+        UD_DamageMult = loc_BaseMult + UDmain.UDSKILL.getSkillsPerc(getWearer(),"CUTT")
         
         ;register native meters
         if WearerIsPlayer()
@@ -4657,7 +4580,7 @@ bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
         UD_durability_damage_add = 0.0
         UD_minigame_stamina_drain = UD_base_stat_drain*0.75 + getMaxActorValue(Wearer,"Stamina",0.03)
         UD_minigame_stamina_drain_helper = UD_base_stat_drain*0.5 + getMaxActorValue(akHelper,"Stamina",0.03)
-        UD_durability_damage_add = 1.0*_durability_damage_mod*(0.25 + 2.5*(UDmain.UDSKILL.getActorAgilitySkillsPerc(getWearer()) + getHelperAgilitySkillsPerc()))
+        UD_durability_damage_add = 1.0*_durability_damage_mod*(0.25 + 2.5*(UDmain.UDSKILL.getSkillsPerc(GetWearer(),"AGIL") + UDmain.UDSKILL.getSkillsPerc(getHelper(),"AGIL")))
         UD_DamageMult = getModResistPhysical(1.0,0.35)*getAccesibility()
         
         if HelperFreeHands(True)
@@ -4677,7 +4600,7 @@ bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
         UD_minigame_heal_drain = 0.5*UD_base_stat_drain + getMaxActorValue(Wearer,"Health",0.05)
         UD_minigame_heal_drain_helper = 0.5*UD_base_stat_drain + getMaxActorValue(akHelper,"Health",0.05)
         
-        UD_durability_damage_add = 1.0*_durability_damage_mod*((5.0 - 5.0*getRelativeDurability()) + UDmain.UDSKILL.getActorStrengthSkillsPerc(getWearer()) + getHelperStrengthSkillsPerc())
+        UD_durability_damage_add = 1.0*_durability_damage_mod*((5.0 - 5.0*getRelativeDurability()) + UDmain.UDSKILL.getSkillsPerc(getWearer(),"STRN") + UDmain.UDSKILL.getSkillsPerc(GetHelper(),"STRN"))
         UD_DamageMult = getModResistPhysical(1.0,0.15)*getAccesibility()
 
         if HelperFreeHands(True)
@@ -4698,7 +4621,7 @@ bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
         UD_minigame_magicka_drain = 0.7*UD_base_stat_drain + getMaxActorValue(Wearer,"Magicka",0.05)
         UD_minigame_magicka_drain_helper = UD_base_stat_drain + getMaxActorValue(akHelper,"Magicka",0.05)
         UD_DamageMult = getModResistMagicka(1.0,0.3)*getAccesibility()
-        UD_durability_damage_add = 2.0*_durability_damage_mod*(UDmain.UDSKILL.getActorMagickSkillsPerc(getWearer()) + getHelperMagickSkillsPerc())
+        UD_durability_damage_add = 2.0*_durability_damage_mod*(UDmain.UDSKILL.getSkillsPerc(getWearer(),"MAGK") + UDmain.UDSKILL.getSkillsPerc(GetHelper(),"MAGK"))
         
         if HelperFreeHands(True)
             UD_DamageMult += 0.5
@@ -4877,7 +4800,7 @@ bool Function repairLocksMinigameWH(Actor akHelper)
     UD_minigame_canCrit = False
     
     _customMinigameCritChance = 10 + (4 - _getLockpickLevel(_MinigameSelectedLockID))*5
-    UD_MinigameMult1 = getAccesibility() + 0.35*(UDmain.UDSKILL.getActorSmithingSkillsPerc(getWearer()) + UDmain.UDSKILL.getActorSmithingSkillsPerc(getHelper()))
+    UD_MinigameMult1 = getAccesibility() + 0.35*(UDmain.UDSKILL.getSkillsPerc(getWearer(),"MAIN") + UDmain.UDSKILL.getSkillsPerc(getHelper(),"MAIN"))
     UD_RegenMag_Magicka = 0.5
     UD_RegenMag_Health = 0.5
     UD_RegenMagHelper_Magicka = 0.75
@@ -4947,7 +4870,7 @@ bool Function cuttingMinigameWH(Actor akHelper)
         float loc_BaseMult = UDCDmain.getActorCuttingWeaponMultiplier(getWearer())
         float loc_BaseMultHelperAdd = UDCDmain.getActorCuttingWeaponMultiplier(getHelper()) - 1.0
         
-        UD_DamageMult = loc_BaseMult + loc_BaseMultHelperAdd + UDmain.UDSKILL.getActorCuttingSkillsPerc(getWearer()) + UDmain.UDSKILL.getActorCuttingSkillsPerc(getHelper())
+        UD_DamageMult = loc_BaseMult + loc_BaseMultHelperAdd + UDmain.UDSKILL.getSkillsPerc(getWearer(),"CUTT") + UDmain.UDSKILL.getSkillsPerc(getHelper(),"CUTT")
         UD_MinigameMult1 = UD_DamageMult
         
         if HelperFreeHands(True)
@@ -5146,16 +5069,16 @@ Function advanceSkill(float afMult)
             loc_type = _struggleGame_Subtype
         endif
         if loc_type == 0
-            UDmain.UDSKILL.AdvanceAgilitySkill(loc_mult)
+            UDmain.UDSKILL.AdvanceSkill(loc_mult,"AGIL")
         elseif loc_type == 1 
-            UDmain.UDSKILL.AdvanceStrengthSkill(loc_mult)
+            UDmain.UDSKILL.AdvanceSkill(loc_mult,"STRN")
         elseif loc_type == 2
-            UDmain.UDSKILL.AdvanceMagickSkill(loc_mult)
+            UDmain.UDSKILL.AdvanceSkill(loc_mult,"MAGK")
         endif
     elseif _RepairLocksMinigameON
-        UDmain.UDSKILL.AdvanceSmithingSkill(loc_mult)
+        UDmain.UDSKILL.AdvanceSkill(loc_mult,"MAIN")
     elseif _CuttingGameON
-        UDmain.UDSKILL.AdvanceCuttingSkill(loc_mult)
+        UDmain.UDSKILL.AdvanceSkill(loc_mult,"CUTT")
     endif
     OnAdvanceSkill(loc_mult)
 EndFunction
@@ -5756,7 +5679,7 @@ Function setMinigameWearerVar(bool abDrainPlayer,float afStaminaDrain = 10.0,flo
     UD_minigame_magicka_drain   = afMagickaDrain
 EndFunction
 
-;/  Function: setMinigameWearerVar
+;/  Function: setMinigameHelperVar
     Sets minigame helper values
     
     New values should use UD_base_stat_drain as base
@@ -6057,7 +5980,7 @@ bool Function minigamePrecheck(Bool abSilent = False)
     endif
     
     ;Allow minigames on unloaded actors
-    if (Wearer.IsDead() || Wearer.IsDisabled() || Wearer.GetCurrentScene())
+    if (Wearer.IsDead() || Wearer.IsDisabled() || Wearer.GetCurrentScene() || Wearer.IsSwimming())
         if !abSilent
             GWarning("Can't start minigame for " + getDeviceHeader() + " because wearer is invalid! Dead="+Wearer.IsDead() + ",Disabled="+Wearer.IsDisabled()+",Scene+"+Wearer.GetCurrentScene())
             if WearerIsPlayer()
@@ -6065,6 +5988,8 @@ bool Function minigamePrecheck(Bool abSilent = False)
                     UDmain.Print("You can't get into a minigame, because you are currently dead.",1)  ; was:  "You are already doing something" 
                 elseif Wearer.IsDisabled()
                     UDmain.Print("You can't get into a minigame, because you are currently disabled.",1)  ; was:  "You are already doing something"
+                elseif Wearer.IsSwimming()
+                    UDmain.Print("You can't get into a minigame, because you are currently swimming.",1)  ; was:  "You are already doing something"
                 else
                     UDmain.Print("You can't get into a minigame, because you are currently in a scene: " + Wearer.GetCurrentScene() + ".",1)  ; was:  "You are already doing something" 
                 endif
@@ -7732,7 +7657,7 @@ EndFunction
 Function OnMinigameTick1()
     if getStruggleMinigameSubType() == 1
         ; Update damage add for desperate struggle
-        UD_durability_damage_add = 1.0*(_durability_damage_mod*((5.0 - 5.0*getRelativeDurability()) + UDMain.UDSKILL.getActorStrengthSkillsPerc(getWearer())))
+        UD_durability_damage_add = 1.0*(_durability_damage_mod*((5.0 - 5.0*getRelativeDurability()) + UDMain.UDSKILL.getSkillsPerc(getWearer(),"STRN")))
         _fUpdateNativeMinigameMeters = true
     endif
 EndFunction
@@ -8475,7 +8400,7 @@ Function _MinigameAVCheckLoopThread()
 EndFunction
 
 Function _CuttingMG_SKPress(Float afValue)
-    if IsPaused()
+    if IsPaused() || !IsMinigameLoopRunning()
         return
     endif
     if afValue >= fRange(100.0 - Math.Pow(UD_CutChance,1.2)*2.0,0.0,96.0)
@@ -8489,7 +8414,7 @@ EndFunction
 Function _MG_CKSPress()
     bool     loc_crit                    = UDCDmain.crit 
     string   loc_selected_crit_meter     = UDCDmain.selected_crit_meter
-    if IsPaused()
+    if IsPaused() || !IsMinigameLoopRunning()
         return
     endif
     if (loc_crit) && !UDCDMain.UD_AutoCrit
@@ -8508,7 +8433,7 @@ EndFunction
 Function _MG_CKMPress()
     bool     loc_crit                    = UDCDmain.crit 
     string   loc_selected_crit_meter     = UDCDmain.selected_crit_meter
-    if IsPaused()
+    if IsPaused() || !IsMinigameLoopRunning()
         return
     endif
     if (loc_crit) && !UDCDMain.UD_AutoCrit

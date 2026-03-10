@@ -1,8 +1,6 @@
-Scriptname UD_libs extends Quest  
+Scriptname UD_libs extends UD_ModuleBase
 
 import UnforgivingDevicesMain
-
-UnforgivingDevicesMain Property main auto
 
 ;zadlibs slots
 ;zad_DeviousHood                30
@@ -45,18 +43,6 @@ Soulgem Property FilledSoulgem_Great  auto
 Soulgem Property FilledSoulgem_Grand  auto
 
 MiscObject Property SteelIngot auto
-
-
-Bool Property Ready = False auto
-Event OnInit()
-    if IsRunning()
-        Ready = True
-    endif
-EndEvent
-
-Function Update()
-    ResetQuest(self)
-EndFunction
 
 ;plug
 Armor Property AbadonPlug auto
@@ -169,8 +155,6 @@ Keyword Property CustomHeavyBondage auto
 Keyword Property PatchedDevice auto
 Keyword Property PatchedInventoryDevice auto
 Keyword Property HardcoreDisable_KW auto
-Keyword Property OrgasmCheck_KW auto
-Keyword Property ArousalCheck_KW auto
 Keyword Property PreventCombat_KW auto
 
 ;spells
@@ -178,10 +162,6 @@ Spell Property MinigameDisableSpell auto
 Spell Property HardcoreDisableSpell auto
 Spell Property OrgasmExhaustionSpell auto
 Spell Property StruggleExhaustionSpell auto
-Spell Property OrgasmCheckSpell auto
-Spell Property OrgasmCheckAbilitySpell auto
-Spell Property ArousalCheckSpell auto
-Spell Property ArousalCheckAbilitySpell auto
 ;Spell Property BreathingDebuffSpell auto
 Spell Property TelekinesisSpell auto
 Spell Property AphrodisiacsSpell auto
@@ -192,7 +172,6 @@ Spell Property PreventCombatSpell auto
 Spell Property GreenCrit auto
 Spell Property BlueCrit auto
 Spell Property RedCrit auto
-
 
 ;ME keywords
 Keyword Property OrgasmExhaustionEffect_KW auto
@@ -224,9 +203,6 @@ Spell Property DEBUGMagickEffect auto
 Keyword  Property ActorTypeNPC auto
 Keyword  Property ArmorShield auto
 FormList Property WeaponKeywords auto
-
-;Device abilities
-Spell Property ArousingMovement auto
 
 ;Patched devices keywords
 Keyword Property PatchNoModes_KW auto

@@ -14,43 +14,109 @@ UnforgivingDevicesMain Property UDmain Hidden
     EndFunction
 EndProperty
 
-Bool _Setup     = False
-Bool _Updating  = False
-Bool _Disabled  = False
+String  Property MODULE_NAME hidden
+    String Function get()
+        return self.GetName()
+    EndFunction
+EndProperty
+String  Property MODULE_ALIAS = "NOAL"    auto  ; alias
+String  Property MODULE_DESC  = ""        auto  ; description
+Int     Property MODULE_PRIO  = 1         auto  ; priority
+Quest[] Property MODULE_DEP               auto  ; dependency
 
+; private variables
+Bool _SetupCalled   = False
+Bool _SetupDone     = False
+Bool _ReloadCalled  = False
+Bool _ReloadDone    = False
+
+Bool _Initiated       = False
+Bool _SetupAfterInit  = False ; Flag to prevent multiple setups after start/reset
 Event OnInit()
-    ;unused!
+    _Initiated = True
+    _SetupAfterInit = True
+    ;UnforgivingDevicesMain.GInfo("Initiating module: " + MODULE_NAME + " (" + MODULE_ALIAS + ") : [" + MODULE_PRIO + "] : {"+self+"}")
 EndEvent
 
-Function Setup()
-    OnSetup()
-    _Setup = true
+; =================
+; PRIVATE METHODS
+; =================
+Function _Setup()
+    Utility.waitMenuMode(0.016)
+    if _SetupAfterInit
+        _SetupCalled = True
+        _SetupAfterInit = False
+        ;UnforgivingDevicesMain.GInfo("Setting up module: " + MODULE_NAME + " (" + MODULE_ALIAS + ") : [" + MODULE_PRIO + "] : {"+self+"}")
+        OnSetup()
+        _GameReload()
+        _SetupDone = True
+    endif
 EndFunction
+
+Function _GameReload()
+    _ReloadCalled = True
+    ;UnforgivingDevicesMain.GInfo("Reloading module: " + MODULE_NAME + " (" + MODULE_ALIAS + ") : [" + MODULE_PRIO + "] : {"+self+"}")
+    OnGameReload()
+    _ReloadDone = True
+EndFunction
+
+Function _SaveJSON(String asFile)
+    OnSaveJSON(asFile)
+EndFunction
+Function _LoadJSON(String asFile)
+    OnLoadJSON(asFile)
+EndFunction
+Function _ResetToDefault()
+    OnResetToDefault()
+EndFunction
+
+; =================
+; PUBLIC METHODS
+; =================
+
+Bool Function IsReady()
+    return _SetupDone && (_ReloadDone || !_ReloadCalled)
+EndFunction
+Bool Function IsInitiated()
+    return _SetupDone
+EndFunction
+Bool Function IsReloaded()
+    return _ReloadDone
+EndFunction
+
+Bool Function ResetModule()
+    UD_Native.ResetModule(self)
+EndFunction
+
+Function WaitForReady(Float afTimeout)
+    Float _time = 0.0
+    While !IsReady() && _time < afTimeout
+      _time += 0.25
+      Utility.Wait(0.25)
+    EndWhile
+    if _time >= afTimeout
+      UDMain.Error("Timeout of waiting for module " + MODULE_NAME + " to be readdy!")
+    endif
+EndFUnction
+
+; =================
+; Overrides
+; =================
 
 Function OnSetup()
     ;OVERRIDE
 EndFunction
 
-Function GameUpdate()
-    _Updating = True
-    OnGameUpdate()
-    _Updating = False
-EndFunction
-
-Function OnGameUpdate()
+Function OnGameReload()
     ;OVERRIDE
 EndFunction
 
-Function Disable()
-    _Disabled = true
+Function OnSaveJSON(String asFile)
+    ;OVERRIDE
 EndFunction
-Function Enable()
-    _Disabled = false
+Function OnLoadJSON(String asFile)
+    ;OVERRIDE
 EndFunction
-
-Bool Function IsDisabled()
-    return _Disabled
-EndFunction
-Bool Function IsReady()
-    return _Updating && _Setup
+Function OnResetToDefault()
+    ;OVERRIDE
 EndFunction

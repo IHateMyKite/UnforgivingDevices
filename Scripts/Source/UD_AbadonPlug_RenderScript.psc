@@ -155,11 +155,11 @@ EndFunction
 Float Function getButtonPressDamage()
     int loc_difficulty = AbadonQuestScript.overaldifficulty
     if loc_difficulty == 0
-        return 1.0
+        return 4.0
     elseif loc_difficulty == 1
-        return 0.6
+        return 2.25
     elseif loc_difficulty == 2
-        return 0.3
+        return 0.9
     endif
 EndFunction
 
@@ -508,9 +508,10 @@ Function onRemoveDevicePost(Actor akActor)
         AbadonQuest.completeQuest()
     endif
     if !GetWearer().isDead()
-        if AbadonQuestScript.final_finisher_set
-            AbadonQuestScript.AbadonEquipSuit(getWearer(),AbadonQuestScript.final_finisher_pref)
-        endif
+        AbadonQuestScript.AbadonGooEffect(getWearer())
+        ;if AbadonQuestScript.final_finisher_set
+        ;    AbadonQuestScript.AbadonEquipSuit(getWearer(),AbadonQuestScript.final_finisher_pref)
+        ;endif
     endif
 EndFunction
 

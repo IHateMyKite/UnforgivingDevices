@@ -1,4 +1,4 @@
-Scriptname UD_DialogueMain extends Quest Conditional
+Scriptname UD_DialogueMain extends UD_ModuleBase Conditional
 
 import UD_Native
 
@@ -34,12 +34,11 @@ Scene Property HoodDialogueScene_End auto
 Bool Property NPCTired = false auto conditional hidden
 UD_CustomDevice_RenderScript Property SelectedDevice = none auto hidden
 
-
-Function onInit()
+Function OnSetup()
     RegisterForModEvent("UD_SentientDialogue","startDialogue")
 EndFUnction
 
-Function spawnDummy()
+Function _spawnDummy()
     int random = RandomInt(0,3)
     if random == 0
         Dummy.GetReference().GetBaseObject().SetName("*Sound inside your head*")
@@ -55,9 +54,10 @@ Function spawnDummy()
 EndFunction
 
 Function startDialogue(string eventName, string type, float fArg, Form sender)
+    WaitForReady(10.0)
     bool OnStart = Math.ceiling(fArg - 0.5) as bool
     ;debug.trace("[UD] Dialogue called for "+type+ " , value : "+OnStart)
-    spawnDummy()
+    _spawnDummy()
     Utility.wait(1.0)
     if type == "Hand restraint"
         if OnStart

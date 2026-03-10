@@ -1,21 +1,6 @@
-Scriptname UD_OutfitStorage extends Quest
+Scriptname UD_OutfitStorage extends UD_ModuleBase
 
-Int Property UD_Priority = 0 Auto
-UnforgivingDevicesMain _udmain
-UnforgivingDevicesMain Property UDmain Hidden
-    UnforgivingDevicesMain Function Get()
-        if !_udmain
-            _udmain = UnforgivingDevicesMain.GetUDMain()
-        endif
-        return _udmain
-    EndFunction
-EndProperty
-
-Event OnInit()
-    RegisterForSingleUpdate(1.0 - UD_Priority*0.005)
-EndEvent
-
-Event OnUpdate()
+Event OnSetup()
     UDMain.UDOTM.IncToBeRegCnt()
     ValidateOutfits()
     UDMain.UDOTM.AddOutfitStorage(self)
@@ -43,11 +28,15 @@ UD_Outfit Function GetOutfitByAlias(String asAlias)
 EndFunction
 
 Function ValidateOutfits()
-    UDMain.Info(self+"::ValidateOutfits() called")
     int loc_i = 0
     while loc_i < GetOutfitNum()
         UD_Outfit loc_outfit = GetNthOutfit(loc_i)
         loc_outfit.ValidateRnd()
         loc_i += 1
     endwhile
+EndFunction
+
+Bool Function ResetModule()
+    UDMain.UDOTM.RemoveOutfitStorage(self)
+    parent.ResetModule()
 EndFunction

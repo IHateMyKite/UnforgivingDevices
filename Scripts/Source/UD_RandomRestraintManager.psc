@@ -1,17 +1,12 @@
 ;/  File: UD_RandomRestraintManager
     Contains functionality for getting random devices from Leveled Lists or Form Lists
 /;
-Scriptname UD_RandomRestraintManager extends Quest  
+Scriptname UD_RandomRestraintManager extends UD_ModuleBase
 
 import UnforgivingDevicesMain
 import UD_Native
 
 UDCustomDeviceMain Property UDCDmain auto
-UnforgivingDevicesMain Property UDmain 
-    UnforgivingDevicesMain Function get()
-        return UDCDmain.UDmain
-    EndFunction    
-EndProperty
 zadlibs Property libs auto
 
 ;/  Group: Abadon Form Lists
@@ -40,6 +35,7 @@ Formlist Property UD_AbadonDeviceList_HeavyBondageHard auto
 
 zadDeviceLists Property zadDL auto
 
+bool _mutex = false
 Function StartMutex()
     while _mutex
         Utility.waitMenuMode(0.15)
@@ -51,34 +47,15 @@ Function EndMutex()
     _mutex = false
 EndFunction
 
-bool _mutex = false
-
-
 FormList Property UD_CheckKeywords auto
 FormList Property SuitableKeywords auto
 
-bool ready = false
-
-Event onInit()
-    if IsRunning()
-        ready = True
-        RegisterForSingleupdate(15.0)
-    endif
+Event OnSetup()
+    _FillOutCheckKeywords()
 EndEvent
 
-Event OnUpdate()
-    if UDmain.UDReady()
-        FillOutCheckKeywords()
-    else
-        RegisterForSingleupdate(30.0)
-    endif
-EndEvent
-
-Function Update()
-    FillOutCheckKeywords()
-    if UDmain.TraceAllowed()
-        UDmain.Log("Refilled Keywords formlist")
-    endif
+Function OnGameReload()
+    _FillOutCheckKeywords()
 EndFunction
 
 ;/  Group: Random Functions
@@ -87,7 +64,7 @@ EndFunction
 ===========================================================================================
 /;
 
-Function FillOutCheckKeywords()
+Function _FillOutCheckKeywords()
     UD_CheckKeywords.revert()
 
     UD_CheckKeywords.addForm(libs.zad_DeviousPiercingsVaginal)   ;iIndex = 0
@@ -147,6 +124,7 @@ EndFunction
         True if device is filtered
 /;
 Bool Function IsDeviceFiltered(Int aiIndex)
+    WaitForReady(10.0)
     return Math.LogicalAnd(UDmain.UDCONF.UD_RandomDevice_GlobalFilter,Math.LeftShift(0x01,aiIndex))
 EndFunction
 
@@ -161,7 +139,7 @@ EndFunction
     
         Random device with *akKeyword*, or *none* in case of error
 /;
-Armor Function getRandomDeviceByKeyword_LL(Actor akActor,Keyword akKeyword)
+Armor Function _getRandomDeviceByKeyword_LL(Actor akActor,Keyword akKeyword)
     LeveledItem LL = none
     Armor res = none
     if akActor.wornhaskeyword(akKeyword)            ; excessive check, useful when a lot of additions happening and script load is heavy
@@ -232,9 +210,9 @@ Armor Function getRandomDeviceByKeyword_LL(Actor akActor,Keyword akKeyword)
     if LL
         int tries = 3                        ; 2 attempts
         while tries > 0            
-            res = GetRandomDevice(LL)
+            res = _GetRandomDevice(LL)
             if res
-                if ConflictNone(akActor,res)      ; if no conflict - good to go, return device
+                if _ConflictNone(akActor,res)      ; if no conflict - good to go, return device
                     return res
                 endif
                 tries -= 1                        ; else we go and try to get another device
@@ -252,7 +230,7 @@ EndFunction
 ;Original function can break the game if recursive LeveledList is empty
 ;BEcause there is no Wait, this will drain most computere resources just for nothing, making the game almost non playable
 Int     Property    UD_MaxStepBacksLeveledItem = 6 auto
-Armor Function GetRandomDevice(LeveledItem akDeviceList)
+Armor Function _GetRandomDevice(LeveledItem akDeviceList)
     Return UD_Native.GetRandomDevice(akDeviceList)
 EndFunction
 
@@ -270,16 +248,17 @@ EndFunction
         Random device based on *aiPrefSwitch*
 /;
 Armor Function getRandomSuitableRestrain(Actor akActor,Int aiPrefSwitch = 0xffffffff)
+    WaitForReady(10.0)
     if UDmain.TraceAllowed()
         UDmain.Log("getRandomSuitableRestrain called for " + GetActorName(akActor),3)
     endif
     aiPrefSwitch = Math.LogicalAnd(aiPrefSwitch,UDmain.UDCONF.UD_RandomDevice_GlobalFilter)
     Armor res = none
-    Keyword selected_keyword = getRandomSuitableKeyword(akActor,aiPrefSwitch)
+    Keyword selected_keyword = _getRandomSuitableKeyword(akActor,aiPrefSwitch)
     if !selected_keyword
         return none
     endif
-    return getRandomDeviceByKeyword_LL(akActor,selected_keyword)
+    return _getRandomDeviceByKeyword_LL(akActor,selected_keyword)
 EndFunction
 
 ;/  Function: LockAnyRandomRestrain
@@ -297,6 +276,7 @@ EndFunction
         True if at least one device was locked on
 /;
 bool Function LockAnyRandomRestrain(Actor akActor,int aiNumber = 1,bool abForce = false)
+    WaitForReady(10.0)
     if aiNumber < 1
         aiNumber = 1
     endif
@@ -330,13 +310,14 @@ EndFunction
         <LockAllSuitableRestrains>, <LockAnyRandomRestrain>
 /;
 Armor Function LockRandomRestrain(Actor akActor,Bool abForce = false,Int aiPrefSwitch = 0xffffffff)
-    if UDmain.TraceAllowed()    
+    WaitForReady(10.0)
+    if UDmain.TraceAllowed()
         UDmain.Log("LockRandomRestrain called for " + GetActorName(akActor))
     endif
     
                 aiPrefSwitch            = Math.LogicalAnd(aiPrefSwitch,UDmain.UDCONF.UD_RandomDevice_GlobalFilter)
     Armor       loc_device              = none
-    Keyword     loc_selected_keyword    = getRandomSuitableKeyword(akActor,aiPrefSwitch)
+    Keyword     loc_selected_keyword    = _getRandomSuitableKeyword(akActor,aiPrefSwitch)
     
     if !loc_selected_keyword
         UDmain.Log("No suitable keyword found. Skipping!")
@@ -347,7 +328,7 @@ Armor Function LockRandomRestrain(Actor akActor,Bool abForce = false,Int aiPrefS
         UDmain.Log("Selected keyword: " + loc_selected_keyword)
     endif
     
-    loc_device = getRandomDeviceByKeyword_LL(akActor, loc_selected_keyword);switch to LL is here
+    loc_device = _getRandomDeviceByKeyword_LL(akActor, loc_selected_keyword);switch to LL is here
     
     if loc_device
         if UDmain.TraceAllowed()
@@ -385,6 +366,7 @@ EndFunction
         <LockRandomRestrain>, <LockAnyRandomRestrain>
 /;
 int Function LockAllSuitableRestrains(Actor akActor,Bool abForce = false,Int aiPrefSwitch = 0xffffffff)
+    WaitForReady(10.0)
     if !akActor
         UDmain.Error(self + "::LockAllSuitableRestrains() - Passed akActor is none!")
         return 0
@@ -394,7 +376,7 @@ int Function LockAllSuitableRestrains(Actor akActor,Bool abForce = false,Int aiP
         UDmain.Log("LockAllSuitableRestrains called for " + GetActorName(akActor),2)
     endif
             aiPrefSwitch    = Math.LogicalAnd(aiPrefSwitch,UDmain.UDCONF.UD_RandomDevice_GlobalFilter)
-    Form[]  loc_keywords    = getAllSuitableKeywords(akActor,aiPrefSwitch)
+    Form[]  loc_keywords    = _getAllSuitableKeywords(akActor,aiPrefSwitch)
     
     if !loc_keywords
         if UDmain.TraceAllowed()
@@ -410,7 +392,7 @@ int Function LockAllSuitableRestrains(Actor akActor,Bool abForce = false,Int aiP
     int     loc_i       = 0
     int     loc_res     = 0
     while loc_i < loc_keywords.length
-        loc_device = getRandomDeviceByKeyword_LL(akActor,loc_keywords[loc_i] as Keyword)
+        loc_device = _getRandomDeviceByKeyword_LL(akActor,loc_keywords[loc_i] as Keyword)
         if loc_device
             if UDmain.TraceAllowed()
                 UDmain.Log("Selected device: " + loc_device.getName(),2)
@@ -439,6 +421,7 @@ EndFunction
         True if device was locked on
 /;
 bool Function lockRandomDeviceFromFormList(Actor akActor,Formlist akList,bool abForce = False)
+    WaitForReady(10.0)
     Armor loc_device = getRandomFormFromFormlist(akList) as Armor
     if loc_device
         libs.lockdevice(akActor,loc_device,abForce)
@@ -450,11 +433,12 @@ EndFunction
 
 
 Armor Function LockFirstDeviceFromArray(Actor akActor, Form[] akFormArray, Bool abForce = False)
+    WaitForReady(10.0)
     Int loc_n = akFormArray.Length
     Int loc_i = 0
     While loc_i < loc_n
         Armor loc_device = akFormArray[loc_i] As Armor
-        If loc_device != None && (abForce || ConflictNone(akActor, loc_device))
+        If loc_device != None && (abForce || _ConflictNone(akActor, loc_device))
             If libs.lockdevice(akActor, loc_device, abForce)
                 Return loc_device
             EndIf
@@ -465,12 +449,13 @@ Armor Function LockFirstDeviceFromArray(Actor akActor, Form[] akFormArray, Bool 
 EndFunction
 
 Armor Function LockRandomDeviceFromArray(Actor akActor, Form[] akFormArray, Bool abForce = False)
+    WaitForReady(10.0)
     Form[] loc_suitable_devices
     Int loc_i = akFormArray.Length
     While loc_i > 0
         loc_i -= 1
         Armor loc_device = akFormArray[loc_i] As Armor
-        If loc_device != None && (abForce || ConflictNone(akActor, loc_device))
+        If loc_device != None && (abForce || _ConflictNone(akActor, loc_device))
             loc_suitable_devices = PapyrusUtil.PushForm(loc_suitable_devices, loc_device)
         EndIf
     EndWhile
@@ -480,19 +465,21 @@ Armor Function LockRandomDeviceFromArray(Actor akActor, Form[] akFormArray, Bool
         If libs.lockdevice(akActor, loc_device, abForce)
             Return loc_device
         EndIf
-        loc_suitable_devices = PapyrusUtil.RemoveForm(loc_suitable_devices, loc_device)        
+        loc_suitable_devices = PapyrusUtil.RemoveForm(loc_suitable_devices, loc_device)
     EndWhile
     Return None
 EndFunction
 
 
 Form Function getRandomFormFromFormlist(Formlist akList)
+    WaitForReady(10.0)
     int loc_i = RandomInt(0,akList.GetSize() - 1)
     return akList.getAt(loc_i)
 EndFunction
 
 
 Form Function getRandomFormFromArray(Form[] akArray)
+    WaitForReady(10.0)
     int loc_i = RandomInt(0, akArray.Length - 1)
     return akArray[loc_i]
 EndFunction
@@ -500,6 +487,7 @@ EndFunction
 
 ;VEEEEEEEEEEEEEEEEEEEEEEEEEEEEERY SLOW
 Form Function getRandomFormFromFormlistFilter(Formlist list,Keyword[] kwaFilter,int iMode = 0)
+    WaitForReady(10.0)
     int loc_listSize = list.GetSize()
     
     int loc_filteredDevice = 0
@@ -509,17 +497,17 @@ Form Function getRandomFormFromFormlistFilter(Formlist list,Keyword[] kwaFilter,
     while loc_listSize
         loc_listSize -= 1
         if iMode == 0
-            if AndFilterForm(list.getAt(loc_listSize),kwaFilter)
+            if _AndFilterForm(list.getAt(loc_listSize),kwaFilter)
                 loc_filteredDevice += 1
                 loc_deviceArray = PapyrusUtil.PushForm(loc_deviceArray,list.getAt(loc_listSize))
             endif
         elseif iMode == 1
-            if OrFilterForm(list.getAt(loc_listSize),kwaFilter)
+            if _OrFilterForm(list.getAt(loc_listSize),kwaFilter)
                 loc_filteredDevice += 1
                 loc_deviceArray = PapyrusUtil.PushForm(loc_deviceArray,list.getAt(loc_listSize))
             endif
         elseif iMode == 2
-            if NorFilterForm(list.getAt(loc_listSize),kwaFilter)
+            if _NorFilterForm(list.getAt(loc_listSize),kwaFilter)
                 loc_filteredDevice += 1
                 loc_deviceArray = PapyrusUtil.PushForm(loc_deviceArray,list.getAt(loc_listSize))
             endif
@@ -534,7 +522,7 @@ Form Function getRandomFormFromFormlistFilter(Formlist list,Keyword[] kwaFilter,
     endif
 EndFunction
 
-Bool Function AndFilterForm(Form fForm,Keyword[] kwaFilter)
+Bool Function _AndFilterForm(Form fForm,Keyword[] kwaFilter)
     int loc_i = kwaFilter.length
     bool loc_res = false
     zadequipscript loc_script = (UDCDmain.TransfereContainer_ObjRef.placeatme(fForm as Armor,1) as zadequipscript)
@@ -552,7 +540,7 @@ Bool Function AndFilterForm(Form fForm,Keyword[] kwaFilter)
     return loc_res
 EndFunction
 
-Bool Function OrFilterForm(Form fForm,Keyword[] kwaFilter)
+Bool Function _OrFilterForm(Form fForm,Keyword[] kwaFilter)
     int loc_i = kwaFilter.length
     zadequipscript loc_script = (UDCDmain.TransfereContainer_ObjRef.placeatme(fForm as Armor,1) as zadequipscript)
     while loc_i
@@ -566,7 +554,7 @@ Bool Function OrFilterForm(Form fForm,Keyword[] kwaFilter)
     return false
 EndFunction
 
-Bool Function NorFilterForm(Form fForm,Keyword[] kwaFilter)
+Bool Function _NorFilterForm(Form fForm,Keyword[] kwaFilter)
     int loc_i = kwaFilter.length
     zadequipscript loc_script = (UDCDmain.TransfereContainer_ObjRef.placeatme(fForm as Armor,1) as zadequipscript)
     while loc_i
@@ -580,7 +568,7 @@ Bool Function NorFilterForm(Form fForm,Keyword[] kwaFilter)
     return true
 EndFunction
 
-Keyword Function getRandomSuitableKeyword(Actor akActor,int iPrefSwitch = 0xffffffff)
+Keyword Function _getRandomSuitableKeyword(Actor akActor,int iPrefSwitch = 0xffffffff)
     StartMutex()
     int i = 0
     SuitableKeywords.Revert()
@@ -601,7 +589,7 @@ Keyword Function getRandomSuitableKeyword(Actor akActor,int iPrefSwitch = 0xffff
     return loc_res
 EndFunction
 
-Form[] Function getAllSuitableKeywords(Actor akActor,int iPrefSwitch = 0xffffffff)
+Form[] Function _getAllSuitableKeywords(Actor akActor,int iPrefSwitch = 0xffffffff)
     StartMutex()
     int i = 0
     SuitableKeywords.Revert()
@@ -638,7 +626,7 @@ bool Function _additionCheck(Actor akActor,int iIndex)
     return true
 EndFunction
 
-bool Function ConflictNone(Actor akActor,Armor to_check)                                        ; returns true if no conflicts present
+bool Function _ConflictNone(Actor akActor,Armor to_check)                                        ; returns true if no conflicts present
     Keyword checking_kw
     Armor rend_to_check  = libs.GetRenderedDevice(to_check)                                     ; getting rendered device 
     int i = 0 
@@ -664,7 +652,7 @@ EndFunction
 
 ; Check conflicts using armor slots
 ; Doesn't work!
-Bool Function ConflictNone2(Actor akActor, Armor to_check)
+Bool Function _ConflictNone2(Actor akActor, Armor to_check)
     If akActor == None || to_check == None
         Return False
     EndIf
