@@ -6,22 +6,22 @@
         <title>UnforgivingDevices</title>
         <link rel="stylesheet" href="styles.css">
     </head>
-    <body id="main" style="display: none;">
-    <!-- <body id="main"> -->
-        <div id="devicemenu">
-            <div id="dm_stats">
+    <!-- <body id="main" style="display: none;"> -->
+    <body id="main">
+        <div id="devicemenu"  class="border-main">
+            <div id="dm_stats" class="">
                 <table style="width:80%;">
-                    <tr >
+                    <tr class="border-underline">
                         <th> Wearer: </th>
-                        <th id="dm_wearer"> None </th>
+                        <th id="dm_wearer" > None </th>
                         <th> Helper: </th>
                         <th id="dm_helper"> None </th>
                     </tr>
-                    <tr>
+                    <tr class="border-underline">
                         <th> Devices count: </th>
                         <th id="dm_devcnt"> 0 </th>
                     </tr>
-                    <tr>
+                    <tr class="border-underline">
                         <th> Orgasm progress: </th>
                         <th> <span id="dm_orgasm"> 0.0 </span> </th>
                         <th> Arousal: </th>
@@ -29,26 +29,26 @@
                     </tr>
                 </table>
             </div>
-            <table id="dm_table">
-                <tr id="dm_line0">
+            <table id="dm_table" class="background-white">
+                <tr id="dm_line0" class="heading-row">
                     <th> Device list </th>
                     <th colspan="2"> Details </th>
                 </tr>
                 <tr id="dm_line1">
-                    <th rowspan="4" id="dm_list" class="dm_list"></th>
-                    <th class="devicemenu_info"> 
+                    <th rowspan="4" id="dm_list" class="background-light right-seperator"></th>
+                    <th class="devicemenu_info background-light" > 
                         <table id="dm_detailtable" class="dm_detailtable">
                         </table>
                     </th>
-                    <th class="devicemenu_info" id="dm_description"/>
+                    <th class="devicemenu_info background-light" id="dm_description"/>
                 </tr>
-                <tr id="dm_line2">
-                    <th colspan="1">Actions</th>
-                    <th colspan="1">Modifiers</th>
+                <tr id="dm_line2" >
+                    <th colspan="1" class="heading-row">Actions</th>
+                    <th colspan="1" class="heading-row">Modifiers</th>
                 </tr>
                 <tr id="dm_line3">
-                    <th class="devicemenu_info" id="dm_minigames"></th>
-                    <th class="devicemenu_info" id="dm_modifiers"></th>
+                    <th class="devicemenu_info background-light" id="dm_minigames"></th>
+                    <th class="devicemenu_info background-light" id="dm_modifiers"></th>
                 </tr>
             </table>
             <table id="dm_controlmenu">
