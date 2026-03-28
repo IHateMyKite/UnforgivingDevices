@@ -475,7 +475,18 @@ Bool Function UnlockDeviceByKeyword(actor akActor, keyword zad_DeviousDevice, bo
     endif    
     
     Armor idevice = GetWornDevice(akActor, zad_DeviousDevice)
-    
+    if !idevice
+        if UDmain.TraceAllowed()
+            UDmain.Log("UnlockDeviceByKeyword:  Exact match didn't work, but we can still try the fuzzy match!")
+        endif
+        idevice = GetWornDeviceFuzzyMatch(akActor, zad_DeviousDevice)
+        if idevice
+            if UDmain.TraceAllowed()
+                UDmain.Log("UnlockDeviceByKeyword:  Fuzzy match worked! Device found: " + idevice)
+            endif
+        endif
+    endif
+
     if !idevice
         UDmain.Error("UnlockDeviceByKeyword("+GetActorName(akActor)+","+zad_DeviousDevice+") - returned idevice is none")
         return false
