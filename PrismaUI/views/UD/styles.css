@@ -103,7 +103,7 @@ body {
 /* Main Container */
 #main {
   /* Only here for testing */
-  background-image: url('screenshot.png');
+  /*background-image: url('screenshot.png');*/
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

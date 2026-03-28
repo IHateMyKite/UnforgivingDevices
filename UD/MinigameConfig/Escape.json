@@ -1,0 +1,8 @@
+{
+    "name": "Escape",
+    "description": "Escape the device you rigged",
+    "uiobject":"",
+    "script":"UD\\MinigameConfig\\Escape.lua",
+    "priority": 10,
+    "config": {}
+}

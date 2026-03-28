@@ -157,22 +157,12 @@ end
 function ClickLeft(C)
     local loc_pos           = GetMinigameVar(C,"CursorPos")
     local loc_zone          = GetMinigameVar(C,"ZoneSize")
-    local loc_cursorsize    = GetMinigameVar(C,"CursorSize")
-    Log("ClickLeft - "..tostring(loc_pos).." , "..tostring(loc_zone))
+    --local loc_cursorsize    = GetMinigameVar(C,"CursorSize")
+    --Log("ClickLeft - "..tostring(loc_pos).." , "..tostring(loc_zone))
     if loc_pos <= loc_zone then
-        -- Increase reward and speed
-        local loc_mult = GetMinigameVar(C,"Multiplier")
-        loc_mult = loc_mult*1.05
-        SetMinigameVar(C,"Multiplier",loc_mult)
-        
-        DamageDurability(C,5.0*loc_mult)
-        
-        local loc_speed = GetMinigameVar(C,"CursorSpeed")
-        loc_speed = loc_speed*1.05
-        SetMinigameVar(C,"CursorSpeed",loc_speed)
+        ClickSuccess(C)
     else
-        SetMinigameVar(C,"Multiplier",1.0)
-        SetMinigameVar(C,"CursorSpeed",tonumber(GetConfigVar(C,"BaseSpeed","100.0")))
+        ClickFail(C)
     end
 end
 
@@ -180,22 +170,31 @@ function ClickRight(C)
     local loc_pos           = GetMinigameVar(C,"CursorPos")
     local loc_zone          = GetMinigameVar(C,"ZoneSize")
     local loc_cursorsize    = GetMinigameVar(C,"CursorSize")
-    Log("ClickRight - "..tostring((loc_pos + loc_cursorsize)).." , "..tostring((1.0 - loc_zone)))
+    --Log("ClickRight - "..tostring((loc_pos + loc_cursorsize)).." , "..tostring((1.0 - loc_zone)))
     if (loc_pos + loc_cursorsize) >= (1.0 - loc_zone) then
-        -- Increase reward and speed
-        local loc_mult = GetMinigameVar(C,"Multiplier")
-        loc_mult = loc_mult*1.05
-        SetMinigameVar(C,"Multiplier",loc_mult)
-        
-        DamageDurability(C,5.0*loc_mult)
-        
-        local loc_speed = GetMinigameVar(C,"CursorSpeed")
-        loc_speed = loc_speed*1.05
-        SetMinigameVar(C,"CursorSpeed",loc_speed)
+        ClickSuccess(C)
     else
-        SetMinigameVar(C,"Multiplier",1.0)
-        SetMinigameVar(C,"CursorSpeed",tonumber(GetConfigVar(C,"BaseSpeed","100.0")))
+        ClickFail(C)
     end
+end
+
+function ClickSuccess(C)
+    -- Increase reward and speed
+    local loc_mult = GetMinigameVar(C,"Multiplier")
+    loc_mult = loc_mult*1.05
+    SetMinigameVar(C,"Multiplier",loc_mult)
+    
+    local loc_dmg = GetMinigameVar(C,'DamageBase')*0.5
+    DamageDurability(C,loc_dmg*loc_mult)
+    
+    local loc_speed = GetMinigameVar(C,"CursorSpeed")
+    loc_speed = loc_speed*1.05
+    SetMinigameVar(C,"CursorSpeed",loc_speed)
+end
+
+function ClickFail(C)
+    SetMinigameVar(C,"Multiplier",1.0)
+    SetMinigameVar(C,"CursorSpeed",tonumber(GetConfigVar(C,"BaseSpeed","100.0")))
 end
 
 function StopDeviceMinigame(C)

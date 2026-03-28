@@ -3,12 +3,17 @@
     "description": "Try to struggle out of the device by using your strength. The less durability will device have, the faster you will escape",
     "uiobject":"UD/Minigames/StruggleDefault/index.html",
     "script":"UD\\MinigameConfig\\StruggleDefault.lua",
+    "priority": 99,
     "config":
     {
-        "minStamina": "0.2",
-        "minHealth": "0.5",
+        "minStamina":   "0.2",
+        "minHealth":    "0.5",
         "StaminaDrain": "10.0",
-        "HealthDrain": "5.0",
-        "DamageBase": "15.0"
+        "HealthDrain":  "5.0",
+        "DamageBase":   "15.0",
+        "PhysResMult":  "1.0",
+        "MagResMult":   "0.0",
+        "BaseSpeed":    "150.0",
+        "DamageBase":   "12.5"
     }
 }

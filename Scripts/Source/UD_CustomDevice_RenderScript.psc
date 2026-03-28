@@ -357,6 +357,10 @@ Int[]       Property UD_LockList                                    auto
 /;
 String[]    Property UD_LockNameList                                auto
 
+;/  Variable: UD_Manipulated
+    If device is manipulated. Is updated on equip if the manipulated flag in StorageUtility was set
+/;
+Bool        Property UD_Manipulated  = False                        Auto
 
 ;/  Group: Read Only
 ===========================================================================================
@@ -1031,6 +1035,10 @@ Function _Init(Actor akActor)
     
     UD_Health = UD_Health
     
+    if !UD_Manipulated
+        UD_Manipulated = StorageUtil.GetIntValue(GetWearer(), "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus", 0)
+    endif
+    
     if UDmain.TraceAllowed()
         UDmain.Log(getDeviceName() + " fully locked on " + getWearerName(),1)
     endif
@@ -1460,7 +1468,9 @@ Function unlockRestrain(bool abForceDestroy = false,bool abWaitForRemove = True,
     
     StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
     
-    StorageUtil.UnSetIntValue(Wearer, "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus")
+    if UD_Manipulated
+        StorageUtil.UnSetIntValue(Wearer, "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus")
+    endif
     
     if (deviceInventory.hasKeyword(libs.zad_QuestItem) || deviceRendered.hasKeyword(libs.zad_QuestItem))
         int questKw = UDCdmain.UD_QuestKeywords.getSize()
@@ -3008,7 +3018,7 @@ Function _deviceMenuInit(bool[] aaControl)
         endif
     endif
     
-    if StorageUtil.GetIntValue(GetWearer(), "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus", 0)
+    if UD_Manipulated
         UDCDmain.currentDeviceMenu_allowEscape = true
     endif
     
@@ -3156,7 +3166,7 @@ Function _deviceMenuInitWH(Actor akSource,bool[] aaControl)
             endif
         endif
         
-        if StorageUtil.GetIntValue(GetWearer(), "zad_Equipped" + libs.LookupDeviceType(UD_DeviceKeyword) + "_ManipulatedStatus", 0)
+        if UD_Manipulated
             UDCDmain.currentDeviceMenu_allowEscape = true
         endif
             

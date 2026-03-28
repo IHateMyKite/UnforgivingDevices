@@ -3,9 +3,14 @@
     "description": "Try to struggle out of the device by using your agility",
     "uiobject":"UD/Minigames/StruggleDefault/index.html",
     "script":"UD\\MinigameConfig\\StruggleDefault.lua",
+    "priority": 100,
     "config":
     {
-        "minStamina": "0.5",
-        "StaminaDrain": "10.0"
+        "minStamina":   "0.5",
+        "StaminaDrain": "10.0",
+        "PhysResMult":  "0.8",
+        "MagResMult":   "0.0",
+        "BaseSpeed":    "150.0",
+        "DamageBase":   "10.0"
     }
 }
