@@ -14,8 +14,8 @@ window.InitDeviceList = (values) => {
   document.getElementById('dm_devcnt').textContent = devices.length;
   document.getElementById('dm_wearer').textContent = values.wearer;
   document.getElementById('dm_helper').textContent = values.helper;
-  document.getElementById('dm_arousal').textContent = values.arousal;
-  document.getElementById('dm_orgasm').textContent = values.orgasm;
+  document.getElementById('dm_arousal').textContent = Number(values.arousal).toFixed(0);
+  document.getElementById('dm_orgasm').textContent = Number(values.orgasm).toFixed(1) + "%";
 
   var buttons = document.getElementById('dm_list');
   while (buttons.hasChildNodes()) {
@@ -185,7 +185,7 @@ function _InitValueDetails(arg)
         
         var loc_th_value = document.createElement("th");
         loc_th_value.className   = "dm_det_value";
-        if (loc_value.id) loc_th_value.id = loc_value.id;
+        if (loc_value.style) loc_th_value.style = loc_value.style;
         loc_th_value.textContent = loc_value.value;
         loc_tr.appendChild(loc_th_value);
         

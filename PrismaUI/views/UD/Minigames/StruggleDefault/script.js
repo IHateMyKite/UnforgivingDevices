@@ -1,6 +1,7 @@
 
 Durability      = 0.0
 Condition       = 0.0
+Combo           = 0
 
 window.InitMinigame = (arg) =>
 {
@@ -22,6 +23,14 @@ window.UpdateMinigame = (arg) =>
     loc_bar2.style.setProperty("width",String(Condition*100.0)+"%")
     
     UpdateCursor(arg.pos)
+}
+
+window.UpdateCombo = (arg) =>
+{
+    Combo = arg.val
+    let loc_combocntr = document.getElementById("mg_combo")
+    loc_combocntr.innerHTML = Combo + "x"
+    loc_combocntr.style.setProperty("font-size",String(25+arg.val*2)+"px")
 }
 
 function UpdateCursor(pos)

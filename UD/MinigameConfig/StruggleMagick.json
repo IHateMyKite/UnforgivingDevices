@@ -14,6 +14,6 @@
         "PhysResMult":  "0.0",
         "MagResMult":   "1.0",
         "BaseSpeed":    "130.0",
-        "DamageBase":   "12.5"
+        "DamageBase":   "1.0"
     }
 }

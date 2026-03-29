@@ -2,6 +2,9 @@
 ;   This is the core script of all unforgiving devices. In case you want to ceate new device, you have to use this script or make new one which extends this script
 Scriptname UD_CustomDevice_RenderScript extends ObjectReference  
 
+; <DOCUSTR(name,Base device)>
+; <DOCUSTR(description,This is generic device. It does not do anything special)>
+
 import UnforgivingDevicesMain
 import UD_NPCInteligence
 import UD_Native
@@ -81,12 +84,12 @@ String[] Property UD_DeviceStruggleKeywords                     auto Hidden ;key
     
     Only change this if creating new script type with new active effect
 /;
-string   Property UD_ActiveEffectName           = "Share"       auto hidden ;name of active effect
+string   Property UD_ActiveEffectName           = "Share"       auto hidden ;name of active effect ;/ <EXPORT(name: Active effect)> /;
 
 ;/  Variable: UD_DeviceType
     Name of the device type. Only used in details, so user can distinguish various device types
 /;
-string   Property UD_DeviceType                 = "Generic"     auto hidden ;name of the device type
+string   Property UD_DeviceType                 = "Generic"     auto hidden ;name of the device type ;/ <EXPORT(name: Device Type)> /;
 
 ;/  Variable: UD_DeviceKeyword_Minor
     Minor device keyword. Only used by animations
@@ -167,26 +170,26 @@ EndProperty
     This is not exact value of what will be used in minigame, but instead just base value which is then moded using other minigame values
     
 /;
-float       Property UD_durability_damage_base = 1.0 Auto ;durability dmg per second of struggling, range 0.00 - 40.00, precision 0.01 (4000 values)
+float       Property UD_durability_damage_base = 1.0 Auto ;durability dmg per second of struggling, range 0.00 - 40.00, precision 0.01 (4000 values) ;/ <EXPORT(name: Damage base,format:{:.1f}/s,prio:80)> /;
 
 ;/  Variable: UD_base_stat_drain
     How many points of stats (health, stamina, magicka) are reduced per second of minigame. This is only base values, which is later moded with minigame values
 /;
-float       Property UD_base_stat_drain = 6.0 Auto ;stamina drain for second of struggling, range 1 - 31, decimal point not used
+float       Property UD_base_stat_drain = 6.0 Auto ;stamina drain for second of struggling, range 1 - 31, decimal point not used ;/ <EXPORT(name: Base stat drain)> /; ;/ <EXPORT(name:Stats drain,format:{:.1f}/s,prio:75)> /;
 
 ;/  Variable: UD_ResistPhysical
     Physical resistence of device. Reduces effectiveness of normal and despair minigame Value bigger then 100% will cause device to be healed
     
     See: <UD_ResistMagicka>, <UD_WeaponHitResist>
 /;
-float       Property UD_ResistPhysical   Auto;physical resistence. Needs to be applied to minigame to work!
+float       Property UD_ResistPhysical   Auto;physical resistence. Needs to be applied to minigame to work! ;/ <EXPORT(name: Physical resistence,format:{:.1f}%,prio:65)> /;
 
 ;/  Variable: UD_ResistMagicka
     Magic resistence of device. Reduces effectiveness of magic minigame. Value bigger then 100% will cause device to be healed
     
     See: <UD_ResistPhysical>
 /;
-float       Property UD_ResistMagicka    Auto;magicka resistence. Needs to be applied to minigame to work!
+float       Property UD_ResistMagicka    Auto;magicka resistence. Needs to be applied to minigame to work! ;/ <EXPORT(name:Magick resistence,format:{:.1f}%,prio:64)> /;
 
 ;/  Variable: UD_WeaponHitResist
     Physical resistence of device when hit with weapon attack. If set to 5.23, it will be set on init to <UD_ResistPhysical>. Value bigger then 100% will cause device to be healed
@@ -208,7 +211,7 @@ float       Property UD_SpellHitResist    Auto;!!!UNUSED!!!
         Max. Value     =     100.00
     ---
 /;
-float       Property UD_CutChance       Auto;chance of cutting device every 1s of minigame, 0.0 is uncuttable
+float       Property UD_CutChance       Auto;chance of cutting device every 1s of minigame, 0.0 is uncuttable ;/ <EXPORT(name:Cut chance,format:{:.1f}%,prio:63)> /;
 
 ;/  Variable: UD_StruggleCritMul
     Crit multiplier. Determinate how much are crits effective.
@@ -256,7 +259,7 @@ int         Property UD_StruggleCritChance          = 15            Auto ;chance
     
     Zero or negative value will disable this feature (device cant activate itself)
 /;
-int         Property UD_Cooldown                    = 0             auto
+int         Property UD_Cooldown                    = 0             auto ;/ <EXPORT(name: Effect cooldown,format:{} min,prio:60)> /;
 
 ;/  Variable: UD_DefaultHealth
     Device durability on first level. It is used as base, which will be increased with device level.
@@ -429,9 +432,9 @@ Keyword                 _DeviceKeyword_Minor        = none
 Actor                   Wearer                      = none               ;current device wearer reference
 Actor                   _minigameHelper             = none               ;current device helper. Is filled the moment the device menu is open
 bool                    _IsUnlocked                 = false
-int                     _level                      = 1                  ;local variable for device level
+int                     _level                      = 1                  ;local variable for device level ;/ <EXPORT(name:Level,format:{},prio:90)> /;
 int                     _currentRndCooldown         = 0                  ;currently used cooldown time
-float                   current_device_health       = 0.0                ;current device durability, if this reaches 0, player will escape restrain
+float                   current_device_health       = 0.0                ;current device durability, if this reaches 0, player will escape restrain ;/ <EXPORT(name:Health,format:{:.1f},prio:100)> /;
 float                   _total_durability_drain     = 0.0                ;how much durability was reduced, aka condition
 float                   _durability_damage_mod      = 0.0                ;durability dmg after applied difficulty, dont change this! Use updateDifficulty() if you want to update it
 float                   _updateTimePassed           = 0.0                ;time passed from last update in days

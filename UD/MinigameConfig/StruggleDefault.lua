@@ -42,7 +42,7 @@ function OnStart(C)
     -- Store max helath for later operations
     local loc_maxhealth = GetVariableValue(C,"thisdevice::_MaxHealth(A)")
     SetMinigameVar(C,'MaxDurability',loc_maxhealth)
-    SetMinigameVar(C,'DamageBase',tonumber(GetConfigVar(C,"DamageBase","10.0")))
+    SetMinigameVar(C,'DamageMult',tonumber(GetConfigVar(C,"DamageMult","1.0")))
     SetMinigameVar(C,"CursorPos",0.0)
     SetMinigameVar(C,"CursorDir",0)
     SetMinigameVar(C,"ZoneSize",tonumber(GetConfigVar(C,"ZoneSize","0.1")))
@@ -53,6 +53,8 @@ function OnStart(C)
     SetMinigameVar(C,"CondMult",tonumber(GetConfigVar(C,"CondMult","1.0")))
     SetMinigameVar(C,"PhysResMult",tonumber(GetConfigVar(C,"PhysResMult","1.0")))
     SetMinigameVar(C,"MagResMult",tonumber(GetConfigVar(C,"MagResMult","0.0")))
+    SetMinigameVar(C,"DamageBase",GetVariableValue(C,"thisdevice::UD_durability_damage_base(A)")*GetMinigameVar(C,"DamageMult"))
+    SetMinigameVar(C,"Combo",0)
     
     local loc_physres       = GetVariableValue(C,"thisdevice::UD_ResistPhysical(A)")
     local loc_physresmult   = GetMinigameVar(C,"PhysResMult")
@@ -181,10 +183,13 @@ end
 function ClickSuccess(C)
     -- Increase reward and speed
     local loc_mult = GetMinigameVar(C,"Multiplier")
-    loc_mult = loc_mult*1.05
+    loc_mult = loc_mult*1.2
     SetMinigameVar(C,"Multiplier",loc_mult)
     
-    local loc_dmg = GetMinigameVar(C,'DamageBase')*0.5
+    local loc_combo = UpdateMinigameVar(C,"Combo",1)
+    InvokeUI(C,"UpdateCombo({val:"..tostring(loc_combo).."})")
+    
+    local loc_dmg = GetMinigameVar(C,'DamageBase')*1.0
     DamageDurability(C,loc_dmg*loc_mult)
     
     local loc_speed = GetMinigameVar(C,"CursorSpeed")
@@ -195,6 +200,8 @@ end
 function ClickFail(C)
     SetMinigameVar(C,"Multiplier",1.0)
     SetMinigameVar(C,"CursorSpeed",tonumber(GetConfigVar(C,"BaseSpeed","100.0")))
+    SetMinigameVar(C,"Combo",0)
+    InvokeUI(C,"UpdateCombo({val:"..tostring(0).."})")
 end
 
 function StopDeviceMinigame(C)
