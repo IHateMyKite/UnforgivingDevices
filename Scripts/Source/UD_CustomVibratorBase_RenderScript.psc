@@ -7,6 +7,9 @@ Scriptname UD_CustomVibratorBase_RenderScript extends UD_CustomDevice_RenderScri
 import UnforgivingDevicesMain
 import UD_Native
 
+; <DOCUSTR(name,Base vibrator)>
+; <DOCUSTR(description,This is generic vibrator. When activated, it will start vibrating, increasing wearer arousal)>
+
 ;Properties
 
 ;/  Group: Vibration customization
@@ -96,7 +99,7 @@ String  Property     VibrationEffectSlot                        Hidden
     EndFunction
 EndProperty
 
-Int _currentVibStrength = 0
+Int _currentVibStrength = 0 ;/ <EXPORT(name:Current vibration strength)> /;
 Int     Property     CurrentVibStrength                          Hidden
     Int Function Get()
         Return _currentVibStrength
@@ -113,7 +116,7 @@ Int     Property     CurrentVibStrength                          Hidden
 EndProperty
 
 ;local variables
-int     _currentVibRemainingDuration    =   0
+int     _currentVibRemainingDuration    =   0 ;/ <EXPORT(name:Remaining duration,conv:enum{-1=Infinite;0=Off})> /;
 int     _forceStrength                  =   -1
 int     _forceDuration                  =   0
 int     _currentEdgingMode              =   -1

@@ -182,14 +182,14 @@ float       Property UD_base_stat_drain = 6.0 Auto ;stamina drain for second of 
     
     See: <UD_ResistMagicka>, <UD_WeaponHitResist>
 /;
-float       Property UD_ResistPhysical   Auto;physical resistence. Needs to be applied to minigame to work! ;/ <EXPORT(name: Physical resistence,format:{:.1f}%,prio:65)> /;
+float       Property UD_ResistPhysical   Auto;physical resistence. Needs to be applied to minigame to work! ;/ <EXPORT(name: Physical resistence,format:{:.1f}%,prio:65,conv:reltoperc)> /;
 
 ;/  Variable: UD_ResistMagicka
     Magic resistence of device. Reduces effectiveness of magic minigame. Value bigger then 100% will cause device to be healed
     
     See: <UD_ResistPhysical>
 /;
-float       Property UD_ResistMagicka    Auto;magicka resistence. Needs to be applied to minigame to work! ;/ <EXPORT(name:Magick resistence,format:{:.1f}%,prio:64)> /;
+float       Property UD_ResistMagicka    Auto;magicka resistence. Needs to be applied to minigame to work! ;/ <EXPORT(name:Magick resistence,format:{:.1f}%,prio:64,conv:reltoperc)> /;
 
 ;/  Variable: UD_WeaponHitResist
     Physical resistence of device when hit with weapon attack. If set to 5.23, it will be set on init to <UD_ResistPhysical>. Value bigger then 100% will cause device to be healed

@@ -3,12 +3,12 @@ Durability      = 0.0
 Condition       = 0.0
 Combo           = 0
 
-window.InitMinigame = (arg) =>
+window.SetZones = (arg) =>
 {
     zones = document.getElementsByClassName("mg_minigamezone")
-    console.log(zones)
+    console.log(arg.zonesize)
     for (const el of zones) {
-      el.style.setProperty("width",String(arg.zonesize)+"%")
+      el.style.setProperty("width",String(arg.zonesize*100.0)+"%")
     }
 }
 

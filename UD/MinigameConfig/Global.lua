@@ -77,6 +77,9 @@ function RegisterActionCallback(C,action,callback)
     Host_RegisterActionCallback(C['MinigameId'],action,callback)
 end
 
+function GetDeviceAccessibility(C)
+    return Host_GetDeviceAccesibility(C)
+end
 ----------------------------
 --   UTILITY  FUNCTIONS   --
 ----------------------------

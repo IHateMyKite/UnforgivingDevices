@@ -110,7 +110,7 @@ body {
 }
 
 #devicemenu {
-  max-width: 50%;
+  max-width: 65%;
   height: 90vh;
   max-height: 56.25rem;
   margin: 0 auto;
@@ -208,6 +208,10 @@ button:hover {
   color: var(--color-red-50);
 }
 
+#dm_minigames .dm_entry_enabled {
+  background-color: var(--color-black-80);
+  color: var(--color-green);
+}
 
 /* Modifier Buttons */
 #dm_modifiers button {

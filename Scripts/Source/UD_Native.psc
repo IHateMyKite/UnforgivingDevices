@@ -186,3 +186,4 @@ Bool      Function ShowDeviceMenu     (Actor akWearer, Actor akHelper, String[] 
 
 ; === Minigame Msanager ===
 String[]  Function GetListOfMinigames (Actor akWearer, Armor akId) global native
+Bool      Function StopMinigame       (Actor akActor) global native

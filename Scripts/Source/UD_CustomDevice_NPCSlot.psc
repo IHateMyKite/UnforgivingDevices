@@ -627,6 +627,8 @@ Function fix()
         
         UDCDmain.libs.StartBoundEffects(getActor())
         
+        UD_Native.StopMinigame(getActor())
+        
         ; fix current devices
         int i = UD_equipedCustomDevices.length
         while i

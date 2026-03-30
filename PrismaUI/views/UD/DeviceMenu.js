@@ -111,12 +111,11 @@ function _SelectDevice(arg)
 }
 
 function _DeviceDetails(arg) {
-    
-    document.getElementById('dm_description').textContent   = devices[arg].desc
+    //document.getElementById('dm_description').textContent   = devices[arg].desc
     
     _InitValueDetails(arg)
     
-    console.log("_DeviceDetails("+arg+")")
+    console.log("_DeviceDetails("+arg+") start")
     let loc_mods = document.getElementById('dm_modifiers')
     while (loc_mods.hasChildNodes()) {
       loc_mods.removeChild(loc_mods.firstChild);
@@ -124,6 +123,7 @@ function _DeviceDetails(arg) {
     
     for (let i = 0; i < devices[arg].mods.length; i++)
     {
+        console.log("devices["+arg+"].mods["+i+"]")
         var loc_modbutton = document.createElement("button");
         loc_modbutton.textContent = devices[arg].mods[i].name;
         loc_modbutton.className = "dm_entry"
@@ -138,6 +138,7 @@ function _DeviceDetails(arg) {
     }
     for (let i = 0; i < devices[arg].minigames.length; i++)
     {
+        console.log("devices["+arg+"].minigames["+i+"]")
         var loc_button = document.createElement("button");
         loc_button.textContent = devices[arg].minigames[i].name;
         if (devices[arg].minigames[i].state == 1) loc_button.className = "dm_entry_enabled"
@@ -147,6 +148,7 @@ function _DeviceDetails(arg) {
         loc_button.setAttribute("onclick","_StartMinigame("+arg+","+i+")")
         loc_minigames.appendChild(loc_button);
     }
+    console.log("_DeviceDetails("+arg+") done")
 };
 
 function ShowDetails(event, str)

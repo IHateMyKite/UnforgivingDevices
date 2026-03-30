@@ -1,6 +1,7 @@
 
 -- Check if minigame should be available for selected device
 function Precondition(C)
+    Log("Precondition called")
     local loc_physres       = GetVariableValue(C,"thisdevice::UD_ResistPhysical(A)")
     local loc_physresmult   = GetConfigVar(C,"PhysResMult","1.0")
     local loc_magres        = GetVariableValue(C,"thisdevice::UD_ResistMagicka(A)")
@@ -12,6 +13,7 @@ end
 
 -- Check if actor can struggle or if other conditions are met
 function Condition(C)
+    Log("Condition called")
     local loc_stamina = GetVariableValue(C,"wearer::stamina(R)") > tonumber(GetConfigVar(C,"minStamina","0.0"))
     local loc_magicka = GetVariableValue(C,"wearer::magicka(R)") > tonumber(GetConfigVar(C,"minMagicka","0.0"))
     local loc_health  = GetVariableValue(C,"wearer::health(R)")  > tonumber(GetConfigVar(C,"minHealth","0.0"))
@@ -20,11 +22,12 @@ function Condition(C)
         loc_magicka = loc_magicka and (GetVariableValue(C,"helper::magicka(R)") > tonumber(GetConfigVar(C,"minMagicka","0.0")))
         loc_health  = loc_health  and (GetVariableValue(C,"helper::health(R)")  > tonumber(GetConfigVar(C,"minHealth","0.0")))
     end
-    return loc_stamina and loc_magicka and loc_health
+    return loc_stamina and loc_magicka and loc_health and GetDeviceAccessibility(C) > 0.0
 end
 
 -- Called when minigame starts
 function OnStart(C)
+    Log("OnStart called")
     InitMinigameVars(C)
     
     UpdateVariableValue(C,"thisdevice::_PauseMinigame(A)",false)
@@ -55,6 +58,8 @@ function OnStart(C)
     SetMinigameVar(C,"MagResMult",tonumber(GetConfigVar(C,"MagResMult","0.0")))
     SetMinigameVar(C,"DamageBase",GetVariableValue(C,"thisdevice::UD_durability_damage_base(A)")*GetMinigameVar(C,"DamageMult"))
     SetMinigameVar(C,"Combo",0)
+    SetMinigameVar(C,"DamageSpeedMult",tonumber(GetConfigVar(C,"DamageSpeedMult","1.25")))
+    SetMinigameVar(C,"SpeedMult",tonumber(GetConfigVar(C,"SpeedMult","1.05")))
     
     local loc_physres       = GetVariableValue(C,"thisdevice::UD_ResistPhysical(A)")
     local loc_physresmult   = GetMinigameVar(C,"PhysResMult")
@@ -67,6 +72,7 @@ end
 -- Called on every player update frame
 -- Is not called while in menu mode
 function OnUpdate(C,delta)
+    -- Log("OnUpdate called")
     -- Check if minigame is already ready
     if not GetMinigameVar(C,"Ready") then
         return
@@ -97,6 +103,13 @@ function OnUpdate(C,delta)
         SetMinigameVar(C,'TimerExpr',5.0)
         CallPapyrusFunction(C,"thisdevice::Lua_UpdateMinigameExpression","",{"actor",C['Helper']})
     end
+end
+
+function OnStop(C)
+    Log("OnStop called")
+    CloseMinigameUI(C)
+    CallPapyrusFunction(C,"thisdevice::Lua_StopMinigame","",{"actor",C['Helper']})
+    UpdateVariableValue(C,"thisdevice::_MinigameMainLoopON(A)",false)
 end
 
 function DamageDurability(C,dmg)
@@ -140,7 +153,6 @@ function OnMinigameReady(C)
     if PlayerInMinigame(C) then
         DamageDurability(C,0.0)
         OpenMinigameUI(C,"OnUIOpen")
-        InvokeUI(C,"InitMinigame({zonesize:"..tostring(GetMinigameVar(C,"ZoneSize")).."})")
     else
         SetMinigameVar(C,'Ready',true)
     end
@@ -148,11 +160,11 @@ end
 
 -- Called after PrismaUI minigame object is open
 function OnUIOpen(C)
+    Log("OnUIOpen")
     -- Register actions
     RegisterActionCallback(C,"press_stop","StopDeviceMinigame")
     RegisterActionCallback(C,"press_left","ClickLeft")
     RegisterActionCallback(C,"press_right","ClickRight")
-    
     SetMinigameVar(C,'Ready',true)
 end
 
@@ -183,7 +195,7 @@ end
 function ClickSuccess(C)
     -- Increase reward and speed
     local loc_mult = GetMinigameVar(C,"Multiplier")
-    loc_mult = loc_mult*1.2
+    loc_mult = loc_mult*GetMinigameVar(C,"DamageSpeedMult")
     SetMinigameVar(C,"Multiplier",loc_mult)
     
     local loc_combo = UpdateMinigameVar(C,"Combo",1)
@@ -193,7 +205,7 @@ function ClickSuccess(C)
     DamageDurability(C,loc_dmg*loc_mult)
     
     local loc_speed = GetMinigameVar(C,"CursorSpeed")
-    loc_speed = loc_speed*1.05
+    loc_speed = loc_speed*GetMinigameVar(C,"SpeedMult")
     SetMinigameVar(C,"CursorSpeed",loc_speed)
 end
 
@@ -206,10 +218,7 @@ end
 
 function StopDeviceMinigame(C)
     Log("StopDeviceMinigame called")
-    CloseMinigameUI(C)
     StopMinigame(C)
-    CallPapyrusFunction(C,"thisdevice::Lua_StopMinigame","",{"actor",C['Helper']})
-    UpdateVariableValue(C,"thisdevice::_MinigameMainLoopON(A)",false)
 end
 
 function PlayerInMinigame(C)
@@ -242,5 +251,7 @@ function ProcessMinigame(C,delta)
     
     local loc_durability_r = GetMinigameVar(C,"Durability")
     local loc_condition_r  = GetMinigameVar(C,"Condition")
+    local loc_combo = GetMinigameVar(C,"Combo")
+    InvokeUI(C,"SetZones({zonesize:"..tostring(GetMinigameVar(C,"ZoneSize")*((100 - 4*loc_combo)/100.0)).."})") -- Update zone if it was changed
     InvokeUI(C,"UpdateMinigame({dur:"..tostring(loc_durability_r)..",cond:"..tostring(loc_condition_r)..",pos:"..tostring(loc_pos).."})")
 end
