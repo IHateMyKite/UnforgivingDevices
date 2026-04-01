@@ -99,7 +99,7 @@ String  Property     VibrationEffectSlot                        Hidden
     EndFunction
 EndProperty
 
-Int _currentVibStrength = 0 ;/ <EXPORT(name:Current vibration strength)> /;
+Int _currentVibStrength = 0 ;/ <EXPORT(name:Current strength,conv:enum{0=Off})> /;
 Int     Property     CurrentVibStrength                          Hidden
     Int Function Get()
         Return _currentVibStrength

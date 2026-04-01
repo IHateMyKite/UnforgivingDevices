@@ -10,7 +10,7 @@
     <!-- <body id="main"> -->
         <div id="devicemenu"  class="border-main">
             <div id="dm_stats" class="">
-                <table style="width:80%;">
+                <table style="width:100%;">
                     <tr class="border-underline">
                         <th> Wearer: </th>
                         <th id="dm_wearer" > None </th>
@@ -35,10 +35,15 @@
                     <th colspan="2"> Details </th>
                 </tr>
                 <tr id="dm_line1">
-                    <th rowspan="4" id="dm_list" class="background-light right-seperator"></th>
-                    <th class="devicemenu_info background-light" colspan="2" > 
-                        <table id="dm_detailtable" class="dm_detailtable">
-                        </table>
+                    <th rowspan="4" class="background-light right-seperator">
+                        <div id="dm_list" style="overflow:auto;height:600px;">
+                        </div>
+                    </th>
+                    <th class="devicemenu_info background-light" colspan="2" >
+                        <div class="dm_scrollable" style="height:300px;">
+                            <table id="dm_detailtable" class="dm_detailtable">
+                            </table>
+                        </div>
                     </th>
                     <!-- <th class="devicemenu_info background-light" id="dm_description"/> -->
                 </tr>
@@ -47,8 +52,14 @@
                     <th colspan="1" class="heading-row">Modifiers</th>
                 </tr>
                 <tr id="dm_line3">
-                    <th class="devicemenu_info background-light" id="dm_minigames"></th>
-                    <th class="devicemenu_info background-light" id="dm_modifiers"></th>
+                    <th class="devicemenu_info background-light">
+                        <div id="dm_minigames" class="dm_scrollable" style="height:250px;">
+                        </div>
+                    </th>
+                    <th class="devicemenu_info background-light">
+                        <div id="dm_modifiers" class="dm_scrollable" style="height:250px;">
+                        </div>
+                    </th>
                 </tr>
             </table>
             <table id="dm_controlmenu">

@@ -110,7 +110,7 @@ body {
 }
 
 #devicemenu {
-  max-width: 65%;
+  max-width: 50%;
   height: 90vh;
   max-height: 56.25rem;
   margin: 0 auto;
@@ -144,6 +144,11 @@ body {
   text-align: center;
 }
 
+.dm_detailtable th, tr {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
 #dm_description {
   vertical-align: left;
   text-align: left;
@@ -159,7 +164,7 @@ body {
 button {
   width: 95%;
   margin: 0.25rem auto;
-  vertical-align: center;
+  vertical-align: top;
   cursor: pointer;
   font-weight: var(--font-weight-bold);
   border: 1px solid var(--color-white);
@@ -176,6 +181,11 @@ button:hover {
 }
 
 /* Device List Buttons */
+
+#dm_list
+{
+    border: 1px solid black;
+}
 
 #dm_list .dm_entry_selected {
   border: 1px solid var(--color-blue);
@@ -288,9 +298,10 @@ button:hover {
 }
 
 /* Layout Styles */
-#dm_line1 { height: 50%; }
+#dm_line0 { height: 5%;}
+#dm_line1 { height: 30%; }
 #dm_line2 { height: 5%; }
-#dm_line3 { height: 45%; }
+#dm_line3 { height: 65%; }
 
 #dm_stats {
   height: 15%;
@@ -301,8 +312,6 @@ button:hover {
 #dm_stats table {
   border-collapse: collapse;
 }
-
-
 
 /* Border and Background Styles */
 .border-main {
@@ -387,3 +396,7 @@ tr.border-underline td, tr.border-underline th {
   clip-path: polygon(0% 0%, 100% 50%, 100% 100%, 0% 100%);
 }
 
+.dm_scrollable {
+    overflow:auto;
+    border: 1px solid white;
+}

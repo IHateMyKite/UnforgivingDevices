@@ -49,6 +49,7 @@ function OnStart(C)
     SetMinigameVar(C,"CursorPos",0.0)
     SetMinigameVar(C,"CursorDir",0)
     SetMinigameVar(C,"ZoneSize",tonumber(GetConfigVar(C,"ZoneSize","0.1")))
+    SetMinigameVar(C,"ZoneSizeReduction",tonumber(GetConfigVar(C,"ZoneSizeReduction","0.04")))
     SetMinigameVar(C,"CursorSize",0.025)
     SetMinigameVar(C,"CursorPosMax",1.0-GetMinigameVar(C,"CursorSize"))
     SetMinigameVar(C,"CursorSpeed",tonumber(GetConfigVar(C,"BaseSpeed","100.0")))
@@ -252,6 +253,9 @@ function ProcessMinigame(C,delta)
     local loc_durability_r = GetMinigameVar(C,"Durability")
     local loc_condition_r  = GetMinigameVar(C,"Condition")
     local loc_combo = GetMinigameVar(C,"Combo")
-    InvokeUI(C,"SetZones({zonesize:"..tostring(GetMinigameVar(C,"ZoneSize")*((100 - 4*loc_combo)/100.0)).."})") -- Update zone if it was changed
+    local loc_zonesize = GetMinigameVar(C,"ZoneSize")
+    local loc_zonesizerecution = GetMinigameVar(C,"ZoneSizeReduction")
+    
+    InvokeUI(C,"SetZones({zonesize:"..tostring(loc_zonesize*(1.0 - loc_combo*loc_zonesizerecution)).."})")
     InvokeUI(C,"UpdateMinigame({dur:"..tostring(loc_durability_r)..",cond:"..tostring(loc_condition_r)..",pos:"..tostring(loc_pos).."})")
 end

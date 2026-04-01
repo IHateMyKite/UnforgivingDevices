@@ -80,6 +80,15 @@ end
 function GetDeviceAccessibility(C)
     return Host_GetDeviceAccesibility(C)
 end
+
+function ActorFreeHands(actor,checkgrasp,ignoreheavybondage)
+    return Host_ActorFreeHands(actor,checkgrasp,ignoreheavybondage)
+end
+
+function WornHasKeyword(actor,kw)
+    return Host_WornHasKeyword(actor,kw)
+end
+
 ----------------------------
 --   UTILITY  FUNCTIONS   --
 ----------------------------

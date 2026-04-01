@@ -2,7 +2,7 @@
     "name": "Desperate Struggle",
     "description": "Try to struggle out of the device by using your strength. The less durability will device have, the faster you will escape",
     "uiobject":"UD/Minigames/StruggleDefault/index.html",
-    "script":"UD\\MinigameConfig\\StruggleDefault.lua",
+    "script":"UD\\Minigames\\Scripts\\StruggleDefault.lua",
     "priority": 99,
     "config":
     {
@@ -15,7 +15,7 @@
         "MagResMult":   "0.0",
         "BaseSpeed":    "150.0",
         "DamageBase":   "1.0",
-        "DamageSpeedMult": "1.6",
+        "DamageSpeedMult": "1.3",
         "SpeedMult": "1.2",
         "ZoneSize": "0.35"
     }

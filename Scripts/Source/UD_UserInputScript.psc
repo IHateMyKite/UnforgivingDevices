@@ -159,13 +159,13 @@ Event OnKeyUp(Int KeyCode, Float HoldTime)
             if ((loc_Time > 0.5) || (loc_Time < 0)) ;Only once per 0.5 seconds, to prevent menu opening multiple times at once
                 _LastPressUpTime = Utility.GetCurrentRealTime()
                 if KeyCode == UDCDMain.StruggleKey_Keycode
-                    if HoldTime < 0.2
-                        OpenLastDeviceMenu()
-                    else
-                        OpenDeviceMenu()
-                    endif
+                    ;if HoldTime < 0.2
+                    ;    OpenLastDeviceMenu()
+                    ;else
+                        OpenDeviceMenu() ; TODO - Add new device menu
+                    ;endif
                 elseif KeyCode == UDCDmain.NPCMenu_Keycode
-                    OpenNPCMenu(HoldTime > 0.2)
+                    OpenNPCMenu(HoldTime > 0.2) ; TODO - Add new NPC device menu
                 endif
             endif
         endif
@@ -207,10 +207,10 @@ EndFunction
 
 Function OpenDeviceMenu()
     WaitForReady(10.0)
-    String[] loc_callbacks = new String[3]
-    loc_callbacks[0] = "[Take closer look]this::DeviceMenuCallback()" ; Call callback on the device script itself
-    loc_callbacks[1] = "[Actor menu]UDCD::ActorDetailsCallback()" ; Call callback on module script
-    loc_callbacks[2] = "[Exit]" ; Empty callback to exit the menu without doing anything
+    String[] loc_callbacks = new String[2]
+    ;loc_callbacks[0] = "[Take closer look]this::DeviceMenuCallback()" ; Call callback on the device script itself
+    loc_callbacks[0] = "[Actor menu]UDCD::ActorDetailsCallback()" ; Call callback on module script
+    loc_callbacks[1] = "[Exit]" ; Empty callback to exit the menu without doing anything
     UD_Native.ShowDeviceMenu(UDMain.Player,none,loc_callbacks)
 EndFunction
 

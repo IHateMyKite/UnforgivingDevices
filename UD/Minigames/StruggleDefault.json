@@ -2,7 +2,7 @@
     "name": "Struggle",
     "description": "Try to struggle out of the device by using your agility",
     "uiobject":"UD/Minigames/StruggleDefault/index.html",
-    "script":"UD\\MinigameConfig\\StruggleDefault.lua",
+    "script":"UD\\Minigames\\Scripts\\StruggleDefault.lua",
     "priority": 100,
     "config":
     {
@@ -12,7 +12,7 @@
         "MagResMult":   "0.0",
         "BaseSpeed":    "175.0",
         "DamageBase":   "1.0",
-        "DamageSpeedMult": "1.2",
+        "DamageSpeedMult": "1.16",
         "SpeedMult": "1.07",
         "ZoneSize": "0.2"
     }

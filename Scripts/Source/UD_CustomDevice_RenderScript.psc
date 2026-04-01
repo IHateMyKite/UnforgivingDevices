@@ -9,6 +9,23 @@ import UnforgivingDevicesMain
 import UD_NPCInteligence
 import UD_Native
 
+;<LUA>
+;   function GetAccessibility(C)
+;       local loc_res = 1.0
+;       if not ArmorHasKeyword(C['RD'],"zad_DeviousHeavyBondage") then
+;           if not ActorFreeHands(C['Wearer'],false,false) 
+;           and (IsNull(C['Helper']) or not ActorFreeHands(C['Helper'],false,false)) then
+;               loc_res = 0.0
+;           elseif not ArmorHasKeyword(C['RD'],"zad_DeviousBondageMittens") 
+;           and (not ActorFreeHands(C['Wearer'],true,true) or (not IsNull(C['Helper']) and not ActorFreeHands(C['Helper'],true,true))) then
+;               loc_res = 0.5
+;           end
+;       end
+;       --Log("Base accessibility: "..tostring(loc_res))
+;       return loc_res
+;   end
+;<\LUA>
+
 ;=============================================================
 ;=============================================================
 ;=============================================================
