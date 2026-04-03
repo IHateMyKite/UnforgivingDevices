@@ -180,29 +180,31 @@ State UIDisabled
 EndState
 
 Function OpenLastDeviceMenu()
-    WaitForReady(10.0)
-    if lastOpenedDevice
-        lastOpenedDevice.deviceMenu(new Bool[30])
-    elseif libs.playerRef.wornhaskeyword(libs.zad_deviousheavybondage)
-        lastOpenedDevice = UDCDMain.getHeavyBondageDevice(UDmain.Player)
-        if lastOpenedDevice
-            lastOpenedDevice.deviceMenu(new Bool[30])
-        else
-            lastOpenedDevice = UDCDMain.getDeviceByPriority(UDmain.Player)
-            if lastOpenedDevice
-                lastOpenedDevice.deviceMenu(new Bool[30])
-            else
-                UDMain.Warning("No device equipped. Nothing to show")
-            endif
-        endif
-    else
-        lastOpenedDevice = UDCDMain.getDeviceByPriority(UDmain.Player)
-        if lastOpenedDevice
-            lastOpenedDevice.deviceMenu(new Bool[30])
-        else
-            UDMain.Warning("No device equipped. Nothing to show")
-        endif
-    endif
+    ; TODO - Add device menu for single selected device
+    OpenDeviceMenu()
+    ;WaitForReady(10.0)
+    ;if lastOpenedDevice
+    ;    lastOpenedDevice.deviceMenu(new Bool[30])
+    ;elseif libs.playerRef.wornhaskeyword(libs.zad_deviousheavybondage)
+    ;    lastOpenedDevice = UDCDMain.getHeavyBondageDevice(UDmain.Player)
+    ;    if lastOpenedDevice
+    ;        lastOpenedDevice.deviceMenu(new Bool[30])
+    ;    else
+    ;        lastOpenedDevice = UDCDMain.getDeviceByPriority(UDmain.Player)
+    ;        if lastOpenedDevice
+    ;            lastOpenedDevice.deviceMenu(new Bool[30])
+    ;        else
+    ;            UDMain.Warning("No device equipped. Nothing to show")
+    ;        endif
+    ;    endif
+    ;else
+    ;    lastOpenedDevice = UDCDMain.getDeviceByPriority(UDmain.Player)
+    ;    if lastOpenedDevice
+    ;        lastOpenedDevice.deviceMenu(new Bool[30])
+    ;    else
+    ;        UDMain.Warning("No device equipped. Nothing to show")
+    ;    endif
+    ;endif
 EndFunction
 
 Function OpenDeviceMenu()

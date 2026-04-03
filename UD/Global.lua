@@ -232,3 +232,11 @@ end
 function StrToBool(str)
     return StringToBoolTable[str]
 end
+
+function BoolToInt(bool)
+    if bool then
+        return 1
+    else
+        return 0
+    end
+end

@@ -7712,21 +7712,7 @@ Function OnCritFailure()
 EndFunction
 
 float Function getAccesibility()
-    float loc_res = 1.0
-    if (!WearerFreeHands() && !HelperFreeHands())
-        if isLoose()
-            loc_res = getLooseMod()
-        else
-            loc_res = 0.0
-        endif
-    elseif !isMittens()
-        if WearerHaveMittens() && (!_minigameHelper || HelperHaveMittens())
-            loc_res = 0.5
-        else
-            loc_res = 1.0
-        endif
-    endif
-    return ValidateAccessibility(loc_res)
+    return UD_Native.GetDeviceAccessibility(GetWearer(),GetHelper(),_DeviceRendered)
 EndFunction
 
 String Function getAccesibilityString(Bool abDecorate = False)
@@ -8546,4 +8532,41 @@ Function Lua_UpdateMinigameExpression(Actor akHelper)
 EndFunction
 Function Lua_StopMinigame(Actor akHelper)
     UD_MINM.StopDeviceMinigame(self,akHelper)
+EndFunction
+Function Lua_StartLockpickMinigame(Int aiLockIndex)
+    UDmain.Info(aiLockIndex)
+    _MinigameSelectedLockID = aiLockIndex
+    ;_lockpickDevice()
+    Int loc_difficulty = GetNthLockDifficulty(_MinigameSelectedLockID)
+    UDCDmain.ReadyLockPickContainer(loc_difficulty,Wearer)
+    UDCDmain.startLockpickMinigame()
+    
+    float loc_elapsedTime   = 0.0
+    float loc_maxtime       = 0.0
+    bool  loc_broken        = false
+    ;if UDCDMain.UD_LockpickMinigameDuration > 0
+        ;loc_maxtime = (UDCDMain.UD_LockpickMinigameDuration as Float) - fRange((loc_difficulty/100.0)*0.5,0.0,1.75)*UDCDMain.UD_LockpickMinigameDuration
+        bool loc_msgshown = false
+        while (!UDCDmain.LockpickMinigameOver)
+            Utility.WaitMenuMode(0.1)
+            if !UD_Native.GetLockpickVariable(9)
+                loc_elapsedTime += 0.1
+            endif
+            
+            if !loc_msgshown && loc_elapsedTime > loc_maxtime*0.75 ;only 25% time left, warn player
+                if RandomInt(0,1)
+                    UDmain.Print("Your hands are sweating.")
+                else
+                    UDmain.Print("Your hands are starting to tremble.")
+                endif
+                loc_msgshown = true
+            endif
+            
+            Int loc_destroyed = Round(UD_Native.GetLockpickVariable(8))
+            
+            if (loc_destroyed >= UDCDmain.UD_LockpicksPerMinigame)
+                loc_broken = true
+            endif
+        endwhile
+    ;endif
 EndFunction

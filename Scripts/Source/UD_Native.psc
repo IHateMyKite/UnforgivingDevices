@@ -184,6 +184,9 @@ Alias[]   Function GetModulesAliasesByScript(String asScript) global native
 Bool      Function IsMenuOpen         () global native
 Bool      Function ShowDeviceMenu     (Actor akWearer, Actor akHelper, String[] aasCallbacks) global native
 
-; === Minigame Msanager ===
+; === Minigame Manager ===
 String[]  Function GetListOfMinigames (Actor akWearer, Armor akId) global native
 Bool      Function StopMinigame       (Actor akActor) global native
+
+; === Device Manager ===
+Float     Function GetDeviceAccessibility(Actor akWearer, Actor akHelper, Armor akRenderDevice) global native

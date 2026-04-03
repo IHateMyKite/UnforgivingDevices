@@ -234,6 +234,26 @@ button:hover {
   border-color: var(--color-green-50); 
 }
 
+
+#dm_Context .dm_entry_selected {
+  color: var(--color-green);
+  border-color: var(--color-green);
+}
+#dm_Context .dm_entry_disabled {
+  background-color: var(--color-black-80);
+  color: var(--color-red);
+  border-color: var(--color-red);
+}
+#dm_Context .dm_entry_disabled:hover {
+  border: 1px solid var(--color-red-50);
+  color: var(--color-red-50);
+}
+
+#dm_Context .dm_entry_enabled {
+  background-color: var(--color-black-80);
+  color: var(--color-green);
+}
+
 /* Tooltip Styles */
 #dm_Detail {
   user-select: none;
@@ -252,7 +272,23 @@ button:hover {
   z-index: 1000;
 }
 
-
+#dm_Context {
+  /* user-select: none; */
+  /* pointer-events: none; */
+  background-color: var(--color-black);
+  position: absolute;
+  color: var(--color-orange);
+  width: 10%;
+  top: 0;
+  left: 0;
+  /* vertical-align: top; */
+  /* transform: translateY(-100%); */
+  /* margin-left: -5%; */
+  margin-top: 0px;
+  padding: 0.5rem;
+  border-radius: var(--border-radius-large);
+  z-index: 1100;
+}
 
 /* Device Menu Entry Buttons */
 /* .dm_entry {

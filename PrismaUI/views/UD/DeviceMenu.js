@@ -160,20 +160,124 @@ function _DeviceDetails(arg) {
         loc_button.textContent = devices[arg].minigames[i].name;
         if (devices[arg].minigames[i].state == 1) loc_button.className = "dm_entry_enabled"
         else loc_button.className = "dm_entry_disabled"
-        loc_button.setAttribute("onmouseover","ShowDetails(event,\""+devices[arg].minigames[i].desc+"\")")
-        loc_button.setAttribute("onmouseout","HideDetails(event)")
-        loc_button.setAttribute("onclick","_StartMinigame("+arg+","+i+")")
+        loc_button.setAttribute("onmouseover","ShowDetailsOrContext(event,"+JSON.stringify(devices[arg])+","+JSON.stringify(devices[arg].minigames[i])+")")
+        loc_button.setAttribute("onmouseout","HideDetailsOrContext(event,"+JSON.stringify(devices[arg])+","+JSON.stringify(devices[arg].minigames[i])+")")
+        loc_button.setAttribute("onclick","_StartMinigame("+arg+","+i+",\"\")")
         loc_minigames.appendChild(loc_button);
     }
 };
 
+function ShowDetailsOrContext(event,dev,min)
+{
+    if (min.context)
+    {
+        if (!InContext)
+        {
+            ShowContext(event,dev,min)
+        }
+    }
+    else
+    {
+        ShowDetails(event,min.desc)
+    }
+}
+
 function ShowDetails(event, str)
 {
     d = document.getElementById('dm_Detail');
-    d.innerText = str;
+    d.textContent = str;
     d.style.setProperty("top",event.clientY-10+"px")
     d.style.setProperty("left",event.clientX+"px")
     d.style.setProperty("display","inline")
+}
+
+function ShowContext(event,dev,min)
+{
+    let c = document.getElementById('dm_Context');
+    while (c.hasChildNodes()) {
+      c.removeChild(c.firstChild);
+    }
+    
+    for(let i = 0; i < min.context.length; i++)
+    {
+        var b = document.createElement("button")
+        b.textContent = min.context[i].name
+        
+        if (min.context[i].state == 1) b.className = "dm_entry_enabled"
+        else b.className = "dm_entry_disabled"
+        
+        c.setAttribute("onclick","ContextSelected(event,"+JSON.stringify(dev)+","+JSON.stringify(min)+","+JSON.stringify(min.context[i])+")")
+        c.appendChild(b);
+    }
+    
+    c.style.setProperty("display","inline")
+    
+    c.style.setProperty("top",event.clientY-c.clientHeight/2+"px")
+    c.style.setProperty("left",event.clientX-c.clientWidth/2+"px")
+    
+    c.setAttribute("onmouseover","ContextEntered(event,"+JSON.stringify(dev)+","+JSON.stringify(min)+")")
+    c.setAttribute("onmouseout","ContextLeft(event,"+JSON.stringify(dev)+","+JSON.stringify(min)+")")
+    
+    InContext = true;
+}
+
+InContext = false
+function ContextEntered(event,dev,min)
+{
+    if (MouseOverContext(event) && !InContext)
+    {
+        InContext = true
+    }
+}
+function ContextLeft(event,dev,min)
+{
+    if (!MouseOverContext(event) && InContext)
+    {
+        InContext = false
+        HideContext(event,dev,min)
+    }
+}
+function ContextSelected(event,dev,min,cntx)
+{
+    let loc_devindx = devices.map(e => JSON.stringify(e)).indexOf(JSON.stringify(dev))
+    let loc_minindx = dev.minigames.map(e => JSON.stringify(e)).indexOf(JSON.stringify(min))
+    
+    console.log(loc_devindx + "," + loc_minindx)
+    _StartMinigame(loc_devindx,loc_minindx,cntx.value)
+}
+
+
+function MouseOverContext(event)
+{
+    let c = document.getElementById('dm_Context');
+    
+    var loc_box = {x:c.offsetLeft,y:c.offsetTop,sizeX:c.clientWidth,sizeY:c.clientHeight};
+    var loc_mouse = {x:event.clientX,y:event.clientY};
+    
+    if ((loc_mouse.x > loc_box.x) && (loc_mouse.x < (loc_box.x + loc_box.sizeX)))
+    {
+        if ((loc_mouse.y > loc_box.y) && (loc_mouse.y < (loc_box.y + loc_box.sizeY)))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+function HideDetailsOrContext(event,dev,min)
+{
+    if (min.context)
+    {
+        if (!InContext)
+        {
+            HideContext(event,dev,min)
+        }
+    }
+    else
+    {
+        HideDetails(event)
+    }
 }
 
 function HideDetails(event)
@@ -181,6 +285,17 @@ function HideDetails(event)
     d = document.getElementById('dm_Detail');
     d.innerText = "";
     d.style.setProperty("display","none")
+}
+
+function HideContext(event,dev,min)
+{
+    //console.log("HideContext")
+    c = document.getElementById('dm_Context');
+    c.style.setProperty("display","none")
+    
+    while (c.hasChildNodes()) {
+      c.removeChild(c.firstChild);
+    }
 }
 
 function _InitValueDetails(arg)
@@ -217,7 +332,7 @@ function _Exit(arg) {
     window.ExitMenu(arg);
 };
 
-function _StartMinigame(dev,min)
+function _StartMinigame(dev,min,cntx)
 {
-    if (devices[dev].minigames[min].state == 1) StartMinigame(dev+","+devices[dev].minigames[min].id)
+    if (devices[dev].minigames[min].state == 1) StartMinigame(dev+","+devices[dev].minigames[min].id+","+cntx)
 }
