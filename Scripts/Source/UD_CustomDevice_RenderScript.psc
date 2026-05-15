@@ -8533,9 +8533,10 @@ EndFunction
 Function Lua_StopMinigame(Actor akHelper)
     UD_MINM.StopDeviceMinigame(self,akHelper)
 EndFunction
-Function Lua_StartLockpickMinigame(Int aiLockIndex)
+Int Function Lua_StartLockpickMinigame(Int aiLockIndex)
     UDmain.Info(aiLockIndex)
     _MinigameSelectedLockID = aiLockIndex
+    
     ;_lockpickDevice()
     Int loc_difficulty = GetNthLockDifficulty(_MinigameSelectedLockID)
     UDCDmain.ReadyLockPickContainer(loc_difficulty,Wearer)
@@ -8544,10 +8545,10 @@ Function Lua_StartLockpickMinigame(Int aiLockIndex)
     float loc_elapsedTime   = 0.0
     float loc_maxtime       = 0.0
     bool  loc_broken        = false
-    ;if UDCDMain.UD_LockpickMinigameDuration > 0
-        ;loc_maxtime = (UDCDMain.UD_LockpickMinigameDuration as Float) - fRange((loc_difficulty/100.0)*0.5,0.0,1.75)*UDCDMain.UD_LockpickMinigameDuration
+    if UDCDMain.UD_LockpickMinigameDuration > 0
+        loc_maxtime = (UDCDMain.UD_LockpickMinigameDuration as Float) - fRange((loc_difficulty/100.0)*0.5,0.0,1.75)*UDCDMain.UD_LockpickMinigameDuration
         bool loc_msgshown = false
-        while (!UDCDmain.LockpickMinigameOver)
+        while (!UDCDmain.LockpickMinigameOver) && !loc_broken && _MinigameMainLoopON
             Utility.WaitMenuMode(0.1)
             if !UD_Native.GetLockpickVariable(9)
                 loc_elapsedTime += 0.1
@@ -8568,5 +8569,18 @@ Function Lua_StartLockpickMinigame(Int aiLockIndex)
                 loc_broken = true
             endif
         endwhile
-    ;endif
+    endif
+    
+    int loc_result = UDCDmain.lockpickMinigameResult    ;first we fetch lockpicking result
+    UDCDmain.DeleteLockPickContainer()                  ;then we remove the container so IsLocked is not called on None
+    
+    if UDmain.IsLockpickingMenuOpen()
+        closeLockpickMenu()
+    endif
+    
+    if loc_broken
+        loc_result = 2
+    endif
+    
+    return loc_result
 EndFunction

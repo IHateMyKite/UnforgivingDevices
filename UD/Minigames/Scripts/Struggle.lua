@@ -1,7 +1,7 @@
 
 -- Check if minigame should be available for selected device
 function Precondition(C)
-    Log("Precondition called")
+    --Log("Precondition called")
     local loc_physres       = GetVariableValue(C,"thisdevice::UD_ResistPhysical(A)")
     local loc_physresmult   = GetConfigVar(C,"PhysResMult","1.0")
     local loc_magres        = GetVariableValue(C,"thisdevice::UD_ResistMagicka(A)")
@@ -13,7 +13,7 @@ end
 
 -- Check if actor can struggle or if other conditions are met
 function Condition(C)
-    Log("Condition called")
+    --Log("Condition called")
     local loc_stamina = GetVariableValue(C,"wearer::stamina(R)") > tonumber(GetConfigVar(C,"minStamina","0.0"))
     local loc_magicka = GetVariableValue(C,"wearer::magicka(R)") > tonumber(GetConfigVar(C,"minMagicka","0.0"))
     local loc_health  = GetVariableValue(C,"wearer::health(R)")  > tonumber(GetConfigVar(C,"minHealth","0.0"))

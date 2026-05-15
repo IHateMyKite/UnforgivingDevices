@@ -206,7 +206,7 @@ function ShowContext(event,dev,min)
         if (min.context[i].state == 1) b.className = "dm_entry_enabled"
         else b.className = "dm_entry_disabled"
         
-        c.setAttribute("onclick","ContextSelected(event,"+JSON.stringify(dev)+","+JSON.stringify(min)+","+JSON.stringify(min.context[i])+")")
+        b.setAttribute("onclick","ContextSelected(event,"+JSON.stringify(dev)+","+JSON.stringify(min)+","+JSON.stringify(min.context[i])+")")
         c.appendChild(b);
     }
     
@@ -239,11 +239,15 @@ function ContextLeft(event,dev,min)
 }
 function ContextSelected(event,dev,min,cntx)
 {
-    let loc_devindx = devices.map(e => JSON.stringify(e)).indexOf(JSON.stringify(dev))
-    let loc_minindx = dev.minigames.map(e => JSON.stringify(e)).indexOf(JSON.stringify(min))
-    
-    console.log(loc_devindx + "," + loc_minindx)
-    _StartMinigame(loc_devindx,loc_minindx,cntx.value)
+    if (cntx.state == 1)
+    {
+        let loc_devindx = devices.map(e => JSON.stringify(e)).indexOf(JSON.stringify(dev))
+        let loc_minindx = dev.minigames.map(e => JSON.stringify(e)).indexOf(JSON.stringify(min))
+        
+        console.log(cntx)
+        console.log(loc_devindx + "," + loc_minindx)
+        _StartMinigame(loc_devindx,loc_minindx,cntx.value)
+    }
 }
 
 

@@ -1,18 +1,7 @@
 
 -- Check if minigame should be available for selected device
 function Precondition(C)
-    local loc_res = false
-    local loc_locks = GetVariableValue(C,"thisdevice::UD_LockList(A)")
-    if loc_locks['n'] > 0 then
-        for i = 0, loc_locks['n']-1, 1
-        do
-            if IsLockLockpickable(C,loc_locks[i]) then
-                loc_res = true
-            end
-        end
-    end
-
-    return loc_res
+    return true
 end
 
 -- Check if actor can struggle or if other conditions are met
@@ -40,7 +29,7 @@ function GetContext(C)
             loc_res = loc_res.."name:\""..loc_locksNames[i].."\","
             loc_res = loc_res.."value:\""..tostring(i).."\","
             
-            if IsLockLockpickable(C,loc_locks[i]) then
+            if IsLockSelectable(C,loc_locks[i]) then
                 loc_res = loc_res.."state:1"
             else
                 loc_res = loc_res.."state:0"
@@ -56,6 +45,11 @@ function GetContext(C)
         loc_res = loc_res.."]"
     end
     return loc_res
+end
+
+-- Should be overwriten by other script
+function IsLockSelectable(C,lock)
+    return true
 end
 
 -- Called when minigame starts
@@ -121,11 +115,7 @@ function OnUpdate(C,delta)
     if PlayerInMinigame(C) then
         ProcessMinigame(C,delta)
     else
-        -- Reduce device durability - fallback when player is not present
-        --if not DamageDurability(C,delta*GetMinigameVar(C,'DamageBase')) then
-        --    StopDeviceMinigame(C)
-        --    return
-        --end
+        -- TODO: NPC support
     end
     
     -- Update expression once in the while
@@ -177,17 +167,16 @@ function ClickSuccess(C)
     if not GetMinigameVar(C,"MinigamePaused") then
         SetMinigameVar(C,"MinigamePaused",true)
         CloseMinigameUI(C)
-        CallPapyrusFunction(C,"thisdevice::Lua_StartLockpickMinigame","OnLockpickMinigameOver",{"int",tonumber(C['Context'])})
+        OnLockAccessed(C)
     end
 end
 
-function OnLockpickMinigameOver(C)
-    Log("OnLockpickMinigameOver")
-    StopDeviceMinigame(C)
+function OnLockAccessed(C)
 end
 
 function ClickFail(C)
     if not GetMinigameVar(C,"MinigamePaused") then
+        -- TODO: Penalize player
     end
 end
 
@@ -210,30 +199,56 @@ function ProcessMinigame(C,delta)
     --InvokeUI(C,"UpdateMinigame({dur:"..tostring(loc_durability_r)..",cond:"..tostring(loc_condition_r)..",pos:"..tostring(loc_pos).."})")
 end
 
-function UpdateCursorPosition(C,delta)
-    local loc_pos = GetMinigameVar(C,"CursorPos")
-    local loc_vec = GetMinigameVar(C,"CursorVector")
-    loc_pos['x'] = loc_pos['x'] + loc_vec['x']*delta
-    loc_pos['y'] = loc_pos['y'] + loc_vec['y']*delta
-    
-    UpdateCursor(C,loc_pos,loc_vec)
-    
-    SetMinigameVar(C,"CursorPos",loc_pos)
-    SetMinigameVar(C,"CursorVector",loc_vec)
-    
-    local loc_payload = "UpdateCursorPosition({"
-    loc_payload = loc_payload.."x:"..tostring(loc_pos['x'])..","
-    loc_payload = loc_payload.."y:"..tostring(loc_pos['y'])..","
-    loc_payload = loc_payload.."size:"..tostring(GetMinigameVar(C,"CursorSize"))..","
-    loc_payload = loc_payload.."in:"..BoolToInt(IsCursorInZone(C))..","
-    loc_payload = loc_payload.."zonex:"..tostring(GetMinigameVar(C,"LockPosX"))..","
-    loc_payload = loc_payload.."zoney:"..tostring(GetMinigameVar(C,"LockPosY"))..","
-    loc_payload = loc_payload.."zonescale:"..tostring(1.0)
-    loc_payload = loc_payload.."})"
-    
-    InvokeUI(C,loc_payload)
+function IsLockUnlocked(C,lock)
+    local loc_unlocked = (lock) & 0x01
+    return loc_unlocked == 0x01
 end
 
+function IsLockLockpickable(C,lock)
+    local loc_diff = (lock >> 15) & 0xFF
+    return loc_diff <= 100 and loc_diff > 0
+end
+
+function IsAllLocksUnlocked(C)
+    local loc_res = true
+    local loc_locks = GetVariableValue(C,"thisdevice::UD_LockList(A)")
+    for i = 0, loc_locks['n']-1, 1
+    do
+        loc_res = loc_res and IsLockUnlocked(C,loc_locks[i])
+    end
+    return loc_res
+end
+
+function GetSelectedLock(C)
+    local loc_locks = GetVariableValue(C,"thisdevice::UD_LockList(A)")
+    local loc_lock = loc_locks[C['Context']]
+    Log("GetSelectedLock - "..tostring(loc_lock))
+    return loc_lock
+end
+
+function UnlockLock(C)
+    Log("UnlockLock called for lock "..tostring(C['Context']))
+    CallPapyrusFunction(C,"thisdevice::UnlockNthLock","OnLockUnlocked",{"int",tonumber(C['Context'])},{"bool",true})
+    return loc_lock
+end
+
+function OnLockUnlocked(C,res)
+    Log("OnLockUnlocked")
+    
+    if res then
+        Log("Checking if all locks are unlocked")
+        if IsAllLocksUnlocked(C) then
+            Log("All locks are unlocked. Unlocking device")
+            CallPapyrusFunction(C,"thisdevice::unlockRestrain","",{"bool",false},{"bool",false},{"bool",false})
+        end
+    end
+    
+    StopDeviceMinigame(C)
+end
+
+-------------------
+-- Cursor movement
+-------------------
 
 function UpdateCursor(C,pos,vec)
     local loc_ref = false
@@ -297,7 +312,26 @@ function IsCursorInZone(C)
     return loc_inzone
 end
 
-function IsLockLockpickable(C,lock)
-    local loc_diff = (lock >> 15) & 0xFF
-    return loc_diff <= 100 and loc_diff > 0
+function UpdateCursorPosition(C,delta)
+    local loc_pos = GetMinigameVar(C,"CursorPos")
+    local loc_vec = GetMinigameVar(C,"CursorVector")
+    loc_pos['x'] = loc_pos['x'] + loc_vec['x']*delta
+    loc_pos['y'] = loc_pos['y'] + loc_vec['y']*delta
+    
+    UpdateCursor(C,loc_pos,loc_vec)
+    
+    SetMinigameVar(C,"CursorPos",loc_pos)
+    SetMinigameVar(C,"CursorVector",loc_vec)
+    
+    local loc_payload = "UpdateCursorPosition({"
+    loc_payload = loc_payload.."x:"..tostring(loc_pos['x'])..","
+    loc_payload = loc_payload.."y:"..tostring(loc_pos['y'])..","
+    loc_payload = loc_payload.."size:"..tostring(GetMinigameVar(C,"CursorSize"))..","
+    loc_payload = loc_payload.."in:"..BoolToInt(IsCursorInZone(C))..","
+    loc_payload = loc_payload.."zonex:"..tostring(GetMinigameVar(C,"LockPosX"))..","
+    loc_payload = loc_payload.."zoney:"..tostring(GetMinigameVar(C,"LockPosY"))..","
+    loc_payload = loc_payload.."zonescale:"..tostring(1.0)
+    loc_payload = loc_payload.."})"
+    
+    InvokeUI(C,loc_payload)
 end

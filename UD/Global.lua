@@ -89,6 +89,14 @@ function WornHasKeyword(actor,kw)
     return Host_WornHasKeyword(actor,kw)
 end
 
+function GetGameForm(formID,modName)
+    return Host_GetGameForm(formID,modName)
+end
+
+function GetItemCount(container,item)
+    return Host_GetItemCount(container,item)
+end
+
 ----------------------------
 --   UTILITY  FUNCTIONS   --
 ----------------------------
