@@ -10,3 +10,7 @@ function OnStart(C)
     CallPapyrusFunction(C,"thisdevice::unlockRestrain","",{"bool",false},{"bool",false},{"bool",false})
     StopMinigame(C)
 end
+
+function GetContext(C)
+    return ""
+end

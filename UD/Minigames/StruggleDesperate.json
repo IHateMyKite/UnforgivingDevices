@@ -3,6 +3,7 @@
     "description": "Try to struggle out of the device by using your strength. The less durability will device have, the faster you will escape",
     "uiobject":"UD/Minigames/Struggle/index.html",
     "script":"UD\\Minigames\\Scripts\\Struggle.lua",
+    "base":"MinigameBase",
     "priority": 99,
     "config":
     {

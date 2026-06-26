@@ -1,0 +1,15 @@
+{
+    "name": "MeterBase",
+    "description": "Base of Meter Element",
+    "script":"UD\\Hud\\Scripts\\MeterBase.lua",
+    "priority": 0,
+    "abstract": true,
+    "base": "HudElementBase",
+    "config":
+    {
+        "posX": "0%",
+        "posY": "0%",
+        "color_fill":"green",
+        "minigame": false
+    }
+}

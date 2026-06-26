@@ -1,0 +1,9 @@
+{
+    "name": "Access Lock",
+    "description": "Try to access the lock",
+    "uiobject":"UD/Minigames/AccessLock/index.html",
+    "script":"UD\\Minigames\\Scripts\\AccessLock.lua",
+    "base":"MinigameBase",
+    "priority": 0,
+    "config": {}
+}

@@ -3,6 +3,7 @@
     "description": "Try to struggle out of the device by using your magick. The condition of device will be reeduced more rapidly",
     "uiobject":"UD/Minigames/Struggle/index.html",
     "script":"UD\\Minigames\\Scripts\\Struggle.lua",
+    "base":"MinigameBase",
     "priority": 98,
     "config":
     {

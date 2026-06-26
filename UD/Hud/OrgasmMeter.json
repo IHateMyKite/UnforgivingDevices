@@ -1,0 +1,14 @@
+{
+    "name": "OrgasmMeter",
+    "description": "Orgasm Meter",
+    "script":"",
+    "priority": 100,
+    "base": "MeterBase",
+    "config":
+    {
+        "posX": "75%",
+        "posY": "75%",
+        "color_fill":"pink",
+        "minigame": true
+    }
+}

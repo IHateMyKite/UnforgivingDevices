@@ -1,10 +1,13 @@
 {
-    "name": "Struggle",
-    "description": "Try to struggle out of the device by using your agility",
-    "uiobject":"UD/Minigames/Struggle/index.html",
-    "script":"UD\\Minigames\\Scripts\\Struggle.lua",
-    "base":"MinigameBase",
+    "name": "Minigame",
+    "description": "Base",
+    "uiobject":"",
+    "script":"UD\\Minigames\\Scripts\\MinigameBase.lua",
     "priority": 100,
+    "includes":
+    [
+        "UD\\Minigames\\Scripts\\Global.lua"
+    ],
     "config":
     {
         "minStamina":   "0.5",
