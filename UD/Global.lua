@@ -101,6 +101,10 @@ function GetItemCount(container,item)
     return Host_GetItemCount(container,item)
 end
 
+function GetHudValue(C,val)
+    return Host_GetHudValue(C,val)
+end
+
 ----------------------------
 --   UTILITY  FUNCTIONS   --
 ----------------------------

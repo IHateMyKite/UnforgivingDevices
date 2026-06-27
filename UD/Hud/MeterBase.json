@@ -10,6 +10,10 @@
         "posX": "0%",
         "posY": "0%",
         "color_fill":"green",
-        "minigame": false
+        "minigame": false,
+        "value": "0.0",
+        "maxvalue": "1.0",
+        "thd_min": "0.0",
+        "thd_max": "1.0"
     }
 }

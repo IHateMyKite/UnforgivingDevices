@@ -6,9 +6,13 @@
     "base": "MeterBase",
     "config":
     {
-        "posX": "75%",
+        "posX": "70%",
         "posY": "75%",
         "color_fill":"pink",
-        "minigame": true
+        "minigame": true,
+        "value": "OS[16]",
+        "maxvalue": "1.0",
+        "thd_min": "0.2",
+        "thd_max": "1.0"
     }
 }
