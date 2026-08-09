@@ -1,7 +1,6 @@
 
 function Condition(C)
-    Log("Meter Condition called")
-    
+    --Log("Meter Condition called")
     local loc_thdmin    = GetHudValue(C,GetConfigVar(C,"thd_min","0.0"))
     local loc_thdmax    = GetHudValue(C,GetConfigVar(C,"thd_max","1.0"))
     local loc_val       = GetHudValue(C,GetConfigVar(C,"value","0.0"))
@@ -11,12 +10,15 @@ function Condition(C)
 end
 
 function OnShown(C)
-    Log("Meter OnShown called")
+    -- Log("Meter OnShown called")
     local loc_payload = "AddMeter({"
     loc_payload = loc_payload.."id:\""..tostring(C['Id']).."\","
     loc_payload = loc_payload.."x:\""..tostring(GetConfigVar(C,"posX","50%")).."\","
     loc_payload = loc_payload.."y:\""..tostring(GetConfigVar(C,"posY","50%")).."\","
-    loc_payload = loc_payload.."color:\""..tostring(GetConfigVar(C,"color_fill","green").."\"")
+    loc_payload = loc_payload.."width:\""..tostring(GetConfigVar(C,"width","20%")).."\","
+    loc_payload = loc_payload.."height:\""..tostring(GetConfigVar(C,"height","4%")).."\","
+    loc_payload = loc_payload.."color:\""..tostring(GetConfigVar(C,"color_fill","green").."\",")
+    loc_payload = loc_payload.."color2:\""..tostring(GetConfigVar(C,"color_back","red").."\",")
     loc_payload = loc_payload.."})"
     
     Log("Creating new meter with payload "..loc_payload)

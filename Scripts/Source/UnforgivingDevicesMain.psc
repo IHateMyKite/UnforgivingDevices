@@ -278,7 +278,7 @@ Quest   Property iWidgetQuest                           auto
         Returns true if iWantWidgets is installed and enabled in MCM
 /;
 Bool Function UseiWW()
-    return iWidgetInstalled && UDWC.UD_UseIWantWidget
+    return false
 EndFunction
 
 ;Global switches
@@ -762,8 +762,7 @@ int Property UD_PrintLevel = 3 auto
 /;
 Function Print(String asMsg,int aiLevel = 1,bool abLog = false)
     if (iRange(aiLevel,0,3) <= UD_PrintLevel)
-        ; debug.notification(msg)
-        UDWC.Notification_Push(asMsg)
+        debug.notification(asMsg)
         if abLog || TraceAllowed()
             Log("Print -> " + asMsg)
         endif
@@ -1852,7 +1851,7 @@ EndFunction
         True if any menu is open
 /;
 Bool Function IsMenuOpen()
-    return UDMC.UD_MenuOpened || UD_Native.IsMenuOpen()
+    return UDMC.UD_MenuOpened || UD_Native.IsDeviceMenuOpen()
 EndFunction
 
 ;/  Function: IsMenuOpenRaw
@@ -1864,7 +1863,7 @@ EndFunction
         True if ANY menu is open
 /;
 Bool Function IsAnyMenuOpen()
-    return UDMC.UD_MenuListIDBit || UD_Native.IsMenuOpen()
+    return UDMC.UD_MenuListIDBit || UD_Native.IsDeviceMenuOpen()
 EndFunction
 
 ;/  Function: IsAnyMenuOpenRT

@@ -92,15 +92,6 @@ bool Function forceOutAbadonPlugMinigame(Bool abSilent = False)
     setSecWidgetVar(True, True, False, -1, -1, -1, "icon-meter-struggle")
     
     if minigamePostcheck(abSilent)
-        ;register native meters
-        if WearerIsPlayer()
-            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,150.0,true)
-            
-            UD_Native.RegisterDeviceCallback(VMHandle1,VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_ForceOutAbadonMG_SKPress")
-            
-            string loc_param = UDmain.UDWC.GetMeterIdentifier("device-main")
-            UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
-        endif
         _forceOutAbadonPlugMinigame_on = True
         UD_Events.SendEvent_DeviceMinigameBegin(self,"AbadonPlug_ForceOut")
         minigame()
@@ -130,16 +121,6 @@ bool Function forceOutAbadonPlugMinigameWH(Actor akHelper, Bool abSilent = False
     setMinigameMinStats(0.8)
     
     if minigamePostcheck(abSilent)
-        ;register native meters
-        if PlayerIsPresent()
-            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,125.0,true)
-
-            UD_Native.RegisterDeviceCallback(VMHandle1,VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_ForceOutAbadonMG_SKPress")
-            
-            string loc_param = UDmain.UDWC.GetMeterIdentifier("device-main")
-            UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
-        endif
-        
         _forceOutAbadonPlugMinigame_on = True
         UD_Events.SendEvent_DeviceMinigameBegin(self,"AbadonPlug_ForceOut")
         minigame()

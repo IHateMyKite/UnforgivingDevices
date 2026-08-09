@@ -8,7 +8,10 @@
     {
         "posX": "70%",
         "posY": "75%",
+        "width": "20%",
+        "height": "2%",
         "color_fill":"pink",
+        "color_back":"transparent",
         "minigame": true,
         "value": "OS[16]",
         "maxvalue": "1.0",

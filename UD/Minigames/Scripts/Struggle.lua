@@ -147,7 +147,7 @@ function ClickFail(C)
 end
 
 function ProcessMinigame(C,delta)
-    Log("ProcessMinigame(Struggle.lua) called")
+    --Log("ProcessMinigame(Struggle.lua) called")
 
     local loc_pos       = GetMinigameVar(C,"CursorPos")
     local loc_speed     = GetMinigameVar(C,"CursorSpeed")

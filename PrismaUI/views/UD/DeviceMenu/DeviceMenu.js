@@ -72,6 +72,55 @@ window.InitDeviceList = (values) => {
     main.style = 'display: visible;';
 };
 
+window.InitDeviceListSingle = (values) => {
+    devices = [];
+    callbacks = [];
+    selected_device = 0;
+
+    devices = values.devices;
+    document.getElementById('dm_wearer').textContent = values.wearer;
+    document.getElementById('dm_helper').textContent = values.helper;
+    document.getElementById('dm_arousal').textContent = Number(values.arousal).toFixed(0);
+    document.getElementById('dm_orgasm').textContent = Number(values.orgasm).toFixed(1) + "%";
+
+    var minigames = document.getElementById('dm_minigames');
+    while (minigames.hasChildNodes()) {
+        minigames.removeChild(minigames.firstChild);
+    }
+
+    callbacks = values.callbacks;
+
+    var controls = document.getElementById('dm_con_callbacks');
+
+    while (controls.hasChildNodes()) {
+        controls.removeChild(controls.firstChild);
+    }
+
+    if (callbacks) {
+      for (let i = 0; i < callbacks.length; i++) {
+        var header = document.createElement('th');
+        header.className = 'dm_con_h';
+        header.id = 'dm_con_h_callback';
+        controls.appendChild(header);
+        var button = document.createElement('button');
+        button.textContent = callbacks[i].name;
+        if (callbacks[i].module == 'this') button.className = 'dm_control_dis';
+        else {
+          button.setAttribute('onclick', '_SendCallback(' + i + ')');
+          button.className = 'dm_control_ena';
+        }
+        header.appendChild(button);
+      }
+    }
+
+    header.appendChild(button);
+
+    if (devices.length != 0) _DeviceDetails(0);
+
+    var main = document.getElementById('main');
+    main.style = 'display: visible;';
+};
+
 function _SendCallback(indx) {
     if (selected_device >= 0 || callbacks[indx].module != "this")
     {
@@ -113,20 +162,6 @@ function _SelectDevice(arg)
     var loc_device = buttons.childNodes[selected_device];
     loc_device.className = "dm_entry_selected";
     
-    //if (callbacks)
-    //{
-    //    var loc_buttons = document.getElementById("dm_con_callbacks");
-    //    for (let i = 0; i < callbacks.length; i++) 
-    //    {
-    //        if (callbacks[i].module == "this") 
-    //        {
-    //            let button = loc_buttons.children[i].firstChild
-    //            button.setAttribute("onclick","_SendCallback("+i+")")
-    //            button.className = "dm_control_ena";
-    //        }
-    //    }
-    //}
-    
     _DeviceDetails(arg);
 }
 
@@ -162,12 +197,18 @@ function _DeviceDetails(arg) {
         else loc_button.className = "dm_entry_disabled"
         loc_button.setAttribute("onmouseover","ShowDetailsOrContext(event,"+JSON.stringify(devices[arg])+","+JSON.stringify(devices[arg].minigames[i])+")")
         loc_button.setAttribute("onmouseout","HideDetailsOrContext(event,"+JSON.stringify(devices[arg])+","+JSON.stringify(devices[arg].minigames[i])+")")
-        loc_button.setAttribute("onclick","_StartMinigame("+arg+","+i+",\"\")")
+        //loc_button.setAttribute("onclick","_StartMinigame("+arg+","+i+",\"\")")
+        loc_button.setAttribute("onclick","StartMinigameOrContext(event,"+JSON.stringify(devices[arg])+","+JSON.stringify(devices[arg].minigames[i])+","+arg+","+i+",\"\")")
         loc_minigames.appendChild(loc_button);
     }
 };
 
 function ShowDetailsOrContext(event,dev,min)
+{
+    ShowDetails(event,min.desc)
+}
+
+function StartMinigameOrContext(event,dev,min,arg,i,cntx)
 {
     if (min.context)
     {
@@ -178,7 +219,7 @@ function ShowDetailsOrContext(event,dev,min)
     }
     else
     {
-        ShowDetails(event,min.desc)
+        _StartMinigame(arg,i,cntx)
     }
 }
 

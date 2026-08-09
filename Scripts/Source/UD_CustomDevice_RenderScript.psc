@@ -3082,34 +3082,37 @@ Function DeviceMenu(bool[] aaControl)
     endif
     
     GoToState("UpdatePaused")
+    String[] loc_callbacks = new String[1]
+    loc_callbacks[0] = "[Exit]" ; Empty callback to exit the menu without doing anything
+    UD_Native.ShowDeviceMenuSingle(deviceInventory,deviceRendered,getWearer(),none,loc_callbacks)
     
-    bool _break = False
-    while !_break
-        setHelper(none)
-        _deviceMenuInit(aaControl)
-        String loc_str = _GetDeviceMainMenuText()
-        Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(UD_MessageDeviceInteraction, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup(), False)
-        StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
-        if msgChoice == 0        ;struggle
-            _break = struggleMinigame()
-        elseif msgChoice == 1    ;useless struggle
-            _break = struggleMinigame(5)
-        elseif msgChoice == 2    ;manage locks
-            _break = _lockMenu()
-        elseif msgChoice == 3    ;cutting
-            _break = cuttingMinigame()
-        elseif msgChoice == 4     ;special menu
-            _break = _specialMenu()
-        elseif msgChoice == 5     ;escape
-            UnlockRestrain()
-            _break = true
-        elseif msgChoice == 6     ;details
-            processDetails()        
-        else
-            _break = True         ;exit
-        endif
-        DeviceMenuExt(msgChoice)
-    endwhile
+    ;bool _break = False
+    ;while !_break
+    ;    setHelper(none)
+    ;    _deviceMenuInit(aaControl)
+    ;    String loc_str = _GetDeviceMainMenuText()
+    ;    Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(UD_MessageDeviceInteraction, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup(), False)
+    ;    StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
+    ;    if msgChoice == 0        ;struggle
+    ;        _break = struggleMinigame()
+    ;    elseif msgChoice == 1    ;useless struggle
+    ;        _break = struggleMinigame(5)
+    ;    elseif msgChoice == 2    ;manage locks
+    ;        _break = _lockMenu()
+    ;    elseif msgChoice == 3    ;cutting
+    ;        _break = cuttingMinigame()
+    ;    elseif msgChoice == 4     ;special menu
+    ;        _break = _specialMenu()
+    ;    elseif msgChoice == 5     ;escape
+    ;        UnlockRestrain()
+    ;        _break = true
+    ;    elseif msgChoice == 6     ;details
+    ;        processDetails()        
+    ;    else
+    ;        _break = True         ;exit
+    ;    endif
+    ;    DeviceMenuExt(msgChoice)
+    ;endwhile
     GoToState("")
 EndFunction
 
@@ -3249,66 +3252,70 @@ Bool Function DeviceMenuWH(Actor akSource,bool[] aaControl)
     
     GoToState("UpdatePaused")
     
-    Bool loc_break = False
-    Bool loc_exit = False
-    while !loc_break && !loc_exit
-        StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
-        StorageUtil.UnSetIntValue(akSource, "UD_ignoreEvent" + deviceInventory)
-
-        if _MinigameOn
-            UDmain.Print("You can't access this device while the wearer is struggling.")
-            akSource = none
-        endif
-
-        _deviceMenuInitWH(akSource, aaControl)
-        String loc_str = _GetDeviceMainMenuText()
-        Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(UD_MessageDeviceInteractionWH, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup(), False)
-        if msgChoice == 0        ;help struggle
-            loc_break = struggleMinigameWH(akSource)
-            loc_exit = loc_break
-        elseif msgChoice == 1    ;lockpick
-            loc_break = _lockMenuWH(akSource)
-            loc_exit = loc_break
-        elseif msgChoice == 2    ;help cutting
-            loc_break = cuttingMinigameWH(akSource)
-            loc_exit = loc_break
-        elseif msgChoice == 3     ;special
-            loc_break = _specialMenuWH(akSource)
-            loc_exit = loc_break
-        elseif msgChoice == 4    ;tighten up
-            tightUpDevice(akSource)
-            loc_break = False
-            loc_exit = False
-        elseif msgChoice == 5    ;repair
-            repairDevice(akSource)
-            loc_break = True
-            loc_exit = True
-        elseif msgChoice == 6    ;command
-            aaControl = CreateControlArrayFalse()
-            DeviceMenu(aaControl)
-            loc_break = True
-            loc_exit = True
-        elseif msgChoice == 7     ;escape
-            UnlockRestrain()
-            loc_break = True
-            loc_exit = True
-        elseif msgChoice == 8    ;details
-            processDetails()
-        else
-            loc_break = True        ;exit
-            loc_exit = False
-        endif
-        
-        DeviceMenuExtWH(msgChoice)
-    endwhile
-    setHelper(none)
+    String[] loc_callbacks = new String[1]
+    loc_callbacks[0] = "[Exit]" ; Empty callback to exit the menu without doing anything
+    UD_Native.ShowDeviceMenuSingle(deviceInventory,deviceRendered,GetWearer(),GetHelper(),loc_callbacks)
     
+    ;Bool loc_break = False
+    ;Bool loc_exit = False
+    ;while !loc_break && !loc_exit
+    ;    StorageUtil.UnSetIntValue(Wearer, "UD_ignoreEvent" + deviceInventory)
+    ;    StorageUtil.UnSetIntValue(akSource, "UD_ignoreEvent" + deviceInventory)
+    ;
+    ;    if _MinigameOn
+    ;        UDmain.Print("You can't access this device while the wearer is struggling.")
+    ;        akSource = none
+    ;    endif
+    ;
+    ;    _deviceMenuInitWH(akSource, aaControl)
+    ;    String loc_str = _GetDeviceMainMenuText()
+    ;    Int msgChoice = UDMain.UDMMM.ShowMessageBoxMenu(UD_MessageDeviceInteractionWH, UDMain.UDMMM.NoValues, loc_str, UDMain.UDMMM.NoButtons, UDMTF.HasHtmlMarkup(), False)
+    ;    if msgChoice == 0        ;help struggle
+    ;        loc_break = struggleMinigameWH(akSource)
+    ;        loc_exit = loc_break
+    ;    elseif msgChoice == 1    ;lockpick
+    ;        loc_break = _lockMenuWH(akSource)
+    ;        loc_exit = loc_break
+    ;    elseif msgChoice == 2    ;help cutting
+    ;        loc_break = cuttingMinigameWH(akSource)
+    ;        loc_exit = loc_break
+    ;    elseif msgChoice == 3     ;special
+    ;        loc_break = _specialMenuWH(akSource)
+    ;        loc_exit = loc_break
+    ;    elseif msgChoice == 4    ;tighten up
+    ;        tightUpDevice(akSource)
+    ;        loc_break = False
+    ;        loc_exit = False
+    ;    elseif msgChoice == 5    ;repair
+    ;        repairDevice(akSource)
+    ;        loc_break = True
+    ;        loc_exit = True
+    ;    elseif msgChoice == 6    ;command
+    ;        aaControl = CreateControlArrayFalse()
+    ;        DeviceMenu(aaControl)
+    ;        loc_break = True
+    ;        loc_exit = True
+    ;    elseif msgChoice == 7     ;escape
+    ;        UnlockRestrain()
+    ;        loc_break = True
+    ;        loc_exit = True
+    ;    elseif msgChoice == 8    ;details
+    ;        processDetails()
+    ;    else
+    ;        loc_break = True        ;exit
+    ;        loc_exit = False
+    ;    endif
+    ;    
+    ;    DeviceMenuExtWH(msgChoice)
+    ;endwhile
+    ;setHelper(none)
+    ;
     ;if UD_WearerSlot
     ;    UD_WearerSlot.GoToState("")
     ;Endif
     GoToState("")
     
-    Return loc_exit
+    Return true
 EndFunction
 
 bool Function _lockMenuWH(Actor akSource)
@@ -3663,7 +3670,6 @@ EndFunction
         abForce - If value should be forced (no change animation)
 /;
 Function setWidgetVal(float afVal, bool abForce = false)
-    UDmain.UDWC.Meter_SetFillPercent("device-main", afVal * 100.0, abForce)
 EndFunction
 
 ;/  Function: setSecWidgetVal
@@ -3675,7 +3681,6 @@ EndFunction
         abForce - If value should be forced (no change animation)
 /;
 Function setSecWidgetVal(float afVal, bool abForce = false)
-    UDmain.UDWC.Meter_SetFillPercent("device-condition", afVal * 100.0, abForce)
 EndFunction
 
 ;/  Function: setMainWidgetAppearance
@@ -3689,12 +3694,6 @@ EndFunction
         asIconName      - Icon
 /;
 Function setMainWidgetAppearance(Int aiColor1, Int aiColor2 = -1, Int aiFlashColor = -1, String asIconName = "")
-    if PlayerIsPresent()
-        UDmain.UDWC.Meter_SetColor("device-main", aiColor1, aiColor2, aiFlashColor)
-        If asIconName != ""
-            UDMain.UDWC.Meter_SetIcon("device-main", asIconName)
-        EndIf
-    endif
 EndFunction
 
 ;/  Function: setSecWidgetAppearance
@@ -3707,13 +3706,6 @@ EndFunction
         aiFlashColor    - Flash color
 /;
 Function setSecWidgetAppearance(Int aiColor1, Int aiColor2 = -1, Int aiFlashColor = -1, String asIconName = "")
-    if PlayerIsPresent()
-        UDmain.UDWC.Meter_SetColor("device-condition", aiColor1, aiColor2, aiFlashColor)
-        If asIconName != ""
-            UDMain.UDWC.Meter_SetIcon("device-condition", asIconName)
-        EndIf
-    ;    UDMain.UDWC.Meter_SetIcon("device-condition", "icon-meter-condition")
-    endif
 EndFunction
 
 ;/  Function: showWidget
@@ -3725,30 +3717,12 @@ EndFunction
         abUpdateColor   - If widget color should be updated first
 /;
 Function showWidget(Bool abUpdate = true, Bool abUpdateColor = true)
-    bool loc_useWidget      = UD_useWidget
-    bool loc_useWidgetSec   = UD_useWidgetSec
-    if loc_useWidget || loc_useWidgetSec
-        if abUpdate
-            updateWidget(true)
-        endif
-        if abUpdateColor
-            updateWidgetColor()
-        endif
-    endif
-    if loc_useWidget
-        UDmain.UDWC.Meter_SetVisible("device-main", True)
-    endif
-    If loc_useWidgetSec
-        UDmain.UDWC.Meter_SetVisible("device-condition", True)
-    EndIf
 EndFunction
 
 ;/  Function: hideWidget
     Hide both widgets
 /;
 Function hideWidget()
-    UDmain.UDWC.Meter_SetVisible("device-main", False)
-    UDmain.UDWC.Meter_SetVisible("device-condition", False)
 EndFunction
 
 ;/  Function: decreaseDurabilityAndCheckUnlock
@@ -3763,8 +3737,6 @@ EndFunction
 Function decreaseDurabilityAndCheckUnlock(float afValue,float afCondMult = 1.0,Bool abCheckCondition = True)
     if current_device_health > 0.0
         if PlayerInMinigame() && UD_damage_device && IsMinigameLoopRunning()
-            ;update and fetch value from native meter
-            current_device_health = UDmain.UDWC.Meter_UpdateNativeValue("device-main",-1.0*afValue)*UD_Health/100.0
         else
             current_device_health = current_device_health - afValue
         endif
@@ -3776,8 +3748,6 @@ EndFunction
 
 Function _DecreaseCondition(Float afCondition, Float afMult, bool abCheckCondition)
     if PlayerInMinigame() && UD_damage_device && IsMinigameLoopRunning()
-        ;update fetch value from native meter
-        _total_durability_drain = UDmain.UDWC.Meter_UpdateNativeValue("device-condition",-1.0*afCondition*afMult)*UD_Health/100.0
     else
         _total_durability_drain += afCondition*afMult
     endif
@@ -3884,7 +3854,6 @@ Function _updateCondition(bool decrease = True)
     if decrease
         while (_total_durability_drain >= loc_health) && !IsUnlocked && UD_condition < 4
             if PlayerInMinigame() && UD_damage_device
-                UDmain.UDWC.Meter_SetNativeValue("device-condition",100)
                 _total_durability_drain = 0
             else
                 _total_durability_drain -= loc_health
@@ -4479,15 +4448,6 @@ bool Function cuttingMinigame(Bool abSilent = False)
         UD_MinigameMult1 = loc_BaseMult + UDmain.UDSKILL.getSkillsPerc(getWearer(),"CUTT")
         UD_DamageMult = loc_BaseMult + UDmain.UDSKILL.getSkillsPerc(getWearer(),"CUTT")
         
-        ;register native meters
-        if WearerIsPlayer()
-            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,fRange(200.0 - 5.0*UD_CutChance,150.0,200.0),true)
-                
-            UD_Native.RegisterDeviceCallback(_VMHandle1,_VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_CuttingMG_SKPress")
-            
-            string loc_param = UDmain.UDWC.GetMeterIdentifier("device-main")
-            UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
-        endif
         _CuttingGameON = True
         UD_Events.SendEvent_DeviceMinigameBegin(self,"Cutting")
         minigame()
@@ -4920,16 +4880,7 @@ bool Function cuttingMinigameWH(Actor akHelper)
         elseif HelperFreeHands()
             UD_MinigameMult1 += 0.15
         endif
-    
-        ;register native meters
-        if PlayerIsPresent()
-            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,fRange(200.0 - 7.0*UD_CutChance,150.0,200.0),true)
-            
-            UD_Native.RegisterDeviceCallback(_VMHandle1,_VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_CuttingMG_SKPress")
-            
-            string loc_param = UDmain.UDWC.GetMeterIdentifier("device-main")
-            UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
-        endif
+        
         _CuttingGameON = True
         UD_Events.SendEvent_DeviceMinigameBegin(self,"Cutting")
         minigame()
@@ -6112,18 +6063,6 @@ Function _UpdateNativeMinigameMeters()
     float   loc_dmgnotimemult    = (_durability_damage_mod + UD_durability_damage_add)
     float   loc_condmult         = 1.0 + _condition_mult_add
     float   loc_health           = UD_Health
-    
-    ;register native meters
-    if UD_damage_device
-      if UD_UseWidget
-        UDmain.UDWC.Meter_RegisterNative("device-main",_WidgetFormula,getRelativeDurability()*100.0,-1.0*loc_dmgnotimemult,true)
-        UDmain.UDWC.Meter_SetNativeMult("device-main",UD_DamageMult*100.0/loc_health)
-      endif
-      if loc_condmult != 0.0 && UD_UseWidgetSec
-        UDmain.UDWC.Meter_RegisterNative("device-condition",_WidgetFormulaSec,getRelativeCondition()*100.0,-1.0*loc_dmgnotimemult,true)
-        UDmain.UDWC.Meter_SetNativeMult("device-condition",loc_condmult*100.0/loc_health)
-      endif
-    endif
   endif
   _fUpdateNativeMinigameMeters = false
 EndFunction
@@ -6272,10 +6211,7 @@ Function minigame()
             if loc_DamageDevice
                 if loc_useNativeMeter
                     ;native meter used. Calculation is done in skse plugin, so just fetch the value and recalculate it
-                    
-                    current_device_health = UDmain.UDWC.Meter_GetNativeValue("device-main")*loc_health/100.0
                     if loc_condmult != 0.0 && UD_UseWidgetSec
-                        _total_durability_drain = (1.0 - UDmain.UDWC.Meter_GetNativeValue("device-condition")/100.0)*loc_health
                         _updateCondition()
                     endif
                     _CheckUnlock()
@@ -6361,12 +6297,6 @@ Function minigame()
     _EndMinigameEffect()
 
     _MinigameMainLoopON = false
-    
-    ;remove registered meters
-    if loc_useNativeMeter
-        UDmain.UDWC.Meter_UnregisterNative("device-main")
-        UDmain.UDWC.Meter_UnregisterNative("device-condition")
-    endif
     
     if loc_PlayerInMinigame
         UDCDmain.MinigameKeysUnRegister()

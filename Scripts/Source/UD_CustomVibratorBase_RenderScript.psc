@@ -211,10 +211,6 @@ Function InitPostPost()
     if UD_VibDuration == -1 
         vibrate()
     endif
-    If canVibrate() && WearerIsPlayer()
-        UDMain.UDWC.StatusEffect_SetVisible(VibrationEffectSlot)
-        UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, False)
-    EndIf
 EndFunction
 
 string Function _getEdgingModeString(int iMode)
@@ -1024,10 +1020,6 @@ EndFunction
     Called when vibration end
 /;
 Function OnVibrationEnd()
-    If WearerIsPlayer()
-        UDMain.UDWC.StatusEffect_SetMagnitude(VibrationEffectSlot, 0)
-        UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, False)
-    EndIf
 EndFunction
 
 ;/  Function: OnVibrationStrengthUpdate
@@ -1035,8 +1027,6 @@ EndFunction
 /;
 Function OnVibrationStrengthUpdate()
     If WearerIsPlayer()
-        UDMain.UDWC.StatusEffect_SetMagnitude(VibrationEffectSlot, CurrentVibStrength)
-        UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, CurrentVibStrength > 0)
         UD_Events.SendEvent_VibDeviceEffectUpdate(self)
     EndIf
 EndFunction
@@ -1087,11 +1077,7 @@ EndFunction
     Called when vibration starts. Used to show message (someones something start vibrating etc...)
 /;
 Function PrintVibMessage_Start()
-    if WearerIsPlayer()
-        If !UDMain.UDWC.UD_FilterVibNotifications
-            UDmain.Print(getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",2)
-        EndIf
-    elseif UDCDmain.AllowNPCMessage(GetWearer())
+    if UDCDmain.AllowNPCMessage(GetWearer())
         UDmain.Print(getWearerName() + "'s " + getDeviceName() + " starts vibrating "+ getPlugsVibrationStrengthString(getCurrentZadVibStrenth()) +"!",3)
     endif
 EndFunction
@@ -1101,9 +1087,9 @@ EndFunction
 /;
 Function PrintVibMessage_Stop()
     if WearerIsPlayer()
-        If !UDMain.UDWC.UD_FilterVibNotifications
-            UDmain.Print(getDeviceName() + " stops vibrating.",2)
-        EndIf
+        ;If !UDMain.UDWC.UD_FilterVibNotifications
+        ;    UDmain.Print(getDeviceName() + " stops vibrating.",2)
+        ;EndIf
     elseif UDCDmain.AllowNPCMessage(GetWearer())
         UDmain.Print(getWearerName() + "'s " + getDeviceName() + " stops vibrating.",3)
     endif
@@ -1203,10 +1189,6 @@ bool Function OnUpdateHourPost()
 EndFunction
 Function onRemoveDevicePost(Actor akActor)
     parent.onRemoveDevicePost(akActor)
-    If IsPlayer(akActor)
-        UDMain.UDWC.StatusEffect_SetVisible(VibrationEffectSlot, False)
-        UDMain.UDWC.StatusEffect_SetBlink(VibrationEffectSlot, False)
-    EndIf
 EndFunction
 Function onLockUnlocked(bool lockpick = false)
     parent.onLockUnlocked(lockpick)

@@ -359,7 +359,6 @@ Int Function PlayOrgasmAnimation(Actor akActor)
     int loc_isPlayer = IsPlayer(akActor) as Int
     if loc_isPlayer
         UDmain.UDUI.GoToState("UIDisabled") ;disable UI
-        UDMain.UDWC.StatusEffect_SetBlink("effect-orgasm", True)
     endif
     
     Bool loc_is3Dloaded = akActor.Is3DLoaded()
@@ -380,10 +379,6 @@ Int Function PlayOrgasmAnimation(Actor akActor)
     while OrgasmSystem.IsOrgasming(akActor)
         Utility.wait(1.0)
     endwhile
-    
-    if loc_isPlayer
-        UDMain.UDWC.StatusEffect_SetBlink("effect-orgasm", False)
-    endif
     
     if loc_is3Dloaded
         UDmain.UDAM.StopAnimation(akActor, abEnableActors = True)
@@ -412,11 +407,11 @@ Function OnEdge(string eventName, string strArg, float numArg, Form sender)
             if strArg != UDmain.Player.getActorBase().getName()
                 int random = RandomInt(1,3)
                 if random == 1
-                    UDMain.UDWC.Notification_Push(strArg + " gets denied just before reaching the orgasm!")
+                    UDMain.Print(strArg + " gets denied just before reaching the orgasm!")
                 elseif random == 2
-                    UDMain.UDWC.Notification_Push(strArg + " screams as they are edged just before climax!")
+                    UDMain.Print(strArg + " screams as they are edged just before climax!")
                 elseif random == 3
-                    UDMain.UDWC.Notification_Push(strArg + " is edged!")
+                    UDMain.Print(strArg + " is edged!")
                 endif
             endif
         endif

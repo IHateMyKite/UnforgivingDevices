@@ -189,15 +189,6 @@ bool Function forceOutPlugMinigame(Bool abSilent = False)
     
     
     if minigamePostcheck(abSilent)
-        ;register native meters
-        if WearerIsPlayer()
-            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,125.0,true)
-            
-            UD_Native.RegisterDeviceCallback(VMHandle1,VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_ForceOutMG_SKPress")
-            
-            string loc_param = UDmain.UDWC.GetMeterIdentifier("device-main")
-            UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
-        endif
         forceOutPlugMinigame_on = True
         UD_Events.SendEvent_DeviceMinigameBegin(self,"Plug_ForceOut")
         minigame()
@@ -227,15 +218,6 @@ Bool Function forceOutPlugMinigameWH(Actor akHelper,Bool abSilent = False)
     setMinigameMinStats(0.8)
     
     if minigamePostcheck(abSilent)
-        ;register native meters
-        if PlayerIsPresent()
-            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,100.0,true)
-            
-            UD_Native.RegisterDeviceCallback(VMHandle1,VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_ForceOutMG_SKPress")
-            
-            string loc_param = UDmain.UDWC.GetMeterIdentifier("device-main")
-            UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
-        endif
         forceOutPlugMinigame_on = True
         UD_Events.SendEvent_DeviceMinigameBegin(self,"Plug_ForceOut")
         minigame()
