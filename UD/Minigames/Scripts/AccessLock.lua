@@ -1,7 +1,6 @@
 
-local _GetContext = GetContext -- Save previous function
 function GetContext(C)
-    local loc_res = _GetContext(C)
+    local loc_res = ""
     local loc_locks         = GetVariableValue(C,"thisdevice::UD_LockList(A)")
     local loc_locksNames    = GetVariableValue(C,"thisdevice::UD_LockNameList(A)")
     if loc_locks['n'] > 0 then
@@ -39,7 +38,7 @@ end
 local _OnStart = OnStart -- Save previous function
 function OnStart(C)
     
-    _OnStart()
+    _OnStart(C)
     
     SetMinigameVar(C,"CursorDir",0)
     SetMinigameVar(C,"ZoneSize",tonumber(GetConfigVar(C,"ZoneSize","0.1")))

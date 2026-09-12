@@ -17,6 +17,22 @@ function Condition(C)
     return _Condition(C)
 end
 
+function GetContext(C)
+    local loc_res = ""
+    if PlayerInMinigame(C) and not ActorIsPlayer(C['Wearer']) then
+        -- TODO: Check if NPC can be commanded
+        loc_res = loc_res.."["
+        loc_res = loc_res.."{name:\"Command\",value:\"command\",state:\"1\"},"
+        if CheckMinStatsHelper(C) then
+            loc_res = loc_res.."{name:\"Help\",value:\"help\",state:\"1\"}"
+        else
+            loc_res = loc_res.."{name:\"Help\",value:\"help\",state:\"0\"}"
+        end
+        loc_res = loc_res.."]"
+    end
+    return loc_res
+end
+
 -- Called when minigame starts
 local _OnStart = OnStart -- Save previous function
 function OnStart(C)

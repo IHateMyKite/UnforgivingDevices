@@ -4,6 +4,7 @@
     "script":"",
     "priority": 100,
     "base": "MeterBase",
+    "disabled": true,
     "config":
     {
         "posX": "70%",

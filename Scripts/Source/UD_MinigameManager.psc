@@ -67,6 +67,58 @@ Function ReadyDeviceMinigame(UD_CustomDevice_RenderScript akDevice, Actor akHelp
     akDevice.OnMinigameStart()
 EndFunction
 
+Function LoadDeviceMinigame(UD_CustomDevice_RenderScript akDevice, Actor akHelper)
+    ; Wait for UD to load first
+    while UD_native.AreModulesReady(true)
+        Utility.Wait(1)
+    endwhile
+    
+    Actor Wearer = akDevice.GetWearer()
+    Actor Helper = akDevice.GetHelper()
+
+    bool                    loc_WearerIsPlayer                  = akDevice.WearerIsPlayer()
+    bool                    loc_HelperIsPlayer                  = akDevice.HelperIsPlayer()
+    bool                    loc_PlayerInMinigame                = loc_WearerIsPlayer || loc_HelperIsPlayer
+    Bool                    loc_is3DLoaded                      = loc_PlayerInMinigame || Wearer.Is3DLoaded()
+
+    ;UDMain.UDCDMain.StartMinigameDisable(Wearer)
+    ;if Helper
+    ;    Helper.AddToFaction(UDMain.UDCDmain.MinigameFaction)
+    ;    UDMain.UDCDMain.StartMinigameDisable(Helper)
+    ;endif
+    
+    if loc_PlayerInMinigame
+        UnforgivingDevicesMain.closeMenu()
+    endif
+    
+    UD_Native.ForceUpdateControls()
+    
+    ; First stop ongoing animation, as its impossible to continue one saved
+    akDevice._StopMinigameAnimation()
+    
+    Int[] hasStruggleAnimation  ; number of found struggle animations
+    Bool   loc_StartedAnimation = False
+    if loc_is3DLoaded ;only play animation if actor is loaded
+        hasStruggleAnimation = akDevice._PickAndPlayStruggleAnimation()
+        If hasStruggleAnimation[0] == 0
+            ; clear cache and try again (cache misses are possible after changing json files)
+            UDmain.Warning("UD_CustomDevice_RenderScript::minigame("+akDevice.GetDeviceHeader()+") _PickAndPlayStruggleAnimation failed. Clear cache and try again")
+            hasStruggleAnimation = akDevice._PickAndPlayStruggleAnimation(bClearCache = True)
+            If hasStruggleAnimation[0] > 0
+                loc_StartedAnimation = true
+            endif
+        else
+            loc_StartedAnimation = true
+        endif
+    endif
+    
+    if loc_PlayerInMinigame
+        UDMain.UDCDmain.MinigameKeysRegister()
+    endif
+    
+    ;akDevice.OnMinigameStart()
+EndFunction
+
 Function UpdateMinigameExpression(UD_CustomDevice_RenderScript akDevice, Actor akHelper)
     Actor Wearer = akDevice.GetWearer()
     Actor Helper = akDevice.GetHelper()

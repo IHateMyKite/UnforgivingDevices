@@ -6,7 +6,8 @@
     "priority": 100,
     "includes":
     [
-        "UD\\Minigames\\Scripts\\Global.lua"
+        "UD\\Minigames\\Scripts\\Global.lua",
+        "UD\\Json.lua"
     ],
     "config":
     {

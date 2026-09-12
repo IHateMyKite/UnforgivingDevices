@@ -32,12 +32,13 @@ function IsLockSelectable(C,lock)
 end
 
 function OnLockAccessed(C)
+    SetMinigameVar(C,"PauseDrain",true)
     CallPapyrusFunction(C,"thisdevice::Lua_StartLockpickMinigame","OnLockpickMinigameOver",{"int",tonumber(C['Context'])})
 end
 
 function OnLockpickMinigameOver(C,res)
     Log("OnLockpickMinigameOver - Result = "..tostring(res))
-    
+    SetMinigameVar(C,"PauseDrain",false)
     if res == 1 then
         UnlockLock(C)
     else

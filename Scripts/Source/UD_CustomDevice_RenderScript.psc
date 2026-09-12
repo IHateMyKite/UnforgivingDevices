@@ -1607,94 +1607,95 @@ Bool Function EvaluateNPCAI()
 
     SetHelper(none)
 
-    updateDifficulty()
+    ; TODO: Rework natively
 
+    ;updateDifficulty()
     ;50% chance to first check locks, then struggle
-    if RandomInt(0,1)
-        float   loc_accesibility    = 1.0
-        if !loc_minigameStarted
-            loc_accesibility        = getAccesibility()
-        endif
-        Int loc_lockMinigames
-        if !loc_minigameStarted
-            loc_lockMinigames       = LockMinigameAllowed(loc_accesibility)
-        endif
-        ;first try to unlock the device with key
-        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x2)
-            if keyMinigame(True)
-                loc_minigameStarted = 3
-            endif
-        endif
-        ;try to repair the locks then
-        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x4)
-            if repairLocksMinigame(True)
-                loc_minigameStarted = 4
-            endif
-        endif
-        ;then try to use lockpicks
-        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x1)
-            if lockpickMinigame(True)
-                loc_minigameStarted = 2
-            endif
-        endif
-        ;then try to struggle
-        if !loc_minigameStarted && StruggleMinigameAllowed(loc_accesibility)
-            Int loc_minigame = RandomInt(0,2)
-            if struggleMinigame(loc_minigame, True) ;start random struggle minigame
-                loc_minigameStarted = 1
-            endif
-        endif
-        ;lastly try cutting
-        if !loc_minigameStarted && CuttingMinigameAllowed(loc_accesibility)
-            if cuttingMinigame(True)
-                loc_minigameStarted = 5
-            endif
-        endif
-    else
-        float   loc_accesibility    = 1.0
-        if !loc_minigameStarted
-            loc_accesibility        = getAccesibility()
-        endif
-        ;then try to struggle
-        if !loc_minigameStarted && StruggleMinigameAllowed(loc_accesibility)
-            Int loc_minigame = RandomInt(0,2)
-            if struggleMinigame(loc_minigame, True) ;start random struggle minigame
-                loc_minigameStarted = 1
-            endif
-        endif
-        ;lastly try cutting
-        if !loc_minigameStarted && CuttingMinigameAllowed(loc_accesibility)
-            if cuttingMinigame(True)
-                loc_minigameStarted = 5
-            endif
-        endif
-        Int loc_lockMinigames
-        if !loc_minigameStarted
-            loc_lockMinigames       = LockMinigameAllowed(loc_accesibility)
-        endif
-        ;first try to unlock the device with key
-        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x2)
-            if keyMinigame(True)
-                loc_minigameStarted = 3
-            endif
-        endif
-        ;try to repair the locks then
-        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x4)
-            if repairLocksMinigame(True)
-                loc_minigameStarted = 4
-            endif
-        endif
-        ;then try to use lockpicks
-        if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x1)
-            if lockpickMinigame(True)
-                loc_minigameStarted = 2
-            endif
-        endif
-    endif
-    
-    if loc_minigameStarted && UDmain.UDGV.UDG_AIMinigameInfo.Value
-        GInfo(GetDeviceHeader()+"::EvaluateNPCAI() - Stats after minigame ["+loc_minigameStarted+"] = durability reduced="+ (loc_durabilityBefore - current_device_health) + " , Locks unlocked="+ (loc_LocksBefore - UD_CurrentLocks))
-    endif
+    ;if RandomInt(0,1)
+    ;    float   loc_accesibility    = 1.0
+    ;    if !loc_minigameStarted
+    ;        loc_accesibility        = getAccesibility()
+    ;    endif
+    ;    Int loc_lockMinigames
+    ;    if !loc_minigameStarted
+    ;        loc_lockMinigames       = LockMinigameAllowed(loc_accesibility)
+    ;    endif
+    ;    ;first try to unlock the device with key
+    ;    if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x2)
+    ;        if keyMinigame(True)
+    ;            loc_minigameStarted = 3
+    ;        endif
+    ;    endif
+    ;    ;try to repair the locks then
+    ;    if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x4)
+    ;        if repairLocksMinigame(True)
+    ;            loc_minigameStarted = 4
+    ;        endif
+    ;    endif
+    ;    ;then try to use lockpicks
+    ;    if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x1)
+    ;        if lockpickMinigame(True)
+    ;            loc_minigameStarted = 2
+    ;        endif
+    ;    endif
+    ;    ;then try to struggle
+    ;    if !loc_minigameStarted && StruggleMinigameAllowed(loc_accesibility)
+    ;        Int loc_minigame = RandomInt(0,2)
+    ;        if struggleMinigame(loc_minigame, True) ;start random struggle minigame
+    ;            loc_minigameStarted = 1
+    ;        endif
+    ;    endif
+    ;    ;lastly try cutting
+    ;    if !loc_minigameStarted && CuttingMinigameAllowed(loc_accesibility)
+    ;        if cuttingMinigame(True)
+    ;            loc_minigameStarted = 5
+    ;        endif
+    ;    endif
+    ;else
+    ;    float   loc_accesibility    = 1.0
+    ;    if !loc_minigameStarted
+    ;        loc_accesibility        = getAccesibility()
+    ;    endif
+    ;    ;then try to struggle
+    ;    if !loc_minigameStarted && StruggleMinigameAllowed(loc_accesibility)
+    ;        Int loc_minigame = RandomInt(0,2)
+    ;        if struggleMinigame(loc_minigame, True) ;start random struggle minigame
+    ;            loc_minigameStarted = 1
+    ;        endif
+    ;    endif
+    ;    ;lastly try cutting
+    ;    if !loc_minigameStarted && CuttingMinigameAllowed(loc_accesibility)
+    ;        if cuttingMinigame(True)
+    ;            loc_minigameStarted = 5
+    ;        endif
+    ;    endif
+    ;    Int loc_lockMinigames
+    ;    if !loc_minigameStarted
+    ;        loc_lockMinigames       = LockMinigameAllowed(loc_accesibility)
+    ;    endif
+    ;    ;first try to unlock the device with key
+    ;    if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x2)
+    ;        if keyMinigame(True)
+    ;            loc_minigameStarted = 3
+    ;        endif
+    ;    endif
+    ;    ;try to repair the locks then
+    ;    if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x4)
+    ;        if repairLocksMinigame(True)
+    ;            loc_minigameStarted = 4
+    ;        endif
+    ;    endif
+    ;    ;then try to use lockpicks
+    ;    if !loc_minigameStarted && Math.LogicalAnd(loc_lockMinigames,0x1)
+    ;        if lockpickMinigame(True)
+    ;            loc_minigameStarted = 2
+    ;        endif
+    ;    endif
+    ;endif
+    ;
+    ;if loc_minigameStarted && UDmain.UDGV.UDG_AIMinigameInfo.Value
+    ;    GInfo(GetDeviceHeader()+"::EvaluateNPCAI() - Stats after minigame ["+loc_minigameStarted+"] = durability reduced="+ (loc_durabilityBefore - current_device_health) + " , Locks unlocked="+ (loc_LocksBefore - UD_CurrentLocks))
+    ;endif
     
     return loc_minigameStarted
 EndFunction
@@ -3251,6 +3252,8 @@ Bool Function DeviceMenuWH(Actor akSource,bool[] aaControl)
     endif
     
     GoToState("UpdatePaused")
+    
+    setHelper(akSource)
     
     String[] loc_callbacks = new String[1]
     loc_callbacks[0] = "[Exit]" ; Empty callback to exit the menu without doing anything
@@ -8456,6 +8459,9 @@ EndProperty
 
 Function Lua_ReadyMinigame(Actor akHelper)
     UD_MINM.ReadyDeviceMinigame(self,akHelper)
+EndFunction
+Function Lua_LoadMinigame(Actor akHelper)
+    UD_MINM.LoadDeviceMinigame(self,akHelper)
 EndFunction
 Function Lua_UpdateMinigameExpression(Actor akHelper)
     UD_MINM.UpdateMinigameExpression(self,akHelper)
