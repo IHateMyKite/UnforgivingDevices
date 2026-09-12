@@ -1,0 +1,20 @@
+{
+    "name": "Magick Struggle",
+    "description": "Try to struggle out of the device by using your magick. The condition of device will be reeduced more rapidly",
+    "uiobject":"UD/Minigames/Struggle/index.html",
+    "script":"UD\\Minigames\\Scripts\\Struggle.lua",
+    "base":"MinigameBase",
+    "priority": 98,
+    "config":
+    {
+        "minStamina":   "0.5",
+        "minMagicka":   "0.7",
+        "StaminaDrain": "7.0",
+        "MagickaDrain": "8.0",
+        "DamageBase":   "5.0",
+        "PhysResMult":  "0.0",
+        "MagResMult":   "1.0",
+        "BaseSpeed":    "130.0",
+        "DamageBase":   "1.0"
+    }
+}

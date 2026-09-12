@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>UnforgivingDevices</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body id="main" style="display: none;">
+    <!-- <body id="main"> -->
+        <div id="devicemenu"  class="border-main">
+            <div id="dm_stats" class="">
+                <table style="width:100%;">
+                    <tr class="border-underline">
+                        <th> Wearer: </th>
+                        <th id="dm_wearer" style="width:25%;"> None </th>
+                        <th> Helper: </th>
+                        <th id="dm_helper" style="width:25%;"> None </th>
+                    </tr>
+                    <tr class="border-underline">
+                        <th> Orgasm progress: </th>
+                        <th> <span id="dm_orgasm"> 0.0 </span> </th>
+                        <th> Arousal: </th>
+                        <th id="dm_arousal"> 0.0 </th>
+                    </tr>
+                </table>
+            </div>
+            <table id="dm_table" class="background-white">
+                <tr id="dm_line0" class="heading-row">
+                    <th colspan="2"> Details </th>
+                </tr>
+                <tr id="dm_line1">
+                    <th class="devicemenu_info background-light" colspan="2" >
+                        <div class="dm_scrollable" style="height:300px;">
+                            <table id="dm_detailtable" class="dm_detailtable">
+                            </table>
+                        </div>
+                    </th>
+                </tr>
+                <tr id="dm_line2" >
+                    <th colspan="1" class="heading-row">Actions</th>
+                    <th colspan="1" class="heading-row">Modifiers</th>
+                </tr>
+                <tr id="dm_line3">
+                    <th class="devicemenu_info background-light">
+                        <div id="dm_minigames" class="dm_scrollable" style="height:250px;">
+                        </div>
+                    </th>
+                    <th class="devicemenu_info background-light">
+                        <div id="dm_modifiers" class="dm_scrollable" style="height:250px;">
+                        </div>
+                    </th>
+                </tr>
+            </table>
+            <table id="dm_controlmenu">
+                <tr id="dm_con_callbacks">
+                </tr>
+            </table>
+        </div>
+        <div id="dm_Detail" style="display: none;"></div>
+        <div id="dm_Context" style="display: none;"></div>
+        <script src="DeviceMenu.js"></script>
+    </body>
+</html>
