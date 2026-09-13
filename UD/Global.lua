@@ -81,8 +81,8 @@ function RegisterActionCallback(C,action,callback)
     Host_RegisterActionCallback(C['MinigameId'],action,callback)
 end
 
-function GetDeviceAccessibility(C)
-    return Host_GetDeviceAccesibility(C)
+function GetDeviceAccessibility(C,checkHB)
+    return Host_GetDeviceAccesibility(C,checkHB)
 end
 
 function ActorFreeHands(actor,checkgrasp,ignoreheavybondage)
@@ -105,6 +105,14 @@ function GetHudValue(C,val)
     return Host_GetHudValue(C,val)
 end
 
+function AdvanceMinigameSkill(C,value)
+    Host_AdvanceMinigameSkill(C['MinigameId'],value/100.0)
+end
+
+function GetSharpestWeaponPower(actor)
+    return Host_GetSharpestWeaponPower(actor)
+end
+
 ----------------------------
 --   UTILITY  FUNCTIONS   --
 ----------------------------
@@ -122,4 +130,14 @@ function BoolToInt(bool)
     else
         return 0
     end
+end
+
+function Clamp(x,minval,maxval)
+    if x > maxval then
+        return maxval
+    end
+    if x < minval then
+        return minval
+    end
+    return x
 end

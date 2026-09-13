@@ -6,7 +6,7 @@ end
 
 -- Check if actor can struggle or if other conditions are met
 function Condition(C)
-    return CheckMinStatsWearer(C) and GetDeviceAccessibility(C) > 0.0
+    return CheckMinStatsWearer(C) and GetDeviceAccessibility(C,true) > 0.0
 end
 
 function CheckMinStatsWearer(C)
@@ -45,6 +45,8 @@ function OnStart(C)
     -- Ready local minigame variables
     SetMinigameVar(C,'TimerExpr',0.0)
     SetMinigameVar(C,'PauseDrain',false)
+    SetMinigameVar(C,'TimerSkill',0.0)
+    SetMinigameVar(C,'SkillGain',tonumber(GetConfigVar(C,"SkillGain","10.0")))
     
     -- Store drains from config for faster access
     StoreConfigDrain(C)
@@ -72,6 +74,12 @@ function OnUpdate(C,delta)
     
     if PlayerInMinigame(C) then
         ProcessMinigame(C,delta)
+        
+        local loc_skilltime = UpdateMinigameVar(C,'TimerSkill',-1.0*delta)
+        if loc_skilltime <= 0.0 then
+            AdvanceMinigameSkill(C,GetMinigameVar(C,"SkillGain"))
+            SetMinigameVar(C,'TimerSkill',1.0)
+        end
     else
         ProcessMinigameNPC(C,delta)
     end
@@ -120,9 +128,7 @@ end
 function OnUIOpen(C)
     Log("OnUIOpen")
     -- Register actions
-    RegisterActionCallback(C,"press_stop","StopDeviceMinigame")
-    RegisterActionCallback(C,"press_left","ClickLeft")
-    RegisterActionCallback(C,"press_right","ClickRight")
+    RegisterCallbacks(C)
     SetMinigameVar(C,'Ready',true)
 end
 
@@ -165,6 +171,7 @@ function OnMinigameLoaded(C)
 end
 
 function RegisterCallbacks(C)
+    RegisterActionCallback(C,"press_stop","StopDeviceMinigame")
 end
 
 function ProcessMinigame(C,delta)

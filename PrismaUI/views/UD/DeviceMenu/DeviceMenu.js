@@ -28,6 +28,13 @@ window.InitDeviceList = (values) => {
         minigames.removeChild(minigames.firstChild);
     }
 
+    let loc_detailvalues = document.getElementById('dm_detailtable')
+    while (loc_detailvalues.hasChildNodes()) {
+        loc_detailvalues.removeChild(loc_detailvalues.firstChild);
+    }
+    
+    HideDetails(null)
+
     for (let i = 0; i < devices.length; i++) {
         var button1 = document.createElement('button');
         button1.textContent = devices[i].name;
@@ -42,7 +49,6 @@ window.InitDeviceList = (values) => {
     callbacks = values.callbacks;
 
     var controls = document.getElementById('dm_con_callbacks');
-
     while (controls.hasChildNodes()) {
         controls.removeChild(controls.firstChild);
     }
@@ -91,10 +97,16 @@ window.InitDeviceListSingle = (values) => {
     callbacks = values.callbacks;
 
     var controls = document.getElementById('dm_con_callbacks');
-
     while (controls.hasChildNodes()) {
         controls.removeChild(controls.firstChild);
     }
+    
+    let context = document.getElementById('dm_Context');
+    while (context.hasChildNodes()) {
+      context.removeChild(context.firstChild);
+    }
+
+    HideDetails(null)
 
     if (callbacks) {
       for (let i = 0; i < callbacks.length; i++) {

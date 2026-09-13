@@ -19,7 +19,7 @@ end
 -- Check if actor can struggle or if other conditions are met
 local _Condition = Condition -- Save previous function
 function Condition(C)
-    local loc_res = _Condition(C)
+    local loc_res = _Condition(C) and GetDeviceAccessibility(C,false) > 0.0
     -- Additional logic
     local loc_lockpick = GetGameForm(0x0000000A,"Skyrim.esm")
     loc_res = loc_res and (GetItemCount(C['Wearer'],loc_lockpick) > 0)

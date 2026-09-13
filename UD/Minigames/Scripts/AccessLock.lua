@@ -64,13 +64,12 @@ end
 
 local _RegisterCallbacks = RegisterCallbacks
 function RegisterCallbacks(C)
-    _RegisterCallbacks()
-    RegisterActionCallback(C,"press_stop","StopDeviceMinigame")
-    RegisterActionCallback(C,"press_left","ClickLeft")
-    DamageDurability(C,0.0)
+    _RegisterCallbacks(C)
+    RegisterActionCallback(C,"press_left","Click")
+    RegisterActionCallback(C,"press_right","Click")
 end
 
-function ClickLeft(C)
+function Click(C)
     if IsCursorInZone(C) then
         ClickSuccess(C)
     else

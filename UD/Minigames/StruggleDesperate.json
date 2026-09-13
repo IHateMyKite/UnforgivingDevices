@@ -5,6 +5,7 @@
     "script":"UD\\Minigames\\Scripts\\Struggle.lua",
     "base":"MinigameBase",
     "priority": 99,
+    "skill": "Strength",
     "config":
     {
         "minStamina":   "0.2",
@@ -18,6 +19,7 @@
         "DamageBase":   "1.0",
         "DamageSpeedMult": "1.3",
         "SpeedMult": "1.2",
-        "ZoneSize": "0.35"
+        "ZoneSize": "0.35",
+        "SkillGain": "10.0"
     }
 }

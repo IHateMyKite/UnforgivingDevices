@@ -3,7 +3,7 @@ Scriptname UD_CustomPlug_RenderScript extends UD_CustomVibratorBase_RenderScript
 import UnforgivingDevicesMain
 
 ;<LUA>
-;   function GetAccessibility(C)
+;   function GetAccessibility(C,checkHB)
 ;       local loc_res = 1.0
 ;       if WornHasKeyword(C['Wearer'],"zad_DeviousBelt") 
 ;       or WornHasKeyword(C['Wearer'],"zad_DeviousHarness") then

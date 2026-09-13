@@ -6,9 +6,10 @@ Combo           = 0
 window.SetZones = (arg) =>
 {
     zones = document.getElementsByClassName("mg_minigamezone")
-    console.log(arg.zonesize)
+    console.log(arg.size)
     for (const el of zones) {
-      el.style.setProperty("width",String(arg.zonesize*100.0)+"%")
+      el.style.setProperty("width",String(arg.size*100.0)+"%")
+      el.style.setProperty("left",String(arg.pos*100.0)+"%")
     }
 }
 
@@ -23,6 +24,10 @@ window.UpdateMinigame = (arg) =>
     let loc_bar2 = document.getElementById("mg_condition_border").childNodes[1]
     loc_bar2.style.setProperty("width",String(Condition*100.0)+"%")
     loc_bar2.id = "mg_condition_"+ConditionLvl
+    
+    Cutting = arg.cut
+    let loc_bar3 = document.getElementById("mg_cutting")
+    loc_bar3.style.setProperty("width",String(Cutting*100.0)+"%")
     
     UpdateCursor(arg.pos)
 }

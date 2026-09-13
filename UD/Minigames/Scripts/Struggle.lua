@@ -62,8 +62,10 @@ function OnStart(C)
     
     local loc_durability_r  = GetVariableValue(C,"thisdevice::current_device_health(U)")/GetMinigameVar(C,'MaxDurability')
     local loc_condition_r   = 1.0 - GetVariableValue(C,"thisdevice::_total_durability_drain(U)")/100.0
+    local loc_conditionLvl  = GetVariableValue(C,"thisdevice::UD_condition(A)")
     SetMinigameVar(C,"Durability",loc_durability_r)
     SetMinigameVar(C,"Condition",loc_condition_r)
+    SetMinigameVar(C,"ConditionLvl",loc_conditionLvl)
     
     local loc_physres       = GetVariableValue(C,"thisdevice::UD_ResistPhysical(A)")
     local loc_physresmult   = GetMinigameVar(C,"PhysResMult")
@@ -92,7 +94,7 @@ function DamageDurability(C,dmg)
     end
     if loc_condition >= 100.0 then
         UpdateVariableValue(C,"thisdevice::_total_durability_drain(A)",0.0)
-        UpdateVariableValue(C,"thisdevice::UD_condition(U)",1)
+        SetMinigameVar(C,"ConditionLvl",UpdateVariableValue(C,"thisdevice::UD_condition(U)",1))
         
         -- Reduce resistence
         local loc_physres       = UpdateVariableValue(C,"thisdevice::UD_ResistPhysical(U)",-0.25)
@@ -107,8 +109,7 @@ end
 
 local _RegisterCallbacks = RegisterCallbacks
 function RegisterCallbacks(C)
-    _RegisterCallbacks()
-    RegisterActionCallback(C,"press_stop","StopDeviceMinigame")
+    _RegisterCallbacks(C)
     RegisterActionCallback(C,"press_left","ClickLeft")
     RegisterActionCallback(C,"press_right","ClickRight")
     DamageDurability(C,0.0)
@@ -186,12 +187,14 @@ function ProcessMinigame(C,delta)
     
     local loc_durability_r = GetMinigameVar(C,"Durability")
     local loc_condition_r  = GetMinigameVar(C,"Condition")
+    local loc_conditionlvl = GetMinigameVar(C,"ConditionLvl")
+    
     local loc_combo = GetMinigameVar(C,"Combo")
     local loc_zonesize = GetMinigameVar(C,"ZoneSize")
     local loc_zonesizerecution = GetMinigameVar(C,"ZoneSizeReduction")
     
     InvokeMinigameUI(C,"SetZones({zonesize:"..tostring(loc_zonesize*(1.0 - loc_combo*loc_zonesizerecution)).."})")
-    InvokeMinigameUI(C,"UpdateMinigame({dur:"..tostring(loc_durability_r)..",cond:"..tostring(loc_condition_r)..",pos:"..tostring(loc_pos).."})")
+    InvokeMinigameUI(C,"UpdateMinigame({dur:"..tostring(loc_durability_r)..",cond:"..tostring(loc_condition_r)..",condlvl:"..tostring(loc_conditionlvl)..",pos:"..tostring(loc_pos).."})")
 end
 
 function ProcessMinigameNPC(C,delta)
