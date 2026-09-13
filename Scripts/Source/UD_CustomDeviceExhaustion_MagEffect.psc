@@ -18,7 +18,6 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
     StorageUtil.AdjustIntValue(_target,"UD_DeviceExhaustionNum",1)
     if UD_Native.IsPlayer(_target)
         registerForSingleUpdate(0.1)
-        UDMain.UDWC.StatusEffect_AdjustMagnitude("effect-exhaustion", 20)
         ;Game.SetInChargen(false, true, false)
     endif
 EndEvent
@@ -29,7 +28,6 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
     StorageUtil.AdjustIntValue(_target,"UD_DeviceExhaustionNum",-1)
     if UD_Native.IsPlayer(_target)
         Game.SetInChargen(false, false, false)
-        UDMain.UDWC.StatusEffect_AdjustMagnitude("effect-exhaustion", -20)
     endif
     if !_target.hasMagicEffect(_MagickEffect)
         UDmain.libs.ExpLibs.ResetExpressionRaw(_target,10)

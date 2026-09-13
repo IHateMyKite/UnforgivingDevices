@@ -3,9 +3,11 @@ Scriptname UD_CustomInflatablePlug_RenderScript extends UD_CustomPlug_RenderScri
 import UnforgivingDevicesMain
 import UD_Native
 
-float Property UD_PumpDifficulty    = 50.0      auto ;deflation required to deflate plug by one lvel
-float Property UD_DeflateRate       = 200.0     auto ;inflation lost per one day
-int _inflateLevel = 0 ;for npcs
+; <DOCUSTR(name,Inflatable plug)>
+
+float Property UD_PumpDifficulty    = 50.0      auto ;deflation required to deflate plug by one level
+float Property UD_DeflateRate       = 200.0     auto ;inflation lost per one day ;/ <EXPORT(name:Deflate rate)> /;
+int _inflateLevel = 0 ;/ <EXPORT(name:Infalte level,conv:enum{0=Deflated;1=Barely inflated;2=Sligtly inflated;3=Almost Inflated;4=Inflated;5=Overinflated})> /;
 
 String  _InflationEffectSlot
 String  Property     InflationEffectSlot                        Hidden
@@ -169,7 +171,7 @@ float Function getAccesibility()
     return ValidateAccessibility(loc_res)
 EndFunction
 
-float inflateprogress = 0.0
+float inflateprogress = 0.0 ;/ <EXPORT(name:Inflate progress)> /;
 
 bool inflateMinigame_on = false
 bool Function inflateMinigame()
@@ -206,7 +208,7 @@ bool Function inflateMinigame()
     endif
 EndFunction
 
-float deflateprogress = 0.0
+float deflateprogress = 0.0 ;/ <EXPORT(name:Inflate progress)> /;
 
 bool deflateMinigame_on = false
 bool Function deflateMinigame()
@@ -298,9 +300,6 @@ Function deflate(bool silent = False)
         endif
     endif
     deflatePlug(1)
-    If WearerIsPlayer()
-        UDmain.UDWC.StatusEffect_SetMagnitude(InflationEffectSlot, getPlugInflateLevel() * 20)
-    EndIf
     return
 EndFunction
 
@@ -355,10 +354,6 @@ Function inflatePlug(int increase)
         _inflateLevel = 5
     endif
     
-    If WearerIsPlayer()
-        UDmain.UDWC.StatusEffect_SetMagnitude(InflationEffectSlot, _inflateLevel * 20)
-    EndIf
-    
     OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),UD_ArMovKey,1,0.25,2)
     OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),UD_ArMovKey,9,0.25,2)
     
@@ -396,10 +391,6 @@ Function deflatePlug(int decrease)
     if _inflateLevel < 0
         _inflateLevel = 0
     endif
-    
-    If WearerIsPlayer()
-        UDmain.UDWC.StatusEffect_SetMagnitude(InflationEffectSlot, _inflateLevel * 20)
-    EndIf
     
     OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),UD_ArMovKey,1,-0.25,2)
     OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),UD_ArMovKey,9,-0.25,2)
@@ -614,20 +605,12 @@ bool Function OnUpdateHourPost()
 EndFunction
 Function InitPostPost()
     parent.InitPostPost()
-    If WearerIsPlayer()
-        UDMain.UDWC.StatusEffect_SetVisible(InflationEffectSlot)
-        UDmain.UDWC.StatusEffect_SetMagnitude(InflationEffectSlot, _inflateLevel * 20)
-    EndIf
 EndFunction
 Function OnRemoveDevicePre(Actor akActor)
     parent.OnRemoveDevicePre(akActor)
 EndFunction
 Function onRemoveDevicePost(Actor akActor)
     parent.onRemoveDevicePost(akActor)
-    If IsPlayer(akActor)
-        UDMain.UDWC.StatusEffect_SetVisible(InflationEffectSlot, False)
-        UDmain.UDWC.StatusEffect_SetMagnitude(InflationEffectSlot, _inflateLevel * 20)
-    EndIf
 EndFunction
 Function onLockUnlocked(bool lockpick = false)
     parent.onLockUnlocked(lockpick)

@@ -119,20 +119,12 @@ bool Function UntieMinigame(Bool abSilent = False)
     
     if minigamePreCheck(abSilent)
         bool loc_UseNativeMeters = (WearerIsPlayer() || HelperIsPlayer())
-        if loc_UseNativeMeters
-            UDmain.UDWC.Meter_RegisterNative("device-main",0,getRelativeUntieProgress()*100.0,UD_UntieDmg*UDCDmain.getStruggleDifficultyModifier(),true)
-            UDmain.UDWC.Meter_SetNativeMult("device-main",mult*100.0/UD_UntieDifficulty)
-        endif
-        
         _untieMinigameOn = True
         UD_Events.SendEvent_DeviceMinigameBegin(self,"DHB_Untie")
         minigame()
         UD_Events.SendEvent_DeviceMinigameEnd(self,"DHB_Untie")
         _untieMinigameOn = False
         
-        if loc_UseNativeMeters
-            UDmain.UDWC.Meter_UnregisterNative("device-main")
-        endif
         return true
     else
         return false
@@ -142,8 +134,6 @@ EndFunction
 Function OnMinigameTick(Float abUpdateTime)
     if _untieMinigameOn
         if PlayerInMinigame()
-            UDmain.UDWC.Meter_SetNativeMult("device-main",getMinigameMult(1)*100.0/UD_UntieDifficulty)
-            _untieProgress = UDmain.UDWC.Meter_GetNativeValue("device-main")*UD_UntieDifficulty/100.0
         else
             _untieProgress = fRange(_untieProgress + UD_UntieDmg*UDCDmain.getStruggleDifficultyModifier()*abUpdateTime*getMinigameMult(1),0.0,UD_UntieDifficulty)
         endif
@@ -157,7 +147,6 @@ EndFunction
 bool Function OnCritDevicePre()
     if _untieMinigameOn
         if PlayerInMinigame()
-            _untieProgress = UDmain.UDWC.Meter_UpdateNativeValue("device-main",3*UD_UntieDmg*UDCDmain.getStruggleDifficultyModifier())*UD_UntieDifficulty/100.0
         else
             _untieProgress = fRange(_untieProgress + 3*UD_UntieDmg*UDCDmain.getStruggleDifficultyModifier()*getMinigameMult(1),0.0,UD_UntieDifficulty)
         endif
@@ -173,7 +162,6 @@ EndFunction
 Function OnCritFailure()
     if _untieMinigameOn
         if PlayerInMinigame()
-            _untieProgress = UDmain.UDWC.Meter_UpdateNativeValue("device-main",-1.0*UD_UntieDifficulty*0.25)*UD_UntieDifficulty/100.0
         else
             _untieProgress =  fRange(_untieProgress - UD_UntieDifficulty*0.075,0.0,UD_UntieDifficulty)
         endif

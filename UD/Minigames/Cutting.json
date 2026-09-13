@@ -1,0 +1,20 @@
+{
+    "name": "Cutting",
+    "description": "Try to cut your way of the device by using Sharpest weapon you have",
+    "uiobject":"UD/Minigames/Cutting/index.html",
+    "script":"UD\\Minigames\\Scripts\\Cutting.lua",
+    "base":"MinigameBase",
+    "priority": 80,
+    "skill": "Cutting",
+    "config":
+    {
+        "minStamina":   "0.5",
+        "minHealth":    "0.5",
+        "StaminaDrain": "10.0",
+        "HealthDrain":  "4.0",
+        "BaseSpeed":    "175.0",
+        "SpeedMult": "1.1",
+        "ZoneSize": "0.3",
+        "SkillGain": "8.0"
+    }
+}
