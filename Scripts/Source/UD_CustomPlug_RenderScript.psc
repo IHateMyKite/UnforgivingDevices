@@ -3,8 +3,15 @@ Scriptname UD_CustomPlug_RenderScript extends UD_CustomVibratorBase_RenderScript
 import UnforgivingDevicesMain
 
 ;<LUA>
+;   local _GetAccessibility = GetAccessibility
 ;   function GetAccessibility(C,checkHB)
 ;       local loc_res = 1.0
+;       if CheckFreeHands(C,true,false) then
+;           loc_res = 0.25
+;       elseif CheckFreeHands(C,false,true) then
+;           loc_res = 0.5
+;       end
+;       --Log("GetAccessibility(Plug) called")
 ;       if WornHasKeyword(C['Wearer'],"zad_DeviousBelt") 
 ;       or WornHasKeyword(C['Wearer'],"zad_DeviousHarness") then
 ;           if ArmorHasKeyword(C['RD'],"zad_DeviousPlugAnal") 
@@ -18,13 +25,21 @@ import UnforgivingDevicesMain
 ;       if loc_res > 0.0 then
 ;           if WornHasKeyword(C['Wearer'],"zad_DeviousSuit") 
 ;           or WornHasKeyword(C['Wearer'],"zad_DeviousHobbleSkirt") then
-;               loc_res = 0.25
+;               loc_res = loc_res*0.25
 ;           elseif WornHasKeyword(C['Wearer'],"zad_DeviousHobbleSkirtRelaxed") then
-;               loc_res = 0.75
+;               loc_res = loc_res*0.75
 ;           end
 ;       end
 ;       --Log("Plug accessibility: "..tostring(loc_res))
 ;       return loc_res
+;   end
+;   local _GetTags = GetTags
+;   function GetTags(C)
+;       local loc_res = json.parse(_GetTags(C))
+;       loc_res["unstruggable"] = true
+;       loc_res["uncuttable"]   = true
+;       loc_res["plug"]         = true
+;       return json.stringify(loc_res)
 ;   end
 ;<\LUA>
 

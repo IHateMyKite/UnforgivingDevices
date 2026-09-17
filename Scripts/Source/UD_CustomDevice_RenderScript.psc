@@ -10,19 +10,31 @@ import UD_NPCInteligence
 import UD_Native
 
 ;<LUA>
+;   function CheckFreeHands(C,checkHB,checkBM)
+;       if checkHB and not ActorFreeHands(C['Wearer'],false,false) 
+;       and (IsNull(C['Helper']) or not ActorFreeHands(C['Helper'],false,false)) then
+;           return false
+;       elseif checkBM and not ArmorHasKeyword(C['RD'],"zad_DeviousBondageMittens") 
+;       and (not ActorFreeHands(C['Wearer'],true,true) or (not IsNull(C['Helper']) and not ActorFreeHands(C['Helper'],true,true))) then
+;           return false
+;       end
+;       return true
+;   end
 ;   function GetAccessibility(C,checkHB)
+;       Log("GetAccessibility(Base) called")
 ;       local loc_res = 1.0
 ;       if not ArmorHasKeyword(C['RD'],"zad_DeviousHeavyBondage") or not checkHB then
-;           if not ActorFreeHands(C['Wearer'],false,false) 
-;           and (IsNull(C['Helper']) or not ActorFreeHands(C['Helper'],false,false)) then
+;           if not CheckFreeHands(C,true,false) then
 ;               loc_res = 0.0
-;           elseif not ArmorHasKeyword(C['RD'],"zad_DeviousBondageMittens") 
-;           and (not ActorFreeHands(C['Wearer'],true,true) or (not IsNull(C['Helper']) and not ActorFreeHands(C['Helper'],true,true))) then
+;           elseif not CheckFreeHands(C,false,true) then
 ;               loc_res = 0.5
 ;           end
 ;       end
 ;       --Log("Base accessibility: "..tostring(loc_res))
 ;       return loc_res
+;   end
+;   function GetTags(C)
+;       return "{}"
 ;   end
 ;<\LUA>
 

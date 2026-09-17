@@ -8,7 +8,7 @@ function Precondition(C)
     local loc_magresmult    = GetConfigVar(C,"MagResMult","0.0")
     local loc_resistence    = (loc_physres*loc_physresmult) + (loc_magres*loc_magresmult)
     
-    return GetVariableValue(C,"thisdevice::UD_durability_damage_base(A)") > 0.0 and loc_resistence < 1.0
+    return GetVariableValue(C,"thisdevice::UD_durability_damage_base(A)") > 0.0 and loc_resistence < 1.0 and CheckTags(C)
 end
 
 -- Check if actor can struggle or if other conditions are met

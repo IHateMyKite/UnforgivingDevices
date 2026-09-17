@@ -17,6 +17,7 @@
         "MagResMult":   "1.0",
         "BaseSpeed":    "130.0",
         "DamageBase":   "1.0",
-        "SkillGain":    "10.0"
+        "SkillGain":    "10.0",
+        "TagBlacklist": "unstruggable"
     }
 }

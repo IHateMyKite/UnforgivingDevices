@@ -192,4 +192,4 @@ function json.parse(str, pos, end_delim)
   end
 end
 
-return json
+--return json

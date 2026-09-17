@@ -42,8 +42,9 @@ function OnStart(C)
     
     SetMinigameVar(C,"CursorDir",0)
     SetMinigameVar(C,"ZoneSize",tonumber(GetConfigVar(C,"ZoneSize","0.1")))
-    SetMinigameVar(C,"CursorSize",40)
-    SetMinigameVar(C,"CursorSpeed",tonumber(GetConfigVar(C,"BaseSpeed","100.0")))
+    SetMinigameVar(C,"CursorSize",35)
+    SetMinigameVar(C,"CursorSpeed",tonumber(GetConfigVar(C,"BaseSpeed","600.0")))
+    SetMinigameVar(C,"ZoneScale",tonumber(GetConfigVar(C,"ZoneScale","1.0")))
     SetMinigameVar(C,"Multiplier",1.0)
     SetMinigameVar(C,"LockPosX",200)
     SetMinigameVar(C,"LockPosY",140)
@@ -56,8 +57,9 @@ function OnStart(C)
     SetMinigameVar(C,"CursorPos",loc_pos)
     
     local loc_vec = {}
-    loc_vec['x'] = 600.0
-    loc_vec['y'] = 600.0
+    
+    loc_vec['x'] = GetMinigameVar(C,"CursorSpeed")
+    loc_vec['y'] = GetMinigameVar(C,"CursorSpeed")
     RotateVec(loc_vec,2.0*math.pi*math.random())
     SetMinigameVar(C,"CursorVector",loc_vec)
 end
@@ -90,7 +92,8 @@ end
 
 function ClickFail(C)
     if not GetMinigameVar(C,"MinigamePaused") then
-        -- TODO: Penalize player
+        local loc_drains = GetMinigameVar(C,'StatDrain')
+        DamageStats(C,loc_drains['Stamina']*1,loc_drains['Health']*1,loc_drains['Magicka']*1)
     end
 end
 
@@ -198,22 +201,16 @@ end
 
 function IsCursorInZone(C)
     local loc_pos = GetMinigameVar(C,"CursorPos")
-    local loc_inzone = false
     
     local loc_size = GetMinigameVar(C,"CursorSize")
     local loc_posX = GetMinigameVar(C,"LockPosX")
     local loc_posY = GetMinigameVar(C,"LockPosY")
     
-    if  loc_pos['x'] + loc_size/2 > (loc_posX - 70.0) and loc_pos['x'] - loc_size/2 < (loc_posX + 70) and  -- X
-        loc_pos['y'] + loc_size/2 > (loc_posY - 70.0) and loc_pos['y'] - loc_size/2 < (loc_posY + 70) then -- Y
-        loc_inzone = true
+    local loc_scale = GetMinigameVar(C,"ZoneScale")
+    if (PointInCircle(loc_posX,loc_posY,70*loc_scale,loc_pos['x'],loc_pos['y'])) or PointInRectangle(loc_posX,loc_posY + 100*loc_scale,80*loc_scale,160*loc_scale,loc_pos['x'],loc_pos['y']) then
+        return true
     end
-    if  loc_pos['x'] + loc_size/2 > (loc_posX - 40.0)       and loc_pos['x'] - loc_size/2 < (loc_posX + 40.0)         and   -- X
-        loc_pos['y'] + loc_size/2 > (loc_posY + 100 - 80.0) and loc_pos['y'] - loc_size/2 < (loc_posY + 100 + 80.0)   then  -- Y
-        loc_inzone = true
-    end
-    
-    return loc_inzone
+    return false
 end
 
 function UpdateCursorPosition(C,delta)
@@ -234,7 +231,7 @@ function UpdateCursorPosition(C,delta)
     loc_payload = loc_payload.."in:"..BoolToInt(IsCursorInZone(C))..","
     loc_payload = loc_payload.."zonex:"..tostring(GetMinigameVar(C,"LockPosX"))..","
     loc_payload = loc_payload.."zoney:"..tostring(GetMinigameVar(C,"LockPosY"))..","
-    loc_payload = loc_payload.."zonescale:"..tostring(1.0)
+    loc_payload = loc_payload.."zonescale:"..tostring(GetMinigameVar(C,"ZoneScale"))
     loc_payload = loc_payload.."})"
     
     InvokeMinigameUI(C,loc_payload)

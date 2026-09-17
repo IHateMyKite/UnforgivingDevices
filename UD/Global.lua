@@ -113,6 +113,10 @@ function GetSharpestWeaponPower(actor)
     return Host_GetSharpestWeaponPower(actor)
 end
 
+function GetDeviceTags(C)
+    return Host_GetDeviceTags(C)
+end
+
 ----------------------------
 --   UTILITY  FUNCTIONS   --
 ----------------------------
@@ -140,4 +144,13 @@ function Clamp(x,minval,maxval)
         return minval
     end
     return x
+end
+
+function PointInCircle(center_x, center_y, radius, x, y)
+    local square_dist = (center_x - x)^2 + (center_y - y)^2
+    return square_dist <= (radius)^2
+end
+
+function PointInRectangle(center_x, center_y, size_x, size_y, x, y)
+    return x > (center_x - size_x/2) and x < (center_x + size_x/2) and y > (center_y - size_y/2) and y < (center_y + size_y/2)
 end

@@ -3,7 +3,8 @@
 function Precondition(C)
     --Log("Precondition called")
     local loc_cutpower = GetVariableValue(C,"thisdevice::UD_CutChance(A)")
-    return loc_cutpower > 0.0
+    
+    return loc_cutpower > 0.0 and CheckTags(C)
 end
 
 -- Check if actor can struggle or if other conditions are met

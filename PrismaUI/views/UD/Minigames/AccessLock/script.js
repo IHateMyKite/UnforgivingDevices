@@ -27,24 +27,6 @@ function Test_Update()
 function CheckZones(argPos,argZones)
 {
     let loc_inzone = argPos.in;
-    //for(let i = 0; i < argZones.length;i++)
-    //{
-    //    let loc_zone = argZones[i];
-    //    let loc_style = getComputedStyle(loc_zone);
-    //    let Zone = {x:0,y:0,size:0};
-    //    Zone.x = Number(loc_style.left.replace("px",""))
-    //    Zone.y = Number(loc_style.top.replace("px",""))
-    //    Zone.sizeX = Number(loc_style.width.replace("px",""))
-    //    Zone.sizeY = Number(loc_style.height.replace("px",""))
-    //    
-    //    if (argPos.x > Zone.x-Zone.sizeX/2 && argPos.x < Zone.x+Zone.sizeX/2)
-    //    {
-    //        if (argPos.y > Zone.y-Zone.sizeY/2 && argPos.y < Zone.y+Zone.sizeY/2)
-    //        {
-    //            loc_inzone = true;
-    //        }
-    //    }
-    //}
     
     if (loc_inzone)
     {
@@ -110,6 +92,7 @@ OriginalWidth2 = 0.0
 OriginalHeight1 = 0.0
 OriginalHeight2 = 0.0
 OriginalDelta = 0.0
+OriginalMiddle = 0.0
 FirstTimeCalled = false
 
 window.UpdateCursorPosition = (arg) =>
@@ -132,6 +115,7 @@ window.UpdateCursorPosition = (arg) =>
         OriginalHeight1 = loc_zone1.clientHeight;
         OriginalHeight2 = loc_zone2.clientHeight;
         OriginalDelta   = loc_zone2.offsetTop - loc_zone1.offsetTop;
+        OriginalMiddle  = loc_zone1.offsetTop + (loc_zone2.offsetTop - loc_zone1.offsetTop)/2;
         FirstTimeCalled = true;
     }
     

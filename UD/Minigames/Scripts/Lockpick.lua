@@ -1,6 +1,7 @@
 
 -- Check if minigame should be available for selected device
 function Precondition(C)
+    Log("Precondition(Lockpick.lua) called")
     local loc_res = true
     if loc_res then
         local loc_locks = GetVariableValue(C,"thisdevice::UD_LockList(A)")
@@ -11,6 +12,8 @@ function Precondition(C)
                     loc_res = true
                 end
             end
+        else
+            loc_res = false
         end
     end
     return loc_res

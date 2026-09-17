@@ -1,0 +1,15 @@
+{
+    "name": "Unlock with key",
+    "description": "Try to unlock one of the locks on the device",
+    "uiobject":"UD/Minigames/AccessLock/index.html",
+    "script":"UD\\Minigames\\Scripts\\KeyUnlock.lua",
+    "base":"AccessLock",
+    "priority": 91,
+    "config":
+    {
+        "minStamina":   "0.5",
+        "StaminaDrain": "10.0",
+        "BaseSpeed": "600",
+        "ZoneScale": "0.75"
+    }
+}
