@@ -41,6 +41,8 @@ String      Function GetStringParamString       (String asParam,Int aiIndex = 0,
 Armor       Function GetRandomDevice            (LeveledItem akDeviceList)                                      global native
 Bool        Function IsConcentrationSpell       (Spell akSpell)                                                 global native
 Bool        Function IsConcentrationEnch        (Enchantment akEnch)                                            global native
+String      Function GetJsonValue               (String asJson, String asKey, String asDef)                     global native
+String      Function SetJsonValue               (String asJson, String asKey, String asVal)                     global native
 
 ;===UI===
 int         Function RemoveAllMeterEntries()                                                                    global native
@@ -186,8 +188,12 @@ Bool      Function ShowDeviceMenu       (Actor akWearer, Actor akHelper, String[
 Bool      Function ShowDeviceMenuSingle (Armor akID, Armor akRD, Actor akWearer, Actor akHelper, String[] aasCallbacks) global native
 
 ; === Minigame Manager ===
-String[]  Function GetListOfMinigames (Actor akWearer, Armor akId) global native
-Bool      Function StopMinigame       (Actor akActor) global native
+String[]  Function GetListOfMinigames (Actor akWearer, Armor akId)                  global native
+Bool      Function StopMinigame       (Actor akActor)                               global native
+String[]  Function GetMinigameConfigs ()                                            global native
+String[]  Function GetMinigameExports (int aiIndx)                                  global native
+Bool      Function SetMinigameVariable(int aiIndx, String asConfig, String asValue) global native
+String    Function GetMinigameVariable(int aiIndx, String asConfig, String asDefValue) global native
 
 ; === Device Manager ===
 Float     Function GetDeviceAccessibility(Actor akWearer, Actor akHelper, Armor akRenderDevice) global native

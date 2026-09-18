@@ -1,5 +1,6 @@
 
 -- Check if minigame should be available for selected device
+local _Precondition = Precondition -- Save previous function
 function Precondition(C)
     --Log("Precondition called")
     local loc_physres       = GetVariableValue(C,"thisdevice::UD_ResistPhysical(A)")
@@ -7,8 +8,7 @@ function Precondition(C)
     local loc_magres        = GetVariableValue(C,"thisdevice::UD_ResistMagicka(A)")
     local loc_magresmult    = GetConfigVar(C,"MagResMult","0.0")
     local loc_resistence    = (loc_physres*loc_physresmult) + (loc_magres*loc_magresmult)
-    
-    return GetVariableValue(C,"thisdevice::UD_durability_damage_base(A)") > 0.0 and loc_resistence < 1.0 and CheckTags(C)
+    return _Precondition(C) and GetVariableValue(C,"thisdevice::UD_durability_damage_base(A)") > 0.0 and loc_resistence < 1.0
 end
 
 -- Check if actor can struggle or if other conditions are met
@@ -76,7 +76,7 @@ function OnStart(C)
 end
 
 function DamageDurability(C,dmg)
-    Log("DamageDurability - "..tostring(dmg))
+    --Log("DamageDurability - "..tostring(dmg))
     local loc_resistence    = 1.0 - GetMinigameVar(C,"Resistence")
     local loc_durability    = UpdateVariableValue(C,"thisdevice::current_device_health(U)",-1.0*dmg*loc_resistence)
     local loc_durability_r  = loc_durability/GetMinigameVar(C,'MaxDurability')
@@ -110,9 +110,11 @@ end
 local _RegisterCallbacks = RegisterCallbacks
 function RegisterCallbacks(C)
     _RegisterCallbacks(C)
-    RegisterActionCallback(C,"press_left","ClickLeft")
-    RegisterActionCallback(C,"press_right","ClickRight")
-    DamageDurability(C,0.0)
+    if not GetMinigameVar(C,'UseNoUI') then
+        RegisterActionCallback(C,"press_left","ClickLeft")
+        RegisterActionCallback(C,"press_right","ClickRight")
+        DamageDurability(C,0.0)
+    end
 end
 
 function ClickLeft(C)
@@ -165,6 +167,11 @@ end
 
 function ProcessMinigame(C,delta)
     --Log("ProcessMinigame(Struggle.lua) called")
+
+    if GetMinigameVar(C,'UseNoUI') then
+        ProcessMinigameNPC(C,delta)
+        return
+    end
 
     local loc_pos       = GetMinigameVar(C,"CursorPos")
     local loc_speed     = GetMinigameVar(C,"CursorSpeed")

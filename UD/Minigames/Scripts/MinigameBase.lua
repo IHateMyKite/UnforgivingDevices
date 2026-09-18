@@ -1,7 +1,7 @@
 
 -- Check if minigame should be available for selected device
 function Precondition(C)
-    return false
+    return not StrToBool(GetConfigVar(C,"Disabled","false")) and CheckTags(C)
 end
 
 -- Check if actor can struggle or if other conditions are met
@@ -47,6 +47,7 @@ function OnStart(C)
     SetMinigameVar(C,'PauseDrain',false)
     SetMinigameVar(C,'TimerSkill',0.0)
     SetMinigameVar(C,'SkillGain',tonumber(GetConfigVar(C,"SkillGain","10.0")))
+    SetMinigameVar(C,'UseNoUI',StrToBool(GetConfigVar(C,"UseNoUI","false")))
     
     -- Store drains from config for faster access
     StoreConfigDrain(C)
@@ -66,7 +67,7 @@ function OnUpdate(C,delta)
         local loc_drains = GetMinigameVar(C,'StatDrain')
         DamageStats(C,loc_drains['Stamina']*delta,loc_drains['Health']*delta,loc_drains['Magicka']*delta)
         -- Check if actors have enough stats
-        if not CheckStats(C,StrToBool(GetConfigVar(C,"CheckStamina","true")),StrToBool(GetConfigVar(C,"CheckHealth","true")),StrToBool(GetConfigVar(C,"CheckMagicka","true"))) then
+        if not CheckStats(C,true,true,true) then
             StopDeviceMinigame(C)
             return
         end
@@ -74,12 +75,7 @@ function OnUpdate(C,delta)
     
     if PlayerInMinigame(C) then
         ProcessMinigame(C,delta)
-        
-        local loc_skilltime = UpdateMinigameVar(C,'TimerSkill',-1.0*delta)
-        if loc_skilltime <= 0.0 then
-            AdvanceMinigameSkill(C,GetMinigameVar(C,"SkillGain"))
-            SetMinigameVar(C,'TimerSkill',1.0)
-        end
+        UpdateSkill(C,delta)
     else
         ProcessMinigameNPC(C,delta)
     end
@@ -117,7 +113,9 @@ end
 
 function OpenUI(C)
     -- Open UI
-    if (PlayerInMinigame(C) and UseHelper(C)) or ActorIsPlayer(C['Wearer']) then
+    if PlayerInMinigame(C) and GetMinigameVar(C,'UseNoUI') then
+        OnUIOpen(C)
+    elseif PlayerInMinigame(C) then
         OpenMinigameUI(C,"OnUIOpen")
     else
         SetMinigameVar(C,'Ready',true)
@@ -138,10 +136,21 @@ function StopDeviceMinigame(C)
 end
 
 function PlayerInMinigame(C)
-    if ActorIsPlayer(C['Wearer']) or ActorIsPlayer(C['Helper']) then
+    if ActorIsPlayer(C['Wearer']) or (ActorIsPlayer(C['Helper']) and UseHelper(C)) then
         return true
     else
         return false
+    end
+end
+
+function UpdateSkill(C,delta)
+    local loc_skillgain = GetMinigameVar(C,"SkillGain")
+    if loc_skillgain > 0 then
+        local loc_skilltime = UpdateMinigameVar(C,'TimerSkill',-1.0*delta)
+        if loc_skilltime <= 0.0 then
+            AdvanceMinigameSkill(C,GetMinigameVar(C,"SkillGain"))
+            SetMinigameVar(C,'TimerSkill',1.0)
+        end
     end
 end
 

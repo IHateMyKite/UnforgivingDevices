@@ -1,5 +1,13 @@
 
 ----------------------------
+--     NATIVE FUNCTIONS   --
+----------------------------
+
+function        GetConfigVar(context,varstr,defval)
+    return Host_GetConfigVar(context,"minigame",varstr,defval)
+end
+
+----------------------------
 --   UTILITY  FUNCTIONS   --
 ----------------------------
 

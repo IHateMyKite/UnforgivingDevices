@@ -1,0 +1,97 @@
+{
+    "name": "StruggleBase",
+    "description": "Base",
+    "script":"UD\\Minigames\\Scripts\\Struggle.lua",
+    "base":"MinigameBase",
+    "abstract": true,
+    "priority": 0,
+    "config":
+    {
+        "PhysResMult":  "0.0",
+        "MagResMult":   "0.0",
+        "BaseSpeed":    "175.0",
+        "DamageBase":   "1.0",
+        "DamageSpeedMult": "1.16",
+        "SpeedMult": "1.07",
+        "ZoneSize": "0.2",
+        "TagBlacklist": "unstruggable",
+        "UseNoUI": "false"
+    },
+    "export":
+    {
+        "DamageBase":
+        {
+            "name": "Base Damage",
+            "description": "Base amout of damage dealth to device when hitting the zone",
+            "default": "1.0",
+            "priority": "90",
+            "mcm":
+            {
+                "min": "0.0",
+                "max": "5.0",
+                "precision": "0.1",
+                "format": "{1} dmg"
+            }
+        },
+        "PhysResMult":
+        {
+            "name": "Physical Multiplier",
+            "description": "How much of the device physical resistence is used",
+            "default": "0.0",
+            "priority": "89",
+            "mcm":
+            {
+                "min": "0.0",
+                "max": "1.0",
+                "precision": "0.1",
+                "format": "{0} %",
+                "mult": "100.0"
+            }
+        },
+        "MagResMult":
+        {
+            "name": "Magickal Multiplier",
+            "description": "How much of the device magickal resistence is used",
+            "default": "0.0",
+            "priority": "88",
+            "mcm":
+            {
+                "min": "0.0",
+                "max": "1.0",
+                "precision": "0.1",
+                "format": "{0} %",
+                "mult": "100.0"
+            }
+        },
+        "DamageSpeedMult":
+        {
+            "name": "Combo multiplier",
+            "description": "How much will damage increase per every combo",
+            "default": "1.16",
+            "priority": "87",
+            "mcm":
+            {
+                "min": "1.0",
+                "max": "2.0",
+                "precision": "0.01",
+                "format": "{0} %",
+                "mult": "100.0"
+            }
+        },
+        "SpeedMult":
+        {
+            "name": "Speed multiplier",
+            "description": "How much will cursor speed increase for every combo",
+            "default": "1.07",
+            "priority": "86",
+            "mcm":
+            {
+                "min": "0.8",
+                "max": "2.0",
+                "precision": "0.01",
+                "format": "{0} %",
+                "mult": "100.0"
+            }
+        }
+    }
+}

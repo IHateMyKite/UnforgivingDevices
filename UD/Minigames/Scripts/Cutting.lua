@@ -1,10 +1,10 @@
 
 -- Check if minigame should be available for selected device
+local _Precondition = Precondition -- Save previous function
 function Precondition(C)
     --Log("Precondition called")
     local loc_cutpower = GetVariableValue(C,"thisdevice::UD_CutChance(A)")
-    
-    return loc_cutpower > 0.0 and CheckTags(C)
+    return _Precondition(C) and loc_cutpower > 0.0
 end
 
 -- Check if actor can struggle or if other conditions are met

@@ -4,6 +4,7 @@
     "uiobject":"",
     "script":"UD\\Minigames\\Scripts\\MinigameBase.lua",
     "priority": 100,
+    "abstract": true,
     "includes":
     [
         "UD\\Minigames\\Scripts\\Global.lua"
@@ -12,12 +13,120 @@
     {
         "minStamina":   "0.5",
         "StaminaDrain": "10.0",
-        "PhysResMult":  "0.8",
-        "MagResMult":   "0.0",
-        "BaseSpeed":    "175.0",
-        "DamageBase":   "1.0",
-        "DamageSpeedMult": "1.16",
-        "SpeedMult": "1.07",
-        "ZoneSize": "0.2"
+        "SkillGain":    "10.0",
+        "UseNoUI":      "false",
+        "Disabled":     "false"
+    },
+    "export":
+    {
+        "StaminaDrain":
+        {
+            "name": "Stamina Drain",
+            "description": "Amount of stamina drained for every second of minigame",
+            "default": "10.0",
+            "priority": "100",
+            "mcm":
+            {
+                "min": "0.0",
+                "max": "50.0",
+                "format": "{0} /s"
+            }
+        },
+        "HealthDrain":
+        {
+            "name": "Health Drain",
+            "description": "Amount of health drained for every second of minigame",
+            "default": "0.0",
+            "priority": "98",
+            "mcm":
+            {
+                "min": "0.0",
+                "max": "50.0",
+                "format": "{0} /s"
+            }
+        },
+        "MagickaDrain":
+        {
+            "name": "Magicka Drain",
+            "description": "Amount of magicka drained for every second of minigame",
+            "default": "0.0",
+            "priority": "96",
+            "mcm":
+            {
+                "min": "0.0",
+                "max": "50.0",
+                "format": "{0} /s"
+            }
+        },
+        "minStamina":
+        {
+            "name": "Min. Stamina",
+            "description": "Amount of stamina needed to start the minigame",
+            "default": "0.5",
+            "priority": "99",
+            "mcm":
+            {
+                "min": "0.0",
+                "max": "1.0",
+                "precision": "0.1",
+                "format": "{0} %",
+                "mult": "100.0"
+            }
+        },
+        "minHealth":
+        {
+            "name": "Min. Health",
+            "description": "Amount of health needed to start the minigame",
+            "default": "0.0",
+            "priority": "97",
+            "mcm":
+            {
+                "min": "0.0",
+                "max": "1.0",
+                "precision": "0.1",
+                "format": "{0} %",
+                "mult": "100.0"
+            }
+        },
+        "minMagicka":
+        {
+            "name": "Min. Magicka",
+            "description": "Amount of magicka needed to start the minigame",
+            "default": "0.0",
+            "priority": "95",
+            "mcm":
+            {
+                "min": "0.0",
+                "max": "1.0",
+                "precision": "0.1",
+                "format": "{0} %",
+                "mult": "100.0"
+            }
+        },
+        "SkillGain":
+        {
+            "name": "Skill Gain",
+            "description": "Amount of respective skill progress gained for every second of minigame",
+            "default": "10.0",
+            "priority": "50",
+            "mcm":
+            {
+                "min": "0.0",
+                "max": "100.0",
+                "precision": "1.0",
+                "format": "{0} %"
+            }
+        },
+        "Disabled":
+        {
+            "name": "Disabled",
+            "description": "If minigame should be disabled",
+            "default": "false",
+            "priority": "0",
+            "mcm":
+            {
+                "type": "bool"
+            }
+        }
     }
 }

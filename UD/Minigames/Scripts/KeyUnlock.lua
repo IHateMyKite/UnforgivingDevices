@@ -1,7 +1,8 @@
 
 -- Check if minigame should be available for selected device
+local _Precondition = Precondition -- Save previous function
 function Precondition(C)
-    local loc_res = true
+    local loc_res = _Precondition(C)
     if loc_res then
         local loc_locks = GetVariableValue(C,"thisdevice::UD_LockList(A)")
         if loc_locks['n'] > 0 then

@@ -5,5 +5,9 @@
     "script":"UD\\Minigames\\Scripts\\AccessLock.lua",
     "base":"MinigameBase",
     "priority": 0,
-    "config": {}
+    "abstract": true,
+    "config": 
+    {
+        "BaseSpeed":"600"
+    }
 }

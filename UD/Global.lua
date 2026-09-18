@@ -26,7 +26,7 @@ end
 
 -- Returns valuo of config variable 'varstr' loaded for current 'context' (minigame json config). If variable is not present, 'defval' is returned
 function        GetConfigVar(context,varstr,defval)
-    return Host_GetConfigVar(context,varstr,defval)
+    return Host_GetConfigVar(context,"",varstr,defval)
 end
 
 function        CallPapyrusFunction(C,fun,callback,...)

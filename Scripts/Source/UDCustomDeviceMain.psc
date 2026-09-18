@@ -1369,7 +1369,8 @@ Function ShowNPCMenu(Actor akActor)
             ShowActorDetailsMenu(akActor)
             loc_break = False
         elseif loc_res == 9
-            getMinigameDevice(akActor).StopMinigame()
+            ;getMinigameDevice(akActor).StopMinigame()
+            UD_Native.StopMinigame(akActor)
             loc_break = True
         else
             ; looks like it's never gets there

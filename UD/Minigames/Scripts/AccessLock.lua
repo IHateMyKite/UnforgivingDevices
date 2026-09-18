@@ -49,7 +49,7 @@ function OnStart(C)
     SetMinigameVar(C,"LockPosX",200)
     SetMinigameVar(C,"LockPosY",140)
     
-    Log("OnStart")
+    --Log("OnStart")
     
     local loc_pos = {}
     loc_pos['x'] = 20.0 + 360.0*math.random()
@@ -98,7 +98,7 @@ function ClickFail(C)
 end
 
 function StopDeviceMinigame(C)
-    Log("StopDeviceMinigame called")
+    --Log("StopDeviceMinigame called")
     StopMinigame(C)
 end
 
@@ -129,18 +129,18 @@ end
 function GetSelectedLock(C)
     local loc_locks = GetVariableValue(C,"thisdevice::UD_LockList(A)")
     local loc_lock = loc_locks[C['Context']]
-    Log("GetSelectedLock - "..tostring(loc_lock))
+    --Log("GetSelectedLock - "..tostring(loc_lock))
     return loc_lock
 end
 
 function UnlockLock(C)
-    Log("UnlockLock called for lock "..tostring(C['Context']))
+    --Log("UnlockLock called for lock "..tostring(C['Context']))
     CallPapyrusFunction(C,"thisdevice::UnlockNthLock","OnLockUnlocked",{"int",tonumber(C['Context'])},{"bool",true})
     return loc_lock
 end
 
 function OnLockUnlocked(C,res)
-    Log("OnLockUnlocked")
+    --Log("OnLockUnlocked")
     
     if res then
         Log("Checking if all locks are unlocked")

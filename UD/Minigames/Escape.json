@@ -3,7 +3,7 @@
     "description": "Escape the device you rigged",
     "uiobject":"",
     "script":"UD\\Minigames\\Scripts\\Escape.lua",
-    "base":"AccessLock",
+    "base":"MinigameBase",
     "priority": 10,
     "config": {}
 }
