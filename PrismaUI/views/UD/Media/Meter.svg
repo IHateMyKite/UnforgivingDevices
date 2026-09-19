@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="1199.8314"
+   height="99.999992"
+   viewBox="0 0 317.4554 26.458331"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="Meter.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1">
+    <inkscape:page
+       x="0"
+       y="0"
+       width="317.45541"
+       height="26.45833"
+       id="page1"
+       margin="0"
+       bleed="0" />
+  </sodipodi:namedview>
+  <style
+     id="style7">
+.Meter { 
+}
+</style>
+  <defs
+     id="defs1" />
+  <g
+     id="layer1"
+     transform="translate(-0.02230182)">
+    <path
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:1.32292;stroke-dasharray:none;stroke-opacity:1"
+       d="m 15.875,6.6145833 h 285.75 l 6.61458,6.6145837 -6.61458,6.614583 H 15.875 L 9.2604166,13.229167 Z"
+       id="path2"
+       class="Meter" />
+    <path
+       style="fill:none;fill-opacity:1;stroke:#a9a9a9;stroke-width:3.96875;stroke-dasharray:none;stroke-opacity:1"
+       d="m 15.08125,3.96875 h 287.3375 l 9.26041,9.260417 -9.26041,9.260416 H 15.08125 L 5.8208333,13.229167 Z"
+       id="path7"
+       class="Meter" />
+    <path
+       style="display:inline;fill:none;fill-opacity:1;stroke:#000000;stroke-width:2.64583;stroke-dasharray:none;stroke-opacity:1"
+       d="M 13.229167,1.3229167 H 304.27083 l 11.37708,11.9062503 -11.37708,11.90625 H 13.229167 L 1.8520833,13.229167 Z"
+       id="path6"
+       class="Meter" />
+  </g>
+</svg>

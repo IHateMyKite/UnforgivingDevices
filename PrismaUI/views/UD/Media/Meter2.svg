@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   viewBox="0 0 317.5 26.458333"
+   version="1.1"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <style
+     id="style7">
+.Meter { 
+}
+</style>
+  <defs
+     id="defs1" />
+  <g
+     id="layer1"
+     transform="translate(-0.35682925,-2.7871996e-5)">
+    <path
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:1.32292;stroke-dasharray:none;stroke-opacity:1"
+       d="M 6.301361,6.6145833 H 312.16704 V 19.84375 H 6.301361 Z"
+       id="path2"
+       class="Meter" />
+    <path
+       style="fill:none;fill-opacity:1;stroke:#a9a9a9;stroke-width:3.96875;stroke-dasharray:none;stroke-opacity:1"
+       d="m 3.70625,3.96875 h 311.08758 l -8e-5,18.520833 H 3.70625 Z"
+       id="path7"
+       class="Meter" />
+    <path
+       style="display:inline;fill:none;fill-opacity:1;stroke:#000000;stroke-width:2.64583;stroke-dasharray:none;stroke-opacity:1"
+       d="M 1.854167,1.3229167 H 316.64583 V 25.135417 H 1.854167 Z"
+       id="path6"
+       class="Meter" />
+  </g>
+</svg>

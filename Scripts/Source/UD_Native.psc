@@ -188,12 +188,16 @@ Bool      Function ShowDeviceMenu       (Actor akWearer, Actor akHelper, String[
 Bool      Function ShowDeviceMenuSingle (Armor akID, Armor akRD, Actor akWearer, Actor akHelper, String[] aasCallbacks) global native
 
 ; === Minigame Manager ===
-String[]  Function GetListOfMinigames (Actor akWearer, Armor akId)                  global native
-Bool      Function StopMinigame       (Actor akActor)                               global native
-String[]  Function GetMinigameConfigs ()                                            global native
-String[]  Function GetMinigameExports (int aiIndx)                                  global native
-Bool      Function SetMinigameVariable(int aiIndx, String asConfig, String asValue) global native
-String    Function GetMinigameVariable(int aiIndx, String asConfig, String asDefValue) global native
-
+String[]  Function GetListOfMinigames (Actor akWearer, Armor akId)                      global native
+Bool      Function StopMinigame       (Actor akActor)                                   global native
+String[]  Function GetMinigameConfigs ()                                                global native
+String[]  Function GetMinigameExports (int aiIndx)                                      global native
+Bool      Function SetMinigameVariable(int aiIndx, String asConfig, String asValue)     global native
+String    Function GetMinigameVariable(int aiIndx, String asConfig, String asDefValue)  global native
+          Function ReloadMinigameConfigs()                                              global native
 ; === Device Manager ===
 Float     Function GetDeviceAccessibility(Actor akWearer, Actor akHelper, Armor akRenderDevice) global native
+
+; === Save Manager ===
+          Function SetSave(String asData, Bool abDecode)    global native
+String    Function GetSave(Bool abEncode)                   global native

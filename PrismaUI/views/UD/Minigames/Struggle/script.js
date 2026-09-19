@@ -16,12 +16,12 @@ window.UpdateMinigame = (arg) =>
 {
     Durability = arg.dur
     let loc_bar = document.getElementById("mg_durability")
-    loc_bar.style.setProperty("width",String(Durability*100.0)+"%")
+    loc_bar.style.setProperty("mask-size",String(Durability*100.0)+"%")
     
     Condition = arg.cond
     ConditionLvl = arg.condlvl
-    let loc_bar2 = document.getElementById("mg_condition_border").childNodes[1]
-    loc_bar2.style.setProperty("width",String(Condition*100.0)+"%")
+    let loc_bar2 = document.getElementsByClassName("mg_condition")[0]
+    loc_bar2.style.setProperty("mask-size",String(Condition*100.0)+"%")
     loc_bar2.id = "mg_condition_"+ConditionLvl
     
     UpdateCursor(arg.pos)
@@ -32,7 +32,8 @@ window.UpdateCombo = (arg) =>
     Combo = arg.val
     let loc_combocntr = document.getElementById("mg_combo")
     loc_combocntr.innerHTML = Combo + "x"
-    loc_combocntr.style.setProperty("font-size",String(25+arg.val*2)+"px")
+    let loc_size = window.getComputedStyle(loc_combocntr).fontSize
+    loc_combocntr.style.setProperty("font-size",String(Number(loc_size.replace("px",""))+2)+"px")
 }
 
 function UpdateCursor(pos)

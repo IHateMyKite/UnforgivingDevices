@@ -3,26 +3,36 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>UnforgivingDevices</title>
+        <title>StruggleMinigame</title>
+        <link rel="stylesheet" href="../../Styles/Global.css">
+        <link rel="stylesheet" href="../../Styles/Meter.css">
         <link rel="stylesheet" href="styles.css">
     </head>
+    <style>
+        :root {
+            --minigame-offset: 65%;
+            --combo-size: 5vh;
+        }
+    </style>
     <body id="main">
-        <div id="mg_minigame">
-            <div style="left:0%;" class="mg_minigamezone mg_minigamezone_left"></div>
-            <div style="left:45%;" id="mg_combo" class="mg_minigamezone_combo">0x</div>
-            <div style="right:0%;" class="mg_minigamezone mg_minigamezone_right"></div>
+        <div class="mg_bar_base_large" style="left:50%;top:var(--minigame-offset);">
+            <div class="mg_bar mg_bar2_border"></div>
+            <div style="left:0%;" class="mg_minigamezone"></div>
+            <div style="left:calc(2.2*var(--meter-width));top:calc(var(--meter-height)/2);font-size:var(--combo-size);margin-top:calc(-1*var(--combo-size)/2);margin-left:calc(-1*var(--combo-size)/2);" id="mg_combo" class="mg_minigamezone_combo">0x</div>
+            <div style="right:0%;" class="mg_minigamezone"></div>
             <div id="mg_cursor"></div>
-            
         </div>
-        
-        <div id="mg_stats">
-            <div id="mg_durability_border" class="mg_bar">
-                <div id="mg_durability" class="mg_bar"></div>
-            </div>
-            <div id="mg_condition_border" class="mg_bar">
-                <div id="mg_condition_0" class="mg_bar"></div>
-            </div>
+        <div class="mg_bar_base" style="left:50%;top:calc(var(--minigame-offset) + 1.5*var(--meter-height));">
+            <div class="mg_bar mg_bar_border"></div>
+            <div id="mg_durability" class="mg_bar_fill"></div>
+            <div id="mg_durability_bcg" class="mg_bar_fill mg_bar_background"></div>
+        </div>
+        <div class="mg_bar_base" style="left:50%;top:calc(var(--minigame-offset) + 2.5*var(--meter-height));">
+            <div class="mg_bar mg_bar_border"></div>
+            <div id="mg_condition_0" class="mg_bar_fill mg_condition"></div>
+            <div id="mg_condition_bcg" class="mg_bar_fill mg_bar_background"></div>
         </div>
         <script src="script.js"></script>
+        <script src="../../Scripts/InitMeters.js"></script>
     </body>
 </html>

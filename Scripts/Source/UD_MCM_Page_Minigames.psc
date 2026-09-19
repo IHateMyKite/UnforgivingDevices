@@ -59,7 +59,6 @@ Function PageReset(Bool abLockMenu)
         AddHeaderOption("Minigame variables")
         addEmptyOption()
         _Exports = UD_Native.GetMinigameExports(_MinigameConfigId as Int)
-        ;UDmain.info(_Exports)
         _Exports_Ids = Utility.CreateIntArray(_Exports.length)
         
         loc_i = 0
@@ -157,7 +156,26 @@ Function PageOptionMenuAccept(int aiOption, int aiIndex)
 EndFunction
 
 Function PageDefault(int aiOption)
-
+    int loc_i = 0
+    while loc_i < _Exports_Ids.length
+        if aiOption == _Exports_Ids[loc_i]
+            String  loc_def     = GetJsonValue(_Exports[loc_i],"default","nan")
+            if loc_def != "nan"
+                String loc_type = GetJsonValue(_Exports[loc_i],"mcm.type","num")
+                if loc_type == "num"
+                    PageOptionSliderAccept(aiOption,loc_def as Float)
+                elseif loc_type == "bool"
+                    PageOptionSliderAccept(aiOption,loc_def as Float)
+                    String  loc_config  = GetJsonValue(_Exports[loc_i],"config","")
+                    Bool    loc_val     = loc_def == "true"
+                    UD_Native.SetMinigameVariable(_MinigameConfigId,loc_config,loc_val as String)
+                    SetToggleOptionValue(aiOption, loc_val)
+                endif
+            endif
+            return
+        endif
+        loc_i += 1
+    endwhile
 EndFunction
 
 Function PageInfo(int aiOption)

@@ -14,6 +14,7 @@
         "HealthDrain":  "4.0",
         "BaseSpeed":    "175.0",
         "SpeedMult": "1.1",
+        "DamageSpeedMult": "1.25",
         "ZoneSize": "0.3",
         "SkillGain": "8.0",
         "TagBlacklist": "uncuttable"
