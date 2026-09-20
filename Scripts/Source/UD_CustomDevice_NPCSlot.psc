@@ -2123,7 +2123,6 @@ EndFunction
 
 float _ArousalAccumulator = 0.0
 float _SlaArousal = 0.0
-float _SlaArousal2 = 0.0
 Function UpdateArousal(Int aiUpdateTime)
     if OrgasmSystem.UseArousalFallback()
       Actor   loc_actor       = GetActor()
@@ -2135,19 +2134,30 @@ Function UpdateArousal(Int aiUpdateTime)
             if loc_arousalInt != 0
                 _ArousalAccumulator -= loc_arousalInt
                 if libs.Aroused.GetVersion() >= 30100005 && libs.Aroused.GetVersion() < 40000000
-                  ; SLA Arousal is installed
-                  float loc_arousalsum = OrgasmSystem.GetOrgasmVariable(loc_actor,8)
+                  ; SLA Aroused NG is installed.
+                  ; Maintain UD's own additive arousal contribution as a single dynamic
+                  ; effect set to an ABSOLUTE value. The original code ran a feedback loop
+                  ; (_SlaArousal2 += target - GetOrgasmVariable(actor,8)) that tried to make
+                  ; the *total* arousal track _SlaArousal. Under SLA NG that diverges: the
+                  ; value pushed lands in a dynamic effect, but the value read back
+                  ; (GetActorExposure / vArousal) does not include that dynamic effect, so
+                  ; the error never closes and the effect grows without bound -> arousal
+                  ; pins at 100 until a forced orgasm. Setting the effect absolutely keeps
+                  ; UD's contribution bounded to 0..100 and lets SLA sum/cap the total.
+                  ; It is pushed as a Decay function so that once the device stops driving
+                  ; arousal (plug removed -> loc_arousalInt == 0, this branch no longer
+                  ; re-sets the effect), SLA fades the residual to 0 on its own instead of
+                  ; leaving it pinned. While the device is active the per-tick re-set keeps
+                  ; it at _SlaArousal, so active behaviour is unchanged. Half-life matches
+                  ; SLA's own DD teasing decay (sla_ddplugin: 2 in-game hours).
                   _SlaArousal = fRange(_SlaArousal + loc_arousalInt,0.0,100.0)
-                  float loc_diff = _SlaArousal - loc_arousalsum
-                  ; Try to aproximate the result
-                  _SlaArousal2 += loc_diff ; It just works
                   int handle = ModEvent.Create("slaSetArousalEffect")
                   ModEvent.PushForm(handle, loc_actor)
                   ModEvent.PushString(handle, "UnforgivingDevices")
-                  ModEvent.PushFloat(handle, _SlaArousal2)   ; Init value = Value we want
-                  ModEvent.PushInt(handle, 0)       ; Timed function = None
-                  ModEvent.PushFloat(handle, 0)     ; Parameter
-                  ModEvent.PushFloat(handle, 0.0)   ; Stop at this value
+                  ModEvent.PushFloat(handle, _SlaArousal)   ; Absolute value of UD's contribution
+                  ModEvent.PushInt(handle, 1)          ; Timed function = Decay
+                  ModEvent.PushFloat(handle, 2.0 / 24.0) ; half-life ~2 in-game hours
+                  ModEvent.PushFloat(handle, 0.0)      ; remove at 0
                   ModEvent.Send(handle)
                 else
                   UDOM.UpdateArousal(loc_actor ,loc_arousalInt)
