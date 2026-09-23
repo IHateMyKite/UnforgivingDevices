@@ -145,46 +145,6 @@ bool Function turnOffPlugMinigame(Bool abSilent = False)
     endif
 EndFunction
 
-Function OnCritFailure()
-    if turnOffPlugMinigame_on
-        addVibStrength(10)
-        addVibDuration(45)
-    endif
-    parent.OnCritFailure()
-EndFunction
-
-bool Function OnCritDevicePre()
-    if turnOffPlugMinigame_on
-        int loc_duration = Round(30*UDCDmain.getStruggleDifficultyModifier()*getMinigameMult(1))
-        if getWearer().getItemCount(UDCDmain.UDlibs.EmptySoulgem_Common)
-            getWearer().removeItem(UDCDmain.UDlibs.EmptySoulgem_Common,1)
-            getWearer().addItem(UDCDmain.UDlibs.FilledSoulgem_Common,1,true)
-            loc_duration = Math.floor(loc_duration*5.0)
-        elseif getWearer().getItemCount(UDCDmain.UDlibs.EmptySoulgem_Lesser)
-            getWearer().removeItem(UDCDmain.UDlibs.EmptySoulgem_Lesser,1)
-            getWearer().addItem(UDCDmain.UDlibs.FilledSoulgem_Lesser,1,true)
-            loc_duration = Math.floor(loc_duration*3.5)
-        elseif getWearer().getItemCount(UDCDmain.UDlibs.EmptySoulgem_Petty)
-            getWearer().removeItem(UDCDmain.UDlibs.EmptySoulgem_Petty,1)
-            getWearer().addItem(UDCDmain.UDlibs.FilledSoulgem_Petty,1,true)
-            loc_duration = Math.floor(loc_duration*2.0)
-        endif
-        removeVibDuration(loc_duration)
-        
-        if isVibrating()
-            if RandomInt() < 15 ;25% chance
-                removeVibStrength(10)
-                if WearerIsPlayer()
-                    UDmain.Print("You notice that the " + getDeviceName() + " vibrates weaker than before.",2)
-                endif
-            endif
-        endif
-        return True
-    else
-        return parent.OnCritDevicePre()
-    endif
-EndFunction
-
 float minutes_updated = 0.0
 Function OnUpdatePost(float timePassed)
     minutes_updated += timePassed*(24*60)
@@ -236,30 +196,6 @@ Function activateDevice()
     endif
 EndFunction
 
-Function updateWidget(bool force = false)
-    if turnOffPlugMinigame_on
-        setWidgetVal(getRemainingVibrationDurationPer(),force)
-    else
-        parent.updateWidget(force)
-    endif
-EndFunction
-
-Function updateWidgetColor()
-    if turnOffPlugMinigame_on
-        if getRemainingVibrationDurationPer() > 0.8
-            setMainWidgetAppearance(0xdd66c2)
-        elseif getRemainingVibrationDurationPer() > 0.5
-            setMainWidgetAppearance(0xde84ca)
-        elseif getRemainingVibrationDurationPer() > 0.25
-            setMainWidgetAppearance(0xdfa3d2)
-        else
-            setMainWidgetAppearance(0xdec5d8)
-        endif
-    else
-        parent.updateWidgetColor()
-    endif
-EndFunction
-
 Function OnVibrationEnd()
     if turnOffPlugMinigame_on
         StopMinigame()
@@ -286,9 +222,6 @@ EndFunction
 Function OnMendPost(float mult) ;called on device mend (regain durability). Only called if OnMendPre returns true
     parent.OnMendPost(mult)
 EndFunction
-Function OnCritDevicePost() ;called on minigame crit. Is only called if OnCritDevicePre returns true 
-    parent.OnCritDevicePost()
-EndFunction
 bool Function OnOrgasmPre(bool sexlab = false) ;called on wearer orgasm. Is only called if wearer is registered
     return parent.OnOrgasmPre(sexlab)
 EndFunction
@@ -306,15 +239,6 @@ Function OnMinigameStart() ;called when minigame start
 EndFunction
 Function OnMinigameEnd() ;called when minigame end
     parent.OnMinigameEnd()
-EndFunction
-Function OnMinigameTick(Float abUpdateTime) ;called every on every tick of minigame. Uses MCM performance setting
-    parent.OnMinigameTick(abUpdateTime)
-EndFunction
-Function OnMinigameTick1() ;called every 1s of minigame
-    parent.OnMinigameTick1()
-EndFunction
-Function OnMinigameTick3() ;called every 3s of minigame
-    parent.OnMinigameTick3()
 EndFunction
 float Function getAccesibility() ;return accesibility of device in range 0.0 - 1.0
     return parent.getAccesibility()
@@ -366,12 +290,6 @@ Function onRemoveDevicePost(Actor akActor)
 EndFunction
 Function onLockUnlocked(bool lockpick = false)
     parent.onLockUnlocked(lockpick)
-EndFunction
-Function onSpecialButtonPressed(float fMult)
-    parent.onSpecialButtonPressed(fMult)
-EndFunction
-Function onSpecialButtonReleased(Float fHoldTime)
-    parent.onSpecialButtonReleased(fHoldTime)
 EndFunction
 bool Function onWeaponHitPre(Weapon source, Float afDamage = -1.0)
     return parent.onWeaponHitPre(source, afDamage)

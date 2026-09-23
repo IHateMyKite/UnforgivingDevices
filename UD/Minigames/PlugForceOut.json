@@ -1,0 +1,22 @@
+{
+    "name": "Force Out",
+    "description": "Try to Force out the plug using your Strength",
+    "uiobject":"UD/Minigames/Struggle/index.html",
+    "base":"StruggleBase",
+    "priority": 95,
+    "skill": "Strength",
+    "config":
+    {
+        "minStamina":   "0.5",
+        "StaminaDrain": "10.0",
+        "PhysResMult":  "0.8",
+        "MagResMult":   "0.0",
+        "BaseSpeed":    "190.0",
+        "DamageBase":   "2.0",
+        "DamageSpeedMult": "1.16",
+        "SpeedMult": "1.05",
+        "ZoneSize": "0.2",
+        "TagBlacklist": "",
+        "TagWhitelist": "plug"
+    }
+}

@@ -2,6 +2,47 @@ Scriptname UD_CustomPlug_RenderScript extends UD_CustomVibratorBase_RenderScript
 
 import UnforgivingDevicesMain
 
+;<LUA>
+;   local _GetAccessibility = GetAccessibility
+;   function GetAccessibility(C,checkHB)
+;       local loc_res = 1.0
+;       if CheckFreeHands(C,true,false) then
+;           loc_res = 0.25
+;       elseif CheckFreeHands(C,false,true) then
+;           loc_res = 0.5
+;       end
+;       --Log("GetAccessibility(Plug) called")
+;       if WornHasKeyword(C['Wearer'],"zad_DeviousBelt") 
+;       or WornHasKeyword(C['Wearer'],"zad_DeviousHarness") then
+;           if ArmorHasKeyword(C['RD'],"zad_DeviousPlugAnal") 
+;           and not WornHasKeyword(C['Wearer'],"zad_PermitAnal") then
+;               loc_res = 0.0
+;           elseif ArmorHasKeyword(C['RD'],"zad_DeviousPlugVaginal") 
+;           and not WornHasKeyword(C['Wearer'],"zad_PermitVaginal") then
+;               loc_res = 0.0
+;           end
+;       end
+;       if loc_res > 0.0 then
+;           if WornHasKeyword(C['Wearer'],"zad_DeviousSuit") 
+;           or WornHasKeyword(C['Wearer'],"zad_DeviousHobbleSkirt") then
+;               loc_res = loc_res*0.25
+;           elseif WornHasKeyword(C['Wearer'],"zad_DeviousHobbleSkirtRelaxed") then
+;               loc_res = loc_res*0.75
+;           end
+;       end
+;       --Log("Plug accessibility: "..tostring(loc_res))
+;       return loc_res
+;   end
+;   local _GetTags = GetTags
+;   function GetTags(C)
+;       local loc_res = json.parse(_GetTags(C))
+;       loc_res["unstruggable"] = true
+;       loc_res["uncuttable"]   = true
+;       loc_res["plug"]         = true
+;       return json.stringify(loc_res)
+;   end
+;<\LUA>
+
 Float Property UD_PlugRemovePressMult = 0.3 autoreadonly
 
 String Property UD_ArMovKey
@@ -163,15 +204,6 @@ bool Function forceOutPlugMinigame(Bool abSilent = False)
     
     
     if minigamePostcheck(abSilent)
-        ;register native meters
-        if WearerIsPlayer()
-            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,125.0,true)
-            
-            UD_Native.RegisterDeviceCallback(VMHandle1,VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_ForceOutMG_SKPress")
-            
-            string loc_param = UDmain.UDWC.GetMeterIdentifier("device-main")
-            UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
-        endif
         forceOutPlugMinigame_on = True
         UD_Events.SendEvent_DeviceMinigameBegin(self,"Plug_ForceOut")
         minigame()
@@ -201,15 +233,6 @@ Bool Function forceOutPlugMinigameWH(Actor akHelper,Bool abSilent = False)
     setMinigameMinStats(0.8)
     
     if minigamePostcheck(abSilent)
-        ;register native meters
-        if PlayerIsPresent()
-            UDmain.UDWC.Meter_RegisterNative("device-main",1,0,100.0,true)
-            
-            UD_Native.RegisterDeviceCallback(VMHandle1,VMHandle2,DeviceRendered,UDCDMain.SpecialKey_Keycode,"_ForceOutMG_SKPress")
-            
-            string loc_param = UDmain.UDWC.GetMeterIdentifier("device-main")
-            UD_Native.AddDeviceCallbackArgument(UDCDMain.SpecialKey_Keycode,0,loc_param, none)
-        endif
         forceOutPlugMinigame_on = True
         UD_Events.SendEvent_DeviceMinigameBegin(self,"Plug_ForceOut")
         minigame()
@@ -222,22 +245,6 @@ Bool Function forceOutPlugMinigameWH(Actor akHelper,Bool abSilent = False)
     return false
 EndFunction
 
-Function updateWidget(bool force = false)
-    if forceOutPlugMinigame_on
-        setSecWidgetVal(getRelativeDurability(),force)
-    else
-        parent.updateWidget(force)
-    endif
-EndFunction
-
-Function OnCritDevicePost()
-    if forceOutPlugMinigame_on
-        decreaseDurabilityAndCheckUnlock(getMinigameMult(0)*getDurabilityDmgMod()*UD_StruggleCritMul,0.0)
-    else
-        parent.OnCritDevicePost()
-    endif
-EndFunction
-
 bool Function Details_CanShowResist()
     return false
 EndFunction 
@@ -245,23 +252,6 @@ EndFunction
 bool Function Details_CanShowHitResist()
     return false
 EndFunction 
-
-Function OnMinigameTick1() ;called every 1s of minigame
-    if forceOutPlugMinigame_on && !PlayerInMinigame()
-        decreaseDurabilityAndCheckUnlock(getMinigameMult(0)*getDurabilityDmgMod()*4.0*0.5,0.0) ;simulate 4 presses per second
-    endif
-    parent.OnMinigameTick1()
-EndFunction
-
-Event _ForceOutMG_SKPress(Float afValue)
-    if afValue >= 20.0
-        decreaseDurabilityAndCheckUnlock(getMinigameMult(0)*Math.Pow(afValue*getDurabilityDmgMod()/40.0,2.5)/20.0,0.0)
-    else
-        refillDurability(10.0)
-    endif
-    
-    UpdateWidget()
-EndEvent
 
 ;======================================================================
 ;Place new override functions here, do not forget to check override functions in parent if its not base script (UD_CustomDevice_RenderScript)
@@ -295,9 +285,6 @@ EndFunction
 Function OnMendPost(float mult) ;called on device mend (regain durability). Only called if OnMendPre returns true
     parent.OnMendPost(mult)
 EndFunction
-bool Function OnCritDevicePre() ;called on minigame crit
-    return parent.OnCritDevicePre()
-EndFunction
 bool Function OnOrgasmPre(bool sexlab = false) ;called on wearer orgasm. Is only called if wearer is registered
     return parent.OnOrgasmPre(sexlab)
 EndFunction
@@ -309,23 +296,6 @@ Function OnMinigameOrgasmPost() ;called on wearer orgasm while in minigame. Is o
 EndFunction
 Function OnOrgasmPost(bool sexlab = false) ;called on wearer orgasm. Is only called if OnOrgasmPre returns true. Is only called if wearer is registered
     parent.OnOrgasmPost(sexlab)
-EndFunction
-Function OnMinigameStart() ;called when minigame start
-    parent.OnMinigameStart()
-    zadNativeFunctions.SetActorStripped(GetWearer(),true,0x4) ;hide body armor
-EndFunction
-Function OnMinigameEnd() ;called when minigame end
-    parent.OnMinigameEnd()
-    zadNativeFunctions.SetActorStripped(GetWearer(),false)    ;show body armor
-EndFunction
-Function OnMinigameTick(Float abUpdateTime) ;called on every tick of minigame. Uses MCM performance setting
-    parent.OnMinigameTick(abUpdateTime)
-EndFunction
-Function OnMinigameTick3() ;called every 3s of minigame
-    parent.OnMinigameTick3()
-EndFunction
-Function OnCritFailure() ;called on crit failure (wrong key pressed)
-    parent.OnCritFailure()
 EndFunction
 Function OnDeviceCutted() ;called when device is cutted
     parent.OnDeviceCutted()
@@ -379,9 +349,6 @@ EndFunction
 Function onLockUnlocked(bool lockpick = false)
     parent.onLockUnlocked(lockpick)
 EndFunction
-Function onSpecialButtonReleased(Float fHoldTime)
-    parent.onSpecialButtonReleased(fHoldTime)
-EndFunction
 bool Function onWeaponHitPre(Weapon source, Float afDamage = -1.0)
     return parent.onWeaponHitPre(source, afDamage)
 EndFunction
@@ -397,9 +364,6 @@ EndFunction
 string Function addInfoString(string str = "")
     return parent.addInfoString(str)
 EndFunction
-Function updateWidgetColor()
-    parent.updateWidgetColor()
-EndFunction
 bool Function proccesSpecialMenu(int msgChoice)
     return parent.proccesSpecialMenu(msgChoice)
 EndFunction
@@ -414,7 +378,4 @@ int Function getArousalRate()
 EndFunction
 Float[] Function GetCurrentMinigameExpression()
     return parent.GetCurrentMinigameExpression()
-EndFunction
-Function onSpecialButtonPressed(float fMult)
-        parent.onSpecialButtonPressed(fMult)
 EndFunction

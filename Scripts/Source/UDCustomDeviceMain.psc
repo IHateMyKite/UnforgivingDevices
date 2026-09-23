@@ -1134,109 +1134,9 @@ Event ResetUI()
     UDUI.keyUnregister()
 EndEvent
 
-Event MinigameKeysRegister()
-    UDUI.MinigameKeysRegister()
-    UDUI.GoToState("Minigame")
-EndEvent
-
-Event MinigameKeysUnregister()
-    UDUI.GoToState("")
-    UDUI.MinigameKeysUnregister()
-EndEvent
-
 bool Function KeyIsUsedGlobaly(int keyCode)
     return UDUI.KeyIsUsedGlobaly(keyCode)
 EndFunction
-
-bool    Property crit                   = false         auto hidden
-string  Property selected_crit_meter    =  "UDmain.Error"      auto hidden
-Int     Property UD_CritEffect          = 2             auto hidden
-Bool    Property UD_MandatoryCrit       = False         auto hidden
-Float   Property UD_CritDurationAdjust  = 0.0           auto hidden
-
-Float Function StruggleCritCheck(UD_CustomDevice_RenderScript device, int chance, string strArg, float difficulty)
-    string meter
-    Float loc_res = 0.0
-    Float loc_crittime = fRange(difficulty + UD_CritDurationAdjust,0.25,5.0)
-    Float loc_ElapsedTime = 0.0
-    
-    if RandomInt(1,100) <= chance
-        if strArg != "NPC" && strArg != "Auto"
-            if strArg == "random"
-                if RandomInt(0,1)
-                    meter = "S"
-                else
-                    meter = "M"
-                endif
-            else
-                meter = strArg
-            endif
-        elseif strArg == "Auto" ;auto crits
-            if RandomInt() <= UD_AutoCritChance ;npc reacted
-                device.critDevice() ;succes
-            else
-                device.critFailure() ;failure
-            endif
-            return 0.0
-        elseif strArg == "NPC"
-            if RandomInt() > 10 ;npc reacted
-                float randomResponceTime = RandomFloat(0.4,0.95) ;random reaction time
-                if randomResponceTime <= difficulty
-                    device.critDevice() ;succes
-                else
-                    device.critFailure() ;failure
-                endif
-                return 0.0
-            endif
-        endif
-        
-        selected_crit_meter = meter
-        crit = True
-        
-        if (selected_crit_meter == "S")
-            if UD_CritEffect == 2 || UD_CritEffect == 1
-                UDlibs.GreenCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player)
-            endif
-            if UD_CritEffect == 2 || UD_CritEffect == 0
-                UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartStaminaBlinking")
-            endif
-        elseif (selected_crit_meter == "M")
-            if UD_CritEffect == 2 || UD_CritEffect == 1
-                UDlibs.BlueCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player)
-            endif
-            if UD_CritEffect == 2 || UD_CritEffect == 0
-                UI.Invoke("HUD Menu", "_root.HUDMovieBaseInstance.StartMagickaBlinking")
-            endif
-        elseif (selected_crit_meter == "R")
-            if UD_CritEffect == 2 || UD_CritEffect == 1
-                UDlibs.RedCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player)
-            endif
-        endif
-        
-        while (loc_ElapsedTime < loc_crittime) && crit
-          Utility.wait(0.1)
-          loc_ElapsedTime = fRange(loc_ElapsedTime + 0.1,0.0,loc_crittime)
-        endwhile
-        
-        if UD_MandatoryCrit
-            if crit
-                crit = False
-                device.CritFailure()
-            endif
-        endif
-        crit = False
-    endif
-    return loc_ElapsedTime
-EndFunction
-
-bool Function registeredKeyPressed(Int KeyCode)
-    if KeyCode == Stamina_meter_Keycode
-        return True
-    elseif KeyCode == Magicka_meter_Keycode
-        return True
-    endif
-    return false
-endFunction
 
 Function updateLastOpenedDeviceOnRemove(UD_CustomDevice_RenderScript removed_device)
     if UDUI.lastOpenedDevice == removed_device
@@ -1369,7 +1269,8 @@ Function ShowNPCMenu(Actor akActor)
             ShowActorDetailsMenu(akActor)
             loc_break = False
         elseif loc_res == 9
-            getMinigameDevice(akActor).StopMinigame()
+            ;getMinigameDevice(akActor).StopMinigame()
+            UD_Native.StopMinigame(akActor)
             loc_break = True
         else
             ; looks like it's never gets there
@@ -3631,8 +3532,22 @@ EndFunction
 
 ;function used for mod development
 Function DebugFunction(Actor akActor)
-    UDmain.UDAbadonQuest.AbadonEquipSuitSelective(akActor)
-    ;UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0xffffffff)
+    String[] loc_options
+    loc_options = PapyrusUtil.PushString(loc_options,"Lock Abadon Set")
+    loc_options = PapyrusUtil.PushString(loc_options,"Lock Abadon Set Selective")
+    loc_options = PapyrusUtil.PushString(loc_options,"Lock Random Devices")
+    loc_options = PapyrusUtil.PushString(loc_options,"Reload Minigames")
+    loc_options = PapyrusUtil.PushString(loc_options,"--BACK--")
+    int loc_res = UDmain.GetUserListInput(loc_options)
+    if loc_res == 0
+        UDmain.UDAbadonQuest.AbadonEquipSuitSelective(akActor)
+    elseif loc_res == 1
+        UDmain.UDAbadonQuest.AbadonEquipSuit(akActor,-1)
+    elseif loc_res == 2
+        UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0xffffffff)
+    elseif loc_res == 3
+        UD_Native.ReloadMinigameConfigs()
+    endif
 EndFunction
 
 float _startTime = 0.0
@@ -3949,6 +3864,10 @@ String Function GetConditionString(Int aiCondition)
     endif
 EndFunction
 
+Event ActorDetailsCallback(Actor akActor, Actor akHelper, Armor akDevice, String asArg)
+    ShowActorDetailsMenu(akActor)
+EndEvent
+
 Function OnSaveJSON(String strFile)
     JsonUtil.SetIntValue(strFile, "Stamina_meter_Keycode", Stamina_meter_Keycode)
     JsonUtil.SetIntValue(strFile, "StruggleKey_Keycode", StruggleKey_Keycode)
@@ -3967,7 +3886,6 @@ Function OnSaveJSON(String strFile)
     JsonUtil.SetFloatValue(strFile, "ArousalMultiplier", UD_ArousalMultiplier)
     JsonUtil.SetIntValue(strFile, "LockpicksPerMinigame", UD_LockpicksPerMinigame as Int)
     JsonUtil.SetFloatValue(strFile, "CooldownMultiplier", UD_CooldownMultiplier)
-    JsonUtil.SetIntValue(strFile, "CritEffect", UD_CritEffect)
     JsonUtil.SetIntValue(strFile, "HardcoreMode", UD_HardcoreMode as Int)
     JsonUtil.SetIntValue(strFile, "AllowArmTie", UD_AllowArmTie as Int)
     JsonUtil.SetIntValue(strFile, "AllowLegTie", UD_AllowLegTie as Int)
@@ -3978,8 +3896,6 @@ Function OnSaveJSON(String strFile)
     JsonUtil.SetFloatValue(strFile, "DeviceLvlLockpick", UD_DeviceLvlLockpick)
     JsonUtil.SetIntValue(strFile, "DeviceLvlLocks", UD_DeviceLvlLocks)
     JsonUtil.SetIntValue(strFile, "PreventMasterLock", UD_PreventMasterLock as Int)
-    JsonUtil.SetIntValue(strFile, "MandatoryCrit", UD_MandatoryCrit as Int)
-    JsonUtil.SetFloatValue(strFile, "CritDurationAdjust", UD_CritDurationAdjust)
     JsonUtil.SetIntValue(strFile, "KeyDurability", UD_KeyDurability)
     JsonUtil.SetIntValue(strFile, "HardcoreAccess", UD_HardcoreAccess as Int)
     JsonUtil.SetFloatValue(strFile, "MinigameDrainMult", UD_MinigameDrainMult)
@@ -4015,7 +3931,6 @@ Function OnLoadJSON(String strFile)
     UD_ArousalMultiplier           = JsonUtil.GetFloatValue(strFile, "ArousalMultiplier", UD_ArousalMultiplier)
     UD_LockpicksPerMinigame        = JsonUtil.GetIntValue(strFile, "LockpicksPerMinigame", UD_LockpicksPerMinigame)
     UD_CooldownMultiplier          = JsonUtil.GetFloatValue(strFile, "CooldownMultiplier", UD_CooldownMultiplier)
-    UD_CritEffect                  = JsonUtil.GetIntValue(strFile, "CritEffect", UD_CritEffect)
     UD_HardcoreMode                = JsonUtil.GetIntValue(strFile, "HardcoreMode", UD_HardcoreMode as Int)
     UD_AllowArmTie                 = JsonUtil.GetIntValue(strFile, "AllowArmTie", UD_AllowArmTie as Int)
     UD_AllowLegTie                 = JsonUtil.GetIntValue(strFile, "AllowLegTie", UD_AllowLegTie as Int)
@@ -4026,8 +3941,6 @@ Function OnLoadJSON(String strFile)
     UD_DeviceLvlLockpick           = JsonUtil.GetFloatValue(strFile, "DeviceLvlLockpick", UD_DeviceLvlLockpick)
     UD_DeviceLvlLocks              = JsonUtil.GetIntValue(strFile, "DeviceLvlLocks", UD_DeviceLvlLocks)
     UD_PreventMasterLock           = JsonUtil.GetIntValue(strFile, "PreventMasterLock", UD_PreventMasterLock as Int)
-    UD_MandatoryCrit               = JsonUtil.GetIntValue(strFile, "MandatoryCrit", UD_MandatoryCrit as Int)
-    UD_CritDurationAdjust          = JsonUtil.GetFloatValue(strFile, "CritDurationAdjust", UD_CritDurationAdjust)
     UD_KeyDurability               = JsonUtil.GetIntValue(strFile, "KeyDurability", UD_KeyDurability)
     UD_HardcoreAccess              = JsonUtil.GetIntValue(strFile, "HardcoreAccess", UD_HardcoreAccess as Int)
     UD_MinigameDrainMult           = JsonUtil.GetFloatValue(strFile, "MinigameDrainMult", UD_MinigameDrainMult)
@@ -4073,7 +3986,6 @@ Function OnResetToDefault()
     UD_ArousalMultiplier       = 0.025
     UD_LockpicksPerMinigame    = 2
     UD_CooldownMultiplier      = 1.0
-    UD_CritEffect              = 2
     UD_HardcoreMode            = false
     UD_AllowArmTie             = true
     UD_AllowLegTie             = true
@@ -4084,8 +3996,6 @@ Function OnResetToDefault()
     UD_DeviceLvlLockpick       = 0.5
     UD_DeviceLvlLocks          = 5
     UD_PreventMasterLock       = False
-    UD_MandatoryCrit           = False
-    UD_CritDurationAdjust      = 0.0
     UD_KeyDurability           = 5
     UD_HardcoreAccess          = False
     UD_MinigameDrainMult       = 1.0

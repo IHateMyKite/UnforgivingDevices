@@ -131,42 +131,6 @@ bool Function removePlugMinigame(Bool abSilent = False)
 EndFunction
 
 float removePlugProgress = 0.0
-Function OnMinigameTick(Float abUpdateTime)
-    if removePlugMinigame_on
-        removePlugProgress += RandomFloat(1.5,6.0)*UDCDmain.getStruggleDifficultyModifier()*abUpdateTime*getMinigameMult(1)
-        if removePlugProgress > UD_RemovePlugDifficulty
-            stopMinigame()
-            removePlug()
-            removePlugMinigame_on = False
-        endif
-    endif
-    parent.OnMinigameTick(abUpdateTime)
-EndFunction
-
-bool Function OnCritDevicePre()
-    if removePlugMinigame_on
-        removePlugProgress += RandomFloat(5.0,10.0)*UDCDmain.getStruggleDifficultyModifier()*getMinigameMult(1)
-        if removePlugProgress > UD_RemovePlugDifficulty
-            stopMinigame()
-            removePlug()
-            removePlugMinigame_on = False
-        endif
-        Return True
-    else
-        return parent.OnCritDevicePre()
-    endif
-EndFunction
-
-Function OnCritFailure()
-    if removePlugMinigame_on
-        removePlugProgress -= 5.0
-        if removePlugProgress < 0
-            removePlugProgress = 0.0
-        endif
-    endif
-    parent.OnCritFailure()
-EndFunction
-
 Function plugGag(bool silent = false)
     libs.PlugPanelgag(getWearer())
     if !silent
@@ -241,14 +205,6 @@ Function activateDevice()
     addPlug()
 EndFunction
 
-Function updateWidget(bool force = false)
-    if removePlugMinigame_on
-        setWidgetVal(removePlugProgress/UD_RemovePlugDifficulty,force)    
-    else
-        parent.updateWidget(force)
-    endif
-EndFunction
-
 ;============================================================================================================================
 ;unused override function, theese are from base script. Extending different script means you also have to add their overrride functions                                                
 ;theese function should be on every object instance, as not having them may cause multiple function calls to default class
@@ -262,9 +218,6 @@ bool Function OnMendPre(float mult) ;called on device mend (regain durability)
 EndFunction
 Function OnMendPost(float mult) ;called on device mend (regain durability). Only called if OnMendPre returns true
     parent.OnMendPost(mult)
-EndFunction
-Function OnCritDevicePost() ;called on minigame crit. Is only called if OnCritDevicePre returns true 
-    parent.OnCritDevicePost()
 EndFunction
 bool Function OnOrgasmPre(bool sexlab = false) ;called on wearer orgasm. Is only called if wearer is registered
     return parent.OnOrgasmPre(sexlab)
@@ -283,12 +236,6 @@ Function OnMinigameStart() ;called when minigame start
 EndFunction
 Function OnMinigameEnd() ;called when minigame end
     parent.OnMinigameEnd()
-EndFunction
-Function OnMinigameTick1() ;called every 1s of minigame
-    parent.OnMinigameTick1()
-EndFunction
-Function OnMinigameTick3() ;called every 3s of minigame
-    parent.OnMinigameTick3()
 EndFunction
 float Function getAccesibility() ;return accesibility of device in range 0.0 - 1.0
     return parent.getAccesibility()
@@ -344,12 +291,6 @@ EndFunction
 Function onLockUnlocked(bool lockpick = false)
     parent.onLockUnlocked(lockpick)
 EndFunction
-Function onSpecialButtonPressed(float fMult)
-    parent.onSpecialButtonPressed(fMult)
-EndFunction
-Function onSpecialButtonReleased(Float fHoldTime)
-    parent.onSpecialButtonReleased(fHoldTime)
-EndFunction
 bool Function onWeaponHitPre(Weapon source, Float afDamage = -1.0)
     return parent.onWeaponHitPre(source, afDamage)
 EndFunction
@@ -361,9 +302,6 @@ bool Function onSpellHitPre(Form source, Float afDamage = -1.0)
 EndFunction
 Function onSpellHitPost(Form source, Float afDamage = -1.0)
     parent.onSpellHitPost(source, afDamage)
-EndFunction
-Function updateWidgetColor()
-    parent.updateWidgetColor()
 EndFunction
 int Function getArousalRate()
     return parent.getArousalRate()

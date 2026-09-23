@@ -1,0 +1,60 @@
+
+#mg_durability {
+  filter: brightness(0.5) sepia(1) hue-rotate(90deg) saturate(8);
+}
+#mg_durability_bcg {
+  filter: brightness(0.5) sepia(1) hue-rotate(90deg) saturate(8) opacity(20%);
+}
+#mg_condition_0{
+  filter: brightness(0.5) sepia(1) hue-rotate(150deg) saturate(5);
+}
+#mg_condition_1{
+  filter: brightness(0.5) sepia(0.8) hue-rotate(150deg) saturate(4);
+}
+#mg_condition_2{
+  filter: brightness(0.5) sepia(0.6) hue-rotate(150deg) saturate(3);
+}
+#mg_condition_3{
+  filter: brightness(0.5) sepia(0.4) hue-rotate(150deg) saturate(2);
+}
+#mg_condition_4{
+  filter: brightness(0.5) sepia(0.2) hue-rotate(150deg) saturate(1);
+}
+#mg_condition_bcg{
+  filter: brightness(0.5) sepia(1) hue-rotate(150deg) saturate(5) opacity(20%);
+}
+#mg_cutting {
+  filter: brightness(0.5) sepia(1) hue-rotate(0deg) saturate(8);
+}
+#mg_cutting_bcg{
+  filter: brightness(0.5) sepia(1) hue-rotate(0deg) saturate(4) opacity(20%);
+}
+
+#mg_cursorborder {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+
+#mg_cursor {
+  position: absolute;
+  width: 2.5%;
+  height: 100%;
+  left: 0%;
+  margin-left: 0%;
+  background-color: var(--color-red);
+}
+
+.mg_minigamezone {
+  width: 10%;
+  height: 100%;
+  position: absolute;
+  background-color: var(--color-green);
+}
+
+.mg_minigamezone_combo {
+  position: absolute;
+  text-align:center;
+  font-size: 25px;
+  color: var(--color-white);
+}

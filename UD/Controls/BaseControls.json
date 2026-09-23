@@ -1,0 +1,19 @@
+{
+    "controls": [
+        {
+            "alias": "press_left",
+            "codekeyboard": 30,
+            "codegamepad" : 268
+        },
+        {
+            "alias": "press_right",
+            "codekeyboard": 32,
+            "codegamepad" : 269
+        },
+        {
+            "alias": "press_stop",
+            "codekeyboard": 18,
+            "codegamepad" : 277
+        }
+    ]
+}
