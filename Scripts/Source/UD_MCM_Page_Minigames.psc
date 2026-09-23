@@ -14,6 +14,20 @@ Int       _Minigames_Id = 0
 String[]  _Minigames_List
 String[]  _Minigames
 
+Int       _AutoMode_T = 0
+Bool Property AutoMode Hidden
+    Bool Function Get()
+        String loc_save = GetSave(false)
+        Bool loc_val = GetJsonValue(loc_save,"Minigames.AutoMode","false") == "true"
+        return loc_val
+    EndFunction
+    Function Set(Bool argNewVal)
+        String loc_save = GetSave(false)
+        loc_save = SetJsonValue(loc_save,"Minigames.AutoMode",argNewVal as String)
+        SetSave(loc_save,false)
+    EndFunction
+EndProperty
+
 String[]  _Exports
 
 Int[]     _Exports_Ids
@@ -46,16 +60,20 @@ Function PageReset(Bool abLockMenu)
         loc_i += 1
     endwhile
     
-    AddHeaderOption("Minigame select")
+    AddHeaderOption("Minigame setting")
     addEmptyOption()
     
-    _Minigames_M = AddMenuOption("=== Minigame", _Minigames_List[_Minigames_Id])
+    _AutoMode_T = addToggleOption("Auto Mode",AutoMode,UD_LockMenu_flag)
+    addEmptyOption()
+    
+    AddHeaderOption("Minigame config")
     AddTextOption("Number of minigames",_Minigames_List.length,FlagSwitch(false))
+    
+    _Minigames_M = AddMenuOption("=== Minigame", _Minigames_List[_Minigames_Id])
+    addEmptyOption()
     
     _MinigameConfigId = GetJsonValue(_Minigames[_Minigames_Id],"id","-1") as Int
     if _MinigameConfigId != -1
-        addEmptyOption()
-        addEmptyOption()
         AddHeaderOption("Minigame variables")
         addEmptyOption()
         _Exports = UD_Native.GetMinigameExports(_MinigameConfigId as Int)
@@ -63,24 +81,26 @@ Function PageReset(Bool abLockMenu)
         
         loc_i = 0
         while loc_i < _Exports.length
-            String loc_name     = GetJsonValue(_Exports[loc_i],"name","ERROR")
-            String loc_type     = GetJsonValue(_Exports[loc_i],"mcm.type","num")
-            String loc_config   = GetJsonValue(_Exports[loc_i],"config","")
-            if loc_type == "num"
-                Float   loc_val      = UD_Native.GetMinigameVariable(_MinigameConfigId,loc_config,"0.0") as Float
-                Float   loc_mult     = GetJsonValue(_Exports[loc_i],"mcm.mult","1.0") as Float
-                String  loc_format   = GetJsonValue(_Exports[loc_i],"mcm.format","{0}")
-                _Exports_Ids[loc_i]  = AddSliderOption(loc_name,loc_val*loc_mult,loc_format)
-            elseif loc_type == "bool"
-                Bool   loc_val       = UD_Native.GetMinigameVariable(_MinigameConfigId,loc_config,"false") == "true"
-                _Exports_Ids[loc_i]  = addToggleOption(loc_name,loc_val)
-            endif
+            _Exports_Ids[loc_i] = CreateExport(_Exports[loc_i],UD_LockMenu_flag)
             loc_i += 1
         endwhile
-        
-        
     endif
+EndFunction
 
+Int Function CreateExport(String asExport, Int aiFlag)
+    String loc_name     = GetJsonValue(asExport,"name","ERROR")
+    String loc_type     = GetJsonValue(asExport,"mcm.type","num")
+    String loc_config   = GetJsonValue(asExport,"config","")
+    if loc_type == "num"
+        Float   loc_val      = UD_Native.GetMinigameVariable(_MinigameConfigId,loc_config,"0.0") as Float
+        Float   loc_mult     = GetJsonValue(asExport,"mcm.mult","1.0") as Float
+        String  loc_format   = GetJsonValue(asExport,"mcm.format","{0}")
+        return AddSliderOption(loc_name,loc_val*loc_mult,loc_format,aiFlag)
+    elseif loc_type == "bool"
+        Bool   loc_val       = UD_Native.GetMinigameVariable(_MinigameConfigId,loc_config,"false") == "true"
+        return addToggleOption(loc_name,loc_val,aiFlag)
+    endif
+    return -1
 EndFunction
 
 Function PageOptionSelect(Int aiOption)
@@ -99,6 +119,11 @@ Function PageOptionSelect(Int aiOption)
         endif
         loc_i += 1
     endwhile
+    if aiOption == _AutoMode_T
+        Bool loc_newval = !AutoMode
+        AutoMode = loc_newval
+        SetToggleOptionValue(aiOption, loc_newval)
+    endif
 EndFunction
 
 Function PageOptionSliderOpen(Int aiOption)

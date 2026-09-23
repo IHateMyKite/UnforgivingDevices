@@ -117,6 +117,10 @@ function GetDeviceTags(C)
     return Host_GetDeviceTags(C)
 end
 
+function GetSaveConfig(key,def)
+    return Host_GetSaveConfig(key,def)
+end
+
 ----------------------------
 --   UTILITY  FUNCTIONS   --
 ----------------------------
@@ -125,7 +129,7 @@ StringToBoolTable={ ["true"]=true, ["false"]=false }
 
 -- Converts string to bool
 function StrToBool(str)
-    return StringToBoolTable[str]
+    return StringToBoolTable[string.lower(str)]
 end
 
 function BoolToInt(bool)

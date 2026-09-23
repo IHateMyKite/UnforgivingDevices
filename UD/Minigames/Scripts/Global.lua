@@ -42,8 +42,10 @@ end
 function SetMinigameVar(C,name,val)
     if C then
         MinigameVars[C['MinigameId']][name] = val
+        return val
     else
         Log("ERROR: SetMinigameVar() - Context is nil")
+        return nil
     end
 end
 

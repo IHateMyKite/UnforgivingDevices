@@ -33,27 +33,6 @@ Event keyUnregister(string eventName = "none", string strArg = "", float numArg 
     UnregisterForAllKeys()
 EndEvent
 
-Event MinigameKeysRegister()
-    WaitForReady(10.0)
-    if UDmain.TraceAllowed()
-        UDmain.Log("UD_UserInputScript::MinigameKeysRegister called",1)
-    endif
-    RegisterForKey(UDCDMain.SpecialKey_Keycode)
-    _specialButtonOn = false
-EndEvent
-
-Event MinigameKeysUnregister()
-    WaitForReady(10.0)
-    if UDmain.TraceAllowed()
-        UDmain.Log("UD_UserInputScript::MinigameKeysUnregister called",1)
-    endif
-    if !KeyIsUsedGlobaly(UDCDMain.SpecialKey_Keycode)
-        UnregisterForKey(UDCDMain.SpecialKey_Keycode)
-    endif
-    _specialButtonOn = false
-    _gamepadButtonOn = false
-EndEvent
-
 Function RegisterGlobalKeys()
     WaitForReady(10.0)
     if UDmain.TraceAllowed()
@@ -91,36 +70,9 @@ EndFunction
 
 State Minigame
     Event OnKeyDown(Int KeyCode)
-        WaitForReady(10.0)
-        if (UD_Native.GetCameraState() == 3)
-            return
-        endif
-        bool loc_menuopen = UDmain.IsAnyMenuOpen()
-        if !loc_menuopen ;only if player is not in menu
-            if KeyCode == UDCDMain.SpecialKey_Keycode
-                _specialButtonOn = true
-                UDCDmain.CurrentPlayerMinigameDevice.SpecialButtonPressed(1.0)
-                return
-            endif
-            if KeyCode == UDCDMain.ActionKey_Keycode
-                UDCDmain.crit = False
-                if UDCDmain.CurrentPlayerMinigameDevice
-                    UDCDmain.CurrentPlayerMinigameDevice.stopMinigame()
-                endif
-                return
-            endif
-        endif
     EndEvent
 
     Event OnKeyUp(Int KeyCode, Float HoldTime)
-        WaitForReady(10.0)
-        if KeyCode == UDCDMain.SpecialKey_Keycode
-            _specialButtonOn = false
-            if UDCDmain.CurrentPlayerMinigameDevice
-                UDCDmain.CurrentPlayerMinigameDevice.SpecialButtonReleased(HoldTime)
-            endif
-            return
-        endif
     EndEvent
 EndState
 

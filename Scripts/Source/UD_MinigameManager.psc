@@ -55,7 +55,6 @@ Function ReadyDeviceMinigame(UD_CustomDevice_RenderScript akDevice, Actor akHelp
     
     if loc_PlayerInMinigame
         UDMain.UDCDmain.setCurrentMinigameDevice(akDevice)
-        UDMain.UDCDmain.MinigameKeysRegister()
     else
         StorageUtil.SetFormValue(Wearer, "UD_currentMinigameDevice", akDevice.deviceRendered)
     endif
@@ -112,10 +111,6 @@ Function LoadDeviceMinigame(UD_CustomDevice_RenderScript akDevice, Actor akHelpe
         endif
     endif
     
-    if loc_PlayerInMinigame
-        UDMain.UDCDmain.MinigameKeysRegister()
-    endif
-    
     ;akDevice.OnMinigameStart()
 EndFunction
 
@@ -154,10 +149,6 @@ Function StopDeviceMinigame(UD_CustomDevice_RenderScript akDevice, Actor akHelpe
         Helper.RemoveFromFaction(UDMain.UDCDmain.MinigameFaction)
     endif
     
-    if loc_PlayerInMinigame
-        UDMain.UDCDmain.MinigameKeysUnRegister()
-    endif
-    
     UD_Native.ForceUpdateControls()
     
     akDevice._UnsetMinigameDevice()
@@ -179,4 +170,8 @@ Function StopDeviceMinigame(UD_CustomDevice_RenderScript akDevice, Actor akHelpe
     akDevice.setHelper(none)
     
     akDevice._CheckUnlock()
+    
+    if loc_is3DLoaded && (UDmain.UDGV.UDG_MinigameExhaustion.Value == 1)
+        akDevice.addStruggleExhaustion(akHelper)
+    endif
 EndFunction

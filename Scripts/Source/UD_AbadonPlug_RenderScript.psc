@@ -416,15 +416,6 @@ Function BeltCheck()
     endif
 EndFunction
 
-Event _ForceOutAbadonMG_SKPress(Float afValue)
-    if afValue >= 30.0
-        decreaseDurabilityAndCheckUnlock(getMinigameMult(0)*fRange(Math.Pow(afValue/50.0,4.0),0.75,10.0)*getButtonPressDamage()*0.25,0.0)
-    else
-        refillDurability(5.0 + AbadonQuestScript.overaldifficulty*2.5)
-    endif
-    UpdateWidget()
-EndEvent
-
 ;======================================================================
 ;                                OVERRIDES
 ;======================================================================
@@ -449,24 +440,12 @@ Function OnMinigameEnd()
     parent.OnMinigameEnd()
 EndFunction
 
-Function OnMinigameTick1()
-    BeltCheck()
-EndFunction
-
 Function activateDevice()
     resetCooldown(1.0)
     if nextDeviceManifest < Utility.GetCurrentGameTime()
         equipRandomRestrain()
     else
         parent.activateDevice() ;start vib
-    endif
-EndFunction
-
-Function updateWidget(bool force = false)
-    if _forceOutAbadonPlugMinigame_on
-        setSecWidgetVal(getRelativeDurability(),force)
-    else
-        parent.updateWidget(force)
     endif
 EndFunction
 
@@ -493,33 +472,6 @@ Function onRemoveDevicePost(Actor akActor)
         ;if AbadonQuestScript.final_finisher_set
         ;    AbadonQuestScript.AbadonEquipSuit(getWearer(),AbadonQuestScript.final_finisher_pref)
         ;endif
-    endif
-EndFunction
-
-Function onSpecialButtonPressed(float fMult)
-    parent.onSpecialButtonPressed(fMult)
-EndFunction
-
-Function OnCritFailure()
-    parent.OnCritFailure()
-    OrgasmSystem.AddOrgasmChange(GetWearer(),"AbadonPlugCritFailure", 0x30024,UD_EroZones,0)
-    OrgasmSystem.UpdateOrgasmChangeVar(GetWearer(),"AbadonPlugCritFailure",9,10,1) ;set arousal rate to 10
-EndFunction
-
-Function OnCritDevicePost()
-    if _forceOutAbadonPlugMinigame_on
-        decreaseDurabilityAndCheckUnlock(getCritDamage()*getAccesibility(),0.0)
-        stopMinigame()
-        if !isUnlocked
-            BeltCheck()
-            if !getWearer().wornhaskeyword(libs.zad_deviousHeavyBondage)
-                ;if RandomInt() < iRange(Round(relativeStrength()*100),25 + AbadonQuestScript.overaldifficulty*12,75) ;50% - 100% chance of getting tied
-                    randomEquipHandRestrain()
-                ;endif
-            endif
-        endif
-    else
-        parent.OnCritDevicePost()
     endif
 EndFunction
 

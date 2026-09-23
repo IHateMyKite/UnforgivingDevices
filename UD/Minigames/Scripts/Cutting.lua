@@ -67,18 +67,54 @@ function OnStart(C)
     SetMinigameVar(C,"Condition",loc_condition_r)
 end
 
+local _OnUIOpen = OnUIOpen
+function OnUIOpen(C)
+    _OnUIOpen(C)
+    
+    local loc_vars = {}
+    local loc_pos_x = GetConfigVar(C,"PosX","nan")
+    if loc_pos_x ~= "nan" then
+        loc_vars["pos_x"] = loc_pos_x.."%"
+    end
+    local loc_pos_y = GetConfigVar(C,"PosY","nan")
+    if loc_pos_y ~= "nan" then
+        loc_vars["pos_y"] = loc_pos_y.."%"
+    end
+    local loc_scale = GetConfigVar(C,"Scale","nan")
+    if loc_scale ~= "nan" then
+        loc_vars["scale"] = loc_scale
+    end
+    
+    if GetMinigameVar(C,'AutoMode') then
+        loc_vars["mcurvis"] = false
+        loc_vars["combvis"] = false
+    elseif not StrToBool(GetConfigVar(C,"ShowCombo","true")) then
+        loc_vars["combvis"] = false
+    end
+    
+    local loc_str = "Init("..json.stringify(loc_vars)..")"
+    Log("OnUIOpen(Cutting.lua) -> "..loc_str)
+    InvokeMinigameUI(C,loc_str)
+end
+
 local _RegisterCallbacks = RegisterCallbacks
 function RegisterCallbacks(C)
     _RegisterCallbacks(C)
-    RegisterActionCallback(C,"press_left","Click")
-    RegisterActionCallback(C,"press_right","Click")
+    if not GetMinigameVar(C,'AutoMode') then
+        RegisterActionCallback(C,"press_left","Click")
+        RegisterActionCallback(C,"press_right","Click")
+    end
 end
 
-function Click(C)
+function CheckZone(C)
     local loc_pos           = GetMinigameVar(C,"CursorPos")
     local loc_zonesize      = GetMinigameVar(C,"ZoneSize")
     local loc_zonepos       = GetMinigameVar(C,"ZonePos")
-    if loc_pos <= loc_zonesize + loc_zonepos and loc_pos >= loc_zonepos then
+    return loc_pos <= loc_zonesize + loc_zonepos and loc_pos >= loc_zonepos
+end
+
+function Click(C)
+    if CheckZone(C) then
         ClickSuccess(C)
     else
         ClickFail(C)
@@ -92,7 +128,9 @@ function ClickSuccess(C)
     SetMinigameVar(C,"Multiplier",loc_mult)
     
     local loc_combo = UpdateMinigameVar(C,"Combo",1)
-    InvokeMinigameUI(C,"UpdateCombo({val:"..tostring(loc_combo).."})")
+    if not GetMinigameVar(C,'UseNoUI') then
+        InvokeMinigameUI(C,"UpdateCombo({val:"..tostring(loc_combo).."})")
+    end
     
     local loc_weaponmult = GetMinigameVar(C,"WeaponMult")
     local loc_dmg = GetMinigameVar(C,"CutPower")*loc_mult*loc_weaponmult
@@ -100,17 +138,24 @@ function ClickSuccess(C)
     
     -- Move zone
     SetMinigameVar(C,"ZonePos",math.random()*(1.0 - GetMinigameVar(C,"ZoneSize")))
+    if GetMinigameVar(C,"UseShaders") then
+        CallPapyrusFunction(C,"thisdevice::_MG_CastGreenShader","")
+    end
 end
 
 function ClickFail(C)
     SetMinigameVar(C,"Multiplier",1.0)
     SetMinigameVar(C,"Combo",0)
-    InvokeMinigameUI(C,"UpdateCombo({val:"..tostring(0).."})")
+    if not GetMinigameVar(C,'UseNoUI') then
+        InvokeMinigameUI(C,"UpdateCombo({val:"..tostring(0).."})")
+    end
+    if GetMinigameVar(C,"UseShaders") then
+        CallPapyrusFunction(C,"thisdevice::_MG_CastRedShader","")
+    end
 end
 
 function ProcessMinigame(C,delta)
     --Log("ProcessMinigame(Cutting.lua) called")
-
     local loc_pos       = GetMinigameVar(C,"CursorPos")
     local loc_speed     = GetMinigameVar(C,"CursorSpeed")
     local loc_posmax    = GetMinigameVar(C,"CursorPosMax")
@@ -130,6 +175,20 @@ function ProcessMinigame(C,delta)
     end
     SetMinigameVar(C,"CursorPos",loc_pos)
     
+    local loc_auto = GetMinigameVar(C,'AutoMode')
+    local loc_noui = GetMinigameVar(C,'UseNoUI')
+    if loc_auto or loc_noui then
+        local loc_timer = UpdateMinigameVar(C,"AutoModeTimer",-1*delta)
+        if loc_timer <= 0.0 then
+            SetMinigameVar(C,"AutoModeTimer",GetMinigameVar(C,"AutoModeBase"))
+            if CheckZone(C) and math.random() <= 0.8 then
+                ClickSuccess(C)
+            elseif math.random() > 0.9 then
+                ClickFail(C)
+            end
+        end
+    end
+    
     local loc_durability    = GetVariableValue(C,"thisdevice::current_device_health(A)")
     local loc_durability_r  = Clamp(loc_durability/GetMinigameVar(C,'MaxDurability'),0.0,1.0)
     local loc_condition     = GetVariableValue(C,"thisdevice::_total_durability_drain(A)")
@@ -140,7 +199,7 @@ function ProcessMinigame(C,delta)
     if loc_durability <= 0.0 then
         CallPapyrusFunction(C,"thisdevice::unlockRestrain","",{"bool",false},{"bool",false},{"bool",false})
         StopDeviceMinigame(C)
-        return false
+        return
     end
     if loc_condition >= 100.0 then
         UpdateVariableValue(C,"thisdevice::_total_durability_drain(A)",0.0)
@@ -152,13 +211,14 @@ function ProcessMinigame(C,delta)
     SetMinigameVar(C,"Condition",loc_condition_r)
     SetMinigameVar(C,"ConditionLvl",loc_conditionLvl)
     
-    local loc_combo = GetMinigameVar(C,"Combo")
-    local loc_zonesize = GetMinigameVar(C,"ZoneSize")
-    local loc_zonepos = GetMinigameVar(C,"ZonePos")
-    local loc_zonesizerecution = GetMinigameVar(C,"ZoneSizeReduction")
-    
-    InvokeMinigameUI(C,"SetZones({size:"..tostring(loc_zonesize*(1.0 - loc_combo*loc_zonesizerecution))..",pos:"..tostring(loc_zonepos).."})")
-    InvokeMinigameUI(C,"UpdateMinigame({dur:"..tostring(loc_durability_r)..",cond:"..tostring(loc_condition_r)..",condlvl:"..tostring(loc_conditionLvl)..",cut:"..tostring(loc_cutting_r)..",pos:"..tostring(loc_pos).."})")
+    if not loc_noui then
+        local loc_combo = GetMinigameVar(C,"Combo")
+        local loc_zonesize = GetMinigameVar(C,"ZoneSize")
+        local loc_zonepos = GetMinigameVar(C,"ZonePos")
+        local loc_zonesizerecution = GetMinigameVar(C,"ZoneSizeReduction")
+        InvokeMinigameUI(C,"SetZones({size:"..tostring(loc_zonesize*(1.0 - loc_combo*loc_zonesizerecution))..",pos:"..tostring(loc_zonepos).."})")
+        InvokeMinigameUI(C,"UpdateMinigame({dur:"..tostring(loc_durability_r)..",cond:"..tostring(loc_condition_r)..",condlvl:"..tostring(loc_conditionLvl)..",cut:"..tostring(loc_cutting_r)..",pos:"..tostring(loc_pos).."})")
+    end
 end
 
 function ProcessMinigameNPC(C,delta)

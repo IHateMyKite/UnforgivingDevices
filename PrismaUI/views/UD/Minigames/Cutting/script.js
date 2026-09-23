@@ -3,6 +3,45 @@ Durability      = 0.0
 Condition       = 0.0
 Combo           = 0
 
+window.Init = (arg) =>
+{
+    var r = document.querySelector(':root');
+    if ('pos_y' in arg)r.style.setProperty('--minigame-offset-y', String(arg.pos_y));
+    if ('pos_x' in arg)r.style.setProperty('--minigame-offset-x', String(arg.pos_x));
+    
+    if (('scale' in arg))
+    {
+        var rs = getComputedStyle(r);
+        let loc_base_meter = Number(rs.getPropertyValue('--meter-width-base').replace("%",""))
+        let loc_base_font  = Number(rs.getPropertyValue('--combo-size').replace("vh",""))
+        r.style.setProperty('--meter-width-base', String(arg.scale*loc_base_meter) + "%");
+        r.style.setProperty('--combo-size', String(arg.scale*loc_base_font) + "vh");
+    }
+    
+    if (!('mcurvis' in arg) || arg.mcurvis)
+    {
+        document.getElementById('mg_bar_cursor').style.display = 'inherit';
+    }
+    if (!('mdurvis' in arg) || arg.mdurvis)
+    {
+        document.getElementById('mg_bar_health').style.display = 'inherit';
+    }
+    if (!('mconvis' in arg) || arg.mconvis)
+    {
+        document.getElementById('mg_bar_condition').style.display = 'inherit';
+    }
+    if (!('mprovis' in arg) || arg.mprovis)
+    {
+        document.getElementById('mg_bar_progress').style.display = 'inherit';
+    }
+    if (!('combvis' in arg) || arg.combvis)
+    {
+        document.getElementById('mg_combo').style.display = 'inherit';
+    }
+    
+    ReloadMeters();
+}
+
 window.SetZones = (arg) =>
 {
     zones = document.getElementsByClassName("mg_minigamezone")

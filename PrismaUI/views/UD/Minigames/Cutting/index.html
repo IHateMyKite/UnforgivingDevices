@@ -10,28 +10,29 @@
     </head>
     <style>
         :root {
-            --minigame-offset: 65%;
+            --minigame-offset-x: 50%;
+            --minigame-offset-y: 65%;
             --combo-size: 5vh;
         }
     </style>
     <body id="main">
-        <div class="mg_bar_base_large" style="left:50%;top:var(--minigame-offset);">
+        <div id="mg_bar_cursor" class="mg_bar_base_large" style="left:var(--minigame-offset-x);top:var(--minigame-offset-y);display:none;">
             <div class="mg_bar mg_bar2_border"></div>
-            <div style="left:50%;" class="mg_minigamezone"></div>
-            <div style="left:calc(2.2*var(--meter-width));top:calc(var(--meter-height)/2);font-size:var(--combo-size);margin-top:calc(-1*var(--combo-size)/2);margin-left:calc(-1*var(--combo-size)/2);" id="mg_combo" class="mg_minigamezone_combo">0x</div>
+            <div style="left:var(--minigame-offset-x);" class="mg_minigamezone"></div>
+            <div id="mg_combo" style="left:calc(2.2*var(--meter-width));top:calc(var(--meter-height)/2);font-size:var(--combo-size);margin-top:calc(-1*var(--combo-size)/2);margin-left:calc(-1*var(--combo-size)/2);display:none;" id="mg_combo" class="mg_minigamezone_combo">0x</div>
             <div id="mg_cursor"></div>
         </div>
-        <div class="mg_bar_base" style="left:50%;top:calc(var(--minigame-offset) + 1.5*var(--meter-height));">
+        <div id="mg_bar_health" class="mg_bar_base" style="left:var(--minigame-offset-x);top:calc(var(--minigame-offset-y) + 1.5*var(--meter-height));display:none;">
             <div class="mg_bar mg_bar_border"></div>
             <div id="mg_durability" class="mg_bar_fill"></div>
             <div id="mg_durability_bcg" class="mg_bar_fill mg_bar_background"></div>
         </div>
-        <div class="mg_bar_base" style="left:50%;top:calc(var(--minigame-offset) + 2.5*var(--meter-height));">
+        <div id="mg_bar_condition" class="mg_bar_base" style="left:var(--minigame-offset-x);top:calc(var(--minigame-offset-y) + 2.5*var(--meter-height));display:none;">
             <div class="mg_bar mg_bar_border"></div>
             <div id="mg_condition_0" class="mg_bar_fill mg_condition"></div>
             <div id="mg_condition_bcg" class="mg_bar_fill mg_bar_background"></div>
         </div>
-        <div class="mg_bar_base" style="left:50%;top:calc(var(--minigame-offset) + 3.5*var(--meter-height));">
+        <div id="mg_bar_progress" class="mg_bar_base" style="left:var(--minigame-offset-x);top:calc(var(--minigame-offset-y) + 3.5*var(--meter-height));display:none;">
             <div class="mg_bar mg_bar_border"></div>
             <div id="mg_cutting" class="mg_bar_fill"></div>
             <div id="mg_cutting_bcg" class="mg_bar_fill mg_bar_background"></div>

@@ -417,24 +417,6 @@ Function patchDevice()
     UDCDmain.UDPatcher.patchPlug(self)
 EndFunction
 
-Function OnMinigameTick(Float abUpdateTime)
-    if inflateMinigame_on
-        inflateprogress += RandomFloat(8.2,12.0)*UDCDmain.getStruggleDifficultyModifier()*abUpdateTime*getMinigameMult(1)
-        if inflateprogress > UD_PumpDifficulty
-            stopMinigame()
-        endif
-    endif
-    
-    if deflateMinigame_on
-        deflateprogress += RandomFloat(3.5,8.0)*UDCDmain.getStruggleDifficultyModifier()*abUpdateTime*getMinigameMult(1)
-        if deflateprogress > UD_PumpDifficulty
-            stopMinigame()
-        endif
-    endif
-    
-    parent.OnMinigameTick(abUpdateTime)
-EndFunction
-
 Function OnMinigameEnd()
     if inflateMinigame_on && inflateprogress >= UD_PumpDifficulty
         inflate()
@@ -443,38 +425,6 @@ Function OnMinigameEnd()
         deflate()
     endif
     parent.OnMinigameEnd()
-EndFunction
-
-Function OnCritFailure()
-    if inflateMinigame_on
-        inflateprogress -= 10.0
-        if inflateprogress < 0.0
-            inflateprogress = 0.0
-        endif    
-    elseif deflateMinigame_on
-        deflateprogress -= 20.0
-        if deflateprogress < 0.0
-            deflateprogress = 0.0
-        endif
-    endif
-    parent.OnCritFailure()
-EndFunction
-
-bool Function OnCritDevicePre()
-    if inflateMinigame_on
-        inflateprogress += RandomFloat(20.2,30.0)*UDCDmain.getStruggleDifficultyModifier()*getMinigameMult(1)
-        if inflateprogress >= UD_PumpDifficulty
-            stopMinigame()
-        endif    
-    elseif deflateMinigame_on
-        deflateprogress += RandomFloat(15.5,25.0)*UDCDmain.getStruggleDifficultyModifier()*getMinigameMult(1)
-        if deflateprogress >= UD_PumpDifficulty
-            stopMinigame()
-        endif
-    else
-        return parent.OnCritDevicePre()
-    endif
-    return True
 EndFunction
 
 Function activateDevice()
@@ -510,16 +460,6 @@ Function onUpdatePost(float timePassed)
     parent.onUpdatePost(timePassed)
 EndFunction
 
-Function updateWidget(bool force = false)
-    if inflateMinigame_on
-        setWidgetVal(inflateprogress/UD_PumpDifficulty,force)
-    elseif deflateMinigame_on
-        setWidgetVal(deflateprogress/UD_PumpDifficulty,force)
-    else
-        parent.updateWidget(force)
-    endif
-EndFunction
-
 bool Function canBeActivated()
     if parent.canBeActivated() || (_inflateLevel <= 4 && getRelativeElapsedCooldownTime() >= 0.75)
         return true
@@ -546,9 +486,6 @@ EndFunction
 Function OnMendPost(float mult) ;called on device mend (regain durability). Only called if OnMendPre returns true
     parent.OnMendPost(mult)
 EndFunction
-Function OnCritDevicePost() ;called on minigame crit. Is only called if OnCritDevicePre returns true 
-    parent.OnCritDevicePost()
-EndFunction
 bool Function OnOrgasmPre(bool sexlab = false) ;called on wearer orgasm. Is only called if wearer is registered
     return parent.OnOrgasmPre(sexlab)
 EndFunction
@@ -560,12 +497,6 @@ Function OnMinigameOrgasmPost() ;called on wearer orgasm while in minigame. Is o
 EndFunction
 Function OnOrgasmPost(bool sexlab = false) ;called on wearer orgasm. Is only called if OnOrgasmPre returns true. Is only called if wearer is registered
     parent.OnOrgasmPost(sexlab)
-EndFunction
-Function OnMinigameTick1() ;called every 1s of minigame
-    parent.OnMinigameTick1()
-EndFunction
-Function OnMinigameTick3() ;called every 3s of minigame
-    parent.OnMinigameTick3()
 EndFunction
 Function OnDeviceCutted() ;called when device is cutted
     parent.OnDeviceCutted()
@@ -615,12 +546,6 @@ EndFunction
 Function onLockUnlocked(bool lockpick = false)
     parent.onLockUnlocked(lockpick)
 EndFunction
-Function onSpecialButtonPressed(float fMult)
-    parent.onSpecialButtonPressed(fMult)
-EndFunction
-Function onSpecialButtonReleased(Float fHoldTime)
-    parent.onSpecialButtonReleased(fHoldTime)
-EndFunction
 bool Function onWeaponHitPre(Weapon source, Float afDamage = -1.0)
     return parent.onWeaponHitPre(source, afDamage)
 EndFunction
@@ -632,9 +557,6 @@ bool Function onSpellHitPre(Form source, Float afDamage = -1.0)
 EndFunction
 Function onSpellHitPost(Form source, Float afDamage = -1.0)
     parent.onSpellHitPost(source, afDamage)
-EndFunction
-Function updateWidgetColor()
-    parent.updateWidgetColor()
 EndFunction
 int Function getArousalRate()
     return parent.getArousalRate()

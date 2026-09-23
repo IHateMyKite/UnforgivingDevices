@@ -21,7 +21,7 @@ import UD_Native
 ;       return true
 ;   end
 ;   function GetAccessibility(C,checkHB)
-;       Log("GetAccessibility(Base) called")
+;       --Log("GetAccessibility(Base) called")
 ;       local loc_res = 1.0
 ;       if not ArmorHasKeyword(C['RD'],"zad_DeviousHeavyBondage") or not checkHB then
 ;           if not CheckFreeHands(C,true,false) then
@@ -5017,7 +5017,6 @@ EndFunction
 /;
 Function PauseMinigame()
     if _MinigameON
-        SpecialButtonReleased(0.0)
         _ToggleMinigameEffect(false)
         _PauseMinigame = True
     endif
@@ -5406,194 +5405,6 @@ Int[] Function _IntArray1(Int i1)
     Int[] arr = new Int[1]
     arr[0] = i1
     Return arr
-EndFunction
-
-Function _MinigameVarReset()
-    if Wearer
-        Wearer.RemoveFromFaction(UDCDmain.MinigameFaction)
-    endif
-    
-    if _minigameHelper
-        _minigameHelper.RemoveFromFaction(UDCDmain.MinigameFaction)
-    endif
-    
-    UD_Native.ForceUpdateControls()
-    
-    _UnsetMinigameDevice()
-    
-    _MinigameON = False
-EndFunction
-
-;function called when player fails crit (pressed wrong button)
-Function critFailure()
-    if (UD_minigame_stamina_drain > 0.0)
-        Wearer.damageAV("Stamina", 2*UD_minigame_stamina_drain)
-    endif
-    if (UD_minigame_stamina_drain_helper > 0.0) && _minigameHelper
-        _minigameHelper.damageAV("Stamina", 2*UD_minigame_stamina_drain_helper)
-    endif
-    if (UD_minigame_heal_drain > 0.0)
-        if Wearer.getAV("Health") > (2*UD_minigame_heal_drain + 5.0)
-            Wearer.damageAV("Health",  2*UD_minigame_heal_drain)
-        else
-            Wearer.damageAV("Health", fRange(Wearer.getAV("Health") - 5.0,0.0,1000.0))
-        endif
-    endif
-    if (UD_minigame_heal_drain_helper > 0.0) && _minigameHelper
-        if _minigameHelper.getAV("Health") > (2*UD_minigame_heal_drain_helper + 5.0)
-            _minigameHelper.damageAV("Health",  2*UD_minigame_heal_drain_helper)
-        else
-            _minigameHelper.damageAV("Health", _minigameHelper.getAV("Health") - 5.0)
-        endif
-    endif    
-    if (UD_minigame_magicka_drain > 0.0)
-        Wearer.damageAV("Magicka", 2*UD_minigame_magicka_drain)
-    endif
-    if (UD_minigame_magicka_drain_helper > 0.0) && _minigameHelper
-        _minigameHelper.damageAV("Magicka", 2*UD_minigame_magicka_drain_helper)
-    endif    
-    
-    if _KeyGameON
-        if !libs.Config.DisableLockJam && UDCDMain.KeyIsGeneric(zad_deviceKey) && (RandomInt() <= zad_KeyBreakChance*UDCDmain.CalculateKeyModifier())
-            if PlayerInMinigame()
-                debug.messagebox("You managed to insert the key but it snapped. Its remains also jammed the lock! You will have to find other way to escape.")
-            endif
-            
-            Wearer.RemoveItem(zad_deviceKey)
-            
-            JammNthLock(_MinigameSelectedLockID)
-            ;UD_JammedLocks += 1
-            
-            _SetJammStatus()
-            stopMinigame()
-            _KeyGameON = False
-            OnLockJammed()
-            return
-        endif
-    endif
-
-    OnCritFailure()
-EndFunction
-
-;function called when player correctly press crit button
-Function critDevice()
-    if OnCritDevicePre() && !IsUnlocked && _MinigameON
-        if UD_minigame_critRegen
-            if (UD_minigame_stamina_drain > 0.0)
-                Wearer.restoreAV("Stamina", UD_minigame_stamina_drain*1.25)
-            endif
-            if (UD_minigame_heal_drain > 0.0)
-                Wearer.restoreAV("Health",  UD_minigame_heal_drain*1.25)
-            endif
-            if (UD_minigame_magicka_drain > 0.0)
-                Wearer.restoreAV("Magicka", UD_minigame_magicka_drain*1.25)
-            endif
-        endif
-        if _minigameHelper && UD_minigame_critRegen_helper
-            if (UD_minigame_stamina_drain_helper > 0.0)
-                _minigameHelper.restoreAV("Stamina", UD_minigame_stamina_drain_helper*1.25)
-            endif
-            if (UD_minigame_heal_drain_helper > 0.0)
-                _minigameHelper.restoreAV("Health",  UD_minigame_heal_drain_helper*1.25)
-            endif
-            if (UD_minigame_magicka_drain_helper > 0.0)
-                _minigameHelper.restoreAV("Magicka", UD_minigame_magicka_drain_helper*1.25)
-            endif
-        endif
-    
-        if UD_damage_device && _StruggleGameON
-            float loc_critdmg
-            if getStruggleMinigameSubType() == 2 
-                loc_critdmg = UD_StruggleCritMul*(_durability_damage_mod + UD_durability_damage_add)*getModResistMagicka(1.0,0.25)*UD_DamageMult
-            else
-                loc_critdmg = UD_StruggleCritMul*(_durability_damage_mod + UD_durability_damage_add)*getModResistPhysical(1.0,0.25)*UD_DamageMult
-            endif
-            decreaseDurabilityAndCheckUnlock(loc_critdmg)
-        elseif _LockpickGameON
-            _lockpickDevice()
-        elseif _KeyGameON
-            _keyUnlockDevice()
-        elseif _CuttingGameON
-            _cutDevice(UD_StruggleCritMul*UD_CutChance/3.0)
-        elseif _RepairLocksMinigameON
-            _repairLock(15.0*UD_MinigameMult1)
-        endif
-        
-        OnCritDevicePost()
-        Bool loc_playerInMinigame = PlayerInMinigame()
-        if Wearer && (loc_playerInMinigame || Wearer.Is3DLoaded())
-            if loc_playerInMinigame && UDCDmain.UD_UseWidget && (UD_UseWidget || UD_UseWidgetSec)
-                updateWidget()
-            endif
-            if loc_playerInMinigame || UDmain.ActorInCloseRange(wearer)
-                libs.Pant(Wearer)
-            endif
-        endif
-        
-        advanceSkill(0.15) ; Increase skill level
-    endif
-EndFunction
-
-;function called when player press special button
-Function SpecialButtonPressed(float afMult = 1.0)
-    if !IsPaused() && !IsUnlocked
-        if _KeyGameON || _LockpickGameON || _RepairLocksMinigameON
-            if (WearerHaveTelekinesis() || HelperHaveTelekinesis()) && !_usingTelekinesis
-                _usingTelekinesis = true
-                
-                UD_Native.MinigameEffectUpdateMagicka(UDmain.Player,0.5*UD_base_stat_drain + UDmain.Player.getBaseAV("Magicka")*0.02)
-                
-                UD_minigame_magicka_drain = 0.5*UD_base_stat_drain + Wearer.getBaseAV("Magicka")*0.02
-                if haveHelper()
-                    UD_minigame_magicka_drain_helper = 0.5*UD_base_stat_drain + _minigameHelper.getBaseAV("Magicka")*0.02
-                endif
-                
-                if _RepairLocksMinigameON
-                    if WearerHaveTelekinesis()
-                        UD_MinigameMult1 += 0.25
-                    endif
-                    if HelperHaveTelekinesis()
-                        UD_MinigameMult1 += 0.25
-                    endif
-                else
-                    _customMinigameCritChance += _GetTelekinesisLockModifier()
-                endif
-            endif
-        endif
-
-        onSpecialButtonPressed(afMult)
-        
-        if UDCDmain.UD_useWidget && (UD_UseWidget || UD_UseWidgetSec)
-            updateWidget()
-        endif
-    endif
-EndFunction
-
-;function called when player release special button
-Function SpecialButtonReleased(float afHoldTime)
-    if !IsPaused() && !IsUnlocked
-        if _KeyGameON || _LockpickGameON || _RepairLocksMinigameON
-            if _usingTelekinesis
-                _usingTelekinesis = false
-                UD_minigame_magicka_drain = 0
-                UD_minigame_magicka_drain_helper = 0
-                
-                UD_Native.MinigameEffectSetMagicka(UDmain.Player,0.0)
-                
-                if _RepairLocksMinigameON
-                    if WearerHaveTelekinesis()
-                        UD_MinigameMult1 -= 0.25
-                    endif
-                    if HelperHaveTelekinesis()
-                        UD_MinigameMult1 -= 0.25
-                    endif
-                else
-                    _customMinigameCritChance -= _GetTelekinesisLockModifier()
-                endif
-            endif
-        endif
-        onSpecialButtonReleased(afHoldTime)
-    endif
 EndFunction
 
 ;function called when wearer orgasms, 
@@ -6371,13 +6182,6 @@ EndFunction
 Function OnMendPost(float afAmount)
 EndFunction
 
-bool Function OnCritDevicePre()
-    return True
-EndFunction
-
-Function OnCritDevicePost()
-EndFunction
-
 bool Function OnOrgasmPre(bool sexlab = false)
     return True
 EndFunction
@@ -6425,19 +6229,6 @@ Function OnMinigameEnd()
 EndFunction
 
 ;make it lightweight
-Function OnMinigameTick(float afUpdateTime)
-EndFunction
-
-Function OnMinigameTick1()
-EndFunction
-
-Function OnMinigameTick3()
-EndFunction
-
-Function OnCritFailure()
-    checkSentient(0.25)
-EndFunction
-
 float Function getAccesibility()
     return UD_Native.GetDeviceAccessibility(GetWearer(),GetHelper(),_DeviceRendered)
 EndFunction
@@ -6561,12 +6352,6 @@ EndFunction
 Function onLockUnlocked(bool lockpick = false)
 EndFunction
 
-Function onSpecialButtonPressed(float fMult)
-EndFunction
-
-Function onSpecialButtonReleased(Float fHoldTime)
-EndFunction
-
 bool Function onWeaponHitPre(Weapon source, Float afDamage = -1.0)
     return true
 EndFunction
@@ -6619,50 +6404,6 @@ EndFunction
 ;adds bonus string to base detail string
 string Function addInfoString(string str = "")
     return str
-EndFunction
-
-Function updateWidget(bool force = false)
-    if _CuttingGameON
-        ;setWidgetVal(getRelativeCuttingProgress(),force)
-        setSecWidgetVal(GetRelativeDurability(), force)
-    elseif _RepairLocksMinigameON
-        setWidgetVal(_GetRelativeLockRepairProgress(_MinigameSelectedLockID),force)
-    endif
-EndFunction
-
-Function updateWidgetColor()
-    if UD_WidgetAutoColor; && !UDmain.UseiWW()
-        if UD_Condition == 0
-            setMainWidgetAppearance(0x4da319, 0x62ff00)
-        elseif UD_Condition == 1
-            setMainWidgetAppearance(0xafba24, 0x4da319)
-        elseif UD_Condition == 2
-            setMainWidgetAppearance(0xe37418, 0xafba24)
-        elseif UD_Condition == 3
-            setMainWidgetAppearance(0xdc1515, 0xe37418)
-        else
-            setMainWidgetAppearance(0x5a1515, 0xdc1515)
-        endif
-    ;elseif UD_WidgetAutoColor
-    ;    setMainWidgetAppearance(0xFF307C, 0xFF005E)
-    endif
-
-    If UD_WidgetAutoColorSec; && !UDmain.UseiWW()
-        if UD_Condition == 0
-            setSecWidgetAppearance(0x4da319, 0x62ff00)
-        elseif UD_Condition == 1
-            setSecWidgetAppearance(0xafba24, 0x4da319)
-        elseif UD_Condition == 2
-            setSecWidgetAppearance(0xe37418, 0xafba24)
-        elseif UD_Condition == 3
-            setSecWidgetAppearance(0xdc1515, 0xe37418)
-        else
-            setSecWidgetAppearance(0x5a1515, 0xdc1515)
-        endif
-    ;elseif UD_WidgetAutoColorSec
-    ;    setSecWidgetAppearance(0xFF307C, 0xFF005E)
-    endif
-    
 EndFunction
 
 bool Function proccesSpecialMenu(int msgChoice)
@@ -6853,357 +6594,8 @@ Function RegisterDevice(Actor akActor,Armor akInvDevice, Armor akRenDevice)
     UD_WearerSlot.registerDevice(self)
 EndFunction
 
-Function _SendMinigameThreads(bool abStarter, bool abCritLoop, bool abParalelThread, bool abAVLoop)
-    int loc_mode = 0x0
-    if abStarter
-        loc_mode += 1
-    endif
-    if abCritLoop
-        loc_mode += 2
-    endif
-    if abParalelThread
-        loc_mode += 4
-    endif
-    if abAVLoop
-        loc_mode += 8
-    endif
-    
-    Int loc_res = SendMinigameThreadEvents(GetWearer(),DeviceRendered,_VMHandle1,_VMHandle2,loc_mode)
-    
-    if loc_res > 0
-        if loc_res == 3
-            String loc_msg = "!!FATAL ERROR!!\nError finding script for device "+GetDeviceName()+". This likely mean that you installed patch incorrectly! Please close the game, and check you load order!"
-            UDmain.Error(loc_msg)
-            UDMain.ShowMessageBoxSafe(loc_msg)
-        else
-            UDmain.Error("Could not start minigame thread. Return code => " + loc_res)
-        endif
-        StopMinigame()
-    endif
-EndFunction
-
-Function _MinigameStarterThread()
-    UDmain.Info("_MinigameStarterThread called")
-    bool    loc_canShowHUD      = canShowHUD()
-    bool    loc_haveplayer      = PlayerInMinigame()
-    bool    loc_is3DLoaded      = loc_haveplayer || UDmain.ActorInCloseRange(wearer)
-    
-    if UDmain.TraceAllowed()
-        UDmain.Log("_MinigameStarterThread("+GetDeviceHeader()+")")
-    endif
-    
-    Wearer.AddToFaction(UDCDmain.MinigameFaction)
-    if _minigameHelper
-        _minigameHelper.AddToFaction(UDCDmain.MinigameFaction)
-    endif
-    
-    _MinigameParProc_1 = true
-    
-    UDCDMain.StartMinigameDisable(Wearer)
-    if _minigameHelper
-        UDCDMain.StartMinigameDisable(_minigameHelper)
-    endif
-    
-    if loc_haveplayer
-        UDCDmain.setCurrentMinigameDevice(self)
-        UDCDmain.MinigameKeysRegister()
-        UD_Native.RegisterDeviceCallback(_VMHandle1,_VMHandle2,deviceRendered,UDCDMain.Stamina_meter_Keycode,"_MG_CKSPress")
-        UD_Native.RegisterDeviceCallback(_VMHandle1,_VMHandle2,deviceRendered,UDCDMain.Magicka_meter_Keycode,"_MG_CKMPress")
-    else
-        StorageUtil.SetFormValue(Wearer, "UD_currentMinigameDevice", deviceRendered)
-    endif
-    
-    _MinigameParProc_1 = false
-    
-    ;shows bars
-    if loc_canShowHUD
-        showHUDbars()
-    endif
-    
-    OnMinigameStart()
-    
-    if loc_is3DLoaded
-        libsp.pant(Wearer)
-    endif
-EndFunction
-
-Function _MinigameParalelThread()
-    Actor     akActor       = GetWearer()
-    Actor     akHelper      = getHelper()
-    
-    _MinigameParProc_2 = true
-    
-    if UDmain.TraceAllowed()
-        UDmain.Log("_MinigameParalelThread("+GetDeviceHeader()+")")
-    endif
-    
-    ;process
-    bool      loc_haveplayer    = PlayerInMinigame()
-    bool      loc_is3DLoaded    = akActor.Is3DLoaded() || loc_haveplayer
-    
-    ;disable regen of all stats
-    float staminaRate           = akActor.getBaseAV("StaminaRate")
-    float HealRate              = akActor.getBaseAV("HealRate")
-    float magickaRate           = akActor.getBaseAV("MagickaRate")
-
-    akActor.setAV("StaminaRate", staminaRate*UD_RegenMag_Stamina)
-    akActor.setAV("HealRate", HealRate*UD_RegenMag_Health)
-    akActor.setAV("MagickaRate", magickaRate*UD_RegenMag_Magicka)
-
-    float staminaRateHelper     = 0.0
-    float HealRateHelper        = 0.0
-    float magickaRateHelper     = 0.0
-    if akHelper
-        staminaRateHelper       = akHelper.getBaseAV("StaminaRate")
-        HealRateHelper          = akHelper.getBaseAV("HealRate")
-        magickaRateHelper       = akHelper.getBaseAV("MagickaRate")
-
-        akHelper.setAV("StaminaRate", staminaRateHelper*UD_RegenMagHelper_Stamina)
-        akHelper.setAV("HealRate"    , HealRateHelper*UD_RegenMagHelper_Health)
-        akHelper.setAV("MagickaRate", magickaRateHelper*UD_RegenMagHelper_Magicka)
-    endif
-    
-    bool loc_canShowHUD     = canShowHUD()
-    bool loc_updatewidget   = (UD_UseWidget || UD_UseWidgetSec) && UDCDmain.UD_UseWidget && loc_haveplayer
-    
-    ;Send_MinigameCritLoop(akActor, self) TODO
-
-    float[] loc_expression = GetCurrentMinigameExpression()
-    libsp.ExpLibs.ApplyExpressionRaw(akActor, loc_expression, 100,false,15)
-    if haveHelper()
-        libsp.ExpLibs.ApplyExpressionRaw(akHelper, loc_expression, 100,false,15)
-    endif
-    
-    float loc_currentOrgasmRate     = getStruggleOrgasmRate()
-    float loc_currentArousalRate    = getArousalRate()
-    
-    string loc_orgkey = "UDMinigame." + getDeviceName()
-    OrgasmSystem.AddOrgasmChange(akActor,loc_orgkey, 0,0x00000200,loc_currentOrgasmRate,0,0,0.25)
-    OrgasmSystem.UpdateOrgasmChangeVar(akActor,loc_orgkey,9,loc_currentArousalRate,1)
-    
-    ;pause thred untill minigame end
-    Float loc_UpdateTime   = 0.25
-    if !loc_is3DLoaded
-        loc_UpdateTime = 3.0
-    elseif !loc_haveplayer
-        loc_UpdateTime = 1.0
-    endif
-    
-    Float loc_ElapsedTime1 = 0.0
-    Float loc_ElapsedTime2 = 0.0
-    Float loc_ElapsedTime3 = 0.0
-    
-    Udmain.UDMOM.Procces_UpdateModifiers_MinigameStarted(self)
-    
-    while IsMinigameLoopRunning()
-        if !isPaused()
-            ;set expression every 5 second
-            if loc_is3DLoaded
-                if loc_ElapsedTime1 >= 5.0
-                    libsp.ExpLibs.ApplyExpressionRaw(akActor, loc_expression, 100,false,15)
-                    if akHelper
-                        libsp.ExpLibs.ApplyExpressionRaw(akHelper, loc_expression, 100,false,15)
-                    endif
-                    loc_ElapsedTime1 = 0.0
-                endif
-            endif
-            ;update widget and HUD every 2 s
-            if loc_haveplayer
-                if loc_ElapsedTime2 >= 2.0
-                    if loc_canShowHUD
-                        showHUDbars(False)
-                    endif
-                    if loc_updatewidget
-                        showWidget(False, False)
-                    endif
-                    loc_ElapsedTime2 = 0.0
-                endif
-                ;advance skill every second
-                if loc_ElapsedTime3 >= 1.0
-                    advanceSkill(loc_ElapsedTime3*0.05) ; Increase skill level
-                    if loc_is3DLoaded
-                        loc_updatewidget    = (UD_UseWidget || UD_UseWidgetSec) && UDCDmain.UD_UseWidget && loc_haveplayer
-                        loc_canShowHUD      = canShowHUD()
-                    endif
-                    loc_ElapsedTime3    = 0.0
-                endif
-            endif
-        endif
-        if IsMinigameLoopRunning()
-            Utility.wait(loc_UpdateTime)
-            loc_ElapsedTime1 += loc_UpdateTime
-            loc_ElapsedTime2 += loc_UpdateTime
-            loc_ElapsedTime3 += loc_UpdateTime
-        endif
-    endwhile
-    
-    OrgasmSystem.RemoveOrgasmChange(akActor,loc_orgkey)
-    
-    ;returns wearer regen
-    akActor.setAV("StaminaRate", staminaRate)
-    akActor.setAV("HealRate", healRate)
-    akActor.setAV("MagickaRate", magickaRate)
-    if akHelper
-        akHelper.setAV("StaminaRate", staminaRateHelper)
-        akHelper.setAV("HealRate", HealRateHelper)
-        akHelper.setAV("MagickaRate", magickaRateHelper)
-    endif
-    
-    if loc_haveplayer
-        hideHUDbars() ;hides HUD (not realy?)
-        hideWidget()
-    endif
-    
-    Udmain.UDMOM.Procces_UpdateModifiers_MinigameEnded(self)
-    
-    _MinigameParProc_2 = false
-    
-    if loc_is3DLoaded
-        libsp.ExpLibs.ResetExpressionRaw(akActor,15)
-        if akHelper
-            libsp.ExpLibs.ResetExpressionRaw(akHelper,15)
-        endif
-    endif
-    
-    if loc_is3DLoaded && (UDmain.UDGV.UDG_MinigameExhaustion.Value == 1)
-        addStruggleExhaustion(akHelper)
-    endif
-EndFunction
-
-Function _MinigameCritLoopThread()
-    Actor akActor                           = GetWearer()
-    
-    _MinigameParProc_3           = true
-    
-    if UDmain.TraceAllowed()
-        UDmain.Log("_MinigameCritLoopThread("+GetDeviceHeader()+")")
-    endif
-    
-    Bool loc_playerInMinigame               = PlayerInMinigame()
-    Bool loc_is3DLoaded                     = akActor.Is3DLoaded() || loc_playerInMinigame
-
-    Float loc_elapsedTime = 0.0
-    Float loc_updateTime  = 0.25
-    string critType = "random"
-    if !loc_playerInMinigame
-        loc_updateTime = 0.5
-        critType = "NPC"
-    elseif UDCDmain.UD_AutoCrit
-        critType = "Auto"
-    endif
-    
-    if loc_playerInMinigame
-        Utility.Wait(0.5) ;wait little time before starting crits
-    endif
-    
-    ;process
-    while IsMinigameLoopRunning()
-        if !isPaused() && (!loc_is3DLoaded || !UDmain.IsMenuOpen())
-            ;check crit every 1 s
-            if loc_elapsedTime >= 1.0
-                if UD_minigame_canCrit
-                    loc_elapsedTime = UDCDmain.StruggleCritCheck(self,UD_StruggleCritChance,critType,UD_StruggleCritDuration)
-                elseif _customMinigameCritChance
-                    loc_elapsedTime = UDCDmain.StruggleCritCheck(self,_customMinigameCritChance,critType,_customMinigameCritDuration)
-                else
-                    loc_elapsedTime = 0.0
-                Endif
-            endif
-        endif
-        if IsMinigameLoopRunning()
-            Utility.Wait(loc_updateTime)
-            loc_elapsedTime += loc_updateTime
-        endif
-    endwhile
-    UDCDmain.crit = False
-    _MinigameParProc_3 = false
-EndFunction
-
-Function _MinigameAVCheckLoopThread()
-    _MinigameParProc_4 = true
-    
-    if UDmain.TraceAllowed()
-        UDmain.Log("_MinigameAVCheckLoopThread("+GetDeviceHeader()+")")
-    endif
-    
-    float loc_CurrentUpdateTime             = UDmain.UD_baseUpdateTime
-    Bool  loc_HaveHelper                    = haveHelper()
-    Float loc_ElapsedTime                   = 0.0
-    Bool  loc_MinigameEffectEnabled         = False
-    
-    _StartMinigameEffect()
-    
-    ;process
-    while IsMinigameLoopRunning()
-        if !isPaused()
-            if UDCDMain.UD_InitialDrainDelay == 0 || (loc_ElapsedTime > UDCDMain.UD_InitialDrainDelay)
-                if !loc_MinigameEffectEnabled
-                    loc_MinigameEffectEnabled = true
-                    _ToggleMinigameEffect(true)
-                endif
-                if !ProccesAV(loc_CurrentUpdateTime)
-                    StopMinigame()
-                endif
-                if loc_HaveHelper
-                    if !ProccesAVHelper(loc_CurrentUpdateTime)
-                        StopMinigame()
-                    endif
-                endif
-            endif
-        endif
-        if IsMinigameLoopRunning()
-            Utility.Wait(loc_CurrentUpdateTime)
-            loc_ElapsedTime += loc_CurrentUpdateTime
-        endif
-    endwhile
-    
-    _MinigameParProc_4 = false
-EndFunction
-
 Function _CuttingMG_SKPress(Float afValue)
-    if IsPaused() || !IsMinigameLoopRunning()
-        return
-    endif
-    UDlibs.RedCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player) ;show to player that they cutted device in right time by using shader effect
     _cutDevice(afValue)
-EndFunction
-
-Function _MG_CKSPress()
-    bool     loc_crit                    = UDCDmain.crit 
-    string   loc_selected_crit_meter     = UDCDmain.selected_crit_meter
-    if IsPaused() || !IsMinigameLoopRunning()
-        return
-    endif
-    if (loc_crit) && !UDCDMain.UD_AutoCrit
-        if loc_selected_crit_meter == "S"
-            UDCDmain.crit = False
-            critDevice()
-        else
-            UDCDmain.crit = False
-            critFailure()
-        endif
-    else
-        critFailure()
-    endif
-EndFunction
-
-Function _MG_CKMPress()
-    bool     loc_crit                    = UDCDmain.crit 
-    string   loc_selected_crit_meter     = UDCDmain.selected_crit_meter
-    if IsPaused() || !IsMinigameLoopRunning()
-        return
-    endif
-    if (loc_crit) && !UDCDMain.UD_AutoCrit
-        if loc_selected_crit_meter == "M"
-            UDCDmain.crit = False
-            critDevice()
-        else
-            UDCDmain.crit = False
-            critFailure()
-        endif
-    else
-        critFailure()
-    endif
 EndFunction
 
 ; Used to unregister device which is invalid. This can happen if render device is removed by some mod, but script is still regesitered on NPCs still. 
@@ -7309,4 +6701,23 @@ Int Function Lua_StartLockpickMinigame(Int aiLockIndex)
     endif
     
     return loc_result
+EndFunction
+
+Function _MG_CastRedShader()
+    UDlibs.RedCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player)
+    if Wearer
+        UDlibs.RedCrit.RemoteCast(Wearer,Wearer,Wearer)
+    endif
+EndFunction
+Function _MG_CastGreenShader()
+    UDlibs.GreenCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player)
+    if Wearer
+        UDlibs.GreenCrit.RemoteCast(Wearer,Wearer,Wearer)
+    endif
+EndFunction
+Function _MG_CastBlueShader()
+    UDlibs.BlueCrit.RemoteCast(UDmain.Player,UDmain.Player,UDmain.Player)
+    if Wearer
+        UDlibs.BlueCrit.RemoteCast(Wearer,Wearer,Wearer)
+    endif
 EndFunction

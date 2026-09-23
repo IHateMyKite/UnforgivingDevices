@@ -1,5 +1,10 @@
 
 window.onload = (event) => {
+  ReloadMeters();
+};
+
+function ReloadMeters()
+{
   console.log("page is fully loaded");
   var r = document.querySelector(':root');
   
@@ -25,5 +30,5 @@ window.onload = (event) => {
   r.style.setProperty('--meter-height', String(loc_meter_height)+"px");
   r.style.setProperty('--meter-margin-left', String(loc_meter_margin_left)+"px");
   r.style.setProperty('--meter-margin-top', String(loc_meter_margin_top)+"px");
-  
-};
+}
+

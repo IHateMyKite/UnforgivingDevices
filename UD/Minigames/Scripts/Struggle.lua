@@ -2,7 +2,7 @@
 -- Check if minigame should be available for selected device
 local _Precondition = Precondition -- Save previous function
 function Precondition(C)
-    --Log("Precondition called")
+    Log("Precondition(Struggle.lua) called")
     local loc_physres       = GetVariableValue(C,"thisdevice::UD_ResistPhysical(A)")
     local loc_physresmult   = GetConfigVar(C,"PhysResMult","1.0")
     local loc_magres        = GetVariableValue(C,"thisdevice::UD_ResistMagicka(A)")
@@ -107,22 +107,59 @@ function DamageDurability(C,dmg)
     return true
 end
 
+local _OnUIOpen = OnUIOpen
+function OnUIOpen(C)
+    _OnUIOpen(C)
+    
+    local loc_vars = {}
+    local loc_pos_x = GetConfigVar(C,"PosX","nan")
+    if loc_pos_x ~= "nan" then
+        loc_vars["pos_x"] = loc_pos_x.."%"
+    end
+    local loc_pos_y = GetConfigVar(C,"PosY","nan")
+    if loc_pos_y ~= "nan" then
+        loc_vars["pos_y"] = loc_pos_y.."%"
+    end
+    local loc_scale = GetConfigVar(C,"Scale","nan")
+    if loc_scale ~= "nan" then
+        loc_vars["scale"] = loc_scale
+    end
+    
+    if GetMinigameVar(C,'AutoMode') then
+        loc_vars["mcurvis"] = false
+        loc_vars["combvis"] = false
+    elseif not StrToBool(GetConfigVar(C,"ShowCombo","true")) then
+        loc_vars["combvis"] = false
+    end
+    
+    local loc_str = "Init("..json.stringify(loc_vars)..")"
+    Log("OnUIOpen(Struggling.lua) -> "..loc_str)
+    InvokeMinigameUI(C,loc_str)
+end
+
 local _RegisterCallbacks = RegisterCallbacks
 function RegisterCallbacks(C)
+    Log("RegisterCallbacks(Struggle.lua)")
     _RegisterCallbacks(C)
-    if not GetMinigameVar(C,'UseNoUI') then
+    if not GetMinigameVar(C,'UseNoUI') and not GetMinigameVar(C,'AutoMode') then
         RegisterActionCallback(C,"press_left","ClickLeft")
         RegisterActionCallback(C,"press_right","ClickRight")
-        DamageDurability(C,0.0)
+    end
+end
+
+function CheckZone(C,side)
+    local loc_pos           = GetMinigameVar(C,"CursorPos")
+    local loc_zone          = GetMinigameVar(C,"ZoneSize")
+    local loc_cursorsize    = GetMinigameVar(C,"CursorSize")
+    if side == 0 then
+        return loc_pos <= loc_zone
+    elseif side == 1 then
+        return (loc_pos + loc_cursorsize) >= (1.0 - loc_zone)
     end
 end
 
 function ClickLeft(C)
-    local loc_pos           = GetMinigameVar(C,"CursorPos")
-    local loc_zone          = GetMinigameVar(C,"ZoneSize")
-    --local loc_cursorsize    = GetMinigameVar(C,"CursorSize")
-    --Log("ClickLeft - "..tostring(loc_pos).." , "..tostring(loc_zone))
-    if loc_pos <= loc_zone then
+    if CheckZone(C,0) then
         ClickSuccess(C)
     else
         ClickFail(C)
@@ -130,11 +167,7 @@ function ClickLeft(C)
 end
 
 function ClickRight(C)
-    local loc_pos           = GetMinigameVar(C,"CursorPos")
-    local loc_zone          = GetMinigameVar(C,"ZoneSize")
-    local loc_cursorsize    = GetMinigameVar(C,"CursorSize")
-    --Log("ClickRight - "..tostring((loc_pos + loc_cursorsize)).." , "..tostring((1.0 - loc_zone)))
-    if (loc_pos + loc_cursorsize) >= (1.0 - loc_zone) then
+    if CheckZone(C,1) then
         ClickSuccess(C)
     else
         ClickFail(C)
@@ -156,6 +189,9 @@ function ClickSuccess(C)
     local loc_speed = GetMinigameVar(C,"CursorSpeed")
     loc_speed = loc_speed*GetMinigameVar(C,"SpeedMult")
     SetMinigameVar(C,"CursorSpeed",loc_speed)
+    if GetMinigameVar(C,"UseShaders") then
+        CallPapyrusFunction(C,"thisdevice::_MG_CastGreenShader","")
+    end
 end
 
 function ClickFail(C)
@@ -163,15 +199,16 @@ function ClickFail(C)
     SetMinigameVar(C,"CursorSpeed",tonumber(GetConfigVar(C,"BaseSpeed","100.0")))
     SetMinigameVar(C,"Combo",0)
     InvokeMinigameUI(C,"UpdateCombo({val:"..tostring(0).."})")
+    if GetMinigameVar(C,"UseShaders") then
+        CallPapyrusFunction(C,"thisdevice::_MG_CastRedShader","")
+    end
 end
 
 function ProcessMinigame(C,delta)
     --Log("ProcessMinigame(Struggle.lua) called")
 
-    if GetMinigameVar(C,'UseNoUI') then
-        ProcessMinigameNPC(C,delta)
-        return
-    end
+    local loc_auto = GetMinigameVar(C,'AutoMode')
+    local loc_noui = GetMinigameVar(C,'UseNoUI')
 
     local loc_pos       = GetMinigameVar(C,"CursorPos")
     local loc_speed     = GetMinigameVar(C,"CursorSpeed")
@@ -192,16 +229,28 @@ function ProcessMinigame(C,delta)
     end
     SetMinigameVar(C,"CursorPos",loc_pos)
     
-    local loc_durability_r = GetMinigameVar(C,"Durability")
-    local loc_condition_r  = GetMinigameVar(C,"Condition")
-    local loc_conditionlvl = GetMinigameVar(C,"ConditionLvl")
+    if loc_auto or loc_noui then
+        local loc_timer = UpdateMinigameVar(C,"AutoModeTimer",-1*delta)
+        if loc_timer <= 0.0 then
+            SetMinigameVar(C,"AutoModeTimer",GetMinigameVar(C,"AutoModeBase"))
+            if (CheckZone(C,0) or CheckZone(C,1)) and math.random() <= 0.8 then
+                ClickSuccess(C)
+            elseif math.random() > 0.9 then
+                ClickFail(C)
+            end
+        end
+    end
     
-    local loc_combo = GetMinigameVar(C,"Combo")
-    local loc_zonesize = GetMinigameVar(C,"ZoneSize")
-    local loc_zonesizerecution = GetMinigameVar(C,"ZoneSizeReduction")
-    
-    InvokeMinigameUI(C,"SetZones({zonesize:"..tostring(loc_zonesize*(1.0 - loc_combo*loc_zonesizerecution)).."})")
-    InvokeMinigameUI(C,"UpdateMinigame({dur:"..tostring(loc_durability_r)..",cond:"..tostring(loc_condition_r)..",condlvl:"..tostring(loc_conditionlvl)..",pos:"..tostring(loc_pos).."})")
+    if not loc_noui then
+        local loc_durability_r = GetMinigameVar(C,"Durability")
+        local loc_condition_r  = GetMinigameVar(C,"Condition")
+        local loc_conditionlvl = GetMinigameVar(C,"ConditionLvl")
+        local loc_combo = GetMinigameVar(C,"Combo")
+        local loc_zonesize = GetMinigameVar(C,"ZoneSize")
+        local loc_zonesizerecution = GetMinigameVar(C,"ZoneSizeReduction")
+        InvokeMinigameUI(C,"SetZones({zonesize:"..tostring(loc_zonesize*(1.0 - loc_combo*loc_zonesizerecution)).."})")
+        InvokeMinigameUI(C,"UpdateMinigame({dur:"..tostring(loc_durability_r)..",cond:"..tostring(loc_condition_r)..",condlvl:"..tostring(loc_conditionlvl)..",pos:"..tostring(loc_pos).."})")
+    end
 end
 
 function ProcessMinigameNPC(C,delta)

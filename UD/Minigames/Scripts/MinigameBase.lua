@@ -48,7 +48,9 @@ function OnStart(C)
     SetMinigameVar(C,'TimerSkill',0.0)
     SetMinigameVar(C,'SkillGain',tonumber(GetConfigVar(C,"SkillGain","10.0")))
     SetMinigameVar(C,'UseNoUI',StrToBool(GetConfigVar(C,"UseNoUI","false")))
-    
+    SetMinigameVar(C,"AutoMode",StrToBool(GetSaveConfig("Minigames.AutoMode","false")))
+    SetMinigameVar(C,"AutoModeTimer",SetMinigameVar(C,"AutoModeBase",tonumber(GetSaveConfig("Minigames.AutoModePauseTime","0.25"))))
+    SetMinigameVar(C,"UseShaders",StrToBool(GetSaveConfig("Minigames.Shaders","true")) and not GetMinigameVar(C,"AutoMode"))
     -- Store drains from config for faster access
     StoreConfigDrain(C)
 end
@@ -180,6 +182,7 @@ function OnMinigameLoaded(C)
 end
 
 function RegisterCallbacks(C)
+    Log("RegisterCallbacks(MinigameBase.lua)")
     RegisterActionCallback(C,"press_stop","StopDeviceMinigame")
 end
 
