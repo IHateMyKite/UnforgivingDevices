@@ -5127,10 +5127,21 @@ Function _repairLock(float progress_add = 1.0)
             libs.UnJamLock(Wearer,UD_DeviceKeyword)
         endif
         stopMinigame()
+        String loc_lockName = UD_LockNameList[_MinigameSelectedLockID]
         if WearerIsPlayer()
-            UDmain.Print("You repaired " +GetDeviceName()+ "'s " +UD_LockNameList[_MinigameSelectedLockID]+"!",1)
+            if haveHelper()
+                UDmain.Print(getHelperName() + " repaired the " + loc_lockName + " on your " + GetDeviceName() + "!",1)
+            else
+                UDmain.Print("You repaired the " + loc_lockName + " on your " + GetDeviceName() + "!",1)
+            endif
+        elseif HelperIsPlayer()
+            UDmain.Print("You repaired the " + loc_lockName + " on " + GetWearerName() + "'s " + GetDeviceName() + "!",1)
         elseif UDCDmain.AllowNPCMessage(Wearer, True)
-            UDmain.Print(GetWearerName() + " managed to repair " +GetDeviceName()+"'s "+UD_LockNameList[_MinigameSelectedLockID],2)
+            if haveHelper()
+                UDmain.Print(getHelperName() + " repaired the " + loc_lockName + " on " + GetWearerName() + "'s " + GetDeviceName() + "!",3)
+            else
+                UDmain.Print(GetWearerName() + " repaired the " + loc_lockName + " on " + GetDeviceName() + "!",3)
+            endif
         endif
     endif
 EndFunction
@@ -6681,8 +6692,10 @@ Function critFailure()
     
     if _KeyGameON
         if !libs.Config.DisableLockJam && UDCDMain.KeyIsGeneric(zad_deviceKey) && (RandomInt() <= zad_KeyBreakChance*UDCDmain.CalculateKeyModifier())
-            if PlayerInMinigame()
-                debug.messagebox("You managed to insert the key but it snapped. Its remains also jammed the lock! You will have to find other way to escape.")
+            if WearerIsPlayer()
+                debug.messagebox("You managed to insert the key but it snapped. Its remains also jammed the lock! You will have to find another way to escape.")
+            elseif HelperIsPlayer()
+                debug.messagebox("You managed to insert the key but it snapped. Its remains also jammed the lock! " + getWearerName() + " will have to find another way out.")
             endif
             
             Wearer.RemoveItem(zad_deviceKey)
@@ -7094,7 +7107,11 @@ String Function _GetDeviceMainMenuText()
     loc_res += UDMTF.LineBreak()
     
     If getModResistPhysical(0.0) == 1.0 && getModResistMagicka(0.0) == 1.0
-        loc_res += UDMTF.Text("You feel that it is " + UDMTF.Text("Impossible", asColor = UDMTF.BoolToRainbow(False)) + " to struggle out of this contraption!")
+        If WearerIsPlayer()
+            loc_res += UDMTF.Text("You feel that it is " + UDMTF.Text("Impossible", asColor = UDMTF.BoolToRainbow(False)) + " to struggle out of this contraption!")
+        Else
+            loc_res += UDMTF.Text("It seems " + UDMTF.Text("Impossible", asColor = UDMTF.BoolToRainbow(False)) + " for " + getWearerName() + " to struggle out of this contraption!")
+        EndIf
     ElseIf getModResistPhysical(0.0) > getModResistMagicka(0.0)
         loc_res += UDMTF.Text("You feel that device is more " + UDMTF.Text("Vulnerable", asColor = UDMTF.PercentToRainbow(Round(getModResistPhysical(0.0) * 50 + 50))) + " to brute force than magic.")
     Else
@@ -7146,7 +7163,11 @@ String Function _GetDeviceStruggleMenuText()
     loc_res += UDMTF.Text("You sense that device is " + getResistanceString(getModResistMagicka(0.0) * -100.0, True) + " to magic.")
     loc_res += UDMTF.LineBreak()
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.Text("How do you want to struggle?")
+    If WearerIsPlayer()
+        loc_res += UDMTF.Text("How do you want to struggle?")
+    Else
+        loc_res += UDMTF.Text("How do you want to help " + getWearerName() + " struggle?")
+    EndIf
     loc_res += UDMTF.LineBreak()
     
     loc_res += UDMTF.ParagraphEnd()
