@@ -6,11 +6,9 @@
     "base": "MeterBase",
     "config":
     {
-        "posX": "70%",
-        "posY": "73%",
-        "width": "20%",
-        "height": "2%",
-        "color_fill":"yellow",
+        "posX": "83%",
+        "posY": "calc(90% - var(--meter-height)*1)",
+        "color_fill":"rgba(111, 251, 163, 1)",
         "minigame": true,
         "value": "OS[1]",
         "maxvalue": "15.0",

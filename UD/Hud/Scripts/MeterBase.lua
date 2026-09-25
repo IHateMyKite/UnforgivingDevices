@@ -15,10 +15,7 @@ function OnShown(C)
     loc_payload = loc_payload.."id:\""..tostring(C['Id']).."\","
     loc_payload = loc_payload.."x:\""..tostring(GetConfigVar(C,"posX","50%")).."\","
     loc_payload = loc_payload.."y:\""..tostring(GetConfigVar(C,"posY","50%")).."\","
-    loc_payload = loc_payload.."width:\""..tostring(GetConfigVar(C,"width","20%")).."\","
-    loc_payload = loc_payload.."height:\""..tostring(GetConfigVar(C,"height","4%")).."\","
     loc_payload = loc_payload.."color:\""..tostring(GetConfigVar(C,"color_fill","green").."\",")
-    loc_payload = loc_payload.."color2:\""..tostring(GetConfigVar(C,"color_back","red").."\",")
     loc_payload = loc_payload.."})"
     
     Log("Creating new meter with payload "..loc_payload)

@@ -3537,6 +3537,7 @@ Function DebugFunction(Actor akActor)
     loc_options = PapyrusUtil.PushString(loc_options,"Lock Abadon Set Selective")
     loc_options = PapyrusUtil.PushString(loc_options,"Lock Random Devices")
     loc_options = PapyrusUtil.PushString(loc_options,"Reload Minigames")
+    loc_options = PapyrusUtil.PushString(loc_options,"Reload HUD")
     loc_options = PapyrusUtil.PushString(loc_options,"--BACK--")
     int loc_res = UDmain.GetUserListInput(loc_options)
     if loc_res == 0
@@ -3547,6 +3548,8 @@ Function DebugFunction(Actor akActor)
         UDmain.UDRRM.LockAllSuitableRestrains(akActor,false,0xffffffff)
     elseif loc_res == 3
         UD_Native.ReloadMinigameConfigs()
+    elseif loc_res == 4
+        UD_Native.ReloadHudConfigs()
     endif
 EndFunction
 

@@ -6454,24 +6454,26 @@ float Function getStruggleOrgasmRate()
     return res
 EndFunction
 
+; TODO - Rework to make it possibleto add new expression by Lua minigame
 Float[] Function GetCurrentMinigameExpression()
-    if _StruggleGameON
-        if _struggleGame_Subtype == 1 ;desperate
-            return UDmain.UDEM.GetPrebuildExpression_Angry1()
-        elseif _struggleGame_Subtype == 2 ;magick
-            return UDmain.UDEM.GetPrebuildExpression_Concetrated1()
-        elseif _struggleGame_Subtype == 3 ;slow
-            return UDmain.UDEM.GetPrebuildExpression_Happy1()
-        else
-            return zadexpressionlibs.CreateRandomExpression()
-        endif
-    else
-        if RandomInt(0,1)
-            return zadexpressionlibs.CreateRandomExpression()
-        else
-            return UDmain.UDEM.GetPrebuildExpression_Happy1()
-        endif
-    endif
+    return UDmain.UDEM.GetPrebuildExpression_Concetrated1()
+    ;if _StruggleGameON
+    ;    if _struggleGame_Subtype == 1 ;desperate
+    ;        return UDmain.UDEM.GetPrebuildExpression_Angry1()
+    ;    elseif _struggleGame_Subtype == 2 ;magick
+    ;        return UDmain.UDEM.GetPrebuildExpression_Concetrated1()
+    ;    elseif _struggleGame_Subtype == 3 ;slow
+    ;        return UDmain.UDEM.GetPrebuildExpression_Happy1()
+    ;    else
+    ;        return zadexpressionlibs.CreateRandomExpression()
+    ;    endif
+    ;else
+    ;    if RandomInt(0,1)
+    ;        return zadexpressionlibs.CreateRandomExpression()
+    ;    else
+    ;        return UDmain.UDEM.GetPrebuildExpression_Happy1()
+    ;    endif
+    ;endif
 EndFunction
 
 Function removeDevice(actor akActor)

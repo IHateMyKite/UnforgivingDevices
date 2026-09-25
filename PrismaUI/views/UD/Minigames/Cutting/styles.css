@@ -1,33 +1,44 @@
+#mg_base{
+  width:calc(var(--scale)*100%);
+  height:calc(var(--scale)*100%);
+  left: var(--minigame-offset-x);
+  top: var(--minigame-offset-y);
+  position: absolute;
+  user-select: none;
+  pointer-events: none;
+}
 
 #mg_durability {
-  filter: brightness(0.5) sepia(1) hue-rotate(90deg) saturate(8);
+  background-color: green;
 }
 #mg_durability_bcg {
-  filter: brightness(0.5) sepia(1) hue-rotate(90deg) saturate(8) opacity(20%);
+  filter: opacity(20%);
+  background-color: green;
 }
 #mg_condition_0{
-  filter: brightness(0.5) sepia(1) hue-rotate(150deg) saturate(5);
+  background-color: rgba(0,0,255,1);
 }
 #mg_condition_1{
-  filter: brightness(0.5) sepia(0.8) hue-rotate(150deg) saturate(4);
+  background-color: rgba(82,0,255,1);
 }
 #mg_condition_2{
-  filter: brightness(0.5) sepia(0.6) hue-rotate(150deg) saturate(3);
+  background-color: rgba(82,0,110,1);
 }
 #mg_condition_3{
-  filter: brightness(0.5) sepia(0.4) hue-rotate(150deg) saturate(2);
+  background-color: rgba(181,123,110,1);
 }
 #mg_condition_4{
-  filter: brightness(0.5) sepia(0.2) hue-rotate(150deg) saturate(1);
+  background-color: rgba(255,15,0,1);
 }
 #mg_condition_bcg{
-  filter: brightness(0.5) sepia(1) hue-rotate(150deg) saturate(5) opacity(20%);
+  background-color: rgba(0,0,255,0.2);
 }
 #mg_cutting {
-  filter: brightness(0.5) sepia(1) hue-rotate(0deg) saturate(8);
+  background-color: orange;
 }
 #mg_cutting_bcg{
-  filter: brightness(0.5) sepia(1) hue-rotate(0deg) saturate(4) opacity(20%);
+  background-color: orange;
+  filter: opacity(20%);
 }
 
 #mg_cursorborder {
@@ -54,7 +65,9 @@
 
 .mg_minigamezone_combo {
   position: absolute;
+  height:100%;
   text-align:center;
-  font-size: 25px;
+  font-size: calc(50px*var(--scale));
   color: var(--color-white);
+  background-color: rgba(199, 199, 199, 0.5);
 }

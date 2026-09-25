@@ -81,6 +81,7 @@ function DisableRegen(C)
         Log("ERROR: DisableRegen() - Context is nil")
         return
     end
+    Log("DisableRegen() called")
     local loc_regens = {}
     loc_regens['Wearer'] = {}
     loc_regens['Wearer']['StaminaRate'] = GetVariableValue(C,"wearer::StaminaRate(A)")
@@ -100,6 +101,7 @@ function DisableRegen(C)
         UpdateVariableValue(C,"helper::MagickaRate(A)",0.0)
     end
     SetMinigameVar(C,'Regens',loc_regens)
+    Log("DisableRegen() - regens disabled")
 end
 
 function EnableRegen(C)
@@ -107,6 +109,7 @@ function EnableRegen(C)
         Log("ERROR: EnableRegen() - Context is nil")
         return
     end
+    Log("EnableRegen() called")
     local loc_regens = GetMinigameVar(C,'Regens')
     UpdateVariableValue(C,"wearer::StaminaRate(A)" ,loc_regens['Wearer']['StaminaRate'])
     UpdateVariableValue(C,"wearer::HealRate(A)"    ,loc_regens['Wearer']['HealRate'])
@@ -117,6 +120,7 @@ function EnableRegen(C)
         UpdateVariableValue(C,"helper::HealRate(A)"    ,loc_regens['Helper']['HealRate'])
         UpdateVariableValue(C,"helper::MagickaRate(A)" ,loc_regens['Helper']['MagickaRate'])
     end
+    Log("EnableRegen() - regens enabled")
 end
 
 function GetStoredRegen(C)

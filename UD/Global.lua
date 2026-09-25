@@ -77,8 +77,8 @@ function        IsNull(ptr)
     return Host_IsNull(ptr)
 end
 
-function RegisterActionCallback(C,action,callback)
-    Host_RegisterActionCallback(C['MinigameId'],action,callback)
+function RegisterActionCallback(C,action,callback,actionname)
+    Host_RegisterActionCallback(C['MinigameId'],action,callback,actionname)
 end
 
 function GetDeviceAccessibility(C,checkHB)
@@ -119,6 +119,10 @@ end
 
 function GetSaveConfig(key,def)
     return Host_GetSaveConfig(key,def)
+end
+
+function GetRegisteredActions(C)
+    return Host_GetRegisteredActions(C['MinigameId'])
 end
 
 ----------------------------

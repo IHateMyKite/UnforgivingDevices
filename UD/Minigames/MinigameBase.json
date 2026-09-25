@@ -127,6 +127,17 @@
             {
                 "type": "bool"
             }
+        },
+        "Hints":
+        {
+            "name": "Hints",
+            "description": "If hints should be shown in minigame",
+            "default": "true",
+            "priority": "1",
+            "mcm":
+            {
+                "type": "bool"
+            }
         }
     }
 }

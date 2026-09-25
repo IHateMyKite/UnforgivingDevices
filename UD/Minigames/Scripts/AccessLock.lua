@@ -40,11 +40,27 @@ function OnStart(C)
     
     _OnStart(C)
     
+    local loc_lock   = GetSelectedLock(C)
+    local loc_devacc = GetDeviceAccessibility(C,true)
+    local loc_locacc = GetLockAccesibility(C,loc_lock)
+    
+    if WornHasKeyword(C['Wearer'],"zad_DeviousBlindfold") and (not UseHelper(C) or WornHasKeyword(C['Helper'],"zad_DeviousBlindfold")) then
+        Log("OnStart(AccessLock.lua) - Wearer uses blindfold, reducing accessibility")
+        loc_locacc = loc_locacc*0.5
+    end
+    
+    Log("Lock accessibility -> "..tostring(loc_locacc))
+    Log("Device accessibility -> "..tostring(loc_devacc))
+    
+    local loc_accmult = 1.0/loc_devacc
+    
+    Log("Speed multiplier -> "..tostring(loc_accmult))
+    
     SetMinigameVar(C,"CursorDir",0)
     SetMinigameVar(C,"ZoneSize",tonumber(GetConfigVar(C,"ZoneSize","0.1")))
     SetMinigameVar(C,"CursorSize",35)
-    SetMinigameVar(C,"CursorSpeed",tonumber(GetConfigVar(C,"BaseSpeed","600.0")))
-    SetMinigameVar(C,"ZoneScale",tonumber(GetConfigVar(C,"ZoneScale","1.0")))
+    SetMinigameVar(C,"CursorSpeed",tonumber(GetConfigVar(C,"BaseSpeed","600.0"))*loc_accmult)
+    SetMinigameVar(C,"ZoneScale",Clamp(tonumber(loc_locacc),0.5,1.0))
     SetMinigameVar(C,"Multiplier",1.0)
     SetMinigameVar(C,"LockPosX",200)
     SetMinigameVar(C,"LockPosY",140)
@@ -56,27 +72,74 @@ function OnStart(C)
     loc_pos['y'] = 20.0 + 360.0*math.random()
     SetMinigameVar(C,"CursorPos",loc_pos)
     
+    UpdateSpeed(C,true)
+end
+
+function UpdateSpeed(C,rotate)
     local loc_vec = {}
-    
     loc_vec['x'] = GetMinigameVar(C,"CursorSpeed")
     loc_vec['y'] = GetMinigameVar(C,"CursorSpeed")
-    RotateVec(loc_vec,2.0*math.pi*math.random())
+    if rotate then
+        RotateVec(loc_vec,2.0*math.pi*math.random())
+    end
     SetMinigameVar(C,"CursorVector",loc_vec)
 end
 
 local _RegisterCallbacks = RegisterCallbacks
 function RegisterCallbacks(C)
     _RegisterCallbacks(C)
-    RegisterActionCallback(C,"press_left","Click")
-    RegisterActionCallback(C,"press_right","Click")
+    RegisterActionCallback(C,"press_left","Click","Reach lock")
+    RegisterActionCallback(C,"press_right","Click","Reach lock")
+    RegisterActionCallback(C,"press_middle","Focus","Focus")
 end
 
-function Click(C)
+local _OnUIOpen = OnUIOpen
+function OnUIOpen(C)
+    local loc_vars = _OnUIOpen(C)
+    local loc_pos_x = GetConfigVar(C,"PosX","nan")
+    if loc_pos_x ~= "nan" then
+        loc_vars["x"] = loc_pos_x.."%"
+    end
+    local loc_pos_y = GetConfigVar(C,"PosY","nan")
+    if loc_pos_y ~= "nan" then
+        loc_vars["y"] = loc_pos_y.."%"
+    end
+    local loc_scale = GetConfigVar(C,"Scale","nan")
+    if loc_scale ~= "nan" then
+        loc_vars["scale"] = loc_scale
+    end
+    
+    loc_vars["scalezone"] = GetMinigameVar(C,"ZoneScale")
+    loc_vars["scalecursor"] = 0.5
+    
+    GetMinigameVar(C,"ZoneScale")
+    return loc_vars
+end
+
+function Click(C,eventtype)
+    if eventtype == 1 then
+        return
+    end
     if IsCursorInZone(C) then
         ClickSuccess(C)
     else
         ClickFail(C)
     end
+end
+
+function Focus(C,eventtype)
+    Log("Focus() -> "..tostring(eventtype))
+    local loc_speed = GetMinigameVar(C,"CursorVector")
+    if eventtype == 0 then
+        loc_speed['x'] = loc_speed['x']/4
+        loc_speed['y'] = loc_speed['y']/4
+        Log("Reducing speed")
+    elseif eventtype == 1 then
+        loc_speed['x'] = loc_speed['x']*4
+        loc_speed['y'] = loc_speed['y']*4
+        Log("Increasing speed")
+    end
+    SetMinigameVar(C,"CursorVector",loc_speed)
 end
 
 function ClickSuccess(C)
@@ -93,13 +156,8 @@ end
 function ClickFail(C)
     if not GetMinigameVar(C,"MinigamePaused") then
         local loc_drains = GetMinigameVar(C,'StatDrain')
-        DamageStats(C,loc_drains['Stamina']*1,loc_drains['Health']*1,loc_drains['Magicka']*1)
+        DamageStats(C,loc_drains['Stamina']*0.5,loc_drains['Health']*0.5,loc_drains['Magicka']*0.5)
     end
-end
-
-function StopDeviceMinigame(C)
-    --Log("StopDeviceMinigame called")
-    StopMinigame(C)
 end
 
 function ProcessMinigame(C,delta)
@@ -116,6 +174,11 @@ function IsLockLockpickable(C,lock)
     return loc_diff <= 100 and loc_diff > 0
 end
 
+function GetLockAccesibility(C,lock)
+    local loc_acc = ((lock >> 8) & 0x7F)/100.0
+    return loc_acc
+end
+
 function IsAllLocksUnlocked(C)
     local loc_res = true
     local loc_locks = GetVariableValue(C,"thisdevice::UD_LockList(A)")
@@ -128,7 +191,7 @@ end
 
 function GetSelectedLock(C)
     local loc_locks = GetVariableValue(C,"thisdevice::UD_LockList(A)")
-    local loc_lock = loc_locks[C['Context']]
+    local loc_lock = loc_locks[tonumber(C['Context'])]
     --Log("GetSelectedLock - "..tostring(loc_lock))
     return loc_lock
 end
@@ -225,13 +288,9 @@ function UpdateCursorPosition(C,delta)
     SetMinigameVar(C,"CursorVector",loc_vec)
     
     local loc_payload = "UpdateCursorPosition({"
-    loc_payload = loc_payload.."x:"..tostring(loc_pos['x'])..","
-    loc_payload = loc_payload.."y:"..tostring(loc_pos['y'])..","
-    loc_payload = loc_payload.."size:"..tostring(GetMinigameVar(C,"CursorSize"))..","
+    loc_payload = loc_payload.."x:\""..tostring((loc_pos['x']/400)*100).."%\","
+    loc_payload = loc_payload.."y:\""..tostring((loc_pos['y']/400)*100).."%\","
     loc_payload = loc_payload.."in:"..BoolToInt(IsCursorInZone(C))..","
-    loc_payload = loc_payload.."zonex:"..tostring(GetMinigameVar(C,"LockPosX"))..","
-    loc_payload = loc_payload.."zoney:"..tostring(GetMinigameVar(C,"LockPosY"))..","
-    loc_payload = loc_payload.."zonescale:"..tostring(GetMinigameVar(C,"ZoneScale"))
     loc_payload = loc_payload.."})"
     
     InvokeMinigameUI(C,loc_payload)

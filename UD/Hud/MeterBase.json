@@ -9,8 +9,6 @@
     {
         "posX": "0%",
         "posY": "0%",
-        "width": "0%",
-        "height": "0%",
         "color_fill":"green",
         "color_back":"red",
         "minigame": false,

@@ -2,6 +2,8 @@
   --w: 0px;
   --h: 0px;
   --h: 0;
+  --scale: 1.0;
+  
   /* Colors */
   --color-black: #000000;
   --color-white: white;
@@ -93,13 +95,19 @@
   box-sizing: border-box;
   user-select: none;
   font-family: var(--font-family);
+  font-weight: bold;
+}
+
+html { 
+    overflow-y: hidden;
+    overflow-x: hidden;
 }
 
 #main {
   width: 100%;
   height: 100%;
   /* Only for testing */
-  /*background-image: url('screenshot.png');*/
+  /* background-image: url('../Media/Test.png'); */
 }
 
 /* Border Styles */

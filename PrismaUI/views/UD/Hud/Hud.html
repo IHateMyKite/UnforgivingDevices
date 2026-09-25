@@ -4,11 +4,18 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>UD-HUD</title>
+        <link rel="stylesheet" href="../Styles/Global.css">
+        <link rel="stylesheet" href="../Styles/Meter.css">
         <link rel="stylesheet" href="Hud.css">
     </head>
+    <style>
+        :root {
+            --meter-def-offset-x: 50%;
+            --meter-def-offset-y: 65%;
+        }
+    </style>
     <body id="main">
-        <div id="hud_base">
-        </div>
         <script src="Hud.js"></script>
+        <script src="../Scripts/InitMeters.js"></script>
     </body>
 </html>

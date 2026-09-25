@@ -109,9 +109,7 @@ end
 
 local _OnUIOpen = OnUIOpen
 function OnUIOpen(C)
-    _OnUIOpen(C)
-    
-    local loc_vars = {}
+    local loc_vars = _OnUIOpen(C)
     local loc_pos_x = GetConfigVar(C,"PosX","nan")
     if loc_pos_x ~= "nan" then
         loc_vars["pos_x"] = loc_pos_x.."%"
@@ -124,6 +122,10 @@ function OnUIOpen(C)
     if loc_scale ~= "nan" then
         loc_vars["scale"] = loc_scale
     end
+    local loc_hints = GetConfigVar(C,"Hints","nan")
+    if loc_hints ~= "nan" then
+        loc_vars["hints"] = StrToBool(loc_hints)
+    end
     
     if GetMinigameVar(C,'AutoMode') then
         loc_vars["mcurvis"] = false
@@ -132,9 +134,7 @@ function OnUIOpen(C)
         loc_vars["combvis"] = false
     end
     
-    local loc_str = "Init("..json.stringify(loc_vars)..")"
-    Log("OnUIOpen(Struggling.lua) -> "..loc_str)
-    InvokeMinigameUI(C,loc_str)
+    return loc_vars
 end
 
 local _RegisterCallbacks = RegisterCallbacks
@@ -142,8 +142,8 @@ function RegisterCallbacks(C)
     Log("RegisterCallbacks(Struggle.lua)")
     _RegisterCallbacks(C)
     if not GetMinigameVar(C,'UseNoUI') and not GetMinigameVar(C,'AutoMode') then
-        RegisterActionCallback(C,"press_left","ClickLeft")
-        RegisterActionCallback(C,"press_right","ClickRight")
+        RegisterActionCallback(C,"press_left","ClickLeft","Struggle")
+        RegisterActionCallback(C,"press_right","ClickRight","Struggle")
     end
 end
 
@@ -158,7 +158,10 @@ function CheckZone(C,side)
     end
 end
 
-function ClickLeft(C)
+function ClickLeft(C,eventtype)
+    if eventtype == 1 then
+        return
+    end
     if CheckZone(C,0) then
         ClickSuccess(C)
     else
@@ -166,7 +169,10 @@ function ClickLeft(C)
     end
 end
 
-function ClickRight(C)
+function ClickRight(C,eventtype)
+    if eventtype == 1 then
+        return
+    end
     if CheckZone(C,1) then
         ClickSuccess(C)
     else

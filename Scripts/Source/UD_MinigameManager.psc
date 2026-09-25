@@ -118,7 +118,7 @@ Function UpdateMinigameExpression(UD_CustomDevice_RenderScript akDevice, Actor a
     Actor Wearer = akDevice.GetWearer()
     Actor Helper = akDevice.GetHelper()
     float[] loc_expression = akDevice.GetCurrentMinigameExpression()
-    UDmain.libsp.ExpLibs.ApplyExpressionRaw(Wearer, loc_expression, 100,false,15)
+    bool loc_Res = UDmain.libsp.ExpLibs.ApplyExpressionRaw(Wearer, loc_expression, 100,false,15)
     if Helper
         UDmain.libsp.ExpLibs.ApplyExpressionRaw(Helper, loc_expression, 100,false,15)
     endif
@@ -144,7 +144,6 @@ Function StopDeviceMinigame(UD_CustomDevice_RenderScript akDevice, Actor akHelpe
     if Wearer
         Wearer.RemoveFromFaction(UDMain.UDCDmain.MinigameFaction)
     endif
-    
     if Helper
         Helper.RemoveFromFaction(UDMain.UDCDmain.MinigameFaction)
     endif
@@ -170,8 +169,4 @@ Function StopDeviceMinigame(UD_CustomDevice_RenderScript akDevice, Actor akHelpe
     akDevice.setHelper(none)
     
     akDevice._CheckUnlock()
-    
-    if loc_is3DLoaded && (UDmain.UDGV.UDG_MinigameExhaustion.Value == 1)
-        akDevice.addStruggleExhaustion(akHelper)
-    endif
 EndFunction

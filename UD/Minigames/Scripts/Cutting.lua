@@ -69,9 +69,7 @@ end
 
 local _OnUIOpen = OnUIOpen
 function OnUIOpen(C)
-    _OnUIOpen(C)
-    
-    local loc_vars = {}
+    local loc_vars = _OnUIOpen(C)
     local loc_pos_x = GetConfigVar(C,"PosX","nan")
     if loc_pos_x ~= "nan" then
         loc_vars["pos_x"] = loc_pos_x.."%"
@@ -84,6 +82,10 @@ function OnUIOpen(C)
     if loc_scale ~= "nan" then
         loc_vars["scale"] = loc_scale
     end
+    local loc_hints = GetConfigVar(C,"Hints","nan")
+    if loc_hints ~= "nan" then
+        loc_vars["hints"] = StrToBool(loc_hints)
+    end
     
     if GetMinigameVar(C,'AutoMode') then
         loc_vars["mcurvis"] = false
@@ -92,17 +94,18 @@ function OnUIOpen(C)
         loc_vars["combvis"] = false
     end
     
-    local loc_str = "Init("..json.stringify(loc_vars)..")"
-    Log("OnUIOpen(Cutting.lua) -> "..loc_str)
-    InvokeMinigameUI(C,loc_str)
+    local loc_actions = GetRegisteredActions(C)
+    loc_vars["actions"] = loc_actions
+    
+    return loc_vars
 end
 
 local _RegisterCallbacks = RegisterCallbacks
 function RegisterCallbacks(C)
     _RegisterCallbacks(C)
     if not GetMinigameVar(C,'AutoMode') then
-        RegisterActionCallback(C,"press_left","Click")
-        RegisterActionCallback(C,"press_right","Click")
+        RegisterActionCallback(C,"press_left","Click","Cut")
+        RegisterActionCallback(C,"press_right","Click","Cut")
     end
 end
 
@@ -113,7 +116,10 @@ function CheckZone(C)
     return loc_pos <= loc_zonesize + loc_zonepos and loc_pos >= loc_zonepos
 end
 
-function Click(C)
+function Click(C,eventtype)
+    if eventtype == 1 then
+        return
+    end
     if CheckZone(C) then
         ClickSuccess(C)
     else

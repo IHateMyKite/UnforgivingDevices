@@ -4,14 +4,36 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>UnforgivingDevices</title>
+        <link rel="stylesheet" href="../../Styles/Global.css">
+        <link rel="stylesheet" href="../../Styles/Meter.css">
+        <link rel="stylesheet" href="../../Styles/Actions.css">
         <link rel="stylesheet" href="styles.css">
     </head>
+    <style>
+        :root {
+            --minigame-offset-x: 50%;
+            --minigame-offset-y: 50%;
+            --scale: 1.0;
+            --zone-scale: 1.0;
+            --cursor-scale: 1.0;
+        }
+    </style>
     <body id="main">
-        <div id="mg_minigame">
-            <div id="mg_minigamezone1"></div>
-            <div id="mg_minigamezone2"></div>
-            <div id="mg_cursor"></div>
+        <div id="mg_base">
+            <div id="mg_minigame">
+                <div id="mg_minigamezone1"></div>
+                <div id="mg_minigamezone2"></div>
+                <div id="mg_cursor"></div>
+                <div class="mg_actions" style="width:100%;top:105%;margin-left:0%;">
+                    <table style="height:100%;width:100%;">
+                        <tr id="mg_actions_table">
+                        </tr>
+                    </table>
+                </div>
+            </div>
         </div>
+        <script src="../../Scripts/Global.js"></script>
+        <script src="../../Scripts/Actions.js"></script>
         <script src="script.js"></script>
     </body>
 </html>

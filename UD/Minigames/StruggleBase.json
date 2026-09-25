@@ -111,7 +111,7 @@
         {
             "name": "UI Position Y",
             "description": "How much will minigame elements move verticaly. Is in % of screen height",
-            "default": "65",
+            "default": "80",
             "priority": "59",
             "mcm":
             {

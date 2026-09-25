@@ -47,6 +47,36 @@ function CheckZones(argPos,argZones)
     
 }
 
+window.Init = (arg) =>
+{
+    var r = document.querySelector(':root');
+    if ('y' in arg)r.style.setProperty('--minigame-offset-y', String(arg.y));
+    if ('x' in arg)r.style.setProperty('--minigame-offset-x', String(arg.x));
+    
+    if (('scale' in arg))
+    {
+        var loc_scale = parseFloat(arg.scale)
+        r.style.setProperty('--scale', String(loc_scale));
+    }
+    
+    if (('scalezone' in arg))
+    {
+        var loc_scale = parseFloat(arg.scalezone)
+        r.style.setProperty('--zone-scale', String(loc_scale));
+    }
+    
+    if (('scalecursor' in arg))
+    {
+        var loc_scale = parseFloat(arg.scalecursor)
+        r.style.setProperty('--cursor-scale', String(loc_scale));
+    }
+    
+    if ('actions' in arg)
+    {
+        RegisterActions(arg.actions,"mg_actions_table");
+    }
+}
+
 function Test_CheckPosBound()
 {
     let loc_ref = false
@@ -85,55 +115,14 @@ function Test_ReflectVec()
     Direction.y = loc_posX*Math.sin(loc_angle) + loc_posY*Math.cos(loc_angle);
 }
 
-// UpdateCursorPosition({x:200,y:200,size:80,in:1,zonex:100,zoney:100,zonescale:0.5})
-
-OriginalWidth1 = 0.0
-OriginalWidth2 = 0.0
-OriginalHeight1 = 0.0
-OriginalHeight2 = 0.0
-OriginalDelta = 0.0
-OriginalMiddle = 0.0
-FirstTimeCalled = false
-
 window.UpdateCursorPosition = (arg) =>
 {
     let loc_cursor = document.getElementById("mg_cursor");
-    loc_cursor.style.left       = arg.x + "px";
-    loc_cursor.style.top        = arg.y + "px";
-    loc_cursor.style.height     = arg.size + "px";
-    loc_cursor.style.width      = arg.size + "px";
-    loc_cursor.style.marginTop  = -1*arg.size/2 + "px";
-    loc_cursor.style.marginLeft = -1*arg.size/2 + "px";
+    loc_cursor.style.left       = arg.x;
+    loc_cursor.style.top        = arg.y;
     
     let loc_zone1 = document.getElementById("mg_minigamezone1");
     let loc_zone2 = document.getElementById("mg_minigamezone2");
-    
-    if (!FirstTimeCalled)
-    {
-        OriginalWidth1  = loc_zone1.clientWidth;
-        OriginalWidth2  = loc_zone2.clientWidth;
-        OriginalHeight1 = loc_zone1.clientHeight;
-        OriginalHeight2 = loc_zone2.clientHeight;
-        OriginalDelta   = loc_zone2.offsetTop - loc_zone1.offsetTop;
-        OriginalMiddle  = loc_zone1.offsetTop + (loc_zone2.offsetTop - loc_zone1.offsetTop)/2;
-        FirstTimeCalled = true;
-    }
-    
-    loc_zone1.style.left        = arg.zonex + "px";
-    loc_zone1.style.top         = arg.zoney + "px";
-    loc_zone2.style.left        = arg.zonex + "px";
-    loc_zone2.style.top         = arg.zoney + OriginalDelta*arg.zonescale + "px";
-    
-    loc_zone1.style.width       = OriginalWidth1*arg.zonescale + "px";
-    loc_zone1.style.height      = OriginalHeight1*arg.zonescale + "px";
-    loc_zone1.style.marginLeft  = -1*loc_zone1.clientWidth/2 + "px"
-    loc_zone1.style.marginTop   = -1*loc_zone1.clientHeight/2 + "px"
-    
-    loc_zone2.style.width       = OriginalWidth2*arg.zonescale + "px";
-    loc_zone2.style.height      = OriginalHeight2*arg.zonescale + "px";
-    loc_zone2.style.marginLeft  = -1*loc_zone2.clientWidth/2 + "px"
-    loc_zone2.style.marginTop   = -1*loc_zone2.clientHeight/2 + "px"
-    
     CheckZones(arg,[loc_zone1,loc_zone2]);
 }
 

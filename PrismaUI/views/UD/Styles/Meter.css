@@ -1,5 +1,7 @@
 :root {
-    --meter-width-base: 20%; /* Default width of meters. Always uses % of main viewport*/
+    --meter-width: 20%; /* Default width of meters. Always uses % of main viewport*/
+    --meter-height: 4%;
+    --meter-font-size: 30px;
 }
 
 .mg_bar_base {
@@ -7,17 +9,18 @@
   pointer-events: none;
   width: var(--meter-width);
   height: var(--meter-height);
-  margin-left: var(--meter-margin-left);
-  margin-top: var(--meter-margin-top);
+  margin-left: calc(-1*var(--meter-width)/2);
+  margin-top: calc(-1*var(--meter-height)/2);
   position: absolute;
 }
+
 .mg_bar_base_large {
   user-select: none;
   pointer-events: none;
   width: calc(var(--meter-width)*2);
   height: calc(var(--meter-height)*2);
-  margin-left: calc(var(--meter-margin-left)*2);
-  margin-top: calc(var(--meter-margin-top)*2);
+  margin-left: calc(-1*var(--meter-width));
+  margin-top: calc(-1*var(--meter-height));
   position: absolute;
 }
 
@@ -45,26 +48,33 @@
   top: 0%;
   margin-left: 0%;
   margin-top: 0%;
-  -webkit-mask-image: linear-gradient(black, black);
-  mask-image: linear-gradient (black, black);
-  mask-size: 100%; /* This is the solutions. Its funcking stupid. I fucking hate. Took me hours to figure it out */
-  mask-repeat: no-repeat;
-  background-image: url('../Media/MeterFill.svg');
   background-size: cover;
+  mask-image: url('../Media/MeterFill.svg'), linear-gradient(black, black);
+  mask-composite: intersect;
+  mask-size: 100% 100%, 100% 100%; /* This is the solutions. Its funcking stupid. I fucking hate. Took me hours to figure it out */
+  mask-repeat: no-repeat;
 }
 
 .mg_bar_border {
     z-index: 2;
-    background-image: url('../Media/Meter.svg');
-    background-size: cover;
+    content:url("../Media/Meter.svg");
+    object-fit: fill;
 }
 
 .mg_bar2_border {
     z-index: 2;
-    background-image: url('../Media/Meter2.svg');
-    background-size: cover;
+    content:url("../Media/Meter2.svg");
+    object-fit: fill;
 }
 
 .mg_bar_background {
     z-index: 0;
+}
+
+.mg_bar_over {
+  z-index: 99;
+  width:100%;
+  text-align: center;
+  font-size: calc(25px*var(--scale));
+  color: var(--color-white);
 }

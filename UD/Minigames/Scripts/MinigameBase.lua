@@ -97,6 +97,7 @@ end
 
 function OnStop(C)
     Log("OnStop called")
+    EnableRegen(C)
     CloseMinigameUI(C)
     if UseHelper(C) then
         CallPapyrusFunction(C,"thisdevice::Lua_StopMinigame","",{"actor",C['Helper']})
@@ -116,23 +117,38 @@ end
 function OpenUI(C)
     -- Open UI
     if PlayerInMinigame(C) and GetMinigameVar(C,'UseNoUI') then
-        OnUIOpen(C)
+        UIOpen(C)
     elseif PlayerInMinigame(C) then
-        OpenMinigameUI(C,"OnUIOpen")
+        OpenMinigameUI(C,"UIOpen")
     else
         SetMinigameVar(C,'Ready',true)
     end
 end
 
 -- Called after PrismaUI minigame object is open
-function OnUIOpen(C)
-    Log("OnUIOpen")
+function UIOpen(C)
+    Log("UIOpen")
     -- Register actions
     RegisterCallbacks(C)
+    
+    local loc_payload = OnUIOpen(C)
+    loc_payload['actions'] = GetRegisteredActions(C)
+    local loc_msg = "Init("..json.stringify(loc_payload)..")"
+    Log("UIOpen(MinigameBase.lua) Invoking msg -> "..loc_msg)
+    InvokeMinigameUI(C,loc_msg)
+    
     SetMinigameVar(C,'Ready',true)
+    Log("Minigame ready")
 end
 
-function StopDeviceMinigame(C)
+function OnUIOpen(C)
+    return {}
+end
+
+function StopDeviceMinigame(C,eventtype)
+    if eventtype == 1 then
+        return
+    end
     Log("StopDeviceMinigame called")
     StopMinigame(C)
 end
@@ -183,7 +199,7 @@ end
 
 function RegisterCallbacks(C)
     Log("RegisterCallbacks(MinigameBase.lua)")
-    RegisterActionCallback(C,"press_stop","StopDeviceMinigame")
+    RegisterActionCallback(C,"press_stop","StopDeviceMinigame","Stop Minigame")
 end
 
 function ProcessMinigame(C,delta)
