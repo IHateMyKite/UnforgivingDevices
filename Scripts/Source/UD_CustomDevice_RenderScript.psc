@@ -3142,7 +3142,7 @@ Function _deviceMenuInitWH(Actor akSource,bool[] aaControl)
                 UDCDmain.currentDeviceMenu_allowcutting = True
             endif
             
-            if (UDCDmain.currentDeviceMenu_allowkey || UDCDmain.currentDeviceMenu_allowlockpick || UDCDmain.currentDeviceMenu_allowlockrepair)
+            if HaveLocks()
                 UDCDmain.currentDeviceMenu_allowLockMenu = true
             endif
         endif
@@ -3484,6 +3484,40 @@ int Function _getLockpickLevel(Int aiLockIndex, Int aiDiff = 0)
     else
         return 5 ;require key
     endif
+EndFunction
+
+Int Function _getLocksLockpickLevel(Bool abHardest = True)
+    Int loc_res = -1
+    Int loc_all = -1
+    Int loc_lockNum = GetLockNumber()
+    while loc_lockNum
+        loc_lockNum -= 1
+        Int loc_level = _getLockpickLevel(loc_lockNum)
+        loc_all = _pickLockpickLevel(loc_all, loc_level, abHardest)
+        if !IsNthLockUnlocked(loc_lockNum)
+            loc_res = _pickLockpickLevel(loc_res, loc_level, abHardest)
+        endif
+    endwhile
+    if loc_res < 0
+        loc_res = loc_all
+    endif
+    if loc_res < 0
+        return 5
+    endif
+    return loc_res
+EndFunction
+
+Int Function _pickLockpickLevel(Int aiCurrent, Int aiNew, Bool abHardest)
+    if aiCurrent < 0
+        return aiNew
+    endif
+    if abHardest && aiNew > aiCurrent
+        return aiNew
+    endif
+    if !abHardest && aiNew < aiCurrent
+        return aiNew
+    endif
+    return aiCurrent
 EndFunction
 
 String Function _getLockpickLevelString(Int aiLevel, Bool abDecorate = False)
@@ -7052,14 +7086,16 @@ String Function _GetDeviceLockMenuText()
     
     loc_res += UDMTF.Text("You carefully investigate device to gather information about its locks.")
     loc_res += UDMTF.LineBreak()
-    If _getLockpickLevel(0) > 4
+    Int loc_lvl_easiest = _getLocksLockpickLevel(False)
+    Int loc_lvl_hardest = _getLocksLockpickLevel(True)
+    If loc_lvl_easiest > 4
         If zad_deviceKey
             loc_res += UDMTF.Text("You need a " + UDMTF.Text(zad_deviceKey.GetName(), asColor = UDMTF.BoolToRainbow(True)) + " to open these locks.")
         Else
             loc_res += UDMTF.Text("This device requires a key but it is not present in our world. You are " + UDMTF.Text("doomed", asColor = UDMTF.BoolToRainbow(False)) + "!")
         EndIf
     Else
-        loc_res += UDMTF.Text("Any " + _GetLockpickLevelString(_getLockpickLevel(0), True) + " in lock picking should be able to handle them.")
+        loc_res += UDMTF.Text("Any " + _GetLockpickLevelString(iRange(loc_lvl_hardest, 0, 4), True) + " in lock picking should be able to handle them.")
         If zad_deviceKey
             loc_res += UDMTF.Text(" Or you could use a key: " + UDMTF.Text(zad_deviceKey.GetName(), asColor = UDMTF.BoolToRainbow(True)))
         EndIf
@@ -7080,11 +7116,11 @@ String Function _GetDeviceLockMenuText()
         loc_lps_couns += GetHelper().getItemCount(UDCDmain.Lockpick)
     EndIf
 
-    If _getLockpickLevel(0) > 4 && loc_keys_count == 0
+    If loc_lvl_hardest > 4 && loc_keys_count == 0
         loc_res += UDMTF.Text("You can't open these locks without a proper key!", asColor = UDMTF.BoolToRainbow(False))
         loc_res += UDMTF.LineBreak()
     EndIf
-    If _getLockpickLevel(0) <= 4 && loc_lps_couns == 0
+    If loc_lvl_easiest <= 4 && loc_lps_couns == 0
         loc_res += UDMTF.Text("You have no lockpicks!", asColor = UDMTF.BoolToRainbow(False))
         loc_res += UDMTF.LineBreak()
     EndIf
@@ -7267,7 +7303,7 @@ Function ShowBaseDetails()
         loc_frag = GetLocksIcons()
         loc_res += UDMTF.TableRowDetails("Have locks:", loc_frag)
         loc_res += UDMTF.TableRowDetails("Lock multiplier:", Round((1.0 + _getLockMinigameModifier()) * 100.0) + "%")
-        loc_res += UDMTF.TableRowDetails("Difficulty:", _GetLockpickLevelString(_getLockpickLevel(0), True))
+        loc_res += UDMTF.TableRowDetails("Difficulty:", _GetLockpickLevelString(_getLocksLockpickLevel(True), True))
         if zad_deviceKey
             loc_res += UDMTF.TableRowDetails("Key:", zad_deviceKey.GetName())
         else
