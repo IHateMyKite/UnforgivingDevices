@@ -6189,7 +6189,8 @@ Function minigame()
         loc_UseInterAVCheck = True
     endif
     
-    _SendMinigameThreads(loc_is3DLoaded,true,true,!loc_UseInterAVCheck)
+    ; Defer visible crit and AV effects until animation setup has returned.
+    _SendMinigameThreads(loc_is3DLoaded,False,true,False)
     
     Int[] hasStruggleAnimation                                  ; number of found struggle animations
     Bool   loc_StartedAnimation = False
@@ -6206,6 +6207,8 @@ Function minigame()
             loc_StartedAnimation = true
         endif
     endif
+
+    _StartPostAnimationThreads(!loc_UseInterAVCheck)
     
     ;main loop, ends only when character run out off stats or device losts all durability
     int         tick_b                 = 0
@@ -8186,6 +8189,13 @@ Function _SendMinigameThreads(bool abStarter, bool abCritLoop, bool abParalelThr
         endif
         StopMinigame()
     endif
+EndFunction
+
+Function _StartPostAnimationThreads(Bool abAVLoop)
+    if _StopMinigame || !IsMinigameLoopRunning()
+        return
+    endif
+    _SendMinigameThreads(False,True,False,abAVLoop)
 EndFunction
 
 Function _MinigameStarterThread()
