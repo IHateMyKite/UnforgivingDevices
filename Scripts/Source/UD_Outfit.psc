@@ -136,7 +136,7 @@ Int Function LockDevices(Actor akActor)
     
     loc_res += LockDevicePost(akActor,loc_res)
 
-    if LockMessage
+    if LockMessage && IsPlayer(akActor)
         UDMain.ShowSingleMessageBox(LockMessage)
     endif
     
