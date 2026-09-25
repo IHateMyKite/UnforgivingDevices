@@ -8089,6 +8089,10 @@ State UpdatePaused
         _updateTimePassed += (timePassed*24.0*60.0);*UDCDmain.UD_CooldownMultiplier
     EndFunction
     Function UpdateHour()
+        ; Keep timed locks advancing while the hourly durability/modifier hooks remain paused.
+        if !_IsUnlocked
+            UpdateAllLocksTimeLock(-1*Math.Ceiling(_LastHourUpdate()),True)
+        endif
     EndFunction
 EndState
 
