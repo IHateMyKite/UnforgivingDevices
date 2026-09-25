@@ -1722,9 +1722,55 @@ String Function GetPronounce(Actor akActor, Bool abCapital = False) global
         endif
     else
         if abCapital
-            return "they"
-        else
             return "They"
+        else
+            return "they"
+        endif
+    endif
+EndFunction
+
+String Function GetPronounceObject(Actor akActor, Bool abCapital = False) global
+    Int loc_gender = GetActorGender(akActor)
+    if loc_gender == 0
+        if abCapital
+            return "Him"
+        else
+            return "him"
+        endif
+    elseif loc_gender == 1
+        if abCapital
+            return "Her"
+        else
+            return "her"
+        endif
+    else
+        if abCapital
+            return "Them"
+        else
+            return "them"
+        endif
+    endif
+EndFunction
+
+String Function GetPronouncePossessive(Actor akActor, Bool abCapital = False) global
+    Int loc_gender = GetActorGender(akActor)
+    if loc_gender == 0
+        if abCapital
+            return "His"
+        else
+            return "his"
+        endif
+    elseif loc_gender == 1
+        if abCapital
+            return "Her"
+        else
+            return "her"
+        endif
+    else
+        if abCapital
+            return "Their"
+        else
+            return "their"
         endif
     endif
 EndFunction

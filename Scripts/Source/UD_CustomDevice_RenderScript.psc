@@ -3142,7 +3142,7 @@ Function _deviceMenuInitWH(Actor akSource,bool[] aaControl)
                 UDCDmain.currentDeviceMenu_allowcutting = True
             endif
             
-            if (UDCDmain.currentDeviceMenu_allowkey || UDCDmain.currentDeviceMenu_allowlockpick || UDCDmain.currentDeviceMenu_allowlockrepair)
+            if HaveLocks()
                 UDCDmain.currentDeviceMenu_allowLockMenu = true
             endif
         endif
@@ -3484,6 +3484,40 @@ int Function _getLockpickLevel(Int aiLockIndex, Int aiDiff = 0)
     else
         return 5 ;require key
     endif
+EndFunction
+
+Int Function _getLocksLockpickLevel(Bool abHardest = True)
+    Int loc_res = -1
+    Int loc_all = -1
+    Int loc_lockNum = GetLockNumber()
+    while loc_lockNum
+        loc_lockNum -= 1
+        Int loc_level = _getLockpickLevel(loc_lockNum)
+        loc_all = _pickLockpickLevel(loc_all, loc_level, abHardest)
+        if !IsNthLockUnlocked(loc_lockNum)
+            loc_res = _pickLockpickLevel(loc_res, loc_level, abHardest)
+        endif
+    endwhile
+    if loc_res < 0
+        loc_res = loc_all
+    endif
+    if loc_res < 0
+        return 5
+    endif
+    return loc_res
+EndFunction
+
+Int Function _pickLockpickLevel(Int aiCurrent, Int aiNew, Bool abHardest)
+    if aiCurrent < 0
+        return aiNew
+    endif
+    if abHardest && aiNew > aiCurrent
+        return aiNew
+    endif
+    if !abHardest && aiNew < aiCurrent
+        return aiNew
+    endif
+    return aiCurrent
 EndFunction
 
 String Function _getLockpickLevelString(Int aiLevel, Bool abDecorate = False)
@@ -5127,10 +5161,21 @@ Function _repairLock(float progress_add = 1.0)
             libs.UnJamLock(Wearer,UD_DeviceKeyword)
         endif
         stopMinigame()
+        String loc_lockName = UD_LockNameList[_MinigameSelectedLockID]
         if WearerIsPlayer()
-            UDmain.Print("You repaired " +GetDeviceName()+ "'s " +UD_LockNameList[_MinigameSelectedLockID]+"!",1)
+            if haveHelper()
+                UDmain.Print(getHelperName() + " repaired the " + loc_lockName + " on your " + GetDeviceName() + "!",1)
+            else
+                UDmain.Print("You repaired the " + loc_lockName + " on your " + GetDeviceName() + "!",1)
+            endif
+        elseif HelperIsPlayer()
+            UDmain.Print("You repaired the " + loc_lockName + " on " + GetWearerName() + "'s " + GetDeviceName() + "!",1)
         elseif UDCDmain.AllowNPCMessage(Wearer, True)
-            UDmain.Print(GetWearerName() + " managed to repair " +GetDeviceName()+"'s "+UD_LockNameList[_MinigameSelectedLockID],2)
+            if haveHelper()
+                UDmain.Print(getHelperName() + " repaired the " + loc_lockName + " on " + GetWearerName() + "'s " + GetDeviceName() + "!",3)
+            else
+                UDmain.Print(GetWearerName() + " repaired the " + loc_lockName + " on " + GetDeviceName() + "!",3)
+            endif
         endif
     endif
 EndFunction
@@ -6144,7 +6189,8 @@ Function minigame()
         loc_UseInterAVCheck = True
     endif
     
-    _SendMinigameThreads(loc_is3DLoaded,true,true,!loc_UseInterAVCheck)
+    ; Defer visible crit and AV effects until animation setup has returned.
+    _SendMinigameThreads(loc_is3DLoaded,False,true,False)
     
     Int[] hasStruggleAnimation                                  ; number of found struggle animations
     Bool   loc_StartedAnimation = False
@@ -6161,6 +6207,8 @@ Function minigame()
             loc_StartedAnimation = true
         endif
     endif
+
+    _StartPostAnimationThreads(!loc_UseInterAVCheck)
     
     ;main loop, ends only when character run out off stats or device losts all durability
     int         tick_b                 = 0
@@ -6681,8 +6729,10 @@ Function critFailure()
     
     if _KeyGameON
         if !libs.Config.DisableLockJam && UDCDMain.KeyIsGeneric(zad_deviceKey) && (RandomInt() <= zad_KeyBreakChance*UDCDmain.CalculateKeyModifier())
-            if PlayerInMinigame()
-                debug.messagebox("You managed to insert the key but it snapped. Its remains also jammed the lock! You will have to find other way to escape.")
+            if WearerIsPlayer()
+                debug.messagebox("You managed to insert the key but it snapped. Its remains also jammed the lock! You will have to find another way to escape.")
+            elseif HelperIsPlayer()
+                debug.messagebox("You managed to insert the key but it snapped. Its remains also jammed the lock! " + getWearerName() + " will have to find another way out.")
             endif
             
             Wearer.RemoveItem(zad_deviceKey)
@@ -7039,14 +7089,16 @@ String Function _GetDeviceLockMenuText()
     
     loc_res += UDMTF.Text("You carefully investigate device to gather information about its locks.")
     loc_res += UDMTF.LineBreak()
-    If _getLockpickLevel(0) > 4
+    Int loc_lvl_easiest = _getLocksLockpickLevel(False)
+    Int loc_lvl_hardest = _getLocksLockpickLevel(True)
+    If loc_lvl_easiest > 4
         If zad_deviceKey
             loc_res += UDMTF.Text("You need a " + UDMTF.Text(zad_deviceKey.GetName(), asColor = UDMTF.BoolToRainbow(True)) + " to open these locks.")
         Else
             loc_res += UDMTF.Text("This device requires a key but it is not present in our world. You are " + UDMTF.Text("doomed", asColor = UDMTF.BoolToRainbow(False)) + "!")
         EndIf
     Else
-        loc_res += UDMTF.Text("Any " + _GetLockpickLevelString(_getLockpickLevel(0), True) + " in lock picking should be able to handle them.")
+        loc_res += UDMTF.Text("Any " + _GetLockpickLevelString(iRange(loc_lvl_hardest, 0, 4), True) + " in lock picking should be able to handle them.")
         If zad_deviceKey
             loc_res += UDMTF.Text(" Or you could use a key: " + UDMTF.Text(zad_deviceKey.GetName(), asColor = UDMTF.BoolToRainbow(True)))
         EndIf
@@ -7067,11 +7119,11 @@ String Function _GetDeviceLockMenuText()
         loc_lps_couns += GetHelper().getItemCount(UDCDmain.Lockpick)
     EndIf
 
-    If _getLockpickLevel(0) > 4 && loc_keys_count == 0
+    If loc_lvl_hardest > 4 && loc_keys_count == 0
         loc_res += UDMTF.Text("You can't open these locks without a proper key!", asColor = UDMTF.BoolToRainbow(False))
         loc_res += UDMTF.LineBreak()
     EndIf
-    If _getLockpickLevel(0) <= 4 && loc_lps_couns == 0
+    If loc_lvl_easiest <= 4 && loc_lps_couns == 0
         loc_res += UDMTF.Text("You have no lockpicks!", asColor = UDMTF.BoolToRainbow(False))
         loc_res += UDMTF.LineBreak()
     EndIf
@@ -7094,7 +7146,11 @@ String Function _GetDeviceMainMenuText()
     loc_res += UDMTF.LineBreak()
     
     If getModResistPhysical(0.0) == 1.0 && getModResistMagicka(0.0) == 1.0
-        loc_res += UDMTF.Text("You feel that it is " + UDMTF.Text("Impossible", asColor = UDMTF.BoolToRainbow(False)) + " to struggle out of this contraption!")
+        If WearerIsPlayer()
+            loc_res += UDMTF.Text("You feel that it is " + UDMTF.Text("Impossible", asColor = UDMTF.BoolToRainbow(False)) + " to struggle out of this contraption!")
+        Else
+            loc_res += UDMTF.Text("It seems " + UDMTF.Text("Impossible", asColor = UDMTF.BoolToRainbow(False)) + " for " + getWearerName() + " to struggle out of this contraption!")
+        EndIf
     ElseIf getModResistPhysical(0.0) > getModResistMagicka(0.0)
         loc_res += UDMTF.Text("You feel that device is more " + UDMTF.Text("Vulnerable", asColor = UDMTF.PercentToRainbow(Round(getModResistPhysical(0.0) * 50 + 50))) + " to brute force than magic.")
     Else
@@ -7146,7 +7202,11 @@ String Function _GetDeviceStruggleMenuText()
     loc_res += UDMTF.Text("You sense that device is " + getResistanceString(getModResistMagicka(0.0) * -100.0, True) + " to magic.")
     loc_res += UDMTF.LineBreak()
     loc_res += UDMTF.LineBreak()
-    loc_res += UDMTF.Text("How do you want to struggle?")
+    If WearerIsPlayer()
+        loc_res += UDMTF.Text("How do you want to struggle?")
+    Else
+        loc_res += UDMTF.Text("How do you want to help " + getWearerName() + " struggle?")
+    EndIf
     loc_res += UDMTF.LineBreak()
     
     loc_res += UDMTF.ParagraphEnd()
@@ -7246,7 +7306,7 @@ Function ShowBaseDetails()
         loc_frag = GetLocksIcons()
         loc_res += UDMTF.TableRowDetails("Have locks:", loc_frag)
         loc_res += UDMTF.TableRowDetails("Lock multiplier:", Round((1.0 + _getLockMinigameModifier()) * 100.0) + "%")
-        loc_res += UDMTF.TableRowDetails("Difficulty:", _GetLockpickLevelString(_getLockpickLevel(0), True))
+        loc_res += UDMTF.TableRowDetails("Difficulty:", _GetLockpickLevelString(_getLocksLockpickLevel(True), True))
         if zad_deviceKey
             loc_res += UDMTF.TableRowDetails("Key:", zad_deviceKey.GetName())
         else
@@ -8089,6 +8149,10 @@ State UpdatePaused
         _updateTimePassed += (timePassed*24.0*60.0);*UDCDmain.UD_CooldownMultiplier
     EndFunction
     Function UpdateHour()
+        ; Keep timed locks advancing while the hourly durability/modifier hooks remain paused.
+        if !_IsUnlocked
+            UpdateAllLocksTimeLock(-1*Math.Ceiling(_LastHourUpdate()),True)
+        endif
     EndFunction
 EndState
 
@@ -8125,6 +8189,13 @@ Function _SendMinigameThreads(bool abStarter, bool abCritLoop, bool abParalelThr
         endif
         StopMinigame()
     endif
+EndFunction
+
+Function _StartPostAnimationThreads(Bool abAVLoop)
+    if _StopMinigame || !IsMinigameLoopRunning()
+        return
+    endif
+    _SendMinigameThreads(False,True,False,abAVLoop)
 EndFunction
 
 Function _MinigameStarterThread()
