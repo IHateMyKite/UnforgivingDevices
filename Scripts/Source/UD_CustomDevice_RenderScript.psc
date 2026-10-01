@@ -30,7 +30,7 @@ import UD_Native
 ;               loc_res = 0.5
 ;           end
 ;       end
-;       --Log("Base accessibility: "..tostring(loc_res))
+;       Log("Base accessibility: "..tostring(loc_res))
 ;       return loc_res
 ;   end
 ;   function GetTags(C)

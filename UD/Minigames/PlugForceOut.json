@@ -1,7 +1,6 @@
 {
     "name": "Force Out",
     "description": "Try to Force out the plug using your Strength",
-    "uiobject":"UD/Minigames/Struggle/index.html",
     "base":"StruggleBase",
     "priority": 95,
     "skill": "Strength",

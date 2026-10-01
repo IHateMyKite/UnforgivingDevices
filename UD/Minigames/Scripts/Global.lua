@@ -15,7 +15,11 @@ MinigameVars = {}
 
 function InitMinigameVars(C)
     if C then
-        MinigameVars[C['MinigameId']] = {}
+        if not MinigameVars[C['MinigameId']] then
+            MinigameVars[C['MinigameId']] = {}
+        else
+            Log("InitMinigameVars -> Already ready, skipping")
+        end
     else
         Log("ERROR: InitMinigameVars() - Context is nil")
     end
@@ -111,16 +115,18 @@ function EnableRegen(C)
     end
     Log("EnableRegen() called")
     local loc_regens = GetMinigameVar(C,'Regens')
-    UpdateVariableValue(C,"wearer::StaminaRate(A)" ,loc_regens['Wearer']['StaminaRate'])
-    UpdateVariableValue(C,"wearer::HealRate(A)"    ,loc_regens['Wearer']['HealRate'])
-    UpdateVariableValue(C,"wearer::MagickaRate(A)" ,loc_regens['Wearer']['MagickaRate'])
-    
-    if UseHelper(C) then
-        UpdateVariableValue(C,"helper::StaminaRate(A)" ,loc_regens['Helper']['StaminaRate'])
-        UpdateVariableValue(C,"helper::HealRate(A)"    ,loc_regens['Helper']['HealRate'])
-        UpdateVariableValue(C,"helper::MagickaRate(A)" ,loc_regens['Helper']['MagickaRate'])
+    if loc_regens then
+        UpdateVariableValue(C,"wearer::StaminaRate(A)" ,loc_regens['Wearer']['StaminaRate'])
+        UpdateVariableValue(C,"wearer::HealRate(A)"    ,loc_regens['Wearer']['HealRate'])
+        UpdateVariableValue(C,"wearer::MagickaRate(A)" ,loc_regens['Wearer']['MagickaRate'])
+        
+        if UseHelper(C) then
+            UpdateVariableValue(C,"helper::StaminaRate(A)" ,loc_regens['Helper']['StaminaRate'])
+            UpdateVariableValue(C,"helper::HealRate(A)"    ,loc_regens['Helper']['HealRate'])
+            UpdateVariableValue(C,"helper::MagickaRate(A)" ,loc_regens['Helper']['MagickaRate'])
+        end
+        Log("EnableRegen() - regens enabled")
     end
-    Log("EnableRegen() - regens enabled")
 end
 
 function GetStoredRegen(C)

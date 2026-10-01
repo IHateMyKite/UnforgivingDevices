@@ -125,6 +125,10 @@ function GetRegisteredActions(C)
     return Host_GetRegisteredActions(C['MinigameId'])
 end
 
+function GetMinigameSkillMult(C)
+    return Host_GetMinigameSkillMult(C['MinigameId'])
+end
+
 ----------------------------
 --   UTILITY  FUNCTIONS   --
 ----------------------------

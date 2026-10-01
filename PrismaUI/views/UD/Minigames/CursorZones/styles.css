@@ -33,10 +33,10 @@
 #mg_condition_bcg{
   background-color: rgba(0,0,255,0.2);
 }
-#mg_cutting {
+#mg_progress {
   background-color: orange;
 }
-#mg_cutting_bcg{
+#mg_progress_bcg{
   background-color: orange;
   filter: opacity(20%);
 }
@@ -54,6 +54,7 @@
   left: 0%;
   margin-left: 0%;
   background-color: var(--color-red);
+  z-index: 1;
 }
 
 .mg_minigamezone {
@@ -61,6 +62,7 @@
   height: 100%;
   position: absolute;
   background-color: var(--color-green);
+  z-index: 0;
 }
 
 .mg_minigamezone_combo {

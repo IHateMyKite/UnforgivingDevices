@@ -64,6 +64,10 @@ function OnStart(C)
     SetMinigameVar(C,"Multiplier",1.0)
     SetMinigameVar(C,"LockPosX",200)
     SetMinigameVar(C,"LockPosY",140)
+    SetMinigameVar(C,"FocusRate",tonumber(GetConfigVar(C,"FocusRate",75.0)))
+    SetMinigameVar(C,"FocusSpeedMult",tonumber(GetConfigVar(C,"FocusSpeedMult",0.15)))
+    SetMinigameVar(C,"Focus",SetMinigameVar(C,"FocusMax",100))
+    SetMinigameVar(C,"Focusing",false)
     
     --Log("OnStart")
     
@@ -108,9 +112,13 @@ function OnUIOpen(C)
     if loc_scale ~= "nan" then
         loc_vars["scale"] = loc_scale
     end
+    local loc_hints = GetConfigVar(C,"Hints","nan")
+    if loc_hints ~= "nan" then
+        loc_vars["hints"] = StrToBool(loc_hints)
+    end
     
     loc_vars["scalezone"] = GetMinigameVar(C,"ZoneScale")
-    loc_vars["scalecursor"] = 0.5
+    loc_vars["scalecursor"] = GetMinigameVar(C,"ZoneScale")
     
     GetMinigameVar(C,"ZoneScale")
     return loc_vars
@@ -129,17 +137,32 @@ end
 
 function Focus(C,eventtype)
     Log("Focus() -> "..tostring(eventtype))
-    local loc_speed = GetMinigameVar(C,"CursorVector")
     if eventtype == 0 then
-        loc_speed['x'] = loc_speed['x']/4
-        loc_speed['y'] = loc_speed['y']/4
-        Log("Reducing speed")
+        ChangeFocus(C,true)
     elseif eventtype == 1 then
-        loc_speed['x'] = loc_speed['x']*4
-        loc_speed['y'] = loc_speed['y']*4
-        Log("Increasing speed")
+        ChangeFocus(C,false)
     end
-    SetMinigameVar(C,"CursorVector",loc_speed)
+end
+
+function ChangeFocus(C,val)
+    Log("ChangeFocus called")
+    local loc_speed = GetMinigameVar(C,"CursorVector")
+    local loc_focusing = GetMinigameVar(C,"Focusing")
+    local loc_focusemult = GetMinigameVar(C,"FocusSpeedMult")
+    
+    if val == true and not loc_focusing then
+        loc_speed['x'] = loc_speed['x']*loc_focusemult
+        loc_speed['y'] = loc_speed['y']*loc_focusemult
+        SetMinigameVar(C,"Focusing",true)
+        SetMinigameVar(C,"CursorVector",loc_speed)
+        Log("Focusing ON")
+    elseif loc_focusing then
+        loc_speed['x'] = loc_speed['x']/loc_focusemult
+        loc_speed['y'] = loc_speed['y']/loc_focusemult
+        SetMinigameVar(C,"Focusing",false)
+        SetMinigameVar(C,"CursorVector",loc_speed)
+        Log("Focusing OFF")
+    end
 end
 
 function ClickSuccess(C)
@@ -161,6 +184,22 @@ function ClickFail(C)
 end
 
 function ProcessMinigame(C,delta)
+    local loc_focusing      = GetMinigameVar(C,"Focusing")
+    local loc_focuserate    = GetMinigameVar(C,"FocusRate")
+    
+    local loc_focus = 0.0
+    if loc_focusing then
+        loc_focus = UpdateMinigameVar(C,'Focus',-1*loc_focuserate*delta)
+    else
+        loc_focus = UpdateMinigameVar(C,'Focus',0.5*loc_focuserate*delta)
+    end
+    -- Update focus so its always in range
+    loc_focus = SetMinigameVar(C,"Focus",Clamp(loc_focus,0.0,GetMinigameVar(C,"FocusMax")))
+    
+    if loc_focus == 0.0 then
+        ChangeFocus(C,false)
+    end
+    
     UpdateCursorPosition(C,delta)
 end
 
@@ -287,10 +326,15 @@ function UpdateCursorPosition(C,delta)
     SetMinigameVar(C,"CursorPos",loc_pos)
     SetMinigameVar(C,"CursorVector",loc_vec)
     
-    local loc_payload = "UpdateCursorPosition({"
+    local loc_focus     = GetMinigameVar(C,"Focus")
+    local loc_focusMax  = GetMinigameVar(C,"FocusMax")
+    local loc_focusr = loc_focus/loc_focusMax
+    
+    local loc_payload = "Update({"
     loc_payload = loc_payload.."x:\""..tostring((loc_pos['x']/400)*100).."%\","
     loc_payload = loc_payload.."y:\""..tostring((loc_pos['y']/400)*100).."%\","
     loc_payload = loc_payload.."in:"..BoolToInt(IsCursorInZone(C))..","
+    loc_payload = loc_payload.."foc:"..tostring(loc_focusr)..","
     loc_payload = loc_payload.."})"
     
     InvokeMinigameUI(C,loc_payload)

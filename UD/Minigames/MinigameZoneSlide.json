@@ -1,0 +1,36 @@
+{
+    "name": "ZoneSlideBase",
+    "description": "Base",
+    "script":"UD\\Minigames\\Scripts\\MinigameZoneSlide.lua",
+    "uiobject":"UD/Minigames/CursorZones/index.html",
+    "base":"MinigameBase",
+    "abstract": true,
+    "priority": 0,
+    "config":
+    {
+        "BaseSpeed":    "175.0",
+        "SpeedMult":    "1.05",
+        "ZoneSize":     "0.4",
+        "ZoneSpeed":    "20.0",
+        "ActionName":   "Action",
+        "CursorSpeed":  "75"
+    },
+    "export":
+    {
+        "SpeedMult":
+        {
+            "name": "Speed multiplier",
+            "description": "How much will cursor speed increase for every combo",
+            "default": "1.07",
+            "priority": "86",
+            "mcm":
+            {
+                "min": "0.8",
+                "max": "2.0",
+                "precision": "0.01",
+                "format": "{0} %",
+                "mult": "100.0"
+            }
+        }
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "name": "Inflate plug",
+    "description": "Try to inflate the plug using its pump",
+    "script":"UD\\Minigames\\Scripts\\PlugInflateDeflate.lua",
+    "base":"MinigameZoneSlide",
+    "priority": 80,
+    "config":
+    {
+        "ActionName":   "Inflate",
+        "TagBlacklist": "",
+        "TagWhitelist": "inflatable_plug",
+        "Type":         "1",
+        "SpeedMult":    "1.01",
+        "ZoneSpeed":    "100.0"
+    }
+}

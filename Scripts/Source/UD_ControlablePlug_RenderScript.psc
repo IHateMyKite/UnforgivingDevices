@@ -3,6 +3,15 @@ Scriptname UD_ControlablePlug_RenderScript extends UD_CustomPlug_RenderScript
 import UnforgivingDevicesMain
 import UD_Native
 
+;<LUA>
+;   local _GetTags = GetTags
+;   function GetTags(C)
+;       local loc_res = json.parse(_GetTags(C))
+;       loc_res["controllable_plug"] = true
+;       return json.stringify(loc_res)
+;   end
+;<\LUA>
+
 float Property UD_DischargeRate = 1.0 auto
 
 bool turned_on = false

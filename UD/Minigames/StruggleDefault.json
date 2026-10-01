@@ -1,7 +1,6 @@
 {
     "name": "Struggle",
     "description": "Try to struggle out of the device by using your Agility",
-    "uiobject":"UD/Minigames/Struggle/index.html",
     "base":"StruggleBase",
     "priority": 100,
     "skill": "Agility",

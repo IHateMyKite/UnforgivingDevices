@@ -6,12 +6,12 @@ import UnforgivingDevicesMain
 ;   local _GetAccessibility = GetAccessibility
 ;   function GetAccessibility(C,checkHB)
 ;       local loc_res = 1.0
-;       if CheckFreeHands(C,true,false) then
+;       if not CheckFreeHands(C,true,false) then
 ;           loc_res = 0.25
-;       elseif CheckFreeHands(C,false,true) then
+;       elseif not CheckFreeHands(C,false,true) then
 ;           loc_res = 0.5
 ;       end
-;       --Log("GetAccessibility(Plug) called")
+;       Log("GetAccessibility(Plug) called")
 ;       if WornHasKeyword(C['Wearer'],"zad_DeviousBelt") 
 ;       or WornHasKeyword(C['Wearer'],"zad_DeviousHarness") then
 ;           if ArmorHasKeyword(C['RD'],"zad_DeviousPlugAnal") 
@@ -30,7 +30,7 @@ import UnforgivingDevicesMain
 ;               loc_res = loc_res*0.75
 ;           end
 ;       end
-;       --Log("Plug accessibility: "..tostring(loc_res))
+;       Log("Plug accessibility: "..tostring(loc_res))
 ;       return loc_res
 ;   end
 ;   local _GetTags = GetTags

@@ -139,7 +139,8 @@ function ClickSuccess(C)
     end
     
     local loc_weaponmult = GetMinigameVar(C,"WeaponMult")
-    local loc_dmg = GetMinigameVar(C,"CutPower")*loc_mult*loc_weaponmult
+    local loc_skillmult  = GetMinigameVar(C,"SkillMult")
+    local loc_dmg        = GetMinigameVar(C,"CutPower")*loc_mult*loc_weaponmult*loc_skillmult
     CallPapyrusFunction(C,"thisdevice::_CuttingMG_SKPress","",{"float",loc_dmg})
     
     -- Move zone
@@ -222,8 +223,15 @@ function ProcessMinigame(C,delta)
         local loc_zonesize = GetMinigameVar(C,"ZoneSize")
         local loc_zonepos = GetMinigameVar(C,"ZonePos")
         local loc_zonesizerecution = GetMinigameVar(C,"ZoneSizeReduction")
-        InvokeMinigameUI(C,"SetZones({size:"..tostring(loc_zonesize*(1.0 - loc_combo*loc_zonesizerecution))..",pos:"..tostring(loc_zonepos).."})")
-        InvokeMinigameUI(C,"UpdateMinigame({dur:"..tostring(loc_durability_r)..",cond:"..tostring(loc_condition_r)..",condlvl:"..tostring(loc_conditionLvl)..",cut:"..tostring(loc_cutting_r)..",pos:"..tostring(loc_pos).."})")
+        
+        local loc_setzone_payload           = "SetZones([{name:\"cutzone\",color:\"orange\",size:"..tostring(loc_zonesize*(1.0 - loc_combo*loc_zonesizerecution))..",left:"..tostring(loc_zonepos).."}])"
+        local loc_updateminigame_payload    = "Update({dur:"..tostring(loc_durability_r)..",cond:"..tostring(loc_condition_r)..",condlvl:"..tostring(loc_conditionLvl)..",prog:"..tostring(loc_cutting_r)..",pos:"..tostring(loc_pos).."})"
+        
+        --Log("SetZone = "..loc_setzone_payload)
+        --Log("Update = "..loc_updateminigame_payload)
+        
+        InvokeMinigameUI(C,loc_setzone_payload)
+        InvokeMinigameUI(C,loc_updateminigame_payload)
     end
 end
 

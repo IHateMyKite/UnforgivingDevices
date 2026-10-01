@@ -2,7 +2,7 @@
 -- Check if minigame should be available for selected device
 local _Precondition = Precondition -- Save previous function
 function Precondition(C)
-    Log("Precondition(Struggle.lua) called")
+    --Log("Precondition(Struggle.lua) called")
     local loc_physres       = GetVariableValue(C,"thisdevice::UD_ResistPhysical(A)")
     local loc_physresmult   = GetConfigVar(C,"PhysResMult","1.0")
     local loc_magres        = GetVariableValue(C,"thisdevice::UD_ResistMagicka(A)")
@@ -59,6 +59,8 @@ function OnStart(C)
     SetMinigameVar(C,"Combo",0)
     SetMinigameVar(C,"DamageSpeedMult",tonumber(GetConfigVar(C,"DamageSpeedMult","1.25")))
     SetMinigameVar(C,"SpeedMult",tonumber(GetConfigVar(C,"SpeedMult","1.05")))
+    SetMinigameVar(C,"Accessibility",tonumber(GetDeviceAccessibility(C,true)))
+    
     
     local loc_durability_r  = GetVariableValue(C,"thisdevice::current_device_health(U)")/GetMinigameVar(C,'MaxDurability')
     local loc_condition_r   = 1.0 - GetVariableValue(C,"thisdevice::_total_durability_drain(U)")/100.0
@@ -78,7 +80,9 @@ end
 function DamageDurability(C,dmg)
     --Log("DamageDurability - "..tostring(dmg))
     local loc_resistence    = 1.0 - GetMinigameVar(C,"Resistence")
-    local loc_durability    = UpdateVariableValue(C,"thisdevice::current_device_health(U)",-1.0*dmg*loc_resistence)
+    local loc_acc           = GetMinigameVar(C,"Accessibility")
+    local loc_skillmult     = GetMinigameVar(C,"SkillMult")
+    local loc_durability    = UpdateVariableValue(C,"thisdevice::current_device_health(U)",-1.0*dmg*loc_resistence*loc_acc*loc_skillmult)
     local loc_durability_r  = loc_durability/GetMinigameVar(C,'MaxDurability')
     local loc_condition     = UpdateVariableValue(C,"thisdevice::_total_durability_drain(U)",dmg*GetMinigameVar(C,"CondMult"))
     local loc_condition_r   = 1.0 - loc_condition/100.0
@@ -133,6 +137,8 @@ function OnUIOpen(C)
     elseif not StrToBool(GetConfigVar(C,"ShowCombo","true")) then
         loc_vars["combvis"] = false
     end
+    
+    loc_vars["mprovis"] = false
     
     return loc_vars
 end
@@ -248,14 +254,22 @@ function ProcessMinigame(C,delta)
     end
     
     if not loc_noui then
-        local loc_durability_r = GetMinigameVar(C,"Durability")
-        local loc_condition_r  = GetMinigameVar(C,"Condition")
-        local loc_conditionlvl = GetMinigameVar(C,"ConditionLvl")
-        local loc_combo = GetMinigameVar(C,"Combo")
-        local loc_zonesize = GetMinigameVar(C,"ZoneSize")
-        local loc_zonesizerecution = GetMinigameVar(C,"ZoneSizeReduction")
-        InvokeMinigameUI(C,"SetZones({zonesize:"..tostring(loc_zonesize*(1.0 - loc_combo*loc_zonesizerecution)).."})")
-        InvokeMinigameUI(C,"UpdateMinigame({dur:"..tostring(loc_durability_r)..",cond:"..tostring(loc_condition_r)..",condlvl:"..tostring(loc_conditionlvl)..",pos:"..tostring(loc_pos).."})")
+        local loc_durability_r      = GetMinigameVar(C,"Durability")
+        local loc_condition_r       = GetMinigameVar(C,"Condition")
+        local loc_conditionlvl      = GetMinigameVar(C,"ConditionLvl")
+        local loc_combo             = GetMinigameVar(C,"Combo")
+        local loc_zonesize          = GetMinigameVar(C,"ZoneSize")
+        local loc_zonesizerecution  = GetMinigameVar(C,"ZoneSizeReduction")
+        local loc_zonesizeui        = tostring(loc_zonesize*(1.0 - loc_combo*loc_zonesizerecution))
+        
+        local loc_setzone_payload           = "SetZones([{name:\"left\",left:0.0,size:"..loc_zonesizeui.."},{name:\"right\",right:0.0,size:"..loc_zonesizeui.."}])"
+        local loc_updateminigame_payload    = "Update({dur:"..tostring(loc_durability_r)..",cond:"..tostring(loc_condition_r)..",condlvl:"..tostring(loc_conditionlvl)..",pos:"..tostring(loc_pos).."})"
+        
+        --Log("SetZone = "..loc_setzone_payload)
+        --Log("Update = "..loc_updateminigame_payload)
+        
+        InvokeMinigameUI(C,loc_setzone_payload)
+        InvokeMinigameUI(C,loc_updateminigame_payload)
     end
 end
 

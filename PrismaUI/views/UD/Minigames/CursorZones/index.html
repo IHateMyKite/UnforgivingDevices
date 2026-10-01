@@ -3,9 +3,9 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>CuttingMinigame</title>
+        <title>ProgressMinigame</title>
         <link rel="stylesheet" href="../../Styles/Global.css">
-        <link rel="stylesheet" href="../../Styles/Meter.css">
+        <link rel="stylesheet" href="../../Styles/Meters.css">
         <link rel="stylesheet" href="../../Styles/Actions.css">
         <link rel="stylesheet" href="styles.css">
     </head>
@@ -20,30 +20,29 @@
         <div id="mg_base">
             <div id="mg_bar_cursor" class="mg_bar_base_large" style="display:none;">
                 <img class="mg_bar mg_bar2_border"></img>
-                <div style="left:0%;" class="mg_minigamezone"></div>
+                <!-- <div style="left:50%;" class="mg_minigamezone"></div> -->
                 <div id="mg_combo" style="left:110%;display:none;" class="mg_minigamezone_combo">0x</div>
-                <div style="right:0%;" class="mg_minigamezone"></div>
                 <div id="mg_cursor"></div>
             </div>
-            <div id="mg_bar_health" class="mg_bar_base" style="top:calc(1.0*var(--meter-height));display:none;">
+            <div id="mg_bar_health" class="mg_bar_base" style="top:calc(var(--durability-indx)*var(--meter-height));display:none;">
                 <div id="mg_durability_over" class="mg_bar mg_bar_over">durability</div>
                 <img class="mg_bar mg_bar_border"></img>
                 <div id="mg_durability" class="mg_bar_fill"></div>
                 <div id="mg_durability_bcg" class="mg_bar_fill mg_bar_background"></div>
             </div>
-            <div id="mg_bar_condition" class="mg_bar_base" style="top:calc(2.0*var(--meter-height));display:none;">
+            <div id="mg_bar_condition" class="mg_bar_base" style="top:calc(var(--condition-indx)*var(--meter-height));display:none;">
                 <div id="mg_condition_over" class="mg_bar mg_bar_over">condition</div>
                 <img class="mg_bar mg_bar_border"></img>
                 <div id="mg_condition_0" class="mg_bar_fill mg_condition"></div>
                 <div id="mg_condition_bcg" class="mg_bar_fill mg_bar_background"></div>
             </div>
-            <div id="mg_bar_progress" class="mg_bar_base" style="top:calc(3.0*var(--meter-height));display:none;">
+            <div id="mg_bar_progress" class="mg_bar_base" style="top:calc(var(--progress-indx)*var(--meter-height));display:none;">
                 <div id="mg_progress_over" class="mg_bar mg_bar_over">progress</div>
                 <div class="mg_bar mg_bar_border"></div>
-                <div id="mg_cutting" class="mg_bar_fill"></div>
-                <div id="mg_cutting_bcg" class="mg_bar_fill mg_bar_background"></div>
+                <div id="mg_progress" class="mg_bar_fill"></div>
+                <div id="mg_progress_bcg" class="mg_bar_fill mg_bar_background"></div>
             </div>
-            <div class="mg_actions" style="top:calc(5.0*var(--meter-height));">
+            <div class="mg_actions" style="top:calc(var(--actions-indx)*var(--meter-height));">
                 <table style="height:100%;width:100%;">
                     <tr id="mg_actions_table">
                     </tr>
@@ -52,7 +51,7 @@
         </div>
         
         <script src="script.js"></script>
-        <script src="../../Scripts/InitMeters.js"></script>
+        <script src="../../Scripts/Meters.js"></script>
         <script src="../../Scripts/Actions.js"></script>
     </body>
 </html>

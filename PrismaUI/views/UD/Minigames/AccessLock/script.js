@@ -71,6 +71,18 @@ window.Init = (arg) =>
         r.style.setProperty('--cursor-scale', String(loc_scale));
     }
     
+    var loc_hints  = false
+    if (('hints' in arg))
+    {
+        loc_hints = arg.hints
+    }
+    
+    if (!('focvis' in arg) || arg.focvis)
+    {
+        document.getElementById('mg_bar_focus').style.display = 'inherit';
+        if (!loc_hints) document.getElementById('mg_focus_over').style.display = "none";
+    }
+    
     if ('actions' in arg)
     {
         RegisterActions(arg.actions,"mg_actions_table");
@@ -115,7 +127,7 @@ function Test_ReflectVec()
     Direction.y = loc_posX*Math.sin(loc_angle) + loc_posY*Math.cos(loc_angle);
 }
 
-window.UpdateCursorPosition = (arg) =>
+window.Update = (arg) =>
 {
     let loc_cursor = document.getElementById("mg_cursor");
     loc_cursor.style.left       = arg.x;
@@ -124,5 +136,9 @@ window.UpdateCursorPosition = (arg) =>
     let loc_zone1 = document.getElementById("mg_minigamezone1");
     let loc_zone2 = document.getElementById("mg_minigamezone2");
     CheckZones(arg,[loc_zone1,loc_zone2]);
+    
+    Focus = arg.foc
+    let loc_bar = document.getElementById("mg_focus")
+    loc_bar.style.setProperty("mask-size","100% 100%,"+String(Focus*100.0)+"% 100%")
 }
 

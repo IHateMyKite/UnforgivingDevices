@@ -5,7 +5,7 @@
   width: calc(var(--meter-width)*2);
   height: calc(2*var(--meter-height));
   margin-left: calc(-1*var(--meter-width));
-  margin-top: calc(-1*var(--meter-height));
+  margin-top: 0px;
   position: absolute;
 }
 

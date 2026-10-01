@@ -65,3 +65,12 @@
   position: absolute;
   background-color: var(--color-blue);
 }
+
+#mg_focus {
+  background-color: rgba(0, 197, 255, 1.0);
+  
+}
+
+#mg_focus_bcg {
+  background-color: rgba(0, 197, 255, 0.2);
+}

@@ -6,7 +6,7 @@ end
 
 -- Check if actor can struggle or if other conditions are met
 function Condition(C)
-    return CheckMinStatsWearer(C) and GetDeviceAccessibility(C,true) > 0.0
+    return CheckMinStatsWearer(C) and (not UseHelper(C) or CheckMinStatsHelper(C)) and GetDeviceAccessibility(C,true) > 0.0
 end
 
 function CheckMinStatsWearer(C)
@@ -32,6 +32,8 @@ function OnStart(C)
     Log("OnStart called")
     InitMinigameVars(C)
     
+    SetMinigameVar(C,'Ready',false)
+    
     UpdateVariableValue(C,"thisdevice::_PauseMinigame(A)",false)
     UpdateVariableValue(C,"thisdevice::_StopMinigame(A)",false)
     UpdateVariableValue(C,"thisdevice::_MinigameMainLoopON(A)",true)
@@ -47,10 +49,14 @@ function OnStart(C)
     SetMinigameVar(C,'PauseDrain',false)
     SetMinigameVar(C,'TimerSkill',0.0)
     SetMinigameVar(C,'SkillGain',tonumber(GetConfigVar(C,"SkillGain","10.0")))
+    SetMinigameVar(C,"SkillMult",GetMinigameSkillMult(C))
     SetMinigameVar(C,'UseNoUI',StrToBool(GetConfigVar(C,"UseNoUI","false")))
     SetMinigameVar(C,"AutoMode",StrToBool(GetSaveConfig("Minigames.AutoMode","false")))
     SetMinigameVar(C,"AutoModeTimer",SetMinigameVar(C,"AutoModeBase",tonumber(GetSaveConfig("Minigames.AutoModePauseTime","0.25"))))
     SetMinigameVar(C,"UseShaders",StrToBool(GetSaveConfig("Minigames.Shaders","true")) and not GetMinigameVar(C,"AutoMode"))
+    
+    Log("SkillMult -> "..tostring(GetMinigameVar(C,"SkillMult")))
+    
     -- Store drains from config for faster access
     StoreConfigDrain(C)
 end
@@ -78,8 +84,6 @@ function OnUpdate(C,delta)
     if PlayerInMinigame(C) then
         ProcessMinigame(C,delta)
         UpdateSkill(C,delta)
-    else
-        ProcessMinigameNPC(C,delta)
     end
     
     -- Update expression once in the while

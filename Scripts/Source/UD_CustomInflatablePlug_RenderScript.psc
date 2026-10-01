@@ -1,9 +1,27 @@
-Scriptname UD_CustomInflatablePlug_RenderScript extends UD_CustomPlug_RenderScript  
+Scriptname UD_CustomInflatablePlug_RenderScript extends UD_CustomPlug_RenderScript
 
 import UnforgivingDevicesMain
 import UD_Native
 
 ; <DOCUSTR(name,Inflatable plug)>
+
+;<LUA>
+;   local _GetTags = GetTags
+;   function GetTags(C)
+;       local loc_res = json.parse(_GetTags(C))
+;       loc_res["inflatable_plug"] = true
+;       return json.stringify(loc_res)
+;   end
+;   local _GetAccessibility = GetAccessibility
+;   function GetAccessibility(C,checkHB)
+;       Log("GetAccessibility(InflatablePlug) called")
+;       local loc_res = _GetAccessibility(C,checkHB)
+;       local loc_infllvl = GetVariableValue(C,"thisdevice::_inflateLevel(A)")
+;       Log("inflate level = "..tostring(loc_infllvl))
+;       loc_res = loc_res*(1.0 - 0.2*loc_infllvl)
+;       return loc_res
+;   end
+;<\LUA>
 
 float Property UD_PumpDifficulty    = 50.0      auto ;deflation required to deflate plug by one level
 float Property UD_DeflateRate       = 200.0     auto ;inflation lost per one day ;/ <EXPORT(name:Deflate rate)> /;
@@ -33,136 +51,6 @@ Function InitPost()
     UD_DeviceType = "Inflatable Plug"
 EndFunction
 
-Function safeCheck()
-    if !UD_SpecialMenuInteraction
-        UD_SpecialMenuInteraction = UDCDmain.DefaultINFPlugSpecialMsg
-    endif
-    if !UD_SpecialMenuInteractionWH
-        UD_SpecialMenuInteractionWH = UDCDmain.DefaultINFPlugSpecialMsgWH
-    endif
-    parent.safeCheck()
-EndFunction
-
-Function onDeviceMenuInitPost(bool[] aControlFilter)
-    parent.onDeviceMenuInitPost(aControlFilter)
-    int pump_level = getPlugInflateLevel()
-    if pump_level < 5
-        UDCDmain.currentDeviceMenu_switch3 = True
-        if wearerFreeHands(True)
-            UDCDmain.currentDeviceMenu_switch5 = True
-        endif
-    endif
-    if pump_level > 0 && pump_level != 5
-        UDCDmain.currentDeviceMenu_switch4 = True
-    endif
-    UDCDmain.currentDeviceMenu_allowSpecialMenu = True
-EndFunction
-
-Function onDeviceMenuInitPostWH(bool[] aControlFilter)
-    parent.onDeviceMenuInitPostWH(aControlFilter)
-    int pump_level = getPlugInflateLevel()
-    if pump_level < 5
-        UDCDmain.currentDeviceMenu_switch3 = True
-        if wearerFreeHands(True) || helperFreeHands(True)
-            UDCDmain.currentDeviceMenu_switch5 = True
-        endif
-    endif
-    if pump_level > 0 && pump_level != 5
-        UDCDmain.currentDeviceMenu_switch4 = True
-    endif
-    UDCDmain.currentDeviceMenu_allowSpecialMenu = True
-EndFunction
-
-bool Function proccesSpecialMenu(int msgChoice)
-    bool res = parent.proccesSpecialMenu(msgChoice)
-    if msgChoice == 1
-        if wearerFreeHands(True)
-            inflate()
-            return false
-        else
-            return inflateMinigame()
-        endif
-    elseif msgChoice == 2
-        if wearerFreeHands(True)
-            inflate(false,5)
-            return true
-        endif
-    elseif msgChoice == 3
-        if wearerFreeHands(True) && canDeflate() 
-            deflate()
-            return false
-        else
-            return deflateMinigame()
-        endif    
-    endif
-    return res
-EndFunction
-
-bool Function proccesSpecialMenuWH(Actor akSource,int msgChoice)
-    bool res = parent.proccesSpecialMenuWH(akSource,msgChoice)
-    if msgChoice == 1
-        if wearerFreeHands(True) || helperFreeHands(True)
-            inflate()
-            return false
-        else
-            return inflateMinigame()
-        endif
-    elseif msgChoice == 2
-        inflate(false,5)
-        return true
-    elseif msgChoice == 3
-        if (wearerFreeHands(True) || helperFreeHands(True)) && canDeflate() 
-            deflate()
-            return false
-        else
-            return deflateMinigame()
-        endif    
-    endif
-    return res
-EndFunction
-
-string Function addInfoString(string str = "")
-    
-    str += UDMTF.TableRowDetails("Inflate level:", getPlugInflateLevelString(True))
-    if getPlugInflateLevel() > 0
-        Int loc_var = Math.Ceiling(100.0 - 100.0*deflateprogress/UD_PumpDifficulty)
-        str += UDMTF.TableRowDetails("Plug pressure:", loc_var + "%", UDMTF.PercentToRainbow(100 - loc_var))
-    endif
-    
-    str += UDMTF.PageSplit(abForce = False)
-    str += UDMTF.LineGap()
-    
-    return parent.addInfoString(str)
-EndFunction
-
-bool Function struggleMinigame(int type = -1, Bool abSilent = False)
-    if isSentient() || !WearerFreeHands(True) || getPlugInflateLevel() > 0
-        return forceOutPlugMinigame(abSilent)
-    else
-        unlockRestrain()
-        if WearerIsPlayer()
-            UDmain.Print("You succefully forced out " + deviceInventory.getName() + ".",1)
-        elseif UDCDmain.AllowNPCMessage(GetWearer())
-            UDmain.Print(getWearerName() + "'s "+ getDeviceName() +" got removed!",1)
-        endif
-    endif
-    return true
-EndFunction
-
-bool Function struggleMinigameWH(Actor akHelper,int aiType = -1)
-    if isSentient() || (!WearerFreeHands(True) && !HelperFreeHands(True)) || getPlugInflateLevel() > 0
-        return forceOutPlugMinigameWH(akHelper)
-    else
-        unlockRestrain()
-        if WearerIsPlayer()
-            UDmain.Print("With help of "+ getHelperName() +", you succefully forced out " + deviceInventory.getName() + "!",1)
-        elseif UDCDmain.AllowNPCMessage(GetWearer())
-            UDmain.Print(getWearerName() + "'s "+ getDeviceName() +" got removed!",1)
-        endif
-    endif
-    return true
-EndFunction
-
 float Function getAccesibility()
     float loc_res = parent.getAccesibility()
     if loc_res
@@ -171,80 +59,8 @@ float Function getAccesibility()
     return ValidateAccessibility(loc_res)
 EndFunction
 
-float inflateprogress = 0.0 ;/ <EXPORT(name:Inflate progress)> /;
-
-bool inflateMinigame_on = false
-bool Function inflateMinigame()
-    if !minigamePrecheck()
-        return false
-    endif
-
-    resetMinigameValues()
-    
-    setMinigameOffensiveVar(False,0.0,0.0,True)
-    setMinigameWearerVar(True,UD_base_stat_drain*0.6)
-    setMinigameEffectVar(True,True,0.5)
-    setMinigameWidgetVar(True, True, False, 0x7c9cfb, 0x7c2cfd, -1, "icon-meter-air")
-    setMinigameMinStats(0.3)
-    float mult = 1.0
-    if haveHelper()
-        setMinigameHelperVar(True,UD_base_stat_drain*0.75)
-        setMinigameEffectHelperVar(True,True,0.75)    
-        mult += 0.25
-        if HelperFreeHands(True,True)
-            mult += 0.15
-        endif
-    endif
-    if minigamePostcheck()
-        setMinigameMult(1,mult)
-        inflateMinigame_on = True
-        UD_Events.SendEvent_DeviceMinigameBegin(self,"IflatablePlug_Inflate")
-        minigame()
-        UD_Events.SendEvent_DeviceMinigameEnd(self,"IflatablePlug_Inflate")
-        inflateMinigame_on = False
-        return true
-    else
-        return false
-    endif
-EndFunction
-
-float deflateprogress = 0.0 ;/ <EXPORT(name:Inflate progress)> /;
-
-bool deflateMinigame_on = false
-bool Function deflateMinigame()
-    if !minigamePrecheck()
-        return false
-    endif
-
-    resetMinigameValues()
-    
-    setMinigameOffensiveVar(False,0.0,0.0,True)
-    setMinigameWearerVar(True,UD_base_stat_drain*0.8)
-    setMinigameEffectVar(True,True,0.8)
-    setMinigameWidgetVar(True, True, False, 0x7c9cfb, 0x7c2cfd, -1, "icon-meter-air")
-    setMinigameMinStats(0.6)
-    float mult = 1.0
-    if haveHelper()
-        setMinigameHelperVar(True,UD_base_stat_drain*0.75)
-        setMinigameEffectHelperVar(True,True,0.75)    
-        mult += 0.15
-        if HelperFreeHands(True,True)
-            mult += 0.10
-        endif        
-    endif
-    setMinigameMult(1,mult)
-    
-    if minigamePostcheck()
-        deflateMinigame_on = True
-        UD_Events.SendEvent_DeviceMinigameBegin(self,"IflatablePlug_Deflate")
-        minigame()
-        UD_Events.SendEvent_DeviceMinigameEnd(self,"IflatablePlug_Deflate")
-        deflateMinigame_on = False
-        return true
-    else
-        return false
-    endif
-EndFunction
+float inflateprogress = 0.0
+float deflateprogress = 0.0
 
 Function inflate(bool silent = false,int iInflateNum = 1)
         int currentVal = getPlugInflateLevel() + iInflateNum
@@ -283,7 +99,7 @@ Function inflate(bool silent = false,int iInflateNum = 1)
         inflateprogress = 0.0
 EndFunction
 
-Function deflate(bool silent = False)
+Function deflate(bool silent = False,int iDeflateNum = 1)
     if !silent
         if haveHelper()
             if WearerIsPlayer()
@@ -299,27 +115,8 @@ Function deflate(bool silent = False)
             endif
         endif
     endif
-    deflatePlug(1)
+    deflatePlug(iDeflateNum)
     return
-EndFunction
-
-bool Function canDeflate()
-    if iInRange(getPlugInflateLevel(),1,4)
-        return True
-    else
-        if WearerIsPlayer()
-            debug.MessageBox("Plug is already deflated")
-        elseif WearerIsFollower()
-            UDmain.Print(getWearerName() + "'s "+ getDeviceName() + " is already deflated.",1)
-        endif
-        return False
-    endif
-    if WearerIsPlayer()
-        debug.MessageBox("Plug is too big to be deflated at the moment!")
-    elseif WearerIsFollower()
-        UDmain.Print(getWearerName() + "'s "+ getDeviceName() + " is too big to be deflated at the moment!",1)
-    endif
-    return False
 EndFunction
 
 int Function getPlugInflateLevel()
@@ -415,16 +212,6 @@ EndFunction
 
 Function patchDevice()
     UDCDmain.UDPatcher.patchPlug(self)
-EndFunction
-
-Function OnMinigameEnd()
-    if inflateMinigame_on && inflateprogress >= UD_PumpDifficulty
-        inflate()
-    endif
-    if deflateMinigame_on && deflateprogress >= UD_PumpDifficulty
-        deflate()
-    endif
-    parent.OnMinigameEnd()
 EndFunction
 
 Function activateDevice()
