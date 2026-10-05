@@ -52,7 +52,7 @@ function OnStart(C)
     SetMinigameVar(C,'SkillGain',tonumber(GetConfigVar(C,"SkillGain","10.0")))
     SetMinigameVar(C,"SkillMult",GetMinigameSkillMult(C))
     SetMinigameVar(C,'UseNoUI',StrToBool(GetConfigVar(C,"UseNoUI","false")))
-    SetMinigameVar(C,"AutoMode",StrToBool(GetSaveConfig("Minigames.AutoMode","false")))
+    SetMinigameVar(C,"AutoMode",StrToBool(GetConfigVar(C,"AutoMode","false")))
     SetMinigameVar(C,"AutoModeTimer",SetMinigameVar(C,"AutoModeBase",tonumber(GetSaveConfig("Minigames.AutoModePauseTime","0.25"))))
     SetMinigameVar(C,"UseShaders",StrToBool(GetConfigVar(C,"UseShaders","true")) and not GetMinigameVar(C,"AutoMode"))
     
@@ -103,7 +103,7 @@ function OnUpdate(C,delta)
         if UseHelper(C) then
             CallPapyrusFunction(C,"MINM::UpdateMinigameExpression","",{"object",C['DeviceObj']},{"actor",C['Helper']})
         else
-            Log("Updating expression")
+            --Log("Updating expression")
             CallPapyrusFunction(C,"MINM::UpdateMinigameExpression","",{"object",C['DeviceObj']},{"actor",nil})
         end
     end
@@ -234,4 +234,14 @@ end
 
 function GetDataToSave(C,data)
     return data
+end
+
+function PlayShader(C,color)
+    if color == "green" then
+        CallPapyrusFunction(C,"MINM::PlayGreenShader","",{"actor",C['Wearer']},{"actor",C['Helper']})
+    elseif color == "red" then
+        CallPapyrusFunction(C,"MINM::PlayRedShader","",{"actor",C['Wearer']},{"actor",C['Helper']})
+    elseif color == "blue" then
+        CallPapyrusFunction(C,"MINM::PlayBlueShader","",{"actor",C['Wearer']},{"actor",C['Helper']})
+    end
 end

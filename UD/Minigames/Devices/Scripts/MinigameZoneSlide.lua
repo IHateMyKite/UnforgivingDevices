@@ -35,6 +35,10 @@ function OnUIOpen(C)
     local loc_vars = _OnUIOpen(C)
     local loc_pos_x = GetConfigVar(C,"PosX","nan")
     
+    --if GetMinigameVar(C,'AutoMode') then
+    --    loc_vars["mcurvis"] = false
+    --end
+    
     loc_vars["combvis"] = false
     loc_vars["mdurvis"] = false
     loc_vars["mconvis"] = false
@@ -63,7 +67,7 @@ function Click(C,eventtype)
         if CheckZone(C) then
             SetMinigameVar(C,"HoldingZone",true)
             if GetMinigameVar(C,"UseShaders") then
-                CallPapyrusFunction(C,"thisdevice::_MG_CastGreenShader","")
+                PlayShader(C,"green")
             end
         else
             SetMinigameVar(C,"HoldingZone",false)
@@ -96,15 +100,15 @@ function ProcessMinigame(C,delta)
     local loc_auto = GetMinigameVar(C,'AutoMode')
     local loc_noui = GetMinigameVar(C,'UseNoUI')
     if loc_auto or loc_noui then
-        local loc_timer = UpdateMinigameVar(C,"AutoModeTimer",-1*delta)
-        if loc_timer <= 0.0 then
+        --local loc_timer = UpdateMinigameVar(C,"AutoModeTimer",-1*delta)
+        --if loc_timer <= 0.0 then
             SetMinigameVar(C,"AutoModeTimer",GetMinigameVar(C,"AutoModeBase"))
-            if CheckZone(C) and not GetMinigameVar(C,"HoldingZone") and math.random() <= 0.8 then
-                Click(C,0)
-            elseif math.random() > 0.25 and GetMinigameVar(C,"HoldingZone") then
-                Click(C,1)
+            if CheckZone(C) and not GetMinigameVar(C,"HoldingZone") then
+                SetMinigameVar(C,"HoldingZone",true)
+            elseif not CheckZone(C) and GetMinigameVar(C,"HoldingZone") then
+                SetMinigameVar(C,"HoldingZone",false)
             end
-        end
+        --end
     end
     
     if not loc_noui then
@@ -112,7 +116,7 @@ function ProcessMinigame(C,delta)
         local loc_zonesize  = GetMinigameVar(C,"ZoneSize")
         local loc_zonepos   = GetMinigameVar(C,"ZonePos")
         local loc_zonesizerecution = GetMinigameVar(C,"ZoneSizeReduction")
-        local loc_zonesizeui= loc_zonesize*(1.0 - loc_combo*loc_zonesizerecution)
+        local loc_zonesizeui= loc_zonesize--*(1.0 - loc_combo*loc_zonesizerecution)
         local loc_cursor    = GetMinigameVar(C,"CursorPos")
         local loc_prog      = GetUIUpdateString(C)
         
@@ -206,7 +210,7 @@ function ReleaseZone(C)
         InvokeMinigameUI(C,"UpdateCombo({val:"..tostring(0).."})")
     end
     if GetMinigameVar(C,"UseShaders") then
-        CallPapyrusFunction(C,"thisdevice::_MG_CastRedShader","")
+        PlayShader(C,"red")
     end
     OnReleasingZone(C)
 end

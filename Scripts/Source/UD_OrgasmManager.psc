@@ -291,13 +291,13 @@ Function ActorOrgasm(actor akActor, Int aiOrgasms)
     
     ;call stopMinigame so it get stoped before all other shit gets processed
     bool loc_actorinminigame = UDCDmain.actorInMinigame(akActor)
-    ;if loc_actorinminigame
-    ;    StorageUtil.SetIntValue(akActor,"UD_OrgasmInMinigame_Flag",1)
+    if loc_actorinminigame
+        StorageUtil.SetIntValue(akActor,"UD_OrgasmInMinigame_Flag",1)
     ;    UD_CustomDevice_RenderScript loc_device = UDCDMain.getMinigameDevice(akActor)
     ;    if loc_device
     ;        loc_device.StopMinigame()
     ;    endif
-    ;endif
+    endif
     
     UD_Native.StopMinigame(akActor)
     

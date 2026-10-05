@@ -1,9 +1,9 @@
 {
     "name": "ZoneSlideBase",
     "description": "Base",
-    "script":"UD\\Minigames\\Scripts\\MinigameZoneSlide.lua",
+    "script":"UD\\Minigames\\Devices\\Scripts\\MinigameZoneSlide.lua",
     "uiobject":"UD/Minigames/CursorZones/index.html",
-    "base":"MinigameBase",
+    "base":"DeviceMinigameBase",
     "abstract": true,
     "priority": 0,
     "config":

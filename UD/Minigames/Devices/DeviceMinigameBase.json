@@ -2,12 +2,12 @@
     "name": "Minigame",
     "description": "Base",
     "uiobject":"",
-    "script":"UD\\Minigames\\Scripts\\MinigameBase.lua",
+    "script":"UD\\Minigames\\Devices\\Scripts\\DeviceMinigameBase.lua",
     "priority": 100,
     "abstract": true,
     "includes":
     [
-        "UD\\Minigames\\Scripts\\Global.lua"
+        "UD\\Minigames\\Devices\\Scripts\\Global.lua"
     ],
     "config":
     {
@@ -270,6 +270,18 @@
             "description": "If possible actions should be shown",
             "default": "true",
             "priority": "3",
+            "global": true,
+            "mcm":
+            {
+                "type": "bool"
+            }
+        },
+        "AutoMode":
+        {
+            "name": "Auto Mode",
+            "description": "If auto mode should be enabled",
+            "default": "false",
+            "priority": "94",
             "global": true,
             "mcm":
             {

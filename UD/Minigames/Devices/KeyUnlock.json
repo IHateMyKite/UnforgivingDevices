@@ -2,7 +2,7 @@
     "name": "Unlock with key",
     "description": "Try to unlock one of the locks on the device",
     "uiobject":"UD/Minigames/AccessLock/index.html",
-    "script":"UD\\Minigames\\Scripts\\KeyUnlock.lua",
+    "script":"UD\\Minigames\\Devices\\Scripts\\KeyUnlock.lua",
     "base":"AccessLock",
     "priority": 91,
     "config":

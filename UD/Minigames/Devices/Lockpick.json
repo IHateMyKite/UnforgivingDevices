@@ -2,7 +2,7 @@
     "name": "Lockpick",
     "description": "Try lockpick one of the locks on the device",
     "uiobject":"UD/Minigames/AccessLock/index.html",
-    "script":"UD\\Minigames\\Scripts\\Lockpick.lua",
+    "script":"UD\\Minigames\\Devices\\Scripts\\Lockpick.lua",
     "base":"AccessLock",
     "priority": 90,
     "config":

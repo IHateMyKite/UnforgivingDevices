@@ -14,20 +14,6 @@ Int       _Minigames_Id = 0
 String[]  _Minigames_List
 String[]  _Minigames
 
-Int       _AutoMode_T = 0
-Bool Property AutoMode Hidden
-    Bool Function Get()
-        String loc_save = GetSave(false)
-        Bool loc_val = GetJsonValue(loc_save,"Minigames.AutoMode","false") == "true"
-        return loc_val
-    EndFunction
-    Function Set(Bool argNewVal)
-        String loc_save = GetSave(false)
-        loc_save = SetJsonValue(loc_save,"Minigames.AutoMode",argNewVal as String)
-        SetSave(loc_save,false)
-    EndFunction
-EndProperty
-
 String[]  _Exports
 
 Int[]     _Exports_Ids
@@ -60,20 +46,18 @@ Function PageReset(Bool abLockMenu)
         loc_i += 1
     endwhile
     
-    _Minigames_List = PapyrusUtil.PushString(_Minigames_List,"Global")
-    _Minigames = PapyrusUtil.PushString(_Minigames,"{\"id\":\"-2\",\"name\":\"Global\"}")
+    string[] loc_tmp = Utility.CreateStringArray(1)
+    loc_tmp[0] = "Global"
+    _Minigames_List = PapyrusUtil.MergeStringArray(loc_tmp,_Minigames_List)
+    loc_tmp[0] = "{\"id\":\"-2\",\"name\":\"Global\"}"
+    _Minigames = PapyrusUtil.MergeStringArray(loc_tmp,_Minigames)
     
-    AddHeaderOption("Minigame setting")
-    addEmptyOption()
-    
-    _AutoMode_T = addToggleOption("Auto Mode",AutoMode,UD_LockMenu_flag)
-    addEmptyOption()
     
     AddHeaderOption("Minigame config")
-    AddTextOption("Number of minigames",_Minigames_List.length,FlagSwitch(false))
+    addEmptyOption()
     
     _Minigames_M = AddMenuOption("=== Minigame", _Minigames_List[_Minigames_Id])
-    addEmptyOption()
+    AddTextOption("Number of minigames",_Minigames_List.length,FlagSwitch(false))
     
     _MinigameConfigId = GetJsonValue(_Minigames[_Minigames_Id],"id","-1") as Int
     ;UDMain.Info("_MinigameConfigId = "+_MinigameConfigId)
@@ -126,11 +110,6 @@ Function PageOptionSelect(Int aiOption)
         endif
         loc_i += 1
     endwhile
-    if aiOption == _AutoMode_T
-        Bool loc_newval = !AutoMode
-        AutoMode = loc_newval
-        SetToggleOptionValue(aiOption, loc_newval)
-    endif
 EndFunction
 
 Function PageOptionSliderOpen(Int aiOption)

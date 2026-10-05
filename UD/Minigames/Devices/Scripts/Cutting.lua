@@ -122,12 +122,12 @@ function ClickSuccess(C)
     local loc_weaponmult = GetMinigameVar(C,"WeaponMult")
     local loc_skillmult  = GetMinigameVar(C,"SkillMult")
     local loc_dmg        = GetMinigameVar(C,"CutPower")*loc_mult*loc_weaponmult*loc_skillmult
-    CallPapyrusFunction(C,"thisdevice::_CuttingMG_SKPress","",{"float",loc_dmg})
+    CallPapyrusFunction(C,"MINM::CutDevice","",{"object",C['DeviceObj']},{"float",loc_dmg})
     
     -- Move zone
     SetMinigameVar(C,"ZonePos",math.random()*(1.0 - GetMinigameVar(C,"ZoneSize")))
     if GetMinigameVar(C,"UseShaders") then
-        CallPapyrusFunction(C,"thisdevice::_MG_CastGreenShader","")
+        PlayShader(C,"green")
     end
 end
 
@@ -138,7 +138,7 @@ function ClickFail(C)
         InvokeMinigameUI(C,"UpdateCombo({val:"..tostring(0).."})")
     end
     if GetMinigameVar(C,"UseShaders") then
-        CallPapyrusFunction(C,"thisdevice::_MG_CastRedShader","")
+        PlayShader(C,"red")
     end
 end
 

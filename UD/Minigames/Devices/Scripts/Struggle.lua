@@ -82,7 +82,7 @@ function DamageDurability(C,dmg)
     
     local loc_lastdur_r     = GetMinigameVar(C,"Durability")
     local loc_durscalingmult = 1.0 + ((1.0 - loc_lastdur_r)*10.0)*GetMinigameVar(C,"DurabilityScaling")
-    Log("loc_durscalingmult = "..tostring(loc_durscalingmult))
+    --Log("loc_durscalingmult = "..tostring(loc_durscalingmult))
     
     local loc_resistence    = 1.0 - GetMinigameVar(C,"Resistence")
     local loc_acc           = GetMinigameVar(C,"Accessibility")
@@ -122,7 +122,7 @@ function OnUIOpen(C)
     local loc_vars = _OnUIOpen(C)
     
     if GetMinigameVar(C,'AutoMode') then
-        loc_vars["mcurvis"] = false
+        --loc_vars["mcurvis"] = false
         loc_vars["combvis"] = false
     elseif not StrToBool(GetConfigVar(C,"ShowCombo","true")) then
         loc_vars["combvis"] = false
@@ -191,8 +191,8 @@ function ClickSuccess(C)
     local loc_speed = GetMinigameVar(C,"CursorSpeed")
     loc_speed = loc_speed*GetMinigameVar(C,"SpeedMult")
     SetMinigameVar(C,"CursorSpeed",loc_speed)
-    if GetMinigameVar(C,"UseShaders") then
-        CallPapyrusFunction(C,"thisdevice::_MG_CastGreenShader","")
+    if GetMinigameVar(C,"UseShaders") and not GetMinigameVar(C,'UseNoUI') then
+        PlayShader(C,"green")
     end
 end
 
@@ -201,8 +201,8 @@ function ClickFail(C)
     SetMinigameVar(C,"CursorSpeed",tonumber(GetConfigVar(C,"BaseSpeed","100.0")))
     SetMinigameVar(C,"Combo",0)
     InvokeMinigameUI(C,"UpdateCombo({val:"..tostring(0).."})")
-    if GetMinigameVar(C,"UseShaders") then
-        CallPapyrusFunction(C,"thisdevice::_MG_CastRedShader","")
+    if GetMinigameVar(C,"UseShaders") and not GetMinigameVar(C,'UseNoUI') then
+        PlayShader(C,"red")
     end
 end
 

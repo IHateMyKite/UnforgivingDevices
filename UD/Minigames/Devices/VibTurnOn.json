@@ -1,7 +1,7 @@
 {
     "name": "Turn on",
     "description": "Try to turn on the toy",
-    "script":"UD\\Minigames\\Scripts\\VibTurnOnOff.lua",
+    "script":"UD\\Minigames\\Devices\\Scripts\\VibTurnOnOff.lua",
     "base":"MinigameZoneSlide",
     "priority": 74,
     "config":

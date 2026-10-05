@@ -26,9 +26,6 @@ Function ReadyDeviceMinigame(ObjectReference akObj, Actor akHelper)
     Bool                    loc_is3DLoaded                      = loc_PlayerInMinigame || Wearer.Is3DLoaded()
     UD_CustomDevice_NPCSlot loc_WearerSlot                      = akDevice.UD_WearerSlot
 
-    ObjectReference loc_test = UD_Native.GetDeviceScript2(Wearer,akDevice.DeviceInventory,akDevice.DeviceRendered)
-    UDMain.Info("loc_test = "+loc_test)
-
     akDevice.GetWearer().AddToFaction(UDMain.UDCDmain.MinigameFaction)
     UDMain.UDCDMain.StartMinigameDisable(Wearer)
     if Helper
@@ -177,6 +174,11 @@ Function StopDeviceMinigame(ObjectReference akObj, Actor akHelper)
     akDevice.setHelper(none)
     
     akDevice._CheckUnlock()
+EndFunction
+
+Function CutDevice(ObjectReference akObj,Float afValue)
+    UD_CustomDevice_RenderScript akDevice = akObj as UD_CustomDevice_RenderScript
+    akDevice._cutDevice(afValue)
 EndFunction
 
 Function PlayRedShader(Actor akWearer, Actor akHelper)
